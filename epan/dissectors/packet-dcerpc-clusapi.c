@@ -126,6 +126,22 @@ static gint hf_clusapi_RPC_SECURITY_ATTRIBUTES_nLength = -1;
 static gint hf_clusapi_RPC_SECURITY_DESCRIPTOR_cbInSecurityDescriptor = -1;
 static gint hf_clusapi_RPC_SECURITY_DESCRIPTOR_cbOutSecurityDescriptor = -1;
 static gint hf_clusapi_RPC_SECURITY_DESCRIPTOR_lpSecurityDescriptor = -1;
+static gint hf_clusapi_clusapi_AddGroupSetDependency_DependentGroupSet = -1;
+static gint hf_clusapi_clusapi_AddGroupSetDependency_ProviderGroupSet = -1;
+static gint hf_clusapi_clusapi_AddGroupSetDependency_rpc_status = -1;
+static gint hf_clusapi_clusapi_AddGroupToGroupSetDependency_DependentGroup = -1;
+static gint hf_clusapi_clusapi_AddGroupToGroupSetDependency_ProviderGroupSet = -1;
+static gint hf_clusapi_clusapi_AddGroupToGroupSetDependency_rpc_status = -1;
+static gint hf_clusapi_clusapi_AddGroupToGroupSetEx_FaultDomain = -1;
+static gint hf_clusapi_clusapi_AddGroupToGroupSetEx_Group = -1;
+static gint hf_clusapi_clusapi_AddGroupToGroupSetEx_GroupSet = -1;
+static gint hf_clusapi_clusapi_AddGroupToGroupSetEx_Reserved = -1;
+static gint hf_clusapi_clusapi_AddGroupToGroupSetEx_UpdateDomain = -1;
+static gint hf_clusapi_clusapi_AddGroupToGroupSetEx_UseDomains = -1;
+static gint hf_clusapi_clusapi_AddGroupToGroupSetEx_rpc_status = -1;
+static gint hf_clusapi_clusapi_AddGroupToGroupSet_Group = -1;
+static gint hf_clusapi_clusapi_AddGroupToGroupSet_GroupSet = -1;
+static gint hf_clusapi_clusapi_AddGroupToGroupSet_rpc_status = -1;
 static gint hf_clusapi_clusapi_AddNotifyCluster_dwFilter = -1;
 static gint hf_clusapi_clusapi_AddNotifyCluster_dwNotifyKey = -1;
 static gint hf_clusapi_clusapi_AddNotifyCluster_hCluster = -1;
@@ -161,6 +177,12 @@ static gint hf_clusapi_clusapi_AddNotifyNode_dwStateSequence = -1;
 static gint hf_clusapi_clusapi_AddNotifyNode_hNode = -1;
 static gint hf_clusapi_clusapi_AddNotifyNode_hNotify = -1;
 static gint hf_clusapi_clusapi_AddNotifyNode_rpc_status = -1;
+static gint hf_clusapi_clusapi_AddNotifyResourceTypeV2_dwNotifyKey = -1;
+static gint hf_clusapi_clusapi_AddNotifyResourceTypeV2_dwVersion = -1;
+static gint hf_clusapi_clusapi_AddNotifyResourceTypeV2_filter = -1;
+static gint hf_clusapi_clusapi_AddNotifyResourceTypeV2_hNotify = -1;
+static gint hf_clusapi_clusapi_AddNotifyResourceTypeV2_resTypeName = -1;
+static gint hf_clusapi_clusapi_AddNotifyResourceTypeV2_rpc_status = -1;
 static gint hf_clusapi_clusapi_AddNotifyResource_dwFilter = -1;
 static gint hf_clusapi_clusapi_AddNotifyResource_dwNotifyKey = -1;
 static gint hf_clusapi_clusapi_AddNotifyResource_dwStateSequence = -1;
@@ -188,6 +210,10 @@ static gint hf_clusapi_clusapi_CanResourceBeDependent_rpc_status = -1;
 static gint hf_clusapi_clusapi_CancelClusterGroupOperation_dwCancelFlags = -1;
 static gint hf_clusapi_clusapi_CancelClusterGroupOperation_hGroup = -1;
 static gint hf_clusapi_clusapi_CancelClusterGroupOperation_rpc_status = -1;
+static gint hf_clusapi_clusapi_ChangeCsvStateEx_dwState = -1;
+static gint hf_clusapi_clusapi_ChangeCsvStateEx_hResource = -1;
+static gint hf_clusapi_clusapi_ChangeCsvStateEx_lpszVolumeName = -1;
+static gint hf_clusapi_clusapi_ChangeCsvStateEx_rpc_status = -1;
 static gint hf_clusapi_clusapi_ChangeCsvState_dwState = -1;
 static gint hf_clusapi_clusapi_ChangeCsvState_hResource = -1;
 static gint hf_clusapi_clusapi_ChangeCsvState_rpc_status = -1;
@@ -196,6 +222,7 @@ static gint hf_clusapi_clusapi_ChangeResourceGroup_hResource = -1;
 static gint hf_clusapi_clusapi_ChangeResourceGroup_rpc_status = -1;
 static gint hf_clusapi_clusapi_CloseBatchPort_phBatchPort = -1;
 static gint hf_clusapi_clusapi_CloseCluster_Cluster = -1;
+static gint hf_clusapi_clusapi_CloseGroupSet_GroupSet = -1;
 static gint hf_clusapi_clusapi_CloseGroup_Group = -1;
 static gint hf_clusapi_clusapi_CloseKey_pKey = -1;
 static gint hf_clusapi_clusapi_CloseNetInterface_NetInterface = -1;
@@ -250,6 +277,13 @@ static gint hf_clusapi_clusapi_CreateGroupResourceEnum_ReturnEnum = -1;
 static gint hf_clusapi_clusapi_CreateGroupResourceEnum_dwType = -1;
 static gint hf_clusapi_clusapi_CreateGroupResourceEnum_hGroup = -1;
 static gint hf_clusapi_clusapi_CreateGroupResourceEnum_rpc_status = -1;
+static gint hf_clusapi_clusapi_CreateGroupSetEnum_ReturnEnum = -1;
+static gint hf_clusapi_clusapi_CreateGroupSetEnum_hCluster = -1;
+static gint hf_clusapi_clusapi_CreateGroupSetEnum_rpc_status = -1;
+static gint hf_clusapi_clusapi_CreateGroupSet_Status = -1;
+static gint hf_clusapi_clusapi_CreateGroupSet_hGroupSet = -1;
+static gint hf_clusapi_clusapi_CreateGroupSet_lpszGroupSetName = -1;
+static gint hf_clusapi_clusapi_CreateGroupSet_rpc_status = -1;
 static gint hf_clusapi_clusapi_CreateGroup_Status = -1;
 static gint hf_clusapi_clusapi_CreateGroup_hGroup = -1;
 static gint hf_clusapi_clusapi_CreateGroup_lpszGroupName = -1;
@@ -263,6 +297,11 @@ static gint hf_clusapi_clusapi_CreateKey_lpdwDisposition = -1;
 static gint hf_clusapi_clusapi_CreateKey_phKey = -1;
 static gint hf_clusapi_clusapi_CreateKey_rpc_status = -1;
 static gint hf_clusapi_clusapi_CreateKey_samDesired = -1;
+static gint hf_clusapi_clusapi_CreateNetInterfaceEnum_ReturnEnum = -1;
+static gint hf_clusapi_clusapi_CreateNetInterfaceEnum_hCluster = -1;
+static gint hf_clusapi_clusapi_CreateNetInterfaceEnum_lpszNetworkName = -1;
+static gint hf_clusapi_clusapi_CreateNetInterfaceEnum_lpszNodeName = -1;
+static gint hf_clusapi_clusapi_CreateNetInterfaceEnum_rpc_status = -1;
 static gint hf_clusapi_clusapi_CreateNetworkEnum_ReturnEnum = -1;
 static gint hf_clusapi_clusapi_CreateNetworkEnum_dwType = -1;
 static gint hf_clusapi_clusapi_CreateNetworkEnum_hNetwork = -1;
@@ -311,6 +350,8 @@ static gint hf_clusapi_clusapi_CreateResource_hResource = -1;
 static gint hf_clusapi_clusapi_CreateResource_lpszResourceName = -1;
 static gint hf_clusapi_clusapi_CreateResource_lpszResourceType = -1;
 static gint hf_clusapi_clusapi_CreateResource_rpc_status = -1;
+static gint hf_clusapi_clusapi_DeleteGroupSet_GroupSet = -1;
+static gint hf_clusapi_clusapi_DeleteGroupSet_rpc_status = -1;
 static gint hf_clusapi_clusapi_DeleteGroup_Group = -1;
 static gint hf_clusapi_clusapi_DeleteGroup_force = -1;
 static gint hf_clusapi_clusapi_DeleteGroup_rpc_status = -1;
@@ -351,6 +392,13 @@ static gint hf_clusapi_clusapi_ExecuteBatch_hKey = -1;
 static gint hf_clusapi_clusapi_ExecuteBatch_lpData = -1;
 static gint hf_clusapi_clusapi_ExecuteBatch_pdwFailedCommand = -1;
 static gint hf_clusapi_clusapi_ExecuteBatch_rpc_status = -1;
+static gint hf_clusapi_clusapi_ExecuteReadBatchEx_cbInData = -1;
+static gint hf_clusapi_clusapi_ExecuteReadBatchEx_cbOutData = -1;
+static gint hf_clusapi_clusapi_ExecuteReadBatchEx_flags = -1;
+static gint hf_clusapi_clusapi_ExecuteReadBatchEx_hKey = -1;
+static gint hf_clusapi_clusapi_ExecuteReadBatchEx_lpInData = -1;
+static gint hf_clusapi_clusapi_ExecuteReadBatchEx_lpOutData = -1;
+static gint hf_clusapi_clusapi_ExecuteReadBatchEx_rpc_status = -1;
 static gint hf_clusapi_clusapi_ExecuteReadBatch_cbInData = -1;
 static gint hf_clusapi_clusapi_ExecuteReadBatch_cbOutData = -1;
 static gint hf_clusapi_clusapi_ExecuteReadBatch_hKey = -1;
@@ -455,11 +503,23 @@ static gint hf_clusapi_clusapi_GroupControl_lpcbRequired = -1;
 static gint hf_clusapi_clusapi_GroupControl_nInBufferSize = -1;
 static gint hf_clusapi_clusapi_GroupControl_nOutBufferSize = -1;
 static gint hf_clusapi_clusapi_GroupControl_rpc_status = -1;
+static gint hf_clusapi_clusapi_GroupSetControl_dwControlCode = -1;
+static gint hf_clusapi_clusapi_GroupSetControl_hGroupSet = -1;
+static gint hf_clusapi_clusapi_GroupSetControl_lpBytesReturned = -1;
+static gint hf_clusapi_clusapi_GroupSetControl_lpInBuffer = -1;
+static gint hf_clusapi_clusapi_GroupSetControl_lpOutBuffer = -1;
+static gint hf_clusapi_clusapi_GroupSetControl_lpcbRequired = -1;
+static gint hf_clusapi_clusapi_GroupSetControl_nInBufferSize = -1;
+static gint hf_clusapi_clusapi_GroupSetControl_nOutBufferSize = -1;
+static gint hf_clusapi_clusapi_GroupSetControl_rpc_status = -1;
 static gint hf_clusapi_clusapi_MoveGroupEx_cbInBufferSize = -1;
 static gint hf_clusapi_clusapi_MoveGroupEx_dwMoveFlags = -1;
 static gint hf_clusapi_clusapi_MoveGroupEx_hGroup = -1;
 static gint hf_clusapi_clusapi_MoveGroupEx_lpInBuffer = -1;
 static gint hf_clusapi_clusapi_MoveGroupEx_rpc_status = -1;
+static gint hf_clusapi_clusapi_MoveGroupToGroupSet_Group = -1;
+static gint hf_clusapi_clusapi_MoveGroupToGroupSet_GroupSet = -1;
+static gint hf_clusapi_clusapi_MoveGroupToGroupSet_rpc_status = -1;
 static gint hf_clusapi_clusapi_MoveGroupToNodeEx_cbInBufferSize = -1;
 static gint hf_clusapi_clusapi_MoveGroupToNodeEx_dwMoveFlags = -1;
 static gint hf_clusapi_clusapi_MoveGroupToNodeEx_hGroup = -1;
@@ -518,6 +578,16 @@ static gint hf_clusapi_clusapi_NodeGroupControl_lpcbRequired = -1;
 static gint hf_clusapi_clusapi_NodeGroupControl_nInBufferSize = -1;
 static gint hf_clusapi_clusapi_NodeGroupControl_nOutBufferSize = -1;
 static gint hf_clusapi_clusapi_NodeGroupControl_rpc_status = -1;
+static gint hf_clusapi_clusapi_NodeGroupSetControl_dwControlCode = -1;
+static gint hf_clusapi_clusapi_NodeGroupSetControl_hGroupSet = -1;
+static gint hf_clusapi_clusapi_NodeGroupSetControl_hNode = -1;
+static gint hf_clusapi_clusapi_NodeGroupSetControl_lpBytesReturned = -1;
+static gint hf_clusapi_clusapi_NodeGroupSetControl_lpInBuffer = -1;
+static gint hf_clusapi_clusapi_NodeGroupSetControl_lpOutBuffer = -1;
+static gint hf_clusapi_clusapi_NodeGroupSetControl_lpcbRequired = -1;
+static gint hf_clusapi_clusapi_NodeGroupSetControl_nInBufferSize = -1;
+static gint hf_clusapi_clusapi_NodeGroupSetControl_nOutBufferSize = -1;
+static gint hf_clusapi_clusapi_NodeGroupSetControl_rpc_status = -1;
 static gint hf_clusapi_clusapi_NodeNetInterfaceControl_dwControlCode = -1;
 static gint hf_clusapi_clusapi_NodeNetInterfaceControl_hNetInterface = -1;
 static gint hf_clusapi_clusapi_NodeNetInterfaceControl_hNode = -1;
@@ -609,6 +679,10 @@ static gint hf_clusapi_clusapi_OpenGroupEx_hGroup = -1;
 static gint hf_clusapi_clusapi_OpenGroupEx_lpdwGrantedAccess = -1;
 static gint hf_clusapi_clusapi_OpenGroupEx_lpszGroupName = -1;
 static gint hf_clusapi_clusapi_OpenGroupEx_rpc_status = -1;
+static gint hf_clusapi_clusapi_OpenGroupSet_Status = -1;
+static gint hf_clusapi_clusapi_OpenGroupSet_hGroupSet = -1;
+static gint hf_clusapi_clusapi_OpenGroupSet_lpszGroupSetName = -1;
+static gint hf_clusapi_clusapi_OpenGroupSet_rpc_status = -1;
 static gint hf_clusapi_clusapi_OpenGroup_Status = -1;
 static gint hf_clusapi_clusapi_OpenGroup_hGroup = -1;
 static gint hf_clusapi_clusapi_OpenGroup_lpszGroupName = -1;
@@ -719,6 +793,17 @@ static gint hf_clusapi_clusapi_ReAddNotifyResource_dwNotifyKey = -1;
 static gint hf_clusapi_clusapi_ReAddNotifyResource_hNotify = -1;
 static gint hf_clusapi_clusapi_ReAddNotifyResource_hResource = -1;
 static gint hf_clusapi_clusapi_ReAddNotifyResource_rpc_status = -1;
+static gint hf_clusapi_clusapi_RemoveClusterGroupDependency_hDependsOn = -1;
+static gint hf_clusapi_clusapi_RemoveClusterGroupDependency_hGroup = -1;
+static gint hf_clusapi_clusapi_RemoveClusterGroupDependency_rpc_status = -1;
+static gint hf_clusapi_clusapi_RemoveClusterGroupToGroupSetDependency_hDependsOn = -1;
+static gint hf_clusapi_clusapi_RemoveClusterGroupToGroupSetDependency_hGroup = -1;
+static gint hf_clusapi_clusapi_RemoveClusterGroupToGroupSetDependency_rpc_status = -1;
+static gint hf_clusapi_clusapi_RemoveGroupFromGroupSet_Group = -1;
+static gint hf_clusapi_clusapi_RemoveGroupFromGroupSet_rpc_status = -1;
+static gint hf_clusapi_clusapi_RemoveGroupSetDependency_hDependsOn = -1;
+static gint hf_clusapi_clusapi_RemoveGroupSetDependency_hGroupSet = -1;
+static gint hf_clusapi_clusapi_RemoveGroupSetDependency_rpc_status = -1;
 static gint hf_clusapi_clusapi_RemoveResourceDependency_hDependsOn = -1;
 static gint hf_clusapi_clusapi_RemoveResourceDependency_hResource = -1;
 static gint hf_clusapi_clusapi_RemoveResourceDependency_rpc_status = -1;
@@ -755,6 +840,9 @@ static gint hf_clusapi_clusapi_ResumeNode_hNode = -1;
 static gint hf_clusapi_clusapi_ResumeNode_rpc_status = -1;
 static gint hf_clusapi_clusapi_SetClusterName_NewClusterName = -1;
 static gint hf_clusapi_clusapi_SetClusterName_rpc_status = -1;
+static gint hf_clusapi_clusapi_SetGroupDependencyExpression_hGroup = -1;
+static gint hf_clusapi_clusapi_SetGroupDependencyExpression_lpszDependencyExpression = -1;
+static gint hf_clusapi_clusapi_SetGroupDependencyExpression_rpc_status = -1;
 static gint hf_clusapi_clusapi_SetGroupName_hGroup = -1;
 static gint hf_clusapi_clusapi_SetGroupName_lpszGroupName = -1;
 static gint hf_clusapi_clusapi_SetGroupName_rpc_status = -1;
@@ -762,6 +850,9 @@ static gint hf_clusapi_clusapi_SetGroupNodeList_cchListSize = -1;
 static gint hf_clusapi_clusapi_SetGroupNodeList_hGroup = -1;
 static gint hf_clusapi_clusapi_SetGroupNodeList_multiSzNodeList = -1;
 static gint hf_clusapi_clusapi_SetGroupNodeList_rpc_status = -1;
+static gint hf_clusapi_clusapi_SetGroupSetDependencyExpression_hGroupSet = -1;
+static gint hf_clusapi_clusapi_SetGroupSetDependencyExpression_lpszDependencyExpression = -1;
+static gint hf_clusapi_clusapi_SetGroupSetDependencyExpression_rpc_status = -1;
 static gint hf_clusapi_clusapi_SetKeySecurity_SecurityInformation = -1;
 static gint hf_clusapi_clusapi_SetKeySecurity_hKey = -1;
 static gint hf_clusapi_clusapi_SetKeySecurity_pRpcSecurityDescriptor = -1;
@@ -2610,6 +2701,154 @@ static int clusapi_dissect_element_GetNotifyAsync_Notifications__(tvbuff_t *tvb 
 static int clusapi_dissect_element_GetNotifyAsync_Notifications___(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int clusapi_dissect_element_GetNotifyAsync_dwNumNotifications(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int clusapi_dissect_element_GetNotifyAsync_dwNumNotifications_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_AddNotifyResourceTypeV2_hNotify(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_AddNotifyResourceTypeV2_filter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_AddNotifyResourceTypeV2_dwNotifyKey(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_AddNotifyResourceTypeV2_resTypeName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_AddNotifyResourceTypeV2_resTypeName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_AddNotifyResourceTypeV2_dwVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_AddNotifyResourceTypeV2_rpc_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_AddNotifyResourceTypeV2_rpc_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_ExecuteReadBatchEx_hKey(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_ExecuteReadBatchEx_cbInData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_ExecuteReadBatchEx_lpInData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_ExecuteReadBatchEx_lpInData_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_ExecuteReadBatchEx_lpInData__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_ExecuteReadBatchEx_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_ExecuteReadBatchEx_cbOutData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_ExecuteReadBatchEx_cbOutData_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_ExecuteReadBatchEx_lpOutData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_ExecuteReadBatchEx_lpOutData_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_ExecuteReadBatchEx_lpOutData__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_ExecuteReadBatchEx_lpOutData___(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_ExecuteReadBatchEx_rpc_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_ExecuteReadBatchEx_rpc_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_CreateGroupSet_lpszGroupSetName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_CreateGroupSet_lpszGroupSetName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_CreateGroupSet_Status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_CreateGroupSet_Status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_CreateGroupSet_rpc_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_CreateGroupSet_rpc_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_CreateGroupSet_hGroupSet(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_CreateGroupSet_hGroupSet_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_OpenGroupSet_lpszGroupSetName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_OpenGroupSet_lpszGroupSetName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_OpenGroupSet_Status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_OpenGroupSet_Status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_OpenGroupSet_rpc_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_OpenGroupSet_rpc_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_OpenGroupSet_hGroupSet(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_OpenGroupSet_hGroupSet_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_CloseGroupSet_GroupSet(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_CloseGroupSet_GroupSet_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_DeleteGroupSet_GroupSet(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_DeleteGroupSet_rpc_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_DeleteGroupSet_rpc_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_AddGroupToGroupSet_GroupSet(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_AddGroupToGroupSet_Group(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_AddGroupToGroupSet_rpc_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_AddGroupToGroupSet_rpc_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_RemoveGroupFromGroupSet_Group(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_RemoveGroupFromGroupSet_rpc_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_RemoveGroupFromGroupSet_rpc_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_MoveGroupToGroupSet_GroupSet(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_MoveGroupToGroupSet_Group(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_MoveGroupToGroupSet_rpc_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_MoveGroupToGroupSet_rpc_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_AddGroupSetDependency_DependentGroupSet(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_AddGroupSetDependency_ProviderGroupSet(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_AddGroupSetDependency_rpc_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_AddGroupSetDependency_rpc_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_AddGroupToGroupSetDependency_DependentGroup(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_AddGroupToGroupSetDependency_ProviderGroupSet(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_AddGroupToGroupSetDependency_rpc_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_AddGroupToGroupSetDependency_rpc_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_NodeGroupSetControl_hGroupSet(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_NodeGroupSetControl_hNode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_NodeGroupSetControl_dwControlCode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_NodeGroupSetControl_lpInBuffer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_NodeGroupSetControl_lpInBuffer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_NodeGroupSetControl_lpInBuffer__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_NodeGroupSetControl_nInBufferSize(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_NodeGroupSetControl_lpOutBuffer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_NodeGroupSetControl_lpOutBuffer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_NodeGroupSetControl_lpOutBuffer__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_NodeGroupSetControl_nOutBufferSize(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_NodeGroupSetControl_lpBytesReturned(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_NodeGroupSetControl_lpBytesReturned_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_NodeGroupSetControl_lpcbRequired(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_NodeGroupSetControl_lpcbRequired_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_NodeGroupSetControl_rpc_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_NodeGroupSetControl_rpc_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_GroupSetControl_hGroupSet(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_GroupSetControl_dwControlCode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_GroupSetControl_lpInBuffer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_GroupSetControl_lpInBuffer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_GroupSetControl_lpInBuffer__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_GroupSetControl_nInBufferSize(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_GroupSetControl_lpOutBuffer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_GroupSetControl_lpOutBuffer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_GroupSetControl_lpOutBuffer__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_GroupSetControl_nOutBufferSize(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_GroupSetControl_lpBytesReturned(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_GroupSetControl_lpBytesReturned_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_GroupSetControl_lpcbRequired(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_GroupSetControl_lpcbRequired_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_GroupSetControl_rpc_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_GroupSetControl_rpc_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_SetGroupDependencyExpression_hGroup(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_SetGroupDependencyExpression_lpszDependencyExpression(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_SetGroupDependencyExpression_lpszDependencyExpression_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_SetGroupDependencyExpression_rpc_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_SetGroupDependencyExpression_rpc_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_RemoveClusterGroupDependency_hGroup(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_RemoveClusterGroupDependency_hDependsOn(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_RemoveClusterGroupDependency_rpc_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_RemoveClusterGroupDependency_rpc_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_SetGroupSetDependencyExpression_hGroupSet(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_SetGroupSetDependencyExpression_lpszDependencyExpression(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_SetGroupSetDependencyExpression_lpszDependencyExpression_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_SetGroupSetDependencyExpression_rpc_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_SetGroupSetDependencyExpression_rpc_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_RemoveGroupSetDependency_hGroupSet(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_RemoveGroupSetDependency_hDependsOn(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_RemoveGroupSetDependency_rpc_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_RemoveGroupSetDependency_rpc_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_RemoveClusterGroupToGroupSetDependency_hGroup(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_RemoveClusterGroupToGroupSetDependency_hDependsOn(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_RemoveClusterGroupToGroupSetDependency_rpc_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_RemoveClusterGroupToGroupSetDependency_rpc_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_CreateGroupSetEnum_hCluster(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_CreateGroupSetEnum_ReturnEnum(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_CreateGroupSetEnum_ReturnEnum_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_CreateGroupSetEnum_ReturnEnum__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_CreateGroupSetEnum_rpc_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_CreateGroupSetEnum_rpc_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_CreateNetInterfaceEnum_hCluster(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_CreateNetInterfaceEnum_lpszNodeName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_CreateNetInterfaceEnum_lpszNodeName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_CreateNetInterfaceEnum_lpszNetworkName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_CreateNetInterfaceEnum_lpszNetworkName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_CreateNetInterfaceEnum_ReturnEnum(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_CreateNetInterfaceEnum_ReturnEnum_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_CreateNetInterfaceEnum_ReturnEnum__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_CreateNetInterfaceEnum_rpc_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_CreateNetInterfaceEnum_rpc_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_ChangeCsvStateEx_hResource(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_ChangeCsvStateEx_dwState(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_ChangeCsvStateEx_lpszVolumeName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_ChangeCsvStateEx_lpszVolumeName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_ChangeCsvStateEx_rpc_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_ChangeCsvStateEx_rpc_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_AddGroupToGroupSetEx_GroupSet(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_AddGroupToGroupSetEx_Group(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_AddGroupToGroupSetEx_FaultDomain(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_AddGroupToGroupSetEx_UpdateDomain(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_AddGroupToGroupSetEx_UseDomains(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_AddGroupToGroupSetEx_Reserved(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_AddGroupToGroupSetEx_Reserved_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_AddGroupToGroupSetEx_rpc_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int clusapi_dissect_element_AddGroupToGroupSetEx_rpc_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 
 
 /* IDL: struct { */
@@ -3862,62 +4101,62 @@ clusapi_dissect_struct_CLUS_RESOURCE_CLASS_INFO(tvbuff_t *tvb _U_, int offset _U
 
 
 /* IDL: enum { */
-/* IDL: 	CLUSCTL_RESOURCE_UNKNOWN=0x1000000, */
-/* IDL: 	CLUSCTL_RESOURCE_GET_CHARACTERISTICS=0x1000005, */
-/* IDL: 	CLUSCTL_RESOURCE_GET_FLAGS=0x1000009, */
-/* IDL: 	CLUSCTL_RESOURCE_GET_CLASS_INFO=0x100000D, */
-/* IDL: 	CLUSCTL_RESOURCE_GET_REQUIRED_DEPENDENCIES=0x1000011, */
-/* IDL: 	CLUSCTL_RESOURCE_GET_NAME=0x1000029, */
-/* IDL: 	CLUSCTL_RESOURCE_GET_RESOURCE_TYPE=0x100002D, */
-/* IDL: 	CLUSCTL_RESOURCE_GET_ID=0x1000039, */
-/* IDL: 	CLUSCTL_RESOURCE_ENUM_COMMON_PROPERTIES=0x1000051, */
-/* IDL: 	CLUSCTL_RESOURCE_GET_RO_COMMON_PROPERTIES=0x1000055, */
-/* IDL: 	CLUSCTL_RESOURCE_GET_COMMON_PROPERTIES=0x1000059, */
-/* IDL: 	CLUSCTL_RESOURCE_SET_COMMON_PROPERTIES=0x140005E, */
-/* IDL: 	CLUSCTL_RESOURCE_VALIDATE_COMMON_PROPERTIES=0x1000061, */
-/* IDL: 	CLUSCTL_RESOURCE_GET_COMMON_PROPERTY_FMTS=0x1000065, */
-/* IDL: 	CLUSCTL_RESOURCE_ENUM_PRIVATE_PROPERTIES=0x1000079, */
-/* IDL: 	CLUSCTL_RESOURCE_GET_RO_PRIVATE_PROPERTIES=0x100007D, */
-/* IDL: 	CLUSCTL_RESOURCE_GET_PRIVATE_PROPERTIES=0x1000081, */
-/* IDL: 	CLUSCTL_RESOURCE_SET_PRIVATE_PROPERTIES=0x1400086, */
-/* IDL: 	CLUSCTL_RESOURCE_VALIDATE_PRIVATE_PROPERTIES=0x1000089, */
-/* IDL: 	CLUSCTL_RESOURCE_GET_PRIVATE_PROPERTY_FMTS=0x100008D, */
-/* IDL: 	CLUSCTL_RESOURCE_ADD_REGISTRY_CHECKPOINT=0x14000A2, */
-/* IDL: 	CLUSCTL_RESOURCE_DELETE_REGISTRY_CHECKPOINT=0x14000A6, */
-/* IDL: 	CLUSCTL_RESOURCE_GET_REGISTRY_CHECKPOINTS=0x10000A9, */
-/* IDL: 	CLUSCTL_RESOURCE_ADD_CRYPTO_CHECKPOINT=0x14000AE, */
-/* IDL: 	CLUSCTL_RESOURCE_DELETE_CRYPTO_CHECKPOINT=0x14000B2, */
+/* IDL: 	CLUSCTL_RESOURCE_UNKNOWN=0x01000000, */
+/* IDL: 	CLUSCTL_RESOURCE_GET_CHARACTERISTICS=0x01000005, */
+/* IDL: 	CLUSCTL_RESOURCE_GET_FLAGS=0x01000009, */
+/* IDL: 	CLUSCTL_RESOURCE_GET_CLASS_INFO=0x0100000D, */
+/* IDL: 	CLUSCTL_RESOURCE_GET_REQUIRED_DEPENDENCIES=0x01000011, */
+/* IDL: 	CLUSCTL_RESOURCE_GET_NAME=0x01000029, */
+/* IDL: 	CLUSCTL_RESOURCE_GET_RESOURCE_TYPE=0x0100002D, */
+/* IDL: 	CLUSCTL_RESOURCE_GET_ID=0x01000039, */
+/* IDL: 	CLUSCTL_RESOURCE_ENUM_COMMON_PROPERTIES=0x01000051, */
+/* IDL: 	CLUSCTL_RESOURCE_GET_RO_COMMON_PROPERTIES=0x01000055, */
+/* IDL: 	CLUSCTL_RESOURCE_GET_COMMON_PROPERTIES=0x01000059, */
+/* IDL: 	CLUSCTL_RESOURCE_SET_COMMON_PROPERTIES=0x0140005E, */
+/* IDL: 	CLUSCTL_RESOURCE_VALIDATE_COMMON_PROPERTIES=0x01000061, */
+/* IDL: 	CLUSCTL_RESOURCE_GET_COMMON_PROPERTY_FMTS=0x01000065, */
+/* IDL: 	CLUSCTL_RESOURCE_ENUM_PRIVATE_PROPERTIES=0x01000079, */
+/* IDL: 	CLUSCTL_RESOURCE_GET_RO_PRIVATE_PROPERTIES=0x0100007D, */
+/* IDL: 	CLUSCTL_RESOURCE_GET_PRIVATE_PROPERTIES=0x01000081, */
+/* IDL: 	CLUSCTL_RESOURCE_SET_PRIVATE_PROPERTIES=0x01400086, */
+/* IDL: 	CLUSCTL_RESOURCE_VALIDATE_PRIVATE_PROPERTIES=0x01000089, */
+/* IDL: 	CLUSCTL_RESOURCE_GET_PRIVATE_PROPERTY_FMTS=0x0100008D, */
+/* IDL: 	CLUSCTL_RESOURCE_ADD_REGISTRY_CHECKPOINT=0x014000A2, */
+/* IDL: 	CLUSCTL_RESOURCE_DELETE_REGISTRY_CHECKPOINT=0x014000A6, */
+/* IDL: 	CLUSCTL_RESOURCE_GET_REGISTRY_CHECKPOINTS=0x010000A9, */
+/* IDL: 	CLUSCTL_RESOURCE_ADD_CRYPTO_CHECKPOINT=0x014000AE, */
+/* IDL: 	CLUSCTL_RESOURCE_DELETE_CRYPTO_CHECKPOINT=0x014000B2, */
 /* IDL: 	CLUSCTL_RESOURCE_GET_CRYPTO_CHECKPOINTS=0x010000B5, */
-/* IDL: 	CLUSCTL_RESOURCE_UPGRADE_DLL=0x14000BA, */
-/* IDL: 	CLUSCTL_RESOURCE_ADD_REGISTRY_CHECKPOINT_64BIT=0x14000BE, */
-/* IDL: 	CLUSCTL_RESOURCE_ADD_REGISTRY_CHECKPOINT_32BIT=0x14000C2, */
-/* IDL: 	CLUSCTL_RESOURCE_GET_NETWORK_NAME=0x1000169, */
-/* IDL: 	CLUSCTL_RESOURCE_NETNAME_REGISTER_DNS_RECORDS=0x1000172, */
-/* IDL: 	CLUSCTL_RESOURCE_GET_DNS_NAME=0x1000175, */
-/* IDL: 	CLUSCTL_RESOURCE_NETNAME_SET_PWD_INFO=0x100017A, */
-/* IDL: 	CLUSCTL_RESOURCE_NETNAME_DELETE_CO=0x100017E, */
-/* IDL: 	CLUSCTL_RESOURCE_NETNAME_VALIDATE_VCO=0x1000181, */
-/* IDL: 	CLUSCTL_RESOURCE_NETNAME_RESET_VCO=0x1000185, */
-/* IDL: 	CLUSCTL_RESOURCE_NETNAME_CREDS_UPDATED=0x1c0018a, */
-/* IDL: 	CLUSCTL_RESOURCE_STORAGE_GET_DISK_INFO=0x1000191, */
-/* IDL: 	CLUSCTL_RESOURCE_STORAGE_IS_PATH_VALID=0x1000199, */
-/* IDL: 	CLUSCTL_RESOURCE_IPADDRESS_RENEW_LEASE=0x14001BE, */
-/* IDL: 	CLUSCTL_RESOURCE_IPADDRESS_RELEASE_LEASE=0x14001C2, */
-/* IDL: 	CLUSCTL_RESOURCE_QUERY_MAINTENANCE_MODE=0x10001E1, */
-/* IDL: 	CLUSCTL_RESOURCE_SET_MAINTENANCE_MODE=0x14001E6, */
-/* IDL: 	CLUSCTL_RESOURCE_STORAGE_SET_DRIVELETTER=0x14001EA, */
-/* IDL: 	CLUSCTL_RESOURCE_STORAGE_GET_DISK_INFO_EX=0x10001F1, */
-/* IDL: 	CLUSCTL_RESOURCE_STORAGE_GET_DIRTY=0x1000219, */
-/* IDL: 	CLUSCTL_RESOURCE_STORAGE_GET_MOUNTPOINTS=0x1000211, */
-/* IDL: 	CLUSCTL_RESOURCE_STORAGE_GET_SHARED_VOLUME_INFO=0x1000225, */
-/* IDL: 	CLUSCTL_RESOURCE_VM_START_MIGRATION=0x1600004, */
-/* IDL: 	CLUSCTL_RESOURCE_VM_CANCEL_MIGRATION=0x1600008, */
-/* IDL: 	CLUSCTL_RESOURCE_SET_CSV_MAINTENANCE_MODE=0x1400296, */
-/* IDL: 	CLUSCTL_RESOURCE_ENABLE_SHARED_VOLUME_DIRECTIO=0x140028a, */
-/* IDL: 	CLUSCTL_RESOURCE_DISABLE_SHARED_VOLUME_DIRECTIO=0x140028e, */
-/* IDL: 	CLUSCTL_RESOURCE_SET_SHARED_VOLUME_BACKUP_MODE=0x140029a, */
-/* IDL: 	CLUSCTL_RESOURCE_GET_RELATED_RESOURCE_NAMES=0x1001fad, */
-/* IDL: 	CLUSCTL_RESOURCE_POOL_GET_DRIVE_INFO=0x10002b5, */
+/* IDL: 	CLUSCTL_RESOURCE_UPGRADE_DLL=0x014000BA, */
+/* IDL: 	CLUSCTL_RESOURCE_ADD_REGISTRY_CHECKPOINT_64BIT=0x014000BE, */
+/* IDL: 	CLUSCTL_RESOURCE_ADD_REGISTRY_CHECKPOINT_32BIT=0x014000C2, */
+/* IDL: 	CLUSCTL_RESOURCE_GET_NETWORK_NAME=0x01000169, */
+/* IDL: 	CLUSCTL_RESOURCE_NETNAME_REGISTER_DNS_RECORDS=0x01000172, */
+/* IDL: 	CLUSCTL_RESOURCE_GET_DNS_NAME=0x01000175, */
+/* IDL: 	CLUSCTL_RESOURCE_NETNAME_SET_PWD_INFO=0x0100017A, */
+/* IDL: 	CLUSCTL_RESOURCE_NETNAME_DELETE_CO=0x0100017E, */
+/* IDL: 	CLUSCTL_RESOURCE_NETNAME_VALIDATE_VCO=0x01000181, */
+/* IDL: 	CLUSCTL_RESOURCE_NETNAME_RESET_VCO=0x01000185, */
+/* IDL: 	CLUSCTL_RESOURCE_NETNAME_CREDS_UPDATED=0x01c0018a, */
+/* IDL: 	CLUSCTL_RESOURCE_STORAGE_GET_DISK_INFO=0x01000191, */
+/* IDL: 	CLUSCTL_RESOURCE_STORAGE_IS_PATH_VALID=0x01000199, */
+/* IDL: 	CLUSCTL_RESOURCE_IPADDRESS_RENEW_LEASE=0x014001BE, */
+/* IDL: 	CLUSCTL_RESOURCE_IPADDRESS_RELEASE_LEASE=0x014001C2, */
+/* IDL: 	CLUSCTL_RESOURCE_QUERY_MAINTENANCE_MODE=0x010001E1, */
+/* IDL: 	CLUSCTL_RESOURCE_SET_MAINTENANCE_MODE=0x014001E6, */
+/* IDL: 	CLUSCTL_RESOURCE_STORAGE_SET_DRIVELETTER=0x014001EA, */
+/* IDL: 	CLUSCTL_RESOURCE_STORAGE_GET_DISK_INFO_EX=0x010001F1, */
+/* IDL: 	CLUSCTL_RESOURCE_STORAGE_GET_DIRTY=0x01000219, */
+/* IDL: 	CLUSCTL_RESOURCE_STORAGE_GET_MOUNTPOINTS=0x01000211, */
+/* IDL: 	CLUSCTL_RESOURCE_STORAGE_GET_SHARED_VOLUME_INFO=0x01000225, */
+/* IDL: 	CLUSCTL_RESOURCE_VM_START_MIGRATION=0x01600004, */
+/* IDL: 	CLUSCTL_RESOURCE_VM_CANCEL_MIGRATION=0x01600008, */
+/* IDL: 	CLUSCTL_RESOURCE_SET_CSV_MAINTENANCE_MODE=0x01400296, */
+/* IDL: 	CLUSCTL_RESOURCE_ENABLE_SHARED_VOLUME_DIRECTIO=0x0140028a, */
+/* IDL: 	CLUSCTL_RESOURCE_DISABLE_SHARED_VOLUME_DIRECTIO=0x0140028e, */
+/* IDL: 	CLUSCTL_RESOURCE_SET_SHARED_VOLUME_BACKUP_MODE=0x0140029a, */
+/* IDL: 	CLUSCTL_RESOURCE_GET_RELATED_RESOURCE_NAMES=0x01001fad, */
+/* IDL: 	CLUSCTL_RESOURCE_POOL_GET_DRIVE_INFO=0x010002b5, */
 /* IDL: 	CLUSCTL_RESOURCE_CLOUD_WITNESS_UPDATE_TOKEN=0x014020e6, */
 /* IDL: 	CLUSCTL_RESOURCE_NETNAME_CHECK_OU_PERMISSIONS=0x07002121, */
 /* IDL: 	CLUSCTL_RESOURCE_NETNAME_CHECK_AD_STATE=0x07002125, */
@@ -20537,6 +20776,2389 @@ clusapi_dissect_GetNotifyAsync_request(tvbuff_t *tvb _U_, int offset _U_, packet
 	return offset;
 }
 
+/* IDL: WERROR Opnum148NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+clusapi_dissect_Opnum148NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="Opnum148NotUsedOnWire";
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_werror, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+
+	return offset;
+}
+
+static int
+clusapi_dissect_Opnum148NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum148NotUsedOnWire";
+	return offset;
+}
+
+/* IDL: WERROR Opnum149otUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+clusapi_dissect_Opnum149otUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="Opnum149otUsedOnWire";
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_werror, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+
+	return offset;
+}
+
+static int
+clusapi_dissect_Opnum149otUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum149otUsedOnWire";
+	return offset;
+}
+
+/* IDL: WERROR Opnum150NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+clusapi_dissect_Opnum150NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="Opnum150NotUsedOnWire";
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_werror, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+
+	return offset;
+}
+
+static int
+clusapi_dissect_Opnum150NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum150NotUsedOnWire";
+	return offset;
+}
+
+/* IDL: WERROR Opnum151NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+clusapi_dissect_Opnum151NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="Opnum151NotUsedOnWire";
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_werror, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+
+	return offset;
+}
+
+static int
+clusapi_dissect_Opnum151NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum151NotUsedOnWire";
+	return offset;
+}
+
+/* IDL: WERROR Opnum152NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+clusapi_dissect_Opnum152NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="Opnum152NotUsedOnWire";
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_werror, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+
+	return offset;
+}
+
+static int
+clusapi_dissect_Opnum152NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum152NotUsedOnWire";
+	return offset;
+}
+
+/* IDL: WERROR Opnum153NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+clusapi_dissect_Opnum153NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="Opnum153NotUsedOnWire";
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_werror, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+
+	return offset;
+}
+
+static int
+clusapi_dissect_Opnum153NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum153NotUsedOnWire";
+	return offset;
+}
+
+/* IDL: WERROR Opnum154NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+clusapi_dissect_Opnum154NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="Opnum154NotUsedOnWire";
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_werror, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+
+	return offset;
+}
+
+static int
+clusapi_dissect_Opnum154NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum154NotUsedOnWire";
+	return offset;
+}
+
+static int
+clusapi_dissect_element_AddNotifyResourceTypeV2_hNotify(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_AddNotifyResourceTypeV2_hNotify, 0);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_AddNotifyResourceTypeV2_filter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_uint64(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_AddNotifyResourceTypeV2_filter, NULL);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_AddNotifyResourceTypeV2_dwNotifyKey(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_AddNotifyResourceTypeV2_dwNotifyKey, 0);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_AddNotifyResourceTypeV2_resTypeName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, clusapi_dissect_element_AddNotifyResourceTypeV2_resTypeName_, NDR_POINTER_REF, "Pointer to ResTypeName (uint16)",hf_clusapi_clusapi_AddNotifyResourceTypeV2_resTypeName);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_AddNotifyResourceTypeV2_resTypeName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	char *data;
+
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_AddNotifyResourceTypeV2_resTypeName, FALSE, &data);
+	proto_item_append_text(tree, ": %s", data);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_AddNotifyResourceTypeV2_dwVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_AddNotifyResourceTypeV2_dwVersion, 0);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_AddNotifyResourceTypeV2_rpc_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, clusapi_dissect_element_AddNotifyResourceTypeV2_rpc_status_, NDR_POINTER_REF, "Pointer to Rpc Status (WERROR)",hf_clusapi_clusapi_AddNotifyResourceTypeV2_rpc_status);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_AddNotifyResourceTypeV2_rpc_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_AddNotifyResourceTypeV2_rpc_status, 0);
+
+	return offset;
+}
+
+/* IDL: WERROR clusapi_AddNotifyResourceTypeV2( */
+/* IDL: [in] policy_handle hNotify, */
+/* IDL: [in] hyper filter, */
+/* IDL: [in] uint32 dwNotifyKey, */
+/* IDL: [charset(UTF16)] [in] [ref] uint16 *resTypeName, */
+/* IDL: [in] uint32 dwVersion, */
+/* IDL: [out] [ref] WERROR *rpc_status */
+/* IDL: ); */
+
+static int
+clusapi_dissect_AddNotifyResourceTypeV2_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="AddNotifyResourceTypeV2";
+	offset = clusapi_dissect_element_AddNotifyResourceTypeV2_rpc_status(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_werror, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+
+	return offset;
+}
+
+static int
+clusapi_dissect_AddNotifyResourceTypeV2_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="AddNotifyResourceTypeV2";
+	offset = clusapi_dissect_element_AddNotifyResourceTypeV2_hNotify(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	offset = clusapi_dissect_element_AddNotifyResourceTypeV2_filter(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	offset = clusapi_dissect_element_AddNotifyResourceTypeV2_dwNotifyKey(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	offset = clusapi_dissect_element_AddNotifyResourceTypeV2_resTypeName(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	offset = clusapi_dissect_element_AddNotifyResourceTypeV2_dwVersion(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	return offset;
+}
+
+/* IDL: WERROR Opnum156NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+clusapi_dissect_Opnum156NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="Opnum156NotUsedOnWire";
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_werror, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+
+	return offset;
+}
+
+static int
+clusapi_dissect_Opnum156NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum156NotUsedOnWire";
+	return offset;
+}
+
+static int
+clusapi_dissect_element_ExecuteReadBatchEx_hKey(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_ExecuteReadBatchEx_hKey, 0);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_ExecuteReadBatchEx_cbInData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_ExecuteReadBatchEx_cbInData, 0);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_ExecuteReadBatchEx_lpInData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, clusapi_dissect_element_ExecuteReadBatchEx_lpInData_, NDR_POINTER_REF, "Pointer to LpInData (uint8)",hf_clusapi_clusapi_ExecuteReadBatchEx_lpInData);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_ExecuteReadBatchEx_lpInData_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, clusapi_dissect_element_ExecuteReadBatchEx_lpInData__);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_ExecuteReadBatchEx_lpInData__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_ExecuteReadBatchEx_lpInData, 0);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_ExecuteReadBatchEx_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_ExecuteReadBatchEx_flags, 0);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_ExecuteReadBatchEx_cbOutData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, clusapi_dissect_element_ExecuteReadBatchEx_cbOutData_, NDR_POINTER_REF, "Pointer to CbOutData (uint32)",hf_clusapi_clusapi_ExecuteReadBatchEx_cbOutData);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_ExecuteReadBatchEx_cbOutData_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_ExecuteReadBatchEx_cbOutData, 0);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_ExecuteReadBatchEx_lpOutData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, clusapi_dissect_element_ExecuteReadBatchEx_lpOutData_, NDR_POINTER_REF, "Pointer to LpOutData (uint8)",hf_clusapi_clusapi_ExecuteReadBatchEx_lpOutData);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_ExecuteReadBatchEx_lpOutData_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, clusapi_dissect_element_ExecuteReadBatchEx_lpOutData__, NDR_POINTER_UNIQUE, "Pointer to LpOutData (uint8)",hf_clusapi_clusapi_ExecuteReadBatchEx_lpOutData);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_ExecuteReadBatchEx_lpOutData__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, clusapi_dissect_element_ExecuteReadBatchEx_lpOutData___);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_ExecuteReadBatchEx_lpOutData___(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_ExecuteReadBatchEx_lpOutData, 0);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_ExecuteReadBatchEx_rpc_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, clusapi_dissect_element_ExecuteReadBatchEx_rpc_status_, NDR_POINTER_REF, "Pointer to Rpc Status (WERROR)",hf_clusapi_clusapi_ExecuteReadBatchEx_rpc_status);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_ExecuteReadBatchEx_rpc_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_ExecuteReadBatchEx_rpc_status, 0);
+
+	return offset;
+}
+
+/* IDL: WERROR clusapi_ExecuteReadBatchEx( */
+/* IDL: [in] policy_handle hKey, */
+/* IDL: [in] uint32 cbInData, */
+/* IDL: [in] [ref] [size_is(cbInData)] uint8 *lpInData, */
+/* IDL: [in] uint32 flags, */
+/* IDL: [out] [ref] uint32 *cbOutData, */
+/* IDL: [out] [ref] [size_is(,*cbOutData)] uint8 **lpOutData, */
+/* IDL: [out] [ref] WERROR *rpc_status */
+/* IDL: ); */
+
+static int
+clusapi_dissect_ExecuteReadBatchEx_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="ExecuteReadBatchEx";
+	offset = clusapi_dissect_element_ExecuteReadBatchEx_cbOutData(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+
+	offset = clusapi_dissect_element_ExecuteReadBatchEx_lpOutData(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+
+	offset = clusapi_dissect_element_ExecuteReadBatchEx_rpc_status(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_werror, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+
+	return offset;
+}
+
+static int
+clusapi_dissect_ExecuteReadBatchEx_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="ExecuteReadBatchEx";
+	offset = clusapi_dissect_element_ExecuteReadBatchEx_hKey(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	offset = clusapi_dissect_element_ExecuteReadBatchEx_cbInData(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	offset = clusapi_dissect_element_ExecuteReadBatchEx_lpInData(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	offset = clusapi_dissect_element_ExecuteReadBatchEx_flags(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	return offset;
+}
+
+/* IDL: WERROR Opnum158NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+clusapi_dissect_Opnum158NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="Opnum158NotUsedOnWire";
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_werror, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+
+	return offset;
+}
+
+static int
+clusapi_dissect_Opnum158NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum158NotUsedOnWire";
+	return offset;
+}
+
+/* IDL: WERROR Opnum159NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+clusapi_dissect_Opnum159NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="Opnum159NotUsedOnWire";
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_werror, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+
+	return offset;
+}
+
+static int
+clusapi_dissect_Opnum159NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum159NotUsedOnWire";
+	return offset;
+}
+
+/* IDL: WERROR Opnum160NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+clusapi_dissect_Opnum160NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="Opnum160NotUsedOnWire";
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_werror, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+
+	return offset;
+}
+
+static int
+clusapi_dissect_Opnum160NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum160NotUsedOnWire";
+	return offset;
+}
+
+/* IDL: WERROR Opnum161NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+clusapi_dissect_Opnum161NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="Opnum161NotUsedOnWire";
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_werror, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+
+	return offset;
+}
+
+static int
+clusapi_dissect_Opnum161NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum161NotUsedOnWire";
+	return offset;
+}
+
+/* IDL: WERROR Opnum162NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+clusapi_dissect_Opnum162NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="Opnum162NotUsedOnWire";
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_werror, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+
+	return offset;
+}
+
+static int
+clusapi_dissect_Opnum162NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum162NotUsedOnWire";
+	return offset;
+}
+
+static int
+clusapi_dissect_element_CreateGroupSet_lpszGroupSetName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, clusapi_dissect_element_CreateGroupSet_lpszGroupSetName_, NDR_POINTER_REF, "Pointer to LpszGroupSetName (uint16)",hf_clusapi_clusapi_CreateGroupSet_lpszGroupSetName);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_CreateGroupSet_lpszGroupSetName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	char *data;
+
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_CreateGroupSet_lpszGroupSetName, FALSE, &data);
+	proto_item_append_text(tree, ": %s", data);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_CreateGroupSet_Status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, clusapi_dissect_element_CreateGroupSet_Status_, NDR_POINTER_REF, "Pointer to Status (WERROR)",hf_clusapi_clusapi_CreateGroupSet_Status);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_CreateGroupSet_Status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_CreateGroupSet_Status, 0);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_CreateGroupSet_rpc_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, clusapi_dissect_element_CreateGroupSet_rpc_status_, NDR_POINTER_REF, "Pointer to Rpc Status (WERROR)",hf_clusapi_clusapi_CreateGroupSet_rpc_status);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_CreateGroupSet_rpc_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_CreateGroupSet_rpc_status, 0);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_CreateGroupSet_hGroupSet(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, clusapi_dissect_element_CreateGroupSet_hGroupSet_, NDR_POINTER_REF, "Pointer to HGroupSet (policy_handle)",hf_clusapi_clusapi_CreateGroupSet_hGroupSet);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_CreateGroupSet_hGroupSet_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_CreateGroupSet_hGroupSet, 0);
+
+	return offset;
+}
+
+/* IDL: void clusapi_CreateGroupSet( */
+/* IDL: [charset(UTF16)] [in] [ref] uint16 *lpszGroupSetName, */
+/* IDL: [out] [ref] WERROR *Status, */
+/* IDL: [out] [ref] WERROR *rpc_status, */
+/* IDL: [out] [ref] policy_handle *hGroupSet */
+/* IDL: ); */
+
+static int
+clusapi_dissect_CreateGroupSet_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="CreateGroupSet";
+	offset = clusapi_dissect_element_CreateGroupSet_Status(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+
+	offset = clusapi_dissect_element_CreateGroupSet_rpc_status(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+
+	offset = clusapi_dissect_element_CreateGroupSet_hGroupSet(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_CreateGroupSet_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="CreateGroupSet";
+	offset = clusapi_dissect_element_CreateGroupSet_lpszGroupSetName(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	return offset;
+}
+
+static int
+clusapi_dissect_element_OpenGroupSet_lpszGroupSetName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, clusapi_dissect_element_OpenGroupSet_lpszGroupSetName_, NDR_POINTER_REF, "Pointer to LpszGroupSetName (uint16)",hf_clusapi_clusapi_OpenGroupSet_lpszGroupSetName);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_OpenGroupSet_lpszGroupSetName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	char *data;
+
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_OpenGroupSet_lpszGroupSetName, FALSE, &data);
+	proto_item_append_text(tree, ": %s", data);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_OpenGroupSet_Status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, clusapi_dissect_element_OpenGroupSet_Status_, NDR_POINTER_REF, "Pointer to Status (WERROR)",hf_clusapi_clusapi_OpenGroupSet_Status);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_OpenGroupSet_Status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_OpenGroupSet_Status, 0);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_OpenGroupSet_rpc_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, clusapi_dissect_element_OpenGroupSet_rpc_status_, NDR_POINTER_REF, "Pointer to Rpc Status (WERROR)",hf_clusapi_clusapi_OpenGroupSet_rpc_status);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_OpenGroupSet_rpc_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_OpenGroupSet_rpc_status, 0);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_OpenGroupSet_hGroupSet(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, clusapi_dissect_element_OpenGroupSet_hGroupSet_, NDR_POINTER_REF, "Pointer to HGroupSet (policy_handle)",hf_clusapi_clusapi_OpenGroupSet_hGroupSet);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_OpenGroupSet_hGroupSet_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_OpenGroupSet_hGroupSet, 0);
+
+	return offset;
+}
+
+/* IDL: void clusapi_OpenGroupSet( */
+/* IDL: [charset(UTF16)] [in] [ref] uint16 *lpszGroupSetName, */
+/* IDL: [out] [ref] WERROR *Status, */
+/* IDL: [out] [ref] WERROR *rpc_status, */
+/* IDL: [out] [ref] policy_handle *hGroupSet */
+/* IDL: ); */
+
+static int
+clusapi_dissect_OpenGroupSet_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="OpenGroupSet";
+	offset = clusapi_dissect_element_OpenGroupSet_Status(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+
+	offset = clusapi_dissect_element_OpenGroupSet_rpc_status(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+
+	offset = clusapi_dissect_element_OpenGroupSet_hGroupSet(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_OpenGroupSet_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="OpenGroupSet";
+	offset = clusapi_dissect_element_OpenGroupSet_lpszGroupSetName(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	return offset;
+}
+
+static int
+clusapi_dissect_element_CloseGroupSet_GroupSet(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, clusapi_dissect_element_CloseGroupSet_GroupSet_, NDR_POINTER_REF, "Pointer to GroupSet (policy_handle)",hf_clusapi_clusapi_CloseGroupSet_GroupSet);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_CloseGroupSet_GroupSet_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_CloseGroupSet_GroupSet, 0);
+
+	return offset;
+}
+
+/* IDL: WERROR clusapi_CloseGroupSet( */
+/* IDL: [in] [out] [ref] policy_handle *GroupSet */
+/* IDL: ); */
+
+static int
+clusapi_dissect_CloseGroupSet_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="CloseGroupSet";
+	offset = clusapi_dissect_element_CloseGroupSet_GroupSet(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_werror, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+
+	return offset;
+}
+
+static int
+clusapi_dissect_CloseGroupSet_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="CloseGroupSet";
+	offset = clusapi_dissect_element_CloseGroupSet_GroupSet(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	return offset;
+}
+
+static int
+clusapi_dissect_element_DeleteGroupSet_GroupSet(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_DeleteGroupSet_GroupSet, 0);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_DeleteGroupSet_rpc_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, clusapi_dissect_element_DeleteGroupSet_rpc_status_, NDR_POINTER_REF, "Pointer to Rpc Status (WERROR)",hf_clusapi_clusapi_DeleteGroupSet_rpc_status);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_DeleteGroupSet_rpc_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_DeleteGroupSet_rpc_status, 0);
+
+	return offset;
+}
+
+/* IDL: WERROR clusapi_DeleteGroupSet( */
+/* IDL: [in] policy_handle GroupSet, */
+/* IDL: [out] [ref] WERROR *rpc_status */
+/* IDL: ); */
+
+static int
+clusapi_dissect_DeleteGroupSet_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="DeleteGroupSet";
+	offset = clusapi_dissect_element_DeleteGroupSet_rpc_status(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_werror, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+
+	return offset;
+}
+
+static int
+clusapi_dissect_DeleteGroupSet_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="DeleteGroupSet";
+	offset = clusapi_dissect_element_DeleteGroupSet_GroupSet(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	return offset;
+}
+
+static int
+clusapi_dissect_element_AddGroupToGroupSet_GroupSet(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_AddGroupToGroupSet_GroupSet, 0);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_AddGroupToGroupSet_Group(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_AddGroupToGroupSet_Group, 0);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_AddGroupToGroupSet_rpc_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, clusapi_dissect_element_AddGroupToGroupSet_rpc_status_, NDR_POINTER_REF, "Pointer to Rpc Status (WERROR)",hf_clusapi_clusapi_AddGroupToGroupSet_rpc_status);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_AddGroupToGroupSet_rpc_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_AddGroupToGroupSet_rpc_status, 0);
+
+	return offset;
+}
+
+/* IDL: WERROR clusapi_AddGroupToGroupSet( */
+/* IDL: [in] policy_handle GroupSet, */
+/* IDL: [in] policy_handle Group, */
+/* IDL: [out] [ref] WERROR *rpc_status */
+/* IDL: ); */
+
+static int
+clusapi_dissect_AddGroupToGroupSet_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="AddGroupToGroupSet";
+	offset = clusapi_dissect_element_AddGroupToGroupSet_rpc_status(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_werror, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+
+	return offset;
+}
+
+static int
+clusapi_dissect_AddGroupToGroupSet_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="AddGroupToGroupSet";
+	offset = clusapi_dissect_element_AddGroupToGroupSet_GroupSet(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	offset = clusapi_dissect_element_AddGroupToGroupSet_Group(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	return offset;
+}
+
+static int
+clusapi_dissect_element_RemoveGroupFromGroupSet_Group(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_RemoveGroupFromGroupSet_Group, 0);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_RemoveGroupFromGroupSet_rpc_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, clusapi_dissect_element_RemoveGroupFromGroupSet_rpc_status_, NDR_POINTER_REF, "Pointer to Rpc Status (WERROR)",hf_clusapi_clusapi_RemoveGroupFromGroupSet_rpc_status);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_RemoveGroupFromGroupSet_rpc_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_RemoveGroupFromGroupSet_rpc_status, 0);
+
+	return offset;
+}
+
+/* IDL: WERROR clusapi_RemoveGroupFromGroupSet( */
+/* IDL: [in] policy_handle Group, */
+/* IDL: [out] [ref] WERROR *rpc_status */
+/* IDL: ); */
+
+static int
+clusapi_dissect_RemoveGroupFromGroupSet_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="RemoveGroupFromGroupSet";
+	offset = clusapi_dissect_element_RemoveGroupFromGroupSet_rpc_status(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_werror, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+
+	return offset;
+}
+
+static int
+clusapi_dissect_RemoveGroupFromGroupSet_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="RemoveGroupFromGroupSet";
+	offset = clusapi_dissect_element_RemoveGroupFromGroupSet_Group(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	return offset;
+}
+
+static int
+clusapi_dissect_element_MoveGroupToGroupSet_GroupSet(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_MoveGroupToGroupSet_GroupSet, 0);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_MoveGroupToGroupSet_Group(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_MoveGroupToGroupSet_Group, 0);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_MoveGroupToGroupSet_rpc_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, clusapi_dissect_element_MoveGroupToGroupSet_rpc_status_, NDR_POINTER_REF, "Pointer to Rpc Status (WERROR)",hf_clusapi_clusapi_MoveGroupToGroupSet_rpc_status);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_MoveGroupToGroupSet_rpc_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_MoveGroupToGroupSet_rpc_status, 0);
+
+	return offset;
+}
+
+/* IDL: WERROR clusapi_MoveGroupToGroupSet( */
+/* IDL: [in] policy_handle GroupSet, */
+/* IDL: [in] policy_handle Group, */
+/* IDL: [out] [ref] WERROR *rpc_status */
+/* IDL: ); */
+
+static int
+clusapi_dissect_MoveGroupToGroupSet_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="MoveGroupToGroupSet";
+	offset = clusapi_dissect_element_MoveGroupToGroupSet_rpc_status(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_werror, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+
+	return offset;
+}
+
+static int
+clusapi_dissect_MoveGroupToGroupSet_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="MoveGroupToGroupSet";
+	offset = clusapi_dissect_element_MoveGroupToGroupSet_GroupSet(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	offset = clusapi_dissect_element_MoveGroupToGroupSet_Group(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	return offset;
+}
+
+/* IDL: WERROR Opnum170NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+clusapi_dissect_Opnum170NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="Opnum170NotUsedOnWire";
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_werror, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+
+	return offset;
+}
+
+static int
+clusapi_dissect_Opnum170NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum170NotUsedOnWire";
+	return offset;
+}
+
+static int
+clusapi_dissect_element_AddGroupSetDependency_DependentGroupSet(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_AddGroupSetDependency_DependentGroupSet, 0);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_AddGroupSetDependency_ProviderGroupSet(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_AddGroupSetDependency_ProviderGroupSet, 0);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_AddGroupSetDependency_rpc_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, clusapi_dissect_element_AddGroupSetDependency_rpc_status_, NDR_POINTER_REF, "Pointer to Rpc Status (WERROR)",hf_clusapi_clusapi_AddGroupSetDependency_rpc_status);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_AddGroupSetDependency_rpc_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_AddGroupSetDependency_rpc_status, 0);
+
+	return offset;
+}
+
+/* IDL: WERROR clusapi_AddGroupSetDependency( */
+/* IDL: [in] policy_handle DependentGroupSet, */
+/* IDL: [in] policy_handle ProviderGroupSet, */
+/* IDL: [out] [ref] WERROR *rpc_status */
+/* IDL: ); */
+
+static int
+clusapi_dissect_AddGroupSetDependency_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="AddGroupSetDependency";
+	offset = clusapi_dissect_element_AddGroupSetDependency_rpc_status(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_werror, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+
+	return offset;
+}
+
+static int
+clusapi_dissect_AddGroupSetDependency_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="AddGroupSetDependency";
+	offset = clusapi_dissect_element_AddGroupSetDependency_DependentGroupSet(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	offset = clusapi_dissect_element_AddGroupSetDependency_ProviderGroupSet(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	return offset;
+}
+
+static int
+clusapi_dissect_element_AddGroupToGroupSetDependency_DependentGroup(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_AddGroupToGroupSetDependency_DependentGroup, 0);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_AddGroupToGroupSetDependency_ProviderGroupSet(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_AddGroupToGroupSetDependency_ProviderGroupSet, 0);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_AddGroupToGroupSetDependency_rpc_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, clusapi_dissect_element_AddGroupToGroupSetDependency_rpc_status_, NDR_POINTER_REF, "Pointer to Rpc Status (WERROR)",hf_clusapi_clusapi_AddGroupToGroupSetDependency_rpc_status);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_AddGroupToGroupSetDependency_rpc_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_AddGroupToGroupSetDependency_rpc_status, 0);
+
+	return offset;
+}
+
+/* IDL: WERROR clusapi_AddGroupToGroupSetDependency( */
+/* IDL: [in] policy_handle DependentGroup, */
+/* IDL: [in] policy_handle ProviderGroupSet, */
+/* IDL: [out] [ref] WERROR *rpc_status */
+/* IDL: ); */
+
+static int
+clusapi_dissect_AddGroupToGroupSetDependency_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="AddGroupToGroupSetDependency";
+	offset = clusapi_dissect_element_AddGroupToGroupSetDependency_rpc_status(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_werror, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+
+	return offset;
+}
+
+static int
+clusapi_dissect_AddGroupToGroupSetDependency_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="AddGroupToGroupSetDependency";
+	offset = clusapi_dissect_element_AddGroupToGroupSetDependency_DependentGroup(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	offset = clusapi_dissect_element_AddGroupToGroupSetDependency_ProviderGroupSet(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	return offset;
+}
+
+static int
+clusapi_dissect_element_NodeGroupSetControl_hGroupSet(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_NodeGroupSetControl_hGroupSet, 0);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_NodeGroupSetControl_hNode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_NodeGroupSetControl_hNode, 0);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_NodeGroupSetControl_dwControlCode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_NodeGroupSetControl_dwControlCode, 0);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_NodeGroupSetControl_lpInBuffer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, clusapi_dissect_element_NodeGroupSetControl_lpInBuffer_, NDR_POINTER_UNIQUE, "Pointer to LpInBuffer (uint8)",hf_clusapi_clusapi_NodeGroupSetControl_lpInBuffer);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_NodeGroupSetControl_lpInBuffer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, clusapi_dissect_element_NodeGroupSetControl_lpInBuffer__);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_NodeGroupSetControl_lpInBuffer__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_NodeGroupSetControl_lpInBuffer, 0);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_NodeGroupSetControl_nInBufferSize(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_NodeGroupSetControl_nInBufferSize, 0);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_NodeGroupSetControl_lpOutBuffer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, clusapi_dissect_element_NodeGroupSetControl_lpOutBuffer_, NDR_POINTER_REF, "Pointer to LpOutBuffer (uint8)",hf_clusapi_clusapi_NodeGroupSetControl_lpOutBuffer);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_NodeGroupSetControl_lpOutBuffer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_ucvarray(tvb, offset, pinfo, tree, di, drep, clusapi_dissect_element_NodeGroupSetControl_lpOutBuffer__);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_NodeGroupSetControl_lpOutBuffer__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_NodeGroupSetControl_lpOutBuffer, 0);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_NodeGroupSetControl_nOutBufferSize(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_NodeGroupSetControl_nOutBufferSize, 0);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_NodeGroupSetControl_lpBytesReturned(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, clusapi_dissect_element_NodeGroupSetControl_lpBytesReturned_, NDR_POINTER_REF, "Pointer to LpBytesReturned (uint32)",hf_clusapi_clusapi_NodeGroupSetControl_lpBytesReturned);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_NodeGroupSetControl_lpBytesReturned_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_NodeGroupSetControl_lpBytesReturned, 0);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_NodeGroupSetControl_lpcbRequired(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, clusapi_dissect_element_NodeGroupSetControl_lpcbRequired_, NDR_POINTER_REF, "Pointer to LpcbRequired (uint32)",hf_clusapi_clusapi_NodeGroupSetControl_lpcbRequired);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_NodeGroupSetControl_lpcbRequired_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_NodeGroupSetControl_lpcbRequired, 0);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_NodeGroupSetControl_rpc_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, clusapi_dissect_element_NodeGroupSetControl_rpc_status_, NDR_POINTER_REF, "Pointer to Rpc Status (WERROR)",hf_clusapi_clusapi_NodeGroupSetControl_rpc_status);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_NodeGroupSetControl_rpc_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_NodeGroupSetControl_rpc_status, 0);
+
+	return offset;
+}
+
+/* IDL: WERROR clusapi_NodeGroupSetControl( */
+/* IDL: [in] policy_handle hGroupSet, */
+/* IDL: [in] policy_handle hNode, */
+/* IDL: [in] uint32 dwControlCode, */
+/* IDL: [in] [size_is(nInBufferSize)] [unique(1)] uint8 *lpInBuffer, */
+/* IDL: [in] uint32 nInBufferSize, */
+/* IDL: [length_is(*lpBytesReturned)] [out] [ref] [size_is(nOutBufferSize)] uint8 *lpOutBuffer, */
+/* IDL: [in] [range(0,0x7FFFFFFF)] uint32 nOutBufferSize, */
+/* IDL: [out] [ref] uint32 *lpBytesReturned, */
+/* IDL: [out] [ref] uint32 *lpcbRequired, */
+/* IDL: [out] [ref] WERROR *rpc_status */
+/* IDL: ); */
+
+static int
+clusapi_dissect_NodeGroupSetControl_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="NodeGroupSetControl";
+	offset = clusapi_dissect_element_NodeGroupSetControl_lpOutBuffer(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+
+	offset = clusapi_dissect_element_NodeGroupSetControl_lpBytesReturned(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+
+	offset = clusapi_dissect_element_NodeGroupSetControl_lpcbRequired(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+
+	offset = clusapi_dissect_element_NodeGroupSetControl_rpc_status(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_werror, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+
+	return offset;
+}
+
+static int
+clusapi_dissect_NodeGroupSetControl_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="NodeGroupSetControl";
+	offset = clusapi_dissect_element_NodeGroupSetControl_hGroupSet(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	offset = clusapi_dissect_element_NodeGroupSetControl_hNode(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	offset = clusapi_dissect_element_NodeGroupSetControl_dwControlCode(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	offset = clusapi_dissect_element_NodeGroupSetControl_lpInBuffer(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	offset = clusapi_dissect_element_NodeGroupSetControl_nInBufferSize(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	offset = clusapi_dissect_element_NodeGroupSetControl_nOutBufferSize(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	return offset;
+}
+
+static int
+clusapi_dissect_element_GroupSetControl_hGroupSet(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_GroupSetControl_hGroupSet, 0);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_GroupSetControl_dwControlCode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_GroupSetControl_dwControlCode, 0);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_GroupSetControl_lpInBuffer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, clusapi_dissect_element_GroupSetControl_lpInBuffer_, NDR_POINTER_UNIQUE, "Pointer to LpInBuffer (uint8)",hf_clusapi_clusapi_GroupSetControl_lpInBuffer);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_GroupSetControl_lpInBuffer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, clusapi_dissect_element_GroupSetControl_lpInBuffer__);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_GroupSetControl_lpInBuffer__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_GroupSetControl_lpInBuffer, 0);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_GroupSetControl_nInBufferSize(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_GroupSetControl_nInBufferSize, 0);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_GroupSetControl_lpOutBuffer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, clusapi_dissect_element_GroupSetControl_lpOutBuffer_, NDR_POINTER_REF, "Pointer to LpOutBuffer (uint8)",hf_clusapi_clusapi_GroupSetControl_lpOutBuffer);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_GroupSetControl_lpOutBuffer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_ucvarray(tvb, offset, pinfo, tree, di, drep, clusapi_dissect_element_GroupSetControl_lpOutBuffer__);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_GroupSetControl_lpOutBuffer__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_GroupSetControl_lpOutBuffer, 0);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_GroupSetControl_nOutBufferSize(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_GroupSetControl_nOutBufferSize, 0);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_GroupSetControl_lpBytesReturned(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, clusapi_dissect_element_GroupSetControl_lpBytesReturned_, NDR_POINTER_REF, "Pointer to LpBytesReturned (uint32)",hf_clusapi_clusapi_GroupSetControl_lpBytesReturned);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_GroupSetControl_lpBytesReturned_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_GroupSetControl_lpBytesReturned, 0);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_GroupSetControl_lpcbRequired(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, clusapi_dissect_element_GroupSetControl_lpcbRequired_, NDR_POINTER_REF, "Pointer to LpcbRequired (uint32)",hf_clusapi_clusapi_GroupSetControl_lpcbRequired);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_GroupSetControl_lpcbRequired_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_GroupSetControl_lpcbRequired, 0);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_GroupSetControl_rpc_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, clusapi_dissect_element_GroupSetControl_rpc_status_, NDR_POINTER_REF, "Pointer to Rpc Status (WERROR)",hf_clusapi_clusapi_GroupSetControl_rpc_status);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_GroupSetControl_rpc_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_GroupSetControl_rpc_status, 0);
+
+	return offset;
+}
+
+/* IDL: WERROR clusapi_GroupSetControl( */
+/* IDL: [in] policy_handle hGroupSet, */
+/* IDL: [in] uint32 dwControlCode, */
+/* IDL: [in] [size_is(nInBufferSize)] [unique(1)] uint8 *lpInBuffer, */
+/* IDL: [in] uint32 nInBufferSize, */
+/* IDL: [length_is(*lpBytesReturned)] [out] [ref] [size_is(nOutBufferSize)] uint8 *lpOutBuffer, */
+/* IDL: [in] [range(0,0x7FFFFFFF)] uint32 nOutBufferSize, */
+/* IDL: [out] [ref] uint32 *lpBytesReturned, */
+/* IDL: [out] [ref] uint32 *lpcbRequired, */
+/* IDL: [out] [ref] WERROR *rpc_status */
+/* IDL: ); */
+
+static int
+clusapi_dissect_GroupSetControl_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="GroupSetControl";
+	offset = clusapi_dissect_element_GroupSetControl_lpOutBuffer(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+
+	offset = clusapi_dissect_element_GroupSetControl_lpBytesReturned(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+
+	offset = clusapi_dissect_element_GroupSetControl_lpcbRequired(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+
+	offset = clusapi_dissect_element_GroupSetControl_rpc_status(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_werror, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+
+	return offset;
+}
+
+static int
+clusapi_dissect_GroupSetControl_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="GroupSetControl";
+	offset = clusapi_dissect_element_GroupSetControl_hGroupSet(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	offset = clusapi_dissect_element_GroupSetControl_dwControlCode(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	offset = clusapi_dissect_element_GroupSetControl_lpInBuffer(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	offset = clusapi_dissect_element_GroupSetControl_nInBufferSize(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	offset = clusapi_dissect_element_GroupSetControl_nOutBufferSize(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	return offset;
+}
+
+static int
+clusapi_dissect_element_SetGroupDependencyExpression_hGroup(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_SetGroupDependencyExpression_hGroup, 0);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_SetGroupDependencyExpression_lpszDependencyExpression(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, clusapi_dissect_element_SetGroupDependencyExpression_lpszDependencyExpression_, NDR_POINTER_REF, "Pointer to LpszDependencyExpression (uint16)",hf_clusapi_clusapi_SetGroupDependencyExpression_lpszDependencyExpression);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_SetGroupDependencyExpression_lpszDependencyExpression_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	char *data;
+
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_SetGroupDependencyExpression_lpszDependencyExpression, FALSE, &data);
+	proto_item_append_text(tree, ": %s", data);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_SetGroupDependencyExpression_rpc_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, clusapi_dissect_element_SetGroupDependencyExpression_rpc_status_, NDR_POINTER_REF, "Pointer to Rpc Status (WERROR)",hf_clusapi_clusapi_SetGroupDependencyExpression_rpc_status);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_SetGroupDependencyExpression_rpc_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_SetGroupDependencyExpression_rpc_status, 0);
+
+	return offset;
+}
+
+/* IDL: WERROR clusapi_SetGroupDependencyExpression( */
+/* IDL: [in] policy_handle hGroup, */
+/* IDL: [charset(UTF16)] [in] [ref] uint16 *lpszDependencyExpression, */
+/* IDL: [out] [ref] WERROR *rpc_status */
+/* IDL: ); */
+
+static int
+clusapi_dissect_SetGroupDependencyExpression_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="SetGroupDependencyExpression";
+	offset = clusapi_dissect_element_SetGroupDependencyExpression_rpc_status(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_werror, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+
+	return offset;
+}
+
+static int
+clusapi_dissect_SetGroupDependencyExpression_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="SetGroupDependencyExpression";
+	offset = clusapi_dissect_element_SetGroupDependencyExpression_hGroup(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	offset = clusapi_dissect_element_SetGroupDependencyExpression_lpszDependencyExpression(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	return offset;
+}
+
+static int
+clusapi_dissect_element_RemoveClusterGroupDependency_hGroup(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_RemoveClusterGroupDependency_hGroup, 0);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_RemoveClusterGroupDependency_hDependsOn(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_RemoveClusterGroupDependency_hDependsOn, 0);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_RemoveClusterGroupDependency_rpc_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, clusapi_dissect_element_RemoveClusterGroupDependency_rpc_status_, NDR_POINTER_REF, "Pointer to Rpc Status (WERROR)",hf_clusapi_clusapi_RemoveClusterGroupDependency_rpc_status);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_RemoveClusterGroupDependency_rpc_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_RemoveClusterGroupDependency_rpc_status, 0);
+
+	return offset;
+}
+
+/* IDL: WERROR clusapi_RemoveClusterGroupDependency( */
+/* IDL: [in] policy_handle hGroup, */
+/* IDL: [in] policy_handle hDependsOn, */
+/* IDL: [out] [ref] WERROR *rpc_status */
+/* IDL: ); */
+
+static int
+clusapi_dissect_RemoveClusterGroupDependency_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="RemoveClusterGroupDependency";
+	offset = clusapi_dissect_element_RemoveClusterGroupDependency_rpc_status(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_werror, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+
+	return offset;
+}
+
+static int
+clusapi_dissect_RemoveClusterGroupDependency_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="RemoveClusterGroupDependency";
+	offset = clusapi_dissect_element_RemoveClusterGroupDependency_hGroup(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	offset = clusapi_dissect_element_RemoveClusterGroupDependency_hDependsOn(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	return offset;
+}
+
+static int
+clusapi_dissect_element_SetGroupSetDependencyExpression_hGroupSet(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_SetGroupSetDependencyExpression_hGroupSet, 0);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_SetGroupSetDependencyExpression_lpszDependencyExpression(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, clusapi_dissect_element_SetGroupSetDependencyExpression_lpszDependencyExpression_, NDR_POINTER_REF, "Pointer to LpszDependencyExpression (uint16)",hf_clusapi_clusapi_SetGroupSetDependencyExpression_lpszDependencyExpression);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_SetGroupSetDependencyExpression_lpszDependencyExpression_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	char *data;
+
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_SetGroupSetDependencyExpression_lpszDependencyExpression, FALSE, &data);
+	proto_item_append_text(tree, ": %s", data);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_SetGroupSetDependencyExpression_rpc_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, clusapi_dissect_element_SetGroupSetDependencyExpression_rpc_status_, NDR_POINTER_REF, "Pointer to Rpc Status (WERROR)",hf_clusapi_clusapi_SetGroupSetDependencyExpression_rpc_status);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_SetGroupSetDependencyExpression_rpc_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_SetGroupSetDependencyExpression_rpc_status, 0);
+
+	return offset;
+}
+
+/* IDL: WERROR clusapi_SetGroupSetDependencyExpression( */
+/* IDL: [in] policy_handle hGroupSet, */
+/* IDL: [charset(UTF16)] [in] [ref] uint16 *lpszDependencyExpression, */
+/* IDL: [out] [ref] WERROR *rpc_status */
+/* IDL: ); */
+
+static int
+clusapi_dissect_SetGroupSetDependencyExpression_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="SetGroupSetDependencyExpression";
+	offset = clusapi_dissect_element_SetGroupSetDependencyExpression_rpc_status(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_werror, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+
+	return offset;
+}
+
+static int
+clusapi_dissect_SetGroupSetDependencyExpression_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="SetGroupSetDependencyExpression";
+	offset = clusapi_dissect_element_SetGroupSetDependencyExpression_hGroupSet(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	offset = clusapi_dissect_element_SetGroupSetDependencyExpression_lpszDependencyExpression(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	return offset;
+}
+
+static int
+clusapi_dissect_element_RemoveGroupSetDependency_hGroupSet(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_RemoveGroupSetDependency_hGroupSet, 0);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_RemoveGroupSetDependency_hDependsOn(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_RemoveGroupSetDependency_hDependsOn, 0);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_RemoveGroupSetDependency_rpc_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, clusapi_dissect_element_RemoveGroupSetDependency_rpc_status_, NDR_POINTER_REF, "Pointer to Rpc Status (WERROR)",hf_clusapi_clusapi_RemoveGroupSetDependency_rpc_status);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_RemoveGroupSetDependency_rpc_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_RemoveGroupSetDependency_rpc_status, 0);
+
+	return offset;
+}
+
+/* IDL: WERROR clusapi_RemoveGroupSetDependency( */
+/* IDL: [in] policy_handle hGroupSet, */
+/* IDL: [in] policy_handle hDependsOn, */
+/* IDL: [out] [ref] WERROR *rpc_status */
+/* IDL: ); */
+
+static int
+clusapi_dissect_RemoveGroupSetDependency_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="RemoveGroupSetDependency";
+	offset = clusapi_dissect_element_RemoveGroupSetDependency_rpc_status(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_werror, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+
+	return offset;
+}
+
+static int
+clusapi_dissect_RemoveGroupSetDependency_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="RemoveGroupSetDependency";
+	offset = clusapi_dissect_element_RemoveGroupSetDependency_hGroupSet(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	offset = clusapi_dissect_element_RemoveGroupSetDependency_hDependsOn(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	return offset;
+}
+
+static int
+clusapi_dissect_element_RemoveClusterGroupToGroupSetDependency_hGroup(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_RemoveClusterGroupToGroupSetDependency_hGroup, 0);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_RemoveClusterGroupToGroupSetDependency_hDependsOn(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_RemoveClusterGroupToGroupSetDependency_hDependsOn, 0);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_RemoveClusterGroupToGroupSetDependency_rpc_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, clusapi_dissect_element_RemoveClusterGroupToGroupSetDependency_rpc_status_, NDR_POINTER_REF, "Pointer to Rpc Status (WERROR)",hf_clusapi_clusapi_RemoveClusterGroupToGroupSetDependency_rpc_status);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_RemoveClusterGroupToGroupSetDependency_rpc_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_RemoveClusterGroupToGroupSetDependency_rpc_status, 0);
+
+	return offset;
+}
+
+/* IDL: WERROR clusapi_RemoveClusterGroupToGroupSetDependency( */
+/* IDL: [in] policy_handle hGroup, */
+/* IDL: [in] policy_handle hDependsOn, */
+/* IDL: [out] [ref] WERROR *rpc_status */
+/* IDL: ); */
+
+static int
+clusapi_dissect_RemoveClusterGroupToGroupSetDependency_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="RemoveClusterGroupToGroupSetDependency";
+	offset = clusapi_dissect_element_RemoveClusterGroupToGroupSetDependency_rpc_status(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_werror, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+
+	return offset;
+}
+
+static int
+clusapi_dissect_RemoveClusterGroupToGroupSetDependency_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="RemoveClusterGroupToGroupSetDependency";
+	offset = clusapi_dissect_element_RemoveClusterGroupToGroupSetDependency_hGroup(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	offset = clusapi_dissect_element_RemoveClusterGroupToGroupSetDependency_hDependsOn(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	return offset;
+}
+
+static int
+clusapi_dissect_element_CreateGroupSetEnum_hCluster(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_CreateGroupSetEnum_hCluster, 0);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_CreateGroupSetEnum_ReturnEnum(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, clusapi_dissect_element_CreateGroupSetEnum_ReturnEnum_, NDR_POINTER_REF, "Pointer to ReturnEnum (ENUM_LIST)",hf_clusapi_clusapi_CreateGroupSetEnum_ReturnEnum);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_CreateGroupSetEnum_ReturnEnum_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, clusapi_dissect_element_CreateGroupSetEnum_ReturnEnum__, NDR_POINTER_UNIQUE, "Pointer to ReturnEnum (ENUM_LIST)",hf_clusapi_clusapi_CreateGroupSetEnum_ReturnEnum);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_CreateGroupSetEnum_ReturnEnum__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = clusapi_dissect_struct_ENUM_LIST(tvb,offset,pinfo,tree,di,drep,hf_clusapi_clusapi_CreateGroupSetEnum_ReturnEnum,0);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_CreateGroupSetEnum_rpc_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, clusapi_dissect_element_CreateGroupSetEnum_rpc_status_, NDR_POINTER_REF, "Pointer to Rpc Status (WERROR)",hf_clusapi_clusapi_CreateGroupSetEnum_rpc_status);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_CreateGroupSetEnum_rpc_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_CreateGroupSetEnum_rpc_status, 0);
+
+	return offset;
+}
+
+/* IDL: WERROR clusapi_CreateGroupSetEnum( */
+/* IDL: [in] policy_handle hCluster, */
+/* IDL: [out] [ref] ENUM_LIST **ReturnEnum, */
+/* IDL: [out] [ref] WERROR *rpc_status */
+/* IDL: ); */
+
+static int
+clusapi_dissect_CreateGroupSetEnum_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="CreateGroupSetEnum";
+	offset = clusapi_dissect_element_CreateGroupSetEnum_ReturnEnum(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+
+	offset = clusapi_dissect_element_CreateGroupSetEnum_rpc_status(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_werror, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+
+	return offset;
+}
+
+static int
+clusapi_dissect_CreateGroupSetEnum_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="CreateGroupSetEnum";
+	offset = clusapi_dissect_element_CreateGroupSetEnum_hCluster(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	return offset;
+}
+
+static int
+clusapi_dissect_element_CreateNetInterfaceEnum_hCluster(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_CreateNetInterfaceEnum_hCluster, 0);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_CreateNetInterfaceEnum_lpszNodeName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, clusapi_dissect_element_CreateNetInterfaceEnum_lpszNodeName_, NDR_POINTER_REF, "Pointer to LpszNodeName (uint16)",hf_clusapi_clusapi_CreateNetInterfaceEnum_lpszNodeName);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_CreateNetInterfaceEnum_lpszNodeName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	char *data;
+
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_CreateNetInterfaceEnum_lpszNodeName, FALSE, &data);
+	proto_item_append_text(tree, ": %s", data);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_CreateNetInterfaceEnum_lpszNetworkName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, clusapi_dissect_element_CreateNetInterfaceEnum_lpszNetworkName_, NDR_POINTER_REF, "Pointer to LpszNetworkName (uint16)",hf_clusapi_clusapi_CreateNetInterfaceEnum_lpszNetworkName);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_CreateNetInterfaceEnum_lpszNetworkName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	char *data;
+
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_CreateNetInterfaceEnum_lpszNetworkName, FALSE, &data);
+	proto_item_append_text(tree, ": %s", data);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_CreateNetInterfaceEnum_ReturnEnum(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, clusapi_dissect_element_CreateNetInterfaceEnum_ReturnEnum_, NDR_POINTER_REF, "Pointer to ReturnEnum (ENUM_LIST)",hf_clusapi_clusapi_CreateNetInterfaceEnum_ReturnEnum);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_CreateNetInterfaceEnum_ReturnEnum_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, clusapi_dissect_element_CreateNetInterfaceEnum_ReturnEnum__, NDR_POINTER_UNIQUE, "Pointer to ReturnEnum (ENUM_LIST)",hf_clusapi_clusapi_CreateNetInterfaceEnum_ReturnEnum);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_CreateNetInterfaceEnum_ReturnEnum__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = clusapi_dissect_struct_ENUM_LIST(tvb,offset,pinfo,tree,di,drep,hf_clusapi_clusapi_CreateNetInterfaceEnum_ReturnEnum,0);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_CreateNetInterfaceEnum_rpc_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, clusapi_dissect_element_CreateNetInterfaceEnum_rpc_status_, NDR_POINTER_REF, "Pointer to Rpc Status (WERROR)",hf_clusapi_clusapi_CreateNetInterfaceEnum_rpc_status);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_CreateNetInterfaceEnum_rpc_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_CreateNetInterfaceEnum_rpc_status, 0);
+
+	return offset;
+}
+
+/* IDL: WERROR clusapi_CreateNetInterfaceEnum( */
+/* IDL: [in] policy_handle hCluster, */
+/* IDL: [charset(UTF16)] [in] [ref] uint16 *lpszNodeName, */
+/* IDL: [charset(UTF16)] [in] [ref] uint16 *lpszNetworkName, */
+/* IDL: [out] [ref] ENUM_LIST **ReturnEnum, */
+/* IDL: [out] [ref] WERROR *rpc_status */
+/* IDL: ); */
+
+static int
+clusapi_dissect_CreateNetInterfaceEnum_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="CreateNetInterfaceEnum";
+	offset = clusapi_dissect_element_CreateNetInterfaceEnum_ReturnEnum(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+
+	offset = clusapi_dissect_element_CreateNetInterfaceEnum_rpc_status(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_werror, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+
+	return offset;
+}
+
+static int
+clusapi_dissect_CreateNetInterfaceEnum_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="CreateNetInterfaceEnum";
+	offset = clusapi_dissect_element_CreateNetInterfaceEnum_hCluster(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	offset = clusapi_dissect_element_CreateNetInterfaceEnum_lpszNodeName(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	offset = clusapi_dissect_element_CreateNetInterfaceEnum_lpszNetworkName(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	return offset;
+}
+
+static int
+clusapi_dissect_element_ChangeCsvStateEx_hResource(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_ChangeCsvStateEx_hResource, 0);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_ChangeCsvStateEx_dwState(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_ChangeCsvStateEx_dwState, 0);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_ChangeCsvStateEx_lpszVolumeName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, clusapi_dissect_element_ChangeCsvStateEx_lpszVolumeName_, NDR_POINTER_REF, "Pointer to LpszVolumeName (uint16)",hf_clusapi_clusapi_ChangeCsvStateEx_lpszVolumeName);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_ChangeCsvStateEx_lpszVolumeName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	char *data;
+
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_clusapi_clusapi_ChangeCsvStateEx_lpszVolumeName, FALSE, &data);
+	proto_item_append_text(tree, ": %s", data);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_ChangeCsvStateEx_rpc_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, clusapi_dissect_element_ChangeCsvStateEx_rpc_status_, NDR_POINTER_REF, "Pointer to Rpc Status (WERROR)",hf_clusapi_clusapi_ChangeCsvStateEx_rpc_status);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_ChangeCsvStateEx_rpc_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_ChangeCsvStateEx_rpc_status, 0);
+
+	return offset;
+}
+
+/* IDL: WERROR clusapi_ChangeCsvStateEx( */
+/* IDL: [in] policy_handle hResource, */
+/* IDL: [in] uint32 dwState, */
+/* IDL: [charset(UTF16)] [in] [ref] uint16 *lpszVolumeName, */
+/* IDL: [out] [ref] WERROR *rpc_status */
+/* IDL: ); */
+
+static int
+clusapi_dissect_ChangeCsvStateEx_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="ChangeCsvStateEx";
+	offset = clusapi_dissect_element_ChangeCsvStateEx_rpc_status(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_werror, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+
+	return offset;
+}
+
+static int
+clusapi_dissect_ChangeCsvStateEx_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="ChangeCsvStateEx";
+	offset = clusapi_dissect_element_ChangeCsvStateEx_hResource(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	offset = clusapi_dissect_element_ChangeCsvStateEx_dwState(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	offset = clusapi_dissect_element_ChangeCsvStateEx_lpszVolumeName(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	return offset;
+}
+
+static int
+clusapi_dissect_element_AddGroupToGroupSetEx_GroupSet(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_AddGroupToGroupSetEx_GroupSet, 0);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_AddGroupToGroupSetEx_Group(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_AddGroupToGroupSetEx_Group, 0);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_AddGroupToGroupSetEx_FaultDomain(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_AddGroupToGroupSetEx_FaultDomain, 0);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_AddGroupToGroupSetEx_UpdateDomain(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_AddGroupToGroupSetEx_UpdateDomain, 0);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_AddGroupToGroupSetEx_UseDomains(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_AddGroupToGroupSetEx_UseDomains, 0);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_AddGroupToGroupSetEx_Reserved(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, clusapi_dissect_element_AddGroupToGroupSetEx_Reserved_, NDR_POINTER_REF, "Pointer to Reserved (uint32)",hf_clusapi_clusapi_AddGroupToGroupSetEx_Reserved);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_AddGroupToGroupSetEx_Reserved_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_AddGroupToGroupSetEx_Reserved, 0);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_AddGroupToGroupSetEx_rpc_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, clusapi_dissect_element_AddGroupToGroupSetEx_rpc_status_, NDR_POINTER_REF, "Pointer to Rpc Status (WERROR)",hf_clusapi_clusapi_AddGroupToGroupSetEx_rpc_status);
+
+	return offset;
+}
+
+static int
+clusapi_dissect_element_AddGroupToGroupSetEx_rpc_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_clusapi_AddGroupToGroupSetEx_rpc_status, 0);
+
+	return offset;
+}
+
+/* IDL: WERROR clusapi_AddGroupToGroupSetEx( */
+/* IDL: [in] policy_handle GroupSet, */
+/* IDL: [in] policy_handle Group, */
+/* IDL: [in] uint32 FaultDomain, */
+/* IDL: [in] uint32 UpdateDomain, */
+/* IDL: [in] uint8 UseDomains, */
+/* IDL: [in] [ref] uint32 *Reserved, */
+/* IDL: [out] [ref] WERROR *rpc_status */
+/* IDL: ); */
+
+static int
+clusapi_dissect_AddGroupToGroupSetEx_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="AddGroupToGroupSetEx";
+	offset = clusapi_dissect_element_AddGroupToGroupSetEx_rpc_status(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_werror, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+
+	return offset;
+}
+
+static int
+clusapi_dissect_AddGroupToGroupSetEx_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="AddGroupToGroupSetEx";
+	offset = clusapi_dissect_element_AddGroupToGroupSetEx_GroupSet(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	offset = clusapi_dissect_element_AddGroupToGroupSetEx_Group(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	offset = clusapi_dissect_element_AddGroupToGroupSetEx_FaultDomain(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	offset = clusapi_dissect_element_AddGroupToGroupSetEx_UpdateDomain(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	offset = clusapi_dissect_element_AddGroupToGroupSetEx_UseDomains(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	offset = clusapi_dissect_element_AddGroupToGroupSetEx_Reserved(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	return offset;
+}
+
 
 static dcerpc_sub_dissector clusapi_dissectors[] = {
 	{ 0, "OpenCluster",
@@ -20835,6 +23457,78 @@ static dcerpc_sub_dissector clusapi_dissectors[] = {
 	   clusapi_dissect_RestartResource_request, clusapi_dissect_RestartResource_response},
 	{ 147, "GetNotifyAsync",
 	   clusapi_dissect_GetNotifyAsync_request, clusapi_dissect_GetNotifyAsync_response},
+	{ 148, "Opnum148NotUsedOnWire",
+	   clusapi_dissect_Opnum148NotUsedOnWire_request, clusapi_dissect_Opnum148NotUsedOnWire_response},
+	{ 149, "Opnum149otUsedOnWire",
+	   clusapi_dissect_Opnum149otUsedOnWire_request, clusapi_dissect_Opnum149otUsedOnWire_response},
+	{ 150, "Opnum150NotUsedOnWire",
+	   clusapi_dissect_Opnum150NotUsedOnWire_request, clusapi_dissect_Opnum150NotUsedOnWire_response},
+	{ 151, "Opnum151NotUsedOnWire",
+	   clusapi_dissect_Opnum151NotUsedOnWire_request, clusapi_dissect_Opnum151NotUsedOnWire_response},
+	{ 152, "Opnum152NotUsedOnWire",
+	   clusapi_dissect_Opnum152NotUsedOnWire_request, clusapi_dissect_Opnum152NotUsedOnWire_response},
+	{ 153, "Opnum153NotUsedOnWire",
+	   clusapi_dissect_Opnum153NotUsedOnWire_request, clusapi_dissect_Opnum153NotUsedOnWire_response},
+	{ 154, "Opnum154NotUsedOnWire",
+	   clusapi_dissect_Opnum154NotUsedOnWire_request, clusapi_dissect_Opnum154NotUsedOnWire_response},
+	{ 155, "AddNotifyResourceTypeV2",
+	   clusapi_dissect_AddNotifyResourceTypeV2_request, clusapi_dissect_AddNotifyResourceTypeV2_response},
+	{ 156, "Opnum156NotUsedOnWire",
+	   clusapi_dissect_Opnum156NotUsedOnWire_request, clusapi_dissect_Opnum156NotUsedOnWire_response},
+	{ 157, "ExecuteReadBatchEx",
+	   clusapi_dissect_ExecuteReadBatchEx_request, clusapi_dissect_ExecuteReadBatchEx_response},
+	{ 158, "Opnum158NotUsedOnWire",
+	   clusapi_dissect_Opnum158NotUsedOnWire_request, clusapi_dissect_Opnum158NotUsedOnWire_response},
+	{ 159, "Opnum159NotUsedOnWire",
+	   clusapi_dissect_Opnum159NotUsedOnWire_request, clusapi_dissect_Opnum159NotUsedOnWire_response},
+	{ 160, "Opnum160NotUsedOnWire",
+	   clusapi_dissect_Opnum160NotUsedOnWire_request, clusapi_dissect_Opnum160NotUsedOnWire_response},
+	{ 161, "Opnum161NotUsedOnWire",
+	   clusapi_dissect_Opnum161NotUsedOnWire_request, clusapi_dissect_Opnum161NotUsedOnWire_response},
+	{ 162, "Opnum162NotUsedOnWire",
+	   clusapi_dissect_Opnum162NotUsedOnWire_request, clusapi_dissect_Opnum162NotUsedOnWire_response},
+	{ 163, "CreateGroupSet",
+	   clusapi_dissect_CreateGroupSet_request, clusapi_dissect_CreateGroupSet_response},
+	{ 164, "OpenGroupSet",
+	   clusapi_dissect_OpenGroupSet_request, clusapi_dissect_OpenGroupSet_response},
+	{ 165, "CloseGroupSet",
+	   clusapi_dissect_CloseGroupSet_request, clusapi_dissect_CloseGroupSet_response},
+	{ 166, "DeleteGroupSet",
+	   clusapi_dissect_DeleteGroupSet_request, clusapi_dissect_DeleteGroupSet_response},
+	{ 167, "AddGroupToGroupSet",
+	   clusapi_dissect_AddGroupToGroupSet_request, clusapi_dissect_AddGroupToGroupSet_response},
+	{ 168, "RemoveGroupFromGroupSet",
+	   clusapi_dissect_RemoveGroupFromGroupSet_request, clusapi_dissect_RemoveGroupFromGroupSet_response},
+	{ 169, "MoveGroupToGroupSet",
+	   clusapi_dissect_MoveGroupToGroupSet_request, clusapi_dissect_MoveGroupToGroupSet_response},
+	{ 170, "Opnum170NotUsedOnWire",
+	   clusapi_dissect_Opnum170NotUsedOnWire_request, clusapi_dissect_Opnum170NotUsedOnWire_response},
+	{ 171, "AddGroupSetDependency",
+	   clusapi_dissect_AddGroupSetDependency_request, clusapi_dissect_AddGroupSetDependency_response},
+	{ 172, "AddGroupToGroupSetDependency",
+	   clusapi_dissect_AddGroupToGroupSetDependency_request, clusapi_dissect_AddGroupToGroupSetDependency_response},
+	{ 173, "NodeGroupSetControl",
+	   clusapi_dissect_NodeGroupSetControl_request, clusapi_dissect_NodeGroupSetControl_response},
+	{ 174, "GroupSetControl",
+	   clusapi_dissect_GroupSetControl_request, clusapi_dissect_GroupSetControl_response},
+	{ 175, "SetGroupDependencyExpression",
+	   clusapi_dissect_SetGroupDependencyExpression_request, clusapi_dissect_SetGroupDependencyExpression_response},
+	{ 176, "RemoveClusterGroupDependency",
+	   clusapi_dissect_RemoveClusterGroupDependency_request, clusapi_dissect_RemoveClusterGroupDependency_response},
+	{ 177, "SetGroupSetDependencyExpression",
+	   clusapi_dissect_SetGroupSetDependencyExpression_request, clusapi_dissect_SetGroupSetDependencyExpression_response},
+	{ 178, "RemoveGroupSetDependency",
+	   clusapi_dissect_RemoveGroupSetDependency_request, clusapi_dissect_RemoveGroupSetDependency_response},
+	{ 179, "RemoveClusterGroupToGroupSetDependency",
+	   clusapi_dissect_RemoveClusterGroupToGroupSetDependency_request, clusapi_dissect_RemoveClusterGroupToGroupSetDependency_response},
+	{ 180, "CreateGroupSetEnum",
+	   clusapi_dissect_CreateGroupSetEnum_request, clusapi_dissect_CreateGroupSetEnum_response},
+	{ 181, "CreateNetInterfaceEnum",
+	   clusapi_dissect_CreateNetInterfaceEnum_request, clusapi_dissect_CreateNetInterfaceEnum_response},
+	{ 182, "ChangeCsvStateEx",
+	   clusapi_dissect_ChangeCsvStateEx_request, clusapi_dissect_ChangeCsvStateEx_response},
+	{ 183, "AddGroupToGroupSetEx",
+	   clusapi_dissect_AddGroupToGroupSetEx_request, clusapi_dissect_AddGroupToGroupSetEx_response},
 	{ 0, NULL, NULL, NULL }
 };
 
@@ -20995,6 +23689,38 @@ void proto_register_dcerpc_clusapi(void)
 	  { "CbOutSecurityDescriptor", "clusapi.RPC_SECURITY_DESCRIPTOR.cbOutSecurityDescriptor", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_clusapi_RPC_SECURITY_DESCRIPTOR_lpSecurityDescriptor,
 	  { "LpSecurityDescriptor", "clusapi.RPC_SECURITY_DESCRIPTOR.lpSecurityDescriptor", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_AddGroupSetDependency_DependentGroupSet,
+	  { "DependentGroupSet", "clusapi.clusapi_AddGroupSetDependency.DependentGroupSet", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_AddGroupSetDependency_ProviderGroupSet,
+	  { "ProviderGroupSet", "clusapi.clusapi_AddGroupSetDependency.ProviderGroupSet", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_AddGroupSetDependency_rpc_status,
+	  { "Rpc Status", "clusapi.clusapi_AddGroupSetDependency.rpc_status", FT_UINT32, BASE_DEC, VALS(WERR_errors), 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_AddGroupToGroupSetDependency_DependentGroup,
+	  { "DependentGroup", "clusapi.clusapi_AddGroupToGroupSetDependency.DependentGroup", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_AddGroupToGroupSetDependency_ProviderGroupSet,
+	  { "ProviderGroupSet", "clusapi.clusapi_AddGroupToGroupSetDependency.ProviderGroupSet", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_AddGroupToGroupSetDependency_rpc_status,
+	  { "Rpc Status", "clusapi.clusapi_AddGroupToGroupSetDependency.rpc_status", FT_UINT32, BASE_DEC, VALS(WERR_errors), 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_AddGroupToGroupSetEx_FaultDomain,
+	  { "FaultDomain", "clusapi.clusapi_AddGroupToGroupSetEx.FaultDomain", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_AddGroupToGroupSetEx_Group,
+	  { "Group", "clusapi.clusapi_AddGroupToGroupSetEx.Group", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_AddGroupToGroupSetEx_GroupSet,
+	  { "GroupSet", "clusapi.clusapi_AddGroupToGroupSetEx.GroupSet", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_AddGroupToGroupSetEx_Reserved,
+	  { "Reserved", "clusapi.clusapi_AddGroupToGroupSetEx.Reserved", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_AddGroupToGroupSetEx_UpdateDomain,
+	  { "UpdateDomain", "clusapi.clusapi_AddGroupToGroupSetEx.UpdateDomain", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_AddGroupToGroupSetEx_UseDomains,
+	  { "UseDomains", "clusapi.clusapi_AddGroupToGroupSetEx.UseDomains", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_AddGroupToGroupSetEx_rpc_status,
+	  { "Rpc Status", "clusapi.clusapi_AddGroupToGroupSetEx.rpc_status", FT_UINT32, BASE_DEC, VALS(WERR_errors), 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_AddGroupToGroupSet_Group,
+	  { "Group", "clusapi.clusapi_AddGroupToGroupSet.Group", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_AddGroupToGroupSet_GroupSet,
+	  { "GroupSet", "clusapi.clusapi_AddGroupToGroupSet.GroupSet", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_AddGroupToGroupSet_rpc_status,
+	  { "Rpc Status", "clusapi.clusapi_AddGroupToGroupSet.rpc_status", FT_UINT32, BASE_DEC, VALS(WERR_errors), 0, NULL, HFILL }},
 	{ &hf_clusapi_clusapi_AddNotifyCluster_dwFilter,
 	  { "DwFilter", "clusapi.clusapi_AddNotifyCluster.dwFilter", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_clusapi_clusapi_AddNotifyCluster_dwNotifyKey,
@@ -21065,6 +23791,18 @@ void proto_register_dcerpc_clusapi(void)
 	  { "HNotify", "clusapi.clusapi_AddNotifyNode.hNotify", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_clusapi_clusapi_AddNotifyNode_rpc_status,
 	  { "Rpc Status", "clusapi.clusapi_AddNotifyNode.rpc_status", FT_UINT32, BASE_DEC, VALS(WERR_errors), 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_AddNotifyResourceTypeV2_dwNotifyKey,
+	  { "DwNotifyKey", "clusapi.clusapi_AddNotifyResourceTypeV2.dwNotifyKey", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_AddNotifyResourceTypeV2_dwVersion,
+	  { "DwVersion", "clusapi.clusapi_AddNotifyResourceTypeV2.dwVersion", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_AddNotifyResourceTypeV2_filter,
+	  { "Filter", "clusapi.clusapi_AddNotifyResourceTypeV2.filter", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_AddNotifyResourceTypeV2_hNotify,
+	  { "HNotify", "clusapi.clusapi_AddNotifyResourceTypeV2.hNotify", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_AddNotifyResourceTypeV2_resTypeName,
+	  { "ResTypeName", "clusapi.clusapi_AddNotifyResourceTypeV2.resTypeName", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_AddNotifyResourceTypeV2_rpc_status,
+	  { "Rpc Status", "clusapi.clusapi_AddNotifyResourceTypeV2.rpc_status", FT_UINT32, BASE_DEC, VALS(WERR_errors), 0, NULL, HFILL }},
 	{ &hf_clusapi_clusapi_AddNotifyResource_dwFilter,
 	  { "DwFilter", "clusapi.clusapi_AddNotifyResource.dwFilter", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_clusapi_clusapi_AddNotifyResource_dwNotifyKey,
@@ -21119,6 +23857,14 @@ void proto_register_dcerpc_clusapi(void)
 	  { "HGroup", "clusapi.clusapi_CancelClusterGroupOperation.hGroup", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_clusapi_clusapi_CancelClusterGroupOperation_rpc_status,
 	  { "Rpc Status", "clusapi.clusapi_CancelClusterGroupOperation.rpc_status", FT_UINT32, BASE_DEC, VALS(WERR_errors), 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_ChangeCsvStateEx_dwState,
+	  { "DwState", "clusapi.clusapi_ChangeCsvStateEx.dwState", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_ChangeCsvStateEx_hResource,
+	  { "HResource", "clusapi.clusapi_ChangeCsvStateEx.hResource", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_ChangeCsvStateEx_lpszVolumeName,
+	  { "LpszVolumeName", "clusapi.clusapi_ChangeCsvStateEx.lpszVolumeName", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_ChangeCsvStateEx_rpc_status,
+	  { "Rpc Status", "clusapi.clusapi_ChangeCsvStateEx.rpc_status", FT_UINT32, BASE_DEC, VALS(WERR_errors), 0, NULL, HFILL }},
 	{ &hf_clusapi_clusapi_ChangeCsvState_dwState,
 	  { "DwState", "clusapi.clusapi_ChangeCsvState.dwState", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_clusapi_clusapi_ChangeCsvState_hResource,
@@ -21135,6 +23881,8 @@ void proto_register_dcerpc_clusapi(void)
 	  { "PhBatchPort", "clusapi.clusapi_CloseBatchPort.phBatchPort", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_clusapi_clusapi_CloseCluster_Cluster,
 	  { "Cluster", "clusapi.clusapi_CloseCluster.Cluster", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_CloseGroupSet_GroupSet,
+	  { "GroupSet", "clusapi.clusapi_CloseGroupSet.GroupSet", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_clusapi_clusapi_CloseGroup_Group,
 	  { "Group", "clusapi.clusapi_CloseGroup.Group", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_clusapi_clusapi_CloseKey_pKey,
@@ -21243,6 +23991,20 @@ void proto_register_dcerpc_clusapi(void)
 	  { "HGroup", "clusapi.clusapi_CreateGroupResourceEnum.hGroup", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_clusapi_clusapi_CreateGroupResourceEnum_rpc_status,
 	  { "Rpc Status", "clusapi.clusapi_CreateGroupResourceEnum.rpc_status", FT_UINT32, BASE_DEC, VALS(WERR_errors), 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_CreateGroupSetEnum_ReturnEnum,
+	  { "ReturnEnum", "clusapi.clusapi_CreateGroupSetEnum.ReturnEnum", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_CreateGroupSetEnum_hCluster,
+	  { "HCluster", "clusapi.clusapi_CreateGroupSetEnum.hCluster", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_CreateGroupSetEnum_rpc_status,
+	  { "Rpc Status", "clusapi.clusapi_CreateGroupSetEnum.rpc_status", FT_UINT32, BASE_DEC, VALS(WERR_errors), 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_CreateGroupSet_Status,
+	  { "Status", "clusapi.clusapi_CreateGroupSet.Status", FT_UINT32, BASE_DEC, VALS(WERR_errors), 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_CreateGroupSet_hGroupSet,
+	  { "HGroupSet", "clusapi.clusapi_CreateGroupSet.hGroupSet", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_CreateGroupSet_lpszGroupSetName,
+	  { "LpszGroupSetName", "clusapi.clusapi_CreateGroupSet.lpszGroupSetName", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_CreateGroupSet_rpc_status,
+	  { "Rpc Status", "clusapi.clusapi_CreateGroupSet.rpc_status", FT_UINT32, BASE_DEC, VALS(WERR_errors), 0, NULL, HFILL }},
 	{ &hf_clusapi_clusapi_CreateGroup_Status,
 	  { "Status", "clusapi.clusapi_CreateGroup.Status", FT_UINT32, BASE_DEC, VALS(WERR_errors), 0, NULL, HFILL }},
 	{ &hf_clusapi_clusapi_CreateGroup_hGroup,
@@ -21269,6 +24031,16 @@ void proto_register_dcerpc_clusapi(void)
 	  { "Rpc Status", "clusapi.clusapi_CreateKey.rpc_status", FT_UINT32, BASE_DEC, VALS(WERR_errors), 0, NULL, HFILL }},
 	{ &hf_clusapi_clusapi_CreateKey_samDesired,
 	  { "SamDesired", "clusapi.clusapi_CreateKey.samDesired", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_CreateNetInterfaceEnum_ReturnEnum,
+	  { "ReturnEnum", "clusapi.clusapi_CreateNetInterfaceEnum.ReturnEnum", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_CreateNetInterfaceEnum_hCluster,
+	  { "HCluster", "clusapi.clusapi_CreateNetInterfaceEnum.hCluster", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_CreateNetInterfaceEnum_lpszNetworkName,
+	  { "LpszNetworkName", "clusapi.clusapi_CreateNetInterfaceEnum.lpszNetworkName", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_CreateNetInterfaceEnum_lpszNodeName,
+	  { "LpszNodeName", "clusapi.clusapi_CreateNetInterfaceEnum.lpszNodeName", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_CreateNetInterfaceEnum_rpc_status,
+	  { "Rpc Status", "clusapi.clusapi_CreateNetInterfaceEnum.rpc_status", FT_UINT32, BASE_DEC, VALS(WERR_errors), 0, NULL, HFILL }},
 	{ &hf_clusapi_clusapi_CreateNetworkEnum_ReturnEnum,
 	  { "ReturnEnum", "clusapi.clusapi_CreateNetworkEnum.ReturnEnum", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_clusapi_clusapi_CreateNetworkEnum_dwType,
@@ -21365,6 +24137,10 @@ void proto_register_dcerpc_clusapi(void)
 	  { "LpszResourceType", "clusapi.clusapi_CreateResource.lpszResourceType", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_clusapi_clusapi_CreateResource_rpc_status,
 	  { "Rpc Status", "clusapi.clusapi_CreateResource.rpc_status", FT_UINT32, BASE_DEC, VALS(WERR_errors), 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_DeleteGroupSet_GroupSet,
+	  { "GroupSet", "clusapi.clusapi_DeleteGroupSet.GroupSet", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_DeleteGroupSet_rpc_status,
+	  { "Rpc Status", "clusapi.clusapi_DeleteGroupSet.rpc_status", FT_UINT32, BASE_DEC, VALS(WERR_errors), 0, NULL, HFILL }},
 	{ &hf_clusapi_clusapi_DeleteGroup_Group,
 	  { "Group", "clusapi.clusapi_DeleteGroup.Group", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_clusapi_clusapi_DeleteGroup_force,
@@ -21445,6 +24221,20 @@ void proto_register_dcerpc_clusapi(void)
 	  { "PdwFailedCommand", "clusapi.clusapi_ExecuteBatch.pdwFailedCommand", FT_INT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_clusapi_clusapi_ExecuteBatch_rpc_status,
 	  { "Rpc Status", "clusapi.clusapi_ExecuteBatch.rpc_status", FT_UINT32, BASE_DEC, VALS(WERR_errors), 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_ExecuteReadBatchEx_cbInData,
+	  { "CbInData", "clusapi.clusapi_ExecuteReadBatchEx.cbInData", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_ExecuteReadBatchEx_cbOutData,
+	  { "CbOutData", "clusapi.clusapi_ExecuteReadBatchEx.cbOutData", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_ExecuteReadBatchEx_flags,
+	  { "Flags", "clusapi.clusapi_ExecuteReadBatchEx.flags", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_ExecuteReadBatchEx_hKey,
+	  { "HKey", "clusapi.clusapi_ExecuteReadBatchEx.hKey", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_ExecuteReadBatchEx_lpInData,
+	  { "LpInData", "clusapi.clusapi_ExecuteReadBatchEx.lpInData", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_ExecuteReadBatchEx_lpOutData,
+	  { "LpOutData", "clusapi.clusapi_ExecuteReadBatchEx.lpOutData", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_ExecuteReadBatchEx_rpc_status,
+	  { "Rpc Status", "clusapi.clusapi_ExecuteReadBatchEx.rpc_status", FT_UINT32, BASE_DEC, VALS(WERR_errors), 0, NULL, HFILL }},
 	{ &hf_clusapi_clusapi_ExecuteReadBatch_cbInData,
 	  { "CbInData", "clusapi.clusapi_ExecuteReadBatch.cbInData", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_clusapi_clusapi_ExecuteReadBatch_cbOutData,
@@ -21653,6 +24443,24 @@ void proto_register_dcerpc_clusapi(void)
 	  { "NOutBufferSize", "clusapi.clusapi_GroupControl.nOutBufferSize", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_clusapi_clusapi_GroupControl_rpc_status,
 	  { "Rpc Status", "clusapi.clusapi_GroupControl.rpc_status", FT_UINT32, BASE_DEC, VALS(WERR_errors), 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_GroupSetControl_dwControlCode,
+	  { "DwControlCode", "clusapi.clusapi_GroupSetControl.dwControlCode", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_GroupSetControl_hGroupSet,
+	  { "HGroupSet", "clusapi.clusapi_GroupSetControl.hGroupSet", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_GroupSetControl_lpBytesReturned,
+	  { "LpBytesReturned", "clusapi.clusapi_GroupSetControl.lpBytesReturned", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_GroupSetControl_lpInBuffer,
+	  { "LpInBuffer", "clusapi.clusapi_GroupSetControl.lpInBuffer", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_GroupSetControl_lpOutBuffer,
+	  { "LpOutBuffer", "clusapi.clusapi_GroupSetControl.lpOutBuffer", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_GroupSetControl_lpcbRequired,
+	  { "LpcbRequired", "clusapi.clusapi_GroupSetControl.lpcbRequired", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_GroupSetControl_nInBufferSize,
+	  { "NInBufferSize", "clusapi.clusapi_GroupSetControl.nInBufferSize", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_GroupSetControl_nOutBufferSize,
+	  { "NOutBufferSize", "clusapi.clusapi_GroupSetControl.nOutBufferSize", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_GroupSetControl_rpc_status,
+	  { "Rpc Status", "clusapi.clusapi_GroupSetControl.rpc_status", FT_UINT32, BASE_DEC, VALS(WERR_errors), 0, NULL, HFILL }},
 	{ &hf_clusapi_clusapi_MoveGroupEx_cbInBufferSize,
 	  { "CbInBufferSize", "clusapi.clusapi_MoveGroupEx.cbInBufferSize", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_clusapi_clusapi_MoveGroupEx_dwMoveFlags,
@@ -21663,6 +24471,12 @@ void proto_register_dcerpc_clusapi(void)
 	  { "LpInBuffer", "clusapi.clusapi_MoveGroupEx.lpInBuffer", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_clusapi_clusapi_MoveGroupEx_rpc_status,
 	  { "Rpc Status", "clusapi.clusapi_MoveGroupEx.rpc_status", FT_UINT32, BASE_DEC, VALS(WERR_errors), 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_MoveGroupToGroupSet_Group,
+	  { "Group", "clusapi.clusapi_MoveGroupToGroupSet.Group", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_MoveGroupToGroupSet_GroupSet,
+	  { "GroupSet", "clusapi.clusapi_MoveGroupToGroupSet.GroupSet", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_MoveGroupToGroupSet_rpc_status,
+	  { "Rpc Status", "clusapi.clusapi_MoveGroupToGroupSet.rpc_status", FT_UINT32, BASE_DEC, VALS(WERR_errors), 0, NULL, HFILL }},
 	{ &hf_clusapi_clusapi_MoveGroupToNodeEx_cbInBufferSize,
 	  { "CbInBufferSize", "clusapi.clusapi_MoveGroupToNodeEx.cbInBufferSize", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_clusapi_clusapi_MoveGroupToNodeEx_dwMoveFlags,
@@ -21779,6 +24593,26 @@ void proto_register_dcerpc_clusapi(void)
 	  { "NOutBufferSize", "clusapi.clusapi_NodeGroupControl.nOutBufferSize", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_clusapi_clusapi_NodeGroupControl_rpc_status,
 	  { "Rpc Status", "clusapi.clusapi_NodeGroupControl.rpc_status", FT_UINT32, BASE_DEC, VALS(WERR_errors), 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_NodeGroupSetControl_dwControlCode,
+	  { "DwControlCode", "clusapi.clusapi_NodeGroupSetControl.dwControlCode", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_NodeGroupSetControl_hGroupSet,
+	  { "HGroupSet", "clusapi.clusapi_NodeGroupSetControl.hGroupSet", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_NodeGroupSetControl_hNode,
+	  { "HNode", "clusapi.clusapi_NodeGroupSetControl.hNode", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_NodeGroupSetControl_lpBytesReturned,
+	  { "LpBytesReturned", "clusapi.clusapi_NodeGroupSetControl.lpBytesReturned", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_NodeGroupSetControl_lpInBuffer,
+	  { "LpInBuffer", "clusapi.clusapi_NodeGroupSetControl.lpInBuffer", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_NodeGroupSetControl_lpOutBuffer,
+	  { "LpOutBuffer", "clusapi.clusapi_NodeGroupSetControl.lpOutBuffer", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_NodeGroupSetControl_lpcbRequired,
+	  { "LpcbRequired", "clusapi.clusapi_NodeGroupSetControl.lpcbRequired", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_NodeGroupSetControl_nInBufferSize,
+	  { "NInBufferSize", "clusapi.clusapi_NodeGroupSetControl.nInBufferSize", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_NodeGroupSetControl_nOutBufferSize,
+	  { "NOutBufferSize", "clusapi.clusapi_NodeGroupSetControl.nOutBufferSize", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_NodeGroupSetControl_rpc_status,
+	  { "Rpc Status", "clusapi.clusapi_NodeGroupSetControl.rpc_status", FT_UINT32, BASE_DEC, VALS(WERR_errors), 0, NULL, HFILL }},
 	{ &hf_clusapi_clusapi_NodeNetInterfaceControl_dwControlCode,
 	  { "DwControlCode", "clusapi.clusapi_NodeNetInterfaceControl.dwControlCode", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_clusapi_clusapi_NodeNetInterfaceControl_hNetInterface,
@@ -21961,6 +24795,14 @@ void proto_register_dcerpc_clusapi(void)
 	  { "LpszGroupName", "clusapi.clusapi_OpenGroupEx.lpszGroupName", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_clusapi_clusapi_OpenGroupEx_rpc_status,
 	  { "Rpc Status", "clusapi.clusapi_OpenGroupEx.rpc_status", FT_UINT32, BASE_DEC, VALS(WERR_errors), 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_OpenGroupSet_Status,
+	  { "Status", "clusapi.clusapi_OpenGroupSet.Status", FT_UINT32, BASE_DEC, VALS(WERR_errors), 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_OpenGroupSet_hGroupSet,
+	  { "HGroupSet", "clusapi.clusapi_OpenGroupSet.hGroupSet", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_OpenGroupSet_lpszGroupSetName,
+	  { "LpszGroupSetName", "clusapi.clusapi_OpenGroupSet.lpszGroupSetName", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_OpenGroupSet_rpc_status,
+	  { "Rpc Status", "clusapi.clusapi_OpenGroupSet.rpc_status", FT_UINT32, BASE_DEC, VALS(WERR_errors), 0, NULL, HFILL }},
 	{ &hf_clusapi_clusapi_OpenGroup_Status,
 	  { "Status", "clusapi.clusapi_OpenGroup.Status", FT_UINT32, BASE_DEC, VALS(WERR_errors), 0, NULL, HFILL }},
 	{ &hf_clusapi_clusapi_OpenGroup_hGroup,
@@ -22181,6 +25023,28 @@ void proto_register_dcerpc_clusapi(void)
 	  { "HResource", "clusapi.clusapi_ReAddNotifyResource.hResource", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_clusapi_clusapi_ReAddNotifyResource_rpc_status,
 	  { "Rpc Status", "clusapi.clusapi_ReAddNotifyResource.rpc_status", FT_UINT32, BASE_DEC, VALS(WERR_errors), 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_RemoveClusterGroupDependency_hDependsOn,
+	  { "HDependsOn", "clusapi.clusapi_RemoveClusterGroupDependency.hDependsOn", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_RemoveClusterGroupDependency_hGroup,
+	  { "HGroup", "clusapi.clusapi_RemoveClusterGroupDependency.hGroup", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_RemoveClusterGroupDependency_rpc_status,
+	  { "Rpc Status", "clusapi.clusapi_RemoveClusterGroupDependency.rpc_status", FT_UINT32, BASE_DEC, VALS(WERR_errors), 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_RemoveClusterGroupToGroupSetDependency_hDependsOn,
+	  { "HDependsOn", "clusapi.clusapi_RemoveClusterGroupToGroupSetDependency.hDependsOn", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_RemoveClusterGroupToGroupSetDependency_hGroup,
+	  { "HGroup", "clusapi.clusapi_RemoveClusterGroupToGroupSetDependency.hGroup", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_RemoveClusterGroupToGroupSetDependency_rpc_status,
+	  { "Rpc Status", "clusapi.clusapi_RemoveClusterGroupToGroupSetDependency.rpc_status", FT_UINT32, BASE_DEC, VALS(WERR_errors), 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_RemoveGroupFromGroupSet_Group,
+	  { "Group", "clusapi.clusapi_RemoveGroupFromGroupSet.Group", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_RemoveGroupFromGroupSet_rpc_status,
+	  { "Rpc Status", "clusapi.clusapi_RemoveGroupFromGroupSet.rpc_status", FT_UINT32, BASE_DEC, VALS(WERR_errors), 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_RemoveGroupSetDependency_hDependsOn,
+	  { "HDependsOn", "clusapi.clusapi_RemoveGroupSetDependency.hDependsOn", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_RemoveGroupSetDependency_hGroupSet,
+	  { "HGroupSet", "clusapi.clusapi_RemoveGroupSetDependency.hGroupSet", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_RemoveGroupSetDependency_rpc_status,
+	  { "Rpc Status", "clusapi.clusapi_RemoveGroupSetDependency.rpc_status", FT_UINT32, BASE_DEC, VALS(WERR_errors), 0, NULL, HFILL }},
 	{ &hf_clusapi_clusapi_RemoveResourceDependency_hDependsOn,
 	  { "HDependsOn", "clusapi.clusapi_RemoveResourceDependency.hDependsOn", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_clusapi_clusapi_RemoveResourceDependency_hResource,
@@ -22253,6 +25117,12 @@ void proto_register_dcerpc_clusapi(void)
 	  { "NewClusterName", "clusapi.clusapi_SetClusterName.NewClusterName", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_clusapi_clusapi_SetClusterName_rpc_status,
 	  { "Rpc Status", "clusapi.clusapi_SetClusterName.rpc_status", FT_UINT32, BASE_DEC, VALS(WERR_errors), 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_SetGroupDependencyExpression_hGroup,
+	  { "HGroup", "clusapi.clusapi_SetGroupDependencyExpression.hGroup", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_SetGroupDependencyExpression_lpszDependencyExpression,
+	  { "LpszDependencyExpression", "clusapi.clusapi_SetGroupDependencyExpression.lpszDependencyExpression", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_SetGroupDependencyExpression_rpc_status,
+	  { "Rpc Status", "clusapi.clusapi_SetGroupDependencyExpression.rpc_status", FT_UINT32, BASE_DEC, VALS(WERR_errors), 0, NULL, HFILL }},
 	{ &hf_clusapi_clusapi_SetGroupName_hGroup,
 	  { "HGroup", "clusapi.clusapi_SetGroupName.hGroup", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_clusapi_clusapi_SetGroupName_lpszGroupName,
@@ -22267,6 +25137,12 @@ void proto_register_dcerpc_clusapi(void)
 	  { "MultiSzNodeList", "clusapi.clusapi_SetGroupNodeList.multiSzNodeList", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_clusapi_clusapi_SetGroupNodeList_rpc_status,
 	  { "Rpc Status", "clusapi.clusapi_SetGroupNodeList.rpc_status", FT_UINT32, BASE_DEC, VALS(WERR_errors), 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_SetGroupSetDependencyExpression_hGroupSet,
+	  { "HGroupSet", "clusapi.clusapi_SetGroupSetDependencyExpression.hGroupSet", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_SetGroupSetDependencyExpression_lpszDependencyExpression,
+	  { "LpszDependencyExpression", "clusapi.clusapi_SetGroupSetDependencyExpression.lpszDependencyExpression", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_clusapi_clusapi_SetGroupSetDependencyExpression_rpc_status,
+	  { "Rpc Status", "clusapi.clusapi_SetGroupSetDependencyExpression.rpc_status", FT_UINT32, BASE_DEC, VALS(WERR_errors), 0, NULL, HFILL }},
 	{ &hf_clusapi_clusapi_SetKeySecurity_SecurityInformation,
 	  { "SecurityInformation", "clusapi.clusapi_SetKeySecurity.SecurityInformation", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_clusapi_clusapi_SetKeySecurity_hKey,
