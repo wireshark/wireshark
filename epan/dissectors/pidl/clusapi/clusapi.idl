@@ -10,6 +10,7 @@ import "winreg.idl", "misc.idl";
 	authservice("MSServerClusterMgmtAPI"),
 	helpstring("Failover Cluster Management API (clusapi)")
 ]
+#define MAX_CLUSTER_CONTROL_CODE_BUFFER_SIZE 0x7FFFFFFF
 	interface clusapi
 {
 #if 0
@@ -1059,62 +1060,62 @@ import "winreg.idl", "misc.idl";
 	} CLUS_RESOURCE_CLASS_INFO;
 
 	typedef [v1_enum] enum {
-		CLUSCTL_RESOURCE_UNKNOWN			= 0x1000000,
-		CLUSCTL_RESOURCE_GET_CHARACTERISTICS		= 0x1000005,
-		CLUSCTL_RESOURCE_GET_FLAGS			= 0x1000009,
-		CLUSCTL_RESOURCE_GET_CLASS_INFO			= 0x100000D,
-		CLUSCTL_RESOURCE_GET_REQUIRED_DEPENDENCIES	= 0x1000011,
-		CLUSCTL_RESOURCE_GET_NAME			= 0x1000029,
-		CLUSCTL_RESOURCE_GET_RESOURCE_TYPE		= 0x100002D,
-		CLUSCTL_RESOURCE_GET_ID				= 0x1000039,
-		CLUSCTL_RESOURCE_ENUM_COMMON_PROPERTIES		= 0x1000051,
-		CLUSCTL_RESOURCE_GET_RO_COMMON_PROPERTIES	= 0x1000055,
-		CLUSCTL_RESOURCE_GET_COMMON_PROPERTIES		= 0x1000059,
-		CLUSCTL_RESOURCE_SET_COMMON_PROPERTIES		= 0x140005E,
-		CLUSCTL_RESOURCE_VALIDATE_COMMON_PROPERTIES	= 0x1000061,
-		CLUSCTL_RESOURCE_GET_COMMON_PROPERTY_FMTS	= 0x1000065,
-		CLUSCTL_RESOURCE_ENUM_PRIVATE_PROPERTIES	= 0x1000079,
-		CLUSCTL_RESOURCE_GET_RO_PRIVATE_PROPERTIES	= 0x100007D,
-		CLUSCTL_RESOURCE_GET_PRIVATE_PROPERTIES		= 0x1000081,
-		CLUSCTL_RESOURCE_SET_PRIVATE_PROPERTIES		= 0x1400086,
-		CLUSCTL_RESOURCE_VALIDATE_PRIVATE_PROPERTIES	= 0x1000089,
-		CLUSCTL_RESOURCE_GET_PRIVATE_PROPERTY_FMTS	= 0x100008D,
-		CLUSCTL_RESOURCE_ADD_REGISTRY_CHECKPOINT	= 0x14000A2,
-		CLUSCTL_RESOURCE_DELETE_REGISTRY_CHECKPOINT	= 0x14000A6,
-		CLUSCTL_RESOURCE_GET_REGISTRY_CHECKPOINTS	= 0x10000A9,
-		CLUSCTL_RESOURCE_ADD_CRYPTO_CHECKPOINT		= 0x14000AE,
-		CLUSCTL_RESOURCE_DELETE_CRYPTO_CHECKPOINT	= 0x14000B2,
+		CLUSCTL_RESOURCE_UNKNOWN			= 0x01000000,
+		CLUSCTL_RESOURCE_GET_CHARACTERISTICS		= 0x01000005,
+		CLUSCTL_RESOURCE_GET_FLAGS			= 0x01000009,
+		CLUSCTL_RESOURCE_GET_CLASS_INFO			= 0x0100000D,
+		CLUSCTL_RESOURCE_GET_REQUIRED_DEPENDENCIES	= 0x01000011,
+		CLUSCTL_RESOURCE_GET_NAME			= 0x01000029,
+		CLUSCTL_RESOURCE_GET_RESOURCE_TYPE		= 0x0100002D,
+		CLUSCTL_RESOURCE_GET_ID				= 0x01000039,
+		CLUSCTL_RESOURCE_ENUM_COMMON_PROPERTIES		= 0x01000051,
+		CLUSCTL_RESOURCE_GET_RO_COMMON_PROPERTIES	= 0x01000055,
+		CLUSCTL_RESOURCE_GET_COMMON_PROPERTIES		= 0x01000059,
+		CLUSCTL_RESOURCE_SET_COMMON_PROPERTIES		= 0x0140005E,
+		CLUSCTL_RESOURCE_VALIDATE_COMMON_PROPERTIES	= 0x01000061,
+		CLUSCTL_RESOURCE_GET_COMMON_PROPERTY_FMTS	= 0x01000065,
+		CLUSCTL_RESOURCE_ENUM_PRIVATE_PROPERTIES	= 0x01000079,
+		CLUSCTL_RESOURCE_GET_RO_PRIVATE_PROPERTIES	= 0x0100007D,
+		CLUSCTL_RESOURCE_GET_PRIVATE_PROPERTIES		= 0x01000081,
+		CLUSCTL_RESOURCE_SET_PRIVATE_PROPERTIES		= 0x01400086,
+		CLUSCTL_RESOURCE_VALIDATE_PRIVATE_PROPERTIES	= 0x01000089,
+		CLUSCTL_RESOURCE_GET_PRIVATE_PROPERTY_FMTS	= 0x0100008D,
+		CLUSCTL_RESOURCE_ADD_REGISTRY_CHECKPOINT	= 0x014000A2,
+		CLUSCTL_RESOURCE_DELETE_REGISTRY_CHECKPOINT	= 0x014000A6,
+		CLUSCTL_RESOURCE_GET_REGISTRY_CHECKPOINTS	= 0x010000A9,
+		CLUSCTL_RESOURCE_ADD_CRYPTO_CHECKPOINT		= 0x014000AE,
+		CLUSCTL_RESOURCE_DELETE_CRYPTO_CHECKPOINT	= 0x014000B2,
 		CLUSCTL_RESOURCE_GET_CRYPTO_CHECKPOINTS		= 0x010000B5,
-		CLUSCTL_RESOURCE_UPGRADE_DLL			= 0x14000BA,
-		CLUSCTL_RESOURCE_ADD_REGISTRY_CHECKPOINT_64BIT	= 0x14000BE,
-		CLUSCTL_RESOURCE_ADD_REGISTRY_CHECKPOINT_32BIT	= 0x14000C2,
-		CLUSCTL_RESOURCE_GET_NETWORK_NAME		= 0x1000169,
-		CLUSCTL_RESOURCE_NETNAME_REGISTER_DNS_RECORDS	= 0x1000172,
-		CLUSCTL_RESOURCE_GET_DNS_NAME			= 0x1000175,
-		CLUSCTL_RESOURCE_NETNAME_SET_PWD_INFO		= 0x100017A,
-		CLUSCTL_RESOURCE_NETNAME_DELETE_CO		= 0x100017E,
-		CLUSCTL_RESOURCE_NETNAME_VALIDATE_VCO		= 0x1000181,
-		CLUSCTL_RESOURCE_NETNAME_RESET_VCO		= 0x1000185,
-		CLUSCTL_RESOURCE_NETNAME_CREDS_UPDATED		= 0x1c0018a,
-		CLUSCTL_RESOURCE_STORAGE_GET_DISK_INFO		= 0x1000191,
-		CLUSCTL_RESOURCE_STORAGE_IS_PATH_VALID		= 0x1000199,
-		CLUSCTL_RESOURCE_IPADDRESS_RENEW_LEASE		= 0x14001BE,
-		CLUSCTL_RESOURCE_IPADDRESS_RELEASE_LEASE	= 0x14001C2,
-		CLUSCTL_RESOURCE_QUERY_MAINTENANCE_MODE		= 0x10001E1,
-		CLUSCTL_RESOURCE_SET_MAINTENANCE_MODE		= 0x14001E6,
-		CLUSCTL_RESOURCE_STORAGE_SET_DRIVELETTER	= 0x14001EA,
-		CLUSCTL_RESOURCE_STORAGE_GET_DISK_INFO_EX	= 0x10001F1,
-		CLUSCTL_RESOURCE_STORAGE_GET_DIRTY		= 0x1000219,
-		CLUSCTL_RESOURCE_STORAGE_GET_MOUNTPOINTS	= 0x1000211,
-		CLUSCTL_RESOURCE_STORAGE_GET_SHARED_VOLUME_INFO = 0x1000225,
-		CLUSCTL_RESOURCE_VM_START_MIGRATION		= 0x1600004,
-		CLUSCTL_RESOURCE_VM_CANCEL_MIGRATION		= 0x1600008,
-		CLUSCTL_RESOURCE_SET_CSV_MAINTENANCE_MODE	= 0x1400296,
-		CLUSCTL_RESOURCE_ENABLE_SHARED_VOLUME_DIRECTIO	= 0x140028a,
-		CLUSCTL_RESOURCE_DISABLE_SHARED_VOLUME_DIRECTIO	= 0x140028e,
-		CLUSCTL_RESOURCE_SET_SHARED_VOLUME_BACKUP_MODE	= 0x140029a,
-		CLUSCTL_RESOURCE_GET_RELATED_RESOURCE_NAMES	= 0x1001fad,
-		CLUSCTL_RESOURCE_POOL_GET_DRIVE_INFO		= 0x10002b5,
+		CLUSCTL_RESOURCE_UPGRADE_DLL			= 0x014000BA,
+		CLUSCTL_RESOURCE_ADD_REGISTRY_CHECKPOINT_64BIT	= 0x014000BE,
+		CLUSCTL_RESOURCE_ADD_REGISTRY_CHECKPOINT_32BIT	= 0x014000C2,
+		CLUSCTL_RESOURCE_GET_NETWORK_NAME		= 0x01000169,
+		CLUSCTL_RESOURCE_NETNAME_REGISTER_DNS_RECORDS	= 0x01000172,
+		CLUSCTL_RESOURCE_GET_DNS_NAME			= 0x01000175,
+		CLUSCTL_RESOURCE_NETNAME_SET_PWD_INFO		= 0x0100017A,
+		CLUSCTL_RESOURCE_NETNAME_DELETE_CO		= 0x0100017E,
+		CLUSCTL_RESOURCE_NETNAME_VALIDATE_VCO		= 0x01000181,
+		CLUSCTL_RESOURCE_NETNAME_RESET_VCO		= 0x01000185,
+		CLUSCTL_RESOURCE_NETNAME_CREDS_UPDATED		= 0x01c0018a,
+		CLUSCTL_RESOURCE_STORAGE_GET_DISK_INFO		= 0x01000191,
+		CLUSCTL_RESOURCE_STORAGE_IS_PATH_VALID		= 0x01000199,
+		CLUSCTL_RESOURCE_IPADDRESS_RENEW_LEASE		= 0x014001BE,
+		CLUSCTL_RESOURCE_IPADDRESS_RELEASE_LEASE	= 0x014001C2,
+		CLUSCTL_RESOURCE_QUERY_MAINTENANCE_MODE		= 0x010001E1,
+		CLUSCTL_RESOURCE_SET_MAINTENANCE_MODE		= 0x014001E6,
+		CLUSCTL_RESOURCE_STORAGE_SET_DRIVELETTER	= 0x014001EA,
+		CLUSCTL_RESOURCE_STORAGE_GET_DISK_INFO_EX	= 0x010001F1,
+		CLUSCTL_RESOURCE_STORAGE_GET_DIRTY		= 0x01000219,
+		CLUSCTL_RESOURCE_STORAGE_GET_MOUNTPOINTS	= 0x01000211,
+		CLUSCTL_RESOURCE_STORAGE_GET_SHARED_VOLUME_INFO = 0x01000225,
+		CLUSCTL_RESOURCE_VM_START_MIGRATION		= 0x01600004,
+		CLUSCTL_RESOURCE_VM_CANCEL_MIGRATION		= 0x01600008,
+		CLUSCTL_RESOURCE_SET_CSV_MAINTENANCE_MODE	= 0x01400296,
+		CLUSCTL_RESOURCE_ENABLE_SHARED_VOLUME_DIRECTIO	= 0x0140028a,
+		CLUSCTL_RESOURCE_DISABLE_SHARED_VOLUME_DIRECTIO	= 0x0140028e,
+		CLUSCTL_RESOURCE_SET_SHARED_VOLUME_BACKUP_MODE	= 0x0140029a,
+		CLUSCTL_RESOURCE_GET_RELATED_RESOURCE_NAMES	= 0x01001fad,
+		CLUSCTL_RESOURCE_POOL_GET_DRIVE_INFO		= 0x010002b5,
 		CLUSCTL_RESOURCE_CLOUD_WITNESS_UPDATE_TOKEN	= 0x014020e6,
 		CLUSCTL_RESOURCE_NETNAME_CHECK_OU_PERMISSIONS	= 0x07002121,
 		CLUSCTL_RESOURCE_NETNAME_CHECK_AD_STATE		= 0x07002125
@@ -2598,4 +2599,320 @@ import "winreg.idl", "misc.idl";
 		DiskIdUnKnown = 0x00001388
 	} CLUSDSK_DISKID_ENUM;
 #endif
+
+	/*****************/
+	/* Function 0x94 */
+	WERROR
+	Opnum148NotUsedOnWire(void);
+
+	/*****************/
+	/* Function 0x95 */
+	WERROR
+	Opnum149otUsedOnWire(void);
+
+	/*****************/
+	/* Function 0x96 */
+	WERROR
+	Opnum150NotUsedOnWire(void);
+
+	/*****************/
+	/* Function 0x97 */
+	WERROR
+	Opnum151NotUsedOnWire(void);
+
+	/*****************/
+	/* Function 0x98 */
+	WERROR
+	Opnum152NotUsedOnWire(void);
+
+	/*****************/
+	/* Function 0x99 */
+	WERROR
+	Opnum153NotUsedOnWire(void);
+
+	/*****************/
+	/* Function 0x9A */
+	WERROR
+	Opnum154NotUsedOnWire(void);
+
+	/*****************/
+	/* Function 0x9B */
+	WERROR
+	clusapi_AddNotifyResourceTypeV2(
+		[ in ] HNOTIFY_RPC hNotify,
+		[ in ] hyper filter,
+		[ in ] uint32 dwNotifyKey,
+		[ in, string ] [charset(UTF16)] uint16 *resTypeName,
+		[ in ] uint32 dwVersion,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x9C */
+	WERROR
+	Opnum156NotUsedOnWire(void);
+
+	/*****************/
+	/* Function 0x9D */
+	WERROR
+	clusapi_ExecuteReadBatchEx(
+		[in] HKEY_RPC hKey,
+		[in] uint32 cbInData,
+		[in, size_is(cbInData)] uint8* lpInData,
+		[in] uint32 flags,
+		[out] uint32* cbOutData,
+		[out, size_is(,*cbOutData)] uint8** lpOutData,
+		[out] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0x9E */
+	WERROR
+	Opnum158NotUsedOnWire(void);
+
+	/*****************/
+	/* Function 0x9F */
+	WERROR
+	Opnum159NotUsedOnWire(void);
+
+	/*****************/
+	/* Function 0xA0 */
+	WERROR
+	Opnum160NotUsedOnWire(void);
+
+	/*****************/
+	/* Function 0xA1 */
+	WERROR
+	Opnum161NotUsedOnWire(void);
+
+	/*****************/
+	/* Function 0xA2 */
+	WERROR
+	Opnum162NotUsedOnWire(void);
+
+	/*****************/
+	/* Function 0xA3 */
+
+#define HGROUPSET_RPC policy_handle
+#if 0
+	typedef [context_handle] void *HGROUPSET_RPC;
+#endif
+#if 0
+	HGROUPSET_RPC
+	clusapi_CreateGroupSet (
+		[ in, string ] [charset(UTF16)] uint16 *lpszGroupSetName,
+		[ out ] WERROR *Status,
+		[ out ] WERROR *rpc_status
+	);
+#else
+	void
+	clusapi_CreateGroupSet (
+		[ in, string ] [charset(UTF16)] uint16 *lpszGroupSetName,
+		[ out ] WERROR *Status,
+		[ out ] WERROR *rpc_status,
+		[ out ] HGROUPSET_RPC *hGroupSet
+	);
+#endif
+
+	/*****************/
+	/* Function 0xA4 */
+#if 0
+	HGROUPSET_RPC
+	clusapi_OpenGroupSet(
+		[ in, string ] [charset(UTF16)] uint16 *lpszGroupSetName,
+		[ out ] WERROR *Status,
+		[ out ] WERROR *rpc_status
+	);
+#else
+	void
+	clusapi_OpenGroupSet(
+		[ in, string ] [charset(UTF16)] uint16 *lpszGroupSetName,
+		[ out ] WERROR *Status,
+		[ out ] WERROR *rpc_status,
+		[ out ] HGROUPSET_RPC *hGroupSet
+	);
+#endif
+
+	/*****************/
+	/* Function 0xA5 */
+	WERROR
+	clusapi_CloseGroupSet(
+		[ in, out ] HGROUPSET_RPC *GroupSet
+	);
+
+	/*****************/
+	/* Function 0xA6 */
+	WERROR
+	clusapi_DeleteGroupSet(
+		[ in ] HGROUPSET_RPC GroupSet,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0xA7 */
+	WERROR
+	clusapi_AddGroupToGroupSet(
+		[ in ] HGROUPSET_RPC GroupSet,
+		[ in ] HGROUP_RPC Group,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0xA8 */
+	WERROR
+	clusapi_RemoveGroupFromGroupSet(
+		[ in ] HGROUP_RPC Group,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0xA9 */
+	WERROR
+	clusapi_MoveGroupToGroupSet(
+		[ in ] HGROUPSET_RPC GroupSet,
+		[ in ] HGROUP_RPC Group,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0xAA */
+	WERROR
+	Opnum170NotUsedOnWire(void);
+
+	/*****************/
+	/* Function 0xAB */
+	WERROR
+	clusapi_AddGroupSetDependency(
+		[ in ] HGROUPSET_RPC DependentGroupSet,
+		[ in ] HGROUPSET_RPC ProviderGroupSet,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0xAC */
+	WERROR
+	clusapi_AddGroupToGroupSetDependency(
+		[ in ] HGROUP_RPC DependentGroup,
+		[ in ] HGROUPSET_RPC ProviderGroupSet,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0xAD */
+	WERROR
+	clusapi_NodeGroupSetControl(
+		[ in ] HGROUPSET_RPC hGroupSet,
+		[ in ] HNODE_RPC hNode,
+		[ in ] uint32 dwControlCode,
+		[ in, unique, size_is(nInBufferSize) ] uint8 *lpInBuffer,
+		[ in ] uint32 nInBufferSize,
+		[ out, size_is(nOutBufferSize), length_is (*lpBytesReturned)] uint8 *lpOutBuffer,
+		[ in, range(0, MAX_CLUSTER_CONTROL_CODE_BUFFER_SIZE)] uint32 nOutBufferSize,
+		[ out ] uint32 *lpBytesReturned,
+		[ out ] uint32 *lpcbRequired,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0xAE */
+	WERROR
+	clusapi_GroupSetControl(
+		[ in ] HGROUPSET_RPC hGroupSet,
+		[ in ] uint32 dwControlCode,
+		[ in, unique, size_is(nInBufferSize) ] uint8 *lpInBuffer,
+		[ in ] uint32 nInBufferSize,
+		[ out, size_is(nOutBufferSize), length_is (*lpBytesReturned)] uint8 *lpOutBuffer,
+		[ in, range(0, 0x7FFFFFFF)] uint32 nOutBufferSize,
+		[ out ] uint32 *lpBytesReturned,
+		[ out ] uint32 *lpcbRequired,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0xAF */
+	WERROR
+	clusapi_SetGroupDependencyExpression(
+		[ in ] HGROUP_RPC hGroup,
+		[ in, string ] [charset(UTF16)] uint16 *lpszDependencyExpression,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0xB0 */
+	WERROR
+	clusapi_RemoveClusterGroupDependency(
+		[ in ] HGROUP_RPC hGroup,
+		[ in ] HGROUP_RPC hDependsOn,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0xB1 */
+	WERROR
+	clusapi_SetGroupSetDependencyExpression(
+		[ in ] HGROUPSET_RPC hGroupSet,
+		[ in, string ] [charset(UTF16)] uint16 *lpszDependencyExpression,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0xB2 */
+	WERROR
+	clusapi_RemoveGroupSetDependency(
+		[ in ] HGROUPSET_RPC hGroupSet,
+		[ in ] HGROUPSET_RPC hDependsOn,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0xB3 */
+	WERROR
+	clusapi_RemoveClusterGroupToGroupSetDependency(
+		[ in ] HGROUP_RPC hGroup,
+		[ in ] HGROUPSET_RPC hDependsOn,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0xB4 */
+	WERROR
+	clusapi_CreateGroupSetEnum(
+		[ in ] HCLUSTER_RPC hCluster,
+		[ out ] ENUM_LIST **ReturnEnum,
+		[ out ] WERROR * rpc_status
+	);
+
+	/*****************/
+	/* Function 0xB5 */
+	WERROR
+	clusapi_CreateNetInterfaceEnum(
+		[in] HCLUSTER_RPC hCluster,
+		[in, string] [charset(UTF16)] uint16 *lpszNodeName,
+		[in, string] [charset(UTF16)] uint16 *lpszNetworkName,
+		[out] ENUM_LIST **ReturnEnum,
+		[out] WERROR * rpc_status
+	);
+
+	/*****************/
+	/* Function 0xB6 */
+	WERROR
+	clusapi_ChangeCsvStateEx(
+		[ in ] HRES_RPC hResource,
+		[ in ] uint32 dwState,
+		[ in, string ] [charset(UTF16)] uint16 *lpszVolumeName,
+		[ out ] WERROR *rpc_status
+	);
+
+	/*****************/
+	/* Function 0xB7 */
+	WERROR
+	clusapi_AddGroupToGroupSetEx(
+		[ in ] HGROUPSET_RPC GroupSet,
+		[ in ] HGROUP_RPC Group,
+		[ in ] uint32 FaultDomain,
+		[ in ] uint32 UpdateDomain,
+		[ in ] boolean8 UseDomains,
+		[ in ] uint32 *Reserved,
+		[ out ] WERROR *rpc_status
+	);
 }
