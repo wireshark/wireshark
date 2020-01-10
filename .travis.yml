@@ -20,6 +20,19 @@ matrix:
       os: osx
       osx_image: xcode11.2
       env: PCAP=OFF
+    - name: Linux amd64 (gcc-9) with PCAP
+      os: linux
+      addons:
+        apt:
+          update: true
+          sources:
+            - ubuntu-toolchain-r-test
+            - sourceline: ppa:ubuntu-toolchain-r/test
+          packages: g++-9
+      env:
+        - CXX=g++-9
+        - CC=gcc-9
+        - PCAP=ON
     - name: Linux amd64 (gcc-8) with PCAP
       os: linux
       addons:
