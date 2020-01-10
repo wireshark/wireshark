@@ -24,6 +24,7 @@
 #include <epan/packet.h>
 #include <epan/to_str.h>
 #include <epan/expert.h>
+#include <epan/cisco_pid.h>
 
 /*
  * It's incomplete, and it appears to be inaccurate in a number of places,
@@ -355,7 +356,7 @@ proto_reg_handoff_dtp(void)
 	dissector_handle_t dtp_handle;
 
 	dtp_handle = create_dissector_handle(dissect_dtp, proto_dtp);
-	dissector_add_uint("llc.cisco_pid", 0x2004, dtp_handle);
+	dissector_add_uint("llc.cisco_pid", CISCO_PID_DTP, dtp_handle);
 }
 
 /*

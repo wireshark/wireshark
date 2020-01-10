@@ -77,6 +77,7 @@ set(LIBWIRESHARK_PUBLIC_HEADERS
 	capture_dissectors.h
 	charsets.h
 	chdlctypes.h
+	cisco_pid.h
 	color_filters.h
 	column.h
 	column-info.h
