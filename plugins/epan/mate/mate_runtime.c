@@ -431,8 +431,6 @@ static void analyze_gop(mate_config* mc, mate_gop* gop) {
 				/** Can't get here because of "breaks" above */
 				g_assert_not_reached();
 			}
-
-			dbg_print (dbg_gog,1,dbg_facility,"analyze_gop: no gogkey_match: %s",key);
 		} /* while */
 
 		g_free(key);

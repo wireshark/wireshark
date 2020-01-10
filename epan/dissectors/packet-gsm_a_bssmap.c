@@ -1041,7 +1041,6 @@ be_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, gu
 {
     guint8       oct;
     guint32      curr_offset;
-    const gchar *str = NULL;
 
     curr_offset = offset;
 
@@ -1081,7 +1080,8 @@ be_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, gu
         curr_offset++;
 
         if (add_string)
-            g_snprintf(add_string, string_len, " - (%u) %s", oct & 0x7f, str);
+            g_snprintf(add_string, string_len, " - (%u) %s", oct & 0x7f,
+                rval_to_str_const(oct & 0x7f, gsm_a_bssap_cause_rvals, "Unknown"));
     }
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_gsm_a_bssmap_extraneous_data);

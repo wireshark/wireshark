@@ -573,7 +573,8 @@ get_iface_list_string(capture_options *capture_opts, guint32 style)
                 }
                 if (style & IFLIST_QUOTE_IF_DESCRIPTION)
                     g_string_append_printf(iface_list_string, "'");
-                g_string_append_printf(iface_list_string, "%s", get_display_name_for_interface(capture_opts, i));
+                const gchar* name = get_display_name_for_interface(capture_opts, i);
+                g_string_append_printf(iface_list_string, "%s", name ? name : "");
                 if (style & IFLIST_QUOTE_IF_DESCRIPTION)
                     g_string_append_printf(iface_list_string, "'");
                 if (style & IFLIST_SHOW_FILTER) {
