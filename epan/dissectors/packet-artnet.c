@@ -2860,13 +2860,21 @@ static int hf_artnet_poll_talktome = -1;
 static int hf_artnet_poll_talktome_reply_change= -1;
 static int hf_artnet_poll_talktome_diag = -1;
 static int hf_artnet_poll_talktome_diag_unicast = -1;
+static int hf_artnet_poll_talktome_vlc = -1;
+static int hf_artnet_poll_talktome_targeted = -1;
+
 static int hf_artnet_poll_diag_priority = -1;
+static int hf_artnet_poll_target_port_top = -1;
+static int hf_artnet_poll_target_port_bottom = -1;
+
 static gint ett_artnet_poll_talktome = -1;
 
 static const int *artnet_poll_talktome_fields[] = {
   &hf_artnet_poll_talktome_reply_change,
   &hf_artnet_poll_talktome_diag,
   &hf_artnet_poll_talktome_diag_unicast,
+  &hf_artnet_poll_talktome_vlc,
+  &hf_artnet_poll_talktome_targeted,
   NULL
 };
 
@@ -3285,6 +3293,7 @@ static dissector_handle_t dmx_chan_handle;
 static guint
 dissect_artnet_poll(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
+  guint size;
 
   proto_tree_add_bitmask(tree, tvb, offset, hf_artnet_poll_talktome,
                          ett_artnet_poll_talktome,
@@ -3295,6 +3304,18 @@ dissect_artnet_poll(tvbuff_t *tvb, guint offset, proto_tree *tree)
   proto_tree_add_item(tree, hf_artnet_poll_diag_priority, tvb,
                       offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
+
+  size = tvb_reported_length_remaining(tvb, offset);
+
+  if (size >= 4) {
+    proto_tree_add_item(tree, hf_artnet_poll_target_port_top, tvb,
+                      offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_artnet_poll_target_port_bottom, tvb,
+                      offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+  }
 
   return offset;
 }
@@ -5280,11 +5301,36 @@ proto_register_artnet(void) {
         FT_UINT8, BASE_HEX, VALS(artnet_talktome_diag_unicast_vals), 0x08,
         NULL, HFILL }},
 
+    { &hf_artnet_poll_talktome_vlc,
+      { "VLC transmision",
+        "artnet.poll.talktome_vlc",
+        FT_BOOLEAN, 8, TFS(&tfs_disabled_enabled), 0x10,
+        NULL, HFILL }},
+
+    { &hf_artnet_poll_talktome_targeted,
+      { "Targeted mode",
+        "artnet.poll.talktome_targeted",
+        FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x20,
+        NULL, HFILL }},
+
     { &hf_artnet_poll_diag_priority,
       { "Priority",
         "artnet.poll.diag_priority",
         FT_UINT8, BASE_DEC, VALS(artnet_talktome_diag_priority_vals), 0x0,
         "Minimum diagnostics message priority", HFILL }},
+
+    { &hf_artnet_poll_target_port_top,
+      { "Target Port Top",
+        "artnet.poll.target_port_top",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        "Top of the port range", HFILL }},
+
+    { &hf_artnet_poll_target_port_bottom,
+      { "Target Port Bottom",
+        "artnet.poll.target_port_bottom",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        "Bottom of the port range", HFILL }},
+
 
     /* ArtPollReply */
 
