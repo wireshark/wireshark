@@ -4370,13 +4370,13 @@ static void wassp_defragment_init(void)
 	reassembly_table_init(&wassp_reassembled_table, &addresses_reassembly_table_functions);
 }
 
-static const char* wassp_match_strval(WASSP_SUBTLV_DECODER_INFO_t *in_ptr, int in_type)
+static const char* wassp_match_strval(const WASSP_SUBTLV_DECODER_INFO_t *in_ptr, int in_type)
 {
 	if (in_ptr == NULL)
 	{
 		return NULL;
 	}
-	if (in_ptr->max_entry < in_type)
+	if (in_ptr->max_entry <= in_type)
 	{
 		return NULL;
 	}
@@ -4742,11 +4742,11 @@ int dissect_wassp_sub_tlv(proto_tree *wassp_tree, tvbuff_t *tvb, packet_info *pi
 	proto_item *tlvi;
 	proto_item *ti;
 	proto_tree *tmp_tree;
-	char *label;
+	const char *label;
 	guint32 value;
 	guint16 tlv_type = EID_PARSE_ERROR;
 	guint16 length = 0, org_offset = offset;
-	WASSP_SUBTLV_DECODER_INFO_t *tmp_decr = NULL;
+	const WASSP_SUBTLV_DECODER_INFO_t *tmp_decr = NULL;
 	guint32 i, tableNo;
 	int suboffset;
 
@@ -4755,7 +4755,7 @@ int dissect_wassp_sub_tlv(proto_tree *wassp_tree, tvbuff_t *tvb, packet_info *pi
 		return offset;
 	}
 
-	tmp_decr = (WASSP_SUBTLV_DECODER_INFO_t*)&wassp_decr_info[which_tab];
+	tmp_decr = &wassp_decr_info[which_tab];
 
 	if (tvb_reported_length_remaining(tvb, offset) > 0)
 	{
@@ -4767,7 +4767,7 @@ int dissect_wassp_sub_tlv(proto_tree *wassp_tree, tvbuff_t *tvb, packet_info *pi
 		{
 			tlv_type = tvb_get_ntohs(tvb, offset + TLV_TYPE);
 			length = tvb_get_ntohs(tvb, offset + TLV_LENGTH);
-			if (tlv_type > WASSP_SUBTLV_GET_MAXENTRY(tmp_decr))
+			if (tlv_type >= WASSP_SUBTLV_GET_MAXENTRY(tmp_decr))
 			{
 				proto_tree_add_uint_format_value(tmp_tree, hf_wassp_tlv_unknown, tvb, offset, 4, tlv_type, "Unknow Wassp TLV (%d)", tlv_type);
 				proto_tree_add_item(tmp_tree, hf_wassp_tlv_length, tvb, offset + TLV_LENGTH, 2, ENC_BIG_ENDIAN);
@@ -4776,7 +4776,7 @@ int dissect_wassp_sub_tlv(proto_tree *wassp_tree, tvbuff_t *tvb, packet_info *pi
 				continue;
 			}
 
-			label = (char*)wassp_match_strval(tmp_decr, tlv_type);
+			label = wassp_match_strval(tmp_decr, tlv_type);
 			label = (label == NULL) ? "Unknown Type" : label;
 
 			if (length > value)
@@ -4944,7 +4944,7 @@ int dissect_wassp_tlv(proto_tree *wassp_tree, tvbuff_t *tvb, packet_info *pinfo,
 	guint32 value;
 	int suboffset;
 	wassp_ru_msg_t ru_msg_type = rumsg_type;
-	char *label;
+	const char *label;
 
 
 
@@ -4953,7 +4953,7 @@ int dissect_wassp_tlv(proto_tree *wassp_tree, tvbuff_t *tvb, packet_info *pinfo,
 	{
 		tlv_type = tvb_get_ntohs(tvb, offset + TLV_TYPE);
 		length = tvb_get_ntohs(tvb, offset + TLV_LENGTH);
-		label = (char*)try_val_to_str(tlv_type, wassp_tlv_types);
+		label = try_val_to_str(tlv_type, wassp_tlv_types);
 		label = (label == NULL) ? "Unknown Type" : label;
 
 		if (length > value)
