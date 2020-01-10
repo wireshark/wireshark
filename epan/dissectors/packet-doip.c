@@ -177,7 +177,7 @@ static const value_string doip_versions[] = {
     { RESERVED_VER,  "Reserved" },
     { ISO13400_2010, "DoIP ISO/DIS 13400-2:2010" },
     { ISO13400_2012, "DoIP ISO 13400-2:2012" },
-    { DEFAULT_VALUE, "Default value for vehicle identifcation request messages" },
+    { DEFAULT_VALUE, "Default value for vehicle identification request messages" },
     { 0, NULL }
 };
 
