@@ -312,7 +312,7 @@ dissect_net_dm_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_d
 		proto_tree_add_item(tree, &hfi_net_dm_alert_mode, tvb, offset, len, nl_data->encoding);
 		return 1;
 	case WS_NET_DM_ATTR_PC:
-		proto_tree_add_item_ret_uint64(tree, hfi_net_dm_pc.id, tvb,
+		proto_tree_add_item_ret_uint64(tree, &hfi_net_dm_pc, tvb,
 					       offset, 8, nl_data->encoding, &pc);
 		proto_item_append_text(tree, ": 0x%" G_GINT64_MODIFIER "x", pc);
 		return 1;
