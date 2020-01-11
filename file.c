@@ -845,7 +845,7 @@ cf_continue_tail(capture_file *cf, volatile int to_read, wtap_rec *rec,
   /* With the new packet list the first packet
    * isn't automatically selected.
    */
-  if (!cf->current_frame)
+  if (!cf->current_frame && !packet_list_multi_select_active())
     packet_list_select_first_row();
 
   /* moving to the end of the packet list - if the user requested so and

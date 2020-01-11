@@ -203,6 +203,15 @@ packet_list_recent_write_all(FILE *rf) {
     gbl_cur_packet_list->writeRecent(rf);
 }
 
+gboolean
+packet_list_multi_select_active(void)
+{
+    if (gbl_cur_packet_list) {
+        return gbl_cur_packet_list->multiSelectActive();
+    }
+    return FALSE;
+}
+
 #define MIN_COL_WIDTH_STR "MMMMMM"
 
 PacketList::PacketList(QWidget *parent) :
