@@ -18,83 +18,83 @@ BEGIN
 --
 
 SONtransferApplicationIdentity ::= ENUMERATED {
-	cell-load-reporting,
-	...,
-	multi-cell-load-reporting,
-	event-triggered-cell-load-reporting,
-	ho-reporting,
-	eutran-cell-activation,
-	energy-savings-indication,
-	failure-event-reporting
+    cell-load-reporting,
+    ...,
+    multi-cell-load-reporting,
+    event-triggered-cell-load-reporting,
+    ho-reporting,
+    eutran-cell-activation,
+    energy-savings-indication,
+    failure-event-reporting
 }
 
 SONtransferRequestContainer ::= CHOICE{
-	cellLoadReporting					NULL,
-	...,
-	multiCellLoadReporting				MultiCellLoadReportingRequest,
-	eventTriggeredCellLoadReporting		EventTriggeredCellLoadReportingRequest,
-	hOReporting							HOReport,
-	eutranCellActivation				CellActivationRequest,
-	energySavingsIndication				CellStateIndication,
-	failureEventReporting				FailureEventReport
+    cellLoadReporting                   NULL,
+    ...,
+    multiCellLoadReporting              MultiCellLoadReportingRequest,
+    eventTriggeredCellLoadReporting     EventTriggeredCellLoadReportingRequest,
+    hOReporting                         HOReport,
+    eutranCellActivation                CellActivationRequest,
+    energySavingsIndication             CellStateIndication,
+    failureEventReporting               FailureEventReport
 }
 
 SONtransferResponseContainer ::= CHOICE{
-	cellLoadReporting					CellLoadReportingResponse,
-	...,
-	multiCellLoadReporting				MultiCellLoadReportingResponse,
-	eventTriggeredCellLoadReporting	EventTriggeredCellLoadReportingResponse,
-	hOReporting							NULL,
-	eutranCellActivation				CellActivationResponse,
-	energySavingsIndication				NULL,
-	failureEventReporting				NULL
+    cellLoadReporting                   CellLoadReportingResponse,
+    ...,
+    multiCellLoadReporting              MultiCellLoadReportingResponse,
+    eventTriggeredCellLoadReporting EventTriggeredCellLoadReportingResponse,
+    hOReporting                         NULL,
+    eutranCellActivation                CellActivationResponse,
+    energySavingsIndication             NULL,
+    failureEventReporting               NULL
 }
 
 SONtransferCause ::= CHOICE {
-	cellLoadReporting					CellLoadReportingCause,
-	...,
-	multiCellLoadReporting				CellLoadReportingCause,
-	eventTriggeredCellLoadReporting		CellLoadReportingCause,
-	hOReporting							HOReportingCause,
-	eutranCellActivation				CellActivationCause,
-	energySavingsIndication				CellStateIndicationCause,
-	failureEventReporting				FailureEventReportingCause
+    cellLoadReporting                   CellLoadReportingCause,
+    ...,
+    multiCellLoadReporting              CellLoadReportingCause,
+    eventTriggeredCellLoadReporting     CellLoadReportingCause,
+    hOReporting                         HOReportingCause,
+    eutranCellActivation                CellActivationCause,
+    energySavingsIndication             CellStateIndicationCause,
+    failureEventReporting               FailureEventReportingCause
 }
 
 
 CellLoadReportingCause ::= ENUMERATED {
-	application-container-syntax-error,
-	inconsistent-reporting-cell-identifier,
-	unspecified,
-	...
+    application-container-syntax-error,
+    inconsistent-reporting-cell-identifier,
+    unspecified,
+    ...
 }
 
 HOReportingCause ::= ENUMERATED {
-	application-container-syntax-error,
-	inconsistent-reporting-cell-identifier,
-	unspecified,
-	...
+    application-container-syntax-error,
+    inconsistent-reporting-cell-identifier,
+    unspecified,
+    ...
 }
 
 CellActivationCause ::= ENUMERATED {
-	application-container-syntax-error,
-	inconsistent-reporting-cell-identifier,
-	unspecified,
-	...
+    application-container-syntax-error,
+    inconsistent-reporting-cell-identifier,
+    unspecified,
+    ...
 }
 
 CellStateIndicationCause ::= ENUMERATED {
-	application-container-syntax-error,
-	inconsistent-reporting-cell-identifier,
-	unspecified,
-	...
+    application-container-syntax-error,
+    inconsistent-reporting-cell-identifier,
+    unspecified,
+    ...
 }
 
 FailureEventReportingCause ::= ENUMERATED {
-	application-container-syntax-error,
-	inconsistent-reporting-cell-identifier,
-	unspecified,
-	...
+    application-container-syntax-error,
+    inconsistent-reporting-cell-identifier,
+    unspecified,
+    ...
 }
 
 --
@@ -102,18 +102,18 @@ FailureEventReportingCause ::= ENUMERATED {
 --
 
 CellLoadReportingResponse::= CHOICE{
-	eUTRAN			EUTRANcellLoadReportingResponse,
-	uTRAN			OCTET STRING,
-	gERAN			OCTET STRING,
-	...,
-	eHRPD			EHRPDSectorLoadReportingResponse
+    eUTRAN          EUTRANcellLoadReportingResponse,
+    uTRAN           OCTET STRING,
+    gERAN           OCTET STRING,
+    ...,
+    eHRPD           EHRPDSectorLoadReportingResponse
 }
 
 CompositeAvailableCapacityGroup ::= OCTET STRING
 
 EUTRANcellLoadReportingResponse ::= SEQUENCE {
-	compositeAvailableCapacityGroup		CompositeAvailableCapacityGroup,
-	...
+    compositeAvailableCapacityGroup     CompositeAvailableCapacityGroup,
+    ...
 }
 
 --
@@ -121,31 +121,31 @@ EUTRANcellLoadReportingResponse ::= SEQUENCE {
 --
 
 EUTRANResponse::= SEQUENCE {
-	cell-ID			OCTET STRING,
-	eUTRANcellLoadReportingResponse		EUTRANcellLoadReportingResponse,
-	...
+    cell-ID         OCTET STRING,
+    eUTRANcellLoadReportingResponse     EUTRANcellLoadReportingResponse,
+    ...
 }
 
 EHRPD-Sector-ID ::= OCTET STRING (SIZE (16))
 
 IRAT-Cell-ID ::= CHOICE{
-	eUTRAN			OCTET STRING,
-	uTRAN			OCTET STRING,
-	gERAN			OCTET STRING,
-	...,
-	eHRPD			EHRPD-Sector-ID
+    eUTRAN          OCTET STRING,
+    uTRAN           OCTET STRING,
+    gERAN           OCTET STRING,
+    ...,
+    eHRPD           EHRPD-Sector-ID
 }
 
 RequestedCellList ::= SEQUENCE (SIZE(1.. maxnoofIRATReportingCells)) OF IRAT-Cell-ID
 
 MultiCellLoadReportingRequest::= SEQUENCE {
-	requestedCellList						RequestedCellList,
-	...
+    requestedCellList                       RequestedCellList,
+    ...
 }
 
 ReportingCellList-Item ::= SEQUENCE {
-	cell-ID									IRAT-Cell-ID,
-	...
+    cell-ID                                 IRAT-Cell-ID,
+    ...
 }
 
 ReportingCellList ::= SEQUENCE (SIZE(1.. maxnoofIRATReportingCells)) OF ReportingCellList-Item
@@ -153,11 +153,11 @@ ReportingCellList ::= SEQUENCE (SIZE(1.. maxnoofIRATReportingCells)) OF Reportin
 MultiCellLoadReportingResponse ::= SEQUENCE (SIZE(1.. maxnoofIRATReportingCells)) OF MultiCellLoadReportingResponse-Item
 
 MultiCellLoadReportingResponse-Item ::= CHOICE{ 
-	eUTRANResponse							EUTRANResponse,
-	uTRANResponse							OCTET STRING,
-	gERANResponse							OCTET STRING,
-	...,
-	eHRPD									EHRPDMultiSectorLoadReportingResponseItem
+    eUTRANResponse                          EUTRANResponse,
+    uTRANResponse                           OCTET STRING,
+    gERANResponse                           OCTET STRING,
+    ...,
+    eHRPD                                   EHRPDMultiSectorLoadReportingResponseItem
 }
 
 
@@ -166,28 +166,28 @@ MultiCellLoadReportingResponse-Item ::= CHOICE{
 --
 
 NumberOfMeasurementReportingLevels ::= ENUMERATED {
-	rl2,
-	rl3,
-	rl4,
-	rl5,
-	rl10,
-	...
+    rl2,
+    rl3,
+    rl4,
+    rl5,
+    rl10,
+    ...
 }
 
 EventTriggeredCellLoadReportingRequest ::= SEQUENCE {
-	numberOfMeasurementReportingLevels		NumberOfMeasurementReportingLevels,
-	...
+    numberOfMeasurementReportingLevels      NumberOfMeasurementReportingLevels,
+    ...
 }
 
 OverloadFlag ::= ENUMERATED {
-	overload,
-	...
+    overload,
+    ...
 }
 
 EventTriggeredCellLoadReportingResponse ::= SEQUENCE {
-	cellLoadReportingResponse				CellLoadReportingResponse,
-	overloadFlag							OverloadFlag						OPTIONAL,
-	...
+    cellLoadReportingResponse               CellLoadReportingResponse,
+    overloadFlag                            OverloadFlag                        OPTIONAL,
+    ...
 }
 
 --
@@ -197,25 +197,25 @@ EventTriggeredCellLoadReportingResponse ::= SEQUENCE {
 
 
 HOReport::= SEQUENCE {
-	hoType					HoType,
-	hoReportType			HoReportType,
-	hosourceID				IRAT-Cell-ID,
-	hoTargetID				IRAT-Cell-ID,
-	candidateCellList		CandidateCellList,
-	...,
-	candidatePCIList		CandidatePCIList	OPTIONAL
+    hoType                  HoType,
+    hoReportType            HoReportType,
+    hosourceID              IRAT-Cell-ID,
+    hoTargetID              IRAT-Cell-ID,
+    candidateCellList       CandidateCellList,
+    ...,
+    candidatePCIList        CandidatePCIList    OPTIONAL
 }
 
 HoType ::= ENUMERATED {
-	ltetoutran,
-	ltetogeran,
-	...
+    ltetoutran,
+    ltetogeran,
+    ...
 }
 
 HoReportType ::= ENUMERATED {
-	unnecessaryhotoanotherrat,
-	...,
-	earlyirathandover
+    unnecessaryhotoanotherrat,
+    ...,
+    earlyirathandover
 }
 
 CandidateCellList ::= SEQUENCE (SIZE(1..maxnoofcandidateCells)) OF IRAT-Cell-ID
@@ -223,9 +223,9 @@ CandidateCellList ::= SEQUENCE (SIZE(1..maxnoofcandidateCells)) OF IRAT-Cell-ID
 CandidatePCIList ::= SEQUENCE (SIZE(1..maxnoofcandidateCells)) OF CandidatePCI
 
 CandidatePCI ::= SEQUENCE {
-	pCI			INTEGER (0..503),
-	eARFCN		OCTET STRING,
-	...
+    pCI         INTEGER (0..503),
+    eARFCN      OCTET STRING,
+    ...
 }
 
 --
@@ -233,28 +233,28 @@ CandidatePCI ::= SEQUENCE {
 --
 
 CellActivationRequest ::= SEQUENCE {
-	cellsToActivateList		CellsToActivateList,
-	minimumActivationTime	INTEGER (1..60)		OPTIONAL,
+    cellsToActivateList     CellsToActivateList,
+    minimumActivationTime   INTEGER (1..60)     OPTIONAL,
 ...
 }
 
 CellsToActivateList ::= SEQUENCE (SIZE(1.. maxnoofCellineNB)) OF CellsToActivateList-Item
 
 CellsToActivateList-Item ::= SEQUENCE {
-	cell-ID					OCTET STRING,
-	...
+    cell-ID                 OCTET STRING,
+    ...
 }
 
 CellActivationResponse ::= SEQUENCE {
-	activatedCellsList		ActivatedCellsList,
-	...
+    activatedCellsList      ActivatedCellsList,
+    ...
 }
 
 ActivatedCellsList ::= SEQUENCE (SIZE(0.. maxnoofCellineNB)) OF ActivatedCellsList-Item
 
 ActivatedCellsList-Item ::= SEQUENCE {
-	cell-ID					OCTET STRING,
-	...
+    cell-ID                 OCTET STRING,
+    ...
 }
 
 --
@@ -262,33 +262,33 @@ ActivatedCellsList-Item ::= SEQUENCE {
 --
 
 CellStateIndication ::= SEQUENCE {
-	notificationCellList			NotificationCellList,
-	...
+    notificationCellList            NotificationCellList,
+    ...
 }
 
 NotificationCellList ::= SEQUENCE (SIZE(1.. maxnoofCellineNB)) OF NotificationCellList-Item
 
 NotificationCellList-Item ::= SEQUENCE {
-	cell-ID					OCTET STRING,
-	notifyFlag				NotifyFlag,
-	...
+    cell-ID                 OCTET STRING,
+    notifyFlag              NotifyFlag,
+    ...
 }
 
 NotifyFlag ::= ENUMERATED {
-	activated,
-	deactivated,
-	...
+    activated,
+    deactivated,
+    ...
 }
 
 FailureEventReport::= CHOICE {
-	tooEarlyInterRATHOReportFromEUTRAN			TooEarlyInterRATHOReportReportFromEUTRAN,
-	...
+    tooEarlyInterRATHOReportFromEUTRAN          TooEarlyInterRATHOReportReportFromEUTRAN,
+    ...
 }
 
 TooEarlyInterRATHOReportReportFromEUTRAN ::= SEQUENCE {
-	uERLFReportContainer	OCTET STRING, -- as defined in TS 36.331 [16] --
-	mobilityInformation		MobilityInformation		OPTIONAL,
-	...
+    uERLFReportContainer    OCTET STRING, -- as defined in TS 36.331 [16] --
+    mobilityInformation     MobilityInformation     OPTIONAL,
+    ...
 }
 
 -- WS modification, already defined in S1AP-IEs.asn
@@ -304,21 +304,21 @@ EHRPDCapacityValue ::= INTEGER (0..100)
 EHRPDSectorCapacityClassValue ::= INTEGER (1..100, ...)
 
 EHRPDSectorLoadReportingResponse ::= SEQUENCE {
-	dL-EHRPD-CompositeAvailableCapacity			EHRPDCompositeAvailableCapacity,
-	uL-EHRPD-CompositeAvailableCapacity			EHRPDCompositeAvailableCapacity,
-	...
+    dL-EHRPD-CompositeAvailableCapacity         EHRPDCompositeAvailableCapacity,
+    uL-EHRPD-CompositeAvailableCapacity         EHRPDCompositeAvailableCapacity,
+    ...
 }
 
 EHRPDCompositeAvailableCapacity ::= SEQUENCE {
-	eHRPDSectorCapacityClassValue				EHRPDSectorCapacityClassValue,
-	eHRPDCapacityValue							EHRPDCapacityValue,
-	...
+    eHRPDSectorCapacityClassValue               EHRPDSectorCapacityClassValue,
+    eHRPDCapacityValue                          EHRPDCapacityValue,
+    ...
 }
 
 EHRPDMultiSectorLoadReportingResponseItem ::= SEQUENCE {
-	eHRPD-Sector-ID							EHRPD-Sector-ID,
-	eHRPDSectorLoadReportingResponse		EHRPDSectorLoadReportingResponse,
-	...
+    eHRPD-Sector-ID                         EHRPD-Sector-ID,
+    eHRPDSectorLoadReportingResponse        EHRPDSectorLoadReportingResponse,
+    ...
 }
 
 
@@ -328,8 +328,8 @@ EHRPDMultiSectorLoadReportingResponseItem ::= SEQUENCE {
 --
 -- **************************************************************
 
-maxnoofIRATReportingCells					INTEGER ::= 128
-maxnoofcandidateCells						INTEGER ::= 16
-maxnoofCellineNB							INTEGER ::= 256
+maxnoofIRATReportingCells                   INTEGER ::= 128
+maxnoofcandidateCells                       INTEGER ::= 16
+maxnoofCellineNB                            INTEGER ::= 256
 
 END
