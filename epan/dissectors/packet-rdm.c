@@ -561,7 +561,7 @@ static int hf_rdm_checksum_status = -1;
 static int hf_rdm_trailer = -1;
 
 static int hf_rdm_pd_ack_timer_estimated_response_time = -1;
-static int hf_rdm_pd_ack_overflow_uid = -1;
+static int hf_rdm_pd_ack_overflow_raw_data = -1;
 static int hf_rdm_pd_nack_reason_code = -1;
 
 static int hf_rdm_pd_device_label = -1;
@@ -2008,16 +2008,11 @@ static guint
 dissect_rdm_pd_ack_overflow(tvbuff_t *tvb, guint offset, proto_tree *tree, guint8 cc, guint16 param_id _U_, guint8 pdl)
 {
 	if (pdl > 0) {
-		int i;
-
 		switch(cc) {
 		case RDM_CC_GET_COMMAND_RESPONSE:
 		case RDM_CC_SET_COMMAND_RESPONSE:
-			for (i = 0; i < (pdl / 6); i++) {
-				proto_tree_add_item(tree, hf_rdm_pd_ack_overflow_uid, tvb,
-						offset, 6, ENC_NA);
-				offset += 6;
-			}
+			proto_tree_add_item(tree, hf_rdm_pd_ack_overflow_raw_data, tvb, offset, pdl, ENC_NA);
+			offset += pdl;
 			break;
 		}
 	}
@@ -2302,8 +2297,8 @@ proto_register_rdm(void)
 				FT_BYTES, BASE_NONE, NULL, 0x0,
 				NULL, HFILL }},
 
-		{ &hf_rdm_pd_ack_overflow_uid,
-			{ "UID", "rdm.pd.ack_overflow.uid",
+		{ &hf_rdm_pd_ack_overflow_raw_data,
+			{ "Raw Data", "rdm.pd.ack_overflow.raw_data",
 				FT_BYTES, BASE_NONE, NULL, 0x0,
 				NULL, HFILL }},
 
