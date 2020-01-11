@@ -324,7 +324,7 @@ static gint32 get_msg_num(guint32 psn, guint32 frag_size,
     guint32 i, epsn, nfrags;
     request_t *p_request;
     wmem_list_frame_t *item;
-    segment_info_t *p_segment_info;
+    segment_info_t *p_segment_info = NULL;
     guint32 iosize = p_rdma_conv_info->iosize;
 
     /* Look for the segment where the PSN for this packet belongs to */
@@ -413,7 +413,7 @@ static gboolean is_reassembly_done(rdma_conv_info_t *p_rdma_conv_info, guint32 m
     guint32 reassembled_size = 0;
     wmem_list_frame_t *item;
     request_t *p_request;
-    segment_info_t *p_segment_info;
+    segment_info_t *p_segment_info = NULL;
     gboolean ret = FALSE; /* Make sure there is at least one segment */
 
     /* Check all segments for the given reassembly message id */
@@ -1325,7 +1325,7 @@ dissect_rpcrdma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
     tvbuff_t *frag_tvb;
     proto_item *ti;
     proto_tree *rpcordma_tree;
-    guint offset = 0;
+    guint offset;
     guint32 msg_type = 0;
     guint32 xid;
     guint32 val;
@@ -1339,6 +1339,7 @@ dissect_rpcrdma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
        this is an rpcrdma packet */
     if (tvb_captured_length(tvb) < 8)
         return 0;
+
     if (tvb_get_ntohl(tvb, 4) != 1)  /* vers */
         return 0;
 
@@ -1352,6 +1353,7 @@ dissect_rpcrdma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 
     rpcordma_tree = proto_item_add_subtree(ti, ett_rpcordma);
 
+    offset = 0;
     proto_tree_add_item(rpcordma_tree, hf_rpcordma_xid, tvb,
                 offset, 4, ENC_BIG_ENDIAN);
     offset += 4;

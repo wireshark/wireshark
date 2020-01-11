@@ -26664,7 +26664,7 @@ dissect_nbap_IB_SG_DATA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
   guint32 total_bit_size = 0;
   guint32 total_byte_size = 0;
   nbap_ib_segment_t* nbap_ib_segment;
-  wmem_list_t *list;
+  wmem_list_t *list = NULL;
   wmem_list_frame_t *curr_frame;
   guint8 *final_arr;
   guint8 final_byte_off = 0;

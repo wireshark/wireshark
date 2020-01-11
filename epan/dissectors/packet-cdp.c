@@ -1049,7 +1049,7 @@ dissect_address_tlv(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
     proto_tree *address_tree;
     guint8      protocol_type;
     guint8      protocol_length;
-    int         nlpid;
+    int         nlpid = 0;
     guint16     address_length;
     guint16     etypeid = 0;
     int         hf_addr = -1;
