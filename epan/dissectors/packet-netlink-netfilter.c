@@ -512,7 +512,7 @@ dissect_nfct_tuple_ip_attrs(tvbuff_t *tvb, void *data _U_, struct packet_netlink
 
 		case WS_CTA_IP_V6_SRC:
 		case WS_CTA_IP_V6_DST:
-			proto_tree_add_item(tree, &hfi_nfct_tuple_ip_attr_ipv6, tvb, offset, len, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, &hfi_nfct_tuple_ip_attr_ipv6, tvb, offset, len, ENC_NA);
 			return 1;
 
 		default:
@@ -1656,7 +1656,7 @@ dissect_ipset_ip_attrs(tvbuff_t *tvb, void *data _U_, struct packet_netlink_data
 			return 1;
 
 		case WS_IPSET_ATTR_IPADDR_IPV6:
-			proto_tree_add_item(tree, &hfi_ipset_ip_attr_ipv6, tvb, offset, len, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, &hfi_ipset_ip_attr_ipv6, tvb, offset, len, ENC_NA);
 			return 1;
 	}
 

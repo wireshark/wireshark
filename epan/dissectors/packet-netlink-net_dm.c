@@ -268,11 +268,12 @@ dissect_net_dm_attrs_port(tvbuff_t *tvb, void *data _U_, struct packet_netlink_d
 {
 	enum ws_net_dm_attrs_port type = (enum ws_net_dm_attrs_port) nla_type & NLA_TYPE_MASK;
 	const guint8 *str;
+	guint32 value;
 
 	switch (type) {
 	case WS_NET_DM_ATTR_PORT_NETDEV_IFINDEX:
-		proto_item_append_text(tree, ": %u", tvb_get_guint32(tvb, offset, nl_data->encoding));
-		proto_tree_add_item(tree, &hfi_net_dm_port_netdev_index, tvb, offset, len, nl_data->encoding);
+		proto_tree_add_item_ret_uint(tree, &hfi_net_dm_port_netdev_index, tvb, offset, len, nl_data->encoding, &value);
+		proto_item_append_text(tree, ": %u", value);
 		return 1;
 	case WS_NET_DM_ATTR_PORT_NETDEV_NAME:
 		proto_tree_add_item_ret_string(tree, &hfi_net_dm_port_netdev_name, tvb, offset, len, ENC_ASCII | ENC_NA, wmem_packet_scope(), &str);
@@ -302,9 +303,9 @@ dissect_net_dm_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_d
 {
 	enum ws_net_dm_attrs type = (enum ws_net_dm_attrs) nla_type & NLA_TYPE_MASK;
 	struct netlink_net_dm_info *info = (struct netlink_net_dm_info *) data;
-	guint64 timestamp, pc;
+	guint64 pc;
+	guint32 value;
 	tvbuff_t *next_tvb;
-	nstime_t ts_nstime;
 	const guint8 *str;
 
 	switch (type) {
@@ -324,10 +325,7 @@ dissect_net_dm_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_d
 		return dissect_netlink_attributes(tvb, &hfi_net_dm_attrs_port, ett_net_dm_attrs_in_port, info, nl_data, tree, offset, len,
 						  dissect_net_dm_attrs_port);
 	case WS_NET_DM_ATTR_TIMESTAMP:
-		timestamp = tvb_get_guint64(tvb, offset, nl_data->encoding);
-		ts_nstime.secs = timestamp / 1000000000;
-		ts_nstime.nsecs = timestamp % 1000000000;
-		proto_tree_add_time(tree, &hfi_net_dm_timestamp, tvb, offset, 8, &ts_nstime);
+		proto_tree_add_item(tree, &hfi_net_dm_timestamp, tvb, offset, 8, ENC_TIME_SECS_NSECS | nl_data->encoding);
 		return 1;
 	case WS_NET_DM_ATTR_PROTO:
 		info->protocol = tvb_get_guint16(tvb, offset, nl_data->encoding);
@@ -345,16 +343,16 @@ dissect_net_dm_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_d
 			call_data_dissector(next_tvb, info->pinfo, tree);
 		return 1;
 	case WS_NET_DM_ATTR_TRUNC_LEN:
-		proto_item_append_text(tree, ": %u", tvb_get_guint32(tvb, offset, nl_data->encoding));
-		proto_tree_add_item(tree, &hfi_net_dm_trunc_len, tvb, offset, len, nl_data->encoding);
+		proto_tree_add_item_ret_uint(tree, &hfi_net_dm_trunc_len, tvb, offset, len, nl_data->encoding, &value);
+		proto_item_append_text(tree, ": %u", value);
 		return 1;
 	case WS_NET_DM_ATTR_ORIG_LEN:
-		proto_item_append_text(tree, ": %u", tvb_get_guint32(tvb, offset, nl_data->encoding));
-		proto_tree_add_item(tree, &hfi_net_dm_orig_len, tvb, offset, len, nl_data->encoding);
+		proto_tree_add_item_ret_uint(tree, &hfi_net_dm_orig_len, tvb, offset, len, nl_data->encoding, &value);
+		proto_item_append_text(tree, ": %u", value);
 		return 1;
 	case WS_NET_DM_ATTR_QUEUE_LEN:
-		proto_item_append_text(tree, ": %u", tvb_get_guint32(tvb, offset, nl_data->encoding));
-		proto_tree_add_item(tree, &hfi_net_dm_queue_len, tvb, offset, len, nl_data->encoding);
+		proto_tree_add_item_ret_uint(tree, &hfi_net_dm_queue_len, tvb, offset, len, nl_data->encoding, &value);
+		proto_item_append_text(tree, ": %u", value);
 		return 1;
 	case WS_NET_DM_ATTR_STATS:
 		return dissect_netlink_attributes(tvb, &hfi_net_dm_attrs_stats, ett_net_dm_attrs_stats, info, nl_data, tree, offset, len,
@@ -380,8 +378,8 @@ dissect_net_dm_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_d
 		return dissect_netlink_attributes(tvb, &hfi_net_dm_attrs, ett_net_dm_attrs_hw_entry, info, nl_data, tree, offset, len,
 						  dissect_net_dm_attrs);
 	case WS_NET_DM_ATTR_HW_TRAP_COUNT:
-		proto_item_append_text(tree, ": %u", tvb_get_guint32(tvb, offset, nl_data->encoding));
-		proto_tree_add_item(tree, &hfi_net_dm_hw_trap_count, tvb, offset, len, nl_data->encoding);
+		proto_tree_add_item_ret_uint(tree, &hfi_net_dm_hw_trap_count, tvb, offset, len, nl_data->encoding, &value);
+		proto_item_append_text(tree, ": %u", value);
 		return 1;
 	case WS_NET_DM_ATTR_SW_DROPS:
 		proto_tree_add_item(tree, &hfi_net_dm_sw, tvb, offset, len, nl_data->encoding);

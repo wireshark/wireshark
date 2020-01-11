@@ -392,8 +392,9 @@ dissect_netlink_unix_sock_diag_reply_attrs(tvbuff_t *tvb, void *data, struct pac
 
 		case WS_UNIX_DIAG_PEER:
 			if (len == 4) {
-				proto_item_append_text(tree, ": Peer inode %u", tvb_get_letohl(tvb, offset));
-				proto_tree_add_item(tree, &hfi_netlink_sock_diag_unix_peer_inode, tvb, offset, 4, nl_data->encoding);
+				guint32 value;
+				proto_tree_add_item_ret_uint(tree, &hfi_netlink_sock_diag_unix_peer_inode, tvb, offset, 4, nl_data->encoding, &value);
+				proto_item_append_text(tree, ": Peer inode %u", value);
 				return 1;
 			}
 			return 0;
