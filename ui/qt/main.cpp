@@ -499,8 +499,8 @@ int main(int argc, char *qt_argv[])
     /* Create the user profiles directory */
     if (create_profiles_dir(&rf_path) == -1) {
         simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-                      "Could not create profiles directory\n\"%s\"",
-                      rf_path);
+                      "Could not create profiles directory\n\"%s\": %s.",
+                      rf_path, strerror(errno));
         g_free (rf_path);
     }
 
