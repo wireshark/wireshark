@@ -295,14 +295,14 @@ static void io_graph_free_cb(void* p) {
 IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf, QString displayFilter) :
     WiresharkDialog(parent, cf),
     ui(new Ui::IOGraphDialog),
-    uat_model_(NULL),
-    uat_delegate_(NULL),
-    base_graph_(NULL),
-    tracer_(NULL),
+    uat_model_(nullptr),
+    uat_delegate_(nullptr),
+    base_graph_(nullptr),
+    tracer_(nullptr),
     start_time_(0.0),
     mouse_drags_(true),
-    rubber_band_(NULL),
-    stat_timer_(NULL),
+    rubber_band_(nullptr),
+    stat_timer_(nullptr),
     need_replot_(false),
     need_retap_(false),
     auto_axes_(true),
@@ -423,6 +423,9 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf, QString displayFi
     iop->rescaleAxes();
 
     ui->clearToolButton->setEnabled(uat_model_->rowCount() != 0);
+
+    ui->splitter->setStretchFactor(0, 95);
+    ui->splitter->setStretchFactor(1, 5);
 
     //XXX - resize columns?
 
