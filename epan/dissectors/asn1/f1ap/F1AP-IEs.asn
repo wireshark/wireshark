@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V15.7.0 (2019-09)
+-- 3GPP TS 38.473 V15.8.0 (2019-12)
 -- 9.4.5	Information Element Definitions
 -- **************************************************************
 --
@@ -59,6 +59,9 @@ IMPORTS
 	id-IgnorePRACHConfiguration,
 	id-CG-Config,
 	id-Ph-InfoMCG,
+	id-MeasGapSharingConfig,
+	id-systemInformationAreaID,
+	id-areaScope,
 	maxNRARFCN,
 	maxnoofErrors,
 	maxnoofBPLMNs,
@@ -139,6 +142,8 @@ AvailablePLMNList-Item-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 }
 
 AveragingWindow  ::= INTEGER (0..4095, ...) 
+
+AreaScope ::= ENUMERATED {true, ...}
 
 -- B
 
@@ -241,7 +246,9 @@ CauseRadioNetwork ::= ENUMERATED {
 	resources-not-available-for-the-slice,
 	amf-initiated-abnormal-release,
 	release-due-to-pre-emption,
-	plmn-not-served-by-the-gNB-CU
+	plmn-not-served-by-the-gNB-CU,
+	multiple-drb-id-instances,
+	unknown-drb-id
 }
 
 CauseTransport ::= ENUMERATED {
@@ -713,7 +720,8 @@ DUtoCURRCInformation-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 	{ ID id-DRX-Config							CRITICALITY ignore	EXTENSION DRX-Config								PRESENCE optional }|
 	{ ID id-PDCCH-BlindDetectionSCG				CRITICALITY ignore	EXTENSION PDCCH-BlindDetectionSCG				PRESENCE optional }|
 	{ ID id-Requested-PDCCH-BlindDetectionSCG	CRITICALITY ignore	EXTENSION Requested-PDCCH-BlindDetectionSCG	PRESENCE optional }|
-	{ ID id-Ph-InfoMCG							CRITICALITY ignore	EXTENSION Ph-InfoMCG								PRESENCE optional },
+	{ ID id-Ph-InfoMCG							CRITICALITY ignore	EXTENSION Ph-InfoMCG								PRESENCE optional }|
+	{ ID id-MeasGapSharingConfig				CRITICALITY ignore	EXTENSION MeasGapSharingConfig					PRESENCE optional },
 	...
 }
 
@@ -1028,6 +1036,7 @@ GNB-CUSystemInformation::= SEQUENCE {
 }
 
 GNB-CUSystemInformation-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	{ID id-systemInformationAreaID  CRITICALITY ignore	EXTENSION SystemInformationAreaID PRESENCE optional},
 	...
 }
 
@@ -1177,6 +1186,8 @@ MIB-message ::= OCTET STRING
 MeasConfig ::= OCTET STRING
 
 MeasGapConfig ::= OCTET STRING
+
+MeasGapSharingConfig ::= OCTET STRING
 
 MeasurementTimingConfiguration ::= OCTET STRING
 
@@ -1548,6 +1559,8 @@ RLC-Status-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 
 RRCContainer ::= OCTET STRING
 
+RRCContainer-RRCSetupComplete ::= OCTET STRING
+
 RRCDeliveryStatus ::= SEQUENCE	{
 	delivery-status 			PDCP-SN,
 	triggering-message			PDCP-SN,
@@ -1766,6 +1779,7 @@ SibtypetobeupdatedListItem ::= SEQUENCE {
 }
 
 SibtypetobeupdatedListItem-ExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
+	{ID	id-areaScope	CRITICALITY ignore	EXTENSION	AreaScope	PRESENCE optional},
 	...
 }
 
@@ -1916,6 +1930,8 @@ SupportedSULFreqBandItem ::= SEQUENCE {
 SupportedSULFreqBandItem-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
+
+SystemInformationAreaID ::=BIT STRING (SIZE (24))
 
 -- T
 

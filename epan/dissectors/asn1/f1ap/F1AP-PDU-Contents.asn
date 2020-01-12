@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V15.7.0 (2019-09)
+-- 3GPP TS 38.473 V15.8.0 (2019-12)
 -- 9.4.4	PDU Definitions
 -- **************************************************************
 --
@@ -70,6 +70,7 @@ IMPORTS
 	RAT-FrequencyPriorityInformation,
 	ResourceCoordinationTransferContainer,
 	RRCContainer,
+	RRCContainer-RRCSetupComplete,
 	RRCReconfigurationCompleteIndicator,
 	SCellIndex,
 	SCell-ToBeRemoved-Item,
@@ -143,7 +144,8 @@ IMPORTS
 	PagingOrigin,
 	UAC-Assistance-Info,
 	RANUEID,
-	GNB-DU-TNL-Association-To-Remove-Item
+	GNB-DU-TNL-Association-To-Remove-Item,
+	NotificationInformation
 
 
 FROM F1AP-IEs
@@ -230,6 +232,7 @@ FROM F1AP-Containers
 	id-ResetType,
 	id-ResourceCoordinationTransferContainer,
 	id-RRCContainer,
+	id-RRCContainer-RRCSetupComplete,
 	id-RRCReconfigurationCompleteIndicator,
 	id-SCell-FailedtoSetup-List,
 	id-SCell-FailedtoSetup-Item,
@@ -343,6 +346,7 @@ FROM F1AP-Containers
 	id-PagingOrigin,
 	id-GNB-DU-TNL-Association-To-Remove-Item,
 	id-GNB-DU-TNL-Association-To-Remove-List,
+	id-NotificationInformation,
 	maxCellingNBDU,
 	maxnoofCandidateSpCells,
 	maxnoofDRBs,
@@ -1454,7 +1458,8 @@ PWSCancelRequestIEs F1AP-PROTOCOL-IES ::= {
 	{ ID id-TransactionID							CRITICALITY reject TYPE TransactionID									PRESENCE mandatory	}|
 	{ ID id-NumberofBroadcastRequest 				CRITICALITY reject TYPE NumberofBroadcastRequest						PRESENCE mandatory }| 
 	{ ID id-Broadcast-To-Be-Cancelled-List			CRITICALITY reject TYPE Broadcast-To-Be-Cancelled-List				PRESENCE optional	}|
-	{ ID id-Cancel-all-Warning-Messages-Indicator	CRITICALITY reject TYPE Cancel-all-Warning-Messages-Indicator	PRESENCE optional	},
+	{ ID id-Cancel-all-Warning-Messages-Indicator	CRITICALITY reject TYPE Cancel-all-Warning-Messages-Indicator	PRESENCE optional	}|
+	{ ID id-NotificationInformation					CRITICALITY reject TYPE NotificationInformation						PRESENCE optional},
 	... 
 }
 
@@ -1539,14 +1544,15 @@ InitialULRRCMessageTransfer ::= SEQUENCE {
 }
 
 InitialULRRCMessageTransferIEs F1AP-PROTOCOL-IES ::= {
-	{ ID id-gNB-DU-UE-F1AP-ID		CRITICALITY reject	TYPE GNB-DU-UE-F1AP-ID			PRESENCE mandatory	}|
-	{ ID id-NRCGI					CRITICALITY reject	TYPE NRCGI						PRESENCE mandatory	}|
-	{ ID id-C-RNTI					CRITICALITY reject	TYPE C-RNTI						PRESENCE mandatory	}|
-	{ ID id-RRCContainer			CRITICALITY reject	TYPE RRCContainer				PRESENCE mandatory	}|
-	{ ID id-DUtoCURRCContainer		CRITICALITY reject	TYPE DUtoCURRCContainer			PRESENCE optional	}|
-	{ ID id-SULAccessIndication		CRITICALITY ignore	TYPE SULAccessIndication		PRESENCE optional	}|
-	{ ID id-TransactionID			CRITICALITY ignore	TYPE TransactionID				PRESENCE mandatory	}|
-	{ ID id-RANUEID					CRITICALITY ignore	TYPE RANUEID					PRESENCE optional	},
+	{ ID id-gNB-DU-UE-F1AP-ID					CRITICALITY reject	TYPE GNB-DU-UE-F1AP-ID						PRESENCE mandatory	}|
+	{ ID id-NRCGI								CRITICALITY reject	TYPE NRCGI									PRESENCE mandatory	}|
+	{ ID id-C-RNTI								CRITICALITY reject	TYPE C-RNTI									PRESENCE mandatory	}|
+	{ ID id-RRCContainer						CRITICALITY reject	TYPE RRCContainer							PRESENCE mandatory	}|
+	{ ID id-DUtoCURRCContainer					CRITICALITY reject	TYPE DUtoCURRCContainer						PRESENCE optional	}|
+	{ ID id-SULAccessIndication					CRITICALITY ignore	TYPE SULAccessIndication					PRESENCE optional	}|
+	{ ID id-TransactionID						CRITICALITY ignore	TYPE TransactionID							PRESENCE mandatory	}|
+	{ ID id-RANUEID								CRITICALITY ignore	TYPE RANUEID								PRESENCE optional	}|
+	{ ID id-RRCContainer-RRCSetupComplete		CRITICALITY ignore	TYPE RRCContainer-RRCSetupComplete 		PRESENCE optional	},
 	...
 }
 

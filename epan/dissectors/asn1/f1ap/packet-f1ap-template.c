@@ -1,6 +1,6 @@
 /* packet-f1ap.c
  * Routines for E-UTRAN F1 Application Protocol (F1AP) packet dissection
- * Copyright 2018-2019, Pascal Quantin <pascal@wireshark.org>
+ * Copyright 2018-2020, Pascal Quantin <pascal@wireshark.org>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -8,7 +8,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 38.473 V15.7.0 (2019-09)
+ * References: 3GPP TS 38.473 V15.8.0 (2019-12)
  */
 
 #include "config.h"
@@ -58,10 +58,12 @@ static gint ett_f1ap_requestedP_MaxFR1 = -1;
 static gint ett_f1ap_HandoverPreparationInformation = -1;
 static gint ett_f1ap_MeasConfig = -1;
 static gint ett_f1ap_MeasGapConfig = -1;
+static gint ett_f1ap_MeasGapSharingConfig = -1;
 static gint ett_f1ap_EUTRA_NR_CellResourceCoordinationReq_Container = -1;
 static gint ett_f1ap_EUTRA_NR_CellResourceCoordinationReqAck_Container = -1;
 static gint ett_f1ap_ProtectedEUTRAResourceIndication = -1;
 static gint ett_f1ap_RRCContainer = -1;
+static gint ett_f1ap_RRCContainer_RRCSetupComplete = -1;
 static gint ett_f1ap_sIBmessage = -1;
 static gint ett_f1ap_UplinkTxDirectCurrentListInformation = -1;
 static gint ett_f1ap_DRX_Config = -1;
@@ -99,6 +101,7 @@ typedef struct {
 /* Global variables */
 static dissector_handle_t f1ap_handle;
 static dissector_handle_t nr_rrc_ul_ccch_handle;
+static dissector_handle_t nr_rrc_ul_dcch_handle;
 
 /* Dissector tables */
 static dissector_table_t f1ap_ies_dissector_table;
@@ -237,10 +240,12 @@ void proto_register_f1ap(void) {
     &ett_f1ap_HandoverPreparationInformation,
     &ett_f1ap_MeasConfig,
     &ett_f1ap_MeasGapConfig,
+    &ett_f1ap_MeasGapSharingConfig,
     &ett_f1ap_EUTRA_NR_CellResourceCoordinationReq_Container,
     &ett_f1ap_EUTRA_NR_CellResourceCoordinationReqAck_Container,
     &ett_f1ap_ProtectedEUTRAResourceIndication,
     &ett_f1ap_RRCContainer,
+    &ett_f1ap_RRCContainer_RRCSetupComplete,
     &ett_f1ap_sIBmessage,
     &ett_f1ap_UplinkTxDirectCurrentListInformation,
     &ett_f1ap_DRX_Config,
@@ -277,6 +282,7 @@ proto_reg_handoff_f1ap(void)
   dissector_add_uint_with_preference("sctp.port", SCTP_PORT_F1AP, f1ap_handle);
   dissector_add_uint("sctp.ppi", F1AP_PROTOCOL_ID, f1ap_handle);
   nr_rrc_ul_ccch_handle = find_dissector_add_dependency("nr-rrc.ul.ccch", proto_f1ap);
+  nr_rrc_ul_dcch_handle = find_dissector_add_dependency("nr-rrc.ul.dcch", proto_f1ap);
 #include "packet-f1ap-dis-tab.c"
 }
 

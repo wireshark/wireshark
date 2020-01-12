@@ -290,6 +290,7 @@ static int hf_nr_rrc_nr_rrc_CellGroupConfig_PDU = -1;  /* CellGroupConfig */
 static int hf_nr_rrc_nr_rrc_DRX_Config_PDU = -1;  /* DRX_Config */
 static int hf_nr_rrc_nr_rrc_MeasConfig_PDU = -1;  /* MeasConfig */
 static int hf_nr_rrc_nr_rrc_MeasGapConfig_PDU = -1;  /* MeasGapConfig */
+static int hf_nr_rrc_nr_rrc_MeasGapSharingConfig_PDU = -1;  /* MeasGapSharingConfig */
 static int hf_nr_rrc_nr_rrc_MeasResultSCG_Failure_PDU = -1;  /* MeasResultSCG_Failure */
 static int hf_nr_rrc_nr_rrc_P_Max_PDU = -1;       /* P_Max */
 static int hf_nr_rrc_nr_rrc_RadioBearerConfig_PDU = -1;  /* RadioBearerConfig */
@@ -18186,6 +18187,8 @@ static const per_sequence_t MeasGapSharingConfig_sequence[] = {
 
 static int
 dissect_nr_rrc_MeasGapSharingConfig(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  proto_item *prot_ti = proto_tree_add_item(tree, proto_nr_rrc, tvb, 0, -1, ENC_NA);
+  proto_item_set_hidden(prot_ti);
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_nr_rrc_MeasGapSharingConfig, MeasGapSharingConfig_sequence);
 
@@ -44283,6 +44286,16 @@ int dissect_nr_rrc_MeasGapConfig_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
   offset += 7; offset >>= 3;
   return offset;
 }
+int dissect_nr_rrc_MeasGapSharingConfig_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  proto_item *prot_ti = proto_tree_add_item(tree, proto_nr_rrc, tvb, 0, -1, ENC_NA);
+  proto_item_set_hidden(prot_ti);
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
+  offset = dissect_nr_rrc_MeasGapSharingConfig(tvb, offset, &asn1_ctx, tree, hf_nr_rrc_nr_rrc_MeasGapSharingConfig_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 int dissect_nr_rrc_MeasResultSCG_Failure_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   proto_item *prot_ti = proto_tree_add_item(tree, proto_nr_rrc, tvb, 0, -1, ENC_NA);
   proto_item_set_hidden(prot_ti);
@@ -44577,6 +44590,10 @@ proto_register_nr_rrc(void) {
         NULL, HFILL }},
     { &hf_nr_rrc_nr_rrc_MeasGapConfig_PDU,
       { "MeasGapConfig", "nr-rrc.MeasGapConfig_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_nr_rrc_MeasGapSharingConfig_PDU,
+      { "MeasGapSharingConfig", "nr-rrc.MeasGapSharingConfig_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_nr_rrc_nr_rrc_MeasResultSCG_Failure_PDU,

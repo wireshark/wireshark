@@ -53,6 +53,7 @@ HandoverCommand_PDU
 HandoverPreparationInformation_PDU
 MeasConfig_PDU
 MeasGapConfig_PDU
+MeasGapSharingConfig_PDU
 MeasResultSCG-Failure_PDU
 MeasurementTimingConfiguration_PDU
 MIB_PDU
@@ -99,6 +100,7 @@ HandoverCommand
 HandoverPreparationInformation
 MeasConfig
 MeasGapConfig
+MeasGapSharingConfig
 MeasResultSCG-Failure
 MeasurementTimingConfiguration
 MIB
