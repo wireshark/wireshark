@@ -984,6 +984,8 @@ id-TNLAssociationTransportLayerAddressNGRAN     ProtocolIE-ID
 id-EndpointIPAddressAndPort                     ProtocolIE-ID
 id-LocationReportingAdditionalInfo              ProtocolIE-ID
 id-SourceToTarget-AMFInformationReroute         ProtocolIE-ID
+id-AdditionalULForwardingUPTNLInformation       ProtocolIE-ID
+id-SCTP-TLAs                                    ProtocolIE-ID
 #.END
 
 
@@ -1164,6 +1166,8 @@ ULForwarding                                           N ngap.extension id-ULFor
 UPTransportLayerInformation                            N ngap.extension id-ULForwardingUP-TNLInformation
 CPTransportLayerInformation                            N ngap.extension id-TNLAssociationTransportLayerAddressNGRAN
 LocationReportingAdditionalInfo                        N ngap.extension id-LocationReportingAdditionalInfo
+UPTransportLayerInformationList                        N ngap.extension id-AdditionalULForwardingUPTNLInformation
+SCTP-TLAs                                              N ngap.extension id-SCTP-TLAs
 
 #NGAP-ELEMENTARY-PROCEDURE
 
