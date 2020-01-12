@@ -2050,7 +2050,7 @@
   </action>
   <action name="actionStatisticsIOGraph">
    <property name="text">
-    <string>&amp;I/O Graph</string>
+    <string>&amp;I/O Graphs</string>
    </property>
    <property name="toolTip">
     <string>Create graphs based on display filter fields</string>

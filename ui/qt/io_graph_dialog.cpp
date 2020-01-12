@@ -716,7 +716,7 @@ void IOGraphDialog::reject()
     if (!uat_model_)
         return;
 
-    // Changes to the I/O Graph settings are always saved,
+    // Changes to the I/O Graphs settings are always saved,
     // there is no possibility for "rejection".
     QString error;
     if (uat_model_->applyChanges(error)) {

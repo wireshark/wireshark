@@ -228,7 +228,7 @@ void ConversationDialog::graphTcp()
     }
 
     // XXX The GTK+ code opens the TCP Stream dialog. We might want
-    // to open the I/O Graph dialog instead.
+    // to open the I/O Graphs dialog instead.
     QString filter;
     if (conv_item->etype == ENDPOINT_TCP) {
         filter = QString("tcp.stream eq %1").arg(conv_item->conv_id);
