@@ -3786,11 +3786,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>All packets</source>
-        <translation>所有分组</translation>
+        <translation type="vanished">所有分组</translation>
     </message>
     <message>
         <source>TCP errors</source>
-        <translation>TCP 错误</translation>
+        <translation type="vanished">TCP 错误</translation>
+    </message>
+    <message>
+        <source>All Packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>TCP Errors</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Hover over the graph for details.</source>
@@ -4403,11 +4411,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>已禁用外部捕获接口。</translation>
     </message>
     <message>
-        <source>Interfaces not loaded (due to preference). Go to Capture </source>
+        <source>&lt;p&gt;Local interfaces are unavailable because no capture driver is installed.&lt;/p&gt;&lt;p&gt;You can fix this by installing &lt;a href=&quot;https://nmap.org/npcap/&quot;&gt;Npcap&lt;/a&gt; or &lt;a href=&quot;https://www.winpcap.org/install/default.htm&quot;&gt;WinPcap&lt;/a&gt;.&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>You don&apos;t have permission to capture. You can &lt;a href=&quot;file://%1&quot;&gt;install ChmodBPF to fix this&lt;/a&gt;.</source>
+        <source>&lt;p&gt;Local interfaces are unavailable due to insufficient permissions.&lt;/p&gt;&lt;p&gt;You can fix this by &lt;a href=&quot;file://%1&quot;&gt;installing ChmodBPF&lt;/a&gt;.&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Interfaces not loaded (due to preference). Go to Capture </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5374,6 +5386,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Show packet separator</source>
         <translation>显示分组分隔符</translation>
+    </message>
+    <message>
+        <source>Show column definition in column context menu</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Status Bar settings:</source>
@@ -10376,6 +10392,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>RTP 播放器</translation>
     </message>
     <message>
+        <source>Play</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Source Address</source>
         <translation>源地址</translation>
     </message>
@@ -10651,8 +10671,20 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>插入的静默</translation>
     </message>
     <message>
+        <source>Double click to change audio routing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Start: %1. Double click to set start of playback.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Start: %1, cursor: %2. Press &quot;G&quot; to go to packet %3. Double click to set start of playback.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>%1. Press &quot;G&quot; to go to packet %2</source>
-        <translation>%1. 按 &quot;G&quot; 去到分组 %2</translation>
+        <translation type="vanished">%1. 按 &quot;G&quot; 去到分组 %2</translation>
     </message>
     <message>
         <source>Unknown</source>

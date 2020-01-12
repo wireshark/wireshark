@@ -3806,11 +3806,19 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>All packets</source>
-        <translation>Tutti i pacchetti</translation>
+        <translation type="vanished">Tutti i pacchetti</translation>
     </message>
     <message>
         <source>TCP errors</source>
-        <translation>Errori TCP</translation>
+        <translation type="vanished">Errori TCP</translation>
+    </message>
+    <message>
+        <source>All Packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>TCP Errors</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Hover over the graph for details.</source>
@@ -4423,12 +4431,20 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Interfacce di cattura esterne disabilitate.</translation>
     </message>
     <message>
+        <source>&lt;p&gt;Local interfaces are unavailable because no capture driver is installed.&lt;/p&gt;&lt;p&gt;You can fix this by installing &lt;a href=&quot;https://nmap.org/npcap/&quot;&gt;Npcap&lt;/a&gt; or &lt;a href=&quot;https://www.winpcap.org/install/default.htm&quot;&gt;WinPcap&lt;/a&gt;.&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;Local interfaces are unavailable due to insufficient permissions.&lt;/p&gt;&lt;p&gt;You can fix this by &lt;a href=&quot;file://%1&quot;&gt;installing ChmodBPF&lt;/a&gt;.&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Interfaces not loaded (due to preference). Go to Capture </source>
         <translation>Interfacce non caricate (a causa delle preferenze). Vai in Cattura</translation>
     </message>
     <message>
         <source>You don&apos;t have permission to capture. You can &lt;a href=&quot;file://%1&quot;&gt;install ChmodBPF to fix this&lt;/a&gt;.</source>
-        <translation>Non hai i permessi per catturare. Puoi &lt;a href=&quot;file://%1&quot;&gt;installare ChmodBPF per correggere&lt;/a&gt;.</translation>
+        <translation type="vanished">Non hai i permessi per catturare. Puoi &lt;a href=&quot;file://%1&quot;&gt;installare ChmodBPF per correggere&lt;/a&gt;.</translation>
     </message>
     <message>
         <source>Start capture</source>
@@ -5396,6 +5412,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Show packet separator</source>
         <translation>Mostra il separatore dei pacchetti</translation>
+    </message>
+    <message>
+        <source>Show column definition in column context menu</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Status Bar settings:</source>
@@ -10415,6 +10435,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Lettore RTP</translation>
     </message>
     <message>
+        <source>Play</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Source Address</source>
         <translation>Indirizzo sorgente</translation>
     </message>
@@ -10690,8 +10714,20 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Silenzio inserito</translation>
     </message>
     <message>
+        <source>Double click to change audio routing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Start: %1. Double click to set start of playback.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Start: %1, cursor: %2. Press &quot;G&quot; to go to packet %3. Double click to set start of playback.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>%1. Press &quot;G&quot; to go to packet %2</source>
-        <translation>%1. Premi &quot;G&quot; per andare al pacchetto %2</translation>
+        <translation type="vanished">%1. Premi &quot;G&quot; per andare al pacchetto %2</translation>
     </message>
     <message>
         <source>Unknown</source>
