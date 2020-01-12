@@ -127,6 +127,7 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf) :
     ctx_menu_->addAction(ui->actionDragZoom);
     ctx_menu_->addAction(ui->actionToggleTimeOrigin);
 //    ctx_menu_->addAction(ui->actionCrosshairs);
+    set_action_shortcuts_visible_in_context_menu(ctx_menu_->actions());
 
     connect(ui->audioPlot, SIGNAL(mouseMove(QMouseEvent*)),
             this, SLOT(updateHintLabel()));
