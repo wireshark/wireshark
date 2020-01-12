@@ -219,6 +219,8 @@ RtpStreamDialog::RtpStreamDialog(QWidget &parent, CaptureFile &cf) :
     ctx_menu_.addAction(ui->actionCopyAsCsv);
     ctx_menu_.addAction(ui->actionCopyAsYaml);
     ctx_menu_.addAction(ui->actionAnalyze);
+    set_action_shortcuts_visible_in_context_menu(ctx_menu_.actions());
+
     ui->streamTreeWidget->setContextMenuPolicy(Qt::CustomContextMenu);
     ui->streamTreeWidget->header()->setSortIndicator(0, Qt::AscendingOrder);
     connect(ui->streamTreeWidget, SIGNAL(customContextMenuRequested(QPoint)),

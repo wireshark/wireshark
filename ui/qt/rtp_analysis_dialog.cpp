@@ -267,6 +267,8 @@ RtpAnalysisDialog::RtpAnalysisDialog(QWidget &parent, CaptureFile &cf, rtpstream
     stream_ctx_menu_.addAction(ui->actionSaveReverseCsv);
     stream_ctx_menu_.addSeparator();
     stream_ctx_menu_.addAction(ui->actionSaveGraph);
+    set_action_shortcuts_visible_in_context_menu(stream_ctx_menu_.actions());
+
     ui->forwardTreeWidget->installEventFilter(this);
     ui->forwardTreeWidget->setContextMenuPolicy(Qt::CustomContextMenu);
     ui->forwardTreeWidget->header()->setSortIndicator(0, Qt::AscendingOrder);

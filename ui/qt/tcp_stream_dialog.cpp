@@ -174,6 +174,7 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
     ctx_menu_.addAction(ui->actionStevens);
     ctx_menu_.addAction(ui->actionTcptrace);
     ctx_menu_.addAction(ui->actionWindowScaling);
+    set_action_shortcuts_visible_in_context_menu(ctx_menu_.actions());
 
     memset (&graph_, 0, sizeof(graph_));
     graph_.type = graph_type;
