@@ -185,7 +185,9 @@ int Dot11DecryptCcmpDecrypt(
 	guint8 *m,
 	int mac_header_len,
 	int len,
-	guint8 *TK1)
+	guint8 *TK1,
+	int tk_len,
+	int mic_len)
 {
 	PDOT11DECRYPT_MAC_FRAME wh;
 	UINT8 aad[2 * AES_BLOCK_LEN];
@@ -199,6 +201,11 @@ int Dot11DecryptCcmpDecrypt(
 	gcry_cipher_hd_t rijndael_handle;
 	UINT64 PN;
 	UINT8 *ivp=m+z;
+
+	if (tk_len > 16 || mic_len > 8) {
+		/* NOT SUPPORTED*/
+		return 1;
+	}
 
 	PN = READ_6(ivp[0], ivp[1], ivp[4], ivp[5], ivp[6], ivp[7]);
 

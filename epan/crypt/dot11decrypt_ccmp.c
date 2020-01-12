@@ -133,12 +133,14 @@ int Dot11DecryptCcmpDecrypt(
 	guint8 *m,
 	int mac_header_len,
 	int len,
-	guint8 *TK1)
+	guint8 *TK1,
+	int tk_len,
+	int mic_len)
 {
 	PDOT11DECRYPT_MAC_FRAME wh;
 	guint8 aad[30]; /* Max aad_len. See Table 12-1 IEEE 802.11 2016 */
 	guint8 nonce[13];
-	guint8 mic[8];
+	guint8 mic[16]; /* Big enough for CCMP-256 */
 	ssize_t data_len;
 	size_t aad_len;
 	int z = mac_header_len;
@@ -147,12 +149,12 @@ int Dot11DecryptCcmpDecrypt(
 	guint8 *ivp = m + z;
 
 	wh = (PDOT11DECRYPT_MAC_FRAME )m;
-	data_len = len - (z + DOT11DECRYPT_CCMP_HEADER + DOT11DECRYPT_CCMP_TRAILER);
+	data_len = len - (z + DOT11DECRYPT_CCMP_HEADER + mic_len);
 	if (data_len < 1) {
 		return 0;
 	}
 
-	memcpy(mic, m + len - DOT11DECRYPT_CCMP_TRAILER, DOT11DECRYPT_CCMP_TRAILER);
+	memcpy(mic, m + len - mic_len, mic_len);
 	pn = READ_6(ivp[0], ivp[1], ivp[4], ivp[5], ivp[6], ivp[7]);
 	ccmp_construct_nonce(wh, pn, nonce);
 	ccmp_construct_aad(wh, aad, &aad_len);
@@ -160,7 +162,7 @@ int Dot11DecryptCcmpDecrypt(
 	if (gcry_cipher_open(&handle, GCRY_CIPHER_AES, GCRY_CIPHER_MODE_CCM, 0)) {
 		return 1;
 	}
-	if (gcry_cipher_setkey(handle, TK1, 16)) {
+	if (gcry_cipher_setkey(handle, TK1, tk_len)) {
 		goto err_out;
 	}
 	if (gcry_cipher_setiv(handle, nonce, sizeof(nonce))) {
@@ -170,7 +172,7 @@ int Dot11DecryptCcmpDecrypt(
 	guint64 ccm_lengths[3];
 	ccm_lengths[0] = data_len;
 	ccm_lengths[1] = aad_len;
-	ccm_lengths[2] = DOT11DECRYPT_CCMP_TRAILER;
+	ccm_lengths[2] = mic_len;
 	if (gcry_cipher_ctl(handle, GCRYCTL_SET_CCM_LENGTHS, ccm_lengths, sizeof(ccm_lengths))) {
 		goto err_out;
 	}
@@ -180,7 +182,7 @@ int Dot11DecryptCcmpDecrypt(
 	if (gcry_cipher_decrypt(handle, m + z + DOT11DECRYPT_CCMP_HEADER, data_len, NULL, 0)) {
 		goto err_out;
 	}
-	if (gcry_cipher_checktag(handle, mic, DOT11DECRYPT_CCMP_TRAILER)) {
+	if (gcry_cipher_checktag(handle, mic, mic_len)) {
 		goto err_out;
 	}
 

@@ -159,6 +159,18 @@ class case_decrypt_80211(subprocesstest.SubprocessTestCase):
         self.assertEqual(self.countOutput('^40\t02:00:00:00:00:00\tf31ecff5452f4c286cf66ef50d10dabe\t\t0$'), 1)
         self.assertEqual(self.countOutput('^40\t02:00:00:00:00:00\t28dd851decf3f1c2a35df8bcc22fa1d2\t\t1$'), 1)
 
+    def test_80211_wpa_ccmp_256(self, cmd_tshark, capture_file):
+        '''IEEE 802.11 decode CCMP-256'''
+        # Included in git sources test/captures/wpa-ccmp-256.pcapng.gz
+        self.assertRun((cmd_tshark,
+                '-o', 'wlan.enable_decryption: TRUE',
+                '-r', capture_file('wpa-ccmp-256.pcapng.gz'),
+                '-Y', 'wlan.analysis.tk == 4e6abbcf9dc0943936700b6825952218f58a47dfdf51dbb8ce9b02fd7d2d9e40 || wlan.analysis.gtk == 502085ca205e668f7e7c61cdf4f731336bb31e4f5b28ec91860174192e9b2190',
+                ))
+        self.assertTrue(self.grepOutput('Who has 192.168.5.5')) # Verifies GTK is correct
+        self.assertTrue(self.grepOutput('DHCP Request'))        # Verifies TK is correct
+        self.assertTrue(self.grepOutput('Echo \(ping\) request')) # Verifies TK is correct
+
 @fixtures.mark_usefixtures('test_env')
 @fixtures.uses_fixtures
 class case_decrypt_dtls(subprocesstest.SubprocessTestCase):

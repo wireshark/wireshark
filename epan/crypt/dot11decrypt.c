@@ -329,9 +329,9 @@ Dot11DecryptCopyKey(PDOT11DECRYPT_SEC_ASSOCIATION sa, PDOT11DECRYPT_KEY_ITEM key
         key->KeyData.Wpa.Cipher = sa->wpa.cipher;
         if (sa->wpa.key_ver==DOT11DECRYPT_WPA_KEY_VER_NOT_CCMP)
             key->KeyType=DOT11DECRYPT_KEY_TYPE_TKIP;
-        else if (sa->wpa.key_ver==DOT11DECRYPT_WPA_KEY_VER_AES_CCMP)
-            key->KeyType=DOT11DECRYPT_KEY_TYPE_CCMP;
-        else if (sa->wpa.key_ver==0) {
+        else if (sa->wpa.key_ver == DOT11DECRYPT_WPA_KEY_VER_AES_CCMP ||
+                 sa->wpa.key_ver == 0)
+        {
             switch (sa->wpa.cipher) {
                 case 1:
                     key->KeyType = DOT11DECRYPT_KEY_TYPE_WEP_40;
@@ -345,6 +345,9 @@ Dot11DecryptCopyKey(PDOT11DECRYPT_SEC_ASSOCIATION sa, PDOT11DECRYPT_KEY_ITEM key
                 case 5:
                     key->KeyType = DOT11DECRYPT_KEY_TYPE_WEP_104;
                     break;
+                case 10:
+                    key->KeyType = DOT11DECRYPT_KEY_TYPE_CCMP_256;
+                    break;
                 default:
                     key->KeyType = DOT11DECRYPT_KEY_TYPE_UNKNOWN;
                     break;
@@ -354,7 +357,6 @@ Dot11DecryptCopyKey(PDOT11DECRYPT_SEC_ASSOCIATION sa, PDOT11DECRYPT_KEY_ITEM key
                 case 7:  Group addressed traffic not allowed
                 case 8:  GCMP-128
                 case 9:  GCMP-256
-                case 10: CCMP-256
                 case 11: BIP-GMAC-128
                 case 12: BIP-GMAC-256
                 case 13: BIP-CMAC-256 */
@@ -568,13 +570,19 @@ Dot11DecryptGetTK(const PDOT11DECRYPT_KEY_ITEM key, const guint8 **tk)
 int
 Dot11DecryptGetGTK(const PDOT11DECRYPT_KEY_ITEM key, const guint8 **gtk)
 {
+    int len;
     if (!key || !gtk) {
         return 0;
     }
 
     /* GTK is stored in PTK at offset 32. See comment in Dot11DecryptCopyBroadcastKey */
     *gtk = key->KeyData.Wpa.Ptk + 32;
-    return 16;
+    if (key->KeyType == DOT11DECRYPT_KEY_TYPE_TKIP) {
+        len = 16;
+    } else {
+        len = Dot11DecryptGetTkLen(key->KeyData.Wpa.Cipher) / 8;
+    }
+    return len;
 }
 
 INT Dot11DecryptScanTdlsForKeys(
@@ -1178,7 +1186,7 @@ Dot11DecryptRsnaMng(
                g_free(try_data);
                return DOT11DECRYPT_RET_UNSUCCESS;
            }
-           if (*decrypt_len < DOT11DECRYPT_RSNA_MICLEN+DOT11DECRYPT_WEP_ICV) {
+           if (*decrypt_len < DOT11DECRYPT_TKIP_MICLEN + DOT11DECRYPT_WEP_ICV) {
                DEBUG_PRINT_LINE("Invalid decryption length", DEBUG_LEVEL_3);
                g_free(try_data);
                return DOT11DECRYPT_RET_UNSUCCESS;
@@ -1194,26 +1202,29 @@ Dot11DecryptRsnaMng(
 
            DEBUG_PRINT_LINE("TKIP DECRYPTED!!!", DEBUG_LEVEL_3);
            /* remove MIC and ICV from the end of packet */
-           *decrypt_len-=DOT11DECRYPT_RSNA_MICLEN+DOT11DECRYPT_WEP_ICV;
+           *decrypt_len -= DOT11DECRYPT_TKIP_MICLEN + DOT11DECRYPT_WEP_ICV;
            break;
        } else {
            /* AES-CCMP -> HMAC-SHA1-128 is the EAPOL-Key MIC, AES wep_key wrap is the EAPOL-Key encryption algorithm */
            DEBUG_PRINT_LINE("CCMP", DEBUG_LEVEL_3);
 
-           if (*decrypt_len < DOT11DECRYPT_RSNA_MICLEN) {
+           guint trailer = sa->wpa.cipher != 10 ? DOT11DECRYPT_CCMP_TRAILER : DOT11DECRYPT_CCMP_256_TRAILER;
+           if (*decrypt_len < trailer) {
                DEBUG_PRINT_LINE("Invalid decryption length", DEBUG_LEVEL_3);
                g_free(try_data);
                return DOT11DECRYPT_RET_UNSUCCESS;
            }
 
            ret = Dot11DecryptCcmpDecrypt(try_data, mac_header_len, (INT)*decrypt_len,
-                                         DOT11DECRYPT_GET_TK(sa->wpa.ptk, sa->wpa.akm));
+                                         DOT11DECRYPT_GET_TK(sa->wpa.ptk, sa->wpa.akm),
+                                         Dot11DecryptGetTkLen(sa->wpa.cipher) / 8,
+                                         trailer);
            if (ret) {
               continue;
            }
            DEBUG_PRINT_LINE("CCMP DECRYPTED!!!", DEBUG_LEVEL_3);
            /* remove MIC from the end of packet */
-           *decrypt_len-=DOT11DECRYPT_RSNA_MICLEN;
+           *decrypt_len -= trailer;
            break;
        }
     }
@@ -1488,9 +1499,9 @@ Dot11DecryptRsna4WHandshake(
                     group_cipher = 2;
                 } else if (eapol_parsed->key_version  == DOT11DECRYPT_WPA_KEY_VER_AES_CCMP) {
                      /* CCMP-128 */
-                    akm = 2;
-                    cipher = 4;
-                    group_cipher = 4;
+                    akm = eapol_parsed->akm;
+                    cipher = eapol_parsed->cipher;
+                    group_cipher = eapol_parsed->group_cipher;
                 }
 
                 /* derive the PTK from the BSSID, STA MAC, PMK, SNonce, ANonce */
@@ -2126,11 +2137,6 @@ Dot11DecryptDerivePtk(
     if (key_version == DOT11DECRYPT_WPA_KEY_VER_NOT_CCMP) {
         /* TKIP */
         ptk_len_bits = 512;
-        DerivePtk = Dot11DecryptRsnaPrfX;
-        algo = GCRY_MD_SHA1;
-    } else if (key_version  == DOT11DECRYPT_WPA_KEY_VER_AES_CCMP) {
-        /* CCMP-128 */
-        ptk_len_bits = 384;
         DerivePtk = Dot11DecryptRsnaPrfX;
         algo = GCRY_MD_SHA1;
     } else {
