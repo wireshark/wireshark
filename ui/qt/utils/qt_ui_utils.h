@@ -213,6 +213,14 @@ void desktop_show_in_folder(const QString file_path);
  */
 bool rect_on_screen(const QRect &rect);
 
+/**
+ * Set the "shortcutVisibleInContextMenu" property to true for
+ * a list of qactions.
+ *
+ * @param actions The actions to make visible.
+ */
+void set_action_shortcuts_visible_in_context_menu(QList<QAction *> actions);
+
 #endif /* __QT_UI_UTILS__H__ */
 
 // XXX Add a routine to fetch the HWND corresponding to a widget using QPlatformIntegration

@@ -90,6 +90,10 @@
 #include <QFontDatabase>
 #include <QMimeDatabase>
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 13, 0)
+#include <QStyleHints>
+#endif
+
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
@@ -742,6 +746,11 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
 #endif // Q_OS_WIN
 
     setAttribute(Qt::AA_UseHighDpiPixmaps);
+
+#if QT_VERSION >= QT_VERSION_CHECK(5, 13, 0)
+    styleHints()->setShowShortcutsInContextMenus(true);
+#endif
+
     //
     // XXX - this means we try to check for the existence of all files
     // in the recent list every 2 seconds; that causes noticeable network

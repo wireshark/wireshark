@@ -147,6 +147,7 @@ SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *i
     ctx_menu_.addAction(ui->actionGoToPacket);
     ctx_menu_.addAction(ui->actionGoToNextPacket);
     ctx_menu_.addAction(ui->actionGoToPreviousPacket);
+    set_action_shortcuts_visible_in_context_menu(ctx_menu_.actions());
 
     ui->addressComboBox->setCurrentIndex(0);
 
