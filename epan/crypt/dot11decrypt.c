@@ -153,8 +153,7 @@ static INT Dot11DecryptRsnaMng(
     guint mac_header_len,
     guint *decrypt_len,
     PDOT11DECRYPT_KEY_ITEM key,
-    DOT11DECRYPT_SEC_ASSOCIATION *sa,
-    INT offset)
+    DOT11DECRYPT_SEC_ASSOCIATION *sa)
     ;
 
 static INT Dot11DecryptWepMng(
@@ -163,8 +162,7 @@ static INT Dot11DecryptWepMng(
     guint mac_header_len,
     guint *decrypt_len,
     PDOT11DECRYPT_KEY_ITEM key,
-    DOT11DECRYPT_SEC_ASSOCIATION *sa,
-    INT offset)
+    DOT11DECRYPT_SEC_ASSOCIATION *sa)
     ;
 
 static INT Dot11DecryptRsna4WHandshake(
@@ -880,16 +878,12 @@ INT Dot11DecryptDecryptPacket(
         return DOT11DECRYPT_RET_NO_DATA_ENCRYPTED;
     } else {
         PDOT11DECRYPT_SEC_ASSOCIATION sa;
-        int offset = 0;
 
         /* get the Security Association structure for the STA and AP */
         sa = Dot11DecryptGetSaPtr(ctx, &id);
         if (sa == NULL){
             return DOT11DECRYPT_RET_REQ_DATA;
         }
-
-        /* cache offset in the packet data (to scan encryption data) */
-        offset = mac_header_len;
 
         /* create new header and data to modify */
         *decrypt_len = tot_len;
@@ -902,9 +896,9 @@ INT Dot11DecryptDecryptPacket(
         /* refer to IEEE 802.11i-2004, 8.2.1.2, pag.35 for WEP,    */
         /*          IEEE 802.11i-2004, 8.3.2.2, pag. 45 for TKIP,  */
         /*          IEEE 802.11i-2004, 8.3.3.2, pag. 57 for CCMP   */
-        if (DOT11DECRYPT_EXTIV(data[offset+3])==0) {
+        if (DOT11DECRYPT_EXTIV(data[mac_header_len + 3]) == 0) {
             DEBUG_PRINT_LINE("WEP encryption", DEBUG_LEVEL_3);
-            return Dot11DecryptWepMng(ctx, decrypt_data, mac_header_len, decrypt_len, key, sa, offset);
+            return Dot11DecryptWepMng(ctx, decrypt_data, mac_header_len, decrypt_len, key, sa);
         } else {
             DEBUG_PRINT_LINE("TKIP or CCMP encryption", DEBUG_LEVEL_3);
 
@@ -930,7 +924,7 @@ INT Dot11DecryptDecryptPacket(
             }
 
             /* Decrypt the packet using the appropriate SA */
-            return Dot11DecryptRsnaMng(decrypt_data, mac_header_len, decrypt_len, key, sa, offset);
+            return Dot11DecryptRsnaMng(decrypt_data, mac_header_len, decrypt_len, key, sa);
         }
     }
     return DOT11DECRYPT_RET_UNSUCCESS;
@@ -1148,8 +1142,7 @@ Dot11DecryptRsnaMng(
     guint mac_header_len,
     guint *decrypt_len,
     PDOT11DECRYPT_KEY_ITEM key,
-    DOT11DECRYPT_SEC_ASSOCIATION *sa,
-    INT offset)
+    DOT11DECRYPT_SEC_ASSOCIATION *sa)
 {
     INT ret = 1;
     UCHAR *try_data;
@@ -1180,7 +1173,7 @@ Dot11DecryptRsnaMng(
            DEBUG_DUMP("ptk", sa->wpa.ptk, 64);
            DEBUG_DUMP("ptk portion used", DOT11DECRYPT_GET_TK_TKIP(sa->wpa.ptk), 16);
 
-           if (*decrypt_len < (guint)offset) {
+           if (*decrypt_len < (guint)mac_header_len) {
                DEBUG_PRINT_LINE("Invalid decryption length", DEBUG_LEVEL_3);
                g_free(try_data);
                return DOT11DECRYPT_RET_UNSUCCESS;
@@ -1191,7 +1184,7 @@ Dot11DecryptRsnaMng(
                return DOT11DECRYPT_RET_UNSUCCESS;
            }
 
-           ret = Dot11DecryptTkipDecrypt(try_data + offset, *decrypt_len - offset,
+           ret = Dot11DecryptTkipDecrypt(try_data + mac_header_len, *decrypt_len - mac_header_len,
                                          try_data + DOT11DECRYPT_TA_OFFSET,
                                          DOT11DECRYPT_GET_TK_TKIP(sa->wpa.ptk));
            if (ret) {
@@ -1246,9 +1239,9 @@ Dot11DecryptRsnaMng(
     decrypt_data[1]&=0xBF;
 
     /* remove TKIP/CCMP header */
-    offset = mac_header_len;
     *decrypt_len-=8;
-    memmove(decrypt_data+offset, decrypt_data+offset+8, *decrypt_len-offset);
+    memmove(decrypt_data + mac_header_len,
+            decrypt_data + mac_header_len + 8, *decrypt_len - mac_header_len);
 
     Dot11DecryptCopyKey(sa, key);
     return DOT11DECRYPT_RET_SUCCESS;
@@ -1261,8 +1254,7 @@ Dot11DecryptWepMng(
     guint mac_header_len,
     guint *decrypt_len,
     PDOT11DECRYPT_KEY_ITEM key,
-    DOT11DECRYPT_SEC_ASSOCIATION *sa,
-    INT offset)
+    DOT11DECRYPT_SEC_ASSOCIATION *sa)
 {
     UCHAR wep_key[DOT11DECRYPT_WEP_KEY_MAXLEN+DOT11DECRYPT_WEP_IVLEN];
     size_t keylen;
@@ -1352,9 +1344,10 @@ Dot11DecryptWepMng(
     decrypt_data[1]&=0xBF;
 
     /* remove IC header */
-    offset = mac_header_len;
     *decrypt_len-=4;
-    memmove(decrypt_data+offset, decrypt_data+offset+DOT11DECRYPT_WEP_IVLEN+DOT11DECRYPT_WEP_KIDLEN, *decrypt_len-offset);
+    memmove(decrypt_data + mac_header_len,
+            decrypt_data + mac_header_len + DOT11DECRYPT_WEP_IVLEN + DOT11DECRYPT_WEP_KIDLEN,
+            *decrypt_len - mac_header_len);
 
     return DOT11DECRYPT_RET_SUCCESS;
 }
