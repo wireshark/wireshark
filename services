@@ -5300,6 +5300,7 @@ msi-cps-rm-disc	8675/udp	# Motorola Solutions Customer Programming Software for 
 sun-as-jmxrmi	8686/tcp/udp	# Sun App Server - JMX/RMI
 openremote-ctrl	8688/tcp	# OpenRemote Controller HTTP/REST
 vnyx		8699/tcp	# VNYX Primary Port
+semi-grpc	8710/tcp	# gRPC for SEMI Standards implementations
 nvc		8711/tcp	# Nuance Voice Control
 dtp-net		8732/udp	# DASGIP Net Services
 ibus		8733/tcp/udp	# iBus

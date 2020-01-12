@@ -3745,11 +3745,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>All packets</source>
-        <translation>Всі пакети</translation>
+        <translation type="vanished">Всі пакети</translation>
     </message>
     <message>
         <source>TCP errors</source>
-        <translation>Помилки TCP</translation>
+        <translation type="vanished">Помилки TCP</translation>
+    </message>
+    <message>
+        <source>All Packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>TCP Errors</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Hover over the graph for details.</source>
@@ -5336,6 +5344,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Show packet separator</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show column definition in column context menu</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

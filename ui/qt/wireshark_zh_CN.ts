@@ -3752,11 +3752,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>All packets</source>
-        <translation>所有分组</translation>
+        <translation type="vanished">所有分组</translation>
     </message>
     <message>
         <source>TCP errors</source>
-        <translation>TCP 错误</translation>
+        <translation type="vanished">TCP 错误</translation>
+    </message>
+    <message>
+        <source>All Packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>TCP Errors</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Hover over the graph for details.</source>
@@ -5340,6 +5348,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Show packet separator</source>
         <translation>显示分组分隔符</translation>
+    </message>
+    <message>
+        <source>Show column definition in column context menu</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Status Bar settings:</source>

@@ -3804,11 +3804,19 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>All packets</source>
-        <translation>Alle Pakete</translation>
+        <translation type="vanished">Alle Pakete</translation>
     </message>
     <message>
         <source>TCP errors</source>
-        <translation>TCP Fehler</translation>
+        <translation type="vanished">TCP Fehler</translation>
+    </message>
+    <message>
+        <source>All Packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>TCP Errors</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Hover over the graph for details.</source>
@@ -5394,6 +5402,10 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Show packet separator</source>
         <translation>Zeige Pakettrenner</translation>
+    </message>
+    <message>
+        <source>Show column definition in column context menu</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Status Bar settings:</source>

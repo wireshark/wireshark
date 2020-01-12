@@ -3769,11 +3769,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>All packets</source>
+        <source>All Packets</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>TCP errors</source>
+        <source>TCP Errors</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5359,6 +5359,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Show packet separator</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show column definition in column context menu</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
