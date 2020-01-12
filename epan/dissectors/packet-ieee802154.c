@@ -675,23 +675,27 @@ static int hf_ieee802154_frame_end_offset = -1;
 static int hf_ieee802154_asn = -1;
 
 typedef struct _ieee802154_transaction_t {
-    address rqst_src_addr;
-    address rqst_dst_addr;
+    guint64 dst64;
+    guint64 src64;
+    gint32 dst_addr_mode;
+    gint32 src_addr_mode;
+    guint16 dst16;
+    guint16 src16;
     guint32 rqst_frame;
     guint32 ack_frame;
     nstime_t rqst_time;
     nstime_t ack_time;
-    gboolean rqst_dst_pan_present;
-    gboolean rqst_src_pan_present;
-    guint16 rqst_dst_pan;
-    guint16 rqst_src_pan;
+    gboolean dst_pan_present;
+    gboolean src_pan_present;
+    guint16 dst_pan;
+    guint16 src_pan;
 } ieee802154_transaction_t;
 
 static wmem_tree_t *transaction_unmatched_pdus;
 static wmem_tree_t *transaction_matched_pdus;
 
-static ieee802154_transaction_t *transaction_start(packet_info *pinfo, proto_tree *tree, const address *src_addr, const address *dst_addr, const ieee802154_packet *packet, guint32 *key);
-static ieee802154_transaction_t *transaction_end(packet_info *pinfo, proto_tree *tree, const address *src_addr, const address *dst_addr, const ieee802154_packet *packet, guint32 *key);
+static ieee802154_transaction_t *transaction_start(packet_info *pinfo, proto_tree *tree, const ieee802154_packet *packet, guint32 *key);
+static ieee802154_transaction_t *transaction_end(packet_info *pinfo, proto_tree *tree, const ieee802154_packet *packet, guint32 *key);
 
 /* Initialize Subtree Pointers */
 static gint ett_ieee802154_nonask_phy = -1;
@@ -1320,7 +1324,7 @@ static conversation_t *_find_or_create_conversation(packet_info *pinfo, const ad
 }
 
 /* ======================================================================= */
-static ieee802154_transaction_t *transaction_start(packet_info *pinfo, proto_tree *tree, const address *src_addr, const address *dst_addr, const ieee802154_packet *packet, guint32 *key)
+static ieee802154_transaction_t *transaction_start(packet_info *pinfo, proto_tree *tree, const ieee802154_packet *packet, guint32 *key)
 {
     ieee802154_transaction_t    *ieee802154_trans;
     wmem_tree_key_t             ieee802154_key[3];
@@ -1336,16 +1340,27 @@ static ieee802154_transaction_t *transaction_start(packet_info *pinfo, proto_tre
         ieee802154_key[1].length = 0;
         ieee802154_key[1].key = NULL;
 
-        ieee802154_trans = wmem_new(wmem_file_scope(), ieee802154_transaction_t);
-        copy_address_wmem(wmem_file_scope(), &ieee802154_trans->rqst_src_addr, src_addr);
-        copy_address_wmem(wmem_file_scope(), &ieee802154_trans->rqst_dst_addr, dst_addr);
+        ieee802154_trans = wmem_new0(wmem_file_scope(), ieee802154_transaction_t);
+
+        if (packet->dst_addr_mode == IEEE802154_FCF_ADDR_SHORT)
+            ieee802154_trans->dst16 = packet->dst16;
+        else if (packet->dst_addr_mode == IEEE802154_FCF_ADDR_EXT)
+            ieee802154_trans->dst64 = packet->dst64;
+        ieee802154_trans->dst_addr_mode = packet->dst_addr_mode;
+
+        if (packet->src_addr_mode == IEEE802154_FCF_ADDR_SHORT)
+            ieee802154_trans->src16 = packet->src16;
+        else if (packet->src_addr_mode == IEEE802154_FCF_ADDR_EXT)
+            ieee802154_trans->src64 = packet->src64;
+        ieee802154_trans->src_addr_mode = packet->src_addr_mode;
+
         if (packet->dst_pan_present) {
-            ieee802154_trans->rqst_dst_pan_present = TRUE;
-            ieee802154_trans->rqst_dst_pan = packet->dst_pan;
+            ieee802154_trans->dst_pan_present = TRUE;
+            ieee802154_trans->dst_pan = packet->dst_pan;
         }
         if (packet->src_pan_present) {
-            ieee802154_trans->rqst_src_pan_present = TRUE;
-            ieee802154_trans->rqst_src_pan = packet->src_pan;
+            ieee802154_trans->src_pan_present = TRUE;
+            ieee802154_trans->src_pan = packet->src_pan;
         }
         ieee802154_trans->rqst_frame = pinfo->num;
         ieee802154_trans->ack_frame = 0;
@@ -1387,7 +1402,7 @@ static ieee802154_transaction_t *transaction_start(packet_info *pinfo, proto_tre
     return ieee802154_trans;
 } /* transaction_start() */
 
-static ieee802154_transaction_t *transaction_end(packet_info *pinfo, proto_tree *tree, const address *src_addr, const address *dst_addr, const ieee802154_packet *packet, guint32 *key)
+static ieee802154_transaction_t *transaction_end(packet_info *pinfo, proto_tree *tree, const ieee802154_packet *packet, guint32 *key)
 {
     ieee802154_transaction_t    *ieee802154_trans = NULL;
     wmem_tree_key_t             ieee802154_key[3];
@@ -1412,10 +1427,22 @@ static ieee802154_transaction_t *transaction_end(packet_info *pinfo, proto_tree 
             return NULL;
 
         /* If addresses are present they must match */
-        if ((src_addr->type != AT_NONE) && addresses_equal(src_addr, &ieee802154_trans->rqst_dst_addr) == FALSE)
-            return NULL;
-        if ((dst_addr->type != AT_NONE) && addresses_equal(dst_addr, &ieee802154_trans->rqst_src_addr) == FALSE)
-            return NULL;
+        if (packet->src_addr_mode == IEEE802154_FCF_ADDR_SHORT) {
+            if (packet->src16 != ieee802154_trans->dst16)
+                return NULL;
+        }
+        else if (packet->src_addr_mode == IEEE802154_FCF_ADDR_EXT) {
+            if (packet->src64 != ieee802154_trans->dst64)
+                return NULL;
+        }
+        if (packet->dst_addr_mode == IEEE802154_FCF_ADDR_SHORT) {
+            if (packet->dst16 != ieee802154_trans->src16)
+                return NULL;
+        }
+        else if (packet->dst_addr_mode == IEEE802154_FCF_ADDR_EXT) {
+            if (packet->dst64 != ieee802154_trans->src64)
+                return NULL;
+        }
 
         ieee802154_trans->ack_frame = pinfo->num;
 
@@ -1459,61 +1486,53 @@ static ieee802154_transaction_t *transaction_end(packet_info *pinfo, proto_tree 
     }
 
     if (packet->dst_pan_present == FALSE) {
-        if (ieee802154_trans->rqst_src_pan_present) {
-            it = proto_tree_add_uint(tree, hf_ieee802154_dst_panID, NULL, 0, 0, ieee802154_trans->rqst_src_pan);
+        if (ieee802154_trans->src_pan_present) {
+            it = proto_tree_add_uint(tree, hf_ieee802154_dst_panID, NULL, 0, 0, ieee802154_trans->src_pan);
             proto_item_set_generated(it);
         }
-        else if (ieee802154_trans->rqst_dst_pan_present) {
-            it = proto_tree_add_uint(tree, hf_ieee802154_dst_panID, NULL, 0, 0, ieee802154_trans->rqst_dst_pan);
+        else if (ieee802154_trans->dst_pan_present) {
+            it = proto_tree_add_uint(tree, hf_ieee802154_dst_panID, NULL, 0, 0, ieee802154_trans->dst_pan);
             proto_item_set_generated(it);
         }
     }
-    if ((packet->src_pan_present == FALSE) && (ieee802154_trans->rqst_src_pan_present) && (ieee802154_trans->rqst_dst_pan_present)) {
-        it = proto_tree_add_uint(tree, hf_ieee802154_src_panID, NULL, 0, 0, ieee802154_trans->rqst_dst_pan);
+    if ((packet->src_pan_present == FALSE) && (ieee802154_trans->src_pan_present) && (ieee802154_trans->dst_pan_present)) {
+        it = proto_tree_add_uint(tree, hf_ieee802154_src_panID, NULL, 0, 0, ieee802154_trans->dst_pan);
         proto_item_set_generated(it);
     }
 
-    if (dst_addr->type == AT_NONE) {
-        if (ieee802154_trans->rqst_src_addr.type == ieee802_15_4_short_address_type) {
-            guint16 ieee_802_15_4_short_addr = pletoh16(ieee802154_trans->rqst_src_addr.data);
-
-            it = proto_tree_add_uint(tree, hf_ieee802154_dst16, NULL, 0, 0, ieee_802_15_4_short_addr);
+    if (packet->dst_addr_mode == IEEE802154_FCF_ADDR_NONE) {
+        if (ieee802154_trans->src_addr_mode == IEEE802154_FCF_ADDR_SHORT) {
+            it = proto_tree_add_uint(tree, hf_ieee802154_dst16, NULL, 0, 0, ieee802154_trans->src16);
             proto_item_set_generated(it);
 
-            it = proto_tree_add_uint(tree, hf_ieee802154_addr16, NULL, 0, 0, ieee_802_15_4_short_addr);
+            it = proto_tree_add_uint(tree, hf_ieee802154_addr16, NULL, 0, 0, ieee802154_trans->src16);
             proto_item_set_hidden(it);
             proto_item_set_generated(it);
         }
-        else if (ieee802154_trans->rqst_src_addr.type == AT_EUI64) {
-            guint64 ieee_802_15_4_ext_addr = pntoh64(ieee802154_trans->rqst_src_addr.data);
-
-            it = proto_tree_add_eui64(tree, hf_ieee802154_dst64, NULL, 0, 0, ieee_802_15_4_ext_addr);
+        else if (ieee802154_trans->src_addr_mode == IEEE802154_FCF_ADDR_EXT) {
+            it = proto_tree_add_eui64(tree, hf_ieee802154_dst64, NULL, 0, 0, ieee802154_trans->src64);
             proto_item_set_generated(it);
 
-            it = proto_tree_add_eui64(tree, hf_ieee802154_addr64, NULL, 0, 0, ieee_802_15_4_ext_addr);
+            it = proto_tree_add_eui64(tree, hf_ieee802154_addr64, NULL, 0, 0, ieee802154_trans->src64);
             proto_item_set_hidden(it);
             proto_item_set_generated(it);
         }
-	}
+    }
 
-    if (src_addr->type == AT_NONE) {
-        if (ieee802154_trans->rqst_dst_addr.type == ieee802_15_4_short_address_type) {
-            guint16 ieee_802_15_4_short_addr = pletoh16(ieee802154_trans->rqst_dst_addr.data);
-
-            it = proto_tree_add_uint(tree, hf_ieee802154_src16, NULL, 0, 0, ieee_802_15_4_short_addr);
+    if (packet->src_addr_mode == IEEE802154_FCF_ADDR_NONE) {
+        if (ieee802154_trans->dst_addr_mode == IEEE802154_FCF_ADDR_SHORT) {
+            it = proto_tree_add_uint(tree, hf_ieee802154_src16, NULL, 0, 0, ieee802154_trans->dst16);
             proto_item_set_generated(it);
 
-            it = proto_tree_add_uint(tree, hf_ieee802154_addr16, NULL, 0, 0, ieee_802_15_4_short_addr);
+            it = proto_tree_add_uint(tree, hf_ieee802154_addr16, NULL, 0, 0, ieee802154_trans->dst16);
             proto_item_set_hidden(it);
             proto_item_set_generated(it);
         }
-        else if (ieee802154_trans->rqst_dst_addr.type == AT_EUI64) {
-            guint64 ieee_802_15_4_ext_addr = pntoh64(ieee802154_trans->rqst_dst_addr.data);
-
-            it = proto_tree_add_eui64(tree, hf_ieee802154_src64, NULL, 0, 0, ieee_802_15_4_ext_addr);
+        else if (ieee802154_trans->dst_addr_mode == IEEE802154_FCF_ADDR_EXT) {
+            it = proto_tree_add_eui64(tree, hf_ieee802154_src64, NULL, 0, 0, ieee802154_trans->dst64);
             proto_item_set_generated(it);
 
-            it = proto_tree_add_eui64(tree, hf_ieee802154_addr64, NULL, 0, 0, ieee_802_15_4_ext_addr);
+            it = proto_tree_add_eui64(tree, hf_ieee802154_addr64, NULL, 0, 0, ieee802154_trans->dst64);
             proto_item_set_hidden(it);
             proto_item_set_generated(it);
         }
@@ -2234,10 +2253,10 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         }
 
         if (packet->ack_request) {
-            transaction_start(pinfo, ieee802154_tree, &pinfo->dl_src, &pinfo->dl_dst, packet, key);
+            transaction_start(pinfo, ieee802154_tree, packet, key);
         }
         else {
-            transaction_end(pinfo, ieee802154_tree, &pinfo->dl_src, &pinfo->dl_dst, packet, key);
+            transaction_end(pinfo, ieee802154_tree, packet, key);
         }
     }
 
