@@ -374,7 +374,7 @@ XDayOf/fifth				fifth_dayof
 
 #.END
 
-#.FN_BODY Time/utcTime
+#.FN_BODY SyntaxUTCTime
   char *outstr, *newstr;
   guint32 tvblen;
 
