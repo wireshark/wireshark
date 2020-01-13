@@ -21,11 +21,12 @@ or you are trying to make sense of a data stream. Maybe you just need a
 display filter to show only the packets in a TLS or SSL stream. If so,
 Wireshark’s ability to follow protocol streams will be useful to you.
 
-Simply select a TCP, UDP, TLS, or HTTP packet in the packet list of the stream/connection you are
-interested in and then select the Follow TCP Stream menu item from the Wireshark
-Tools menu (or use the context menu in the packet list). Wireshark will set an
-appropriate display filter and pop up a dialog box with all the data from the
-TCP stream laid out in order, as shown in <<ChAdvFollowStream>>.
+To filter to a particular stream,
+select a TCP, UDP, TLS, or HTTP packet in the packet list of the stream/connection you are
+interested in and then select the menu item menu:Analyze[Follow TCP Stream]
+(or use the context menu in the packet list). Wireshark will set an
+appropriate display filter and display a dialog box with the data from the
+stream laid out, as shown in <<ChAdvFollowStream>>.
 
 [TIP]
 ====
@@ -42,11 +43,15 @@ the display filter if this behavior is not desired.
 image::wsug_graphics/ws-follow-stream.png[{screenshot-attrs}]
 
 The stream content is displayed in the same sequence as it appeared on the
-network. Traffic from A to B is marked in red, while traffic from B to A is
-marked in blue. If you like, you can change these colors in the
-“Font and Colors” page in the “Preferences” dialog.
+network. Non-printable characters are replaced by dots.
+Traffic from the client to the server is colored red, while traffic
+from the server to the client is
+colored blue. These colors can be changed by opening menu:Edit[Preferences] and
+under menu:Apperance[Font and Colors], selecting different colors for the
+btn:[Sample "Follow Stream" client text] and btn:[Sample "Follow Stream" server text]
+options.
 
-Non-printable characters will be replaced by dots.
+
 
 // XXX - What about line wrapping (maximum line length) and CRNL conversions?
 
@@ -69,7 +74,7 @@ btn:[Back]:: Close this dialog box and restore the previous display filter.
 btn:[Close]:: Close this dialog box, leaving the current display filter in
   effect.
 
-By default data from both directions is displayed. You can select the
+By default, Wireshark displays both client and server data. You can select the
 menu:Entire conversation[] to switch between both, client to server, or
 server to client data.
 
