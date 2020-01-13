@@ -20,10 +20,12 @@ The following vulnerabilities have been fixed:
 
 * wssalink:2020-01[]
 WASSP dissector crash.
-// wsbuglink:16240[].
+wsbuglink:16324[].
 // cveidlink:2019-xxxxx[].
 // Fixed in master: 71b59b18e4
 // Fixed in master-3.2: f90a3720b7
+// Fixed in master-3.0: N/A
+// Fixed in master-2.6: N/A
 
 The following bugs have been fixed:
 
@@ -31,7 +33,7 @@ The following bugs have been fixed:
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
 //* Wireshark is solely responsible for the decline of shopping malls in your area.
-// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v3.2.1rc0..| grep ' Bug:' | awk '{print $2}' | sort -n -u ` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
+// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v3.2.2rc0..| grep ' Bug:' | awk '{print $2}' | sort -n -u ` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
 
 * Incorrect parsing of USB CDC packets. wsbuglink:14587[].
 
