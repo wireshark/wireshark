@@ -162,6 +162,7 @@ LIBSSH_VERSION=0.9.0
 MAXMINDDB_VERSION=1.3.2
 NGHTTP2_VERSION=1.39.2
 SPANDSP_VERSION=0.0.6
+SPEEXDSP_VERSION=1.2.0
 if [ "$SPANDSP_VERSION" ]; then
     #
     # SpanDSP depends on libtiff.
@@ -1679,6 +1680,42 @@ uninstall_spandsp() {
     fi
 }
 
+install_speexdsp() {
+    if [ "$SPEEXDSP_VERSION" -a ! -f speexdsp-$SPEEXDSP_VERSION-done ] ; then
+        echo "Downloading, building, and installing SpeexDSP:"
+        [ -f speexdsp-$SPEEXDSP_VERSION.tar.gz ] || curl -L -O http://downloads.us.xiph.org/releases/speex/speexdsp-$SPEEXDSP_VERSION.tar.gz || exit 1
+        $no_build && echo "Skipping installation" && return
+        gzcat speexdsp-$SPEEXDSP_VERSION.tar.gz | tar xf - || exit 1
+        cd speexdsp-$SPEEXDSP_VERSION
+        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
+        make $MAKE_BUILD_OPTS || exit 1
+        $DO_MAKE_INSTALL || exit 1
+        cd ..
+        touch speexdsp-$SPEEXDSP_VERSION-done
+    fi
+}
+
+uninstall_speexdsp() {
+    if [ ! -z "$installed_speexdsp_version" ] ; then
+        echo "Uninstalling SpeexDSP:"
+        cd speexdsp-$installed_speexdsp_version
+        $DO_MAKE_UNINSTALL || exit 1
+        make distclean || exit 1
+        cd ..
+        rm speexdsp-$installed_speexdsp_version-done
+
+        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version.
+            #
+            rm -rf speexdsp-$installed_speexdsp_version
+            rm -rf speexdsp-$installed_speexdsp_version.tar.gz
+        fi
+
+        installed_speexdsp_version=""
+    fi
+}
+
 install_bcg729() {
     if [ "$BCG729_VERSION" -a ! -f bcg729-$BCG729_VERSION-done ] ; then
         echo "Downloading, building, and installing bcg729:"
@@ -1938,6 +1975,17 @@ install_all() {
             echo "Requested SpanDSP version is $SPANDSP_VERSION"
         fi
         uninstall_spandsp -r
+    fi
+
+    if [ ! -z "$installed_speexdsp_version" -a \
+              "$installed_speexdsp_version" != "$SPEEXDSP_VERSION" ] ; then
+        echo "Installed SpeexDSP version is $installed_speexdsp_version"
+        if [ -z "$SPEEXDSP_VERSION" ] ; then
+            echo "speexdsp is not requested"
+        else
+            echo "Requested SpeexDSP version is $SPEEXDSP_VERSION"
+        fi
+        uninstall_speexdsp -r
     fi
 
     if [ ! -z "$installed_libtiff_version" -a \
@@ -2400,6 +2448,8 @@ install_all() {
 
     install_spandsp
 
+    install_speexdsp
+
     install_bcg729
 
     install_python3
@@ -2434,6 +2484,8 @@ uninstall_all() {
         uninstall_python3
 
         uninstall_bcg729
+
+        uninstall_speexdsp
 
         uninstall_spandsp
 
@@ -2635,6 +2687,7 @@ then
     installed_nghttp2_version=`ls nghttp2-*-done 2>/dev/null | sed 's/nghttp2-\(.*\)-done/\1/'`
     installed_libtiff_version=`ls tiff-*-done 2>/dev/null | sed 's/tiff-\(.*\)-done/\1/'`
     installed_spandsp_version=`ls spandsp-*-done 2>/dev/null | sed 's/spandsp-\(.*\)-done/\1/'`
+    installed_speexdsp_version=`ls speexdsp-*-done 2>/dev/null | sed 's/speexdsp-\(.*\)-done/\1/'`
     installed_bcg729_version=`ls bcg729-*-done 2>/dev/null | sed 's/bcg729-\(.*\)-done/\1/'`
     installed_python3_version=`ls python3-*-done 2>/dev/null | sed 's/python3-\(.*\)-done/\1/'`
     installed_brotli_version=`ls brotli-*-done 2>/dev/null | sed 's/brotli-\(.*\)-done/\1/'`
