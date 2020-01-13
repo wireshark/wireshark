@@ -1904,7 +1904,7 @@ install_all() {
 
     if [ ! -z "$installed_bcg729_version" -a \
               "$installed_bcg729_version" != "$BCG729_VERSION" ] ; then
-        echo "Installed SpanDSP version is $installed_bcg729_version"
+        echo "Installed bcg729 version is $installed_bcg729_version"
         if [ -z "$BCG729_VERSION" ] ; then
             echo "bcg729 is not requested"
         else
