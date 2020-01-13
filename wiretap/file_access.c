@@ -51,6 +51,7 @@
 #include "k12.h"
 #include "ber.h"
 #include "catapult_dct2000.h"
+#include "mp4.h"
 #include "mp2t.h"
 #include "mpeg.h"
 #include "netscreen.h"
@@ -152,6 +153,7 @@ static const struct file_extension_info file_type_extensions_base[] = {
 	{ "Transport-Neutral Encapsulation Format", FALSE, "tnef" },
 	{ "JPEG/JFIF files", FALSE, "jpg;jpeg;jfif" },
 	{ "JavaScript Object Notation file", FALSE, "json" },
+	{ "MP4 file", FALSE, "mp4" },
 };
 
 #define	N_FILE_TYPE_EXTENSIONS	(sizeof file_type_extensions_base / sizeof file_type_extensions_base[0])
@@ -430,6 +432,7 @@ static const struct open_info open_info_base[] = {
 	{ "Ruby Marshal Object",                    OPEN_INFO_HEURISTIC, ruby_marshal_open,        "",         NULL, NULL },
 	{ "Systemd Journal",                        OPEN_INFO_HEURISTIC, systemd_journal_open,     "log;jnl;journal",      NULL, NULL },
 	{ "3gpp phone log",                         OPEN_INFO_MAGIC,     log3gpp_open,             "log",      NULL, NULL },
+	{ "MP4 media file",                         OPEN_INFO_MAGIC,     mp4_open,                 "mp4",      NULL, NULL },
 
 };
 
@@ -1665,6 +1668,11 @@ static const struct file_type_subtype_info dump_open_table_base[] = {
 	/* WTAP_FILE_TYPE_SUBTYPE_LOG_3GPP */
 	{ "3GPP Log", "3gpp_log", "*.log", NULL,
 	  TRUE, FALSE, 0,
+	  NULL, NULL, NULL },
+
+	/* WTAP_FILE_TYPE_SUBTYPE_MP4 */
+	{ "MP4 media", "mp4", "mp4", NULL,
+	  FALSE, FALSE, 0,
 	  NULL, NULL, NULL }
 };
 
