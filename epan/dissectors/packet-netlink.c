@@ -436,7 +436,7 @@ dissect_netlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 	tvbuff_t   *next_tvb;
 	proto_tree *fh_tree;
 
-	int offset;
+	int offset = 0;
 	int encoding;
 	guint len_rem, len_le, len_be;
 
@@ -447,31 +447,34 @@ dissect_netlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Netlink");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	ti = proto_tree_add_protocol_format(tree, hfi_netlink->id, tvb, 0,
+	ti = proto_tree_add_protocol_format(tree, hfi_netlink->id, tvb, offset,
 			SLL_HEADER_SIZE, "Linux netlink (cooked header)");
 	fh_tree = proto_item_add_subtree(ti, ett_netlink_cooked);
 
-	/* Unused 2B */
-	offset = 2;
+	/* Packet type
+	 * Since this packet, coming from the monitor port, is always outgoing we skip this
+	 */
+	offset += 2;
 
 	proto_tree_add_item(fh_tree, &hfi_netlink_hatype, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
-	/* Unused 10B */
+	/* Hardware address length plus spare space, unused 10B */
 	offset += 10;
 
+	/* Protocol, used as netlink family identifier */
 	protocol = tvb_get_ntohs(tvb, offset);
 	proto_tree_add_item(fh_tree, &hfi_netlink_family, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
-	/* DISSECTOR_ASSERT(offset == 16); */
+	/* End of cooked header */
 
 	/*
-	 * We are unable to detect the endianness, we have to guess. Compare
-	 * the size of the inner package with the size of the outer package,
-	 * take the endianness in which the inner package length is closer to
-	 * the size of the outer package. Normally we have packages with less
-	 * than 10KB here so the sizes are very huge in the wrong endianness.
+	 * We do not know the endianness of the capture host, we have to guess.
+	 * Compare the size of the message with the reported size of the TVB,
+	 * take the endianness in which the messsage length is closer to
+	 * the size of the TVB. Normally we have messages with less
+	 * than 10KiB here so the sizes are very huge in the wrong endianness.
 	 */
 	len_rem = tvb_reported_length_remaining(tvb, offset);
 	len_le = tvb_get_letohl(tvb, offset);
@@ -514,7 +517,9 @@ dissect_netlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 		msg_type = tvb_get_guint16(tvb, offset + 4, encoding);
 		port_id = tvb_get_guint32(tvb, offset + 12, encoding);
 
-		/* XXX */
+		/* Since we have no original direction in the packet coming from
+		 * the monitor port we have to derive it from the port_id
+		 */
 		if (port_id == 0x00)
 			pinfo->p2p_dir = P2P_DIR_SENT; /* userspace -> kernel */
 		else

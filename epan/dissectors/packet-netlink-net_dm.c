@@ -411,6 +411,7 @@ dissect_netlink_net_dm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
 	/* Not all commands have a payload */
 	if (!tvb_reported_length_remaining(tvb, offset))
+		/* XXX If you do not set the protocol item, you cannot filter on these messages */
 		return offset;
 
 	pi = proto_tree_add_item(tree, proto_registrar_get_nth(proto_netlink_net_dm), tvb, offset, -1, ENC_NA);

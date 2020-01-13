@@ -135,6 +135,8 @@ typedef struct {
 
 	/* fields from genlmsghdr */
 	guint8 	        cmd; /* Command number */
+
+	/* XXX This should contain a family version number as well. */
 } genl_info_t;
 
 int dissect_genl_header(tvbuff_t *tvb, genl_info_t *genl_info, struct packet_netlink_data *nl_data, header_field_info *hfi_cmd);

@@ -4114,6 +4114,7 @@ dissect_netlink_nl80211(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
     /* Return if command has no payload */
     if (!tvb_reported_length_remaining(tvb, offset))
+            /* XXX If you do not set the protocol item, you cannot filter on these messages */
             return offset;
 
     info.pinfo = pinfo;

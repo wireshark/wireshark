@@ -403,6 +403,7 @@ int dissect_genl_header(tvbuff_t *tvb, genl_info_t *genl_info, struct packet_net
 	}
 	proto_tree_add_item(genl_info->genl_tree, hfi_cmd, tvb, offset, 1, ENC_NA);
 	offset++;
+	/* XXX Family dissectors may want to know this */
 	proto_tree_add_item(genl_info->genl_tree, &hfi_genl_version, tvb, offset, 1, ENC_NA);
 	offset++;
 	proto_tree_add_item(genl_info->genl_tree, &hfi_genl_reserved, tvb, offset, 2, nl_data->encoding);
