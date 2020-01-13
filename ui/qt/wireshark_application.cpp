@@ -757,6 +757,11 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 1, 0))
     setAttribute(Qt::AA_UseHighDpiPixmaps);
 #endif
+
+#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0) && QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    setAttribute(Qt::AA_DisableWindowContextHelpButton);
+#endif
+
     //
     // XXX - this means we try to check for the existence of all files
     // in the recent list every 2 seconds; that causes noticeable network
