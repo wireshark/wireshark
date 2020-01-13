@@ -35,7 +35,7 @@
 *
 *   It's also available from Adobe at
 *
-*          http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/rtmp/pdf/rtmp_specification_1.0.pdf
+*          https://www.adobe.com/content/dam/acom/en/devnet/rtmp/pdf/rtmp_specification_1.0.pdf
 *
 *   For AMF, see:
 *
