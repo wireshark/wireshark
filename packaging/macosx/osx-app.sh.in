@@ -464,6 +464,7 @@ codesign_file () {
 	# XXX Do we need to add the com.apple.security.cs.allow-unsigned-executable-memory
 	# entitlement for Lua?
 	# https://developer.apple.com/documentation/security/hardened_runtime_entitlements?language=objc
+
 	codesign \
 		--sign "Developer ID Application: $CODE_SIGN_IDENTITY" \
 		--force \
@@ -499,6 +500,22 @@ if [ -n "$CODE_SIGN_IDENTITY" ] ; then
 	# Signing all the components in one shot with --deep is for emergency repairs and
 	# temporary adjustments only. Note that signing with the combination --deep
 	# --force will forcibly re-sign all code in a bundle."
+
+	# We need to force-sign Sparkle and its AutoUpdate.app.
+	# https://github.com/sparkle-project/Sparkle/issues/1441
+	# https://github.com/sparkle-project/Sparkle/issues/1266
+	# https://furbo.org/2019/08/16/catalina-app-notarization-and-sparkle/
+	# https://cutecoder.org/programming/enable-hardened-runtime-sparkle/
+
+	echo "Signing Sparkle's AutoUpdate.app"
+	codesign \
+		--sign "Developer ID Application: $CODE_SIGN_IDENTITY" \
+		--force \
+		--deep \
+		--timestamp \
+		--options runtime \
+		--verbose \
+		"$pkglib/Sparkle.framework/Versions/A/Resources/AutoUpdate.app"
 
 	echo "Signing frameworks"
 	for framework in "$pkglib"/*.framework/Versions/* ; do
