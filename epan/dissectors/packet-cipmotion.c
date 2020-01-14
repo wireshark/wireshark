@@ -3,7 +3,7 @@
  * CIP Motion Home: www.odva.org
  *
  * This dissector includes items from:
- *    CIP Volume 9: CIP Motion, Edition 1.3
+ *    CIP Volume 9: CIP Motion, Edition 1.5
  *
  * Copyright 2006-2007
  * Benjamin M. Stocks <bmstocks@ra.rockwell.com>
@@ -177,6 +177,17 @@ static int hf_cip_axis_sts2_ac_phase_loss   = -1;
 static int hf_cip_axis_sts2_ac_freq_change  = -1;
 static int hf_cip_axis_sts2_ac_sync_loss    = -1;
 static int hf_cip_axis_sts2_single_phase    = -1;
+static int hf_cip_axis_sts2_bus_volt_limit  = -1;
+static int hf_cip_axis_sts2_bus_volt_rate_limit = -1;
+static int hf_cip_axis_sts2_active_current_rate_limit = -1;
+static int hf_cip_axis_sts2_reactive_current_rate_limit = -1;
+static int hf_cip_axis_sts2_reactive_pwr_limit = -1;
+static int hf_cip_axis_sts2_reactive_pwr_rate_limit = -1;
+static int hf_cip_axis_sts2_active_current_limit = -1;
+static int hf_cip_axis_sts2_reactive_current_limit = -1;
+static int hf_cip_axis_sts2_motor_pwr_limit = -1;
+static int hf_cip_axis_sts2_regen_pwr_limit = -1;
+static int hf_cip_axis_sts2_convert_therm_limit = -1;
 
 static int hf_cip_cyclic_wrt_data           = -1;
 static int hf_cip_cyclic_rd_data            = -1;
@@ -237,6 +248,10 @@ static int hf_set_axis_attr_list_dimension         = -1;
 static int hf_set_axis_attr_list_element_size      = -1;
 static int hf_set_axis_attr_list_start_index       = -1;
 static int hf_set_axis_attr_list_data_elements     = -1;
+static int hf_set_cyclic_list_attribute_cnt        = -1;
+static int hf_set_cyclic_list_attribute_id         = -1;
+static int hf_set_cyclic_list_read_block_id        = -1;
+static int hf_set_cyclic_list_attr_sts             = -1;
 static int hf_var_devce_instance                   = -1;
 static int hf_var_devce_instance_block_size        = -1;
 static int hf_var_devce_cyclic_block_size          = -1;
@@ -271,6 +286,7 @@ static gint ett_get_axis_attribute  = -1;
 static gint ett_set_axis_attribute  = -1;
 static gint ett_get_axis_attr_list  = -1;
 static gint ett_set_axis_attr_list  = -1;
+static gint ett_set_cyclic_list     = -1;
 static gint ett_group_sync          = -1;
 static gint ett_axis_status_set     = -1;
 static gint ett_command_control     = -1;
@@ -279,6 +295,8 @@ static expert_field ei_format_rev_conn_pt = EI_INIT;
 
 static dissector_handle_t cipmotion_handle;
 static dissector_handle_t cipmotion3_handle;
+
+static gboolean display_full_attribute_data = FALSE;
 
 /* These are the BITMASKS for the Time Data Set header field */
 #define TIME_DATA_SET_TIME_STAMP                0x1
@@ -529,6 +547,17 @@ static int dissect_axis_status2(packet_info *pinfo _U_, proto_tree *tree, proto_
       &hf_cip_axis_sts2_ac_freq_change,
       &hf_cip_axis_sts2_ac_sync_loss,
       &hf_cip_axis_sts2_single_phase,
+      &hf_cip_axis_sts2_bus_volt_limit,
+      &hf_cip_axis_sts2_bus_volt_rate_limit,
+      &hf_cip_axis_sts2_active_current_rate_limit,
+      &hf_cip_axis_sts2_reactive_current_rate_limit,
+      &hf_cip_axis_sts2_reactive_pwr_limit,
+      &hf_cip_axis_sts2_reactive_pwr_rate_limit,
+      &hf_cip_axis_sts2_active_current_limit,
+      &hf_cip_axis_sts2_reactive_current_limit,
+      &hf_cip_axis_sts2_motor_pwr_limit,
+      &hf_cip_axis_sts2_regen_pwr_limit,
+      &hf_cip_axis_sts2_convert_therm_limit,
       NULL
    };
 
@@ -1373,8 +1402,12 @@ dissect_set_axis_attr_list_request(packet_info *pinfo, tvbuff_t* tvb, proto_tree
       int parsed_len = dissect_motion_attribute(pinfo, tvb, local_offset + attribute_start, attribute_id,
          instance_id, attr_item, attr_tree, dimension, attribute_size);
 
-      // Display any remaining unparsed attribute data.
-      if ((attribute_size - parsed_len) > 0)
+      // Display the raw attribute data if configured. Otherwise, just show the remaining unparsed data.
+      if (display_full_attribute_data)
+      {
+         proto_tree_add_item(attr_tree, hf_cip_attribute_data, tvb, local_offset + attribute_start, attribute_size, ENC_NA);
+      }
+      else if ((attribute_size - parsed_len) > 0)
       {
          proto_tree_add_item(attr_tree, hf_cip_attribute_data, tvb, local_offset + attribute_start + parsed_len, attribute_size - parsed_len, ENC_NA);
       }
@@ -1409,6 +1442,62 @@ dissect_group_sync_request (tvbuff_t* tvb, proto_tree* tree, guint32 offset, gui
    proto_tree_add_item(header_tree, hf_cip_ptp_grandmaster, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 }
 
+static void dissect_set_cyclic_list_request(tvbuff_t* tvb, proto_tree* tree, guint32 offset, guint32 size, guint32 instance_id, const char* service_name)
+{
+   proto_tree* header_tree = proto_tree_add_subtree(tree, tvb, offset, size, ett_set_cyclic_list, NULL, service_name);
+
+   guint32 attribute_cnt;
+   proto_tree_add_item_ret_uint(header_tree, hf_set_cyclic_list_attribute_cnt, tvb, offset, 2, ENC_LITTLE_ENDIAN, &attribute_cnt);
+
+   // Skip Number of Attributes and Reserved field.
+   offset += 4;
+
+   for (guint32 attribute = 0; attribute < attribute_cnt; attribute++)
+   {
+      guint32 attribute_id;
+      proto_item* attr_item = proto_tree_add_item_ret_uint(header_tree, hf_set_cyclic_list_attribute_id, tvb, offset, 2, ENC_LITTLE_ENDIAN, &attribute_id);
+
+      attribute_info_t* pattribute = cip_get_attribute(CI_CLS_MOTION, instance_id, attribute_id);
+      if (pattribute != NULL)
+      {
+         proto_item_append_text(attr_item, " (%s)", pattribute->text);
+      }
+
+      offset += 2;
+   }
+}
+
+static void dissect_set_cyclic_list_respone(tvbuff_t* tvb, proto_tree* tree, guint32 offset, guint32 size, guint32 instance_id, const char* service_name)
+{
+   proto_tree* header_tree = proto_tree_add_subtree(tree, tvb, offset, size, ett_set_cyclic_list, NULL, service_name);
+
+   guint32 attribute_cnt;
+   proto_tree_add_item_ret_uint(header_tree, hf_set_cyclic_list_attribute_cnt, tvb, offset, 2, ENC_LITTLE_ENDIAN, &attribute_cnt);
+
+   proto_tree_add_item(header_tree, hf_set_cyclic_list_read_block_id, tvb, offset + 2, 2, ENC_LITTLE_ENDIAN);
+
+   // Skip Number of Attributes and Cyclic Read Block ID field.
+   offset += 4;
+
+   for (guint32 attribute = 0; attribute < attribute_cnt; attribute++)
+   {
+      guint32 attribute_id;
+      proto_item* attr_item = proto_tree_add_item_ret_uint(header_tree, hf_set_cyclic_list_attribute_id, tvb, offset, 2, ENC_LITTLE_ENDIAN, &attribute_id);
+
+      attribute_info_t* pattribute = cip_get_attribute(CI_CLS_MOTION, instance_id, attribute_id);
+      if (pattribute != NULL)
+      {
+         proto_item_append_text(attr_item, " (%s)", pattribute->text);
+      }
+
+      offset += 2;
+
+      proto_tree_add_item(header_tree, hf_set_cyclic_list_attr_sts, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+
+      // Skip over Attribute Status and Reserved field.
+      offset += 2;
+   }
+}
 
 /*
  * Function name: dissect_cntr_service
@@ -1425,7 +1514,8 @@ dissect_cntr_service(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint3
    guint32      service;
 
    /* Create the tree for the entire service data block */
-   header_tree = proto_tree_add_subtree(tree, tvb, offset, size, ett_service, NULL, "Service Data Block");
+   proto_item *item;
+   header_tree = proto_tree_add_subtree(tree, tvb, offset, size, ett_service, &item, "Service Data Block");
 
    /* Display the transaction id value */
    proto_tree_add_item(header_tree, hf_cip_svc_transction, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -1447,6 +1537,30 @@ dissect_cntr_service(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint3
        case SC_GROUP_SYNC:
            dissect_group_sync_request(tvb, header_tree, offset + 4, size - 4);
            break;
+       case SC_SET_CYCLIC_WRITE_LIST:
+           dissect_set_cyclic_list_request(tvb, header_tree, offset + 4, size - 4, instance_id, "Set Cyclic Write List Request");
+           break;
+       case SC_SET_CYCLIC_READ_LIST:
+           dissect_set_cyclic_list_request(tvb, header_tree, offset + 4, size - 4, instance_id, "Set Cyclic Read List Request");
+           break;
+       case SC_SET_ATT_LIST:
+       {
+           cip_simple_request_info_t motion_path;
+           motion_path.iClass = CI_CLS_MOTION;
+           motion_path.iInstance = instance_id;
+
+           tvbuff_t* tvb_set_attr = tvb_new_subset_length(tvb, offset + 4, size - 4);
+           int parsed_len = dissect_cip_set_attribute_list_req(tvb_set_attr, pinfo, header_tree, item, 0, &motion_path);
+
+           // Display any remaining unparsed data.
+           int remain_len = tvb_reported_length_remaining(tvb, offset + 4 + parsed_len);
+           if (remain_len > 0)
+           {
+              proto_tree_add_item(header_tree, hf_cip_attribute_data, tvb, offset + 4 + parsed_len, size - 4 - parsed_len, ENC_NA);
+           }
+
+           break;
+       }
        default:
            /* Display the remainder of the service channel data */
            proto_tree_add_item(header_tree, hf_cip_svc_data, tvb, offset + 4, size - 4, ENC_NA);
@@ -1578,8 +1692,12 @@ dissect_get_axis_attr_list_response(packet_info* pinfo, tvbuff_t* tvb, proto_tre
          int parsed_len = dissect_motion_attribute(pinfo, tvb, local_offset + attribute_start, attribute_id,
             instance_id, attr_item, attr_tree, dimension, attribute_size);
 
-         /* Display the remainder of the service channel data */
-         if ((attribute_size - parsed_len) > 0)
+         // Display the raw attribute data if configured. Otherwise, just show the remaining unparsed data
+         if (display_full_attribute_data)
+         {
+            proto_tree_add_item(attr_tree, hf_cip_attribute_data, tvb, local_offset + attribute_start, attribute_size, ENC_NA);
+         }
+         else if ((attribute_size - parsed_len) > 0)
          {
             proto_tree_add_item(attr_tree, hf_cip_attribute_data, tvb, local_offset + attribute_start + parsed_len, attribute_size - parsed_len, ENC_NA);
          }
@@ -1623,7 +1741,8 @@ dissect_devce_service(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint
    proto_tree *header_tree;
 
    /* Create the tree for the entire service data block */
-   header_tree = proto_tree_add_subtree(tree, tvb, offset, size, ett_service, NULL, "Service Data Block");
+   proto_item* item;
+   header_tree = proto_tree_add_subtree(tree, tvb, offset, size, ett_service, &item, "Service Data Block");
 
    /* Display the transaction id value */
    proto_tree_add_item(header_tree, hf_cip_svc_transction, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -1652,6 +1771,22 @@ dissect_devce_service(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint
        case SC_GROUP_SYNC:
            dissect_group_sync_response(tvb, header_tree, offset + 4);
            break;
+       case SC_SET_CYCLIC_WRITE_LIST:
+          dissect_set_cyclic_list_respone(tvb, header_tree, offset + 4, size - 4, instance_id, "Set Cyclic Write List Response");
+          break;
+       case SC_SET_CYCLIC_READ_LIST:
+          dissect_set_cyclic_list_respone(tvb, header_tree, offset + 4, size - 4, instance_id, "Set Cyclic Read List Response");
+          break;
+       case SC_SET_ATT_LIST:
+       {
+          cip_simple_request_info_t motion_path;
+          motion_path.iClass = CI_CLS_MOTION;
+          motion_path.iInstance = instance_id;
+
+          tvbuff_t* tvb_set_attr = tvb_new_subset_length(tvb, offset + 4, size - 4);
+          dissect_cip_set_attribute_list_rsp(tvb_set_attr, pinfo, header_tree, item, 0, &motion_path);
+          break;
+       }
        default:
            /* Display the remainder of the service channel data */
            proto_tree_add_item(header_tree, hf_cip_svc_data, tvb, offset + 4, size - 4, ENC_NA);
@@ -2768,6 +2903,27 @@ proto_register_cipmotion(void)
           "Service Channel: Set Axis Attribute List Data elements", HFILL}
       },
 
+      { &hf_set_cyclic_list_attribute_cnt,
+        { "Number of attributes", "cipm.set_cyclic.cnt",
+          FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL}
+      },
+      { &hf_set_cyclic_list_attribute_id,
+        { "Attribute ID", "cipm.set_cyclic.id",
+          FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL}
+      },
+      { &hf_set_cyclic_list_read_block_id,
+        { "Cyclic Read Block ID", "cipm.set_cyclic.read_block_id",
+          FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL}
+      },
+      { &hf_set_cyclic_list_attr_sts,
+        { "Attribute Status", "cipm.set_cyclic.sts",
+          FT_UINT8, BASE_DEC | BASE_EXT_STRING, &cip_gs_vals_ext, 0,
+          NULL, HFILL }
+      },
+
       { &hf_var_devce_instance,
         { "Instance Number", "cipm.var_devce.header.instance",
           FT_UINT8, BASE_DEC, NULL, 0,
@@ -3007,6 +3163,62 @@ proto_register_cipmotion(void)
          NULL, HFILL }
       },
 
+      { &hf_cip_axis_sts2_bus_volt_limit,
+        { "Bus Voltage Limit", "cipm.axis2.bus_volt_limit",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00002000,
+          NULL, HFILL }
+      },
+      { &hf_cip_axis_sts2_bus_volt_rate_limit,
+        { "Bus Voltage Rate Limit", "cipm.axis2.bus_volt_rate_limit",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00004000,
+          NULL, HFILL }
+      },
+      { &hf_cip_axis_sts2_active_current_rate_limit,
+        { "Active Current Rate Limit", "cipm.axis2.active_current_rate_limit",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00008000,
+          NULL, HFILL }
+      },
+      { &hf_cip_axis_sts2_reactive_current_rate_limit,
+        { "Reactive Current Rate Limit", "cipm.axis2.reactive_current_rate_limit",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00010000,
+          NULL, HFILL }
+      },
+      { &hf_cip_axis_sts2_reactive_pwr_limit,
+        { "Reactive Power Limit", "cipm.axis2.reactive_pwr_limit",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00020000,
+          NULL, HFILL }
+      },
+      { &hf_cip_axis_sts2_reactive_pwr_rate_limit,
+        { "Reactive Power Rate Limit", "cipm.axis2.reactive_pwr_rate_limit",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00040000,
+          NULL, HFILL }
+      },
+      { &hf_cip_axis_sts2_active_current_limit,
+        { "Active Current Limit", "cipm.axis2.active_current_limit",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00080000,
+          NULL, HFILL }
+      },
+      { &hf_cip_axis_sts2_reactive_current_limit,
+        { "Reactive Current Limit", "cipm.axis2.reactive_current_limit",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00100000,
+          NULL, HFILL }
+      },
+      { &hf_cip_axis_sts2_motor_pwr_limit,
+        { "Motoring Power Limit", "cipm.axis2.motor_pwr_limit",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00200000,
+          NULL, HFILL }
+      },
+      { &hf_cip_axis_sts2_regen_pwr_limit,
+        { "Regenerative Power Limit", "cipm.axis2.regen_pwr_limit",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00400000,
+          NULL, HFILL }
+      },
+      { &hf_cip_axis_sts2_convert_therm_limit,
+        { "Converter Thermal Limit", "cipm.axis2.convert_therm_limit",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00800000,
+          NULL, HFILL }
+      },
+
       { &hf_cip_act_pos,
         { "Actual Position", "cipm.actpos",
           FT_INT32, BASE_DEC, NULL, 0,
@@ -3106,6 +3318,7 @@ proto_register_cipmotion(void)
       &ett_set_axis_attribute,
       &ett_get_axis_attr_list,
       &ett_set_axis_attr_list,
+      &ett_set_cyclic_list,
       &ett_group_sync,
       &ett_axis_status_set,
       &ett_command_control
@@ -3136,6 +3349,12 @@ proto_register_cipmotion(void)
 
    expert_module_t* expert_cipm = expert_register_protocol(proto_cipmotion);
    expert_register_field_array(expert_cipm, ei, array_length(ei));
+
+   module_t* cipm_module = prefs_register_protocol(proto_cipmotion, NULL);
+   prefs_register_bool_preference(cipm_module, "display_full_attribute_data",
+      "Display full attribute data in the Service Data Block",
+      "Whether the CIP Motion dissector always display the full raw attribute data bytes",
+      &display_full_attribute_data);
 
    cipmotion_handle = register_dissector("cipmotion", dissect_cipmotion, proto_cipmotion);
    cipmotion3_handle = register_dissector("cipmotion3", dissect_cipmotion3, proto_cipmotion3);
