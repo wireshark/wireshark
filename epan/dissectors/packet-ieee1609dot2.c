@@ -68,8 +68,8 @@ static int hf_ieee1609dot2_northWest = -1;        /* TwoDLocation */
 static int hf_ieee1609dot2_southEast = -1;        /* TwoDLocation */
 static int hf_ieee1609dot2_SequenceOfRectangularRegion_item = -1;  /* RectangularRegion */
 static int hf_ieee1609dot2_PolygonalRegion_item = -1;  /* TwoDLocation */
-static int hf_ieee1609dot2_latitude = -1;         /* SecLatitude */
-static int hf_ieee1609dot2_longitude = -1;        /* SecLongitude */
+static int hf_ieee1609dot2_latitude = -1;         /* Latitude */
+static int hf_ieee1609dot2_longitude = -1;        /* Longitude */
 static int hf_ieee1609dot2_countryOnly = -1;      /* CountryOnly */
 static int hf_ieee1609dot2_countryAndRegions = -1;  /* CountryAndRegions */
 static int hf_ieee1609dot2_countryAndSubregions = -1;  /* CountryAndSubregions */
@@ -80,7 +80,7 @@ static int hf_ieee1609dot2_regionAndSubregions = -1;  /* SequenceOfRegionAndSubr
 static int hf_ieee1609dot2_rasRegion = -1;        /* Uint8 */
 static int hf_ieee1609dot2_subregions = -1;       /* SequenceOfUint16 */
 static int hf_ieee1609dot2_SequenceOfRegionAndSubregions_item = -1;  /* RegionAndSubregions */
-static int hf_ieee1609dot2_elevation = -1;        /* SecElevation */
+static int hf_ieee1609dot2_elevation = -1;        /* Elevation */
 static int hf_ieee1609dot2_ecdsaNistP256Signature = -1;  /* EcdsaP256Signature */
 static int hf_ieee1609dot2_ecdsaBrainpoolP256r1Signature = -1;  /* EcdsaP256Signature */
 static int hf_ieee1609dot2_ecdsaBrainpoolP384r1Signature = -1;  /* EcdsaP384Signature */
@@ -509,7 +509,7 @@ dissect_ieee1609dot2_NinetyDegreeInt(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 
 static int
-dissect_ieee1609dot2_SecLatitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_ieee1609dot2_Latitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ieee1609dot2_NinetyDegreeInt(tvb, offset, actx, tree, hf_index);
 
   return offset;
@@ -535,7 +535,7 @@ dissect_ieee1609dot2_OneEightyDegreeInt(tvbuff_t *tvb _U_, int offset _U_, asn1_
 
 
 static int
-dissect_ieee1609dot2_SecLongitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_ieee1609dot2_Longitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ieee1609dot2_OneEightyDegreeInt(tvb, offset, actx, tree, hf_index);
 
   return offset;
@@ -543,8 +543,8 @@ dissect_ieee1609dot2_SecLongitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
 
 static const oer_sequence_t TwoDLocation_sequence[] = {
-  { &hf_ieee1609dot2_latitude, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_SecLatitude },
-  { &hf_ieee1609dot2_longitude, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_SecLongitude },
+  { &hf_ieee1609dot2_latitude, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_Latitude },
+  { &hf_ieee1609dot2_longitude, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_Longitude },
   { NULL, 0, 0, NULL }
 };
 
@@ -755,7 +755,7 @@ dissect_ieee1609dot2_ElevInt(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
 
 static int
-dissect_ieee1609dot2_SecElevation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_ieee1609dot2_Elevation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ieee1609dot2_ElevInt(tvb, offset, actx, tree, hf_index);
 
   return offset;
@@ -763,9 +763,9 @@ dissect_ieee1609dot2_SecElevation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
 
 static const oer_sequence_t ThreeDLocation_sequence[] = {
-  { &hf_ieee1609dot2_latitude, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_SecLatitude },
-  { &hf_ieee1609dot2_longitude, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_SecLongitude },
-  { &hf_ieee1609dot2_elevation, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_SecElevation },
+  { &hf_ieee1609dot2_latitude, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_Latitude },
+  { &hf_ieee1609dot2_longitude, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_Longitude },
+  { &hf_ieee1609dot2_elevation, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_Elevation },
   { NULL, 0, 0, NULL }
 };
 
@@ -1190,7 +1190,7 @@ dissect_ieee1609dot2_Psid(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static int
 dissect_ieee1609dot2_T_psPsid(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 107 "./asn1/ieee1609dot2/ieee1609dot2.cnf"
+#line 108 "./asn1/ieee1609dot2/ieee1609dot2.cnf"
   offset = dissect_oer_constrained_integer_64b_no_ub(tvb, offset, actx, tree, hf_index,
                                                0U, NO_BOUND, &((ieee1609_private_data_t*)actx->private_data)->psidssp, FALSE);
 
@@ -1203,7 +1203,7 @@ dissect_ieee1609dot2_T_psPsid(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
 static int
 dissect_ieee1609dot2_T_opaque(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 111 "./asn1/ieee1609dot2/ieee1609dot2.cnf"
+#line 112 "./asn1/ieee1609dot2/ieee1609dot2.cnf"
   tvbuff_t *ssp;
   ieee1609_private_data_t *my_private_data = (ieee1609_private_data_t*)actx->private_data;
 
@@ -1468,7 +1468,7 @@ dissect_ieee1609dot2_GroupLinkageValue(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 static int
 dissect_ieee1609dot2_T_unsecuredData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 73 "./asn1/ieee1609dot2/ieee1609dot2.cnf"
+#line 74 "./asn1/ieee1609dot2/ieee1609dot2.cnf"
   ieee1609_private_data_t *my_private_data = (ieee1609_private_data_t*)actx->private_data;
 
   offset = dissect_oer_octet_string(tvb, offset, actx, tree, hf_index,
@@ -1494,7 +1494,7 @@ dissect_ieee1609dot2_T_unsecuredData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 static int
 dissect_ieee1609dot2_T_hiPsid(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 92 "./asn1/ieee1609dot2/ieee1609dot2.cnf"
+#line 93 "./asn1/ieee1609dot2/ieee1609dot2.cnf"
   guint64 psid;
   ieee1609_private_data_t *my_private_data = (ieee1609_private_data_t*)actx->private_data;
 
@@ -2057,7 +2057,7 @@ static const oer_sequence_t Ieee1609Dot2Data_sequence[] = {
 
 static int
 dissect_ieee1609dot2_Ieee1609Dot2Data(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 69 "./asn1/ieee1609dot2/ieee1609dot2.cnf"
+#line 70 "./asn1/ieee1609dot2/ieee1609dot2.cnf"
   actx->private_data = (void*)wmem_new0(wmem_packet_scope(), ieee1609_private_data_t);
 
   offset = dissect_oer_sequence(tvb, offset, actx, tree, hf_index,
@@ -2219,11 +2219,11 @@ void proto_register_ieee1609dot2(void) {
     { &hf_ieee1609dot2_latitude,
       { "latitude", "ieee1609dot2.latitude",
         FT_INT32, BASE_DEC, VALS(ieee1609dot2_NinetyDegreeInt_vals), 0,
-        "SecLatitude", HFILL }},
+        NULL, HFILL }},
     { &hf_ieee1609dot2_longitude,
       { "longitude", "ieee1609dot2.longitude",
         FT_INT32, BASE_DEC, VALS(ieee1609dot2_OneEightyDegreeInt_vals), 0,
-        "SecLongitude", HFILL }},
+        NULL, HFILL }},
     { &hf_ieee1609dot2_countryOnly,
       { "countryOnly", "ieee1609dot2.countryOnly",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -2267,7 +2267,7 @@ void proto_register_ieee1609dot2(void) {
     { &hf_ieee1609dot2_elevation,
       { "elevation", "ieee1609dot2.elevation",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "SecElevation", HFILL }},
+        NULL, HFILL }},
     { &hf_ieee1609dot2_ecdsaNistP256Signature,
       { "ecdsaNistP256Signature", "ieee1609dot2.ecdsaNistP256Signature_element",
         FT_NONE, BASE_NONE, NULL, 0,

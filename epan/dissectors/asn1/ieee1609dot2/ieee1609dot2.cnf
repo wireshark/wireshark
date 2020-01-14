@@ -23,6 +23,7 @@ Ieee1609Dot2Data
 
 #.OMIT_ASSIGNMENT
 # Get rid of unused code warnings
+TestCertificate
 Countersignature
 ExplicitCertificate
 HashedId10
