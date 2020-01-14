@@ -248,6 +248,8 @@ void set_action_shortcuts_visible_in_context_menu(QList<QAction *> actions)
     foreach (QAction *action, actions) {
         action->setShortcutVisibleInContextMenu(true);
     }
+#else
+    Q_UNUSED(actions)
 #endif
 }
 
