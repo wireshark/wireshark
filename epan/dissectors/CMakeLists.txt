@@ -432,6 +432,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-lnet.h
 	packet-logotypecertextn.h
 	packet-lpp.h
+	packet-lppa.h
 	packet-lte-rrc.h
 	packet-mac-lte.h
 	packet-mausb.h

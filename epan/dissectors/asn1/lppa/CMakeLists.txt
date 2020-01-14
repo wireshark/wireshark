@@ -26,6 +26,7 @@ set( ASN_FILE_LIST
 set( EXTRA_DIST
 	${ASN_FILE_LIST}
 	packet-${PROTOCOL_NAME}-template.c
+	packet-${PROTOCOL_NAME}-template.h
 	${PROTOCOL_NAME}.cnf
 )
 

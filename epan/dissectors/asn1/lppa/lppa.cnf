@@ -32,27 +32,40 @@ UnsuccessfulOutcome/value unsuccessfulOutcome_value
 SuccessfulOutcome/value successfulOutcome_value
 ProtocolIE-Field/value ie_field_value
 
-#.FN_PARS ProtocolIE-ID  VAL_PTR=&ProtocolIE_ID
+#.FN_BODY ProtocolIE-ID VAL_PTR=&lppa_data->protocol_ie_id
+  struct lppa_private_data *lppa_data = lppa_get_private_data(actx->pinfo);
+%(DEFAULT_BODY)s
+
 #.FN_FTR ProtocolIE-ID
   if (tree) {
-    proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str(ProtocolIE_ID, VALS(lppa_ProtocolIE_ID_vals), "unknown (%d)"));
+    proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str(lppa_data->protocol_ie_id, VALS(lppa_ProtocolIE_ID_vals), "unknown (%d)"));
   }
 #.END
 
-#.FN_PARS  ProcedureCode  VAL_PTR = &ProcedureCode
-#.FN_FTR ProcedureCode
-     col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
-                 val_to_str(ProcedureCode, lppa_ProcedureCode_vals,
+#.FN_BODY ProcedureCode  VAL_PTR = &lppa_data->procedure_code
+  struct lppa_private_data *lppa_data = lppa_get_private_data(actx->pinfo);
+
+%(DEFAULT_BODY)s
+
+  col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%%s ",
+                 val_to_str(lppa_data->procedure_code, lppa_ProcedureCode_vals,
                             "unknown message"));
 #.END
 
 #.FN_PARS ProtocolIE-Field/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolIEFieldValue
 
 #.FN_PARS InitiatingMessage/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_InitiatingMessageValue
-
+#.FN_HDR InitiatingMessage/value
+  struct lppa_private_data *lppa_data = lppa_get_private_data(actx->pinfo);
+  lppa_data->message_type = INITIATING_MESSAGE;
 #.FN_PARS SuccessfulOutcome/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_SuccessfulOutcomeValue
-
+#.FN_HDR SuccessfulOutcome/value
+  struct lppa_private_data *lppa_data = lppa_get_private_data(actx->pinfo);
+  lppa_data->message_type = SUCCESSFUL_OUTCOME;
 #.FN_PARS UnsuccessfulOutcome/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_UnsuccessfulOutcomeValue
+#.FN_HDR UnsuccessfulOutcome/value
+  struct lppa_private_data *lppa_data = lppa_get_private_data(actx->pinfo);
+  lppa_data->message_type = UNSUCCESSFUL_OUTCOME;
 
 #.FN_HDR LPPA-PDU
 
