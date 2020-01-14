@@ -9,6 +9,8 @@
 
 #include "mp4.h"
 
+#include <string.h>
+
 #include "file_wrappers.h"
 #include "wtap-int.h"
 
