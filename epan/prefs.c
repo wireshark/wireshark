@@ -5166,7 +5166,7 @@ deprecated_port_pref(gchar *pref_name, const gchar *value)
         {"vnc.alternate_port", "VNC", "tcp.port", 10},
         {"scop.port", "SCoP", "tcp.port", 10},
         {"scop.port_secure", "SCoP", "tcp.port", 10},
-        {"tcp.trunkpack_port", "TPNCP", "tcp.port", 10},
+        {"tpncp.tcp.trunkpack_port", "TPNCP", "tcp.port", 10},
         /* UDP */
         {"h248.udp_port", "H248", "udp.port", 10},
         {"actrace.udp_port", "ACtrace", "udp.port", 10},
@@ -5198,7 +5198,7 @@ deprecated_port_pref(gchar *pref_name, const gchar *value)
         {"uaudp.port4", "UAUDP", "udp.port", 10},
         {"uhd.dissector_port", "UHD", "udp.port", 10},
         {"vrt.dissector_port", "vrt", "udp.port", 10},
-        {"udp.trunkpack_port", "TPNCP", "udp.port", 10},
+        {"tpncp.udp.trunkpack_port", "TPNCP", "udp.port", 10},
     };
 
     struct port_pref_name port_range_prefs[] = {
