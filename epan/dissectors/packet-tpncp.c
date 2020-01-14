@@ -106,6 +106,8 @@ static gint hf_size = 1;
 static gint hf_allocated = 0;
 static hf_register_info *hf = NULL;
 
+static gboolean db_initialized = FALSE;
+
 /*---------------------------------------------------------------------------*/
 
 static void
@@ -195,10 +197,13 @@ dissect_tpncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     gint offset = 0, cid = 0;
     guint id;
     guint seq_number, len, ver;
-    guint len_ext, reserved;
+    guint len_ext, reserved, encoding;
     guint32 fullLength;
 
-    guint encoding = tvb_get_ntohs(tvb, 8) == 0 ? ENC_BIG_ENDIAN : ENC_LITTLE_ENDIAN;
+    if (!db_initialized)
+        return 0;
+
+    encoding = tvb_get_ntohs(tvb, 8) == 0 ? ENC_BIG_ENDIAN : ENC_LITTLE_ENDIAN;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "TPNCP");
 
@@ -279,6 +284,9 @@ get_tpncp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data 
 static int
 dissect_tpncp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
+    if (!db_initialized)
+        return 0;
+
     if (pinfo->can_desegment)
         /* If desegmentation is enabled (TCP preferences) use the desegmentation API. */
         tcp_dissect_pdus(tvb, pinfo, tree, tpncp_desegment, 4, get_tpncp_pdu_len,
@@ -717,12 +725,17 @@ init_tpncp_db(void)
 void
 proto_reg_handoff_tpncp(void)
 {
-    dissector_handle_t tpncp_udp_handle, tpncp_tcp_handle;
-    gint idx;
     static gboolean initialized = FALSE;
 
     if (proto_tpncp == -1) return;
 
+    if (!initialized) {
+        dissector_handle_t tpncp_udp_handle = create_dissector_handle(dissect_tpncp, proto_tpncp);
+        dissector_handle_t tpncp_tcp_handle = create_dissector_handle(dissect_tpncp_tcp, proto_tpncp);
+        dissector_add_uint_with_preference("udp.port", UDP_PORT_TPNCP_TRUNKPACK, tpncp_udp_handle);
+        dissector_add_uint_with_preference("tcp.port", TCP_PORT_TPNCP_TRUNKPACK, tpncp_tcp_handle);
+        initialized = TRUE;
+    }
     /*  If we weren't able to load the database (and thus the hf_ entries)
      *  do not attach to any ports (if we did then we'd get a "dissector bug"
      *  assertions every time a packet is handed to us and we tried to use the
@@ -736,12 +749,7 @@ proto_reg_handoff_tpncp(void)
         return;
     }
 
-    tpncp_udp_handle = create_dissector_handle(dissect_tpncp, proto_tpncp);
-    tpncp_tcp_handle = create_dissector_handle(dissect_tpncp_tcp, proto_tpncp);
-    dissector_add_uint_with_preference("udp.port", UDP_PORT_TPNCP_TRUNKPACK, tpncp_udp_handle);
-    dissector_add_uint_with_preference("tcp.port", TCP_PORT_TPNCP_TRUNKPACK, tpncp_tcp_handle);
-
-    if (initialized)
+    if (db_initialized)
         return;
 
     /* Rather than duplicating large quantities of code from
@@ -751,6 +759,7 @@ proto_reg_handoff_tpncp(void)
      * least the rest of the protocol dissectors will still work.
      */
     TRY {
+        gint idx;
         /* The function proto_register_field_array does not work with dynamic
          * arrays, so pass dynamic array elements one-by-one in the loop.
          */
@@ -763,7 +772,7 @@ proto_reg_handoff_tpncp(void)
     }
 
     ENDTRY;
-    initialized = TRUE;
+    db_initialized = TRUE;
 }
 
 /*---------------------------------------------------------------------------*/
