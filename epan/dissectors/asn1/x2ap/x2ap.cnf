@@ -1243,6 +1243,7 @@ id-InterfaceInstanceIndication					ProtocolIE-ID
 id-BPLMN-ID-Info-EUTRA						ProtocolIE-ID
 id-BPLMN-ID-Info-NR						ProtocolIE-ID
 id-NBIoT-UL-DL-AlignmentOffset					ProtocolIE-ID
+id-ERABs-transferred-to-MeNB					ProtocolIE-ID
 
 #.REGISTER
 
@@ -1478,6 +1479,7 @@ LocationInformationSgNBReporting				N x2ap.ies id-LocationInformationSgNBReporti
 LocationInformationSgNB						N x2ap.ies id-LocationInformationSgNB
 EUTRANTraceID							N x2ap.ies id-EUTRANTraceID
 InterfaceInstanceIndication					N x2ap.ies id-InterfaceInstanceIndication
+E-RAB-List							N x2ap.ies id-ERABs-transferred-to-MeNB
 
 #X2AP-PROTOCOL-EXTENSION
 Number-of-Antennaports						N x2ap.extension id-Number-of-Antennaports
