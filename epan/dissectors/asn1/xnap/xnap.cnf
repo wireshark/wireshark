@@ -1,6 +1,6 @@
 # xnap.cnf
 # xnap conformation file
-# Copyright 2018-2019 Pascal Quantin
+# Copyright 2018-2020 Pascal Quantin
 
 #.OPT
 PER
@@ -249,6 +249,15 @@ ProtocolExtensionID TYPE = FT_UINT8 DISPLAY = BASE_DEC|BASE_EXT_STRING STRINGS =
 
   subtree = proto_item_add_subtree(actx->created_item, ett_xnap_PLMN_Identity);
   dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, E212_NONE, FALSE);
+
+#.TYPE_ATTR
+PortNumber TYPE = FT_UINT16 DISPLAY = BASE_DEC
+#.FN_BODY PortNumber VAL_PTR = &parameter_tvb HF_INDEX = -1
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
+  }
 
 #.TYPE_ATTR
 TAC TYPE = FT_UINT24 DISPLAY = BASE_DEC_HEX
@@ -709,6 +718,13 @@ id-BPLMN-ID-Info-NR                           ProtocolIE-ID
 id-InterfaceInstanceIndication                ProtocolIE-ID
 id-S-NG-RANnode-Addition-Trigger-Ind          ProtocolIE-ID
 id-DefaultDRB-Allowed                         ProtocolIE-ID
+id-DRB-IDs-takenintouse                       ProtocolIE-ID
+id-SplitSessionIndicator                      ProtocolIE-ID
+id-CNTypeRestrictionsForEquivalent            ProtocolIE-ID
+id-CNTypeRestrictionsForServing               ProtocolIE-ID
+id-DRBs-transferred-to-MN                     ProtocolIE-ID
+id-ULForwardingProposal                       ProtocolIE-ID
+id-EndpointIPAddressAndPort                   ProtocolIE-ID
 #.REGISTER
 
 #XNAP-PROTOCOL-IES
@@ -831,6 +847,8 @@ PDUSessionDataForwarding-SNModResponse            N xnap.ies id-PDUSessionDataFo
 NE-DC-TDM-Pattern                                 N xnap.ies id-NE-DC-TDM-Pattern
 InterfaceInstanceIndication                       N xnap.ies id-InterfaceInstanceIndication
 S-NG-RANnode-Addition-Trigger-Ind                 N xnap.ies id-S-NG-RANnode-Addition-Trigger-Ind
+DRB-List                                          N xnap.ies id-DRBs-transferred-to-MN
+EndpointIPAddressAndPort                          N xnap.ies id-EndpointIPAddressAndPort
 
 #XNAP-PROTOCOL-EXTENSION
 Additional-UL-NG-U-TNLatUPF-List                  N xnap.extension id-Additional-UL-NG-U-TNLatUPF-List
@@ -846,6 +864,11 @@ PDUSessionCommonNetworkInstance                   N xnap.extension id-PDUSession
 BPLMN-ID-Info-EUTRA                               N xnap.extension id-BPLMN-ID-Info-EUTRA
 BPLMN-ID-Info-NR                                  N xnap.extension id-BPLMN-ID-Info-NR
 DefaultDRB-Allowed                                N xnap.extension id-DefaultDRB-Allowed
+DRB-List                                          N xnap.extension id-DRB-IDs-takenintouse
+SplitSessionIndicator                             N xnap.extension id-SplitSessionIndicator
+CNTypeRestrictionsForEquivalent                   N xnap.extension id-CNTypeRestrictionsForEquivalent
+CNTypeRestrictionsForServing                      N xnap.extension id-CNTypeRestrictionsForServing
+ULForwardingProposal                              N xnap.extension id-ULForwardingProposal
 
 #XNAP-ELEMENTARY-PROCEDURE
 HandoverRequest                            N xnap.proc.imsg id-handoverPreparation

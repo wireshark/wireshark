@@ -1,4 +1,4 @@
--- 3GPP TS 38.423 V15.5.0 (2019-09)
+-- 3GPP TS 38.423 V15.6.0 (2019-12)
 -- 9.3.5	Information Element definitions
 -- **************************************************************
 --
@@ -17,8 +17,11 @@ BEGIN
 IMPORTS
 
 
+	id-CNTypeRestrictionsForEquivalent,
+	id-CNTypeRestrictionsForServing,
 	id-Additional-UL-NG-U-TNLatUPF-List,
 	id-DefaultDRB-Allowed,
+	id-EndpointIPAddressAndPort,
 	id-SecondarydataForwardingInfoFromTarget-List,
 	id-LastE-UTRANPLMNIdentity,
 	id-MaxIPrate-DL,
@@ -29,6 +32,9 @@ IMPORTS
 	id-BPLMN-ID-Info-NR,
 	id-DRBsNotAdmittedSetupModifyList,
 	id-Secondary-MN-Xn-U-TNLInfoatM,
+	id-ULForwardingProposal,
+	id-DRB-IDs-takenintouse,
+	id-SplitSessionIndicator,
 	maxEARFCN,
 	maxnoofAllowedAreas,
 	maxnoofAMFRegions,
@@ -383,6 +389,7 @@ CPTransportLayerInformation ::= CHOICE {
 }
 
 CPTransportLayerInformation-ExtIEs XNAP-PROTOCOL-IES ::= {
+	{ ID id-EndpointIPAddressAndPort		CRITICALITY reject	TYPE EndpointIPAddressAndPort		PRESENCE mandatory},
 	...
 }
 
@@ -445,7 +452,8 @@ XnUAddressInfoperPDUSession-Item ::= SEQUENCE {
 }
 
 XnUAddressInfoperPDUSession-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
-{ ID id-SecondarydataForwardingInfoFromTarget-List	CRITICALITY ignore	EXTENSION SecondarydataForwardingInfoFromTarget-List	PRESENCE optional},
+{ ID id-SecondarydataForwardingInfoFromTarget-List	CRITICALITY ignore	EXTENSION SecondarydataForwardingInfoFromTarget-List	PRESENCE optional}|
+{ ID id-DRB-IDs-takenintouse						CRITICALITY reject	EXTENSION DRB-List												PRESENCE optional},
 	...
 }
 
@@ -501,6 +509,7 @@ QoSFLowsToBeForwarded-Item ::= SEQUENCE {
 }
 
 QoSFLowsToBeForwarded-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+{ ID id-ULForwardingProposal	CRITICALITY ignore EXTENSION ULForwardingProposal	 PRESENCE optional },
 	...
 }
 
@@ -709,6 +718,16 @@ E-UTRAPRACHConfiguration-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 
 
 E-UTRATransmissionBandwidth ::= ENUMERATED {bw6, bw15, bw25, bw50, bw75, bw100, ..., bw1}
+
+EndpointIPAddressAndPort ::=SEQUENCE {
+	endpointIPAddress 				TransportLayerAddress,
+	portNumber						PortNumber,
+	iE-Extensions					ProtocolExtensionContainer { { EndpointIPAddressAndPort-ExtIEs} } OPTIONAL
+}
+
+EndpointIPAddressAndPort-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+	...
+}
 
 EventType ::= ENUMERATED {
 	report-upon-change-of-serving-cell,
@@ -1085,10 +1104,29 @@ MobilityRestrictionList ::= SEQUENCE {
 }
 
 MobilityRestrictionList-ExtIEs XNAP-PROTOCOL-EXTENSION ::={ 
-{ ID id-LastE-UTRANPLMNIdentity					CRITICALITY ignore	EXTENSION PLMN-Identity									PRESENCE optional		},
+{ ID id-LastE-UTRANPLMNIdentity					CRITICALITY ignore	EXTENSION PLMN-Identity									PRESENCE optional		}|
+{ ID id-CNTypeRestrictionsForServing			CRITICALITY ignore	EXTENSION CNTypeRestrictionsForServing				PRESENCE optional		}|
+{ ID id-CNTypeRestrictionsForEquivalent			CRITICALITY ignore	EXTENSION CNTypeRestrictionsForEquivalent			PRESENCE optional		},
 	...
 }
 
+CNTypeRestrictionsForEquivalent ::= SEQUENCE (SIZE(1..maxnoofEPLMNs)) OF CNTypeRestrictionsForEquivalentItem
+
+CNTypeRestrictionsForEquivalentItem ::= SEQUENCE {
+	plmn-Identity						PLMN-Identity,
+	cn-Type								ENUMERATED {epc-forbidden, fiveGC-forbidden, ...},
+	iE-Extensions						ProtocolExtensionContainer { {CNTypeRestrictionsForEquivalentItem-ExtIEs} }				OPTIONAL,
+	...
+}
+
+CNTypeRestrictionsForEquivalentItem-ExtIEs XNAP-PROTOCOL-EXTENSION ::={
+	...
+}
+
+CNTypeRestrictionsForServing ::= ENUMERATED {
+	epc-forbidden,
+	...
+}
 
 RAT-RestrictionsList ::= SEQUENCE (SIZE(1..maxnoofPLMNs)) OF RAT-RestrictionsItem
 
@@ -1539,6 +1577,7 @@ PDUSession-List-withDataForwardingFromTarget-Item ::= SEQUENCE {
 }
 
 PDUSession-List-withDataForwardingFromTarget-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+	{ ID id-DRB-IDs-takenintouse		CRITICALITY reject	EXTENSION DRB-List	PRESENCE optional},
 	...
 }
 
@@ -1676,7 +1715,8 @@ PDUSessionResourceSetupInfo-SNterminated ::= SEQUENCE {
 PDUSessionResourceSetupInfo-SNterminated-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-SecurityResult						CRITICALITY reject	EXTENSION SecurityResult							PRESENCE optional}|
 	{ ID id-PDUSessionCommonNetworkInstance		CRITICALITY ignore	EXTENSION PDUSessionCommonNetworkInstance		PRESENCE optional}|
-	{ID id-DefaultDRB-Allowed					CRITICALITY ignore	EXTENSION DefaultDRB-Allowed						PRESENCE optional},
+	{ID id-DefaultDRB-Allowed					CRITICALITY ignore	EXTENSION DefaultDRB-Allowed						PRESENCE optional}|
+	{ ID id-SplitSessionIndicator				CRITICALITY reject	EXTENSION SplitSessionIndicator					PRESENCE optional},
 	...
 }
 
@@ -1917,6 +1957,7 @@ PDUSessionResourceModificationResponseInfo-SNterminated ::= SEQUENCE {
 }
 
 PDUSessionResourceModificationResponseInfo-SNterminated-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+	{ ID id-DRB-IDs-takenintouse		CRITICALITY reject	EXTENSION DRB-List	PRESENCE optional},
 	...
 }
 
@@ -2045,6 +2086,7 @@ PDUSessionResourceChangeConfirmInfo-SNterminated ::= SEQUENCE {
 }
 
 PDUSessionResourceChangeConfirmInfo-SNterminated-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+	{ ID id-DRB-IDs-takenintouse	CRITICALITY reject	EXTENSION DRB-List	PRESENCE optional},
 	...
 }
 
@@ -2190,6 +2232,7 @@ PDUSessionResourceModConfirmInfo-SNterminated ::= SEQUENCE {
 }
 
 PDUSessionResourceModConfirmInfo-SNterminated-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+	{ ID id-DRB-IDs-takenintouse		CRITICALITY reject	EXTENSION DRB-List	PRESENCE optional},
 	...
 }
 
@@ -2331,6 +2374,7 @@ PDUSessionCommonNetworkInstance	::= OCTET STRING
 
 PLMN-Identity ::= OCTET STRING (SIZE(3))
 
+PortNumber ::= BIT STRING (SIZE (16))
 
 PriorityLevelQoS ::= INTEGER (1..127, ...)
 
@@ -3082,6 +3126,10 @@ SpecialSubframePatterns-E-UTRA ::= ENUMERATED {
 
 SpectrumSharingGroupID ::= INTEGER (1..maxnoofCellsinNG-RANnode)
 
+SplitSessionIndicator ::= ENUMERATED {
+	split,
+	...
+}
 
 SplitSRBsTypes ::= ENUMERATED {srb1, srb2, srb1and2, ...}
 
@@ -3407,6 +3455,8 @@ ULConfiguration-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 UL-UE-Configuration::= ENUMERATED {no-data, shared, only, ...}
 
 ULForwarding	::= ENUMERATED {ul-forwarding-proposed, ...}
+
+ULForwardingProposal	::= ENUMERATED {ul-forwarding-proposed, ...}
 
 UPTransportLayerInformation ::= CHOICE {
 	gtpTunnel					GTPtunnelTransportLayerInformation,

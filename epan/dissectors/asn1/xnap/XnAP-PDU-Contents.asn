@@ -1,4 +1,4 @@
--- 3GPP TS 38.423 V15.5.0 (2019-09)
+-- 3GPP TS 38.423 V15.6.0 (2019-12)
 -- 9.3.4	PDU Definitions
 -- **************************************************************
 --
@@ -271,6 +271,7 @@ FROM XnAP-Containers
 	id-NE-DC-TDM-Pattern,
 	id-InterfaceInstanceIndication,
 	id-S-NG-RANnode-Addition-Trigger-Ind,
+	id-DRBs-transferred-to-MN,
 
 
 	maxnoofCellsinNG-RANnode,
@@ -356,7 +357,8 @@ HandoverRequestAcknowledge-IEs XNAP-PROTOCOL-IES ::= {
 --	{ ID id-Target2SourceNG-RANnodeTranspContainer	CRITICALITY ignore	TYPE OCTET STRING									PRESENCE mandatory}|
 	{ ID id-Target2SourceNG-RANnodeTranspContainer	CRITICALITY ignore	TYPE Target2SourceNG-RANnodeTranspContainer									PRESENCE mandatory}|
 	{ ID id-UEContextKeptIndicator					CRITICALITY ignore	TYPE UEContextKeptIndicator						PRESENCE optional }|
-	{ ID id-CriticalityDiagnostics					CRITICALITY ignore	TYPE CriticalityDiagnostics						PRESENCE optional },
+	{ ID id-CriticalityDiagnostics					CRITICALITY ignore	TYPE CriticalityDiagnostics						PRESENCE optional }|
+	{ ID id-DRBs-transferred-to-MN					CRITICALITY ignore	TYPE DRB-List										PRESENCE optional },
 	...
 }
 
@@ -1116,8 +1118,9 @@ SNodeReleaseRequest-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-PDUSessionToBeReleased-RelReq			CRITICALITY ignore		TYPE PDUSession-List-withCause					PRESENCE mandatory}|
 	{ ID id-UEContextKeptIndicator					CRITICALITY ignore		TYPE UEContextKeptIndicator						PRESENCE optional }|
 -- WS modification: define a dedicated type
---	{ ID id-MN-to-SN-Container						CRITICALITY ignore		TYPE OCTET STRING									PRESENCE optional },
-	{ ID id-MN-to-SN-Container						CRITICALITY ignore		TYPE MN-to-SN-Container									PRESENCE optional },
+--	{ ID id-MN-to-SN-Container						CRITICALITY ignore		TYPE OCTET STRING									PRESENCE optional },|
+	{ ID id-MN-to-SN-Container						CRITICALITY ignore		TYPE MN-to-SN-Container									PRESENCE optional },|
+	{ ID id-DRBs-transferred-to-MN					CRITICALITY ignore		TYPE DRB-List										PRESENCE optional },
 	...
 }
 
@@ -1184,7 +1187,8 @@ SNodeReleaseRequired-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-M-NG-RANnodeUEXnAPID					CRITICALITY reject		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
 	{ ID id-S-NG-RANnodeUEXnAPID					CRITICALITY reject		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
 	{ ID id-PDUSessionToBeReleasedList-RelRqd		CRITICALITY ignore		TYPE PDUSessionToBeReleasedList-RelRqd		PRESENCE optional }|
-	{ ID id-Cause									CRITICALITY ignore		TYPE Cause											PRESENCE mandatory},
+	{ ID id-Cause									CRITICALITY ignore		TYPE Cause											PRESENCE mandatory}|
+	{ ID id-SN-to-MN-Container						CRITICALITY ignore		TYPE OCTET STRING									PRESENCE optional },
 	...
 }
 
@@ -1510,7 +1514,7 @@ XnSetupResponse ::= SEQUENCE {
 
 XnSetupResponse-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-GlobalNG-RAN-node-ID		CRITICALITY reject	TYPE GlobalNG-RANNode-ID			PRESENCE mandatory}|
-	{ ID id-TAISupport-list				CRITICALITY reject	TYPE TAISupport-List				PRESENCE optional }|
+	{ ID id-TAISupport-list				CRITICALITY reject	TYPE TAISupport-List				PRESENCE mandatory}|
 	{ ID id-List-of-served-cells-NR		CRITICALITY reject	TYPE ServedCells-NR					PRESENCE optional }|
 	{ ID id-List-of-served-cells-E-UTRA	CRITICALITY reject	TYPE ServedCells-E-UTRA				PRESENCE optional }|
 	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional }|

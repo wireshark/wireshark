@@ -1,4 +1,4 @@
--- 3GPP TS 38.423 V15.5.0 (2019-09)
+-- 3GPP TS 38.423 V15.6.0 (2019-12)
 -- 9.3.7	Constant definitions
 -- **************************************************************
 --
@@ -241,5 +241,12 @@ id-BPLMN-ID-Info-NR																					ProtocolIE-ID ::= 129
 id-InterfaceInstanceIndication																		ProtocolIE-ID ::= 130
 id-S-NG-RANnode-Addition-Trigger-Ind																	ProtocolIE-ID ::= 131
 id-DefaultDRB-Allowed																				ProtocolIE-ID ::= 132
+id-DRB-IDs-takenintouse																				ProtocolIE-ID ::= 133
+id-SplitSessionIndicator																			ProtocolIE-ID ::= 134
+id-CNTypeRestrictionsForEquivalent																		ProtocolIE-ID ::= 135
+id-CNTypeRestrictionsForServing																			ProtocolIE-ID ::= 136
+id-DRBs-transferred-to-MN																			ProtocolIE-ID ::= 137
+id-ULForwardingProposal																				ProtocolIE-ID ::= 138
+id-EndpointIPAddressAndPort 																			ProtocolIE-ID ::= 139
 
 END
