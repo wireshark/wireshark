@@ -14,21 +14,18 @@ It is used for troubleshooting, analysis, development and education.
 
 == What’s New
 
-* The Windows installers now ship with Npcap 0.9986.
-  They previously shipped with Npcap 0.9984.
-
 === Bug Fixes
 
 The following vulnerabilities have been fixed:
 
-* wssalink:2020-01[]
-WASSP dissector crash.
-wsbuglink:16324[].
-cveidlink:2020-7044[].
-// Fixed in master: 71b59b18e4
-// Fixed in master-3.2: f90a3720b7
-// Fixed in master-3.0: N/A
-// Fixed in master-2.6: N/A
+* wssalink:2020-03[]
+Foo dissector {crash,infinite loop}.
+// wsbuglink:xxxxx[].
+// cveidlink:2019-xxxxx[].
+// Fixed in master: xxxxx
+// Fixed in master-3.2: xxxxx
+// Fixed in master-3.0: xxxxx
+// Fixed in master-2.6: xxxxx
 
 The following bugs have been fixed:
 
@@ -37,46 +34,6 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 //* Wireshark is solely responsible for the decline of shopping malls in your area.
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v3.2.2rc0..| grep ' Bug:' | awk '{print $2}' | sort -n -u ` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
-
-* Incorrect parsing of USB CDC packets. wsbuglink:14587[].
-
-* Wireshark fails to create directory if parent directory does not yet exist. wsbuglink:16143[].
-
-* Buildbot crash output: randpkt-2019-11-30-22633.pcap. wsbuglink:16240[].
-
-* Closing Flow Graph closes (crashes) main GUI window. wsbuglink:16260[].
-
-* Wireshark interprets websocket frames after HTTP handshake in a wrong way. wsbuglink:16274[].
-
-* A-bis/OML: IPA Destination IP Address attribute contains inverted value (endianness). wsbuglink:16282[].
-
-* wiretap/log3gpp.c: 2 * leap before looking ?. wsbuglink:16283[].
-
-* Opening shell terminal prints Wireshark: Permission denied. wsbuglink:16284[].
-
-* h264: SPS frame_crop_right_offset shown in UI as frame_crop_left_offset. wsbuglink:16285[].
-
-* BGP: update of &quot;Sub-TLV Length&quot; by draft-ietf-idr-tunnel-encaps. wsbuglink:16294[].
-
-* SPNEGO+GSS-API+Kerberos+ap-options dissection produces &quot;Unknown Bit(s)&quot; expert message. wsbuglink:16301[].
-
-* USB Audio feature unit descriptor is incorrectly dissected. wsbuglink:16305[].
-
-* Compiling the .y files fails with Berkeley YACC. wsbuglink:16306[].
-
-* PDB files in Windows installer. wsbuglink:16307[].
-
-* NAS-5GS 5GS network feature support lacks MCSI, EMCN3 two fields (octet 4). wsbuglink:16310[].
-
-* Option to change “Packet List” columns header right click pop-up menu behavior. wsbuglink:16317[].
-
-* DLT: Dissector does not parse multiple DLT messages in single UDP packet. wsbuglink:16321[].
-
-* ISAKMP Dissection: Enhance  Source id and Destination ID field of GDOI SA TEK payload for non IP ID type. wsbuglink:16233[].
-
-* DOIP: Typo in &quot;identifcation request messages&quot;. wsbuglink:16325[].
-
-* Toolbar &quot;?&quot; help button - no text/help displayed. wsbuglink:16327[].
 
 === New and Updated Features
 
@@ -101,36 +58,15 @@ There are no new protocols in this release.
 // Add one protocol per line between the -- delimiters.
 [commaize]
 --
-802.11 Radiotap
-ASN.1 BER
-BGP
-DLT
-DOIP
-GSM A-bis/OML
-GSM A RR
-H264
-HTTP
-IEC 60870-5-104
-IEEE 802.11
-IPv4
-ISAKMP
-NAS 5GS
-rtnetlink
-SIP
-TIPC
-USB Audio
-USB CDC
-WASSP
 --
 
 === New and Updated Capture File Support
 
-// There is no new or updated capture file support in this release.
+There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-[commaize]
---
-3gpp phone log
---
+// [commaize]
+// --
+// --
 
 // === New and Updated Capture Interfaces support
 
