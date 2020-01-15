@@ -1188,7 +1188,9 @@ SNodeReleaseRequired-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-S-NG-RANnodeUEXnAPID					CRITICALITY reject		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
 	{ ID id-PDUSessionToBeReleasedList-RelRqd		CRITICALITY ignore		TYPE PDUSessionToBeReleasedList-RelRqd		PRESENCE optional }|
 	{ ID id-Cause									CRITICALITY ignore		TYPE Cause											PRESENCE mandatory}|
-	{ ID id-SN-to-MN-Container						CRITICALITY ignore		TYPE OCTET STRING									PRESENCE optional },
+-- WS modification: define a dedicated type
+--	{ ID id-SN-to-MN-Container						CRITICALITY ignore		TYPE OCTET STRING									PRESENCE optional },
+	{ ID id-SN-to-MN-Container						CRITICALITY ignore		TYPE SN-to-MN-Container									PRESENCE optional },
 	...
 }
 
