@@ -166,7 +166,7 @@ typedef enum {
 #define SSL_HND_QUIC_TP_PREFERRED_ADDRESS                   13
 #define SSL_HND_QUIC_TP_ACTIVE_CONNECTION_ID_LIMIT          14
 #define SSL_HND_QUIC_TP_MAX_DATAGRAM_FRAME_SIZE             32
-
+#define SSL_HND_QUIC_TP_LOSS_BITS                           4183
 /*
  * Lookup tables
  */
@@ -918,6 +918,7 @@ typedef struct ssl_common_dissect {
         gint hs_ext_quictp_parameter_pa_statelessresettoken;
         gint hs_ext_quictp_parameter_active_connection_id_limit;
         gint hs_ext_quictp_parameter_max_datagram_frame_size;
+        gint hs_ext_quictp_parameter_loss_bits;
 
         gint esni_suite;
         gint esni_record_digest_length;
@@ -1146,7 +1147,7 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1,                                                 \
+        -1, -1, -1, -1, -1,                                             \
     },                                                                  \
     /* ett */ {                                                         \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
@@ -2030,6 +2031,11 @@ ssl_common_dissect_t name = {   \
     { & name .hf.hs_ext_quictp_parameter_max_datagram_frame_size,       \
       { "max_datagram_frame_size", prefix ".quic.parameter.max_datagram_frame_size", \
         FT_UINT64, BASE_DEC, NULL, 0x00,                                \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_quictp_parameter_loss_bits,                     \
+      { "loss_bits", prefix ".quic.parameter.loss_bits",                \
+        FT_UINT8, BASE_DEC, NULL, 0x00,                                 \
         NULL, HFILL }                                                   \
     },                                                                  \
     { & name .hf.esni_suite,                                            \
