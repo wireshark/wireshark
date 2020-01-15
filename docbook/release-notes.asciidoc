@@ -10,8 +10,8 @@ include::attributes.asciidoc[]
 
 == What’s New
 
-The Windows and macOS installers now ship with Qt 5.12.6.
-They previously shipped with Qt 5.12.5.
+* The Windows installers now ship with Npcap 0.9986.
+  They previously shipped with Npcap 0.9984.
 
 === Bug Fixes
 
@@ -20,7 +20,7 @@ The following vulnerabilities have been fixed:
 * wssalink:2020-02[]
 BT ATT dissector crash.
 wsbuglink:16258[].
-// cveidlink:2019-xxxxx[].
+cveidlink:2020-7045[].
 // Fixed in master: 68a7add68a
 // Fixed in master-3.2: 01f261de41
 // Fixed in master-3.0: 5ed1108a68

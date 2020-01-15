@@ -1,0 +1,892 @@
+commit 384a1bbb1f
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Jan 15 09:51:22 2020 -0800
+
+    Build 3.0.8.
+    
+    Change-Id: If3d9528e041b78a79fe5282fdf66d71d4a063001
+
+commit 71046dd43c
+Author: Jim Young <jyoung@gsu.edu>
+Date:   Mon Jan 13 22:50:11 2020 -0500
+
+    Qt: Suppress warning: unused parameter 'actions'
+    
+    In set_action_shortcuts_visible_in_context_menu() the parameter
+    'actions' is only used by a subset of Qt versions. Mark it unused
+    in the other cases.
+    
+    Change-Id: I210eafcdffb8484751b656f58cc7813cb98d259f
+    Reviewed-on: https://code.wireshark.org/review/35800
+    Petri-Dish: Jim Young <jim.young.ws@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    (cherry picked from commit e85cbd57c6b3662a839ba939978ff5ef45f7992f)
+    Reviewed-on: https://code.wireshark.org/review/35809
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 919e1e526a
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Jan 13 14:47:46 2020 -0800
+
+    Prep for 3.0.8.
+    
+    Change-Id: I1b0c188c8172e6cb883974552045c70a687a1bfa
+    Reviewed-on: https://code.wireshark.org/review/35797
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 5c07a11852
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Jan 13 14:11:42 2020 -0800
+
+    Gen-bugnote: Another encoding fix.
+    
+    Change-Id: Icf9fe7cd392cce2dac8ba45854c9f4c00a80dd38
+    Reviewed-on: https://code.wireshark.org/review/35791
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    (cherry picked from commit 6e7f08781d5a16a612174fb7604e19fb87d442af)
+    Reviewed-on: https://code.wireshark.org/review/35793
+
+commit 04e2c85ccc
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Jan 13 13:53:04 2020 -0800
+
+    Gen-bugnote: Fix an encoding issue.
+    
+    Change-Id: I0b193bc2dfa68de98d53b2443773d121801271e8
+    Reviewed-on: https://code.wireshark.org/review/35786
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    (cherry picked from commit 216c4b26735e80d8f15a77a6e86271fe527283ce)
+    Reviewed-on: https://code.wireshark.org/review/35788
+
+commit b6e20b2ef0
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Jan 13 11:55:05 2020 -0800
+
+    Qt: Set AA_DisableWindowContextHelpButton.
+    
+    Set the Qt::AA_DisableWindowContextHelpButton attribute so that dialogs
+    don't show a help button in their title bars.
+    
+    Bug: 16327
+    Change-Id: Iae1005cc9bd1b426ab6b3144ae54964171322419
+    Reviewed-on: https://code.wireshark.org/review/35781
+    Petri-Dish: Gerald Combs <gerald@wireshark.org>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    (cherry picked from commit 5fef935407d19978d1a4b8679c163a6e68a9001b)
+    Reviewed-on: https://code.wireshark.org/review/35783
+
+commit ccfdb54584
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jan 12 11:31:47 2020 -0800
+
+    Qt: Make sure shortcuts are visible in context menus.
+    
+    As of Qt 5.10, context menu shortcuts can be hidden:
+    
+    https://bugreports.qt.io/browse/QTBUG-61181
+    
+    Add set_action_shortcuts_visible_in_context_menu to qt_ui_utils and call
+    it for our context menus as needed. For Qt 5.{10,11,12} it calls
+    QAction::setShortcutVisibleInContextMenu(true).
+    
+    For Qt 5.13 and later, call
+    QStyleHints::setShowShortcutsInContextMenus(true) in
+    WiresharkApplication.
+    
+    Change-Id: Ie8941951c3a9801b4642f4ce15ac217e37d1300f
+    Reviewed-on: https://code.wireshark.org/review/35761
+    Petri-Dish: Gerald Combs <gerald@wireshark.org>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    (cherry picked from commit 48024b102de18305c860aa558229fa08ac2709b2)
+    Reviewed-on: https://code.wireshark.org/review/35779
+
+commit 616cc51eb8
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sun Jan 12 19:12:15 2020 -0800
+
+    Point to a page that might be less likely to move.
+    
+    Change-Id: I047341817fa026da520c514175794b4737615a08
+    Reviewed-on: https://code.wireshark.org/review/35772
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 8c2328f121653c66750e34393edca8a8d1235097)
+    Reviewed-on: https://code.wireshark.org/review/35774
+
+commit 7deefe576a
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sun Jan 12 19:08:23 2020 -0800
+
+    Update URL.
+    
+    Change-Id: Ibfc87c783c9786f977ca43674ad581539a91924a
+    Reviewed-on: https://code.wireshark.org/review/35768
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 8fc67d48af1e7db6f4bd69df06461bce9626e545)
+    Reviewed-on: https://code.wireshark.org/review/35770
+
+commit e3070644bb
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Sun Jan 12 20:51:13 2020 +0100
+
+    Qt: Add error message when create profiles dir fails
+    
+    Include the error message when creating the profiles directory fails.
+    
+    Change-Id: I00157282b16e5152632a208357695047bed55539
+    Reviewed-on: https://code.wireshark.org/review/35759
+    Petri-Dish: Stig Bjørlykke <stig@bjorlykke.org>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Stig Bjørlykke <stig@bjorlykke.org>
+    (cherry picked from commit c84bbf48530800c6a8261e3bb6766627bb5e458f)
+    Reviewed-on: https://code.wireshark.org/review/35764
+
+commit f4a6c6acc1
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Sun Jan 12 20:44:46 2020 +0100
+
+    Windows: upgrade Npcap to 0.9986
+    
+    Change-Id: I5de2f727fad0446e162b5f28bfc8fa091be98b06
+    Reviewed-on: https://code.wireshark.org/review/35758
+    Petri-Dish: Pascal Quantin <pascal@wireshark.org>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Pascal Quantin <pascal@wireshark.org>
+
+commit 573d0bb82f
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jan 12 08:46:30 2020 +0000
+
+    [Automatic update for 2020-01-12]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: I52a2183a48a5dbb5d3b80bedc12011dff9b6b522
+    Reviewed-on: https://code.wireshark.org/review/35752
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 38333b66e5
+Author: Dr. Lars Völker <lars.voelker@technica-engineering.de>
+Date:   Fri Jan 10 18:13:09 2020 +0100
+
+    DOIP: Trivial typo fixed
+    
+    In doip_versions is a trivial typo "identifcation", which
+    is fixed by this patch.
+    
+    Bug: 16325
+    Change-Id: Ia432d505fdf57606cd72ac63c80fca5066c37ff3
+    Signed-off-by: Dr. Lars Völker <lars.voelker@technica-engineering.de>
+    Reviewed-on: https://code.wireshark.org/review/35736
+    Reviewed-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+    (cherry picked from commit 58949b7ff14ff8f052704c27718c90be4b234449)
+    Reviewed-on: https://code.wireshark.org/review/35738
+
+commit 26c99da49a
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Jan 7 12:38:21 2020 -0800
+
+    Docs: Ensure that the API reference has the proper permissions.
+    
+    Set our file permissions before building the wsar_html_zip target.
+    
+    Change-Id: I660bf87891a0c8bbebfd497984617bd1d294bf10
+    Reviewed-on: https://code.wireshark.org/review/35685
+    Petri-Dish: Gerald Combs <gerald@wireshark.org>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    (cherry picked from commit 44b0cb187d63668b83a667af04f9bb7ff45333ca)
+    Reviewed-on: https://code.wireshark.org/review/35691
+
+commit 62fdb80eea
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Jan 7 11:24:04 2020 -0800
+
+    NSIS: Build Unicode installers / uninstallers.
+    
+    Recent versions of NSIS have deprecated ANSI installers, so enable
+    Unicode.
+    
+    Change-Id: I263568f83b7f96871e056ba590db300b23dbdc80
+    Reviewed-on: https://code.wireshark.org/review/35681
+    Petri-Dish: Gerald Combs <gerald@wireshark.org>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    (cherry picked from commit 8b7e251bac68e4aa03c0f489f7f5468eb1877d73)
+    Reviewed-on: https://code.wireshark.org/review/35683
+
+commit 22119240ac
+Author: Jirka Novak <j.novak@netsystem.cz>
+Date:   Mon Jan 6 23:59:29 2020 +0100
+
+    voip_calls_dialog/voip_calls: Fix for duplicated entries after retap
+    
+    Issue seen from 2.6:
+    1) Open pcap with any VoIP call
+    2) Open Telephony->VoIP calls
+    3) Select one or more calls
+    4) Press Flow Sequence - sequence is shown
+    5) Close Flow Sequence
+    6) Press Play Streams - Play dialog is shown
+    7) Close Play dialog
+    8) Press Flow Sequence - sequence is shown, but all entries are duplicated
+    
+    If you repeat 6-7 multiple times, all entries are shown multiple times in 8
+    
+    Patch adds missing clear of graph_analysis before retaping the stream.
+    Tested on master, but should be backported to as many stable branches as possible.
+    
+    Change-Id: I9793f6e874defde2f377732d78689e957df71b33
+    Reviewed-on: https://code.wireshark.org/review/35672
+    Petri-Dish: Jim Young <jim.young.ws@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 888137161cd1e4fe48c56cd6681cae5c10deede2)
+    Reviewed-on: https://code.wireshark.org/review/35675
+    Petri-Dish: Anders Broman <a.broman58@gmail.com>
+
+commit 4ede90730e
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jan 5 08:47:22 2020 +0000
+
+    [Automatic update for 2020-01-05]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: I6a196b52ebb31167c94cab008808811886d4506d
+    Reviewed-on: https://code.wireshark.org/review/35654
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit e7c0f2a120
+Author: Dario Lombardo <lomato@gmail.com>
+Date:   Sat Nov 30 23:49:20 2019 +0100
+
+    tipc: check message bundle size before using it.
+    
+    Bug: 16240
+    Change-Id: I3aaf32f6b2b0df1a809d318868cf5523a9158105
+    Reviewed-on: https://code.wireshark.org/review/35264
+    Petri-Dish: Dario Lombardo <lomato@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 4b673a14d01d7ae115f04dae1e777f71f7c51889)
+    Reviewed-on: https://code.wireshark.org/review/35630
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 442547121d
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Wed Jan 1 01:00:00 2020 +0100
+
+    Happy New Year 2020
+    
+    Change-Id: Ic569e499d40def9397203510a121ff17a495ba9a
+    Reviewed-on: https://code.wireshark.org/review/35616
+    Reviewed-by: Stig Bjørlykke <stig@bjorlykke.org>
+    (cherry picked from commit 5ba082d51db4af2d91f10f235739dc137369c70c)
+    Reviewed-on: https://code.wireshark.org/review/35618
+
+commit 0f1a91ed80
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Sun Dec 29 19:42:04 2019 +0100
+
+    netlink: Fix interface address presentation
+    
+    The interface addresses are in standard order, that means independant of
+    the perceived order of the host where the capture was made.
+    
+    Change-Id: Id226d49771f1862190a0e187ac00584c64bdd0a4
+    Reviewed-on: https://code.wireshark.org/review/35586
+    Reviewed-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Petri-Dish: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit 21e9d904cddf28217768012aac00041bd21fc2bd)
+    Reviewed-on: https://code.wireshark.org/review/35604
+    Reviewed-by: Peter Wu <peter@lekensteyn.nl>
+
+commit 067e7481f7
+Author: Pau Espin Pedrol <pespin@sysmocom.de>
+Date:   Mon Dec 30 19:53:45 2019 +0100
+
+    GSM A RR: Fix wrong description for Access Technologies Request presence field
+    
+    Reference: 3GPP TS 44.018 version 13.3.2 Release 13, section 10.5.2.16
+    
+    Change-Id: I813275d5fb3e87485b855770c97e566d6c2288ed
+    Reviewed-on: https://code.wireshark.org/review/35605
+    Reviewed-by: Pascal Quantin <pascal@wireshark.org>
+    Reviewed-on: https://code.wireshark.org/review/35607
+
+commit d6e6f98109
+Author: Pau Espin Pedrol <pespin@sysmocom.de>
+Date:   Mon Dec 30 16:07:39 2019 +0100
+
+    GSM A RR: Fix typos in PS IR field
+    
+    Change-Id: I521633fe2533983e403eb694b544c377d4b3ae9f
+    Reviewed-on: https://code.wireshark.org/review/35597
+    Reviewed-by: Vadim Yanitskiy <axilirator@gmail.com>
+    Reviewed-by: Pascal Quantin <pascal@wireshark.org>
+    Reviewed-on: https://code.wireshark.org/review/35599
+
+commit 501a69ff22
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Dec 29 08:46:57 2019 +0000
+
+    [Automatic update for 2019-12-29]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: Icf1aadfbdf48dfea61fccb070eb6ecca3f9ff8cc
+    Reviewed-on: https://code.wireshark.org/review/35582
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit d05388f5ca
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Fri Dec 27 11:41:46 2019 -0800
+
+    Qt: Use a neutral tone in an error message.
+    
+    Don't yell at the user.
+    
+    Change-Id: Ibedb0a1bf7ea13feeaf6fe4f2c78bd7f3d1e65b8
+    Reviewed-on: https://code.wireshark.org/review/35572
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    Petri-Dish: Gerald Combs <gerald@wireshark.org>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+    (cherry picked from commit 17492b8a6b21dad6295fcaf7800ceea2788c76a6)
+    Reviewed-on: https://code.wireshark.org/review/35574
+    Petri-Dish: Jaap Keuter <jaap.keuter@xs4all.nl>
+
+commit 13415a8dc8
+Author: dennisschagt <dennisschagt@gmail.com>
+Date:   Wed Dec 25 13:40:27 2019 +0100
+
+    Qt: Create directories recursively
+    
+    Bug: 16143
+    Change-Id: Ibdd888157919315775637eb639158ea2e6cb26f0
+    Reviewed-on: https://code.wireshark.org/review/35561
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit b21276d9a06fdcef0babd39f5bcad9b70c23855a)
+    Reviewed-on: https://code.wireshark.org/review/35563
+
+commit 7ae0f04baa
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Dec 22 14:21:07 2019 -0800
+
+    Qt: Fix the Capture File Properties dropped format.
+    
+    Fixup the formatting for the "Dropped packets" portion of the Capture
+    File Properties dialog. Fix a couple of other issues flagged by clang.
+    
+    Change-Id: Ia1fad4bee37525a1a0cc25849abe34a0495f1ac8
+    Reviewed-on: https://code.wireshark.org/review/35552
+    Petri-Dish: Gerald Combs <gerald@wireshark.org>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    (cherry picked from commit 4df2bd988d60bbec3804766af1d22efda90b7d34)
+    Reviewed-on: https://code.wireshark.org/review/35557
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+
+commit f5f356a7b1
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Dec 22 08:46:57 2019 +0000
+
+    [Automatic update for 2019-12-22]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: Ic3457b609d9262afb8d81a72cd5a31887587c6a8
+    Reviewed-on: https://code.wireshark.org/review/35548
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 2bdd55e678
+Author: Dario Lombardo <lomato@gmail.com>
+Date:   Thu Dec 19 11:43:26 2019 +0100
+
+    extcap: fix use-after-free bug.
+    
+    Regression introduced in g1cd1e36.
+    
+    Change-Id: I85775ef86d9325d4f5bf811a5f52925a2cf0d387
+    Reviewed-on: https://code.wireshark.org/review/35503
+    Petri-Dish: Tomasz Moń <desowin@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Tomasz Moń <desowin@gmail.com>
+    Reviewed-on: https://code.wireshark.org/review/35506
+    Petri-Dish: Dario Lombardo <lomato@gmail.com>
+    Reviewed-by: Dario Lombardo <lomato@gmail.com>
+    (cherry picked from commit cfc7b08584ba049146d07aca6d03632a95f1c7fe)
+    Reviewed-on: https://code.wireshark.org/review/35535
+    Petri-Dish: Stig Bjørlykke <stig@bjorlykke.org>
+
+commit 6c587be0a0
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Fri Dec 20 12:52:33 2019 -0800
+
+    Expand the frequency range for the DMG PHY.
+    
+    Apparently, at least in some regulatory domains, the DMG PHY now goes
+    above 66 GHz or may do so in the future; the new/future top appears to
+    be 71 GHz.
+    
+    Change-Id: I1ee3f9cff177eed269ccc8318b5c952dbeb526ff
+    Reviewed-on: https://code.wireshark.org/review/35529
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 746335804b012d79be86c26613cb8240a7f74e24)
+    Reviewed-on: https://code.wireshark.org/review/35531
+
+commit 5ba11d9ae4
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Fri Dec 20 11:33:39 2019 -0800
+
+    There's a macro to test for 802.11ad frequencies; use it.
+    
+    The range doesn't start at 60 GHz, it starts at 57 GHz; this fixes that,
+    and leaves it open to future fixes.
+    
+    Change-Id: I51d7188f50479bf542babe0f6677638e8a683314
+    Reviewed-on: https://code.wireshark.org/review/35524
+    Petri-Dish: Guy Harris <guy@alum.mit.edu>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit e2fc0e4806f8fe1c08f650a7d90acbe25eed50ee)
+    Reviewed-on: https://code.wireshark.org/review/35527
+
+commit 67d5f4f802
+Author: Vadim Yanitskiy <axilirator@gmail.com>
+Date:   Thu Dec 19 14:09:07 2019 +0900
+
+    GSM A-bis/OML: fix: do not use tvb_get_ntohl() to fetch IPv4 address
+    
+    As per doc/README.dissector, the IPv4 addresses shall not be converted
+    to host byte order before being passed to proto_tree_add_ipv4(). Due
+    to this bug, the IPA Destination IP Address was displayed wrong.
+    
+    Change-Id: I2dd96590bbd736a8bfe05502d6803813838c6c59
+    Bug: 16282
+    Reviewed-on: https://code.wireshark.org/review/35501
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 88364fb2965e05c3eadb08a9b6a667c0a87313e3)
+    Reviewed-on: https://code.wireshark.org/review/35516
+
+commit 5abb53065b
+Author: Matt Parker <matt.parker@poly.com>
+Date:   Thu Dec 19 13:27:40 2019 -0700
+
+    h264: fix label for frame_crop_right_offset
+    
+    Bug: 16285
+    Change-Id: Iddc7171467b161c16176ae527f80cc638bc529f1
+    Reviewed-on: https://code.wireshark.org/review/35510
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Petri-Dish: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Pascal Quantin <pascal@wireshark.org>
+    Reviewed-on: https://code.wireshark.org/review/35512
+
+commit 088fc51659
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Dec 18 14:08:08 2019 -0800
+
+    CMake: Fix a dependency.
+    
+    Fix the README.md / README.txt dependency.
+    
+    Change-Id: Ia659f02d3d75d5772a4dc1ca6b17816fd31807ec
+    Reviewed-on: https://code.wireshark.org/review/35499
+    Petri-Dish: Gerald Combs <gerald@wireshark.org>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    (cherry picked from commit ee5460d8af48def06123d122bead146e41ba4420)
+    Reviewed-on: https://code.wireshark.org/review/35500
+
+commit fc88298529
+Author: Dario Lombardo <lomato@gmail.com>
+Date:   Sun Dec 8 18:33:45 2019 +0100
+
+    extcap: remove potential leak.
+    
+    Found by clang.
+    
+    Change-Id: I84359a2f7985bca8b0089200b3c37d04e06effe2
+    Reviewed-on: https://code.wireshark.org/review/35354
+    Petri-Dish: Tomasz Moń <desowin@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Tomasz Moń <desowin@gmail.com>
+    (cherry picked from commit 1cd1e36a05bd0f14b38ce3978e3313d57b3b25d4)
+    Reviewed-on: https://code.wireshark.org/review/35465
+    Petri-Dish: Dario Lombardo <lomato@gmail.com>
+    Reviewed-by: Dario Lombardo <lomato@gmail.com>
+
+commit 383eb2f2b5
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Sat Dec 14 09:49:20 2019 +0100
+
+    MPLS: fix Downstream Detailed Mapping TLV label stack dissection
+    
+    The label stack is its own TLV, which adheres to the same format as
+    others, with a tag and length (obviously). The length to be used for
+    this TLV is not the remaining length of this packet, but its own length.
+    
+    Bug: 16273
+    Change-Id: I469b55c5d78d1899d87030f3c0a15fd1afdf3f85
+    Reviewed-on: https://code.wireshark.org/review/35436
+    Reviewed-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Petri-Dish: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 6d7e98dd2b8fe577af3985611a922f9905a1a262)
+    Reviewed-on: https://code.wireshark.org/review/35452
+
+commit 4b8b168c37
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Sat Dec 14 22:29:07 2019 +0100
+
+    WiFi: Properly parse bitmap sections (CID-1451085)
+    
+    Compressed block acks, in the form of 256 bit bitmaps, are parsed
+    per 64 bit section. Scanning along a section needs to be done by
+    indexing this section, not the full 256 bits of the complete bitmap.
+    
+    Change-Id: Id0e6a7299e14be1ad68dd1cf6d736123008854ac
+    Reviewed-on: https://code.wireshark.org/review/35440
+    Reviewed-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Petri-Dish: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Reviewed-by: Richard Sharpe <realrichardsharpe@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 625b71bb309c3a861053b12c0a928fdce03829f9)
+    Reviewed-on: https://code.wireshark.org/review/35450
+
+commit 181d72863d
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Sat Dec 14 23:02:44 2019 +0100
+
+    H265: properly index 2D array (CID 1450950)
+    
+    In the expression it seems to simply have been missed this is a 2D array.
+    Adding the 2nd index, as elsewhere in this function.
+    
+    Change-Id: I21ce5a6fa70408f84cb61bbd09e7d3aeff9c1d85
+    Reviewed-on: https://code.wireshark.org/review/35441
+    Reviewed-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Petri-Dish: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 2f42fda6004d14bef324399a6ae0d3b672b8c99f)
+    Reviewed-on: https://code.wireshark.org/review/35448
+
+commit d2b8c7c413
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Dec 15 08:48:51 2019 +0000
+
+    [Automatic update for 2019-12-15]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: Ie2d3212e2ceb7cc246c2c2740adabcbfbb53b393
+    Reviewed-on: https://code.wireshark.org/review/35445
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 41d80b9788
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Dec 12 09:27:03 2019 -0800
+
+    html2text: Skip generating footnotes for self-links.
+    
+    Fixes the issue described at
+    https://www.wireshark.org/lists/wireshark-users/201912/msg00003.html
+    
+    Change-Id: Ie3fd338ab1c6b216b05eeca002545868d3474bbb
+    Reviewed-on: https://code.wireshark.org/review/35426
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 31414484d464b09e4f915da340bc8bbfc7ed3963)
+    Reviewed-on: https://code.wireshark.org/review/35432
+
+commit d3592d7e2e
+Author: Jorge Mora <jmora1300@gmail.com>
+Date:   Tue Dec 10 10:32:23 2019 -0700
+
+    LNET: fix malformed packet error on RDMA Read Request
+    
+    Check the number of remaining bytes before comparing the
+    next four bytes to the LNet magic number to find out
+    whether or not this is an LNet layer.
+    In the case for an RDMA Read Request which does not have
+    any payload data, the LNet dissector now gracefully will
+    not process this packet as an LNet layer instead of
+    labeling it as a malformed packet.
+    
+    Bug: 16269
+    Change-Id: I5d6abea8b79619849e8fbc1bc6b585995736b56e
+    Reviewed-on: https://code.wireshark.org/review/35392
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Petri-Dish: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+    (cherry picked from commit 34cbff30e9e5cfd7df2e0bf89e4cfe3048a457df)
+    Reviewed-on: https://code.wireshark.org/review/35396
+    Petri-Dish: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+
+commit 275529f364
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Tue Dec 10 16:04:51 2019 -0800
+
+    radiotap: Detect 11ad based on the frequency.
+    
+    This works around the lack of a defined radiotap field for 11ad.
+    
+    Bug: 16272
+    Change-Id: Ia851c644aee52ff9a138a36b16015d4112b5bf92
+    Reviewed-on: https://code.wireshark.org/review/35401
+    Petri-Dish: Guy Harris <guy@alum.mit.edu>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 2db8ca2671074be06726cb3aeb41ff849004d3f9)
+    Reviewed-on: https://code.wireshark.org/review/35405
+
+commit 5ed1108a68
+Author: Dario Lombardo <lomato@gmail.com>
+Date:   Fri Dec 6 23:31:12 2019 +0100
+
+    btatt: check the opcode against the current data.
+    
+    While here:
+    - some indentation fixes
+    - add defines for missing ATT_OPCODEs
+    
+    Bug: 16258
+    Change-Id: I2cd8172bcff9c209bbddc4729573c008a8e81fec
+    Reviewed-on: https://code.wireshark.org/review/35339
+    Petri-Dish: Dario Lombardo <lomato@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 68a7add68a725203cccf98d7d6c752a6bad866c0)
+    Reviewed-on: https://code.wireshark.org/review/35388
+    Reviewed-by: Dario Lombardo <lomato@gmail.com>
+
+commit 601e68dec6
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Wed Nov 6 12:17:30 2019 +0100
+
+    Windows: upgrade Npcap to 0.9984
+    
+    While we are at it, let's deactivate by default the legacy loopback adapter installation
+    
+    Change-Id: I4950e9dc6de8a2faeda272c03165a9f305862f6b
+    Reviewed-on: https://code.wireshark.org/review/35004
+    Petri-Dish: Pascal Quantin <pascal@wireshark.org>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Pascal Quantin <pascal@wireshark.org>
+    (cherry picked from commit 99effcada27b9cf5f76d7c4058bbb951d9d2886c)
+    Conflicts:
+            packaging/nsis/wireshark.nsi
+            tools/win-setup.ps1
+    Reviewed-on: https://code.wireshark.org/review/35379
+
+commit 5ba9e05080
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sun Dec 8 14:52:25 2019 -0800
+
+    TTLs are unsigned; format them with unsigned_time_secs_to_str().
+    
+    Change-Id: I489c981e02b2ed0331981003777a5de54ba8221f
+    Reviewed-on: https://code.wireshark.org/review/35367
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit c6c3ee1d62a459548c95511cc02c96ae6fe96377)
+    Reviewed-on: https://code.wireshark.org/review/35369
+
+commit 33e7bee7a3
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Sun Dec 8 20:26:50 2019 +0100
+
+    dns: Unify display of TTL with time_secs_to_str()
+    
+    Use same format for "Time to live" as for other ttl values by
+    appending the time_secs_to_str() output to the number of seconds.
+    
+    Ping-Bug: 16263
+    Change-Id: Ie55bbf27bf9c44554d391b395d23c478ad401d98
+    Reviewed-on: https://code.wireshark.org/review/35358
+    Petri-Dish: Stig Bjørlykke <stig@bjorlykke.org>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Stig Bjørlykke <stig@bjorlykke.org>
+    (cherry picked from commit 803d47fd50c9f5e76cd0a43f34eb587e0f1d6804)
+    Reviewed-on: https://code.wireshark.org/review/35364
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit fb25d639f2
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Sun Dec 8 19:35:40 2019 +0100
+
+    dns: Bring back TTL formatted with time_secs_to_str()
+    
+    Display time to live as formatted by unsigned_time_secs_to_str().
+    
+    This was removed in g42c52d8612 but the commit message for that change
+    was "Add more filterable fields around EDNS(0)", with no indication
+    of this change.
+    
+    Bug: 16263
+    Change-Id: Ic21f4a4b18d15efbd770c708e37d6e0c15eee6ce
+    Reviewed-on: https://code.wireshark.org/review/35355
+    Petri-Dish: Stig Bjørlykke <stig@bjorlykke.org>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 0820306494498722e53c361a436860b34c5bf35c)
+    Reviewed-on: https://code.wireshark.org/review/35357
+    Petri-Dish: Guy Harris <guy@alum.mit.edu>
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 5e8b03f93f
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sat Dec 7 14:23:25 2019 -0800
+
+    Make the TTL field unsigned, but keep warning if the high-order bit is set.
+    
+    See RFC 2181, section 8 (and RFC 1035 erratum 2130, which notes that
+    section 3.2.1 says the TTL is signed but section 4.1.3 says it's
+    unsigned); RFC 2181 section 8 says "unsigned, but avoid sending values
+    that have the uppermost bit set, and treat values with the uppermost bit
+    set as a value of 0".  (STD 13 = RFC 1034, the "concepts and facilities"
+    DNS RFC, plus RFC 1035, the "implementation and specification" DNS RFC.)
+    
+    Change-Id: I9be6ac4f190f62dafbc45d1923a95f8f21306a7d
+    Reviewed-on: https://code.wireshark.org/review/35343
+    Petri-Dish: Guy Harris <guy@alum.mit.edu>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 8275036fda8a7a5b9d0819c0ea3e3e26ad6e45ec)
+    Reviewed-on: https://code.wireshark.org/review/35361
+
+commit 3987662dbd
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sat Dec 7 18:11:21 2019 -0800
+
+    Win32: Fix the Export Packet Dissections dialog title.
+    
+    Change-Id: I25c40511b369ce93e1be2887488fc5389fdafd07
+    Reviewed-on: https://code.wireshark.org/review/35346
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    Petri-Dish: Gerald Combs <gerald@wireshark.org>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit fe647fb08588e5d6b8a2e0e06903484379658461)
+    Reviewed-on: https://code.wireshark.org/review/35353
+
+commit b4c8c992f4
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Dec 8 08:48:53 2019 +0000
+
+    [Automatic update for 2019-12-08]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: Idf0364e84fa7467707e6b1509c11ff53e753bae2
+    Reviewed-on: https://code.wireshark.org/review/35350
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 276cb6945d
+Author: Jim Young <jyoung@gsu.edu>
+Date:   Tue Dec 3 22:53:40 2019 -0500
+
+    recent.c: cfield might be NULL
+    
+    Avoid crash in GUI when using Edit Column widget.
+    
+    Bug: 16245
+    Change-Id: Ic98be3f98144dcfa9796fadd142180e3aaf84a9e
+    Reviewed-on: https://code.wireshark.org/review/35301
+    Petri-Dish: Jim Young <jim.young.ws@gmail.com>
+    Reviewed-by: Jim Young <jim.young.ws@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Craig Jackson <cejackson51@gmail.com>
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    (cherry picked from commit 1e3db49f054b2ff893d5a8139d3a2308c5ad3ba0)
+    Reviewed-on: https://code.wireshark.org/review/35337
+    Petri-Dish: Gerald Combs <gerald@wireshark.org>
+
+commit 94ba94cfb1
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Fri Dec 6 13:57:39 2019 +0100
+
+    UDS: fix uds.rdbi.data_identifier filter length
+    
+    Bug: 16256
+    Change-Id: Icd4b04193f9ad858859de84cf2bddc6e46c5e1a7
+    Reviewed-on: https://code.wireshark.org/review/35329
+    Petri-Dish: Pascal Quantin <pascal@wireshark.org>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Pascal Quantin <pascal@wireshark.org>
+    (cherry picked from commit 9689eea25f98d510423f44d33225fbcd89d77f92)
+    Reviewed-on: https://code.wireshark.org/review/35331
+
+commit a54ac5833d
+Author: Dario Lombardo <lomato@gmail.com>
+Date:   Wed Dec 4 17:09:40 2019 +0100
+
+    tools: fix check of shell variables in other setup scripts.
+    
+    Change-Id: I7423f994b2295ef8336c37fd2e53418d363a4327
+    Reviewed-on: https://code.wireshark.org/review/35309
+    Reviewed-by: Dario Lombardo <lomato@gmail.com>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 469228a2e555d16a54dd31f73426d50f57b2ba50)
+    Reviewed-on: https://code.wireshark.org/review/35322
+
+commit ca26c2a36c
+Author: Tamir Duberstein <tamird@google.com>
+Date:   Tue Dec 3 13:31:26 2019 -0800
+
+    tools/debian-setup: correctly check the value of shell variables
+    
+    These conditions would previously always evalute as true.
+    
+    Change-Id: I7eb35f4eae417819090ba47103a266374847cbc5
+    Reviewed-on: https://code.wireshark.org/review/35305
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Reviewed-by: Dario Lombardo <lomato@gmail.com>
+    (cherry picked from commit 9879850cc36cac3d3352ef87a6759c50e0c29c18)
+    Reviewed-on: https://code.wireshark.org/review/35320
+
+commit cd6f3bb603
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Wed Dec 4 22:19:20 2019 -0800
+
+    Back up to the beginning of the file if we don't have a gzip header.
+    
+    If the first byte of the file is 31, and we advance to the next byte but
+    find it's not 139, back up to the first byte before falling through and
+    treating the file as uncompressed.
+    
+    Add/expand some comments while we're at it.
+    
+    Bug: 16252
+    Change-Id: I292b51f9cc04173482a43b26b0ce73c9e7aee570
+    Reviewed-on: https://code.wireshark.org/review/35315
+    Petri-Dish: Guy Harris <guy@alum.mit.edu>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit ffabb74e2c75fd9cf314c28a89552f5b40cb18d1)
+    Reviewed-on: https://code.wireshark.org/review/35317
+
+commit e0db2fb181
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Dec 4 12:18:39 2019 -0800
+
+    3.0.7 → 3.0.8.
+    
+    Change-Id: Id7712e893930cbb0777e9b11e07504425b29ec3b
+    Reviewed-on: https://code.wireshark.org/review/35312
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>

@@ -4,16 +4,52 @@ Wireshark 3.0.8 Release Notes
 
  What’s New
 
-  The Windows and macOS installers now ship with Qt 5.12.6. They
-  previously shipped with Qt 5.12.5.
+    • The Windows installers now ship with Npcap 0.9986. They previously
+      shipped with Npcap 0.9984.
 
   Bug Fixes
 
    The following vulnerabilities have been fixed:
 
-     • wnpa-sec-2019-23[1] Foo dissector {crash,infinite loop}.
+     • wnpa-sec-2020-02[1] BT ATT dissector crash. Bug 16258[2].
+       CVE-2020-7045[3].
 
    The following bugs have been fixed:
+
+     • Wireshark fails to create directory if parent directory does not
+       yet exist. Bug 16143[4].
+
+     • Buildbot crash output: randpkt-2019-11-30-22633.pcap. Bug
+       16240[5].
+
+     • Crash after closing the Edit Column widget. Bug 16245[6].
+
+     • Some valid erf timestamps get confused for gzip magic header
+       bytes and causes an error with file_seek. Bug 16252[7].
+
+     • [UDS] When filtering the uds.rdbi.data_identifier field is
+       interpreted as 1 byte whereas it consists of 2 bytes. Bug
+       16256[8].
+
+     • DNS time to live field should be displayed as
+       days/hours/minutes/seconds. Bug 16263[9].
+
+     • LNet incorrectly displays Malformed Packet for RDMA Read
+       Requests. Bug 16269[10].
+
+     • 11ad packets get reported as 11n. Bug 16272[11].
+
+     • MPLS : Label Stack Sub TLV decoded improperly. Bug 16273[12].
+
+     • A-bis/OML: IPA Destination IP Address attribute contains inverted
+       value (endianness). Bug 16282[13].
+
+     • h264: SPS frame_crop_right_offset shown in UI as
+       frame_crop_left_offset. Bug 16285[14].
+
+     • DOIP: Typo in "identifcation request messages". Bug 16325[15].
+
+     • Toolbar "?" help button - no text/help displayed. Bug 16327[16].
 
   New and Updated Features
 
@@ -24,6 +60,9 @@ Wireshark 3.0.8 Release Notes
    There are no new protocols in this release.
 
   Updated Protocol Support
+
+   802.11 Radiotap, BT ATT, DNS, DOIP, GSM A RR, GSM A-bis/OML, H264,
+   H265, IEEE 802.11, LNET, MPLS Echo, rtnetlink, TIPC, and UDS
 
   New and Updated Capture File Support
 
@@ -43,7 +82,7 @@ Wireshark 3.0.8 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[2] on the Wireshark web site.
+   be found on the download page[17] on the Wireshark web site.
 
  File Locations
 
@@ -57,23 +96,38 @@ Wireshark 3.0.8 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[3] and on the
+  Community support is available on Wireshark’s Q&A site[18] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[4].
+  for all of Wireshark’s mailing lists can be found on the web site[19].
 
-  Bugs and feature requests can be reported on the bug tracker[5].
+  Bugs and feature requests can be reported on the bug tracker[20].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[6].
+  A complete FAQ is available on the Wireshark web site[21].
 
-  Last updated 2020-01-12 08:35:08 UTC
+  Last updated 2020-01-15 18:10:30 UTC
 
  References
 
-   1. https://www.wireshark.org/security/wnpa-sec-2019-23
-   2. https://www.wireshark.org/download.html#thirdparty
-   3. https://ask.wireshark.org/
-   4. https://www.wireshark.org/lists/
-   5. https://bugs.wireshark.org/
-   6. https://www.wireshark.org/faq.html
+   1. https://www.wireshark.org/security/wnpa-sec-2020-02
+   2. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16258
+   3. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-7045
+   4. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16143
+   5. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16240
+   6. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16245
+   7. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16252
+   8. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16256
+   9. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16263
+  10. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16269
+  11. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16272
+  12. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16273
+  13. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16282
+  14. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16285
+  15. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16325
+  16. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16327
+  17. https://www.wireshark.org/download.html#thirdparty
+  18. https://ask.wireshark.org/
+  19. https://www.wireshark.org/lists/
+  20. https://bugs.wireshark.org/
+  21. https://www.wireshark.org/faq.html
