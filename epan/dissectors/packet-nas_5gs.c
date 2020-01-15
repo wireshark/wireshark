@@ -6836,7 +6836,7 @@ de_nas_5gs_s1_mode_to_n1_mode_nas_transparent_cont(tvbuff_t *tvb, proto_tree *tr
     }
 }
 
-/* 3GPP TS 29.518 chapter 6.1.6.4.2 */
+/* 3GPP TS 29.502 chapter 6.1.6.4.2 and 29.518 chapter 6.1.6.4.2 */
 static int
 dissect_nas_5gs_media_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
@@ -6859,15 +6859,23 @@ dissect_nas_5gs_media_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     if (json_parse(json_data, tokens, ret) < 0)
         return 0;
     cur_tok = json_get_object(json_data, tokens, "n1MessageContainer");
-    if (!cur_tok)
-        return 0;
-    n1_msg_class = json_get_string(json_data, cur_tok, "n1MessageClass");
-    if (!n1_msg_class)
-        return 0;
-    cur_tok = json_get_object(json_data, cur_tok, "n1MessageContent");
-    if (!cur_tok)
-        return 0;
-    str = json_get_string(json_data, cur_tok, "contentId");
+    if (cur_tok) {
+        n1_msg_class = json_get_string(json_data, cur_tok, "n1MessageClass");
+        if (!n1_msg_class)
+            return 0;
+        cur_tok = json_get_object(json_data, cur_tok, "n1MessageContent");
+        if (!cur_tok)
+            return 0;
+        str = json_get_string(json_data, cur_tok, "contentId");
+    } else {
+        cur_tok = json_get_object(json_data, tokens, "n1SmMsg");
+        if (cur_tok) {
+            n1_msg_class = "SM";
+            str = json_get_string(json_data, cur_tok, "contentId");
+        } else {
+            return 0;
+        }
+    }
     if (!str || strcmp(str, message_info->content_id))
         return 0;
     if (!strcmp(n1_msg_class, "5GMM") ||
