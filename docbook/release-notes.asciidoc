@@ -10,21 +10,18 @@ include::attributes.asciidoc[]
 
 == What’s New
 
-* The Windows installers now ship with Npcap 0.9986.
-  They previously shipped with Npcap 0.9984.
-
 === Bug Fixes
 
 The following vulnerabilities have been fixed:
 
-* wssalink:2020-02[]
-BT ATT dissector crash.
-wsbuglink:16258[].
-cveidlink:2020-7045[].
-// Fixed in master: 68a7add68a
-// Fixed in master-3.2: 01f261de41
-// Fixed in master-3.0: 5ed1108a68
-// Fixed in master-2.6: N/A
+* wssalink:2020-03[]
+Foo dissector {crash,infinite loop}.
+// wsbuglink:xxxxx[].
+// cveidlink:2019-xxxxx[].
+// Fixed in master: xxxxx
+// Fixed in master-3.2: xxxxx
+// Fixed in master-3.0: xxxxx
+// Fixed in master-2.6: xxxxx
 
 The following bugs have been fixed:
 
@@ -34,31 +31,6 @@ The following bugs have been fixed:
 //* Wireshark slowly leaked water under the kitchen sink over the course of several months, causing a big mess.
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v3.0.9rc0..| grep ' Bug:' | awk '{print $2}' | sort -n -u ` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
 
-* Wireshark fails to create directory if parent directory does not yet exist. wsbuglink:16143[].
-
-* Buildbot crash output: randpkt-2019-11-30-22633.pcap. wsbuglink:16240[].
-
-* Crash after closing the Edit Column widget. wsbuglink:16245[].
-
-* Some valid erf timestamps get confused for gzip magic header bytes and causes an error with file_seek. wsbuglink:16252[].
-
-* [UDS] When filtering the uds.rdbi.data_identifier field is interpreted as 1 byte whereas it consists of 2 bytes. wsbuglink:16256[].
-
-* DNS time to live field should be displayed as days/hours/minutes/seconds. wsbuglink:16263[].
-
-* LNet incorrectly displays Malformed Packet for RDMA Read Requests. wsbuglink:16269[].
-
-* 11ad packets get reported as 11n. wsbuglink:16272[].
-
-* MPLS : Label Stack Sub TLV decoded improperly. wsbuglink:16273[].
-
-* A-bis/OML: IPA Destination IP Address attribute contains inverted value (endianness). wsbuglink:16282[].
-
-* h264: SPS frame_crop_right_offset shown in UI as frame_crop_left_offset. wsbuglink:16285[].
-
-* DOIP: Typo in &quot;identifcation request messages&quot;. wsbuglink:16325[].
-
-* Toolbar &quot;?&quot; help button - no text/help displayed. wsbuglink:16327[].
 
 === New and Updated Features
 
@@ -81,20 +53,6 @@ There are no new protocols in this release.
 // Add one protocol per line between the -- delimiters.
 [commaize]
 --
-802.11 Radiotap
-BT ATT
-DNS
-DOIP
-GSM A-bis/OML
-GSM A RR
-H264
-H265
-IEEE 802.11
-LNET
-MPLS Echo
-rtnetlink
-TIPC
-UDS
 --
 
 === New and Updated Capture File Support
