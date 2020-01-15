@@ -308,9 +308,22 @@ dissect_netlink_attributes_common(tvbuff_t *tvb, header_field_info *hfi_type, in
 				}
 			}
 
+			/* The callback needs to be passed the netlink_attr_type_net_byteorder as dissected,
+			 * to properly dissect the attribute value, which byte order may differ from the
+			 * capture host native byte order, as heuristically established in 'encoding'.
+			 * We pass in the encoding through nl_data, so we temporarily modify it to match
+			 * the NLA_F_NET_BYTEORDER flag.
+			 */
+			if (rta_type & NLA_F_NET_BYTEORDER)
+				nl_data->encoding = ENC_BIG_ENDIAN;
+
 			if (!cb(tvb, data, nl_data, attr_tree, rta_type, offset, rta_len - 4)) {
-				proto_tree_add_item(attr_tree, &hfi_netlink_attr_data, tvb, offset, rta_len - 4, encoding);
+				proto_tree_add_item(attr_tree, &hfi_netlink_attr_data, tvb, offset, rta_len - 4, ENC_NA);
 			}
+
+			/* Restore the originaly established encoding. */
+			if (rta_type & NLA_F_NET_BYTEORDER)
+				nl_data->encoding = encoding;
 		} else {
 			/*
 			 * Nested attributes, constructing an array (list of
