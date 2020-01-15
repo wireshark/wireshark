@@ -14,6 +14,9 @@ It is used for troubleshooting, analysis, development and education.
 
 == What’s New
 
+* The Windows installers now ship with Npcap 0.9986.
+  They previously shipped with Npcap 0.9984.
+
 === Bug Fixes
 
 The following vulnerabilities have been fixed:
@@ -21,7 +24,7 @@ The following vulnerabilities have been fixed:
 * wssalink:2020-01[]
 WASSP dissector crash.
 wsbuglink:16324[].
-// cveidlink:2019-xxxxx[].
+cveidlink:2020-7044[].
 // Fixed in master: 71b59b18e4
 // Fixed in master-3.2: f90a3720b7
 // Fixed in master-3.0: N/A
@@ -69,6 +72,8 @@ The following bugs have been fixed:
 
 * DLT: Dissector does not parse multiple DLT messages in single UDP packet. wsbuglink:16321[].
 
+* ISAKMP Dissection: Enhance  Source id and Destination ID field of GDOI SA TEK payload for non IP ID type. wsbuglink:16233[].
+
 * DOIP: Typo in &quot;identifcation request messages&quot;. wsbuglink:16325[].
 
 * Toolbar &quot;?&quot; help button - no text/help displayed. wsbuglink:16327[].
@@ -108,6 +113,7 @@ HTTP
 IEC 60870-5-104
 IEEE 802.11
 IPv4
+ISAKMP
 NAS 5GS
 rtnetlink
 SIP

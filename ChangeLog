@@ -1,0 +1,1179 @@
+commit e5f5ad1851
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Jan 15 09:49:05 2020 -0800
+
+    Build 3.2.1.
+    
+    Change-Id: I6cbdc0b891ac29f05fb2be8b86a63689abfb14fd
+
+commit bee07bd496
+Author: Joakim Karlsson <oakimk@gmail.com>
+Date:   Wed Jan 15 09:40:34 2020 +0100
+
+    NAS-5GS: add support for n1SmMsg from 3GPP 29.502
+    
+    Change-Id: Ie643abf1bc30d2350952cd9afe0af070f4ff980f
+    Reviewed-on: https://code.wireshark.org/review/35817
+    Petri-Dish: Pascal Quantin <pascal@wireshark.org>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Pascal Quantin <pascal@wireshark.org>
+    (cherry picked from commit 3169344480aacad361ac63e88b933b63f8d2a0c3)
+    Reviewed-on: https://code.wireshark.org/review/35818
+
+commit b3d069d0a3
+Author: Uli Heilmeier <uh@heilmeier.eu>
+Date:   Tue Jan 14 21:35:25 2020 +0100
+
+    ISAKMP: Dissect ID data types also for GDOI SA TEK
+    
+    Dissect all kinds of ID types also for GDOI SA TEK payload.
+    
+    Bug: 16233
+    Change-Id: I4583fed5d9b01ec13f971fbbf79b3053d3355951
+    Reviewed-on: https://code.wireshark.org/review/35811
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Petri-Dish: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit b8101a691c00e8ac4e69e7e59c042d9b08799ea2)
+    Reviewed-on: https://code.wireshark.org/review/35816
+
+commit f6fab1cf1c
+Author: Jim Young <jyoung@gsu.edu>
+Date:   Mon Jan 13 22:50:11 2020 -0500
+
+    Qt: Suppress warning: unused parameter 'actions'
+    
+    In set_action_shortcuts_visible_in_context_menu() the parameter
+    'actions' is only used by a subset of Qt versions. Mark it unused
+    in the other cases.
+    
+    Change-Id: I210eafcdffb8484751b656f58cc7813cb98d259f
+    Reviewed-on: https://code.wireshark.org/review/35800
+    Petri-Dish: Jim Young <jim.young.ws@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    (cherry picked from commit e85cbd57c6b3662a839ba939978ff5ef45f7992f)
+    Reviewed-on: https://code.wireshark.org/review/35808
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 89a15c5442
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Tue Jan 14 10:44:39 2020 +0100
+
+    Qt: Add a missing separator in packet tree context menu
+    
+    The packet tree context menu for Copy should have a separator after
+    the "As Filter" entry. This is a regression from a previous refactoring.
+    
+    Change-Id: Ie43ae71019608d28af0eed8490aab654c7e6d6f1
+    Reviewed-on: https://code.wireshark.org/review/35802
+    Reviewed-by: Stig Bjørlykke <stig@bjorlykke.org>
+    (cherry picked from commit e816edd1eafd61642aadcc20d74bc90d5ed5aab7)
+    Reviewed-on: https://code.wireshark.org/review/35803
+
+commit 1d349a9c9b
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Jan 13 15:25:39 2020 -0800
+
+    More 3.2.1 prep.
+    
+    Change-Id: Ibffc515c8c524e58dff4c482c485c86fae11f98e
+    Reviewed-on: https://code.wireshark.org/review/35796
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 2a775225e7
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Jan 13 13:58:28 2020 -0800
+
+    Prep for 3.2.1.
+    
+    Change-Id: Ic3ae705095a2179e652e6ea984a138f442270ee3
+    Reviewed-on: https://code.wireshark.org/review/35795
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit f17a4262c7
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Jan 13 14:11:42 2020 -0800
+
+    Gen-bugnote: Another encoding fix.
+    
+    Change-Id: Icf9fe7cd392cce2dac8ba45854c9f4c00a80dd38
+    Reviewed-on: https://code.wireshark.org/review/35791
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    (cherry picked from commit 1f89cebc5f5cefe3abd138e2d500b024c69efd9f)
+    Reviewed-on: https://code.wireshark.org/review/35792
+
+commit 0e53f87117
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Jan 13 13:53:04 2020 -0800
+
+    Gen-bugnote: Fix an encoding issue.
+    
+    Change-Id: I0b193bc2dfa68de98d53b2443773d121801271e8
+    Reviewed-on: https://code.wireshark.org/review/35786
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    (cherry picked from commit 216c4b26735e80d8f15a77a6e86271fe527283ce)
+    Reviewed-on: https://code.wireshark.org/review/35787
+
+commit d15326fd19
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Jan 13 11:55:05 2020 -0800
+
+    Qt: Set AA_DisableWindowContextHelpButton.
+    
+    Set the Qt::AA_DisableWindowContextHelpButton attribute so that dialogs
+    don't show a help button in their title bars.
+    
+    Bug: 16327
+    Change-Id: Iae1005cc9bd1b426ab6b3144ae54964171322419
+    Reviewed-on: https://code.wireshark.org/review/35781
+    Petri-Dish: Gerald Combs <gerald@wireshark.org>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    (cherry picked from commit b8884d168174b43f134252de29fb34c4e362f938)
+    Reviewed-on: https://code.wireshark.org/review/35782
+
+commit 67a76b81ce
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jan 12 11:31:47 2020 -0800
+
+    Qt: Make sure shortcuts are visible in context menus.
+    
+    As of Qt 5.10, context menu shortcuts can be hidden:
+    
+    https://bugreports.qt.io/browse/QTBUG-61181
+    
+    Add set_action_shortcuts_visible_in_context_menu to qt_ui_utils and call
+    it for our context menus as needed. For Qt 5.{10,11,12} it calls
+    QAction::setShortcutVisibleInContextMenu(true).
+    
+    For Qt 5.13 and later, call
+    QStyleHints::setShowShortcutsInContextMenus(true) in
+    WiresharkApplication.
+    
+    Change-Id: Ie8941951c3a9801b4642f4ce15ac217e37d1300f
+    Reviewed-on: https://code.wireshark.org/review/35761
+    Petri-Dish: Gerald Combs <gerald@wireshark.org>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    (cherry picked from commit 6c20836447d01da9b6ff5dd72003cc77b17f089d)
+    Reviewed-on: https://code.wireshark.org/review/35778
+
+commit 24346aa818
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sun Jan 12 19:12:15 2020 -0800
+
+    Point to a page that might be less likely to move.
+    
+    Change-Id: I047341817fa026da520c514175794b4737615a08
+    Reviewed-on: https://code.wireshark.org/review/35772
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit fb25db4ccee0229e7f8aca7c19415354a8ac17da)
+    Reviewed-on: https://code.wireshark.org/review/35773
+
+commit df900afeed
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sun Jan 12 19:08:23 2020 -0800
+
+    Update URL.
+    
+    Change-Id: Ibfc87c783c9786f977ca43674ad581539a91924a
+    Reviewed-on: https://code.wireshark.org/review/35768
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 1f73892935507fb0064883da2e9fab5f709a7c52)
+    Reviewed-on: https://code.wireshark.org/review/35769
+
+commit f90a3720b7
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Fri Jan 10 09:37:24 2020 -0800
+
+    WASSP: Fix a couple of off-by-one errors.
+    
+    Fix a couple of array length comparisons.
+    
+    Bug: 16324
+    Change-Id: Ifd2238371167261f435b947fdc3fb11bf6408d2e
+    Reviewed-on: https://code.wireshark.org/review/35735
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    Petri-Dish: Gerald Combs <gerald@wireshark.org>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit 71b59b18e4bb61d0e6da8bb2b26c87750570ae40)
+    Reviewed-on: https://code.wireshark.org/review/35766
+
+commit 51de5b0f53
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Sun Jan 12 20:51:13 2020 +0100
+
+    Qt: Add error message when create profiles dir fails
+    
+    Include the error message when creating the profiles directory fails.
+    
+    Change-Id: I00157282b16e5152632a208357695047bed55539
+    Reviewed-on: https://code.wireshark.org/review/35759
+    Petri-Dish: Stig Bjørlykke <stig@bjorlykke.org>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Stig Bjørlykke <stig@bjorlykke.org>
+    (cherry picked from commit c84bbf48530800c6a8261e3bb6766627bb5e458f)
+    Reviewed-on: https://code.wireshark.org/review/35763
+
+commit 83c49d04fc
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jan 12 08:33:03 2020 +0000
+
+    [Automatic update for 2020-01-12]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: Iab86587c43bc4e0d5610af919a62b51e56de6552
+    Reviewed-on: https://code.wireshark.org/review/35751
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 4a62b5e006
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sat Jan 4 12:36:12 2020 -0800
+
+    Qt: Don't plot zero values in I/O scatter plots
+    
+    We don't currently distinguish between missing and zero values in I/O
+    graphs. This can be problematic in scatter plots since the plot points
+    tend to show up as chartjunk which overwhelms the X axis. In plain,
+    non-calculated plots assume that zero values mean "missing" and omit
+    those points.
+    
+    Describe this in the User's Guide, but comment the text out for now
+    pending a full update to the I/O Graph section.
+    
+    Switch to title case in our default graphs. Make the TCP Errors graph
+    red by default.
+    
+    Change-Id: I92dcbf05f58ae0b7b7734fa8dfc342424bbea114
+    Reviewed-on: https://code.wireshark.org/review/35645
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    Petri-Dish: Gerald Combs <gerald@wireshark.org>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 6785c9ad042fbfa75281bfb9eb7306fd9bb697e9)
+    Reviewed-on: https://code.wireshark.org/review/35744
+
+commit 12b2794179
+Author: Dr. Lars Völker <lars.voelker@technica-engineering.de>
+Date:   Fri Jan 10 18:13:09 2020 +0100
+
+    DOIP: Trivial typo fixed
+    
+    In doip_versions is a trivial typo "identifcation", which
+    is fixed by this patch.
+    
+    Bug: 16325
+    Change-Id: Ia432d505fdf57606cd72ac63c80fca5066c37ff3
+    Signed-off-by: Dr. Lars Völker <lars.voelker@technica-engineering.de>
+    Reviewed-on: https://code.wireshark.org/review/35736
+    Reviewed-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+    (cherry picked from commit 58949b7ff14ff8f052704c27718c90be4b234449)
+    Reviewed-on: https://code.wireshark.org/review/35737
+
+commit d27221957f
+Author: Dr. Lars Völker <lars.voelker@technica-engineering.de>
+Date:   Fri Jan 10 12:07:28 2020 +0100
+
+    DLT: Fixing parsing of multiple DLT message in a single UDP packet.
+    
+    The current implementation of DLT will only dissect the first message
+    and skips all other messages in an UDP packet. Wireshark will mark
+    all bytes in the UDP payload belonging to the first message. This is
+    wrong and being fixed in this patch.
+    
+    Bug: 16321
+    Change-Id: I7929caaf415e59220c29a8481d8671e71b00db0c
+    Signed-off-by: Dr. Lars Völker <lars.voelker@technica-engineering.de>
+    Reviewed-on: https://code.wireshark.org/review/35731
+    Petri-Dish: Pascal Quantin <pascal@wireshark.org>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Pascal Quantin <pascal@wireshark.org>
+    (cherry picked from commit fa2fa5657bb05cde5b598d2a490c1793bd01946c)
+    Reviewed-on: https://code.wireshark.org/review/35732
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+
+commit 00ef4f5281
+Author: Joakim Karlsson <oakimk@gmail.com>
+Date:   Fri Jan 10 11:25:50 2020 +0100
+
+    NAS 5GS: correction of QoS Rules with the length of two octets
+    
+    Change-Id: I2d5c2e714067ec3198e24c54145315c009b56198
+    Reviewed-on: https://code.wireshark.org/review/35729
+    Petri-Dish: Pascal Quantin <pascal@wireshark.org>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Pascal Quantin <pascal@wireshark.org>
+    (cherry picked from commit 160a4696fafb2158fdeebdc8e41fc2fe91665675)
+    Reviewed-on: https://code.wireshark.org/review/35730
+
+commit 80c39f321d
+Author: Roland Knall <rknall@gmail.com>
+Date:   Thu Jan 9 12:12:57 2020 +0100
+
+    Qt: Fix PacketListHeader column
+    
+    Due to changes in #35206, if you have a lot of columns the display
+    of all columns may be hindered depending on your screen resolution.
+    
+    With this change, displaying the column information can be disabled
+    via a Preferences->Layout checkbox element. Additionaly, the column
+    information will always be displayed as a tooltip element
+    
+    Bug: 16317
+    Change-Id: Ib8c0fc0a84deaca96631270b320f3a530ba87d89
+    Reviewed-on: https://code.wireshark.org/review/35706
+    Petri-Dish: Roland Knall <rknall@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Roland Knall <rknall@gmail.com>
+    (cherry picked from commit 7dab217f11d607aa8620a5551420bdffbb05e786)
+    Reviewed-on: https://code.wireshark.org/review/35712
+
+commit 750b1faeca
+Author: Jim Young <jyoung@gsu.edu>
+Date:   Fri Dec 20 08:16:18 2019 -0500
+
+    Revert "Qt: Fix dangling delete for sequence diagramm"
+    
+    This reverts commit aa2145982f3aec7320f33d201a17d0fdbea2a6c0.
+    
+    Each of the three delete calls added to the deconstructor
+    SequenceDialog::~SequenceDialog() results in Wireshark
+    crashing when the Flow dialog is closed.
+    
+    Bug: 16260
+    Change-Id: Iecbd5dcc16be6eb451b8920b22ca2b9ccef7c7b0
+    Reviewed-on: https://code.wireshark.org/review/35521
+    Petri-Dish: Jim Young <jim.young.ws@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Roland Knall <rknall@gmail.com>
+    (cherry picked from commit 31570163d14da6de4a1b7fde4fdde2ff9b9d20a9)
+    Reviewed-on: https://code.wireshark.org/review/35696
+    Reviewed-by: Pascal Quantin <pascal@wireshark.org>
+
+commit ada7679cda
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Jan 7 12:38:21 2020 -0800
+
+    Docs: Ensure that the API reference has the proper permissions.
+    
+    Set our file permissions before building the wsar_html_zip target.
+    
+    Change-Id: I660bf87891a0c8bbebfd497984617bd1d294bf10
+    Reviewed-on: https://code.wireshark.org/review/35685
+    Petri-Dish: Gerald Combs <gerald@wireshark.org>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    (cherry picked from commit e77a3ec400daab1cf99ed1fd89de1bbee84da4db)
+    Reviewed-on: https://code.wireshark.org/review/35690
+
+commit f735cd49d1
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Jan 7 11:24:04 2020 -0800
+
+    NSIS: Build Unicode installers / uninstallers.
+    
+    Recent versions of NSIS have deprecated ANSI installers, so enable
+    Unicode.
+    
+    Change-Id: I263568f83b7f96871e056ba590db300b23dbdc80
+    Reviewed-on: https://code.wireshark.org/review/35681
+    Petri-Dish: Gerald Combs <gerald@wireshark.org>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    (cherry picked from commit 0bb2e67d6c9c0c145df276497dbfb7a04b9a2bf8)
+    Reviewed-on: https://code.wireshark.org/review/35682
+
+commit 2804b2ad79
+Author: Martin Boye Petersen <martinboyepetersen@gmail.com>
+Date:   Thu Dec 19 15:10:23 2019 +0100
+
+    case-sensitive: Fix casing for PCAP and WinSparkle
+    
+    CMake is unable to find PCAP and WinSparkle under Windows
+    when using case sensitive folders.
+    
+    Change-Id: I30ba4073afc6089b08cef3c010b09c257362929b
+    Reviewed-on: https://code.wireshark.org/review/35505
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    Petri-Dish: Gerald Combs <gerald@wireshark.org>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 46b3753d531c10d7c54283a39d5dcfdcc8fc06fc)
+    Reviewed-on: https://code.wireshark.org/review/35679
+
+commit 52d380ca08
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Tue Jan 7 09:39:25 2020 +0100
+
+    NAS 5GS: add missing R15 bits in 5GS network feature support IE
+    
+    Bug: 16310
+    Change-Id: I52a3e8bbe6ae89c227cd0eee58bb46ba37eceeb6
+    Reviewed-on: https://code.wireshark.org/review/35676
+    Reviewed-by: Pascal Quantin <pascal@wireshark.org>
+    Petri-Dish: Pascal Quantin <pascal@wireshark.org>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit c283cf37c5e962ccd679e23c6aaa821dc16e559a)
+    Reviewed-on: https://code.wireshark.org/review/35677
+
+commit c434a2ab57
+Author: Jirka Novak <j.novak@netsystem.cz>
+Date:   Mon Jan 6 23:59:29 2020 +0100
+
+    voip_calls_dialog/voip_calls: Fix for duplicated entries after retap
+    
+    Issue seen from 2.6:
+    1) Open pcap with any VoIP call
+    2) Open Telephony->VoIP calls
+    3) Select one or more calls
+    4) Press Flow Sequence - sequence is shown
+    5) Close Flow Sequence
+    6) Press Play Streams - Play dialog is shown
+    7) Close Play dialog
+    8) Press Flow Sequence - sequence is shown, but all entries are duplicated
+    
+    If you repeat 6-7 multiple times, all entries are shown multiple times in 8
+    
+    Patch adds missing clear of graph_analysis before retaping the stream.
+    Tested on master, but should be backported to as many stable branches as possible.
+    
+    Change-Id: I9793f6e874defde2f377732d78689e957df71b33
+    Reviewed-on: https://code.wireshark.org/review/35672
+    Petri-Dish: Jim Young <jim.young.ws@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 888137161cd1e4fe48c56cd6681cae5c10deede2)
+    Reviewed-on: https://code.wireshark.org/review/35673
+    Petri-Dish: Anders Broman <a.broman58@gmail.com>
+
+commit 7cbacb6d5b
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Jan 6 09:58:38 2020 -0800
+
+    NSIS: Don't package .pdb files.
+    
+    We run `windeployqt ... --pdbs` at build time, which means that we need
+    to be careful not to include them in the NSIS package. Switch from using
+    wildcards ("File ...\*") to using separate "File" commands for each file.
+    
+    Simplify the PDB Zip package command while we're here.
+    
+    Bug: 16307
+    Change-Id: Ibd9bcbdfdc216f1f6a067baf711bbc184845143f
+    Reviewed-on: https://code.wireshark.org/review/35670
+    Petri-Dish: Gerald Combs <gerald@wireshark.org>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    (cherry picked from commit 7a09c78f123b5dd1237000726f19e2801edeaf39)
+    Reviewed-on: https://code.wireshark.org/review/35671
+
+commit 4dbf3b4b0c
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Mon Jan 6 00:41:05 2020 -0800
+
+    Get rid of %debug, so protobuf_lang.y can be processed by Berkeley YACC.
+    
+    If somebody wants to debug the parser, they can add it if necessary in
+    their version.
+    
+    Bug: 16306
+    Change-Id: I00e5924058d9401176e3fab40833932dc5757e6a
+    Reviewed-on: https://code.wireshark.org/review/35665
+    Petri-Dish: Guy Harris <guy@alum.mit.edu>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 06b352ae55a89e1e0031b20cb571898cb8b69be5)
+    Reviewed-on: https://code.wireshark.org/review/35667
+
+commit cdd371af59
+Author: Tomasz Moń <desowin@gmail.com>
+Date:   Sun Jan 5 16:06:54 2020 +0100
+
+    USB Audio: Fix Feature Unit Descriptor dissection
+    
+    Properly calculate the number of logical channels in the cluster.
+    Report expert info if number of channels does not turn into integer.
+    
+    Bug: 16305
+    Change-Id: I028f3f00912629351641ef9297864ea832629cf0
+    Reviewed-on: https://code.wireshark.org/review/35656
+    Petri-Dish: Tomasz Moń <desowin@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    (cherry picked from commit ecd60cc7feb95b54ea5e3c0114150f9b9063eccb)
+    Reviewed-on: https://code.wireshark.org/review/35666
+    Reviewed-by: Tomasz Moń <desowin@gmail.com>
+
+commit 7baba81f01
+Author: João Valverde <joao.valverde@tecnico.ulisboa.pt>
+Date:   Sat Jan 4 17:31:11 2020 +0000
+
+    IPv4: Fix incorrect expert info for IGMP TTL
+    
+    IGMP uses TTL = 1 for the network control block. The code assumes
+    a certain registered multicast destination address always carries
+    traffic for that protocol, which isn't true. For example mDNS
+    usually uses a TTL of 255 but IGMP Membership reports use a TTL
+    of 1 for the same destination address.
+    
+    The end result is that IGMP traffic to mDNS multicast destination
+    shows a confusing and incorrect "TTL != 255 for the Local Network
+    Control Block" expert info.
+    
+    Rename the "ttl" variable for clarity.
+    
+    Change-Id: I693306cd6531aa250a6f5884a6731a2ea254bf2a
+    Reviewed-on: https://code.wireshark.org/review/35639
+    Reviewed-by: João Valverde <j@v6e.pt>
+    Petri-Dish: João Valverde <j@v6e.pt>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    (cherry picked from commit 376d8770121ab848ee4b679f2aa18bea13e42742)
+    Reviewed-on: https://code.wireshark.org/review/35659
+
+commit 452201923d
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jan 5 08:34:09 2020 +0000
+
+    [Automatic update for 2020-01-05]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: Ifec83e1a4c49c690e073f37ee2b16350e5bc8a64
+    Reviewed-on: https://code.wireshark.org/review/35653
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit b8adca8727
+Author: Erik de Jong <erikdejong@gmail.com>
+Date:   Sat Jan 4 22:02:11 2020 +0100
+
+    SIP: authorization validation segfault on missing fields
+    
+    Fix for segfaults caused by missing username and or realm fields when validating SIP authorization.
+    
+    Change-Id: Ia418f2a7f036ef706fcd6e4a766ea43098a6883d
+    Reviewed-on: https://code.wireshark.org/review/35644
+    Petri-Dish: Guy Harris <guy@alum.mit.edu>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 476e91289f12f7e8f44ed1e505ec3ba43fb94afd)
+    Reviewed-on: https://code.wireshark.org/review/35651
+
+commit 1c1f3d4514
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sat Jan 4 18:03:15 2020 -0800
+
+    Try this - it might be clearer.
+    
+    It doesn't contain the text "please do not report it", so nobody will
+    think it's a warning not to report the problem, it just says "don't call
+    it a crash".
+    
+    Change-Id: I9ce71e6a1cc37446a08e44da64c8411166844f75
+    Reviewed-on: https://code.wireshark.org/review/35649
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit c2b04d95697c7d93839b9e19dfbefc56becf2d02)
+    Reviewed-on: https://code.wireshark.org/review/35650
+
+commit 898dccfe0a
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sat Jan 4 17:53:20 2020 -0800
+
+    Rewrite the "please submit" message a bit.
+    
+    Say "as a bug" upfront, and clarify that "please do not report it as
+    such" doesn't mean "please do not report this at all" (even though we
+    say "please report this" earlier), it means "please do not report this
+    as being a crash".
+    
+    Change-Id: I2656c4c13e90fcf41d00a4b6ab3c2f2998f55fd6
+    Reviewed-on: https://code.wireshark.org/review/35647
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit fdd6d4008202eccb5a6361d1293fe4b56803c007)
+    Reviewed-on: https://code.wireshark.org/review/35648
+
+commit 8fe6d0ed5f
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Fri Jan 3 17:30:00 2020 +0000
+
+    Qt: Update translations.
+    
+    We added wireshark_es.ts in g2efde67740 / change 35634. Sync up with
+    Transifex by running `tools/update-tx`.
+    
+    Change-Id: I708a3c1f92d43ddec60c69bb2c4a7439b4947975
+    Reviewed-on: https://code.wireshark.org/review/35636
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 2efde67740
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Jan 1 13:28:11 2020 -0800
+
+    Qt: Add Spanish (es) translation assets.
+    
+    Add an initial "es" Qt translation file and an accompanying flag image.
+    The image came from
+    
+    https://en.wikipedia.org/wiki/File:Flag_of_Spain.svg
+    
+    and is in the public domain.
+    
+    (We already had a debian/po/es.po.)
+    
+    Change-Id: I5378ad2cbffb2267389fc8ae6af6d591071e0144
+    Reviewed-on: https://code.wireshark.org/review/35620
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    (cherry picked from commit d832145366fbbe2a8c2a18f741c6eed05ba7298c)
+    Reviewed-on: https://code.wireshark.org/review/35634
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 93fe231718
+Author: Jiří Engelthaler <EngyCZ@gmail.com>
+Date:   Fri Jan 3 12:21:22 2020 +0100
+
+    packet-iec104: Use pinfo->match_uint instead of port number from configuration
+    
+    Dissector port number is used to determine the direction.
+    It will not work with Decode As when port number from the configuration
+    is used. It is better to use the actual dissector port from pinfo->match_uint.
+    
+    Change-Id: I156728a66ed0cf0fe536da8d9ae958c8c4e0b361
+    Reviewed-on: https://code.wireshark.org/review/35632
+    Reviewed-by: Pascal Quantin <pascal@wireshark.org>
+    Petri-Dish: Pascal Quantin <pascal@wireshark.org>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    (cherry picked from commit 76dfe6004b7cc7e0c90b962a74cdc180bb0b4c7f)
+    Reviewed-on: https://code.wireshark.org/review/35633
+
+commit ddd19eea8b
+Author: Dario Lombardo <lomato@gmail.com>
+Date:   Sat Nov 30 23:49:20 2019 +0100
+
+    tipc: check message bundle size before using it.
+    
+    Bug: 16240
+    Change-Id: I3aaf32f6b2b0df1a809d318868cf5523a9158105
+    Reviewed-on: https://code.wireshark.org/review/35264
+    Petri-Dish: Dario Lombardo <lomato@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 4b673a14d01d7ae115f04dae1e777f71f7c51889)
+    Reviewed-on: https://code.wireshark.org/review/35629
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 1a65fc1d8b
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Jan 2 14:55:51 2020 -0800
+
+    make-manuf.py: Add "of" to the general terms list.
+    
+    Add "of" to the list of general terms to remove when shortening.
+    
+    Change-Id: Idbfea2d502a89d668ba2f170bf3450cfcbb91fe5
+    Reviewed-on: https://code.wireshark.org/review/35627
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    (cherry picked from commit 26215af4b64ef0c59a1fa562120d0293de2bb3b6)
+    Reviewed-on: https://code.wireshark.org/review/35628
+
+commit 57f8c4e12e
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Tue Dec 31 00:09:39 2019 +0100
+
+    BER: fix ber.error.bits_unknown display
+    
+    Before the changes done in v3.1.0rc0-431-gc2ac157ac0 and
+    v3.1.0rc0-458-g37b91eedd6 the expert info was only displayed
+    if at least 1 unknown bit was set to 1. Restore this behavior.
+    
+    Bug: 16301
+    Change-Id: I3bea0992d6727154ef07d40ac18a7b012d3c1da4
+    Reviewed-on: https://code.wireshark.org/review/35612
+    Petri-Dish: Pascal Quantin <pascal@wireshark.org>
+    Reviewed-by: Peter Wu <peter@lekensteyn.nl>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Pascal Quantin <pascal@wireshark.org>
+    (cherry picked from commit 11aef7c19bd3e38ea288745d5f5bc76d1e6a6890)
+    Reviewed-on: https://code.wireshark.org/review/35626
+
+commit 8997853274
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Fri Dec 20 09:27:36 2019 -0800
+
+    Lemon: Squelch an unused parameter warning.
+    
+    Fixes
+    
+    ... tools\lemon\lemon.c(1630,14): warning C4100: 'argc': unreferenced formal parameter ...
+    
+    Change-Id: I5cddbbed025e246ddebe9189edbe6fbeea883a7d
+    Reviewed-on: https://code.wireshark.org/review/35522
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    Petri-Dish: Gerald Combs <gerald@wireshark.org>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Graham Bloice <graham.bloice@trihedral.com>
+    (cherry picked from commit f0be7f27d862a5f460b398693fe4731e7ed87aa8)
+    Reviewed-on: https://code.wireshark.org/review/35623
+
+commit 867f435d95
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Mon Dec 30 20:21:54 2019 +0100
+
+    BGP: Correct Tunnel Encapsulation Attribute Sub-TLV length handling
+    
+    When Sub-TLV type >= 128 then the length field is 2 octets.
+    Get the correct Sub-TLV length and adjust offsets.
+    
+    This is a simplified version of change 35587 which does this and adds
+    enhancements for dissection of the various Sub-TLVs.
+    
+    Bug: 16294
+    Change-Id: I34f3b2d10159652c1b2f664b74831baadc616e27
+    Reviewed-on: https://code.wireshark.org/review/35609
+    Petri-Dish: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Reviewed-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Petri-Dish: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+
+commit df01c3b0c6
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Wed Jan 1 01:00:00 2020 +0100
+
+    Happy New Year 2020
+    
+    Change-Id: Ic569e499d40def9397203510a121ff17a495ba9a
+    Reviewed-on: https://code.wireshark.org/review/35616
+    Reviewed-by: Stig Bjørlykke <stig@bjorlykke.org>
+    (cherry picked from commit 5ba082d51db4af2d91f10f235739dc137369c70c)
+    Reviewed-on: https://code.wireshark.org/review/35617
+
+commit 1b8ed4071e
+Author: Peter Wu <peter@lekensteyn.nl>
+Date:   Sat Dec 21 15:54:46 2019 +0100
+
+    HTTP: Fix dissection of data following the HTTP Upgrade response
+    
+    When a HTTP response includes HTTP headers and a subset of data for the
+    subdissector in the same frame, be sure to skip the HTTP headers for
+    reassembly of the latter data. Otherwise the HTTP headers will be
+    misinterpreted as the subprotocol (for example, WebSocket).
+    
+    Bug: 16274
+    Change-Id: Ida6f6f2f7d0c463be2d498bfde5e8a9cd11a4b25
+    Reviewed-on: https://code.wireshark.org/review/35536
+    Petri-Dish: Peter Wu <peter@lekensteyn.nl>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Peter Wu <peter@lekensteyn.nl>
+    (cherry picked from commit e9014030fe2dc5926a7e7e8d9f29bf1ebcf6b6bd)
+    Reviewed-on: https://code.wireshark.org/review/35614
+
+commit a9335e1af1
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Dec 30 11:44:31 2019 -0800
+
+    Guides: Update some of the MaxMind text.
+    
+    Update the User's Guide to match MaxMind's upcoming database access
+    changes:
+    
+    https://blog.maxmind.com/2019/12/18/significant-changes-to-accessing-and-using-geolite2-databases/
+    
+    Add a Win64 link to the Developer's Guide.
+    
+    Change-Id: Iaaaaedeb81616f026c542c6f2d8559a3a0084f95
+    Reviewed-on: https://code.wireshark.org/review/35610
+    Reviewed-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+    (cherry picked from commit 6d5c7497853fed1e9f7210ca5a2f27f7dccfabb7)
+    Reviewed-on: https://code.wireshark.org/review/35611
+
+commit 0b5bb2324f
+Author: Pau Espin Pedrol <pespin@sysmocom.de>
+Date:   Mon Dec 30 19:53:45 2019 +0100
+
+    GSM A RR: Fix wrong description for Access Technologies Request presence field
+    
+    Reference: 3GPP TS 44.018 version 13.3.2 Release 13, section 10.5.2.16
+    
+    Change-Id: I813275d5fb3e87485b855770c97e566d6c2288ed
+    Reviewed-on: https://code.wireshark.org/review/35605
+    Reviewed-by: Pascal Quantin <pascal@wireshark.org>
+    Reviewed-on: https://code.wireshark.org/review/35606
+
+commit c25188eee6
+Author: Pau Espin Pedrol <pespin@sysmocom.de>
+Date:   Mon Dec 30 16:07:39 2019 +0100
+
+    GSM A RR: Fix typos in PS IR field
+    
+    Change-Id: I521633fe2533983e403eb694b544c377d4b3ae9f
+    Reviewed-on: https://code.wireshark.org/review/35597
+    Reviewed-by: Vadim Yanitskiy <axilirator@gmail.com>
+    Reviewed-by: Pascal Quantin <pascal@wireshark.org>
+    Reviewed-on: https://code.wireshark.org/review/35598
+
+commit 21e9d904cd
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Sun Dec 29 19:42:04 2019 +0100
+
+    netlink: Fix interface address presentation
+    
+    The interface addresses are in standard order, that means independant of
+    the perceived order of the host where the capture was made.
+    
+    Change-Id: Id226d49771f1862190a0e187ac00584c64bdd0a4
+    Reviewed-on: https://code.wireshark.org/review/35586
+    Reviewed-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Petri-Dish: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+
+commit b0ee68b786
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Dec 29 18:19:32 2019 +0000
+
+    make-manuf.py: Fix a shortening error.
+    
+    Handle cases where we might shorten a name (e.g. "ZAO") down to
+    nothing.
+    
+    Change-Id: I5ecb9592d2ecd8225d0ed459ef16885214af5da4
+    Reviewed-on: https://code.wireshark.org/review/35584
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    (cherry picked from commit 12550ef794927e2ddb4a196573958255131acee7)
+    Reviewed-on: https://code.wireshark.org/review/35585
+
+commit e3a00967eb
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Dec 29 08:33:51 2019 +0000
+
+    [Automatic update for 2019-12-29]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: Idc36746e266627839e431e65d22795ff54104516
+    Reviewed-on: https://code.wireshark.org/review/35581
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit c255a01a42
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sat Dec 28 12:06:00 2019 -0800
+
+    make-manuf.py: Handle more business types and other fixes.
+    
+    Move our business types and general terms to a list and add more. Only
+    convert all upper case names to title case. Remove double quotes when
+    shortening names.
+    
+    Change-Id: I31e9799986542270350b8c2436929f293de4e36c
+    Reviewed-on: https://code.wireshark.org/review/35577
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    (cherry picked from commit d02536de6285a437261657c54a75bff69c1634af)
+    Reviewed-on: https://code.wireshark.org/review/35579
+
+commit 6e1bca307a
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Fri Dec 27 11:41:46 2019 -0800
+
+    Qt: Use a neutral tone in an error message.
+    
+    Don't yell at the user.
+    
+    Change-Id: Ibedb0a1bf7ea13feeaf6fe4f2c78bd7f3d1e65b8
+    Reviewed-on: https://code.wireshark.org/review/35572
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    Petri-Dish: Gerald Combs <gerald@wireshark.org>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+    (cherry picked from commit 17492b8a6b21dad6295fcaf7800ceea2788c76a6)
+    Reviewed-on: https://code.wireshark.org/review/35573
+    Petri-Dish: Jaap Keuter <jaap.keuter@xs4all.nl>
+
+commit e21a44bd25
+Author: Richard Sharpe <realrichardsharpe@gmail.com>
+Date:   Thu Dec 26 22:49:01 2019 -0500
+
+    ieee802.11ax: Fix spelling mistakes in HE Capabilities Supported HE-MCS.
+    
+    Change-Id: Ifcf041eb70bd68564d326b94868a45efab86a71f
+    Reviewed-on: https://code.wireshark.org/review/35568
+    Reviewed-by: Richard Sharpe <realrichardsharpe@gmail.com>
+    Petri-Dish: Richard Sharpe <realrichardsharpe@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit fc54020d82c69f5facb23f5cff96d56109095e38)
+    Reviewed-on: https://code.wireshark.org/review/35569
+
+commit 45d7eeedb4
+Author: dennisschagt <dennisschagt@gmail.com>
+Date:   Wed Dec 25 13:40:27 2019 +0100
+
+    Qt: Create directories recursively
+    
+    Bug: 16143
+    Change-Id: Ibdd888157919315775637eb639158ea2e6cb26f0
+    Reviewed-on: https://code.wireshark.org/review/35561
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit a7a2787f328df1780b8f471b104229a2140bb8d6)
+    Reviewed-on: https://code.wireshark.org/review/35562
+
+commit 83e6c2890a
+Author: Tomasz Moń <desowin@gmail.com>
+Date:   Wed Dec 18 19:56:06 2019 +0100
+
+    USB CDC: Match subordinate interfaces with master
+    
+    CDC Data interfaces are linked with Communications and CDC Control
+    interfaces via Union Functional Descriptors. Store subordinate to master
+    interface connection during descriptor dissection and use that
+    information to determine if CDC Data is Ethernet or not.
+    
+    Bug: 14587
+    Change-Id: I442262186319969303af9ac3a7c17aad19cecab8
+    Reviewed-on: https://code.wireshark.org/review/35496
+    Petri-Dish: Tomasz Moń <desowin@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Pascal Quantin <pascal@wireshark.org>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit 87ef6cea3493dcc50af585cd62e679ebd1f3408e)
+    Reviewed-on: https://code.wireshark.org/review/35559
+    Reviewed-by: Tomasz Moń <desowin@gmail.com>
+
+commit 1835e758cb
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Dec 22 14:21:07 2019 -0800
+
+    Qt: Fix the Capture File Properties dropped format.
+    
+    Fixup the formatting for the "Dropped packets" portion of the Capture
+    File Properties dialog. Fix a couple of other issues flagged by clang.
+    
+    Change-Id: Ia1fad4bee37525a1a0cc25849abe34a0495f1ac8
+    Reviewed-on: https://code.wireshark.org/review/35552
+    Petri-Dish: Gerald Combs <gerald@wireshark.org>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    (cherry picked from commit 95507d1cb6220af5912950f5c16114cc0ea87879)
+    Reviewed-on: https://code.wireshark.org/review/35556
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+
+commit 59f25ae7cd
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Dec 22 08:33:57 2019 +0000
+
+    [Automatic update for 2019-12-22]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: Iea1ab1dab7c57392f7d88e78ba514f6478f92e69
+    Reviewed-on: https://code.wireshark.org/review/35547
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit bf2ec52417
+Author: Orgad Shaneh <orgad.shaneh@audiocodes.com>
+Date:   Fri Dec 20 07:57:04 2019 +0200
+
+    UI: Fix compilation with Qt 5.14
+    
+    Change-Id: I8adae4609ff2857cb12bc803839ebb2c6afbd264
+    Reviewed-on: https://code.wireshark.org/review/35517
+    Petri-Dish: Roland Knall <rknall@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    (cherry picked from commit 5b16da49100b7971eb9886b0d5753881c2fc7cf0)
+    Reviewed-on: https://code.wireshark.org/review/35542
+    Petri-Dish: Gerald Combs <gerald@wireshark.org>
+    Reviewed-by: Orgad Shaneh <orgads@gmail.com>
+
+commit 93317cfb88
+Author: Dario Lombardo <lomato@gmail.com>
+Date:   Sat Dec 21 18:24:58 2019 +0100
+
+    log3gpp: invert check with use of offset.
+    
+    n is used to address the buffers, but the check condition
+    follows its use. Fix the code by inverting the two of them
+    
+    Bug: 16283
+    Change-Id: I7cba868979982946f99cfe787a7b5f86d2db1b70
+    Reviewed-on: https://code.wireshark.org/review/35538
+    Petri-Dish: Dario Lombardo <lomato@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 76b18ef6973e50d4b2c51afbdf8e9dcae3dc2746)
+    Reviewed-on: https://code.wireshark.org/review/35540
+
+commit e0a8e2db17
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Fri Dec 20 12:52:33 2019 -0800
+
+    Expand the frequency range for the DMG PHY.
+    
+    Apparently, at least in some regulatory domains, the DMG PHY now goes
+    above 66 GHz or may do so in the future; the new/future top appears to
+    be 71 GHz.
+    
+    Change-Id: I1ee3f9cff177eed269ccc8318b5c952dbeb526ff
+    Reviewed-on: https://code.wireshark.org/review/35529
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 91ade7855b769b7405030dec46b2d57469557796)
+    Reviewed-on: https://code.wireshark.org/review/35530
+
+commit 1d39722918
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Fri Dec 20 11:33:39 2019 -0800
+
+    There's a macro to test for 802.11ad frequencies; use it.
+    
+    The range doesn't start at 60 GHz, it starts at 57 GHz; this fixes that,
+    and leaves it open to future fixes.
+    
+    Change-Id: I51d7188f50479bf542babe0f6677638e8a683314
+    Reviewed-on: https://code.wireshark.org/review/35524
+    Petri-Dish: Guy Harris <guy@alum.mit.edu>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 26657a5eab4b38c919d1511b821d065108877173)
+    Reviewed-on: https://code.wireshark.org/review/35526
+
+commit da4f0e457c
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Dec 19 11:55:47 2019 -0800
+
+    CMake: Create a DocBook stamp file for Visual Studio.
+    
+    Create user-guide.xml-stamp and developer-guide.xml-stamp when building
+    under Visual Studio. Fixes
+    
+    C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\MSBuild\Microsoft\VC\v160\Microsoft.CppCommon.targets(231,5): warning MSB8064: Custom build for item "C:\buildbot\builders\wireshark-master-32\windows-2019-x86\build\cmbuild\CMakeFiles\8721ce5c0a51a8e0d8e35fd55fbe2e6e\user-guide.hhp.rule" succeeded, but specified dependency "c:\buildbot\builders\wireshark-master-32\windows-2019-x86\build\cmbuild\docbook\user-guide.xml-stamp" does not exist. This may cause incremental build to work incorrectly. [C:\buildbot\builders\wireshark-master-32\windows-2019-x86\build\cmbuild\docbook\user_guide_chm.vcxproj]
+    
+    when building the user_guide_chm target.
+    
+    Change-Id: Ia224823841b4d3def3436f9f3a48b759694ffb37
+    Reviewed-on: https://code.wireshark.org/review/35509
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    Petri-Dish: Gerald Combs <gerald@wireshark.org>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 6094e9d3922601f6c2eeb892c9bf5b46ff58ff5f)
+    Reviewed-on: https://code.wireshark.org/review/35523
+
+commit cfc7b08584
+Author: Dario Lombardo <lomato@gmail.com>
+Date:   Thu Dec 19 11:43:26 2019 +0100
+
+    extcap: fix use-after-free bug.
+    
+    Regression introduced in g1cd1e36.
+    
+    Change-Id: I85775ef86d9325d4f5bf811a5f52925a2cf0d387
+    Reviewed-on: https://code.wireshark.org/review/35503
+    Petri-Dish: Tomasz Moń <desowin@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Tomasz Moń <desowin@gmail.com>
+    Reviewed-on: https://code.wireshark.org/review/35506
+    Petri-Dish: Dario Lombardo <lomato@gmail.com>
+    Reviewed-by: Dario Lombardo <lomato@gmail.com>
+
+commit 642a939d0a
+Author: Vadim Yanitskiy <axilirator@gmail.com>
+Date:   Thu Dec 19 14:09:07 2019 +0900
+
+    GSM A-bis/OML: fix: do not use tvb_get_ntohl() to fetch IPv4 address
+    
+    As per doc/README.dissector, the IPv4 addresses shall not be converted
+    to host byte order before being passed to proto_tree_add_ipv4(). Due
+    to this bug, the IPA Destination IP Address was displayed wrong.
+    
+    Change-Id: I2dd96590bbd736a8bfe05502d6803813838c6c59
+    Bug: 16282
+    Reviewed-on: https://code.wireshark.org/review/35501
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 88364fb2965e05c3eadb08a9b6a667c0a87313e3)
+    Reviewed-on: https://code.wireshark.org/review/35515
+
+commit cd79918dea
+Author: Matt Parker <matt.parker@poly.com>
+Date:   Thu Dec 19 13:27:40 2019 -0700
+
+    h264: fix label for frame_crop_right_offset
+    
+    Bug: 16285
+    Change-Id: Iddc7171467b161c16176ae527f80cc638bc529f1
+    Reviewed-on: https://code.wireshark.org/review/35510
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Petri-Dish: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Pascal Quantin <pascal@wireshark.org>
+    Reviewed-on: https://code.wireshark.org/review/35511
+
+commit 689d6eeaa1
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Dec 19 08:58:35 2019 -0800
+
+    macOS: Explicitly set our package root permissions.
+    
+    The pkgbuild man page doesn't really discuss file permissions[1], but it
+    appears that it simply preserves them. Make sure the ChmodBPF and
+    path_helper roots have the correct permssions before building their
+    respective installers.
+    
+    [1] The --ownership flag description mentions chmod but that appears to
+    be a typo.
+    
+    Bug: 16284
+    Change-Id: I5ef277539a5b2015394ae3e722ef4c176f9c243f
+    Reviewed-on: https://code.wireshark.org/review/35507
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    (cherry picked from commit 56a609028fa3c41951dec0ed25a1f413f2e0d615)
+    Reviewed-on: https://code.wireshark.org/review/35508
+
+commit b1e7ab5994
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Wed Dec 18 22:40:09 2019 +0100
+
+    Windows: upgrade Npcap to 0.9986
+    
+    Change-Id: I9ee3144416eb5564aa8974aeec0e33774edc7ed7
+    Reviewed-on: https://code.wireshark.org/review/35498
+    Reviewed-by: Pascal Quantin <pascal@wireshark.org>
+    Petri-Dish: Pascal Quantin <pascal@wireshark.org>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    (cherry picked from commit 5d342b01e3311d52dc6d84fc6c5381fd2004b142)
+    Reviewed-on: https://code.wireshark.org/review/35504
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+
+commit e0a75e7997
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Dec 18 14:08:08 2019 -0800
+
+    CMake: Fix a dependency.
+    
+    Fix the README.md / README.txt dependency.
+    
+    Change-Id: Ia659f02d3d75d5772a4dc1ca6b17816fd31807ec
+    Reviewed-on: https://code.wireshark.org/review/35499
+    Petri-Dish: Gerald Combs <gerald@wireshark.org>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 95b51d0e0a
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Dec 18 13:15:18 2019 -0800
+
+    3.2.0 → 3.2.1.
+    
+    Change-Id: I642852deedddcb38fbc1bc3c7812fb08da61d8c7
+    Reviewed-on: https://code.wireshark.org/review/35497
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
