@@ -17,8 +17,8 @@ It is used for troubleshooting, analysis, development and education.
 
 // The following vulnerabilities have been fixed:
 
-// * wssalink:2020-03[]
-// Foo dissector {crash,infinite loop}.
+* wssalink:2020-03[]
+Foo dissector {crash,infinite loop}.
 // wsbuglink:xxxxx[].
 // cveidlink:2019-xxxxx[].
 // Fixed in master: xxxxx
@@ -34,23 +34,6 @@ The following bugs have been fixed:
 //* Wireshark convinced you to switch seats on the plane while neglecting to tell you that its seat was noticeably moist.
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.6.15rc0..| grep ' Bug:' | awk '{print $2}' | sort -n -u ` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
 
-* Buildbot crash output: randpkt-2019-11-30-22633.pcap. wsbuglink:16240[].
-
-* Crash after closing the Edit Column widget. wsbuglink:16245[].
-
-* Some valid erf timestamps get confused for gzip magic header bytes and causes an error with file_seek. wsbuglink:16252[].
-
-* [UDS] When filtering the uds.rdbi.data_identifier field is interpreted as 1 byte whereas it consists of 2 bytes. wsbuglink:16256[].
-
-* DNS time to live field should be displayed as days/hours/minutes/seconds. wsbuglink:16263[].
-
-* LNet incorrectly displays Malformed Packet for RDMA Read Requests. wsbuglink:16269[].
-
-* 11ad packets get reported as 11n. wsbuglink:16272[].
-
-* MPLS : Label Stack Sub TLV decoded improperly. wsbuglink:16273[].
-
-* h264: SPS frame_crop_right_offset shown in UI as frame_crop_left_offset. wsbuglink:16285[].
 
 === New and Updated Features
 
@@ -69,14 +52,6 @@ There are no new protocols in this release.
 // Add one protocol per line between the -- delimiters.
 [commaize]
 --
-802.11 Radiotap
-DNS
-GSM A RR
-H264
-LNET
-MPLS Echo
-TIPC
-UDSG
 --
 
 === New and Updated Capture File Support
