@@ -448,10 +448,10 @@ direction and it’s less than the current acknowledgement number.
 
 Set when all of the following are true:
 
-- The segment size is zero.
-- The window size is non-zero and hasn’t changed.
-- The next expected sequence number and last-seen acknowledgment number are non-zero (i.e. the connection has been established).
-- SYN, FIN, and RST are not set.
+* The segment size is zero.
+* The window size is non-zero and hasn’t changed.
+* The next expected sequence number and last-seen acknowledgment number are non-zero (i.e. the connection has been established).
+* SYN, FIN, and RST are not set.
 
 // TCP_A_FAST_RETRANSMISSION
 [float]
@@ -459,12 +459,12 @@ Set when all of the following are true:
 
 Set when all of the following are true:
 
-- This is not a keepalive packet.
-- In the forward direction, the segment size is greater than zero or the SYN or FIN is set.
-- The next expected sequence number is greater than the current sequence number.
-- We have more than two duplicate ACKs in the reverse direction.
-- The current sequence number equals the next expected acknowledgement number.
-- We saw the last acknowledgement less than 20ms ago.
+* This is not a keepalive packet.
+* In the forward direction, the segment size is greater than zero or the SYN or FIN is set.
+* The next expected sequence number is greater than the current sequence number.
+* We have more than two duplicate ACKs in the reverse direction.
+* The current sequence number equals the next expected acknowledgement number.
+* We saw the last acknowledgement less than 20ms ago.
 
 Supersedes “Out-Of-Order”, “Spurious Retransmission”, and “Retransmission”.
 
@@ -485,12 +485,12 @@ Retransmission”, and “Retransmission”.
 
 Set when all of the following are true:
 
-- The segment size is zero.
-- The window size is non-zero and hasn’t changed.
-- The current sequence number is the same as the next expected sequence number.
-- The current acknowledgement number is the same as the last-seen acknowledgement number.
-- The most recently seen packet in the reverse direction was a keepalive.
-- The packet is not a SYN, FIN, or RST.
+* The segment size is zero.
+* The window size is non-zero and hasn’t changed.
+* The current sequence number is the same as the next expected sequence number.
+* The current acknowledgement number is the same as the last-seen acknowledgement number.
+* The most recently seen packet in the reverse direction was a keepalive.
+* The packet is not a SYN, FIN, or RST.
 
 Supersedes “Dup ACK” and “ZeroWindowProbeAck”.
 
@@ -500,11 +500,12 @@ Supersedes “Dup ACK” and “ZeroWindowProbeAck”.
 
 Set when all of the following are true:
 
-- This is not a keepalive packet.
-- In the forward direction, the segment length is greater than zero or the SYN or FIN is set.
-- The next expected sequence number is greater than the current sequence number.
-- The next expected sequence number and the next sequence number differ.
-- The last segment arrived within the calculated RTT (3ms by default).
+* This is not a keepalive packet.
+* In the forward direction, the segment length is greater than zero or the SYN or FIN is set.
+* The next expected sequence number is greater than the current sequence number.
+* The next expected sequence number and the next sequence number differ.
+* The last segment arrived within the Out-Of-Order RTT threshold.
+  The threshold is either the value shown in the “iRTT” (tcp.analysis.initial_rtt) field under “SEQ/ACK analysis” if it is present, or the default value of 3ms if it is not.
 
 Supersedes “Spurious Retransmission” and “Retransmission”.
 
@@ -527,11 +528,11 @@ Set when the current sequence number is greater than the next expected sequence 
 Checks for a retransmission based on analysis data in the reverse
 direction. Set when all of the following are true:
 
-- The SYN or FIN flag is set.
-- This is not a keepalive packet.
-- The segment length is greater than zero.
-- Data for this flow has been acknowledged. That is, the last-seen acknowledgement number has been set.
-- The next sequence number is less than or equal to the last-seen acknowledgement number.
+* The SYN or FIN flag is set.
+* This is not a keepalive packet.
+* The segment length is greater than zero.
+* Data for this flow has been acknowledged. That is, the last-seen acknowledgement number has been set.
+* The next sequence number is less than or equal to the last-seen acknowledgement number.
 
 Supersedes “Retransmission”.
 
@@ -541,9 +542,9 @@ Supersedes “Retransmission”.
 
 Set when all of the following are true:
 
-- This is not a keepalive packet.
-- In the forward direction, the segment length is greater than zero or the SYN or FIN flag is set.
-- The next expected sequence number is greater than the current sequence number.
+* This is not a keepalive packet.
+* In the forward direction, the segment length is greater than zero or the SYN or FIN flag is set.
+* The next expected sequence number is greater than the current sequence number.
 
 // TCP_A_WINDOW_FULL
 [float]
@@ -559,11 +560,11 @@ reverse direction.
 
 Set when the all of the following are true:
 
-- The segment size is zero.
-- The window size is non-zero and not equal to the last-seen window size.
-- The sequence number is equal to the next expected sequence number.
-- The acknowledgement number is equal to the last-seen acknowledgement number.
-- None of SYN, FIN, or RST are set.
+* The segment size is zero.
+* The window size is non-zero and not equal to the last-seen window size.
+* The sequence number is equal to the next expected sequence number.
+* The acknowledgement number is equal to the last-seen acknowledgement number.
+* None of SYN, FIN, or RST are set.
 
 // TCP_A_ZERO_WINDOW
 [float]
@@ -582,8 +583,8 @@ reverse direction was zero.
 If the single data byte from a Zero Window Probe is dropped by the receiver (not
 ACKed), then a subsequent segment should not be flagged as retransmission if all
 of the following conditions are true for that segment:
-- The segment size is larger than one.
-- The next expected sequence number is one less than the current sequence number.
+* The segment size is larger than one.
+* The next expected sequence number is one less than the current sequence number.
 
 This affects “Fast Retransmission”, “Out-Of-Order”, or “Retransmission”.
 
@@ -593,11 +594,11 @@ This affects “Fast Retransmission”, “Out-Of-Order”, or “Retransmission
 
 Set when the all of the following are true:
 
-- The segment size is zero.
-- The window size is zero.
-- The sequence number is equal to the next expected sequence number.
-- The acknowledgement number is equal to the last-seen acknowledgement number.
-- The last-seen packet in the reverse direction was a zero window probe.
+* The segment size is zero.
+* The window size is zero.
+* The sequence number is equal to the next expected sequence number.
+* The acknowledgement number is equal to the last-seen acknowledgement number.
+* The last-seen packet in the reverse direction was a zero window probe.
 
 Supersedes “TCP Dup ACK”.
 
