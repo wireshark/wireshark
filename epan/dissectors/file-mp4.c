@@ -43,6 +43,7 @@ static int proto_mp4 = -1;
 
 static gint ett_mp4 = -1;
 static gint ett_mp4_box = -1;
+static gint ett_mp4_full_box_flags = -1;
 
 static int hf_mp4_box_size = -1;
 static int hf_mp4_box_type_str = -1;
@@ -64,6 +65,10 @@ static int hf_mp4_mvhd_rate = -1;
 static int hf_mp4_mvhd_vol = -1;
 static int hf_mp4_mvhd_next_tid = -1;
 static int hf_mp4_mfhd_seq_num = -1;
+static int hf_mp4_tkhd_flags_enabled = -1;
+static int hf_mp4_tkhd_flags_in_movie = -1;
+static int hf_mp4_tkhd_flags_in_preview = -1;
+static int hf_mp4_tkhd_flags_size_is_aspect_ratio = -1;
 static int hf_mp4_tkhd_creat_time = -1;
 static int hf_mp4_tkhd_mod_time = -1;
 static int hf_mp4_tkhd_track_id = -1;
@@ -123,6 +128,11 @@ static expert_field ei_mp4_mvhd_next_tid_unknown = EI_INIT;
 #define BOX_TYPE_UDTA  MAKE_TYPE_VAL('u', 'd', 't', 'a')
 /* the box name is url + <space>, all names must be 4 characters long */
 #define BOX_TYPE_URL_  MAKE_TYPE_VAL('u', 'r', 'l', ' ')
+
+#define TKHD_FLAG_ENABLED              0x000001
+#define TKHD_FLAG_IN_MOVIE             0x000002
+#define TKHD_FLAG_IN_PREVIEW           0x000004
+#define TKHD_FLAG_SIZE_IS_ASPECT_RATIO 0x000008
 
 /* the location for this URL box is the same as in the upper-level movie box */
 #define ENTRY_FLAG_MOVIE 0x000001
@@ -269,6 +279,13 @@ dissect_mp4_tkhd_body(tvbuff_t *tvb, gint offset, gint len _U_,
     guint8   time_len;
     double   width, height;
     guint16  fract_dec;
+    static const int* flags[] = {
+        &hf_mp4_tkhd_flags_enabled,
+        &hf_mp4_tkhd_flags_in_movie,
+        &hf_mp4_tkhd_flags_in_preview,
+        &hf_mp4_tkhd_flags_size_is_aspect_ratio,
+        NULL
+    };
 
     offset_start = offset;
 
@@ -276,8 +293,8 @@ dissect_mp4_tkhd_body(tvbuff_t *tvb, gint offset, gint len _U_,
     proto_tree_add_item(tree, hf_mp4_full_box_ver,
             tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
-    proto_tree_add_item(tree, hf_mp4_full_box_flags,
-            tvb, offset, 3, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask(tree, tvb, offset, hf_mp4_full_box_flags,
+            ett_mp4_full_box_flags, flags, ENC_BIG_ENDIAN);
     offset += 3;
 
     time_len = (version==0) ? 4 : 8;
@@ -761,6 +778,18 @@ proto_register_mp4(void)
         { &hf_mp4_mfhd_seq_num,
             { "Sequence number", "mp4.mfhd.sequence_number", FT_UINT32,
                 BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_mp4_tkhd_flags_enabled,
+            { "Enabled", "mp4.tkhd.flags.enabled", FT_BOOLEAN,
+                24, NULL, TKHD_FLAG_ENABLED, NULL, HFILL } },
+        { &hf_mp4_tkhd_flags_in_movie,
+            { "In movie", "mp4.tkhd.flags.in_movie", FT_BOOLEAN,
+                24, NULL, TKHD_FLAG_IN_MOVIE, NULL, HFILL } },
+        { &hf_mp4_tkhd_flags_in_preview,
+            { "In preview", "mp4.tkhd.flags.in_preview", FT_BOOLEAN,
+                24, NULL, TKHD_FLAG_IN_PREVIEW, NULL, HFILL } },
+        { &hf_mp4_tkhd_flags_size_is_aspect_ratio,
+            { "Size is aspect ratio", "mp4.tkhd.flags.size_is_aspect_ratio", FT_BOOLEAN,
+                24, NULL, TKHD_FLAG_SIZE_IS_ASPECT_RATIO, NULL, HFILL } },
         { &hf_mp4_tkhd_creat_time,
             { "Creation time", "mp4.tkhd.creation_time", FT_UINT64,
                 BASE_CUSTOM, decode_mp4_time, 0, NULL, HFILL } },
@@ -795,7 +824,8 @@ proto_register_mp4(void)
 
     static gint *ett[] = {
         &ett_mp4,
-        &ett_mp4_box
+        &ett_mp4_box,
+        &ett_mp4_full_box_flags
     };
 
     static ei_register_info ei[] = {
