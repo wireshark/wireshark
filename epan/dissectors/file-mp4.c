@@ -49,7 +49,6 @@ static int hf_mp4_box_type_str = -1;
 static int hf_mp4_box_largesize = -1;
 static int hf_mp4_full_box_ver = -1;
 static int hf_mp4_full_box_flags = -1;
-static int hf_mp4_full_box_flags_media_data_location = -1;
 static int hf_mp4_ftyp_brand = -1;
 static int hf_mp4_ftyp_ver = -1;
 static int hf_mp4_ftyp_add_brand = -1;
@@ -78,6 +77,7 @@ static int hf_mp4_hdlr_type = -1;
 static int hf_mp4_hdlr_name = -1;
 static int hf_mp4_dref_entry_cnt = -1;
 static int hf_mp4_stsd_entry_cnt = -1;
+static int hf_mp4_url_flags_media_data_location = -1;
 
 static expert_field ei_mp4_box_too_large = EI_INIT;
 static expert_field ei_mp4_too_many_rec_lvls = EI_INIT;
@@ -184,6 +184,32 @@ make_fract(guint x)
 }
 
 static gint
+dissect_mp4_full_box(tvbuff_t *tvb, gint offset, proto_tree *tree,
+        const int **flags_fields, guint8 *version, guint32 *flags)
+{
+    if (version) {
+        *version = tvb_get_guint8(tvb, offset);
+    }
+    proto_tree_add_item(tree, hf_mp4_full_box_ver,
+            tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    if (flags) {
+        *flags = tvb_get_ntoh24(tvb, offset);
+    }
+    if (flags_fields) {
+        proto_tree_add_bitmask(tree, tvb, offset, hf_mp4_full_box_flags,
+                ett_mp4_full_box_flags, flags_fields, ENC_BIG_ENDIAN);
+    } else {
+        proto_tree_add_item(tree, hf_mp4_full_box_flags,
+                tvb, offset, 3, ENC_BIG_ENDIAN);
+    }
+    offset += 3;
+
+    return 1 + 3;
+}
+
+static gint
 dissect_mp4_mvhd_body(tvbuff_t *tvb, gint offset, gint len _U_,
         packet_info *pinfo, guint depth _U_, proto_tree *tree)
 {
@@ -197,13 +223,7 @@ dissect_mp4_mvhd_body(tvbuff_t *tvb, gint offset, gint len _U_,
 
     offset_start = offset;
 
-    version = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(tree, hf_mp4_full_box_ver,
-            tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset += 1;
-    proto_tree_add_item(tree, hf_mp4_full_box_flags,
-            tvb, offset, 3, ENC_BIG_ENDIAN);
-    offset += 3;
+    offset += dissect_mp4_full_box (tvb, offset, tree, NULL, &version, NULL);
 
     /*
      * MPEG-4 Part 14 (MP4) is based on QuickTime, so it uses the
@@ -258,12 +278,8 @@ dissect_mp4_mfhd_body(tvbuff_t *tvb, gint offset, gint len _U_,
     gint offset_start;
 
     offset_start = offset;
-    proto_tree_add_item(tree, hf_mp4_full_box_ver,
-            tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset += 1;
-    proto_tree_add_item(tree, hf_mp4_full_box_flags,
-            tvb, offset, 3, ENC_BIG_ENDIAN);
-    offset += 3;
+
+    offset += dissect_mp4_full_box (tvb, offset, tree, NULL, NULL, NULL);
 
     proto_tree_add_item(tree, hf_mp4_mfhd_seq_num,
             tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -292,13 +308,7 @@ dissect_mp4_tkhd_body(tvbuff_t *tvb, gint offset, gint len _U_,
 
     offset_start = offset;
 
-    version = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(tree, hf_mp4_full_box_ver,
-            tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset += 1;
-    proto_tree_add_bitmask(tree, tvb, offset, hf_mp4_full_box_flags,
-            ett_mp4_full_box_flags, flags, ENC_BIG_ENDIAN);
-    offset += 3;
+    offset += dissect_mp4_full_box (tvb, offset, tree, flags, &version, NULL);
 
     time_len = (version==0) ? 4 : 8;
     proto_tree_add_item(tree, hf_mp4_tkhd_creat_time,
@@ -407,13 +417,8 @@ dissect_mp4_hdlr_body(tvbuff_t *tvb, gint offset, gint len _U_,
 
     offset_start = offset;
 
-    proto_tree_add_item(tree, hf_mp4_full_box_ver,
-            tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += dissect_mp4_full_box (tvb, offset, tree, NULL, NULL, NULL);
     /* XXX - put up an expert info if version!=0 */
-    offset += 1;
-    proto_tree_add_item(tree, hf_mp4_full_box_flags,
-            tvb, offset, 3, ENC_BIG_ENDIAN);
-    offset += 3;
 
     offset += 4;   /* four reserved 0 bytes */
 
@@ -443,13 +448,8 @@ dissect_mp4_dref_body(tvbuff_t *tvb, gint offset, gint len _U_,
 
     offset_start = offset;
 
-    proto_tree_add_item(tree, hf_mp4_full_box_ver,
-            tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += dissect_mp4_full_box (tvb, offset, tree, NULL, NULL, NULL);
     /* XXX - put up an expert info if version!=0 */
-    offset += 1;
-    proto_tree_add_item(tree, hf_mp4_full_box_flags,
-            tvb, offset, 3, ENC_BIG_ENDIAN);
-    offset += 3;
 
     entry_cnt = tvb_get_ntohl(tvb, offset);
     proto_tree_add_item(tree, hf_mp4_dref_entry_cnt,
@@ -472,22 +472,15 @@ static gint
 dissect_mp4_url_body(tvbuff_t *tvb, gint offset, gint len,
         packet_info *pinfo _U_, guint depth _U_, proto_tree *tree)
 {
-#if 0
     guint32  flags;
-#endif
+    static const int* flags_fields[] = {
+        &hf_mp4_url_flags_media_data_location,
+        NULL
+    };
 
-    proto_tree_add_item(tree, hf_mp4_full_box_ver,
-            tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += dissect_mp4_full_box (tvb, offset, tree, flags_fields, NULL,
+            &flags);
     /* XXX - put up an expert info if version!=0 */
-    offset += 1;
-
-#if 0
-    flags = tvb_get_ntoh24(tvb, offset);
-#endif
-    proto_tree_add_item(tree, hf_mp4_full_box_flags,
-            tvb, offset, 3, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_mp4_full_box_flags_media_data_location, tvb, offset, 3, ENC_BIG_ENDIAN);
-    /*offset += 3;*/
 
 #if 0
     if (flags&ENTRY_FLAG_MOVIE) {
@@ -508,13 +501,8 @@ dissect_mp4_stsd_body(tvbuff_t *tvb, gint offset, gint len,
     guint32  entry_cnt, i;
     gint     ret;
 
-    proto_tree_add_item(tree, hf_mp4_full_box_ver,
-            tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += dissect_mp4_full_box (tvb, offset, tree, NULL, NULL, NULL);
     /* XXX - put up an expert info if version!=0 */
-    offset += 1;
-    proto_tree_add_item(tree, hf_mp4_full_box_flags,
-            tvb, offset, 3, ENC_BIG_ENDIAN);
-    offset += 3;
 
     entry_cnt = tvb_get_ntohl(tvb, offset);
     proto_tree_add_item(tree, hf_mp4_stsd_entry_cnt,
@@ -723,9 +711,6 @@ proto_register_mp4(void)
         { &hf_mp4_full_box_flags,
             { "Flags", "mp4.full_box.flags", FT_UINT24, BASE_HEX,
                 NULL, 0, NULL, HFILL } },
-        { &hf_mp4_full_box_flags_media_data_location,
-            { "Media data location is defined in the movie box", "mp4.full_box.flags.media_data_location", FT_BOOLEAN, 24,
-                NULL, ENTRY_FLAG_MOVIE, NULL, HFILL } },
         { &hf_mp4_ftyp_brand,
             { "Brand", "mp4.ftyp.brand", FT_STRING, BASE_NONE,
                 NULL, 0, NULL, HFILL } },
@@ -809,7 +794,10 @@ proto_register_mp4(void)
                 BASE_DEC, NULL, 0, NULL, HFILL } },
         { &hf_mp4_stsd_entry_cnt,
             { "Number of entries", "mp4.stsd.entry_count", FT_UINT32,
-                BASE_DEC, NULL, 0, NULL, HFILL } }
+                BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_mp4_url_flags_media_data_location,
+            { "Media data location is defined in the movie box", "mp4.url.flags.media_data_location", FT_BOOLEAN,
+                24, NULL, ENTRY_FLAG_MOVIE, NULL, HFILL } },
     };
 
     static gint *ett[] = {
