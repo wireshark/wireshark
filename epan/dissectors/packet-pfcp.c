@@ -752,6 +752,35 @@ static void dissect_pfcp_access_forwarding_action_information_1(tvbuff_t *tvb, p
 static void dissect_pfcp_access_forwarding_action_information_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
 static void dissect_pfcp_update_access_forwarding_action_information_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
 static void dissect_pfcp_update_access_forwarding_action_information_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+static void dissect_pfcp_user_plane_path_recovery_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+static void dissect_pfcp_pfcp_session_retention_information_within_pfcp_association_setup_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+static void dissect_ip_multicast_addressing_info_within_pfcp_session_establishment_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+static void dissect_pfcp_join_ip_multicast_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+static void dissect_pfcp_leave_ip_multicast_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+static void dissect_pfcp_created_bridge_info_for_tsc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+static void dissect_pfcp_port_management_information_for_tsc_ie_within_pfcp_session_modification_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+static void dissect_pfcp_port_management_information_for_tsc_ie_within_pfcp_session_modification_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+static void dissect_pfcp_port_management_information_for_tsc_ie_within_pfcp_session_report_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+static void dissect_pfcp_clock_drift_control_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+static void dissect_pfcp_clock_drift_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+static void dissect_pfcp_remove_srr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+static void dissect_pfcp_create_srr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+static void dissect_pfcp_update_srr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+static void dissect_pfcp_session_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+static void dissect_pfcp_access_availability_control_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+static void dissect_pfcp_access_availability_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+static void dissect_pfcp_provide_atsss_control_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+static void dissect_pfcp_atsss_control_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+static void dissect_pfcp_mptcp_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+static void dissect_pfcp_atsss_ll_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+static void dissect_pfcp_pmf_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+static void dissect_pfcp_ue_ip_address_pool_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+static void dissect_pfcp_gtp_u_path_qos_control_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+static void dissect_pfcp_gtp_u_path_qos_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+static void dissect_pfcp_qos_information_in_gtp_u_path_qos_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+static void dissect_pfcp_qos_monitoring_per_qos_flow_control_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+static void dissect_pfcp_qos_monitoring_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+
 
 static const true_false_string pfcp_id_predef_dynamic_tfs = {
     "Predefined by UP",
@@ -866,7 +895,6 @@ static value_string_ext pfcp_message_type_ext = VALUE_STRING_EXT_INIT(pfcp_messa
 #define PFCP_IE_ADDITIONAL_MONITORING_TIME       147
 #define PFCP_IE_EVENT_INFORMATION                148
 #define PFCP_IE_EVENT_REPORTING                  149
-
 #define PFCP_IE_CREATE_MAR                       165
 #define PFCP_IE_ACCESS_FORWARDING_ACTION_INORMATION_1 166
 #define PFCP_IE_ACCESS_FORWARDING_ACTION_INORMATION_2 167
@@ -874,6 +902,35 @@ static value_string_ext pfcp_message_type_ext = VALUE_STRING_EXT_INIT(pfcp_messa
 #define PFCP_IE_UPDATE_MAR                       169
 #define PFCP_IE_UPDATE_ACCESS_FORWARDING_ACTION_INORMATION_1 175
 #define PFCP_IE_UPDATE_ACCESS_FORWARDING_ACTION_INORMATION_2 176
+#define PFCP_IE_PFCP_SESSION_RETENTION_INFORMATION_WITHIN_ASSOCIATION_SETUP_REQUEST 183
+#define PFCP_IE_USER_PLANE_PATH_RECOVERY_REPORT  187
+#define PFCP_IE_IP_MULTICAST_ADDRESSING_INFO     189
+#define PFCP_IE_JOIN_IP_MULTICAST_INFORMATION    189
+#define PFCP_IE_LEAVE_IP_MULTICAST_INFORMATION   190
+#define PFCP_IE_CREATED_BRIDGE_INFO_FOR_TSC      195
+#define PFCP_IE_Port_MANAGEMENT_INFORMATION_FOR_TSC_WITHIN_PCFP_SESSION_MODIFICATION_REQUEST    199
+#define PFCP_IE_Port_MANAGEMENT_INFORMATION_FOR_TSC_WITHIN_PCFP_SESSION_MODIFICATION_RESPONSE   200
+#define PFCP_IE_Port_MANAGEMENT_INFORMATION_FOR_TSC_WITHIN_PCFP_SESSION_REPORT_REQUEST          201
+#define PFCP_IE_CLOCK_DRIFT_CONTROL_INFORMATION  203
+#define PFCP_IE_CLOCK_DRIFT_REPORT               205
+#define PFCP_IE_REMOVE_SRR                       211
+#define PFCP_IE_CREATE_SRR                       212
+#define PFCP_IE_UPDATE_SRR                       213
+#define PFCP_IE_SESSION_REPORT                   214
+#define PFCP_IE_ACCESS_AVAILABILITY_CONTROL_INFORMATION 216
+#define PFCP_IE_ACCESS_AVAILABILITY_REPORT       218
+#define PFCP_IE_PROVICE_ATSSS_CONTROL_INFORMATION 220
+#define PFCP_IE_ATSSS_CONTROl_PARAMETERS         221
+#define PFCP_IE_MPTCP_PARAMETERS                 225
+#define PFCP_IE_ATSSS_LL_PARAMETERS              226
+#define PFCP_IE_PMF_PARAMETERS                   227
+#define PFCP_IE_UE_IP_ADDRESS_POOL_INFORMATION   233
+#define PFCP_IE_GTP_U_PATH_QOS_CONTROL_INFORMATION 238
+#define PFCP_IE_GTP_U_PATH_QOS_REPORT            239
+#define PFCP_IE_QOS_INFORMATION_IN_GTP_U_PATH_QOS_REPORT 240
+#define PFCP_IE_QOS_MONITORING_PER_QOS_FLOW_CONTROL_INFORMATION 242
+#define PFCP_IE_QOS_MONITORING_REPORT            247
+
 
 static const value_string pfcp_ie_type[] = {
 
@@ -1054,7 +1111,74 @@ static const value_string pfcp_ie_type[] = {
     { 179, "Packet Replication and Detection Carry-On Information"},/* Extendable / Clause 8.2.130 */
     { 180, "SMF Set ID"},                                           /* Extendable / Clause 8.2.131 */
     { 181, "Quota Validity Time"},                                  /* Extendable / Clause 8.2.132 */
-    //182 to 32767 Spare. For future use.
+    { 182, "Number of Reports"},                                    /* Fixed / Clause 8.2.133 */
+    { 183, "PFCP Session Retention Information (within PFCP Association Setup Request)"}, /* Extendable / Table 7.4.4.1-2 */
+    { 184, "PFCPASRsp-Flags"},                                      /* Extendable / Clause 8.2.134 */
+    { 185, "CP PFCP Entity IP Address"},                            /* Extendable / Clause 8.2.135 */
+    { 186, "PFCPSEReq-Flags"},                                      /* Extendable / Clause 8.2.136 */
+    { 187, "User Plane Path Recovery Report"},                      /* Extendable / Table 7.4.5.1.3-1 */
+    { 188, "IP Multicast Addressing Info within PFCP Session Establishment Request"}, /* Extendable / Clause 7.5.2.2-4 */
+    { 189, "Join IP Multicast Information IE within Usage Report"}, /* Extendable / Table 7.5.8.3-4 */
+    { 190, "Leave IP Multicast Information IE within Usage Report"},/* Extendable / Table 7.5.8.3-5 */
+    { 191, "IP Multicast Address"},                                 /* Extendable / Clause 8.2.137 */
+    { 192, "Source IP Address"},                                    /* Extendable / Clause 8.2.138 */
+    { 193, "Packet Rate Status"},                                   /* Extendable / Clause 8.2.139 */
+    { 194, "Create Bridge Info for TSC"},                           /* Extendable / Clause 8.2.140 */
+    { 195, "Created Bridge Info for TSC"},                          /* Extendable / Table 7.5.3.6-1 */
+    { 196, "DS-TT Port Number"},                                    /* Fixed Length / Clause 8.2.141 */
+    { 197, "NW-TT Port Number"},                                    /* Fixed Length / Clause 8.2.142 */
+    { 198, "TSN Bridge ID"},                                        /* Extendable / Clause 8.2.143 */
+    { 199, "Port Management Information for TSC IE within PFCP Session Modification Request"}, /* Extendable / Table 7.5.4.18-1 */
+    { 200, "Port Management Information for TSC IE within PFCP Session Modification Response"}, /* Extendable / Table 7.5.5.3-1 */
+    { 201, "Port Management Information for TSC IE within PFCP Session Report Request"}, /* Extendable / Table 7.5.8.5-1 */
+    { 202, "Port Management Information Container"},                /* Variable Length / Clause 8.2.144 */
+    { 203, "Clock Drift Control Information"},                      /* Extendable / Table 7.4.4.1.2-1 */
+    { 204, "Requested Clock Drift Information"},                    /* Extendable / Clause 8.2.145 */
+    { 205, "Clock Drift Report"},                                   /* Extendable / Table 7.4.5.1.4-1 */
+    { 206, "TSN Domain Number"},                                    /* Extendable / Clause 8.2.146 */
+    { 207, "Time Offset Threshold"},                                /* Extendable / Clause 8.2.147 */
+    { 208, "Cumulative rateRatio Threshold"},                       /* Extendable / Clause 8.2.148 */
+    { 209, "Time Offset Measurement"},                              /* Extendable / Clause 8.2.149 */
+    { 210, "Cumulative rateRatio Measurement"},                     /* Extendable / Clause 8.2.150 */
+    { 211, "Remove SRR"},                                           /* Extendable/ Table 7.5.4.19-1 */
+    { 212, "Create SRR"},                                           /* Extendable/ Table 7.5.2.9-1 */
+    { 213, "Update SRR"},                                           /* Extendable/ Table 7.5.4.21-1 */
+    { 214, "Session Report"},                                       /* Extendable / Table 7.5.8.7-1 */
+    { 215, "SRR ID"},                                               /* Extendable / Clause 8.2.151 */
+    { 216, "Access Availability Control Information"},              /* Extendable / Table 7.5.2.9-2 */
+    { 217, "Requested Access Availability Information"},            /* Extendable / Clause 8.2.152 */
+    { 218, "Access Availability Report"},                           /* Extendable / Table 7.5.8.6-2 */
+    { 219, "Access Availability Information"},                      /* Extendable / Clause 8.2.153 */
+    { 220, "Provide ATSSS Control Information"},                    /* Extendable / Table 7.5.2.10-1 */
+    { 221, "ATSSS Control Parameters"},                             /* Extendable / Table 7.5.3.7-1 */
+    { 222, "MPTCP Control Information"},                            /* Extendable / Clause 8.2.154 */
+    { 223, "ATSSS-LL Control Information"},                         /* Extendable / Clause 8.2.155 */
+    { 224, "PMF Control Information"},                              /* Extendable / Clause 8.2.156 */
+    { 225, "MPTCP Parameters"},                                     /* Extendable / Table 7.5.3.7-2 */
+    { 226, "ATSSS-LL Parameters"},                                  /* Extendable / Table 7.5.3.7-3 */
+    { 227, "PMF Parameters"},                                       /* Extendable / Table 7.5.3.7-4 */
+    { 228, "MPTCP Address Information"},                            /* Extendable / Clause 8.2.157 */
+    { 229, "UE Link-Specific IP Address"},                          /* Extendable / Clause 8.2.158 */
+    { 230, "PMF Address Information"},                              /* Extendable / Clause 8.2.159 */
+    { 231, "ATSSS-LL Information"},                                 /* Extendable / Clause 8.2.160 */
+    { 232, "Data Network Access Identifier"},                       /* Variable Length / Clause 8.2.161 */
+    { 233, "UE IP address Pool Information"},                       /* Extendable / Table 7.4.4.1-3 */
+    { 234, "Average Packet Delay"},                                 /* Extendable / Clause 8.2.162 */
+    { 235, "Minimum Packet Delay"},                                 /* Extendable / Clause 8.2.163 */
+    { 236, "Maximum Packet Delay"},                                 /* Extendable / Clause 8.2.164 */
+    { 237, "QoS Report Trigger"},                                   /* Extendable / Clause 8.2.165 */
+    { 238, "GTP-U Path QoS Control Information"},                   /* Extendable / Table 7.4.4.1.3-1 */
+    { 239, "GTP-U Path QoS Report (PFCP Node Report Request)"},     /* Extendable / Table 7.4.5.1.5-1 */
+    { 240, "QoS Information in GTP-U Path QoS Report"},             /* Extendable / Table 7.4.5.1.6-1 */
+    { 241, "GTP-U Path Interface Type"},                            /* Extendable / Clause 8.2.166 */
+    { 242, "QoS Monitoring per QoS flow Control Information"},      /* Extendable / Table 7.5.2.9-3 */
+    { 243, "Requested QoS Monitoring"},                             /* Extendable / Clause 8.2.167 */
+    { 244, "Reporting Frequency"},                                  /* Extendable / Clause 8.2.168 */
+    { 245, "Packet Delay Thresholds"},                              /* Extendable / Clause 8.2.169 */
+    { 246, "Minimum Wait Time"},                                    /* Extendable / Clause 8.2.170 */
+    { 247, "QoS Monitoring Report"},                                /* Extendable / Table 7.5.8.6-3 */
+    { 248, "QoS Monitoring Measurement"},                           /* Extendable / Clause 8.2.171 */
+    //249 to 32767 Spare. For future use.
     //32768 to 65535 Vendor-specific IEs.
     {0, NULL}
 };
@@ -5520,7 +5644,7 @@ dissect_pfcp_apn_dnn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, pr
      * The content of the APN/DNN field shall be the full APN/DNN with both the
      * APN/DNN Network Identifier and APN/DNN Operator Identifier
      */
-     /* NOTE:	The APN/DNN field is not encoded as a dotted string as commonly used in documentation. */
+     /* NOTE: The APN/DNN field is not encoded as a dotted string as commonly used in documentation. */
 
     const guint8* string_value;
     proto_tree_add_item_ret_string(tree, hf_pfcp_apn_dnn, tvb, offset, length, ENC_ASCII | ENC_NA, wmem_packet_scope(), &string_value);
@@ -5919,6 +6043,357 @@ dissect_pfcp_quota_validity_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     }
 }
 
+/*
+ * 8.2.133   Number of Reports
+ */
+static void
+dissect_pfcp_number_of_reports(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.134   PFCPASRsp-Flags
+ */
+static void
+dissect_pfcp_pfcpasrsp_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.135   CP PFCP Entity IP Address
+ */
+static void
+dissect_pfcp_cp_pfcp_entity_ip_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.136   PFCPSEReq-Flags
+ */
+static void
+dissect_pfcp_pfcpsereq_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.137   IP Multicast Address
+ */
+static void
+dissect_pfcp_ip_multicast_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.138   Source IP Address
+ */
+static void
+dissect_pfcp_source_ip_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.139   Packet Rate Status
+ */
+static void
+dissect_pfcp_packet_rate_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.140   Create Bridge Info for TSC
+ */
+static void
+dissect_pfcp_create_bridge_info_for_tsc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.141   DS-TT Port Number
+ */
+static void
+dissect_pfcp_ds_tt_port_number(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.142   NW-TT Port Number
+ */
+static void
+dissect_pfcp_nw_tt_port_number(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.143   TSN Bridge ID
+ */
+static void
+dissect_pfcp_tsn_bridge_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.144   Port Management Information Container
+ */
+static void
+dissect_pfcp_port_management_information_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.145   Requested Clock Drift Information
+ */
+static void
+dissect_pfcp_requested_clock_drift_control_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.146   TSN Domain Number
+ */
+static void
+dissect_pfcp_tsn_domain_number(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.147   Time Offset Threshold
+ */
+static void
+dissect_pfcp_time_offset_threshold(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.148   Cumulative rateRatio Threshold
+ */
+static void
+dissect_pfcp_cumulative_rate_ratio_threshold(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.149   Time Offset Measurement
+ */
+static void
+dissect_pfcp_time_offset_measurement(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.150   Cumulative rateRatio Measurement
+ */
+static void
+dissect_pfcp_cumulative_rate_ratio_measurement(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.151   SRR ID
+ */
+static void
+dissect_pfcp_srr_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.152   Requested Access Availability Information
+ */
+static void
+dissect_pfcp_requested_access_availability_control_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.153   Access Availability Information
+ */
+static void
+dissect_pfcp_access_availability_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.154   MPTCP Control Information
+ */
+static void
+dissect_pfcp_mptcp_control_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.155   ATSSS-LL Control Information
+ */
+static void
+dissect_pfcp_atsss_ll_control_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.156   PMF Control Information
+ */
+static void
+dissect_pfcp_pmf_control_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.157   MPTCP Address Information
+ */
+static void
+dissect_pfcp_mptcp_address_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.158   UE Link-Specific IP Address
+ */
+static void
+dissect_pfcp_ue_link_specific_ip_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.159   PMF Address Information
+ */
+static void
+dissect_pfcp_pmf_address_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.160   ATSSS-LL Information
+ */
+static void
+dissect_pfcp_atsss_ll_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.161   Data Network Access Identifier
+ */
+static void
+dissect_pfcp_data_network_access_identifier(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.162   Average Packet Delay
+ */
+static void
+dissect_pfcp_average_packet_delay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.163   Minimum Packet Delay
+ */
+static void
+dissect_pfcp_minimum_packet_delay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.164   Maximum Packet Delay
+ */
+static void
+dissect_pfcp_maximum_packet_delay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.165   QoS Report Trigger
+ */
+static void
+dissect_pfcp_qos_report_trigger(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.166   GTP-U Path Interface Type
+ */
+static void
+dissect_pfcp_gtp_u_path_interface_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.167   Requested QoS Monitoring
+ */
+static void
+dissect_pfcp_requested_qos_monitoring(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.168   Reporting Frequency
+ */
+static void
+dissect_pfcp_reporting_frequency(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.169   Packet Delay Thresholds
+ */
+static void
+dissect_pfcp_packet_delay_thresholds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.170   Minimum Wait Time
+ */
+static void
+dissect_pfcp_minimum_wait_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.171   QoS Monitoring Measurement
+ */
+static void
+dissect_pfcp_qos_monitoring_measurement(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
 /* Array of functions to dissect IEs
 * (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 */
@@ -6109,7 +6584,75 @@ static const pfcp_ie_t pfcp_ies[] = {
 /*    179 */    { dissect_pfcp_packet_replication_and_detection_carry_on_information }, /* Packet Replication and Detection Carry-On Information     Extendable / Clause 8.2.130  */
 /*    180 */    { dissect_pfcp_smf_set_id },                                    /* SMF Set ID                                      Extendable / Clause 8.2.131  */
 /*    181 */    { dissect_pfcp_quota_validity_time },                           /* Quota Validity Time                             Extendable / Clause 8.2.132  */
-//182 to 32767 Spare. For future use.
+/*    182 */    { dissect_pfcp_number_of_reports },                             /* Number of Reports                               Fixed / Clause 8.2.133  */
+/*    183 */    { dissect_pfcp_pfcp_session_retention_information_within_pfcp_association_setup_request }, /* PFCP Session Retention Information (within PFCP Association Setup Request)  Extendable / Table 7.4.4.1-2  */
+/*    184 */    { dissect_pfcp_pfcpasrsp_flags },                               /* PFCPASRsp-Flags                                 Extendable / Clause 8.2.134  */
+/*    185 */    { dissect_pfcp_cp_pfcp_entity_ip_address },                     /* CP PFCP Entity IP Address                       Extendable / Clause 8.2.135  */
+/*    186 */    { dissect_pfcp_pfcpsereq_flags },                               /* PFCPSEReq-Flags                                 Extendable / Clause 8.2.136  */
+/*    187 */    { dissect_pfcp_user_plane_path_recovery_report },               /* User Plane Path Recovery Report                 Extendable / Table 7.4.5.1.3-1  */
+/*    188 */    { dissect_ip_multicast_addressing_info_within_pfcp_session_establishment_request }, /* IP Multicast Addressing Info within PFCP Session Establishment Request  Extendable / Clause 7.5.2.2-4  */
+/*    189 */    { dissect_pfcp_join_ip_multicast_information },                 /* Join IP Multicast Information IE within Usage Report    Extendable / Table 7.5.8.3-4  */
+/*    190 */    { dissect_pfcp_leave_ip_multicast_information },                /* Leave IP Multicast Information IE within Usage Report   Extendable / Table 7.5.8.3-5  */
+/*    191 */    { dissect_pfcp_ip_multicast_address },                          /* IP Multicast Address                            Extendable / Clause 8.2.137  */
+/*    192 */    { dissect_pfcp_source_ip_address },                             /* Source IP Address                               Extendable / Clause 8.2.138  */
+/*    193 */    { dissect_pfcp_packet_rate_status },                            /* Packet Rate Status                              Extendable / Clause 8.2.139  */
+/*    194 */    { dissect_pfcp_create_bridge_info_for_tsc },                    /* Create Bridge Info for TSC                      Extendable / Clause 8.2.140  */
+/*    195 */    { dissect_pfcp_created_bridge_info_for_tsc },                   /* Created Bridge Info for TSC                     Extendable / Table 7.5.3.6-1  */
+/*    196 */    { dissect_pfcp_ds_tt_port_number },                             /* DS-TT Port Number                               Fixed Length / Clause 8.2.141  */
+/*    197 */    { dissect_pfcp_nw_tt_port_number },                             /* NW-TT Port Number                               Fixed Length / Clause 8.2.142  */
+/*    198 */    { dissect_pfcp_tsn_bridge_id },                                 /* TSN Bridge ID                                   Extendable / Clause 8.2.143  */
+/*    199 */    { dissect_pfcp_port_management_information_for_tsc_ie_within_pfcp_session_modification_request }, /* Port Management Information for TSC IE within PFCP Session Modification Request  Extendable / Table 7.5.4.18-1  */
+/*    200 */    { dissect_pfcp_port_management_information_for_tsc_ie_within_pfcp_session_modification_response }, /* Port Management Information for TSC IE within PFCP Session Modification Response Extendable / Table 7.5.5.3-1  */
+/*    201 */    { dissect_pfcp_port_management_information_for_tsc_ie_within_pfcp_session_report_request }, /* Port Management Information for TSC IE within PFCP Session Report Request    Extendable / Table 7.5.8.5-1  */
+/*    202 */    { dissect_pfcp_port_management_information_container },         /* Port Management Information Container           Variable Length / Clause 8.2.144  */
+/*    203 */    { dissect_pfcp_clock_drift_control_information },               /* Clock Drift Control Information                 Extendable / Table 7.4.4.1.2-1  */
+/*    204 */    { dissect_pfcp_requested_clock_drift_control_information },     /* Requested Clock Drift Information               Extendable / Clause 8.2.145  */
+/*    205 */    { dissect_pfcp_clock_drift_report },                            /* Clock Drift Report                              Extendable / Table 7.4.5.1.4-1  */
+/*    206 */    { dissect_pfcp_tsn_domain_number  },                            /* TSN Domain Number                               Extendable / Clause 8.2.146  */
+/*    207 */    { dissect_pfcp_time_offset_threshold },                         /* Time Offset Threshold                           Extendable / Clause 8.2.147  */
+/*    208 */    { dissect_pfcp_cumulative_rate_ratio_threshold },               /* Cumulative rateRatio Threshold                  Extendable / Clause 8.2.148  */
+/*    209 */    { dissect_pfcp_time_offset_measurement },                       /* Time Offset Measurement                         Extendable / Clause 8.2.149  */
+/*    210 */    { dissect_pfcp_cumulative_rate_ratio_measurement },             /* Cumulative rateRatio Measurement                Extendable / Clause 8.2.150  */
+/*    211 */    { dissect_pfcp_remove_srr },                                    /* Remove SRR                                      Extendable/ Table 7.5.4.19-1  */
+/*    212 */    { dissect_pfcp_create_srr },                                    /* Create SRR                                      Extendable/ Table 7.5.2.9-1  */
+/*    213 */    { dissect_pfcp_update_srr },                                    /* Update SRR                                      Extendable/ Table 7.5.4.21-1  */
+/*    214 */    { dissect_pfcp_session_report },                                /* Session Report                                  Extendable / Table 7.5.8.7-1  */
+/*    215 */    { dissect_pfcp_srr_id },                                        /* SRR ID                                          Extendable / Clause 8.2.151  */
+/*    216 */    { dissect_pfcp_access_availability_control_information },       /* Access Availability Control Information         Extendable / Table 7.5.2.9-2  */
+/*    217 */    { dissect_pfcp_requested_access_availability_control_information }, /* Requested Access Availability Information       Extendable / Clause 8.2.152  */
+/*    218 */    { dissect_pfcp_access_availability_report },                    /* Access Availability Report                      Extendable / Table 7.5.8.6-2  */
+/*    219 */    { dissect_pfcp_access_availability_information },               /* Access Availability Information                 Extendable / Clause 8.2.153  */
+/*    220 */    { dissect_pfcp_provide_atsss_control_information },             /* Provide ATSSS Control Information               Extendable / Table 7.5.2.10-1  */
+/*    221 */    { dissect_pfcp_atsss_control_parameters },                      /* ATSSS Control Parameters                        Extendable / Table 7.5.3.7-1  */
+/*    222 */    { dissect_pfcp_mptcp_control_information },                     /* MPTCP Control Information                       Extendable / Clause 8.2.154  */
+/*    223 */    { dissect_pfcp_atsss_ll_control_information },                  /* ATSSS-LL Control Information                    Extendable / Clause 8.2.155  */
+/*    224 */    { dissect_pfcp_pmf_control_information },                       /* PMF Control Information                         Extendable / Clause 8.2.156  */
+/*    225 */    { dissect_pfcp_mptcp_parameters },                              /* MPTCP Parameters                                Extendable / Table 7.5.3.7-2  */
+/*    226 */    { dissect_pfcp_atsss_ll_parameters },                           /* ATSSS-LL Parameters                             Extendable / Table 7.5.3.7-3  */
+/*    227 */    { dissect_pfcp_pmf_parameters },                                /* PMF Parameters                                  Extendable / Table 7.5.3.7-4  */
+/*    228 */    { dissect_pfcp_mptcp_address_information },                     /* MPTCP Address Information                       Extendable / Clause 8.2.157  */
+/*    229 */    { dissect_pfcp_ue_link_specific_ip_address },                   /* UE Link-Specific IP Address                     Extendable / Clause 8.2.158  */
+/*    230 */    { dissect_pfcp_pmf_address_information },                       /* PMF Address Information                         Extendable / Clause 8.2.159  */
+/*    231 */    { dissect_pfcp_atsss_ll_information },                          /* ATSSS-LL Information                            Extendable / Clause 8.2.160  */
+/*    232 */    { dissect_pfcp_data_network_access_identifier },                /* Data Network Access Identifier                  Variable Length / Clause 8.2.161  */
+/*    233 */    { dissect_pfcp_ue_ip_address_pool_information },                /* UE IP address Pool Information                  Extendable / Table 7.4.4.1-3  */
+/*    234 */    { dissect_pfcp_average_packet_delay },                          /* Average Packet Delay                            Extendable / Clause 8.2.162  */
+/*    235 */    { dissect_pfcp_minimum_packet_delay },                          /* Minimum Packet Delay                            Extendable / Clause 8.2.163  */
+/*    236 */    { dissect_pfcp_maximum_packet_delay },                          /* Maximum Packet Delay                            Extendable / Clause 8.2.164  */
+/*    237 */    { dissect_pfcp_qos_report_trigger },                            /* QoS Report Trigger                              Extendable / Clause 8.2.165  */
+/*    238 */    { dissect_pfcp_gtp_u_path_qos_control_information },            /* GTP-U Path QoS Control Information              Extendable / Table 7.4.4.1.3-1  */
+/*    239 */    { dissect_pfcp_gtp_u_path_qos_report },                         /* GTP-U Path QoS Report (PFCP Node Report Request)    Extendable / Table 7.4.5.1.5-1  */
+/*    240 */    { dissect_pfcp_qos_information_in_gtp_u_path_qos_report },      /* QoS Information in GTP-U Path QoS Report        Extendable / Table 7.4.5.1.6-1  */
+/*    241 */    { dissect_pfcp_gtp_u_path_interface_type },                     /* GTP-U Path Interface Type                       Extendable / Clause 8.2.166  */
+/*    242 */    { dissect_pfcp_qos_monitoring_per_qos_flow_control_information }, /* QoS Monitoring per QoS flow Control Information Extendable / Table 7.5.2.9-3  */
+/*    243 */    { dissect_pfcp_requested_qos_monitoring },                      /* Requested QoS Monitoring                        Extendable / Clause 8.2.167  */
+/*    244 */    { dissect_pfcp_reporting_frequency },                           /* Reporting Frequency                             Extendable / Clause 8.2.168  */
+/*    245 */    { dissect_pfcp_packet_delay_thresholds },                       /* Packet Delay Thresholds                         Extendable / Clause 8.2.169  */
+/*    246 */    { dissect_pfcp_minimum_wait_time },                             /* Minimum Wait Time                               Extendable / Clause 8.2.170  */
+/*    247 */    { dissect_pfcp_qos_monitoring_report },                         /* QoS Monitoring Report                           Extendable / Table 7.5.8.6-3  */
+/*    248 */    { dissect_pfcp_qos_monitoring_measurement },                    /* QoS Monitoring Measurement                      Extendable / Clause 8.2.171  */
+
+//249 to 32767 Spare. For future use.
 //32768 to 65535 Vendor-specific IEs.
     { NULL },                                                        /* End of List */
 };
@@ -6579,6 +7122,174 @@ static void
 dissect_pfcp_update_access_forwarding_action_information_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
     dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_UPDATE_ACCESS_FORWARDING_ACTION_INORMATION_2], args);
+}
+
+static void
+dissect_pfcp_pfcp_session_retention_information_within_pfcp_association_setup_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_PFCP_SESSION_RETENTION_INFORMATION_WITHIN_ASSOCIATION_SETUP_REQUEST], args);
+}
+
+static void
+dissect_pfcp_user_plane_path_recovery_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_USER_PLANE_PATH_RECOVERY_REPORT], args);
+}
+
+static void
+dissect_ip_multicast_addressing_info_within_pfcp_session_establishment_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_IP_MULTICAST_ADDRESSING_INFO], args);
+}
+
+static void
+dissect_pfcp_join_ip_multicast_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_JOIN_IP_MULTICAST_INFORMATION], args);
+}
+
+static void
+dissect_pfcp_leave_ip_multicast_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_LEAVE_IP_MULTICAST_INFORMATION], args);
+}
+
+static void
+dissect_pfcp_created_bridge_info_for_tsc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_CREATED_BRIDGE_INFO_FOR_TSC], args);
+}
+
+static void
+dissect_pfcp_port_management_information_for_tsc_ie_within_pfcp_session_modification_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_Port_MANAGEMENT_INFORMATION_FOR_TSC_WITHIN_PCFP_SESSION_MODIFICATION_REQUEST], args);
+}
+
+static void
+dissect_pfcp_port_management_information_for_tsc_ie_within_pfcp_session_modification_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_Port_MANAGEMENT_INFORMATION_FOR_TSC_WITHIN_PCFP_SESSION_MODIFICATION_RESPONSE], args);
+}
+
+static void
+dissect_pfcp_port_management_information_for_tsc_ie_within_pfcp_session_report_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_Port_MANAGEMENT_INFORMATION_FOR_TSC_WITHIN_PCFP_SESSION_REPORT_REQUEST], args);
+}
+
+static void
+dissect_pfcp_clock_drift_control_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_CLOCK_DRIFT_CONTROL_INFORMATION], args);
+}
+
+static void
+dissect_pfcp_clock_drift_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_CLOCK_DRIFT_REPORT], args);
+}
+
+static void
+dissect_pfcp_remove_srr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_REMOVE_SRR], args);
+}
+
+static void
+dissect_pfcp_create_srr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_CREATE_SRR], args);
+}
+
+static void
+dissect_pfcp_update_srr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_UPDATE_SRR], args);
+}
+
+static void
+dissect_pfcp_session_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_SESSION_REPORT], args);
+}
+
+static void
+dissect_pfcp_access_availability_control_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_ACCESS_AVAILABILITY_CONTROL_INFORMATION], args);
+}
+
+static void
+dissect_pfcp_access_availability_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_ACCESS_AVAILABILITY_REPORT], args);
+}
+
+static void
+dissect_pfcp_provide_atsss_control_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_PROVICE_ATSSS_CONTROL_INFORMATION], args);
+}
+
+static void
+dissect_pfcp_atsss_control_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_ATSSS_CONTROl_PARAMETERS], args);
+}
+
+static void
+dissect_pfcp_mptcp_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_MPTCP_PARAMETERS], args);
+}
+
+static void
+dissect_pfcp_atsss_ll_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_ATSSS_LL_PARAMETERS], args);
+}
+
+static void
+dissect_pfcp_pmf_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_PMF_PARAMETERS], args);
+}
+
+static void
+dissect_pfcp_ue_ip_address_pool_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_UE_IP_ADDRESS_POOL_INFORMATION], args);
+}
+
+static void
+dissect_pfcp_gtp_u_path_qos_control_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_GTP_U_PATH_QOS_CONTROL_INFORMATION], args);
+}
+
+static void
+dissect_pfcp_gtp_u_path_qos_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_GTP_U_PATH_QOS_REPORT], args);
+}
+
+static void
+dissect_pfcp_qos_information_in_gtp_u_path_qos_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_QOS_INFORMATION_IN_GTP_U_PATH_QOS_REPORT], args);
+}
+
+static void
+dissect_pfcp_qos_monitoring_per_qos_flow_control_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_QOS_MONITORING_PER_QOS_FLOW_CONTROL_INFORMATION], args);
+}
+
+static void
+dissect_pfcp_qos_monitoring_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_QOS_MONITORING_REPORT], args);
 }
 
 static void
