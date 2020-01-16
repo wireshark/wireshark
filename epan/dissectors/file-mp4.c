@@ -22,6 +22,7 @@
 #include <math.h>
 
 #include <epan/packet.h>
+#include <epan/to_str.h>
 #include <epan/expert.h>
 
 #define MAKE_TYPE_VAL(a, b, c, d)   ((a)<<24 | (b)<<16 | (c)<<8 | (d))
@@ -683,6 +684,19 @@ dissect_mp4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     return offset;
 }
 
+static void
+decode_mp4_time(gchar *result, guint64 time)
+{
+    /* Seconds between January 1st, 1904 and January 1st, 1970. */
+    static const guint64 UNIX_EPOCH_DIFF_SECONDS = 2082844800;
+    gchar *utc_time;
+
+    utc_time = abs_time_secs_to_str (NULL, time - UNIX_EPOCH_DIFF_SECONDS,
+            ABSOLUTE_TIME_UTC, TRUE);
+    g_snprintf(result, ITEM_LABEL_LENGTH, "%s (%lu)", utc_time, time);
+    wmem_free(NULL, utc_time);
+}
+
 void
 proto_register_mp4(void)
 {
@@ -725,10 +739,10 @@ proto_register_mp4(void)
                 BASE_DEC, NULL, 0, NULL, HFILL } },
         { &hf_mp4_mvhd_creat_time,
             { "Creation time", "mp4.mvhd.creation_time", FT_UINT64,
-                BASE_DEC, NULL, 0, NULL, HFILL } },
+                BASE_CUSTOM, decode_mp4_time, 0, NULL, HFILL } },
         { &hf_mp4_mvhd_mod_time,
             { "Modification time", "mp4.mvhd.modification_time", FT_UINT64,
-                BASE_DEC, NULL, 0, NULL, HFILL } },
+                BASE_CUSTOM, decode_mp4_time, 0, NULL, HFILL } },
         { &hf_mp4_mvhd_timescale,
             { "Timescale", "mp4.mvhd.timescale", FT_UINT32,
                 BASE_DEC, NULL, 0, NULL, HFILL } },
@@ -749,10 +763,10 @@ proto_register_mp4(void)
                 BASE_DEC, NULL, 0, NULL, HFILL } },
         { &hf_mp4_tkhd_creat_time,
             { "Creation time", "mp4.tkhd.creation_time", FT_UINT64,
-                BASE_DEC, NULL, 0, NULL, HFILL } },
+                BASE_CUSTOM, decode_mp4_time, 0, NULL, HFILL } },
         { &hf_mp4_tkhd_mod_time,
             { "Modification time", "mp4.tkhd.modification_time", FT_UINT64,
-                BASE_DEC, NULL, 0, NULL, HFILL } },
+                BASE_CUSTOM, decode_mp4_time, 0, NULL, HFILL } },
         { &hf_mp4_tkhd_track_id,
             { "Track ID", "mp4.tkhd.track_id", FT_UINT32,
                 BASE_DEC, NULL, 0, NULL, HFILL } },
