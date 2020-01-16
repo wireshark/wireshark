@@ -60,17 +60,6 @@ your goal.  Setting up the permanent addition is somewhat more involved.
 
 3.1 Custom extension
 
-Go to the plugins directory and copy the Custom.m4.example and
-Custom.make.example files to files of the same name but without the ".example"
-suffix.  Now you have two Custom files ready for building a plugin with the
-name "foo".  Replace the name if you so require.
-
-If you want to add the plugin to your own Windows installer add a text
-file named custom_plugins.txt to the packaging/nsis directory, with a
-"File" statement for NSIS:
-
-File "${STAGING_DIR}\plugins\${VERSION_MAJOR}.${VERSION_MINOR}\epan\foo.dll"
-
 For CMake builds, either pass the custom plugin dir on the CMake generation
 step command line:
 
@@ -86,11 +75,16 @@ and re-run the CMake generation step.
 
 To build the plugin, run your normal Wireshark build step.
 
+If you want to add the plugin to your own Windows installer add a text
+file named custom_plugins.txt to the packaging/nsis directory, with a
+"File" statement for NSIS:
+
+File "${STAGING_DIR}\plugins\${VERSION_MAJOR}.${VERSION_MINOR}\epan\foo.dll"
+
 3.2 Permanent addition
 
 In order to be able to permanently add a plugin take the following steps.
 You will need to change the following files:
-	configure.ac
 	CMakeLists.txt
 	packaging/nsis/wireshark.nsi
 
@@ -140,12 +134,12 @@ and should not require configuration.
 
 Plugins make some aspects of development easier and some harder.
 
-The first thing is that you'll have to run autogen.sh and configure once
-more to setup your build environment.
+The first thing is that you'll have to run cmake once more to setup your
+build environment.
 
 The good news is that if you are working on a single plugin then you will
 find recompiling the plugin MUCH faster than recompiling a dissector and
-then linking it back into Wireshark. Use "make -C plugins" to compile just
+then linking it back into Wireshark. Use "make plugins" to compile just
 your plugins.
 
 The bad news is that Wireshark will not use the plugins unless the plugins
@@ -158,7 +152,7 @@ Another way to deal with this problem is to set up a working root for
 wireshark, say in $HOME/build/root and build wireshark to install
 there
 
-./configure --prefix=${HOME}/build/root && make install
+cmake -D CMAKE_INSTALL_PREFIX=${HOME}/build/root && make install
 
 then subsequent rebuilds/installs of your plugin can be accomplished
 by going to the plugins/foo directory and running
