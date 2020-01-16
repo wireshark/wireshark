@@ -44,6 +44,7 @@ static gint ett_mp4 = -1;
 static gint ett_mp4_box = -1;
 static gint ett_mp4_full_box_flags = -1;
 static gint ett_mp4_stts_entry = -1;
+static gint ett_mp4_ctts_entry = -1;
 
 static int hf_mp4_box_size = -1;
 static int hf_mp4_box_type_str = -1;
@@ -82,6 +83,9 @@ static int hf_mp4_url_flags_media_data_location = -1;
 static int hf_mp4_stts_entry_cnt = -1;
 static int hf_mp4_stts_sample_count = -1;
 static int hf_mp4_stts_sample_delta = -1;
+static int hf_mp4_ctts_sample_count = -1;
+static int hf_mp4_ctts_sample_offset_signed = -1;
+static int hf_mp4_ctts_sample_offset_unsigned = -1;
 
 static expert_field ei_mp4_box_too_large = EI_INIT;
 static expert_field ei_mp4_too_many_rec_lvls = EI_INIT;
@@ -571,6 +575,49 @@ dissect_mp4_stts_body(tvbuff_t *tvb, gint offset, gint len,
     return len;
 }
 
+static gint
+dissect_mp4_ctts_body(tvbuff_t *tvb, gint offset, gint len,
+        packet_info *pinfo _U_, guint depth _U_, proto_tree *tree)
+{
+    guint8 version;
+    guint32 entry_cnt;
+    int sample_offset_hf;
+    guint i;
+
+    offset += dissect_mp4_full_box (tvb, offset, tree, NULL, &version, NULL);
+
+    proto_tree_add_item_ret_uint(tree, hf_mp4_stts_entry_cnt,
+            tvb, offset, 4, ENC_BIG_ENDIAN, &entry_cnt);
+    offset += 4;
+
+    sample_offset_hf = (version==1) ? hf_mp4_ctts_sample_offset_signed :
+            hf_mp4_ctts_sample_offset_unsigned;
+
+    for (i=0; i<entry_cnt; i++) {
+        proto_tree *subtree;
+        proto_item *subtree_item;
+        guint32 sample_count;
+        guint32 sample_delta;
+
+        subtree = proto_tree_add_subtree_format(tree, tvb, offset, 2 * 4,
+                ett_mp4_ctts_entry, &subtree_item, "Entry %u:", i + 1);
+
+        proto_tree_add_item_ret_uint(subtree, hf_mp4_ctts_sample_count,
+                tvb, offset, 4, ENC_BIG_ENDIAN, &sample_count);
+        offset += 4;
+
+        proto_tree_add_item_ret_uint(subtree, sample_offset_hf,
+                tvb, offset, 4, ENC_BIG_ENDIAN, &sample_delta);
+        offset += 4;
+
+        proto_item_append_text(subtree_item,
+                " Sample count: %u, Sample offset: %d",
+                sample_count, sample_delta);
+    }
+
+    return len;
+}
+
 /* dissect a box, return its (standard or extended) length or 0 for error
    depth is the recursion level of the parent box */
 static gint
@@ -671,6 +718,9 @@ dissect_mp4_box(guint32 parent_box_type _U_, guint depth,
             break;
         case BOX_TYPE_STTS:
             dissect_mp4_stts_body(tvb, offset, body_size, pinfo, depth, box_tree);
+            break;
+        case BOX_TYPE_CTTS:
+            dissect_mp4_ctts_body(tvb, offset, body_size, pinfo, depth, box_tree);
             break;
         case BOX_TYPE_MOOV:
         case BOX_TYPE_MOOF:
@@ -851,13 +901,23 @@ proto_register_mp4(void)
         { &hf_mp4_stts_sample_delta,
             { "Sample delta", "mp4.stts.sample_delta", FT_UINT32,
                 BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_mp4_ctts_sample_count,
+            { "Sample count", "mp4.ctts.sample_count", FT_UINT32,
+                BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_mp4_ctts_sample_offset_signed,
+            { "Sample count", "mp4.ctts.sample_offset", FT_INT32,
+                BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_mp4_ctts_sample_offset_unsigned,
+            { "Sample count", "mp4.ctts.sample_offset", FT_UINT32,
+                BASE_DEC, NULL, 0, NULL, HFILL } },
     };
 
     static gint *ett[] = {
         &ett_mp4,
         &ett_mp4_box,
         &ett_mp4_full_box_flags,
-        &ett_mp4_stts_entry
+        &ett_mp4_stts_entry,
+        &ett_mp4_ctts_entry,
     };
 
     static ei_register_info ei[] = {
