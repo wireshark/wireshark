@@ -19,7 +19,7 @@
 
 #include <QFile>
 #include <QTextStream>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QDir>
 #include <QMimeData>
 
@@ -73,18 +73,17 @@ void FilterListModel::reload()
         return;
 
     QTextStream in(&file);
-    QRegExp rx("\\s*\\\"(.*)\\\"\\s(.*)");
+    QRegularExpression rx("\\s*\\\"(.*?)\\\"\\s(.*)");
     while (!in.atEnd())
     {
         QString line = in.readLine().trimmed();
         if (line.startsWith("#") || line.indexOf("\"") <= -1)
             continue;
 
-        rx.indexIn(line);
-        QStringList groups = rx.capturedTexts();
-        if (groups.count() != 3)
-            continue;
-        addFilter(groups.at(1), groups.at(2));
+        QRegularExpressionMatch match = rx.match(line);
+        if (match.hasMatch()) {
+            addFilter(match.captured(1), match.captured(2));
+        }
     }
 }
 
