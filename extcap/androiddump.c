@@ -438,13 +438,13 @@ static struct extcap_dumper extcap_dumper_open(char *fifo, int encap) {
     pcap = pcap_open_dead_with_tstamp_precision(encap, PACKET_LENGTH, PCAP_TSTAMP_PRECISION_NANO);
     extcap_dumper.dumper.pcap = pcap_dump_open(pcap, fifo);
     if (!extcap_dumper.dumper.pcap) {
-        g_warning("Can't open %s for saving packets: %s", pcap_geterr(pcap));
+        g_warning("Can't open %s for saving packets: %s", fifo, pcap_geterr(pcap));
         pcap_close(pcap);
         exit(EXIT_CODE_CANNOT_SAVE_LIBPCAP_DUMP);
     }
     extcap_dumper.encap = encap;
     if (pcap_dump_flush(extcap_dumper.dumper.pcap) == -1) {
-        g_warning("Write to %s failed: %s", g_strerror(errno));
+        g_warning("Write to %s failed: %s", fifo, g_strerror(errno));
     }
 #else
     wtap_dump_params params = WTAP_DUMP_PARAMS_INIT;
@@ -480,7 +480,7 @@ static gboolean extcap_dumper_dump(struct extcap_dumper extcap_dumper,
 
     pcap_dump((u_char *) extcap_dumper.dumper.pcap, &pcap_header, buffer);
     if (pcap_dump_flush(extcap_dumper.dumper.pcap) == -1) {
-        g_warning("Write to %s failed: %s", g_strerror(errno));
+        g_warning("Write to %s failed: %s", fifo, g_strerror(errno));
     }
 #else
     int                 err = 0;
