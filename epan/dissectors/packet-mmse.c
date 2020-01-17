@@ -389,6 +389,9 @@ static const value_string vals_message_status[] = {
 };
 
 static const value_string vals_retrieve_status[] = {
+    /* MMS 1.1 */
+    { 0x80, "Ok" },
+
     /*
      * Transient errors
      */
