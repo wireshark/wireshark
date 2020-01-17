@@ -12805,7 +12805,7 @@ proto_register_amqp(void)
             NULL, HFILL}},
         {&hf_amqp_method_basic_nack_multiple, {
             "Multiple", "amqp.method.arguments.multiple",
-            FT_BOOLEAN, 8, NULL, 0x01,
+            FT_BOOLEAN, 8, NULL, 0x02,
             NULL, HFILL}},
         {&hf_amqp_method_basic_nack_requeue, {
             "Requeue", "amqp.method.arguments.requeue",
