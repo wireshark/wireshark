@@ -2405,6 +2405,7 @@ endif()
 
 if(BUILD_tfshark)
 	set(tfshark_LIBS
+		m
 		ui
 		wiretap
 		epan
