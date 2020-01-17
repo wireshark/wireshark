@@ -489,6 +489,11 @@ void MainStatusBar::showProfileMenu(const QPoint &global_pos, Qt::MouseButton bu
 
         QAction * pa = Q_NULLPTR;
         QString name = idx.data().toString();
+
+        // An ampersand in the menu item's text sets Alt+F as a shortcut for this menu.
+        // Use "&&" to get a real ampersand in the menu bar.
+        name.replace('&', "&&");
+
         if (idx.data(ProfileModel::DATA_IS_DEFAULT).toBool())
         {
             pa = profile_menu_.addAction(name);
