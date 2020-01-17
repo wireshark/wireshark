@@ -44,6 +44,7 @@ static dissector_handle_t lpp_handle;
 static dissector_handle_t nbifom_handle;
 static dissector_handle_t ipv4_handle;
 static dissector_handle_t ipv6_handle;
+static dissector_handle_t non_ip_data_handle;
 
 /* Forward declaration */
 static void disect_nas_eps_esm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
@@ -411,7 +412,19 @@ static expert_field ei_nas_eps_missing_mandatory_elemen = EI_INIT;
 /* Global variables */
 static gboolean g_nas_eps_dissect_plain = FALSE;
 static gboolean g_nas_eps_null_decipher = TRUE;
-static gboolean g_nas_eps_user_data_container_as_ip = TRUE;
+enum {
+    DECODE_USER_DATA_AS_NONE,
+    DECODE_USER_DATA_AS_IP,
+    DECODE_USER_DATA_AS_NON_IP
+};
+static const enum_val_t nas_eps_user_data_container_as_vals[] = {
+    {"none", "None", DECODE_USER_DATA_AS_NONE},
+    {"ip", "IP", DECODE_USER_DATA_AS_IP},
+    {"non_ip","Non IP", DECODE_USER_DATA_AS_NON_IP},
+    {NULL, NULL, -1}
+};
+static gint g_nas_eps_decode_user_data_container_as = DECODE_USER_DATA_AS_NONE;
+static const gchar *g_nas_eps_non_ip_data_dissector = "";
 
 /* Table 9.8.1: Message types for EPS mobility management
  *  0   1   -   -   -   -   -   -       EPS mobility management messages
@@ -3676,21 +3689,24 @@ de_esm_user_data_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     proto_item *it;
 
     it = proto_tree_add_item(tree, hf_nas_eps_esm_user_data_cont, tvb, offset, len, ENC_NA);
-    if (g_nas_eps_user_data_container_as_ip) {
+    if (g_nas_eps_decode_user_data_container_as != DECODE_USER_DATA_AS_NONE) {
         proto_tree *subtree;
         tvbuff_t *user_data_cont_tvb;
         volatile dissector_handle_t handle;
-        guint8 first_byte;
 
         subtree = proto_item_add_subtree(it, ett_nas_eps_esm_user_data_cont);
         user_data_cont_tvb = tvb_new_subset_length_caplen(tvb, offset, len, len);
-        first_byte = tvb_get_guint8(user_data_cont_tvb, 0);
-        if (first_byte >= 0x45 && first_byte <= 0x4f && len > 20)
-            handle = ipv4_handle;
-        else if ((first_byte & 0xf0) == 0x60 && len > 40)
-            handle = ipv6_handle;
-        else
-            handle = NULL;
+        if (g_nas_eps_decode_user_data_container_as == DECODE_USER_DATA_AS_IP) {
+            guint8 first_byte = tvb_get_guint8(user_data_cont_tvb, 0);
+            if (first_byte >= 0x45 && first_byte <= 0x4f && len > 20)
+                handle = ipv4_handle;
+            else if ((first_byte & 0xf0) == 0x60 && len > 40)
+                handle = ipv6_handle;
+            else
+                handle = NULL;
+        } else {
+            handle = non_ip_data_handle;
+        }
         if (handle) {
             col_append_str(pinfo->cinfo, COL_PROTOCOL, "/");
             col_set_fence(pinfo->cinfo, COL_PROTOCOL);
@@ -8321,7 +8337,7 @@ proto_register_nas_eps(void)
     register_dissector("nas-eps_plain", dissect_nas_eps_plain, proto_nas_eps);
 
     /* Register configuration options to always dissect as plain messages */
-    nas_eps_module = prefs_register_protocol(proto_nas_eps, NULL);
+    nas_eps_module = prefs_register_protocol(proto_nas_eps, proto_reg_handoff_nas_eps);
 
     prefs_register_bool_preference(nas_eps_module,
                                    "dissect_plain",
@@ -8335,11 +8351,17 @@ proto_register_nas_eps(void)
                                    "This should work when the NAS ciphering algorithm is NULL (128-EEA0)",
                                    &g_nas_eps_null_decipher);
 
-    prefs_register_bool_preference(nas_eps_module,
-                                   "user_data_container_as_ip",
-                                   "Try to decode User Data Container content as IP",
+    prefs_register_enum_preference(nas_eps_module, "decode_user_data_container_as",
+                                   "Try to decode User Data Container content as",
                                    NULL,
-                                   &g_nas_eps_user_data_container_as_ip);
+                                   &g_nas_eps_decode_user_data_container_as,
+                                   nas_eps_user_data_container_as_vals, FALSE);
+
+    prefs_register_string_preference(nas_eps_module, "non_ip_data_dissector",
+                                     "Dissector name for non IP data", NULL,
+                                     &g_nas_eps_non_ip_data_dissector);
+
+    prefs_register_obsolete_preference(nas_eps_module, "user_data_container_as_ip");
 }
 
 /* Heuristic dissector looks for "nas-eps" string at packet start  */
@@ -8378,13 +8400,22 @@ static gboolean dissect_nas_eps_heur(tvbuff_t *tvb, packet_info *pinfo,
 void
 proto_reg_handoff_nas_eps(void)
 {
-    heur_dissector_add("udp", dissect_nas_eps_heur, "NAS-EPS over UDP", "nas_eps_udp", proto_nas_eps, HEURISTIC_DISABLE);
+    static gint initialized = FALSE;
 
-    gsm_a_dtap_handle = find_dissector_add_dependency("gsm_a_dtap", proto_nas_eps);
-    lpp_handle = find_dissector_add_dependency("lpp", proto_nas_eps);
-    nbifom_handle = find_dissector_add_dependency("nbifom", proto_nas_eps);
-    ipv4_handle = find_dissector_add_dependency("ip", proto_nas_eps);
-    ipv6_handle = find_dissector_add_dependency("ipv6", proto_nas_eps);
+    if (!initialized) {
+        heur_dissector_add("udp", dissect_nas_eps_heur, "NAS-EPS over UDP", "nas_eps_udp", proto_nas_eps, HEURISTIC_DISABLE);
+        gsm_a_dtap_handle = find_dissector_add_dependency("gsm_a_dtap", proto_nas_eps);
+        lpp_handle = find_dissector_add_dependency("lpp", proto_nas_eps);
+        nbifom_handle = find_dissector_add_dependency("nbifom", proto_nas_eps);
+        ipv4_handle = find_dissector_add_dependency("ip", proto_nas_eps);
+        ipv6_handle = find_dissector_add_dependency("ipv6", proto_nas_eps);
+        initialized = TRUE;
+    }
+    if (g_nas_eps_non_ip_data_dissector[0] != '\0') {
+        non_ip_data_handle = find_dissector(g_nas_eps_non_ip_data_dissector);
+    } else {
+        non_ip_data_handle = NULL;
+    }
 }
 
 /*
