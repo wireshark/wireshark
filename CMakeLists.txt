@@ -1087,7 +1087,6 @@ if(BUILD_wireshark)
 		Qt5LinguistTools
 		Qt5Multimedia
 		Qt5PrintSupport
-		Qt5Svg
 		Qt5Widgets
 	)
 	if(APPLE)
