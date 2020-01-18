@@ -553,7 +553,12 @@ void MainStatusBar::showProfileMenu(const QPoint &global_pos, Qt::MouseButton bu
                 profile_menu_.addSeparator();
                 separator_added = true;
             }
-            pa = profile_menu_.addAction(profile->name);
+
+            // Use "&&" to get a real ampersand in the menu bar.
+            QString name(profile->name);
+            name.replace('&', "&&");
+
+            pa = profile_menu_.addAction(name);
             if (strcmp(profile->name, profile_name) == 0) {
                 /* Current profile */
                 pa->setCheckable(true);
