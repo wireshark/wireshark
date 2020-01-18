@@ -1934,17 +1934,8 @@ void IOGraph::recalcGraphData(capture_file *cap_file, bool enable_scaling)
             ts += start_time_;
         }
         double val = getItemValue(i, cap_file);
-        // Should we show this value? Yes, if
-        // - It's for a line or bar graph
-        // - It's a scatter plot with a calculated value.
-        bool show_value = val != 0.0 || (graph_ && graph_->scatterStyle().shape() == QCPScatterStyle::ssNone);
-
-        if (val_units_ >= IOG_ITEM_UNIT_CALC_SUM) {
-            show_value = true;
-        }
 
         if (moving_avg_period_ > 0) {
-            show_value = true;
             if (i != 0) {
                 mavg_left++;
                 if (mavg_left > moving_avg_period_ / 2) {
@@ -1966,11 +1957,14 @@ void IOGraph::recalcGraphData(capture_file *cap_file, bool enable_scaling)
             }
         }
 
-        if (graph_ && show_value) {
-            graph_->addData(ts, val);
-        }
-        if (bars_) {
-            bars_->addData(ts, val);
+        if (hasItemToShow(i, val))
+        {
+            if (graph_) {
+                graph_->addData(ts, val);
+            }
+            if (bars_) {
+                bars_->addData(ts, val);
+            }
         }
 //        qDebug() << "=rgd i" << i << ts << val;
     }
@@ -2080,6 +2074,47 @@ void IOGraph::reloadValueUnitField()
     if (vu_field_.length() > 0) {
         setValueUnitField(vu_field_);
     }
+}
+
+// Check if a packet is available at the given interval (idx).
+bool IOGraph::hasItemToShow(int idx, double value) const
+{
+    g_assert(idx < max_io_items_);
+
+    bool result = false;
+
+    const io_graph_item_t *item = &items_[idx];
+
+    switch (val_units_) {
+    case IOG_ITEM_UNIT_PACKETS:
+    case IOG_ITEM_UNIT_BYTES:
+    case IOG_ITEM_UNIT_BITS:
+    case IOG_ITEM_UNIT_CALC_FRAMES:
+    case IOG_ITEM_UNIT_CALC_FIELDS:
+        if(value == 0.0 && (graph_ && graph_->scatterStyle().shape() != QCPScatterStyle::ssNone)) {
+            result = false;
+        }
+        else {
+            result = true;
+        }
+        break;
+
+    case IOG_ITEM_UNIT_CALC_SUM:
+    case IOG_ITEM_UNIT_CALC_MAX:
+    case IOG_ITEM_UNIT_CALC_MIN:
+    case IOG_ITEM_UNIT_CALC_AVERAGE:
+    case IOG_ITEM_UNIT_CALC_LOAD:
+        if (item->fields) {
+            result = true;
+        }
+        break;
+
+    default:
+        result = true;
+        break;
+    }
+
+    return result;
 }
 
 void IOGraph::setInterval(int interval)

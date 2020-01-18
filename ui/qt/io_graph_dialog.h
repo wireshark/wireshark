@@ -72,6 +72,7 @@ public:
     QCPBars *bars() { return bars_; }
     double startOffset();
     int packetFromTime(double ts);
+    bool hasItemToShow(int idx, double value) const;
     double getItemValue(int idx, const capture_file *cap_file) const;
     int maxInterval () const { return cur_idx_; }
     QString scaledValueUnit() const { return scaled_value_unit_; }
