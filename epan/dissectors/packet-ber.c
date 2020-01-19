@@ -1974,6 +1974,16 @@ proto_tree_add_debug_text(tree, "INTEGERnew dissect_ber_integer(%s) entered impl
             case FT_UINT64:
                 actx->created_item = proto_tree_add_uint64(tree, hf_id, tvb, offset-len, len, (guint64)val);
                 break;
+            case FT_BYTES:
+                /*
+                 * Some protocols have INTEGER fields that can store values
+                 * larger than 64 bits and therefore have to use FT_BYTES.
+                 * Values larger than 64 bits are handled above while smaller
+                 * values are handled here.
+                 */
+                actx->created_item = proto_tree_add_bytes_format(tree, hf_id, tvb, offset-len, len, NULL,
+                        "%s: 0x%s", hfi->name, tvb_bytes_to_str(wmem_packet_scope(), tvb, offset-len, len));
+                break;
             default:
                 DISSECTOR_ASSERT_NOT_REACHED();
             }
