@@ -3766,14 +3766,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>All packets</source>
-        <translation type="vanished">Alla paket</translation>
-    </message>
-    <message>
-        <source>TCP errors</source>
-        <translation type="vanished">TCP-fel</translation>
-    </message>
-    <message>
         <source>All Packets</source>
         <translation type="unfinished"></translation>
     </message>

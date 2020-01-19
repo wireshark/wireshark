@@ -3744,14 +3744,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>All packets</source>
-        <translation type="vanished">Всі пакети</translation>
-    </message>
-    <message>
-        <source>TCP errors</source>
-        <translation type="vanished">Помилки TCP</translation>
-    </message>
-    <message>
         <source>All Packets</source>
         <translation type="unfinished"></translation>
     </message>

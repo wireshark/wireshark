@@ -3803,20 +3803,12 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Pacchetti filtrati</translation>
     </message>
     <message>
-        <source>All packets</source>
-        <translation type="vanished">Tutti i pacchetti</translation>
-    </message>
-    <message>
-        <source>TCP errors</source>
-        <translation type="vanished">Errori TCP</translation>
-    </message>
-    <message>
         <source>All Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Tutti i pacchetti</translation>
     </message>
     <message>
         <source>TCP Errors</source>
-        <translation type="unfinished"></translation>
+        <translation>Errori TCP</translation>
     </message>
     <message>
         <source>Hover over the graph for details.</source>
@@ -5405,7 +5397,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Show column definition in column context menu</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la definizione della colonna nel menu contestuale delle colonne</translation>
     </message>
     <message>
         <source>Status Bar settings:</source>
