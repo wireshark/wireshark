@@ -4073,6 +4073,7 @@ menandmice-upg	4603/tcp	# Men & Mice Upgrade Agent
 irp		4604/tcp	# Identity Registration Protocol
 sixchat		4605/tcp	# Direct End to End Secure Chat Protocol
 ventoso		4621/udp	# Bidirectional single port remote radio VOIP and Control stream
+dots-signal	4646/tcp/udp	# Distributed Denial-of-Service Open Threat Signaling (DOTS) Signal Channel
 playsta2-app	4658/tcp/udp	# PlayStation2 App Port
 playsta2-lob	4659/tcp/udp	# PlayStation2 Lobby Port
 smaclmgr	4660/tcp/udp
@@ -6022,6 +6023,7 @@ filenet-obrok	32777/tcp/udp	# FileNet BPM CORBA
 mlsn		32801/tcp/udp	# Multiple Listing Service Network
 retp		32811/tcp	# Real Estate Transport Protocol
 idmgratm	32896/tcp/udp	# Attachmate ID Manager
+wg-endpt-comms	33000/tcp	# WatchGuard Endpoint Communications
 mysqlx		33060/tcp	# MySQL Database Extended Interface
 aurora-balaena	33123/tcp/udp	# Aurora (Balaena Ltd)
 diamondport	33331/tcp/udp	# DiamondCentral Interface

@@ -3785,14 +3785,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>All packets</source>
-        <translation type="vanished">所有分组</translation>
-    </message>
-    <message>
-        <source>TCP errors</source>
-        <translation type="vanished">TCP 错误</translation>
-    </message>
-    <message>
         <source>All Packets</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4356,7 +4348,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>No interfaces found</source>
-        <translation>没有找到接口</translation>
+        <translation type="vanished">没有找到接口</translation>
     </message>
     <message>
         <source>Wired</source>
@@ -4411,11 +4403,24 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>已禁用外部捕获接口。</translation>
     </message>
     <message>
-        <source>&lt;p&gt;Local interfaces are unavailable because no capture driver is installed.&lt;/p&gt;&lt;p&gt;You can fix this by installing &lt;a href=&quot;https://nmap.org/npcap/&quot;&gt;Npcap&lt;/a&gt; or &lt;a href=&quot;https://www.winpcap.org/install/default.htm&quot;&gt;WinPcap&lt;/a&gt;.&lt;/p&gt;</source>
+        <source>&lt;p&gt;Local interfaces are unavailable because no packet capture driver is installed.&lt;/p&gt;&lt;p&gt;You can fix this by installing &lt;a href=&quot;https://nmap.org/npcap/&quot;&gt;Npcap&lt;/a&gt; or &lt;a href=&quot;https://www.winpcap.org/install/default.htm&quot;&gt;WinPcap&lt;/a&gt;.&lt;/p&gt;</source>
+        <oldsource>&lt;p&gt;Local interfaces are unavailable because no capture driver is installed.&lt;/p&gt;&lt;p&gt;You can fix this by installing &lt;a href=&quot;https://nmap.org/npcap/&quot;&gt;Npcap&lt;/a&gt; or &lt;a href=&quot;https://www.winpcap.org/install/default.htm&quot;&gt;WinPcap&lt;/a&gt;.&lt;/p&gt;</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;p&gt;Local interfaces are unavailable due to insufficient permissions.&lt;/p&gt;&lt;p&gt;You can fix this by &lt;a href=&quot;file://%1&quot;&gt;installing ChmodBPF&lt;/a&gt;.&lt;/p&gt;</source>
+        <source>&lt;p&gt;Local interfaces are unavailable because the packet capture driver isn&apos;t loaded.&lt;/p&gt;&lt;p&gt;You can fix this by running &lt;pre&gt;net start npcap&lt;/pre&gt; if you have Npcap installed or &lt;pre&gt;net start npf&lt;/pre&gt; if you have WinPcap installed. Both commands must be run as Administrator.&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;You don&apos;t have permission to capture on local interfaces.&lt;/p&gt;&lt;p&gt;You can fix this by &lt;a href=&quot;file://%1&quot;&gt;installing ChmodBPF&lt;/a&gt;.&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>You don&apos;t have permission to capture on local interfaces.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No interfaces found.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10683,10 +10688,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>%1. Press &quot;G&quot; to go to packet %2</source>
-        <translation type="vanished">%1. 按 &quot;G&quot; 去到分组 %2</translation>
-    </message>
-    <message>
         <source>Unknown</source>
         <translation>未知</translation>
     </message>
@@ -13456,19 +13457,19 @@ a:hover {
     <name>WiresharkApplication</name>
     <message>
         <source>Dell Backup and Recovery Found</source>
-        <translation>发现 Dell Backup and Recovery</translation>
+        <translation type="vanished">发现 Dell Backup and Recovery</translation>
     </message>
     <message>
         <source>You appear to be running Dell Backup and Recovery 1.8.</source>
-        <translation>您似乎正在运行 Dell Backup and Recovery 1.8。</translation>
+        <translation type="vanished">您似乎正在运行 Dell Backup and Recovery 1.8。</translation>
     </message>
     <message>
         <source>DBAR can make many applications crash &lt;a href=&quot;https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12036&quot;&gt;including Wireshark&lt;/a&gt;.</source>
-        <translation>DBAR 可能使许多应用程序崩溃，&lt;a href=&quot;https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12036&quot;&gt;包括 Wireshark&lt;/a&gt;。</translation>
+        <translation type="vanished">DBAR 可能使许多应用程序崩溃，&lt;a href=&quot;https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12036&quot;&gt;包括 Wireshark&lt;/a&gt;。</translation>
     </message>
     <message>
         <source>Offending DLL: %1</source>
-        <translation>违规 DLL：%1</translation>
+        <translation type="vanished">违规 DLL：%1</translation>
     </message>
 </context>
 <context>

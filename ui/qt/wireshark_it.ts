@@ -3805,20 +3805,12 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Pacchetti filtrati</translation>
     </message>
     <message>
-        <source>All packets</source>
-        <translation type="vanished">Tutti i pacchetti</translation>
-    </message>
-    <message>
-        <source>TCP errors</source>
-        <translation type="vanished">Errori TCP</translation>
-    </message>
-    <message>
         <source>All Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Tutti i pacchetti</translation>
     </message>
     <message>
         <source>TCP Errors</source>
-        <translation type="unfinished"></translation>
+        <translation>Errori TCP</translation>
     </message>
     <message>
         <source>Hover over the graph for details.</source>
@@ -4376,7 +4368,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>No interfaces found</source>
-        <translation>Nessuna interfaccia trovata</translation>
+        <translation type="vanished">Nessuna interfaccia trovata</translation>
     </message>
     <message>
         <source>Wired</source>
@@ -4431,20 +4423,33 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Interfacce di cattura esterne disabilitate.</translation>
     </message>
     <message>
-        <source>&lt;p&gt;Local interfaces are unavailable because no capture driver is installed.&lt;/p&gt;&lt;p&gt;You can fix this by installing &lt;a href=&quot;https://nmap.org/npcap/&quot;&gt;Npcap&lt;/a&gt; or &lt;a href=&quot;https://www.winpcap.org/install/default.htm&quot;&gt;WinPcap&lt;/a&gt;.&lt;/p&gt;</source>
+        <source>&lt;p&gt;Local interfaces are unavailable because no packet capture driver is installed.&lt;/p&gt;&lt;p&gt;You can fix this by installing &lt;a href=&quot;https://nmap.org/npcap/&quot;&gt;Npcap&lt;/a&gt; or &lt;a href=&quot;https://www.winpcap.org/install/default.htm&quot;&gt;WinPcap&lt;/a&gt;.&lt;/p&gt;</source>
+        <oldsource>&lt;p&gt;Local interfaces are unavailable because no capture driver is installed.&lt;/p&gt;&lt;p&gt;You can fix this by installing &lt;a href=&quot;https://nmap.org/npcap/&quot;&gt;Npcap&lt;/a&gt; or &lt;a href=&quot;https://www.winpcap.org/install/default.htm&quot;&gt;WinPcap&lt;/a&gt;.&lt;/p&gt;</oldsource>
+        <translation type="unfinished">&lt;p&gt;Le interfacce locali non sono disponibili poiché non è installato alcun driver di cattura.&lt;/p&gt;&lt;p&gt;Puoi correggere questo problema installando &lt;a href=&quot;https://nmap.org/npcap/&quot;&gt;Npcap&lt;/a&gt; o &lt;a href=&quot;https://www.winpcap.org/install/default.htm&quot;&gt;WinPcap&lt;/a&gt;.&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;Local interfaces are unavailable because the packet capture driver isn&apos;t loaded.&lt;/p&gt;&lt;p&gt;You can fix this by running &lt;pre&gt;net start npcap&lt;/pre&gt; if you have Npcap installed or &lt;pre&gt;net start npf&lt;/pre&gt; if you have WinPcap installed. Both commands must be run as Administrator.&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;You don&apos;t have permission to capture on local interfaces.&lt;/p&gt;&lt;p&gt;You can fix this by &lt;a href=&quot;file://%1&quot;&gt;installing ChmodBPF&lt;/a&gt;.&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>You don&apos;t have permission to capture on local interfaces.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No interfaces found.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;p&gt;Local interfaces are unavailable due to insufficient permissions.&lt;/p&gt;&lt;p&gt;You can fix this by &lt;a href=&quot;file://%1&quot;&gt;installing ChmodBPF&lt;/a&gt;.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">&lt;p&gt;Le interfacce locali non sono disponibili a causa di permessi insufficienti.&lt;/p&gt;&lt;p&gt;Puoi correggere questo problema &lt;a href=&quot;file://%1&quot;&gt;installando ChmodBPF&lt;/a&gt;.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Interfaces not loaded (due to preference). Go to Capture </source>
         <translation>Interfacce non caricate (a causa delle preferenze). Vai in Cattura</translation>
-    </message>
-    <message>
-        <source>You don&apos;t have permission to capture. You can &lt;a href=&quot;file://%1&quot;&gt;install ChmodBPF to fix this&lt;/a&gt;.</source>
-        <translation type="vanished">Non hai i permessi per catturare. Puoi &lt;a href=&quot;file://%1&quot;&gt;installare ChmodBPF per correggere&lt;/a&gt;.</translation>
     </message>
     <message>
         <source>Start capture</source>
@@ -5415,7 +5420,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Show column definition in column context menu</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la definizione della colonna nel menu contestuale delle colonne</translation>
     </message>
     <message>
         <source>Status Bar settings:</source>
@@ -10436,7 +10441,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Play</source>
-        <translation type="unfinished"></translation>
+        <translation>Riproduci</translation>
     </message>
     <message>
         <source>Source Address</source>
@@ -10715,19 +10720,15 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Double click to change audio routing</source>
-        <translation type="unfinished"></translation>
+        <translation>Doppio clic per cambiare l&apos;instradamento dell&apos;audio</translation>
     </message>
     <message>
         <source>Start: %1. Double click to set start of playback.</source>
-        <translation type="unfinished"></translation>
+        <translation>Avvio: %1. Doppio clic per impostare l&apos;avvio della riproduzione.</translation>
     </message>
     <message>
         <source>Start: %1, cursor: %2. Press &quot;G&quot; to go to packet %3. Double click to set start of playback.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>%1. Press &quot;G&quot; to go to packet %2</source>
-        <translation type="vanished">%1. Premi &quot;G&quot; per andare al pacchetto %2</translation>
+        <translation>Avvio: %1, cursore: %2. Premi &quot;G&quot; per portarti sul pacchetti %3. Doppio clic per impostare l&apos;avvio della riproduzione.</translation>
     </message>
     <message>
         <source>Unknown</source>
@@ -13533,19 +13534,19 @@ a:hover {
     <name>WiresharkApplication</name>
     <message>
         <source>Dell Backup and Recovery Found</source>
-        <translation>Trovato Dell Backup and Recovery</translation>
+        <translation type="vanished">Trovato Dell Backup and Recovery</translation>
     </message>
     <message>
         <source>You appear to be running Dell Backup and Recovery 1.8.</source>
-        <translation>Sembra che tu stia eseguendo Dell Backup and Recovery 1.8.</translation>
+        <translation type="vanished">Sembra che tu stia eseguendo Dell Backup and Recovery 1.8.</translation>
     </message>
     <message>
         <source>DBAR can make many applications crash &lt;a href=&quot;https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12036&quot;&gt;including Wireshark&lt;/a&gt;.</source>
-        <translation>DBAR può causare chiusure inattese di molte applicazioni &lt;a href=&quot;https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12036&quot;&gt;Wireshark incluso&lt;/a&gt;.</translation>
+        <translation type="vanished">DBAR può causare chiusure inattese di molte applicazioni &lt;a href=&quot;https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12036&quot;&gt;Wireshark incluso&lt;/a&gt;.</translation>
     </message>
     <message>
         <source>Offending DLL: %1</source>
-        <translation>DLL in conflitto: %1</translation>
+        <translation type="vanished">DLL in conflitto: %1</translation>
     </message>
 </context>
 <context>
