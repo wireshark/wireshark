@@ -57,6 +57,10 @@ static int hf_mp4_ftyp_add_brand = -1;
 static int hf_mp4_stsz_sample_size = -1;
 static int hf_mp4_stsz_sample_count = -1;
 static int hf_mp4_stsz_entry_size = -1;
+static int hf_mp4_stsc_entry_count = -1;
+static int hf_mp4_stsc_first_chunk = -1;
+static int hf_mp4_stsc_samples_per_chunk = -1;
+static int hf_mp4_stsc_sample_description_index = -1;
 static int hf_mp4_mvhd_creat_time = -1;
 static int hf_mp4_mvhd_mod_time = -1;
 static int hf_mp4_mvhd_timescale = -1;
@@ -456,7 +460,51 @@ dissect_mp4_stsz_body(tvbuff_t *tvb, gint offset, gint len _U_,
     return offset - offset_start;
 }
 
- 
+
+static gint
+dissect_mp4_stsc_body(tvbuff_t *tvb, gint offset, gint len _U_,
+        packet_info *pinfo _U_, guint depth _U_, proto_tree *tree)
+{
+    guint32  entry_count;
+    guint32 i;
+
+    offset += dissect_mp4_full_box (tvb, offset, tree, NULL, NULL, NULL);
+
+    proto_tree_add_item_ret_uint(tree, hf_mp4_stsc_entry_count, tvb, offset, 4,
+            ENC_BIG_ENDIAN, &entry_count);
+    offset += 4;
+
+   for (i=1; i<=entry_count; i++) {
+       proto_tree *subtree;
+       proto_item *subtree_item;
+       guint32 first_chunk;
+       guint32 samples_per_chunk;
+       guint32 sample_description_index;
+
+       subtree = proto_tree_add_subtree_format (tree, tvb, offset, 3 * 4,
+               ett_mp4_entry, &subtree_item, "Entry %u:", i);
+
+       proto_tree_add_item_ret_uint(subtree, hf_mp4_stsc_first_chunk,
+               tvb, offset, 4, ENC_BIG_ENDIAN, &first_chunk);
+       offset += 4;
+
+       proto_tree_add_item_ret_uint(subtree, hf_mp4_stsc_samples_per_chunk,
+               tvb, offset, 4, ENC_BIG_ENDIAN, &samples_per_chunk);
+       offset += 4;
+
+       proto_tree_add_item_ret_uint(subtree, hf_mp4_stsc_sample_description_index,
+               tvb, offset, 4, ENC_BIG_ENDIAN, &sample_description_index);
+       offset += 4;
+
+       proto_item_append_text (subtree_item,
+               " First chunk: %u; Samples per chunk: %u; Sample description index: %u",
+               first_chunk, samples_per_chunk, sample_description_index);
+    }
+
+    return len;
+}
+
+
 static gint
 dissect_mp4_hdlr_body(tvbuff_t *tvb, gint offset, gint len _U_,
         packet_info *pinfo _U_, guint depth _U_, proto_tree *tree)
@@ -818,6 +866,9 @@ dissect_mp4_box(guint32 parent_box_type _U_, guint depth,
         case BOX_TYPE_STSZ:
             dissect_mp4_stsz_body(tvb, offset, body_size, pinfo, depth, box_tree);
             break;
+        case BOX_TYPE_STSC:
+            dissect_mp4_stsc_body(tvb, offset, body_size, pinfo, depth, box_tree);
+            break;
         case BOX_TYPE_HDLR:
             dissect_mp4_hdlr_body(tvb, offset, body_size, pinfo, depth, box_tree);
             break;
@@ -940,6 +991,18 @@ proto_register_mp4(void)
                 BASE_DEC, NULL, 0, NULL, HFILL } },
         { &hf_mp4_stsz_entry_size,
             { "Entry size", "mp4.stsz.entry_size", FT_UINT32,
+                BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_mp4_stsc_entry_count,
+            { "Entry size", "mp4.stsc.entry_count", FT_UINT32,
+                BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_mp4_stsc_first_chunk,
+            { "First chunk", "mp4.stsc.first_chunk", FT_UINT32,
+                BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_mp4_stsc_samples_per_chunk,
+            { "Samples per chunk", "mp4.stsc.samples_per_chunk", FT_UINT32,
+                BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_mp4_stsc_sample_description_index,
+            { "Sample description index", "mp4.stsc.sample_description_index", FT_UINT32,
                 BASE_DEC, NULL, 0, NULL, HFILL } },
         { &hf_mp4_mvhd_creat_time,
             { "Creation time", "mp4.mvhd.creation_time", FT_ABSOLUTE_TIME,
