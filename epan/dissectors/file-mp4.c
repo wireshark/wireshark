@@ -393,6 +393,9 @@ dissect_mp4_stsz_body(tvbuff_t *tvb, gint offset, gint len _U_,
     guint32  sample_size, sample_count, i;
 
     offset_start = offset;
+
+    offset += dissect_mp4_full_box (tvb, offset, tree, NULL, NULL, NULL);
+
     sample_size = tvb_get_ntohl(tvb, offset);
 
     proto_tree_add_item(tree, hf_mp4_stsz_sample_size,
