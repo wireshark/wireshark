@@ -429,8 +429,9 @@ dissect_mp4_stsz_body(tvbuff_t *tvb, gint offset, gint len _U_,
 
     sample_size = tvb_get_ntohl(tvb, offset);
 
-    proto_tree_add_item(tree, hf_mp4_stsz_sample_size,
-            tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_uint_format(tree, hf_mp4_stsz_sample_size,
+            tvb, offset, 4, sample_size, "Sample size: %u%s", sample_size,
+            sample_size == 0 ? " (samples have different sizes)" : "");
     /* XXX - expert info for sample size == 0 */
     offset += 4;
 
@@ -442,9 +443,13 @@ dissect_mp4_stsz_body(tvbuff_t *tvb, gint offset, gint len _U_,
     if (sample_size != 0)
         return offset - offset_start;
 
-    for (i=0; i<sample_count; i++) {
-        proto_tree_add_item(tree, hf_mp4_stsz_entry_size,
-                tvb, offset, 4, ENC_BIG_ENDIAN);
+    for (i=1; i<=sample_count; i++) {
+        guint32 entry_size;
+
+        entry_size = tvb_get_ntohl(tvb, offset);
+        proto_tree_add_uint_format(tree, hf_mp4_stsz_entry_size,
+                tvb, offset, 4, entry_size, "Entry %u: Entry size: %u", i,
+                entry_size);
         offset += 4;
     }
 
