@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 # Setup development environment on BSD-like platforms.
 #
 # Tested on: FreeBSD, OpenBSD, NetBSD.
@@ -160,18 +160,18 @@ esac
 ACTUAL_LIST=$BASIC_LIST
 
 # Now arrange for optional support libraries
-if [ $ADDITIONAL -ne 0 ]
+if [ "$ADDITIONAL" != "" ]
 then
 	ACTUAL_LIST="$ACTUAL_LIST $ADDITIONAL_LIST"
 fi
 
 $PM $PM_OPTIONS $ACTUAL_LIST $OPTIONS
-if [ $? -ne 0 ]
+if [ $? ]
 then
 	exit 2
 fi
 
-if [ $ADDITIONAL -eq 0 ]
+if [ "$ADDITIONAL" == "" ]
 then
 	echo -e "\n*** Optional packages not installed. Rerun with --install-optional to have them.\n"
 fi
