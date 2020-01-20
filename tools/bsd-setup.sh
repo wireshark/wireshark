@@ -142,6 +142,10 @@ add_package ADDITIONAL_LIST ninja-build ||
 add_package ADDITIONAL_LIST ninja ||
 echo "ninja is unavailable"
 
+# libilbc: FreeBSD
+add_package ADDITIONAL_LIST libilbc ||
+echo "libilbc is unavailable"
+
 # Add OS-specific required/optional packages
 # Those not listed don't require additions.
 case `uname` in
