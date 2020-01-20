@@ -1673,6 +1673,9 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 			if (!pinfo->flags.in_error_pkt) {
 				conv_key[0] =
 				    (guint32) tvb_get_ntohs(tvb, 2);
+				if (conv_key[0] == 0xffff) {
+					conv_key[0] = 0;
+				}
 				if (pinfo->flags.in_gre_pkt && prefs.strict_conversation_tracking_heuristics)
 					conv_key[0] |= 0x00010000;	/* set a bit for "in GRE" */
 				conv_key[1] =
@@ -1692,9 +1695,6 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 				conv_key[0] =
 				    ip_checksum((guint8 *) & tmp,
 						sizeof(tmp));
-				if (conv_key[0] == 0) {
-					conv_key[0] = 0xffff;
-				}
 				if (pinfo->flags.in_gre_pkt && prefs.strict_conversation_tracking_heuristics) {
 					conv_key[0] |= 0x00010000;	/* set a bit for "in GRE" */
 				}
