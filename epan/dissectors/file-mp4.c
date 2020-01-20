@@ -226,6 +226,8 @@ dissect_mp4_mvhd_body(tvbuff_t *tvb, gint offset, gint len _U_,
     gint        offset_start;
     guint8      version;
     guint8      time_len;
+    guint32     timescale;
+    guint64     duration;
     double      rate, vol;
     guint16     fract_dec;
     guint32     next_tid;
@@ -246,11 +248,22 @@ dissect_mp4_mvhd_body(tvbuff_t *tvb, gint offset, gint len _U_,
     proto_tree_add_item(tree, hf_mp4_mvhd_mod_time,
             tvb, offset, time_len, ENC_TIME_CLASSIC_MAC_OS_SECS|ENC_BIG_ENDIAN);
     offset += time_len;
-    proto_tree_add_item(tree, hf_mp4_mvhd_timescale,
-            tvb, offset, 4, ENC_BIG_ENDIAN);
+
+    timescale = tvb_get_ntohl (tvb, offset);
+    proto_tree_add_uint_format(tree, hf_mp4_mvhd_timescale,
+            tvb, offset, 4, timescale, "Timescale: %d units in one second",
+            timescale);
     offset += 4;
-    proto_tree_add_item(tree, hf_mp4_mvhd_duration,
-            tvb, offset, time_len, ENC_BIG_ENDIAN);
+
+    if (time_len==4) {
+        duration = tvb_get_ntohl(tvb, offset);
+    } else {
+        duration = tvb_get_ntoh64(tvb , offset);
+    }
+    proto_tree_add_uint64_format(tree, hf_mp4_mvhd_duration,
+            tvb, offset, time_len, duration,
+            "Duration: %f seconds (%" G_GUINT64_FORMAT ")",
+            (double) duration / timescale, duration);
     offset += time_len;
 
     rate = tvb_get_ntohs(tvb, offset);
