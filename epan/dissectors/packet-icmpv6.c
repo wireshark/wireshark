@@ -4013,6 +4013,8 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
                 if (icmp6_type == ICMP6_ECHO_REQUEST) {
                     conv_key[0] = (guint32)cksum;
+                    if (conv_key[0] == 0xffff)
+                        conv_key[0] = 0;
                     if (pinfo->flags.in_gre_pkt && prefs.strict_conversation_tracking_heuristics)
                         conv_key[0] |= 0x00010000; /* set a bit for "in GRE" */
                     trans = transaction_start(pinfo, icmp6_tree, conv_key);
@@ -4023,8 +4025,6 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     tmp[1] = ~0x0100; /* The difference between echo request & reply */
                     SET_CKSUM_VEC_PTR(cksum_vec[0], (guint8 *)tmp, sizeof(tmp));
                     conv_key[0] = in_cksum(cksum_vec, 1);
-                    if (conv_key[0] == 0)
-                        conv_key[0] = 0xffff;
                     if (pinfo->flags.in_gre_pkt && prefs.strict_conversation_tracking_heuristics)
                         conv_key[0] |= 0x00010000; /* set a bit for "in GRE" */
                     trans = transaction_end(pinfo, icmp6_tree, conv_key);
