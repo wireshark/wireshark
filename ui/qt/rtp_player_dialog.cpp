@@ -245,12 +245,11 @@ void RtpPlayerDialog::rescanPackets(bool rescale_axes)
     int row_count = ui->streamTreeWidget->topLevelItemCount();
     // Clear existing graphs and reset stream values
     for (int row = 0; row < row_count; row++) {
-        bool left, right;
+        bool left = true, right = true;
 
         QTreeWidgetItem *ti = ui->streamTreeWidget->topLevelItem(row);
         RtpAudioStream *audio_stream = ti->data(stream_data_col_, Qt::UserRole).value<RtpAudioStream*>();
         channel_mode_t channel_mode = (channel_mode_t)ti->data(channel_data_col_, Qt::UserRole).toUInt();
-        left = right = true;
         switch (channel_mode) {
             case channel_none:
                 left = false;
