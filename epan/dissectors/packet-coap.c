@@ -1384,14 +1384,25 @@ dissect_coap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 static int
 dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-	if (pinfo->ptype != PT_TCP) {
-		/* Assume UDP */
-		return dissect_coap_message(tvb, pinfo, tree, FALSE, FALSE);
-	} else if (proto_is_frame_protocol(pinfo->layers, "websocket")) {
+	wmem_list_frame_t *prev_layer;
+	const char *name;
+
+	/* retrieve parent protocol */
+	prev_layer = wmem_list_frame_prev(wmem_list_tail(pinfo->layers));
+	if (prev_layer) {
+		name = proto_get_protocol_filter_name(GPOINTER_TO_INT(wmem_list_frame_data(prev_layer)));
+	} else {
+		name = NULL;
+	}
+	if (proto_is_frame_protocol(pinfo->layers, "websocket")) {
 		/* WebSockets */
 		return dissect_coap_message(tvb, pinfo, tree, TRUE, TRUE);
-	} else {
+	} else if (!g_strcmp0(name, "tcp") || !g_strcmp0(name, "tls")) {
+		/* TCP */
 		return dissect_coap_message(tvb, pinfo, tree, TRUE, FALSE);
+	} else {
+		/* Assume UDP */
+		return dissect_coap_message(tvb, pinfo, tree, FALSE, FALSE);
 	}
 }
 
