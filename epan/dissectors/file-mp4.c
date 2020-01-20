@@ -22,6 +22,7 @@
 #include <math.h>
 
 #include <epan/packet.h>
+#include <epan/to_str.h>
 #include <epan/expert.h>
 
 #define MAKE_TYPE_VAL(a, b, c, d)   ((a)<<24 | (b)<<16 | (c)<<8 | (d))
@@ -43,8 +44,7 @@ static int proto_mp4 = -1;
 static gint ett_mp4 = -1;
 static gint ett_mp4_box = -1;
 static gint ett_mp4_full_box_flags = -1;
-static gint ett_mp4_stts_entry = -1;
-static gint ett_mp4_ctts_entry = -1;
+static gint ett_mp4_entry = -1;
 
 static int hf_mp4_box_size = -1;
 static int hf_mp4_box_type_str = -1;
@@ -86,10 +86,17 @@ static int hf_mp4_stts_sample_delta = -1;
 static int hf_mp4_ctts_sample_count = -1;
 static int hf_mp4_ctts_sample_offset_signed = -1;
 static int hf_mp4_ctts_sample_offset_unsigned = -1;
+static int hf_mp4_elst_entry_cnt = -1;
+static int hf_mp4_elst_segment_duration = -1;
+static int hf_mp4_elst_media_time = -1;
+static int hf_mp4_elst_media_rate_integer = -1;
+static int hf_mp4_elst_media_rate_fraction = -1;
 
 static expert_field ei_mp4_box_too_large = EI_INIT;
 static expert_field ei_mp4_too_many_rec_lvls = EI_INIT;
 static expert_field ei_mp4_mvhd_next_tid_unknown = EI_INIT;
+
+static guint32 mvhd_timescale = 0;
 
 /* a box must at least have a 32bit len field and a 32bit type */
 #define MIN_BOX_SIZE 8
@@ -136,6 +143,7 @@ static expert_field ei_mp4_mvhd_next_tid_unknown = EI_INIT;
 /* the box name is url + <space>, all names must be 4 characters long */
 #define BOX_TYPE_URL_  MAKE_TYPE_VAL('u', 'r', 'l', ' ')
 #define BOX_TYPE_EDTS  MAKE_TYPE_VAL('e', 'd', 't', 's')
+#define BOX_TYPE_ELST  MAKE_TYPE_VAL('e', 'l', 's', 't')
 
 #define TKHD_FLAG_ENABLED              0x000001
 #define TKHD_FLAG_IN_MOVIE             0x000002
@@ -180,6 +188,7 @@ static const value_string box_types[] = {
     { BOX_TYPE_UDTA, "User Data Box" },
     { BOX_TYPE_URL_, "URL Box" },
     { BOX_TYPE_EDTS, "Edit Box" },
+    { BOX_TYPE_ELST, "Edit List Box" },
     { 0, NULL }
 };
 
@@ -191,6 +200,16 @@ make_fract(guint x)
         return 0.0;
 
     return (double)(x / exp(log(10.0)*(1+floor(log((double)x)/log(10.0)))));
+}
+
+static inline gchar *
+timescaled_val_to_str(guint64 val)
+{
+    nstime_t nstime;
+
+    nstime.secs = val / mvhd_timescale;
+    nstime.nsecs = (val % mvhd_timescale) * (1000000000UL / mvhd_timescale);
+    return rel_time_to_str(NULL, &nstime);
 }
 
 static gint
@@ -226,7 +245,6 @@ dissect_mp4_mvhd_body(tvbuff_t *tvb, gint offset, gint len _U_,
     gint        offset_start;
     guint8      version;
     guint8      time_len;
-    guint32     timescale;
     guint64     duration;
     double      rate, vol;
     guint16     fract_dec;
@@ -249,10 +267,10 @@ dissect_mp4_mvhd_body(tvbuff_t *tvb, gint offset, gint len _U_,
             tvb, offset, time_len, ENC_TIME_CLASSIC_MAC_OS_SECS|ENC_BIG_ENDIAN);
     offset += time_len;
 
-    timescale = tvb_get_ntohl (tvb, offset);
+    mvhd_timescale = tvb_get_ntohl (tvb, offset);
     proto_tree_add_uint_format(tree, hf_mp4_mvhd_timescale,
-            tvb, offset, 4, timescale, "Timescale: %d units in one second",
-            timescale);
+            tvb, offset, 4, mvhd_timescale, "Timescale: %d units in one second",
+            mvhd_timescale);
     offset += 4;
 
     if (time_len==4) {
@@ -263,7 +281,7 @@ dissect_mp4_mvhd_body(tvbuff_t *tvb, gint offset, gint len _U_,
     proto_tree_add_uint64_format(tree, hf_mp4_mvhd_duration,
             tvb, offset, time_len, duration,
             "Duration: %f seconds (%" G_GUINT64_FORMAT ")",
-            (double) duration / timescale, duration);
+            (double) duration / mvhd_timescale, duration);
     offset += time_len;
 
     rate = tvb_get_ntohs(tvb, offset);
@@ -575,7 +593,7 @@ dissect_mp4_stts_body(tvbuff_t *tvb, gint offset, gint len,
         guint32 sample_delta;
 
         subtree = proto_tree_add_subtree_format (tree, tvb, offset, 2 * 4,
-                ett_mp4_stts_entry, &subtree_item, "Entry %u:", i + 1);
+                ett_mp4_entry, &subtree_item, "Entry %u:", i + 1);
 
         proto_tree_add_item_ret_uint(subtree, hf_mp4_stts_sample_count,
                 tvb, offset, 4, ENC_BIG_ENDIAN, &sample_count);
@@ -618,7 +636,7 @@ dissect_mp4_ctts_body(tvbuff_t *tvb, gint offset, gint len,
         guint32 sample_delta;
 
         subtree = proto_tree_add_subtree_format(tree, tvb, offset, 2 * 4,
-                ett_mp4_ctts_entry, &subtree_item, "Entry %u:", i + 1);
+                ett_mp4_entry, &subtree_item, "Entry %u:", i + 1);
 
         proto_tree_add_item_ret_uint(subtree, hf_mp4_ctts_sample_count,
                 tvb, offset, 4, ENC_BIG_ENDIAN, &sample_count);
@@ -631,6 +649,79 @@ dissect_mp4_ctts_body(tvbuff_t *tvb, gint offset, gint len,
         proto_item_append_text(subtree_item,
                 " Sample count: %u, Sample offset: %d",
                 sample_count, sample_delta);
+    }
+
+    return len;
+}
+
+static gint
+dissect_mp4_elst_body(tvbuff_t *tvb, gint offset, gint len,
+        packet_info *pinfo _U_, guint depth _U_, proto_tree *tree)
+{
+    guint8 version;
+    guint32 entry_cnt;
+    guint i;
+
+    offset += dissect_mp4_full_box (tvb, offset, tree, NULL, &version, NULL);
+
+    proto_tree_add_item_ret_uint(tree, hf_mp4_elst_entry_cnt,
+            tvb, offset, 4, ENC_BIG_ENDIAN, &entry_cnt);
+    offset += 4;
+
+    for(i=0; i<entry_cnt; i++) {
+        proto_tree *subtree;
+        proto_item *subtree_item;
+        gint field_length;
+        guint64 segment_duration;
+        gchar *segment_duration_str;
+        gint64 media_time;
+        gchar *media_time_str;
+        gint32 rate_int;
+        gint32 rate_fraction;
+
+        subtree = proto_tree_add_subtree_format (tree, tvb, offset, 2 * 4,
+                ett_mp4_entry, &subtree_item, "Entry %u:", i + 1);
+
+        field_length = (version==1) ? 8 : 4;
+
+        if (version==1) {
+            segment_duration = tvb_get_ntoh64(tvb, offset);
+        } else {
+            segment_duration = tvb_get_ntohl(tvb, offset);
+        }
+        segment_duration_str = timescaled_val_to_str(segment_duration);
+        proto_tree_add_uint64_format(subtree, hf_mp4_elst_segment_duration,
+                tvb, offset, field_length, segment_duration,
+                "Segment duration: %s (%" G_GUINT64_FORMAT ")",
+                segment_duration_str, segment_duration);
+        offset += field_length;
+
+        if (version==1) {
+            media_time = tvb_get_ntoh64(tvb, offset);
+        } else {
+            media_time = tvb_get_ntohl(tvb, offset);
+        }
+        media_time_str = timescaled_val_to_str(media_time);
+        proto_tree_add_int64_format(subtree, hf_mp4_elst_media_time,
+                tvb, offset, field_length, media_time,
+                "Media time: %s (%" G_GINT64_FORMAT ")",
+                media_time_str, media_time);
+        offset += field_length;
+
+        proto_tree_add_item_ret_int(subtree, hf_mp4_elst_media_rate_integer,
+                tvb, offset, 2, ENC_BIG_ENDIAN, &rate_int);
+        offset += 2;
+
+        proto_tree_add_item_ret_int(subtree, hf_mp4_elst_media_rate_fraction,
+                tvb, offset, 2, ENC_BIG_ENDIAN, &rate_fraction);
+        offset += 2;
+
+        proto_item_append_text (subtree_item,
+                " Segment duration: %s; Media time: %s; Media rate: %d.%d",
+                segment_duration_str, media_time_str, rate_int, rate_fraction);
+
+        wmem_free (NULL, segment_duration_str);
+        wmem_free (NULL, media_time_str);
     }
 
     return len;
@@ -739,6 +830,9 @@ dissect_mp4_box(guint32 parent_box_type _U_, guint depth,
             break;
         case BOX_TYPE_CTTS:
             dissect_mp4_ctts_body(tvb, offset, body_size, pinfo, depth, box_tree);
+            break;
+        case BOX_TYPE_ELST:
+            dissect_mp4_elst_body(tvb, offset, body_size, pinfo, depth, box_tree);
             break;
         case BOX_TYPE_MOOV:
         case BOX_TYPE_MOOF:
@@ -929,14 +1023,28 @@ proto_register_mp4(void)
         { &hf_mp4_ctts_sample_offset_unsigned,
             { "Sample count", "mp4.ctts.sample_offset", FT_UINT32,
                 BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_mp4_elst_entry_cnt,
+            { "Number of entries", "mp4.elst.entry_count", FT_UINT32,
+                BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_mp4_elst_segment_duration,
+            { "Segment duration", "mp4.elst.segment_duration", FT_UINT64,
+                BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_mp4_elst_media_time,
+            { "Media time", "mp4.elst.media_time", FT_INT64,
+                BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_mp4_elst_media_rate_integer,
+            { "Media rate integer", "mp4.elst.media_rate_integer", FT_INT16,
+                BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_mp4_elst_media_rate_fraction,
+            { "Media rate fraction", "mp4.elst.media_rate_fraction", FT_INT16,
+                BASE_DEC, NULL, 0, NULL, HFILL } },
     };
 
     static gint *ett[] = {
         &ett_mp4,
         &ett_mp4_box,
         &ett_mp4_full_box_flags,
-        &ett_mp4_stts_entry,
-        &ett_mp4_ctts_entry,
+        &ett_mp4_entry,
     };
 
     static ei_register_info ei[] = {
