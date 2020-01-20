@@ -135,6 +135,7 @@ static expert_field ei_mp4_mvhd_next_tid_unknown = EI_INIT;
 #define BOX_TYPE_UDTA  MAKE_TYPE_VAL('u', 'd', 't', 'a')
 /* the box name is url + <space>, all names must be 4 characters long */
 #define BOX_TYPE_URL_  MAKE_TYPE_VAL('u', 'r', 'l', ' ')
+#define BOX_TYPE_EDTS  MAKE_TYPE_VAL('e', 'd', 't', 's')
 
 #define TKHD_FLAG_ENABLED              0x000001
 #define TKHD_FLAG_IN_MOVIE             0x000002
@@ -178,6 +179,7 @@ static const value_string box_types[] = {
     { BOX_TYPE_MDAT, "Media Data Box" },
     { BOX_TYPE_UDTA, "User Data Box" },
     { BOX_TYPE_URL_, "URL Box" },
+    { BOX_TYPE_EDTS, "Edit Box" },
     { 0, NULL }
 };
 
@@ -732,6 +734,7 @@ dissect_mp4_box(guint32 parent_box_type _U_, guint depth,
         case BOX_TYPE_MVEX:
         case BOX_TYPE_DINF:
         case BOX_TYPE_UDTA:
+        case BOX_TYPE_EDTS:
             while (offset-offset_start < (gint)box_size) {
                 ret = dissect_mp4_box(box_type, depth,
                         tvb, offset, pinfo, box_tree);
