@@ -70,7 +70,7 @@ Param(
 $ErrorActionPreference = "Stop"
 
 $Win64CurrentTag = "2020-01-09"
-$Win32CurrentTag = "2020-01-09"
+$Win32CurrentTag = "2020-01-21"
 
 # Archive file / SHA256
 $Win64Archives = @{
@@ -106,7 +106,7 @@ $Win32Archives = @{
     "gnutls-3.6.3-1-win32ws.zip" = "42d8313ffb888f525d6c39330c39bcc2182e68ee8433a09dd85e1f1e1474f592";
     "krb5-1.17-1-win32ws.zip" = "f90cac08355ccfe624652d3e05f8e2e077b8830382315d4ea0a6fa52af08260b";
     "libgcrypt-1.8.3-win32ws.zip" = "409b72f2809019050cca91b9e670047c50a0752ff52999089178da54ef926393";
-    "libilbc-2.0.2-3-win32ws.zip" = "e8582a98024d619f80e1212a7ef3179390f33b21697004cfd487f34fa886145c";
+    "libilbc-2.0.2-3-win32ws.zip" = "b87967b5e46cd96d178bc3b3dbba5a75c069ef28ab8a86838c9d004690703997";
     "libsmi-svn-40773-win32ws.zip" = "44bc81edfeb8948322ca365fc632e419383907c305cc922e6b74fdbb13827958";
     "libssh-0.7.3-1-win32ws.zip" = "b02f0d318175194ac538a24c9c9fc280a0ecad69fb3afd4945c106b4b7c4fa6f";
     "lua-5.2.4-unicode-win32-vc14.zip" = "ca2368a83f623674178e9441f71fb791e3c0b46f208e3dac28c6ac735f034bff";
