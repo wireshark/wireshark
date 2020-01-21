@@ -24,6 +24,7 @@
 #include <epan/proto_data.h>
 
 #include <wsutil/str_util.h>
+#include <wsutil/epochs.h>
 
 #include "packet-per.h"
 #include "packet-gsm_map.h"

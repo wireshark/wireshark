@@ -24,9 +24,13 @@
 #include "config.h"
 #include <errno.h>
 #include <string.h>
+
+#include <wsutil/epochs.h>
+
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include "peekclassic.h"
+
 /* CREDITS
  *
  * This file decoder could not have been writen without examining how
@@ -129,8 +133,6 @@ typedef struct peekclassic_utime {
 #define STATUS_APPLEPEEK	0x10	/* ApplePeek packet (?) */
 #define STATUS_SLICED		0x20	/* Sliced (cut short by snaplen?) */
 #define STATUS_HIDDEN		0x80	/* Hidden (in the *Peek GUI?) */
-
-static const unsigned int mac2unix = 2082844800u;
 
 typedef struct {
 	time_t reference_time;
@@ -298,7 +300,7 @@ wtap_open_return_val peekclassic_open(wtap *wth, int *err, gchar **err_info)
 		    g_ntohl(ep_hdr.secondary.v567.linkSpeed);
 
 		/* Get the reference time as a time_t */
-		reference_time = ep_hdr.secondary.v567.timeDate - mac2unix;
+		reference_time = ep_hdr.secondary.v567.timeDate - EPOCH_DELTA_1904_01_01_00_00_00_UTC;
 		break;
 
 	default:
@@ -436,7 +438,7 @@ static int peekclassic_read_packet_v7(wtap *wth, FILE_T fh,
 	rec->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN|WTAP_HAS_PACK_FLAGS;
 	tsecs = (time_t) (timestamp/1000000);
 	tusecs = (guint32) (timestamp - tsecs*1000000);
-	rec->ts.secs  = tsecs - mac2unix;
+	rec->ts.secs  = tsecs - EPOCH_DELTA_1904_01_01_00_00_00_UTC;
 	rec->ts.nsecs = tusecs * 1000;
 	rec->rec_header.packet_header.len    = length;
 	rec->rec_header.packet_header.caplen = sliceLength;

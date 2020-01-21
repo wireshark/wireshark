@@ -1044,7 +1044,7 @@ SystemInformationBlockType16-r11/timeInfo-r11/localTimeOffset-r11 DISPLAY=BASE_C
 
 #.FN_FTR SystemInformationBlockType16-r11/timeInfo-r11/timeInfoUTC-r11
   subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_timeInfo);
-  ts.secs = (time_t)(timeInfo/100)-2208988800U; /* epoch is 00:00:00 (midnight) UTC on 1900-01-01 */
+  ts.secs = (time_t)(timeInfo/100)-EPOCH_DELTA_1900_01_01_00_00_00_UTC; /* epoch is 00:00:00 (midnight) UTC on 1900-01-01 */
   ts.nsecs = (int)(timeInfo%100)*10000000;
   proto_tree_add_time(subtree, hf_lte_rrc_utc_time, tvb, old_offset>>3, (old_offset&0x07) ? 6 : 5, &ts);
   proto_tree_add_time(subtree, hf_lte_rrc_local_time, tvb, old_offset>>3, (old_offset&0x07) ? 6 : 5, &ts);

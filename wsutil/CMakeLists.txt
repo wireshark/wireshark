@@ -34,6 +34,7 @@ set(WSUTIL_PUBLIC_HEADERS
 	crc32.h
 	curve25519.h
 	eax.h
+	epochs.h
 	filesystem.h
 	frequency-utils.h
 	g711.h

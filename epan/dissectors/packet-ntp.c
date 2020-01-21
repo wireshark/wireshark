@@ -21,6 +21,8 @@
 #include <epan/tvbparse.h>
 #include <epan/conversation.h>
 
+#include <wsutil/epochs.h>
+
 #include "packet-ntp.h"
 
 void proto_register_ntp(void);
@@ -1011,8 +1013,11 @@ static const int *ntppriv_reset_stats_flags[] = {
 static tvbparse_wanted_t *want;
 static tvbparse_wanted_t *want_ignore;
 
-/* NTP_BASETIME is in fact epoch - ntp_start_time */
-#define NTP_BASETIME 2208988800u
+/*
+ * NTP_BASETIME is in fact epoch - ntp_start_time; ntp_start_time
+ * is January 1, 2036, 00:00:00 UTC.
+ */
+#define NTP_BASETIME EPOCH_DELTA_1900_01_01_00_00_00_UTC
 #define NTP_FLOAT_DENOM 4294967296.0
 #define NTP_TS_SIZE 100
 

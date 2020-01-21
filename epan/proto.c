@@ -47,6 +47,7 @@
 
 #include <wsutil/ws_printf.h> /* ws_debug_printf */
 #include <wsutil/crash_info.h>
+#include <wsutil/epochs.h>
 
 /* Ptvcursor limits */
 #define SUBTREE_ONCE_ALLOCATION_NUMBER 8
@@ -1782,6 +1783,8 @@ get_stringzpad_value(wmem_allocator_t *scope, tvbuff_t *tvb, gint start,
 
 /*
  * NTP Era 0: the epoch is January 1, 1900, 00:00:00 (proleptic?) UTC.
+ * XXX - if it's OK if this is unsigned, can we just use
+ * EPOCH_DELTA_1900_01_01_00_00_00_UTC?
  */
 #define NTP_TIMEDIFF1900TO1970SEC G_GINT64_CONSTANT(2208988800)
 
@@ -1789,17 +1792,6 @@ get_stringzpad_value(wmem_allocator_t *scope, tvbuff_t *tvb, gint start,
  * NTP Era 1: the epoch is January 1, 2036, 00:00:00 UTC.
  */
 #define NTP_TIMEDIFF1970TO2036SEC G_GINT64_CONSTANT(2085978496)
-
-/*
- * System/370, System/390, and z/Architecture TOD clock: the epoch
- * is January 1, 1900, 00:00:00 (proleptic?) UTC.
- */
-#define TOD_BASETIME G_GUINT64_CONSTANT(2208988800)
-
-/*
- * Classic Mac OS: the epoch is January 1, 1904, 00:00:00 (proleptic?) UTC.
- */
-#define CLASSIC_MAC_OS_BASETIME  G_GUINT64_CONSTANT(2082844800)
 
 /* this can be called when there is no tree, so tree may be null */
 static void
@@ -1996,7 +1988,9 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const gint start,
 		case ENC_TIME_TOD|ENC_BIG_ENDIAN:
 			/*
 			 * S/3x0 and z/Architecture TOD clock time stamp,
-			 * big-endian.
+			 * big-endian.  The epoch is January 1, 1900,
+			 * 00:00:00 (proleptic?) UTC.
+			 *
 			 * Only supported for absolute times.
 			 */
 			DISSECTOR_ASSERT(!is_relative);
@@ -2004,7 +1998,7 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const gint start,
 
 			if (length == 8) {
 				todusecs  = tvb_get_ntoh64(tvb, start) >> 12;
-				time_stamp->secs = (time_t)((todusecs  / 1000000) - TOD_BASETIME);
+				time_stamp->secs = (time_t)((todusecs  / 1000000) - EPOCH_DELTA_1900_01_01_00_00_00_UTC);
 				time_stamp->nsecs = (int)((todusecs  % 1000000) * 1000);
 			} else {
 				time_stamp->secs  = 0;
@@ -2016,14 +2010,16 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const gint start,
 		case ENC_TIME_TOD|ENC_LITTLE_ENDIAN:
 			/*
 			 * S/3x0 and z/Architecture TOD clock time stamp,
-			 * little-endian.
+			 * little-endian.  The epoch is January 1, 1900,
+			 * 00:00:00 (proleptic?) UTC.
+			 *
 			 * Only supported for absolute times.
 			 */
 			DISSECTOR_ASSERT(!is_relative);
 
 			if (length == 8) {
 				todusecs  = tvb_get_letoh64(tvb, start) >> 12 ;
-				time_stamp->secs = (time_t)((todusecs  / 1000000) - TOD_BASETIME);
+				time_stamp->secs = (time_t)((todusecs  / 1000000) - EPOCH_DELTA_1900_01_01_00_00_00_UTC);
 				time_stamp->nsecs = (int)((todusecs  % 1000000) * 1000);
 			} else {
 				time_stamp->secs  = 0;
@@ -2358,11 +2354,11 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const gint start,
 
 			if (length == 8) {
 				tmp64secs  = tvb_get_ntoh64(tvb, start);
-				time_stamp->secs = (time_t)(tmp64secs - CLASSIC_MAC_OS_BASETIME);
+				time_stamp->secs = (time_t)(tmp64secs - EPOCH_DELTA_1904_01_01_00_00_00_UTC);
 				time_stamp->nsecs = 0;
 			} else if (length == 4) {
 				tmpsecs  = tvb_get_ntohl(tvb, start);
-				time_stamp->secs = (time_t)(tmpsecs - CLASSIC_MAC_OS_BASETIME);
+				time_stamp->secs = (time_t)(tmpsecs - EPOCH_DELTA_1904_01_01_00_00_00_UTC);
 				time_stamp->nsecs = 0;
 			} else {
 				time_stamp->secs  = 0;
