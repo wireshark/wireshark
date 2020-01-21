@@ -1809,7 +1809,7 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const gint start,
 {
 	guint32     tmpsecs;
 	guint64     tmp64secs;
-	guint64     todsecs;
+	guint64     todusecs;
 
 	switch (encoding) {
 
@@ -2003,9 +2003,9 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const gint start,
 			DISSECTOR_ASSERT(length == 8);
 
 			if (length == 8) {
-				todsecs  = tvb_get_ntoh64(tvb, start) >> 12;
-				time_stamp->secs = (time_t)((todsecs  / 1000000) - TOD_BASETIME);
-				time_stamp->nsecs = (int)((todsecs  % 1000000) * 1000);
+				todusecs  = tvb_get_ntoh64(tvb, start) >> 12;
+				time_stamp->secs = (time_t)((todusecs  / 1000000) - TOD_BASETIME);
+				time_stamp->nsecs = (int)((todusecs  % 1000000) * 1000);
 			} else {
 				time_stamp->secs  = 0;
 				time_stamp->nsecs = 0;
@@ -2022,9 +2022,9 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const gint start,
 			DISSECTOR_ASSERT(!is_relative);
 
 			if (length == 8) {
-				todsecs  = tvb_get_letoh64(tvb, start) >> 12 ;
-				time_stamp->secs = (time_t)((todsecs  / 1000000) - TOD_BASETIME);
-				time_stamp->nsecs = (int)((todsecs  % 1000000) * 1000);
+				todusecs  = tvb_get_letoh64(tvb, start) >> 12 ;
+				time_stamp->secs = (time_t)((todusecs  / 1000000) - TOD_BASETIME);
+				time_stamp->nsecs = (int)((todusecs  % 1000000) * 1000);
 			} else {
 				time_stamp->secs  = 0;
 				time_stamp->nsecs = 0;
