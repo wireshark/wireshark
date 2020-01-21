@@ -1775,11 +1775,31 @@ get_stringzpad_value(wmem_allocator_t *scope, tvbuff_t *tvb, gint start,
 }
 
 /*
- * Epochs for various non-UN*X time stamp formats.
+ * Deltas between the epochs for various non-UN*X time stamp formats and
+ * the January 1, 1970, 00:00:00 (proleptic?) UTC epoch for the UN*X time
+ * stamp format.
  */
-#define NTP_TIMEDIFF1900TO1970SEC G_GINT64_CONSTANT(2208988800)	/* NTP Time Diff 1900 to 1970 in sec */
-#define NTP_TIMEDIFF1970TO2036SEC G_GINT64_CONSTANT(2085978496)	/* NTP Time Diff 1970 to 2036 in sec */
-#define TOD_BASETIME G_GUINT64_CONSTANT(2208988800)	/* System/3x0 and z/Architecture TOD clock */
+
+/*
+ * NTP Era 0: the epoch is January 1, 1900, 00:00:00 (proleptic?) UTC.
+ */
+#define NTP_TIMEDIFF1900TO1970SEC G_GINT64_CONSTANT(2208988800)
+
+/*
+ * NTP Era 1: the epoch is January 1, 2036, 00:00:00 UTC.
+ */
+#define NTP_TIMEDIFF1970TO2036SEC G_GINT64_CONSTANT(2085978496)
+
+/*
+ * System/370, System/390, and z/Architecture TOD clock: the epoch
+ * is January 1, 1900, 00:00:00 (proleptic?) UTC.
+ */
+#define TOD_BASETIME G_GUINT64_CONSTANT(2208988800)
+
+/*
+ * Classic Mac OS: the epoch is January 1, 1904, 00:00:00 (proleptic?) UTC.
+ */
+#define CLASSIC_MAC_OS_BASETIME  G_GUINT64_CONSTANT(2082844800)
 
 /* this can be called when there is no tree, so tree may be null */
 static void
@@ -2328,6 +2348,29 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const gint start,
 				report_type_length_mismatch(tree, "a time-in-milliseconds NTP time stamp", length, (length < 4));
 			}
 			break;
+
+		case ENC_TIME_CLASSIC_MAC_OS_SECS|ENC_BIG_ENDIAN:
+			/*
+			 * Classic Mac OS time stamps, big-endian.
+			 * Only supported for absolute times.
+			 */
+			DISSECTOR_ASSERT(!is_relative);
+
+			if (length == 8) {
+				tmp64secs  = tvb_get_ntoh64(tvb, start);
+				time_stamp->secs = (time_t)(tmp64secs - CLASSIC_MAC_OS_BASETIME);
+				time_stamp->nsecs = 0;
+			} else if (length == 4) {
+				tmpsecs  = tvb_get_ntohl(tvb, start);
+				time_stamp->secs = (time_t)(tmpsecs - CLASSIC_MAC_OS_BASETIME);
+				time_stamp->nsecs = 0;
+			} else {
+				time_stamp->secs  = 0;
+				time_stamp->nsecs = 0;
+				report_type_length_mismatch(tree, "an MP4 time stamp", length, (length < 4));
+			}
+			break;
+
 		default:
 			DISSECTOR_ASSERT_NOT_REACHED();
 			break;

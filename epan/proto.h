@@ -400,20 +400,21 @@ void proto_report_dissector_bug(const char *format, ...)
  * the script to generate init.lua will add them as global variables,
  * along with the new names.
  */
-#define ENC_TIME_SECS_NSECS    0x00000000
-#define ENC_TIME_TIMESPEC      0x00000000 /* for backwards source compatibility */
-#define ENC_TIME_NTP           0x00000002
-#define ENC_TIME_TOD           0x00000004
-#define ENC_TIME_RTPS          0x00000008
-#define ENC_TIME_NTP_BASE_ZERO 0x00000008 /* for backwards source compatibility */
-#define ENC_TIME_SECS_USECS    0x00000010
-#define ENC_TIME_TIMEVAL       0x00000010 /* for backwards source compatibility */
-#define ENC_TIME_SECS          0x00000012
-#define ENC_TIME_MSECS         0x00000014
-#define ENC_TIME_SECS_NTP      0x00000018
-#define ENC_TIME_RFC_3971      0x00000020
-#define ENC_TIME_MSEC_NTP      0x00000022
-#define ENC_TIME_MIP6          0x00000024
+#define ENC_TIME_SECS_NSECS          0x00000000
+#define ENC_TIME_TIMESPEC            0x00000000 /* for backwards source compatibility */
+#define ENC_TIME_NTP                 0x00000002
+#define ENC_TIME_TOD                 0x00000004
+#define ENC_TIME_RTPS                0x00000008
+#define ENC_TIME_NTP_BASE_ZERO       0x00000008 /* for backwards source compatibility */
+#define ENC_TIME_SECS_USECS          0x00000010
+#define ENC_TIME_TIMEVAL             0x00000010 /* for backwards source compatibility */
+#define ENC_TIME_SECS                0x00000012
+#define ENC_TIME_MSECS               0x00000014
+#define ENC_TIME_SECS_NTP            0x00000018
+#define ENC_TIME_RFC_3971            0x00000020
+#define ENC_TIME_MSEC_NTP            0x00000022
+#define ENC_TIME_MIP6                0x00000024
+#define ENC_TIME_CLASSIC_MAC_OS_SECS 0x00000026
 
 /*
  * This is a modifier for FT_UINT_STRING and FT_UINT_BYTES values;
