@@ -710,7 +710,7 @@ decode_mp4_time(gchar *result, guint64 time)
 
     utc_time = abs_time_secs_to_str (NULL, time - UNIX_EPOCH_DIFF_SECONDS,
             ABSOLUTE_TIME_UTC, TRUE);
-    g_snprintf(result, ITEM_LABEL_LENGTH, "%s (%lu)", utc_time, time);
+    g_snprintf(result, ITEM_LABEL_LENGTH, "%s (%" G_GUINT64_FORMAT "u)", utc_time, time);
     wmem_free(NULL, utc_time);
 }
 
