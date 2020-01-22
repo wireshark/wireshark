@@ -17,7 +17,8 @@
  * https://tools.ietf.org/html/draft-ietf-quic-invariants-07
  * https://tools.ietf.org/html/draft-pauly-quic-datagram-05
  *
- * Currently supported QUIC version(s): draft -21, draft -22, draft -23, draft-24
+ * Currently supported QUIC version(s): draft -21, draft -22, draft -23,
+ * draft-24, draft-25.
  * For a table of supported QUIC versions per Wireshark version, see
  * https://github.com/quicwg/base-drafts/wiki/Tools#wireshark
  *
@@ -348,6 +349,7 @@ const value_string quic_version_vals[] = {
     { 0xff000016, "draft-22" },
     { 0xff000017, "draft-23" },
     { 0xff000018, "draft-24" },
+    { 0xff000019, "draft-25" },
     { 0, NULL }
 };
 
@@ -403,6 +405,7 @@ static const value_string quic_long_packet_type_vals[] = {
 #define FT_PATH_RESPONSE        0x1b
 #define FT_CONNECTION_CLOSE_TPT 0x1c
 #define FT_CONNECTION_CLOSE_APP 0x1d
+#define FT_HANDSHAKE_DONE       0x1e
 #define FT_DATAGRAM             0x30
 #define FT_DATAGRAM_LENGTH      0x31
 
@@ -429,6 +432,7 @@ static const range_string quic_frame_type_vals[] = {
     { 0x1b, 0x1b,   "PATH_RESPONSE" },
     { 0x1c, 0x1c,   "CONNECTION_CLOSE (Transport)" },
     { 0x1d, 0x1d,   "CONNECTION_CLOSE (Application)" },
+    { 0x1e, 0x1e,   "HANDSHAKE_DONE" },
     { 0x30, 0x31,   "DATAGRAM" },
     { 0,    0,        NULL },
 };
@@ -450,7 +454,9 @@ static const range_string quic_transport_error_code_vals[] = {
     { 0x0006, 0x0006, "FINAL_SIZE_ERROR" },
     { 0x0007, 0x0007, "FRAME_ENCODING_ERROR" },
     { 0x0008, 0x0008, "TRANSPORT_PARAMETER_ERROR" },
+    { 0x0009, 0x0009, "CONNECTION_ID_LIMIT_ERROR" },
     { 0x000A, 0x000A, "PROTOCOL_VIOLATION" },
+    { 0x000B, 0x000B, "INVALID_TOKEN" },
     { 0x000D, 0x000D, "CRYPTO_BUFFER_EXCEEDED" },
     { 0x000E, 0x000E, "KEY_UPDATE_ERROR" },
     { 0x0100, 0x01FF, "CRYPTO_ERROR" },
@@ -1296,6 +1302,9 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
                 proto_item_append_text(ti_ft, " (%s)", tls_alert);
             }
         }
+        break;
+        case FT_HANDSHAKE_DONE:
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", DONE");
         break;
         case FT_DATAGRAM:
         case FT_DATAGRAM_LENGTH:{
