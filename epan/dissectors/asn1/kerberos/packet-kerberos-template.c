@@ -611,12 +611,12 @@ decrypt_krb5_krb_cfx_dce_cb(const krb5_keyblock *key,
 	}
 
 	iov[2].flags = KRB5_CRYPTO_TYPE_DATA;
-	iov[2].data.data = state->gssapi_payload,
+	iov[2].data.data = state->gssapi_payload;
 	iov[2].data.length = state->gssapi_payload_len;
 
 	if (state->gssapi_trailer_ptr != NULL) {
 		iov[3].flags = KRB5_CRYPTO_TYPE_SIGN_ONLY;
-		iov[3].data.data = (guint8 *)(guintptr)state->gssapi_trailer_ptr,
+		iov[3].data.data = (guint8 *)(guintptr)state->gssapi_trailer_ptr;
 		iov[3].data.length = state->gssapi_trailer_len;
 	} else {
 		iov[3].flags = KRB5_CRYPTO_TYPE_EMPTY;
