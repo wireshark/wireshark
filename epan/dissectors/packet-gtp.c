@@ -592,6 +592,8 @@ static void pdcp_lte_free_cb(void *r)
 {
     uat_pdcp_lte_keys_record_t* rec = (uat_pdcp_lte_keys_record_t *)r;
 
+    g_free(rec->ip_addr_str);
+    g_free(rec->teid_str);
     free_address_wmem(wmem_epan_scope(), &rec->ip_address);
 }
 
@@ -682,6 +684,8 @@ static void pdcp_nr_free_cb(void *r)
 {
     uat_pdcp_nr_keys_record_t* rec = (uat_pdcp_nr_keys_record_t *)r;
 
+    g_free(rec->ip_addr_str);
+    g_free(rec->teid_str);
     free_address_wmem(wmem_epan_scope(), &rec->ip_address);
 }
 
