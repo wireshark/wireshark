@@ -12041,7 +12041,7 @@ proto_register_amqp(void)
             FT_UINT64, BASE_HEX, NULL, 0,
             "Identifier of message to be rejected", HFILL}},
         {&hf_amqp_0_10_method_file_reject_requeue, {
-            "Requeue", "amqp.file.reject.multiple",
+            "Requeue", "amqp.file.reject.requeue",
             FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x02,
             "Requeue the message", HFILL}},
         {&hf_amqp_0_10_method_stream_qos_prefetch_size, {
