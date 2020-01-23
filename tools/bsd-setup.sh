@@ -166,7 +166,7 @@ then
 fi
 
 $PM $PM_OPTIONS $ACTUAL_LIST $OPTIONS
-if [ $? ]
+if [ ! $? ]
 then
 	exit 2
 fi
