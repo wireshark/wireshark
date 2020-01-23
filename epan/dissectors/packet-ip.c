@@ -2604,7 +2604,7 @@ proto_register_ip(void)
 
     { &hf_ip_frag_offset,
       { "Fragment offset", "ip.frag_offset", FT_UINT16, BASE_DEC,
-        NULL, 0x1fff, FRAG_OFFSET_WIDTH_MSG(IP_OFFSET_WIDTH), HFILL }},
+        NULL, 0x0, FRAG_OFFSET_WIDTH_MSG(IP_OFFSET_WIDTH), HFILL }},
 
     { &hf_ip_ttl,
       { "Time to live", "ip.ttl", FT_UINT8, BASE_DEC,
