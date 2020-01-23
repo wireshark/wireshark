@@ -321,12 +321,6 @@ const value_string ip_version_vals[] = {
 /* Minimum IP header length. */
 #define IPH_MIN_LEN             20
 
-/* Width (in bits) of the fragment offset IP header field */
-#define IP_OFFSET_WIDTH         13
-
-/* Width (in bits) of the flags IP header field */
-#define IP_FLAGS_WIDTH          3
-
 /* IP flags. */
 #define IP_RF                   0x8000      /* Flag: "Reserved bit"     */
 #define IP_DF                   0x4000      /* Flag: "Don't Fragment"   */
@@ -2429,12 +2423,6 @@ dissect_ip_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 void
 proto_register_ip(void)
 {
-#define ARG_TO_STR(ARG) #ARG
-#define FLAGS_OFFSET_WIDTH_MSG(WIDTH) \
-  "Flags (" ARG_TO_STR(WIDTH) " bits)"
-#define FRAG_OFFSET_WIDTH_MSG(WIDTH) \
-  "Fragment offset (" ARG_TO_STR(WIDTH) " bits)"
-
   static hf_register_info hf[] = {
     { &hf_ip_version,
       { "Version", "ip.version", FT_UINT8, BASE_DEC,
@@ -2584,7 +2572,7 @@ proto_register_ip(void)
 
     { &hf_ip_flags,
       { "Flags", "ip.flags", FT_UINT16, BASE_HEX,
-        NULL, 0x0, FLAGS_OFFSET_WIDTH_MSG(IP_FLAGS_WIDTH), HFILL }},
+        NULL, 0x0, "Flags (3 bits)", HFILL }},
 
     { &hf_ip_flags_sf,
       { "Security flag", "ip.flags.sf", FT_BOOLEAN, 16,
@@ -2604,7 +2592,7 @@ proto_register_ip(void)
 
     { &hf_ip_frag_offset,
       { "Fragment offset", "ip.frag_offset", FT_UINT16, BASE_DEC,
-        NULL, 0x0, FRAG_OFFSET_WIDTH_MSG(IP_OFFSET_WIDTH), HFILL }},
+        NULL, 0x0, "Fragment offset (13 bits)", HFILL }},
 
     { &hf_ip_ttl,
       { "Time to live", "ip.ttl", FT_UINT8, BASE_DEC,
