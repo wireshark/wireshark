@@ -234,7 +234,9 @@ static int dissect_idmp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *paren
 
 static void idmp_reassemble_cleanup(void)
 {
+    protocolID = NULL;
     saved_protocolID = NULL;
+    opcode = -1;
 }
 
 /*--- proto_register_idmp -------------------------------------------*/
