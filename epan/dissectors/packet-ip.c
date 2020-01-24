@@ -225,7 +225,7 @@ static int hf_geoip_dst_longitude = -1;
 static gint ett_ip = -1;
 static gint ett_ip_dsfield = -1;
 static gint ett_ip_tos = -1;
-static gint ett_ip_off = -1;
+static gint ett_ip_flags = -1;
 static gint ett_ip_options = -1;
 static gint ett_ip_option_eool = -1;
 static gint ett_ip_option_nop = -1;
@@ -2025,13 +2025,13 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
     proto_item *sf;
 
     sf = proto_tree_add_bitmask_with_flags(ip_tree, tvb, offset + 6, hf_ip_flags,
-        ett_ip_off, ip_flags_evil, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_TFS | BMT_NO_INT);
+        ett_ip_flags, ip_flags_evil, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_TFS | BMT_NO_INT);
     if (iph->ip_off & IP_RF) {
         expert_add_info(pinfo, sf, &ei_ip_evil_packet);
     }
   } else {
     proto_tree_add_bitmask_with_flags(ip_tree, tvb, offset + 6, hf_ip_flags,
-        ett_ip_off, ip_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_TFS | BMT_NO_INT);
+        ett_ip_flags, ip_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_TFS | BMT_NO_INT);
   }
 
   proto_tree_add_uint(ip_tree, hf_ip_frag_offset, tvb, offset + 6, 2, (iph->ip_off & IP_OFFSET)*8);
@@ -2867,7 +2867,7 @@ proto_register_ip(void)
     &ett_ip,
     &ett_ip_dsfield,
     &ett_ip_tos,
-    &ett_ip_off,
+    &ett_ip_flags,
     &ett_ip_options,
     &ett_ip_option_eool,
     &ett_ip_option_nop,
