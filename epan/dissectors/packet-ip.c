@@ -1859,20 +1859,6 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
   proto_item *item = NULL, *ttl_item;
   guint16 ttl_valid;
 
-  static const int * ip_flags[] = {
-      &hf_ip_flags_rf,
-      &hf_ip_flags_df,
-      &hf_ip_flags_mf,
-      NULL
-  };
-  /* XXX do we realy want decoding of an april fools joke? */
-  static const int * ip_flags_evil[] = {
-      &hf_ip_flags_sf,
-      &hf_ip_flags_df,
-      &hf_ip_flags_mf,
-      NULL
-  };
-
   tree = parent_tree;
   iph = wmem_new0(wmem_packet_scope(), ws_ip4);
 
@@ -2022,7 +2008,14 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
   iph->ip_off = tvb_get_ntohs(tvb, offset + 6);
 
   if (ip_security_flag) {
+    /* RFC 3514 - The Security Flag in the IPv4 Header (April Fool's joke) */
     proto_item *sf;
+    const int *ip_flags_evil[] = {
+        &hf_ip_flags_sf,
+        &hf_ip_flags_df,
+        &hf_ip_flags_mf,
+        NULL
+    };
 
     sf = proto_tree_add_bitmask_with_flags(ip_tree, tvb, offset + 6, hf_ip_flags,
         ett_ip_flags, ip_flags_evil, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_TFS | BMT_NO_INT);
@@ -2030,6 +2023,12 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
         expert_add_info(pinfo, sf, &ei_ip_evil_packet);
     }
   } else {
+    const int *ip_flags[] = {
+        &hf_ip_flags_rf,
+        &hf_ip_flags_df,
+        &hf_ip_flags_mf,
+        NULL
+    };
     proto_tree_add_bitmask_with_flags(ip_tree, tvb, offset + 6, hf_ip_flags,
         ett_ip_flags, ip_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_TFS | BMT_NO_INT);
   }
@@ -2571,24 +2570,24 @@ proto_register_ip(void)
         FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_ip_flags,
-      { "Flags", "ip.flags", FT_UINT16, BASE_HEX,
+      { "Flags", "ip.flags", FT_UINT8, BASE_HEX,
         NULL, 0x0, "Flags (3 bits)", HFILL }},
 
     { &hf_ip_flags_sf,
-      { "Security flag", "ip.flags.sf", FT_BOOLEAN, 16,
-        TFS(&flags_sf_set_evil), 0x8000, "Security flag (RFC 3514)", HFILL }},
+      { "Security flag", "ip.flags.sf", FT_BOOLEAN, 8,
+        TFS(&flags_sf_set_evil), 0x80, "Security flag (RFC 3514)", HFILL }},
 
     { &hf_ip_flags_rf,
-      { "Reserved bit", "ip.flags.rb", FT_BOOLEAN, 16,
-        TFS(&tfs_set_notset), 0x8000, NULL, HFILL }},
+      { "Reserved bit", "ip.flags.rb", FT_BOOLEAN, 8,
+        TFS(&tfs_set_notset), 0x80, NULL, HFILL }},
 
     { &hf_ip_flags_df,
-      { "Don't fragment", "ip.flags.df", FT_BOOLEAN, 16,
-        TFS(&tfs_set_notset), 0x4000, NULL, HFILL }},
+      { "Don't fragment", "ip.flags.df", FT_BOOLEAN, 8,
+        TFS(&tfs_set_notset), 0x40, NULL, HFILL }},
 
     { &hf_ip_flags_mf,
-      { "More fragments", "ip.flags.mf", FT_BOOLEAN, 16,
-        TFS(&tfs_set_notset), 0x2000, NULL, HFILL }},
+      { "More fragments", "ip.flags.mf", FT_BOOLEAN, 8,
+        TFS(&tfs_set_notset), 0x20, NULL, HFILL }},
 
     { &hf_ip_frag_offset,
       { "Fragment offset", "ip.frag_offset", FT_UINT16, BASE_DEC,

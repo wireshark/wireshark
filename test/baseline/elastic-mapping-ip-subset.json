@@ -90,7 +90,7 @@
                   "type": "float"
                 },
                 "ip_ip_flags": {
-                  "type": "integer"
+                  "type": "short"
                 },
                 "ip_ip_flags_sf": {
                   "type": "boolean"
