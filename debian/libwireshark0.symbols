@@ -1482,6 +1482,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  sid_name_table@Base 1.9.1
  signed_time_msecs_to_str@Base 2.1.0
  signed_time_secs_to_str@Base 2.1.0
+ sip_response_code_vals@Base 3.3.0
  smb2_cmd_vals_ext@Base 1.9.1
  smb_cmd_vals_ext@Base 1.9.1
  srt_table_dissector_init@Base 1.99.8

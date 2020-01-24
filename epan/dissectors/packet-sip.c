@@ -5644,8 +5644,10 @@ static gboolean sip_validate_authorization(sip_authorization_t *authorization_in
  * sip_stat   2004 Martin Mathieson
  */
 
-/* TODO: extra codes to be added from SIP extensions? */
-static const value_string response_code_vals[] = {
+/* TODO: extra codes to be added from SIP extensions?
+ * https://www.iana.org/assignments/sip-parameters/sip-parameters.xhtml#sip-parameters-6
+ */
+const value_string sip_response_code_vals[] = {
     { 999, "Unknown response"}, /* Must be first */
 
     { 100, "Trying"},
@@ -5785,10 +5787,10 @@ static void sip_stat_init(stat_tap_table_ui* new_stat)
     }
 
     // For responses entries, first column gets code and description.
-    for (i = 1; response_code_vals[i].strptr; i++) {
-        unsigned response_code = response_code_vals[i].value;
+    for (i = 1; sip_response_code_vals[i].strptr; i++) {
+        unsigned response_code = sip_response_code_vals[i].value;
         items[REQ_RESP_METHOD_COLUMN].value.string_value =
-                g_strdup_printf("%u %s", response_code, response_code_vals[i].strptr);
+                g_strdup_printf("%u %s", response_code, sip_response_code_vals[i].strptr);
         items[REQ_RESP_METHOD_COLUMN].user_data.uint_value = response_code;
         stat_tap_init_table_row(resp_table, i-1, num_fields, items);
     }
@@ -5827,7 +5829,7 @@ sip_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, 
         cur_table = resp_table;
         if (response_code < RESPONSE_CODE_MIN || response_code > RESPONSE_CODE_MAX) {
             response_code = 999;
-        } else if (!try_val_to_str(response_code, response_code_vals)) {
+        } else if (!try_val_to_str(response_code, sip_response_code_vals)) {
             response_code = ((response_code / 100) * 100) + 99;
         }
 
@@ -7122,7 +7124,7 @@ void proto_register_sip(void)
         },
         { &hf_sip_reason_cause_sip,
           { "Cause",  "sip.reason_cause_sip",
-            FT_UINT32, BASE_DEC, VALS(response_code_vals), 0x0,
+            FT_UINT32, BASE_DEC, VALS(sip_response_code_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_sip_reason_cause_other,

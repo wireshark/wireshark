@@ -59,107 +59,6 @@ typedef struct _sip_request_method_t {
 	sipstat_t   *sp;
 } sip_request_method_t;
 
-/* TODO: extra codes to be added from SIP extensions?
-* https://www.iana.org/assignments/sip-parameters/sip-parameters.xhtml#sip-parameters-6
-*/
-static const value_string vals_status_code[] = {
-	{ 100, "Trying"},
-	{ 180, "Ringing"},
-	{ 181, "Call Is Being Forwarded"},
-	{ 182, "Queued"},
-	{ 183, "Session Progress"},
-
-	{ 199, "Early Dialog Terminated" },
-
-	{ 200, "OK"},
-	{ 202, "Accepted"},
-	{ 204, "No Notification"},
-	{ 299, "Success - Others"},	/* used to keep track of other Success packets */
-
-	{ 300, "Multiple Choices"},
-	{ 301, "Moved Permanently"},
-	{ 302, "Moved Temporarily"},
-	{ 305, "Use Proxy"},
-	{ 380, "Alternative Service"},
-	{ 399, "Redirection - Others"},
-
-	{ 400, "Bad Request"},
-	{ 401, "Unauthorized"},
-	{ 402, "Payment Required"},
-	{ 403, "Forbidden"},
-	{ 404, "Not Found"},
-	{ 405, "Method Not Allowed"},
-	{ 406, "Not Acceptable"},
-	{ 407, "Proxy Authentication Required"},
-	{ 408, "Request Timeout"},
-
-	{ 410, "Gone"},
-
-	{ 412, "Conditional Request Failed"},
-	{ 413, "Request Entity Too Large"},
-	{ 414, "Request-URI Too Long"},
-	{ 415, "Unsupported Media Type"},
-	{ 416, "Unsupported URI Scheme"},
-	{ 417, "Unknown Resource-Priority"},
-
-	{ 420, "Bad Extension"},
-	{ 421, "Extension Required"},
-	{ 422, "Session Timer Too Small"},
-	{ 423, "Interval Too Brief"},
-	{ 424, "Bad Location Information" },
-
-	{ 428, "Use Identity Header"},
-	{ 429, "Provide Referrer Identity"},
-	{ 430, "Flow Failed"},
-
-	{ 433, "Anonymity Disallowed"},
-	{ 436, "Bad Identity-Info"},
-	{ 437, "Unsupported Certificate"},
-	{ 438, "Invalid Identity Header"},
-	{ 439, "First Hop Lacks Outbound Support"},
-	{ 440, "Max-Breadth Exceeded"},
-
-	{ 469, "Bad Info Package"},
-	{ 470, "Consent Needed"},
-
-	{ 480, "Temporarily Unavailable"},
-	{ 481, "Call/Transaction Does Not Exist"},
-	{ 482, "Loop Detected"},
-	{ 483, "Too Many Hops"},
-	{ 484, "Address Incomplete"},
-	{ 485, "Ambiguous"},
-	{ 486, "Busy Here"},
-	{ 487, "Request Terminated"},
-	{ 488, "Not Acceptable Here"},
-	{ 489, "Bad Event"},
-
-	{ 491, "Request Pending"},
-	{ 493, "Undecipherable"},
-	{ 494, "Security Agreement Required"},
-	{ 499, "Client Error - Others"},
-
-	{ 500, "Server Internal Error"},
-	{ 501, "Not Implemented"},
-	{ 502, "Bad Gateway"},
-	{ 503, "Service Unavailable"},
-	{ 504, "Server Time-out"},
-	{ 505, "Version Not Supported"},
-	{ 513, "Message Too Large"},
-
-	{ 580, "Precondition Failure"},
-
-	{ 599, "Server Error - Others"},
-
-	{ 600, "Busy Everywhere"},
-	{ 603, "Decline"},
-	{ 604, "Does Not Exist Anywhere"},
-	{ 606, "Not Acceptable"},
-	{ 607, "Unwanted"},
-
-	{ 699, "Global Failure - Others"},
-
-	{ 0,	NULL}
-};
 
 /* Create tables for responses and requests */
 static void
@@ -171,14 +70,14 @@ sip_init_hash(sipstat_t *sp)
 	sp->hash_responses = g_hash_table_new(g_int_hash, g_int_equal);
 
 	/* Add all response codes */
-	for (i=0; vals_status_code[i].strptr; i++)
+	for (i=0; sip_response_code_vals[i].strptr; i++)
 	{
 		gint *key = g_new (gint, 1);
 		sip_response_code_t *sc = g_new (sip_response_code_t, 1);
-		*key = vals_status_code[i].value;
+		*key = sip_response_code_vals[i].value;
 		sc->packets = 0;
 		sc->response_code =  *key;
-		sc->name = vals_status_code[i].strptr;
+		sc->name = sip_response_code_vals[i].strptr;
 		sc->sp = sp;
 		g_hash_table_insert(sc->sp->hash_responses, key, sc);
 	}
