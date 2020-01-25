@@ -69,6 +69,7 @@ enum ws_net_dm_attrs {
 	WS_NET_DM_ATTR_HW_TRAP_COUNT,
 	WS_NET_DM_ATTR_SW_DROPS,
 	WS_NET_DM_ATTR_HW_DROPS,
+	WS_NET_DM_ATTR_FLOW_ACTION_COOKIE,
 };
 
 enum ws_net_dm_attrs_port {
@@ -151,6 +152,7 @@ static const value_string ws_net_dm_attrs_vals[] = {
 	{ WS_NET_DM_ATTR_HW_TRAP_COUNT,			"Hardware trap count" },
 	{ WS_NET_DM_ATTR_SW_DROPS,			"Software drops" },
 	{ WS_NET_DM_ATTR_HW_DROPS,			"Hardware drops" },
+	{ WS_NET_DM_ATTR_FLOW_ACTION_COOKIE,		"Flow action cookie" },
 	{ 0, NULL },
 };
 
@@ -261,6 +263,10 @@ static header_field_info hfi_net_dm_port_netdev_name NETLINK_NET_DM_HFI_INIT =
 
 static header_field_info hfi_net_dm_stats_dropped NETLINK_NET_DM_HFI_INIT =
 	{ "Dropped", "net_dm.stats.dropped", FT_UINT64, BASE_DEC,
+	  NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_net_dm_flow_action_cookie NETLINK_NET_DM_HFI_INIT =
+	{ "Flow action cookie", "net_dm.cookie", FT_BYTES, BASE_NONE,
 	  NULL, 0x00, NULL, HFILL };
 
 static int
@@ -387,6 +393,9 @@ dissect_net_dm_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_d
 	case WS_NET_DM_ATTR_HW_DROPS:
 		proto_tree_add_item(tree, &hfi_net_dm_hw, tvb, offset, len, nl_data->encoding);
 		return 1;
+	case WS_NET_DM_ATTR_FLOW_ACTION_COOKIE:
+		proto_tree_add_bytes_item(tree, &hfi_net_dm_flow_action_cookie, tvb, offset, len, ENC_NA, NULL, NULL, NULL);
+		return 1;
 	default:
 		return 0;
 	}
@@ -451,6 +460,7 @@ proto_register_netlink_net_dm(void)
 		&hfi_net_dm_port_netdev_index,
 		&hfi_net_dm_port_netdev_name,
 		&hfi_net_dm_stats_dropped,
+		&hfi_net_dm_flow_action_cookie,
 	};
 #endif
 
