@@ -37,6 +37,10 @@ Wireshark 3.3.0 Release Notes
        names of fields, for further parsing fields of BYETS or STRING
        type.
 
+     • Wireshark is able to decode, play and save iLBC payload on
+       platforms where iLBC library
+       (https://github.com/TimothyGu/libilbc) is available.
+
   New Protocol Support
 
    Cisco MisCabling Protocol (MCP)
@@ -81,7 +85,7 @@ Wireshark 3.3.0 Release Notes
 
   A complete FAQ is available on the Wireshark web site[6].
 
-  Last updated 2020-01-19 08:07:02 UTC
+  Last updated 2020-01-26 08:07:41 UTC
 
  References
 

@@ -4367,10 +4367,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Frame</translation>
     </message>
     <message>
-        <source>No interfaces found</source>
-        <translation type="vanished">Keine Schnittstellen gefunden</translation>
-    </message>
-    <message>
         <source>Wired</source>
         <translation>Kabelgebunden</translation>
     </message>
@@ -4424,28 +4420,23 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>&lt;p&gt;Local interfaces are unavailable because no packet capture driver is installed.&lt;/p&gt;&lt;p&gt;You can fix this by installing &lt;a href=&quot;https://nmap.org/npcap/&quot;&gt;Npcap&lt;/a&gt; or &lt;a href=&quot;https://www.winpcap.org/install/default.htm&quot;&gt;WinPcap&lt;/a&gt;.&lt;/p&gt;</source>
-        <oldsource>&lt;p&gt;Local interfaces are unavailable because no capture driver is installed.&lt;/p&gt;&lt;p&gt;You can fix this by installing &lt;a href=&quot;https://nmap.org/npcap/&quot;&gt;Npcap&lt;/a&gt; or &lt;a href=&quot;https://www.winpcap.org/install/default.htm&quot;&gt;WinPcap&lt;/a&gt;.&lt;/p&gt;</oldsource>
-        <translation type="unfinished">&lt;p&gt;Lokale Schnittstellen sind nicht verfügbar, da kein Mitschnitt Treiber installiert ist.&lt;/p&gt;&lt;p&gt;Dies kann durch die Installation von &lt;a href=&quot;https://nmap.org/npcap/&quot;&gt;Npcap&lt;/a&gt; oder &lt;a href=&quot;https://www.winpcap.org/install/default.htm&quot;&gt;WinPcap&lt;/a&gt; behoben werden.&lt;/p&gt;</translation>
+        <translation>&lt;p&gt;Lokale Schnittstellen sind nicht verfügbar, da kein Mitschnitt Treiber installiert ist.&lt;/p&gt;&lt;p&gt;Dies kann durch die Installation von &lt;a href=&quot;https://nmap.org/npcap/&quot;&gt;Npcap&lt;/a&gt; oder &lt;a href=&quot;https://www.winpcap.org/install/default.htm&quot;&gt;WinPcap&lt;/a&gt; behoben werden.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;Local interfaces are unavailable because the packet capture driver isn&apos;t loaded.&lt;/p&gt;&lt;p&gt;You can fix this by running &lt;pre&gt;net start npcap&lt;/pre&gt; if you have Npcap installed or &lt;pre&gt;net start npf&lt;/pre&gt; if you have WinPcap installed. Both commands must be run as Administrator.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Lokale Schnittstellen sind nicht verfügbar, da kein Mitschnitt Treiber geladen wurde.&lt;/p&gt;&lt;p&gt;Dies kann durch das Ausführen von &lt;pre&gt;net start npcap&lt;/pre&gt; (wenn Npcap installiert ist) oder &lt;pre&gt;net start npf&lt;/pre&gt; (wenn WinPcap installiert ist) behoben werden. Beide Kommandos müssen als Administrator aufgerufen werden.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;You don&apos;t have permission to capture on local interfaces.&lt;/p&gt;&lt;p&gt;You can fix this by &lt;a href=&quot;file://%1&quot;&gt;installing ChmodBPF&lt;/a&gt;.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Sie haben keine Berechtigung zum mitschneiden auf der lokalen Schnittstelle.&lt;/p&gt;&lt;p&gt; Sie können &lt;a href=&quot;file://%1&quot;&gt;ChmodBPF installieren&lt;/a&gt; um dies zu beheben.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>You don&apos;t have permission to capture on local interfaces.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sie haben keine Berechtigung zum mitschneide auf der lokalen Schnittstelle.</translation>
     </message>
     <message>
         <source>No interfaces found.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;p&gt;Local interfaces are unavailable due to insufficient permissions.&lt;/p&gt;&lt;p&gt;You can fix this by &lt;a href=&quot;file://%1&quot;&gt;installing ChmodBPF&lt;/a&gt;.&lt;/p&gt;</source>
-        <translation type="vanished">&lt;p&gt;Lokale Schnittstellen sind aufgrund unzureichender Berechtigungen nicht verfügbar.&lt;/p&gt;&lt;p&gt;Dies kann durch die &lt;a href=&quot;file://%1&quot;&gt;Installation von ChmodBPF&lt;/a&gt; behoben werden.&lt;/p&gt;</translation>
+        <translation>Keine Schnittstellen gefunden.</translation>
     </message>
     <message>
         <source>Interfaces not loaded (due to preference). Go to Capture </source>
@@ -13533,25 +13524,6 @@ text-decoration: underline;
     <message>
         <source>Unable to set FCS validation behavior.</source>
         <translation>FCS Überprüfungsverhalten kann nicht gesetzt werden.</translation>
-    </message>
-</context>
-<context>
-    <name>WiresharkApplication</name>
-    <message>
-        <source>Dell Backup and Recovery Found</source>
-        <translation type="vanished">Dell Backup and Recovery gefunden</translation>
-    </message>
-    <message>
-        <source>You appear to be running Dell Backup and Recovery 1.8.</source>
-        <translation type="vanished">Offensichtlich wurde Dell Backup and Recovery 1.8 gestartet.</translation>
-    </message>
-    <message>
-        <source>DBAR can make many applications crash &lt;a href=&quot;https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12036&quot;&gt;including Wireshark&lt;/a&gt;.</source>
-        <translation type="vanished">DBAR kann zum Absturz von vielen Applikationen führen (&lt;a href=&quot;https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12036&quot;&gt;inklusive Wireshark)&lt;/a&gt;.</translation>
-    </message>
-    <message>
-        <source>Offending DLL: %1</source>
-        <translation type="vanished">Problematische DLL: %1</translation>
     </message>
 </context>
 <context>
