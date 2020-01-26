@@ -2244,7 +2244,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         _find_or_create_conversation(pinfo, &pinfo->dl_src, &pinfo->dl_dst);
     }
 
-    if (ieee802154_ack_tracking && fcs_ok && (packet->ack_request || packet->frame_type == IEEE802154_FCF_ACK)) {
+    if (ieee802154_ack_tracking && (packet->ack_request || packet->frame_type == IEEE802154_FCF_ACK)) {
         guint32 key[2] = {0};
 
         key[0] = packet->seqno;
