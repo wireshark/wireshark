@@ -1571,6 +1571,11 @@ foreach( _cfg_file ${CFG_OUT_FILES} )
 endforeach()
 
 include(FeatureSummary)
+set_package_properties(CAP PROPERTIES
+	DESCRIPTION "The Libcap package implements the user-space interfaces to the POSIX 1003.1e capabilities available in Linux kernels"
+	URL "https://sites.google.com/site/fullycapable/"
+	PURPOSE "Allow packet captures without running as root"
+)
 set_package_properties(SBC PROPERTIES
 	DESCRIPTION "Bluetooth low-complexity, subband codec (SBC) decoder"
 	URL "https://git.kernel.org/pub/scm/bluetooth/sbc.git"
