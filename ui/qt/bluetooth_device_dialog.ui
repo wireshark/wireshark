@@ -165,6 +165,16 @@
      </row>
      <row>
       <property name="text">
+       <string>LE ISO MTU</string>
+      </property>
+     </row>
+     <row>
+      <property name="text">
+       <string>LE ISO Total Packets</string>
+      </property>
+     </row>
+     <row>
+      <property name="text">
        <string>Inquiry Mode</string>
       </property>
      </row>

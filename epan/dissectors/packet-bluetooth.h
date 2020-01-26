@@ -241,7 +241,9 @@ typedef struct _bluetooth_device_tap_t {
         } mtus;
         struct {
             guint16  acl_mtu;
+            guint16  iso_mtu;
             guint16  acl_packets;
+            guint16  iso_packets;
         } le_mtus;
     } data;
 } bluetooth_device_tap_t;
