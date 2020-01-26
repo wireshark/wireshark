@@ -55,6 +55,7 @@ ADDITIONAL_LIST="\
 	libsmi \
 	brotli \
 	speexdsp \
+	zstd \
 	"
 
 # Guess which package manager we will use
@@ -124,7 +125,9 @@ echo "c-ares is unavailable"
 add_package ADDITIONAL_LIST rubygem-asciidoctor ||
 echo "asciidoctor is unavailable"
 
+# liblz4: FreeBSD
 # lz4: NetBSD
+add_package ADDITIONAL_LIST liblz4 ||
 add_package ADDITIONAL_LIST lz4 ||
 echo "lz4 is unavailable"
 
