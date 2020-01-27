@@ -1217,6 +1217,10 @@ void extcap_if_cleanup(capture_options *capture_opts, gchar **errormsg)
             ws_unlink(interface_opts->extcap_control_out);
             interface_opts->extcap_control_out = NULL;
         }
+        /* Send termination signal to child. On Linux and OSX the child will not notice that the
+         * pipe has been closed before writing to the pipe.
+         */
+        kill(interface_opts->extcap_pid , SIGTERM);
 #endif
         /* Maybe the client closed and removed fifo, but ws should check if
          * pid should be closed */
