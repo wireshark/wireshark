@@ -555,38 +555,38 @@ get_iface_list_string(capture_options *capture_opts, guint32 style)
 #ifdef _WIN32
     if (capture_opts->ifaces->len < 2) {
 #else
-        if (capture_opts->ifaces->len < 4) {
+    if (capture_opts->ifaces->len < 4) {
 #endif
-            for (i = 0; i < capture_opts->ifaces->len; i++) {
-                if (i > 0) {
-                    if (capture_opts->ifaces->len > 2) {
-                        g_string_append_printf(iface_list_string, ",");
-                    }
-                    g_string_append_printf(iface_list_string, " ");
-                    if (i == capture_opts->ifaces->len - 1) {
-                        g_string_append_printf(iface_list_string, "and ");
-                    }
+        for (i = 0; i < capture_opts->ifaces->len; i++) {
+            if (i > 0) {
+                if (capture_opts->ifaces->len > 2) {
+                    g_string_append_printf(iface_list_string, ",");
                 }
-                if (style & IFLIST_QUOTE_IF_DESCRIPTION)
-                    g_string_append_printf(iface_list_string, "'");
-                const gchar* name = get_iface_description_for_interface(capture_opts, i);
-                g_string_append_printf(iface_list_string, "%s", name ? name : "");
-                if (style & IFLIST_QUOTE_IF_DESCRIPTION)
-                    g_string_append_printf(iface_list_string, "'");
-                if (style & IFLIST_SHOW_FILTER) {
-                    interface_options *interface_opts;
-
-                    interface_opts = &g_array_index(capture_opts->ifaces, interface_options, i);
-                    if (interface_opts->cfilter != NULL &&
-                            strlen(interface_opts->cfilter) > 0) {
-                        g_string_append_printf(iface_list_string, " (%s)", interface_opts->cfilter);
-                    }
+                g_string_append_printf(iface_list_string, " ");
+                if (i == capture_opts->ifaces->len - 1) {
+                    g_string_append_printf(iface_list_string, "and ");
                 }
             }
-        } else {
-            g_string_append_printf(iface_list_string, "%u interfaces", capture_opts->ifaces->len);
+            if (style & IFLIST_QUOTE_IF_DESCRIPTION)
+                g_string_append_printf(iface_list_string, "'");
+            const gchar* name = get_iface_description_for_interface(capture_opts, i);
+            g_string_append_printf(iface_list_string, "%s", name ? name : "");
+            if (style & IFLIST_QUOTE_IF_DESCRIPTION)
+                g_string_append_printf(iface_list_string, "'");
+            if (style & IFLIST_SHOW_FILTER) {
+                interface_options *interface_opts;
+
+                interface_opts = &g_array_index(capture_opts->ifaces, interface_options, i);
+                if (interface_opts->cfilter != NULL &&
+                        strlen(interface_opts->cfilter) > 0) {
+                    g_string_append_printf(iface_list_string, " (%s)", interface_opts->cfilter);
+                }
+            }
         }
-        return iface_list_string;
+    } else {
+        g_string_append_printf(iface_list_string, "%u interfaces", capture_opts->ifaces->len);
+    }
+    return iface_list_string;
 }
 #endif /* HAVE_LIBPCAP */
 
