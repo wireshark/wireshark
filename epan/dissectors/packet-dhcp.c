@@ -2337,53 +2337,51 @@ dissect_dhcpopt_user_class_information(tvbuff_t *tvb, packet_info *pinfo, proto_
 {
 	guchar user_class_instance_index = 0;
 	int offset = 0;
-	guint32 class_length;
 	proto_item *vtix, *len_item;
 	proto_tree *o77_v_tree;
-	if (tvb_reported_length(tvb) < 2) {
+	guint class_length, uci_len = tvb_reported_length(tvb);
+	if (uci_len < 2) {
 		expert_add_info_format(pinfo, tree, &ei_dhcp_bad_length, "length isn't >= 2");
 		return 1;
 	}
 
-	if (!tvb_strneql(tvb, offset, "iPXE", 4)) {
-		/* The iPXE is known to violate RFC 3004, http://forum.ipxe.org/showthread.php?tid=7530 */
-		proto_item *expert_ti = proto_tree_add_item(tree, hf_dhcp_option77_user_class_data, tvb, offset, -1, ENC_NA);
-		expert_add_info(pinfo, expert_ti, &ei_dhcp_nonstd_option_data);
-		return tvb_captured_length(tvb);
-	}
-
 	while (tvb_reported_length_remaining(tvb, offset) > 0) {
+		class_length = tvb_get_guint8(tvb, offset);
+		if (class_length >= uci_len) {
+			/* Having the sum of the User Class data lengths exceed the total User Option Information length (uci_len)
+			 * is a violation of RFC 3004. In that case the remaining data is treated as a non-conformant (text) option.
+			 * This check will also catch the Microsoft 'variation' implementation (when Vendor class identifier contains
+			 * "MSFT 5.0") such as "RRAS.Microsoft" and others like "iPXE".
+			 * In the unlikely case that the first character can be interpreted as a valid length the next iteration
+			 * of this while loop will catch that.
+			 * https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16349
+			 * https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-dhcpe/fe8a2dd4-1e8c-4546-bacd-4ae10de02058
+			 */
+			proto_item *expert_ti = proto_tree_add_item(tree, hf_dhcp_option77_user_class_text, tvb, offset, uci_len, ENC_ASCII|ENC_NA);
+			expert_add_info(pinfo, expert_ti, &ei_dhcp_nonstd_option_data);
+			break;
+		}
+
 		/* Create subtree for instance of User Class. */
 		vtix = proto_tree_add_uint_format_value(tree, hf_dhcp_option77_user_class,
 				tvb, offset, 1, user_class_instance_index, "[%d]", user_class_instance_index);
 		o77_v_tree = proto_item_add_subtree(vtix, ett_dhcp_option77_instance);
 
-		if (!tvb_strneql(tvb, offset, "RRAS.Microsoft", 14)) {
-			/* MS have this non-conformant option:
-			 *
-			 *   https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-dhcpe/a7be26f5-659d-4912-b715-0481b9d84e95
-			 */
-			class_length = 14;
-			proto_item *expert_ti = proto_tree_add_item(o77_v_tree, hf_dhcp_option77_user_class_text, tvb, offset, class_length, ENC_ASCII|ENC_NA);
-			expert_add_info(pinfo, expert_ti, &ei_dhcp_nonstd_option_data);
-			proto_item_set_len(vtix, class_length);
-		}
-		else {
-			/* Add length for instance of User Class. */
-			len_item = proto_tree_add_item_ret_uint(o77_v_tree, hf_dhcp_option77_user_class_length,
-					tvb, offset, 1, ENC_BIG_ENDIAN, &class_length);
-			proto_item_set_len(vtix, class_length+1);
-			offset += 1;
+		/* Add length for instance of User Class. */
+		len_item = proto_tree_add_uint(o77_v_tree, hf_dhcp_option77_user_class_length, tvb, offset, 1, class_length);
+		proto_item_set_len(vtix, class_length+1);
+		offset++;
 
-			if (class_length == 0) {
-				expert_add_info_format(pinfo, len_item, &ei_dhcp_bad_length, "UC_Len_%u isn't >= 1 (UC_Len_%u = 0)", user_class_instance_index, user_class_instance_index);
-				break;
-			}
-
-			/* Add data for instance of User Class. */
-			proto_tree_add_item(o77_v_tree, hf_dhcp_option77_user_class_data, tvb, offset, class_length, ENC_NA);
+		if (class_length == 0) {
+			expert_add_info_format(pinfo, len_item, &ei_dhcp_bad_length, "UC_Len_%u isn't >= 1 (UC_Len_%u = 0)", user_class_instance_index, user_class_instance_index);
+			break;
 		}
+
+		/* Add data for instance of User Class. */
+		proto_tree_add_item(o77_v_tree, hf_dhcp_option77_user_class_data, tvb, offset, class_length, ENC_NA);
+
 		offset += class_length;
+		uci_len -= class_length + 1;
 		user_class_instance_index++;
 	}
 
