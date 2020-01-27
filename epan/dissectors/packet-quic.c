@@ -12,8 +12,8 @@
 
 /*
  * See https://quicwg.org
- * https://tools.ietf.org/html/draft-ietf-quic-transport-24
- * https://tools.ietf.org/html/draft-ietf-quic-tls-24
+ * https://tools.ietf.org/html/draft-ietf-quic-transport-25
+ * https://tools.ietf.org/html/draft-ietf-quic-tls-25
  * https://tools.ietf.org/html/draft-ietf-quic-invariants-07
  * https://tools.ietf.org/html/draft-pauly-quic-datagram-05
  *
@@ -89,6 +89,7 @@ static int hf_quic_remaining_payload = -1;
 static int hf_quic_odcil = -1;
 static int hf_quic_odcid = -1;
 static int hf_quic_retry_token = -1;
+static int hf_quic_retry_integrity_tag = -1;
 
 static int hf_quic_frame = -1;
 static int hf_quic_frame_type = -1;
@@ -1939,13 +1940,23 @@ dissect_quic_retry_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
 
     offset = dissect_quic_long_header_common(tvb, pinfo, quic_tree, offset, quic_packet, &version, &dcid, &scid);
 
-    proto_tree_add_item_ret_uint(quic_tree, hf_quic_odcil, tvb, offset, 1, ENC_NA, &odcil);
-    offset++;
-    proto_tree_add_item(quic_tree, hf_quic_odcid, tvb, offset, odcil, ENC_NA);
-    offset += odcil;
+    if (is_quic_draft_max(version, 24)) {
+        proto_tree_add_item_ret_uint(quic_tree, hf_quic_odcil, tvb, offset, 1, ENC_NA, &odcil);
+        offset++;
+        proto_tree_add_item(quic_tree, hf_quic_odcid, tvb, offset, odcil, ENC_NA);
+        offset += odcil;
+    }
+
     retry_token_len = tvb_reported_length_remaining(tvb, offset);
     proto_tree_add_item(quic_tree, hf_quic_retry_token, tvb, offset, retry_token_len, ENC_NA);
     offset += retry_token_len;
+
+    if (!is_quic_draft_max(version, 24)) {
+        // If desired, the retry integrity tag could be verified following
+        // https://tools.ietf.org/html/draft-ietf-quic-tls-25#section-5.8
+        proto_tree_add_item(quic_tree, hf_quic_retry_integrity_tag, tvb, offset, 16, ENC_NA);
+        offset += 16;
+    }
 
     return offset;
 }
@@ -2690,6 +2701,11 @@ proto_register_quic(void)
         },
         { &hf_quic_retry_token,
           { "Retry Token", "quic.retry_token",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_quic_retry_integrity_tag,
+          { "Retry Integrity Tag", "quic.retry_integrity_tag",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
