@@ -292,6 +292,14 @@ static const value_string om2k_msgcode_vals[] = {
 	{ 0x011a, "Feature Control Complete" },
 	{ 0x011b, "Feature Control Reject" },
 
+	/* Observed with RBS6000 / DUG 20 */
+	{ 0x012c, "MCTR Configuration Request" },
+	{ 0x012e, "MCTR Configuration Request Accept" },
+	{ 0x012f, "MCTR Configuration Request Reject" },
+	{ 0x0130, "MCTR Configuration Result ACK" },
+	{ 0x0131, "MCTR Configuration Result NACK" },
+	{ 0x0132, "MCTR Configuration Result" },
+
 	{ 0, NULL }
 };
 static value_string_ext om2k_msgcode_vals_ext = VALUE_STRING_EXT_INIT(om2k_msgcode_vals);
@@ -1099,6 +1107,15 @@ dissect_om2k_attrs(tvbuff_t *tvb, packet_info *pinfo, gint offset, proto_tree *t
 			 * traces */
 			tmp = tvb_get_guint8(tvb, offset++);
 			offset += dissect_om2k_attr_unkn(tvb, offset, tmp, iei, tree);
+			break;
+		case 0xa8: /* unknown 2-bytes fixed length attribute of MCTR Config */
+		case 0xab: /* unknown 2-bytes fixed length attribute of MCTR Config */
+		case 0xb5: /* unknown 2-bytes fixed length attribute of TX Config */
+			offset += dissect_om2k_attr_unkn(tvb, offset, 2, iei, tree);
+			break;
+		case 0xa9: /* unknown 1-bytes fixed length attribute of MCTR Config */
+		case 0xaa: /* unknown 1-bytes fixed length attribute of MCTR Config */
+			offset += dissect_om2k_attr_unkn(tvb, offset, 1, iei, tree);
 			break;
 		case 0x9e:
 		case 0x9f:
