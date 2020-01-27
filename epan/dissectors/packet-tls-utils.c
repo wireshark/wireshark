@@ -1376,7 +1376,7 @@ const value_string compress_certificate_algorithm_vals[] = {
 
 const value_string quic_transport_parameter_id[] = {
     { SSL_HND_QUIC_TP_ORIGINAL_CONNECTION_ID, "original_connection_id" },
-    { SSL_HND_QUIC_TP_IDLE_TIMEOUT, "idle_timeout" },
+    { SSL_HND_QUIC_TP_MAX_IDLE_TIMEOUT, "max_idle_timeout" },
     { SSL_HND_QUIC_TP_STATELESS_RESET_TOKEN, "stateless_reset_token" },
     { SSL_HND_QUIC_TP_MAX_PACKET_SIZE, "max_packet_size" },
     { SSL_HND_QUIC_TP_INITIAL_MAX_DATA, "initial_max_data" },
@@ -6601,29 +6601,13 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
 {
     guint32 quic_length, parameter_length, next_offset;
 
-    /* https://tools.ietf.org/html/draft-ietf-quic-transport-22#section-18
-    *  uint32 QuicVersion;
-     *  enum {
-     *     original_connection_id(0),
-     *     idle_timeout(1),
-     *     stateless_reset_token(2),
-     *     max_packet_size(3),
-     *     initial_max_data(4),
-     *     initial_max_stream_data_bidi_local(5),
-     *     initial_max_stream_data_bidi_remote(6),
-     *     initial_max_stream_data_uni(7),
-     *     initial_max_streams_bidi(8),
-     *     initial_max_streams_uni(9),
-     *     ack_delay_exponent(10),
-     *     max_ack_delay(11),
-     *     disable_migration(12),
-     *     preferred_address(13),
-     *     active_connection_id_limit(14),
-     *     (65535)
-     *  } TransportParameterId;
+    /* https://tools.ietf.org/html/draft-ietf-quic-transport-25#section-18
+     *
+     * Note: the following structures are not literally defined in the spec,
+     * they instead use an ASCII diagram.
      *
      *   struct {
-     *     TransportParameterId parameter;
+     *     uint16 id;
      *     opaque value<0..2^16-1>;
      *  } TransportParameter;
      *
@@ -6656,7 +6640,7 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
 
         parameter_tree = proto_tree_add_subtree(tree, tvb, offset, 4, hf->ett.hs_ext_quictp_parameter,
                                                 NULL, "Parameter");
-        /* TransportParameterId parameter */
+        /* TransportParameter ID */
         proto_tree_add_item_ret_uint(parameter_tree, hf->hf.hs_ext_quictp_parameter_type,
                                      tvb, offset, 2, ENC_BIG_ENDIAN, &parameter_type);
         offset += 2;
@@ -6687,8 +6671,8 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
                                     tvb, offset, parameter_length, ENC_NA);
                 offset += parameter_length;
             break;
-            case SSL_HND_QUIC_TP_IDLE_TIMEOUT:
-                proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_idle_timeout,
+            case SSL_HND_QUIC_TP_MAX_IDLE_TIMEOUT:
+                proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_max_idle_timeout,
                                                tvb, offset, -1, ENC_VARINT_QUIC, &value, &len);
                 proto_item_append_text(parameter_tree, " %" G_GINT64_MODIFIER "u ms", value);
                 offset += len;

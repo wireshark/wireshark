@@ -151,7 +151,7 @@ typedef enum {
 #define SSL_HND_CERT_TYPE_RAW_PUBLIC_KEY     2
 
 #define SSL_HND_QUIC_TP_ORIGINAL_CONNECTION_ID              0
-#define SSL_HND_QUIC_TP_IDLE_TIMEOUT                        1
+#define SSL_HND_QUIC_TP_MAX_IDLE_TIMEOUT                    1
 #define SSL_HND_QUIC_TP_STATELESS_RESET_TOKEN               2
 #define SSL_HND_QUIC_TP_MAX_PACKET_SIZE                     3
 #define SSL_HND_QUIC_TP_INITIAL_MAX_DATA                    4
@@ -898,7 +898,7 @@ typedef struct ssl_common_dissect {
         gint hs_ext_quictp_parameter_len;
         gint hs_ext_quictp_parameter_value;
         gint hs_ext_quictp_parameter_ocid;
-        gint hs_ext_quictp_parameter_idle_timeout;
+        gint hs_ext_quictp_parameter_max_idle_timeout;
         gint hs_ext_quictp_parameter_stateless_reset_token;
         gint hs_ext_quictp_parameter_initial_max_data;
         gint hs_ext_quictp_parameter_initial_max_stream_data_bidi_local;
@@ -1933,8 +1933,8 @@ ssl_common_dissect_t name = {   \
         FT_BYTES, BASE_NONE, NULL, 0x00,                                \
         "The value of the Destination Connection ID field from the first Initial packet sent by the client", HFILL } \
     },                                                                  \
-    { & name .hf.hs_ext_quictp_parameter_idle_timeout,                  \
-      { "idle_timeout", prefix ".quic.parameter.idle_timeout",          \
+    { & name .hf.hs_ext_quictp_parameter_max_idle_timeout,              \
+      { "max_idle_timeout", prefix ".quic.parameter.max_idle_timeout",  \
         FT_UINT64, BASE_DEC, NULL, 0x00,                                \
         "In milliseconds", HFILL }                                      \
     },                                                                  \
