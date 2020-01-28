@@ -150,6 +150,7 @@ static expert_field ei_quic_connection_unknown = EI_INIT;
 static expert_field ei_quic_ft_unknown = EI_INIT;
 static expert_field ei_quic_decryption_failed = EI_INIT;
 static expert_field ei_quic_protocol_violation = EI_INIT;
+static expert_field ei_quic_bad_retry = EI_INIT;
 
 static gint ett_quic = -1;
 static gint ett_quic_short_header = -1;
@@ -261,6 +262,7 @@ typedef struct quic_info_data {
     address         server_address;
     guint16         server_port;
     gboolean        skip_decryption : 1; /**< Set to 1 if no keys are available. */
+    gboolean        client_dcid_set : 1; /**< Set to 1 if client_dcid_initial is set. */
     int             hash_algo;      /**< Libgcrypt hash algorithm for key derivation. */
     int             cipher_algo;    /**< Cipher algorithm for packet number and packet encryption. */
     int             cipher_mode;    /**< Cipher mode for packet encryption. */
@@ -287,6 +289,8 @@ struct quic_packet_info {
     quic_decrypt_result_t   decryption;
     guint8                  pkn_len;        /**< Length of PKN (1/2/3/4) or unknown (0). */
     guint8                  first_byte;     /**< Decrypted flag byte, valid only if pkn_len is non-zero. */
+    gboolean                retry_integrity_failure : 1;
+    gboolean                retry_integrity_success : 1;
 };
 typedef struct quic_packet_info quic_packet_info_t;
 
@@ -837,6 +841,7 @@ quic_connection_update_initial(quic_info_data_t *conn, const quic_cid_t *scid, c
         // bytes, but non-conforming implementations could exist.
         memcpy(&conn->client_dcid_initial, dcid, sizeof(quic_cid_t));
         wmem_map_insert(quic_initial_connections, &conn->client_dcid_initial, conn);
+        conn->client_dcid_set = 1;
     }
 }
 
@@ -883,7 +888,7 @@ quic_connection_create_or_update(quic_info_data_t **conn_p,
                 // The first Initial Packet from the client creates a new connection.
                 *conn_p = quic_connection_create(pinfo, version);
                 quic_connection_update_initial(*conn_p, scid, dcid);
-            } else if (conn->client_dcid_initial.len == 0 && dcid->len) {
+            } else if (!conn->client_dcid_set && dcid->len) {
                 // If this client Initial Packet responds to a Retry Packet,
                 // then remember the new client SCID and initial DCID for the
                 // new Initial cipher and clear the first server CID such that
@@ -908,6 +913,7 @@ quic_connection_create_or_update(quic_info_data_t **conn_p,
                 // packet populates the new value.
                 wmem_map_remove(quic_initial_connections, &conn->client_dcid_initial);
                 memset(&conn->client_dcid_initial, 0, sizeof(quic_cid_t));
+                conn->client_dcid_set = 0;
             }
             if (conn->server_cids.data.len == 0 && scid->len) {
                 memcpy(&conn->server_cids.data, scid, sizeof(quic_cid_t));
@@ -1854,6 +1860,49 @@ quic_process_payload(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U_
 }
 #endif /* !HAVE_LIBGCRYPT_AEAD */
 
+#ifdef HAVE_LIBGCRYPT_AEAD
+static void
+quic_verify_retry_token(tvbuff_t *tvb, quic_packet_info_t *quic_packet, const quic_cid_t *odcid)
+{
+    /*
+     * Verify the Retry Integrity Tag using the fixed key from
+     * https://tools.ietf.org/html/draft-ietf-quic-tls-25#section-5.8
+     */
+    static const guint8 key[] = {
+        0x4d, 0x32, 0xec, 0xdb, 0x2a, 0x21, 0x33, 0xc8,
+        0x41, 0xe4, 0x04, 0x3d, 0xf2, 0x7d, 0x44, 0x30,
+    };
+    static const guint8 nonce[] = {
+        0x4d, 0x16, 0x11, 0xd0, 0x55, 0x13, 0xa5, 0x52, 0xc5, 0x87, 0xd5, 0x75,
+    };
+    gcry_cipher_hd_t    h = NULL;
+    gcry_error_t        err;
+    gint                pseudo_packet_tail_length = tvb_reported_length(tvb) - 16;
+
+    DISSECTOR_ASSERT(pseudo_packet_tail_length > 0);
+
+    err = gcry_cipher_open(&h, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_GCM, 0);
+    DISSECTOR_ASSERT_HINT(err == 0, "create cipher");
+    err = gcry_cipher_setkey(h, key, sizeof(key));
+    DISSECTOR_ASSERT_HINT(err == 0, "set key");
+    err = gcry_cipher_setiv(h, nonce, sizeof(nonce));
+    DISSECTOR_ASSERT_HINT(err == 0, "set nonce");
+    G_STATIC_ASSERT(sizeof(odcid->len) == 1);
+    err = gcry_cipher_authenticate(h, odcid, 1 + odcid->len);
+    DISSECTOR_ASSERT_HINT(err == 0, "aad1");
+    err = gcry_cipher_authenticate(h, tvb_get_ptr(tvb, 0, pseudo_packet_tail_length), pseudo_packet_tail_length);
+    DISSECTOR_ASSERT_HINT(err == 0, "aad2");
+    // Plaintext is empty, there is no need to call gcry_cipher_encrypt.
+    err = gcry_cipher_checktag(h, tvb_get_ptr(tvb, pseudo_packet_tail_length, 16), 16);
+    if (err) {
+        quic_packet->retry_integrity_failure = 1;
+    } else {
+        quic_packet->retry_integrity_success = 1;
+    }
+    gcry_cipher_close(h);
+}
+#endif /* HAVE_LIBGCRYPT_AEAD */
+
 static void
 quic_add_connection_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, quic_info_data_t *conn)
 {
@@ -1871,6 +1920,7 @@ quic_add_connection_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, qu
 #if 0
     proto_tree_add_debug_text(ctree, "Client CID: %s", cid_to_string(&conn->client_cids.data));
     proto_tree_add_debug_text(ctree, "Server CID: %s", cid_to_string(&conn->server_cids.data));
+    // Note: for Retry, this value has been cleared before.
     proto_tree_add_debug_text(ctree, "InitialCID: %s", cid_to_string(&conn->client_dcid_initial));
 #endif
 }
@@ -1932,13 +1982,15 @@ dissect_quic_long_header_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *q
 /* Retry Packet dissection */
 static int
 dissect_quic_retry_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree,
-                          quic_datagram *dgram_info _U_, quic_packet_info_t *quic_packet)
+                          quic_datagram *dgram_info _U_, quic_packet_info_t *quic_packet,
+                          const quic_cid_t *odcid)
 {
     guint       offset = 0;
     guint32     version;
     quic_cid_t  dcid = {.len=0}, scid = {.len=0};
     guint32     odcil = 0;
     guint       retry_token_len;
+    proto_item *ti;
 
     proto_tree_add_item(quic_tree, hf_quic_long_packet_type, tvb, offset, 1, ENC_NA);
     offset += 1;
@@ -1956,15 +2008,30 @@ dissect_quic_retry_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
     retry_token_len = tvb_reported_length_remaining(tvb, offset);
     // Remove length of Retry Integrity Tag"
     if (!is_quic_draft_max(version, 24) && retry_token_len >= 16) {
-        retry_token_len -=16;
+        retry_token_len -= 16;
     }
     proto_tree_add_item(quic_tree, hf_quic_retry_token, tvb, offset, retry_token_len, ENC_NA);
     offset += retry_token_len;
 
     if (!is_quic_draft_max(version, 24)) {
-        // If desired, the retry integrity tag could be verified following
+        // Verify the Retry Integrity Tag according to
         // https://tools.ietf.org/html/draft-ietf-quic-tls-25#section-5.8
-        proto_tree_add_item(quic_tree, hf_quic_retry_integrity_tag, tvb, offset, 16, ENC_NA);
+        ti = proto_tree_add_item(quic_tree, hf_quic_retry_integrity_tag, tvb, offset, 16, ENC_NA);
+#ifdef HAVE_LIBGCRYPT_AEAD
+        if (!PINFO_FD_VISITED(pinfo) && odcid) {
+            // Skip validation if the Initial Packet is unknown, for example due
+            // to packet loss in the capture file.
+            quic_verify_retry_token(tvb, quic_packet, odcid);
+        }
+#else
+        (void)odcid;
+#endif
+        if (quic_packet->retry_integrity_failure) {
+            expert_add_info(pinfo, ti, &ei_quic_bad_retry);
+        } else if (!quic_packet->retry_integrity_success) {
+            expert_add_info_format(pinfo, ti, &ei_quic_bad_retry,
+                    "Cannot verify Retry Packet due to unknown ODCID");
+        }
         offset += 16;
     }
 
@@ -2331,6 +2398,7 @@ dissect_quic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint       offset = 0;
     quic_datagram *dgram_info = NULL;
     quic_packet_info_t *quic_packet = NULL;
+    quic_cid_t  real_retry_odcid = {.len=0}, *retry_odcid = NULL;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "QUIC");
 
@@ -2354,6 +2422,11 @@ dissect_quic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         quic_extract_header(tvb, &long_packet_type, &version, &dcid, &scid);
         conn = quic_connection_find(pinfo, long_packet_type, &dcid, &from_server);
+        if (conn && long_packet_type == QUIC_LPT_RETRY && conn->client_dcid_set) {
+            // Save the original client DCID before erasure.
+            real_retry_odcid = conn->client_dcid_initial;
+            retry_odcid = &real_retry_odcid;
+        }
         quic_connection_create_or_update(&conn, pinfo, long_packet_type, version, &scid, &dcid, from_server);
         dgram_info->conn = conn;
         dgram_info->from_server = from_server;
@@ -2398,7 +2471,7 @@ dissect_quic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 break;
             }
             if (long_packet_type == QUIC_LPT_RETRY) {
-                new_offset = dissect_quic_retry_packet(next_tvb, pinfo, quic_tree, dgram_info, quic_packet);
+                new_offset = dissect_quic_retry_packet(next_tvb, pinfo, quic_tree, dgram_info, quic_packet, retry_odcid);
             } else {
                 new_offset = dissect_quic_long_header(next_tvb, pinfo, quic_tree, dgram_info, quic_packet);
             }
@@ -3036,6 +3109,10 @@ proto_register_quic(void)
         { &ei_quic_protocol_violation,
           { "quic.protocol_violation", PI_PROTOCOL, PI_WARN,
             "Invalid data according to the protocol", EXPFILL }
+        },
+        { &ei_quic_bad_retry,
+          { "quic.bad_retry", PI_PROTOCOL, PI_WARN,
+            "Retry Integrity Tag verification failure", EXPFILL }
         },
     };
 
