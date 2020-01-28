@@ -1127,6 +1127,9 @@ dissect_om2k_attrs(tvbuff_t *tvb, packet_info *pinfo, gint offset, proto_tree *t
 		case 0xa3:
 		case 0xa5:
 		case 0xa6:
+		case 0xae:
+		case 0xaf:
+		case 0xb0:
 			/* we don't know any of the above, but the
 			 * TLV structure is quite clear in the protocol
 			 * traces */
@@ -1135,6 +1138,12 @@ dissect_om2k_attrs(tvbuff_t *tvb, packet_info *pinfo, gint offset, proto_tree *t
 			break;
 		case 0xb5: /* unknown 2-bytes fixed length attribute of TX Config */
 			offset += dissect_om2k_attr_unkn(tvb, offset, 2, iei, tree);
+			break;
+		case 0xd2: /* unknown 6-bytes fixed length attribute of TRXC Fault Rep */
+			offset += dissect_om2k_attr_unkn(tvb, offset, 6, iei, tree);
+			break;
+		case 0xac: /* unknown 58-bytes fixed length attribute of message type 0x0136 */
+			offset += dissect_om2k_attr_unkn(tvb, offset, 58, iei, tree);
 			break;
 		case 0x9e:
 		case 0x9f:
