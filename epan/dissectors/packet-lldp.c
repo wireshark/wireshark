@@ -6270,6 +6270,7 @@ proto_reg_handoff_lldp(void)
 
 	lldp_handle = create_dissector_handle(dissect_lldp,proto_lldp);
 	dissector_add_uint("ethertype", ETHERTYPE_LLDP, lldp_handle);
+	dissector_add_uint("ethertype", ETHERTYPE_ONOS, lldp_handle);
 }
 
 /*

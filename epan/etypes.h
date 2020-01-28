@@ -570,6 +570,10 @@ extern "C" {
 #define ETHERTYPE_ECP			0x8940	/* Edge Control Protocol */
 #endif
 
+#ifndef ETHERTYPE_ONOS
+#define ETHERTYPE_ONOS			0x8942	/* Open Network OS */
+#endif
+
 #ifndef ETHERTYPE_GEONETWORKING
 #define ETHERTYPE_GEONETWORKING		0x8947	/* GeoNetworking as defined in ETSI EN 302 636-4-1. */
 #endif
