@@ -968,7 +968,7 @@ dissect_PNDCP_Suboption_DHCP(tvbuff_t *tvb, int offset, packet_info *pinfo,
                  * use its heuristics?
                  */
                 proto_tree_add_item(tree, hf_pn_dcp_suboption_dhcp_arbitrary_client_id, tvb, offset, dhcpparameterlength - 1, ENC_ASCII|ENC_NA);
-                offset += dhcpparameterlength;
+                offset += (dhcpparameterlength-1);
             }
         }
         break;
