@@ -103,6 +103,10 @@ static int hf_om2k_result_code = -1;
 static int hf_om2k_reason_code = -1;
 static int hf_om2k_iwd_type = -1;
 static int hf_om2k_iwd_gen_rev = -1;
+static int hf_om2k_trxc_list = -1;
+static int hf_om2k_max_allowed_power = -1;
+static int hf_om2k_max_allowed_num_trxcs = -1;
+static int hf_om2k_mctr_feat_sts_bitmap = -1;
 
 /* initialize the subtree pointers */
 static int ett_om2000 = -1;
@@ -432,6 +436,10 @@ static const value_string om2k_attr_vals[] = {
 	{ 0x9b, "Master TX Chain Delay" },
 	{ 0x9c, "External Condition Class 2 Extension" },
 	{ 0x9d, "TSs MO State" },
+	{ 0xa8, "TRXC List" },
+	{ 0xa9, "Maximum Allowed Power" },
+	{ 0xaa, "Maximum Allowed Number of TRXCs" },
+	{ 0xab, "MCTR Feature Status Bitmap" },
 	{ 0, NULL }
 };
 static value_string_ext om2k_attr_vals_ext = VALUE_STRING_EXT_INIT(om2k_attr_vals);
@@ -1099,6 +1107,23 @@ dissect_om2k_attrs(tvbuff_t *tvb, packet_info *pinfo, gint offset, proto_tree *t
 		case 0x9d: /* TSs MO State */
 			offset += dissect_tss_mo_state(tvb, offset, tree);
 			break;
+		case 0xa8: /* TRXC List (bitmap) */
+			proto_tree_add_item(tree, hf_om2k_trxc_list, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			offset += 2;
+			break;
+		case 0xa9: /* Maximum Allowed Power */
+			proto_tree_add_item(tree, hf_om2k_max_allowed_power, tvb, offset, 1, ENC_NA);
+			offset += 1;
+			break;
+		case 0xaa: /* Maximum Allowed Number of TRXCs */
+			proto_tree_add_item(tree, hf_om2k_max_allowed_num_trxcs, tvb, offset, 1, ENC_NA);
+			offset += 1;
+			break;
+		case 0xab: /* MCTR Feature Status Bitmap */
+			tmp = tvb_get_guint8(tvb, offset++);
+			proto_tree_add_item(tree, hf_om2k_mctr_feat_sts_bitmap, tvb, offset, tmp, ENC_NA);
+			offset += tmp;
+			break;
 		case 0xa3:
 		case 0xa5:
 		case 0xa6:
@@ -1108,14 +1133,8 @@ dissect_om2k_attrs(tvbuff_t *tvb, packet_info *pinfo, gint offset, proto_tree *t
 			tmp = tvb_get_guint8(tvb, offset++);
 			offset += dissect_om2k_attr_unkn(tvb, offset, tmp, iei, tree);
 			break;
-		case 0xa8: /* unknown 2-bytes fixed length attribute of MCTR Config */
-		case 0xab: /* unknown 2-bytes fixed length attribute of MCTR Config */
 		case 0xb5: /* unknown 2-bytes fixed length attribute of TX Config */
 			offset += dissect_om2k_attr_unkn(tvb, offset, 2, iei, tree);
-			break;
-		case 0xa9: /* unknown 1-bytes fixed length attribute of MCTR Config */
-		case 0xaa: /* unknown 1-bytes fixed length attribute of MCTR Config */
-			offset += dissect_om2k_attr_unkn(tvb, offset, 1, iei, tree);
 			break;
 		case 0x9e:
 		case 0x9f:
@@ -1629,6 +1648,26 @@ proto_register_abis_om2000(void)
 		{ &hf_om2k_iwd_gen_rev,
 		  { "IWD Generation/Revision", "gsm_abis_om2000.iwd_gen_rev",
 		    FT_STRING, BASE_NONE, NULL, 0,
+		    NULL, HFILL }
+		},
+		{ &hf_om2k_trxc_list,
+		  { "TRXC List", "gsm_abis_om2000.trxc_list",
+		    FT_UINT16, BASE_HEX, NULL, 0xFFFF,
+		    NULL, HFILL }
+		},
+		{ &hf_om2k_max_allowed_power,
+		  { "Maximum allowed power", "gsm_abis_om2000.max_allowed_power",
+		    FT_UINT8, BASE_DEC, NULL, 0,
+		    NULL, HFILL }
+		},
+		{ &hf_om2k_max_allowed_num_trxcs,
+		  { "Maximum allowed number of TRXCs", "gsm_abis_om2000.max_allowed_num_trxcs",
+		    FT_UINT8, BASE_DEC, NULL, 0,
+		    NULL, HFILL }
+		},
+		{ &hf_om2k_mctr_feat_sts_bitmap,
+		  { "MCTR Feature status bitmap", "gsm_abis_om2000.mctr_feat_sts_bitmap",
+		    FT_BYTES, BASE_NONE, NULL, 0,
 		    NULL, HFILL }
 		},
 	};
