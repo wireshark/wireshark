@@ -443,6 +443,10 @@ static int hf_unknown_subtype_content = -1;
 static int hf_subtype_content_remaining = -1;
 static int hf_iana_subtype = -1;
 static int hf_iana_mudurl = -1;
+static int hf_onos_subtype = -1;
+static int hf_onos_chassis = -1;
+static int hf_onos_port = -1;
+static int hf_onos_ttl = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_lldp = -1;
@@ -748,6 +752,19 @@ static const value_string ex_avaya_subtypes[] = {
 	{ EX_AVAYA_SUBTYPE_ASSIGNMENT_TLV, "Extreme Fabric Attach Assignment TLV" },
 	{ 0, NULL }
 };
+
+/* ONOS subtypes */
+/* https://github.com/opennetworkinglab/onos/blob/master/utils/misc/src/main/java/org/onlab/packet/LLDP.java */
+#define ONOS_CHASSIS_TLV_TYPE 1
+#define ONOS_PORT_TLV_TYPE 2
+#define ONOS_TTL_TLV_TYPE 3
+static const value_string onos_subtypes[] = {
+	{ ONOS_CHASSIS_TLV_TYPE, "ONOS Chassis" },
+	{ ONOS_PORT_TLV_TYPE, "ONOS Port" },
+	{ ONOS_TTL_TLV_TYPE, "ONOS TTL" },
+	{ 0, NULL }
+};
+
 
 /* Cisco Subtypes */
 static const value_string cisco_subtypes[] = {
@@ -4137,6 +4154,34 @@ dissect_iana_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	}
 }
 
+static void
+dissect_onos_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	guint16 msg_len;
+	guint32  subType;
+	guint32 offset = 0;
+
+	proto_tree_add_item_ret_uint(tree, hf_onos_subtype, tvb, offset, 1, ENC_BIG_ENDIAN, &subType);
+	offset++;
+
+	msg_len=tvb_reported_length_remaining(tvb, offset);
+	switch (subType)
+	{
+	case ONOS_CHASSIS_TLV_TYPE:
+		proto_tree_add_item(tree, hf_onos_chassis, tvb, offset, msg_len, ENC_ASCII|ENC_NA);
+		break;
+	case ONOS_PORT_TLV_TYPE:
+		proto_tree_add_item(tree, hf_onos_port, tvb, offset, msg_len, ENC_ASCII|ENC_NA);
+		break;
+	case ONOS_TTL_TLV_TYPE:
+		proto_tree_add_item(tree, hf_onos_ttl, tvb, offset, msg_len, ENC_NA);
+		break;
+	default:
+		proto_tree_add_item(tree, hf_unknown_subtype_content, tvb, offset, -1, ENC_NA);
+		break;
+	}
+}
+
 
 /* Dissect Organizational Specific TLV */
 static gint32
@@ -4304,6 +4349,9 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	case OUI_IANA:
 		subTypeStr = val_to_str(subType, iana_subtypes, "Unknown subtype (0x%x)");
 		break;
+	case OUI_ONOS:
+		subTypeStr = val_to_str(subType, onos_subtypes, "Unknown subtype (0x%x)");
+		break;
 	default:
 		subTypeStr = wmem_strdup_printf(wmem_packet_scope(), "Unknown (%d)",subType);
 		break;
@@ -4360,6 +4408,9 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		break;
 	case OUI_AVAYA_EXTREME:
 		dissect_extreme_avaya_tlv(tvb, pinfo, org_tlv_tree, (offset + 5),dataLen );
+		break;
+	case OUI_ONOS:
+		dissect_onos_tlv(vendor_tvb, pinfo, org_tlv_tree);
 		break;
 	default:
 		dissect_oui_default_tlv(vendor_tvb, pinfo, org_tlv_tree);
@@ -6022,6 +6073,22 @@ proto_register_lldp(void)
 		},
 		{ &hf_iana_mudurl,
 			{ "Manufacturer Usage Description URL", "lldp.iana.mudurl", FT_STRING, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_onos_subtype,
+			{ "ONOS Subtype", "lldp.onos.subtype", FT_UINT8, BASE_HEX,
+			  VALS(onos_subtypes), 0x0, NULL, HFILL }
+		},
+		{ &hf_onos_chassis,
+			{ "Chassis", "lldp.onos.chassis", FT_STRING, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_onos_port,
+			{ "Port", "lldp.onos.port", FT_STRING, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_onos_ttl,
+			{ "ttl", "lldp.onos.ttl", FT_UINT32, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_unknown_subtype,
