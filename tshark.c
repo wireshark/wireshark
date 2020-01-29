@@ -32,10 +32,6 @@
 #include <signal.h>
 #endif
 
-#ifdef HAVE_LIBCAP
-# include <sys/capability.h>
-#endif
-
 #ifndef HAVE_GETOPT_LONG
 #include "wsutil/wsgetopt.h"
 #endif
