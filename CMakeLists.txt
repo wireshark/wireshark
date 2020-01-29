@@ -1173,9 +1173,9 @@ if(NOT LIBXML2_FOUND)
 	set(LIBXML2_INCLUDE_DIRS "")
 endif()
 
-# Capabilities
-ws_find_package(CAP ENABLE_CAP HAVE_LIBCAP)
-if(NOT WIN32)
+# Capabilities to run dumpcap as non-root user.
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+	ws_find_package(CAP ENABLE_CAP HAVE_LIBCAP)
 	find_package(SETCAP)
 endif()
 
