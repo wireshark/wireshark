@@ -107,6 +107,9 @@ static int hf_om2k_trxc_list = -1;
 static int hf_om2k_max_allowed_power = -1;
 static int hf_om2k_max_allowed_num_trxcs = -1;
 static int hf_om2k_mctr_feat_sts_bitmap = -1;
+static int hf_om2k_config_type = -1;
+static int hf_om2k_jitter_size = -1;
+static int hf_om2k_packing_algo = -1;
 
 /* initialize the subtree pointers */
 static int ett_om2000 = -1;
@@ -436,6 +439,9 @@ static const value_string om2k_attr_vals[] = {
 	{ 0x9b, "Master TX Chain Delay" },
 	{ 0x9c, "External Condition Class 2 Extension" },
 	{ 0x9d, "TSs MO State" },
+	{ 0x9e, "Configuration Type" },
+	{ 0x9f, "Jitter Size" },
+	{ 0xa0, "Packing Algorithm" },
 	{ 0xa8, "TRXC List" },
 	{ 0xa9, "Maximum Allowed Power" },
 	{ 0xaa, "Maximum Allowed Number of TRXCs" },
@@ -1107,6 +1113,15 @@ dissect_om2k_attrs(tvbuff_t *tvb, packet_info *pinfo, gint offset, proto_tree *t
 		case 0x9d: /* TSs MO State */
 			offset += dissect_tss_mo_state(tvb, offset, tree);
 			break;
+		case 0x9e: /* Configuration Type */
+			proto_tree_add_item(tree, hf_om2k_config_type, tvb, offset++, 1, ENC_NA);
+			break;
+		case 0x9f: /* Jitter Size */
+			proto_tree_add_item(tree, hf_om2k_jitter_size, tvb, offset++, 1, ENC_NA);
+			break;
+		case 0xa0: /* Packing Algorithm */
+			proto_tree_add_item(tree, hf_om2k_packing_algo, tvb, offset++, 1, ENC_NA);
+			break;
 		case 0xa8: /* TRXC List (bitmap) */
 			proto_tree_add_item(tree, hf_om2k_trxc_list, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset += 2;
@@ -1145,8 +1160,6 @@ dissect_om2k_attrs(tvbuff_t *tvb, packet_info *pinfo, gint offset, proto_tree *t
 		case 0xac: /* unknown 58-bytes fixed length attribute of message type 0x0136 */
 			offset += dissect_om2k_attr_unkn(tvb, offset, 58, iei, tree);
 			break;
-		case 0x9e:
-		case 0x9f:
 		default:
 			tmp = tvb_get_guint8(tvb, offset);
 			proto_tree_add_uint_format(tree, hf_om2k_unknown_tag, tvb,
@@ -1679,6 +1692,22 @@ proto_register_abis_om2000(void)
 		    FT_BYTES, BASE_NONE, NULL, 0,
 		    NULL, HFILL }
 		},
+		{ &hf_om2k_config_type,
+		  { "Configuration Type", "gsm_abis_om2000.config_type",
+		    FT_BOOLEAN, 8, NULL, 0x01,
+		    NULL, HFILL }
+		},
+		{ &hf_om2k_jitter_size,
+		  { "Jitter Size", "gsm_abis_om2000.jitter_size",
+		    FT_UINT8, BASE_DEC, NULL, 0,
+		    NULL, HFILL }
+		},
+		{ &hf_om2k_packing_algo,
+		  { "Packing Algorithm", "gsm_abis_om2000.packing_algo",
+		    FT_UINT8, BASE_DEC, NULL, 0,
+		    NULL, HFILL }
+		},
+
 	};
 	static gint *ett[] = {
 		&ett_om2000,
