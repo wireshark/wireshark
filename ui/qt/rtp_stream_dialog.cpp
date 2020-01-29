@@ -74,15 +74,10 @@ class RtpStreamTreeWidgetItem : public QTreeWidgetItem
 {
 public:
     RtpStreamTreeWidgetItem(QTreeWidget *tree, rtpstream_info_t *stream_info) :
-        QTreeWidgetItem(tree, rtp_stream_type_)
+        QTreeWidgetItem(tree, rtp_stream_type_),
+        stream_info_(stream_info)
     {
-        stream_info_=rtpstream_info_malloc_and_copy_deep(stream_info);
         drawData();
-    }
-
-    ~RtpStreamTreeWidgetItem()
-    {
-        rtpstream_info_free_all(stream_info_);
     }
 
     rtpstream_info_t *streamInfo() const { return stream_info_; }
