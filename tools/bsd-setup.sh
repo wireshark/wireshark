@@ -56,6 +56,7 @@ ADDITIONAL_LIST="\
 	brotli \
 	speexdsp \
 	zstd \
+	lua52 \
 	"
 
 # Guess which package manager we will use
