@@ -14,6 +14,12 @@ DigestInfo
 
 #.FIELD_RENAME
 
+#.FN_PARS FieldID/fieldType
+  FN_VARIANT = _str  VAL_PTR = &actx->external.direct_reference
+
+#.FN_BODY FieldID/parameters
+  offset = call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
+
 #.REGISTER
 DSA-Params B "1.2.840.10040.4.1" "id-dsa"
 DomainParameters B "1.2.840.10046.2.1" "dhpublicnumber"
@@ -23,11 +29,11 @@ ECParameters B "1.3.132.1.12" "id-ecDH"
 ECParameters B "1.2.840.10045.2.13" "id-ecMQV"
 RSASSA-PSS-params B "1.2.840.113549.1.1.10" "id-RSASSA-PSS"
 HashAlgorithm B "1.2.840.113549.1.1.8" "id-mgf1"
+Prime-p B "1.2.840.10045.1.1" "prime-field"
 
 #.NO_EMIT
 DSAPublicKey
 DHPublicKey
-ECPoint
 DSA-Sig-Value
 ECDSA-Sig-Value
 
