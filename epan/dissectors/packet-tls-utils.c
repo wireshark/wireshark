@@ -7187,8 +7187,10 @@ tls_dissect_ocsp_response(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *
                                     response_length, ENC_BIG_ENDIAN);
     proto_item_set_text(ocsp_resp, "OCSP Response");
     ocsp_resp_tree = proto_item_add_subtree(ocsp_resp, hf->ett.ocsp_response);
-    asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-    dissect_ocsp_OCSPResponse(FALSE, tvb, offset, &asn1_ctx, ocsp_resp_tree, -1);
+    if (proto_is_protocol_enabled(find_protocol_by_id(proto_ocsp))) {
+        asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+        dissect_ocsp_OCSPResponse(FALSE, tvb, offset, &asn1_ctx, ocsp_resp_tree, -1);
+    }
     offset += response_length;;
 
     return offset;
