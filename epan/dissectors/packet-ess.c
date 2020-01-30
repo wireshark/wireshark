@@ -1435,7 +1435,7 @@ void proto_register_ess(void) {
         "GeneralNames", HFILL }},
     { &hf_ess_serialNumber,
       { "serialNumber", "ess.serialNumber",
-        FT_UINT64, BASE_DEC, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "CertificateSerialNumber", HFILL }},
 
 /*--- End of included file: packet-ess-hfarr.c ---*/
