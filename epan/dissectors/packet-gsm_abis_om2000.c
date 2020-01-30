@@ -110,6 +110,9 @@ static int hf_om2k_mctr_feat_sts_bitmap = -1;
 static int hf_om2k_config_type = -1;
 static int hf_om2k_jitter_size = -1;
 static int hf_om2k_packing_algo = -1;
+static int hf_om2k_power_bo_ctype_map = -1;
+static int hf_om2k_power_bo_priority = -1;
+static int hf_om2k_power_bo_value = -1;
 
 /* initialize the subtree pointers */
 static int ett_om2000 = -1;
@@ -446,6 +449,9 @@ static const value_string om2k_attr_vals[] = {
 	{ 0xa9, "Maximum Allowed Power" },
 	{ 0xaa, "Maximum Allowed Number of TRXCs" },
 	{ 0xab, "MCTR Feature Status Bitmap" },
+	{ 0xae, "Power Back-off Channel Type Map" },
+	{ 0xaf, "Power Back-off Priority" },
+	{ 0xb0, "Power Back-off Value" },
 	{ 0, NULL }
 };
 static value_string_ext om2k_attr_vals_ext = VALUE_STRING_EXT_INIT(om2k_attr_vals);
@@ -1139,12 +1145,24 @@ dissect_om2k_attrs(tvbuff_t *tvb, packet_info *pinfo, gint offset, proto_tree *t
 			proto_tree_add_item(tree, hf_om2k_mctr_feat_sts_bitmap, tvb, offset, tmp, ENC_NA);
 			offset += tmp;
 			break;
+		case 0xae: /* Power Back-Off Channel Type Map */
+			tmp = tvb_get_guint8(tvb, offset++);
+			proto_tree_add_item(tree, hf_om2k_power_bo_ctype_map, tvb, offset, tmp, ENC_NA);
+			offset += tmp;
+			break;
+		case 0xaf: /* Power Back-Off Priority */
+			tmp = tvb_get_guint8(tvb, offset++);
+			proto_tree_add_item(tree, hf_om2k_power_bo_priority, tvb, offset, tmp, ENC_NA);
+			offset += tmp;
+			break;
+		case 0xb0: /* Power Back-Off Value */
+			tmp = tvb_get_guint8(tvb, offset++);
+			proto_tree_add_item(tree, hf_om2k_power_bo_value, tvb, offset, tmp, ENC_NA);
+			offset += tmp;
+			break;
 		case 0xa3:
 		case 0xa5:
 		case 0xa6:
-		case 0xae:
-		case 0xaf:
-		case 0xb0:
 			/* we don't know any of the above, but the
 			 * TLV structure is quite clear in the protocol
 			 * traces */
@@ -1707,7 +1725,21 @@ proto_register_abis_om2000(void)
 		    FT_UINT8, BASE_DEC, NULL, 0,
 		    NULL, HFILL }
 		},
-
+		{ &hf_om2k_power_bo_ctype_map,
+		  { "Power Back-Off Channel Type Map", "gsm_abis_om2000.power_bo_ctype_map",
+		    FT_BYTES, BASE_NONE, NULL, 0,
+		    NULL, HFILL }
+		},
+		{ &hf_om2k_power_bo_priority,
+		  { "Power Back-Off Priority", "gsm_abis_om2000.power_bo_priority",
+		    FT_BYTES, BASE_NONE, NULL, 0,
+		    NULL, HFILL }
+		},
+		{ &hf_om2k_power_bo_value,
+		  { "Power Back-Off Value", "gsm_abis_om2000.power_bo_value",
+		    FT_BYTES, BASE_NONE, NULL, 0,
+		    NULL, HFILL }
+		},
 	};
 	static gint *ett[] = {
 		&ett_om2000,
