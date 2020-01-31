@@ -356,17 +356,30 @@ static const value_string control_opcode_vals[] = {
     { 0x17, "LL_PHY_RSP" },
     { 0x18, "LL_PHY_UPDATE_IND" },
     { 0x19, "LL_MIN_USED_CHANNELS_IND" },
+    { 0x1A, "LL_CTE_REQ" },
+    { 0x1B, "LL_CTE_RSP" },
+    { 0x1C, "LL_PERIODIC_SYNC_IND" },
+    { 0x1D, "LL_CLOCK_ACCURACY_REQ" },
+    { 0x1E, "LL_CLOCK_ACCURACY_RSP" },
+    { 0x1F, "LL_CIS_REQ" },
+    { 0x20, "LL_CIS_RSP" },
+    { 0x21, "LL_CIS_IND" },
+    { 0x22, "LL_CIS_TERMINATE_IND" },
+    { 0x23, "LL_POWER_CONTROL_REQ" },
+    { 0x24, "LL_POWER_CONTROL_RSP" },
+    { 0x25, "LL_POWER_CHANGE_IND" },
     { 0, NULL }
 };
 static value_string_ext control_opcode_vals_ext = VALUE_STRING_EXT_INIT(control_opcode_vals);
 
-/* Taken from https://www.bluetooth.org/en-us/specification/assigned-numbers/link-layer */
+/* Taken from https://www.bluetooth.com/specifications/assigned-numbers/link-layer/ */
 static const value_string ll_version_number_vals[] = {
     { 0x06, "4.0"},
     { 0x07, "4.1" },
     { 0x08, "4.2" },
     { 0x09, "5.0" },
     { 0x0A, "5.1" },
+    { 0x0B, "5.2" },
     { 0, NULL }
 };
 static value_string_ext ll_version_number_vals_ext = VALUE_STRING_EXT_INIT(ll_version_number_vals);
