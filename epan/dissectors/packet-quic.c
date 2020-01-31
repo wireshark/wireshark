@@ -791,7 +791,7 @@ quic_connection_find(packet_info *pinfo, guint8 long_packet_type,
 
         // No match found so far, potentially connection migration. Length of
         // actual DCID is unknown, so just keep decrementing until found.
-        while (!conn && dcid->len > 4) {
+        while (!conn && dcid->len > 1) {
             dcid->len--;
             if (quic_cids_is_known_length(dcid)) {
                 conn = quic_connection_find_dcid(pinfo, dcid, from_server);
