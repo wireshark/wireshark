@@ -1706,7 +1706,13 @@ quic_get_1rtt_hp_cipher(packet_info *pinfo, quic_info_data_t *quic_info, gboolea
     if (!quic_info->client_pp.next_secret) {
         /* Query TLS for the cipher suite. */
         if (!tls_get_cipher_info(pinfo, 0, &quic_info->cipher_algo, &quic_info->cipher_mode, &quic_info->hash_algo)) {
-            /* No previous TLS handshake found or unsupported ciphers, fail. */
+            // No previous TLS handshake found or unsupported ciphers, fail.
+            // This is an optimization that allows skipping checks for future
+            // packets in case the capture starts in midst of a connection where
+            // the handshake is not present.
+            // If this breaks decryption because packets prior to the Server
+            // Hello are somehow misdetected as Short Packet, then this
+            // optimization should probably be removed.
             quic_info->skip_decryption = TRUE;
             return NULL;
         }
@@ -2396,7 +2402,12 @@ dissect_quic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             } else {
                 new_offset = dissect_quic_long_header(next_tvb, pinfo, quic_tree, dgram_info, quic_packet);
             }
-        } else {
+        } else if (first_byte != 0) {
+            // Firefox neqo adds unencrypted padding consisting of all zeroes
+            // after an Initial Packet. Whether that is valid or not is
+            // discussed at https://github.com/quicwg/base-drafts/issues/3333
+            // As it happens, at least draft -25 requires the "Fixed" bit to be
+            // set, so any zero first byte is definitely invalid.
             new_offset = dissect_quic_short_header(next_tvb, pinfo, quic_tree, dgram_info, quic_packet);
         }
         if (tvb_reported_length_remaining(next_tvb, new_offset)) {
