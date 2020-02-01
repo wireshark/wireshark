@@ -205,6 +205,14 @@ static const true_false_string sdap_rqi = {
 static dissector_handle_t ip_handle;
 static dissector_handle_t ipv6_handle;
 static dissector_handle_t rohc_handle;
+static dissector_handle_t nr_rrc_ul_ccch;
+static dissector_handle_t nr_rrc_ul_ccch1;
+static dissector_handle_t nr_rrc_dl_ccch;
+static dissector_handle_t nr_rrc_pcch;
+static dissector_handle_t nr_rrc_bcch_bch;
+static dissector_handle_t nr_rrc_bcch_dl_sch;
+static dissector_handle_t nr_rrc_ul_dcch;
+static dissector_handle_t nr_rrc_dl_dcch;
 
 
 #define SEQUENCE_ANALYSIS_RLC_ONLY  1
@@ -792,22 +800,34 @@ static void show_pdcp_config(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree
 
 
 /* Look for an RRC dissector for signalling data (using Bearer type and direction) */
-static dissector_handle_t lookup_rrc_dissector_handle(struct pdcp_nr_info  *p_pdcp_info)
+static dissector_handle_t lookup_rrc_dissector_handle(struct pdcp_nr_info  *p_pdcp_info, guint32 data_length)
 {
-    dissector_handle_t rrc_handle = 0;
+    dissector_handle_t rrc_handle = NULL;
 
-    /* TODO: add as they become available */
     switch (p_pdcp_info->bearerType)
     {
         case Bearer_CCCH:
+            if (p_pdcp_info->direction == PDCP_NR_DIRECTION_UPLINK) {
+                rrc_handle = (data_length == 8) ? nr_rrc_ul_ccch1 : nr_rrc_ul_ccch;
+            } else {
+                rrc_handle = nr_rrc_dl_ccch;
+            }
             break;
         case Bearer_PCCH:
+            rrc_handle = nr_rrc_pcch;
             break;
         case Bearer_BCCH_BCH:
+            rrc_handle = nr_rrc_bcch_bch;
             break;
         case Bearer_BCCH_DL_SCH:
+            rrc_handle = nr_rrc_bcch_dl_sch;
             break;
         case Bearer_DCCH:
+            if (p_pdcp_info->direction == PDCP_NR_DIRECTION_UPLINK) {
+                rrc_handle = nr_rrc_ul_dcch;
+            } else {
+                rrc_handle = nr_rrc_dl_dcch;
+            }
             break;
 
         default:
@@ -1254,9 +1274,9 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
            Call nr-rrc dissector (according to direction and Bearer type) if we have valid data */
         if (global_pdcp_dissect_signalling_plane_as_rrc) {
             /* Get appropriate dissector handle */
-            dissector_handle_t rrc_handle = lookup_rrc_dissector_handle(p_pdcp_info);
+            dissector_handle_t rrc_handle = lookup_rrc_dissector_handle(p_pdcp_info, data_length);
 
-            if (rrc_handle != 0) {
+            if (rrc_handle != NULL) {
                 /* Call RRC dissector if have one */
                 tvbuff_t *rrc_payload_tvb = tvb_new_subset_length(payload_tvb, offset, data_length);
                 gboolean was_writable = col_get_writable(pinfo->cinfo, COL_INFO);
@@ -1740,6 +1760,14 @@ void proto_reg_handoff_pdcp_nr(void)
     ip_handle              = find_dissector_add_dependency("ip", proto_pdcp_nr);
     ipv6_handle            = find_dissector_add_dependency("ipv6", proto_pdcp_nr);
     rohc_handle            = find_dissector_add_dependency("rohc", proto_pdcp_nr);
+    nr_rrc_ul_ccch         = find_dissector_add_dependency("nr-rrc.ul.ccch", proto_pdcp_nr);
+    nr_rrc_ul_ccch1        = find_dissector_add_dependency("nr-rrc.ul.ccch1", proto_pdcp_nr);
+    nr_rrc_dl_ccch         = find_dissector_add_dependency("nr-rrc.dl.ccch", proto_pdcp_nr);
+    nr_rrc_pcch            = find_dissector_add_dependency("nr-rrc.pcch", proto_pdcp_nr);
+    nr_rrc_bcch_bch        = find_dissector_add_dependency("nr-rrc.bcch.bch", proto_pdcp_nr);
+    nr_rrc_bcch_dl_sch     = find_dissector_add_dependency("nr-rrc.bcch.dl.sch", proto_pdcp_nr);
+    nr_rrc_ul_dcch         = find_dissector_add_dependency("nr-rrc.ul.dcch", proto_pdcp_nr);
+    nr_rrc_dl_dcch         = find_dissector_add_dependency("nr-rrc.dl.dcch", proto_pdcp_nr);
 }
 
 /*
