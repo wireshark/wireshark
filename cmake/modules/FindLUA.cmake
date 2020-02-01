@@ -55,7 +55,7 @@ if ( LUA_INCLUDE_DIR STREQUAL LUA_INC_SUFFIX )
 endif()
 
 FIND_LIBRARY(LUA_LIBRARY
-  NAMES lua${LUA_INC_SUFFIX} lua52 lua5.2 lua51 lua5.1 lua
+  NAMES lua${LUA_INC_SUFFIX} lua52 lua5.2 lua-5.2 lua51 lua5.1 lua-5.1 lua
   HINTS
     "${LUA_LIBDIR}"
     "$ENV{LUA_DIR}"
