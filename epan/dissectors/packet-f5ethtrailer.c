@@ -7,7 +7,9 @@
 
 /*
 Supported Platforms:
-    BIGIP 9.4.2 and later for the trailer, BIGIP 11.2.0 and later for fileinfo
+    BIG-IP 9.4.2 - 13.x for the old format trailers
+    BIG-IP 11.2.0 and later for fileinfo
+    BIG-IP 14.0 began using the new format trailers
 
 Usage:
 
@@ -103,9 +105,7 @@ Notes:
         f5ethtrailer.peerport eq 12346 and f5ethtrailer.peerport eq 443 )
 
     Since the preference is disabled by default, it should not cause any
-    interference unless the user actively enables the preference.  You can
-    remove the option entirely at compile time by defining the compiler macro
-    "NO_F5_POP_OTHERFIELDS".
+    interference unless the user actively enables the preference.
 
   Analysis:
 
@@ -183,32 +183,6 @@ Notes:
             Traffic with a flow ID and no virtual server name
             Traffic without a flow ID.
  */
-
-/* A note about the F5_POP_OTHERFIELDS macro:
- *
- * This is used to conditionally compile the population of fields like ip.addr,
- * tcp.port, etc.  There are two points where the conditional compilation macro
- * *must* be used:  The field definitions and the preference definition.  Due
- * to the fact that the default for the pop_other_fields is false, everything
- * else should just take care of itself.  However, for maximum speed, most of
- * the code does not get compiled.
- *
- * You can disable this by defining the NO_F5_POP_OTHERFIELDS macro.
- *
- * I have changed this to on by default because in its current form, if you do
- * not enable it at run time (in the preferences) the fields are not
- * registered, so it's almost like it was never compiled in.  However, adding
- * the ability to remove it if desired for some reason.
- *
- * The preference is still disabled by default, so this should theoretically
- * not be a change for people that have been running without it.
- */
-
-/* Only enable populate othe fields if it has not been requested that it be
- * built without (-DNO_F5_POP_OTHERFIELDS on the compiler command line). */
-#ifndef NO_F5_POP_OTHERFIELDS
-#define F5_POP_OTHERFIELDS
-#endif
 
 #include "config.h"
 
@@ -304,12 +278,13 @@ static gint hf_peer_nopeer         = -1;
 /* Analysis */
 static gint hf_analysis = -1;
 
-#ifdef F5_POP_OTHERFIELDS
+/* These fields will be used if pref_pop_other_fields is enabled.
+   They will be populated with data from the "high" trailer so that filtering on ip.addr, tcp.port, etc...
+   can find peer side flows of the specific flow you're searching for. */
 static gint hf_ip_ipaddr   = -1;
 static gint hf_ip6_ip6addr = -1;
 static gint hf_tcp_tcpport = -1;
 static gint hf_udp_udpport = -1;
-#endif
 
 static gint hf_dpt_magic = -1;
 static gint hf_dpt_ver   = -1;
@@ -339,16 +314,15 @@ static gint hf_fi_product      = -1;
 
 /* Wireshark preference to show RST cause in info column */
 static gboolean rstcause_in_info = TRUE;
-#ifdef F5_POP_OTHERFIELDS
+/** Wireshark prefrence to look at all trailer bytes for f5ethtrailer */
+static gboolean pref_walk_trailer = FALSE;
 /* Wireshark preference to enable/disable the population of other dissectors'
- * fields.  Only used if built with the F5_POP_OTHERFIELDS macro */
-static gboolean pop_other_fields = FALSE;
-#endif
+ * fields.*/
+static gboolean pref_pop_other_fields = FALSE;
 /** Wireshark preference to perform analysis */
 static gboolean pref_perform_analysis = TRUE;
 /** Wireshark preference to generate keylog entries from f5ethtrailer TLS data */
-static gboolean generate_keylog = TRUE;
-
+static gboolean pref_generate_keylog = TRUE;
 /** Identifiers for taps (when enabled), only the address is important, the
  * values are unused. */
 static gint tap_ip_enabled;
@@ -381,46 +355,55 @@ static const int *hf_flags__fields[] = {
     NULL,
 };
 
-/** Table containing subdissectors for different providers */
+typedef enum {
+    NONE,
+    NEW_FORMAT,
+    OLD_FORMAT,
+} found_t;
+
+/** Table containing subdissectors for different providers
+ *  These are used with new format trailers */
 static dissector_table_t provider_subdissector_table;
 static dissector_table_t noise_subdissector_table;
 
 /*-----------------------------------------------------------------------------------------------*/
-/** \brief Convert a Wireshark port type to a IP protocol number.
+/**
+ * @brief Convert a Wireshark port type to a IP protocol number.
  *
- *  \attention Not all port types are supported, only the ones that this dissector actively uses.
+ * @attention Not all port types are supported, only the ones that this dissector actively uses.
  *
- *   @param ptype The Wireshark port_type
- *   @return      The IP protocol number corresponding to the port type.
+ * @param ptype The Wireshark port_type
+ * @return      The IP protocol number corresponding to the port type.
  */
 inline static guint8
 ptype_to_ipproto(const port_type ptype)
 {
     guint8 ipproto = 0;
     switch (ptype) {
-        case PT_TCP:
-            ipproto = IP_PROTO_TCP;
-            break;
-        case PT_UDP:
-            ipproto = IP_PROTO_UDP;
-            break;
-        default:
-            ipproto = 0;
-            break;
+    case PT_TCP:
+        ipproto = IP_PROTO_TCP;
+        break;
+    case PT_UDP:
+        ipproto = IP_PROTO_UDP;
+        break;
+    default:
+        ipproto = 0;
+        break;
     }
-    return (ipproto);
+    return ipproto;
 } /* ptype_to_ipproto() */
 
 /*===============================================================================================*/
 /* Analyze menu functions */
 
 /*-----------------------------------------------------------------------------------------------*/
-/** \brief Determines if we can apply an IP Conversation filter.
+/**
+ * @brief Determines if we can apply an IP Conversation filter.
  *
- *  \attention This is an interface function to be called from the rest of wireshark.
+ * @attention This is an interface function to be called from the rest of wireshark.
  *
- *   @param pinfo   A pointer to the packet info to look at for the L3 data.
- *   @return        True if it is valid IP/IPv6, false otherwise
+ * @param pinfo   A pointer to the packet info to look at for the L3 data.
+ * @return        True if it is valid IP/IPv6, false otherwise
  */
 static gboolean
 f5_ip_conv_valid(packet_info *pinfo)
@@ -428,16 +411,17 @@ f5_ip_conv_valid(packet_info *pinfo)
     gboolean is_ip = FALSE;
 
     proto_get_frame_protocols(pinfo->layers, &is_ip, NULL, NULL, NULL, NULL, NULL, NULL);
-    return (is_ip);
+    return is_ip;
 } /* f5_ip_conv_valid() */
 
 /*-----------------------------------------------------------------------------------------------*/
-/** \brief Determines if we can apply a TCP Conversation filter.
+/**
+ * @brief Determines if we can apply a TCP Conversation filter.
  *
- *  \attention This is an interface function to be called from the rest of wireshark.
+ * @attention This is an interface function to be called from the rest of wireshark.
  *
- *   @param pinfo   A pointer to the packet info to look at for the L3/L4 data.
- *   @return        True if it is valid IP/IPv6 + TCP, false otherwise
+ * @param pinfo   A pointer to the packet info to look at for the L3/L4 data.
+ * @return        True if it is valid IP/IPv6 + TCP, false otherwise
  */
 static gboolean
 f5_tcp_conv_valid(packet_info *pinfo)
@@ -446,16 +430,17 @@ f5_tcp_conv_valid(packet_info *pinfo)
     gboolean is_tcp = FALSE;
 
     proto_get_frame_protocols(pinfo->layers, &is_ip, &is_tcp, NULL, NULL, NULL, NULL, NULL);
-    return (is_ip && is_tcp);
+    return is_ip && is_tcp;
 } /* f5_tcp_conv_valid() */
 
 /*-----------------------------------------------------------------------------------------------*/
-/** \brief Determines if we can apply a UDP Conversation filter.
+/**
+ * @brief Determines if we can apply a UDP Conversation filter.
  *
- *  \attention This is an interface function to be called from the rest of wireshark.
+ * @attention This is an interface function to be called from the rest of wireshark.
  *
- *   @param pinfo   A pointer to the packet info to look at for the L3/L4 data.
- *   @return        True if it is valid IP/IPv6 + UDP, false otherwise
+ * @param pinfo   A pointer to the packet info to look at for the L3/L4 data.
+ * @return        True if it is valid IP/IPv6 + UDP, false otherwise
  */
 static gboolean
 f5_udp_conv_valid(packet_info *pinfo)
@@ -464,19 +449,20 @@ f5_udp_conv_valid(packet_info *pinfo)
     gboolean is_udp = FALSE;
 
     proto_get_frame_protocols(pinfo->layers, &is_ip, NULL, &is_udp, NULL, NULL, NULL, NULL);
-    return (is_ip && is_udp);
+    return is_ip && is_udp;
 } /* f5_tcp_conv_valid() */
 
 /*-----------------------------------------------------------------------------------------------*/
-/** \brief Calculates the F5 IP conversation filter based on the current packet.
+/**
+ * @brief Calculates the F5 IP conversation filter based on the current packet.
  *
- *  \attention This is an interface function to be called from the rest of wireshark.
+ * @attention This is an interface function to be called from the rest of wireshark.
  *
- *   @param pinfo   A pointer to the packet info to look at for the L3/L4 data.
- *   @return        A filter string for the F5 IP conversation or NULL if no filter can be
+ * @param pinfo   A pointer to the packet info to look at for the L3/L4 data.
+ * @return        A filter string for the F5 IP conversation or NULL if no filter can be
  *                  computed.  The caller should free this string with g_free().
  *
- *  \attention This function uses g_strdup_printf() rather than the wmem equivalent because the
+ * @attention This function uses g_strdup_printf() rather than the wmem equivalent because the
  *             caller (menu_dissector_filter_cb()) uses g_free to free the filter string.
  *             (as of WS 1.12).
  */
@@ -507,16 +493,18 @@ f5_ip_conv_filter(packet_info *pinfo)
                 s_addr, d_addr, s_addr, d_addr);
         }
     }
-    return (buf);
+    return buf;
 } /* f5_ip_conv_filter() */
 
 /*-----------------------------------------------------------------------------------------------*/
-/** \brief Calculates the F5 TCP conversation filter based on the current packet.
+/**
+ * @brief Calculates the F5 TCP conversation filter based on the current packet.
  *
- *  \attention This is an interface function to be called from the rest of wireshark.
+ * @attention This is an interface function to be called from the rest of wireshark.
  *
- *   @param pinfo   A pointer to the packet info to look at for the L3/L4 data.
- *   @return        A filter string for the F5 TCP conversation or NULL if no filter can be
+ * @param pinfo   A pointer to the packet info to look at for the L3/L4 data.
+ *
+ * @return        A filter string for the F5 TCP conversation or NULL if no filter can be
  *                  computed.  The caller should free this string with g_free().
  *
  *  Prior to version 11.0.0, the f5ethtrailer.peeripproto field was not populated properly.  In
@@ -529,7 +517,7 @@ f5_ip_conv_filter(packet_info *pinfo)
  *  be filtered properly.  In the >=11.0.0 case, if you have TCP on one side and UDP on the other
  *  and it should "do the right thing".
  *
- *  \attention This function uses g_strdup_printf() rather than the wmem equivalent because the
+ * @attention This function uses g_strdup_printf() rather than the wmem equivalent because the
  *             caller (menu_dissector_filter_cb()) uses g_free to free the filter string.
  *             (as of WS 1.12).
  */
@@ -566,16 +554,17 @@ f5_tcp_conv_filter(packet_info *pinfo)
                 s_addr, d_addr, pinfo->srcport, pinfo->destport);
         }
     }
-    return (buf);
+    return buf;
 } /* f5_tcp_conv_filter() */
 
 /*-----------------------------------------------------------------------------------------------*/
-/** \brief Calculates the F5 UDP conversation filter based on the current packet.
+/**
+ * @brief Calculates the F5 UDP conversation filter based on the current packet.
  *
- *  \attention This is an interface function to be called from the rest of wireshark.
+ * @attention This is an interface function to be called from the rest of wireshark.
  *
- *   @param pinfo   A pointer to the packet info to look at for the L3/L4 data.
- *   @return        A filter string for the F5 UDP conversation or NULL if no filter can be
+ * @param pinfo   A pointer to the packet info to look at for the L3/L4 data.
+ * @return        A filter string for the F5 UDP conversation or NULL if no filter can be
  *                  computed.  The caller should free this string with g_free().
  *
  *  Prior to version 11.0.0, the f5ethtrailer.peeripproto field was not populated properly.  In
@@ -588,7 +577,7 @@ f5_tcp_conv_filter(packet_info *pinfo)
  *  be filtered properly.  In the >=11.0.0 case, if you have TCP on one side and UDP on the other
  *  and it should "do the right thing".
  *
- *  \attention This function uses g_strdup_printf() rather than the wmem equivalent because the
+ * @attention This function uses g_strdup_printf() rather than the wmem equivalent because the
  *             caller (menu_dissector_filter_cb()) uses g_free to free the filter string.
  *             (as of WS 1.12).
  */
@@ -625,7 +614,7 @@ f5_udp_conv_filter(packet_info *pinfo)
                 s_addr, d_addr, pinfo->srcport, pinfo->destport);
         }
     }
-    return (buf);
+    return buf;
 } /* f5_udp_conv_filter() */
 
 /* End of Analyze menu functions */
@@ -654,11 +643,12 @@ static const gchar *st_str_virtdist_noflow = "No flow";
 static const gchar *st_str_virtdist_novirt = "Flow without virtual server name";
 
 /*-----------------------------------------------------------------------------------------------*/
-/** \brief Initializer for tmm distribution statistics
+/**
+ * @brief Initializer for tmm distribution statistics
  *
- *  \attention This is an interface function to be called from the rest of wireshark.
+ * @attention This is an interface function to be called from the rest of wireshark.
  *
- *   @param st      A pointer to the stats tree to use
+ * @param st      A pointer to the stats tree to use
  *
  */
 static void
@@ -672,15 +662,16 @@ f5eth_tmmdist_stats_tree_init(stats_tree *st)
 #define PER_TMM_STAT_NAME_BUF_LEN (sizeof("slot SSS,tmm TTT"))
 
 /*-----------------------------------------------------------------------------------------------*/
-/** \brief Per-packet tmm distrubution statistics
+/**
+ * @brief Per-packet tmm distrubution statistics
  *
- *  \attention This is an interface function to be called from the rest of wireshark.
+ * @attention This is an interface function to be called from the rest of wireshark.
  *
- *   @param st      A pointer to the stats tree to use
- *   @param pinfo   A pointer to the packet info.
- *   @param edt     Unused
- *   @param data    A pointer to the data provided by the tap
- *   @return        TAP_PACKET_REDRAW if the data was actually used to alter
+ * @param st      A pointer to the stats tree to use
+ * @param pinfo   A pointer to the packet info.
+ * @param edt     Unused
+ * @param data    A pointer to the data provided by the tap
+ * @return        TAP_PACKET_REDRAW if the data was actually used to alter
  *                  the statistics, TAP_PACKET_DONT_REDRAW otherwise.
  *
  */
@@ -768,6 +759,11 @@ f5eth_tmmdist_stats_tree_packet(
 } /* f5eth_tmmdist_stats_tree_packet() */
 
 /*-----------------------------------------------------------------------------------------------*/
+/**
+ * @brief Initialize Virtual Server stats tree
+ *
+ * @param st A pointer to the stats tree to use
+ */
 static void
 f5eth_virtdist_stats_tree_init(stats_tree *st)
 {
@@ -787,6 +783,16 @@ f5eth_virtdist_stats_tree_init(stats_tree *st)
 } /* f5eth_virtdist_stats_tree_init() */
 
 /*-----------------------------------------------------------------------------------------------*/
+/**
+ * @brief Per-packet Virtual Server distribution statistics
+ *
+ * @param st      A pointer to the stats tree to use
+ * @param pinfo   A pointer to the packet info.
+ * @param edt     Unused
+ * @param data    A pointer to the data provided by the tap
+ * @return        TAP_PACKET_REDRAW if the data was actually used to alter
+ *                  the statistics, TAP_PACKET_DONT_REDRAW otherwise.
+ */
 static tap_packet_status
 f5eth_virtdist_stats_tree_packet(
     stats_tree *st, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data)
@@ -923,12 +929,13 @@ static const char *pref_slots_regex = NULL;
 static gboolean display_slot = TRUE;
 
 /*-----------------------------------------------------------------------------------------------*/
-/** \brief Adds full format (in/out, slot, tmm) to info column
+/**
+ * @brief Adds full format (in/out, slot, tmm) to info column
  *
- *   @param pinfo   A pointer to the packet info structure.
- *   @param ingress zero for egress, non-zero for ingress.
- *   @param slot    The slot number handling the packet
- *   @param tmm     The tmm handling the packet
+ * @param pinfo   A pointer to the packet info structure.
+ * @param ingress zero for egress, non-zero for ingress.
+ * @param slot    The slot number handling the packet
+ * @param tmm     The tmm handling the packet
  */
 static void
 f5eth_set_info_col_slot(packet_info *pinfo, guint ingress, guint slot, guint tmm)
@@ -954,12 +961,13 @@ f5eth_set_info_col_slot(packet_info *pinfo, guint ingress, guint slot, guint tmm
 } /* f5eth_set_info_col_slot() */
 
 /*-----------------------------------------------------------------------------------------------*/
-/** \brief Adds format without slot (in/out, tmm) to info column
+/**
+ * @brief Adds format without slot (in/out, tmm) to info column
  *
- *   @param pinfo   A pointer to the packet info structure.
- *   @param ingress zero for egress, non-zero for ingress.
- *   @param slot    The slot number handling the packet (unused)
- *   @param tmm     The tmm handling the packet
+ * @param pinfo   A pointer to the packet info structure.
+ * @param ingress zero for egress, non-zero for ingress.
+ * @param slot    The slot number handling the packet (unused)
+ * @param tmm     The tmm handling the packet
  */
 static void
 f5eth_set_info_col_noslot(packet_info *pinfo, guint ingress, guint slot _U_, guint tmm)
@@ -983,12 +991,13 @@ f5eth_set_info_col_noslot(packet_info *pinfo, guint ingress, guint slot _U_, gui
 } /* f5eth_set_info_col_noslot() */
 
 /*-----------------------------------------------------------------------------------------------*/
-/** \brief Adds format with only direction (in/out) to info column
+/**
+ * @brief Adds format with only direction (in/out) to info column
  *
- *   @param pinfo   A pointer to the packet info structure.
- *   @param ingress zero for egress, non-zero for ingress.
- *   @param slot    The slot number handling the packet (unused)
- *   @param tmm     The tmm handling the packet (unused)
+ * @param pinfo   A pointer to the packet info structure.
+ * @param ingress zero for egress, non-zero for ingress.
+ * @param slot    The slot number handling the packet (unused)
+ * @param tmm     The tmm handling the packet (unused)
  */
 static void
 f5eth_set_info_col_inout(packet_info *pinfo, guint ingress, guint slot _U_, guint tmm _U_)
@@ -1015,9 +1024,10 @@ f5eth_set_info_col_inout(packet_info *pinfo, guint ingress, guint slot _U_, guin
 static f5eth_set_col_info_func f5eth_set_info_col = f5eth_set_info_col_slot;
 
 /*-----------------------------------------------------------------------------------------------*/
-/** \brief Called out of f5info processing to determine platform display information
+/**
+ * @brief Called out of f5info processing to determine platform display information
  *
- *   @param platform String representing the platform name (can be NULL, will not be referenced
+ * @param platform String representing the platform name (can be NULL, will not be referenced
  *                   after the function returns.)
  */
 static void
@@ -1072,12 +1082,8 @@ static const guint8 fileinfomagic1[] = {
 #define F5_OFF_VERSION 2
 #define F5_OFF_VALUE   3
 
-/** This is used only for legacy trailers.  The highest version number is 3 for medium trailers. */
+/** This is used only for old format trailers.  The highest version number is 3 for medium trailers. */
 #define F5TRAILER_VER_MAX 3
-
-#define F5TRAILER_TYPE(tvb, offset) (tvb_get_guint8(tvb, offset))
-#define F5TRAILER_LEN(tvb, offset) (tvb_get_guint8(tvb, (offset) + F5_OFF_LENGTH) + F5_OFF_VERSION)
-#define F5TRAILER_VER(tvb, offset) (tvb_get_guint8(tvb, (offset) + F5_OFF_VERSION))
 
 #define F5TYPE_LOW  1
 #define F5TYPE_MED  2
@@ -1085,9 +1091,7 @@ static const guint8 fileinfomagic1[] = {
 
 /* These are to perform a sanity check to try to avoid rendering true garbage
  * in packets.  So, in addition to matching one of the types, the len of the
- * suspected trailer needs to fall into this range.  However, we also want to
- * balance this against the ability to render most of a trailer if the format
- * changes without necessarily having to change the dissector immediately.
+ * suspected trailer needs to fall into this range.
  *
  * Max length seems to be 42 on high detail.
  * Max length with RST cause in medium(v1) is 30 + 8 + 1 + 96 (might be 30+96)?
@@ -1096,7 +1100,7 @@ static const guint8 fileinfomagic1[] = {
  * Min length is 8 on v9.4 medium detail.
  * Min length is 7 on v11.2 low trailer with no VIP name.
  *
- * These are only used for legacy trailers.
+ * These are only used for old format trailers.
  */
 #define F5_MIN_SANE 7
 #define F5_MAX_SANE 140
@@ -1106,32 +1110,13 @@ static const guint8 fileinfomagic1[] = {
 
 #define F5_HIV0_LEN                   42
 
-/* Legacy trailers */
+/* Old format trailers */
 #define F5_MEDV94_LEN                  8
 #define F5_MEDV10_LEN                 21
 #define F5_MEDV11_LEN                 29
 #define F5_MEDV1_LENMIN               30
-#define F5TRL_MEDV1_RSTCLEN(tvb, offset)  \
-    tvb_get_guint8(tvb, (offset) + (F5_MEDV1_LENMIN - 1))
-#define F5TRL_MEDV1_RSTCVER(tvb, offset)  \
-    ((tvb_get_guint8(tvb, (offset) + F5_MEDV1_LENMIN) & 0xfe) >> 1)
-#define F5TRL_MEDV1_RSTCPEER(tvb, offset) \
-    (tvb_get_guint8(tvb, (offset) + F5_MEDV1_LENMIN) & 0x01)
 #define F5_MEDV2_LENMIN               31
-#define F5TRL_MEDV2_RSTCLEN(tvb, offset)  \
-    tvb_get_guint8(tvb, (offset) + (F5_MEDV2_LENMIN - 1))
-#define F5TRL_MEDV2_RSTCVER(tvb, offset)  \
-    ((tvb_get_guint8(tvb, (offset) + F5_MEDV2_LENMIN) & 0xfe) >> 1)
-#define F5TRL_MEDV2_RSTCPEER(tvb, offset) \
-    (tvb_get_guint8(tvb, (offset) + F5_MEDV2_LENMIN) & 0x01)
 #define F5_MEDV3_LENMIN               35
-#define F5TRL_MEDV3_RSTCLEN(tvb, offset)  \
-    tvb_get_guint8(tvb, (offset) + (F5_MEDV3_LENMIN - 1))
-#define F5TRL_MEDV3_RSTCVER(tvb, offset)  \
-    ((tvb_get_guint8(tvb, (offset) + F5_MEDV3_LENMIN) & 0xfe) >> 1)
-#define F5TRL_MEDV3_RSTCPEER(tvb, offset) \
-    (tvb_get_guint8(tvb, (offset) + F5_MEDV3_LENMIN) & 0x01)
-
 #define F5_LOWV94_LEN                 35
 #define F5_LOWV10_LEN                 22
 #define F5_OFF_LOW_ING                 3
@@ -1139,30 +1124,22 @@ static const guint8 fileinfomagic1[] = {
 #define F5_OFF_LOW_TMM                 5
 #define VIP_NAME_LEN                  16
 #define F5_LOWV1_LENMIN                7
-#define F5TRL_LOWV1_VIPLEN(tvb, offset)  \
-    tvb_get_guint8(tvb, (offset) + (F5_LOWV1_LENMIN - 1))
 
-/* DPT trailers */
+/* New format (DPT) trailers */
 #define F5_MEDV4_LENMIN               32 /**< Minimum length without TLV header */
-#define F5TRL_MEDV4_RSTCLEN(tvb, offset)  \
-    tvb_get_guint8(tvb, (offset) + (F5_MEDV4_LENMIN - 1))
-#define F5TRL_MEDV4_RSTCVER(tvb, offset)  \
-    ((tvb_get_guint8(tvb, (offset) + F5_MEDV4_LENMIN) & 0xfe) >> 1)
-#define F5TRL_MEDV4_RSTCPEER(tvb, offset) \
-    (tvb_get_guint8(tvb, (offset) + F5_MEDV4_LENMIN) & 0x01)
 
-#define F5_DPT_V1_HDR_MAGIC_OFF     0
-#define F5_DPT_V1_HDR_MAGIC_LEN     4
-#define F5_DPT_V1_HDR_MAGIC         0xf5deb0f5
-#define F5_DPT_V1_HDR_LENGTH_OFF    (F5_DPT_V1_HDR_MAGIC_OFF + F5_DPT_V1_HDR_MAGIC_LEN)
-#define F5_DPT_V1_HDR_LENGTH_LEN    2
-#define F5_DPT_V1_HDR_VERSION_OFF   (F5_DPT_V1_HDR_LENGTH_OFF + F5_DPT_V1_HDR_LENGTH_LEN)
-#define F5_DPT_V1_HDR_VERSION_LEN   2
-#define F5_DPT_V1_HDR_VERSION_MIN   1 /**< Minimum DPT version handled by this dissector. */
-#define F5_DPT_V1_HDR_VERSION_MAX   1 /**< Maximum DPT version handled by this dissector. */
-#define F5_DPT_V1_HDR_LEN           (F5_DPT_V1_HDR_VERSION_OFF + F5_DPT_V1_HDR_VERSION_LEN)
+#define F5_DPT_V1_HDR_MAGIC_OFF        0
+#define F5_DPT_V1_HDR_MAGIC_LEN        4
+#define F5_DPT_V1_HDR_MAGIC            0xf5deb0f5
+#define F5_DPT_V1_HDR_LENGTH_OFF       (F5_DPT_V1_HDR_MAGIC_OFF + F5_DPT_V1_HDR_MAGIC_LEN)
+#define F5_DPT_V1_HDR_LENGTH_LEN       2
+#define F5_DPT_V1_HDR_VERSION_OFF      (F5_DPT_V1_HDR_LENGTH_OFF + F5_DPT_V1_HDR_LENGTH_LEN)
+#define F5_DPT_V1_HDR_VERSION_LEN      2
+#define F5_DPT_V1_HDR_VERSION_MIN      1 /**< Minimum DPT version handled by this dissector. */
+#define F5_DPT_V1_HDR_VERSION_MAX      1 /**< Maximum DPT version handled by this dissector. */
+#define F5_DPT_V1_HDR_LEN              (F5_DPT_V1_HDR_VERSION_OFF + F5_DPT_V1_HDR_VERSION_LEN)
 
-#define F5_DPT_PROVIDER_NOISE       1
+#define F5_DPT_PROVIDER_NOISE          1
 
 #define F5_DPT_V1_TLV_PROVIDER_OFF     0
 #define F5_DPT_V1_TLV_PROVIDER_LEN     2
@@ -1255,7 +1232,10 @@ struct f5eth_analysis_data_t {
 };
 
 /*-----------------------------------------------------------------------------------------------*/
-/** \brief Allocates a new analysis data structure and initializes the values.
+/**
+ * @brief Allocates a new analysis data structure and initializes the values.
+ *
+ * @return wmem allocated analysis structure
  */
 static struct f5eth_analysis_data_t *
 new_f5eth_analysis_data_t(void)
@@ -1278,7 +1258,7 @@ new_f5eth_analysis_data_t(void)
     /* r->analysis_flowlost = 0; */
     /* r->analysis_hasresults = 0; */
 
-    return (r);
+    return r;
 } /* new_f5eth_analysis_data_t() */
 
 /* Functions for find a subtree of a particular type of the current tree. */
@@ -1290,10 +1270,11 @@ struct subtree_search {
 };
 
 /*-----------------------------------------------------------------------------------------------*/
-/** \brief Function to see if a node is of a particular type and return it if it is a tree.
+/**
+ * @brief Function to see if a node is of a particular type and return it if it is a tree.
  *
- *  @param pn   A pointer to the proto_node being looked at.
- *  @param data A pointer to the subtree_search structure with search criteria and results.
+ * @param pn   A pointer to the proto_node being looked at.
+ * @param data A pointer to the subtree_search structure with search criteria and results.
  */
 static void
 compare_subtree(proto_node *pn, gpointer data)
@@ -1307,11 +1288,12 @@ compare_subtree(proto_node *pn, gpointer data)
 } /* compare_subtree() */
 
 /*-----------------------------------------------------------------------------------------------*/
-/** \brief Function to search child trees (one level) for a tree of a specific type.
+/**
+ * @brief Function to search child trees (one level) for a tree of a specific type.
  *
- *  @param tree A pointer to the proto_tree being looked at.
- *  @param hf   The register hfinfo id that we are looking for.
- *  @return     The tree that was found or NULL if it was not found.
+ * @param tree A pointer to the proto_tree being looked at.
+ * @param hf   The register hfinfo id that we are looking for.
+ * @return     The tree that was found or NULL if it was not found.
  */
 static proto_tree *
 find_subtree(proto_tree *tree, gint hf)
@@ -1319,17 +1301,18 @@ find_subtree(proto_tree *tree, gint hf)
     struct subtree_search search_struct;
 
     if (tree == NULL || hf == -1)
-        return (NULL);
+        return NULL;
     search_struct.tree = NULL;
     search_struct.hf   = hf;
     proto_tree_children_foreach(tree, compare_subtree, &search_struct);
-    return (search_struct.tree);
+    return search_struct.tree;
 } /* find_subtree() */
 
 /*-----------------------------------------------------------------------------------------------*/
-/** \brief Computes the analysis results based on the data in the analysis data struct.
+/**
+ * @brief Computes the analysis results based on the data in the analysis data struct.
  *
- *   @param ad A pointer to the f5eth_analysis_data_t struct
+ * @param ad A pointer to the f5eth_analysis_data_t struct
  */
 static void
 perform_analysis(struct f5eth_analysis_data_t *ad)
@@ -1354,12 +1337,13 @@ perform_analysis(struct f5eth_analysis_data_t *ad)
 } /* perform_analysis() */
 
 /*-----------------------------------------------------------------------------------------------*/
-/** \brief Puts the results of the F5 Ethernet trailer analysis into the protocol tree.
+/**
+ * @brief Puts the results of the F5 Ethernet trailer analysis into the protocol tree.
  *
- *   @param tvb   A pointer to a TV buffer for the packet.
- *   @param pinfo A pointer to the packet info struction for the packet
- *   @param tree  A pointer to the protocol tree structure
- *   @param ad    A pointer to the intra-noise information data
+ * @param tvb   A pointer to a TV buffer for the packet.
+ * @param pinfo A pointer to the packet info struction for the packet
+ * @param tree  A pointer to the protocol tree structure
+ * @param ad    A pointer to the intra-noise information data
  */
 static void
 render_analysis(
@@ -1380,7 +1364,14 @@ render_analysis(
 } /* render_analysis() */
 
 /*-----------------------------------------------------------------------------------------------*/
-/** \brief Tap call back to retrieve information about the IP headers.
+/**
+ * @brief Tap call back to retrieve information about the IP headers.
+ *
+ * @param tapdata UNUSED
+ * @param pinfo   Pointer to acket Info data structure
+ * @param edt     UNUSED
+ * @param data    Pointer to ws_ip4 structure
+ * @return tap_packet_status
  */
 static tap_packet_status
 ip_tap_pkt(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data)
@@ -1391,13 +1382,13 @@ ip_tap_pkt(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const
     ad = (struct f5eth_analysis_data_t *)p_get_proto_data(
         wmem_file_scope(), pinfo, proto_f5ethtrailer, 0);
     if (ad == NULL)
-        return (TAP_PACKET_DONT_REDRAW); /* No F5 information */
+        return TAP_PACKET_DONT_REDRAW; /* No F5 information */
     if (ad->ip_visited == 1)
-        return (TAP_PACKET_DONT_REDRAW);
+        return TAP_PACKET_DONT_REDRAW;
     ad->ip_visited = 1;
 
     if (data == NULL)
-        return (TAP_PACKET_DONT_REDRAW);
+        return TAP_PACKET_DONT_REDRAW;
     iph = (const ws_ip4 *)data;
 
     /* Only care about TCP at this time */
@@ -1407,17 +1398,24 @@ ip_tap_pkt(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const
      */
     if (iph->ip_proto != IP_PROTO_TCP) {
         ad->ip_istcp = 0;
-        return (TAP_PACKET_DONT_REDRAW);
+        return TAP_PACKET_DONT_REDRAW;
     }
 
     ad->ip_istcp  = 1;
     ad->ip_isfrag = ((iph->ip_off & IP_OFFSET_MASK) || (iph->ip_off & IP_MF)) ? 1 : 0;
 
-    return (TAP_PACKET_REDRAW);
+    return TAP_PACKET_REDRAW;
 } /* ip_tap_pkt() */
 
 /*-----------------------------------------------------------------------------------------------*/
-/** \brief Tap call back to retrieve information about the IPv6 headers.
+/**
+ * @brief Tap call back to retrieve information about the IPv6 headers.
+ *
+ * @param tapdata UNUSED
+ * @param pinfo   Pointer to acket Info data structure
+ * @param edt     UNUSED
+ * @param data    Pointer to ws_ip6_hdr structure
+ * @return tap_packet_status
  */
 static tap_packet_status
 ipv6_tap_pkt(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data)
@@ -1428,13 +1426,13 @@ ipv6_tap_pkt(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
     ad = (struct f5eth_analysis_data_t *)p_get_proto_data(
         wmem_file_scope(), pinfo, proto_f5ethtrailer, 0);
     if (ad == NULL)
-        return (TAP_PACKET_DONT_REDRAW); /* No F5 information */
+        return TAP_PACKET_DONT_REDRAW; /* No F5 information */
     if (ad->ip_visited == 1)
-        return (TAP_PACKET_DONT_REDRAW);
+        return TAP_PACKET_DONT_REDRAW;
     ad->ip_visited = 1;
 
     if (data == NULL)
-        return (TAP_PACKET_DONT_REDRAW);
+        return TAP_PACKET_DONT_REDRAW;
     ipv6h = (const struct ws_ip6_hdr *)data;
 
     /* Only care about TCP at this time */
@@ -1448,16 +1446,23 @@ ipv6_tap_pkt(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
      * fragment, we don't care anyways (too much effort). */
     if (ipv6h->ip6h_nxt != IP_PROTO_TCP) {
         ad->ip_istcp = 0;
-        return (TAP_PACKET_DONT_REDRAW);
+        return TAP_PACKET_DONT_REDRAW;
     }
 
     ad->ip_istcp = 1;
 
-    return (TAP_PACKET_REDRAW);
+    return TAP_PACKET_REDRAW;
 } /* ipv6_tap_pkt() */
 
 /*-----------------------------------------------------------------------------------------------*/
-/** \brief Tap call back to retrieve information about the TCP headers.
+/**
+ * @brief Tap call back to retrieve information about the TCP headers.
+ *
+ * @param tapdata UNUSED
+ * @param pinfo   Pointer to acket Info data structure
+ * @param edt     UNUSED
+ * @param data    Pointer to tcp_info_t structure
+ * @return tap_packet_status
  */
 static tap_packet_status
 tcp_tap_pkt(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data)
@@ -1468,13 +1473,13 @@ tcp_tap_pkt(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, cons
     ad = (struct f5eth_analysis_data_t *)p_get_proto_data(
         wmem_file_scope(), pinfo, proto_f5ethtrailer, 0);
     if (ad == NULL)
-        return (TAP_PACKET_DONT_REDRAW); /* No F5 information */
+        return TAP_PACKET_DONT_REDRAW; /* No F5 information */
     if (ad->tcp_visited == 1)
-        return (TAP_PACKET_DONT_REDRAW);
+        return TAP_PACKET_DONT_REDRAW;
     ad->tcp_visited = 1;
 
     if (data == NULL)
-        return (TAP_PACKET_DONT_REDRAW);
+        return TAP_PACKET_DONT_REDRAW;
     tcph = (const tcp_info_t *)data;
 
     ad->tcp_synset = (tcph->th_flags & TH_SYN) ? 1 : 0;
@@ -1500,7 +1505,7 @@ tcp_tap_pkt(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, cons
         }
     }
 
-    return (TAP_PACKET_REDRAW);
+    return TAP_PACKET_REDRAW;
 } /* tcp_tap_pkt() */
 
 /* End of analysis functions */
@@ -1514,7 +1519,17 @@ static const guint8 f5rtdomprefix[] = {0x26, 0x20, 0, 0, 0x0c, 0x10, 0xf5, 0x01,
 #define F5_IPV6ADDR_LEN 16
 
 /*---------------------------------------------------------------------------*/
-/* Display an IPv6 encoded IPv4 addr in an IPv4 field if appropriate. */
+/**
+ * @brief Display an IPv6 encoded IPv4 addr in an IPv4 field if appropriate.
+ *
+ * @param tree          Pointer to tree struct
+ * @param addrfield     hf_index address will be placed in
+ * @param rtdomfield    hf_index route doamin will be placed in
+ * @param tvb           Pointer to tvb
+ * @param offset        Offset into the tvb containg the IPv6 address
+ * @param hidden        Should the protocol item be hidden
+ * @return              Pointer to proto_item created
+ */
 static proto_item *
 displayIPv6as4(
     proto_tree *tree, int addrfield, int rtdomfield, tvbuff_t *tvb, int offset, gboolean hidden)
@@ -1533,7 +1548,7 @@ displayIPv6as4(
          * host (e.g. monitor traffic).  If so, break it up and render it for ease of viewing (and
          * searching).  Ignore the incorrect addresses used by 10.0.x (solution 10511) as these
          * will hopefully not be common. */
-        /* These are technically backwards as we are probably returning the wrong pi.  However,
+        /* TODO: review - These are technically backwards as we are probably returning the wrong pi.  However,
          * when configuring, people usually see route domain after the address, so that is why this
          * particular ordering is used (and none of the callers currently use the return value). */
         if (addrfield >= 0) {
@@ -1550,11 +1565,20 @@ displayIPv6as4(
         }
     }
 
-    return (pi);
+    return pi;
 } /* displayIPv6as4() */
 
-/* The legacy trailers used a fair amount of magic numbers.  Continuing that
-   use for now with the same magic numbers in this function */
+/**
+ * @brief Render a tree item to dispalay header info for old format trailer blocks
+ *
+ * @attention The old format trailers used a fair amount of magic numbers.  Continuing that
+              use for now with the same magic numbers in this function
+ *
+ * @param tvb       Pointer to the tvb
+ * @param tree      Pointer to tree struct
+ * @param offset    Offset into the tvb
+ * @return          Number of bytes consumed
+ */
 static gint
 render_f5_legacy_hdr(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
@@ -1576,7 +1600,18 @@ render_f5_legacy_hdr(tvbuff_t *tvb, proto_tree *tree, gint offset)
 } /* render_f5_legacy_hdr() */
 
 /*---------------------------------------------------------------------------*/
-/* High level trailers */
+/**
+ * @brief Dissect old format "high" trailer TLV
+ *
+ * @param tvb               Pointer to the tvb to be processed
+ * @param pinfo             Pointer to packet_info struct
+ * @param tree              Pointer to protocol tree
+ * @param offset            Offset int the the tvb where trailer begins
+ * @param trailer_length    Length of the trailer data to process
+ * @param trailer_ver       Version of the trailer detected
+ * @param tdata             Pointer to tap data structure
+ * @return                  Number of btyes consumed
+ */
 static guint
 dissect_high_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset,
     guint8 trailer_length, guint8 trailer_ver, f5eth_tap_data_t *tdata)
@@ -1585,25 +1620,19 @@ dissect_high_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
     guint o;
     guint8 ipproto;
 
-    switch (trailer_ver) {
-    case 0:
-            if (trailer_length != F5_HIV0_LEN)
-                return (0);
-        break;
-    default:
-            return (0);
-    }
+    if (trailer_ver != 0 || trailer_length != F5_HIV0_LEN)
+        return 0;
 
     /* We do not need to do anything if we don't have a tree */
     if (tree == NULL)
-        return (trailer_length);
+        return trailer_length;
 
     o = offset;
     o += render_f5_legacy_hdr(tvb, tree, o);
 
     if (tdata->peer_flow == 0) {
         proto_tree_add_item(tree, hf_peer_nopeer, tvb, o, trailer_length - 3, ENC_NA);
-        return (trailer_length);
+        return trailer_length;
     }
 
     /* Add in the high order structures. */
@@ -1614,13 +1643,11 @@ dissect_high_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
     o += 2;
 
     /* peer remote address */
-#ifdef F5_POP_OTHERFIELDS
-    if (pop_other_fields) {
+    if (pref_pop_other_fields) {
         displayIPv6as4(tree, hf_ip_ipaddr, -1, tvb, o, TRUE);
         pi = proto_tree_add_item(tree, hf_ip6_ip6addr, tvb, o, 16, ENC_NA);
         proto_item_set_hidden(pi);
     }
-#endif
     displayIPv6as4(tree, hf_peer_remote_addr, hf_peer_remote_rtdom, tvb, o, FALSE);
     displayIPv6as4(tree, hf_peer_ipaddr, hf_peer_rtdom, tvb, o, TRUE);
     proto_tree_add_item(tree, hf_peer_remote_ip6addr, tvb, o, 16, ENC_NA);
@@ -1629,13 +1656,11 @@ dissect_high_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
     o += 16;
 
     /* peer local address */
-#ifdef F5_POP_OTHERFIELDS
-    if (pop_other_fields) {
+    if (pref_pop_other_fields) {
         displayIPv6as4(tree, hf_ip_ipaddr, -1, tvb, o, TRUE);
         pi = proto_tree_add_item(tree, hf_ip6_ip6addr, tvb, o, 16, ENC_NA);
         proto_item_set_hidden(pi);
     }
-#endif
     displayIPv6as4(tree, hf_peer_local_addr, hf_peer_local_rtdom, tvb, o, FALSE);
     displayIPv6as4(tree, hf_peer_ipaddr, hf_peer_rtdom, tvb, o, TRUE);
     proto_tree_add_item(tree, hf_peer_local_ip6addr, tvb, o, 16, ENC_NA);
@@ -1643,17 +1668,14 @@ dissect_high_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
     proto_item_set_hidden(pi);
     o += 16;
 
-#ifdef F5_POP_OTHERFIELDS
-    /* If there is no proto in the trailer, go get it from the actual packet
-     * information. */
-    if (pop_other_fields && ipproto == 0) {
-        ipproto = ptype_to_ipproto(pinfo->ptype);
-    }
-#endif
+    if (pref_pop_other_fields) {
+        /* If there is no proto in the trailer, go get it from the actual packet
+         * information. */
+        if (ipproto == 0) {
+            ipproto = ptype_to_ipproto(pinfo->ptype);
+        }
 
-    /* peer remote port */
-#ifdef F5_POP_OTHERFIELDS
-    if (pop_other_fields) {
+        /* peer remote port */
         switch (ipproto) {
         case IP_PROTO_TCP:
             pi = proto_tree_add_item(tree, hf_tcp_tcpport, tvb, o, 2, ENC_BIG_ENDIAN);
@@ -1665,15 +1687,13 @@ dissect_high_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
             break;
         }
     }
-#endif
     proto_tree_add_item(tree, hf_peer_remote_port, tvb, o, 2, ENC_BIG_ENDIAN);
     pi = proto_tree_add_item(tree, hf_peer_port, tvb, o, 2, ENC_BIG_ENDIAN);
     proto_item_set_hidden(pi);
     o += 2;
 
     /* peer remote port */
-#ifdef F5_POP_OTHERFIELDS
-    if (pop_other_fields) {
+    if (pref_pop_other_fields) {
         switch (ipproto) {
         case IP_PROTO_TCP:
             pi = proto_tree_add_item(tree, hf_tcp_tcpport, tvb, o, 2, ENC_BIG_ENDIAN);
@@ -1685,16 +1705,26 @@ dissect_high_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
             break;
         }
     }
-#endif
     proto_tree_add_item(tree, hf_peer_local_port, tvb, o, 2, ENC_BIG_ENDIAN);
     pi = proto_tree_add_item(tree, hf_peer_port, tvb, o, 2, ENC_BIG_ENDIAN);
     proto_item_set_hidden(pi);
 
-    return (trailer_length);
+    return trailer_length;
 } /* dissect_high_trailer() */
 
 /*---------------------------------------------------------------------------*/
-/* Medium level trailers */
+/**
+ * @brief Dissect old format "medium" trailer TLV
+ *
+ * @param tvb               Pointer to the tvb to be processed
+ * @param pinfo             Pointer to packet_info struct
+ * @param tree              Pointer to protocol tree
+ * @param offset            Offset int the the tvb where trailer begins
+ * @param trailer_length    Length of the trailer data to process
+ * @param trailer_ver       Version of the trailer detected
+ * @param tdata             Pointer to tap data structure
+ * @return                  Number of btyes consumed
+ */
 static guint
 dissect_med_trailer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset,
     guint8 trailer_length, guint8 trailer_ver, f5eth_tap_data_t *tdata)
@@ -1706,91 +1736,85 @@ dissect_med_trailer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gui
 
     switch (trailer_ver) {
     case 0:
-            if (trailer_length != F5_MEDV11_LEN && trailer_length != F5_MEDV10_LEN
-                && trailer_length != F5_MEDV94_LEN) {
-                return (0);
+        if (trailer_length != F5_MEDV11_LEN && trailer_length != F5_MEDV10_LEN
+            && trailer_length != F5_MEDV94_LEN) {
+            return 0;
         }
         break;
     case 1:
-            if (trailer_length < F5_MEDV1_LENMIN) { /* too small */
-                return (0);
-            }
-            rstcauselen = F5TRL_MEDV1_RSTCLEN(tvb, offset);
+        if (trailer_length < F5_MEDV1_LENMIN) { /* too small */
+            return 0;
+        }
+        rstcauselen = tvb_get_guint8(tvb, offset + F5_MEDV1_LENMIN - 1);
         /* check size is valid */
-            if (rstcauselen + F5_MEDV1_LENMIN != trailer_length) {
-                return (0);
-            }
-
-            if (rstcauselen)
-                rstcausever = F5TRL_MEDV1_RSTCVER(tvb, offset);
+        if (rstcauselen + F5_MEDV1_LENMIN != trailer_length) {
+            return 0;
+        }
+        if (rstcauselen)
+            rstcausever = (tvb_get_guint8(tvb, offset + F5_MEDV1_LENMIN) & 0xfe) >> 1;
         /* If we want the RST cause in the summary, we need to do it here,
          * before the tree check below */
-            if (rstcauselen && rstcause_in_info) {
-                if (rstcausever == 0x00) {
+        if (rstcauselen && rstcause_in_info) {
+            if (rstcausever == 0x00) {
                 col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "[F5RST%s: %s]",
-                    F5TRL_MEDV1_RSTCPEER(tvb, offset) ? "(peer)" : "",
-                        tvb_get_string_enc(wmem_packet_scope(), tvb, offset + F5_MEDV1_LENMIN + 9,
-                            rstcauselen - 9, ENC_ASCII));
+                    tvb_get_guint8(tvb, offset + F5_MEDV1_LENMIN) & 0x01 ? "(peer)" : "",
+                    tvb_get_string_enc(wmem_packet_scope(), tvb, offset + F5_MEDV1_LENMIN + 9,
+                        rstcauselen - 9, ENC_ASCII));
             }
         }
-
         break;
     case 2:
-            if (trailer_length < F5_MEDV2_LENMIN) { /* too small */
-                return (0);
-            }
-            rstcauselen = F5TRL_MEDV2_RSTCLEN(tvb, offset);
+        if (trailer_length < F5_MEDV2_LENMIN) { /* too small */
+            return 0;
+        }
+        rstcauselen = tvb_get_guint8(tvb, offset + F5_MEDV2_LENMIN - 1);
         /* check size is valid */
-            if (rstcauselen + F5_MEDV2_LENMIN != trailer_length) {
-                return (0);
-            }
-
-            if (rstcauselen)
-                rstcausever = F5TRL_MEDV2_RSTCVER(tvb, offset);
+        if (rstcauselen + F5_MEDV2_LENMIN != trailer_length) {
+            return 0;
+        }
+        if (rstcauselen)
+            rstcausever = (tvb_get_guint8(tvb, offset + F5_MEDV2_LENMIN) & 0x0fe) >> 1;
         /* If we want the RST cause in the summary, we need to do it here,
          * before the tree check below */
-            if (rstcauselen && rstcause_in_info) {
-                if (rstcausever == 0x00) {
-                col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "[F5RST%s: %s]",
-                    F5TRL_MEDV2_RSTCPEER(tvb, offset) ? "(peer)" : "",
-                        tvb_get_string_enc(wmem_packet_scope(), tvb, offset + F5_MEDV2_LENMIN + 9,
-                            rstcauselen - 9, ENC_ASCII));
+        if (rstcauselen && rstcause_in_info) {
+            if (rstcausever == 0x00) {
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "[F5RST%s: %s]",
+                tvb_get_guint8(tvb, offset + F5_MEDV2_LENMIN) & 0x01 ? "(peer)" : "",
+                    tvb_get_string_enc(wmem_packet_scope(), tvb, offset + F5_MEDV2_LENMIN + 9,
+                        rstcauselen - 9, ENC_ASCII));
             }
         }
-
         break;
     case 3:
-            if (trailer_length < F5_MEDV3_LENMIN) { /* too small */
-                return (0);
-            }
-            rstcauselen = F5TRL_MEDV3_RSTCLEN(tvb, offset);
+        if (trailer_length < F5_MEDV3_LENMIN) { /* too small */
+            return 0;
+        }
+        rstcauselen = tvb_get_gint8(tvb, offset + F5_MEDV3_LENMIN -1);
         /* check size is valid */
-            if (rstcauselen + F5_MEDV3_LENMIN != trailer_length) {
-                return (0);
-            }
-
-            if (rstcauselen)
-                rstcausever = F5TRL_MEDV3_RSTCVER(tvb, offset);
+        if (rstcauselen + F5_MEDV3_LENMIN != trailer_length) {
+            return 0;
+        }
+        if (rstcauselen)
+            rstcausever = (tvb_get_gint8(tvb, offset + F5_MEDV3_LENMIN) & 0xfe) >>1;
         /* If we want the RST cause in the summary, we need to do it here,
          * before the tree check below */
-            if (rstcauselen && rstcause_in_info) {
-                if (rstcausever == 0x00) {
-                col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "[F5RST%s: %s]",
-                    F5TRL_MEDV3_RSTCPEER(tvb, offset) ? "(peer)" : "",
-                        tvb_get_string_enc(wmem_packet_scope(), tvb, offset + F5_MEDV3_LENMIN + 9,
-                            rstcauselen - 9, ENC_ASCII));
+        if (rstcauselen && rstcause_in_info) {
+            if (rstcausever == 0x00) {
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "[F5RST%s: %s]",
+                tvb_get_gint8(tvb, offset + F5_MEDV3_LENMIN) & 0x01 ? "(peer)" : "",
+                    tvb_get_string_enc(wmem_packet_scope(), tvb, offset + F5_MEDV3_LENMIN + 9,
+                        rstcauselen - 9, ENC_ASCII));
             }
         }
-
         break;
     default:
-            return (0);
+        return 0;
     }
 
     /* We do not need to do anything more if we don't have a tree and we are not performing
      * analysis */
     if (pref_perform_analysis == FALSE && tree == NULL)
-        return (trailer_length);
+        return trailer_length;
 
     o = offset;
     o += render_f5_legacy_hdr(tvb, tree, o);
@@ -1836,7 +1860,7 @@ dissect_med_trailer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gui
     /* We do not need to do anything if we don't have a tree */
     /* Needed to get here so that analysis and tap will work. */
     if (tree == NULL)
-        return (trailer_length);
+        return trailer_length;
 
     proto_tree_add_item(tree, hf_ha_unit, tvb, o, 1, ENC_BIG_ENDIAN);
     o += 1;
@@ -1873,27 +1897,27 @@ dissect_med_trailer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gui
             startcause = o;
             switch (rstcausever) {
             case 0x00:
-                    rstcausepeer = tvb_get_guint8(tvb, o) & 0x1;
+                rstcausepeer = tvb_get_guint8(tvb, o) & 0x1;
 
                 proto_tree_add_item(rc_tree, hf_rstcause_ver, tvb, o, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(rc_tree, hf_rstcause_peer, tvb, o, 1, ENC_BIG_ENDIAN);
                 o += 1;
 
-                    rstcauseval  = tvb_get_ntoh64(tvb, o);
+                rstcauseval  = tvb_get_ntoh64(tvb, o);
                 rstcauseline = (rstcauseval & 0x000000000000ffffLL);
                 rstcauseval  = (rstcauseval & 0xffffffffffff0000LL) >> 16;
                 proto_tree_add_uint64_format_value(rc_tree, hf_rstcause_val, tvb, o, 6,
                     rstcauseval, "0x%012" G_GINT64_MODIFIER "x", rstcauseval);
-                    proto_tree_add_item(rc_tree, hf_rstcause_line, tvb, o + 6, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(rc_tree, hf_rstcause_line, tvb, o + 6, 2, ENC_BIG_ENDIAN);
                 o += 8;
 
-                    proto_item_append_text(rc_item,
-                        ": [%" G_GINT64_MODIFIER "x:%" G_GINT64_MODIFIER "u]%s %s", rstcauseval,
-                        rstcauseline, rstcausepeer ? " {peer}" : "",
+                proto_item_append_text(rc_item,
+                    ": [%" G_GINT64_MODIFIER "x:%" G_GINT64_MODIFIER "u]%s %s", rstcauseval,
+                    rstcauseline, rstcausepeer ? " {peer}" : "",
                         tvb_get_string_enc(wmem_packet_scope(), tvb, o,
-                            rstcauselen - (o - startcause), ENC_ASCII));
-                    proto_tree_add_item(rc_tree, hf_rstcause_txt, tvb, o,
-                        rstcauselen - (o - startcause), ENC_ASCII | ENC_NA);
+                        rstcauselen - (o - startcause), ENC_ASCII));
+                proto_tree_add_item(rc_tree, hf_rstcause_txt, tvb, o,
+                    rstcauselen - (o - startcause), ENC_ASCII | ENC_NA);
                 break;
             default:
                 break;
@@ -1901,11 +1925,23 @@ dissect_med_trailer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gui
         }
     }
 
-    return (trailer_length);
+    return trailer_length;
 } /* dissect_med_trailer() */
 
 /*---------------------------------------------------------------------------*/
 /* Low level trailers */
+/**
+ * @brief Dissect old format "low" trailer TLV
+ *
+ * @param tvb               Pointer to the tvb to be processed
+ * @param pinfo             Pointer to packet_info struct
+ * @param tree              Pointer to protocol tree
+ * @param offset            Offset int the the tvb where trailer begins
+ * @param trailer_length    Length of the trailer data to process
+ * @param trailer_ver       Version of the trailer detected
+ * @param tdata             Pointer to tap data structure
+ * @return                  Number of btyes consumed
+ */
 static guint
 dissect_low_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset,
     guint8 trailer_length, guint8 trailer_ver, f5eth_tap_data_t *tdata)
@@ -1920,51 +1956,51 @@ dissect_low_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint o
 
     switch (trailer_ver) {
     case 0:
-            if (trailer_length != F5_LOWV10_LEN && trailer_length != F5_LOWV94_LEN) {
-                return (0);
+        if (trailer_length != F5_LOWV10_LEN && trailer_length != F5_LOWV94_LEN) {
+            return 0;
         }
-            if (trailer_length == F5_LOWV94_LEN) {
-                slot_display       = tvb_get_guint8(tvb, offset + F5_OFF_LOW_SLOT);
+        if (trailer_length == F5_LOWV94_LEN) {
+            slot_display       = tvb_get_guint8(tvb, offset + F5_OFF_LOW_SLOT);
             slot_display_field = hf_slot0;
-                /* Analysis doesn't care about the virtual name, only populate if there is a tap
-                 * active */
-                if (have_tap_listener(tap_f5ethtrailer)
-                    && tvb_get_guint8(tvb, offset + (F5_LOWV94_LEN - 16)) != 0) {
-                    tdata->virtual_name = tvb_get_string_enc(
-                        wmem_packet_scope(), tvb, offset + (F5_LOWV94_LEN - 16), 16, ENC_ASCII);
+            /* Analysis doesn't care about the virtual name, only populate if there is a tap
+             * active */
+            if (have_tap_listener(tap_f5ethtrailer)
+                && tvb_get_guint8(tvb, offset + (F5_LOWV94_LEN - 16)) != 0) {
+                tdata->virtual_name = tvb_get_string_enc(wmem_packet_scope(), tvb,
+                    offset + (F5_LOWV94_LEN - 16), 16, ENC_ASCII);
             }
         } else {
-                slot_display       = tvb_get_guint8(tvb, offset + F5_OFF_LOW_SLOT) + 1;
+            slot_display       = tvb_get_guint8(tvb, offset + F5_OFF_LOW_SLOT) + 1;
             slot_display_field = hf_slot1;
-                /* Analysis doesn't care about the virtual name, only populate if there is a tap
-                 * active */
-                if (have_tap_listener(tap_f5ethtrailer)
-                    && tvb_get_guint8(tvb, offset + (F5_LOWV10_LEN - 16)) != 0) {
-                    tdata->virtual_name = tvb_get_string_enc(
-                        wmem_packet_scope(), tvb, offset + (F5_LOWV10_LEN - 16), 16, ENC_ASCII);
+            /* Analysis doesn't care about the virtual name, only populate if there is a tap
+             * active */
+            if (have_tap_listener(tap_f5ethtrailer)
+                && tvb_get_guint8(tvb, offset + (F5_LOWV10_LEN - 16)) != 0) {
+                tdata->virtual_name = tvb_get_string_enc(wmem_packet_scope(), tvb,
+                    offset + (F5_LOWV10_LEN - 16), 16, ENC_ASCII);
             }
         }
         break;
     case 1:
-            if (trailer_length < F5_LOWV1_LENMIN) { /* too small */
-                return (0);
-            }
-            vipnamelen = F5TRL_LOWV1_VIPLEN(tvb, offset);
+        if (trailer_length < F5_LOWV1_LENMIN) { /* too small */
+            return 0;
+        }
+        vipnamelen = tvb_get_guint8(tvb, offset + F5_LOWV1_LENMIN - 1);
         /* check size is valid */
-            if (vipnamelen + F5_LOWV1_LENMIN != trailer_length) {
-                return (0);
-            }
-            slot_display       = tvb_get_guint8(tvb, offset + F5_OFF_LOW_SLOT) + 1;
+        if (vipnamelen + F5_LOWV1_LENMIN != trailer_length) {
+            return 0;
+        }
+        slot_display       = tvb_get_guint8(tvb, offset + F5_OFF_LOW_SLOT) + 1;
         slot_display_field = hf_slot1;
-            /* Analysis doesn't care about the virtual name, only populate if there is a tap active
-             */
-            if (vipnamelen > 0 && have_tap_listener(tap_f5ethtrailer)) {
-                tdata->virtual_name = tvb_get_string_enc(
-                    wmem_packet_scope(), tvb, offset + F5_LOWV1_LENMIN, vipnamelen, ENC_ASCII);
+        /* Analysis doesn't care about the virtual name, only populate if there is a tap active
+         */
+        if (vipnamelen > 0 && have_tap_listener(tap_f5ethtrailer)) {
+            tdata->virtual_name = tvb_get_string_enc(wmem_packet_scope(), tvb,
+                offset + F5_LOWV1_LENMIN, vipnamelen, ENC_ASCII);
         }
         break;
     default:
-            return (0);
+        return 0;
     }
 
     ingress        = tvb_get_guint8(tvb, offset + F5_OFF_LOW_ING);
@@ -1985,7 +2021,7 @@ dissect_low_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint o
     if (pref_perform_analysis == FALSE && tree == NULL
         && !(trailer_length == F5_LOWV94_LEN && trailer_ver == 0
              && have_tap_listener(tap_f5ethtrailer))) {
-        return (trailer_length);
+        return trailer_length;
     }
 
     o = offset;
@@ -2026,7 +2062,7 @@ dissect_low_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint o
     /* We do not need to do anything more if we don't have a tree */
     /* Needed to get here so that analysis will work. */
     if (tree == NULL)
-        return (trailer_length);
+        return trailer_length;
 
     if (trailer_ver == 1) {
         pi = proto_tree_add_item(tree, hf_vipnamelen, tvb, o, 1, ENC_BIG_ENDIAN);
@@ -2035,9 +2071,16 @@ dissect_low_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint o
     }
     proto_tree_add_item(tree, hf_vip, tvb, o, vipnamelen, ENC_ASCII | ENC_NA);
 
-    return (trailer_length);
+    return trailer_length;
 } /* dissect_low_trailer() */
 
+/**
+ * @brief Render a header tree for new format tlvs
+ *
+ * @param tvb       Pointer to tvb
+ * @param tree      Pointer to protocol tree
+ * @param offset    Offset into the tvb
+ */
 static void
 render_f5dptv1_tlvhdr(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
@@ -2061,13 +2104,14 @@ render_f5dptv1_tlvhdr(tvbuff_t *tvb, proto_tree *tree, gint offset)
 } /* render_f5dptv1_tlvhdr() */
 
 /*---------------------------------------------------------------------------*/
-/** \brief Render the data for DPT high noise trailer TLV
+/**
+ * @brief Render the data for DPT high noise trailer TLV
  *
- *   @param tvb    The tvbuff containing the TLV block (header and data)
- *   @param pinfo  The pinfo structure for the frame
- *   @param tree   The tree to render the TVB under
- *   @param data   Pointer to tdata for the trailer
- *   @return       The size of the TVB
+ * @param tvb    The tvbuff containing the TLV block (header and data)
+ * @param pinfo  The pinfo structure for the frame
+ * @param tree   The tree to render the TVB under
+ * @param data   Pointer to tdata for the trailer
+ * @return       The size of the TVB
  */
 static int
 dissect_dpt_trailer_noise_high(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
@@ -2085,12 +2129,12 @@ dissect_dpt_trailer_noise_high(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 
     /* Unknown version, cannot do anything */
     if (ver != 1) {
-        return (0);
+        return 0;
     }
 
     if (tree == NULL) {
         /* We do not need to do anything if we do not have a tree */
-        return (len);
+        return len;
     }
 
     pi   = proto_tree_add_item(tree, hf_high_id, tvb, 0, len, ENC_NA);
@@ -2106,7 +2150,7 @@ dissect_dpt_trailer_noise_high(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
      */
     if (tdata->peer_flow == 0) {
         proto_tree_add_item(tree, hf_peer_nopeer, tvb, o, len - o, ENC_NA);
-        return (len);
+        return len;
     }
 
     /* Add in the high order structures. */
@@ -2117,13 +2161,11 @@ dissect_dpt_trailer_noise_high(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     o += 2;
 
     /* peer remote address */
-#ifdef F5_POP_OTHERFIELDS
-    if (pop_other_fields) {
+    if (pref_pop_other_fields) {
         displayIPv6as4(tree, hf_ip_ipaddr, -1, tvb, o, TRUE);
         pi = proto_tree_add_item(tree, hf_ip6_ip6addr, tvb, o, 16, ENC_NA);
         proto_item_set_hidden(pi);
     }
-#endif
     displayIPv6as4(tree, hf_peer_remote_addr, hf_peer_remote_rtdom, tvb, o, FALSE);
     displayIPv6as4(tree, hf_peer_ipaddr, hf_peer_rtdom, tvb, o, TRUE);
     proto_tree_add_item(tree, hf_peer_remote_ip6addr, tvb, o, 16, ENC_NA);
@@ -2132,13 +2174,11 @@ dissect_dpt_trailer_noise_high(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     o += 16;
 
     /* peer local address */
-#ifdef F5_POP_OTHERFIELDS
-    if (pop_other_fields) {
+    if (pref_pop_other_fields) {
         displayIPv6as4(tree, hf_ip_ipaddr, -1, tvb, o, TRUE);
         pi = proto_tree_add_item(tree, hf_ip6_ip6addr, tvb, o, 16, ENC_NA);
         proto_item_set_hidden(pi);
     }
-#endif
     displayIPv6as4(tree, hf_peer_local_addr, hf_peer_local_rtdom, tvb, o, FALSE);
     displayIPv6as4(tree, hf_peer_ipaddr, hf_peer_rtdom, tvb, o, TRUE);
     proto_tree_add_item(tree, hf_peer_local_ip6addr, tvb, o, 16, ENC_NA);
@@ -2147,8 +2187,7 @@ dissect_dpt_trailer_noise_high(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     o += 16;
 
     /* peer remote port */
-#ifdef F5_POP_OTHERFIELDS
-    if (pop_other_fields) {
+    if (pref_pop_other_fields) {
         switch (ipproto) {
         case IP_PROTO_TCP:
             pi = proto_tree_add_item(tree, hf_tcp_tcpport, tvb, o, 2, ENC_BIG_ENDIAN);
@@ -2160,15 +2199,13 @@ dissect_dpt_trailer_noise_high(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
             break;
         }
     }
-#endif
     proto_tree_add_item(tree, hf_peer_remote_port, tvb, o, 2, ENC_BIG_ENDIAN);
     pi = proto_tree_add_item(tree, hf_peer_port, tvb, o, 2, ENC_BIG_ENDIAN);
     proto_item_set_hidden(pi);
     o += 2;
 
     /* peer remote port */
-#ifdef F5_POP_OTHERFIELDS
-    if (pop_other_fields) {
+    if (pref_pop_other_fields) {
         switch (ipproto) {
         case IP_PROTO_TCP:
             pi = proto_tree_add_item(tree, hf_tcp_tcpport, tvb, o, 2, ENC_BIG_ENDIAN);
@@ -2180,22 +2217,22 @@ dissect_dpt_trailer_noise_high(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
             break;
         }
     }
-#endif
     proto_tree_add_item(tree, hf_peer_local_port, tvb, o, 2, ENC_BIG_ENDIAN);
     pi = proto_tree_add_item(tree, hf_peer_port, tvb, o, 2, ENC_BIG_ENDIAN);
     proto_item_set_hidden(pi);
 
-    return (len);
+    return len;
 } /* dissect_dpt_trailer_noise_high() */
 
 /*---------------------------------------------------------------------------*/
-/** \brief Render the data for DPT medium noise trailer TVB
+/**
+ * @brief Render the data for DPT medium noise trailer TVB
  *
- *   @param tvb    The tvbuff containing the TLV block (header and data)
- *   @param pinfo  The pinfo structure for the frame
- *   @param tree   The tree to render the TVB under
- *   @param data   Pointer to tdata for the trailer
- *   @return       The size of the TVB
+ * @param tvb    The tvbuff containing the TLV block (header and data)
+ * @param pinfo  The pinfo structure for the frame
+ * @param tree   The tree to render the TVB under
+ * @param data   Pointer to tdata for the trailer
+ * @return       The size of the TVB
  */
 static int
 dissect_dpt_trailer_noise_med(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
@@ -2215,7 +2252,7 @@ dissect_dpt_trailer_noise_med(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
     /* Unknown version, cannot do anything */
     if (ver != 4) {
-        return (0);
+        return 0;
     }
 
     pi   = proto_tree_add_item(tree, hf_med_id, tvb, 0, len, ENC_NA);
@@ -2225,7 +2262,7 @@ dissect_dpt_trailer_noise_med(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
     o                = F5_DPT_V1_TLV_HDR_LEN;
     tdata->noise_med = 1;
-    rstcauselen      = F5TRL_MEDV4_RSTCLEN(tvb, o);
+    rstcauselen      = tvb_get_guint8(tvb, o + F5_MEDV4_LENMIN - 1);
     /* Check for an invalid reset cause length and do not try to reference any of the data if it is
      * bad
      */
@@ -2235,13 +2272,13 @@ dissect_dpt_trailer_noise_med(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         rstcauselen = 0;
     }
     if (rstcauselen)
-        rstcausever = F5TRL_MEDV4_RSTCVER(tvb, o);
+        rstcausever = (tvb_get_guint8(tvb, o + F5_MEDV4_LENMIN) & 0xfe) >> 1;
     /* If we want the RST cause in the summary, we need to do it here,
      * before the tree check below */
     if (rstcauselen && rstcause_in_info) {
         if (rstcausever == 0x00) {
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "[F5RST%s: %s]",
-                F5TRL_MEDV4_RSTCPEER(tvb, o) ? "(peer)" : "",
+                tvb_get_guint8(tvb, o + F5_MEDV4_LENMIN) & 0x01 ? "(peer)" : "",
                 tvb_get_string_enc(
                     wmem_packet_scope(), tvb, o + F5_MEDV4_LENMIN + 9, rstcauselen - 9, ENC_ASCII));
         }
@@ -2250,7 +2287,7 @@ dissect_dpt_trailer_noise_med(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     /* We do not need to do anything more if we don't have a tree and we are not performing
      * analysis */
     if (pref_perform_analysis == FALSE && tree == NULL)
-        return (len);
+        return len;
 
     tdata->flow = tvb_get_ntoh64(tvb, o);
     proto_tree_add_item(tree, hf_flow_id, tvb, o, 8, ENC_BIG_ENDIAN);
@@ -2273,7 +2310,7 @@ dissect_dpt_trailer_noise_med(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     /* We do not need to do anything if we don't have a tree */
     /* Needed to get here so that analysis and tap will work. */
     if (tree == NULL) {
-        return (len);
+        return len;
     }
 
     proto_tree_add_item(tree, hf_ha_unit, tvb, o, 1, ENC_BIG_ENDIAN);
@@ -2308,45 +2345,44 @@ dissect_dpt_trailer_noise_med(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         startcause = o;
         switch (rstcausever) {
         case 0x00:
-                rstcausepeer = tvb_get_guint8(tvb, o) & 0x1;
-
-                proto_tree_add_item(rc_tree, hf_rstcause_ver, tvb, o, 1, ENC_BIG_ENDIAN);
+            rstcausepeer = tvb_get_guint8(tvb, o) & 0x1;
+            proto_tree_add_item(rc_tree, hf_rstcause_ver, tvb, o, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(rc_tree, hf_rstcause_peer, tvb, o, 1, ENC_BIG_ENDIAN);
             o += 1;
 
-                rstcauseval  = tvb_get_ntoh64(tvb, o);
+            rstcauseval  = tvb_get_ntoh64(tvb, o);
             rstcauseline = (rstcauseval & 0x000000000000ffffLL);
             rstcauseval  = (rstcauseval & 0xffffffffffff0000LL) >> 16;
-                proto_tree_add_uint64_format_value(rc_tree, hf_rstcause_val, tvb, o, 6, rstcauseval,
-                    "0x%012" G_GINT64_MODIFIER "x", rstcauseval);
-                proto_tree_add_item(rc_tree, hf_rstcause_line, tvb, o + 6, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_uint64_format_value(rc_tree, hf_rstcause_val, tvb, o, 6, rstcauseval,
+                "0x%012" G_GINT64_MODIFIER "x", rstcauseval);
+            proto_tree_add_item(rc_tree, hf_rstcause_line, tvb, o + 6, 2, ENC_BIG_ENDIAN);
             o += 8;
 
-                proto_item_append_text(rc_item,
-                    ": [%" G_GINT64_MODIFIER "x:%" G_GINT64_MODIFIER "u]%s %s", rstcauseval,
-                    rstcauseline, rstcausepeer ? " {peer}" : "",
-                    tvb_get_string_enc(
-                        wmem_packet_scope(), tvb, o, rstcauselen - (o - startcause), ENC_ASCII));
-                proto_tree_add_item(rc_tree, hf_rstcause_txt, tvb, o,
-                    rstcauselen - (o - startcause), ENC_ASCII | ENC_NA);
+            proto_item_append_text(rc_item,
+                ": [%" G_GINT64_MODIFIER "x:%" G_GINT64_MODIFIER "u]%s %s", rstcauseval,
+                rstcauseline, rstcausepeer ? " {peer}" : "",
+                tvb_get_string_enc(
+                    wmem_packet_scope(), tvb, o, rstcauselen - (o - startcause), ENC_ASCII));
+            proto_tree_add_item(rc_tree, hf_rstcause_txt, tvb, o,
+                rstcauselen - (o - startcause), ENC_ASCII | ENC_NA);
             /*o = startcause + rstcauselen;*/
             break;
         default:
             break;
         }
     }
-
-    return (len);
+    return len;
 } /* dissect_dpt_trailer_noise_med() */
 
 /*---------------------------------------------------------------------------*/
-/** \brief Render the data for DPT low noise trailer TVB
+/**
+ * @brief Render the data for DPT low noise trailer TVB
  *
- *   @param tvb    The tvbuff containing the TLV block (header and data)
- *   @param pinfo  The pinfo structure for the frame
- *   @param tree   The tree to render the TVB under
- *   @param data   Pointer to tdata for the trailer
- *   @return       The size of the TVB
+ * @param tvb    The tvbuff containing the TLV block (header and data)
+ * @param pinfo  The pinfo structure for the frame
+ * @param tree   The tree to render the TVB under
+ * @param data   Pointer to tdata for the trailer
+ * @return       The size of the TVB
  */
 static int
 dissect_dpt_trailer_noise_low(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
@@ -2370,7 +2406,7 @@ dissect_dpt_trailer_noise_low(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
     /* Unknown version, cannot do anything */
     if (ver < 2 || ver > 3) {
-        return (0);
+        return 0;
     }
 
     pi   = proto_tree_add_item(tree, hf_low_id, tvb, 0, len, ENC_NA);
@@ -2419,7 +2455,7 @@ dissect_dpt_trailer_noise_low(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
     /* We do not need to do anything more if we don't have a tree. */
     if (tree == NULL) {
-        return (len);
+        return len;
     }
 
     /* Use special formatting here so that users do not have to filter on "IN"
@@ -2448,22 +2484,23 @@ dissect_dpt_trailer_noise_low(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     if (badvipnamelen) {
         expert_add_info(pinfo, pi, &ei_f5eth_badlen);
         /* Cannot go any further */
-        return (len);
+        return len;
     }
     o += 1;
     proto_tree_add_item(tree, hf_vip, tvb, o, vipnamelen, ENC_ASCII | ENC_NA);
 
-    return (len);
+    return len;
 } /* dissect_dpt_trailer_noise_low() */
 
 /*---------------------------------------------------------------------------*/
-/* \brief Render the data for DPT noise provider TVB
+/**
+ * @brief Render the data for DPT noise provider TVB
  *
- *   @param tvb    The tvbuff containing the packet data for this TLV
- *   @param pinfo  The pinfo structure for the frame
- *   @param tree   The tree to render the TVB under
- *   @param data   Pointer to tdata for the trailer
- *   @return       The size of the TVB
+ * @param tvb    The tvbuff containing the packet data for this TLV
+ * @param pinfo  The pinfo structure for the frame
+ * @param tree   The tree to render the TVB under
+ * @param data   Pointer to tdata for the trailer
+ * @return       The size of the TVB
  */
 static int
 dissect_dpt_trailer_noise(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
@@ -2476,13 +2513,14 @@ dissect_dpt_trailer_noise(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 } /* dissect_dpt_trailer_noise() */
 
 /*---------------------------------------------------------------------------*/
-/* \brief Render the data for DPT TVB for an unknown provider
+/**
+ * @brief Render the data for DPT TVB for an unknown provider
  *
- *   @param tvb    The tvbuff containing the packet data for this DPT
- *   @param pinfo  The pinfo structure for the frame
- *   @param tree   The tree to render the TVB under
- *   @param data   Pointer to tdata for the trailer
- *   @return       The size of the TVB
+ * @param tvb    The tvbuff containing the packet data for this DPT
+ * @param pinfo  The pinfo structure for the frame
+ * @param tree   The tree to render the TVB under
+ * @param data   Pointer to tdata for the trailer
+ * @return       The size of the TVB
  */
 static int
 dissect_dpt_trailer_unknown(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
@@ -2502,21 +2540,22 @@ dissect_dpt_trailer_unknown(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
             tree, hf_data, tvb, F5_DPT_V1_TLV_HDR_LEN, len - F5_DPT_V1_TLV_HDR_LEN, ENC_NA);
     }
 
-    return (len);
+    return len;
 } /* dissect_dpt_trailer_unknown() */
 
 /*---------------------------------------------------------------------------*/
-/* \brief Render the data for DPT block
+/**
+ * @brief Render the data for DPT block
  *
  *   There is no predetermined or guaranteed order the DPT TLVs will be
  *   attached to the frame.  Use conversation data to coalesce information
  *   across TLVs and frames.
  *
- *   @param tvb    The tvbuff containing the packet data for this DPT block
- *   @param pinfo  The pinfo structure for the frame
- *   @param tree   The tree to render the DPT block in
- *   @param data   Pointer to tdata for the trailer
- *   @return       The size of the DPT block
+ * @param tvb    The tvbuff containing the packet data for this DPT block
+ * @param pinfo  The pinfo structure for the frame
+ * @param tree   The tree to render the DPT block in
+ * @param data   Pointer to tdata for the trailer
+ * @return       The size of the DPT block
  */
 static int
 dissect_dpt_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
@@ -2546,7 +2585,7 @@ dissect_dpt_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     if (dpt_ver < F5_DPT_V1_HDR_VERSION_MIN || dpt_ver > F5_DPT_V1_HDR_VERSION_MAX) {
         proto_tree_add_item(
             tree, hf_data, tvb, F5_DPT_V1_HDR_LEN, dpt_len - F5_DPT_V1_HDR_LEN, ENC_NA);
-        return (dpt_len);
+        return dpt_len;
     }
 
     o = F5_DPT_V1_HDR_LEN;
@@ -2593,141 +2632,211 @@ dissect_dpt_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
         o += tvb_dpt_tlv_len;
     }
 
-    return (dpt_len);
+    return dpt_len;
 } /* dissect_dpt_trailer() */
 
 /*---------------------------------------------------------------------------*/
-/* Main dissector entry point for the trailer data
+/**
+ * @brief Dissect the old format trailers (9.4.2 - 13.x)
  *
- * TODO Technically, this dissector should return FALSE if it did not find a
- *      valid trailer.  It always returns TRUE at this point.  Since this is
- *      not currently in shipping WS code and only people who are interested
- *      will load it, it's probably not that big of a deal.
+ * @param tvb    The tvbuff containing the packet data for this trailer
+ * @param pinfo  The pinfo structure for the frame
+ * @param tree   The tree to render the thrailer under
+ * @param data   Pointer to tdata for the trailer
+ * @return gint  Number of bytes cosumed by the dissector
  */
-static gboolean
-dissect_f5ethtrailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+static gint
+dissect_old_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    proto_tree *type_tree    = NULL;
-    proto_item *ti           = NULL;
-    proto_item *trailer_item = NULL;
-    struct f5eth_analysis_data_t *ad;
-    guint offset = 0;
-    guint start  = 0;
-    guint processed;
-    guint type;
+    proto_tree *type_tree   = NULL;
+    proto_item *ti          = NULL;
+    guint offset            = 0;
+    guint processed         = 0;
+    f5eth_tap_data_t *tdata = (f5eth_tap_data_t *)data;
+    guint8 type;
     guint8 len;
     guint8 ver;
-    f5eth_tap_data_t *tdata;
 
-    /* Initialize data structure for taps and analysis */
-    tdata = wmem_new0(wmem_packet_scope(), f5eth_tap_data_t);
-
-    tdata->magic = F5ETH_TAP_MAGIC;
-    tdata->slot  = F5ETH_TAP_SLOT_MAX;
-    tdata->tmm   = F5ETH_TAP_TMM_MAX;
-
-    /* While we still have data in the trailer.  For legacy trailers, this needs
+    /* While we still have data in the trailer.  For old format trailers, this needs
      * type, length, version (3 bytes) and for new format trailers, the magic header (4 bytes).
-     * All legacy trailers are at least 4 bytes long, so just check for length of magic.
+     * All old format trailers are at least 4 bytes long, so just check for length of magic.
      */
-    while (tvb_reported_length_remaining(tvb, offset) > F5_DPT_V1_HDR_MAGIC_LEN) {
-        processed = 0;
+    while (tvb_reported_length_remaining(tvb, offset)) {
+        type = tvb_get_guint8(tvb, offset);
+        len = tvb_get_guint8(tvb, offset + F5_OFF_LENGTH) + F5_OFF_VERSION;
+        ver = tvb_get_guint8(tvb, offset + F5_OFF_VERSION);
 
-        /* Check for new format trailer. (Magic number and at least enough bytes for a header) */
-        if (tvb_get_ntohl(tvb, offset) == F5_DPT_V1_HDR_MAGIC
-            && tvb_reported_length_remaining(tvb, offset) >= F5_DPT_V1_HDR_LEN) {
-            tvbuff_t *tvb_dpt;
-            gint dpt_len;
-
-            dpt_len = tvb_get_ntohs(tvb, offset + F5_DPT_V1_HDR_LENGTH_OFF);
-            /* Only process this if the length specified in the header is both
-             *   At least as long as the header
-             *   Less than or equal to the data that would have been captured
-             */
-            if (dpt_len >= F5_DPT_V1_HDR_LEN
-                && dpt_len <= tvb_reported_length_remaining(tvb, offset)) {
-                tvb_dpt = tvb_new_subset_length(tvb, offset, dpt_len);
-                if (trailer_item == NULL && tree) {
-                    start = offset;
-                    trailer_item =
-                        proto_tree_add_item(tree, proto_f5ethtrailer, tvb, start, 0, ENC_NA);
-                    tree = proto_item_add_subtree(trailer_item, ett_f5ethtrailer);
-                }
-                dissect_dpt_trailer(tvb_dpt, pinfo, tree, tdata);
-                processed = dpt_len;
-                tdata->trailer_len += dpt_len;
-            }
-        }
-
-        type = F5TRAILER_TYPE(tvb, offset);
-        len  = F5TRAILER_LEN(tvb, offset);
-        ver  = F5TRAILER_VER(tvb, offset);
-
-        /* If there was no new format trailer (processed == 0), need to check for legacy */
-        if (processed == 0 && len <= tvb_reported_length_remaining(tvb, offset)
-            && type >= F5TYPE_LOW && type <= F5TYPE_HIGH && len >= F5_MIN_SANE && len <= F5_MAX_SANE
+        if (len <= tvb_reported_length_remaining(tvb, offset) && type >= F5TYPE_LOW
+            && type <= F5TYPE_HIGH && len >= F5_MIN_SANE && len <= F5_MAX_SANE
             && ver <= F5TRAILER_VER_MAX) {
-            if (trailer_item == NULL && tree) {
-                start        = offset;
-                trailer_item = proto_tree_add_item(tree, proto_f5ethtrailer, tvb, start, 0, ENC_NA);
-                tree         = proto_item_add_subtree(trailer_item, ett_f5ethtrailer);
-            }
-
             /* Parse out the specified trailer. */
             switch (type) {
             case F5TYPE_LOW:
-                    ti        = proto_tree_add_item(tree, hf_low_id, tvb, offset, len, ENC_NA);
+                ti        = proto_tree_add_item(tree, hf_low_id, tvb, offset, len, ENC_NA);
                 type_tree = proto_item_add_subtree(ti, ett_f5ethtrailer_low);
 
                 processed = dissect_low_trailer(tvb, pinfo, type_tree, offset, len, ver, tdata);
-                    if (processed == 0) {
-                    proto_item_set_len(ti, 1);
-                } else {
+                if (processed > 0) {
                     tdata->trailer_len += processed;
                     tdata->noise_low = 1;
                 }
                 break;
-
             case F5TYPE_MED:
-                    ti        = proto_tree_add_item(tree, hf_med_id, tvb, offset, len, ENC_NA);
+                ti        = proto_tree_add_item(tree, hf_med_id, tvb, offset, len, ENC_NA);
                 type_tree = proto_item_add_subtree(ti, ett_f5ethtrailer_med);
 
                 processed = dissect_med_trailer(tvb, pinfo, type_tree, offset, len, ver, tdata);
-                    if (processed == 0) {
-                    proto_item_set_len(ti, 1);
-                } else {
+                if (processed > 0) {
                     tdata->trailer_len += processed;
                     tdata->noise_med = 1;
                 }
                 break;
-
             case F5TYPE_HIGH:
-                    ti        = proto_tree_add_item(tree, hf_high_id, tvb, offset, len, ENC_NA);
+                ti        = proto_tree_add_item(tree, hf_high_id, tvb, offset, len, ENC_NA);
                 type_tree = proto_item_add_subtree(ti, ett_f5ethtrailer_high);
 
-                    processed =
-                        dissect_high_trailer(tvb, pinfo, type_tree, offset, len, ver, tdata);
-                    if (processed == 0) {
-                    proto_item_set_len(ti, 1);
-                } else {
+                processed =
+                    dissect_high_trailer(tvb, pinfo, type_tree, offset, len, ver, tdata);
+                if (processed > 0) {
                     tdata->trailer_len += processed;
                     tdata->noise_high = 1;
                 }
                 break;
             }
+            if (processed == 0) {
+                proto_item_set_len(ti, 1);
+                return offset;
+            }
         }
+        offset += processed;
+    }
+return offset;
+} /* dissect_old_trailer() */
 
-        if (processed == 0) {
-            /* If we've fallen out due to pkt noise, move one and try again. */
-            offset++;
-        } else {
-            offset += processed;
-        }
+/*---------------------------------------------------------------------------*/
+/**
+ * @brief Dissector entry point
+ *
+ * @param tvb    The tvbuff containing the packet data for this trailer
+ * @param pinfo  The pinfo structure for the frame
+ * @param tree   The tree to render the thrailer under
+ * @param data   Pointer to tdata for the trailer
+ * @return gint  Number of bytes cosumed by the dissector
+ *
+ * New format trailers (BIG-IP 14.0 and later) begin with
+ * 4-byte magic number (0xf5deb0f5)
+ * 2-byte trailer length (Length includes header)
+ * 2-byte version
+ * 1 or more variable length TLVs
+ *
+ * Each New format TLV starts with
+ * 2-byte Provider ID
+ * 2-byte Type ID
+ * 2-byte TLV Length (Length includes header)
+ * 2-byte Version
+ * (TLVlen - 8) bytes of data
+ *
+ * Old format trailers (BIG-IP 9.4.2 - 13.x) were a list of variable length
+ * TLVs.
+ * 1-byte Type
+ * 1-byte TLV Length (TLVlen does not include the type and length fields)
+ * TLVlen bytes of data
+ */
+static int
+dissect_f5ethtrailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    guint trailer_length;
+    guint offset  = 0;
+    found_t found = NONE;
+
+    if (tvb_reported_length(tvb) != tvb_captured_length(tvb)) {
+        /* The trailers are really only helpful if we have the entire trailer. If we
+           don't, don't try to dissect it. */
+        return 0;
     }
 
-    proto_item_set_len(trailer_item, offset - start);
+    /* In some circumstances it is possible that a short ethernet frame was padded before tmm
+       was able to append f5ethtrailer.  In many cases (and should be) this padding is zeros.
+       The f5ethtrailer does not start with a zero, so trim off any leading zeros before
+       looking for an f5ethtrailer. */
+    while (tvb_get_gint8(tvb, offset) == 0) {
+        offset++;
+    }
 
+    trailer_length = tvb_reported_length_remaining(tvb, offset);
+    if (trailer_length < F5_DPT_V1_HDR_MAGIC_LEN + F5_DPT_V1_HDR_LEN) {
+        /* New format trailers at least have a magic, trailer length, version
+           for 8 bytes.  Old format trailers are at least that long. */
+        return 0;
+    }
+
+    while (found == NONE) {
+        /* Check if this is a new format trailer. */
+        if (tvb_get_ntohl(tvb, offset) == F5_DPT_V1_HDR_MAGIC) {
+            if (tvb_get_ntohs(tvb, offset + F5_DPT_V1_HDR_LENGTH_OFF) > trailer_length) {
+                /* we have the right magic, but the length doesn't match up.
+                assume we're not an f5ethtrailer, or it is corrupt.
+                Either way, don't try and dissect. */
+                return 0;
+            }
+            /* Looks like a new format trailer  */
+            found = NEW_FORMAT;
+            break;
+        }
+        /* Not new format? Are we old format? */
+        guint tlv_type, tlv_length, tlv_ver;
+
+        /* Check for old format trailers */
+        tlv_type = tvb_get_guint8(tvb, offset);
+        tlv_length = tvb_get_guint8(tvb, offset + F5_OFF_LENGTH) + F5_OFF_VERSION;
+        tlv_ver = tvb_get_guint8(tvb, offset + F5_OFF_VERSION);
+
+        if ( tlv_length <= trailer_length && tlv_type >= F5TYPE_LOW && tlv_type <= F5TYPE_HIGH &&
+            tlv_length >= F5_MIN_SANE && tlv_length <= F5_MAX_SANE &&
+            tlv_ver <= F5TRAILER_VER_MAX) {
+            /* Found at least one old format TLV */
+            found = OLD_FORMAT;
+            break;
+        }
+        if (!pref_walk_trailer || tvb_reported_length_remaining(tvb, offset) <= F5_DPT_V1_HDR_MAGIC_LEN + F5_DPT_V1_HDR_LEN)
+            /* Didn't find an f5ethtrailer, and we're not going to keep looking. */
+            return 0;
+
+        offset++;
+    }
+
+    /* Good to go, start dissection */
+    f5eth_tap_data_t *tdata;
+    proto_item *trailer_item = NULL;
+
+    /* Initialize data structure for taps and analysis */
+    tdata = wmem_new0(wmem_packet_scope(), f5eth_tap_data_t);
+
+    tdata->magic = F5ETH_TAP_MAGIC;
+    tdata->slot = F5ETH_TAP_SLOT_MAX;
+    tdata->tmm = F5ETH_TAP_TMM_MAX;
+
+    if (tree) {
+        trailer_item = proto_tree_add_item(tree, proto_f5ethtrailer, tvb, offset, 0, ENC_NA);
+        tree = proto_item_add_subtree(trailer_item, ett_f5ethtrailer);
+    }
+
+    if (found == NEW_FORMAT) {
+        /* dissect new format trailer */
+        trailer_length = dissect_dpt_trailer(tvb_new_subset_remaining(tvb, offset),
+                                             pinfo, tree, tdata);
+    } else {
+        /* dissect old format trailer */
+        trailer_length = dissect_old_trailer(tvb_new_subset_remaining(tvb, offset),
+                                             pinfo, tree, tdata);
+    }
+    tdata->trailer_len = trailer_length;
+    proto_item_set_len(trailer_item, trailer_length);
+
+    /* If the analyis preference is enabled, process it */
     if (pref_perform_analysis) {
+        struct f5eth_analysis_data_t *ad;
+
         /* Get the analysis data information for this packet */
         ad = (struct f5eth_analysis_data_t *)p_get_proto_data(
             wmem_file_scope(), pinfo, proto_f5ethtrailer, 0);
@@ -2755,7 +2864,7 @@ dissect_f5ethtrailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     if (tdata->noise_low != 0) {
         tap_queue_packet(tap_f5ethtrailer, pinfo, tdata);
     }
-    return TRUE;
+    return trailer_length;
 } /* dissect_f5ethtrailer() */
 
 /*-----------------------------------------------------------------------------------------------*/
@@ -2894,7 +3003,8 @@ f5eth_bytes_to_hexstrnz(wmem_allocator_t *scope, const guchar *ba, gint ba_len)
 } /* f5eth_bytes_to_hexstrnz */
 
 /*-----------------------------------------------------------------------------------------------*/
-/** \brief Create a keylog entry and add it to the packet info
+/**
+ * @brief Create a keylog entry and add it to the packet info
  *
  * Keylog entries will be created as described in the tls dissector.
  * packet-tls-utils.c:  tls_keylog_process_lines()
@@ -2914,27 +3024,28 @@ f5eth_add_tls_keylog(keylog_t keylog_type, f5tls_element_t *xxxx, f5tls_element_
     yyyy_hex = f5eth_bytes_to_hexstrnz(wmem_packet_scope(), yyyy->data, yyyy->len);
 
     switch (keylog_type) {
-        case CLIENT_RANDOM:
-            return wmem_strdup_printf(wmem_file_scope(), "CLIENT_RANDOM %s %s", xxxx_hex, yyyy_hex);
-        case CLIENT_TRAFFIC_SECRET_0:
-            return wmem_strdup_printf(
-                wmem_file_scope(), "CLIENT_TRAFFIC_SECRET_0 %s %s", xxxx_hex, yyyy_hex);
-        case SERVER_TRAFFIC_SECRET_0:
-            return wmem_strdup_printf(
-                wmem_file_scope(), "SERVER_TRAFFIC_SECRET_0 %s %s", xxxx_hex, yyyy_hex);
-        case CLIENT_HANDSHAKE_TRAFFIC_SECRET:
-            return wmem_strdup_printf(
-                wmem_file_scope(), "CLIENT_HANDSHAKE_TRAFFIC_SECRET %s %s", xxxx_hex, yyyy_hex);
-        case SERVER_HANDSHAKE_TRAFFIC_SECRET:
-            return wmem_strdup_printf(
-                wmem_file_scope(), "SERVER_HANDSHAKE_TRAFFIC_SECRET %s %s", xxxx_hex, yyyy_hex);
-        default:
-            DISSECTOR_ASSERT_NOT_REACHED();
+    case CLIENT_RANDOM:
+        return wmem_strdup_printf(wmem_file_scope(), "CLIENT_RANDOM %s %s", xxxx_hex, yyyy_hex);
+    case CLIENT_TRAFFIC_SECRET_0:
+        return wmem_strdup_printf(
+            wmem_file_scope(), "CLIENT_TRAFFIC_SECRET_0 %s %s", xxxx_hex, yyyy_hex);
+    case SERVER_TRAFFIC_SECRET_0:
+        return wmem_strdup_printf(
+            wmem_file_scope(), "SERVER_TRAFFIC_SECRET_0 %s %s", xxxx_hex, yyyy_hex);
+    case CLIENT_HANDSHAKE_TRAFFIC_SECRET:
+        return wmem_strdup_printf(
+            wmem_file_scope(), "CLIENT_HANDSHAKE_TRAFFIC_SECRET %s %s", xxxx_hex, yyyy_hex);
+    case SERVER_HANDSHAKE_TRAFFIC_SECRET:
+        return wmem_strdup_printf(
+            wmem_file_scope(), "SERVER_HANDSHAKE_TRAFFIC_SECRET %s %s", xxxx_hex, yyyy_hex);
+    default:
+        DISSECTOR_ASSERT_NOT_REACHED();
     }
 } /* f5eth_add_tls_keylog() */
 
 /*-----------------------------------------------------------------------------------------------*/
-/** \brief Process the data entries
+/**
+ * @brief Process the data entries
  *
  * @param element   Pointer to crypto element
  * @param pinfo     Packet info pointer (unused)
@@ -2988,57 +3099,57 @@ dissect_dpt_trailer_tls_type0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     ver = tvb_get_ntohs(tvb, F5_DPT_V1_TLV_VERSION_OFF);
 
     switch (ver) {
-        case 0:
-            /* Create a subtree and render a header */
-            pi   = proto_tree_add_item(tree, hf_f5tls_tls, tvb, 0, len, ENC_NA);
-            tree = proto_item_add_subtree(pi, ett_f5tls_std);
+    case 0:
+        /* Create a subtree and render a header */
+        pi   = proto_tree_add_item(tree, hf_f5tls_tls, tvb, 0, len, ENC_NA);
+        tree = proto_item_add_subtree(pi, ett_f5tls_std);
 
-            render_f5dptv1_tlvhdr(tvb, tree, 0);
+        render_f5dptv1_tlvhdr(tvb, tree, 0);
 
-            o = F5_DPT_V1_TLV_HDR_LEN;
+        o = F5_DPT_V1_TLV_HDR_LEN;
 
-            /* Add our fields */
-            proto_tree_add_item(tree, hf_f5tls_mstr_sec, tvb, o, F5TLS_SECRET_LEN, ENC_NA);
-            o += F5TLS_SECRET_LEN;
-            proto_tree_add_item(tree, hf_f5tls_clnt_rand, tvb, o, F5TLS_RANDOM_LEN, ENC_NA);
-            o += F5TLS_RANDOM_LEN;
-            proto_tree_add_item(tree, hf_f5tls_srvr_rand, tvb, o, F5TLS_RANDOM_LEN, ENC_NA);
-            /* o += F5TLS_RANDOM_LEN; */
+        /* Add our fields */
+        proto_tree_add_item(tree, hf_f5tls_mstr_sec, tvb, o, F5TLS_SECRET_LEN, ENC_NA);
+        o += F5TLS_SECRET_LEN;
+        proto_tree_add_item(tree, hf_f5tls_clnt_rand, tvb, o, F5TLS_RANDOM_LEN, ENC_NA);
+        o += F5TLS_RANDOM_LEN;
+        proto_tree_add_item(tree, hf_f5tls_srvr_rand, tvb, o, F5TLS_RANDOM_LEN, ENC_NA);
+        /* o += F5TLS_RANDOM_LEN; */
 
-            if (!generate_keylog || data == NULL) {
-                break;
-            }
-
-            pdata     = ((f5tls_data_t *)data)->pkt;
-            conv_data = ((f5tls_data_t *)data)->conv;
-
-            /* If this is our first pass through, add protocol data and build keylog entries.
-               Assume that by the time the master secret is processed, the client random is
-               available on the conversation data. */
-            if (!pinfo->fd->visited) {
-                gboolean ms_changed;
-
-                ms_changed = f5eth_add_tls_element(
-                    &conv_data->master_secret, pinfo, tvb, F5_DPT_V1_TLV_HDR_LEN, F5TLS_SECRET_LEN);
-                f5eth_add_tls_element(&conv_data->client_random, pinfo, tvb,
-                    F5_DPT_V1_TLV_HDR_LEN + F5TLS_SECRET_LEN, F5TLS_RANDOM_LEN);
-
-                if (conv_data->client_random.len != 0 && ms_changed) {
-                    pdata->cr_ms = f5eth_add_tls_keylog(
-                        CLIENT_RANDOM, &conv_data->client_random, &conv_data->master_secret);
-                }
-            }
-
-            /* Display any keylog entries we have in our packet data */
-            if (pdata->cr_ms != NULL) {
-                pi = proto_tree_add_string(tree, hf_f5tls_keylog, tvb, 0, 0, pdata->cr_ms);
-                proto_item_set_generated(pi);
-            }
+        if (!pref_generate_keylog || data == NULL) {
             break;
-        default:
-            /* Unknown version */
-            len = 0;
-            break;
+        }
+
+        pdata     = ((f5tls_data_t *)data)->pkt;
+        conv_data = ((f5tls_data_t *)data)->conv;
+
+        /* If this is our first pass through, add protocol data and build keylog entries.
+           Assume that by the time the master secret is processed, the client random is
+           available on the conversation data. */
+        if (!pinfo->fd->visited) {
+            gboolean ms_changed;
+
+            ms_changed = f5eth_add_tls_element(
+                &conv_data->master_secret, pinfo, tvb, F5_DPT_V1_TLV_HDR_LEN, F5TLS_SECRET_LEN);
+            f5eth_add_tls_element(&conv_data->client_random, pinfo, tvb,
+                F5_DPT_V1_TLV_HDR_LEN + F5TLS_SECRET_LEN, F5TLS_RANDOM_LEN);
+
+            if (conv_data->client_random.len != 0 && ms_changed) {
+                pdata->cr_ms = f5eth_add_tls_keylog(
+                    CLIENT_RANDOM, &conv_data->client_random, &conv_data->master_secret);
+            }
+        }
+
+        /* Display any keylog entries we have in our packet data */
+        if (pdata->cr_ms != NULL) {
+            pi = proto_tree_add_string(tree, hf_f5tls_keylog, tvb, 0, 0, pdata->cr_ms);
+            proto_item_set_generated(pi);
+        }
+        break;
+    default:
+        /* Unknown version */
+        len = 0;
+        break;
     }
     return len;
 } /* dissect_dpt_trailer_tls_type0() */
@@ -3067,114 +3178,114 @@ dissect_dpt_trailer_tls_type2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     ver = tvb_get_ntohs(tvb, F5_DPT_V1_TLV_VERSION_OFF);
 
     switch (ver) {
-        case 0:
-            /* Create a subtree and render a header */
-            pi   = proto_tree_add_item(tree, hf_f5tls_tls, tvb, 0, len, ENC_NA);
-            tree = proto_item_add_subtree(pi, ett_f5tls_std);
+    case 0:
+        /* Create a subtree and render a header */
+        pi   = proto_tree_add_item(tree, hf_f5tls_tls, tvb, 0, len, ENC_NA);
+        tree = proto_item_add_subtree(pi, ett_f5tls_std);
 
-            render_f5dptv1_tlvhdr(tvb, tree, 0);
+        render_f5dptv1_tlvhdr(tvb, tree, 0);
 
-            o = F5_DPT_V1_TLV_HDR_LEN;
+        o = F5_DPT_V1_TLV_HDR_LEN;
 
-            secret_len = tvb_get_guint8(tvb, o);
-            /* Add our fields */
-            pi = proto_tree_add_item(tree, hf_f5tls_secret_len, tvb, o, 1, ENC_NA);
-            o += 1;
-            if (secret_len == 0) {
-                /* nothing to render */
-                break; /* switch (ver) */
-            } else if (secret_len > F5TLS_HASH_LEN) {
-                expert_add_info(pinfo, pi, &ei_f5eth_badlen);
-                break; /* switch (ver) */
-            } else {
-                proto_tree_add_item(tree, hf_f5tls_clnt_hs_sec, tvb, o, secret_len, ENC_NA);
-                o += F5TLS_HASH_LEN;
-                proto_tree_add_item(tree, hf_f5tls_srvr_hs_sec, tvb, o, secret_len, ENC_NA);
-                o += F5TLS_HASH_LEN;
-                proto_tree_add_item(tree, hf_f5tls_clnt_app_sec, tvb, o, secret_len, ENC_NA);
-                o += F5TLS_HASH_LEN;
-                proto_tree_add_item(tree, hf_f5tls_srvr_app_sec, tvb, o, secret_len, ENC_NA);
-                o += F5TLS_HASH_LEN;
-                proto_tree_add_item(tree, hf_f5tls_clnt_rand, tvb, o, F5TLS_RANDOM_LEN, ENC_NA);
-                o += F5TLS_RANDOM_LEN;
-                proto_tree_add_item(tree, hf_f5tls_srvr_rand, tvb, o, F5TLS_RANDOM_LEN, ENC_NA);
-                /* o += F5TLS_RANDOM_LEN; */
-            }
+        secret_len = tvb_get_guint8(tvb, o);
+        /* Add our fields */
+        pi = proto_tree_add_item(tree, hf_f5tls_secret_len, tvb, o, 1, ENC_NA);
+        o += 1;
+        if (secret_len == 0) {
+            /* nothing to render */
+            break; /* switch (ver) */
+        } else if (secret_len > F5TLS_HASH_LEN) {
+            expert_add_info(pinfo, pi, &ei_f5eth_badlen);
+            break; /* switch (ver) */
+        } else {
+            proto_tree_add_item(tree, hf_f5tls_clnt_hs_sec, tvb, o, secret_len, ENC_NA);
+            o += F5TLS_HASH_LEN;
+            proto_tree_add_item(tree, hf_f5tls_srvr_hs_sec, tvb, o, secret_len, ENC_NA);
+            o += F5TLS_HASH_LEN;
+            proto_tree_add_item(tree, hf_f5tls_clnt_app_sec, tvb, o, secret_len, ENC_NA);
+            o += F5TLS_HASH_LEN;
+            proto_tree_add_item(tree, hf_f5tls_srvr_app_sec, tvb, o, secret_len, ENC_NA);
+            o += F5TLS_HASH_LEN;
+            proto_tree_add_item(tree, hf_f5tls_clnt_rand, tvb, o, F5TLS_RANDOM_LEN, ENC_NA);
+            o += F5TLS_RANDOM_LEN;
+            proto_tree_add_item(tree, hf_f5tls_srvr_rand, tvb, o, F5TLS_RANDOM_LEN, ENC_NA);
+            /* o += F5TLS_RANDOM_LEN; */
+        }
 
-            if (!generate_keylog || data == NULL) {
-                break;
-            }
+        if (!pref_generate_keylog || data == NULL) {
+            break;
+        }
 
-            pdata     = ((f5tls_data_t *)data)->pkt;
-            conv_data = ((f5tls_data_t *)data)->conv;
+        pdata     = ((f5tls_data_t *)data)->pkt;
+        conv_data = ((f5tls_data_t *)data)->conv;
 
-            /* If this is our first pass through, add protocol data and build keylog entries.
-               Assume that if a CRand exists on the conversation that it is the one that matches
-               up with the newly set / changed secret. */
-            if (!pinfo->fd->visited) {
-                gboolean chs_changed;
-                gboolean shs_changed;
-                gboolean cap_changed;
-                gboolean sap_changed;
+        /* If this is our first pass through, add protocol data and build keylog entries.
+           Assume that if a CRand exists on the conversation that it is the one that matches
+           up with the newly set / changed secret. */
+        if (!pinfo->fd->visited) {
+            gboolean chs_changed;
+            gboolean shs_changed;
+            gboolean cap_changed;
+            gboolean sap_changed;
 
-                o = F5_DPT_V1_TLV_HDR_LEN + 1;
+            o = F5_DPT_V1_TLV_HDR_LEN + 1;
 
-                chs_changed =
-                    f5eth_add_tls_element(&conv_data->clnt_hs_sec, pinfo, tvb, o, secret_len);
-                o += F5TLS_HASH_LEN;
-                shs_changed =
-                    f5eth_add_tls_element(&conv_data->srvr_hs_sec, pinfo, tvb, o, secret_len);
-                o += F5TLS_HASH_LEN;
-                cap_changed =
-                    f5eth_add_tls_element(&conv_data->clnt_ap_sec, pinfo, tvb, o, secret_len);
-                o += F5TLS_HASH_LEN;
-                sap_changed =
-                    f5eth_add_tls_element(&conv_data->srvr_ap_sec, pinfo, tvb, o, secret_len);
-                o += F5TLS_HASH_LEN;
-                f5eth_add_tls_element(&conv_data->client_random, pinfo, tvb, o, F5TLS_RANDOM_LEN);
+            chs_changed =
+                f5eth_add_tls_element(&conv_data->clnt_hs_sec, pinfo, tvb, o, secret_len);
+            o += F5TLS_HASH_LEN;
+            shs_changed =
+                f5eth_add_tls_element(&conv_data->srvr_hs_sec, pinfo, tvb, o, secret_len);
+            o += F5TLS_HASH_LEN;
+            cap_changed =
+                f5eth_add_tls_element(&conv_data->clnt_ap_sec, pinfo, tvb, o, secret_len);
+            o += F5TLS_HASH_LEN;
+            sap_changed =
+                f5eth_add_tls_element(&conv_data->srvr_ap_sec, pinfo, tvb, o, secret_len);
+            o += F5TLS_HASH_LEN;
+            f5eth_add_tls_element(&conv_data->client_random, pinfo, tvb, o, F5TLS_RANDOM_LEN);
 
-                if (conv_data->client_random.len != 0) {
-                    if (cap_changed) {
-                        pdata->cr_clnt_app = f5eth_add_tls_keylog(CLIENT_TRAFFIC_SECRET_0,
-                            &conv_data->client_random, &conv_data->clnt_ap_sec);
-                    }
-                    if (sap_changed) {
-                        pdata->cr_srvr_app = f5eth_add_tls_keylog(SERVER_TRAFFIC_SECRET_0,
-                            &conv_data->client_random, &conv_data->srvr_ap_sec);
-                    }
-                    if (chs_changed) {
-                        pdata->cr_clnt_app = f5eth_add_tls_keylog(CLIENT_HANDSHAKE_TRAFFIC_SECRET,
-                            &conv_data->client_random, &conv_data->clnt_hs_sec);
-                    }
-                    if (shs_changed) {
-                        pdata->cr_srvr_hs = f5eth_add_tls_keylog(SERVER_HANDSHAKE_TRAFFIC_SECRET,
-                            &conv_data->client_random, &conv_data->srvr_hs_sec);
-                    }
+            if (conv_data->client_random.len != 0) {
+                if (cap_changed) {
+                    pdata->cr_clnt_app = f5eth_add_tls_keylog(CLIENT_TRAFFIC_SECRET_0,
+                        &conv_data->client_random, &conv_data->clnt_ap_sec);
+                }
+                if (sap_changed) {
+                    pdata->cr_srvr_app = f5eth_add_tls_keylog(SERVER_TRAFFIC_SECRET_0,
+                        &conv_data->client_random, &conv_data->srvr_ap_sec);
+                }
+                if (chs_changed) {
+                    pdata->cr_clnt_app = f5eth_add_tls_keylog(CLIENT_HANDSHAKE_TRAFFIC_SECRET,
+                        &conv_data->client_random, &conv_data->clnt_hs_sec);
+                }
+                if (shs_changed) {
+                    pdata->cr_srvr_hs = f5eth_add_tls_keylog(SERVER_HANDSHAKE_TRAFFIC_SECRET,
+                        &conv_data->client_random, &conv_data->srvr_hs_sec);
                 }
             }
+        }
 
-            /* Display any keylog entries we have in our packet data */
-            if (pdata->cr_clnt_app != NULL) {
-                pi = proto_tree_add_string(tree, hf_f5tls_keylog, tvb, 0, 0, pdata->cr_clnt_app);
-                proto_item_set_generated(pi);
-            }
-            if (pdata->cr_srvr_app != NULL) {
-                pi = proto_tree_add_string(tree, hf_f5tls_keylog, tvb, 0, 0, pdata->cr_srvr_app);
-                proto_item_set_generated(pi);
-            }
-            if (pdata->cr_clnt_hs != NULL) {
-                pi = proto_tree_add_string(tree, hf_f5tls_keylog, tvb, 0, 0, pdata->cr_clnt_hs);
-                proto_item_set_generated(pi);
-            }
-            if (pdata->cr_srvr_hs != NULL) {
-                pi = proto_tree_add_string(tree, hf_f5tls_keylog, tvb, 0, 0, pdata->cr_srvr_hs);
-                proto_item_set_generated(pi);
-            }
-            break;
-        default:
-            /* Unknown version */
-            len = 0;
-            break;
+        /* Display any keylog entries we have in our packet data */
+        if (pdata->cr_clnt_app != NULL) {
+            pi = proto_tree_add_string(tree, hf_f5tls_keylog, tvb, 0, 0, pdata->cr_clnt_app);
+            proto_item_set_generated(pi);
+        }
+        if (pdata->cr_srvr_app != NULL) {
+            pi = proto_tree_add_string(tree, hf_f5tls_keylog, tvb, 0, 0, pdata->cr_srvr_app);
+            proto_item_set_generated(pi);
+        }
+        if (pdata->cr_clnt_hs != NULL) {
+            pi = proto_tree_add_string(tree, hf_f5tls_keylog, tvb, 0, 0, pdata->cr_clnt_hs);
+            proto_item_set_generated(pi);
+        }
+        if (pdata->cr_srvr_hs != NULL) {
+            pi = proto_tree_add_string(tree, hf_f5tls_keylog, tvb, 0, 0, pdata->cr_srvr_hs);
+            proto_item_set_generated(pi);
+        }
+        break;
+    default:
+        /* Unknown version */
+        len = 0;
+        break;
     }
     return len;
 } /* dissect_dpt_trailer_tls_type2() */
@@ -3212,7 +3323,8 @@ dissect_dpt_trailer_tls_extended(
 } /* dissect_dpt_trailer_tls_extended() */
 
 /*-----------------------------------------------------------------------------------------------*/
-/** \brief Dissector for the TLS DPT provider
+/**
+ * @brief Dissector for the TLS DPT provider
  *
  * @param tvb    The tvbuff containing the DPT TLV block (header and data).
  * @param pinfo  The pinfo structure for the frame.
@@ -3231,7 +3343,7 @@ dissect_dpt_trailer_tls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     /* We only need the conversation to bring data parts together that arrive on
        different frames.  After the first pass, the keylog entries are stored
        on the individual packet's data */
-    if (generate_keylog) {
+    if (pref_generate_keylog) {
         tls_data = wmem_new0(wmem_packet_scope(), f5tls_data_t);
         if (!pinfo->fd->visited) {
             conv           = find_or_create_conversation(pinfo);
@@ -3262,8 +3374,10 @@ dissect_dpt_trailer_tls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 /* End DPT TLS Provider */
 /*-----------------------------------------------------------------------------------------------*/
 
-/** \brief Initialization routine called before first pass through a capture.
-*/
+/**
+ * @brief Initialization routine called before first pass through a capture.
+ *
+ */
 static void
 proto_init_f5ethtrailer(void)
 {
@@ -3309,7 +3423,10 @@ proto_init_f5ethtrailer(void)
     }
 }
 
-/** Cleanup after closing a capture file. */
+/**
+ * @brief Cleanup after closing a capture file.
+ *
+ */
 static void
 f5ethtrailer_cleanup(void)
 {
@@ -3318,6 +3435,10 @@ f5ethtrailer_cleanup(void)
     remove_tap_listener(&tap_ip_enabled);
 }
 
+/**
+ * @brief Sets up the format strings to use for the Info column
+ *
+ */
 static void
 f5ethtrailer_prefs(void)
 {
@@ -3333,37 +3454,41 @@ f5ethtrailer_prefs(void)
     switch (pref_info_type) {
     case brief:
     case brief_in_out_only:
-            if (pref_brief_inout_chars != NULL && strlen(pref_brief_inout_chars) >= 2) {
-                info_format_in_only  = wmem_strdup_printf(NULL, "%c: ", pref_brief_inout_chars[0]);
-                info_format_out_only = wmem_strdup_printf(NULL, "%c: ", pref_brief_inout_chars[1]);
-                info_format_in_slot =
-                    wmem_strdup_printf(NULL, "%c%%u/%%-2u: ", pref_brief_inout_chars[0]);
-                info_format_out_slot =
-                    wmem_strdup_printf(NULL, "%c%%u/%%-2u: ", pref_brief_inout_chars[1]);
-                info_format_in_noslot =
-                    wmem_strdup_printf(NULL, "%ct%%-2u: ", pref_brief_inout_chars[0]);
-                info_format_out_noslot =
-                    wmem_strdup_printf(NULL, "%ct%%-2u: ", pref_brief_inout_chars[1]);
+        if (pref_brief_inout_chars != NULL && strlen(pref_brief_inout_chars) >= 2) {
+            info_format_in_only  = wmem_strdup_printf(NULL, "%c: ", pref_brief_inout_chars[0]);
+            info_format_out_only = wmem_strdup_printf(NULL, "%c: ", pref_brief_inout_chars[1]);
+            info_format_in_slot =
+                wmem_strdup_printf(NULL, "%c%%u/%%-2u: ", pref_brief_inout_chars[0]);
+            info_format_out_slot =
+                wmem_strdup_printf(NULL, "%c%%u/%%-2u: ", pref_brief_inout_chars[1]);
+            info_format_in_noslot =
+                wmem_strdup_printf(NULL, "%ct%%-2u: ", pref_brief_inout_chars[0]);
+            info_format_out_noslot =
+                wmem_strdup_printf(NULL, "%ct%%-2u: ", pref_brief_inout_chars[1]);
         } else {
-                info_format_in_only    = wmem_strdup(NULL, ">: ");
-                info_format_out_only   = wmem_strdup(NULL, "<: ");
-                info_format_in_slot    = wmem_strdup(NULL, ">%u/%-2u: ");
-                info_format_out_slot   = wmem_strdup(NULL, "<%u/%-2u: ");
-                info_format_in_noslot  = wmem_strdup(NULL, ">t%-2u: ");
-                info_format_out_noslot = wmem_strdup(NULL, "<t%-2u: ");
+            info_format_in_only    = wmem_strdup(NULL, ">: ");
+            info_format_out_only   = wmem_strdup(NULL, "<: ");
+            info_format_in_slot    = wmem_strdup(NULL, ">%u/%-2u: ");
+            info_format_out_slot   = wmem_strdup(NULL, "<%u/%-2u: ");
+            info_format_in_noslot  = wmem_strdup(NULL, ">t%-2u: ");
+            info_format_out_noslot = wmem_strdup(NULL, "<t%-2u: ");
         }
         break;
     default:
-            info_format_in_only    = wmem_strdup(NULL, info_format_full_in_only);
-            info_format_out_only   = wmem_strdup(NULL, info_format_full_out_only);
-            info_format_in_slot    = wmem_strdup(NULL, info_format_full_in_slot);
-            info_format_out_slot   = wmem_strdup(NULL, info_format_full_out_slot);
-            info_format_in_noslot  = wmem_strdup(NULL, info_format_full_in_noslot);
+        info_format_in_only    = wmem_strdup(NULL, info_format_full_in_only);
+        info_format_out_only   = wmem_strdup(NULL, info_format_full_out_only);
+        info_format_in_slot    = wmem_strdup(NULL, info_format_full_in_slot);
+        info_format_out_slot   = wmem_strdup(NULL, info_format_full_out_slot);
+        info_format_in_noslot  = wmem_strdup(NULL, info_format_full_in_noslot);
         info_format_out_noslot = wmem_strdup(NULL, info_format_full_out_noslot);
         break;
     }
 }
 
+/**
+ * @brief f5ethtrailer Dissector registration
+ *
+ */
 void
 proto_register_f5ethtrailer(void)
 {
@@ -3685,8 +3810,15 @@ proto_register_f5ethtrailer(void)
     /* Register the dissector preferences */
     f5ethtrailer_module = prefs_register_protocol(proto_f5ethtrailer, f5ethtrailer_prefs);
 
-#ifdef F5_POP_OTHERFIELDS
-    prefs_register_bool_preference(f5ethtrailer_module, "pop_other_fields",
+    prefs_register_bool_preference(f5ethtrailer_module, "pref_walk_trailer",
+        "Walk ethernet trailer looking for f5ethtrailer",
+        "In a few cases a short ethernet frame will be padded with non-zero"
+        "bytes.  If this happens, an f5ethtrailer will not be found."
+        "Enabling this will step through each byte of the ethernet trailer"
+        "to try and find the start of an f5ethtrailer",
+        &pref_walk_trailer);
+
+    prefs_register_bool_preference(f5ethtrailer_module, "pref_pop_other_fields",
         "Populate fields for other dissectors",
         "Disable this if you do not want this dissector to populate"
         " well-known fields in other dissectors (i.e. ip.addr, ipv6.addr,"
@@ -3694,11 +3826,7 @@ proto_register_f5ethtrailer(void)
         " reference those fields to also find data in the trailers but"
         " will reduce performance.  After disabling, you should restart"
         " Wireshark to get performance back.",
-        &pop_other_fields);
-#else
-    /* If we are not building with this, silently delete the preference */
-    prefs_register_obsolete_preference(f5ethtrailer_module, "pop_other_fields");
-#endif
+        &pref_pop_other_fields);
 
     prefs_register_bool_preference(f5ethtrailer_module, "perform_analysis",
         "Perform analysis of trailer data",
@@ -3749,7 +3877,7 @@ proto_register_f5ethtrailer(void)
         "If enabled, KEYLOG entires will be added to the TLS decode"
         " in the f5ethtrailer protocol tree.  It will populate the"
         " f5ethtrailer.tls.keylog field.",
-        &generate_keylog);
+        &pref_generate_keylog);
 
     register_init_routine(proto_init_f5ethtrailer);
     register_cleanup_routine(f5ethtrailer_cleanup);
@@ -3787,14 +3915,18 @@ proto_register_f5ethtrailer(void)
     f5ethtrailer_prefs();
 } /* proto_register_f5ethtrailer() */
 
+/**
+ * @brief f5ethtrailer Dissector handoff function
+ *
+ */
 void
 proto_reg_handoff_f5ethtrailer(void)
 {
     dissector_handle_t f5dpt_noise_handle;
     dissector_handle_t f5dpt_tls_handle;
 
-    heur_dissector_add("eth.trailer", dissect_f5ethtrailer, "F5 Ethernet Trailer", "f5ethtrailer",
-        proto_f5ethtrailer, HEURISTIC_DISABLE);
+    heur_dissector_add("eth.trailer", dissect_f5ethtrailer, "F5 Ethernet Trailer",
+            "f5ethtrailer", proto_f5ethtrailer, HEURISTIC_ENABLE);
 
     /* Register helper dissectors */
     /* Noise Provider */
@@ -3821,23 +3953,15 @@ proto_reg_handoff_f5ethtrailer(void)
     dissector_add_uint("f5ethtrailer.tls_type_ver", F5_DPT_TLS_13_EXT << 16 | 0,
         create_dissector_handle(dissect_dpt_trailer_tls_extended, -1));
 
-#ifdef F5_POP_OTHERFIELDS
     /* These fields are duplicates of other, well-known fields so that
      * filtering on these fields will also pick up data out of the
-     * trailers.  If we do not build with this option, we do not want to
-     * define these as it will add overhead because this dissector would be
-     * called for coloring rules, etc.  As a further performance
-     * improvement, we only register these fields when the populate other
-     * fields option is enabled.  This helps this dissector not run when
-     * its fields are not referenced (if it has no intention of populating
-     * these fields).
+     * trailers.
      */
 
     hf_ip_ipaddr   = proto_registrar_get_id_byname("ip.addr");
     hf_ip6_ip6addr = proto_registrar_get_id_byname("ipv6.addr");
     hf_tcp_tcpport = proto_registrar_get_id_byname("tcp.port");
     hf_udp_udpport = proto_registrar_get_id_byname("udp.port");
-#endif
 }
 
 /*===============================================================================================*/
@@ -3871,13 +3995,13 @@ static const string_string f5info_platform_strings[] = {
     {"C102", "BIG-IP 1600"},
     {"C103", "BIG-IP 3600"},
     {"C106", "BIG-IP 3900, Enterprise Manager 4000"},
-    {"C109", "BIG-IP 5000s, 5050s, 5200v, 5250v"},
+    {"C109", "BIG-IP 5000s, 5050s, 5200v, 5250v, 5250v-F"},
     {"C112", "BIG-IP 2000 Series (2000s, 2200s)"},
     {"C113", "BIG-IP 4000 Series (4000s, 4200v)"},
     {"C114", "BIG-IP 800 (LTM only)"},
     {"C115", "BIG-IP i4000 Series (i4600, i4800)"},
     {"C116", "BIG-IP i10000 Series (i10600, i10800)"},
-    {"C117", "BIG-IP i2000 Series (i2600, i2800)"},
+    {"C117", "BIG-IP i2000 Series (i2600, i2800), BIG-IP i850)"},
     {"C118", "BIG-IP i7000 Series (i7600, i7800)"},
     {"C119", "BIG-IP i5000 Series (i5600, i5800)"},
     {"C120", "Herculon i2800"},
@@ -3890,13 +4014,14 @@ static const string_string f5info_platform_strings[] = {
     {"D104", "BIG-IP 6900 Series (6900, 6900S, 6900F, 6900N)"},
     {"D106", "BIG-IP 8900"},
     {"D107", "BIG-IP 8950"},
-    {"D110", "BIG-IP 7000 Series (7000s, 7050s, 7055, 7200v, 7250v, 7255)"},
+    {"D110", "BIG-IP 7000 Series (7000s, 7050s, 7055s, 7200v, 7250v, 7255v), BIG-IQ 7000"},
     {"D111", "BIG-IP 12000 Series (12250v)"},
     {"D112", "BIG-IP 10050 Series (10150s-NEBS, 10350v (AC), 10350v-NEBS, 10350v-FIPS)"},
     {"D113", "BIG-IP 10000 Series (10000s, 10050s, 10055, 10200v, 10250v, 10255)"},
-    {"E101", "BIG-IP 11000"},
+    {"D116", "BIG-IP i15000 Series (i15600, i15800)"},
+    {"E101", "BIG-IP 11000, BIG-IP 11000 FIPS"},
     {"E102", "BIG-IP 11050, 11050 NEBS"},
-    {"E103", "11050N"},
+    {"E103", "BIG-IP 11050N"},
     {"Z100", "Virtual Edition (VE)"},
     {"Z101", "vCMP Guest"},
     {NULL, NULL}
@@ -3917,8 +4042,8 @@ static const string_string f5info_platform_strings[] = {
     {"S101", "VIPRION C4800N Chassis"},
 #endif
 
-/*---------------------------------------------------------------------------*/
-/* Dissector for rendering the F5 tcpdump file properties packet.
+/**
+ * @brief Dissector for rendering the F5 tcpdump file properties packet.
  *
  * This is a heuristic dissector because the Ethernet dissector has a hook
  * to pass packets to a dissector before it gets rendered as Ethernet and
@@ -3926,6 +4051,14 @@ static const string_string f5info_platform_strings[] = {
  * the Ethertype 0x5ff, but this way it can skip a packet and let other
  * dissectors have a chance to dissect (and the Ethernet dissector does not
  * waste its time rendering Ethernet information for no reason).
+ *
+ * TODO:  This should return gint with how many bytes were consumed.
+ *
+ * @param tvb   Pointer to tvb
+ * @param pinfo Pointer to packet info
+ * @param tree  Pointer to protocol tree
+ * @param data  Pointer to data structure (unused)
+ * @return gboolean
  */
 static gboolean
 dissect_f5fileinfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -3938,7 +4071,7 @@ dissect_f5fileinfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
     /* Must be the first packet */
     if (pinfo->fd->num > 1)
-        return (FALSE);
+        return FALSE;
 
     if (tvb_captured_length(tvb) >= (gint)sizeof(fileinfomagic1)) {
         if (tvb_memeql(tvb, 0, fileinfomagic1, sizeof(fileinfomagic1)) == 0)
@@ -3947,7 +4080,7 @@ dissect_f5fileinfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
     /* Didn't find the magic at the start of the packet. */
     if (offset == 0)
-        return (FALSE);
+        return FALSE;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FILEINFO");
 
@@ -3997,9 +4130,13 @@ dissect_f5fileinfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     tvb_set_reported_length(tvb, offset);
     tap_queue_packet(tap_f5fileinfo, pinfo, tap_data);
     f5eth_process_f5info(platform);
-    return (TRUE);
+    return TRUE;
 } /* dissect_f5fileinfo() */
 
+/**
+ * @brief F5FILEINFO protocol dissector registration
+ *
+ */
 void
 proto_register_f5fileinfo(void)
 {
@@ -4036,6 +4173,10 @@ proto_register_f5fileinfo(void)
     tap_f5fileinfo = register_tap("f5fileinfo");
 }
 
+/**
+ * @brief F5FILEINFO dissector handoff
+ *
+ */
 void
 proto_reg_handoff_f5fileinfo(void)
 {
