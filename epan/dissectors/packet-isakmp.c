@@ -3487,7 +3487,8 @@ dissect_payload_header(tvbuff_t *tvb, packet_info *pinfo, int offset, int length
 
   proto_tree_add_item(ntree, hf_isakmp_nextpayload, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-  if (isakmp_version == 1) {
+  /* The critical flag only applies to IKEv2 payloads but not proposals and transforms. */
+  if (isakmp_version == 1 || payload == PLOAD_IKE_P || payload == PLOAD_IKE_T) {
     proto_tree_add_item(ntree, hf_isakmp_reserved, tvb, offset + 1, 1, ENC_NA);
   } else if (isakmp_version == 2) {
     proto_tree_add_item(ntree, hf_isakmp_criticalpayload, tvb, offset+1, 1, ENC_BIG_ENDIAN);
