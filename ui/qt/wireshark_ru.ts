@@ -323,6 +323,14 @@
         <translation>Всего Пакетов LE ACL</translation>
     </message>
     <message>
+        <source>LE ISO MTU</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LE ISO Total Packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Inquiry Mode</source>
         <translation>Режим Запросов</translation>
     </message>
