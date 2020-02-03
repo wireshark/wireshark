@@ -24845,10 +24845,15 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
           /* mesh frame */
           proto_tree_add_item(qos_tree, hf_ieee80211_qos_eosp, tvb, qosoff, 2, ENC_LITTLE_ENDIAN);
         } else {
-          if (flags & FLAG_TO_DS) {
-            proto_tree_add_item(qos_tree, hf_ieee80211_qos_bit4, tvb, qosoff, 2, ENC_LITTLE_ENDIAN);
-          } else {
+          /*
+           * Table 9-3 from IEEE802.11-2016 tells us that FROM DS means from
+           * an AP. And Table 9-6 tells us that we should treat bit 4 as
+           * EOSP if from an AP otherwise as simply bit 4.
+           */
+          if (flags & FLAG_FROM_DS) {
             proto_tree_add_item(qos_tree, hf_ieee80211_qos_eosp, tvb, qosoff, 2, ENC_LITTLE_ENDIAN);
+          } else {
+            proto_tree_add_item(qos_tree, hf_ieee80211_qos_bit4, tvb, qosoff, 2, ENC_LITTLE_ENDIAN);
           }
         }
 
