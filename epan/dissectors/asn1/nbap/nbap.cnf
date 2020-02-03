@@ -1678,6 +1678,8 @@ nbap_edch_channel_info_t* nbap_edch_channel_info;
 nbap_private_data_t* nbap_private_data = nbap_get_private_data(actx->pinfo);
 nbap_edch_channel_info = nbap_private_data->nbap_edch_channel_info;
 
+    /* Resetting entity recognition flag to check if it's set in this InfoItem */
+    nbap_private_data->max_mac_d_pdu_size_ext_ie_present = FALSE;
 %(DEFAULT_BODY)s
     if (PINFO_FD_VISITED(actx->pinfo)) {
         return offset;
@@ -2084,6 +2086,7 @@ guint32 hsdsch_macdflow_id;
 nbap_hsdsch_channel_info_t* nbap_hsdsch_channel_info;
 nbap_hsdsch_channel_info = nbap_get_private_data(actx->pinfo)->nbap_hsdsch_channel_info;
 %(DEFAULT_BODY)s
+    nbap_get_private_data(actx->pinfo)->max_mac_d_pdu_size_ext_ie_present = TRUE;
     hsdsch_macdflow_id = nbap_get_private_data(actx->pinfo)->hsdsch_macdflow_id;
     if(nbap_hsdsch_channel_info[hsdsch_macdflow_id].crnc_port != 0){
             nbap_hsdsch_channel_info[hsdsch_macdflow_id].entity = ehs;
