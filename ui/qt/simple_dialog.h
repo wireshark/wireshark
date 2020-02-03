@@ -35,6 +35,7 @@ public:
     ~SimpleDialog();
 
     static void displayQueuedMessages(QWidget *parent = 0);
+    static QString dontShowThisAgain();
     void setDetailedText(QString text) { detailed_text_ = text; }
     void setCheckBox(QCheckBox *cb) { check_box_ = cb; }
     int exec();

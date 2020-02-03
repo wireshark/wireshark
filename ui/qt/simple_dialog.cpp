@@ -138,7 +138,7 @@ simple_message_box(ESD_TYPE_E type, gboolean *notagain,
     if (notagain) {
         cb = new QCheckBox();
         cb->setChecked(true);
-        cb->setText(QObject::tr("Don't show this message again."));
+        cb->setText(SimpleDialog::dontShowThisAgain());
         sd.setCheckBox(cb);
     }
 
@@ -341,6 +341,11 @@ void SimpleDialog::displayQueuedMessages(QWidget *parent)
     max_severity_ = ESD_TYPE_INFO;
 
     mb.exec();
+}
+
+QString SimpleDialog::dontShowThisAgain()
+{
+    return QObject::tr("Don't show this message again.");
 }
 
 int SimpleDialog::exec()

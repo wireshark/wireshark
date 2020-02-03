@@ -120,7 +120,7 @@ typedef struct recent_settings_tag {
     gint        gui_geometry_status_pane_right;
     gint        gui_geometry_wlan_stats_pane;
     gboolean    privs_warn_if_elevated;
-    gboolean    privs_warn_if_no_npf;
+    gboolean    sys_warn_if_no_capture;
     GList      *col_width_list;                     /* column widths */
     GList      *conversation_tabs;                  /* enabled conversation dialog tabs */
     GList      *endpoint_tabs;                      /* enabled endpoint dialog tabs */

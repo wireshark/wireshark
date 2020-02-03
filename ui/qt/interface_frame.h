@@ -93,6 +93,7 @@ private slots:
     void updateStatistics(void);
     void actionButton_toggled(bool checked);
     void triggeredIfTypeButton();
+    void on_warningLabel_linkActivated(const QString &link);
 };
 
 #endif // INTERFACE_FRAME_H

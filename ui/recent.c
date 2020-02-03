@@ -70,7 +70,7 @@
 #define RECENT_GUI_GEOMETRY                   "gui.geom."
 
 #define RECENT_KEY_PRIVS_WARN_IF_ELEVATED     "privs.warn_if_elevated"
-#define RECENT_KEY_PRIVS_WARN_IF_NO_NPF       "privs.warn_if_no_npf"
+#define RECENT_KEY_SYS_WARN_IF_NO_CAPTURE     "sys.warn_if_no_capture"
 
 #define RECENT_FILE_NAME "recent"
 #define RECENT_COMMON_FILE_NAME "recent_common"
@@ -744,9 +744,9 @@ write_recent(void)
             RECENT_KEY_PRIVS_WARN_IF_ELEVATED,
             recent.privs_warn_if_elevated);
 
-    write_recent_boolean(rf, "Warn if npf.sys isn't loaded on Windows >= 6.0",
-            RECENT_KEY_PRIVS_WARN_IF_NO_NPF,
-            recent.privs_warn_if_no_npf);
+    write_recent_boolean(rf, "Warn if Wireshark is unable to capture",
+            RECENT_KEY_SYS_WARN_IF_NO_CAPTURE,
+            recent.sys_warn_if_no_capture);
 
     write_recent_enum(rf, "Find packet search in", RECENT_GUI_SEARCH_IN, search_in_values,
                       recent.gui_search_in);
@@ -1011,8 +1011,8 @@ read_set_recent_common_pair_static(gchar *key, const gchar *value,
         }
     } else if (strcmp(key, RECENT_KEY_PRIVS_WARN_IF_ELEVATED) == 0) {
         parse_recent_boolean(value, &recent.privs_warn_if_elevated);
-    } else if (strcmp(key, RECENT_KEY_PRIVS_WARN_IF_NO_NPF) == 0) {
-        parse_recent_boolean(value, &recent.privs_warn_if_no_npf);
+    } else if (strcmp(key, RECENT_KEY_SYS_WARN_IF_NO_CAPTURE) == 0) {
+        parse_recent_boolean(value, &recent.sys_warn_if_no_capture);
     } else if (strcmp(key, RECENT_GUI_SEARCH_IN) == 0) {
         recent.gui_search_in = (search_in_type)str_to_val(value, search_in_values, SEARCH_IN_PACKET_LIST);
     } else if (strcmp(key, RECENT_GUI_SEARCH_CHAR_SET) == 0) {
@@ -1278,7 +1278,7 @@ recent_read_static(char **rf_path_return, int *rf_errno_return)
     recent.gui_geometry_wlan_stats_pane   = 200;
 
     recent.privs_warn_if_elevated = TRUE;
-    recent.privs_warn_if_no_npf = TRUE;
+    recent.sys_warn_if_no_capture = TRUE;
 
     recent.col_width_list = NULL;
     recent.gui_fileopen_remembered_dir = NULL;
