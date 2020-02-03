@@ -601,6 +601,8 @@ static value_string_ext tag_num_vals_ext = VALUE_STRING_EXT_INIT(ie_tag_num_vals
 /* RFC 8110 */
 #define ETAG_OWE_DH_PARAMETER          32
 
+#define ETAG_PASSWORD_IDENTIFIER       33
+
 /* 802.11AX defined tags */
 #define ETAG_HE_CAPABILITIES                   35
 #define ETAG_HE_OPERATION                      36
@@ -611,6 +613,7 @@ static value_string_ext tag_num_vals_ext = VALUE_STRING_EXT_INIT(ie_tag_num_vals
 #define ETAG_BSS_COLOR_CHANGE_ANNOUNCEMENT     42
 #define ETAG_QUIET_TIME_PERIOD_SETUP           43
 #define ETAG_ESS_REPORT                        44
+#define ETAG_REJECTED_GROUPS                   92
 
 static const value_string tag_num_vals_eid_ext[] = {
   { ETAG_ASSOC_DELAY_INFO,                    "Association Delay Info" },
@@ -628,6 +631,7 @@ static const value_string tag_num_vals_eid_ext[] = {
   { ETAG_FILS_NONCE,                          "FILS Nonce" },
   { ETAG_FUTURE_CHANNEL_GUIDANCE,             "Future Channel Guidance" },
   { ETAG_OWE_DH_PARAMETER,                    "OWE Diffie-Hellman Parameter" },
+  { ETAG_PASSWORD_IDENTIFIER,                 "Password Identifier" },
   { ETAG_HE_CAPABILITIES,                     "HE Capabilities (IEEE Std 802.11ax/D3.0)" },
   { ETAG_HE_OPERATION,                        "HE Operation (IEEE Std 802.11ax/D3.0)" },
   { ETAG_UORA_PARAMETER_SET,                  "UORA Parameter Set" },
@@ -637,6 +641,7 @@ static const value_string tag_num_vals_eid_ext[] = {
   { ETAG_BSS_COLOR_CHANGE_ANNOUNCEMENT,       "BSS Color Change Announcement" },
   { ETAG_QUIET_TIME_PERIOD_SETUP,             "Quiet Time Period Setup" },
   { ETAG_ESS_REPORT,                          "ESS Report" },
+  { ETAG_REJECTED_GROUPS,                     "Rejected Groups" },
   { 0, NULL }
 };
 static value_string_ext tag_num_vals_eid_ext_ext = VALUE_STRING_EXT_INIT(tag_num_vals_eid_ext);
@@ -5683,6 +5688,8 @@ static int hf_ieee80211_he_uora_eocwmin = -1;
 static int hf_ieee80211_he_uora_owcwmax = -1;
 static int hf_ieee80211_he_uora_reserved = -1;
 
+static int hf_ieee80211_rejected_groups_group = -1;
+
 static int hf_ieee80211_ff_s1g_action = -1;
 static int hf_ieee80211_twt_bcast_flow = -1;
 static int hf_ieee80211_twt_individual_flow = -1;
@@ -10242,31 +10249,32 @@ static guint get_scalar_len(guint group) {
 }
 
 static guint
-get_ff_auth_len(tvbuff_t *tvb)
+find_anti_clogging_len(tvbuff_t *tvb, guint offset)
 {
-  guint alg, seq, status_code;
-  alg = tvb_get_letohs(tvb, 0);
-  seq = tvb_get_letohs(tvb, 2);
-  status_code = tvb_get_letohs(tvb, 4);
+  guint start_offset = offset;
+  guint len = tvb_reported_length(tvb);
 
-  if (alg == AUTH_ALG_SAE) {
-    /* 82: Rejected with Suggested BSS Transition (cf ieee80211_status_code) */
-    if ((seq == 2) && (status_code == 82))
-      return 0;
-
-    /* everything is fixed size fields */
-    return tvb_reported_length_remaining(tvb, 6);
-  } else if ((alg == AUTH_ALG_FILS_SK_WITH_PFS) || (alg == AUTH_ALG_FILS_PK)) {
-    if ((seq ==2) && (status_code != 0))
-      return 0;
-
-    guint group = tvb_get_letohs(tvb, 6);
-    guint elt_len = get_group_element_len(group);
-
-    return 2 + elt_len;
-  } else {
+  if (offset >= len) {
     return 0;
   }
+
+  while (offset < len) {
+    if (tvb_get_guint8(tvb, offset) == 0xFF) {
+      /*
+       * Check if we have a len followed by either ETAG_REJECTED_GROUPS
+       * or ETAG_PASSWORD_IDENTIFIER
+       */
+      if (offset < len - 3) {
+        if (tvb_get_guint8(tvb, offset + 2) == ETAG_REJECTED_GROUPS ||
+            tvb_get_guint8(tvb, offset + 2) == ETAG_PASSWORD_IDENTIFIER) {
+              break;
+        }
+      }
+    }
+    offset++;
+  }
+
+  return offset - start_offset;
 }
 
 static const value_string ff_sae_message_type_vals[] = {
@@ -10275,14 +10283,19 @@ static const value_string ff_sae_message_type_vals[] = {
   {0, NULL }
 };
 
-static void
-add_ff_auth_sae(proto_tree *tree, tvbuff_t *tvb)
+/*
+ * We have to deal with the issue that an anti-clogging token may be in this
+ * thing.
+ */
+static guint
+add_ff_auth_sae(proto_tree *tree, tvbuff_t *tvb,
+                         packet_info *pinfo _U_, guint offset)
 {
   guint alg, seq, status_code, len;
   alg = tvb_get_letohs(tvb, 0);
 
   if (alg != AUTH_ALG_SAE)
-    return;
+    return offset;
 
   seq = tvb_get_letohs(tvb, 2);
   status_code = tvb_get_letohs(tvb, 4);
@@ -10291,23 +10304,20 @@ add_ff_auth_sae(proto_tree *tree, tvbuff_t *tvb)
 
   if (seq == 1)
   {
+    guint16 group;
+    guint sc_len, elt_len;
+
     /* 76: Authentication is rejected because an Anti-Clogging Token is required (cf ieee80211_status_code) */
-    if (status_code == 76)
+      /* These are present if status code is 0, 76, 77 or 126 */
+    if (status_code == 0 || status_code == 76 || status_code == 77 ||
+        status_code == 126)
     {
-      proto_tree_add_item(tree, hf_ieee80211_ff_finite_cyclic_group, tvb, 6, 2,
-                          ENC_LITTLE_ENDIAN);
-      len = tvb_reported_length_remaining(tvb, 8);
-      proto_tree_add_item(tree, hf_ieee80211_ff_anti_clogging_token, tvb, 8, len,
-                          ENC_NA);
-    }
-    else if (status_code == 0)
-    {
-      guint group = tvb_get_letohs(tvb, 6);
-      guint sc_len, elt_len, offset;
-      proto_tree_add_item(tree, hf_ieee80211_ff_finite_cyclic_group, tvb, 6, 2,
-                          ENC_LITTLE_ENDIAN);
-      offset = 8;
+      group = tvb_get_letohs(tvb, offset);
+      proto_tree_add_item(tree, hf_ieee80211_ff_finite_cyclic_group, tvb,
+                          offset, 2, ENC_LITTLE_ENDIAN);
+      offset += 2;
       len = tvb_reported_length_remaining(tvb, offset);
+
       sc_len = get_scalar_len(group);
       elt_len = get_group_element_len(group);
 
@@ -10324,18 +10334,36 @@ add_ff_auth_sae(proto_tree *tree, tvbuff_t *tvb)
         elt_len = len - sc_len;
       }
 
-      if ((sc_len + elt_len) < len)
-      {
-        len = len - (sc_len + elt_len);
-        proto_tree_add_item(tree, hf_ieee80211_ff_anti_clogging_token, tvb, offset,
-                            len, ENC_NA);
-        offset += len;
+      /* Only present if status = 0 or 126 */
+      if (status_code == 0 || status_code == 126) {
+        proto_tree_add_item(tree, hf_ieee80211_ff_scalar, tvb, offset,
+                            sc_len, ENC_NA);
+        offset += sc_len;
+
+        proto_tree_add_item(tree, hf_ieee80211_ff_finite_field_element, tvb,
+                            offset, elt_len, ENC_NA);
+        offset += elt_len;
       }
-      proto_tree_add_item(tree, hf_ieee80211_ff_scalar, tvb, offset,
-                          sc_len, ENC_NA);
-      offset += sc_len;
-      proto_tree_add_item(tree, hf_ieee80211_ff_finite_field_element, tvb, offset,
-                          elt_len, ENC_NA);
+
+      /*
+       * Do we have an anti-clogging token? To find out we have to scan the
+       * rest of the buffer looking for IEs with 0xFF NUM 0x5C or
+       * 0xFF NUM 0x21 since these can occur after the anti-clogging token.
+       * However, it is only present if the status code is 76 or 126.
+       */
+      if (status_code == 76 || status_code == 126) {
+        guint anti_clogging_len;
+
+        if (offset >= len) { /* Nothing left, add an Expert Info */
+
+        }
+        anti_clogging_len = find_anti_clogging_len(tvb, offset);
+        if (anti_clogging_len > 0) {
+          proto_tree_add_item(tree, hf_ieee80211_ff_anti_clogging_token, tvb,
+                              offset, anti_clogging_len, ENC_NA);
+          offset += anti_clogging_len;
+        }
+      }
     }
   }
   /* 82: Rejected with Suggested BSS Transition (cf ieee80211_status_code) */
@@ -10343,27 +10371,31 @@ add_ff_auth_sae(proto_tree *tree, tvbuff_t *tvb)
   {
     proto_tree_add_item(tree, hf_ieee80211_ff_send_confirm, tvb, 6, 2,
                         ENC_LITTLE_ENDIAN);
-    len = tvb_reported_length_remaining(tvb, 8);
+    len = tvb_captured_length_remaining(tvb, 8);
     proto_tree_add_item(tree, hf_ieee80211_ff_confirm, tvb, 8, len,
                         ENC_NA);
-  };
+    offset += len;
+  }
+
+  return offset;
 }
 
-static void
-add_ff_auth_fils(proto_tree *tree, tvbuff_t *tvb)
+static guint
+add_ff_auth_fils(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_,
+                 guint offset)
 {
   guint alg, seq, status_code;
   alg = tvb_get_letohs(tvb, 0);
 
   if ((alg != AUTH_ALG_FILS_SK_WITH_PFS) && (alg != AUTH_ALG_FILS_PK))
-    return;
+    return offset;
 
   seq = tvb_get_letohs(tvb, 2);
   status_code = tvb_get_letohs(tvb, 4);
 
   if ((seq == 1) || (seq == 2 && status_code == 0)) {
     guint group = tvb_get_letohs(tvb, 6);
-    guint elt_len, offset;
+    guint elt_len;
     proto_tree_add_item(tree, hf_ieee80211_ff_finite_cyclic_group, tvb, 6, 2,
                         ENC_LITTLE_ENDIAN);
     offset = 8;
@@ -10371,7 +10403,13 @@ add_ff_auth_fils(proto_tree *tree, tvbuff_t *tvb)
 
     proto_tree_add_item(tree, hf_ieee80211_ff_finite_field_element, tvb, offset,
                         elt_len, ENC_NA);
+
+    offset += elt_len;
   }
+
+  /* What about the other FILS case? */
+
+  return offset;
 }
 
 static guint
@@ -20958,6 +20996,20 @@ dissect_ess_report(tvbuff_t *tvb, packet_info *pinfo _U_,
 }
 
 /*
+ * Just a list of finite cyclic group numbers as 16-bit uints.
+ */
+static void
+dissect_rejected_groups(tvbuff_t *tvb, packet_info *pinfo _U_,
+                         proto_tree *tree, int offset, int len _U_)
+{
+  while (tvb_reported_length_remaining(tvb, offset)) {
+    proto_tree_add_item(tree, hf_ieee80211_rejected_groups_group, tvb, offset,
+                        2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+  }
+}
+
+/*
  * There will be from 1 to 4 24-bit fields in the order of AC=BK, AC=BE,
  * AC=VI and AC=VO.
  */
@@ -21357,6 +21409,9 @@ ieee80211_tag_element_id_extension(tvbuff_t *tvb, packet_info *pinfo, proto_tree
       break;
     case ETAG_ESS_REPORT:
       dissect_ess_report(tvb, pinfo, tree, offset, ext_tag_len);
+      break;
+    case ETAG_REJECTED_GROUPS:
+        dissect_rejected_groups(tvb, pinfo, tree, offset, ext_tag_len);
       break;
     default:
       break;
@@ -22742,14 +22797,13 @@ dissect_ieee80211_mgt(guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
     case MGT_AUTHENTICATION:
       offset = 6;  /* Size of fixed fields */
-      offset += get_ff_auth_len(tvb);
 
       fixed_tree = get_fixed_parameter_tree(mgt_tree, tvb, 0, offset);
       add_ff_auth_alg(fixed_tree, tvb, pinfo, 0);
       add_ff_auth_trans_seq(fixed_tree, tvb, pinfo, 2);
       add_ff_status_code(fixed_tree, tvb, pinfo, 4);
-      add_ff_auth_sae(fixed_tree, tvb);
-      add_ff_auth_fils(fixed_tree, tvb);
+      offset = add_ff_auth_sae(fixed_tree, tvb, pinfo, offset);
+      offset = add_ff_auth_fils(fixed_tree, tvb, pinfo, offset);
 
       tagged_parameter_tree_len =
         tvb_reported_length_remaining(tvb, offset);
@@ -37283,6 +37337,10 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_he_uora_reserved,
      {"Reserved", "wlan.ext_tag.uora_parameter_set.reserved",
       FT_UINT8, BASE_DEC, NULL, 0xC0, NULL, HFILL }},
+
+    {&hf_ieee80211_rejected_groups_group,
+     {"Rejected Finite Cyclic Group", "wlan.ext_tag.rejected_groups.group",
+      FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_ff_s1g_action,
       {"S1G Action", "wlan.s1g.action",
