@@ -528,7 +528,7 @@ static void dissect_rlc_nr_tm(tvbuff_t *tvb, packet_info *pinfo,
 
     if (global_rlc_nr_call_rrc_for_ccch) {
         tvbuff_t *rrc_tvb = tvb_new_subset_remaining(tvb, offset);
-        dissector_handle_t protocol_handle;
+        volatile dissector_handle_t protocol_handle;
 
         switch (p_rlc_nr_info->bearerType) {
         case BEARER_TYPE_BCCH_BCH:
