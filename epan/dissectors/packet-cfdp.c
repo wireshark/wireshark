@@ -1301,7 +1301,7 @@ dissect_cfdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                          cfdp_byte2,
                          ENC_BIG_ENDIAN,
                          &retval);
-    offset += 2;
+    offset += 1;
 
     len_ent_id = ((retval & HDR_LEN_ENT_ID) >> 4) + 1;
     dissect_cfdp_src_entity_id(tvb, pinfo, cfdp_header_tree, offset, len_ent_id);
