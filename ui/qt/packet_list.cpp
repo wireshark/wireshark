@@ -699,6 +699,7 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
     ctx_menu->addSeparator();
     ctx_menu->addMenu(&proto_prefs_menu_);
     action = ctx_menu->addAction(tr("Decode As" UTF8_HORIZONTAL_ELLIPSIS));
+    action->setProperty("create_new", QVariant(true));
     connect(action, &QAction::triggered, this, &PacketList::ctxDecodeAsDialog);
     // "Print" not ported intentionally
     action = window()->findChild<QAction *>("actionViewShowPacketInNewWindow");
