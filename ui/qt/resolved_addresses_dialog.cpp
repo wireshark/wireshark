@@ -131,10 +131,11 @@ void ResolvedAddressesDialog::on_cmbDataType_currentIndexChanged(QString)
 
 void ResolvedAddressesDialog::on_txtSearchFilter_textChanged(QString)
 {
-    if (! ethSortModel || ui->txtSearchFilter->text().length() < 3)
+    QString filter = ui->txtSearchFilter->text();
+    if (!ethSortModel || (!filter.isEmpty() && filter.length() < 3))
         return;
 
-    ethSortModel->setFilter(ui->txtSearchFilter->text());
+    ethSortModel->setFilter(filter);
 }
 
 void ResolvedAddressesDialog::on_cmbPortFilterType_currentIndexChanged(QString)
