@@ -46,7 +46,6 @@
 ProtoTree::ProtoTree(QWidget *parent, epan_dissect_t *edt_fixed) :
     QTreeView(parent),
     proto_tree_model_(new ProtoTreeModel(this)),
-    decode_as_(NULL),
     column_resize_timer_(0),
     cap_file_(NULL),
     edt_(edt_fixed)
@@ -337,11 +336,13 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
     action->setProperty("field_reference", QVariant::fromValue(true));
     ctx_menu.addMenu(&proto_prefs_menu_);
     ctx_menu.addSeparator();
-    decode_as_ = window()->findChild<QAction *>("actionAnalyzeDecodeAs");
-    ctx_menu.addAction(decode_as_);
 
     if (! buildForDialog)
     {
+        QAction *decode_as_ = window()->findChild<QAction *>("actionAnalyzeDecodeAs");
+        ctx_menu.addAction(decode_as_);
+        decode_as_->setProperty("create_new", QVariant::fromValue(true));
+
         ctx_menu.addAction(window()->findChild<QAction *>("actionGoGoToLinkedPacket"));
         ctx_menu.addAction(window()->findChild<QAction *>("actionContextShowLinkedPacketInNewWindow"));
 
@@ -353,14 +354,9 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
 
         FieldInformation pref_finfo(node);
         proto_prefs_menu_.setModule(pref_finfo.moduleName());
-
-        decode_as_->setData(QVariant::fromValue(true));
     }
 
     ctx_menu.exec(event->globalPos());
-
-    if (! buildForDialog)
-        decode_as_->setData(QVariant());
 }
 
 void ProtoTree::timerEvent(QTimerEvent *event)
