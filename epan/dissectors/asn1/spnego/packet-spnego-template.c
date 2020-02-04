@@ -661,7 +661,7 @@ decrypt_gssapi_krb_cfx_wrap(proto_tree *tree,
                             packet_info *pinfo,
                             tvbuff_t *checksum_tvb,
                             gssapi_encrypt_info_t* gssapi_encrypt,
-                            guint16 ec,
+                            guint16 ec _U_,
                             guint16 rrc,
                             int keytype,
                             unsigned int usage)
@@ -676,6 +676,21 @@ decrypt_gssapi_krb_cfx_wrap(proto_tree *tree,
     return;
   }
 
+  if (gssapi_encrypt->decrypt_gssapi_tvb==DECRYPT_GSSAPI_DCE) {
+    tvbuff_t *out_tvb = NULL;
+
+    out_tvb = decrypt_krb5_krb_cfx_dce(tree, pinfo, usage, keytype,
+                                       gssapi_encrypt->gssapi_header_tvb,
+                                       gssapi_encrypt->gssapi_encrypted_tvb,
+                                       gssapi_encrypt->gssapi_trailer_tvb,
+                                       checksum_tvb);
+    if (out_tvb) {
+      gssapi_encrypt->gssapi_decrypted_tvb = out_tvb;
+      add_new_data_source(pinfo, gssapi_encrypt->gssapi_decrypted_tvb, "Decrypted GSS-Krb5 CFX DCE");
+    }
+    return;
+  }
+
   datalen = tvb_captured_length(checksum_tvb) + tvb_captured_length(gssapi_encrypt->gssapi_encrypted_tvb);
 
   rotated = (guint8 *)wmem_alloc(pinfo->pool, datalen);
@@ -683,10 +698,6 @@ decrypt_gssapi_krb_cfx_wrap(proto_tree *tree,
   tvb_memcpy(checksum_tvb, rotated, 0, tvb_captured_length(checksum_tvb));
   tvb_memcpy(gssapi_encrypt->gssapi_encrypted_tvb, rotated + tvb_captured_length(checksum_tvb),
              0, tvb_captured_length(gssapi_encrypt->gssapi_encrypted_tvb));
-
-  if (gssapi_encrypt->decrypt_gssapi_tvb==DECRYPT_GSSAPI_DCE) {
-    rrc += ec;
-  }
 
   rrc_rotate(rotated, datalen, rrc, TRUE);
 

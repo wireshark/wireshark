@@ -4122,11 +4122,8 @@ static void
         gssapi_tvb = tvb_new_subset_length_caplen(sasl_tvb, 4, tmp_length, sasl_len);
 
         /* Attempt decryption of the GSSAPI wrapped data if possible */
-        gssapi_encrypt.gssapi_data_encrypted = FALSE;
+        memset(&gssapi_encrypt, 0, sizeof(gssapi_encrypt));
         gssapi_encrypt.decrypt_gssapi_tvb=DECRYPT_GSSAPI_NORMAL;
-        gssapi_encrypt.gssapi_wrap_tvb=NULL;
-        gssapi_encrypt.gssapi_encrypted_tvb=NULL;
-        gssapi_encrypt.gssapi_decrypted_tvb=NULL;
         ver_len = call_dissector_with_data(gssapi_wrap_handle, gssapi_tvb, pinfo, sasl_tree, &gssapi_encrypt);
         /* if we could unwrap, do a tvb shuffle */
         if(gssapi_encrypt.gssapi_decrypted_tvb){
@@ -5636,7 +5633,7 @@ void proto_register_ldap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ldap-hfarr.c ---*/
-#line 2161 "./asn1/ldap/packet-ldap-template.c"
+#line 2158 "./asn1/ldap/packet-ldap-template.c"
   };
 
   /* List of subtrees */
@@ -5710,7 +5707,7 @@ void proto_register_ldap(void) {
     &ett_ldap_T_warning,
 
 /*--- End of included file: packet-ldap-ettarr.c ---*/
-#line 2175 "./asn1/ldap/packet-ldap-template.c"
+#line 2172 "./asn1/ldap/packet-ldap-template.c"
   };
   /* UAT for header fields */
   static uat_field_t custom_attribute_types_uat_fields[] = {
@@ -5899,7 +5896,7 @@ proto_reg_handoff_ldap(void)
 
 
 /*--- End of included file: packet-ldap-dis-tab.c ---*/
-#line 2347 "./asn1/ldap/packet-ldap-template.c"
+#line 2344 "./asn1/ldap/packet-ldap-template.c"
 
  dissector_add_uint_range_with_preference("tcp.port", TCP_PORT_RANGE_LDAP, ldap_handle);
 }

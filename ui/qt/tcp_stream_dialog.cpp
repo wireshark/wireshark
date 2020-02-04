@@ -57,10 +57,8 @@ const int moving_avg_period_ = 20;
 const QRgb graph_color_1 = tango_sky_blue_5;
 const QRgb graph_color_2 = tango_butter_6;
 const QRgb graph_color_3 = tango_chameleon_5;
-#if 0 // Deactivated due to function not implemented in v2
 const QRgb graph_color_4 = tango_scarlet_red_4;
 const QRgb graph_color_5 = tango_scarlet_red_6;
-#endif
 
 // Size of selectable packet points in the base graph
 const double pkt_point_size_ = 3.0;
@@ -84,21 +82,24 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
     ts_origin_conn_(true),
     seq_offset_(0),
     seq_origin_zero_(true),
-    title_(NULL),
-    base_graph_(NULL),
-    tput_graph_(NULL),
-    goodput_graph_(NULL),
-    seg_graph_(NULL),
-    ack_graph_(NULL),
-    sack_graph_(NULL),
-    sack2_graph_(NULL),
-    rwin_graph_(NULL),
-    dup_ack_graph_(NULL),
-    zero_win_graph_(NULL),
-    tracer_(NULL),
+    title_(nullptr),
+    base_graph_(nullptr),
+    tput_graph_(nullptr),
+    goodput_graph_(nullptr),
+    seg_graph_(nullptr),
+    seg_eb_(nullptr),
+    ack_graph_(nullptr),
+    sack_graph_(nullptr),
+    sack_eb_(nullptr),
+    sack2_graph_(nullptr),
+    sack2_eb_(nullptr),
+    rwin_graph_(nullptr),
+    dup_ack_graph_(nullptr),
+    zero_win_graph_(nullptr),
+    tracer_(nullptr),
     packet_num_(0),
     mouse_drags_(true),
-    rubber_band_(NULL),
+    rubber_band_(nullptr),
     graph_updater_(this),
     num_dsegs_(-1),
     num_acks_(-1),
@@ -174,6 +175,7 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
     ctx_menu_.addAction(ui->actionStevens);
     ctx_menu_.addAction(ui->actionTcptrace);
     ctx_menu_.addAction(ui->actionWindowScaling);
+    set_action_shortcuts_visible_in_context_menu(ctx_menu_.actions());
 
     memset (&graph_, 0, sizeof(graph_));
     graph_.type = graph_type;
@@ -230,52 +232,63 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
     // Base Graph - enables selecting segments (both data and SACKs)
     base_graph_ = sp->addGraph();
     base_graph_->setPen(QPen(QBrush(graph_color_1), pen_width));
+
     // Throughput Graph - rate of sent bytes
     tput_graph_ = sp->addGraph(sp->xAxis, sp->yAxis2);
     tput_graph_->setPen(QPen(QBrush(graph_color_2), pen_width));
     tput_graph_->setLineStyle(QCPGraph::lsStepLeft);
+
     // Goodput Graph - rate of ACKed bytes
     goodput_graph_ = sp->addGraph(sp->xAxis, sp->yAxis2);
     goodput_graph_->setPen(QPen(QBrush(graph_color_3), pen_width));
     goodput_graph_->setLineStyle(QCPGraph::lsStepLeft);
+
     // Seg Graph - displays forward data segments on tcptrace graph
     seg_graph_ = sp->addGraph();
     seg_graph_->setLineStyle(QCPGraph::lsNone);
     seg_graph_->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDot, Qt::transparent, 0));
-#if 0 // Deactivated due to function not implemented in v2
-    seg_graph_->setErrorType(QCPGraph::etValue);
-    seg_graph_->setErrorPen(QPen(QBrush(graph_color_1), pen_width));
-    seg_graph_->setErrorBarSkipSymbol(false); // draw error spine as single line
-    seg_graph_->setErrorBarSize(pkt_point_size_);
-#endif
+    seg_eb_ = new QCPErrorBars(sp->xAxis, sp->yAxis);
+    seg_eb_->setErrorType(QCPErrorBars::etValueError);
+    seg_eb_->setPen(QPen(QBrush(graph_color_1), pen_width));
+    seg_eb_->setSymbolGap(0.0); // draw error spine as single line
+    seg_eb_->setWhiskerWidth(pkt_point_size_);
+    seg_eb_->removeFromLegend();
+    seg_eb_->setDataPlottable(seg_graph_);
+
     // Ack Graph - displays ack numbers from reverse packets
     ack_graph_ = sp->addGraph();
     ack_graph_->setPen(QPen(QBrush(graph_color_2), pen_width));
     ack_graph_->setLineStyle(QCPGraph::lsStepLeft);
+
     // Sack Graph - displays highest number (most recent) SACK block
     sack_graph_ = sp->addGraph();
-    sack_graph_->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDot, Qt::transparent, 0));
-#if 0 // Deactivated due to function not implemented in v2
-    sack_graph_->setErrorType(QCPGraph::etValue);
     sack_graph_->setLineStyle(QCPGraph::lsNone);
-    sack_graph_->setErrorPen(QPen(QBrush(graph_color_4), pen_width));
-    sack_graph_->setErrorBarSkipSymbol(false);
-    sack_graph_->setErrorBarSize(0.0);
-#endif
-    // RWin graph - displays upper extent of RWIN advertised on reverse packets
+    sack_graph_->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDot, Qt::transparent, 0));
+    sack_eb_ = new QCPErrorBars(sp->xAxis, sp->yAxis);
+    sack_eb_->setErrorType(QCPErrorBars::etValueError);
+    sack_eb_->setPen(QPen(QBrush(graph_color_4), pen_width));
+    sack_eb_->setSymbolGap(0.0); // draw error spine as single line
+    sack_eb_->setWhiskerWidth(0.0);
+    sack_eb_->removeFromLegend();
+    sack_eb_->setDataPlottable(sack_graph_);
+
     // Sack Graph 2 - displays subsequent SACK blocks
     sack2_graph_ = sp->addGraph();
     sack2_graph_->setLineStyle(QCPGraph::lsNone);
     sack2_graph_->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDot, Qt::transparent, 0));
-#if 0 // Deactivated due to function not implemented in v2
-    sack2_graph_->setErrorType(QCPGraph::etValue);
-    sack2_graph_->setErrorPen(QPen(QBrush(graph_color_5), pen_width));
-    sack2_graph_->setErrorBarSkipSymbol(false);
-    sack2_graph_->setErrorBarSize(0.0);
-#endif
+    sack2_eb_ = new QCPErrorBars(sp->xAxis, sp->yAxis);
+    sack2_eb_->setErrorType(QCPErrorBars::etValueError);
+    sack2_eb_->setPen(QPen(QBrush(graph_color_5), pen_width));
+    sack2_eb_->setSymbolGap(0.0); // draw error spine as single line
+    sack2_eb_->setWhiskerWidth(0.0);
+    sack2_eb_->removeFromLegend();
+    sack2_eb_->setDataPlottable(sack2_graph_);
+
+    // RWin graph - displays upper extent of RWIN advertised on reverse packets
     rwin_graph_ = sp->addGraph();
     rwin_graph_->setPen(QPen(QBrush(graph_color_3), pen_width));
     rwin_graph_->setLineStyle(QCPGraph::lsStepLeft);
+
     // Duplicate ACK Graph - displays duplicate ack ticks
     // QCustomPlot doesn't have QCPScatterStyle::ssTick so we have to make our own.
     int tick_len = 3;
@@ -293,6 +306,7 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
     QCPScatterStyle da_ss = QCPScatterStyle(QCPScatterStyle::ssPixmap, graph_color_2, 0);
     da_ss.setPixmap(da_tick_pm);
     dup_ack_graph_->setScatterStyle(da_ss);
+
     // Zero Window Graph - displays zero window crosses (x)
     zero_win_graph_ = sp->addGraph();
     zero_win_graph_->setLineStyle(QCPGraph::lsNone);
@@ -862,11 +876,12 @@ void TCPStreamDialog::fillTcptrace()
     }
     base_graph_->setData(pkt_time, pkt_seqnums);
     ack_graph_->setData(ackrwin_time, ack);
-#if 0 // Deactivated due to function not implemented in v2
-    seg_graph_->setDataValueError(sb_time, sb_center, sb_span);
-    sack_graph_->setDataValueError(sack_time, sack_center, sack_span);
-    sack2_graph_->setDataValueError(sack2_time, sack2_center, sack2_span);
-#endif
+    seg_graph_->setData(sb_time, sb_center);
+    seg_eb_->setData(sb_span);
+    sack_graph_->setData(sack_time, sack_center);
+    sack_eb_->setData(sack_span);
+    sack2_graph_->setData(sack2_time, sack2_center);
+    sack2_eb_->setData(sack2_span);
     rwin_graph_->setData(ackrwin_time, rwin);
     dup_ack_graph_->setData(dup_ack_time, dup_ack);
     zero_win_graph_->setData(zero_win_time, zero_win);

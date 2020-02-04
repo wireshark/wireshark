@@ -1,4 +1,4 @@
--- 3GPP TS 38.413 V15.5.0 (2019-09)
+-- 3GPP TS 38.413 V15.6.0 (2019-12)
 -- 9.4.5	Information Element Definitions
 -- **************************************************************
 --
@@ -17,6 +17,7 @@ BEGIN
 IMPORTS
 
 	id-AdditionalDLForwardingUPTNLInformation,
+	id-AdditionalULForwardingUPTNLInformation,
 	id-AdditionalDLQosFlowPerTNLInformation,
 	id-AdditionalDLUPTNLInformationForHOList,
 	id-AdditionalNGU-UP-TNLInformation,
@@ -41,6 +42,7 @@ IMPORTS
 	id-QosFlowAddOrModifyRequestList,
 	id-QosFlowSetupRequestList,
 	id-QosFlowToReleaseList,
+	id-SCTP-TLAs,
 	id-SecondaryRATUsageInformation,
 	id-SecurityIndication,
 	id-SecurityResult,
@@ -519,7 +521,8 @@ CauseRadioNetwork ::= ENUMERATED {
 	release-due-to-cn-detected-mobility,
 	...,
 	n26-interface-not-available,
-	release-due-to-pre-emption
+	release-due-to-pre-emption,
+	multiple-location-reporting-reference-ID-instances
 }
 
 CauseTransport ::= ENUMERATED {
@@ -1279,8 +1282,9 @@ HandoverCommandTransfer ::= SEQUENCE {
 }
 
 HandoverCommandTransfer-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
-	{ ID id-AdditionalDLForwardingUPTNLInformation	CRITICALITY ignore	EXTENSION QosFlowPerTNLInformationList	PRESENCE optional}|
-	{ ID id-ULForwardingUP-TNLInformation	CRITICALITY reject	EXTENSION UPTransportLayerInformation	PRESENCE optional},
+	{ ID id-AdditionalDLForwardingUPTNLInformation	CRITICALITY ignore	EXTENSION QosFlowPerTNLInformationList		PRESENCE optional}|
+	{ ID id-ULForwardingUP-TNLInformation			CRITICALITY reject	EXTENSION UPTransportLayerInformation			PRESENCE optional}|
+	{ ID id-AdditionalULForwardingUPTNLInformation	CRITICALITY reject	EXTENSION UPTransportLayerInformationList	PRESENCE optional},
 	...
 }
 
@@ -1311,8 +1315,9 @@ HandoverRequestAcknowledgeTransfer ::= SEQUENCE {
 }
 
 HandoverRequestAcknowledgeTransfer-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
-	{ ID id-AdditionalDLUPTNLInformationForHOList	CRITICALITY ignore	EXTENSION AdditionalDLUPTNLInformationForHOList	PRESENCE optional	}|
-	{ID id-ULForwardingUP-TNLInformation			CRITICALITY reject	EXTENSION UPTransportLayerInformation					PRESENCE optional},
+	{ ID id-AdditionalDLUPTNLInformationForHOList		CRITICALITY ignore	EXTENSION AdditionalDLUPTNLInformationForHOList		PRESENCE optional	}|
+	{ ID id-ULForwardingUP-TNLInformation				CRITICALITY reject	EXTENSION UPTransportLayerInformation					PRESENCE optional}|
+	{ ID id-AdditionalULForwardingUPTNLInformation		CRITICALITY reject	EXTENSION UPTransportLayerInformationList				PRESENCE optional},
 	...
 }
 
@@ -2764,6 +2769,8 @@ RRCState ::= ENUMERATED {
 
 -- S
 
+SCTP-TLAs	::= SEQUENCE (SIZE(1..maxnoofXnTLAs)) OF TransportLayerAddress
+
 SD ::= OCTET STRING (SIZE(3))
 
 SecondaryRATUsageInformation ::= SEQUENCE {
@@ -3507,6 +3514,7 @@ XnExtTLA-Item ::= SEQUENCE {
 }
 
 XnExtTLA-Item-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	{ ID id-SCTP-TLAs		CRITICALITY ignore	EXTENSION SCTP-TLAs		PRESENCE optional },
 	...
 }
 

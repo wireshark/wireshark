@@ -326,7 +326,47 @@ it before (or while) you are doing a live capture.
 
 === Packet Lengths
 
-{missing}
+Shows the distribution of packet lengths and related information.
+
+.The “Packet Lengths” window
+image::wsug_graphics/ws-stats-packet-lengths.png[{medium-screenshot-attrs}]
+
+Information is broken down by packet length ranges as shown above.
+
+Packet Lengths::
+The range of packet lengths.
++
+Ranges can be configured in the “Statistics -> Stats Tree” section of the <<ChCustPreferencesSection,Preferences Dialog>>.
+
+Count::
+The number of packets that fall into this range.
+
+Average::
+The arithmetic mean length of the packets in this range.
+
+Min Val, Max Val::
+The minimum and maximum lengths in this range.
+
+Rate (ms)::
+The average packets per millisecond for the packets in this range.
+
+Percent::
+The percentage of packets in this range, by count.
+
+Burst Rate::
+Packet bursts are detected by counting the number of packets in a given time interval and comparing that count to the intervals across a window of time.
+Statistics for the interval with the maximum number of packets are shown.
+By default, bursts are detected across 5 millisecond intervals and intervals are compared across 100 millisecond windows.
++
+These calculations can be adjusted in the “Statistics” section of the <<ChCustPreferencesSection,Preferences Dialog>>.
+
+Burst Start::
+The start time, in seconds from the beginning of the capture, for the interval with the maximum number of packets.
+
+You can show statistics for a portion of the capture by entering a display filter into the _Display filter_ entry and pressing btn:[Apply].
+
+btn:[Copy] copies the statistics to the clipboard.
+btn:[Save as...] lets you save the data as text, CSV, YAML, or XML.
 
 [[ChStatIOGraphs]]
 
@@ -376,6 +416,17 @@ The btn:[Copy] button will copy values from selected graphs to the clipboard in 
 ====
 Click in the graph to select the first package in the selected interval.
 ====
+
+// Applies to the Qt verson:
+// .Missing Values Are Zero
+
+// Wireshark's I/O Graph window doesn’t distinguish between missing and zero values.
+// For _plain_ scatter plots, it is assumed that zero values indicate missing data, and those values are ommitted.
+// Zero values are shown in line graphs, bar charts, and _calculated_ scatter plots.
+// Scatter plots are considered calculated if they have a calculated Y axis field or if a moving average is set.
+
+// If you need to display zero values in a scatter plot, you can do so by making the Y Axis a calculated field.
+// For example, the calculated equivalent of “Packets” is a “COUNT FRAMES” Y Axis with a Y Field set to “frame”.
 
 [[ChStatSRT]]
 

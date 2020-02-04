@@ -3,7 +3,7 @@
 
 #.TYPE_ATTR
 # pkix1explicit also exports the type CertificateSerialNumber. This makes sure asn2wrs uses the locally defined version.
-CertificateSerialNumber  TYPE = FT_UINT64  DISPLAY = BASE_DEC  STRINGS = NULL  BITMASK = 0
+CertificateSerialNumber  TYPE = FT_BYTES  DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 #.END
 
 #.MODULE_IMPORT

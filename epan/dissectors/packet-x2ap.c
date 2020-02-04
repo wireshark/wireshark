@@ -20,7 +20,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * Ref:
- * 3GPP TS 36.423 V15.7.0 (2019-09)
+ * 3GPP TS 36.423 V15.8.0 (2019-12)
  */
 
 #include "config.h"
@@ -502,7 +502,8 @@ typedef enum _ProtocolIE_ID_enum {
   id_InterfaceInstanceIndication = 335,
   id_BPLMN_ID_Info_EUTRA = 336,
   id_BPLMN_ID_Info_NR = 337,
-  id_NBIoT_UL_DL_AlignmentOffset = 338
+  id_NBIoT_UL_DL_AlignmentOffset = 338,
+  id_ERABs_transferred_to_MeNB = 339
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-x2ap-val.h ---*/
@@ -2709,6 +2710,7 @@ static const value_string x2ap_ProtocolIE_ID_vals[] = {
   { id_BPLMN_ID_Info_EUTRA, "id-BPLMN-ID-Info-EUTRA" },
   { id_BPLMN_ID_Info_NR, "id-BPLMN-ID-Info-NR" },
   { id_NBIoT_UL_DL_AlignmentOffset, "id-NBIoT-UL-DL-AlignmentOffset" },
+  { id_ERABs_transferred_to_MeNB, "id-ERABs-transferred-to-MeNB" },
   { 0, NULL }
 };
 
@@ -23641,6 +23643,7 @@ proto_reg_handoff_x2ap(void)
   dissector_add_uint("x2ap.ies", id_LocationInformationSgNB, create_dissector_handle(dissect_LocationInformationSgNB_PDU, proto_x2ap));
   dissector_add_uint("x2ap.ies", id_EUTRANTraceID, create_dissector_handle(dissect_EUTRANTraceID_PDU, proto_x2ap));
   dissector_add_uint("x2ap.ies", id_InterfaceInstanceIndication, create_dissector_handle(dissect_InterfaceInstanceIndication_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_ERABs_transferred_to_MeNB, create_dissector_handle(dissect_E_RAB_List_PDU, proto_x2ap));
   dissector_add_uint("x2ap.extension", id_Number_of_Antennaports, create_dissector_handle(dissect_Number_of_Antennaports_PDU, proto_x2ap));
   dissector_add_uint("x2ap.extension", id_CompositeAvailableCapacityGroup, create_dissector_handle(dissect_CompositeAvailableCapacityGroup_PDU, proto_x2ap));
   dissector_add_uint("x2ap.extension", id_PRACH_Configuration, create_dissector_handle(dissect_PRACH_Configuration_PDU, proto_x2ap));

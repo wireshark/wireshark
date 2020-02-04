@@ -32,6 +32,11 @@
       </property>
       <column>
        <property name="text">
+        <string>Play</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
         <string>Source Address</string>
        </property>
       </column>

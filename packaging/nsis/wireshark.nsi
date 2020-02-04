@@ -83,7 +83,12 @@ BrandingText "Wireshark${U+00ae} Installer"
 ; ============================================================================
 
 !insertmacro MUI_PAGE_WELCOME
+
+!define MUI_LICENSEPAGE_TEXT_TOP "Wireshark is distributed under the GNU General Public License."
+!define MUI_LICENSEPAGE_TEXT_BOTTOM "This is not an end user license agreement (EULA). It is provided here for informational purposes only."
+!define MUI_LICENSEPAGE_BUTTON "Noted"
 !insertmacro MUI_PAGE_LICENSE "${STAGING_DIR}\COPYING.txt"
+
 !insertmacro MUI_PAGE_COMPONENTS
 !ifdef QT_DIR
 Page custom DisplayAdditionalTasksPage LeaveAdditionalTasksPage
@@ -158,12 +163,6 @@ Page custom DisplayUSBPcapPage
 
 !insertmacro GetParameters
 !insertmacro GetOptions
-
-; ============================================================================
-; License page configuration
-; ============================================================================
-LicenseText "Wireshark is distributed under the GNU General Public License."
-LicenseData "${STAGING_DIR}\COPYING.txt"
 
 ; ============================================================================
 ; Component page configuration
@@ -947,7 +946,9 @@ File "${QT_DIR}\${PROGRAM_NAME_PATH}"
 WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\App Paths\${PROGRAM_NAME_PATH}" "" '$INSTDIR\${PROGRAM_NAME_PATH}'
 WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\App Paths\${PROGRAM_NAME_PATH}" "Path" '$INSTDIR'
 !include qt-dll-manifest.nsh
+
 ${!defineifexist} TRANSLATIONS_FOLDER "${QT_DIR}\translations"
+SetOutPath $INSTDIR
 !ifdef TRANSLATIONS_FOLDER
   ; Starting from Qt 5.5, *.qm files are put in a translations subfolder
   File /r "${QT_DIR}\translations"
@@ -1030,6 +1031,7 @@ File "${STAGING_DIR}\plugins\${VERSION_MAJOR}.${VERSION_MINOR}\codecs\g726.dll"
 File "${STAGING_DIR}\plugins\${VERSION_MAJOR}.${VERSION_MINOR}\codecs\g729.dll"
 File "${STAGING_DIR}\plugins\${VERSION_MAJOR}.${VERSION_MINOR}\codecs\l16mono.dll"
 File "${STAGING_DIR}\plugins\${VERSION_MAJOR}.${VERSION_MINOR}\codecs\sbc.dll"
+File "${STAGING_DIR}\plugins\${VERSION_MAJOR}.${VERSION_MINOR}\codecs\ilbc.dll"
 SectionEnd
 
 Section "Configuration Profiles" SecProfiles

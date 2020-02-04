@@ -19,10 +19,19 @@
 #include "wireshark_dialog.h"
 
 #include <QMap>
+#include <QTreeWidgetItem>
 
 namespace Ui {
 class RtpPlayerDialog;
 }
+
+typedef enum {
+    channel_none,         // Mute
+    channel_mono,         // Play
+    channel_stereo_left,  // L
+    channel_stereo_right, // R
+    channel_stereo_both   // L+R
+} channel_mode_t;
 
 class QCPItemStraightLine;
 class QDialogButtonBox;
@@ -63,6 +72,7 @@ public:
      * @param rtpstream struct with rtpstream info
      */
     void addRtpStream(rtpstream_info_t *rtpstream);
+    void setMarkers();
 
 public slots:
 
@@ -83,6 +93,7 @@ private slots:
     void rescanPackets(bool rescale_axes = false);
     void updateWidgets();
     void graphClicked(QMouseEvent *event);
+    void graphDoubleClicked(QMouseEvent *event);
     void updateHintLabel();
     void resetXAxis();
 
@@ -102,6 +113,7 @@ private slots:
     void on_actionMoveRight1_triggered();
     void on_actionGoToPacket_triggered();
     void on_streamTreeWidget_itemSelectionChanged();
+    void on_streamTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, const int column);
     void on_outputDeviceComboBox_currentIndexChanged(const QString &);
     void on_jitterSpinBox_valueChanged(double);
     void on_timingComboBox_currentIndexChanged(int);
@@ -111,11 +123,17 @@ private slots:
 private:
     Ui::RtpPlayerDialog *ui;
     QMenu *ctx_menu_;
-    double start_rel_time_;
+    double first_stream_rel_start_time_;  // Relative start time of first stream
+    double first_stream_abs_start_time_;  // Absolute start time of first stream
+    double first_stream_rel_stop_time_;  // Relative end time of first stream (ued for streams_length_ calculation
+    double streams_length_;  // Difference between start of first stream and end of last stream
+    double start_marker_time_;    // Always relative time to start of the capture
     QCPItemStraightLine *cur_play_pos_;
+    QCPItemStraightLine *start_marker_pos_;
     QString playback_error_;
     QSharedPointer<QCPAxisTicker> number_ticker_;
     QSharedPointer<QCPAxisTickerDateTime> datetime_ticker_;
+    bool stereo_available_;
 
 //    const QString streamKey(const rtpstream_info_t *rtpstream);
 //    const QString streamKey(const packet_info *pinfo, const struct _rtp_info *rtpinfo);
@@ -128,10 +146,17 @@ private:
     void addPacket(packet_info *pinfo, const struct _rtp_info *rtpinfo);
     void zoomXAxis(bool in);
     void panXAxis(int x_pixels);
-    double getLowestTimestamp();
-    const QString getHoveredTime();
+    const QString getFormatedTime(double f_time);
+    const QString getFormatedHoveredTime();
     int getHoveredPacket();
     QString currentOutputDeviceName();
+    double getStartPlayMarker();
+    void drawStartPlayMarker();
+    void setStartPlayMarker(double new_time);
+    void updateStartStopTime(rtpstream_info_t *rtpstream, int tli_count);
+    void setChannelMode(QTreeWidgetItem *ti, channel_mode_t channel_mode);
+    channel_mode_t changeChannelMode(channel_mode_t channel_mode);
+    bool isStereoAvailable();
 
 #else // QT_MULTIMEDIA_LIB
 private:

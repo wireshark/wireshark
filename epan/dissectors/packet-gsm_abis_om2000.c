@@ -103,6 +103,16 @@ static int hf_om2k_result_code = -1;
 static int hf_om2k_reason_code = -1;
 static int hf_om2k_iwd_type = -1;
 static int hf_om2k_iwd_gen_rev = -1;
+static int hf_om2k_trxc_list = -1;
+static int hf_om2k_max_allowed_power = -1;
+static int hf_om2k_max_allowed_num_trxcs = -1;
+static int hf_om2k_mctr_feat_sts_bitmap = -1;
+static int hf_om2k_config_type = -1;
+static int hf_om2k_jitter_size = -1;
+static int hf_om2k_packing_algo = -1;
+static int hf_om2k_power_bo_ctype_map = -1;
+static int hf_om2k_power_bo_priority = -1;
+static int hf_om2k_power_bo_value = -1;
 
 /* initialize the subtree pointers */
 static int ett_om2000 = -1;
@@ -292,6 +302,14 @@ static const value_string om2k_msgcode_vals[] = {
 	{ 0x011a, "Feature Control Complete" },
 	{ 0x011b, "Feature Control Reject" },
 
+	/* Observed with RBS6000 / DUG 20 */
+	{ 0x012c, "MCTR Configuration Request" },
+	{ 0x012e, "MCTR Configuration Request Accept" },
+	{ 0x012f, "MCTR Configuration Request Reject" },
+	{ 0x0130, "MCTR Configuration Result ACK" },
+	{ 0x0131, "MCTR Configuration Result NACK" },
+	{ 0x0132, "MCTR Configuration Result" },
+
 	{ 0, NULL }
 };
 static value_string_ext om2k_msgcode_vals_ext = VALUE_STRING_EXT_INIT(om2k_msgcode_vals);
@@ -424,6 +442,16 @@ static const value_string om2k_attr_vals[] = {
 	{ 0x9b, "Master TX Chain Delay" },
 	{ 0x9c, "External Condition Class 2 Extension" },
 	{ 0x9d, "TSs MO State" },
+	{ 0x9e, "Configuration Type" },
+	{ 0x9f, "Jitter Size" },
+	{ 0xa0, "Packing Algorithm" },
+	{ 0xa8, "TRXC List" },
+	{ 0xa9, "Maximum Allowed Power" },
+	{ 0xaa, "Maximum Allowed Number of TRXCs" },
+	{ 0xab, "MCTR Feature Status Bitmap" },
+	{ 0xae, "Power Back-off Channel Type Map" },
+	{ 0xaf, "Power Back-off Priority" },
+	{ 0xb0, "Power Back-off Value" },
 	{ 0, NULL }
 };
 static value_string_ext om2k_attr_vals_ext = VALUE_STRING_EXT_INIT(om2k_attr_vals);
@@ -506,6 +534,7 @@ static const value_string om2k_mo_class_short_vals[] = {
 	{ 0x05, "IS" },
 	{ 0x06, "CON" },
 	{ 0x07, "DP" },
+	{ 0x08, "MCTR" },
 	{ 0x0a, "CF" },
 	{ 0x0b, "TX" },
 	{ 0x0c, "RX" },
@@ -520,6 +549,7 @@ static const value_string om2k_mo_class_vals[] = {
 	{ 0x05, "IS (Interface Switch)" },
 	{ 0x06, "CON (Concentrator)" },
 	{ 0x07, "DP (Data Path)" },
+	{ 0x08, "MCTR (Multi Carrier TRansceiver)" },
 	{ 0x0a, "CF (Central Function)" },
 	{ 0x0b, "TX (Transmitter)" },
 	{ 0x0c, "RX (Receiver)" },
@@ -1089,6 +1119,47 @@ dissect_om2k_attrs(tvbuff_t *tvb, packet_info *pinfo, gint offset, proto_tree *t
 		case 0x9d: /* TSs MO State */
 			offset += dissect_tss_mo_state(tvb, offset, tree);
 			break;
+		case 0x9e: /* Configuration Type */
+			proto_tree_add_item(tree, hf_om2k_config_type, tvb, offset++, 1, ENC_NA);
+			break;
+		case 0x9f: /* Jitter Size */
+			proto_tree_add_item(tree, hf_om2k_jitter_size, tvb, offset++, 1, ENC_NA);
+			break;
+		case 0xa0: /* Packing Algorithm */
+			proto_tree_add_item(tree, hf_om2k_packing_algo, tvb, offset++, 1, ENC_NA);
+			break;
+		case 0xa8: /* TRXC List (bitmap) */
+			proto_tree_add_item(tree, hf_om2k_trxc_list, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			offset += 2;
+			break;
+		case 0xa9: /* Maximum Allowed Power */
+			proto_tree_add_item(tree, hf_om2k_max_allowed_power, tvb, offset, 1, ENC_NA);
+			offset += 1;
+			break;
+		case 0xaa: /* Maximum Allowed Number of TRXCs */
+			proto_tree_add_item(tree, hf_om2k_max_allowed_num_trxcs, tvb, offset, 1, ENC_NA);
+			offset += 1;
+			break;
+		case 0xab: /* MCTR Feature Status Bitmap */
+			tmp = tvb_get_guint8(tvb, offset++);
+			proto_tree_add_item(tree, hf_om2k_mctr_feat_sts_bitmap, tvb, offset, tmp, ENC_NA);
+			offset += tmp;
+			break;
+		case 0xae: /* Power Back-Off Channel Type Map */
+			tmp = tvb_get_guint8(tvb, offset++);
+			proto_tree_add_item(tree, hf_om2k_power_bo_ctype_map, tvb, offset, tmp, ENC_NA);
+			offset += tmp;
+			break;
+		case 0xaf: /* Power Back-Off Priority */
+			tmp = tvb_get_guint8(tvb, offset++);
+			proto_tree_add_item(tree, hf_om2k_power_bo_priority, tvb, offset, tmp, ENC_NA);
+			offset += tmp;
+			break;
+		case 0xb0: /* Power Back-Off Value */
+			tmp = tvb_get_guint8(tvb, offset++);
+			proto_tree_add_item(tree, hf_om2k_power_bo_value, tvb, offset, tmp, ENC_NA);
+			offset += tmp;
+			break;
 		case 0xa3:
 		case 0xa5:
 		case 0xa6:
@@ -1098,8 +1169,15 @@ dissect_om2k_attrs(tvbuff_t *tvb, packet_info *pinfo, gint offset, proto_tree *t
 			tmp = tvb_get_guint8(tvb, offset++);
 			offset += dissect_om2k_attr_unkn(tvb, offset, tmp, iei, tree);
 			break;
-		case 0x9e:
-		case 0x9f:
+		case 0xb5: /* unknown 2-bytes fixed length attribute of TX Config */
+			offset += dissect_om2k_attr_unkn(tvb, offset, 2, iei, tree);
+			break;
+		case 0xd2: /* unknown 6-bytes fixed length attribute of TRXC Fault Rep */
+			offset += dissect_om2k_attr_unkn(tvb, offset, 6, iei, tree);
+			break;
+		case 0xac: /* unknown 58-bytes fixed length attribute of message type 0x0136 */
+			offset += dissect_om2k_attr_unkn(tvb, offset, 58, iei, tree);
+			break;
 		default:
 			tmp = tvb_get_guint8(tvb, offset);
 			proto_tree_add_uint_format(tree, hf_om2k_unknown_tag, tvb,
@@ -1610,6 +1688,56 @@ proto_register_abis_om2000(void)
 		{ &hf_om2k_iwd_gen_rev,
 		  { "IWD Generation/Revision", "gsm_abis_om2000.iwd_gen_rev",
 		    FT_STRING, BASE_NONE, NULL, 0,
+		    NULL, HFILL }
+		},
+		{ &hf_om2k_trxc_list,
+		  { "TRXC List", "gsm_abis_om2000.trxc_list",
+		    FT_UINT16, BASE_HEX, NULL, 0xFFFF,
+		    NULL, HFILL }
+		},
+		{ &hf_om2k_max_allowed_power,
+		  { "Maximum allowed power", "gsm_abis_om2000.max_allowed_power",
+		    FT_UINT8, BASE_DEC, NULL, 0,
+		    NULL, HFILL }
+		},
+		{ &hf_om2k_max_allowed_num_trxcs,
+		  { "Maximum allowed number of TRXCs", "gsm_abis_om2000.max_allowed_num_trxcs",
+		    FT_UINT8, BASE_DEC, NULL, 0,
+		    NULL, HFILL }
+		},
+		{ &hf_om2k_mctr_feat_sts_bitmap,
+		  { "MCTR Feature status bitmap", "gsm_abis_om2000.mctr_feat_sts_bitmap",
+		    FT_BYTES, BASE_NONE, NULL, 0,
+		    NULL, HFILL }
+		},
+		{ &hf_om2k_config_type,
+		  { "Configuration Type", "gsm_abis_om2000.config_type",
+		    FT_BOOLEAN, 8, NULL, 0x01,
+		    NULL, HFILL }
+		},
+		{ &hf_om2k_jitter_size,
+		  { "Jitter Size", "gsm_abis_om2000.jitter_size",
+		    FT_UINT8, BASE_DEC, NULL, 0,
+		    NULL, HFILL }
+		},
+		{ &hf_om2k_packing_algo,
+		  { "Packing Algorithm", "gsm_abis_om2000.packing_algo",
+		    FT_UINT8, BASE_DEC, NULL, 0,
+		    NULL, HFILL }
+		},
+		{ &hf_om2k_power_bo_ctype_map,
+		  { "Power Back-Off Channel Type Map", "gsm_abis_om2000.power_bo_ctype_map",
+		    FT_BYTES, BASE_NONE, NULL, 0,
+		    NULL, HFILL }
+		},
+		{ &hf_om2k_power_bo_priority,
+		  { "Power Back-Off Priority", "gsm_abis_om2000.power_bo_priority",
+		    FT_BYTES, BASE_NONE, NULL, 0,
+		    NULL, HFILL }
+		},
+		{ &hf_om2k_power_bo_value,
+		  { "Power Back-Off Value", "gsm_abis_om2000.power_bo_value",
+		    FT_BYTES, BASE_NONE, NULL, 0,
 		    NULL, HFILL }
 		},
 	};

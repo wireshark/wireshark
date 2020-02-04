@@ -25,11 +25,11 @@
     </message>
     <message>
         <source>Copy the version information to the clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopieraversionsinformationen till urklipp</translation>
     </message>
     <message>
         <source>Copy To Clipboard</source>
-        <translation type="unfinished">Kopiera till urklipp</translation>
+        <translation>Kopiera till urklipp</translation>
     </message>
     <message>
         <source>Authors</source>
@@ -93,8 +93,7 @@
     </message>
     <message>
         <source>The directory %1 could not be created.</source>
-        <oldsource>The directory %1 could not be created!</oldsource>
-        <translation type="unfinished">Katalogen %1 kunde inte skapas!</translation>
+        <translation>Katalogen %1 kunde inte skapas.</translation>
     </message>
     <message>
         <source>Show in Finder</source>
@@ -229,7 +228,7 @@
     </message>
     <message>
         <source>Ctrl-M</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl-M</translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
@@ -272,7 +271,7 @@
     </message>
     <message>
         <source>LMP Subversion</source>
-        <translation type="unfinished">LMP-underversion</translation>
+        <translation>LMP-underversion</translation>
     </message>
     <message>
         <source>Manufacturer</source>
@@ -321,6 +320,14 @@
     <message>
         <source>LE ACL Total Packets</source>
         <translation>LE ACL totalt antal paket</translation>
+    </message>
+    <message>
+        <source>LE ISO MTU</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LE ISO Total Packets</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Inquiry Mode</source>
@@ -372,7 +379,7 @@
     </message>
     <message>
         <source>Ctrl-M</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl-M</translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
@@ -483,7 +490,7 @@
     </message>
     <message>
         <source>Ctrl-M</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl-M</translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
@@ -1174,304 +1181,305 @@
     <name>CaptureOptionsDialog</name>
     <message>
         <source>Input</source>
-        <translation type="unfinished"></translation>
+        <translation>Indata</translation>
     </message>
     <message>
         <source>Interface</source>
-        <translation type="unfinished">Gränssnitt</translation>
+        <translation>Gränssnitt</translation>
     </message>
     <message>
         <source>Traffic</source>
-        <translation type="unfinished"></translation>
+        <translation>Trafik</translation>
     </message>
     <message>
         <source>Link-layer Header</source>
-        <translation type="unfinished"></translation>
+        <translation>Länknivåhuvud</translation>
     </message>
     <message>
         <source>Promiscuous</source>
-        <translation type="unfinished">Promiskuös</translation>
+        <translation>Promiskuös</translation>
     </message>
     <message>
         <source>Snaplen (B)</source>
-        <translation type="unfinished">Provlängd (B)</translation>
+        <translation>Provlängd (B)</translation>
     </message>
     <message>
         <source>Buffer (MB)</source>
-        <translation type="unfinished">Buffert (MB)</translation>
+        <translation>Buffert (MB)</translation>
     </message>
     <message>
         <source>Monitor Mode</source>
-        <translation type="unfinished">Monitorläge</translation>
+        <translation>Monitorläge</translation>
     </message>
     <message>
         <source>Capture Filter</source>
-        <translation type="unfinished">Fångstfilter</translation>
+        <translation>Fångstfilter</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You probably want to enable this. Usually a network card will only capture the traffic sent to its own network address. If you want to capture all traffic that the network card can &amp;quot;see&amp;quot;, mark this option. See the FAQ for some more details of capturing packets from a switched network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Du vill troligen aktivera detta.  Vanligen kommer ett nätverkskort endast fånga trafiken som skickas till dess egen nätverksadress.  Om du vill fånga all trafik som nätverkskortet kan &amp;quot;se&amp;quot;, markera detta alternativ.  Se FAQ:n för lite fler detaljer om att fånga paket från ett switchat nätverk.&lt;/p&gt;&lt;/body&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Du vill troligen aktivera detta.  Vanligen kommer ett nätverkskort endast fånga trafiken som skickas till dess egen nätverksadress.  Om du vill fånga all trafik som nätverkskortet kan &amp;quot;se&amp;quot;, markera detta alternativ.  Se FAQ:n för lite fler detaljer om att fånga paket från ett switchat nätverk.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Enable promiscuous mode on all interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktivera promiskuöst läge för alla gränssnitt</translation>
     </message>
     <message>
         <source>Show and hide interfaces, add comments, and manage pipes and remote interfaces.</source>
-        <translation type="unfinished"></translation>
+        <translation>Visa och dölj gränssnitt, lägg till kommentarer och hantera rör och fjärrgränssnitt.</translation>
     </message>
     <message>
         <source>Manage Interfaces…</source>
-        <translation type="unfinished"></translation>
+        <translation>Hantera gränssnitt …</translation>
     </message>
     <message>
         <source>Capture filter for selected interfaces:</source>
-        <translation type="unfinished"></translation>
+        <translation>Fångsfilter för valda gränssnitt:</translation>
     </message>
     <message>
         <source>Compile BPFs</source>
-        <translation type="unfinished"></translation>
+        <translation>Kompilera BPF:er</translation>
     </message>
     <message>
         <source>Output</source>
-        <translation type="unfinished"></translation>
+        <translation>Utdata</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter the file name to which captured data will be written. By default, a temporary file will be used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ange filnamnet som infångad data skall skrivas till.  Som standard kommer en temporärfil användas.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Capture to a permanent file</source>
-        <translation type="unfinished"></translation>
+        <translation>Fånga till en permanent fil</translation>
     </message>
     <message>
         <source>File:</source>
-        <translation type="unfinished">Fil:</translation>
+        <translation>Fil:</translation>
     </message>
     <message>
         <source>Browse…</source>
-        <translation type="unfinished"></translation>
+        <translation>Bläddra …</translation>
     </message>
     <message>
         <source>Output format:</source>
-        <translation type="unfinished"></translation>
+        <translation>Utdataformat:</translation>
     </message>
     <message>
         <source>pcapng</source>
-        <translation type="unfinished"></translation>
+        <translation>pcapng</translation>
     </message>
     <message>
         <source>pcap</source>
-        <translation type="unfinished"></translation>
+        <translation>pcap</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Instead of using a single capture file, multiple files will be created.&lt;/p&gt;&lt;p&gt;The generated file names will contain an incrementing number and the start time of the capture.&lt;/p&gt;&lt;p&gt;NOTE: If enabled, at least one of the new-file criteria MUST be selected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Istället för att använda en enda fångstfil kommer flera filer skapas.&lt;/p&gt;&lt;p&gt;De genererade filnamnen kommer innehålla ett ökande nummer och starttidpunkten för fångsten.&lt;/p&gt;&lt;p&gt;OBS: om aktiverat MÅSTE åtminstone av kriterierna för ny fil väljas.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Create a new file automatically…</source>
-        <translation type="unfinished"></translation>
+        <translation>Skapa en ny fil automatiskt …</translation>
     </message>
     <message>
         <source>after</source>
-        <translation type="unfinished"></translation>
+        <translation>efter</translation>
     </message>
     <message>
         <source>Switch to the next file after the specified number of packets have been captured.</source>
-        <translation type="unfinished"></translation>
+        <translation>Byt till nästa fil efter det angivna antalet paket har infångats.</translation>
     </message>
     <message>
         <source>packets</source>
-        <translation type="unfinished">paket</translation>
+        <translation>paket</translation>
     </message>
     <message>
         <source>Switch to the next file after the file size exceeds the specified file size.</source>
-        <translation type="unfinished"></translation>
+        <translation>Byt till nästa fil efter att filstorleken överskrider den angivna filstorleken.</translation>
     </message>
     <message>
         <source>kilobytes</source>
-        <translation type="unfinished"></translation>
+        <translation>kilobyte</translation>
     </message>
     <message>
         <source>megabytes</source>
-        <translation type="unfinished"></translation>
+        <translation>megabyte</translation>
     </message>
     <message>
         <source>gigabytes</source>
-        <translation type="unfinished"></translation>
+        <translation>gigabyte</translation>
     </message>
     <message>
         <source>Switch to the next file when the time capturing to the current file exceeds the specified time.</source>
-        <translation type="unfinished"></translation>
+        <translation>Byt till nästa fil när tiden under vilken fångsten gjorts till den nuvarande filen överskrider den angivna tiden.</translation>
     </message>
     <message>
         <source>seconds</source>
-        <translation type="unfinished"></translation>
+        <translation>sekunder</translation>
     </message>
     <message>
         <source>minutes</source>
-        <translation type="unfinished"></translation>
+        <translation>minuter</translation>
     </message>
     <message>
         <source>hours</source>
-        <translation type="unfinished"></translation>
+        <translation>timmar</translation>
     </message>
     <message>
         <source>when time is a multiple of</source>
-        <translation type="unfinished"></translation>
+        <translation>när tiden är en multipel av</translation>
     </message>
     <message>
         <source>Switch to the next file when the (wall clock) time is an even multiple of the specified interval.
 For example, use 1 hour to have a new file created every hour on the hour.</source>
-        <translation type="unfinished"></translation>
+        <translation>Byt till nästa fil när (väggklocks)tiden är en jämn multipel av det angivna intervallet
+Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid hel timma.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;After capturing has switched to the next file and the given number of files has exceeded, the oldest file will be removed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Efter att infångandet har bytt till nästa fil och det angivna antalet filer har överskridits tas den äldsta filen bort.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Use a ring buffer with </source>
-        <translation type="unfinished"></translation>
+        <translation>Använd en ringbuffert med </translation>
     </message>
     <message>
         <source>files</source>
-        <translation type="unfinished"></translation>
+        <translation>filer</translation>
     </message>
     <message>
         <source>Options</source>
-        <translation type="unfinished">Alternativ</translation>
+        <translation>Flaggor</translation>
     </message>
     <message>
         <source>Display Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Visningsflaggor</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Using this option will show the captured packets immediately on the main screen. Please note: this will slow down capturing, so increased packet drops might appear.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Används denna flagga kommer infångade paket visas omedelbart på huvudskärmen.  Observera: detta kommer sakta ned fångandet, så fler paket kan komma att släppas.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Update list of packets in real-time</source>
-        <translation type="unfinished"></translation>
+        <translation>Uppdatera paketlistan i realtid</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This will scroll the &amp;quot;Packet List&amp;quot; automatically to the latest captured packet, when the &amp;quot;Update list of packets in real-time&amp;quot; option is used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Detta kommer rulla &amp;quot;Paketlistan&amp;quot; automatiskt till det sista fångade paketet, när flaggan &amp;quot;Uppdatera paketlistan i realtid&amp;quot; används.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Automatically scroll during live capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Rulla automatiskt under live-fångst</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show the capture info dialog while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Visa fångstinformationsdialogen under fångandet.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Show capture information during live capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Visa fångstinformation under live-fångst</translation>
     </message>
     <message>
         <source>Name Resolution</source>
-        <translation type="unfinished"></translation>
+        <translation>Namnuppslagning</translation>
     </message>
     <message>
         <source>Perform MAC layer name resolution while capturing.</source>
-        <translation type="unfinished"></translation>
+        <translation>Utför namnuppslagning på MAC-nivå under fångandet.</translation>
     </message>
     <message>
         <source>Resolve MAC addresses</source>
-        <translation type="unfinished"></translation>
+        <translation>Slå upp MAC-adresser</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perform network layer name resolution while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Utför namnuppslagning på nätverksnivå under fångandet.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Resolve network names</source>
-        <translation type="unfinished"></translation>
+        <translation>Slå upp nätverksnamn</translation>
     </message>
     <message>
         <source>Perform transport layer name resolution while capturing.</source>
-        <translation type="unfinished"></translation>
+        <translation>Utför namnuppslagning på transportnivån under fångandet.</translation>
     </message>
     <message>
         <source>Resolve transport names</source>
-        <translation type="unfinished"></translation>
+        <translation>Slå upp transportnamn</translation>
     </message>
     <message>
         <source>Stop capture automatically after…</source>
-        <translation type="unfinished"></translation>
+        <translation>Sluta fånga automatiskt efter …</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified number of packets have been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sluta fånga efter att det angivna antalet paket har fångats.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Stop capturing after the specified number of packets have been captured.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sluta fånga efter att det angivna antalet paket har infångats.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified number of files have been created.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sluta fånga efter att det angivna antalet filer har skapats.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified amount of data has been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sluta fånga efter att den angivna mängden data har infångats.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Stop capturing after the specified amount of data has been captured.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sluta fånga efter att den angivna mängden data har infångats.</translation>
     </message>
     <message>
         <source>Stop capturing after the specified amount of time has passed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sluta fånga efter den angivna tidsrymden har passerat.</translation>
     </message>
     <message>
         <source>Capture Options</source>
-        <translation type="unfinished">Fångstalternativ</translation>
+        <translation>Fångstalternativ</translation>
     </message>
     <message>
         <source>Start</source>
-        <translation type="unfinished"></translation>
+        <translation>Starta</translation>
     </message>
     <message>
         <source>Leave blank to use a temporary file</source>
-        <translation type="unfinished"></translation>
+        <translation>Lämna tomt för att använda en temporärfil</translation>
     </message>
     <message>
         <source>Specify a Capture File</source>
-        <translation type="unfinished"></translation>
+        <translation>Ange en fångstfil</translation>
     </message>
     <message>
         <source>%1: %2</source>
-        <translation type="unfinished">%1: %2</translation>
+        <translation>%1: %2</translation>
     </message>
     <message>
         <source>Addresses</source>
-        <translation type="unfinished">Adresser</translation>
+        <translation>Adresser</translation>
     </message>
     <message>
         <source>Address</source>
-        <translation type="unfinished">Adress</translation>
+        <translation>Adress</translation>
     </message>
     <message>
         <source>no addresses</source>
-        <translation type="unfinished"></translation>
+        <translation>inga adresser</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished">Fel</translation>
+        <translation>Fel</translation>
     </message>
     <message>
         <source>Multiple files: Requested filesize too large. The filesize cannot be greater than 2 GiB.</source>
-        <translation type="unfinished"></translation>
+        <translation>Flera filer: den begärda filstorleken är för stor.  Filstorleken får inte vara större än 2 GiB.</translation>
     </message>
     <message>
         <source>Multiple files: No capture file name given. You must specify a filename if you want to use multiple files.</source>
-        <translation type="unfinished"></translation>
+        <translation>Flera filer: inget fångstfilnamn angivet.  Du måste ange ett filnamn ifall du vill använda flera filer.</translation>
     </message>
     <message>
         <source>Multiple files: No file limit given. You must specify a file size, interval, or number of packets for each file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Flera filer: ingen filgräns angiven.  Du måste ange en filstorlek, ett intervall eller ett antal paket för varje fil.</translation>
     </message>
 </context>
 <context>
@@ -1635,7 +1643,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>ColoringRulesModel</name>
     <message>
         <source>New coloring rule</source>
-        <translation type="unfinished"></translation>
+        <translation>Ny färgläggningsregel</translation>
     </message>
     <message>
         <source>Unable to save coloring rules: %1</source>
@@ -1693,27 +1701,27 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>ColumnListModel</name>
     <message>
         <source>Displayed</source>
-        <translation type="unfinished">Visat</translation>
+        <translation>Visat</translation>
     </message>
     <message>
         <source>Title</source>
-        <translation type="unfinished"></translation>
+        <translation>Titel</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished">Typ</translation>
+        <translation>Typ</translation>
     </message>
     <message>
         <source>Fields</source>
-        <translation type="unfinished"></translation>
+        <translation>Fält</translation>
     </message>
     <message>
         <source>Field Occurence</source>
-        <translation type="unfinished"></translation>
+        <translation>Fältförekomst</translation>
     </message>
     <message>
         <source>New Column</source>
-        <translation type="unfinished"></translation>
+        <translation>Ny kolumn</translation>
     </message>
 </context>
 <context>
@@ -1724,19 +1732,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Add a new column</source>
-        <translation type="unfinished"></translation>
+        <translation>Lägg till en ny kolumn</translation>
     </message>
     <message>
         <source>Delete selected column</source>
-        <translation type="unfinished"></translation>
+        <translation>Ta bort den angivna kolumnen</translation>
     </message>
     <message>
         <source>Show displayed columns only</source>
-        <translation type="unfinished"></translation>
+        <translation>Visa endast synliga kolumner</translation>
     </message>
     <message>
         <source>Reset all changes</source>
-        <translation type="unfinished"></translation>
+        <translation>Återställ alla ändringar</translation>
     </message>
 </context>
 <context>
@@ -1999,11 +2007,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Left align buttons</source>
-        <translation type="unfinished"></translation>
+        <translation>Vänsterjustera knappar</translation>
     </message>
     <message>
         <source>Display Filter Expression</source>
-        <translation type="unfinished">Visningsfilteruttryck</translation>
+        <translation>Visningsfilteruttryck</translation>
     </message>
     <message>
         <source>Apply a read filter %1</source>
@@ -2011,7 +2019,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Current filter: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktuellt filter: %1</translation>
     </message>
     <message>
         <source>Invalid filter: </source>
@@ -2031,7 +2039,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Filter Button Preferences...</source>
-        <translation type="unfinished">Filterknappinställningar …</translation>
+        <translation>Filterknappinställningar …</translation>
     </message>
 </context>
 <context>
@@ -2211,11 +2219,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Only enabled protocols</source>
-        <translation type="unfinished"></translation>
+        <translation>Endast aktiverade protokoll</translation>
     </message>
     <message>
         <source>Only disabled protocols</source>
-        <translation type="unfinished"></translation>
+        <translation>Endast avaktiverade protokoll</translation>
     </message>
     <message>
         <source>any protocol</source>
@@ -2503,7 +2511,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Content Type:</source>
-        <translation type="unfinished"></translation>
+        <translation>Innehållstyp:</translation>
     </message>
     <message>
         <source>Searching for objects</source>
@@ -2519,11 +2527,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Preview</source>
-        <translation type="unfinished"></translation>
+        <translation>Förhandsvisning</translation>
     </message>
     <message>
         <source>All Content-Types</source>
-        <translation type="unfinished"></translation>
+        <translation>Alla innehållstyper</translation>
     </message>
     <message>
         <source>Export</source>
@@ -2811,11 +2819,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>FilterListModel</name>
     <message>
         <source>Filter Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Filternamn</translation>
     </message>
     <message>
         <source>Filter Expression</source>
-        <translation type="unfinished"></translation>
+        <translation>Filteruttryck</translation>
     </message>
 </context>
 <context>
@@ -2976,11 +2984,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Personal Extcap path</source>
-        <translation type="unfinished"></translation>
+        <translation>Personlig extcap-sökväg</translation>
     </message>
     <message>
         <source>Global Extcap path</source>
-        <translation type="unfinished"></translation>
+        <translation>Global extcap-sökväg</translation>
     </message>
     <message>
         <source>MaxMind DB path</source>
@@ -3000,11 +3008,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>macOS Extras</source>
-        <translation type="unfinished"></translation>
+        <translation>macOS-extra</translation>
     </message>
     <message>
         <source>Extra macOS packages</source>
-        <translation type="unfinished"></translation>
+        <translation>Extra macOS-paket</translation>
     </message>
     <message>
         <source>Name</source>
@@ -3144,9 +3152,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message numerus="yes">
         <source>%Ln total sub stream(s).</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln total underström.</numerusform>
+            <numerusform>%Ln totala underströmmar.</numerusform>
         </translation>
     </message>
     <message>
@@ -3199,7 +3207,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Substream</source>
-        <translation type="unfinished"></translation>
+        <translation>Underström</translation>
     </message>
     <message>
         <source>Find:</source>
@@ -3802,15 +3810,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Filtered packets</source>
+        <translation>Filtrerade paket</translation>
+    </message>
+    <message>
+        <source>All Packets</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>All packets</source>
-        <translation>Alla paket</translation>
-    </message>
-    <message>
-        <source>TCP errors</source>
-        <translation>TCP-fel</translation>
+        <source>TCP Errors</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Hover over the graph for details.</source>
@@ -4217,7 +4225,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>The format in which to parse timestamps in the text file (e.g. %H:%M:%S.). Format specifiers are based on strptime(3)</source>
-        <translation type="unfinished"></translation>
+        <translation>Formatet i vilket tidsstämplar i textfilen skall tolkas (t.ex. %H:%M:%S).  Formatspecifikationer baseras på strptime(3).</translation>
     </message>
     <message>
         <source>Encapsulation Type:</source>
@@ -4367,10 +4375,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Ram</translation>
     </message>
     <message>
-        <source>No interfaces found</source>
-        <translation>Inga gränssnitt hittades</translation>
-    </message>
-    <message>
         <source>Wired</source>
         <translation>Trådat</translation>
     </message>
@@ -4423,12 +4427,28 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Externa fångstgränssnitt avaktiverade.</translation>
     </message>
     <message>
-        <source>Interfaces not loaded (due to preference). Go to Capture </source>
+        <source>&lt;p&gt;Local interfaces are unavailable because no packet capture driver is installed.&lt;/p&gt;&lt;p&gt;You can fix this by installing &lt;a href=&quot;https://nmap.org/npcap/&quot;&gt;Npcap&lt;/a&gt; or &lt;a href=&quot;https://www.winpcap.org/install/default.htm&quot;&gt;WinPcap&lt;/a&gt;.&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>You don&apos;t have permission to capture. You can &lt;a href=&quot;file://%1&quot;&gt;install ChmodBPF to fix this&lt;/a&gt;.</source>
+        <source>&lt;p&gt;Local interfaces are unavailable because the packet capture driver isn&apos;t loaded.&lt;/p&gt;&lt;p&gt;You can fix this by running &lt;pre&gt;net start npcap&lt;/pre&gt; if you have Npcap installed or &lt;pre&gt;net start npf&lt;/pre&gt; if you have WinPcap installed. Both commands must be run as Administrator.&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;You don&apos;t have permission to capture on local interfaces.&lt;/p&gt;&lt;p&gt;You can fix this by &lt;a href=&quot;file://%1&quot;&gt;installing ChmodBPF&lt;/a&gt;.&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>You don&apos;t have permission to capture on local interfaces.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No interfaces found.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Interfaces not loaded (due to preference). Go to Capture </source>
+        <translation>Gränssnitt inte inlästa (på grund av inställningar).  Gå till fångst</translation>
     </message>
     <message>
         <source>Start capture</source>
@@ -5398,6 +5418,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Visa paketavdelare</translation>
     </message>
     <message>
+        <source>Show column definition in column context menu</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Status Bar settings:</source>
         <translation>Statusradinställningar:</translation>
     </message>
@@ -5932,7 +5956,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source> %1 Selected: %2 (%3%)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 valda: %2 (%3 %)</translation>
     </message>
     <message>
         <source> %1 Marked: %2 (%3%)</source>
@@ -6549,7 +6573,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>&amp;Mark/Unmark Packet(s)</source>
         <oldsource>&amp;Mark/Unmark Packet</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Markera/avmarkera paket</translation>
     </message>
     <message>
         <source>Mark All Displayed</source>
@@ -6582,7 +6606,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>&amp;Ignore/Unignore Packet(s)</source>
         <oldsource>&amp;Ignore/Unignore Packet</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Ignorera/avignorera paket</translation>
     </message>
     <message>
         <source>Ignore All Displayed</source>
@@ -6722,11 +6746,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>HTTP/2 Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>HTTP/2-ström</translation>
     </message>
     <message>
         <source>QUIC Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>QUIC-ström</translation>
     </message>
     <message>
         <source>Time Sequence (tcptrace)</source>
@@ -7042,11 +7066,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Display Filter &amp;Expression…</source>
-        <translation type="unfinished"></translation>
+        <translation>Visningsfilter&amp;uttryck …</translation>
     </message>
     <message>
         <source>Display Filter Expression…</source>
-        <translation type="unfinished"></translation>
+        <translation>Visningsfilteruttryck …</translation>
     </message>
     <message>
         <source>No GSM statistics registered</source>
@@ -7130,15 +7154,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>As Plain &amp;Text</source>
-        <translation type="unfinished"></translation>
+        <translation>Som vanlig &amp;text</translation>
     </message>
     <message>
         <source>As &amp;CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>Som &amp;CSV</translation>
     </message>
     <message>
         <source>As &amp;YAML</source>
-        <translation type="unfinished"></translation>
+        <translation>Som &amp;YAML</translation>
     </message>
     <message>
         <source>All Visible Items</source>
@@ -7166,11 +7190,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Mark or unmark each selected packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Markera eller avmarkera varje valt paket</translation>
     </message>
     <message>
         <source>Ignore or unignore each selected packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Ignorera eller avignorera varje valt paket</translation>
     </message>
     <message>
         <source>Time Shift…</source>
@@ -7186,7 +7210,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>TCP throughput</source>
-        <translation type="unfinished"></translation>
+        <translation>TCP-genomströmning</translation>
     </message>
     <message>
         <source>TCP Stream</source>
@@ -8765,7 +8789,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove this profile. System provided profiles cannot be removed. The default profile will be reset upon deletion.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ta bort denna profil.  Profiler som tillhandahålls av systemet kan inte tas bort.  Standardprofilen kommer återställas vid radering.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Copy this profile.</source>
@@ -9070,7 +9094,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Description</source>
-        <translation type="unfinished">Beskrivning</translation>
+        <translation>Beskrivning</translation>
     </message>
     <message>
         <source>Field Name</source>
@@ -10250,7 +10274,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>None of channels was selected</source>
-        <translation type="unfinished"></translation>
+        <translation>Ingen av kanalerna valdes</translation>
     </message>
     <message>
         <source>Save forward and reverse stream audio</source>
@@ -10262,27 +10286,27 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Information</source>
-        <translation type="unfinished"></translation>
+        <translation>Information</translation>
     </message>
     <message>
         <source>Save was interrupted</source>
-        <translation type="unfinished"></translation>
+        <translation>Sparandet avbröts</translation>
     </message>
     <message>
         <source>Save or read of file was failed during saving</source>
-        <translation type="unfinished"></translation>
+        <translation>Sparandet eller läsningen av filen misslyckades vid sparandet</translation>
     </message>
     <message>
         <source>Codec is not supported, file is incomplete</source>
-        <translation type="unfinished"></translation>
+        <translation>Omkodaren stödjs inte, filen är ofullständig</translation>
     </message>
     <message>
         <source>Codec rate is not supported, file is incomplete</source>
-        <translation type="unfinished"></translation>
+        <translation>Omkodarhastigheten stödjs inte, filen är ofullständig</translation>
     </message>
     <message>
         <source>Unknown error occured</source>
-        <translation type="unfinished"></translation>
+        <translation>Okänt fel inträffade</translation>
     </message>
     <message>
         <source>SSRC value not found.</source>
@@ -10370,7 +10394,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished">Fel</translation>
+        <translation>Fel</translation>
     </message>
     <message>
         <source>Save forward stream CSV</source>
@@ -10413,6 +10437,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>RTP Player</source>
         <translation>RTP-spelare</translation>
+    </message>
+    <message>
+        <source>Play</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Source Address</source>
@@ -10690,8 +10718,16 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Infogad tystnad</translation>
     </message>
     <message>
-        <source>%1. Press &quot;G&quot; to go to packet %2</source>
-        <translation>%1. Tryck ”G” för att gå till paket %2</translation>
+        <source>Double click to change audio routing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Start: %1. Double click to set start of playback.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Start: %1, cursor: %2. Press &quot;G&quot; to go to packet %3. Double click to set start of playback.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Unknown</source>
@@ -13496,25 +13532,6 @@ a:hover {
     <message>
         <source>Unable to set FCS validation behavior.</source>
         <translation>Kan inte sätta FCS-valideringsbeteende.</translation>
-    </message>
-</context>
-<context>
-    <name>WiresharkApplication</name>
-    <message>
-        <source>Dell Backup and Recovery Found</source>
-        <translation>Dell säkerhetskopiering och återställning funnet</translation>
-    </message>
-    <message>
-        <source>You appear to be running Dell Backup and Recovery 1.8.</source>
-        <translation>Du tycks köra Dell säkerhetskopiering och återställning 1.8.</translation>
-    </message>
-    <message>
-        <source>DBAR can make many applications crash &lt;a href=&quot;https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12036&quot;&gt;including Wireshark&lt;/a&gt;.</source>
-        <translation>DBAR kan få många program att krascha &lt;a href=&quot;https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12036&quot;&gt;inklusive Wireshark&lt;/a&gt;.</translation>
-    </message>
-    <message>
-        <source>Offending DLL: %1</source>
-        <translation>Felande DLL: %1</translation>
     </message>
 </context>
 <context>

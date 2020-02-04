@@ -866,6 +866,8 @@ dissect_gmr1_rach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 	proto_tree *rach_tree;
 	const char *desc;
 	int len, is_moc, is_pdt, ies;
+	is_moc = 0;
+	is_pdt = 0;
 
 	len = tvb_reported_length(tvb);
 

@@ -1974,6 +1974,16 @@ proto_tree_add_debug_text(tree, "INTEGERnew dissect_ber_integer(%s) entered impl
             case FT_UINT64:
                 actx->created_item = proto_tree_add_uint64(tree, hf_id, tvb, offset-len, len, (guint64)val);
                 break;
+            case FT_BYTES:
+                /*
+                 * Some protocols have INTEGER fields that can store values
+                 * larger than 64 bits and therefore have to use FT_BYTES.
+                 * Values larger than 64 bits are handled above while smaller
+                 * values are handled here.
+                 */
+                actx->created_item = proto_tree_add_bytes_format(tree, hf_id, tvb, offset-len, len, NULL,
+                        "%s: 0x%s", hfi->name, tvb_bytes_to_str(wmem_packet_scope(), tvb, offset-len, len));
+                break;
             default:
                 DISSECTOR_ASSERT_NOT_REACHED();
             }
@@ -3780,12 +3790,13 @@ invalid:
     return end_offset;
 }
 
-
+/* datestrptr: if not NULL return datetime string instead of adding to tree or NULL when packet is malformed
+ * tvblen: if not NULL return consumed packet bytes
+ */
 int
-dissect_ber_UTCTime(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id)
+dissect_ber_UTCTime(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, char **datestrptr, guint32 *tvblen)
 {
-    char          outstr[33];
-    char         *outstrptr = outstr;
+    char         *outstr, *outstrptr;
     const guint8 *instr;
     gint8         ber_class;
     gboolean      pc;
@@ -3797,6 +3808,11 @@ dissect_ber_UTCTime(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, t
     proto_item   *cause;
     proto_tree   *error_tree;
     const gchar  *error_str = NULL;
+
+    outstrptr = outstr = (char *)wmem_alloc(wmem_packet_scope(), 29);
+
+    if (datestrptr) *datestrptr = NULL; /* mark invalid */
+    if (tvblen) *tvblen = 0;
 
     if (!implicit_tag) {
         hoffset = offset;
@@ -3908,9 +3924,14 @@ dissect_ber_UTCTime(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, t
         goto malformed;
     }
 
-    if (hf_id >= 0) {
-        proto_tree_add_string(tree, hf_id, tvb, offset, len, outstr);
+    if (datestrptr) {
+       *datestrptr = outstr; /* mark as valid */
+    } else {
+        if (hf_id >= 0) {
+            proto_tree_add_string(tree, hf_id, tvb, offset, len, outstr);
+        }
     }
+    if (tvblen) *tvblen = len;
 
     return offset+len;
 malformed:
@@ -3927,9 +3948,10 @@ malformed:
         "%s",
         error_str);
 
+    if (tvblen) *tvblen = len;
+
     return offset+len;
 }
-
 
 /* 8.6 Encoding of a bitstring value */
 

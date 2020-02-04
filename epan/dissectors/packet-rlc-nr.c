@@ -81,6 +81,11 @@ extern int proto_pdcp_nr;
 
 static dissector_handle_t pdcp_nr_handle;
 static dissector_handle_t nr_rrc_bcch_bch;
+static dissector_handle_t nr_rrc_bcch_dl_sch;
+static dissector_handle_t nr_rrc_pcch;
+static dissector_handle_t nr_rrc_ul_ccch;
+static dissector_handle_t nr_rrc_ul_ccch1;
+static dissector_handle_t nr_rrc_dl_ccch;
 
 
 /* Decoding context */
@@ -523,15 +528,26 @@ static void dissect_rlc_nr_tm(tvbuff_t *tvb, packet_info *pinfo,
 
     if (global_rlc_nr_call_rrc_for_ccch) {
         tvbuff_t *rrc_tvb = tvb_new_subset_remaining(tvb, offset);
-        dissector_handle_t protocol_handle;
+        volatile dissector_handle_t protocol_handle;
 
         switch (p_rlc_nr_info->bearerType) {
         case BEARER_TYPE_BCCH_BCH:
-                protocol_handle = nr_rrc_bcch_bch;
-                break;
+            protocol_handle = nr_rrc_bcch_bch;
+            break;
         case BEARER_TYPE_BCCH_DL_SCH:
+            protocol_handle = nr_rrc_bcch_dl_sch;
+            break;
         case BEARER_TYPE_PCCH:
+            protocol_handle = nr_rrc_pcch;
+            break;
         case BEARER_TYPE_CCCH:
+            if (p_rlc_nr_info->direction == DIRECTION_UPLINK) {
+                protocol_handle = (tvb_reported_length(rrc_tvb) == 8) ?
+                                    nr_rrc_ul_ccch1 : nr_rrc_ul_ccch;
+            } else {
+                protocol_handle = nr_rrc_dl_ccch;
+            }
+            break;
         case BEARER_TYPE_SRB:
         case BEARER_TYPE_DRB:
         default:
@@ -1674,6 +1690,11 @@ void proto_reg_handoff_rlc_nr(void)
 
     pdcp_nr_handle = find_dissector("pdcp-nr");
     nr_rrc_bcch_bch = find_dissector_add_dependency("nr-rrc.bcch.bch", proto_rlc_nr);
+    nr_rrc_bcch_dl_sch = find_dissector_add_dependency("nr-rrc.bcch.dl.sch", proto_rlc_nr);
+    nr_rrc_pcch = find_dissector_add_dependency("nr-rrc.pcch", proto_pdcp_nr);
+    nr_rrc_ul_ccch = find_dissector_add_dependency("nr-rrc.ul.ccch", proto_rlc_nr);
+    nr_rrc_ul_ccch1 = find_dissector_add_dependency("nr-rrc.ul.ccch1", proto_rlc_nr);
+    nr_rrc_dl_ccch = find_dissector_add_dependency("nr-rrc.dl.ccch", proto_rlc_nr);
 }
 
 /*

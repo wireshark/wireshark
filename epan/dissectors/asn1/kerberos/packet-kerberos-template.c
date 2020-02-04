@@ -54,6 +54,7 @@
 #include <wsutil/wsgcrypt.h>
 #include <wsutil/file_util.h>
 #include <wsutil/str_util.h>
+#include <wsutil/pint.h>
 #include "packet-kerberos.h"
 #include "packet-netbios.h"
 #include "packet-tcp.h"
@@ -86,6 +87,8 @@ typedef struct kerberos_key {
 
 typedef struct {
 	guint32 msg_type;
+	guint32 errorcode;
+	gboolean try_nt_status;
 	guint32 etype;
 	guint32 padata_type;
 	guint32 is_enc_padata;
@@ -122,6 +125,9 @@ static gint hf_krb_rm_reserved = -1;
 static gint hf_krb_rm_reclen = -1;
 static gint hf_krb_provsrv_location = -1;
 static gint hf_krb_pw_salt = -1;
+static gint hf_krb_ext_error_nt_status = -1;
+static gint hf_krb_ext_error_reserved = -1;
+static gint hf_krb_ext_error_flags = -1;
 static gint hf_krb_address_ip = -1;
 static gint hf_krb_address_netbios = -1;
 static gint hf_krb_address_ipv6 = -1;
@@ -187,7 +193,6 @@ static expert_field ei_krb_gssapi_dlglen = EI_INIT;
 static dissector_handle_t krb4_handle=NULL;
 
 /* Global variables */
-static guint32 krb5_errorcode;
 static guint32 gbl_keytype;
 static gboolean gbl_do_col_info;
 
@@ -278,9 +283,38 @@ add_encryption_key(packet_info *pinfo, int keytype, int keylength, const char *k
 	/*XXX this needs to be freed later */
 	new_key->keyvalue=(char *)g_memdup(keyvalue, keylength);
 }
+
+static void used_encryption_key(proto_tree *tree, packet_info *pinfo,
+				enc_key_t *ek, int usage, tvbuff_t *cryptotvb)
+{
+	proto_tree_add_expert_format(tree, pinfo, &ei_kerberos_decrypted_keytype,
+				     cryptotvb, 0, 0,
+				     "Decrypted keytype %d usage %d in frame %u "
+				     "using %s (%02x%02x%02x%02x...)",
+				     ek->keytype, usage, pinfo->fd->num, ek->key_origin,
+				     ek->keyvalue[0] & 0xFF, ek->keyvalue[1] & 0xFF,
+				     ek->keyvalue[2] & 0xFF, ek->keyvalue[3] & 0xFF);
+}
+
 #endif /* HAVE_HEIMDAL_KERBEROS || HAVE_MIT_KERBEROS */
 
 #if defined(HAVE_MIT_KERBEROS)
+
+#ifdef HAVE_KRB5_PAC_VERIFY
+static void used_signing_key(proto_tree *tree, packet_info *pinfo,
+			     enc_key_t *ek, tvbuff_t *tvb,
+			     krb5_cksumtype checksum,
+			     const char *reason)
+{
+	proto_tree_add_expert_format(tree, pinfo, &ei_kerberos_decrypted_keytype,
+				     tvb, 0, 0,
+				     "%s checksum %d keytype %d in frame %u "
+				     "using %s (%02x%02x%02x%02x...)",
+				     reason, checksum, ek->keytype, pinfo->fd->num, ek->key_origin,
+				     ek->keyvalue[0] & 0xFF, ek->keyvalue[1] & 0xFF,
+				     ek->keyvalue[2] & 0xFF, ek->keyvalue[3] & 0xFF);
+}
+#endif /* HAVE_KRB5_PAC_VERIFY */
 
 static krb5_context krb5_ctx;
 
@@ -364,6 +398,68 @@ read_keytab_file(const char *filename)
 	}
 }
 
+static krb5_error_code
+decrypt_krb5_with_cb(proto_tree *tree,
+		     packet_info *pinfo,
+		     int usage,
+		     int keytype,
+		     tvbuff_t *cryptotvb,
+		     krb5_error_code (*decrypt_cb_fn)(
+			const krb5_keyblock *key,
+			int usage,
+			void *decrypt_cb_data),
+		     void *decrypt_cb_data)
+{
+	krb5_error_code ret;
+	enc_key_t *ek;
+	krb5_keytab_entry key;
+
+	read_keytab_file_from_preferences();
+
+	for(ek=enc_key_list;ek;ek=ek->next){
+		/* shortcircuit and bail out if enctypes are not matching */
+		if((keytype != -1) && (ek->keytype != keytype)) {
+			continue;
+		}
+
+		key.key.enctype=ek->keytype;
+		key.key.length=ek->keylength;
+		key.key.contents=ek->keyvalue;
+		ret = decrypt_cb_fn(&(key.key), usage, decrypt_cb_data);
+		if(ret == 0) {
+			used_encryption_key(tree, pinfo, ek, usage, cryptotvb);
+			return 0;
+		}
+	}
+
+	return -1;
+}
+
+struct decrypt_krb5_data_state {
+	krb5_data input;
+	krb5_data output;
+};
+
+static krb5_error_code
+decrypt_krb5_data_cb(const krb5_keyblock *key,
+		     int usage,
+		     void *decrypt_cb_data)
+{
+	struct decrypt_krb5_data_state *state =
+		(struct decrypt_krb5_data_state *)decrypt_cb_data;
+	krb5_enc_data input;
+
+	memset(&input, 0, sizeof(input));
+	input.enctype = key->enctype;
+	input.ciphertext = state->input;
+
+	return krb5_c_decrypt(krb5_ctx,
+			      key,
+			      usage,
+			      0,
+			      &input,
+			      &state->output);
+}
 
 guint8 *
 decrypt_krb5_data(proto_tree *tree _U_, packet_info *pinfo,
@@ -372,10 +468,8 @@ decrypt_krb5_data(proto_tree *tree _U_, packet_info *pinfo,
 					int keytype,
 					int *datalen)
 {
+	struct decrypt_krb5_data_state state;
 	krb5_error_code ret;
-	enc_key_t *ek;
-	krb5_data data = {0,0,NULL};
-	krb5_keytab_entry key;
 	int length = tvb_captured_length(cryptotvb);
 	const guint8 *cryptotext = tvb_get_ptr(cryptotvb, 0, length);
 
@@ -389,44 +483,356 @@ decrypt_krb5_data(proto_tree *tree _U_, packet_info *pinfo,
 		return NULL;
 	}
 
+	memset(&state, 0, sizeof(state));
+	state.input.length = length;
+	state.input.data = (guint8 *)cryptotext;
+	state.output.data = (char *)wmem_alloc(pinfo->pool, length);
+	state.output.length = length;
+
+	ret = decrypt_krb5_with_cb(tree,
+				   pinfo,
+				   usage,
+				   keytype,
+				   cryptotvb,
+				   decrypt_krb5_data_cb,
+				   &state);
+	if (ret != 0) {
+		return NULL;
+	}
+
+	if (datalen) {
+		*datalen = state.output.length;
+	}
+	return (guint8 *)state.output.data;
+}
+USES_APPLE_RST
+
+#ifdef KRB5_CRYPTO_TYPE_SIGN_ONLY
+struct decrypt_krb5_krb_cfx_dce_state {
+	const guint8 *gssapi_header_ptr;
+	guint gssapi_header_len;
+	tvbuff_t *gssapi_encrypted_tvb;
+	guint8 *gssapi_payload;
+	guint gssapi_payload_len;
+	const guint8 *gssapi_trailer_ptr;
+	guint gssapi_trailer_len;
+	tvbuff_t *checksum_tvb;
+	guint8 *checksum;
+	guint checksum_len;
+};
+
+static krb5_error_code
+decrypt_krb5_krb_cfx_dce_cb(const krb5_keyblock *key,
+			    int usage,
+			    void *decrypt_cb_data)
+{
+	struct decrypt_krb5_krb_cfx_dce_state *state =
+		(struct decrypt_krb5_krb_cfx_dce_state *)decrypt_cb_data;
+	unsigned int k5_headerlen = 0;
+	unsigned int k5_headerofs = 0;
+	unsigned int k5_trailerlen = 0;
+	unsigned int k5_trailerofs = 0;
+	size_t _k5_blocksize = 0;
+	guint k5_blocksize;
+	krb5_crypto_iov iov[6];
+	krb5_error_code ret;
+	guint checksum_remain = state->checksum_len;
+	guint checksum_crypt_len;
+
+	memset(iov, 0, sizeof(iov));
+
+	ret = krb5_c_crypto_length(krb5_ctx,
+				   key->enctype,
+				   KRB5_CRYPTO_TYPE_HEADER,
+				   &k5_headerlen);
+	if (ret != 0) {
+		return ret;
+	}
+	if (checksum_remain < k5_headerlen) {
+		return -1;
+	}
+	checksum_remain -= k5_headerlen;
+	k5_headerofs = checksum_remain;
+	ret = krb5_c_crypto_length(krb5_ctx,
+				   key->enctype,
+				   KRB5_CRYPTO_TYPE_TRAILER,
+				   &k5_trailerlen);
+	if (ret != 0) {
+		return ret;
+	}
+	if (checksum_remain < k5_trailerlen) {
+		return -1;
+	}
+	checksum_remain -= k5_trailerlen;
+	k5_trailerofs = checksum_remain;
+	checksum_crypt_len = checksum_remain;
+
+	ret = krb5_c_block_size(krb5_ctx,
+				key->enctype,
+				&_k5_blocksize);
+	if (ret != 0) {
+		return ret;
+	}
+	/*
+	 * The cast is required for the Windows build in order
+	 * to avoid the following warning.
+	 *
+	 * warning C4267: '-=': conversion from 'size_t' to 'guint',
+	 * possible loss of data
+	 */
+	k5_blocksize = (guint)_k5_blocksize;
+	if (checksum_remain < k5_blocksize) {
+		return -1;
+	}
+	checksum_remain -= k5_blocksize;
+	if (checksum_remain < 16) {
+		return -1;
+	}
+
+	tvb_memcpy(state->gssapi_encrypted_tvb,
+		   state->gssapi_payload,
+		   0,
+		   state->gssapi_payload_len);
+	tvb_memcpy(state->checksum_tvb,
+		   state->checksum,
+		   0,
+		   state->checksum_len);
+
+	iov[0].flags = KRB5_CRYPTO_TYPE_HEADER;
+	iov[0].data.data = state->checksum + k5_headerofs;
+	iov[0].data.length = k5_headerlen;
+
+	if (state->gssapi_header_ptr != NULL) {
+		iov[1].flags = KRB5_CRYPTO_TYPE_SIGN_ONLY;
+		iov[1].data.data = (guint8 *)(guintptr)state->gssapi_header_ptr;
+		iov[1].data.length = state->gssapi_header_len;
+	} else {
+		iov[1].flags = KRB5_CRYPTO_TYPE_EMPTY;
+	}
+
+	iov[2].flags = KRB5_CRYPTO_TYPE_DATA;
+	iov[2].data.data = state->gssapi_payload;
+	iov[2].data.length = state->gssapi_payload_len;
+
+	if (state->gssapi_trailer_ptr != NULL) {
+		iov[3].flags = KRB5_CRYPTO_TYPE_SIGN_ONLY;
+		iov[3].data.data = (guint8 *)(guintptr)state->gssapi_trailer_ptr;
+		iov[3].data.length = state->gssapi_trailer_len;
+	} else {
+		iov[3].flags = KRB5_CRYPTO_TYPE_EMPTY;
+	}
+
+	iov[4].flags = KRB5_CRYPTO_TYPE_DATA;
+	iov[4].data.data = state->checksum;
+	iov[4].data.length = checksum_crypt_len;
+
+	iov[5].flags = KRB5_CRYPTO_TYPE_TRAILER;
+	iov[5].data.data = state->checksum + k5_trailerofs;
+	iov[5].data.length = k5_trailerlen;
+
+	return krb5_c_decrypt_iov(krb5_ctx,
+				  key,
+				  usage,
+				  0,
+				  iov,
+				  6);
+}
+
+tvbuff_t *
+decrypt_krb5_krb_cfx_dce(proto_tree *tree,
+			 packet_info *pinfo,
+			 int usage,
+			 int keytype,
+			 tvbuff_t *gssapi_header_tvb,
+			 tvbuff_t *gssapi_encrypted_tvb,
+			 tvbuff_t *gssapi_trailer_tvb,
+			 tvbuff_t *checksum_tvb)
+{
+	struct decrypt_krb5_krb_cfx_dce_state state;
+	tvbuff_t *gssapi_decrypted_tvb = NULL;
+	krb5_error_code ret;
+
+	/* don't do anything if we are not attempting to decrypt data */
+	if (!krb_decrypt) {
+		return NULL;
+	}
+
+	memset(&state, 0, sizeof(state));
+
+	/* make sure we have all the data we need */
+#define __CHECK_TVB_LEN(__tvb) (tvb_captured_length(__tvb) < tvb_reported_length(__tvb))
+	if (gssapi_header_tvb != NULL) {
+		if (__CHECK_TVB_LEN(gssapi_header_tvb)) {
+			return NULL;
+		}
+
+		state.gssapi_header_len = tvb_captured_length(gssapi_header_tvb);
+		state.gssapi_header_ptr = tvb_get_ptr(gssapi_header_tvb,
+						       0,
+						       state.gssapi_header_len);
+	}
+	if (gssapi_encrypted_tvb == NULL || __CHECK_TVB_LEN(gssapi_encrypted_tvb)) {
+		return NULL;
+	}
+	state.gssapi_encrypted_tvb = gssapi_encrypted_tvb;
+	state.gssapi_payload_len = tvb_captured_length(gssapi_encrypted_tvb);
+	state.gssapi_payload = (guint8 *)wmem_alloc0(pinfo->pool, state.gssapi_payload_len);
+	if (state.gssapi_payload == NULL) {
+		return NULL;
+	}
+	if (gssapi_trailer_tvb != NULL) {
+		if (__CHECK_TVB_LEN(gssapi_trailer_tvb)) {
+			return NULL;
+		}
+
+		state.gssapi_trailer_len = tvb_captured_length(gssapi_trailer_tvb);
+		state.gssapi_trailer_ptr = tvb_get_ptr(gssapi_trailer_tvb,
+						       0,
+						       state.gssapi_trailer_len);
+	}
+	if (checksum_tvb == NULL || __CHECK_TVB_LEN(checksum_tvb)) {
+		return NULL;
+	}
+	state.checksum_tvb = checksum_tvb;
+	state.checksum_len = tvb_captured_length(checksum_tvb);
+	state.checksum = (guint8 *)wmem_alloc0(pinfo->pool, state.checksum_len);
+	if (state.checksum == NULL) {
+		return NULL;
+	}
+
+	ret = decrypt_krb5_with_cb(tree,
+				   pinfo,
+				   usage,
+				   keytype,
+				   gssapi_encrypted_tvb,
+				   decrypt_krb5_krb_cfx_dce_cb,
+				   &state);
+	wmem_free(pinfo->pool, state.checksum);
+	if (ret != 0) {
+		wmem_free(pinfo->pool, state.gssapi_payload);
+		return NULL;
+	}
+
+	gssapi_decrypted_tvb = tvb_new_child_real_data(gssapi_encrypted_tvb,
+						       state.gssapi_payload,
+						       state.gssapi_payload_len,
+						       state.gssapi_payload_len);
+	if (gssapi_decrypted_tvb == NULL) {
+		wmem_free(pinfo->pool, state.gssapi_payload);
+		return NULL;
+	}
+
+	return gssapi_decrypted_tvb;
+}
+#else /* NOT KRB5_CRYPTO_TYPE_SIGN_ONLY */
+#define NEED_DECRYPT_KRB5_KRB_CFX_DCE_NOOP 1
+#endif /* NOT KRB5_CRYPTO_TYPE_SIGN_ONLY */
+
+#ifdef HAVE_KRB5_PAC_VERIFY
+/*
+ * macOS up to 10.14.5 only has a MIT shim layer on top
+ * of heimdal. It means that krb5_pac_verify() is not available
+ * in /usr/lib/libkrb5.dylib
+ *
+ * https://opensource.apple.com/tarballs/Heimdal/Heimdal-520.260.1.tar.gz
+ * https://opensource.apple.com/tarballs/MITKerberosShim/MITKerberosShim-71.200.1.tar.gz
+ */
+
+extern krb5_error_code
+krb5int_c_mandatory_cksumtype(krb5_context, krb5_enctype, krb5_cksumtype *);
+
+static void
+verify_krb5_pac(proto_tree *tree _U_, asn1_ctx_t *actx, tvbuff_t *pactvb)
+{
+	krb5_error_code ret;
+	enc_key_t *ek = NULL;;
+	krb5_data checksum_data = {0,0,NULL};
+	krb5_cksumtype server_checksum = 0;
+	krb5_cksumtype kdc_checksum = 0;
+	int length = tvb_captured_length(pactvb);
+	const guint8 *pacbuffer = NULL;
+	krb5_pac pac;
+
+	/* don't do anything if we are not attempting to decrypt data */
+	if(!krb_decrypt || length < 1){
+		return;
+	}
+
+	/* make sure we have all the data we need */
+	if (tvb_captured_length(pactvb) < tvb_reported_length(pactvb)) {
+		return;
+	}
+
+	pacbuffer = tvb_get_ptr(pactvb, 0, length);
+
+	ret = krb5_pac_parse(krb5_ctx, pacbuffer, length, &pac);
+	if (ret != 0) {
+		proto_tree_add_expert_format(tree, actx->pinfo, &ei_kerberos_decrypted_keytype,
+					     pactvb, 0, 0,
+					     "Failed to parse PAC buffer %d in frame %u",
+					     ret, actx->pinfo->fd->num);
+		return;
+	}
+
+	ret = krb5_pac_get_buffer(krb5_ctx, pac, KRB5_PAC_SERVER_CHECKSUM,
+				  &checksum_data);
+	if (ret == 0) {
+		server_checksum = pletoh32(checksum_data.data);
+		krb5_free_data_contents(krb5_ctx, &checksum_data);
+	};
+	ret = krb5_pac_get_buffer(krb5_ctx, pac, KRB5_PAC_PRIVSVR_CHECKSUM,
+				  &checksum_data);
+	if (ret == 0) {
+		kdc_checksum = pletoh32(checksum_data.data);
+		krb5_free_data_contents(krb5_ctx, &checksum_data);
+	};
+
 	read_keytab_file_from_preferences();
-	data.data = (char *)wmem_alloc(pinfo->pool, length);
-	data.length = length;
 
 	for(ek=enc_key_list;ek;ek=ek->next){
-		krb5_enc_data input;
+		krb5_keyblock keyblock;
+		krb5_cksumtype checksumtype = 0;
 
-		/* shortcircuit and bail out if enctypes are not matching */
-		if((keytype != -1) && (ek->keytype != keytype)) {
+		if (server_checksum == 0 && kdc_checksum == 0) {
+			break;
+		}
+
+		ret = krb5int_c_mandatory_cksumtype(krb5_ctx, ek->keytype,
+						    &checksumtype);
+		if (ret != 0) {
 			continue;
 		}
 
-		input.enctype = ek->keytype;
-		input.ciphertext.length = length;
-		input.ciphertext.data = (guint8 *)cryptotext;
+		keyblock.magic = KV5M_KEYBLOCK;
+		keyblock.enctype = ek->keytype;
+		keyblock.length = ek->keylength;
+		keyblock.contents = (guint8 *)ek->keyvalue;
 
-		key.key.enctype=ek->keytype;
-		key.key.length=ek->keylength;
-		key.key.contents=ek->keyvalue;
-		ret = krb5_c_decrypt(krb5_ctx, &(key.key), usage, 0, &input, &data);
-		if(ret == 0){
-			char *user_data;
-
-			expert_add_info_format(pinfo, NULL, &ei_kerberos_decrypted_keytype,
-								   "Decrypted keytype %d in frame %u using %s",
-								   ek->keytype, pinfo->num, ek->key_origin);
-
-			user_data=data.data;
-			if (datalen) {
-				*datalen = data.length;
+		if (checksumtype == server_checksum) {
+			ret = krb5_pac_verify(krb5_ctx, pac, 0, NULL,
+					      &keyblock, NULL);
+			if (ret == 0) {
+				used_signing_key(tree, actx->pinfo, ek, pactvb,
+						 server_checksum, "Verified Server");
+				server_checksum = 0;
 			}
-			return user_data;
 		}
+
+		if (checksumtype == kdc_checksum) {
+			ret = krb5_pac_verify(krb5_ctx, pac, 0, NULL,
+					      NULL, &keyblock);
+			if (ret == 0) {
+				used_signing_key(tree, actx->pinfo, ek, pactvb,
+						 kdc_checksum, "Verified KDC");
+				kdc_checksum = 0;
+			}
+		}
+
 	}
 
-	return NULL;
+	krb5_pac_free(krb5_ctx, pac);
 }
-USES_APPLE_RST
+#endif /* HAVE_KRB5_PAC_VERIFY */
 
 #elif defined(HAVE_HEIMDAL_KERBEROS)
 static krb5_context krb5_ctx;
@@ -571,9 +977,7 @@ decrypt_krb5_data(proto_tree *tree _U_, packet_info *pinfo,
 		if((ret == 0) && (length>0)){
 			char *user_data;
 
-			expert_add_info_format(pinfo, NULL, &ei_kerberos_decrypted_keytype,
-								   "Decrypted keytype %d in frame %u using %s",
-								   ek->keytype, pinfo->num, ek->key_origin);
+			used_encryption_key(tree, pinfo, ek, usage, cryptotvb);
 
 			krb5_crypto_destroy(krb5_ctx, crypto);
 			/* return a private wmem_alloced blob to the caller */
@@ -587,6 +991,8 @@ decrypt_krb5_data(proto_tree *tree _U_, packet_info *pinfo,
 	}
 	return NULL;
 }
+
+#define NEED_DECRYPT_KRB5_KRB_CFX_DCE_NOOP 1
 
 #elif defined (HAVE_LIBNETTLE)
 
@@ -793,6 +1199,21 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 }
 
 #endif	/* HAVE_MIT_KERBEROS / HAVE_HEIMDAL_KERBEROS / HAVE_LIBNETTLE */
+
+#ifdef NEED_DECRYPT_KRB5_KRB_CFX_DCE_NOOP
+tvbuff_t *
+decrypt_krb5_krb_cfx_dce(proto_tree *tree _U_,
+			 packet_info *pinfo _U_,
+			 int usage _U_,
+			 int keytype _U_,
+			 tvbuff_t *gssapi_header_tvb _U_,
+			 tvbuff_t *gssapi_encrypted_tvb _U_,
+			 tvbuff_t *gssapi_trailer_tvb _U_,
+			 tvbuff_t *checksum_tvb _U_)
+{
+	return NULL;
+}
+#endif /* NEED_DECRYPT_KRB5_KRB_CFX_DCE_NOOP */
 
 #define	INET6_ADDRLEN	16
 
@@ -1533,16 +1954,62 @@ dissect_krb5_PA_PROV_SRV_LOCATION(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 static int
 dissect_krb5_PW_SALT(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_)
 {
-	guint length;
+	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+	gint length;
+	guint32 nt_status = 0;
+	guint32 reserved = 0;
+	guint32 flags = 0;
 
-	/* Microsoft stores a special 12 byte blob here
+	/*
+	 * Microsoft stores a special 12 byte blob here
+	 * [MS-KILE] 2.2.1 KERB-EXT-ERROR
 	 * guint32 NT_status
-	 * guint32 unknown
-	 * guint32 unknown
-	 * However RFC 4120 section 5.2.7.3 leaves it undefined.
-	 * Therefore we only print the hex value.
+	 * guint32 reserved (== 0)
+	 * guint32 flags (at least 0x00000001 is set)
 	 */
 	length = tvb_reported_length_remaining(tvb, offset);
+	if (length <= 0) {
+		return offset;
+	}
+	if (length != 12) {
+		goto no_error;
+	}
+
+	if (private_data->errorcode == 0) {
+		goto no_error;
+	}
+
+	if (!private_data->try_nt_status) {
+		goto no_error;
+	}
+
+	nt_status = tvb_get_letohl(tvb, offset);
+	reserved = tvb_get_letohl(tvb, offset + 4);
+	flags = tvb_get_letohl(tvb, offset + 8);
+
+	if (nt_status == 0 || reserved != 0 || flags == 0) {
+		goto no_error;
+	}
+
+	proto_tree_add_item(tree, hf_krb_ext_error_nt_status, tvb, offset, 4,
+			ENC_LITTLE_ENDIAN);
+	col_append_fstr(actx->pinfo->cinfo, COL_INFO,
+			" NT Status: %s",
+			val_to_str(nt_status, NT_errors,
+			"Unknown error code %#x"));
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_krb_ext_error_reserved, tvb, offset, 4,
+			ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_krb_ext_error_flags, tvb, offset, 4,
+			ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	return offset;
+
+ no_error:
 	proto_tree_add_item(tree, hf_krb_pw_salt, tvb, offset, length, ENC_NA);
 	offset += length;
 
@@ -1838,6 +2305,10 @@ dissect_krb5_AD_WIN2K_PAC(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
 	guint32 version;
 	guint32 i;
 
+#if defined(HAVE_MIT_KERBEROS) && defined(HAVE_KRB5_PAC_VERIFY)
+	verify_krb5_pac(tree, actx, tvb);
+#endif
+
 	/* first in the PAC structure comes the number of entries */
 	entries=tvb_get_letohl(tvb, offset);
 	proto_tree_add_uint(tree, hf_krb_w2k_pac_entries, tvb, offset, 4, entries);
@@ -2105,6 +2576,15 @@ void proto_register_kerberos(void) {
 		NULL, 0, "PacketCable PROV SRV Location", HFILL }},
 	{ &hf_krb_pw_salt,
 		{ "pw-salt", "kerberos.pw_salt", FT_BYTES, BASE_NONE,
+		NULL, 0, NULL, HFILL }},
+	{ &hf_krb_ext_error_nt_status, /* we keep kerberos.smb.nt_status for compat reasons */
+		{ "NT Status", "kerberos.smb.nt_status", FT_UINT32, BASE_HEX,
+		VALS(NT_errors), 0, "NT Status code", HFILL }},
+	{ &hf_krb_ext_error_reserved,
+		{ "Reserved", "kerberos.ext_error.reserved", FT_UINT32, BASE_HEX,
+		NULL, 0, NULL, HFILL }},
+	{ &hf_krb_ext_error_flags,
+		{ "Flags", "kerberos.ext_error.flags", FT_UINT32, BASE_HEX,
 		NULL, 0, NULL, HFILL }},
 	{ &hf_krb_address_ip, {
 		"IP Address", "kerberos.addr_ip", FT_IPv4, BASE_NONE,

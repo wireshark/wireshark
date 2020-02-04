@@ -12,8 +12,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
-
-
+#include <epan/cisco_pid.h>
 
 /*
  * See
@@ -291,7 +290,7 @@ proto_reg_handoff_udld(void)
     dissector_handle_t udld_handle;
 
     udld_handle = create_dissector_handle(dissect_udld, proto_udld);
-    dissector_add_uint("llc.cisco_pid", 0x0111, udld_handle);
+    dissector_add_uint("llc.cisco_pid", CISCO_PID_UDLD, udld_handle);
     dissector_add_uint("chdlc.protocol", 0x0111, udld_handle);
 }
 

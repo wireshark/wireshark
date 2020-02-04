@@ -4063,7 +4063,7 @@ proto_register_rpc(void)
 			NULL, RPC_RM_FRAGLEN, NULL, HFILL }},
 		{ &hf_rpc_xid, {
 			"XID", "rpc.xid", FT_UINT32, BASE_HEX_DEC,
-			NULL, 0, NULL, HFILL }},
+			NULL, 0, "Transaction identifier", HFILL }},
 		{ &hf_rpc_msgtype, {
 			"Message Type", "rpc.msgtyp", FT_UINT32, BASE_DEC,
 			VALS(rpc_msg_type), 0, NULL, HFILL }},

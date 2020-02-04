@@ -267,6 +267,8 @@ RtpAnalysisDialog::RtpAnalysisDialog(QWidget &parent, CaptureFile &cf, rtpstream
     stream_ctx_menu_.addAction(ui->actionSaveReverseCsv);
     stream_ctx_menu_.addSeparator();
     stream_ctx_menu_.addAction(ui->actionSaveGraph);
+    set_action_shortcuts_visible_in_context_menu(stream_ctx_menu_.actions());
+
     ui->forwardTreeWidget->installEventFilter(this);
     ui->forwardTreeWidget->setContextMenuPolicy(Qt::CustomContextMenu);
     ui->forwardTreeWidget->header()->setSortIndicator(0, Qt::AscendingOrder);
@@ -1022,6 +1024,8 @@ void RtpAnalysisDialog::showPlayer()
     stream_info.packet_count = fwd_statinfo_.packet_count;
     stream_info.setup_frame_number = fwd_statinfo_.setup_frame_number;
     nstime_copy(&stream_info.start_rel_time, &fwd_statinfo_.start_rel_time);
+    nstime_copy(&stream_info.stop_rel_time, &fwd_statinfo_.stop_rel_time);
+    nstime_copy(&stream_info.start_abs_time, &fwd_statinfo_.start_abs_time);
     rtp_player_dialog->addRtpStream(&stream_info);
 
     if (num_streams_ > 1) {
@@ -1030,6 +1034,8 @@ void RtpAnalysisDialog::showPlayer()
         stream_info.packet_count = rev_statinfo_.packet_count;
         stream_info.setup_frame_number = rev_statinfo_.setup_frame_number;
         nstime_copy(&stream_info.start_rel_time, &rev_statinfo_.start_rel_time);
+        nstime_copy(&stream_info.stop_rel_time, &rev_statinfo_.stop_rel_time);
+        nstime_copy(&stream_info.start_abs_time, &rev_statinfo_.start_abs_time);
         rtp_player_dialog->addRtpStream(&stream_info);
     }
 
@@ -1037,13 +1043,14 @@ void RtpAnalysisDialog::showPlayer()
 
     rtp_player_dialog->setWindowModality(Qt::ApplicationModal);
     rtp_player_dialog->setAttribute(Qt::WA_DeleteOnClose);
+    rtp_player_dialog->setMarkers();
     rtp_player_dialog->show();
 #endif // QT_MULTIMEDIA_LIB
 }
 
 /* Convert one packet payload to samples in row */
 /* It supports G.711 now, but can be extended to any other codecs */
-size_t RtpAnalysisDialog::convert_payload_to_samples(unsigned int payload_type, QTemporaryFile *tempfile, uint8_t *pd_out, size_t payload_len, struct _GHashTable *decoders_hash)
+size_t RtpAnalysisDialog::convert_payload_to_samples(unsigned int payload_type, const gchar *payload_type_names[256], QTemporaryFile *tempfile, uint8_t *pd_out, size_t payload_len, struct _GHashTable *decoders_hash)
 {
     unsigned int channels = 0;
     unsigned int sample_rate = 0;
@@ -1053,6 +1060,7 @@ size_t RtpAnalysisDialog::convert_payload_to_samples(unsigned int payload_type, 
     /* Decoded audio is in samples (2 bytes) */
     SAMPLE *decode_buff = Q_NULLPTR;
     size_t decoded_samples;
+    const gchar *payload_type_str = Q_NULLPTR;
 
     tempfile->read((char *)payload_data, payload_len);
     if (PT_UNDF_123 == payload_type) {
@@ -1060,26 +1068,33 @@ size_t RtpAnalysisDialog::convert_payload_to_samples(unsigned int payload_type, 
         return 0;
     }
 
+    if (payload_type_names[payload_type] != NULL) {
+        payload_type_str = payload_type_names[payload_type];
+    }
+
     /* Decoder returns count of bytes, but data are samples */
-    decoded_bytes = decode_rtp_packet_payload(payload_type, Q_NULLPTR, payload_data, payload_len, &decode_buff, decoders_hash, &channels, &sample_rate);
+    decoded_bytes = decode_rtp_packet_payload(payload_type, payload_type_str, payload_data, payload_len, &decode_buff, decoders_hash, &channels, &sample_rate);
     decoded_samples = decoded_bytes/2;
 
-    if (sample_rate != 8000) {
-        sae_unsupported_codec_ = true;
-        decoded_samples = 0;
-    } else if (decoded_samples > 0) {
-        /* Change byte order to network order */
-        for(size_t i = 0; i < decoded_samples; i++) {
-            SAMPLE sample;
-            uint8_t pd[4];
+    if (decoded_samples > 0) {
+        if (sample_rate == 8000) {
+            /* Change byte order to network order */
+            for(size_t i = 0; i < decoded_samples; i++) {
+                SAMPLE sample;
+                uint8_t pd[4];
 
-            sample = decode_buff[i];
-            phton16(pd, sample);
-            pd_out[2*i] = pd[0];
-            pd_out[2*i+1] = pd[1];
+                sample = decode_buff[i];
+                phton16(pd, sample);
+                pd_out[2*i] = pd[0];
+                pd_out[2*i+1] = pd[1];
+            }
+        } else {
+            sae_unsupported_rate_ = true;
+            decoded_samples = 0;
         }
     } else {
         sae_unsupported_codec_ = true;
+        decoded_samples = 0;
     }
     g_free(decode_buff);
 
@@ -1113,7 +1128,7 @@ bool RtpAnalysisDialog::saveAudioAUSilence(size_t total_len, QFile *save_file, g
     return true;
 }
 
-bool RtpAnalysisDialog::saveAudioAUUnidir(tap_rtp_stat_t &statinfo, QTemporaryFile *tempfile, QFile *save_file, int64_t header_end, gboolean *stop_flag, gboolean interleave, size_t prefix_silence)
+bool RtpAnalysisDialog::saveAudioAUUnidir(tap_rtp_stat_t &statinfo, const gchar *payload_type_names[256], QTemporaryFile *tempfile, QFile *save_file, int64_t header_end, gboolean *stop_flag, gboolean interleave, size_t prefix_silence)
 {
     int64_t nchars;
     uint8_t pd_out[2*4000];
@@ -1131,7 +1146,7 @@ bool RtpAnalysisDialog::saveAudioAUUnidir(tap_rtp_stat_t &statinfo, QTemporaryFi
 
         ui->progressFrame->setValue(int(tempfile->pos() * 100 / tempfile->size()));
 
-        sample_count=convert_payload_to_samples(save_data.payload_type, tempfile , pd_out, save_data.payload_len, decoders_hash);
+        sample_count=convert_payload_to_samples(save_data.payload_type, payload_type_names, tempfile, pd_out, save_data.payload_len, decoders_hash);
 
         if (!isSAEOK()) {
             return false;
@@ -1160,13 +1175,13 @@ bool RtpAnalysisDialog::saveAudioAUUnidir(tap_rtp_stat_t &statinfo, QTemporaryFi
     return true;
 }
 
-bool RtpAnalysisDialog::saveAudioAUBidir(tap_rtp_stat_t &fwd_statinfo, tap_rtp_stat_t &rev_statinfo, QTemporaryFile *fwd_tempfile, QTemporaryFile *rev_tempfile, QFile *save_file, int64_t header_end, gboolean *stop_flag, size_t prefix_silence_fwd, size_t prefix_silence_rev)
+bool RtpAnalysisDialog::saveAudioAUBidir(tap_rtp_stat_t &fwd_statinfo, tap_rtp_stat_t &rev_statinfo, const gchar *fwd_payload_type_names[256], const gchar *rev_payload_type_names[256], QTemporaryFile *fwd_tempfile, QTemporaryFile *rev_tempfile, QFile *save_file, int64_t header_end, gboolean *stop_flag, size_t prefix_silence_fwd, size_t prefix_silence_rev)
 {
-    if (!saveAudioAUUnidir(fwd_statinfo, fwd_tempfile, save_file, header_end, stop_flag, true, prefix_silence_fwd)) {
+    if (!saveAudioAUUnidir(fwd_statinfo, fwd_payload_type_names, fwd_tempfile, save_file, header_end, stop_flag, true, prefix_silence_fwd)) {
         return false;
     }
 
-    if (!saveAudioAUUnidir(rev_statinfo, rev_tempfile, save_file, header_end+2, stop_flag, true, prefix_silence_rev)) {
+    if (!saveAudioAUUnidir(rev_statinfo, rev_payload_type_names, rev_tempfile, save_file, header_end+2, stop_flag, true, prefix_silence_rev)) {
         return false;
     }
 
@@ -1299,7 +1314,7 @@ bool RtpAnalysisDialog::saveAudioAU(StreamDirection direction, QFile *save_file,
             if (!saveAudioAUSilence(fwd_total_len + fwd_samples_diff + bidir_samples_diff, save_file, stop_flag)) {
                 return false;
             }
-            if (!saveAudioAUUnidir(fwd_statinfo_.rtp_stats, fwd_tempfile_, save_file, header_end, stop_flag, false, fwd_samples_diff + bidir_samples_diff)) {
+            if (!saveAudioAUUnidir(fwd_statinfo_.rtp_stats, fwd_statinfo_.payload_type_names, fwd_tempfile_, save_file, header_end, stop_flag, false, fwd_samples_diff + bidir_samples_diff)) {
                 return false;
             }
             break;
@@ -1311,7 +1326,7 @@ bool RtpAnalysisDialog::saveAudioAU(StreamDirection direction, QFile *save_file,
                 return false;
             }
 
-            if (!saveAudioAUUnidir(rev_statinfo_.rtp_stats, rev_tempfile_, save_file, header_end, stop_flag, false, rev_samples_diff + bidir_samples_diff)) {
+            if (!saveAudioAUUnidir(rev_statinfo_.rtp_stats, rev_statinfo_.payload_type_names, rev_tempfile_, save_file, header_end, stop_flag, false, rev_samples_diff + bidir_samples_diff)) {
                 return false;
             }
             break;
@@ -1324,7 +1339,7 @@ bool RtpAnalysisDialog::saveAudioAU(StreamDirection direction, QFile *save_file,
             if (!saveAudioAUSilence((total_len + bidir_samples_diff) * 2, save_file, stop_flag)) {
                 return false;
             }
-            if (!saveAudioAUBidir(fwd_statinfo_.rtp_stats, rev_statinfo_.rtp_stats, fwd_tempfile_, rev_tempfile_, save_file, header_end, stop_flag, fwd_samples_diff + bidir_samples_diff, rev_samples_diff + bidir_samples_diff)) {
+            if (!saveAudioAUBidir(fwd_statinfo_.rtp_stats, rev_statinfo_.rtp_stats, fwd_statinfo_.payload_type_names, rev_statinfo_.payload_type_names, fwd_tempfile_, rev_tempfile_, save_file, header_end, stop_flag, fwd_samples_diff + bidir_samples_diff, rev_samples_diff + bidir_samples_diff)) {
                 return false;
             }
         }
@@ -1687,6 +1702,8 @@ void RtpAnalysisDialog::findStreams()
             fwd_statinfo_.packet_count = strinfo->packet_count;
             fwd_statinfo_.setup_frame_number = strinfo->setup_frame_number;
             nstime_copy(&fwd_statinfo_.start_rel_time, &strinfo->start_rel_time);
+            nstime_copy(&fwd_statinfo_.stop_rel_time, &strinfo->stop_rel_time);
+            nstime_copy(&fwd_statinfo_.start_abs_time, &strinfo->start_abs_time);
             num_streams_++;
         }
 
@@ -1695,6 +1712,8 @@ void RtpAnalysisDialog::findStreams()
             rev_statinfo_.packet_count = strinfo->packet_count;
             rev_statinfo_.setup_frame_number = strinfo->setup_frame_number;
             nstime_copy(&rev_statinfo_.start_rel_time, &strinfo->start_rel_time);
+            nstime_copy(&rev_statinfo_.stop_rel_time, &strinfo->stop_rel_time);
+            nstime_copy(&rev_statinfo_.start_abs_time, &strinfo->start_abs_time);
             num_streams_++;
             if (rev_statinfo_.id.ssrc == 0) {
                 rev_statinfo_.id.ssrc = strinfo->id.ssrc;

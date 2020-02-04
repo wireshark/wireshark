@@ -1,4 +1,4 @@
--- 3GPP TS 38.413 V15.5.0 (2019-09)
+-- 3GPP TS 38.413 V15.6.0 (2019-12)
 -- 9.4.7	Constant Definitions
 -- **************************************************************
 --
@@ -142,9 +142,9 @@ maxProtocolIEs							INTEGER ::= 65535
 	maxnoofTAIinAoI						INTEGER ::= 16
 	maxnoofTimePeriods					INTEGER ::= 2
 	maxnoofTNLAssociations				INTEGER ::= 32
-	maxnoofXnExtTLAs					INTEGER ::= 2
+	maxnoofXnExtTLAs					INTEGER ::= 16
 	maxnoofXnGTP-TLAs					INTEGER ::= 16
-	maxnoofXnTLAs						INTEGER ::= 16
+	maxnoofXnTLAs						INTEGER ::= 2
 
 -- **************************************************************
 --
@@ -325,6 +325,8 @@ maxProtocolIEs							INTEGER ::= 65535
 	id-EndpointIPAddressAndPort								ProtocolIE-ID ::= 169
 	id-LocationReportingAdditionalInfo						ProtocolIE-ID ::= 170
 	id-SourceToTarget-AMFInformationReroute					ProtocolIE-ID ::= 171
+	id-AdditionalULForwardingUPTNLInformation				ProtocolIE-ID ::= 172
+	id-SCTP-TLAs											ProtocolIE-ID ::= 173
 
 
 END

@@ -327,12 +327,12 @@ dissect_nvme_tcp_icreq(tvbuff_t *tvb,
 
     proto_tree_add_item(icreq_tree, hf_nvme_tcp_icreq_pfv, tvb, offset, 2,
             ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(icreq_tree, hf_nvme_tcp_icreq_maxr2t, tvb, offset + 2,
-            4, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(icreq_tree, hf_nvme_tcp_icreq_hpda, tvb, offset + 6, 1,
+    proto_tree_add_item(icreq_tree, hf_nvme_tcp_icreq_hpda, tvb, offset + 2, 1,
             ENC_NA);
-    proto_tree_add_item(icreq_tree, hf_nvme_tcp_icreq_digest, tvb, offset + 7,
+    proto_tree_add_item(icreq_tree, hf_nvme_tcp_icreq_digest, tvb, offset + 3,
             1, ENC_NA);
+    proto_tree_add_item(icreq_tree, hf_nvme_tcp_icreq_maxr2t, tvb, offset + 4,
+            4, ENC_LITTLE_ENDIAN);
 }
 
 static void

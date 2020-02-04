@@ -57,6 +57,9 @@
 // - Use scroll bars?
 // - Scroll during live captures
 // - Set ticks per pixel (e.g. pressing "2" sets 2 tpp).
+// - Explicitly handle missing values, e.g. via NAN.
+// - Add a "show missing" or "show zero" option to the UAT?
+//   It would add yet another graph configuration column.
 
 const qreal graph_line_width_ = 1.0;
 
@@ -292,14 +295,14 @@ static void io_graph_free_cb(void* p) {
 IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf, QString displayFilter) :
     WiresharkDialog(parent, cf),
     ui(new Ui::IOGraphDialog),
-    uat_model_(NULL),
-    uat_delegate_(NULL),
-    base_graph_(NULL),
-    tracer_(NULL),
+    uat_model_(nullptr),
+    uat_delegate_(nullptr),
+    base_graph_(nullptr),
+    tracer_(nullptr),
     start_time_(0.0),
     mouse_drags_(true),
-    rubber_band_(NULL),
-    stat_timer_(NULL),
+    rubber_band_(nullptr),
+    stat_timer_(nullptr),
     need_replot_(false),
     need_retap_(false),
     auto_axes_(true),
@@ -382,6 +385,7 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf, QString displayFi
     ctx_menu_.addAction(ui->actionDragZoom);
     ctx_menu_.addAction(ui->actionToggleTimeOrigin);
     ctx_menu_.addAction(ui->actionCrosshairs);
+    set_action_shortcuts_visible_in_context_menu(ctx_menu_.actions());
 
     iop->xAxis->setLabel(tr("Time (s)"));
 
@@ -421,6 +425,9 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf, QString displayFi
 
     ui->clearToolButton->setEnabled(uat_model_->rowCount() != 0);
 
+    ui->splitter->setStretchFactor(0, 95);
+    ui->splitter->setStretchFactor(1, 5);
+
     //XXX - resize columns?
 
     ProgressFrame::addToButtonBox(ui->buttonBox, &parent);
@@ -458,7 +465,7 @@ void IOGraphDialog::copyFromProfile(QString filename)
     }
 }
 
-void IOGraphDialog::addGraph(bool checked, QString name, QString dfilter, int color_idx, IOGraph::PlotStyles style, io_graph_item_unit_t value_units, QString yfield, int moving_average)
+void IOGraphDialog::addGraph(bool checked, QString name, QString dfilter, QRgb color_idx, IOGraph::PlotStyles style, io_graph_item_unit_t value_units, QString yfield, int moving_average)
 {
     // should not fail, but you never know.
     if (!uat_model_->insertRows(uat_model_->rowCount(), 1)) {
@@ -476,7 +483,7 @@ void IOGraphDialog::addGraph(bool checked, QString name, QString dfilter, int co
     uat_model_->setData(uat_model_->index(currentRow, colStyle), val_to_str_const(style, graph_style_vs, "None"));
     uat_model_->setData(uat_model_->index(currentRow, colYAxis), val_to_str_const(value_units, y_axis_vs, "Packets"));
     uat_model_->setData(uat_model_->index(currentRow, colYField), yfield);
-    uat_model_->setData(uat_model_->index(currentRow, colSMAPeriod), val_to_str_const(moving_average, moving_avg_vs, "None"));
+    uat_model_->setData(uat_model_->index(currentRow, colSMAPeriod), val_to_str_const((guint32) moving_average, moving_avg_vs, "None"));
 
     // due to an EditTrigger, this will also start editing.
     ui->graphUat->setCurrentIndex(new_index);
@@ -532,11 +539,11 @@ void IOGraphDialog::addDefaultGraph(bool enabled, int idx)
 {
     switch (idx % 2) {
     case 0:
-        addGraph(enabled, tr("All packets"), QString(), ColorUtils::graphColor(idx),
+        addGraph(enabled, tr("All Packets"), QString(), ColorUtils::graphColor(idx),
                  IOGraph::psLine, IOG_ITEM_UNIT_PACKETS, QString(), DEFAULT_MOVING_AVERAGE);
         break;
     default:
-        addGraph(enabled, tr("TCP errors"), "tcp.analysis.flags", ColorUtils::graphColor(idx),
+        addGraph(enabled, tr("TCP Errors"), "tcp.analysis.flags", ColorUtils::graphColor(4), // 4 = red
                  IOGraph::psBar, IOG_ITEM_UNIT_PACKETS, QString(), DEFAULT_MOVING_AVERAGE);
         break;
     }
@@ -1884,7 +1891,7 @@ void IOGraph::recalcGraphData(capture_file *cap_file, bool enable_scaling)
     unsigned int mavg_in_average_count = 0, mavg_left = 0, mavg_right = 0;
     unsigned int mavg_to_remove = 0, mavg_to_add = 0;
     double mavg_cumulated = 0;
-    QCPAxis *x_axis = NULL;
+    QCPAxis *x_axis = nullptr;
 
     if (graph_) {
         graph_->data()->clear();
@@ -1950,11 +1957,14 @@ void IOGraph::recalcGraphData(capture_file *cap_file, bool enable_scaling)
             }
         }
 
-        if (graph_) {
-            graph_->addData(ts, val);
-        }
-        if (bars_) {
-            bars_->addData(ts, val);
+        if (hasItemToShow(i, val))
+        {
+            if (graph_) {
+                graph_->addData(ts, val);
+            }
+            if (bars_) {
+                bars_->addData(ts, val);
+            }
         }
 //        qDebug() << "=rgd i" << i << ts << val;
     }
@@ -2064,6 +2074,47 @@ void IOGraph::reloadValueUnitField()
     if (vu_field_.length() > 0) {
         setValueUnitField(vu_field_);
     }
+}
+
+// Check if a packet is available at the given interval (idx).
+bool IOGraph::hasItemToShow(int idx, double value) const
+{
+    g_assert(idx < max_io_items_);
+
+    bool result = false;
+
+    const io_graph_item_t *item = &items_[idx];
+
+    switch (val_units_) {
+    case IOG_ITEM_UNIT_PACKETS:
+    case IOG_ITEM_UNIT_BYTES:
+    case IOG_ITEM_UNIT_BITS:
+    case IOG_ITEM_UNIT_CALC_FRAMES:
+    case IOG_ITEM_UNIT_CALC_FIELDS:
+        if(value == 0.0 && (graph_ && graph_->scatterStyle().shape() != QCPScatterStyle::ssNone)) {
+            result = false;
+        }
+        else {
+            result = true;
+        }
+        break;
+
+    case IOG_ITEM_UNIT_CALC_SUM:
+    case IOG_ITEM_UNIT_CALC_MAX:
+    case IOG_ITEM_UNIT_CALC_MIN:
+    case IOG_ITEM_UNIT_CALC_AVERAGE:
+    case IOG_ITEM_UNIT_CALC_LOAD:
+        if (item->fields) {
+            result = true;
+        }
+        break;
+
+    default:
+        result = true;
+        break;
+    }
+
+    return result;
 }
 
 void IOGraph::setInterval(int interval)

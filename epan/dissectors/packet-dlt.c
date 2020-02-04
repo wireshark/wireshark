@@ -1,7 +1,7 @@
 /* packet-dlt.c
  * DLT Dissector
- * By Dr. Lars Voelker <lars-github@larsvoelker.de> / <lars.voelker@bmw.de>
- * Copyright 2013-2019 Dr. Lars Voelker
+ * By Dr. Lars Voelker <lars-github@larsvoelker.de> / <lars.voelker@bmw.de> / <lars.voelker@technica-engineering.de>
+ * Copyright 2013-2020 Dr. Lars Voelker
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -20,6 +20,7 @@
 
 #include <epan/packet.h>
 #include <epan/dissectors/packet-tcp.h>
+#include <epan/dissectors/packet-udp.h>
 #include <epan/exceptions.h>
 #include <epan/expert.h>
 #include <epan/show_exception.h>
@@ -1127,14 +1128,14 @@ get_dlt_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset _U_, void*
 }
 
 static int
-dissect_dlt_tcp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_) {
-    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, DLT_MIN_SIZE_FOR_PARSING, get_dlt_message_len, dissect_dlt_msg, NULL);
+dissect_dlt_tcp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data) {
+    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, DLT_MIN_SIZE_FOR_PARSING, get_dlt_message_len, dissect_dlt_msg, data);
     return tvb_reported_length(tvb);
 }
 
 static int
-dissect_dlt_udp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_) {
-    return dissect_dlt_msg(tvb, pinfo, tree, NULL);
+dissect_dlt_udp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data) {
+    return udp_dissect_pdus(tvb, pinfo, tree, DLT_MIN_SIZE_FOR_PARSING, NULL, get_dlt_message_len, dissect_dlt_msg, data);
 }
 
 void proto_register_dlt(void) {

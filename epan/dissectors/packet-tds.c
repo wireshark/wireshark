@@ -143,6 +143,8 @@
 #include <epan/expert.h>
 #include <epan/proto_data.h>
 
+#include <wsutil/epochs.h>
+
 #include <math.h>
 
 #include "packet-tcp.h"
@@ -2030,7 +2032,7 @@ handle_tds_sql_datetime(tvbuff_t *tvb, guint offset, proto_tree *sub_tree, tds_c
         days = threehndths = 0;
     }
 
-    tv.secs = (time_t)((days * G_GUINT64_CONSTANT(86400)) + (threehndths/300) - G_GUINT64_CONSTANT(2208988800)); /* 2208988800 - seconds between Jan 1, 1900 and Jan 1, 1970 */
+    tv.secs = (time_t)((days * G_GUINT64_CONSTANT(86400)) + (threehndths/300) - EPOCH_DELTA_1900_01_01_00_00_00_UTC); /* seconds between Jan 1, 1900 and Jan 1, 1970 */
     tv.nsecs = (int)((threehndths%300) * 10000000 / 3);
     proto_tree_add_time(sub_tree, hf_tds_type_varbyte_data_absdatetime, tvb, offset, 8, &tv);
 }
@@ -2058,7 +2060,7 @@ handle_tds_sql_smalldatetime(tvbuff_t *tvb, guint offset, proto_tree *sub_tree, 
     }
 
 
-    tv.secs = (time_t)((days * G_GUINT64_CONSTANT(86400)) + (minutes * 60) - G_GUINT64_CONSTANT(2208988800)); /* 2208988800 - seconds between Jan 1, 1900 and Jan 1, 1970 */
+    tv.secs = (time_t)((days * G_GUINT64_CONSTANT(86400)) + (minutes * 60) - EPOCH_DELTA_1900_01_01_00_00_00_UTC); /* seconds between Jan 1, 1900 and Jan 1, 1970 */
     tv.nsecs = 0;
     proto_tree_add_time(sub_tree, hf_tds_type_varbyte_data_absdatetime, tvb, offset, 8, &tv);
 }

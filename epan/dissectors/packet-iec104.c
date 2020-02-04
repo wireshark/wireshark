@@ -32,9 +32,6 @@ void proto_reg_handoff_iec60870_101(void);
 
 void proto_register_iec60870_asdu(void);
 
-/* All fields are little endian. */
-#define MAXS 256
-
 static dissector_handle_t iec60870_asdu_handle;
 
 /* the asdu header structure */
@@ -73,7 +70,6 @@ typedef struct {
 } td_CmdInfo;
 
 #define IEC104_PORT     2404
-static guint iec104_port = IEC104_PORT;
 
 /* Define the iec101/104 protos */
 static int proto_iec60870_101  = -1;
@@ -1603,7 +1599,7 @@ static int dissect_iec60870_104(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 			if (len <= APDU_MAX_LEN) {
 				wmem_strbuf_append_printf(res, "%s %s ",
-					(pinfo->srcport == iec104_port ? "->" : "<-"),
+					(pinfo->srcport == pinfo->match_uint ? "->" : "<-"),
 					val_to_str_const(type, apci_types, "<ERR>"));
 			}
 			else {
@@ -1751,13 +1747,6 @@ static int dissect_iec60870_104_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	return tvb_captured_length(tvb);
 }
 
-static void
-apply_iec60870_104_prefs(void)
-{
-  /* IEC104 uses the port preference to determine direction */
-  iec104_port = prefs_get_uint_value("iec60870_104", "tcp.port");
-}
-
 /* The protocol has two subprotocols: Register APCI */
 void
 proto_register_iec60870_104(void)
@@ -1801,7 +1790,7 @@ proto_register_iec60870_104(void)
 	proto_register_field_array(proto_iec60870_104, hf_ap, array_length(hf_ap));
 	proto_register_subtree_array(ett_ap, array_length(ett_ap));
 
-	prefs_register_protocol(proto_iec60870_104, apply_iec60870_104_prefs);
+	prefs_register_protocol(proto_iec60870_104, NULL);
 }
 
 /* Register ASDU dissection, shared by the '101 and '104 dissectors */
@@ -2135,7 +2124,6 @@ proto_reg_handoff_iec60870_104(void)
 	iec60870_104_handle = create_dissector_handle(dissect_iec60870_104_tcp, proto_iec60870_104);
 
 	dissector_add_uint_with_preference("tcp.port", IEC104_PORT, iec60870_104_handle);
-	apply_iec60870_104_prefs();
 }
 
 static void

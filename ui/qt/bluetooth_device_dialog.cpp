@@ -51,10 +51,12 @@ static const int row_number_sco_mtu = 14;
 static const int row_number_sco_packets = 15;
 static const int row_number_le_acl_mtu = 16;
 static const int row_number_le_acl_packets = 17;
-static const int row_number_inquiry_mode = 18;
-static const int row_number_page_timeout = 19;
-static const int row_number_simple_pairing_mode = 20;
-static const int row_number_voice_setting = 21;
+static const int row_number_le_iso_mtu = 18;
+static const int row_number_le_iso_packets = 19;
+static const int row_number_inquiry_mode = 20;
+static const int row_number_page_timeout = 21;
+static const int row_number_simple_pairing_mode = 22;
+static const int row_number_voice_setting = 23;
 
 static tap_packet_status
 bluetooth_device_tap_packet(void *tapinfo_ptr, packet_info *pinfo, epan_dissect_t *edt, const void* data)
@@ -621,6 +623,18 @@ tap_packet_status BluetoothDeviceDialog::tapPacket(void *tapinfo_ptr, packet_inf
         item = tableWidget->item(row_number_le_acl_packets, column_number_value);
         saveItemData(item, tap_device, pinfo);
         updateChanges(tableWidget, field, row_number_le_acl_packets, tapinfo->changes, pinfo);
+        item->setText(field);
+
+        field = QString::number(tap_device->data.le_mtus.iso_mtu);
+        item = tableWidget->item(row_number_le_iso_mtu, column_number_value);
+        saveItemData(item, tap_device, pinfo);
+        updateChanges(tableWidget, field, row_number_le_iso_mtu, tapinfo->changes, pinfo);
+        item->setText(field);
+
+        field = QString::number(tap_device->data.le_mtus.iso_packets);
+        item = tableWidget->item(row_number_le_iso_packets, column_number_value);
+        saveItemData(item, tap_device, pinfo);
+        updateChanges(tableWidget, field, row_number_le_iso_packets, tapinfo->changes, pinfo);
         item->setText(field);
 
         break;

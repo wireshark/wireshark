@@ -13,8 +13,9 @@
 #include <epan/packet.h>
 #include "packet-llc.h"
 #include <epan/oui.h>
+#include <epan/cisco_pid.h>
 
-void proto_register_cisco_oui(void);
+void proto_register_cisco_pid(void);
 
 static int hf_llc_cisco_pid = -1;
 
@@ -30,20 +31,22 @@ static int hf_llc_cisco_pid = -1;
  * for various PID values - and for a DRIP frame format.
  */
 static const value_string cisco_pid_vals[] = {
-	{ 0x0102,	"DRIP" },
-	{ 0x0104,	"PAgP" },	/* Port Aggregation Protocol */
-	{ 0x0105,	"MLS Hello" },	/* from a mail message found on the Web */
-	{ 0x0108,	"RLQ BPDUs (request)" }, /* Root Link Query, see Bug: 12772 */
-	{ 0x0109,	"RLQ BPDUs (response)" }, /* Root Link Query, see Bug: 12772 */
-	{ 0x010b,	"PVSTP+" },	/* Per-VLAN Spanning Tree Protocol */
-	{ 0x010c,	"VLAN Bridge" },
-	{ 0x0111,	"UDLD" },	/* Unidirectional Link Detection */
-	{ 0x2000,	"CDP" },
-	{ 0x2001,	"CGMP" },
-	{ 0x2003,	"VTP" },
-	{ 0x2004,	"DTP" },	/* Dynamic Trunking Protocol */
-	{ 0x200a,	"STP Uplink Fast" },
-	{ 0,		NULL }
+	{ CISCO_PID_DRIP,		"DRIP" },
+	{ CISCO_PID_PAGP,		"PAgP" },       /* Port Aggregation Protocol */
+	{ CISCO_PID_MLS_HELLO,		"MLS Hello" },  /* from a mail message found on the Web */
+	{ CISCO_PID_RLQ_REQ,		"RLQ BPDUs (request)" }, /* Root Link Query, see Bug: 12772 */
+	{ CISCO_PID_RLQ_RESP,		"RLQ BPDUs (response)" }, /* Root Link Query, see Bug: 12772 */
+	{ CISCO_PID_PVSTPP,		"PVSTP+" },     /* Per-VLAN Spanning Tree Protocol */
+	{ CISCO_PID_VLAN_BRIDGE,	"VLAN Bridge" },
+	{ CISCO_PID_UDLD,		"UDLD" },       /* Unidirectional Link Detection */
+	{ CISCO_PID_MCP,		"MCP" },        /* MisCabling Protocol */
+	{ CISCO_PID_CDP,		"CDP" },
+	{ CISCO_PID_CGMP,		"CGMP" },
+	{ CISCO_PID_VTP,		"VTP" },
+	{ CISCO_PID_DTP,		"DTP" },        /* Dynamic Trunking Protocol */
+	{ CISCO_PID_STP_UL_FAST,	"STP Uplink Fast" },
+
+	{ 0,    NULL }
 };
 
 /*
@@ -51,7 +54,7 @@ static const value_string cisco_pid_vals[] = {
  * up the dissector table for the Cisco OUI.
  */
 void
-proto_register_cisco_oui(void)
+proto_register_cisco_pid(void)
 {
 	static hf_register_info hf[] = {
 	  { &hf_llc_cisco_pid,

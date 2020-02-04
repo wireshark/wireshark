@@ -410,6 +410,8 @@ typedef struct {
     /* Determined during processing of Header IE*/
     gboolean    payload_ie_present;
     /* Addressing Info. */
+    gboolean    dst_pan_present;
+    gboolean    src_pan_present;
     guint16     dst_pan;
     guint16     src_pan;
     guint16     dst16;

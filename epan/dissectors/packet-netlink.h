@@ -107,7 +107,7 @@ struct packet_netlink_data {
  */
 int dissect_netlink_header(tvbuff_t *tvb, proto_tree *tree, int offset, int encoding, header_field_info *hfi_type, proto_item **pi_type);
 
-typedef int netlink_attributes_cb_t(tvbuff_t *, void *data, proto_tree *, int nla_type, int offset, int len);
+typedef int netlink_attributes_cb_t(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_data, proto_tree *tree, int nla_type, int offset, int len);
 
 int dissect_netlink_attributes(tvbuff_t *tvb, header_field_info *hfi_type, int ett, void *data, struct packet_netlink_data *nl_data,  proto_tree *tree, int offset, int length, netlink_attributes_cb_t cb);
 
@@ -128,16 +128,30 @@ int dissect_netlink_attributes_array(tvbuff_t *tvb, header_field_info *hfi_type,
  * Format of the data that is passed to "genl.family" dissectors.
  */
 typedef struct {
-	struct packet_netlink_data *data;
-	int             encoding; /* copy of data->encoding */
+	struct packet_netlink_data *nl_data;
 
 	/* For internal use by genl. */
 	proto_tree     *genl_tree;
 
 	/* fields from genlmsghdr */
 	guint8 	        cmd; /* Command number */
+
+	/* XXX This should contain a family version number as well. */
 } genl_info_t;
 
-int dissect_genl_header(tvbuff_t *tvb, genl_info_t *genl_info, header_field_info *hfi_cmd);
+int dissect_genl_header(tvbuff_t *tvb, genl_info_t *genl_info, struct packet_netlink_data *nl_data, header_field_info *hfi_cmd);
 
 #endif /* __PACKET_NETLINK_H__ */
+
+/*
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

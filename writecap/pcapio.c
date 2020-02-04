@@ -41,6 +41,8 @@
 
 #include <glib.h>
 
+#include <wsutil/epochs.h>
+
 #include "pcapio.h"
 
 /* Magic numbers in "libpcap" files.
@@ -655,7 +657,7 @@ pcapng_write_interface_statistics_block(FILE* pfile,
          * Subtract difference, in microseconds, between January 1, 1601
          * 00:00:00 UTC and January 1, 1970, 00:00:00 UTC.
          */
-        timestamp -= G_GUINT64_CONSTANT(11644473600000000);
+        timestamp -= EPOCH_DELTA_1601_01_01_00_00_00_UTC*1000000;
 #else
         /*
          * Current time, represented as seconds and microseconds since

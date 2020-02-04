@@ -3217,12 +3217,16 @@ again:
         }
     }
 
-    if (reassemble_ooo && tcpd && !PINFO_FD_VISITED(pinfo)) {
+    if (reassemble_ooo && tcpd && !(tcpd->fwd->flags & TCP_FLOW_REASSEMBLE_UNTIL_FIN) && !PINFO_FD_VISITED(pinfo)) {
         /* If there is a gap between this segment and any previous ones (that
          * is, seqno is larger than the maximum expected seqno), then it is
          * possibly an out-of-order segment. The very first segment is expected
          * to be in-order though (otherwise captures starting in midst of a
          * connection would never be reassembled).
+         *
+         * Do not bother checking for OoO segments for streams that are
+         * reassembled at FIN, the order of segments before FIN does not matter
+         * as reordering and reassembly occurs at FIN.
          */
         if (tcpd->fwd->maxnextseq) {
             /* Segments may be missing due to packet loss (assume later
@@ -3290,7 +3294,7 @@ again:
         last_fragment_len = len;
 
 
-        if (reassemble_ooo) {
+        if (reassemble_ooo && tcpd && !(tcpd->fwd->flags & TCP_FLOW_REASSEMBLE_UNTIL_FIN)) {
             /*
              * If the previous segment requested more data (setting
              * FD_PARTIAL_REASSEMBLY as the next segment length is unknown), but
@@ -3298,6 +3302,12 @@ again:
              * then "fragment_add" would truncate the reassembled PDU to the end
              * of this OoO segment. To prevent that, explicitly specify the MSP
              * length before calling "fragment_add".
+             *
+             * When a subdissector requests reassembly at the end of the
+             * connection (DESEGMENT_UNTIL_FIN), then it is not
+             * possible for an earlier segment to complete reassembly
+             * (more_frags for fragment_add is always TRUE). Thus we do not
+             * have to worry about increasing the fragment length here.
              */
             fragment_reset_tot_len(&tcp_reassembly_table, pinfo,
                                    msp->first_frame, NULL,
@@ -3599,6 +3609,21 @@ again:
                 msp = pdu_store_sequencenumber_of_next_pdu(pinfo, deseg_seq,
                     nxtseq+1, tcpd->fwd->multisegment_pdus);
                 msp->flags |= MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT;
+            } else if (pinfo->desegment_len == DESEGMENT_UNTIL_FIN) {
+                /*
+                 * The subdissector asked to reassemble at the end of the
+                 * connection. That will be done in dissect_tcp, but here we
+                 * have to ask reassembly to collect all future segments.
+                 * Note that TCP_FLOW_REASSEMBLE_UNTIL_FIN was set before, this
+                 * ensures that OoO detection is skipped.
+                 * The exact nxtpdu offset does not matter, but it should be
+                 * smaller than half of the maximum 32-bit unsigned integer to
+                 * allow detection of sequence number wraparound, and larger
+                 * than the largest possible stream size. Hopefully 1GiB
+                 * (0x40000000 bytes) should be enough.
+                 */
+                msp = pdu_store_sequencenumber_of_next_pdu(pinfo, deseg_seq,
+                    nxtseq+0x40000000, tcpd->fwd->multisegment_pdus);
             } else {
                 msp = pdu_store_sequencenumber_of_next_pdu(pinfo,
                     deseg_seq, nxtseq+pinfo->desegment_len, tcpd->fwd->multisegment_pdus);

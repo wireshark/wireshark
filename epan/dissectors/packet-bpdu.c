@@ -19,6 +19,7 @@
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <epan/cisco_pid.h>
 
 /* Offsets of fields within a BPDU */
 
@@ -1363,11 +1364,10 @@ proto_reg_handoff_bpdu(void)
   dissector_add_uint("llc.dsap", SAP_BPDU, bpdu_handle);
   dissector_add_uint("chdlc.protocol", CHDLCTYPE_BPDU, bpdu_handle);
   dissector_add_uint("ethertype", ETHERTYPE_STP, bpdu_handle);
-  dissector_add_uint("llc.cisco_pid", 0x0108, bpdu_handle); /* Cisco's RLQ is just plain STP */
-  dissector_add_uint("llc.cisco_pid", 0x0109, bpdu_handle); /* Cisco's RLQ is just plain STP */
-  dissector_add_uint("llc.cisco_pid", 0x010c, bpdu_handle); /* Cisco's VLAN-bridge STP is just plain STP */
-
-  dissector_add_uint("llc.cisco_pid", 0x010b, bpdu_cisco_handle); /* Handle Cisco's (R)PVST+ TLV extensions */
+  dissector_add_uint("llc.cisco_pid", CISCO_PID_RLQ_REQ, bpdu_handle); /* Cisco's RLQ is just plain STP */
+  dissector_add_uint("llc.cisco_pid", CISCO_PID_RLQ_RESP, bpdu_handle); /* Cisco's RLQ is just plain STP */
+  dissector_add_uint("llc.cisco_pid", CISCO_PID_VLAN_BRIDGE, bpdu_handle); /* Cisco's VLAN-bridge STP is just plain STP */
+  dissector_add_uint("llc.cisco_pid", CISCO_PID_PVSTPP, bpdu_cisco_handle); /* Handle Cisco's (R)PVST+ TLV extensions */
 }
 
 /*

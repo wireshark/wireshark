@@ -12,6 +12,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/cisco_pid.h>
 
 /*
  * See
@@ -675,7 +676,7 @@ proto_reg_handoff_vtp(void)
 	dissector_handle_t vtp_handle;
 
 	vtp_handle = create_dissector_handle(dissect_vtp, proto_vtp);
-	dissector_add_uint("llc.cisco_pid", 0x2003, vtp_handle);
+	dissector_add_uint("llc.cisco_pid", CISCO_PID_VTP, vtp_handle);
 }
 
 /*

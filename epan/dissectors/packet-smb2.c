@@ -165,6 +165,7 @@ static int hf_smb2_file_pipe_info = -1;
 static int hf_smb2_file_compression_info = -1;
 static int hf_smb2_file_network_open_info = -1;
 static int hf_smb2_file_attribute_tag_info = -1;
+static int hf_smb2_file_normalized_name_info = -1;
 static int hf_smb2_fs_info_01 = -1;
 static int hf_smb2_fs_info_03 = -1;
 static int hf_smb2_fs_info_04 = -1;
@@ -575,6 +576,7 @@ static gint ett_smb2_file_attribute_tag_info = -1;
 static gint ett_smb2_file_rename_info = -1;
 static gint ett_smb2_file_disposition_info = -1;
 static gint ett_smb2_file_full_ea_info = -1;
+static gint ett_smb2_file_normalized_name_info = -1;
 static gint ett_smb2_fs_info_01 = -1;
 static gint ett_smb2_fs_info_03 = -1;
 static gint ett_smb2_fs_info_04 = -1;
@@ -752,6 +754,7 @@ static const value_string smb2_share_type_vals[] = {
 #define SMB2_FILE_COMPRESSION_INFO    0x1c
 #define SMB2_FILE_NETWORK_OPEN_INFO   0x22
 #define SMB2_FILE_ATTRIBUTE_TAG_INFO  0x23
+#define SMB2_FILE_NORMALIZED_NAME_INFO 0x30
 
 static const value_string smb2_file_info_levels[] = {
 	{SMB2_FILE_BASIC_INFO,		"SMB2_FILE_BASIC_INFO" },
@@ -774,6 +777,7 @@ static const value_string smb2_file_info_levels[] = {
 	{SMB2_FILE_COMPRESSION_INFO,	"SMB2_FILE_COMPRESSION_INFO" },
 	{SMB2_FILE_NETWORK_OPEN_INFO,	"SMB2_FILE_NETWORK_OPEN_INFO" },
 	{SMB2_FILE_ATTRIBUTE_TAG_INFO,	"SMB2_FILE_ATTRIBUTE_TAG_INFO" },
+	{SMB2_FILE_NORMALIZED_NAME_INFO,"SMB2_FILE_NORMALIZED_NAME_INFO" },
 	{ 0, NULL }
 };
 static value_string_ext smb2_file_info_levels_ext = VALUE_STRING_EXT_INIT(smb2_file_info_levels);
@@ -2436,6 +2440,24 @@ dissect_smb2_file_alternate_name_info(tvbuff_t *tvb, packet_info *pinfo _U_, pro
 	return offset;
 }
 
+static int
+dissect_smb2_file_normalized_name_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset, smb2_info_t *si _U_)
+{
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	guint16     bc;
+	gboolean    trunc;
+
+	if (parent_tree) {
+		item = proto_tree_add_item(parent_tree, hf_smb2_file_normalized_name_info, tvb, offset, -1, ENC_NA);
+		tree = proto_item_add_subtree(item, ett_smb2_file_normalized_name_info);
+	}
+
+	bc = tvb_captured_length_remaining(tvb, offset);
+	offset = dissect_qfi_SMB_FILE_NAME_INFO(tvb, pinfo, tree, offset, &bc, &trunc, /* XXX assumption hack */ TRUE);
+
+	return offset;
+}
 
 static int
 dissect_smb2_file_basic_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset, smb2_info_t *si _U_)
@@ -5350,6 +5372,9 @@ dissect_smb2_infolevel(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 		case SMB2_FILE_ATTRIBUTE_TAG_INFO:
 			offset = dissect_smb2_file_attribute_tag_info(tvb, pinfo, tree, offset, si);
 			break;
+		case SMB2_FILE_NORMALIZED_NAME_INFO:
+			offset = dissect_smb2_file_normalized_name_info(tvb, pinfo, tree, offset, si);
+			break;
 		default:
 			/* we don't handle this infolevel yet */
 			proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_NA);
@@ -7482,6 +7507,7 @@ dissect_smb2_read_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	/* the read channel info blob itself */
 	switch (channel) {
 	case SMB2_CHANNEL_RDMA_V1:
+	case SMB2_CHANNEL_RDMA_V1_INVALIDATE:
 		dissect_smb2_olb_buffer(pinfo, tree, tvb, &c_olb, si, dissect_smb2_rdma_v1_blob);
 		break;
 	case SMB2_CHANNEL_NONE:
@@ -10842,6 +10868,11 @@ proto_register_smb2(void)
 			NULL, 0, NULL, HFILL }
 		},
 
+		{ &hf_smb2_file_normalized_name_info,
+			{ "SMB2_FILE_NORMALIZED_NAME_INFO", "smb2.file_normalized_name_info", FT_NONE, BASE_NONE,
+			NULL, 0, NULL, HFILL }
+		},
+
 		{ &hf_smb2_file_stream_info,
 			{ "SMB2_FILE_STREAM_INFO", "smb2.file_stream_info", FT_NONE, BASE_NONE,
 			NULL, 0, NULL, HFILL }
@@ -12710,6 +12741,7 @@ proto_register_smb2(void)
 		&ett_smb2_file_compression_info,
 		&ett_smb2_file_network_open_info,
 		&ett_smb2_file_attribute_tag_info,
+		&ett_smb2_file_normalized_name_info,
 		&ett_smb2_fs_info_01,
 		&ett_smb2_fs_info_03,
 		&ett_smb2_fs_info_04,

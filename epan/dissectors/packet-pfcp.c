@@ -112,9 +112,13 @@ static int hf_pfcp_ue_ip_address_flag_b0_v6 = -1;
 static int hf_pfcp_ue_ip_address_flag_b1_v4 = -1;
 static int hf_pfcp_ue_ip_address_flag_b2_sd = -1;
 static int hf_pfcp_ue_ip_address_flag_b3_v6d = -1;
+static int hf_pfcp_ue_ip_address_flag_b4_chv4 = -1;
+static int hf_pfcp_ue_ip_address_flag_b5_chv6 = -1;
+static int hf_pfcp_ue_ip_address_flag_b6_v6pl = -1;
 static int hf_pfcp_ue_ip_addr_ipv4 = -1;
 static int hf_pfcp_ue_ip_add_ipv6 = -1;
 static int hf_pfcp_ue_ip_add_ipv6_prefix = -1;
+static int hf_pfcp_ue_ip_add_ipv6_prefix_length = -1;
 static int hf_pfcp_application_id = -1;
 static int hf_pfcp_application_id_str = -1;
 
@@ -145,6 +149,8 @@ static int hf_pfcp_qer_id = -1;
 static int hf_pfcp_predef_rules_name = -1;
 
 static int hf_pfcp_apply_action_flags = -1;
+static int hf_pfcp_apply_action_flags_b6_ipmd = -1;
+static int hf_pfcp_apply_action_flags_b5_ipma = -1;
 static int hf_pfcp_apply_action_flags_b4_dupl = -1;
 static int hf_pfcp_apply_action_flags_b3_nocp = -1;
 static int hf_pfcp_apply_action_flags_b2_buff = -1;
@@ -196,6 +202,7 @@ static int hf_pfcp_reporting_triggers_o5_b3_quhti = -1;
 static int hf_pfcp_reporting_triggers_o5_b2_timth = -1;
 static int hf_pfcp_reporting_triggers_o5_b1_volth = -1;
 static int hf_pfcp_reporting_triggers_o5_b0_perio = -1;
+static int hf_pfcp_reporting_triggers_o6_b6_ipmjl = -1;
 static int hf_pfcp_reporting_triggers_o6_b5_evequ = -1;
 static int hf_pfcp_reporting_triggers_o6_b4_eveth = -1;
 static int hf_pfcp_reporting_triggers_o6_b3_macar = -1;
@@ -246,6 +253,8 @@ static int hf_pfcp_ul_gbr = -1;
 static int hf_pfcp_dl_gbr = -1;
 
 static int hf_pfcp_report_type = -1;
+static int hf_pfcp_report_type_b5_sesr = -1;
+static int hf_pfcp_report_type_b4_pmir = -1;
 static int hf_pfcp_report_type_b3_upir = -1;
 static int hf_pfcp_report_type_b2_erir = -1;
 static int hf_pfcp_report_type_b1_usar = -1;
@@ -253,6 +262,14 @@ static int hf_pfcp_report_type_b0_dldr = -1;
 
 static int hf_pfcp_offending_ie = -1;
 
+static int hf_pfcp_up_function_features_o9_b2_gpqm = -1;
+static int hf_pfcp_up_function_features_o9_b1_qfqm = -1;
+static int hf_pfcp_up_function_features_o9_b0_atsss_ll = -1;
+static int hf_pfcp_up_function_features_o8_b7_mptcp = -1;
+static int hf_pfcp_up_function_features_o8_b6_tscu = -1;
+static int hf_pfcp_up_function_features_o8_b5_ip6pl = -1;
+static int hf_pfcp_up_function_features_o8_b4_iptv = -1;
+static int hf_pfcp_up_function_features_o8_b3_norp = -1;
 static int hf_pfcp_up_function_features_o8_b2_vtime = -1;
 static int hf_pfcp_up_function_features_o8_b1_rttl = -1;
 static int hf_pfcp_up_function_features_o8_b0_mpas = -1;
@@ -302,6 +319,7 @@ static int hf_pfcp_usage_report_trigger_o6_b3_termr = -1;
 static int hf_pfcp_usage_report_trigger_o6_b2_liusa = -1;
 static int hf_pfcp_usage_report_trigger_o6_b1_timqu = -1;
 static int hf_pfcp_usage_report_trigger_o6_b0_volqu = -1;
+static int hf_pfcp_usage_report_trigger_o7_b2_ipmjl = -1;
 static int hf_pfcp_usage_report_trigger_o7_b1_tebur = -1;
 static int hf_pfcp_usage_report_trigger_o7_b0_evequ = -1;
 
@@ -320,6 +338,7 @@ static int hf_pfcp_vol_meas_ulnop = -1;
 static int hf_pfcp_vol_meas_dlnop = -1;
 
 static int hf_pfcp_cp_function_features = -1;
+static int hf_pfcp_cp_function_features_b6_ardr = -1;
 static int hf_pfcp_cp_function_features_b5_mpas = -1;
 static int hf_pfcp_cp_function_features_b4_bundl = -1;
 static int hf_pfcp_cp_function_features_b3_sset = -1;
@@ -339,10 +358,16 @@ static int hf_pfcp_flow_dir = -1;
 static int hf_pfcp_packet_rate = -1;
 static int hf_pfcp_packet_rate_b0_ulpr = -1;
 static int hf_pfcp_packet_rate_b1_dlpr = -1;
+static int hf_pfcp_packet_rate_b2_rcsr = -1;
+static int hf_pfcp_packet_rate_b3_aprc = -1;
 static int hf_pfcp_ul_time_unit = -1;
 static int hf_pfcp_max_ul_pr = -1;
 static int hf_pfcp_dl_time_unit = -1;
 static int hf_pfcp_max_dl_pr = -1;
+static int hf_pfcp_a_ul_time_unit = -1;
+static int hf_pfcp_a_max_ul_pr = -1;
+static int hf_pfcp_a_dl_time_unit = -1;
+static int hf_pfcp_a_max_dl_pr = -1;
 
 static int hf_pfcp_dl_flow_level_marking = -1;
 static int hf_pfcp_dl_flow_level_marking_b0_ttc = -1;
@@ -402,6 +427,9 @@ static int hf_pfcp_measurement_info_b4_mnop = -1;
 
 static int hf_pfcp_node_report_type = -1;
 static int hf_pfcp_node_report_type_b0_upfr = -1;
+static int hf_pfcp_node_report_type_b1_uprr = -1;
+static int hf_pfcp_node_report_type_b2_ckdr = -1;
+static int hf_pfcp_node_report_type_b3_gpqr = -1;
 
 static int hf_pfcp_remote_gtp_u_peer_flags = -1;
 static int hf_pfcp_remote_gtp_u_peer_flags_b0_v6 = -1;
@@ -578,6 +606,53 @@ static int hf_pfcp_packet_replication_and_detection_carry_on_information_flags_b
 
 static int hf_pfcp_validity_time_value = -1;
 
+static int hf_pfcp_number_of_reports = -1;
+
+static int hf_pfcp_pfcpasrsp_flags_flags = -1;
+static int hf_pfcp_pfcpasrsp_flags_flags_b0_psrei = -1;
+
+static int hf_pfcp_cp_pfcp_entity_ip_address_flags = -1;
+static int hf_pfcp_cp_pfcp_entity_ip_address_ipv4 = -1;
+static int hf_pfcp_cp_pfcp_entity_ip_address_ipv6 = -1;
+
+static int hf_pfcp_pfcpsereq_flags_flags = -1;
+static int hf_pfcp_pfcpsereq_flags_flags_b0_resti = -1;
+
+static int hf_pfcp_ip_multicast_address_flags = -1;
+static int hf_pfcp_ip_multicast_address_flags_b3_any = -1;
+static int hf_pfcp_ip_multicast_address_flags_b2_range = -1;
+static int hf_pfcp_ip_multicast_address_start_ipv4 = -1;
+static int hf_pfcp_ip_multicast_address_start_ipv6 = -1;
+static int hf_pfcp_ip_multicast_address_end_ipv4 = -1;
+static int hf_pfcp_ip_multicast_address_end_ipv6 = -1;
+
+static int hf_pfcp_source_ip_address_flags = -1;
+static int hf_pfcp_source_ip_address_flags_b2_mpl = -1;
+static int hf_pfcp_source_ip_address_ipv4 = -1;
+static int hf_pfcp_source_ip_address_ipv6 = -1;
+static int hf_pfcp_source_ip_address_mask_prefix_lengt = -1;
+
+static int hf_pfcp_packet_rate_status_flags = -1;
+static int hf_pfcp_packet_rate_status_flags_b2_apr = -1;
+static int hf_pfcp_packet_rate_status_flags_b1_dl = -1;
+static int hf_pfcp_packet_rate_status_flags_b0_ul = -1;
+static int hf_pfcp_packet_rate_status_ul = -1;
+static int hf_pfcp_packet_rate_status_dl = -1;
+static int hf_pfcp_packet_rate_status_apr_ul = -1;
+static int hf_pfcp_packet_rate_status_apr_dl = -1;
+static int hf_pfcp_packet_rate_status_validity_time = -1;
+
+static int hf_pfcp_create_bridge_info_for_tsc_flags = -1;
+static int hf_pfcp_create_bridge_info_for_tsc_flags_b0_bii = -1;
+
+static int hf_pfcp_ds_tt_port_number = -1;
+
+static int hf_pfcp_nw_tt_port_number = -1;
+
+static int hf_pfcp_tsn_bridge_id_flags = -1;
+static int hf_pfcp_tsn_bridge_id_flags_b0_mac = -1;
+static int hf_pfcp_tsn_bridge_id_mac_address = -1;
+
 static int ett_pfcp = -1;
 static int ett_pfcp_flags = -1;
 static int ett_pfcp_ie = -1;
@@ -633,7 +708,15 @@ static int ett_pfcp_adnp = -1;
 static int ett_pfcp_pfcpsrreq = -1;
 static int ett_pfcp_pfcpaureq = -1;
 static int ett_pfcp_alternative_smf_ip_address_flags = -1;
-static int ett_packet_replication_and_detection_carry_on_information = -1;
+static int ett_pfcp_packet_replication_and_detection_carry_on_information = -1;
+static int ett_pfcp_pfcpasrsp_flags = -1;
+static int ett_pfcp_cp_pfcp_entity_ip_address_flags = -1;
+static int ett_pfcp_pfcpsereq_flags = -1;
+static int ett_pfcp_ip_multicast_address_flags = -1;
+static int ett_pfcp_source_ip_address_flags = -1;
+static int ett_pfcp_packet_rate_status = -1;
+static int ett_pfcp_create_bridge_info_for_tsc = -1;
+static int ett_pfcp_tsn_bridge_id = -1;
 
 
 
@@ -724,6 +807,35 @@ static void dissect_pfcp_access_forwarding_action_information_1(tvbuff_t *tvb, p
 static void dissect_pfcp_access_forwarding_action_information_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
 static void dissect_pfcp_update_access_forwarding_action_information_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
 static void dissect_pfcp_update_access_forwarding_action_information_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+static void dissect_pfcp_user_plane_path_recovery_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+static void dissect_pfcp_pfcp_session_retention_information_within_pfcp_association_setup_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+static void dissect_ip_multicast_addressing_info_within_pfcp_session_establishment_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+static void dissect_pfcp_join_ip_multicast_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+static void dissect_pfcp_leave_ip_multicast_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+static void dissect_pfcp_created_bridge_info_for_tsc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+static void dissect_pfcp_port_management_information_for_tsc_ie_within_pfcp_session_modification_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+static void dissect_pfcp_port_management_information_for_tsc_ie_within_pfcp_session_modification_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+static void dissect_pfcp_port_management_information_for_tsc_ie_within_pfcp_session_report_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+static void dissect_pfcp_clock_drift_control_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+static void dissect_pfcp_clock_drift_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+static void dissect_pfcp_remove_srr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+static void dissect_pfcp_create_srr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+static void dissect_pfcp_update_srr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+static void dissect_pfcp_session_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+static void dissect_pfcp_access_availability_control_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+static void dissect_pfcp_access_availability_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+static void dissect_pfcp_provide_atsss_control_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+static void dissect_pfcp_atsss_control_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+static void dissect_pfcp_mptcp_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+static void dissect_pfcp_atsss_ll_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+static void dissect_pfcp_pmf_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+static void dissect_pfcp_ue_ip_address_pool_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+static void dissect_pfcp_gtp_u_path_qos_control_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+static void dissect_pfcp_gtp_u_path_qos_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+static void dissect_pfcp_qos_information_in_gtp_u_path_qos_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+static void dissect_pfcp_qos_monitoring_per_qos_flow_control_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+static void dissect_pfcp_qos_monitoring_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+
 
 static const true_false_string pfcp_id_predef_dynamic_tfs = {
     "Predefined by UP",
@@ -838,7 +950,6 @@ static value_string_ext pfcp_message_type_ext = VALUE_STRING_EXT_INIT(pfcp_messa
 #define PFCP_IE_ADDITIONAL_MONITORING_TIME       147
 #define PFCP_IE_EVENT_INFORMATION                148
 #define PFCP_IE_EVENT_REPORTING                  149
-
 #define PFCP_IE_CREATE_MAR                       165
 #define PFCP_IE_ACCESS_FORWARDING_ACTION_INORMATION_1 166
 #define PFCP_IE_ACCESS_FORWARDING_ACTION_INORMATION_2 167
@@ -846,6 +957,35 @@ static value_string_ext pfcp_message_type_ext = VALUE_STRING_EXT_INIT(pfcp_messa
 #define PFCP_IE_UPDATE_MAR                       169
 #define PFCP_IE_UPDATE_ACCESS_FORWARDING_ACTION_INORMATION_1 175
 #define PFCP_IE_UPDATE_ACCESS_FORWARDING_ACTION_INORMATION_2 176
+#define PFCP_IE_PFCP_SESSION_RETENTION_INFORMATION_WITHIN_ASSOCIATION_SETUP_REQUEST 183
+#define PFCP_IE_USER_PLANE_PATH_RECOVERY_REPORT  187
+#define PFCP_IE_IP_MULTICAST_ADDRESSING_INFO     189
+#define PFCP_IE_JOIN_IP_MULTICAST_INFORMATION    189
+#define PFCP_IE_LEAVE_IP_MULTICAST_INFORMATION   190
+#define PFCP_IE_CREATED_BRIDGE_INFO_FOR_TSC      195
+#define PFCP_IE_Port_MANAGEMENT_INFORMATION_FOR_TSC_WITHIN_PCFP_SESSION_MODIFICATION_REQUEST    199
+#define PFCP_IE_Port_MANAGEMENT_INFORMATION_FOR_TSC_WITHIN_PCFP_SESSION_MODIFICATION_RESPONSE   200
+#define PFCP_IE_Port_MANAGEMENT_INFORMATION_FOR_TSC_WITHIN_PCFP_SESSION_REPORT_REQUEST          201
+#define PFCP_IE_CLOCK_DRIFT_CONTROL_INFORMATION  203
+#define PFCP_IE_CLOCK_DRIFT_REPORT               205
+#define PFCP_IE_REMOVE_SRR                       211
+#define PFCP_IE_CREATE_SRR                       212
+#define PFCP_IE_UPDATE_SRR                       213
+#define PFCP_IE_SESSION_REPORT                   214
+#define PFCP_IE_ACCESS_AVAILABILITY_CONTROL_INFORMATION 216
+#define PFCP_IE_ACCESS_AVAILABILITY_REPORT       218
+#define PFCP_IE_PROVICE_ATSSS_CONTROL_INFORMATION 220
+#define PFCP_IE_ATSSS_CONTROl_PARAMETERS         221
+#define PFCP_IE_MPTCP_PARAMETERS                 225
+#define PFCP_IE_ATSSS_LL_PARAMETERS              226
+#define PFCP_IE_PMF_PARAMETERS                   227
+#define PFCP_IE_UE_IP_ADDRESS_POOL_INFORMATION   233
+#define PFCP_IE_GTP_U_PATH_QOS_CONTROL_INFORMATION 238
+#define PFCP_IE_GTP_U_PATH_QOS_REPORT            239
+#define PFCP_IE_QOS_INFORMATION_IN_GTP_U_PATH_QOS_REPORT 240
+#define PFCP_IE_QOS_MONITORING_PER_QOS_FLOW_CONTROL_INFORMATION 242
+#define PFCP_IE_QOS_MONITORING_REPORT            247
+
 
 static const value_string pfcp_ie_type[] = {
 
@@ -1026,7 +1166,74 @@ static const value_string pfcp_ie_type[] = {
     { 179, "Packet Replication and Detection Carry-On Information"},/* Extendable / Clause 8.2.130 */
     { 180, "SMF Set ID"},                                           /* Extendable / Clause 8.2.131 */
     { 181, "Quota Validity Time"},                                  /* Extendable / Clause 8.2.132 */
-    //182 to 32767 Spare. For future use.
+    { 182, "Number of Reports"},                                    /* Fixed / Clause 8.2.133 */
+    { 183, "PFCP Session Retention Information (within PFCP Association Setup Request)"}, /* Extendable / Table 7.4.4.1-2 */
+    { 184, "PFCPASRsp-Flags"},                                      /* Extendable / Clause 8.2.134 */
+    { 185, "CP PFCP Entity IP Address"},                            /* Extendable / Clause 8.2.135 */
+    { 186, "PFCPSEReq-Flags"},                                      /* Extendable / Clause 8.2.136 */
+    { 187, "User Plane Path Recovery Report"},                      /* Extendable / Table 7.4.5.1.3-1 */
+    { 188, "IP Multicast Addressing Info within PFCP Session Establishment Request"}, /* Extendable / Clause 7.5.2.2-4 */
+    { 189, "Join IP Multicast Information IE within Usage Report"}, /* Extendable / Table 7.5.8.3-4 */
+    { 190, "Leave IP Multicast Information IE within Usage Report"},/* Extendable / Table 7.5.8.3-5 */
+    { 191, "IP Multicast Address"},                                 /* Extendable / Clause 8.2.137 */
+    { 192, "Source IP Address"},                                    /* Extendable / Clause 8.2.138 */
+    { 193, "Packet Rate Status"},                                   /* Extendable / Clause 8.2.139 */
+    { 194, "Create Bridge Info for TSC"},                           /* Extendable / Clause 8.2.140 */
+    { 195, "Created Bridge Info for TSC"},                          /* Extendable / Table 7.5.3.6-1 */
+    { 196, "DS-TT Port Number"},                                    /* Fixed Length / Clause 8.2.141 */
+    { 197, "NW-TT Port Number"},                                    /* Fixed Length / Clause 8.2.142 */
+    { 198, "TSN Bridge ID"},                                        /* Extendable / Clause 8.2.143 */
+    { 199, "Port Management Information for TSC IE within PFCP Session Modification Request"}, /* Extendable / Table 7.5.4.18-1 */
+    { 200, "Port Management Information for TSC IE within PFCP Session Modification Response"}, /* Extendable / Table 7.5.5.3-1 */
+    { 201, "Port Management Information for TSC IE within PFCP Session Report Request"}, /* Extendable / Table 7.5.8.5-1 */
+    { 202, "Port Management Information Container"},                /* Variable Length / Clause 8.2.144 */
+    { 203, "Clock Drift Control Information"},                      /* Extendable / Table 7.4.4.1.2-1 */
+    { 204, "Requested Clock Drift Information"},                    /* Extendable / Clause 8.2.145 */
+    { 205, "Clock Drift Report"},                                   /* Extendable / Table 7.4.5.1.4-1 */
+    { 206, "TSN Domain Number"},                                    /* Extendable / Clause 8.2.146 */
+    { 207, "Time Offset Threshold"},                                /* Extendable / Clause 8.2.147 */
+    { 208, "Cumulative rateRatio Threshold"},                       /* Extendable / Clause 8.2.148 */
+    { 209, "Time Offset Measurement"},                              /* Extendable / Clause 8.2.149 */
+    { 210, "Cumulative rateRatio Measurement"},                     /* Extendable / Clause 8.2.150 */
+    { 211, "Remove SRR"},                                           /* Extendable/ Table 7.5.4.19-1 */
+    { 212, "Create SRR"},                                           /* Extendable/ Table 7.5.2.9-1 */
+    { 213, "Update SRR"},                                           /* Extendable/ Table 7.5.4.21-1 */
+    { 214, "Session Report"},                                       /* Extendable / Table 7.5.8.7-1 */
+    { 215, "SRR ID"},                                               /* Extendable / Clause 8.2.151 */
+    { 216, "Access Availability Control Information"},              /* Extendable / Table 7.5.2.9-2 */
+    { 217, "Requested Access Availability Information"},            /* Extendable / Clause 8.2.152 */
+    { 218, "Access Availability Report"},                           /* Extendable / Table 7.5.8.6-2 */
+    { 219, "Access Availability Information"},                      /* Extendable / Clause 8.2.153 */
+    { 220, "Provide ATSSS Control Information"},                    /* Extendable / Table 7.5.2.10-1 */
+    { 221, "ATSSS Control Parameters"},                             /* Extendable / Table 7.5.3.7-1 */
+    { 222, "MPTCP Control Information"},                            /* Extendable / Clause 8.2.154 */
+    { 223, "ATSSS-LL Control Information"},                         /* Extendable / Clause 8.2.155 */
+    { 224, "PMF Control Information"},                              /* Extendable / Clause 8.2.156 */
+    { 225, "MPTCP Parameters"},                                     /* Extendable / Table 7.5.3.7-2 */
+    { 226, "ATSSS-LL Parameters"},                                  /* Extendable / Table 7.5.3.7-3 */
+    { 227, "PMF Parameters"},                                       /* Extendable / Table 7.5.3.7-4 */
+    { 228, "MPTCP Address Information"},                            /* Extendable / Clause 8.2.157 */
+    { 229, "UE Link-Specific IP Address"},                          /* Extendable / Clause 8.2.158 */
+    { 230, "PMF Address Information"},                              /* Extendable / Clause 8.2.159 */
+    { 231, "ATSSS-LL Information"},                                 /* Extendable / Clause 8.2.160 */
+    { 232, "Data Network Access Identifier"},                       /* Variable Length / Clause 8.2.161 */
+    { 233, "UE IP address Pool Information"},                       /* Extendable / Table 7.4.4.1-3 */
+    { 234, "Average Packet Delay"},                                 /* Extendable / Clause 8.2.162 */
+    { 235, "Minimum Packet Delay"},                                 /* Extendable / Clause 8.2.163 */
+    { 236, "Maximum Packet Delay"},                                 /* Extendable / Clause 8.2.164 */
+    { 237, "QoS Report Trigger"},                                   /* Extendable / Clause 8.2.165 */
+    { 238, "GTP-U Path QoS Control Information"},                   /* Extendable / Table 7.4.4.1.3-1 */
+    { 239, "GTP-U Path QoS Report (PFCP Node Report Request)"},     /* Extendable / Table 7.4.5.1.5-1 */
+    { 240, "QoS Information in GTP-U Path QoS Report"},             /* Extendable / Table 7.4.5.1.6-1 */
+    { 241, "GTP-U Path Interface Type"},                            /* Extendable / Clause 8.2.166 */
+    { 242, "QoS Monitoring per QoS flow Control Information"},      /* Extendable / Table 7.5.2.9-3 */
+    { 243, "Requested QoS Monitoring"},                             /* Extendable / Clause 8.2.167 */
+    { 244, "Reporting Frequency"},                                  /* Extendable / Clause 8.2.168 */
+    { 245, "Packet Delay Thresholds"},                              /* Extendable / Clause 8.2.169 */
+    { 246, "Minimum Wait Time"},                                    /* Extendable / Clause 8.2.170 */
+    { 247, "QoS Monitoring Report"},                                /* Extendable / Table 7.5.8.6-3 */
+    { 248, "QoS Monitoring Measurement"},                           /* Extendable / Clause 8.2.171 */
+    //249 to 32767 Spare. For future use.
     //32768 to 65535 Vendor-specific IEs.
     {0, NULL}
 };
@@ -1419,7 +1626,8 @@ static const value_string pfcp_cause_vals[] = {
 
     {  0, "Reserved" },
     {  1, "Request accepted(success)" },
-    /* 2 - 63 Spare. */
+    {  2, "More Usage Report to send" },
+    /* 3 - 63 Spare. */
     { 64, "Request rejected(reason not specified)" },
     { 65, "Session context not found" },
     { 66, "Mandatory IE missing" },
@@ -2090,7 +2298,8 @@ dissect_pfcp_reporting_triggers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     }
 
     static const int * pfcp_reporting_triggers_o6_flags[] = {
-        &hf_pfcp_spare_b7_b5,
+        &hf_pfcp_spare_b7,
+        &hf_pfcp_reporting_triggers_o6_b6_ipmjl,
         &hf_pfcp_reporting_triggers_o6_b5_evequ,
         &hf_pfcp_reporting_triggers_o6_b4_eveth,
         &hf_pfcp_reporting_triggers_o6_b3_macar,
@@ -2099,7 +2308,7 @@ dissect_pfcp_reporting_triggers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         &hf_pfcp_reporting_triggers_o6_b0_volqu,
         NULL
     };
-    /* Octet 6 [Bits 07-00] SPARE   SPARE   EVEQU   EVETH   MACAR   ENVCL   TIMQU   VOLQU */
+    /* Octet 6 [Bits 07-00] SPARE   IPMJL   EVEQU   EVETH   MACAR   ENVCL   TIMQU   VOLQU */
     proto_tree_add_bitmask_list(tree, tvb, offset, 1, pfcp_reporting_triggers_o6_flags, ENC_BIG_ENDIAN);
     offset++;
 
@@ -2171,14 +2380,16 @@ dissect_pfcp_report_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pr
     int offset = 0;
 
     static const int * pfcp_report_type_flags[] = {
-        &hf_pfcp_spare_b7_b4,
+        &hf_pfcp_spare_b7_b6,
+        &hf_pfcp_report_type_b5_sesr,
+        &hf_pfcp_report_type_b4_pmir,
         &hf_pfcp_report_type_b3_upir,
         &hf_pfcp_report_type_b2_erir,
         &hf_pfcp_report_type_b1_usar,
         &hf_pfcp_report_type_b0_dldr,
         NULL
     };
-    /* Octet 5  Spare   UPIR   ERIR    USAR    DLDR */
+    /* Octet 5  Spare   SESR    PMIR   UPIR   ERIR    USAR    DLDR */
     proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_pfcp_report_type,
         ett_pfcp_report_type, pfcp_report_type_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT);
     offset += 1;
@@ -2328,14 +2539,33 @@ dissect_pfcp_up_function_features(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     }
 
     static const int * pfcp_up_function_features_o8_flags[] = {
-        &hf_pfcp_spare_b7_b3,
+        &hf_pfcp_up_function_features_o8_b7_mptcp,
+        &hf_pfcp_up_function_features_o8_b6_tscu,
+        &hf_pfcp_up_function_features_o8_b5_ip6pl,
+        &hf_pfcp_up_function_features_o8_b4_iptv,
+        &hf_pfcp_up_function_features_o8_b3_norp,
         &hf_pfcp_up_function_features_o8_b2_vtime,
         &hf_pfcp_up_function_features_o8_b1_rttl,
         &hf_pfcp_up_function_features_o8_b0_mpas,
         NULL
     };
-    /* Octet 8  Spare   Spare   Spare    Spare   Spare   VTIME    RTTL    MPAS */
+    /* Octet 8  MPTCP   TSCU   IP6PL    IPTV   NORP   VTIME    RTTL    MPAS */
     proto_tree_add_bitmask_list(tree, tvb, offset, 1, pfcp_up_function_features_o8_flags, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    if (offset == length) {
+        return;
+    }
+
+    static const int * pfcp_up_function_features_o9_flags[] = {
+        &hf_pfcp_spare_b7_b3,
+        &hf_pfcp_up_function_features_o9_b2_gpqm,
+        &hf_pfcp_up_function_features_o9_b1_qfqm,
+        &hf_pfcp_up_function_features_o9_b0_atsss_ll,
+        NULL
+    };
+    /* Octet 8  SPARE   GPQM    QFQM    ATSSS-LL */
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, pfcp_up_function_features_o9_flags, ENC_BIG_ENDIAN);
     offset += 1;
 
     if (offset < length) {
@@ -2352,7 +2582,9 @@ dissect_pfcp_apply_action(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
     int offset = 0;
 
     static const int * pfcp_apply_action_flags[] = {
-        &hf_pfcp_spare_b7_b5,
+        &hf_pfcp_spare_b7,
+        &hf_pfcp_apply_action_flags_b6_ipmd,
+        &hf_pfcp_apply_action_flags_b5_ipma,
         &hf_pfcp_apply_action_flags_b4_dupl,
         &hf_pfcp_apply_action_flags_b3_nocp,
         &hf_pfcp_apply_action_flags_b2_buff,
@@ -2360,7 +2592,7 @@ dissect_pfcp_apply_action(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
         &hf_pfcp_apply_action_flags_b0_drop,
         NULL
     };
-    /* Octet 5  Spare   Spare   Spare   DUPL    NOCP    BUFF    FORW    DROP */
+    /* Octet 5  Spare   IPMD   IPMA   DUPL    NOCP    BUFF    FORW    DROP */
     proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_pfcp_apply_action_flags,
         ett_pfcp_apply_action_flags, pfcp_apply_action_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT | BMT_NO_TFS);
     offset += 1;
@@ -3089,7 +3321,8 @@ dissect_pfcp_usage_report_trigger(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     }
 
     static const int * pfcp_usage_report_trigger_o7_flags[] = {
-        &hf_pfcp_spare_b7_b2,
+        &hf_pfcp_spare_b7_b3,
+        &hf_pfcp_usage_report_trigger_o7_b2_ipmjl,
         &hf_pfcp_usage_report_trigger_o7_b1_tebur,
         &hf_pfcp_usage_report_trigger_o7_b0_evequ,
         NULL
@@ -3672,7 +3905,8 @@ dissect_pfcp_cp_function_features(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     int offset = 0;
 
     static const int * pfcp_cp_function_features_flags[] = {
-        &hf_pfcp_spare_b7_b6,
+        &hf_pfcp_spare_b7,
+        &hf_pfcp_cp_function_features_b6_ardr,
         &hf_pfcp_cp_function_features_b5_mpas,
         &hf_pfcp_cp_function_features_b4_bundl,
         &hf_pfcp_cp_function_features_b3_sset,
@@ -3797,31 +4031,39 @@ dissect_pfcp_ue_ip_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     guint64 ue_ip_address_flags;
 
     static const int * pfcp_ue_ip_address_flags[] = {
-        &hf_pfcp_spare_b7_b4,
+        &hf_pfcp_spare_b7,
+        &hf_pfcp_ue_ip_address_flag_b6_v6pl,
+        &hf_pfcp_ue_ip_address_flag_b5_chv6,
+        &hf_pfcp_ue_ip_address_flag_b4_chv4,
         &hf_pfcp_ue_ip_address_flag_b3_v6d,
         &hf_pfcp_ue_ip_address_flag_b2_sd,
         &hf_pfcp_ue_ip_address_flag_b1_v4,
         &hf_pfcp_ue_ip_address_flag_b0_v6,
         NULL
     };
-    /* Octet 5  Spare   IPv6D   S/D     V4      V6*/
+    /* Octet 5  Spare   IPV6PL  CHV6    CHV4   IPv6D   S/D     V4      V6*/
     proto_tree_add_bitmask_with_flags_ret_uint64(tree, tvb, offset, hf_pfcp_ue_ip_address_flags,
         ett_pfcp_ue_ip_address_flags, pfcp_ue_ip_address_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT | BMT_NO_TFS, &ue_ip_address_flags);
     offset += 1;
 
     /* IPv4 address (if present)*/
-    if ((ue_ip_address_flags & 0x2) == 2) {
+    if ((ue_ip_address_flags & 0x2)) {
         proto_tree_add_item(tree, hf_pfcp_ue_ip_addr_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
     }
     /* IPv6 address (if present)*/
-    if ((ue_ip_address_flags & 0x1) == 1) {
+    if ((ue_ip_address_flags & 0x1)) {
         proto_tree_add_item(tree, hf_pfcp_ue_ip_add_ipv6, tvb, offset, 16, ENC_NA);
         offset += 16;
     }
     /* IPv6 Prefix Delegation Bits (if present)*/
-    if ((ue_ip_address_flags & 0x8) == 8) {
+    if ((ue_ip_address_flags & 0x8)) {
         proto_tree_add_item(tree, hf_pfcp_ue_ip_add_ipv6_prefix, tvb, offset, 1, ENC_NA);
+        offset += 1;
+    }
+    /* IPv6 Prefix Lengths (if present)*/
+    if ((ue_ip_address_flags & 0x40)) {
+        proto_tree_add_item(tree, hf_pfcp_ue_ip_add_ipv6_prefix_length, tvb, offset, 1, ENC_NA);
         offset += 1;
     }
 
@@ -3849,7 +4091,9 @@ dissect_pfcp_packet_rate(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pr
     guint64 flags;
 
     static const int * pfcp_packet_rate_flags[] = {
-        &hf_pfcp_spare_b7_b2,
+        &hf_pfcp_spare_b7_b4,
+        &hf_pfcp_packet_rate_b3_aprc,
+        &hf_pfcp_packet_rate_b2_rcsr,
         &hf_pfcp_packet_rate_b1_dlpr,
         &hf_pfcp_packet_rate_b0_ulpr,
         NULL
@@ -3860,7 +4104,7 @@ dissect_pfcp_packet_rate(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pr
     offset += 1;
 
     /* Bit 1 - ULPR (Uplink Packet Rate): If this bit is set to "1", then octets m to (m+2) shall be present */
-    if ((flags & 0x1) == 1) {
+    if ((flags & 0x1)) {
         /* m */
         proto_tree_add_item(tree, hf_pfcp_spare_b7_b3, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_pfcp_ul_time_unit, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -3870,13 +4114,37 @@ dissect_pfcp_packet_rate(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pr
         offset += 2;
     }
     /* Bit 2 - DLPR (Downlink Packet Rate): If this bit is set to "1", then octets p to (p+2) shall be present*/
-    if ((flags & 0x2) == 2) {
+    if ((flags & 0x2)) {
+        /* p */
         proto_tree_add_item(tree, hf_pfcp_spare_b7_b3, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_pfcp_dl_time_unit, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
-        /* (m+1) to (m+2)   Maximum Uplink Packet Rate */
+        /* (p+1) to (p+2)   Maximum Uplink Packet Rate */
         proto_tree_add_item(tree, hf_pfcp_max_dl_pr, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
+    }
+    /* Bit 4 - APRC (Additional Packet Rate Control) */
+    if ((flags & 0x8)) {
+        /* If bit 1 (ULPR) is set to "1", then octets q to (q+2), the Additional Maximum Uplink Packet Rate shall be present. */
+        if ((flags & 0x1)) {
+            /* q */
+            proto_tree_add_item(tree, hf_pfcp_spare_b7_b3, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_pfcp_a_ul_time_unit, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            /* (q+1) to (q+2)   Additional Maximum Uplink Packet Rate */
+            proto_tree_add_item(tree, hf_pfcp_a_max_ul_pr, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+        }
+        /* If bit 2 (DLPR) is set to "1", then octets r to (r+2), the Additional Maximum Downlink Packet Rate shall be present. */
+        if ((flags & 0x2)) {
+            /* r */
+            proto_tree_add_item(tree, hf_pfcp_spare_b7_b3, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_pfcp_a_dl_time_unit, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            /* (r+1) to (r+2)   Additional Maximum Uplink Packet Rate */
+            proto_tree_add_item(tree, hf_pfcp_a_max_dl_pr, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+        }
     }
 
     if (offset < length) {
@@ -4086,10 +4354,13 @@ dissect_pfcp_node_report_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
     static const int * pfcp_node_report_type_flags[] = {
         &hf_pfcp_spare_b7_b1,
+        &hf_pfcp_node_report_type_b3_gpqr,
+        &hf_pfcp_node_report_type_b2_ckdr,
+        &hf_pfcp_node_report_type_b1_uprr,
         &hf_pfcp_node_report_type_b0_upfr,
         NULL
     };
-    /* Octet 5  Spare   INAM    MBQE */
+    /* Octet 5  Spare   GPQR   CKDR   UPRR    MBQE */
     proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_pfcp_node_report_type,
         ett_pfcp_node_report_type, pfcp_node_report_type_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT);
     offset += 1;
@@ -4537,7 +4808,7 @@ dissect_pfcp_user_plane_ip_resource_infomation(tvbuff_t *tvb, packet_info *pinfo
 
     if (upiri_teid_range > 0)
     {
-        /* Octet 6    TEID Range */
+        /* Octet t    TEID Range */
         proto_tree_add_item(tree, hf_pfcp_upiri_teid_range, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
     }
@@ -5084,7 +5355,7 @@ static void dissect_pfcp_ethernet_pdu_session_information(tvbuff_t *tvb, packet_
         &hf_pfcp_ethernet_pdu_session_information_flags_b0_ethi,
         NULL
     };
-    /* Octet 5  Spare   IMEIF   IMSIF */
+    /* Octet 5  Spare   ETHI */
     proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_pfcp_ethernet_pdu_session_information_flags,
         ett_pfcp_ethernet_pdu_session_information, pfcp_ethernet_pdu_session_information_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT | BMT_NO_TFS);
     offset += 1;
@@ -5428,7 +5699,7 @@ dissect_pfcp_apn_dnn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, pr
      * The content of the APN/DNN field shall be the full APN/DNN with both the
      * APN/DNN Network Identifier and APN/DNN Operator Identifier
      */
-     /* NOTE:	The APN/DNN field is not encoded as a dotted string as commonly used in documentation. */
+     /* NOTE: The APN/DNN field is not encoded as a dotted string as commonly used in documentation. */
 
     const guint8* string_value;
     proto_tree_add_item_ret_string(tree, hf_pfcp_apn_dnn, tvb, offset, length, ENC_ASCII | ENC_NA, wmem_packet_scope(), &string_value);
@@ -5779,7 +6050,7 @@ dissect_pfcp_packet_replication_and_detection_carry_on_information(tvbuff_t *tvb
     };
     /* Octet 5  Spare   Spare   Spare   Spare   DCARONI   PRIN6I   PRIN19I   PRIUEAI */
     proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_pfcp_packet_replication_and_detection_carry_on_information_flags,
-        ett_packet_replication_and_detection_carry_on_information, pfcp_packet_replication_and_detection_carry_on_information_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT);
+        ett_pfcp_packet_replication_and_detection_carry_on_information, pfcp_packet_replication_and_detection_carry_on_information_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT);
     offset += 1;
 
     if (offset < length) {
@@ -5825,6 +6096,589 @@ dissect_pfcp_quota_validity_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     if (offset < length) {
         proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
     }
+}
+
+/*
+ * 8.2.133   Number of Reports
+ */
+static void
+dissect_pfcp_number_of_reports(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    guint value;
+
+    /* Number of Reports, an Unigned16 binary integer value excluding the first value "0". */
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_number_of_reports, tvb, 0, length, ENC_BIG_ENDIAN, &value);
+    proto_item_append_text(item, "%u", value);
+}
+
+/*
+ * 8.2.134   PFCPASRsp-Flags
+ */
+static void
+dissect_pfcp_pfcpasrsp_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    int offset = 0;
+
+    static const int * pfcp_pfcpasrsp_flags_flags[] = {
+        &hf_pfcp_spare_b7_b1,
+        &hf_pfcp_pfcpasrsp_flags_flags_b0_psrei,
+        NULL
+    };
+    /* Octet 5  Spare   PSREI */
+    proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_pfcp_pfcpasrsp_flags_flags,
+        ett_pfcp_pfcpasrsp_flags, pfcp_pfcpasrsp_flags_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT);
+    offset += 1;
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+}
+
+/*
+ * 8.2.135   CP PFCP Entity IP Address
+ */
+static void
+dissect_pfcp_cp_pfcp_entity_ip_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    int offset = 0;
+    guint64 cp_pfcp_entity_ip_address_flags;
+
+    static const int * pfcp_cp_pfcp_entity_ip_address_flags[] = {
+        &hf_pfcp_spare_b7_b2,
+        &hf_pfcp_b1_v4,
+        &hf_pfcp_b0_v6,
+        NULL
+    };
+    /* Octet 5  Spare   V4  V6 */
+    proto_tree_add_bitmask_with_flags_ret_uint64(tree, tvb, offset, hf_pfcp_cp_pfcp_entity_ip_address_flags,
+        ett_pfcp_cp_pfcp_entity_ip_address_flags, pfcp_cp_pfcp_entity_ip_address_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT | BMT_NO_TFS, &cp_pfcp_entity_ip_address_flags);
+    offset += 1;
+
+    /* IPv4 address (if present) */
+    if ((cp_pfcp_entity_ip_address_flags & 0x2)) {
+        proto_tree_add_item(tree, hf_pfcp_cp_pfcp_entity_ip_address_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_item_append_text(item, ", IPv4 %s", tvb_ip_to_str(tvb, offset));
+        offset += 4;
+    }
+    /* IPv6 address (if present) */
+    if ((cp_pfcp_entity_ip_address_flags & 0x1)) {
+        proto_tree_add_item(tree, hf_pfcp_cp_pfcp_entity_ip_address_ipv6, tvb, offset, 16, ENC_NA);
+        proto_item_append_text(item, ", IPv6 %s", tvb_ip6_to_str(tvb, offset));
+        offset += 16;
+    }
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+}
+
+/*
+ * 8.2.136   PFCPSEReq-Flags
+ */
+static void
+dissect_pfcp_pfcpsereq_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    int offset = 0;
+
+    static const int * pfcp_pfcpsereq_flags_flags[] = {
+        &hf_pfcp_spare_b7_b1,
+        &hf_pfcp_pfcpsereq_flags_flags_b0_resti,
+        NULL
+    };
+    /* Octet 5  Spare   RESTI */
+    proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_pfcp_pfcpsereq_flags_flags,
+        ett_pfcp_pfcpsereq_flags, pfcp_pfcpsereq_flags_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT);
+    offset += 1;
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+}
+
+/*
+ * 8.2.137   IP Multicast Address
+ */
+static void
+dissect_pfcp_ip_multicast_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    int offset = 0;
+    guint64 ip_multicast_address_flags;
+
+    static const int * pfcp_ip_multicast_address_flags[] = {
+        &hf_pfcp_spare_b7_b4,
+        &hf_pfcp_ip_multicast_address_flags_b3_any,
+        &hf_pfcp_ip_multicast_address_flags_b2_range,
+        &hf_pfcp_b1_v4,
+        &hf_pfcp_b0_v6,
+        NULL
+    };
+    /* Octet 5  Spare   A(Any)   R(Range)   V4  V6 */
+    proto_tree_add_bitmask_with_flags_ret_uint64(tree, tvb, offset, hf_pfcp_ip_multicast_address_flags,
+        ett_pfcp_ip_multicast_address_flags, pfcp_ip_multicast_address_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT | BMT_NO_TFS, &ip_multicast_address_flags);
+    offset += 1;
+
+    /* Any: If this bit is set to "1", this indicates any IP multicast address; in this case, no IP address field shall be included. */
+    if (!(ip_multicast_address_flags & 0x8)) {
+        /* IPv4 address (if present) */
+        if ((ip_multicast_address_flags & 0x2)) {
+            proto_tree_add_item(tree, hf_pfcp_ip_multicast_address_start_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
+        }
+        /* IPv6 address (if present) */
+        if ((ip_multicast_address_flags & 0x1)) {
+            proto_tree_add_item(tree, hf_pfcp_ip_multicast_address_start_ipv6, tvb, offset, 16, ENC_NA);
+            offset += 16;
+        }
+        /* Range */
+        if ((ip_multicast_address_flags & 0x4)) {
+            /* IPv4 address (if present) */
+            if ((ip_multicast_address_flags & 0x2)) {
+                proto_tree_add_item(tree, hf_pfcp_ip_multicast_address_end_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+            }
+            /* IPv6 address (if present) */
+            if ((ip_multicast_address_flags & 0x1)) {
+                proto_tree_add_item(tree, hf_pfcp_ip_multicast_address_end_ipv6, tvb, offset, 16, ENC_NA);
+                offset += 16;
+            }
+        }
+    }
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+}
+
+/*
+ * 8.2.138   Source IP Address
+ */
+static void
+dissect_pfcp_source_ip_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    int offset = 0;
+    guint64 source_ip_address_flags;
+
+    static const int * pfcp_source_ip_address_flags[] = {
+        &hf_pfcp_spare_b7_b3,
+        &hf_pfcp_source_ip_address_flags_b2_mpl,
+        &hf_pfcp_b1_v4,
+        &hf_pfcp_b0_v6,
+        NULL
+    };
+    /* Octet 5  Spare   V4  V6 */
+    proto_tree_add_bitmask_with_flags_ret_uint64(tree, tvb, offset, hf_pfcp_source_ip_address_flags,
+        ett_pfcp_source_ip_address_flags, pfcp_source_ip_address_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT | BMT_NO_TFS, &source_ip_address_flags);
+    offset += 1;
+
+    /* IPv4 address (if present) */
+    if ((source_ip_address_flags & 0x2)) {
+        proto_tree_add_item(tree, hf_pfcp_source_ip_address_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_item_append_text(item, ", IPv4 %s", tvb_ip_to_str(tvb, offset));
+        offset += 4;
+    }
+    /* IPv6 address (if present) */
+    if ((source_ip_address_flags & 0x1)) {
+        proto_tree_add_item(tree, hf_pfcp_source_ip_address_ipv6, tvb, offset, 16, ENC_NA);
+        proto_item_append_text(item, ", IPv6 %s", tvb_ip6_to_str(tvb, offset));
+        offset += 16;
+    }
+    /* Mask/Prefix Length (if present) */
+    if ((source_ip_address_flags & 0x4)) {
+        proto_tree_add_item(tree, hf_pfcp_source_ip_address_mask_prefix_lengt, tvb, offset, 16, ENC_NA);
+        proto_item_append_text(item, ", IPv6 %s", tvb_ip6_to_str(tvb, offset));
+        offset += 16;
+    }
+
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+}
+
+/*
+ * 8.2.139   Packet Rate Status
+ */
+static void
+dissect_pfcp_packet_rate_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    int offset = 0;
+    guint64 flags_val;
+
+    static const int * pfcp_packet_rate_status_flags[] = {
+        &hf_pfcp_spare_b7_b3,
+        &hf_pfcp_packet_rate_status_flags_b2_apr,
+        &hf_pfcp_packet_rate_status_flags_b1_dl,
+        &hf_pfcp_packet_rate_status_flags_b0_ul,
+        NULL
+    };
+    /* Octet 5  Spare   APR   DL   UL*/
+    proto_tree_add_bitmask_with_flags_ret_uint64(tree, tvb, offset, hf_pfcp_packet_rate_status_flags,
+        ett_pfcp_packet_rate_status, pfcp_packet_rate_status_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT, &flags_val);
+    offset += 1;
+
+
+    /* Number of Remaining Uplink Packets Allowed */
+    if ((flags_val & 0x1)) {
+        proto_tree_add_item(tree, hf_pfcp_packet_rate_status_ul, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+
+        if ((flags_val & 0x4)) {
+            proto_tree_add_item(tree, hf_pfcp_packet_rate_status_apr_ul, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+        }
+    }
+    /* Number of Remaining Downlink Packets Allowed */
+    if ((flags_val & 0x2)) {
+        proto_tree_add_item(tree, hf_pfcp_packet_rate_status_dl, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+
+        /* Additional number of Remaining Downlink Packets Allowed */
+        if ((flags_val & 0x4)) {
+            proto_tree_add_item(tree, hf_pfcp_packet_rate_status_apr_dl, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+        }
+    }
+    /* Rate Control Status Validity Time */
+    if (offset < length) {
+        proto_tree_add_item(tree, hf_pfcp_packet_rate_status_validity_time, tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
+    }
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+}
+
+/*
+ * 8.2.140   Create Bridge Info for TSC
+ */
+static void
+dissect_pfcp_create_bridge_info_for_tsc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    int offset = 0;
+
+    static const int * pfcp_create_bridge_info_for_tsc_flags[] = {
+        &hf_pfcp_spare_b7_b1,
+        &hf_pfcp_create_bridge_info_for_tsc_flags_b0_bii,
+        NULL
+    };
+    /* Octet 5  Spare   BII */
+    proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_pfcp_create_bridge_info_for_tsc_flags,
+        ett_pfcp_create_bridge_info_for_tsc, pfcp_create_bridge_info_for_tsc_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT);
+    offset += 1;
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+}
+
+/*
+ * 8.2.141   DS-TT Port Number
+ */
+static void
+dissect_pfcp_ds_tt_port_number(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    guint value;
+
+    /* The DS-TT Port Number shall contain one Port Number value */
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_ds_tt_port_number, tvb, 0, length, ENC_BIG_ENDIAN, &value);
+    proto_item_append_text(item, "%u", value);
+}
+
+/*
+ * 8.2.142   NW-TT Port Number
+ */
+static void
+dissect_pfcp_nw_tt_port_number(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    guint value;
+
+    /* The NW-TT Port Number shall contain one Port Number value */
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_nw_tt_port_number, tvb, 0, length, ENC_BIG_ENDIAN, &value);
+    proto_item_append_text(item, "%u", value);
+}
+
+/*
+ * 8.2.143   TSN Bridge ID
+ */
+static void
+dissect_pfcp_tsn_bridge_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    int offset = 0;
+    guint64 flags_val;
+
+    static const int * pfcp_tsn_bridge_id_flags[] = {
+        &hf_pfcp_spare_b7_b4,
+        &hf_pfcp_tsn_bridge_id_flags_b0_mac,
+        NULL
+    };
+    /* Octet 5  Spare   MAC */
+    proto_tree_add_bitmask_with_flags_ret_uint64(tree, tvb, offset, hf_pfcp_tsn_bridge_id_flags,
+        ett_pfcp_tsn_bridge_id, pfcp_tsn_bridge_id_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT | BMT_NO_TFS, &flags_val);
+    offset += 1;
+
+    // Bit 1 – MAC: If this bit is set to "1", then the MAC address value field shall be present,
+    // The MAC address value shall be encoded as 12-digit hexadecimal numbers.
+    if ((flags_val & 0x1)) {
+        proto_tree_add_item(tree, hf_pfcp_tsn_bridge_id_mac_address, tvb, offset, 6, ENC_NA);
+        offset += 6;
+    }
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+}
+
+/*
+ * 8.2.144   Port Management Information Container
+ */
+static void
+dissect_pfcp_port_management_information_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.145   Requested Clock Drift Information
+ */
+static void
+dissect_pfcp_requested_clock_drift_control_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.146   TSN Domain Number
+ */
+static void
+dissect_pfcp_tsn_domain_number(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.147   Time Offset Threshold
+ */
+static void
+dissect_pfcp_time_offset_threshold(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.148   Cumulative rateRatio Threshold
+ */
+static void
+dissect_pfcp_cumulative_rate_ratio_threshold(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.149   Time Offset Measurement
+ */
+static void
+dissect_pfcp_time_offset_measurement(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.150   Cumulative rateRatio Measurement
+ */
+static void
+dissect_pfcp_cumulative_rate_ratio_measurement(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.151   SRR ID
+ */
+static void
+dissect_pfcp_srr_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.152   Requested Access Availability Information
+ */
+static void
+dissect_pfcp_requested_access_availability_control_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.153   Access Availability Information
+ */
+static void
+dissect_pfcp_access_availability_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.154   MPTCP Control Information
+ */
+static void
+dissect_pfcp_mptcp_control_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.155   ATSSS-LL Control Information
+ */
+static void
+dissect_pfcp_atsss_ll_control_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.156   PMF Control Information
+ */
+static void
+dissect_pfcp_pmf_control_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.157   MPTCP Address Information
+ */
+static void
+dissect_pfcp_mptcp_address_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.158   UE Link-Specific IP Address
+ */
+static void
+dissect_pfcp_ue_link_specific_ip_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.159   PMF Address Information
+ */
+static void
+dissect_pfcp_pmf_address_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.160   ATSSS-LL Information
+ */
+static void
+dissect_pfcp_atsss_ll_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.161   Data Network Access Identifier
+ */
+static void
+dissect_pfcp_data_network_access_identifier(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.162   Average Packet Delay
+ */
+static void
+dissect_pfcp_average_packet_delay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.163   Minimum Packet Delay
+ */
+static void
+dissect_pfcp_minimum_packet_delay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.164   Maximum Packet Delay
+ */
+static void
+dissect_pfcp_maximum_packet_delay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.165   QoS Report Trigger
+ */
+static void
+dissect_pfcp_qos_report_trigger(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.166   GTP-U Path Interface Type
+ */
+static void
+dissect_pfcp_gtp_u_path_interface_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.167   Requested QoS Monitoring
+ */
+static void
+dissect_pfcp_requested_qos_monitoring(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.168   Reporting Frequency
+ */
+static void
+dissect_pfcp_reporting_frequency(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.169   Packet Delay Thresholds
+ */
+static void
+dissect_pfcp_packet_delay_thresholds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.170   Minimum Wait Time
+ */
+static void
+dissect_pfcp_minimum_wait_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+}
+
+/*
+ * 8.2.171   QoS Monitoring Measurement
+ */
+static void
+dissect_pfcp_qos_monitoring_measurement(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
 }
 
 /* Array of functions to dissect IEs
@@ -6017,7 +6871,75 @@ static const pfcp_ie_t pfcp_ies[] = {
 /*    179 */    { dissect_pfcp_packet_replication_and_detection_carry_on_information }, /* Packet Replication and Detection Carry-On Information     Extendable / Clause 8.2.130  */
 /*    180 */    { dissect_pfcp_smf_set_id },                                    /* SMF Set ID                                      Extendable / Clause 8.2.131  */
 /*    181 */    { dissect_pfcp_quota_validity_time },                           /* Quota Validity Time                             Extendable / Clause 8.2.132  */
-//182 to 32767 Spare. For future use.
+/*    182 */    { dissect_pfcp_number_of_reports },                             /* Number of Reports                               Fixed / Clause 8.2.133  */
+/*    183 */    { dissect_pfcp_pfcp_session_retention_information_within_pfcp_association_setup_request }, /* PFCP Session Retention Information (within PFCP Association Setup Request)  Extendable / Table 7.4.4.1-2  */
+/*    184 */    { dissect_pfcp_pfcpasrsp_flags },                               /* PFCPASRsp-Flags                                 Extendable / Clause 8.2.134  */
+/*    185 */    { dissect_pfcp_cp_pfcp_entity_ip_address },                     /* CP PFCP Entity IP Address                       Extendable / Clause 8.2.135  */
+/*    186 */    { dissect_pfcp_pfcpsereq_flags },                               /* PFCPSEReq-Flags                                 Extendable / Clause 8.2.136  */
+/*    187 */    { dissect_pfcp_user_plane_path_recovery_report },               /* User Plane Path Recovery Report                 Extendable / Table 7.4.5.1.3-1  */
+/*    188 */    { dissect_ip_multicast_addressing_info_within_pfcp_session_establishment_request }, /* IP Multicast Addressing Info within PFCP Session Establishment Request  Extendable / Clause 7.5.2.2-4  */
+/*    189 */    { dissect_pfcp_join_ip_multicast_information },                 /* Join IP Multicast Information IE within Usage Report    Extendable / Table 7.5.8.3-4  */
+/*    190 */    { dissect_pfcp_leave_ip_multicast_information },                /* Leave IP Multicast Information IE within Usage Report   Extendable / Table 7.5.8.3-5  */
+/*    191 */    { dissect_pfcp_ip_multicast_address },                          /* IP Multicast Address                            Extendable / Clause 8.2.137  */
+/*    192 */    { dissect_pfcp_source_ip_address },                             /* Source IP Address                               Extendable / Clause 8.2.138  */
+/*    193 */    { dissect_pfcp_packet_rate_status },                            /* Packet Rate Status                              Extendable / Clause 8.2.139  */
+/*    194 */    { dissect_pfcp_create_bridge_info_for_tsc },                    /* Create Bridge Info for TSC                      Extendable / Clause 8.2.140  */
+/*    195 */    { dissect_pfcp_created_bridge_info_for_tsc },                   /* Created Bridge Info for TSC                     Extendable / Table 7.5.3.6-1  */
+/*    196 */    { dissect_pfcp_ds_tt_port_number },                             /* DS-TT Port Number                               Fixed Length / Clause 8.2.141  */
+/*    197 */    { dissect_pfcp_nw_tt_port_number },                             /* NW-TT Port Number                               Fixed Length / Clause 8.2.142  */
+/*    198 */    { dissect_pfcp_tsn_bridge_id },                                 /* TSN Bridge ID                                   Extendable / Clause 8.2.143  */
+/*    199 */    { dissect_pfcp_port_management_information_for_tsc_ie_within_pfcp_session_modification_request }, /* Port Management Information for TSC IE within PFCP Session Modification Request  Extendable / Table 7.5.4.18-1  */
+/*    200 */    { dissect_pfcp_port_management_information_for_tsc_ie_within_pfcp_session_modification_response }, /* Port Management Information for TSC IE within PFCP Session Modification Response Extendable / Table 7.5.5.3-1  */
+/*    201 */    { dissect_pfcp_port_management_information_for_tsc_ie_within_pfcp_session_report_request }, /* Port Management Information for TSC IE within PFCP Session Report Request    Extendable / Table 7.5.8.5-1  */
+/*    202 */    { dissect_pfcp_port_management_information_container },         /* Port Management Information Container           Variable Length / Clause 8.2.144  */
+/*    203 */    { dissect_pfcp_clock_drift_control_information },               /* Clock Drift Control Information                 Extendable / Table 7.4.4.1.2-1  */
+/*    204 */    { dissect_pfcp_requested_clock_drift_control_information },     /* Requested Clock Drift Information               Extendable / Clause 8.2.145  */
+/*    205 */    { dissect_pfcp_clock_drift_report },                            /* Clock Drift Report                              Extendable / Table 7.4.5.1.4-1  */
+/*    206 */    { dissect_pfcp_tsn_domain_number  },                            /* TSN Domain Number                               Extendable / Clause 8.2.146  */
+/*    207 */    { dissect_pfcp_time_offset_threshold },                         /* Time Offset Threshold                           Extendable / Clause 8.2.147  */
+/*    208 */    { dissect_pfcp_cumulative_rate_ratio_threshold },               /* Cumulative rateRatio Threshold                  Extendable / Clause 8.2.148  */
+/*    209 */    { dissect_pfcp_time_offset_measurement },                       /* Time Offset Measurement                         Extendable / Clause 8.2.149  */
+/*    210 */    { dissect_pfcp_cumulative_rate_ratio_measurement },             /* Cumulative rateRatio Measurement                Extendable / Clause 8.2.150  */
+/*    211 */    { dissect_pfcp_remove_srr },                                    /* Remove SRR                                      Extendable/ Table 7.5.4.19-1  */
+/*    212 */    { dissect_pfcp_create_srr },                                    /* Create SRR                                      Extendable/ Table 7.5.2.9-1  */
+/*    213 */    { dissect_pfcp_update_srr },                                    /* Update SRR                                      Extendable/ Table 7.5.4.21-1  */
+/*    214 */    { dissect_pfcp_session_report },                                /* Session Report                                  Extendable / Table 7.5.8.7-1  */
+/*    215 */    { dissect_pfcp_srr_id },                                        /* SRR ID                                          Extendable / Clause 8.2.151  */
+/*    216 */    { dissect_pfcp_access_availability_control_information },       /* Access Availability Control Information         Extendable / Table 7.5.2.9-2  */
+/*    217 */    { dissect_pfcp_requested_access_availability_control_information }, /* Requested Access Availability Information       Extendable / Clause 8.2.152  */
+/*    218 */    { dissect_pfcp_access_availability_report },                    /* Access Availability Report                      Extendable / Table 7.5.8.6-2  */
+/*    219 */    { dissect_pfcp_access_availability_information },               /* Access Availability Information                 Extendable / Clause 8.2.153  */
+/*    220 */    { dissect_pfcp_provide_atsss_control_information },             /* Provide ATSSS Control Information               Extendable / Table 7.5.2.10-1  */
+/*    221 */    { dissect_pfcp_atsss_control_parameters },                      /* ATSSS Control Parameters                        Extendable / Table 7.5.3.7-1  */
+/*    222 */    { dissect_pfcp_mptcp_control_information },                     /* MPTCP Control Information                       Extendable / Clause 8.2.154  */
+/*    223 */    { dissect_pfcp_atsss_ll_control_information },                  /* ATSSS-LL Control Information                    Extendable / Clause 8.2.155  */
+/*    224 */    { dissect_pfcp_pmf_control_information },                       /* PMF Control Information                         Extendable / Clause 8.2.156  */
+/*    225 */    { dissect_pfcp_mptcp_parameters },                              /* MPTCP Parameters                                Extendable / Table 7.5.3.7-2  */
+/*    226 */    { dissect_pfcp_atsss_ll_parameters },                           /* ATSSS-LL Parameters                             Extendable / Table 7.5.3.7-3  */
+/*    227 */    { dissect_pfcp_pmf_parameters },                                /* PMF Parameters                                  Extendable / Table 7.5.3.7-4  */
+/*    228 */    { dissect_pfcp_mptcp_address_information },                     /* MPTCP Address Information                       Extendable / Clause 8.2.157  */
+/*    229 */    { dissect_pfcp_ue_link_specific_ip_address },                   /* UE Link-Specific IP Address                     Extendable / Clause 8.2.158  */
+/*    230 */    { dissect_pfcp_pmf_address_information },                       /* PMF Address Information                         Extendable / Clause 8.2.159  */
+/*    231 */    { dissect_pfcp_atsss_ll_information },                          /* ATSSS-LL Information                            Extendable / Clause 8.2.160  */
+/*    232 */    { dissect_pfcp_data_network_access_identifier },                /* Data Network Access Identifier                  Variable Length / Clause 8.2.161  */
+/*    233 */    { dissect_pfcp_ue_ip_address_pool_information },                /* UE IP address Pool Information                  Extendable / Table 7.4.4.1-3  */
+/*    234 */    { dissect_pfcp_average_packet_delay },                          /* Average Packet Delay                            Extendable / Clause 8.2.162  */
+/*    235 */    { dissect_pfcp_minimum_packet_delay },                          /* Minimum Packet Delay                            Extendable / Clause 8.2.163  */
+/*    236 */    { dissect_pfcp_maximum_packet_delay },                          /* Maximum Packet Delay                            Extendable / Clause 8.2.164  */
+/*    237 */    { dissect_pfcp_qos_report_trigger },                            /* QoS Report Trigger                              Extendable / Clause 8.2.165  */
+/*    238 */    { dissect_pfcp_gtp_u_path_qos_control_information },            /* GTP-U Path QoS Control Information              Extendable / Table 7.4.4.1.3-1  */
+/*    239 */    { dissect_pfcp_gtp_u_path_qos_report },                         /* GTP-U Path QoS Report (PFCP Node Report Request)    Extendable / Table 7.4.5.1.5-1  */
+/*    240 */    { dissect_pfcp_qos_information_in_gtp_u_path_qos_report },      /* QoS Information in GTP-U Path QoS Report        Extendable / Table 7.4.5.1.6-1  */
+/*    241 */    { dissect_pfcp_gtp_u_path_interface_type },                     /* GTP-U Path Interface Type                       Extendable / Clause 8.2.166  */
+/*    242 */    { dissect_pfcp_qos_monitoring_per_qos_flow_control_information }, /* QoS Monitoring per QoS flow Control Information Extendable / Table 7.5.2.9-3  */
+/*    243 */    { dissect_pfcp_requested_qos_monitoring },                      /* Requested QoS Monitoring                        Extendable / Clause 8.2.167  */
+/*    244 */    { dissect_pfcp_reporting_frequency },                           /* Reporting Frequency                             Extendable / Clause 8.2.168  */
+/*    245 */    { dissect_pfcp_packet_delay_thresholds },                       /* Packet Delay Thresholds                         Extendable / Clause 8.2.169  */
+/*    246 */    { dissect_pfcp_minimum_wait_time },                             /* Minimum Wait Time                               Extendable / Clause 8.2.170  */
+/*    247 */    { dissect_pfcp_qos_monitoring_report },                         /* QoS Monitoring Report                           Extendable / Table 7.5.8.6-3  */
+/*    248 */    { dissect_pfcp_qos_monitoring_measurement },                    /* QoS Monitoring Measurement                      Extendable / Clause 8.2.171  */
+
+//249 to 32767 Spare. For future use.
 //32768 to 65535 Vendor-specific IEs.
     { NULL },                                                        /* End of List */
 };
@@ -6487,6 +7409,174 @@ static void
 dissect_pfcp_update_access_forwarding_action_information_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
     dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_UPDATE_ACCESS_FORWARDING_ACTION_INORMATION_2], args);
+}
+
+static void
+dissect_pfcp_pfcp_session_retention_information_within_pfcp_association_setup_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_PFCP_SESSION_RETENTION_INFORMATION_WITHIN_ASSOCIATION_SETUP_REQUEST], args);
+}
+
+static void
+dissect_pfcp_user_plane_path_recovery_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_USER_PLANE_PATH_RECOVERY_REPORT], args);
+}
+
+static void
+dissect_ip_multicast_addressing_info_within_pfcp_session_establishment_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_IP_MULTICAST_ADDRESSING_INFO], args);
+}
+
+static void
+dissect_pfcp_join_ip_multicast_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_JOIN_IP_MULTICAST_INFORMATION], args);
+}
+
+static void
+dissect_pfcp_leave_ip_multicast_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_LEAVE_IP_MULTICAST_INFORMATION], args);
+}
+
+static void
+dissect_pfcp_created_bridge_info_for_tsc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_CREATED_BRIDGE_INFO_FOR_TSC], args);
+}
+
+static void
+dissect_pfcp_port_management_information_for_tsc_ie_within_pfcp_session_modification_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_Port_MANAGEMENT_INFORMATION_FOR_TSC_WITHIN_PCFP_SESSION_MODIFICATION_REQUEST], args);
+}
+
+static void
+dissect_pfcp_port_management_information_for_tsc_ie_within_pfcp_session_modification_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_Port_MANAGEMENT_INFORMATION_FOR_TSC_WITHIN_PCFP_SESSION_MODIFICATION_RESPONSE], args);
+}
+
+static void
+dissect_pfcp_port_management_information_for_tsc_ie_within_pfcp_session_report_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_Port_MANAGEMENT_INFORMATION_FOR_TSC_WITHIN_PCFP_SESSION_REPORT_REQUEST], args);
+}
+
+static void
+dissect_pfcp_clock_drift_control_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_CLOCK_DRIFT_CONTROL_INFORMATION], args);
+}
+
+static void
+dissect_pfcp_clock_drift_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_CLOCK_DRIFT_REPORT], args);
+}
+
+static void
+dissect_pfcp_remove_srr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_REMOVE_SRR], args);
+}
+
+static void
+dissect_pfcp_create_srr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_CREATE_SRR], args);
+}
+
+static void
+dissect_pfcp_update_srr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_UPDATE_SRR], args);
+}
+
+static void
+dissect_pfcp_session_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_SESSION_REPORT], args);
+}
+
+static void
+dissect_pfcp_access_availability_control_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_ACCESS_AVAILABILITY_CONTROL_INFORMATION], args);
+}
+
+static void
+dissect_pfcp_access_availability_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_ACCESS_AVAILABILITY_REPORT], args);
+}
+
+static void
+dissect_pfcp_provide_atsss_control_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_PROVICE_ATSSS_CONTROL_INFORMATION], args);
+}
+
+static void
+dissect_pfcp_atsss_control_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_ATSSS_CONTROl_PARAMETERS], args);
+}
+
+static void
+dissect_pfcp_mptcp_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_MPTCP_PARAMETERS], args);
+}
+
+static void
+dissect_pfcp_atsss_ll_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_ATSSS_LL_PARAMETERS], args);
+}
+
+static void
+dissect_pfcp_pmf_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_PMF_PARAMETERS], args);
+}
+
+static void
+dissect_pfcp_ue_ip_address_pool_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_UE_IP_ADDRESS_POOL_INFORMATION], args);
+}
+
+static void
+dissect_pfcp_gtp_u_path_qos_control_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_GTP_U_PATH_QOS_CONTROL_INFORMATION], args);
+}
+
+static void
+dissect_pfcp_gtp_u_path_qos_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_GTP_U_PATH_QOS_REPORT], args);
+}
+
+static void
+dissect_pfcp_qos_information_in_gtp_u_path_qos_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_QOS_INFORMATION_IN_GTP_U_PATH_QOS_REPORT], args);
+}
+
+static void
+dissect_pfcp_qos_monitoring_per_qos_flow_control_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_QOS_MONITORING_PER_QOS_FLOW_CONTROL_INFORMATION], args);
+}
+
+static void
+dissect_pfcp_qos_monitoring_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_QOS_MONITORING_REPORT], args);
 }
 
 static void
@@ -7195,6 +8285,21 @@ proto_register_pfcp(void)
             FT_BOOLEAN, 8, TFS(&pfcp_ue_ip_add_sd_flag_vals), 0x08,
             NULL, HFILL }
         },
+        { &hf_pfcp_ue_ip_address_flag_b4_chv4,
+        { "CHV4", "pfcp.ue_ip_address_flag.chv4",
+            FT_BOOLEAN, 8, TFS(&pfcp_ue_ip_add_sd_flag_vals), 0x10,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_ue_ip_address_flag_b5_chv6,
+        { "CHV6", "pfcp.ue_ip_address_flag.chv6",
+            FT_BOOLEAN, 8, TFS(&pfcp_ue_ip_add_sd_flag_vals), 0x20,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_ue_ip_address_flag_b6_v6pl,
+        { "IPV6PL", "pfcp.ue_ip_address_flag.v6pl",
+            FT_BOOLEAN, 8, TFS(&pfcp_ue_ip_add_sd_flag_vals), 0x40,
+            NULL, HFILL }
+        },
         { &hf_pfcp_ue_ip_addr_ipv4,
         { "IPv4 address", "pfcp.ue_ip_addr_ipv4",
             FT_IPv4, BASE_NONE, NULL, 0x0,
@@ -7207,6 +8312,11 @@ proto_register_pfcp(void)
         },
         { &hf_pfcp_ue_ip_add_ipv6_prefix,
         { "IPv6 Prefix", "pfcp.ue_ip_addr_ipv6_prefix",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_ue_ip_add_ipv6_prefix_length,
+        { "IPv6 Prefix Length", "pfcp.ue_ip_addr_ipv6_prefix_length",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
@@ -7364,6 +8474,16 @@ proto_register_pfcp(void)
         { &hf_pfcp_apply_action_flags_b4_dupl,
         { "DUPL (Duplicate)", "pfcp.apply_action.dupl",
             FT_BOOLEAN, 8, NULL, 0x10,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_apply_action_flags_b5_ipma,
+        { "IPMA (IP Multicast Accept)", "pfcp.apply_action.ipma",
+            FT_BOOLEAN, 8, NULL, 0x20,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_apply_action_flags_b6_ipmd,
+        { "IPMD (IP Multicast Deny)", "pfcp.apply_action.ipmd",
+            FT_BOOLEAN, 8, NULL, 0x40,
             NULL, HFILL }
         },
         { &hf_pfcp_bar_id,
@@ -7606,6 +8726,11 @@ proto_register_pfcp(void)
             FT_BOOLEAN, 8, NULL, 0x20,
             NULL, HFILL }
         },
+        { &hf_pfcp_reporting_triggers_o6_b6_ipmjl,
+        { "IPMJL (IP Multicast Join/Leave)", "pfcp.reporting_triggers_flags.ipmjl",
+            FT_BOOLEAN, 8, NULL, 0x40,
+            NULL, HFILL }
+        },
 
         { &hf_pfcp_usage_report_trigger_o7_b0_evequ,
         { "EVEQU (Event Quota)", "pfcp.usage_report_trigger_flags.evequ",
@@ -7615,6 +8740,11 @@ proto_register_pfcp(void)
         { &hf_pfcp_usage_report_trigger_o7_b1_tebur,
         { "TEMUR (Termination By UP function Report)", "pfcp.usage_report_trigger_flags.tebur",
             FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_usage_report_trigger_o7_b2_ipmjl,
+        { "IPMJL (IP Multicast Join/Leave)", "pfcp.usage_report_trigger_flags.ipmjl",
+            FT_BOOLEAN, 8, NULL, 0x04,
             NULL, HFILL }
         },
         { &hf_pfcp_usage_report_trigger_o6_b0_volqu,
@@ -7893,6 +9023,16 @@ proto_register_pfcp(void)
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_pfcp_report_type_b5_sesr,
+        { "SESR (Session Report)", "pfcp.report_type.sesr",
+            FT_BOOLEAN, 8, NULL, 0x20,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_report_type_b4_pmir,
+        { "PMIR (Port Management Information for TSC Report)", "pfcp.report_type.pmir",
+            FT_BOOLEAN, 8, NULL, 0x10,
+            NULL, HFILL }
+        },
         { &hf_pfcp_report_type_b3_upir,
         { "UPIR (User Plane Inactivity Report)", "pfcp.report_type.upir",
             FT_BOOLEAN, 8, NULL, 0x08,
@@ -8054,6 +9194,46 @@ proto_register_pfcp(void)
             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
             "UPF support of quota validity time feature", HFILL }
         },
+        { &hf_pfcp_up_function_features_o8_b3_norp,
+        { "NORP", "pfcp.up_function_features.norp",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
+            "UP function support of Number of Reports", HFILL }
+        },
+        { &hf_pfcp_up_function_features_o8_b4_iptv,
+        { "IPTV", "pfcp.up_function_features.iptv",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10,
+            "UPF support of IPTV service", HFILL }
+        },
+        { &hf_pfcp_up_function_features_o8_b5_ip6pl,
+        { "IP6PL", "pfcp.up_function_features.ip6pl",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
+            "UPF supports UE IPv6 address(es) allocation with IPv6 prefix length other than default /64", HFILL }
+        },
+        { &hf_pfcp_up_function_features_o8_b6_tscu,
+        { "TSCU", "pfcp.up_function_features.tscu",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
+            "Time Sensitive Communication is supported by the UPF", HFILL }
+        },
+        { &hf_pfcp_up_function_features_o8_b7_mptcp,
+        { "MPTCP", "pfcp.up_function_features.mptcp",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80,
+            "UPF support of MPTCP Proxy functionality", HFILL }
+        },
+        { &hf_pfcp_up_function_features_o9_b0_atsss_ll,
+        { "ATSSS-LL", "pfcp.up_function_features.atsss_ll",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+            "UPF support of ATSSS-LLL steering functionality", HFILL }
+        },
+        { &hf_pfcp_up_function_features_o9_b1_qfqm,
+        { "QFQM", "pfcp.up_function_features.qfqm",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
+            "UPF support of per QoS flow per UE QoS monitoring", HFILL }
+        },
+        { &hf_pfcp_up_function_features_o9_b2_gpqm,
+        { "GPQM", "pfcp.up_function_features.gpqm",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
+            "UPF support of per GTP-U Path QoS monitoring", HFILL }
+        },
         { &hf_pfcp_sequence_number,
         { "Sequence Number", "pfcp.sequence_number",
             FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -8174,6 +9354,11 @@ proto_register_pfcp(void)
             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
             "SMF support for multiple PFCP associations from an SMF set to a single UPF", HFILL }
         },
+        { &hf_pfcp_cp_function_features_b6_ardr,
+        { "ARDR", "pfcp.cp_function_features.ardr",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
+            "CP function supports Additional Usage Reports in the PFCP Session Deletion Response", HFILL }
+        },
         { &hf_pfcp_usage_information,
         { "Flags", "pfcp.usage_information",
             FT_UINT8, BASE_HEX, NULL, 0x0,
@@ -8229,6 +9414,16 @@ proto_register_pfcp(void)
             FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x02,
             NULL, HFILL }
         },
+        { &hf_pfcp_packet_rate_b2_rcsr,
+        { "RCSR (Rate Control Status Reporting)", "pfcp.packet_rate.rcsr",
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x04,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_packet_rate_b3_aprc,
+        { "APRC (Additional Packet Rate Control)", "pfcp.packet_rate.aprc",
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x08,
+            NULL, HFILL }
+        },
         { &hf_pfcp_ul_time_unit,
         { "Uplink Time Unit", "pfcp.ul_time_unit",
             FT_UINT8, BASE_DEC, VALS(pfcp_pr_time_unit_vals), 0x07,
@@ -8246,6 +9441,26 @@ proto_register_pfcp(void)
         },
         { &hf_pfcp_max_dl_pr,
         { "Maximum Downlink Packet Rate", "pfcp.max_dl_pr",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_a_ul_time_unit,
+        { "Additional Uplink Time Unit", "pfcp.a_ul_time_unit",
+            FT_UINT8, BASE_DEC, VALS(pfcp_pr_time_unit_vals), 0x07,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_a_max_ul_pr,
+        { "Additional Maximum Uplink Packet Rate", "pfcp.a_max_ul_pr",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_a_dl_time_unit,
+        { "Additional Downlink Time Unit", "pfcp.a_dl_time_unit",
+            FT_UINT8, BASE_DEC, VALS(pfcp_pr_time_unit_vals), 0x07,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_a_max_dl_pr,
+        { "Additional Maximum Downlink Packet Rate", "pfcp.a_max_dl_pr",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
@@ -8502,6 +9717,21 @@ proto_register_pfcp(void)
         { &hf_pfcp_node_report_type_b0_upfr,
         { "UPFR (User Plane Path Failure Report)", "pfcp.node_report_type.upfr",
             FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_node_report_type_b1_uprr,
+        { "UPRR (User Plane Path Recovery Report)", "pfcp.node_report_type.uprr",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_node_report_type_b2_ckdr,
+        { "CKDR (Clock Drift Report)", "pfcp.node_report_type.ckdr",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_node_report_type_b3_gpqr,
+        { "GPQR (GTP-U Path QoS Report)", "pfcp.node_report_type.gpqr",
+            FT_BOOLEAN, 8, NULL, 0x08,
             NULL, HFILL }
         },
         { &hf_pfcp_remote_gtp_u_peer_flags,
@@ -9207,10 +10437,201 @@ proto_register_pfcp(void)
             FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0x0,
             NULL, HFILL }
         },
+
+        { &hf_pfcp_number_of_reports,
+        { "Number of Reports", "pfcp.number_of_reports",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_pfcpasrsp_flags_flags,
+        { "Flags", "pfcp.pfcpasrsp_flags.flags",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_pfcpasrsp_flags_flags_b0_psrei,
+        { "PSREI (PFCP Session Retained Indication)", "pfcp.asrsp_flags.flags.psrei",
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x01,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_cp_pfcp_entity_ip_address_flags,
+        { "Flags", "pfcp.cp_pfcp_entity_ip_address",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_cp_pfcp_entity_ip_address_ipv4,
+        { "IPv4 address", "pfcp.cp_pfcp_entity_ip_address.ipv4",
+            FT_IPv4, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_cp_pfcp_entity_ip_address_ipv6,
+        { "IPv6 address", "pfcp.cp_pfcp_entity_ip_address.ipv6",
+            FT_IPv6, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_pfcpsereq_flags_flags,
+        { "Flags", "pfcp.pfcpsereq_flags.flags",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_pfcpsereq_flags_flags_b0_resti,
+        { "RESTI (Restoration Indication)", "pfcp.sereq_flags.flags.resti",
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x01,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_ip_multicast_address_flags,
+        { "Flags", "pfcp.ip_multicast_address.flags",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_ip_multicast_address_flags_b2_range,
+        { "RANGE", "pfcp.ip_multicast_address.flags.range",
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x04,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_ip_multicast_address_flags_b3_any,
+        { "ANY", "pfcp.ip_multicast_address.flags.any",
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x08,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_ip_multicast_address_start_ipv4,
+        { "(Start) IPv4 address", "pfcp.ip_multicast_address.start_ipv4",
+            FT_IPv4, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_ip_multicast_address_start_ipv6,
+        { "(Start) IPv6 address", "pfcp.ip_multicast_address.start_ipv6",
+            FT_IPv6, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_ip_multicast_address_end_ipv4,
+        { "(End) IPv4 address", "pfcp.ip_multicast_address.end_ipv4",
+            FT_IPv4, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_ip_multicast_address_end_ipv6,
+        { "(End) IPv6 address", "pfcp.ip_multicast_address.end_ipv6",
+            FT_IPv6, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_source_ip_address_flags,
+        { "Flags", "pfcp.source_ip_address.flags",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_source_ip_address_flags_b2_mpl,
+        { "MPL (Mask/Prefix Length)", "pfcp.source_ip_address.flags.mpl",
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x04,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_source_ip_address_ipv4,
+        { "IPv4 address", "pfcp.source_ip_address.ipv4",
+            FT_IPv4, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_source_ip_address_ipv6,
+        { "IPv6 address", "pfcp.source_ip_address.ipv6",
+            FT_IPv6, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_source_ip_address_mask_prefix_lengt,
+        { "Mask/Prefix Length", "pfcp.source_ip_address.mpl",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_packet_rate_status_flags,
+        { "Flags", "pfcp.packet_rate_status.flags",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_packet_rate_status_flags_b0_ul,
+        { "UL", "pfcp.packet_rate_status.flags.ul",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_packet_rate_status_flags_b1_dl,
+        { "DL", "pfcp.packet_rate_status.flags.dl",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_packet_rate_status_flags_b2_apr,
+        { "APR", "pfcp.packet_rate_status.flags.apr",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_packet_rate_status_ul,
+        { "UL (remaining uplink packet limit)", "pfcp.packet_rate_status.tovol",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_packet_rate_status_dl,
+        { "DL (remaining downlink packet limit)", "pfcp.packet_rate_status.ulvol",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_packet_rate_status_apr_ul,
+        { "Additional UL (remaining uplink packet limit)", "pfcp.packet_rate_status.apr_tovol",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_packet_rate_status_apr_dl,
+        { "Additional DL (remaining downlink packet limit)", "pfcp.packet_rate_status.apr_ulvol",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_packet_rate_status_validity_time,
+        { "Validity Time value", "pfcp.packet_rate_status.validity_time",
+            FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_create_bridge_info_for_tsc_flags,
+        { "Flags", "pfcp.create_bridge_info_for_tsc.flags",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_create_bridge_info_for_tsc_flags_b0_bii,
+        { "BII (Bridge Information Indication)", "pfcp.create_bridge_info_for_tsc.flags.bii",
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x01,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_ds_tt_port_number,
+        { "DS-TT Port Number value", "pfcp.ds_tt_port_number",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_nw_tt_port_number,
+        { "NW-TT Port Number value", "pfcp.nw_tt_port_number",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_tsn_bridge_id_flags,
+        { "Flags", "pfcp.tsn_bridge_id.flags",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_tsn_bridge_id_flags_b0_mac,
+        { "MAC", "pfcp.tsn_bridge_id.flags.sour",
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_tsn_bridge_id_mac_address,
+        { "MAC Address", "pfcp.tsn_bridge_id.mac_address",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
     };
 
     /* Setup protocol subtree array */
-#define NUM_INDIVIDUAL_ELEMS_PFCP    56
+#define NUM_INDIVIDUAL_ELEMS_PFCP    64
     gint *ett[NUM_INDIVIDUAL_ELEMS_PFCP +
         (NUM_PFCP_IES - 1)];
 
@@ -9269,7 +10690,15 @@ proto_register_pfcp(void)
     ett[52] = &ett_pfcp_pfcpsrreq;
     ett[53] = &ett_pfcp_pfcpaureq;
     ett[54] = &ett_pfcp_alternative_smf_ip_address_flags;
-    ett[55] = &ett_packet_replication_and_detection_carry_on_information;
+    ett[55] = &ett_pfcp_packet_replication_and_detection_carry_on_information;
+    ett[56] = &ett_pfcp_pfcpasrsp_flags;
+    ett[57] = &ett_pfcp_cp_pfcp_entity_ip_address_flags;
+    ett[58] = &ett_pfcp_pfcpsereq_flags;
+    ett[59] = &ett_pfcp_ip_multicast_address_flags;
+    ett[60] = &ett_pfcp_source_ip_address_flags;
+    ett[61] = &ett_pfcp_packet_rate_status;
+    ett[62] = &ett_pfcp_create_bridge_info_for_tsc;
+    ett[63] = &ett_pfcp_tsn_bridge_id;
 
 
     static ei_register_info ei[] = {

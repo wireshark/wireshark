@@ -208,8 +208,18 @@ QUrl EndpointDialog::createMap(bool json_only)
         return QUrl();
     }
     int fd = tf.handle();
-    FILE* fp = ws_fdopen(fd, "wb");
+    //
+    // XXX - QFileDevice.handle() can return -1, but can QTemporaryFile.handle()
+    // do so if QTemporaryFile.open() has succeeded?
+    //
     if (fd == -1) {
+        QMessageBox::warning(this, tr("Map file error"), tr("Unable to create temporary file"));
+        g_free(hosts);
+        tf.remove();
+        return QUrl();
+    }
+    FILE* fp = ws_fdopen(fd, "wb");
+    if (fp == NULL) {
         QMessageBox::warning(this, tr("Map file error"), tr("Unable to create temporary file"));
         g_free(hosts);
         tf.remove();

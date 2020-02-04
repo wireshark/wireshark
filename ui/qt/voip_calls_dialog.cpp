@@ -44,7 +44,8 @@ enum { voip_calls_type_ = 1000 };
 VoipCallsDialog::VoipCallsDialog(QWidget &parent, CaptureFile &cf, bool all_flows) :
     WiresharkDialog(parent, cf),
     ui(new Ui::VoipCallsDialog),
-    parent_(parent)
+    parent_(parent),
+    voip_calls_tap_listeners_removed_(false)
 {
     ui->setupUi(this);
     loadGeometry(parent.width() * 4 / 5, parent.height() * 2 / 3);
@@ -104,14 +105,20 @@ VoipCallsDialog::~VoipCallsDialog()
     delete ui;
 
     voip_calls_reset_all_taps(&tapinfo_);
-    voip_calls_remove_all_tap_listeners(&tapinfo_);
+    if (!voip_calls_tap_listeners_removed_) {
+        voip_calls_remove_all_tap_listeners(&tapinfo_);
+        voip_calls_tap_listeners_removed_ = true;
+    }
     sequence_info_->unref();
     g_queue_free(tapinfo_.callsinfos);
 }
 
 void VoipCallsDialog::removeTapListeners()
 {
-    voip_calls_remove_all_tap_listeners(&tapinfo_);
+    if (!voip_calls_tap_listeners_removed_) {
+        voip_calls_remove_all_tap_listeners(&tapinfo_);
+        voip_calls_tap_listeners_removed_ = true;
+    }
     WiresharkDialog::removeTapListeners();
 }
 
@@ -121,7 +128,10 @@ void VoipCallsDialog::captureFileClosing()
     // the cache is active, the ToD cannot be modified.
     ui->todCheckBox->setEnabled(false);
     cache_model_->setSourceModel(NULL);
-    voip_calls_remove_all_tap_listeners(&tapinfo_);
+    if (!voip_calls_tap_listeners_removed_) {
+        voip_calls_remove_all_tap_listeners(&tapinfo_);
+        voip_calls_tap_listeners_removed_ = true;
+    }
     tapinfo_.session = NULL;
     WiresharkDialog::captureFileClosing();
 }
@@ -427,6 +437,7 @@ void VoipCallsDialog::showPlayer()
 
     rtp_player_dialog->setWindowModality(Qt::ApplicationModal);
     rtp_player_dialog->setAttribute(Qt::WA_DeleteOnClose);
+    rtp_player_dialog->setMarkers();
     rtp_player_dialog->show();
 #endif // QT_MULTIMEDIA_LIB
 }

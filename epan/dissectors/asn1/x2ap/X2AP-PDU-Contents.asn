@@ -1,4 +1,4 @@
--- 3GPP TS 36.423 V15.7.0 (2019-09)
+-- 3GPP TS 36.423 V15.8.0 (2019-12)
 -- 9.3.4	PDU Definitions
 -- **************************************************************
 --
@@ -468,7 +468,7 @@ FROM X2AP-Containers
 	id-additionalPLMNs-Item,
 	id-InterfaceInstanceIndication,
 	id-BPLMN-ID-Info-NR,
-
+	id-ERABs-transferred-to-MeNB,
 
 	maxCellineNB,
 	maxnoofBearers,
@@ -623,7 +623,8 @@ HandoverRequestAcknowledge-IEs X2AP-PROTOCOL-IES ::= {
 	{ ID id-SeNB-UE-X2AP-ID-Extension					CRITICALITY ignore	TYPE UE-X2AP-ID-Extension	PRESENCE optional}-- The id-SeNB-UE-X2AP-ID-Extension shall not be sent shall not be sent and shall be ignored, if received.--|
 	{ ID id-Old-eNB-UE-X2AP-ID-Extension				CRITICALITY ignore	TYPE UE-X2AP-ID-Extension	PRESENCE optional}|
 	{ ID id-New-eNB-UE-X2AP-ID-Extension				CRITICALITY reject	TYPE UE-X2AP-ID-Extension	PRESENCE optional}|
-	{ ID id-WT-UE-ContextKeptIndicator					CRITICALITY ignore	TYPE UE-ContextKeptIndicator	PRESENCE optional},
+	{ ID id-WT-UE-ContextKeptIndicator					CRITICALITY ignore	TYPE UE-ContextKeptIndicator	PRESENCE optional}|
+	{ ID id-ERABs-transferred-to-MeNB					CRITICALITY ignore	TYPE E-RAB-List			PRESENCE optional},
 	...
 }
 
@@ -3204,7 +3205,8 @@ SgNBReleaseRequest-IEs X2AP-PROTOCOL-IES ::= {
 	{ ID id-E-RABs-ToBeReleased-SgNBRelReqList		CRITICALITY ignore	TYPE E-RABs-ToBeReleased-SgNBRelReqList		PRESENCE optional}|
 	{ ID id-UE-ContextKeptIndicator					CRITICALITY ignore	TYPE UE-ContextKeptIndicator						PRESENCE optional}|
 	{ ID id-MeNB-UE-X2AP-ID-Extension				CRITICALITY reject	TYPE UE-X2AP-ID-Extension							PRESENCE optional}|
-	{ ID id-MeNBtoSgNBContainer						CRITICALITY reject	TYPE MeNBtoSgNBContainer								PRESENCE optional},
+	{ ID id-MeNBtoSgNBContainer						CRITICALITY reject	TYPE MeNBtoSgNBContainer								PRESENCE optional}|
+	{ ID id-ERABs-transferred-to-MeNB				CRITICALITY ignore	TYPE E-RAB-List										PRESENCE optional},
 	...
 }
 
@@ -3327,7 +3329,8 @@ SgNBReleaseRequired-IEs X2AP-PROTOCOL-IES ::= {
 	{ ID id-SgNB-UE-X2AP-ID							CRITICALITY reject	TYPE SgNB-UE-X2AP-ID										PRESENCE mandatory}|
 	{ ID id-Cause									CRITICALITY ignore	TYPE Cause												PRESENCE mandatory}|
 	{ ID id-MeNB-UE-X2AP-ID-Extension				CRITICALITY reject	TYPE UE-X2AP-ID-Extension								PRESENCE optional }|
-	{ ID id-E-RABs-ToBeReleased-SgNBRelReqdList		CRITICALITY ignore	TYPE E-RABs-ToBeReleased-SgNBRelReqdList			PRESENCE optional },
+	{ ID id-E-RABs-ToBeReleased-SgNBRelReqdList		CRITICALITY ignore	TYPE E-RABs-ToBeReleased-SgNBRelReqdList			PRESENCE optional }|
+	{ ID id-SgNBtoMeNBContainer						CRITICALITY ignore	TYPE SgNBtoMeNBContainer								PRESENCE optional },
 	...
 }
 
@@ -3586,7 +3589,8 @@ ENDCX2SetupRequest ::= SEQUENCE {
 }
 
 ENDCX2SetupRequest-IEs X2AP-PROTOCOL-IES ::= {
-	{ ID id-InitiatingNodeType-EndcX2Setup			CRITICALITY reject	TYPE InitiatingNodeType-EndcX2Setup		PRESENCE mandatory},
+	{ ID id-InitiatingNodeType-EndcX2Setup			CRITICALITY reject	TYPE InitiatingNodeType-EndcX2Setup		PRESENCE mandatory}|
+	{ ID id-InterfaceInstanceIndication				CRITICALITY reject 	TYPE InterfaceInstanceIndication			PRESENCE optional},
 	...
 }
 
@@ -3600,6 +3604,7 @@ ENB-ENDCX2SetupReqIEs X2AP-PROTOCOL-IES ::= {
 	{ ID id-GlobalENB-ID								CRITICALITY reject	TYPE GlobalENB-ID										PRESENCE mandatory}|
 	{ ID id-ServedEUTRAcellsENDCX2ManagementList		CRITICALITY reject	TYPE ServedEUTRAcellsENDCX2ManagementList		PRESENCE mandatory}|
 	{ ID id-InterfaceInstanceIndication				CRITICALITY reject 	TYPE InterfaceInstanceIndication					PRESENCE optional},
+-- NOTE: In the current version of this specification the Interface Instance Indication IE is not included in the Initiating NodeType IE --
 	...
 }
 

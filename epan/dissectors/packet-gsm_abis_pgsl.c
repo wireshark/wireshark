@@ -32,6 +32,7 @@ enum {
 	SUB_MAX
 };
 
+static dissector_handle_t pgsl_handle;
 static dissector_handle_t sub_handles[SUB_MAX];
 
 /* initialize the protocol and registered fields */
@@ -690,7 +691,7 @@ proto_register_abis_pgsl(void)
 
 	proto_register_field_array(proto_abis_pgsl, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-	register_dissector("gsm_abis_pgsl", dissect_abis_pgsl, proto_abis_pgsl);
+	pgsl_handle = register_dissector("gsm_abis_pgsl", dissect_abis_pgsl, proto_abis_pgsl);
 }
 
 /* This function is called once at startup and every time the user hits
@@ -698,6 +699,10 @@ proto_register_abis_pgsl(void)
 void
 proto_reg_handoff_abis_pgsl(void)
 {
+	/* The SAPI value 12 is a non-standard values, not specified by
+	 * ETSI/3GPP, just like this very same protocol. */
+	dissector_add_uint("lapd.gsm.sapi", 12, pgsl_handle);
+
 	sub_handles[SUB_RLCMAC_UL] = find_dissector("gsm_rlcmac_ul");
 	sub_handles[SUB_RLCMAC_DL] = find_dissector("gsm_rlcmac_dl");
 }

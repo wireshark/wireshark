@@ -145,6 +145,17 @@ CertificateList/signedCertificateList/revokedCertificates/_item/userCertificate	
   offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind);
   offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
+#.FN_BODY Time/utcTime
+  char *outstr, *newstr;
+  guint32 tvblen;
+
+  /* the 2-digit year can only be in the range 1950..2049 https://tools.ietf.org/html/rfc5280#section-4.1.2.5.1 */
+  offset = dissect_ber_UTCTime(implicit_tag, actx, tree, tvb, offset, hf_index, &outstr, &tvblen);
+  if (hf_index >= 0 && outstr) {
+    newstr = wmem_strconcat(wmem_packet_scope(), outstr[0] < '5' ? "20": "19", outstr, NULL);
+    proto_tree_add_string(tree, hf_index, tvb, offset - tvblen, tvblen, newstr);
+  }
+
 #.FN_BODY SubjectName
 
   const char* str;
@@ -154,7 +165,7 @@ CertificateList/signedCertificateList/revokedCertificates/_item/userCertificate	
   proto_item_append_text(proto_item_get_parent(tree), " (%%s)", str?str:"");
 
 #.TYPE_ATTR
-CertificateSerialNumber TYPE = FT_UINT64
+CertificateSerialNumber TYPE = FT_BYTES  DISPLAY = BASE_NONE
 DSS-Params/p TYPE = FT_BYTES  DISPLAY = BASE_NONE
 DSS-Params/q TYPE = FT_BYTES  DISPLAY = BASE_NONE
 DSS-Params/g TYPE = FT_BYTES  DISPLAY = BASE_NONE

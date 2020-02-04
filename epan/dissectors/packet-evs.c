@@ -541,7 +541,23 @@ dissect_evs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     /* Find out if we have one of the reserved packet sizes*/
     packet_len = tvb_reported_length(tvb);
     num_bits = packet_len * 8;
-    str = try_val_to_str_idx(num_bits, evs_protected_payload_sizes_value, &idx);
+    if (num_bits == 56) {
+        /* A.2.1.3 Special case for 56 bit payload size (EVS Primary or EVS AMR-WB IO SID) */
+        /* The resulting ambiguity between EVS Primary 2.8 kbps and EVS AMR-WB IO SID frames is resolved through the
+           most significant bit (MSB) of the first byte of the payload. By definition, the first data bit d(0) of the EVS Primary 2.8
+           kbps is always set to '0'.
+         */
+        oct = tvb_get_bits8(tvb, bit_offset, 1);
+        if (oct == 0) {
+            /* EVS Primary 2.8 kbps */
+            str = "EVS Primary 2.8 kbps";
+        } else {
+            /* EVS AMR-WB IO SID */
+            str = "EVS AMR-WB IO SID";
+        }
+    } else {
+        str = try_val_to_str_idx(num_bits, evs_protected_payload_sizes_value, &idx);
+    }
     ti = proto_tree_add_item(tree, proto_evs, tvb, 0, -1, ENC_NA);
     evs_tree = proto_item_add_subtree(ti, ett_evs);
     if (str) {
@@ -552,7 +568,7 @@ dissect_evs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         /* One of the protected payload sizes, no further dissection currently. XXX add handling of "Special case"*/
         col_append_fstr(pinfo->cinfo, COL_INFO, ", %s ", str);
         proto_tree_add_int_format(evs_tree, hf_evs_packet_length, tvb, offset, 1, packet_len * 8, " %s, packet_len %i bits", str, packet_len * 8);
-        if (strcmp(str, "EVS A") == 0) {
+        if (strncmp(str, "EVS A", 5) == 0) {
             /* A.2.1.2	Compact format for EVS AMR-WB IO mode */
             /* CMR */
             proto_tree_add_item(evs_tree, hf_evs_cmr_amr_io, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -616,6 +632,13 @@ dissect_evs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                  */
                  /* CMR */
             proto_tree_add_item(evs_tree, hf_evs_cmr_amr_io, tvb, offset, 1, ENC_BIG_ENDIAN);
+            break;
+        case 56:
+            /* A.2.1.3 Special case for 56 bit payload size (EVS Primary or EVS AMR-WB IO SID) */
+            /* The resulting ambiguity between EVS Primary 2.8 kbps and EVS AMR-WB IO SID frames is resolved through the
+               most significant bit (MSB) of the first byte of the payload. By definition, the first data bit d(0) of the EVS Primary 2.8
+               kbps is always set to '0'.
+             */
             break;
         case 61: /* 488 EVS Primary 24.4 */
             /* 7.1.3	Bit allocation at 16.4 and 24.4 kbps */

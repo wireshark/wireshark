@@ -163,14 +163,16 @@ dissect_json(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 	int offset;
 
 	/* JSON dissector can be called in a JSON native file or when transported
-	 * by another protocol. We set the column values only if they've not been
-	 * already set by someone else.
+	 * by another protocol, will make entry in the Protocol column on summary display accordingly
 	 */
 	wmem_list_frame_t *proto = wmem_list_frame_prev(wmem_list_tail(pinfo->layers));
 	if (proto) {
 		const char *name = proto_get_protocol_filter_name(GPOINTER_TO_INT(wmem_list_frame_data(proto)));
 
-		if (!strcmp(name, "frame")) {
+		if (strcmp(name, "frame")) {
+			col_append_sep_str(pinfo->cinfo, COL_PROTOCOL, "/", "JSON");
+			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "JavaScript Object Notation");
+		} else {
 			col_set_str(pinfo->cinfo, COL_PROTOCOL, "JSON");
 			col_set_str(pinfo->cinfo, COL_INFO, "JavaScript Object Notation");
 		}

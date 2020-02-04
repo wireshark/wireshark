@@ -143,7 +143,6 @@ dissect_getport_reply(tvbuff_t *tvb, packet_info *pinfo _U_,
 	proto_item_append_text(tree, " GETPORT Reply Port:%d", portx);
 	if(portx){
 		col_append_fstr(pinfo->cinfo, COL_INFO,  " Port:%d", portx);
-		proto_item_append_text(tree, " Port:%d", portx);
 	} else {
 		col_append_str(pinfo->cinfo, COL_INFO,  " PROGRAM_NOT_AVAILABLE");
 		proto_item_append_text(tree, " PROGRAM_NOT_AVAILABLE");

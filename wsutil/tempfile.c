@@ -29,8 +29,25 @@ int
 create_tempfile(gchar **namebuf, const char *pfx, const char *sfx, GError **err)
 {
   int fd;
+  gchar *safe_pfx = NULL;
 
-  gchar* filetmpl = g_strdup_printf("%sXXXXXX%s", pfx ? pfx : "", sfx ? sfx : "");
+  if (pfx) {
+    /* The characters in "delimiters" come from:
+     * https://docs.microsoft.com/en-us/windows/win32/fileio/naming-a-file#naming-conventions.
+     * Add to the list as necessary for other OS's.
+     */
+    const gchar *delimiters = "<>:\"/\\|?*"
+      "\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a"
+      "\x0b\x0c\x0d\x0e\x0f\x10\x11\x12\x13\x14"
+      "\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f";
+
+    /* Sanitize the pfx to resolve bug 7877 */
+    safe_pfx = g_strdup(pfx);
+    safe_pfx = g_strdelimit(safe_pfx, delimiters, '-');
+  }
+
+  gchar* filetmpl = g_strdup_printf("%sXXXXXX%s", safe_pfx ? safe_pfx : "", sfx ? sfx : "");
+  g_free(safe_pfx);
 
   fd = g_file_open_tmp(filetmpl, namebuf, err);
 

@@ -68,6 +68,7 @@ void packet_list_select_first_row(void);
 void packet_list_moveto_end(void);
 gboolean packet_list_select_row_from_data(frame_data *fdata_needle);
 void packet_list_resize_column(gint col);
+gboolean packet_list_multi_select_active(void);
 
 /* XXX - Yes this isn't the best place, but they are used by file_dlg_win32.c, which is supposed
          to be GUI independent, but has lots of GTK leanings.  But if you put these in a GTK UI

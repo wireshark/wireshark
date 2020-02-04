@@ -27,8 +27,10 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/conversation.h>
+#include <epan/asn1.h>
 
 #include "packet-gsm_a_common.h"
+#include "packet-gsm_map.h"
 #include "packet-e164.h"
 #include "packet-e212.h"
 #include "packet-dns.h"
@@ -494,6 +496,7 @@ static void dissect_ss_info_ie(tvbuff_t *tvb, packet_info *pinfo, guint offset, 
 static void dissect_sm_rp_da_ie(tvbuff_t *tvb, packet_info *pinfo, guint offset,
 				guint ie_len, proto_tree *tree)
 {
+	tvbuff_t *addr_tvb;
 	proto_item *ti;
 	guint8 id_type;
 
@@ -515,8 +518,8 @@ static void dissect_sm_rp_da_ie(tvbuff_t *tvb, packet_info *pinfo, guint offset,
 		break;
 	case OSMO_GSUP_SMS_SM_RP_ODA_MSISDN:
 	case OSMO_GSUP_SMS_SM_RP_ODA_SMSC_ADDR:
-		dissect_e164_msisdn(tvb, tree,
-			offset + 2, ie_len - 2, E164_ENC_BCD);
+		addr_tvb = tvb_new_subset_length(tvb, offset + 1, ie_len - 1);
+		dissect_gsm_map_msisdn(addr_tvb, pinfo, tree);
 		break;
 
 	/* Special case for noSM-RP-DA and noSM-RP-OA */
@@ -539,6 +542,7 @@ static void dissect_sm_rp_da_ie(tvbuff_t *tvb, packet_info *pinfo, guint offset,
 static void dissect_sm_rp_oa_ie(tvbuff_t *tvb, packet_info *pinfo, guint offset,
 				guint ie_len, proto_tree *tree)
 {
+	tvbuff_t *addr_tvb;
 	proto_item *ti;
 	guint8 id_type;
 
@@ -556,8 +560,8 @@ static void dissect_sm_rp_oa_ie(tvbuff_t *tvb, packet_info *pinfo, guint offset,
 	switch (id_type) {
 	case OSMO_GSUP_SMS_SM_RP_ODA_MSISDN:
 	case OSMO_GSUP_SMS_SM_RP_ODA_SMSC_ADDR:
-		dissect_e164_msisdn(tvb, tree,
-			offset + 2, ie_len - 2, E164_ENC_BCD);
+		addr_tvb = tvb_new_subset_length(tvb, offset + 1, ie_len - 1);
+		dissect_gsm_map_msisdn(addr_tvb, pinfo, tree);
 		break;
 
 	/* Special case for noSM-RP-DA and noSM-RP-OA */

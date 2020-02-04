@@ -23,9 +23,11 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/proto_data.h>
 #include <epan/asn1.h>
 
 #include "packet-per.h"
+#include "packet-lppa.h"
 
 #define PNAME  "LTE Positioning Protocol A (LPPa)"
 #define PSNAME "LPPa"
@@ -279,7 +281,7 @@ static int hf_lppa_oTDOA_Information_Type_Item = -1;  /* OTDOA_Information_Item 
 static int hf_lppa_privateIEs = -1;               /* PrivateIE_Container */
 
 /*--- End of included file: packet-lppa-hf.c ---*/
-#line 33 "./asn1/lppa/packet-lppa-template.c"
+#line 35 "./asn1/lppa/packet-lppa-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_lppa = -1;
@@ -380,11 +382,13 @@ static gint ett_lppa_ErrorIndication = -1;
 static gint ett_lppa_PrivateMessage = -1;
 
 /*--- End of included file: packet-lppa-ett.c ---*/
-#line 37 "./asn1/lppa/packet-lppa-template.c"
+#line 39 "./asn1/lppa/packet-lppa-template.c"
 
-/* Global variables */
-static guint32 ProcedureCode;
-static guint32 ProtocolIE_ID;
+enum {
+    INITIATING_MESSAGE,
+    SUCCESSFUL_OUTCOME,
+    UNSUCCESSFUL_OUTCOME
+};
 
 /* Dissector tables */
 static dissector_table_t lppa_ies_dissector_table;
@@ -459,12 +463,30 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-lppa-val.h ---*/
-#line 50 "./asn1/lppa/packet-lppa-template.c"
+#line 54 "./asn1/lppa/packet-lppa-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
+
+struct lppa_private_data {
+    guint32 procedure_code;
+    guint32 protocol_ie_id;
+    guint32 protocol_extension_id;
+    guint32 message_type;
+};
+
+static struct lppa_private_data*
+lppa_get_private_data(packet_info* pinfo)
+{
+    struct lppa_private_data* lppa_data = (struct lppa_private_data*)p_get_proto_data(pinfo->pool, pinfo, proto_lppa, 0);
+    if (!lppa_data) {
+        lppa_data = wmem_new0(pinfo->pool, struct lppa_private_data);
+        p_add_proto_data(pinfo->pool, pinfo, proto_lppa, 0, lppa_data);
+    }
+    return lppa_data;
+}
 
 
 /*--- Included file: packet-lppa-fn.c ---*/
@@ -556,13 +578,17 @@ static const value_string lppa_ProcedureCode_vals[] = {
 
 static int
 dissect_lppa_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 255U, &ProcedureCode, FALSE);
+#line 46 "./asn1/lppa/lppa.cnf"
+  struct lppa_private_data *lppa_data = lppa_get_private_data(actx->pinfo);
 
-#line 44 "./asn1/lppa/lppa.cnf"
-     col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
-                 val_to_str(ProcedureCode, lppa_ProcedureCode_vals,
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 255U, &lppa_data->procedure_code, FALSE);
+
+
+  col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
+                 val_to_str(lppa_data->procedure_code, lppa_ProcedureCode_vals,
                             "unknown message"));
+
 
   return offset;
 }
@@ -600,12 +626,17 @@ static const value_string lppa_ProtocolIE_ID_vals[] = {
 
 static int
 dissect_lppa_ProtocolIE_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 36 "./asn1/lppa/lppa.cnf"
+  struct lppa_private_data *lppa_data = lppa_get_private_data(actx->pinfo);
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, maxProtocolIEs, &ProtocolIE_ID, FALSE);
+                                                            0U, maxProtocolIEs, &lppa_data->protocol_ie_id, FALSE);
 
-#line 37 "./asn1/lppa/lppa.cnf"
+
+
+
+#line 40 "./asn1/lppa/lppa.cnf"
   if (tree) {
-    proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str(ProtocolIE_ID, VALS(lppa_ProtocolIE_ID_vals), "unknown (%d)"));
+    proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str(lppa_data->protocol_ie_id, VALS(lppa_ProtocolIE_ID_vals), "unknown (%d)"));
   }
 
   return offset;
@@ -758,6 +789,10 @@ dissect_lppa_PrivateIE_Container(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
 static int
 dissect_lppa_InitiatingMessage_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 59 "./asn1/lppa/lppa.cnf"
+  struct lppa_private_data *lppa_data = lppa_get_private_data(actx->pinfo);
+  lppa_data->message_type = INITIATING_MESSAGE;
+
   offset = dissect_per_open_type_pdu_new(tvb, offset, actx, tree, hf_index, dissect_InitiatingMessageValue);
 
   return offset;
@@ -784,6 +819,10 @@ dissect_lppa_InitiatingMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_lppa_SuccessfulOutcome_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 63 "./asn1/lppa/lppa.cnf"
+  struct lppa_private_data *lppa_data = lppa_get_private_data(actx->pinfo);
+  lppa_data->message_type = SUCCESSFUL_OUTCOME;
+
   offset = dissect_per_open_type_pdu_new(tvb, offset, actx, tree, hf_index, dissect_SuccessfulOutcomeValue);
 
   return offset;
@@ -810,6 +849,11 @@ dissect_lppa_SuccessfulOutcome(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_lppa_UnsuccessfulOutcome_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 67 "./asn1/lppa/lppa.cnf"
+  struct lppa_private_data *lppa_data = lppa_get_private_data(actx->pinfo);
+  lppa_data->message_type = UNSUCCESSFUL_OUTCOME;
+
+
   offset = dissect_per_open_type_pdu_new(tvb, offset, actx, tree, hf_index, dissect_UnsuccessfulOutcomeValue);
 
   return offset;
@@ -849,7 +893,7 @@ static const per_choice_t LPPA_PDU_choice[] = {
 
 static int
 dissect_lppa_LPPA_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 58 "./asn1/lppa/lppa.cnf"
+#line 71 "./asn1/lppa/lppa.cnf"
 
   proto_tree_add_item(tree, proto_lppa, tvb, 0, -1, ENC_NA);
 
@@ -4103,33 +4147,47 @@ static int dissect_PrivateMessage_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 
 
 /*--- End of included file: packet-lppa-fn.c ---*/
-#line 57 "./asn1/lppa/packet-lppa-template.c"
+#line 79 "./asn1/lppa/packet-lppa-template.c"
+
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-  return (dissector_try_uint_new(lppa_ies_dissector_table, ProtocolIE_ID, tvb, pinfo, tree, FALSE, NULL)) ? tvb_captured_length(tvb) : 0;
+
+    lppa_ctx_t lppa_ctx;
+    struct lppa_private_data* lppa_data = lppa_get_private_data(pinfo);
+
+    lppa_ctx.message_type = lppa_data->message_type;
+    lppa_ctx.ProcedureCode = lppa_data->procedure_code;
+    lppa_ctx.ProtocolIE_ID = lppa_data->protocol_ie_id;
+    lppa_ctx.ProtocolExtensionID = lppa_data->protocol_extension_id;
+
+  return (dissector_try_uint_new(lppa_ies_dissector_table, lppa_ctx.ProtocolIE_ID, tvb, pinfo, tree, FALSE, &lppa_ctx)) ? tvb_captured_length(tvb) : 0;
 }
 
-static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-  return (dissector_try_uint_new(lppa_proc_imsg_dissector_table, ProcedureCode, tvb, pinfo, tree, FALSE, NULL)) ? tvb_captured_length(tvb) : 0;
+    struct lppa_private_data* lppa_data = lppa_get_private_data(pinfo);
+    return (dissector_try_uint_new(lppa_proc_imsg_dissector_table, lppa_data->procedure_code, tvb, pinfo, tree, FALSE, data)) ? tvb_captured_length(tvb) : 0;
 }
 
-static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-  return (dissector_try_uint_new(lppa_proc_sout_dissector_table, ProcedureCode, tvb, pinfo, tree, FALSE, NULL)) ? tvb_captured_length(tvb) : 0;
+    struct lppa_private_data* lppa_data = lppa_get_private_data(pinfo);
+    return (dissector_try_uint_new(lppa_proc_sout_dissector_table, lppa_data->procedure_code, tvb, pinfo, tree, FALSE, data)) ? tvb_captured_length(tvb) : 0;
 }
 
-static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-  return (dissector_try_uint_new(lppa_proc_uout_dissector_table, ProcedureCode, tvb, pinfo, tree, FALSE, NULL)) ? tvb_captured_length(tvb) : 0;
+    struct lppa_private_data* lppa_data = lppa_get_private_data(pinfo);
+
+    return (dissector_try_uint_new(lppa_proc_uout_dissector_table, lppa_data->procedure_code, tvb, pinfo, tree, FALSE, data)) ? tvb_captured_length(tvb) : 0;
 }
 
 /*--- proto_register_lppa -------------------------------------------*/
 void proto_register_lppa(void) {
 
-  /* List of fields */
-  static hf_register_info hf[] = {
+    /* List of fields */
+    static hf_register_info hf[] = {
 
 
 /*--- Included file: packet-lppa-hfarr.c ---*/
@@ -5084,12 +5142,12 @@ void proto_register_lppa(void) {
         "PrivateIE_Container", HFILL }},
 
 /*--- End of included file: packet-lppa-hfarr.c ---*/
-#line 85 "./asn1/lppa/packet-lppa-template.c"
-  };
+#line 121 "./asn1/lppa/packet-lppa-template.c"
+    };
 
-  /* List of subtrees */
-  static gint *ett[] = {
-	  &ett_lppa,
+    /* List of subtrees */
+    static gint* ett[] = {
+        &ett_lppa,
 
 /*--- Included file: packet-lppa-ettarr.c ---*/
 #line 1 "./asn1/lppa/packet-lppa-ettarr.c"
@@ -5187,22 +5245,22 @@ void proto_register_lppa(void) {
     &ett_lppa_PrivateMessage,
 
 /*--- End of included file: packet-lppa-ettarr.c ---*/
-#line 91 "./asn1/lppa/packet-lppa-template.c"
-  };
+#line 127 "./asn1/lppa/packet-lppa-template.c"
+    };
 
-  /* Register protocol */
-  proto_lppa = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  register_dissector("lppa", dissect_LPPA_PDU_PDU, proto_lppa);
+    /* Register protocol */
+    proto_lppa = proto_register_protocol(PNAME, PSNAME, PFNAME);
+    register_dissector("lppa", dissect_LPPA_PDU_PDU, proto_lppa);
 
-  /* Register fields and subtrees */
-  proto_register_field_array(proto_lppa, hf, array_length(hf));
-  proto_register_subtree_array(ett, array_length(ett));
+    /* Register fields and subtrees */
+    proto_register_field_array(proto_lppa, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
 
-   /* Register dissector tables */
-  lppa_ies_dissector_table = register_dissector_table("lppa.ies", "LPPA-PROTOCOL-IES", proto_lppa, FT_UINT32, BASE_DEC);
-  lppa_proc_imsg_dissector_table = register_dissector_table("lppa.proc.imsg", "LPPA-ELEMENTARY-PROCEDURE InitiatingMessage", proto_lppa, FT_UINT32, BASE_DEC);
-  lppa_proc_sout_dissector_table = register_dissector_table("lppa.proc.sout", "LPPA-ELEMENTARY-PROCEDURE SuccessfulOutcome", proto_lppa, FT_UINT32, BASE_DEC);
-  lppa_proc_uout_dissector_table = register_dissector_table("lppa.proc.uout", "LPPA-ELEMENTARY-PROCEDURE UnsuccessfulOutcome", proto_lppa, FT_UINT32, BASE_DEC);
+    /* Register dissector tables */
+    lppa_ies_dissector_table = register_dissector_table("lppa.ies", "LPPA-PROTOCOL-IES", proto_lppa, FT_UINT32, BASE_DEC);
+    lppa_proc_imsg_dissector_table = register_dissector_table("lppa.proc.imsg", "LPPA-ELEMENTARY-PROCEDURE InitiatingMessage", proto_lppa, FT_UINT32, BASE_DEC);
+    lppa_proc_sout_dissector_table = register_dissector_table("lppa.proc.sout", "LPPA-ELEMENTARY-PROCEDURE SuccessfulOutcome", proto_lppa, FT_UINT32, BASE_DEC);
+    lppa_proc_uout_dissector_table = register_dissector_table("lppa.proc.uout", "LPPA-ELEMENTARY-PROCEDURE UnsuccessfulOutcome", proto_lppa, FT_UINT32, BASE_DEC);
 }
 
 /*--- proto_reg_handoff_lppa ---------------------------------------*/
@@ -5257,5 +5315,5 @@ proto_reg_handoff_lppa(void)
 
 
 /*--- End of included file: packet-lppa-dis-tab.c ---*/
-#line 113 "./asn1/lppa/packet-lppa-template.c"
+#line 149 "./asn1/lppa/packet-lppa-template.c"
 }

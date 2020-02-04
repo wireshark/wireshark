@@ -171,7 +171,7 @@ bytes_to_hexstr_punct(char *out, const guint8 *ad, guint32 len, char punct)
 }
 
 /* Max string length for displaying byte string.  */
-#define	MAX_BYTE_STR_LEN	48
+#define	MAX_BYTE_STR_LEN	72
 
 /* Routine to convert a sequence of bytes to a hex string, one byte/two hex
  * digits at at a time, with a specified punctuation character between

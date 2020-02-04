@@ -1379,7 +1379,7 @@ static gboolean nstrace_read_v20(wtap *wth, wtap_rec *rec, Buffer *buf,
 
                 case NSPR_RELTIME_V20:
                 {
-                    if (!nstrace_ensure_buflen(nstrace, nstrace_buf_offset, sizeof(nspr_hd_v20_t), err, err_info))
+                    if (!nstrace_ensure_buflen(nstrace, nstrace_buf_offset, sizeof(nspr_pktracefull_v20_t), err, err_info))
                         return FALSE;
                     nspr_pktracefull_v20_t *fp20 = (nspr_pktracefull_v20_t *) &nstrace_buf[nstrace_buf_offset];
                     if (nspr_getv20recordsize((nspr_hd_v20_t *)fp20) == 0) {

@@ -1428,14 +1428,14 @@ dissect_gadu_gadu_userlist_xml_compressed(tvbuff_t *tvb, packet_info *pinfo, pro
 		return offset;
 
 	if ((uncomp_tvb = tvb_child_uncompress(tvb, tvb, offset, remain))) {
-		proto_tree_add_bytes_format_value(tree, &hfi_gadu_gadu_userlist, tvb, offset, remain, NULL, "[Decompression succeeded]");
+		proto_tree_add_bytes_format_value(tree, &hfi_gadu_gadu_userlist, tvb, offset, remain, NULL, "%s", "[Decompression succeeded]");
 
 		add_new_data_source(pinfo, uncomp_tvb, "Uncompressed userlist");
 
 		/* XXX add DTD (pinfo->match_string) */
 		call_dissector_only(xml_handle, uncomp_tvb, pinfo, tree, NULL);
 	} else
-		proto_tree_add_bytes_format_value(tree, &hfi_gadu_gadu_userlist, tvb, offset, remain, NULL, "[Error: Decompression failed] (or no zlib)");
+		proto_tree_add_bytes_format_value(tree, &hfi_gadu_gadu_userlist, tvb, offset, remain, NULL, "%s", "[Error: Decompression failed] (or no zlib)");
 
 	offset += remain;
 

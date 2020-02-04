@@ -2777,6 +2777,8 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
                 packet_len -= tvb_get_guint8( tvb, offset + packet_len - 1 );
             }
             proto_tree_add_item( tree, hf_rtcp_app_data, tvb, offset, packet_len, ENC_NA );
+            if ((int)(offset + packet_len) >= offset)
+                offset += packet_len;
         }
     }
     return offset;

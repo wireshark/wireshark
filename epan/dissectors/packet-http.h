@@ -13,7 +13,7 @@
 #include <epan/packet.h>
 #include "ws_symbol_export.h"
 
-extern const value_string vals_http_status_code[];
+WS_DLL_PUBLIC const value_string vals_http_status_code[];
 
 WS_DLL_PUBLIC
 void http_tcp_dissector_add(guint32 port, dissector_handle_t handle);
@@ -34,6 +34,7 @@ typedef struct _http_info_value_t {
 	const gchar   *location_base_uri;
 	const gchar   *location_target;
 } http_info_value_t;
+
 
 /** information about a request and response on a HTTP conversation. */
 typedef struct _http_req_res_t {

@@ -220,11 +220,13 @@ static int hf_usb_bInterfaceClass = -1;
 static int hf_usb_bInterfaceSubClass = -1;
 static int hf_usb_bInterfaceSubClass_audio = -1;
 static int hf_usb_bInterfaceSubClass_cdc = -1;
+static int hf_usb_bInterfaceSubClass_massstorage = -1;
 static int hf_usb_bInterfaceSubClass_hid = -1;
 static int hf_usb_bInterfaceSubClass_misc = -1;
 static int hf_usb_bInterfaceSubClass_app = -1;
 static int hf_usb_bInterfaceProtocol = -1;
 static int hf_usb_bInterfaceProtocol_cdc = -1;
+static int hf_usb_bInterfaceProtocol_massstorage = -1;
 static int hf_usb_bInterfaceProtocol_cdc_data = -1;
 static int hf_usb_bInterfaceProtocol_hid_boot = -1;
 static int hf_usb_bInterfaceProtocol_app_dfu = -1;
@@ -877,6 +879,7 @@ extern value_string_ext ext_usb_vendors_vals;
 extern value_string_ext ext_usb_products_vals;
 extern value_string_ext ext_usb_audio_subclass_vals;
 extern value_string_ext ext_usb_com_subclass_vals;
+extern value_string_ext ext_usb_massstorage_subclass_vals;
 extern value_string_ext linux_negative_errno_vals_ext;
 
 /*
@@ -1198,6 +1201,8 @@ static const value_string usb_cdc_protocol_vals[] = {
     {0, NULL}
 };
 static value_string_ext usb_cdc_protocol_vals_ext = VALUE_STRING_EXT_INIT(usb_cdc_protocol_vals);
+
+extern value_string_ext usb_massstorage_protocol_vals_ext;
 
 static const value_string usb_cdc_data_protocol_vals[] = {
     {0x00, "No class specific protocol required"},
@@ -2336,6 +2341,9 @@ dissect_usb_interface_descriptor(packet_info *pinfo, proto_tree *parent_tree,
     case IF_CLASS_COMMUNICATIONS:
         proto_tree_add_item(tree, hf_usb_bInterfaceSubClass_cdc, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         break;
+    case IF_CLASS_MASS_STORAGE:
+        proto_tree_add_item(tree, hf_usb_bInterfaceSubClass_massstorage, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        break;
     case IF_CLASS_HID:
         proto_tree_add_item(tree, hf_usb_bInterfaceSubClass_hid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         break;
@@ -2357,6 +2365,9 @@ dissect_usb_interface_descriptor(packet_info *pinfo, proto_tree *parent_tree,
     switch (usb_conv_info->interfaceClass) {
     case IF_CLASS_COMMUNICATIONS:
         proto_tree_add_item(tree, hf_usb_bInterfaceProtocol_cdc, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        break;
+    case IF_CLASS_MASS_STORAGE:
+        proto_tree_add_item(tree, hf_usb_bInterfaceProtocol_massstorage, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         break;
     case IF_CLASS_CDC_DATA:
         proto_tree_add_item(tree, hf_usb_bInterfaceProtocol_cdc_data, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -6157,6 +6168,11 @@ proto_register_usb(void)
             FT_UINT8, BASE_HEX | BASE_EXT_STRING, &ext_usb_com_subclass_vals, 0x0,
             NULL, HFILL }},
 
+        { &hf_usb_bInterfaceSubClass_massstorage ,
+          { "bInterfaceSubClass", "usb.bInterfaceSubClass",
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &ext_usb_massstorage_subclass_vals, 0x0,
+            NULL, HFILL }},
+
         { &hf_usb_bInterfaceSubClass_hid,
           { "bInterfaceSubClass", "usb.bInterfaceSubClass",
             FT_UINT8, BASE_HEX | BASE_EXT_STRING, &usb_hid_subclass_vals_ext, 0x0,
@@ -6180,6 +6196,11 @@ proto_register_usb(void)
         { &hf_usb_bInterfaceProtocol_cdc,
           { "bInterfaceProtocol", "usb.bInterfaceProtocol",
             FT_UINT8, BASE_HEX | BASE_EXT_STRING, &usb_cdc_protocol_vals_ext, 0x0,
+            NULL, HFILL }},
+
+        { &hf_usb_bInterfaceProtocol_massstorage,
+          { "bInterfaceProtocol", "usb.bInterfaceProtocol",
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &usb_massstorage_protocol_vals_ext, 0x0,
             NULL, HFILL }},
 
         { &hf_usb_bInterfaceProtocol_cdc_data,

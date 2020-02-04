@@ -18,9 +18,9 @@ const char *
 please_report_bug(void)
 {
 	return
-	    "Please report this to the Wireshark developers.\n"
+	    "Please report this to the Wireshark developers as a bug.\n"
             "https://bugs.wireshark.org/\n"
-            "(This is not a crash; please do not report it as such.)";
+            "(This is not a crash; please do not say, in your report, that it is a crash.)";
 }
 
 /*

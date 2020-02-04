@@ -12,6 +12,7 @@
 
 #include <glib.h>
 #include "nstime.h"
+#include "epochs.h"
 
 /* this is #defined so that we can clearly see that we have the right number of
    zeros, rather than as a guard against the number of nanoseconds in a second
@@ -182,29 +183,6 @@ double nstime_to_sec(const nstime_t *nstime)
  *  Copyright (C) Andrew Tridgell 1992-1998
  */
 
-/*
- * Number of seconds between the UN*X epoch (January 1, 1970, 00:00:00 GMT)
- * and the Windows NT epoch (January 1, 1601 in the proleptic Gregorian
- * calendar, 00:00:00 "GMT")
- *
- * This is
- *
- *     369*365.25*24*60*60-(3*24*60*60+6*60*60)
- *
- * 1970-1601 is 369; 365.25 is the average length of a year in days,
- * including leap years.
- *
- * 3 days are subtracted because 1700, 1800, and 1900 were not leap
- * years, as, while they're all evenly divisible by 4, they're also
- * evently divisible by 100, but not evently divisible by 400, so
- * we need to compensate for using the average length of a year in
- * days, which assumes a leap year every 4 years, *including* every
- * 100 years.
- *
- * I'm not sure what the extra 6 hours are that are being subtracted.
- */
-#define TIME_FIXUP_CONSTANT G_GUINT64_CONSTANT(11644473600)
-
 #ifndef TIME_T_MIN
 #define TIME_T_MIN ((time_t) ((time_t)0 < (time_t) -1 ? (time_t) 0 \
                     : (time_t) (~0ULL << (sizeof (time_t) * CHAR_BIT - 1))))
@@ -223,11 +201,11 @@ common_filetime_to_nstime(nstime_t *nstime, guint64 ftsecs, int nsecs)
      * ftsecs's value should fit in a 64-bit signed variable, as
      * ftsecs is derived from a 64-bit fractions-of-a-second value,
      * and is far from the maximum 64-bit signed value, and
-     * TIME_FIXUP_CONSTANT is also far from the maximum 64-bit
-     * signed value, so the difference between them should also
-     * fit in a 64-bit signed value.
+     * EPOCH_DELTA_1601_01_01_00_00_00_UTC is also far from the
+     * maximum 64-bit signed value, so the difference between them
+     * should also fit in a 64-bit signed value.
      */
-    secs = (gint64)ftsecs - TIME_FIXUP_CONSTANT;
+    secs = (gint64)ftsecs - EPOCH_DELTA_1601_01_01_00_00_00_UTC;
 
     if (!(TIME_T_MIN <= secs && secs <= TIME_T_MAX)) {
         /* The result won't fit in a time_t */

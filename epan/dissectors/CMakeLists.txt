@@ -432,6 +432,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-lnet.h
 	packet-logotypecertextn.h
 	packet-lpp.h
+	packet-lppa.h
 	packet-lte-rrc.h
 	packet-mac-lte.h
 	packet-mausb.h
@@ -808,6 +809,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-cisco-erspan.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-cisco-fp-mim.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-cisco-marker.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-cisco-mcp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-cisco-metadata.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-cisco-oui.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-cisco-sm.c
@@ -1057,6 +1059,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-fractalgeneratorprotocol.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-frame.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ftdi-ft.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-ftdi-mpsse.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ftp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-fw1.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-g723.c
@@ -1531,6 +1534,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ossp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ouch.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-p_mul.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-pa-hbbackup.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-pathport.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-packetbb.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-packetlogger.c

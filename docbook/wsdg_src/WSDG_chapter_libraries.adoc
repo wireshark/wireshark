@@ -24,8 +24,8 @@ Wireshark.
 .Our libraries are freely available
 ====
 All libraries required to build Wireshark on Windows are available for download at
-https://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[] and
-https://anonsvn.wireshark.org/wireshark-win64-libs/trunk/packages/[].
+https://anonsvn.wireshark.org/wireshark-win64-libs/trunk/packages/[] and
+https://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[].
 See <<ChLibsSetup>> for an easier way to install them.
 ====
 
@@ -134,7 +134,33 @@ for your platform, you can get it at https://wiki.gnome.org/Projects/GLib[].
 [discrete]
 ==== Windows
 
-Part of our vcpkg-export bundle at
+GLib is part of our vcpkg-export bundles and is available at
+https://anonsvn.wireshark.org/wireshark-win64-libs/trunk/packages/[]
+and
+https://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[].
+
+[[ChLibsCares]]
+
+=== c-ares
+
+C-Ares is used for asynchronous DNS resolution and lets us resolve names with a minimal performance impact.
+
+[[ChLibsUnixCares]]
+
+[discrete]
+==== Unix
+
+If this library isn't already installed or available as a package for your
+platform, you can get it at https://c-ares.haxx.se/[].
+
+[[ChLibsWin32Cares]]
+
+[discrete]
+==== Windows
+
+C-Ares is built using vcpkg and is available at
+https://anonsvn.wireshark.org/wireshark-win64-libs/trunk/packages/[]
+and
 https://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[].
 
 [[ChLibsSMI]]
@@ -159,30 +185,10 @@ https://www.ibr.cs.tu-bs.de/projects/libsmi/[].
 
 Wireshark uses the source libSMI distribution at
 https://www.ibr.cs.tu-bs.de/projects/libsmi/[].
-LibSMI is cross-compiled using MinGW32. It’s stored in the libsmi zip archive at
-https://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[].
-
-[[ChLibsCares]]
-
-=== c-ares (Optional)
-
-C-Ares is used for asynchronous DNS resolution. This is the primary name
-resolution library in Wireshark.
-
-[[ChLibsUnixCares]]
-
-[discrete]
-==== Unix
-
-If this library isn't already installed or available as a package for your
-platform, you can get it at https://c-ares.haxx.se/[].
-
-[[ChLibsWin32Cares]]
-
-[discrete]
-==== Windows
-
-C-Ares is cross-compiled using MinGW32 and is available at
+LibSMI is cross-compiled using MinGW32.
+It’s stored in the libsmi zip archives at
+https://anonsvn.wireshark.org/wireshark-win64-libs/trunk/packages/[]
+and
 https://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[].
 
 [[ChLibsZlib]]
@@ -212,9 +218,10 @@ https://www.zlib.net/[].
 [discrete]
 ==== Windows
 
-The zlib sources are downloaded from
-https://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[] and compiled
-locally.
+zlib is part of our vcpkg-export bundles and is available at
+https://anonsvn.wireshark.org/wireshark-win64-libs/trunk/packages/[]
+and
+https://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[].
 
 [[ChLibsPcap]]
 
@@ -277,7 +284,9 @@ https://gnutls.org/[].
 [discrete]
 ==== Windows
 
-We provide a package cross-compiled using MinGW32 at
+We provide packages cross-compiled using MinGW32 at
+https://anonsvn.wireshark.org/wireshark-win64-libs/trunk/packages/[]
+and
 https://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[].
 
 [[ChLibsGcrypt]]
@@ -325,7 +334,9 @@ https://web.mit.edu/Kerberos/dist/[].
 [discrete]
 ==== Windows
 
-We provide a package at
+We provide packages for Windows at
+https://anonsvn.wireshark.org/wireshark-win64-libs/trunk/packages/[]
+and
 https://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[].
 
 [[ChLibsLua]]
@@ -348,7 +359,9 @@ https://www.lua.org/download.html[].
 [discrete]
 ==== Windows
 
-We provide a copy of the official package at
+We provide copies of the official packages at
+https://anonsvn.wireshark.org/wireshark-win64-libs/trunk/packages/[]
+and
 https://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[].
 
 [[ChLibsMaxMindDB]]
@@ -379,7 +392,9 @@ WinSparkle is an easy-to-use software update library for Windows developers.
 [discrete]
 ==== Windows
 
-We provide a copy of the WinSparkle package at
+We provide copies of the WinSparkle package at
+https://anonsvn.wireshark.org/wireshark-win64-libs/trunk/packages/[]
+and
 https://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[].
 
 // End of WSDG Chapter Libraries

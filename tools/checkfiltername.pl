@@ -345,6 +345,7 @@ sub is_proto_dup_whitelist {
 	if (($_[0] eq "nfs") && (index($_[1], "nfs") >= 0)) {return 1;}
 	if (($_[0] eq "oxid") && (index($_[1], "oxid") >= 0)) {return 1;}
 	if (($_[0] eq "rquota") && (index($_[1], "rquota") >= 0)) {return 1;}
+	if (($_[0] eq "pfcp") && (index($_[1], "pfcp") >= 0)) {return 1;}
 	if (($_[0] eq "sm") && (index($_[1], "sm_") >= 0)) {return 1;}
 	if (($_[0] eq "smpp") && (index($_[1], "smppplus") >= 0)) {return 1;}
 	if (($_[0] eq "spray") && (index($_[1], "sprayarr") >= 0)) {return 1;}

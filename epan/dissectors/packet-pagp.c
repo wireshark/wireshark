@@ -17,6 +17,7 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/to_str.h>
+#include <epan/cisco_pid.h>
 
 void proto_register_pagp(void);
 void proto_reg_handoff_pagp(void);
@@ -479,7 +480,7 @@ proto_reg_handoff_pagp(void)
     dissector_handle_t pagp_handle;
 
     pagp_handle = create_dissector_handle(dissect_pagp, proto_pagp);
-    dissector_add_uint("llc.cisco_pid", 0x0104, pagp_handle);
+    dissector_add_uint("llc.cisco_pid", CISCO_PID_PAGP, pagp_handle);
 }
 
 /*

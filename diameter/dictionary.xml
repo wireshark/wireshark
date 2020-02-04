@@ -4719,7 +4719,7 @@
 			<enum name="LAWFUL_INTERCEPT_SERVICES" code="3"/>
 		</avp>
 		<avp name="Location-Estimate" code="1242" mandatory="must" may-encrypt="yes" protected="may"  vendor-bit="must" vendor-id="TGPP">
-			<type type-name="UTF8String"/>
+			<type type-name="OctetString"/>
 		</avp>
 		<avp name="Location-Estimate-Type" code="1243" mandatory="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>

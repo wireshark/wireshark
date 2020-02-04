@@ -675,19 +675,27 @@ static int hf_ieee802154_frame_end_offset = -1;
 static int hf_ieee802154_asn = -1;
 
 typedef struct _ieee802154_transaction_t {
-    address rqst_src_addr;
-    address rqst_dst_addr;
+    guint64 dst64;
+    guint64 src64;
+    gint32 dst_addr_mode;
+    gint32 src_addr_mode;
+    guint16 dst16;
+    guint16 src16;
     guint32 rqst_frame;
     guint32 ack_frame;
     nstime_t rqst_time;
     nstime_t ack_time;
+    gboolean dst_pan_present;
+    gboolean src_pan_present;
+    guint16 dst_pan;
+    guint16 src_pan;
 } ieee802154_transaction_t;
 
 static wmem_tree_t *transaction_unmatched_pdus;
 static wmem_tree_t *transaction_matched_pdus;
 
-static ieee802154_transaction_t *transaction_start(packet_info *pinfo, proto_tree *tree, const address *src_addr, const address *dst_addr, guint32 *key);
-static ieee802154_transaction_t *transaction_end(packet_info *pinfo, proto_tree *tree, const address *src_addr, const address *dst_addr, guint32 *key);
+static ieee802154_transaction_t *transaction_start(packet_info *pinfo, proto_tree *tree, const ieee802154_packet *packet, guint32 *key);
+static ieee802154_transaction_t *transaction_end(packet_info *pinfo, proto_tree *tree, const ieee802154_packet *packet, guint32 *key);
 
 /* Initialize Subtree Pointers */
 static gint ett_ieee802154_nonask_phy = -1;
@@ -1316,7 +1324,7 @@ static conversation_t *_find_or_create_conversation(packet_info *pinfo, const ad
 }
 
 /* ======================================================================= */
-static ieee802154_transaction_t *transaction_start(packet_info *pinfo, proto_tree *tree, const address *src_addr, const address *dst_addr, guint32 *key)
+static ieee802154_transaction_t *transaction_start(packet_info *pinfo, proto_tree *tree, const ieee802154_packet *packet, guint32 *key)
 {
     ieee802154_transaction_t    *ieee802154_trans;
     wmem_tree_key_t             ieee802154_key[3];
@@ -1332,9 +1340,28 @@ static ieee802154_transaction_t *transaction_start(packet_info *pinfo, proto_tre
         ieee802154_key[1].length = 0;
         ieee802154_key[1].key = NULL;
 
-        ieee802154_trans = wmem_new(wmem_file_scope(), ieee802154_transaction_t);
-        copy_address_wmem(wmem_file_scope(), &ieee802154_trans->rqst_src_addr, src_addr);
-        copy_address_wmem(wmem_file_scope(), &ieee802154_trans->rqst_dst_addr, dst_addr);
+        ieee802154_trans = wmem_new0(wmem_file_scope(), ieee802154_transaction_t);
+
+        if (packet->dst_addr_mode == IEEE802154_FCF_ADDR_SHORT)
+            ieee802154_trans->dst16 = packet->dst16;
+        else if (packet->dst_addr_mode == IEEE802154_FCF_ADDR_EXT)
+            ieee802154_trans->dst64 = packet->dst64;
+        ieee802154_trans->dst_addr_mode = packet->dst_addr_mode;
+
+        if (packet->src_addr_mode == IEEE802154_FCF_ADDR_SHORT)
+            ieee802154_trans->src16 = packet->src16;
+        else if (packet->src_addr_mode == IEEE802154_FCF_ADDR_EXT)
+            ieee802154_trans->src64 = packet->src64;
+        ieee802154_trans->src_addr_mode = packet->src_addr_mode;
+
+        if (packet->dst_pan_present) {
+            ieee802154_trans->dst_pan_present = TRUE;
+            ieee802154_trans->dst_pan = packet->dst_pan;
+        }
+        if (packet->src_pan_present) {
+            ieee802154_trans->src_pan_present = TRUE;
+            ieee802154_trans->src_pan = packet->src_pan;
+        }
         ieee802154_trans->rqst_frame = pinfo->num;
         ieee802154_trans->ack_frame = 0;
         ieee802154_trans->rqst_time = pinfo->abs_ts;
@@ -1375,7 +1402,7 @@ static ieee802154_transaction_t *transaction_start(packet_info *pinfo, proto_tre
     return ieee802154_trans;
 } /* transaction_start() */
 
-static ieee802154_transaction_t *transaction_end(packet_info *pinfo, proto_tree *tree, const address *src_addr, const address *dst_addr, guint32 *key)
+static ieee802154_transaction_t *transaction_end(packet_info *pinfo, proto_tree *tree, const ieee802154_packet *packet, guint32 *key)
 {
     ieee802154_transaction_t    *ieee802154_trans = NULL;
     wmem_tree_key_t             ieee802154_key[3];
@@ -1400,10 +1427,22 @@ static ieee802154_transaction_t *transaction_end(packet_info *pinfo, proto_tree 
             return NULL;
 
         /* If addresses are present they must match */
-        if ((src_addr->type != AT_NONE) && addresses_equal(src_addr, &ieee802154_trans->rqst_dst_addr) == FALSE)
-            return NULL;
-        if ((dst_addr->type != AT_NONE) && addresses_equal(dst_addr, &ieee802154_trans->rqst_src_addr) == FALSE)
-            return NULL;
+        if (packet->src_addr_mode == IEEE802154_FCF_ADDR_SHORT) {
+            if (packet->src16 != ieee802154_trans->dst16)
+                return NULL;
+        }
+        else if (packet->src_addr_mode == IEEE802154_FCF_ADDR_EXT) {
+            if (packet->src64 != ieee802154_trans->dst64)
+                return NULL;
+        }
+        if (packet->dst_addr_mode == IEEE802154_FCF_ADDR_SHORT) {
+            if (packet->dst16 != ieee802154_trans->src16)
+                return NULL;
+        }
+        else if (packet->dst_addr_mode == IEEE802154_FCF_ADDR_EXT) {
+            if (packet->dst64 != ieee802154_trans->src64)
+                return NULL;
+        }
 
         ieee802154_trans->ack_frame = pinfo->num;
 
@@ -1443,6 +1482,59 @@ static ieee802154_transaction_t *transaction_end(packet_info *pinfo, proto_tree 
 
             expert_add_info_format(pinfo, it, &ei_ieee802154_ack_request_not_found, "No ack request found to ack in frame %u", pinfo->num);
             return NULL;
+        }
+    }
+
+    if (packet->dst_pan_present == FALSE) {
+        if (ieee802154_trans->src_pan_present) {
+            it = proto_tree_add_uint(tree, hf_ieee802154_dst_panID, NULL, 0, 0, ieee802154_trans->src_pan);
+            proto_item_set_generated(it);
+        }
+        else if (ieee802154_trans->dst_pan_present) {
+            it = proto_tree_add_uint(tree, hf_ieee802154_dst_panID, NULL, 0, 0, ieee802154_trans->dst_pan);
+            proto_item_set_generated(it);
+        }
+    }
+    if ((packet->src_pan_present == FALSE) && (ieee802154_trans->src_pan_present) && (ieee802154_trans->dst_pan_present)) {
+        it = proto_tree_add_uint(tree, hf_ieee802154_src_panID, NULL, 0, 0, ieee802154_trans->dst_pan);
+        proto_item_set_generated(it);
+    }
+
+    if (packet->dst_addr_mode == IEEE802154_FCF_ADDR_NONE) {
+        if (ieee802154_trans->src_addr_mode == IEEE802154_FCF_ADDR_SHORT) {
+            it = proto_tree_add_uint(tree, hf_ieee802154_dst16, NULL, 0, 0, ieee802154_trans->src16);
+            proto_item_set_generated(it);
+
+            it = proto_tree_add_uint(tree, hf_ieee802154_addr16, NULL, 0, 0, ieee802154_trans->src16);
+            proto_item_set_hidden(it);
+            proto_item_set_generated(it);
+        }
+        else if (ieee802154_trans->src_addr_mode == IEEE802154_FCF_ADDR_EXT) {
+            it = proto_tree_add_eui64(tree, hf_ieee802154_dst64, NULL, 0, 0, ieee802154_trans->src64);
+            proto_item_set_generated(it);
+
+            it = proto_tree_add_eui64(tree, hf_ieee802154_addr64, NULL, 0, 0, ieee802154_trans->src64);
+            proto_item_set_hidden(it);
+            proto_item_set_generated(it);
+        }
+    }
+
+    if (packet->src_addr_mode == IEEE802154_FCF_ADDR_NONE) {
+        if (ieee802154_trans->dst_addr_mode == IEEE802154_FCF_ADDR_SHORT) {
+            it = proto_tree_add_uint(tree, hf_ieee802154_src16, NULL, 0, 0, ieee802154_trans->dst16);
+            proto_item_set_generated(it);
+
+            it = proto_tree_add_uint(tree, hf_ieee802154_addr16, NULL, 0, 0, ieee802154_trans->dst16);
+            proto_item_set_hidden(it);
+            proto_item_set_generated(it);
+        }
+        else if (ieee802154_trans->dst_addr_mode == IEEE802154_FCF_ADDR_EXT) {
+            it = proto_tree_add_eui64(tree, hf_ieee802154_src64, NULL, 0, 0, ieee802154_trans->dst64);
+            proto_item_set_generated(it);
+
+            it = proto_tree_add_eui64(tree, hf_ieee802154_addr64, NULL, 0, 0, ieee802154_trans->dst64);
+            proto_item_set_hidden(it);
+            proto_item_set_generated(it);
         }
     }
 
@@ -2148,6 +2240,26 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         return;
     }
 
+    if ((packet->src_addr_mode != IEEE802154_FCF_ADDR_NONE) && (packet->dst_addr_mode != IEEE802154_FCF_ADDR_NONE)) {
+        _find_or_create_conversation(pinfo, &pinfo->dl_src, &pinfo->dl_dst);
+    }
+
+    if (ieee802154_ack_tracking && (packet->ack_request || packet->frame_type == IEEE802154_FCF_ACK)) {
+        guint32 key[2] = {0};
+
+        key[0] = packet->seqno;
+        if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID) {
+            key[1] = pinfo->rec->rec_header.packet_header.interface_id;
+        }
+
+        if (packet->ack_request) {
+            transaction_start(pinfo, ieee802154_tree, packet, key);
+        }
+        else {
+            transaction_end(pinfo, ieee802154_tree, packet, key);
+        }
+    }
+
     tvbuff_t* payload = ieee802154_decrypt_payload(no_fcs_tvb, mhr_len, pinfo, ieee802154_tree, packet);
     if (payload) {
         guint pie_size = ieee802154_dissect_payload_ies(payload, pinfo, ieee802154_tree, packet);
@@ -2187,26 +2299,6 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         }
     }
 
-    if ((packet->src_addr_mode != IEEE802154_FCF_ADDR_NONE) && (packet->dst_addr_mode != IEEE802154_FCF_ADDR_NONE)) {
-        _find_or_create_conversation(pinfo, &pinfo->dl_src, &pinfo->dl_dst);
-    }
-
-    if (ieee802154_ack_tracking && fcs_ok && (packet->ack_request || packet->frame_type == IEEE802154_FCF_ACK)) {
-        guint32 key[2] = {0};
-
-        key[0] = packet->seqno;
-        if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID) {
-            key[1] = pinfo->rec->rec_header.packet_header.interface_id;
-        }
-
-        if (packet->ack_request) {
-            transaction_start(pinfo, ieee802154_tree, &pinfo->dl_src, &pinfo->dl_dst, key);
-        }
-        else {
-            transaction_end(pinfo, ieee802154_tree, &pinfo->dl_src, &pinfo->dl_dst, key);
-        }
-    }
-
     tap_queue_packet(ieee802154_tap, pinfo, NULL);
 }
 
@@ -2218,8 +2310,6 @@ ieee802154_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     proto_item              *hidden_item;
     proto_item              *ti;
     guint                   offset = 0;
-    gboolean                dstPanPresent = FALSE;
-    gboolean                srcPanPresent = FALSE;
     ieee802154_packet      *packet = wmem_new0(wmem_packet_scope(), ieee802154_packet);
     ieee802154_short_addr   addr16;
     ieee802154_hints_t     *ieee_hints;
@@ -2304,10 +2394,10 @@ ieee802154_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         }
 
         /* The source PAN ID is always omitted in multipurpose frames */
-        srcPanPresent = FALSE;
+        packet->src_pan_present = FALSE;
 
         if (packet->pan_id_present) {
-            dstPanPresent = TRUE;
+            packet->dst_pan_present = TRUE;
         }
     }
     else if (packet->version == IEEE802154_VERSION_RESERVED) {
@@ -2321,12 +2411,12 @@ ieee802154_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         if ((packet->dst_addr_mode != IEEE802154_FCF_ADDR_NONE) && /* if both destination and source */
             (packet->src_addr_mode != IEEE802154_FCF_ADDR_NONE)) { /* addressing information is present */
             if (packet->pan_id_compression == 1) { /* PAN IDs are identical */
-                dstPanPresent = TRUE;
-                srcPanPresent = FALSE; /* source PAN ID is omitted */
+                packet->dst_pan_present = TRUE;
+                packet->src_pan_present = FALSE; /* source PAN ID is omitted */
             }
             else { /* PAN IDs are different, both shall be included in the frame */
-                dstPanPresent = TRUE;
-                srcPanPresent = TRUE;
+                packet->dst_pan_present = TRUE;
+                packet->src_pan_present = TRUE;
             }
         }
         else {
@@ -2338,18 +2428,18 @@ ieee802154_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
                 /* only either the destination or the source addressing information is present */
                 if ((packet->dst_addr_mode != IEEE802154_FCF_ADDR_NONE) &&        /*   Present   */
                     (packet->src_addr_mode == IEEE802154_FCF_ADDR_NONE)) {        /* Not Present */
-                    dstPanPresent = TRUE;
-                    srcPanPresent = FALSE;
+                    packet->dst_pan_present = TRUE;
+                    packet->src_pan_present = FALSE;
                 }
                 else if ((packet->dst_addr_mode == IEEE802154_FCF_ADDR_NONE) &&   /* Not Present */
                          (packet->src_addr_mode != IEEE802154_FCF_ADDR_NONE)) {   /*   Present   */
-                    dstPanPresent = FALSE;
-                    srcPanPresent = TRUE;
+                    packet->dst_pan_present = FALSE;
+                    packet->src_pan_present = TRUE;
                 }
                 else if ((packet->dst_addr_mode == IEEE802154_FCF_ADDR_NONE) &&   /* Not Present */
                          (packet->src_addr_mode == IEEE802154_FCF_ADDR_NONE)) {   /* Not Present */
-                    dstPanPresent = FALSE;
-                    srcPanPresent = FALSE;
+                    packet->dst_pan_present = FALSE;
+                    packet->src_pan_present = FALSE;
                 }
                 else {
                     expert_add_info(pinfo, proto_root, &ei_ieee802154_invalid_addressing);
@@ -2393,99 +2483,99 @@ ieee802154_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
             if ((packet->dst_addr_mode == IEEE802154_FCF_ADDR_NONE) &&      /* Not Present */
                 (packet->src_addr_mode == IEEE802154_FCF_ADDR_NONE) &&      /* Not Present */
                 (packet->pan_id_compression == 0)) {
-                        dstPanPresent = FALSE;
-                        srcPanPresent = FALSE;
+                        packet->dst_pan_present = FALSE;
+                        packet->src_pan_present = FALSE;
             }
             /* Row 2 */
             else if ((packet->dst_addr_mode == IEEE802154_FCF_ADDR_NONE) && /* Not Present */
                      (packet->src_addr_mode == IEEE802154_FCF_ADDR_NONE) && /* Not Present */
                      (packet->pan_id_compression == 1)) {
-                        dstPanPresent = TRUE;
-                        srcPanPresent = FALSE;
+                        packet->dst_pan_present = TRUE;
+                        packet->src_pan_present = FALSE;
             }
             /* Row 3 */
             else if ((packet->dst_addr_mode != IEEE802154_FCF_ADDR_NONE) && /*  Present    */
                      (packet->src_addr_mode == IEEE802154_FCF_ADDR_NONE) && /* Not Present */
                      (packet->pan_id_compression == 0)) {
-                        dstPanPresent = TRUE;
-                        srcPanPresent = FALSE;
+                        packet->dst_pan_present = TRUE;
+                        packet->src_pan_present = FALSE;
             }
             /* Row 4 */
             else if ((packet->dst_addr_mode != IEEE802154_FCF_ADDR_NONE) && /*  Present    */
                      (packet->src_addr_mode == IEEE802154_FCF_ADDR_NONE) && /* Not Present */
                      (packet->pan_id_compression == 1)) {
-                        dstPanPresent = FALSE;
-                        srcPanPresent = FALSE;
+                        packet->dst_pan_present = FALSE;
+                        packet->src_pan_present = FALSE;
             }
             /* Row 5 */
             else if ((packet->dst_addr_mode == IEEE802154_FCF_ADDR_NONE) && /* Not Present */
                      (packet->src_addr_mode != IEEE802154_FCF_ADDR_NONE) && /*  Present    */
                      (packet->pan_id_compression == 0)) {
-                        dstPanPresent = FALSE;
-                        srcPanPresent = TRUE;
+                        packet->dst_pan_present = FALSE;
+                        packet->src_pan_present = TRUE;
             }
             /* Row 6 */
             else if ((packet->dst_addr_mode == IEEE802154_FCF_ADDR_NONE) && /* Not Present */
                      (packet->src_addr_mode != IEEE802154_FCF_ADDR_NONE) && /*  Present    */
                      (packet->pan_id_compression == 1)) {
-                        dstPanPresent = FALSE;
-                        srcPanPresent = FALSE;
+                        packet->dst_pan_present = FALSE;
+                        packet->src_pan_present = FALSE;
             }
             /* Row 7 */
             else if ((packet->dst_addr_mode == IEEE802154_FCF_ADDR_EXT) && /*  Extended    */
                      (packet->src_addr_mode == IEEE802154_FCF_ADDR_EXT) && /*  Extended    */
                      (packet->pan_id_compression == 0)) {
-                        dstPanPresent = TRUE;
-                        srcPanPresent = FALSE;
+                        packet->dst_pan_present = TRUE;
+                        packet->src_pan_present = FALSE;
             }
             /* Row 8 */
             else if ((packet->dst_addr_mode == IEEE802154_FCF_ADDR_EXT) && /*  Extended    */
                      (packet->src_addr_mode == IEEE802154_FCF_ADDR_EXT) && /*  Extended    */
                      (packet->pan_id_compression == 1)) {
-                        dstPanPresent = FALSE;
-                        srcPanPresent = FALSE;
+                        packet->dst_pan_present = FALSE;
+                        packet->src_pan_present = FALSE;
             }
             /* Row 9 */
             else if ((packet->dst_addr_mode == IEEE802154_FCF_ADDR_SHORT) && /*  Short     */
                      (packet->src_addr_mode == IEEE802154_FCF_ADDR_SHORT) && /*  Short     */
                      (packet->pan_id_compression == 0)) {
-                        dstPanPresent = TRUE;
-                        srcPanPresent = (ieee802154e_compatibility ? FALSE : TRUE);
+                        packet->dst_pan_present = TRUE;
+                        packet->src_pan_present = (ieee802154e_compatibility ? FALSE : TRUE);
             }
             /* Row 10 */
             else if ((packet->dst_addr_mode == IEEE802154_FCF_ADDR_SHORT) && /*  Short    */
                      (packet->src_addr_mode == IEEE802154_FCF_ADDR_EXT) &&   /*  Extended */
                      (packet->pan_id_compression == 0)) {
-                        dstPanPresent = TRUE;
-                        srcPanPresent = (ieee802154e_compatibility ? FALSE : TRUE);
+                        packet->dst_pan_present = TRUE;
+                        packet->src_pan_present = (ieee802154e_compatibility ? FALSE : TRUE);
             }
             /* Row 11 */
             else if ((packet->dst_addr_mode == IEEE802154_FCF_ADDR_EXT)   &&   /*  Extended */
                      (packet->src_addr_mode == IEEE802154_FCF_ADDR_SHORT) &&   /*  Short    */
                      (packet->pan_id_compression == 0)) {
-                        dstPanPresent = TRUE;
-                        srcPanPresent = (ieee802154e_compatibility ? FALSE : TRUE);
+                        packet->dst_pan_present = TRUE;
+                        packet->src_pan_present = (ieee802154e_compatibility ? FALSE : TRUE);
             }
             /* Row 12 */
             else if ((packet->dst_addr_mode == IEEE802154_FCF_ADDR_SHORT) &&   /*  Short    */
                      (packet->src_addr_mode == IEEE802154_FCF_ADDR_EXT)   &&   /*  Extended */
                      (packet->pan_id_compression == 1)) {
-                        dstPanPresent = TRUE;
-                        srcPanPresent = FALSE;
+                        packet->dst_pan_present = TRUE;
+                        packet->src_pan_present = FALSE;
             }
             /* Row 13 */
             else if ((packet->dst_addr_mode == IEEE802154_FCF_ADDR_EXT)   &&   /*  Extended */
                      (packet->src_addr_mode == IEEE802154_FCF_ADDR_SHORT) &&   /*  Short    */
                      (packet->pan_id_compression == 1)) {
-                        dstPanPresent = TRUE;
-                        srcPanPresent = FALSE;
+                        packet->dst_pan_present = TRUE;
+                        packet->src_pan_present = FALSE;
             }
             /* Row 14 */
             else if ((packet->dst_addr_mode == IEEE802154_FCF_ADDR_SHORT) &&   /*  Short    */
                      (packet->src_addr_mode == IEEE802154_FCF_ADDR_SHORT) &&   /*  Short    */
                      (packet->pan_id_compression == 1)) {
-                        dstPanPresent = TRUE;
-                        srcPanPresent = FALSE;
+                        packet->dst_pan_present = TRUE;
+                        packet->src_pan_present = FALSE;
             }
             else {
                 expert_add_info(pinfo, proto_root, &ei_ieee802154_invalid_panid_compression2);
@@ -2493,8 +2583,8 @@ ieee802154_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
             }
         }
         else { /* Frame Type is neither Beacon, Data, Ack, nor Command: PAN ID Compression is not used */
-            dstPanPresent = FALSE; /* no PAN ID will */
-            srcPanPresent = FALSE; /* be present     */
+            packet->dst_pan_present = FALSE; /* no PAN ID will */
+            packet->src_pan_present = FALSE; /* be present     */
         }
     }
     else {
@@ -2508,7 +2598,7 @@ ieee802154_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
      */
 
     /* Destination PAN Id */
-    if (dstPanPresent) {
+    if (packet->dst_pan_present) {
         packet->dst_pan = tvb_get_letohs(tvb, offset);
         if (ieee802154_tree) {
             proto_tree_add_uint(ieee802154_tree, hf_ieee802154_dst_panID, tvb, offset, 2, packet->dst_pan);
@@ -2569,13 +2659,13 @@ ieee802154_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     }
 
     /* Source PAN Id */
-    if (srcPanPresent) {
+    if (packet->src_pan_present) {
         packet->src_pan = tvb_get_letohs(tvb, offset);
         proto_tree_add_uint(ieee802154_tree, hf_ieee802154_src_panID, tvb, offset, 2, packet->src_pan);
         offset += 2;
     }
     else {
-        if (dstPanPresent) {
+        if (packet->dst_pan_present) {
             packet->src_pan = packet->dst_pan;
         }
         else {

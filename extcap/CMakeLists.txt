@@ -91,6 +91,8 @@ if(BUILD_androiddump)
 		if(HAVE_LIBPCAP)
 			set(androiddump_LIBS
 				ui
+				wiretap
+				wsutil
 				${GLIB2_LIBRARIES}
 				${WIN_WS2_32_LIBRARY}
 				$<$<BOOL:${PCAP_FOUND}>:pcap::pcap>
@@ -102,6 +104,7 @@ if(BUILD_androiddump)
 		set(androiddump_LIBS
 			ui
 			wiretap
+			wsutil
 			${GLIB2_LIBRARIES}
 			${ZLIB_LIBRARIES}
 			${CMAKE_DL_LIBS}

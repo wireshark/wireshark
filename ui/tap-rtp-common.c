@@ -396,6 +396,7 @@ tap_packet_status rtpstream_packet_cb(void *arg, packet_info *pinfo, epan_dissec
         if (!stream_info) {
             new_stream_info.start_fd = pinfo->fd;
             new_stream_info.start_rel_time = pinfo->rel_ts;
+            new_stream_info.start_abs_time = pinfo->abs_ts;
             new_stream_info.first_payload_type = rtpinfo->info_payload_type;
             new_stream_info.first_payload_type_name = rtpinfo->info_payload_type_str;
 

@@ -341,6 +341,8 @@ static int hf_nas_5gs_nw_feat_sup_ims_emf_b5b4 = -1;
 static int hf_nas_5gs_nw_feat_sup_ims_emc_b3b2 = -1;
 static int hf_nas_5gs_nw_feat_sup_ims_vops_3gpp = -1;
 static int hf_nas_5gs_nw_feat_sup_ims_vops_n3gpp = -1;
+static int hf_nas_5gs_nw_feat_sup_emcn3 = -1;
+static int hf_nas_5gs_nw_feat_sup_mcsi = -1;
 
 static int hf_nas_5gs_tac = -1;
 
@@ -837,6 +839,7 @@ de_nas_5gs_mm_5gs_nw_feat_sup(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
     guint32 offset, guint len,
     gchar *add_string _U_, int string_len _U_)
 {
+    guint32 curr_offset = offset;
 
     static const int * flags_oct3[] = {
         &hf_nas_5gs_nw_feat_sup_mpsi_b7,
@@ -848,16 +851,31 @@ de_nas_5gs_mm_5gs_nw_feat_sup(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
         NULL
     };
 
+    static const int * flags_oct4[] = {
+        &hf_nas_5gs_spare_b7,
+        &hf_nas_5gs_spare_b6,
+        &hf_nas_5gs_spare_b5,
+        &hf_nas_5gs_spare_b4,
+        &hf_nas_5gs_spare_b3,
+        &hf_nas_5gs_spare_b2,
+        &hf_nas_5gs_nw_feat_sup_mcsi,
+        &hf_nas_5gs_nw_feat_sup_emcn3,
+        NULL
+    };
 
     /* MPSI    IWK N26    EMF    EMC    IMS VoPS    octet 3*/
-    proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags_oct3, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, flags_oct3, ENC_BIG_ENDIAN);
+    curr_offset++;
 
     if (len == 1) {
         return len;
     }
 
     /* 5G-LCS 5G-UP CIoT 5G-HC-CP CIoT N3 data 5G-CP CIoT RestrictEC MCSI EMCN3 octet 4*/
+    proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, flags_oct4, ENC_BIG_ENDIAN);
+    curr_offset++;
 
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_nas_5gs_extraneous_data);
 
     return len;
 }
@@ -4486,7 +4504,7 @@ nas_5gs_mm_dl_nas_transp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gu
     ELEM_OPT_TLV(0x24, NAS_5GS_PDU_TYPE_COMMON, DE_NAS_5GS_CMN_ADD_INF, NULL);
     /*58    5GMM cause    5GMM cause 9.11.3.2    O    TV    2 */
     ELEM_OPT_TV(0x58, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_5GMM_CAUSE, NULL);
-    /*37    Back-off timer value    GPRS timer 3 9.10.2.5    O    TLV    3 */
+    /*37    Back-off timer value    GPRS timer 3 9.11.2.5    O    TLV    3 */
     ELEM_OPT_TLV(0x37, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - Back-off timer value");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_5gs_extraneous_data);
@@ -5075,7 +5093,7 @@ nas_5gs_sm_pdu_ses_est_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
     /* 5GSM cause    5GSM cause 9.11.4.2    M    V    1 */
     ELEM_MAND_V(NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_5GSM_CAUSE, " - ESM cause", ei_nas_5gs_missing_mandatory_elemen);
 
-    /*37    Back-off timer value    GPRS timer 3 9.10.2.5    O    TLV    3 */
+    /*37    Back-off timer value    GPRS timer 3 9.11.2.5    O    TLV    3 */
     ELEM_OPT_TLV(0x37, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - Back-off timer value");
 
     /*F-    Allowed SSC mode    Allowed SSC mode 9.11.4.3    O    TV    1*/
@@ -6789,7 +6807,7 @@ de_nas_5gs_s1_mode_to_n1_mode_nas_transparent_cont(tvbuff_t *tvb, proto_tree *tr
     }
 }
 
-/* 3GPP TS 29.518 chapter 6.1.6.4.2 */
+/* 3GPP TS 29.502 chapter 6.1.6.4.2 and 29.518 chapter 6.1.6.4.2 */
 static int
 dissect_nas_5gs_media_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
@@ -6812,15 +6830,23 @@ dissect_nas_5gs_media_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     if (json_parse(json_data, tokens, ret) < 0)
         return 0;
     cur_tok = json_get_object(json_data, tokens, "n1MessageContainer");
-    if (!cur_tok)
-        return 0;
-    n1_msg_class = json_get_string(json_data, cur_tok, "n1MessageClass");
-    if (!n1_msg_class)
-        return 0;
-    cur_tok = json_get_object(json_data, cur_tok, "n1MessageContent");
-    if (!cur_tok)
-        return 0;
-    str = json_get_string(json_data, cur_tok, "contentId");
+    if (cur_tok) {
+        n1_msg_class = json_get_string(json_data, cur_tok, "n1MessageClass");
+        if (!n1_msg_class)
+            return 0;
+        cur_tok = json_get_object(json_data, cur_tok, "n1MessageContent");
+        if (!cur_tok)
+            return 0;
+        str = json_get_string(json_data, cur_tok, "contentId");
+    } else {
+        cur_tok = json_get_object(json_data, tokens, "n1SmMsg");
+        if (cur_tok) {
+            n1_msg_class = "SM";
+            str = json_get_string(json_data, cur_tok, "contentId");
+        } else {
+            return 0;
+        }
+    }
     if (!str || strcmp(str, message_info->content_id))
         return 0;
     if (!strcmp(n1_msg_class, "5GMM") ||
@@ -8058,6 +8084,16 @@ proto_register_nas_5gs(void)
         { &hf_nas_5gs_nw_feat_sup_mpsi_b7,
         { "MPS indicator (MPSI)",   "nas_5gs.nw_feat_sup.mpsi",
             FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_nw_feat_sup_mpsi), 0x80,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_nw_feat_sup_emcn3,
+        { "Emergency services over non-3GPP access (EMCN3)",   "nas_5gs.nw_feat_sup.emcn3",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_nw_feat_sup_mcsi,
+        { "MCS indicator (MCSI)",   "nas_5gs.nw_feat_sup.mcsi",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
             NULL, HFILL }
         },
 

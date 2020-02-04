@@ -1,6 +1,8 @@
 IEEE1609dot2 {iso(1) identified-organization(3) ieee(111) 
 standards-association-numbered-series-standards(2) wave-stds(1609)  
-dot2(2) base (1) schema (1) major-version-2(2)}
+dot2(2) base(1) schema(1) major-version-2(2)}
+
+-- Minor version: 1
 
 --******************************************************************************
 -- 
@@ -47,7 +49,7 @@ IMPORTS
   ValidityPeriod
 FROM IEEE1609dot2BaseTypes {iso(1) identified-organization(3) ieee(111) 
     standards-association-numbered-series-standards(2) wave-stds(1609)  
-    dot2(2) base(1) base-types(2)  major-version-2 (2)}
+    dot2(2) base(1) base-types(2) major-version-2 (2)}
 
 ;
 
@@ -210,6 +212,8 @@ AesCcmCiphertext ::= SEQUENCE  {
 
 Certificate ::= CertificateBase (ImplicitCertificate | ExplicitCertificate)
 
+TestCertificate ::= Certificate
+
 SequenceOfCertificate ::= SEQUENCE OF Certificate
 
 CertificateBase ::= SEQUENCE  {
@@ -281,15 +285,15 @@ LinkageData ::= SEQUENCE  {
     linkage-value         LinkageValue, 
     group-linkage-value   GroupLinkageValue OPTIONAL
 }
-         
---EndEntityType ::= BIT STRING {app (0), enrol (1) } (SIZE (8)) (ALL EXCEPT {})
+
+-- EndEntityType ::= BIT STRING {app (0), enrol (1) } (SIZE (8)) (ALL EXCEPT {})
 EndEntityType ::= BIT STRING {app (0), enrol (1) } (SIZE (8))
 
 PsidGroupPermissions ::= SEQUENCE  {
     subjectPermissions SubjectPermissions,
     minChainLength     INTEGER DEFAULT 1,
     chainLengthRange   INTEGER DEFAULT 0, 
-    eeType             EndEntityType DEFAULT '80'H
+    eeType             EndEntityType DEFAULT {app}
 }
 
 SequenceOfPsidGroupPermissions ::= SEQUENCE OF PsidGroupPermissions

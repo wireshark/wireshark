@@ -1168,7 +1168,7 @@ dissect_p1_Signature(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 static int
 dissect_p1_UTCTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_UTCTime(implicit_tag, actx, tree, tvb, offset, hf_index);
+  offset = dissect_ber_UTCTime(implicit_tag, actx, tree, tvb, offset, hf_index, NULL, NULL);
 
   return offset;
 }
@@ -2771,7 +2771,7 @@ dissect_p1_Time(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, as
 	tvbuff_t *arrival = NULL;
 	p1_address_ctx_t* ctx = (p1_address_ctx_t*)actx->subtree.tree_ctx;
 
-	  offset = dissect_ber_UTCTime(implicit_tag, actx, tree, tvb, offset, hf_index);
+	  offset = dissect_ber_UTCTime(implicit_tag, actx, tree, tvb, offset, hf_index, NULL, NULL);
 
 
 	if(arrival && ctx && ctx->do_address)

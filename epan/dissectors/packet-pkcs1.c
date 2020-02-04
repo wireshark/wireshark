@@ -45,6 +45,7 @@ static int hf_pkcs1_KEA_Params_Id_PDU = -1;       /* KEA_Params_Id */
 static int hf_pkcs1_HashAlgorithm_PDU = -1;       /* HashAlgorithm */
 static int hf_pkcs1_RSASSA_PSS_params_PDU = -1;   /* RSASSA_PSS_params */
 static int hf_pkcs1_ECParameters_PDU = -1;        /* ECParameters */
+static int hf_pkcs1_Prime_p_PDU = -1;             /* Prime_p */
 static int hf_pkcs1_modulus = -1;                 /* INTEGER */
 static int hf_pkcs1_publicExponent = -1;          /* INTEGER */
 static int hf_pkcs1_digestAlgorithm = -1;         /* DigestAlgorithmIdentifier */
@@ -60,7 +61,18 @@ static int hf_pkcs1_hashAlgorithm = -1;           /* HashAlgorithm */
 static int hf_pkcs1_maskGenAlgorithm = -1;        /* MaskGenAlgorithm */
 static int hf_pkcs1_saltLength = -1;              /* INTEGER */
 static int hf_pkcs1_trailerField = -1;            /* INTEGER */
+static int hf_pkcs1_specifiedCurve = -1;          /* SpecifiedECDomain */
 static int hf_pkcs1_namedCurve = -1;              /* OBJECT_IDENTIFIER */
+static int hf_pkcs1_version = -1;                 /* ECPVer */
+static int hf_pkcs1_fieldID = -1;                 /* FieldID */
+static int hf_pkcs1_curve = -1;                   /* Curve */
+static int hf_pkcs1_base = -1;                    /* ECPoint */
+static int hf_pkcs1_order = -1;                   /* INTEGER */
+static int hf_pkcs1_cofactor = -1;                /* INTEGER */
+static int hf_pkcs1_fieldType = -1;               /* T_fieldType */
+static int hf_pkcs1_parameters = -1;              /* T_parameters */
+static int hf_pkcs1_a = -1;                       /* FieldElement */
+static int hf_pkcs1_b = -1;                       /* FieldElement */
 static int hf_pkcs1_r = -1;                       /* INTEGER */
 static int hf_pkcs1_s = -1;                       /* INTEGER */
 
@@ -78,6 +90,9 @@ static gint ett_pkcs1_DomainParameters = -1;
 static gint ett_pkcs1_ValidationParams = -1;
 static gint ett_pkcs1_RSASSA_PSS_params = -1;
 static gint ett_pkcs1_ECParameters = -1;
+static gint ett_pkcs1_SpecifiedECDomain = -1;
+static gint ett_pkcs1_FieldID = -1;
+static gint ett_pkcs1_Curve = -1;
 static gint ett_pkcs1_DSA_Sig_Value = -1;
 static gint ett_pkcs1_ECDSA_Sig_Value = -1;
 
@@ -255,6 +270,111 @@ dissect_pkcs1_RSASSA_PSS_params(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 
 
+static int
+dissect_pkcs1_ECPoint(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+static const value_string pkcs1_ECPVer_vals[] = {
+  {   1, "ecpVer1" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_pkcs1_ECPVer(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_pkcs1_T_fieldType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &actx->external.direct_reference);
+
+  return offset;
+}
+
+
+
+static int
+dissect_pkcs1_T_parameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 21 "./asn1/pkcs1/pkcs1.cnf"
+  offset = call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
+
+
+
+  return offset;
+}
+
+
+static const ber_sequence_t FieldID_sequence[] = {
+  { &hf_pkcs1_fieldType     , BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_pkcs1_T_fieldType },
+  { &hf_pkcs1_parameters    , BER_CLASS_ANY, 0, BER_FLAGS_NOOWNTAG, dissect_pkcs1_T_parameters },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_pkcs1_FieldID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   FieldID_sequence, hf_index, ett_pkcs1_FieldID);
+
+  return offset;
+}
+
+
+
+static int
+dissect_pkcs1_FieldElement(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t Curve_sequence[] = {
+  { &hf_pkcs1_a             , BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_pkcs1_FieldElement },
+  { &hf_pkcs1_b             , BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_pkcs1_FieldElement },
+  { &hf_pkcs1_seed          , BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_pkcs1_BIT_STRING },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_pkcs1_Curve(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   Curve_sequence, hf_index, ett_pkcs1_Curve);
+
+  return offset;
+}
+
+
+static const ber_sequence_t SpecifiedECDomain_sequence[] = {
+  { &hf_pkcs1_version       , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_pkcs1_ECPVer },
+  { &hf_pkcs1_fieldID       , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_pkcs1_FieldID },
+  { &hf_pkcs1_curve         , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_pkcs1_Curve },
+  { &hf_pkcs1_base          , BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_pkcs1_ECPoint },
+  { &hf_pkcs1_order         , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_pkcs1_INTEGER },
+  { &hf_pkcs1_cofactor      , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_pkcs1_INTEGER },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_pkcs1_SpecifiedECDomain(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   SpecifiedECDomain_sequence, hf_index, ett_pkcs1_SpecifiedECDomain);
+
+  return offset;
+}
+
+
 
 static int
 dissect_pkcs1_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -265,12 +385,14 @@ dissect_pkcs1_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 
 static const value_string pkcs1_ECParameters_vals[] = {
-  {   0, "namedCurve" },
+  {   0, "specifiedCurve" },
+  {   1, "namedCurve" },
   { 0, NULL }
 };
 
 static const ber_choice_t ECParameters_choice[] = {
-  {   0, &hf_pkcs1_namedCurve    , BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_pkcs1_OBJECT_IDENTIFIER },
+  {   0, &hf_pkcs1_specifiedCurve, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_pkcs1_SpecifiedECDomain },
+  {   1, &hf_pkcs1_namedCurve    , BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_pkcs1_OBJECT_IDENTIFIER },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -279,6 +401,16 @@ dissect_pkcs1_ECParameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  ECParameters_choice, hf_index, ett_pkcs1_ECParameters,
                                  NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_pkcs1_Prime_p(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
 
   return offset;
 }
@@ -329,6 +461,13 @@ static int dissect_ECParameters_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
   offset = dissect_pkcs1_ECParameters(FALSE, tvb, offset, &asn1_ctx, tree, hf_pkcs1_ECParameters_PDU);
   return offset;
 }
+static int dissect_Prime_p_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_pkcs1_Prime_p(FALSE, tvb, offset, &asn1_ctx, tree, hf_pkcs1_Prime_p_PDU);
+  return offset;
+}
 
 
 /*--- End of included file: packet-pkcs1-fn.c ---*/
@@ -365,6 +504,10 @@ void proto_register_pkcs1(void) {
     { &hf_pkcs1_ECParameters_PDU,
       { "ECParameters", "pkcs1.ECParameters",
         FT_UINT32, BASE_DEC, VALS(pkcs1_ECParameters_vals), 0,
+        NULL, HFILL }},
+    { &hf_pkcs1_Prime_p_PDU,
+      { "Prime-p", "pkcs1.Prime_p",
+        FT_INT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_pkcs1_modulus,
       { "modulus", "pkcs1.modulus",
@@ -426,10 +569,54 @@ void proto_register_pkcs1(void) {
       { "trailerField", "pkcs1.trailerField",
         FT_INT32, BASE_DEC, NULL, 0,
         "INTEGER", HFILL }},
+    { &hf_pkcs1_specifiedCurve,
+      { "specifiedCurve", "pkcs1.specifiedCurve_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "SpecifiedECDomain", HFILL }},
     { &hf_pkcs1_namedCurve,
       { "namedCurve", "pkcs1.namedCurve",
         FT_OID, BASE_NONE, NULL, 0,
         "OBJECT_IDENTIFIER", HFILL }},
+    { &hf_pkcs1_version,
+      { "version", "pkcs1.version",
+        FT_INT32, BASE_DEC, VALS(pkcs1_ECPVer_vals), 0,
+        "ECPVer", HFILL }},
+    { &hf_pkcs1_fieldID,
+      { "fieldID", "pkcs1.fieldID_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_pkcs1_curve,
+      { "curve", "pkcs1.curve_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_pkcs1_base,
+      { "base", "pkcs1.base",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "ECPoint", HFILL }},
+    { &hf_pkcs1_order,
+      { "order", "pkcs1.order",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "INTEGER", HFILL }},
+    { &hf_pkcs1_cofactor,
+      { "cofactor", "pkcs1.cofactor",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "INTEGER", HFILL }},
+    { &hf_pkcs1_fieldType,
+      { "fieldType", "pkcs1.fieldType",
+        FT_OID, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_pkcs1_parameters,
+      { "parameters", "pkcs1.parameters_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_pkcs1_a,
+      { "a", "pkcs1.a",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "FieldElement", HFILL }},
+    { &hf_pkcs1_b,
+      { "b", "pkcs1.b",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "FieldElement", HFILL }},
     { &hf_pkcs1_r,
       { "r", "pkcs1.r",
         FT_INT32, BASE_DEC, NULL, 0,
@@ -455,6 +642,9 @@ void proto_register_pkcs1(void) {
     &ett_pkcs1_ValidationParams,
     &ett_pkcs1_RSASSA_PSS_params,
     &ett_pkcs1_ECParameters,
+    &ett_pkcs1_SpecifiedECDomain,
+    &ett_pkcs1_FieldID,
+    &ett_pkcs1_Curve,
     &ett_pkcs1_DSA_Sig_Value,
     &ett_pkcs1_ECDSA_Sig_Value,
 
@@ -485,6 +675,7 @@ void proto_reg_handoff_pkcs1(void) {
   register_ber_oid_dissector("1.2.840.10045.2.13", dissect_ECParameters_PDU, proto_pkcs1, "id-ecMQV");
   register_ber_oid_dissector("1.2.840.113549.1.1.10", dissect_RSASSA_PSS_params_PDU, proto_pkcs1, "id-RSASSA-PSS");
   register_ber_oid_dissector("1.2.840.113549.1.1.8", dissect_HashAlgorithm_PDU, proto_pkcs1, "id-mgf1");
+  register_ber_oid_dissector("1.2.840.10045.1.1", dissect_Prime_p_PDU, proto_pkcs1, "prime-field");
 
 
 /*--- End of included file: packet-pkcs1-dis-tab.c ---*/

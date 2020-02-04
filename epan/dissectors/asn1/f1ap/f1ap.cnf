@@ -365,6 +365,10 @@ id-CG-Config                                         ProtocolIE-ID
 id-PDCCH-BlindDetectionSCG                           ProtocolIE-ID
 id-Requested-PDCCH-BlindDetectionSCG                 ProtocolIE-ID
 id-Ph-InfoMCG                                        ProtocolIE-ID
+id-MeasGapSharingConfig                              ProtocolIE-ID
+id-systemInformationAreaID                           ProtocolIE-ID
+id-areaScope                                         ProtocolIE-ID
+id-RRCContainer-RRCSetupComplete                     ProtocolIE-ID
 #.END
 
 #.REGISTER
@@ -553,6 +557,7 @@ UAC-Assistance-Info                               N f1ap.ies id-UAC-Assistance-I
 RANUEID                                           N f1ap.ies id-RANUEID
 GNB-DU-TNL-Association-To-Remove-Item             N f1ap.ies id-GNB-DU-TNL-Association-To-Remove-Item
 GNB-DU-TNL-Association-To-Remove-List             N f1ap.ies id-GNB-DU-TNL-Association-To-Remove-List
+RRCContainer-RRCSetupComplete                     N f1ap.ies id-RRCContainer-RRCSetupComplete
 
 #F1AP-PROTOCOL-EXTENSION
 GNB-CUSystemInformation                           N f1ap.extension id-gNB-CUSystemInformation
@@ -599,6 +604,9 @@ CG-Config                                         N f1ap.extension id-CG-Config
 PDCCH-BlindDetectionSCG                           N f1ap.extension id-PDCCH-BlindDetectionSCG
 Requested-PDCCH-BlindDetectionSCG                 N f1ap.extension id-Requested-PDCCH-BlindDetectionSCG
 Ph-InfoMCG                                        N f1ap.extension id-Ph-InfoMCG
+MeasGapSharingConfig                              N f1ap.extension id-MeasGapSharingConfig
+SystemInformationAreaID                           N f1ap.extension id-systemInformationAreaID
+AreaScope                                         N f1ap.extension id-areaScope
 
 #F1AP-ELEMENTARY-PROCEDURE
 Reset                               N f1ap.proc.imsg id-Reset
@@ -774,6 +782,15 @@ F1RemovalFailure                    N f1ap.proc.uout id-F1Removal
     }
   }
 
+#.FN_BODY RRCContainer-RRCSetupComplete VAL_PTR=&param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_RRCContainer_RRCSetupComplete);
+    call_dissector(nr_rrc_ul_dcch_handle, param_tvb, actx->pinfo, subtree);
+  }
+
 #.FN_BODY DUtoCURRCContainer VAL_PTR = &param_tvb
   tvbuff_t *param_tvb = NULL;
 %(DEFAULT_BODY)s
@@ -889,6 +906,14 @@ BitRate DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_bit_sec
   if (param_tvb) {
     proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_MeasGapConfig);
     dissect_nr_rrc_MeasGapConfig_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY MeasGapSharingConfig VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_MeasGapSharingConfig);
+    dissect_nr_rrc_MeasGapSharingConfig_PDU(param_tvb, actx->pinfo, subtree, NULL);
   }
 
 #.FN_BODY DUtoCURRCInformation/requestedP-MaxFR1 VAL_PTR = &param_tvb

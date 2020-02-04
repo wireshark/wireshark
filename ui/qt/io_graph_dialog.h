@@ -72,6 +72,7 @@ public:
     QCPBars *bars() { return bars_; }
     double startOffset();
     int packetFromTime(double ts);
+    bool hasItemToShow(int idx, double value) const;
     double getItemValue(int idx, const capture_file *cap_file) const;
     int maxInterval () const { return cur_idx_; }
     QString scaledValueUnit() const { return scaled_value_unit_; }
@@ -135,7 +136,7 @@ public:
 
     enum UatColumns { colEnabled = 0, colName, colDFilter, colColor, colStyle, colYAxis, colYField, colSMAPeriod, colMaxNum};
 
-    void addGraph(bool checked, QString name, QString dfilter, int color_idx, IOGraph::PlotStyles style,
+    void addGraph(bool checked, QString name, QString dfilter, QRgb color_idx, IOGraph::PlotStyles style,
                   io_graph_item_unit_t value_units, QString yfield, int moving_average);
     void addGraph(bool copy_from_current = false);
     void addDefaultGraph(bool enabled, int idx = 0);

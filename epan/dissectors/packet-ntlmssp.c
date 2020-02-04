@@ -2618,13 +2618,16 @@ dissect_ntlmssp_verf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 }
 
 static tvbuff_t *
-wrap_dissect_ntlmssp_payload_only(tvbuff_t *tvb, tvbuff_t *auth_tvb _U_,
-                                  int offset, packet_info *pinfo, dcerpc_auth_info *auth_info _U_)
+wrap_dissect_ntlmssp_payload_only(tvbuff_t *header_tvb _U_,
+                                  tvbuff_t *payload_tvb,
+                                  tvbuff_t *trailer_tvb _U_,
+                                  tvbuff_t *auth_tvb _U_,
+                                  packet_info *pinfo,
+                                  dcerpc_auth_info *auth_info _U_)
 {
-  tvbuff_t *data_tvb, *decrypted_tvb;
+  tvbuff_t *decrypted_tvb;
 
-  data_tvb = tvb_new_subset_remaining(tvb, offset);
-  dissect_ntlmssp_payload_only(data_tvb, pinfo, NULL, &decrypted_tvb);
+  dissect_ntlmssp_payload_only(payload_tvb, pinfo, NULL, &decrypted_tvb);
   return decrypted_tvb;
 }
 

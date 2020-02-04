@@ -338,7 +338,7 @@ class case_sharkd(subprocesstest.SubprocessTestCase):
                     "f": "dhcp",
                     "e": MatchAny(int),
                     "n": MatchList({
-                        "l": "Padding: 000000000000000000000000000000000000000000000000…",
+                        "l": "Padding: 0000000000000000000000000000000000000000000000000000",
                         "h": [316, 26],
                         "f": "dhcp.option.padding == 00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00"
                     }, match_element=any),  # match one element from 'n'

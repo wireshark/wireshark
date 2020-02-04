@@ -238,6 +238,21 @@ bool rect_on_screen(const QRect &rect)
     return false;
 }
 
+void set_action_shortcuts_visible_in_context_menu(QList<QAction *> actions)
+{
+#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0) && QT_VERSION < QT_VERSION_CHECK(5, 13, 0)
+    // For QT_VERSION >= 5.13.0 we call styleHints()->setShowShortcutsInContextMenus(true)
+    // in WiresharkApplication.
+    // QTBUG-71471
+    // QTBUG-61181
+    foreach (QAction *action, actions) {
+        action->setShortcutVisibleInContextMenu(true);
+    }
+#else
+    Q_UNUSED(actions)
+#endif
+}
+
 /*
  * Editor modelines
  *

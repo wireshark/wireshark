@@ -74,7 +74,6 @@ typedef struct tvbuff tvbuff_t;
  *    This (obviously) also applies to any tvbs chained to the tvb handed
  *    to the dissector.
  *  - Can create its own tvb chain (using tvb_new_real_data() which the
- *
  *    dissector is free to manage as desired.
  * @{
  */

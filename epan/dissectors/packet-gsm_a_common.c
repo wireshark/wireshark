@@ -901,12 +901,11 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
             minor_item = proto_tree_add_item(tree, hf_gsm_a_geo_loc_uncertainty_semi_minor, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_item_append_text(minor_item, " (%.1f m)", 10 * (pow(1.1, (double)value) - 1));
             offset++;
-            /* Orientation of major axis octet 12
-             * allowed value from 0-179 to convert
-             * to actual degrees multiply by 2.
+            /* TS 23.032 V15.1.0 (2018-09)
+             * Orientation of major axis octet 12
+             * allowed value from 0-179
              */
-            value = tvb_get_guint8(tvb,offset)&0x7f;
-            proto_tree_add_uint(tree, hf_gsm_a_geo_loc_orientation_of_major_axis, tvb, offset, 1, value*2);
+            proto_tree_add_item(tree, hf_gsm_a_geo_loc_orientation_of_major_axis, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             /* Confidence */
             proto_tree_add_item(tree, hf_gsm_a_geo_loc_confidence, tvb, offset, 1, ENC_BIG_ENDIAN);

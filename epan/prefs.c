@@ -3380,6 +3380,11 @@ prefs_register_modules(void)
                                    "Enable Packet List Separator",
                                    &prefs.gui_qt_packet_list_separator);
 
+    prefs_register_bool_preference(gui_layout_module, "packet_header_column_definition.enabled",
+                                    "Show column definition in packet list header",
+                                    "Show column definition in packet list header",
+                                    &prefs.gui_qt_packet_header_column_definition);
+
     prefs_register_bool_preference(gui_layout_module, "show_selected_packet.enabled",
                                    "Show selected packet in the Status Bar",
                                    "Show selected packet in the Status Bar",
@@ -4128,6 +4133,7 @@ pre_init_prefs(void)
     prefs.gui_interfaces_show_hidden = FALSE;
     prefs.gui_interfaces_remote_display = TRUE;
     prefs.gui_qt_packet_list_separator = FALSE;
+    prefs.gui_qt_packet_header_column_definition = TRUE;
     prefs.gui_qt_show_selected_packet = FALSE;
     prefs.gui_qt_show_file_load_time = FALSE;
     prefs.gui_max_export_objects     = 1000;
@@ -5160,6 +5166,7 @@ deprecated_port_pref(gchar *pref_name, const gchar *value)
         {"vnc.alternate_port", "VNC", "tcp.port", 10},
         {"scop.port", "SCoP", "tcp.port", 10},
         {"scop.port_secure", "SCoP", "tcp.port", 10},
+        {"tpncp.tcp.trunkpack_port", "TPNCP", "tcp.port", 10},
         /* UDP */
         {"h248.udp_port", "H248", "udp.port", 10},
         {"actrace.udp_port", "ACtrace", "udp.port", 10},
@@ -5191,6 +5198,7 @@ deprecated_port_pref(gchar *pref_name, const gchar *value)
         {"uaudp.port4", "UAUDP", "udp.port", 10},
         {"uhd.dissector_port", "UHD", "udp.port", 10},
         {"vrt.dissector_port", "vrt", "udp.port", 10},
+        {"tpncp.udp.trunkpack_port", "TPNCP", "udp.port", 10},
     };
 
     struct port_pref_name port_range_prefs[] = {

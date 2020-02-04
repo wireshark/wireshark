@@ -68,6 +68,7 @@
 // In some places we match by conv/call number, in others we match by first frame.
 
 enum {
+    channel_col_,
     src_addr_col_,
     src_port_col_,
     dst_addr_col_,
@@ -80,7 +81,8 @@ enum {
     payload_col_,
 
     stream_data_col_ = src_addr_col_, // RtpAudioStream
-    graph_data_col_ = src_port_col_ // QCPGraph
+    graph_data_col_ = src_port_col_, // QCPGraph
+    channel_data_col_ = channel_col_, // channel_mode_t
 };
 
 #ifdef QT_MULTIMEDIA_LIB
@@ -91,10 +93,15 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf) :
     WiresharkDialog(parent, cf)
 #ifdef QT_MULTIMEDIA_LIB
     , ui(new Ui::RtpPlayerDialog)
-    , start_rel_time_(0.0)
+    , first_stream_rel_start_time_(0.0)
+    , first_stream_abs_start_time_(0.0)
+    , first_stream_rel_stop_time_(0.0)
+    , streams_length_(0.0)
+    , start_marker_time_(0.0)
 #endif // QT_MULTIMEDIA_LIB
     , number_ticker_(new QCPAxisTicker)
     , datetime_ticker_(new QCPAxisTickerDateTime)
+    , stereo_available_(false)
 {
     ui->setupUi(this);
     setWindowTitle(wsApp->windowTitleString(tr("RTP Player")));
@@ -120,14 +127,23 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf) :
     ctx_menu_->addAction(ui->actionDragZoom);
     ctx_menu_->addAction(ui->actionToggleTimeOrigin);
 //    ctx_menu_->addAction(ui->actionCrosshairs);
+    set_action_shortcuts_visible_in_context_menu(ctx_menu_->actions());
 
     connect(ui->audioPlot, SIGNAL(mouseMove(QMouseEvent*)),
             this, SLOT(updateHintLabel()));
     connect(ui->audioPlot, SIGNAL(mousePress(QMouseEvent*)),
             this, SLOT(graphClicked(QMouseEvent*)));
+    connect(ui->audioPlot, SIGNAL(mouseDoubleClick(QMouseEvent*)),
+            this, SLOT(graphDoubleClicked(QMouseEvent*)));
 
     cur_play_pos_ = new QCPItemStraightLine(ui->audioPlot);
     cur_play_pos_->setVisible(false);
+
+    start_marker_pos_ = new QCPItemStraightLine(ui->audioPlot);
+    start_marker_pos_->setPen(QPen(Qt::green,4));
+    setStartPlayMarker(0);
+    drawStartPlayMarker();
+    start_marker_pos_->setVisible(true);
 
     datetime_ticker_->setDateTimeFormat("yyyy-MM-dd\nhh:mm:ss.zzz");
 
@@ -168,6 +184,8 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf) :
                 QCP::iRangeZoom
                 );
     ui->audioPlot->setFocus();
+
+    stereo_available_ = isStereoAvailable();
 
     QTimer::singleShot(0, this, SLOT(retapPackets()));
 #endif // QT_MULTIMEDIA_LIB
@@ -227,9 +245,34 @@ void RtpPlayerDialog::rescanPackets(bool rescale_axes)
     int row_count = ui->streamTreeWidget->topLevelItemCount();
     // Clear existing graphs and reset stream values
     for (int row = 0; row < row_count; row++) {
+        bool left = true, right = true;
+
         QTreeWidgetItem *ti = ui->streamTreeWidget->topLevelItem(row);
         RtpAudioStream *audio_stream = ti->data(stream_data_col_, Qt::UserRole).value<RtpAudioStream*>();
-        audio_stream->reset(start_rel_time_);
+        channel_mode_t channel_mode = (channel_mode_t)ti->data(channel_data_col_, Qt::UserRole).toUInt();
+        switch (channel_mode) {
+            case channel_none:
+                left = false;
+                right = false;
+                break;
+            case channel_mono:
+                left = true;
+                right = false;
+                break;
+            case channel_stereo_left:
+                left = true;
+                right = false;
+                break;
+            case channel_stereo_right:
+                left = false;
+                right = true;
+                break;
+            case channel_stereo_both:
+                left = true;
+                right = true;
+                break;
+        }
+        audio_stream->reset(first_stream_rel_start_time_, stereo_available_, left, right);
 
         ti->setData(graph_data_col_, Qt::UserRole, QVariant());
     }
@@ -247,6 +290,7 @@ void RtpPlayerDialog::rescanPackets(bool rescale_axes)
     for (int row = 0; row < row_count; row++) {
         QTreeWidgetItem *ti = ui->streamTreeWidget->topLevelItem(row);
         RtpAudioStream *audio_stream = ti->data(stream_data_col_, Qt::UserRole).value<RtpAudioStream*>();
+        channel_mode_t channel_mode = (channel_mode_t)ti->data(channel_data_col_, Qt::UserRole).toUInt();
         int y_offset = row_count - row - 1;
 
         audio_stream->setJitterBufferSize((int) ui->jitterSpinBox->value());
@@ -270,6 +314,10 @@ void RtpPlayerDialog::rescanPackets(bool rescale_axes)
         QCPGraph *audio_graph = ui->audioPlot->addGraph();
         QPen wf_pen(audio_stream->color());
         wf_pen.setWidthF(wf_graph_normal_width_);
+        if (channel_mode == channel_none) {
+            // Indicate that audio will not be hearable
+            wf_pen.setStyle(Qt::DotLine);
+        }
         audio_graph->setPen(wf_pen);
         audio_graph->setSelectable(QCP::stNone);
         audio_graph->setData(audio_stream->visualTimestamps(relative_timestamps), audio_stream->visualSamples(y_offset));
@@ -359,6 +407,8 @@ void RtpPlayerDialog::rescanPackets(bool rescale_axes)
 
 void RtpPlayerDialog::addRtpStream(rtpstream_info_t *rtpstream)
 {
+    channel_mode_t channel_mode = channel_none;
+
     if (!rtpstream) return;
 
     // Find the RTP streams associated with this conversation.
@@ -389,6 +439,17 @@ void RtpPlayerDialog::addRtpStream(rtpstream_info_t *rtpstream)
         ti->setText(num_pkts_col_, QString::number(rtpstream->packet_count));
 
         ti->setData(stream_data_col_, Qt::UserRole, QVariant::fromValue(audio_stream));
+        if (stereo_available_) {
+            if (tli_count%2) {
+                channel_mode = channel_stereo_right;
+            } else {
+                channel_mode = channel_stereo_left;
+            }
+        } else {
+            channel_mode = channel_mono;
+        }
+        ti->setToolTip(channel_data_col_, QString(tr("Double click to change audio routing")));
+        setChannelMode(ti, channel_mode);
 
         for (int col = 0; col < ui->streamTreeWidget->columnCount(); col++) {
             QBrush fgBrush = ti->foreground(col);
@@ -404,18 +465,21 @@ void RtpPlayerDialog::addRtpStream(rtpstream_info_t *rtpstream)
         connect(audio_stream, SIGNAL(playbackError(QString)), this, SLOT(setPlaybackError(QString)));
         connect(audio_stream, SIGNAL(processedSecs(double)), this, SLOT(setPlayPosition(double)));
     }
-    // TODO: does not do anything
-    // audio_stream->addRtpStream(rtpstream);
-    double start_rel_time = nstime_to_sec(&rtpstream->start_rel_time);
-    if (tli_count < 2) {
-        start_rel_time_ = start_rel_time;
-    } else {
-        start_rel_time_ = qMin(start_rel_time_, start_rel_time);
-    }
+
+    // Update start/stop time nevertheless stream is new or already seen
+    // because voip_calls_dialog.cpp splits same stream to multiple pieces
+    updateStartStopTime(rtpstream, tli_count);
+
     RTP_STREAM_DEBUG("adding stream %d to layout, %u packets, start %u",
                      ui->streamTreeWidget->topLevelItemCount(),
                      rtpstream->packet_count,
                      rtpstream->start_fd ? rtpstream->start_fd->num : 0);
+}
+
+void RtpPlayerDialog::setMarkers()
+{
+    setStartPlayMarker(0);
+    drawStartPlayMarker();
 }
 
 void RtpPlayerDialog::showEvent(QShowEvent *)
@@ -517,14 +581,34 @@ void RtpPlayerDialog::graphClicked(QMouseEvent *event)
     ui->audioPlot->setFocus();
 }
 
+void RtpPlayerDialog::graphDoubleClicked(QMouseEvent *event)
+{
+    updateWidgets();
+    if (event->button() == Qt::LeftButton) {
+        // Move start play line
+        double ts = ui->audioPlot->xAxis->pixelToCoord(ui->audioPlot->mapFromGlobal(QCursor::pos()).x());
+
+        setStartPlayMarker(ts);
+        drawStartPlayMarker();
+
+        ui->audioPlot->replot();
+    }
+    ui->audioPlot->setFocus();
+}
+
 void RtpPlayerDialog::updateHintLabel()
 {
     int packet_num = getHoveredPacket();
     QString hint = "<small><i>";
+    double start_pos = getStartPlayMarker();
 
-    if (packet_num > 0) {
-        hint += tr("%1. Press \"G\" to go to packet %2")
-                .arg(getHoveredTime())
+    if (packet_num == 0) {
+        hint += tr("Start: %1. Double click to set start of playback.")
+                .arg(getFormatedTime(start_pos));
+    } else if (packet_num > 0) {
+        hint += tr("Start: %1, cursor: %2. Press \"G\" to go to packet %3. Double click to set start of playback.")
+                .arg(getFormatedTime(start_pos))
+                .arg(getFormatedHoveredTime())
                 .arg(packet_num);
     } else if (!playback_error_.isEmpty()) {
         hint += playback_error_;
@@ -554,8 +638,13 @@ void RtpPlayerDialog::resetXAxis()
 
 void RtpPlayerDialog::setPlayPosition(double secs)
 {
-    secs+= start_rel_time_;
     double cur_secs = cur_play_pos_->point1->key();
+
+    if (ui->todCheckBox->isChecked()) {
+        secs += first_stream_abs_start_time_;
+    } else {
+        secs += first_stream_rel_start_time_;
+    }
     if (secs > cur_secs) {
         cur_play_pos_->point1->setCoords(secs, 0.0);
         cur_play_pos_->point2->setCoords(secs, 1.0);
@@ -626,11 +715,27 @@ void RtpPlayerDialog::panXAxis(int x_pixels)
 
 void RtpPlayerDialog::on_playButton_clicked()
 {
-    double left = start_rel_time_;
-    cur_play_pos_->point1->setCoords(left, 0.0);
-    cur_play_pos_->point2->setCoords(left, 1.0);
+    double start_time;
+
+    cur_play_pos_->point1->setCoords(start_marker_time_, 0.0);
+    cur_play_pos_->point2->setCoords(start_marker_time_, 1.0);
     cur_play_pos_->setVisible(true);
     playback_error_.clear();
+
+    if (ui->todCheckBox->isChecked()) {
+        start_time = start_marker_time_;
+    } else {
+        start_time = start_marker_time_ - first_stream_rel_start_time_;
+    }
+
+    int row_count = ui->streamTreeWidget->topLevelItemCount();
+    for (int row = 0; row < row_count; row++) {
+        QTreeWidgetItem *ti = ui->streamTreeWidget->topLevelItem(row);
+        RtpAudioStream *audio_stream = ti->data(stream_data_col_, Qt::UserRole).value<RtpAudioStream*>();
+        // All streams starts at first_stream_rel_start_time_
+        audio_stream->setStartPlayTime(start_time);
+    }
+
     ui->audioPlot->replot();
 }
 
@@ -691,41 +796,43 @@ void RtpPlayerDialog::on_streamTreeWidget_itemSelectionChanged()
         }
     }
     ui->audioPlot->replot();
+    ui->audioPlot->setFocus();
 }
 
-double RtpPlayerDialog::getLowestTimestamp()
+// Change channel if clicked channel column
+void RtpPlayerDialog::on_streamTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, const int column)
 {
-    double lowest = QCPRange::maxRange;
-
-    for (int i = 0; i < ui->audioPlot->graphCount(); i++) {
-        QCPGraph *graph = ui->audioPlot->graph(i);
-        if (!graph->visible()) continue;
-        QSharedPointer<QCPGraphDataContainer> dm = graph->data();
-        bool foundRange = false;
-        QCPRange range = dm->keyRange(foundRange);
-        if (foundRange) {
-            lowest = qMin(lowest, range.lower);
-        }
+    if (column == channel_col_) {
+        channel_mode_t channel_mode = (channel_mode_t)item->data(channel_data_col_, Qt::UserRole).toUInt();
+        channel_mode = changeChannelMode(channel_mode);
+        setChannelMode(item, channel_mode);
+        rescanPackets();
     }
-    return lowest;
 }
 
-const QString RtpPlayerDialog::getHoveredTime()
+const QString RtpPlayerDialog::getFormatedTime(double f_time)
+{
+    QString time_str;
+
+    if (ui->todCheckBox->isChecked()) {
+        QDateTime date_time = QDateTime::fromMSecsSinceEpoch(f_time * 1000.0);
+        time_str = date_time.toString("yyyy-MM-dd hh:mm:ss.zzz");
+    } else {
+        time_str = QString::number(f_time, 'f', 3);
+        time_str += " s";
+    }
+
+    return time_str;
+}
+
+const QString RtpPlayerDialog::getFormatedHoveredTime()
 {
     QTreeWidgetItem *ti = ui->streamTreeWidget->currentItem();
     if (!ti) return tr("Unknown");
 
-    QString time_str;
     double ts = ui->audioPlot->xAxis->pixelToCoord(ui->audioPlot->mapFromGlobal(QCursor::pos()).x());
 
-    if (ui->todCheckBox->isChecked()) {
-        QDateTime date_time = QDateTime::fromMSecsSinceEpoch(ts * 1000.0);
-        time_str = date_time.toString("yyyy-MM-dd hh:mm:ss.zzz");
-    } else {
-        time_str = QString::number(ts, 'f', 3);
-        time_str += " s";
-    }
-    return time_str;
+    return getFormatedTime(ts);
 }
 
 int RtpPlayerDialog::getHoveredPacket()
@@ -765,16 +872,151 @@ void RtpPlayerDialog::on_timingComboBox_currentIndexChanged(int)
 void RtpPlayerDialog::on_todCheckBox_toggled(bool)
 {
     QCPAxis *x_axis = ui->audioPlot->xAxis;
-    double old_lowest = getLowestTimestamp();
+    double move;
 
     rescanPackets();
-    x_axis->moveRange(getLowestTimestamp() - old_lowest);
+    if (ui->todCheckBox->isChecked()) {
+       // rel -> abs
+       // based on abs time of first sample
+       setStartPlayMarker(first_stream_abs_start_time_ + start_marker_time_ - first_stream_rel_start_time_);
+       move = first_stream_abs_start_time_ - first_stream_rel_start_time_;
+    } else {
+       // abs -> rel
+       // based on 0s
+       setStartPlayMarker(first_stream_rel_start_time_ + start_marker_time_);
+       move = - first_stream_abs_start_time_ + first_stream_rel_start_time_;
+    }
+    x_axis->moveRange(move);
+    drawStartPlayMarker();
     ui->audioPlot->replot();
 }
 
 void RtpPlayerDialog::on_buttonBox_helpRequested()
 {
     wsApp->helpTopicAction(HELP_TELEPHONY_RTP_PLAYER_DIALOG);
+}
+
+double RtpPlayerDialog::getStartPlayMarker()
+{
+    double start_pos;
+
+    if (ui->todCheckBox->isChecked()) {
+        start_pos = start_marker_time_ + first_stream_abs_start_time_;
+    } else {
+        start_pos = start_marker_time_;
+    }
+
+    return start_pos;
+}
+
+void RtpPlayerDialog::drawStartPlayMarker()
+{
+    double pos = getStartPlayMarker();
+
+    start_marker_pos_->point1->setCoords(pos, 0.0);
+    start_marker_pos_->point2->setCoords(pos, 1.0);
+
+    updateHintLabel();
+}
+
+void RtpPlayerDialog::setStartPlayMarker(double new_time)
+{
+    if (ui->todCheckBox->isChecked()) {
+        new_time = qBound(first_stream_abs_start_time_, new_time, first_stream_abs_start_time_ + streams_length_);
+        // start_play_time is relative, we must calculate it
+        start_marker_time_ = new_time - first_stream_abs_start_time_;
+    } else {
+        new_time = qBound(first_stream_rel_start_time_, new_time, first_stream_rel_start_time_ + streams_length_);
+        start_marker_time_ = new_time;
+    }
+}
+
+void RtpPlayerDialog::updateStartStopTime(rtpstream_info_t *rtpstream, int tli_count)
+{
+    // Calculate start time of first stream and end time of last stream
+    double stream_rel_start_time = nstime_to_sec(&rtpstream->start_rel_time);
+    double stream_abs_start_time = nstime_to_sec(&rtpstream->start_abs_time);
+    double stream_rel_stop_time = nstime_to_sec(&rtpstream->stop_rel_time);
+
+    if (tli_count == 0) {
+        // Take start/stop time for first stream
+        first_stream_rel_start_time_ = stream_rel_start_time;
+        first_stream_abs_start_time_ = stream_abs_start_time;
+        first_stream_rel_stop_time_ = stream_rel_stop_time;
+    } else {
+        // Calculate min/max for start/stop time for other streams
+        first_stream_rel_start_time_ = qMin(first_stream_rel_start_time_, stream_rel_start_time);
+        first_stream_abs_start_time_ = qMin(first_stream_abs_start_time_, stream_abs_start_time);
+        first_stream_rel_stop_time_ = qMax(first_stream_rel_stop_time_, stream_rel_stop_time);
+    }
+    streams_length_ = first_stream_rel_stop_time_ - first_stream_rel_start_time_;
+}
+
+void RtpPlayerDialog::setChannelMode(QTreeWidgetItem *ti, channel_mode_t channel_mode)
+{
+    QString t;
+
+    ti->setData(channel_data_col_, Qt::UserRole, QVariant(channel_mode));
+    switch (channel_mode) {
+        case channel_none:
+            t=QString("Mute");
+            break;
+        case channel_mono:
+            t=QString("Play");
+            break;
+        case channel_stereo_left:
+            t=QString("L");
+            break;
+        case channel_stereo_right:
+            t=QString("R");
+            break;
+        case channel_stereo_both:
+            t=QString("L+R");
+            break;
+    }
+
+    ti->setText(channel_col_, t);
+}
+
+channel_mode_t RtpPlayerDialog::changeChannelMode(channel_mode_t channel_mode)
+{
+    if (stereo_available_) {
+        // Stereo
+        switch (channel_mode) {
+            case channel_stereo_left:
+                return channel_stereo_both;
+            case channel_stereo_both:
+                return channel_stereo_right;
+            case channel_stereo_right:
+                return channel_none;
+            case channel_none:
+                return channel_stereo_left;
+            default:
+                return channel_stereo_left;
+        }
+    } else {
+        // Mono
+        switch (channel_mode) {
+            case channel_none:
+                return channel_mono;
+            case channel_mono:
+                return channel_none;
+            default:
+                return channel_mono;
+        }
+    }
+}
+
+bool RtpPlayerDialog::isStereoAvailable()
+{
+    QAudioDeviceInfo cur_out_device = QAudioDeviceInfo::defaultOutputDevice();
+    foreach(int count, cur_out_device.supportedChannelCounts()) {
+        if (count>1) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 #if 0

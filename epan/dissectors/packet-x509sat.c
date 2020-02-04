@@ -1450,7 +1450,18 @@ dissect_x509sat_SyntaxGeneralizedTime(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
 static int
 dissect_x509sat_SyntaxUTCTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_UTCTime(implicit_tag, actx, tree, tvb, offset, hf_index);
+#line 378 "./asn1/x509sat/x509sat.cnf"
+  char *outstr, *newstr;
+  guint32 tvblen;
+
+  /* the 2-digit year can only be in the range 1950..2049 https://tools.ietf.org/html/rfc5280#section-4.1.2.5.1 */
+  offset = dissect_ber_UTCTime(implicit_tag, actx, tree, tvb, offset, hf_index, &outstr, &tvblen);
+  if (hf_index >= 0 && outstr) {
+    newstr = wmem_strconcat(wmem_packet_scope(), outstr[0] < '5' ? "20": "19", outstr, NULL);
+    proto_tree_add_string(tree, hf_index, tvb, offset - tvblen, tvblen, newstr);
+  }
+
+
 
   return offset;
 }
@@ -1602,7 +1613,7 @@ dissect_x509sat_SyntaxGeneralString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 static int
 dissect_x509sat_GUID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 378 "./asn1/x509sat/x509sat.cnf"
+#line 389 "./asn1/x509sat/x509sat.cnf"
   gint8 ber_class;
   gboolean pc;
   gint32 tag;

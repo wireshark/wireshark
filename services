@@ -4073,6 +4073,7 @@ menandmice-upg	4603/tcp	# Men & Mice Upgrade Agent
 irp		4604/tcp	# Identity Registration Protocol
 sixchat		4605/tcp	# Direct End to End Secure Chat Protocol
 ventoso		4621/udp	# Bidirectional single port remote radio VOIP and Control stream
+dots-signal	4646/tcp/udp	# Distributed Denial-of-Service Open Threat Signaling (DOTS) Signal Channel
 playsta2-app	4658/tcp/udp	# PlayStation2 App Port
 playsta2-lob	4659/tcp/udp	# PlayStation2 Lobby Port
 smaclmgr	4660/tcp/udp
@@ -5300,6 +5301,7 @@ msi-cps-rm-disc	8675/udp	# Motorola Solutions Customer Programming Software for 
 sun-as-jmxrmi	8686/tcp/udp	# Sun App Server - JMX/RMI
 openremote-ctrl	8688/tcp	# OpenRemote Controller HTTP/REST
 vnyx		8699/tcp	# VNYX Primary Port
+semi-grpc	8710/tcp	# gRPC for SEMI Standards implementations
 nvc		8711/tcp	# Nuance Voice Control
 dtp-net		8732/udp	# DASGIP Net Services
 ibus		8733/tcp/udp	# iBus
@@ -5969,6 +5971,7 @@ astrolink	27876/tcp	# Astrolink Protocol
 tw-auth-key	27999/tcp/udp	# TW Authentication/Key Distribution and
 nxlmd		28000/tcp/udp	# NX License Manager
 pqsp		28001/tcp	# PQ Service
+gruber-cashreg	28010/tcp	# Gruber cash registry protocol
 a27-ran-ran	28119/udp	# A27 cdma2000 RAN Management
 voxelstorm	28200/tcp/udp	# VoxelStorm game server
 siemensgsm	28240/tcp/udp	# Siemens GSM
@@ -6020,6 +6023,7 @@ filenet-obrok	32777/tcp/udp	# FileNet BPM CORBA
 mlsn		32801/tcp/udp	# Multiple Listing Service Network
 retp		32811/tcp	# Real Estate Transport Protocol
 idmgratm	32896/tcp/udp	# Attachmate ID Manager
+wg-endpt-comms	33000/tcp	# WatchGuard Endpoint Communications
 mysqlx		33060/tcp	# MySQL Database Extended Interface
 aurora-balaena	33123/tcp/udp	# Aurora (Balaena Ltd)
 diamondport	33331/tcp/udp	# DiamondCentral Interface

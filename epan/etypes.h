@@ -570,12 +570,20 @@ extern "C" {
 #define ETHERTYPE_ECP			0x8940	/* Edge Control Protocol */
 #endif
 
+#ifndef ETHERTYPE_ONOS
+#define ETHERTYPE_ONOS			0x8942	/* Open Network OS */
+#endif
+
 #ifndef ETHERTYPE_GEONETWORKING
 #define ETHERTYPE_GEONETWORKING		0x8947	/* GeoNetworking as defined in ETSI EN 302 636-4-1. */
 #endif
 
 #ifndef ETHERTYPE_NSH
 #define ETHERTYPE_NSH			0x894F	/* Network Service Header (draft-ietf-sfc-nsh-01.txt) */
+#endif
+
+#ifndef ETHERTYPE_PA_HBBACKUP
+#define ETHERTYPE_PA_HBBACKUP		0x8988	/* Paloalto Networks Cluster heartbeat backup via mgmt interfaces */
 #endif
 
 #ifndef ETHERTYPE_LOOP

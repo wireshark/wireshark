@@ -582,7 +582,7 @@ QVariant ProfileModel::data(const QModelIndex &index, int role) const
         return dataDisplay(index);
     case Qt::FontRole:
         return dataFontRole(index);
-    case Qt::BackgroundColorRole:
+    case Qt::BackgroundRole:
         return dataBackgroundRole(index);
     case Qt::ToolTipRole:
         return dataToolTipRole(index);

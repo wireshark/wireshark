@@ -7203,19 +7203,19 @@ proto_register_dcerpc_spoolss(void)
 		    NULL, 0, "Driver Version ID", HFILL }},
 
 		{ &hf_driver_version_low,
-		  { "Minor Driver Version", "spoolss.minordriverversion", FT_UINT32, BASE_DEC,
+		  { "Minor Driver Version", "spoolss.minordriverversion", FT_UINT32, BASE_HEX,
 		    NULL, 0, "Driver Version Low", HFILL }},
 
 		{ &hf_driver_version_high,
-		  { "Major Driver Version", "spoolss.majordriverversion", FT_UINT32, BASE_DEC,
+		  { "Major Driver Version", "spoolss.majordriverversion", FT_UINT32, BASE_HEX,
 		    NULL, 0, "Driver Version High", HFILL }},
 
 		{ &hf_min_inbox_driver_version_low,
-		  { "Min Inbox Minor Driver Version", "spoolss.mininboxminordriverversion", FT_UINT32, BASE_DEC,
+		  { "Min Inbox Minor Driver Version", "spoolss.mininboxminordriverversion", FT_UINT32, BASE_HEX,
 		    NULL, 0, "Min Inbox Driver Version Low", HFILL }},
 
 		{ &hf_min_inbox_driver_version_high,
-		  { "Min Inbox Major Driver Version", "spoolss.mininboxmajordriverversion", FT_UINT32, BASE_DEC,
+		  { "Min Inbox Major Driver Version", "spoolss.mininboxmajordriverversion", FT_UINT32, BASE_HEX,
 		    NULL, 0, "Min Inbox Driver Version High", HFILL }},
 
 		{ &hf_mfgname,

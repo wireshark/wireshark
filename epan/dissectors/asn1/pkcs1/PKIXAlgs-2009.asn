@@ -298,19 +298,52 @@ Digest ::= OCTET STRING
    -- Parameters and Keys for both Restricted and Unrestricted EC
 
    ECParameters ::= CHOICE {
-    namedCurve      --CURVE.&id({NamedCurve}) -- OBJECT IDENTIFIER
-      -- implicitCurve   NULL
-      -- implicitCurve MUST NOT be used in PKIX
-      -- specifiedCurve  SpecifiedCurve
-      -- specifiedCurve MUST NOT be used in PKIX
-      -- Details for specifiedCurve can be found in [X9.62]
-      -- Any future additions to this CHOICE should be coordinated
-      -- with ANSI X.9.
+    specifiedCurve  SpecifiedECDomain,  -- From RFC 3279 / SEC 1
+    namedCurve      OBJECT IDENTIFIER
+    -- implicitlyCA    NULL
+
+    -- Wireshark note: the PKIXAlgs-2009 module from RFC 5912 only allows
+    -- namedCurve to be used. This ECParameters type is however a subset of
+    -- the type defined in X9.62 and RFC 3279 which additionally defines
+    -- 'specified' and 'implicitlyCA'. Since the explicitly specified curve
+    -- parameters were spotted in the wild as part of exploiting CVE-2020-0601,
+    -- we will include it here anyway. We do not include implicitlyCA, it does
+    -- not appear to be supported by OpenSSL, unlike the other two fields.
    }
-   -- If you need to be able to decode ANSI X.9 parameter structures,
-   -- uncomment the implicitCurve and specifiedCurve above, and also
-   -- uncomment the following:
-   -- (WITH COMPONENTS {namedCurve PRESENT})
+    (WITH COMPONENTS {namedCurve PRESENT})
+
+   -- ECParameters from RFC 3279, but renamed to SpecifiedECDomain (RFC 5480).
+   -- Adapted from https://tools.ietf.org/html/rfc3279#page-14
+
+   SpecifiedECDomain ::= SEQUENCE {
+      version   ECPVer,          -- version is always 1
+      fieldID   FieldID,         -- identifies the finite field over
+                                 -- which the curve is defined
+      curve     Curve,           -- coefficients a and b of the
+                                 -- elliptic curve
+      base      ECPoint,         -- specifies the base point P
+                                 -- on the elliptic curve
+      order     INTEGER,         -- the order n of the base point
+      cofactor  INTEGER OPTIONAL -- The integer h = #E(Fq)/n
+      }
+
+   ECPVer ::= INTEGER {ecpVer1(1)}
+
+   FieldID ::= SEQUENCE {
+      fieldType   OBJECT IDENTIFIER,
+      parameters  ANY DEFINED BY fieldType }
+
+   Curve ::= SEQUENCE {
+      a         FieldElement,
+      b         FieldElement,
+      seed      BIT STRING OPTIONAL }
+
+   FieldElement ::= OCTET STRING
+
+   -- FieldID.parameters definitions, OIDs are listed in pkcs1.cnf
+   -- https://tools.ietf.org/html/rfc3279#page-21
+
+   Prime-p ::= INTEGER -- Finite field F(p), where p is an odd prime
 
    -- Sec 2.1.1.1 Named Curve
 

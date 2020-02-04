@@ -68,7 +68,7 @@ protected:
 private:
 
     void resetInterfaceTreeDisplay();
-    bool haveCapturePermissions() const;
+    bool haveLocalCapturePermissions() const;
 
     Ui::InterfaceFrame *ui;
 

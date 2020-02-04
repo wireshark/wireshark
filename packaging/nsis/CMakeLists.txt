@@ -150,7 +150,7 @@ foreach(_dll ${CARES_DLL} ${GCRYPT_DLLS}
 		${GNUTLS_DLLS} ${KERBEROS_DLLS} ${LIBSSH_DLL} ${LUA_DLL}
 		${LZ4_DLL} ${NGHTTP2_DLL} ${SBC_DLL} ${SMI_DLL} ${SNAPPY_DLL}
 		${SPANDSP_DLL} ${BCG729_DLL} ${LIBXML2_DLLS} ${WINSPARKLE_DLL}
-		${ZLIB_DLL} ${BROTLI_DLLS} ${ZSTD_DLL}
+		${ZLIB_DLL} ${BROTLI_DLLS} ${ZSTD_DLL} ${ILBC_DLL}
 		# Needed for mmdbresolve
 		${MAXMINDDB_DLL}
 	)
@@ -219,6 +219,7 @@ macro( ADD_NSIS_PACKAGE_TARGET )
 				-Executable $<TARGET_FILE:wireshark>
 				-FilePath ${_nsis_binary_dir}/qt-dll-manifest.nsh
 				$<$<CONFIG:Debug>:-DebugConfig>
+			DEPENDS "${_nsis_source_dir}/windeployqt-to-nsis.ps1"
 		)
 
 		# Build NSIS package dependencies. We build the package in

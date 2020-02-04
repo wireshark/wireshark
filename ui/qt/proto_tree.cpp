@@ -320,6 +320,7 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
     action->setProperty("field_type", ProtoTree::Value);
     submenu->addSeparator();
     submenu->addAction(tr("As Filter"), this, SLOT(ctxCopyAsFilter()));
+    submenu->addSeparator();
     QActionGroup * copyEntries = DataPrinter::copyActions(this, &finfo);
     submenu->addActions(copyEntries->actions());
     ctx_menu.addSeparator();

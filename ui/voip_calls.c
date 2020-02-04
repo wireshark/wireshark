@@ -571,6 +571,10 @@ rtp_reset(void *tap_offset_ptr)
     tapinfo->rtpstream_list = NULL;
     tapinfo->nrtpstreams = 0;
 
+    if (tapinfo->graph_analysis) {
+            sequence_analysis_list_free(tapinfo->graph_analysis);
+    }
+
     if (tapinfo->tap_reset) {
         tapinfo->tap_reset(tapinfo);
     }
@@ -655,6 +659,7 @@ rtp_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, void c
         }
         strinfo->start_fd = pinfo->fd;
         strinfo->start_rel_time = pinfo->rel_ts;
+        strinfo->start_abs_time = pinfo->abs_ts;
         strinfo->setup_frame_number = rtp_info->info_setup_frame_num;
         strinfo->call_num = -1;
         strinfo->rtp_event = -1;

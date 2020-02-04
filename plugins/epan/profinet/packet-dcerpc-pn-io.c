@@ -7212,7 +7212,7 @@ dissect_ARData_block(tvbuff_t *tvb, int offset,
             offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep,
                         hf_pn_io_number_of_apis, &u16NumberOfAPIs);
             /* API */
-            if (u16NumberOfAPIs > 0) {
+            while (u16NumberOfAPIs--) {
                 offset = dissect_dcerpc_uint32(tvb, offset, pinfo, ar_tree, drep,
                     hf_pn_io_api, &u32Api);
             }
@@ -7330,7 +7330,7 @@ dissect_ARData_block(tvbuff_t *tvb, int offset,
             /* align to next 32 bit */
             offset = dissect_pn_padding(tvb, offset, pinfo, ar_tree, 2);
             /* API */
-            if (u16NumberOfAPIs > 0) {
+            while (u16NumberOfAPIs--) {
                 offset = dissect_dcerpc_uint32(tvb, offset, pinfo, ar_tree, drep, hf_pn_io_api, &u32Api);
             }
             /* get the number of subblocks an dissect them */

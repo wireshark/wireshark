@@ -13,8 +13,14 @@
 bz_url_pfx="https://bugs.wireshark.org/bugzilla/show_bug.cgi"
 bug_id="$1"
 
-recode_cmd="cat"
-hash recode > /dev/null 2>&1 && recode_cmd="recode html..utf8"
+# Bugzilla gives us UTF-8 with HTML escapes. We want UTF-8. Recode assumes
+# that HTML is encoded as ISO-8859-1.
+# https://github.com/rrthomas/Recode/issues/1
+recode_to_html_cmd="cat"
+if hash recode > /dev/null 2>&1 ; then
+    recode_to_html_cmd="recode utf8..html"
+    recode_to_utf8_cmd="recode html..utf8"
+fi
 
 case "$OSTYPE" in
     darwin*)
@@ -49,7 +55,8 @@ bug_title=$(
     )
 
 echo -e "* $bug_title wsbuglink:${bug_id}[].\\n" \
-        | $recode_cmd \
+        | $recode_to_html_cmd \
+        | $recode_to_utf8_cmd \
         | $clipboard_cmd
 
 echo "Copied $bug_id: $bug_title"

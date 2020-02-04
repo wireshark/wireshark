@@ -17,7 +17,7 @@
 #include <epan/in_cksum.h>
 #include <epan/nlpid.h>
 #include <epan/etypes.h>
-
+#include <epan/cisco_pid.h>
 
 /*
  * See
@@ -1049,7 +1049,7 @@ dissect_address_tlv(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
     proto_tree *address_tree;
     guint8      protocol_type;
     guint8      protocol_length;
-    int         nlpid;
+    int         nlpid = 0;
     guint16     address_length;
     guint16     etypeid = 0;
     int         hf_addr = -1;
@@ -1503,7 +1503,7 @@ proto_reg_handoff_cdp(void)
     dissector_handle_t cdp_handle;
 
     cdp_handle  = create_dissector_handle(dissect_cdp, proto_cdp);
-    dissector_add_uint("llc.cisco_pid", 0x2000, cdp_handle);
+    dissector_add_uint("llc.cisco_pid", CISCO_PID_CDP, cdp_handle);
     dissector_add_uint("chdlc.protocol", 0x2000, cdp_handle);
     dissector_add_uint("ppp.protocol", 0x0207, cdp_handle);
     dissector_add_uint("gre.proto", 0x2000, cdp_handle);

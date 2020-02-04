@@ -2387,6 +2387,7 @@ static void dissect_sa(tvbuff_t *, int, int, proto_tree *, int, packet_info *, g
 static void dissect_proposal(tvbuff_t *, packet_info *, int, int, proto_tree *, int, void*);
 static void dissect_transform(tvbuff_t *, packet_info *, int, int, proto_tree *, int, int, void*);
 static void dissect_key_exch(tvbuff_t *, int, int, proto_tree *, int, packet_info *, void*);
+static void dissect_id_type(tvbuff_t *, int, int, guint8, proto_tree *, proto_item *, packet_info *);
 static void dissect_id(tvbuff_t *, int, int, proto_tree *, int, packet_info *);
 static void dissect_cert(tvbuff_t *, int, int, proto_tree *, int, packet_info *);
 static void dissect_certreq(tvbuff_t *, int, int, proto_tree *, int, packet_info *);
@@ -3486,7 +3487,8 @@ dissect_payload_header(tvbuff_t *tvb, packet_info *pinfo, int offset, int length
 
   proto_tree_add_item(ntree, hf_isakmp_nextpayload, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-  if (isakmp_version == 1) {
+  /* The critical flag only applies to IKEv2 payloads but not proposals and transforms. */
+  if (isakmp_version == 1 || payload == PLOAD_IKE_P || payload == PLOAD_IKE_T) {
     proto_tree_add_item(ntree, hf_isakmp_reserved, tvb, offset + 1, 1, ENC_NA);
   } else if (isakmp_version == 2) {
     proto_tree_add_item(ntree, hf_isakmp_criticalpayload, tvb, offset+1, 1, ENC_BIG_ENDIAN);
@@ -4254,6 +4256,62 @@ dissect_key_exch(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int is
 }
 
 static void
+dissect_id_type(tvbuff_t *tvb, int offset, int length, guint8 id_type, proto_tree *idtree, proto_item *idit, packet_info *pinfo )
+{
+  const guint8          *str;
+  asn1_ctx_t            asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+
+  switch (id_type) {
+    case IKE_ID_IPV4_ADDR:
+      proto_tree_add_item(idtree, hf_isakmp_id_data_ipv4_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
+      proto_item_append_text(idit, "%s", tvb_ip_to_str(tvb, offset));
+      break;
+    case IKE_ID_FQDN:
+      proto_tree_add_item_ret_string(idtree, hf_isakmp_id_data_fqdn, tvb, offset, length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &str);
+      proto_item_append_text(idit, "%s", str);
+      break;
+    case IKE_ID_USER_FQDN:
+      proto_tree_add_item_ret_string(idtree, hf_isakmp_id_data_user_fqdn, tvb, offset, length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &str);
+      proto_item_append_text(idit, "%s", str);
+      break;
+    case IKE_ID_IPV4_ADDR_SUBNET:
+      proto_tree_add_item(idtree, hf_isakmp_id_data_ipv4_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
+      proto_tree_add_item(idtree, hf_isakmp_id_data_ipv4_subnet, tvb, offset+4, 4, ENC_BIG_ENDIAN);
+      proto_item_append_text(idit, "%s/%s", tvb_ip_to_str(tvb, offset), tvb_ip_to_str(tvb, offset+4));
+      break;
+    case IKE_ID_IPV4_ADDR_RANGE:
+      proto_tree_add_item(idtree, hf_isakmp_id_data_ipv4_range_start, tvb, offset, 4, ENC_BIG_ENDIAN);
+      proto_tree_add_item(idtree, hf_isakmp_id_data_ipv4_range_end, tvb, offset+4, 4, ENC_BIG_ENDIAN);
+      proto_item_append_text(idit, "%s/%s", tvb_ip_to_str(tvb, offset), tvb_ip_to_str(tvb, offset+4));
+      break;
+    case IKE_ID_IPV6_ADDR:
+      proto_tree_add_item(idtree, hf_isakmp_id_data_ipv6_addr, tvb, offset, 16, ENC_NA);
+      proto_item_append_text(idit, "%s", tvb_ip6_to_str(tvb, offset));
+      break;
+    case IKE_ID_IPV6_ADDR_SUBNET:
+      proto_tree_add_item(idtree, hf_isakmp_id_data_ipv6_addr, tvb, offset, 16, ENC_NA);
+      proto_tree_add_item(idtree, hf_isakmp_id_data_ipv6_subnet, tvb, offset+16, 16, ENC_NA);
+      proto_item_append_text(idit, "%s/%s", tvb_ip6_to_str(tvb, offset), tvb_ip6_to_str(tvb, offset+16));
+      break;
+    case IKE_ID_IPV6_ADDR_RANGE:
+      proto_tree_add_item(idtree, hf_isakmp_id_data_ipv6_range_start, tvb, offset, 16, ENC_NA);
+      proto_tree_add_item(idtree, hf_isakmp_id_data_ipv6_range_end, tvb, offset+16, 16, ENC_NA);
+      proto_item_append_text(idit, "%s/%s", tvb_ip6_to_str(tvb, offset), tvb_ip6_to_str(tvb, offset+16));
+      break;
+    case IKE_ID_KEY_ID:
+      proto_tree_add_item(idtree, hf_isakmp_id_data_key_id, tvb, offset, length, ENC_NA);
+      break;
+    case IKE_ID_DER_ASN1_DN:
+      dissect_x509if_Name(FALSE, tvb, offset, &asn1_ctx, idtree, hf_isakmp_id_data_cert);
+      break;
+    default:
+      proto_item_append_text(idit, "%s", tvb_bytes_to_str(wmem_packet_scope(), tvb,offset,length));
+      break;
+  }
+}
+
+static void
 dissect_id(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_version, packet_info *pinfo )
 {
   guint8                id_type;
@@ -4261,9 +4319,6 @@ dissect_id(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_v
   guint16               port;
   proto_item            *idit;
   proto_tree            *idtree;
-  const guint8          *str;
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
   id_type = tvb_get_guint8(tvb, offset);
   if (isakmp_version == 1)
@@ -4309,53 +4364,7 @@ dissect_id(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_v
    */
   idit = proto_tree_add_item(tree, hf_isakmp_id_data, tvb, offset, length, ENC_NA);
   idtree = proto_item_add_subtree(idit, ett_isakmp_id);
-  switch (id_type) {
-    case IKE_ID_IPV4_ADDR:
-      proto_tree_add_item(idtree, hf_isakmp_id_data_ipv4_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
-      proto_item_append_text(idit, "%s", tvb_ip_to_str(tvb, offset));
-      break;
-    case IKE_ID_FQDN:
-      proto_tree_add_item_ret_string(idtree, hf_isakmp_id_data_fqdn, tvb, offset, length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &str);
-      proto_item_append_text(idit, "%s", str);
-      break;
-    case IKE_ID_USER_FQDN:
-      proto_tree_add_item_ret_string(idtree, hf_isakmp_id_data_user_fqdn, tvb, offset, length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &str);
-      proto_item_append_text(idit, "%s", str);
-      break;
-    case IKE_ID_IPV4_ADDR_SUBNET:
-      proto_tree_add_item(idtree, hf_isakmp_id_data_ipv4_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
-      proto_tree_add_item(idtree, hf_isakmp_id_data_ipv4_subnet, tvb, offset+4, 4, ENC_BIG_ENDIAN);
-      proto_item_append_text(idit, "%s/%s", tvb_ip_to_str(tvb, offset), tvb_ip_to_str(tvb, offset+4));
-      break;
-    case IKE_ID_IPV4_ADDR_RANGE:
-      proto_tree_add_item(idtree, hf_isakmp_id_data_ipv4_range_start, tvb, offset, 4, ENC_BIG_ENDIAN);
-      proto_tree_add_item(idtree, hf_isakmp_id_data_ipv4_range_end, tvb, offset+4, 4, ENC_BIG_ENDIAN);
-      proto_item_append_text(idit, "%s/%s", tvb_ip_to_str(tvb, offset), tvb_ip_to_str(tvb, offset+4));
-      break;
-    case IKE_ID_IPV6_ADDR:
-      proto_tree_add_item(idtree, hf_isakmp_id_data_ipv6_addr, tvb, offset, 16, ENC_NA);
-      proto_item_append_text(idit, "%s", tvb_ip6_to_str(tvb, offset));
-      break;
-    case IKE_ID_IPV6_ADDR_SUBNET:
-      proto_tree_add_item(idtree, hf_isakmp_id_data_ipv6_addr, tvb, offset, 16, ENC_NA);
-      proto_tree_add_item(idtree, hf_isakmp_id_data_ipv6_subnet, tvb, offset+16, 16, ENC_NA);
-      proto_item_append_text(idit, "%s/%s", tvb_ip6_to_str(tvb, offset), tvb_ip6_to_str(tvb, offset+16));
-      break;
-    case IKE_ID_IPV6_ADDR_RANGE:
-      proto_tree_add_item(idtree, hf_isakmp_id_data_ipv6_range_start, tvb, offset, 16, ENC_NA);
-      proto_tree_add_item(idtree, hf_isakmp_id_data_ipv6_range_end, tvb, offset+16, 16, ENC_NA);
-      proto_item_append_text(idit, "%s/%s", tvb_ip6_to_str(tvb, offset), tvb_ip6_to_str(tvb, offset+16));
-      break;
-    case IKE_ID_KEY_ID:
-      proto_tree_add_item(idtree, hf_isakmp_id_data_key_id, tvb, offset, length, ENC_NA);
-      break;
-    case IKE_ID_DER_ASN1_DN:
-      dissect_x509if_Name(FALSE, tvb, offset, &asn1_ctx, tree, hf_isakmp_id_data_cert);
-      break;
-    default:
-      proto_item_append_text(idit, "%s", tvb_bytes_to_str(wmem_packet_scope(), tvb,offset,length));
-      break;
-  }
+  dissect_id_type(tvb, offset, length, id_type, idtree, idit, pinfo);
 }
 
 static void
@@ -5560,24 +5569,10 @@ dissect_sa_tek(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int length, pr
     proto_tree_add_item_ret_uint(ntree, hf_isakmp_sat_src_id_length, tvb, offset, 2, ENC_BIG_ENDIAN, &src_id_length);
     offset += 2;
     if (src_id_length > 0) {
-      idit = proto_tree_add_item(ntree, hf_isakmp_sat_src_id_data, tvb, offset, src_id_length, ENC_NA);
-      idtree = proto_item_add_subtree(idit, ett_isakmp_id);
-
-      switch (id_type) {
-       case IKE_ID_IPV4_ADDR:
-         proto_tree_add_item(idtree, hf_isakmp_id_data_ipv4_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
-         proto_item_append_text(idit, "%s", tvb_ip_to_str(tvb, offset));
-         break;
-       case IKE_ID_IPV4_ADDR_SUBNET:
-         proto_tree_add_item(idtree, hf_isakmp_id_data_ipv4_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
-         proto_tree_add_item(idtree, hf_isakmp_id_data_ipv4_subnet, tvb, offset+4, 4, ENC_BIG_ENDIAN);
-         proto_item_append_text(idit, "%s/%s", tvb_ip_to_str(tvb, offset), tvb_ip_to_str(tvb, offset+4));
-         break;
-       default:
-         proto_item_append_text(idit, "%s", tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, src_id_length));
-         break;
-  }
-      offset += src_id_length;
+        idit = proto_tree_add_item(ntree, hf_isakmp_sat_src_id_data, tvb, offset, src_id_length, ENC_NA);
+        idtree = proto_item_add_subtree(idit, ett_isakmp_id);
+        dissect_id_type(tvb, offset, src_id_length, id_type, idtree, idit, pinfo);
+        offset += src_id_length;
     }
     id_type = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(ntree, hf_isakmp_sat_dst_id_type, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -5589,23 +5584,8 @@ dissect_sa_tek(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int length, pr
     if (dst_id_length > 0) {
         idit = proto_tree_add_item(ntree, hf_isakmp_sat_dst_id_data, tvb, offset, dst_id_length, ENC_NA);
         idtree = proto_item_add_subtree(idit, ett_isakmp_id);
-
-    switch (id_type) {
-       case IKE_ID_IPV4_ADDR:
-         proto_tree_add_item(idtree, hf_isakmp_id_data_ipv4_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
-         proto_item_append_text(idit, "%s", tvb_ip_to_str(tvb, offset));
-         break;
-       case IKE_ID_IPV4_ADDR_SUBNET:
-         proto_tree_add_item(idtree, hf_isakmp_id_data_ipv4_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
-         proto_tree_add_item(idtree, hf_isakmp_id_data_ipv4_subnet, tvb, offset+4, 4, ENC_BIG_ENDIAN);
-         proto_item_append_text(idit, "%s/%s", tvb_ip_to_str(tvb, offset), tvb_ip_to_str(tvb, offset+4));
-         break;
-       default:
-         proto_item_append_text(idit, "%s", tvb_bytes_to_str(wmem_packet_scope(), tvb,offset, dst_id_length));
-         break;
-  }
-
-      offset += dst_id_length;
+        dissect_id_type(tvb, offset, dst_id_length, id_type, idtree, idit, pinfo);
+        offset += dst_id_length;
     }
     proto_tree_add_item(ntree, hf_isakmp_sat_transform_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
@@ -5616,7 +5596,7 @@ dissect_sa_tek(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int length, pr
     }
     if(PLOAD_IKE_SAT == next_payload)
     {
-       dissect_sa_tek(tvb, pinfo, offset, length, tree);
+        dissect_sa_tek(tvb, pinfo, offset, length, tree);
     }
   } else {
     proto_tree_add_item(ntree, hf_isakmp_sat_payload, tvb, offset, offset_end - offset, ENC_NA);
@@ -6697,7 +6677,7 @@ proto_register_isakmp(void)
         FT_IPv4, BASE_NONE, NULL, 0x0,
         "The second is an IPv4 network mask", HFILL }},
     { &hf_isakmp_id_data_ipv4_range_start,
-      { "ID_IPV4_SUBNET", "isakmp.id.data.ipv4_range_start",
+      { "ID_IPV4_RANGE (Start)", "isakmp.id.data.ipv4_range_start",
         FT_IPv4, BASE_NONE, NULL, 0x0,
         "The first value is the beginning IPv4 address (inclusive)", HFILL }},
     { &hf_isakmp_id_data_ipv4_range_end,

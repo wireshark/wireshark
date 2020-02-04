@@ -1,6 +1,6 @@
 # lte-rrc.cnf
 # lte-rrc conformation file
-# Copyright 2008 Vincent Helfre, 2009-2019 Pascal Quantin
+# Copyright 2008 Vincent Helfre, 2009-2020 Pascal Quantin
 
 #.OPT
 PER
@@ -510,7 +510,7 @@ MasterInformationBlock/schedulingInfoSIB1-BR-r13 TYPE=FT_UINT32 DISPLAY=BASE_DEC
           tvbuff_t *gsm_rlcmac_dl_tvb = tvb_new_composite();
           guint8 *pd = (guint8 *) wmem_alloc(actx->pinfo->pool, 1);
           pd[0] = 0x40;
-          tvb_composite_append(gsm_rlcmac_dl_tvb, tvb_new_real_data(pd, 1, 1));
+          tvb_composite_append(gsm_rlcmac_dl_tvb, tvb_new_child_real_data(tvb, pd, 1, 1));
           tvb_composite_append(gsm_rlcmac_dl_tvb, target_rat_msg_cont_tvb);
           tvb_composite_finalize(gsm_rlcmac_dl_tvb);
           add_new_data_source(actx->pinfo, gsm_rlcmac_dl_tvb, "GPRS DL control block");
@@ -606,7 +606,7 @@ MasterInformationBlock/schedulingInfoSIB1-BR-r13 TYPE=FT_UINT32 DISPLAY=BASE_DEC
         tvbuff_t *si_tvb = tvb_new_composite();
         guint8 *pd = (guint8 *) wmem_alloc(actx->pinfo->pool, 1);
         pd[0] = 0x06;
-        tvb_composite_append(si_tvb, tvb_new_real_data(pd, 1, 1));
+        tvb_composite_append(si_tvb, tvb_new_child_real_data(tvb, pd, 1, 1));
         tvb_composite_append(si_tvb, sys_info_list_tvb);
         tvb_composite_finalize(si_tvb);
         add_new_data_source(actx->pinfo, si_tvb, "System Information");
@@ -619,7 +619,7 @@ MasterInformationBlock/schedulingInfoSIB1-BR-r13 TYPE=FT_UINT32 DISPLAY=BASE_DEC
         tvbuff_t *gsm_rlcmac_dl_tvb = tvb_new_composite();
         guint8 *pd = (guint8 *) wmem_alloc(actx->pinfo->pool, 1);
         pd[0] = 0x40;
-        tvb_composite_append(gsm_rlcmac_dl_tvb, tvb_new_real_data(pd, 1, 1));
+        tvb_composite_append(gsm_rlcmac_dl_tvb, tvb_new_child_real_data(tvb, pd, 1, 1));
         tvb_composite_append(gsm_rlcmac_dl_tvb, sys_info_list_tvb);
         tvb_composite_finalize(gsm_rlcmac_dl_tvb);
         add_new_data_source(actx->pinfo, gsm_rlcmac_dl_tvb, "GPRS DL control block");
@@ -1044,7 +1044,7 @@ SystemInformationBlockType16-r11/timeInfo-r11/localTimeOffset-r11 DISPLAY=BASE_C
 
 #.FN_FTR SystemInformationBlockType16-r11/timeInfo-r11/timeInfoUTC-r11
   subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_timeInfo);
-  ts.secs = (time_t)(timeInfo/100)-2208988800U; /* epoch is 00:00:00 (midnight) UTC on 1900-01-01 */
+  ts.secs = (time_t)(timeInfo/100)-EPOCH_DELTA_1900_01_01_00_00_00_UTC; /* epoch is 00:00:00 (midnight) UTC on 1900-01-01 */
   ts.nsecs = (int)(timeInfo%100)*10000000;
   proto_tree_add_time(subtree, hf_lte_rrc_utc_time, tvb, old_offset>>3, (old_offset&0x07) ? 6 : 5, &ts);
   proto_tree_add_time(subtree, hf_lte_rrc_local_time, tvb, old_offset>>3, (old_offset&0x07) ? 6 : 5, &ts);

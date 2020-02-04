@@ -126,6 +126,9 @@
             <Component Id="cmpSBC_dll" Guid="*">
                 <File Id="filSBC_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\$(var.WiresharkMajorVersion).$(var.WiresharkMinorVersion)\codecs\sbc.dll" />
             </Component>
+            <Component Id="cmpILBC_dll" Guid="*">
+                <File Id="filILBC_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\$(var.WiresharkMajorVersion).$(var.WiresharkMinorVersion)\codecs\ilbc.dll" />
+            </Component>
         </DirectoryRef>
     </Fragment>
     <Fragment>
@@ -136,6 +139,7 @@
             <ComponentRef Id="cmpG729_dll" />
             <ComponentRef Id="cmpL16mono_dll" />
             <ComponentRef Id="cmpSBC_dll" />
+            <ComponentRef Id="cmpILBC_dll" />
         </ComponentGroup>
     </Fragment>
 

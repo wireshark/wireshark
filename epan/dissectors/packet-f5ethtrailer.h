@@ -69,20 +69,20 @@
 
 /** Data structure to hold data returned by the f5ethtrailer tap.  Magic has to be first. */
 typedef struct f5eth_tap_data {
-	guint32 magic;        /**< Verify proper version of dissector */
-	guint32 trailer_len;  /**< Overall length of the F5 trailer */
-	/* 64 bit align */
-	guint64 flow;         /**< Flow ID */
-	guint64 peer_flow;    /**< Peer Flow ID */
-	/* 64 bit align */
-	gchar  *virtual_name; /**< Virtual server name */
-	guint16 slot;         /**< The slot the handled the packet (F5ETH_TAP_TMM_MAX == unknown) */
-	guint16 tmm;          /**< The tmm that handled the packet (F5ETH_TAP_sLOT_MAX == unknown) */
-	guint8  noise_low:1;  /**< If the frame has low noise(1) or not(0) */
-	guint8  noise_med:1;  /**< If the frame has medium noise(1) or not(0) */
-	guint8  noise_high:1; /**< If the frame has high noise(1) or not(0) */
-	guint8  flows_set:1;  /**< If the frame has flow/peerflow fields(1) or not(0) */
-	guint8  ingress:2;    /**< Whether the packet was ingress(1), egress(0) or unknown(3) */
+    guint32 magic;        /**< Verify proper version of dissector */
+    guint32 trailer_len;  /**< Overall length of the F5 trailer */
+    /* 64 bit align */
+    guint64 flow;         /**< Flow ID */
+    guint64 peer_flow;    /**< Peer Flow ID */
+    /* 64 bit align */
+    gchar  *virtual_name; /**< Virtual server name */
+    guint16 slot;         /**< The slot the handled the packet (F5ETH_TAP_TMM_MAX == unknown) */
+    guint16 tmm;          /**< The tmm that handled the packet (F5ETH_TAP_sLOT_MAX == unknown) */
+    guint8  noise_low:1;  /**< If the frame has low noise(1) or not(0) */
+    guint8  noise_med:1;  /**< If the frame has medium noise(1) or not(0) */
+    guint8  noise_high:1; /**< If the frame has high noise(1) or not(0) */
+    guint8  flows_set:1;  /**< If the frame has flow/peerflow fields(1) or not(0) */
+    guint8  ingress:2;    /**< Whether the packet was ingress(1), egress(0) or unknown(3) */
 } f5eth_tap_data_t;
 
 /** \brief Tap data version matches compiled version
@@ -99,15 +99,15 @@ typedef struct f5eth_tap_data {
  */
 inline static int check_f5eth_tap_magic(f5eth_tap_data_t *tdata)
 {
-	return(tdata->magic == F5ETH_TAP_MAGIC ? 1 : 0);
+    return(tdata->magic == F5ETH_TAP_MAGIC ? 1 : 0);
 } /* check_f5eth_tap_magic() */
 
 #define F5FILEINFO_TAP_MAGIC 0x46350001
 
 /** Data structure to hold data returned by the f5fileinfo tap. */
 struct f5fileinfo_tap_data {
-	guint32 magic;  /**< Just to make sure that we have the same version. */
-	guint32 ver[6]; /**< Array for version and build elements. */
+    guint32 magic;  /**< Just to make sure that we have the same version. */
+    guint32 ver[6]; /**< Array for version and build elements. */
 };
 
 #define F5FILEINFO_TAP_DATA_INIT { 0, { 0, 0, 0, 0, 0, 0 } }
@@ -116,31 +116,31 @@ struct f5fileinfo_tap_data {
 
 
 #define F5VER_GE_11_2(v) (((v)->ver[0] > 11) \
-	|| ((v)->ver[0] == 11 && (v)->ver[1] >= 2))
+    || ((v)->ver[0] == 11 && (v)->ver[1] >= 2))
 
 #define F5VER_GE_11_2_1(v) (((v)->ver[0] > 11) \
-	|| ((v)->ver[0] == 11 && (v)->ver[1] > 2) \
-	|| ((v)->ver[0] == 11 && (v)->ver[1] == 2 && (v)->ver[2] >= 1))
+    || ((v)->ver[0] == 11 && (v)->ver[1] > 2) \
+    || ((v)->ver[0] == 11 && (v)->ver[1] == 2 && (v)->ver[2] >= 1))
 
 #define F5VER_GE_11_3(v) (((v)->ver[0] > 11) \
-	|| ((v)->ver[0] == 11 && (v)->ver[1] >= 3))
+    || ((v)->ver[0] == 11 && (v)->ver[1] >= 3))
 
 #define F5VER_GE_11_4(v) (((v)->ver[0] > 11) \
-	|| ((v)->ver[0] == 11 && (v)->ver[1] >= 4))
+    || ((v)->ver[0] == 11 && (v)->ver[1] >= 4))
 
 #define F5VER_GE_11_4_1(v) (((v)->ver[0] > 11) \
-	|| ((v)->ver[0] == 11 && (v)->ver[1] > 4) \
-	|| ((v)->ver[0] == 11 && (v)->ver[1] == 4 && (v)->ver[2] >= 1))
+    || ((v)->ver[0] == 11 && (v)->ver[1] > 4) \
+    || ((v)->ver[0] == 11 && (v)->ver[1] == 4 && (v)->ver[2] >= 1))
 
 #define F5VER_GE_11_5(v) (((v)->ver[0] > 11) \
-	|| ((v)->ver[0] == 11 && (v)->ver[1] >= 5))
+    || ((v)->ver[0] == 11 && (v)->ver[1] >= 5))
 
 #define F5VER_GE_11_5_1(v) (((v)->ver[0] > 11) \
-	|| ((v)->ver[0] == 11 && (v)->ver[1] > 5) \
-	|| ((v)->ver[0] == 11 && (v)->ver[1] == 5 && (v)->ver[2] >= 1))
+    || ((v)->ver[0] == 11 && (v)->ver[1] > 5) \
+    || ((v)->ver[0] == 11 && (v)->ver[1] == 5 && (v)->ver[2] >= 1))
 
 #define F5VER_GE_11_6(v) (((v)->ver[0] > 11) \
-	|| ((v)->ver[0] == 11 && (v)->ver[1] >= 6))
+    || ((v)->ver[0] == 11 && (v)->ver[1] >= 6))
 
 #define F5VER_GE_12_0(v) (((v)->ver[0] >= 12))
 
@@ -153,63 +153,76 @@ static void F5FILEINFO_TAP_POST_FUNC(struct f5fileinfo_tap_data *);
 
 static void f5fileinfo_tap_reset(void *p)
 {
-	struct f5fileinfo_tap_data *s;
+    struct f5fileinfo_tap_data *s;
 
-	s = (struct f5fileinfo_tap_data *)p;
-	s->ver[0] = 0;
-	s->ver[1] = 0;
-	s->ver[2] = 0;
-	s->ver[3] = 0;
-	s->ver[4] = 0;
-	s->ver[5] = 0;
+    s = (struct f5fileinfo_tap_data *)p;
+    s->ver[0] = 0;
+    s->ver[1] = 0;
+    s->ver[2] = 0;
+    s->ver[3] = 0;
+    s->ver[4] = 0;
+    s->ver[5] = 0;
 #   ifdef F5FILEINFO_TAP_POST_FUNC
-		F5FILEINFO_TAP_POST_FUNC(s);
+        F5FILEINFO_TAP_POST_FUNC(s);
 #   endif
 } /* f5fileinfo_tap_reset() */
 
 static tap_packet_status f5fileinfo_tap_pkt(
-	void *tapdata,
-	packet_info *pinfo _U_,
-	epan_dissect_t *edt _U_,
-	const void *data
+    void *tapdata,
+    packet_info *pinfo _U_,
+    epan_dissect_t *edt _U_,
+    const void *data
 ) {
-	struct f5fileinfo_tap_data *s;
-	struct f5fileinfo_tap_data *fromtap;
+    struct f5fileinfo_tap_data *s;
+    struct f5fileinfo_tap_data *fromtap;
 
-	s = (struct f5fileinfo_tap_data *)tapdata;
-	fromtap = (struct f5fileinfo_tap_data *)data;
-	if(fromtap->magic != F5FILEINFO_TAP_MAGIC) {
-		/* Magic numbers do not match.  f5ethtrailer plugin was compiled from
-		 * different source than this plugin. */
-		return(TAP_PACKET_DONT_REDRAW);
-	}
-	if (s->ver[0] == fromtap->ver[0] &&
-	    s->ver[1] == fromtap->ver[1] &&
-	    s->ver[2] == fromtap->ver[2] &&
-	    s->ver[3] == fromtap->ver[3] &&
-	    s->ver[4] == fromtap->ver[4] &&
-	    s->ver[5] == fromtap->ver[5])
-	{
-		return(TAP_PACKET_DONT_REDRAW);
-	}
-	s->ver[0] = fromtap->ver[0];
-	s->ver[1] = fromtap->ver[1];
-	s->ver[2] = fromtap->ver[2];
-	s->ver[3] = fromtap->ver[3];
-	s->ver[4] = fromtap->ver[4];
-	s->ver[5] = fromtap->ver[5];
+    s = (struct f5fileinfo_tap_data *)tapdata;
+    fromtap = (struct f5fileinfo_tap_data *)data;
+    if(fromtap->magic != F5FILEINFO_TAP_MAGIC) {
+        /* Magic numbers do not match.  f5ethtrailer plugin was compiled from
+         * different source than this plugin. */
+        return(TAP_PACKET_DONT_REDRAW);
+    }
+    if (s->ver[0] == fromtap->ver[0] &&
+        s->ver[1] == fromtap->ver[1] &&
+        s->ver[2] == fromtap->ver[2] &&
+        s->ver[3] == fromtap->ver[3] &&
+        s->ver[4] == fromtap->ver[4] &&
+        s->ver[5] == fromtap->ver[5])
+    {
+        return(TAP_PACKET_DONT_REDRAW);
+    }
+    s->ver[0] = fromtap->ver[0];
+    s->ver[1] = fromtap->ver[1];
+    s->ver[2] = fromtap->ver[2];
+    s->ver[3] = fromtap->ver[3];
+    s->ver[4] = fromtap->ver[4];
+    s->ver[5] = fromtap->ver[5];
 #   ifdef F5FILEINFO_TAP_POST_FUNC
-		F5FILEINFO_TAP_POST_FUNC(s);
+        F5FILEINFO_TAP_POST_FUNC(s);
 #   endif
-	return(TAP_PACKET_REDRAW);
+    return(TAP_PACKET_REDRAW);
 } /* f5fileinfo_tap_pkt() */
 
 
 #define F5FILEINFO_TAP_LISTEN(a) \
-	register_tap_listener("f5fileinfo", (a), NULL, TL_REQUIRES_NOTHING, f5fileinfo_tap_reset, f5fileinfo_tap_pkt, NULL, NULL)
+    register_tap_listener("f5fileinfo", (a), NULL, TL_REQUIRES_NOTHING, f5fileinfo_tap_reset, f5fileinfo_tap_pkt, NULL, NULL)
 
 
 #endif /* ifndef F5INFOTAP_SRC */
 
 
 #endif /* ifndef _PACKETH_F5ETHTRAILER_H_ */
+
+/*
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

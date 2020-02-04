@@ -53,6 +53,7 @@ set(WIRETAP_NONGENERATED_FILES
 	logcat.c
 	logcat_text.c
 	merge.c
+	mp4.c
 	mpeg.c
 	mplog.c
 	mime_file.c

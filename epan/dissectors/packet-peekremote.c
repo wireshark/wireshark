@@ -4,7 +4,7 @@
  * Controllers, possibly other Cisco access points, and possibly
  * other devices such as Aruba access points.  See
  *
- *    http://www.wildpackets.com/elements/omnipeek/OmniPeek_UserGuide.pdf
+ *    https://web.archive.org/web/20121117115138/http://www.wildpackets.com/elements/omnipeek/OmniPeek_UserGuide.pdf
  *
  * which speaks of Aruba access points supporting remote capture and
  * defaulting to port 5000 for this, and also speaks of Cisco access

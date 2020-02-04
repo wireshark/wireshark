@@ -1087,7 +1087,6 @@ if(BUILD_wireshark)
 		Qt5LinguistTools
 		Qt5Multimedia
 		Qt5PrintSupport
-		Qt5Svg
 		Qt5Widgets
 	)
 	if(APPLE)
@@ -1154,6 +1153,8 @@ ws_find_package(SPANDSP ENABLE_SPANDSP HAVE_SPANDSP)
 
 ws_find_package(BCG729 ENABLE_BCG729 HAVE_BCG729)
 
+ws_find_package(ILBC ENABLE_ILBC HAVE_ILBC)
+
 # CMake 3.9 and below used 'LIBXML2_LIBRARIES' as the name of the cache entry
 # storing the find_library result. Transfer it to the new cache variable such
 # that reset_find_package can detect and clear outdated cache variables.
@@ -1172,9 +1173,9 @@ if(NOT LIBXML2_FOUND)
 	set(LIBXML2_INCLUDE_DIRS "")
 endif()
 
-# Capabilities
-ws_find_package(CAP ENABLE_CAP HAVE_LIBCAP)
-if(NOT WIN32)
+# Capabilities to run dumpcap as non-root user.
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+	ws_find_package(CAP ENABLE_CAP HAVE_LIBCAP)
 	find_package(SETCAP)
 endif()
 
@@ -1188,7 +1189,7 @@ else()
 endif()
 
 # Windows version updates
-ws_find_package(WINSPARKLE ENABLE_WINSPARKLE HAVE_SOFTWARE_UPDATE)
+ws_find_package(WinSparkle ENABLE_WINSPARKLE HAVE_SOFTWARE_UPDATE)
 
 find_package( Asciidoctor 1.5 )
 
@@ -1467,6 +1468,11 @@ if(ENABLE_PLUGINS)
 			plugins/codecs/G729
 		)
 	endif()
+	if(ILBC_FOUND)
+		list(APPEND PLUGIN_SRC_DIRS
+			plugins/codecs/iLBC
+		)
+	endif()
 	if(SBC_FOUND)
 		list(APPEND PLUGIN_SRC_DIRS
 			plugins/codecs/sbc
@@ -1565,6 +1571,11 @@ foreach( _cfg_file ${CFG_OUT_FILES} )
 endforeach()
 
 include(FeatureSummary)
+set_package_properties(CAP PROPERTIES
+	DESCRIPTION "The Libcap package implements the user-space interfaces to the POSIX 1003.1e capabilities available in Linux kernels"
+	URL "https://sites.google.com/site/fullycapable/"
+	PURPOSE "Allow packet captures without running as root"
+)
 set_package_properties(SBC PROPERTIES
 	DESCRIPTION "Bluetooth low-complexity, subband codec (SBC) decoder"
 	URL "https://git.kernel.org/pub/scm/bluetooth/sbc.git"
@@ -1579,6 +1590,11 @@ set_package_properties(BCG729 PROPERTIES
 	DESCRIPTION "G.729 decoder"
 	URL "https://www.linphone.org/technical-corner/bcg729/overview"
 	PURPOSE "Support for G.729 codec in RTP player"
+)
+set_package_properties(ILBC PROPERTIES
+	DESCRIPTION "iLBC decoder"
+	URL "https://github.com/TimothyGu/libilbc"
+	PURPOSE "Support for iLBC codec in RTP player"
 )
 set_package_properties(LIBXML2 PROPERTIES
 	DESCRIPTION "XML parsing library"
@@ -1846,6 +1862,9 @@ if(WIN32)
 	if (BCG729_FOUND)
 		list (APPEND OPTIONAL_DLLS "${BCG729_DLL_DIR}/${BCG729_DLL}")
 	endif(BCG729_FOUND)
+	if (ILBC_FOUND)
+		list (APPEND OPTIONAL_DLLS "${ILBC_DLL_DIR}/${ILBC_DLL}")
+	endif(ILBC_FOUND)
 	if (LIBXML2_FOUND)
 		foreach( _dll ${LIBXML2_DLLS} )
 			list (APPEND OPTIONAL_DLLS "${LIBXML2_DLL_DIR}/${_dll}")
@@ -1954,10 +1973,8 @@ if(WIN32)
 		add_custom_command(TARGET pdb_zip_package POST_BUILD
 			COMMAND ${CMAKE_COMMAND} -E remove -f "${_pdb_zip}"
 			COMMAND ${ZIP_EXECUTABLE} a -tzip -mmt=on "${_pdb_zip_win}"
-				*.pdb *.lib
-				extcap/*.pdb
-				${PLUGIN_VERSION_DIR}/epan/*.pdb
-				${PLUGIN_VERSION_DIR}/wiretap/*.pdb
+				-bb2
+				-r *.pdb *.lib
 			WORKING_DIRECTORY "${_dll_output_dir}"
 		)
 	endif()
@@ -2407,6 +2424,7 @@ endif()
 
 if(BUILD_tfshark)
 	set(tfshark_LIBS
+		m
 		ui
 		wiretap
 		epan
@@ -2976,6 +2994,9 @@ if(RPMBUILD_EXECUTABLE)
 	if (BCG729_FOUND)
 		list(APPEND _rpmbuild_with_args --with bcg729)
 	endif()
+	if (ILBC_FOUND)
+		list(APPEND _rpmbuild_with_args --with ilbc)
+	endif()
 	if (LIBXML2_FOUND)
 		list(APPEND _rpmbuild_with_args --with libxml2)
 	endif()
@@ -3245,9 +3266,22 @@ if (DOXYGEN_EXECUTABLE)
 		COMMAND ${DOXYGEN_EXECUTABLE} doxygen.cfg
 	)
 
+	if (WIN32)
+		add_custom_target(wsar_html_perms DEPENDS wsar_html)
+	else()
+		add_custom_target(wsar_html_perms
+			COMMAND find wsar_html
+				-type d
+				-exec chmod 755 "{}" +
+			COMMAND find wsar_html
+				-type f
+				-exec chmod 644 "{}" +
+			DEPENDS wsar_html)
+	endif()
+
 	add_custom_target(wsar_html_zip
 		COMMAND ${CMAKE_COMMAND} -E tar "cfv" "wsar_html.zip" --format=zip wsar_html
-		DEPENDS wsar_html
+		DEPENDS wsar_html_perms
 	)
 	set_target_properties(wsar_html wsar_html_zip PROPERTIES
 		FOLDER "Docs"

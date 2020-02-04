@@ -7,8 +7,8 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef __PACKET_BTL2CAP_H__
-#define __PACKET_BTL2CAP_H__
+#ifndef __PACKET_LAPDM_H__
+#define __PACKET_LAPDM_H__
 
 /* See GSM TS 04.06 */
 enum lapdm_hdr_type {

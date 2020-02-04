@@ -638,6 +638,7 @@ static gint ett_sysex_msg_fragment = -1;
 static gint ett_sysex_msg_fragments = -1;
 
 static expert_field ei_usb_audio_undecoded = EI_INIT;
+static expert_field ei_usb_audio_invalid_feature_unit_length = EI_INIT;
 
 static const fragment_items sysex_msg_frag_items = {
     /* Fragment subtrees */
@@ -1078,6 +1079,8 @@ dissect_ac_if_feature_unit(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
         proto_tree *tree, usb_conv_info_t *usb_conv_info _U_, guint8 desc_len)
 {
     gint     offset_start;
+    gint i;
+    gint ch;
     guint8 controlsize;
     proto_tree *bitmap_tree;
     proto_item *ti;
@@ -1108,24 +1111,34 @@ dissect_ac_if_feature_unit(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
     offset += 1;
 
     proto_tree_add_item(tree, hf_ac_if_fu_controlsize, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    controlsize = tvb_get_guint8(tvb, offset) + 1;
+    controlsize = tvb_get_guint8(tvb, offset);
     offset += 1;
 
-    ti = proto_tree_add_item(tree, hf_ac_if_fu_controls, tvb, offset, controlsize, ENC_NA);
+    /* Descriptor size is 7+(ch+1)*n where n is controlsize, calculate and validate ch */
+    ch = (controlsize > 0) ? (((desc_len - 7) / (controlsize)) - 1) : 0;
+    if (((7 + ((ch + 1) * controlsize)) != desc_len) || (ch < 0) || (controlsize == 0)){
+        /* Report malformed packet, do not attempt further dissection */
+        proto_tree_add_expert(tree, pinfo, &ei_usb_audio_invalid_feature_unit_length, tvb, offset, desc_len-offset);
+        offset += desc_len-offset;
+        return offset-offset_start;
+    }
+
+    ti = proto_tree_add_item(tree, hf_ac_if_fu_controls, tvb, offset, controlsize * (ch + 1), ENC_NA);
     bitmap_tree = proto_item_add_subtree(ti, ett_ac_if_fu_controls);
 
-    proto_tree_add_bitmask(bitmap_tree, tvb, offset, hf_ac_if_fu_control, ett_ac_if_fu_controls0, fu_controls0, ENC_LITTLE_ENDIAN);
-
-    if(controlsize >= 1){
-        proto_tree_add_bitmask(bitmap_tree, tvb, offset + 1, hf_ac_if_fu_control, ett_ac_if_fu_controls1, fu_controls1, ENC_LITTLE_ENDIAN);
+    /* bmaControls has 1 master channel 0 controls, and variable number of logical channel controls */
+    for (i = 0; i < (ch + 1); i++) {
+        ti = proto_tree_add_bitmask(bitmap_tree, tvb, offset, hf_ac_if_fu_control, ett_ac_if_fu_controls0, fu_controls0, ENC_LITTLE_ENDIAN);
+        proto_item_prepend_text(ti, "%s channel %d ", (i == 0) ? "Master" : "Logical", i);
+        if (controlsize > 1) {
+            ti = proto_tree_add_bitmask(bitmap_tree, tvb, offset + 1, hf_ac_if_fu_control, ett_ac_if_fu_controls1, fu_controls1, ENC_LITTLE_ENDIAN);
+            proto_item_prepend_text(ti, "%s channel %d", (i == 0) ? "Master" : "Logical", i);
+        }
+        offset += controlsize;
     }
 
-    offset += controlsize;
-
-    if(offset < desc_len){
-        proto_tree_add_item(tree, hf_ac_if_fu_ifeature, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        offset += 1;
-    }
+    proto_tree_add_item(tree, hf_ac_if_fu_ifeature, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
 
     return offset-offset_start;
 }
@@ -2837,6 +2850,7 @@ proto_register_usb_audio(void)
 
     static ei_register_info ei[] = {
         { &ei_usb_audio_undecoded, { "usbaudio.undecoded", PI_UNDECODED, PI_WARN, "Not dissected yet (report to wireshark.org)", EXPFILL }},
+        { &ei_usb_audio_invalid_feature_unit_length, { "usbaudio.ac_if_fu.invalid_length", PI_MALFORMED, PI_ERROR, "Descriptor size is not 7+(ch+1)*n where n=bControlSize", EXPFILL }},
     };
 
     expert_module_t *expert_usb_audio;

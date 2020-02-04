@@ -151,7 +151,7 @@ typedef enum {
 #define SSL_HND_CERT_TYPE_RAW_PUBLIC_KEY     2
 
 #define SSL_HND_QUIC_TP_ORIGINAL_CONNECTION_ID              0
-#define SSL_HND_QUIC_TP_IDLE_TIMEOUT                        1
+#define SSL_HND_QUIC_TP_MAX_IDLE_TIMEOUT                    1
 #define SSL_HND_QUIC_TP_STATELESS_RESET_TOKEN               2
 #define SSL_HND_QUIC_TP_MAX_PACKET_SIZE                     3
 #define SSL_HND_QUIC_TP_INITIAL_MAX_DATA                    4
@@ -166,7 +166,7 @@ typedef enum {
 #define SSL_HND_QUIC_TP_PREFERRED_ADDRESS                   13
 #define SSL_HND_QUIC_TP_ACTIVE_CONNECTION_ID_LIMIT          14
 #define SSL_HND_QUIC_TP_MAX_DATAGRAM_FRAME_SIZE             32
-
+#define SSL_HND_QUIC_TP_LOSS_BITS                           4183
 /*
  * Lookup tables
  */
@@ -898,7 +898,7 @@ typedef struct ssl_common_dissect {
         gint hs_ext_quictp_parameter_len;
         gint hs_ext_quictp_parameter_value;
         gint hs_ext_quictp_parameter_ocid;
-        gint hs_ext_quictp_parameter_idle_timeout;
+        gint hs_ext_quictp_parameter_max_idle_timeout;
         gint hs_ext_quictp_parameter_stateless_reset_token;
         gint hs_ext_quictp_parameter_initial_max_data;
         gint hs_ext_quictp_parameter_initial_max_stream_data_bidi_local;
@@ -918,6 +918,7 @@ typedef struct ssl_common_dissect {
         gint hs_ext_quictp_parameter_pa_statelessresettoken;
         gint hs_ext_quictp_parameter_active_connection_id_limit;
         gint hs_ext_quictp_parameter_max_datagram_frame_size;
+        gint hs_ext_quictp_parameter_loss_bits;
 
         gint esni_suite;
         gint esni_record_digest_length;
@@ -1146,7 +1147,7 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1,                                                 \
+        -1, -1, -1, -1, -1,                                             \
     },                                                                  \
     /* ett */ {                                                         \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
@@ -1932,8 +1933,8 @@ ssl_common_dissect_t name = {   \
         FT_BYTES, BASE_NONE, NULL, 0x00,                                \
         "The value of the Destination Connection ID field from the first Initial packet sent by the client", HFILL } \
     },                                                                  \
-    { & name .hf.hs_ext_quictp_parameter_idle_timeout,                  \
-      { "idle_timeout", prefix ".quic.parameter.idle_timeout",          \
+    { & name .hf.hs_ext_quictp_parameter_max_idle_timeout,              \
+      { "max_idle_timeout", prefix ".quic.parameter.max_idle_timeout",  \
         FT_UINT64, BASE_DEC, NULL, 0x00,                                \
         "In milliseconds", HFILL }                                      \
     },                                                                  \
@@ -2030,6 +2031,11 @@ ssl_common_dissect_t name = {   \
     { & name .hf.hs_ext_quictp_parameter_max_datagram_frame_size,       \
       { "max_datagram_frame_size", prefix ".quic.parameter.max_datagram_frame_size", \
         FT_UINT64, BASE_DEC, NULL, 0x00,                                \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_quictp_parameter_loss_bits,                     \
+      { "loss_bits", prefix ".quic.parameter.loss_bits",                \
+        FT_UINT8, BASE_DEC, NULL, 0x00,                                 \
         NULL, HFILL }                                                   \
     },                                                                  \
     { & name .hf.esni_suite,                                            \

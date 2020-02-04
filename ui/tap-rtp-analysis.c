@@ -379,10 +379,10 @@ rtppacket_analyse(tap_rtp_stat_t *statinfo,
         }
 #endif
         /* Gather data for calculation of skew least square */
-        statinfo->sumt   += 1.0 * current_time;
+        statinfo->sumt   += 1.0 * arrivaltime;
         statinfo->sumTS  += 1.0 * nominaltime;
-        statinfo->sumt2  += 1.0 * current_time * current_time;
-        statinfo->sumtTS += 1.0 * current_time * nominaltime;
+        statinfo->sumt2  += 1.0 * arrivaltime * arrivaltime;
+        statinfo->sumtTS += 1.0 * arrivaltime * nominaltime;
     } else {
         if (!statinfo->first_packet) {
             statinfo->delta = current_time-(statinfo->time);

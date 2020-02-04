@@ -3578,7 +3578,7 @@ dissct_rsl_ipaccess_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
         unsigned int len, hlen;
         const struct tlv_def *tdef;
         proto_item *ti;
-        proto_tree *ie_tree;
+        proto_tree *ie_tree = NULL;
 
         tag = tvb_get_guint8(tvb, offset);
         tdef = &rsl_att_tlvdef.def[tag];

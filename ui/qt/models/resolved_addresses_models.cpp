@@ -37,61 +37,25 @@ serv_port_hash_to_qstringlist(gpointer key, gpointer value, gpointer sl_ptr)
 }
 
 static void
-ipv4_hash_table_resolved_to_qstringlist(gpointer, gpointer value, gpointer sl_ptr)
+ipv4_hash_table_resolved_to_list(gpointer, gpointer value, gpointer sl_ptr)
 {
-    QStringList *string_list = (QStringList *) sl_ptr;
+    QList<QStringList> *hosts = (QList<QStringList> *) sl_ptr;
     hashipv4_t *ipv4_hash_table_entry = (hashipv4_t *) value;
 
     if ((ipv4_hash_table_entry->flags & NAME_RESOLVED)) {
-        QString entry = QString("%1\t%2")
-                .arg(ipv4_hash_table_entry->ip)
-                .arg(ipv4_hash_table_entry->name);
-        *string_list << entry;
+        *hosts << (QStringList() << QString(ipv4_hash_table_entry->ip) << QString(ipv4_hash_table_entry->name));
     }
 }
 
 static void
-ipv6_hash_table_resolved_to_qstringlist(gpointer, gpointer value, gpointer sl_ptr)
+ipv6_hash_table_resolved_to_list(gpointer, gpointer value, gpointer sl_ptr)
 {
-    QStringList *string_list = (QStringList *) sl_ptr;
+    QList<QStringList> *hosts = (QList<QStringList> *) sl_ptr;
     hashipv6_t *ipv6_hash_table_entry = (hashipv6_t *) value;
 
     if ((ipv6_hash_table_entry->flags & NAME_RESOLVED)) {
-        QString entry = QString("%1\t%2")
-                .arg(ipv6_hash_table_entry->ip6)
-                .arg(ipv6_hash_table_entry->name);
-        *string_list << entry;
+        *hosts << (QStringList() << QString(ipv6_hash_table_entry->ip6) << QString(ipv6_hash_table_entry->name));
     }
-}
-
-static void
-ipv4_hash_table_to_qstringlist(gpointer key, gpointer value, gpointer sl_ptr)
-{
-    QStringList *string_list = (QStringList *) sl_ptr;
-    hashipv4_t *ipv4_hash_table_entry = (hashipv4_t *)value;
-    guint addr = GPOINTER_TO_UINT(key);
-
-    QString entry = QString("Key: 0x%1 IPv4: %2, Name: %3")
-            .arg(QString::number(addr, 16))
-            .arg(ipv4_hash_table_entry->ip)
-            .arg(ipv4_hash_table_entry->name);
-
-    *string_list << entry;
-}
-
-static void
-ipv6_hash_table_to_qstringlist(gpointer key, gpointer value, gpointer sl_ptr)
-{
-    QStringList *string_list = (QStringList *) sl_ptr;
-    hashipv6_t *ipv6_hash_table_entry = (hashipv6_t *)value;
-    guint addr = GPOINTER_TO_UINT(key);
-
-    QString entry = QString("Key: 0x%1 IPv4: %2, Name: %3")
-            .arg(QString::number(addr, 16))
-            .arg(ipv6_hash_table_entry->ip6)
-            .arg(ipv6_hash_table_entry->name);
-
-    *string_list << entry;
 }
 
 static void
@@ -152,61 +116,44 @@ EthernetAddressModel::EthernetAddressModel(QObject * parent):
 
 QStringList EthernetAddressModel::headerColumns() const
 {
-    return QStringList() << tr("Type") << tr("Mac Address") << tr("Name");
+    return QStringList() << tr("Type") << tr("Address") << tr("Name");
 }
 
 QStringList EthernetAddressModel::filterValues() const
 {
     return QStringList()
         << tr("All entries")
-        << tr("IPv4 Hosts") << tr("IPv4 Hash Table")
-        << tr("IPv6 Hosts") << tr("IPv6 Hash Table")
+        << tr("Hosts")
         << tr("Ethernet Addresses") << tr("Ethernet Manufacturers")
         << tr("Ethernet Well-Known Addresses");
 }
 
 void EthernetAddressModel::populate()
 {
+    QList<QStringList> hosts;   // List of (address, names)
+    if (wmem_map_t *ipv4_hash_table = get_ipv4_hash_table()) {
+        wmem_map_foreach(ipv4_hash_table, ipv4_hash_table_resolved_to_list, &hosts);
+    }
+    if (wmem_map_t *ipv6_hash_table = get_ipv6_hash_table()) {
+        wmem_map_foreach(ipv6_hash_table, ipv6_hash_table_resolved_to_list, &hosts);
+    }
+    const QString &hosts_label = tr("Hosts");
+    foreach (const QStringList &addr_name, hosts)
+        appendRow(QStringList() << hosts_label << addr_name);
+
     QStringList values;
-    wmem_map_t *ipv4_hash_table = get_ipv4_hash_table();
-    if (ipv4_hash_table) {
-        wmem_map_foreach(ipv4_hash_table, ipv4_hash_table_resolved_to_qstringlist, &values);
-        foreach(QString line, values)
-            appendRow(QStringList() << tr("IPv4 Hosts") << line.split(" "));
-        wmem_map_foreach(ipv4_hash_table, ipv4_hash_table_to_qstringlist, &values);
-        foreach(QString line, values)
-            appendRow(QStringList() << tr("IPv4 Hash Table") << line.split(" "));
-    }
-
-    wmem_map_t *ipv6_hash_table = get_ipv6_hash_table();
-    if (ipv6_hash_table) {
-        wmem_map_foreach(ipv6_hash_table, ipv6_hash_table_resolved_to_qstringlist, &values);
-        foreach(QString line, values)
-            appendRow(QStringList() << tr("IPv6 Hosts") << line.split(" "));
-        wmem_map_foreach(ipv6_hash_table, ipv6_hash_table_to_qstringlist, &values);
-        foreach(QString line, values)
-            appendRow(QStringList() << tr("IPv6 Hash Table") << line.split(" "));
-    }
-
-    wmem_map_t *eth_hashtable = get_eth_hashtable();
-    if (eth_hashtable)
+    if (wmem_map_t *eth_hashtable = get_eth_hashtable()) {
         wmem_map_foreach(eth_hashtable, eth_hash_to_qstringlist, &values);
-    foreach(QString line, values)
-        appendRow(QStringList() << tr("Ethernet Addresses") << line.split(" "));
-
-    eth_hashtable = get_manuf_hashtable();
-    if (eth_hashtable)
+    }
+    if (wmem_map_t *eth_hashtable = get_manuf_hashtable()) {
         wmem_map_foreach(eth_hashtable, manuf_hash_to_qstringlist, &values);
-
-    foreach(QString line, values)
-        appendRow(QStringList() << tr("Ethernet Manufacturers") << line.split(" "));
-
-    eth_hashtable = get_wka_hashtable();
-    if (eth_hashtable)
+    }
+    if (wmem_map_t *eth_hashtable = get_wka_hashtable()) {
         wmem_map_foreach(eth_hashtable, wka_hash_to_qstringlist, &values);
-
-    foreach(QString line, values)
-        appendRow(QStringList() << tr("Ethernet Well-Known Addresses") << line.split(" "));
+    }
+    const QString &wka_label = tr("Ethernet Well-Known Addresses");
+    foreach (const QString &line, values)
+        appendRow(QStringList() << wka_label << line.split(" "));
 }
 
 PortsModel::PortsModel(QObject * parent):

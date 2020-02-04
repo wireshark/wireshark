@@ -815,7 +815,7 @@ void proto_register_ocsp(void) {
         "OCTET_STRING", HFILL }},
     { &hf_ocsp_serialNumber,
       { "serialNumber", "ocsp.serialNumber",
-        FT_UINT64, BASE_DEC, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "CertificateSerialNumber", HFILL }},
     { &hf_ocsp_responseStatus,
       { "responseStatus", "ocsp.responseStatus",

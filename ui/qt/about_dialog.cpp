@@ -112,7 +112,6 @@ QStringList AuthorListModel::headerColumns() const
     return QStringList() << tr("Name") << tr("Email");
 }
 
-#if defined(HAVE_PLUGINS) || defined(HAVE_LUA)
 static void plugins_add_description(const char *name, const char *version,
                                     const char *types, const char *filename,
                                     void *user_data)
@@ -121,7 +120,6 @@ static void plugins_add_description(const char *name, const char *version,
     QStringList plugin_row = QStringList() << name << version << types << filename;
     *plugin_data << plugin_row;
 }
-#endif
 
 PluginListModel::PluginListModel(QObject * parent) : AStringListListModel(parent)
 {
@@ -375,10 +373,8 @@ AboutDialog::AboutDialog(QWidget *parent) :
     f_license.open(QFile::ReadOnly | QFile::Text);
     QTextStream ReadFile_license(&f_license);
 
-    ui->pte_License->setFont(wsApp->monospaceFont());
     ui->pte_License->insertPlainText(ReadFile_license.readAll());
     ui->pte_License->moveCursor(QTextCursor::Start);
-
 }
 
 AboutDialog::~AboutDialog()

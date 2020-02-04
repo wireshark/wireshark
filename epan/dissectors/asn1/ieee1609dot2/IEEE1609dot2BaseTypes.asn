@@ -2,6 +2,8 @@ IEEE1609dot2BaseTypes {iso(1) identified-organization(3) ieee(111)
 standards-association-numbered-series-standards(2) wave-stds(1609)  
 dot2(2) base(1) base-types(2) major-version-2(2)}
 
+-- Minor version: 1
+
 -- 
 --********************************************************************
 --  IEEE P1609.2 Base Data Types 
@@ -99,8 +101,8 @@ SequenceOfRectangularRegion ::= SEQUENCE OF RectangularRegion
 PolygonalRegion ::= SEQUENCE SIZE(3..MAX) OF TwoDLocation
 
 TwoDLocation ::= SEQUENCE  {
-    latitude      SecLatitude,
-    longitude     SecLongitude
+    latitude      Latitude,
+    longitude     Longitude
 }
 
 IdentifiedRegion ::= CHOICE  {
@@ -132,14 +134,14 @@ RegionAndSubregions ::= SEQUENCE  {
 SequenceOfRegionAndSubregions ::= SEQUENCE OF RegionAndSubregions
 
 ThreeDLocation ::= SEQUENCE  {
-    latitude        SecLatitude,
-    longitude       SecLongitude,
-    elevation       SecElevation
+    latitude        Latitude,
+    longitude       Longitude,
+    elevation       Elevation
 }
 
-SecLatitude ::= NinetyDegreeInt
-SecLongitude ::= OneEightyDegreeInt
-SecElevation ::= ElevInt
+Latitude ::= NinetyDegreeInt
+Longitude ::= OneEightyDegreeInt
+Elevation ::= ElevInt
 
 NinetyDegreeInt ::= INTEGER  {
     min 		(-900000000),

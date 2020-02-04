@@ -66,29 +66,28 @@ try {
 
     $DebugOrRelease = If ($DebugConfig) {"--debug"} Else {"--release"}
 
+    # windeployqt lists translation files that it don't exist (e.g.
+    # qtbase_ar.qm), so we handle those by hand.
+    # https://bugreports.qt.io/browse/QTBUG-65974
     $wdqtList = windeployqt `
         $DebugOrRelease `
         --no-compiler-runtime `
+        --no-translations `
         --list relative `
         $Executable
 
-    $dllPath = Split-Path -Parent $Executable
+    $basePath = Split-Path -Parent $Executable
 
-    $dllList = @()
-    $dirList = @()
+    $currentDir = ""
 
     foreach ($entry in $wdqtList) {
         $dir = Split-Path -Parent $entry
-        if ($dir) {
-            $dirList += "File /r `"$dllPath\$dir`""
-        } else {
-            $dllList += "File `"$dllPath\$entry`""
+        if ($dir -and $dir -ne $currentDir) {
+            $nsisCommands += "SetOutPath `"`$INSTDIR\$dir`""
+            $currentDir = $dir
         }
+        $nsisCommands += "File `"$basePath\$entry`""
     }
-
-    $dirList = $dirList | Sort-Object | Get-Unique
-
-    $nsisCommands += $dllList + $dirList
 }
 
 catch {

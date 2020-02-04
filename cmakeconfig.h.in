@@ -88,6 +88,9 @@
 /* Define to use heimdal kerberos */
 #cmakedefine HAVE_HEIMDAL_KERBEROS 1
 
+/* Define to 1 if you have the `krb5_pac_verify' function. */
+#cmakedefine HAVE_KRB5_PAC_VERIFY 1
+
 /* Define to 1 if you have the `inflatePrime' function. */
 #cmakedefine HAVE_INFLATEPRIME 1
 
@@ -274,6 +277,9 @@
 
 /* Define to 1 if you have the bcg729 library. */
 #cmakedefine HAVE_BCG729 1
+
+/* Define to 1 if you have the ilbc library. */
+#cmakedefine HAVE_ILBC 1
 
 /* Define to 1 if you have the speexdsp library. */
 #cmakedefine HAVE_SPEEXDSP 1

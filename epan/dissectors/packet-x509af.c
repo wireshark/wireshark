@@ -74,7 +74,7 @@ static int hf_x509af_notBefore = -1;              /* Time */
 static int hf_x509af_notAfter = -1;               /* Time */
 static int hf_x509af_algorithm = -1;              /* AlgorithmIdentifier */
 static int hf_x509af_subjectPublicKey = -1;       /* T_subjectPublicKey */
-static int hf_x509af_utcTime = -1;                /* UTCTime */
+static int hf_x509af_utcTime = -1;                /* T_utcTime */
 static int hf_x509af_generalizedTime = -1;        /* GeneralizedTime */
 static int hf_x509af_Extensions_item = -1;        /* Extension */
 static int hf_x509af_extnId = -1;                 /* T_extnId */
@@ -259,8 +259,19 @@ dissect_x509af_AlgorithmIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
 
 static int
-dissect_x509af_UTCTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_UTCTime(implicit_tag, actx, tree, tvb, offset, hf_index);
+dissect_x509af_T_utcTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 149 "./asn1/x509af/x509af.cnf"
+  char *outstr, *newstr;
+  guint32 tvblen;
+
+  /* the 2-digit year can only be in the range 1950..2049 https://tools.ietf.org/html/rfc5280#section-4.1.2.5.1 */
+  offset = dissect_ber_UTCTime(implicit_tag, actx, tree, tvb, offset, hf_index, &outstr, &tvblen);
+  if (hf_index >= 0 && outstr) {
+    newstr = wmem_strconcat(wmem_packet_scope(), outstr[0] < '5' ? "20": "19", outstr, NULL);
+    proto_tree_add_string(tree, hf_index, tvb, offset - tvblen, tvblen, newstr);
+  }
+
+
 
   return offset;
 }
@@ -282,7 +293,7 @@ const value_string x509af_Time_vals[] = {
 };
 
 static const ber_choice_t Time_choice[] = {
-  {   0, &hf_x509af_utcTime      , BER_CLASS_UNI, BER_UNI_TAG_UTCTime, BER_FLAGS_NOOWNTAG, dissect_x509af_UTCTime },
+  {   0, &hf_x509af_utcTime      , BER_CLASS_UNI, BER_UNI_TAG_UTCTime, BER_FLAGS_NOOWNTAG, dissect_x509af_T_utcTime },
   {   1, &hf_x509af_generalizedTime, BER_CLASS_UNI, BER_UNI_TAG_GeneralizedTime, BER_FLAGS_NOOWNTAG, dissect_x509af_GeneralizedTime },
   { 0, NULL, 0, 0, 0, NULL }
 };
@@ -324,7 +335,7 @@ static const ber_choice_t SubjectName_choice[] = {
 
 static int
 dissect_x509af_SubjectName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 149 "./asn1/x509af/x509af.cnf"
+#line 160 "./asn1/x509af/x509af.cnf"
 
   const char* str;
     offset = dissect_ber_choice(actx, tree, tvb, offset,
@@ -1042,7 +1053,7 @@ void proto_register_x509af(void) {
         NULL, HFILL }},
     { &hf_x509af_serialNumber,
       { "serialNumber", "x509af.serialNumber",
-        FT_UINT64, BASE_DEC, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "CertificateSerialNumber", HFILL }},
     { &hf_x509af_signature,
       { "signature", "x509af.signature_element",
@@ -1190,7 +1201,7 @@ void proto_register_x509af(void) {
         NULL, HFILL }},
     { &hf_x509af_revokedUserCertificate,
       { "userCertificate", "x509af.userCertificate",
-        FT_UINT64, BASE_DEC, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "CertificateSerialNumber", HFILL }},
     { &hf_x509af_revocationDate,
       { "revocationDate", "x509af.revocationDate",
@@ -1258,7 +1269,7 @@ void proto_register_x509af(void) {
         "UniqueIdentifier", HFILL }},
     { &hf_x509af_serial,
       { "serial", "x509af.serial",
-        FT_UINT64, BASE_DEC, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "CertificateSerialNumber", HFILL }},
     { &hf_x509af_issuerUID,
       { "issuerUID", "x509af.issuerUID",

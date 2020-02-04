@@ -720,7 +720,9 @@ static int dissect_idmp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *paren
 
 static void idmp_reassemble_cleanup(void)
 {
+    protocolID = NULL;
     saved_protocolID = NULL;
+    opcode = -1;
 }
 
 /*--- proto_register_idmp -------------------------------------------*/
@@ -914,7 +916,7 @@ void proto_register_idmp(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-idmp-hfarr.c ---*/
-#line 299 "./asn1/idmp/packet-idmp-template.c"
+#line 301 "./asn1/idmp/packet-idmp-template.c"
     };
 
     /* List of subtrees */
@@ -937,7 +939,7 @@ void proto_register_idmp(void)
     &ett_idmp_InvokeId,
 
 /*--- End of included file: packet-idmp-ettarr.c ---*/
-#line 307 "./asn1/idmp/packet-idmp-template.c"
+#line 309 "./asn1/idmp/packet-idmp-template.c"
     };
     module_t *idmp_module;
 
