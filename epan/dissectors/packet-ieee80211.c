@@ -10371,8 +10371,9 @@ add_ff_auth_sae(proto_tree *tree, tvbuff_t *tvb,
   {
     proto_tree_add_item(tree, hf_ieee80211_ff_send_confirm, tvb, 6, 2,
                         ENC_LITTLE_ENDIAN);
-    len = tvb_captured_length_remaining(tvb, 8);
-    proto_tree_add_item(tree, hf_ieee80211_ff_confirm, tvb, 8, len,
+    offset += 2;
+    len = tvb_captured_length_remaining(tvb, offset);
+    proto_tree_add_item(tree, hf_ieee80211_ff_confirm, tvb, offset, len,
                         ENC_NA);
     offset += len;
   }
