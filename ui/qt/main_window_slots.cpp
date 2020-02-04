@@ -2810,10 +2810,7 @@ void MainWindow::on_actionAnalyzeEnabledProtocols_triggered()
 void MainWindow::on_actionAnalyzeDecodeAs_triggered()
 {
     QAction *da_action = qobject_cast<QAction*>(sender());
-    bool create_new = false;
-    if (da_action && da_action->data().toBool() == true) {
-        create_new = true;
-    }
+    bool create_new = da_action && da_action->property("create_new").toBool();
 
     DecodeAsDialog *da_dialog = new DecodeAsDialog(this, capture_file_.capFile(), create_new);
     connect(da_dialog, SIGNAL(destroyed(QObject*)), wsApp, SLOT(flushAppSignals()));
