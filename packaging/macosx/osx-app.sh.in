@@ -322,7 +322,7 @@ rpathify_file () {
 		# Show the minimum supported version of macOS
 		# for each executable or library
 		#
-		if [[ "$filetype" = "EXECUTE" || "$filetype" = "DYLIB" ]] && [[ "$VERSION" -ge "7" ]] ; then
+		if [[ "$filetype" = "EXECUTE" || "$filetype" = "DYLIB" ]] ; then
 			echo "Minimum macOS version for $1:"
 			otool -l "$1" | grep -A3 LC_VERSION_MIN_MACOSX
 		fi
