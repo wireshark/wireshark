@@ -1,7 +1,7 @@
 /* packet-ldap-template.c
  * Routines for ldap packet dissection
  *
- * See RFC 1777 (LDtAP v2), RFC 4511 (LDAP v3), and RFC 2222 (SASL).
+* See RFC 3494 (LDAP v2), RFC 4511 (LDAP v3), and RFC 2222 (SASL).
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -1215,79 +1215,77 @@ static void
         memset(&gssapi_encrypt, 0, sizeof(gssapi_encrypt));
         gssapi_encrypt.decrypt_gssapi_tvb=DECRYPT_GSSAPI_NORMAL;
         ver_len = call_dissector_with_data(gssapi_wrap_handle, gssapi_tvb, pinfo, sasl_tree, &gssapi_encrypt);
-        /* if we could unwrap, do a tvb shuffle */
-        if(gssapi_encrypt.gssapi_decrypted_tvb){
-          decr_tvb=gssapi_encrypt.gssapi_decrypted_tvb;
-        } else if (gssapi_encrypt.gssapi_wrap_tvb) {
-          plain_tvb=gssapi_encrypt.gssapi_wrap_tvb;
-        }
-
         /*
-        * if len is 0 it probably mean that we got a PDU that is not
+        * If ver_len is 0, it probably means that we got a PDU that is not
         * aligned to the start of the segment.
         */
         if(ver_len==0){
           return;
         }
-
-        /*
-        * if we don't have unwrapped data,
-        * see if the wrapping involved encryption of the
-        * data; if not, just use the plaintext data.
-        */
-        if (!decr_tvb && !plain_tvb) {
-          if(!gssapi_encrypt.gssapi_data_encrypted){
-            plain_tvb = tvb_new_subset_remaining(gssapi_tvb,  ver_len);
-          }
-        }
-
-        if (decr_tvb) {
-          proto_tree *enc_tree = NULL;
-          guint decr_len = tvb_reported_length(decr_tvb);
-
+        if (gssapi_encrypt.gssapi_decrypted_tvb) {
           /*
-          * The LDAP message was encrypted in the packet, and has
-          * been decrypted; dissect the decrypted LDAP message.
-          */
-          col_set_str(pinfo->cinfo, COL_INFO, "SASL GSS-API Privacy (decrypted): ");
+           * The LDAP payload (blob) was encrypted and we were able to decrypt it.
+           * The data was signed via a MIC token, sealed (encrypted), and "wrapped"
+           * within the mechanism's "blob." Call dissect_ldap_payload to dissect
+           * one or more LDAPMessages such as searchRequest messages within this
+           * payload.
+           */
+          col_set_str(pinfo->cinfo, COL_INFO, "SASL GSS-API Decrypted payload: ");
 
           if (sasl_tree) {
-            enc_tree = proto_tree_add_subtree_format(sasl_tree, decr_tvb, 0, -1,
-              ett_ldap_payload, NULL, "GSS-API Encrypted payload (%d byte%s)",
-              decr_len, plurality(decr_len, "", "s"));
-          }
-          dissect_ldap_payload(decr_tvb, pinfo, enc_tree, ldap_info, is_mscldap);
-        } else if (plain_tvb) {
-          proto_tree *plain_tree = NULL;
-          guint plain_len = tvb_reported_length(plain_tvb);
+            proto_tree *enc_tree;
+            guint decr_len = tvb_reported_length(decr_tvb);
 
+            decr_tvb = gssapi_encrypt.gssapi_decrypted_tvb;
+
+            enc_tree = proto_tree_add_subtree_format(sasl_tree, decr_tvb, 0, -1,
+              ett_ldap_payload, NULL, "GSS-API Decrypted payload (%d byte%s)",
+              decr_len, plurality(decr_len, "", "s"));
+
+            dissect_ldap_payload(decr_tvb, pinfo, enc_tree, ldap_info, is_mscldap);
+          }
+        }
+        else if (gssapi_encrypt.gssapi_data_encrypted) {
           /*
-          * The LDAP message wasn't encrypted in the packet;
-          * dissect the plain LDAP message.
+          * The LDAP message was encrypted but couldn't be decrypted so just display the
+          * encrypted data all of which is found in Packet Bytes.
+          */
+          col_add_fstr(pinfo->cinfo, COL_INFO, "SASL GSS-API Privacy: payload (%d byte%s)",
+            sasl_len-ver_len, plurality(sasl_len-ver_len, "", "s"));
+
+          proto_tree_add_item(sasl_tree, hf_ldap_gssapi_encrypted_payload, gssapi_tvb, ver_len, -1, ENC_NA);
+        }
+        else {
+          /*
+          * The payload was not encrypted (sealed) but was signed via a MIC token.
+          * If krb5_tok_id == KRB_TOKEN_CFX_WRAP, the payload was wrapped within
+          * the mechanism's blob. Call dissect_ldap_payload to dissect one or more
+          * LDAPMessages within the payload.
           */
           col_set_str(pinfo->cinfo, COL_INFO, "SASL GSS-API Integrity: ");
 
           if (sasl_tree) {
+            guint plain_len;
+            proto_tree *plain_tree;
+
+            plain_tvb = tvb_new_subset_remaining(gssapi_tvb, ver_len);
+            plain_len = tvb_reported_length(plain_tvb);
+
             plain_tree = proto_tree_add_subtree_format(sasl_tree, plain_tvb, 0, -1,
               ett_ldap_payload, NULL, "GSS-API payload (%d byte%s)",
               plain_len, plurality(plain_len, "", "s"));
+
+            dissect_ldap_payload(plain_tvb, pinfo, plain_tree, ldap_info, is_mscldap);
           }
-
-          dissect_ldap_payload(plain_tvb, pinfo, plain_tree, ldap_info, is_mscldap);
-        } else {
-          /*
-          * The LDAP message was encrypted in the packet, and was
-          * not decrypted; just show it as encrypted data.
-          */
-          col_add_fstr(pinfo->cinfo, COL_INFO, "SASL GSS-API Privacy: payload (%d byte%s)",
-            sasl_len - ver_len,
-            plurality(sasl_len - ver_len, "", "s"));
-
-          proto_tree_add_item(sasl_tree, hf_ldap_gssapi_encrypted_payload, gssapi_tvb, ver_len, -1, ENC_NA);
         }
     }
   } else {
-    /* plain LDAP, so dissect the payload */
+    /*
+    * The LDAP packet does not contain a SASL security layer. Such messages are typically sent
+    * prior to the LDAP "bind" negotiation exchange which establishes the "context" of the session.
+    * This means the data could neither be "signed" (no data origin auth or data integrity
+    * check) nor "sealed" (encrypted).
+    */
     dissect_ldap_payload(tvb, pinfo, ldap_tree, ldap_info, is_mscldap);
   }
 }
@@ -1582,6 +1580,7 @@ static int dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
           /* get IP address */
           proto_tree_add_item(subtree, hf_mscldap_netlogon_ipaddress_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
         }
+
       }
 
       break;
@@ -1813,7 +1812,7 @@ this_was_not_sasl:
   }
 
   /*
-   * The minimun size of a LDAP pdu is 7 bytes
+   * The minimum size of a LDAP pdu is 7 bytes
    *
    * dumpasn1 -hh ldap-unbind-min.dat
    *
