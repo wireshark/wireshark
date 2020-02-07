@@ -1,4 +1,4 @@
-Audiocodes TrunkPack Network Control Protocol (TPNCP) Version L7.20.215.001
+Audiocodes TrunkPack Network Control Protocol (TPNCP) Version L7.20.208.001
 acEV_NONE 0
 acEV_ERROR 1
 acEV_DIGIT 2
@@ -361,7 +361,6 @@ acEV_TER_GENERIC_COMMAND_ACKNOWLEDGE 382
 acEV_RTCPXR_REPORT_SENT 383
 acEV_RTCPXR_REPORT_RECEIVED 384
 acEV_RTCPXR_REPORT_ALERT 385
-acEV_IP_ADDRESS_CHANGED 386
 acEV_PERFORMANCE_MONITORING_DATA 387
 acEV_PERFORMANCE_MONITORING_ATTRIBUTES 388
 acEV_PSTN_DS3_LINE_STATUS 400
@@ -496,6 +495,7 @@ acEV_ADD_DESTINATION_FAILED_DUE_TO_LACK_OF_RESOURCES 659
 acEV_MTC_INI_CRC 660
 acEV_STUN_USE_CANDIDATE_REQUEST 661
 acEV_RTP_RECEIVED_AFTER_DTLS 662
+acEV_ARP_RESOLVED_FOR_CHANNEL 663
 acEV_RTP_HEADER_NORMALIZATION_DELTAS 666
 acEV_PCIIF_COMMAND_RESPONSE 667
 acEV_ALL_RTCP_STATISTICS 668
@@ -508,6 +508,9 @@ acEV_MPE_CHANNEL_UTILIZATION_COST 674
 acEV_RTP_DTLS_RECEIVED 675
 acEV_MPE_NETWORK_GROUP_INFO 676
 acEV_GAUGE_PM 677
+acEV_HTTP_STREAMING_PLAY_ENDED 678
+acEV_HTTP_STREAMING_RECORD_ENDED 679
+acEV_IP_ADDRESS_CHANGED 1202
 acEV_SMDI_MWI_NEGATIVE 1204
 acEV_VOICE_MENU_START 1206
 acEV_VOICE_MENU_STOP 1207
@@ -559,6 +562,7 @@ acEV_MPC_SWITCH_OVER_ENDED 1620
 acEV_MPC_MPE_NAME_CHANGED 1621
 acEV_AUPD_FILE 1622
 acEV_MPC_MPE_TRANSCODING_OVERLOAD 1623
+acEV_HTTP_STREAMING_BACK_TO_NORMAL 1624
 acEV_CLOUD_PUBLIC_IP_CHANGED 1700
 #####
 acCMD_EMPTY 0
@@ -924,6 +928,10 @@ acCMD_SIMULATE_START_MEDIA 621
 acCMD_SIMULATE_START_CALL 622
 acCMD_3GPP_SET_RATE 623
 acCMD_SET_AMR_RATE 624
+acCMD_HTTP_STREAMING_START_PLAY 625
+acCMD_HTTP_STREAMING_STOP_PLAY 626
+acCMD_HTTP_STREAMING_START_RECORD 627
+acCMD_HTTP_STREAMING_STOP_RECORD 628
 acCMD_LINKLAYER_START 1000
 acCMD_PSTN_LINKLAYER_DS3_TRUNK_CONFIG 1001
 acCMD_PSTN_LINKLAYER_DS3_TRUNK_ALARM_STATUS 1002
@@ -2892,7 +2900,6 @@ InfraStructureParameterID PARAMETER_ID_GW_APP_ALLOWED_CODERS_GROUP4 67
 InfraStructureParameterID PARAMETER_ID_GW_APP_MESSAGE_MANIPULATIONS 68
 InfraStructureParameterID PARAMETER_ID_GW_APP_APPLICATION_LAYER_STATIC_NAT_TRANSLATION 69
 InfraStructureParameterID PARAMETER_ID_GW_APP_REGISTRATION_PREFIX 70
-InfraStructureParameterID PARAMETER_ID_GW_APP_SAS_REGISTRATION_MANIPULATION 71
 InfraStructureParameterID PARAMETER_ID_GW_APP_E_MATRIX_IDENTIFIER_CODERS_GROUP5 72
 InfraStructureParameterID PARAMETER_ID_GW_APP_E_MATRIX_IDENTIFIER_CODERS_GROUP6 73
 InfraStructureParameterID PARAMETER_ID_GW_APP_E_MATRIX_IDENTIFIER_CODERS_GROUP7 74
@@ -5044,11 +5051,11 @@ FirmwareModule HA_MODULE_BOUNDARY 29
 219 active_speaker_notification_enable 0 32 0 0 primitive
 219 active_speaker_notification_min_interval 0 32 0 0 primitive
 219 conference_media_types 0 32 0 0 MediaTypesEnabled
-219 is_enable_listener_only_participants 0 32 0 0 primitive
+219 is_enable_listener_only_participants 1 32 0 0 primitive
 219 active_speaker_energy_threshold 0 32 0 0 primitive
 219 num_of_listener_only_participants 0 32 0 0 primitive
 219 video_conference_switching_interval 0 32 0 0 primitive
-219 video_enable_active_speaker_highlight 0 32 0 0 primitive
+219 video_enable_active_speaker_highlight 1 32 0 0 primitive
 219 video_max_participants 0 32 0 0 primitive
 219 num_of_participants 0 32 0 0 primitive
 219 participants_handle_list_0 0 32 0 0 primitive
@@ -5326,7 +5333,7 @@ FirmwareModule HA_MODULE_BOUNDARY 29
 220 video_participant_trigger_mode 0 32 0 0 VideoConferenceParticipantTriggerMode
 220 video_participant_layout 0 32 0 0 VideoConferenceParticipantLayout
 220 video_participant_name 0 8 11 0 primitive
-220 video_is_self_view 0 32 0 0 primitive
+220 video_is_self_view 1 32 0 0 primitive
 220 video_participant_view_at_location_0 0 32 0 0 primitive
 220 video_participant_view_at_location_1 0 32 0 0 primitive
 220 video_participant_view_at_location_2 0 32 0 0 primitive
@@ -5344,7 +5351,7 @@ FirmwareModule HA_MODULE_BOUNDARY 29
 220 video_participant_view_at_location_14 0 32 0 0 primitive
 220 video_participant_view_at_location_15 0 32 0 0 primitive
 220 video_conference_switching_interval 0 32 0 0 primitive
-220 video_enable_active_speaker_highlight 0 32 0 0 primitive
+220 video_enable_active_speaker_highlight 1 32 0 0 primitive
 220 num_of_muted_participants 0 32 0 0 primitive
 220 muted_participants_handle_list_0 0 32 0 0 primitive
 220 muted_participants_handle_list_1 0 32 0 0 primitive
@@ -10025,18 +10032,14 @@ FirmwareModule HA_MODULE_BOUNDARY 29
 446 search_id 0 32 0 0 primitive
 446 user_data 1 32 0 0 primitive
 446 search_result_status 0 32 0 0 LdapSearchResultStatus
-446 attribute_0 0 8 51 0 primitive
-446 value_0 0 8 257 0 primitive
-446 attribute_1 0 8 51 0 primitive
-446 value_1 0 8 257 0 primitive
-446 attribute_2 0 8 51 0 primitive
-446 value_2 0 8 257 0 primitive
-446 attribute_3 0 8 51 0 primitive
-446 value_3 0 8 257 0 primitive
-446 attribute_4 0 8 51 0 primitive
-446 value_4 0 8 257 0 primitive
-446 attribute_5 0 8 51 0 primitive
-446 value_5 0 8 257 0 primitive
+446 m_pos_0 0 16 0 0 primitive
+446 m_pos_1 0 16 0 0 primitive
+446 m_pos_2 0 16 0 0 primitive
+446 m_pos_3 0 16 0 0 primitive
+446 m_pos_4 0 16 0 0 primitive
+446 m_pos_5 0 16 0 0 primitive
+446 m_buf 0 8 1530 0 primitive
+446 m_attributes 0 8 306 0 primitive
 447 search_id 0 32 0 0 primitive
 452 action_type 0 32 0 0 LdapActionType
 452 action_result 0 32 0 0 primitive
@@ -10398,10 +10401,13 @@ FirmwareModule HA_MODULE_BOUNDARY 29
 637 mpe_handle 1 16 0 0 primitive
 637 voice_quality_enhancements_opus_max_bandwidth 1 32 0 0 primitive
 637 media_realm_index 0 32 0 0 primitive
-637 media_stun_operation_mode 1 8 0 0 primitive
+637 media_stun_forking_operation_mode 1 8 0 0 primitive
+637 http_streaming 1 8 0 0 primitive
+637 evs_tx_bit_rate 1 16 0 0 primitive
 637 evs_fec_offset 1 8 0 0 primitive
 637 evs_build_cmr 1 8 0 0 primitive
-637 evs_tx_bit_rate 1 16 0 0 primitive
+637 unused_alignment 1 16 0 0 primitive
+637 tls_context 0 32 0 0 primitive
 638 severity 0 32 0 0 MediaProcessOverloadSeverity
 638 cpu_utilization_percentage 0 32 0 0 primitive
 639 channel_ida 0 32 0 0 primitive
@@ -11075,10 +11081,13 @@ FirmwareModule HA_MODULE_BOUNDARY 29
 160 mpe_handle 1 16 0 0 primitive
 160 voice_quality_enhancements_opus_max_bandwidth 1 32 0 0 primitive
 160 media_realm_index 0 32 0 0 primitive
-160 media_stun_operation_mode 1 8 0 0 primitive
+160 media_stun_forking_operation_mode 1 8 0 0 primitive
+160 http_streaming 1 8 0 0 primitive
+160 evs_tx_bit_rate 1 16 0 0 primitive
 160 evs_fec_offset 1 8 0 0 primitive
 160 evs_build_cmr 1 8 0 0 primitive
-160 evs_tx_bit_rate 1 16 0 0 primitive
+160 unused_alignment 1 16 0 0 primitive
+160 tls_context 0 32 0 0 primitive
 162 cid 0 32 0 0 primitive
 162 serial_id 0 32 0 0 primitive
 162 dial_string 0 8 64 0 primitive
@@ -13036,10 +13045,10 @@ FirmwareModule HA_MODULE_BOUNDARY 29
 246 signaling_system 0 32 0 0 IBSType
 246 tone_reserved 0 8 16 0 primitive
 246 num_of_components 0 32 0 0 primitive
-246 frequency 0 32 0 0 primitive
-246 tone_component_reserved 0 8 16 0 primitive
-246 component_1_frequency 0 32 0 0 primitive
-246 component_1_tone_component_reserved 0 8 16 0 primitive
+246 frequency_0 0 32 0 0 primitive
+246 tone_component_reserved_0 0 8 16 0 primitive
+246 frequency_1 0 32 0 0 primitive
+246 tone_component_reserved_1 0 8 16 0 primitive
 247 channel_id 0 32 0 0 primitive
 248 channel_id 0 32 0 0 primitive
 248 measurement_mode 0 32 0 0 TrunkTestingFskMeasurementMode
@@ -13643,10 +13652,13 @@ FirmwareModule HA_MODULE_BOUNDARY 29
 2 mpe_handle 1 16 0 0 primitive
 2 voice_quality_enhancements_opus_max_bandwidth 1 32 0 0 primitive
 2 media_realm_index 0 32 0 0 primitive
-2 media_stun_operation_mode 1 8 0 0 primitive
+2 media_stun_forking_operation_mode 1 8 0 0 primitive
+2 http_streaming 1 8 0 0 primitive
+2 evs_tx_bit_rate 1 16 0 0 primitive
 2 evs_fec_offset 1 8 0 0 primitive
 2 evs_build_cmr 1 8 0 0 primitive
-2 evs_tx_bit_rate 1 16 0 0 primitive
+2 unused_alignment 1 16 0 0 primitive
+2 tls_context 0 32 0 0 primitive
 2 rtp_authentication_algorithm 1 8 0 0 primitive
 2 rtp_encryption_algorithm 1 8 0 0 primitive
 2 rtcp_authentication_algorithm 1 8 0 0 primitive
@@ -14001,10 +14013,13 @@ FirmwareModule HA_MODULE_BOUNDARY 29
 8 mpe_handle 1 16 0 0 primitive
 8 voice_quality_enhancements_opus_max_bandwidth 1 32 0 0 primitive
 8 media_realm_index 0 32 0 0 primitive
-8 media_stun_operation_mode 1 8 0 0 primitive
+8 media_stun_forking_operation_mode 1 8 0 0 primitive
+8 http_streaming 1 8 0 0 primitive
+8 evs_tx_bit_rate 1 16 0 0 primitive
 8 evs_fec_offset 1 8 0 0 primitive
 8 evs_build_cmr 1 8 0 0 primitive
-8 evs_tx_bit_rate 1 16 0 0 primitive
+8 unused_alignment 1 16 0 0 primitive
+8 tls_context 0 32 0 0 primitive
 8 rtp_authentication_algorithm 1 8 0 0 primitive
 8 rtp_encryption_algorithm 1 8 0 0 primitive
 8 rtcp_authentication_algorithm 1 8 0 0 primitive
@@ -14545,10 +14560,13 @@ FirmwareModule HA_MODULE_BOUNDARY 29
 1611 dummy1 1 8 0 0 primitive
 1611 mpe_handle 1 16 0 0 primitive
 1611 media_realm_index 0 32 0 0 primitive
-1611 media_stun_operation_mode 1 8 0 0 primitive
+1611 media_stun_forking_operation_mode 1 8 0 0 primitive
+1611 http_streaming 1 8 0 0 primitive
+1611 evs_tx_bit_rate 1 16 0 0 primitive
 1611 evs_fec_offset 1 8 0 0 primitive
 1611 evs_build_cmr 1 8 0 0 primitive
-1611 evs_tx_bit_rate 1 16 0 0 primitive
+1611 unused_alignment 1 16 0 0 primitive
+1611 tls_context 0 32 0 0 primitive
 1611 local_port 1 16 0 0 primitive
 1611 remote_rtp_port 1 16 0 0 primitive
 1611 remote_t38_port 1 16 0 0 primitive
@@ -14722,10 +14740,13 @@ FirmwareModule HA_MODULE_BOUNDARY 29
 1611 open_sbc_channel_dummy1 1 8 0 0 primitive
 1611 open_sbc_channel_mpe_handle 1 16 0 0 primitive
 1611 open_sbc_channel_media_realm_index 0 32 0 0 primitive
-1611 open_sbc_channel_media_stun_operation_mode 1 8 0 0 primitive
+1611 open_sbc_channel_media_stun_forking_operation_mode 1 8 0 0 primitive
+1611 open_sbc_channel_http_streaming 1 8 0 0 primitive
+1611 open_sbc_channel_evs_tx_bit_rate 1 16 0 0 primitive
 1611 open_sbc_channel_evs_fec_offset 1 8 0 0 primitive
 1611 open_sbc_channel_evs_build_cmr 1 8 0 0 primitive
-1611 open_sbc_channel_evs_tx_bit_rate 1 16 0 0 primitive
+1611 open_sbc_channel_unused_alignment 1 16 0 0 primitive
+1611 open_sbc_channel_tls_context 0 32 0 0 primitive
 1611 activate_sbc_channel_local_port 1 16 0 0 primitive
 1611 activate_sbc_channel_remote_rtp_port 1 16 0 0 primitive
 1611 activate_sbc_channel_remote_t38_port 1 16 0 0 primitive
