@@ -1707,6 +1707,11 @@ static const value_string featureextack_feature_names[] = {
     {0, "Reserved"},
     {1, "SessionRecovery"},
     {2, "FedAuth"},
+    {4, "ColumnEncryption"},
+    {5, "GlobalTransactions"},
+    {8, "AzureSQLSupport"},
+    {9, "DataClassification"},
+    {10, "UTF8Support"},
     {255, "Terminator"},
     {0, NULL}
 };
