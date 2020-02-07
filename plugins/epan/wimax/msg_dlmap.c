@@ -593,6 +593,7 @@ static int hf_dlmap_reduced_aas_spid = -1;
 static expert_field ei_dlmap_not_implemented = EI_INIT;
 static expert_field ei_crc16 = EI_INIT;
 static expert_field ei_mac_header_compress_dlmap_crc = EI_INIT;
+static expert_field ei_mac_header_invalid_length = EI_INIT;
 
 /* Copied and renamed from proto.c because global value_strings don't work for plugins */
 static const value_string plugin_proto_checksum_vals[] = {
@@ -2383,7 +2384,12 @@ gint wimax_decode_dlmapc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *base_tre
 
 	/* CRC is always appended */
 	/* check the length */
-	if (MIN(tvb_len, tvb_reported_length(tvb)) >= mac_len)
+	if (mac_len <= sizeof(mac_crc))
+	{
+		expert_add_info_format(pinfo, ti, &ei_mac_header_invalid_length,
+		"Invalid length: %d.", mac_len);
+	}
+	else if (MIN(tvb_len, tvb_reported_length(tvb)) >= mac_len)
 	{
 		/* calculate the CRC */
 		calculated_crc = wimax_mac_calc_crc32(tvb_get_ptr(tvb, 0, mac_len - (int)sizeof(mac_crc)), mac_len - (int)sizeof(mac_crc));
@@ -3436,6 +3442,7 @@ void proto_register_mac_mgmt_msg_dlmap(void)
 		{ &ei_dlmap_not_implemented, { "wmx.dlmap.not_implemented", PI_UNDECODED, PI_WARN, "Not implemented", EXPFILL }},
 		{ &ei_crc16, { "wmx.dlmap.bad_checksum", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
 		{ &ei_mac_header_compress_dlmap_crc, { "wmx.compress_dlmap.bad_checksum", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
+		{ &ei_mac_header_invalid_length, { "wmx.compress_dlmap.invalid_length", PI_MALFORMED, PI_ERROR, "Invalid length", EXPFILL }},
 	};
 
 	expert_module_t* expert_mac_mgmt_msg_dlmap;
