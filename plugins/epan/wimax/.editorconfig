@@ -1,0 +1,10 @@
+#
+# Editor configuration
+#
+# https://editorconfig.org/
+#
+
+[msg_dlmap.[ch]]
+indent_style = tab
+indent_size = tab
+
