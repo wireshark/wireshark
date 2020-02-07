@@ -51,10 +51,12 @@ typedef struct tpncp_data_field_info
 {
     gchar *tpncp_data_field_name;
     gint   tpncp_data_field_descr;
+    gint   tpncp_ipv6_data_field_descr;
     gint   tpncp_data_field_sign;
     gint   tpncp_data_field_size;
     gint   tpncp_data_field_array_dim;
     gint   tpncp_data_field_is_ip_addr;
+    gint   tpncp_data_field_is_address_family;
     struct tpncp_data_field_info *p_next;
 } tpncp_data_field_info;
 
@@ -110,6 +112,11 @@ static gboolean db_initialized = FALSE;
 
 /*---------------------------------------------------------------------------*/
 
+enum AddressFamily {
+    TPNCP_IPV4 = 2,
+    TPNCP_IPV6 = 28
+};
+
 static void
 dissect_tpncp_data(guint data_id, packet_info *pinfo, tvbuff_t *tvb, proto_tree *ltree,
                    gint *offset, tpncp_data_field_info *data_fields_info, guint encoding)
@@ -119,6 +126,7 @@ dissect_tpncp_data(guint data_id, packet_info *pinfo, tvbuff_t *tvb, proto_tree 
     gint g_str_len, counter, bitshift, bitmask;
     tpncp_data_field_info *current_tpncp_data_field_info = NULL;
     gint bitindex = encoding == ENC_LITTLE_ENDIAN ? 7 : 0;
+    enum AddressFamily address_family = TPNCP_IPV4;
 
     current_tpncp_data_field_info = &data_fields_info[data_id];
 
@@ -173,7 +181,21 @@ dissect_tpncp_data(guint data_id, packet_info *pinfo, tvbuff_t *tvb, proto_tree 
         case 32:
             proto_tree_add_item(ltree, current_tpncp_data_field_info->tpncp_data_field_descr,
                                 tvb, *offset, 4, encoding);
+            if (current_tpncp_data_field_info->tpncp_data_field_is_address_family)
+                address_family = (enum AddressFamily)tvb_get_guint32(tvb, *offset, encoding);
             (*offset) += 4;
+            break;
+        case 128:
+            if (current_tpncp_data_field_info->tpncp_data_field_is_ip_addr) {
+                if (address_family == TPNCP_IPV6) {
+                    proto_tree_add_item(ltree, current_tpncp_data_field_info->tpncp_ipv6_data_field_descr,
+                                        tvb, *offset, 16, encoding);
+                } else {
+                    proto_tree_add_item(ltree, current_tpncp_data_field_info->tpncp_data_field_descr,
+                                        tvb, *offset, 4, encoding);
+                }
+            }
+            (*offset) += 16;
             break;
         default:
             break;
@@ -414,6 +436,21 @@ get_enum_name_val(const gchar *enum_name)
 
 /*---------------------------------------------------------------------------*/
 
+static gboolean add_hf(hf_register_info *hf_entr)
+{
+    if (hf_size > hf_allocated) {
+        void *newbuf;
+        hf_allocated += 1024;
+        newbuf = wmem_realloc(wmem_epan_scope(), hf, hf_allocated * sizeof (hf_register_info));
+        if (!newbuf)
+            return FALSE;
+        hf = (hf_register_info *) newbuf;
+    }
+    memcpy(hf + hf_size - 1, hf_entr, sizeof (hf_register_info));
+    hf_size++;
+    return TRUE;
+}
+
 static gint
 init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info, FILE *file)
 {
@@ -422,7 +459,7 @@ init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info, FILE *file)
     gchar entry_copy[MAX_TPNCP_DB_ENTRY_LEN];
     const gchar *tpncp_data_field_name = NULL, *tmp = NULL;
     gint enum_val, data_id, current_data_id = -1, tpncp_data_field_sign, tpncp_data_field_size,
-         tpncp_data_field_array_dim, tpncp_data_field_is_ip_addr;
+         tpncp_data_field_array_dim, tpncp_data_field_is_ip_addr, tpncp_data_field_is_address_family;
     guint idx;
     tpncp_data_field_info *current_tpncp_data_field_info = NULL;
     hf_register_info hf_entr;
@@ -616,6 +653,7 @@ init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info, FILE *file)
             continue;
         }
 
+        tpncp_data_field_is_address_family = FALSE;
         if (current_data_id != data_id) { /* new data */
             if (registered_struct_ids[data_id] == TRUE) {
                 report_failure(
@@ -638,14 +676,18 @@ init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info, FILE *file)
         /* Register specific fields of hf_register_info struture. */
         if (strcmp(tmp, "primitive")) {
             enum_val = get_enum_name_val(tmp);
-            if (enum_val == -1)
+            if (enum_val == -1) {
                 hf_entr.hfinfo.strings = NULL;
-            else
+            } else {
                 hf_entr.hfinfo.strings = VALS(tpncp_enums_id_vals[enum_val]);
+                if (!strcmp(tmp, "AddressFamily"))
+                    tpncp_data_field_is_address_family = TRUE;
+            }
         } else {
             hf_entr.hfinfo.strings = NULL;
         }
         current_tpncp_data_field_info->tpncp_data_field_descr = -1;
+        current_tpncp_data_field_info->tpncp_ipv6_data_field_descr = -1;
         hf_entr.p_id = &current_tpncp_data_field_info->tpncp_data_field_descr;
         current_tpncp_data_field_info->tpncp_data_field_name =
                 wmem_strdup_printf(wmem_epan_scope(), "tpncp.%s", tpncp_data_field_name);
@@ -672,25 +714,28 @@ init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info, FILE *file)
                 hf_entr.hfinfo.type = (tpncp_data_field_sign) ? FT_UINT32 : FT_INT32;
             }
             break;
+        case 128:
+            if (tpncp_data_field_is_ip_addr) {
+                hf_entr.hfinfo.display = BASE_NONE;
+                hf_entr.hfinfo.type = FT_IPv4;
+                if (!add_hf(&hf_entr))
+                    return -1;
+                hf_entr.p_id = &current_tpncp_data_field_info->tpncp_ipv6_data_field_descr;
+                hf_entr.hfinfo.type = FT_IPv6;
+            }
+            break;
         default:
             break;
         }
 
         /* Register initialized hf_register_info in global database. */
-        if (hf_size > hf_allocated) {
-            void *newbuf;
-            hf_allocated += 1024;
-            newbuf = wmem_realloc(wmem_epan_scope(), hf, hf_allocated * sizeof (hf_register_info));
-            if (!newbuf)
-                return -1;
-            hf = (hf_register_info *) newbuf;
-        }
-        memcpy(hf + hf_size - 1, &hf_entr, sizeof (hf_register_info));
-        hf_size++;
+        if (!add_hf(&hf_entr))
+            return -1;
         current_tpncp_data_field_info->tpncp_data_field_sign = tpncp_data_field_sign;
         current_tpncp_data_field_info->tpncp_data_field_size = tpncp_data_field_size;
         current_tpncp_data_field_info->tpncp_data_field_array_dim = tpncp_data_field_array_dim;
         current_tpncp_data_field_info->tpncp_data_field_is_ip_addr = tpncp_data_field_is_ip_addr;
+        current_tpncp_data_field_info->tpncp_data_field_is_address_family = tpncp_data_field_is_address_family;
     }
 
     return 0;
