@@ -201,7 +201,7 @@ static int dissect_zep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
             proto_item_append_text(proto_root, ", Channel: %u, Length: %u", channel_id, ieee_packet_len);
             proto_tree_add_item(zep_tree, hf_zep_device_id, tvb, 5, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item_ret_boolean(zep_tree, hf_zep_lqi_mode, tvb, 7, 1, ENC_NA, &lqi_mode);
-            if (lqi_mode != 0) {
+            if (lqi_mode == 0) {
                 proto_tree_add_item(zep_tree, hf_zep_lqi, tvb, 8, 1, ENC_NA);
             }
             proto_tree_add_item(zep_tree, hf_zep_timestamp, tvb, 9, 8, ENC_BIG_ENDIAN|ENC_TIME_NTP);
