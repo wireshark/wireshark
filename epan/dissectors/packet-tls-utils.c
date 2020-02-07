@@ -831,7 +831,10 @@ static const value_string ssl_31_ciphersuite[] = {
     { 0x00C3, "TLS_DHE_DSS_WITH_CAMELLIA_256_CBC_SHA256" },
     { 0x00C4, "TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA256" },
     { 0x00C5, "TLS_DH_anon_WITH_CAMELLIA_256_CBC_SHA256" },
-    /* 0x00,0xC6-FE Unassigned  */
+    /* draft-yang-tls-tls13-sm-suites */
+    { 0x00C6, "TLS_SM4_GCM_SM3" },
+    { 0x00C7, "TLS_SM4_CCM_SM3" },
+    /* 0x00,0xC8-FE Unassigned */
     /* From RFC 5746 */
     { 0x00FF, "TLS_EMPTY_RENEGOTIATION_INFO_SCSV" },
     /* https://tools.ietf.org/html/draft-ietf-tls-grease */
@@ -1040,12 +1043,25 @@ static const value_string ssl_31_ciphersuite[] = {
     { 0xC0AD, "TLS_ECDHE_ECDSA_WITH_AES_256_CCM" },
     { 0xC0AE, "TLS_ECDHE_ECDSA_WITH_AES_128_CCM_8" },
     { 0xC0AF, "TLS_ECDHE_ECDSA_WITH_AES_256_CCM_8" },
+    /* RFC8492 */
+    { 0xC0B0, "TLS_ECCPWD_WITH_AES_128_GCM_SHA256" },
+    { 0xC0B1, "TLS_ECCPWD_WITH_AES_256_GCM_SHA384" },
+    { 0xC0B2, "TLS_ECCPWD_WITH_AES_128_CCM_SHA256" },
+    { 0xC0B3, "TLS_ECCPWD_WITH_AES_256_CCM_SHA384" },
+    /* draft-camwinget-tls-ts13-macciphersuites */
+    { 0xC0B4, "TLS_SHA256_SHA256" },
+    { 0xC0B5, "TLS_SHA384_SHA384" },
     /* https://www.ietf.org/archive/id/draft-cragie-tls-ecjpake-01.txt */
     { 0xC0FF, "TLS_ECJPAKE_WITH_AES_128_CCM_8" },
     /* draft-smyshlyaev-tls12-gost-suites */
     { 0xC100, "TLS_GOSTR341112_256_WITH_KUZNYECHIK_CTR_OMAC" },
     { 0xC101, "TLS_GOSTR341112_256_WITH_MAGMA_CTR_OMAC" },
     { 0xC102, "TLS_GOSTR341112_256_WITH_28147_CNT_IMIT" },
+    /* draft-smyshlyaev-tls13-gost-suites */
+    { 0xC103, "TLS_GOSTR341112_256_WITH_KUZNYECHIK_MGM_L" },
+    { 0xC104, "TLS_GOSTR341112_256_WITH_MAGMA_MGM_L" },
+    { 0xC105, "TLS_GOSTR341112_256_WITH_KUZNYECHIK_MGM_S" },
+    { 0xC106, "TLS_GOSTR341112_256_WITH_MAGMA_MGM_S" },
     /* https://tools.ietf.org/html/draft-ietf-tls-grease */
     { 0xCACA, "Reserved (GREASE)" },
 /*
@@ -1100,7 +1116,7 @@ static const value_string ssl_31_ciphersuite[] = {
     { 0xfefe, "SSL_RSA_FIPS_WITH_DES_CBC_SHA"},
     { 0xfeff, "SSL_RSA_FIPS_WITH_3DES_EDE_CBC_SHA" },
     { 0xffe0, "SSL_RSA_FIPS_WITH_3DES_EDE_CBC_SHA" },
-    { 0xffe1, "SSL_RSA_FIPS_WITH_DES_CBC_SHA"},
+    { 0xffe1, "SSL_RSA_FIPS_WITH_DES_CBC_SHA" },
     /* note that ciphersuites 0xff00 - 0xffff are private */
     { 0x00, NULL }
 };
