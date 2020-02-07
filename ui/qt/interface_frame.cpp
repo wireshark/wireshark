@@ -46,8 +46,8 @@
 
 #ifdef HAVE_LIBPCAP
 const int stat_update_interval_ = 1000; // ms
-const char *no_capture_link = "#no_capture";
 #endif
+const char *no_capture_link = "#no_capture";
 
 InterfaceFrame::InterfaceFrame(QWidget * parent)
 : QFrame(parent),
