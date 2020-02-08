@@ -142,6 +142,7 @@ int ieee80211_radiotap_iterator_init(
 	iterator->_vns = vns;
 	iterator->current_namespace = &radiotap_ns;
 	iterator->is_radiotap_ns = 1;
+	iterator->tlv_mode = 0;
 #ifdef RADIOTAP_SUPPORT_OVERRIDES
 	iterator->n_overrides = 0;
 	iterator->overrides = NULL;
@@ -163,6 +164,13 @@ int ieee80211_radiotap_iterator_init(
 			 */
 			/* XXX - we should report an expert info here */
 			if (!ITERATOR_VALID(iterator, sizeof(guint32)))
+				return -EINVAL;
+
+			/* XXX - we should report an expert info here */
+			if ((get_unaligned_le32(iterator->_arg) &
+					(1U << IEEE80211_RADIOTAP_TLVS)) &&
+			    (get_unaligned_le32(iterator->_arg) &
+					(1U << IEEE80211_RADIOTAP_EXT)))
 				return -EINVAL;
 		}
 
@@ -253,6 +261,46 @@ static int find_override(struct ieee80211_radiotap_iterator *iterator,
 int ieee80211_radiotap_iterator_next(
 	struct ieee80211_radiotap_iterator *iterator)
 {
+	if (iterator->tlv_mode) {
+		struct ieee80211_radiotap_tlv *tlv;
+		guint32 size;
+
+#define TLV_LEN_ALIGN(x) ((x + 3) & ~3)
+		size = sizeof(*tlv) + TLV_LEN_ALIGN(iterator->this_arg_size);
+
+		/*
+		 * We know that without the alignment padding it was valid, so
+		 * ignore arbitrary padding and return that we finished if no
+		 * further TLV could fit.
+		 */
+		if (!ITERATOR_VALID(iterator, size))
+			return -ENOENT;
+
+		/* move to next entry */
+		iterator->_arg += sizeof(*tlv) + TLV_LEN_ALIGN(iterator->this_arg_size);
+
+return_tlv:
+		/* and check again if we reached the end */
+		if (!ITERATOR_VALID(iterator, 1))
+			return -ENOENT;
+
+		/* if it's not the end but a new TLV won't fit - error out */
+		if (!ITERATOR_VALID(iterator, sizeof(*tlv)))
+			return -EINVAL;
+
+		tlv = (struct ieee80211_radiotap_tlv *)iterator->_arg;
+
+		iterator->this_arg_index = get_unaligned_le16(&tlv->type);
+		iterator->this_arg_size = get_unaligned_le16(&tlv->datalen);
+		iterator->this_arg = tlv->data;
+		iterator->is_radiotap_ns =
+			iterator->this_arg_index != IEEE80211_RADIOTAP_VENDOR_NAMESPACE;
+
+		if (!ITERATOR_VALID(iterator, sizeof(*tlv) + iterator->this_arg_size))
+			return -EINVAL;
+		return 0;
+	}
+
 	while (1) {
 		int hit = 0;
 		int pad, align, size, subns;
@@ -268,6 +316,10 @@ int ieee80211_radiotap_iterator_next(
 
 		/* get alignment/size of data */
 		switch (iterator->_arg_index % 32) {
+		case IEEE80211_RADIOTAP_TLVS:
+			align = 4;
+			size = 0;
+			break;
 		case IEEE80211_RADIOTAP_RADIOTAP_NAMESPACE:
 		case IEEE80211_RADIOTAP_EXT:
 			align = 1;
@@ -344,6 +396,9 @@ int ieee80211_radiotap_iterator_next(
 			iterator->_next_ns_data = iterator->_arg + size + vnslen;
 			if (!iterator->current_namespace)
 				size += vnslen;
+		} else if (iterator->_arg_index % 32 == IEEE80211_RADIOTAP_TLVS) {
+			iterator->tlv_mode = 1;
+			goto return_tlv;
 		}
 
 		/*

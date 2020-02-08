@@ -68,8 +68,8 @@ struct ieee80211_radiotap_iterator {
 										ieee80211_radiotap_iterator_next() */
 	int this_arg_size;							/**< length of the current arg, for convenience*/
 
-	int is_radiotap_ns;							/**< indicates whether the current namespace is the default radiotap
-										namespace or not*/
+	int is_radiotap_ns;
+	int tlv_mode;
 
 	int _max_length;							/**< length of radiotap header in cpu byte ordering */
 	int _arg_index;								/**< next argument index */
