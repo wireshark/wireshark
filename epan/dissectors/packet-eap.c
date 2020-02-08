@@ -182,6 +182,7 @@ static const value_string eap_type_vals[] = {
     {  51,         "Generalized Pre-Shared Key EAP (EAP-GPSK)" },
     {  52,         "Password EAP (EAP-pwd)" },
     {  53,         "Encrypted Key Exchange v1 EAP (EAP-EKEv1)" },
+    {  55,         "Tunneled EAP protocol" },
     { 254,         "Expanded Type" },
     { 255,         "Experimental" },
     { 0,           NULL }
@@ -963,6 +964,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
       case EAP_TYPE_PEAP:
       case EAP_TYPE_TTLS:
       case EAP_TYPE_TLS:
+      case EAP_TYPE_TEAP:
       {
         guint8   flags            = tvb_get_guint8(tvb, offset);
         gboolean more_fragments;
@@ -993,7 +995,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         proto_tree_add_item(eap_tls_flags_tree, hf_eap_tls_flag_s, tvb, offset, 1, ENC_BIG_ENDIAN);
 
         if ((eap_type == EAP_TYPE_PEAP) || (eap_type == EAP_TYPE_TTLS) ||
-            (eap_type == EAP_TYPE_FAST)) {
+            (eap_type == EAP_TYPE_FAST) || (eap_type == EAP_TYPE_TEAP)) {
           proto_tree_add_item(eap_tls_flags_tree, hf_eap_tls_flags_version, tvb, offset, 1, ENC_BIG_ENDIAN);
         }
         size   -= 1;
