@@ -242,6 +242,7 @@ BuildRequires:	libQt5PrintSupport-devel
 Requires:	libQt5PrintSupport5
 BuildRequires:	libqt5-qtmultimedia-devel
 Requires:	libQt5Multimedia5
+BuildRequires:	libqt5-linguist-devel
 # Need this for SUSE's suse_update_desktop_file macro
 BuildRequires:	update-desktop-files
 %else
@@ -250,6 +251,7 @@ Requires:	qt5-qtbase
 Requires:	qt5-qtbase-gui
 BuildRequires:	qt5-qtmultimedia-devel
 Requires:	qt5-qtmultimedia
+BuildRequires:	qt5-linguist
 %endif
 Requires:	xdg-utils
 Requires:	hicolor-icon-theme

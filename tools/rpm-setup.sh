@@ -143,23 +143,18 @@ echo "zlib is unavailable" >&2
 add_package BASIC_LIST c-ares-devel || add_package BASIC_LIST libcares-devel ||
 echo "libcares-devel is unavailable" >&2
 
-add_package BASIC_LIST qt-devel ||
-echo "Qt5 devel is unavailable" >&2
-
-add_package BASIC_LIST qt5-qtbase-devel ||
-echo "Qt5 base devel is unavailable" >&2
-
-add_package BASIC_LIST qt5-linguist || add_package BASIC_LIST libqt5-linguist-devel ||
+# qt5-linguist: CentOS, Fedora
+# libqt5-linguist-devel: OpenSUSE
+add_package BASIC_LIST qt5-linguist ||
+add_package BASIC_LIST libqt5-linguist-devel ||
 echo "Qt5 linguist is unavailable" >&2
 
-add_package BASIC_LIST qt5-qtsvg-devel || add_package BASIC_LIST libqt5-qtsvg-devel ||
-echo "Qt5 svg is unavailable" >&2
-
-add_package BASIC_LIST qt5-qtmultimedia-devel || add_package BASIC_LIST libqt5-qtmultimedia-devel ||
-echo "Qt5 multimedia is unavailable" >&2
-
-add_package BASIC_LIST libQt5PrintSupport-devel ||
-echo "Qt5 print support is unavailable" >&2
+# qt5-qtmultimedia: CentOS, Fedora, pulls in qt5-qtbase-devel (big dependency list!)
+# libqt5-qtmultimedia-devel: OpenSUSE, pulls in Core, Gui, Multimedia, Network, Widgets
+# OpenSUSE additionally has a separate Qt5PrintSupport package.
+add_package BASIC_LIST qt5-qtmultimedia-devel ||
+add_packages BASIC_LIST libqt5-qtmultimedia-devel libQt5PrintSupport-devel ||
+echo "Qt5 is unavailable" >&2
 
 # This in only required (and available) on OpenSUSE
 add_package BASIC_LIST update-desktop-files ||
