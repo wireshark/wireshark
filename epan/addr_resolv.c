@@ -205,20 +205,9 @@ static wmem_map_t *ipv6_hash_table = NULL;
 static wmem_map_t *vlan_hash_table = NULL;
 static wmem_map_t *ss7pc_hash_table = NULL;
 
-static wmem_list_t *manually_resolved_ipv4_list = NULL;
-static wmem_list_t *manually_resolved_ipv6_list = NULL;
-
-typedef struct _resolved_ipv4
-{
-    guint32          host_addr;
-    char             name[MAXNAMELEN];
-} resolved_ipv4_t;
-
-typedef struct _resolved_ipv6
-{
-    ws_in6_addr  ip6_addr;
-    char               name[MAXNAMELEN];
-} resolved_ipv6_t;
+// Maps IP address -> manually set hostname.
+static wmem_map_t *manually_resolved_ipv4_list = NULL;
+static wmem_map_t *manually_resolved_ipv6_list = NULL;
 
 static addrinfo_lists_t addrinfo_lists = { NULL, NULL};
 
@@ -2325,8 +2314,7 @@ add_ip_name_from_string (const char *addr, const char *name)
         ws_in6_addr ip6_addr;
     } host_addr;
     gboolean is_ipv6;
-    resolved_ipv4_t *resolved_ipv4_entry;
-    resolved_ipv6_t *resolved_ipv6_entry;
+    resolved_name_t *resolved_entry;
 
     if (ws_inet_pton6(addr, &host_addr.ip6_addr)) {
         is_ipv6 = TRUE;
@@ -2337,19 +2325,58 @@ add_ip_name_from_string (const char *addr, const char *name)
     }
 
     if (is_ipv6) {
-        resolved_ipv6_entry = wmem_new(wmem_epan_scope(), resolved_ipv6_t);
-        memcpy(&(resolved_ipv6_entry->ip6_addr), &host_addr.ip6_addr, 16);
-        g_strlcpy(resolved_ipv6_entry->name, name, MAXNAMELEN);
-        wmem_list_prepend(manually_resolved_ipv6_list, resolved_ipv6_entry);
+        resolved_entry = (resolved_name_t*)wmem_map_lookup(manually_resolved_ipv6_list, &host_addr.ip6_addr);
+        if (resolved_entry)
+        {
+            // If we found a previous matching key (IP address), then just update the value (custom hostname);
+            g_strlcpy(resolved_entry->name, name, MAXNAMELEN);
+        }
+        else
+        {
+            // Add a new mapping entry, if this IP address isn't already in the list.
+            ws_in6_addr* addr_key = wmem_new(wmem_epan_scope(), ws_in6_addr);
+            memcpy(addr_key, &host_addr.ip6_addr, sizeof(ws_in6_addr));
+
+            resolved_entry = wmem_new(wmem_epan_scope(), resolved_name_t);
+            g_strlcpy(resolved_entry->name, name, MAXNAMELEN);
+
+            wmem_map_insert(manually_resolved_ipv6_list, addr_key, resolved_entry);
+        }
     } else {
-        resolved_ipv4_entry = wmem_new(wmem_epan_scope(), resolved_ipv4_t);
-        resolved_ipv4_entry->host_addr = host_addr.ip4_addr;
-        g_strlcpy(resolved_ipv4_entry->name, name, MAXNAMELEN);
-        wmem_list_prepend(manually_resolved_ipv4_list, resolved_ipv4_entry);
+        resolved_entry = (resolved_name_t*)wmem_map_lookup(manually_resolved_ipv4_list, GUINT_TO_POINTER(host_addr.ip4_addr));
+        if (resolved_entry)
+        {
+            // If we found a previous matching key (IP address), then just update the value (custom hostname);
+            g_strlcpy(resolved_entry->name, name, MAXNAMELEN);
+        }
+        else
+        {
+            // Add a new mapping entry, if this IP address isn't already in the list.
+            resolved_entry = wmem_new(wmem_epan_scope(), resolved_name_t);
+            g_strlcpy(resolved_entry->name, name, MAXNAMELEN);
+
+            wmem_map_insert(manually_resolved_ipv4_list, GUINT_TO_POINTER(host_addr.ip4_addr), resolved_entry);
+        }
     }
 
     return TRUE;
 } /* add_ip_name_from_string */
+
+extern resolved_name_t* get_edited_resolved_name(const char* addr)
+{
+    guint32 ip4_addr;
+    ws_in6_addr ip6_addr;
+    resolved_name_t* resolved_entry = NULL;
+
+    if (ws_inet_pton6(addr, &ip6_addr)) {
+        resolved_entry = (resolved_name_t*)wmem_map_lookup(manually_resolved_ipv6_list, &ip6_addr);
+    }
+    else if (ws_inet_pton4(addr, &ip4_addr)) {
+        resolved_entry = (resolved_name_t*)wmem_map_lookup(manually_resolved_ipv4_list, GUINT_TO_POINTER(ip4_addr));
+    }
+
+    return resolved_entry;
+}
 
 /*
  * Add the resolved addresses that are in use to the list used to create the NRB
@@ -3008,30 +3035,28 @@ add_ipv6_name(const ws_in6_addr *addrp, const gchar *name)
 } /* add_ipv6_name */
 
 static void
-add_manually_resolved_ipv4(gpointer data, gpointer user_data _U_)
+add_manually_resolved_ipv4(gpointer key, gpointer value, gpointer user_data _U_)
 {
-    resolved_ipv4_t *resolved_ipv4_entry = (resolved_ipv4_t *)data;
-
-    add_ipv4_name(resolved_ipv4_entry->host_addr, resolved_ipv4_entry->name);
+    resolved_name_t *resolved_ipv4_entry = (resolved_name_t*)value;
+    add_ipv4_name(GPOINTER_TO_UINT(key), resolved_ipv4_entry->name);
 }
 
 static void
-add_manually_resolved_ipv6(gpointer data, gpointer user_data _U_)
+add_manually_resolved_ipv6(gpointer key, gpointer value, gpointer user_data _U_)
 {
-    resolved_ipv6_t *resolved_ipv6_entry = (resolved_ipv6_t *)data;
-
-    add_ipv6_name(&(resolved_ipv6_entry->ip6_addr), resolved_ipv6_entry->name);
+    resolved_name_t *resolved_ipv6_entry = (resolved_name_t*)value;
+    add_ipv6_name((ws_in6_addr*)key, resolved_ipv6_entry->name);
 }
 
 static void
 add_manually_resolved(void)
 {
     if (manually_resolved_ipv4_list) {
-        wmem_list_foreach(manually_resolved_ipv4_list, add_manually_resolved_ipv4, NULL);
+        wmem_map_foreach(manually_resolved_ipv4_list, add_manually_resolved_ipv4, NULL);
     }
 
     if (manually_resolved_ipv6_list) {
-        wmem_list_foreach(manually_resolved_ipv6_list, add_manually_resolved_ipv6, NULL);
+        wmem_map_foreach(manually_resolved_ipv6_list, add_manually_resolved_ipv6, NULL);
     }
 }
 
@@ -3054,10 +3079,10 @@ host_name_lookup_init(void)
     async_dns_queue_head = wmem_list_new(wmem_epan_scope());
 
     if (manually_resolved_ipv4_list == NULL)
-        manually_resolved_ipv4_list = wmem_list_new(wmem_epan_scope());
+        manually_resolved_ipv4_list = wmem_map_new(wmem_epan_scope(), g_direct_hash, g_direct_equal);
 
     if (manually_resolved_ipv6_list == NULL)
-        manually_resolved_ipv6_list = wmem_list_new(wmem_epan_scope());
+        manually_resolved_ipv6_list = wmem_map_new(wmem_epan_scope(), ipv6_oat_hash, ipv6_equal);
 
     /*
      * Load the global hosts file, if we have one.
@@ -3139,19 +3164,6 @@ void host_name_lookup_reset(void)
     host_name_lookup_init();
     vlan_name_lookup_cleanup();
     initialize_vlans();
-}
-
-void
-manually_resolve_cleanup(void)
-{
-    if (manually_resolved_ipv4_list) {
-        wmem_destroy_list(manually_resolved_ipv4_list);
-        manually_resolved_ipv4_list = NULL;
-    }
-    if (manually_resolved_ipv6_list) {
-        wmem_destroy_list(manually_resolved_ipv6_list);
-        manually_resolved_ipv6_list = NULL;
-    }
 }
 
 gchar *

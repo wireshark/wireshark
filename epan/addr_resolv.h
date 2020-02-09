@@ -76,6 +76,10 @@ typedef struct serv_port {
   gchar            *numeric;
 } serv_port_t;
 
+typedef struct _resolved_name {
+    char             name[MAXNAMELEN];
+} resolved_name_t;
+
 /*
  * Flags for various IPv4/IPv6 hash table entries.
  */
@@ -286,6 +290,9 @@ WS_DLL_PUBLIC gboolean add_hosts_file (const char *hosts_file);
 /* adds a hostname in the hash table */
 WS_DLL_PUBLIC gboolean add_ip_name_from_string (const char *addr, const char *name);
 
+/* Get the user defined name, for a given address */
+WS_DLL_PUBLIC resolved_name_t* get_edited_resolved_name(const char* addr);
+
 
 /** Get lists of host name to address mappings we know about.
  *
@@ -374,9 +381,6 @@ void addr_resolv_init(void);
 
 WS_DLL_LOCAL
 void addr_resolv_cleanup(void);
-
-WS_DLL_PUBLIC
-void manually_resolve_cleanup(void);
 
 WS_DLL_PUBLIC
 gboolean str_to_ip(const char *str, void *dst);

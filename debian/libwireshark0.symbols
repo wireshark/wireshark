@@ -786,6 +786,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  get_dissector_table_param@Base 1.99.2
  get_dissector_table_selector_type@Base 1.9.1
  get_dissector_table_ui_name@Base 1.9.1
+ get_edited_resolved_name@Base 3.3.0
  get_eo_by_name@Base 2.3.0
  get_eo_packet_func@Base 2.3.0
  get_eo_proto_id@Base 2.3.0
@@ -931,7 +932,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  list_stat_cmd_args@Base 1.9.1
  llc_add_oui@Base 1.9.1
  make_printable_string@Base 1.9.1
- manually_resolve_cleanup@Base 1.12.0~rc1
  mark_frame_as_depended_upon@Base 1.9.1
  maxmind_db_get_paths@Base 2.5.1
  maxmind_db_lookup_ipv4@Base 2.5.1

@@ -40,6 +40,7 @@ protected:
     virtual void keyPressEvent(QKeyEvent *event);
 
 private slots:
+    void displayPreviousUserDefinedHostname();
     void updateWidgets();
     void on_nameResolutionPreferencesToolButton_clicked();
     void on_addressComboBox_currentIndexChanged(const QString &);
