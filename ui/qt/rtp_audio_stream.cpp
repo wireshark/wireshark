@@ -51,7 +51,8 @@ RtpAudioStream::RtpAudioStream(QObject *parent, rtpstream_info_t *rtpstream) :
     max_sample_val_(1),
     color_(0),
     jitter_buffer_size_(50),
-    timing_mode_(RtpAudioStream::JitterBuffer)
+    timing_mode_(RtpAudioStream::JitterBuffer),
+    start_play_time_(0)
 {
     rtpstream_id_copy(&rtpstream->id, &id_);
 

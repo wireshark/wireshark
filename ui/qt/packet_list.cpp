@@ -225,6 +225,7 @@ PacketList::PacketList(QWidget *parent) :
     mouse_pressed_at_(QModelIndex()),
     capture_in_progress_(false),
     tail_timer_id_(0),
+    tail_at_end_(0),
     rows_inserted_(false),
     columns_changed_(false),
     set_column_visibility_(false),
