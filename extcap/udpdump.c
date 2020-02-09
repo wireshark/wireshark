@@ -258,7 +258,7 @@ static int dump_packet(const char* proto_name, const guint16 listenport, const c
 {
 	guint8* mbuf;
 	guint offset = 0;
-	time_t curtime = time(NULL);
+	gint64 curtime = g_get_real_time();
 	guint64 bytes_written = 0;
 	int err;
 	int ret = EXIT_SUCCESS;
@@ -276,7 +276,9 @@ static int dump_packet(const char* proto_name, const guint16 listenport, const c
 	memcpy(mbuf + offset, buf, buflen);
 	offset += (guint)buflen;
 
-	if (!libpcap_write_packet(fp, curtime, (guint32)(curtime / 1000), offset, offset, mbuf, &bytes_written, &err)) {
+	if (!libpcap_write_packet(fp,
+			(guint32)(curtime / G_USEC_PER_SEC), (guint32)(curtime % G_USEC_PER_SEC),
+			offset, offset, mbuf, &bytes_written, &err)) {
 		g_warning("Can't write packet: %s", g_strerror(err));
 		ret = EXIT_FAILURE;
 	}

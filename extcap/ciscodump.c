@@ -228,7 +228,7 @@ static void ssh_loop_read(ssh_channel channel, FILE* fp, const guint32 count)
 	unsigned offset = 0;
 	unsigned packet_size = 0;
 	guint8* packet;
-	time_t curtime = time(NULL);
+	gint64 curtime = g_get_real_time();
 	int err;
 	guint64 bytes_written;
 	long unsigned packets = 0;
@@ -254,8 +254,9 @@ static void ssh_loop_read(ssh_channel channel, FILE* fp, const guint32 count)
 
 			if (status == CISCODUMP_PARSER_END_PACKET) {
 				/* dump the packet to the pcap file */
-				if (!libpcap_write_packet(fp, curtime, (guint32)(curtime / 1000), packet_size,
-						packet_size, packet, &bytes_written, &err)) {
+				if (!libpcap_write_packet(fp,
+						(guint32)(curtime / G_USEC_PER_SEC), (guint32)(curtime % G_USEC_PER_SEC),
+						packet_size, packet_size, packet, &bytes_written, &err)) {
 					g_debug("Error in libpcap_write_packet(): %s", g_strerror(err));
 					break;
 				}
