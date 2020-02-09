@@ -5,7 +5,7 @@
 # The format used here is: <NUMERICAL_ID><SPACE><NAME>
 # Where SPACE can be any sequence of spaces and tabs.
 #
-# (last updated 2020-02-01)
+# (last updated 2020-02-07)
 
 0	Reserved
 1	NxNetworks
@@ -41045,7 +41045,7 @@
 41220	PS-IT-Consulting
 41221	IMDIT GmbH
 41222	Jnsys
-41223	ASC-TEC AG
+41223	DCT DELTA AG	# formerly 'ASC-TEC AG'
 41224	MobileVaults, Inc.	# formerly 'CloudVaults, LLC'
 41225	JSC Volga
 41226	Ennetix
@@ -45254,7 +45254,7 @@
 45433	Finivation Software
 45434	Accel Frontline Ltd
 45435	Cyprus University of Technology
-45436	THALES Services Lab DT
+45436	THALES Services MsLabs	# formerly 'THALES Services Lab DT'
 45437	TEOCO Corporation
 45438	AI2M srl
 45439	Esterline Belgium bvba
@@ -52955,7 +52955,7 @@
 53145	Ethos Infotech
 53146	Frachtwerk GmbH
 53147	fortop projects BV
-53148	O-RAN Alliance e.V.	# formerly 'xRAN Forum'
+53148	O-RAN Alliance e.V.
 53149	Wessanen N.V.
 53150	FAR-EASTERN GRIDS COMPANY
 53151	Beijing Zhongchuangwei Nanjing Quantum Communication Technology Co., Ltd.
@@ -55019,3 +55019,34 @@
 55211	dpco
 55212	IT Gesellschaft für Informationstechnik mbH
 55213	KAMPO
+55214	Smile America Partners
+55215	Stadt Kempten
+55216	Rotom Nederland
+55217	Zyston LLC
+55218	Drive and Shine
+55219	Sirona Medical
+55220	Franklin Fastener Co
+55221	Debarry Correa Ltda
+55222	Actindo AG
+55223	TAHOE
+55224	Capgemini CSD
+55225	T24 Competence Centre sp. z o.o. sp. k.
+55226	SAP Ariba
+55227	PLINTRON Mobility Solutions Private Limited
+55228	China Telecom Global Limited
+55229	Information Center, Shanghai Municipal Education Commission
+55230	RIXCAT SIA
+55231	Zwilling J.A.Henckels AG
+55232	BIOCEV
+55233	Stichting De Opbouw
+55234	Payukotayno James and Hudson Bay Family Services
+55235	Jeff Wyler Automotive Family, Inc.
+55236	NETFLOWBROADBAND PVT LTD
+55237	conpal GmbH
+55238	Connecta Sp. z o.o.
+55239	Cryptable BVBA
+55240	Encode
+55241	Alta Rail Technology
+55242	Rick Stroobosscher
+55243	COMPESO GmbH
+55244	Fast Object LLC

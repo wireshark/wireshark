@@ -2305,31 +2305,39 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Mac Address</source>
-        <translation>MAC-адрес</translation>
+        <translation type="vanished">MAC-адрес</translation>
     </message>
     <message>
         <source>Name</source>
         <translation>Имя</translation>
     </message>
     <message>
+        <source>Address</source>
+        <translation type="unfinished">Адрес</translation>
+    </message>
+    <message>
         <source>All entries</source>
         <translation>Все записи</translation>
     </message>
     <message>
+        <source>Hosts</source>
+        <translation type="unfinished">Хосты</translation>
+    </message>
+    <message>
         <source>IPv4 Hosts</source>
-        <translation>Хосты IPv4</translation>
+        <translation type="vanished">Хосты IPv4</translation>
     </message>
     <message>
         <source>IPv4 Hash Table</source>
-        <translation>Хэш-таблица IPv4</translation>
+        <translation type="vanished">Хэш-таблица IPv4</translation>
     </message>
     <message>
         <source>IPv6 Hosts</source>
-        <translation>Хосты IPv6</translation>
+        <translation type="vanished">Хосты IPv6</translation>
     </message>
     <message>
         <source>IPv6 Hash Table</source>
-        <translation>Хэш-таблица IPv6</translation>
+        <translation type="vanished">Хэш-таблица IPv6</translation>
     </message>
     <message>
         <source>Ethernet Addresses</source>

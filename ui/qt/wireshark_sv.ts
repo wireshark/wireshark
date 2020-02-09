@@ -2275,31 +2275,39 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Mac Address</source>
-        <translation>Mac-adress</translation>
+        <translation type="vanished">Mac-adress</translation>
     </message>
     <message>
         <source>Name</source>
         <translation>Namn</translation>
     </message>
     <message>
+        <source>Address</source>
+        <translation type="unfinished">Adress</translation>
+    </message>
+    <message>
         <source>All entries</source>
         <translation>Alla poster</translation>
     </message>
     <message>
+        <source>Hosts</source>
+        <translation type="unfinished">Värdar</translation>
+    </message>
+    <message>
         <source>IPv4 Hosts</source>
-        <translation>IPv4-värdar</translation>
+        <translation type="vanished">IPv4-värdar</translation>
     </message>
     <message>
         <source>IPv4 Hash Table</source>
-        <translation>IPv4-hashtabell</translation>
+        <translation type="vanished">IPv4-hashtabell</translation>
     </message>
     <message>
         <source>IPv6 Hosts</source>
-        <translation>IPv6-värdar</translation>
+        <translation type="vanished">IPv6-värdar</translation>
     </message>
     <message>
         <source>IPv6 Hash Table</source>
-        <translation>IPv6-hashtabell</translation>
+        <translation type="vanished">IPv6-hashtabell</translation>
     </message>
     <message>
         <source>Ethernet Addresses</source>
