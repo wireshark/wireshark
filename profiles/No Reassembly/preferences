@@ -150,6 +150,7 @@ tns.desegment_tns_messages: FALSE
 tpkt.desegment: FALSE
 transum.reassembly: FALSE
 ucp.desegment_ucp_messages: FALSE
+udpcp.attempt_reassembly: FALSE
 ulp.desegment_ulp_messages: FALSE
 uma.desegment_ucp_messages: FALSE
 vnc.desegment: FALSE

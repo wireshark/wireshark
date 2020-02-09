@@ -323,11 +323,11 @@
     </message>
     <message>
         <source>LE ISO MTU</source>
-        <translation type="unfinished"></translation>
+        <translation>LE ISO MTU</translation>
     </message>
     <message>
         <source>LE ISO Total Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>LE ISO Pakete gesamt</translation>
     </message>
     <message>
         <source>Inquiry Mode</source>
@@ -2296,31 +2296,39 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Mac Address</source>
-        <translation>Mac Adresse</translation>
+        <translation type="vanished">Mac Adresse</translation>
     </message>
     <message>
         <source>Name</source>
         <translation>Name</translation>
     </message>
     <message>
+        <source>Address</source>
+        <translation type="unfinished">Adresse</translation>
+    </message>
+    <message>
         <source>All entries</source>
         <translation>Alle Einträge</translation>
     </message>
     <message>
+        <source>Hosts</source>
+        <translation type="unfinished">Hosts</translation>
+    </message>
+    <message>
         <source>IPv4 Hosts</source>
-        <translation>IPv4 Hosts</translation>
+        <translation type="vanished">IPv4 Hosts</translation>
     </message>
     <message>
         <source>IPv4 Hash Table</source>
-        <translation>IPv4 Hashtabelle</translation>
+        <translation type="vanished">IPv4 Hashtabelle</translation>
     </message>
     <message>
         <source>IPv6 Hosts</source>
-        <translation>IPv6 Hosts</translation>
+        <translation type="vanished">IPv6 Hosts</translation>
     </message>
     <message>
         <source>IPv6 Hash Table</source>
-        <translation>IPv6 Hashtabelle</translation>
+        <translation type="vanished">IPv6 Hashtabelle</translation>
     </message>
     <message>
         <source>Ethernet Addresses</source>

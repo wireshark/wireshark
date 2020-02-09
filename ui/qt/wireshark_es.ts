@@ -2269,31 +2269,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Mac Address</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Name</source>
         <translation type="unfinished">Nombre</translation>
+    </message>
+    <message>
+        <source>Address</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>All entries</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>IPv4 Hosts</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>IPv4 Hash Table</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>IPv6 Hosts</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>IPv6 Hash Table</source>
+        <source>Hosts</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
