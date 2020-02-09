@@ -42,6 +42,8 @@ private:
     pref_t *pref_ask_unsaved_;
     pref_t *pref_autocomplete_filter_;
     pref_t *pref_toolbar_main_style_;
+    pref_t *pref_window_title_;
+    pref_t *pref_prepend_window_title_;
     void updateWidgets();
 
 private slots:
@@ -56,6 +58,8 @@ private slots:
     void on_displayAutoCompleteCheckBox_toggled(bool checked);
     void on_mainToolbarComboBox_currentIndexChanged(int index);
     void on_languageComboBox_currentIndexChanged(int index);
+    void on_windowTitle_textEdited(const QString &new_title);
+    void on_prependWindowTitle_textEdited(const QString &new_prefix);
 };
 
 #endif // MAIN_WINDOW_PREFERENCES_FRAME_H

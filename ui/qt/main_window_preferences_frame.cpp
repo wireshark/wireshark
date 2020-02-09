@@ -37,6 +37,8 @@ MainWindowPreferencesFrame::MainWindowPreferencesFrame(QWidget *parent) :
     pref_ask_unsaved_ = prefFromPrefPtr(&prefs.gui_ask_unsaved);
     pref_autocomplete_filter_ = prefFromPrefPtr(&prefs.gui_autocomplete_filter);
     pref_toolbar_main_style_ = prefFromPrefPtr(&prefs.gui_toolbar_main_style);
+    pref_window_title_ = prefFromPrefPtr(&prefs.gui_window_title);
+    pref_prepend_window_title_ = prefFromPrefPtr(&prefs.gui_prepend_window_title);
 
     QStyleOption style_opt;
     QString indent_ss = QString(
@@ -55,8 +57,6 @@ MainWindowPreferencesFrame::MainWindowPreferencesFrame(QWidget *parent) :
 
     QString globalLanguagesPath(QString(get_datafile_dir()) + "/languages/");
     QString userLanguagesPath(gchar_free_to_qstring(get_persconffile_path("languages/", FALSE)));
-
-
 
     QStringList filenames = QDir(":/i18n/").entryList(QStringList("wireshark_*.qm"));
     filenames += QDir(globalLanguagesPath).entryList(QStringList("wireshark_*.qm"));
@@ -133,6 +133,9 @@ void MainWindowPreferencesFrame::updateWidgets()
             break;
         }
     }
+
+    ui->windowTitle->setText(prefs_get_string_value(pref_window_title_, pref_stashed));
+    ui->prependWindowTitle->setText(prefs_get_string_value(pref_prepend_window_title_, pref_stashed));
 }
 
 void MainWindowPreferencesFrame::on_geometryCheckBox_toggled(bool checked)
@@ -205,6 +208,16 @@ void MainWindowPreferencesFrame::on_languageComboBox_currentIndexChanged(int ind
     g_free(language);
 
     language = g_strdup(ui->languageComboBox->itemData(index).toString().toStdString().c_str());
+}
+
+void MainWindowPreferencesFrame::on_windowTitle_textEdited(const QString &new_title)
+{
+    prefs_set_string_value(pref_window_title_, new_title.toStdString().c_str(), pref_stashed);
+}
+
+void MainWindowPreferencesFrame::on_prependWindowTitle_textEdited(const QString &new_prefix)
+{
+    prefs_set_string_value(pref_prepend_window_title_, new_prefix.toStdString().c_str(), pref_stashed);
 }
 
 /*
