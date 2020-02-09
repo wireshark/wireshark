@@ -2362,9 +2362,6 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 			dissect_radiotap_tlv(tvb, pinfo, radiotap_tree, offset,
 					     &phdr);
 
-			offset += sizeof(struct ieee80211_radiotap_tlv) +
-				  iter.this_arg_size;
-
 			continue;
 		}
 
