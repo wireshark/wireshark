@@ -1059,12 +1059,9 @@
 		<enum name="ONE_TIME_NOTIFICATION_REQUESTED" code="0"/>
 	</avp>
 	<avp name="Requested-Nodes" code="713" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
-		<type type-name="Enumerated"/>
-		<enum name="MME" code="1"/>
-		<enum name="SGSN" code="2"/>
-		<enum name="MME,SGSN" code="3"/>
+		<type type-name="Unsigned32"/>
 	</avp>
-	<avp name="Serving-Node-Indication" code="714" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+  <avp name="Serving-Node-Indication" code="714" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
 		<type type-name="Enumerated"/>
 		<enum name="ONLY_SERVING_NODES_REQUIRED" code="0"/>
 	</avp>

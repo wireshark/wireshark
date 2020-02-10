@@ -38,18 +38,23 @@ static expert_field ei_diameter_3gpp_plmn_id_wrong_len = EI_INIT;
 /* Initialize the protocol and registered fields */
 static int proto_diameter_3gpp          = -1;
 
-static int hf_diameter_3gpp_timezone                = -1;
-static int hf_diameter_3gpp_timezone_adjustment     = -1;
-static int hf_diameter_3gpp_rat_type                = -1;
-static int hf_diameter_3gpp_visited_nw_id           = -1;
-static int hf_diameter_3gpp_path                    = -1;
-static int hf_diameter_3gpp_contact                 = -1;
-/* static int hf_diameter_3gpp_user_data               = -1; */
-static int hf_diameter_3gpp_ipaddr                  = -1;
-static int hf_diameter_3gpp_mbms_required_qos_prio  = -1;
-static int hf_diameter_3gpp_tmgi                    = -1;
-static int hf_diameter_3gpp_service_ind             = -1;
-static int hf_diameter_mbms_service_id              = -1;
+static int hf_diameter_3gpp_timezone = -1;
+static int hf_diameter_3gpp_timezone_adjustment = -1;
+static int hf_diameter_3gpp_rat_type = -1;
+static int hf_diameter_3gpp_visited_nw_id = -1;
+static int hf_diameter_3gpp_path = -1;
+static int hf_diameter_3gpp_contact = -1;
+/* static int hf_diameter_3gpp_user_data = -1; */
+static int hf_diameter_3gpp_ipaddr = -1;
+static int hf_diameter_3gpp_mbms_required_qos_prio = -1;
+static int hf_diameter_3gpp_tmgi = -1;
+static int hf_diameter_3gpp_service_ind = -1;
+static int hf_diameter_3gpp_req_nodes = -1;
+static int hf_diameter_3gpp_req_nodes_bit0 = -1;
+static int hf_diameter_3gpp_req_nodes_bit1 = -1;
+static int hf_diameter_3gpp_req_nodes_bit2 = -1;
+static int hf_diameter_3gpp_req_nodes_bit3 = -1;
+static int hf_diameter_mbms_service_id = -1;
 static int hf_diameter_3gpp_spare_bits = -1;
 static int hf_diameter_3gpp_uar_flags_flags = -1;
 static int hf_diameter_3gpp_uar_flags_flags_bit0 = -1;
@@ -498,6 +503,7 @@ static gint diameter_3gpp_mbms_bearer_result_ett = -1;
 static gint diameter_3gpp_tmgi_allocation_result_ett = -1;
 static gint diameter_3gpp_tmgi_deallocation_result_ett = -1;
 static gint diameter_3gpp_sar_flags_ett = -1;
+static gint diameter_3gpp_req_nodes_ett = -1;
 static gint diameter_3gpp_emergency_services_flags_ett = -1;
 static gint diameter_3gpp_pur_flags_ett = -1;
 static gint diameter_3gpp_clr_flags_ett = -1;
@@ -1283,6 +1289,35 @@ dissect_diameter_3gpp_service_ind(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 
     return length;
 }
+
+/*
+ * AVP Code: 713 Requested-Nodes
+ */
+
+static int
+dissect_diameter_3gpp_req_nodes(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data)
+{
+
+    static const int* diameter_3gpp_req_nodes_fields[] = {
+    &hf_diameter_3gpp_req_nodes_bit3,
+    &hf_diameter_3gpp_req_nodes_bit2,
+    &hf_diameter_3gpp_req_nodes_bit1,
+    &hf_diameter_3gpp_req_nodes_bit0,
+    NULL
+    };
+
+    diam_sub_dis_t* diam_sub_dis_inf = (diam_sub_dis_t*)data;
+
+    /* Hide the item created in packet-diameter.c and only show the one created here */
+    proto_item_set_hidden(diam_sub_dis_inf->item);
+
+    /* Change to BMT_NO_FALSE if the list gets to long(?)*/
+    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_req_nodes,
+        diameter_3gpp_req_nodes_ett, diameter_3gpp_req_nodes_fields, ENC_BIG_ENDIAN, BMT_NO_FALSE);
+
+    return 4;
+}
+
 
 /* AVP Code: 900 TMGI */
 static int
@@ -2950,6 +2985,9 @@ proto_reg_handoff_diameter_3gpp(void)
     /* AVP Code: 704 Service-Indication  */
     dissector_add_uint("diameter.3gpp", 704, create_dissector_handle(dissect_diameter_3gpp_service_ind, proto_diameter_3gpp));
 
+    /* AVP Code: 713 Requested-Nodes */
+    dissector_add_uint("diameter.3gpp", 713, create_dissector_handle(dissect_diameter_3gpp_req_nodes, proto_diameter_3gpp));
+
     /* AVP Code: 900 TMGI */
     dissector_add_uint("diameter.3gpp", 900, create_dissector_handle(dissect_diameter_3gpp_tmgi, proto_diameter_3gpp));
 
@@ -3337,6 +3375,31 @@ proto_register_diameter_3gpp(void)
         { &hf_diameter_3gpp_service_ind,
             { "Service-Indication",           "diameter.3gpp.service_ind",
             FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_req_nodes,
+        { "Requested-Nodes", "diameter.3gpp.req_nodes",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_req_nodes_bit0,
+            { "MME", "diameter.3gpp.req_nodes_bit0",
+            FT_BOOLEAN, 32, NULL, 0x00000001,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_req_nodes_bit1,
+            { "SGSN", "diameter.3gpp.req_nodes_bit1",
+            FT_BOOLEAN, 32, NULL, 0x00000002,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_req_nodes_bit2,
+            { "3GPP-AAA-SERVER-TWAN", "diameter.3gpp.req_nodes_bit2",
+            FT_BOOLEAN, 32, NULL, 0x00000004,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_req_nodes_bit3,
+            { "AMF", "diameter.3gpp.req_nodes_bit3",
+            FT_BOOLEAN, 32, NULL, 0x00000008,
             NULL, HFILL }
         },
         { &hf_diameter_mbms_service_id,
@@ -5676,6 +5739,7 @@ proto_register_diameter_3gpp(void)
         &diameter_3gpp_tmgi_allocation_result_ett,
         &diameter_3gpp_tmgi_deallocation_result_ett,
         &diameter_3gpp_sar_flags_ett,
+        &diameter_3gpp_req_nodes_ett,
         &diameter_3gpp_emergency_services_flags_ett,
         &diameter_3gpp_pur_flags_ett,
         &diameter_3gpp_clr_flags_ett,
