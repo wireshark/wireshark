@@ -1561,7 +1561,6 @@ dissect_radiotap_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 		proto_tree_add_item(unknown_tlv, hf_radiotap_unknown_tlv_data,
 				    tvb, offset, length, ENC_NA);
-		offset += length;
 		break;
 	}
 }
