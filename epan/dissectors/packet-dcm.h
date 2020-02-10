@@ -7,9 +7,9 @@
  *
  * Generated automatically by make-packet-dcm.py from the following sources:
  *
- * DICOM PS3.5 2019e - Data Structures and Encoding
- * DICOM PS3.6 2019e - Data Dictionary
- * DICOM PS3.7 2019e - Message Exchange
+ * DICOM PS3.5 2020a - Data Structures and Encoding
+ * DICOM PS3.6 2020a - Data Dictionary
+ * DICOM PS3.7 2020a - Message Exchange
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -3138,6 +3138,8 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x00687001, "Model Modification", "CS", "1", 0, 0},
     { 0x00687002, "Model Mirroring", "CS", "1", 0, 0},
     { 0x00687003, "Model Usage Code Sequence", "SQ", "1", 0, 0},
+    { 0x00687004, "Model Group UID", "UI", "1", 0, 0},
+    { 0x00687005, "Relative URI Reference Within Encapsulated Document", "UR", "1", 0, 0},
     { 0x00700001, "Graphic Annotation Sequence", "SQ", "1", 0, 0},
     { 0x00700002, "Graphic Layer", "CS", "1", 0, 0},
     { 0x00700003, "Bounding Box Annotation Units", "CS", "1", 0, 0},
@@ -4673,6 +4675,17 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x30100087, "Weekday Fraction Pattern Sequence", "SQ", "1", 0, 0},
     { 0x30100088, "Delivery Time Structure Code Sequence", "SQ", "1", 0, 0},
     { 0x30100089, "Treatment Site Modifier Code Sequence", "SQ", "1", 0, 0},
+    { 0x30100090, "Robotic Base Location Indicator", "CS", "1", 0, 0},
+    { 0x30100091, "Robotic Path Node Set Code Sequence", "SQ", "1", 0, 0},
+    { 0x30100092, "Robotic Node Identifier", "UL", "1", 0, 0},
+    { 0x30100093, "RT Treatment Source Coordinates", "FD", "3", 0, 0},
+    { 0x30100094, "Radiation Source Coordinate SystemYaw Angle", "FD", "1", 0, 0},
+    { 0x30100095, "Radiation Source Coordinate SystemRoll Angle", "FD", "1", 0, 0},
+    { 0x30100096, "Radiation Source Coordinate SystemPitch Angle", "FD", "1", 0, 0},
+    { 0x30100097, "Robotic Path Control Point Sequence", "SQ", "1", 0, 0},
+    { 0x30100098, "Tomotherapeutic Control Point Sequence", "SQ", "1", 0, 0},
+    { 0x30100099, "Tomotherapeutic Leaf Open Durations", "FD", "1-n", 0, 0},
+    { 0x3010009A, "Tomotherapeutic Leaf Initial Closed Durations", "FD", "1-n", 0, 0},
     { 0x40000010, "Arbitrary", "LT", "1", -1, 0},
     { 0x40004000, "Text Comments", "LT", "1", -1, 0},
     { 0x40080040, "Results ID", "SH", "1", -1, 0},
@@ -5021,6 +5034,7 @@ typedef struct dcm_uid {
 #define DCM_UID_WELL_KNOWN_FRAME_OF_REFERENCE_ICBM_452_T1_FRAME_OF_REFERENCE "1.2.840.10008.1.4.2.1"
 #define DCM_UID_WELL_KNOWN_FRAME_OF_REFERENCE_ICBM_SINGLE_SUBJECT_MRI_FRAME_OF_REFERENCE "1.2.840.10008.1.4.2.2"
 #define DCM_UID_WELL_KNOWN_FRAME_OF_REFERENCE_IEC_61217_FIXED_COORDINATE_SYSTEM_FRAME_OF_REFERENCE "1.2.840.10008.1.4.3.1"
+#define DCM_UID_WELL_KNOWN_FRAME_OF_REFERENCE_STANDARD_ROBOTIC_ARM_COORDINATE_SYSTEM_FRAME_OF_REFERENCE "1.2.840.10008.1.4.3.2"
 #define DCM_UID_WELL_KNOWN_SOP_INSTANCE_HOT_IRON_COLOR_PALETTE_SOP_INSTANCE "1.2.840.10008.1.5.1"
 #define DCM_UID_WELL_KNOWN_SOP_INSTANCE_PET_COLOR_PALETTE_SOP_INSTANCE "1.2.840.10008.1.5.2"
 #define DCM_UID_WELL_KNOWN_SOP_INSTANCE_HOT_METAL_BLUE_COLOR_PALETTE_SOP_INSTANCE "1.2.840.10008.1.5.3"
@@ -5051,6 +5065,7 @@ typedef struct dcm_uid {
 #define DCM_UID_CODING_SCHEME_MAYO_CLINIC_NON_RADIOLOGICAL_IMAGES_SPECIFIC_BODY_STRUCTURE_ANATOMICAL_SURFACE_REGION_GUIDE "1.2.840.10008.2.16.12"
 #define DCM_UID_CODING_SCHEME_IMAGE_BIOMARKER_STANDARDISATION_INITIATIVE "1.2.840.10008.2.16.13"
 #define DCM_UID_CODING_SCHEME_RADIOMICS_ONTOLOGY "1.2.840.10008.2.16.14"
+#define DCM_UID_CODING_SCHEME_RADELEMENT "1.2.840.10008.2.16.15"
 #define DCM_UID_APPLICATION_CONTEXT_NAME_DICOM "1.2.840.10008.3.1.1.1"
 #define DCM_UID_SOP_CLASS_DETACHED_PATIENT_MANAGEMENT_SOP_CLASS_RETIRED "1.2.840.10008.3.1.2.1.1"
 #define DCM_UID_META_SOP_CLASS_DETACHED_PATIENT_MANAGEMENT_META_SOP_CLASS_RETIRED "1.2.840.10008.3.1.2.1.4"
@@ -5225,6 +5240,8 @@ typedef struct dcm_uid {
 #define DCM_UID_SOP_CLASS_ENCAPSULATED_PDF_STORAGE "1.2.840.10008.5.1.4.1.1.104.1"
 #define DCM_UID_SOP_CLASS_ENCAPSULATED_CDA_STORAGE "1.2.840.10008.5.1.4.1.1.104.2"
 #define DCM_UID_SOP_CLASS_ENCAPSULATED_STL_STORAGE "1.2.840.10008.5.1.4.1.1.104.3"
+#define DCM_UID_SOP_CLASS_ENCAPSULATED_OBJ_STORAGE "1.2.840.10008.5.1.4.1.1.104.4"
+#define DCM_UID_SOP_CLASS_ENCAPSULATED_MTL_STORAGE "1.2.840.10008.5.1.4.1.1.104.5"
 #define DCM_UID_SOP_CLASS_POSITRON_EMISSION_TOMOGRAPHY_IMAGE_STORAGE "1.2.840.10008.5.1.4.1.1.128"
 #define DCM_UID_SOP_CLASS_LEGACY_CONVERTED_ENHANCED_PET_IMAGE_STORAGE "1.2.840.10008.5.1.4.1.1.128.1"
 #define DCM_UID_SOP_CLASS_STANDALONE_PET_CURVE_STORAGE_RETIRED "1.2.840.10008.5.1.4.1.1.129"
@@ -5249,6 +5266,8 @@ typedef struct dcm_uid {
 #define DCM_UID_SOP_CLASS_RT_SEGMENT_ANNOTATION_STORAGE "1.2.840.10008.5.1.4.1.1.481.11"
 #define DCM_UID_SOP_CLASS_RT_RADIATION_SET_STORAGE "1.2.840.10008.5.1.4.1.1.481.12"
 #define DCM_UID_SOP_CLASS_C_ARM_PHOTON_ELECTRON_RADIATION_STORAGE "1.2.840.10008.5.1.4.1.1.481.13"
+#define DCM_UID_SOP_CLASS_TOMOTHERAPEUTIC_RADIATION_STORAGE "1.2.840.10008.5.1.4.1.1.481.14"
+#define DCM_UID_SOP_CLASS_ROBOTIC_ARM_RADIATION_STORAGE "1.2.840.10008.5.1.4.1.1.481.15"
 #define DCM_UID_SOP_CLASS_DICOS_CT_IMAGE_STORAGE "1.2.840.10008.5.1.4.1.1.501.1"
 #define DCM_UID_SOP_CLASS_DICOS_DIGITAL_X_RAY_IMAGE_STORAGE_FOR_PRESENTATION "1.2.840.10008.5.1.4.1.1.501.2.1"
 #define DCM_UID_SOP_CLASS_DICOS_DIGITAL_X_RAY_IMAGE_STORAGE_FOR_PROCESSING "1.2.840.10008.5.1.4.1.1.501.2.2"
@@ -5441,6 +5460,7 @@ static dcm_uid_t dcm_uid_data[] = {
     { DCM_UID_WELL_KNOWN_FRAME_OF_REFERENCE_ICBM_452_T1_FRAME_OF_REFERENCE, "ICBM 452 T1 Frame of Reference", "Well-known frame of reference"},
     { DCM_UID_WELL_KNOWN_FRAME_OF_REFERENCE_ICBM_SINGLE_SUBJECT_MRI_FRAME_OF_REFERENCE, "ICBM Single Subject MRI Frame of Reference", "Well-known frame of reference"},
     { DCM_UID_WELL_KNOWN_FRAME_OF_REFERENCE_IEC_61217_FIXED_COORDINATE_SYSTEM_FRAME_OF_REFERENCE, "IEC 61217 Fixed Coordinate System Frame of Reference", "Well-known frame of reference"},
+    { DCM_UID_WELL_KNOWN_FRAME_OF_REFERENCE_STANDARD_ROBOTIC_ARM_COORDINATE_SYSTEM_FRAME_OF_REFERENCE, "Standard Robotic-Arm Coordinate System Frame of Reference", "Well-known frame of reference"},
     { DCM_UID_WELL_KNOWN_SOP_INSTANCE_HOT_IRON_COLOR_PALETTE_SOP_INSTANCE, "Hot Iron Color Palette SOP Instance", "Well-known SOP Instance"},
     { DCM_UID_WELL_KNOWN_SOP_INSTANCE_PET_COLOR_PALETTE_SOP_INSTANCE, "PET Color Palette SOP Instance", "Well-known SOP Instance"},
     { DCM_UID_WELL_KNOWN_SOP_INSTANCE_HOT_METAL_BLUE_COLOR_PALETTE_SOP_INSTANCE, "Hot Metal Blue Color Palette SOP Instance", "Well-known SOP Instance"},
@@ -5471,6 +5491,7 @@ static dcm_uid_t dcm_uid_data[] = {
     { DCM_UID_CODING_SCHEME_MAYO_CLINIC_NON_RADIOLOGICAL_IMAGES_SPECIFIC_BODY_STRUCTURE_ANATOMICAL_SURFACE_REGION_GUIDE, "Mayo Clinic Non-radiological Images Specific Body Structure Anatomical Surface Region Guide", "Coding Scheme"},
     { DCM_UID_CODING_SCHEME_IMAGE_BIOMARKER_STANDARDISATION_INITIATIVE, "Image Biomarker Standardisation Initiative", "Coding Scheme"},
     { DCM_UID_CODING_SCHEME_RADIOMICS_ONTOLOGY, "Radiomics Ontology", "Coding Scheme"},
+    { DCM_UID_CODING_SCHEME_RADELEMENT, "RadElement", "Coding Scheme"},
     { DCM_UID_APPLICATION_CONTEXT_NAME_DICOM, "DICOM Application Context Name", "Application Context Name"},
     { DCM_UID_SOP_CLASS_DETACHED_PATIENT_MANAGEMENT_SOP_CLASS_RETIRED, "Detached Patient Management SOP Class (Retired)", "SOP Class"},
     { DCM_UID_META_SOP_CLASS_DETACHED_PATIENT_MANAGEMENT_META_SOP_CLASS_RETIRED, "Detached Patient Management Meta SOP Class (Retired)", "Meta SOP Class"},
@@ -5647,6 +5668,8 @@ static dcm_uid_t dcm_uid_data[] = {
     { DCM_UID_SOP_CLASS_ENCAPSULATED_PDF_STORAGE, "Encapsulated PDF Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_ENCAPSULATED_CDA_STORAGE, "Encapsulated CDA Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_ENCAPSULATED_STL_STORAGE, "Encapsulated STL Storage", "SOP Class"},
+    { DCM_UID_SOP_CLASS_ENCAPSULATED_OBJ_STORAGE, "Encapsulated OBJ Storage", "SOP Class"},
+    { DCM_UID_SOP_CLASS_ENCAPSULATED_MTL_STORAGE, "Encapsulated MTL Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_POSITRON_EMISSION_TOMOGRAPHY_IMAGE_STORAGE, "Positron Emission Tomography Image Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_LEGACY_CONVERTED_ENHANCED_PET_IMAGE_STORAGE, "Legacy Converted Enhanced PET Image Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_STANDALONE_PET_CURVE_STORAGE_RETIRED, "Standalone PET Curve Storage (Retired)", "SOP Class"},
@@ -5671,6 +5694,8 @@ static dcm_uid_t dcm_uid_data[] = {
     { DCM_UID_SOP_CLASS_RT_SEGMENT_ANNOTATION_STORAGE, "RT Segment Annotation Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_RT_RADIATION_SET_STORAGE, "RT Radiation Set Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_C_ARM_PHOTON_ELECTRON_RADIATION_STORAGE, "C-Arm Photon-Electron Radiation Storage", "SOP Class"},
+    { DCM_UID_SOP_CLASS_TOMOTHERAPEUTIC_RADIATION_STORAGE, "Tomotherapeutic Radiation Storage", "SOP Class"},
+    { DCM_UID_SOP_CLASS_ROBOTIC_ARM_RADIATION_STORAGE, "Robotic-Arm Radiation Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_DICOS_CT_IMAGE_STORAGE, "DICOS CT Image Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_DICOS_DIGITAL_X_RAY_IMAGE_STORAGE_FOR_PRESENTATION, "DICOS Digital X-Ray Image Storage - For Presentation", "SOP Class"},
     { DCM_UID_SOP_CLASS_DICOS_DIGITAL_X_RAY_IMAGE_STORAGE_FOR_PROCESSING, "DICOS Digital X-Ray Image Storage - For Processing", "SOP Class"},
