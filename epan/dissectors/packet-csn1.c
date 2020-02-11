@@ -28,6 +28,7 @@ static expert_field ei_csn1_union_index = EI_INIT;
 static expert_field ei_csn1_script_error = EI_INIT;
 static expert_field ei_csn1_more32bits = EI_INIT;
 static expert_field ei_csn1_fixed_not_matched = EI_INIT;
+static expert_field ei_csn1_stream_not_supported = EI_INIT;
 
 #define pvDATA(_pv, _offset) ((void*) ((unsigned char*)_pv + _offset))
 #define pui8DATA(_pv, _offset) ((guint8*) pvDATA(_pv, _offset))
@@ -549,6 +550,10 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
         guint8 i     = 0;
         const CSN_ChoiceElement_t* pChoice = (const CSN_ChoiceElement_t*) pDescr->descr.ptr;
 
+        /* Make sure that the list of choice items is not empty */
+        if (!count)
+          return ProcessError(tree, ar->pinfo, tvb, bit_offset, CSN_ERROR_IN_SCRIPT, &ei_csn1_script_error, pDescr);
+
         while (count > 0)
         {
           guint8 no_of_bits = pChoice->bits;
@@ -606,6 +611,13 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
           count--;
           pChoice++;
           i++;
+        }
+
+        /* Neither of the choice items matched => unknown value */
+        if (!count) {
+          return ProcessError(tree, ar->pinfo, tvb, bit_offset,
+                              CSN_ERROR_STREAM_NOT_SUPPORTED,
+                              &ei_csn1_stream_not_supported, pDescr);
         }
 
         pDescr++;
@@ -1530,6 +1542,7 @@ proto_register_csn1(void)
         { &ei_csn1_script_error, { "csn1.script_error", PI_MALFORMED, PI_ERROR, "ERROR IN SCRIPT", EXPFILL }},
         { &ei_csn1_more32bits, { "csn1.more32bits", PI_PROTOCOL, PI_WARN, "no_of_bits > 32", EXPFILL }},
         { &ei_csn1_fixed_not_matched, { "csn1.fixed_not_matched", PI_PROTOCOL, PI_WARN, "FIXED value does not match", EXPFILL }},
+        { &ei_csn1_stream_not_supported, { "csn1.stream_not_supported", PI_PROTOCOL, PI_WARN, "STREAM NOT SUPPORTED", EXPFILL }},
     };
 
     expert_module_t* expert_csn1;
