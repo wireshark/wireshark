@@ -19,14 +19,13 @@
  * - Sequence number analysis, i.e.
  *     - check next expected Msg Id
  *     - flag out-of-order Fragment Number within a MsgId?
- * - Duplicate Message Detection (A.3.2.4)
  * */
 
-#include <stdio.h>
 #include "config.h"
 
 #include <epan/conversation.h>
 #include <epan/reassemble.h>
+#include <epan/expert.h>
 #include <epan/prefs.h>
 
 void proto_register_udpcp(void);
@@ -37,6 +36,7 @@ static int hf_udpcp_checksum = -1;
 static int hf_udpcp_msg_type = -1;
 static int hf_udpcp_version = -1;
 
+static int hf_udpcp_packet_transfer_options = -1;
 static int hf_udpcp_n = -1;
 static int hf_udpcp_c = -1;
 static int hf_udpcp_s = -1;
@@ -67,6 +67,7 @@ static int hf_udpcp_reassembled_data = -1;
 
 /* Subtrees */
 static gint ett_udpcp = -1;
+static gint ett_udpcp_packet_transfer_options = -1;
 static gint ett_udpcp_fragments = -1;
 static gint ett_udpcp_fragment  = -1;
 
@@ -88,6 +89,10 @@ static const fragment_items udpcp_frag_items = {
 };
 
 
+static expert_field ei_udpcp_checksum_should_be_zero = EI_INIT;
+static expert_field ei_udpcp_d_not_zero_for_data = EI_INIT;
+static expert_field ei_udpcp_reserved_not_zero = EI_INIT;
+static expert_field ei_udpcp_n_s_ack = EI_INIT;
 
 static dissector_handle_t udpcp_handle;
 
@@ -190,26 +195,74 @@ dissect_udpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     udpcp_tree = proto_item_add_subtree(root_ti, ett_udpcp);
 
     /* Checksum */
-    proto_tree_add_item(udpcp_tree, hf_udpcp_checksum, tvb, offset, 4, ENC_BIG_ENDIAN);
+    guint32 checksum;
+    proto_item *checksum_ti = proto_tree_add_item_ret_uint(udpcp_tree, hf_udpcp_checksum, tvb, offset, 4, ENC_BIG_ENDIAN, &checksum);
     offset += 4;
 
     /* Msg-type */
     proto_tree_add_item_ret_uint(udpcp_tree, hf_udpcp_msg_type, tvb, offset, 1, ENC_BIG_ENDIAN, &msg_type);
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
-                 (msg_type == 0x01) ? "[Data] " : "[Ack]  ");
+                 (msg_type == DATA_FORMAT) ? "[Data] " : "[Ack]  ");
+    proto_item_append_text(root_ti, "%s", (msg_type == DATA_FORMAT) ? " [Data]" : " [Ack]");
 
     /* Version */
     proto_tree_add_item(udpcp_tree, hf_udpcp_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 
+
+    /***************************/
     /* Packet Transfer Options */
-    guint32 n, s;
-    proto_tree_add_item_ret_uint(udpcp_tree, hf_udpcp_n, tvb, offset, 1, ENC_BIG_ENDIAN, &n);
-    proto_tree_add_item(udpcp_tree, hf_udpcp_c, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item_ret_uint(udpcp_tree, hf_udpcp_s, tvb, offset, 1, ENC_BIG_ENDIAN, &s);
+    proto_item *packet_transfer_options_ti =
+            proto_tree_add_string_format(udpcp_tree, hf_udpcp_packet_transfer_options, tvb, offset, 0,
+                                         "", "Packet Transfer Options (");
+    proto_tree *packet_transfer_options_tree =
+            proto_item_add_subtree(packet_transfer_options_ti, ett_udpcp_packet_transfer_options);
+
+    guint32 n, c, s, d;
+    /* N */
+    proto_tree_add_item_ret_uint(packet_transfer_options_tree, hf_udpcp_n, tvb, offset, 1, ENC_BIG_ENDIAN, &n);
+    if (n) {
+        proto_item_append_text(packet_transfer_options_ti, "N");
+    }
+
+    /* C */
+    proto_tree_add_item_ret_uint(packet_transfer_options_tree, hf_udpcp_c, tvb, offset, 1, ENC_BIG_ENDIAN, &c);
+    if (c) {
+       proto_item_append_text(packet_transfer_options_ti, "C");
+    }
+    if (!c && checksum) {
+        /* Expert info warning that checksum should be 0 if !c */
+        expert_add_info(pinfo, checksum_ti, &ei_udpcp_checksum_should_be_zero);
+    }
+
+    /* S */
+    proto_tree_add_item_ret_uint(packet_transfer_options_tree, hf_udpcp_s, tvb, offset, 1, ENC_BIG_ENDIAN, &s);
     offset++;
-    proto_tree_add_item(udpcp_tree, hf_udpcp_d, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(udpcp_tree, hf_udpcp_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+    if (s) {
+        proto_item_append_text(packet_transfer_options_ti, "S");
+    }
+
+    /* D */
+    proto_item *d_ti = proto_tree_add_item_ret_uint(packet_transfer_options_tree, hf_udpcp_d, tvb, offset, 1, ENC_BIG_ENDIAN, &d);
+    if (d) {
+        proto_item_append_text(packet_transfer_options_ti, "D");
+    }
+    /* Expert info if D not zero for data */
+    if (msg_type == DATA_FORMAT && d) {
+        expert_add_info(pinfo, d_ti, &ei_udpcp_d_not_zero_for_data);
+    }
+
+    /* Reserved */
+    guint32 reserved;
+    proto_item *reserved_ti = proto_tree_add_item_ret_uint(packet_transfer_options_tree, hf_udpcp_reserved, tvb, offset, 1, ENC_BIG_ENDIAN, &reserved);
     offset++;
+    /* Expert info if reserved not 0 */
+    if (reserved) {
+        expert_add_info(pinfo, reserved_ti, &ei_udpcp_reserved_not_zero);
+    }
+
+    proto_item_append_text(packet_transfer_options_ti, ")");
+    /*************************/
+
 
     /* Fragment Amount & Fragment Number */
     guint32 fragment_amount, fragment_number;
@@ -237,6 +290,17 @@ dissect_udpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
             }
             /* Nothing more to show here */
             return offset;
+        }
+
+        /* Show if/when this frame should be acknowledged */
+        if (!n && !s) {
+            proto_item_append_text(packet_transfer_options_ti, " (All packets ACKd)");
+        }
+        else if (!n && s) {
+            proto_item_append_text(packet_transfer_options_ti, " (Last fragment ACKd)");
+        }
+        if (n) {
+            proto_item_append_text(packet_transfer_options_ti, " (Not ACKd)");
         }
 
         /* Show fragment numbering.  Ignore confusing 0-based fragment numbering.. */
@@ -297,6 +361,17 @@ dissect_udpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
             }
         }
     }
+    else if (msg_type == ACK_FORMAT) {
+        /* N and S should be set - complain if not */
+        if (!n || !s) {
+            expert_add_info(pinfo, packet_transfer_options_ti, &ei_udpcp_n_s_ack);
+        }
+
+        if (d) {
+            proto_item_append_text(packet_transfer_options_ti, " (duplicate)");
+            col_append_str(pinfo->cinfo, COL_INFO, " (duplicate)");
+        }
+    }
 
     return offset;
 }
@@ -316,6 +391,9 @@ proto_register_udpcp(void)
         { "Version", "udpcp.version", FT_UINT8, BASE_HEX,
           NULL, 0x38, NULL, HFILL }},
 
+      { &hf_udpcp_packet_transfer_options,
+        { "Packet Transport Options", "udpcp.pto", FT_STRING, BASE_NONE,
+        NULL, 0x0, NULL, HFILL }},
       { &hf_udpcp_n,
         { "N", "udpcp.n", FT_UINT8, BASE_HEX,
           NULL, 0x04, "Along with S bit, indicates whether acknowledgements should be sent", HFILL }},
@@ -391,15 +469,26 @@ proto_register_udpcp(void)
 
     static gint *ett[] = {
         &ett_udpcp,
+        &ett_udpcp_packet_transfer_options,
         &ett_udpcp_fragments,
         &ett_udpcp_fragment
     };
 
+    static ei_register_info ei[] = {
+        { &ei_udpcp_checksum_should_be_zero, { "udpcp.checksum-not-zero", PI_CHECKSUM, PI_WARN, "Checksum should be zero if !C.", EXPFILL }},
+        { &ei_udpcp_d_not_zero_for_data,     { "udpcp.d-not-zero-data", PI_SEQUENCE, PI_ERROR, "D should be zero for data frames", EXPFILL }},
+        { &ei_udpcp_reserved_not_zero,       { "udpcp.reserved-not-zero", PI_MALFORMED, PI_WARN, "Reserved bits not zero", EXPFILL }},
+        { &ei_udpcp_n_s_ack,                 { "udpcp.n-s-set-ack", PI_MALFORMED, PI_ERROR, "N or S set for ACK frame", EXPFILL }},
+    };
+
     module_t *udpcp_module;
+    expert_module_t *expert_udpcp;
 
     proto_udpcp = proto_register_protocol("UDPCP", "UDPCP", "udpcp");
     proto_register_field_array(proto_udpcp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_udpcp = expert_register_protocol(proto_udpcp);
+    expert_register_field_array(expert_udpcp, ei, array_length(ei));
 
     udpcp_handle = register_dissector("udpcp", dissect_udpcp, proto_udpcp);
 
