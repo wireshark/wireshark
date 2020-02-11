@@ -528,23 +528,25 @@ static const value_string security_header_type_vals[] = {
 };
 static value_string_ext security_header_type_vals_ext = VALUE_STRING_EXT_INIT(security_header_type_vals);
 
+/*
 typedef enum
 {
-    DE_EPS_CMN_ADD_INFO,                        /* 9.9.2.0  Additional information */
-    DE_EPS_CMN_DEVICE_PROPERTIES,               /* 9.9.2.0A Device properties */
-    DE_EPS_CMN_EPS_BE_CTX_STATUS,               /* 9.9.2.1  EPS bearer context status */
-    DE_EPS_CMN_LOC_AREA_ID,                     /* 9.9.2.2  Location area identification */
-    DE_EPS_CMN_MOB_ID,                          /* 9.9.2.3  Mobile identity */
-    DE_EPS_MS_CM_2,                             /* 9.9.2.4  Mobile station classmark 2 */
-    DE_EPS_MS_CM_3,                             /* 9.9.2.5  Mobile station classmark 3 */
-    DE_EPS_NAS_SEC_PAR_FROM_EUTRA,              /* 9.9.2.6  NAS security parameters from E-UTRA */
-    DE_EPS_NAS_SEC_PAR_TO_EUTRA,                /* 9.9.2.7  NAS security parameters to E-UTRA */
+    DE_EPS_CMN_ADD_INFO,                          9.9.2.0  Additional information
+    DE_EPS_CMN_DEVICE_PROPERTIES,                 9.9.2.0A Device properties
+    DE_EPS_CMN_EPS_BE_CTX_STATUS,                 9.9.2.1  EPS bearer context status
+    DE_EPS_CMN_LOC_AREA_ID,                       9.9.2.2  Location area identification
+    DE_EPS_CMN_MOB_ID,                            9.9.2.3  Mobile identity
+    DE_EPS_MS_CM_2,                               9.9.2.4  Mobile station classmark 2
+    DE_EPS_MS_CM_3,                               9.9.2.5  Mobile station classmark 3
+    DE_EPS_NAS_SEC_PAR_FROM_EUTRA,                9.9.2.6  NAS security parameters from E-UTRA
+    DE_EPS_NAS_SEC_PAR_TO_EUTRA,                  9.9.2.7  NAS security parameters to E-UTRA
 
-    DE_EPS_CMN_PLM_LST,                         /* 9.9.2.8  PLMN list */
-    DE_EPS_CMN_SUP_CODEC_LST,                   /* 9.9.2.6  9.9.2.10    Supported codec list */
-    DE_EPS_COMMON_NONE                          /* NONE */
+    DE_EPS_CMN_PLM_LST,                           9.9.2.8  PLMN list
+    DE_EPS_CMN_SUP_CODEC_LST,                     9.9.2.6  9.9.2.10    Supported codec list
+    DE_EPS_COMMON_NONE                            NONE
 }
 nas_eps_common_elem_idx_t;
+*/
 
 static const value_string nas_eps_common_elem_strings[] = {
     { DE_EPS_CMN_ADD_INFO, "Additional information" },                       /* 9.9.2.0  Additional information */
