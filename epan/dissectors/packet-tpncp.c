@@ -114,7 +114,8 @@ static gboolean db_initialized = FALSE;
 
 enum AddressFamily {
     TPNCP_IPV4 = 2,
-    TPNCP_IPV6 = 28
+    TPNCP_IPV6 = 10,
+    TPNCP_IPV6_PSOS = 28
 };
 
 static void
@@ -187,13 +188,14 @@ dissect_tpncp_data(guint data_id, packet_info *pinfo, tvbuff_t *tvb, proto_tree 
             break;
         case 128:
             if (current_tpncp_data_field_info->tpncp_data_field_is_ip_addr) {
-                if (address_family == TPNCP_IPV6) {
+                if (address_family == TPNCP_IPV6 || address_family == TPNCP_IPV6_PSOS) {
                     proto_tree_add_item(ltree, current_tpncp_data_field_info->tpncp_ipv6_data_field_descr,
                                         tvb, *offset, 16, encoding);
                 } else {
                     proto_tree_add_item(ltree, current_tpncp_data_field_info->tpncp_data_field_descr,
                                         tvb, *offset, 4, encoding);
                 }
+                address_family = TPNCP_IPV4;
             }
             (*offset) += 16;
             break;
@@ -588,6 +590,8 @@ init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info, FILE *file)
     } else
         hf_size++;
 
+    tpncp_data_field_is_address_family = FALSE;
+
     /* Register standard data. */
     while (fgetline(tpncp_db_entry, MAX_TPNCP_DB_ENTRY_LEN, file)) {
         g_snprintf(entry_copy, MAX_TPNCP_DB_ENTRY_LEN, "%s", tpncp_db_entry);
@@ -651,6 +655,21 @@ init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info, FILE *file)
                 "ERROR! Badly formed data base entry: %s - corresponding field's registration is skipped.",
                 entry_copy);
             continue;
+        }
+
+        if (tpncp_data_field_is_ip_addr) {
+            // ip address that comes after address family has 4 fields: ip_addr_0, ip_addr_1, 2 and 3
+            // On these cases, ignore 1, 2 and 3 and enlarge the field size of 0 to 128
+            char *seq = (char*)tpncp_data_field_name + strlen(tpncp_data_field_name) - 2;
+            if (seq > tpncp_data_field_name && *seq == '_') {
+                if (seq[1] >= '1' && seq[1] <= '3')
+                    continue;
+                // relates to the *previous* field
+                if (tpncp_data_field_is_address_family) {
+                    *seq = 0;
+                    tpncp_data_field_size = 128;
+                }
+            }
         }
 
         tpncp_data_field_is_address_family = FALSE;
