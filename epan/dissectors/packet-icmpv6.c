@@ -3500,7 +3500,7 @@ dissect_nodeinfo(tvbuff_t *tvb, int ni_offset, packet_info *pinfo _U_, proto_tre
                 used_bytes = get_dns_name(tvb, ni_offset, 0, ni_offset, &fqdn_name, &fqdn_len);
                 proto_tree_add_string(tree, hf_icmpv6_ni_query_subject_fqdn, tvb, ni_offset, used_bytes,
                     format_text(wmem_packet_scope(), fqdn_name, fqdn_len));
-                ni_offset += fqdn_len;
+                ni_offset += used_bytes;
                 break;
             }
             case ICMP6_NI_SUBJ_IPV4: {
