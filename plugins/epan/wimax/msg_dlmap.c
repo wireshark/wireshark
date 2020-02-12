@@ -2388,6 +2388,7 @@ gint wimax_decode_dlmapc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *base_tre
 	{
 		expert_add_info_format(pinfo, ti, &ei_mac_header_invalid_length,
 		"Invalid length: %d.", mac_len);
+		return sizeof(mac_crc);
 	}
 	else if (MIN(tvb_len, tvb_reported_length(tvb)) >= mac_len)
 	{
