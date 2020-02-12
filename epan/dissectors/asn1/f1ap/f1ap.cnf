@@ -771,7 +771,43 @@ F1RemovalFailure                    N f1ap.proc.uout id-F1Removal
     case INITIATING_MESSAGE:
       switch (f1ap_data->procedure_code) {
       case id_InitialULRRCMessageTransfer:
+        col_append_str(actx->pinfo->cinfo, COL_PROTOCOL, "/");
+        col_set_fence(actx->pinfo->cinfo, COL_PROTOCOL);
         call_dissector(nr_rrc_ul_ccch_handle, param_tvb, actx->pinfo, subtree);
+        break;
+      case id_ULRRCMessageTransfer:
+        switch (f1ap_data->srb_id) {
+        case 1:
+        case 2:
+        case 3:
+          col_append_str(actx->pinfo->cinfo, COL_PROTOCOL, "/");
+          col_set_fence(actx->pinfo->cinfo, COL_PROTOCOL);
+          add_nr_pdcp_meta_data(actx->pinfo, PDCP_NR_DIRECTION_UPLINK, f1ap_data->srb_id);
+          call_dissector(nr_pdcp_handle, param_tvb, actx->pinfo, subtree);
+          break;
+        default:
+          break;
+        }
+        break;
+      case id_DLRRCMessageTransfer:
+      case id_UEContextRelease:
+        switch (f1ap_data->srb_id) {
+        case 0:
+          col_append_str(actx->pinfo->cinfo, COL_PROTOCOL, "/");
+          col_set_fence(actx->pinfo->cinfo, COL_PROTOCOL);
+          call_dissector(nr_rrc_dl_ccch_handle, param_tvb, actx->pinfo, subtree);
+          break;
+        case 1:
+        case 2:
+        case 3:
+          col_append_str(actx->pinfo->cinfo, COL_PROTOCOL, "/");
+          col_set_fence(actx->pinfo->cinfo, COL_PROTOCOL);
+          add_nr_pdcp_meta_data(actx->pinfo, PDCP_NR_DIRECTION_DOWNLINK, f1ap_data->srb_id);
+          call_dissector(nr_pdcp_handle, param_tvb, actx->pinfo, subtree);
+          break;
+        default:
+          break;
+        }
         break;
       default:
         break;
@@ -782,12 +818,18 @@ F1RemovalFailure                    N f1ap.proc.uout id-F1Removal
     }
   }
 
+#.FN_BODY SRBID VAL_PTR=&f1ap_data->srb_id
+  f1ap_private_data_t *f1ap_data = f1ap_get_private_data(actx->pinfo);
+%(DEFAULT_BODY)s
+
 #.FN_BODY RRCContainer-RRCSetupComplete VAL_PTR=&param_tvb
   tvbuff_t *param_tvb = NULL;
 %(DEFAULT_BODY)s
   if (param_tvb) {
     proto_tree *subtree;
     subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_RRCContainer_RRCSetupComplete);
+    col_append_str(actx->pinfo->cinfo, COL_PROTOCOL, "/");
+    col_set_fence(actx->pinfo->cinfo, COL_PROTOCOL);
     call_dissector(nr_rrc_ul_dcch_handle, param_tvb, actx->pinfo, subtree);
   }
 
