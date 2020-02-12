@@ -19,7 +19,7 @@
  * - Sequence number analysis, i.e.
  *     - check next expected Msg Id
  *     - flag out-of-order Fragment Number within a MsgId?
- * */
+ */
 
 #include "config.h"
 
@@ -116,7 +116,7 @@ static const value_string msg_type_vals[] = {
 /* Reassembly table. */
 static reassembly_table udpcp_reassembly_table;
 
-static guint udpcp_hash(gconstpointer k _U_)
+static guint udpcp_hash(gconstpointer k)
 {
     return GPOINTER_TO_UINT(k);
 }
@@ -126,7 +126,7 @@ static gint udpcp_equal(gconstpointer k1, gconstpointer k2)
     return k1 == k2;
 }
 
-static gpointer udpcp_temporary_key(const packet_info *pinfo _U_, const guint32 id _U_, const void *data _U_)
+static gpointer udpcp_temporary_key(const packet_info *pinfo _U_, const guint32 id _U_, const void *data)
 {
     return (gpointer)data;
 }
@@ -201,9 +201,9 @@ dissect_udpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
     /* Msg-type */
     proto_tree_add_item_ret_uint(udpcp_tree, hf_udpcp_msg_type, tvb, offset, 1, ENC_BIG_ENDIAN, &msg_type);
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
-                 (msg_type == DATA_FORMAT) ? "[Data] " : "[Ack]  ");
-    proto_item_append_text(root_ti, "%s", (msg_type == DATA_FORMAT) ? " [Data]" : " [Ack]");
+    col_add_str(pinfo->cinfo, COL_INFO,
+                (msg_type == DATA_FORMAT) ? "[Data] " : "[Ack]  ");
+    proto_item_append_text(root_ti, (msg_type == DATA_FORMAT) ? " [Data]" : " [Ack]");
 
     /* Version */
     proto_tree_add_item(udpcp_tree, hf_udpcp_version, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -216,8 +216,8 @@ dissect_udpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
                                          "", "Packet Transfer Options (");
     proto_tree *packet_transfer_options_tree =
             proto_item_add_subtree(packet_transfer_options_ti, ett_udpcp_packet_transfer_options);
-
     guint32 n, c, s, d;
+
     /* N */
     proto_tree_add_item_ret_uint(packet_transfer_options_tree, hf_udpcp_n, tvb, offset, 1, ENC_BIG_ENDIAN, &n);
     if (n) {
@@ -247,7 +247,7 @@ dissect_udpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
         proto_item_append_text(packet_transfer_options_ti, "D");
     }
     /* Expert info if D not zero for data */
-    if (msg_type == DATA_FORMAT && d) {
+    if ((msg_type == DATA_FORMAT) && d) {
         expert_add_info(pinfo, d_ti, &ei_udpcp_d_not_zero_for_data);
     }
 
@@ -280,12 +280,10 @@ dissect_udpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     proto_tree_add_item_ret_uint(udpcp_tree, hf_udpcp_message_data_length, tvb, offset, 2, ENC_BIG_ENDIAN, &data_length);
     offset += 2;
 
-    /* Data could follow here */
     if (msg_type == DATA_FORMAT) {
-
         if (!data_length) {
-            /* This could just  be a sync frame */
-            if (message_id == 0 && n==0 && s==0) {
+            /* This could just be a sync frame */
+            if (!message_id && !0 && !s) {
                 col_append_str(pinfo->cinfo, COL_INFO, "  [Sync]");
             }
             /* Nothing more to show here */
@@ -340,7 +338,7 @@ dissect_udpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
                                             );
 
                 gboolean update_col_info = TRUE;
-                /* See if this completes a PDU */
+                /* See if this completes an SDU */
                 tvbuff_t *next_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled UDPCP Payload",
                                                               fh, &udpcp_frag_items,
                                                               &update_col_info, udpcp_tree);
@@ -368,6 +366,7 @@ dissect_udpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
         }
 
         if (d) {
+            /* Duplicate data detected */
             proto_item_append_text(packet_transfer_options_ti, " (duplicate)");
             col_append_str(pinfo->cinfo, COL_INFO, " (duplicate)");
         }
@@ -463,7 +462,7 @@ proto_register_udpcp(void)
         { "Reassembled payload length", "udpcp.reassembled.length", FT_UINT32, BASE_DEC,
           NULL, 0x0, "The total length of the reassembled payload", HFILL }},
       { &hf_udpcp_reassembled_data,
-        { "Reassembled codeblocks", "udpcp.reassembled.data", FT_BYTES, BASE_NONE,
+        { "Reassembled data", "udpcp.reassembled.data", FT_BYTES, BASE_NONE,
           NULL, 0x0, "The reassembled payload", HFILL }},
     };
 
