@@ -20,6 +20,7 @@
 
 #include <ui/qt/widgets/syntax_line_edit.h>
 
+#include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/utils/color_utils.h>
 #include <ui/qt/utils/stock_icon.h>
 
@@ -161,13 +162,22 @@ void SyntaxLineEdit::checkDisplayFilter(QString filter)
         }
         if (depr) {
             // You keep using that word. I do not think it means what you think it means.
+            // Possible alternatives: ::Troubled, or ::Problematic maybe?
             setSyntaxState(SyntaxLineEdit::Deprecated);
             /*
              * We're being lazy and only printing the first "problem" token.
              * Would it be better to print all of them?
              */
-            syntax_error_message_ = tr("\"%1\" is deprecated or may have unexpected results. See the User's Guide.")
-                    .arg((const char *) g_ptr_array_index(depr, 0));
+            QString token((const char *)g_ptr_array_index(depr, 0));
+            gchar *token_str = qstring_strdup(token.section('.', 0, 0));
+            header_field_info *hfi = proto_registrar_get_byalias(token_str);
+            if (hfi)
+                syntax_error_message_ = tr("\"%1\" is deprecated in favour of \"%2\". "
+                                           "See the User's Guide.").arg(token_str).arg(hfi->abbrev);
+            else
+                syntax_error_message_ = tr("\"%1\" may have unexpected results. "
+                                           "See the User's Guide.").arg(token_str);
+            g_free(token_str);
         } else {
             setSyntaxState(SyntaxLineEdit::Valid);
         }
