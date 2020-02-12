@@ -460,22 +460,22 @@ const value_string ssl_extension_curves[] = {
     { 258, "ffdhe4096" }, /* RFC 7919 */
     { 259, "ffdhe6144" }, /* RFC 7919 */
     { 260, "ffdhe8192" }, /* RFC 7919 */
-    { 2570, "Reserved (GREASE)" }, /* draft-ietf-tls-grease */
-    { 6682, "Reserved (GREASE)" }, /* draft-ietf-tls-grease */
-    { 10794, "Reserved (GREASE)" }, /* draft-ietf-tls-grease */
-    { 14906, "Reserved (GREASE)" }, /* draft-ietf-tls-grease */
-    { 19018, "Reserved (GREASE)" }, /* draft-ietf-tls-grease */
-    { 23130, "Reserved (GREASE)" }, /* draft-ietf-tls-grease */
-    { 27242, "Reserved (GREASE)" }, /* draft-ietf-tls-grease */
-    { 31354, "Reserved (GREASE)" }, /* draft-ietf-tls-grease */
-    { 35466, "Reserved (GREASE)" }, /* draft-ietf-tls-grease */
-    { 39578, "Reserved (GREASE)" }, /* draft-ietf-tls-grease */
-    { 43690, "Reserved (GREASE)" }, /* draft-ietf-tls-grease */
-    { 47802, "Reserved (GREASE)" }, /* draft-ietf-tls-grease */
-    { 51914, "Reserved (GREASE)" }, /* draft-ietf-tls-grease */
-    { 56026, "Reserved (GREASE)" }, /* draft-ietf-tls-grease */
-    { 60138, "Reserved (GREASE)" }, /* draft-ietf-tls-grease */
-    { 64250, "Reserved (GREASE)" }, /* draft-ietf-tls-grease */
+    { 2570, "Reserved (GREASE)" }, /* RFC 8701 */
+    { 6682, "Reserved (GREASE)" }, /* RFC 8701 */
+    { 10794, "Reserved (GREASE)" }, /* RFC 8701 */
+    { 14906, "Reserved (GREASE)" }, /* RFC 8701 */
+    { 19018, "Reserved (GREASE)" }, /* RFC 8701 */
+    { 23130, "Reserved (GREASE)" }, /* RFC 8701 */
+    { 27242, "Reserved (GREASE)" }, /* RFC 8701 */
+    { 31354, "Reserved (GREASE)" }, /* RFC 8701 */
+    { 35466, "Reserved (GREASE)" }, /* RFC 8701 */
+    { 39578, "Reserved (GREASE)" }, /* RFC 8701 */
+    { 43690, "Reserved (GREASE)" }, /* RFC 8701 */
+    { 47802, "Reserved (GREASE)" }, /* RFC 8701 */
+    { 51914, "Reserved (GREASE)" }, /* RFC 8701 */
+    { 56026, "Reserved (GREASE)" }, /* RFC 8701 */
+    { 60138, "Reserved (GREASE)" }, /* RFC 8701 */
+    { 64250, "Reserved (GREASE)" }, /* RFC 8701 */
     { 0xFF01, "arbitrary_explicit_prime_curves" },
     { 0xFF02, "arbitrary_explicit_char2_curves" },
     { 0x00, NULL }
@@ -837,7 +837,7 @@ static const value_string ssl_31_ciphersuite[] = {
     /* 0x00,0xC8-FE Unassigned */
     /* From RFC 5746 */
     { 0x00FF, "TLS_EMPTY_RENEGOTIATION_INFO_SCSV" },
-    /* https://tools.ietf.org/html/draft-ietf-tls-grease */
+    /* RFC 8701 */
     { 0x0A0A, "Reserved (GREASE)" },
     /* RFC 8446 */
     { 0x1301, "TLS_AES_128_GCM_SHA256" },
@@ -845,14 +845,14 @@ static const value_string ssl_31_ciphersuite[] = {
     { 0x1303, "TLS_CHACHA20_POLY1305_SHA256" },
     { 0x1304, "TLS_AES_128_CCM_SHA256" },
     { 0x1305, "TLS_AES_128_CCM_8_SHA256" },
-    /* https://tools.ietf.org/html/draft-ietf-tls-grease */
+    /* RFC 8701 */
     { 0x1A1A, "Reserved (GREASE)" },
     { 0x2A2A, "Reserved (GREASE)" },
     { 0x3A3A, "Reserved (GREASE)" },
     { 0x4A4A, "Reserved (GREASE)" },
     /* From RFC 7507 */
     { 0x5600, "TLS_FALLBACK_SCSV" },
-    /* https://tools.ietf.org/html/draft-ietf-tls-grease */
+    /* RFC 8701 */
     { 0x5A5A, "Reserved (GREASE)" },
     { 0x6A6A, "Reserved (GREASE)" },
     { 0x7A7A, "Reserved (GREASE)" },
@@ -1043,7 +1043,7 @@ static const value_string ssl_31_ciphersuite[] = {
     { 0xC0AD, "TLS_ECDHE_ECDSA_WITH_AES_256_CCM" },
     { 0xC0AE, "TLS_ECDHE_ECDSA_WITH_AES_128_CCM_8" },
     { 0xC0AF, "TLS_ECDHE_ECDSA_WITH_AES_256_CCM_8" },
-    /* RFC8492 */
+    /* RFC 8492 */
     { 0xC0B0, "TLS_ECCPWD_WITH_AES_128_GCM_SHA256" },
     { 0xC0B1, "TLS_ECCPWD_WITH_AES_256_GCM_SHA384" },
     { 0xC0B2, "TLS_ECCPWD_WITH_AES_128_CCM_SHA256" },
@@ -1062,7 +1062,7 @@ static const value_string ssl_31_ciphersuite[] = {
     { 0xC104, "TLS_GOSTR341112_256_WITH_MAGMA_MGM_L" },
     { 0xC105, "TLS_GOSTR341112_256_WITH_KUZNYECHIK_MGM_S" },
     { 0xC106, "TLS_GOSTR341112_256_WITH_MAGMA_MGM_S" },
-    /* https://tools.ietf.org/html/draft-ietf-tls-grease */
+    /* RFC 8701 */
     { 0xCACA, "Reserved (GREASE)" },
 /*
 0xC0,0xAB-FF Unassigned
@@ -1089,7 +1089,7 @@ static const value_string ssl_31_ciphersuite[] = {
     { 0xD002, "TLS_ECDHE_PSK_WITH_AES_256_GCM_SHA384" },
     { 0xD003, "TLS_ECDHE_PSK_WITH_AES_128_CCM_8_SHA256" },
     { 0xD005, "TLS_ECDHE_PSK_WITH_AES_128_CCM_SHA256" },
-    /* https://tools.ietf.org/html/draft-ietf-tls-grease */
+    /* RFC 8701 */
     { 0xDADA, "Reserved (GREASE)" },
     /* http://tools.ietf.org/html/draft-josefsson-salsa20-tls */
     { 0xE410, "TLS_RSA_WITH_ESTREAM_SALSA20_SHA1" },
@@ -1108,7 +1108,7 @@ static const value_string ssl_31_ciphersuite[] = {
     { 0xE41D, "TLS_DHE_PSK_WITH_SALSA20_SHA1" },
     { 0xE41E, "TLS_DHE_RSA_WITH_ESTREAM_SALSA20_SHA1" },
     { 0xE41F, "TLS_DHE_RSA_WITH_SALSA20_SHA1" },
-    /* https://tools.ietf.org/html/draft-ietf-tls-grease */
+    /* RFC 8701 */
     { 0xEAEA, "Reserved (GREASE)" },
     { 0xFAFA, "Reserved (GREASE)" },
     /* these from http://www.mozilla.org/projects/
@@ -1166,28 +1166,28 @@ const value_string tls_hello_extension_types[] = {
     { SSL_HND_HELLO_EXT_POST_HANDSHAKE_AUTH, "post_handshake_auth" }, /* RFC 8446 */
     { SSL_HND_HELLO_EXT_SIGNATURE_ALGORITHMS_CERT, "signature_algorithms_cert" }, /* RFC 8446 */
     { SSL_HND_HELLO_EXT_KEY_SHARE, "key_share" }, /* RFC 8446 */
-    { SSL_HND_HELLO_EXT_GREASE_0A0A, "Reserved (GREASE)" }, /* https://tools.ietf.org/html/draft-ietf-tls-grease */
-    { SSL_HND_HELLO_EXT_GREASE_1A1A, "Reserved (GREASE)" }, /* https://tools.ietf.org/html/draft-ietf-tls-grease */
-    { SSL_HND_HELLO_EXT_GREASE_2A2A, "Reserved (GREASE)" }, /* https://tools.ietf.org/html/draft-ietf-tls-grease */
+    { SSL_HND_HELLO_EXT_GREASE_0A0A, "Reserved (GREASE)" }, /* RFC 8701 */
+    { SSL_HND_HELLO_EXT_GREASE_1A1A, "Reserved (GREASE)" }, /* RFC 8701 */
+    { SSL_HND_HELLO_EXT_GREASE_2A2A, "Reserved (GREASE)" }, /* RFC 8701 */
     { SSL_HND_HELLO_EXT_NPN, "next_protocol_negotiation"}, /* https://tools.ietf.org/id/draft-agl-tls-nextprotoneg-03.html */
-    { SSL_HND_HELLO_EXT_GREASE_3A3A, "Reserved (GREASE)" }, /* https://tools.ietf.org/html/draft-ietf-tls-grease */
-    { SSL_HND_HELLO_EXT_GREASE_4A4A, "Reserved (GREASE)" }, /* https://tools.ietf.org/html/draft-ietf-tls-grease */
-    { SSL_HND_HELLO_EXT_GREASE_5A5A, "Reserved (GREASE)" }, /* https://tools.ietf.org/html/draft-ietf-tls-grease */
-    { SSL_HND_HELLO_EXT_GREASE_6A6A, "Reserved (GREASE)" }, /* https://tools.ietf.org/html/draft-ietf-tls-grease */
+    { SSL_HND_HELLO_EXT_GREASE_3A3A, "Reserved (GREASE)" }, /* RFC 8701 */
+    { SSL_HND_HELLO_EXT_GREASE_4A4A, "Reserved (GREASE)" }, /* RFC 8701 */
+    { SSL_HND_HELLO_EXT_GREASE_5A5A, "Reserved (GREASE)" }, /* RFC 8701 */
+    { SSL_HND_HELLO_EXT_GREASE_6A6A, "Reserved (GREASE)" }, /* RFC 8701 */
     { SSL_HND_HELLO_EXT_CHANNEL_ID_OLD, "channel_id_old" }, /* http://tools.ietf.org/html/draft-balfanz-tls-channelid-00
        https://twitter.com/ericlaw/status/274237352531083264 */
     { SSL_HND_HELLO_EXT_CHANNEL_ID, "channel_id" }, /* http://tools.ietf.org/html/draft-balfanz-tls-channelid-01
        https://code.google.com/p/chromium/codesearch#chromium/src/net/third_party/nss/ssl/sslt.h&l=209 */
     { SSL_HND_HELLO_EXT_RENEGOTIATION_INFO, "renegotiation_info" }, /* RFC 5746 */
-    { SSL_HND_HELLO_EXT_GREASE_7A7A, "Reserved (GREASE)" }, /* https://tools.ietf.org/html/draft-ietf-tls-grease */
-    { SSL_HND_HELLO_EXT_GREASE_8A8A, "Reserved (GREASE)" }, /* https://tools.ietf.org/html/draft-ietf-tls-grease */
-    { SSL_HND_HELLO_EXT_GREASE_9A9A, "Reserved (GREASE)" }, /* https://tools.ietf.org/html/draft-ietf-tls-grease */
-    { SSL_HND_HELLO_EXT_GREASE_AAAA, "Reserved (GREASE)" }, /* https://tools.ietf.org/html/draft-ietf-tls-grease */
-    { SSL_HND_HELLO_EXT_GREASE_BABA, "Reserved (GREASE)" }, /* https://tools.ietf.org/html/draft-ietf-tls-grease */
-    { SSL_HND_HELLO_EXT_GREASE_CACA, "Reserved (GREASE)" }, /* https://tools.ietf.org/html/draft-ietf-tls-grease */
-    { SSL_HND_HELLO_EXT_GREASE_DADA, "Reserved (GREASE)" }, /* https://tools.ietf.org/html/draft-ietf-tls-grease */
-    { SSL_HND_HELLO_EXT_GREASE_EAEA, "Reserved (GREASE)" }, /* https://tools.ietf.org/html/draft-ietf-tls-grease */
-    { SSL_HND_HELLO_EXT_GREASE_FAFA, "Reserved (GREASE)" }, /* https://tools.ietf.org/html/draft-ietf-tls-grease */
+    { SSL_HND_HELLO_EXT_GREASE_7A7A, "Reserved (GREASE)" }, /* RFC 8701 */
+    { SSL_HND_HELLO_EXT_GREASE_8A8A, "Reserved (GREASE)" }, /* RFC 8701 */
+    { SSL_HND_HELLO_EXT_GREASE_9A9A, "Reserved (GREASE)" }, /* RFC 8701 */
+    { SSL_HND_HELLO_EXT_GREASE_AAAA, "Reserved (GREASE)" }, /* RFC 8701 */
+    { SSL_HND_HELLO_EXT_GREASE_BABA, "Reserved (GREASE)" }, /* RFC 8701 */
+    { SSL_HND_HELLO_EXT_GREASE_CACA, "Reserved (GREASE)" }, /* RFC 8701 */
+    { SSL_HND_HELLO_EXT_GREASE_DADA, "Reserved (GREASE)" }, /* RFC 8701 */
+    { SSL_HND_HELLO_EXT_GREASE_EAEA, "Reserved (GREASE)" }, /* RFC 8701 */
+    { SSL_HND_HELLO_EXT_GREASE_FAFA, "Reserved (GREASE)" }, /* RFC 8701 */
     { SSL_HND_HELLO_EXT_QUIC_TRANSPORT_PARAMETERS, "quic_transports_parameters" }, /* https://tools.ietf.org/html/draft-ietf-quic-tls */
     { SSL_HND_HELLO_EXT_ENCRYPTED_SERVER_NAME, "encrypted_server_name" }, /* https://tools.ietf.org/html/draft-ietf-tls-esni-01 */
     { 0, NULL }
