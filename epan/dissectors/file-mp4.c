@@ -239,7 +239,6 @@ dissect_mp4_full_box(tvbuff_t *tvb, gint offset, proto_tree *tree,
         proto_tree_add_item(tree, hf_mp4_full_box_flags,
                 tvb, offset, 3, ENC_BIG_ENDIAN);
     }
-    offset += 3;
 
     return 1 + 3;
 }
@@ -577,7 +576,7 @@ dissect_mp4_url_body(tvbuff_t *tvb, gint offset, gint len,
         NULL
     };
 
-    offset += dissect_mp4_full_box (tvb, offset, tree, flags_fields, NULL,
+    dissect_mp4_full_box (tvb, offset, tree, flags_fields, NULL,
             &flags);
     /* XXX - put up an expert info if version!=0 */
 
