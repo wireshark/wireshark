@@ -48,8 +48,8 @@ out-of-tree cmake build and then triggering a build.
 
 4. Usage
 
-Running `vagrant ssh ubuntu` from the wireshark source directory will log you into
-Ubuntu VM as the userid vagrant.
+Running `vagrant ssh ubuntu` from the Wireshark source directory will log you
+into Ubuntu VM as the userid vagrant.
 
 The Ubuntu VM's build folder is located in ~/build. The Ubuntu VM's source
 folder is actually the source folder from the host system mounted as

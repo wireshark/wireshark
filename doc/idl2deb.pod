@@ -30,7 +30,7 @@ S< [ B<--version> ]>
 
 This manual page documents briefly the B<idl2deb> command. B<idl2deb>
 takes an CORBA IDL file as input and creates a Debian package from it. The
-package contains a loadable module for the wireshark network analyser.
+package contains a loadable module for the Wireshark network analyser.
 
 =head1 OPTIONS
 

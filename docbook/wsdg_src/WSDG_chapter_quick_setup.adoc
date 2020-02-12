@@ -391,7 +391,7 @@ To generate the build files enter the following at the Visual Studio command pro
 > cmake -G "Visual Studio 16 2019" -A Win32 ..\wireshark
 ----
 
-Adjusting the paths as required to Python and the wireshark source tree.
+Adjusting the paths as required to Python and the Wireshark source tree.
 To use a different generator modify the `-G` parameter. `cmake -G` lists
 all the CMake supported generators, but only Visual Studio is supported
 for Wireshark builds.

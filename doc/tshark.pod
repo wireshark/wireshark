@@ -801,7 +801,7 @@ Example of usage to import data into Elasticsearch:
   curl -H "Content-Type: application/x-ndjson" -XPOST http://elasticsearch:9200/_bulk --data-binary "@file.json"
 
 Elastic requires a mapping file to be loaded as template for packets-*
-index in order to convert wireshark types to elastic types. This file
+index in order to convert Wireshark types to elastic types. This file
 can be auto-generated with the command "tshark -G elastic-mapping". Since
 the mapping file can be huge, protocols can be selected by using the option
 --elastic-mapping-filter:

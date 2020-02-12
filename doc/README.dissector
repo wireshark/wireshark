@@ -2604,7 +2604,7 @@ it is wise to check the relevant header and source files for additional details.
 
 2.2 Following "conversations".
 
-In wireshark a conversation is defined as a series of data packets between two
+In Wireshark a conversation is defined as a series of data packets between two
 address:port combinations. A conversation is not sensitive to the direction of
 the packet. The same conversation will be returned for a packet bound from
 ServerA:1000 to ClientA:2000 and the packet from ClientA:2000 to ServerA:1000.
@@ -3031,7 +3031,7 @@ whether it is registered to our protocol or not.
 We should do this because it is uncommon but it does happen that multiple
 different protocols can use the same socketpair during different stages of
 an application cycle. By keeping track of the frame number a conversation
-was started in wireshark can still tell these different protocols apart.
+was started in Wireshark can still tell these different protocols apart.
 
 The second argument to conversation_set_dissector is a dissector handle,
 which is created with a call to create_dissector_handle or
@@ -3117,7 +3117,7 @@ conversation already exists or not and if it exists we also check whether the
 registered dissector_handle for that conversation is "our" dissector or not.
 If not we create a new conversation on top of the previous one and set this new
 conversation to use our protocol.
-Since wireshark keeps track of the frame number where a conversation started
+Since Wireshark keeps track of the frame number where a conversation started
 wireshark will still be able to keep the packets apart even though they do use
 the same socketpair.
         (See packet-tftp.c and packet-snmp.c for examples of this)

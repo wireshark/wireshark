@@ -764,7 +764,7 @@ Show this help page.
 
 === User Table
 
-The User Table editor is used for managing various tables in wireshark. Its main
+The User Table editor is used for managing various tables in Wireshark. Its main
 dialog works very similarly to that of <<ChCustColorizationSection>>.
 
 [[ChDisplayFilterMacrosSection]]
@@ -1074,7 +1074,7 @@ sscop:nbap, ...)
 
 === User DLTs protocol table
 
-When a pcap file uses one of the user DLTs (147 to 162) wireshark uses this
+When a pcap file uses one of the user DLTs (147 to 162) Wireshark uses this
 table to know which protocol(s) to use for each user DLT.
 
 This table is a user table, as described in <<ChUserTable>>, with the

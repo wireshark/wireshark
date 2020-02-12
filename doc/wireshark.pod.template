@@ -1643,7 +1643,7 @@ ascending or descending order by any column.
 
 By first selecting a conversation by clicking on it and then using the
 right mouse button (on those platforms that have a right
-mouse button) wireshark will display a popup menu offering several different
+mouse button) Wireshark will display a popup menu offering several different
 filter operations to apply to the capture.
 
 These statistics windows can also be invoked from the Wireshark command
@@ -1762,7 +1762,7 @@ string is specified all request/response pairs will be used.
 
 By first selecting a conversation by clicking on it and then using the
 right mouse button (on those platforms that have a right
-mouse button) wireshark will display a popup menu offering several different
+mouse button) Wireshark will display a popup menu offering several different
 filter operations to apply to the capture.
 
 =item *
@@ -1795,7 +1795,7 @@ on those calls matching that filter.
 
 By first selecting a conversation by clicking on it and then using the
 right mouse button (on those platforms that have a right
-mouse button) wireshark will display a popup menu offering several different
+mouse button) Wireshark will display a popup menu offering several different
 filter operations to apply to the capture.
 
 =item *

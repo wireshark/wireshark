@@ -143,7 +143,7 @@ because in the old grammar, AVPL transformations use names starting with a â€œ.â
 indicate they belong to the replacement AVPL.
 
 The value is a string that is either set in the configuration (for configuration
-AVPs) or by wireshark while extracting interesting fields from a frame's tree.
+AVPs) or by Wireshark while extracting interesting fields from a frame's tree.
 The values extracted from fields use the same representation as they do in filter
 strings except that no quotes are used.
 
@@ -609,7 +609,7 @@ image::wsug_graphics/ws-mate-gop_analysis.png[]
 There are several reasons for the author to believe that this feature needs to
 be reimplemented, so probably there will be deep changes in the way this is done
 in the near future. This section of the documentation reflects the version of
-MATE as of wireshark 0.10.9; in future releases this will change.
+MATE as of Wireshark 0.10.9; in future releases this will change.
 
 ====== Declaring a Group Of Groups
 

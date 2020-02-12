@@ -7,7 +7,7 @@ What is it ?
 As you have probably guessed from the name, "idl2wrs" takes a
 user specified IDL file and attempts to build a dissector that
 can decode the IDL traffic over GIOP. The resulting file is
-"C" code that should compile okay as a wireshark dissector.
+"C" code that should compile okay as a Wireshark dissector.
 
 idl2wrs basically parses the data struct given to it by
 the omniidl compiler, and using the GIOP API available in packet-giop.[ch],
@@ -41,7 +41,7 @@ the case with "Wireshark" (https://www.wireshark.org)
 How to use idl2wrs
 ==================
 
-To use the idl2wrs to generate wireshark dissectors, you
+To use the idl2wrs to generate Wireshark dissectors, you
 need the following.
 
 
@@ -51,15 +51,15 @@ need the following.
 2. omniidl from the omniORB package must be available.
    http://omniorb.sourceforge.net/
 
-3. Of course you need wireshark installed to compile the
-   code and tweak it if required. idl2wrs is part of the 
+3. Of course you need Wireshark installed to compile the
+   code and tweak it if required. idl2wrs is part of the
    standard Wireshark distribution.
 
 
 Procedure
 =========
 
-1.  To write the C code to stdout.  
+1.  To write the C code to stdout.
 
     idl2wrs  <your_file.idl>
 
@@ -77,7 +77,7 @@ Procedure
 If you don't want to use the shell script wrapper, then try
 steps 3 or 4 instead.
 
-3.  To write the C code to stdout.  
+3.  To write the C code to stdout.
 
     Usage: omniidl  -p ./ -b wireshark_be <your_file.idl>
 
@@ -92,9 +92,9 @@ steps 3 or 4 instead.
    and that will leave you with heuristic dissection.
 
 
-5. Copy the resulting C code to your wireshark src directory, edit the
+5. Copy the resulting C code to your Wireshark src directory, edit the
    following files to include the packet-test-idl.c
- 
+
    cp packet-test-idl.c /dir/where/wireshark/lives/epan/dissectors/
    edit epan/dissectors/CMakeLists.txt
 
@@ -131,9 +131,9 @@ Notes
    and wireshark_gen.py are residing in the current directory. This may need
    tweaking if you place these files somewhere else.
 
-2. If it complains about being unable to find some modules (eg tempfile.py), 
+2. If it complains about being unable to find some modules (eg tempfile.py),
    you may want to check if PYTHONPATH is set correctly.
-   On my Linux box, it is  PYTHONPATH=/usr/lib/python1.5/ 
+   On my Linux box, it is  PYTHONPATH=/usr/lib/python1.5/
 
 Frank Singleton.
 

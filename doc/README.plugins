@@ -149,7 +149,7 @@ One way of dealing with this problem is to set an environment variable
 when running Wireshark: WIRESHARK_RUN_FROM_BUILD_DIRECTORY=1.
 
 Another way to deal with this problem is to set up a working root for
-wireshark, say in $HOME/build/root and build wireshark to install
+wireshark, say in $HOME/build/root and build Wireshark to install
 there
 
 cmake -D CMAKE_INSTALL_PREFIX=${HOME}/build/root && make install

@@ -11,10 +11,10 @@ extcap - The extcap interface
 =head1 DESCRIPTION
 
 The extcap interface is a versatile plugin interface that allows external binaries
-to act as capture interfaces directly in wireshark. It is used in scenarios, where
+to act as capture interfaces directly in Wireshark. It is used in scenarios, where
 the source of the capture is not a traditional capture model
 (live capture from an interface, from a pipe, from a file, etc). The typical
-example is connecting esoteric hardware of some kind to the main wireshark app.
+example is connecting esoteric hardware of some kind to the main Wireshark application.
 
 Without extcap, a capture can always be achieved by directly writing to a capture file:
 
@@ -22,7 +22,7 @@ Without extcap, a capture can always be achieved by directly writing to a captur
     wireshark dumpfile.pcap
 
 but the extcap interface allows for such a connection to be easily established and
-configured using the wireshark GUI.
+configured using the Wireshark GUI.
 
 The extcap subsystem is made of multiple extcap binaries that are automatically
 called by the GUI in a row. In the following chapters we will refer to them as
