@@ -322,6 +322,10 @@ static inline guint8 quic_draft_version(guint32 version) {
     if ((version >> 8) == 0xff0000) {
        return (guint8) version;
     }
+    /* Facebook mvfst, based on draft -22. */
+    if (version == 0xfaceb001) {
+        return 22;
+    }
     return 0;
 }
 
@@ -333,6 +337,7 @@ static inline gboolean is_quic_draft_max(guint32 version, guint8 max_version) {
 const value_string quic_version_vals[] = {
     { 0x00000000, "Version Negotiation" },
     { 0x51303434, "Google Q044" },
+    { 0xfaceb001, "Facebook mvfst (draft-22)" },
     { 0xff000004, "draft-04" },
     { 0xff000005, "draft-05" },
     { 0xff000006, "draft-06" },
