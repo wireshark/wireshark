@@ -54,6 +54,8 @@ def main():
     parser = argparse.ArgumentParser(description='Wireshark unit tests')
     cap_group = parser.add_mutually_exclusive_group()
     cap_group.add_argument('-E', '--disable-capture', action='store_true', help='Disable capture tests')
+    release_group = parser.add_mutually_exclusive_group()
+    release_group.add_argument('--enable-release', action='store_true', help='Enable release tests')
     parser.add_argument('-p', '--program-path', default=os.path.curdir, help='Path to Wireshark executables.')
     parser.add_argument('--skip-missing-programs',
         help='Skip tests that lack programs from this list instead of failing'

@@ -123,6 +123,10 @@ extern void software_update_cleanup(void) {
     win_sparkle_cleanup();
 }
 
+const char *software_update_info(void) {
+    return "WinSparkle " WIN_SPARKLE_VERSION_STRING;
+}
+
 #elif defined (__APPLE__)
 /** Initialize software updates.
  */
@@ -146,6 +150,10 @@ software_update_check(void) {
  */
 void software_update_cleanup(void) {
 }
+
+const char *software_update_info(void) {
+    return "Sparkle";
+}
 #endif
 
 #else /* No updates */
@@ -167,6 +175,10 @@ software_update_check(void) {
 void software_update_cleanup(void) {
 }
 
+const char *software_update_info(void) {
+    return NULL;
+}
+
 #endif /* defined(HAVE_SOFTWARE_UPDATE) && defined (_WIN32) */
 
 /*
@@ -181,4 +193,3 @@ void software_update_cleanup(void) {
  * ex: set shiftwidth=4 tabstop=8 expandtab:
  * :indentSize=4:tabSize=8:noTabs=true:
  */
-

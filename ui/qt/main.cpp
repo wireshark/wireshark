@@ -79,6 +79,7 @@
 #include "ui/commandline.h"
 #include "ui/capture_ui_utils.h"
 #include "ui/preference_utils.h"
+#include "ui/software_update.h"
 #include "ui/taps.h"
 
 #include "ui/qt/conversation_dialog.h"
@@ -137,8 +138,8 @@
 # INFO     = 64
 # DEBUG    = 128
 
-*/
 #define DEBUG_STARTUP_TIME_LOGLEVEL 252
+*/
 
 /* update the main window */
 void main_window_update(void)
@@ -225,6 +226,14 @@ get_gui_compiled_info(GString *str)
 #else
     g_string_append(str, "without QtMultimedia");
 #endif
+
+    g_string_append(str, ", ");
+    const char *update_info = software_update_info();
+    if (update_info) {
+        g_string_append_printf(str, "with automatic updates using %s", update_info);
+    } else {
+        g_string_append_printf(str, "without automatic updates");
+    }
 
 #ifdef _WIN32
     g_string_append(str, ", ");

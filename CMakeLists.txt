@@ -3328,6 +3328,7 @@ set(_test_group_list
 	suite_mergecap
 	suite_nameres
 	suite_outputformats
+	suite_release
 	suite_text2pcap
 	suite_sharkd
 	suite_unittests

@@ -41,6 +41,12 @@ extern void software_update_check(void);
  */
 extern void software_update_cleanup(void);
 
+/** Fetch a description of the software update mechanism.
+ *
+ * @return NULL, "Sparkle", or "WinSparkle".
+ */
+extern const char *software_update_info(void);
+
 #ifdef _WIN32
 /** Check to see if Wireshark can shut down safely (e.g. offer to save the
  *  current capture). Called from a separate thread.
