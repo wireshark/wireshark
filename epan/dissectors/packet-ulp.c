@@ -10,6 +10,7 @@
  * Routines for OMA UserPlane Location Protocol packet dissection
  * Copyright 2006, Anders Broman <anders.broman@ericsson.com>
  * Copyright 2014-2019, Pascal Quantin <pascal@wireshark.org>
+ * Copyright 2020, Stig Bjorlykke <stig@bjorlykke.org>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -17,7 +18,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * ref OMA-TS-ULP-V2_0_4-20181213-A
+ * ref OMA-TS-ULP-V2_0_5-20191028-A
  * http://www.openmobilealliance.org
  */
 
@@ -260,6 +261,7 @@ static int hf_ulp_utran_GPSReferenceTimeResult = -1;  /* UTRAN_GPSReferenceTimeR
 static int hf_ulp_utran_GANSSReferenceTimeResult = -1;  /* UTRAN_GANSSReferenceTimeResult */
 static int hf_ulp_utran_GPSReferenceTimeAssistance = -1;  /* UTRAN_GPSReferenceTimeAssistance */
 static int hf_ulp_utran_GANSSReferenceTimeAssistance = -1;  /* UTRAN_GANSSReferenceTimeAssistance */
+static int hf_ulp_ver2_HighAccuracyPosition = -1;  /* Ver2_HighAccuracyPosition */
 static int hf_ulp_emergencyCallLocation = -1;     /* NULL */
 static int hf_ulp_serviceCapabilities = -1;       /* ServiceCapabilities */
 static int hf_ulp_supportedBearers = -1;          /* SupportedBearers */
@@ -307,6 +309,8 @@ static int hf_ulp_additionalPositioningMethods = -1;  /* AdditionalPositioningMe
 static int hf_ulp_GANSSPositionMethods_item = -1;  /* GANSSPositionMethod */
 static int hf_ulp_ganssSBASid = -1;               /* T_ganssSBASid */
 static int hf_ulp_gANSSPositioningMethodTypes = -1;  /* GANSSPositioningMethodTypes */
+static int hf_ulp_rtk = -1;                       /* RTK */
+static int hf_ulp_osr = -1;                       /* BOOLEAN */
 static int hf_ulp_setAssisted = -1;               /* BOOLEAN */
 static int hf_ulp_setBased = -1;                  /* BOOLEAN */
 static int hf_ulp_autonomous = -1;                /* BOOLEAN */
@@ -680,6 +684,7 @@ static int hf_ulp_modernized_gps = -1;            /* BOOLEAN */
 static int hf_ulp_qzss = -1;                      /* BOOLEAN */
 static int hf_ulp_glonass = -1;                   /* BOOLEAN */
 static int hf_ulp_bds = -1;                       /* BOOLEAN */
+static int hf_ulp_rtk_osr = -1;                   /* BOOLEAN */
 static int hf_ulp_rand = -1;                      /* BIT_STRING_SIZE_128 */
 static int hf_ulp_slpFQDN = -1;                   /* FQDN */
 static int hf_ulp_ThirdParty_item = -1;           /* ThirdPartyID */
@@ -722,6 +727,17 @@ static int hf_ulp_angle = -1;                     /* INTEGER_0_179 */
 static int hf_ulp_polygonDescription = -1;        /* PolygonDescription */
 static int hf_ulp_polygonHysteresis = -1;         /* INTEGER_1_100000 */
 static int hf_ulp_PolygonDescription_item = -1;   /* Coordinate */
+static int hf_ulp_highAccuracyPositionEstimate = -1;  /* HighAccuracyPositionEstimate */
+static int hf_ulp_degreesLatitude = -1;           /* INTEGER_M2147483648_2147483647 */
+static int hf_ulp_degreesLongitude = -1;          /* INTEGER_M2147483648_2147483647 */
+static int hf_ulp_uncertaintySemiMajor_01 = -1;   /* INTEGER_0_255 */
+static int hf_ulp_uncertaintySemiMinor_01 = -1;   /* INTEGER_0_255 */
+static int hf_ulp_orientationMajorAxis_01 = -1;   /* INTEGER_0_179 */
+static int hf_ulp_horizontalConfidence = -1;      /* INTEGER_0_100 */
+static int hf_ulp_highAccuracyAltitudeInfo = -1;  /* HighAccuracyAltitudeInfo */
+static int hf_ulp_altitude_02 = -1;               /* INTEGER_64000_1280000 */
+static int hf_ulp_uncertaintyAltitude = -1;       /* INTEGER_0_255 */
+static int hf_ulp_verticalConfidence = -1;        /* INTEGER_0_100 */
 /* named bits */
 static int hf_ulp_T_addPosMode_standalone = -1;
 static int hf_ulp_T_addPosMode_setBased = -1;
@@ -736,7 +752,7 @@ static int hf_ulp_GANSSSignals_signal7 = -1;
 static int hf_ulp_GANSSSignals_signal8 = -1;
 
 /*--- End of included file: packet-ulp-hf.c ---*/
-#line 54 "./asn1/ulp/packet-ulp-template.c"
+#line 55 "./asn1/ulp/packet-ulp-template.c"
 static int hf_ulp_mobile_directory_number = -1;
 static int hf_ulp_ganssTimeModels_bit0 = -1;
 static int hf_ulp_ganssTimeModels_bit1 = -1;
@@ -838,6 +854,7 @@ static gint ett_ulp_PosProtocolVersionOMA = -1;
 static gint ett_ulp_Ver2_PosTechnology_extension = -1;
 static gint ett_ulp_GANSSPositionMethods = -1;
 static gint ett_ulp_GANSSPositionMethod = -1;
+static gint ett_ulp_RTK = -1;
 static gint ett_ulp_GANSSPositioningMethodTypes = -1;
 static gint ett_ulp_AdditionalPositioningMethods = -1;
 static gint ett_ulp_AddPosSupport_Element = -1;
@@ -978,9 +995,12 @@ static gint ett_ulp_CircularArea = -1;
 static gint ett_ulp_EllipticalArea = -1;
 static gint ett_ulp_PolygonArea = -1;
 static gint ett_ulp_PolygonDescription = -1;
+static gint ett_ulp_Ver2_HighAccuracyPosition = -1;
+static gint ett_ulp_HighAccuracyPositionEstimate = -1;
+static gint ett_ulp_HighAccuracyAltitudeInfo = -1;
 
 /*--- End of included file: packet-ulp-ett.c ---*/
-#line 68 "./asn1/ulp/packet-ulp-template.c"
+#line 69 "./asn1/ulp/packet-ulp-template.c"
 
 static dissector_handle_t ulp_tcp_handle;
 
@@ -1252,7 +1272,7 @@ ulp_Coordinate_longitude_fmt(gchar *s, guint32 v)
 #define maxCellReportNR                32
 
 /*--- End of included file: packet-ulp-val.h ---*/
-#line 318 "./asn1/ulp/packet-ulp-template.c"
+#line 319 "./asn1/ulp/packet-ulp-template.c"
 
 typedef struct
 {
@@ -2284,6 +2304,7 @@ static const per_sequence_t GNSSPosTechnology_sequence[] = {
   { &hf_ulp_qzss            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BOOLEAN },
   { &hf_ulp_glonass         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BOOLEAN },
   { &hf_ulp_bds             , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ulp_BOOLEAN },
+  { &hf_ulp_rtk_osr         , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ulp_BOOLEAN },
   { NULL, 0, 0, NULL }
 };
 
@@ -2404,11 +2425,26 @@ dissect_ulp_GANSSSignals(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 }
 
 
+static const per_sequence_t RTK_sequence[] = {
+  { &hf_ulp_osr             , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BOOLEAN },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_ulp_RTK(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_ulp_RTK, RTK_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t GANSSPositionMethod_sequence[] = {
   { &hf_ulp_ganssId         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_INTEGER_0_15 },
   { &hf_ulp_ganssSBASid     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_T_ganssSBASid },
   { &hf_ulp_gANSSPositioningMethodTypes, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_GANSSPositioningMethodTypes },
   { &hf_ulp_gANSSSignals    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_GANSSSignals },
+  { &hf_ulp_rtk             , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ulp_RTK },
   { NULL, 0, 0, NULL }
 };
 
@@ -6637,8 +6673,91 @@ dissect_ulp_StatusCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 }
 
 
+
+static int
+dissect_ulp_INTEGER_M2147483648_2147483647(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            G_MININT32, 2147483647U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ulp_INTEGER_0_179(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 179U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ulp_INTEGER_64000_1280000(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            64000U, 1280000U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t HighAccuracyAltitudeInfo_sequence[] = {
+  { &hf_ulp_altitude_02     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_INTEGER_64000_1280000 },
+  { &hf_ulp_uncertaintyAltitude, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_INTEGER_0_255 },
+  { &hf_ulp_verticalConfidence, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_INTEGER_0_100 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_ulp_HighAccuracyAltitudeInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_ulp_HighAccuracyAltitudeInfo, HighAccuracyAltitudeInfo_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t HighAccuracyPositionEstimate_sequence[] = {
+  { &hf_ulp_degreesLatitude , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_INTEGER_M2147483648_2147483647 },
+  { &hf_ulp_degreesLongitude, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_INTEGER_M2147483648_2147483647 },
+  { &hf_ulp_uncertaintySemiMajor_01, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_INTEGER_0_255 },
+  { &hf_ulp_uncertaintySemiMinor_01, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_INTEGER_0_255 },
+  { &hf_ulp_orientationMajorAxis_01, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_INTEGER_0_179 },
+  { &hf_ulp_horizontalConfidence, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_INTEGER_0_100 },
+  { &hf_ulp_highAccuracyAltitudeInfo, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_HighAccuracyAltitudeInfo },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_ulp_HighAccuracyPositionEstimate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_ulp_HighAccuracyPositionEstimate, HighAccuracyPositionEstimate_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t Ver2_HighAccuracyPosition_sequence[] = {
+  { &hf_ulp_timestamp_01    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_UTCTime },
+  { &hf_ulp_highAccuracyPositionEstimate, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_HighAccuracyPositionEstimate },
+  { &hf_ulp_velocity        , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_Velocity },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_ulp_Ver2_HighAccuracyPosition(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_ulp_Ver2_HighAccuracyPosition, Ver2_HighAccuracyPosition_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t Ver2_SUPL_END_extension_sequence[] = {
   { &hf_ulp_sETCapabilities , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_SETCapabilities },
+  { &hf_ulp_ver2_HighAccuracyPosition, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ulp_Ver2_HighAccuracyPosition },
   { NULL, 0, 0, NULL }
 };
 
@@ -6852,16 +6971,6 @@ static int
 dissect_ulp_CircularArea(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_ulp_CircularArea, CircularArea_sequence);
-
-  return offset;
-}
-
-
-
-static int
-dissect_ulp_INTEGER_0_179(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 179U, NULL, FALSE);
 
   return offset;
 }
@@ -7806,7 +7915,7 @@ static int dissect_ULP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
 
 
 /*--- End of included file: packet-ulp-fn.c ---*/
-#line 334 "./asn1/ulp/packet-ulp-template.c"
+#line 335 "./asn1/ulp/packet-ulp-template.c"
 
 
 static guint
@@ -8631,6 +8740,10 @@ void proto_register_ulp(void) {
       { "utran-GANSSReferenceTimeAssistance", "ulp.utran_GANSSReferenceTimeAssistance_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_ulp_ver2_HighAccuracyPosition,
+      { "ver2-HighAccuracyPosition", "ulp.ver2_HighAccuracyPosition_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_ulp_emergencyCallLocation,
       { "emergencyCallLocation", "ulp.emergencyCallLocation_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -8819,6 +8932,14 @@ void proto_register_ulp(void) {
       { "gANSSPositioningMethodTypes", "ulp.gANSSPositioningMethodTypes_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_ulp_rtk,
+      { "rtk", "ulp.rtk_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_ulp_osr,
+      { "osr", "ulp.osr",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
+        "BOOLEAN", HFILL }},
     { &hf_ulp_setAssisted,
       { "setAssisted", "ulp.setAssisted",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
@@ -10311,6 +10432,10 @@ void proto_register_ulp(void) {
       { "bds", "ulp.bds",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         "BOOLEAN", HFILL }},
+    { &hf_ulp_rtk_osr,
+      { "rtk-osr", "ulp.rtk_osr",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
+        "BOOLEAN", HFILL }},
     { &hf_ulp_rand,
       { "rand", "ulp.rand",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -10479,6 +10604,50 @@ void proto_register_ulp(void) {
       { "Coordinate", "ulp.Coordinate_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_ulp_highAccuracyPositionEstimate,
+      { "highAccuracyPositionEstimate", "ulp.highAccuracyPositionEstimate_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_ulp_degreesLatitude,
+      { "degreesLatitude", "ulp.degreesLatitude",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "INTEGER_M2147483648_2147483647", HFILL }},
+    { &hf_ulp_degreesLongitude,
+      { "degreesLongitude", "ulp.degreesLongitude",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "INTEGER_M2147483648_2147483647", HFILL }},
+    { &hf_ulp_uncertaintySemiMajor_01,
+      { "uncertaintySemiMajor", "ulp.uncertaintySemiMajor",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_255", HFILL }},
+    { &hf_ulp_uncertaintySemiMinor_01,
+      { "uncertaintySemiMinor", "ulp.uncertaintySemiMinor",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_255", HFILL }},
+    { &hf_ulp_orientationMajorAxis_01,
+      { "orientationMajorAxis", "ulp.orientationMajorAxis",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_179", HFILL }},
+    { &hf_ulp_horizontalConfidence,
+      { "horizontalConfidence", "ulp.horizontalConfidence",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_100", HFILL }},
+    { &hf_ulp_highAccuracyAltitudeInfo,
+      { "highAccuracyAltitudeInfo", "ulp.highAccuracyAltitudeInfo_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_ulp_altitude_02,
+      { "altitude", "ulp.altitude",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_64000_1280000", HFILL }},
+    { &hf_ulp_uncertaintyAltitude,
+      { "uncertaintyAltitude", "ulp.uncertaintyAltitude",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_255", HFILL }},
+    { &hf_ulp_verticalConfidence,
+      { "verticalConfidence", "ulp.verticalConfidence",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_100", HFILL }},
     { &hf_ulp_T_addPosMode_standalone,
       { "standalone", "ulp.T.addPosMode.standalone",
         FT_BOOLEAN, 8, NULL, 0x80,
@@ -10525,7 +10694,7 @@ void proto_register_ulp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ulp-hfarr.c ---*/
-#line 360 "./asn1/ulp/packet-ulp-template.c"
+#line 361 "./asn1/ulp/packet-ulp-template.c"
     { &hf_ulp_mobile_directory_number,
       { "Mobile Directory Number", "ulp.mobile_directory_number",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -10650,6 +10819,7 @@ void proto_register_ulp(void) {
     &ett_ulp_Ver2_PosTechnology_extension,
     &ett_ulp_GANSSPositionMethods,
     &ett_ulp_GANSSPositionMethod,
+    &ett_ulp_RTK,
     &ett_ulp_GANSSPositioningMethodTypes,
     &ett_ulp_AdditionalPositioningMethods,
     &ett_ulp_AddPosSupport_Element,
@@ -10790,9 +10960,12 @@ void proto_register_ulp(void) {
     &ett_ulp_EllipticalArea,
     &ett_ulp_PolygonArea,
     &ett_ulp_PolygonDescription,
+    &ett_ulp_Ver2_HighAccuracyPosition,
+    &ett_ulp_HighAccuracyPositionEstimate,
+    &ett_ulp_HighAccuracyAltitudeInfo,
 
 /*--- End of included file: packet-ulp-ettarr.c ---*/
-#line 397 "./asn1/ulp/packet-ulp-template.c"
+#line 398 "./asn1/ulp/packet-ulp-template.c"
   };
 
   module_t *ulp_module;

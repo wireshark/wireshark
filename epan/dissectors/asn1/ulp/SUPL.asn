@@ -1,6 +1,6 @@
 -- SUPL.asn
 -- Taken from OMA UserPlane Location Protocol
--- http://member.openmobilealliance.org/ftp/Public_documents/LOC/Permanent_documents/OMA-TS-ULP-V2_0_4-20181213-A.zip
+-- http://member.openmobilealliance.org/ftp/Public_documents/LOC/Permanent_documents/OMA-TS-ULP-V2_0_5-20191028-A.zip
 
 --
 -- 11.2 Message Specific Part
@@ -700,7 +700,9 @@ FROM SUPL-START
 	SupportedNetworkInformation, GNSSPosTechnology, MultipleLocationIds, UTRAN-GPSReferenceTimeResult, UTRAN-GANSSReferenceTimeResult, UTRAN-GPSReferenceTimeAssistance, UTRAN-GANSSReferenceTimeAssistance, SPCSETKey, SPCTID, SPCSETKeylifetime, ThirdParty, ApplicationID
 FROM Ver2-ULP-Components
 	TriggerType
-FROM SUPL-TRIGGERED-START;
+FROM SUPL-TRIGGERED-START
+	Ver2-HighAccuracyPosition
+FROM Ver2-ULP-Components;
 
 Ver2-SUPL-INIT-extension ::= SEQUENCE {
   notificationMode  		NotificationMode OPTIONAL,
@@ -777,7 +779,8 @@ utran-GANSSReferenceTimeResult	UTRAN-GANSSReferenceTimeResult OPTIONAL,
 
 Ver2-SUPL-END-extension ::= SEQUENCE {
   sETCapabilities	SETCapabilities OPTIONAL,
-...}
+...,
+  ver2-HighAccuracyPosition	Ver2-HighAccuracyPosition	OPTIONAL}
 
 END
 
@@ -890,6 +893,11 @@ ganssId			INTEGER(0..15), -- coding according to parameter definition in section
 ganssSBASid 		BIT STRING(SIZE(3)) OPTIONAL, --coding according to parameter definition in section 10.10
 gANSSPositioningMethodTypes	GANSSPositioningMethodTypes,
 gANSSSignals		GANSSSignals,
+...,
+  rtk		RTK	OPTIONAL}
+
+RTK ::= SEQUENCE {
+  osr		BOOLEAN,
 ...}
 
 GANSSPositioningMethodTypes ::= SEQUENCE {

@@ -1,6 +1,6 @@
 -- ULP-Components.asn
 -- Taken from OMA UserPlane Location Protocol
--- http://member.openmobilealliance.org/ftp/Public_documents/LOC/Permanent_documents/OMA-TS-ULP-V2_0_4-20181213-A.zip
+-- http://member.openmobilealliance.org/ftp/Public_documents/LOC/Permanent_documents/OMA-TS-ULP-V2_0_5-20191028-A.zip
 
 --
 -- 11.5	Common elements (SUPL Version 1)
@@ -304,10 +304,10 @@ END
 Ver2-ULP-Components DEFINITIONS AUTOMATIC TAGS ::=
 BEGIN
 
-EXPORTS Ver2-CellInfo-extension, MultipleLocationIds, SupportedNetworkInformation, CauseCode, UTRAN-GPSReferenceTimeAssistance, UTRAN-GPSReferenceTimeResult, SPCSETKey, SPCTID, SPCSETKeylifetime, UTRAN-GANSSReferenceTimeAssistance, UTRAN-GANSSReferenceTimeResult, GNSSPosTechnology, GANSSSignals, ThirdParty, ApplicationID, ReportingCap, Coordinate, CircularArea, EllipticalArea, PolygonArea;
+EXPORTS Ver2-CellInfo-extension, MultipleLocationIds, SupportedNetworkInformation, CauseCode, UTRAN-GPSReferenceTimeAssistance, UTRAN-GPSReferenceTimeResult, SPCSETKey, SPCTID, SPCSETKeylifetime, UTRAN-GANSSReferenceTimeAssistance, UTRAN-GANSSReferenceTimeResult, GNSSPosTechnology, GANSSSignals, ThirdParty, ApplicationID, ReportingCap, Coordinate, CircularArea, EllipticalArea, PolygonArea, Ver2-HighAccuracyPosition;
 
 IMPORTS
-	LocationId, PrimaryCPICH-Info, CellParametersID, FQDN
+	LocationId, PrimaryCPICH-Info, CellParametersID, FQDN, Velocity
 FROM ULP-Components;
 
 MultipleLocationIds ::= SEQUENCE SIZE (1..maxLidSize) OF LocationIdData
@@ -795,7 +795,8 @@ GNSSPosTechnology ::= SEQUENCE {
   qzss		BOOLEAN,
   glonass	BOOLEAN,
 ...,
-  bds		BOOLEAN	OPTIONAL}
+  bds		BOOLEAN	OPTIONAL,
+  rtk-osr	BOOLEAN	OPTIONAL}
 
 -- indicates MS support for particular GANSS signals and frequencies coding according to parameter definition in section 10.9
 
@@ -890,5 +891,27 @@ PolygonArea ::= SEQUENCE {
  polygonHysteresis	INTEGER(1..100000) OPTIONAL} --units in meters
 
 PolygonDescription ::= SEQUENCE (SIZE (3..15)) OF Coordinate
+
+Ver2-HighAccuracyPosition ::= SEQUENCE {
+  timestamp         UTCTime, -- shall include seconds and shall use UTC time.
+  highAccuracyPositionEstimate	HighAccuracyPositionEstimate,
+  velocity          Velocity OPTIONAL,
+...}
+
+HighAccuracyPositionEstimate ::= SEQUENCE {
+  degreesLatitude		INTEGER(-2147483648..2147483647),
+  degreesLongitude		INTEGER(-2147483648..2147483647),
+  uncertaintySemiMajor	INTEGER (0..255),
+  uncertaintySemiMinor	INTEGER (0..255),
+  orientationMajorAxis	INTEGER (0..179),
+  horizontalConfidence	INTEGER (0..100),
+  highAccuracyAltitudeInfo	HighAccuracyAltitudeInfo OPTIONAL,
+...} -- Coding as in [3GPP GAD]
+
+HighAccuracyAltitudeInfo ::= SEQUENCE {
+  altitude		INTEGER(64000..1280000),
+  uncertaintyAltitude		INTEGER (0..255),
+  verticalConfidence		INTEGER (0..100),
+...} -- Coding as in [3GPP GAD]
 
 END
