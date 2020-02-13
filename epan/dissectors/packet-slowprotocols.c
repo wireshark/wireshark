@@ -86,6 +86,7 @@ dissect_slow_protocols(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     if (!dissector_try_uint_new(slow_protocols_dissector_table, subtype,
                                 next_tvb, pinfo, tree, TRUE, NULL))
         call_data_dissector(next_tvb, pinfo, tree);
+    set_actual_length(tvb, tvb_captured_length(next_tvb) + 1);
 
     return tvb_captured_length(tvb);
 }
