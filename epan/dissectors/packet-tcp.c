@@ -271,6 +271,7 @@ static int hf_tcp_option_mptcp_subflow_seq_no = -1;
 static int hf_tcp_option_mptcp_data_lvl_len = -1;
 static int hf_tcp_option_mptcp_checksum = -1;
 static int hf_tcp_option_mptcp_ipver = -1;
+static int hf_tcp_option_mptcp_echo = -1;
 static int hf_tcp_option_mptcp_ipv4 = -1;
 static int hf_tcp_option_mptcp_ipv6 = -1;
 static int hf_tcp_option_mptcp_port = -1;
@@ -4776,33 +4777,32 @@ dissect_tcpopt_mptcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
             break;
 
         case TCPOPT_MPTCP_ADD_ADDR:
-            proto_tree_add_item(mptcp_tree,
-                            hf_tcp_option_mptcp_ipver, tvb, offset, 1, ENC_BIG_ENDIAN);
             ipver = tvb_get_guint8(tvb, offset) & 0x0F;
+            if (ipver == 4 || ipver == 6)
+                proto_tree_add_item(mptcp_tree,
+                            hf_tcp_option_mptcp_ipver, tvb, offset, 1, ENC_BIG_ENDIAN);
+            else
+                proto_tree_add_item(mptcp_tree,
+                            hf_tcp_option_mptcp_echo, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
 
             proto_tree_add_item(mptcp_tree,
                     hf_tcp_option_mptcp_address_id, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
 
-            switch (ipver) {
-                case 4:
-                    proto_tree_add_item(mptcp_tree,
+            if (optlen == 8 || optlen == 10 || optlen == 16 || optlen == 18) {
+                proto_tree_add_item(mptcp_tree,
                             hf_tcp_option_mptcp_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
-                    offset += 4;
-                    break;
-
-                case 6:
-                    proto_tree_add_item(mptcp_tree,
-                            hf_tcp_option_mptcp_ipv6, tvb, offset, 16, ENC_NA);
-                    offset += 16;
-                    break;
-
-                default:
-                    break;
+                offset += 4;
             }
 
-            if (optlen % 4 == 2) {
+            if (optlen == 20 || optlen == 22 || optlen == 28 || optlen == 30) {
+                proto_tree_add_item(mptcp_tree,
+                            hf_tcp_option_mptcp_ipv6, tvb, offset, 16, ENC_NA);
+                offset += 16;
+            }
+
+            if (optlen == 10 || optlen == 18 || optlen == 22 || optlen == 30) {
                 proto_tree_add_item(mptcp_tree,
                             hf_tcp_option_mptcp_port, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
@@ -7302,6 +7302,10 @@ proto_register_tcp(void)
         { &hf_tcp_option_mptcp_ipver,
           { "IP version", "tcp.options.mptcp.ipver", FT_UINT8,
             BASE_DEC, NULL, 0x0F, NULL, HFILL}},
+
+        { &hf_tcp_option_mptcp_echo,
+          { "Echo", "tcp.options.mptcp.echo", FT_UINT8,
+            BASE_DEC, NULL, 0x01, NULL, HFILL}},
 
         { &hf_tcp_option_mptcp_ipv4,
           { "Advertised IPv4 Address", "tcp.options.mptcp.ipv4", FT_IPv4,
