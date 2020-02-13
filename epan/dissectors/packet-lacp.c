@@ -342,11 +342,11 @@ dissect_lacp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
     length_remaining = tvb_reported_length_remaining(tvb, offset);
     if (length_remaining) {
-        proto_tree_add_item(lacp_tree, hf_lacp_vendor, tvb, offset, length_remaining, ENC_NA);
 
         /* HP LACP MAD IRF, first bytes is always 0x64 and second bytes is the rest of length */
         if (length_remaining > 2 && (tvb_get_guint8(tvb, offset) == 0x64) && ((length_remaining -2) == tvb_get_guint8(tvb, offset+1)) )
         {
+            proto_tree_add_item(lacp_tree, hf_lacp_vendor, tvb, offset, length_remaining, ENC_NA);
             proto_tree_add_item(lacp_tree, hf_lacp_vendor_hp_unknown, tvb, offset, 1, ENC_NA);
             offset += 1;
 
@@ -372,14 +372,13 @@ dissect_lacp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
             offset += 2;
 
             proto_tree_add_item(lacp_tree, hf_lacp_vendor_hp_unknown, tvb, offset, 2, ENC_NA);
-            offset += 2;
-
         } else {
-            offset += length_remaining;
+            /* Not the HP specific extras.  Don't claim the remaining data.  It may actually be an ethernet trailer. */
+            set_actual_length(tvb, tvb_captured_length(tvb) - length_remaining);
+            proto_item_set_len(lacp_item, tvb_captured_length(tvb));
         }
     }
-
-    return offset;
+    return tvb_captured_length(tvb);
 }
 
 /* Register the protocol with Wireshark */
