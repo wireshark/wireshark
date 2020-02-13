@@ -4568,8 +4568,10 @@ dissect_lldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 			break;
 		}
 
-		if (rtnValue < 0)
+		if (rtnValue < 0) {
 			reachedEnd = TRUE;
+			set_actual_length(tvb, offset + rtnValue);
+		}
 		else
 			offset += rtnValue;
 	}
