@@ -654,7 +654,6 @@ static gboolean find_sctpprim_variant3_data_offset(tvbuff_t *tvb, int *data_offs
                     break;
 
                 case 0x0d00:   /* StreamNum */
-                    *dest_port_offset = offset;
                     offset += 2;
                     break;
 

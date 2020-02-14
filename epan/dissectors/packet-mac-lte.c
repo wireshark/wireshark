@@ -6094,7 +6094,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     }
     else {
         /* There is no padding at the end of the frame */
-        if (!is_truncated && (offset < p_mac_lte_info->length)) {
+        if (offset < p_mac_lte_info->length) {
             /* There is a problem if we haven't used all of the PDU */
             expert_add_info_format(pinfo, pdu_ti, &ei_mac_lte_context_length,
                                    "%s PDU for UE %u is shorter than reported length (reported=%u, actual=%u)",
@@ -6102,7 +6102,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                    p_mac_lte_info->ueid, p_mac_lte_info->length, offset);
         }
 
-        if (!is_truncated && (offset > p_mac_lte_info->length)) {
+        if (offset > p_mac_lte_info->length) {
             /* There is a problem if the PDU is longer than reported */
             expert_add_info_format(pinfo, pdu_ti, &ei_mac_lte_context_length,
                                    "%s PDU for UE %u is longer than reported length (reported=%u, actual=%u)",
@@ -6526,14 +6526,14 @@ static void dissect_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
     }
     else {
         /* There is no padding at the end of the frame */
-        if (!is_truncated && (offset < p_mac_lte_info->length)) {
+        if (offset < p_mac_lte_info->length) {
             /* There is a problem if we haven't used all of the PDU */
             expert_add_info_format(pinfo, pdu_ti, &ei_mac_lte_context_length,
                                    "PDU is shorter than reported length (reported=%u, actual=%u)",
                                    p_mac_lte_info->length, offset);
         }
 
-        if (!is_truncated && (offset > p_mac_lte_info->length)) {
+        if (offset > p_mac_lte_info->length) {
             /* There is a problem if the PDU is longer than reported */
             expert_add_info_format(pinfo, pdu_ti, &ei_mac_lte_context_length,
                                    "PDU is longer than reported length (reported=%u, actual=%u)",
@@ -6881,14 +6881,14 @@ static void dissect_slsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
     } else {
         /* There is no padding at the end of the frame */
-        if (!is_truncated && (offset < p_mac_lte_info->length)) {
+        if (offset < p_mac_lte_info->length) {
             /* There is a problem if we haven't used all of the PDU */
             expert_add_info_format(pinfo, pdu_ti, &ei_mac_lte_context_length,
                                    "SL-SCH PDU for UE %u is shorter than reported length (reported=%u, actual=%u)",
                                    p_mac_lte_info->ueid, p_mac_lte_info->length, offset);
         }
 
-        if (!is_truncated && (offset > p_mac_lte_info->length)) {
+        if (offset > p_mac_lte_info->length) {
             /* There is a problem if the PDU is longer than reported */
             expert_add_info_format(pinfo, pdu_ti, &ei_mac_lte_context_length,
                                    "SL-SCH PDU for UE %u is longer than reported length (reported=%u, actual=%u)",

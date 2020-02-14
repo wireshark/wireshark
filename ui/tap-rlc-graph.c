@@ -36,7 +36,8 @@ gboolean compare_rlc_headers(guint16 ueid1, guint16 channelType1, guint16 channe
                (rlcMode1 == rlcMode2);
     }
     else {
-        if (frameIsControl && (rlcMode1 == RLC_AM_MODE) && (rlcMode2 == RLC_AM_MODE)) {
+        /* Control case */
+        if ((rlcMode1 == RLC_AM_MODE) && (rlcMode2 == RLC_AM_MODE)) {
             return ((direction1 != direction2) &&
                     (ueid1 == ueid2) &&
                     (channelType1 == channelType2) &&

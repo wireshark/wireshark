@@ -898,7 +898,7 @@ static void snort_show_alert(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
             unsigned int converted_content_length = 0;
             int content_hf_item;
             char *content_text_template;
-            gboolean attempt_match;
+            gboolean attempt_match = FALSE;
 
             /* Choose type of content field to add */
             switch (rule->contents[n].content_type) {
@@ -1275,10 +1275,10 @@ static void snort_start(void)
         return;
     }
 
+    /* Don't start if already running */
     if (current_session.running) {
         return;
     }
-    current_session.running = FALSE;
 
     /* Reset global stats */
     reset_global_rule_stats(g_snort_config);
