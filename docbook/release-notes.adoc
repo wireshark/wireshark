@@ -59,6 +59,7 @@ since version 3.2.0:
 Cisco MisCabling Protocol (MCP)
 OBSAI UDP-based Communication Protocol (UDPCP)
 AudioCodes Debug Recording (ACDR)
+Tunnel Extensible Authentication Protocol (TEAP)
 --
 
 === Updated Protocol Support
