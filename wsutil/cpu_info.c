@@ -51,7 +51,7 @@ get_cpu_info(GString *str)
     if (str->len > 0)
         g_string_append(str, ", with ");
 
-    g_string_append_printf(str, "%s", CPUBrandString);
+    g_string_append_printf(str, "%s", g_strstrip(CPUBrandString));
 
     if (ws_cpuid_sse42())
         g_string_append(str, " (with SSE4.2)");
