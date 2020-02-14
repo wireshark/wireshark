@@ -1932,7 +1932,7 @@ static int dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
             /**********************************/
             /* User-plane messages            */
-            gboolean pdu_type = (first_byte & 0x80) >> 7;
+            guint8 pdu_type = (first_byte & 0x80) >> 7;
 
             /* Data/Control flag */
             proto_tree_add_item(pdcp_tree, hf_pdcp_lte_data_control, tvb, offset, 1, ENC_BIG_ENDIAN);

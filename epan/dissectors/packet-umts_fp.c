@@ -3525,9 +3525,8 @@ dissect_hsdsch_type_2_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             }
         }
 
-        if (header_length == 0) {
-            header_length = offset;
-        }
+        header_length = offset;
+
         /**********************************************/
         /* Optional fields indicated by earlier flags */
         if (drt_present) {
@@ -3783,9 +3782,8 @@ void dissect_hsdsch_common_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
                                    offset - block_header_start_offset);
             }
         }
-        if (header_length == 0) {
-            header_length = offset;
-        }
+
+        header_length = offset;
 
         /**********************************************/
         /* Optional fields indicated by earlier flags */
@@ -4904,7 +4902,7 @@ heur_dissect_fp_hsdsch_type_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         return FALSE;
     }
 
-    captured_length = tvb_reported_length(tvb);
+    captured_length = tvb_captured_length(tvb);
     reported_length = tvb_reported_length(tvb);
     /* Lengths limit: header size + at least 1 PDU Block Header + CRC Payload size */
     if (captured_length < 11) {
