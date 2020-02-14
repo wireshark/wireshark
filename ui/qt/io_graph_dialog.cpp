@@ -401,20 +401,20 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf, QString displayFi
 
     loadProfileGraphs();
     bool filterExists = false;
-    if (num_io_graphs_ > 0) {
-        for (guint i = 0; i < num_io_graphs_; i++) {
+    if (uat_model_->rowCount() > 0) {
+        for (int i = 0; i < uat_model_->rowCount(); i++) {
             createIOGraph(i);
             if (ioGraphs_.at(i)->filter().compare(displayFilter) == 0)
                 filterExists = true;
         }
         if (! filterExists && displayFilter.length() > 0)
-            addGraph(true, tr("Filtered packets"), displayFilter, ColorUtils::graphColor(num_io_graphs_),
+            addGraph(true, tr("Filtered packets"), displayFilter, ColorUtils::graphColor(uat_model_->rowCount()),
                 IOGraph::psLine, IOG_ITEM_UNIT_PACKETS, QString(), DEFAULT_MOVING_AVERAGE);
     } else {
         addDefaultGraph(true, 0);
         addDefaultGraph(true, 1);
         if (displayFilter.length() > 0)
-            addGraph(true, tr("Filtered packets"), displayFilter, ColorUtils::graphColor(num_io_graphs_),
+            addGraph(true, tr("Filtered packets"), displayFilter, ColorUtils::graphColor(uat_model_->rowCount()),
                 IOGraph::psLine, IOG_ITEM_UNIT_PACKETS, QString(), DEFAULT_MOVING_AVERAGE);
     }
 
