@@ -614,6 +614,7 @@ static value_string_ext tag_num_vals_ext = VALUE_STRING_EXT_INIT(ie_tag_num_vals
 #define ETAG_QUIET_TIME_PERIOD_SETUP           43
 #define ETAG_ESS_REPORT                        44
 #define ETAG_REJECTED_GROUPS                   92
+#define ETAG_ANTI_CLOGGING_TOKEN               93
 
 static const value_string tag_num_vals_eid_ext[] = {
   { ETAG_ASSOC_DELAY_INFO,                    "Association Delay Info" },
@@ -642,6 +643,7 @@ static const value_string tag_num_vals_eid_ext[] = {
   { ETAG_QUIET_TIME_PERIOD_SETUP,             "Quiet Time Period Setup" },
   { ETAG_ESS_REPORT,                          "ESS Report" },
   { ETAG_REJECTED_GROUPS,                     "Rejected Groups" },
+  { ETAG_ANTI_CLOGGING_TOKEN,                 "Anti-Clogging Token Container" },
   { 0, NULL }
 };
 static value_string_ext tag_num_vals_eid_ext_ext = VALUE_STRING_EXT_INIT(tag_num_vals_eid_ext);
@@ -3445,12 +3447,13 @@ static int hf_ieee80211_ff_sa_query_action_code = -1;
 static int hf_ieee80211_ff_transaction_id = -1;
 
 static int hf_ieee80211_ff_send_confirm = -1;
-static int hf_ieee80211_ff_anti_clogging_token = -1;
 static int hf_ieee80211_ff_scalar = -1;
 static int hf_ieee80211_ff_finite_field_element = -1;
 static int hf_ieee80211_ff_confirm = -1;
 static int hf_ieee80211_ff_finite_cyclic_group = -1;
 static int hf_ieee80211_ff_sae_message_type = -1;
+static int hf_ieee80211_ff_sae_anti_clogging_token = -1;
+
 
 /* Vendor specific */
 static int hf_ieee80211_ff_marvell_action_type = -1;
@@ -5428,6 +5431,9 @@ static int hf_ieee80211_estimated_service_params = -1;
 
 static int hf_ieee80211_fcg_new_channel_number = -1;
 static int hf_ieee80211_fcg_extra_info = -1;
+static int hf_ieee80211_sae_password_identifier = -1;
+
+static int hf_ieee80211_sae_anti_clogging_token = -1;
 
 static int hf_ieee80211_tag_fils_indication_info_nr_pk = -1;
 static int hf_ieee80211_tag_fils_indication_info_nr_realm = -1;
@@ -10249,7 +10255,7 @@ static guint get_scalar_len(guint group) {
 }
 
 static guint
-find_anti_clogging_len(tvbuff_t *tvb, guint offset)
+find_fixed_field_len(tvbuff_t *tvb, guint offset)
 {
   guint start_offset = offset;
   guint len = tvb_reported_length(tvb);
@@ -10262,11 +10268,13 @@ find_anti_clogging_len(tvbuff_t *tvb, guint offset)
     if (tvb_get_guint8(tvb, offset) == 0xFF) {
       /*
        * Check if we have a len followed by either ETAG_REJECTED_GROUPS
-       * or ETAG_PASSWORD_IDENTIFIER
+       * or ETAG_PASSWORD_IDENTIFIER or ETAG_ANTI_CLOGGING_TOKEN
        */
       if (offset < len - 3) {
-        if (tvb_get_guint8(tvb, offset + 2) == ETAG_REJECTED_GROUPS ||
-            tvb_get_guint8(tvb, offset + 2) == ETAG_PASSWORD_IDENTIFIER) {
+        guint8 check_byte = tvb_get_guint8(tvb, offset + 2);
+        if (check_byte == ETAG_REJECTED_GROUPS ||
+            check_byte == ETAG_PASSWORD_IDENTIFIER ||
+            check_byte == ETAG_ANTI_CLOGGING_TOKEN) {
               break;
         }
       }
@@ -10307,6 +10315,20 @@ add_ff_auth_sae(proto_tree *tree, tvbuff_t *tvb,
     guint16 group;
     guint sc_len, elt_len;
 
+    /*
+     * Order is: Status code,
+     *           Finite Cyclic Group,
+     *           Anti-Clogging Token in some cases
+     *           Send-Confirm in some cases
+     *           Scalar in some cases
+     *           FFE in some cases
+     *           Confirm in some cases
+     *           Challenge Text in some cases
+     *           RSNE in some cases.
+     *           MDE in some cases.
+     *           Fast BSS TRansition ... in some cases.
+     */
+
     /* 76: Authentication is rejected because an Anti-Clogging Token is required (cf ieee80211_status_code) */
       /* These are present if status code is 0, 76, 77 or 126 */
     if (status_code == 0 || status_code == 76 || status_code == 77 ||
@@ -10316,10 +10338,42 @@ add_ff_auth_sae(proto_tree *tree, tvbuff_t *tvb,
       proto_tree_add_item(tree, hf_ieee80211_ff_finite_cyclic_group, tvb,
                           offset, 2, ENC_LITTLE_ENDIAN);
       offset += 2;
-      len = tvb_reported_length_remaining(tvb, offset);
 
+
+      /*
+       * Now, get the fixed field length remaining. It will be divided up into
+       * Anti-Clogging token, Scalar, FFE and some IEs.
+       */
+      len = find_fixed_field_len(tvb, offset);
       sc_len = get_scalar_len(group);
       elt_len = get_group_element_len(group);
+
+      /*
+       * The first conditional captures the case where we have an error and
+       * an anti-clogging token with Scalar Field and FFE.
+       * The second handles the case where we have an error with only an
+       * anti-clogging token.
+       * The third conditional below is a way to avoid keeping state about
+       * what was in a previous response!
+       */
+      if (((status_code == 76 || status_code == 126) &&
+           ((len > (sc_len + elt_len)))) ||
+           ((status_code == 76) && (len > 0) && (len < (sc_len + elt_len))) ||
+          ((status_code == 0) && (len > (sc_len + elt_len)))) {
+        guint anti_clogging_len;
+        /*
+         * Handle the anti-clogging field. There is an anti-clogging token
+         * before the other two.
+         */
+        if (len > (sc_len + elt_len))
+          anti_clogging_len = len - (sc_len + elt_len);
+        else
+          anti_clogging_len = len;
+
+        proto_tree_add_item(tree, hf_ieee80211_ff_sae_anti_clogging_token, tvb,
+                            offset, anti_clogging_len, ENC_NA);
+        offset += anti_clogging_len;
+      }
 
       if (sc_len == 0) {
         /* assume no anti-clogging token */
@@ -10343,26 +10397,6 @@ add_ff_auth_sae(proto_tree *tree, tvbuff_t *tvb,
         proto_tree_add_item(tree, hf_ieee80211_ff_finite_field_element, tvb,
                             offset, elt_len, ENC_NA);
         offset += elt_len;
-      }
-
-      /*
-       * Do we have an anti-clogging token? To find out we have to scan the
-       * rest of the buffer looking for IEs with 0xFF NUM 0x5C or
-       * 0xFF NUM 0x21 since these can occur after the anti-clogging token.
-       * However, it is only present if the status code is 76 or 126.
-       */
-      if (status_code == 76 || status_code == 126) {
-        guint anti_clogging_len;
-
-        if (offset >= len) { /* Nothing left, add an Expert Info */
-
-        }
-        anti_clogging_len = find_anti_clogging_len(tvb, offset);
-        if (anti_clogging_len > 0) {
-          proto_tree_add_item(tree, hf_ieee80211_ff_anti_clogging_token, tvb,
-                              offset, anti_clogging_len, ENC_NA);
-          offset += anti_clogging_len;
-        }
       }
     }
   }
@@ -20996,6 +21030,17 @@ dissect_ess_report(tvbuff_t *tvb, packet_info *pinfo _U_,
                         bss_trans_thresh, -100 + bss_trans_thresh);
 }
 
+static int
+dissect_password_identifier(tvbuff_t *tvb, packet_info *pinfo _U_,
+  proto_tree *tree, int offset, int len _U_)
+{
+  proto_tree_add_item(tree, hf_ieee80211_sae_password_identifier, tvb, offset,
+                      len, ENC_NA|ENC_ASCII);
+  offset += len;
+
+  return offset;
+}
+
 /*
  * Just a list of finite cyclic group numbers as 16-bit uints.
  */
@@ -21008,6 +21053,17 @@ dissect_rejected_groups(tvbuff_t *tvb, packet_info *pinfo _U_,
                         2, ENC_LITTLE_ENDIAN);
     offset += 2;
   }
+}
+
+/*
+ * Just a string of bytes
+ */
+static void
+dissect_anti_clogging_token(tvbuff_t *tvb, packet_info *pinfo _U_,
+                            proto_tree *tree, int offset, int len)
+{
+  proto_tree_add_item(tree, hf_ieee80211_sae_anti_clogging_token, tvb, offset,
+                      len, ENC_NA);
 }
 
 /*
@@ -21384,6 +21440,9 @@ ieee80211_tag_element_id_extension(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     case ETAG_OWE_DH_PARAMETER:
       dissect_owe_dh_parameter(tvb, pinfo, tree, offset, ext_tag_len, field_data->sanity_check);
       break;
+    case ETAG_PASSWORD_IDENTIFIER:
+      dissect_password_identifier(tvb, pinfo, tree, offset, ext_tag_len);
+      break;
     case ETAG_HE_CAPABILITIES:
       dissect_he_capabilities(tvb, pinfo, tree, offset, ext_tag_len);
       break;
@@ -21413,6 +21472,9 @@ ieee80211_tag_element_id_extension(tvbuff_t *tvb, packet_info *pinfo, proto_tree
       break;
     case ETAG_REJECTED_GROUPS:
         dissect_rejected_groups(tvb, pinfo, tree, offset, ext_tag_len);
+      break;
+    case ETAG_ANTI_CLOGGING_TOKEN:
+      dissect_anti_clogging_token(tvb, pinfo, tree, offset, ext_tag_len);
       break;
     default:
       break;
@@ -30290,11 +30352,6 @@ proto_register_ieee80211(void)
       FT_UINT16, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
-    {&hf_ieee80211_ff_anti_clogging_token,
-     {"Anti-Clogging Token", "wlan.fixed.anti_clogging_token",
-      FT_BYTES, BASE_NONE, NULL, 0,
-      NULL, HFILL }},
-
     {&hf_ieee80211_ff_scalar,
      {"Scalar", "wlan.fixed.scalar",
       FT_BYTES, BASE_NONE, NULL, 0,
@@ -30319,6 +30376,10 @@ proto_register_ieee80211(void)
      {"SAE Message Type", "wlan.fixed.sae_message_type",
       FT_UINT16, BASE_DEC, VALS(ff_sae_message_type_vals), 0,
       NULL, HFILL }},
+
+    {&hf_ieee80211_ff_sae_anti_clogging_token,
+     {"Anti-Clogging Token", "wlan.fixed.anti_clogging_token",
+      FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 
     {&hf_ieee80211_anqp_wfa_subtype,
      {"WFA Subtype", "wlan.anqp.wfa.subtype",
@@ -36280,6 +36341,15 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_fcg_extra_info,
      {"Extra bytes", "wlan.ext_tag.future_channel_guidance.extra_bytes",
       FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_sae_password_identifier,
+     {"Password Identifier", "wlan.ext_tag.sae.password_identifier",
+      FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_sae_anti_clogging_token,
+     {"Anti-Clogging Token", "wlan.ext_tag.sae.anti_clogging_token",
+      FT_BYTES, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
 
     {&hf_ieee80211_tag_fils_indication_info_nr_pk,
      {"Number of Public Key Identifiers", "wlan.fils_indication.info.nr_pk",
