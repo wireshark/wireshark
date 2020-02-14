@@ -2036,6 +2036,8 @@ dissect_quic_retry_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
         } else if (!quic_packet->retry_integrity_success) {
             expert_add_info_format(pinfo, ti, &ei_quic_bad_retry,
                     "Cannot verify Retry Packet due to unknown ODCID");
+        } else {
+            proto_item_append_text(ti, " [verified]");
         }
         offset += 16;
     }
