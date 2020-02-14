@@ -2056,9 +2056,7 @@ dissect_kafka_metadata_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     if (api_version >= 8) {
         proto_tree_add_item(tree, hf_kafka_include_cluster_authorized_ops, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
-    }
 
-    if (api_version >= 8) {
         proto_tree_add_item(tree, hf_kafka_include_topic_authorized_ops, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
     }
@@ -2786,9 +2784,7 @@ dissect_kafka_fetch_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (api_version >= 7) {
         proto_tree_add_item(tree, hf_kafka_fetch_session_id, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
-    }
 
-    if (api_version >= 7) {
         proto_tree_add_item(tree, hf_kafka_fetch_session_epoch, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
     }
@@ -2924,9 +2920,7 @@ dissect_kafka_fetch_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
     if (api_version >= 7) {
         offset = dissect_kafka_error(tvb, pinfo, tree, offset);
-    }
 
-    if (api_version >= 7) {
         proto_tree_add_item(tree, hf_kafka_fetch_session_id, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
     }

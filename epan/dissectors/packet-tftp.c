@@ -218,7 +218,7 @@ tftp_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const
   /* Free up unnecessary memory */
   g_free(eo_info->filename);
 
-  /* Pass out the contigous data and length already accumulated. */
+  /* Pass out the contiguous data and length already accumulated. */
   entry->payload_len = eo_info->payload_len;
   entry->payload_data = eo_info->payload_data;
 
