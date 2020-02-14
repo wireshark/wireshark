@@ -14,7 +14,6 @@
 
 /* TODO:
  * - Check for expected Acks and link between Data and Ack frames
- * - Verify length parameter against remaining payload
  * - Calculate/verify Checksum field
  * - Sequence number analysis, i.e.
  *     - check next expected Msg Id
@@ -93,6 +92,7 @@ static expert_field ei_udpcp_checksum_should_be_zero = EI_INIT;
 static expert_field ei_udpcp_d_not_zero_for_data = EI_INIT;
 static expert_field ei_udpcp_reserved_not_zero = EI_INIT;
 static expert_field ei_udpcp_n_s_ack = EI_INIT;
+static expert_field ei_udpcp_payload_wrong_size = EI_INIT;
 
 static dissector_handle_t udpcp_handle;
 
@@ -308,8 +308,14 @@ dissect_udpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
         /* There is data */
         if ((fragment_amount == 1) && (fragment_number == 0)) {
             /* Not fragmented - show payload now */
-            proto_tree_add_item(udpcp_tree, hf_udpcp_payload, tvb, offset, -1, ENC_ASCII);
+            proto_item *data_ti = proto_tree_add_item(udpcp_tree, hf_udpcp_payload, tvb, offset, -1, ENC_ASCII);
             col_append_fstr(pinfo->cinfo, COL_INFO, "  Data (%u bytes)", data_length);
+
+            /* Check length is as signalled */
+            if (data_length != (guint32)tvb_reported_length_remaining(tvb, offset)) {
+                expert_add_info_format(pinfo, data_ti, &ei_udpcp_payload_wrong_size, "Data length field was %u but %u bytes found",
+                                       data_length, tvb_reported_length_remaining(tvb, offset));
+            }
 
             if (global_udpcp_decode_payload_as_soap) {
                 /* Send to XML dissector */
@@ -344,8 +350,14 @@ dissect_udpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
                                                               &update_col_info, udpcp_tree);
                 if (next_tvb) {
                     /* Have reassembled data */
-                    proto_tree_add_item(udpcp_tree, hf_udpcp_payload, next_tvb, 0, -1, ENC_ASCII);
+                    proto_item *data_ti = proto_tree_add_item(udpcp_tree, hf_udpcp_payload, next_tvb, 0, -1, ENC_ASCII);
                     col_append_fstr(pinfo->cinfo, COL_INFO, "  Reassembled Data (%u bytes)", data_length);
+
+                    /* Check length is as signalled */
+                    if (data_length != (guint32)tvb_reported_length_remaining(next_tvb, 0)) {
+                        expert_add_info_format(pinfo, data_ti, &ei_udpcp_payload_wrong_size, "Data length field was %u but %u bytes found (reassembled)",
+                                               data_length, tvb_reported_length_remaining(next_tvb, 0));
+                    }
 
                     if (global_udpcp_decode_payload_as_soap) {
                         /* Send to XML dissector */
@@ -478,6 +490,8 @@ proto_register_udpcp(void)
         { &ei_udpcp_d_not_zero_for_data,     { "udpcp.d-not-zero-data", PI_SEQUENCE, PI_ERROR, "D should be zero for data frames", EXPFILL }},
         { &ei_udpcp_reserved_not_zero,       { "udpcp.reserved-not-zero", PI_MALFORMED, PI_WARN, "Reserved bits not zero", EXPFILL }},
         { &ei_udpcp_n_s_ack,                 { "udpcp.n-s-set-ack", PI_MALFORMED, PI_ERROR, "N or S set for ACK frame", EXPFILL }},
+        { &ei_udpcp_payload_wrong_size,      { "udpcp.payload-wrong-size", PI_MALFORMED, PI_ERROR, "Payload seen does not match size field", EXPFILL }},
+
     };
 
     module_t *udpcp_module;
