@@ -1,0 +1,47 @@
+name: Build Windows
+
+on: [push]
+
+jobs:
+  windows:
+    name: Build & Test
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Choco install
+        run: cinst -y --no-progress --force winflexbison3 cmake
+      - name: Install strawberryperl
+        run: |
+          choco install strawberryperl
+          echo "##[add-path]C:\strawberry\c\bin;C:\strawberry\perl\site\bin;C:\strawberry\perl\bin"
+      - name: Install Qt
+        # Using ouuan's due to this bug
+        # https://github.com/jurplel/install-qt-action/issues/27
+        uses: ouuan/install-qt-action@v2.3.1
+      - name: Mkdir
+        run: mkdir build
+      - name: Cmake
+        run: cmake -A x64 ..
+        env:
+          PLATFORM: x64
+          WIRESHARK_BASE_DIR: C:/wireshark-libs
+          QT5_BASE_DIR: C:/Qt/5.12.3/msvc2017_64
+        working-directory: build
+      - name: Build
+        run: cmake --build . --config RelWithDebInfo
+        working-directory: build
+      - name: Build test-programs
+        run: cmake --build . --config RelWithDebInfo --target test-programs
+        working-directory: build
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.8
+      - name: Install pytest
+        run: pip install pytest pytest-xdist
+      - name: Run tests
+        env:
+          PYTEST_ADDOPTS: --skip-missing-programs=rawshark
+        run: pytest
+        working-directory: build
