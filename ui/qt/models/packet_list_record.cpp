@@ -36,7 +36,8 @@ PacketListRecord::PacketListRecord(frame_data *frameData) :
     data_ver_(0),
     color_ver_(0),
     colorized_(false),
-    conv_index_(0)
+    conv_index_(0),
+    read_failed_(false)
 {
 }
 
@@ -103,7 +104,13 @@ void PacketListRecord::dissect(capture_file *cap_file, bool dissect_color)
 
     wtap_rec_init(&rec);
     ws_buffer_init(&buf, 1514);
-    if (!cf_read_record(cap_file, fdata_, &rec, &buf)) {
+    if (read_failed_) {
+        read_failed_ = !cf_read_record_no_alert(cap_file, fdata_, &rec, &buf);
+    } else {
+        read_failed_ = !cf_read_record(cap_file, fdata_, &rec, &buf);
+    }
+
+    if (read_failed_) {
         /*
          * Error reading the record.
          *

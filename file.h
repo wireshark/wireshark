@@ -153,6 +153,11 @@ cf_read_status_t cf_read(capture_file *cf, gboolean from_save);
 gboolean cf_read_record(capture_file *cf, const frame_data *fdata,
                           wtap_rec *rec, Buffer *buf);
 
+/** Same as cf_read_record() but does not pop alert box on error */
+gboolean cf_read_record_no_alert(capture_file *cf, const frame_data *fdata,
+                                 wtap_rec *rec, Buffer *buf);
+
+
 /**
  * Read the metadata and raw data for the current record into a
  * capture_file structure's rec and buf for the current record.

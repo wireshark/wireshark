@@ -1565,6 +1565,20 @@ cf_read_record(capture_file *cf, const frame_data *fdata,
 }
 
 gboolean
+cf_read_record_no_alert(capture_file *cf, const frame_data *fdata,
+                        wtap_rec *rec, Buffer *buf)
+{
+  int    err;
+  gchar *err_info;
+
+  if (!wtap_seek_read(cf->provider.wth, fdata->file_off, rec, buf, &err, &err_info)) {
+    g_free(err_info);
+    return FALSE;
+  }
+  return TRUE;
+}
+
+gboolean
 cf_read_current_record(capture_file *cf)
 {
   return cf_read_record(cf, cf->current_frame, &cf->rec, &cf->buf);

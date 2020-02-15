@@ -68,6 +68,8 @@ private:
     /** Conversation. Used by RelatedPacketDelegate */
     unsigned int conv_index_;
 
+    bool read_failed_;
+
     void dissect(capture_file *cap_file, bool dissect_color = false);
     void cacheColumnStrings(column_info *cinfo);
 };
