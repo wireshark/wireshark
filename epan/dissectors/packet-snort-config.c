@@ -31,7 +31,7 @@ static char *skipWhiteSpace(char *source, int *accumulated_offset)
     int offset = 0;
 
     /* Skip any leading whitespace */
-    while (source[offset] != '\0' && source[offset] == ' ') {
+    while ((source[offset] == ' ') || (source[offset] == '\t')) {
         offset++;
     }
 

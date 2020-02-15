@@ -2725,8 +2725,6 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
     if (NULL != sdp_data.ed137_fid) {
       col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", sdp_data.ed137_fid);
-      if (strlen(sdp_pi->summary_str))
-          g_strlcat(sdp_pi->summary_str, " ", 50);
       g_strlcat(sdp_pi->summary_str, sdp_data.ed137_fid, 50);
     }
     if (NULL != sdp_data.ed137_txrxmode) {

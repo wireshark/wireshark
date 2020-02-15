@@ -3540,7 +3540,6 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
      * we just do this to find the blank line separating the
      * headers from the message body.
      */
-    next_offset = offset;
     content_length = -1;
     while (remaining_length > 0) {
         gint line_end_offset;

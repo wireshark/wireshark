@@ -1037,17 +1037,13 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                         if (strncmp(p_ftp_conv->last_command, "CWD ", 4) == 0) {
                             process_cwd_success(p_ftp_conv, p_ftp_conv->last_command+4);
                             /* Update path in packet */
-                            if (!pinfo->fd->visited) {
-                                store_directory_in_packet(pinfo, p_ftp_conv);
-                            }
+                            store_directory_in_packet(pinfo, p_ftp_conv);
                         }
                         /* Change Directory Up command (i.e. "CWD ..") */
                         else if (strncmp(p_ftp_conv->last_command, "CDUP", 4) == 0) {
                             process_cwd_success(p_ftp_conv, "..");
                             /* Update path in packet */
-                            if (!pinfo->fd->visited) {
-                                store_directory_in_packet(pinfo, p_ftp_conv);
-                            }
+                            store_directory_in_packet(pinfo, p_ftp_conv);
                         }
                     }
                 }
