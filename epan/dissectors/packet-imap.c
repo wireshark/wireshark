@@ -501,7 +501,7 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
           uidlen = linelen - (next_token - offset);
           uid_offset = next_token;
           uid_tokenlen = tvb_get_token_len(tvb, next_token, uidlen, &uid_next_token, FALSE);
-          if (tokenlen != 0) {
+          if (uid_tokenlen != 0) {
             proto_tree_add_item(reqresp_tree, hf_imap_request_command, tvb, uid_offset, uid_tokenlen, ENC_ASCII|ENC_NA);
             hidden_item = proto_tree_add_item(reqresp_tree, hf_imap_command, tvb, offset, tokenlen, ENC_ASCII | ENC_NA);
             proto_item_set_hidden(hidden_item);

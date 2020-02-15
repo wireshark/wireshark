@@ -951,7 +951,6 @@ parse_line(gchar *linebuff, gint line_length,
 
 
         /* Outheader values may follow */
-        outhdr_name[0] = '\0';
         if (linebuff[n] == ',') {
             /* Skip , */
             n++;
