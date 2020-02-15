@@ -751,8 +751,6 @@ void MainWindow::captureFileReadStarted(const QString &action) {
     showCapture();
     main_ui_->actionAnalyzeReloadLuaPlugins->setEnabled(false);
     main_ui_->wirelessTimelineWidget->captureFileReadStarted(capture_file_.capFile());
-
-    WiresharkApplication::processEvents();
 }
 
 void MainWindow::captureFileReadFinished() {
