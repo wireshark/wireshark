@@ -4895,6 +4895,7 @@ acctopus-st	6868/udp	# Acctopus Status
 muse		6888/tcp/udp	# MUSE
 rtimeviewer	6900/tcp	# R*TIME Viewer Data Interface
 jetstream	6901/tcp	# Novell Jetstream messaging protocol
+split-ping	6924/tcp/udp	# Ping with RX/TX latency/loss split
 ethoscan	6935/tcp/udp	# EthoScan Service
 xsmsvc		6936/tcp/udp	# XenSource Management Service
 bioserver	6946/tcp/udp	# Biometrics Server
@@ -5602,6 +5603,7 @@ tile-ml		10261/tcp	# Tile remote machine learning
 blocks		10288/tcp/udp	# Blocks
 cosir		10321/tcp	# Computer Op System Information Report
 bngsync		10439/udp	# BalanceNG session table synchronization protocol
+cirrossp	10443/tcp	# CirrosSP Workstation Communication
 hip-nat-t	10500/udp	# HIP NAT-Traversal
 MOS-lower	10540/tcp/udp	# MOS Media Object Metadata Port
 MOS-upper	10541/tcp/udp	# MOS Running Order Port
