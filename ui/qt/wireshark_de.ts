@@ -2297,16 +2297,12 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Typ</translation>
     </message>
     <message>
-        <source>Mac Address</source>
-        <translation type="vanished">Mac Adresse</translation>
-    </message>
-    <message>
         <source>Name</source>
         <translation>Name</translation>
     </message>
     <message>
         <source>Address</source>
-        <translation type="unfinished">Adresse</translation>
+        <translation>Adresse</translation>
     </message>
     <message>
         <source>All entries</source>
@@ -2314,23 +2310,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Hosts</source>
-        <translation type="unfinished">Hosts</translation>
-    </message>
-    <message>
-        <source>IPv4 Hosts</source>
-        <translation type="vanished">IPv4 Hosts</translation>
-    </message>
-    <message>
-        <source>IPv4 Hash Table</source>
-        <translation type="vanished">IPv4 Hashtabelle</translation>
-    </message>
-    <message>
-        <source>IPv6 Hosts</source>
-        <translation type="vanished">IPv6 Hosts</translation>
-    </message>
-    <message>
-        <source>IPv6 Hash Table</source>
-        <translation type="vanished">IPv6 Hashtabelle</translation>
+        <translation>Hosts</translation>
     </message>
     <message>
         <source>Ethernet Addresses</source>

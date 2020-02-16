@@ -2297,16 +2297,12 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Tipo</translation>
     </message>
     <message>
-        <source>Mac Address</source>
-        <translation type="vanished">Indirizzo MAC</translation>
-    </message>
-    <message>
         <source>Name</source>
         <translation>Nome</translation>
     </message>
     <message>
         <source>Address</source>
-        <translation type="unfinished">Indirizzo</translation>
+        <translation>Indirizzo</translation>
     </message>
     <message>
         <source>All entries</source>
@@ -2314,23 +2310,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Hosts</source>
-        <translation type="unfinished">Host:</translation>
-    </message>
-    <message>
-        <source>IPv4 Hosts</source>
-        <translation type="vanished">Host IPv4</translation>
-    </message>
-    <message>
-        <source>IPv4 Hash Table</source>
-        <translation type="vanished">Tabella hash IPv4</translation>
-    </message>
-    <message>
-        <source>IPv6 Hosts</source>
-        <translation type="vanished">Host IPv6</translation>
-    </message>
-    <message>
-        <source>IPv6 Hash Table</source>
-        <translation type="vanished">Tabella hash IPv6</translation>
+        <translation>Host</translation>
     </message>
     <message>
         <source>Ethernet Addresses</source>

@@ -7,11 +7,16 @@ Wireshark 3.2.2 Release Notes
 
  What’s New
 
+  Automatic updates were inadvertently disabled in the Wireshark 3.2.1
+  64-bit and 32-bit Windows installers. If you’re running Wireshark
+  3.2.1 on Windows you will have to update to a later version manually.
+  Bug 16381[1]
+
   Bug Fixes
 
    The following vulnerabilities have been fixed:
 
-     • wnpa-sec-2020-03[1] Foo dissector {crash,infinite loop}.
+     • wnpa-sec-2020-03[2] Foo dissector {crash,infinite loop}.
 
    The following bugs have been fixed:
 
@@ -39,7 +44,7 @@ Wireshark 3.2.2 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[2] on the Wireshark web site.
+   be found on the download page[3] on the Wireshark web site.
 
  File Locations
 
@@ -53,23 +58,24 @@ Wireshark 3.2.2 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[3] and on the
+  Community support is available on Wireshark’s Q&A site[4] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[4].
+  for all of Wireshark’s mailing lists can be found on the web site[5].
 
-  Bugs and feature requests can be reported on the bug tracker[5].
+  Bugs and feature requests can be reported on the bug tracker[6].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[6].
+  A complete FAQ is available on the Wireshark web site[7].
 
-  Last updated 2020-02-09 08:21:23 UTC
+  Last updated 2020-02-16 08:21:47 UTC
 
  References
 
-   1. https://www.wireshark.org/security/wnpa-sec-2020-03
-   2. https://www.wireshark.org/download.html#thirdparty
-   3. https://ask.wireshark.org/
-   4. https://www.wireshark.org/lists/
-   5. https://bugs.wireshark.org/
-   6. https://www.wireshark.org/faq.html
+   1. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16381
+   2. https://www.wireshark.org/security/wnpa-sec-2020-03
+   3. https://www.wireshark.org/download.html#thirdparty
+   4. https://ask.wireshark.org/
+   5. https://www.wireshark.org/lists/
+   6. https://bugs.wireshark.org/
+   7. https://www.wireshark.org/faq.html

@@ -2304,10 +2304,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Тип</translation>
     </message>
     <message>
-        <source>Mac Address</source>
-        <translation type="vanished">MAC-адрес</translation>
-    </message>
-    <message>
         <source>Name</source>
         <translation>Имя</translation>
     </message>
@@ -2322,22 +2318,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Hosts</source>
         <translation type="unfinished">Хосты</translation>
-    </message>
-    <message>
-        <source>IPv4 Hosts</source>
-        <translation type="vanished">Хосты IPv4</translation>
-    </message>
-    <message>
-        <source>IPv4 Hash Table</source>
-        <translation type="vanished">Хэш-таблица IPv4</translation>
-    </message>
-    <message>
-        <source>IPv6 Hosts</source>
-        <translation type="vanished">Хосты IPv6</translation>
-    </message>
-    <message>
-        <source>IPv6 Hash Table</source>
-        <translation type="vanished">Хэш-таблица IPv6</translation>
     </message>
     <message>
         <source>Ethernet Addresses</source>
