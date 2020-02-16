@@ -109,7 +109,6 @@ PacketListModel::~PacketListModel()
 void PacketListModel::setCaptureFile(capture_file *cf)
 {
     cap_file_ = cf;
-    resetColumns();
 }
 
 // Packet list records have no children (for now, at least).

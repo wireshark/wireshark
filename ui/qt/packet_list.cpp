@@ -1051,7 +1051,7 @@ void PacketList::fieldsChanged(capture_file *cf)
     prefs.num_cols = g_list_length(prefs.col_list);
     col_cleanup(&cf->cinfo);
     build_column_format_array(&cf->cinfo, prefs.num_cols, FALSE);
-    // call packet_list_model_->resetColumns() ?
+    resetColumns();
 }
 
 // Column widths should
@@ -1428,6 +1428,8 @@ void PacketList::deleteAllPacketComments()
 void PacketList::setCaptureFile(capture_file *cf)
 {
     cap_file_ = cf;
+    packet_list_model_->setCaptureFile(cf);
+    packet_list_header_->setCaptureFile(cf);
     if (cf) {
         if (columns_changed_) {
             columnsChanged();
@@ -1437,8 +1439,6 @@ void PacketList::setCaptureFile(capture_file *cf)
             setColumnVisibility();
         }
     }
-    packet_list_model_->setCaptureFile(cf);
-    packet_list_header_->setCaptureFile(cf);
     create_near_overlay_ = true;
     sortByColumn(-1, Qt::AscendingOrder);
 }
