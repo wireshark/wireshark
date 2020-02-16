@@ -5,7 +5,7 @@
 # The format used here is: <NUMERICAL_ID><SPACE><NAME>
 # Where SPACE can be any sequence of spaces and tabs.
 #
-# (last updated 2020-02-07)
+# (last updated 2020-02-16)
 
 0	Reserved
 1	NxNetworks
@@ -13172,7 +13172,7 @@
 13302	The Advantage Media Group
 13303	The Gillette Company
 13304	T-Systems Solutions for Research GmbH
-13305	BFH Berne University of Applied Sciences (previous was 'Berne University of Applied Sciences')
+13305	BFH Bern University of Applied Sciences
 13306	University of Montana
 13307	V.R.A.M. Rt.
 13308	Városmajori Gimnázium
@@ -23545,7 +23545,7 @@
 23699	Zyden Software
 23700	Internews 98 Ltd.
 23701	Cannon Technologies Ltd
-23702	SHD Holding GmbH
+23702	SHD AG
 23703	Agile Software (NZ) Ltd
 23704	Calypso Capital Management
 23705	Salient Corporation, Inc
@@ -35731,7 +35731,7 @@
 35899	Prism Clinical Imaging, Inc.
 35900	DuMont Net GmbH & Co. KG
 35901	Al-Quds University
-35902	OpenHeadend
+35902	EasyTools	# formerly 'OpenHeadend'
 35903	Bartonia Domain and Enterprises
 35904	MacroSAN
 35905	ACME-Cebul inc.
@@ -36843,7 +36843,7 @@
 37012	Bestgo.pl Sp. Z O.O.
 37013	eoswan
 37014	Hanming Technology Co., Ltd
-37015	Harms Consulting Pty Ltd
+37015	Harms Consulting Partners Pty Ltd
 37016	Unicredit S.P.A.
 37017	NATION Technologies Group, Inc
 37018	Phabrix
@@ -53236,7 +53236,7 @@
 53426	Vacus Tech Pvt Ltd
 53427	GB Logging AB
 53428	Invigo Offshore SAL
-53429	DarkMatter L.L.C
+53429	Digital 14 L.L.C
 53430	AUTAJON Group
 53431	Lookman Electroplast Industries Limited
 53432	Fondation des Apprentis d'Auteuil
@@ -55050,3 +55050,43 @@
 55242	Rick Stroobosscher
 55243	COMPESO GmbH
 55244	Fast Object LLC
+55245	Capital Region Orthopaedics Associates
+55246	DIAXE
+55247	Working Group Two
+55248	Treetop Innovation AB
+55249	S.E.D. - A GPL Smart Embedded Devices
+55250	MOBIWEB
+55251	Guangzhou Navigateworx Technologies Co., Ltd
+55252	Notesco Financial Services Limited
+55253	brunner & gasser ceTec
+55254	Broadvine
+55255	RELOPS LTD
+55256	Veon Georgia LLC
+55257	Lightcyphers
+55258	Harper Creek Community Schools
+55259	Opus Holding, L.L.C.
+55260	TROPHY ELECTRONICS LLC
+55261	Rosenberger Technologies Co., Ltd.
+55262	Rosenberger Asia Pacific Electronic Co., Ltd.
+55263	Haier Uplus Intelligent Technology (Beijing) Co., Ltd.
+55264	The Gnou Community
+55265	RKU
+55266	SydIT
+55267	Zeel Infotech Pvt. Ltd.
+55268	BEDIA Motorentechnik GmbH & Co.KG
+55269	Datareon
+55270	Fuel Business Intelligence SA
+55271	GOODWE POWER SUPPLY TECHNOLOGY CO.,LTD.
+55272	Glory Technology Service Inc.
+55273	AROY System Pvt. Ltd.
+55274	FlexSCADA
+55275	AVAG Holding SE
+55276	EUROSIGN
+55277	Liberty HR Recruitment Ltd
+55278	MartTrend
+55279	Cygna Labs Corp.
+55280	BFG Supply Co
+55281	EyeConsultantsPC.com eyeoptics.net ECEO.us
+55282	Dr. Pfau Fernwirktechnik GmbH
+55283	OPER8 Global lImited
+55284	kganyaoscar
