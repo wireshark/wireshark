@@ -51,6 +51,7 @@
 #include <epan/decode_as.h>
 
 #include "packet-rtp.h"
+#include "packet-tcp.h"
 
 #include <epan/rtp_pt.h>
 #include <epan/conversation.h>
@@ -1679,29 +1680,45 @@ dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 }
 
 static int
-dissect_rtp_rfc4571(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_full_rfc4571(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
+    /* rfc4571 packet frame
+      0                   1                   2                   3
+      0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+      ---------------------------------------------------------------
+     |             LENGTH            |  RTP or RTCP packet ...       |
+      ---------------------------------------------------------------
+     */
     gint offset = 0;
-    unsigned int packet_len;
-    unsigned int rtp_packet_len;
-    tvbuff_t  *nexttvb;
+    guint32 length = 0;
+    proto_tree_add_item_ret_uint(tree, hf_rfc4571_header_len, tvb, offset, 2, ENC_NA, &length);
+    if (length == 0) {
+        return 2;
+    }
 
-    packet_len = tvb_reported_length(tvb);
-    if ( packet_len < 2 )
-        return 0;
-
-    packet_len -= 2;
-
-    /* Is packet longer than length item */
-    rtp_packet_len = tvb_get_ntohs( tvb, offset );
-    if (packet_len != rtp_packet_len)
-        return 0;
-
-    proto_tree_add_uint( tree, hf_rfc4571_header_len, tvb, offset, 2, rtp_packet_len);
     offset += 2;
+    tvbuff_t *tvb_sub;
+    tvb_sub = tvb_new_subset_remaining(tvb, offset);
 
-    nexttvb = tvb_new_subset_remaining( tvb, offset);
-    return dissect_rtp( nexttvb, pinfo, tree, data );
+    dissect_rtp(tvb_sub, pinfo, tree, data);
+    return tvb_reported_length(tvb);
+}
+
+static guint
+get_rtp_rfc4571_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
+{
+    guint16 rtp_length = tvb_get_ntohs(tvb, offset); /* length field is at the beginning, 2 bytes */
+    return (guint)rtp_length + 2; /* plus the length field */
+}
+
+#define RTP_RFC4571_HEADER_LEN    2
+
+static int
+dissect_rtp_rfc4571(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, RTP_RFC4571_HEADER_LEN,
+                     get_rtp_rfc4571_len, dissect_full_rfc4571, data);
+    return tvb_captured_length(tvb);
 }
 
 static void
