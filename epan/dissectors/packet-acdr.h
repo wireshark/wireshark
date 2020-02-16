@@ -10,8 +10,6 @@
 #ifndef __PACKET_ACDR_H__
 #define __PACKET_ACDR_H__
 
-#include <glib/gtypes.h>
-
 enum acdr_media_types
 {
     ACDR_DSP_AC49X = 0,
