@@ -1390,7 +1390,7 @@ dissect_acdr_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     if (acdr_data == NULL)
         return 0;
 
-    name = val_to_str_const(acdr_data->payload_type, acdr_media_type_vals, "Unknown");
+    name = val_to_str_const(acdr_data->media_type, acdr_media_type_vals, "Unknown");
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ACDR");
     col_set_str(pinfo->cinfo, COL_INFO, name);
 
