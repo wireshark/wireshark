@@ -390,7 +390,6 @@ static dissector_handle_t rtcp_dissector_handle;
 static dissector_handle_t ip_dissector_handle;
 static dissector_handle_t json_dissector_handle;
 static dissector_handle_t megaco_dissector_handle;
-static dissector_handle_t tpncp_dissector_handle;
 static dissector_handle_t mgcp_dissector_handle;
 static dissector_handle_t sip_dissector_handle;
 static dissector_handle_t dsp_49x_dissector_handle;
@@ -775,7 +774,6 @@ create_5x_hpi_packet_header_subtree(proto_tree *tree, tvbuff_t *tvb)
     proto_tree_add_item(ac5x_hpi_packet_header, hf_5x_hpi_protocol, tvb, 3, 1, ENC_BIG_ENDIAN);
 }
 
-#define UDP_PORT_TPNCP_TRUNKPACK 2424
 static void
 acdr_payload_handler(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                      acdr_dissector_data_t *data)
@@ -1267,70 +1265,6 @@ static int
 dissect_acdr_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     return dissect_acdr_ip_or_other(tvb, pinfo, tree, data, mgcp_dissector_handle);
-}
-
-static int
-dissect_acdr_tpncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
-{
-    if (tpncp_dissector_handle) {
-        call_dissector(tpncp_dissector_handle, tvb, pinfo, tree);
-        col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "ACDR-TPNCP");
-    } else {
-        call_data_dissector(tvb, pinfo, tree);
-    }
-
-    return tvb_captured_length(tvb);
-}
-
-static int
-dissect_acdr_tpncp_by_tracepoint(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
-{
-    acdr_dissector_data_t *acdr_data = (acdr_dissector_data_t *) data;
-    guint32 orig_port = pinfo->srcport;
-    int res = 0;
-
-    if (acdr_data == NULL)
-        return 0;
-
-    // the TPNCP dissector uses the following statement to
-    // differentiate command from event:
-    // if (pinfo->srcport == UDP_PORT_TPNCP_TRUNKPACK) -> Event
-    // so for proper dissection we want to imitate this behaviour
-
-    if (acdr_data->trace_point == Host2Net) // event
-        pinfo->srcport = UDP_PORT_TPNCP_TRUNKPACK;
-    else // Net2Host ->command
-        pinfo->srcport = UDP_PORT_TPNCP_TRUNKPACK + 1;
-
-    res = dissect_acdr_tpncp(tvb, pinfo, tree, data);
-    pinfo->srcport = orig_port;
-    return res;
-}
-
-static int
-dissect_acdr_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
-{
-    int res = 0;
-    acdr_dissector_data_t *acdr_data = (acdr_dissector_data_t *) data;
-    guint32 orig_port = pinfo->srcport;
-
-    if (acdr_data == NULL)
-        return 0;
-
-    // only on version 2+ events are sent with TPNCP header that enables using tpncp parser
-    if (acdr_data->version <= 1)
-        return 0;
-
-    // the TPNCP dissector uses the following statement to
-    // differentiate command from event:
-    // if (pinfo->srcport == UDP_PORT_TPNCP_TRUNKPACK) -> Event
-    // so for proper dissection we want to imitate this behaviour
-    pinfo->srcport = UDP_PORT_TPNCP_TRUNKPACK;
-    col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "ACDR-TPNCP");
-
-    res = dissect_acdr_tpncp(tvb, pinfo, tree, data);
-    pinfo->srcport = orig_port;
-    return res;
 }
 
 static int
@@ -2047,7 +1981,6 @@ proto_reg_handoff_acdr(void)
     json_dissector_handle = find_dissector("json");
     megaco_dissector_handle = find_dissector("megaco");
 
-    tpncp_dissector_handle = find_dissector("tpncp");
     mgcp_dissector_handle = find_dissector("mgcp");
     sip_dissector_handle = find_dissector("sip");
 
@@ -2086,11 +2019,6 @@ proto_reg_handoff_acdr(void)
     dissector_add_uint("acdr.media_type", ACDR_SIP, create_dissector_handle(dissect_acdr_sip, -1));
     dissector_add_uint("acdr.media_type", ACDR_MEGACO, create_dissector_handle(dissect_acdr_megaco, -1));
     dissector_add_uint("acdr.media_type", ACDR_MGCP, create_dissector_handle(dissect_acdr_mgcp, -1));
-    dissector_add_uint("acdr.media_type", ACDR_PCIIF_COMMAND, create_dissector_handle(dissect_acdr_tpncp, -1));
-    dissector_add_uint("acdr.media_type", ACDR_COMMAND, create_dissector_handle(dissect_acdr_tpncp, -1));
-    dissector_add_uint("acdr.media_type", ACDR_Event, create_dissector_handle(dissect_acdr_event, -1));
-    dissector_add_uint("acdr.media_type", ACDR_TPNCP,
-                       create_dissector_handle(dissect_acdr_tpncp_by_tracepoint, -1));
 
     dissector_add_uint("acdr.media_type", ACDR_RTP, acdr_rtp_dissector_handle);
     dissector_add_uint("acdr.media_type", ACDR_RTP_AMR, acdr_rtp_dissector_handle);

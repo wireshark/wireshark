@@ -24,6 +24,7 @@
 #include <wsutil/report_message.h>
 #include <wsutil/strtoi.h>
 #include <epan/wmem/wmem.h>
+#include "packet-acdr.h"
 #include "packet-tcp.h"
 
 /*---------------------------------------------------------------------------*/
@@ -320,6 +321,55 @@ dissect_tpncp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         dissect_tpncp(tvb, pinfo, tree, data);
 
     return tvb_reported_length(tvb);
+}
+
+static int
+dissect_acdr_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    int res = 0;
+    acdr_dissector_data_t *acdr_data = (acdr_dissector_data_t *) data;
+    guint32 orig_port = pinfo->srcport;
+
+    if (acdr_data == NULL)
+        return 0;
+
+    // only on version 2+ events are sent with TPNCP header that enables using tpncp parser
+    if (acdr_data->version <= 1)
+        return 0;
+
+    // the TPNCP dissector uses the following statement to
+    // differentiate command from event:
+    // if (pinfo->srcport == UDP_PORT_TPNCP_TRUNKPACK) -> Event
+    // so for proper dissection we want to imitate this behaviour
+    pinfo->srcport = UDP_PORT_TPNCP_TRUNKPACK;
+    res = dissect_tpncp(tvb, pinfo, tree, NULL);
+    pinfo->srcport = orig_port;
+    return res;
+}
+
+static int
+dissect_acdr_tpncp_by_tracepoint(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    acdr_dissector_data_t *acdr_data = (acdr_dissector_data_t *) data;
+    guint32 orig_port = pinfo->srcport;
+    int res = 0;
+
+    if (acdr_data == NULL)
+        return 0;
+
+    // the TPNCP dissector uses the following statement to
+    // differentiate command from event:
+    // if (pinfo->srcport == UDP_PORT_TPNCP_TRUNKPACK) -> Event
+    // so for proper dissection we want to imitate this behaviour
+
+    if (acdr_data->trace_point == Host2Net) // event
+        pinfo->srcport = UDP_PORT_TPNCP_TRUNKPACK;
+    else // Net2Host ->command
+        pinfo->srcport = UDP_PORT_TPNCP_TRUNKPACK + 1;
+
+    res = dissect_tpncp(tvb, pinfo, tree, NULL);
+    pinfo->srcport = orig_port;
+    return res;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -798,6 +848,11 @@ proto_reg_handoff_tpncp(void)
         dissector_handle_t tpncp_tcp_handle = create_dissector_handle(dissect_tpncp_tcp, proto_tpncp);
         dissector_add_uint_with_preference("udp.port", UDP_PORT_TPNCP_TRUNKPACK, tpncp_udp_handle);
         dissector_add_uint_with_preference("tcp.port", TCP_PORT_TPNCP_TRUNKPACK, tpncp_tcp_handle);
+        dissector_add_uint("acdr.media_type", ACDR_PCIIF_COMMAND, tpncp_udp_handle);
+        dissector_add_uint("acdr.media_type", ACDR_COMMAND, tpncp_udp_handle);
+        dissector_add_uint("acdr.media_type", ACDR_Event, create_dissector_handle(dissect_acdr_event, -1));
+        dissector_add_uint("acdr.media_type", ACDR_TPNCP,
+                           create_dissector_handle(dissect_acdr_tpncp_by_tracepoint, -1));
         initialized = TRUE;
     }
     /*  If we weren't able to load the database (and thus the hf_ entries)
