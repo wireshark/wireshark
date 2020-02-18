@@ -2448,6 +2448,13 @@ dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     }
 
     /*
+     * Set the fence before dissecting the PDU because if the PDU is invalid it
+     * may throw an exception and the next PDU will clear the info about the
+     * current PDU
+     */
+    col_set_fence(pinfo->cinfo, COL_INFO);
+
+    /*
      * Dissect the PDU
      */
 
@@ -2592,8 +2599,6 @@ dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     tap_rec->command_id = command_id;
     tap_rec->command_status = command_status;
     tap_queue_packet(smpp_tap, pinfo, tap_rec);
-
-    col_set_fence(pinfo->cinfo, COL_INFO);
 
     return tvb_captured_length(tvb);
 }
