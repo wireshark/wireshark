@@ -167,6 +167,7 @@ def features(cmd_tshark, make_env):
         have_kerberos='with MIT Kerberos' in tshark_v or 'with Heimdal Kerberos' in tshark_v,
         have_libgcrypt16=gcry_m and float(gcry_m.group(1)) >= 1.6,
         have_libgcrypt17=gcry_m and float(gcry_m.group(1)) >= 1.7,
+        have_libgcrypt18=gcry_m and float(gcry_m.group(1)) >= 1.8,
         have_gnutls='with GnuTLS' in tshark_v,
         have_pkcs11='and PKCS #11 support' in tshark_v,
         have_brotli='with brotli' in tshark_v,

@@ -632,8 +632,8 @@ class case_decrypt_kerberos(subprocesstest.SubprocessTestCase):
 
 @fixtures.fixture(scope='session')
 def run_wireguard_test(cmd_tshark, capture_file, features):
-    if not features.have_libgcrypt17:
-        fixtures.skip('Requires Gcrypt 1.7 or later')
+    if not features.have_libgcrypt18:
+        fixtures.skip('Requires Gcrypt 1.8 or later')
     def runOne(self, args, keylog=None, pcap_file='wireguard-ping-tcp.pcap'):
         if keylog:
             keylog_file = self.filename_from_id('wireguard.keys')
