@@ -297,6 +297,8 @@
 #define PROTOCOL_BINARY_DCP_SEQNO_ACK               0x61
 #define PROTOCOL_BINARY_DCP_COMMIT                  0x62
 #define PROTOCOL_BINARY_DCP_ABORT                   0x63
+#define PROTOCOL_BINARY_DCP_SEQNO_ADVANCED          0x64
+#define PROTOCOL_BINARY_DCP_OSO_SNAPSHOT            0x65
 
 #define PROTOCOL_BINARY_CMD_GET_RANDOM_KEY          0xb6
 #define PROTOCOL_BINARY_CMD_SEQNO_PERSISTENCE       0xb7
@@ -375,6 +377,8 @@ static int hf_extras_flags_dcp_include_xattrs = -1;
 static int hf_extras_flags_dcp_no_value = -1;
 static int hf_extras_flags_dcp_include_delete_times = -1;
 static int hf_extras_flags_dcp_collections = -1;
+static int hf_extras_flags_dcp_oso_snapshot_begin = -1;
+static int hf_extras_flags_dcp_oso_snapshot_end = -1;
 static int hf_subdoc_doc_flags = -1;
 static int hf_subdoc_doc_flags_mkdoc = -1;
 static int hf_subdoc_doc_flags_add = -1;
@@ -416,6 +420,7 @@ static int hf_extras_delete_unused = -1;
 static int hf_extras_system_event_id = -1;
 static int hf_extras_system_event_version = -1;
 static int hf_extras_pathlen = -1;
+static int hf_extras_dcp_oso_snapshot_flags = -1;
 static int hf_key = -1;
 static int hf_path = -1;
 static int hf_value = -1;
@@ -764,6 +769,8 @@ static const value_string opcode_vals[] = {
   { PROTOCOL_BINARY_DCP_SEQNO_ACK,                  "DCP Seqno Acknowledgement"},
   { PROTOCOL_BINARY_DCP_COMMIT,                     "DCP Commit"               },
   { PROTOCOL_BINARY_DCP_ABORT,                      "DCP Abort"                },
+  { PROTOCOL_BINARY_DCP_SEQNO_ADVANCED,             "DCP Seqno Advanced"       },
+  { PROTOCOL_BINARY_DCP_OSO_SNAPSHOT,               "DCP Out of Sequence Order Snapshot"},
   { PROTOCOL_BINARY_CMD_STOP_PERSISTENCE,           "Stop Persistence"         },
   { PROTOCOL_BINARY_CMD_START_PERSISTENCE,          "Start Persistence"        },
   { PROTOCOL_BINARY_CMD_SET_PARAM,                  "Set Parameter"            },
@@ -1561,6 +1568,45 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset += 8;
         proto_tree_add_item(extras_tree, hf_extras_abort_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
         offset += 8;
+      } else {
+        illegal = TRUE;
+      }
+    } else if (request) {
+      /* Request must have extras */
+      missing = TRUE;
+    }
+    break;
+  }
+  case PROTOCOL_BINARY_DCP_SEQNO_ADVANCED: {
+    if (extlen) {
+      if (request) {
+        proto_tree_add_item(extras_tree, hf_extras_by_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
+      } else {
+        illegal = TRUE;
+      }
+    } else if (request) {
+      /* Request must have extras */
+      missing = TRUE;
+    }
+    break;
+  }
+  case PROTOCOL_BINARY_DCP_OSO_SNAPSHOT: {
+    if (extlen) {
+      if (request) {
+        static const int * extra_flags[] = {
+          &hf_extras_flags_dcp_oso_snapshot_begin,
+          &hf_extras_flags_dcp_oso_snapshot_end,
+          NULL
+        };
+        proto_tree_add_bitmask(extras_tree,
+                               tvb,
+                               offset,
+                               hf_extras_dcp_oso_snapshot_flags,
+                               ett_extras_flags,
+                               extra_flags,
+                               ENC_BIG_ENDIAN);
+        offset += 4;
       } else {
         illegal = TRUE;
       }
@@ -2955,6 +3001,9 @@ proto_register_couchbase(void)
     { &hf_extras_flags_dcp_no_value, {"No Value", "couchbase.extras.flags.dcp_no_value", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x08, "Indicates the server should strip off values", HFILL} },
     { &hf_extras_flags_dcp_collections, {"Enable Collections", "couchbase.extras.flags.dcp_collections", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x10, "Indicates the server should stream collections", HFILL} },
     { &hf_extras_flags_dcp_include_delete_times, {"Include Delete Times", "couchbase.extras.flags.dcp_include_delete_times", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x20, "Indicates the server should include delete timestamps", HFILL} },
+    { &hf_extras_flags_dcp_oso_snapshot_begin, {"OSO Begin", "couchbase.extras.flags.dcp_oso_snapshot_begin", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x1, "The start of an OSO snapshot", HFILL} },
+    { &hf_extras_flags_dcp_oso_snapshot_end, {"OSO End", "couchbase.extras.flags.dcp_oso_snapshot_end", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x2, "The end of an OSO snapshot", HFILL} },
+
     { &hf_extras_seqno, { "Sequence number", "couchbase.extras.seqno", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_extras_mutation_seqno, { "Mutation Sequence Number", "couchbase.extras.mutation_seqno", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_extras_opaque, { "Opaque (vBucket identifier)", "couchbase.extras.opaque", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
@@ -2981,6 +3030,7 @@ proto_register_couchbase(void)
     { &hf_extras_delete_unused, { "unused", "couchbase.extras.delete_unused", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_extras_system_event_id, { "system_event_id", "couchbase.extras.system_event_id", FT_UINT32, BASE_DEC, VALS(dcp_system_event_id_vals), 0x0, NULL, HFILL } },
     { &hf_extras_system_event_version, { "system_event_version", "couchbase.extras.system_event_version", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+    { &hf_extras_dcp_oso_snapshot_flags, { "OSO snapshot flags", "couchbase.extras.dcp_oso_snapshot_flags", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 
     { &hf_failover_log, { "Failover Log", "couchbase.dcp.failover_log", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
     { &hf_failover_log_size, { "Size", "couchbase.dcp.failover_log.size", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
