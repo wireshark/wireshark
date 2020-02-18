@@ -495,6 +495,7 @@ static int hf_flex_frame_len_esc = -1;
 static int hf_flex_frame_tracing_duration = -1;
 static int hf_flex_frame_durability_req = -1;
 static int hf_flex_frame_dcp_stream_id = -1;
+static int hf_flex_frame_impersonated_user = -1;
 
 static expert_field ef_warn_shall_not_have_value = EI_INIT;
 static expert_field ef_warn_shall_not_have_extras = EI_INIT;
@@ -552,6 +553,9 @@ static const value_string magic_vals[] = {
 #define FLEX_REQUEST_ID_REORDER 0
 #define FLEX_REQUEST_ID_DURABILITY 1
 #define FLEX_REQUEST_ID_DCP_STREAM_ID 2
+#define FLEX_REQUEST_ID_OPEN_TRACING 3
+#define FLEX_REQUEST_ID_IMPERSONATE 4
+#define FLEX_REQUEST_ID_PRESERVE_TTL 5
 
 static const value_string flex_frame_response_ids[] = {
   { FLEX_RESPONSE_ID_RX_TX_DURATION, "Server Recv->Send duration"},
@@ -562,6 +566,9 @@ static const value_string flex_frame_request_ids[] = {
   { FLEX_REQUEST_ID_REORDER, "Out of order Execution"},
   { FLEX_REQUEST_ID_DURABILITY, "Durability Requirements"},
   { FLEX_REQUEST_ID_DCP_STREAM_ID, "DCP Stream Identifier"},
+  { FLEX_REQUEST_ID_OPEN_TRACING, "Open Tracing"},
+  { FLEX_REQUEST_ID_IMPERSONATE, "Impersonate User"},
+  { FLEX_REQUEST_ID_PRESERVE_TTL, "Preserve TTL"},
   { 0, NULL }
 };
 
@@ -919,6 +926,8 @@ static const value_string feature_vals[] = {
   {0x10, "AltRequestSupport"},
   {0x11, "SyncReplication"},
   {0x12, "Collections"},
+  {0x13, "OpenTracing"},
+  {0x14, "PreserveTtl"},
   {0, NULL}
 };
 
@@ -2474,6 +2483,34 @@ static void flex_frame_dcp_stream_id_dissect(tvbuff_t* tvb,
   }
 }
 
+static void flex_frame_impersonate_dissect(tvbuff_t* tvb,
+                                           proto_tree* frame_tree,
+                                           gint offset,
+                                           gint length) {
+  proto_tree_add_item(frame_tree,
+                      hf_flex_frame_impersonated_user,
+                      tvb,
+                      offset,
+                      length,
+                      ENC_UTF_8|ENC_STR_HEX);
+}
+
+static void flex_frame_preserve_ttl(tvbuff_t* tvb,
+                                    proto_tree* frame_tree,
+                                    gint offset,
+                                    gint length) {
+  /* Expects no data, so just check len */
+  if (length != 0) {
+    proto_tree_add_expert_format(frame_tree,
+                                 NULL,
+                                 &ef_warn_unknown_flex_len,
+                                 tvb,
+                                 offset,
+                                 length,
+                                 "FlexFrame: Preserve TTL with illegal length %d", length);
+  }
+}
+
 typedef void (*flex_frame_by_id_dissect_fn)(tvbuff_t*,
                                             proto_tree*,
                                             gint,
@@ -2493,6 +2530,8 @@ static const struct flex_frame_by_id_dissect flex_frame_request_dissect[] = {
   { FLEX_REQUEST_ID_REORDER, &flex_frame_reorder_dissect},
   { FLEX_REQUEST_ID_DURABILITY, &flex_frame_durability_dissect},
   { FLEX_REQUEST_ID_DCP_STREAM_ID, &flex_frame_dcp_stream_id_dissect},
+  { FLEX_REQUEST_ID_IMPERSONATE, &flex_frame_impersonate_dissect},
+  { FLEX_REQUEST_ID_PRESERVE_TTL, &flex_frame_preserve_ttl},
   { 0, NULL }
 };
 
@@ -2878,6 +2917,7 @@ proto_register_couchbase(void)
     { &hf_flex_frame_tracing_duration, {"Server Recv->Send duration", "couchbase.flex_frame.frame.duration", FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_microseconds, 0, NULL, HFILL } },
     { &hf_flex_frame_durability_req, {"Durability Requirement", "couchbase.flex_frame.frame.durability_req", FT_UINT8, BASE_DEC, VALS(flex_frame_durability_req), 0, NULL, HFILL } },
     { &hf_flex_frame_dcp_stream_id, {"DCP Stream Identifier", "couchbase.flex_frame.frame.dcp_stream_id", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+    { &hf_flex_frame_impersonated_user, {"Impersonated User", "couchbase.flex_frame.frame.impersonated_user", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
 
     { &hf_extras, { "Extras", "couchbase.extras", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
     { &hf_extras_flags, { "Flags", "couchbase.extras.flags", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
