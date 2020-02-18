@@ -93,11 +93,11 @@ PKG_CONFIG_VERSION=0.29.2
 #
 # libgpg-error is required for libgcrypt.
 #
-LIBGPG_ERROR_VERSION=1.27
+LIBGPG_ERROR_VERSION=1.37
 #
 # libgcrypt is required.
 #
-LIBGCRYPT_VERSION=1.7.7
+LIBGCRYPT_VERSION=1.8.5
 
 #
 # One or more of the following libraries are required to build Wireshark.
