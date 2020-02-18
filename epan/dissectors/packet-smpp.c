@@ -43,6 +43,7 @@
 #include <epan/exceptions.h>
 #include <epan/stats_tree.h>
 #include <epan/prefs.h>
+#include <epan/exported_pdu.h>
 #include <wsutil/time_util.h>
 #include "packet-tcp.h"
 #include "packet-smpp.h"
@@ -54,6 +55,8 @@
 /* Forward declarations         */
 void proto_register_smpp(void);
 void proto_reg_handoff_smpp(void);
+
+static gint exported_pdu_tap = -1;
 
 /*
  * Initialize the protocol and registered fields
@@ -2368,6 +2371,18 @@ get_smpp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _
     return tvb_get_ntohl(tvb, offset);
 }
 
+static void
+export_smpp_pdu(packet_info *pinfo, tvbuff_t *tvb)
+{
+    exp_pdu_data_t *exp_pdu_data = export_pdu_create_common_tags(pinfo, "smpp", EXP_PDU_TAG_PROTO_NAME);
+
+    exp_pdu_data->tvb_captured_length = tvb_captured_length(tvb);
+    exp_pdu_data->tvb_reported_length = tvb_reported_length(tvb);
+    exp_pdu_data->pdu_tvb = tvb;
+
+    tap_queue_packet(exported_pdu_tap, pinfo, exp_pdu_data);
+}
+
 /* Dissect a single SMPP PDU contained within "tvb". */
 static int
 dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
@@ -2403,6 +2418,10 @@ dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     }
     offset += 4;
     sequence_number = tvb_get_ntohl(tvb, offset);
+
+    if (have_tap_listener(exported_pdu_tap)){
+        export_smpp_pdu(pinfo,tvb);
+    }
 
     /*
      * Update the protocol column.
@@ -3781,6 +3800,8 @@ proto_reg_handoff_smpp(void)
     stats_tree_register_with_group("smpp","smpp_commands", "SM_PP Operations", 0,
                                    smpp_stats_tree_per_packet, smpp_stats_tree_init,
                                    NULL, REGISTER_STAT_GROUP_TELEPHONY);
+
+    exported_pdu_tap = find_tap_id(EXPORT_PDU_TAP_NAME_LAYER_7);
 }
 
 /*
