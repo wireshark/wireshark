@@ -9601,21 +9601,109 @@ static smb2_function smb2_dissector[256] = {
 #define SMB3_AES128GCM_NONCE	12
 
 #if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
+static gboolean is_decrypted_header_ok(guint8 *p, size_t size)
+{
+	if (size < 4)
+		return FALSE;
+
+	if ((p[0] == SMB2_COMP_HEADER || p[0] == SMB2_NORM_HEADER)
+	    && (p[1] == 'S' || p[2] == 'M' || p[3] == 'B')) {
+		return TRUE;
+	}
+
+	DEBUG("decrypt: bad SMB header");
+	return FALSE;
+}
+
+static gboolean
+do_decrypt(guint8 *data,
+	   size_t data_size,
+	   const guint8 *key,
+	   const guint8 *aad,
+	   int aad_size,
+	   const guint8 *nonce,
+	   int alg)
+{
+	gcry_error_t err;
+	gcry_cipher_hd_t cipher_hd = NULL;
+	int mode;
+	int iv_size;
+	guint64 lengths[3];
+
+	switch (alg) {
+	case SMB2_CIPHER_AES_128_CCM:
+		mode = GCRY_CIPHER_MODE_CCM;
+		iv_size = SMB3_AES128CCM_NONCE;
+		break;
+	case SMB2_CIPHER_AES_128_GCM:
+		mode = GCRY_CIPHER_MODE_GCM;
+		iv_size = SMB3_AES128GCM_NONCE;
+		break;
+	default:
+		return FALSE;
+	}
+
+	/* Open the cipher */
+	if ((err = gcry_cipher_open(&cipher_hd, GCRY_CIPHER_AES128, mode, 0))) {
+		DEBUG("GCRY: open %s/%s", gcry_strsource(err), gcry_strerror(err));
+		return FALSE;
+	}
+
+	/* Set the key */
+	if ((err = gcry_cipher_setkey(cipher_hd, key, AES_KEY_SIZE))) {
+		DEBUG("GCRY: setkey %s/%s", gcry_strsource(err), gcry_strerror(err));
+		gcry_cipher_close(cipher_hd);
+		return FALSE;
+	}
+
+	/* Set the initial value */
+	if ((err = gcry_cipher_setiv(cipher_hd, nonce, iv_size))) {
+		DEBUG("GCRY: setiv %s/%s", gcry_strsource(err), gcry_strerror(err));
+		gcry_cipher_close(cipher_hd);
+		return FALSE;
+	}
+
+	lengths[0] = data_size; /* encrypted length */
+	lengths[1] = aad_size; /* AAD length */
+	lengths[2] = 16; /* tag length (signature size) */
+
+	if (mode == GCRY_CIPHER_MODE_CCM) {
+		if ((err = gcry_cipher_ctl(cipher_hd, GCRYCTL_SET_CCM_LENGTHS, lengths, sizeof(lengths)))) {
+			DEBUG("GCRY: ctl %s/%s", gcry_strsource(err), gcry_strerror(err));
+			gcry_cipher_close(cipher_hd);
+			return FALSE;
+		}
+	}
+
+	if ((err = gcry_cipher_authenticate(cipher_hd, aad, aad_size))) {
+		DEBUG("GCRY: auth %s/%s", gcry_strsource(err), gcry_strerror(err));
+		gcry_cipher_close(cipher_hd);
+		return FALSE;
+	}
+
+	if ((err = gcry_cipher_decrypt(cipher_hd, data, data_size, NULL, 0))) {
+		DEBUG("GCRY: decrypt %s/%s", gcry_strsource(err), gcry_strerror(err));
+		gcry_cipher_close(cipher_hd);
+		return FALSE;
+	}
+
+	/* Done with the cipher */
+	gcry_cipher_close(cipher_hd);
+	return is_decrypted_header_ok(data, data_size);
+}
+
 static guint8*
 decrypt_smb_payload(packet_info *pinfo,
 		    tvbuff_t *tvb, int offset,
 		    int offset_aad,
 		    smb2_transform_info_t *sti)
 {
-	gcry_error_t err;
-	gcry_cipher_hd_t cipher_hd = NULL;
 	const guint8 *aad = NULL;
 	guint8 *data = NULL;
-	guint8 *key = NULL;
-	int mode;
-	int iv_size;
+	guint8 *keys[2], *key;
+	gboolean ok;
 	int aad_size;
-	guint64 lengths[3];
+	int alg;
 
 	/* AAD is the rest of transform header after the ProtocolID and Signature */
 	aad_size = 32;
@@ -9626,16 +9714,16 @@ decrypt_smb_payload(packet_info *pinfo,
 	if (tvb_captured_length_remaining(tvb, offset_aad) < aad_size)
 		return NULL;
 
-	if (pinfo->destport == sti->session->server_port)
-		key = sti->session->server_decryption_key;
-	else
-		key = sti->session->client_decryption_key;
+	if (pinfo->destport == sti->session->server_port) {
+		keys[0] = sti->session->server_decryption_key;
+		keys[1] = sti->session->client_decryption_key;
+	} else {
+		keys[1] = sti->session->server_decryption_key;
+		keys[0] = sti->session->client_decryption_key;
+	}
 
-	if (memcmp(key, zeros, NTLMSSP_KEY_LEN) == 0)
-		key = NULL;
-
-	if (!key)
-		return NULL;
+	aad = tvb_get_ptr(tvb, offset_aad, aad_size);
+	data = (guint8 *)tvb_memdup(pinfo->pool, tvb, offset, sti->size);
 
 	/*
 	 * In SMB3.0 the transform header had a Algorithm field to
@@ -9648,78 +9736,70 @@ decrypt_smb_payload(packet_info *pinfo,
 	 * within the Encryption Capability context which should only
 	 * have one element. That element is saved in the conversation
 	 * struct (si->conv) and checked here.
+	 *
+	 * If the trace didn't contain NegProt packets, we have to
+	 * guess the encryption type by trying them all.
+	 *
+	 * Similarly, if we don't have unencrypted packets telling us
+	 * which host is the server and which host is the client, we
+	 * have to guess by trying both keys.
 	 */
 
-	/* g_warning("dialect 0x%x alg 0x%x conv alg 0x%x", sti->conv->dialect, sti->alg, sti->conv->enc_alg); */
+	DEBUG("dialect 0x%x alg 0x%x conv alg 0x%x", sti->conv->dialect, sti->alg, sti->conv->enc_alg);
 
 	if (sti->conv->dialect == SMB2_DIALECT_300) {
-		/* If we are decrypting in SMB3.0, it must be CCM */
+		/* If we know we are decrypting SMB3.0, it must be CCM */
 		sti->conv->enc_alg = SMB2_CIPHER_AES_128_CCM;
 	}
 
-	switch (sti->conv->enc_alg) {
-	case SMB2_CIPHER_AES_128_CCM:
-		mode = GCRY_CIPHER_MODE_CCM;
-		iv_size = SMB3_AES128CCM_NONCE;
-		break;
-	case SMB2_CIPHER_AES_128_GCM:
-		mode = GCRY_CIPHER_MODE_GCM;
-		iv_size = SMB3_AES128GCM_NONCE;
-		break;
-	default:
-		return NULL;
-	}
+	for (guint i = 0; i < G_N_ELEMENTS(keys); i++) {
+		gboolean try_ccm, try_gcm;
+		key = keys[i];
+		ok = try_ccm = try_gcm = FALSE;
 
-	/* Open the cipher */
-	if ((err = gcry_cipher_open(&cipher_hd, GCRY_CIPHER_AES128, mode, 0))) {
-		/* g_warning("GCRY: open %s/%s\n", gcry_strsource(err), gcry_strerror(err)); */
-		return NULL;
-	}
-
-	/* Set the key */
-	if ((err = gcry_cipher_setkey(cipher_hd, key, NTLMSSP_KEY_LEN))) {
-		/* g_warning("GCRY: setkey %s/%s\n", gcry_strsource(err), gcry_strerror(err)); */
-		gcry_cipher_close(cipher_hd);
-		return NULL;
-	}
-
-	/* Set the initial value */
-	if ((err = gcry_cipher_setiv(cipher_hd, sti->nonce, iv_size))) {
-		/* g_warning("GCRY: setiv %s/%s\n", gcry_strsource(err), gcry_strerror(err)); */
-		gcry_cipher_close(cipher_hd);
-		return NULL;
-	}
-
-	aad = tvb_get_ptr(tvb, offset_aad, aad_size);
-
-	lengths[0] = sti->size; /* encrypted length */
-	lengths[1] = aad_size; /* AAD length */
-	lengths[2] = 16; /* tag length (signature size) */
-
-	if (mode == GCRY_CIPHER_MODE_CCM) {
-		if ((err = gcry_cipher_ctl(cipher_hd, GCRYCTL_SET_CCM_LENGTHS, lengths, sizeof(lengths)))) {
-			/* g_warning("GCRY: ctl %s/%s\n", gcry_strsource(err), gcry_strerror(err)); */
-			gcry_cipher_close(cipher_hd);
-			return NULL;
+		switch (sti->conv->enc_alg) {
+		case SMB2_CIPHER_AES_128_CCM:
+			try_ccm = TRUE;
+			break;
+		case SMB2_CIPHER_AES_128_GCM:
+			try_gcm = TRUE;
+			break;
+		default:
+			/* we don't know, try both */
+			try_ccm = TRUE;
+			try_gcm = TRUE;
 		}
+
+		if (try_ccm) {
+			DEBUG("trying CCM decryption");
+			alg = SMB2_CIPHER_AES_128_CCM;
+			ok = do_decrypt(data, sti->size, key, aad, aad_size, sti->nonce, alg);
+			if (ok)
+				break;
+			DEBUG("bad decrypted buffer with CCM");
+		}
+		if (try_gcm) {
+			DEBUG("trying GCM decryption");
+			alg = SMB2_CIPHER_AES_128_GCM;
+			tvb_memcpy(tvb, data, offset, sti->size);
+			ok = do_decrypt(data, sti->size, key, aad, aad_size, sti->nonce, alg);
+			if (ok)
+				break;
+			DEBUG("bad decrypted buffer with GCM");
+		}
+		DEBUG("trying to decrypt with swapped client/server keys");
+		tvb_memcpy(tvb, data, offset, sti->size);
 	}
 
-	if ((err = gcry_cipher_authenticate(cipher_hd, aad, aad_size))) {
-		/* g_warning("GCRY: auth %s/%s\n", gcry_strsource(err), gcry_strerror(err)); */
-		gcry_cipher_close(cipher_hd);
+	if (!ok)
 		return NULL;
-	}
 
-	data = (guint8 *)tvb_memdup(pinfo->pool, tvb, offset, sti->size);
-
-	if ((err = gcry_cipher_decrypt(cipher_hd, data, sti->size, NULL, 0))) {
-		/* g_warning("GCRY: decrypt %s/%s\n", gcry_strsource(err), gcry_strerror(err)); */
-		gcry_cipher_close(cipher_hd);
-		return NULL;
-	}
-
-	/* Done with the cipher */
-	gcry_cipher_close(cipher_hd);
+	/* Remember what worked */
+	sti->conv->enc_alg = alg;
+	if (key == sti->session->server_decryption_key)
+		sti->session->server_port = pinfo->destport;
+	else
+		sti->session->server_port = pinfo->srcport;
 	return data;
 }
 #endif

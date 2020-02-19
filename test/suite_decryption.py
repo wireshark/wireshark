@@ -1115,7 +1115,7 @@ class case_decrypt_smb2(subprocesstest.SubprocessTestCase):
                 '-o', 'uat:smb2_seskey_list:{},{},"",""'.format(sesid, seskey),
                 '-Y', 'frame.number == 7',
         ))
-        self.assertIn('Invalid header', proc.stdout_str)
+        self.assertIn('Encrypted', proc.stdout_str)
 
     def test_smb311_bad_key(self, cmd_tshark, capture_file):
         seskey = 'ffffffffffffffffffffffffffffffff'
@@ -1125,7 +1125,7 @@ class case_decrypt_smb2(subprocesstest.SubprocessTestCase):
                 '-o', 'uat:smb2_seskey_list:{},{},"",""'.format(sesid, seskey),
                 '-Y', 'frame.number == 7'
         ))
-        self.assertIn('Invalid header', proc.stdout_str)
+        self.assertIn('Encrypted', proc.stdout_str)
 
     def test_smb300_aes128ccm(self, cmd_tshark, capture_file):
         '''Check SMB 3.0 AES128CCM decryption.'''
