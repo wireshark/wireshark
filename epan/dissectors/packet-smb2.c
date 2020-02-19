@@ -43,6 +43,40 @@
 
 #include <wsutil/wsgcrypt.h>
 
+//#define DEBUG_SMB2
+#ifdef DEBUG_SMB2
+#define DEBUG(...) g_ ## warning(__VA_ARGS__)
+#define HEXDUMP(p, sz) do_hexdump((const guint8 *)(p), sz)
+static void
+do_hexdump (const guint8 *data, gsize len)
+{
+	guint n, m;
+
+	for (n = 0; n < len; n += 16) {
+		g_printerr ("%04x: ", n);
+
+		for (m = n; m < n + 16; m++) {
+			if (m > n && (m%4) == 0)
+				g_printerr (" ");
+			if (m < len)
+				g_printerr ("%02x ", data[m]);
+			else
+				g_printerr ("   ");
+		}
+
+		g_printerr ("   ");
+
+		for (m = n; m < len && m < n + 16; m++)
+			g_printerr ("%c", g_ascii_isprint (data[m]) ? data[m] : '.');
+
+		g_printerr ("\n");
+	}
+}
+#else
+#define DEBUG(...)
+#define HEXDUMP(...)
+#endif
+
 #define NT_STATUS_PENDING		0x00000103
 #define NT_STATUS_BUFFER_TOO_SMALL	0xC0000023
 #define NT_STATUS_STOPPED_ON_SYMLINK	0x8000002D
@@ -3274,6 +3308,12 @@ static void smb2_generate_decryption_keys(smb2_conv_info_t *conv, smb2_sesid_inf
 				    ses->preauth_hash, SMB2_PREAUTH_HASH_SIZE,
 				    ses->client_decryption_key);
 	}
+
+
+	DEBUG("Generated S2C key");
+	HEXDUMP(ses->client_decryption_key, AES_KEY_SIZE);
+	DEBUG("Generated C2S key");
+	HEXDUMP(ses->server_decryption_key, AES_KEY_SIZE);
 }
 
 static int
