@@ -76,6 +76,7 @@ typedef struct _smb2_tid_info_t {
 } smb2_tid_info_t;
 
 #define SMB2_PREAUTH_HASH_SIZE 64
+#define AES_KEY_SIZE 16
 
 typedef struct _smb2_sesid_info_t {
 	guint64 sesid;		/* *host* byte order - not necessarily little-endian! */
@@ -85,8 +86,8 @@ typedef struct _smb2_sesid_info_t {
 	char *host_name;
 	guint16 server_port;
 	guint8 session_key[NTLMSSP_KEY_LEN];
-	guint8 client_decryption_key[16];
-	guint8 server_decryption_key[16];
+	guint8 client_decryption_key[AES_KEY_SIZE];
+	guint8 server_decryption_key[AES_KEY_SIZE];
 	wmem_map_t *tids;
 	guint8 preauth_hash[SMB2_PREAUTH_HASH_SIZE];
 } smb2_sesid_info_t;

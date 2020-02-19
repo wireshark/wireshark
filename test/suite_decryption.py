@@ -1112,7 +1112,7 @@ class case_decrypt_smb2(subprocesstest.SubprocessTestCase):
         sesid = '1900009c003c0000'
         proc = self.assertRun((cmd_tshark,
                 '-r', capture_file('smb300-aes-128-ccm.pcap.gz'),
-                '-o', 'uat:smb2_seskey_list:{},{}'.format(sesid, seskey),
+                '-o', 'uat:smb2_seskey_list:{},{},"",""'.format(sesid, seskey),
                 '-Y', 'frame.number == 7',
         ))
         self.assertIn('Invalid header', proc.stdout_str)
@@ -1122,7 +1122,7 @@ class case_decrypt_smb2(subprocesstest.SubprocessTestCase):
         sesid = '2900009c003c0000'
         proc = self.assertRun((cmd_tshark,
                 '-r', capture_file('smb311-aes-128-ccm.pcap.gz'),
-                '-o', 'uat:smb2_seskey_list:{},{}'.format(sesid, seskey),
+                '-o', 'uat:smb2_seskey_list:{},{},"",""'.format(sesid, seskey),
                 '-Y', 'frame.number == 7'
         ))
         self.assertIn('Invalid header', proc.stdout_str)
@@ -1134,7 +1134,7 @@ class case_decrypt_smb2(subprocesstest.SubprocessTestCase):
         tree = r'\\dfsroot1.foo.test\IPC$'
         proc = self.assertRun((cmd_tshark,
                 '-r', capture_file('smb300-aes-128-ccm.pcap.gz'),
-                '-o', 'uat:smb2_seskey_list:{},{}'.format(sesid, seskey),
+                '-o', 'uat:smb2_seskey_list:{},{},"",""'.format(sesid, seskey),
                 '-Tfields',
                 '-e', 'smb2.tree',
                 '-Y', 'smb2.tree == "{}"'.format(tree.replace('\\', '\\\\')),
@@ -1148,7 +1148,7 @@ class case_decrypt_smb2(subprocesstest.SubprocessTestCase):
         tree = r'\\dfsroot1.foo.test\IPC$'
         proc = self.assertRun((cmd_tshark,
                 '-r', capture_file('smb311-aes-128-ccm.pcap.gz'),
-                '-o', 'uat:smb2_seskey_list:{},{}'.format(sesid, seskey),
+                '-o', 'uat:smb2_seskey_list:{},{},"",""'.format(sesid, seskey),
                 '-Tfields',
                 '-e', 'smb2.tree',
                 '-Y', 'smb2.tree == "{}"'.format(tree.replace('\\', '\\\\')),
@@ -1162,7 +1162,7 @@ class case_decrypt_smb2(subprocesstest.SubprocessTestCase):
         tree = r'\\dfsroot1.foo.test\IPC$'
         proc = self.assertRun((cmd_tshark,
                 '-r', capture_file('smb311-aes-128-gcm.pcap.gz'),
-                '-o', 'uat:smb2_seskey_list:{},{}'.format(sesid, seskey),
+                '-o', 'uat:smb2_seskey_list:{},{},"",""'.format(sesid, seskey),
                 '-Tfields',
                 '-e', 'smb2.tree',
                 '-Y', 'smb2.tree == "{}"'.format(tree.replace('\\', '\\\\')),

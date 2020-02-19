@@ -1075,10 +1075,18 @@ smb2stat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const vo
 
 /* Structure for SessionID <=> SessionKey mapping for decryption. */
 typedef struct _smb2_seskey_field_t {
+	/* session id */
 	guchar *id;		/* *little-endian* - not necessarily host-endian! */
 	guint id_len;
-	guchar *key;
-	guint key_len;
+	/* session key */
+	guchar *seskey;
+	guint seskey_len;
+	/* server to client key */
+	guchar *s2ckey;
+	guint s2ckey_len;
+	/* client to server key */
+	guchar *c2skey;
+	guint c2skey_len;
 } smb2_seskey_field_t;
 
 static smb2_seskey_field_t *seskey_list = NULL;
@@ -1088,13 +1096,18 @@ static const gint8 zeros[NTLMSSP_KEY_LEN] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
 /* Callbacks for SessionID <=> SessionKey mapping. */
 UAT_BUFFER_CB_DEF(seskey_list, id, smb2_seskey_field_t, id, id_len)
-UAT_BUFFER_CB_DEF(seskey_list, key, smb2_seskey_field_t, key, key_len)
+UAT_BUFFER_CB_DEF(seskey_list, seskey, smb2_seskey_field_t, seskey, seskey_len)
+UAT_BUFFER_CB_DEF(seskey_list, s2ckey, smb2_seskey_field_t, s2ckey, s2ckey_len)
+UAT_BUFFER_CB_DEF(seskey_list, c2skey, smb2_seskey_field_t, c2skey, c2skey_len)
 
 #define SMB_SESSION_ID_SIZE 8
 
 static gboolean seskey_list_update_cb(void *r, char **err)
 {
 	smb2_seskey_field_t *rec = (smb2_seskey_field_t *)r;
+	gboolean has_seskey = rec->seskey_len != 0;
+	gboolean has_s2ckey = rec->s2ckey_len != 0;
+	gboolean has_c2skey = rec->c2skey_len != 0;
 
 	*err = NULL;
 
@@ -1103,8 +1116,24 @@ static gboolean seskey_list_update_cb(void *r, char **err)
 		return FALSE;
 	}
 
-	if (rec->key_len == 0 || rec->key_len > NTLMSSP_KEY_LEN) {
-		*err = g_strdup("Session Key must be a non-empty hexadecimal string representing at most " G_STRINGIFY(NTLMSSP_KEY_LEN) " bytes");
+	if (!has_seskey && !(has_c2skey || has_s2ckey)) {
+		*err = g_strdup("Decryption requires either the Session Key or at least one of the client-server AES keys");
+		return FALSE;
+	}
+
+
+	if (rec->seskey_len > NTLMSSP_KEY_LEN) {
+		*err = g_strdup("Session Key must be a hexadecimal string representing at most " G_STRINGIFY(NTLMSSP_KEY_LEN) " bytes");
+		return FALSE;
+	}
+
+	if (has_s2ckey && rec->s2ckey_len != AES_KEY_SIZE) {
+		*err = g_strdup("Server-to-Client key must be a hexadecimal string representing " G_STRINGIFY(AES_KEY_SIZE));
+		return FALSE;
+	}
+
+	if (has_c2skey && rec->c2skey_len != AES_KEY_SIZE) {
+		*err = g_strdup("Client-to-Server key must be a hexadecimal string representing " G_STRINGIFY(AES_KEY_SIZE));
 		return FALSE;
 	}
 
@@ -1118,8 +1147,12 @@ static void* seskey_list_copy_cb(void *n, const void *o, size_t siz _U_)
 
 	new_rec->id_len = old_rec->id_len;
 	new_rec->id = old_rec->id ? (guchar *)g_memdup(old_rec->id, old_rec->id_len) : NULL;
-	new_rec->key_len = old_rec->key_len;
-	new_rec->key = old_rec->key ? (guchar *)g_memdup(old_rec->key, old_rec->key_len) : NULL;
+	new_rec->seskey_len = old_rec->seskey_len;
+	new_rec->seskey = old_rec->seskey ? (guchar *)g_memdup(old_rec->seskey, old_rec->seskey_len) : NULL;
+	new_rec->s2ckey_len = old_rec->s2ckey_len;
+	new_rec->s2ckey = old_rec->s2ckey ? (guchar *)g_memdup(old_rec->s2ckey, old_rec->s2ckey_len) : NULL;
+	new_rec->c2skey_len = old_rec->c2skey_len;
+	new_rec->c2skey = old_rec->c2skey ? (guchar *)g_memdup(old_rec->c2skey, old_rec->c2skey_len) : NULL;
 
 	return new_rec;
 }
@@ -1129,10 +1162,12 @@ static void seskey_list_free_cb(void *r)
 	smb2_seskey_field_t *rec = (smb2_seskey_field_t *)r;
 
 	g_free(rec->id);
-	g_free(rec->key);
+	g_free(rec->seskey);
+	g_free(rec->s2ckey);
+	g_free(rec->c2skey);
 }
 
-static gboolean seskey_find_sid_key(guint64 sesid, guint8 *out_key)
+static gboolean seskey_find_sid_key(guint64 sesid, guint8 *out_seskey, guint8 *out_s2ckey, guint8 *out_c2skey)
 {
 	guint i;
 	guint64 sesid_le;
@@ -1156,8 +1191,17 @@ static gboolean seskey_find_sid_key(guint64 sesid, guint8 *out_key)
 	for (i = 0; i < num_seskey_list; i++) {
 		const smb2_seskey_field_t *p = &seskey_list[i];
 		if (memcmp(&sesid_le, p->id, SMB_SESSION_ID_SIZE) == 0) {
-			memset(out_key, 0, NTLMSSP_KEY_LEN);
-			memcpy(out_key, p->key, p->key_len);
+			memset(out_seskey, 0, NTLMSSP_KEY_LEN);
+			memset(out_s2ckey, 0, AES_KEY_SIZE);
+			memset(out_c2skey, 0, AES_KEY_SIZE);
+
+			if (p->seskey_len != 0)
+				memcpy(out_seskey, p->seskey, p->seskey_len);
+			if (p->s2ckey_len != 0)
+				memcpy(out_s2ckey, p->s2ckey, p->s2ckey_len);
+			if (p->c2skey_len != 0)
+				memcpy(out_c2skey, p->c2skey, p->c2skey_len);
+
 			return TRUE;
 		}
 	}
@@ -1336,7 +1380,7 @@ smb2_get_session(smb2_conv_info_t *conv, guint64 id, packet_info *pinfo, smb2_in
 		ses->sesid = id;
 		ses->auth_frame = (guint32)-1;
 		ses->tids = wmem_map_new(wmem_file_scope(), smb2_tid_info_hash, smb2_tid_info_equal);
-		seskey_find_sid_key(id, ses->session_key);
+		seskey_find_sid_key(id, ses->session_key, ses->client_decryption_key, ses->server_decryption_key);
 		if (pinfo && si) {
 			if (si->flags & SMB2_FLAGS_RESPONSE) {
 				ses->server_port = pinfo->srcport;
@@ -3282,31 +3326,44 @@ dissect_smb2_secblob(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb2_i
  */
 static void smb2_generate_decryption_keys(smb2_conv_info_t *conv, smb2_sesid_info_t *ses)
 {
-	if (memcmp(ses->session_key, zeros, NTLMSSP_KEY_LEN) == 0)
+	gboolean has_seskey = memcmp(ses->session_key, zeros, NTLMSSP_KEY_LEN) != 0;
+	gboolean has_client_key = memcmp(ses->client_decryption_key, zeros, AES_KEY_SIZE) != 0;
+	gboolean has_server_key = memcmp(ses->server_decryption_key, zeros, AES_KEY_SIZE) != 0;
+
+	/* if all decryption keys are provided, nothing to do */
+	if (has_client_key && has_server_key)
+		return;
+
+	/* otherwise, generate them from session key, if it's there */
+	if (!has_seskey)
 		return;
 
 	if (conv->dialect == SMB2_DIALECT_300) {
-		smb2_key_derivation(ses->session_key,
-				    NTLMSSP_KEY_LEN,
-				    "SMB2AESCCM", 11,
-				    "ServerIn ", 10,
-				    ses->server_decryption_key);
-		smb2_key_derivation(ses->session_key,
-				    NTLMSSP_KEY_LEN,
-				    "SMB2AESCCM", 11,
-				    "ServerOut", 10,
-				    ses->client_decryption_key);
+		if (!has_server_key)
+			smb2_key_derivation(ses->session_key,
+					    NTLMSSP_KEY_LEN,
+					    "SMB2AESCCM", 11,
+					    "ServerIn ", 10,
+					    ses->server_decryption_key);
+		if (!has_client_key)
+			smb2_key_derivation(ses->session_key,
+					    NTLMSSP_KEY_LEN,
+					    "SMB2AESCCM", 11,
+					    "ServerOut", 10,
+					    ses->client_decryption_key);
 	} else if (conv->dialect >= SMB2_DIALECT_311) {
-		smb2_key_derivation(ses->session_key,
-				    NTLMSSP_KEY_LEN,
-				    "SMBC2SCipherKey", 16,
-				    ses->preauth_hash, SMB2_PREAUTH_HASH_SIZE,
-				    ses->server_decryption_key);
-		smb2_key_derivation(ses->session_key,
-				    NTLMSSP_KEY_LEN,
-				    "SMBS2CCipherKey", 16,
-				    ses->preauth_hash, SMB2_PREAUTH_HASH_SIZE,
-				    ses->client_decryption_key);
+		if (!has_server_key)
+			smb2_key_derivation(ses->session_key,
+					    NTLMSSP_KEY_LEN,
+					    "SMBC2SCipherKey", 16,
+					    ses->preauth_hash, SMB2_PREAUTH_HASH_SIZE,
+					    ses->server_decryption_key);
+		if (!has_client_key)
+			smb2_key_derivation(ses->session_key,
+					    NTLMSSP_KEY_LEN,
+					    "SMBS2CCipherKey", 16,
+					    ses->preauth_hash, SMB2_PREAUTH_HASH_SIZE,
+					    ses->client_decryption_key);
 	}
 
 
@@ -12874,7 +12931,9 @@ proto_register_smb2(void)
 
 	static uat_field_t seskey_uat_fields[] = {
 		UAT_FLD_BUFFER(seskey_list, id, "Session ID", "The session ID buffer, coded as hex string, as it appears on the wire (LE)."),
-		UAT_FLD_BUFFER(seskey_list, key, "Session Key", "The secret session key buffer, coded as 16-byte hex string as it appears on the wire (LE)."),
+		UAT_FLD_BUFFER(seskey_list, seskey, "Session Key", "The secret session key buffer, coded as 16-byte hex string."),
+		UAT_FLD_BUFFER(seskey_list, s2ckey, "Server-to-Client", "The AES-128 key used by the client to decrypt server messages, coded as 16-byte hex string."),
+		UAT_FLD_BUFFER(seskey_list, c2skey, "Client-to-Server", "The AES-128 key used by the server to decrypt client messages, coded as 16-byte hex string."),
 		UAT_END_FIELDS
 	};
 
@@ -12914,7 +12973,7 @@ proto_register_smb2(void)
 	prefs_register_uat_preference(smb2_module,
 				      "seskey_list",
 				      "Secret session keys for decryption",
-				      "A table of Session ID to Session key mappings used to derive decryption keys.",
+				      "A table of Session ID to Session keys mappings used to decrypt traffic.",
 				      seskey_uat);
 
 	smb2_pipe_subdissector_list = register_heur_dissector_list("smb2_pipe_subdissectors", proto_smb2);
