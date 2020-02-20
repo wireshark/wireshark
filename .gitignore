@@ -8,6 +8,9 @@
 #   https://help.github.com/articles/ignoring-files
 #
 
+# Note that this affects tools other than git. For example, ripgrep (rg)
+# and The Silver Searcher (ag) will obey this file by default.
+
 # Compiled or generated source #
 ################################
 *.dll
@@ -126,7 +129,7 @@ wsar_html.zip
 *.pdb
 *.nativecodeanalysis.xml
 *.rc
-!image/file_dlg_win32.rc
+!file_dlg_win32.rc
 *.res
 *.vcxproj*
 /Copying.txt
@@ -143,7 +146,6 @@ _libs_check_
 doc/ws.css
 packaging/nsis/all-manifest.nsh
 /packaging/portableapps/WiresharkPortable/
-/zlib/
 wireshark-win??-libs*/
 
 # Misc #
@@ -155,21 +157,16 @@ wireshark-win??-libs*/
 *~
 .DS_Store
 cscope.*
-dummy.cpp
 tags
 TAGS
 macosx-support-libs
-packaging/macosx/COPYING.txt
 packaging/macosx/Info.plist
 packaging/macosx/osx-dmg.sh
 packaging/macosx/PkgInfo
-packaging/macosx/Wireshark_package.pmdoc/index.xml
 packaging/nsis/config.nsh
 packaging/nsis/qt-dll-manifest.nsh
 packaging/portableapps/Files/
 packaging/portableapps/appinfo.ini
-packaging/rpm/SPECS/wireshark.spec
 vgcore.*
-Wireshark.*
 .pytest_cache/
 test/*.log
