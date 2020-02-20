@@ -1441,19 +1441,6 @@ main(int argc, char *argv[])
         srand(seed);
     }
 
-    if (check_startstop && !stoptime) {
-        struct tm stoptm;
-
-        /* XXX: will work until 2035 */
-        memset(&stoptm,0,sizeof(struct tm));
-        stoptm.tm_year = 135;
-        stoptm.tm_mday = 31;
-        stoptm.tm_mon = 11;
-        stoptm.tm_isdst = -1;
-
-        stoptime = mktime(&stoptm);
-    }
-
     if (starttime > stoptime) {
         fprintf(stderr, "editcap: start time is after the stop time\n");
         ret = INVALID_OPTION;
@@ -1692,14 +1679,20 @@ main(int argc, char *argv[])
         } /* split packet handling */
 
         if (check_startstop) {
+            ts_okay = FALSE;
             /*
              * Is the packet in the selected timeframe?
              * If the packet has no time stamp, the answer is "no".
              */
-            if (rec->presence_flags & WTAP_HAS_TS)
-                ts_okay = (rec->ts.secs >= starttime) && (rec->ts.secs < stoptime);
-            else
-                ts_okay = FALSE;
+            if (rec->presence_flags & WTAP_HAS_TS) {
+                if (starttime && stoptime) {
+                    ts_okay = (rec->ts.secs >= starttime) && (rec->ts.secs < stoptime);
+                } else if (starttime) {
+                    ts_okay = rec->ts.secs >= starttime;
+                } else if (stoptime) {
+                    ts_okay = rec->ts.secs < stoptime;
+                }
+            }
         } else {
             /*
              * No selected timeframe, so all packets are "in the
