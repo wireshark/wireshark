@@ -6602,7 +6602,7 @@ dissect_windows_sockaddr_in(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *p
 	offset += 2;
 
 	/* IPv4 address */
-	proto_tree_add_item(sub_tree, hf_windows_sockaddr_in_addr, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_windows_sockaddr_in_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
 	proto_item_append_text(sub_item, ", IPv4: %s", tvb_ip_to_str(tvb, offset));
 	proto_item_append_text(parent_item, ", IPv4: %s", tvb_ip_to_str(tvb, offset));
 	offset += 4;
