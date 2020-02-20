@@ -380,7 +380,6 @@ dissect_lacp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
             offset += 2;
 
             proto_tree_add_item(lacp_tree, hf_lacp_vendor_hp_unknown, tvb, offset, 2, ENC_NA);
-            offset += 2;
         } else {
             /* Not the HP specific extras.  Don't claim the remaining data.  It may actually be an ethernet trailer. */
             set_actual_length(tvb, tvb_captured_length(tvb) - length_remaining);
