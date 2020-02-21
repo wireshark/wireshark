@@ -612,7 +612,8 @@ dissect_eap_identity_wlan(tvbuff_t *tvb, packet_info* pinfo, proto_tree* tree, i
   }
 
   /* guess if we have a 3 bytes mnc by comparing the first bytes with the imsi */
-  if (!sscanf(tokens[2] + 3, "%u", &mnc) || !sscanf(tokens[3] + 3, "%u", &mcc)) {
+  /* XXX Should we force matches on "mnc" and "mmc"? */
+  if (!sscanf(tokens[2], "%*3c%u", &mnc) || !sscanf(tokens[3], "%*3c%u", &mcc)) {
     ret = FALSE;
     goto end;
   }
