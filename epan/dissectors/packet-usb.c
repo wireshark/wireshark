@@ -2329,6 +2329,7 @@ dissect_usb_interface_descriptor(packet_info *pinfo, proto_tree *parent_tree,
             usb_trans_info->interface_info->interfaceNum      = alternate_setting.interfaceNum;
             usb_trans_info->interface_info->deviceVendor      = usb_conv_info->deviceVendor;
             usb_trans_info->interface_info->deviceProduct     = usb_conv_info->deviceProduct;
+            usb_trans_info->interface_info->deviceVersion     = usb_conv_info->deviceVersion;
         }
     }
     offset += 1;

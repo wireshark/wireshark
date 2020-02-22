@@ -16,6 +16,7 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include "packet-usb.h"
+#include "packet-ftdi-ft.h"
 
 static int proto_ftdi_ft = -1;
 
@@ -95,26 +96,6 @@ static dissector_handle_t ftdi_ft_handle;
 
 static wmem_tree_t *request_info = NULL;
 static wmem_tree_t *bitmode_info = NULL;
-
-typedef enum {
-    FTDI_CHIP_UNKNOWN,
-    FTDI_CHIP_FT8U232AM,
-    FTDI_CHIP_FT232B,
-    FTDI_CHIP_FT2232D,
-    FTDI_CHIP_FT232R,
-    FTDI_CHIP_FT2232H,
-    FTDI_CHIP_FT4232H,
-    FTDI_CHIP_FT232H,
-    FTDI_CHIP_X_SERIES,
-} FTDI_CHIP;
-
-typedef enum {
-    FTDI_INTERFACE_UNKNOWN,
-    FTDI_INTERFACE_A,
-    FTDI_INTERFACE_B,
-    FTDI_INTERFACE_C,
-    FTDI_INTERFACE_D,
-} FTDI_INTERFACE;
 
 typedef struct _request_data {
     guint32  bus_id;
@@ -937,8 +918,12 @@ dissect_ftdi_ft(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             bitmode = get_recorded_interface_mode(pinfo, usb_conv_info, interface);
             if (bitmode == BITMODE_MPSSE)
             {
+                ftdi_mpsse_info_t mpsse_info = {
+                    .chip  = identify_chip(usb_conv_info),
+                    .iface = interface,
+                };
                 tvbuff_t *mpsse_payload_tvb = tvb_new_subset_remaining(tvb, offset);
-                call_dissector(ftdi_mpsse_handle, mpsse_payload_tvb, pinfo, tree);
+                call_dissector_with_data(ftdi_mpsse_handle, mpsse_payload_tvb, pinfo, tree, &mpsse_info);
             }
 
             offset += bytes;

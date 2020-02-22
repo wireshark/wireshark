@@ -15,6 +15,7 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <wsutil/str_util.h>
+#include "packet-ftdi-ft.h"
 
 static int proto_ftdi_mpsse = -1;
 
@@ -199,7 +200,8 @@ dissect_data_shifting_command_parameters(guint8 cmd, tvbuff_t *tvb, packet_info 
 }
 
 static gint
-dissect_set_data_bits_parameters(guint8 cmd _U_, tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset, const char *signal_names[8])
+dissect_set_data_bits_parameters(guint8 cmd _U_, tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset,
+                                 const char *signal_names[8], const char *pin_prefix, guint num_pins)
 {
     static const gint *value_bits_hf[] = {
         &hf_mpsse_value_b0,
@@ -222,6 +224,7 @@ dissect_set_data_bits_parameters(guint8 cmd _U_, tvbuff_t *tvb, packet_info *pin
         &hf_mpsse_direction_b7,
     };
     guint32 value, direction;
+    proto_item *item;
     proto_item *value_item, *direction_item;
     proto_tree *value_tree, *direction_tree;
     guint bit;
@@ -241,14 +244,24 @@ dissect_set_data_bits_parameters(guint8 cmd _U_, tvbuff_t *tvb, packet_info *pin
         {
             state = "N/A (Input)";
         }
-        proto_tree_add_uint_format_value(value_tree, *value_bits_hf[bit], tvb, offset, 1, value, "%s %s", signal_names[bit], state);
+        item = proto_tree_add_uint_format_value(value_tree, *value_bits_hf[bit], tvb, offset, 1, value, "%s", signal_names[bit]);
+        if (pin_prefix && (bit < num_pins))
+        {
+            proto_item_append_text(item, " [%s%d]", pin_prefix, bit);
+        }
+        proto_item_append_text(item, " %s", state);
     }
 
     direction_tree = proto_item_add_subtree(direction_item, ett_mpsse_direction);
     for (bit = 0; bit < 8; bit++)
     {
         const char *type = ((1 << bit) & direction) ? "Output" : "Input";
-        proto_tree_add_uint_format_value(direction_tree, *direction_bits_hf[bit], tvb, offset + 1, 1, direction, "%s %s", signal_names[bit], type);
+        item = proto_tree_add_uint_format_value(direction_tree, *direction_bits_hf[bit], tvb, offset + 1, 1, direction, "%s", signal_names[bit]);
+        if (pin_prefix && (bit < num_pins))
+        {
+            proto_item_append_text(item, " [%s%d]", pin_prefix, bit);
+        }
+        proto_item_append_text(item, " %s", type);
     }
 
     return 2;
@@ -281,8 +294,58 @@ dissect_cpumode_parameters(guint8 cmd, tvbuff_t *tvb, packet_info *pinfo _U_, pr
     return offset - offset_start;
 }
 
+static const char *get_data_bit_pin_prefix(gboolean is_high_byte, ftdi_mpsse_info_t *mpsse_info, guint *out_num_pins)
+{
+    /* Based on table from FTDI AN_108 chapter 2.1 Data bit Definition */
+    switch (mpsse_info->chip)
+    {
+    case FTDI_CHIP_FT2232D:
+        if (mpsse_info->iface == FTDI_INTERFACE_A)
+        {
+            *out_num_pins = (is_high_byte) ? 4 : 8;
+            return (is_high_byte) ? "ACBUS" : "ADBUS";
+        }
+        break;
+    case FTDI_CHIP_FT232H:
+        *out_num_pins = 8;
+        return (is_high_byte) ? "ACBUS" : "ADBUS";
+    case FTDI_CHIP_FT2232H:
+        if (mpsse_info->iface == FTDI_INTERFACE_A)
+        {
+            *out_num_pins = 8;
+            return (is_high_byte) ? "ACBUS" : "ADBUS";
+        }
+        else if (mpsse_info->iface == FTDI_INTERFACE_B)
+        {
+            *out_num_pins = 8;
+            return (is_high_byte) ? "BCBUS" : "BDBUS";
+        }
+        break;
+    case FTDI_CHIP_FT4232H:
+        if (!is_high_byte)
+        {
+            if (mpsse_info->iface == FTDI_INTERFACE_A)
+            {
+                *out_num_pins = 8;
+                return "ADBUS";
+            }
+            else if (mpsse_info->iface == FTDI_INTERFACE_B)
+            {
+                *out_num_pins = 8;
+                return "BDBUS";
+            }
+        }
+        break;
+    default:
+        break;
+    }
+
+    *out_num_pins = 0;
+    return NULL;
+}
+
 static gint
-dissect_non_data_shifting_command_parameters(guint8 cmd, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+dissect_non_data_shifting_command_parameters(guint8 cmd, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, ftdi_mpsse_info_t *mpsse_info)
 {
     static const char *low_byte_signal_names[8] = {
         "TCK/SK",
@@ -305,14 +368,19 @@ dissect_non_data_shifting_command_parameters(guint8 cmd, tvbuff_t *tvb, packet_i
         "GPIOH7",
     };
 
+    const char *pin_prefix = NULL;
+    guint       num_pins   = 0;
+
     DISSECTOR_ASSERT(!IS_DATA_SHIFTING_COMMAND(cmd) && is_valid_command(cmd));
 
     switch (cmd)
     {
     case CMD_SET_DATA_BITS_LOW_BYTE:
-        return dissect_set_data_bits_parameters(cmd, tvb, pinfo, tree, offset, low_byte_signal_names);
+        pin_prefix = get_data_bit_pin_prefix(FALSE, mpsse_info, &num_pins);
+        return dissect_set_data_bits_parameters(cmd, tvb, pinfo, tree, offset, low_byte_signal_names, pin_prefix, num_pins);
     case CMD_SET_DATA_BITS_HIGH_BYTE:
-        return dissect_set_data_bits_parameters(cmd, tvb, pinfo, tree, offset, high_byte_signal_names);
+        pin_prefix = get_data_bit_pin_prefix(TRUE, mpsse_info, &num_pins);
+        return dissect_set_data_bits_parameters(cmd, tvb, pinfo, tree, offset, high_byte_signal_names, pin_prefix, num_pins);
     case CMD_CPUMODE_READ_SHORT_ADDR:
     case CMD_CPUMODE_READ_EXT_ADDR:
     case CMD_CPUMODE_WRITE_SHORT_ADDR:
@@ -378,7 +446,7 @@ static gint estimated_command_parameters_length(guint8 cmd, tvbuff_t *tvb, gint 
 }
 
 static gint
-dissect_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, gboolean *need_reassembly)
+dissect_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, gboolean *need_reassembly, ftdi_mpsse_info_t *mpsse_info)
 {
     guint8       cmd;
     gint         offset_start = offset;
@@ -421,7 +489,7 @@ dissect_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset
             }
             else if (parameters_length > 0)
             {
-                dissected = dissect_non_data_shifting_command_parameters(cmd, tvb, pinfo, tree, offset);
+                dissected = dissect_non_data_shifting_command_parameters(cmd, tvb, pinfo, tree, offset, mpsse_info);
                 if (parameters_length > dissected)
                 {
                     proto_tree_add_expert(tree, pinfo, &ei_undecoded, tvb, offset + dissected, parameters_length - dissected);
@@ -439,11 +507,17 @@ dissect_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset
 }
 
 static gint
-dissect_ftdi_mpsse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_ftdi_mpsse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    gint         offset = 0;
-    proto_item  *main_item;
-    proto_tree  *main_tree;
+    ftdi_mpsse_info_t *mpsse_info = (ftdi_mpsse_info_t *)data;
+    gint               offset = 0;
+    proto_item        *main_item;
+    proto_tree        *main_tree;
+
+    if (!mpsse_info)
+    {
+        return offset;
+    }
 
     main_item = proto_tree_add_item(tree, proto_ftdi_mpsse, tvb, offset, -1, ENC_NA);
     main_tree = proto_item_add_subtree(main_item, ett_ftdi_mpsse);
@@ -455,7 +529,7 @@ dissect_ftdi_mpsse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         gboolean need_reassembly = FALSE;
         while ((tvb_reported_length_remaining(tvb, offset) > 0) && (!need_reassembly))
         {
-            offset += dissect_command(tvb, pinfo, main_tree, offset, &need_reassembly);
+            offset += dissect_command(tvb, pinfo, main_tree, offset, &need_reassembly, mpsse_info);
         }
 
         if (need_reassembly)

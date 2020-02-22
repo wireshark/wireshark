@@ -356,6 +356,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-fmp.h
 	packet-frame.h
 	packet-ftam.h
+	packet-ftdi-ft.h
 	packet-geonw.h
 	packet-giop.h
 	packet-gluster.h
