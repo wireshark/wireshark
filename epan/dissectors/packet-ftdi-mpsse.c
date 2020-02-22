@@ -54,6 +54,7 @@ static gint hf_mpsse_direction_b7 = -1;
 static gint hf_mpsse_cpumode_address_short = -1;
 static gint hf_mpsse_cpumode_address_extended = -1;
 static gint hf_mpsse_cpumode_data = -1;
+static gint hf_mpsse_clk_divisor = -1;
 
 static gint ett_ftdi_mpsse = -1;
 static gint ett_mpsse_command = -1;
@@ -68,6 +69,7 @@ void proto_register_ftdi_mpsse(void);
 
 #define CMD_SET_DATA_BITS_LOW_BYTE    0x80
 #define CMD_SET_DATA_BITS_HIGH_BYTE   0x82
+#define CMD_CLOCK_SET_DIVISOR         0x86
 #define CMD_CPUMODE_READ_SHORT_ADDR   0x90
 #define CMD_CPUMODE_READ_EXT_ADDR     0x91
 #define CMD_CPUMODE_WRITE_SHORT_ADDR  0x92
@@ -122,13 +124,13 @@ static const value_string command_vals[] = {
 static value_string_ext command_vals_ext = VALUE_STRING_EXT_INIT(command_vals);
 
 static const value_string ft2232d_only_command_vals[] = {
-    {0x86, "Set TCK/SK Divisor"},
+    {CMD_CLOCK_SET_DIVISOR, "Set TCK/SK Divisor"},
     {0, NULL}
 };
 
 /* FT232H, FT2232H and FT4232H only commands */
 static const value_string h_only_command_vals[] = {
-    {0x86, "Set clk divisor"},
+    {CMD_CLOCK_SET_DIVISOR, "Set clk divisor"},
     {0x8A, "Disable Clk Divide by 5"},
     {0x8B, "Enable Clk Divide by 5"},
     {0x8C, "Enable 3 Phase Data Clocking"},
@@ -247,6 +249,22 @@ get_command_string(guint8 cmd, ftdi_mpsse_info_t *mpsse_info)
 static gboolean is_valid_command(guint8 cmd, ftdi_mpsse_info_t *mpsse_info)
 {
     return get_command_string(cmd, mpsse_info) != NULL;
+}
+
+static gchar* freq_to_str(gfloat freq)
+{
+    if (freq < 1e3)
+    {
+        return g_strdup_printf("%.12g Hz", freq);
+    }
+    else if (freq < 1e6)
+    {
+        return g_strdup_printf("%.12g KHz", freq / 1e3);
+    }
+    else
+    {
+        return g_strdup_printf("%.12g MHz", freq / 1e6);
+    }
 }
 
 static gint
@@ -380,6 +398,35 @@ dissect_cpumode_parameters(guint8 cmd, tvbuff_t *tvb, packet_info *pinfo _U_, pr
     return offset - offset_start;
 }
 
+static gint
+dissect_clock_parameters(guint8 cmd _U_, tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset, ftdi_mpsse_info_t *mpsse_info)
+{
+    gint         offset_start = offset;
+    guint32      value;
+    proto_item   *item;
+    gchar        *str_old, *str;
+
+    item = proto_tree_add_item_ret_uint(tree, hf_mpsse_clk_divisor, tvb, offset, 2, ENC_LITTLE_ENDIAN, &value);
+    offset += 2;
+
+    str_old = freq_to_str((gfloat) 12e6 / ((1 + value) * 2));
+    str = freq_to_str((gfloat) 60e6 / ((1 + value) * 2));
+
+    if (mpsse_info->chip == FTDI_CHIP_FT2232D)
+    {
+        proto_item_append_text(item, ", TCK/SK Max: %s", str_old);
+    }
+    else
+    {
+        proto_item_append_text(item, ", TCK Max: %s (60 MHz master clock) or %s (12 MHz master clock)", str, str_old);
+    }
+
+    g_free(str_old);
+    g_free(str);
+
+    return offset - offset_start;
+}
+
 static const char *get_data_bit_pin_prefix(gboolean is_high_byte, ftdi_mpsse_info_t *mpsse_info, guint *out_num_pins)
 {
     /* Based on table from FTDI AN_108 chapter 2.1 Data bit Definition */
@@ -472,6 +519,8 @@ dissect_non_data_shifting_command_parameters(guint8 cmd, tvbuff_t *tvb, packet_i
     case CMD_CPUMODE_WRITE_SHORT_ADDR:
     case CMD_CPUMODE_WRITE_EXT_ADDR:
         return dissect_cpumode_parameters(cmd, tvb, pinfo, tree, offset);
+    case CMD_CLOCK_SET_DIVISOR:
+        return dissect_clock_parameters(cmd, tvb, pinfo, tree, offset, mpsse_info);
     default:
         return 0;
     }
@@ -513,7 +562,8 @@ static gint estimated_command_parameters_length(guint8 cmd, tvbuff_t *tvb, gint 
         case CMD_SET_DATA_BITS_HIGH_BYTE:
         case CMD_CPUMODE_READ_EXT_ADDR:
         case CMD_CPUMODE_WRITE_SHORT_ADDR:
-        case 0x86: case 0x8F: case 0x9C: case 0x9D: case 0x9E:
+        case CMD_CLOCK_SET_DIVISOR:
+        case 0x8F: case 0x9C: case 0x9D: case 0x9E:
             parameters_length = 2;
             break;
         case CMD_CPUMODE_READ_SHORT_ADDR:
@@ -823,6 +873,11 @@ proto_register_ftdi_mpsse(void)
         { &hf_mpsse_cpumode_data,
           { "Data", "ftdi-mpsse.cpumode_data",
             FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_mpsse_clk_divisor,
+          { "Divisor", "ftdi-mpsse.clk_divisor",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
     };
