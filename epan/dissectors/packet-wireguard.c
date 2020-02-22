@@ -1575,6 +1575,23 @@ wg_dissect_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *wg_tree, wg_packe
     return 16 + packet_length;
 }
 
+static gboolean
+wg_is_valid_message_length(guint8 message_type, guint length)
+{
+    switch (message_type) {
+    case WG_TYPE_HANDSHAKE_INITIATION:
+        return length == 148;
+    case WG_TYPE_HANDSHAKE_RESPONSE:
+        return length == 92;
+    case WG_TYPE_COOKIE_REPLY:
+        return length == 64;
+    case WG_TYPE_TRANSPORT_DATA:
+        return length >= 32;
+    default:
+        return FALSE;
+    }
+}
+
 static int
 dissect_wg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -1588,6 +1605,10 @@ dissect_wg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     message_type_str = try_val_to_str(message_type, wg_type_names);
     if (!message_type_str)
         return 0;
+
+    if (!wg_is_valid_message_length(message_type, tvb_reported_length(tvb))) {
+        return 0;
+    }
 
     /* Special case: zero-length data message is a Keepalive message. */
     if (message_type == WG_TYPE_TRANSPORT_DATA && tvb_reported_length(tvb) == 32) {
@@ -1653,33 +1674,16 @@ dissect_wg_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     message_type = tvb_get_guint8(tvb, 0);
     reserved_is_zeroes = tvb_get_ntoh24(tvb, 1) == 0;
 
+    if (!wg_is_valid_message_length(message_type, tvb_reported_length(tvb))) {
+        return FALSE;
+    }
+
     switch (message_type) {
-        case WG_TYPE_HANDSHAKE_INITIATION:
-            if (tvb_reported_length(tvb) != 148)
-                return FALSE;
-            break;
-
-        case WG_TYPE_HANDSHAKE_RESPONSE:
-            if (tvb_reported_length(tvb) != 92)
-                return FALSE;
-            break;
-
         case WG_TYPE_COOKIE_REPLY:
-            if (tvb_reported_length(tvb) != 64)
-                return FALSE;
-            if (!reserved_is_zeroes)
-                return FALSE;
-            break;
-
         case WG_TYPE_TRANSPORT_DATA:
-            if (tvb_reported_length(tvb) < 32)
-                return FALSE;
             if (!reserved_is_zeroes)
                 return FALSE;
             break;
-
-        default:
-            return FALSE;
     }
 
     /*
