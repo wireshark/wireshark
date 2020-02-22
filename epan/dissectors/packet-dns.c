@@ -4298,6 +4298,8 @@ proto_reg_handoff_dns(void)
   gssapi_handle  = find_dissector_add_dependency("gssapi", proto_dns);
   ntlmssp_handle = find_dissector_add_dependency("ntlmssp", proto_dns);
   ssl_dissector_add(TCP_PORT_DNS_TLS, dns_handle);
+  // RFC 7858 - registration via https://mailarchive.ietf.org/arch/msg/dns-privacy/iZ2rDIhFB2ZWsGC3PcdBVLGa8Do
+  dissector_add_string("tls.alpn", "dot", dns_handle);
   dtls_dissector_add(UDP_PORT_DNS_DTLS, dns_handle);
   dissector_add_uint_range_with_preference("tcp.port", DEFAULT_DNS_TCP_PORT_RANGE, dns_handle);
   dissector_add_uint_range_with_preference("udp.port", DEFAULT_DNS_PORT_RANGE, dns_handle);
