@@ -1378,7 +1378,7 @@ wg_dissect_handshake_initiation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *w
                 wg_process_initiation(tvb, hs);
             }
         }
-    } else if (wg_pinfo->session) {
+    } else if (wg_pinfo && wg_pinfo->session) {
         hs = wg_pinfo->session->hs;
     }
 #endif /* WG_DECRYPTION_SUPPORTED */
@@ -1412,7 +1412,7 @@ wg_dissect_handshake_initiation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *w
         wg_sessions_insert(sender_id, session);
         wg_pinfo->session = session;
     }
-    wg_session_t *session = wg_pinfo->session;
+    wg_session_t *session = wg_pinfo ? wg_pinfo->session : NULL;
     if (session) {
         ti = proto_tree_add_uint(wg_tree, hf_wg_stream, tvb, 0, 0, session->stream);
         proto_item_set_generated(ti);
@@ -1451,7 +1451,7 @@ wg_dissect_handshake_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *wg_
         }
 #endif /* WG_DECRYPTION_SUPPORTED */
     } else {
-        session = wg_pinfo->session;
+        session = wg_pinfo ? wg_pinfo->session : NULL;
     }
 
     wg_dissect_pubkey(wg_tree, tvb, 12, TRUE);
@@ -1510,7 +1510,7 @@ wg_dissect_handshake_cookie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *wg_tr
         }
         /* XXX check for cookie reply from Initiator to Responder */
     } else {
-        session = wg_pinfo->session;
+        session = wg_pinfo ? wg_pinfo->session : NULL;
     }
     if (session) {
         ti = proto_tree_add_uint(wg_tree, hf_wg_stream, tvb, 0, 0, session->stream);
@@ -1559,7 +1559,7 @@ wg_dissect_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *wg_tree, wg_packe
             wg_pinfo->receiver_is_initiator = receiver_is_initiator;
         }
     } else {
-        session = wg_pinfo->session;
+        session = wg_pinfo ? wg_pinfo->session : NULL;
     }
     if (session) {
         ti = proto_tree_add_uint(wg_tree, hf_wg_stream, tvb, 0, 0, session->stream);
@@ -1607,6 +1607,13 @@ dissect_wg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         wg_pinfo = wmem_new0(wmem_file_scope(), wg_packet_info_t);
         p_add_proto_data(wmem_file_scope(), pinfo, proto_wg, 0, wg_pinfo);
     } else {
+        /*
+         * Note: this may be NULL if the heuristics dissector sets a
+         * conversation dissector later in the stream, for example due to a new
+         * Handshake Initiation message. Previous messages are potentially
+         * Transport Data messages which might not be detected through
+         * heuristics.
+         */
         wg_pinfo = (wg_packet_info_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_wg, 0);
     }
 
