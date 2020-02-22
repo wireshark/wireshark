@@ -1399,15 +1399,19 @@ const value_string quic_transport_parameter_id[] = {
 /* Lookup tables }}} */
 
 void
-quic_transport_parameter_id_base_custom(gchar *result, guint32 parameter_id)
+quic_transport_parameter_id_base_custom(gchar *result, guint64 parameter_id)
 {
-
-    /* GREASE ? https://tools.ietf.org/html/draft-ietf-quic-transport-23#section-18.1 */
-    if ( ( (parameter_id - 27) % 31) == 0 ) {
-        g_snprintf(result, ITEM_LABEL_LENGTH, "GREASE (0x%04x)", parameter_id);
+    const char *label;
+    /* GREASE? https://tools.ietf.org/html/draft-ietf-quic-transport-27#section-18.1 */
+    if (((parameter_id - 27) % 31) == 0) {
+        label = "GREASE";
+    } else if (parameter_id > 0xffffffff) {
+        // There are no 64-bit Parameter IDs at the moment.
+        label = "Unknown";
     } else {
-        g_snprintf(result, ITEM_LABEL_LENGTH, "%s (0x%04x)", val_to_str_const(parameter_id, quic_transport_parameter_id, "Unknown"), parameter_id);
+        label = val_to_str_const((guint32)parameter_id, quic_transport_parameter_id, "Unknown");
     }
+    g_snprintf(result, ITEM_LABEL_LENGTH, "%s (0x%02" G_GINT64_MODIFIER "x)", label, parameter_id);
 }
 
 /* we keep this internal to packet-tls-utils, as there should be
@@ -6600,7 +6604,8 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
                                                     proto_tree *tree, guint32 offset, guint32 offset_end,
                                                     guint8 hnd_type _U_, SslDecryptSession *ssl _U_)
 {
-    guint32 quic_length, parameter_length, next_offset;
+    gboolean use_varint_encoding = TRUE;    // Whether this is draft -27 or newer.
+    guint32 next_offset;
 
     /* https://tools.ietf.org/html/draft-ietf-quic-transport-25#section-18
      *
@@ -6610,9 +6615,8 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
      *   struct {
      *     uint16 id;
      *     opaque value<0..2^16-1>;
-     *  } TransportParameter;
-     *
-     *  TransportParameter TransportParameters<0..2^16-1>;
+     *  } TransportParameter;                               // before draft -27
+     *  TransportParameter TransportParameters<0..2^16-1>;  // before draft -27
      *
      *  struct {
      *    opaque ipv4Address[4];
@@ -6624,16 +6628,31 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
      *  } PreferredAddress;
      */
 
-    /* TransportParameter TransportParameters<0..2^16-1>; */
-    if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &quic_length,
-                        hf->hf.hs_ext_quictp_len, 0, G_MAXUINT16)) {
-        return offset_end;
+    if (offset_end - offset >= 6 &&
+            2 + (guint)tvb_get_ntohs(tvb, offset) == offset_end - offset &&
+            6 + (guint)tvb_get_ntohs(tvb, offset + 4) <= offset_end - offset) {
+        // Assume encoding of Transport Parameters draft -26 or older with at
+        // least one transport parameter that has a valid length.
+        use_varint_encoding = FALSE;
     }
-    offset += 2;
-    next_offset = offset + quic_length;
+
+    if (use_varint_encoding) {
+        next_offset = offset_end;
+    } else {
+        guint32 quic_length;
+        // Assume draft -26 or earlier.
+        /* TransportParameter TransportParameters<0..2^16-1>; */
+        if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &quic_length,
+                            hf->hf.hs_ext_quictp_len, 0, G_MAXUINT16)) {
+            return offset_end;
+        }
+        offset += 2;
+        next_offset = offset + quic_length;
+    }
 
     while (offset < next_offset) {
         guint32 parameter_type;
+        guint32 parameter_length;
         proto_tree *parameter_tree;
         guint32 parameter_end_offset;
         guint64 value;
@@ -6641,26 +6660,46 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
 
         parameter_tree = proto_tree_add_subtree(tree, tvb, offset, 4, hf->ett.hs_ext_quictp_parameter,
                                                 NULL, "Parameter");
-        /* TransportParameter ID */
-        proto_tree_add_item_ret_uint(parameter_tree, hf->hf.hs_ext_quictp_parameter_type,
-                                     tvb, offset, 2, ENC_BIG_ENDIAN, &parameter_type);
-        offset += 2;
+        /* TransportParameter ID and Length. */
+        if (use_varint_encoding) {
+            guint64 parameter_type64, parameter_length64;
+            guint32 type_len = 0;
 
-        /* GREASE ? https://tools.ietf.org/html/draft-ietf-quic-transport-23#section-18.1 */
-        if ( ( (parameter_type - 27) % 31) == 0 ) {
+            proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_type,
+                                           tvb, offset, -1, ENC_VARINT_QUIC, &parameter_type64, &type_len);
+            parameter_type = (guint32)parameter_type64;
+            offset += type_len;
+
+            proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_len,
+                                           tvb, offset, -1, ENC_VARINT_QUIC, &parameter_length64, &len);
+            parameter_length = (guint32)parameter_length64;
+            offset += len;
+
+            proto_item_set_len(parameter_tree, type_len + len + parameter_length);
+        } else {
+            parameter_type = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_type,
+                                tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+
+            /* opaque value<0..2^16-1> */
+            if (!ssl_add_vector(hf, tvb, pinfo, parameter_tree, offset, next_offset, &parameter_length,
+                                hf->hf.hs_ext_quictp_parameter_len_old, 0, G_MAXUINT16)) {
+                return next_offset;
+            }
+            offset += 2;
+
+            proto_item_set_len(parameter_tree, 4 + parameter_length);
+        }
+
+        /* GREASE? https://tools.ietf.org/html/draft-ietf-quic-transport-27#section-18.1 */
+        if (((parameter_type - 27) % 31) == 0) {
             proto_item_append_text(parameter_tree, ": GREASE");
         } else {
             proto_item_append_text(parameter_tree, ": %s", val_to_str(parameter_type, quic_transport_parameter_id, "Unknown"));
         }
 
-        /* opaque value<0..2^16-1> */
-        if (!ssl_add_vector(hf, tvb, pinfo, parameter_tree, offset, next_offset, &parameter_length,
-                            hf->hf.hs_ext_quictp_parameter_len, 0, G_MAXUINT16)) {
-            return next_offset;
-        }
-        offset += 2;
         proto_item_append_text(parameter_tree, " (len=%u)", parameter_length);
-        proto_item_set_len(parameter_tree, 4 + parameter_length);
         parameter_end_offset = offset + parameter_length;
 
         proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_value,

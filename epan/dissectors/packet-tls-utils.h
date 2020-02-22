@@ -503,7 +503,7 @@ typedef struct {
 
 gint ssl_get_keyex_alg(gint cipher);
 
-void quic_transport_parameter_id_base_custom(gchar *result, guint32 parameter_id);
+void quic_transport_parameter_id_base_custom(gchar *result, guint64 parameter_id);
 
 gboolean ssldecrypt_uat_fld_ip_chk_cb(void*, const char*, unsigned, const void*, const void*, char** err);
 gboolean ssldecrypt_uat_fld_port_chk_cb(void*, const char*, unsigned, const void*, const void*, char** err);
@@ -897,6 +897,7 @@ typedef struct ssl_common_dissect {
         gint hs_ext_quictp_parameter;
         gint hs_ext_quictp_parameter_type;
         gint hs_ext_quictp_parameter_len;
+        gint hs_ext_quictp_parameter_len_old;
         gint hs_ext_quictp_parameter_value;
         gint hs_ext_quictp_parameter_ocid;
         gint hs_ext_quictp_parameter_max_idle_timeout;
@@ -1149,7 +1150,7 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1,                                         \
+        -1, -1, -1, -1, -1, -1, -1,                                     \
     },                                                                  \
     /* ett */ {                                                         \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
@@ -1917,10 +1918,15 @@ ssl_common_dissect_t name = {   \
     },                                                                  \
     { & name .hf.hs_ext_quictp_parameter_type,                          \
       { "Type", prefix ".quic.parameter.type",                          \
-        FT_UINT16, BASE_CUSTOM, CF_FUNC(quic_transport_parameter_id_base_custom), 0x00,    \
+        FT_UINT64, BASE_CUSTOM, CF_FUNC(quic_transport_parameter_id_base_custom), 0x00,    \
         NULL, HFILL }                                                   \
     },                                                                  \
     { & name .hf.hs_ext_quictp_parameter_len,                           \
+      { "Length", prefix ".quic.parameter.length",                      \
+        FT_UINT64, BASE_DEC, NULL, 0x00,                                \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_quictp_parameter_len_old,                       \
       { "Length", prefix ".quic.parameter.length",                      \
         FT_UINT16, BASE_DEC, NULL, 0x00,                                \
         NULL, HFILL }                                                   \
