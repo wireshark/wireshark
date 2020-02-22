@@ -1349,8 +1349,6 @@ static guint read_integer(http2_header_repr_info_t *header_repr_info,
     }
 
     for(; p < len; ++p, shift += 7) {
-        DISSECTOR_ASSERT(p < len);
-
         n += (buf[p] & 0x7F) << shift;
 
         if((buf[p] & 0x80) == 0) {

@@ -160,7 +160,6 @@ graph_segment_list_free(struct tcp_graph *tg)
         g_free(tg->segments);
         tg->segments = segment;
     }
-    tg->segments = NULL;
 }
 
 int

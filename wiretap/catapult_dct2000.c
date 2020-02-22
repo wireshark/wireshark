@@ -985,9 +985,9 @@ parse_line(gchar *linebuff, gint line_length,
 
         *encap = WTAP_ENCAP_RAW_IP;
     }
-    else
 
     /* FP may be carried over ATM, which has separate atm header to parse */
+    else
     if ((strcmp(protocol_name, "fp") == 0) ||
         (strncmp(protocol_name, "fp_r", 4) == 0)) {
 

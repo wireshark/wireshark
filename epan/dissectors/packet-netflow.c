@@ -3849,7 +3849,7 @@ dissect_netflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     hdrinfo_t       hdrinfo;
     guint32         flow_sequence = 0; /* TODO: could be part of hdrinfo struct? */
     proto_item      *flow_sequence_ti = NULL;
-    gint            flow_len = -1;
+    gint            flow_len = -1;    /* v10 only */
     guint           available, pdusize, offset = 0;
     nstime_t        ts;
     dissect_pdu_t  *pduptr;
@@ -3914,7 +3914,6 @@ dissect_netflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
         flow_len = pdus;
     } else {
         proto_tree_add_uint(netflow_tree, hf_cflow_count, tvb, offset, 2, pdus);
-        flow_len = -1;
     }
     offset += 2;
 

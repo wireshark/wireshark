@@ -2977,7 +2977,7 @@ static void dissect_sfn_sf_value(ptvcursor_t * ptvc, packet_info* pinfo)
 	guint32 sf = test_value & 0x000F;
 	if (sfn > 1023 || sf > 9)
 	{
-		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid sfn/sf value sfn:%d [0..1023] sf:%d [0..9]", sfn, sf);
+		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid sfn/sf value sfn:%u [0..1023] sf:%u [0..9]", sfn, sf);
 	}
 }
 static void dissect_phy_state_value(ptvcursor_t * ptvc, packet_info* pinfo)
@@ -6234,7 +6234,7 @@ static void dissect_harq_indication_rel9_later_tdd_value(ptvcursor_t * ptvc, pac
 
 	for (i = 0; i < count; ++i)
 	{
-		ptvcursor_add_text_with_subtree(ptvc, SUBTREE_UNDEFINED_LENGTH, ett_nfapi_harq_ack_nack_data, "[%d]", i);
+		ptvcursor_add_text_with_subtree(ptvc, SUBTREE_UNDEFINED_LENGTH, ett_nfapi_harq_ack_nack_data, "[%u]", i);
 
 		switch (mode)
 		{
@@ -6316,7 +6316,7 @@ static void dissect_harq_indication_rel13_later_tdd_value(ptvcursor_t * ptvc, pa
 
 	for (i = 0; i < count; ++i)
 	{
-		ptvcursor_add_text_with_subtree(ptvc, SUBTREE_UNDEFINED_LENGTH, ett_nfapi_harq_ack_nack_data, "[%d]", i);
+		ptvcursor_add_text_with_subtree(ptvc, SUBTREE_UNDEFINED_LENGTH, ett_nfapi_harq_ack_nack_data, "[%u]", i);
 
 		switch (mode)
 		{
@@ -6696,7 +6696,7 @@ static void dissect_tdd_channel_measurement_value(ptvcursor_t * ptvc, packet_inf
 
 	for (i = 0; i < num_subbands; ++i)
 	{
-		ptvcursor_add_text_with_subtree(ptvc, SUBTREE_UNDEFINED_LENGTH, ett_nfapi_subbands, "[%d]", i);
+		ptvcursor_add_text_with_subtree(ptvc, SUBTREE_UNDEFINED_LENGTH, ett_nfapi_subbands, "[%u]", i);
 
 		// subbandIndex
 		ptvcursor_add(ptvc, hf_nfapi_subband_index, 1, ENC_BIG_ENDIAN);
@@ -6705,7 +6705,7 @@ static void dissect_tdd_channel_measurement_value(ptvcursor_t * ptvc, packet_inf
 
 		for (j = 0; j < num_phy_ant; ++j)
 		{
-			ptvcursor_add_text_with_subtree(ptvc, SUBTREE_UNDEFINED_LENGTH, ett_nfapi_antennas, "[%d]", j);
+			ptvcursor_add_text_with_subtree(ptvc, SUBTREE_UNDEFINED_LENGTH, ett_nfapi_antennas, "[%u]", j);
 
 			// Channel
 			ptvcursor_add(ptvc, hf_nfapi_channel_coefficient, 2, ENC_BIG_ENDIAN);
@@ -8086,7 +8086,7 @@ static void dissect_rx_indication_body_value(ptvcursor_t * ptvc, packet_info* pi
 				if (i != 0)
 					ptvcursor_pop_subtree(ptvc);
 
-				ptvcursor_add_text_with_subtree(ptvc, SUBTREE_UNDEFINED_LENGTH, ett_nfapi_rx_indication_pdu_list, "[%d]", i);
+				ptvcursor_add_text_with_subtree(ptvc, SUBTREE_UNDEFINED_LENGTH, ett_nfapi_rx_indication_pdu_list, "[%u]", i);
 
 				i++;
 			}

@@ -3182,12 +3182,12 @@ static gint dissect_rar_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *pdu_ti,
                         gint offset, mac_lte_info *p_mac_lte_info, mac_lte_tap_info *tap_info)
 {
-    gint        number_of_rars         = 0; /* No of RAR bodies expected following headers */
+    guint       number_of_rars         = 0; /* No of RAR bodies expected following headers */
     guint8     *rapids                 = (guint8 *)wmem_alloc(wmem_packet_scope(), MAX_RAR_PDUS * sizeof(guint8));
     gboolean    backoff_indicator_seen = FALSE;
     guint8      backoff_indicator      = 0;
     guint8      extension;
-    gint        n;
+    guint       n;
     proto_tree *rar_headers_tree;
     proto_item *ti;
     proto_item *rar_headers_ti;
@@ -4686,7 +4686,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                                         "Unknown"));
                 break;
             default:
-                proto_item_append_text(pdu_subheader_ti, ", length=%u)",
+                proto_item_append_text(pdu_subheader_ti, ", length=%d)",
                                        pdu_lengths[number_of_headers]);
                 proto_item_append_text(pdu_header_ti, " (%s:%u)",
                                        val_to_str_const(initial_lcid,
@@ -5364,7 +5364,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         }
                         if ((gint32)(curr_offset - offset) != pdu_lengths[n]) {
                             expert_add_info_format(pinfo, dcphr_ti, &ei_mac_lte_control_element_size_invalid,
-                                "Control Element has an unexpected size (computed=%d, actual=%d)",
+                                "Control Element has an unexpected size (computed=%u, actual=%d)",
                                 curr_offset - offset, pdu_lengths[n]);
                         }
                         offset += pdu_lengths[n];
@@ -5450,7 +5450,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                             computed_header_offset++;
                             if ((gint32)(computed_header_offset + 1 - curr_offset) != pdu_lengths[n]) {
                                 expert_add_info_format(pinfo, ephr_ti, &ei_mac_lte_control_element_size_invalid,
-                                    "Control Element has an unexpected size (computed=%d, actual=%d)",
+                                    "Control Element has an unexpected size (computed=%u, actual=%d)",
                                     computed_header_offset + 1 - curr_offset, pdu_lengths[n]);
                                 offset += pdu_lengths[n];
                                 break;
@@ -6339,9 +6339,9 @@ static void dissect_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
                                                         "Unknown"));
                 break;
             default:
-                proto_item_append_text(pdu_subheader_ti, ", length=%u)",
+                proto_item_append_text(pdu_subheader_ti, ", length=%d)",
                                        pdu_lengths[number_of_headers]);
-                proto_item_append_text(pdu_header_ti, " (%s:%u)",
+                proto_item_append_text(pdu_header_ti, " (%s:%d)",
                                        val_to_str_const(lcids[number_of_headers],
                                                         mch_lcid_vals,
                                                         "Unknown"),
@@ -6762,9 +6762,9 @@ static void dissect_slsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                                         slsch_lcid_vals, "Unknown"));
                 break;
             default:
-                proto_item_append_text(pdu_subheader_ti, ", length=%u)",
+                proto_item_append_text(pdu_subheader_ti, ", length=%d)",
                                        pdu_lengths[number_of_headers]);
-                proto_item_append_text(pdu_header_ti, " (%s:%u)",
+                proto_item_append_text(pdu_header_ti, " (%s:%d)",
                                        val_to_str_const(lcids[number_of_headers],
                                                         slsch_lcid_vals, "Unknown"),
                                        pdu_lengths[number_of_headers]);
@@ -6884,7 +6884,7 @@ static void dissect_slsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (offset < p_mac_lte_info->length) {
             /* There is a problem if we haven't used all of the PDU */
             expert_add_info_format(pinfo, pdu_ti, &ei_mac_lte_context_length,
-                                   "SL-SCH PDU for UE %u is shorter than reported length (reported=%u, actual=%u)",
+                                   "SL-SCH PDU for UE %u is shorter than reported length (reported=%u, actual=%d)",
                                    p_mac_lte_info->ueid, p_mac_lte_info->length, offset);
         }
 

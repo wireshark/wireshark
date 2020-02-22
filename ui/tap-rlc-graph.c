@@ -291,6 +291,4 @@ void rlc_graph_segment_list_free(struct rlc_graph * g)
         g_free(g->segments);
         g->segments = segment;
     }
-    /* Set head of list to NULL too */
-    g->segments = NULL;
 }
