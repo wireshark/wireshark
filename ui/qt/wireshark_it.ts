@@ -2583,7 +2583,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <name>ExtcapArgumentFileSelection</name>
     <message>
         <source>Clear</source>
-        <translation type="unfinished"></translation>
+        <translation>Pulisci</translation>
     </message>
     <message>
         <source>All Files (</source>
@@ -2595,7 +2595,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Select File</source>
-        <translation type="unfinished"></translation>
+        <translation>Seleziona file</translation>
     </message>
 </context>
 <context>
@@ -8074,19 +8074,19 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Window title</source>
-        <translation type="unfinished"></translation>
+        <translation>Titolo della finestra</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Custom window title to be appended to the existing title&lt;br/&gt;%F = file path of the capture file&lt;br/&gt;%P = profile name&lt;br/&gt;%S = a conditional separator (&amp;quot; - &amp;quot;) that only shows when surrounded by variables with values or static text&lt;br/&gt;%V = version info&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Titolo della finestra personalizzato da aggiungere al titolo esistente&lt;br/&gt;%F = percorso del file di cattura&lt;br/&gt;%P = nome del profilo&lt;br/&gt;%S = un separatore condizionale (&amp;quot; - &amp;quot;) che è mostrato solo quando è circondato da variabili con valori o testo statico&lt;br/&gt;%V = informaziini di versione&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Prepend window title</source>
-        <translation type="unfinished"></translation>
+        <translation>Anteponi il titolo della finestra</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Custom window title to be prepended to the existing title&lt;br/&gt;%F = file path of the capture file&lt;br/&gt;%P = profile name&lt;br/&gt;%S = a conditional separator (&amp;quot; - &amp;quot;) that only shows when surrounded by variables with values or static text&lt;br/&gt;%V = version info&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Titolo della finestra personalizzato da anteporre al titolo esistente&lt;br/&gt;%F = percorso del file di cattura&lt;br/&gt;%P = nome del profilo&lt;br/&gt;%S = un separatore condizionale (&amp;quot; - &amp;quot;) che è mostrato solo quando è circondato da variabili con valori o testo statico&lt;br/&gt;%V = informaziini di versione&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Language: </source>
