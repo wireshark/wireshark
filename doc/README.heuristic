@@ -60,7 +60,7 @@ SCTP, TCP, TIPC and UDP dissectors all provide this capability via their
 option enabled by default.
 
 Once a packet for a particular "connection" has been identified as belonging
-to a particular protocol, Wireshark should then be set up to always directly
+to a particular protocol, Wireshark must then be set up to always directly
 call the dissector for that protocol. This removes the overhead of having
 to identify each packet of the connection heuristically.
 
@@ -94,7 +94,7 @@ that it's not good enough to distinguish between two given protocols.
 Note: The heuristic code in a dissector *must not* cause an exception
       (before returning FALSE) as this will prevent following
       heuristic dissector handoffs. In practice, this normally means
-      that a test should be done to verify that the required data is
+      that a test must be done to verify that the required data is
       available in the tvb before fetching from the tvb. (See the
       example below).
 
