@@ -1282,7 +1282,8 @@ proto_reg_handoff_ftdi_ft(void)
     dissector_add_uint("usb.product", (0x0403 << 16) | 0x6014, ftdi_ft_handle);
     dissector_add_uint("usb.product", (0x0403 << 16) | 0x6015, ftdi_ft_handle);
 
-    /* Devices that use FTDI FT converter with changed Vendor ID */
+    /* Devices that use FTDI FT converter with changed Vendor ID and/or Product ID */
+    dissector_add_uint("usb.product", (0x0403 << 16) | 0xcff8, ftdi_ft_handle); /* Amontec JTAGkey */
     dissector_add_uint("usb.product", (0x15ba << 16) | 0x0003, ftdi_ft_handle); /* Olimex ARM-USB-OCD */
     dissector_add_uint("usb.product", (0x15ba << 16) | 0x0004, ftdi_ft_handle); /* Olimex ARM-USB-TINY */
     dissector_add_uint("usb.product", (0x15ba << 16) | 0x002a, ftdi_ft_handle); /* Olimex ARM-USB-TINY-H */
