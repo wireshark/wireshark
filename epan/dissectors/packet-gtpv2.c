@@ -49,7 +49,7 @@ static int hf_gtpv2_response_in = -1;
 static int hf_gtpv2_response_to = -1;
 static int hf_gtpv2_response_time = -1;
 static int hf_gtpv2_spare_half_octet = -1;
-static int hf_gtpv2_spare_b7_b1 = -1;
+//static int hf_gtpv2_spare_b7_b1 = -1;
 static int hf_gtpv2_spare_b7_b3 = -1;
 static int hf_gtpv2_spare_bits = -1;
 static int hf_gtpv2_flags = -1;
@@ -159,6 +159,10 @@ static int hf_gtpv2_ltempi = -1;
 static int hf_gtpv2_enbcrsi = -1;
 static int hf_gtpv2_tspcmi = -1;
 static int hf_gtpv2_ethpdn = -1;
+static int hf_gtpv2_n5gnmi = -1;
+static int hf_gtpv2_5gcnrs = -1;
+static int hf_gtpv2_5gcnri = -1;
+static int hf_gtpv2_5srhoi = -1;
 
 
 static int hf_gtpv2_pdn_type = -1;
@@ -765,6 +769,7 @@ static int hf_gtpv2_max_pkt_loss_rte_ul = -1;
 static int hf_gtpv2_max_pkt_loss_rte_dl = -1;
 
 static int hf_gtpv2_spare_b7_b2 = -1;
+static int hf_gtpv2_spare_b7_b5 = -1;
 
 static gint ett_gtpv2 = -1;
 static gint ett_gtpv2_flags = -1;
@@ -2451,7 +2456,11 @@ dissect_gtpv2_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_ite
     }
 
     static const int* oct12_flags[] = {
-        &hf_gtpv2_spare_b7_b1,
+        &hf_gtpv2_spare_b7_b5,
+        &hf_gtpv2_n5gnmi,
+        &hf_gtpv2_5gcnrs,
+        &hf_gtpv2_5gcnri,
+        &hf_gtpv2_5srhoi,
         &hf_gtpv2_ethpdn,
         NULL
     };
@@ -8585,11 +8594,11 @@ void proto_register_gtpv2(void)
            FT_UINT8, BASE_DEC, NULL, 0xf8,
            NULL, HFILL }
         },
-        { &hf_gtpv2_spare_b7_b1,
-          {"Spare bit(s)", "gtpv2.spare_b7_b3",
-           FT_UINT8, BASE_DEC, NULL, 0xfe,
-           NULL, HFILL }
-        },
+        //{ &hf_gtpv2_spare_b7_b1,
+        //  {"Spare bit(s)", "gtpv2.spare_b7_b3",
+        //   FT_UINT8, BASE_DEC, NULL, 0xfe,
+        //   NULL, HFILL }
+        //},
         { &hf_gtpv2_spare_bits,
           {"Spare bit(s)", "gtpv2.spare_bits",
            FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -9088,8 +9097,24 @@ void proto_register_gtpv2(void)
          {"TSPCMI (Triggering SGSN Initiated PDP Context Creation/Modification Indication)", "gtpv2.tspcmi",
           FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL}
         },
+        {&hf_gtpv2_n5gnmi,
+        { "N5GNMI (No 5GS N26 Mobility Indication", "gtpv2.n5gnmi",
+         FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10, NULL, HFILL }
+        },
+        { &hf_gtpv2_5gcnrs,
+        { "5GCNRS (5GC Not Restricted Support)", "gtpv2.5gcnrs",
+         FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08, NULL, HFILL }
+        },
+        { &hf_gtpv2_5gcnri,
+        { "5GCNRI (5GC Not Restricted Indication)", "gtpv2.5gcnri",
+         FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04, NULL, HFILL }
+        },
+        { &hf_gtpv2_5srhoi,
+        { "5SRHOI (5G-SRVCC HO Indication)", "gtpv2.5srhoi",
+         FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02, NULL, HFILL }
+        },
         { &hf_gtpv2_ethpdn,
-         {"ETHPDN (Ethernet PDN Support Indication):", "gtpv2.ethpdn",
+         {"ETHPDN (Ethernet PDN Support Indication)", "gtpv2.ethpdn",
           FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01, NULL, HFILL}
         },
         { &hf_gtpv2_pdn_type,
@@ -11639,6 +11664,11 @@ void proto_register_gtpv2(void)
       { &hf_gtpv2_spare_b7_b2,
       { "Spare", "gtpv2.spare.b7_b2",
           FT_UINT8, BASE_HEX, NULL, 0xfc,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_spare_b7_b5,
+      { "Spare", "gtpv2.spare.b7_b5",
+          FT_UINT8, BASE_HEX, NULL, 0xe0,
           NULL, HFILL }
       },
     };
