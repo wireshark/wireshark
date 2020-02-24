@@ -83,7 +83,7 @@ static int hf_goose_goID = -1;                    /* VisibleString */
 static int hf_goose_t = -1;                       /* UtcTime */
 static int hf_goose_stNum = -1;                   /* INTEGER */
 static int hf_goose_sqNum = -1;                   /* INTEGER */
-static int hf_goose_test = -1;                    /* BOOLEAN */
+static int hf_goose_simulation = -1;              /* BOOLEAN */
 static int hf_goose_ndsCom = -1;                  /* BOOLEAN */
 static int hf_goose_numDatSetEntries = -1;        /* INTEGER */
 static int hf_goose_allData = -1;                 /* SEQUENCE_OF_Data */
@@ -658,7 +658,7 @@ static const ber_sequence_t IECGoosePdu_sequence[] = {
   { &hf_goose_t             , BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_goose_UtcTime },
   { &hf_goose_stNum         , BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_goose_INTEGER },
   { &hf_goose_sqNum         , BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_goose_INTEGER },
-  { &hf_goose_test          , BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_goose_BOOLEAN },
+  { &hf_goose_simulation    , BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_goose_BOOLEAN },
   { &hf_goose_confRev       , BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_goose_INTEGER },
   { &hf_goose_ndsCom        , BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_goose_BOOLEAN },
   { &hf_goose_numDatSetEntries, BER_CLASS_CON, 10, BER_FLAGS_IMPLTAG, dissect_goose_INTEGER },
@@ -909,8 +909,8 @@ void proto_register_goose(void) {
       { "sqNum", "goose.sqNum",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER", HFILL }},
-    { &hf_goose_test,
-      { "test", "goose.test",
+    { &hf_goose_simulation,
+      { "simulation", "goose.simulation",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         "BOOLEAN", HFILL }},
     { &hf_goose_ndsCom,
