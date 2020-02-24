@@ -5468,8 +5468,8 @@ proto_register_diameter_3gpp(void)
           NULL, HFILL }
         },
         { &hf_diameter_3gpp_core_network_restrictions_bit0,
-        { "EPS", "diameter.3gpp.core_network_restrictions_bit0",
-          FT_BOOLEAN, 32, TFS(&tfs_not_allowed_allowed), 0x00000001,
+        { "Reserved", "diameter.3gpp.core_network_restrictions_bit0",
+          FT_UINT32, BASE_HEX, NULL, 0x00000001,
           NULL, HFILL }
         },
         { &hf_diameter_3gpp_plr_flags,

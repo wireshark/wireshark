@@ -406,6 +406,9 @@ static int hf_gtpv2_mm_context_nr_qui = -1;
 static int hf_gtpv2_mm_context_nr_qua = -1;
 static int hf_gtpv2_mm_context_uamb_ri = -1;
 static int hf_gtpv2_mm_context_osci = -1;
+static int hf_gtpv2_mm_context_nruna = -1;
+static int hf_gtpv2_mm_context_nrusrna = -1;
+static int hf_gtpv2_mm_context_nrna = -1;
 static int hf_gtpv2_mm_context_ussrna = -1;
 static int hf_gtpv2_mm_context_nrsrna = -1;
 
@@ -770,6 +773,8 @@ static int hf_gtpv2_max_pkt_loss_rte_dl = -1;
 
 static int hf_gtpv2_spare_b7_b2 = -1;
 static int hf_gtpv2_spare_b7_b5 = -1;
+static int hf_gtpv2_mm_context_iov_updates_counter = -1;
+static int hf_gtpv2_mm_context_ear_len = -1;
 
 static gint ett_gtpv2 = -1;
 static gint ett_gtpv2_flags = -1;
@@ -4357,7 +4362,7 @@ dissect_gtpv2_mm_context_utms_q(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 {
     proto_tree *flag_tree;
     int         offset;
-    guint8      oct, drxi, nr_qui, uamb_ri, samb_ri, vdp_len, hbr_len;
+    guint8      oct, drxi, nr_qui, uamb_ri, samb_ri, vdp_len, hbr_len, ear_len;
 
     offset = 0;
     flag_tree = proto_tree_add_subtree(tree, tvb, offset, 3, ett_gtpv2_mm_context_flag, NULL, "MM Context flags");
@@ -4449,7 +4454,36 @@ dissect_gtpv2_mm_context_utms_q(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
         return;
     }
 
-    /* (s+3) to (n+4) These octet(s) is/are present only if explicitly specified */
+    /* s+3	IOV_updates counter */
+    if (offset < (gint)length) {
+        proto_tree_add_item(tree, hf_gtpv2_mm_context_iov_updates_counter, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+    } else {
+        return;
+    }
+    /* s+4	Length of Extended Access Restriction Data */
+    if (offset < (gint)length) {
+        ear_len = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item(tree, hf_gtpv2_mm_context_ear_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        static const int * ear_flags[] = {
+            &hf_gtpv2_mm_context_nrsrna,
+            NULL
+        };
+        proto_tree_add_bitmask_list(tree, tvb, offset, 1, ear_flags, ENC_BIG_ENDIAN);
+        offset += 1;
+        if (ear_len > 1) {
+            proto_tree_add_expert_format(flag_tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, offset, -1, "The rest of the IE not dissected yet");
+            offset += ear_len - 1;
+        }
+    } else {
+        return;
+    }
+
+    if (offset == (gint)length) {
+        return;
+    }
+    /* ts+1) to (n+4) These octet(s) is/are present only if explicitly specified */
     proto_tree_add_expert_format(flag_tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, offset, -1, "The rest of the IE not dissected yet");
 
 }
@@ -4465,7 +4499,7 @@ dissect_gtpv2_mm_context_eps_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     proto_tree *flag_tree, *qua_tree, *qui_tree, *sc_tree;
     gint        offset;
     guint8      tmp, nhi, drxi, nr_qua, nr_qui, uamb_ri, osci, samb_ri, vdp_len;
-    guint32     dword, paging_len, ue_add_sec_cap_len, bit_offset, ex_access_res_data_len, ue_nr_sec_cap_len, apn_rte_ctrl_sts_len;
+    guint32     dword, paging_len, ue_add_sec_cap_len, ex_access_res_data_len, ue_nr_sec_cap_len, apn_rte_ctrl_sts_len;
 
     offset = 0;
 
@@ -4647,10 +4681,17 @@ dissect_gtpv2_mm_context_eps_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
      *            spare               |    USSRNA | NRSRNA
      */
     if(ex_access_res_data_len > 0){
-        bit_offset = offset << 3;
-        proto_tree_add_bits_item(tree, hf_gtpv2_spare_bits, tvb, bit_offset, 6, ENC_BIG_ENDIAN);
-        proto_tree_add_item(tree, hf_gtpv2_mm_context_ussrna, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(tree, hf_gtpv2_mm_context_nrsrna, tvb, offset, 1, ENC_BIG_ENDIAN);
+        static const int* ear_flags[] = {
+            &hf_gtpv2_spare_b7_b5,
+            &hf_gtpv2_mm_context_nruna,
+            &hf_gtpv2_mm_context_nrusrna,
+            &hf_gtpv2_mm_context_nrna,
+            &hf_gtpv2_mm_context_ussrna,
+            &hf_gtpv2_mm_context_nrsrna,
+            NULL
+        };
+        proto_tree_add_bitmask_list(tree, tvb, offset, 1, ear_flags, ENC_BIG_ENDIAN);
+
         offset += 1;
     }
 
@@ -10169,14 +10210,29 @@ void proto_register_gtpv2(void)
            FT_BOOLEAN, 8, NULL, 0x01,
            "Old Security Context Indicator", HFILL}
         },
+        { &hf_gtpv2_mm_context_nruna,
+        { "NRUNA (NR-U in 5GS Not Allowed)", "gtpv2.mm_context.nrusrna",
+            FT_BOOLEAN, 8, NULL, 0x10,
+            NULL, HFILL }
+        },
+        { &hf_gtpv2_mm_context_nrusrna,
+        { "NRUSRNA (New Radio Unlicensed as Secondary RAT Not Allowed)", "gtpv2.mm_context.nrusrna",
+            FT_BOOLEAN, 8, NULL, 0x08,
+            NULL, HFILL }
+        },
+        { &hf_gtpv2_mm_context_nrna,
+        { "NRNA(NR in 5GS Not Allowed)", "gtpv2.mm_context.nrna",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL }
+        },
         { &hf_gtpv2_mm_context_ussrna,
           {"USSRNA", "gtpv2.mm_context_ussrna",
-           FT_UINT8, BASE_DEC, NULL, 0x02,
-           NULL, HFILL}
+           FT_BOOLEAN, 8, NULL, 0x02,
+           "Unlicensed Spectrum in the form of LAA or LWA/LWIP as Secondary RAT Not Allowed", HFILL}
         },
         { &hf_gtpv2_mm_context_nrsrna,
-          {"NRSRNA", "gtpv2.mm_context_nrsrna",
-           FT_UINT8, BASE_DEC, NULL, 0x01,
+          {"NRSRNA((NR as Secondary RAT Not Allowed)", "gtpv2.mm_context_nrsrna",
+           FT_BOOLEAN, 8, NULL, 0x01,
            NULL, HFILL}
         },
         { &hf_gtpv2_mm_context_samb_ri,
@@ -11669,6 +11725,16 @@ void proto_register_gtpv2(void)
       { &hf_gtpv2_spare_b7_b5,
       { "Spare", "gtpv2.spare.b7_b5",
           FT_UINT8, BASE_HEX, NULL, 0xe0,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_mm_context_iov_updates_counter,
+      { "IOV_updates counter", "gtpv2.mm_context.iov_updates_counter",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_mm_context_ear_len,
+      { "Length of Extended Access Restriction Data", "gtpv2.mm_context.ear_len",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
     };
