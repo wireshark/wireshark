@@ -99,7 +99,6 @@ typedef struct _smb2_conv_info_t {
 	/* these two tables are used to match requests with responses */
 	GHashTable *unmatched;
 	GHashTable *matched;
-	GHashTable *sesids;
 	GHashTable *fids;
 	/* table to store some infos for smb export object */
 	GHashTable *files;

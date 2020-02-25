@@ -88,6 +88,9 @@ void proto_reg_handoff_smb2(void);
 #define SMB2_NORM_HEADER 0xFE
 #define SMB2_ENCR_HEADER 0xFD
 #define SMB2_COMP_HEADER 0xFC
+
+static wmem_map_t *smb2_sessions = NULL;
+
 static const char smb_header_label[] = "SMB2 Header";
 static const char smb_transform_header_label[] = "SMB2 Transform Header";
 static const char smb_comp_transform_header_label[] = "SMB2 Compression Transform Header";
@@ -1361,7 +1364,6 @@ smb2_conv_destroy(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_,
 	g_hash_table_destroy(conv->matched);
 	g_hash_table_destroy(conv->unmatched);
 	g_hash_table_destroy(conv->fids);
-	g_hash_table_destroy(conv->sesids);
 	g_hash_table_destroy(conv->files);
 
 	/* This conversation is gone, return FALSE to indicate we don't
@@ -1370,10 +1372,10 @@ smb2_conv_destroy(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_,
 }
 
 static smb2_sesid_info_t *
-smb2_get_session(smb2_conv_info_t *conv, guint64 id, packet_info *pinfo, smb2_info_t *si)
+smb2_get_session(smb2_conv_info_t *conv _U_, guint64 id, packet_info *pinfo, smb2_info_t *si)
 {
 	smb2_sesid_info_t key = {.sesid = id};
-	smb2_sesid_info_t *ses = (smb2_sesid_info_t *)g_hash_table_lookup(conv->sesids, &key);
+	smb2_sesid_info_t *ses = (smb2_sesid_info_t *)wmem_map_lookup(smb2_sessions, &key);
 
 	if (!ses) {
 		ses = wmem_new0(wmem_file_scope(), smb2_sesid_info_t);
@@ -1388,7 +1390,7 @@ smb2_get_session(smb2_conv_info_t *conv, guint64 id, packet_info *pinfo, smb2_in
 				ses->server_port = pinfo->destport;
 			}
 		}
-		g_hash_table_insert(conv->sesids, ses, ses);
+		wmem_map_insert(smb2_sessions, ses, ses);
 	}
 
 	return ses;
@@ -10071,7 +10073,7 @@ dissect_smb2_tid_sesid(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, 
 
 	/* now we need to first lookup the uid session */
 	sesid_key.sesid = si->sesid;
-	si->session = (smb2_sesid_info_t *)g_hash_table_lookup(si->conv->sesids, &sesid_key);
+	si->session = (smb2_sesid_info_t *)wmem_map_lookup(smb2_sessions, &sesid_key);
 	if (!si->session) {
 		if (si->opcode != SMB2_COM_TREE_CONNECT)
 			return offset;
@@ -10166,8 +10168,6 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 			smb2_saved_info_equal_matched);
 		si->conv->unmatched = g_hash_table_new(smb2_saved_info_hash_unmatched,
 			smb2_saved_info_equal_unmatched);
-		si->conv->sesids = g_hash_table_new(smb2_sesid_info_hash,
-			smb2_sesid_info_equal);
 		si->conv->fids = g_hash_table_new(smb2_fid_info_hash,
 			smb2_fid_info_equal);
 		si->conv->files = g_hash_table_new(smb2_eo_files_hash,smb2_eo_files_equal);
@@ -13071,6 +13071,7 @@ proto_register_smb2(void)
 	smb2_eo_tap = register_tap("smb_eo"); /* SMB Export Object tap */
 
 	register_srt_table(proto_smb2, NULL, 1, smb2stat_packet, smb2stat_init, NULL);
+	smb2_sessions = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), smb2_sesid_info_hash, smb2_sesid_info_equal);
 }
 
 void
