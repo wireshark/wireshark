@@ -88,7 +88,12 @@ typedef struct _smb2_sesid_info_t {
 	guint8 session_key[NTLMSSP_KEY_LEN];
 	guint8 client_decryption_key[AES_KEY_SIZE];
 	guint8 server_decryption_key[AES_KEY_SIZE];
+
 	wmem_map_t *tids;
+	GHashTable *fids;
+	/* table to store some infos for smb export object */
+	GHashTable *files;
+
 	guint8 preauth_hash[SMB2_PREAUTH_HASH_SIZE];
 } smb2_sesid_info_t;
 
@@ -99,9 +104,6 @@ typedef struct _smb2_conv_info_t {
 	/* these two tables are used to match requests with responses */
 	GHashTable *unmatched;
 	GHashTable *matched;
-	GHashTable *fids;
-	/* table to store some infos for smb export object */
-	GHashTable *files;
 	guint16 dialect;
 	guint16 enc_alg;
 
