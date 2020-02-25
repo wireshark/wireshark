@@ -6810,7 +6810,7 @@ proto_register_bthci_cmd(void)
             NULL, HFILL }
         },
         { &hf_bthci_cmd_le_long_term_key,
-          { "Long Term Key",        "bthci_cmd.le_long_tem_key",
+          { "Long Term Key",        "bthci_cmd.le_long_term_key",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
