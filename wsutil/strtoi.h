@@ -37,11 +37,13 @@ WS_DLL_PUBLIC gboolean ws_strtoi64(const gchar* str, const gchar** endptr, gint6
 WS_DLL_PUBLIC gboolean ws_strtoi32(const gchar* str, const gchar** endptr, gint32* cint);
 WS_DLL_PUBLIC gboolean ws_strtoi16(const gchar* str, const gchar** endptr, gint16* cint);
 WS_DLL_PUBLIC gboolean ws_strtoi8 (const gchar* str, const gchar** endptr, gint8*  cint);
+WS_DLL_PUBLIC gboolean ws_strtoi (const gchar* str, const gchar** endptr, gint*  cint);
 
 WS_DLL_PUBLIC gboolean ws_strtou64(const gchar* str, const gchar** endptr, guint64* cint);
 WS_DLL_PUBLIC gboolean ws_strtou32(const gchar* str, const gchar** endptr, guint32* cint);
 WS_DLL_PUBLIC gboolean ws_strtou16(const gchar* str, const gchar** endptr, guint16* cint);
 WS_DLL_PUBLIC gboolean ws_strtou8 (const gchar* str, const gchar** endptr, guint8*  cint);
+WS_DLL_PUBLIC gboolean ws_strtou (const gchar* str, const gchar** endptr, guint*  cint);
 
 /*
  * \brief Convert a hexadecimal string to an unsigned int, with error checks.
@@ -60,6 +62,7 @@ WS_DLL_PUBLIC gboolean ws_hexstrtou64(const gchar* str, const gchar** endptr, gu
 WS_DLL_PUBLIC gboolean ws_hexstrtou32(const gchar* str, const gchar** endptr, guint32* cint);
 WS_DLL_PUBLIC gboolean ws_hexstrtou16(const gchar* str, const gchar** endptr, guint16* cint);
 WS_DLL_PUBLIC gboolean ws_hexstrtou8 (const gchar* str, const gchar** endptr, guint8*  cint);
+WS_DLL_PUBLIC gboolean ws_hexstrtou (const gchar* str, const gchar** endptr, guint*  cint);
 
 /*
  * \brief Convert a string in the specified base to an unsigned int, with
@@ -82,6 +85,7 @@ WS_DLL_PUBLIC gboolean ws_basestrtou64(const gchar* str, const gchar** endptr, g
 WS_DLL_PUBLIC gboolean ws_basestrtou32(const gchar* str, const gchar** endptr, guint32* cint, int base);
 WS_DLL_PUBLIC gboolean ws_basestrtou16(const gchar* str, const gchar** endptr, guint16* cint, int base);
 WS_DLL_PUBLIC gboolean ws_basestrtou8 (const gchar* str, const gchar** endptr, guint8*  cint, int base);
+WS_DLL_PUBLIC gboolean ws_basestrtou (const gchar* str, const gchar** endptr, guint*  cint, int base);
 
 #ifdef __cplusplus
 }

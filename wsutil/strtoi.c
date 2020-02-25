@@ -102,6 +102,50 @@ DEFINE_WS_STRTOI_BITS(32)
 DEFINE_WS_STRTOI_BITS(16)
 DEFINE_WS_STRTOI_BITS(8)
 
+gboolean ws_strtoi(const gchar* str, const gchar** endptr, gint* cint)
+{
+	gint64 val = 0;
+	if (!ws_strtoi64(str, endptr, &val)) {
+		/*
+		 * For ERANGE, return either G_MININT or
+		 * G_MAXINT so our caller knows whether
+		 * to report the value as "too small" or "too
+		 * large".
+		 *
+		 * For other errors, return 0, for parallelism
+		 * with ws_strtoi64().
+		 */
+		if (errno == ERANGE) {
+			if (val < 0)
+				*cint = G_MININT;
+			else
+				*cint = G_MAXINT;
+		} else
+			*cint = 0;
+		return FALSE;
+	}
+	if (val < G_MININT) {
+		/*
+		 * Return G_MININT so our caller knows whether to
+		 * report the value as "too small" or "too large".
+		 */
+		*cint = G_MININT;
+		errno = ERANGE;
+		return FALSE;
+	}
+	if (val > G_MAXINT) {
+		/*
+		 * Return G_MAXINT so our caller knows whether to
+		 * report the value as "too small" or "too large".
+		 */
+		*cint = G_MAXINT;
+		errno = ERANGE;
+		return FALSE;
+	}
+	*cint = (gint)val;
+	return TRUE;
+}
+
 gboolean ws_basestrtou64(const gchar* str, const gchar** endptr, guint64* cint, int base)
 {
 	gchar* end;
@@ -203,6 +247,46 @@ gboolean ws_hexstrtou##bits(const gchar* str, const gchar** endptr, guint##bits*
 DEFINE_WS_STRTOU_BITS(32)
 DEFINE_WS_STRTOU_BITS(16)
 DEFINE_WS_STRTOU_BITS(8)
+
+gboolean ws_basestrtou(const gchar* str, const gchar** endptr, guint* cint, int base)
+{
+	guint64 val;
+	if (!ws_basestrtou64(str, endptr, &val, base)) {
+		/*
+		 * For ERANGE, return G_MAXUINT for parallelism
+		 * with ws_strtoi().
+		 *
+		 * For other errors, return 0, for parallelism
+		 * with ws_basestrtou64().
+		 */
+		if (errno == ERANGE)
+			*cint = G_MAXUINT;
+		else
+			*cint = 0;
+		return FALSE;
+	}
+	if (val > G_MAXUINT) {
+		/*
+		 * Return G_MAXUINT for parallelism with
+		 * ws_strtoi().
+		 */
+		*cint = G_MAXUINT;
+		errno = ERANGE;
+		return FALSE;
+	}
+	*cint = (guint)val;
+	return TRUE;
+}
+
+gboolean ws_strtou(const gchar* str, const gchar** endptr, guint* cint)
+{
+	return ws_basestrtou(str, endptr, cint, 10);
+}
+\
+gboolean ws_hexstrtou(const gchar* str, const gchar** endptr, guint* cint)
+{
+	return ws_basestrtou(str, endptr, cint, 16);
+}
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html

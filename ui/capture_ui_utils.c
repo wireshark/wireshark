@@ -24,6 +24,7 @@
 #include "ui/capture_globals.h"
 #include "wiretap/wtap.h"
 #include "epan/to_str.h"
+#include "wsutil/strtoi.h"
 
 /*
  * In a list of interface information, in the form of a comma-separated
@@ -93,28 +94,22 @@ capture_dev_get_if_property(const gchar *pref, const gchar *if_name)
 static gint
 capture_dev_get_if_int_property(const gchar *pref, const gchar *if_name)
 {
-    gchar *property_string, *next;
-    long property;
+    gchar *property_string;
+    gint property;
 
     property_string = capture_dev_get_if_property(pref, if_name);
     if (property_string == NULL) {
         /* No property found for this interface. */
         return -1;
     }
-    property = strtol(property_string, &next, 10);
-    if (next == property_string || *next != '\0' || property < 0) {
-        /* Syntax error */
-        g_free(property_string);
-        return -1;
-    }
-    if (property > G_MAXINT) {
-        /* Value doesn't fit in a gint */
+    if (!ws_strtoi(property_string, NULL, &property)) {
+        /* Syntax error or range error */
         g_free(property_string);
         return -1;
     }
 
     g_free(property_string);
-    return (gint)property;
+    return property;
 }
 
 /*
@@ -165,8 +160,9 @@ capture_dev_user_snaplen_find(const gchar *if_name, gboolean *hassnap, int *snap
      */
     if_tokens = g_strsplit(prefs.capture_devices_snaplen, ",", -1);
     for (i = 0; if_tokens[i] != NULL; i++) {
-        gchar *colonp, *next;
-        long value;
+        gchar *colonp;
+        const gchar *next;
+        gint value;
 
         /*
          * This one's a bit ugly.
@@ -200,18 +196,14 @@ capture_dev_user_snaplen_find(const gchar *if_name, gboolean *hassnap, int *snap
                     /* Not followed by a parenthesis. Give up. */
                     break;
                 }
-                value = strtol(colonp + 3, &next, 10);
-                if (next == colonp + 3 || *next != ')' || value < 0) {
-                    /* Syntax error. Give up. */
-                    break;
-                }
-                if (value > G_MAXINT) {
-                    /* Value doesn't fit in a gint. Give up. */
+                if (!ws_strtoi(colonp + 3, &next, &value) ||
+                    next == colonp + 3 || *next != ')' || value < 0) {
+                    /* Syntax error or range error. Give up. */
                     break;
                 }
                 found = TRUE;
                 *hassnap = TRUE;
-                *snaplen = (gint)value;
+                *snaplen = value;
             } else {
                 /* Bad {hassnap}. Give up. */
                 break;
