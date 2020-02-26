@@ -8,9 +8,32 @@ Wireshark 3.0.9 Release Notes
 
    The following vulnerabilities have been fixed:
 
-     • wnpa-sec-2020-03[1] Foo dissector {crash,infinite loop}.
+     • wnpa-sec-2020-03[1] LTE RRC dissector memory leak. Bug 16341[2].
+
+     • wnpa-sec-2020-04[3] WiMax DLMAP dissector crash. Bug 16368[4].
+
+     • wnpa-sec-2020-05[5] EAP dissector crash. Bug 16397[6].
 
    The following bugs have been fixed:
+
+     • Wireshark fails to build with GCC-9. Bug 16319[7].
+
+     • ICMP: No response if ICMP reply packet has an ICMP checksum of
+       0x0000. Bug 16334[8].
+
+     • IPv4 fragment offset value is incorrect in IPv4 header decode.
+       Bug 16344[9].
+
+     • RTP export to rtpdump file doesn’t work. Bug 16351[10].
+
+     • ISAKMP: IKEv2 transforms and proposal have critical bit (BUG).
+       Bug 16364[11].
+
+     • LLDP dissector consumes all octets to the end of the TVB and eth
+       trailer dissector does not get called. Bug 16387[12].
+
+     • LACP dissector consumes all octets to the end of the TVB and eth
+       trailer dissector does not get called. Bug 16388[13].
 
   New and Updated Features
 
@@ -21,6 +44,9 @@ Wireshark 3.0.9 Release Notes
    There are no new protocols in this release.
 
   Updated Protocol Support
+
+   ARTNET, EAP, ICMP, ICMPv6, IPv4, ISAKMP, LACP, LLDP, LTE RRC, RDM,
+   RTP, and WiMax DLMAP
 
   New and Updated Capture File Support
 
@@ -40,7 +66,7 @@ Wireshark 3.0.9 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[2] on the Wireshark web site.
+   be found on the download page[14] on the Wireshark web site.
 
  File Locations
 
@@ -54,23 +80,35 @@ Wireshark 3.0.9 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[3] and on the
+  Community support is available on Wireshark’s Q&A site[15] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[4].
+  for all of Wireshark’s mailing lists can be found on the web site[16].
 
-  Bugs and feature requests can be reported on the bug tracker[5].
+  Bugs and feature requests can be reported on the bug tracker[17].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[6].
+  A complete FAQ is available on the Wireshark web site[18].
 
-  Last updated 2020-02-23 08:35:28 UTC
+  Last updated 2020-02-26 19:44:22 UTC
 
  References
 
    1. https://www.wireshark.org/security/wnpa-sec-2020-03
-   2. https://www.wireshark.org/download.html#thirdparty
-   3. https://ask.wireshark.org/
-   4. https://www.wireshark.org/lists/
-   5. https://bugs.wireshark.org/
-   6. https://www.wireshark.org/faq.html
+   2. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16341
+   3. https://www.wireshark.org/security/wnpa-sec-2020-04
+   4. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16368
+   5. https://www.wireshark.org/security/wnpa-sec-2020-05
+   6. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16397
+   7. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16319
+   8. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16334
+   9. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16344
+  10. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16351
+  11. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16364
+  12. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16387
+  13. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16388
+  14. https://www.wireshark.org/download.html#thirdparty
+  15. https://ask.wireshark.org/
+  16. https://www.wireshark.org/lists/
+  17. https://bugs.wireshark.org/
+  18. https://www.wireshark.org/faq.html
