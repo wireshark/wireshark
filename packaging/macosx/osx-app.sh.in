@@ -563,4 +563,11 @@ else
 	echo "Code signing not performed (no identity)"
 fi
 
+# File permission sanity check.
+if ! badperms=$( find "$bundle" ! -perm -0444 -exec ls -l "{}" + | grep . ) ; then
+	echo "Found files with restrictive permissions:"
+	echo "$badperms"
+	exit 1
+fi
+
 exit 0
