@@ -564,7 +564,7 @@ else
 fi
 
 # File permission sanity check.
-if ! badperms=$( find "$bundle" ! -perm -0444 -exec ls -l "{}" + | grep . ) ; then
+if badperms=$( find "$bundle" ! -perm -0444 -exec ls -l "{}" + | grep . ) ; then
 	echo "Found files with restrictive permissions:"
 	echo "$badperms"
 	exit 1
