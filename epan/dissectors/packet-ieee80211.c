@@ -3074,6 +3074,12 @@ static const value_string he_phy_nominal_packet_padding_vals[] = {
 #define MBO_TRANSITION_REASON           6
 #define MBO_TRANSITION_REJECTION_REASON 7
 #define MBO_ASSOCIATION_RETRY_DELAY     8
+#define OCE_CAPABILTY_INDICATION        101
+#define OCE_RSSI_ASSOCIATION_REJECTION  102
+#define OCE_REDUCED_WAN_METRICS         103
+#define OCE_RNR_COMPLETENESS            104
+#define OCE_PROBE_SUPPR_BSSID           105
+#define OCE_PROBE_SUPPR_SSID            106
 
 static const value_string wfa_mbo_oce_attr_id_vals[] = {
   { MBO_AP_CAPABILTY_INDICATION, "MBO AP Capability Indication"},
@@ -3084,6 +3090,12 @@ static const value_string wfa_mbo_oce_attr_id_vals[] = {
   { MBO_TRANSITION_REASON, "Transition Reason Code BTM Request"},
   { MBO_TRANSITION_REJECTION_REASON, "Transition Rejection Reason Code"},
   { MBO_ASSOCIATION_RETRY_DELAY, "Association Retry Delay"},
+  { OCE_CAPABILTY_INDICATION, "OCE Capability Indication " },
+  { OCE_RSSI_ASSOCIATION_REJECTION, "RSSI-based (Re-)Association Rejection" },
+  { OCE_REDUCED_WAN_METRICS, "Reduced WAN Metrics" },
+  { OCE_RNR_COMPLETENESS, "RNR Completeness" },
+  { OCE_PROBE_SUPPR_BSSID, "Probe Suppression BSSIDs" },
+  { OCE_PROBE_SUPPR_SSID, "Probe Suppression SSIDs" },
   { 0, NULL}
 };
 
@@ -4915,6 +4927,21 @@ static int hf_ieee80211_wfa_ie_mbo_cellular_pref = -1;
 static int hf_ieee80211_wfa_ie_mbo_transition_reason = -1;
 static int hf_ieee80211_wfa_ie_mbo_transition_rej_reason = -1;
 static int hf_ieee80211_wfa_ie_mbo_assoc_retry_delay = -1;
+static int hf_ieee80211_wfa_ie_oce_cap = -1;
+static int hf_ieee80211_wfa_ie_oce_cap_release = -1;
+static int hf_ieee80211_wfa_ie_oce_cap_sta_cfon = -1;
+static int hf_ieee80211_wfa_ie_oce_cap_11b_only_ap = -1;
+static int hf_ieee80211_wfa_ie_oce_cap_hlp = -1;
+static int hf_ieee80211_wfa_ie_oce_cap_non_oce_ap = -1;
+static int hf_ieee80211_wfa_ie_oce_cap_reserved = -1;
+static int hf_ieee80211_wfa_ie_oce_rssi_assoc_rej_delta = -1;
+static int hf_ieee80211_wfa_ie_oce_rssi_assoc_rej_delay = -1;
+static int hf_ieee80211_wfa_ie_oce_wan_metrics_avail_cap = -1;
+static int hf_ieee80211_wfa_ie_oce_wan_metrics_avail_cap_downlink = -1;
+static int hf_ieee80211_wfa_ie_oce_wan_metrics_avail_cap_uplink = -1;
+static int hf_ieee80211_wfa_ie_oce_rnr_completeness_short_ssid = -1;
+static int hf_ieee80211_wfa_ie_oce_probe_suppr_bssid = -1;
+static int hf_ieee80211_wfa_ie_oce_probe_suppr_ssid = -1;
 static int hf_ieee80211_wfa_anqp_mbo_subtype = -1;
 static int hf_ieee80211_wfa_anqp_mbo_query = -1;
 static int hf_ieee80211_wfa_anqp_mbo_cellular_pref = -1;
@@ -6114,6 +6141,8 @@ static gint ett_ieee80211_3gpp_plmn = -1;
 
 static gint ett_mbo_oce_attr = -1;
 static gint ett_mbo_ap_cap = -1;
+static gint ett_oce_cap = -1;
+static gint ett_oce_metrics_cap = -1;
 
 static expert_field ei_ieee80211_bad_length = EI_INIT;
 static expert_field ei_ieee80211_inv_val = EI_INIT;
@@ -14259,6 +14288,96 @@ dissect_mbo_oce(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
       proto_item_append_text(delay_item, " (s)");
       break;
     }
+    case OCE_CAPABILTY_INDICATION:
+    {
+      proto_item *cap_item;
+      proto_tree *cap_tree;
+
+      if (attr_len != 1) {
+        expert_add_info(pinfo, attr_tree, &ei_ieee80211_bad_length);
+        return offset;
+      }
+      cap_item = proto_tree_add_item(attr_tree, hf_ieee80211_wfa_ie_oce_cap, tvb, offset, 1, ENC_NA);
+      cap_tree = proto_item_add_subtree(cap_item, ett_oce_cap);
+      proto_tree_add_item(cap_tree, hf_ieee80211_wfa_ie_oce_cap_release, tvb, offset, 1, ENC_NA);
+      proto_tree_add_item(cap_tree, hf_ieee80211_wfa_ie_oce_cap_sta_cfon, tvb, offset, 1, ENC_NA);
+      proto_tree_add_item(cap_tree, hf_ieee80211_wfa_ie_oce_cap_11b_only_ap, tvb, offset, 1, ENC_NA);
+      proto_tree_add_item(cap_tree, hf_ieee80211_wfa_ie_oce_cap_hlp, tvb, offset, 1, ENC_NA);
+      proto_tree_add_item(cap_tree, hf_ieee80211_wfa_ie_oce_cap_non_oce_ap, tvb, offset, 1, ENC_NA);
+      proto_tree_add_item(cap_tree, hf_ieee80211_wfa_ie_oce_cap_reserved, tvb, offset, 1, ENC_NA);
+      break;
+    }
+    case OCE_RSSI_ASSOCIATION_REJECTION:
+    {
+      proto_item *item;
+
+      if (attr_len != 2) {
+        expert_add_info(pinfo, attr_tree, &ei_ieee80211_bad_length);
+        return offset;
+      }
+      item = proto_tree_add_item(attr_tree, hf_ieee80211_wfa_ie_oce_rssi_assoc_rej_delta, tvb,
+                                 offset, 1, ENC_NA);
+      proto_item_append_text(item, " (dB)");
+      item = proto_tree_add_item(attr_tree, hf_ieee80211_wfa_ie_oce_rssi_assoc_rej_delay, tvb,
+                                 offset + 1, 1, ENC_NA);
+      proto_item_append_text(item, " (s)");
+      break;
+    }
+    case OCE_REDUCED_WAN_METRICS:
+    {
+      proto_item *cap_item;
+      proto_tree *cap_tree;
+      guint8 capacity;
+
+      if (attr_len != 1) {
+        expert_add_info(pinfo, attr_tree, &ei_ieee80211_bad_length);
+        return offset;
+      }
+      cap_item = proto_tree_add_item(attr_tree, hf_ieee80211_wfa_ie_oce_wan_metrics_avail_cap,
+                                     tvb, offset, 1, ENC_NA);
+      cap_tree = proto_item_add_subtree(cap_item, ett_oce_metrics_cap);
+
+      capacity = tvb_get_guint8(tvb, offset);
+      cap_item = proto_tree_add_item(cap_tree, hf_ieee80211_wfa_ie_oce_wan_metrics_avail_cap_downlink,
+                                     tvb, offset, 1, ENC_NA);
+      proto_item_append_text(cap_item, " (%d kbit/s)", (1 << (capacity & 0xF)) * 100);
+      cap_item = proto_tree_add_item(cap_tree, hf_ieee80211_wfa_ie_oce_wan_metrics_avail_cap_uplink,
+                                     tvb, offset, 1, ENC_NA);
+      capacity >>= 4;
+      proto_item_append_text(cap_item, " (%d kbit/s)", (1 << (capacity & 0xF)) * 100);
+      break;
+    }
+    case OCE_RNR_COMPLETENESS:
+      while (attr_len >= 4) {
+        proto_tree_add_item(attr_tree, hf_ieee80211_wfa_ie_oce_rnr_completeness_short_ssid,
+                            tvb, offset, 4, ENC_ASCII|ENC_NA);
+        offset += 4;
+        attr_len -= 4;
+        len -= 4;
+      }
+      break;
+    case OCE_PROBE_SUPPR_BSSID:
+      while (attr_len >= 6) {
+        proto_tree_add_item(attr_tree, hf_ieee80211_wfa_ie_oce_probe_suppr_bssid,
+                            tvb, offset, 6, ENC_NA);
+        offset += 6;
+        attr_len -= 6;
+        len -= 6;
+      }
+      break;
+    case OCE_PROBE_SUPPR_SSID:
+      if (attr_len < 4) {
+        expert_add_info(pinfo, attr_tree, &ei_ieee80211_bad_length);
+        return offset;
+      }
+      while (attr_len >= 4) {
+        proto_tree_add_item(attr_tree, hf_ieee80211_wfa_ie_oce_probe_suppr_ssid,
+                            tvb, offset, 4, ENC_ASCII|ENC_NA);
+        offset += 4;
+        attr_len -= 4;
+        len -= 4;
+      }
+      break;
     default:
       break;
     }
@@ -34904,6 +35023,66 @@ proto_register_ieee80211(void)
      {"Re-association Delay", "wlan.wfa.ie.mbo.assoc_retry.delay",
       FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 
+    {&hf_ieee80211_wfa_ie_oce_cap,
+     {"OCE Control", "wlan.wfa.ie.oce.cap",
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_ie_oce_cap_release,
+     {"OCE Release", "wlan.wfa.ie.oce.cap.release",
+      FT_UINT8, BASE_HEX, NULL, 0x3, NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_ie_oce_cap_sta_cfon,
+     {"is STA CFON", "wlan.wfa.ie.oce.cap.sta_cfon",
+      FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x4, NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_ie_oce_cap_11b_only_ap,
+     {"11b only AP present on operating channel", "wlan.wfa.ie.oce.cap.11b_only_ap",
+      FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x10, NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_ie_oce_cap_hlp,
+     {"FILS Higher Layer Setup with Higher Layer Protocol Encapsulation enabled",
+      "wlan.wfa.ie.oce.cap.hlp", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x20, NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_ie_oce_cap_non_oce_ap,
+     {"non OCE AP present on operating channel", "wlan.wfa.ie.oce.cap.non_oce_ap",
+      FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x40, NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_ie_oce_cap_reserved,
+     {"Reserved", "wlan.wfa.ie.oce.cap.reserved",
+      FT_UINT8, BASE_HEX, NULL, 0x80, NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_ie_oce_rssi_assoc_rej_delta,
+     {"Delta RSSI", "wlan.wfa.ie.oce.rssi_assoc_rej.delta",
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_ie_oce_rssi_assoc_rej_delay,
+     {"Retry Delay", "wlan.wfa.ie.oce.rssi_assoc_rej.delay",
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_ie_oce_wan_metrics_avail_cap,
+     {"Available Capacity", "wlan.wfa.ie.oce.wan_metrics.avail_cap",
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_ie_oce_wan_metrics_avail_cap_downlink,
+     {"Downlink", "wlan.wfa.ie.oce.wan_metrics.avail_cap_downlink",
+      FT_UINT8, BASE_HEX, NULL, 0xf, NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_ie_oce_wan_metrics_avail_cap_uplink,
+     {"Uplink", "wlan.wfa.ie.oce.wan_metrics.avail_cap_uplink",
+      FT_UINT8, BASE_HEX, NULL, 0xf0, NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_ie_oce_rnr_completeness_short_ssid,
+     {"Short SSID", "wlan.wfa.ie.oce.rnr_completeness.short_ssid",
+      FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_ie_oce_probe_suppr_bssid,
+     {"BSSID", "wlan.wfa.ie.oce.probe_suppr.bssid",
+      FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_ie_oce_probe_suppr_ssid,
+     {"BSSID", "wlan.wfa.ie.oce.probe_suppr.ssid",
+      FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+
     {&hf_ieee80211_wfa_anqp_mbo_subtype,
      {"Subtype", "wlan.wfa.anqp.mbo.subtype",
       FT_UINT8, BASE_DEC, VALS(mbo_anqp_subtype_vals), 0, NULL, HFILL }},
@@ -38525,6 +38704,8 @@ proto_register_ieee80211(void)
 
     &ett_mbo_oce_attr,
     &ett_mbo_ap_cap,
+    &ett_oce_cap,
+    &ett_oce_metrics_cap,
 
     /* 802.11 ah trees */
     &ett_twt_tear_down_tree,
