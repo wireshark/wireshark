@@ -137,11 +137,13 @@ def cmd_wireshark(program):
 
 @fixtures.fixture(scope='session')
 def wireshark_command(cmd_wireshark):
-    # Windows and macOS can always display the GUI. On Linux, headless mode is
-    # used, see QT_QPA_PLATFORM in the 'test_env' fixture.
+    # Windows can always display the GUI and macOS can if we're in a login session.
+    # On Linux, headless mode is used, see QT_QPA_PLATFORM in the 'test_env' fixture.
+    if sys.platform == 'darwin' and 'SECURITYSESSIONID' not in os.environ:
+        fixtures.skip('Wireshark GUI tests require loginwindow session')
     if sys.platform not in ('win32', 'darwin', 'linux'):
         if 'DISPLAY' not in os.environ:
-            fixtures.skip('Wireshark GUI tests requires DISPLAY')
+            fixtures.skip('Wireshark GUI tests require DISPLAY')
     return (cmd_wireshark, '-ogui.update.enabled:FALSE')
 
 
