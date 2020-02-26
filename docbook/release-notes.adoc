@@ -23,13 +23,40 @@ wsbuglink:16381[]
 The following vulnerabilities have been fixed:
 
 * wssalink:2020-03[]
-Foo dissector {crash,infinite loop}.
-// wsbuglink:xxxxx[].
+LTE RRC dissector memory leak.
+wsbuglink:16341[].
 // cveidlink:2019-xxxxx[].
-// Fixed in master: xxxxx
-// Fixed in master-3.2: xxxxx
-// Fixed in master-3.0: xxxxx
-// Fixed in master-2.6: xxxxx
+// Fixed in master: adeeb7f2da
+// Fixed in master-3.2: 0ce952b724
+// Fixed in master-3.0: 873dca931a
+// Fixed in master-2.6: 086003c9d6
+
+* wssalink:2020-04[]
+WiMax DLMAP dissector crash.
+wsbuglink:16368[].
+// cveidlink:2019-xxxxx[].
+// Fixed in master: 7ce2ca316c, 6dad599a8a
+// Fixed in master-3.2: 49c6720028, 5a13c2316f
+// Fixed in master-3.0: 135cf649b1, 3daba57466
+// Fixed in master-2.6: 93d6b03a67, 6b98dc6370
+
+* wssalink:2020-05[]
+EAP dissector crash.
+wsbuglink:16397[].
+// cveidlink:2019-xxxxx[].
+// Fixed in master: 8bda8642df
+// Fixed in master-3.2: 79769da3b5
+// Fixed in master-3.0: 924ae4d091
+// Fixed in master-2.6: 9fe2de783d
+
+* wssalink:2020-06[]
+WireGuard dissector crash.
+wsbuglink:16394[].
+// cveidlink:2019-xxxxx[].
+// Fixed in master: b2ee7a2876
+// Fixed in master-3.2: 73c5fff899
+// Fixed in master-3.0: n/a
+// Fixed in master-2.6: n/a
 
 The following bugs have been fixed:
 
@@ -37,7 +64,39 @@ The following bugs have been fixed:
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
 //* Wireshark is solely responsible for the decline of shopping malls in your area.
-// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v3.2.2rc0..| grep ' Bug:' | awk '{print $2}' | sort -n -u ` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
+// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v3.2.3rc0..| grep ' Bug:' | awk '{print $2}' | sort -n -u ` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
+
+* Add (IETF) QUIC Dissector. wsbuglink:13881[].
+
+* Support for CoAP over TCP and WebSockets (RFC 8323). wsbuglink:15910[].
+
+* SMB IOCTL response packet with BUFFER_OVERFLOW status is dissected improperly. wsbuglink:16261[].
+
+* Wireshark fails to build with GCC-9. wsbuglink:16319[].
+
+* NVMe/TCP ICReq PDU Not Interpreted Correctly. wsbuglink:16333[].
+
+* ICMP: No response if ICMP reply packet has an ICMP checksum of 0x0000. wsbuglink:16334[].
+
+* Display filter parsing broken after upgrade from 3.0.7. wsbuglink:16336[].
+
+* IPv4 fragment offset value is incorrect in IPv4 header decode. wsbuglink:16344[].
+
+* RTCP frame length warning for SAT&gt;IP APP packets. wsbuglink:16345[].
+
+* RTP export to rtpdump file doesn't work. wsbuglink:16351[].
+
+* CFDP dissector skips a byte. wsbuglink:16361[].
+
+* ISAKMP: IKEv2 transforms and proposal have critical bit (BUG). wsbuglink:16364[].
+
+* No IPv4/IPv6 hosts in Resolved Addresses dialog. wsbuglink:16366[].
+
+* Lack of Check for Updates option in the Windows GUI. wsbuglink:16381[].
+
+* LLDP dissector consumes all octets to the end of the TVB and eth trailer dissector does not get called. wsbuglink:16387[].
+
+* LACP dissector consumes all octets to the end of the TVB and eth trailer dissector does not get called. wsbuglink:16388[].
 
 === New and Updated Features
 
@@ -62,6 +121,29 @@ There are no new protocols in this release.
 // Add one protocol per line between the -- delimiters.
 [commaize]
 --
+ARTNET
+CFDP
+CoAP
+EAP
+GTP
+ICMP
+ICMPv6
+IPv4
+ISAKMP
+LACP
+LLDP
+LTE RRC
+NBAP
+NVME-TCP
+QUIC
+RDM
+RTCP
+RTP
+SMB
+SOME/IP
+TLS
+WiMax DLMAP
+WireGuard
 --
 
 === New and Updated Capture File Support
