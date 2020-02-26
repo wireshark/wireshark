@@ -653,7 +653,6 @@ static const value_string wfa_subtype_vals[] = {
   { WFA_SUBTYPE_DEAUTHENTICATION_IMMINENT, "Deauthentication Imminent" },
   { WFA_SUBTYPE_P2P, "P2P" },
   { WFA_SUBTYPE_HS20_INDICATION, "Hotspot 2.0 Indication" },
-  { WFA_SUBTYPE_HS20_ANQP, "Hotspot 2.0 ANQP" },
   { WFA_SUBTYPE_OSEN, "OSU Server-only l2 Encryption Network" },
   { WFA_SUBTYPE_NAN_IE, "NAN" },
   { WFA_SUBTYPE_MBO_OCE, "Multi Band Operation - Optimized Connectivity Experience"},
@@ -662,6 +661,11 @@ static const value_string wfa_subtype_vals[] = {
   { WFA_SUBTYPE_IEEE1905_MULTI_AP, "IEEE1905 Multi-AP" },
   { WFA_SUBTYPE_OWE_TRANSITION_MODE, "OWE Transition Mode" },
   { WFA_SUBTYPE_WIFI_60G, "60GHz Information Element" },
+  { 0, NULL }
+};
+
+static const value_string wfa_anqp_subtype_vals[] = {
+  { WFA_ANQP_SUBTYPE_HS20, "Hotspot 2.0 ANQP" },
   { 0, NULL }
 };
 
@@ -7366,14 +7370,14 @@ dissect_anqp_capab_list(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int
           break;
         subtype = tvb_get_guint8(tvb, offset);
         proto_item_append_text(vtree, " - WFA - %s",
-                               val_to_str(subtype, wfa_subtype_vals,
+                               val_to_str(subtype, wfa_anqp_subtype_vals,
                                           "Unknown (%u)"));
         proto_tree_add_item(vtree, hf_ieee80211_anqp_wfa_subtype,
                             tvb, offset, 1, ENC_NA);
         offset++;
         len--;
         switch (subtype) {
-        case WFA_SUBTYPE_HS20_ANQP:
+        case WFA_ANQP_SUBTYPE_HS20:
           dissect_hs20_anqp_hs_capability_list(vtree, tvb, offset, end);
           break;
         default:
@@ -30898,7 +30902,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_anqp_wfa_subtype,
      {"WFA Subtype", "wlan.anqp.wfa.subtype",
-      FT_UINT8, BASE_DEC, VALS(wfa_subtype_vals), 0, NULL, HFILL }},
+      FT_UINT8, BASE_DEC, VALS(wfa_anqp_subtype_vals), 0, NULL, HFILL }},
 
     {&hf_ieee80211_dpp_subtype,
      {"DPP Subtype", "wlan.wfa.dpp.subtype",
@@ -39174,7 +39178,7 @@ proto_reg_handoff_ieee80211(void)
   dissector_add_uint("wlan.action.vendor_specific", OUI_WFA, create_dissector_handle(dissect_vendor_action_wifi_alliance, -1));
 
   dissector_add_uint("wlan.anqp.vendor_specific", OUI_WFA, create_dissector_handle(dissect_vendor_wifi_alliance_anqp, -1));
-  dissector_add_uint("wlan.anqp.wifi_alliance.subtype", WFA_SUBTYPE_HS20_ANQP, create_dissector_handle(dissect_hs20_anqp, -1));
+  dissector_add_uint("wlan.anqp.wifi_alliance.subtype", WFA_ANQP_SUBTYPE_HS20, create_dissector_handle(dissect_hs20_anqp, -1));
   dissector_add_uint("wlan.ie.wifi_alliance.subtype", WFA_SUBTYPE_SUBSCRIPTION_REMEDIATION, create_dissector_handle(dissect_hs20_subscription_remediation, -1));
   dissector_add_uint("wlan.ie.wifi_alliance.subtype", WFA_SUBTYPE_DEAUTHENTICATION_IMMINENT, create_dissector_handle(dissect_hs20_deauthentication_imminent, -1));
   dissector_add_uint("wlan.ie.wifi_alliance.subtype", WFA_SUBTYPE_HS20_INDICATION, create_dissector_handle(dissect_hs20_indication, -1));
