@@ -10078,13 +10078,6 @@ dissect_smb2_tid_sesid(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, 
 	sesid_key.sesid = si->sesid;
 	si->session = (smb2_sesid_info_t *)wmem_map_lookup(smb2_sessions, &sesid_key);
 	if (!si->session) {
-		if (si->opcode != SMB2_COM_TREE_CONNECT)
-			return offset;
-
-		/* if we come to a session that is unknown, and the operation is
-		 * a tree connect, we create a dummy session, so we can hang the
-		 * tree data on it
-		 */
 		si->session = smb2_get_session(si->conv, si->sesid, pinfo, si);
 		return offset;
 	}
