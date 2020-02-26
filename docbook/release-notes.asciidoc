@@ -18,13 +18,31 @@ It is used for troubleshooting, analysis, development and education.
 // The following vulnerabilities have been fixed:
 
 * wssalink:2020-03[]
-Foo dissector {crash,infinite loop}.
-// wsbuglink:xxxxx[].
+LTE RRC dissector memory leak.
+wsbuglink:16341[].
 // cveidlink:2019-xxxxx[].
-// Fixed in master: xxxxx
-// Fixed in master-3.2: xxxxx
-// Fixed in master-3.0: xxxxx
-// Fixed in master-2.6: xxxxx
+// Fixed in master: adeeb7f2da
+// Fixed in master-3.2: 0ce952b724
+// Fixed in master-3.0: 873dca931a
+// Fixed in master-2.6: 086003c9d6
+
+* wssalink:2020-04[]
+WiMax DLMAP dissector crash.
+wsbuglink:16368[].
+// cveidlink:2019-xxxxx[].
+// Fixed in master: 7ce2ca316c, 6dad599a8a
+// Fixed in master-3.2: 49c6720028, 5a13c2316f
+// Fixed in master-3.0: 135cf649b1, 3daba57466
+// Fixed in master-2.6: 93d6b03a67, 6b98dc6370
+
+* wssalink:2020-05[]
+EAP dissector crash.
+wsbuglink:16397[].
+// cveidlink:2019-xxxxx[].
+// Fixed in master: 8bda8642df
+// Fixed in master-3.2: 79769da3b5
+// Fixed in master-3.0: 924ae4d091
+// Fixed in master-2.6: 9fe2de783d
 
 The following bugs have been fixed:
 
@@ -32,8 +50,13 @@ The following bugs have been fixed:
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
 //* Wireshark convinced you to switch seats on the plane while neglecting to tell you that its seat was noticeably moist.
-// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.6.15rc0..| grep ' Bug:' | awk '{print $2}' | sort -n -u ` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
+// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.6.16rc0..| grep ' Bug:' | awk '{print $2}' | sort -n -u ` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
 
+* Wireshark fails to build with GCC-9. wsbuglink:16319[].
+
+* ICMP: No response if ICMP reply packet has an ICMP checksum of 0x0000. wsbuglink:16334[].
+
+* IPv4 fragment offset value is incorrect in IPv4 header decode. wsbuglink:16344[].
 
 === New and Updated Features
 
@@ -52,6 +75,14 @@ There are no new protocols in this release.
 // Add one protocol per line between the -- delimiters.
 [commaize]
 --
+ARTNET
+EAP
+ICMP
+ICMPv6
+IPv4
+LTE RRC
+RDM
+WiMax DLMAP
 --
 
 === New and Updated Capture File Support

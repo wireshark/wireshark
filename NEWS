@@ -9,9 +9,21 @@ Wireshark 2.6.15 Release Notes
 
   Bug Fixes
 
-     • wnpa-sec-2020-03[1] Foo dissector {crash,infinite loop}.
+     • wnpa-sec-2020-03[1] LTE RRC dissector memory leak. Bug 16341[2].
+
+     • wnpa-sec-2020-04[3] WiMax DLMAP dissector crash. Bug 16368[4].
+
+     • wnpa-sec-2020-05[5] EAP dissector crash. Bug 16397[6].
 
    The following bugs have been fixed:
+
+     • Wireshark fails to build with GCC-9. Bug 16319[7].
+
+     • ICMP: No response if ICMP reply packet has an ICMP checksum of
+       0x0000. Bug 16334[8].
+
+     • IPv4 fragment offset value is incorrect in IPv4 header decode.
+       Bug 16344[9].
 
   New and Updated Features
 
@@ -22,6 +34,8 @@ Wireshark 2.6.15 Release Notes
    There are no new protocols in this release.
 
   Updated Protocol Support
+
+   ARTNET, EAP, ICMP, ICMPv6, IPv4, LTE RRC, RDM, and WiMax DLMAP
 
   New and Updated Capture File Support
 
@@ -41,7 +55,7 @@ Wireshark 2.6.15 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[2] on the Wireshark web site.
+   be found on the download page[10] on the Wireshark web site.
 
  File Locations
 
@@ -52,44 +66,52 @@ Wireshark 2.6.15 Release Notes
 
  Known Problems
 
-  The BER dissector might infinitely loop. Bug 1516[3].
+  The BER dissector might infinitely loop. Bug 1516[11].
 
   Capture filters aren’t applied when capturing from named pipes. Bug
-  1814[4].
+  1814[12].
 
   Filtering tshark captures with read filters (-R) no longer works. Bug
-  2234[5].
+  2234[13].
 
-  Application crash when changing real-time option. Bug 4035[6].
+  Application crash when changing real-time option. Bug 4035[14].
 
   Wireshark and TShark will display incorrect delta times in some cases.
-  Bug 4985[7].
+  Bug 4985[15].
 
   Wireshark should let you work with multiple capture files. Bug
-  10488[8].
+  10488[16].
 
  Getting Help
 
-  Community support is available on Wireshark’s Q&A site[9] and on the
+  Community support is available on Wireshark’s Q&A site[17] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[10].
+  for all of Wireshark’s mailing lists can be found on the web site[18].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[11].
+  A complete FAQ is available on the Wireshark web site[19].
 
-  Last updated 2020-02-23 08:48:20 UTC
+  Last updated 2020-02-26 19:47:29 UTC
 
  References
 
    1. https://www.wireshark.org/security/wnpa-sec-2020-03
-   2. https://www.wireshark.org/download.html#thirdparty
-   3. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1516
-   4. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1814
-   5. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2234
-   6. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4035
-   7. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4985
-   8. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10488
-   9. https://ask.wireshark.org/
-  10. https://www.wireshark.org/lists/
-  11. https://www.wireshark.org/faq.html
+   2. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16341
+   3. https://www.wireshark.org/security/wnpa-sec-2020-04
+   4. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16368
+   5. https://www.wireshark.org/security/wnpa-sec-2020-05
+   6. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16397
+   7. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16319
+   8. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16334
+   9. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16344
+  10. https://www.wireshark.org/download.html#thirdparty
+  11. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1516
+  12. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1814
+  13. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2234
+  14. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4035
+  15. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4985
+  16. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10488
+  17. https://ask.wireshark.org/
+  18. https://www.wireshark.org/lists/
+  19. https://www.wireshark.org/faq.html
