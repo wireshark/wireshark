@@ -1318,24 +1318,33 @@ smb2_sesid_info_hash(gconstpointer k)
 static gint
 smb2_fid_info_equal(gconstpointer k1, gconstpointer k2)
 {
-	const smb2_fid_info_t *key1 = (const smb2_fid_info_t *)k1;
-	const smb2_fid_info_t *key2 = (const smb2_fid_info_t *)k2;
+	const smb2_fid_info_t *key = (const smb2_fid_info_t *)k1;
+	const smb2_fid_info_t *val = (const smb2_fid_info_t *)k2;
 
-	if (key1->fid_persistent != key2->fid_persistent) {
-		return 0;
-	};
+	if (!key->frame_key) {
+		key = (const smb2_fid_info_t *)k2;
+		val = (const smb2_fid_info_t *)k1;
+	}
 
-	if (key1->fid_volatile != key2->fid_volatile) {
+	if (key->fid_persistent != val->fid_persistent) {
 		return 0;
-	};
+	}
 
-	if (key1->sesid != key2->sesid) {
+	if (key->fid_volatile != val->fid_volatile) {
 		return 0;
-	};
+	}
 
-	if (key1->tid != key2->tid) {
+	if (key->sesid != val->sesid) {
 		return 0;
-	};
+	}
+
+	if (key->tid != val->tid) {
+		return 0;
+	}
+
+	if (!(val->frame_beg <= key->frame_key && key->frame_key <= val->frame_end)) {
+		return 0;
+	}
 
 	return 1;
 }
@@ -2262,10 +2271,12 @@ dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 	smb2_fid_info_t sfi_key;
 	smb2_fid_info_t *sfi = NULL;
 
+	memset(&sfi_key, 0, sizeof(sfi_key));
 	sfi_key.fid_persistent = tvb_get_letoh64(tvb, offset);
 	sfi_key.fid_volatile = tvb_get_letoh64(tvb, offset+8);
 	sfi_key.sesid = si->sesid;
 	sfi_key.tid = si->tid;
+	sfi_key.frame_key = pinfo->num;
 	sfi_key.name = NULL;
 
 	di.conformant_run = 0;
@@ -2278,6 +2289,10 @@ dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 		if (!pinfo->fd->visited) {
 			sfi = wmem_new(wmem_file_scope(), smb2_fid_info_t);
 			*sfi = sfi_key;
+			sfi->frame_key = 0;
+			sfi->frame_beg = si->saved ? si->saved->frame_req : pinfo->num;
+			sfi->frame_end = G_MAXUINT32;
+
 			if (si->saved && si->saved->extra_info_type == SMB2_EI_FILENAME) {
 				sfi->name = wmem_strdup(wmem_file_scope(), (char *)si->saved->extra_info);
 			} else {
@@ -2315,6 +2330,13 @@ dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 		}
 		break;
 	case FID_MODE_CLOSE:
+		if (!pinfo->fd->visited) {
+			smb2_fid_info_t *fid = (smb2_fid_info_t *)g_hash_table_lookup(si->session->fids, &sfi_key);
+			if (fid) {
+				/* set last frame */
+				fid->frame_end = pinfo->num;
+			}
+		}
 		offset = dissect_nt_guid_hnd(tvb, offset, pinfo, tree, &di, drep, hf_smb2_fid, &policy_hnd, &hnd_item, FALSE, TRUE);
 		break;
 	case FID_MODE_USE:

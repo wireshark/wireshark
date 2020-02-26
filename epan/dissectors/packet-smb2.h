@@ -43,6 +43,12 @@ typedef struct _smb2_fid_info_t {
 	guint64 fid_volatile;
 	guint64 sesid;		/* *host* byte order - not necessarily little-endian! */
 	guint32 tid;
+	/* only used for key lookup in equal func, must be zero when inserting */
+	guint32 frame_key;
+	/* first and last frame nums this FID is valid */
+	guint32 frame_beg;
+	guint32 frame_end;
+	/* file name used to open this FID */
 	char *name;
 } smb2_fid_info_t;
 
