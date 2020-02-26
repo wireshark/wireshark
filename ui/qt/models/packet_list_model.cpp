@@ -185,10 +185,11 @@ void PacketListModel::invalidateAllColumnStrings()
 void PacketListModel::resetColumns()
 {
     if (cap_file_) {
-        emit beginResetModel();
         PacketListRecord::resetColumns(&cap_file_->cinfo);
-        emit endResetModel();
     }
+
+    emit dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
+    emit headerDataChanged(Qt::Horizontal, 0, columnCount() - 1);
 }
 
 void PacketListModel::resetColorized()
