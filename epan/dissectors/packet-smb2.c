@@ -1400,33 +1400,33 @@ smb2_get_session(smb2_conv_info_t *conv _U_, guint64 id, packet_info *pinfo, smb
 }
 
 static void
-smb2_add_session_info(proto_tree *tree, tvbuff_t *tvb, gint start, smb2_sesid_info_t *ses)
+smb2_add_session_info(proto_tree *ses_tree, proto_item *ses_item, tvbuff_t *tvb, gint start, smb2_sesid_info_t *ses)
 {
-	proto_item  *item;
+	proto_item  *new_item;
 	if (!ses)
 		return;
 
 	if (ses->acct_name) {
-		item = proto_tree_add_string(tree, hf_smb2_acct_name, tvb, start, 0, ses->acct_name);
-		proto_item_set_generated(item);
-		proto_item_append_text(item, " Acct:%s", ses->acct_name);
+		new_item = proto_tree_add_string(ses_tree, hf_smb2_acct_name, tvb, start, 0, ses->acct_name);
+		proto_item_set_generated(new_item);
+		proto_item_append_text(ses_item, " Acct:%s", ses->acct_name);
 	}
 
 	if (ses->domain_name) {
-		item = proto_tree_add_string(tree, hf_smb2_domain_name, tvb, start, 0, ses->domain_name);
-		proto_item_set_generated(item);
-		proto_item_append_text(item, " Domain:%s", ses->domain_name);
+		new_item = proto_tree_add_string(ses_tree, hf_smb2_domain_name, tvb, start, 0, ses->domain_name);
+		proto_item_set_generated(new_item);
+		proto_item_append_text(ses_item, " Domain:%s", ses->domain_name);
 	}
 
 	if (ses->host_name) {
-		item = proto_tree_add_string(tree, hf_smb2_host_name, tvb, start, 0, ses->host_name);
-		proto_item_set_generated(item);
-		proto_item_append_text(item, " Host:%s", ses->host_name);
+		new_item = proto_tree_add_string(ses_tree, hf_smb2_host_name, tvb, start, 0, ses->host_name);
+		proto_item_set_generated(new_item);
+		proto_item_append_text(ses_item, " Host:%s", ses->host_name);
 	}
 
 	if (ses->auth_frame != (guint32)-1) {
-		item = proto_tree_add_uint(tree, hf_smb2_auth_frame, tvb, start, 0, ses->auth_frame);
-		proto_item_set_generated(item);
+		new_item = proto_tree_add_uint(ses_tree, hf_smb2_auth_frame, tvb, start, 0, ses->auth_frame);
+		proto_item_set_generated(new_item);
 	}
 }
 
@@ -9942,7 +9942,7 @@ dissect_smb2_transform_header(packet_info *pinfo, proto_tree *tree,
 
 	/* now we need to first lookup the uid session */
 	sti->session = smb2_get_session(sti->conv, sti->sesid, NULL, NULL);
-	smb2_add_session_info(sesid_tree, tvb, sesid_offset, sti->session);
+	smb2_add_session_info(sesid_tree, sesid_item, tvb, sesid_offset, sti->session);
 
 #if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
 	plain_data = decrypt_smb_payload(pinfo, tvb, offset, offset_aad, sti);
@@ -10082,7 +10082,7 @@ dissect_smb2_tid_sesid(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, 
 		return offset;
 	}
 
-	smb2_add_session_info(sesid_tree, tvb, sesid_offset, si->session);
+	smb2_add_session_info(sesid_tree, sesid_item, tvb, sesid_offset, si->session);
 
 	if (!(si->flags&SMB2_FLAGS_ASYNC_CMD)) {
 		/* see if we can find the name for this tid */
