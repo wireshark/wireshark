@@ -302,6 +302,7 @@ typedef struct anqp_info_dissector_data {
 
 /* WFA vendor specific ANQP subtypes */
 #define WFA_ANQP_SUBTYPE_HS20                  17
+#define WFA_ANQP_SUBTYPE_MBO                   18
 
 /* Information Element tags */
 #define TAG_SSID                       0

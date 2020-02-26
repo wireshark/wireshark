@@ -666,6 +666,7 @@ static const value_string wfa_subtype_vals[] = {
 
 static const value_string wfa_anqp_subtype_vals[] = {
   { WFA_ANQP_SUBTYPE_HS20, "Hotspot 2.0 ANQP" },
+  { WFA_ANQP_SUBTYPE_MBO, "Multi Band Operation ANQP" },
   { 0, NULL }
 };
 
@@ -4914,6 +4915,9 @@ static int hf_ieee80211_wfa_ie_mbo_cellular_pref = -1;
 static int hf_ieee80211_wfa_ie_mbo_transition_reason = -1;
 static int hf_ieee80211_wfa_ie_mbo_transition_rej_reason = -1;
 static int hf_ieee80211_wfa_ie_mbo_assoc_retry_delay = -1;
+static int hf_ieee80211_wfa_anqp_mbo_subtype = -1;
+static int hf_ieee80211_wfa_anqp_mbo_query = -1;
+static int hf_ieee80211_wfa_anqp_mbo_cellular_pref = -1;
 
 static int hf_ieee80211_aironet_ie_type = -1;
 static int hf_ieee80211_aironet_ie_dtpc = -1;
@@ -8529,6 +8533,54 @@ dissect_hs20_anqp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
   }
 
   return tvb_captured_length(tvb);
+}
+
+// MBO ANQP element subtypes
+#define MBO_ANQP_QUERY_LIST               1
+#define MBO_ANQP_CELLULAR_DATA_PREFERENCE 2
+
+static const value_string mbo_anqp_subtype_vals[] = {
+  { MBO_ANQP_QUERY_LIST, "MBO Query List" },
+  { MBO_ANQP_CELLULAR_DATA_PREFERENCE, "Cellular Data Connection Preference" },
+  { 0, NULL }
+};
+
+static int
+dissect_mbo_anqp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+  guint8 subtype;
+  int len = tvb_reported_length(tvb);
+  int offset = 0;
+
+  if (len < 2) {
+    expert_add_info(pinfo, tree, &ei_ieee80211_bad_length);
+    return offset;
+  }
+
+  subtype = tvb_get_guint8(tvb, offset);
+  proto_tree_add_item(tree, hf_ieee80211_wfa_anqp_mbo_subtype, tvb, offset, 1, ENC_NA);
+  offset++;
+  len--;
+
+  switch (subtype) {
+  case MBO_ANQP_QUERY_LIST:
+    while (len > 0) {
+      proto_tree_add_item(tree, hf_ieee80211_wfa_anqp_mbo_query, tvb, offset, 1, ENC_NA);
+      offset++;
+      len--;
+    }
+    break;
+  case MBO_ANQP_CELLULAR_DATA_PREFERENCE:
+    proto_tree_add_item(tree, hf_ieee80211_wfa_anqp_mbo_cellular_pref, tvb, offset,
+                        1, ENC_NA);
+    offset++;
+    len--;
+    break;
+  default:
+    break;
+  }
+
+  return offset;
 }
 
 static int
@@ -34852,6 +34904,18 @@ proto_register_ieee80211(void)
      {"Re-association Delay", "wlan.wfa.ie.mbo.assoc_retry.delay",
       FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 
+    {&hf_ieee80211_wfa_anqp_mbo_subtype,
+     {"Subtype", "wlan.wfa.anqp.mbo.subtype",
+      FT_UINT8, BASE_DEC, VALS(mbo_anqp_subtype_vals), 0, NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_anqp_mbo_query,
+     {"Query Subtype", "wlan.wfa.anqp.mbo.query",
+      FT_UINT8, BASE_DEC, VALS(mbo_anqp_subtype_vals), 0, NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_anqp_mbo_cellular_pref,
+     {"Cellular Data Preference", "wlan.wfa.anqp.mbo.cellular_pref",
+      FT_UINT8, BASE_DEC, VALS(wfa_mbo_cellular_pref_vals), 0x0, NULL, HFILL }},
+
     {&hf_ieee80211_rsn_ie_ptk_keyid,
      {"KeyID", "wlan.rsn.ie.ptk.keyid",
       FT_UINT8, BASE_DEC, NULL, 0x03,
@@ -39179,6 +39243,7 @@ proto_reg_handoff_ieee80211(void)
 
   dissector_add_uint("wlan.anqp.vendor_specific", OUI_WFA, create_dissector_handle(dissect_vendor_wifi_alliance_anqp, -1));
   dissector_add_uint("wlan.anqp.wifi_alliance.subtype", WFA_ANQP_SUBTYPE_HS20, create_dissector_handle(dissect_hs20_anqp, -1));
+  dissector_add_uint("wlan.anqp.wifi_alliance.subtype", WFA_ANQP_SUBTYPE_MBO, create_dissector_handle(dissect_mbo_anqp, -1));
   dissector_add_uint("wlan.ie.wifi_alliance.subtype", WFA_SUBTYPE_SUBSCRIPTION_REMEDIATION, create_dissector_handle(dissect_hs20_subscription_remediation, -1));
   dissector_add_uint("wlan.ie.wifi_alliance.subtype", WFA_SUBTYPE_DEAUTHENTICATION_IMMINENT, create_dissector_handle(dissect_hs20_deauthentication_imminent, -1));
   dissector_add_uint("wlan.ie.wifi_alliance.subtype", WFA_SUBTYPE_HS20_INDICATION, create_dissector_handle(dissect_hs20_indication, -1));
