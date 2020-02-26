@@ -656,6 +656,7 @@ static const value_string wfa_subtype_vals[] = {
   { WFA_SUBTYPE_HS20_ANQP, "Hotspot 2.0 ANQP" },
   { WFA_SUBTYPE_OSEN, "OSU Server-only l2 Encryption Network" },
   { WFA_SUBTYPE_NAN_IE, "NAN" },
+  { WFA_SUBTYPE_MBO_OCE, "Multi Band Operation - Optimized Connectivity Experience"},
   { WFA_SUBTYPE_NAN_ACTION, "NAN Action" },
   { WFA_SUBTYPE_DPP, "Device Provisioning Protocol" },
   { WFA_SUBTYPE_IEEE1905_MULTI_AP, "IEEE1905 Multi-AP" },
@@ -3059,6 +3060,92 @@ static const value_string he_phy_nominal_packet_padding_vals[] = {
   { 0, NULL }
 };
 
+// MBO-OCE attributes
+#define MBO_AP_CAPABILTY_INDICATION     1
+#define MBO_NON_PREF_CHANNEL_REPORT     2
+#define MBO_CELLULAR_DATA_CAPABILITIES  3
+#define MBO_ASSOCIATION_DISALLOWED      4
+#define MBO_CELLULAR_DATA_PREFERENCE    5
+#define MBO_TRANSITION_REASON           6
+#define MBO_TRANSITION_REJECTION_REASON 7
+#define MBO_ASSOCIATION_RETRY_DELAY     8
+
+static const value_string wfa_mbo_oce_attr_id_vals[] = {
+  { MBO_AP_CAPABILTY_INDICATION, "MBO AP Capability Indication"},
+  { MBO_NON_PREF_CHANNEL_REPORT, "Non-preferred Channel Report"},
+  { MBO_CELLULAR_DATA_CAPABILITIES, "Cellular Data Capabilities"},
+  { MBO_ASSOCIATION_DISALLOWED, "Association Disallowed"},
+  { MBO_CELLULAR_DATA_PREFERENCE, "Cellular Data Connection Preference"},
+  { MBO_TRANSITION_REASON, "Transition Reason Code BTM Request"},
+  { MBO_TRANSITION_REJECTION_REASON, "Transition Rejection Reason Code"},
+  { MBO_ASSOCIATION_RETRY_DELAY, "Association Retry Delay"},
+  { 0, NULL}
+};
+
+static const value_string wfa_mbo_non_pref_chan_pref_vals[] = {
+  { 0, "non-operable band/channel for the STA"},
+  { 1, "band/channel the STA prefers not to operate in"},
+  { 255, "band/channel the STA prefers to operate in"},
+  { 0, NULL }
+};
+
+static const value_string wfa_mbo_non_pref_chan_reason_vals[] = {
+  { 0, "Unspecified reason"},
+  { 1, "An unacceptable level of interference is being experienced by STA in this channel"},
+  { 2, "The STA has another active connection in this channel, "
+    "or near enough to this channel to cause operating interference"},
+  { 0, NULL }
+};
+
+static const value_string wfa_mbo_cellular_cap_vals[] = {
+  { 1, "Cellular data connection available"},
+  { 2, "Cellular data connection not available"},
+  { 3, "Not Cellular data capable"},
+  { 0, NULL }
+};
+
+static const value_string wfa_mbo_assoc_dissallow_reason_vals[] = {
+  { 1, "Unspecified reason"},
+  { 2, "Maximum number of associated STAs reached"},
+  { 3, "Air interface is overloaded"},
+  { 4, "Authentication server overloaded"},
+  { 5, "Insufficient RSSI"},
+  { 0, NULL }
+};
+
+static const value_string wfa_mbo_cellular_pref_vals[] = {
+  { 0, "Excluded. The AP does not want STA to use the cellular data connection"},
+  { 1, "The AP prefers the STA should not use cellular data connection"},
+  { 255, "The AP prefers the STA should use cellular data connection"},
+  { 0, NULL }
+};
+
+static const value_string wfa_mbo_transition_reason_vals[] = {
+  { 0, "Unspecified"},
+  { 1, "Excessive frame loss rate"},
+  { 2, "Excessive delay for current traffic stream"},
+  { 3, "Insufficient bandwidth for current traffic stream"},
+  { 4, "Load balancing"},
+  { 5, "Low RSSI"},
+  { 6, "Received excessive number of retransmissions"},
+  { 7, "High interference"},
+  { 8, "Gray zone"},
+  { 9, "Transitioning to a premium AP"},
+  { 0, NULL }
+};
+
+static const value_string wfa_mbo_transition_rej_reason_vals[] = {
+  { 0, "Unspecified"},
+  { 1, "Excessive frame loss rate expected by the STA if it transitions"},
+  { 2, "Excessive delay for current traffic stream would be incurred by BSS transition at this time"},
+  { 3, "Insufficient QoS capacity for current traffic stream expected by the STA if it transitions"},
+  { 4, "Low RSSI in frames being received by the STA from to the suggested candidate BSS(s)"},
+  { 5, "High interference expected by STA if it transitions"},
+  { 6, "Service Availability – the STA expects that services it needs "
+    "which are available at its serving AP will not be available if it transitions"},
+  { 0, NULL }
+};
+
 static int proto_wlan = -1;
 static int proto_centrino = -1;
 static int proto_aggregate = -1;
@@ -4807,6 +4894,22 @@ static int hf_ieee80211_wfa_ie_owe_ssid_length = -1;
 static int hf_ieee80211_wfa_ie_owe_ssid = -1;
 static int hf_ieee80211_wfa_ie_owe_band_info = -1;
 static int hf_ieee80211_wfa_ie_owe_channel_info = -1;
+static int hf_ieee80211_wfa_ie_mbo_oce_attr = -1;
+static int hf_ieee80211_wfa_ie_mbo_oce_attr_id = -1;
+static int hf_ieee80211_wfa_ie_mbo_oce_attr_len = -1;
+static int hf_ieee80211_wfa_ie_mbo_ap_cap = -1;
+static int hf_ieee80211_wfa_ie_mbo_ap_cap_cell = -1;
+static int hf_ieee80211_wfa_ie_mbo_ap_cap_reserved = -1;
+static int hf_ieee80211_wfa_ie_mbo_non_pref_chan_op_class =-1;
+static int hf_ieee80211_wfa_ie_mbo_non_pref_chan_chan = -1;
+static int hf_ieee80211_wfa_ie_mbo_non_pref_chan_pref = -1;
+static int hf_ieee80211_wfa_ie_mbo_non_pref_chan_reason = -1;
+static int hf_ieee80211_wfa_ie_mbo_cellular_cap = -1;
+static int hf_ieee80211_wfa_ie_mbo_assoc_disallow_reason = -1;
+static int hf_ieee80211_wfa_ie_mbo_cellular_pref = -1;
+static int hf_ieee80211_wfa_ie_mbo_transition_reason = -1;
+static int hf_ieee80211_wfa_ie_mbo_transition_rej_reason = -1;
+static int hf_ieee80211_wfa_ie_mbo_assoc_retry_delay = -1;
 
 static int hf_ieee80211_aironet_ie_type = -1;
 static int hf_ieee80211_aironet_ie_dtpc = -1;
@@ -6000,6 +6103,9 @@ static gint ett_qos_map_set_range = -1;
 static gint ett_wnm_notif_subelt = -1;
 
 static gint ett_ieee80211_3gpp_plmn = -1;
+
+static gint ett_mbo_oce_attr = -1;
+static gint ett_mbo_ap_cap = -1;
 
 static expert_field ei_ieee80211_bad_length = EI_INIT;
 static expert_field ei_ieee80211_inv_val = EI_INIT;
@@ -13978,6 +14084,135 @@ dissect_owe_transition_mode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     proto_tree_add_item(tree, hf_ieee80211_wfa_ie_owe_channel_info, tvb, offset, 1, ENC_NA);
     offset  += 1;
+  }
+
+  return offset;
+}
+
+static int
+dissect_mbo_oce(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+  int len = tvb_captured_length(tvb);
+  int offset = 0;
+
+  while (len >= 2) {
+    proto_item *attr_item;
+    proto_tree *attr_tree;
+    guint8 attr_id = tvb_get_guint8(tvb, offset);
+    guint8 attr_len = tvb_get_guint8(tvb, offset + 1);
+
+    if (len < (attr_len + 2)) {
+      expert_add_info(pinfo, tree, &ei_ieee80211_bad_length);
+      return offset;
+    }
+
+    attr_item = proto_tree_add_item(tree, hf_ieee80211_wfa_ie_mbo_oce_attr, tvb, offset, attr_len + 2, ENC_NA);
+    attr_tree = proto_item_add_subtree(attr_item, ett_mbo_oce_attr);
+    proto_item_append_text(attr_item, " (%s)", val_to_str_const(attr_id, wfa_mbo_oce_attr_id_vals, "Unknown"));
+
+    proto_tree_add_item(attr_tree, hf_ieee80211_wfa_ie_mbo_oce_attr_id, tvb, offset, 1, ENC_NA);
+    offset += 1;
+    len -= 1;
+
+    proto_tree_add_uint(attr_tree, hf_ieee80211_wfa_ie_mbo_oce_attr_len, tvb, offset, 1, attr_len);
+    offset  += 1;
+    len -= 1;
+
+    switch (attr_id) {
+    case MBO_AP_CAPABILTY_INDICATION:
+    {
+      proto_item *cap_item;
+      proto_tree *cap_tree;
+
+      if (attr_len != 1) {
+        expert_add_info(pinfo, attr_tree, &ei_ieee80211_bad_length);
+        return offset;
+      }
+      cap_item = proto_tree_add_item(attr_tree, hf_ieee80211_wfa_ie_mbo_ap_cap, tvb, offset, 1, ENC_NA);
+      cap_tree = proto_item_add_subtree(cap_item, ett_mbo_ap_cap);
+      proto_tree_add_item(cap_tree, hf_ieee80211_wfa_ie_mbo_ap_cap_cell, tvb, offset, 1, ENC_NA);
+      proto_tree_add_item(cap_tree, hf_ieee80211_wfa_ie_mbo_ap_cap_reserved, tvb, offset, 1, ENC_NA);
+      break;
+    }
+    case MBO_NON_PREF_CHANNEL_REPORT:
+      if (attr_len == 0)
+        break;
+
+      if (attr_len < 3) {
+        expert_add_info(pinfo, attr_tree, &ei_ieee80211_bad_length);
+        return offset;
+      }
+      proto_tree_add_item(attr_tree, hf_ieee80211_wfa_ie_mbo_non_pref_chan_op_class, tvb, offset, 1, ENC_NA);
+      offset += 1;
+      len -= 1;
+      attr_len -= 1;
+      while (attr_len > 2) {
+        proto_tree_add_item(attr_tree, hf_ieee80211_wfa_ie_mbo_non_pref_chan_chan, tvb, offset, 1, ENC_NA);
+        offset += 1;
+        len -= 1;
+        attr_len -= 1;
+      }
+
+      proto_tree_add_item(attr_tree, hf_ieee80211_wfa_ie_mbo_non_pref_chan_pref, tvb, offset, 1, ENC_NA);
+      proto_tree_add_item(attr_tree, hf_ieee80211_wfa_ie_mbo_non_pref_chan_reason, tvb, offset + 1, 1, ENC_NA);
+      break;
+    case MBO_CELLULAR_DATA_CAPABILITIES:
+      if (attr_len != 1) {
+        expert_add_info(pinfo, attr_tree, &ei_ieee80211_bad_length);
+        return offset;
+      }
+      proto_tree_add_item(attr_tree, hf_ieee80211_wfa_ie_mbo_cellular_cap, tvb, offset, 1, ENC_NA);
+      break;
+    case MBO_ASSOCIATION_DISALLOWED:
+      if (attr_len != 1) {
+        expert_add_info(pinfo, attr_tree, &ei_ieee80211_bad_length);
+        return offset;
+      }
+      proto_tree_add_item(attr_tree, hf_ieee80211_wfa_ie_mbo_assoc_disallow_reason, tvb, offset, 1, ENC_NA);
+      break;
+    case MBO_CELLULAR_DATA_PREFERENCE:
+      if (attr_len != 1) {
+        expert_add_info(pinfo, attr_tree, &ei_ieee80211_bad_length);
+        return offset;
+      }
+      proto_tree_add_item(attr_tree, hf_ieee80211_wfa_ie_mbo_cellular_pref, tvb, offset, 1, ENC_NA);
+      break;
+    case MBO_TRANSITION_REASON:
+      if (attr_len != 1) {
+        expert_add_info(pinfo, attr_tree, &ei_ieee80211_bad_length);
+        return offset;
+      }
+      proto_tree_add_item(attr_tree, hf_ieee80211_wfa_ie_mbo_transition_reason, tvb, offset, 1, ENC_NA);
+      break;
+    case MBO_TRANSITION_REJECTION_REASON:
+      if (attr_len != 1) {
+        expert_add_info(pinfo, attr_tree, &ei_ieee80211_bad_length);
+        return offset;
+      }
+      proto_tree_add_item(attr_tree, hf_ieee80211_wfa_ie_mbo_transition_rej_reason, tvb, offset, 1, ENC_NA);
+      break;
+    case MBO_ASSOCIATION_RETRY_DELAY:
+    {
+      proto_item *delay_item;
+      if (attr_len != 2) {
+        expert_add_info(pinfo, attr_tree, &ei_ieee80211_bad_length);
+        return offset;
+      }
+      delay_item = proto_tree_add_item(attr_tree, hf_ieee80211_wfa_ie_mbo_assoc_retry_delay, tvb, offset,
+                                       2, ENC_LITTLE_ENDIAN);
+      proto_item_append_text(delay_item, " (s)");
+      break;
+    }
+    default:
+      break;
+    }
+
+    offset += attr_len;
+    len -= attr_len;
+  }
+
+  if (len != 0) {
+    expert_add_info(pinfo, tree, &ei_ieee80211_bad_length);
   }
 
   return offset;
@@ -34548,6 +34783,71 @@ proto_register_ieee80211(void)
       FT_UINT16, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
+    {&hf_ieee80211_wfa_ie_mbo_oce_attr,
+     {"MBO/OCE attribute", "wlan.wfa.ie.mbo_oce.attr",
+      FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_ie_mbo_oce_attr_id,
+     {"ID", "wlan.wfa.ie.mbo_oce.attr_id",
+      FT_UINT8, BASE_DEC, VALS(wfa_mbo_oce_attr_id_vals), 0, NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_ie_mbo_oce_attr_len,
+     {"Length", "wlan.wfa.ie.mbo_oce.attr_len",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_ie_mbo_ap_cap,
+     {"MBO Capability Indication", "wlan.wfa.ie.mbo_oce.ap_cap",
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_ie_mbo_ap_cap_cell,
+     {"AP is cellular data aware", "wlan.wfa.ie.mbo.ap_cap.cell",
+      FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x40, NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_ie_mbo_ap_cap_reserved,
+     {"Reserved", "wlan.wfa.ie.mbo.ap_cap.reserved",
+      FT_UINT8, BASE_HEX, NULL, 0xBF, NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_ie_mbo_non_pref_chan_op_class,
+     {"Operating Class", "wlan.wfa.ie.mbo.non_pref_chan.op_class",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_ie_mbo_non_pref_chan_chan,
+     {"Channel", "wlan.wfa.ie.mbo.non_pref_chan.chan",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_ie_mbo_non_pref_chan_pref,
+     {"Preference", "wlan.wfa.ie.mbo.non_pref_chan.pref",
+      FT_UINT8, BASE_DEC, VALS(wfa_mbo_non_pref_chan_pref_vals), 0, NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_ie_mbo_non_pref_chan_reason,
+     {"Reason Code", "wlan.wfa.ie.mbo.non_pref_chan.reason",
+      FT_UINT8, BASE_DEC, VALS(wfa_mbo_non_pref_chan_reason_vals), 0, NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_ie_mbo_cellular_cap,
+     {"Cellular Data Connectivity", "wlan.wfa.ie.mbo.cellular_cap",
+      FT_UINT8, BASE_DEC, VALS(wfa_mbo_cellular_cap_vals), 0, NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_ie_mbo_assoc_disallow_reason,
+     {"Reason Code", "wlan.wfa.ie.mbo.assoc_disallow.reason",
+      FT_UINT8, BASE_DEC, VALS(wfa_mbo_assoc_dissallow_reason_vals),
+      0, NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_ie_mbo_cellular_pref,
+     {"Cellular Data Preference", "wlan.wfa.ie.mbo.cellular_pref",
+      FT_UINT8, BASE_DEC, VALS(wfa_mbo_cellular_pref_vals), 0, NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_ie_mbo_transition_reason,
+     {"Transition Reason Code", "wlan.wfa.ie.mbo.transition.reason",
+      FT_UINT8, BASE_DEC, VALS(wfa_mbo_transition_reason_vals), 0, NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_ie_mbo_transition_rej_reason,
+     {"Transition Rejection Reason Code", "wlan.wfa.ie.mbo.transition_rej.reason",
+      FT_UINT8, BASE_DEC, VALS(wfa_mbo_transition_rej_reason_vals), 0, NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_ie_mbo_assoc_retry_delay,
+     {"Re-association Delay", "wlan.wfa.ie.mbo.assoc_retry.delay",
+      FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+
     {&hf_ieee80211_rsn_ie_ptk_keyid,
      {"KeyID", "wlan.rsn.ie.ptk.keyid",
       FT_UINT8, BASE_DEC, NULL, 0x03,
@@ -38155,6 +38455,9 @@ proto_register_ieee80211(void)
     &ett_gas_resp_fragment,
     &ett_gas_resp_fragments,
 
+    &ett_mbo_oce_attr,
+    &ett_mbo_ap_cap,
+
     /* 802.11 ah trees */
     &ett_twt_tear_down_tree,
     &ett_twt_control_field_tree,
@@ -38878,6 +39181,7 @@ proto_reg_handoff_ieee80211(void)
   dissector_add_uint("wlan.ie.wifi_alliance.subtype", WFA_SUBTYPE_OSEN, create_dissector_handle(dissect_hs20_osen, -1));
   dissector_add_uint("wlan.ie.wifi_alliance.subtype", WFA_SUBTYPE_OWE_TRANSITION_MODE, create_dissector_handle(dissect_owe_transition_mode, -1));
   dissector_add_uint("wlan.ie.wifi_alliance.subtype", WFA_SUBTYPE_WIFI_60G, create_dissector_handle(dissect_wfa_60g_ie, -1));
+  dissector_add_uint("wlan.ie.wifi_alliance.subtype", WFA_SUBTYPE_MBO_OCE, create_dissector_handle(dissect_mbo_oce, -1));
 }
 
 /*
