@@ -25,7 +25,8 @@ void proto_reg_handoff_iso15765(void);
 
 #define ISO15765_PCI_OFFSET 0
 #define ISO15765_PCI_LEN 1
-#define ISO15765_PCI_FD_LEN 2
+#define ISO15765_PCI_FD_SF_LEN 2
+#define ISO15765_PCI_FD_FF_LEN 6
 
 #define ISO15765_MESSAGE_TYPE_MASK 0xF0
 #define ISO15765_MESSAGE_TYPES_SINGLE_FRAME 0
@@ -168,16 +169,17 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     guint8      ae = (addressing == NORMAL_ADDRESSING) ? 0 : 1;
     guint16     frag_id_low = 0;
     guint8      pci_len = 0;
+    guint8      pci_offset = 0;
     guint32     offset;
     gint32      data_length;
+    guint32     full_len;
     gboolean    fragmented = FALSE;
     gboolean    complete = FALSE;
 
     DISSECTOR_ASSERT(data);
     can_info = *((struct can_info*)data);
 
-    if (can_info.id & (CAN_ERR_FLAG | CAN_RTR_FLAG))
-    {
+    if (can_info.id & (CAN_ERR_FLAG | CAN_RTR_FLAG)) {
         /* Error and RTR frames are not for us. */
         return 0;
     }
@@ -208,8 +210,8 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         case ISO15765_MESSAGE_TYPES_SINGLE_FRAME: {
             if (can_info.fd && can_info.len > 8) {
                 pci = tvb_get_guint16(tvb, ae + ISO15765_PCI_OFFSET, ENC_BIG_ENDIAN);
-                pci_len = ISO15765_PCI_FD_LEN;
-                offset = ae + ISO15765_PCI_OFFSET + ISO15765_PCI_FD_LEN;
+                pci_len = ISO15765_PCI_FD_SF_LEN;
+                offset = ae + ISO15765_PCI_OFFSET + ISO15765_PCI_FD_SF_LEN;
                 data_length = masked_guint16_value(pci, ISO15765_FD_MESSAGE_DATA_LENGTH_MASK);
             } else {
                 pci_len = ISO15765_PCI_LEN;
@@ -227,11 +229,23 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
             break;
         }
         case ISO15765_MESSAGE_TYPES_FIRST_FRAME: {
-            guint32 full_len = tvb_get_ntohs(tvb, ae + ISO15765_PCI_OFFSET) & 0xFFF;
-            offset = ae + ISO15765_MESSAGE_FRAME_LENGTH_OFFSET + ISO15765_MESSAGE_FRAME_LENGTH_LEN;
+            pci = tvb_get_guint16(tvb, ae + ISO15765_PCI_OFFSET, ENC_BIG_ENDIAN);
+            if (can_info.fd && pci == 0x1000) {
+                pci_len = ISO15765_PCI_FD_FF_LEN - 2;
+                full_len = tvb_get_guint32(tvb, ae + ISO15765_PCI_OFFSET + 2, ENC_BIG_ENDIAN);
+                offset = ae + ISO15765_MESSAGE_FRAME_LENGTH_OFFSET + ISO15765_PCI_FD_FF_LEN - 1;
+                pci_offset = ae + ISO15765_MESSAGE_FRAME_LENGTH_OFFSET + 1;
+            } else {
+                pci = tvb_get_guint8(tvb, ae + ISO15765_PCI_OFFSET);
+                pci_len = ISO15765_PCI_LEN;
+                full_len = tvb_get_guint16(tvb, ae + ISO15765_PCI_OFFSET, ENC_BIG_ENDIAN) & 0xFFF;
+                offset = ae + ISO15765_MESSAGE_FRAME_LENGTH_OFFSET + ISO15765_MESSAGE_FRAME_LENGTH_LEN;
+                pci_offset = ae + ISO15765_MESSAGE_FRAME_LENGTH_OFFSET;
+            }
+
             data_length = tvb_reported_length(tvb) - offset;
-            frag_id_low = 0;
             fragmented = TRUE;
+            frag_id_low = 0;
 
             /* Save information */
             if (!(pinfo->fd->visited)) {
@@ -244,7 +258,7 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 
             /* Show some info */
             proto_tree_add_item(iso15765_tree, hf_iso15765_frame_length, tvb,
-                                ae + ISO15765_PCI_OFFSET, 2, ENC_BIG_ENDIAN);
+                                pci_offset, pci_len, ENC_BIG_ENDIAN);
             col_append_fstr(pinfo->cinfo, COL_INFO, "(Frame Len: %d)", full_len);
             break;
         }
@@ -301,8 +315,7 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         iso15765_frame = (iso15765_frame_t *)wmem_map_lookup(iso15765_frame_table,
                                                                   GUINT_TO_POINTER(iso15765_info->seq));
 
-        if (iso15765_frame != NULL)
-        {
+        if (iso15765_frame != NULL) {
             if (!(pinfo->fd->visited)) {
                 frag_id += ((iso15765_frame->frag_id_high[frag_id]++) * 16);
                 /* Save the frag_id for subsequent dissection */
@@ -396,8 +409,8 @@ proto_register_iso15765(void)
                     &hf_iso15765_frame_length,
                     {
                             "Frame length",    "iso15765.frame_length",
-                            FT_UINT16,  BASE_DEC,
-                            NULL, 0x0fff,
+                            FT_UINT32,  BASE_DEC,
+                            NULL, 0x0,
                             NULL, HFILL
                     }
             },
