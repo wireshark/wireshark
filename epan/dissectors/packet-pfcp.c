@@ -653,6 +653,33 @@ static int hf_pfcp_tsn_bridge_id_flags = -1;
 static int hf_pfcp_tsn_bridge_id_flags_b0_mac = -1;
 static int hf_pfcp_tsn_bridge_id_mac_address = -1;
 
+static int hf_pfcp_port_management_information = -1;
+
+static int hf_pfcp_requested_clock_drift_control_information_flags = -1;
+static int hf_pfcp_requested_clock_drift_control_information_flags_b1_rrcr = -1;
+static int hf_pfcp_requested_clock_drift_control_information_flags_b0_rrto = -1;
+
+static int hf_pfcp_tsn_domain_number_value = -1;
+
+static int hf_pfcp_time_offset_threshold = -1;
+
+static int hf_pfcp_cumulative_rate_ratio_threshold = -1;
+
+static int hf_pfcp_time_offset_measurement = -1;
+
+static int hf_pfcp_cumulative_rate_ratio_measurement = -1;
+
+static int hf_pfcp_srr_id = -1;
+
+static int hf_pfcp_requested_access_availability_control_information_flags = -1;
+static int hf_pfcp_requested_access_availability_control_information_flags_b0_rrca = -1;
+
+static int hf_pfcp_availability_status = -1;
+static int hf_pfcp_availability_type = -1;
+
+static int hf_pfcp_mptcp_control_information_flags = -1;
+static int hf_pfcp_mptcp_control_information_flags_b0_tci = -1;
+
 static int ett_pfcp = -1;
 static int ett_pfcp_flags = -1;
 static int ett_pfcp_ie = -1;
@@ -717,6 +744,9 @@ static int ett_pfcp_source_ip_address_flags = -1;
 static int ett_pfcp_packet_rate_status = -1;
 static int ett_pfcp_create_bridge_info_for_tsc = -1;
 static int ett_pfcp_tsn_bridge_id = -1;
+static int ett_pfcp_requested_clock_drift_control_information = -1;
+static int ett_pfcp_requested_access_availability_control_information = -1;
+static int ett_pfcp_mptcp_control_information = -1;
 
 
 
@@ -6433,9 +6463,10 @@ dissect_pfcp_tsn_bridge_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
  * 8.2.144   Port Management Information Container
  */
 static void
-dissect_pfcp_port_management_information_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+dissect_pfcp_port_management_information_container(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+    /* Oct 5 The Port Management Information field shall be encoded as an Octet String. */
+    proto_tree_add_item(tree, hf_pfcp_port_management_information, tvb, 0, length, ENC_NA);
 }
 
 /*
@@ -6444,16 +6475,42 @@ dissect_pfcp_port_management_information_container(tvbuff_t *tvb, packet_info *p
 static void
 dissect_pfcp_requested_clock_drift_control_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+    int offset = 0;
+
+    static const int * pfcp_requested_clock_drift_control_information_flags[] = {
+        &hf_pfcp_spare_b7_b2,
+        &hf_pfcp_requested_clock_drift_control_information_flags_b1_rrcr,
+        &hf_pfcp_requested_clock_drift_control_information_flags_b0_rrto,
+        NULL
+    };
+    /* Octet 5  Spare   BII */
+    proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_pfcp_requested_clock_drift_control_information_flags,
+        ett_pfcp_requested_clock_drift_control_information, pfcp_requested_clock_drift_control_information_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT);
+    offset += 1;
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, length);
+    }
 }
 
 /*
  * 8.2.146   TSN Domain Number
  */
 static void
-dissect_pfcp_tsn_domain_number(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+dissect_pfcp_tsn_domain_number(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+    int offset = 0;
+    guint value;
+
+    /* Oct 5 The TSN Domain Number value field shall be encoded as a binary integer value. */
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_tsn_domain_number_value, tvb, offset, 1, ENC_BIG_ENDIAN, &value);
+    offset++;
+
+    proto_item_append_text(item, "%u", value);
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, length);
+    }
 }
 
 /*
@@ -6462,7 +6519,15 @@ dissect_pfcp_tsn_domain_number(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 static void
 dissect_pfcp_time_offset_threshold(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+    int offset = 0;
+
+    /* Oct 5 to 12 The Time Offset Threshold field shall be encoded as a signed64 binary integer value. It shall contain the Time Offset Threshold in nanoseconds. */
+    proto_tree_add_item(tree, hf_pfcp_time_offset_threshold, tvb, offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, length);
+    }
 }
 
 /*
@@ -6471,7 +6536,15 @@ dissect_pfcp_time_offset_threshold(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 static void
 dissect_pfcp_cumulative_rate_ratio_threshold(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+    int offset = 0;
+
+    /* Oct 5 The Cumulative rateRatio Threshold field shall be encoded as the cumulativeRateRatio (Integer32) specified in clauses 14.4.2 and 15.6 of IEEE Std 802.1AS-Rev/D7.3 [58], i.e. the quantity "(rateRatio- 1.0)(2^41)". */
+    proto_tree_add_item(tree, hf_pfcp_cumulative_rate_ratio_threshold, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, length);
+    }
 }
 
 /*
@@ -6480,7 +6553,15 @@ dissect_pfcp_cumulative_rate_ratio_threshold(tvbuff_t *tvb, packet_info *pinfo, 
 static void
 dissect_pfcp_time_offset_measurement(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+    int offset = 0;
+
+    /* Oct 5 The Time Offset Measurement field shall be encoded as a signed64 binary integer value. It shall contain the Time Offset Measurement in nanoseconds. */
+    proto_tree_add_item(tree, hf_pfcp_time_offset_measurement, tvb, offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, length);
+    }
 }
 
 /*
@@ -6489,7 +6570,15 @@ dissect_pfcp_time_offset_measurement(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 static void
 dissect_pfcp_cumulative_rate_ratio_measurement(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+    int offset = 0;
+
+    /* Oct 5 The Cumulative rateRatio Measurement field shall be encoded as the cumulativeRateRatio (Integer32) specified in clauses 14.4.2 and 15.6 of IEEE Std 802.1AS-Rev/D7.3 [58], i.e. the quantity "(rateRatio- 1.0)(2^41)".  */
+    proto_tree_add_item(tree, hf_pfcp_cumulative_rate_ratio_measurement, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, length);
+    }
 }
 
 /*
@@ -6498,7 +6587,18 @@ dissect_pfcp_cumulative_rate_ratio_measurement(tvbuff_t *tvb, packet_info *pinfo
 static void
 dissect_pfcp_srr_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+    int offset = 0;
+    guint value;
+
+    /* Oct 5 The SRR ID value shall be encoded as a binary integer value. */
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_srr_id, tvb, offset, 1, ENC_BIG_ENDIAN, &value);
+    offset++;
+
+    proto_item_append_text(item, "%u", value);
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, length);
+    }
 }
 
 /*
@@ -6507,16 +6607,53 @@ dissect_pfcp_srr_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
 static void
 dissect_pfcp_requested_access_availability_control_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+    int offset = 0;
+
+    static const int * pfcp_requested_access_availability_control_information_flags[] = {
+        &hf_pfcp_spare_b7_b1,
+        &hf_pfcp_requested_access_availability_control_information_flags_b0_rrca,
+        NULL
+    };
+    /* Octet 5  Spare   RRCA */
+    proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_pfcp_requested_access_availability_control_information_flags,
+        ett_pfcp_requested_access_availability_control_information, pfcp_requested_access_availability_control_information_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT);
+    offset += 1;
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, length);
+    }
 }
 
 /*
  * 8.2.153   Access Availability Information
  */
+static const value_string pfcp_availability_status_vals[] = {
+    { 0, "Access has become unavailable" },
+    { 1, "Access has become available" },
+    { 0, NULL }
+};
+static const value_string pfcp_availability_type_vals[] = {
+    { 0, "3GPP access type" },
+    { 1, "Non-3GPP access type" },
+    { 0, NULL }
+};
+
 static void
 dissect_pfcp_access_availability_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+    int offset = 0;
+
+    /* Octet 5 */
+    /* Availability Status */
+    proto_tree_add_item(tree, hf_pfcp_availability_status, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    /* Access Type  */
+    proto_tree_add_item(tree, hf_pfcp_availability_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, length);
+    }
 }
 
 /*
@@ -6525,7 +6662,21 @@ dissect_pfcp_access_availability_information(tvbuff_t *tvb, packet_info *pinfo, 
 static void
 dissect_pfcp_mptcp_control_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, length);
+    int offset = 0;
+
+    static const int * pfcp_mptcp_control_information_flags[] = {
+        &hf_pfcp_spare_b7_b1,
+        &hf_pfcp_mptcp_control_information_flags_b0_tci,
+        NULL
+    };
+    /* Octet 5  Spare   RRCA */
+    proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_pfcp_mptcp_control_information_flags,
+        ett_pfcp_mptcp_control_information, pfcp_mptcp_control_information_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT);
+    offset += 1;
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, length);
+    }
 }
 
 /*
@@ -10628,10 +10779,103 @@ proto_register_pfcp(void)
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
+
+        { &hf_pfcp_port_management_information,
+        { "Port Management Information", "pfcp.port_management_information",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_requested_clock_drift_control_information_flags,
+        { "Flags", "pfcp.requested_clock_drift_control_information.flags",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_requested_clock_drift_control_information_flags_b0_rrto,
+        { "RRTO (Request to Report Time Offset)", "pfcp.requested_clock_drift_control_information.flags.rrto",
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_requested_clock_drift_control_information_flags_b1_rrcr,
+        { "RRCR (Request to Report Cumulative RateRatio)", "pfcp.requested_clock_drift_control_information.flags.rrcr",
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x02,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_tsn_domain_number_value,
+        { "TDN Domain Number value", "pfcp.tsn_domain_number_value",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_time_offset_threshold,
+        { "Time Offset Threshold", "pfcp.time_offset_threshold",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_cumulative_rate_ratio_threshold,
+        { "Cumulative rateRatio Threshold", "pfcp.cumulative_rate_ratio_threshold",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+
+        { &hf_pfcp_time_offset_measurement,
+        { "Time Offset Measurement", "pfcp.time_offset_measurement",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_cumulative_rate_ratio_measurement,
+        { "Cumulative rateRatio Measurement", "pfcp.cumulative_rate_ratio_measurement",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_srr_id,
+        { "SRR ID value", "pfcp.srr_id_value",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_requested_access_availability_control_information_flags,
+        { "Flags", "pfcp.requested_access_availability_control_information.flags",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_requested_access_availability_control_information_flags_b0_rrca,
+        { "RRCA (Request to Report Change in Access availability)", "pfcp.requested_access_availability_control_information.flags.rrca",
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x01,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_availability_type,
+        { "Failed Rule ID Type", "pfcp.failed_rule_id_type",
+            FT_UINT8, BASE_DEC, VALS(pfcp_availability_status_vals), 0xC,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_availability_status,
+        { "Failed Rule ID Type", "pfcp.failed_rule_id_type",
+            FT_UINT8, BASE_DEC, VALS(pfcp_availability_type_vals), 0x3,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_mptcp_control_information_flags,
+        { "Flags", "pfcp.mptcp_control_information.flags",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_mptcp_control_information_flags_b0_tci,
+        { "TCI (Transport Converter Indication)", "pfcp.mptcp_control_information.flags.tci",
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x01,
+            NULL, HFILL }
+        },
+
     };
 
     /* Setup protocol subtree array */
-#define NUM_INDIVIDUAL_ELEMS_PFCP    64
+#define NUM_INDIVIDUAL_ELEMS_PFCP    67
     gint *ett[NUM_INDIVIDUAL_ELEMS_PFCP +
         (NUM_PFCP_IES - 1)];
 
@@ -10699,6 +10943,9 @@ proto_register_pfcp(void)
     ett[61] = &ett_pfcp_packet_rate_status;
     ett[62] = &ett_pfcp_create_bridge_info_for_tsc;
     ett[63] = &ett_pfcp_tsn_bridge_id;
+    ett[64] = &ett_pfcp_requested_clock_drift_control_information;
+    ett[65] = &ett_pfcp_requested_access_availability_control_information;
+    ett[66] = &ett_pfcp_mptcp_control_information;
 
 
     static ei_register_info ei[] = {
