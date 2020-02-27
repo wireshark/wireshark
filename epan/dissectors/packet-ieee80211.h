@@ -304,6 +304,10 @@ typedef struct anqp_info_dissector_data {
 #define WFA_ANQP_SUBTYPE_HS20                  17
 #define WFA_ANQP_SUBTYPE_MBO                   18
 
+/* WFA WNM notification request subtypes */
+#define WFA_WNM_SUBTYPE_NON_PREF_CHAN_REPORT   2
+#define WFA_WNM_SUBTYPE_CELL_DATA_CAPABILITIES 3
+
 /* Information Element tags */
 #define TAG_SSID                       0
 #define TAG_SUPP_RATES                 1

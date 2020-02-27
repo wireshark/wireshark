@@ -661,6 +661,8 @@ static const value_string wfa_subtype_vals[] = {
   { WFA_SUBTYPE_IEEE1905_MULTI_AP, "IEEE1905 Multi-AP" },
   { WFA_SUBTYPE_OWE_TRANSITION_MODE, "OWE Transition Mode" },
   { WFA_SUBTYPE_WIFI_60G, "60GHz Information Element" },
+  { WFA_WNM_SUBTYPE_NON_PREF_CHAN_REPORT, "Non-preferred Channel Report" },
+  { WFA_WNM_SUBTYPE_CELL_DATA_CAPABILITIES, "Cellular Data Capabilities" },
   { 0, NULL }
 };
 
@@ -14391,6 +14393,50 @@ dissect_mbo_oce(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
   }
 
   return offset;
+}
+
+static int
+dissect_wfa_wnm_non_pref_chan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+  int len = tvb_reported_length(tvb);
+  int offset = 0;
+
+  if (len == 0)
+    return 0;
+
+  if (len < 3) {
+    expert_add_info(pinfo, tree, &ei_ieee80211_bad_length);
+    return 0;
+  }
+
+  proto_tree_add_item(tree, hf_ieee80211_wfa_ie_mbo_non_pref_chan_op_class, tvb, offset, 1, ENC_NA);
+  offset ++;
+  len --;
+  while (len > 2) {
+    proto_tree_add_item(tree, hf_ieee80211_wfa_ie_mbo_non_pref_chan_chan, tvb, offset, 1, ENC_NA);
+    offset ++;
+    len --;
+  }
+
+  proto_tree_add_item(tree, hf_ieee80211_wfa_ie_mbo_non_pref_chan_pref, tvb, offset, 1, ENC_NA);
+  offset ++;
+  proto_tree_add_item(tree, hf_ieee80211_wfa_ie_mbo_non_pref_chan_reason, tvb, offset, 1, ENC_NA);
+  offset ++;
+  return offset;
+}
+
+static int
+dissect_wfa_wnm_cell_cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+  int len = tvb_reported_length(tvb);
+
+  if (len != 1) {
+    expert_add_info(pinfo, tree, &ei_ieee80211_bad_length);
+    return 0;
+  }
+
+  proto_tree_add_item(tree, hf_ieee80211_wfa_ie_mbo_cellular_cap, tvb, 0, 1, ENC_NA);
+  return len;
 }
 
 static void
@@ -39432,6 +39478,8 @@ proto_reg_handoff_ieee80211(void)
   dissector_add_uint("wlan.ie.wifi_alliance.subtype", WFA_SUBTYPE_OWE_TRANSITION_MODE, create_dissector_handle(dissect_owe_transition_mode, -1));
   dissector_add_uint("wlan.ie.wifi_alliance.subtype", WFA_SUBTYPE_WIFI_60G, create_dissector_handle(dissect_wfa_60g_ie, -1));
   dissector_add_uint("wlan.ie.wifi_alliance.subtype", WFA_SUBTYPE_MBO_OCE, create_dissector_handle(dissect_mbo_oce, -1));
+  dissector_add_uint("wlan.ie.wifi_alliance.subtype", WFA_WNM_SUBTYPE_NON_PREF_CHAN_REPORT, create_dissector_handle(dissect_wfa_wnm_non_pref_chan, -1));
+  dissector_add_uint("wlan.ie.wifi_alliance.subtype", WFA_WNM_SUBTYPE_CELL_DATA_CAPABILITIES, create_dissector_handle(dissect_wfa_wnm_cell_cap, -1));
 }
 
 /*
