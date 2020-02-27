@@ -3285,12 +3285,12 @@ prefs_register_modules(void)
 
     prefs_register_bool_preference(gui_module, "update.enabled",
                                    "Check for updates",
-                                   "Check for updates (Windows only)",
+                                   "Check for updates (Windows and macOS only)",
                                    &prefs.gui_update_enabled);
 
     prefs_register_enum_preference(gui_module, "update.channel",
                        "Update channel",
-                       "The type of update to fetch. You should probably leave this set to UPDATE_CHANNEL_STABLE.",
+                       "The type of update to fetch. You should probably leave this set to STABLE.",
                        (gint*)(void*)(&prefs.gui_update_channel), gui_update_channel, FALSE);
 
     prefs_register_uint_preference(gui_module, "update.interval",
