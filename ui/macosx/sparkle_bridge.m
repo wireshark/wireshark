@@ -27,7 +27,21 @@ void sparkle_software_update_init(const char *url, bool enabled, int interval)
 
 void sparkle_software_update_check(void)
 {
-    [[SUUpdater sharedUpdater] checkForUpdatesInBackground];
+    [[SUUpdater sharedUpdater] checkForUpdates: [[NSApplication sharedApplication] delegate]];
+}
+
+// Sparkle requires NSApplicationWillTerminateNotification in order to
+// properly update in the background.
+//
+// https://github.com/sparkle-project/Sparkle/issues/232
+// https://github.com/sparkle-project/Sparkle/issues/892
+// https://github.com/sparkle-project/Sparkle/issues/839
+
+void sparkle_software_update_cleanup()
+{
+    [[NSNotificationCenter defaultCenter]
+            postNotificationName:@"NSApplicationWillTerminateNotification"
+        object:nil];
 }
 
 /*

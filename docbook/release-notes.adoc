@@ -14,9 +14,9 @@ It is used for troubleshooting, analysis, development and education.
 
 == What’s New
 
-Automatic updates were inadvertently disabled in the Wireshark 3.2.1 64-bit and 32-bit Windows installers.
-If you're running Wireshark 3.2.1 on Windows you will have to update to a later version manually.
-wsbuglink:16381[]
+Wireshark 3.2.0 to 3.2.2 might not update automatically on macOS in some cases.
+If you're running those versions on macOS you might have to update to a later version manually.
+wsbuglink:16416[]
 
 === Bug Fixes
 
