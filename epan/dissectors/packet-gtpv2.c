@@ -3210,6 +3210,7 @@ static const value_string gtpv2_f_teid_interface_type_vals[] = {
     {37, "S2a PGW GTP-U interface"},
     {38, "S11 MME GTP-U interface"},
     {39, "S11 SGW GTP-U interface"},
+    {40, "N26 AMF GTP-C interface"},
     {0, NULL}
 };
 static value_string_ext gtpv2_f_teid_interface_type_vals_ext = VALUE_STRING_EXT_INIT(gtpv2_f_teid_interface_type_vals);
