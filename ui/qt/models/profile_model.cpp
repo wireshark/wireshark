@@ -1138,7 +1138,9 @@ int ProfileModel::importProfilesFromDir(QString dirname, int * skippedCnt, bool 
         int entryCount = 0;
         foreach (QFileInfo fentry, entries)
         {
-            Q_ASSERT(fentry.fileName().length() > 0);
+            if (fentry.fileName().length() <= 0)
+                continue;
+
             bool wasEmpty = true;
             bool success = false;
 
