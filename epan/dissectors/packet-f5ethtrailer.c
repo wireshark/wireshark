@@ -2919,6 +2919,7 @@ typedef struct _F5TLS_CONVERSATION_DATA {
     f5tls_element_t master_secret;
     f5tls_element_t client_random;
     /* added by TLS 1.3 */
+    f5tls_element_t erly_traf_sec;
     f5tls_element_t clnt_hs_sec;
     f5tls_element_t srvr_hs_sec;
     f5tls_element_t clnt_ap_sec;
@@ -2933,6 +2934,7 @@ typedef struct _F5TLS_CONVERSATION_DATA {
 typedef struct _F5TLS_PACKET_DATA {
     gchar *cr_ms;
     /* TLS 1.3 keylogs */
+    gchar *cr_erly_traff;
     gchar *cr_clnt_app;
     gchar *cr_srvr_app;
     gchar *cr_clnt_hs;
@@ -2955,6 +2957,7 @@ static gint hf_f5tls_clnt_rand  = -1;
 static gint hf_f5tls_srvr_rand  = -1;
 
 /* TLS 1.3 fields */
+static gint hf_f5tls_early_traffic_sec  = -1;
 static gint hf_f5tls_clnt_hs_sec  = -1;
 static gint hf_f5tls_srvr_hs_sec  = -1;
 static gint hf_f5tls_clnt_app_sec = -1;
@@ -2974,6 +2977,7 @@ typedef enum {
     SERVER_TRAFFIC_SECRET_0,
     CLIENT_HANDSHAKE_TRAFFIC_SECRET,
     SERVER_HANDSHAKE_TRAFFIC_SECRET,
+    EARLY_TRAFFIC_SECRET,
 } keylog_t;
 
 /* Create a field of zeros.  We need to check if the secrets, randoms, etc are all zeros and memcmp
@@ -3038,6 +3042,9 @@ f5eth_add_tls_keylog(keylog_t keylog_type, f5tls_element_t *xxxx, f5tls_element_
     case SERVER_HANDSHAKE_TRAFFIC_SECRET:
         return wmem_strdup_printf(
             wmem_file_scope(), "SERVER_HANDSHAKE_TRAFFIC_SECRET %s %s", xxxx_hex, yyyy_hex);
+    case EARLY_TRAFFIC_SECRET:
+        return wmem_strdup_printf(
+            wmem_file_scope(), "CLIENT_EARLY_TRAFFIC_SECRET %s %s", xxxx_hex, yyyy_hex);
     default:
         DISSECTOR_ASSERT_NOT_REACHED();
     }
@@ -3179,6 +3186,7 @@ dissect_dpt_trailer_tls_type2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
     switch (ver) {
     case 0:
+    case 1:
         /* Create a subtree and render a header */
         pi   = proto_tree_add_item(tree, hf_f5tls_tls, tvb, 0, len, ENC_NA);
         tree = proto_item_add_subtree(pi, ett_f5tls_std);
@@ -3198,6 +3206,10 @@ dissect_dpt_trailer_tls_type2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             expert_add_info(pinfo, pi, &ei_f5eth_badlen);
             break; /* switch (ver) */
         } else {
+            if (ver == 1) {
+                proto_tree_add_item(tree, hf_f5tls_early_traffic_sec, tvb, o, secret_len, ENC_NA);
+                o += F5TLS_HASH_LEN;
+            }
             proto_tree_add_item(tree, hf_f5tls_clnt_hs_sec, tvb, o, secret_len, ENC_NA);
             o += F5TLS_HASH_LEN;
             proto_tree_add_item(tree, hf_f5tls_srvr_hs_sec, tvb, o, secret_len, ENC_NA);
@@ -3223,13 +3235,19 @@ dissect_dpt_trailer_tls_type2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
            Assume that if a CRand exists on the conversation that it is the one that matches
            up with the newly set / changed secret. */
         if (!pinfo->fd->visited) {
-            gboolean chs_changed;
-            gboolean shs_changed;
-            gboolean cap_changed;
-            gboolean sap_changed;
+            gboolean ets_changed = FALSE;
+            gboolean chs_changed = FALSE;
+            gboolean shs_changed = FALSE;
+            gboolean cap_changed = FALSE;
+            gboolean sap_changed = FALSE;
 
             o = F5_DPT_V1_TLV_HDR_LEN + 1;
 
+            if (ver == 1) {
+                ets_changed =
+                    f5eth_add_tls_element(&conv_data->erly_traf_sec, pinfo, tvb, o, secret_len);
+                o += F5TLS_HASH_LEN;
+            }
             chs_changed =
                 f5eth_add_tls_element(&conv_data->clnt_hs_sec, pinfo, tvb, o, secret_len);
             o += F5TLS_HASH_LEN;
@@ -3245,6 +3263,10 @@ dissect_dpt_trailer_tls_type2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             f5eth_add_tls_element(&conv_data->client_random, pinfo, tvb, o, F5TLS_RANDOM_LEN);
 
             if (conv_data->client_random.len != 0) {
+                if (ver == 1 && ets_changed) {
+                    pdata->cr_erly_traff = f5eth_add_tls_keylog(EARLY_TRAFFIC_SECRET,
+                        &conv_data->client_random, &conv_data->erly_traf_sec);
+                }
                 if (cap_changed) {
                     pdata->cr_clnt_app = f5eth_add_tls_keylog(CLIENT_TRAFFIC_SECRET_0,
                         &conv_data->client_random, &conv_data->clnt_ap_sec);
@@ -3265,6 +3287,10 @@ dissect_dpt_trailer_tls_type2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         }
 
         /* Display any keylog entries we have in our packet data */
+        if (pdata->cr_erly_traff != NULL) {
+            pi = proto_tree_add_string(tree, hf_f5tls_keylog, tvb, 0, 0, pdata->cr_erly_traff);
+            proto_item_set_generated(pi);
+        }
         if (pdata->cr_clnt_app != NULL) {
             pi = proto_tree_add_string(tree, hf_f5tls_keylog, tvb, 0, 0, pdata->cr_clnt_app);
             proto_item_set_generated(pi);
@@ -3751,6 +3777,10 @@ proto_register_f5ethtrailer(void)
           { "Server Random", "f5ethtrailer.tls.server_random", FT_BYTES, BASE_NONE, NULL,
             0x0, NULL, HFILL }
         },
+        { &hf_f5tls_early_traffic_sec,
+          { "Early Traffic Secret", "f5ethtrailer.tls.early_traffic_secret", FT_BYTES, BASE_NONE, NULL,
+            0x0, NULL, HFILL }
+        },
         { &hf_f5tls_clnt_hs_sec,
           { "Client Handshake Traffic Secret", "f5ethtrailer.tls.client_hs_secret", FT_BYTES, BASE_NONE, NULL,
             0x0, NULL, HFILL }
@@ -3949,6 +3979,8 @@ proto_reg_handoff_f5ethtrailer(void)
     dissector_add_uint("f5ethtrailer.tls_type_ver", F5_DPT_TLS_PRE13_EXT << 16 | 0,
         create_dissector_handle(dissect_dpt_trailer_tls_extended, -1));
     dissector_add_uint("f5ethtrailer.tls_type_ver", F5_DPT_TLS_13_STD << 16 | 0,
+        create_dissector_handle(dissect_dpt_trailer_tls_type2, -1));
+    dissector_add_uint("f5ethtrailer.tls_type_ver", F5_DPT_TLS_13_STD << 16 | 1,
         create_dissector_handle(dissect_dpt_trailer_tls_type2, -1));
     dissector_add_uint("f5ethtrailer.tls_type_ver", F5_DPT_TLS_13_EXT << 16 | 0,
         create_dissector_handle(dissect_dpt_trailer_tls_extended, -1));
