@@ -22,6 +22,7 @@
 #include <epan/addr_resolv.h> /* Needed for BASE_ENTERPRISES */
 #include "packet-e164.h"
 #include "packet-e212.h"
+#include "packet-ip.h"
 
 void proto_register_pfcp(void);
 void proto_reg_handoff_pfcp(void);
@@ -133,6 +134,7 @@ static int hf_pfcp_flow_desc_len = -1;
 static int hf_pfcp_flow_desc = -1;
 static int hf_pfcp_traffic_class = -1;
 static int hf_pfcp_traffic_mask = -1;
+static int hf_pfcp_traffic_dscp = -1;
 static int hf_pfcp_spi = -1;
 static int hf_pfcp_flow_label_spare_bit = -1;
 static int hf_pfcp_flow_label = -1;
@@ -1144,7 +1146,7 @@ static const value_string pfcp_ie_type[] = {
     { 27, "GBR" },                                                  /* Extendable / Subclause 8.2.9 */
     { 28, "QER Correlation ID" },                                   /* Extendable / Subclause 8.2.10 */
     { 29, "Precedence" },                                           /* Extendable / Subclause 8.2.11 */
-    { 30, "DL Transport Level Marking" },                           /* Extendable / Subclause 8.2.12 */
+    { 30, "Transport Level Marking" },                              /* Extendable / Subclause 8.2.12 */
     { 31, "Volume Threshold" },                                     /* Extendable /Subclause 8.2.13 */
     { 32, "Time Threshold" },                                       /* Extendable /Subclause 8.2.14 */
     { 33, "Monitoring Time" },                                      /* Extendable /Subclause 8.2.15 */
@@ -2196,14 +2198,23 @@ static void
 dissect_pfcp_transport_level_marking(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
 {
     int offset = 0;
+    proto_item *dscp_it;
+    const gchar *dscp_str;
+    guint32 tos, mask;
+
     /* Octet 5 to 6    ToS/Traffic Class
     * The ToS/Traffic Class shall be encoded on two octets as an OctetString.
     * The first octet shall contain the IPv4 Type-of-Service or the IPv6 Traffic-Class field and the second octet shall contain the ToS/Traffic Class mask field
     */
-    proto_tree_add_item(tree, hf_pfcp_traffic_class, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_traffic_class, tvb, offset, 1, ENC_BIG_ENDIAN, &tos);
     offset += 1;
-    proto_tree_add_item(tree, hf_pfcp_traffic_mask, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_traffic_mask, tvb, offset, 1, ENC_BIG_ENDIAN, &mask);
     offset += 1;
+
+    /* display DSCP value */
+    dscp_str = val_to_str_ext_const(((tos & mask) >> 2), &dscp_vals_ext, "Unknown");
+    dscp_it = proto_tree_add_string(tree, hf_pfcp_traffic_dscp, tvb, 0, 2, dscp_str);
+    proto_item_set_generated(dscp_it);
 
     if (offset < length) {
         proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
@@ -8961,6 +8972,11 @@ proto_register_pfcp(void)
         { "Mask field", "pfcp.traffic_mask",
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
+        },
+        { &hf_pfcp_traffic_dscp,
+            {"DSCP", "pfcp.traffic_dscp",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
         },
         { &hf_pfcp_spi,
         { "Security Parameter Index", "pfcp.spi",
