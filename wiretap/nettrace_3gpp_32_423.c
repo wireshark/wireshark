@@ -369,7 +369,7 @@ write_packet_data(wtap_dumper *wdh, wtap_rec *rec, int *err, gchar **err_info, g
 		return WTAP_OPEN_ERROR;
 	}
 
-	g_strlcpy(proto_name_str, curr_pos, proto_str_len+1);
+	g_strlcpy(proto_name_str, curr_pos, (gsize)proto_str_len+1);
 	ascii_strdown_inplace(proto_name_str);
 
 	/* Do string matching and replace with Wiresharks protocol name */
@@ -466,7 +466,7 @@ write_packet_data(wtap_dumper *wdh, wtap_rec *rec, int *err, gchar **err_info, g
 
 	/* Allocate the packet buf */
 	pkt_data_len = raw_data_len / 2;
-	packet_buf = (guint8 *)g_malloc0(pkt_data_len + exp_pdu_tags_len +4);
+	packet_buf = (guint8 *)g_malloc0((gsize)pkt_data_len + (gsize)exp_pdu_tags_len + (gsize)4);
 
 	/* Fill packet buff */
 	if (use_proto_table == FALSE) {
@@ -720,25 +720,35 @@ nettrace_parse_address(guint8* curr_pos, guint8* next_pos, gboolean is_src_addr/
 	char transp_str[5];
 	int scan_found;
 	char str[3];
-	guint8* end_pos;
+	guint8* end_pos, *skip_pos;
 	char ip_addr_str[WS_INET6_ADDRSTRLEN];
 	int str_len;
 	ws_in6_addr ip6_addr;
 	guint32 ip4_addr;
+	gchar tempchar;
 
+	/* curr_pos pointing to first char after address */
 
 	/* Excample from one trace, unsure if it's generic...
 	 * {address == 192.168.73.1, port == 5062, transport == Udp}
 	 * {address == [2001:1b70:8294:210a::78], port...
 	 * {address == 2001:1B70:8294:210A::90, port...
+	 *  Address=198.142.204.199,Port=2123
 	 */
+	/* Skip whitespace and equalsigns)*/
+	for (skip_pos = curr_pos; skip_pos < next_pos &&
+		((tempchar = *skip_pos) == ' ' ||
+			tempchar == '\t' || tempchar == '\r' || tempchar == '\n' || tempchar == '=');
+		skip_pos++);
+
+	curr_pos = skip_pos;
+
 	g_strlcpy(str, curr_pos, 3);
 	/* If we find "" here we have no IP address*/
 	if (strcmp(str, "\"\"") == 0) {
 		return next_pos;
 	}
 	str[1] = 0;
-	curr_pos++;
 	if (strcmp(str, "[") == 0) {
 		/* Should we check for a digit here?*/
 		end_pos = strstr(curr_pos, "]");
@@ -796,7 +806,7 @@ nettrace_parse_address(guint8* curr_pos, guint8* next_pos, gboolean is_src_addr/
 			exported_pdu_info->dst_port = port;
 		}
 	}
-	return curr_pos;
+	return next_pos;
 }
 
 /*
@@ -930,7 +940,7 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 	* + End of options 4 bytes
 	*/
 	/* XXX add the length of exported bdu tag(s) here */
-	packet_buf = (guint8 *)g_malloc(packet_size + 12 + 1);
+	packet_buf = (guint8 *)g_malloc((gsize)packet_size + (gsize)12 + (gsize)1);
 
 	packet_buf[0] = 0;
 	packet_buf[1] = EXP_PDU_TAG_PROTO_NAME;
@@ -1011,6 +1021,7 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 		wtap_open_return_val temp_val;
 		char str[3];
 		char *raw_msg_pos;
+		char* start_msg_tag_cont;
 
 		/* Clear for each itteration */
 		exported_pdu_info.precense_flags = 0;
@@ -1034,7 +1045,7 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 			curr_pos = next_msg_pos + 2;
 			continue;
 		}
-		curr_pos = prev_pos;
+		start_msg_tag_cont = curr_pos = prev_pos;
 		next_msg_pos = strstr(curr_pos, "</msg>");
 		if (!next_msg_pos){
 			/* Somethings wrong, bail out */
@@ -1046,7 +1057,7 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 		next_msg_pos = next_msg_pos + 6;
 
 		/* Do we have a raw message in the <msg> <\msg> section?*/
-		raw_msg_pos = strstr(curr_pos, "<rawMsg");
+		raw_msg_pos = strstr(start_msg_tag_cont, "<rawMsg");
 		if ((!raw_msg_pos) || (raw_msg_pos > next_msg_pos)) {
 			curr_pos = next_msg_pos;
 			continue;
@@ -1056,9 +1067,8 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 		/* Check if we have a time stamp "changeTime"
 		 * expressed in number of seconds and milliseconds (nbsec.ms).
 		 */
-		prev_pos = curr_pos;
 		ms = 0;
-		curr_pos = strstr(curr_pos, "changeTime");
+		curr_pos = strstr(start_msg_tag_cont, "changeTime");
 		/* Check if we have the tag or if we pased the end of the current message */
 		if ((curr_pos) && (curr_pos < next_msg_pos)) {
 			curr_pos = curr_pos + 12;
@@ -1069,12 +1079,9 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 				start_time.nsecs = start_time.nsecs + (ms * 1000000);
 			}
 		}
-		else {
-			curr_pos = prev_pos;
-		}
 
 		/* See if we have a "name" */
-		curr_pos = strstr(curr_pos, "name=");
+		curr_pos = strstr(start_msg_tag_cont, "name=");
 		if ((curr_pos) && (curr_pos < next_msg_pos)) {
 			/* extract the name */
 			curr_pos = curr_pos + 6;
@@ -1086,48 +1093,42 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 				return WTAP_OPEN_ERROR;
 			}
 
-			g_strlcpy(name_str, curr_pos, name_str_len + 1);
+			g_strlcpy(name_str, curr_pos, (gsize)name_str_len + 1);
 			ascii_strdown_inplace(name_str);
 
-		}
-		else {
-			curr_pos = prev_pos;
 		}
 		/* Check if we have "<initiator>"
 		*  It might contain an address
 		*/
-		prev_pos = curr_pos;
-		curr_pos = strstr(curr_pos, "<initiator>");
+		curr_pos = strstr(start_msg_tag_cont, "<initiator");
 		/* Check if we have the tag or if we pased the end of the current message */
 		if ((curr_pos) && (curr_pos < next_msg_pos)) {
-			curr_pos = curr_pos + 11;
+			curr_pos = curr_pos + 10;
 			next_pos = strstr(curr_pos, "</initiator>");
-			/* Find address*/
-			curr_pos = strstr(curr_pos, "address == ");
+			/* Find address (omit the a to cater for A */
+			curr_pos = strstr(curr_pos, "ddress");
 			if ((curr_pos) && (curr_pos < next_pos)) {
-				curr_pos += 11;
+				curr_pos += 6;
 				curr_pos = nettrace_parse_address(curr_pos, next_pos, TRUE/*SRC */, &exported_pdu_info);
 			} else {
 				/* address not found*/
 				curr_pos = next_pos;
 			}
-		} else {
-			/*"<initiator>" not found */
-			curr_pos = prev_pos;
 		}
 
 		/* Check if we have "<target>"
 		*  It might contain an address
 		*/
-		curr_pos = strstr(curr_pos, "<target>");
+		curr_pos = strstr(start_msg_tag_cont, "<target");
 		/* Check if we have the tag or if we pased the end of the current message */
 		if ((curr_pos) && (curr_pos < next_msg_pos)) {
-			curr_pos = curr_pos + 8;
+			curr_pos = curr_pos + 7;
 			next_pos = strstr(curr_pos, "</target>");
-			/* Find address*/
-			curr_pos = strstr(curr_pos, "address == ");
+			/* Find address(omit the a to cater for A */
+			curr_pos = strstr(curr_pos, "ddress");
 			if ((curr_pos) && (curr_pos < next_pos)) {
-				curr_pos += 11;
+				curr_pos += 7;
+				/* curr_pos set below */
 				nettrace_parse_address(curr_pos, next_pos, FALSE/*DST */, &exported_pdu_info);
 			}
 		}
