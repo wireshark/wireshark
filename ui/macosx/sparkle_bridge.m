@@ -36,6 +36,10 @@ void sparkle_software_update_check(void)
 // https://github.com/sparkle-project/Sparkle/issues/232
 // https://github.com/sparkle-project/Sparkle/issues/892
 // https://github.com/sparkle-project/Sparkle/issues/839
+//
+// This depends on the Sparkle framework being able to run Autoupdate.app.
+// If that's not reliable we might want to disable SUAllowsAutomaticUpdates
+// above.
 
 void sparkle_software_update_cleanup()
 {
