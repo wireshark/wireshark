@@ -499,7 +499,7 @@ QVariant ProfileModel::dataPath(const QModelIndex &index) const
             } else {
                 profile_path = gchar_free_to_qstring(get_profiles_dir());
             }
-            profile_path.append(QDir::separator()).append(prof->name);
+            profile_path.append("/").append(prof->name);
             return profile_path;
         }
     case PROF_STAT_NEW:
@@ -950,7 +950,7 @@ bool ProfileModel::copyTempToProfile(QString tempPath, QString profilePath, bool
     foreach (QFileInfo finfo, files)
     {
         QString tempFile = finfo.absoluteFilePath();
-        QString profileFile = profilePath + QDir::separator() + finfo.fileName();
+        QString profileFile = profilePath + "/" + finfo.fileName();
 
         if (! profile_files_.contains(finfo.fileName()))
         {
@@ -1076,7 +1076,7 @@ bool ProfileModel::exportProfiles(QString filename, QModelIndexList items, QStri
         return false;
     }
 
-    if (WiresharkZipHelper::zip(filename, files, gchar_free_to_qstring(get_profiles_dir()) + QDir::separator()) )
+    if (WiresharkZipHelper::zip(filename, files, gchar_free_to_qstring(get_profiles_dir()) + "/") )
         return true;
 
     return false;
@@ -1096,9 +1096,9 @@ bool ProfileModel::acceptFile(QString fileName, int fileSize)
 
 QString ProfileModel::cleanName(QString fileName)
 {
-    QStringList parts = fileName.split(QDir::separator());
+    QStringList parts = fileName.split("/");
     QString temp = parts[parts.count() - 1].replace(QRegExp("[" + QRegExp::escape(illegalCharacters()) + "]"), QString("_") );
-    temp = parts.join(QDir::separator());
+    temp = parts.join("/");
     return temp;
 }
 
@@ -1146,7 +1146,7 @@ int ProfileModel::importProfilesFromDir(QString dirname, int * skippedCnt, bool 
 
             entryCount++;
 
-            QString profilePath = profileDir.absolutePath() + QDir::separator() + fentry.fileName();
+            QString profilePath = profileDir.absolutePath() + "/" + fentry.fileName();
             QString tempPath = fentry.absoluteFilePath();
 
             if (fentry.fileName().compare(DEFAULT_PROFILE, Qt::CaseInsensitive) == 0 || QFile::exists(profilePath))
