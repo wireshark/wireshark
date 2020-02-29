@@ -3208,7 +3208,7 @@ dissect_dpt_trailer_tls_type2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 							SERVER_TRAFFIC_SECRET_0, &conv_data->client_random, &conv_data->srvr_ap_sec);
 					}
 					if (chs_changed) {
-						pdata->cr_clnt_app = f5eth_add_tls_keylog(
+						pdata->cr_clnt_hs = f5eth_add_tls_keylog(
 							CLIENT_HANDSHAKE_TRAFFIC_SECRET, &conv_data->client_random, &conv_data->clnt_hs_sec);
 					}
 					if (shs_changed) {
