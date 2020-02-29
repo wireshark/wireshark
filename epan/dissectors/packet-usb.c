@@ -410,6 +410,7 @@ static dissector_table_t product_to_dissector;
 typedef struct _device_product_data_t {
     guint16  vendor;
     guint16  product;
+    guint16  device;
     guint  bus_id;
     guint  device_address;
 } device_product_data_t;
@@ -2135,6 +2136,11 @@ dissect_usb_device_descriptor(packet_info *pinfo, proto_tree *parent_tree,
                                      product_id);
     offset += 2;
 
+    /* bcdDevice */
+    usb_conv_info->deviceVersion = tvb_get_letohs(tvb, offset);
+    proto_tree_add_item(tree, hf_usb_bcdDevice, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
     if (!pinfo->fd->visited) {
         guint                   k_bus_id;
         guint                   k_device_address;
@@ -2159,6 +2165,7 @@ dissect_usb_device_descriptor(packet_info *pinfo, proto_tree *parent_tree,
         device_product_data = wmem_new(wmem_file_scope(), device_product_data_t);
         device_product_data->vendor = vendor_id;
         device_product_data->product = product_id;
+        device_product_data->device = usb_conv_info->deviceVersion;
         device_product_data->bus_id = usb_conv_info->bus_id;
         device_product_data->device_address = usb_conv_info->device_address;
         wmem_tree_insert32_array(device_to_product_table, key, device_product_data);
@@ -2170,11 +2177,6 @@ dissect_usb_device_descriptor(packet_info *pinfo, proto_tree *parent_tree,
 
         wmem_tree_insert32_array(device_to_protocol_table, key, device_protocol_data);
     }
-
-    /* bcdDevice */
-    usb_conv_info->deviceVersion = tvb_get_letohs(tvb, offset);
-    proto_tree_add_item(tree, hf_usb_bcdDevice, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    offset += 2;
 
     /* iManufacturer */
     proto_tree_add_item(tree, hf_usb_iManufacturer, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -4587,6 +4589,9 @@ dissect_usb_payload(tvbuff_t *tvb, packet_info *pinfo,
             device_product_data->device_address == device_address) {
         p_add_proto_data(pinfo->pool, pinfo, proto_usb, USB_VENDOR_ID, GUINT_TO_POINTER((guint)device_product_data->vendor));
         p_add_proto_data(pinfo->pool, pinfo, proto_usb, USB_PRODUCT_ID, GUINT_TO_POINTER((guint)device_product_data->product));
+        usb_conv_info->deviceVendor = device_product_data->vendor;
+        usb_conv_info->deviceProduct = device_product_data->product;
+        usb_conv_info->deviceVersion = device_product_data->device;
     }
 
     device_protocol_data = (device_protocol_data_t *) wmem_tree_lookup32_array_le(device_to_protocol_table, key);
