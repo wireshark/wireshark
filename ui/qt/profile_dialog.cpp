@@ -656,7 +656,7 @@ void ProfileDialog::importFromDirectory()
 
     int skipped = 0;
     QStringList import;
-    int count = model_->importProfilesFromDir(importDir.append("/"), &skipped, false, &import);
+    int count = model_->importProfilesFromDir(importDir, &skipped, false, &import);
 
     finishImport(fi, count, skipped, import);
 }
