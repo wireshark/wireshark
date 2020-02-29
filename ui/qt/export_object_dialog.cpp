@@ -239,7 +239,7 @@ void ExportObjectDialog::saveCurrentEntry(QString *tempFile)
                                                 safe_filename->str);
         g_string_free(safe_filename, TRUE);
     } else {
-        QString path = QDir::tempPath().append(QDir::separator()).append(entry_filename);
+        QString path = QDir::tempPath().append("/").append(entry_filename);
         /* This means, the system must remove the file! */
         file_name = path;
         if (QFileInfo::exists(path))

@@ -224,7 +224,7 @@ void FilterListModel::saveList()
 {
     QString filename = (type_ == FilterListModel::Capture) ? CFILTER_FILE_NAME : DFILTER_FILE_NAME;
 
-    filename = QString("%1%2%3").arg(ProfileModel::activeProfilePath()).arg(QDir::separator()).arg(filename);
+    filename = QString("%1%2%3").arg(ProfileModel::activeProfilePath()).arg("/").arg(filename);
     QFile file(filename);
 
     if (! file.open(QIODevice::WriteOnly | QIODevice::Text))
