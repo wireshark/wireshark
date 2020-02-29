@@ -29,6 +29,7 @@ static gint hf_mpsse_command_b4 = -1;
 static gint hf_mpsse_command_b5 = -1;
 static gint hf_mpsse_command_b6 = -1;
 static gint hf_mpsse_command_b7 = -1;
+static gint hf_mpsse_command_with_parameters = -1;
 static gint hf_mpsse_length_uint8 = -1;
 static gint hf_mpsse_length_uint16 = -1;
 static gint hf_mpsse_bytes_out = -1;
@@ -58,6 +59,7 @@ static gint hf_mpsse_clk_divisor = -1;
 
 static gint ett_ftdi_mpsse = -1;
 static gint ett_mpsse_command = -1;
+static gint ett_mpsse_command_with_parameters = -1;
 static gint ett_mpsse_value = -1;
 static gint ett_mpsse_direction = -1;
 
@@ -530,7 +532,10 @@ static gint estimated_command_parameters_length(guint8 cmd, tvbuff_t *tvb, gint 
 {
     gint parameters_length = 0;
 
-    DISSECTOR_ASSERT(is_valid_command(cmd, mpsse_info));
+    if (!is_valid_command(cmd, mpsse_info))
+    {
+        return 0;
+    }
 
     if (is_data_shifting_command(cmd))
     {
@@ -582,10 +587,8 @@ static gint estimated_command_parameters_length(guint8 cmd, tvbuff_t *tvb, gint 
 }
 
 static guint8
-dissect_command_code(tvbuff_t *tvb, proto_tree *tree, gint offset, ftdi_mpsse_info_t *mpsse_info)
+dissect_command_code(guint8 cmd, const char *cmd_str, tvbuff_t *tvb, proto_tree *tree, gint offset, ftdi_mpsse_info_t *mpsse_info _U_)
 {
-    guint8             cmd;
-    const char        *cmd_str;
     proto_item        *cmd_item;
     proto_tree        *cmd_tree;
     const int        **cmd_bits;
@@ -606,9 +609,7 @@ dissect_command_code(tvbuff_t *tvb, proto_tree *tree, gint offset, ftdi_mpsse_in
         NULL
     };
 
-    cmd = tvb_get_guint8(tvb, offset);
-    cmd_str = get_command_string(cmd, mpsse_info);
-    cmd_item = proto_tree_add_uint_format(tree, hf_mpsse_command, tvb, offset, 1, cmd, "Command: %s (0x%02x)", cmd_str ? cmd_str : "Bad Command", cmd);
+    cmd_item = proto_tree_add_uint_format(tree, hf_mpsse_command, tvb, offset, 1, cmd, "Command: %s (0x%02x)", cmd_str, cmd);
     cmd_tree = proto_item_add_subtree(cmd_item, ett_mpsse_command);
     cmd_bits = IS_DATA_SHIFTING_COMMAND_BIT_ACTIVE(cmd) ? data_shifting_cmd_bits : non_data_shifting_cmd_bits;
 
@@ -621,37 +622,50 @@ static gint
 dissect_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, gboolean *need_reassembly, ftdi_mpsse_info_t *mpsse_info)
 {
     guint8       cmd;
+    const char  *cmd_str;
     gint         offset_start = offset;
+    gint         parameters_length;
+    gint         dissected;
+    proto_item  *cmd_with_parameters;
+    proto_tree  *cmd_tree;
 
-    cmd = dissect_command_code(tvb, tree, offset, mpsse_info);
+    cmd = tvb_get_guint8(tvb, offset);
+    cmd_str = get_command_string(cmd, mpsse_info);
+    parameters_length = estimated_command_parameters_length(cmd, tvb, offset + 1, mpsse_info);
+    if (tvb_reported_length_remaining(tvb, offset + 1) < parameters_length)
+    {
+        *need_reassembly = TRUE;
+        return 0;
+    }
+
+    if (!cmd_str)
+    {
+        cmd_str = "Bad Command";
+    }
+
+    cmd_with_parameters = proto_tree_add_bytes_format(tree, hf_mpsse_command_with_parameters, tvb, offset, 1 + parameters_length, NULL, "%s", cmd_str);
+    cmd_tree = proto_item_add_subtree(cmd_with_parameters, ett_mpsse_command_with_parameters);
+
+    cmd = dissect_command_code(cmd, cmd_str, tvb, cmd_tree, offset, mpsse_info);
     offset += 1;
 
-    if (is_valid_command(cmd, mpsse_info))
+    *need_reassembly = FALSE;
+    if (parameters_length > 0)
     {
-        gint parameters_length = estimated_command_parameters_length(cmd, tvb, offset, mpsse_info);
-        if (tvb_reported_length_remaining(tvb, offset) >= parameters_length)
+        if (IS_DATA_SHIFTING_COMMAND_BIT_ACTIVE(cmd))
         {
-            gint dissected;
-            *need_reassembly = FALSE;
-            if (IS_DATA_SHIFTING_COMMAND_BIT_ACTIVE(cmd))
-            {
-                dissected = dissect_data_shifting_command_parameters(cmd, tvb, pinfo, tree, offset);
-                DISSECTOR_ASSERT(dissected == parameters_length);
-                offset += dissected;
-            }
-            else if (parameters_length > 0)
-            {
-                dissected = dissect_non_data_shifting_command_parameters(cmd, tvb, pinfo, tree, offset, mpsse_info);
-                if (parameters_length > dissected)
-                {
-                    proto_tree_add_expert(tree, pinfo, &ei_undecoded, tvb, offset + dissected, parameters_length - dissected);
-                }
-                offset += parameters_length;
-            }
+            dissected = dissect_data_shifting_command_parameters(cmd, tvb, pinfo, cmd_tree, offset);
+            DISSECTOR_ASSERT(dissected == parameters_length);
+            offset += dissected;
         }
         else
         {
-            *need_reassembly = TRUE;
+            dissected = dissect_non_data_shifting_command_parameters(cmd, tvb, pinfo, cmd_tree, offset, mpsse_info);
+            if (parameters_length > dissected)
+            {
+                proto_tree_add_expert(cmd_tree, pinfo, &ei_undecoded, tvb, offset + dissected, parameters_length - dissected);
+            }
+            offset += parameters_length;
         }
     }
 
@@ -709,6 +723,11 @@ proto_register_ftdi_mpsse(void)
           { "Command", "ftdi-mpsse.command",
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
+        },
+        { &hf_mpsse_command_with_parameters,
+          { "Command with parameters", "ftdi-mpsse.command_with_parameters",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            "Command including optional parameter bytes", HFILL }
         },
         { &hf_mpsse_command_b0,
           { "-ve CLK on write", "ftdi-mpsse.command.b0",
@@ -889,6 +908,7 @@ proto_register_ftdi_mpsse(void)
     static gint *ett[] = {
         &ett_ftdi_mpsse,
         &ett_mpsse_command,
+        &ett_mpsse_command_with_parameters,
         &ett_mpsse_value,
         &ett_mpsse_direction,
     };
