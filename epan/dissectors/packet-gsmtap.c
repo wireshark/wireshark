@@ -51,6 +51,7 @@ static int hf_gsmtap_timeslot = -1;
 static int hf_gsmtap_subslot = -1;
 static int hf_gsmtap_arfcn = -1;
 static int hf_gsmtap_uplink = -1;
+static int hf_gsmtap_pcs = -1;
 static int hf_gsmtap_signal_dbm = -1;
 static int hf_gsmtap_snr_db = -1;
 static int hf_gsmtap_frame_nr = -1;
@@ -597,6 +598,8 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 				    tvb, offset+4, 2, ENC_BIG_ENDIAN);
 		proto_tree_add_item(gsmtap_tree, hf_gsmtap_uplink,
 				    tvb, offset+4, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(gsmtap_tree, hf_gsmtap_pcs,
+				    tvb, offset+4, 2, ENC_BIG_ENDIAN);
 		proto_tree_add_item(gsmtap_tree, hf_gsmtap_signal_dbm,
 				    tvb, offset+6, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(gsmtap_tree, hf_gsmtap_snr_db,
@@ -816,6 +819,8 @@ proto_register_gsmtap(void)
 		  FT_UINT16, BASE_DEC, NULL, GSMTAP_ARFCN_MASK, NULL, HFILL } },
 		{ &hf_gsmtap_uplink, { "Uplink", "gsmtap.uplink",
 		  FT_UINT16, BASE_DEC, NULL, GSMTAP_ARFCN_F_UPLINK, NULL, HFILL } },
+		{ &hf_gsmtap_pcs, { "PCS band indicator", "gsmtap.pcs_band",
+		  FT_UINT16, BASE_DEC, NULL, GSMTAP_ARFCN_F_PCS, NULL, HFILL } },
 		{ &hf_gsmtap_signal_dbm, { "Signal Level (dBm)", "gsmtap.signal_dbm",
 		  FT_INT8, BASE_DEC, NULL, 0, NULL, HFILL } },
 		{ &hf_gsmtap_snr_db, { "Signal/Noise Ratio (dB)", "gsmtap.snr_db",
