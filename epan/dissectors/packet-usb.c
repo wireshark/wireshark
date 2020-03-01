@@ -243,6 +243,8 @@ static int hf_usb_wMaxPacketSize_size = -1;
 static int hf_usb_wMaxPacketSize_slots = -1;
 static int hf_usb_bInterval = -1;
 static int hf_usb_bMaxBurst = -1;
+static int hf_usb_audio_bRefresh = -1;
+static int hf_usb_audio_bSynchAddress = -1;
 static int hf_usb_bSSEndpointAttributeBulkMaxStreams = -1;
 static int hf_usb_bSSEndpointAttributeIsoMult = -1;
 static int hf_usb_wBytesPerInterval = -1;
@@ -2556,6 +2558,14 @@ dissect_usb_endpoint_descriptor(packet_info *pinfo, proto_tree *parent_tree,
     /* bInterval */
     proto_tree_add_item(tree, hf_usb_bInterval, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
+
+    if(usb_conv_info->interfaceClass == IF_CLASS_AUDIO) {
+        proto_tree_add_item(tree, hf_usb_audio_bRefresh, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset += 1;
+
+        proto_tree_add_item(tree, hf_usb_audio_bSynchAddress, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset += 1;
+    }
 
     proto_item_set_len(item, len);
 
@@ -6294,6 +6304,16 @@ proto_register_usb(void)
           { "bMaxBurst", "usb.bMaxBurst",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             "Valid values are from 0 to 15. For control endpoints this value shall be 0.", HFILL }},
+
+        { &hf_usb_audio_bRefresh,
+          { "bRefresh", "usb.audio.bRefresh",
+            FT_UINT8, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }},
+
+        { &hf_usb_audio_bSynchAddress,
+          { "bSynchAddress", "usb.audio.bSynchAddress",
+            FT_UINT8, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }},
 
         { &hf_usb_bSSEndpointAttributeBulkMaxStreams,
           { "MaxStreams", "usb.bmAttributes.MaxStreams",

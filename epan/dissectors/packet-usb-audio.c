@@ -129,6 +129,11 @@ static int hf_ac_if_fu_controls_d8 = -1;
 static int hf_ac_if_fu_controls_d9 = -1;
 static int hf_ac_if_fu_controls_rsv = -1;
 static int hf_ac_if_fu_ifeature = -1;
+static int hf_ac_if_su_unitid = -1;
+static int hf_ac_if_su_nrinpins = -1;
+static int hf_ac_if_su_sourceids = -1;
+static int hf_ac_if_su_sourceid = -1;
+static int hf_ac_if_su_iselector = -1;
 static int hf_ac_if_mu_unitid = -1;
 static int hf_ac_if_mu_nrinpins = -1;
 static int hf_ac_if_mu_sourceid = -1;
@@ -309,6 +314,7 @@ static gint ett_ac_if_hdr_controls = -1;
 static gint ett_ac_if_fu_controls = -1;
 static gint ett_ac_if_fu_controls0 = -1;
 static gint ett_ac_if_fu_controls1 = -1;
+static gint ett_ac_if_su_sourceids = -1;
 static gint ett_ac_if_input_wchannelconfig = -1;
 static gint ett_ac_if_input_bmchannelconfig = -1;
 static gint ett_ac_if_input_controls = -1;
@@ -1146,6 +1152,37 @@ dissect_ac_if_feature_unit(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
     return offset-offset_start;
 }
 
+static gint dissect_ac_if_selector_unit(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *tree, usb_conv_info_t *usb_conv_info _U_)
+{
+    gint offset_start;
+    guint32 nrinpins,i;
+    guint32 source_id;
+    proto_item *ti;
+    proto_tree *subtree;
+
+    offset_start = offset;
+
+    proto_tree_add_item(tree, hf_ac_if_su_unitid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item_ret_uint(tree, hf_ac_if_su_nrinpins, tvb, offset, 1, ENC_LITTLE_ENDIAN, &nrinpins);
+    offset += 1;
+
+    ti = proto_tree_add_item(tree, hf_ac_if_su_sourceids, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    subtree = proto_item_add_subtree(ti, ett_ac_if_su_sourceids);
+
+    for(i = 0; i < nrinpins; ++i) {
+        proto_tree_add_item_ret_uint(subtree, hf_ac_if_su_sourceid, tvb, offset, 1, ENC_LITTLE_ENDIAN, &source_id);
+        offset +=1;
+        if (i > 0)
+            proto_item_append_text(ti,", %d", source_id);
+    }
+    proto_tree_add_item(tree, hf_ac_if_su_iselector, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    return offset - offset_start;
+}
+
 static gint
 dissect_ac_if_mixed_unit(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
         proto_tree *tree, usb_conv_info_t *usb_conv_info _U_)
@@ -1823,6 +1860,9 @@ dissect_usb_audio_descriptor(tvbuff_t *tvb, packet_info *pinfo,
             case AC_SUBTYPE_MIXER_UNIT:
                 bytes_dissected += dissect_ac_if_mixed_unit(tvb, offset, pinfo, desc_tree, usb_conv_info);
                 break;
+            case AC_SUBTYPE_SELECTOR_UNIT:
+                bytes_dissected += dissect_ac_if_selector_unit(tvb, offset, pinfo, desc_tree, usb_conv_info);
+                break;
             case AC_SUBTYPE_FEATURE_UNIT:
                 bytes_dissected += dissect_ac_if_feature_unit(tvb, offset, pinfo, desc_tree, usb_conv_info, desc_len);
                 break;
@@ -2314,6 +2354,21 @@ proto_register_usb_audio(void)
         { &hf_ac_if_fu_ifeature,
             { "Feature", "usbaudio.ac_if_fu.iFeature",
               FT_UINT8, BASE_DEC, NULL, 0x00, "iFeature", HFILL }},
+        { &hf_ac_if_su_unitid,
+            { "Unit ID", "usbaudio.ac_if_su.bUnitID",
+              FT_UINT8, BASE_DEC, NULL, 0x00, "bUnitID", HFILL }},
+        { &hf_ac_if_su_nrinpins,
+            { "Input Pins", "usbaudio.ac_if_su.bNrInPins",
+              FT_UINT8, BASE_DEC, NULL, 0x00, "bNrInPins", HFILL }},
+        { &hf_ac_if_su_sourceids,
+            { "Source IDs", "usbaudio.ac_if_su_baSourceIDs",
+              FT_UINT8, BASE_DEC, NULL, 0x00, "baSourceIDs", HFILL }},
+        { &hf_ac_if_su_sourceid,
+            { "Source ID", "usbaudio.ac_if_su.baSourceID",
+              FT_UINT8, BASE_DEC, NULL, 0x00, "baSourceID", HFILL}},
+        { &hf_ac_if_su_iselector,
+            { "Selector Index", "usbaudio.ac_if_su.iSelector",
+              FT_UINT8, BASE_DEC, NULL, 0x00, "iSelector", HFILL }},
         { &hf_ac_if_mu_unitid,
             { "Unit ID", "usbaudio.ac_if_mu.bUnitID",
               FT_UINT8, BASE_DEC, NULL, 0x00, "bUnitID", HFILL }},
@@ -2879,6 +2934,7 @@ proto_register_usb_audio(void)
         &ett_ac_if_fu_controls,
         &ett_ac_if_fu_controls0,
         &ett_ac_if_fu_controls1,
+        &ett_ac_if_su_sourceids,
         &ett_ac_if_input_wchannelconfig,
         &ett_ac_if_input_bmchannelconfig,
         &ett_ac_if_input_controls,
