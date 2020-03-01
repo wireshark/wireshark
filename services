@@ -4773,6 +4773,7 @@ svdrp-disc	6419/udp	# Simple VDR Protocol Discovery
 nim-vdrshell	6420/tcp/udp	# NIM_VDRShell
 nim-wan		6421/tcp/udp	# NIM_WAN
 pgbouncer	6432/tcp	# PgBouncer
+heliosd		6440/tcp	# heliosd daemon
 tarp		6442/tcp	# Transitory Application Request Protocol
 sun-sr-https	6443/tcp/udp	# Service Registry Default HTTPS Domain
 sge-qmaster	6444/tcp/udp	# Grid Engine Qmaster Service
