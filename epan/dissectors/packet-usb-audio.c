@@ -1168,15 +1168,15 @@ static gint dissect_ac_if_selector_unit(tvbuff_t *tvb, gint offset, packet_info 
     proto_tree_add_item_ret_uint(tree, hf_ac_if_su_nrinpins, tvb, offset, 1, ENC_LITTLE_ENDIAN, &nrinpins);
     offset += 1;
 
-    ti = proto_tree_add_item(tree, hf_ac_if_su_sourceids, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    ti = proto_tree_add_bytes_format_value(tree, hf_ac_if_su_sourceids, tvb, offset, nrinpins, NULL, "%s", "");
     subtree = proto_item_add_subtree(ti, ett_ac_if_su_sourceids);
 
-    for(i = 0; i < nrinpins; ++i) {
+    for (i = 0; i < nrinpins; ++i) {
         proto_tree_add_item_ret_uint(subtree, hf_ac_if_su_sourceid, tvb, offset, 1, ENC_LITTLE_ENDIAN, &source_id);
-        offset +=1;
-        if (i > 0)
-            proto_item_append_text(ti,", %d", source_id);
+        offset += 1;
+        proto_item_append_text(ti, "%s%d", (i > 0) ? ", " : "", source_id);
     }
+
     proto_tree_add_item(tree, hf_ac_if_su_iselector, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
 
@@ -2361,8 +2361,8 @@ proto_register_usb_audio(void)
             { "Input Pins", "usbaudio.ac_if_su.bNrInPins",
               FT_UINT8, BASE_DEC, NULL, 0x00, "bNrInPins", HFILL }},
         { &hf_ac_if_su_sourceids,
-            { "Source IDs", "usbaudio.ac_if_su_baSourceIDs",
-              FT_UINT8, BASE_DEC, NULL, 0x00, "baSourceIDs", HFILL }},
+            { "Source IDs", "usbaudio.ac_if_su.baSourceIDs",
+              FT_BYTES, BASE_NONE, NULL, 0x00, "baSourceIDs", HFILL }},
         { &hf_ac_if_su_sourceid,
             { "Source ID", "usbaudio.ac_if_su.baSourceID",
               FT_UINT8, BASE_DEC, NULL, 0x00, "baSourceID", HFILL}},
