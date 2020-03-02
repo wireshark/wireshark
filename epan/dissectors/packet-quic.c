@@ -145,6 +145,9 @@ static int hf_quic_cc_reason_phrase_length = -1;
 static int hf_quic_cc_reason_phrase = -1;
 static int hf_quic_dg_length = -1;
 static int hf_quic_dg = -1;
+static int hf_quic_af_sequence_number = -1;
+static int hf_quic_af_packet_tolerance = -1;
+static int hf_quic_af_update_max_ack_delay = -1;
 
 static expert_field ei_quic_connection_unknown = EI_INIT;
 static expert_field ei_quic_ft_unknown = EI_INIT;
@@ -420,6 +423,7 @@ static const value_string quic_long_packet_type_vals[] = {
 #define FT_HANDSHAKE_DONE       0x1e
 #define FT_DATAGRAM             0x30
 #define FT_DATAGRAM_LENGTH      0x31
+#define FT_ACK_FREQUENCY        0xAF
 
 static const range_string quic_frame_type_vals[] = {
     { 0x00, 0x00,   "PADDING" },
@@ -446,6 +450,7 @@ static const range_string quic_frame_type_vals[] = {
     { 0x1d, 0x1d,   "CONNECTION_CLOSE (Application)" },
     { 0x1e, 0x1e,   "HANDSHAKE_DONE" },
     { 0x30, 0x31,   "DATAGRAM" },
+    { 0xAF, 0xAF,   "ACK_FREQUENCY" },
     { 0,    0,        NULL },
 };
 
@@ -1334,6 +1339,19 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
                 length = (guint32) tvb_reported_length_remaining(tvb, offset);
             }
             proto_tree_add_item(ft_tree, hf_quic_dg, tvb, offset, (guint32)length, ENC_NA);
+            offset += (guint32)length;
+        }
+        break;
+        case FT_ACK_FREQUENCY:{
+            guint32 length;
+
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_af_sequence_number, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &length);
+            offset += (guint32)length;
+
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_af_packet_tolerance, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &length);
+            offset += (guint32)length;
+
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_af_update_max_ack_delay, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &length);
             offset += (guint32)length;
         }
         break;
@@ -3092,6 +3110,22 @@ proto_register_quic(void)
             { "Datagram", "quic.dg",
               FT_BYTES, BASE_NONE, NULL, 0x0,
               "The bytes of the datagram to be delivered", HFILL }
+        },
+        /* ACK-FREQUENCY */
+        { &hf_quic_af_sequence_number,
+            { "Sequence Number", "quic.af.sequence_number",
+              FT_UINT64, BASE_DEC, NULL, 0x0,
+              "Sequence number assigned to the ACK-FREQUENCY frame by the sender to allow receivers to ignore obsolete frames", HFILL }
+        },
+        { &hf_quic_af_packet_tolerance,
+            { "Packet Tolerance", "quic.af.packet_tolerance",
+              FT_UINT64, BASE_DEC, NULL, 0x0,
+              "Representing the maximum number of ack-eliciting packets after which the receiver sends an acknowledgement", HFILL }
+        },
+        { &hf_quic_af_update_max_ack_delay,
+            { "Update Max Ack Delay", "quic.af.update_max_ack_delay",
+              FT_UINT64, BASE_DEC, NULL, 0x0,
+              "Representing an update to the peer's 'max_ack_delay' transport parameter", HFILL }
         },
     };
 
