@@ -14,4 +14,8 @@ BEGIN-VENDOR	Meinberg
 
 ATTRIBUTE	MBG-Management-Privilege-Level		1	integer
 
+VALUE		MBG-Management-Privilege-Level	MBG-Priv-Superuser	100
+VALUE		MBG-Management-Privilege-Level	MBG-Priv-Admin		200
+VALUE		MBG-Management-Privilege-Level	MBG-Priv-Info		300
+
 END-VENDOR     Meinberg
