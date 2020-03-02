@@ -70,36 +70,41 @@ QWidget *ColumnTypeDelegate::createEditor(QWidget *parent,
                                        const QStyleOptionViewItem &option,
                                        const QModelIndex &index) const
 {
+    QWidget *editor = nullptr;
+
     if (index.column() == ColumnListModel::COL_TYPE)
     {
-        QComboBox *editor = new QComboBox(parent);
+        QComboBox *cb_editor = new QComboBox(parent);
 
         for (int i = 0; i < NUM_COL_FMTS; i++)
         {
-            editor->addItem(col_format_desc(i), QVariant(i));
+            cb_editor->addItem(col_format_desc(i), QVariant(i));
             if (i == index.data().toInt())
-                editor->setCurrentIndex(i);
+                cb_editor->setCurrentIndex(i);
         }
 
-        editor->setFrame(false);
-
-        return editor;
+        cb_editor->setFrame(false);
+        editor = cb_editor;
     }
     else if (index.column() == ColumnListModel::COL_FIELDS)
     {
-        FieldFilterEdit * editor = new FieldFilterEdit(parent);
-        editor->setText(index.data().toString());
-        return editor;
+        FieldFilterEdit * ff_editor = new FieldFilterEdit(parent);
+        ff_editor->setText(index.data().toString());
+        editor = ff_editor;
     }
     else if (index.column() == ColumnListModel::COL_OCCURRENCE)
     {
-        SyntaxLineEdit * editor = new SyntaxLineEdit(parent);
-        connect(editor, &SyntaxLineEdit::textChanged, editor, &SyntaxLineEdit::checkInteger);
-        editor->setText(index.data().toString());
-        return editor;
+        SyntaxLineEdit * sl_editor = new SyntaxLineEdit(parent);
+        connect(sl_editor, &SyntaxLineEdit::textChanged, sl_editor, &SyntaxLineEdit::checkInteger);
+        sl_editor->setText(index.data().toString());
+        editor = sl_editor;
     }
 
-    return QStyledItemDelegate::createEditor(parent, option, index);
+    if (!editor) {
+        editor = QStyledItemDelegate::createEditor(parent, option, index);
+    }
+    editor->setAutoFillBackground(true);
+    return editor;
 }
 
 void ColumnTypeDelegate::setEditorData(QWidget *editor,

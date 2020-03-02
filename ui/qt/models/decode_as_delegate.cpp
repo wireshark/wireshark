@@ -136,26 +136,27 @@ QWidget* DecodeAsDelegate::createEditor(QWidget *parentWidget, const QStyleOptio
                                   const QModelIndex &index) const
 {
     DecodeAsItem* item = indexToField(index);
+    QWidget *editor = nullptr;
 
     switch(index.column())
     {
     case DecodeAsModel::colTable:
         {
-        QComboBox *editor = new QComboBox(parentWidget);
+        QComboBox *cb_editor = new QComboBox(parentWidget);
         QSet<QString> da_set;
         QList<QString> packet_list;
         QString table_ui_name;
 
         collectDAProtocols(da_set, packet_list);
 
-        editor->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+        cb_editor->setSizeAdjustPolicy(QComboBox::AdjustToContents);
 
         //put the protocols from the packet first in the combo box
         foreach (table_ui_name, packet_list) {
-            editor->addItem(table_ui_name, table_ui_name);
+            cb_editor->addItem(table_ui_name, table_ui_name);
         }
         if (packet_list.count() > 0) {
-            editor->insertSeparator(packet_list.count());
+            cb_editor->insertSeparator(packet_list.count());
         }
 
         //put the rest of the protocols in the combo box
@@ -163,20 +164,20 @@ QWidget* DecodeAsDelegate::createEditor(QWidget *parentWidget, const QStyleOptio
         std::sort(da_list.begin(), da_list.end());
 
         foreach (table_ui_name, da_list) {
-            editor->addItem(table_ui_name, table_ui_name);
+            cb_editor->addItem(table_ui_name, table_ui_name);
         }
 
         //Make sure the combo box is at least as wide as the column
         QTreeView* parentTree = (QTreeView*)parent();
         int protoColWidth = parentTree->columnWidth(index.column());
-        if (protoColWidth > editor->size().width())
-            editor->setFixedWidth(protoColWidth);
+        if (protoColWidth > cb_editor->size().width())
+            cb_editor->setFixedWidth(protoColWidth);
 
-        return editor;
+        editor = cb_editor;
         }
     case DecodeAsModel::colSelector:
         {
-        QComboBox *editor = NULL;
+        QComboBox *cb_editor = NULL;
         const gchar *proto_name = NULL;
         bool edt_present = cap_file_ && cap_file_->edt;
         gint8 curr_layer_num_saved = edt_present ? cap_file_->edt->pi.curr_layer_num : 0;
@@ -200,17 +201,17 @@ QWidget* DecodeAsDelegate::createEditor(QWidget *parentWidget, const QStyleOptio
                     if (entry->num_items > 1)
                     {
                         //only create a combobox if there is a choice of values, otherwise it looks funny
-                        editor = new QComboBox(parentWidget);
+                        cb_editor = new QComboBox(parentWidget);
 
                         //Don't limit user to just what's in combo box
-                        editor->setEditable(true);
+                        cb_editor->setEditable(true);
 
-                        editor->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+                        cb_editor->setSizeAdjustPolicy(QComboBox::AdjustToContents);
 
                         //add the current value of the column
                         const QString& current_value = index.model()->data(index, Qt::EditRole).toString();
                         if (!current_value.isEmpty())
-                            editor->addItem(current_value);
+                            cb_editor->addItem(current_value);
 
                         //get the value(s) from the packet
                         for (uint ni = 0; ni < entry->num_items; ni++) {
@@ -218,17 +219,17 @@ QWidget* DecodeAsDelegate::createEditor(QWidget *parentWidget, const QStyleOptio
                                 QString entryStr = DecodeAsModel::entryString(entry->table_name,
                                                                         entry->values[ni].build_values[0](&cap_file_->edt->pi));
                                 //don't duplicate entries
-                                if (editor->findText(entryStr) < 0)
-                                    editor->addItem(entryStr);
+                                if (cb_editor->findText(entryStr) < 0)
+                                    cb_editor->addItem(entryStr);
                             }
                         }
-                        editor->setCurrentIndex(entry->default_index_value);
+                        cb_editor->setCurrentIndex(entry->default_index_value);
 
                         //Make sure the combo box is at least as wide as the column
                         QTreeView* parentTree = (QTreeView*)parent();
                         int protoColWidth = parentTree->columnWidth(index.column());
-                        if (protoColWidth > editor->size().width())
-                            editor->setFixedWidth(protoColWidth);
+                        if (protoColWidth > cb_editor->size().width())
+                            cb_editor->setFixedWidth(protoColWidth);
 
                     }
                 }
@@ -241,18 +242,19 @@ QWidget* DecodeAsDelegate::createEditor(QWidget *parentWidget, const QStyleOptio
         }
 
         //if there isn't a need for a combobox, just let user have a text box for direct edit
-        if (editor == NULL)
-            return QStyledItemDelegate::createEditor(parentWidget, option, index);
-
-        return editor;
+        if (cb_editor) {
+            editor = cb_editor;
+        } else {
+            editor = QStyledItemDelegate::createEditor(parentWidget, option, index);
+        }
         }
 
     case DecodeAsModel::colProtocol:
         {
-        QComboBox *editor = new QComboBox(parentWidget);
+        QComboBox *cb_editor = new QComboBox(parentWidget);
         QMap<QString, dissector_info_t*> protocols;
 
-        editor->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+        cb_editor->setSizeAdjustPolicy(QComboBox::AdjustToContents);
 
         for (GList *cur = decode_as_list; cur; cur = cur->next) {
             decode_as_t *entry = (decode_as_t *) cur->data;
@@ -262,27 +264,30 @@ QWidget* DecodeAsDelegate::createEditor(QWidget *parentWidget, const QStyleOptio
             }
         }
 
-        editor->addItem(DECODE_AS_NONE);
-        editor->insertSeparator(editor->count());
+        cb_editor->addItem(DECODE_AS_NONE);
+        cb_editor->insertSeparator(cb_editor->count());
 
         //QMap already sorts the keys (protocols) alphabetically
         QMap<QString, dissector_info_t*>::iterator protocol;
         for (protocol = protocols.begin(); protocol != protocols.end(); ++protocol)
         {
-            editor->addItem(protocol.key(), VariantPointer<dissector_info_t>::asQVariant(protocol.value()));
+            cb_editor->addItem(protocol.key(), VariantPointer<dissector_info_t>::asQVariant(protocol.value()));
         }
 
         //Make sure the combo box is at least as wide as the column
         QTreeView* parentTree = (QTreeView*)parent();
         int protoColWidth = parentTree->columnWidth(index.column());
-        if (protoColWidth > editor->size().width())
-            editor->setFixedWidth(protoColWidth);
+        if (protoColWidth > cb_editor->size().width())
+            cb_editor->setFixedWidth(protoColWidth);
 
-        return editor;
+        editor = cb_editor;
         }
     }
 
-    return NULL;
+    if (editor) {
+        editor->setAutoFillBackground(true);
+    }
+    return editor;
 }
 
 void DecodeAsDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const

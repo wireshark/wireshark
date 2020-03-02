@@ -42,8 +42,13 @@ QWidget *AdvancedPrefDelegate::createEditor(QWidget *parent, const QStyleOptionV
     case AdvancedPrefsModel::colValue:
         pref = indexToPref(index);
         WiresharkPreference * wspref = PreferenceManager::instance()->getPreference(pref);
-        if (wspref)
-            return wspref->editor(parent, option, index);
+        if (wspref) {
+            QWidget *editor = wspref->editor(parent, option, index);
+            if (editor) {
+                editor->setAutoFillBackground(true);
+            }
+            return editor;
+        }
         break;
     }
 
