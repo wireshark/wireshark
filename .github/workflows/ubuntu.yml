@@ -10,7 +10,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Install deps
-        run: sudo tools/debian-setup.sh --install-optional --install-test-deps python3-pip -y
+        run: sudo tools/debian-setup.sh --install-optional --install-test-deps --install-deb-deps python3-pip -y
       - name: Mkdir
         run: mkdir build
       - name: Cmake
@@ -33,3 +33,14 @@ jobs:
           PYTEST_ADDOPTS: --skip-missing-programs=rawshark
         run: pytest
         working-directory: build
+      - name: Build debian pkg
+        run: dpkg-buildpackage -b -us -uc -jauto
+      - name: Move deb packages
+        run: |
+          mkdir deb
+          mv ../*.deb deb
+      - name: Upload deb packages
+        uses: actions/upload-artifact@v1
+        with:
+          name: packages
+          path: deb
