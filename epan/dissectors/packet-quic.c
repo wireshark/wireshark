@@ -949,15 +949,16 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
 {
     proto_item *ti_ft, *ti_ftflags, *ti;
     proto_tree *ft_tree, *ftflags_tree;
-    guint32 frame_type;
+    guint64 frame_type;
+    guint32 lenft;
     guint   orig_offset = offset;
 
     ti_ft = proto_tree_add_item(quic_tree, hf_quic_frame, tvb, offset, 1, ENC_NA);
     ft_tree = proto_item_add_subtree(ti_ft, ett_quic_ft);
 
-    ti_ftflags = proto_tree_add_item_ret_uint(ft_tree, hf_quic_frame_type, tvb, offset, 1, ENC_NA, &frame_type);
-    proto_item_set_text(ti_ft, "%s", rval_to_str(frame_type, quic_frame_type_vals, "Unknown"));
-    offset += 1;
+    ti_ftflags = proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type, tvb, offset, -1, ENC_VARINT_QUIC, &frame_type, &lenft);
+    proto_item_set_text(ti_ft, "%s", rval_to_str_const((guint32)frame_type, quic_frame_type_vals, "Unknown"));
+    offset += lenft;
 
     switch(frame_type){
         case FT_PADDING:{
@@ -1332,7 +1333,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         }
         break;
         default:
-            expert_add_info_format(pinfo, ti_ft, &ei_quic_ft_unknown, "Unknown Frame Type %u", frame_type);
+            expert_add_info_format(pinfo, ti_ft, &ei_quic_ft_unknown, "Unknown Frame Type %#" G_GINT64_MODIFIER "x", frame_type);
         break;
     }
 
@@ -2809,7 +2810,7 @@ proto_register_quic(void)
         },
         { &hf_quic_frame_type,
           { "Frame Type", "quic.frame_type",
-            FT_UINT8, BASE_RANGE_STRING | BASE_HEX, RVALS(quic_frame_type_vals), 0x0,
+            FT_UINT64, BASE_RANGE_STRING | BASE_HEX, RVALS(quic_frame_type_vals), 0x0,
             NULL, HFILL }
         },
 
