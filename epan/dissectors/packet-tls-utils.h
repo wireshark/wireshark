@@ -167,6 +167,7 @@ typedef enum {
 #define SSL_HND_QUIC_TP_ACTIVE_CONNECTION_ID_LIMIT          14
 #define SSL_HND_QUIC_TP_MAX_DATAGRAM_FRAME_SIZE             32
 #define SSL_HND_QUIC_TP_LOSS_BITS                           4183
+#define SSL_HND_QUIC_TP_ENABLE_TIME_STAMP                   29015 /* https://tools.ietf.org/html/draft-huitema-quic-ts-02 */
 #define SSL_HND_QUIC_TP_MIN_ACK_DELAY                       56858 /* https://tools.ietf.org/html/draft-iyengar-quic-delayed-ack-00 */
 /*
  * Lookup tables

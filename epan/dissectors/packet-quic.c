@@ -16,6 +16,7 @@
  * https://tools.ietf.org/html/draft-ietf-quic-tls-27
  * https://tools.ietf.org/html/draft-ietf-quic-invariants-07
  * https://tools.ietf.org/html/draft-pauly-quic-datagram-05
+ * https://tools.ietf.org/html/draft-huitema-quic-ts-02
  *
  * Currently supported QUIC version(s): draft -21, draft -22, draft -23,
  * draft-24, draft-25, draft-26, draft-27.
@@ -148,6 +149,7 @@ static int hf_quic_dg = -1;
 static int hf_quic_af_sequence_number = -1;
 static int hf_quic_af_packet_tolerance = -1;
 static int hf_quic_af_update_max_ack_delay = -1;
+static int hf_quic_ts = -1;
 
 static expert_field ei_quic_connection_unknown = EI_INIT;
 static expert_field ei_quic_ft_unknown = EI_INIT;
@@ -390,6 +392,7 @@ static const value_string quic_long_packet_type_vals[] = {
     { 0, NULL }
 };
 
+/* https://github.com/quicwg/base-drafts/wiki/Temporary-IANA-Registry#quic-frame-types */
 #define FT_PADDING              0x00
 #define FT_PING                 0x01
 #define FT_ACK                  0x02
@@ -424,6 +427,7 @@ static const value_string quic_long_packet_type_vals[] = {
 #define FT_DATAGRAM             0x30
 #define FT_DATAGRAM_LENGTH      0x31
 #define FT_ACK_FREQUENCY        0xAF
+#define FT_TIME_STAMP           0x02F5
 
 static const range_string quic_frame_type_vals[] = {
     { 0x00, 0x00,   "PADDING" },
@@ -451,6 +455,7 @@ static const range_string quic_frame_type_vals[] = {
     { 0x1e, 0x1e,   "HANDSHAKE_DONE" },
     { 0x30, 0x31,   "DATAGRAM" },
     { 0xAF, 0xAF,   "ACK_FREQUENCY" },
+    { 0x02F5, 0x02F5, "TIME_STAMP" },
     { 0,    0,        NULL },
 };
 
@@ -1353,6 +1358,14 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
 
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_af_update_max_ack_delay, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &length);
             offset += (guint32)length;
+        }
+        break;
+        case FT_TIME_STAMP:{
+            guint32 length;
+
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_ts, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &length);
+            offset += (guint32)length;
+
         }
         break;
         default:
@@ -3126,6 +3139,11 @@ proto_register_quic(void)
             { "Update Max Ack Delay", "quic.af.update_max_ack_delay",
               FT_UINT64, BASE_DEC, NULL, 0x0,
               "Representing an update to the peer's 'max_ack_delay' transport parameter", HFILL }
+        },
+        { &hf_quic_ts,
+            { "Time Stamp", "quic.ts",
+              FT_UINT64, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
         },
     };
 
