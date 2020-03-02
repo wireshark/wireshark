@@ -9,8 +9,16 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.8
       - name: Install deps
-        run: ./tools/macos-setup-brew.sh
+        run: ./tools/macos-setup-brew.sh ruby
+      - name: Install dmgbuild
+        run: pip3 install dmgbuild
+      - name: Install asciidoctor
+        run: gem install asciidoctor
       - name: Mkdir
         run: mkdir build
       - name: Cmake
@@ -22,10 +30,6 @@ jobs:
       - name: Build test-programs
         run: ninja test-programs
         working-directory: build
-      - name: Set up Python 3.8
-        uses: actions/setup-python@v1
-        with:
-          python-version: 3.8
       - name: Install pytest
         run: pip install pytest pytest-xdist
       - name: Run tests
@@ -33,3 +37,15 @@ jobs:
           PYTEST_ADDOPTS: --skip-missing-programs=rawshark
         run: pytest
         working-directory: build
+      - name: Build dmg
+        run: ninja dmg_package
+        working-directory: build
+      - name: Move dmg package
+        run: |
+          mkdir dmg
+          mv build/run/*dmg dmg/
+      - name: Upload dmg packages
+        uses: actions/upload-artifact@v1
+        with:
+          name: packages
+          path: dmg
