@@ -65,6 +65,7 @@ QWidget * ExtArgTimestamp::createEditor(QWidget * parent)
     tsBox = new QDateTimeEdit(ts, parent);
     tsBox->setDisplayFormat(QLocale::system().dateTimeFormat());
     tsBox->setCalendarPopup(true);
+    tsBox->setAutoFillBackground(true);
 
     if (_argument->tooltip != NULL)
         tsBox->setToolTip(QString().fromUtf8(_argument->tooltip));
