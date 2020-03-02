@@ -750,18 +750,24 @@ dissect_diameter_3gpp_af_application_identifier(tvbuff_t *tvb, packet_info *pinf
     proto_item *item;
     int offset = 0;
     int length = tvb_reported_length(tvb);
+    int new_len, start_len = length;
     diam_sub_dis_t *diam_sub_dis = (diam_sub_dis_t*)data;
+    guint8 tempchar;
 
-    if (tree){
-        if (!tvb_ascii_isprint(tvb, 0, length))
-            return length;
+    /* Skipp NULL trermination and/or padding at the end */
+    for (new_len = length; new_len > start_len - 4 &&
+        ((tempchar = tvb_get_guint8(tvb, new_len - 1)) == 0); new_len--);
 
-        item = proto_tree_add_item_ret_string(tree, hf_diameter_3gpp_af_application_identifier, tvb, offset, length,
-                                                ENC_UTF_8 | ENC_NA, wmem_packet_scope(), (const guint8**)&diam_sub_dis->avp_str);
-        proto_item_set_generated(item);
-    }
+    length = new_len;
 
-    return length;
+    if (!tvb_ascii_isprint(tvb, 0, length))
+        return start_len;
+
+    item = proto_tree_add_item_ret_string(tree, hf_diameter_3gpp_af_application_identifier, tvb, offset, length,
+                                            ENC_UTF_8 | ENC_NA, wmem_packet_scope(), (const guint8**)&diam_sub_dis->avp_str);
+    proto_item_set_generated(item);
+
+    return start_len;
 }
 
 /*
