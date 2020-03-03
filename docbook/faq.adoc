@@ -650,7 +650,7 @@ caused the problem. When capturing packets, Wireshark normally writes
 captured packets to a temporary file, which will probably be in `/tmp`
 or `/var/tmp` on UNIX-flavored OSes, `\TEMP` on the main system disk
 (normally `\Documents and Settings\`your login name
-`\Local Settings\Temp` on the main system disk on Windows Windows XP and
+`\Local Settings\Temp` on the main system disk on Windows XP and
 Server 2003, and `\Users\your login name\AppData\Local\Temp` on the main
 system disk on Windows Vista and later, so the capture file will
 probably be there. If you are capturing on a single interface, it will
@@ -671,8 +671,8 @@ information (e.g., passwords), then please do not send it.
 [[capprobwin]]
 === I'm running Wireshark on Windows; why does some network interface on my machine not show up in the list of interfaces in the "Interface:" field in the dialog box popped up by "Capture->Start", and/or why does Wireshark give me an error if I try to capture on that interface?
 
-Wireshark relies on the Npcap library, on the Npcap device driver,
-and and on the facilities that come with the OS on which it's running in
+Wireshark relies on the Npcap library, the Npcap device driver,
+and the facilities that come with the OS on which it's running in
 order to do captures.
 
 Therefore, if the OS, the Npcap library, or the Npcap driver don't
