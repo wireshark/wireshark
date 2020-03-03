@@ -15,8 +15,12 @@
  * https://tools.ietf.org/html/draft-ietf-quic-transport-27
  * https://tools.ietf.org/html/draft-ietf-quic-tls-27
  * https://tools.ietf.org/html/draft-ietf-quic-invariants-07
+ *
+ * Extension:
+ * https://tools.ietf.org/html/draft-ferrieuxhamchaoui-quic-lossbit-03
  * https://tools.ietf.org/html/draft-pauly-quic-datagram-05
  * https://tools.ietf.org/html/draft-huitema-quic-ts-02
+ * https://tools.ietf.org/html/draft-iyengar-quic-delayed-ack-00
  *
  * Currently supported QUIC version(s): draft -21, draft -22, draft -23,
  * draft-24, draft-25, draft-26, draft-27.
