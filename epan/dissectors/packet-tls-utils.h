@@ -150,25 +150,26 @@ typedef enum {
 #define SSL_HND_CERT_STATUS_TYPE_OCSP_MULTI  2
 #define SSL_HND_CERT_TYPE_RAW_PUBLIC_KEY     2
 
-#define SSL_HND_QUIC_TP_ORIGINAL_CONNECTION_ID              0
-#define SSL_HND_QUIC_TP_MAX_IDLE_TIMEOUT                    1
-#define SSL_HND_QUIC_TP_STATELESS_RESET_TOKEN               2
-#define SSL_HND_QUIC_TP_MAX_PACKET_SIZE                     3
-#define SSL_HND_QUIC_TP_INITIAL_MAX_DATA                    4
-#define SSL_HND_QUIC_TP_INITIAL_MAX_STREAM_DATA_BIDI_LOCAL  5
-#define SSL_HND_QUIC_TP_INITIAL_MAX_STREAM_DATA_BIDI_REMOTE 6
-#define SSL_HND_QUIC_TP_INITIAL_MAX_STREAM_DATA_UNI         7
-#define SSL_HND_QUIC_TP_INITIAL_MAX_STREAMS_BIDI            8
-#define SSL_HND_QUIC_TP_INITIAL_MAX_STREAMS_UNI             9
-#define SSL_HND_QUIC_TP_ACK_DELAY_EXPONENT                  10
-#define SSL_HND_QUIC_TP_MAX_ACK_DELAY                       11
-#define SSL_HND_QUIC_TP_DISABLE_ACTIVE_MIGRATION            12
-#define SSL_HND_QUIC_TP_PREFERRED_ADDRESS                   13
-#define SSL_HND_QUIC_TP_ACTIVE_CONNECTION_ID_LIMIT          14
-#define SSL_HND_QUIC_TP_MAX_DATAGRAM_FRAME_SIZE             32
-#define SSL_HND_QUIC_TP_LOSS_BITS                           4183
-#define SSL_HND_QUIC_TP_ENABLE_TIME_STAMP                   29015 /* https://tools.ietf.org/html/draft-huitema-quic-ts-02 */
-#define SSL_HND_QUIC_TP_MIN_ACK_DELAY                       56858 /* https://tools.ietf.org/html/draft-iyengar-quic-delayed-ack-00 */
+/* https://github.com/quicwg/base-drafts/wiki/Temporary-IANA-Registry#quic-transport-parameters */
+#define SSL_HND_QUIC_TP_ORIGINAL_CONNECTION_ID              0x00
+#define SSL_HND_QUIC_TP_MAX_IDLE_TIMEOUT                    0x01
+#define SSL_HND_QUIC_TP_STATELESS_RESET_TOKEN               0x02
+#define SSL_HND_QUIC_TP_MAX_PACKET_SIZE                     0x03
+#define SSL_HND_QUIC_TP_INITIAL_MAX_DATA                    0x04
+#define SSL_HND_QUIC_TP_INITIAL_MAX_STREAM_DATA_BIDI_LOCAL  0x05
+#define SSL_HND_QUIC_TP_INITIAL_MAX_STREAM_DATA_BIDI_REMOTE 0x06
+#define SSL_HND_QUIC_TP_INITIAL_MAX_STREAM_DATA_UNI         0x07
+#define SSL_HND_QUIC_TP_INITIAL_MAX_STREAMS_BIDI            0x08
+#define SSL_HND_QUIC_TP_INITIAL_MAX_STREAMS_UNI             0x09
+#define SSL_HND_QUIC_TP_ACK_DELAY_EXPONENT                  0x0a
+#define SSL_HND_QUIC_TP_MAX_ACK_DELAY                       0x0b
+#define SSL_HND_QUIC_TP_DISABLE_ACTIVE_MIGRATION            0x0c
+#define SSL_HND_QUIC_TP_PREFERRED_ADDRESS                   0x0d
+#define SSL_HND_QUIC_TP_ACTIVE_CONNECTION_ID_LIMIT          0x0e
+#define SSL_HND_QUIC_TP_MAX_DATAGRAM_FRAME_SIZE             0x20 /* https://tools.ietf.org/html/draft-pauly-quic-datagram-05 */
+#define SSL_HND_QUIC_TP_LOSS_BITS                           0x1057 /* https://tools.ietf.org/html/draft-ferrieuxhamchaoui-quic-lossbits-03 */
+#define SSL_HND_QUIC_TP_ENABLE_TIME_STAMP                   0x7157 /* https://tools.ietf.org/html/draft-huitema-quic-ts-02 */
+#define SSL_HND_QUIC_TP_MIN_ACK_DELAY                       0xde1a /* https://tools.ietf.org/html/draft-iyengar-quic-delayed-ack-00 */
 /*
  * Lookup tables
  */
