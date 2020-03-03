@@ -31,6 +31,9 @@
 /* Forward declarations */
 void proto_register_afs(void);
 
+/* Defragment (reassemble) fragmented AFS traffic */
+static gboolean afs_defragment = FALSE;
+
 #define AFS_PORT_FS     7000
 #define AFS_PORT_CB     7001
 #define AFS_PORT_PROT   7002
@@ -2886,7 +2889,7 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 	afs_tree = proto_item_add_subtree(ti, ett_afs);
 
 	save_fragmented = pinfo->fragmented;
-	if( (! (rxinfo->flags & RX_LAST_PACKET) || rxinfo->seq > 1 )) {   /* Fragmented */
+	if( (afs_defragment && (!(rxinfo->flags & RX_LAST_PACKET) || rxinfo->seq > 1 ))) {   /* Fragmented */
 		tvbuff_t * new_tvb = NULL;
 		fragment_head * frag_msg = NULL;
 		guint32 afs_seqid = rxinfo->callnumber ^ rxinfo->cid;
@@ -2909,7 +2912,6 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 			return tvb_captured_length(tvb);
 		}
 	}
-
 	pinfo->fragmented = save_fragmented;
 
 	if (tree) {
@@ -3605,6 +3607,8 @@ proto_register_afs(void)
 		&ett_afs_cm_capabilities,
 	};
 
+	module_t *afs_module;
+
 	proto_afs = proto_register_protocol("Andrew File System (AFS)",
 	    "AFS (RX)", "afs");
 	proto_register_field_array(proto_afs, hf, array_length(hf));
@@ -3615,7 +3619,13 @@ proto_register_afs(void)
 
 	afs_request_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), afs_hash, afs_equal);
 
+	afs_module = prefs_register_protocol(proto_afs, NULL);
+	prefs_register_bool_preference(afs_module, "defragment",
+		    "Reassemble fragmented AFS PDUs",
+		        "Whether fragmented AFS PDUs should be reassembled", &afs_defragment);
+
 	register_dissector("afs", dissect_afs, proto_afs);
+
 }
 
 /*
