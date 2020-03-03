@@ -1231,17 +1231,16 @@ Dot11DecryptRsnaMng(
         return DOT11DECRYPT_RET_UNSUCCESS;
     }
 
-    /* copy the decrypted data into the decrypt buffer GCS*/
-    memcpy(decrypt_data, try_data, *decrypt_len);
-    g_free(try_data);
-
     /* remove protection bit */
     decrypt_data[1]&=0xBF;
 
     /* remove TKIP/CCMP header */
     *decrypt_len-=8;
-    memmove(decrypt_data + mac_header_len,
-            decrypt_data + mac_header_len + 8, *decrypt_len - mac_header_len);
+
+    /* copy the decrypted data into the decrypt buffer GCS*/
+    memcpy(decrypt_data + mac_header_len, try_data + mac_header_len + 8,
+           *decrypt_len - mac_header_len);
+    g_free(try_data);
 
     Dot11DecryptCopyKey(sa, key);
     return DOT11DECRYPT_RET_SUCCESS;
