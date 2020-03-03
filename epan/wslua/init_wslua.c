@@ -528,7 +528,7 @@ static gboolean lua_load_script(const gchar* filename, const gchar* dirname, con
     lua_settop(L,0);
 
     lua_pushcfunction(L, error_handler_with_callback);
-    /* The source argument should start with with '@' to indicate a file. */
+    /* The source argument should start with '@' to indicate a file. */
     lua_pushfstring(L, "@%s", filename);
 
 #if LUA_VERSION_NUM >= 502

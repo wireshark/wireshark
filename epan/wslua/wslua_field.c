@@ -510,7 +510,7 @@ WSLUA_FUNCTION wslua_all_field_infos(lua_State* L) {
 
 WSLUA_CLASS_DEFINE(Field,FAIL_ON_NULL("Field"));
 /*
-   A Field extractor to to obtain field values. A `Field` object can only be created *outside* of
+   A Field extractor to obtain field values. A `Field` object can only be created *outside* of
    the callback functions of dissectors, post-dissectors, heuristic-dissectors, and taps.
 
    Once created, it is used *inside* the callback functions, to generate a `FieldInfo` object.

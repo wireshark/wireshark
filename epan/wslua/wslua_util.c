@@ -12,7 +12,7 @@
 
 #include "config.h"
 
-/* WSLUA_MODULE Utility Utility Functions */
+/* WSLUA_MODULE Utility Functions */
 
 #include "wslua.h"
 #include <math.h>
