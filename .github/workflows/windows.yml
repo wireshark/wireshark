@@ -16,9 +16,7 @@ jobs:
           choco install strawberryperl
           echo "##[add-path]C:\strawberry\c\bin;C:\strawberry\perl\site\bin;C:\strawberry\perl\bin"
       - name: Install Qt
-        # Using ouuan's due to this bug
-        # https://github.com/jurplel/install-qt-action/issues/27
-        uses: ouuan/install-qt-action@v2.3.1
+        uses: jurplel/install-qt-action@v2
       - name: Mkdir
         run: mkdir build
       - name: Cmake
