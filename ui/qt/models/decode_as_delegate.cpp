@@ -174,6 +174,7 @@ QWidget* DecodeAsDelegate::createEditor(QWidget *parentWidget, const QStyleOptio
             cb_editor->setFixedWidth(protoColWidth);
 
         editor = cb_editor;
+        break;
         }
     case DecodeAsModel::colSelector:
         {
@@ -247,6 +248,7 @@ QWidget* DecodeAsDelegate::createEditor(QWidget *parentWidget, const QStyleOptio
         } else {
             editor = QStyledItemDelegate::createEditor(parentWidget, option, index);
         }
+        break;
         }
 
     case DecodeAsModel::colProtocol:
@@ -281,6 +283,7 @@ QWidget* DecodeAsDelegate::createEditor(QWidget *parentWidget, const QStyleOptio
             cb_editor->setFixedWidth(protoColWidth);
 
         editor = cb_editor;
+        break;
         }
     }
 
