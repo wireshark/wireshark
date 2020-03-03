@@ -1286,11 +1286,14 @@ _packaging/rpm/wireshark.spec.in_.
 ==== macOS: .dmg Packages
 
 The macOS Package is built using macOS packaging tools, based on information found in the source tree under _packaging/macosx_.
-It requires Asciidoctor and https://pypi.org/project/dmgbuild/[dmgbuild].
+It requires https://asciidoctor.org/[Asciidoctor] and https://pypi.org/project/dmgbuild/[dmgbuild].
+
 In your build directory, type:
 
 [source,sh]
 ----
+$ ninja dmg_package
+# ...or, if you're using GNU make...
 $ make dmg_package
 ----
 
