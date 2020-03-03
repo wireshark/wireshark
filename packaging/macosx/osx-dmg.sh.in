@@ -2,6 +2,8 @@
 #
 # The script creates a disk image using the dmgbuild utility and signs it.
 
+set -e
+
 # Defaults
 dmgbuild="@DMGBUILD_EXECUTABLE@"
 version="@VERSION@"
@@ -26,6 +28,11 @@ Icons are positioned and the background image is set in
 dmgbuild-settings.py.in.
 "
 }
+
+if [ ! -x "$dmgbuild" ] ; then
+	echo "Error: \"$dmgbuild\" not found."
+	exit 1
+fi
 
 # Parse command line arguments
 while [ "$1" != "" ]
