@@ -45,6 +45,7 @@ static gboolean afs_defragment = FALSE;
 #define AFS_PORT_UPDATE 7008
 #define AFS_PORT_RMTSYS 7009
 #define AFS_PORT_BACKUP 7021
+#define AFS_PORT_BUTC	7025		/* and up */
 
 #ifndef AFSNAMEMAX
 #define AFSNAMEMAX 256
@@ -159,6 +160,7 @@ static int hf_afs_update = -1;
 static int hf_afs_rmtsys = -1;
 static int hf_afs_ubik = -1;
 static int hf_afs_backup = -1;
+static int hf_afs_butc = -1;
 static int hf_afs_service = -1;
 
 static int hf_afs_fs_opcode = -1;
@@ -173,6 +175,7 @@ static int hf_afs_update_opcode = -1;
 static int hf_afs_rmtsys_opcode = -1;
 static int hf_afs_ubik_opcode = -1;
 static int hf_afs_backup_opcode = -1;
+static int hf_afs_butc_opcode = -1;
 
 static int hf_afs_fs_fid_volume = -1;
 static int hf_afs_fs_fid_vnode = -1;
@@ -371,6 +374,7 @@ static int hf_afs_prot_maxuid = -1;
 static int hf_afs_prot_maxgid = -1;
 
 static int hf_afs_backup_errcode = -1;
+static int hf_afs_butc_errcode = -1;
 
 /* static int hf_afs_ubik_errcode = -1; */
 static int hf_afs_ubik_version_epoch = -1;
@@ -1122,6 +1126,42 @@ static const value_string rmtsys_req[] = {
 static value_string_ext rmtsys_req_ext = VALUE_STRING_EXT_INIT(rmtsys_req);
 
 static const value_string backup_req[] = {
+	{ 0,		"add-volume" },
+	{ 1,		"create-dump" },
+	{ 2,		"delete-dump" },
+	{ 3,		"delete-tape" },
+	{ 4,		"delete-vdp" },
+	{ 5,		"find-clone" },
+	{ 6,		"find-dump" },
+	{ 7,		"find-latest-dump" },
+	{ 8,		"make-dump-appended" },
+	{ 9,		"find-last-tape" },
+	{ 10,		"finish-dump" },
+	{ 11,		"finish-tape" },
+	{ 12,		"get-dumps" },
+	{ 13,		"get-tapes" },
+	{ 14,		"get-volumes" },
+	{ 15,		"use-tape" },
+	{ 16,		"get-text" },
+	{ 17,		"get-text-version" },
+	{ 18,		"save-text" },
+	{ 19,		"free-all-locks" },
+	{ 20,		"free-lock" },
+	{ 21,		"get-instance-id" },
+	{ 22,		"get-lock" },
+	{ 23,		"db-verify" },
+	{ 24,		"dump-db" },
+	{ 25,		"restore-db-header" },
+	{ 26,		"t-get-version" },
+	{ 27,		"t-dump-hash-table" },
+	{ 28,		"t-dump-database" },
+	{ 29,		"add-volumes" },
+	{ 30,		"list-dumps" },
+	{ 0,		NULL },
+};
+static value_string_ext backup_req_ext = VALUE_STRING_EXT_INIT(backup_req);
+
+static const value_string butc_req[] = {
 	{ 100,		"perform-dump" },
 	{ 101,		"perform-restore" },
 	{ 102,		"check-dump" },
@@ -1143,7 +1183,7 @@ static const value_string backup_req[] = {
 	{ 118,		"delete-dump" },
 	{ 0,		NULL },
 };
-static value_string_ext backup_req_ext = VALUE_STRING_EXT_INIT(backup_req);
+static value_string_ext butc_req_ext = VALUE_STRING_EXT_INIT(butc_req);
 
 static const value_string ubik_req[] = {
 	{ 10000,	"vote-beacon" },
@@ -1311,6 +1351,7 @@ static const value_string port_types[] = {
 	{ AFS_PORT_UPDATE, "Update? Server" },
 	{ AFS_PORT_RMTSYS, "Rmtsys? Server" },
 	{ AFS_PORT_BACKUP, "Backup Server" },
+	{ AFS_PORT_BUTC,   "Backup Tape Controller" },
 	{ 0, NULL }
 };
 static value_string_ext port_types_ext = VALUE_STRING_EXT_INIT(port_types);
@@ -1327,6 +1368,7 @@ static const value_string port_types_short[] = {
 	{ AFS_PORT_UPDATE, "UPD" },
 	{ AFS_PORT_RMTSYS, "RMT" },
 	{ AFS_PORT_BACKUP, "BKUP" },
+	{ AFS_PORT_BUTC,   "BUTC" },
 	{ 0, NULL }
 };
 static value_string_ext port_types_short_ext = VALUE_STRING_EXT_INIT(port_types_short);
@@ -2672,7 +2714,7 @@ dissect_ubik_request(ptvcursor_t *cursor, struct rxinfo *rxinfo _U_, int opcode)
  * BACKUP Helpers
  */
 static void
-dissect_backup_reply(ptvcursor_t *cursor, struct rxinfo *rxinfo, int opcode)
+dissect_backup_reply(ptvcursor_t *cursor, struct rxinfo *rxinfo, int opcode _U_)
 {
 	if ( rxinfo->type == RX_PACKET_TYPE_DATA )
 	{
@@ -2687,7 +2729,7 @@ dissect_backup_reply(ptvcursor_t *cursor, struct rxinfo *rxinfo, int opcode)
 }
 
 static void
-dissect_backup_request(ptvcursor_t *cursor, struct rxinfo *rxinfo _U_, int opcode)
+dissect_backup_request(ptvcursor_t *cursor, struct rxinfo *rxinfo _U_, int opcode _U_)
 {
 	ptvcursor_advance(cursor, 4); /* skip the opcode */
 
@@ -2697,6 +2739,30 @@ dissect_backup_request(ptvcursor_t *cursor, struct rxinfo *rxinfo _U_, int opcod
 }
 
 
+static void
+dissect_butc_reply(ptvcursor_t *cursor, struct rxinfo *rxinfo, int opcode _U_)
+{
+	if ( rxinfo->type == RX_PACKET_TYPE_DATA )
+	{
+		switch ( opcode )
+		{
+		}
+	}
+	else if ( rxinfo->type == RX_PACKET_TYPE_ABORT )
+	{
+		ptvcursor_add(cursor, hf_afs_butc_errcode, 4, ENC_BIG_ENDIAN);
+	}
+}
+
+static void
+dissect_butc_request(ptvcursor_t *cursor, struct rxinfo *rxinfo _U_, int opcode _U_)
+{
+	ptvcursor_advance(cursor, 4); /* skip the opcode */
+
+	switch ( opcode )
+	{
+	}
+}
 /*
  * Dissection routines
  */
@@ -2850,6 +2916,14 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 			node = hf_afs_backup_opcode;
 			vals_ext = &backup_req_ext;
 			dissector = reply ? dissect_backup_reply : dissect_backup_request;
+			break;
+		default:
+			if (port >= AFS_PORT_BUTC) {
+				typenode = hf_afs_butc;
+				node = hf_afs_butc_opcode;
+				vals_ext = &butc_req_ext;
+				dissector = reply ? dissect_butc_reply : dissect_butc_request;
+			}
 			break;
 	}
 
@@ -3018,6 +3092,8 @@ proto_register_afs(void)
 		FT_BOOLEAN, BASE_NONE, 0, 0x0, NULL, HFILL }},
 	{ &hf_afs_backup, { "Backup", "afs.backup",
 		FT_BOOLEAN, BASE_NONE, 0, 0x0, "Backup Server", HFILL }},
+	{ &hf_afs_butc, { "BackupTC", "afs.butc",
+		FT_BOOLEAN, BASE_NONE, 0, 0x0, "Backup Tape Controller", HFILL }},
 	{ &hf_afs_service, { "Service", "afs.service",
 		FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_afs_fs_opcode, { "Operation", "afs.fs.opcode",
@@ -3053,6 +3129,9 @@ proto_register_afs(void)
 	{ &hf_afs_backup_opcode, { "Operation", "afs.backup.opcode",
 		FT_UINT32, BASE_DEC|BASE_EXT_STRING,
 		&backup_req_ext, 0, NULL, HFILL }},
+	{ &hf_afs_butc_opcode, { "Operation", "afs.butc.opcode",
+		FT_UINT32, BASE_DEC|BASE_EXT_STRING,
+		&butc_req_ext, 0, NULL, HFILL }},
 	{ &hf_afs_ubik_opcode, { "Operation", "afs.ubik.opcode",
 		FT_UINT32, BASE_DEC|BASE_EXT_STRING,
 		&ubik_req_ext, 0, NULL, HFILL }},
@@ -3398,6 +3477,8 @@ proto_register_afs(void)
 
 /* BACKUP Server Fields */
 	{ &hf_afs_backup_errcode, { "Error Code", "afs.backup.errcode",
+		FT_UINT32, BASE_DEC|BASE_EXT_STRING, &afs_errors_ext, 0, NULL, HFILL }},
+	{ &hf_afs_butc_errcode, { "Error Code", "afs.butc.errcode",
 		FT_UINT32, BASE_DEC|BASE_EXT_STRING, &afs_errors_ext, 0, NULL, HFILL }},
 
 /* CB Server Fields */
