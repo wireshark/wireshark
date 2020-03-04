@@ -315,6 +315,8 @@ static int hf_diameter_3gpp_charging_rule_name = -1;
 static int hf_diameter_3gpp_monitoring_key = -1;
 static int hf_diameter_3gpp_mbms_bearer_event = -1;
 static int hf_diameter_3gpp_mbms_bearer_event_bit0 = -1;
+static int hf_diameter_3gpp_mbms_bearer_event_bit1 = -1;
+static int hf_diameter_3gpp_mbms_bearer_event_bit2 = -1;
 static int hf_diameter_3gpp_mbms_bearer_result = -1;
 static int hf_diameter_3gpp_mbms_bearer_result_bit0 = -1;
 static int hf_diameter_3gpp_mbms_bearer_result_bit1 = -1;
@@ -2787,6 +2789,8 @@ dissect_diameter_3gpp_mbms_bearer_event(tvbuff_t *tvb, packet_info *pinfo _U_, p
 {
     static const int *flags[] = {
         &hf_diameter_3gpp_mbms_bearer_event_spare_bits,
+        &hf_diameter_3gpp_mbms_bearer_event_bit2,
+        &hf_diameter_3gpp_mbms_bearer_event_bit1,
         &hf_diameter_3gpp_mbms_bearer_event_bit0,
         NULL
     };
@@ -4767,9 +4771,19 @@ proto_register_diameter_3gpp(void)
             FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000001,
             NULL, HFILL }
         },
+        { &hf_diameter_3gpp_mbms_bearer_event_bit1,
+            { "Bearer Activated", "diameter.3gpp.mbms_bearer_event_bit1",
+            FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000002,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_mbms_bearer_event_bit2,
+            { "Userplane Event", "diameter.3gpp.mbms_bearer_event_bit2",
+            FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000004,
+            NULL, HFILL }
+        },
         { &hf_diameter_3gpp_mbms_bearer_event_spare_bits,
             { "Spare", "diameter.3gpp.mbms_bearer_event_spare",
-            FT_UINT32, BASE_HEX, NULL, 0x0,
+            FT_UINT32, BASE_HEX, NULL, 0xfffffff8,
             NULL, HFILL }
         },
         { &hf_diameter_3gpp_mbms_bearer_result,
