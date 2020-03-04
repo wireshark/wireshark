@@ -101,6 +101,7 @@ static int hf_bthci_cmd_timeout = -1;
 static int hf_bthci_cmd_max_interval_beacon = -1;
 static int hf_bthci_cmd_min_interval_beacon = -1;
 static int hf_bthci_cmd_flags = -1;
+static int hf_bthci_cmd_flow_direction = -1;
 static int hf_bthci_cmd_service_type = -1;
 static int hf_bthci_cmd_token_rate = -1;
 static int hf_bthci_cmd_token_bucket_size = -1;
@@ -2030,6 +2031,12 @@ static const value_string cmd_inquiry_result_filter_condition_types[] = {
     {0, NULL }
 };
 
+static const value_string cmd_flow_directions[] = {
+    {0x00, "Outgoing Flow" },
+    {0x01, "Incoming Flow" },
+    {0, NULL }
+};
+
 static const value_string cmd_service_types[] = {
     {0x00, "No Traffic"},
     {0x01, "Best Effort"},
@@ -3302,6 +3309,8 @@ dissect_link_policy_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
             proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset+=2;
             proto_tree_add_item(tree, hf_bthci_cmd_flags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(tree, hf_bthci_cmd_flow_direction, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
             proto_tree_add_item(tree, hf_bthci_cmd_service_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
@@ -6103,6 +6112,11 @@ proto_register_bthci_cmd(void)
         { &hf_bthci_cmd_flags,
           { "Flags",        "bthci_cmd.flags",
             FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_flow_direction,
+          { "Flow Direction",        "bthci_cmd.flow_direction",
+            FT_UINT8, BASE_HEX, VALS(cmd_flow_directions), 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_service_type,
