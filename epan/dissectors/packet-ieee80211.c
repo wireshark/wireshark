@@ -5209,6 +5209,8 @@ static int hf_ieee80211_ff_dmg_params_cbap_only = -1;
 static int hf_ieee80211_ff_dmg_params_cbap_src = -1;
 static int hf_ieee80211_ff_dmg_params_privacy = -1;
 static int hf_ieee80211_ff_dmg_params_policy = -1;
+static int hf_ieee80211_ff_dmg_params_spec_mgmt = -1;
+static int hf_ieee80211_ff_dmg_params_radio_measure = -1;
 static int hf_ieee80211_ff_cc = -1;
 static int hf_ieee80211_ff_cc_abft_resp_addr = -1;
 static int hf_ieee80211_ff_cc_sp_duration = -1;
@@ -8750,6 +8752,9 @@ add_ff_beacon_interval(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
 }
 
 static guint
+add_ff_dmg_params(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset);
+
+static guint
 add_ff_cap_info(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
 {
   static const int *ieee80211_ap_fields[] = {
@@ -8788,19 +8793,32 @@ add_ff_cap_info(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int off
     NULL
   };
 
-  if ((tvb_get_letohs(tvb, offset) & 0x0001) != 0) {
-    /* This is an AP */
-    proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee80211_ff_capture,
-                                    ett_cap_tree, ieee80211_ap_fields,
-                                    ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
-    p_add_proto_data(wmem_file_scope(), pinfo, proto_wlan, IS_AP_KEY, GINT_TO_POINTER(TRUE));
-  } else {
-    /* This is a STA */
-    proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee80211_ff_capture,
-                                    ett_cap_tree, ieee80211_sta_fields,
-                                    ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
-  }
+  /* The capability information includes DMG parameters whenever it is transmitted by
+     a DMG STA/AP (802.11ad-2012, 8.4.1.4) */
 
+  gboolean isDMG = GPOINTER_TO_INT(p_get_proto_data(wmem_file_scope(), pinfo, proto_wlan, IS_DMG_KEY));
+
+  if (isDMG) {
+    proto_item *cap_item;
+    proto_tree *cap_tree;
+    cap_item = proto_tree_add_item(tree, hf_ieee80211_ff_capture, tvb, offset, 2,
+                                   ENC_LITTLE_ENDIAN);
+    cap_tree = proto_item_add_subtree(cap_item, ett_cap_tree);
+    add_ff_dmg_params(cap_tree, tvb, pinfo, offset);
+   } else {
+      if ((tvb_get_letohs(tvb, offset) & 0x0001) != 0) {
+      /* This is an AP */
+      proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee80211_ff_capture,
+                                        ett_cap_tree, ieee80211_ap_fields,
+                                        ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+      p_add_proto_data(wmem_file_scope(), pinfo, proto_wlan, IS_AP_KEY, GINT_TO_POINTER(TRUE));
+      } else {
+        /* This is a STA */
+        proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee80211_ff_capture,
+                                          ett_cap_tree, ieee80211_sta_fields,
+                                          ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+      }
+   }
   return 2;
 }
 
@@ -11112,6 +11130,8 @@ add_ff_dmg_params(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int o
     &hf_ieee80211_ff_dmg_params_cbap_src,
     &hf_ieee80211_ff_dmg_params_privacy,
     &hf_ieee80211_ff_dmg_params_policy,
+    &hf_ieee80211_ff_dmg_params_spec_mgmt,
+    &hf_ieee80211_ff_dmg_params_radio_measure,
     NULL
   };
 
@@ -27721,6 +27741,16 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_ff_dmg_params_policy,
      {"ECAPC Policy Enforced", "wlan.dmg_params.policy",
       FT_BOOLEAN, 8, NULL, 0x20,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_dmg_params_spec_mgmt,
+     {"Spectrum Management", "wlan.dmg_params.spec_mgmt",
+      FT_BOOLEAN, 8, TFS(&tfs_implemented_not_implemented), 0x40,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_dmg_params_radio_measure,
+     {"Radio Measurement", "wlan.dmg_params.radio_measure",
+      FT_BOOLEAN, 8, TFS(&tfs_implemented_not_implemented), 0x80,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_cc,
