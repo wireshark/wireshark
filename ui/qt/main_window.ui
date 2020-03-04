@@ -1313,9 +1313,6 @@
    <property name="text">
     <string>As Plain &amp;Text</string>
    </property>
-   <property name="shortcut">
-    <string notr="true">Ctrl+C</string>
-   </property>
   </action>
   <action name="actionCopyListAsCSV">
    <property name="text">
