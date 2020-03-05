@@ -64,11 +64,10 @@ Wireshark-win64-{wireshark-version}.exe installs Wireshark {wireshark-version}
 for 64-bit Windows. The Wireshark installer includes Npcap which is required
 for packet capture.
 
-Simply download the Wireshark installer from {wireshark-download-url}
-and execute it. Official packages are signed by the *Wireshark
-Foundation*. You can choose to install several optional components and
-select the location of the installed package. The default settings are
-recommended for most users.
+Simply download the Wireshark installer from {wireshark-download-url} and execute it.
+Official packages are signed by the *Wireshark Foundation, Inc.*.
+You can choose to install several optional components and select the location of the installed package.
+The default settings are recommended for most users.
 
 [[ChBuildInstallWinComponents]]
 
