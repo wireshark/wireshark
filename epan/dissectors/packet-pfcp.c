@@ -149,6 +149,8 @@ static int hf_pfcp_urr_id = -1;
 static int hf_pfcp_qer_id_flg = -1;
 static int hf_pfcp_qer_id = -1;
 static int hf_pfcp_predef_rules_name = -1;
+static int hf_pfcp_predef_rules_name_str = -1;
+
 
 static int hf_pfcp_apply_action_flags = -1;
 static int hf_pfcp_apply_action_flags_b6_ipmd = -1;
@@ -4594,7 +4596,10 @@ dissect_pfcp_act_predef_rules(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     /* Octet 5 to (n+4) Predefined Rules Name
     * The Predefined Rules Name field shall be encoded as an OctetString
     */
-    proto_tree_add_item(tree, hf_pfcp_predef_rules_name, tvb, offset, length, ENC_NA);
+    if (tvb_ascii_isprint(tvb, offset, length))
+        proto_tree_add_item(tree, hf_pfcp_predef_rules_name_str, tvb, offset, length, ENC_ASCII | ENC_NA);
+    else
+        proto_tree_add_item(tree, hf_pfcp_predef_rules_name, tvb, offset, length, ENC_NA);
 }
 /*
  * 8.2.73   Deactivate Predefined Rules
@@ -4606,7 +4611,10 @@ dissect_pfcp_deact_predef_rules(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     /* Octet 5 to (n+4) Predefined Rules Name
     * The Predefined Rules Name field shall be encoded as an OctetString
     */
-    proto_tree_add_item(tree, hf_pfcp_predef_rules_name, tvb, offset, length, ENC_NA);
+    if (tvb_ascii_isprint(tvb, offset, length))
+        proto_tree_add_item(tree, hf_pfcp_predef_rules_name_str, tvb, offset, length, ENC_ASCII | ENC_NA);
+    else
+        proto_tree_add_item(tree, hf_pfcp_predef_rules_name, tvb, offset, length, ENC_NA);
 }
 /*
  * 8.2.74   FAR ID
@@ -9042,6 +9050,11 @@ proto_register_pfcp(void)
         { &hf_pfcp_predef_rules_name,
         { "Predefined Rules Name", "pfcp.predef_rules_name",
             FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_predef_rules_name_str,
+        { "Predefined Rules Name", "pfcp.predef_rules_name",
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_pfcp_apply_action_flags,
