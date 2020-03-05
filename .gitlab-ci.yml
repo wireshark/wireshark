@@ -2,7 +2,6 @@
   stage: build
   after_script:
     - for builddir in build/packaging/rpm/BUILD/wireshark-*/build build/packaging/rpm/BUILD/wireshark-* build; do [ ! -d "$builddir" ] || break; done
-    - if [ "$CI_JOB_NAME" = "build:rpm-opensuse-42.3" ]; then export LD_LIBRARY_PATH=$builddir/run; fi
     - if [ -f $builddir/run/tshark ]; then $builddir/run/tshark --version; fi
 
 # The custom Ubuntu image pre-installs dependencies and compilers to speed up the build:
@@ -36,56 +35,29 @@
       - build/packaging/rpm/RPMS
     expire_in: 3 days
 
+# GCC 5 is the default compiler in Ubuntu 16.04, EOL in April 2024.
 gcc-5:
   <<: *build-ubuntu
   variables:
     CC: gcc-5
     CXX: g++-5
-gcc-6:
-  <<: *build-ubuntu
-  variables:
-    CC: gcc-6
-    CXX: g++-6
-gcc-7:
-  <<: *build-ubuntu
-  variables:
-    CC: gcc-7
-    CXX: g++-7
-gcc-8:
-  <<: *build-ubuntu
-  variables:
-    CC: gcc-8
-    CXX: g++-8
+
+# Rely on fedora:latest and debian-stable jobs for testing a recent GCC version.
+# Since this broke sporadically in the past, test lack of capture support.
 gcc-8-nopcap:
   <<: *build-ubuntu
   variables:
     CMAKE_ARGS: -DENABLE_PCAP=NO
     CC: gcc-8
     CXX: g++-8
-clang-5:
+
+clang-8:
   <<: *build-ubuntu
   variables:
     CMAKE_ARGS: -DCMAKE_C_FLAGS=-Wframe-larger-than=20000
-    CC: clang-5.0
-    CXX: clang++-5.0
-clang-6:
-  <<: *build-ubuntu
-  variables:
-    CMAKE_ARGS: -DCMAKE_C_FLAGS=-Wframe-larger-than=20000
-    CC: clang-6.0
-    CXX: clang++-6.0
-clang-7:
-  <<: *build-ubuntu
-  variables:
-    CMAKE_ARGS: -DCMAKE_C_FLAGS=-Wframe-larger-than=20000
-    CC: clang-7
-    CXX: clang++-7
-clang-7-nopcap:
-  <<: *build-ubuntu
-  variables:
-    CMAKE_ARGS: -DENABLE_PCAP=NO -DCMAKE_C_FLAGS=-Wframe-larger-than=20000
-    CC: clang-7
-    CXX: clang++-7
+    CC: clang-8
+    CXX: clang++-8
+
 build:rpm-centos-7:
   <<: *build-rpm
   image: centos:7
@@ -107,7 +79,8 @@ test:rpm-centos-7:
     - build:rpm-centos-7
   variables:
     GIT_STRATEGY: none
-.build-rpm-opensuse: &build-rpm-opensuse
+build:rpm-opensuse-15.1:
+  image: opensuse/leap:15.1
   <<: *build-rpm
   script:
     - zypper --non-interactive install update-desktop-files
@@ -117,31 +90,19 @@ test:rpm-centos-7:
     - cd build
     - cmake -GNinja ..
     - ninja rpm-package
-.test-rpm-opensuse: &test-rpm-opensuse
+test:rpm-opensuse-15.1:
+  image: opensuse/leap:15.1
   stage: test
   script:
     - zypper --no-gpg-checks install -y build/packaging/rpm/RPMS/x86_64/*.rpm
     - tshark --version
   variables:
     GIT_STRATEGY: none
-build:rpm-opensuse-42.3:
-  <<: *build-rpm-opensuse
-  image: opensuse/leap:42.3
-test:rpm-opensuse-42.3:
-  <<: *test-rpm-opensuse
-  image: opensuse/leap:42.3
-  dependencies:
-    - build:rpm-opensuse-42.3
-build:rpm-opensuse-15.1:
-  <<: *build-rpm-opensuse
-  image: opensuse/leap:15.1
-test:rpm-opensuse-15.1:
-  <<: *test-rpm-opensuse
-  image: opensuse/leap:15.1
   dependencies:
     - build:rpm-opensuse-15.1
-.build-rpm-fedora: &build-rpm-fedora
+build:rpm-fedora:
   <<: *build-rpm
+  image: fedora
   script:
     - dnf upgrade -y
     - tools/rpm-setup.sh --install-optional -y
@@ -149,29 +110,16 @@ test:rpm-opensuse-15.1:
     - cd build
     - cmake3 -GNinja ..
     - ninja-build rpm-package
-.test-rpm-fedora: &test-rpm-fedora
+test:rpm-fedora:
+  image: fedora
   stage: test
   script:
     - dnf install -y build/packaging/rpm/RPMS/x86_64/*.rpm
     - tshark --version
   variables:
     GIT_STRATEGY: none
-build:rpm-fedora-28:
-  <<: *build-rpm-fedora
-  image: fedora:28
-test:rpm-fedora-28:
-  <<: *test-rpm-fedora
-  image: fedora:28
   dependencies:
-    - build:rpm-fedora-28
-build:rpm-fedora-29:
-  <<: *build-rpm-fedora
-  image: fedora:29
-test:rpm-fedora-29:
-  <<: *test-rpm-fedora
-  image: fedora:29
-  dependencies:
-    - build:rpm-fedora-29
+    - build:rpm-fedora
 
 # Job to generate packages for Debian stable
 build:debian-stable:
