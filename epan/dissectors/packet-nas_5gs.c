@@ -1613,9 +1613,9 @@ de_nas_5gs_mm_pdu_ses_react_res_err_c(tvbuff_t *tvb, proto_tree *tree, packet_in
 
     /*Partial service area list*/
     while ((curr_offset - offset) < len) {
-        proto_tree_add_item(tree, hf_nas_5gs_pdu_session_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_nas_5gs_pdu_session_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
         curr_offset++;
-        proto_tree_add_item(tree, hf_nas_5gs_mm_5gmm_cause, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_nas_5gs_mm_5gmm_cause, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
         curr_offset++;
     }
 
