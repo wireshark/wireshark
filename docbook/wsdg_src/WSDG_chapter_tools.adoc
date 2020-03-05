@@ -1034,17 +1034,17 @@ You can find more instructions on using NSIS in <<ChSrcNSIS>>.
 
 === Windows: WiX Toolset (Optional)
 
-The Wix Toolset can be used to generate Windows Installer (_.msi_)
-packages. You can download it from the link:https://wixtoolset.org/[WiX
-web site] or install it using Chocolatey:
+The Wix Toolset can be used to generate Windows Installer (_.msi_) packages.
+You can download it from the link:https://wixtoolset.org/[WiX web site] or install it using Chocolatey:
 
 [source,cmd]
 ----
 PS$> choco install wixtoolset
 ----
 
-Wireshark’s .msi packaging is currently experimental and the generated
-packages may be incomplete.
+This also requires the Visual C++ redistributable merge modules, which can be installed by selecting “Individual Components -> {cpp} 2019 Redistributable MSMs” in the Visual Studio installer.
+
+Wireshark’s .msi packaging is currently experimental and the generated packages may be incomplete.
 
 [[ChToolsPortableApps]]
 === Windows: PortableApps (Optional)
