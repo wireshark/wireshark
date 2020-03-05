@@ -91,6 +91,7 @@ public slots:
     void collapseSubtrees();
     void expandAll();
     void collapseAll();
+    void itemClicked(const QModelIndex & index);
     void itemDoubleClicked(const QModelIndex & index);
     void selectedFieldChanged(FieldInformation *);
     void selectedFrameChanged(QList<int>);

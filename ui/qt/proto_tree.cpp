@@ -84,6 +84,8 @@ ProtoTree::ProtoTree(QWidget *parent, epan_dissect_t *edt_fixed) :
 
     connect(this, SIGNAL(expanded(QModelIndex)), this, SLOT(syncExpanded(QModelIndex)));
     connect(this, SIGNAL(collapsed(QModelIndex)), this, SLOT(syncCollapsed(QModelIndex)));
+    connect(this, SIGNAL(clicked(QModelIndex)),
+            this, SLOT(itemClicked(QModelIndex)));
     connect(this, SIGNAL(doubleClicked(QModelIndex)),
             this, SLOT(itemDoubleClicked(QModelIndex)));
 
@@ -582,6 +584,16 @@ void ProtoTree::collapseAll()
     }
     QTreeView::collapseAll();
     updateContentWidth();
+}
+
+void ProtoTree::itemClicked(const QModelIndex &index) {
+    if (index == selectionModel()->selectedIndexes().first()) {
+        FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(index).protoNode());
+
+        if (finfo.isValid()) {
+            emit fieldSelected(&finfo);
+        }
+    }
 }
 
 void ProtoTree::itemDoubleClicked(const QModelIndex &index) {
