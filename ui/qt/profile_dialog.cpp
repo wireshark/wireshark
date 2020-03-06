@@ -530,13 +530,13 @@ void ProfileDialog::on_buttonBox_helpRequested()
     wsApp->helpTopicAction(HELP_CONFIG_PROFILES_DIALOG);
 }
 
-void ProfileDialog::dataChanged(const QModelIndex &idx)
+void ProfileDialog::dataChanged(const QModelIndex &)
 {
     pd_ui_->lineProfileFilter->setText("");
     pd_ui_->cmbProfileTypes->setCurrentIndex(ProfileSortModel::AllProfiles);
 
     pd_ui_->profileTreeView->setFocus();
-    if (! idx.isValid() && model_->lastSetRow() >= 0)
+    if (model_->lastSetRow() >= 0)
     {
         QModelIndex original = model_->index(model_->lastSetRow(), ProfileModel::COL_NAME);
         pd_ui_->profileTreeView->setCurrentIndex(sort_model_->mapFromSource(original));
