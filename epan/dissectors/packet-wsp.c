@@ -5008,14 +5008,13 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 }
                 if (! found_match){
                     /*
-                     * Try to dissect x-wap-application lwm2m.dm  data as COaP
+                     * Try to dissect x-wap-application lwm2m.dm data as CoAP
                      * see docs: (page 141)
                      * http://www.openmobilealliance.org/release/LightweightM2M/V1_0_2-20180209-A/OMA-TS-LightweightM2M-V1_0_2-20180209-A.pdf
                      * header bytes should be: 0xAF, 0x9A
                      */
                     if (tvb_get_guint8(tvb, headerStart + headerLength - 1) == 0xAF && /* x-wap app id */
-                        tvb_get_guint8(tvb, headerStart + headerLength) == 0x9A && /* x-wap app lwm2m.dm */
-                        tvb_reported_length(tmp_tvb) == 15  ){
+                        tvb_get_guint8(tvb, headerStart + headerLength) == 0x9A) { /* x-wap app lwm2m.dm */
 
                         call_dissector(coap_handle, tmp_tvb, pinfo, tree);
                     } else if (! dissector_try_heuristic(heur_subdissector_list,
