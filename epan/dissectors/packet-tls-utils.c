@@ -6028,7 +6028,7 @@ tls_dissect_certificate_authorities(ssl_common_dissect_t *hf, tvbuff_t *tvb, pac
     proto_tree *subtree;
     guint32     dnames_length, next_offset;
     asn1_ctx_t  asn1_ctx;
-
+    int         dnames_count = 100; /* the maximum number of DNs to add to the tree */
 
     /* Note: minimum length is 0 for TLS 1.1/1.2 and 3 for earlier/later */
     /* DistinguishedName certificate_authorities<0..2^16-1> */
@@ -6053,6 +6053,19 @@ tls_dissect_certificate_authorities(ssl_common_dissect_t *hf, tvbuff_t *tvb, pac
         while (offset < next_offset) {
             /* get the length of the current certificate */
             guint32 name_length;
+
+            if (dnames_count-- == 0) {
+                /* stop adding to tree when the list is considered too large
+                 * https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16202
+                   Note: dnames_count must be set low enough not to hit the
+                   limit set by PINFO_LAYER_MAX_RECURSION_DEPTH in packet.c
+                 */
+                ti = proto_tree_add_item(subtree, hf->hf.hs_dnames_truncated,
+                    tvb, offset, next_offset - offset, ENC_NA);
+                proto_item_set_generated(ti);
+                return next_offset;
+            }
+
             /* opaque DistinguishedName<1..2^16-1> */
             if (!ssl_add_vector(hf, tvb, pinfo, subtree, offset, next_offset, &name_length,
                                 hf->hf.hs_dname_len, 1, G_MAXUINT16)) {
