@@ -36,8 +36,6 @@ Known traps are:
 
 . Not using the correct (x86 or x64) version of the Visual Studio command prompt.
 
-. Not copying/downloading the correct version of vcredist_xYY.exe.
-
 . Not using a supported version of Windows. Please check
   https://support.microsoft.com/en-gb/help/13853/windows-lifecycle-fact-sheet[here]
   that your installed version is supported and updated.
