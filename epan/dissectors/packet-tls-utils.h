@@ -837,6 +837,7 @@ typedef struct ssl_common_dissect {
         gint hs_cert_type;
         gint hs_dnames_len;
         gint hs_dnames;
+        gint hs_dnames_truncated;
         gint hs_dname_len;
         gint hs_dname;
         gint hs_random;
@@ -1150,7 +1151,7 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1, -1,                                     \
+        -1, -1, -1, -1, -1, -1, -1, -1,                                 \
     },                                                                  \
     /* ett */ {                                                         \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
@@ -1663,6 +1664,11 @@ ssl_common_dissect_t name = {   \
       { "Distinguished Name Length", prefix ".handshake.dname_len",     \
         FT_UINT16, BASE_DEC, NULL, 0x0,                                 \
         "Length of distinguished name", HFILL }                         \
+    },                                                                  \
+    { & name .hf.hs_dnames_truncated,                                   \
+      { "Tree view truncated", prefix ".handshake.dnames_truncated",    \
+         FT_NONE, BASE_NONE, NULL, 0x00,                                \
+         "Some Distinguished Names are not added to tree pane to limit resources", HFILL } \
     },                                                                  \
     { & name .hf.hs_dname,                                              \
       { "Distinguished Name", prefix ".handshake.dname",                \
