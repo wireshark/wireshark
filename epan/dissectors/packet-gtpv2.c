@@ -385,6 +385,8 @@ static int hf_gtpv2_mm_context_ex_access_res_data_len = -1;
 static int hf_gtpv2_mm_context_ue_add_sec_cap_len = -1;
 static int hf_gtpv2_mm_context_ue_nr_sec_cap_len = -1;
 static int hf_gtpv2_mm_context_apn_rte_ctrl_sts_len = -1;
+static int hf_gtpv2_mm_context_cnr_len = -1;
+static int hf_gtpv2_mm_context_ue_radio_cap_len = -1;
 static int hf_gtpv2_uci_csg_id = -1;
 static int hf_gtpv2_uci_csg_id_spare = -1;
 static int hf_gtpv2_uci_access_mode = -1;
@@ -4500,7 +4502,7 @@ dissect_gtpv2_mm_context_eps_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     proto_tree *flag_tree, *qua_tree, *qui_tree, *sc_tree;
     gint        offset;
     guint8      tmp, nhi, drxi, nr_qua, nr_qui, uamb_ri, osci, samb_ri, vdp_len;
-    guint32     dword, paging_len, ue_add_sec_cap_len, ex_access_res_data_len, ue_nr_sec_cap_len, apn_rte_ctrl_sts_len;
+    guint32     dword, paging_len, ue_add_sec_cap_len, ex_access_res_data_len, ue_nr_sec_cap_len, apn_rte_ctrl_sts_len, ie_len;
 
     offset = 0;
 
@@ -4746,9 +4748,35 @@ dissect_gtpv2_mm_context_eps_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
         proto_tree_add_expert_format(sc_tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, offset, apn_rte_ctrl_sts_len, "The rest of the IE not dissected yet");
         offset += apn_rte_ctrl_sts_len;
     }
+    if (offset == (gint)length) {
+        return;
+    }
 
-    /* (l+1) 	Length of Core Network Restrictions */
-    /* (l+2) to (l+5)	Core Network Restrictions */
+    /* (l+1)  Length of Core Network Restrictions */
+    proto_tree_add_item_ret_uint(tree, hf_gtpv2_mm_context_cnr_len, tvb, offset, 1, ENC_BIG_ENDIAN, &ie_len);
+    offset += 1;
+    if (ie_len) {
+        /* (l+2) to (l+5)	Core Network Restrictions */
+        /* The Core Network Restrictions coding is specified in clause 7.2.230 of 3GPP TS 29.272 [70].
+           If Length of Core Network Restrictions is zero, then the field of Core Network Restrictions
+           in octets "(l+2) to (l+5)" shall not be present.
+         */
+        proto_tree_add_expert_format(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, offset, ie_len, "The rest of the IE not dissected yet");
+        offset += ie_len;
+    }
+
+    if (offset == (gint)length) {
+        return;
+    }
+
+    /* (l+6)  Length of UE Radio Capability ID hf_gtpv2_mm_context_ue_radio_cap_len*/
+    proto_tree_add_item_ret_uint(tree, hf_gtpv2_mm_context_ue_radio_cap_len, tvb, offset, 1, ENC_BIG_ENDIAN, &ie_len);
+    offset += 1;
+    if (ie_len) {
+        /* (l+7) to z UE Radio Capability ID */
+        proto_tree_add_expert_format(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, offset, ie_len, "The rest of the IE not dissected yet");
+        offset += ie_len;
+    }
     if (offset < (gint)length){
         proto_tree_add_expert_format(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, offset, length - offset, "The rest of the IE not dissected yet");
     }
@@ -10147,6 +10175,16 @@ void proto_register_gtpv2(void)
         },
         { &hf_gtpv2_mm_context_apn_rte_ctrl_sts_len,
         { "Length of APN Rate Control Statuses", "gtpv2.mm_context.apn_rte_ctrl_sts_len",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_gtpv2_mm_context_cnr_len,
+        { "Length of Core Network Restrictions", "gtpv2.mm_context.cnr_len",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_gtpv2_mm_context_ue_radio_cap_len,
+        { "Length of UE Radio Capability ID", "gtpv2.mm_context.radio_cap_len",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
