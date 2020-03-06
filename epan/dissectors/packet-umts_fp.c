@@ -1530,7 +1530,7 @@ dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             encoded = tvb_get_guint8(tvb, offset);
             propagation_delay = encoded * 3;
             propagation_delay_ti = proto_tree_add_uint_format(tree, hf_fp_propagation_delay, tvb, offset, 1,
-                                               propagation_delay, "%u chips (%u)",
+                                               propagation_delay, "Propagation Delay: %u chips (%u)",
                                                propagation_delay, encoded);
             offset++;
         }
@@ -2120,7 +2120,7 @@ dissect_cpch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         encoded = tvb_get_guint8(tvb, offset);
         propagation_delay = encoded * 3;
         proto_tree_add_uint_format_value(tree, hf_fp_propagation_delay, tvb, offset, 1,
-                                               propagation_delay, "%u chips (%u)",
+                                               propagation_delay, "Propagation Delay: %u chips (%u)",
                                                propagation_delay, encoded);
         offset++;
         header_length = offset; /* XXX this might be wrong */
