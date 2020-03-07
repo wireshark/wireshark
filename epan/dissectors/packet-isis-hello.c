@@ -1578,7 +1578,7 @@ proto_register_isis_hello(void)
       { &hf_isis_hello_trill_hop_by_hop_flags, { "Hop-by-hop Extended Header Flags", "isis.hello.trill.hop_by_hop_flags", FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x1ffc0000, NULL, HFILL }},
       { &hf_isis_hello_trill_unassigned_2, { "Unassigned", "isis.hello.trill.unassigned_2",FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x0003ffff, NULL, HFILL }},
       { &hf_isis_hello_is_neighbor, { "IS Neighbor", "isis.hello.is_neighbor", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_isis_hello_reverse_metric_flags, { "Flags", "isis.hello.reverse_metric.flags", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_isis_hello_reverse_metric_flags, { "Flags", "isis.hello.reverse_metric.flags", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
       { &hf_isis_hello_reverse_metric_flag_reserved, { "Reserved", "isis.hello.reverse_metric.flags.reserved", FT_UINT8, BASE_HEX, NULL, 0xFC, NULL, HFILL }},
       { &hf_isis_hello_reverse_metric_flag_u, { "U", "isis.hello.reverse_metric.flags.u", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02, NULL, HFILL }},
       { &hf_isis_hello_reverse_metric_flag_w, { "W", "isis.hello.reverse_metric.flags.w", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01, NULL, HFILL }},
