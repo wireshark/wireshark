@@ -164,6 +164,7 @@ static gint ett_isis_hello_clv_checksum = -1;
 static gint ett_isis_hello_clv_reverse_metric = -1;
 static gint ett_isis_hello_clv_bfd_enabled = -1;
 static gint ett_isis_hello_clv_ipv6_glb_int_addr = -1;
+static gint ett_isis_hello_reverse_metric_flags = -1;
 
 static expert_field ei_isis_hello_short_pdu = EI_INIT;
 static expert_field ei_isis_hello_long_pdu = EI_INIT;
@@ -741,7 +742,6 @@ dissect_hello_reverse_metric_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
         proto_tree *tree, int offset, int id_length _U_, int length _U_) {
 
     guint32 sub_length;
-    static gint ett_isis_hello_reverse_metric_flags = -1;
 
     static const int * flags[] = {
         &hf_isis_hello_reverse_metric_flag_reserved,
@@ -1578,7 +1578,7 @@ proto_register_isis_hello(void)
       { &hf_isis_hello_trill_hop_by_hop_flags, { "Hop-by-hop Extended Header Flags", "isis.hello.trill.hop_by_hop_flags", FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x1ffc0000, NULL, HFILL }},
       { &hf_isis_hello_trill_unassigned_2, { "Unassigned", "isis.hello.trill.unassigned_2",FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x0003ffff, NULL, HFILL }},
       { &hf_isis_hello_is_neighbor, { "IS Neighbor", "isis.hello.is_neighbor", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_isis_hello_reverse_metric_flags, { "Flags", "isis.hello.reverse_metric.flags", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_isis_hello_reverse_metric_flags, { "Flags", "isis.hello.reverse_metric.flags", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_isis_hello_reverse_metric_flag_reserved, { "Reserved", "isis.hello.reverse_metric.flags.reserved", FT_UINT8, BASE_HEX, NULL, 0xFC, NULL, HFILL }},
       { &hf_isis_hello_reverse_metric_flag_u, { "U", "isis.hello.reverse_metric.flags.u", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02, NULL, HFILL }},
       { &hf_isis_hello_reverse_metric_flag_w, { "W", "isis.hello.reverse_metric.flags.w", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01, NULL, HFILL }},
@@ -1622,7 +1622,8 @@ proto_register_isis_hello(void)
         &ett_isis_hello_clv_checksum,
         &ett_isis_hello_clv_reverse_metric,
         &ett_isis_hello_clv_bfd_enabled,
-        &ett_isis_hello_clv_ipv6_glb_int_addr /* CLV 233, rfc6119 */
+        &ett_isis_hello_clv_ipv6_glb_int_addr, /* CLV 233, rfc6119 */
+        &ett_isis_hello_reverse_metric_flags
     };
 
     static ei_register_info ei[] = {
