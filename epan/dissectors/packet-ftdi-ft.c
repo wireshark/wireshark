@@ -919,8 +919,10 @@ dissect_ftdi_ft(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             if (bitmode == BITMODE_MPSSE)
             {
                 ftdi_mpsse_info_t mpsse_info = {
-                    .chip  = identify_chip(usb_conv_info),
-                    .iface = interface,
+                    .bus_id         = k_bus_id,
+                    .device_address = k_device_address,
+                    .chip           = identify_chip(usb_conv_info),
+                    .iface          = interface,
                 };
                 tvbuff_t *mpsse_payload_tvb = tvb_new_subset_remaining(tvb, offset);
                 call_dissector_with_data(ftdi_mpsse_handle, mpsse_payload_tvb, pinfo, tree, &mpsse_info);

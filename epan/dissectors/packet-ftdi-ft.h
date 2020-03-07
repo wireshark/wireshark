@@ -13,6 +13,8 @@
 #ifndef __PACKET_FTDI_FT_H__
 #define __PACKET_FTDI_FT_H__
 
+#include <glib.h>
+
 typedef enum {
     FTDI_CHIP_UNKNOWN,
     FTDI_CHIP_FT8U232AM,
@@ -34,6 +36,8 @@ typedef enum {
 } FTDI_INTERFACE;
 
 typedef struct _ftdi_mpsse_info_t {
+    guint32         bus_id;
+    guint32         device_address;
     FTDI_CHIP       chip;
     FTDI_INTERFACE  iface;
 } ftdi_mpsse_info_t;
