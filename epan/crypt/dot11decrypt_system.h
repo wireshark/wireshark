@@ -75,6 +75,9 @@
 #define	DOT11DECRYPT_CCMP_TRAILER		8   /* IEEE 802.11-2016 12.5.3.2 CCMP MPDU format */
 #define	DOT11DECRYPT_CCMP_256_TRAILER	16  /* IEEE 802.11-2016 12.5.3.2 CCMP MPDU format */
 
+#define	DOT11DECRYPT_GCMP_HEADER		8   /* IEEE 802.11-206 12.5.5.2 GCMP MPDU format */
+#define	DOT11DECRYPT_GCMP_TRAILER		16
+
 #define	DOT11DECRYPT_TKIP_HEADER	DOT11DECRYPT_RSNA_HEADER
 #define	DOT11DECRYPT_TKIP_TRAILER	DOT11DECRYPT_TKIP_MICLEN + DOT11DECRYPT_WEP_ICV
 
@@ -435,21 +438,6 @@ INT Dot11DecryptInitContext(
 WS_DLL_PUBLIC
 INT Dot11DecryptDestroyContext(
 	PDOT11DECRYPT_CONTEXT ctx)
-	;
-
-int Dot11DecryptCcmpDecrypt(
-	guint8 *m,
-	int mac_header_len,
-	int len,
-	guint8 *TK1,
-	int tk_len,
-	int mic_len);
-
-extern INT Dot11DecryptTkipDecrypt(
-	UCHAR *tkip_mpdu,
-	size_t mpdu_len,
-	UCHAR TA[DOT11DECRYPT_MAC_LEN],
-	UCHAR TK[DOT11DECRYPT_TK_LEN])
 	;
 
 #ifdef	__cplusplus

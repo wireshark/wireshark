@@ -15,6 +15,9 @@
 #include "dot11decrypt_interop.h"
 #include "dot11decrypt_system.h"
 
+#include "ws_attributes.h"
+#include <wsutil/wsgcrypt.h>
+
 /****************************************************************************/
 
 /****************************************************************************/
@@ -165,5 +168,39 @@ typedef struct _DOT11DECRYPT_MAC_FRAME_ADDR4_QOS {
 #endif
 
 /******************************************************************************/
+
+int Dot11DecryptCcmpDecrypt(
+	guint8 *m,
+	int mac_header_len,
+	int len,
+	guint8 *TK1,
+	int tk_len,
+	int mic_len);
+
+#if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
+int Dot11DecryptGcmpDecrypt(
+	guint8 *m,
+	int mac_header_len,
+	int len,
+	guint8 *TK1,
+	int tk_len);
+#else
+static inline int Dot11DecryptGcmpDecrypt(
+	guint8 *m _U_,
+	int mac_header_len _U_,
+	int len _U_,
+	guint8 *TK1 _U_,
+	int tk_len _U_)
+{
+	return 1;
+}
+#endif
+
+INT Dot11DecryptTkipDecrypt(
+	UCHAR *tkip_mpdu,
+	size_t mpdu_len,
+	UCHAR TA[DOT11DECRYPT_MAC_LEN],
+	UCHAR TK[DOT11DECRYPT_TK_LEN])
+	;
 
 #endif

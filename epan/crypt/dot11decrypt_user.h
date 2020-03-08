@@ -32,6 +32,8 @@
 #define	DOT11DECRYPT_KEY_TYPE_TKIP		6
 #define	DOT11DECRYPT_KEY_TYPE_CCMP		7
 #define	DOT11DECRYPT_KEY_TYPE_CCMP_256	8
+#define	DOT11DECRYPT_KEY_TYPE_GCMP		9
+#define	DOT11DECRYPT_KEY_TYPE_GCMP_256	10
 #define	DOT11DECRYPT_KEY_TYPE_UNKNOWN   -1
 
 /*	Decryption algorithms fields size definition (bytes)								*/

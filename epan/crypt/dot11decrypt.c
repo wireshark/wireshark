@@ -345,6 +345,12 @@ Dot11DecryptCopyKey(PDOT11DECRYPT_SEC_ASSOCIATION sa, PDOT11DECRYPT_KEY_ITEM key
                 case 5:
                     key->KeyType = DOT11DECRYPT_KEY_TYPE_WEP_104;
                     break;
+                case 8:
+                    key->KeyType = DOT11DECRYPT_KEY_TYPE_GCMP;
+                    break;
+                case 9:
+                    key->KeyType = DOT11DECRYPT_KEY_TYPE_GCMP_256;
+                    break;
                 case 10:
                     key->KeyType = DOT11DECRYPT_KEY_TYPE_CCMP_256;
                     break;
@@ -355,8 +361,6 @@ Dot11DecryptCopyKey(PDOT11DECRYPT_SEC_ASSOCIATION sa, PDOT11DECRYPT_KEY_ITEM key
                 case 3:  Reserved
                 case 6:  BIP-CMAC-128
                 case 7:  Group addressed traffic not allowed
-                case 8:  GCMP-128
-                case 9:  GCMP-256
                 case 11: BIP-GMAC-128
                 case 12: BIP-GMAC-256
                 case 13: BIP-CMAC-256 */
@@ -1203,6 +1207,24 @@ Dot11DecryptRsnaMng(
            DEBUG_PRINT_LINE("TKIP DECRYPTED!!!", DEBUG_LEVEL_3);
            /* remove MIC and ICV from the end of packet */
            *decrypt_len -= DOT11DECRYPT_TKIP_MICLEN + DOT11DECRYPT_WEP_ICV;
+           break;
+       } else if (sa->wpa.cipher == 8 || sa->wpa.cipher == 9) {
+           DEBUG_PRINT_LINE("GCMP", DEBUG_LEVEL_3);
+
+           if (*decrypt_len < DOT11DECRYPT_GCMP_TRAILER) {
+               DEBUG_PRINT_LINE("Invalid decryption length", DEBUG_LEVEL_3);
+               g_free(try_data);
+               return DOT11DECRYPT_RET_UNSUCCESS;
+           }
+           ret = Dot11DecryptGcmpDecrypt(try_data, mac_header_len, (INT)*decrypt_len,
+                                         DOT11DECRYPT_GET_TK(sa->wpa.ptk, sa->wpa.akm),
+                                         Dot11DecryptGetTkLen(sa->wpa.cipher) / 8);
+           if (ret) {
+              continue;
+           }
+           DEBUG_PRINT_LINE("GCMP DECRYPTED!!!", DEBUG_LEVEL_3);
+           /* remove MIC from the end of packet */
+           *decrypt_len -= DOT11DECRYPT_GCMP_TRAILER;
            break;
        } else {
            /* AES-CCMP -> HMAC-SHA1-128 is the EAPOL-Key MIC, AES wep_key wrap is the EAPOL-Key encryption algorithm */

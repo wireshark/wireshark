@@ -24082,6 +24082,8 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
 #define PROTECTION_ALG_TKIP  DOT11DECRYPT_KEY_TYPE_TKIP
 #define PROTECTION_ALG_CCMP  DOT11DECRYPT_KEY_TYPE_CCMP
 #define PROTECTION_ALG_CCMP_256  DOT11DECRYPT_KEY_TYPE_CCMP_256
+#define PROTECTION_ALG_GCMP  DOT11DECRYPT_KEY_TYPE_GCMP
+#define PROTECTION_ALG_GCMP_256  DOT11DECRYPT_KEY_TYPE_GCMP_256
 #define PROTECTION_ALG_RSNA  PROTECTION_ALG_CCMP | PROTECTION_ALG_TKIP
 #define IS_TKIP(tvb, hdr_len)  (tvb_get_guint8(tvb, hdr_len + 1) == \
   ((tvb_get_guint8(tvb, hdr_len) | 0x20) & 0x7f))
@@ -25227,6 +25229,9 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
         else if (algorithm == PROTECTION_ALG_CCMP || algorithm == PROTECTION_ALG_CCMP_256)
           wep_tree = proto_tree_add_subtree(hdr_tree, tvb, hdr_len, 8,
             ett_wep_parameters, NULL, "CCMP parameters");
+        else if (algorithm == PROTECTION_ALG_GCMP || algorithm == PROTECTION_ALG_GCMP_256)
+          wep_tree = proto_tree_add_subtree(hdr_tree, tvb, hdr_len, 8,
+            ett_wep_parameters, NULL, "GCMP parameters");
         else {
           if (IS_TKIP(tvb, hdr_len)) {
             algorithm=PROTECTION_ALG_TKIP;
@@ -25249,7 +25254,8 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
               tvb_get_guint8(tvb, hdr_len + 2));
           proto_tree_add_string(wep_tree, hf_ieee80211_tkip_extiv, tvb, hdr_len,
               EXTIV_LEN, out_buff);
-        } else if (algorithm == PROTECTION_ALG_CCMP || algorithm == PROTECTION_ALG_CCMP_256) {
+        } else if (algorithm == PROTECTION_ALG_CCMP || algorithm == PROTECTION_ALG_CCMP_256 ||
+                   algorithm == PROTECTION_ALG_GCMP || algorithm == PROTECTION_ALG_GCMP_256) {
           g_snprintf(out_buff, SHORT_STR, "0x%08X%02X%02X",
               tvb_get_letohl(tvb, hdr_len + 4),
               tvb_get_guint8(tvb, hdr_len + 1),
@@ -25395,6 +25401,8 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
       g_strlcpy(wlan_stats.protection, "TKIP", MAX_PROTECT_LEN);
     } else if (algorithm == PROTECTION_ALG_CCMP || algorithm == PROTECTION_ALG_CCMP_256) {
       g_strlcpy(wlan_stats.protection, "CCMP", MAX_PROTECT_LEN);
+    } else if (algorithm == PROTECTION_ALG_GCMP || algorithm == PROTECTION_ALG_GCMP_256) {
+      g_strlcpy(wlan_stats.protection, "GCMP", MAX_PROTECT_LEN);
     } else {
       g_strlcpy(wlan_stats.protection, "Unknown", MAX_PROTECT_LEN);
     }
@@ -25437,6 +25445,8 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
         add_new_data_source(pinfo, next_tvb, "Decrypted WEP data");
       } else if (algorithm == PROTECTION_ALG_CCMP || algorithm == PROTECTION_ALG_CCMP_256) {
         add_new_data_source(pinfo, next_tvb, "Decrypted CCMP data");
+      } else if (algorithm == PROTECTION_ALG_GCMP || algorithm == PROTECTION_ALG_GCMP_256) {
+        add_new_data_source(pinfo, next_tvb, "Decrypted GCMP data");
       } else if (algorithm==PROTECTION_ALG_TKIP) {
         add_new_data_source(pinfo, next_tvb, "Decrypted TKIP data");
       }
@@ -26452,6 +26462,11 @@ try_decrypt(tvbuff_t *tvb, packet_info *pinfo, guint offset, guint len,
       case DOT11DECRYPT_KEY_TYPE_CCMP_256:
         *sec_header = DOT11DECRYPT_RSNA_HEADER;
         *sec_trailer = DOT11DECRYPT_CCMP_256_TRAILER;
+        break;
+      case DOT11DECRYPT_KEY_TYPE_GCMP:
+      case DOT11DECRYPT_KEY_TYPE_GCMP_256:
+        *sec_header = DOT11DECRYPT_RSNA_HEADER;
+        *sec_trailer = DOT11DECRYPT_GCMP_TRAILER;
         break;
       case DOT11DECRYPT_KEY_TYPE_TKIP:
         *sec_header=DOT11DECRYPT_RSNA_HEADER;

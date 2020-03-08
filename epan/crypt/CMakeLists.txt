@@ -43,6 +43,7 @@ else()
 	list(APPEND CRYPT_FILES
 		dot11decrypt_ccmp.c
 		dot11decrypt_util.c
+		dot11decrypt_gcmp.c
 	)
 endif()
 

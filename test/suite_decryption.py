@@ -171,6 +171,34 @@ class case_decrypt_80211(subprocesstest.SubprocessTestCase):
         self.assertTrue(self.grepOutput('DHCP Request'))        # Verifies TK is correct
         self.assertTrue(self.grepOutput('Echo \(ping\) request')) # Verifies TK is correct
 
+    def test_80211_wpa_gcmp(self, cmd_tshark, capture_file, features):
+        '''IEEE 802.11 decode GCMP'''
+        # Included in git sources test/captures/wpa-gcmp.pcapng.gz
+        if not features.have_libgcrypt16:
+            self.skipTest('Requires GCrypt 1.6 or later.')
+        self.assertRun((cmd_tshark,
+                '-o', 'wlan.enable_decryption: TRUE',
+                '-r', capture_file('wpa-gcmp.pcapng.gz'),
+                '-Y', 'wlan.analysis.tk == 755a9c1c9e605d5ff62849e4a17a935c || wlan.analysis.gtk == 7ff30f7a8dd67950eaaf2f20a869a62d',
+                ))
+        self.assertTrue(self.grepOutput('Who has 192.168.5.5')) # Verifies GTK is correct
+        self.assertTrue(self.grepOutput('DHCP Request'))        # Verifies TK is correct
+        self.assertTrue(self.grepOutput('Echo \(ping\) request')) # Verifies TK is correct
+
+    def test_80211_wpa_gcmp_256(self, cmd_tshark, capture_file, features):
+        '''IEEE 802.11 decode GCMP-256'''
+        # Included in git sources test/captures/wpa-gcmp-256.pcapng.gz
+        if not features.have_libgcrypt16:
+            self.skipTest('Requires GCrypt 1.6 or later.')
+        self.assertRun((cmd_tshark,
+                '-o', 'wlan.enable_decryption: TRUE',
+                '-r', capture_file('wpa-gcmp-256.pcapng.gz'),
+                '-Y', 'wlan.analysis.tk == b3dc2ff2d88d0d34c1ddc421cea17f304af3c46acbbe7b6d808b6ebf1b98ec38 || wlan.analysis.gtk == a745ee2313f86515a155c4cb044bc148ae234b9c72707f772b69c2fede3e4016',
+                ))
+        self.assertTrue(self.grepOutput('Who has 192.168.5.5')) # Verifies GTK is correct
+        self.assertTrue(self.grepOutput('DHCP Request'))        # Verifies TK is correct
+        self.assertTrue(self.grepOutput('Echo \(ping\) request')) # Verifies TK is correct
+
 @fixtures.mark_usefixtures('test_env')
 @fixtures.uses_fixtures
 class case_decrypt_dtls(subprocesstest.SubprocessTestCase):
