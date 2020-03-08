@@ -123,9 +123,11 @@ void ProtoTree::ctxCopyVisibleItems()
     if (send && send->property("selected_tree").isValid())
         selected_tree = true;
 
-    QString clip = toString();
+    QString clip;
     if (selected_tree && selectionModel()->hasSelection())
         clip = toString(selectionModel()->selectedIndexes().first());
+    else
+        clip = toString();
 
     if (clip.length() > 0)
         wsApp->clipboard()->setText(clip);
@@ -167,8 +169,7 @@ void ProtoTree::ctxCopySelectedInfo()
         break;
 
     case ProtoTree::Description:
-        if (finfo.fieldInfo()->rep && strlen(finfo.fieldInfo()->rep->representation) > 0)
-            clip.append(finfo.fieldInfo()->rep->representation);
+        clip = idx.data(Qt::DisplayRole).toString();
         break;
 
     case ProtoTree::Value:
