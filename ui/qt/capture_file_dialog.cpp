@@ -923,12 +923,12 @@ void CaptureFileDialog::preview(const QString & path)
         first_elapsed = "?";
         if (ti_tm) {
             first_elapsed = QString("%1-%2-%3 %4:%5:%6")
-                    .arg(ti_tm->tm_year + 1900, 4, QChar('0'))
-                    .arg(ti_tm->tm_mon + 1, 2, QChar('0'))
-                    .arg(ti_tm->tm_mday, 2, QChar('0'))
-                    .arg(ti_tm->tm_hour, 2, QChar('0'))
-                    .arg(ti_tm->tm_min, 2, QChar('0'))
-                    .arg(ti_tm->tm_sec, 2, QChar('0'));
+                    .arg(ti_tm->tm_year + 1900, 4, 10, QChar('0'))
+                    .arg(ti_tm->tm_mon + 1, 2, 10, QChar('0'))
+                    .arg(ti_tm->tm_mday, 2, 10, QChar('0'))
+                    .arg(ti_tm->tm_hour, 2, 10, QChar('0'))
+                    .arg(ti_tm->tm_min, 2, 10, QChar('0'))
+                    .arg(ti_tm->tm_sec, 2, 10, QChar('0'));
         }
     } else {
         first_elapsed = tr("unknown");
@@ -947,13 +947,13 @@ void CaptureFileDialog::preview(const QString & path)
         //
         elapsed_time = (unsigned int)(stats.stop_time-stats.start_time);
         if (elapsed_time/86400) {
-            first_elapsed += QString("%1 days ").arg(elapsed_time/86400, 2, QChar('0'));
+            first_elapsed += QString("%1 days ").arg(elapsed_time/86400, 2, 10, QChar('0'));
             elapsed_time = elapsed_time % 86400;
         }
         first_elapsed += QString("%2:%3:%4")
-                .arg(elapsed_time%86400/3600, 2, QChar('0'))
-                .arg(elapsed_time%3600/60, 2, QChar('0'))
-                .arg(elapsed_time%60, 2, QChar('0'));
+                .arg(elapsed_time%86400/3600, 2, 10, QChar('0'))
+                .arg(elapsed_time%3600/60, 2, 10, QChar('0'))
+                .arg(elapsed_time%60, 2, 10, QChar('0'));
     } else {
         first_elapsed += tr("unknown");
     }
