@@ -13,6 +13,10 @@ jobs:
         uses: actions/setup-python@v1
         with:
           python-version: 3.8
+      - name: Set up Ruby 2.6
+        uses: actions/setup-ruby@v1
+        with:
+          ruby-version: '2.6'
       - name: Install deps
         run: ./tools/macos-setup-brew.sh ruby
       - name: Install dmgbuild
