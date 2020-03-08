@@ -1922,9 +1922,9 @@ void MainWindow::actionEditCopyTriggered(MainWindow::CopySelected selection_type
 
     switch (selection_type) {
     case CopySelectedDescription:
-        if (finfo_selected && finfo_selected->rep
-            && strlen(finfo_selected->rep->representation) > 0) {
-            clip.append(finfo_selected->rep->representation);
+        if (proto_tree_->selectionModel()->hasSelection()) {
+            QModelIndex idx = proto_tree_->selectionModel()->selectedIndexes().first();
+            clip = idx.data(Qt::DisplayRole).toString();
         }
         break;
     case CopySelectedFieldName:
