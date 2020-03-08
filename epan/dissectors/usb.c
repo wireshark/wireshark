@@ -2931,6 +2931,7 @@ static const value_string usb_vendors_vals[] = {
     { 0x3016, "Boundary Devices, LLC" },
     { 0x30a4, "Blues Wireless" },
     { 0x30c2, "UNPARALLEL Innovation, Lda" },
+    { 0x30c9, "Luxvisions Innotech Limited" },
     { 0x30ee, "Fujitsu Connected Technologies Limited" },
     { 0x3125, "Eagletron" },
     { 0x3136, "Navini Networks" },

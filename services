@@ -2569,7 +2569,7 @@ dialpad-voice1	2860/tcp/udp	# Dialpad Voice 1
 dialpad-voice2	2861/tcp/udp	# Dialpad Voice 2
 ttg-protocol	2862/tcp/udp	# TTG Protocol
 sonardata	2863/tcp/udp	# Sonar Data
-astromed-main	2864/tcp/udp	# main 5001 cmd
+astronova-main	2864/tcp/udp	# main 5001 cmd
 pit-vpn		2865/tcp/udp
 iwlistener	2866/tcp/udp
 esps-portal	2867/tcp/udp
