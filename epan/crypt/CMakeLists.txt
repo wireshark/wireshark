@@ -28,11 +28,21 @@ set(CRYPT_HEADER_FILES
 
 set(CRYPT_FILES
 	dot11decrypt.c
-	dot11decrypt_ccmp.c
 	dot11decrypt_rijndael.c
 	dot11decrypt_tkip.c
 	${CUSTOM_CRYPT_SRC}
 )
+
+if (GCRYPT_VERSION VERSION_LESS 1.6.0)
+	list(APPEND CRYPT_FILES
+		dot11decrypt_ccmp_compat.c
+	)
+else()
+	list(APPEND CRYPT_FILES
+		dot11decrypt_ccmp.c
+	)
+endif()
+
 source_group(crypt FILES ${CRYPT_FILES})
 
 set_source_files_properties(

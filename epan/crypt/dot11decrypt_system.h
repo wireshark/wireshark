@@ -436,12 +436,12 @@ INT Dot11DecryptDestroyContext(
 	PDOT11DECRYPT_CONTEXT ctx)
 	;
 
-extern INT Dot11DecryptCcmpDecrypt(
-	UINT8 *m,
-        gint mac_header_len,
-	INT len,
-	UCHAR TK1[16])
-	;
+int Dot11DecryptCcmpDecrypt(
+	guint8 *m,
+	int mac_header_len,
+	int len,
+	guint8 *TK1);
+
 extern INT Dot11DecryptTkipDecrypt(
 	UCHAR *tkip_mpdu,
 	size_t mpdu_len,

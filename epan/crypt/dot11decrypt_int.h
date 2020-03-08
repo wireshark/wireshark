@@ -82,6 +82,24 @@
 #define	DOT11DECRYPT_EAP_MIC(KeyInfo_0)		(KeyInfo_0 & 0x1)
 #define	DOT11DECRYPT_EAP_SEC(KeyInfo_0)		((KeyInfo_0 >> 1) & 0x1)
 
+/* Note: copied from net80211/ieee80211.h					*/
+#define DOT11DECRYPT_FC1_DIR_MASK                  0x03
+#define DOT11DECRYPT_FC1_DIR_DSTODS                0x03    /* AP ->AP  */
+#define DOT11DECRYPT_FC0_SUBTYPE_QOS               0x80
+#define DOT11DECRYPT_FC0_TYPE_DATA                 0x08
+#define DOT11DECRYPT_FC0_TYPE_MASK                 0x0c
+#define DOT11DECRYPT_SEQ_FRAG_MASK                 0x000f
+#define DOT11DECRYPT_QOS_HAS_SEQ(wh) \
+	(((wh)->fc[0] & \
+	(DOT11DECRYPT_FC0_TYPE_MASK | DOT11DECRYPT_FC0_SUBTYPE_QOS)) == \
+	(DOT11DECRYPT_FC0_TYPE_DATA | DOT11DECRYPT_FC0_SUBTYPE_QOS))
+
+#define DOT11DECRYPT_ADDR_COPY(dst,src) memcpy(dst, src, DOT11DECRYPT_MAC_LEN)
+
+#define DOT11DECRYPT_IS_4ADDRESS(wh) \
+	((wh->fc[1] & DOT11DECRYPT_FC1_DIR_MASK) == DOT11DECRYPT_FC1_DIR_DSTODS)
+#define DOT11DECRYPT_IS_QOS_DATA(wh) DOT11DECRYPT_QOS_HAS_SEQ(wh)
+
 /****************************************************************************/
 
 /****************************************************************************/

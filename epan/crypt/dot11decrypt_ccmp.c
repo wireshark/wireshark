@@ -18,99 +18,36 @@
 #include "dot11decrypt_system.h"
 #include "dot11decrypt_int.h"
 
-#include "dot11decrypt_rijndael.h"
-
 #include "dot11decrypt_debug.h"
 #include <glib.h>
 #include <wsutil/wsgcrypt.h>
-
 /****************************************************************************/
 /*	Internal definitions							*/
 
-#define AES_BLOCK_LEN 16
-
-/* Note: copied from net80211/ieee80211.h					*/
-#define DOT11DECRYPT_FC1_DIR_MASK                  0x03
-#define DOT11DECRYPT_FC1_DIR_DSTODS                0x03    /* AP ->AP  */
-#define DOT11DECRYPT_FC0_SUBTYPE_QOS               0x80
-#define DOT11DECRYPT_FC0_TYPE_DATA                 0x08
-#define DOT11DECRYPT_FC0_TYPE_MASK                 0x0c
-#define DOT11DECRYPT_SEQ_FRAG_MASK                 0x000f
-#define DOT11DECRYPT_QOS_HAS_SEQ(wh) \
-	(((wh)->fc[0] & \
-	(DOT11DECRYPT_FC0_TYPE_MASK | DOT11DECRYPT_FC0_SUBTYPE_QOS)) == \
-	(DOT11DECRYPT_FC0_TYPE_DATA | DOT11DECRYPT_FC0_SUBTYPE_QOS))
+#define FC0_AAD_MASK 0x8f
+#define FC1_AAD_MASK 0xc7
 
 /****************************************************************************/
 /* Internal macros								*/
-
-#define CCMP_DECRYPT(_i, _b, _b0, _pos, _a, _len) {					\
-	/* Decrypt, with counter */							\
-	_b0[14] = (UINT8)((_i >> 8) & 0xff);						\
-	_b0[15] = (UINT8)(_i & 0xff);							\
-	gcry_cipher_encrypt(rijndael_handle, _b, AES_BLOCK_LEN, _b0, AES_BLOCK_LEN);	\
-	XOR_BLOCK(_pos, _b, _len);							\
-	/* Authentication */								\
-	XOR_BLOCK(_a, _pos, _len);							\
-	gcry_cipher_encrypt(rijndael_handle, _a, AES_BLOCK_LEN, NULL, 0);		\
-}
 
 #define READ_6(b0, b1, b2, b3, b4, b5) \
 	((((UINT64)((UINT16)((b4 << 0) | (b5 << 8)))) << 32) | \
 	    ((UINT32)((b0 << 0) | (b1 << 8) | (b2 << 16) | (b3 << 24))))
 
-#define DOT11DECRYPT_ADDR_COPY(dst,src)    memcpy(dst,src,DOT11DECRYPT_MAC_LEN)
-
 /****************************************************************************/
 /* Internal function prototypes declarations					*/
-
-static void ccmp_init_blocks(
-	gcry_cipher_hd_t rijndael_handle,
-	PDOT11DECRYPT_MAC_FRAME wh,
-	UINT64 pn,
-	size_t dlen,
-	UINT8 b0[AES_BLOCK_LEN],
-	UINT8 aad[2 * AES_BLOCK_LEN],
-	UINT8 a[AES_BLOCK_LEN],
-	UINT8 b[AES_BLOCK_LEN])
-	;
 
 /****************************************************************************/
 /* Function definitions							*/
 
-static void ccmp_init_blocks(
-	gcry_cipher_hd_t rijndael_handle,
+/* From IEEE 802.11 2016 Chapter 12.5.3.3.3 Construct AAD */
+static void ccmp_construct_aad(
 	PDOT11DECRYPT_MAC_FRAME wh,
-	UINT64 pn,
-	size_t dlen,
-	UINT8 b0[AES_BLOCK_LEN],
-	UINT8 aad[2 * AES_BLOCK_LEN],
-	UINT8 a[AES_BLOCK_LEN],
-	UINT8 b[AES_BLOCK_LEN])
+	guint8 *aad,
+	size_t *aad_len)
 {
-	UINT8 mgmt = (DOT11DECRYPT_TYPE(wh->fc[0]) == DOT11DECRYPT_TYPE_MANAGEMENT);
-#define IS_4ADDRESS(wh) \
-	((wh->fc[1] & DOT11DECRYPT_FC1_DIR_MASK) == DOT11DECRYPT_FC1_DIR_DSTODS)
-#define IS_QOS_DATA(wh) DOT11DECRYPT_QOS_HAS_SEQ(wh)
-
-	memset(aad, 0, 2*AES_BLOCK_LEN);
-
-	/* CCM Initial Block:
-	* Flag (Include authentication header, M=3 (8-octet MIC),
-	*       L=1 (2-octet Dlen))
-	* Nonce: 0x00 | A2 | PN
-	* Dlen */
-	b0[0] = 0x59;
-	/* NB: b0[1] set below */
-	DOT11DECRYPT_ADDR_COPY(b0 + 2, wh->addr2);
-	b0[8] = (UINT8)(pn >> 40);
-	b0[9] = (UINT8)(pn >> 32);
-	b0[10] = (UINT8)(pn >> 24);
-	b0[11] = (UINT8)(pn >> 16);
-	b0[12] = (UINT8)(pn >> 8);
-	b0[13] = (UINT8)(pn >> 0);
-	b0[14] = (UINT8)((UINT8)(dlen >> 8) & 0xff);
-	b0[15] = (UINT8)(dlen & 0xff);
+	guint8 mgmt = (DOT11DECRYPT_TYPE(wh->fc[0]) == DOT11DECRYPT_TYPE_MANAGEMENT);
+	int alen = 22;
 
 	/* AAD:
 	* FC with bits 4..6 and 11..13 masked to zero; 14 is always one
@@ -119,138 +56,140 @@ static void ccmp_init_blocks(
 	* A4 (if present)
 	* QC (if present)
 	*/
-	aad[0] = 0;     /* AAD length >> 8 */
+
 	/* NB: aad[1] set below */
-	if (!mgmt)
-		aad[2] = (UINT8)(wh->fc[0] & 0x8f);    /* XXX magic #s */
-	else
-		aad[2] = wh->fc[0];
-	aad[3] = (UINT8)(wh->fc[1] & 0xc7);    /* XXX magic #s */
+	if (!mgmt) {
+		aad[0] = (UINT8)(wh->fc[0] & FC0_AAD_MASK);
+	} else {
+		aad[0] = wh->fc[0];
+	}
+	aad[1] = (UINT8)(wh->fc[1] & FC1_AAD_MASK);
 	/* NB: we know 3 addresses are contiguous */
-	memcpy(aad + 4, &wh->addr1[0], 3 * DOT11DECRYPT_MAC_LEN);
-	aad[22] = (UINT8)(wh->seq[0] & DOT11DECRYPT_SEQ_FRAG_MASK);
-	aad[23] = 0; /* all bits masked */
+	memcpy(aad + 2, &wh->addr1[0], 3 * DOT11DECRYPT_MAC_LEN);
+	aad[20] = (UINT8)(wh->seq[0] & DOT11DECRYPT_SEQ_FRAG_MASK);
+	aad[21] = 0; /* all bits masked */
+
 	/*
 	* Construct variable-length portion of AAD based
 	* on whether this is a 4-address frame/QOS frame.
-	* We always zero-pad to 32 bytes before running it
-	* through the cipher.
-	*
-	* We also fill in the priority bits of the CCM
-	* initial block as we know whether or not we have
-	* a QOS frame.
 	*/
-	if (IS_4ADDRESS(wh)) {
-		DOT11DECRYPT_ADDR_COPY(aad + 24,
+	if (DOT11DECRYPT_IS_4ADDRESS(wh)) {
+		alen += 6;
+		DOT11DECRYPT_ADDR_COPY(aad + 22,
 			((PDOT11DECRYPT_MAC_FRAME_ADDR4)wh)->addr4);
-		if (IS_QOS_DATA(wh)) {
+		if (DOT11DECRYPT_IS_QOS_DATA(wh)) {
 			PDOT11DECRYPT_MAC_FRAME_ADDR4_QOS qwh4 =
 				(PDOT11DECRYPT_MAC_FRAME_ADDR4_QOS) wh;
-			aad[30] = (UINT8)(qwh4->qos[0] & 0x0f);/* just priority bits */
-			aad[31] = 0;
-			b0[1] = aad[30];
-			aad[1] = 22 + DOT11DECRYPT_MAC_LEN + 2;
-		} else {
-			memset(&aad[30], 0, 2);
-			b0[1] = 0;
-			aad[1] = 22 + DOT11DECRYPT_MAC_LEN;
+			aad[28] = (UINT8)(qwh4->qos[0] & 0x0f);/* just priority bits */
+			aad[29] = 0;
+			alen += 2;
 		}
 	} else {
-		if (IS_QOS_DATA(wh)) {
+		if (DOT11DECRYPT_IS_QOS_DATA(wh)) {
 			PDOT11DECRYPT_MAC_FRAME_QOS qwh =
 				(PDOT11DECRYPT_MAC_FRAME_QOS) wh;
-			aad[24] = (UINT8)(qwh->qos[0] & 0x0f); /* just priority bits */
-			aad[25] = 0;
-			b0[1] = aad[24];
-			aad[1] = 22 + 2;
-		} else {
-			memset(&aad[24], 0, 2);
-			b0[1] = 0;
-			aad[1] = 22;
+			aad[22] = (UINT8)(qwh->qos[0] & 0x0f); /* just priority bits */
+			aad[23] = 0;
+			alen += 2;
 		}
-		if (mgmt)
-			b0[1] |= 0x10; /* set MGMT flag */
-		memset(&aad[26], 0, 4);
 	}
-
-	/* Start with the first block and AAD */
-	gcry_cipher_encrypt(rijndael_handle, a, AES_BLOCK_LEN, b0, AES_BLOCK_LEN);
-	XOR_BLOCK(a, aad, AES_BLOCK_LEN);
-	gcry_cipher_encrypt(rijndael_handle, a, AES_BLOCK_LEN, NULL, 0);
-	XOR_BLOCK(a, &aad[AES_BLOCK_LEN], AES_BLOCK_LEN);
-	gcry_cipher_encrypt(rijndael_handle, a, AES_BLOCK_LEN, NULL, 0);
-	b0[0] &= 0x07;
-	b0[14] = b0[15] = 0;
-	gcry_cipher_encrypt(rijndael_handle, b, AES_BLOCK_LEN, b0, AES_BLOCK_LEN);
-
-	/** //XOR( m + len - 8, b, 8 ); **/
-#undef  IS_QOS_DATA
-#undef  IS_4ADDRESS
+	*aad_len = alen;
 }
 
-INT Dot11DecryptCcmpDecrypt(
-	UINT8 *m,
-	gint mac_header_len,
-	INT len,
-	UCHAR TK1[16])
+/* From IEEE 802.11 2016 Chapter 12.5.3.3.4 Construct CCM nonce */
+/* Nonce: Flags | A2 | PN */
+static void ccmp_construct_nonce(
+	PDOT11DECRYPT_MAC_FRAME wh,
+	guint64 pn,
+	guint8 nonce[13])
+{
+	guint8 mgmt = (DOT11DECRYPT_TYPE(wh->fc[0]) == DOT11DECRYPT_TYPE_MANAGEMENT);
+
+	if (DOT11DECRYPT_IS_4ADDRESS(wh) && DOT11DECRYPT_IS_QOS_DATA(wh)) {
+		PDOT11DECRYPT_MAC_FRAME_ADDR4_QOS qwh4 =
+			(PDOT11DECRYPT_MAC_FRAME_ADDR4_QOS) wh;
+		nonce[0] = (UINT8)(qwh4->qos[0] & 0x0f);/* just priority bits */
+	} else if (DOT11DECRYPT_IS_QOS_DATA(wh)) {
+		PDOT11DECRYPT_MAC_FRAME_QOS qwh =
+			(PDOT11DECRYPT_MAC_FRAME_QOS) wh;
+			nonce[0] = (UINT8)(qwh->qos[0] & 0x0f); /* just priority bits */
+	} else {
+		nonce[0] = 0;
+	}
+	if (mgmt) {
+		nonce[0] |= 0x10; /* set MGMT flag */
+	}
+
+	DOT11DECRYPT_ADDR_COPY(nonce + 1, wh->addr2);
+	nonce[7] = (UINT8)(pn >> 40);
+	nonce[8] = (UINT8)(pn >> 32);
+	nonce[9] = (UINT8)(pn >> 24);
+	nonce[10] = (UINT8)(pn >> 16);
+	nonce[11] = (UINT8)(pn >> 8);
+	nonce[12] = (UINT8)(pn >> 0);
+}
+
+int Dot11DecryptCcmpDecrypt(
+	guint8 *m,
+	int mac_header_len,
+	int len,
+	guint8 *TK1)
 {
 	PDOT11DECRYPT_MAC_FRAME wh;
-	UINT8 aad[2 * AES_BLOCK_LEN];
-	UINT8 b0[AES_BLOCK_LEN], b[AES_BLOCK_LEN], a[AES_BLOCK_LEN];
-	UINT8 mic[AES_BLOCK_LEN];
-	size_t data_len;
-	UINT i;
-	UINT8 *pos;
-	UINT space;
-	INT z = mac_header_len;
-	gcry_cipher_hd_t rijndael_handle;
-	UINT64 PN;
-	UINT8 *ivp=m+z;
-
-	PN = READ_6(ivp[0], ivp[1], ivp[4], ivp[5], ivp[6], ivp[7]);
-
-	if (gcry_cipher_open(&rijndael_handle, GCRY_CIPHER_AES, GCRY_CIPHER_MODE_ECB, 0)) {
-		return 1;
-	}
-	if (gcry_cipher_setkey(rijndael_handle, TK1, 16)) {
-		gcry_cipher_close(rijndael_handle);
-		return 1;
-	}
+	guint8 aad[30]; /* Max aad_len. See Table 12-1 IEEE 802.11 2016 */
+	guint8 nonce[13];
+	guint8 mic[8];
+	ssize_t data_len;
+	size_t aad_len;
+	int z = mac_header_len;
+	gcry_cipher_hd_t handle;
+	guint64 pn;
+	guint8 *ivp = m + z;
 
 	wh = (PDOT11DECRYPT_MAC_FRAME )m;
-	data_len = len - (z + DOT11DECRYPT_CCMP_HEADER+DOT11DECRYPT_CCMP_TRAILER);
+	data_len = len - (z + DOT11DECRYPT_CCMP_HEADER + DOT11DECRYPT_CCMP_TRAILER);
 	if (data_len < 1) {
-		gcry_cipher_close(rijndael_handle);
 		return 0;
 	}
-	ccmp_init_blocks(rijndael_handle, wh, PN, data_len, b0, aad, a, b);
-	memcpy(mic, m+len-DOT11DECRYPT_CCMP_TRAILER, DOT11DECRYPT_CCMP_TRAILER);
-	XOR_BLOCK(mic, b, DOT11DECRYPT_CCMP_TRAILER);
 
-	i = 1;
-	pos = (UINT8 *)m + z + DOT11DECRYPT_CCMP_HEADER;
-	space = len - (z + DOT11DECRYPT_CCMP_HEADER);
+	memcpy(mic, m + len - DOT11DECRYPT_CCMP_TRAILER, DOT11DECRYPT_CCMP_TRAILER);
+	pn = READ_6(ivp[0], ivp[1], ivp[4], ivp[5], ivp[6], ivp[7]);
+	ccmp_construct_nonce(wh, pn, nonce);
+	ccmp_construct_aad(wh, aad, &aad_len);
 
-	if (space > data_len)
-		space = (UINT)data_len;
-	while (space >= AES_BLOCK_LEN) {
-		CCMP_DECRYPT(i, b, b0, pos, a, AES_BLOCK_LEN);
-		pos += AES_BLOCK_LEN;
-		space -= AES_BLOCK_LEN;
-		i++;
+	if (gcry_cipher_open(&handle, GCRY_CIPHER_AES, GCRY_CIPHER_MODE_CCM, 0)) {
+		return 1;
+	}
+	if (gcry_cipher_setkey(handle, TK1, 16)) {
+		goto err_out;
+	}
+	if (gcry_cipher_setiv(handle, nonce, sizeof(nonce))) {
+		goto err_out;
 	}
 
-	if (space != 0)         /* short last block */
-		CCMP_DECRYPT(i, b, b0, pos, a, space);
-
-	gcry_cipher_close(rijndael_handle);
-	/* MIC Key ?= MIC */
-	if (memcmp(mic, a, DOT11DECRYPT_CCMP_TRAILER) == 0) {
-		return 0;
+	guint64 ccm_lengths[3];
+	ccm_lengths[0] = data_len;
+	ccm_lengths[1] = aad_len;
+	ccm_lengths[2] = DOT11DECRYPT_CCMP_TRAILER;
+	if (gcry_cipher_ctl(handle, GCRYCTL_SET_CCM_LENGTHS, ccm_lengths, sizeof(ccm_lengths))) {
+		goto err_out;
+	}
+	if (gcry_cipher_authenticate(handle, aad, aad_len)) {
+		goto err_out;
+	}
+	if (gcry_cipher_decrypt(handle, m + z + DOT11DECRYPT_CCMP_HEADER, data_len, NULL, 0)) {
+		goto err_out;
+	}
+	if (gcry_cipher_checktag(handle, mic, DOT11DECRYPT_CCMP_TRAILER)) {
+		goto err_out;
 	}
 
 	/* TODO replay check	(IEEE 802.11i-2004, pg. 62)			*/
 	/* TODO PN must be incremental (IEEE 802.11i-2004, pg. 62)		*/
 
+	gcry_cipher_close(handle);
+	return 0;
+err_out:
+	gcry_cipher_close(handle);
 	return 1;
 }
