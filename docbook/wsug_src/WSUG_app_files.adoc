@@ -107,7 +107,7 @@ Files\Wireshark_.
 
 _$XDG_CONFIG_HOME_ is the folder for user-specific configuration files.
 It’s usually _$HOME/.config_, where _$HOME_ is the user’s home folder, which
-is usually something such as _$HOME/**username**_, or
+is usually something such as _/home/**username**_, or
 _/Users/**username**_ on macOS.
 
 If you are using macOS and you are running a copy of Wireshark
