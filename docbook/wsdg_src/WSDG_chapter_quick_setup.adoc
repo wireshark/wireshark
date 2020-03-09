@@ -306,14 +306,11 @@ Make sure your repository path doesn't contain spaces.
 
 ==== Open a Visual Studio Command Prompt
 
-From the Start Menu (or Start Screen), navigate to the “Visual Studio
-2019” folder and choose the Command Prompt appropriate for the build you
-wish to make, e.g. “x64 Native Tools Command Prompt for VS 2019” for a
-64-bit version or “x86 Native Tools Command Prompt for VS 2019” for a
-32-bit version.  Depending on your version of Windows the Command Prompt
-list might be directly under “Visual Studio 2019” or you might have to
-dig for it under multiple folders, e.g. menu:Visual Studio 2019[Visual
-Studio Tools,Windows Desktop Command Prompts].
+From the Start Menu (or Start Screen), navigate to the “Visual Studio 2019” folder and choose the https://docs.microsoft.com/en-us/cpp/build/building-on-the-command-line?view=vs-2019#developer_command_prompt_shortcuts[Command Prompt] appropriate for the build you wish to make, e.g. “x64 Native Tools Command Prompt for VS 2019” for a 64-bit version or “x86 Native Tools Command Prompt for VS 2019” for a 32-bit version.
+Depending on your version of Windows the Command Prompt list might be directly under “Visual Studio 2019” or you might have to dig for it under multiple folders, e.g. menu:Visual Studio 2019[Visual Studio Tools,Windows Desktop Command Prompts].
+
+You can set up a build environment in your own command prompt by running the appropriate `vcvars__ARCHITECTURE__.bat` command.
+See https://docs.microsoft.com/en-us/cpp/build/building-on-the-command-line?view=vs-2019#use-the-developer-tools-in-an-existing-command-window[Use the Microsoft C++ toolset from the command line] for details.
 
 [TIP]
 .Pin the items to the Task Bar
