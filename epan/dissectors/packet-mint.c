@@ -1,6 +1,6 @@
 /* packet-mint.c
- * Routines for the disassembly of the Chantry/HiPath AP-Controller
- * tunneling protocol.
+ * Routines for the disassembly of the Media Independent Network Transport
+ * protocol used between wireless controllers and APs
  *
  * Copyright 2013 Joerg Mayer (see AUTHORS file)
  *
@@ -12,13 +12,13 @@
  */
 
 /*
- * Motorola/Symbol WLAN proprietary protocol
+ * Extremenetworks/Zebra/Motorola/Symbol WLAN proprietary protocol
  * http://www.awimobility.com/s.nl/ctype.KB/it.I/id.7761/KB.81/.f
  * and
  * http://www.michaelfmcnamara.com/files/motorola/WiNG_5X_How_To_NOC.pdf
  * looks like a mixture of lwapp/capwap and is-is/ospf
  *
- * MLCP: MiNT Link Creation Protocol
+ * MLCP: MINT Link Creation Protocol
  */
 
 /* We don't want the tranported data to pollute the output until
@@ -38,15 +38,18 @@
 void proto_register_mint(void);
 void proto_reg_handoff_mint(void);
 
-#define PROTO_SHORT_NAME "MiNT"
-#define PROTO_LONG_NAME "Media independent Network Transport"
+#define PROTO_SHORT_NAME "MINT"
+#define PROTO_LONG_NAME "Media Independent Network Transport"
 
 /* 0x8783 ETHERTYPE_MINT */
+/* Destmac: 01-a0-f8-00-00-00: Hello packets in multicast mode */
+/* Mint overhead: 86 bytes */
 /* 24576 = 0x6000 */
-/* 24577 = 0x6001 */
 #define PORT_MINT_CONTROL_TUNNEL	24576
+/* 24577 = 0x6001 */
 #define PORT_MINT_DATA_TUNNEL		24577
 #define PORT_MINT_RANGE			"24576-24577"
+/* MLCP: VLAN or IP-based */
 
 static dissector_handle_t eth_handle;
 
@@ -64,6 +67,7 @@ static dissector_handle_t mint_eth_handle;
 /* Output of "service show mint ports" on controller */
 
 typedef enum {
+	MINT_PORT_0			=   0,
 	MINT_PORT_DATA			=   1,
 	MINT_PORT_DATA_FLOOD		=   2,
 	MINT_PORT_FDB_UPDATE		=   3,
@@ -137,6 +141,7 @@ typedef enum {
 } mint_packettype_t;
 
 static const value_string mint_port_vals[] = {
+	{ MINT_PORT_0,			"0 port" },
 	{ MINT_PORT_DATA,		"data/dgram" },
 	{ MINT_PORT_DATA_FLOOD,		"data-flood/dgram" },
 	{ MINT_PORT_FDB_UPDATE,		"fdb-update/dgram" },
@@ -217,14 +222,14 @@ static const value_string mint_router_csnp_tlv_vals[] = {
 };
 
 static const value_string mint_router_helo_tlv_vals[] = {
-	{ 1,	"MiNT ID" },
+	{ 1,	"MINT ID" },
 	{ 8,	"IPv4 address" },
 
 	{ 0,    NULL }
 };
 
 static const value_string mint_router_lsp_tlv_vals[] = {
-	{ 8,	"MiNT ID" },
+	{ 8,	"MINT ID" },
 
 	{ 0,    NULL }
 };
@@ -242,9 +247,9 @@ static const value_string mint_0x22_tlv_vals[] = {
 /* hfi elements */
 #define MINT_HF_INIT HFI_INIT(proto_mint)
 static header_field_info *hfi_mint = NULL;
-/* MiNT Eth Shim */
+/* MINT Eth Shim */
 static header_field_info hfi_mint_ethshim MINT_HF_INIT =
-	{ "MiNT Ethernet Shim",    "mint.ethshim", FT_PROTOCOL, BASE_NONE, NULL,
+	{ "MINT Ethernet Shim",    "mint.ethshim", FT_PROTOCOL, BASE_NONE, NULL,
 		0x0, NULL, HFILL };
 
 static header_field_info hfi_mint_ethshim_unknown MINT_HF_INIT =
@@ -255,7 +260,7 @@ static header_field_info hfi_mint_ethshim_length MINT_HF_INIT =
 	{ "Length",	"mint.ethshim.length", FT_UINT16, BASE_DEC, NULL,
 		0x0, NULL, HFILL };
 
-/* MiNT common */
+/* MINT common */
 static header_field_info hfi_mint_header MINT_HF_INIT =
 	{ "Header",    "mint.header", FT_PROTOCOL, BASE_NONE, NULL,
 		0x0, NULL, HFILL };
@@ -264,12 +269,20 @@ static header_field_info hfi_mint_header_unknown1 MINT_HF_INIT =
 	{ "HdrUnk1",	"mint.header.unknown1", FT_BYTES, BASE_NONE, NULL,
 		0x0, NULL, HFILL };
 
+static header_field_info hfi_mint_header_ttl MINT_HF_INIT =
+	{ "TTL",	"mint.header.ttl", FT_UINT8, BASE_DEC, NULL,
+		0x0, NULL, HFILL };
+
+static header_field_info hfi_mint_header_unknown2 MINT_HF_INIT =
+	{ "HdrUnk2",	"mint.header.unknown2", FT_BYTES, BASE_NONE, NULL,
+		0x0, NULL, HFILL };
+
 static header_field_info hfi_mint_header_srcid MINT_HF_INIT =
-	{ "Src MiNT ID",	"mint.header.srcid", FT_BYTES, BASE_NONE, NULL,
+	{ "Src MINT ID",	"mint.header.srcid", FT_BYTES, BASE_NONE, NULL,
 		0x0, NULL, HFILL };
 
 static header_field_info hfi_mint_header_dstid MINT_HF_INIT =
-	{ "Dst MiNT ID",	"mint.header.dstid", FT_BYTES, BASE_NONE, NULL,
+	{ "Dst MINT ID",	"mint.header.dstid", FT_BYTES, BASE_NONE, NULL,
 		0x0, NULL, HFILL };
 
 static header_field_info hfi_mint_header_srcdataport MINT_HF_INIT =
@@ -280,7 +293,7 @@ static header_field_info hfi_mint_header_dstdataport MINT_HF_INIT =
 	{ "Dst port",	"mint.header.dstport", FT_UINT16, BASE_DEC, VALS(mint_port_vals),
 		0x0, NULL, HFILL };
 
-/* MiNT Data */
+/* MINT Data */
 static header_field_info hfi_mint_data MINT_HF_INIT =
 	{ "Data Frame",    "mint.data", FT_PROTOCOL, BASE_NONE, NULL,
 		0x0, NULL, HFILL };
@@ -297,7 +310,7 @@ static header_field_info hfi_mint_data_unknown1 MINT_HF_INIT =
 	{ "DataUnk1",	"mint.data.unknown1", FT_BYTES, BASE_NONE, NULL,
 		0x0, NULL, HFILL };
 
-/* MiNT Control common */
+/* MINT Control common */
 static header_field_info hfi_mint_control MINT_HF_INIT =
 	{ "Control Frame",    "mint.control", FT_PROTOCOL, BASE_NONE, NULL,
 		0x0, NULL, HFILL };
@@ -454,10 +467,16 @@ dissect_mint_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		offset, 16, ENC_NA);
 	mint_header_tree = proto_item_add_subtree(ti, ett_mint_header);
 
-	/* MiNT header */
+	/* MINT header */
 	proto_tree_add_item(mint_header_tree, &hfi_mint_header_unknown1, tvb,
-		offset, 4, ENC_NA);
-	offset += 4;
+		offset, 1, ENC_NA);
+	offset += 1;
+	proto_tree_add_item(mint_header_tree, &hfi_mint_header_ttl, tvb,
+		offset, 1, ENC_NA);
+	offset += 1;
+	proto_tree_add_item(mint_header_tree, &hfi_mint_header_unknown2, tvb,
+		offset, 2, ENC_NA);
+	offset += 2;
 	proto_tree_add_item(mint_header_tree, &hfi_mint_header_dstid, tvb,
 		offset, 4, ENC_NA);
 	offset += 4;
@@ -785,23 +804,25 @@ proto_register_mint(void)
 #ifndef HAVE_HFI_SECTION_INIT
 	static header_field_info *hfi[] = {
 
-	/* MiNT Eth Shim */
+	/* MINT Eth Shim */
 		&hfi_mint_ethshim,
 		&hfi_mint_ethshim_unknown,
 		&hfi_mint_ethshim_length,
-	/* MiNT common */
+	/* MINT common */
 		&hfi_mint_header,
 		&hfi_mint_header_unknown1,
+		&hfi_mint_header_ttl,
+		&hfi_mint_header_unknown2,
 		&hfi_mint_header_srcid,
 		&hfi_mint_header_dstid,
 		&hfi_mint_header_srcdataport,
 		&hfi_mint_header_dstdataport,
-	/* MiNT Data */
+	/* MINT Data */
 		&hfi_mint_data,
 		&hfi_mint_data_vlan,
 		&hfi_mint_data_seqno,
 		&hfi_mint_data_unknown1,
-	/* MiNT Control */
+	/* MINT Control */
 		&hfi_mint_control,
 		&hfi_mint_control_32zerobytes,
 		&hfi_mint_control_unknown1,
@@ -844,7 +865,7 @@ proto_register_mint(void)
 
 	proto_mint = proto_register_protocol(PROTO_LONG_NAME, PROTO_SHORT_NAME, "mint");
 	/* Created to remove Decode As confusion */
-	proto_mint_data = proto_register_protocol_in_name_only("Media independent Network Transport Data", "MiNT (Data)", "mint_data", proto_mint, FT_PROTOCOL);
+	proto_mint_data = proto_register_protocol_in_name_only("Media Independent Network Transport Data", "MINT (Data)", "mint_data", proto_mint, FT_PROTOCOL);
 
 	hfi_mint = proto_registrar_get_nth(proto_mint);
 	proto_register_fields(proto_mint, hfi, array_length(hfi));
