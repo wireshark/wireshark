@@ -1,6 +1,12 @@
 /* packet-bfd.c
  * Routines for Bidirectional Forwarding Detection (BFD) message dissection
- * RFCs 5880, 5881, 5882, 5883, 5884, 5885
+ * RFCs
+ *   5880: Bidirectional Forwarding Detection (BFD)
+ *   5881: Bidirectional Forwarding Detection (BFD) for IPv4 and IPv6 (Single Hop)
+ *   5882: Generic Application of Bidirectional Forwarding Detection (BFD)
+ *   5883: Bidirectional Forwarding Detection (BFD) for Multihop Paths
+ *   5884: Bidirectional Forwarding Detection (BFD) for MPLS Label Switched Paths (LSPs)
+ *   5885: Bidirectional Forwarding Detection (BFD) for the Pseudowire Virtual Circuit Connectivity Verification (VCCV)
  * (and http://tools.ietf.org/html/draft-ietf-bfd-base-01 for version 0)
  *
  * Copyright 2003, Hannes Gredler <hannes@juniper.net>
@@ -31,7 +37,9 @@
 void proto_register_bfd(void);
 void proto_reg_handoff_bfd(void);
 
-#define UDP_PORT_RANGE_BFD  "3784,4784" /* draft-katz-ward-bfd-v4v6-1hop-00.txt */ /* draft-ietf-bfd-multihop-05.txt */
+/* 3784: BFD control, 3785: BFD echo, 4784: BFD multi hop control */
+#define UDP_PORT_RANGE_BFD_CTRL  "3784,4784"
+#define UDP_PORT_BFD_ECHO  3785
 
 /* As per RFC 6428 : http://tools.ietf.org/html/rfc6428
    Section: 3.5 */
@@ -104,6 +112,7 @@ static const value_string bfd_control_auth_type_values[] = {
 #define SHA1_CHECKSUM_LEN 20
 
 static gint proto_bfd = -1;
+static gint proto_bfd_echo = -1;
 
 static gint hf_bfd_version = -1;
 static gint hf_bfd_diag = -1;
@@ -134,14 +143,16 @@ static gint hf_bfd_auth_key = -1;
 static gint hf_bfd_auth_password = -1;
 static gint hf_bfd_auth_seq_num = -1;
 
+static gint hf_bfd_echo = -1;
+
 static gint ett_bfd = -1;
 static gint ett_bfd_flags = -1;
 static gint ett_bfd_auth = -1;
 
+static gint ett_bfd_echo = -1;
+
 static expert_field ei_bfd_auth_len_invalid = EI_INIT;
 static expert_field ei_bfd_auth_no_data = EI_INIT;
-
-static dissector_handle_t bfd_control_handle = NULL;
 
 static gint hf_mep_type = -1;
 static gint hf_mep_len = -1;
@@ -348,6 +359,29 @@ dissect_bfd_authentication(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 }
 
+static int
+dissect_bfd_echo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+    proto_tree *bfd_tree = NULL;
+    guint bfd_length = tvb_reported_length_remaining(tvb, 0);
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "BFD Echo");
+    /* XXX Add direction */
+    col_set_str(pinfo->cinfo, COL_INFO, "Originator specific content");
+
+    if (tree) {
+        proto_item *ti;
+
+        ti = proto_tree_add_protocol_format(tree, proto_bfd_echo, tvb, 0, bfd_length,
+                                            "BFD Echo message");
+
+        bfd_tree = proto_item_add_subtree(ti, ett_bfd_echo);
+
+        proto_tree_add_item(bfd_tree, hf_bfd_echo, tvb, 0, bfd_length, ENC_NA);
+    }
+
+    return bfd_length;
+}
 
 static int
 dissect_bfd_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
@@ -821,12 +855,21 @@ proto_register_bfd(void)
             "MPLS-TP Interface Number", HFILL }
         }
     };
+    /* BFD Echo */
+    static hf_register_info hf_echo[] = {
+        { &hf_bfd_echo,
+          { "Echo", "bfd_echo",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            "Originator specific echo packet", HFILL }
+        }
+    };
 
     /* Setup protocol subtree array */
     static gint *ett[] = {
         &ett_bfd,
         &ett_bfd_flags,
-        &ett_bfd_auth
+        &ett_bfd_auth,
+        &ett_bfd_echo
     };
 
     static ei_register_info ei[] = {
@@ -840,10 +883,13 @@ proto_register_bfd(void)
     proto_bfd = proto_register_protocol("Bidirectional Forwarding Detection Control Message",
                                         "BFD Control",
                                         "bfd");
-    bfd_control_handle = register_dissector("bfd", dissect_bfd_control, proto_bfd);
+    proto_bfd_echo = proto_register_protocol("Bidirectional Forwarding Detection Echo Packet",
+                                        "BFD Echo",
+                                        "bfd_echo");
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_bfd, hf, array_length(hf));
+    proto_register_field_array(proto_bfd_echo, hf_echo, array_length(hf_echo));
     proto_register_subtree_array(ett, array_length(ett));
     expert_bfd = expert_register_protocol(proto_bfd);
     expert_register_field_array(expert_bfd, ei, array_length(ei));
@@ -852,7 +898,14 @@ proto_register_bfd(void)
 void
 proto_reg_handoff_bfd(void)
 {
-    dissector_add_uint_range_with_preference("udp.port", UDP_PORT_RANGE_BFD, bfd_control_handle);
+    dissector_handle_t bfd_control_handle;
+    dissector_handle_t bfd_echo_handle;
+
+    bfd_control_handle = create_dissector_handle(dissect_bfd_control, proto_bfd);
+    bfd_echo_handle = create_dissector_handle(dissect_bfd_echo, proto_bfd_echo);
+
+    dissector_add_uint_range_with_preference("udp.port", UDP_PORT_RANGE_BFD_CTRL, bfd_control_handle);
+    dissector_add_uint("udp.port", UDP_PORT_BFD_ECHO, bfd_echo_handle);
 
     dissector_add_uint("pwach.channel_type", PW_ACH_TYPE_BFD_CC, bfd_control_handle);
     dissector_add_uint("pwach.channel_type", PW_ACH_TYPE_BFD_CV, bfd_control_handle);
