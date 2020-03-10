@@ -264,7 +264,7 @@ PINFO_NAMED_NUMBER_GETTER(port_type,ptype);
 PINFO_NAMED_NUMBER_GETTER(src_port,srcport);
 PINFO_NAMED_NUMBER_SETTER(src_port,srcport,guint32);
 
-/* WSLUA_ATTRIBUTE Pinfo_dst_port RW Source Address of this Packet. */
+/* WSLUA_ATTRIBUTE Pinfo_dst_port RW Destination Port of this Packet. */
 PINFO_NAMED_NUMBER_GETTER(dst_port,destport);
 PINFO_NAMED_NUMBER_SETTER(dst_port,destport,guint32);
 
