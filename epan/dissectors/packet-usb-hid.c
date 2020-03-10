@@ -192,7 +192,7 @@ static const value_string usb_hid_mainitem_bTag_vals[] = {
     {USBHID_MAINITEM_TAG_OUTPUT,        "Output"},
     {USBHID_MAINITEM_TAG_FEATURE,       "Feature"},
     {USBHID_MAINITEM_TAG_COLLECTION,    "Collection"},
-    {USBHID_MAINITEM_TAG_ENDCOLLECTION, "End collection"},
+    {USBHID_MAINITEM_TAG_ENDCOLLECTION, "End Collection"},
     {0, NULL}
 };
 #define USBHID_GLOBALITEM_TAG_USAGE_PAGE    0
@@ -208,16 +208,16 @@ static const value_string usb_hid_mainitem_bTag_vals[] = {
 #define USBHID_GLOBALITEM_TAG_PUSH         10
 #define USBHID_GLOBALITEM_TAG_POP          11
 static const value_string usb_hid_globalitem_bTag_vals[] = {
-    {USBHID_GLOBALITEM_TAG_USAGE_PAGE,   "Usage"},
-    {USBHID_GLOBALITEM_TAG_LOG_MIN,      "Logical minimum"},
-    {USBHID_GLOBALITEM_TAG_LOG_MAX,      "Logical maximum"},
-    {USBHID_GLOBALITEM_TAG_PHY_MIN,      "Physical minimum"},
-    {USBHID_GLOBALITEM_TAG_PHY_MAX,      "Physical maximum"},
-    {USBHID_GLOBALITEM_TAG_UNIT_EXP,     "Unit exponent"},
-    {USBHID_GLOBALITEM_TAG_UNIT,         "Units"},
-    {USBHID_GLOBALITEM_TAG_REPORT_SIZE,  "Report size"},
+    {USBHID_GLOBALITEM_TAG_USAGE_PAGE,   "Usage Page"},
+    {USBHID_GLOBALITEM_TAG_LOG_MIN,      "Logical Minimum"},
+    {USBHID_GLOBALITEM_TAG_LOG_MAX,      "Logical Maximum"},
+    {USBHID_GLOBALITEM_TAG_PHY_MIN,      "Physical Minimum"},
+    {USBHID_GLOBALITEM_TAG_PHY_MAX,      "Physical Maximum"},
+    {USBHID_GLOBALITEM_TAG_UNIT_EXP,     "Unit Exponent"},
+    {USBHID_GLOBALITEM_TAG_UNIT,         "Unit"},
+    {USBHID_GLOBALITEM_TAG_REPORT_SIZE,  "Report Size"},
     {USBHID_GLOBALITEM_TAG_REPORT_ID,    "Report ID"},
-    {USBHID_GLOBALITEM_TAG_REPORT_COUNT, "Report count"},
+    {USBHID_GLOBALITEM_TAG_REPORT_COUNT, "Report Count"},
     {USBHID_GLOBALITEM_TAG_PUSH,         "Push"},
     {USBHID_GLOBALITEM_TAG_POP,          "Pop"},
     {12, "[Reserved]"},
@@ -239,14 +239,14 @@ static const value_string usb_hid_globalitem_bTag_vals[] = {
 #define USBHID_LOCALITEM_TAG_DELIMITER     10 /* Also listed as reserved in spec! */
 static const value_string usb_hid_localitem_bTag_vals[] = {
     {USBHID_LOCALITEM_TAG_USAGE_PAGE,   "Usage"},
-    {USBHID_LOCALITEM_TAG_USAGE_MIN,    "Usage minimum"},
-    {USBHID_LOCALITEM_TAG_USAGE_MAX,    "Usage maximum"},
-    {USBHID_LOCALITEM_TAG_DESIG_INDEX,  "Designator index"},
-    {USBHID_LOCALITEM_TAG_DESIG_MIN,    "Designator minimum"},
-    {USBHID_LOCALITEM_TAG_DESIG_MAX,    "Designator maximum"},
-    {USBHID_LOCALITEM_TAG_STRING_INDEX, "String index"},
-    {USBHID_LOCALITEM_TAG_STRING_MIN,   "String minimum"},
-    {USBHID_LOCALITEM_TAG_STRING_MAX,   "String maximum"},
+    {USBHID_LOCALITEM_TAG_USAGE_MIN,    "Usage Minimum"},
+    {USBHID_LOCALITEM_TAG_USAGE_MAX,    "Usage Maximum"},
+    {USBHID_LOCALITEM_TAG_DESIG_INDEX,  "Designator Index"},
+    {USBHID_LOCALITEM_TAG_DESIG_MIN,    "Designator Minimum"},
+    {USBHID_LOCALITEM_TAG_DESIG_MAX,    "Designator Maximum"},
+    {USBHID_LOCALITEM_TAG_STRING_INDEX, "String Index"},
+    {USBHID_LOCALITEM_TAG_STRING_MIN,   "String Minimum"},
+    {USBHID_LOCALITEM_TAG_STRING_MAX,   "String Maximum"},
     {USBHID_LOCALITEM_TAG_DELIMITER,    "Delimiter"},
     {11, "[Reserved]"},
     {12, "[Reserved]"},
