@@ -71,6 +71,8 @@ static int hf_ptcch_ta_idx = -1;
 static int hf_ptcch_ta_val = -1;
 static int hf_ptcch_padding = -1;
 
+static int hf_um_voice_type = -1;
+
 static gint ett_gsmtap = -1;
 
 enum {
@@ -276,6 +278,28 @@ enum {
 	GSMTAP_LTE_NAS_SUB_MAX
 };
 
+/*! First byte of type==GSMTAP_TYPE_UM sub_type==GSMTAP_CHANNEL_VOICE payload */
+enum gsmtap_um_voice_type {
+	/*! 1 byte TOC + 112 bits (14 octets) = 15 octets payload;
+	 *  Reference is RFC5993 Section 5.2.1 + 3GPP TS 46.030 Annex B */
+	GSMTAP_UM_VOICE_HR,
+	/*! 33 payload bytes; Reference is RFC3551 Section 4.5.8.1 */
+	GSMTAP_UM_VOICE_FR,
+	/*! 31 payload bytes; Reference is RFC3551 Section 4.5.9 + ETSI TS 101 318 */
+	GSMTAP_UM_VOICE_EFR,
+	/*! 1 byte TOC + 5..31 bytes = 6..32 bytes payload; RFC4867 octet-aligned */
+	GSMTAP_UM_VOICE_AMR,
+	/* TODO: Revisit the types below; their usage; ... */
+	GSMTAP_UM_VOICE_AMR_SID_BAD,
+	GSMTAP_UM_VOICE_AMR_ONSET,
+	GSMTAP_UM_VOICE_AMR_RATSCCH,
+	GSMTAP_UM_VOICE_AMR_SID_UPDATE_INH,
+	GSMTAP_UM_VOICE_AMR_SID_FIRST_P1,
+	GSMTAP_UM_VOICE_AMR_SID_FIRST_P2,
+	GSMTAP_UM_VOICE_AMR_SID_FIRST_INH,
+	GSMTAP_UM_VOICE_AMR_RATSCCH_MARKER,
+	GSMTAP_UM_VOICE_AMR_RATSCCH_DATA,
+};
 
 static dissector_handle_t sub_handles[GSMTAP_SUB_MAX];
 static dissector_handle_t rrc_sub_handles[GSMTAP_RRC_SUB_MAX];
@@ -321,6 +345,8 @@ static const value_string gsmtap_channels[] = {
 	{ GSMTAP_CHANNEL_PDTCH,		"PDTCH" },
 	{ GSMTAP_CHANNEL_PTCCH,		"PTTCH" },
 	{ GSMTAP_CHANNEL_CBCH51,	"CBCH" },
+	{ GSMTAP_CHANNEL_VOICE_F,	"TCH/F" },
+	{ GSMTAP_CHANNEL_VOICE_H,	"TCH/H" },
 
 	{ GSMTAP_CHANNEL_ACCH|
 	  GSMTAP_CHANNEL_SDCCH,		"LSACCH" },
@@ -409,6 +435,23 @@ static const value_string gsmtap_types[] = {
 	{ 0,			NULL },
 };
 
+static const value_string gsmtap_um_voice_types[] = {
+	{ GSMTAP_UM_VOICE_HR,			"HR" },
+	{ GSMTAP_UM_VOICE_FR,			"FR" },
+	{ GSMTAP_UM_VOICE_EFR,			"EFR" },
+	{ GSMTAP_UM_VOICE_AMR,			"AMR" },
+	{ GSMTAP_UM_VOICE_AMR_SID_BAD,		"AMR_SID_BAD" },
+	{ GSMTAP_UM_VOICE_AMR_ONSET,		"AMR_ONSET" },
+	{ GSMTAP_UM_VOICE_AMR_RATSCCH,		"AMR_RATSCCH" },
+	{ GSMTAP_UM_VOICE_AMR_SID_UPDATE_INH,	"AMR_SID_UPDATE_INH" },
+	{ GSMTAP_UM_VOICE_AMR_SID_FIRST_P1,	"AMR_SID_FIRST_P1" },
+	{ GSMTAP_UM_VOICE_AMR_SID_FIRST_P2,	"AMR_SID_FIRST_P2" },
+	{ GSMTAP_UM_VOICE_AMR_SID_FIRST_INH,	"AMR_SID_FIRST_INH" },
+	{ GSMTAP_UM_VOICE_AMR_RATSCCH_MARKER,	"AMR_RATSCCH_MARKER" },
+	{ GSMTAP_UM_VOICE_AMR_RATSCCH_DATA,	"AMR_RATSCCH_DATA" },
+	{ 0,					NULL },
+};
+
 /* dissect a SACCH L1 header which is included in the first 2 bytes
  * of every SACCH frame (according to TS 04.04) */
 static void
@@ -481,6 +524,21 @@ handle_lapdm(guint8 sub_type, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 	if (sub_type & GSMTAP_CHANNEL_ACCH && pinfo->p2p_dir == P2P_DIR_RECV)
 		ld.hdr_type = LAPDM_HDR_FMT_B4;
 	call_dissector_with_data(sub_handles[GSMTAP_SUB_UM_LAPDM], tvb, pinfo, tree, &ld);
+}
+
+static void
+dissect_um_voice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	tvbuff_t *payload_tvb;
+	guint8 vtype = tvb_get_guint8(tvb, 0);
+
+	col_add_fstr(pinfo->cinfo, COL_INFO, "GSM CS User Plane (Voice/CSD): %s",
+			val_to_str(vtype, gsmtap_um_voice_types, "Unknown %d"));
+
+	proto_tree_add_item(tree, hf_um_voice_type, tvb, 0, 1, ENC_NA);
+
+	payload_tvb = tvb_new_subset_length(tvb, 1, tvb_reported_length(tvb)-1);
+	call_dissector(sub_handles[GSMTAP_SUB_DATA], payload_tvb, pinfo, tree);
 }
 
 static void
@@ -704,6 +762,11 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 			sub_handle = GSMTAP_SUB_CBCH;
 			break;
 
+		case GSMTAP_CHANNEL_VOICE_F:
+		case GSMTAP_CHANNEL_VOICE_H:
+			dissect_um_voice(payload_tvb, pinfo, tree);
+			return tvb_captured_length(tvb);
+
 		case GSMTAP_CHANNEL_RACH:
 		default:
 			sub_handle = GSMTAP_SUB_DATA;
@@ -849,6 +912,8 @@ proto_register_gsmtap(void)
 		  NULL, HFILL } },
 		{ &hf_sacch_l1h_ta, { "Actual Timing Advance", "gsmtap.sacch_l1.ta",
 		  FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
+		{ &hf_um_voice_type, { "GSM Um Voice Type", "gsmtap.um_voice_type",
+		  FT_UINT8, BASE_DEC, VALS(gsmtap_um_voice_types), 0, NULL, HFILL } },
 
 		/* PTCCH (Packet Timing Advance Control Channel) on Downlink */
 		{ &hf_ptcch_spare, { "Spare Bit", "gsmtap.ptcch.spare",
