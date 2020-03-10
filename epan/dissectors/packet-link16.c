@@ -3,6 +3,8 @@
  * William Robertson <aliask@gmail.com>
  * Peter Ross <peter.ross@dsto.defence.gov.au>
  *
+ * http://willrobertson.id.au/resources/wireshark/DSTO-TN-1257.pdf
+ *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
