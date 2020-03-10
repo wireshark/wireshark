@@ -511,6 +511,7 @@ static int hf_rtcp_sdes_prefix_string = -1;
 static int hf_rtcp_subtype = -1;
 static int hf_rtcp_name_ascii = -1;
 static int hf_rtcp_app_data = -1;
+static int hf_rtcp_app_data_str = -1;
 static int hf_rtcp_fsn = -1;
 static int hf_rtcp_blp = -1;
 static int hf_rtcp_padding_count = -1;
@@ -765,6 +766,7 @@ static int hf_rtcp_mcptt_lat = -1;
 static int hf_rtcp_mcptt_long = -1;
 static int hf_rtcp_mcptt_msg_type = -1;
 static int hf_rtcp_mcptt_num_loc = -1;
+static int hf_rtcp_mcptt_str = -1;
 
 /* RTCP fields defining a sub tree */
 static gint ett_rtcp                    = -1;
@@ -815,6 +817,8 @@ static expert_field ei_rtcp_rtpfb_transportcc_bad = EI_INIT;
 static expert_field ei_rtcp_mcptt_unknown_fld = EI_INIT;
 static expert_field ei_rtcp_mcptt_location_type = EI_INIT;
 static expert_field ei_rtcp_appl_extra_bytes = EI_INIT;
+static expert_field ei_rtcp_appl_not_ascii = EI_INIT;
+static expert_field ei_rtcp_appl_non_conformant = EI_INIT;
 
 /* Main dissection function */
 static int dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo,
@@ -2405,6 +2409,13 @@ dissect_rtcp_app_mcpt(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
     if (packet_len == 0) {
         return offset;
     }
+
+    if (tvb_ascii_isprint(tvb, offset, packet_len - 3)) {
+        proto_tree_add_item(tree, hf_rtcp_mcptt_str, tvb, offset, packet_len, ENC_ASCII | ENC_NA);
+        proto_tree_add_expert(sub_tree, pinfo, &ei_rtcp_appl_non_conformant, tvb, offset, packet_len);
+        return offset + packet_len;
+    }
+
     while (packet_len > 0) {
         proto_item* ti;
         int len_len, padding = 0;
@@ -2678,6 +2689,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 {
 
     const guint8* ascii_name;
+    gboolean is_ascii;
 
     /* XXX If more application types are to be dissected it may be useful to use a table like in packet-sip.c */
     static const char poc1_app_name_str[] = "PoC1";
@@ -2690,7 +2702,12 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
     packet_len -= 4;
 
     /* Application Name (ASCII) */
-    proto_tree_add_item_ret_string(tree, hf_rtcp_name_ascii, tvb, offset, 4, ENC_ASCII | ENC_NA, wmem_packet_scope(), &ascii_name);
+    is_ascii = tvb_ascii_isprint(tvb, offset, 4);
+    if (is_ascii) {
+        proto_tree_add_item_ret_string(tree, hf_rtcp_name_ascii, tvb, offset, 4, ENC_ASCII | ENC_NA, wmem_packet_scope(), &ascii_name);
+    } else {
+        proto_tree_add_expert(tree, pinfo, &ei_rtcp_appl_not_ascii, tvb, offset, 4);
+    }
 
     /* Applications specific data */
     if (padding) {
@@ -2700,86 +2717,107 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
         packet_len -= tvb_get_guint8(tvb, offset + packet_len - 1);
     }
 
-    /* See if we can handle this application type */
-    if ( g_ascii_strncasecmp(ascii_name, poc1_app_name_str,4 ) == 0 )
-    {
-        offset = dissect_rtcp_app_poc1(tvb, pinfo, offset, tree, packet_len, subtype_item, rtcp_subtype);
-    }
-    else if ( g_ascii_strncasecmp(ascii_name, mux_app_name_str,4 ) == 0 )
-    {
-        /* 3GPP Nb protocol extension (3GPP 29.414) for RTP Multiplexing */
-        col_append_fstr(pinfo->cinfo, COL_INFO,"( %s ) subtype=%u",ascii_name, rtcp_subtype);
-        offset     += 4;
-        packet_len -= 4;
-        /* Applications specific data */
-        if ( padding ) {
-            /* If there's padding present, we have to remove that from the data part
-            * The last octet of the packet contains the length of the padding
-            */
-            packet_len -= tvb_get_guint8( tvb, offset + packet_len - 1 );
-        }
-        if (packet_len == 4)
+    if (is_ascii) {
+        /* See if we can handle this application type */
+        if (g_ascii_strncasecmp(ascii_name, poc1_app_name_str, 4) == 0)
         {
-            guint16 local_port = 0;
-
-            proto_item *mux_item = proto_tree_add_item(tree, hf_rtcp_app_mux, tvb, offset, packet_len, ENC_NA);
-            proto_tree *mux_tree = proto_item_add_subtree( mux_item, ett_mux );
-            proto_tree_add_item( mux_tree, hf_rtcp_app_mux_mux, tvb, offset, 1, ENC_BIG_ENDIAN );
-            proto_tree_add_item( mux_tree, hf_rtcp_app_mux_cp, tvb, offset, 1, ENC_BIG_ENDIAN );
-            proto_tree_add_item( mux_tree, hf_rtcp_app_mux_selection, tvb, offset, 1, ENC_BIG_ENDIAN );
-            local_port = tvb_get_ntohs( tvb, offset+2 );
-            proto_tree_add_uint( mux_tree, hf_rtcp_app_mux_localmuxport, tvb, offset+2, 2, local_port*2 );
-        }
-        else
+            offset = dissect_rtcp_app_poc1(tvb, pinfo, offset, tree, packet_len, subtype_item, rtcp_subtype);
+        } else if (g_ascii_strncasecmp(ascii_name, mux_app_name_str, 4) == 0)
         {
-            /* fall back to just showing the data if it's the wrong length */
-            proto_tree_add_item( tree, hf_rtcp_app_data, tvb, offset, packet_len, ENC_NA );
-        }
-        if ((int)(offset + packet_len) >= offset)
-            offset += packet_len;
-        return offset;
-    } else if (g_ascii_strncasecmp(ascii_name, "MCPT", 4) == 0) {
-        offset = dissect_rtcp_app_mcpt(tvb, pinfo, offset, tree, packet_len, subtype_item, rtcp_subtype);
-    }
-    else
-    {
-        tvbuff_t *next_tvb;     /* tvb to pass to subdissector */
-        /* tvb         == Pass the entire APP payload so the subdissector can have access to the
-         * entire data set
-         */
-        next_tvb        = tvb_new_subset_length(tvb, offset-8, app_length+4);
-        /* look for registered sub-dissectors */
-        if (dissector_try_string(rtcp_dissector_table, ascii_name, next_tvb, pinfo, tree, NULL)) {
-            /* found subdissector - return tvb_reported_length */
-            offset     += 4;
+            /* 3GPP Nb protocol extension (3GPP 29.414) for RTP Multiplexing */
+            col_append_fstr(pinfo->cinfo, COL_INFO, "( %s ) subtype=%u", ascii_name, rtcp_subtype);
+            offset += 4;
             packet_len -= 4;
-            if ( padding ) {
+            /* Applications specific data */
+            if (padding) {
                 /* If there's padding present, we have to remove that from the data part
                 * The last octet of the packet contains the length of the padding
                 */
-                packet_len -= tvb_get_guint8( tvb, offset + packet_len - 1 );
+                packet_len -= tvb_get_guint8(tvb, offset + packet_len - 1);
+            }
+            if (packet_len == 4)
+            {
+                guint16 local_port = 0;
+
+                proto_item* mux_item = proto_tree_add_item(tree, hf_rtcp_app_mux, tvb, offset, packet_len, ENC_NA);
+                proto_tree* mux_tree = proto_item_add_subtree(mux_item, ett_mux);
+                proto_tree_add_item(mux_tree, hf_rtcp_app_mux_mux, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(mux_tree, hf_rtcp_app_mux_cp, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(mux_tree, hf_rtcp_app_mux_selection, tvb, offset, 1, ENC_BIG_ENDIAN);
+                local_port = tvb_get_ntohs(tvb, offset + 2);
+                proto_tree_add_uint(mux_tree, hf_rtcp_app_mux_localmuxport, tvb, offset + 2, 2, local_port * 2);
+            } else
+            {
+                /* fall back to just showing the data if it's the wrong length */
+                proto_tree_add_item(tree, hf_rtcp_app_data, tvb, offset, packet_len, ENC_NA);
             }
             if ((int)(offset + packet_len) >= offset)
                 offset += packet_len;
             return offset;
-        }
-        else
+        } else if (g_ascii_strncasecmp(ascii_name, "MCPT", 4) == 0) {
+            offset = dissect_rtcp_app_mcpt(tvb, pinfo, offset, tree, packet_len, subtype_item, rtcp_subtype);
+        } else
         {
-            /* Unhandled application type, just show app name and raw data */
-            col_append_fstr(pinfo->cinfo, COL_INFO,"( %s ) subtype=%u",ascii_name, rtcp_subtype);
-            offset     += 4;
-            packet_len -= 4;
-            /* Applications specific data */
-            if ( padding ) {
-                /* If there's padding present, we have to remove that from the data part
-                * The last octet of the packet contains the length of the padding
-                */
-                packet_len -= tvb_get_guint8( tvb, offset + packet_len - 1 );
+            tvbuff_t* next_tvb;     /* tvb to pass to subdissector */
+            /* tvb         == Pass the entire APP payload so the subdissector can have access to the
+             * entire data set
+             */
+            next_tvb = tvb_new_subset_length(tvb, offset - 8, app_length + 4);
+            /* look for registered sub-dissectors */
+            if (dissector_try_string(rtcp_dissector_table, ascii_name, next_tvb, pinfo, tree, NULL)) {
+                /* found subdissector - return tvb_reported_length */
+                offset += 4;
+                packet_len -= 4;
+                if (padding) {
+                    /* If there's padding present, we have to remove that from the data part
+                    * The last octet of the packet contains the length of the padding
+                    */
+                    packet_len -= tvb_get_guint8(tvb, offset + packet_len - 1);
+                }
+                if ((int)(offset + packet_len) >= offset)
+                    offset += packet_len;
+                return offset;
+            } else
+            {
+                /* Unhandled application type, just show app name and raw data */
+                col_append_fstr(pinfo->cinfo, COL_INFO, "( %s ) subtype=%u", ascii_name, rtcp_subtype);
+                offset += 4;
+                packet_len -= 4;
+                /* Applications specific data */
+                if (padding) {
+                    /* If there's padding present, we have to remove that from the data part
+                    * The last octet of the packet contains the length of the padding
+                    */
+                    packet_len -= tvb_get_guint8(tvb, offset + packet_len - 1);
+                }
+                if (tvb_ascii_isprint(tvb, offset, packet_len)) {
+                    proto_tree_add_item(tree, hf_rtcp_app_data_str, tvb, offset, packet_len, ENC_ASCII | ENC_NA);
+                } else {
+                    proto_tree_add_item(tree, hf_rtcp_app_data, tvb, offset, packet_len, ENC_NA);
+                }
+                if ((int)(offset + packet_len) >= offset)
+                    offset += packet_len;
             }
-            proto_tree_add_item( tree, hf_rtcp_app_data, tvb, offset, packet_len, ENC_NA );
-            if ((int)(offset + packet_len) >= offset)
-                offset += packet_len;
         }
+    } else {
+        /* Unhandled application type, just show subtype and raw data */
+        col_append_fstr(pinfo->cinfo, COL_INFO, "subtype=%u", rtcp_subtype);
+        offset += 4;
+        packet_len -= 4;
+        /* Applications specific data */
+        if (padding) {
+            /* If there's padding present, we have to remove that from the data part
+            * The last octet of the packet contains the length of the padding
+            */
+            packet_len -= tvb_get_guint8(tvb, offset + packet_len - 1);
+        }
+        if (tvb_ascii_isprint(tvb, offset, packet_len)) {
+            proto_tree_add_item(tree, hf_rtcp_app_data_str, tvb, offset, packet_len, ENC_ASCII | ENC_NA);
+        } else {
+            proto_tree_add_item(tree, hf_rtcp_app_data, tvb, offset, packet_len, ENC_NA);
+        }
+        if ((int)(offset + packet_len) >= offset)
+            offset += packet_len;
     }
     return offset;
 }
@@ -4798,6 +4836,18 @@ proto_register_rtcp(void)
                 "Application specific data",
                 "rtcp.app.data",
                 FT_BYTES,
+                BASE_NONE,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_app_data_str,
+            {
+                "Application specific data",
+                "rtcp.app.data_str",
+                FT_STRING,
                 BASE_NONE,
                 NULL,
                 0x0,
@@ -7560,6 +7610,11 @@ proto_register_rtcp(void)
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_rtcp_mcptt_str,
+            { "String", "rtcp.app_data.mcptt.str",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
     };
 
     static gint *ett[] =
@@ -7614,6 +7669,8 @@ proto_register_rtcp(void)
         { &ei_rtcp_mcptt_unknown_fld, { "rtcp.mcptt.unknown_fld", PI_PROTOCOL, PI_WARN, "Unknown field", EXPFILL }},
         { &ei_rtcp_mcptt_location_type, { "rtcp.mcptt.location_type_uk", PI_PROTOCOL, PI_WARN, "Unknown location type", EXPFILL }},
         { &ei_rtcp_appl_extra_bytes, { "rtcp.appl.extra_bytres", PI_PROTOCOL, PI_ERROR, "Extra bytes detected", EXPFILL }},
+        { &ei_rtcp_appl_not_ascii, { "rtcp.appl.not_ascii", PI_PROTOCOL, PI_ERROR, "Application name is not a string", EXPFILL }},
+        { &ei_rtcp_appl_non_conformant, { "rtcp.appl.non_conformant", PI_PROTOCOL, PI_ERROR, "Data not according to standards", EXPFILL }},
     };
 
     module_t *rtcp_module;
