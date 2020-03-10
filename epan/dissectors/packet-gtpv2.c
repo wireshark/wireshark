@@ -4681,8 +4681,8 @@ dissect_gtpv2_mm_context_eps_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     }
 
     /* (y+1) to (y+2) Length of APN Rate Control Statuses */
-    proto_tree_add_item_ret_uint(tree, hf_gtpv2_mm_context_apn_rte_ctrl_sts_len, tvb, offset, 1, ENC_BIG_ENDIAN, &apn_rte_ctrl_sts_len);
-    offset += 1;
+    proto_tree_add_item_ret_uint(tree, hf_gtpv2_mm_context_apn_rte_ctrl_sts_len, tvb, offset, 2, ENC_BIG_ENDIAN, &apn_rte_ctrl_sts_len);
+    offset += 2;
     if (apn_rte_ctrl_sts_len) {
         /* (y+3) to l APN Rate Control Status [1..z] */
         sc_tree = proto_tree_add_subtree(tree, tvb, offset, apn_rte_ctrl_sts_len, ett_gtpv2_apn_rte_ctrl_sts_len, NULL, "APN Rate Control Status");
