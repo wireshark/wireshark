@@ -35,13 +35,6 @@
       - build/packaging/rpm/RPMS
     expire_in: 3 days
 
-# GCC 5 is the default compiler in Ubuntu 16.04, EOL in April 2024.
-gcc-5:
-  <<: *build-ubuntu
-  variables:
-    CC: gcc-5
-    CXX: g++-5
-
 # Rely on fedora:latest and debian-stable jobs for testing a recent GCC version.
 # Since this broke sporadically in the past, test lack of capture support.
 gcc-8-nopcap:
