@@ -2789,10 +2789,13 @@ dissect_diameter_3gpp_sm_rp_ui(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     int length = tvb_reported_length(tvb);
     diam_sub_dis_t *diam_sub_dis_inf = (diam_sub_dis_t*)data;
     guint32 cmd = 0;
+    gboolean save_writable = col_get_writable(pinfo->cinfo, -1 /* All */);
 
     if (diam_sub_dis_inf) {
         cmd = diam_sub_dis_inf->cmd_code;
     }
+
+    col_set_writable(pinfo->cinfo, -1, FALSE);
 
     if ((length > 0) && (cmd != 0)) {
         switch (cmd){
@@ -2818,6 +2821,8 @@ dissect_diameter_3gpp_sm_rp_ui(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
             break;
         }
     }
+
+    col_set_writable(pinfo->cinfo, -1, save_writable);
 
     return length;
 
