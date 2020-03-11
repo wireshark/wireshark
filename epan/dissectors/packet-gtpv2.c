@@ -2188,7 +2188,7 @@ dissect_gtpv2_apn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
         proto_item *pi;
 
         name_len = tvb_get_guint8(tvb, offset);
-        apn = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, length - 1, ENC_ASCII);
+        apn = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length - 1, ENC_ASCII);
         for (;;) {
             if (name_len >= length - 1)
                 break;
