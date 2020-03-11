@@ -8871,39 +8871,39 @@ dissect_nbap_TransportLayerAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 
   if (!parameter_tvb)
     return offset;
-    /* Get the length */
-    tvb_len = tvb_reported_length(parameter_tvb);
-    subtree = proto_item_add_subtree(actx->created_item, ett_nbap_TransportLayerAddress);
-    if (tvb_len==4){
-        /* IPv4 */
-         proto_tree_add_item(subtree, hf_nbap_transportLayerAddress_ipv4, parameter_tvb, 0, tvb_len, ENC_BIG_ENDIAN);
-         nbap_private_data->transportLayerAddress_ipv4 = tvb_get_ipv4(parameter_tvb, 0);
+  /* Get the length */
+  tvb_len = tvb_reported_length(parameter_tvb);
+  subtree = proto_item_add_subtree(actx->created_item, ett_nbap_TransportLayerAddress);
+  if (tvb_len==4){
+    /* IPv4 */
+    proto_tree_add_item(subtree, hf_nbap_transportLayerAddress_ipv4, parameter_tvb, 0, tvb_len, ENC_BIG_ENDIAN);
+    nbap_private_data->transportLayerAddress_ipv4 = tvb_get_ipv4(parameter_tvb, 0);
+  }
+  if (tvb_len==16){
+    /* IPv6 */
+    proto_tree_add_item(subtree, hf_nbap_transportLayerAddress_ipv6, parameter_tvb, 0, tvb_len, ENC_NA);
+  }
+  if (tvb_len == 20 || tvb_len == 7){
+    /* NSAP */
+    if (tvb_len == 7){
+      /* Unpadded IPv4 NSAP */
+      /* Creating a new TVB with padding */
+      padded_nsap_bytes = (guint8*) wmem_alloc0(actx->pinfo->pool, 20);
+      tvb_memcpy(parameter_tvb, padded_nsap_bytes, 0, tvb_len);
+      nsap_tvb = tvb_new_child_real_data(tvb, padded_nsap_bytes, 20, 20);
+      add_new_data_source(actx->pinfo, nsap_tvb, "Padded NSAP Data");
+    }else{
+      /* Padded NSAP*/
+      nsap_tvb = parameter_tvb;
     }
-    if (tvb_len==16){
-        /* IPv6 */
-         proto_tree_add_item(subtree, hf_nbap_transportLayerAddress_ipv6, parameter_tvb, 0, tvb_len, ENC_NA);
+    item = proto_tree_add_item(subtree, hf_nbap_transportLayerAddress_nsap, parameter_tvb, 0, tvb_len, ENC_NA);
+    nsap_tree = proto_item_add_subtree(item, ett_nbap_TransportLayerAddress_nsap);
+    if(tvb_get_ntoh24(parameter_tvb,0) == 0x350001){
+      /* IPv4 */
+      nbap_private_data->transportLayerAddress_ipv4 = tvb_get_ipv4(parameter_tvb, 3);
     }
-    if (tvb_len == 20 || tvb_len == 7){
-        /* NSAP */
-        if (tvb_len == 7){
-            /* Unpadded IPv4 NSAP */
-            /* Creating a new TVB with padding */
-            padded_nsap_bytes = (guint8*) wmem_alloc0(actx->pinfo->pool, 20);
-            tvb_memcpy(parameter_tvb, padded_nsap_bytes, 0, tvb_len);
-            nsap_tvb = tvb_new_child_real_data(tvb, padded_nsap_bytes, 20, 20);
-            add_new_data_source(actx->pinfo, nsap_tvb, "Padded NSAP Data");
-        }else{
-            /* Padded NSAP*/
-            nsap_tvb = parameter_tvb;
-        }
-        item = proto_tree_add_item(subtree, hf_nbap_transportLayerAddress_nsap, parameter_tvb, 0, tvb_len, ENC_NA);
-        nsap_tree = proto_item_add_subtree(item, ett_nbap_TransportLayerAddress_nsap);
-        if(tvb_get_ntoh24(parameter_tvb,0) == 0x350001){
-            /* IPv4 */
-            nbap_private_data->transportLayerAddress_ipv4 = tvb_get_ipv4(parameter_tvb, 3);
-        }
-        dissect_nsap(nsap_tvb, 0, 20, nsap_tree);
-    }
+    dissect_nsap(nsap_tvb, 0, 20, nsap_tree);
+  }
 
 
 
@@ -10683,9 +10683,9 @@ dissect_nbap_CommonTransportChannelID(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, &commontransportchannelid, FALSE);
 
-nbap_private_data->common_transport_channel_id = commontransportchannelid;
-if(commontransportchannelid<maxNrOfDCHs)
-  nbap_dch_chnl_info[commontransportchannelid].next_dch = 0;
+  nbap_private_data->common_transport_channel_id = commontransportchannelid;
+  if(commontransportchannelid<maxNrOfDCHs)
+    nbap_dch_chnl_info[commontransportchannelid].next_dch = 0;
 
 
 
@@ -11492,16 +11492,16 @@ dissect_nbap_Common_E_DCH_HSDPCCH_InfoItem(tvbuff_t *tvb _U_, int offset _U_, as
 static int
 dissect_nbap_CommonPhysicalChannelID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 926 "./asn1/nbap/nbap.cnf"
-guint32 commonphysicalchannelid;
-nbap_dch_channel_info_t* nbap_dch_chnl_info;
-nbap_private_data_t* nbap_private_data = nbap_get_private_data(actx->pinfo);
-nbap_dch_chnl_info = nbap_private_data->nbap_dch_chnl_info;
+  guint32 commonphysicalchannelid;
+  nbap_dch_channel_info_t* nbap_dch_chnl_info;
+  nbap_private_data_t* nbap_private_data = nbap_get_private_data(actx->pinfo);
+  nbap_dch_chnl_info = nbap_private_data->nbap_dch_chnl_info;
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, &commonphysicalchannelid, FALSE);
 
-nbap_private_data->common_physical_channel_id = commonphysicalchannelid;
-if(commonphysicalchannelid<maxNrOfDCHs)
-  nbap_dch_chnl_info[commonphysicalchannelid].next_dch = 0;
+  nbap_private_data->common_physical_channel_id = commonphysicalchannelid;
+  if(commonphysicalchannelid<maxNrOfDCHs)
+    nbap_dch_chnl_info[commonphysicalchannelid].next_dch = 0;
 
 
 

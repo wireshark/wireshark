@@ -2637,8 +2637,8 @@ dissect_h245_MasterSlaveDetermination(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 
 #line 535 "./asn1/h245/h245.cnf"
 
-if (h245_pi != NULL)
-  h245_pi->msg_type = H245_MastSlvDet;
+  if (h245_pi != NULL)
+    h245_pi->msg_type = H245_MastSlvDet;
 
   return offset;
 }
@@ -6774,8 +6774,8 @@ dissect_h245_TerminalCapabilitySet(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 
 #line 553 "./asn1/h245/h245.cnf"
 
-if (h245_pi != NULL)
-  h245_pi->msg_type = H245_TermCapSet;
+  if (h245_pi != NULL)
+    h245_pi->msg_type = H245_TermCapSet;
 
   return offset;
 }
@@ -8833,8 +8833,8 @@ dissect_h245_CloseLogicalChannel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
 #line 511 "./asn1/h245/h245.cnf"
 
-if (h245_pi != NULL)
-  h245_pi->msg_type = H245_CloseLogChn;
+  if (h245_pi != NULL)
+    h245_pi->msg_type = H245_CloseLogChn;
 
   return offset;
 }
@@ -10781,8 +10781,8 @@ dissect_h245_MasterSlaveDeterminationAck(tvbuff_t *tvb _U_, int offset _U_, asn1
 
 #line 493 "./asn1/h245/h245.cnf"
 
-if (h245_pi != NULL)
-  h245_pi->msg_type = H245_MastSlvDetAck;
+  if (h245_pi != NULL)
+    h245_pi->msg_type = H245_MastSlvDetAck;
 
   return offset;
 }
@@ -10820,8 +10820,8 @@ dissect_h245_MasterSlaveDeterminationReject(tvbuff_t *tvb _U_, int offset _U_, a
 
 #line 499 "./asn1/h245/h245.cnf"
 
-if (h245_pi != NULL)
-  h245_pi->msg_type = H245_MastSlvDetRjc;
+  if (h245_pi != NULL)
+    h245_pi->msg_type = H245_MastSlvDetRjc;
 
   return offset;
 }
@@ -10840,8 +10840,8 @@ dissect_h245_TerminalCapabilitySetAck(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 
 #line 529 "./asn1/h245/h245.cnf"
 
-if (h245_pi != NULL)
-  h245_pi->msg_type = H245_TermCapSetAck;
+  if (h245_pi != NULL)
+    h245_pi->msg_type = H245_TermCapSetAck;
 
   return offset;
 }
@@ -10909,8 +10909,8 @@ dissect_h245_TerminalCapabilitySetReject(tvbuff_t *tvb _U_, int offset _U_, asn1
 
 #line 541 "./asn1/h245/h245.cnf"
 
-if (h245_pi != NULL)
-  h245_pi->msg_type = H245_TermCapSetRjc;
+  if (h245_pi != NULL)
+    h245_pi->msg_type = H245_TermCapSetRjc;
 
   return offset;
 }
@@ -11200,8 +11200,8 @@ dissect_h245_OpenLogicalChannelReject(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 
 #line 505 "./asn1/h245/h245.cnf"
 
-if (h245_pi != NULL)
-  h245_pi->msg_type = H245_OpenLogChnRjc;
+  if (h245_pi != NULL)
+    h245_pi->msg_type = H245_OpenLogChnRjc;
 
   return offset;
 }
@@ -11219,8 +11219,8 @@ dissect_h245_CloseLogicalChannelAck(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 
 #line 517 "./asn1/h245/h245.cnf"
 
-if (h245_pi != NULL)
-  h245_pi->msg_type = H245_CloseLogChnAck;
+  if (h245_pi != NULL)
+    h245_pi->msg_type = H245_CloseLogChnAck;
 
   return offset;
 }
@@ -13432,8 +13432,8 @@ dissect_h245_MasterSlaveDeterminationRelease(tvbuff_t *tvb _U_, int offset _U_, 
 
 #line 547 "./asn1/h245/h245.cnf"
 
-if (h245_pi != NULL)
-  h245_pi->msg_type = H245_MastSlvDetRls;
+  if (h245_pi != NULL)
+    h245_pi->msg_type = H245_MastSlvDetRls;
 
   return offset;
 }
@@ -13451,8 +13451,8 @@ dissect_h245_TerminalCapabilitySetRelease(tvbuff_t *tvb _U_, int offset _U_, asn
 
 #line 559 "./asn1/h245/h245.cnf"
 
-if (h245_pi != NULL)
-  h245_pi->msg_type = H245_TermCapSetRls;
+  if (h245_pi != NULL)
+    h245_pi->msg_type = H245_TermCapSetRls;
 
   return offset;
 }
@@ -13471,8 +13471,8 @@ dissect_h245_OpenLogicalChannelConfirm(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 #line 523 "./asn1/h245/h245.cnf"
 
-if (h245_pi != NULL)
-  h245_pi->msg_type = H245_OpenLogChnCnf;
+  if (h245_pi != NULL)
+    h245_pi->msg_type = H245_OpenLogChnCnf;
 
   return offset;
 }

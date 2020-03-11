@@ -837,9 +837,9 @@ ProtocolExtensionID TYPE = FT_UINT8  DISPLAY = BASE_DEC|BASE_EXT_STRING STRINGS 
   if (!parameter_tvb)
     return offset;
 
-    subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_S1_Message);
-    col_set_fence(actx->pinfo->cinfo, COL_INFO);
-    call_dissector(s1ap_handle, parameter_tvb, actx->pinfo, subtree);
+  subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_S1_Message);
+  col_set_fence(actx->pinfo->cinfo, COL_INFO);
+  call_dissector(s1ap_handle, parameter_tvb, actx->pinfo, subtree);
 
 #.FN_BODY E-UTRAN-Trace-ID VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb;

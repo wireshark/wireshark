@@ -11376,9 +11376,9 @@ dissect_s1ap_S1_Message(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
   if (!parameter_tvb)
     return offset;
 
-    subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_S1_Message);
-    col_set_fence(actx->pinfo->cinfo, COL_INFO);
-    call_dissector(s1ap_handle, parameter_tvb, actx->pinfo, subtree);
+  subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_S1_Message);
+  col_set_fence(actx->pinfo->cinfo, COL_INFO);
+  call_dissector(s1ap_handle, parameter_tvb, actx->pinfo, subtree);
 
 
 

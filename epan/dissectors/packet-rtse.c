@@ -545,7 +545,7 @@ dissect_rtse_T_userDataRJ(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
           if(session != NULL)
                 session->ros_op = (ROS_OP_BIND | ROS_OP_ERROR);
 
-                offset = call_rtse_oid_callback(oid, tvb, offset, actx->pinfo, top_tree ? top_tree : tree, session);
+          offset = call_rtse_oid_callback(oid, tvb, offset, actx->pinfo, top_tree ? top_tree : tree, session);
         }
 
 

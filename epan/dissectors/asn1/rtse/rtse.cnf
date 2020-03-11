@@ -31,7 +31,7 @@ RTSE-apdus
           if(session != NULL)
                 session->ros_op = (ROS_OP_BIND | ROS_OP_ERROR);
 
-                offset = call_rtse_oid_callback(oid, tvb, offset, actx->pinfo, top_tree ? top_tree : tree, session);
+          offset = call_rtse_oid_callback(oid, tvb, offset, actx->pinfo, top_tree ? top_tree : tree, session);
         }
 
 #.FN_BODY RTABapdu/userdataAB

@@ -491,74 +491,74 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 #----------------------------------------------------------------------------------------
 #.FN_FTR MasterSlaveDeterminationAck
 
-if (h245_pi != NULL)
-  h245_pi->msg_type = H245_MastSlvDetAck;
+  if (h245_pi != NULL)
+    h245_pi->msg_type = H245_MastSlvDetAck;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_FTR MasterSlaveDeterminationReject
 
-if (h245_pi != NULL)
-  h245_pi->msg_type = H245_MastSlvDetRjc;
+  if (h245_pi != NULL)
+    h245_pi->msg_type = H245_MastSlvDetRjc;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_FTR OpenLogicalChannelReject
 
-if (h245_pi != NULL)
-  h245_pi->msg_type = H245_OpenLogChnRjc;
+  if (h245_pi != NULL)
+    h245_pi->msg_type = H245_OpenLogChnRjc;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_FTR CloseLogicalChannel
 
-if (h245_pi != NULL)
-  h245_pi->msg_type = H245_CloseLogChn;
+  if (h245_pi != NULL)
+    h245_pi->msg_type = H245_CloseLogChn;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_FTR CloseLogicalChannelAck
 
-if (h245_pi != NULL)
-  h245_pi->msg_type = H245_CloseLogChnAck;
+  if (h245_pi != NULL)
+    h245_pi->msg_type = H245_CloseLogChnAck;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_FTR OpenLogicalChannelConfirm
 
-if (h245_pi != NULL)
-  h245_pi->msg_type = H245_OpenLogChnCnf;
+  if (h245_pi != NULL)
+    h245_pi->msg_type = H245_OpenLogChnCnf;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_FTR TerminalCapabilitySetAck
 
-if (h245_pi != NULL)
-  h245_pi->msg_type = H245_TermCapSetAck;
+  if (h245_pi != NULL)
+    h245_pi->msg_type = H245_TermCapSetAck;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_FTR MasterSlaveDetermination
 
-if (h245_pi != NULL)
-  h245_pi->msg_type = H245_MastSlvDet;
+  if (h245_pi != NULL)
+    h245_pi->msg_type = H245_MastSlvDet;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_FTR TerminalCapabilitySetReject
 
-if (h245_pi != NULL)
-  h245_pi->msg_type = H245_TermCapSetRjc;
+  if (h245_pi != NULL)
+    h245_pi->msg_type = H245_TermCapSetRjc;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_FTR MasterSlaveDeterminationRelease
 
-if (h245_pi != NULL)
-  h245_pi->msg_type = H245_MastSlvDetRls;
+  if (h245_pi != NULL)
+    h245_pi->msg_type = H245_MastSlvDetRls;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_FTR TerminalCapabilitySet
 
-if (h245_pi != NULL)
-  h245_pi->msg_type = H245_TermCapSet;
+  if (h245_pi != NULL)
+    h245_pi->msg_type = H245_TermCapSet;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_FTR TerminalCapabilitySetRelease
 
-if (h245_pi != NULL)
-  h245_pi->msg_type = H245_TermCapSetRls;
+  if (h245_pi != NULL)
+    h245_pi->msg_type = H245_TermCapSetRls;
 #.END
 #----------------------------------------------------------------------------------------
 
