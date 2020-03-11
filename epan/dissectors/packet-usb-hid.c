@@ -2503,6 +2503,9 @@ get_usage_page_item_string(guint32 usage_page, guint32 id)
 static int
 dissect_usb_hid_report_mainitem_data(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, unsigned int bSize, unsigned int bTag)
 {
+    proto_item *ti = proto_tree_get_parent(tree);
+    guint32 val;
+
     switch (bTag) {
         case USBHID_MAINITEM_TAG_INPUT:
         case USBHID_MAINITEM_TAG_OUTPUT:
@@ -2524,15 +2527,30 @@ dissect_usb_hid_report_mainitem_data(packet_info *pinfo _U_, proto_tree *tree, t
             } else {
                 proto_tree_add_boolean_format_value(tree, hf_usb_hid_mainitem_bit8, tvb, offset, 0, FALSE, "Buffered bytes (default, no second byte present)");
             }
+            val = tvb_get_guint8(tvb, offset);
+            if (val & (1 << 0))
+                proto_item_append_text(ti, " (Const,");
+            else
+                proto_item_append_text(ti, " (Data,");
+            if (val & (1 << 1))
+                proto_item_append_text(ti, "Var,");
+            else
+                proto_item_append_text(ti, "Array,");
+            if (val & (1 << 2))
+                proto_item_append_text(ti, "Rel)");
+            else
+                proto_item_append_text(ti, "Abs)");
             break;
         case USBHID_MAINITEM_TAG_COLLECTION:
-            proto_tree_add_item(tree, hf_usb_hid_mainitem_colltype, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item_ret_uint(tree, hf_usb_hid_mainitem_colltype, tvb, offset, 1, ENC_LITTLE_ENDIAN, &val);
+            proto_item_append_text(ti, " (%s)", rval_to_str(val, usb_hid_mainitem_colltype_vals, "Unknown"));
             break;
         case USBHID_MAINITEM_TAG_ENDCOLLECTION:
             /* No item data */
             break;
         default:
             proto_tree_add_item(tree, hf_usb_hid_item_unk_data, tvb, offset, bSize, ENC_NA);
+            proto_item_append_text(ti, " (Unkown)");
             break;
     }
     offset += bSize;
@@ -2544,6 +2562,8 @@ static int
 dissect_usb_hid_report_globalitem_data(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, unsigned int bSize, unsigned int bTag, struct usb_hid_global_state *global)
 {
     const char *str = NULL;
+    proto_item *ti = proto_tree_get_parent(tree);
+    guint32 val;
 
     switch (bTag) {
         case USBHID_GLOBALITEM_TAG_USAGE_PAGE:
@@ -2556,21 +2576,30 @@ dissect_usb_hid_report_globalitem_data(packet_info *pinfo _U_, proto_tree *tree,
             }
             str = get_usage_page_string(global->usage_page);
             proto_tree_add_uint_format(tree, hf_usb_hid_globalitem_usage, tvb, offset, bSize, global->usage_page, "Usage Page: %s (0x%02x)", str, global->usage_page);
+            proto_item_append_text(ti, " (%s)", str);
             break;
         case USBHID_GLOBALITEM_TAG_LOG_MIN:
-            proto_tree_add_item(tree, hf_usb_hid_globalitem_log_min, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item_ret_uint(tree, hf_usb_hid_globalitem_log_min, tvb, offset, bSize, ENC_LITTLE_ENDIAN, &val);
+            proto_item_append_text(ti, " (%d)", val);
             break;
         case USBHID_GLOBALITEM_TAG_LOG_MAX:
-            proto_tree_add_item(tree, hf_usb_hid_globalitem_log_max, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item_ret_uint(tree, hf_usb_hid_globalitem_log_max, tvb, offset, bSize, ENC_LITTLE_ENDIAN, &val);
+            proto_item_append_text(ti, " (%d)", val);
             break;
         case USBHID_GLOBALITEM_TAG_PHY_MIN:
-            proto_tree_add_item(tree, hf_usb_hid_globalitem_phy_min, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item_ret_uint(tree, hf_usb_hid_globalitem_phy_min, tvb, offset, bSize, ENC_LITTLE_ENDIAN, &val);
+            proto_item_append_text(ti, " (%d)", val);
             break;
         case USBHID_GLOBALITEM_TAG_PHY_MAX:
-            proto_tree_add_item(tree, hf_usb_hid_globalitem_phy_max, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item_ret_uint(tree, hf_usb_hid_globalitem_phy_max, tvb, offset, bSize, ENC_LITTLE_ENDIAN, &val);
+            proto_item_append_text(ti, " (%d)", val);
             break;
         case USBHID_GLOBALITEM_TAG_UNIT_EXP:
-            proto_tree_add_item(tree, hf_usb_hid_globalitem_unit_exp, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item_ret_uint(tree, hf_usb_hid_globalitem_unit_exp, tvb, offset, bSize, ENC_LITTLE_ENDIAN, &val);
+            if (val >= 7)
+                proto_item_append_text(ti, " (%d)", val);
+            else
+                proto_item_append_text(ti, " (%d)", 16-val);
             break;
         case USBHID_GLOBALITEM_TAG_UNIT:
             proto_tree_add_item(tree, hf_usb_hid_globalitem_unit_sys, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
@@ -2580,24 +2609,31 @@ dissect_usb_hid_report_globalitem_data(packet_info *pinfo _U_, proto_tree *tree,
             proto_tree_add_item(tree, hf_usb_hid_globalitem_unit_temp, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(tree, hf_usb_hid_globalitem_unit_current, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(tree, hf_usb_hid_globalitem_unit_brightness, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
+            proto_item_append_text(ti, " (0x%02x)", tvb_get_guint8(tvb, offset));
             break;
         case USBHID_GLOBALITEM_TAG_REPORT_SIZE:
-            proto_tree_add_item(tree, hf_usb_hid_globalitem_report_size, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item_ret_uint(tree, hf_usb_hid_globalitem_report_size, tvb, offset, bSize, ENC_LITTLE_ENDIAN, &val);
+            proto_item_append_text(ti, " (%d)", val);
             break;
         case USBHID_GLOBALITEM_TAG_REPORT_ID:
-            proto_tree_add_item(tree, hf_usb_hid_globalitem_report_id, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item_ret_uint(tree, hf_usb_hid_globalitem_report_id, tvb, offset, bSize, ENC_LITTLE_ENDIAN, &val);
+            proto_item_append_text(ti, " (0x%02x)", val);
             break;
         case USBHID_GLOBALITEM_TAG_REPORT_COUNT:
-            proto_tree_add_item(tree, hf_usb_hid_globalitem_report_count, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item_ret_uint(tree, hf_usb_hid_globalitem_report_count, tvb, offset, bSize, ENC_LITTLE_ENDIAN, &val);
+            proto_item_append_text(ti, " (%d)", val);
             break;
         case USBHID_GLOBALITEM_TAG_PUSH:
-            proto_tree_add_item(tree, hf_usb_hid_globalitem_push, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item_ret_uint(tree, hf_usb_hid_globalitem_push, tvb, offset, bSize, ENC_LITTLE_ENDIAN, &val);
+            proto_item_append_text(ti, " (%d)", val);
             break;
         case USBHID_GLOBALITEM_TAG_POP:
-            proto_tree_add_item(tree, hf_usb_hid_globalitem_pop, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item_ret_uint(tree, hf_usb_hid_globalitem_pop, tvb, offset, bSize, ENC_LITTLE_ENDIAN, &val);
+            proto_item_append_text(ti, " (%d)", val);
             break;
         default:
             proto_tree_add_item(tree, hf_usb_hid_item_unk_data, tvb, offset, bSize, ENC_NA);
+            proto_item_append_text(ti, " (Unknown)");
             break;
     }
     offset += bSize;
@@ -2609,7 +2645,9 @@ static int
 dissect_usb_hid_report_localitem_data(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, unsigned int bSize, unsigned int bTag, struct usb_hid_global_state *global)
 {
     guint32 id = 0xffff;
+    proto_item *ti = proto_tree_get_parent(tree);
     gchar *str = NULL;
+    guint32 val;
 
     switch (bTag) {
         case USBHID_LOCALITEM_TAG_USAGE_PAGE:
@@ -2624,37 +2662,48 @@ dissect_usb_hid_report_localitem_data(packet_info *pinfo _U_, proto_tree *tree, 
                     id = tvb_get_ntohs(tvb, offset);
                 str = get_usage_page_item_string(global->usage_page, id);
                 proto_tree_add_uint_format(tree, hf_usb_hid_localitem_usage, tvb, offset, bSize, id, "Usage: %s (0x%02x)", str, id);
+                proto_item_append_text(ti, " (%s)", str);
             }
             break;
         case USBHID_LOCALITEM_TAG_USAGE_MIN:
-            proto_tree_add_item(tree, hf_usb_hid_localitem_usage_min, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item_ret_uint(tree, hf_usb_hid_localitem_usage_min, tvb, offset, bSize, ENC_LITTLE_ENDIAN, &val);
+            proto_item_append_text(ti, " (0x%02x)", val);
             break;
         case USBHID_LOCALITEM_TAG_USAGE_MAX:
-            proto_tree_add_item(tree, hf_usb_hid_localitem_usage, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item_ret_uint(tree, hf_usb_hid_localitem_usage, tvb, offset, bSize, ENC_LITTLE_ENDIAN, &val);
+            proto_item_append_text(ti, " (0x%02x)", val);
             break;
         case USBHID_LOCALITEM_TAG_DESIG_INDEX:
-            proto_tree_add_item(tree, hf_usb_hid_localitem_desig_index, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item_ret_uint(tree, hf_usb_hid_localitem_desig_index, tvb, offset, bSize, ENC_LITTLE_ENDIAN, &val);
+            proto_item_append_text(ti, " (0x%02x)", val);
             break;
         case USBHID_LOCALITEM_TAG_DESIG_MIN:
-            proto_tree_add_item(tree, hf_usb_hid_localitem_desig_min, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item_ret_uint(tree, hf_usb_hid_localitem_desig_min, tvb, offset, bSize, ENC_LITTLE_ENDIAN, &val);
+            proto_item_append_text(ti, " (0x%02x)", val);
             break;
         case USBHID_LOCALITEM_TAG_DESIG_MAX:
-            proto_tree_add_item(tree, hf_usb_hid_localitem_desig_max, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item_ret_uint(tree, hf_usb_hid_localitem_desig_max, tvb, offset, bSize, ENC_LITTLE_ENDIAN, &val);
+            proto_item_append_text(ti, " (0x%02x)", val);
             break;
         case USBHID_LOCALITEM_TAG_STRING_INDEX:
-            proto_tree_add_item(tree, hf_usb_hid_localitem_string_index, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item_ret_uint(tree, hf_usb_hid_localitem_string_index, tvb, offset, bSize, ENC_LITTLE_ENDIAN, &val);
+            proto_item_append_text(ti, " (0x%02x)", val);
             break;
         case USBHID_LOCALITEM_TAG_STRING_MIN:
-            proto_tree_add_item(tree, hf_usb_hid_localitem_string_min, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item_ret_uint(tree, hf_usb_hid_localitem_string_min, tvb, offset, bSize, ENC_LITTLE_ENDIAN, &val);
+            proto_item_append_text(ti, " (0x%02x)", val);
             break;
         case USBHID_LOCALITEM_TAG_STRING_MAX:
-            proto_tree_add_item(tree, hf_usb_hid_localitem_string_max, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item_ret_uint(tree, hf_usb_hid_localitem_string_max, tvb, offset, bSize, ENC_LITTLE_ENDIAN, &val);
+            proto_item_append_text(ti, " (0x%02x)", val);
             break;
         case USBHID_LOCALITEM_TAG_DELIMITER:
-            proto_tree_add_item(tree, hf_usb_hid_localitem_delimiter, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item_ret_uint(tree, hf_usb_hid_localitem_delimiter, tvb, offset, bSize, ENC_LITTLE_ENDIAN, &val);
+            proto_item_append_text(ti, " (0x%02x)", val);
             break;
         default:
             proto_tree_add_item(tree, hf_usb_hid_item_unk_data, tvb, offset, bSize, ENC_NA);
+            proto_item_append_text(ti, " (Unknown)");
             break;
     }
     offset += bSize;
@@ -2707,11 +2756,7 @@ dissect_usb_hid_report_item(packet_info *pinfo _U_, proto_tree *parent_tree, tvb
                 break;
         }
 
-        subtree = proto_tree_add_subtree_format(parent_tree, tvb, offset, bSize + 1,
-            ett_usb_hid_item_header, &subitem, "%s item (%s)",
-            val_to_str(bType, usb_hid_item_bType_vals, "Unknown/%u"),
-            val_to_str(bTag, usb_hid_cur_bTag_vals, "Unknown/%u tag")
-        );
+        subtree = proto_tree_add_subtree_format(parent_tree, tvb, offset, bSize + 1, ett_usb_hid_item_header, &subitem, "%s", val_to_str(bTag, usb_hid_cur_bTag_vals, "Unknown/%u tag"));
 
         tree = proto_tree_add_subtree(subtree, tvb, offset, 1, ett_usb_hid_item_header, NULL, "Header");
         proto_tree_add_item(tree, hf_usb_hid_item_bSize, tvb, offset,   1, ENC_LITTLE_ENDIAN);
