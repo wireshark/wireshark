@@ -74,8 +74,12 @@ static const value_string ntlmssp_message_types[] = {
   { 0, NULL }
 };
 
+#define NTLMSSP_EK_IS_NT4HASH(ek) \
+  (ek->fd_num == -1 && ek->keytype == 23 && ek->keylength == NTLMSSP_KEY_LEN)
+
 typedef struct _md4_pass {
   guint8 md4[NTLMSSP_KEY_LEN];
+  char key_origin[KRB_MAX_ORIG_LEN+1];
 } md4_pass;
 
 static const unsigned char gbl_zeros[24] = "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
@@ -266,6 +270,7 @@ static expert_field ei_ntlmssp_v2_key_too_long = EI_INIT;
 static expert_field ei_ntlmssp_blob_len_too_long = EI_INIT;
 static expert_field ei_ntlmssp_target_info_attr = EI_INIT;
 static expert_field ei_ntlmssp_message_type = EI_INIT;
+static expert_field ei_ntlmssp_auth_nthash = EI_INIT;
 
 static dissector_handle_t ntlmssp_handle, ntlmssp_wrap_handle;
 
@@ -489,7 +494,7 @@ get_md4pass_list(md4_pass** p_pass_list, const char* nt_password)
   read_keytab_file_from_preferences();
 
   for (ek=enc_key_list; ek; ek=ek->next) {
-    if (ek->keylength == NTLMSSP_KEY_LEN) {
+    if (NTLMSSP_EK_IS_NT4HASH(ek)) {
       nb_pass++;
     }
   }
@@ -507,16 +512,19 @@ get_md4pass_list(md4_pass** p_pass_list, const char* nt_password)
     return 0;
   }
   i = 0;
-  *p_pass_list = (md4_pass *)wmem_alloc(wmem_packet_scope(), nb_pass*sizeof(md4_pass));
+  *p_pass_list = (md4_pass *)wmem_alloc0(wmem_packet_scope(), nb_pass*sizeof(md4_pass));
   pass_list = *p_pass_list;
 
   if (memcmp(nt_password_hash, gbl_zeros, NTLMSSP_KEY_LEN) != 0) {
     memcpy(pass_list[i].md4, nt_password_hash, NTLMSSP_KEY_LEN);
+    g_snprintf(pass_list[i].key_origin, KRB_MAX_ORIG_LEN,
+               "<Global NT Password>");
     i = 1;
   }
   for (ek=enc_key_list; ek; ek=ek->next) {
-    if (ek->keylength == NTLMSSP_KEY_LEN) {
+    if (NTLMSSP_EK_IS_NT4HASH(ek)) {
       memcpy(pass_list[i].md4, ek->keyvalue, NTLMSSP_KEY_LEN);
+      memcpy(pass_list[i].key_origin, ek->key_origin, KRB_MAX_ORIG_LEN+1);
       i++;
     }
   }
@@ -529,7 +537,8 @@ get_md4pass_list(md4_pass** p_pass_list, const char* nt_password)
 static void
 create_ntlmssp_v2_key(const char *nt_password _U_, const guint8 *serverchallenge , const guint8 *clientchallenge ,
                       guint8 *sessionkey , const  guint8 *encryptedsessionkey , int flags ,
-                      const ntlmssp_blob *ntlm_response, const ntlmssp_blob *lm_response _U_, ntlmssp_header_t *ntlmssph)
+                      const ntlmssp_blob *ntlm_response, const ntlmssp_blob *lm_response _U_, ntlmssp_header_t *ntlmssph,
+                      packet_info *pinfo, proto_tree *ntlmssp_tree)
 {
 /* static const would be nicer, but -Werror=vla does not like it */
 #define DOMAIN_NAME_BUF_SIZE 512
@@ -551,6 +560,7 @@ create_ntlmssp_v2_key(const char *nt_password _U_, const guint8 *serverchallenge
   size_t            user_len;
   size_t            domain_len;
   md4_pass         *pass_list = NULL;
+  const md4_pass   *used_md4 = NULL;
   guint32           nb_pass = 0;
   gboolean          found = FALSE;
 
@@ -589,6 +599,7 @@ create_ntlmssp_v2_key(const char *nt_password _U_, const guint8 *serverchallenge
     #ifdef DEBUG_NTLMSSP
     fprintf(stderr, "Turn %d, ", i);
     #endif
+    used_md4 = &pass_list[i];
     memcpy(nt_password_hash, pass_list[i].md4, NTLMSSP_KEY_LEN);
     printnbyte(nt_password_hash, NTLMSSP_KEY_LEN, "Current NT password hash: ", "\n");
     i++;
@@ -650,6 +661,16 @@ create_ntlmssp_v2_key(const char *nt_password _U_, const guint8 *serverchallenge
   }
 
   memcpy(ntlmssph->session_key, sessionkey, NTLMSSP_KEY_LEN);
+
+  if (used_md4 == NULL) {
+    return;
+  }
+  expert_add_info_format(pinfo, proto_tree_get_parent(ntlmssp_tree),
+                         &ei_ntlmssp_auth_nthash,
+                         "NTLMv2 authenticated using %s (%02x%02x%02x%02x...)",
+                         used_md4->key_origin,
+                         used_md4->md4[0] & 0xFF, used_md4->md4[1] & 0xFF,
+                         used_md4->md4[2] & 0xFF, used_md4->md4[3] & 0xFF);
 }
 
  /* Create an NTLMSSP version 1 key
@@ -661,7 +682,8 @@ static void
 create_ntlmssp_v1_key(const char *nt_password, const guint8 *serverchallenge, const guint8 *clientchallenge,
                       guint8 *sessionkey, const  guint8 *encryptedsessionkey, int flags,
                       const guint8 *ref_nt_challenge_response, const guint8 *ref_lm_challenge_response,
-                      ntlmssp_header_t *ntlmssph)
+                      ntlmssp_header_t *ntlmssph,
+                      packet_info *pinfo, proto_tree *ntlmssp_tree)
 {
   unsigned char     lm_password_upper[NTLMSSP_KEY_LEN];
   unsigned char     lm_password_hash[NTLMSSP_KEY_LEN];
@@ -681,6 +703,7 @@ create_ntlmssp_v1_key(const char *nt_password, const guint8 *serverchallenge, co
   unsigned int      i;
   gboolean          found     = FALSE;
   md4_pass         *pass_list = NULL;
+  const md4_pass   *used_md4 = NULL;
 
   static const unsigned char lmhash_key[] =
     {0x4b, 0x47, 0x53, 0x21, 0x40, 0x23, 0x24, 0x25};
@@ -725,6 +748,7 @@ create_ntlmssp_v1_key(const char *nt_password, const guint8 *serverchallenge, co
       i = 0;
       while (i < nb_pass) {
         /*fprintf(stderr, "Turn %d, ", i);*/
+        used_md4 = &pass_list[i];
         memcpy(nt_password_hash, pass_list[i].md4, NTLMSSP_KEY_LEN);
         /*printnbyte(nt_password_hash, NTLMSSP_KEY_LEN, "Current NT password hash: ", "\n");*/
         i++;
@@ -805,6 +829,16 @@ create_ntlmssp_v1_key(const char *nt_password, const guint8 *serverchallenge, co
     memcpy(sessionkey, keyexchangekey, NTLMSSP_KEY_LEN);
   }
   memcpy(ntlmssph->session_key, sessionkey, NTLMSSP_KEY_LEN);
+
+  if (used_md4 == NULL) {
+    return;
+  }
+  expert_add_info_format(pinfo, proto_tree_get_parent(ntlmssp_tree),
+                         &ei_ntlmssp_auth_nthash,
+                         "NTLMv1 authenticated using %s (%02x%02x%02x%02x...)",
+                         used_md4->key_origin,
+                         used_md4->md4[0] & 0xFF, used_md4->md4[1] & 0xFF,
+                         used_md4->md4[2] & 0xFF, used_md4->md4[3] & 0xFF);
 }
 
 static void
@@ -1528,7 +1562,11 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
       conv_ntlmssp_info->ntlm_response.contents = (guint8 *)wmem_alloc0(wmem_file_scope(), 24);
       conv_ntlmssp_info->lm_response.contents = (guint8 *)wmem_alloc0(wmem_file_scope(), 24);
 
-      create_ntlmssp_v1_key(gbl_nt_password, conv_ntlmssp_info->server_challenge, NULL, sspkey, NULL, conv_ntlmssp_info->flags, conv_ntlmssp_info->ntlm_response.contents, conv_ntlmssp_info->lm_response.contents, ntlmssph);
+      create_ntlmssp_v1_key(gbl_nt_password, conv_ntlmssp_info->server_challenge,
+                            NULL, sspkey, NULL, conv_ntlmssp_info->flags,
+                            conv_ntlmssp_info->ntlm_response.contents,
+                            conv_ntlmssp_info->lm_response.contents,
+                            ntlmssph, pinfo, ntlmssp_tree);
       if (memcmp(sspkey, gbl_zeros, NTLMSSP_KEY_LEN) != 0) {
         get_sealing_rc4key(sspkey, conv_ntlmssp_info->flags, &ssp_key_len, clientkey, serverkey);
         if (!gcry_cipher_open(&conv_ntlmssp_info->rc4_handle_client, GCRY_CIPHER_ARCFOUR, GCRY_CIPHER_MODE_STREAM, 0)) {
@@ -1936,7 +1974,17 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
       {
         conv_ntlmssp_info->rc4_state_initialized = FALSE;
         if (conv_ntlmssp_info->is_auth_ntlm_v2) {
-          create_ntlmssp_v2_key(gbl_nt_password, conv_ntlmssp_info->server_challenge, conv_ntlmssp_info->client_challenge, sspkey, encryptedsessionkey, conv_ntlmssp_info->flags, &conv_ntlmssp_info->ntlm_response, &conv_ntlmssp_info->lm_response, ntlmssph);
+          create_ntlmssp_v2_key(gbl_nt_password,
+                                conv_ntlmssp_info->server_challenge,
+                                conv_ntlmssp_info->client_challenge,
+                                sspkey,
+                                encryptedsessionkey,
+                                conv_ntlmssp_info->flags,
+                                &conv_ntlmssp_info->ntlm_response,
+                                &conv_ntlmssp_info->lm_response,
+                                ntlmssph,
+                                pinfo,
+                                ntlmssp_tree);
         }
         else
         {
@@ -1945,7 +1993,16 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
           } else {
             memcpy(conv_ntlmssp_info->client_challenge, conv_ntlmssp_info->lm_response.contents, 8);
           }
-          create_ntlmssp_v1_key(gbl_nt_password, conv_ntlmssp_info->server_challenge, conv_ntlmssp_info->client_challenge, sspkey, encryptedsessionkey, conv_ntlmssp_info->flags, conv_ntlmssp_info->ntlm_response.contents, conv_ntlmssp_info->lm_response.contents, ntlmssph);
+          create_ntlmssp_v1_key(gbl_nt_password,
+                                conv_ntlmssp_info->server_challenge,
+                                conv_ntlmssp_info->client_challenge,
+                                sspkey, encryptedsessionkey,
+                                conv_ntlmssp_info->flags,
+                                conv_ntlmssp_info->ntlm_response.contents,
+                                conv_ntlmssp_info->lm_response.contents,
+                                ntlmssph,
+                                pinfo,
+                                ntlmssp_tree);
         }
         /* ssp is the exported session key */
         if (memcmp(sspkey, gbl_zeros, NTLMSSP_KEY_LEN) != 0) {
@@ -3315,6 +3372,7 @@ proto_register_ntlmssp(void)
      { &ei_ntlmssp_blob_len_too_long, { "ntlmssp.blob.length.too_long", PI_UNDECODED, PI_WARN, "Session blob length too long", EXPFILL }},
      { &ei_ntlmssp_target_info_attr, { "ntlmssp.target_info_attr.unknown", PI_UNDECODED, PI_WARN, "unknown NTLMSSP Target Info Attribute", EXPFILL }},
      { &ei_ntlmssp_message_type, { "ntlmssp.messagetype.unknown", PI_PROTOCOL, PI_WARN, "Unrecognized NTLMSSP Message", EXPFILL }},
+     { &ei_ntlmssp_auth_nthash, { "ntlmssp.authenticated", PI_SECURITY, PI_CHAT, "Authenticated NTHASH", EXPFILL }},
   };
   module_t *ntlmssp_module;
   expert_module_t* expert_ntlmssp;
