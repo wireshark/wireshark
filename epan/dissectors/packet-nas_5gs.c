@@ -418,6 +418,7 @@ static int hf_nas_5gs_os_app_id = -1;
 static int hf_nas_5gs_mm_len_of_rej_s_nssai = -1;
 static int hf_nas_5gs_mm_rej_s_nssai_cause = -1;
 static int hf_nas_5gs_mm_cp_service_type = -1;
+static int hf_nas_5gs_mm_ue_radio_cap_id = -1;
 
 static expert_field ei_nas_5gs_extraneous_data = EI_INIT;
 static expert_field ei_nas_5gs_unknown_pd = EI_INIT;
@@ -2509,37 +2510,40 @@ de_nas_5gs_mm_ul_data_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
 }
 
 /*
- * 9.11.3.58 Non-3GPP NW provided policies
- * See subclause 10.5.5.37 in 3GPP TS 24.008 [12].
+ * 9.11.3.58 Void
+ * 9.11.3.59 Void
+ * 9.11.3.60 Void
+ * 9.11.3.61 Void
+ * 9.11.3.62 Void
+ * 9.11.3.63 Void
+ * 9.11.3.64 Void
  */
-
- /*
- * 9.11.3.59 EPS bearer context status
- * See subclause 9.9.2.1 in 3GPP TS 24.301 [15].
- */
-
- /*
- * 9.11.3.60 Extended DRX parameters
- * See subclause 10.5.5.32 in 3GPP TS 24.008 [12].
- */
-
- /*
- * 9.11.3.61 Mobile station classmark 2
- * See subclause 10.5.1.6 in 3GPP TS 24.008 [12].
- */
-
- /*
- * 9.11.3.62 Supported codec list
- * See subclause 10.5.4.32 in 3GPP TS 24.008 [12].
- */
-
- /*
- * 9.11.3.63 MA PDU session information
-*/
 
 /*
- * 9.11.3.64 CAG information list
+ * 9.11.3.68 UE radio capability ID
  */
+/*
+ * The UE radio capability ID contents contain the UE radio capability ID as specified in 3GPP TS 23.003
+ * with each digit coded in BCD, starting with the first digit coded in bits 4 to 1 of octet 3,
+ * the second digit coded in bits 8 to 5 of octet 3, and so on. If the UE radio capability ID contains
+ * an odd number of digits, bits 8 to 5 of the last octet (octet n) shall be coded as "1111".
+*/
+
+guint16
+de_nas_5gs_mm_ue_radio_cap_id(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _U_,
+    guint32 offset, guint len,
+    gchar* add_string _U_, int string_len _U_)
+{
+    int curr_offset;
+    const char* digit_str;
+
+    curr_offset = offset;
+
+    digit_str = tvb_bcd_dig_to_wmem_packet_str(tvb, curr_offset, len, NULL, FALSE);
+    proto_tree_add_string(tree, hf_nas_5gs_mm_ue_radio_cap_id, tvb, 0, -1, digit_str);
+
+    return len;
+}
 
 
 /*
@@ -3851,6 +3855,7 @@ typedef enum
     DE_NAS_5GS_MM_UE_STATUS,                 /* 9.11.3.56    UE status */
     DE_NAS_5GS_MM_UL_DATA_STATUS,            /* 9.11.3.57    Uplink data status */
     DE_NAS_5GS_MM_CP_SERVICE_TYPE,           /* 9.11.3.65    Control plane service type*/
+    DE_NAS_5GS_MM_UE_RADIO_CAP_ID,           /* 9.11.3.68    UE radio capability ID*/
     DE_NAS_5GS_MM_NONE        /* NONE */
 }
 nas_5gs_mm_elem_idx_t;
@@ -3923,6 +3928,7 @@ static const value_string nas_5gs_mm_elem_strings[] = {
     { DE_NAS_5GS_MM_UE_STATUS,                  "UE status" },                          /* 9.11.3.56    UE status*/
     { DE_NAS_5GS_MM_UL_DATA_STATUS,             "Uplink data status" },                 /* 9.11.3.57    Uplink data status*/
     { DE_NAS_5GS_MM_CP_SERVICE_TYPE,            "Control plane service type" },         /* 9.11.3.65    Control plane service type*/
+    { DE_NAS_5GS_MM_UE_RADIO_CAP_ID,            "UE radio capability ID" },             /* 9.11.3.68    UE radio capability ID*/
 
     { 0, NULL }
 };
@@ -4000,6 +4006,9 @@ guint16(*nas_5gs_mm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
         de_nas_5gs_mm_ue_status,                 /* 9.11.3.56    UE status*/
         de_nas_5gs_mm_ul_data_status,            /* 9.11.3.57    Uplink data status*/
         de_nas_5gs_mm_cp_service_type,           /* 9.11.3.65    Control plane service type*/
+        de_nas_5gs_mm_cp_service_type,           /* 9.11.3.65    Control plane service type*/
+        de_nas_5gs_mm_ue_radio_cap_id,           /* 9.11.3.68    UE radio capability ID*/
+
         NULL,   /* NONE */
 };
 
@@ -4307,7 +4316,9 @@ nas_5gs_mm_registration_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     ELEM_OPT_TLV(0x6E, GSM_A_PDU_TYPE_GM, DE_EXT_DRX_PARAMS, NULL);
 
     /* 6A    T3324 value    GPRS timer 3 9.11.2.5    O    TLV    3 */
+    ELEM_OPT_TLV(0x6A, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - T3324 value");
     /* 67    UE radio capability ID    UE radio capability ID 9.11.3.68    O    TLV    3-n */
+    ELEM_OPT_TLV(0x67, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_UE_RADIO_CAP_ID, NULL);
     /* 35    Requested mapped NSSAI    Mapped NSSAI 9.11.3.31B    O    TLV    3-42 */
     /* 48    Additional information requested    Additional information requested 9.11.3.12A    O    TLV    3 */
 
@@ -4391,6 +4402,7 @@ nas_5gs_mm_registration_accept(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
     /* 6A    T3324 value    GPRS timer 3 9.11.2.5    O    TLV    3 */
     ELEM_OPT_TLV(0x6A, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - T3324 value");
     /* 67    UE radio capability ID    UE radio capability ID 9.11.3.yy    O    TLV    3-n */
+    ELEM_OPT_TLV(0x67, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_UE_RADIO_CAP_ID, NULL);
     /* 68    UE radio capability ID deletion indication    UE radio capability ID deletion indication 9.11.3.69    O    TV    1 */
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_5gs_extraneous_data);
@@ -4725,6 +4737,7 @@ nas_5gs_mm_conf_upd_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     ELEM_OPT_TLV(0x6c, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - T3447");
     /* 44    CAG information list    CAG information list 9.11.3.64    O    TLV-E    3-n */
     /* 67    UE radio capability ID    UE radio capability ID 9.11.3.yy    O    TLV    3-n */
+    ELEM_OPT_TLV(0x67, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_UE_RADIO_CAP_ID, NULL);
     /* 68    UE radio capability ID deletion indication    UE radio capability ID deletion indication 9.11.3.69    O    TV    1 */
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_5gs_extraneous_data);
@@ -8501,6 +8514,11 @@ proto_register_nas_5gs(void)
         { &hf_nas_5gs_mm_cp_service_type,
         { "Control plane service type", "nas_5gs.mm.cp_service_type",
             FT_UINT8, BASE_DEC, VALS(nas_5gs_mm_cp_service_type_vals), 0x0f,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_ue_radio_cap_id,
+        { "UE radio capability ID", "nas_5gs.mm.ue_radio_cap_id",
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
     };

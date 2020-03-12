@@ -69,6 +69,8 @@ static const value_string diameter_3gpp_termination_cause_vals[] = {
     { 0, NULL }
 };
 
+int dissect_diameter_3gpp_core_network_restrictions(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data);
+
 /*
  * Editor modelines
  *

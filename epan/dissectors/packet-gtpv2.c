@@ -1,7 +1,7 @@
 /* packet-gtpv2.c
  *
  * Routines for GTPv2 dissection
- * Copyright 2009 - 2019, Anders Broman <anders.broman [at] ericsson.com>
+ * Copyright 2009 - 2020, Anders Broman <anders.broman [at] ericsson.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -4761,7 +4761,8 @@ dissect_gtpv2_mm_context_eps_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
            If Length of Core Network Restrictions is zero, then the field of Core Network Restrictions
            in octets "(l+2) to (l+5)" shall not be present.
          */
-        proto_tree_add_expert_format(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, offset, ie_len, "The rest of the IE not dissected yet");
+        tvbuff_t *new_tvb = tvb_new_subset_length(tvb, offset, ie_len);
+        dissect_diameter_3gpp_core_network_restrictions(new_tvb, pinfo, tree, NULL);
         offset += ie_len;
     }
 
@@ -4769,12 +4770,14 @@ dissect_gtpv2_mm_context_eps_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
         return;
     }
 
-    /* (l+6)  Length of UE Radio Capability ID hf_gtpv2_mm_context_ue_radio_cap_len*/
+    /* (l+6)  Length of UE Radio Capability ID */
     proto_tree_add_item_ret_uint(tree, hf_gtpv2_mm_context_ue_radio_cap_len, tvb, offset, 1, ENC_BIG_ENDIAN, &ie_len);
     offset += 1;
     if (ie_len) {
-        /* (l+7) to z UE Radio Capability ID */
-        proto_tree_add_expert_format(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, offset, ie_len, "The rest of the IE not dissected yet");
+        /* (l+7) to z UE Radio Capability ID
+         * The UE Radio Capability ID is specified in the clause 9.9.3.60 of 3GPP TS24.301
+         */
+        de_nas_5gs_mm_ue_radio_cap_id(tvb, tree, pinfo, offset, ie_len, NULL, 0);
         offset += ie_len;
     }
     if (offset < (gint)length){

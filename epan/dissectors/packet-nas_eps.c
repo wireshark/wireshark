@@ -1,7 +1,7 @@
 /* packet-nas_eps.c
  * Routines for Non-Access-Stratum (NAS) protocol for Evolved Packet System (EPS) dissection
  *
- * Copyright 2008 - 2017, Anders Broman <anders.broman@ericsson.com>
+ * Copyright 2008 - 2020, Anders Broman <anders.broman@ericsson.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -884,6 +884,14 @@ static const value_string nas_emm_elem_strings[] = {
     { DE_EMM_ADD_INFO_REQ, "Additional information requested" },               /* 9.9.3.55 Additional information requested */
     { DE_EMM_CIPH_KEY_DATA, "Ciphering key data" },                            /* 9.9.3.56 Ciphering key data */
     { DE_EMM_N1_UE_NETWORK_CAP, "N1 UE network capability" },                  /* 9.9.3.57 N1 UE network capability */
+/*
+ * 9.9.3.58    UE radio capability ID availability
+ * 9.9.3.59    UE radio capability ID request
+ * 9.9.3.60    UE radio capability ID
+ * 9.9.3.61    UE radio capability ID deletion indication
+ * 9.9.3.62    WUS assistance information
+ */
+
     { 0, NULL }
 };
 value_string_ext nas_emm_elem_strings_ext = VALUE_STRING_EXT_INIT(nas_emm_elem_strings);
@@ -2832,6 +2840,18 @@ de_emm_n1_ue_network_cap(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _U_
 
     return 1;
 }
+
+/*
+ * 9.9.3.58    UE radio capability ID availability
+ * 9.9.3.59    UE radio capability ID request
+ * 9.9.3.60    UE radio capability ID
+ * See subclause 9.11.3.65 in 3GPP TS 24.501
+ * 9.9.3.61    UE radio capability ID deletion indication
+ * See subclause 9.11.3.zz in 3GPP TS 24.501
+ * 9.9.3.62    WUS assistance information
+ */
+
+
 /*
  * 9.9.4    EPS Session Management (ESM) information elements
  */
@@ -4047,6 +4067,14 @@ guint16 (*emm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, g
     de_emm_add_info_req,        /* 9.9.3.55 Additional information requested */
     de_emm_ciph_key_data,       /* 9.9.3.56 Ciphering key data */
     de_emm_n1_ue_network_cap,   /* 9.9.3.57 N1 UE network capability */
+/*
+ * 9.9.3.58    UE radio capability ID availability
+ * 9.9.3.59    UE radio capability ID request
+ * 9.9.3.60    UE radio capability ID
+ * 9.9.3.61    UE radio capability ID deletion indication
+ * 9.9.3.62    WUS assistance information
+ */
+
     NULL,   /* NONE */
 };
 

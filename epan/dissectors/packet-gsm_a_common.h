@@ -799,6 +799,7 @@ guint16 de_esm_ext_eps_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 
 void nas_esm_pdn_con_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len);
 
+guint16 de_nas_5gs_mm_ue_radio_cap_id(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo, guint32 offset, guint len, gchar* add_string _U_, int string_len _U_);
 guint16 de_nas_5gs_cmn_s_nssai(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_);
 guint16 de_nas_5gs_sm_qos_rules(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_);
 guint16 de_nas_5gs_sm_qos_flow_des(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_);
@@ -1796,6 +1797,7 @@ typedef enum
     DE_NAS_5GS_MM_UE_STATUS,                 /* 9.11.3.56    UE status */
     DE_NAS_5GS_MM_UL_DATA_STATUS,            /* 9.11.3.57    Uplink data status */
     DE_NAS_5GS_MM_CP_SERVICE_TYPE,           /* 9.11.3.65    Control plane service type*/
+    DE_NAS_5GS_MM_UE_RADIO_CAP_ID,           /* 9.11.3.68    UE radio capability ID*/
     DE_NAS_5GS_MM_NONE        /* NONE */}
 nas_5gs_mm_elem_idx_t;
 

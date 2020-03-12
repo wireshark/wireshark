@@ -2530,7 +2530,7 @@ dissect_diameter_3gpp_v2x_permission(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 * 7.3.230 Core-Network-Restrictions
 * AVP Code: 1704 Core-Network-Restrictions
 */
-static int
+int
 dissect_diameter_3gpp_core_network_restrictions(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
 {
     static const int *flags[] = {
