@@ -40,9 +40,6 @@
 /* Define to 1 if you have the <arpa/inet.h> header file. */
 #cmakedefine HAVE_ARPA_INET_H 1
 
-/* Define to 1 if you have the `bpf_image' function. */
-#cmakedefine HAVE_BPF_IMAGE 1
-
 /* Define to 1 if you have the <fcntl.h> header file. */
 #cmakedefine HAVE_FCNTL_H 1
 
@@ -202,27 +199,11 @@
 /* Define to 1 if you have the macOS CFPropertyListCreateWithStream function */
 #cmakedefine HAVE_CFPROPERTYLISTCREATEWITHSTREAM 1
 
-/* Define if pcap_breakloop is known */
-#cmakedefine HAVE_PCAP_BREAKLOOP 1
-
 /* Define to 1 if you have the `pcap_create' function. */
 #cmakedefine HAVE_PCAP_CREATE 1
 
 /* Define to 1 if the capture buffer size can be set. */
 #cmakedefine CAN_SET_CAPTURE_BUFFER_SIZE 1
-
-/* Define to 1 if you have the `pcap_datalink_name_to_val' function. */
-#cmakedefine HAVE_PCAP_DATALINK_NAME_TO_VAL 1
-
-/* Define to 1 if you have the `pcap_datalink_val_to_description' function. */
-#cmakedefine HAVE_PCAP_DATALINK_VAL_TO_DESCRIPTION 1
-
-/* Define to 1 if you have the `pcap_datalink_val_to_name' function. */
-#cmakedefine HAVE_PCAP_DATALINK_VAL_TO_NAME 1
-
-/* Define to 1 if you have the `pcap_findalldevs' function and a pcap.h that
-   declares pcap_if_t. */
-#cmakedefine HAVE_PCAP_FINDALLDEVS 1
 
 /* Define to 1 if you have the `pcap_freecode' function. */
 #cmakedefine HAVE_PCAP_FREECODE 1
@@ -230,26 +211,11 @@
 /* Define to 1 if you have the `pcap_free_datalinks' function. */
 #cmakedefine HAVE_PCAP_FREE_DATALINKS 1
 
-/* Define to 1 if you have the `pcap_get_selectable_fd' function. */
-#cmakedefine HAVE_PCAP_GET_SELECTABLE_FD 1
-
-/* Define to 1 if you have the `pcap_lib_version' function. */
-#cmakedefine HAVE_PCAP_LIB_VERSION 1
-
-/* Define to 1 if you have the `pcap_list_datalinks' function. */
-#cmakedefine HAVE_PCAP_LIST_DATALINKS 1
-
 /* Define to 1 if you have the `pcap_open' function. */
 #cmakedefine HAVE_PCAP_OPEN 1
 
-/* Define to 1 if you have the `pcap_open_dead' function. */
-#cmakedefine HAVE_PCAP_OPEN_DEAD 1
-
 /* Define to 1 if you have libpcap/WinPcap/Npcap remote capturing support. */
 #cmakedefine HAVE_PCAP_REMOTE 1
-
-/* Define to 1 if you have the `pcap_set_datalink' function. */
-#cmakedefine HAVE_PCAP_SET_DATALINK 1
 
 /* Define to 1 if you have the `pcap_setsampling' function. */
 #cmakedefine HAVE_PCAP_SETSAMPLING 1

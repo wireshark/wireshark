@@ -134,51 +134,7 @@ static void capture_loop_stop(void);
 /** Close a pipe, or socket if \a from_socket is TRUE */
 static void cap_pipe_close(int pipe_fd, gboolean from_socket);
 
-#if !defined (__linux__)
-#ifndef HAVE_PCAP_BREAKLOOP
-/*
- * We don't have pcap_breakloop(), which is the only way to ensure that
- * pcap_dispatch(), pcap_loop(), or even pcap_next() or pcap_next_ex()
- * won't, if the call to read the next packet or batch of packets is
- * is interrupted by a signal on UN*X, just go back and try again to
- * read again.
- *
- * On UN*X, we catch SIGINT as a "stop capturing" signal, and, in
- * the signal handler, set a flag to stop capturing; however, without
- * a guarantee of that sort, we can't guarantee that we'll stop capturing
- * if the read will be retried and won't time out if no packets arrive.
- *
- * Therefore, on at least some platforms, we work around the lack of
- * pcap_breakloop() by doing a select() on the pcap_t's file descriptor
- * to wait for packets to arrive, so that we're probably going to be
- * blocked in the select() when the signal arrives, and can just bail
- * out of the loop at that point.
- *
- * However, we don't want to do that on BSD (because "select()" doesn't work
- * correctly on BPF devices on at least some releases of some flavors of
- * BSD), and we don't want to do it on Windows (because "select()" is
- * something for sockets, not for arbitrary handles).  (Note that "Windows"
- * here includes Cygwin; even in its pretend-it's-UNIX environment, we're
- * using Npcap, not a UNIX libpcap.)
- *
- * Fortunately, we don't need to do it on BSD, because the libpcap timeout
- * on BSD times out even if no packets have arrived, so we'll eventually
- * exit pcap_dispatch() with an indication that no packets have arrived,
- * and will break out of the capture loop at that point.
- *
- * On Windows, we can't send a SIGINT to stop capturing, so none of this
- * applies in any case.
- *
- * XXX - the various BSDs appear to define BSD in <sys/param.h>; we don't
- * want to include it if it's not present on this platform, however.
- */
-# if !defined(__FreeBSD__) && !defined(__NetBSD__) && !defined(__OpenBSD__) && \
-    !defined(__bsdi__) && !defined(__APPLE__) && !defined(_WIN32) && \
-    !defined(__CYGWIN__)
-#  define MUST_DO_SELECT
-# endif /* avoid select */
-#endif /* HAVE_PCAP_BREAKLOOP */
-#else /* linux */
+#if defined (__linux__)
 /* whatever the deal with pcap_breakloop, linux doesn't support timeouts
  * in pcap_dispatch(); on the other hand, select() works just fine there.
  * Hence we use a select for that come what may.
@@ -429,9 +385,7 @@ print_usage(FILE *output)
     fprintf(output, "  -L, --list-data-link-types\n");
     fprintf(output, "                           print list of link-layer types of iface and exit\n");
     fprintf(output, "  --list-time-stamp-types  print list of timestamp types for iface and exit\n");
-#ifdef HAVE_BPF_IMAGE
     fprintf(output, "  -d                       print generated BPF code for capture filter\n");
-#endif
     fprintf(output, "  -k <freq>,[<type>],[<center_freq1>],[<center_freq2>]\n");
     fprintf(output, "                           set channel on wifi interface\n");
     fprintf(output, "  -S                       print statistics for each interface once per second\n");
@@ -725,7 +679,6 @@ DIAG_ON(cast-qual)
     return TRUE;
 }
 
-#ifdef HAVE_BPF_IMAGE
 static gboolean
 show_filter_code(capture_options *capture_opts)
 {
@@ -797,7 +750,6 @@ show_filter_code(capture_options *capture_opts)
     }
     return TRUE;
 }
-#endif
 
 /*
  * capture_interface_list() is expected to do the right thing to get
@@ -2839,11 +2791,7 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
 /* XXX - will this work for tshark? */
 #ifdef MUST_DO_SELECT
         if (!pcap_src->from_cap_pipe) {
-#ifdef HAVE_PCAP_GET_SELECTABLE_FD
             pcap_src->pcap_fd = pcap_get_selectable_fd(pcap_src->pcap_h);
-#else
-            pcap_src->pcap_fd = pcap_fileno(pcap_src->pcap_h);
-#endif
         }
 #endif
 
@@ -4192,7 +4140,6 @@ error:
 static void
 capture_loop_stop(void)
 {
-#ifdef HAVE_PCAP_BREAKLOOP
     guint        i;
     capture_src *pcap_src;
 
@@ -4201,7 +4148,6 @@ capture_loop_stop(void)
         if (pcap_src->pcap_h != NULL)
             pcap_breakloop(pcap_src->pcap_h);
     }
-#endif
     global_ld.go = FALSE;
 }
 
@@ -4627,9 +4573,7 @@ main(int argc, char *argv[])
     GLogLevelFlags    log_flags;
     gboolean          list_interfaces       = FALSE;
     int               caps_queries          = 0;
-#ifdef HAVE_BPF_IMAGE
     gboolean          print_bpf_code        = FALSE;
-#endif
     gboolean          set_chan              = FALSE;
     gchar            *set_chan_arg          = NULL;
     gboolean          machine_readable      = FALSE;
@@ -4665,12 +4609,6 @@ main(int argc, char *argv[])
     ws_init_version_info("Dumpcap (Wireshark)", NULL, get_dumpcap_compiled_info,
                          get_dumpcap_runtime_info);
 
-#ifdef HAVE_BPF_IMAGE
-#define OPTSTRING_d "d"
-#else
-#define OPTSTRING_d
-#endif
-
 #ifdef HAVE_PCAP_REMOTE
 #define OPTSTRING_r "r"
 #define OPTSTRING_u "u"
@@ -4685,7 +4623,7 @@ main(int argc, char *argv[])
 #define OPTSTRING_m
 #endif
 
-#define OPTSTRING OPTSTRING_CAPTURE_COMMON "C:" OPTSTRING_d "ghk:" OPTSTRING_m "MN:nPq" OPTSTRING_r "St" OPTSTRING_u "vw:Z:"
+#define OPTSTRING OPTSTRING_CAPTURE_COMMON "C:dghk:" OPTSTRING_m "MN:nPq" OPTSTRING_r "St" OPTSTRING_u "vw:Z:"
 
 #ifdef DEBUG_CHILD_DUMPCAP
     if ((debug_log = ws_fopen("dumpcap_debug_log.tmp","w")) == NULL) {
@@ -5029,14 +4967,12 @@ main(int argc, char *argv[])
         case LONGOPT_LIST_TSTAMP_TYPES:
                 caps_queries |= CAPS_QUERY_TIMESTAMP_TYPES;
         break;
-#ifdef HAVE_BPF_IMAGE
         case 'd':        /* Print BPF code for capture filter and exit */
             if (!print_bpf_code) {
                 print_bpf_code = TRUE;
                 run_once_args++;
             }
             break;
-#endif
         case 'S':        /* Print interface statistics once a second */
             if (!print_statistics) {
                 print_statistics = TRUE;
@@ -5104,11 +5040,7 @@ main(int argc, char *argv[])
     }
 
     if (run_once_args > 1) {
-#ifdef HAVE_BPF_IMAGE
         cmdarg_err("Only one of -D, -L, -d, -k or -S may be supplied.");
-#else
-        cmdarg_err("Only one of -D, -L, -k or -S may be supplied.");
-#endif
         exit_main(1);
     } else if (run_once_args == 1) {
         /* We're supposed to print some information, rather than
@@ -5330,12 +5262,10 @@ main(int argc, char *argv[])
     /* Process the snapshot length, as that affects the generated BPF code. */
     capture_opts_trim_snaplen(&global_capture_opts, MIN_PACKET_SIZE);
 
-#ifdef HAVE_BPF_IMAGE
     if (print_bpf_code) {
         show_filter_code(&global_capture_opts);
         exit_main(0);
     }
-#endif
 
     /* We're supposed to do a capture.  Process the ring buffer arguments. */
     capture_opts_trim_ring_num_files(&global_capture_opts);
