@@ -1,8 +1,8 @@
 /* capture_wpcap_packet.c
- * WinPcap-specific interfaces for low-level information (packet.dll).
- * We load WinPcap at run
- * time, so that we only need one Wireshark binary and one TShark binary
- * for Windows, regardless of whether WinPcap is installed or not.
+ * WinPcap/Npcap-specific interfaces for low-level information (packet.dll).
+ * We load WinPcap/Npcap at run time, so that we only need one Wireshark
+ * binary and one TShark binary for Windows, regardless of whether
+ * WinPcap/Npcap is installed or not.
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -35,8 +35,9 @@
 
 gboolean has_wpacket = FALSE;
 
-/* This module will use the PacketRequest function in packet.dll (coming with WinPcap) to "directly" access
- * the Win32 NDIS network driver(s) and ask for various values (status, statistics, ...).
+/* This module will use the PacketRequest function in packet.dll (coming
+ * with WinPcap and Npcap) to "directly" access the Win32 NDIS network
+ * driver(s) and ask for various values (status, statistics, ...).
  *
  * Unfortunately, the definitions required for this are not available through the usual windows header files,
  * but require the Windows "Device Driver Kit" which is not available for free :-(
@@ -64,7 +65,7 @@ gboolean has_wpacket = FALSE;
 
 
 /******************************************************************************************************************************/
-/* stuff to load WinPcap's packet.dll and the functions required from it */
+/* stuff to load WinPcap/Npcap's packet.dll and the functions required from it */
 
 static PCHAR     (*p_PacketGetVersion) (void);
 static LPADAPTER (*p_PacketOpenAdapter) (char *adaptername);

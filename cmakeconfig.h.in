@@ -245,7 +245,7 @@
 /* Define to 1 if you have the `pcap_open_dead' function. */
 #cmakedefine HAVE_PCAP_OPEN_DEAD 1
 
-/* Define to 1 if you have libpcap/WinPcap remote capturing support. */
+/* Define to 1 if you have libpcap/WinPcap/Npcap remote capturing support. */
 #cmakedefine HAVE_PCAP_REMOTE 1
 
 /* Define to 1 if you have the `pcap_set_datalink' function. */

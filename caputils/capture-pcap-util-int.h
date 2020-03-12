@@ -1,5 +1,5 @@
 /* capture-pcap-util-int.h
- * Definitions of routines internal to the libpcap/WinPcap utilities
+ * Definitions of routines internal to the libpcap/WinPcap/Npcap utilities
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

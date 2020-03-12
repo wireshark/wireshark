@@ -75,7 +75,7 @@ extern GList *capture_interface_list(int *err, char **err_str, void (*update_cb)
 
 /* Error values from "get_interface_list()/capture_interface_list()". */
 #define	CANT_GET_INTERFACE_LIST	1	/* error getting list */
-#define	DONT_HAVE_PCAP		2	/* couldn't load WinPcap */
+#define	DONT_HAVE_PCAP		2	/* couldn't load WinPcap/Npcap */
 
 void free_interface_list(GList *if_list);
 
