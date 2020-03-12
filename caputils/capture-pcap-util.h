@@ -22,7 +22,7 @@ extern "C" {
 #include "capture_opts.h"
 
 /*
- * A snapshot length of 0 is useless - and libpcap/WinPcap don't guarantee
+ * A snapshot length of 0 is useless - and libpcap/WinPcap/Npcap don't guarantee
  * that a snapshot length of 0 will work, and, on some platforms, it won't
  * (with BPF, for example, the kernel is told the snapshot length via the
  * return value of the BPF program, and a return value of 0 means "drop
@@ -77,9 +77,9 @@ extern void get_compiled_caplibs_version(GString *str);
 /*
  * Append to a GString an indication of the version of capture libraries
  * with which we're running, or an indication that we're not running
- * with capture libraries, if we were compiled with WinPcap but
- * WinPcap wasn't loaded, or nothing, if we weren't compiled with
- * libpcap/WinPcap.
+ * with capture libraries, if we were compiled with WinPcap or Npcap but
+ * WinPcap/Npcap wasn't loaded, or nothing, if we weren't compiled with
+ * libpcap/WinPcap/Npcap.
  */
 extern void get_runtime_caplibs_version(GString *str);
 

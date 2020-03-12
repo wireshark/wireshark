@@ -430,8 +430,9 @@ void CaptureOptionsDialog::interfaceItemChanged(QTreeWidgetItem *item, int colum
                 link_row *linkr = new link_row();
                 data_link_info_t *data_link_info = gxx_list_data(data_link_info_t *, lt_entry);
                 /*
-                 * For link-layer types libpcap/WinPcap doesn't know about, the
-                 * name will be "DLT n", and the description will be null.
+                 * For link-layer types libpcap/WinPcap/Npcap doesn't know
+                 * about, the name will be "DLT n", and the description will
+                 * be null.
                  * We mark those as unsupported, and don't allow them to be
                  * used - capture filters won't work on them, for example.
                  */

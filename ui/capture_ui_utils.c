@@ -394,6 +394,9 @@ get_if_name(const char *if_text)
      * We also can't assume it begins with "\Device\", either, as, on
      * Windows OT, WinPcap doesn't put "\Device\" in front of the name.
      *
+     * XXX - we don't support Windows OT any more; do we need to worry
+     * about this?
+     *
      * As I remember, we can't assume that the interface description
      * doesn't contain a colon, either; I think some do.
      *

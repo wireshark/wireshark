@@ -1,8 +1,8 @@
 /* wspcap.h
  *
- * Wrapper around libpcap/WinPcap's pcap.h.
+ * Wrapper around libpcap/WinPcap/Npcap's pcap.h.
  *
- * If HAVE_PCAP_REMOTE is defined, it forces the WinPcap header files to
+ * If HAVE_PCAP_REMOTE is defined, it forces the WinPcap/Npcap header files to
  * define things required for remote capture, by defining HAVE_REMOTE.
  *
  * With current versions of the WinPcap or Npcap SDK, if:

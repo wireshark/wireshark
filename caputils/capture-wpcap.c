@@ -1,7 +1,8 @@
 /* capture-wpcap.c
- * WinPcap-specific interfaces for capturing.  We load WinPcap at run
- * time, so that we only need one Wireshark binary and one TShark binary
- * for Windows, regardless of whether WinPcap is installed or not.
+ * WinPcap/Npcap-specific interfaces for capturing.  We load WinPcap/Npcap
+ * at run time, so that we only need one Wireshark binary and one TShark
+ * binary for Windows, regardless of whether WinPcap/Npcap is installed
+ * or not.
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -409,7 +410,7 @@ pcap_open_live(const char *a, int b, int c, int d, char *errbuf)
 	pcap_t *p;
 	if (!has_wpcap) {
 		g_snprintf(errbuf, PCAP_ERRBUF_SIZE,
-			   "unable to load WinPcap (wpcap.dll); can't open %s to capture",
+			   "unable to load Npcap or WinPcap (wpcap.dll); can't open %s to capture",
 			   a);
 		return NULL;
 	}
@@ -448,7 +449,7 @@ pcap_open(const char *a, int b, int c, int d, struct pcap_rmtauth *e, char *errb
 	pcap_t *ret;
 	if (!has_wpcap) {
 		g_snprintf(errbuf, PCAP_ERRBUF_SIZE,
-			   "unable to load WinPcap (wpcap.dll); can't open %s to capture",
+			   "unable to load Npcap or WinPcap (wpcap.dll); can't open %s to capture",
 			   a);
 		return NULL;
 	}
@@ -874,7 +875,7 @@ get_interface_list(int *err, char **err_str)
 
 	if (!has_wpcap) {
 		/*
-		 * We don't have WinPcap, so we can't get a list of
+		 * We don't have Npcap or WinPcap, so we can't get a list of
 		 * interfaces.
 		 */
 		*err = DONT_HAVE_PCAP;
@@ -889,7 +890,7 @@ get_interface_list(int *err, char **err_str)
 #endif
 
 	/*
-	 * In WinPcap, pcap_lookupdev is implemented by calling
+	 * In WinPcap/Npcap, pcap_lookupdev is implemented by calling
 	 * PacketGetAdapterNames.  According to the documentation
 	 * I could find:
 	 *
@@ -1105,7 +1106,7 @@ void
 get_runtime_caplibs_version(GString *str)
 {
 	/*
-	 * On Windows, we might have been compiled with WinPcap but
+	 * On Windows, we might have been compiled with WinPcap/Npcap but
 	 * might not have it loaded; indicate whether we have it or
 	 * not and, if we have it and we have "pcap_lib_version()",
 	 * what version we have.
@@ -1204,11 +1205,11 @@ load_wpcap(void)
 void
 get_compiled_caplibs_version(GString *str)
 {
-	g_string_append(str, "without WinPcap");
+	g_string_append(str, "without Npcap or WinPcap");
 }
 
 /*
- * Don't append anything, as we weren't even compiled to use WinPcap.
+ * Don't append anything, as we weren't even compiled to use WinPcap/Npcap.
  */
 void
 get_runtime_caplibs_version(GString *str _U_)

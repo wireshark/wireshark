@@ -9,7 +9,7 @@
  *
  * and
  *
- *      2) WinPcap doesn't have it, because a file descriptor opened
+ *      2) WinPcap/Npcap don't have it, because a file descriptor opened
  *         by code built for one version of the MSVC++ C library
  *         can't be used by library routines built for another version
  *         (e.g., threaded vs. unthreaded).
