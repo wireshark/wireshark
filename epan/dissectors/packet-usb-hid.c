@@ -2614,7 +2614,7 @@ dissect_usb_hid_report_globalitem_data(packet_info *pinfo _U_, proto_tree *tree,
             if (val >= 7)
                 proto_item_append_text(ti, " (%d)", val);
             else
-                proto_item_append_text(ti, " (%d)", 16-val);
+                proto_item_append_text(ti, " (%d)", -(16 - (int) val));
             break;
         case USBHID_GLOBALITEM_TAG_UNIT:
             proto_tree_add_item(tree, hf_usb_hid_globalitem_unit_sys, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
