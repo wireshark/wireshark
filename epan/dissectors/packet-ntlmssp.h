@@ -45,4 +45,20 @@ typedef struct _ntlmssp_header_t {
 	guint8		session_key[NTLMSSP_KEY_LEN];
 } ntlmssp_header_t;
 
+#define NTLMSSP_BLOB_MAX_SIZE 10240
+typedef struct _ntlmssp_blob {
+  guint16 length;
+  guint8* contents;
+} ntlmssp_blob;
+
+void
+ntlmssp_create_session_key(packet_info *pinfo,
+                           proto_tree *tree,
+                           ntlmssp_header_t *ntlmssph,
+                           int flags,
+                           const guint8 *server_challenge,
+                           const guint8 *encryptedsessionkey,
+                           const ntlmssp_blob *ntlm_response,
+                           const ntlmssp_blob *lm_response);
+
 #endif

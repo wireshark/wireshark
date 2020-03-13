@@ -272,25 +272,17 @@ static dissector_handle_t ntlmssp_handle, ntlmssp_wrap_handle;
 /* Configuration variables */
 static const char *ntlmssp_option_nt_password = NULL;
 
-#define MAX_BLOB_SIZE 10240
-typedef struct _ntlmssp_blob {
-  guint16 length;
-  guint8* contents;
-} ntlmssp_blob;
-
 #define NTLMSSP_CONV_INFO_KEY 0
 /* Used in the conversation function */
 typedef struct _ntlmssp_info {
   guint32          flags;
   gboolean         saw_challenge;
-  gboolean         is_auth_ntlm_v2;
   gcry_cipher_hd_t rc4_handle_client;
   gcry_cipher_hd_t rc4_handle_server;
   guint8           sign_key_client[NTLMSSP_KEY_LEN];
   guint8           sign_key_server[NTLMSSP_KEY_LEN];
   guint32          server_dest_port;
   unsigned char    server_challenge[8];
-  unsigned char    client_challenge[8];
   gboolean         rc4_state_initialized;
   ntlmssp_blob     ntlm_response;
   ntlmssp_blob     lm_response;
@@ -837,6 +829,61 @@ create_ntlmssp_v1_key(const guint8 *serverchallenge, const guint8 *clientchallen
                          used_md4->md4[2] & 0xFF, used_md4->md4[3] & 0xFF);
 }
 
+void
+ntlmssp_create_session_key(packet_info *pinfo,
+                           proto_tree *tree,
+                           ntlmssp_header_t *ntlmssph,
+                           int flags,
+                           const guint8 *server_challenge,
+                           const guint8 *encryptedsessionkey,
+                           const ntlmssp_blob *ntlm_response,
+                           const ntlmssp_blob *lm_response)
+{
+  guint8 client_challenge[8] = {0, };
+  guint8 sessionkey[NTLMSSP_KEY_LEN] = {0, };
+
+  if (ntlm_response->length > 24)
+  {
+    /*
+     * [MS-NLMP] 2.2.2.8 NTLM2 V2 Response: NTLMv2_RESPONSE has
+     * the 2.2.2.7 "NTLM v2: NTLMv2_CLIENT_CHALLENGE" at offset 16.
+     * Within that ChallengeFromClient is at offset 16, that means
+     * it's at offset 32 in total.
+     *
+     * Note that value is only used for the LM_response of NTLMv2.
+     */
+    if (ntlm_response->length >= 40) {
+      memcpy(client_challenge,
+             ntlm_response->contents+32, 8);
+    }
+    create_ntlmssp_v2_key(server_challenge,
+                          client_challenge,
+                          sessionkey,
+                          encryptedsessionkey,
+                          flags,
+                          ntlm_response,
+                          lm_response,
+                          ntlmssph,
+                          pinfo,
+                          tree);
+  }
+  else if (ntlm_response->length == 24 && lm_response->length == 24)
+  {
+    memcpy(client_challenge, lm_response->contents, 8);
+
+    create_ntlmssp_v1_key(server_challenge,
+                          client_challenge,
+                          sessionkey,
+                          encryptedsessionkey,
+                          flags,
+                          ntlm_response->contents,
+                          lm_response->contents,
+                          ntlmssph,
+                          pinfo,
+                          tree);
+  }
+}
+
 static void
 get_siging_key(guint8 *sign_key_server, guint8* sign_key_client, const guint8 key[NTLMSSP_KEY_LEN], int keylen)
 {
@@ -1032,12 +1079,12 @@ dissect_ntlmssp_blob (tvbuff_t *tvb, packet_info *pinfo,
 
   *end = blob_offset + blob_length;
 
-  if (blob_length < MAX_BLOB_SIZE) {
+  if (blob_length < NTLMSSP_BLOB_MAX_SIZE) {
     result->length = blob_length;
     result->contents = (guint8 *)tvb_memdup(wmem_file_scope(), tvb, blob_offset, blob_length);
   } else {
     expert_add_info_format(pinfo, tf, &ei_ntlmssp_v2_key_too_long,
-                           "NTLM v2 key is %d bytes long, too big for our %d buffer", blob_length, MAX_BLOB_SIZE);
+                           "NTLM v2 key is %d bytes long, too big for our %d buffer", blob_length, NTLMSSP_BLOB_MAX_SIZE);
     result->length = 0;
     result->contents = NULL;
   }
@@ -1544,7 +1591,6 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
     conv_ntlmssp_info->saw_challenge = TRUE;
     /* Insert the RC4 state information into the conversation */
     tvb_memcpy(tvb, conv_ntlmssp_info->server_challenge, offset, 8);
-    conv_ntlmssp_info->is_auth_ntlm_v2 = FALSE;
     /* Between the challenge and the user provided password, we can build the
        NTLMSSP key and initialize the cipher if we are not in EXTENDED SECURITY
        in this case we need the client challenge as well*/
@@ -1859,33 +1905,6 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
                                 &conv_ntlmssp_info->ntlm_response);
   data_start = MIN(data_start, item_start);
   data_end = MAX(data_end, item_end);
-  if (conv_ntlmssp_info != NULL)
-  {
-    memset(conv_ntlmssp_info->client_challenge, 0, 8);
-    if (conv_ntlmssp_info->ntlm_response.length > 24)
-    {
-      conv_ntlmssp_info->is_auth_ntlm_v2 = TRUE;
-      /*
-       * [MS-NLMP] 2.2.2.8 NTLM2 V2 Response: NTLMv2_RESPONSE has
-       * the 2.2.2.7 "NTLM v2: NTLMv2_CLIENT_CHALLENGE" at offset 16.
-       * Within that ChallengeFromClient is at offset 16, that means
-       * it's at offset 32 in total.
-       *
-       * Note that value is only used for the LM_response of NTLMv2.
-       */
-      if (conv_ntlmssp_info->ntlm_response.length >= 40) {
-        memcpy(conv_ntlmssp_info->client_challenge,
-               conv_ntlmssp_info->ntlm_response.contents+32, 8);
-      }
-    }
-    else
-    {
-      conv_ntlmssp_info->is_auth_ntlm_v2 = FALSE;
-      if (conv_ntlmssp_info->lm_response.length >= 8) {
-        memcpy(conv_ntlmssp_info->client_challenge, conv_ntlmssp_info->lm_response.contents, 8);
-      }
-    }
-  }
 
   /* domain name */
   item_start = tvb_get_letohl(tvb, offset+4);
@@ -1969,31 +1988,16 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
       if ((conv_ntlmssp_info->flags & NTLMSSP_NEGOTIATE_EXTENDED_SECURITY))
       {
         conv_ntlmssp_info->rc4_state_initialized = FALSE;
-        if (conv_ntlmssp_info->is_auth_ntlm_v2) {
-          create_ntlmssp_v2_key(conv_ntlmssp_info->server_challenge,
-                                conv_ntlmssp_info->client_challenge,
-                                sspkey,
-                                encryptedsessionkey,
-                                conv_ntlmssp_info->flags,
-                                &conv_ntlmssp_info->ntlm_response,
-                                &conv_ntlmssp_info->lm_response,
-                                ntlmssph,
-                                pinfo,
-                                ntlmssp_tree);
-        }
-        else
-        {
-          create_ntlmssp_v1_key(conv_ntlmssp_info->server_challenge,
-                                conv_ntlmssp_info->client_challenge,
-                                sspkey, encryptedsessionkey,
-                                conv_ntlmssp_info->flags,
-                                conv_ntlmssp_info->ntlm_response.contents,
-                                conv_ntlmssp_info->lm_response.contents,
-                                ntlmssph,
-                                pinfo,
-                                ntlmssp_tree);
-        }
+        ntlmssp_create_session_key(pinfo,
+                                   ntlmssp_tree,
+                                   ntlmssph,
+                                   conv_ntlmssp_info->flags,
+                                   conv_ntlmssp_info->server_challenge,
+                                   encryptedsessionkey,
+                                   &conv_ntlmssp_info->ntlm_response,
+                                   &conv_ntlmssp_info->lm_response);
         /* ssp is the exported session key */
+        memcpy(sspkey, ntlmssph->session_key, NTLMSSP_KEY_LEN);
         if (memcmp(sspkey, gbl_zeros, NTLMSSP_KEY_LEN) != 0) {
           get_sealing_rc4key(sspkey, conv_ntlmssp_info->flags, &ssp_key_len, clientkey, serverkey);
           get_siging_key((guint8*)&conv_ntlmssp_info->sign_key_server, (guint8*)&conv_ntlmssp_info->sign_key_client, sspkey, ssp_key_len);
