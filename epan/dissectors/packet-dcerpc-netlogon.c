@@ -439,6 +439,8 @@ static expert_field ei_netlogon_session_key = EI_INIT;
 typedef struct _netlogon_auth_vars {
     guint64 client_challenge;
     guint64 server_challenge;
+    md4_pass nthash;
+    int auth_fd_num;
     guint8  session_key[16];
     guint8  encryption_key[16];
     guint8  sequence[16];
@@ -6669,6 +6671,8 @@ netlogon_dissect_netrserverauthenticate023_reply(tvbuff_t *tvb, int offset,
                 memset(session_key,0,16);
             }
             if(found) {
+                vars->nthash = *used_md4;
+                vars->auth_fd_num = pinfo->num;
                 memcpy(&vars->session_key,session_key,16);
                 debugprintf("Found the good session key !\n");
                 expert_add_info_format(pinfo, proto_tree_get_parent(tree),
@@ -7972,6 +7976,18 @@ dissect_secchan_verf(tvbuff_t *tvb, int offset, packet_info *pinfo,
             else
             {
                 debugprintf("get seal key returned 0\n");
+            }
+
+            if (vars->can_decrypt) {
+                expert_add_info_format(pinfo, proto_tree_get_parent(subtree),
+                         &ei_netlogon_session_key,
+                         "Using session key learned in frame %d ("
+                         "%02x%02x%02x%02x"
+                         ") from %s",
+                         vars->auth_fd_num,
+                         vars->session_key[0] & 0xFF,  vars->session_key[1] & 0xFF,
+                         vars->session_key[2] & 0xFF,  vars->session_key[3] & 0xFF,
+                         vars->nthash.key_origin);
             }
         }
     }
