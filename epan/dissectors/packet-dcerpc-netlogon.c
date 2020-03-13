@@ -23,6 +23,7 @@
 #include "packet-dcerpc-netlogon.h"
 #include "packet-windows-common.h"
 #include "packet-dcerpc-lsa.h"
+#include "packet-ntlmssp.h"
 /* for keytab format */
 #include <epan/asn1.h>
 #include "packet-kerberos.h"
@@ -32,8 +33,6 @@
 
 void proto_register_dcerpc_netlogon(void);
 void proto_reg_handoff_dcerpc_netlogon(void);
-
-extern const char *gbl_nt_password;
 
 #ifdef DEBUG_NETLOGON
 #include <stdio.h>
@@ -449,10 +448,6 @@ typedef struct _netlogon_auth_vars {
     int next_start;
     struct _netlogon_auth_vars *next;
 } netlogon_auth_vars;
-
-typedef struct _md4_pass {
-    guint8 md4[16];
-} md4_pass;
 
 typedef struct _seen_packet {
     gboolean isseen;
@@ -6493,75 +6488,6 @@ netlogon_dissect_netrserverauthenticate2_rqst(tvbuff_t *tvb, int offset,
     return netlogon_dissect_netrserverauthenticate3_rqst(tvb,offset,pinfo,tree,di,drep);
 }
 
-#ifdef HAVE_KERBEROS
-static void str_to_unicode(const char *nt_password, char *nt_password_unicode)
-{
-    size_t password_len = 0;
-    size_t i;
-
-    password_len = strlen(nt_password);
-    if(nt_password_unicode != NULL)
-    {
-        for(i=0;i<(password_len);i++)
-        {
-            nt_password_unicode[i*2]=nt_password[i];
-            nt_password_unicode[i*2+1]=0;
-        }
-        nt_password_unicode[2*password_len]='\0';
-    }
-}
-
-static guint32 get_keytab_as_list(md4_pass **p_pass_list, const char* ntlm_pass)
-{
-    enc_key_t *ek;
-    md4_pass* pass_list;
-    md4_pass ntlm_pass_hash;
-    int i = 0;
-    guint32 nb_pass = 0;
-    char ntlm_pass_unicode[258];
-    int add_ntlm = 0;
-    int password_len;
-
-    if(!krb_decrypt){
-        *p_pass_list=NULL;
-        return 0;
-    }
-    read_keytab_file_from_preferences();
-    memset(ntlm_pass_hash.md4,0,sizeof(md4_pass));
-
-    for(ek=enc_key_list;ek;ek=ek->next){
-        if( ek->keylength == 16 ) {
-            nb_pass++;
-        }
-    }
-
-    if (ntlm_pass[0] != '\0' && ( strlen(ntlm_pass) < 129 )) {
-        nb_pass++;
-        debugprintf("Password: %s\n",ntlm_pass);
-        password_len = (int)strlen(ntlm_pass);
-        str_to_unicode(ntlm_pass,ntlm_pass_unicode);
-        gcry_md_hash_buffer(GCRY_MD_MD4, ntlm_pass_hash.md4, ntlm_pass_unicode, password_len*2);
-        printnbyte(ntlm_pass_hash.md4,16,"Hash of the NT pass: ","\n");
-        add_ntlm = 1;
-    }
-
-    *p_pass_list = (md4_pass *)wmem_alloc(wmem_packet_scope(), nb_pass*sizeof(md4_pass));
-    pass_list=*p_pass_list;
-    if(add_ntlm) {
-        memcpy(pass_list[0].md4,&(ntlm_pass_hash.md4),sizeof(md4_pass));
-        i++;
-    }
-
-    for(ek=enc_key_list;ek;ek=ek->next){
-        if( ek->keylength == 16 ) {
-            memcpy(pass_list[i].md4,ek->keyvalue,16);
-            i++;
-        }
-    }
-    return nb_pass;
-}
-#endif
-
 static int
 netlogon_dissect_netrserverauthenticate23_reply(tvbuff_t *tvb, int offset,
                                                 packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep, int version3)
@@ -6611,7 +6537,7 @@ netlogon_dissect_netrserverauthenticate23_reply(tvbuff_t *tvb, int offset,
             vars->flags = flags;
             vars->can_decrypt = FALSE;
 #ifdef HAVE_KERBEROS
-            list_size = get_keytab_as_list(&pass_list,gbl_nt_password);
+            list_size = get_md4pass_list(&pass_list);
             debugprintf("Found %d passwords \n",list_size);
 #endif
             if( flags & NETLOGON_FLAG_AES )
