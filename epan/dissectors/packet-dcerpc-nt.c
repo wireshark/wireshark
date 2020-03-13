@@ -1192,39 +1192,13 @@ dissect_ndr_uint16s(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 				      tree, drep, hfindex, length);
 }
 
-/*
- * Helper routines for dissecting NDR strings
- */
-void cb_wstr_postprocess(packet_info *pinfo, proto_tree *tree _U_,
-			proto_item *item, dcerpc_info *di, tvbuff_t *tvb,
-			int start_offset, int end_offset,
-			void *callback_args)
+static void cb_str_postprocess_options(packet_info *pinfo,
+				       proto_item *item,
+				       dcerpc_info *di,
+				       gint options,
+				       const char *s)
 {
-	gint options = GPOINTER_TO_INT(callback_args);
 	gint levels = CB_STR_ITEM_LEVELS(options);
-	char *s;
-
-	/* Align start_offset on 4-byte boundary. */
-
-	if (start_offset % 4)
-		start_offset += 4 - (start_offset % 4);
-
-	/* Get string value */
-
-	if ((end_offset - start_offset) <= 12)
-		return;		/* XXX: Use unistr2 dissector instead? */
-
-	/*
-	 * XXX - need to handle non-printable characters here.
-	 *
-	 * XXX - this is typically called after the string has already
-	 * been fetched and processed by some other routine; is there
-	 * some way we can get that string, rather than duplicating the
-	 * efforts of that routine?
-	 */
-	s = tvb_get_string_enc(wmem_packet_scope(),
-		tvb, start_offset + 12, end_offset - start_offset - 12,
-		ENC_UTF_16|ENC_LITTLE_ENDIAN);
 
 	/* Append string to COL_INFO */
 
@@ -1256,13 +1230,48 @@ void cb_wstr_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 	}
 }
 
+/*
+ * Helper routines for dissecting NDR strings
+ */
+void cb_wstr_postprocess(packet_info *pinfo, proto_tree *tree _U_,
+			proto_item *item, dcerpc_info *di, tvbuff_t *tvb,
+			int start_offset, int end_offset,
+			void *callback_args)
+{
+	gint options = GPOINTER_TO_INT(callback_args);
+	char *s;
+
+	/* Align start_offset on 4-byte boundary. */
+
+	if (start_offset % 4)
+		start_offset += 4 - (start_offset % 4);
+
+	/* Get string value */
+
+	if ((end_offset - start_offset) <= 12)
+		return;		/* XXX: Use unistr2 dissector instead? */
+
+	/*
+	 * XXX - need to handle non-printable characters here.
+	 *
+	 * XXX - this is typically called after the string has already
+	 * been fetched and processed by some other routine; is there
+	 * some way we can get that string, rather than duplicating the
+	 * efforts of that routine?
+	 */
+	s = tvb_get_string_enc(wmem_packet_scope(),
+		tvb, start_offset + 12, end_offset - start_offset - 12,
+		ENC_UTF_16|ENC_LITTLE_ENDIAN);
+
+	cb_str_postprocess_options(pinfo, item, di, options, s);
+}
+
 void cb_str_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 			proto_item *item, dcerpc_info *di, tvbuff_t *tvb,
 			int start_offset, int end_offset,
 			void *callback_args)
 {
 	gint options = GPOINTER_TO_INT(callback_args);
-	gint levels = CB_STR_ITEM_LEVELS(options);
 	guint8 *s;
 
 	/* Align start_offset on 4-byte boundary. */
@@ -1286,37 +1295,7 @@ void cb_str_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 	s = tvb_get_string_enc(wmem_packet_scope(),
 		tvb, start_offset + 12, (end_offset - start_offset - 12), ENC_ASCII);
 
-	/* Append string to COL_INFO */
-
-	if (options & CB_STR_COL_INFO) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", s);
-	}
-
-	/* Append string to upper-level proto_items */
-
-	if (levels > 0 && item && s && s[0]) {
-		proto_item_append_text(item, ": %s", s);
-		item = GET_ITEM_PARENT(item);
-		levels--;
-		if (levels > 0) {
-			proto_item_append_text(item, ": %s", s);
-			item = GET_ITEM_PARENT(item);
-			levels--;
-			while (levels > 0) {
-				proto_item_append_text(item, " %s", s);
-				item = GET_ITEM_PARENT(item);
-				levels--;
-			}
-		}
-	}
-
-	/* Save string to dcv->private_data */
-
-	if (options & CB_STR_SAVE) {
-		dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-
-		dcv->private_data = wmem_strdup(wmem_file_scope(), s);
-	}
+	cb_str_postprocess_options(pinfo, item, di, options, s);
 }
 
 /* Dissect a pointer to a NDR string and append the string value to the
