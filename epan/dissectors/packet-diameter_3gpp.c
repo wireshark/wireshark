@@ -2540,11 +2540,12 @@ dissect_diameter_3gpp_core_network_restrictions(tvbuff_t *tvb, packet_info *pinf
         NULL
     };
 
-    diam_sub_dis_t* diam_sub_dis_inf = (diam_sub_dis_t*)data;
+    if(data){
+        diam_sub_dis_t* diam_sub_dis_inf = (diam_sub_dis_t*)data;
 
-    /* Hide the item created in packet-diameter.c and only show the one created here */
-    proto_item_set_hidden(diam_sub_dis_inf->item);
-
+        /* Hide the item created in packet-diameter.c and only show the one created here */
+        proto_item_set_hidden(diam_sub_dis_inf->item);
+    }
     proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_core_network_restrictions, diameter_3gpp_core_network_restrictions_ett, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
     return 4;
 }
