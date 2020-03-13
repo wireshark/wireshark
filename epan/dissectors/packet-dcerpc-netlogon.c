@@ -14,6 +14,7 @@
 
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <wsutil/wsgcrypt.h>
 
 /* for dissect_mscldap_string */
@@ -431,6 +432,9 @@ static gint ett_trust_flags = -1;
 static gint ett_trust_attribs = -1;
 static gint ett_get_dcname_request_flags = -1;
 static gint ett_dc_flags = -1;
+
+static expert_field ei_netlogon_auth_nthash = EI_INIT;
+static expert_field ei_netlogon_session_key = EI_INIT;
 
 typedef struct _netlogon_auth_vars {
     guint64 client_challenge;
@@ -6532,6 +6536,8 @@ netlogon_dissect_netrserverauthenticate023_reply(tvbuff_t *tvb, int offset,
         else {
 #ifdef HAVE_KERBEROS
             md4_pass *pass_list=NULL;
+            const md4_pass *used_md4 = NULL;
+            const char *used_method = NULL;
             guint32 list_size = 0;
             unsigned int i = 0;
             md4_pass password;
@@ -6555,11 +6561,13 @@ netlogon_dissect_netrserverauthenticate023_reply(tvbuff_t *tvb, int offset,
                 memcpy(&salt_buf[0], (guint8*)&vars->client_challenge, 8);
                 memcpy(&salt_buf[8], (guint8*)&vars->server_challenge, 8);
 
+                used_method = "AES";
                 printnbyte((guint8*)&vars->client_challenge,8,"Client challenge:","\n");
                 printnbyte((guint8*)&vars->server_challenge,8,"Server challenge:","\n");
                 printnbyte((guint8*)&server_cred,8,"Server creds:","\n");
                 for(i=0;i<list_size;i++)
                 {
+                    used_md4 = &pass_list[i];
                     password = pass_list[i];
                     printnbyte((guint8*)&password, 16,"NTHASH:","\n");
                     if (!ws_hmac_buffer(GCRY_MD_SHA256, sha256, salt_buf, sizeof(salt_buf), (guint8*) &password, 16)) {
@@ -6624,6 +6632,7 @@ netlogon_dissect_netrserverauthenticate023_reply(tvbuff_t *tvb, int offset,
                 guint8 buf[8] = { 0 };
                 guint64 calculated_cred;
 
+                used_method = "MD5";
                 if (!gcry_md_open(&md5_handle, GCRY_MD_MD5, 0)) {
                     gcry_md_write(md5_handle, zeros, 4);
                     gcry_md_write(md5_handle, (guint8*)&vars->client_challenge, 8);
@@ -6637,6 +6646,7 @@ netlogon_dissect_netrserverauthenticate023_reply(tvbuff_t *tvb, int offset,
                 printnbyte((guint8*)&server_cred,8,"Server creds:","\n");
                 for(i=0;i<list_size;i++)
                 {
+                    used_md4 = &pass_list[i];
                     password = pass_list[i];
                     if (!ws_hmac_buffer(GCRY_MD_MD5, session_key, md5, HASH_MD5_LENGTH, (guint8*) &password, 16)) {
                         crypt_des_ecb(buf,(unsigned char*)&vars->server_challenge,session_key);
@@ -6661,14 +6671,34 @@ netlogon_dissect_netrserverauthenticate023_reply(tvbuff_t *tvb, int offset,
             if(found) {
                 memcpy(&vars->session_key,session_key,16);
                 debugprintf("Found the good session key !\n");
+                expert_add_info_format(pinfo, proto_tree_get_parent(tree),
+                         &ei_netlogon_auth_nthash,
+                         "%s authenticated using %s (%02x%02x%02x%02x...)",
+                         used_method, used_md4->key_origin,
+                         used_md4->md4[0] & 0xFF, used_md4->md4[1] & 0xFF,
+                         used_md4->md4[2] & 0xFF, used_md4->md4[3] & 0xFF);
+                expert_add_info_format(pinfo, proto_tree_get_parent(tree),
+                         &ei_netlogon_session_key,
+                         "session key ("
+                         "%02x%02x%02x%02x"
+                         "%02x%02x%02x%02x"
+                         "%02x%02x%02x%02x"
+                         "%02x%02x%02x%02x"
+                         ")",
+                         session_key[0] & 0xFF,  session_key[1] & 0xFF,
+                         session_key[2] & 0xFF,  session_key[3] & 0xFF,
+                         session_key[4] & 0xFF,  session_key[5] & 0xFF,
+                         session_key[6] & 0xFF,  session_key[7] & 0xFF,
+                         session_key[8] & 0xFF,  session_key[9] & 0xFF,
+                         session_key[10] & 0xFF, session_key[11] & 0xFF,
+                         session_key[12] & 0xFF, session_key[13] & 0xFF,
+                         session_key[14] & 0xFF, session_key[15] & 0xFF);
             }
             else {
                 debugprintf("Session key not found !\n");
                 memset(&vars->session_key,0,16);
             }
         }
-    } else {
-        printnbyte((guint8*)&vars->session_key, 16, "Session key:","\n");
     }
 
     return offset;
@@ -9380,11 +9410,24 @@ proto_register_dcerpc_netlogon(void)
         &ett_nt_counted_longs_as_string,
         &ett_user_account_control
     };
+    static ei_register_info ei[] = {
+     { &ei_netlogon_auth_nthash, {
+       "netlogon.authenticated", PI_SECURITY, PI_CHAT,
+       "Authenticated NTHASH", EXPFILL
+     }},
+     { &ei_netlogon_session_key, {
+       "netlogon.sessionkey", PI_SECURITY, PI_CHAT,
+       "SessionKey", EXPFILL
+     }},
+    };
+    expert_module_t* expert_netlogon;
 
     proto_dcerpc_netlogon = proto_register_protocol("Microsoft Network Logon", "RPC_NETLOGON", "rpc_netlogon");
 
     proto_register_field_array(proto_dcerpc_netlogon, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_netlogon = expert_register_protocol(proto_dcerpc_netlogon);
+    expert_register_field_array(expert_netlogon, ei, array_length(ei));
 
     netlogon_auths = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), netlogon_auth_hash, netlogon_auth_equal);
 #if 0
