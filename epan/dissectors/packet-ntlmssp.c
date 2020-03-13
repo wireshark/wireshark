@@ -475,13 +475,13 @@ get_keyexchange_key(unsigned char keyexchangekey[NTLMSSP_KEY_LEN], const unsigne
   }
 }
 
-#if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
 static guint32
-get_md4pass_list(md4_pass** p_pass_list, const char* nt_password)
+get_md4pass_list(md4_pass** p_pass_list)
 {
-
+#if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
   guint32        nb_pass = 0;
   enc_key_t     *ek;
+  const char* nt_password = gbl_nt_password;
   unsigned char  nt_password_hash[NTLMSSP_KEY_LEN];
   char           nt_password_unicode[256];
   md4_pass*      pass_list;
@@ -529,8 +529,11 @@ get_md4pass_list(md4_pass** p_pass_list, const char* nt_password)
     }
   }
   return nb_pass;
+#else /* !(defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)) */
+  *p_pass_list = NULL;
+  return 0;
+#endif /* !(defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)) */
 }
-#endif
 
 /* Create an NTLMSSP version 2 key
  */
@@ -568,9 +571,7 @@ create_ntlmssp_v2_key(const char *nt_password _U_, const guint8 *serverchallenge
    * The idea is to be able to test all the key of domain in once and to be able to decode the NTLM dialogs */
 
   memset(sessionkey, 0, NTLMSSP_KEY_LEN);
-#if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
-  nb_pass = get_md4pass_list(&pass_list, nt_password);
-#endif
+  nb_pass = get_md4pass_list(&pass_list);
   i = 0;
   memset(user_uppercase, 0, USER_BUF_SIZE);
   user_len = strlen(ntlmssph->acct_name);
@@ -742,9 +743,7 @@ create_ntlmssp_v1_key(const char *nt_password, const guint8 *serverchallenge, co
 
     memset(lm_challenge_response, 0, 24);
     if (flags & NTLMSSP_NEGOTIATE_EXTENDED_SECURITY) {
-#if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
-      nb_pass = get_md4pass_list(&pass_list, nt_password);
-#endif
+      nb_pass = get_md4pass_list(&pass_list);
       i = 0;
       while (i < nb_pass) {
         /*fprintf(stderr, "Turn %d, ", i);*/
