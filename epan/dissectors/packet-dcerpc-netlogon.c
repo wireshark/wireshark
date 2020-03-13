@@ -2533,17 +2533,17 @@ netlogon_dissect_netrserverauthenticate_rqst(tvbuff_t *tvb, int offset,
     return offset;
 }
 static int
+netlogon_dissect_netrserverauthenticate023_reply(tvbuff_t *tvb, int offset,
+                                                 packet_info *pinfo,
+                                                 proto_tree *tree,
+                                                 dcerpc_info *di,
+                                                 guint8 *drep,
+                                                 int version);
+static int
 netlogon_dissect_netrserverauthenticate_reply(tvbuff_t *tvb, int offset,
                                               packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
-    offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
-                                 netlogon_dissect_CREDENTIAL, NDR_POINTER_REF,
-                                 "CREDENTIAL: server challenge", -1);
-
-    offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep,
-                              hf_netlogon_rc, NULL);
-
-    return offset;
+    return netlogon_dissect_netrserverauthenticate023_reply(tvb,offset,pinfo,tree,di,drep,0);
 }
 
 
@@ -6489,10 +6489,14 @@ netlogon_dissect_netrserverauthenticate2_rqst(tvbuff_t *tvb, int offset,
 }
 
 static int
-netlogon_dissect_netrserverauthenticate23_reply(tvbuff_t *tvb, int offset,
-                                                packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep, int version3)
+netlogon_dissect_netrserverauthenticate023_reply(tvbuff_t *tvb, int offset,
+                                                 packet_info *pinfo,
+                                                 proto_tree *tree,
+                                                 dcerpc_info *di,
+                                                 guint8 *drep,
+                                                 int version)
 {
-    guint32 flags;
+    guint32 flags = 0;
     netlogon_auth_vars *vars;
     netlogon_auth_key key;
     guint64 server_cred;
@@ -6500,12 +6504,13 @@ netlogon_dissect_netrserverauthenticate23_reply(tvbuff_t *tvb, int offset,
     offset = dissect_dcerpc_8bytes(tvb, offset, pinfo, tree, drep,
                                    hf_server_credential, &server_cred);
 
-    flags = tvb_get_letohl (tvb, offset);
-    netlogon_dissect_neg_options(tvb,tree,flags,offset);
-    offset +=4;
-
+    if (version >= 2) {
+        flags = tvb_get_letohl (tvb, offset);
+        netlogon_dissect_neg_options(tvb,tree,flags,offset);
+        offset +=4;
+    }
     ALIGN_TO_4_BYTES;
-    if(version3) {
+    if (version >= 3) {
         offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
                                        hf_server_rid, NULL);
     }
@@ -6673,14 +6678,14 @@ static int
 netlogon_dissect_netrserverauthenticate3_reply(tvbuff_t *tvb, int offset,
                                                packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
-    return netlogon_dissect_netrserverauthenticate23_reply(tvb,offset,pinfo,tree,di,drep,1);
+    return netlogon_dissect_netrserverauthenticate023_reply(tvb,offset,pinfo,tree,di,drep,3);
 }
 
 static int
 netlogon_dissect_netrserverauthenticate2_reply(tvbuff_t *tvb, int offset,
                                                packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
-    return netlogon_dissect_netrserverauthenticate23_reply(tvb,offset,pinfo,tree,di,drep,0);
+    return netlogon_dissect_netrserverauthenticate023_reply(tvb,offset,pinfo,tree,di,drep,2);
 }
 
 
