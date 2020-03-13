@@ -2538,9 +2538,22 @@ dissect_usb_hid_report_mainitem_data(packet_info *pinfo _U_, proto_tree *tree, t
             else
                 proto_item_append_text(ti, "Array,");
             if (val & (1 << 2))
-                proto_item_append_text(ti, "Rel)");
+                proto_item_append_text(ti, "Rel");
             else
-                proto_item_append_text(ti, "Abs)");
+                proto_item_append_text(ti, "Abs");
+            if (val & (1 << 3))
+                proto_item_append_text(ti, ",Wrap");
+            if (val & (1 << 4))
+                proto_item_append_text(ti, ",NonLinear");
+            if (val & (1 << 5))
+                proto_item_append_text(ti, ",NoPref");
+            if (val & (1 << 6))
+                proto_item_append_text(ti, ",Null");
+            if ((bTag == USBHID_MAINITEM_TAG_OUTPUT || bTag == USBHID_MAINITEM_TAG_FEATURE) && val & (1 << 7))
+                proto_item_append_text(ti, ",Volatile");
+            if (val & (1 << 8))
+                proto_item_append_text(ti, ",BuffBytes");
+            proto_item_append_text(ti, ")");
             break;
         case USBHID_MAINITEM_TAG_COLLECTION:
             proto_tree_add_item_ret_uint(tree, hf_usb_hid_mainitem_colltype, tvb, offset, 1, ENC_LITTLE_ENDIAN, &val);
