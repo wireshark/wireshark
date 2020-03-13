@@ -2612,7 +2612,7 @@ dissect_usb_hid_report_globalitem_data(packet_info *pinfo _U_, proto_tree *tree,
         case USBHID_GLOBALITEM_TAG_UNIT_EXP:
             proto_tree_add_item_ret_uint(tree, hf_usb_hid_globalitem_unit_exp, tvb, offset, bSize, ENC_LITTLE_ENDIAN, &val);
             if (val >= 7)
-                proto_item_append_text(ti, " (%d)", val);
+                proto_item_append_text(ti, " (%u)", val);
             else
                 proto_item_append_text(ti, " (%d)", -(16 - (int) val));
             break;
@@ -2628,7 +2628,7 @@ dissect_usb_hid_report_globalitem_data(packet_info *pinfo _U_, proto_tree *tree,
             break;
         case USBHID_GLOBALITEM_TAG_REPORT_SIZE:
             proto_tree_add_item_ret_uint(tree, hf_usb_hid_globalitem_report_size, tvb, offset, bSize, ENC_LITTLE_ENDIAN, &val);
-            proto_item_append_text(ti, " (%d)", val);
+            proto_item_append_text(ti, " (%u)", val);
             break;
         case USBHID_GLOBALITEM_TAG_REPORT_ID:
             proto_tree_add_item_ret_uint(tree, hf_usb_hid_globalitem_report_id, tvb, offset, bSize, ENC_LITTLE_ENDIAN, &val);
@@ -2636,15 +2636,15 @@ dissect_usb_hid_report_globalitem_data(packet_info *pinfo _U_, proto_tree *tree,
             break;
         case USBHID_GLOBALITEM_TAG_REPORT_COUNT:
             proto_tree_add_item_ret_uint(tree, hf_usb_hid_globalitem_report_count, tvb, offset, bSize, ENC_LITTLE_ENDIAN, &val);
-            proto_item_append_text(ti, " (%d)", val);
+            proto_item_append_text(ti, " (%u)", val);
             break;
         case USBHID_GLOBALITEM_TAG_PUSH:
             proto_tree_add_item_ret_uint(tree, hf_usb_hid_globalitem_push, tvb, offset, bSize, ENC_LITTLE_ENDIAN, &val);
-            proto_item_append_text(ti, " (%d)", val);
+            proto_item_append_text(ti, " (%u)", val);
             break;
         case USBHID_GLOBALITEM_TAG_POP:
             proto_tree_add_item_ret_uint(tree, hf_usb_hid_globalitem_pop, tvb, offset, bSize, ENC_LITTLE_ENDIAN, &val);
-            proto_item_append_text(ti, " (%d)", val);
+            proto_item_append_text(ti, " (%u)", val);
             break;
         default:
             proto_tree_add_item(tree, hf_usb_hid_item_unk_data, tvb, offset, bSize, ENC_NA);
