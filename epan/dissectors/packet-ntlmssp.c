@@ -538,7 +538,7 @@ get_md4pass_list(md4_pass** p_pass_list)
 /* Create an NTLMSSP version 2 key
  */
 static void
-create_ntlmssp_v2_key(const char *nt_password _U_, const guint8 *serverchallenge , const guint8 *clientchallenge ,
+create_ntlmssp_v2_key(const guint8 *serverchallenge, const guint8 *clientchallenge,
                       guint8 *sessionkey , const  guint8 *encryptedsessionkey , int flags ,
                       const ntlmssp_blob *ntlm_response, const ntlmssp_blob *lm_response _U_, ntlmssp_header_t *ntlmssph,
                       packet_info *pinfo, proto_tree *ntlmssp_tree)
@@ -680,12 +680,13 @@ create_ntlmssp_v2_key(const char *nt_password _U_, const guint8 *serverchallenge
  * the 8 octet challenge string
  */
 static void
-create_ntlmssp_v1_key(const char *nt_password, const guint8 *serverchallenge, const guint8 *clientchallenge,
+create_ntlmssp_v1_key(const guint8 *serverchallenge, const guint8 *clientchallenge,
                       guint8 *sessionkey, const  guint8 *encryptedsessionkey, int flags,
                       const guint8 *ref_nt_challenge_response, const guint8 *ref_lm_challenge_response,
                       ntlmssp_header_t *ntlmssph,
                       packet_info *pinfo, proto_tree *ntlmssp_tree)
 {
+  const char *nt_password = gbl_nt_password;
   unsigned char     lm_password_upper[NTLMSSP_KEY_LEN];
   unsigned char     lm_password_hash[NTLMSSP_KEY_LEN];
   unsigned char     nt_password_hash[NTLMSSP_KEY_LEN];
@@ -1561,7 +1562,7 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
       conv_ntlmssp_info->ntlm_response.contents = (guint8 *)wmem_alloc0(wmem_file_scope(), 24);
       conv_ntlmssp_info->lm_response.contents = (guint8 *)wmem_alloc0(wmem_file_scope(), 24);
 
-      create_ntlmssp_v1_key(gbl_nt_password, conv_ntlmssp_info->server_challenge,
+      create_ntlmssp_v1_key(conv_ntlmssp_info->server_challenge,
                             NULL, sspkey, NULL, conv_ntlmssp_info->flags,
                             conv_ntlmssp_info->ntlm_response.contents,
                             conv_ntlmssp_info->lm_response.contents,
@@ -1973,8 +1974,7 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
       {
         conv_ntlmssp_info->rc4_state_initialized = FALSE;
         if (conv_ntlmssp_info->is_auth_ntlm_v2) {
-          create_ntlmssp_v2_key(gbl_nt_password,
-                                conv_ntlmssp_info->server_challenge,
+          create_ntlmssp_v2_key(conv_ntlmssp_info->server_challenge,
                                 conv_ntlmssp_info->client_challenge,
                                 sspkey,
                                 encryptedsessionkey,
@@ -1992,8 +1992,7 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
           } else {
             memcpy(conv_ntlmssp_info->client_challenge, conv_ntlmssp_info->lm_response.contents, 8);
           }
-          create_ntlmssp_v1_key(gbl_nt_password,
-                                conv_ntlmssp_info->server_challenge,
+          create_ntlmssp_v1_key(conv_ntlmssp_info->server_challenge,
                                 conv_ntlmssp_info->client_challenge,
                                 sspkey, encryptedsessionkey,
                                 conv_ntlmssp_info->flags,
