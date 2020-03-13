@@ -77,11 +77,6 @@ static const value_string ntlmssp_message_types[] = {
 #define NTLMSSP_EK_IS_NT4HASH(ek) \
   (ek->fd_num == -1 && ek->keytype == 23 && ek->keylength == NTLMSSP_KEY_LEN)
 
-typedef struct _md4_pass {
-  guint8 md4[NTLMSSP_KEY_LEN];
-  char key_origin[KRB_MAX_ORIG_LEN+1];
-} md4_pass;
-
 static const unsigned char gbl_zeros[24] = "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
 static GHashTable* hash_packet = NULL;
 
@@ -475,7 +470,7 @@ get_keyexchange_key(unsigned char keyexchangekey[NTLMSSP_KEY_LEN], const unsigne
   }
 }
 
-static guint32
+guint32
 get_md4pass_list(md4_pass** p_pass_list)
 {
 #if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
@@ -517,14 +512,15 @@ get_md4pass_list(md4_pass** p_pass_list)
 
   if (memcmp(nt_password_hash, gbl_zeros, NTLMSSP_KEY_LEN) != 0) {
     memcpy(pass_list[i].md4, nt_password_hash, NTLMSSP_KEY_LEN);
-    g_snprintf(pass_list[i].key_origin, KRB_MAX_ORIG_LEN,
+    g_snprintf(pass_list[i].key_origin, NTLMSSP_MAX_ORIG_LEN,
                "<Global NT Password>");
     i = 1;
   }
   for (ek=enc_key_list; ek; ek=ek->next) {
     if (NTLMSSP_EK_IS_NT4HASH(ek)) {
       memcpy(pass_list[i].md4, ek->keyvalue, NTLMSSP_KEY_LEN);
-      memcpy(pass_list[i].key_origin, ek->key_origin, KRB_MAX_ORIG_LEN+1);
+      memcpy(pass_list[i].key_origin, ek->key_origin,
+             MIN(sizeof(pass_list[i].key_origin),sizeof(ek->key_origin)));
       i++;
     }
   }
