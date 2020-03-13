@@ -193,7 +193,7 @@ if(PCAP_FOUND)
     #
     # We check whether pcap_lib_version is defined in the pcap header,
     # using it as a proxy for all the 0.8 API's.  if not, we fail.
-    # 
+    #
     check_symbol_exists( pcap_lib_version ${PCAP_INCLUDE_DIR}/pcap.h HAVE_PCAP_LIB_VERSION )
     if( NOT HAVE_PCAP_LIB_VERSION )
         message(FATAL_ERROR "You need WinPcap 3.1 or later, or Npcap")
@@ -217,7 +217,7 @@ if(PCAP_FOUND)
     #
     # We check whether pcap_lib_version is defined in the pcap header,
     # using it as a proxy for all the 0.8 API's.  if not, we fail.
-    # 
+    #
     check_symbol_exists( pcap_lib_version ${PCAP_INCLUDE_DIR}/pcap.h HAVE_PCAP_LIB_VERSION )
     if( NOT HAVE_PCAP_LIB_VERSION )
       message(FATAL_ERROR "You need libpcap 0.8 or later")
