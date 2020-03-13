@@ -2453,6 +2453,9 @@ get_usage_page_item_string(guint32 usage_page, guint32 id)
     case PID_PAGE:
         str = try_val_to_str(id, usb_hid_physical_input_device_usage_page_vals);
         break;
+    case UNICODE_PAGE:
+        str = "Character U+%04X";
+        break;
     case ALPHANUMERIC_DISPLAY_PAGE:
         str = try_val_to_str(id, usb_hid_alphanumeric_display_usage_page_vals);
         break;
