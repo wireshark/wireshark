@@ -715,6 +715,7 @@ main(int argc, char *argv[])
   gboolean             start_capture = FALSE;
   GList               *if_list;
   gchar               *err_str;
+  struct bpf_program   fcode;
 #else
   gboolean             capture_option_specified = FALSE;
   volatile int         max_packet_count = 0;
@@ -730,7 +731,6 @@ main(int argc, char *argv[])
   gchar               *volatile cf_name = NULL;
   gchar               *rfilter = NULL;
   gchar               *dfilter = NULL;
-  struct bpf_program   fcode;
   dfilter_t           *rfcode = NULL;
   dfilter_t           *dfcode = NULL;
   e_prefs             *prefs_p;
@@ -1878,12 +1878,13 @@ main(int argc, char *argv[])
   if (rfilter != NULL) {
     tshark_debug("Compiling read filter: '%s'", rfilter);
     if (!dfilter_compile(rfilter, &rfcode, &err_msg)) {
-      pcap_t *pc;
-
       cmdarg_err("%s", err_msg);
       g_free(err_msg);
       epan_cleanup();
       extcap_cleanup();
+
+#ifdef HAVE_LIBPCAP
+      pcap_t *pc;
       pc = pcap_open_dead(DLT_EN10MB, MIN_PACKET_SIZE);
       if (pc != NULL) {
         if (pcap_compile(pc, &fcode, rfilter, 0, 0) != -1) {
@@ -1893,6 +1894,8 @@ main(int argc, char *argv[])
         }
         pcap_close(pc);
       }
+#endif
+
       exit_status = INVALID_INTERFACE;
       goto clean_exit;
     }
@@ -1902,12 +1905,13 @@ main(int argc, char *argv[])
   if (dfilter != NULL) {
     tshark_debug("Compiling display filter: '%s'", dfilter);
     if (!dfilter_compile(dfilter, &dfcode, &err_msg)) {
-      pcap_t *pc;
-
       cmdarg_err("%s", err_msg);
       g_free(err_msg);
       epan_cleanup();
       extcap_cleanup();
+
+#ifdef HAVE_LIBPCAP
+      pcap_t *pc;
       pc = pcap_open_dead(DLT_EN10MB, MIN_PACKET_SIZE);
       if (pc != NULL) {
         if (pcap_compile(pc, &fcode, dfilter, 0, 0) != -1) {
@@ -1917,6 +1921,8 @@ main(int argc, char *argv[])
         }
         pcap_close(pc);
       }
+#endif
+
       exit_status = INVALID_FILTER;
       goto clean_exit;
     }
