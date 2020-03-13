@@ -1861,29 +1861,29 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
   data_end = MAX(data_end, item_end);
   if (conv_ntlmssp_info != NULL)
   {
+    memset(conv_ntlmssp_info->client_challenge, 0, 8);
     if (conv_ntlmssp_info->ntlm_response.length > 24)
     {
       conv_ntlmssp_info->is_auth_ntlm_v2 = TRUE;
       /*
-       * XXX - at least according to 2.2.2.7 "NTLM v2: NTLMv2_CLIENT_CHALLENGE"
-       * in [MS-NLMP], the client challenge is at an offset of 16 bytes,
-       * not 24 bytes, from the beginning of the blob.
+       * [MS-NLMP] 2.2.2.8 NTLM2 V2 Response: NTLMv2_RESPONSE has
+       * the 2.2.2.7 "NTLM v2: NTLMv2_CLIENT_CHALLENGE" at offset 16.
+       * Within that ChallengeFromClient is at offset 16, that means
+       * it's at offset 32 in total.
        *
-       * If so, that not only means that the "+24" should be "+16", it also
-       * means that the length check should be ">= 24", and would thus be
-       * redundant.
-       *
-       * If not, then we should handle a bad blob in which the client
-       * challenge is missing, and not try to use whatever random junk
-       * is in conv_ntlmssp_info->client_challenge.
+       * Note that value is only used for the LM_response of NTLMv2.
        */
-      if (conv_ntlmssp_info->ntlm_response.length >= 32) {
-        memcpy(conv_ntlmssp_info->client_challenge, conv_ntlmssp_info->ntlm_response.contents+24, 8);
+      if (conv_ntlmssp_info->ntlm_response.length >= 40) {
+        memcpy(conv_ntlmssp_info->client_challenge,
+               conv_ntlmssp_info->ntlm_response.contents+32, 8);
       }
     }
     else
     {
       conv_ntlmssp_info->is_auth_ntlm_v2 = FALSE;
+      if (conv_ntlmssp_info->lm_response.length >= 8) {
+        memcpy(conv_ntlmssp_info->client_challenge, conv_ntlmssp_info->lm_response.contents, 8);
+      }
     }
   }
 
@@ -1983,11 +1983,6 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
         }
         else
         {
-          if (conv_ntlmssp_info->lm_response.contents == NULL || conv_ntlmssp_info->lm_response.length < 8) {
-            memset(conv_ntlmssp_info->client_challenge, 0, 8);
-          } else {
-            memcpy(conv_ntlmssp_info->client_challenge, conv_ntlmssp_info->lm_response.contents, 8);
-          }
           create_ntlmssp_v1_key(conv_ntlmssp_info->server_challenge,
                                 conv_ntlmssp_info->client_challenge,
                                 sspkey, encryptedsessionkey,
