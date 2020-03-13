@@ -2564,6 +2564,7 @@ dissect_usb_hid_report_globalitem_data(packet_info *pinfo _U_, proto_tree *tree,
     const char *str = NULL;
     proto_item *ti = proto_tree_get_parent(tree);
     guint32 val;
+    gint32 val_sig;
 
     switch (bTag) {
         case USBHID_GLOBALITEM_TAG_USAGE_PAGE:
@@ -2579,20 +2580,20 @@ dissect_usb_hid_report_globalitem_data(packet_info *pinfo _U_, proto_tree *tree,
             proto_item_append_text(ti, " (%s)", str);
             break;
         case USBHID_GLOBALITEM_TAG_LOG_MIN:
-            proto_tree_add_item_ret_uint(tree, hf_usb_hid_globalitem_log_min, tvb, offset, bSize, ENC_LITTLE_ENDIAN, &val);
-            proto_item_append_text(ti, " (%d)", val);
+            proto_tree_add_item_ret_int(tree, hf_usb_hid_globalitem_log_min, tvb, offset, bSize, ENC_LITTLE_ENDIAN, &val_sig);
+            proto_item_append_text(ti, " (%d)", val_sig);
             break;
         case USBHID_GLOBALITEM_TAG_LOG_MAX:
-            proto_tree_add_item_ret_uint(tree, hf_usb_hid_globalitem_log_max, tvb, offset, bSize, ENC_LITTLE_ENDIAN, &val);
-            proto_item_append_text(ti, " (%d)", val);
+            proto_tree_add_item_ret_int(tree, hf_usb_hid_globalitem_log_max, tvb, offset, bSize, ENC_LITTLE_ENDIAN, &val_sig);
+            proto_item_append_text(ti, " (%d)", val_sig);
             break;
         case USBHID_GLOBALITEM_TAG_PHY_MIN:
-            proto_tree_add_item_ret_uint(tree, hf_usb_hid_globalitem_phy_min, tvb, offset, bSize, ENC_LITTLE_ENDIAN, &val);
-            proto_item_append_text(ti, " (%d)", val);
+            proto_tree_add_item_ret_int(tree, hf_usb_hid_globalitem_phy_min, tvb, offset, bSize, ENC_LITTLE_ENDIAN, &val_sig);
+            proto_item_append_text(ti, " (%d)", val_sig);
             break;
         case USBHID_GLOBALITEM_TAG_PHY_MAX:
-            proto_tree_add_item_ret_uint(tree, hf_usb_hid_globalitem_phy_max, tvb, offset, bSize, ENC_LITTLE_ENDIAN, &val);
-            proto_item_append_text(ti, " (%d)", val);
+            proto_tree_add_item_ret_int(tree, hf_usb_hid_globalitem_phy_max, tvb, offset, bSize, ENC_LITTLE_ENDIAN, &val_sig);
+            proto_item_append_text(ti, " (%d)", val_sig);
             break;
         case USBHID_GLOBALITEM_TAG_UNIT_EXP:
             proto_tree_add_item_ret_uint(tree, hf_usb_hid_globalitem_unit_exp, tvb, offset, bSize, ENC_LITTLE_ENDIAN, &val);
@@ -3563,19 +3564,19 @@ proto_register_usb_hid(void)
                 NULL, 0, NULL, HFILL }},
 
         { &hf_usb_hid_globalitem_log_min,
-            { "Logical minimum", "usbhid.item.global.log_min", FT_UINT8, BASE_DEC,
+            { "Logical minimum", "usbhid.item.global.log_min", FT_INT8, BASE_DEC,
                 NULL, 0, NULL, HFILL }},
 
         { &hf_usb_hid_globalitem_log_max,
-            { "Logical maximum", "usbhid.item.global.log_max", FT_UINT8, BASE_DEC,
+            { "Logical maximum", "usbhid.item.global.log_max", FT_INT8, BASE_DEC,
                 NULL, 0, NULL, HFILL }},
 
         { &hf_usb_hid_globalitem_phy_min,
-            { "Physical minimum", "usbhid.item.global.phy_min", FT_UINT8, BASE_DEC,
+            { "Physical minimum", "usbhid.item.global.phy_min", FT_INT8, BASE_DEC,
                 NULL, 0, NULL, HFILL }},
 
         { &hf_usb_hid_globalitem_phy_max,
-            { "Physical maximum", "usbhid.item.global.phy_max", FT_UINT8, BASE_DEC,
+            { "Physical maximum", "usbhid.item.global.phy_max", FT_INT8, BASE_DEC,
                 NULL, 0, NULL, HFILL }},
 
         { &hf_usb_hid_globalitem_unit_exp,
