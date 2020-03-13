@@ -1,13 +1,13 @@
 /* wspcap.h
  *
- * Wrapper around libpcap/WinPcap/Npcap's pcap.h.
+ * Wrapper around libpcap/WinPcap's pcap.h.
  *
- * If HAVE_PCAP_REMOTE is defined, it forces the WinPcap/Npcap header files to
+ * If HAVE_PCAP_REMOTE is defined, it forces the WinPcap header files to
  * define things required for remote capture, by defining HAVE_REMOTE.
  *
- * With current versions of the WinPcap or Npcap SDK, if:
+ * With all versions of the WinPcap SDK, if:
  *
- *    1) you are building with any current WinPcap or Npcap SDK;
+ *    1) you are building with any current WinPcap SDK;
  *    2) you do not define HAVE_REMOTE before including pcap.h (or
  *       pcap/pcap.h);
  *    3) you define a struct pcap_stat and pass it to a call to
@@ -43,10 +43,8 @@
  * will make no difference).
  *
  * No version of the WinPcap SDK provided libpcap 1.9.0-or-later headers.
- * The Npcap SDK, as of SDK version 1.01, does not provide libpcap 1.9.0-
- * or-later headers, even though newer versions of Npcap are based on
- * with remote capture support will not have this problem.  Newer versions
- * libpcap 1.9.0; an issue has been filed against Npcap for that.
+ * The Npcap SDK, as of SDK version 1.04, provides them, so this is
+ * only necessary for building with the WinPcap SDK.
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
