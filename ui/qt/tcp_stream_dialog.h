@@ -29,7 +29,19 @@
 
 namespace Ui {
 class TCPStreamDialog;
+class QCPErrorBarsNotSelectable;
 }
+
+class QCPErrorBarsNotSelectable : public QCPErrorBars
+{
+    Q_OBJECT
+
+public:
+    explicit QCPErrorBarsNotSelectable(QCPAxis *keyAxis, QCPAxis *valueAxis);
+    virtual ~QCPErrorBarsNotSelectable();
+
+    virtual double selectTest(const QPointF &pos, bool onlySelectable, QVariant *details = 0) const Q_DECL_OVERRIDE;
+};
 
 class TCPStreamDialog : public GeometryStateDialog
 {
