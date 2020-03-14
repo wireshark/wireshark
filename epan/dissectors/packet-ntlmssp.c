@@ -270,7 +270,7 @@ static expert_field ei_ntlmssp_auth_nthash = EI_INIT;
 static dissector_handle_t ntlmssp_handle, ntlmssp_wrap_handle;
 
 /* Configuration variables */
-const char *gbl_nt_password = NULL;
+static const char *ntlmssp_option_nt_password = NULL;
 
 #define MAX_BLOB_SIZE 10240
 typedef struct _ntlmssp_blob {
@@ -476,7 +476,7 @@ get_md4pass_list(md4_pass** p_pass_list)
 #if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
   guint32        nb_pass = 0;
   enc_key_t     *ek;
-  const char* nt_password = gbl_nt_password;
+  const char* nt_password = ntlmssp_option_nt_password;
   unsigned char  nt_password_hash[NTLMSSP_KEY_LEN];
   char           nt_password_unicode[256];
   md4_pass*      pass_list;
@@ -682,7 +682,7 @@ create_ntlmssp_v1_key(const guint8 *serverchallenge, const guint8 *clientchallen
                       ntlmssp_header_t *ntlmssph,
                       packet_info *pinfo, proto_tree *ntlmssp_tree)
 {
-  const char *nt_password = gbl_nt_password;
+  const char *nt_password = ntlmssp_option_nt_password;
   unsigned char     lm_password_upper[NTLMSSP_KEY_LEN];
   unsigned char     lm_password_hash[NTLMSSP_KEY_LEN];
   unsigned char     nt_password_hash[NTLMSSP_KEY_LEN];
@@ -3388,7 +3388,7 @@ proto_register_ntlmssp(void)
   prefs_register_string_preference(ntlmssp_module, "nt_password",
                                    "NT Password",
                                    "NT Password (used to decrypt payloads)",
-                                   &gbl_nt_password);
+                                   &ntlmssp_option_nt_password);
 
   ntlmssp_handle = register_dissector("ntlmssp", dissect_ntlmssp, proto_ntlmssp);
   ntlmssp_wrap_handle = register_dissector("ntlmssp_payload", dissect_ntlmssp_payload, proto_ntlmssp);
