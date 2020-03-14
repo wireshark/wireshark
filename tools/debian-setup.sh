@@ -80,7 +80,6 @@ ADDITIONAL_LIST="libnl-3-dev \
 	libxml2-dev \
 	git \
 	ninja-build \
-	doxygen \
 	xsltproc"
 
 DEBDEPS_LIST="debhelper \

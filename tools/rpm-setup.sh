@@ -62,7 +62,6 @@ ADDITIONAL_LIST="libnl3-devel \
 	libsmi-devel \
 	snappy-devel \
 	lz4 \
-	doxygen \
 	libxml2-devel \
 	spandsp-devel \
 	systemd-devel \
