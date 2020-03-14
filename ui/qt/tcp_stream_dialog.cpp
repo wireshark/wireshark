@@ -74,6 +74,23 @@ const QString sequence_number_label_ = QObject::tr("Sequence Number (B)");
 const QString time_s_label_ = QObject::tr("Time (s)");
 const QString window_size_label_ = QObject::tr("Window Size (B)");
 
+QCPErrorBarsNotSelectable::QCPErrorBarsNotSelectable(QCPAxis *keyAxis, QCPAxis *valueAxis) :
+    QCPErrorBars(keyAxis, valueAxis)
+{
+}
+
+QCPErrorBarsNotSelectable::~QCPErrorBarsNotSelectable()
+{
+}
+
+double QCPErrorBarsNotSelectable::selectTest(const QPointF &pos, bool onlySelectable, QVariant *details) const
+{
+    Q_UNUSED(pos);
+    Q_UNUSED(onlySelectable);
+    Q_UNUSED(details);
+    return -1.0;
+}
+
 TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_type graph_type) :
     GeometryStateDialog(parent),
     ui(new Ui::TCPStreamDialog),
@@ -247,7 +264,7 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
     seg_graph_ = sp->addGraph();
     seg_graph_->setLineStyle(QCPGraph::lsNone);
     seg_graph_->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDot, Qt::transparent, 0));
-    seg_eb_ = new QCPErrorBars(sp->xAxis, sp->yAxis);
+    seg_eb_ = new QCPErrorBarsNotSelectable(sp->xAxis, sp->yAxis);
     seg_eb_->setErrorType(QCPErrorBars::etValueError);
     seg_eb_->setPen(QPen(QBrush(graph_color_1), pen_width));
     seg_eb_->setSymbolGap(0.0); // draw error spine as single line
@@ -264,7 +281,7 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
     sack_graph_ = sp->addGraph();
     sack_graph_->setLineStyle(QCPGraph::lsNone);
     sack_graph_->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDot, Qt::transparent, 0));
-    sack_eb_ = new QCPErrorBars(sp->xAxis, sp->yAxis);
+    sack_eb_ = new QCPErrorBarsNotSelectable(sp->xAxis, sp->yAxis);
     sack_eb_->setErrorType(QCPErrorBars::etValueError);
     sack_eb_->setPen(QPen(QBrush(graph_color_4), pen_width));
     sack_eb_->setSymbolGap(0.0); // draw error spine as single line
@@ -276,7 +293,7 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
     sack2_graph_ = sp->addGraph();
     sack2_graph_->setLineStyle(QCPGraph::lsNone);
     sack2_graph_->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDot, Qt::transparent, 0));
-    sack2_eb_ = new QCPErrorBars(sp->xAxis, sp->yAxis);
+    sack2_eb_ = new QCPErrorBarsNotSelectable(sp->xAxis, sp->yAxis);
     sack2_eb_->setErrorType(QCPErrorBars::etValueError);
     sack2_eb_->setPen(QPen(QBrush(graph_color_5), pen_width));
     sack2_eb_->setSymbolGap(0.0); // draw error spine as single line
