@@ -356,8 +356,9 @@ void ImportTextDialog::on_encapComboBox_currentIndexChanged(int index)
 
 bool ImportTextDialog::checkDateTimeFormat(const QString &time_format)
 {
-    const QString valid_code = "aAbBcdDHIjmMpSTUwWxXyYzZ%";
+    const QString valid_code = "aAbBcdDFHIjmMpsSTUwWxXyYzZ%";
     int idx = 0;
+    int ret = false;
 
     while ((idx = time_format.indexOf("%", idx)) != -1) {
         idx++;
@@ -365,22 +366,33 @@ bool ImportTextDialog::checkDateTimeFormat(const QString &time_format)
             return false;
         }
         idx++;
+        ret = true;
     }
-    return true;
+    return ret;
 }
 
 void ImportTextDialog::on_dateTimeLineEdit_textChanged(const QString &time_format)
 {
     if (time_format.length() > 0) {
         if (checkDateTimeFormat(time_format)) {
-            time_t cur_time;
+            struct timespec timenow;
             struct tm *cur_tm;
             char time_str[100];
+            QString timefmt = QString(time_format);
 
-            time(&cur_time);
-            cur_tm = localtime(&cur_time);
+#ifdef _WIN32
+            timespec_get(&timenow, TIME_UTC); /* supported by Linux and Windows */
+#else
+            clock_gettime(CLOCK_REALTIME, &timenow); /* supported by Linux and MacOS */
+#endif
+            /* On windows strftime/wcsftime does not support %s yet, this works on all OSs */
+            timefmt.replace(QString("%s"), QString::number(timenow.tv_sec));
+            /* subsecond example as usec */
+            timefmt.replace(QString("."),  QString(".%1").arg(timenow.tv_nsec/1000, 6, 10, QChar('0')));
+
+            cur_tm = localtime(&timenow.tv_sec);
             if (cur_tm != NULL)
-                strftime(time_str, sizeof time_str, ti_ui_->dateTimeLineEdit->text().toUtf8().constData(), cur_tm);
+                strftime(time_str, sizeof time_str, timefmt.toUtf8(), cur_tm);
             else
                 g_strlcpy(time_str, "Not representable", sizeof time_str);
             ti_ui_->timestampExampleLabel->setText(QString(tr("Example: %1")).arg(time_str));
