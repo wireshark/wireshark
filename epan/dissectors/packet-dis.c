@@ -6090,7 +6090,6 @@ static int dissect_DIS_PARSER_ENTITY_STATE_UPDATE_PDU(tvbuff_t *tvb, packet_info
     entityEntity = tvb_get_ntohs(tvb, offset+4);
 
     offset = parseField_Entity(tvb, tree, offset, "Entity ID");
-    offset++;
 
     proto_tree_add_item(tree, hf_dis_padding, tvb, offset, 1, ENC_NA);
     offset++;
@@ -6098,6 +6097,7 @@ static int dissect_DIS_PARSER_ENTITY_STATE_UPDATE_PDU(tvbuff_t *tvb, packet_info
     numVariable = tvb_get_guint8(tvb, offset);
 
     proto_tree_add_item(tree, hf_dis_num_variable_records, tvb, offset, 1, ENC_BIG_ENDIAN); //number of variable parameter records
+    offset++;
 
     col_append_fstr( pinfo->cinfo, COL_INFO, ", (%u:%u:%u)",
                     entitySite , entityApplication , entityEntity
