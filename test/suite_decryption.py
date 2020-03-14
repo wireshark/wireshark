@@ -159,9 +159,11 @@ class case_decrypt_80211(subprocesstest.SubprocessTestCase):
         self.assertEqual(self.countOutput('^40\t02:00:00:00:00:00\tf31ecff5452f4c286cf66ef50d10dabe\t\t0$'), 1)
         self.assertEqual(self.countOutput('^40\t02:00:00:00:00:00\t28dd851decf3f1c2a35df8bcc22fa1d2\t\t1$'), 1)
 
-    def test_80211_wpa_ccmp_256(self, cmd_tshark, capture_file):
+    def test_80211_wpa_ccmp_256(self, cmd_tshark, capture_file, features):
         '''IEEE 802.11 decode CCMP-256'''
         # Included in git sources test/captures/wpa-ccmp-256.pcapng.gz
+        if not features.have_libgcrypt16:
+            self.skipTest('Requires GCrypt 1.6 or later.')
         self.assertRun((cmd_tshark,
                 '-o', 'wlan.enable_decryption: TRUE',
                 '-r', capture_file('wpa-ccmp-256.pcapng.gz'),
