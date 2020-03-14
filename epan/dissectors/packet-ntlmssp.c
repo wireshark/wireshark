@@ -266,6 +266,8 @@ static expert_field ei_ntlmssp_blob_len_too_long = EI_INIT;
 static expert_field ei_ntlmssp_target_info_attr = EI_INIT;
 static expert_field ei_ntlmssp_message_type = EI_INIT;
 static expert_field ei_ntlmssp_auth_nthash = EI_INIT;
+static expert_field ei_ntlmssp_sessionbasekey = EI_INIT;
+static expert_field ei_ntlmssp_sessionkey = EI_INIT;
 
 static dissector_handle_t ntlmssp_handle, ntlmssp_wrap_handle;
 
@@ -660,6 +662,41 @@ create_ntlmssp_v2_key(const guint8 *serverchallenge, const guint8 *clientchallen
                          used_md4->key_origin,
                          used_md4->md4[0] & 0xFF, used_md4->md4[1] & 0xFF,
                          used_md4->md4[2] & 0xFF, used_md4->md4[3] & 0xFF);
+  expert_add_info_format(pinfo, proto_tree_get_parent(ntlmssp_tree),
+                         &ei_ntlmssp_sessionbasekey,
+                         "NTLMv2 BaseSessionKey ("
+                         "%02x%02x%02x%02x"
+                         "%02x%02x%02x%02x"
+                         "%02x%02x%02x%02x"
+                         "%02x%02x%02x%02x"
+                         ")",
+                         sessionbasekey[0] & 0xFF,  sessionbasekey[1] & 0xFF,
+                         sessionbasekey[2] & 0xFF,  sessionbasekey[3] & 0xFF,
+                         sessionbasekey[4] & 0xFF,  sessionbasekey[5] & 0xFF,
+                         sessionbasekey[6] & 0xFF,  sessionbasekey[7] & 0xFF,
+                         sessionbasekey[8] & 0xFF,  sessionbasekey[9] & 0xFF,
+                         sessionbasekey[10] & 0xFF, sessionbasekey[11] & 0xFF,
+                         sessionbasekey[12] & 0xFF, sessionbasekey[13] & 0xFF,
+                         sessionbasekey[14] & 0xFF, sessionbasekey[15] & 0xFF);
+  if (memcmp(sessionbasekey, sessionkey, NTLMSSP_KEY_LEN) == 0) {
+    return;
+  }
+  expert_add_info_format(pinfo, proto_tree_get_parent(ntlmssp_tree),
+                         &ei_ntlmssp_sessionkey,
+                         "NTLMSSP SessionKey ("
+                         "%02x%02x%02x%02x"
+                         "%02x%02x%02x%02x"
+                         "%02x%02x%02x%02x"
+                         "%02x%02x%02x%02x"
+                         ")",
+                         sessionkey[0] & 0xFF,  sessionkey[1] & 0xFF,
+                         sessionkey[2] & 0xFF,  sessionkey[3] & 0xFF,
+                         sessionkey[4] & 0xFF,  sessionkey[5] & 0xFF,
+                         sessionkey[6] & 0xFF,  sessionkey[7] & 0xFF,
+                         sessionkey[8] & 0xFF,  sessionkey[9] & 0xFF,
+                         sessionkey[10] & 0xFF, sessionkey[11] & 0xFF,
+                         sessionkey[12] & 0xFF, sessionkey[13] & 0xFF,
+                         sessionkey[14] & 0xFF, sessionkey[15] & 0xFF);
 }
 
  /* Create an NTLMSSP version 1 key
@@ -827,6 +864,41 @@ create_ntlmssp_v1_key(const guint8 *serverchallenge, const guint8 *clientchallen
                          used_md4->key_origin,
                          used_md4->md4[0] & 0xFF, used_md4->md4[1] & 0xFF,
                          used_md4->md4[2] & 0xFF, used_md4->md4[3] & 0xFF);
+  expert_add_info_format(pinfo, proto_tree_get_parent(ntlmssp_tree),
+                         &ei_ntlmssp_sessionbasekey,
+                         "NTLMv1 BaseSessionKey ("
+                         "%02x%02x%02x%02x"
+                         "%02x%02x%02x%02x"
+                         "%02x%02x%02x%02x"
+                         "%02x%02x%02x%02x"
+                         ")",
+                         sessionbasekey[0] & 0xFF,  sessionbasekey[1] & 0xFF,
+                         sessionbasekey[2] & 0xFF,  sessionbasekey[3] & 0xFF,
+                         sessionbasekey[4] & 0xFF,  sessionbasekey[5] & 0xFF,
+                         sessionbasekey[6] & 0xFF,  sessionbasekey[7] & 0xFF,
+                         sessionbasekey[8] & 0xFF,  sessionbasekey[9] & 0xFF,
+                         sessionbasekey[10] & 0xFF, sessionbasekey[11] & 0xFF,
+                         sessionbasekey[12] & 0xFF, sessionbasekey[13] & 0xFF,
+                         sessionbasekey[14] & 0xFF, sessionbasekey[15] & 0xFF);
+  if (memcmp(sessionbasekey, sessionkey, NTLMSSP_KEY_LEN) == 0) {
+    return;
+  }
+  expert_add_info_format(pinfo, proto_tree_get_parent(ntlmssp_tree),
+                         &ei_ntlmssp_sessionkey,
+                         "NTLMSSP SessionKey ("
+                         "%02x%02x%02x%02x"
+                         "%02x%02x%02x%02x"
+                         "%02x%02x%02x%02x"
+                         "%02x%02x%02x%02x"
+                         ")",
+                         sessionkey[0] & 0xFF,  sessionkey[1] & 0xFF,
+                         sessionkey[2] & 0xFF,  sessionkey[3] & 0xFF,
+                         sessionkey[4] & 0xFF,  sessionkey[5] & 0xFF,
+                         sessionkey[6] & 0xFF,  sessionkey[7] & 0xFF,
+                         sessionkey[8] & 0xFF,  sessionkey[9] & 0xFF,
+                         sessionkey[10] & 0xFF, sessionkey[11] & 0xFF,
+                         sessionkey[12] & 0xFF, sessionkey[13] & 0xFF,
+                         sessionkey[14] & 0xFF, sessionkey[15] & 0xFF);
 }
 
 void
@@ -3366,6 +3438,8 @@ proto_register_ntlmssp(void)
      { &ei_ntlmssp_target_info_attr, { "ntlmssp.target_info_attr.unknown", PI_UNDECODED, PI_WARN, "unknown NTLMSSP Target Info Attribute", EXPFILL }},
      { &ei_ntlmssp_message_type, { "ntlmssp.messagetype.unknown", PI_PROTOCOL, PI_WARN, "Unrecognized NTLMSSP Message", EXPFILL }},
      { &ei_ntlmssp_auth_nthash, { "ntlmssp.authenticated", PI_SECURITY, PI_CHAT, "Authenticated NTHASH", EXPFILL }},
+     { &ei_ntlmssp_sessionbasekey, { "ntlmssp.sessionbasekey", PI_SECURITY, PI_CHAT, "SessionBaseKey", EXPFILL }},
+     { &ei_ntlmssp_sessionkey, { "ntlmssp.sessionkey", PI_SECURITY, PI_CHAT, "SessionKey", EXPFILL }},
   };
   module_t *ntlmssp_module;
   expert_module_t* expert_ntlmssp;
