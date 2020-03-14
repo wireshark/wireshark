@@ -191,10 +191,9 @@ set(WSUG_GRAPHICS
 	wsug_graphics/ws-stats-conversations.png
 	wsug_graphics/ws-stats-endpoints.png
 	wsug_graphics/ws-stats-hierarchy.png
-	wsug_graphics/ws-stats-iographs.png # GTK+
+	wsug_graphics/ws-stats-iographs.png
 	wsug_graphics/ws-stats-packet-lengths.png
-	wsug_graphics/ws-stats-srt-dcerpc-filter.png # GTK+
-	wsug_graphics/ws-stats-srt-dcerpc.png # GTK+
+	wsug_graphics/ws-stats-srt-smb2.png
 	wsug_graphics/ws-stats-lte-mac-traffic.png
 	wsug_graphics/ws-stats-lte-rlc-traffic.png
 	wsug_graphics/ws-stats-wlan-traffic.png # GTK+

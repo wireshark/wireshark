@@ -2540,7 +2540,7 @@ proto_register_diameter(void)
 {
 	module_t *diameter_module;
 
-	proto_diameter = proto_register_protocol ("Diameter Protocol", "DIAMETER", "diameter");
+	proto_diameter = proto_register_protocol ("Diameter Protocol", "Diameter", "diameter");
 
 	/* Allow dissector to find be found by name. */
 	diameter_sctp_handle = register_dissector("diameter", dissect_diameter, proto_diameter);

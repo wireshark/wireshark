@@ -481,6 +481,7 @@ You can see a list of useful keyboard shortcuts by right-clicking on the graph.
 
 [[ChStatIOGraphsMissingValues]]
 
+[discrete]
 ==== Missing Values Are Zero
 
 Wireshark's I/O Graph window doesn’t distinguish between missing and zero values.
@@ -499,55 +500,50 @@ Zero values are shown in line graphs, and bar charts.
 
 === Service Response Time
 
-The service response time is the time between a request and the corresponding
-response. This information is available for many protocols.
+The service response time is the time between a request and the corresponding response.
+This information is available for many protocols, including the following:
 
-Service response time statistics are currently available for the following protocols:
+* AFP
+* CAMEL
+* DCE-RPC
+* Diameter
+* Fibre Channel
+* GTP
+* H.225 RAS
+* LDAP
+* MEGACO
+* MGCP
+* NCP
+* ONC-RPC
+* RADIUS
+* SCSI
+* SMB
+* SMB2
+* SNMP
 
-* _DCE-RPC_
+As an example, the SMB2 service response time is described below in more detail.
+The other Service Response Time windows will show statistics specific to their respective protocols, but will offer the same menu options.
 
-* _Fibre Channel_
+[[ChStatSRTSMB2]]
 
-* _H.225 RAS_
+==== The “SMB2 Service Response Time Statistics” Window
 
-* _LDAP_
+This window shows the number of transactions for each SMB2 opcode present in the capture file along with various response time statistics.
+Right-clicking on a row will let you apply or prepare filters for, search for, or colorize a specific opcode.
+You can also copy all of the response time information or save it in a variety of formats.
 
-* _LTE MAC_
+.The “SMB2 Service Response Time Statistics” window
+image::wsug_graphics/ws-stats-srt-smb2.png[{screenshot-attrs}]
 
-* _MGCP_
+You can optionally apply a display filter in order to limit the statistics to a specific set of packets.
 
-* _ONC-RPC_
+The main dialog buttons along the bottom let you do the following:
 
-* _SMB_
+The btn:[Copy] button will copy the response time information as text.
 
-As an example, the DCE-RPC service response time is described in more detail.
+btn:[Save As...] will save the response time information in various formats.
 
-[NOTE]
-====
-The other Service Response Time windows will work the same way (or only slightly
-different) compared to the following description.
-====
-
-[[ChStatSRTDceRpc]]
-
-==== The “Service Response Time DCE-RPC” Window
-
-The service response time of DCE-RPC is the time between the request and the
-corresponding response.
-
-First, you have to select the DCE-RPC interface:
-
-.The “Compute DCE-RPC statistics” window
-image::wsug_graphics/ws-stats-srt-dcerpc-filter.png[{screenshot-attrs}]
-
-You can optionally set a display filter to reduce the number of packets.
-
-.The “DCE-RPC Statistic for ...” window
-image::wsug_graphics/ws-stats-srt-dcerpc.png[{screenshot-attrs}]
-
-Each row corresponds to a method of the interface selected (so the EPM interface
-in version 3 has 7 methods). For each method the number of calls, and the
-statistics of the SRT time is calculated.
+btn:[Close] will close this dialog.
 
 [[ChStatDHCPBOOTP]]
 
