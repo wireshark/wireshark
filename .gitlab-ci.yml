@@ -38,12 +38,12 @@
 
 # Rely on fedora:latest and debian-stable jobs for testing a recent GCC version.
 # Since this broke sporadically in the past, test lack of capture support.
-gcc-8-nopcap:
+gcc-7-nopcap:
   <<: *build-ubuntu
   variables:
     CMAKE_ARGS: -DENABLE_PCAP=NO
-    CC: gcc-8
-    CXX: g++-8
+    CC: gcc-7
+    CXX: g++-7
 
 clang-8:
   <<: *build-ubuntu
