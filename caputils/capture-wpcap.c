@@ -638,6 +638,17 @@ get_remote_interface_list(const char *hostname, const char *port,
 	char errbuf[PCAP_ERRBUF_SIZE];
 	GList *result;
 
+	if (!has_wpcap) {
+		/*
+		 * We don't have Npcap or WinPcap, so we can't get a list of
+		 * interfaces.
+		 */
+		*err = DONT_HAVE_PCAP;
+		if (err_str != NULL)
+			*err_str = cant_load_winpcap_err("you");
+		return NULL;
+	}
+
 	if (pcap_createsrcstr(source, PCAP_SRC_IFREMOTE, hostname, port,
 			      NULL, errbuf) == -1) {
 		*err = CANT_GET_INTERFACE_LIST;
