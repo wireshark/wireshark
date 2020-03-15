@@ -24,8 +24,6 @@
 #include "dot11decrypt_system.h"
 #include "dot11decrypt_int.h"
 
-#include "dot11decrypt_rijndael.h"
-
 #include "dot11decrypt_debug.h"
 #include <glib.h>
 #include <wsutil/wsgcrypt.h>

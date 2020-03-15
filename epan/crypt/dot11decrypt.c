@@ -21,7 +21,6 @@
 #include <epan/tvbuff.h>
 #include <epan/to_str.h>
 #include <epan/strutil.h>
-#include <epan/crypt/dot11decrypt_rijndael.h>
 
 #include "dot11decrypt_system.h"
 #include "dot11decrypt_int.h"
@@ -396,6 +395,91 @@ Dot11DecryptRc4KeyData(const guint8 *decryption_key, guint decryption_key_len,
     return decrypted_key;
 }
 
+static int
+AES_unwrap(
+    const guint8 *kek,
+    guint16 kek_len,
+    const guint8 *cipher_text,
+    guint16 cipher_len,
+    guint8 *output,
+    guint16 *output_len)
+{
+#if GCRYPT_VERSION_NUMBER >= 0x010500 /* 1.5.0 */
+    gcry_cipher_hd_t handle;
+
+    if (kek == NULL || cipher_len < 16 || cipher_text == NULL) {
+        return 1; /* "should not happen" */
+    }
+    if (gcry_cipher_open(&handle, GCRY_CIPHER_AES, GCRY_CIPHER_MODE_AESWRAP, 0)) {
+        return 1;
+    }
+    if (gcry_cipher_setkey(handle, kek, kek_len)) {
+        gcry_cipher_close(handle);
+        return 1;
+    }
+    if (gcry_cipher_decrypt(handle, output, cipher_len - 8, cipher_text, cipher_len)) {
+        gcry_cipher_close(handle);
+        return 1;
+    }
+    *output_len = cipher_len - 8;
+    gcry_cipher_close(handle);
+    return 0;
+#else /* libcgrypt AES unwrap function not available */
+    /* Legacy implementation moved from dot11decrypt_rijindael.c */
+    /* Based on RFC 3394 and NIST AES Key Wrap Specification pseudo-code. */
+    UCHAR a[8], b[16];
+    UCHAR *r;
+    gint16 i, j, n;
+    gcry_cipher_hd_t rijndael_handle;
+
+    if (kek == NULL || cipher_len < 16 || cipher_text == NULL) {
+        return 1; /* "should not happen" */
+    }
+
+    /* Initialize variables */
+    memset(output, 0, cipher_len - 8);
+    n = (cipher_len/8)-1;  /* the algorithm works on 64-bits at a time */
+    memcpy(a, cipher_text, 8);
+    r = output;
+    memcpy(r, cipher_text+8, cipher_len - 8);
+
+    /* Compute intermediate values */
+
+    if (gcry_cipher_open(&rijndael_handle, GCRY_CIPHER_AES, GCRY_CIPHER_MODE_ECB, 0)) {
+        return 1;
+    }
+    if (gcry_cipher_setkey(rijndael_handle, kek, kek_len)) {
+        gcry_cipher_close(rijndael_handle);
+        return 1;
+    }
+    for (j=5; j >= 0; --j){
+        r = output + (n - 1) * 8;
+        /* DEBUG_DUMP("r1", (r-8), 8); */
+        /* DEBUG_DUMP("r2", r, 8); */
+        for (i = n; i >= 1; --i){
+            UINT16 t = (n*j) + i;
+            /* DEBUG_DUMP("a", a, 8); */
+            memcpy(b, a, 8);
+            b[7] ^= t;
+            /* DEBUG_DUMP("a plus t", b, 8); */
+            memcpy(b+8, r, 8);
+            gcry_cipher_decrypt(rijndael_handle, b, 16, NULL, 0);
+            /* DEBUG_DUMP("aes decrypt", b, 16) */
+            memcpy(a,b,8);
+            memcpy(r, b+8, 8);
+            r -= 8;
+        }
+    }
+    gcry_cipher_close(rijndael_handle);
+
+    /* DEBUG_DUMP("a", a, 8); */
+    /* DEBUG_DUMP("output", output, cipher_len - 8); */
+
+    *output_len = cipher_len - 8;
+    return 0;
+#endif
+}
+
 INT
 Dot11DecryptDecryptKeyData(PDOT11DECRYPT_CONTEXT ctx,
                            PDOT11DECRYPT_EAPOL_PARSED eapol_parsed,
@@ -496,17 +580,11 @@ Dot11DecryptDecryptKeyData(PDOT11DECRYPT_CONTEXT ctx,
         /* Though fortunately IEEE802.11-2016 Table 12-8 state that all AKMs use "NIST AES Key Wrap"  */
         /* algorithm so no AKM lookup is needed. */
 
-        /* AES CCMP key */
-        guint8 *data;
-
         /* Unwrap the key; the result is key_bytes_len in length */
-        data = AES_unwrap(decryption_key, decryption_key_len, key_data, key_bytes_len);
-        if (!data) {
+        if (AES_unwrap(decryption_key, decryption_key_len, key_data, key_bytes_len,
+                       decrypted_data, &key_bytes_len)) {
             return DOT11DECRYPT_RET_UNSUCCESS;
         }
-        key_bytes_len -= 8; /* AES-WRAP adds 8 bytes */
-        memcpy(decrypted_data, data, key_bytes_len);
-        g_free(data);
     }
 
     Dot11DecryptCopyKey(sa, key);

@@ -19,7 +19,6 @@ set(CRYPT_HEADER_FILES
 	dot11decrypt_debug.h
 	dot11decrypt_int.h
 	dot11decrypt_interop.h
-	dot11decrypt_rijndael.h
 	dot11decrypt_system.h
 	dot11decrypt_user.h
 	dot11decrypt_util.h
@@ -30,7 +29,6 @@ set(CRYPT_HEADER_FILES
 
 set(CRYPT_FILES
 	dot11decrypt.c
-	dot11decrypt_rijndael.c
 	dot11decrypt_tkip.c
 	${CUSTOM_CRYPT_SRC}
 )
