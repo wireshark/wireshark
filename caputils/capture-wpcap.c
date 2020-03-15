@@ -465,7 +465,7 @@ int
 pcap_findalldevs(pcap_if_t **a, char *errbuf)
 {
 	int ret;
-	g_assert(has_wpcap && p_pcap_findalldevs != NULL);
+	g_assert(has_wpcap);
 	ret = p_pcap_findalldevs(a, errbuf);
 	if (ret == -1)
 		convert_errbuf_to_utf8(errbuf);
@@ -475,7 +475,7 @@ pcap_findalldevs(pcap_if_t **a, char *errbuf)
 void
 pcap_freealldevs(pcap_if_t *a)
 {
-	g_assert(has_wpcap && p_pcap_freealldevs != NULL);
+	g_assert(has_wpcap);
 	p_pcap_freealldevs(a);
 }
 
