@@ -658,10 +658,6 @@ get_remote_interface_list(const char *hostname, const char *port,
 }
 #endif
 
-/*
- * This will use "pcap_findalldevs()" if we have it, otherwise it'll
- * fall back on "pcap_lookupdev()".
- */
 GList *
 get_interface_list(int *err, char **err_str)
 {
