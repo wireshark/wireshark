@@ -553,13 +553,7 @@ relinquish_all_capabilities(void)
 #endif
 
 static const char *
-get_pcap_failure_secondary_error_message(cap_device_open_err open_err,
-#ifdef __hpux
-                                         const char *open_err_str
-#else
-                                         const char* open_err_str _U_
-#endif
-                                         )
+get_pcap_failure_secondary_error_message(cap_device_open_err open_err)
 {
 #ifdef _WIN32
     /*
@@ -573,28 +567,6 @@ get_pcap_failure_secondary_error_message(cap_device_open_err open_err,
             "\n"
             "for a downloadable version of Npcap and for instructions on how to\n"
             "install it.";
-    }
-#endif
-
-    /*
-     * Now deal with ancient versions of libpcap that, on HP-UX, don't
-     * correctly figure out how to open a device given the device name.
-     */
-#ifdef __hpux
-    /* HP-UX-specific suggestion. */
-    static const char ppamsg[] = "can't find PPA for ";
-
-    if (strncmp(open_err_str, ppamsg, sizeof ppamsg - 1) == 0) {
-        return
-            "You are running (T)Wireshark with a version of the libpcap library\n"
-            "that doesn't handle HP-UX network devices well; this means that\n"
-            "(T)Wireshark may not be able to capture packets.\n"
-            "\n"
-            "To fix this, you should install libpcap 0.6.2, or a later version\n"
-            "of libpcap, rather than libpcap 0.4 or 0.5.x.  It is available in\n"
-            "packaged binary form from the Software Porting And Archive Centre\n"
-            "for HP-UX; the Centre is at http://hpux.connect.org.uk/ - the page\n"
-            "at the URL lists a number of mirror sites.";
     }
 #endif
 
@@ -642,7 +614,7 @@ get_capture_device_open_failure_messages(cap_device_open_err open_err,
                "The capture session could not be initiated on interface '%s' (%s).",
                iface, open_err_str);
     g_snprintf(secondary_errmsg, (gulong) secondary_errmsg_len, "%s",
-               get_pcap_failure_secondary_error_message(open_err, open_err_str));
+               get_pcap_failure_secondary_error_message(open_err));
 }
 
 static gboolean
@@ -5180,7 +5152,7 @@ main(int argc, char *argv[])
             if (caps == NULL) {
                 cmdarg_err("The capabilities of the capture device \"%s\" could not be obtained (%s).\n"
                            "%s", interface_opts->name, err_str,
-                           get_pcap_failure_secondary_error_message(err, err_str));
+                           get_pcap_failure_secondary_error_message(err));
                 g_free(err_str);
                 exit_main(2);
             }
