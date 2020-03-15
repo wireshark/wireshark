@@ -7217,8 +7217,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>PDUをファイルにエクスポート…</translation>
     </message>
     <message>
-        <source>&amp;I/O Graph</source>
-        <translation>入出力グラフ(&amp;I)</translation>
+        <source>&amp;I/O Graphs</source>
+        <oldsource>&amp;I/O Graph</oldsource>
+        <translation type="unfinished">入出力グラフ(&amp;I)</translation>
     </message>
     <message>
         <source>Create graphs based on display filter fields</source>
@@ -12310,7 +12311,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>SyntaxLineEdit</name>
     <message>
         <source>&quot;%1&quot; is deprecated or may have unexpected results. See the User&apos;s Guide.</source>
-        <translation>&quot;%1&quot; は非推奨か予期せぬ結果となる可能性があります。ユーザーズガイドを参照ください</translation>
+        <translation type="vanished">&quot;%1&quot; は非推奨か予期せぬ結果となる可能性があります。ユーザーズガイドを参照ください</translation>
+    </message>
+    <message>
+        <source>&quot;%1&quot; is deprecated in favour of &quot;%2&quot;. See the User&apos;s Guide.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&quot;%1&quot; may have unexpected results. See the User&apos;s Guide.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

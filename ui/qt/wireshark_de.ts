@@ -7233,8 +7233,9 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>PDUs in Datei exportieren...</translation>
     </message>
     <message>
-        <source>&amp;I/O Graph</source>
-        <translation>&amp;I/O Graph</translation>
+        <source>&amp;I/O Graphs</source>
+        <oldsource>&amp;I/O Graph</oldsource>
+        <translation type="unfinished">&amp;I/O Graph</translation>
     </message>
     <message>
         <source>Create graphs based on display filter fields</source>
@@ -12338,7 +12339,15 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <name>SyntaxLineEdit</name>
     <message>
         <source>&quot;%1&quot; is deprecated or may have unexpected results. See the User&apos;s Guide.</source>
-        <translation>&quot;%1&quot; ist veraltet und kann zu einem unerwarteten Ergebnis führen. Siehe Benutzerhandbuch.</translation>
+        <translation type="vanished">&quot;%1&quot; ist veraltet und kann zu einem unerwarteten Ergebnis führen. Siehe Benutzerhandbuch.</translation>
+    </message>
+    <message>
+        <source>&quot;%1&quot; is deprecated in favour of &quot;%2&quot;. See the User&apos;s Guide.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&quot;%1&quot; may have unexpected results. See the User&apos;s Guide.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

@@ -7233,8 +7233,9 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Exportera PDU:er till fil …</translation>
     </message>
     <message>
-        <source>&amp;I/O Graph</source>
-        <translation>&amp;I/O-graf</translation>
+        <source>&amp;I/O Graphs</source>
+        <oldsource>&amp;I/O Graph</oldsource>
+        <translation type="unfinished">&amp;I/O-graf</translation>
     </message>
     <message>
         <source>Create graphs based on display filter fields</source>
@@ -12338,7 +12339,15 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <name>SyntaxLineEdit</name>
     <message>
         <source>&quot;%1&quot; is deprecated or may have unexpected results. See the User&apos;s Guide.</source>
-        <translation>”%1” undanbedes eller kan ha oväntade resultat.  Se användarguiden.</translation>
+        <translation type="vanished">”%1” undanbedes eller kan ha oväntade resultat.  Se användarguiden.</translation>
+    </message>
+    <message>
+        <source>&quot;%1&quot; is deprecated in favour of &quot;%2&quot;. See the User&apos;s Guide.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&quot;%1&quot; may have unexpected results. See the User&apos;s Guide.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

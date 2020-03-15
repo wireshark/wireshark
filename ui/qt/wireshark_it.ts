@@ -7233,8 +7233,9 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Esporta PDU su file...</translation>
     </message>
     <message>
-        <source>&amp;I/O Graph</source>
-        <translation>Grafici &amp;I/O</translation>
+        <source>&amp;I/O Graphs</source>
+        <oldsource>&amp;I/O Graph</oldsource>
+        <translation type="unfinished">Grafici &amp;I/O</translation>
     </message>
     <message>
         <source>Create graphs based on display filter fields</source>
@@ -12338,7 +12339,15 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <name>SyntaxLineEdit</name>
     <message>
         <source>&quot;%1&quot; is deprecated or may have unexpected results. See the User&apos;s Guide.</source>
-        <translation>&quot;%1&quot; è sconsigliato e potrebbe avere dei comportamenti inattesi. Vedi il Manuale utente.</translation>
+        <translation type="vanished">&quot;%1&quot; è sconsigliato e potrebbe avere dei comportamenti inattesi. Vedi il Manuale utente.</translation>
+    </message>
+    <message>
+        <source>&quot;%1&quot; is deprecated in favour of &quot;%2&quot;. See the User&apos;s Guide.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&quot;%1&quot; may have unexpected results. See the User&apos;s Guide.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

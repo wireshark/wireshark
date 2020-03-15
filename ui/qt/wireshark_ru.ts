@@ -7251,8 +7251,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Экспортировать PDUхи в Файл…</translation>
     </message>
     <message>
-        <source>&amp;I/O Graph</source>
-        <translation>&amp;График Ввода/Вывода</translation>
+        <source>&amp;I/O Graphs</source>
+        <oldsource>&amp;I/O Graph</oldsource>
+        <translation type="unfinished">&amp;График Ввода/Вывода</translation>
     </message>
     <message>
         <source>Create graphs based on display filter fields</source>
@@ -12360,7 +12361,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>SyntaxLineEdit</name>
     <message>
         <source>&quot;%1&quot; is deprecated or may have unexpected results. See the User&apos;s Guide.</source>
-        <translation>&quot;%1&quot; сомнителен или может иметь неожиданные результаты. Смотрите Руководство Пользователя.</translation>
+        <translation type="vanished">&quot;%1&quot; сомнителен или может иметь неожиданные результаты. Смотрите Руководство Пользователя.</translation>
+    </message>
+    <message>
+        <source>&quot;%1&quot; is deprecated in favour of &quot;%2&quot;. See the User&apos;s Guide.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&quot;%1&quot; may have unexpected results. See the User&apos;s Guide.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

@@ -7209,8 +7209,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>导出 PDU 到文件…</translation>
     </message>
     <message>
-        <source>&amp;I/O Graph</source>
-        <translation>I/O 图表(&amp;I)</translation>
+        <source>&amp;I/O Graphs</source>
+        <oldsource>&amp;I/O Graph</oldsource>
+        <translation type="unfinished">I/O 图表(&amp;I)</translation>
     </message>
     <message>
         <source>Create graphs based on display filter fields</source>
@@ -12295,7 +12296,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>SyntaxLineEdit</name>
     <message>
         <source>&quot;%1&quot; is deprecated or may have unexpected results. See the User&apos;s Guide.</source>
-        <translation>“%1”已被弃用或可能有意外结果。请参阅用户指南。</translation>
+        <translation type="vanished">“%1”已被弃用或可能有意外结果。请参阅用户指南。</translation>
+    </message>
+    <message>
+        <source>&quot;%1&quot; is deprecated in favour of &quot;%2&quot;. See the User&apos;s Guide.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&quot;%1&quot; may have unexpected results. See the User&apos;s Guide.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
