@@ -1399,10 +1399,13 @@ WSLUA_METAMETHOD TvbRange__tostring(lua_State* L) {
         return 0;
     }
 
-    str = tvb_bytes_to_str(NULL,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len);
-
-    lua_pushstring(L,str);
-    wmem_free(NULL, str);
+    if (tvbr->len == 0) {
+        lua_pushstring(L, "<EMPTY>");
+    } else {
+        str = tvb_bytes_to_str(NULL,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len);
+        lua_pushstring(L,str);
+        wmem_free(NULL, str);
+    }
 
     WSLUA_RETURN(1); /* A Lua hex string of the first 24 binary bytes in the `TvbRange`. */
 }
