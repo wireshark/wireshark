@@ -591,10 +591,12 @@ if_info_ip(if_info_t *if_info, pcap_if_t *d)
 
 #ifdef HAVE_PCAP_REMOTE
 GList *
-get_interface_list_findalldevs_ex(const char *source,
-				  struct pcap_rmtauth *auth,
-				  int *err, char **err_str)
+get_interface_list_findalldevs_ex(const char *hostname, const char *port,
+			  int auth_type, const char *username,
+			  const char *passwd, int *err, char **err_str)
 {
+	char source[PCAP_BUF_SIZE];
+	struct pcap_rmtauth auth;
 	GList  *il = NULL;
 	pcap_if_t *alldevs, *dev;
 	if_info_t *if_info;
@@ -604,10 +606,24 @@ get_interface_list_findalldevs_ex(const char *source,
 	 */
 	char errbuf[PCAP_ERRBUF_SIZE*4];
 
-	if (pcap_findalldevs_ex((char *)source, auth, &alldevs, errbuf) == -1) {
+	if (pcap_createsrcstr(source, PCAP_SRC_IFREMOTE, hostname, port,
+			      NULL, errbuf) == -1) {
 		*err = CANT_GET_INTERFACE_LIST;
 		if (err_str != NULL)
 			*err_str = cant_get_if_list_error_message(errbuf);
+		return NULL;
+	}
+
+	auth.type = auth_type;
+	auth.username = g_strdup(username);
+	auth.password = g_strdup(passwd);
+
+	if (pcap_findalldevs_ex(source, &auth, &alldevs, errbuf) == -1) {
+		*err = CANT_GET_INTERFACE_LIST;
+		if (err_str != NULL)
+			*err_str = cant_get_if_list_error_message(errbuf);
+		g_free(auth.username);
+		g_free(auth.password);
 		return NULL;
 	}
 
@@ -618,6 +634,8 @@ get_interface_list_findalldevs_ex(const char *source,
 		*err = 0;
 		if (err_str != NULL)
 			*err_str = NULL;
+		g_free(auth.username);
+		g_free(auth.password);
 		return NULL;
 	}
 
@@ -628,6 +646,8 @@ get_interface_list_findalldevs_ex(const char *source,
 		if_info_ip(if_info, dev);
 	}
 	pcap_freealldevs(alldevs);
+	g_free(auth.username);
+	g_free(auth.password);
 
 	return il;
 }
