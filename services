@@ -5453,6 +5453,7 @@ armcenterhttp	9294/tcp/udp	# ARMCenter http Service
 armcenterhttps	9295/tcp/udp	# ARMCenter https Service
 vrace		9300/tcp/udp	# Virtual Racing Service
 sphinxql	9306/tcp	# Sphinx search server (MySQL listener)
+sapms		9310/tcp	# SAP Message Server
 sphinxapi	9312/tcp	# Sphinx search server
 secure-ts	9318/tcp/udp	# PKIX TimeStamp over TLS
 guibase		9321/tcp/udp
