@@ -59,6 +59,7 @@ test("Field.new-3",not pcall(makeField,""))
 test("Field.new-4",not pcall(makeField,"IP.SRC"))
 
 -- declare some field extractors
+local f_frame_encap_type = Field.new("frame.encap_type")
 local f_frame_proto = Field.new("frame.protocols")
 local f_eth_src     = Field.new("eth.src")
 local f_eth_dst     = Field.new("eth.dst")
@@ -138,6 +139,7 @@ function tap.packet(pinfo,tvb)
     test("FieldInfo.range-1", eth_src1 == eth_src2)
     test("FieldInfo.range-2", eth_src1 == eth_src3)
     test("FieldInfo.range-3",not pcall(setFieldInfo,fi_eth_src,"range",3))
+    test("FieldInfo.range-4", tostring(f_frame_encap_type().range) == "<EMPTY>")
 
     test("FieldInfo.generated-1", f_frame_proto().generated == true)
     test("FieldInfo.generated-2", eth_macs[2].generated == false)
