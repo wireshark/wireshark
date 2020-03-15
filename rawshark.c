@@ -935,7 +935,7 @@ raw_pipe_read(wtap_rec *rec, guchar * pd, int *err, gchar **err_info, gint64 *da
 #endif
     if (bytes_needed > WTAP_MAX_PACKET_SIZE_STANDARD) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("Bad packet length: %lu\n",
+        *err_info = g_strdup_printf("Bad packet length: %lu",
                    (unsigned long) bytes_needed);
         return FALSE;
     }
