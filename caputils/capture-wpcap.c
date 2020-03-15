@@ -262,7 +262,7 @@ cant_load_winpcap_err(const char *app_name)
 }
 
 char*
-pcap_lookupdev (char *errbuf)
+pcap_lookupdev(char *errbuf)
 {
 	char *ret;
 	if (!has_wpcap) {
@@ -563,15 +563,19 @@ pcap_statustostr(int a)
 int
 pcap_datalink_name_to_val(const char *name)
 {
-	g_assert(has_wpcap);
-	return p_pcap_datalink_name_to_val(name);
+	if (has_wpcap)
+		return p_pcap_datalink_name_to_val(name);
+	else
+		return -1;
 }
 
 int
 pcap_list_datalinks(pcap_t *p, int **ddlt)
 {
-	g_assert(has_wpcap);
-	return p_pcap_list_datalinks(p, ddlt);
+	if (has_wpcap)
+		return p_pcap_list_datalinks(p, ddlt);
+	else
+		return -1;
 }
 
 #ifdef HAVE_PCAP_FREE_DATALINKS
@@ -596,15 +600,18 @@ pcap_free_datalinks(int *ddlt)
 const char *
 pcap_datalink_val_to_name(int dlt)
 {
-	g_assert(has_wpcap);
-	return p_pcap_datalink_val_to_name(dlt);
+	if (has_wpcap)
+		return p_pcap_datalink_val_to_name(dlt);
+	else
+		return NULL;
 }
 
 const char *
 pcap_datalink_val_to_description(int dlt)
 {
-	g_assert(has_wpcap);
-	return p_pcap_datalink_val_to_description(dlt);
+	if (has_wpcap)
+		return p_pcap_datalink_val_to_description(dlt);
+	return NULL;
 }
 
 void pcap_breakloop(pcap_t *a)
@@ -621,7 +628,7 @@ int pcap_setbuff(pcap_t *a, int b)
 
 /* pcap_next_ex is available since libpcap 0.8 / WinPcap 3.0! */
 /* (if you get a declaration warning here, try to update to at least WinPcap 3.1b4 develpack) */
-int pcap_next_ex (pcap_t *a, struct pcap_pkthdr **b, const u_char **c)
+int pcap_next_ex(pcap_t *a, struct pcap_pkthdr **b, const u_char **c)
 {
 	g_assert(has_wpcap);
 	return p_pcap_next_ex(a, b, c);
