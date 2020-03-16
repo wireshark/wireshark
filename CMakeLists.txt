@@ -2422,6 +2422,39 @@ if(BUILD_tshark)
 	install(TARGETS tshark RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
+if(BUILD_marine)
+	set(marine_LIBS
+			ui
+			caputils
+			wiretap
+			epan
+			${VERSION_INFO_LIBS}
+			${APPLE_CORE_FOUNDATION_LIBRARY}
+			${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
+			${WIN_WS2_32_LIBRARY}
+			${M_LIBRARIES}
+			)
+	set(marine_FILES
+			$<TARGET_OBJECTS:version_info>
+			cfile.c
+			extcap.c
+			extcap_parser.c
+			file_packet_provider.c
+			frame_tvbuff.c
+			sync_pipe_write.c
+			tshark-tap-register.c
+			marine.c
+			${TSHARK_TAP_SRC}
+			)
+
+	add_library(marine ${marine_FILES})
+	target_link_libraries(marine ${marine_LIBS})
+	install(TARGETS marine
+			RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+			LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+			ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
+endif()
+
 if(BUILD_tfshark)
 	set(tfshark_LIBS
 		m
@@ -3094,6 +3127,7 @@ endif()
 set(CLEAN_C_FILES
 	${dumpcap_FILES}
 	${wireshark_FILES}
+	${marine_FILES}
 	${tshark_FILES}
 	${rawshark_FILES}
 	${dftest_FILES}

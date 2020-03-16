@@ -1,6 +1,7 @@
 # Build options for use by CMake
 
 option(BUILD_wireshark     "Build Wireshark" OFF)
+option(BUILD_marine        "Build marine" ON)
 option(BUILD_tshark        "Build tshark" ON)
 option(BUILD_tfshark       "Build tfshark" OFF)
 option(BUILD_rawshark      "Build rawshark" OFF)
