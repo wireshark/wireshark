@@ -61,19 +61,36 @@ InterfaceTreeModel::~InterfaceTreeModel(void)
 
 QString InterfaceTreeModel::interfaceError()
 {
-    QString errorText;
+#ifdef HAVE_LIBPCAP
+    //
+    // First, see if there was an error fetching the interfaces.
+    // If so, report it.
+    //
+    if (global_capture_opts.ifaces_err != 0)
+    {
+        return tr(global_capture_opts.ifaces_err_info);
+    }
+
+    //
+    // Otherwise, if there are no rows, there were no interfaces
+    // found.
+    //
     if (rowCount() == 0)
     {
-        errorText = tr("No Interfaces found.");
+        return tr("No interfaces found.");
     }
-#ifdef HAVE_LIBPCAP
-    else if (global_capture_opts.ifaces_err != 0)
-    {
-        errorText = tr(global_capture_opts.ifaces_err_info);
-    }
-#endif
 
-    return errorText;
+    //
+    // No error.  Return an empty string.
+    //
+    return "";
+#else
+    //
+    // We were built without pcap support, so we have no notion of
+    // local interfaces.
+    //
+    return tr("This version of Wireshark was built without packet capture support.");
+#endif
 }
 
 int InterfaceTreeModel::rowCount(const QModelIndex &) const
