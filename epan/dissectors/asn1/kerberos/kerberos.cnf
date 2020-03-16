@@ -7,7 +7,6 @@ ChangePasswdData
 Applications ONLY_ENUM
 
 #.FIELD_RENAME
-#EncryptedData/etype encryptedData_etype
 KDC-REQ-BODY/etype kDC-REQ-BODY_etype
 KRB-SAFE-BODY/user-data kRB-SAFE-BODY_user_data
 EncKrbPrivPart/user-data encKrbPrivPart_user_data
