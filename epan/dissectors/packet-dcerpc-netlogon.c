@@ -6536,26 +6536,22 @@ netlogon_dissect_netrserverauthenticate023_reply(tvbuff_t *tvb, int offset,
             debugprintf("Something strange happened while searching for authenticate_reply\n");
         }
         else {
-#ifdef HAVE_KERBEROS
             md4_pass *pass_list=NULL;
             const md4_pass *used_md4 = NULL;
             const char *used_method = NULL;
             guint32 list_size = 0;
             unsigned int i = 0;
             md4_pass password;
-#endif
             guint8 session_key[16];
             int found = 0;
 
             vars->flags = flags;
             vars->can_decrypt = FALSE;
-#ifdef HAVE_KERBEROS
             list_size = get_md4pass_list(&pass_list);
             debugprintf("Found %d passwords \n",list_size);
-#endif
             if( flags & NETLOGON_FLAG_AES )
             {
-#if defined(HAVE_KERBEROS) && GCRYPT_VERSION_NUMBER >= 0x010800 /* 1.8.0 */
+#if GCRYPT_VERSION_NUMBER >= 0x010800 /* 1.8.0 */
                 guint8 salt_buf[16] = { 0 };
                 guint8 sha256[HASH_SHA2_256_LENGTH];
                 guint64 calculated_cred;
@@ -6627,7 +6623,6 @@ netlogon_dissect_netrserverauthenticate023_reply(tvbuff_t *tvb, int offset,
                 }
 #endif
             } else if ( flags & NETLOGON_FLAG_STRONGKEY ) {
-#ifdef HAVE_KERBEROS
                 guint8 zeros[4] = { 0 };
                 guint8 md5[HASH_MD5_LENGTH];
                 gcry_md_hd_t md5_handle;
@@ -6653,16 +6648,13 @@ netlogon_dissect_netrserverauthenticate023_reply(tvbuff_t *tvb, int offset,
                     if (!ws_hmac_buffer(GCRY_MD_MD5, session_key, md5, HASH_MD5_LENGTH, (guint8*) &password, 16)) {
                         crypt_des_ecb(buf,(unsigned char*)&vars->server_challenge,session_key);
                         crypt_des_ecb((unsigned char*)&calculated_cred,buf,session_key+7);
-#if 0
                         printnbyte((guint8*)&calculated_cred,8,"Calculated creds:","\n");
-#endif
                         if(calculated_cred==server_cred) {
                             found = 1;
                             break;
                         }
                     }
                 }
-#endif
             }
             else
             {
