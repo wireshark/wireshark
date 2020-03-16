@@ -2,24 +2,10 @@ language: minimal
 dist: bionic
 matrix:
   include:
-    - name: OSX (xcode10.3 clang-10.0.1) with PCAP
+    - name: OSX (xcode11.3 clang-11.0.0) with PCAP
       os: osx
-      osx_image: xcode10.3
-      compiler: clang
+      osx_image: xcode11.3
       env: PCAP=ON
-    - name: OSX (xcode10.3 clang-10.0.1) without PCAP
-      os: osx
-      osx_image: xcode10.3
-      compiler: clang
-      env: PCAP=OFF
-    - name: OSX (xcode11.2 clang-11.0.0) with PCAP
-      os: osx
-      osx_image: xcode11.2
-      env: PCAP=ON
-    - name: OSX (xcode11.2 clang-11.0.0) without PCAP
-      os: osx
-      osx_image: xcode11.2
-      env: PCAP=OFF
     - name: Linux amd64 (gcc-9) with PCAP
       os: linux
       addons:
@@ -33,26 +19,11 @@ matrix:
         - CXX=g++-9
         - CC=gcc-9
         - PCAP=ON
-    - name: Linux amd64 (gcc-8) with PCAP
-      os: linux
-      addons:
-        apt:
-          update: true
-          sources:
-            - ubuntu-toolchain-r-test
-          packages: g++-8
-      env:
-        - CXX=g++-8
-        - CC=gcc-8
-        - PCAP=ON
     - name: Linux arm64 (gcc-8) with PCAP
       os: linux
       arch: arm64
       addons:
         apt:
-          update: true
-          sources:
-            - ubuntu-toolchain-r-test
           packages: g++-8
       env:
         - CXX=g++-8
@@ -68,18 +39,6 @@ matrix:
       arch: ppc64le
       env:
         - PCAP=ON
-    - name: Linux amd64 (gcc-8) without PCAP
-      os: linux
-      addons:
-        apt:
-          update: true
-          sources:
-            - ubuntu-toolchain-r-test
-          packages: g++-8
-      env:
-        - CXX=g++-8
-        - CC=gcc-8
-        - PCAP=OFF
     - name: Linux amd64 (clang) with PCAP
       os: linux
       env:
