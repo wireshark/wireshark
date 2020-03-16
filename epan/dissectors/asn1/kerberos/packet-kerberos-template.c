@@ -94,6 +94,7 @@ typedef struct {
 	guint32 is_enc_padata;
 	guint32 enctype;
 	kerberos_key_t key;
+	kerberos_callbacks *callbacks;
 	guint32 ad_type;
 	guint32 addr_type;
 	guint32 checksum_type;
@@ -2363,6 +2364,7 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	volatile int offset = 0;
 	proto_tree *volatile kerberos_tree = NULL;
 	proto_item *volatile item = NULL;
+	kerberos_private_data_t *private_data = NULL;
 	asn1_ctx_t asn1_ctx;
 
 	/* TCP record mark and length */
@@ -2441,7 +2443,9 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 	}
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-	asn1_ctx.private_data = cb;
+	asn1_ctx.private_data = NULL;
+	private_data = kerberos_get_private_data(&asn1_ctx);
+	private_data->callbacks = cb;
 
 	TRY {
 		offset=dissect_kerberos_Applications(FALSE, tvb, offset, &asn1_ctx , kerberos_tree, /* hf_index */ -1);
