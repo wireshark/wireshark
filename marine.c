@@ -1,7 +1,7 @@
-/* tshark.c
+/* marine.c
  *
- * Text-mode variant of Wireshark, along the lines of tcpdump and snoop,
- * by Gilbert Ramirez <gram@alumni.rice.edu> and Guy Harris <guy@alum.mit.edu>.
+ * API for applying filters and parsing packets without filesystem interaction.
+ * by Tom Legkov <tom.legkov@outlook.com>.
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
