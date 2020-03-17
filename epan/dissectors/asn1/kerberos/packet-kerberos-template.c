@@ -333,6 +333,7 @@ add_encryption_key(packet_info *pinfo, int keytype, int keylength, const char *k
 }
 
 static void used_encryption_key(proto_tree *tree, packet_info *pinfo,
+				kerberos_private_data_t *private_data _U_,
 				enc_key_t *ek, int usage, tvbuff_t *cryptotvb)
 {
 	proto_tree_add_expert_format(tree, pinfo, &ei_kerberos_decrypted_keytype,
@@ -449,6 +450,7 @@ read_keytab_file(const char *filename)
 static krb5_error_code
 decrypt_krb5_with_cb(proto_tree *tree,
 		     packet_info *pinfo,
+		     kerberos_private_data_t *private_data,
 		     int usage,
 		     int keytype,
 		     tvbuff_t *cryptotvb,
@@ -475,7 +477,8 @@ decrypt_krb5_with_cb(proto_tree *tree,
 		key.key.contents=ek->keyvalue;
 		ret = decrypt_cb_fn(&(key.key), usage, decrypt_cb_data);
 		if(ret == 0) {
-			used_encryption_key(tree, pinfo, ek, usage, cryptotvb);
+			used_encryption_key(tree, pinfo, private_data,
+					    ek, usage, cryptotvb);
 			return 0;
 		}
 	}
@@ -509,12 +512,11 @@ decrypt_krb5_data_cb(const krb5_keyblock *key,
 			      &state->output);
 }
 
-guint8 *
-decrypt_krb5_data(proto_tree *tree _U_, packet_info *pinfo,
-					int usage,
-					tvbuff_t *cryptotvb,
-					int keytype,
-					int *datalen)
+static guint8 *
+decrypt_krb5_data_private(proto_tree *tree _U_, packet_info *pinfo,
+			  kerberos_private_data_t *private_data,
+			  int usage, tvbuff_t *cryptotvb, int keytype,
+			  int *datalen)
 {
 	struct decrypt_krb5_data_state state;
 	krb5_error_code ret;
@@ -539,6 +541,7 @@ decrypt_krb5_data(proto_tree *tree _U_, packet_info *pinfo,
 
 	ret = decrypt_krb5_with_cb(tree,
 				   pinfo,
+				   private_data,
 				   usage,
 				   keytype,
 				   cryptotvb,
@@ -553,6 +556,20 @@ decrypt_krb5_data(proto_tree *tree _U_, packet_info *pinfo,
 	}
 	return (guint8 *)state.output.data;
 }
+
+guint8 *
+decrypt_krb5_data(proto_tree *tree _U_, packet_info *pinfo,
+					int usage,
+					tvbuff_t *cryptotvb,
+					int keytype,
+					int *datalen)
+{
+	kerberos_private_data_t zero_private = { .msg_type = 0, };
+	return decrypt_krb5_data_private(tree, pinfo, &zero_private,
+					 usage, cryptotvb, keytype,
+					 datalen);
+}
+
 USES_APPLE_RST
 
 #ifdef KRB5_CRYPTO_TYPE_SIGN_ONLY
@@ -697,6 +714,7 @@ decrypt_krb5_krb_cfx_dce(proto_tree *tree,
 			 tvbuff_t *checksum_tvb)
 {
 	struct decrypt_krb5_krb_cfx_dce_state state;
+	kerberos_private_data_t zero_private = { .msg_type = 0, };
 	tvbuff_t *gssapi_decrypted_tvb = NULL;
 	krb5_error_code ret;
 
@@ -750,6 +768,7 @@ decrypt_krb5_krb_cfx_dce(proto_tree *tree,
 
 	ret = decrypt_krb5_with_cb(tree,
 				   pinfo,
+				   &zero_private,
 				   usage,
 				   keytype,
 				   gssapi_encrypted_tvb,
@@ -975,6 +994,7 @@ decrypt_krb5_data(proto_tree *tree _U_, packet_info *pinfo,
 					int keytype,
 					int *datalen)
 {
+	kerberos_private_data_t zero_private = { .msg_type = 0, };
 	krb5_error_code ret;
 	krb5_data data;
 	enc_key_t *ek;
@@ -1025,7 +1045,8 @@ decrypt_krb5_data(proto_tree *tree _U_, packet_info *pinfo,
 		if((ret == 0) && (length>0)){
 			char *user_data;
 
-			used_encryption_key(tree, pinfo, ek, usage, cryptotvb);
+			used_encryption_key(tree, pinfo, &zero_private,
+					    ek, usage, cryptotvb);
 
 			krb5_crypto_destroy(krb5_ctx, crypto);
 			/* return a private wmem_alloced blob to the caller */
