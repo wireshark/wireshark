@@ -1068,7 +1068,7 @@ dissect_rtcp_psfb_remb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, proto_
 {
     guint       exp, indexSsrcs;
     guint8      numberSsrcs;
-    guint32     mantissa, bitrate;
+    guint64     mantissa, bitrate;
     proto_tree *fci_tree;
 
     fci_tree = proto_tree_add_subtree_format( rtcp_tree, tvb, offset, 8, ett_ssrc, NULL, "REMB %d", num_fci );
@@ -1091,7 +1091,7 @@ dissect_rtcp_psfb_remb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, proto_
     proto_tree_add_item( fci_tree, hf_rtcp_psfb_remb_fci_mantissa, tvb, offset, 3, ENC_BIG_ENDIAN );
     mantissa = (tvb_get_ntohl( tvb, offset - 1) & 0x0003ffff);
     bitrate = mantissa << exp;
-    proto_tree_add_string_format_value( fci_tree, hf_rtcp_psfb_remb_fci_bitrate, tvb, offset, 3, "", "%u", bitrate);
+    proto_tree_add_string_format_value( fci_tree, hf_rtcp_psfb_remb_fci_bitrate, tvb, offset, 3, "", "%" G_GINT64_MODIFIER "u", bitrate);
     offset += 3;
 
     for  (indexSsrcs = 0; indexSsrcs < numberSsrcs; indexSsrcs++)
@@ -1102,7 +1102,7 @@ dissect_rtcp_psfb_remb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, proto_
     }
 
     if (top_item != NULL) {
-        proto_item_append_text(top_item, ": REMB: max bitrate=%u", bitrate);
+        proto_item_append_text(top_item, ": REMB: max bitrate=%" G_GINT64_MODIFIER "u", bitrate);
     }
     *read_fci = 2 + (numberSsrcs);
 
