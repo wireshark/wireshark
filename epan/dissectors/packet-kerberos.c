@@ -2036,7 +2036,7 @@ dissect_krb5_decrypt_ticket_data (gboolean imp_tag _U_, tvbuff_t *tvb, int offse
 		child_tvb = tvb_new_child_real_data(tvb, plaintext, length, length);
 
 		/* Add the decrypted data to the data source list. */
-		add_new_data_source(actx->pinfo, child_tvb, "Decrypted Krb5");
+		add_new_data_source(actx->pinfo, child_tvb, "Krb5 Ticket");
 
 		offset=dissect_kerberos_Applications(FALSE, child_tvb, 0, actx , tree, /* hf_index*/ -1);
 	}
@@ -2071,7 +2071,7 @@ dissect_krb5_decrypt_authenticator_data (gboolean imp_tag _U_, tvbuff_t *tvb, in
 		child_tvb = tvb_new_child_real_data(tvb, plaintext, length, length);
 
 		/* Add the decrypted data to the data source list. */
-		add_new_data_source(actx->pinfo, child_tvb, "Decrypted Krb5");
+		add_new_data_source(actx->pinfo, child_tvb, "Krb5 Authenticator");
 
 		offset=dissect_kerberos_Applications(FALSE, child_tvb, 0, actx , tree, /* hf_index*/ -1);
 	}
@@ -2106,7 +2106,7 @@ dissect_krb5_decrypt_authorization_data(gboolean imp_tag _U_, tvbuff_t *tvb, int
 		child_tvb = tvb_new_child_real_data(tvb, plaintext, length, length);
 
 		/* Add the decrypted data to the data source list. */
-		add_new_data_source(actx->pinfo, child_tvb, "Decrypted Krb5");
+		add_new_data_source(actx->pinfo, child_tvb, "Krb5 AuthorizationData");
 
 		offset=dissect_kerberos_AuthorizationData(FALSE, child_tvb, 0, actx , tree, /* hf_index*/ -1);
 	}
@@ -2146,7 +2146,7 @@ dissect_krb5_decrypt_KDC_REP_data (gboolean imp_tag _U_, tvbuff_t *tvb, int offs
 		child_tvb = tvb_new_child_real_data(tvb, plaintext, length, length);
 
 		/* Add the decrypted data to the data source list. */
-		add_new_data_source(actx->pinfo, child_tvb, "Decrypted Krb5");
+		add_new_data_source(actx->pinfo, child_tvb, "Krb5 KDC-REP");
 
 		offset=dissect_kerberos_Applications(FALSE, child_tvb, 0, actx , tree, /* hf_index*/ -1);
 	}
@@ -2176,7 +2176,7 @@ dissect_krb5_decrypt_PA_ENC_TIMESTAMP (gboolean imp_tag _U_, tvbuff_t *tvb, int 
 		child_tvb = tvb_new_child_real_data(tvb, plaintext, length, length);
 
 		/* Add the decrypted data to the data source list. */
-		add_new_data_source(actx->pinfo, child_tvb, "Decrypted Krb5");
+		add_new_data_source(actx->pinfo, child_tvb, "Krb5 EncTimestamp");
 
 		offset=dissect_kerberos_PA_ENC_TS_ENC(FALSE, child_tvb, 0, actx , tree, /* hf_index*/ -1);
 	}
@@ -2205,7 +2205,7 @@ dissect_krb5_decrypt_AP_REP_data (gboolean imp_tag _U_, tvbuff_t *tvb, int offse
 		child_tvb = tvb_new_child_real_data(tvb, plaintext, length, length);
 
 		/* Add the decrypted data to the data source list. */
-		add_new_data_source(actx->pinfo, child_tvb, "Decrypted Krb5");
+		add_new_data_source(actx->pinfo, child_tvb, "Krb5 AP-REP");
 
 		offset=dissect_kerberos_Applications(FALSE, child_tvb, 0, actx , tree, /* hf_index*/ -1);
 	}
@@ -2234,7 +2234,7 @@ dissect_krb5_decrypt_PRIV_data (gboolean imp_tag _U_, tvbuff_t *tvb, int offset,
 		child_tvb = tvb_new_child_real_data(tvb, plaintext, length, length);
 
 		/* Add the decrypted data to the data source list. */
-		add_new_data_source(actx->pinfo, child_tvb, "Decrypted Krb5");
+		add_new_data_source(actx->pinfo, child_tvb, "Krb5 PRIV");
 
 		offset=dissect_kerberos_Applications(FALSE, child_tvb, 0, actx , tree, /* hf_index*/ -1);
 	}
@@ -2263,7 +2263,7 @@ dissect_krb5_decrypt_CRED_data (gboolean imp_tag _U_, tvbuff_t *tvb, int offset,
 		child_tvb = tvb_new_child_real_data(tvb, plaintext, length, length);
 
 		/* Add the decrypted data to the data source list. */
-		add_new_data_source(actx->pinfo, child_tvb, "Decrypted Krb5");
+		add_new_data_source(actx->pinfo, child_tvb, "Krb5 CRED");
 
 		offset=dissect_kerberos_Applications(FALSE, child_tvb, 0, actx , tree, /* hf_index*/ -1);
 	}
@@ -2613,7 +2613,7 @@ dissect_krb5_PAC_CREDENTIAL_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int off
 		child_tvb = tvb_new_child_real_data(tvb, plaintext, plainlen, plainlen);
 
 		/* Add the decrypted data to the data source list. */
-		add_new_data_source(actx->pinfo, child_tvb, "Decrypted Krb5");
+		add_new_data_source(actx->pinfo, child_tvb, "Krb5 PAC_CREDENTIAL");
 
 		dissect_krb5_PAC_CREDENTIAL_DATA(tree, child_tvb, 0, actx->pinfo);
 	}
