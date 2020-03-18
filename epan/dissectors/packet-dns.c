@@ -1004,7 +1004,7 @@ static const value_string dns_types_description_vals[] = {
   { T_MR,         "MR (Mail Rename domain)" },
   { T_NULL,       "NULL RR" },
   { T_WKS,        "WKS (Well Known Service)" },
-  { T_PTR,        "PTR (domain name PoinTeR)" },
+  { T_PTR,        "PTR (domain name pointer)" },
   { T_HINFO,      "HINFO (host information)" },
   { T_MINFO,      "MINFO (Mailbox or mail list information)" },
   { T_MX,         "MX (Mail eXchange)" },
