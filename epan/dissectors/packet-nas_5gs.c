@@ -4652,7 +4652,7 @@ nas_5gs_mm_service_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, 
     /*26    PDU session reactivation result    PDU session reactivation result 9.11.3.42    O    TLV    4-32*/
     ELEM_OPT_TLV(0x26, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_PDU_SES_REACT_RES, NULL);
     /*72    PDU session reactivation result error cause    PDU session reactivation result error cause 9.11.3.43    O    TLV-E    5-515 */
-    ELEM_OPT_TLV_E(0x72, NAS_5GS_PDU_TYPE_COMMON, DE_NAS_5GS_MM_PDU_SES_REACT_RES_ERR_C, NULL);
+    ELEM_OPT_TLV_E(0x72, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_PDU_SES_REACT_RES_ERR_C, NULL);
     /*78    EAP message    EAP message     9.11.2.2    O    TLV-E    7-1503*/
     ELEM_OPT_TLV_E(0x78, NAS_5GS_PDU_TYPE_COMMON, DE_NAS_5GS_CMN_EAP_MESSAGE, NULL);
     /* 6B    T3448 value    GPRS timer 3 9.11.2.4    O    TLV    3 */
