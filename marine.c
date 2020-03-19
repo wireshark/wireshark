@@ -551,7 +551,7 @@ marine_inner_dissect_packet(capture_file *cf, packet_filter *filter, const unsig
     return passed;
 }
 
-marine_result* marine_dissect_packet(int filter_id, unsigned char *data, int len) {
+WS_DLL_PUBLIC marine_result* marine_dissect_packet(int filter_id, unsigned char *data, int len) {
     marine_result* result = (marine_result *) malloc(sizeof(marine_result));
     result->output = NULL;
 
@@ -575,7 +575,7 @@ marine_result* marine_dissect_packet(int filter_id, unsigned char *data, int len
     return result;
 }
 
-int marine_add_filter(char *bpf, char *dfilter, char **fields, int fields_len, char **err_msg) {
+WS_DLL_PUBLIC int marine_add_filter(char *bpf, char *dfilter, char **fields, int fields_len, char *err_msg) {
     // TODO make the error codes consts
     struct bpf_program fcode;
     dfilter_t *dfcode = NULL;
@@ -588,8 +588,8 @@ int marine_add_filter(char *bpf, char *dfilter, char **fields, int fields_len, c
         pc = pcap_open_dead(DLT_EN10MB, MIN_PACKET_SIZE);
         if (pc != NULL) {
             if (pcap_compile(pc, &fcode, bpf, 0, 0) == -1) {
-                *err_msg = strdup("Failed compiling the BPF");
-                pcap_close(pc);
+                strcpy(err_msg, "Failed compiling the BPF");
+		        pcap_close(pc);
                 return -1;
             }
             pcap_close(pc);
@@ -597,7 +597,9 @@ int marine_add_filter(char *bpf, char *dfilter, char **fields, int fields_len, c
     }
 
     if (dfilter != NULL) {
-        if (!dfilter_compile(dfilter, &dfcode, err_msg)) {
+	    char *dfilter_err_msg;
+        if (!dfilter_compile(dfilter, &dfcode, &dfilter_err_msg)) {
+		    strcpy(err_msg, dfilter_err_msg);
             return -2;
         }
     }
@@ -614,11 +616,10 @@ int marine_add_filter(char *bpf, char *dfilter, char **fields, int fields_len, c
         GSList *it = NULL;
         GSList *invalid_fields = output_fields_valid(packet_output_fields);
         if (invalid_fields != NULL) {
-            *err_msg = (char *) g_malloc0(1024);
-            strcat(*err_msg, "Some fields aren't valid:\n");
+            strcpy(err_msg, "Some fields aren't valid:\n");
             for (it = invalid_fields; it != NULL; it = g_slist_next(it)) {
-                strcat(*err_msg, "\t");
-                strcat(*err_msg, (gchar *) it->data); // TODO: with long field names, this allows buffer overflow
+                strcat(err_msg, "\t");
+                strcat(err_msg, (gchar *) it->data); // TODO: with long field names, this allows buffer overflow
             }
             output_fields_free(packet_output_fields);
             g_slist_free(invalid_fields);
@@ -741,7 +742,7 @@ marine_cf_open(capture_file *cf) {
     wtap_set_cb_new_secrets(cf->provider.wth, secrets_wtap_callback);
 }
 
-int init_marine(void) {
+WS_DLL_PUBLIC int init_marine(void) {
     // TODO: look at epan_auto_reset
     e_prefs *prefs_p;
 
@@ -804,7 +805,7 @@ int init_marine(void) {
     return 0;
 }
 
-void destroy_marine(void) {
+WS_DLL_PUBLIC void destroy_marine(void) {
     for (unsigned int i = 0; i < g_hash_table_size(packet_filters); i++) {
         int *key = packet_filter_keys[i];
         if (!key) {
@@ -835,7 +836,7 @@ void destroy_marine(void) {
     g_hash_table_destroy(packet_filters);
 }
 
-void marine_free(marine_result *ptr) {
+WS_DLL_PUBLIC void marine_free(marine_result *ptr) {
     if (ptr != NULL) {
         if (ptr->output != NULL) {
             free(ptr->output);
