@@ -1,7 +1,8 @@
 /* packet-someip.c
  * SOME/IP-SD dissector.
- * By Dr. Lars Voelker <lars-github@larsvoelker.de> / <lars.voelker@bmw.de>
- * Copyright 2012-2019 Dr. Lars Voelker
+ * By Dr. Lars Voelker <lars.voelker@technica-engineering.de> / <lars.voelker@bmw.de>
+ * Copyright 2012-2020 Dr. Lars Voelker
+ * Copyright 2020      Ayoub Kaanich
  * Copyright 2019      Ana Pantar
  * Copyright 2019      Guenter Ebermann
  *
@@ -360,7 +361,7 @@ dissect_someip_sd_pdu_option_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     }
     offset += 1;
 
-    proto_tree_add_item(tree, hf_someip_sd_option_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_someip_sd_option_port, tvb, offset, 2, ENC_BIG_ENDIAN, &l4port);
 
     proto_item_append_text(ti_top, " (%s)", l4protoname);
 
