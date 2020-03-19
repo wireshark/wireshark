@@ -7817,7 +7817,7 @@ static void dissect_NOKEY_DATA_FRAG(tvbuff_t *tvb, packet_info *pinfo, gint offs
   guint32 wid;                  /* Writer EntityID */
   gboolean from_builtin_writer;
   gint old_offset = offset;
-  gint32 frag_number = 0;
+  guint32 frag_number = 0;
   proto_item *octet_item;
   proto_tree_add_bitmask_value(tree, tvb, offset + 1, hf_rtps_sm_flags, ett_rtps_flags, NOKEY_DATA_FRAG_FLAGS, flags);
 
@@ -7850,7 +7850,7 @@ static void dissect_NOKEY_DATA_FRAG(tvbuff_t *tvb, packet_info *pinfo, gint offs
   offset += 8;
 
   /* Fragment number */
-  proto_tree_add_item_ret_int(tree, hf_rtps_nokey_data_frag_number, tvb,
+  proto_tree_add_item_ret_uint(tree, hf_rtps_nokey_data_frag_number, tvb,
                         offset, 4, encoding, &frag_number);
   offset += 4;
 
@@ -7878,7 +7878,7 @@ static void dissect_NOKEY_DATA_FRAG(tvbuff_t *tvb, packet_info *pinfo, gint offs
       (((wid & 0xc2) == 0xc2) || ((wid & 0xc3) == 0xc3)) ? TRUE : FALSE;
     dissect_serialized_data(tree, pinfo, tvb,offset,
                         octets_to_next_header - (offset - old_offset) + 4,
-                        "serializedData", vendor_id, from_builtin_writer, NULL, frag_number);
+                        "serializedData", vendor_id, from_builtin_writer, NULL, (gint32)frag_number);
   }
 }
 
