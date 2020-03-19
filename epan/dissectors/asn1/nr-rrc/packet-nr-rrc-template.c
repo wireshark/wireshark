@@ -162,7 +162,9 @@ nr_rrc_call_dissector(dissector_handle_t handle, tvbuff_t *tvb, packet_info *pin
 static void
 nr_rrc_q_RxLevMin_fmt(gchar *s, guint32 v)
 {
-  g_snprintf(s, ITEM_LABEL_LENGTH, "%u dB (%u)", 2*v, v);
+  gint32 d = (gint32)v;
+
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%d dB (%d)", 2*d, d);
 }
 
 static const value_string nr_rrc_serialNumber_gs_vals[] = {
