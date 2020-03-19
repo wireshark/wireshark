@@ -356,7 +356,6 @@ marine_write_specified_fields(packet_filter *filter, epan_dissect_t *edt, char *
     int counter = 0;
     for (i = 0; i < fields->fields->len; ++i) {
         if (0 != i) {
-            printf("Writing sep at %d\n", (int) i);
             output[counter++] = fields->separator;
         }
         if (NULL != fields->field_values[i]) {
@@ -494,7 +493,6 @@ static int
 marine_inner_dissect_packet(capture_file *cf, packet_filter *filter, const unsigned char *data, int len, char *output) {
     wtap_rec rec;
     Buffer buf;
-    gboolean create_proto_tree = TRUE;
     epan_dissect_t *edt = NULL;
 
     if (filter->has_bpf) {
@@ -509,7 +507,7 @@ marine_inner_dissect_packet(capture_file *cf, packet_filter *filter, const unsig
     }
 
     wtap_rec_init(&rec);
-    ws_buffer_init(&buf, 1514);
+    ws_buffer_init(&buf, 1514); // TODO support larger packets?
 
     // Copy the data into an epan buffer
     memcpy(ws_buffer_start_ptr(&buf), data, len);
@@ -530,24 +528,18 @@ marine_inner_dissect_packet(capture_file *cf, packet_filter *filter, const unsig
        printing packet details, which is true if we're printing stuff
        ("print_packet_info" is true) and we're in verbose mode
        ("packet_details" is true). */
-    edt = epan_dissect_new(cf->epan, create_proto_tree, TRUE);
+    edt = epan_dissect_new(cf->epan, TRUE, TRUE);
 
     /*
      * Force synchronous resolution of IP addresses; we're doing only
      * one pass, so we can't do it in the background and fix up past
      * dissections.
      */
-    set_resolution_synchrony(TRUE);
+    set_resolution_synchrony(TRUE); // TODO can we remove c-ares?
 
-    reset_epan_mem(cf, edt, 1, 0);
+    reset_epan_mem(cf, edt, 1, 0); // TODO configure autoreset / reset count
 
     int passed = marine_process_packet(cf, edt, filter, &buf, &rec, len, output);
-
-    /* Stop reading if we have the maximum number of packets;
-     * When the -c option has not been used, max_packet_count
-     * starts at 0, which practically means, never stop reading.
-     * (unless we roll over max_packet_count ?)
-     */
 
     if (edt)
         epan_dissect_free(edt);
@@ -562,11 +554,11 @@ marine_result* marine_dissect_packet(int filter_id, unsigned char *data, int len
     result->output = NULL;
 
     if (!packet_filter_keys[filter_id]) {
-        result->result = -1;
+        result->result = -1; // TODO export to const
     } else {
         int *key = packet_filter_keys[filter_id];
         packet_filter *filter = (packet_filter *) g_hash_table_lookup(packet_filters, key);
-        char *output = filter->output_fields == NULL ? NULL :  (char *)g_malloc0(4096); // TODO constify
+        char *output = filter->output_fields == NULL ? NULL : (char *)g_malloc0(4096); // TODO export to const
         int passed = marine_inner_dissect_packet(&cfile, filter, data, len, output);
         if (passed) {
             result->result = 1;
@@ -586,13 +578,10 @@ int marine_add_filter(char *bpf, char *dfilter, char **fields, int fields_len, c
     struct bpf_program fcode;
     dfilter_t *dfcode = NULL;
     output_fields_t *packet_output_fields = NULL;
-    int has_bpf = 0;
-
-    printf("banana21\n");
-    fflush(stdout);
+    int has_bpf = FALSE;
 
     if (bpf != NULL) {
-        has_bpf = 1;
+        has_bpf = TRUE;
         pcap_t *pc;
         pc = pcap_open_dead(DLT_EN10MB, MIN_PACKET_SIZE);
         if (pc != NULL) {
@@ -606,21 +595,17 @@ int marine_add_filter(char *bpf, char *dfilter, char **fields, int fields_len, c
     }
 
     if (dfilter != NULL) {
-        printf("Compiling %s\n", dfilter);
         if (!dfilter_compile(dfilter, &dfcode, err_msg)) {
             return -2;
         }
     }
 
     if (fields_len > 0) {
-        printf("banana22\n");
-        fflush(stdout);
         packet_output_fields = output_fields_new();
-        packet_output_fields->separator = '\t';
+        packet_output_fields->separator = '\t'; // TODO make const/configurable
         packet_output_fields->quote = '"';
 
         for (int i = 0; i < fields_len; i++) {
-            printf("Adding field %s\n", fields[i]);
             output_fields_add(packet_output_fields, fields[i]);
         }
 
@@ -638,8 +623,7 @@ int marine_add_filter(char *bpf, char *dfilter, char **fields, int fields_len, c
             return -3;
         }
     }
-    printf("banana23\n");
-    fflush(stdout);
+
     int size = g_hash_table_size(packet_filters);
     int *key = g_new0 (gint, 1);
     *key = size;
@@ -648,12 +632,8 @@ int marine_add_filter(char *bpf, char *dfilter, char **fields, int fields_len, c
     filter->fcode = fcode;
     filter->dfcode = dfcode;
     filter->output_fields = packet_output_fields;
-    printf("banana24\n");
-    fflush(stdout);
     g_hash_table_insert(packet_filters, key, filter);
     packet_filter_keys[size] = key;
-    printf("banana25\n");
-    fflush(stdout);
     return size;
 }
 
