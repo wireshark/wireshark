@@ -4592,7 +4592,9 @@ nr_rrc_call_dissector(dissector_handle_t handle, tvbuff_t *tvb, packet_info *pin
 static void
 nr_rrc_q_RxLevMin_fmt(gchar *s, guint32 v)
 {
-  g_snprintf(s, ITEM_LABEL_LENGTH, "%u dB (%u)", 2*v, v);
+  gint32 d = (gint32)v;
+
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%d dB (%d)", 2*d, d);
 }
 
 static const value_string nr_rrc_serialNumber_gs_vals[] = {
@@ -44312,7 +44314,7 @@ static int dissect_UECapabilityEnquiry_v1560_IEs_PDU(tvbuff_t *tvb _U_, packet_i
 
 
 /*--- End of included file: packet-nr-rrc-fn.c ---*/
-#line 380 "./asn1/nr-rrc/packet-nr-rrc-template.c"
+#line 382 "./asn1/nr-rrc/packet-nr-rrc-template.c"
 
 void
 proto_register_nr_rrc(void) {
@@ -56313,7 +56315,7 @@ proto_register_nr_rrc(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-nr-rrc-hfarr.c ---*/
-#line 388 "./asn1/nr-rrc/packet-nr-rrc-template.c"
+#line 390 "./asn1/nr-rrc/packet-nr-rrc-template.c"
 
     { &hf_nr_rrc_serialNumber_gs,
       { "Geographical Scope", "nr-rrc.serialNumber.gs",
@@ -57684,7 +57686,7 @@ proto_register_nr_rrc(void) {
     &ett_nr_rrc_OverheatingAssistanceConfig,
 
 /*--- End of included file: packet-nr-rrc-ettarr.c ---*/
-#line 522 "./asn1/nr-rrc/packet-nr-rrc-template.c"
+#line 524 "./asn1/nr-rrc/packet-nr-rrc-template.c"
     &ett_nr_rrc_DedicatedNAS_Message,
     &ett_rr_rrc_targetRAT_MessageContainer,
     &ett_nr_rrc_nas_Container,
@@ -57746,7 +57748,7 @@ proto_register_nr_rrc(void) {
 
 
 /*--- End of included file: packet-nr-rrc-dis-reg.c ---*/
-#line 565 "./asn1/nr-rrc/packet-nr-rrc-template.c"
+#line 567 "./asn1/nr-rrc/packet-nr-rrc-template.c"
 
   nr_rrc_etws_cmas_dcs_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(),
                                                      g_direct_hash, g_direct_equal);
