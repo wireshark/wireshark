@@ -479,27 +479,27 @@ static gchar *
 f5_ip_conv_filter(packet_info *pinfo)
 {
     gchar *buf = NULL;
-    gchar s_addr[WS_INET6_ADDRSTRLEN];
-    gchar d_addr[WS_INET6_ADDRSTRLEN];
+    gchar src_addr[WS_INET6_ADDRSTRLEN];
+    gchar dst_addr[WS_INET6_ADDRSTRLEN];
 
-    *d_addr = *s_addr = '\0';
+    *dst_addr = *src_addr = '\0';
     if (pinfo->net_src.type == AT_IPv4 && pinfo->net_dst.type == AT_IPv4) {
-        address_to_str_buf(&pinfo->src, s_addr, WS_INET6_ADDRSTRLEN);
-        address_to_str_buf(&pinfo->dst, d_addr, WS_INET6_ADDRSTRLEN);
-        if (*s_addr != '\0' && *d_addr != '\0') {
+        address_to_str_buf(&pinfo->src, src_addr, WS_INET6_ADDRSTRLEN);
+        address_to_str_buf(&pinfo->dst, dst_addr, WS_INET6_ADDRSTRLEN);
+        if (*src_addr != '\0' && *dst_addr != '\0') {
             buf = g_strdup_printf(
                 "(ip.addr eq %s and ip.addr eq %s) or"
                 " (f5ethtrailer.peeraddr eq %s and f5ethtrailer.peeraddr eq %s)",
-                s_addr, d_addr, s_addr, d_addr);
+                src_addr, dst_addr, src_addr, dst_addr);
         }
     } else if (pinfo->net_src.type == AT_IPv6 && pinfo->net_dst.type == AT_IPv6) {
-        address_to_str_buf(&pinfo->src, s_addr, WS_INET6_ADDRSTRLEN);
-        address_to_str_buf(&pinfo->dst, d_addr, WS_INET6_ADDRSTRLEN);
-        if (*s_addr != '\0' && *d_addr != '\0') {
+        address_to_str_buf(&pinfo->src, src_addr, WS_INET6_ADDRSTRLEN);
+        address_to_str_buf(&pinfo->dst, dst_addr, WS_INET6_ADDRSTRLEN);
+        if (*src_addr != '\0' && *dst_addr != '\0') {
             buf = g_strdup_printf(
                 "(ipv6.addr eq %s and ipv6.addr eq %s) or"
                 " (f5ethtrailer.peeraddr6 eq %s and f5ethtrailer.peeraddr6 eq %s)",
-                s_addr, d_addr, s_addr, d_addr);
+                src_addr, dst_addr, src_addr, dst_addr);
         }
     }
     return buf;
@@ -534,33 +534,33 @@ static gchar *
 f5_tcp_conv_filter(packet_info *pinfo)
 {
     gchar *buf = NULL;
-    gchar s_addr[WS_INET6_ADDRSTRLEN];
-    gchar d_addr[WS_INET6_ADDRSTRLEN];
+    gchar src_addr[WS_INET6_ADDRSTRLEN];
+    gchar dst_addr[WS_INET6_ADDRSTRLEN];
 
-    *d_addr = *s_addr = '\0';
+    *dst_addr = *src_addr = '\0';
     if (pinfo->net_src.type == AT_IPv4 && pinfo->net_dst.type == AT_IPv4) {
-        address_to_str_buf(&pinfo->src, s_addr, WS_INET6_ADDRSTRLEN);
-        address_to_str_buf(&pinfo->dst, d_addr, WS_INET6_ADDRSTRLEN);
-        if (*s_addr != '\0' && *d_addr != '\0') {
+        address_to_str_buf(&pinfo->src, src_addr, WS_INET6_ADDRSTRLEN);
+        address_to_str_buf(&pinfo->dst, dst_addr, WS_INET6_ADDRSTRLEN);
+        if (*src_addr != '\0' && *dst_addr != '\0') {
             buf = g_strdup_printf(
                 "(ip.addr eq %s and ip.addr eq %s and tcp.port eq %d and tcp.port eq %d) or"
                 " (f5ethtrailer.peeraddr eq %s and f5ethtrailer.peeraddr eq %s and"
                 " f5ethtrailer.peerport eq %d and f5ethtrailer.peerport eq %d and"
                 " (f5ethtrailer.peeripproto eq 6 or (f5ethtrailer.peeripproto eq 0 and tcp)))",
-                s_addr, d_addr, pinfo->srcport, pinfo->destport,
-                s_addr, d_addr, pinfo->srcport, pinfo->destport);
+                src_addr, dst_addr, pinfo->srcport, pinfo->destport,
+                src_addr, dst_addr, pinfo->srcport, pinfo->destport);
         }
     } else if (pinfo->net_src.type == AT_IPv6 && pinfo->net_dst.type == AT_IPv6) {
-        address_to_str_buf(&pinfo->src, s_addr, WS_INET6_ADDRSTRLEN);
-        address_to_str_buf(&pinfo->dst, d_addr, WS_INET6_ADDRSTRLEN);
-        if (*s_addr != '\0' && *d_addr != '\0') {
+        address_to_str_buf(&pinfo->src, src_addr, WS_INET6_ADDRSTRLEN);
+        address_to_str_buf(&pinfo->dst, dst_addr, WS_INET6_ADDRSTRLEN);
+        if (*src_addr != '\0' && *dst_addr != '\0') {
             buf = g_strdup_printf(
                 "(ipv6.addr eq %s and ipv6.addr eq %s and tcp.port eq %d and tcp.port eq %d) or"
                 " (f5ethtrailer.peeraddr6 eq %s and f5ethtrailer.peeraddr6 eq %s and"
                 " f5ethtrailer.peerport eq %d and f5ethtrailer.peerport eq %d and"
                 " (f5ethtrailer.peeripproto eq 6 or (f5ethtrailer.peeripproto eq 0 and tcp)))",
-                s_addr, d_addr, pinfo->srcport, pinfo->destport,
-                s_addr, d_addr, pinfo->srcport, pinfo->destport);
+                src_addr, dst_addr, pinfo->srcport, pinfo->destport,
+                src_addr, dst_addr, pinfo->srcport, pinfo->destport);
         }
     }
     return buf;
@@ -594,33 +594,33 @@ static gchar *
 f5_udp_conv_filter(packet_info *pinfo)
 {
     gchar *buf = NULL;
-    gchar s_addr[WS_INET6_ADDRSTRLEN];
-    gchar d_addr[WS_INET6_ADDRSTRLEN];
+    gchar src_addr[WS_INET6_ADDRSTRLEN];
+    gchar dst_addr[WS_INET6_ADDRSTRLEN];
 
-    *d_addr = *s_addr = '\0';
+    *dst_addr = *src_addr = '\0';
     if (pinfo->net_src.type == AT_IPv4 && pinfo->net_dst.type == AT_IPv4) {
-        address_to_str_buf(&pinfo->src, s_addr, WS_INET6_ADDRSTRLEN);
-        address_to_str_buf(&pinfo->dst, d_addr, WS_INET6_ADDRSTRLEN);
-        if (*s_addr != '\0' && *d_addr != '\0') {
+        address_to_str_buf(&pinfo->src, src_addr, WS_INET6_ADDRSTRLEN);
+        address_to_str_buf(&pinfo->dst, dst_addr, WS_INET6_ADDRSTRLEN);
+        if (*src_addr != '\0' && *dst_addr != '\0') {
             buf = g_strdup_printf(
                 "(ip.addr eq %s and ip.addr eq %s and udp.port eq %d and udp.port eq %d) or"
                 " (f5ethtrailer.peeraddr eq %s and f5ethtrailer.peeraddr eq %s and"
                 " f5ethtrailer.peerport eq %d and f5ethtrailer.peerport eq %d and"
                 " (f5ethtrailer.peeripproto eq 17 or (f5ethtrailer.peeripproto eq 0 and udp)))",
-                s_addr, d_addr, pinfo->srcport, pinfo->destport,
-                s_addr, d_addr, pinfo->srcport, pinfo->destport);
+                src_addr, dst_addr, pinfo->srcport, pinfo->destport,
+                src_addr, dst_addr, pinfo->srcport, pinfo->destport);
         }
     } else if (pinfo->net_src.type == AT_IPv6 && pinfo->net_dst.type == AT_IPv6) {
-        address_to_str_buf(&pinfo->src, s_addr, WS_INET6_ADDRSTRLEN);
-        address_to_str_buf(&pinfo->dst, d_addr, WS_INET6_ADDRSTRLEN);
-        if (*s_addr != '\0' && *d_addr != '\0') {
+        address_to_str_buf(&pinfo->src, src_addr, WS_INET6_ADDRSTRLEN);
+        address_to_str_buf(&pinfo->dst, dst_addr, WS_INET6_ADDRSTRLEN);
+        if (*src_addr != '\0' && *dst_addr != '\0') {
             buf = g_strdup_printf(
                 "(ipv6.addr eq %s and ipv6.addr eq %s and udp.port eq %d and udp.port eq %d) or"
                 " (f5ethtrailer.peeraddr6 eq %s and f5ethtrailer.peeraddr6 eq %s and"
                 " f5ethtrailer.peerport eq %d and f5ethtrailer.peerport eq %d and"
                 " (f5ethtrailer.peeripproto eq 17 or (f5ethtrailer.peeripproto eq 0 and udp)))",
-                s_addr, d_addr, pinfo->srcport, pinfo->destport,
-                s_addr, d_addr, pinfo->srcport, pinfo->destport);
+                src_addr, dst_addr, pinfo->srcport, pinfo->destport,
+                src_addr, dst_addr, pinfo->srcport, pinfo->destport);
         }
     }
     return buf;
