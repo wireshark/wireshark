@@ -314,14 +314,18 @@ static int ett_nas_5gs_ursp_traff_desc = -1;
 static int ett_nas_5gs_ursp_r_sel_desc_cont = -1;
 static int ett_nas_5gs_updp_upsi_list = -1;
 static int ett_nas_5gs_mm_rej_nssai = -1;
+static int ett_nas_5gs_mm_scheme_output = -1;
 
 static int hf_nas_5gs_mm_abba = -1;
 static int hf_nas_5gs_mm_supi_fmt = -1;
 static int hf_nas_5gs_mm_routing_indicator = -1;
 static int hf_nas_5gs_mm_prot_scheme_id = -1;
 static int hf_nas_5gs_mm_pki = -1;
-static int hf_nas_5gs_mm_supi_null_scheme = -1;
+static int hf_nas_5gs_mm_suci_msin = -1;
 static int hf_nas_5gs_mm_scheme_output = -1;
+static int hf_nas_5gs_mm_scheme_output_ecc_public_key = -1;
+static int hf_nas_5gs_mm_scheme_output_ciphertext = -1;
+static int hf_nas_5gs_mm_scheme_output_mac_tag = -1;
 static int hf_nas_5gs_mm_suci_nai = -1;
 static int hf_nas_5gs_mm_imei = -1;
 static int hf_nas_5gs_mm_imeisv = -1;
@@ -741,11 +745,25 @@ de_nas_5gs_mm_5gs_mobile_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
             offset += 1;
             /* Scheme output octet 12-x */
             if (scheme_id == 0) {
-              new_tvb = tvb_new_subset_length(tvb, offset, len - 8);
-              digit_str = tvb_bcd_dig_to_wmem_packet_str(new_tvb, 0, -1, NULL, FALSE);
-              proto_tree_add_string(tree, hf_nas_5gs_mm_supi_null_scheme, new_tvb, 0, -1, digit_str);
+                new_tvb = tvb_new_subset_length(tvb, offset, len - 8);
+                digit_str = tvb_bcd_dig_to_wmem_packet_str(new_tvb, 0, -1, NULL, FALSE);
+                proto_tree_add_string(tree, hf_nas_5gs_mm_suci_msin, new_tvb, 0, -1, digit_str);
             } else {
-              proto_tree_add_item(tree, hf_nas_5gs_mm_scheme_output, tvb, offset, len - 8, ENC_NA);
+                proto_item *pi = proto_tree_add_item(tree, hf_nas_5gs_mm_scheme_output, tvb, offset, len - 8, ENC_NA);
+                if ((scheme_id == 1 && len >= 49) || (scheme_id == 2 && len >= 50)) {
+                    guint32 public_key_len;
+                    proto_tree *subtree = proto_item_add_subtree(pi, ett_nas_5gs_mm_scheme_output);
+                    if (scheme_id == 1) {
+                        public_key_len = 32;
+                    } else {
+                        public_key_len = 33;
+                    }
+                    proto_tree_add_item(subtree, hf_nas_5gs_mm_scheme_output_ecc_public_key, tvb, offset, public_key_len, ENC_NA);
+                    offset += public_key_len;
+                    proto_tree_add_item(subtree, hf_nas_5gs_mm_scheme_output_ciphertext, tvb, offset, len - public_key_len - 16, ENC_NA);
+                    offset += len - public_key_len - 16;
+                    proto_tree_add_item(subtree, hf_nas_5gs_mm_scheme_output_mac_tag, tvb, offset, 8, ENC_BIG_ENDIAN);
+                }
             }
         } else if (supi_fmt == 1) {
             /* NAI */
@@ -8022,14 +8040,29 @@ proto_register_nas_5gs(void)
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_nas_5gs_mm_supi_null_scheme,
-        { "Scheme output", "nas_5gs.mm.suci.supi_null_scheme",
+        { &hf_nas_5gs_mm_suci_msin,
+        { "MSIN", "nas_5gs.mm.suci.msin",
             FT_STRING, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
         { &hf_nas_5gs_mm_scheme_output,
         { "Scheme output", "nas_5gs.mm.suci.scheme_output",
             FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_scheme_output_ecc_public_key,
+        { "ECC ephemeral public key", "nas_5gs.mm.suci.scheme_output.ecc_public_key",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_scheme_output_ciphertext,
+        { "Ciphertext", "nas_5gs.mm.suci.scheme_output.ciphertext",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_scheme_output_mac_tag,
+        { "MAC tag", "nas_5gs.mm.suci.scheme_output.mac_tag",
+            FT_UINT64, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_nas_5gs_mm_suci_nai,
@@ -8527,7 +8560,7 @@ proto_register_nas_5gs(void)
     guint     last_offset;
 
     /* Setup protocol subtree array */
-#define NUM_INDIVIDUAL_ELEMS    22
+#define NUM_INDIVIDUAL_ELEMS    23
     gint *ett[NUM_INDIVIDUAL_ELEMS +
         NUM_NAS_5GS_COMMON_ELEM +
         NUM_NAS_5GS_MM_MSG + NUM_NAS_5GS_MM_ELEM +
@@ -8557,6 +8590,7 @@ proto_register_nas_5gs(void)
     ett[19] = &ett_nas_5gs_ursp_r_sel_desc_cont;
     ett[20] = &ett_nas_5gs_updp_upsi_list;
     ett[21] = &ett_nas_5gs_mm_rej_nssai;
+    ett[22] = &ett_nas_5gs_mm_scheme_output;
 
     last_offset = NUM_INDIVIDUAL_ELEMS;
 
