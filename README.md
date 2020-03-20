@@ -13,6 +13,9 @@ For example, a streaming application can filter and parse every packet it receiv
 libwireshark has a close-knit relationship with the filesystem; almost every internal struct is affected by and tied to the IO methods. 
 Marine "fakes" many of these relationships with the filesystem, to allow a simple input of byte array and output as a struct to the memory. Using various clients (under my profile), you can use these features to parse and filter packets as you wish.
 
+## Clients
+[Python Client](https://github.com/tomlegkov/marine-python)
+
 ## Installation
 Clone the repository under the "marine" branch, and compile it as you would compile Wireshark normally (make sure you have libpcap-dev installed). 
 After the compilation you'll receive libmarine.so which you can then load using your favorite language. 
@@ -29,12 +32,12 @@ The usage is described in C, however it can be applied to any language that will
     
     The result is a filter id (id >= 0). If the id is smaller than 0, it's an error (bad filter / bad output fields).
     ```c
-    char *err_msg;
+    char err_msg[512];
     char *fields[] = {"ip.src", "frame.number"}; // If you don't want fields set it to NULL and pass 0 instead of 2
-    int filter_id = marine_add_filter("a bpf or NULL", "a display filter or NULL", fields, 2, &err_msg);
+    int filter_id = marine_add_filter("a bpf or NULL", "a display filter or NULL", fields, 2, err_msg);
     ```
    
-    Possible errors (`err_msg` will be filled with an error message, so make sure you free it too):
+    Possible errors (`err_msg` will be filled with an error message):
     
     | Value         | Condition     |
     | ------------- |:-------------:|
