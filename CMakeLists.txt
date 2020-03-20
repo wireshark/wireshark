@@ -3218,6 +3218,7 @@ endif()
 install(
 	FILES
 		${CMAKE_MODULE_PATH}/FindGLIB2.cmake
+		${CMAKE_MODULE_PATH}/FindWSLibrary.cmake
 		${CMAKE_MODULE_PATH}/FindWSWinLibs.cmake
 		${CMAKE_MODULE_PATH}/UseAsn2Wrs.cmake
 		${CMAKE_MODULE_PATH}/LocatePythonModule.cmake
