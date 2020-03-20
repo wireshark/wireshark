@@ -3,7 +3,7 @@ task:
   freebsd_instance:
     matrix:
       - image_family: freebsd-13-0-snap
-      - image_family: freebsd-12-0
+      - image_family: freebsd-12-1
       - image_family: freebsd-11-3-snap
   env:
     ASSUME_ALWAYS_YES: YES
