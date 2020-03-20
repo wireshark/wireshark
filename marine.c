@@ -11,6 +11,8 @@
  */
 
 // TODO remove unused imports
+// TODO remove Windows ifdefs, we're not going to support Windows for now.
+// TODO find a good way to write tests for performance, accuracy and memory leaks in the C code.
 
 #include <config.h>
 
@@ -39,7 +41,9 @@
 #endif
 
 #ifndef HAVE_GETOPT_LONG
+
 #include "wsutil/wsgetopt.h"
+
 #endif
 
 #include <glib.h>
@@ -176,8 +180,8 @@ static frame_data ref_frame;
 static frame_data prev_dis_frame;
 static frame_data prev_cap_frame;
 
-static guint32 epan_auto_reset_count = 0;
-static gboolean epan_auto_reset = FALSE;
+static guint32 epan_auto_reset_count = 20000; // TODO make this configurable
+static gboolean epan_auto_reset = TRUE;
 
 /*
  * The way the packet decode is to be written.
@@ -349,7 +353,7 @@ marine_write_specified_fields(packet_filter *filter, epan_dissect_t *edt, char *
     /*   time (each packet) this function is invoked for a flle. */
     /* XXX: ToDo: use packet-scope'd memory & (if/when implemented) wmem ptr_array */
     if (NULL == fields->field_values)
-        fields->field_values = g_new0(GPtrArray*, fields->fields->len);  /* free'd in output_fields_free() */
+        fields->field_values = g_new0(GPtrArray * , fields->fields->len);  /* free'd in output_fields_free() */
 
     proto_tree_children_foreach(edt->tree, proto_tree_get_node_field_values, &data);
 
@@ -498,7 +502,7 @@ marine_inner_dissect_packet(capture_file *cf, packet_filter *filter, const unsig
     epan_dissect_t *edt = NULL;
 
     if (filter->has_bpf) {
-        struct pcap_pkthdr *hdr = (struct pcap_pkthdr*) malloc(sizeof(struct pcap_pkthdr));
+        struct pcap_pkthdr *hdr = (struct pcap_pkthdr *) malloc(sizeof(struct pcap_pkthdr));
         hdr->len = len;
         hdr->caplen = len;
         if (!pcap_offline_filter(&filter->fcode, hdr, data)) {
@@ -537,9 +541,9 @@ marine_inner_dissect_packet(capture_file *cf, packet_filter *filter, const unsig
      * one pass, so we can't do it in the background and fix up past
      * dissections.
      */
-    set_resolution_synchrony(TRUE); // TODO can we remove c-ares?
+    //set_resolution_synchrony(TRUE); // TODO can we remove c-ares?
 
-    reset_epan_mem(cf, edt, 1, 0); // TODO configure autoreset / reset count
+    reset_epan_mem(cf, edt, 1, 1);
 
     int passed = marine_process_packet(cf, edt, filter, &buf, &rec, len, output);
 
@@ -551,8 +555,8 @@ marine_inner_dissect_packet(capture_file *cf, packet_filter *filter, const unsig
     return passed;
 }
 
-WS_DLL_PUBLIC marine_result* marine_dissect_packet(int filter_id, unsigned char *data, int len) {
-    marine_result* result = (marine_result *) malloc(sizeof(marine_result));
+WS_DLL_PUBLIC marine_result *marine_dissect_packet(int filter_id, unsigned char *data, int len) {
+    marine_result *result = (marine_result *) malloc(sizeof(marine_result));
     result->output = NULL;
 
     if (!packet_filter_keys[filter_id]) {
@@ -560,7 +564,7 @@ WS_DLL_PUBLIC marine_result* marine_dissect_packet(int filter_id, unsigned char 
     } else {
         int *key = packet_filter_keys[filter_id];
         packet_filter *filter = (packet_filter *) g_hash_table_lookup(packet_filters, key);
-        char *output = filter->output_fields == NULL ? NULL : (char *)g_malloc0(4096); // TODO export to const
+        char *output = filter->output_fields == NULL ? NULL : (char *) g_malloc0(4096); // TODO export to const
         int passed = marine_inner_dissect_packet(&cfile, filter, data, len, output);
         if (passed) {
             result->result = 1;
@@ -582,29 +586,29 @@ WS_DLL_PUBLIC int marine_add_filter(char *bpf, char *dfilter, char **fields, int
     output_fields_t *packet_output_fields = NULL;
     int has_bpf = FALSE;
 
-    if (bpf != NULL) {
+    if (bpf != NULL) { // TODO add a function to validate bpfs
         has_bpf = TRUE;
         pcap_t *pc;
         pc = pcap_open_dead(DLT_EN10MB, MIN_PACKET_SIZE);
         if (pc != NULL) {
             if (pcap_compile(pc, &fcode, bpf, 0, 0) == -1) {
                 strcpy(err_msg, "Failed compiling the BPF");
-		        pcap_close(pc);
+                pcap_close(pc);
                 return -1;
             }
             pcap_close(pc);
         }
     }
 
-    if (dfilter != NULL) {
-	    char *dfilter_err_msg;
+    if (dfilter != NULL) { // TODO add a function to validate display filters
+        char *dfilter_err_msg;
         if (!dfilter_compile(dfilter, &dfcode, &dfilter_err_msg)) {
-		    strcpy(err_msg, dfilter_err_msg);
+            strcpy(err_msg, dfilter_err_msg);
             return -2;
         }
     }
 
-    if (fields_len > 0) {
+    if (fields_len > 0) { // TODO add a function to validate output fields
         packet_output_fields = output_fields_new();
         packet_output_fields->separator = '\t'; // TODO make const/configurable
         packet_output_fields->quote = '"';
@@ -628,7 +632,7 @@ WS_DLL_PUBLIC int marine_add_filter(char *bpf, char *dfilter, char **fields, int
     }
 
     int size = g_hash_table_size(packet_filters);
-    int *key = g_new0 (gint, 1);
+    int *key = g_new0(gint, 1);
     *key = size;
     packet_filter *filter = (packet_filter *) malloc(sizeof(packet_filter));
     filter->has_bpf = has_bpf;
@@ -849,7 +853,7 @@ static void reset_epan_mem(capture_file *cf, epan_dissect_t *edt, gboolean tree,
     if (!epan_auto_reset || (cf->count < epan_auto_reset_count))
         return;
 
-    fprintf(stderr, "resetting session.\n");
+    //fprintf(stderr, "resetting session.\n");
 
     epan_dissect_cleanup(edt);
     epan_free(cf->epan);
