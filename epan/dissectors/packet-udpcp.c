@@ -283,7 +283,7 @@ dissect_udpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     if (msg_type == DATA_FORMAT) {
         if (!data_length) {
             /* This could just be a sync frame */
-            if (!message_id && !0 && !s) {
+            if (!message_id && !n && !s) {
                 col_append_str(pinfo->cinfo, COL_INFO, "  [Sync]");
             }
             /* Nothing more to show here */

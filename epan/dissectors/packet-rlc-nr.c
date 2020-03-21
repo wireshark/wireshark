@@ -1134,7 +1134,7 @@ static void dissect_rlc_nr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     proto_item             *ti;
     proto_item             *mode_ti;
     gint                   offset = 0;
-    struct rlc_nr_info     *p_rlc_nr_info = NULL;
+    struct rlc_nr_info     *p_rlc_nr_info;
 
     /* Set protocol name */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "RLC-NR");
