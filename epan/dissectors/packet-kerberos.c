@@ -3006,7 +3006,7 @@ static const value_string kerberos_ENCTYPE_vals[] = {
 static int
 dissect_kerberos_ENCTYPE(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 286 "./asn1/kerberos/kerberos.cnf"
-	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+  kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &(private_data->etype));
 
@@ -3032,13 +3032,13 @@ static int
 dissect_kerberos_T_encryptedTicketData_cipher(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 290 "./asn1/kerberos/kerberos.cnf"
 #ifdef HAVE_KERBEROS
-	offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_index, dissect_krb5_decrypt_ticket_data);
+  offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_index, dissect_krb5_decrypt_ticket_data);
 #else
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
 #endif
-	return offset;
+  return offset;
 
 
 
@@ -3159,7 +3159,7 @@ static const value_string kerberos_CKSUMTYPE_vals[] = {
 static int
 dissect_kerberos_CKSUMTYPE(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 355 "./asn1/kerberos/kerberos.cnf"
-	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+  kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &(private_data->checksum_type));
 
@@ -3174,18 +3174,18 @@ dissect_kerberos_CKSUMTYPE(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 static int
 dissect_kerberos_T_checksum(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 359 "./asn1/kerberos/kerberos.cnf"
-	tvbuff_t *next_tvb;
-	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+  tvbuff_t *next_tvb;
+  kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
 
-	switch(private_data->checksum_type){
-	case KRB5_CHKSUM_GSSAPI:
-		offset=dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_index, &next_tvb);
-		dissect_krb5_rfc1964_checksum(actx, tree, next_tvb);
-		break;
-	default:
-		offset=dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_index, NULL);
-	}
-	return offset;
+  switch(private_data->checksum_type){
+  case KRB5_CHKSUM_GSSAPI:
+    offset=dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_index, &next_tvb);
+    dissect_krb5_rfc1964_checksum(actx, tree, next_tvb);
+    break;
+  default:
+    offset=dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_index, NULL);
+  }
+  return offset;
 
 
 
@@ -3241,11 +3241,11 @@ dissect_kerberos_Int32(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 static int
 dissect_kerberos_T_keytype(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 373 "./asn1/kerberos/kerberos.cnf"
-	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+  kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
 
-	offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-									&gbl_keytype);
-	private_data->key.keytype = gbl_keytype;
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                  &gbl_keytype);
+  private_data->key.keytype = gbl_keytype;
 
 
 
@@ -3257,15 +3257,15 @@ dissect_kerberos_T_keytype(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 static int
 dissect_kerberos_T_keyvalue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 380 "./asn1/kerberos/kerberos.cnf"
-	tvbuff_t *out_tvb;
-	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+  tvbuff_t *out_tvb;
+  kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &out_tvb);
 
 
-	private_data->key.keylength = tvb_reported_length(out_tvb);
-	private_data->key.keyvalue = tvb_get_ptr(out_tvb, 0, private_data->key.keylength);
+  private_data->key.keylength = tvb_reported_length(out_tvb);
+  private_data->key.keyvalue = tvb_get_ptr(out_tvb, 0, private_data->key.keylength);
 
 
 
@@ -3282,17 +3282,17 @@ static const ber_sequence_t EncryptionKey_sequence[] = {
 static int
 dissect_kerberos_EncryptionKey(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 389 "./asn1/kerberos/kerberos.cnf"
-	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+  kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
 
-	  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+    offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    EncryptionKey_sequence, hf_index, ett_kerberos_EncryptionKey);
 
 
-	if (private_data->key.keytype != 0 && private_data->key.keylength > 0) {
+  if (private_data->key.keytype != 0 && private_data->key.keylength > 0) {
 #ifdef HAVE_KERBEROS
-		add_encryption_key(actx->pinfo, private_data->key.keytype, private_data->key.keylength, private_data->key.keyvalue, "key");
+    add_encryption_key(actx->pinfo, private_data->key.keytype, private_data->key.keylength, private_data->key.keyvalue, "key");
 #endif
-	}
+  }
 
 
 
@@ -3331,7 +3331,7 @@ static const value_string kerberos_AUTHDATA_TYPE_vals[] = {
 static int
 dissect_kerberos_AUTHDATA_TYPE(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 400 "./asn1/kerberos/kerberos.cnf"
-	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+  kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &(private_data->ad_type));
 
@@ -3346,30 +3346,30 @@ dissect_kerberos_AUTHDATA_TYPE(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 static int
 dissect_kerberos_T_ad_data(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 404 "./asn1/kerberos/kerberos.cnf"
-	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+  kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
 
-	switch(private_data->ad_type){
-	case KERBEROS_AD_WIN2K_PAC:
-		offset=dissect_ber_octet_string_wcb(implicit_tag, actx, tree, tvb, offset, hf_index, dissect_krb5_AD_WIN2K_PAC);
-		break;
-	case KERBEROS_AD_IF_RELEVANT:
-		offset=dissect_ber_octet_string_wcb(implicit_tag, actx, tree, tvb, offset, hf_index, dissect_kerberos_AD_IF_RELEVANT);
-		break;
-	case KERBEROS_AD_GSS_API_ETYPE_NEGOTIATION:
-		offset=dissect_ber_octet_string_wcb(implicit_tag, actx, tree, tvb, offset, hf_index, dissect_kerberos_SEQUENCE_OF_ENCTYPE);
-		break;
-	case KERBEROS_AD_TOKEN_RESTRICTIONS:
-		offset=dissect_ber_octet_string_wcb(implicit_tag, actx, tree, tvb, offset, hf_index, dissect_kerberos_KERB_AD_RESTRICTION_ENTRY);
-		break;
-	case KERBEROS_AD_AP_OPTIONS:
-		offset=dissect_ber_octet_string_wcb(implicit_tag, actx, tree, tvb, offset, hf_index, dissect_kerberos_AD_AP_OPTIONS);
-		break;
-	case KERBEROS_AD_TARGET_PRINCIPAL:
-		offset=dissect_ber_octet_string_wcb(implicit_tag, actx, tree, tvb, offset, hf_index, dissect_kerberos_AD_TARGET_PRINCIPAL);
-		break;
-	default:
-		offset=dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
-	}
+  switch(private_data->ad_type){
+  case KERBEROS_AD_WIN2K_PAC:
+    offset=dissect_ber_octet_string_wcb(implicit_tag, actx, tree, tvb, offset, hf_index, dissect_krb5_AD_WIN2K_PAC);
+    break;
+  case KERBEROS_AD_IF_RELEVANT:
+    offset=dissect_ber_octet_string_wcb(implicit_tag, actx, tree, tvb, offset, hf_index, dissect_kerberos_AD_IF_RELEVANT);
+    break;
+  case KERBEROS_AD_GSS_API_ETYPE_NEGOTIATION:
+    offset=dissect_ber_octet_string_wcb(implicit_tag, actx, tree, tvb, offset, hf_index, dissect_kerberos_SEQUENCE_OF_ENCTYPE);
+    break;
+  case KERBEROS_AD_TOKEN_RESTRICTIONS:
+    offset=dissect_ber_octet_string_wcb(implicit_tag, actx, tree, tvb, offset, hf_index, dissect_kerberos_KERB_AD_RESTRICTION_ENTRY);
+    break;
+  case KERBEROS_AD_AP_OPTIONS:
+    offset=dissect_ber_octet_string_wcb(implicit_tag, actx, tree, tvb, offset, hf_index, dissect_kerberos_AD_AP_OPTIONS);
+    break;
+  case KERBEROS_AD_TARGET_PRINCIPAL:
+    offset=dissect_ber_octet_string_wcb(implicit_tag, actx, tree, tvb, offset, hf_index, dissect_kerberos_AD_TARGET_PRINCIPAL);
+    break;
+  default:
+    offset=dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
+  }
 
 
 
@@ -3509,7 +3509,7 @@ static const value_string kerberos_ADDR_TYPE_vals[] = {
 static int
 dissect_kerberos_ADDR_TYPE(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 433 "./asn1/kerberos/kerberos.cnf"
-	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+  kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &(private_data->addr_type));
 
@@ -3524,51 +3524,51 @@ dissect_kerberos_ADDR_TYPE(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 static int
 dissect_kerberos_T_address(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 235 "./asn1/kerberos/kerberos.cnf"
-	gint8 appclass;
-	gboolean pc;
-	gint32 tag;
-	guint32 len;
-	const char *address_str;
-	proto_item *it=NULL;
-	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+  gint8 appclass;
+  gboolean pc;
+  gint32 tag;
+  guint32 len;
+  const char *address_str;
+  proto_item *it=NULL;
+  kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
 
-	/* read header and len for the octet string */
-	offset=dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &appclass, &pc, &tag);
-	offset=dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, NULL);
+  /* read header and len for the octet string */
+  offset=dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &appclass, &pc, &tag);
+  offset=dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, NULL);
 
-	switch(private_data->addr_type){
-	case KERBEROS_ADDR_TYPE_IPV4:
-		it=proto_tree_add_item(tree, hf_krb_address_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
-		address_str = tvb_ip_to_str(tvb, offset);
-		break;
-	case KERBEROS_ADDR_TYPE_NETBIOS:
-		{
-		char netbios_name[(NETBIOS_NAME_LEN - 1)*4 + 1];
-		int netbios_name_type;
-		int netbios_name_len = (NETBIOS_NAME_LEN - 1)*4 + 1;
+  switch(private_data->addr_type){
+  case KERBEROS_ADDR_TYPE_IPV4:
+    it=proto_tree_add_item(tree, hf_krb_address_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
+    address_str = tvb_ip_to_str(tvb, offset);
+    break;
+  case KERBEROS_ADDR_TYPE_NETBIOS:
+    {
+    char netbios_name[(NETBIOS_NAME_LEN - 1)*4 + 1];
+    int netbios_name_type;
+    int netbios_name_len = (NETBIOS_NAME_LEN - 1)*4 + 1;
 
-		netbios_name_type = process_netbios_name(tvb_get_ptr(tvb, offset, 16), netbios_name, netbios_name_len);
-		address_str = wmem_strdup_printf(wmem_packet_scope(), "%s<%02x>", netbios_name, netbios_name_type);
-		it=proto_tree_add_string_format(tree, hf_krb_address_netbios, tvb, offset, 16, netbios_name, "NetBIOS Name: %s (%s)", address_str, netbios_name_type_descr(netbios_name_type));
-		}
-		break;
-	case KERBEROS_ADDR_TYPE_IPV6:
-		it=proto_tree_add_item(tree, hf_krb_address_ipv6, tvb, offset, INET6_ADDRLEN, ENC_NA);
-		address_str = tvb_ip6_to_str(tvb, offset);
-		break;
-	default:
-		proto_tree_add_expert(tree, actx->pinfo, &ei_kerberos_address, tvb, offset, len);
-		address_str = NULL;
-	}
+    netbios_name_type = process_netbios_name(tvb_get_ptr(tvb, offset, 16), netbios_name, netbios_name_len);
+    address_str = wmem_strdup_printf(wmem_packet_scope(), "%s<%02x>", netbios_name, netbios_name_type);
+    it=proto_tree_add_string_format(tree, hf_krb_address_netbios, tvb, offset, 16, netbios_name, "NetBIOS Name: %s (%s)", address_str, netbios_name_type_descr(netbios_name_type));
+    }
+    break;
+  case KERBEROS_ADDR_TYPE_IPV6:
+    it=proto_tree_add_item(tree, hf_krb_address_ipv6, tvb, offset, INET6_ADDRLEN, ENC_NA);
+    address_str = tvb_ip6_to_str(tvb, offset);
+    break;
+  default:
+    proto_tree_add_expert(tree, actx->pinfo, &ei_kerberos_address, tvb, offset, len);
+    address_str = NULL;
+  }
 
-	/* push it up two levels in the decode pane */
-	if(it && address_str){
-		proto_item_append_text(proto_item_get_parent(it), " %s",address_str);
-		proto_item_append_text(proto_item_get_parent_nth(it, 2), " %s",address_str);
-	}
+  /* push it up two levels in the decode pane */
+  if(it && address_str){
+    proto_item_append_text(proto_item_get_parent(it), " %s",address_str);
+    proto_item_append_text(proto_item_get_parent_nth(it, 2), " %s",address_str);
+  }
 
-	offset+=len;
-	return offset;
+  offset+=len;
+  return offset;
 
 
 
@@ -3657,8 +3657,8 @@ static const value_string kerberos_MESSAGE_TYPE_vals[] = {
 static int
 dissect_kerberos_MESSAGE_TYPE(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 77 "./asn1/kerberos/kerberos.cnf"
-	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
-	guint32 msgtype;
+  kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+  guint32 msgtype;
 
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &msgtype);
@@ -3667,20 +3667,20 @@ dissect_kerberos_MESSAGE_TYPE(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 
 #line 83 "./asn1/kerberos/kerberos.cnf"
-	if (gbl_do_col_info) {
-		col_add_str(actx->pinfo->cinfo, COL_INFO,
-			val_to_str(msgtype, krb5_msg_types,
-			"Unknown msg type %#x"));
-	}
-	gbl_do_col_info=FALSE;
+  if (gbl_do_col_info) {
+    col_add_str(actx->pinfo->cinfo, COL_INFO,
+      val_to_str(msgtype, krb5_msg_types,
+      "Unknown msg type %#x"));
+  }
+  gbl_do_col_info=FALSE;
 
 #if 0
-	/* append the application type to the tree */
-	proto_item_append_text(tree, " %s", val_to_str(msgtype, krb5_msg_types, "Unknown:0x%x"));
+  /* append the application type to the tree */
+  proto_item_append_text(tree, " %s", val_to_str(msgtype, krb5_msg_types, "Unknown:0x%x"));
 #endif
-	if (private_data->msg_type == 0) {
-		private_data->msg_type = msgtype;
-	}
+  if (private_data->msg_type == 0) {
+    private_data->msg_type = msgtype;
+  }
 
 
   return offset;
@@ -3759,18 +3759,18 @@ static const value_string kerberos_PADATA_TYPE_vals[] = {
 static int
 dissect_kerberos_PADATA_TYPE(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 143 "./asn1/kerberos/kerberos.cnf"
-	kerberos_private_data_t* private_data = kerberos_get_private_data(actx);
+  kerberos_private_data_t* private_data = kerberos_get_private_data(actx);
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &(private_data->padata_type));
 
 
 
 #line 146 "./asn1/kerberos/kerberos.cnf"
-	if(tree){
-		proto_item_append_text(tree, " %s",
-			val_to_str(private_data->padata_type, kerberos_PADATA_TYPE_vals,
-			"Unknown:%d"));
-	}
+  if(tree){
+    proto_item_append_text(tree, " %s",
+      val_to_str(private_data->padata_type, kerberos_PADATA_TYPE_vals,
+      "Unknown:%d"));
+  }
 
 
   return offset;
@@ -3781,86 +3781,86 @@ dissect_kerberos_PADATA_TYPE(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 static int
 dissect_kerberos_T_padata_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 153 "./asn1/kerberos/kerberos.cnf"
-	proto_tree *sub_tree=tree;
-	kerberos_private_data_t* private_data = kerberos_get_private_data(actx);
+  proto_tree *sub_tree=tree;
+  kerberos_private_data_t* private_data = kerberos_get_private_data(actx);
 
-	if(actx->created_item){
-		sub_tree=proto_item_add_subtree(actx->created_item, ett_kerberos_PA_DATA);
-	}
+  if(actx->created_item){
+    sub_tree=proto_item_add_subtree(actx->created_item, ett_kerberos_PA_DATA);
+  }
 
-	switch(private_data->padata_type){
-	case KERBEROS_PA_TGS_REQ:
-		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_Applications);
-		break;
-	case KERBEROS_PA_PK_AS_REP_19:
-		private_data->is_win2k_pkinit = TRUE;
-		if (kerberos_private_is_kdc_req(private_data)) {
-			offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_pkinit_PA_PK_AS_REQ_Win2k);
-		} else {
-			offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_pkinit_PA_PK_AS_REP_Win2k);
-		}
-		break;
-	case KERBEROS_PA_PK_AS_REQ:
-		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_pkinit_PaPkAsReq);
-		break;
-	case KERBEROS_PA_PK_AS_REP:
-		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_pkinit_PaPkAsRep);
-		break;
-	case KERBEROS_PA_PAC_REQUEST:
-		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_PA_PAC_REQUEST);
-		break;
-	case KERBEROS_PA_FOR_USER: /* S4U2SELF */
-		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_PA_S4U2Self);
-		break;
-	case KERBEROS_PA_FOR_X509_USER:
-		if(private_data->msg_type == KRB5_MSG_AS_REQ){
-			offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_x509af_Certificate);
-		}else if(private_data->is_enc_padata){
-			offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, NULL);
-		}else{
-			offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_PA_S4U_X509_USER);
-		}
-		break;
-	case KERBEROS_PA_PROV_SRV_LOCATION:
-		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_krb5_PA_PROV_SRV_LOCATION);
-		break;
-	case KERBEROS_PA_ENC_TIMESTAMP:
-		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_PA_ENC_TIMESTAMP);
-		break;
-	case KERBEROS_PA_ETYPE_INFO:
-		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_ETYPE_INFO);
-		break;
-	case KERBEROS_PA_ETYPE_INFO2:
-		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_ETYPE_INFO2);
-		break;
-	case KERBEROS_PA_PW_SALT:
-		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_krb5_PW_SALT);
-		break;
-	case KERBEROS_PA_AUTHENTICATION_SET:
-		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_PA_AUTHENTICATION_SET);
-		break;
-	case KERBEROS_PA_FX_FAST:
-		if(private_data->msg_type == KRB5_MSG_AS_REQ || private_data->msg_type == KRB5_MSG_TGS_REQ){
-			offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_PA_FX_FAST_REQUEST);
-		}else{
-			offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_PA_FX_FAST_REPLY);
-		}
-		break;
-	case KERBEROS_PA_ENCRYPTED_CHALLENGE:
-		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_EncryptedChallenge);
-		break;
-	case KERBEROS_PA_SUPPORTED_ETYPES:
-		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_PA_SUPPORTED_ENCTYPES);
-		break;
-	case KERBEROS_PA_PAC_OPTIONS:
-		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset, hf_index, dissect_kerberos_PA_PAC_OPTIONS);
-		break;
-	case KERBEROS_PA_REQ_ENC_PA_REP:
-		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_Checksum);
-		break;
-	default:
-		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, NULL);
-	}
+  switch(private_data->padata_type){
+  case KERBEROS_PA_TGS_REQ:
+    offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_Applications);
+    break;
+  case KERBEROS_PA_PK_AS_REP_19:
+    private_data->is_win2k_pkinit = TRUE;
+    if (kerberos_private_is_kdc_req(private_data)) {
+      offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_pkinit_PA_PK_AS_REQ_Win2k);
+    } else {
+      offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_pkinit_PA_PK_AS_REP_Win2k);
+    }
+    break;
+  case KERBEROS_PA_PK_AS_REQ:
+    offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_pkinit_PaPkAsReq);
+    break;
+  case KERBEROS_PA_PK_AS_REP:
+    offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_pkinit_PaPkAsRep);
+    break;
+  case KERBEROS_PA_PAC_REQUEST:
+    offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_PA_PAC_REQUEST);
+    break;
+  case KERBEROS_PA_FOR_USER: /* S4U2SELF */
+    offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_PA_S4U2Self);
+    break;
+  case KERBEROS_PA_FOR_X509_USER:
+    if(private_data->msg_type == KRB5_MSG_AS_REQ){
+      offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_x509af_Certificate);
+    }else if(private_data->is_enc_padata){
+      offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, NULL);
+    }else{
+      offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_PA_S4U_X509_USER);
+    }
+    break;
+  case KERBEROS_PA_PROV_SRV_LOCATION:
+    offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_krb5_PA_PROV_SRV_LOCATION);
+    break;
+  case KERBEROS_PA_ENC_TIMESTAMP:
+    offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_PA_ENC_TIMESTAMP);
+    break;
+  case KERBEROS_PA_ETYPE_INFO:
+    offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_ETYPE_INFO);
+    break;
+  case KERBEROS_PA_ETYPE_INFO2:
+    offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_ETYPE_INFO2);
+    break;
+  case KERBEROS_PA_PW_SALT:
+    offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_krb5_PW_SALT);
+    break;
+  case KERBEROS_PA_AUTHENTICATION_SET:
+    offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_PA_AUTHENTICATION_SET);
+    break;
+  case KERBEROS_PA_FX_FAST:
+    if(private_data->msg_type == KRB5_MSG_AS_REQ || private_data->msg_type == KRB5_MSG_TGS_REQ){
+      offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_PA_FX_FAST_REQUEST);
+    }else{
+      offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_PA_FX_FAST_REPLY);
+    }
+    break;
+  case KERBEROS_PA_ENCRYPTED_CHALLENGE:
+    offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_EncryptedChallenge);
+    break;
+  case KERBEROS_PA_SUPPORTED_ETYPES:
+    offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_PA_SUPPORTED_ENCTYPES);
+    break;
+  case KERBEROS_PA_PAC_OPTIONS:
+    offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset, hf_index, dissect_kerberos_PA_PAC_OPTIONS);
+    break;
+  case KERBEROS_PA_REQ_ENC_PA_REP:
+    offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_Checksum);
+    break;
+  default:
+    offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, NULL);
+  }
 
 
 
@@ -3960,13 +3960,13 @@ static int
 dissect_kerberos_T_encryptedAuthorizationData_cipher(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 298 "./asn1/kerberos/kerberos.cnf"
 #ifdef HAVE_KERBEROS
-	offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_index, dissect_krb5_decrypt_authorization_data);
+  offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_index, dissect_krb5_decrypt_authorization_data);
 #else
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
 #endif
-	return offset;
+  return offset;
 
 
 
@@ -4022,27 +4022,27 @@ static const ber_sequence_t KDC_REQ_BODY_sequence[] = {
 static int
 dissect_kerberos_KDC_REQ_BODY(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 437 "./asn1/kerberos/kerberos.cnf"
-	conversation_t *conversation;
+  conversation_t *conversation;
 
-	/*
-	 * UDP replies to KDC_REQs are sent from the server back to the client's
-	 * source port, similar to the way TFTP works.  Set up a conversation
-	 * accordingly.
-	 *
-	 * Ref: Section 7.2.1 of
-	 * http://www.ietf.org/internet-drafts/draft-ietf-krb-wg-kerberos-clarifications-07.txt
-	 */
-	if (actx->pinfo->destport == UDP_PORT_KERBEROS && actx->pinfo->ptype == PT_UDP) {
-		conversation = find_conversation(actx->pinfo->num, &actx->pinfo->src, &actx->pinfo->dst, ENDPOINT_UDP,
-											actx->pinfo->srcport, 0, NO_PORT_B);
-		if (conversation == NULL) {
-			conversation = conversation_new(actx->pinfo->num, &actx->pinfo->src, &actx->pinfo->dst, ENDPOINT_UDP,
-											actx->pinfo->srcport, 0, NO_PORT2);
-			conversation_set_dissector(conversation, kerberos_handle_udp);
-		}
-	}
+  /*
+   * UDP replies to KDC_REQs are sent from the server back to the client's
+   * source port, similar to the way TFTP works.  Set up a conversation
+   * accordingly.
+   *
+   * Ref: Section 7.2.1 of
+   * http://www.ietf.org/internet-drafts/draft-ietf-krb-wg-kerberos-clarifications-07.txt
+   */
+  if (actx->pinfo->destport == UDP_PORT_KERBEROS && actx->pinfo->ptype == PT_UDP) {
+    conversation = find_conversation(actx->pinfo->num, &actx->pinfo->src, &actx->pinfo->dst, ENDPOINT_UDP,
+                      actx->pinfo->srcport, 0, NO_PORT_B);
+    if (conversation == NULL) {
+      conversation = conversation_new(actx->pinfo->num, &actx->pinfo->src, &actx->pinfo->dst, ENDPOINT_UDP,
+                      actx->pinfo->srcport, 0, NO_PORT2);
+      conversation_set_dissector(conversation, kerberos_handle_udp);
+    }
+  }
 
-	  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+    offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    KDC_REQ_BODY_sequence, hf_index, ett_kerberos_KDC_REQ_BODY);
 
 
@@ -4084,13 +4084,13 @@ static int
 dissect_kerberos_T_encryptedKDCREPData_cipher(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 314 "./asn1/kerberos/kerberos.cnf"
 #ifdef HAVE_KERBEROS
-	offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_index, dissect_krb5_decrypt_KDC_REP_data);
+  offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_index, dissect_krb5_decrypt_KDC_REP_data);
 #else
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
 #endif
-	return offset;
+  return offset;
 
 
 
@@ -4186,13 +4186,13 @@ static int
 dissect_kerberos_T_encryptedAuthenticator_cipher(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 306 "./asn1/kerberos/kerberos.cnf"
 #ifdef HAVE_KERBEROS
-	offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_index, dissect_krb5_decrypt_authenticator_data);
+  offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_index, dissect_krb5_decrypt_authenticator_data);
 #else
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
 #endif
-	return offset;
+  return offset;
 
 
 
@@ -4249,13 +4249,13 @@ static int
 dissect_kerberos_T_encryptedAPREPData_cipher(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 330 "./asn1/kerberos/kerberos.cnf"
 #ifdef HAVE_KERBEROS
-	offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_index, dissect_krb5_decrypt_AP_REP_data);
+  offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_index, dissect_krb5_decrypt_AP_REP_data);
 #else
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
 #endif
-	return offset;
+  return offset;
 
 
 
@@ -4309,12 +4309,12 @@ dissect_kerberos_AP_REP(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 static int
 dissect_kerberos_T_kRB_SAFE_BODY_user_data(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 460 "./asn1/kerberos/kerberos.cnf"
-	kerberos_private_data_t* private_data = kerberos_get_private_data(actx);
-	tvbuff_t *new_tvb;
-	offset=dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_index, &new_tvb);
-	if (new_tvb) {
-		call_kerberos_callbacks(actx->pinfo, tree, new_tvb, KRB_CBTAG_SAFE_USER_DATA, private_data->callbacks);
-	}
+  kerberos_private_data_t* private_data = kerberos_get_private_data(actx);
+  tvbuff_t *new_tvb;
+  offset=dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_index, &new_tvb);
+  if (new_tvb) {
+    call_kerberos_callbacks(actx->pinfo, tree, new_tvb, KRB_CBTAG_SAFE_USER_DATA, private_data->callbacks);
+  }
 
 
 
@@ -4373,13 +4373,13 @@ static int
 dissect_kerberos_T_encryptedKrbPrivData_cipher(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 338 "./asn1/kerberos/kerberos.cnf"
 #ifdef HAVE_KERBEROS
-	offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_index, dissect_krb5_decrypt_PRIV_data);
+  offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_index, dissect_krb5_decrypt_PRIV_data);
 #else
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
 #endif
-	return offset;
+  return offset;
 
 
 
@@ -4434,13 +4434,13 @@ static int
 dissect_kerberos_T_encryptedKrbCredData_cipher(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 346 "./asn1/kerberos/kerberos.cnf"
 #ifdef HAVE_KERBEROS
-	offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_index, dissect_krb5_decrypt_CRED_data);
+  offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_index, dissect_krb5_decrypt_CRED_data);
 #else
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
 #endif
-	return offset;
+  return offset;
 
 
 
@@ -4559,14 +4559,14 @@ dissect_kerberos_METHOD_DATA(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 static int
 dissect_kerberos_T_encrypted_pa_data(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 476 "./asn1/kerberos/kerberos.cnf"
-	kerberos_private_data_t* private_data = kerberos_get_private_data(actx);
-	private_data->is_enc_padata = TRUE;
+  kerberos_private_data_t* private_data = kerberos_get_private_data(actx);
+  private_data->is_enc_padata = TRUE;
 
 
   offset = dissect_kerberos_METHOD_DATA(implicit_tag, tvb, offset, actx, tree, hf_index);
 
 #line 480 "./asn1/kerberos/kerberos.cnf"
-	private_data->is_enc_padata = FALSE;
+  private_data->is_enc_padata = FALSE;
 
 
   return offset;
@@ -4650,12 +4650,12 @@ dissect_kerberos_EncAPRepPart(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 static int
 dissect_kerberos_T_encKrbPrivPart_user_data(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 468 "./asn1/kerberos/kerberos.cnf"
-	kerberos_private_data_t* private_data = kerberos_get_private_data(actx);
-	tvbuff_t *new_tvb;
-	offset=dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_index, &new_tvb);
-	if (new_tvb) {
-		call_kerberos_callbacks(actx->pinfo, tree, new_tvb, KRB_CBTAG_PRIV_USER_DATA, private_data->callbacks);
-	}
+  kerberos_private_data_t* private_data = kerberos_get_private_data(actx);
+  tvbuff_t *new_tvb;
+  offset=dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_index, &new_tvb);
+  if (new_tvb) {
+    call_kerberos_callbacks(actx->pinfo, tree, new_tvb, KRB_CBTAG_PRIV_USER_DATA, private_data->callbacks);
+  }
 
 
 
@@ -4863,7 +4863,7 @@ static const value_string kerberos_ERROR_CODE_vals[] = {
 static int
 dissect_kerberos_ERROR_CODE(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 99 "./asn1/kerberos/kerberos.cnf"
-	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+  kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &private_data->errorcode);
 
@@ -4871,14 +4871,14 @@ dissect_kerberos_ERROR_CODE(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 
 #line 103 "./asn1/kerberos/kerberos.cnf"
-	if (private_data->errorcode) {
-		col_add_fstr(actx->pinfo->cinfo, COL_INFO,
-			"KRB Error: %s",
-			val_to_str(private_data->errorcode, krb5_error_codes,
-			"Unknown error code %#x"));
-	}
+  if (private_data->errorcode) {
+    col_add_fstr(actx->pinfo->cinfo, COL_INFO,
+      "KRB Error: %s",
+      val_to_str(private_data->errorcode, krb5_error_codes,
+      "Unknown error code %#x"));
+  }
 
-	return offset;
+  return offset;
 
   return offset;
 }
@@ -4888,33 +4888,33 @@ dissect_kerberos_ERROR_CODE(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 static int
 dissect_kerberos_T_e_data(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 113 "./asn1/kerberos/kerberos.cnf"
-	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+  kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
 
-	switch (private_data->errorcode) {
-	case KRB5_ET_KRB5KDC_ERR_BADOPTION:
-	case KRB5_ET_KRB5KDC_ERR_CLIENT_REVOKED:
-	case KRB5_ET_KRB5KDC_ERR_KEY_EXP:
-	case KRB5_ET_KRB5KDC_ERR_POLICY:
-		/* ms windows kdc sends e-data of this type containing a "salt"
-		 * that contains the nt_status code for these error codes.
-		 */
-		private_data->try_nt_status = TRUE;
-		offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_kerberos_e_data, dissect_kerberos_PA_DATA);
-		break;
-	case KRB5_ET_KRB5KDC_ERR_PREAUTH_REQUIRED:
-	case KRB5_ET_KRB5KDC_ERR_PREAUTH_FAILED:
-	case KRB5_ET_KRB5KDC_ERR_ETYPE_NOSUPP:
-	case KRB5_ET_KDC_ERR_WRONG_REALM:
-	case KRB5_ET_KDC_ERR_PREAUTH_EXPIRED:
-	case KRB5_ET_KDC_ERR_MORE_PREAUTH_DATA_REQUIRED:
-	case KRB5_ET_KDC_ERR_PREAUTH_BAD_AUTHENTICATION_SET:
-	case KRB5_ET_KDC_ERR_UNKNOWN_CRITICAL_FAST_OPTIONS:
-		offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_kerberos_e_data, dissect_kerberos_SEQUENCE_OF_PA_DATA);
+  switch (private_data->errorcode) {
+  case KRB5_ET_KRB5KDC_ERR_BADOPTION:
+  case KRB5_ET_KRB5KDC_ERR_CLIENT_REVOKED:
+  case KRB5_ET_KRB5KDC_ERR_KEY_EXP:
+  case KRB5_ET_KRB5KDC_ERR_POLICY:
+    /* ms windows kdc sends e-data of this type containing a "salt"
+     * that contains the nt_status code for these error codes.
+     */
+    private_data->try_nt_status = TRUE;
+    offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_kerberos_e_data, dissect_kerberos_PA_DATA);
+    break;
+  case KRB5_ET_KRB5KDC_ERR_PREAUTH_REQUIRED:
+  case KRB5_ET_KRB5KDC_ERR_PREAUTH_FAILED:
+  case KRB5_ET_KRB5KDC_ERR_ETYPE_NOSUPP:
+  case KRB5_ET_KDC_ERR_WRONG_REALM:
+  case KRB5_ET_KDC_ERR_PREAUTH_EXPIRED:
+  case KRB5_ET_KDC_ERR_MORE_PREAUTH_DATA_REQUIRED:
+  case KRB5_ET_KDC_ERR_PREAUTH_BAD_AUTHENTICATION_SET:
+  case KRB5_ET_KDC_ERR_UNKNOWN_CRITICAL_FAST_OPTIONS:
+    offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_kerberos_e_data, dissect_kerberos_SEQUENCE_OF_PA_DATA);
 
-		break;
-	default:
-		offset=dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_kerberos_e_data, NULL);
-	}
+    break;
+  default:
+    offset=dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_kerberos_e_data, NULL);
+  }
 
 
 
@@ -5013,13 +5013,13 @@ static int
 dissect_kerberos_T_pA_ENC_TIMESTAMP_cipher(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 322 "./asn1/kerberos/kerberos.cnf"
 #ifdef HAVE_KERBEROS
-	offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_index, dissect_krb5_decrypt_PA_ENC_TIMESTAMP);
+  offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_index, dissect_krb5_decrypt_PA_ENC_TIMESTAMP);
 #else
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
 #endif
-	return offset;
+  return offset;
 
 
 
@@ -5179,7 +5179,7 @@ dissect_kerberos_PA_S4U2Self(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 static int
 dissect_kerberos_T_subject_certificate(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 430 "./asn1/kerberos/kerberos.cnf"
-	offset=dissect_ber_octet_string_wcb(implicit_tag, actx, tree, tvb, offset,hf_index, dissect_x509af_Certificate);
+  offset=dissect_ber_octet_string_wcb(implicit_tag, actx, tree, tvb, offset,hf_index, dissect_x509af_Certificate);
 
 
 
