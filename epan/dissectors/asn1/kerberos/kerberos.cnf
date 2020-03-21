@@ -107,7 +107,6 @@ AUTHDATA-TYPE PROT_PREFIX UPPER_CASE
       "Unknown error code %#x"));
   }
 
-  return offset;
 #.END
 #.FN_BODY KRB-ERROR/_untag/e-data
   kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
@@ -276,7 +275,6 @@ AUTHDATA-TYPE PROT_PREFIX UPPER_CASE
   }
 
   offset+=len;
-  return offset;
 
 
 #.TYPE_ATTR
@@ -292,7 +290,6 @@ AUTHDATA-TYPE PROT_PREFIX UPPER_CASE
 ##else
 %(DEFAULT_BODY)s
 ##endif
-  return offset;
 
 #.FN_BODY EncryptedAuthorizationData/cipher
 ##ifdef HAVE_KERBEROS
@@ -300,7 +297,6 @@ AUTHDATA-TYPE PROT_PREFIX UPPER_CASE
 ##else
 %(DEFAULT_BODY)s
 ##endif
-  return offset;
 
 #.FN_BODY EncryptedAuthenticator/cipher
 ##ifdef HAVE_KERBEROS
@@ -308,7 +304,6 @@ AUTHDATA-TYPE PROT_PREFIX UPPER_CASE
 ##else
 %(DEFAULT_BODY)s
 ##endif
-  return offset;
 
 #.FN_BODY EncryptedKDCREPData/cipher
 ##ifdef HAVE_KERBEROS
@@ -316,7 +311,6 @@ AUTHDATA-TYPE PROT_PREFIX UPPER_CASE
 ##else
 %(DEFAULT_BODY)s
 ##endif
-  return offset;
 
 #.FN_BODY PA-ENC-TIMESTAMP/cipher
 ##ifdef HAVE_KERBEROS
@@ -324,7 +318,6 @@ AUTHDATA-TYPE PROT_PREFIX UPPER_CASE
 ##else
 %(DEFAULT_BODY)s
 ##endif
-  return offset;
 
 #.FN_BODY EncryptedAPREPData/cipher
 ##ifdef HAVE_KERBEROS
@@ -332,7 +325,6 @@ AUTHDATA-TYPE PROT_PREFIX UPPER_CASE
 ##else
 %(DEFAULT_BODY)s
 ##endif
-  return offset;
 
 #.FN_BODY EncryptedKrbPrivData/cipher
 ##ifdef HAVE_KERBEROS
@@ -340,7 +332,6 @@ AUTHDATA-TYPE PROT_PREFIX UPPER_CASE
 ##else
 %(DEFAULT_BODY)s
 ##endif
-  return offset;
 
 #.FN_BODY EncryptedKrbCredData/cipher
 ##ifdef HAVE_KERBEROS
@@ -348,8 +339,6 @@ AUTHDATA-TYPE PROT_PREFIX UPPER_CASE
 ##else
 %(DEFAULT_BODY)s
 ##endif
-  return offset;
-
 
 #.FN_BODY CKSUMTYPE VAL_PTR=&(private_data->checksum_type)
   kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
@@ -367,7 +356,6 @@ AUTHDATA-TYPE PROT_PREFIX UPPER_CASE
   default:
     offset=dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_index, NULL);
   }
-  return offset;
 
 #.FN_BODY EncryptionKey/keytype VAL_PTR=&gbl_keytype
   kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
