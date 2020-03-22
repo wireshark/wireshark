@@ -163,6 +163,7 @@ _/usr/local/etc_.
 |_recent_|Recent GUI settings (e.g. recent files lists).
 |_cfilters_|Capture filters.
 |_dfilters_|Display filters.
+|_+++dfilter_buttons+++_|Display filter buttons.
 |_+++dfilter_macros+++_|Display filter macros.
 |_colorfilters_|Coloring rules.
 |_+++disabled_protos+++_|Disabled protocols.
@@ -250,6 +251,27 @@ all the current display filters are written to the personal display
 filters file.
 --
 
+dfilter_buttons::
+This file contains all the display filter buttons that you have defined and
+saved. It consists of one or more lines, where each line has the following
+format:
++
+--
+----
+"TRUE/FALSE","<button label>","<filter string>","<comment string>"
+----
+
+where the first field is TRUE if the button is enabled (shown).
+
+At program start, if there is a _+++dfilter_buttons+++_ file in the personal
+configuration folder, it is read. If there isn’t a _+++dfilter_buttons+++_ file
+in the personal configuration folder, then, if there is a _+++dfilter_buttons+++_
+file in the global configuration folder, it is read.
+
+When you save any changes to the filter buttons, all the current display
+filter buttons are written to the personal display filter buttons file.
+--
+
 dfilter_macros::
 This file contains all the display filter macros that you have defined and saved.
 It consists of one or more lines, where each line has the following format:
@@ -265,7 +287,7 @@ in the personal configuration folder, then, if there is a _+++dfilter_macros+++_
 file in the global configuration folder, it is read.
 
 When you press the Save button in the "Display Filter Macros" dialog box,
-all the current display filter macors are written to the personal display
+all the current display filter macros are written to the personal display
 filter macros file.
 
 More information about Display Filter Macros is available in
