@@ -65,6 +65,19 @@ class case_decrypt_80211(subprocesstest.SubprocessTestCase):
                 ))
         self.assertEqual(self.countOutput('802.11.*SN=.*FN=.*Flags='), 3)
 
+    def test_80211_wpa2_psk_mfp(self, cmd_tshark, capture_file, features):
+        '''IEEE 802.11 decode WPA2 PSK with MFP enabled (802.11w)'''
+        # Included in git sources test/captures/wpa2-psk-mfp.pcapng.gz
+        if not features.have_libgcrypt16:
+            self.skipTest('Requires GCrypt 1.6 or later.')
+        self.assertRun((cmd_tshark,
+                '-o', 'wlan.enable_decryption: TRUE',
+                '-r', capture_file('wpa2-psk-mfp.pcapng.gz'),
+                '-Y', 'wlan.analysis.tk == 4e30e8c019bea43ea5262b10853b818d || wlan.analysis.gtk == 70cdbf2e5bc0ca22e53930818a5d80e4',
+                ))
+        self.assertTrue(self.grepOutput('Who has 192.168.5.5'))   # Verifies GTK is correct
+        self.assertTrue(self.grepOutput('DHCP Request'))          # Verifies TK is correct
+        self.assertTrue(self.grepOutput('Echo \(ping\) request')) # Verifies TK is correct
 
     def test_80211_wpa_tdls(self, cmd_tshark, capture_file, features):
         '''WPA decode traffic in a TDLS (Tunneled Direct-Link Setup) session (802.11z)'''

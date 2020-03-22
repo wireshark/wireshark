@@ -328,8 +328,8 @@ Dot11DecryptCopyKey(PDOT11DECRYPT_SEC_ASSOCIATION sa, PDOT11DECRYPT_KEY_ITEM key
         key->KeyData.Wpa.Cipher = sa->wpa.cipher;
         if (sa->wpa.key_ver==DOT11DECRYPT_WPA_KEY_VER_NOT_CCMP)
             key->KeyType=DOT11DECRYPT_KEY_TYPE_TKIP;
-        else if (sa->wpa.key_ver == DOT11DECRYPT_WPA_KEY_VER_AES_CCMP ||
-                 sa->wpa.key_ver == 0)
+        else if (sa->wpa.key_ver == 0 || sa->wpa.key_ver == 3 ||
+                 sa->wpa.key_ver == DOT11DECRYPT_WPA_KEY_VER_AES_CCMP)
         {
             switch (sa->wpa.cipher) {
                 case 1:
@@ -1587,8 +1587,11 @@ Dot11DecryptRsna4WHandshake(
                 }
                 memcpy(eapol, eapol_raw, tot_len);
 
-                if (eapol_parsed->key_version == 0) {
-                   /* PTK derivation is based on Authentication Key Management Type */
+                /* From IEEE 802.11-2016 12.7.2 EAPOL-Key frames */
+                if (eapol_parsed->key_version == 0 || eapol_parsed->key_version == 3 ||
+                    eapol_parsed->key_version == DOT11DECRYPT_WPA_KEY_VER_AES_CCMP)
+                {
+                    /* PTK derivation is based on Authentication Key Management Type */
                     akm = eapol_parsed->akm;
                     cipher = eapol_parsed->cipher;
                     group_cipher = eapol_parsed->group_cipher;
@@ -1597,11 +1600,9 @@ Dot11DecryptRsna4WHandshake(
                     akm = 2;
                     cipher = 2;
                     group_cipher = 2;
-                } else if (eapol_parsed->key_version  == DOT11DECRYPT_WPA_KEY_VER_AES_CCMP) {
-                     /* CCMP-128 */
-                    akm = eapol_parsed->akm;
-                    cipher = eapol_parsed->cipher;
-                    group_cipher = eapol_parsed->group_cipher;
+                } else {
+                    DEBUG_PRINT_LINE("EAPOL key_version not supported", DEBUG_LEVEL_3);
+                    return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
                 }
 
                 /* derive the PTK from the BSSID, STA MAC, PMK, SNonce, ANonce */
