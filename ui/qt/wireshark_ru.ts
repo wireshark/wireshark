@@ -4498,7 +4498,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>InterfaceTreeModel</name>
     <message>
         <source>No Interfaces found.</source>
-        <translation>Интерфейсы не найдены.</translation>
+        <translation type="vanished">Интерфейсы не найдены.</translation>
     </message>
     <message>
         <source>Show</source>
@@ -4511,6 +4511,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Interface Name</source>
         <translation>Имя Интерфейса</translation>
+    </message>
+    <message>
+        <source>No interfaces found.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This version of Wireshark was built without packet capture support.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Local Pipe Path</source>
@@ -7007,6 +7015,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Фильтровать эту Ассоциацию</translation>
     </message>
     <message>
+        <source>&amp;I/O Graphs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&amp;Conversations</source>
         <translation>&amp;Диалоги</translation>
     </message>
@@ -7249,11 +7261,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Export PDUs to File…</source>
         <translation>Экспортировать PDUхи в Файл…</translation>
-    </message>
-    <message>
-        <source>&amp;I/O Graphs</source>
-        <oldsource>&amp;I/O Graph</oldsource>
-        <translation type="unfinished">&amp;График Ввода/Вывода</translation>
     </message>
     <message>
         <source>Create graphs based on display filter fields</source>
@@ -12359,10 +12366,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 </context>
 <context>
     <name>SyntaxLineEdit</name>
-    <message>
-        <source>&quot;%1&quot; is deprecated or may have unexpected results. See the User&apos;s Guide.</source>
-        <translation type="vanished">&quot;%1&quot; сомнителен или может иметь неожиданные результаты. Смотрите Руководство Пользователя.</translation>
-    </message>
     <message>
         <source>&quot;%1&quot; is deprecated in favour of &quot;%2&quot;. See the User&apos;s Guide.</source>
         <translation type="unfinished"></translation>

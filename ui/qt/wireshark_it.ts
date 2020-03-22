@@ -4484,7 +4484,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <name>InterfaceTreeModel</name>
     <message>
         <source>No Interfaces found.</source>
-        <translation>Nessuna interfaccia trovata.</translation>
+        <translation type="vanished">Nessuna interfaccia trovata.</translation>
     </message>
     <message>
         <source>Show</source>
@@ -4497,6 +4497,14 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Interface Name</source>
         <translation>Nome dell&apos;interfaccia</translation>
+    </message>
+    <message>
+        <source>No interfaces found.</source>
+        <translation type="unfinished">Nessuna interfaccia trovata.</translation>
+    </message>
+    <message>
+        <source>This version of Wireshark was built without packet capture support.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Local Pipe Path</source>
@@ -6989,6 +6997,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Filtra questa associazione</translation>
     </message>
     <message>
+        <source>&amp;I/O Graphs</source>
+        <translation>Grafici &amp;I/O</translation>
+    </message>
+    <message>
         <source>&amp;Conversations</source>
         <translation>&amp;Conversazioni</translation>
     </message>
@@ -7231,11 +7243,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Export PDUs to File…</source>
         <translation>Esporta PDU su file...</translation>
-    </message>
-    <message>
-        <source>&amp;I/O Graphs</source>
-        <oldsource>&amp;I/O Graph</oldsource>
-        <translation type="unfinished">Grafici &amp;I/O</translation>
     </message>
     <message>
         <source>Create graphs based on display filter fields</source>
@@ -12338,16 +12345,12 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
 <context>
     <name>SyntaxLineEdit</name>
     <message>
-        <source>&quot;%1&quot; is deprecated or may have unexpected results. See the User&apos;s Guide.</source>
-        <translation type="vanished">&quot;%1&quot; è sconsigliato e potrebbe avere dei comportamenti inattesi. Vedi il Manuale utente.</translation>
-    </message>
-    <message>
         <source>&quot;%1&quot; is deprecated in favour of &quot;%2&quot;. See the User&apos;s Guide.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; è sconsigliato in favore di &quot;%2&quot;. Vedi il Manuale utente.</translation>
     </message>
     <message>
         <source>&quot;%1&quot; may have unexpected results. See the User&apos;s Guide.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; potrebbe avere dei risultati inattesi. Vedi il Manuale utente.</translation>
     </message>
 </context>
 <context>

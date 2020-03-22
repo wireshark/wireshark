@@ -4464,7 +4464,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>InterfaceTreeModel</name>
     <message>
         <source>No Interfaces found.</source>
-        <translation>没有找到接口。</translation>
+        <translation type="vanished">没有找到接口。</translation>
     </message>
     <message>
         <source>Show</source>
@@ -4477,6 +4477,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Interface Name</source>
         <translation>接口名称</translation>
+    </message>
+    <message>
+        <source>No interfaces found.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This version of Wireshark was built without packet capture support.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Local Pipe Path</source>
@@ -6965,6 +6973,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>过滤该助手</translation>
     </message>
     <message>
+        <source>&amp;I/O Graphs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&amp;Conversations</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7207,11 +7219,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Export PDUs to File…</source>
         <translation>导出 PDU 到文件…</translation>
-    </message>
-    <message>
-        <source>&amp;I/O Graphs</source>
-        <oldsource>&amp;I/O Graph</oldsource>
-        <translation type="unfinished">I/O 图表(&amp;I)</translation>
     </message>
     <message>
         <source>Create graphs based on display filter fields</source>
@@ -12294,10 +12301,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 </context>
 <context>
     <name>SyntaxLineEdit</name>
-    <message>
-        <source>&quot;%1&quot; is deprecated or may have unexpected results. See the User&apos;s Guide.</source>
-        <translation type="vanished">“%1”已被弃用或可能有意外结果。请参阅用户指南。</translation>
-    </message>
     <message>
         <source>&quot;%1&quot; is deprecated in favour of &quot;%2&quot;. See the User&apos;s Guide.</source>
         <translation type="unfinished"></translation>

@@ -4484,7 +4484,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <name>InterfaceTreeModel</name>
     <message>
         <source>No Interfaces found.</source>
-        <translation>Keine Schnittstellen gefunden.</translation>
+        <translation type="vanished">Keine Schnittstellen gefunden.</translation>
     </message>
     <message>
         <source>Show</source>
@@ -4497,6 +4497,14 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Interface Name</source>
         <translation>Schnittstellenname</translation>
+    </message>
+    <message>
+        <source>No interfaces found.</source>
+        <translation type="unfinished">Keine Schnittstellen gefunden.</translation>
+    </message>
+    <message>
+        <source>This version of Wireshark was built without packet capture support.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Local Pipe Path</source>
@@ -6989,6 +6997,10 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Diese Verknüpfung filtern</translation>
     </message>
     <message>
+        <source>&amp;I/O Graphs</source>
+        <translation>&amp;I/O Graph</translation>
+    </message>
+    <message>
         <source>&amp;Conversations</source>
         <translation>Verbindungen (&amp;C)</translation>
     </message>
@@ -7231,11 +7243,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Export PDUs to File…</source>
         <translation>PDUs in Datei exportieren...</translation>
-    </message>
-    <message>
-        <source>&amp;I/O Graphs</source>
-        <oldsource>&amp;I/O Graph</oldsource>
-        <translation type="unfinished">&amp;I/O Graph</translation>
     </message>
     <message>
         <source>Create graphs based on display filter fields</source>
@@ -12338,16 +12345,12 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
 <context>
     <name>SyntaxLineEdit</name>
     <message>
-        <source>&quot;%1&quot; is deprecated or may have unexpected results. See the User&apos;s Guide.</source>
-        <translation type="vanished">&quot;%1&quot; ist veraltet und kann zu einem unerwarteten Ergebnis führen. Siehe Benutzerhandbuch.</translation>
-    </message>
-    <message>
         <source>&quot;%1&quot; is deprecated in favour of &quot;%2&quot;. See the User&apos;s Guide.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; wurde durch &quot;%2&quot; abgelöst. Siehe Benutzerhandbuch.</translation>
     </message>
     <message>
         <source>&quot;%1&quot; may have unexpected results. See the User&apos;s Guide.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; kann zu einem unerwarteten Ergebnis führen. Siehe Benutzerhandbuch.</translation>
     </message>
 </context>
 <context>
