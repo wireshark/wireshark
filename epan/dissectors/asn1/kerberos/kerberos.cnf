@@ -41,6 +41,7 @@ Krb5int32
 Krb5uint32
 PA-ClientCanonicalized
 PA-ClientCanonicalizedNames
+PA-ENC-TS-ENC
 PA-ENC-SAM-RESPONSE-ENC
 PA-SAM-CHALLENGE-2
 PA-SAM-CHALLENGE-2-BODY

@@ -19,7 +19,7 @@
  *
  * and
  *
- *      https://tools.ietf.org/html/draft-ietf-krb-wg-kerberos-referrals-05
+ *  https://tools.ietf.org/html/draft-ietf-krb-wg-kerberos-referrals-05
  *
  * Some structures from RFC2630
  *
@@ -107,7 +107,9 @@ static dissector_handle_t kerberos_handle_udp;
 static int dissect_kerberos_Applications(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 static int dissect_kerberos_AuthorizationData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 static int dissect_kerberos_PA_ENC_TIMESTAMP(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+#ifdef HAVE_KERBEROS
 static int dissect_kerberos_PA_ENC_TS_ENC(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+#endif
 static int dissect_kerberos_PA_PAC_REQUEST(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 static int dissect_kerberos_PA_S4U2Self(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 static int dissect_kerberos_PA_S4U_X509_USER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
@@ -195,6 +197,10 @@ static gint hf_krb_pa_supported_enctypes_resource_sid_compression_disabled = -1;
 static gint hf_krb_ad_ap_options = -1;
 static gint hf_krb_ad_ap_options_cbt = -1;
 static gint hf_krb_ad_target_principal = -1;
+#ifdef HAVE_KERBEROS
+static gint hf_krb_patimestamp = -1;
+static gint hf_krb_pausec = -1;
+#endif
 #include "packet-kerberos-hf.c"
 
 /* Initialize the subtree pointers */
@@ -212,6 +218,9 @@ static gint ett_krb_pac_privsvr_checksum = -1;
 static gint ett_krb_pac_client_info_type = -1;
 static gint ett_krb_pa_supported_enctypes = -1;
 static gint ett_krb_ad_ap_options = -1;
+#ifdef HAVE_KERBEROS
+static gint ett_krb_pa_enc_ts_enc = -1;
+#endif
 #include "packet-kerberos-ett.c"
 
 static expert_field ei_kerberos_decrypted_keytype = EI_INIT;
@@ -2158,13 +2167,15 @@ dissect_krb5_PAC_CREDENTIAL_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int off
 {
 	proto_item *item;
 	proto_tree *tree;
-	guint32 etype;
 	guint8 *plaintext = NULL;
 	int plainlen = 0;
-	int length;
-	tvbuff_t *next_tvb;
+	int length = 0;
 #define KRB5_KU_OTHER_ENCRYPTED 16
+#ifdef  HAVE_KERBEROS
+	guint32 etype;
+	tvbuff_t *next_tvb;
 	int usage = KRB5_KU_OTHER_ENCRYPTED;
+#endif
 
 	item = proto_tree_add_item(parent_tree, hf_krb_pac_credential_info, tvb, offset, -1, ENC_NA);
 	tree = proto_item_add_subtree(item, ett_krb_pac_credential_info);
@@ -2174,17 +2185,21 @@ dissect_krb5_PAC_CREDENTIAL_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int off
 			    offset, 4, ENC_LITTLE_ENDIAN);
 	offset+=4;
 
+#ifdef HAVE_KERBEROS
 	/* etype */
 	etype = tvb_get_letohl(tvb, offset);
+#endif
 	proto_tree_add_item(tree, hf_krb_pac_credential_info_etype, tvb,
 			    offset, 4, ENC_LITTLE_ENDIAN);
 	offset+=4;
 
+#ifdef HAVE_KERBEROS
 	/* data */
 	next_tvb=tvb_new_subset_remaining(tvb, offset);
 	length=tvb_captured_length_remaining(tvb, offset);
 
 	plaintext=decrypt_krb5_data(tree, actx->pinfo, usage, next_tvb, (int)etype, &plainlen);
+#endif
 
 	if (plaintext != NULL) {
 		tvbuff_t *child_tvb;
@@ -2451,6 +2466,21 @@ dissect_krb5_AD_WIN2K_PAC(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
 }
 
 #include "packet-kerberos-fn.c"
+
+#ifdef HAVE_KERBEROS
+static const ber_sequence_t PA_ENC_TS_ENC_sequence[] = {
+	{ &hf_krb_patimestamp, BER_CLASS_CON, 0, 0, dissect_kerberos_KerberosTime },
+	{ &hf_krb_pausec     , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_kerberos_Microseconds },
+	{ NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_kerberos_PA_ENC_TS_ENC(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+	offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+									PA_ENC_TS_ENC_sequence, hf_index, ett_krb_pa_enc_ts_enc);
+	return offset;
+}
+#endif
 
 /* Make wrappers around exported functions for now */
 int
@@ -2893,9 +2923,17 @@ void proto_register_kerberos(void) {
 	{ &hf_krb_ad_ap_options_cbt,
 	  { "ChannelBindings", "kerberos.ad_ap_options.cbt",
 	    FT_BOOLEAN, 32, TFS(&set_tfs), 0x00004000, NULL, HFILL }},
-	{ &hf_krb_ad_target_principal, {
-		"Target Principal", "kerberos.ad_target_principal", FT_STRING, BASE_NONE,
-		NULL, 0, NULL, HFILL }},
+	{ &hf_krb_ad_target_principal,
+	  { "Target Principal", "kerberos.ad_target_principal",
+	    FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+#ifdef HAVE_KERBEROS
+	{ &hf_krb_patimestamp,
+	  { "patimestamp", "kerberos.patimestamp",
+	    FT_STRING, BASE_NONE, NULL, 0, "KerberosTime", HFILL }},
+	{ &hf_krb_pausec,
+	  { "pausec", "kerberos.pausec",
+	    FT_UINT32, BASE_DEC, NULL, 0, "Microseconds", HFILL }},
+#endif
 
 #include "packet-kerberos-hfarr.c"
 	};
@@ -2916,6 +2954,9 @@ void proto_register_kerberos(void) {
 		&ett_krb_pac_client_info_type,
 		&ett_krb_pa_supported_enctypes,
 		&ett_krb_ad_ap_options,
+#ifdef HAVE_KERBEROS
+		&ett_krb_pa_enc_ts_enc,
+#endif
 #include "packet-kerberos-ettarr.c"
 	};
 
