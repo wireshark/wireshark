@@ -140,7 +140,7 @@ typedef struct {
     guint16 payload_type;
     guint8 trace_point;
     gboolean medium_mii;
-
+    gboolean li_packet;
 } acdr_dissector_data_t;
 
 #endif /* __PACKET_ACDR_H__ */

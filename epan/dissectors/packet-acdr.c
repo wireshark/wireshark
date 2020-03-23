@@ -69,6 +69,7 @@
 #define HEADERADDED_MASK 0x8
 #define ENCRYPTED_MASK 0x10
 #define MTCE_MASK 0x20
+#define LI_MASK 0x40
 
 #define FAVORITE_MASK 0x10
 
@@ -289,6 +290,7 @@ static int hf_acdr_data_fragmented = -1;
 static int hf_acdr_data_headeradded = -1;
 static int hf_acdr_data_encrypted = -1;
 static int hf_acdr_data_mtce = -1;
+static int hf_acdr_data_li = -1;
 
 static int hf_acdr_session_id = -1;
 static int hf_acdr_session_id_board_id = -1;
@@ -471,11 +473,11 @@ create_full_session_id_subtree(proto_tree *tree, tvbuff_t *tvb, int offset, guin
 
 static void
 create_header_extension_subtree(proto_tree *tree, tvbuff_t *tvb, gint offset, guint8 extension_length,
-                                guint32 ver, guint8 media_type, guint8 trace_point, guint8 data_byte,
+                                guint32 ver, guint8 media_type, guint8 trace_point, guint8 extra_data,
                                 AcdrTlsPacketInfo *tls_packet_info)
 {
     proto_tree *extension_tree;
-    gboolean ipv6 = ((IPV6_MASK & data_byte) == IPV6_MASK);
+    gboolean ipv6 = ((IPV6_MASK & extra_data) == IPV6_MASK);
 
     // parse the header extension
     proto_item *ti = proto_tree_add_item(tree, hf_acdr_header_extension, tvb, offset,
@@ -964,11 +966,12 @@ create_acdr_tree(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
     gint cid_byte_length = 2;
     guint32 sequence_num = 0;
     guint32 version, trace_point, header_extension_len = 0;
-    guint8 media_type, data_byte;
+    guint8 media_type, extra_data;
     gboolean medium_mii = 0;
     gint64 timestamp;
     int acdr_header_length;
     gboolean header_added;
+    gboolean li_packet;
     guint16 payload_type = 0;
     AcdrTlsPacketInfo tls_packet_info = {0xFFFF, 0xFFFF, TLS_APP_UNKNWN};
 
@@ -1031,14 +1034,15 @@ create_acdr_tree(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
     offset += cid_byte_length;
 
     // Extra Data
-    data_byte = tvb_get_guint8(tvb, offset);
-    if ((data_byte == 0) ||
+    extra_data = tvb_get_guint8(tvb, offset);
+    if ((extra_data == 0) ||
 
-        // Backward Compatible:  in old versions we always set the data_byte with 0xAA value
-        ((data_byte == 0xAA) && ((version & 0xF) <= 3))) {
+        // Backward Compatible:  in old versions we always set the extra_data with 0xAA value
+        ((extra_data == 0xAA) && ((version & 0xF) <= 3))) {
         proto_tree_add_item(acdr_tree, hf_acdr_data, tvb, offset, 1, ENC_BIG_ENDIAN);
     } else {
         static const int *extra_data_bits[] = {
+            &hf_acdr_data_li,
             &hf_acdr_data_mtce,
             &hf_acdr_data_encrypted,
             &hf_acdr_data_headeradded,
@@ -1053,10 +1057,11 @@ create_acdr_tree(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
     }
     offset++;
 
-    if (((version & 0xF) >= 3) && ((MEDIUM_MASK & data_byte) == MEDIUM_MASK))
+    if (((version & 0xF) >= 3) && ((MEDIUM_MASK & extra_data) == MEDIUM_MASK))
         medium_mii = 1;
 
-    header_added = ((HEADERADDED_MASK & data_byte) == HEADERADDED_MASK) && (data_byte != 0xAA);
+    header_added = ((HEADERADDED_MASK & extra_data) == HEADERADDED_MASK) && (extra_data != 0xAA);
+    li_packet = (LI_MASK & extra_data) == LI_MASK;
 
     // Trace Point Type
     proto_tree_add_item_ret_uint(acdr_tree, hf_acdr_trace_pt, tvb, offset, 1, ENC_BIG_ENDIAN,
@@ -1121,7 +1126,7 @@ create_acdr_tree(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
         }
 
         create_header_extension_subtree(acdr_tree, tvb, header_byte_length, header_extension_len,
-                                        version, media_type, trace_point, data_byte, &tls_packet_info);
+                                        version, media_type, trace_point, extra_data, &tls_packet_info);
     }
 
     if (medium_mii)
@@ -1153,6 +1158,7 @@ create_acdr_tree(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
     data.payload_type = payload_type;
     data.trace_point = trace_point;
     data.medium_mii = medium_mii;
+    data.li_packet = li_packet;
     acdr_payload_handler(tree, pinfo, next_tvb, &data);
 }
 
@@ -1406,6 +1412,12 @@ proto_register_acdr(void)
                 FT_UINT8, BASE_HEX,
                 NULL, 0x0,
                 NULL, HFILL }
+        },
+        { &hf_acdr_data_li,
+            { "LI", "acdr.extra_data.li",
+                FT_UINT8, BASE_HEX,
+                NULL, LI_MASK,
+                "Packet LI (with X2 or X3 header)", HFILL }
         },
         { &hf_acdr_data_mtce,
             { "Mtce", "acdr.extra_data.mtce",
