@@ -3386,7 +3386,7 @@ dissect_usb_hid_report_mainitem_data(packet_info *pinfo _U_, proto_tree *tree, t
             break;
         default:
             proto_tree_add_item(tree, hf_usb_hid_item_unk_data, tvb, offset, bSize, ENC_NA);
-            proto_item_append_text(ti, " (Unkown)");
+            proto_item_append_text(ti, " (Unknown)");
             break;
     }
     offset += bSize;

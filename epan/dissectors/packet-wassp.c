@@ -2908,7 +2908,7 @@ const TLV_PARSER_ENTRY tlvVnsConfigTable[]  =
 	{ EID_V_CHANNEL_REPORT, "Channel Report", TLV_TYPE_OCTETS, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_V_WDS_SERVICE, "WDS Service Type: 0 = None, 1 = Child, 2 = Parent, 3 = Both", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_V_WDS_BSSID_PARENT, "WDS Parent BSSID", TLV_TYPE_MACADD, 0, 0, 0, 0, 0, 0, 0, 0},
-	{ EID_V_WDS_BRIDGE, "Enable WDS Bridge: 0 = Unkown, 1 = Enable, 2 = Disable", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
+	{ EID_V_WDS_BRIDGE, "Enable WDS Bridge: 0 = Unknown, 1 = Enable, 2 = Disable", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_V_OKC_ENABLED, "OKC/Preauthentication", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_V_MU_ASSOC_RETRIES, "MU Association Retries", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_V_MU_ASSOC_TIMEOUT, "MU Association Request Time Out", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},

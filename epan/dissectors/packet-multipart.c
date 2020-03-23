@@ -619,7 +619,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
                 if(isprint_string(header_str)) {
                     proto_tree_add_format_text(subtree, tvb, offset, next_offset - offset);
                 } else {
-                    /* if the header name is unkown and not printable, break and add complete line to the body */
+                    /* if the header name is unknown and not printable, break and add complete line to the body */
                     next_offset = offset;
                     break;
                 }
