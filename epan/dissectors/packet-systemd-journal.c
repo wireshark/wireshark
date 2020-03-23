@@ -149,10 +149,10 @@ static int hf_sj_systemd_user_slice = -1;
 
 // Metadata.
 static int hf_sj_binary_data_len = -1;
-static int hf_sj_unkown_field = -1;
-static int hf_sj_unkown_field_name = -1;
-static int hf_sj_unkown_field_value = -1;
-static int hf_sj_unkown_field_data = -1;
+static int hf_sj_unknown_field = -1;
+static int hf_sj_unknown_field_name = -1;
+static int hf_sj_unknown_field_value = -1;
+static int hf_sj_unknown_field_data = -1;
 static int hf_sj_unhandled_field_type = -1;
 
 static expert_field ei_unhandled_field_type = EI_INIT;
@@ -373,11 +373,11 @@ dissect_systemd_journal_line_entry(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
         }
 
         if (!found && eq_off > offset + 1) {
-            proto_item *unk_ti = proto_tree_add_none_format(sje_tree, hf_sj_unkown_field, tvb, offset, line_len,
+            proto_item *unk_ti = proto_tree_add_none_format(sje_tree, hf_sj_unknown_field, tvb, offset, line_len,
                                                             "Unknown text field: %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, eq_off - offset - 1, ENC_UTF_8));
             proto_tree *unk_tree = proto_item_add_subtree(unk_ti, ett_systemd_unknown_field);
-            proto_tree_add_item(unk_tree, hf_sj_unkown_field_name, tvb, offset, eq_off - offset - 1, ENC_UTF_8|ENC_NA);
-            proto_tree_add_item(unk_tree, hf_sj_unkown_field_value, tvb, eq_off, val_len, ENC_UTF_8|ENC_NA);
+            proto_tree_add_item(unk_tree, hf_sj_unknown_field_name, tvb, offset, eq_off - offset - 1, ENC_UTF_8|ENC_NA);
+            proto_tree_add_item(unk_tree, hf_sj_unknown_field_value, tvb, eq_off, val_len, ENC_UTF_8|ENC_NA);
             offset = next_offset;
             continue;
         }
@@ -400,11 +400,11 @@ dissect_systemd_journal_line_entry(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
                             col_add_str(pinfo->cinfo, COL_INFO, tvb_format_text(tvb, data_off, (int) data_len));
                         }
                     } else {
-                        proto_item *unk_ti = proto_tree_add_none_format(sje_tree, hf_sj_unkown_field, tvb, offset, line_len,
+                        proto_item *unk_ti = proto_tree_add_none_format(sje_tree, hf_sj_unknown_field, tvb, offset, line_len,
                                                                         "Unknown data field: %s", tvb_format_text(tvb, offset, eq_off - offset - 1));
                         proto_tree *unk_tree = proto_item_add_subtree(unk_ti, ett_systemd_unknown_field);
-                        proto_item *expert_ti = proto_tree_add_item(unk_tree, hf_sj_unkown_field_name, tvb, offset, offset + noeql_len, ENC_UTF_8|ENC_NA);
-                        proto_tree_add_item(unk_tree, hf_sj_unkown_field_data, tvb, data_off, (int) data_len, ENC_UTF_8|ENC_NA);
+                        proto_item *expert_ti = proto_tree_add_item(unk_tree, hf_sj_unknown_field_name, tvb, offset, offset + noeql_len, ENC_UTF_8|ENC_NA);
+                        proto_tree_add_item(unk_tree, hf_sj_unknown_field_data, tvb, data_off, (int) data_len, ENC_UTF_8|ENC_NA);
                         expert_add_info(pinfo, expert_ti, &ei_nonbinary_field);
                     }
                 }
@@ -813,19 +813,19 @@ proto_register_systemd_journal(void)
           { "Binary data length", "systemd_journal.binary_data_len",
             FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }
         },
-        { &hf_sj_unkown_field,
+        { &hf_sj_unknown_field,
           { "Unknown field", "systemd_journal.field",
             FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
-        { &hf_sj_unkown_field_name,
+        { &hf_sj_unknown_field_name,
           { "Field name", "systemd_journal.field.name",
             FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
         },
-        { &hf_sj_unkown_field_value,
+        { &hf_sj_unknown_field_value,
           { "Field value", "systemd_journal.field.value",
             FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
         },
-        { &hf_sj_unkown_field_data,
+        { &hf_sj_unknown_field_data,
           { "Field data", "systemd_journal.field.data",
             FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
         },
