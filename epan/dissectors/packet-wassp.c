@@ -4769,7 +4769,7 @@ int dissect_wassp_sub_tlv(proto_tree *wassp_tree, tvbuff_t *tvb, packet_info *pi
 			length = tvb_get_ntohs(tvb, offset + TLV_LENGTH);
 			if (tlv_type >= WASSP_SUBTLV_GET_MAXENTRY(tmp_decr))
 			{
-				proto_tree_add_uint_format_value(tmp_tree, hf_wassp_tlv_unknown, tvb, offset, 4, tlv_type, "Unknow Wassp TLV (%d)", tlv_type);
+				proto_tree_add_uint_format_value(tmp_tree, hf_wassp_tlv_unknown, tvb, offset, 4, tlv_type, "Unknown Wassp TLV (%d)", tlv_type);
 				proto_tree_add_item(tmp_tree, hf_wassp_tlv_length, tvb, offset + TLV_LENGTH, 2, ENC_BIG_ENDIAN);
 				proto_tree_add_item(tmp_tree, hf_wassp_tlv_value_octext, tvb, offset + TLV_VALUE, length - 4, ENC_NA);
 				offset += length;
