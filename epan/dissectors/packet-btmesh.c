@@ -4216,7 +4216,7 @@ proto_register_btmesh(void)
                 "The total length of the reassembled payload", HFILL }
         },
         { &hf_btmesh_decrypted_access,
-            { "Decrypted Accesss", "btmesh.accesss.decrypted",
+            { "Decrypted Access", "btmesh.access.decrypted",
                 FT_BYTES, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }
         },
