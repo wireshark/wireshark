@@ -271,14 +271,6 @@ Dot11DecryptDecryptKeyData(PDOT11DECRYPT_CONTEXT ctx,
  * @param tot_len [IN] Total length of the EAPOL frame
  * @param bssid [IN] bssid of AP
  * @param sta [IN] sta MAC address
- * @param decrypt_data [OUT] Pointer to a buffer that will contain
- *   the decrypted EAPOL keydata if it was encrypted. Must have room for at
- *   least DOT11DECRYPT_EAPOL_MAX_LEN bytes.
- * @param decrypt_len [OUT] Length of decrypted EAPOL key data. 0 if keydata
- *   was not encrypted.
- * @param key [OUT] Pointer to a preallocated key structure containing
- *   the key used during the decryption process (if done). If this parameter
- *   is set to NULL, the key will be not returned.
  * @return
  * - DOT11DECRYPT_RET_REQ_DATA: Required data is not available and the
  *   processing must be interrupted
