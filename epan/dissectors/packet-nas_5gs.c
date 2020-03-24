@@ -723,7 +723,7 @@ de_nas_5gs_mm_5gs_mobile_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
         proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags_supi_fmt_tid, ENC_BIG_ENDIAN);
         offset++;
 
-        supi_fmt = oct & 0x70;
+        supi_fmt = (oct & 0x70) >> 4;
         if (supi_fmt == 0) {
             /* IMSI */
 
@@ -3171,7 +3171,6 @@ de_nas_5gs_sm_qos_flow_des(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
                 proto_tree_add_uint_format_value(sub_tree2, hf_val, tvb, curr_offset, param_len - 1,
                     val, "%u %s (%u)", val * mult, unit_str, val);
                 curr_offset += (param_len - 1);
-                break;
                 break;
             case 0x06:
                 proto_tree_add_item(sub_tree2, hf_nas_5gs_sm_averaging_window, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
