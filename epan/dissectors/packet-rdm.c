@@ -1865,6 +1865,7 @@ dissect_rdm_pd_proxied_devices(tvbuff_t *tvb, guint offset, proto_tree *tree, gu
   case RDM_CC_GET_COMMAND_RESPONSE:
     while (len >= 6) {
       rdm_proto_tree_add_bytes_item(tree, hf_rdm_pd_proxied_devices_uid, tvb, &offset, 6);
+      len -= 6;
     }
     break;
   }
@@ -1914,6 +1915,7 @@ dissect_rdm_pd_status_messages(tvbuff_t *tvb, guint offset, proto_tree *tree, gu
       rdm_proto_tree_add_numeric_item(tree, hf_rdm_pd_status_messages_id, tvb, &offset, 2);
       rdm_proto_tree_add_numeric_item(tree, hf_rdm_pd_status_messages_data_value_1, tvb, &offset, 2);
       rdm_proto_tree_add_numeric_item(tree, hf_rdm_pd_status_messages_data_value_2, tvb, &offset, 2);
+      len -= 9;
     }
     break;
   }
@@ -2028,6 +2030,7 @@ dissect_rdm_pd_product_detail_id_list(tvbuff_t *tvb, guint offset, proto_tree *t
   case RDM_CC_GET_COMMAND_RESPONSE:
     while (len >= 2) {
       rdm_proto_tree_add_numeric_item(tree, hf_rdm_pd_product_detail_id_list, tvb, &offset, 2);
+      len -= 2;
     }
     break;
   }
@@ -2155,6 +2158,7 @@ dissect_rdm_pd_slot_info(tvbuff_t *tvb, guint offset, proto_tree *tree, guint8 c
       rdm_proto_tree_add_numeric_item(tree, hf_rdm_pd_slot_offset, tvb, &offset, 2);
       rdm_proto_tree_add_numeric_item(tree, hf_rdm_pd_slot_type, tvb, &offset, 1);
       rdm_proto_tree_add_numeric_item(tree, hf_rdm_pd_slot_label_id, tvb, &offset, 2);
+      len -= 5;
     }
     break;
   }
@@ -2187,6 +2191,7 @@ dissect_rdm_pd_slot_value(tvbuff_t *tvb, guint offset, proto_tree *tree, guint8 
     while (len >= 3) {
       rdm_proto_tree_add_numeric_item(tree, hf_rdm_pd_slot_offset, tvb, &offset, 2);
       rdm_proto_tree_add_numeric_item(tree, hf_rdm_pd_slot_value, tvb, &offset, 1);
+      len -= 3;
     }
     break;
   }
@@ -2611,6 +2616,7 @@ dissect_rdm_pd_list_interfaces(tvbuff_t *tvb, guint offset, proto_tree *tree, gu
     while (len >= 6) {
       rdm_proto_tree_add_numeric_item(tree, hf_rdm_pd_list_interfaces_interface_identifier, tvb, &offset, 4);
       rdm_proto_tree_add_numeric_item(tree, hf_rdm_pd_list_interfaces_interface_hardware_type, tvb, &offset, 2);
+      len -= 6;
     }
     break;
   }
@@ -3052,6 +3058,7 @@ dissect_rdm_pd_endpoint_list(tvbuff_t *tvb, guint offset, proto_tree *tree, guin
     while (len >= 3) {
       rdm_proto_tree_add_numeric_item(tree, hf_rdm_pd_endpoint_list_endpoint_id, tvb, &offset, 2);
       rdm_proto_tree_add_numeric_item(tree, hf_rdm_pd_endpoint_list_endpoint_type, tvb, &offset, 1);
+      len -= 3;
     }
     break;
   }
@@ -3285,6 +3292,7 @@ dissect_rdm_pd_endpoint_responders(tvbuff_t *tvb, guint offset, proto_tree *tree
     rdm_proto_tree_add_numeric_item(tree, hf_rdm_pd_endpoint_responders_change_number, tvb, &offset, 4);
     while (len >= 6) {
       rdm_proto_tree_add_bytes_item(tree, hf_rdm_pd_endpoint_responders_uid, tvb, &offset, 6);
+      len -= 6;
     }
     break;
   }
@@ -3303,6 +3311,7 @@ dissect_rdm_pd_tcp_comms_status(tvbuff_t *tvb, guint offset, proto_tree *tree, g
       rdm_proto_tree_add_numeric_item(tree, hf_rdm_pd_tcp_comms_status_broker_ipv6_address, tvb, &offset, 16);
       rdm_proto_tree_add_numeric_item(tree, hf_rdm_pd_tcp_comms_status_broker_port, tvb, &offset, 2);
       rdm_proto_tree_add_numeric_item(tree, hf_rdm_pd_tcp_comms_status_unhealthy_tcp_events, tvb, &offset, 2);
+      len -= 87;
     }
     break;
   case RDM_CC_SET_COMMAND:
