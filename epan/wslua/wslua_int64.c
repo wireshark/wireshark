@@ -442,7 +442,6 @@ WSLUA_METHOD Int64_band(lua_State* L) {
        @since 1.11.3
      */
     WSLUA_BIT_OP_FUNC(Int64,&=);
-    WSLUA_RETURN(1); /* The `Int64` object. */
 }
 
 WSLUA_METHOD Int64_bor(lua_State* L) {
@@ -451,7 +450,6 @@ WSLUA_METHOD Int64_bor(lua_State* L) {
        @since 1.11.3
      */
     WSLUA_BIT_OP_FUNC(Int64,|=);
-    WSLUA_RETURN(1); /* The `Int64` object. */
 }
 
 WSLUA_METHOD Int64_bxor(lua_State* L) {
@@ -460,7 +458,6 @@ WSLUA_METHOD Int64_bxor(lua_State* L) {
        @since 1.11.3
      */
     WSLUA_BIT_OP_FUNC(Int64,^=);
-    WSLUA_RETURN(1); /* The `Int64` object. */
 }
 
 WSLUA_METHOD Int64_lshift(lua_State* L) {
@@ -963,7 +960,6 @@ WSLUA_METHOD UInt64_band(lua_State* L) {
        @since 1.11.3
      */
     WSLUA_BIT_OP_FUNC(UInt64,&=);
-    WSLUA_RETURN(1); /* The `UInt64` object. */
 }
 
 WSLUA_METHOD UInt64_bor(lua_State* L) {
@@ -972,7 +968,6 @@ WSLUA_METHOD UInt64_bor(lua_State* L) {
        @since 1.11.3
      */
     WSLUA_BIT_OP_FUNC(UInt64,|=);
-    WSLUA_RETURN(1); /* The `UInt64` object. */
 }
 
 WSLUA_METHOD UInt64_bxor(lua_State* L) {
@@ -981,7 +976,6 @@ WSLUA_METHOD UInt64_bxor(lua_State* L) {
        @since 1.11.3
      */
     WSLUA_BIT_OP_FUNC(UInt64,^=);
-    WSLUA_RETURN(1); /* The `UInt64` object. */
 }
 
 WSLUA_METHOD UInt64_lshift(lua_State* L) {
