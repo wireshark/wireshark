@@ -47,17 +47,25 @@
 void proto_register_tpncp(void);
 void proto_reg_handoff_tpncp(void);
 
+enum SpecialFieldType {
+    TPNCP_NORMAL,
+    TPNCP_ADDRESS_FAMILY,
+    TPNCP_IP_ADDR,
+    TPNCP_OPEN_CHANNEL_START,
+    TPNCP_SECURITY_START,
+    TPNCP_SECURITY_OFFSET,
+};
+
 /* The linked list for storing information about specific data fields. */
 typedef struct tpncp_data_field_info
 {
     gchar *name;
     gint   descr;
     gint   ipv6_descr;
-    gint   sign;
-    gint   size;
     gint   array_dim;
-    gint   is_ip_addr;
-    gint   is_address_family;
+    enum SpecialFieldType special_type;
+    guchar size;
+    guchar sign;
     struct tpncp_data_field_info *p_next;
 } tpncp_data_field_info;
 
@@ -129,10 +137,38 @@ dissect_tpncp_data(guint data_id, packet_info *pinfo, tvbuff_t *tvb, proto_tree 
     tpncp_data_field_info *field = NULL;
     gint bitindex = encoding == ENC_LITTLE_ENDIAN ? 7 : 0;
     enum AddressFamily address_family = TPNCP_IPV4;
+    int open_channel_start = -1;
+    int security_offset = 0;
 
-    field = &data_fields_info[data_id];
-
-    while (field) {
+    for (field = &data_fields_info[data_id]; field; field = field->p_next) {
+        switch (field->special_type) {
+        case TPNCP_OPEN_CHANNEL_START:
+            open_channel_start = *offset;
+            break;
+        case TPNCP_SECURITY_OFFSET: {
+            const guint32 sec_offset = tvb_get_guint32(tvb, *offset, encoding);
+            if (sec_offset > 0 && open_channel_start >= 0)
+                security_offset = open_channel_start + sec_offset;
+            break;
+        }
+        case TPNCP_SECURITY_START:
+            if (open_channel_start != -1 && security_offset > 0) {
+            }
+            if (*offset < security_offset)
+                *offset = security_offset;
+            open_channel_start = -1;
+            security_offset = 0;
+            break;
+        case TPNCP_ADDRESS_FAMILY:
+            address_family = (enum AddressFamily)tvb_get_guint32(tvb, *offset, encoding);
+            // fall-through
+        default:
+            if (open_channel_start != -1 && security_offset > 0) {
+                if (*offset > security_offset)
+                    continue;
+            }
+            break;
+        }
         switch (field->size) {
         case 1: case 2: case 3: case 4:
         case 5: case 6: case 7: case 8:
@@ -176,12 +212,10 @@ dissect_tpncp_data(guint data_id, packet_info *pinfo, tvbuff_t *tvb, proto_tree 
             break;
         case 32:
             proto_tree_add_item(ltree, field->descr, tvb, *offset, 4, encoding);
-            if (field->is_address_family)
-                address_family = (enum AddressFamily)tvb_get_guint32(tvb, *offset, encoding);
             (*offset) += 4;
             break;
         case 128:
-            if (field->is_ip_addr) {
+            if (field->special_type == TPNCP_IP_ADDR) {
                 if (address_family == TPNCP_IPV6 || address_family == TPNCP_IPV6_PSOS)
                     proto_tree_add_item(ltree, field->ipv6_descr, tvb, *offset, 16, encoding);
                 else
@@ -193,8 +227,7 @@ dissect_tpncp_data(guint data_id, packet_info *pinfo, tvbuff_t *tvb, proto_tree 
         default:
             break;
         }
-        field = field->p_next;
-        if (tvb_reported_length_remaining(tvb, *offset) <= 0 || !field)
+        if (tvb_reported_length_remaining(tvb, *offset) <= 0)
             break;
     }
     if ((g_str_len = tvb_reported_length_remaining(tvb, *offset)) > 0) {
@@ -500,7 +533,10 @@ init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info, FILE *file)
     gchar tpncp_db_entry[MAX_TPNCP_DB_ENTRY_LEN];
     gchar entry_copy[MAX_TPNCP_DB_ENTRY_LEN];
     const gchar *name = NULL, *tmp = NULL;
-    gint enum_val, data_id, current_data_id = -1, sign, size, array_dim, is_ip_addr, is_address_family;
+    gint enum_val, data_id, current_data_id = -1, array_dim;
+    guchar size;
+    enum SpecialFieldType special_type;
+    gboolean sign, is_address_family;
     guint idx;
     tpncp_data_field_info *field = NULL;
     hf_register_info hf_entr;
@@ -633,6 +669,7 @@ init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info, FILE *file)
 
     /* Register standard data. */
     while (fgetline(tpncp_db_entry, MAX_TPNCP_DB_ENTRY_LEN, file)) {
+        special_type = TPNCP_NORMAL;
         g_snprintf(entry_copy, MAX_TPNCP_DB_ENTRY_LEN, "%s", tpncp_db_entry);
         if (!strncmp(tpncp_db_entry, "#####", 5)) {
             hf_size--;
@@ -667,14 +704,20 @@ init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info, FILE *file)
                 continue;
             }
         }
-        sign = (gint) g_ascii_strtoll(tmp, NULL, 10);
+        if (name[0] == 'c' && !strcmp(name, "cmd_rev_lsb"))
+            special_type = TPNCP_OPEN_CHANNEL_START;
+        else if (name[0] == 'r' && !strcmp(name, "rtp_authentication_algorithm"))
+            special_type = TPNCP_SECURITY_START;
+        else if (name[0] == 's' && !strcmp(name, "security_cmd_offset"))
+            special_type = TPNCP_SECURITY_OFFSET;
+        sign = !!((gboolean) g_ascii_strtoll(tmp, NULL, 10));
         if ((tmp = strtok(NULL, " ")) == NULL) {
             report_failure(
                 "ERROR! Badly formed data base entry: %s - corresponding field's registration is skipped.",
                 entry_copy);
             continue;
         }
-        size = (gint) g_ascii_strtoll(tmp, NULL, 10);
+        size = (guchar) g_ascii_strtoll(tmp, NULL, 10);
         if ((tmp = strtok(NULL, " ")) == NULL) {
             report_failure(
                 "ERROR! Badly formed data base entry: %s - corresponding field's registration is skipped.",
@@ -688,7 +731,8 @@ init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info, FILE *file)
                 entry_copy);
             continue;
         }
-        is_ip_addr = sign && g_ascii_strtoll(tmp, NULL, 10);
+        if (sign && g_ascii_strtoll(tmp, NULL, 10))
+            special_type = TPNCP_IP_ADDR;
         if ((tmp = strtok(NULL, "\n")) == NULL) {
             report_failure(
                 "ERROR! Badly formed data base entry: %s - corresponding field's registration is skipped.",
@@ -696,7 +740,7 @@ init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info, FILE *file)
             continue;
         }
 
-        if (is_ip_addr) {
+        if (special_type == TPNCP_IP_ADDR) {
             // ip address that comes after address family has 4 fields: ip_addr_0, ip_addr_1, 2 and 3
             // On these cases, ignore 1, 2 and 3 and enlarge the field size of 0 to 128
             char *seq = (char*)name + strlen(name) - 2;
@@ -764,7 +808,7 @@ init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info, FILE *file)
             hf_entr.hfinfo.type = (sign) ? FT_UINT16 : FT_INT16;
             break;
         case 32:
-            if (is_ip_addr) {
+            if (special_type == TPNCP_IP_ADDR) {
                 hf_entr.hfinfo.display = BASE_NONE;
                 hf_entr.hfinfo.type = FT_IPv4;
             } else {
@@ -772,7 +816,7 @@ init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info, FILE *file)
             }
             break;
         case 128:
-            if (is_ip_addr) {
+            if (special_type == TPNCP_IP_ADDR) {
                 hf_entr.hfinfo.display = BASE_NONE;
                 hf_entr.hfinfo.type = FT_IPv4;
                 if (!add_hf(&hf_entr))
@@ -791,8 +835,7 @@ init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info, FILE *file)
         field->sign = sign;
         field->size = size;
         field->array_dim = array_dim;
-        field->is_ip_addr = is_ip_addr;
-        field->is_address_family = is_address_family;
+        field->special_type = is_address_family ? TPNCP_ADDRESS_FAMILY : special_type;
     }
 
     return 0;
