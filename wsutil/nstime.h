@@ -91,7 +91,7 @@ WS_DLL_PUBLIC void nstime_delta(nstime_t *delta, const nstime_t *b, const nstime
  * Note that it is acceptable for two or more of the arguments to point at the
  * same structure.
  */
-WS_DLL_PUBLIC void nstime_sum(nstime_t *sum, const nstime_t *b, const nstime_t *a );
+WS_DLL_PUBLIC void nstime_sum(nstime_t *sum, const nstime_t *a, const nstime_t *b );
 
 /** sum += a */
 #define nstime_add(sum, a) nstime_sum(sum, sum, a)
