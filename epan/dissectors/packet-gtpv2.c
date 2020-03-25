@@ -777,6 +777,7 @@ static int hf_gtpv2_spare_b7_b2 = -1;
 static int hf_gtpv2_spare_b7_b5 = -1;
 static int hf_gtpv2_mm_context_iov_updates_counter = -1;
 static int hf_gtpv2_mm_context_ear_len = -1;
+static int hf_gtpv2_node_number_len = -1;
 
 static gint ett_gtpv2 = -1;
 static gint ett_gtpv2_flags = -1;
@@ -6843,7 +6844,20 @@ dissect_gtpv2_trust_wlan_mode_ind(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 static void
 dissect_gtpv2_node_number(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
+    int offset = 0;
+    guint32 len;
+    tvbuff_t* new_tvb;
+
+    /* Octet 5 Length of Node Number*/
+    proto_tree_add_item_ret_uint(tree, hf_gtpv2_node_number_len, tvb, offset, 1, ENC_BIG_ENDIAN, &len);
+    offset += 1;
+
+    /* The Node number shall carry an ISDN number...
+     * shall be coded according to the contents of ISDN-AddressString data type
+     * defined in 3GPP TS 29.002
+     */
+    new_tvb = tvb_new_subset_length(tvb, offset, len);
+    dissect_gsm_map_msisdn(new_tvb, pinfo, tree);
 }
 /*
  * 8.107        Node Identifier
@@ -11776,6 +11790,11 @@ void proto_register_gtpv2(void)
       },
       { &hf_gtpv2_mm_context_ear_len,
       { "Length of Extended Access Restriction Data", "gtpv2.mm_context.ear_len",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_node_number_len,
+      { "Length", "gtpv2.node_number.len",
           FT_UINT8, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
