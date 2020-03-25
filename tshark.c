@@ -2646,11 +2646,7 @@ capture_input_new_file(capture_session *cap_session, gchar *new_file)
 
     /* we start a new capture file, close the old one (if we had one before) */
     if (cf->state != FILE_CLOSED) {
-      if (cf->provider.wth != NULL) {
-        wtap_close(cf->provider.wth);
-        cf->provider.wth = NULL;
-      }
-      cf->state = FILE_CLOSED;
+      cf_close(cf);
     }
 
     g_free(capture_opts->save_file);
@@ -2869,21 +2865,13 @@ capture_input_drops(capture_session *cap_session _U_, guint32 dropped, const cha
  * do the required cleanup.
  */
 void
-capture_input_closed(capture_session *cap_session, gchar *msg)
+capture_input_closed(capture_session *cap_session _U_, gchar *msg)
 {
-  capture_file *cf = cap_session->cf;
-
   if (msg != NULL)
     fprintf(stderr, "tshark: %s\n", msg);
 
   report_counts();
 
-  if (cf != NULL && cf->provider.wth != NULL) {
-    wtap_close(cf->provider.wth);
-    if (cf->is_tempfile) {
-      ws_unlink(cf->filename);
-    }
-  }
 #ifdef USE_BROKEN_G_MAIN_LOOP
   /*g_main_loop_quit(loop);*/
   g_main_loop_quit(loop);
@@ -4261,7 +4249,24 @@ write_finale(void)
 void
 cf_close(capture_file *cf)
 {
-  g_free(cf->filename);
+  if (cf->state == FILE_CLOSED)
+    return; /* Nothing to do */
+
+  if (cf->provider.wth != NULL) {
+    wtap_close(cf->provider.wth);
+    cf->provider.wth = NULL;
+  }
+  /* We have no file open... */
+  if (cf->filename != NULL) {
+    /* If it's a temporary file, remove it. */
+    if (cf->is_tempfile)
+      ws_unlink(cf->filename);
+    g_free(cf->filename);
+    cf->filename = NULL;
+  }
+
+  /* We have no file open. */
+  cf->state = FILE_CLOSED;
 }
 
 cf_status_t
@@ -4300,6 +4305,8 @@ cf_open(capture_file *cf, const char *fname, unsigned int type, gboolean is_temp
   cf->provider.ref = NULL;
   cf->provider.prev_dis = NULL;
   cf->provider.prev_cap = NULL;
+
+  cf->state = FILE_READ_IN_PROGRESS;
 
   /* Create new epan session for dissection. */
   epan_free(cf->epan);
