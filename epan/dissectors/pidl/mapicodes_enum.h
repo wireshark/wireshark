@@ -89,7 +89,7 @@ typedef [public, v1_enum, flag(NDR_PAHEX)] enum {
 	MAPI_E_NO_RECIPIENTS                                = 0x80040607,
 	MAPI_E_SUBMITTED                                    = 0x80040608,
 	MAPI_E_HAS_FOLDERS                                  = 0x80040609,
-	MAPI_E_HAS_MESAGES                                  = 0x8004060A,
+	MAPI_E_HAS_MESSAGES                                 = 0x8004060A,
 	MAPI_E_FOLDER_CYCLE                                 = 0x8004060B,
 	MAPI_W_PARTIAL_COMPLETION                           = 0x80040680,
 	MAPI_E_AMBIGUOUS_RECIP                              = 0x80040700,
