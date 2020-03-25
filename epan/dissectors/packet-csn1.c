@@ -1332,9 +1332,10 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
       case CSN_RECURSIVE_TARRAY:
       { /* Recursive way to specify an array of type: <lists> ::= { 1 <type> } ** 0 ;
          *  M_REC_TARRAY(_STRUCT, _MEMBER, _MEMBER_TYPE, _ElementCountField)
-         * {t, offsetof(_STRUCT, _ElementCountField), (void*)CSNDESCR_##_MEMBER_TYPE, offsetof(_STRUCT, _MEMBER), #_MEMBER, (StreamSerializeFcn_t)sizeof(_MEMBER_TYPE)}
+         * {t, offsetof(_STRUCT, _ElementCountField), (void*)CSNDESCR_##_MEMBER_TYPE, offsetof(_STRUCT, _MEMBER), #_MEMBER, (StreamSerializeFcn_t)sizeof(_MEMBER_TYPE), NULL, NULL, (void_fn_t)ElementsOf(((_STRUCT*)0)->_MEMBER)}
          */
         gint16 nSizeElement = (gint16)(gint32)pDescr->value;
+        guint32 nSizeArray = (guint32)((guintptr)pDescr->aux_fn);
         guint8  ElementCount = 0;
 
         while (existNextElement(tvb, bit_offset, Tag))
@@ -1345,6 +1346,12 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
           bit_offset++;
           remaining_bits_len--;
           ElementCount++;
+
+          if (ElementCount > nSizeArray)
+          {
+            /* error: too many elements in recursive array. Increase its size! */
+            return ProcessError(tree , ar->pinfo, tvb, bit_offset, CSN_ERROR_STREAM_NOT_SUPPORTED, &ei_csn1_stream_not_supported, pDescr);
+          }
 
           { /* unpack the following data structure */
             csnStream_t arT = *ar;
@@ -1400,9 +1407,10 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
       case CSN_RECURSIVE_TARRAY_1:
       { /* Recursive way to specify an array of type: <lists> ::= <type> { 1 <type> } ** 0 ;
          * M_REC_TARRAY(_STRUCT, _MEMBER, _MEMBER_TYPE, _ElementCountField)
-         * {t, offsetof(_STRUCT, _ElementCountField), (void*)CSNDESCR_##_MEMBER_TYPE, offsetof(_STRUCT, _MEMBER), #_MEMBER, (StreamSerializeFcn_t)sizeof(_MEMBER_TYPE)}
+         * {t, offsetof(_STRUCT, _ElementCountField), (void*)CSNDESCR_##_MEMBER_TYPE, offsetof(_STRUCT, _MEMBER), #_MEMBER, (StreamSerializeFcn_t)sizeof(_MEMBER_TYPE), NULL, NULL, (void_fn_t)ElementsOf(((_STRUCT*)0)->_MEMBER)}
          */
         gint16      nSizeElement = (gint16)(gint32)pDescr->value;
+        guint32     nSizeArray = (guint32)((guintptr)pDescr->aux_fn);
         guint8       ElementCount = 0;
         csnStream_t arT          = *ar;
         gboolean     EndOfList    = FALSE;
@@ -1413,6 +1421,12 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
         do
         { /* get data element */
           ElementCount++;
+
+        if (ElementCount >= nSizeArray)
+        {
+          /* error: too many elements in recursive array. Increase its size! */
+          return ProcessError(tree , ar->pinfo, tvb, bit_offset, CSN_ERROR_STREAM_NOT_SUPPORTED, &ei_csn1_stream_not_supported, pDescr);
+        }
 
           test_tree = proto_tree_add_subtree_format(tree, tvb, bit_offset>>3, 1, ett_csn1, &ti, "%s[%d]", pDescr->sz, ElementCount-1);
 
