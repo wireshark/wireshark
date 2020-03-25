@@ -1594,8 +1594,8 @@ typedef struct
 
   PacketResourceRequestID_t ID;
 
-  guint8 Exist_MS_Radio_Access_capability;
-  MS_Radio_Access_capability_t MS_Radio_Access_capability;
+  guint8 Exist_MS_Radio_Access_capability2;
+  MS_Radio_Access_capability_t MS_Radio_Access_capability2;
 
   Channel_Request_Description_t Channel_Request_Description;
 
@@ -4949,7 +4949,7 @@ typedef struct
   guint8 R;
 
   AdditionalMsRadAccessCapID_t ID;
-  MS_Radio_Access_capability_t MS_Radio_Access_capability;
+  MS_Radio_Access_capability_t MS_Radio_Access_capability2;
 } Additional_MS_Rad_Access_Cap_t;
 
 /* End ADDITIONAL MS RADIO ACCESS CAPABILITIES */

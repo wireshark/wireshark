@@ -2815,14 +2815,24 @@ CSN_DESCR_BEGIN(MS_RA_capability_value_t)
   M_CHOICE     (MS_RA_capability_value_t, IndexOfAccTech, MS_RA_capability_value_Choice, ElementsOf(MS_RA_capability_value_Choice), &hf_ms_ra_capability_value_choice),
 CSN_DESCR_END  (MS_RA_capability_value_t)
 
+/*
+ * TS 24.008 section 10.5.5.12a "MS Radio Access capability".
+ * This one would be used to decode for instance MS RA Capabilities IE SGSN->MS on the PCU.
+ * However, an ad-hoc decoder is used in this scenario in wireshark: See packet-gsm_a_gm.c de_gmm_ms_radio_acc_cap().
+ */
+#if 0
 static const
 CSN_DESCR_BEGIN (MS_Radio_Access_capability_t)
-/*Will be done in the main routines:*/
-/*M_UINT        (MS_Radio_Access_capability_t,  IEI,  8, &hf_ms_radio_access_capability_iei),*/
-/*M_UINT        (MS_Radio_Access_capability_t,  Length,  8, &hf_ms_radio_access_capability_length),*/
-
   M_REC_TARRAY_1(MS_Radio_Access_capability_t, MS_RA_capability_value, MS_RA_capability_value_t, Count_MS_RA_capability_value, &hf_ms_ra_capability_value),
+  M_PADDING_BITS(MS_Radio_Access_capability_t, &hf_padding),
 CSN_DESCR_END   (MS_Radio_Access_capability_t)
+#endif
+
+/* TS44.060 section 12.30  "MS Radio Access Capability 2". Same as above but without spare bits */
+static const
+CSN_DESCR_BEGIN (MS_Radio_Access_capability2_t)
+  M_REC_TARRAY_1(MS_Radio_Access_capability_t, MS_RA_capability_value, MS_RA_capability_value_t, Count_MS_RA_capability_value, &hf_ms_ra_capability_value),
+CSN_DESCR_END   (MS_Radio_Access_capability2_t)
 
 /* < MS Classmark 3 IE > */
 #if 0
@@ -3198,8 +3208,8 @@ CSN_DESCR_BEGIN       (Packet_Resource_Request_t)
 
   M_TYPE              (Packet_Resource_Request_t, ID, PacketResourceRequestID_t),
 
-  M_NEXT_EXIST        (Packet_Resource_Request_t, Exist_MS_Radio_Access_capability, 1, &hf_ms_radio_access_capability_exist),
-  M_TYPE              (Packet_Resource_Request_t, MS_Radio_Access_capability, MS_Radio_Access_capability_t),
+  M_NEXT_EXIST        (Packet_Resource_Request_t, Exist_MS_Radio_Access_capability2, 1, &hf_ms_radio_access_capability_exist),
+  M_TYPE              (Packet_Resource_Request_t, MS_Radio_Access_capability2, MS_Radio_Access_capability2_t),
 
   M_TYPE              (Packet_Resource_Request_t, Channel_Request_Description, Channel_Request_Description_t),
 
@@ -6895,7 +6905,7 @@ CSN_DESCR_BEGIN       (Additional_MS_Rad_Access_Cap_t)
   /* Mac header */
 
   M_TYPE              (Additional_MS_Rad_Access_Cap_t,  ID, AdditionalMsRadAccessCapID_t),
-  M_TYPE              (Additional_MS_Rad_Access_Cap_t,  MS_Radio_Access_capability, MS_Radio_Access_capability_t),
+  M_TYPE              (Additional_MS_Rad_Access_Cap_t,  MS_Radio_Access_capability2, MS_Radio_Access_capability2_t),
   M_PADDING_BITS      (Additional_MS_Rad_Access_Cap_t, &hf_padding),
 CSN_DESCR_END         (Additional_MS_Rad_Access_Cap_t)
 
