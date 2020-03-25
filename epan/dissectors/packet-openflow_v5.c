@@ -5835,7 +5835,7 @@ dissect_openflow_message_v5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         dissect_openflow_switch_features_v5(tvb, pinfo, tree, offset, length);
         break;
     case OFPT_GET_CONFIG_REQUEST:
-        /* mesage has no body */
+        /* message has no body */
         break;
     case OFPT_GET_CONFIG_REPLY:
     case OFPT_SET_CONFIG:

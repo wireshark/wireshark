@@ -423,7 +423,7 @@ proto_register_udpcp(void)
 
       { &hf_udpcp_fragment_amount,
         { "Fragment Amount", "udpcp.fragment-amount", FT_UINT8, BASE_DEC,
-          NULL, 0x0, "Total number of fragments of a mesage", HFILL }},
+          NULL, 0x0, "Total number of fragments of a message", HFILL }},
       { &hf_udpcp_fragment_number,
         { "Fragment Number", "udpcp.fragment-number", FT_UINT8, BASE_DEC,
           NULL, 0x0, "Fragment number of current packet within msg.  Starts at 0", HFILL }},

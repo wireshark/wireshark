@@ -1175,7 +1175,7 @@ proto_register_dec_rt(void)
 {
 
     static hf_register_info hf[] = {
-        /* Mesage header items */
+        /* Message header items */
         { &hf_dec_routing_flags,
           { "Routing flags",            "dec_dna.flags",
             FT_UINT8,    BASE_HEX,    NULL,    0x0,
