@@ -214,6 +214,18 @@ static gboolean infoprint;      /* if TRUE, print capture info after clearing in
 #endif /* SIGINFO */
 
 static gboolean capture(void);
+static gboolean capture_input_new_file(capture_session *cap_session,
+                                       gchar *new_file);
+static void capture_input_new_packets(capture_session *cap_session,
+                                      int to_read);
+static void capture_input_drops(capture_session *cap_session, guint32 dropped,
+                                const char* interface_name);
+static void capture_input_error(capture_session *cap_session,
+                                char *error_msg, char *secondary_error_msg);
+static void capture_input_cfilter_error(capture_session *cap_session,
+                                        guint i, const char *error_message);
+static void capture_input_closed(capture_session *cap_session, gchar *msg);
+
 static void report_counts(void);
 #ifdef _WIN32
 static BOOL WINAPI capture_cleanup(DWORD);
@@ -903,7 +915,10 @@ main(int argc, char *argv[])
 
 #ifdef HAVE_LIBPCAP
   capture_opts_init(&global_capture_opts);
-  capture_session_init(&global_capture_session, &cfile);
+  capture_session_init(&global_capture_session, &cfile,
+                       capture_input_new_file, capture_input_new_packets,
+                       capture_input_drops, capture_input_error,
+                       capture_input_cfilter_error, capture_input_closed);
 #endif
 
   timestamp_set_type(TS_RELATIVE);
@@ -2571,8 +2586,8 @@ capture(void)
 }
 
 /* capture child detected an error */
-void
-capture_input_error_message(capture_session *cap_session _U_, char *error_msg, char *secondary_error_msg)
+static void
+capture_input_error(capture_session *cap_session _U_, char *error_msg, char *secondary_error_msg)
 {
   cmdarg_err("%s", error_msg);
   cmdarg_err_cont("%s", secondary_error_msg);
@@ -2580,8 +2595,8 @@ capture_input_error_message(capture_session *cap_session _U_, char *error_msg, c
 
 
 /* capture child detected an capture filter related error */
-void
-capture_input_cfilter_error_message(capture_session *cap_session, guint i, const char *error_message)
+static void
+capture_input_cfilter_error(capture_session *cap_session, guint i, const char *error_message)
 {
   capture_options *capture_opts = cap_session->capture_opts;
   dfilter_t         *rfcode = NULL;
@@ -2615,7 +2630,7 @@ capture_input_cfilter_error_message(capture_session *cap_session, guint i, const
 
 
 /* capture child tells us we have a new (or the first) capture file */
-gboolean
+static gboolean
 capture_input_new_file(capture_session *cap_session, gchar *new_file)
 {
   capture_options *capture_opts = cap_session->capture_opts;
@@ -2675,7 +2690,7 @@ capture_input_new_file(capture_session *cap_session, gchar *new_file)
 
 
 /* capture child tells us we have new packets to read */
-void
+static void
 capture_input_new_packets(capture_session *cap_session, int to_read)
 {
   gboolean      ret;
@@ -2828,7 +2843,7 @@ report_counts_siginfo(int signum _U_)
 
 
 /* capture child detected any packet drops? */
-void
+static void
 capture_input_drops(capture_session *cap_session _U_, guint32 dropped, const char* interface_name)
 {
   if (print_packet_counts) {
@@ -2853,7 +2868,7 @@ capture_input_drops(capture_session *cap_session _U_, guint32 dropped, const cha
  * Capture child closed its side of the pipe, report any error and
  * do the required cleanup.
  */
-void
+static void
 capture_input_closed(capture_session *cap_session _U_, gchar *msg)
 {
   if (msg != NULL)

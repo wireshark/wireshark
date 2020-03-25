@@ -34,10 +34,56 @@ typedef enum {
 
 #include "cfile.h"
 struct _info_data;
+
 /*
  * State of a capture session.
  */
-typedef struct _capture_session {
+typedef struct _capture_session capture_session;
+
+/*
+ * Types of callbacks.
+ */
+
+/**
+ * Capture child told us we have a new (or the first) capture file.
+ */
+typedef gboolean (*new_file_fn)(capture_session *cap_session, gchar *new_file);
+
+/**
+ * Capture child told us we have new packets to read.
+ */
+typedef void (*new_packets_fn)(capture_session *cap_session, int to_read);
+
+/**
+ * Capture child told us how many dropped packets it counted.
+ */
+typedef void (*drops_fn)(capture_session *cap_session, guint32 dropped,
+                         const char *interface_name);
+
+/**
+ * Capture child told us that an error has occurred while starting
+ * the capture.
+ */
+typedef void (*error_fn)(capture_session *cap_session, char *error_msg,
+                         char *secondary_error_msg);
+
+/**
+ * Capture child told us that an error has occurred while parsing a
+ * capture filter when starting/running the capture.
+ */
+typedef void (*cfilter_error_fn)(capture_session *cap_session, guint i,
+                                 const char *error_message);
+
+/**
+ * Capture child closed its side of the pipe, report any error and
+ * do the required cleanup.
+ */
+typedef void (*closed_fn)(capture_session *cap_session, gchar *msg);
+
+/*
+ * The structure for the session.
+ */
+struct _capture_session {
     ws_process_id fork_child;             /**< If not WS_INVALID_PID, in parent, process ID of child */
     int       fork_child_status;          /**< Child exit status */
 #ifdef _WIN32
@@ -56,10 +102,24 @@ typedef struct _capture_session {
     Buffer buf;                           /**< Buffer we're reading packet data into */
     struct wtap *wtap;                    /**< current wtap file */
     struct _info_data *cap_data_info;     /**< stats for this capture */
-} capture_session;
+
+    /*
+     * Routines supplied by our caller; we call them back to notify them
+     * of various events.
+     */
+    new_file_fn new_file;
+    new_packets_fn new_packets;
+    drops_fn drops;
+    error_fn error;
+    cfilter_error_fn cfilter_error;
+    closed_fn closed;
+};
 
 extern void
-capture_session_init(capture_session *cap_session, capture_file *cf);
+capture_session_init(capture_session *cap_session, capture_file *cf,
+                     new_file_fn new_file, new_packets_fn new_packets,
+                     drops_fn drops, error_fn error,
+                     cfilter_error_fn cfilter_error, closed_fn closed);
 #else
 
 /* dummy is needed because clang throws the error: empty struct has size 0 in C, size 1 in C++ */

@@ -310,7 +310,7 @@ MainWindow::MainWindow(QWidget *parent) :
     }
     gbl_cur_main_window_ = this;
 #ifdef HAVE_LIBPCAP
-    capture_session_init(&cap_session_, CaptureFile::globalCapFile());
+    capture_input_init(&cap_session_, CaptureFile::globalCapFile());
 #endif
 
     // setpUi calls QMetaObject::connectSlotsByName(this). connectSlotsByName
