@@ -1198,10 +1198,6 @@ typedef struct
 
 } Content_t;
 
-#define ABSOLUTE_MAX_BANDS            2 /*  New fields for R4 extend the length of the capabilities message so we can only send 2 */
-
-#define MAX_ACCESS_TECHNOLOGIES_COUNT 16 /* No more than 16 instances */
-
 typedef enum
 {/* See TS 24.008 table 10.5.146 */
   AccTech_GSMP     = 0x0,
@@ -1221,13 +1217,9 @@ typedef enum
   AccTech_GSMOther = 0xf
 } AccessTechnology_t;
 
-#if 0
-typedef struct
-{
-  guint8              CountAccessTechnologies;
-  AccessTechnology_t AccessTechnologies[MAX_ACCESS_TECHNOLOGIES_COUNT];
-} AccessTechnologiesRequest_t;
-#endif
+/* Maximum entries in one message, Enum above, applying restrictions from section
+   12.30 "MS Radio Access Capability 2": */
+#define MAX_ACCESS_TECHNOLOGIES_COUNT 11
 
 typedef struct
 {
@@ -1241,7 +1233,7 @@ typedef struct
   guint8 Count_additional_access_technologies;
   /* The value 0xf cannot be set for the first ATT, therefore we can only have
      ABSOLUTE_MAX_BANDS-1 additional access technologies. */
-  Additional_access_technologies_struct_t Additional_access_technologies[ABSOLUTE_MAX_BANDS-1];
+  Additional_access_technologies_struct_t Additional_access_technologies[MAX_ACCESS_TECHNOLOGIES_COUNT-1];
 } Additional_access_technologies_t;
 
 typedef struct
@@ -1259,7 +1251,7 @@ typedef struct
 typedef struct
 {
   guint8 Count_MS_RA_capability_value; /* Recursive */
-  MS_RA_capability_value_t MS_RA_capability_value[ABSOLUTE_MAX_BANDS];
+  MS_RA_capability_value_t MS_RA_capability_value[MAX_ACCESS_TECHNOLOGIES_COUNT];
 } MS_Radio_Access_capability_t;
 
 
