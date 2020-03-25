@@ -496,7 +496,7 @@ proto_register_btbnep(void)
             NULL, HFILL }
         },
         { &hf_btbnep_unknown_control_type,
-            { "Unknown Control Type",              "btbnep.uknown_control_type",
+            { "Unknown Control Type",              "btbnep.unknown_control_type",
             FT_UINT8, BASE_HEX, VALS(control_type_vals), 0x00,
             NULL, HFILL }
         },

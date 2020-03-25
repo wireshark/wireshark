@@ -3566,7 +3566,7 @@ dissect_lsp_srv6_locator_subclv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *s
     default:
         proto_tree_add_expert_format(subtree, pinfo, &ei_isis_lsp_subtlv, tvb,
                                      offset, clv_len,
-                                     "Uknown Sub-TLV: Type: %u, Length: %u", clv_code, clv_len);
+                                     "Unknown Sub-TLV: Type: %u, Length: %u", clv_code, clv_len);
         break;
     }
 }
