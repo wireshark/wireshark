@@ -39,7 +39,6 @@ static expert_field ei_csn1_stream_not_supported = EI_INIT;
 #define STANDARD_TAG 1
 #define REVERSED_TAG 0
 
-
 static const unsigned char ixBitsTab[] = {0, 1, 1, 2, 2, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 5};
 
 static gint proto_csn1 = -1;
