@@ -1,0 +1,47 @@
+name: CMake Options Test
+
+on:
+  push:
+  schedule:
+    - cron: '1 0 * * *'
+
+jobs:
+  options:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install deps
+        run: sudo tools/debian-setup.sh ninja-build -y
+      - run: mkdir build
+      - name: CMake
+        run: >-
+          cmake
+          -GNinja
+          -DENABLE_BROTLI=OFF
+          -DENABLE_CAP=OFF
+          -DENABLE_CARES=OFF
+          -DENABLE_CHECKHF_CONFLICT=ON
+          -DENABLE_GNUTLS=OFF
+          -DENABLE_KERBEROS=OFF
+          -DENABLE_LIBXML2=OFF
+          -DENABLE_ILBC=OFF
+          -DENABLE_LUA=OFF
+          -DENABLE_LZ4=OFF
+          -DENABLE_MINIZIP=OFF
+          -DENABLE_NETLINK=OFF
+          -DENABLE_NGHTTP2=OFF
+          -DENABLE_PCAP=OFF
+          -DENABLE_PLUGIN_IFDEMO=ON
+          -DENABLE_PLUGINS=OFF
+          -DENABLE_SBC=OFF
+          -DENABLE_SMI=OFF
+          -DENABLE_SNAPPY=OFF
+          -DENABLE_SPANDSP=OFF
+          -DENABLE_ZLIB=OFF
+          -DENABLE_ZSTD=OFF
+          ..
+        working-directory: build
+      - run: ninja
+        working-directory: build
