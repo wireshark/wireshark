@@ -121,7 +121,7 @@ typedef enum
  *          CSN_VAR_BITMAP, CSN_LEFT_VAR_BMP, and CSN_LEFT_BMP_1 types
  *       - the offset to param1 for the CSN_CALLBACK type
  *       - ERRORCODE  used by the CSN_ERROR type
- *       - the bit-lngth of the LENGTH field in a CSN_SERIALISE type
+ *       - the bit-length of the LENGTH field in a CSN_SERIALISE type
  *
  * descr
  *       This parameter has different meaning depending on the value of the type parameter:
