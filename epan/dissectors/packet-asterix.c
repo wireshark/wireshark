@@ -3411,7 +3411,7 @@ static const FieldPart I010_020_TOT = { 2, 1.0, FIELD_PART_UINT, &hf_010_020_TOT
 static const FieldPart I010_020_SPI = { 1, 1.0, FIELD_PART_UINT, &hf_010_020_SPI, NULL };
 static const FieldPart *I010_020_PARTS[] = { &I010_020_TYP, &I010_020_DCR, &I010_020_CHN, &I010_020_GBS, &I010_020_CRT, &IXXX_FX,
                                              &I010_020_SIM, &I010_020_TST, &I010_020_RAB, &I010_020_LOP, &I010_020_TOT, &IXXX_FX,
-                                             &I010_020_SPI, &IXXX_FX, NULL };
+                                             &I010_020_SPI, &IXXX_6bit_spare, &IXXX_FX, NULL };
 
 /* Measured Position in Polar Coordinates */
 static const FieldPart I010_040_RHO = { 16, 1.0, FIELD_PART_UFLOAT, &hf_010_040_RHO, NULL };
@@ -3424,8 +3424,8 @@ static const FieldPart I010_041_LON = { 32, 180.0/33554432.0, FIELD_PART_FLOAT, 
 static const FieldPart *I010_041_PARTS[] = { &I010_041_LAT, &I010_041_LON, NULL };
 
 /* Position in Cartesian Coordinates */
-static const FieldPart I010_042_X = { 24, 0.5, FIELD_PART_FLOAT, &hf_010_042_X, NULL };
-static const FieldPart I010_042_Y = { 24, 0.5, FIELD_PART_FLOAT, &hf_010_042_Y, NULL };
+static const FieldPart I010_042_X = { 24, 1.0, FIELD_PART_FLOAT, &hf_010_042_X, NULL };
+static const FieldPart I010_042_Y = { 24, 1.0, FIELD_PART_FLOAT, &hf_010_042_Y, NULL };
 static const FieldPart *I010_042_PARTS[] = { &I010_042_X, &I010_042_Y, NULL };
 
 /* Mode-3/A Code in Octal Representation */
@@ -3557,7 +3557,7 @@ static const FieldPart I010_170_GHO = { 1, 1.0, FIELD_PART_UINT, &hf_010_170_GHO
 
 static const FieldPart *I010_170_PARTS[] = { &I010_170_CNF, &I010_170_TRE, &I010_170_CST, &I010_170_MAH, &I010_170_TCC, &I010_170_STH, &IXXX_FX,
                                              &I010_170_TOM, &I010_170_DOU, &I010_170_MRS, &IXXX_FX,
-                                             &I010_170_GHO, &IXXX_FX, NULL };
+                                             &I010_170_GHO, &IXXX_6bit_spare, &IXXX_FX, NULL };
 
 /* Calculated Track Velocity in Polar Co-ordinates */
 static const FieldPart I010_200_GS = { 16, 1.0/16384.0, FIELD_PART_UFLOAT, &hf_010_200_GS, NULL };
