@@ -51,12 +51,15 @@
 #include <caputils/iface_monitor.h>
 #endif
 
-#include "ui/capture.h"
 #include "ui/filter_files.h"
 #include "ui/capture_globals.h"
 #include "ui/software_update.h"
 #include "ui/last_open_dir.h"
 #include "ui/recent_utils.h"
+
+#ifdef HAVE_LIBPCAP
+#include "ui/capture.h"
+#endif
 
 #include "wsutil/utf8_entities.h"
 

@@ -123,7 +123,6 @@ set(WIRESHARK_QT_HEADERS
 	capture_file_dialog.h
 	capture_file_properties_dialog.h
 	capture_filter_syntax_worker.h
-	capture_info_dialog.h
 	capture_options_dialog.h
 	capture_preferences_frame.h
 	coloring_rules_dialog.h
@@ -234,11 +233,16 @@ set(WIRESHARK_QT_HEADERS
 	${WIRESHARK_CUSTOM_QT_HEADERS}
 )
 
-if(HAVE_PCAP_REMOTE)
+if(ENABLE_PCAP)
 	list(APPEND WIRESHARK_QT_HEADERS
-		remote_capture_dialog.h
-		remote_settings_dialog.h
+		capture_info_dialog.h
 	)
+	if(HAVE_PCAP_REMOTE)
+		list(APPEND WIRESHARK_QT_HEADERS
+			remote_capture_dialog.h
+			remote_settings_dialog.h
+		)
+	endif()
 endif()
 
 set(WIRESHARK_WIDGET_SRCS
@@ -348,7 +352,6 @@ set(WIRESHARK_QT_SRC
 	capture_file_dialog.cpp
 	capture_file_properties_dialog.cpp
 	capture_filter_syntax_worker.cpp
-	capture_info_dialog.cpp
 	capture_options_dialog.cpp
 	capture_preferences_frame.cpp
 	coloring_rules_dialog.cpp
@@ -454,11 +457,16 @@ set(WIRESHARK_QT_SRC
 	${WIRESHARK_CUSTOM_QT_SRCS}
 )
 
-if(HAVE_PCAP_REMOTE)
+if(ENABLE_PCAP)
 	list(APPEND WIRESHARK_QT_SRC
-		remote_capture_dialog.cpp
-		remote_settings_dialog.cpp
+		capture_info_dialog.cpp
 	)
+	if(HAVE_PCAP_REMOTE)
+		list(APPEND WIRESHARK_QT_SRC
+			remote_capture_dialog.cpp
+			remote_settings_dialog.cpp
+		)
+	endif()
 endif()
 
 set(WIRESHARK_QT_TAP_SRC
