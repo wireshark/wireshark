@@ -3,7 +3,7 @@ name: Build Ubuntu
 on: [push]
 
 jobs:
-  windows:
+  ubuntu:
     name: Build & Test
     runs-on: ubuntu-latest
     steps:

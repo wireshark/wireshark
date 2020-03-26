@@ -3,7 +3,7 @@ name: Build MacOS
 on: [push]
 
 jobs:
-  windows:
+  macos:
     name: Build & Test
     runs-on: macos-latest
     steps:
