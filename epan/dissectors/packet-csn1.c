@@ -404,6 +404,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
 
         if (remaining_bits_len >= (no_of_bits * nCount))
         {
+          remaining_bits_len -= (no_of_bits * nCount);
           if (no_of_bits <= 8)
           {
             pui8 = pui8DATA(data, pDescr->offset);
@@ -411,7 +412,6 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
             {
               *pui8++ = tvb_get_bits8(tvb, bit_offset, no_of_bits);
               proto_tree_add_uint_bits_format_value(tree, *(pDescr->hf_ptr), tvb, bit_offset, no_of_bits, *pui8, " (Count %d)", i++);
-              remaining_bits_len -= no_of_bits;
               bit_offset += no_of_bits;
             } while (--nCount > 0);
           }
@@ -875,6 +875,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
 
             if (remaining_bits_len >= (no_of_bits * nCount))
             {
+              remaining_bits_len -= (no_of_bits * nCount);
               if (no_of_bits <= 8)
               {
                 pui8 = pui8DATA(data, pDescr->offset);
@@ -884,7 +885,6 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
                   *pui8 = tvb_get_bits8(tvb, bit_offset, no_of_bits);
                   proto_tree_add_uint_bits_format_value(tree, *(pDescr->hf_ptr), tvb, bit_offset, no_of_bits, *pui8, " (Count %d)", i++);
                   pui8++;
-                  remaining_bits_len -= no_of_bits;
                   bit_offset += no_of_bits;
                   nCount--;
                 }
@@ -897,7 +897,6 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
                 {
                   *pui16 = tvb_get_bits16(tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
                   proto_tree_add_uint_bits_format_value(tree, *(pDescr->hf_ptr), tvb, bit_offset, no_of_bits, *pui16, " (Count %d)", i++);
-                  remaining_bits_len -= no_of_bits;
                   bit_offset += no_of_bits;
                   nCount--;
                 }
