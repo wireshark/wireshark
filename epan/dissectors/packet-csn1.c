@@ -160,9 +160,10 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
   guint32* pui32;
   guint8 Tag = STANDARD_TAG;
 
-  if (remaining_bits_len <= 0)
+  /* Negative number definitely indicates an error */
+  if (remaining_bits_len < 0)
   {
-    return 0;
+    return ProcessError(tree, ar->pinfo, tvb, bit_offset, CSN_ERROR_NEED_MORE_BITS_TO_UNPACK, &ei_csn1_more_bits_to_unpack, pDescr);
   }
 
   do
