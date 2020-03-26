@@ -54,6 +54,7 @@ enum SpecialFieldType {
     TPNCP_OPEN_CHANNEL_START,
     TPNCP_SECURITY_START,
     TPNCP_SECURITY_OFFSET,
+    TPNCP_CHANNEL_CONFIGURATION
 };
 
 /* The linked list for storing information about specific data fields. */
@@ -137,8 +138,8 @@ dissect_tpncp_data(guint data_id, packet_info *pinfo, tvbuff_t *tvb, proto_tree 
     tpncp_data_field_info *field = NULL;
     gint bitindex = encoding == ENC_LITTLE_ENDIAN ? 7 : 0;
     enum AddressFamily address_family = TPNCP_IPV4;
-    int open_channel_start = -1;
-    int security_offset = 0;
+    gint open_channel_start = -1, security_offset = 0;
+    gint channel_b_offset = 0;
 
     for (field = &data_fields_info[data_id]; field; field = field->p_next) {
         switch (field->special_type) {
@@ -159,6 +160,16 @@ dissect_tpncp_data(guint data_id, packet_info *pinfo, tvbuff_t *tvb, proto_tree 
             open_channel_start = -1;
             security_offset = 0;
             break;
+        case TPNCP_CHANNEL_CONFIGURATION:
+            if (channel_b_offset == 0) {
+                gint channel_configuration_size = tvb_reported_length_remaining(tvb, *offset) / 2;
+                channel_b_offset = *offset + channel_configuration_size;
+            } else {
+                if (*offset < channel_b_offset)
+                    *offset = channel_b_offset;
+                channel_b_offset = 0;
+            }
+            break;
         case TPNCP_ADDRESS_FAMILY:
             address_family = (enum AddressFamily)tvb_get_guint32(tvb, *offset, encoding);
             // fall-through
@@ -167,6 +178,8 @@ dissect_tpncp_data(guint data_id, packet_info *pinfo, tvbuff_t *tvb, proto_tree 
                 if (*offset > security_offset)
                     continue;
             }
+            if (channel_b_offset > 0 && *offset >= channel_b_offset)
+                continue;
             break;
         }
         switch (field->size) {
@@ -710,6 +723,8 @@ init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info, FILE *file)
             special_type = TPNCP_SECURITY_START;
         else if (name[0] == 's' && !strcmp(name, "security_cmd_offset"))
             special_type = TPNCP_SECURITY_OFFSET;
+        else if (data_id == 1611 && name[0] == 'c' && strstr(name, "configuration_type_updated"))
+            special_type = TPNCP_CHANNEL_CONFIGURATION;
         sign = !!((gboolean) g_ascii_strtoll(tmp, NULL, 10));
         if ((tmp = strtok(NULL, " ")) == NULL) {
             report_failure(
