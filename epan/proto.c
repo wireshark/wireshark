@@ -171,6 +171,34 @@ struct ptvcursor {
 		return pi; \
 	}
 
+#ifdef ENABLE_CHECK_FILTER
+#define CHECK_HF_VALUE(type, modifier, start_values) \
+{ \
+	const type *current; \
+	int n, m; \
+	current = start_values; \
+	for (n=0; current; n++, current++) { \
+		/* Drop out if we reached the end. */ \
+		if ((current->value == 0) && (current->strptr == NULL)) { \
+			break; \
+		} \
+		/* Check value against all previous */ \
+		for (m=0; m < n; m++) { \
+			/* There are lots of duplicates with the same string, \
+			   so only report if different... */ \
+			if ((start_values[m].value == current->value) && \
+			    (strcmp(start_values[m].strptr, current->strptr) != 0)) { \
+				g_warning("Field '%s' (%s) has a conflicting entry in its" \
+					  " value_string: %" modifier "u is at indices %u (%s) and %u (%s)\n", \
+					  hfinfo->name, hfinfo->abbrev, \
+					  current->value, m, start_values[m].strptr, n, current->strptr); \
+			} \
+		} \
+	} \
+}
+#endif
+
+
 static const char *hf_try_val_to_str(guint32 value, const header_field_info *hfinfo);
 static const char *hf_try_val64_to_str(guint64 value, const header_field_info *hfinfo);
 static int hfinfo_container_bitwidth(const header_field_info *hfinfo);
@@ -7985,7 +8013,7 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 	/* TODO: This check may slow down startup, and output quite a few warnings.
 	   It would be good to be able to enable this (and possibly other checks?)
 	   in non-release builds.   */
-#if ENABLE_CHECK_FILTER
+#ifdef ENABLE_CHECK_FILTER
 	/* Check for duplicate value_string values.
 	   There are lots that have the same value *and* string, so for now only
 	   report those that have same value but different string. */
@@ -8004,43 +8032,20 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 		    (hfinfo->type == FT_INT24)  ||
 		    (hfinfo->type == FT_INT32)  )) {
 
-		int n, m;
-		const value_string *start_values;
-		const value_string *current;
-
 		if (hfinfo->display & BASE_EXT_STRING) {
-			if (hfinfo->display & BASE_VAL64_STRING)
-				start_values = VAL64_STRING_EXT_VS_P(((const val64_string_ext*)hfinfo->strings));
-			else
-				start_values = VALUE_STRING_EXT_VS_P(((const value_string_ext*)hfinfo->strings));
+			if (hfinfo->display & BASE_VAL64_STRING) {
+				const val64_string *start_values = VAL64_STRING_EXT_VS_P((const val64_string_ext*)hfinfo->strings);
+				CHECK_HF_VALUE(val64_string, G_GINT64_MODIFIER, start_values);
+			} else {
+				const value_string *start_values = VALUE_STRING_EXT_VS_P((const value_string_ext*)hfinfo->strings);
+				CHECK_HF_VALUE(value_string, "", start_values);
+			}
 		} else {
-			start_values = (const value_string*)hfinfo->strings;
-		}
-		current = start_values;
-
-		for (n=0; current; n++, current++) {
-			/* Drop out if we reached the end. */
-			if ((current->value == 0) && (current->strptr == NULL)) {
-				break;
-			}
-
-			/* Check value against all previous */
-			for (m=0; m < n; m++) {
-				/* There are lots of duplicates with the same string,
-				   so only report if different... */
-				if ((start_values[m].value == current->value) &&
-				    (strcmp(start_values[m].strptr, current->strptr) != 0)) {
-					g_warning("Field '%s' (%s) has a conflicting entry in its"
-						  " value_string: %u is at indices %u (%s) and %u (%s)\n",
-						  hfinfo->name, hfinfo->abbrev,
-						  current->value, m, start_values[m].strptr, n, current->strptr);
-				}
-			}
+			const value_string *start_values = (const value_string*)hfinfo->strings;
+			CHECK_HF_VALUE(value_string, "", start_values);
 		}
 	}
-#endif
 
-#if ENABLE_CHECK_FILTER
 	if (hfinfo->type == FT_BOOLEAN) {
 		const true_false_string *tfs = (const true_false_string*)hfinfo->strings;
 		if (tfs) {
@@ -8052,8 +8057,6 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 		}
 	}
 #endif
-
-
 
 	switch (hfinfo->type) {
 
