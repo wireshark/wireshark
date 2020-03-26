@@ -492,6 +492,10 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
 
         if (no_of_bits > 0)
         {
+          if (no_of_bits > remaining_bits_len)
+          {
+            return ProcessError(tree, ar->pinfo, tvb, bit_offset, CSN_ERROR_NEED_MORE_BITS_TO_UNPACK, &ei_csn1_more_bits_to_unpack, pDescr);
+          }
 
           if (no_of_bits <= 32)
           {
@@ -507,7 +511,6 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
           }
 
           remaining_bits_len -= no_of_bits;
-          DISSECTOR_ASSERT(remaining_bits_len >= 0);
           bit_offset += no_of_bits;
         }
         /* bitmap was successfully extracted or it was empty */
