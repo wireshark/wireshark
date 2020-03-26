@@ -402,7 +402,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
           nCount = *pui16DATA(data, nCount);
         }
 
-        if (remaining_bits_len >= no_of_bits)
+        if (remaining_bits_len >= (no_of_bits * nCount))
         {
           if (no_of_bits <= 8)
           {
@@ -873,7 +873,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
               nCount = *pui16DATA(data, nCount);
             }
 
-            if (remaining_bits_len >= no_of_bits)
+            if (remaining_bits_len >= (no_of_bits * nCount))
             {
               if (no_of_bits <= 8)
               {
