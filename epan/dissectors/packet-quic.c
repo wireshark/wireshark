@@ -862,7 +862,7 @@ quic_connection_update_initial(quic_info_data_t *conn, const quic_cid_t *scid, c
         // bytes, but non-conforming implementations could exist.
         memcpy(&conn->client_dcid_initial, dcid, sizeof(quic_cid_t));
         wmem_map_insert(quic_initial_connections, &conn->client_dcid_initial, conn);
-        conn->client_dcid_set = 1;
+        conn->client_dcid_set = TRUE;
     }
 }
 
@@ -934,7 +934,7 @@ quic_connection_create_or_update(quic_info_data_t **conn_p,
                 // packet populates the new value.
                 wmem_map_remove(quic_initial_connections, &conn->client_dcid_initial);
                 memset(&conn->client_dcid_initial, 0, sizeof(quic_cid_t));
-                conn->client_dcid_set = 0;
+                conn->client_dcid_set = FALSE;
             }
             if (conn->server_cids.data.len == 0 && scid->len) {
                 memcpy(&conn->server_cids.data, scid, sizeof(quic_cid_t));
@@ -1938,9 +1938,9 @@ quic_verify_retry_token(tvbuff_t *tvb, quic_packet_info_t *quic_packet, const qu
     // Plaintext is empty, there is no need to call gcry_cipher_encrypt.
     err = gcry_cipher_checktag(h, tvb_get_ptr(tvb, pseudo_packet_tail_length, 16), 16);
     if (err) {
-        quic_packet->retry_integrity_failure = 1;
+        quic_packet->retry_integrity_failure = TRUE;
     } else {
-        quic_packet->retry_integrity_success = 1;
+        quic_packet->retry_integrity_success = TRUE;
     }
     gcry_cipher_close(h);
 }
