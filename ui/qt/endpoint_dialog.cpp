@@ -201,12 +201,17 @@ QUrl EndpointDialog::createMap(bool json_only)
     hostlist_talker_t **hosts = (hostlist_talker_t **)g_ptr_array_free(hosts_arr, FALSE);
 
     QTemporaryFile tf("ipmapXXXXXX.html");
-    tf.setAutoRemove(false);
     if (!tf.open()) {
         QMessageBox::warning(this, tr("Map file error"), tr("Unable to create temporary file"));
         g_free(hosts);
         return QUrl();
     }
+
+    //
+    // XXX - At least with Qt 5.12 retrieving the name only works when
+    // it has been retrieved at least once when the file is open.
+    //
+    QString tempfilename = tf.fileName();
     int fd = tf.handle();
     //
     // XXX - QFileDevice.handle() can return -1, but can QTemporaryFile.handle()
@@ -215,14 +220,12 @@ QUrl EndpointDialog::createMap(bool json_only)
     if (fd == -1) {
         QMessageBox::warning(this, tr("Map file error"), tr("Unable to create temporary file"));
         g_free(hosts);
-        tf.remove();
         return QUrl();
     }
     FILE* fp = ws_fdopen(fd, "wb");
     if (fp == NULL) {
         QMessageBox::warning(this, tr("Map file error"), tr("Unable to create temporary file"));
         g_free(hosts);
-        tf.remove();
         return QUrl();
     }
 
@@ -232,16 +235,15 @@ QUrl EndpointDialog::createMap(bool json_only)
         g_free(err_str);
         g_free(hosts);
         fclose(fp);
-        tf.remove();
         return QUrl();
     }
     g_free(hosts);
     if (fclose(fp) == EOF) {
         QMessageBox::warning(this, tr("Map file error"), g_strerror(errno));
-        tf.remove();
         return QUrl();
     }
 
+    tf.setAutoRemove(false);
     return QUrl::fromLocalFile(tf.fileName());
 }
 
@@ -250,9 +252,6 @@ void EndpointDialog::openMap()
     QUrl map_file = createMap(false);
     if (!map_file.isEmpty()) {
         QDesktopServices::openUrl(map_file);
-        QString source_file = map_file.toLocalFile();
-        if (!source_file.isEmpty())
-            QFile::remove(source_file);
     }
 }
 
