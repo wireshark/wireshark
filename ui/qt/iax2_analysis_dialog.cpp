@@ -922,7 +922,7 @@ void Iax2AnalysisDialog::saveAudio(Iax2AnalysisDialog::StreamDirection direction
     }
 
     ui->hintLabel->setText(tr("Saving %1" UTF8_HORIZONTAL_ELLIPSIS).arg(save_file.fileName()));
-    ui->progressFrame->showProgress(true, true, &stop_flag);
+    ui->progressFrame->showProgress(tr("Analyzing IAX2"), true, true, &stop_flag);
 
     if	(save_format == save_audio_au_) { /* au format; https://pubs.opengroup.org/external/auformat.html */
         /* First we write the .au header.  All values in the header are
