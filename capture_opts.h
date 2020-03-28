@@ -153,6 +153,7 @@ typedef struct interface_tag {
     gchar          *name;
     gchar          *display_name;
     gchar          *friendly_name;
+    gchar          *vendor_description;
     guint           type;
     gchar          *addresses;
     gint            no_addresses;
@@ -191,6 +192,7 @@ typedef struct link_row_tag {
 typedef struct interface_options_tag {
     gchar            *name;                 /* the name of the interface supplied to libpcap/WinPcap/Npcap to specify the interface */
     gchar            *descr;                /* a more user-friendly description of the interface; may be NULL if none */
+    gchar            *hardware;             /* description of the hardware */
     gchar            *display_name;         /* the name displayed in the console and title bar */
     gchar            *cfilter;
     gboolean          has_snaplen;

@@ -204,6 +204,7 @@ scan_local_interfaces(void (*update_cb)(void))
         }
         device.name = g_strdup(if_info->name);
         device.friendly_name = g_strdup(if_info->friendly_name);
+        device.vendor_description = g_strdup(if_info->vendor_description);
         device.hidden = FALSE;
         memset(&temp, 0, sizeof(temp));
         temp.name = g_strdup(if_info->name);
@@ -377,6 +378,7 @@ scan_local_interfaces(void (*update_cb)(void))
         if (!found) {  /* new interface, maybe a pipe */
             memset(&device, 0, sizeof(device));
             device.name         = g_strdup(interface_opts->name);
+            device.vendor_description = g_strdup(interface_opts->hardware);
             device.display_name = interface_opts->descr ?
                 g_strdup_printf("%s: %s", device.name, interface_opts->descr) :
                 g_strdup(device.name);

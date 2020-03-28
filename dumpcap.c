@@ -2948,6 +2948,7 @@ capture_loop_init_pcapng_output(capture_options *capture_opts, loop_data *ld)
                                                                   "Dumpcap dummy interface",        /* IDB_DESCRIPTION   3 */
                                                                   NULL,                             /* IDB_FILTER       11 */
                                                                   os_info_str->str,                 /* IDB_OS           12 */
+                                                                  NULL,                             /* IDB_HARDWARE     15 */
                                                                   -1,
                                                                   0,
                                                                   &(global_ld.bytes_written),
@@ -2973,6 +2974,7 @@ capture_loop_init_pcapng_output(capture_options *capture_opts, loop_data *ld)
                                                                   interface_opts->descr,      /* IDB_DESCRIPTION   3 */
                                                                   interface_opts->cfilter,    /* IDB_FILTER       11 */
                                                                   os_info_str->str,           /* IDB_OS           12 */
+                                                                  interface_opts->hardware,   /* IDB_HARDWARE     15 */
                                                                   pcap_src->linktype,
                                                                   pcap_src->snaplen,
                                                                   &(global_ld.bytes_written),
