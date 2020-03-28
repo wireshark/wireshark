@@ -400,7 +400,7 @@ static const value_string block_type_vals[] = {
  *            ID MUST be valid, which means that a matching Darwin Process
  *            Event Block MUST exist.
  */
- 
+
 static const value_string option_code_section_header_vals[] = {
     { 0,  "End of Options" },
     { 1,  "Comment" },
