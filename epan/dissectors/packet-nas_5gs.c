@@ -3717,7 +3717,7 @@ de_nas_5gs_cmn_s_nssai(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     guint32 offset, guint len,
     gchar *add_string _U_, int string_len _U_)
 {
-    /* SST    octet 3
+    /* SST
     * This field contains the 8 bit SST value. The coding of the SST value part is defined in 3GPP TS 23.003
     */
     proto_tree_add_item(tree, hf_nas_5gs_mm_sst, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -3725,19 +3725,21 @@ de_nas_5gs_cmn_s_nssai(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
         return len;
     }
     offset += 1;
-    /* SD    octet 4 - octet 6* */
-    proto_tree_add_item(tree, hf_nas_5gs_mm_sd, tvb, offset, 3, ENC_BIG_ENDIAN);
-    if (len == 4) {
-        return len;
+    if (len > 2) {
+        /* SD */
+        proto_tree_add_item(tree, hf_nas_5gs_mm_sd, tvb, offset, 3, ENC_BIG_ENDIAN);
+        if (len == 4) {
+            return len;
+        }
+        offset += 3;
     }
-    offset += 3;
-    /* Mapped HPLMN SST    octet 7* */
+    /* Mapped HPLMN SST */
     proto_tree_add_item(tree, hf_nas_5gs_mm_mapped_hplmn_sst, tvb, offset, 1, ENC_BIG_ENDIAN);
-    if (len == 5) {
+    if ((len == 2) || (len == 5)) {
         return len;
     }
     offset += 1;
-    /* Mapped HPLMN SD    octet 8 - octet 10* */
+    /* Mapped HPLMN SD */
     proto_tree_add_item(tree, hf_nas_5gs_mm_mapped_hplmn_ssd, tvb, offset, 3, ENC_BIG_ENDIAN);
 
     return len;
