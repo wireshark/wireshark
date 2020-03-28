@@ -6453,7 +6453,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
                     /* Use preference setting (if set) */
                     if (tcp_default_window_scaling != WindowScaling_NotKnown) {
-                        win_scale = tcp_default_window_scaling;
+                        win_scale = (1 << tcp_default_window_scaling);
                         override_with_pref = TRUE;
                     }
 
