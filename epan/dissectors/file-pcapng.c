@@ -70,6 +70,7 @@ static int hf_pcapng_option_data_interface_timestamp_resolution_value = -1;
 static int hf_pcapng_option_data_interface_timezone = -1;
 static int hf_pcapng_option_data_interface_filter = -1;
 static int hf_pcapng_option_data_interface_os = -1;
+static int hf_pcapng_option_data_interface_hardware = -1;
 static int hf_pcapng_option_data_interface_fcs_length = -1;
 static int hf_pcapng_option_data_interface_timestamp_offset = -1;
 static int hf_pcapng_option_data_packet_drop_count = -1;
@@ -399,44 +400,45 @@ static const value_string block_type_vals[] = {
  *            ID MUST be valid, which means that a matching Darwin Process
  *            Event Block MUST exist.
  */
-
+ 
 static const value_string option_code_section_header_vals[] = {
-    { 0x0000,  "End of Options" },
-    { 0x0001,  "Comment" },
+    { 0,  "End of Options" },
+    { 1,  "Comment" },
 
-    { 0x0002,  "Hardware Description" },
-    { 0x0003,  "OS Description" },
-    { 0x0004,  "User Application" },
+    { 2,  "Hardware Description" },
+    { 3,  "OS Description" },
+    { 4,  "User Application" },
     { 0, NULL }
 };
 
 static const value_string option_code_interface_description_vals[] = {
-    { 0x0000,  "End of Options" },
-    { 0x0001,  "Comment" },
+    { 0,  "End of Options" },
+    { 1,  "Comment" },
 
-    { 0x0002,  "Interface Name" },
-    { 0x0003,  "Interface Description" },
-    { 0x0004,  "IPv4 Address" },
-    { 0x0005,  "IPv6 Address" },
-    { 0x0006,  "MAC Address" },
-    { 0x0007,  "EUI Address" },
-    { 0x0008,  "Speed" },
-    { 0x0009,  "Timestamp Resolution" },
-    { 0x000A,  "Timezone" },
-    { 0x000B,  "Filter" },
-    { 0x000C,  "OS" },
-    { 0x000D,  "FCS Length" },
-    { 0x000E,  "Timestamo Offset" },
+    { 2,  "Interface Name" },
+    { 3,  "Interface Description" },
+    { 4,  "IPv4 Address" },
+    { 5,  "IPv6 Address" },
+    { 6,  "MAC Address" },
+    { 7,  "EUI Address" },
+    { 8,  "Speed" },
+    { 9,  "Timestamp Resolution" },
+    { 10, "Timezone" },
+    { 11, "Filter" },
+    { 12, "OS" },
+    { 13, "FCS Length" },
+    { 14, "Timestamp Offset" },
+    { 15, "Hardware" },
     { 0, NULL }
 };
 
 static const value_string option_code_enhanced_packet_vals[] = {
-    { 0x0000,  "End of Options" },
-    { 0x0001,  "Comment" },
+    { 0,  "End of Options" },
+    { 1,  "Comment" },
 
-    { 0x0002,  "Flags" },
-    { 0x0003,  "Hash" },
-    { 0x0004,  "Drop Count" },
+    { 2,  "Flags" },
+    { 3,  "Hash" },
+    { 4,  "Drop Count" },
     { 32769,   "Darwin DPEB ID" },
     { 32770,   "Darwin Service Class" },
     { 32771,   "Darwin Effective DPEB ID" },
@@ -444,44 +446,44 @@ static const value_string option_code_enhanced_packet_vals[] = {
 };
 
 static const value_string option_code_packet_vals[] = {
-    { 0x0000,  "End of Options" },
-    { 0x0001,  "Comment" },
+    { 0,  "End of Options" },
+    { 1,  "Comment" },
 
-    { 0x0002,  "Flags" },
-    { 0x0003,  "Hash" },
+    { 2,  "Flags" },
+    { 3,  "Hash" },
     { 0, NULL }
 };
 
 static const value_string option_code_name_resolution_vals[] = {
-    { 0x0000,  "End of Options" },
-    { 0x0001,  "Comment" },
+    { 0,  "End of Options" },
+    { 1,  "Comment" },
 
-    { 0x0002,  "DNS Name" },
-    { 0x0003,  "DNS IPv4 Address" },
-    { 0x0004,  "DNS IPv6 Address" },
+    { 2,  "DNS Name" },
+    { 3,  "DNS IPv4 Address" },
+    { 4,  "DNS IPv6 Address" },
     { 0, NULL }
 };
 
 static const value_string option_code_interface_statistics_vals[] = {
-    { 0x0000,  "End of Options" },
-    { 0x0001,  "Comment" },
+    { 0,  "End of Options" },
+    { 1,  "Comment" },
 
-    { 0x0002,  "Start Time" },
-    { 0x0003,  "End Time" },
-    { 0x0004,  "Number of Received Packets" },
-    { 0x0005,  "Number of Dropped Packets" },
-    { 0x0006,  "Number of Accepted Packets" },
-    { 0x0007,  "Number of Packets Dropped by OS" },
-    { 0x0008,  "Number of Packets Delivered to the User" },
+    { 2,  "Start Time" },
+    { 3,  "End Time" },
+    { 4,  "Number of Received Packets" },
+    { 5,  "Number of Dropped Packets" },
+    { 6,  "Number of Accepted Packets" },
+    { 7,  "Number of Packets Dropped by OS" },
+    { 8,  "Number of Packets Delivered to the User" },
     { 0, NULL }
 };
 
 static const value_string option_code_darwin_process_info_vals[] = {
-    { 0x0000,  "End of Options" },
-    { 0x0001,  "Comment" },
+    { 0,  "End of Options" },
+    { 1,  "Comment" },
 
-    { 0x0002,  "Darwin Process Name" },
-    { 0x0004,  "Darwin Process UUID" },
+    { 2,  "Darwin Process Name" },
+    { 4,  "Darwin Process UUID" },
     { 0, NULL }
 };
 
@@ -634,15 +636,15 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
         } else switch (block_type) {
         case BLOCK_SECTION_HEADER:
             switch (option_code) {
-            case 0x0002:
+            case 2:
                 proto_tree_add_item_ret_string(option_tree, hf_pcapng_option_data_section_header_hardware, tvb, offset, option_length, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
                 offset += option_length;
                 break;
-            case 0x0003:
+            case 3:
                 proto_tree_add_item_ret_string(option_tree, hf_pcapng_option_data_section_header_os, tvb, offset, option_length, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
                 offset += option_length;
                 break;
-            case 0x0004:
+            case 4:
                 proto_tree_add_item_ret_string(option_tree, hf_pcapng_option_data_section_header_user_application, tvb, offset, option_length, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
                 offset += option_length;
                 break;
@@ -655,15 +657,15 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
             struct interface_description  *interface_description = (struct interface_description *) user_data;
 
             switch (option_code) {
-            case 0x0002:
+            case 2:
                 proto_tree_add_item_ret_string(option_tree, hf_pcapng_option_data_interface_description_name, tvb, offset, option_length, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
                 offset += option_length;
                 break;
-            case 0x0003:
+            case 3:
                 proto_tree_add_item_ret_string(option_tree, hf_pcapng_option_data_interface_description_description, tvb, offset, option_length, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
                 offset += option_length;
                 break;
-            case 0x0004:
+            case 4:
                 if (option_length != 8) {
                     proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
                     offset += option_length;
@@ -681,7 +683,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                         address_to_display(wmem_packet_scope(),  &addr),
                         address_to_display(wmem_packet_scope(),  &addr_mask));
                 break;
-            case 0x0005:
+            case 5:
                 if (option_length != 17) {
                     proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
                     offset += option_length;
@@ -699,7 +701,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                     address_to_display(wmem_packet_scope(),  &addr), (unsigned int) tvb_get_guint8(tvb, offset - 1));
 
                 break;;
-            case 0x0006:
+            case 6:
                 if (option_length != 6) {
                     proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
                     offset += option_length;
@@ -711,7 +713,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 offset += 6;
 
                 break;
-            case 0x0007:
+            case 7:
                 if (option_length != 8) {
                     proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
                     offset += option_length;
@@ -725,7 +727,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 str = address_to_display(wmem_packet_scope(),  &addr);
 
                 break;
-            case 0x0008:
+            case 8:
                 if (option_length != 8) {
                     proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
                     offset += option_length;
@@ -749,7 +751,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 offset += 8;
 
                 break;
-            case 0x0009:
+            case 9:
             {
                 guint32     base;
                 guint32     exponent;
@@ -851,7 +853,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 str = wmem_strbuf_finalize(strbuf);
                 break;
             }
-            case 0x000A:
+            case 10:
                 if (option_length != 4) {
                     proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
                     offset += option_length;
@@ -866,7 +868,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 str = wmem_strdup_printf(wmem_packet_scope(), "%u", value.u32);
 
                 break;
-            case 0x000B:
+            case 11:
                 if (option_length == 0) {
                     proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
                     break;
@@ -878,12 +880,12 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 offset += option_length - 1;
 
                 break;
-            case 0x000C:
+            case 12:
                 proto_tree_add_item_ret_string(option_tree, hf_pcapng_option_data_interface_os, tvb, offset, option_length, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
                 offset += option_length;
 
                 break;
-            case 0x000D:
+            case 13:
                 if (option_length != 1) {
                     proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
                     offset += option_length;
@@ -896,7 +898,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 offset += 1;
 
                 break;
-            case 0x000E:
+            case 14:
                 if (option_length != 8) {
                     proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
                     offset += option_length;
@@ -913,6 +915,11 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 }
 
                 break;
+            case 15:
+                proto_tree_add_item_ret_string(option_tree, hf_pcapng_option_data_interface_hardware, tvb, offset, option_length, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
+                offset += option_length;
+
+                break;
             default:
                 proto_tree_add_item(option_tree, hf_pcapng_option_data, tvb, offset, option_length, ENC_NA);
                 offset += option_length;
@@ -921,7 +928,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
             break;
         case BLOCK_PACKET:
             switch (option_code) {
-            case 0x0002:
+            case 2:
                 if (option_length != 4) {
                     proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
                     offset += option_length;
@@ -943,7 +950,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 }
 
                 break;
-            case 0x0003:
+            case 3:
                 proto_tree_add_item(option_tree, hf_pcapng_option_data_packet_hash_algorithm, tvb, offset, 1, ENC_NA);
                 offset += 1;
 
@@ -959,12 +966,12 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
             break;
         case BLOCK_NAME_RESOLUTION:
             switch (option_code) {
-            case 0x0002:
+            case 2:
                 proto_tree_add_item_ret_string(option_tree, hf_pcapng_option_data_dns_name, tvb, offset, option_length, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
                 offset += option_length;
 
                 break;
-            case 0x0003:
+            case 3:
                 if (option_length != 4) {
                     proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
                     offset += option_length;
@@ -978,7 +985,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 str = address_to_display(wmem_packet_scope(), &addr);
 
                 break;
-            case 0x0004:
+            case 4:
                 if (option_length != 16) {
                     proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
                     offset += option_length;
@@ -1000,7 +1007,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
             break;
         case BLOCK_INTERFACE_STATISTICS:
             switch (option_code) {
-            case 0x0002:
+            case 2:
                 if (option_length != 8) {
                     proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
                     offset += option_length;
@@ -1011,7 +1018,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 offset += 8;
 
                 break;
-            case 0x0003:
+            case 3:
                 if (option_length != 8) {
                     proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
                     offset += option_length;
@@ -1022,7 +1029,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 offset += 8;
 
                 break;
-            case 0x0004:
+            case 4:
                 if (option_length != 8) {
                     proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
                     offset += option_length;
@@ -1035,7 +1042,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 offset += 8;
 
                 break;
-            case 0x0005:
+            case 5:
                 if (option_length != 8) {
                     proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
                     offset += option_length;
@@ -1048,7 +1055,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 offset += 8;
 
                 break;
-            case 0x0006:
+            case 6:
                 if (option_length != 8) {
                     proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
                     offset += option_length;
@@ -1061,7 +1068,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 offset += 8;
 
                 break;
-            case 0x0007:
+            case 7:
                 if (option_length != 8) {
                     proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
                     offset += option_length;
@@ -1074,7 +1081,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 offset += 8;
 
                 break;
-            case 0x0008:
+            case 8:
                 if (option_length != 8) {
                     proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
                     offset += option_length;
@@ -1095,7 +1102,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
             break;
         case BLOCK_ENHANCED_PACKET:
             switch (option_code) {
-            case 0x0002:
+            case 2:
                 if (option_length != 4) {
                     proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
                     offset += option_length;
@@ -1117,7 +1124,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 }
 
                 break;
-            case 0x0003:
+            case 3:
                 proto_tree_add_item(option_tree, hf_pcapng_option_data_packet_hash_algorithm, tvb, offset, 1, ENC_NA);
                 offset += 1;
 
@@ -1125,7 +1132,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 offset += option_length - 1;
 
                 break;
-            case 0x0004:
+            case 4:
                 if (option_length != 8) {
                     proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
                     offset += option_length;
@@ -1170,12 +1177,12 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
             break;
         case BLOCK_DARWIN_PROCESS:
             switch (option_code) {
-            case 0x0002: /* Darwin Process Name */
+            case 2: /* Darwin Process Name */
                 proto_tree_add_item_ret_string(option_tree, hf_pcapng_option_darwin_process_name, tvb, offset, option_length, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
                 offset += option_length;
                 break;
 
-            case 0x0004: /* Darwin Process UUID */
+            case 4: /* Darwin Process UUID */
                 proto_tree_add_item(option_tree, hf_pcapng_option_darwin_process_uuid, tvb, offset, option_length, ENC_BIG_ENDIAN);
                 tvb_get_guid(tvb, offset, &uuid, ENC_BIG_ENDIAN);
                 offset += option_length;
@@ -1927,6 +1934,11 @@ proto_register_pcapng(void)
         },
         { &hf_pcapng_option_data_interface_os,
             { "OS",                                        "pcapng.options.option.data.interface.os",
+            FT_STRING, STR_ASCII, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_pcapng_option_data_interface_hardware,
+            { "Hardware",                                  "pcapng.options.option.data.interface.hardware",
             FT_STRING, STR_ASCII, NULL, 0x00,
             NULL, HFILL }
         },
