@@ -401,6 +401,7 @@ static dissector_handle_t dsp_5x_dissector_handle;
 static dissector_handle_t dsp_5x_MII_dissector_handle;
 static dissector_handle_t udp_dissector_handle;
 static dissector_handle_t xml_dissector_handle;
+static dissector_handle_t lix2x3_dissector_handle;
 
 static void dissect_rtp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                guint8 media_type, guint16 payload_type);
@@ -784,6 +785,11 @@ acdr_payload_handler(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
         if (proto_name)
             col_set_str(pinfo->cinfo, COL_PROTOCOL, proto_name);
         return;
+    }
+    if (data->li_packet && !data->header_added && lix2x3_dissector_handle)
+    {
+        if (call_dissector_only(lix2x3_dissector_handle, tvb, pinfo, tree, data))
+            return;
     }
     // check registered media types
     if (dissector_try_uint_new(media_type_table, data->media_type, tvb, pinfo, tree, FALSE, data))
@@ -1984,6 +1990,7 @@ proto_reg_handoff_acdr(void)
     mgcp_dissector_handle = find_dissector("mgcp");
     sip_dissector_handle = find_dissector("sip");
     udp_dissector_handle = find_dissector("udp");
+    lix2x3_dissector_handle = find_dissector("lix2x3");
 
     dsp_49x_dissector_handle = find_dissector("ac49x");
     proto_ac49x = proto_get_id_by_filter_name("ac49x");
