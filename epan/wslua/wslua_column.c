@@ -43,6 +43,7 @@ struct col_names_t {
     int id;
 };
 
+// Duplicated belown in Columns__newindex.
 static const struct col_names_t colnames[] = {
     {"number",COL_NUMBER},
     {"abs_time",COL_ABS_TIME},
@@ -249,22 +250,82 @@ int Column_register(lua_State *L) {
 }
 
 
-WSLUA_CLASS_DEFINE(Columns,NOP);
-/* The Columns of the packet list. */
+WSLUA_CLASS_DEFINE(Columns,NOP); /* The <<lua_class_Column,``Column``>>s of the packet list. */
 
 WSLUA_METAMETHOD Columns__tostring(lua_State *L) {
     lua_pushstring(L,"Columns");
     WSLUA_RETURN(1);
-    /* The string "Columns", no real use, just for debugging purposes. */
+    /* The string "Columns". This has no real use aside from debugging. */
 }
 
 /*
  * To document this is very odd - it won't make sense to a person reading the
  * API docs to see this metamethod as a method, but oh well.
  */
-WSLUA_METAMETHOD Columns__newindex(lua_State *L) {
-    /* Sets the text of a specific column. */
-#define WSLUA_ARG_Columns__newindex_COLUMN 2 /* The name of the column to set. */
+WSLUA_METAMETHOD Columns__newindex(lua_State *L) { /*
+    Sets the text of a specific column.
+    Some columns cannot be modified, and no error is raised if attempted.
+    The columns that are known to allow modification are "info" and "protocol".
+    */
+#define WSLUA_ARG_Columns__newindex_COLUMN 2 /*
+    The name of the column to set.
+    Valid values are:
+
+    [options="header"]
+    |===
+    |Name |Description
+    |number |Frame number
+    |abs_time |Absolute timestamp
+    |utc_time |UTC timestamp
+    |cls_time |CLS timestamp
+    |rel_time |Relative timestamp
+    |date |Absolute date and time
+    |date_doy |Absolute year, day of year, and time
+    |utc_date |UTC date and time
+    |utc_date_doy |UTC year, day of year, and time
+    |delta_time |Delta time from previous packet
+    |delta_time_displayed |Delta time from previous displayed packet
+    |src |Source address
+    |src_res |Resolved source address
+    |src_unres |Numeric source address
+    |dl_src |Source data link address
+    |dl_src_res |Resolved source data link address
+    |dl_src_unres |Numeric source data link address
+    |net_src |Source network address
+    |net_src_res |Resolved source network address
+    |net_src_unres |Numeric source network address
+    |dst |Destination address
+    |dst_res |Resolve destination address
+    |dst_unres |Numeric destination address
+    |dl_dst |Destination data link address
+    |dl_dst_res |Resolved destination data link address
+    |dl_dst_unres |Numeric destination data link address
+    |net_dst |Destination network address
+    |net_dst_res |Resolved destination network address
+    |net_dst_unres |Numeric destination network address
+    |src_port |Source port
+    |src_port_res |Resolved source port
+    |src_port_unres |Numeric source port
+    |dst_port |Destination port
+    |dst_port_res |Resolved destination port
+    |dst_port_unres |Numeric destination port
+    |protocol |Protocol name
+    |info |General packet information
+    |packet_len |Packet length
+    |cumulative_bytes |Cumulative bytes in the capture
+    |direction |Packet direction
+    |vsan |Virtual SAN
+    |tx_rate |Transmit rate
+    |rssi |RSSI value
+    |dce_call |DCE call
+    |===
+
+    ===== Example
+    pinfo.cols['info'] = 'foo bar'
+
+    -- syntactic sugar (equivalent to above)
+    pinfo.cols.info = 'foo bar'
+    */
 #define WSLUA_ARG_Columns__newindex_TEXT 3 /* The text for the column. */
     Columns cols = checkColumns(L,1);
     const struct col_names_t* cn;
@@ -292,7 +353,7 @@ WSLUA_METAMETHOD Columns__newindex(lua_State *L) {
 }
 
 WSLUA_METAMETHOD Columns__index(lua_State *L) {
-    /* Gets a specific Column. */
+    /* Get a specific <<lua_class_Column,``Column``>>. */
     Columns cols = checkColumns(L,1);
     const struct col_names_t* cn;
     const char* colname = luaL_checkstring(L,2);
