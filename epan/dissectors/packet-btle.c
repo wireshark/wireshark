@@ -1341,7 +1341,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
                 break;
             case 0x16: /* LL_PHY_REQ */
-            case 0x17: /* LL_PYH_RSP */
+            case 0x17: /* LL_PHY_RSP */
                 proto_tree_add_bitmask(btle_tree, tvb, offset, hf_control_tx_phys, ett_tx_phys, hfx_control_phys_sender, ENC_NA);
                 offset += 1;
 
