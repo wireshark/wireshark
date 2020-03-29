@@ -778,9 +778,15 @@ create_5x_hpi_packet_header_subtree(proto_tree *tree, tvbuff_t *tvb)
 
 static void
 acdr_payload_handler(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
-                     acdr_dissector_data_t *data)
+                     acdr_dissector_data_t *data, const char *proto_name)
 {
-    // first check registered media types
+    if (data->header_added && ip_dissector_handle) {
+        call_dissector(ip_dissector_handle, tvb, pinfo, tree);
+        if (proto_name)
+            col_set_str(pinfo->cinfo, COL_PROTOCOL, proto_name);
+        return;
+    }
+    // check registered media types
     if (dissector_try_uint_new(media_type_table, data->media_type, tvb, pinfo, tree, FALSE, data))
         return;
     proto_tree_add_item(tree, hf_acdr_unknown_packet, tvb, 0, 0, ENC_NA);
@@ -974,6 +980,7 @@ create_acdr_tree(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
     gboolean li_packet;
     guint16 payload_type = 0;
     AcdrTlsPacketInfo tls_packet_info = {0xFFFF, 0xFFFF, TLS_APP_UNKNWN};
+    const char *proto_name = NULL;
 
     header_ti = proto_tree_add_item(tree, proto_acdr, tvb, 0, -1, ENC_NA);
     acdr_tree = proto_item_add_subtree(header_ti, ett_acdr);
@@ -1103,6 +1110,13 @@ create_acdr_tree(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
     }
 
     proto_item_set_len(header_ti, acdr_header_length);
+    if (header_added) {
+        p_add_proto_data(pinfo->pool, pinfo, proto_acdr, 0, GUINT_TO_POINTER(media_type));
+        switch (media_type) {
+            case ACDR_VoiceAI: proto_name = "VoiceAI"; break;
+            case ACDR_T38: proto_name = "T38"; break;
+        }
+    }
 
     // Header extension
     if (header_extension_len > 0) {
@@ -1159,7 +1173,7 @@ create_acdr_tree(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
     data.trace_point = trace_point;
     data.medium_mii = medium_mii;
     data.li_packet = li_packet;
-    acdr_payload_handler(tree, pinfo, next_tvb, &data);
+    acdr_payload_handler(tree, pinfo, next_tvb, &data, proto_name);
 }
 
 static int
@@ -1171,31 +1185,6 @@ dissect_acdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     col_add_fstr(pinfo->cinfo, COL_INFO, "AC DEBUG Packet");
 
     create_acdr_tree(tree, pinfo, tvb);
-
-    return tvb_captured_length(tvb);
-}
-
-static int
-dissect_voice_ai(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
-{
-    acdr_dissector_data_t *acdr_data = (acdr_dissector_data_t *) data;
-
-    if (acdr_data == NULL)
-        return 0;
-
-    if (acdr_data->header_added && ip_dissector_handle) {
-        //Let payload know that ACDR wants to dissect JSON if it comes through UDP over IP
-        p_add_proto_data(pinfo->pool, pinfo, proto_acdr, 0, GUINT_TO_POINTER(ACDR_VoiceAI));
-
-        call_dissector(ip_dissector_handle, tvb, pinfo, tree);
-    } else if (json_dissector_handle) {
-        call_dissector(json_dissector_handle, tvb, pinfo, tree);
-    } else {
-        call_data_dissector(tvb, pinfo, tree);
-    }
-
-    //Force the protocol name
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "VoiceAI");
 
     return tvb_captured_length(tvb);
 }
@@ -2025,7 +2014,7 @@ proto_reg_handoff_acdr(void)
     dissector_add_uint_with_preference("tcp.port", PORT_AC_DR, acdr_dissector_handle);
 
     // Register "local" media types
-    dissector_add_uint("acdr.media_type", ACDR_VoiceAI, create_dissector_handle(dissect_voice_ai, -1));
+    dissector_add_uint("acdr.media_type", ACDR_VoiceAI, json_dissector_handle);
     dissector_add_uint("acdr.media_type", ACDR_TLS, create_dissector_handle(dissect_acdr_tls, -1));
     dissector_add_uint("acdr.media_type", ACDR_TLSPeek, create_dissector_handle(dissect_acdr_tls, -1));
     dissector_add_uint("acdr.media_type", ACDR_SIP, create_dissector_handle(dissect_acdr_sip, -1));
