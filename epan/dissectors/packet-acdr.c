@@ -401,7 +401,6 @@ static dissector_handle_t dsp_5x_dissector_handle;
 static dissector_handle_t dsp_5x_MII_dissector_handle;
 static dissector_handle_t udp_dissector_handle;
 static dissector_handle_t xml_dissector_handle;
-static dissector_table_t udp_dissector_table;
 
 static void dissect_rtp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                guint8 media_type, guint16 payload_type);
@@ -1984,18 +1983,13 @@ proto_reg_handoff_acdr(void)
 
     mgcp_dissector_handle = find_dissector("mgcp");
     sip_dissector_handle = find_dissector("sip");
+    udp_dissector_handle = find_dissector("udp");
 
     dsp_49x_dissector_handle = find_dissector("ac49x");
     proto_ac49x = proto_get_id_by_filter_name("ac49x");
-
     dsp_48x_dissector_handle = find_dissector("ac48x");
     proto_ac48x = proto_get_id_by_filter_name("ac48x");
-
-    udp_dissector_handle = find_dissector("udp");
-    udp_dissector_table = find_dissector_table("udp.port");
-
     dsp_45x_dissector_handle = find_dissector("AC45x");
-
     dsp_5x_dissector_handle = find_dissector("ac5x");
     proto_ac5x = proto_get_id_by_filter_name("ac5x");
     dsp_5x_MII_dissector_handle = find_dissector("ac5xmii");
