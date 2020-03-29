@@ -2,11 +2,10 @@ language: minimal
 dist: bionic
 matrix:
   include:
-    - name: OSX (xcode11.3 clang-11.0.0) with PCAP
+    - name: OSX (xcode11.3 clang-11.0.0)
       os: osx
       osx_image: xcode11.3
-      env: PCAP=ON
-    - name: Linux amd64 (gcc-9) with PCAP
+    - name: Linux amd64 (gcc-9)
       os: linux
       addons:
         apt:
@@ -18,8 +17,7 @@ matrix:
       env:
         - CXX=g++-9
         - CC=gcc-9
-        - PCAP=ON
-    - name: Linux arm64 (gcc-8) with PCAP
+    - name: Linux arm64 (gcc-8)
       os: linux
       arch: arm64
       addons:
@@ -28,50 +26,35 @@ matrix:
       env:
         - CXX=g++-8
         - CC=gcc-8
-        - PCAP=ON
-    - name: Linux s390x (gcc-7) with PCAP
+    - name: Linux s390x (gcc-7)
       os: linux
       arch: s390x
-      env:
-        - PCAP=ON
-    - name: Linux ppc64le (gcc-7) with PCAP
+    - name: Linux ppc64le (gcc-7)
       os: linux
       arch: ppc64le
-      env:
-        - PCAP=ON
-    - name: Linux amd64 (clang) with PCAP
+    - name: Linux amd64 (clang)
       os: linux
       env:
         - CXX=clang++
         - CC=clang
-        - PCAP=ON
-    - name: Linux arm64 (clang) with PCAP
+    - name: Linux arm64 (clang)
       os: linux
       arch: arm64
       env:
         - CXX=clang++
         - CC=clang
-        - PCAP=ON
-    - name: Linux s390x (clang) with PCAP
+    - name: Linux s390x (clang)
       os: linux
       arch: s390x
       env:
         - CXX=clang++
         - CC=clang
-        - PCAP=ON
-    - name: Linux ppc64le (clang) with PCAP
+    - name: Linux ppc64le (clang)
       os: linux
       arch: ppc64le
       env:
         - CXX=clang++
         - CC=clang
-        - PCAP=ON
-    - name: Linux amd64 (clang) without PCAP
-      os: linux
-      env:
-        - CXX=clang++
-        - CC=clang
-        - PCAP=OFF
     - name: Windows (VS2017 x64)
       # Set a supported language, otherwise the Windows worker will not start.
       language: shell
@@ -128,7 +111,7 @@ before_install:
 before_script:
   - mkdir build
   - cd build
-  - if [ "$TRAVIS_OS_NAME" != "windows" ]; then cmake -GNinja -DENABLE_PCAP=${PCAP} ..; fi
+  - if [ "$TRAVIS_OS_NAME" != "windows" ]; then cmake -GNinja ..; fi
   - if [ "$TRAVIS_OS_NAME" == "windows" ]; then cmake -A $PLATFORM ..; fi
 script:
   # Enable parallelism for msbuild too (since CMake 3.12; ninja does not need it)
@@ -137,8 +120,7 @@ script:
   # Invoke ninja (Linux/macOS, --config is ignored) or msbuild (Windows)
   - cmake --build . --config RelWithDebInfo
   - cmake --build . --config RelWithDebInfo --target test-programs
-  - if [ "$PCAP" = "OFF" ]; then export PYTEST_ADDOPTS=--skip-missing-programs=dumpcap,rawshark; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" -a "$PCAP" = "ON" ]; then sudo setcap cap_net_raw,cap_net_admin+eip run/dumpcap; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo setcap cap_net_raw,cap_net_admin+eip run/dumpcap; fi
   - pytest
   - cd ..
 before_cache:
