@@ -21,6 +21,7 @@
 #include <string.h>
 #include <locale.h>
 #include <limits.h>
+#include "marine.h"
 
 #ifdef HAVE_GETOPT_H
 
@@ -69,7 +70,9 @@
 #include <epan/packet.h>
 
 #ifdef HAVE_LUA
+
 #include <epan/wslua/init_wslua.h>
+
 #endif
 
 #include "frame_tvbuff.h"
@@ -221,10 +224,6 @@ typedef struct {
     output_fields_t *output_fields;
 } packet_filter;
 
-typedef struct {
-    char *output;
-    int result;
-} marine_result;
 
 static GHashTable *packet_filters;
 static int *packet_filter_keys[4096];
@@ -353,7 +352,7 @@ marine_write_specified_fields(packet_filter *filter, epan_dissect_t *edt, char *
     /*   time (each packet) this function is invoked for a flle. */
     /* XXX: ToDo: use packet-scope'd memory & (if/when implemented) wmem ptr_array */
     if (NULL == fields->field_values)
-        fields->field_values = g_new0(GPtrArray * , fields->fields->len);  /* free'd in output_fields_free() */
+        fields->field_values = g_new0(GPtrArray *, fields->fields->len);  /* free'd in output_fields_free() */
 
     proto_tree_children_foreach(edt->tree, proto_tree_get_node_field_values, &data);
 

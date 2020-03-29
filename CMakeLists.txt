@@ -2445,23 +2445,24 @@ if(BUILD_marine)
 			tshark-tap-register.c
 			marine.c
 			${TSHARK_TAP_SRC}
-			)
+			benchmark.c marine.h)
 
 	# Uncomment these lines to run Marine as a binary (after you add a main() entry point)
-#	set_executable_resources(marine "Marine" UNIQUE_RC)
-#	add_executable(marine ${marine_FILES})
-#	set_extra_executable_properties(marine "Executables")
-#	target_link_libraries(marine ${marine_LIBS})
-#	install(TARGETS marine RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+	set_executable_resources(marine "Marine" UNIQUE_RC)
+	add_executable(marine ${marine_FILES})
+	set_extra_executable_properties(marine "Executables")
+	target_link_libraries(marine ${marine_LIBS})
+	install(TARGETS marine RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 	# Uncomment these lines to compile Marine as a shared library
-	add_library(marine ${marine_FILES})
-	target_link_libraries(marine ${marine_LIBS})
-	install(TARGETS marine
-			RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-			LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-			ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
+#	add_library(marine ${marine_FILES})
+#	target_link_libraries(marine ${marine_LIBS})
+#	install(TARGETS marine
+#			RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+#			LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+#			ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
 endif()
+
 
 if(BUILD_tfshark)
 	set(tfshark_LIBS
