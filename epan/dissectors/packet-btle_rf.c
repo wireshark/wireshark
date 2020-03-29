@@ -158,6 +158,7 @@ dissect_btle_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     proto_item_append_text(ti, ", %d MHz, %s %d", 2402+2*rf_channel,
                            btle_rf_channel_type(rf_channel),
                            btle_rf_channel_index(rf_channel));
+    context.channel = btle_rf_channel_index(rf_channel);
 
     if (flags & LE_CHANNEL_ALIASED) {
         proto_item_append_text(ti, " [aliased]");

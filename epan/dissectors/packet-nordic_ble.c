@@ -432,6 +432,7 @@ static gint
 dissect_packet(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, nordic_ble_context_t *nordic_ble_context, btle_context_t *context)
 {
     gint32 rssi;
+    guint32 channel;
 
     if (nordic_ble_context->protover == 0) {
         // Event packet length is fixed for the legacy version
@@ -445,8 +446,10 @@ dissect_packet(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree,
 
     offset = dissect_flags(tvb, offset, pinfo, tree, nordic_ble_context, context);
 
-    proto_tree_add_item(tree, hf_nordic_ble_channel, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item_ret_uint(tree, hf_nordic_ble_channel, tvb, offset, 1, ENC_NA, &channel);
     offset += 1;
+
+    context->channel = channel;
 
     rssi = (-1)*((gint32)tvb_get_guint8(tvb, offset));
     proto_tree_add_int(tree, hf_nordic_ble_rssi, tvb, offset, 1, rssi);

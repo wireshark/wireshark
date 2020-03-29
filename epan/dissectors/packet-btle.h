@@ -53,6 +53,7 @@ typedef struct {
     guint mic_checked_at_capture: 1;
     guint mic_valid_at_capture: 1;
     guint direction: 2; /* 0 Unknown, 1 Master -> Slave, 2 Slave -> Master */
+    guint8 channel;
 
     union {
         void              *data;
