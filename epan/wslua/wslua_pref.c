@@ -22,7 +22,7 @@
 /* WSLUA_CONTINUE_MODULE Proto */
 
 
-WSLUA_CLASS_DEFINE(Pref,NOP); /* A preference of a Protocol. */
+WSLUA_CLASS_DEFINE(Pref,NOP); /* A preference of a <<lua_class_Proto,`Proto`>>. */
 
 static range_t* get_range(lua_State *L, int idx_r, int idx_m);
 
@@ -162,16 +162,27 @@ static int new_pref(lua_State* L, pref_type_t type) {
 }
 
 WSLUA_CONSTRUCTOR Pref_bool(lua_State* L) {
-    /* Creates a boolean preference to be added to a `Proto.prefs` Lua table. */
+    /*
+    Creates a boolean preference to be added to a <<lua_class_attrib_proto_prefs,`Proto.prefs`>> Lua table.
+
+    ===== Example
+
+    [source,lua]
+    ----
+    -- create a Boolean preference named "bar" for Foo Protocol
+    -- (assuming Foo doesn't already have a preference named "bar")
+    proto_foo.prefs.bar = Pref.bool( "Bar", true, "Baz and all the rest" )
+    ----
+    */
 #define WSLUA_ARG_Pref_bool_LABEL 1 /* The Label (text in the right side of the
                                        preference input) for this preference. */
 #define WSLUA_ARG_Pref_bool_DEFAULT 2 /* The default value for this preference. */
-#define WSLUA_ARG_Pref_bool_DESCR 3 /* A description of what this preference is. */
+#define WSLUA_ARG_Pref_bool_DESCR 3 /* A description of this preference. */
     return new_pref(L,PREF_BOOL);
 }
 
 WSLUA_CONSTRUCTOR Pref_uint(lua_State* L) {
-    /* Creates an (unsigned) integer preference to be added to a `Proto.prefs` Lua table. */
+    /* Creates an (unsigned) integer preference to be added to a <<lua_class_attrib_proto_prefs,`Proto.prefs`>> Lua table. */
 #define WSLUA_ARG_Pref_uint_LABEL 1 /* The Label (text in the right side of the
                                        preference input) for this preference. */
 #define WSLUA_ARG_Pref_uint_DEFAULT 2 /* The default value for this preference. */
@@ -180,7 +191,7 @@ WSLUA_CONSTRUCTOR Pref_uint(lua_State* L) {
 }
 
 WSLUA_CONSTRUCTOR Pref_string(lua_State* L) {
-    /* Creates a string preference to be added to a `Proto.prefs` Lua table. */
+    /* Creates a string preference to be added to a <<lua_class_attrib_proto_prefs,`Proto.prefs`>> Lua table. */
 #define WSLUA_ARG_Pref_string_LABEL 1 /* The Label (text in the right side of the
                                          preference input) for this preference. */
 #define WSLUA_ARG_Pref_string_DEFAULT 2 /* The default value for this preference. */
@@ -189,7 +200,43 @@ WSLUA_CONSTRUCTOR Pref_string(lua_State* L) {
 }
 
 WSLUA_CONSTRUCTOR Pref_enum(lua_State* L) {
-    /* Creates an enum preference to be added to a `Proto.prefs` Lua table. */
+    /*
+    Creates an enum preference to be added to a <<lua_class_attrib_proto_prefs,`Proto.prefs`>> Lua table.
+
+    ===== Example:
+
+    [source,lua]
+    ----
+    local OUTPUT_OFF        = 0
+    local OUTPUT_DEBUG      = 1
+    local OUTPUT_INFO       = 2
+    local OUTPUT_WARN       = 3
+    local OUTPUT_ERROR      = 4
+
+    local output_tab = {
+            { 1, "Off"              , OUTPUT_OFF },
+            { 2, "Debug"            , OUTPUT_DEBUG },
+            { 3, "Information"      , OUTPUT_INFO },
+            { 4, "Warning"          , OUTPUT_WARN },
+            { 5, "Error"            , OUTPUT_ERROR },
+    }
+
+    -- Create enum preference that shows as Combo Box under
+    -- Foo Protocol's preferences
+    proto_foo.prefs.outputlevel = Pref.enum(
+            "Output Level",                 -- label
+            OUTPUT_INFO,                    -- default value
+            "Verbosity of log output",      -- description
+            output_tab,                     -- enum table
+            false                           -- show as combo box
+    )
+
+    -- Then, we can query the value of the selected preference.
+    -- This line prints "Output Level: 3" assuming the selected
+    -- output level is _INFO.
+    debug( "Output Level: " .. proto_foo.prefs.outputlevel )
+    ----
+    */
 #define WSLUA_ARG_Pref_enum_LABEL 1 /* The Label (text in the right side of the
                                        preference input) for this preference. */
 #define WSLUA_ARG_Pref_enum_DEFAULT 2 /* The default value for this preference. */
@@ -200,7 +247,7 @@ WSLUA_CONSTRUCTOR Pref_enum(lua_State* L) {
 }
 
 WSLUA_CONSTRUCTOR Pref_range(lua_State* L) {
-    /* Creates a range preference to be added to a `Proto.prefs` Lua table. */
+    /* Creates a range (numeric text entry) preference to be added to a <<lua_class_attrib_proto_prefs,`Proto.prefs`>> Lua table. */
 #define WSLUA_ARG_Pref_range_LABEL 1 /* The Label (text in the right side of the preference
                                         input) for this preference. */
 #define WSLUA_ARG_Pref_range_DEFAULT 2 /* The default value for this preference, e.g., "53",
@@ -211,7 +258,7 @@ WSLUA_CONSTRUCTOR Pref_range(lua_State* L) {
 }
 
 WSLUA_CONSTRUCTOR Pref_statictext(lua_State* L) {
-    /* Creates a static text string to be added to a `Proto.prefs` Lua table. */
+    /* Creates a static text string to be added to a <<lua_class_attrib_proto_prefs,`Proto.prefs`>> Lua table. */
 #define WSLUA_ARG_Pref_statictext_LABEL 1 /* The static text. */
 #define WSLUA_ARG_Pref_statictext_DESCR 2 /* The static text description. */
     return new_pref(L,PREF_STATIC_TEXT);
@@ -439,7 +486,17 @@ WSLUA_METAMETHOD Prefs__newindex(lua_State* L) {
 }
 
 WSLUA_METAMETHOD Prefs__index(lua_State* L) {
-    /* Get the value of a preference setting. */
+    /*
+    Get the value of a preference setting.
+
+    ===== Example
+
+    [source,lua]
+    ----
+    -- print the value of Foo's preference named "bar"
+    debug( "bar = " .. proto_foo.prefs.bar )
+    ----
+    */
 #define WSLUA_ARG_Prefs__index_NAME 2 /* The abbreviation of this preference. */
 
     Pref prefs_p = checkPrefs(L,1);

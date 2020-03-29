@@ -40,7 +40,7 @@ WSLUA_CONSTRUCTOR Dissector_get (lua_State *L) {
 
     if ((d = find_dissector(name))) {
         pushDissector(L, d);
-        WSLUA_RETURN(1); /* The Dissector reference. */
+        WSLUA_RETURN(1); /* The <<lua_class_Dissector,`Dissector`>> reference. */
     }
 
     WSLUA_ARG_ERROR(Dissector_get,NAME,"No such dissector");
@@ -151,28 +151,26 @@ int Dissector_register(lua_State* L) {
 
 WSLUA_CLASS_DEFINE(DissectorTable,NOP);
 /*
- A table of subdissectors of a particular protocol (e.g. TCP subdissectors like http, smtp,
- sip are added to table "tcp.port").
+    A table of subdissectors of a particular protocol (e.g. TCP subdissectors like http, smtp, sip are added to table "tcp.port").
 
- Useful to add more dissectors to a table so that they appear in the Decode As... dialog.
+    Useful to add more dissectors to a table so that they appear in the “Decode As...” dialog.
  */
 
 static int dissectortable_table_ref = LUA_NOREF;
 
 WSLUA_CONSTRUCTOR DissectorTable_new (lua_State *L) {
-    /* Creates a new DissectorTable for your dissector's use. */
-#define WSLUA_ARG_DissectorTable_new_TABLENAME 1 /* The short name of the table. */
-#define WSLUA_OPTARG_DissectorTable_new_UINAME 2 /* The name of the table in the User Interface
-                                                    (defaults to the name given). */
-#define WSLUA_OPTARG_DissectorTable_new_TYPE 3 /* Either `ftypes.UINT8`, `ftypes.UINT16`,
+    /* Creates a new `DissectorTable` for your dissector's use. */
+#define WSLUA_ARG_DissectorTable_new_TABLENAME 1 /* The short name of the table. Use lower-case alphanumeric, dot, and/or underscores (e.g., "ansi_map.tele_id" or "udp.port"). */
+#define WSLUA_OPTARG_DissectorTable_new_UINAME 2 /* The name of the table in the user interface.
+                                                    Defaults to the name given in `tablename`, but can be any string. */
+#define WSLUA_OPTARG_DissectorTable_new_TYPE 3 /* One of `ftypes.UINT8`, `ftypes.UINT16`,
                                                   `ftypes.UINT24`, `ftypes.UINT32`, or
-                                                  `ftypes.STRING`
-                                                  (defaults to `ftypes.UINT32`). */
-#define WSLUA_OPTARG_DissectorTable_new_BASE 4 /* Either `base.NONE`, `base.DEC`, `base.HEX`,
-                                                  `base.OCT`, `base.DEC_HEX` or `base.HEX_DEC`
-                                                  (defaults to `base.DEC`). */
-#define WSLUA_OPTARG_DissectorTable_new_PROTO 5 /* The protocol that uses this dissector table
-                                                   (a Proto object). */
+                                                  `ftypes.STRING`.
+                                                  Defaults to `ftypes.UINT32`. */
+#define WSLUA_OPTARG_DissectorTable_new_BASE 4 /* One of `base.NONE`, `base.DEC`, `base.HEX`,
+                                                  `base.OCT`, `base.DEC_HEX` or `base.HEX_DEC`.
+                                                  Defaults to `base.DEC`. */
+#define WSLUA_OPTARG_DissectorTable_new_PROTO 5 /* The <<lua_class_Proto,`Proto`>> object that uses this dissector table. */
     const gchar* name = (const gchar*)luaL_checkstring(L,WSLUA_ARG_DissectorTable_new_TABLENAME);
     const gchar* ui_name = (const gchar*)luaL_optstring(L,WSLUA_OPTARG_DissectorTable_new_UINAME,name);
     enum ftenum type = (enum ftenum)luaL_optinteger(L,WSLUA_OPTARG_DissectorTable_new_TYPE,FT_UINT32);
@@ -306,7 +304,7 @@ WSLUA_CONSTRUCTOR DissectorTable_get (lua_State *L) {
 
         pushDissectorTable(L, dt);
 
-        WSLUA_RETURN(1); /* The DissectorTable. */
+        WSLUA_RETURN(1); /* The `DissectorTable`. */
     }
 
     WSLUA_ARG_ERROR(DissectorTable_get,TABLENAME,"no such dissector_table");
@@ -315,11 +313,11 @@ WSLUA_CONSTRUCTOR DissectorTable_get (lua_State *L) {
 
 WSLUA_METHOD DissectorTable_add (lua_State *L) {
     /*
-     Add a `Proto` with a dissector function, or a `Dissector` object, to the dissector table.
+     Add a <<lua_class_Proto,`Proto`>> with a dissector function or a <<lua_class_Dissector,`Dissector`>> object to the dissector table.
      */
 #define WSLUA_ARG_DissectorTable_add_PATTERN 2 /* The pattern to match (either an integer, a
                                                   integer range or a string depending on the table's type). */
-#define WSLUA_ARG_DissectorTable_add_DISSECTOR 3 /* The dissector to add (either a `Proto` or a `Dissector`). */
+#define WSLUA_ARG_DissectorTable_add_DISSECTOR 3 /* The dissector to add (either a <<lua_class_Proto,`Proto`>> or a <<lua_class_Dissector,`Dissector`>>). */
 
     DissectorTable dt = checkDissectorTable(L,1);
     ftenum_t type;
@@ -376,12 +374,12 @@ WSLUA_METHOD DissectorTable_add (lua_State *L) {
 
 WSLUA_METHOD DissectorTable_set (lua_State *L) {
     /*
-     Remove existing dissectors from a table and add a new or a range of new dissectors.
+     Clear all existing dissectors from a table and add a new dissector or a range of new dissectors.
 
      @since 1.11.3
      */
 #define WSLUA_ARG_DissectorTable_set_PATTERN 2 /* The pattern to match (either an integer, a integer range or a string depending on the table's type). */
-#define WSLUA_ARG_DissectorTable_set_DISSECTOR 3 /* The dissector to add (either a `Proto` or a `Dissector`). */
+#define WSLUA_ARG_DissectorTable_set_DISSECTOR 3 /* The dissector to add (either a <<lua_class_Proto,`Proto`>> or a <<lua_class_Dissector,`Dissector`>>). */
 
     DissectorTable dt = checkDissectorTable(L,1);
     ftenum_t type;
@@ -440,10 +438,10 @@ WSLUA_METHOD DissectorTable_set (lua_State *L) {
 
 WSLUA_METHOD DissectorTable_remove (lua_State *L) {
     /*
-     Remove a dissector or a range of dissectors from a table
+     Remove a dissector or a range of dissectors from a table.
      */
 #define WSLUA_ARG_DissectorTable_remove_PATTERN 2 /* The pattern to match (either an integer, a integer range or a string depending on the table's type). */
-#define WSLUA_ARG_DissectorTable_remove_DISSECTOR 3 /* The dissector to remove (either a `Proto` or a `Dissector`). */
+#define WSLUA_ARG_DissectorTable_remove_DISSECTOR 3 /* The dissector to remove (either a <<lua_class_Proto,`Proto`>> or a <<lua_class_Dissector,`Dissector`>>). */
     DissectorTable dt = checkDissectorTable(L,1);
     ftenum_t type;
     Dissector handle;
@@ -496,7 +494,7 @@ WSLUA_METHOD DissectorTable_remove_all (lua_State *L) {
 
      @since 1.11.3
      */
-#define WSLUA_ARG_DissectorTable_remove_all_DISSECTOR 2 /* The dissector to remove (either a `Proto` or a `Dissector`). */
+#define WSLUA_ARG_DissectorTable_remove_all_DISSECTOR 2 /* The dissector to remove (either a <<lua_class_Proto,`Proto`>> or a <<lua_class_Dissector,`Dissector`>>). */
     DissectorTable dt = checkDissectorTable(L,1);
     Dissector handle;
 
@@ -521,12 +519,12 @@ WSLUA_METHOD DissectorTable_remove_all (lua_State *L) {
 
 WSLUA_METHOD DissectorTable_try (lua_State *L) {
     /*
-     Try to call a dissector from a table
+     Try to call a dissector from a table.
      */
 #define WSLUA_ARG_DissectorTable_try_PATTERN 2 /* The pattern to be matched (either an integer or a string depending on the table's type). */
-#define WSLUA_ARG_DissectorTable_try_TVB 3 /* The buffer to dissect. */
-#define WSLUA_ARG_DissectorTable_try_PINFO 4 /* The packet info. */
-#define WSLUA_ARG_DissectorTable_try_TREE 5 /* The tree on which to add the protocol items. */
+#define WSLUA_ARG_DissectorTable_try_TVB 3 /* The <<lua_class_Tvb,`Tvb`>> to dissect. */
+#define WSLUA_ARG_DissectorTable_try_PINFO 4 /* The packet's <<lua_class_Pinfo,`Pinfo`>>. */
+#define WSLUA_ARG_DissectorTable_try_TREE 5 /* The <<lua_class_TreeItem,`TreeItem`>> on which to add the protocol items. */
     DissectorTable volatile dt = checkDissectorTable(L,1);
     Tvb tvb = checkTvb(L,WSLUA_ARG_DissectorTable_try_TVB);
     Pinfo pinfo = checkPinfo(L,WSLUA_ARG_DissectorTable_try_PINFO);
@@ -599,21 +597,21 @@ WSLUA_METHOD DissectorTable_get_dissector (lua_State *L) {
 
     if (handle) {
         pushDissector(L,handle);
-        WSLUA_RETURN(1); /* The dissector handle if found. */
+        WSLUA_RETURN(1); /* The <<lua_class_Dissector,`Dissector`>> handle if found, otherwise `nil` */
     } else {
         lua_pushnil(L);
-        WSLUA_RETURN(1); /* nil if not found. */
+        WSLUA_RETURN(1);
     }
 }
 
 WSLUA_METHOD DissectorTable_add_for_decode_as (lua_State *L) {
     /*
-     Add the given `Proto` to the "Decode as..." list for this DissectorTable.
-     The passed-in `Proto` object's `dissector()` function is used for dissecting.
+     Add the given <<lua_class_Proto,`Proto`>> to the “Decode as...” list for this DissectorTable.
+     The passed-in <<lua_class_Proto,`Proto`>> object's `dissector()` function is used for dissecting.
 
      @since 1.99.1
      */
-#define WSLUA_ARG_DissectorTable_add_for_decode_as_PROTO 2 /* The `Proto` to add. */
+#define WSLUA_ARG_DissectorTable_add_for_decode_as_PROTO 2 /* The <<lua_class_Proto,`Proto`>> to add. */
     DissectorTable dt = checkDissectorTable(L,1);
     Proto proto = checkProto(L, WSLUA_ARG_DissectorTable_add_for_decode_as_PROTO);
     dissector_handle_t handle = NULL;
@@ -631,7 +629,7 @@ WSLUA_METHOD DissectorTable_add_for_decode_as (lua_State *L) {
 
 /* XXX It would be nice to iterate and print which dissectors it has */
 WSLUA_METAMETHOD DissectorTable__tostring(lua_State* L) {
-    /* Gets some debug information about the DissectorTable. */
+    /* Gets some debug information about the <<lua_class_DissectorTable,`DissectorTable`>>. */
     DissectorTable dt = checkDissectorTable(L,1);
     GString* s;
     ftenum_t type;
@@ -667,7 +665,7 @@ WSLUA_METAMETHOD DissectorTable__tostring(lua_State* L) {
 
     lua_pushstring(L,s->str);
     g_string_free(s,TRUE);
-    WSLUA_RETURN(1); /* A string of debug information about the DissectorTable. */
+    WSLUA_RETURN(1); /* A string of debug information about the <<lua_class_DissectorTable,`DissectorTable`>>. */
 }
 
 /* Gets registered as metamethod automatically by WSLUA_REGISTER_CLASS/META */
