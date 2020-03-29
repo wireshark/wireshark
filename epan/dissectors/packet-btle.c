@@ -302,7 +302,7 @@ static const value_string pdu_type_vals[] = {
     { 0x02, "ADV_NONCONN_IND" },
     { 0x03, "SCAN_REQ" },
     { 0x04, "SCAN_RSP" },
-    { 0x05, "CONNECT_REQ" },
+    { 0x05, "CONNECT_IND" },
     { 0x06, "ADV_SCAN_IND" },
     { 0, NULL }
 };
@@ -330,8 +330,8 @@ static const value_string llid_codes_vals[] = {
 static value_string_ext llid_codes_vals_ext = VALUE_STRING_EXT_INIT(llid_codes_vals);
 
 static const value_string control_opcode_vals[] = {
-    { 0x00, "LL_CONNECTION_UPDATE_REQ" },
-    { 0x01, "LL_CHANNEL_MAP_REQ" },
+    { 0x00, "LL_CONNECTION_UPDATE_IND" },
+    { 0x01, "LL_CHANNEL_MAP_IND" },
     { 0x02, "LL_TERMINATE_IND" },
     { 0x03, "LL_ENC_REQ" },
     { 0x04, "LL_ENC_RSP" },
@@ -763,7 +763,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             offset += tvb_reported_length_remaining(tvb, offset) - 3;
 
             break;
-        case 0x05: /* CONNECT_REQ */
+        case 0x05: /* CONNECT_IND */
             offset = dissect_bd_addr(hf_initiator_addresss, pinfo, btle_tree, tvb, offset, FALSE, interface_id, adapter_id, src_bd_addr);
             offset = dissect_bd_addr(hf_advertising_address, pinfo, btle_tree, tvb, offset, TRUE, interface_id, adapter_id, dst_bd_addr);
 
