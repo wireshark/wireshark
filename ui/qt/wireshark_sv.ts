@@ -4483,10 +4483,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
 <context>
     <name>InterfaceTreeModel</name>
     <message>
-        <source>No Interfaces found.</source>
-        <translation type="vanished">Inga gränssnitt hittades.</translation>
-    </message>
-    <message>
         <source>Show</source>
         <translation>Visa</translation>
     </message>

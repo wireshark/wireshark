@@ -4483,10 +4483,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
 <context>
     <name>InterfaceTreeModel</name>
     <message>
-        <source>No Interfaces found.</source>
-        <translation type="vanished">Keine Schnittstellen gefunden.</translation>
-    </message>
-    <message>
         <source>Show</source>
         <translation>Zeige</translation>
     </message>

@@ -4483,10 +4483,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
 <context>
     <name>InterfaceTreeModel</name>
     <message>
-        <source>No Interfaces found.</source>
-        <translation type="vanished">Nessuna interfaccia trovata.</translation>
-    </message>
-    <message>
         <source>Show</source>
         <translation>Mostra</translation>
     </message>

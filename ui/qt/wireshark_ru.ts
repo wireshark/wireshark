@@ -4497,10 +4497,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 <context>
     <name>InterfaceTreeModel</name>
     <message>
-        <source>No Interfaces found.</source>
-        <translation type="vanished">Интерфейсы не найдены.</translation>
-    </message>
-    <message>
         <source>Show</source>
         <translation>Показать</translation>
     </message>

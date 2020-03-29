@@ -4463,10 +4463,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 <context>
     <name>InterfaceTreeModel</name>
     <message>
-        <source>No Interfaces found.</source>
-        <translation type="vanished">没有找到接口。</translation>
-    </message>
-    <message>
         <source>Show</source>
         <translation>显示</translation>
     </message>
