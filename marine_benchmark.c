@@ -2,8 +2,9 @@
 // Created by reznik on 3/29/20.
 //
 #define ARRAY_SIZE(arr)     (sizeof(arr) / sizeof((arr)[0]))
-#define PACKET_COUNT 200000
-#define TEST_COUNT 5
+#define PACKET_COUNT 210000
+#define PART 30000
+#define TEST_COUNT 1
 
 #include<stdio.h>
 #include<pcap.h>
@@ -25,6 +26,7 @@ int load_cap(char *file, packet packets[]) {
     pcap_t *pcap = pcap_open_offline(file, errbuff);
     if (pcap == NULL) {
         printf("Error will opening the cap: %s", errbuff);
+        printf("Have you run cap_maker.py to create the testing cap?");
         return 0;
     }
 
@@ -74,41 +76,49 @@ void benchmark(packet packets[], int packets_len, char *bpf, char *display_filte
 
 int main(void) {
     init_marine();
-    char *file = "/projects/marine-core/00:00:00:9f:f8:3b-00:00:00:87:7e:0e-88.44.85.145-212.110.118.170-27000:56385.cap";
+    char *file = "/projects/marine-core/tcp.cap";
     packet packets[PACKET_COUNT];
-    int packets_len = load_cap(file, packets);
+    packet part[PART];
+    load_cap(file, packets);
 
-    char* bpf = "tcp port 56385 or tcp port 27000";
-    char* dfilter = "tcp.srcport == 27000 or tcp.srcport == 56385";
+    char* bpf = "tcp port 4000 or tcp port 4001 or tcp port 4002 or tcp port 4003 or tcp port 4004 or tcp port 4005 or tcp port 4006 or tcp port 4007 or tcp port 4008 or tcp port 4009 or tcp port 4010 or tcp port 4011 or tcp port 4012 or tcp port 4013 or tcp port 4014 or tcp port 4015 or tcp port 4016 or tcp port 4017 or tcp port 4018 or tcp port 4019";
+    char* dfilter = "tcp.port == 4000 or tcp.port == 4001 or tcp.port == 4002 or tcp.port == 4003 or tcp.port == 4004 or tcp.port == 4005 or tcp.port == 4006 or tcp.port == 4007 or tcp.port == 4008 or tcp.port == 4009 or tcp.port == 4010 or tcp.port == 4011 or tcp.port == 4012 or tcp.port == 4013 or tcp.port == 4014 or tcp.port == 4015 or tcp.port == 4016 or tcp.port == 4017 or tcp.port == 4018 or tcp.port == 4019";
     char *three_fields[] = {"ip.proto", "tcp.port", "ip.host"};
     char *eight_fields[] = {"ip.proto", "tcp.port", "ip.host", "eth.addr", "eth.type", "ip.hdr_len", "ip.version", "frame.encap_type"};
 
+    memcpy(part, &packets[PART*0], PART * sizeof(*packets));
     printf("Benchmark with BPF\n");
-    benchmark(packets, packets_len, bpf, NULL, NULL, 0);
+    benchmark(part, PART, bpf, NULL, NULL, 0);
     printf("\n");
 
+    memcpy(part, &packets[PART*1], PART * sizeof(*packets));
     printf("Benchmark with Display filter\n");
-    benchmark(packets, packets_len, NULL, dfilter, NULL, 0);
+    benchmark(part, PART, NULL, dfilter, NULL, 0);
     printf("\n");
 
+    memcpy(part, &packets[PART*2], PART * sizeof(*packets));
     printf("Benchmark with BPF and Display filter\n");
-    benchmark(packets, packets_len, bpf, dfilter, NULL, 0);
+    benchmark(part, PART, bpf, dfilter, NULL, 0);
     printf("\n");
 
+    memcpy(part, &packets[PART*3], PART * sizeof(*packets));
     printf("Benchmark with three extracted fields\n");
-    benchmark(packets, packets_len, NULL, NULL, three_fields, 3);
+    benchmark(part, PART, NULL, NULL, three_fields, 3);
     printf("\n");
 
+    memcpy(part, &packets[PART*4], PART * sizeof(*packets));
     printf("Benchmark with eight extracted fields\n");
-    benchmark(packets, packets_len, NULL, NULL, eight_fields, 8);
+    benchmark(part, PART, NULL, NULL, eight_fields, 8);
     printf("\n");
 
+    memcpy(part, &packets[PART*5], PART * sizeof(*packets));
     printf("Benchmark with BPF, Display filter and three extracted fields\n");
-    benchmark(packets, packets_len, bpf, dfilter, three_fields, 3);
+    benchmark(part, PART, bpf, dfilter, three_fields, 3);
     printf("\n");
 
+    memcpy(part, &packets[PART*6], PART * sizeof(*packets));
     printf("Benchmark with BPF, Display filter and eight extracted fields\n");
-    benchmark(packets, packets_len, bpf, dfilter, eight_fields, 8);
+    benchmark(part, PART, bpf, dfilter, eight_fields, 8);
     printf("\n");
 
     destroy_marine();
