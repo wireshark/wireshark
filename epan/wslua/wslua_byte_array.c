@@ -26,12 +26,22 @@
 WSLUA_CLASS_DEFINE(ByteArray,FAIL_ON_NULL("ByteArray"));
 
 WSLUA_CONSTRUCTOR ByteArray_new(lua_State* L) {
-    /* Creates a `ByteArray` object.
+    /*
+    Creates a new <<lua_class_ByteArray,`ByteArray`>> object.
 
-       Starting in version 1.11.3, if the second argument is a boolean `true`,
-       then the first argyument is treated as a raw Lua string of bytes to use,
-       instead of a hexadecimal string.
-     */
+    Starting in version 1.11.3, if the second argument is a boolean `true`,
+    then the first argument is treated as a raw Lua string of bytes to use,
+    instead of a hexadecimal string.
+
+    ===== Example
+
+    [source,lua]
+    ----
+    local empty = ByteArray.new()
+    local b1 = ByteArray.new("a1 b2 c3 d4")
+    local b2 = ByteArray.new("112233")
+    ----
+    */
 #define WSLUA_OPTARG_ByteArray_new_HEXBYTES 1 /* A string consisting of hexadecimal bytes like "00 B1 A2" or "1a2b3c4d". */
 #define WSLUA_OPTARG_ByteArray_new_SEPARATOR 2 /* A string separator between hex bytes/words (default=" "),
                                                   or if the boolean value `true` is used, then the first argument
@@ -79,7 +89,7 @@ static int ByteArray__gc(lua_State* L) {
 }
 
 WSLUA_METAMETHOD ByteArray__concat(lua_State* L) {
-    /* Concatenate two `ByteArrays`. */
+    /* Concatenate two <<lua_class_ByteArray,`ByteArray`>>s. */
 #define WSLUA_ARG_ByteArray__cat_FIRST 1 /* First array. */
 #define WSLUA_ARG_ByteArray__cat_SECOND 2 /* Second array. */
 
@@ -92,7 +102,7 @@ WSLUA_METAMETHOD ByteArray__concat(lua_State* L) {
     g_byte_array_append(ba,ba2->data,ba2->len);
 
     pushByteArray(L,ba);
-    WSLUA_RETURN(1); /* The new composite `ByteArray`. */
+    WSLUA_RETURN(1); /* The new composite <<lua_class_ByteArray,`ByteArray`>>. */
 }
 
 WSLUA_METAMETHOD ByteArray__eq(lua_State* L) {
@@ -117,8 +127,8 @@ WSLUA_METAMETHOD ByteArray__eq(lua_State* L) {
 }
 
 WSLUA_METHOD ByteArray_prepend(lua_State* L) {
-    /* Prepend a `ByteArray` to this `ByteArray`. */
-#define WSLUA_ARG_ByteArray_prepend_PREPENDED 2 /* `ByteArray` to be prepended. */
+    /* Prepend a <<lua_class_ByteArray,`ByteArray`>> to this <<lua_class_ByteArray,`ByteArray`>>. */
+#define WSLUA_ARG_ByteArray_prepend_PREPENDED 2 /* <<lua_class_ByteArray,`ByteArray`>> to be prepended. */
     ByteArray ba = checkByteArray(L,1);
     ByteArray ba2 = checkByteArray(L,WSLUA_ARG_ByteArray_prepend_PREPENDED);
 
@@ -128,8 +138,8 @@ WSLUA_METHOD ByteArray_prepend(lua_State* L) {
 }
 
 WSLUA_METHOD ByteArray_append(lua_State* L) {
-    /* Append a `ByteArray` to this `ByteArray`. */
-#define WSLUA_ARG_ByteArray_append_APPENDED 2 /* `ByteArray` to be appended. */
+    /* Append a <<lua_class_ByteArray,`ByteArray`>> to this <<lua_class_ByteArray,`ByteArray`>>. */
+#define WSLUA_ARG_ByteArray_append_APPENDED 2 /* <<lua_class_ByteArray,`ByteArray`>> to be appended. */
     ByteArray ba = checkByteArray(L,1);
     ByteArray ba2 = checkByteArray(L,WSLUA_ARG_ByteArray_append_APPENDED);
 
@@ -139,7 +149,7 @@ WSLUA_METHOD ByteArray_append(lua_State* L) {
 }
 
 WSLUA_METHOD ByteArray_set_size(lua_State* L) {
-    /* Sets the size of a `ByteArray`, either truncating it or filling it with zeros. */
+    /* Sets the size of a <<lua_class_ByteArray,`ByteArray`>>, either truncating it or filling it with zeros. */
 #define WSLUA_ARG_ByteArray_set_size_SIZE 2 /* New size of the array. */
 
     ByteArray ba = checkByteArray(L,1);
@@ -162,7 +172,7 @@ WSLUA_METHOD ByteArray_set_size(lua_State* L) {
 }
 
 WSLUA_METHOD ByteArray_set_index(lua_State* L) {
-    /* Sets the value of an index of a `ByteArray`. */
+    /* Sets the value of an index of a <<lua_class_ByteArray,`ByteArray`>>. */
 #define WSLUA_ARG_ByteArray_set_index_INDEX 2 /* The position of the byte to be set. */
 #define WSLUA_ARG_ByteArray_set_index_VALUE 3 /* The char value to set [0-255]. */
     ByteArray ba = checkByteArray(L,1);
@@ -191,7 +201,7 @@ WSLUA_METHOD ByteArray_set_index(lua_State* L) {
 
 
 WSLUA_METHOD ByteArray_get_index(lua_State* L) {
-    /* Get the value of a byte in a `ByteArray`. */
+    /* Get the value of a byte in a <<lua_class_ByteArray,`ByteArray`>>. */
 #define WSLUA_ARG_ByteArray_get_index_INDEX 2 /* The position of the byte to get. */
     ByteArray ba = checkByteArray(L,1);
     int idx = (int)luaL_checkinteger(L,WSLUA_ARG_ByteArray_get_index_INDEX);
@@ -211,16 +221,16 @@ WSLUA_METHOD ByteArray_get_index(lua_State* L) {
 }
 
 WSLUA_METHOD ByteArray_len(lua_State* L) {
-    /* Obtain the length of a `ByteArray`. */
+    /* Obtain the length of a <<lua_class_ByteArray,`ByteArray`>>. */
     ByteArray ba = checkByteArray(L,1);
 
     lua_pushnumber(L,(lua_Number)ba->len);
 
-    WSLUA_RETURN(1); /* The length of the `ByteArray`. */
+    WSLUA_RETURN(1); /* The length of the <<lua_class_ByteArray,`ByteArray`>>. */
 }
 
 WSLUA_METHOD ByteArray_subset(lua_State* L) {
-    /* Obtain a segment of a `ByteArray`, as a new `ByteArray`. */
+    /* Obtain a segment of a <<lua_class_ByteArray,`ByteArray`>>, as a new <<lua_class_ByteArray,`ByteArray`>>. */
 #define WSLUA_ARG_ByteArray_set_index_OFFSET 2 /* The position of the first byte (0=first). */
 #define WSLUA_ARG_ByteArray_set_index_LENGTH 3 /* The length of the segment. */
     ByteArray ba = checkByteArray(L,1);
@@ -238,11 +248,11 @@ WSLUA_METHOD ByteArray_subset(lua_State* L) {
 
     pushByteArray(L,sub);
 
-    WSLUA_RETURN(1); /* A `ByteArray` containing the requested segment. */
+    WSLUA_RETURN(1); /* A <<lua_class_ByteArray,`ByteArray`>> containing the requested segment. */
 }
 
 WSLUA_METHOD ByteArray_base64_decode(lua_State* L) {
-    /* Obtain a Base64 decoded `ByteArray`.
+    /* Obtain a Base64 decoded <<lua_class_ByteArray,`ByteArray`>>.
 
        @since 1.11.3
      */
@@ -263,11 +273,11 @@ WSLUA_METHOD ByteArray_base64_decode(lua_State* L) {
     }
 
     pushByteArray(L,ba2);
-    WSLUA_RETURN(1); /* The created `ByteArray`. */
+    WSLUA_RETURN(1); /* The created <<lua_class_ByteArray,`ByteArray`>>. */
 }
 
 WSLUA_METHOD ByteArray_raw(lua_State* L) {
-    /* Obtain a Lua string of the binary bytes in a `ByteArray`.
+    /* Obtain a Lua string of the binary bytes in a <<lua_class_ByteArray,`ByteArray`>>.
 
        @since 1.11.3
      */
@@ -293,7 +303,7 @@ WSLUA_METHOD ByteArray_raw(lua_State* L) {
 }
 
 WSLUA_METHOD ByteArray_tohex(lua_State* L) {
-    /* Obtain a Lua string of the bytes in a `ByteArray` as hex-ascii, with given separator
+    /* Obtain a Lua string of the bytes in a <<lua_class_ByteArray,`ByteArray`>> as hex-ascii, with given separator
 
        @since 1.11.3
      */
@@ -310,11 +320,11 @@ WSLUA_METHOD ByteArray_tohex(lua_State* L) {
 
     wslua_bin2hex(L, ba->data, ba->len, lowercase, sep);
 
-    WSLUA_RETURN(1); /* A hex-ascii string representation of the `ByteArray`. */
+    WSLUA_RETURN(1); /* A hex-ascii string representation of the <<lua_class_ByteArray,`ByteArray`>>. */
 }
 
 WSLUA_METAMETHOD ByteArray__tostring(lua_State* L) {
-    /* Obtain a Lua string containing the bytes in a `ByteArray` so that it can be used in
+    /* Obtain a Lua string containing the bytes in a <<lua_class_ByteArray,`ByteArray`>> so that it can be used in
        display filters (e.g. "01FE456789AB"). */
     ByteArray ba = checkByteArray(L,1);
 
@@ -322,12 +332,29 @@ WSLUA_METAMETHOD ByteArray__tostring(lua_State* L) {
 
     wslua_bin2hex(L, ba->data, ba->len, FALSE, NULL);
 
-    WSLUA_RETURN(1); /* A hex-ascii string representation of the `ByteArray`. */
+    WSLUA_RETURN(1); /* A hex-ascii string representation of the <<lua_class_ByteArray,`ByteArray`>>. */
 }
 
 WSLUA_METHOD ByteArray_tvb (lua_State *L) {
-    /* Creates a new `Tvb` from a `ByteArray` (it gets added to the current frame too). */
-#define WSLUA_ARG_ByteArray_tvb_NAME 2 /* The name to be given to the new data-source. */
+    /*
+    Creates a new <<lua_class_Tvb,`Tvb`>> from a <<lua_class_ByteArray,`ByteArray`>>.
+    The <<lua_class_Tvb,`Tvb`>> will be added to the current frame.
+
+    ===== Example
+
+    [source,lua]
+    ----
+    function proto_foo.dissector(buf, pinfo, tree)
+            -- Create a new tab named "My Tvb" and add some data to it
+            local b = ByteArray.new("11223344")
+            local tvb = ByteArray.tvb(b, "My Tvb")
+
+            -- Create a tree item that, when clicked, automatically shows the tab we just created
+            tree:add( tvb(1,2), "Foo" )
+    end
+    ----
+    */
+#define WSLUA_ARG_ByteArray_tvb_NAME 2 /* The name to be given to the new data source. */
     ByteArray ba = checkByteArray(L,1);
     const gchar* name = luaL_optstring(L,WSLUA_ARG_ByteArray_tvb_NAME,"Unnamed") ;
     guint8* data;
@@ -348,7 +375,7 @@ WSLUA_METHOD ByteArray_tvb (lua_State *L) {
 
     add_new_data_source(lua_pinfo, tvb->ws_tvb, name);
     push_wsluaTvb(L,tvb);
-    WSLUA_RETURN(1); /* The created `Tvb`. */
+    WSLUA_RETURN(1); /* The created <<lua_class_Tvb,`Tvb`>>. */
 }
 
 
