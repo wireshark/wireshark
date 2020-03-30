@@ -20,12 +20,12 @@
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/exceptions.h>
 
-/* WSLUA_MODULE Proto Functions for new protocols and dissectors
+/* WSLUA_MODULE Proto Functions For New Protocols And Dissectors
 
    The classes and functions in this chapter allow Lua scripts to create new protocols for Wireshark.
     <<lua_class_Proto,`Proto`>> protocol objects can have <<lua_class_Pref,`Pref`>> preferences, <<lua_class_ProtoField,`ProtoField`>> fields for filterable values that can be displayed in a details view tree, functions for dissecting the new protocol, and so on.
 
-   The dissection function can be hooked into existing protocol tables through <<lua_class_DissectorTables,`DissectorTables`>> so that the new protocol dissector function gets called by that protocol, and the new dissector can itself call on other, already existing protocol dissectors by retrieving and calling the <<lua_class_Dissector,`Dissector`>> object.
+   The dissection function can be hooked into existing protocol tables through <<lua_class_DissectorTable,`DissectorTable`>> so that the new protocol dissector function gets called by that protocol, and the new dissector can itself call on other, already existing protocol dissectors by retrieving and calling the <<lua_class_Dissector,`Dissector`>> object.
    A <<lua_class_Proto,`Proto`>> dissector can also be used as a post-dissector, at the end of every frame's dissection, or as a heuristic dissector.
 */
 

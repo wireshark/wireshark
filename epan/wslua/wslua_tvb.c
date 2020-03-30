@@ -21,7 +21,7 @@
 #include <epan/wmem/wmem.h>
 
 
-/* WSLUA_MODULE Tvb Functions for handling packet data */
+/* WSLUA_MODULE Tvb Functions For Handling Packet Data */
 
 
 /*

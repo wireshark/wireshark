@@ -21,7 +21,7 @@
 #include <string.h>
 
 
-/* WSLUA_MODULE Pinfo Obtaining packet information */
+/* WSLUA_MODULE Pinfo Obtaining Packet Information */
 
 
 /*

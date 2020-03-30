@@ -16,7 +16,7 @@
 
 #include <epan/wmem/wmem.h>
 
-/* WSLUA_MODULE Dumper Saving capture files
+/* WSLUA_MODULE Dumper Saving Capture Files
 
    The classes/functions defined in this module are for using a `Dumper` object to
    make Wireshark save a capture file to disk. `Dumper` represents Wireshark's built-in

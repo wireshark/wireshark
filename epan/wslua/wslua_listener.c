@@ -16,7 +16,7 @@
 
 #include "config.h"
 
-/* WSLUA_MODULE Listener Post-dissection packet analysis */
+/* WSLUA_MODULE Listener Post-Dissection Packet Analysis */
 
 #include "wslua.h"
 

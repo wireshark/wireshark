@@ -15,7 +15,7 @@
 
 #include "config.h"
 
-/* WSLUA_MODULE Tree Adding information to the dissection tree */
+/* WSLUA_MODULE Tree Adding Information To The Dissection Tree */
 
 #include "wslua.h"
 #include <epan/exceptions.h>

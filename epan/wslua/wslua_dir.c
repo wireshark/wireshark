@@ -12,7 +12,7 @@
 
 #include "config.h"
 
-/* WSLUA_MODULE Dir Directory handling functions */
+/* WSLUA_MODULE Dir Directory Handling Functions */
 
 #include "wslua.h"
 #include <wsutil/file_util.h>
