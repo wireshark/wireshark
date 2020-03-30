@@ -6,7 +6,7 @@
  *
  * http://www.usb.org/developers/docs/usb_20_122909-2.zip
  *
- * https://github.com/torvalds/linux/blob/master/Documentation/usb/usbmon.txt
+ * https://github.com/torvalds/linux/blob/master/Documentation/usb/usbmon.rst
  *
  * http://desowin.org/usbpcap/captureformat.html
  *
