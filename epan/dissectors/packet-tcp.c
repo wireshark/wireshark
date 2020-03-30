@@ -6319,8 +6319,8 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                 if (tcpd && (tcpd->fwd->win_scale>=0)) {
                     (tcph->th_win)<<=tcpd->fwd->win_scale;
                 }
-                else {
-                    /* Don't have it stored, so use preference setting instead! */
+                else if (tcpd && (tcpd->fwd->win_scale == -1)) {
+                    /* i.e. Unknown, but wasn't signalled with no scaling, so use preference setting instead! */
                     if (tcp_default_window_scaling>=0) {
                         (tcph->th_win)<<=tcp_default_window_scaling;
                     }
@@ -6447,6 +6447,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             switch (tcpd->fwd->win_scale) {
 
             case -1:
+                /* Unknown */
                 {
                     gint16 win_scale = tcpd->fwd->win_scale;
                     gboolean override_with_pref = FALSE;
@@ -6466,11 +6467,13 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                 break;
 
             case -2:
+                /* No window scaling used */
                 scaled_pi = proto_tree_add_int_format_value(tcp_tree, hf_tcp_window_size_scalefactor, tvb, offset + 14, 2, tcpd->fwd->win_scale, "%d (no window scaling used)", tcpd->fwd->win_scale);
                 proto_item_set_generated(scaled_pi);
                 break;
 
             default:
+                /* Scaling from signalled value */
                 scaled_pi = proto_tree_add_int_format_value(tcp_tree, hf_tcp_window_size_scalefactor, tvb, offset + 14, 2, 1<<tcpd->fwd->win_scale, "%d", 1<<tcpd->fwd->win_scale);
                 proto_item_set_generated(scaled_pi);
             }
