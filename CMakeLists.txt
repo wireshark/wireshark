@@ -578,7 +578,7 @@ else() # ! MSVC
 		# usage in normal operation.
 		#
 		set(WIRESHARK_COMMON_FLAGS ${WIRESHARK_COMMON_FLAGS}
-			-Wframe-larger-than=32768
+#			-Wframe-larger-than=1000000
 		)
 	endif()
 
@@ -2445,7 +2445,7 @@ if(BUILD_marine)
 			tshark-tap-register.c
 			marine.c
 			${TSHARK_TAP_SRC}
-			benchmark.c marine.h)
+			marine_benchmark.c marine.h)
 
 	# Uncomment these lines to run Marine as a binary (after you add a main() entry point)
 	set_executable_resources(marine "Marine" UNIQUE_RC)
