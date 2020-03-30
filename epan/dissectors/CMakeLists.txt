@@ -1280,6 +1280,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ixiatrailer.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ixveriwave.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-j1939.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-jdwp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-jmirror.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-jpeg.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-json.c
