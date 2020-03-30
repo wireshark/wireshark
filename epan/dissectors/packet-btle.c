@@ -41,9 +41,11 @@ static int hf_advertising_header = -1;
 static int hf_advertising_header_pdu_type = -1;
 static int hf_advertising_header_ch_sel = -1;
 static int hf_advertising_header_rfu_1 = -1;
+static int hf_advertising_header_rfu_2 = -1;
+static int hf_advertising_header_rfu_3 = -1;
+static int hf_advertising_header_rfu_4 = -1;
 static int hf_advertising_header_randomized_tx = -1;
 static int hf_advertising_header_randomized_rx = -1;
-static int hf_advertising_header_reserved = -1;
 static int hf_advertising_header_length = -1;
 static int hf_advertising_address = -1;
 static int hf_initiator_addresss = -1;
@@ -305,6 +307,8 @@ static const value_string pdu_type_vals[] = {
     { 0x04, "SCAN_RSP" },
     { 0x05, "CONNECT_IND" },
     { 0x06, "ADV_SCAN_IND" },
+    { 0x07, "ADV_EXT_IND" },
+    { 0x08, "AUX_CONNECT_RSP" },
     { 0, NULL }
 };
 static value_string_ext pdu_type_vals_ext = VALUE_STRING_EXT_INIT(pdu_type_vals);
@@ -598,7 +602,8 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         proto_tree  *advertising_header_tree;
         proto_item  *link_layer_data_item;
         proto_tree  *link_layer_data_tree;
-        guint8       pdu_type, ch_sel;
+        guint8       header, pdu_type;
+        gboolean     ch_sel_valid = FALSE, tx_add_valid = FALSE, rx_add_valid = FALSE;
 
         if (crc_status == CRC_INDETERMINATE) {
             /* Advertising channel CRCs can aways be calculated, because CRCInit is always known. */
@@ -608,32 +613,76 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         advertising_header_item = proto_tree_add_item(btle_tree, hf_advertising_header, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         advertising_header_tree = proto_item_add_subtree(advertising_header_item, ett_advertising_header);
 
-        pdu_type = tvb_get_guint8(tvb, offset) & 0x0F;
-        ch_sel = (tvb_get_guint8(tvb, offset) & 0x20) >> 5;
-        proto_item_append_text(advertising_header_item, " (PDU Type: %s, ChSel: %s, TxAdd: %s",
-                               val_to_str_ext_const(pdu_type, &pdu_type_vals_ext, "Unknown"),
-                               (ch_sel & 0x01) ? tfs_ch_sel.true_string : tfs_ch_sel.false_string,
-                               (tvb_get_guint8(tvb, offset) & 0x40) ? tfs_random_public.true_string : tfs_random_public.false_string);
-        proto_tree_add_item(advertising_header_tree, hf_advertising_header_pdu_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(advertising_header_tree, hf_advertising_header_rfu_1, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(advertising_header_tree, hf_advertising_header_ch_sel, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(advertising_header_tree, hf_advertising_header_randomized_tx, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        header = tvb_get_guint8(tvb, offset);
+        pdu_type = header & 0x0F;
+
         switch (pdu_type) {
         case 0x00: /* ADV_IND */
+            ch_sel_valid = TRUE;
+            /* Fallthrough */
         case 0x02: /* ADV_NONCONN_IND */
-        case 0x04: /* SCAN_RSP */
         case 0x06: /* ADV_SCAN_IND */
-            proto_tree_add_item(advertising_header_tree, hf_advertising_header_reserved, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        case 0x04: /* SCAN_RSP */
+            tx_add_valid = TRUE;
             break;
-        default:
-            proto_tree_add_item(advertising_header_tree, hf_advertising_header_randomized_rx, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            proto_item_append_text(advertising_header_item, ", RxAdd: %s",
-                                   (tvb_get_guint8(tvb, offset) & 0x80) ? tfs_random_public.true_string : tfs_random_public.false_string);
+        case 0x07: /* ADV_EXT_IND / AUX_ADV_IND / AUX_SYNC_IND / AUX_CHAIN_IND / AUX_SCAN_RSP */
+        case 0x08: /* AUX_CONNECT_RSP */
+        {
+            /* 0 + header, 1 = len, 2 = ext_len/adv-mode, 3 = flags */
+            guint8 ext_header_flags = tvb_get_guint8(tvb, offset + 3);
+
+            ch_sel_valid = FALSE;
+            tx_add_valid = (ext_header_flags & 0x01) != 0;
+            rx_add_valid = (ext_header_flags & 0x02) != 0;
+            break;
         }
+        case 0x01: /* ADV_DIRECT_IND */
+        case 0x05: /* CONNECT_IND or AUX_CONNECT_REQ */
+            if (!(btle_context->channel < 37)) {
+                /* CONNECT_IND */
+                ch_sel_valid = TRUE;
+            }
+            /* Fallthrough */
+        case 0x03: /* SCAN_REQ or AUX_SCAN_REQ */
+            tx_add_valid = TRUE;
+            rx_add_valid = TRUE;
+            break;
+        }
+
+        proto_item_append_text(advertising_header_item, " (PDU Type: %s",
+                               val_to_str_ext_const(pdu_type, &pdu_type_vals_ext, "Unknown"));
+        proto_tree_add_item(advertising_header_tree, hf_advertising_header_pdu_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(advertising_header_tree, hf_advertising_header_rfu_1, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+
+        if (ch_sel_valid) {
+            proto_item_append_text(advertising_header_item, ", ChSel: %s",
+                                   (header & 0x20) ? tfs_ch_sel.true_string : tfs_ch_sel.false_string);
+            proto_tree_add_item(advertising_header_tree, hf_advertising_header_ch_sel, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        } else {
+            proto_tree_add_item(advertising_header_tree, hf_advertising_header_rfu_2, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        }
+
+        if (tx_add_valid) {
+            proto_item_append_text(advertising_header_item, ", TxAdd: %s",
+                                   (header & 0x40) ? tfs_random_public.true_string : tfs_random_public.false_string);
+            proto_tree_add_item(advertising_header_tree, hf_advertising_header_randomized_tx, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        } else {
+            proto_tree_add_item(advertising_header_tree, hf_advertising_header_rfu_3, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        }
+
+        if (rx_add_valid) {
+            proto_item_append_text(advertising_header_item, ", RxAdd: %s",
+                                   (header & 0x80) ? tfs_random_public.true_string : tfs_random_public.false_string);
+            proto_tree_add_item(advertising_header_tree, hf_advertising_header_randomized_rx, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        } else {
+            proto_tree_add_item(advertising_header_tree, hf_advertising_header_rfu_4, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        }
+
         proto_item_append_text(advertising_header_item, ")");
-        offset += 1;
 
         col_set_str(pinfo->cinfo, COL_INFO, val_to_str_ext_const(pdu_type, &pdu_type_vals_ext, "Unknown"));
+
+        offset += 1;
 
         proto_tree_add_item(advertising_header_tree, hf_advertising_header_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         item = proto_tree_add_item_ret_uint(btle_tree, hf_length, tvb, offset, 1, ENC_LITTLE_ENDIAN, &length);
@@ -1458,7 +1507,7 @@ proto_register_btle(void)
             NULL, HFILL }
         },
         { &hf_advertising_header_rfu_1,
-            { "RFU",                             "btle.advertising_header.rfu.1",
+            { "Reserved",                        "btle.advertising_header.rfu.1",
             FT_UINT8, BASE_DEC, NULL, 0x10,
             "Reserved for Future Use", HFILL }
         },
@@ -1467,20 +1516,30 @@ proto_register_btle(void)
             FT_BOOLEAN, 8, TFS(&tfs_ch_sel), 0x20,
             NULL, HFILL }
         },
+        { &hf_advertising_header_rfu_2,
+            { "Reserved",                        "btle.advertising_header.rfu.2",
+            FT_UINT8, BASE_DEC, NULL, 0x20,
+            "Reserved for Future Use", HFILL }
+        },
         { &hf_advertising_header_randomized_tx,
             { "Tx Address",                      "btle.advertising_header.randomized_tx",
             FT_BOOLEAN, 8, TFS(&tfs_random_public), 0x40,
             NULL, HFILL }
+        },
+        { &hf_advertising_header_rfu_3,
+            { "Reserved",                        "btle.advertising_header.rfu.3",
+            FT_UINT8, BASE_DEC, NULL, 0x40,
+            "Reserved for Future Use", HFILL }
         },
         { &hf_advertising_header_randomized_rx,
             { "Rx Address",                      "btle.advertising_header.randomized_rx",
             FT_BOOLEAN, 8, TFS(&tfs_random_public), 0x80,
             NULL, HFILL }
         },
-        { &hf_advertising_header_reserved,
-            { "Reserved",                        "btle.advertising_header.reserved",
-            FT_BOOLEAN, 8, NULL, 0x80,
-            NULL, HFILL }
+        { &hf_advertising_header_rfu_4,
+            { "Reserved",                        "btle.advertising_header.rfu.4",
+            FT_UINT8, BASE_DEC, NULL, 0x80,
+            "Reserved for Future Use", HFILL }
         },
         { &hf_advertising_header_length,
             { "Length",                          "btle.advertising_header.length",
