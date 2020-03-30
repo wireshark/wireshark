@@ -62,6 +62,7 @@ AudioCodes Debug Recording (ACDR)
 Tunnel Extensible Authentication Protocol (TEAP)
 USB Printer (USBPRINTER)
 Java Debug Wire Protocol (JDWP)
+ScyllaDB RPC
 --
 
 === Updated Protocol Support

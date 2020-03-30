@@ -1694,6 +1694,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-scsi.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-scte35.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-sctp.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-scylla.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-sdh.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-sdlc.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-sdp.c
