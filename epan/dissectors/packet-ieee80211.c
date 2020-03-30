@@ -1452,7 +1452,10 @@ static const value_string ieee80211_tag_measure_request_measurement_mode_flags[]
 #define MEASURE_REQ_BEACON_SUB_BRI 1
 #define MEASURE_REQ_BEACON_SUB_RD 2
 #define MEASURE_REQ_BEACON_SUB_REQUEST 10
+#define MEASURE_REQ_BEACON_SUB_REQUEST_EXT 11
 #define MEASURE_REQ_BEACON_SUB_APCP 51
+#define MEASURE_REQ_BEACON_SUB_WIDE_BW_CHANNEL_SWITCH 163
+#define MEASURE_REQ_BEACON_SUB_LAST_REPORT_REQ 164
 #define MEASURE_REQ_BEACON_SUB_VS 221
 
 static const value_string ieee80211_tag_measure_request_beacon_sub_id_flags[] = {
@@ -1460,7 +1463,10 @@ static const value_string ieee80211_tag_measure_request_beacon_sub_id_flags[] = 
   { MEASURE_REQ_BEACON_SUB_BRI, "Beacon Reporting Information" },
   { MEASURE_REQ_BEACON_SUB_RD, "Reporting Detail" },
   { MEASURE_REQ_BEACON_SUB_REQUEST, "Request" },
+  { MEASURE_REQ_BEACON_SUB_REQUEST_EXT, "Extended Request" },
   { MEASURE_REQ_BEACON_SUB_APCP, "AP Channel Report" },
+  { MEASURE_REQ_BEACON_SUB_WIDE_BW_CHANNEL_SWITCH, "Wide Channel Bandwidth Switch" },
+  { MEASURE_REQ_BEACON_SUB_LAST_REPORT_REQ, "Last Beacon Report Indication Request" },
   { MEASURE_REQ_BEACON_SUB_VS, "Vendor Specific" },
   { 0x00, NULL}
 };
@@ -1548,10 +1554,16 @@ static const value_string ieee80211_tag_measure_request_noise_histogram_sub_repo
   { 0x00, NULL}
 };
 
-#define MEASURE_REP_REPORTED_FRAME_BODY 1
+#define MEASURE_REP_BEACON_SUB_REPORTED_FRAME_BODY 1
+#define MEASURE_REP_BEACON_SUB_REPORTED_FRAME_BODY_FRAG_ID 2
+#define MEASURE_REP_BEACON_SUB_WIDE_BW_CHANNEL_SWITCH 163
+#define MEASURE_REP_BEACON_SUB_LAST_REPORT_INDICATION 164
 
 static const value_string ieee80211_tag_measure_report_beacon_sub_id_vals[] = {
-  { MEASURE_REP_REPORTED_FRAME_BODY, "Reported Frame Body" },
+  { MEASURE_REP_BEACON_SUB_REPORTED_FRAME_BODY, "Reported Frame Body" },
+  { MEASURE_REP_BEACON_SUB_REPORTED_FRAME_BODY_FRAG_ID, "Reported Frame Body Fragment ID" },
+  { MEASURE_REP_BEACON_SUB_WIDE_BW_CHANNEL_SWITCH, "Wide Bandwidth Channel Switch"},
+  { MEASURE_REP_BEACON_SUB_LAST_REPORT_INDICATION, "Last Beacon Report Indication"},
   { 221, "Vendor Specific" },
   { 0x00, NULL}
 };
@@ -3832,6 +3844,8 @@ static int hf_ieee80211_tag_fh_hopping_table_modulus = -1;
 static int hf_ieee80211_tag_fh_hopping_table_offset = -1;
 static int hf_ieee80211_tag_fh_hopping_random_table = -1;
 static int hf_ieee80211_tag_request = -1;
+static int hf_ieee80211_tag_extended_request_id = -1;
+static int hf_ieee80211_tag_extended_request_extension = -1;
 static int hf_ieee80211_tag_challenge_text = -1;
 
 static int hf_ieee80211_wep_iv = -1;
@@ -3874,7 +3888,7 @@ static int hf_ieee80211_tag_measure_request_beacon_sub_ssid = -1;
 static int hf_ieee80211_tag_measure_request_beacon_sub_bri_reporting_condition = -1;
 static int hf_ieee80211_tag_measure_request_beacon_sub_bri_threshold_offset = -1;
 static int hf_ieee80211_tag_measure_request_beacon_sub_reporting_detail = -1;
-static int hf_ieee80211_tag_measure_request_beacon_sub_request = -1;
+static int hf_ieee80211_tag_measure_request_beacon_sub_last_report_indication_request = -1;
 static int hf_ieee80211_tag_measure_request_beacon_unknown = -1;
 
 static int hf_ieee80211_tag_measure_request_channel_load_sub_id = -1;
@@ -4186,6 +4200,12 @@ static int hf_ieee80211_tag_measure_report_parent_tsf = -1;
 
 static int hf_ieee80211_tag_measure_report_subelement_length = -1;
 static int hf_ieee80211_tag_measure_report_beacon_sub_id = -1;
+static int hf_ieee80211_tag_measure_report_beacon_unknown = -1;
+static int hf_ieee80211_tag_measure_report_beacon_sub_last_report_indication = -1;
+static int hf_ieee80211_tag_measure_reported_frame_frag_id = -1;
+static int hf_ieee80211_tag_measure_reported_frame_frag_rep_id = -1;
+static int hf_ieee80211_tag_measure_reported_frame_frag_number = -1;
+static int hf_ieee80211_tag_measure_reported_frame_frag_more =-1;
 
 static int hf_ieee80211_tag_measure_report_unknown = -1;
 
@@ -5857,12 +5877,15 @@ static gint ett_ff_ftm_param_delim3 = -1;
 
 static gint ett_tag_measure_request_mode_tree = -1;
 static gint ett_tag_measure_request_type_tree = -1;
+static gint ett_tag_measure_request_sub_element_tree = -1;
 static gint ett_tag_measure_report_mode_tree = -1;
 static gint ett_tag_measure_report_type_tree = -1;
 static gint ett_tag_measure_report_basic_map_tree = -1;
 static gint ett_tag_measure_report_rpi_tree = -1;
 static gint ett_tag_measure_report_frame_tree = -1;
+static gint ett_tag_measure_report_sub_element_tree = -1;
 static gint ett_tag_measure_reported_frame_tree = -1;
+static gint ett_tag_measure_reported_frame_frag_id_tree = -1;
 static gint ett_tag_bss_bitmask_tree = -1;
 static gint ett_tag_dfs_map_tree = -1;
 static gint ett_tag_dfs_map_flags_tree = -1;
@@ -5992,6 +6015,7 @@ static expert_field ei_ieee80211_rsn_pcs_count = EI_INIT;
 static expert_field ei_ieee80211_tag_measure_request_unknown = EI_INIT;
 static expert_field ei_ieee80211_tag_measure_request_beacon_unknown = EI_INIT;
 static expert_field ei_ieee80211_tag_measure_report_unknown = EI_INIT;
+static expert_field ei_ieee80211_tag_measure_report_beacon_unknown = EI_INIT;
 static expert_field ei_ieee80211_tag_number = EI_INIT;
 static expert_field ei_ieee80211_ff_anqp_info_length = EI_INIT;
 static expert_field ei_hs20_anqp_ofn_length = EI_INIT;
@@ -13116,12 +13140,15 @@ rsn_gmcs_base_custom(gchar *result, guint32 gmcs)
 }
 
 static void
-rsni_base_custom(gchar *result, guint32 rsni)
+rsni_base_custom(gchar *result, guint8 rsni)
 {
   double temp_double;
 
-  temp_double = (double)rsni;
-  g_snprintf(result, ITEM_LABEL_LENGTH, "%f dB", (temp_double / 2));
+  if (rsni < 255) {
+    temp_double = (double)rsni - 20;
+    g_snprintf(result, ITEM_LABEL_LENGTH, "%.1f dB", (temp_double / 2));
+  } else
+    g_snprintf(result, ITEM_LABEL_LENGTH, "%d (Measurement not available)", rsni);
 }
 
 static void
@@ -18210,6 +18237,24 @@ dissect_roaming_consortium(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
   return tvb_captured_length(tvb);
 }
 
+static void
+dissect_extended_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int len)
+{
+  if (len < 2) {
+    expert_add_info_format(pinfo, tree, &ei_ieee80211_tag_length,
+                           "Extended Request must be at least 2 octets long");
+    return;
+  }
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_extended_request_id, tvb, offset, 1, ENC_NA);
+  offset += 1;
+  len -= 1;
+
+  while (len--) {
+    proto_tree_add_item(tree, hf_ieee80211_tag_extended_request_extension, tvb, offset, 1, ENC_NA);
+    offset += 1;
+  }
+}
 
 /* ************************************************************************* */
 /*           Dissect and add tagged (optional) fields to proto tree          */
@@ -18600,8 +18645,9 @@ ieee80211_tag_tim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     NULL
   };
 
-  /* 802.11-2012: 8.4.2.7 TIM element (5) */
-  if (tag_len < 4) {
+  /* 802.11-2012: 8.4.2.7 TIM element (5). */
+  /* Exception for tag_len==2 as TIM element might be truncated in beacon measurement report */
+  if ((tag_len < 4) && (tag_len != 2)) {
     expert_add_info_format(pinfo, field_data->item_tag_length, &ei_ieee80211_tag_length,
                            "Tag length %u too short, must be >= 4", tag_len);
     return 1;
@@ -18609,13 +18655,16 @@ ieee80211_tag_tim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 
   proto_tree_add_item(tree, hf_ieee80211_tim_dtim_count,
                       tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  proto_item_append_text(field_data->item_tag, ": DTIM %u of", tvb_get_guint8(tvb, offset));
+  proto_item_append_text(field_data->item_tag, ": DTIM %u of", tvb_get_guint8(tvb, offset) + 1);
   offset += 1;
 
   proto_tree_add_item(tree, hf_ieee80211_tim_dtim_period,
                       tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  proto_item_append_text(field_data->item_tag, " %u bitmap", tvb_get_guint8(tvb, offset + 1));
+  proto_item_append_text(field_data->item_tag, " %u bitmap", tvb_get_guint8(tvb, offset));
   offset += 1;
+
+  if (offset >= tag_len)
+    return offset;
 
   proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee80211_tim_bmapctl,
                                     ett_tag_bmapctl_tree, ieee80211_tim_bmapctl,
@@ -19528,36 +19577,74 @@ ieee80211_tag_measure_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
      while (offset < tag_len)
      {
        guint8 sub_id, sub_length, sub_tag_end;
-       proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_beacon_sub_id, tvb, offset, 1, ENC_NA);
+       proto_item *sub_elem_item, *sub_elem_len_item;
+       proto_tree *sub_elem_tree;
+
+       sub_elem_item = proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_beacon_sub_id, tvb, offset, 1, ENC_NA);
        sub_id = tvb_get_guint8(tvb, offset);
        offset += 1;
 
-       proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_subelement_length, tvb, offset, 1, ENC_NA);
+       sub_elem_tree = proto_item_add_subtree(sub_elem_item, ett_tag_measure_request_sub_element_tree);
+
+       sub_elem_len_item = proto_tree_add_item(sub_elem_tree, hf_ieee80211_tag_measure_request_subelement_length,
+                                               tvb, offset, 1, ENC_NA);
        sub_length = tvb_get_guint8(tvb, offset);
        offset += 1;
        sub_tag_end = offset + sub_length;
 
+       if (sub_tag_end > tag_len)
+       {
+         expert_add_info_format(pinfo, sub_elem_len_item, &ei_ieee80211_tag_length, "Sub Element length exceed Tag length");
+         return tvb_captured_length(tvb);
+       }
+
        switch (sub_id) {
          case MEASURE_REQ_BEACON_SUB_SSID: /* SSID (0) */
-           proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_beacon_sub_ssid, tvb, offset, sub_length, ENC_ASCII|ENC_NA);
+           proto_tree_add_item(sub_elem_tree, hf_ieee80211_tag_measure_request_beacon_sub_ssid, tvb, offset, sub_length, ENC_ASCII|ENC_NA);
            offset += sub_length;
            break;
          case MEASURE_REQ_BEACON_SUB_BRI: /* Beacon Reporting Information (1) */
-           proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_beacon_sub_bri_reporting_condition, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+           proto_tree_add_item(sub_elem_tree, hf_ieee80211_tag_measure_request_beacon_sub_bri_reporting_condition, tvb, offset, 1, ENC_LITTLE_ENDIAN);
            offset += 1;
-           proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_beacon_sub_bri_threshold_offset, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+           proto_tree_add_item(sub_elem_tree, hf_ieee80211_tag_measure_request_beacon_sub_bri_threshold_offset, tvb, offset, 1, ENC_LITTLE_ENDIAN);
            offset += 1;
            break;
          case MEASURE_REQ_BEACON_SUB_RD: /* Reporting Detail (2) */
-           proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_beacon_sub_reporting_detail, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+           proto_tree_add_item(sub_elem_tree, hf_ieee80211_tag_measure_request_beacon_sub_reporting_detail, tvb, offset, 1, ENC_LITTLE_ENDIAN);
            offset += 1;
            break;
          case MEASURE_REQ_BEACON_SUB_REQUEST: /* Request (10) */
-           proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_beacon_sub_request, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-           offset += 1;
+         {
+           tvbuff_t *sub_tvb = tvb_new_subset_length(tvb, offset, sub_length);
+           offset += ieee80211_tag_request(sub_tvb, pinfo, sub_elem_tree, NULL);
+           break;
+         }
+         case MEASURE_REQ_BEACON_SUB_REQUEST_EXT: /* Extended Request (11) */
+           dissect_extended_request(tvb, pinfo, sub_elem_tree, offset, sub_length);
+           offset += sub_length;
            break;
          case MEASURE_REQ_BEACON_SUB_APCP: /* AP Channel Report (51) */
-           /* TODO */
+         {
+           tvbuff_t *sub_tvb = tvb_new_subset_length(tvb, offset, sub_length);
+           ieee80211_tagged_field_data_t sub_data = {
+             .ftype = 0,
+             .sanity_check = NULL,
+             .isDMG = FALSE,
+             .item_tag_length = sub_elem_len_item,
+             .item_tag = sub_elem_item};
+           offset += dissect_ap_channel_report(sub_tvb, pinfo, sub_elem_tree, &sub_data);
+           break;
+         }
+         case MEASURE_REQ_BEACON_SUB_WIDE_BW_CHANNEL_SWITCH:
+         {
+           tvbuff_t *sub_tvb = tvb_new_subset_length(tvb, offset, sub_length);
+           offset += dissect_wide_bw_channel_switch(sub_tvb, pinfo, sub_elem_tree, NULL);
+           break;
+         }
+         case MEASURE_REQ_BEACON_SUB_LAST_REPORT_REQ:
+           proto_tree_add_item(sub_elem_tree, hf_ieee80211_tag_measure_request_beacon_sub_last_report_indication_request,
+                               tvb, offset, 1, ENC_LITTLE_ENDIAN);
+           offset += 1;
            break;
          default:
            /* no default action */
@@ -19566,7 +19653,7 @@ ieee80211_tag_measure_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
        if (offset < sub_tag_end)
        {
          proto_item *tix;
-         tix = proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_beacon_unknown, tvb, offset, sub_tag_end - offset, ENC_NA);
+         tix = proto_tree_add_item(sub_elem_tree, hf_ieee80211_tag_measure_request_beacon_unknown, tvb, offset, sub_tag_end - offset, ENC_NA);
          expert_add_info(pinfo, tix, &ei_ieee80211_tag_measure_request_beacon_unknown);
          offset = sub_tag_end;
        }
@@ -19853,9 +19940,9 @@ ieee80211_tag_measure_rep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_duration, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
-    proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee80211_tag_measure_report_frame_info,
-                                    ett_tag_measure_report_frame_tree, ieee80211_tag_measure_report_frame_info,
-                                    ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+    proto_tree_add_bitmask_with_flags(sub_tree, tvb, offset, hf_ieee80211_tag_measure_report_frame_info,
+                                      ett_tag_measure_report_frame_tree, ieee80211_tag_measure_report_frame_info,
+                                      ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
     offset += 1;
 
     proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_rcpi, tvb, offset, 1, ENC_NA);
@@ -19875,34 +19962,98 @@ ieee80211_tag_measure_rep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 
     while (offset < tag_len)
     {
-      guint8 sub_id, sub_length;
-      proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_beacon_sub_id, tvb, offset, 1, ENC_NA);
+      guint8 sub_id, sub_length, sub_tag_end;;
+      proto_item *sub_elem_item, *sub_elem_len_item;
+      proto_tree *sub_elem_tree;
+
+      sub_elem_item = proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_beacon_sub_id,
+                                          tvb, offset, 1, ENC_NA);
       sub_id = tvb_get_guint8(tvb, offset);
       offset += 1;
 
-      proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_subelement_length, tvb, offset, 1, ENC_NA);
+      sub_elem_tree = proto_item_add_subtree(sub_elem_item, ett_tag_measure_report_sub_element_tree);
+
+      sub_elem_len_item = proto_tree_add_item(sub_elem_tree, hf_ieee80211_tag_measure_report_subelement_length,
+                                              tvb, offset, 1, ENC_NA);
       sub_length = tvb_get_guint8(tvb, offset);
       offset += 1;
+      sub_tag_end = offset + sub_length;
+
+      if (sub_tag_end > tag_len)
+      {
+        expert_add_info_format(pinfo, sub_elem_len_item, &ei_ieee80211_tag_length, "Sub Element length exceed Tag length");
+        return tvb_captured_length(tvb);
+      }
 
       switch (sub_id) {
-        case MEASURE_REP_REPORTED_FRAME_BODY: /* Reported Frame Body (1) */
+        case MEASURE_REP_BEACON_SUB_REPORTED_FRAME_BODY: /* Reported Frame Body (1) */
         {
           proto_tree *rep_tree;
+          gboolean fixed_fields = TRUE;
 
-          rep_tree = proto_tree_add_subtree(sub_tree, tvb, offset, sub_length, ett_tag_measure_reported_frame_tree, NULL, "Reported Frame Body");
+          rep_tree = proto_tree_add_subtree(sub_elem_tree, tvb, offset, sub_length,
+                                            ett_tag_measure_reported_frame_tree, NULL, "Reported Frame Body");
 
-          add_ff_timestamp(rep_tree, tvb, pinfo, 0);
-          add_ff_beacon_interval(rep_tree, tvb, pinfo, 8);
-          add_ff_cap_info(rep_tree, tvb, pinfo, 10);
-          offset += 12;
+          /* If reported frame body fragment ID sub element is present and this is not
+             the first fragment then there are no fixed size fields */
+          if (((tag_len - sub_tag_end) >= 4) &&
+              (tvb_get_guint8(tvb, sub_tag_end) == MEASURE_REP_BEACON_SUB_REPORTED_FRAME_BODY_FRAG_ID) &&
+              ((tvb_get_guint8(tvb, sub_tag_end + 3) & 0x7f) > 0))
+            fixed_fields = FALSE;
 
-          ieee_80211_add_tagged_parameters(tvb, offset, pinfo, rep_tree, sub_length - 12, MGT_PROBE_RESP, NULL);
-          offset += (sub_length - 12);
+          if (fixed_fields) {
+            add_ff_timestamp(rep_tree, tvb, pinfo, offset);
+            offset += 8;
+            add_ff_beacon_interval(rep_tree, tvb, pinfo, offset);
+            offset += 2;
+            add_ff_cap_info(rep_tree, tvb, pinfo, offset);
+            offset += 2;
+            sub_length -= 12;
+          }
+
+          ieee_80211_add_tagged_parameters(tvb, offset, pinfo, rep_tree, sub_length, MGT_PROBE_RESP, NULL);
+          offset += sub_length;
+          break;
         }
-        break;
+        case MEASURE_REP_BEACON_SUB_REPORTED_FRAME_BODY_FRAG_ID:
+        {
+          static const int *ieee80211_tag_measure_reported_frame_frag_id[] = {
+            &hf_ieee80211_tag_measure_reported_frame_frag_rep_id,
+            &hf_ieee80211_tag_measure_reported_frame_frag_number,
+            &hf_ieee80211_tag_measure_reported_frame_frag_more,
+            NULL
+          };
+          proto_tree_add_bitmask_with_flags(sub_elem_tree, tvb, offset,
+                                            hf_ieee80211_tag_measure_reported_frame_frag_id,
+                                            ett_tag_measure_reported_frame_frag_id_tree,
+                                            ieee80211_tag_measure_reported_frame_frag_id,
+                                            ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+          offset += 2;
+          break;
+        }
+        case MEASURE_REP_BEACON_SUB_WIDE_BW_CHANNEL_SWITCH:
+        {
+          tvbuff_t *sub_tvb = tvb_new_subset_length(tvb, offset, sub_length);
+          offset += dissect_wide_bw_channel_switch(sub_tvb, pinfo, sub_elem_tree, NULL);
+          break;
+        }
+        case MEASURE_REP_BEACON_SUB_LAST_REPORT_INDICATION:
+          proto_tree_add_item(sub_elem_tree, hf_ieee80211_tag_measure_report_beacon_sub_last_report_indication,
+                              tvb, offset, 1, ENC_LITTLE_ENDIAN);
+          offset += 1;
+          break;
         default:
           /* no default action */
           break;
+      }
+
+      if (offset < sub_tag_end)
+      {
+        proto_item *tix;
+        tix = proto_tree_add_item(sub_elem_tree, hf_ieee80211_tag_measure_report_beacon_unknown,
+                                  tvb, offset, sub_tag_end - offset, ENC_NA);
+        expert_add_info(pinfo, tix, &ei_ieee80211_tag_measure_report_beacon_unknown);
+        offset = sub_tag_end;
       }
     }
     break;
@@ -21567,10 +21718,13 @@ ieee80211_tag_element_id_extension(tvbuff_t *tvb, packet_info *pinfo, proto_tree
       dissect_ess_report(tvb, pinfo, tree, offset, ext_tag_len);
       break;
     case ETAG_REJECTED_GROUPS:
-        dissect_rejected_groups(tvb, pinfo, tree, offset, ext_tag_len);
+      dissect_rejected_groups(tvb, pinfo, tree, offset, ext_tag_len);
       break;
     case ETAG_ANTI_CLOGGING_TOKEN:
       dissect_anti_clogging_token(tvb, pinfo, tree, offset, ext_tag_len);
+      break;
+    case ETAG_EXTENDED_REQUEST:
+      dissect_extended_request(tvb, pinfo, tree, offset, ext_tag_len);
       break;
     default:
       break;
@@ -31094,6 +31248,16 @@ proto_register_ieee80211(void)
       FT_UINT8, BASE_DEC|BASE_EXT_STRING, &tag_num_vals_ext, 0,
       "The list of elements that are to be included in the responding STA Probe Response frame", HFILL }},
 
+    {&hf_ieee80211_tag_extended_request_id,
+     {"Requested Element ID", "wlan.tag.extended_request.id",
+      FT_UINT8, BASE_DEC|BASE_EXT_STRING, &tag_num_vals_ext, 0,
+      "The Element ID used to indicate an extended element", HFILL }},
+
+    {&hf_ieee80211_tag_extended_request_extension,
+     {"Requested Element ID Extensions", "wlan.tag.extended_request.ext",
+      FT_UINT8, BASE_DEC|BASE_EXT_STRING, &tag_num_vals_eid_ext_ext, 0,
+      "The list of elements extensions that are to be included in the responding STA Probe Response frame", HFILL }},
+
     {&hf_ieee80211_tclas_up,
      {"User Priority", "wlan.tclas.user_priority",
       FT_UINT8, BASE_DEC, NULL, 0,
@@ -32866,12 +33030,12 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tag_measure_request_token,
      {"Measurement Token", "wlan.measure.req.token",
-      FT_UINT8, BASE_HEX, NULL, 0xff,
+      FT_UINT8, BASE_HEX, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_measure_request_mode,
      {"Measurement Request Mode", "wlan.measure.req.mode",
-      FT_UINT8, BASE_HEX, NULL, 0xff,
+      FT_UINT8, BASE_HEX, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_measure_request_mode_parallel,
@@ -32974,9 +33138,9 @@ proto_register_ieee80211(void)
       FT_UINT8, BASE_HEX, VALS(ieee80211_tag_measure_request_beacon_sub_reporting_detail_flags), 0,
       NULL, HFILL }},
 
-    {&hf_ieee80211_tag_measure_request_beacon_sub_request,
-     {"Request", "wlan.measure.req.beacon.sub.request",
-      FT_UINT8, BASE_DEC, 0, 0,
+    {&hf_ieee80211_tag_measure_request_beacon_sub_last_report_indication_request,
+     {"Request Indication", "wlan.measure.req.beacon.sub.last_report_ind_req",
+      FT_BOOLEAN, BASE_DEC, TFS(&tfs_yes_no), 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_measure_request_beacon_unknown,
@@ -33091,6 +33255,31 @@ proto_register_ieee80211(void)
       FT_UINT16, BASE_HEX, NULL, 0,
       NULL, HFILL }},
 
+    {&hf_ieee80211_tag_measure_report_beacon_unknown,
+     {"Unknown Data", "wlan.measure.rep.beacon.unknown",
+      FT_BYTES, BASE_NONE, NULL, 0,
+      "(not interpreted)", HFILL }},
+
+    {&hf_ieee80211_tag_measure_reported_frame_frag_id,
+     {"Fragment ID", "wlan.measure.rep.beacon.frag_id",
+      FT_UINT16, BASE_HEX, NULL, 0,
+      NULL, HFILL}},
+
+    {&hf_ieee80211_tag_measure_reported_frame_frag_rep_id,
+     {"Beacon Report ID", "wlan.measure.rep.beacon.frag_id.report_id",
+      FT_UINT16, BASE_HEX, NULL, 0x00ff,
+      NULL, HFILL}},
+
+    {&hf_ieee80211_tag_measure_reported_frame_frag_number,
+     {"Fragment ID Number", "wlan.measure.rep.beacon.frag_id.number",
+      FT_UINT16, BASE_HEX, NULL, 0x7f00,
+      NULL, HFILL}},
+
+    {&hf_ieee80211_tag_measure_reported_frame_frag_more,
+     {"More Frame Body Fragments", "wlan.measure.rep.beacon.frag_id.more",
+      FT_UINT16, BASE_HEX, NULL, 0x8000,
+      NULL, HFILL}},
+
     {&hf_ieee80211_tag_measure_cca_busy_fraction,
      {"CCA Busy Fraction", "wlan.measure.rep.ccabusy",
       FT_UINT8, BASE_HEX, NULL, 0,
@@ -33203,12 +33392,12 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tag_measure_report_rcpi,
      {"Received Channel Power Indicator (RCPI)", "wlan.measure.rep.rcpi",
-      FT_UINT8, BASE_HEX, NULL, 0,
+      FT_UINT8, BASE_CUSTOM, CF_FUNC(rcpi_and_power_level_custom), 0,
       "in dBm", HFILL }},
 
     {&hf_ieee80211_tag_measure_report_rsni,
      {"Received Signal to Noise Indicator (RSNI)", "wlan.measure.rep.rsni",
-      FT_UINT8, BASE_HEX, NULL, 0,
+      FT_UINT8, BASE_CUSTOM, CF_FUNC(rsni_base_custom), 0,
       "in dB", HFILL }},
 
     {&hf_ieee80211_tag_measure_report_bssid,
@@ -33300,6 +33489,11 @@ proto_register_ieee80211(void)
      {"Unknown Data", "wlan.measure.rep.unknown",
       FT_BYTES, BASE_NONE, NULL, 0,
       "(not interpreted)", HFILL }},
+
+    {&hf_ieee80211_tag_measure_report_beacon_sub_last_report_indication,
+     {"Last Report", "wlan.measure.req.beacon.sub.last_report",
+      FT_BOOLEAN, BASE_DEC, TFS(&tfs_yes_no), 0,
+      NULL, HFILL }},
 
     {&hf_ieee80211_tag_quiet_count,
      {"Count", "wlan.quiet.count",
@@ -37818,12 +38012,15 @@ proto_register_ieee80211(void)
 
     &ett_tag_measure_request_mode_tree,
     &ett_tag_measure_request_type_tree,
+    &ett_tag_measure_request_sub_element_tree,
     &ett_tag_measure_report_mode_tree,
     &ett_tag_measure_report_type_tree,
     &ett_tag_measure_report_basic_map_tree,
     &ett_tag_measure_report_rpi_tree,
     &ett_tag_measure_report_frame_tree,
+    &ett_tag_measure_report_sub_element_tree,
     &ett_tag_measure_reported_frame_tree,
+    &ett_tag_measure_reported_frame_frag_id_tree,
     &ett_tag_bss_bitmask_tree,
     &ett_tag_dfs_map_tree,
     &ett_tag_dfs_map_flags_tree,
@@ -38137,8 +38334,12 @@ proto_register_ieee80211(void)
         "Unknown Data (not interpreted)", EXPFILL }},
 
     { &ei_ieee80211_tag_measure_report_unknown,
-      { "wlan.measure.req.unknown.expert", PI_UNDECODED, PI_WARN,
+      { "wlan.measure.rep.unknown.expert", PI_UNDECODED, PI_WARN,
         "Undecoded Measurement Report type (or subtype), Contact Wireshark developers if you want this supported", EXPFILL }},
+
+    { &ei_ieee80211_tag_measure_report_beacon_unknown,
+      { "wlan.measure.rep.beacon.unknown.expert", PI_UNDECODED, PI_WARN,
+        "Unknown Data (not interpreted)", EXPFILL }},
 
     { &ei_ieee80211_tag_data,
       { "wlan.tag.data.undecoded", PI_UNDECODED, PI_NOTE,
