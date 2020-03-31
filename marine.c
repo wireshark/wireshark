@@ -849,6 +849,14 @@ WS_DLL_PUBLIC void marine_free(marine_result *ptr) {
     }
 }
 
+WS_DLL_PUBLIC void set_epan_auto_reset_count(guint32 auto_reset_count) {
+    epan_auto_reset_count = auto_reset_count;
+}
+
+WS_DLL_PUBLIC guint32 get_epan_auto_reset_count(void) {
+    return epan_auto_reset_count;
+}
+
 static void reset_epan_mem(capture_file *cf, epan_dissect_t *edt, gboolean tree, gboolean visual) {
     if (!epan_auto_reset || (cf->count < epan_auto_reset_count))
         return;
