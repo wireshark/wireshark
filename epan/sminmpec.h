@@ -76,6 +76,7 @@
 #define VENDOR_PLIXER               13745
 #define VENDOR_WIFI_ALLIANCE        14122
 #define VENDOR_T_SYSTEMS_NOVA       16787
+#define VENDOR_TRAVELPING           18681
 #define VENDOR_CHINATELECOM_GUANZHOU 20942
 #define VENDOR_GIGAMON              26866
 #define VENDOR_CACE                 32622

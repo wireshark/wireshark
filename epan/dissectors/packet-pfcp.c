@@ -29,6 +29,7 @@ void proto_reg_handoff_pfcp(void);
 
 static dissector_handle_t pfcp_handle;
 static dissector_handle_t pfcp_3gpp_ies_handle;
+static dissector_handle_t pfcp_travelping_ies_handle;
 
 #define UDP_PORT_PFCP  8805
 static guint g_pfcp_port = UDP_PORT_PFCP;
@@ -765,6 +766,11 @@ static int hf_pfcp_qos_monitoring_measurement_downlink = -1;
 static int hf_pfcp_qos_monitoring_measurement_uplink = -1;
 static int hf_pfcp_qos_monitoring_measurement_roundtrip = -1;
 
+static int hf_pfcp_travelping_build_id = -1;
+static int hf_pfcp_travelping_build_id_str = -1;
+static int hf_pfcp_travelping_now = -1;
+static int hf_pfcp_travelping_start_time = -1;
+static int hf_pfcp_travelping_end_time = -1;
 
 static int ett_pfcp = -1;
 static int ett_pfcp_flags = -1;
@@ -8491,6 +8497,79 @@ dissect_pfcp_3gpp_enterprise_ies(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     return tvb_reported_length(tvb);
 }
 
+/* Enterprise IE decoding Travelping */
+
+static const value_string pfcp_enterpise_travelping_type_vals[] = {
+    { 2, "Build Id"},
+    { 3, "Now"},
+    { 4, "Start"},
+    { 5, "Stop"},
+    { 0, NULL }
+};
+
+static int
+dissect_pfcp_enterprise_travelping_ies(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
+{
+    proto_item *item = (proto_item *)data;
+    gint offset = 0;
+    guint16 type, length;
+
+   /* Octet 1 -2 */
+    type = tvb_get_ntohs(tvb, offset) & ~0x8000;
+    length = tvb_get_ntohs(tvb, offset + 2);
+
+    /* skip vendor IE header */
+    offset += 6;
+    /* adjust length for Enterprise Id */
+    length -= 2;
+
+    proto_item_append_text(tree, ": %s", val_to_str_const(type, pfcp_enterpise_travelping_type_vals, "Unknown"));
+
+    switch (type) {
+    case 2:
+        /* Octet 7 to (n+4) Travelping Build Id */
+        if (tvb_ascii_isprint(tvb, offset, length))
+        {
+            const guint8* string_value;
+            proto_tree_add_item_ret_string(tree, hf_pfcp_travelping_build_id_str, tvb, offset, length, ENC_ASCII | ENC_NA, wmem_packet_scope(), &string_value);
+            proto_item_append_text(item, "%s", string_value);
+        }
+        else
+        {
+            proto_tree_add_item(tree, hf_pfcp_travelping_build_id, tvb, offset, length, ENC_NA);
+        }
+        break;
+
+    case 3: {
+        char *time_str;
+
+        proto_tree_add_item_ret_time_string(tree, hf_pfcp_travelping_now, tvb, offset, 8, ENC_TIME_NTP | ENC_BIG_ENDIAN, wmem_packet_scope(), &time_str);
+        proto_item_append_text(item, " %s", time_str);
+        break;
+    }
+    case 4: {
+        char *time_str;
+
+        proto_tree_add_item_ret_time_string(tree, hf_pfcp_travelping_now, tvb, offset, 8, ENC_TIME_NTP | ENC_BIG_ENDIAN, wmem_packet_scope(), &time_str);
+        proto_item_append_text(item, " %s", time_str);
+        break;
+    }
+    case 5: {
+        char *time_str;
+
+        proto_tree_add_item_ret_time_string(tree, hf_pfcp_travelping_now, tvb, offset, 8, ENC_TIME_NTP | ENC_BIG_ENDIAN, wmem_packet_scope(), &time_str);
+        proto_item_append_text(item, " %s", time_str);
+        break;
+    }
+
+    default:
+        /* unknown IE */
+        proto_tree_add_item(tree, hf_pfcp_enterprise_data, tvb, 6, -1, ENC_NA);
+    }
+
+    return tvb_reported_length(tvb);
+}
+
 static void
 pfcp_init(void)
 {
@@ -11678,6 +11757,32 @@ proto_register_pfcp(void)
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
+
+        { &hf_pfcp_travelping_build_id,
+        { "Travelping Build Identifier", "pfcp.travelping_build_id",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_travelping_build_id_str,
+        { "Travelping Build Identifier", "pfcp.travelping_build_id_str",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_travelping_now,
+        { "Travelping Now", "pfcp.travelping_now",
+            FT_ABSOLUTE_TIME, ABSOLUTE_TIME_NTP_UTC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_travelping_start_time,
+        { "Travelping Start Time", "pfcp.travelping_start_time",
+            FT_ABSOLUTE_TIME, ABSOLUTE_TIME_NTP_UTC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_travelping_end_time,
+        { "Travelping End Time", "pfcp.travelping_end_time",
+            FT_ABSOLUTE_TIME, ABSOLUTE_TIME_NTP_UTC, NULL, 0x0,
+            NULL, HFILL }
+        },
     };
 
     /* Setup protocol subtree array */
@@ -11800,6 +11905,7 @@ proto_register_pfcp(void)
         proto_pfcp, FT_UINT32, BASE_DEC);
 
     pfcp_3gpp_ies_handle = register_dissector("pfcp_3gpp_ies", dissect_pfcp_3gpp_enterprise_ies, proto_pfcp);
+    pfcp_travelping_ies_handle = register_dissector("pfcp_travelping_ies", dissect_pfcp_enterprise_travelping_ies, proto_pfcp);
 
     prefs_register_uint_preference(module_pfcp, "port_pfcp", "PFCP port", "PFCP port (default 8805)", 10, &g_pfcp_port);
     prefs_register_bool_preference(module_pfcp, "track_pfcp_session", "Track PFCP session", "Track PFCP session", &g_pfcp_session);
@@ -11814,6 +11920,8 @@ proto_reg_handoff_pfcp(void)
     dissector_add_uint("udp.port", g_pfcp_port, pfcp_handle);
     /* Register 3GPP in the table to give expert info and serve as an example how to add decoding of enterprise IEs*/
     dissector_add_uint("pfcp.enterprise_ies", VENDOR_THE3GPP, pfcp_3gpp_ies_handle);
+    /* Register Travelping IEs */
+    dissector_add_uint("pfcp.enterprise_ies", VENDOR_TRAVELPING, pfcp_travelping_ies_handle);
 
 
 }
