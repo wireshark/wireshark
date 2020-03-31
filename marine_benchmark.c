@@ -15,6 +15,12 @@
 #include <sys/resource.h>
 #include <zconf.h>
 
+typedef struct {
+    struct pcap_pkthdr *header;
+    const u_char *data;
+} packet;
+
+
 /*
 * Author:  David Robert Nadeau
 * Site:    http://NadeauSoftware.com/
@@ -22,7 +28,6 @@
 *          http://creativecommons.org/licenses/by/3.0/deed.en_US
 */
 size_t get_current_rss(void) {
-
     long rss = 0L;
     FILE *fp = NULL;
     if ((fp = fopen("/proc/self/statm", "r")) == NULL) {
@@ -35,11 +40,6 @@ size_t get_current_rss(void) {
     fclose(fp);
     return (size_t) rss * (size_t) sysconf(_SC_PAGESIZE);
 }
-
-typedef struct {
-    struct pcap_pkthdr *header;
-    const u_char *data;
-} packet;
 
 int load_cap(char *file, packet packets[]) {
     printf("Start loading packets from cap\n");
@@ -61,7 +61,6 @@ int load_cap(char *file, packet packets[]) {
     printf("Cap has been loaded, %d packets were loaded\n", p_count);
     return p_count;
 }
-
 
 void benchmark(packet packets[], int part, char *bpf, char *display_filter, char *fields[], int fields_len) {
     char err_msg[512];
@@ -94,10 +93,9 @@ void benchmark(packet packets[], int part, char *bpf, char *display_filter, char
            memory_usage);
 }
 
-int print_title(char* str) {
+int print_title(char *str) {
     return printf("\n\033[4:1m%s\033[0m\n", str);
 }
-
 
 int main(int argc, char *argv[]) {
     if (argc < 2) {
@@ -117,9 +115,21 @@ int main(int argc, char *argv[]) {
     int part = 0;
     char *bpf = "tcp port 4000 or tcp port 4001 or tcp port 4002 or tcp port 4003 or tcp port 4004 or tcp port 4005 or tcp port 4006 or tcp port 4007 or tcp port 4008 or tcp port 4009 or tcp port 4010 or tcp port 4011 or tcp port 4012 or tcp port 4013 or tcp port 4014 or tcp port 4015 or tcp port 4016 or tcp port 4017 or tcp port 4018 or tcp port 4019 or udp port 4000 or udp port 4001 or udp port 4002 or udp port 4003 or udp port 4004 or udp port 4005 or udp port 4006 or udp port 4007 or udp port 4008 or udp port 4009 or udp port 4010 or udp port 4011 or udp port 4012 or udp port 4013 or udp port 4014 or udp port 4015 or udp port 4016 or udp port 4017 or udp port 4018 or udp port 4019";
     char *dfilter = "tcp.port == 4000 or tcp.port == 4001 or tcp.port == 4002 or tcp.port == 4003 or tcp.port == 4004 or tcp.port == 4005 or tcp.port == 4006 or tcp.port == 4007 or tcp.port == 4008 or tcp.port == 4009 or tcp.port == 4010 or tcp.port == 4011 or tcp.port == 4012 or tcp.port == 4013 or tcp.port == 4014 or tcp.port == 4015 or tcp.port == 4016 or tcp.port == 4017 or tcp.port == 4018 or tcp.port == 4019 or udp.port == 4000 or udp.port == 4001 or udp.port == 4002 or udp.port == 4003 or udp.port == 4004 or udp.port == 4005 or udp.port == 4006 or udp.port == 4007 or udp.port == 4008 or udp.port == 4009 or udp.port == 4010 or udp.port == 4011 or udp.port == 4012 or udp.port == 4013 or udp.port == 4014 or udp.port == 4015 or udp.port == 4016 or udp.port == 4017 or udp.port == 4018 or udp.port == 4019";
-    char *three_fields[] = {"ip.proto", "eth.dst", "ip.host"};
-    char *eight_fields[] = {"ip.proto", "eth.dst", "ip.host", "eth.src", "eth.type", "ip.hdr_len", "ip.version",
-                            "frame.encap_type"};
+    char *three_fields[] = {
+            "ip.proto",
+            "eth.dst",
+            "ip.host"
+    };
+    char *eight_fields[] = {
+            "ip.proto",
+            "eth.dst",
+            "ip.host",
+            "eth.src",
+            "eth.type",
+            "ip.hdr_len",
+            "ip.version",
+            "frame.encap_type"
+    };
 
     init_marine();
     size_t memory_start = get_current_rss();
