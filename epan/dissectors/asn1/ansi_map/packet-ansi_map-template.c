@@ -1271,7 +1271,7 @@ static const true_false_string ansi_map_CDMACallMode_cls4_bool_val  = {
 };
 /* Call Mode (octet 1, bit H) */
 static const true_false_string ansi_map_CDMACallMode_cls5_bool_val  = {
-    "450 MHz channel (Band Class 5) not acceptable",
+    "450 MHz channel (Band Class 5) acceptable",
     "450 MHz channel (Band Class 5) not acceptable"
 };
 /* Call Mode (octet 2, bit A) */

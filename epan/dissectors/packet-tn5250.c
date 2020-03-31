@@ -6,6 +6,7 @@
  *  Release 3.0 Document Number SC30-3533-04
  *  Chapters 12, 15, 16
  *  http://publibfp.dhe.ibm.com/cgi-bin/bookmgr/BOOKS/co2e2001/CCONTENTS
+ *  [Found in 2020 in https://archive.org/details/5494RemoteControlUnitFunctionsReferenceSC30353304]
  *
  * Copyright 2009, Robert Hogan <robert@roberthogan.net>
  *
@@ -1419,7 +1420,7 @@ static const struct true_false_string tn5250_field_dpo_flag1_6 = {
 };
 
 static const struct true_false_string tn5250_field_dpo_flag1_7 = {
-  "Insert mode is toggled by the Insert key",
+  "Insert mode is reset by Error Reset key",
   "Insert mode is toggled by the Insert key"
 };
 

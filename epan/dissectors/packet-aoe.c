@@ -58,10 +58,7 @@ static const true_false_string tfs_aflags_e = {
   "LBA48 extended command",
   "Normal command"
 };
-static const true_false_string tfs_aflags_d = {
-  "?",
-  "?"
-};
+
 static const true_false_string tfs_aflags_a = {
   "ASYNCHRONOUS Write",
   "synchronous write"
@@ -424,7 +421,7 @@ proto_register_aoe(void)
     { &hf_aoe_aflags_e,
       { "E", "aoe.aflags.e", FT_BOOLEAN, 8, TFS(&tfs_aflags_e), AOE_AFLAGS_E, "Whether this is a normal or LBA48 command", HFILL}},
     { &hf_aoe_aflags_d,
-      { "D", "aoe.aflags.d", FT_BOOLEAN, 8, TFS(&tfs_aflags_d), AOE_AFLAGS_D, NULL, HFILL}},
+      { "D", "aoe.aflags.d", FT_BOOLEAN, 8, NULL, AOE_AFLAGS_D, "Device/head register flag", HFILL}},
     { &hf_aoe_aflags_a,
       { "A", "aoe.aflags.a", FT_BOOLEAN, 8, TFS(&tfs_aflags_a), AOE_AFLAGS_A, "Whether this is an asynchronous write or not", HFILL}},
     { &hf_aoe_aflags_w,

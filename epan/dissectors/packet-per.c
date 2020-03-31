@@ -100,10 +100,6 @@ static gboolean display_internal_per_fields = FALSE;
 
 
 
-static const true_false_string tfs_extension_present_bit = {
-	"",
-	""
-};
 static const true_false_string tfs_extension_bit = {
 	"Extension bit is set",
 	"Extension bit is clear"
@@ -111,10 +107,6 @@ static const true_false_string tfs_extension_bit = {
 static const true_false_string tfs_small_number_bit = {
 	"The number is small, 0-63",
 	"The number is large, >63"
-};
-static const true_false_string tfs_optional_field_bit = {
-	"",
-	""
 };
 
 
@@ -2740,13 +2732,13 @@ proto_register_per(void)
 		    TFS(&tfs_extension_bit), 0x01, "The extension bit of an aggregate", HFILL }},
 		{ &hf_per_extension_present_bit,
 		  { "Extension Present Bit", "per.extension_present_bit", FT_BOOLEAN, 8,
-		    TFS(&tfs_extension_present_bit), 0x01, "Whether this optional extension is present or not", HFILL }},
+		    NULL, 0x01, "Whether this optional extension is present or not", HFILL }},
 		{ &hf_per_small_number_bit,
 		  { "Small Number Bit", "per.small_number_bit", FT_BOOLEAN, 8,
 		    TFS(&tfs_small_number_bit), 0x01, "The small number bit for a section 10.6 integer", HFILL }},
 		{ &hf_per_optional_field_bit,
 		  { "Optional Field Bit", "per.optional_field_bit", FT_BOOLEAN, 8,
-		    TFS(&tfs_optional_field_bit), 0x01, "This bit specifies the presence/absence of an optional field", HFILL }},
+		    NULL, 0x01, "This bit specifies the presence/absence of an optional field", HFILL }},
 		{ &hf_per_sequence_of_length,
 		  { "Sequence-Of Length", "per.sequence_of_length", FT_UINT32, BASE_DEC,
 		    NULL, 0, "Number of items in the Sequence Of", HFILL }},

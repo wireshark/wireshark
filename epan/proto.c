@@ -8040,6 +8040,20 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 	}
 #endif
 
+#if ENABLE_CHECK_FILTER
+	if (hfinfo->type == FT_BOOLEAN) {
+		const true_false_string *tfs = (const true_false_string*)hfinfo->strings;
+		if (tfs) {
+			if (strcmp(tfs->false_string, tfs->true_string) == 0) {
+				g_warning("Field '%s' (%s) has identical true and false strings (\"%s\", \"%s\")\n",
+						   hfinfo->name, hfinfo->abbrev,
+						   tfs->false_string, tfs->true_string);
+			}
+		}
+	}
+#endif
+
+
 
 	switch (hfinfo->type) {
 

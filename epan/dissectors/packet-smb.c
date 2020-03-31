@@ -15857,7 +15857,7 @@ static const true_false_string tfs_smb_mac_getset_comments = {
 
 static const true_false_string tfs_smb_mac_desktopdb_calls = {
 	"Macintosh Get & Set Desktop Database Info Supported",
-	"Macintosh Get & Set Desktop Database Info Supported"
+	"Macintosh Get & Set Desktop Database Info Not Supported"
 };
 
 static const true_false_string tfs_smb_mac_unique_ids = {
