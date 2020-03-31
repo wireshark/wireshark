@@ -330,6 +330,7 @@ marine_write_specified_fields(packet_filter *filter, epan_dissect_t *edt, char *
     data.fields = fields;
     data.edt = edt;
 
+
     if (NULL == fields->field_indicies) {
         /* Prepare a lookup table from string abbreviation for field to its index. */
         fields->field_indicies = g_hash_table_new(g_str_hash, g_str_equal);
@@ -387,7 +388,6 @@ marine_write_specified_fields(packet_filter *filter, epan_dissect_t *edt, char *
             fields->field_values[i] = NULL;
         }
     }
-
     output[counter] = '\0';
     return output;
 }
@@ -557,13 +557,12 @@ marine_inner_dissect_packet(capture_file *cf, packet_filter *filter, const unsig
 WS_DLL_PUBLIC marine_result *marine_dissect_packet(int filter_id, unsigned char *data, int len) {
     marine_result *result = (marine_result *) malloc(sizeof(marine_result));
     result->output = NULL;
-
     if (!packet_filter_keys[filter_id]) {
         result->result = -1; // TODO export to const
     } else {
         int *key = packet_filter_keys[filter_id];
         packet_filter *filter = (packet_filter *) g_hash_table_lookup(packet_filters, key);
-        char *output = filter->output_fields == NULL ? NULL : (char *) g_malloc0(4096); // TODO export to const
+        char *output = filter->output_fields == NULL ? NULL : (char *) g_malloc(4096); // TODO export to const
         int passed = marine_inner_dissect_packet(&cfile, filter, data, len, output);
         if (passed) {
             result->result = 1;
@@ -575,6 +574,7 @@ WS_DLL_PUBLIC marine_result *marine_dissect_packet(int filter_id, unsigned char 
             result->result = 0;
         }
     }
+
     return result;
 }
 

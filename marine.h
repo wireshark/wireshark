@@ -6,6 +6,7 @@
 
 
 #define WIRESHARK_MARINE_H
+
 typedef struct {
     char *output;
     int result;
