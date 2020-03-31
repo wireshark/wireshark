@@ -2497,13 +2497,18 @@ dissect_pfcp_redirect_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
      * an IPv6 address in the Redirect Server Address IE and Other Redirect Server Address.
      */
 
-    /* p-(p+1)  Other Redirect Server Address Length=b */
-    proto_tree_add_item_ret_uint(tree, hf_pfcp_other_redirect_server_addr_len, tvb, offset, 2, ENC_BIG_ENDIAN, &addr_len);
-    offset+=2;
+    /* Redirect Information is an extensible IE. It was extended with the Other Redirect Server Address
+     * in version 15.6.0, before that version not including the Other Redirect Server Address was fine
+     */
+    if (offset < length) {
+        /* p-(p+1)  Other Redirect Server Address Length=b */
+        proto_tree_add_item_ret_uint(tree, hf_pfcp_other_redirect_server_addr_len, tvb, offset, 2, ENC_BIG_ENDIAN, &addr_len);
+        offset+=2;
 
-    /* (p+2)-(p+2+b-1)  Other Redirect Server Address */
-    proto_tree_add_item(tree, hf_pfcp_other_redirect_server_address, tvb, offset, addr_len, ENC_UTF_8 | ENC_NA);
-    offset += addr_len;
+        /* (p+2)-(p+2+b-1)  Other Redirect Server Address */
+        proto_tree_add_item(tree, hf_pfcp_other_redirect_server_address, tvb, offset, addr_len, ENC_UTF_8 | ENC_NA);
+        offset += addr_len;
+    }
 
     if (offset < length) {
         proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
