@@ -9555,7 +9555,7 @@ proto_register_pfcp(void)
             NULL, HFILL }
         },
         { &hf_pfcp_end_time,
-        { "End Time", "pfcp.start_time",
+        { "End Time", "pfcp.end_time",
             FT_ABSOLUTE_TIME, ABSOLUTE_TIME_NTP_UTC, NULL, 0,
             NULL, HFILL }
         },
