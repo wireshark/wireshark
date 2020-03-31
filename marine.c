@@ -13,6 +13,7 @@
 // TODO remove unused imports
 // TODO remove Windows ifdefs, we're not going to support Windows for now.
 // TODO find a good way to write tests for performance, accuracy and memory leaks in the C code.
+#include "marine.h"
 
 #include <config.h>
 
@@ -21,7 +22,6 @@
 #include <string.h>
 #include <locale.h>
 #include <limits.h>
-#include "marine.h"
 
 #ifdef HAVE_GETOPT_H
 
@@ -70,9 +70,7 @@
 #include <epan/packet.h>
 
 #ifdef HAVE_LUA
-
 #include <epan/wslua/init_wslua.h>
-
 #endif
 
 #include "frame_tvbuff.h"
@@ -330,7 +328,6 @@ marine_write_specified_fields(packet_filter *filter, epan_dissect_t *edt, char *
     data.fields = fields;
     data.edt = edt;
 
-
     if (NULL == fields->field_indicies) {
         /* Prepare a lookup table from string abbreviation for field to its index. */
         fields->field_indicies = g_hash_table_new(g_str_hash, g_str_equal);
@@ -353,7 +350,7 @@ marine_write_specified_fields(packet_filter *filter, epan_dissect_t *edt, char *
     /*   time (each packet) this function is invoked for a flle. */
     /* XXX: ToDo: use packet-scope'd memory & (if/when implemented) wmem ptr_array */
     if (NULL == fields->field_values)
-        fields->field_values = g_new0(GPtrArray *, fields->fields->len);  /* free'd in output_fields_free() */
+        fields->field_values = g_new0(GPtrArray * , fields->fields->len);  /* free'd in output_fields_free() */
 
     proto_tree_children_foreach(edt->tree, proto_tree_get_node_field_values, &data);
 
@@ -388,6 +385,7 @@ marine_write_specified_fields(packet_filter *filter, epan_dissect_t *edt, char *
             fields->field_values[i] = NULL;
         }
     }
+
     output[counter] = '\0';
     return output;
 }
@@ -557,12 +555,13 @@ marine_inner_dissect_packet(capture_file *cf, packet_filter *filter, const unsig
 WS_DLL_PUBLIC marine_result *marine_dissect_packet(int filter_id, unsigned char *data, int len) {
     marine_result *result = (marine_result *) malloc(sizeof(marine_result));
     result->output = NULL;
+
     if (!packet_filter_keys[filter_id]) {
         result->result = -1; // TODO export to const
     } else {
         int *key = packet_filter_keys[filter_id];
         packet_filter *filter = (packet_filter *) g_hash_table_lookup(packet_filters, key);
-        char *output = filter->output_fields == NULL ? NULL : (char *) g_malloc(4096); // TODO export to const
+        char *output = filter->output_fields == NULL ? NULL : (char *) g_malloc0(4096); // TODO export to const
         int passed = marine_inner_dissect_packet(&cfile, filter, data, len, output);
         if (passed) {
             result->result = 1;
@@ -574,7 +573,6 @@ WS_DLL_PUBLIC marine_result *marine_dissect_packet(int filter_id, unsigned char 
             result->result = 0;
         }
     }
-
     return result;
 }
 
