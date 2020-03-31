@@ -3,8 +3,8 @@
 //
 #define ARRAY_SIZE(arr)     (sizeof(arr) / sizeof((arr)[0]))
 #define PACKET_COUNT 210000
-#define PART 30000
-#define TEST_COUNT 1
+#define CASES 7
+#define PART PACKET_COUNT / CASES
 
 #include<stdio.h>
 #include<pcap.h>
@@ -53,38 +53,36 @@ void benchmark(packet packets[], int packets_len, char *bpf, char *display_filte
     }
     clock_t total = 0;
     marine_result *results[PACKET_COUNT];
-    for(int c = 0; c < TEST_COUNT; ++c) {
-        clock_t start = clock();
-        for (int i = 0; i < packets_len; ++i) {
-            packet p = packets[i];
-            marine_result *packet_results = marine_dissect_packet(filter_id, (char *) p.data, p.header->len);
-            results[i] = packet_results;
-        }
-        clock_t end = clock();
-
-        for (int i = 0; i < packets_len; ++i) {
-            assert(results[i]->result == 1);
-            marine_free(results[i]);
-        }
-        total += end - start;
+    clock_t start = clock();
+    for (int i = 0; i < packets_len; ++i) {
+        packet p = packets[i];
+        marine_result *packet_results = marine_dissect_packet(filter_id, (char *) p.data, p.header->len);
+        results[i] = packet_results;
     }
-    float total_time = ((float) total) / TEST_COUNT / CLOCKS_PER_SEC;
+    clock_t end = clock();
+
+    for (int i = 0; i < packets_len; ++i) {
+        assert(results[i]->result == 1);
+        marine_free(results[i]);
+    }
+    total += end - start;
+    float total_time = ((float) total)  / CLOCKS_PER_SEC;
     float pps = (float) packets_len / total_time;
-    printf("Result after %d cycles:\n %d packets took: %f, which is its %f pps!\n", TEST_COUNT, packets_len, total_time, pps);
+    printf("%d packets took: %f, which is its %f pps!\n", packets_len, total_time, pps);
 }
 
 
 int main(void) {
     init_marine();
-    char *file = "/projects/marine-core/tcp.cap";
+    char *file = "/projects/marine-core/benchmark.cap";
     packet packets[PACKET_COUNT];
     packet part[PART];
     load_cap(file, packets);
 
-    char* bpf = "tcp port 4000 or tcp port 4001 or tcp port 4002 or tcp port 4003 or tcp port 4004 or tcp port 4005 or tcp port 4006 or tcp port 4007 or tcp port 4008 or tcp port 4009 or tcp port 4010 or tcp port 4011 or tcp port 4012 or tcp port 4013 or tcp port 4014 or tcp port 4015 or tcp port 4016 or tcp port 4017 or tcp port 4018 or tcp port 4019";
-    char* dfilter = "tcp.port == 4000 or tcp.port == 4001 or tcp.port == 4002 or tcp.port == 4003 or tcp.port == 4004 or tcp.port == 4005 or tcp.port == 4006 or tcp.port == 4007 or tcp.port == 4008 or tcp.port == 4009 or tcp.port == 4010 or tcp.port == 4011 or tcp.port == 4012 or tcp.port == 4013 or tcp.port == 4014 or tcp.port == 4015 or tcp.port == 4016 or tcp.port == 4017 or tcp.port == 4018 or tcp.port == 4019";
-    char *three_fields[] = {"ip.proto", "tcp.port", "ip.host"};
-    char *eight_fields[] = {"ip.proto", "tcp.port", "ip.host", "eth.addr", "eth.type", "ip.hdr_len", "ip.version", "frame.encap_type"};
+    char* bpf = "tcp port 4000 or tcp port 4001 or tcp port 4002 or tcp port 4003 or tcp port 4004 or tcp port 4005 or tcp port 4006 or tcp port 4007 or tcp port 4008 or tcp port 4009 or tcp port 4010 or tcp port 4011 or tcp port 4012 or tcp port 4013 or tcp port 4014 or tcp port 4015 or tcp port 4016 or tcp port 4017 or tcp port 4018 or tcp port 4019 or udp port 4000 or udp port 4001 or udp port 4002 or udp port 4003 or udp port 4004 or udp port 4005 or udp port 4006 or udp port 4007 or udp port 4008 or udp port 4009 or udp port 4010 or udp port 4011 or udp port 4012 or udp port 4013 or udp port 4014 or udp port 4015 or udp port 4016 or udp port 4017 or udp port 4018 or udp port 4019";
+    char* dfilter = "tcp.port == 4000 or tcp.port == 4001 or tcp.port == 4002 or tcp.port == 4003 or tcp.port == 4004 or tcp.port == 4005 or tcp.port == 4006 or tcp.port == 4007 or tcp.port == 4008 or tcp.port == 4009 or tcp.port == 4010 or tcp.port == 4011 or tcp.port == 4012 or tcp.port == 4013 or tcp.port == 4014 or tcp.port == 4015 or tcp.port == 4016 or tcp.port == 4017 or tcp.port == 4018 or tcp.port == 4019 or udp.port == 4000 or udp.port == 4001 or udp.port == 4002 or udp.port == 4003 or udp.port == 4004 or udp.port == 4005 or udp.port == 4006 or udp.port == 4007 or udp.port == 4008 or udp.port == 4009 or udp.port == 4010 or udp.port == 4011 or udp.port == 4012 or udp.port == 4013 or udp.port == 4014 or udp.port == 4015 or udp.port == 4016 or udp.port == 4017 or udp.port == 4018 or udp.port == 4019";
+    char *three_fields[] = {"ip.proto", "eth.dst", "ip.host"};
+    char *eight_fields[] = {"ip.proto", "eth.dst", "ip.host", "eth.src", "eth.type", "ip.hdr_len", "ip.version", "frame.encap_type"};
 
     memcpy(part, &packets[PART*0], PART * sizeof(*packets));
     printf("Benchmark with BPF\n");
