@@ -2445,22 +2445,37 @@ if(BUILD_marine)
 			tshark-tap-register.c
 			marine.c
 			${TSHARK_TAP_SRC}
-			marine_benchmark.c marine.h)
+			marine.h)
 
 	# Uncomment these lines to run Marine as a binary (after you add a main() entry point)
-	set_executable_resources(marine "Marine" UNIQUE_RC)
-	add_executable(marine ${marine_FILES})
-	set_extra_executable_properties(marine "Executables")
-	target_link_libraries(marine ${marine_LIBS})
-	install(TARGETS marine RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+#	set_executable_resources(marine "Marine" UNIQUE_RC)
+#	add_executable(marine ${marine_FILES})
+#	set_extra_executable_properties(marine "Executables")
+#	target_link_libraries(marine ${marine_LIBS})
+#	install(TARGETS marine RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 	# Uncomment these lines to compile Marine as a shared library
-#	add_library(marine ${marine_FILES})
-#	target_link_libraries(marine ${marine_LIBS})
-#	install(TARGETS marine
-#			RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-#			LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-#			ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
+	add_library(marine ${marine_FILES})
+	target_link_libraries(marine ${marine_LIBS})
+	install(TARGETS marine
+			RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+			LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+			ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
+endif()
+
+if(BUILD_marine_benchmark)
+	set(marine_benchmark_LIBS
+			${marine_LIBS}
+			)
+	set(marine_benchmark_FILES
+			${marine_FILES}
+			marine_benchmark.c)
+
+	set_executable_resources(marine_benchmark "Marine Benchmark" UNIQUE_RC)
+	add_executable(marine_benchmark ${marine_benchmark_FILES})
+	set_extra_executable_properties(marine_benchmark "Executables")
+	target_link_libraries(marine_benchmark ${marine_benchmark_LIBS})
+	install(TARGETS marine_benchmark RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
 
@@ -3137,6 +3152,7 @@ set(CLEAN_C_FILES
 	${dumpcap_FILES}
 	${wireshark_FILES}
 	${marine_FILES}
+	${marine_benchmark_FILES}
 	${tshark_FILES}
 	${rawshark_FILES}
 	${dftest_FILES}
