@@ -102,7 +102,7 @@ int ws80211_init(void)
 		state->have_split_wiphy = TRUE;
 #endif /* HAVE_NL80211_SPLIT_WIPHY_DUMP */
 
-	return 0;
+	return WS80211_INIT_OK;
 
  out_handle_destroy:
 	nl_socket_free(state->nl_sock);
@@ -933,9 +933,9 @@ const char *ws80211_get_helper_path(void) {
 int ws80211_init(void)
 {
 	if (airpcap_get_dll_state() == AIRPCAP_DLL_OK) {
-		return 0;
+		return WS80211_INIT_OK;
 	}
-	return -1;
+	return WS80211_INIT_NOT_SUPPORTED;
 }
 
 static const char *airpcap_dev_prefix_ = "\\\\.\\";
@@ -1198,7 +1198,7 @@ const char *ws80211_get_helper_path(void)
 #else /* Everyone else. */
 int ws80211_init(void)
 {
-	return -1;
+	return WS80211_INIT_NOT_SUPPORTED;
 }
 
 GArray* ws80211_find_interfaces(void)

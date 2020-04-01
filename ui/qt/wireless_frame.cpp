@@ -50,7 +50,7 @@ WirelessFrame::WirelessFrame(QWidget *parent) :
 
     ui->helperToolButton->hide();
 
-    if (ws80211_init() == 0) {
+    if (ws80211_init() == WS80211_INIT_OK) {
         ui->stackedWidget->setEnabled(true);
         ui->stackedWidget->setCurrentWidget(ui->interfacePage);
 

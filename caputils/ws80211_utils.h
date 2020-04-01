@@ -65,8 +65,13 @@ struct ws80211_iface_info {
  * On Windows this checks the AirPcap status. It does *not* load the
  * AirPcap DLL. That happens when the program starts.
  *
- * @return 0 on success, an error value on failure.
+ * @return WS80211_INIT_OK on success, WS80211_INIT_NOT_SUPPORTED if the
+ * 802.11 environment isn't supported, or the negative of an errno value
+ * on failure.
  */
+#define WS80211_INIT_OK            0
+#define WS80211_INIT_NOT_SUPPORTED 1
+
 int ws80211_init(void);
 
 /** Build a list of 802.11 interfaces.
