@@ -1503,10 +1503,10 @@
   </action>
   <action name="actionEditUnignoreAllDisplayed">
    <property name="text">
-    <string>Unignore All Displayed</string>
+    <string>U&amp;nignore All Displayed</string>
    </property>
    <property name="toolTip">
-    <string>U&amp;nignore all displayed packets</string>
+    <string>Unignore all displayed packets</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Alt+D</string>
