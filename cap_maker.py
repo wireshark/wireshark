@@ -1,11 +1,11 @@
 import struct
 import random
 from typing import List, Union, Type
+import os
 
 from pypacker.layer12 import ethernet
 from pypacker.layer3 import ip
 from pypacker.layer4 import tcp, udp
-from secrets import token_bytes
 
 PCAP_HEADER = bytes.fromhex("D4C3B2A10200040000000000000000000000040001000000")
 
@@ -39,7 +39,7 @@ def create_packet(
         + ip.IP(p=protocol_number, src_s=SRC_IP, dst_s=DST_IP)
         + protocol(sport=src_port, dport=dst_port)
     )
-    packet[protocol].body_bytes = token_bytes(random.randint(500, 1000))
+    packet[protocol].body_bytes = os.urandom(random.randint(500, 1000))
     return packet.bin()
 
 
@@ -47,7 +47,8 @@ def create_conversation(protocol: Union[Type[tcp.TCP], Type[udp.UDP]]) -> List[b
     src_port = random.choice(PORTS)
     dst_port = random.choice(PORTS)
     for p in range(PACKETS_PER_CONVERSATION // 2):
-        yield create_packet(protocol, src_port, dst_port), create_packet(protocol, dst_port, src_port)
+        yield create_packet(protocol, src_port, dst_port)
+        yield create_packet(protocol, dst_port, src_port)
 
 
 if __name__ == "__main__":

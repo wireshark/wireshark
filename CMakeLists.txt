@@ -578,7 +578,7 @@ else() # ! MSVC
 		# usage in normal operation.
 		#
 		set(WIRESHARK_COMMON_FLAGS ${WIRESHARK_COMMON_FLAGS}
-#			-Wframe-larger-than=1000000
+				-Wframe-larger-than=32768
 		)
 	endif()
 
