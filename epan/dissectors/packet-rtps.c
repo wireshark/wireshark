@@ -1875,7 +1875,7 @@ static void append_status_info(packet_info *pinfo,
  * -A DATA packet sent with the consecutive writerSeqNumber of the last coherent set packet.
  * Empty Data condition is not handled here. rtps_util_detect_coherent_set_end_empty_data_case called at the end of dissect_RTPS_DATA and dissect_RTPS_DATA_FRAG
  */
-void rtps_util_add_coherent_set_general_cases_case(
+static void rtps_util_add_coherent_set_general_cases_case(
   proto_tree *tree,
   tvbuff_t *tvb,
   guint64 coherent_seq_number,
@@ -1966,7 +1966,7 @@ void rtps_util_add_coherent_set_general_cases_case(
  * For the other cases, check rtps_util_add_coherent_set_general_cases_case.
  * this function must be called at the end of dissect_RTPS_DATA and dissect_RTPS_DATA_FRAG
  */
-void rtps_util_detect_coherent_set_end_empty_data_case(
+static void rtps_util_detect_coherent_set_end_empty_data_case(
 
   coherent_set_entity_info *coherent_set_entity_info_object) {
   coherent_set_entity_info *coherent_set_entry = NULL;
