@@ -1,7 +1,3 @@
-//
-// Created by reznik on 3/29/20.
-//
-
 #ifndef WIRESHARK_MARINE_H
 
 

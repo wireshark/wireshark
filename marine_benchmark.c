@@ -1,6 +1,3 @@
-//
-// Created by reznik on 3/29/20.
-//
 #define PACKET_COUNT 210000
 #define CASES 7
 #define PART_LEN PACKET_COUNT / CASES

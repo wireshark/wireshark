@@ -31,11 +31,12 @@ def write_cap(file_path: str, packets: List[bytes]):
 
 
 def create_packet(
-    protocol: Union[Type[tcp.TCP], Type[udp.UDP]], src_port, dst_port
+    protocol: Union[Type[tcp.TCP], Type[udp.UDP]], src_port: int, dst_port: int
 ) -> bytes:
+    protocol_number = ip.IP_PROTO_TCP if protocol == tcp.TCP else ip.IP_PROTO_UDP
     packet = (
-        ethernet.Ethernet(src_s=SRC_MAC, dst_s=DST_MAC, type=ethernet.ETH_TYPE_IP)
-        + ip.IP(p=ip.IP_PROTO_TCP, src_s=SRC_IP, dst_s=DST_IP)
+        ethernet.Ethernet(src_s=SRC_MAC, dst_s=DST_MAC)
+        + ip.IP(p=protocol_number, src_s=SRC_IP, dst_s=DST_IP)
         + protocol(sport=src_port, dport=dst_port)
     )
     packet[protocol].body_bytes = token_bytes(random.randint(500, 1000))
@@ -45,15 +46,12 @@ def create_packet(
 def create_conversation(protocol: Union[Type[tcp.TCP], Type[udp.UDP]]) -> List[bytes]:
     src_port = random.choice(PORTS)
     dst_port = random.choice(PORTS)
-    conversation = []
     for p in range(PACKETS_PER_CONVERSATION // 2):
-        conversation.append(create_packet(protocol, src_port, dst_port))
-        conversation.append(create_packet(protocol, dst_port, src_port))
-    return conversation
+        yield create_packet(protocol, src_port, dst_port), create_packet(protocol, dst_port, src_port)
 
 
 if __name__ == "__main__":
-    packets = []
+    packets: List[bytes] = []
     for _ in range(CONVERSATIONS // 2):
         packets.extend(create_conversation(tcp.TCP))
         packets.extend(create_conversation(udp.UDP))
@@ -61,9 +59,9 @@ if __name__ == "__main__":
     random.shuffle(packets)
 
     write_cap("benchmark.cap", packets)
-    bpf = " or ".join([f"udp port {port} or tcp port {port}" for port in PORTS])
+    bpf = " or ".join(f"udp port {port} or tcp port {port}" for port in PORTS)
     display_filter = " or ".join(
-        [f"udp.port == {port} or tcp.port == {port}" for port in PORTS]
+        f"udp.port == {port} or tcp.port == {port}" for port in PORTS
     )
     print("BPF:", bpf)
     print("Display filter:", display_filter)
