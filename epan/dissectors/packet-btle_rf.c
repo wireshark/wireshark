@@ -149,6 +149,7 @@ dissect_btle_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     context.crc_valid_at_capture   = !!(flags & LE_CRC_VALID);
     context.mic_checked_at_capture = !!(flags & LE_MIC_CHECKED);
     context.mic_valid_at_capture   = !!(flags & LE_MIC_VALID);
+    context.pdu_type               = BTLE_PDU_TYPE_UNKNOWN;
 
     ti = proto_tree_add_item(tree, proto_btle_rf, tvb, 0, tvb_captured_length(tvb), ENC_NA);
     btle_rf_tree = proto_item_add_subtree(ti, ett_btle_rf);
@@ -203,7 +204,6 @@ dissect_btle_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     else {
         proto_tree_add_item(btle_rf_tree, hf_btle_rf_word_unused, tvb, 4, 4, ENC_LITTLE_ENDIAN);
     }
-
 
     proto_tree_add_bitmask_with_flags(btle_rf_tree, tvb, 8, hf_btle_rf_flags, ett_btle_rf_flags,  hfs_btle_rf_flags, ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
 

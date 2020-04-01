@@ -638,6 +638,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     guint                  window_offset;
     guint                  data_interval;
     guint                  data_timeout;
+    guint8                 btle_pdu_type = BTLE_PDU_TYPE_UNKNOWN;
 
     list_data = wmem_list_frame_prev(wmem_list_tail(pinfo->layers));
     if (list_data) {
@@ -702,7 +703,16 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     frame_number = pinfo->num;
 
-    if (access_address == ACCESS_ADDRESS_ADVERTISING) {
+    if (btle_context) {
+        btle_pdu_type = btle_context->pdu_type;
+    }
+
+    if (btle_pdu_type == BTLE_PDU_TYPE_UNKNOWN) {
+        /* No context to provide us with physical channel pdu type, make an assumption from the access address */
+        btle_pdu_type = access_address == ACCESS_ADDRESS_ADVERTISING ? BTLE_PDU_TYPE_ADVERTISING : BTLE_PDU_TYPE_DATA;
+    }
+
+    if (btle_pdu_type == BTLE_PDU_TYPE_ADVERTISING) {
         proto_item  *advertising_header_item;
         proto_tree  *advertising_header_tree;
         proto_item  *link_layer_data_item;
@@ -1199,7 +1209,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 offset += tvb_reported_length_remaining(tvb, offset) - 3;
             }
         }
-    } else { /* data PDU */
+    } else if (btle_pdu_type == BTLE_PDU_TYPE_DATA) {
         proto_item  *data_header_item, *seq_item;
         proto_tree  *data_header_tree;
         guint8       oct;
@@ -1736,6 +1746,12 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             /* the surrounding context has provided CRCInit */
             crc_init = btle_context->connection_info.CRCInit;
             crc_status = CRC_CAN_BE_CALCULATED;
+        }
+    } else {
+        /* Unknown physical channel PDU type */
+        if (tvb_reported_length_remaining(tvb, offset) > 3) {
+                proto_tree_add_expert(btle_tree, pinfo, &ei_unknown_data, tvb, offset, tvb_reported_length_remaining(tvb, offset) - 3);
+                offset += tvb_reported_length_remaining(tvb, offset) - 3;
         }
     }
 

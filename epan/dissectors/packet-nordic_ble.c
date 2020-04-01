@@ -294,6 +294,8 @@ dissect_flags(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, 
     proto_tree *flags_tree;
 
     context->crc_checked_at_capture = 1;
+    context->pdu_type = BTLE_PDU_TYPE_UNKNOWN;
+
     flags = tvb_get_guint8(tvb, offset);
     context->crc_valid_at_capture = !!(flags & 1);
     dir = !!(flags & 2);
