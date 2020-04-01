@@ -47,6 +47,7 @@ static int hf_advertising_header_reserved = -1;
 static int hf_advertising_header_length = -1;
 static int hf_advertising_address = -1;
 static int hf_initiator_addresss = -1;
+static int hf_target_addresss = -1;
 static int hf_scanning_address = -1;
 static int hf_scan_response_data = -1;
 static int hf_link_layer_data = -1;
@@ -678,7 +679,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             break;
         case 0x01: /* ADV_DIRECT_IND */
             offset = dissect_bd_addr(hf_advertising_address, pinfo, btle_tree, tvb, offset, TRUE, interface_id, adapter_id, src_bd_addr);
-            offset = dissect_bd_addr(hf_initiator_addresss, pinfo, btle_tree, tvb, offset, FALSE, interface_id, adapter_id, dst_bd_addr);
+            offset = dissect_bd_addr(hf_target_addresss, pinfo, btle_tree, tvb, offset, FALSE, interface_id, adapter_id, dst_bd_addr);
 
             set_address(&pinfo->net_src, AT_ETHER, 6, src_bd_addr);
             copy_address_shallow(&pinfo->dl_src, &pinfo->net_src);
@@ -1493,6 +1494,11 @@ proto_register_btle(void)
         },
         { &hf_initiator_addresss,
             { "Initator Address",                "btle.initiator_address",
+            FT_ETHER, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_target_addresss,
+            { "Target Address",                  "btle.target_address",
             FT_ETHER, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
