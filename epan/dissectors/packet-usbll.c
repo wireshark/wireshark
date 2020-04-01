@@ -151,8 +151,9 @@ static const value_string usb_endpoint_type_vals[] = {
 #define USBLL_ADDRESS_STANDARD 0
 #define USBLL_ADDRESS_HOST 0x01
 #define USBLL_ADDRESS_HUB_PORT 0x02
+#define USBLL_ADDRESS_BROADCAST 0x04
 #define USBLL_ADDRESS_HOST_TO_DEV 0
-#define USBLL_ADDRESS_DEV_TO_HOST 0x04
+#define USBLL_ADDRESS_DEV_TO_HOST 0x08
 
 #define USBLL_ADDRESS_IS_DEV_TO_HOST(flags) \
     (flags & USBLL_ADDRESS_DEV_TO_HOST)
@@ -183,6 +184,8 @@ static int usbll_addr_to_str(const address* addr, gchar *buf, int buf_len)
 
     if (addrp->flags & USBLL_ADDRESS_HOST) {
         g_strlcpy(buf, "host", buf_len);
+    } else if (addrp->flags & USBLL_ADDRESS_BROADCAST) {
+        g_strlcpy(buf, "broadcast", buf_len);
     } else if (addrp->flags & USBLL_ADDRESS_HUB_PORT) {
         /*
          * in split transaction we use : to mark that the last part is port not
@@ -218,20 +221,25 @@ usbll_set_address(proto_tree *tree, tvbuff_t *tvb,
     if (USBLL_ADDRESS_IS_HOST_TO_DEV(flags)) {
         src_addr->flags = USBLL_ADDRESS_HOST;
 
-        dst_addr->device = device;
-        dst_addr->endpoint = endpoint;
-        if (flags & USBLL_ADDRESS_HUB_PORT) {
-            dst_addr->flags = USBLL_ADDRESS_HUB_PORT;
+        if (flags & USBLL_ADDRESS_BROADCAST) {
+            dst_addr->flags = USBLL_ADDRESS_BROADCAST;
             pinfo->ptype = PT_NONE;
         } else {
-            pinfo->ptype = PT_USB;
-            pinfo->destport = dst_addr->endpoint;
+            dst_addr->device = device;
+            dst_addr->endpoint = endpoint;
+            if (flags & USBLL_ADDRESS_HUB_PORT) {
+                dst_addr->flags = USBLL_ADDRESS_HUB_PORT;
+                pinfo->ptype = PT_NONE;
+            } else {
+                pinfo->ptype = PT_USB;
+                pinfo->destport = dst_addr->endpoint;
+            }
         }
     } else {
         dst_addr->flags = USBLL_ADDRESS_HOST;
         src_addr->device = device;
         src_addr->endpoint = endpoint;
-        if (flags == (USBLL_ADDRESS_DEV_TO_HOST | USBLL_ADDRESS_HUB_PORT)) {
+        if (flags & USBLL_ADDRESS_HUB_PORT) {
             src_addr->flags = USBLL_ADDRESS_HUB_PORT;
             pinfo->ptype = PT_NONE;
         } else {
@@ -276,7 +284,9 @@ dissect_usbll_sof(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offs
 {
     guint32 frame;
 
-    /* TODO: How to mark that it is sent by host to all devices on the bus? */
+    usbll_set_address(tree, tvb, pinfo, 0, 0, USBLL_ADDRESS_HOST_TO_DEV | USBLL_ADDRESS_BROADCAST,
+                      NULL, NULL);
+
     proto_tree_add_item_ret_uint(tree, hf_usbll_sof_framenum, tvb, offset, 2, ENC_LITTLE_ENDIAN, &frame);
     proto_tree_add_checksum(tree, tvb, offset,
                             hf_usbll_crc5, hf_usbll_crc5_status, &ei_wrong_crc5, pinfo,
@@ -305,7 +315,7 @@ dissect_usbll_token(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint of
     endpoint = TOKEN_BITS_GET_ENDPOINT(address_bits);
 
     usbll_set_address(tree, tvb, pinfo, device_address, endpoint, USBLL_ADDRESS_HOST_TO_DEV,
-                         &usbll_data_ptr->src, &usbll_data_ptr->dst);
+                      &usbll_data_ptr->src, &usbll_data_ptr->dst);
 
     proto_tree_add_bitmask_list_value(tree, tvb, offset, 2, address_fields, address_bits);
     proto_tree_add_checksum(tree, tvb, offset,
@@ -340,16 +350,16 @@ dissect_usbll_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offs
     if (usbll_data_ptr->prev) {
         if(usbll_data_ptr->prev->pid == USB_PID_TOKEN_IN) {
             usbll_set_address(tree, tvb, pinfo,
-                          usbll_data_ptr->prev->dst.device,
-                          usbll_data_ptr->prev->dst.endpoint,
-                          USBLL_ADDRESS_DEV_TO_HOST,
-                          &usbll_data_ptr->src, &usbll_data_ptr->dst);
+                              usbll_data_ptr->prev->dst.device,
+                              usbll_data_ptr->prev->dst.endpoint,
+                              USBLL_ADDRESS_DEV_TO_HOST,
+                              &usbll_data_ptr->src, &usbll_data_ptr->dst);
         } else {
             usbll_set_address(tree, tvb, pinfo,
-                          usbll_data_ptr->prev->dst.device,
-                          usbll_data_ptr->prev->dst.endpoint,
-                          USBLL_ADDRESS_HOST_TO_DEV,
-                          &usbll_data_ptr->src, &usbll_data_ptr->dst);
+                              usbll_data_ptr->prev->dst.device,
+                              usbll_data_ptr->prev->dst.endpoint,
+                              USBLL_ADDRESS_HOST_TO_DEV,
+                              &usbll_data_ptr->src, &usbll_data_ptr->dst);
         }
     }
 
