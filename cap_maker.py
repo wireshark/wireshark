@@ -60,9 +60,17 @@ if __name__ == "__main__":
     random.shuffle(packets)
 
     write_cap("benchmark.cap", packets)
-    bpf = " or ".join(f"udp port {port} or tcp port {port}" for port in PORTS)
-    display_filter = " or ".join(
-        f"udp.port == {port} or tcp.port == {port}" for port in PORTS
+    min_port = min(PORTS)
+    max_port = max(PORTS)
+    bpf = f"tcp portrange {min_port}-{max_port} or udp portrange {min_port}-{max_port}"
+    display_filter = (
+        f"((tcp.srcport >= {min_port} and tcp.srcport <= {max_port})"
+        f" or "
+        f"(tcp.dstport >= {min_port} and tcp.dstport <= {max_port}))"
+        f" or "
+        f"((udp.srcport >= {min_port} and udp.srcport <= {max_port})"
+        f" or "
+        f"(udp.dstport >= {min_port} and udp.dstport <= {max_port}))"
     )
     print("BPF:", bpf)
     print("Display filter:", display_filter)
