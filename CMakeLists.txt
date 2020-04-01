@@ -2445,7 +2445,8 @@ if(BUILD_marine)
 			tshark-tap-register.c
 			marine.c
 			${TSHARK_TAP_SRC}
-			marine.h)
+			marine.h
+			)
 
 	# Uncomment these lines to run Marine as a binary (after you add a main() entry point)
 #	set_executable_resources(marine "Marine" UNIQUE_RC)
@@ -2469,7 +2470,8 @@ if(BUILD_marine_benchmark)
 			)
 	set(marine_benchmark_FILES
 			${marine_FILES}
-			marine_benchmark.c)
+			marine_benchmark.c
+			)
 
 	set_executable_resources(marine_benchmark "Marine Benchmark" UNIQUE_RC)
 	add_executable(marine_benchmark ${marine_benchmark_FILES})
