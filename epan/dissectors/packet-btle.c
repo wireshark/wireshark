@@ -63,6 +63,44 @@ static int hf_link_layer_data_timeout = -1;
 static int hf_link_layer_data_channel_map = -1;
 static int hf_link_layer_data_hop = -1;
 static int hf_link_layer_data_sleep_clock_accuracy = -1;
+static int hf_extended_advertising_header = -1;
+static int hf_extended_advertising_header_length = -1;
+static int hf_extended_advertising_mode = -1;
+static int hf_extended_advertising_flags = -1;
+static int hf_extended_advertising_flags_adva = -1;
+static int hf_extended_advertising_flags_targeta = -1;
+static int hf_extended_advertising_flags_cteinfo = -1;
+static int hf_extended_advertising_flags_advdatainfo = -1;
+static int hf_extended_advertising_flags_aux_ptr = -1;
+static int hf_extended_advertising_flags_sync_info = -1;
+static int hf_extended_advertising_flags_tx_power = -1;
+static int hf_extended_advertising_flags_reserved = -1;
+static int hf_extended_advertising_cte_info = -1;
+static int hf_extended_advertising_cte_info_time = -1;
+static int hf_extended_advertising_cte_info_rfu = -1;
+static int hf_extended_advertising_cte_info_type = -1;
+static int hf_extended_advertising_data_info = -1;
+static int hf_extended_advertising_data_info_did = -1;
+static int hf_extended_advertising_data_info_sid = -1;
+static int hf_extended_advertising_aux_ptr = -1;
+static int hf_extended_advertising_aux_ptr_channel = -1;
+static int hf_extended_advertising_aux_ptr_ca = -1;
+static int hf_extended_advertising_aux_ptr_offset_units = -1;
+static int hf_extended_advertising_aux_ptr_aux_offset = -1;
+static int hf_extended_advertising_aux_ptr_aux_phy = -1;
+static int hf_extended_advertising_sync_info = -1;
+static int hf_extended_advertising_sync_info_offset = -1;
+static int hf_extended_advertising_sync_info_offset_units = -1;
+static int hf_extended_advertising_sync_info_offset_adjust = -1;
+static int hf_extended_advertising_sync_info_reserved = -1;
+static int hf_extended_advertising_sync_info_interval = -1;
+static int hf_extended_advertising_sync_info_channel_map = -1;
+static int hf_extended_advertising_sync_info_sleep_clock_accuracy = -1;
+static int hf_extended_advertising_sync_info_access_address = -1;
+static int hf_extended_advertising_sync_info_crc_init = -1;
+static int hf_extended_advertising_sync_info_event_counter = -1;
+static int hf_extended_advertising_tx_power = -1;
+static int hf_extended_advertising_header_acad = -1;
 static int hf_data_header = -1;
 static int hf_data_header_length = -1;
 static int hf_data_header_rfu = -1;
@@ -168,7 +206,24 @@ static gint ett_channel_map = -1;
 static gint ett_scan_response_data = -1;
 static gint ett_btle_l2cap_msg_fragment = -1;
 static gint ett_btle_l2cap_msg_fragments = -1;
+static gint ett_extended_advertising_header = -1;
+static gint ett_extended_advertising_flags = -1;
+static gint ett_extended_advertising_cte_info = -1;
+static gint ett_extended_advertising_data_info = -1;
+static gint ett_extended_advertising_aux_pointer = -1;
+static gint ett_extended_advertising_sync_info = -1;
 
+static const int *hfx_extended_advertising_flags[] = {
+    &hf_extended_advertising_flags_adva,
+    &hf_extended_advertising_flags_targeta,
+    &hf_extended_advertising_flags_cteinfo,
+    &hf_extended_advertising_flags_advdatainfo,
+    &hf_extended_advertising_flags_aux_ptr,
+    &hf_extended_advertising_flags_sync_info,
+    &hf_extended_advertising_flags_tx_power,
+    &hf_extended_advertising_flags_reserved,
+    NULL
+};
 
 static const int *hfx_control_feature_set_1[] = {
     &hf_control_feature_set_le_encryption,
@@ -388,6 +443,56 @@ static const value_string ll_version_number_vals[] = {
     { 0, NULL }
 };
 static value_string_ext ll_version_number_vals_ext = VALUE_STRING_EXT_INIT(ll_version_number_vals);
+
+static const value_string advertising_mode_vals[] = {
+    { 0x00, "Non-connectable Non-scannable" },
+    { 0x01, "Connectable Non-scannable" },
+    { 0x02, "Non-connectable Scannable"},
+    { 0x03, "Reserved for future use"},
+    { 0, NULL},
+};
+static value_string_ext advertising_mode_vals_ext = VALUE_STRING_EXT_INIT(advertising_mode_vals);
+
+static const value_string le_phys[] =
+{
+    { 0, "LE 1M"    },
+    { 1, "LE 2M"    },
+    { 2, "LE Coded" },
+    { 3, "Reserved" },
+    { 4, "Reserved" },
+    { 5, "Reserved" },
+    { 6, "Reserved" },
+    { 7, "Reserved" },
+    { 0, NULL }
+};
+
+static const value_string le_cte_type_vals[] = {
+    { 0, "AoA Constant Tone Extension" },
+    { 1, "AoD Constant Tone Extension with 1 usec slots" },
+    { 2, "AoD Constant Tone Extension with 2 usec slots" },
+    { 3, "Reserved for future use" },
+    { 0, NULL }
+};
+
+static const true_false_string tfs_ca = {
+    "0 ppm to 50 ppm",
+    "51 ppm to 500 ppm"
+};
+
+static const true_false_string tfs_offset_units = {
+    "300 usec",
+    "30 usec"
+};
+
+static const true_false_string tfs_offset_adjust = {
+    "Adjusted 2.4576 seconds",
+    "No adjust"
+};
+
+static const true_false_string tfs_present_bit = {
+    "Present",
+    "Not Present"
+};
 
 static const true_false_string tfs_ch_sel = {
     "#2",
@@ -900,6 +1005,194 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             }
 
             break;
+        case 0x07: /* ADV_EXT_IND / AUX_ADV_IND / AUX_SYNC_IND / AUX_CHAIN_IND / AUX_SCAN_RSP */
+        case 0x08: /* AUX_CONNNECT_RSP */
+        {
+            guint8 tmp, ext_header_len, flags, acad_len;
+            proto_item  *ext_header_item, *ext_flags_item;
+            proto_tree  *ext_header_tree, *ext_flags_tree;
+
+            tmp = tvb_get_guint8(tvb, offset);
+            ext_header_len = acad_len = tmp & 0x3F;
+
+            ext_header_item = proto_tree_add_item(btle_tree, hf_extended_advertising_header, tvb, offset, ext_header_len, ENC_NA);
+            ext_header_tree = proto_item_add_subtree(ext_header_item, ett_extended_advertising_header);
+
+            proto_tree_add_item(ext_header_tree, hf_extended_advertising_header_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(ext_header_tree, hf_extended_advertising_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset += 1;
+
+            ext_flags_item = proto_tree_add_item(ext_header_tree, hf_extended_advertising_flags, tvb, offset, 1, ENC_NA);
+            ext_flags_tree = proto_item_add_subtree(ext_flags_item, ett_extended_advertising_flags);
+
+            proto_tree_add_bitmask_list(ext_flags_tree, tvb, offset, 1, hfx_extended_advertising_flags, ENC_NA);
+            flags = tvb_get_guint8(tvb, offset);
+            offset += 1;
+
+            acad_len -= 1;
+
+            if (flags & 0x01) {
+                /* Advertiser Address */
+                offset = dissect_bd_addr(hf_advertising_address, pinfo, ext_header_tree, tvb, offset, TRUE, interface_id, adapter_id, src_bd_addr);
+                set_address(&pinfo->net_src, AT_ETHER, 6, src_bd_addr);
+                copy_address_shallow(&pinfo->dl_src, &pinfo->net_src);
+                copy_address_shallow(&pinfo->src, &pinfo->net_src);
+
+                acad_len -= 6;
+            } else {
+                const char * anon_str = "Anonymous";
+                clear_address(&pinfo->dl_src);
+                set_address(&pinfo->net_src, AT_STRINGZ, sizeof(*anon_str), anon_str);
+                copy_address_shallow(&pinfo->src, &pinfo->net_src);
+            }
+
+            if (flags & 0x02) {
+                /* Target Address */
+                offset = dissect_bd_addr(hf_target_addresss, pinfo, ext_header_tree, tvb, offset, FALSE, interface_id, adapter_id, dst_bd_addr);
+                set_address(&pinfo->net_dst, AT_ETHER, 6, dst_bd_addr);
+                copy_address_shallow(&pinfo->dl_dst, &pinfo->net_dst);
+                copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
+
+                acad_len -= 6;
+            } else {
+                set_address(&pinfo->net_dst, AT_ETHER, 6, broadcast_addr);
+                copy_address_shallow(&pinfo->dl_dst, &pinfo->net_dst);
+                copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
+            }
+
+            if (flags & 0x04) {
+                guint32 cte_time;
+
+                /* CTE Info */
+                sub_item = proto_tree_add_item(ext_header_tree, hf_extended_advertising_cte_info, tvb, offset, 1, ENC_NA);
+                sub_tree = proto_item_add_subtree(sub_item, ett_extended_advertising_cte_info);
+
+                proto_tree_add_item(sub_tree, hf_extended_advertising_cte_info_time, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(sub_tree, hf_extended_advertising_cte_info_rfu, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(sub_tree, hf_extended_advertising_cte_info_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                item = proto_tree_add_item_ret_uint(sub_tree, hf_extended_advertising_cte_info_time, tvb, offset, 1, ENC_LITTLE_ENDIAN, &cte_time);
+                proto_item_append_text(item, " (%u usec)", cte_time * 8);
+                offset += 1;
+
+                acad_len -= 1;
+            }
+
+            if (flags & 0x08) {
+                /* AdvDataInfo */
+                sub_item = proto_tree_add_item(ext_header_tree, hf_extended_advertising_data_info, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                sub_tree = proto_item_add_subtree(sub_item, ett_extended_advertising_data_info);
+
+                proto_tree_add_item(sub_tree, hf_extended_advertising_data_info_did, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(sub_tree, hf_extended_advertising_data_info_sid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                acad_len -= 2;
+            }
+
+            if (flags & 0x10) {
+                guint32 aux_offset;
+
+                /* Aux Pointer */
+                sub_item = proto_tree_add_item(ext_header_tree, hf_extended_advertising_aux_ptr, tvb, offset, 1, ENC_NA);
+                sub_tree = proto_item_add_subtree(sub_item, ett_extended_advertising_aux_pointer);
+
+                proto_tree_add_item(sub_tree, hf_extended_advertising_aux_ptr_channel, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(sub_tree, hf_extended_advertising_aux_ptr_ca, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(sub_tree, hf_extended_advertising_aux_ptr_offset_units, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                tmp = tvb_get_guint8(tvb, offset);
+                offset += 1;
+
+                item = proto_tree_add_item_ret_uint(sub_tree, hf_extended_advertising_aux_ptr_aux_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN, &aux_offset);
+                proto_tree_add_item(sub_tree, hf_extended_advertising_aux_ptr_aux_phy, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                proto_item_append_text(item, " (%u usec)", aux_offset * ((tmp & 0x80) != 0 ? 300 : 30));
+                offset += 2;
+
+                acad_len -= 3;
+            }
+
+            if (flags & 0x20 || pdu_type == 0x05) {
+                guint32 sync_offset, interval;
+                proto_item  *sync_info_item;
+                proto_tree  *sync_info_tree;
+                gint reserved_offset;
+                guint16 sf;
+
+                /* Sync Info */
+                sync_info_item = proto_tree_add_item(ext_header_tree, hf_extended_advertising_sync_info, tvb, offset, 1, ENC_NA);
+                sync_info_tree = proto_item_add_subtree(sync_info_item, ett_extended_advertising_sync_info);
+
+                sf = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+
+                item = proto_tree_add_item_ret_uint(sync_info_tree, hf_extended_advertising_sync_info_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN, &sync_offset);
+                proto_tree_add_item(sync_info_tree, hf_extended_advertising_sync_info_offset_units, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(sync_info_tree, hf_extended_advertising_sync_info_offset_adjust, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(sync_info_tree, hf_extended_advertising_sync_info_reserved, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                if (sync_offset > 0) {
+                    proto_item_append_text(item, " (%u usec)", sync_offset * ((sf & 0x2000) != 0 ? 300 : 30) + ((sf & 0x4000) != 0 ? 2457600 : 0));
+                } else {
+                    proto_item_append_text(item, " Cannot be represented");
+                }
+                offset += 2;
+
+                item = proto_tree_add_item_ret_uint(sync_info_tree, hf_extended_advertising_sync_info_interval, tvb, offset, 2, ENC_LITTLE_ENDIAN, &interval);
+                proto_item_append_text(item, " (%g msec)", interval * 1.25);
+                offset += 2;
+
+                sub_item = proto_tree_add_item(sync_info_tree, hf_extended_advertising_sync_info_channel_map, tvb, offset, 5, ENC_NA);
+                sub_tree = proto_item_add_subtree(sub_item, ett_channel_map);
+
+                call_dissector_with_data(btcommon_le_channel_map_handle, tvb_new_subset_length(tvb, offset, 5), pinfo, sub_tree, &reserved_offset);
+                proto_tree_add_item(sync_info_tree, hf_extended_advertising_sync_info_sleep_clock_accuracy, tvb, reserved_offset, 1, ENC_LITTLE_ENDIAN);
+                offset += 5;
+
+                proto_tree_add_item(sync_info_tree, hf_extended_advertising_sync_info_access_address, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                offset += 4;
+
+                proto_tree_add_item(sync_info_tree, hf_extended_advertising_sync_info_crc_init, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+                offset += 3;
+
+                proto_tree_add_item(sync_info_tree, hf_extended_advertising_sync_info_event_counter, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                acad_len -= 18;
+            }
+
+            if (flags & 0x40) {
+                /* Tx Power */
+                item = proto_tree_add_item(ext_header_tree, hf_extended_advertising_tx_power, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                offset += 1;
+
+                acad_len -= 1;
+            }
+
+            if (flags & 0x80) {
+                /* Reserved */
+            }
+
+            if (acad_len > 0)
+            {
+                /* Controller Advertising Data */
+                bluetooth_eir_ad_data_t *ad_data = wmem_new0(wmem_packet_scope(), bluetooth_eir_ad_data_t);
+                ad_data->interface_id = interface_id;
+                ad_data->adapter_id = adapter_id;
+                next_tvb = tvb_new_subset_length(tvb, offset, acad_len);
+                call_dissector_with_data(btcommon_ad_handle, next_tvb, pinfo, ext_header_tree, ad_data);
+
+                offset += acad_len;
+            }
+
+            if (tvb_reported_length_remaining(tvb, offset) > 3) {
+                /* Host Advertising Data */
+                bluetooth_eir_ad_data_t *ad_data = wmem_new0(wmem_packet_scope(), bluetooth_eir_ad_data_t);
+                ad_data->interface_id = interface_id;
+                ad_data->adapter_id = adapter_id;
+                next_tvb = tvb_new_subset_length(tvb, offset, tvb_reported_length_remaining(tvb, offset) - 3);
+                call_dissector_with_data(btcommon_ad_handle, next_tvb, pinfo, btle_tree, ad_data);
+
+                offset += tvb_reported_length_remaining(tvb, offset) - 3;
+            }
+            break;
+        }
         default:
             if (tvb_reported_length_remaining(tvb, offset) > 3) {
                 proto_tree_add_expert(btle_tree, pinfo, &ei_unknown_data, tvb, offset, tvb_reported_length_remaining(tvb, offset) - 3);
@@ -1626,6 +1919,197 @@ proto_register_btle(void)
             FT_UINT8, BASE_DEC | BASE_EXT_STRING, &sleep_clock_accuracy_vals_ext, 0xe0,
             NULL, HFILL }
         },
+        { &hf_extended_advertising_header,
+            { "Extended Advertising Header",     "btle.extended_advertising_header",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_extended_advertising_header_length,
+            { "Extended Header Length",          "btle.extended_advertising_header.length",
+            FT_UINT8, BASE_DEC, NULL, 0x3F,
+            NULL, HFILL }
+        },
+        { &hf_extended_advertising_mode,
+            { "Advertising Mode",                "btle.extended_advertising_header.mode",
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &advertising_mode_vals_ext, 0xC0,
+            NULL, HFILL }
+        },
+        { &hf_extended_advertising_flags,
+            { "Extended Header Flags",           "btle.extended_advertising_header.flags",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_extended_advertising_flags_adva,
+            { "Advertiser Address",              "btle.extended_advertising_header.flags.advertiser_address",
+            FT_BOOLEAN, 8, TFS(&tfs_present_bit), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_extended_advertising_flags_targeta,
+            { "Target Address",                  "btle.extended_advertising_header.flags.target_address",
+            FT_BOOLEAN, 8, TFS(&tfs_present_bit), 0x02,
+            NULL, HFILL }
+        },
+        { &hf_extended_advertising_flags_cteinfo,
+            { "CTE Info",                        "btle.extended_advertising_header.flags.cte_info",
+            FT_BOOLEAN, 8, TFS(&tfs_present_bit), 0x04,
+            NULL, HFILL }
+        },
+        { &hf_extended_advertising_flags_advdatainfo,
+            { "Advertiser Data Info",            "btle.extended_advertising_header.advertiser_data_info",
+            FT_BOOLEAN, 8, TFS(&tfs_present_bit), 0x08,
+            NULL, HFILL }
+        },
+        { &hf_extended_advertising_flags_aux_ptr,
+            { "Aux pointer",                     "btle.extended_advertising_header.flags.aux_pointer",
+            FT_BOOLEAN, 8, TFS(&tfs_present_bit), 0x10,
+            NULL, HFILL }
+        },
+        { &hf_extended_advertising_flags_sync_info,
+            { "Sync Info",                       "btle.extended_advertising_header.flags.sync_info",
+            FT_BOOLEAN, 8, TFS(&tfs_present_bit), 0x20,
+            NULL, HFILL }
+        },
+        { &hf_extended_advertising_flags_tx_power,
+            { "TX Power",                        "btle.extended_advertising_header.flags.tx_power",
+            FT_BOOLEAN, 8, TFS(&tfs_present_bit), 0x40,
+            NULL, HFILL }
+        },
+        { &hf_extended_advertising_flags_reserved,
+            { "Reserved",                        "btle.extended_advertising_header.flags.reserved",
+            FT_BOOLEAN, 8, TFS(&tfs_present_bit), 0x80,
+            NULL, HFILL }
+        },
+        { &hf_extended_advertising_cte_info,
+            { "CTE Info",                        "btle.extended_advertising_header.cte_info",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_extended_advertising_cte_info_time,
+            { "CTE Info",                        "btle.extended_advertising_header.cte_info.time",
+            FT_UINT8, BASE_HEX, NULL, 0x1F,
+            NULL, HFILL }
+        },
+        { &hf_extended_advertising_cte_info_rfu,
+            { "CTE Info",                        "btle.extended_advertising_header.cte_info.rfu",
+            FT_UINT8, BASE_HEX, NULL, 0x2,
+            NULL, HFILL }
+        },
+        { &hf_extended_advertising_cte_info_type,
+            { "CTE Info",                        "btle.extended_advertising_header.cte_info.type",
+            FT_UINT8, BASE_HEX, VALS(le_cte_type_vals), 0xC,
+            NULL, HFILL }
+        },
+        { &hf_extended_advertising_data_info,
+            { "Advertiser Data Info",            "btle.extended_advertising.advertising_data_info",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_extended_advertising_data_info_did,
+            { "Advertiser Data Identifier",      "btle.extended_advertising.advertising_data_info.did",
+            FT_UINT16, BASE_HEX, NULL, 0x0FFF,
+            NULL, HFILL }
+        },
+        { &hf_extended_advertising_data_info_sid,
+            { "Advertiser Set Identifier",       "btle.extended_advertising.advertising_data_info.sid",
+            FT_UINT16, BASE_HEX, NULL, 0xF000,
+            NULL, HFILL }
+        },
+        { &hf_extended_advertising_aux_ptr,
+            { "Advertiser Aux Pointer",          "btle.extended_advertising.aux_pointer",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_extended_advertising_aux_ptr_channel,
+            { "Channel",                         "btle.extended_advertising_header.aux_pointer.channel",
+            FT_UINT8, BASE_DEC, NULL, 0x3F,
+            NULL, HFILL }
+        },
+        { &hf_extended_advertising_aux_ptr_ca,
+            { "Clock Accuracy",                  "btle.extended_advertising_header.aux_pointer.ca",
+            FT_BOOLEAN, 8, TFS(&tfs_ca), 0x40,
+            NULL, HFILL }
+        },
+        { &hf_extended_advertising_aux_ptr_offset_units,
+            { "Offset units",                    "btle.extended_advertising_header.aux_pointer.offset_units",
+            FT_BOOLEAN, 8, TFS(&tfs_offset_units), 0x80,
+            NULL, HFILL }
+        },
+        { &hf_extended_advertising_aux_ptr_aux_offset,
+            { "Aux Offset",                      "btle.extended_advertising_header.aux_pointer.aux_offset",
+            FT_UINT16, BASE_HEX, NULL, 0x1FFF,
+            NULL, HFILL }
+        },
+        { &hf_extended_advertising_aux_ptr_aux_phy,
+            { "Aux PHY",                         "btle.extended_advertising_header.aux_pointer.aux_phy",
+            FT_UINT16, BASE_DEC, VALS(le_phys), 0xE000,
+            NULL, HFILL }
+        },
+
+        { &hf_extended_advertising_sync_info,
+            { "Advertiser Sync Info",            "btle.extended_advertising.sync_info",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_extended_advertising_sync_info_offset,
+            { "Sync Offset",                     "btle.extended_advertising_header.sync_info.sync_offset",
+            FT_UINT16, BASE_HEX, NULL, 0x1FFF,
+            NULL, HFILL }
+        },
+        { &hf_extended_advertising_sync_info_offset_units,
+            { "Offset Units",                    "btle.extended_advertising_header.sync_info.offset_units",
+            FT_BOOLEAN, 16, TFS(&tfs_offset_units), 0x2000,
+            NULL, HFILL }
+        },
+        { &hf_extended_advertising_sync_info_offset_adjust,
+            { "Offset Adjust",                   "btle.extended_advertising_header.sync_info.offset_adjust",
+            FT_BOOLEAN, 16, TFS(&tfs_offset_adjust), 0x4000,
+            NULL, HFILL }
+        },
+        { &hf_extended_advertising_sync_info_reserved,
+            { "Reserved",                        "btle.extended_advertising_header.sync_info.offset_units",
+            FT_BOOLEAN, 16, NULL, 0x8000,
+            NULL, HFILL }
+        },
+        { &hf_extended_advertising_sync_info_interval,
+            { "Interval",                        "btle.extended_advertising_header.sync_info.interval",
+            FT_UINT16, BASE_HEX, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_extended_advertising_sync_info_channel_map,
+            { "Channel Map",                     "btle.extended_advertising_header.sync_info.channel_map",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_extended_advertising_sync_info_sleep_clock_accuracy,
+            { "Sleep Clock Accuracy",            "btle.extended_advertising_header.sync_info.sleep_clock_accuracy",
+            FT_UINT8, BASE_DEC | BASE_EXT_STRING, &sleep_clock_accuracy_vals_ext, 0xe0,
+            NULL, HFILL }
+        },
+        { &hf_extended_advertising_sync_info_access_address,
+            { "Access Address",                  "btle.extended_advertising_header.sync_info.access_address",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_extended_advertising_sync_info_crc_init,
+            { "CRC Init",                        "btle.extended_advertising_header.sync_info.crc_init",
+            FT_UINT24, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_extended_advertising_sync_info_event_counter,
+            { "Event counter",                   "btle.extended_advertising_header.sync_info.event_counter",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_extended_advertising_tx_power,
+            { "TX Power",                         "btle.extended_advertising_header.tx_power",
+            FT_INT8, BASE_DEC | BASE_UNIT_STRING, &units_dbm, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_extended_advertising_header_acad,
+            { "Additional Controller Advertising Data",     "btle.extended_advertising_header.acad",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
         { &hf_data_header,
             { "Data Header",                     "btle.data_header",
             FT_UINT16, BASE_HEX, NULL, 0x0,
@@ -2102,6 +2586,12 @@ proto_register_btle(void)
         &ett_btle,
         &ett_advertising_header,
         &ett_link_layer_data,
+        &ett_extended_advertising_header,
+        &ett_extended_advertising_flags,
+        &ett_extended_advertising_cte_info,
+        &ett_extended_advertising_data_info,
+        &ett_extended_advertising_aux_pointer,
+        &ett_extended_advertising_sync_info,
         &ett_data_header,
         &ett_features,
         &ett_tx_phys,
