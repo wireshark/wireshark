@@ -536,6 +536,25 @@ static const value_string rco_up_types[] = {
 	{ 0, NULL }
 };
 
+static const value_string qpm_kpa_types[] = {
+	{ 0,		"Not used" },
+	{ 1,		"Threshold value" },
+	{ 2,		"Smoothing factor (filter time constant)" },
+	{ 0, NULL }
+};
+
+static const value_string qpm_lpc_types[] = {
+	{ 0,		"No change" },
+	{ 1,		"Change" },
+	{ 0, NULL }
+};
+
+static const value_string qpm_pop_types[] = {
+	{ 0,		"Operation" },
+	{ 1,		"Not in operation" },
+	{ 0, NULL }
+};
+
 static const value_string coi_r_types[] = {
 	{ 0,		"Local power switch on" },
 	{ 1,		"Local manual reset" },
@@ -642,6 +661,10 @@ static int hf_rco  = -1;
 static int hf_rco_up  = -1;
 static int hf_rco_qu  = -1;
 static int hf_rco_se  = -1;
+static int hf_qpm = -1;
+static int hf_qpm_kpa = -1;
+static int hf_qpm_lpc = -1;
+static int hf_qpm_pop = -1;
 static int hf_coi  = -1;
 static int hf_coi_r  = -1;
 static int hf_coi_i  = -1;
@@ -670,6 +693,8 @@ static gint ett_qos = -1;
 static gint ett_sco = -1;
 static gint ett_dco = -1;
 static gint ett_rco = -1;
+static gint ett_qpm = -1;
+static gint ett_coi = -1;
 static gint ett_cp56time = -1;
 
 static expert_field ei_iec104_short_asdu = EI_INIT;
@@ -1147,6 +1172,24 @@ static void get_RCO(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tre
 }
 
 /* ====================================================================
+    QPM: Qualifier of parameter of measured value
+   ==================================================================== */
+static void get_QPM(tvbuff_t* tvb, guint8* offset, proto_tree* iec104_header_tree)
+{
+	proto_item* ti;
+	proto_tree* qpm_tree;
+
+	ti = proto_tree_add_item(iec104_header_tree, hf_qpm, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	qpm_tree = proto_item_add_subtree(ti, ett_qpm);
+
+	proto_tree_add_item(qpm_tree, hf_qpm_kpa, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(qpm_tree, hf_qpm_lpc, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(qpm_tree, hf_qpm_pop, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+
+	(*offset)++;
+}
+
+/* ====================================================================
     COI: Cause of initialisation
    ==================================================================== */
 static void get_COI(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree)
@@ -1155,7 +1198,7 @@ static void get_COI(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tre
 	proto_tree* coi_tree;
 
 	ti = proto_tree_add_item(iec104_header_tree, hf_coi, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-	coi_tree = proto_item_add_subtree(ti, ett_rco);
+	coi_tree = proto_item_add_subtree(ti, ett_coi);
 
 	proto_tree_add_item(coi_tree, hf_coi_r, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(coi_tree, hf_coi_i, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
@@ -1333,6 +1376,9 @@ static int dissect_iec60870_asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 		case M_EI_NA_1:
 		case C_IC_NA_1:
 		case C_CS_NA_1:
+		case P_ME_NA_1:
+		case P_ME_NB_1:
+		case P_ME_NC_1:
 
 			/* -- object values */
 			for(i = 0; i < asduh.NumIx; i++)
@@ -1428,7 +1474,7 @@ static int dissect_iec60870_asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 					get_QDS(tvb, &offset, trSignal);
 					get_CP56Time(tvb, &offset, trSignal);
 					break;
-				case M_BO_TB_1: /* 33	bitstring of 32 bit with time tag CP56Time2a */
+				case M_BO_TB_1: /* 33	Bitstring of 32 bit with time tag CP56Time2a */
 					get_BSI(tvb, &offset, trSignal);
 					get_QDS(tvb, &offset, trSignal);
 					get_CP56Time(tvb, &offset, trSignal);
@@ -1516,7 +1562,18 @@ static int dissect_iec60870_asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 				case C_CS_NA_1: /* 103   Clock synchronization command  */
 					get_CP56Time(tvb, &offset, trSignal);
 					break;
-
+				case P_ME_NA_1: /* 110   Parameter of measured value, normalized value */
+					get_NVA(tvb, &offset, trSignal);
+					get_QPM(tvb, &offset, trSignal);
+					break;
+				case P_ME_NB_1: /* 111   Parameter of measured value, scaled value */
+					get_SVA(tvb, &offset, trSignal);
+					get_QPM(tvb, &offset, trSignal);
+					break;
+				case P_ME_NC_1: /* 112   Parameter of measured value, short floating-point number */
+					get_FLT(tvb, &offset, trSignal);
+					get_QPM(tvb, &offset, trSignal);
+					break;
 				default:
 					break;
 				} /* end 'switch (asduh.TypeId)' */
@@ -2019,6 +2076,22 @@ proto_register_iec60870_asdu(void)
 		  { "S/E", "iec60870_asdu.rco.se", FT_BOOLEAN, 8, TFS(&tfs_select_execute), 0x80,
 		    "RCO S/E", HFILL }},
 
+		{ &hf_qpm,
+		  { "QPM", "iec60870_asdu.qpm", FT_UINT8, BASE_HEX, NULL, 0,
+		    NULL, HFILL } },
+
+		{ &hf_qpm_kpa,
+		  { "KPA", "iec60870_asdu.qpm.kpa", FT_UINT8, BASE_DEC, VALS(qpm_kpa_types), 0x3F,
+		    "QPM KPA", HFILL } },
+
+		{ &hf_qpm_lpc,
+		  { "LPC", "iec60870_asdu.qpm.lpc", FT_UINT8, BASE_DEC, VALS(qpm_lpc_types), 0x40,
+		    "QPM LPC", HFILL } },
+
+		{ &hf_qpm_pop,
+		  { "POP", "iec60870_asdu.qpm.pop", FT_UINT8, BASE_DEC, VALS(qpm_pop_types), 0x80,
+		    "QPM POP", HFILL } },
+
 		{ &hf_coi,
 		  { "COI", "iec60870_asdu.coi", FT_UINT8, BASE_HEX, NULL, 0,
 		    NULL, HFILL }},
@@ -2091,6 +2164,8 @@ proto_register_iec60870_asdu(void)
 		&ett_sco,
 		&ett_dco,
 		&ett_rco,
+		&ett_qpm,
+		&ett_coi,
 		&ett_cp56time
 	};
 
