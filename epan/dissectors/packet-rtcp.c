@@ -440,7 +440,7 @@ static const value_string rtcp_mcpt_field_id_vals[] = {
     { 6,  "User ID" },
     { 7,  "Queue Size" },
     { 8,  "Message Sequence-Number" },
-    { 8,  "Queued User ID" },
+    { 9,  "Queued User ID" },
     { 10,  "Source" },
     { 11,  "Track Info" },
     { 12,  "Message Type" },
