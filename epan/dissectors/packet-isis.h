@@ -40,6 +40,9 @@
 typedef struct isis_data {
     guint8 header_length;
     guint8 system_id_len;
+    guint16 pdu_length;
+    proto_item *header_length_item;
+    expert_field *ei_bad_header_length;
 } isis_data_t;
 
 extern int hf_isis_clv_key_id;
