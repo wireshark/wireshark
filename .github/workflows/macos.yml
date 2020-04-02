@@ -18,7 +18,7 @@ jobs:
         with:
           ruby-version: '2.6'
       - name: Install deps
-        run: ./tools/macos-setup-brew.sh ruby
+        run: ./tools/macos-setup-brew.sh
       - name: Install dmgbuild
         run: pip3 install dmgbuild
       - name: Install asciidoctor
