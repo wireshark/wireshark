@@ -9471,9 +9471,10 @@ dissect_btcommon_eir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 }
 
 static gint
-dissect_btcommon_le_channel_map(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+dissect_btcommon_le_channel_map(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
 {
     gint offset = 0;
+    gint *reserved_bits_offset = (gint *)data;
 
     proto_tree_add_item(tree, hf_btcommon_le_channel_map_0, tvb, offset, 1, ENC_NA);
     proto_tree_add_item(tree, hf_btcommon_le_channel_map_1, tvb, offset, 1, ENC_NA);
@@ -9520,9 +9521,15 @@ dissect_btcommon_le_channel_map(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     proto_tree_add_item(tree, hf_btcommon_le_channel_map_34, tvb, offset, 1, ENC_NA);
     proto_tree_add_item(tree, hf_btcommon_le_channel_map_35, tvb, offset, 1, ENC_NA);
     proto_tree_add_item(tree, hf_btcommon_le_channel_map_36, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_btcommon_le_channel_map_37, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_btcommon_le_channel_map_38, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_btcommon_le_channel_map_39, tvb, offset, 1, ENC_NA);
+
+    if (reserved_bits_offset) {
+        *reserved_bits_offset = offset;
+    } else {
+        proto_tree_add_item(tree, hf_btcommon_le_channel_map_37, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_btcommon_le_channel_map_38, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_btcommon_le_channel_map_39, tvb, offset, 1, ENC_NA);
+    }
+
     offset += 1;
 
     return offset;
@@ -10241,17 +10248,17 @@ proto_register_btcommon(void)
             NULL, HFILL }
         },
         { &hf_btcommon_le_channel_map_39,
-            { "RF Channel 39 (2480 MHz - Reserved for Advertising - 39)",         "btcommon.le_channel_map.39",
+            { "Reserved",                                            "btcommon.le_channel_map.39",
             FT_BOOLEAN, 8, NULL, 0x80,
             NULL, HFILL }
         },
         { &hf_btcommon_le_channel_map_38,
-            { "RF Channel 12 (2426 MHz - Reserved for Advertising - 38)",         "btcommon.le_channel_map.38",
+            { "Reserved",                                            "btcommon.le_channel_map.38",
             FT_BOOLEAN, 8, NULL, 0x40,
             NULL, HFILL }
         },
         { &hf_btcommon_le_channel_map_37,
-            { "RF Channel 0 (2402 MHz - Reserved for Advertising - 37)",          "btcommon.le_channel_map.37",
+            { "Reserved",                                            "btcommon.le_channel_map.37",
             FT_BOOLEAN, 8, NULL, 0x20,
             NULL, HFILL }
         },
