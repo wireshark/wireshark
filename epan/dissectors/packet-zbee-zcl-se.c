@@ -5466,7 +5466,7 @@ static const range_string zbee_zcl_met_notification_scheme[] = {
     { ZBEE_ZCL_MET_NOTIFICATION_SCHEME_A, ZBEE_ZCL_MET_NOTIFICATION_SCHEME_A,   "Predefined Notification Scheme A" },
     { ZBEE_ZCL_MET_NOTIFICATION_SCHEME_B, ZBEE_ZCL_MET_NOTIFICATION_SCHEME_B,   "Predefined Notification Scheme B" },
     { 0x3, 0x80,  "Reserved" },
-    { 0x81, 0xFF, "For MSP Requirements" },
+    { 0x81, 0xFE, "For MSP Requirements" },
     { 0xFF, 0xFF, "Reserved" },
     { 0, 0, NULL }
 };
