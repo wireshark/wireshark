@@ -385,6 +385,7 @@ Dot11DecryptRc4KeyData(const guint8 *decryption_key, guint decryption_key_len,
     }
     decrypted_key = (guint8 *)g_memdup(encrypted_keydata, encrypted_keydata_len);
     if (!decrypted_key) {
+        gcry_cipher_close(rc4_handle);
         return NULL;
     }
 
