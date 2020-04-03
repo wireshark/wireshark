@@ -3567,18 +3567,18 @@ static int      hf_pie_fastip_meter_os_nodename                  = -1;
 static int      hf_pie_fastip_meter_os_release                   = -1;
 static int      hf_pie_fastip_meter_os_version                   = -1;
 static int      hf_pie_fastip_meter_os_machine                   = -1;
-/*
 static int      hf_pie_fastip_epoch_second                       = -1;
 static int      hf_pie_fastip_nic_name                           = -1;
 static int      hf_pie_fastip_nic_id                             = -1;
 static int      hf_pie_fastip_nic_mac                            = -1;
 static int      hf_pie_fastip_nic_ip                             = -1;
+/*
 static int      hf_pie_fastip_collisions                         = -1;
 static int      hf_pie_fastip_errors                             = -1;
+*/
 static int      hf_pie_fastip_nic_driver_name                    = -1;
 static int      hf_pie_fastip_nic_driver_version                 = -1;
 static int      hf_pie_fastip_nic_firmware_version               = -1;
-*/
 static int      hf_pie_fastip_meter_os_distribution              = -1;
 /*
 static int      hf_pie_fastip_bond_interface_mode                = -1;
@@ -7795,20 +7795,44 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             ti = proto_tree_add_item(pdutree, hf_pie_fastip_meter_os_distribution,
                                      tvb, offset, length, ENC_ASCII|ENC_NA);
             break;
+        case ((VENDOR_FASTIP << 16) | 13) : /* EPOCH_SECOND */
+            ti = proto_tree_add_item(pdutree, hf_pie_fastip_epoch_second,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_FASTIP << 16) | 14) : /* NIC_NAME */
+            ti = proto_tree_add_item(pdutree, hf_pie_fastip_nic_name,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+        case ((VENDOR_FASTIP << 16) | 15) : /* NIC_ID */
+            ti = proto_tree_add_item(pdutree, hf_pie_fastip_nic_id,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_FASTIP << 16) | 16) : /* NIC_MAC */
+            ti = proto_tree_add_item(pdutree, hf_pie_fastip_nic_mac,
+                                     tvb, offset, length, ENC_NA);
+            break;
+        case ((VENDOR_FASTIP << 16) | 17) : /* NIC_IP */
+            ti = proto_tree_add_item(pdutree, hf_pie_fastip_nic_ip,
+                                     tvb, offset, length, ENC_NA);
+            break;
 
     /*
     { 6, "TCP_IN_OUT_FLAGS"},
-    { 13, "EPOCH_SECOND"},
-    { 14, "NIC_NAME"},
-    { 15, "NIC_ID"},
-    { 16, "NIC_MAC"},
-    { 17, "NIC_IP"},
     { 18, "COLLISIONS"},
     { 19, "ERRORS"},
-    { 20, "NIC_DRIVER_NAME"},
-    { 21, "NIC_DRIVER_VERSION"},
-    { 22, "NIC_FIRMWARE_VERSION"},
     */
+        case ((VENDOR_FASTIP << 16) | 20) : /* NIC_DRIVER_NAME */
+            ti = proto_tree_add_item(pdutree, hf_pie_fastip_nic_driver_name,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+        case ((VENDOR_FASTIP << 16) | 21) : /* NIC_DRIVER_VERSION */
+            ti = proto_tree_add_item(pdutree, hf_pie_fastip_nic_driver_version,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+        case ((VENDOR_FASTIP << 16) | 22) : /* NIC_FIRMWARE_VERSION */
+            ti = proto_tree_add_item(pdutree, hf_pie_fastip_nic_firmware_version,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
 
             /* START NTOP */
         case (NTOP_BASE + 80):           /* SRC_FRAGMENTS */
@@ -15023,18 +15047,50 @@ proto_register_netflow(void)
           FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
+        {&hf_pie_fastip_epoch_second,
+         {"Epoch Second", "cflow.pie.fastip.epoch_second",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        {&hf_pie_fastip_nic_name,
+         {"NIC Name", "cflow.pie.fastip.nic_name",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        {&hf_pie_fastip_nic_id,
+         {"NIC ID", "cflow.pie.fastip.nic_id",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        {&hf_pie_fastip_nic_mac,
+         {"NIC MAC", "cflow.pie.fastip.nic_mac",
+          FT_ETHER, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        {&hf_pie_fastip_nic_ip,
+         {"NIC IP", "cflow.pie.fastip.nic_ip",
+          FT_IPv4, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
         /*
-        {&hf_pie_fastip_epoch_second
-        {&hf_pie_fastip_nic_name
-        {&hf_pie_fastip_nic_id
-        {&hf_pie_fastip_nic_mac
-        {&hf_pie_fastip_nic_ip
         {&hf_pie_fastip_collisions
         {&hf_pie_fastip_errors
-        {&hf_pie_fastip_nic_driver_name
-        {&hf_pie_fastip_nic_driver_version
-        {&hf_pie_fastip_nic_firmware_version
         */
+        {&hf_pie_fastip_nic_driver_name,
+         {"NIC Driver Name", "cflow.pie.fastip.nic_driver_name",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        {&hf_pie_fastip_nic_driver_version,
+         {"NIC Driver Version", "cflow.pie.fastip.nic_driver_version",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        {&hf_pie_fastip_nic_firmware_version,
+         {"NIC Firmware Version", "cflow.pie.fastip.nic_firmware_version",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
         {&hf_pie_fastip_meter_os_distribution,
          {"Meter OS Distribution", "cflow.pie.fastip.meter_os_distribution",
           FT_STRING, BASE_NONE, NULL, 0x0,
