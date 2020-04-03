@@ -73,7 +73,7 @@
 /* Organization Profile IDs */
 #define ZBEE_PROFILE_IEEE_1451_5            0xbf00
 
-#define ZBEE_PROFILE_MFR_SPEC_ORG_MIN       0xbf00
+#define ZBEE_PROFILE_MFR_SPEC_ORG_MIN       0xbf01
 #define ZBEE_PROFILE_MFR_SPEC_ORG_MAX       0xbfff
 
 /* Manufacturer Profile ID Allocations */
