@@ -302,6 +302,7 @@ typedef enum {
     TF_GIGAMON,
     TF_CISCO,
     TF_NIAGARA_NETWORKS,
+    TF_FASTIP,
     TF_NO_VENDOR_INFO
 } v9_v10_tmplt_fields_type_t;
 #define TF_NUM 2
@@ -799,6 +800,27 @@ static const value_string v9_v10_template_types[] = {
     { 33000, "INGRESS_ACL_ID" },
     { 33001, "EGRESS_ACL_ID" },
     { 33002, "FW_EXT_EVENT" },
+    /* Boundary bprobe */
+    { 33610, "METER_VERSION"},
+    { 33611, "METER_OS_SYSNAME"},
+    { 33612, "METER_OS_NODENAME"},
+    { 33613, "METER_OS_RELEASE"},
+    { 33614, "METER_OS_VERSION"},
+    { 33615, "METER_OS_MACHINE"},
+    { 33623, "EPOCH_SECOND"},
+    { 33624, "NIC_NAME"},
+    { 33625, "NIC_ID"},
+    { 33626, "NIC_MAC"},
+    { 33627, "NIC_IP"},
+    { 33628, "COLLISIONS"},
+    { 33629, "ERRORS"},
+    { 33630, "NIC_DRIVER_NAME"},
+    { 33631, "NIC_DRIVER_VERSION"},
+    { 33632, "NIC_FIRMWARE_VERSION"},
+    { 33633, "METER_OS_DISTRIBUTION_NAME"},
+    { 33634, "BOND_INTERFACE_MODE"},
+    { 33635, "BOND_INTERFACE_PHYSICAL_NIC_COUNT"},
+    { 33636, "BOND_INTERFACE_ID"},
     /* Cisco TrustSec */
     { 34000, "SGT_SOURCE_TAG" },
     { 34001, "SGT_DESTINATION_TAG" },
@@ -1991,6 +2013,34 @@ static const value_string v10_cisco_waas_passthrough_reason[] = {
     {  0, NULL }
 };
 
+static const value_string v10_template_types_fastip[] = {
+    { 0, "METER_VERSION"},
+    { 1, "METER_OS_SYSNAME"},
+    { 2, "METER_OS_NODENAME"},
+    { 3, "METER_OS_RELEASE"},
+    { 4, "METER_OS_VERSION"},
+    { 5, "METER_OS_MACHINE"},
+    { 6, "TCP_IN_OUT_FLAGS"},
+    { 13, "EPOCH_SECOND"},
+    { 14, "NIC_NAME"},
+    { 15, "NIC_ID"},
+    { 16, "NIC_MAC"},
+    { 17, "NIC_IP"},
+    { 18, "COLLISIONS"},
+    { 19, "ERRORS"},
+    { 20, "NIC_DRIVER_NAME"},
+    { 21, "NIC_DRIVER_VERSION"},
+    { 22, "NIC_FIRMWARE_VERSION"},
+    { 23, "METER_OS_DISTRIBUTION_NAME"},
+    { 24, "BOND_INTERFACE_MODE"},
+    { 25, "BOND_INTERFACE_PHYSICAL_NIC_COUNT"},
+    { 26, "BOND_INTERFACE_ID"},
+    { 200, "TCP_HANDSHAKE_RTT_USEC"},
+    { 201, "APP_RTT_USEC"},
+    { 0, NULL }
+};
+static value_string_ext v10_template_types_fastip_ext = VALUE_STRING_EXT_INIT(v10_template_types_fastip);
+
 static const value_string v9_scope_field_types[] = {
     { 1, "System" },
     { 2, "Interface" },
@@ -2240,6 +2290,7 @@ static int      hf_cflow_template_barracuda_field_type              = -1;
 static int      hf_cflow_template_gigamon_field_type                = -1;
 static int      hf_cflow_template_cisco_field_type                  = -1;
 static int      hf_cflow_template_niagara_networks_field_type       = -1;
+static int      hf_cflow_template_fastip_field_type                 = -1;
 
 
 /*
@@ -2709,6 +2760,9 @@ static int      hf_cflow_mpls_label                                 = -1;
 static int      hf_cflow_mpls_exp                                   = -1;
 static int      hf_cflow_mpls_bos                                   = -1;
 
+#if 0
+static int      hf_cflow_nic_id                                     = -1;      /* ID: 33625 */
+#endif
 static int      hf_cflow_cts_sgt_source_tag                         = -1;      /* ID: 34000 */
 static int      hf_cflow_cts_sgt_destination_tag                    = -1;      /* ID: 34001 */
 static int      hf_cflow_cts_sgt_source_name                        = -1;      /* ID: 34002 */
@@ -3507,6 +3561,34 @@ static int      hf_pie_niagara_networks_radiusvsaname                           
 static int      hf_pie_niagara_networks_radiusvsaid                                 = -1;
 static int      hf_pie_niagara_networks_radiusvsavalue                              = -1;
 
+static int      hf_pie_fastip_meter_version                      = -1;
+static int      hf_pie_fastip_meter_os_sysname                   = -1;
+static int      hf_pie_fastip_meter_os_nodename                  = -1;
+static int      hf_pie_fastip_meter_os_release                   = -1;
+static int      hf_pie_fastip_meter_os_version                   = -1;
+static int      hf_pie_fastip_meter_os_machine                   = -1;
+/*
+static int      hf_pie_fastip_epoch_second                       = -1;
+static int      hf_pie_fastip_nic_name                           = -1;
+static int      hf_pie_fastip_nic_id                             = -1;
+static int      hf_pie_fastip_nic_mac                            = -1;
+static int      hf_pie_fastip_nic_ip                             = -1;
+static int      hf_pie_fastip_collisions                         = -1;
+static int      hf_pie_fastip_errors                             = -1;
+static int      hf_pie_fastip_nic_driver_name                    = -1;
+static int      hf_pie_fastip_nic_driver_version                 = -1;
+static int      hf_pie_fastip_nic_firmware_version               = -1;
+*/
+static int      hf_pie_fastip_meter_os_distribution              = -1;
+/*
+static int      hf_pie_fastip_bond_interface_mode                = -1;
+static int      hf_pie_fastip_bond_interface_physical_nic_count  = -1;
+static int      hf_pie_fastip_bond_interface_id                  = -1;
+static int      hf_pie_fastip_tcp_in_out_flags                   = -1;
+static int      hf_pie_fastip_tcp_handshake_rtt_usec             = -1;
+static int      hf_pie_fastip_app_rtt_usec                       = -1;
+*/
+
 static int      hf_string_len_short = -1;
 static int      hf_string_len_long  = -1;
 
@@ -3721,6 +3803,8 @@ pen_to_type_hf_list(guint32 pen) {
         return TF_CISCO;
     case VENDOR_NIAGARA_NETWORKS:
         return TF_NIAGARA_NETWORKS;
+    case VENDOR_FASTIP:
+        return TF_FASTIP;
     default:
         return TF_NO_VENDOR_INFO;
     }
@@ -7319,6 +7403,13 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
 
 
+#if 0
+        case 33625: /* nic_id */
+            ti = proto_tree_add_item(pdutree, hf_cflow_nic_id,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+#endif
+
         case 34000: /* cts_sgt_source_tag */
             ti = proto_tree_add_item(pdutree, hf_cflow_cts_sgt_source_tag,
                                      tvb, offset, length, ENC_BIG_ENDIAN);
@@ -7675,6 +7766,49 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             length = cmd_len + 1;
             got_flags |= GOT_COMMAND;
             break;
+
+        case ((VENDOR_FASTIP << 16) | 0) : /* METER_VERSION */
+            ti = proto_tree_add_item(pdutree, hf_pie_fastip_meter_version,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+        case ((VENDOR_FASTIP << 16) | 1) : /* METER_OS_SYSNAME */
+            ti = proto_tree_add_item(pdutree, hf_pie_fastip_meter_os_sysname,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+        case ((VENDOR_FASTIP << 16) | 2) : /* METER_OS_NODENAME */
+            ti = proto_tree_add_item(pdutree, hf_pie_fastip_meter_os_nodename,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+        case ((VENDOR_FASTIP << 16) | 3) : /* METER_OS_RELASE */
+            ti = proto_tree_add_item(pdutree, hf_pie_fastip_meter_os_release,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+        case ((VENDOR_FASTIP << 16) | 4) : /* METER_OS_VERSION */
+            ti = proto_tree_add_item(pdutree, hf_pie_fastip_meter_os_version,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+        case ((VENDOR_FASTIP << 16) | 5) : /* METER_OS_MACHINE */
+            ti = proto_tree_add_item(pdutree, hf_pie_fastip_meter_os_machine,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+        case ((VENDOR_FASTIP << 16) | 23) : /* METER_OS_DISTRIBUTION */
+            ti = proto_tree_add_item(pdutree, hf_pie_fastip_meter_os_distribution,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+
+    /*
+    { 6, "TCP_IN_OUT_FLAGS"},
+    { 13, "EPOCH_SECOND"},
+    { 14, "NIC_NAME"},
+    { 15, "NIC_ID"},
+    { 16, "NIC_MAC"},
+    { 17, "NIC_IP"},
+    { 18, "COLLISIONS"},
+    { 19, "ERRORS"},
+    { 20, "NIC_DRIVER_NAME"},
+    { 21, "NIC_DRIVER_VERSION"},
+    { 22, "NIC_FIRMWARE_VERSION"},
+    */
 
             /* START NTOP */
         case (NTOP_BASE + 80):           /* SRC_FRAGMENTS */
@@ -11317,6 +11451,7 @@ static const int *v10_template_type_hf_list[TF_NUM_EXT] = {
     &hf_cflow_template_gigamon_field_type,
     &hf_cflow_template_cisco_field_type,
     &hf_cflow_template_niagara_networks_field_type,
+    &hf_cflow_template_fastip_field_type,
     NULL};
 
 static value_string_ext *v9_template_type_vse_list[TF_NUM] = {
@@ -11333,6 +11468,7 @@ static value_string_ext *v10_template_type_vse_list[TF_NUM_EXT] = {
     &v10_template_types_gigamon_ext,
     &v10_template_types_cisco_ext,
     &v10_template_types_niagara_networks_ext,
+    &v10_template_types_fastip_ext,
     NULL};
 
 static int
@@ -14411,6 +14547,11 @@ proto_register_netflow(void)
           FT_UINT16, BASE_DEC|BASE_EXT_STRING, &v10_template_types_niagara_networks_ext, 0x7FFF,
           "Template field type", HFILL}
         },
+        {&hf_cflow_template_fastip_field_type,
+         {"Type", "cflow.template_fastip_field_type",
+          FT_UINT16, BASE_DEC|BASE_EXT_STRING, &v10_template_types_fastip_ext, 0x7FFF,
+          "Template field type", HFILL}
+        },
         {&hf_cflow_template_ipfix_field_type_enterprise,
          {"Type", "cflow.template_ipfix_field_type_enterprise",
           FT_UINT16, BASE_DEC, NULL, 0x7FFF,
@@ -14852,6 +14993,61 @@ proto_register_netflow(void)
           FT_NONE, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
+        {&hf_pie_fastip_meter_version,
+         {"Meter Version", "cflow.pie.fastip.meter_version",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        {&hf_pie_fastip_meter_os_sysname,
+         {"Meter OS System Name", "cflow.pie.fastip.meter_os_sysname",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        {&hf_pie_fastip_meter_os_nodename,
+         {"Meter OS Node Name", "cflow.pie.fastip.meter_os_nodename",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        {&hf_pie_fastip_meter_os_release,
+         {"Meter OS Release", "cflow.pie.fastip.meter_os_release",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        {&hf_pie_fastip_meter_os_version,
+         {"Meter OS Version", "cflow.pie.fastip.meter_os_version",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        {&hf_pie_fastip_meter_os_machine,
+         {"Meter OS Machine", "cflow.pie.fastip.meter_os_machine",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /*
+        {&hf_pie_fastip_epoch_second
+        {&hf_pie_fastip_nic_name
+        {&hf_pie_fastip_nic_id
+        {&hf_pie_fastip_nic_mac
+        {&hf_pie_fastip_nic_ip
+        {&hf_pie_fastip_collisions
+        {&hf_pie_fastip_errors
+        {&hf_pie_fastip_nic_driver_name
+        {&hf_pie_fastip_nic_driver_version
+        {&hf_pie_fastip_nic_firmware_version
+        */
+        {&hf_pie_fastip_meter_os_distribution,
+         {"Meter OS Distribution", "cflow.pie.fastip.meter_os_distribution",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /*
+        {&hf_pie_fastip_bond_interface_mode
+        {&hf_pie_fastip_bond_interface_physical_nic_count
+        {&hf_pie_fastip_bond_interface_id
+        {&hf_pie_fastip_tcp_in_out_flags
+        {&hf_pie_fastip_tcp_handshake_rtt_usec
+        {&hf_pie_fastip_app_rtt_usec
+        */
         /* ntop, 35632 / 80 */
         {&hf_pie_ntop_src_fragments,
          {"Num fragmented packets src->dst", "cflow.pie.ntop.src_fragments",
