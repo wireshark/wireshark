@@ -22,7 +22,6 @@ S<[ B<-f> E<lt>capture filterE<gt> ]>
 S<[ B<-g> ]>
 S<[ B<-h>|B<--help> ]>
 S<[ B<-i>|B<--interface> E<lt>capture interfaceE<gt>|rpcap://E<lt>hostE<gt>:E<lt>portE<gt>/E<lt>capture interfaceE<gt>|TCP@E<lt>hostE<gt>:E<lt>portE<gt>|- ]>
-S<[ B<-i>|B<--interface> E<lt>capture interfaceE<gt>|rpcap://E<lt>hostE<gt>:E<lt>portE<gt>/E<lt>capture interfaceE<gt>|TCP@E<lt>hostE<gt>:E<lt>portE<gt>|- ]>
 S<[ B<-I>|B<--monitor-mode> ]>
 S<[ B<-k> E<lt>freqE<gt>,[E<lt>typeE<gt>],[E<lt>center_freq1E<gt>],[E<lt>center_freq2>E<gt>]
 S<[ B<-L>|B<--list-data-link-types> ]>
