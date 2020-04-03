@@ -1278,7 +1278,8 @@ static const range_string vals_tn5250_vac_data[] = {
   { 0x14000000, 0x14000000, "Turn Audio On"},
   { 0x14000001, 0x14000001, "Turn Audio Off"},
   { 0x0C000000, 0x0C000064, "Set PC/TV Volume"},
-  { 0x00000000, 0xFFFFFFFF, "Set PIP Location and Size"},
+  /* N.B. Set PIP Location and Size was moved to last, to stop it
+   * from hiding everything that follows it */
   { 0x1F000001, 0x1F000001, "Set PIP See Through On"},
   { 0x1F000000, 0x1F000000, "Set PIP SeeThrough Off"},
   { 0x20000001, 0x20000001, "Freeze PIP"},
@@ -1294,6 +1295,7 @@ static const range_string vals_tn5250_vac_data[] = {
   { 0x0F000000, 0x0F000064, "Set PC/TV Color"},
   { 0x0E000000, 0x0E000064, "Set PC/TV Contrast"},
   { 0x10000000, 0x10006464, "Set PC/TV Tint"},
+  { 0x01010101, 0x1b841b84, "Set PIP Location and Size"}, /* Bytes are RRCCrrcc */
   { 0,  0,      NULL}
 };
 
