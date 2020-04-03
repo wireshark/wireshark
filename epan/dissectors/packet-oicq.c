@@ -90,6 +90,7 @@ static const value_string oicq_command_vals[] = {
 	{ 0x0080,	"Receive system message" },
 	{ 0x0081,	"Get status of friend" },
 	{ 0x00b5,	"Get friend's status of group" },
+	{ 0x03f7,	"Withdraw message" },
 	{ 0,			NULL }
 };
 
