@@ -11469,11 +11469,12 @@ fTimerStateChangeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
     guint   lastoffset = 0;
     guint8  tag_no, tag_info;
     guint32 lvt;
+    guint ftag_offset;
 
     while (tvb_reported_length_remaining(tvb, offset) > 0 && offset > lastoffset) {
         lastoffset = offset;
-        /* check the tag.  A closing tag means we are done */
-        fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+        /* check the tag. A closing tag means we are done */
+        ftag_offset = fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
         if (tag_is_closing(tag_info)) {
             return offset;
         }
@@ -11483,17 +11484,17 @@ fTimerStateChangeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
                 offset = fNullTag(tvb, pinfo, tree, offset, "no-value: ");
                 break;
             case 1: /* constructed-value */
-                offset += fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+                offset += ftag_offset;
                 offset = fAbstractSyntaxNType(tvb, pinfo, tree, offset);
                 offset += fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
                 break;
             case 2: /* date-time */
-                offset += fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+                offset += ftag_offset;
                 offset = fDateTime(tvb, pinfo, tree, offset, "date-time: ");
                 offset += fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
                 break;
             case 3: /* lighting-command */
-                offset += fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+                offset += ftag_offset;
                 offset = fLightingCommand(tvb, pinfo, tree, offset, "lighting-command: ");
                 offset += fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
                 break;
