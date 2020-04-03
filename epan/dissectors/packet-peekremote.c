@@ -4,7 +4,7 @@
  * Controllers, possibly other Cisco access points, and possibly
  * other devices such as Aruba access points.  See
  *
- *    https://web.archive.org/web/20121117115138/http://www.wildpackets.com/elements/omnipeek/OmniPeek_UserGuide.pdf
+ *    http://www.wildpackets.com/elements/omnipeek/OmniPeek_UserGuide.pdf
  *
  * which speaks of Aruba access points supporting remote capture and
  * defaulting to port 5000 for this, and also speaks of Cisco access
@@ -103,7 +103,8 @@ static const value_string peekremote_mcs_index_vals[] = {
 };
 
 static value_string_ext peekremote_mcs_index_vals_ext = VALUE_STRING_EXT_INIT(peekremote_mcs_index_vals);
-
+/* There is no reason to define a separate set of constants for HE(11ax) as it only adds a MCS 10 and 11. MCS0-9 stay the same. We could even imagine an 11ac implementation with MCS10 and 11 (nonstandard)
+*/
 static const value_string peekremote_mcs_index_vals_ac[] = {
   { 0, "Modulation type: BPSK, Codingrate: 1/2" },
   { 1, "Modulation type: QPSK, Codingrate: 1/2" },
@@ -115,14 +116,21 @@ static const value_string peekremote_mcs_index_vals_ac[] = {
   { 7, "Modulation type: 64-QAM, Codingrate: 5/6" },
   { 8, "Modulation type: 256-QAM, Codingrate: 3/4" },
   { 9, "Modulation type: 256-QAM, Codingrate: 5/6" },
+  { 10, "Modulation type: 1024-QAM, Codingrate: 3/4" },
+  { 11, "Modulation type: 1024-QAM, Codingrate: 5/6" },
   { 0, NULL }
 };
+
 
 static const value_string spatialstreams_vals[] = {
   { 0, "1" },
   { 1, "2" },
   { 2, "3" },
   { 3, "4" },
+  { 4, "5" },
+  { 5, "6" },
+  { 6, "7" },
+  { 7, "8" },
   { 0, NULL }
 };
 
@@ -154,7 +162,10 @@ static const value_string peekremote_type_vals[] = {
 #define EXT_FLAG_80MHZ                          0x00000200
 #define EXT_FLAG_SHORTPREAMBLE                  0x00000400
 #define EXT_FLAG_SPATIALSTREAMS                 0x0001C000
-#define EXT_FLAGS_RESERVED                      0xFFFE0000
+#define EXT_FLAG_HEFLAG                         0x00020000
+#define EXT_FLAG_160MHZ                         0x00040000
+#define EXT_FLAGS_RESERVED                      0xFFFC0000
+
 
 /* hfi elements */
 #define THIS_HF_INIT HFI_INIT(proto_peekremote)
@@ -230,7 +241,7 @@ static header_field_info hfi_peekremote_mcs_index THIS_HF_INIT =
         0x0, NULL, HFILL };
 
 static header_field_info hfi_peekremote_mcs_index_ac THIS_HF_INIT =
-      { "11ac MCS index",         "peekremote.mcs_index_ac", FT_UINT16,  BASE_DEC, VALS(peekremote_mcs_index_vals_ac),
+      { "11ac/11ax MCS index",         "peekremote.mcs_index_ac", FT_UINT16,  BASE_DEC, VALS(peekremote_mcs_index_vals_ac),
         0x0, NULL, HFILL };
 
 static header_field_info hfi_peekremote_signal_percent THIS_HF_INIT =
@@ -323,6 +334,14 @@ static header_field_info hfi_peekremote_extflags_spatialstreams THIS_HF_INIT =
       { "Spatial streams",     "peekremote.extflags.spatialstreams", FT_UINT32, BASE_DEC, VALS(spatialstreams_vals),
         EXT_FLAG_SPATIALSTREAMS, NULL, HFILL };
 
+static header_field_info hfi_peekremote_extflags_heflag THIS_HF_INIT =
+      { "802.11ax",     "peekremote.extflags.11ax", FT_BOOLEAN, 32, TFS(&tfs_yes_no),
+        EXT_FLAG_HEFLAG, NULL, HFILL };
+
+static header_field_info hfi_peekremote_extflags_160mhz THIS_HF_INIT =
+      { "160Mhz",     "peekremote.extflags.160mhz", FT_BOOLEAN, 32, TFS(&tfs_yes_no),
+        EXT_FLAG_160MHZ, NULL, HFILL };
+
 static header_field_info hfi_peekremote_extflags_reserved THIS_HF_INIT =
       { "Reserved",     "peekremote.extflags.reserved", FT_UINT32, BASE_HEX, NULL,
         EXT_FLAGS_RESERVED, "Must be zero", HFILL };
@@ -391,6 +410,8 @@ dissect_peekremote_extflags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
   proto_tree_add_item(extflags_tree, &hfi_peekremote_extflags_80mhz, tvb, offset, 4, ENC_BIG_ENDIAN);
   proto_tree_add_item(extflags_tree, &hfi_peekremote_extflags_shortpreamble, tvb, offset, 4, ENC_BIG_ENDIAN);
   proto_tree_add_item(extflags_tree, &hfi_peekremote_extflags_spatialstreams, tvb, offset, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item(extflags_tree, &hfi_peekremote_extflags_heflag, tvb, offset, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item(extflags_tree, &hfi_peekremote_extflags_160mhz, tvb, offset, 4, ENC_BIG_ENDIAN);
   proto_tree_add_item(extflags_tree, &hfi_peekremote_extflags_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
 
   return 4;
@@ -485,14 +506,19 @@ dissect_peekremote_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
       offset += 4;
       mcs_index = tvb_get_ntohs(tvb, offset);
       extflags = tvb_get_ntohl(tvb, offset+12);
-      if (extflags & EXT_FLAG_802_11ac) {
+      if (extflags & EXT_FLAG_HEFLAG) {
         proto_tree_add_item(peekremote_tree, &hfi_peekremote_mcs_index_ac, tvb, offset, 2, ENC_BIG_ENDIAN);
-        phdr.phy = PHDR_802_11_PHY_11AC;
+        phdr.phy = PHDR_802_11_PHY_11AX;
       } else {
-        proto_tree_add_item(peekremote_tree, &hfi_peekremote_mcs_index, tvb, offset, 2, ENC_BIG_ENDIAN);
-        phdr.phy = PHDR_802_11_PHY_11N;
-        phdr.phy_info.info_11n.has_mcs_index = TRUE;
-        phdr.phy_info.info_11n.mcs_index = mcs_index;
+        if (extflags & EXT_FLAG_802_11ac) {
+          proto_tree_add_item(peekremote_tree, &hfi_peekremote_mcs_index_ac, tvb, offset, 2, ENC_BIG_ENDIAN);
+          phdr.phy = PHDR_802_11_PHY_11AC;
+        } else {
+          proto_tree_add_item(peekremote_tree, &hfi_peekremote_mcs_index, tvb, offset, 2, ENC_BIG_ENDIAN);
+          phdr.phy = PHDR_802_11_PHY_11N;
+          phdr.phy_info.info_11n.has_mcs_index = TRUE;
+          phdr.phy_info.info_11n.mcs_index = mcs_index;
+        }
       }
       offset += 2;
       phdr.has_channel = TRUE;
@@ -680,6 +706,8 @@ proto_register_peekremote(void)
     &hfi_peekremote_extflags_80mhz,
     &hfi_peekremote_extflags_shortpreamble,
     &hfi_peekremote_extflags_spatialstreams,
+    &hfi_peekremote_extflags_heflag,
+    &hfi_peekremote_extflags_160mhz,
     &hfi_peekremote_extflags_reserved,
     &hfi_peekremote_signal_1_dbm,
     &hfi_peekremote_signal_2_dbm,
