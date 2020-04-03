@@ -81,6 +81,7 @@
 #define VENDOR_GIGAMON              26866
 #define VENDOR_CACE                 32622
 /* Greater than 32,767 need to be tagged unsigned. */
+#define VENDOR_FASTIP               33610u
 #define VENDOR_NTOP                 35632u
 #define VENDOR_ERICSSON_CANADA_INC  46098u
 #define VENDOR_NIAGARA_NETWORKS     47729u
