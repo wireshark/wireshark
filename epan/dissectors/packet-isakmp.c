@@ -1342,7 +1342,6 @@ static const range_string notifmsg_v2_type[] = {
   { 14,14,      "NO_PROPOSAL_CHOSEN" },
   { 15,16,      "RESERVED" },
   { 17,17,      "INVALID_KE_PAYLOAD" },
-  { 15,16,      "RESERVED" },
   { 24,24,      "AUTHENTICATION_FAILED" },
   { 25,33,      "RESERVED" },
   { 34,34,      "SINGLE_PAIR_REQUIRED" },
