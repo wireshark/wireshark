@@ -3206,7 +3206,7 @@ const range_string diameter_3gpp_qos_delay_cls_vals[] = {
     { 0x03, 0x03, "Delay class 3" },
     { 0x04, 0x04, "Delay class 4 (best effort)" },
     { 0x05, 0x06, "Interpreted as Delay class 4 (best effort)" },
-    { 0x07, 0x00, "Reserved" },
+    { 0x07, 0x07, "Reserved" },
     { 0, 0, NULL }
 };
 
