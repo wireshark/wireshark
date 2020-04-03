@@ -1318,14 +1318,12 @@ static const range_string tp_command_type_rvals[] = {
 
 static const range_string gsm_sms_tp_failure_cause_values[] = {
   { 0x00, 0x7F,  "Reserved" },
-  { 0x80, 0x8F,  "TP-PID errors" },
+        /* 80 - 8F TP-PID errors */
   { 0x80, 0x80,  "Telematic interworking not supported" },
   { 0x81, 0x81,  "Short message Type 0 not supported" },
   { 0x82, 0x82,  "Cannot replace short message" },
   { 0x83, 0x8E,  "Reserved" },
   { 0x8F, 0x8F,  "Unspecified TP-PID error" },
-  { 0x83, 0x8E,  "Reserved" },
-
         /* 90 - 9F TP-DCS errors */
   { 0x90, 0x90,  "Data coding scheme (alphabet) not supported" },
   { 0x91, 0x91,  "Message class not supported" },
