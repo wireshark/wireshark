@@ -585,12 +585,8 @@ cf_read(capture_file *cf, gboolean reloading)
         /* Create the progress bar if necessary. */
         if (progress_is_slow(progbar, prog_timer, size, file_pos)) {
           progbar_val = calc_progbar_val(cf, size, file_pos, status_str, sizeof(status_str));
-          if (reloading)
-            progbar = delayed_create_progress_dlg(cf->window, NULL, NULL,
-                TRUE, &cf->stop_flag, progbar_val);
-          else
-            progbar = delayed_create_progress_dlg(cf->window, NULL, NULL,
-                TRUE, &cf->stop_flag, progbar_val);
+          progbar = delayed_create_progress_dlg(cf->window, NULL, NULL, TRUE,
+                                                &cf->stop_flag, progbar_val);
         }
 
         /*
