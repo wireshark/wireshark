@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V15.8.0 (2019-12)
+-- 3GPP TS 36.331 V15.9.0 (2020-03)
 --
 EUTRA-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -770,6 +770,11 @@ MeasReportAppLayer-r15 ::=		SEQUENCE {
 MeasReportAppLayer-r15-IEs ::=		SEQUENCE {
 	measReportAppLayerContainer-r15		OCTET STRING (SIZE(1..8000))			OPTIONAL,
 	serviceType-r15						ENUMERATED {qoe, qoemtsi, spare6, spare5, spare4, spare3, spare2, spare1}		OPTIONAL,
+	nonCriticalExtension				MeasReportAppLayer-v1590-IEs				OPTIONAL
+}
+
+MeasReportAppLayer-v1590-IEs ::=	SEQUENCE {
+	lateNonCriticalExtension			OCTET STRING						OPTIONAL,
 	nonCriticalExtension				SEQUENCE {}						OPTIONAL
 }
 
@@ -2136,7 +2141,12 @@ RRCEarlyDataComplete-r15-IEs ::=	SEQUENCE {
 	idleModeMobilityControlInfo-r15		IdleModeMobilityControlInfo			OPTIONAL,	-- Need OP
 	idleModeMobilityControlInfoExt-r15	IdleModeMobilityControlInfo-v9e0	OPTIONAL,	-- Cond IdleInfoEUTRA
 	redirectedCarrierInfo-r15			RedirectedCarrierInfo-r15-IEs		OPTIONAL,	-- Need ON
-	nonCriticalExtension				SEQUENCE {}							OPTIONAL
+	nonCriticalExtension				RRCEarlyDataComplete-v1590-IEs	OPTIONAL
+}
+
+RRCEarlyDataComplete-v1590-IEs ::=	SEQUENCE {
+	lateNonCriticalExtension				OCTET STRING					OPTIONAL,
+	nonCriticalExtension					SEQUENCE {}					OPTIONAL
 }
 
 RedirectedCarrierInfo-r15-IEs ::=	CHOICE {
@@ -2160,7 +2170,12 @@ RRCEarlyDataRequest-r15-IEs ::=	SEQUENCE {
 	s-TMSI-r15						S-TMSI,
 	establishmentCause-r15			ENUMERATED {mo-Data, delayTolerantAccess},
 	dedicatedInfoNAS-r15				DedicatedInfoNAS,
-	nonCriticalExtension				SEQUENCE {}			OPTIONAL
+	nonCriticalExtension				RRCEarlyDataRequest-v1590-IEs			OPTIONAL
+}
+
+RRCEarlyDataRequest-v1590-IEs ::=	SEQUENCE {
+	lateNonCriticalExtension				OCTET STRING					OPTIONAL,
+	nonCriticalExtension					SEQUENCE {}					OPTIONAL
 }
 
 
@@ -2218,8 +2233,13 @@ SCGFailureInformationNR-r15 ::=		SEQUENCE {
 }
 
 SCGFailureInformationNR-r15-IEs ::=	SEQUENCE {
-	failureReportSCG-NR-r15				FailureReportSCG-NR-r15			OPTIONAL,
-	nonCriticalExtension				SEQUENCE {}						OPTIONAL
+	failureReportSCG-NR-r15				FailureReportSCG-NR-r15				OPTIONAL,
+	nonCriticalExtension					SCGFailureInformationNR-v1590-IEs	OPTIONAL
+}
+
+SCGFailureInformationNR-v1590-IEs ::=	SEQUENCE {
+	lateNonCriticalExtension					OCTET STRING					OPTIONAL,
+	nonCriticalExtension						SEQUENCE {}					OPTIONAL
 }
 
 FailureReportSCG-NR-r15 ::=		SEQUENCE {
@@ -5628,7 +5648,7 @@ LogicalChannelConfig ::=			SEQUENCE {
 			release			NULL,
 			setup			ENUMERATED {spucch, pucch}
 		}										OPTIONAL,								-- Need ON
-		channellAccessPriority-r15			CHOICE {
+		channelAccessPriority-r15			CHOICE {
 			release									NULL,
 			setup									INTEGER (1..4)
 		}										OPTIONAL,		-- Need ON
