@@ -109,7 +109,7 @@
  *
  *  +--------+--------+--------+--------+--------+--------+--------+--------+
  *  |                                                                       |
- *  |                Bluetooth Low Energy Link Layer Packet                 |
+ *  |      Bluetooth Low Energy Link Layer Packet (excluding preamble)      |
  *  |                                  ...                                  |
  *  |                                                                       |
  *  +--------+--------+--------+--------+--------+--------+--------+--------+
