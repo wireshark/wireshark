@@ -93,9 +93,10 @@ static const value_string eiss_descriptor_values[] = {
 	{    0, NULL }
 };
 
+/* ETSI TS 101 812 - DVB-MHP Specification section 10.5 */
 static const range_string application_id_values[] = {
 	{ 0x0000, 0x3fff, "Unsigned Application" },
-	{ 0x4000, 0x3fff, "Signed Application" },
+	{ 0x4000, 0x7fff, "Signed Application" },
 	{ 0x8000, 0xfffd, "Reserved by DVB" },
 	{ 0xfffe, 0xfffe, "Wildcard for signed applications of an organisation" },
 	{ 0xffff, 0xffff, "Wildcard for all applications of an organisation" },
