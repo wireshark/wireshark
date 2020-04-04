@@ -2716,13 +2716,7 @@ dissect_ubik_request(ptvcursor_t *cursor, struct rxinfo *rxinfo _U_, int opcode)
 static void
 dissect_backup_reply(ptvcursor_t *cursor, struct rxinfo *rxinfo, int opcode _U_)
 {
-	if ( rxinfo->type == RX_PACKET_TYPE_DATA )
-	{
-		switch ( opcode )
-		{
-		}
-	}
-	else if ( rxinfo->type == RX_PACKET_TYPE_ABORT )
+	if ( rxinfo->type == RX_PACKET_TYPE_ABORT )
 	{
 		ptvcursor_add(cursor, hf_afs_backup_errcode, 4, ENC_BIG_ENDIAN);
 	}
@@ -2732,23 +2726,13 @@ static void
 dissect_backup_request(ptvcursor_t *cursor, struct rxinfo *rxinfo _U_, int opcode _U_)
 {
 	ptvcursor_advance(cursor, 4); /* skip the opcode */
-
-	switch ( opcode )
-	{
-	}
 }
 
 
 static void
 dissect_butc_reply(ptvcursor_t *cursor, struct rxinfo *rxinfo, int opcode _U_)
 {
-	if ( rxinfo->type == RX_PACKET_TYPE_DATA )
-	{
-		switch ( opcode )
-		{
-		}
-	}
-	else if ( rxinfo->type == RX_PACKET_TYPE_ABORT )
+	if ( rxinfo->type == RX_PACKET_TYPE_ABORT )
 	{
 		ptvcursor_add(cursor, hf_afs_butc_errcode, 4, ENC_BIG_ENDIAN);
 	}
@@ -2758,10 +2742,6 @@ static void
 dissect_butc_request(ptvcursor_t *cursor, struct rxinfo *rxinfo _U_, int opcode _U_)
 {
 	ptvcursor_advance(cursor, 4); /* skip the opcode */
-
-	switch ( opcode )
-	{
-	}
 }
 /*
  * Dissection routines
