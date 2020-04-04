@@ -572,8 +572,8 @@ static const range_string ndl_type_values[] = {
 
 static const range_string ranging_setup_type_values[] = {
     { 0, 0, "Request" },
-    { 1, 0, "Response" },
-    { 2, 0, "Termination" },
+    { 1, 1, "Response" },
+    { 2, 2, "Termination" },
     { 3, 15, "Reserved" },
     { 0, 0, NULL }
 };
