@@ -2224,6 +2224,7 @@ static int      ett_dataflowset         = -1;
 static int      ett_fwdstat             = -1;
 static int      ett_mpls_label          = -1;
 static int      ett_tcpflags            = -1;
+static int      ett_subtemplate_list    = -1;
 /*
  * cflow header
  */
@@ -2280,6 +2281,8 @@ static int      hf_cflow_template_ipfix_pen_provided                = -1;
 static int      hf_cflow_template_ipfix_field_type                  = -1;
 static int      hf_cflow_template_ipfix_field_type_enterprise       = -1;
 static int      hf_cflow_template_ipfix_field_pen                   = -1;
+static int      hf_cflow_subtemplate_id                             = -1;
+static int      hf_cflow_subtemplate_semantic                       = -1;
 
 /* IPFIX / vendor */
 static int      hf_cflow_template_plixer_field_type                 = -1;
@@ -2554,6 +2557,7 @@ static int      hf_cflow_information_element_index                  = -1;      /
 static int      hf_cflow_p2p_technology                             = -1;      /* ID: 288 */
 static int      hf_cflow_tunnel_technology                          = -1;      /* ID: 289 */
 static int      hf_cflow_encrypted_technology                       = -1;      /* ID: 290 */
+static int      hf_cflow_subtemplate_list                           = -1;      /* ID: 292 */
 static int      hf_cflow_bgp_validity_state                         = -1;      /* ID: 294 */
 static int      hf_cflow_ipsec_spi                                  = -1;      /* ID: 295 */
 static int      hf_cflow_gre_key                                    = -1;      /* ID: 296 */
@@ -3606,6 +3610,7 @@ static expert_field ei_cflow_flowsets_impossible                       = EI_INIT
 static expert_field ei_cflow_no_template_found                         = EI_INIT;
 static expert_field ei_transport_bytes_out_of_order                    = EI_INIT;
 static expert_field ei_unexpected_sequence_number                      = EI_INIT;
+static expert_field ei_cflow_subtemplate_bad_length                    = EI_INIT;
 
 static const value_string special_mpls_top_label_type[] = {
     {0, "Unknown"},
@@ -4730,6 +4735,68 @@ enum duration_type_e {
     duration_type_delta_milliseconds,
     duration_type_max    /* not used - for sizing only */
 };
+
+/* SubTemplateList reference https://tools.ietf.org/html/rfc6313#section-4.5.2 */
+static void
+dissect_v10_pdu_subtemplate_list(tvbuff_t* tvb, packet_info* pinfo, proto_item* pduitem, int offset,
+                                 guint16 length, hdrinfo_t* hdrinfo_p)
+{
+    int            start_offset = offset;
+    int            end_offset   = offset + length;
+    guint32        semantic, subtemplate_id;
+    v9_v10_tmplt_t *subtmplt_p;
+    v9_v10_tmplt_t  tmplt_key;
+    proto_tree     *pdutree = proto_item_add_subtree(pduitem, ett_subtemplate_list);
+
+    proto_tree_add_item_ret_uint(pdutree, hf_cflow_subtemplate_semantic, tvb, offset, 1, ENC_BIG_ENDIAN, &semantic);
+    proto_tree_add_item_ret_uint(pdutree, hf_cflow_subtemplate_id, tvb, offset+1, 2, ENC_BIG_ENDIAN, &subtemplate_id);
+    proto_item_append_text(pdutree, " (semantic = %u, subtemplate-id = %u)", semantic, subtemplate_id);
+    offset += 3;
+
+    /* Look up template */
+    v9_v10_tmplt_build_key(&tmplt_key, pinfo, hdrinfo_p->src_id, subtemplate_id);
+    subtmplt_p = (v9_v10_tmplt_t *)wmem_map_lookup(v9_v10_tmplt_table, &tmplt_key);
+
+    if (subtmplt_p != NULL) {
+        proto_item *ti;
+        int        count = 1;
+        proto_tree *sub_tree;
+        guint      consumed;
+
+        /* Provide a link back to template frame */
+        ti = proto_tree_add_uint(pdutree, hf_template_frame, tvb,
+                                 0, 0, subtmplt_p->template_frame_number);
+        if (subtmplt_p->template_frame_number > pinfo->num) {
+            proto_item_append_text(ti, " (received after this frame)");
+        }
+        proto_item_set_generated(ti);
+
+        while (offset < end_offset) {
+            sub_tree = proto_tree_add_subtree_format(pdutree, tvb, offset, subtmplt_p->length,
+                                                     ett_subtemplate_list, NULL, "List Item %d", count++);
+            consumed = dissect_v9_v10_pdu_data(tvb, pinfo, sub_tree, offset, subtmplt_p, hdrinfo_p, TF_ENTRIES);
+            if (0 == consumed) {
+                /* To protect against infinite loop in case of malformed records with
+                   0 length template or tmplt_p->fields_p[1] == NULL or tmplt_p->field_count == 0
+                */
+                break;
+            }
+            offset += consumed;
+        }
+        if (offset != end_offset) {
+            int data_bytes = offset - start_offset;
+            proto_tree_add_expert_format(pdutree, NULL, &ei_cflow_subtemplate_bad_length,
+                                         tvb, offset, length,
+                                         "Field Length (%u bytes), Data Found (%u byte%s)",
+                                         length, data_bytes, plurality(data_bytes, "", "s"));
+        }
+    } else {
+        proto_tree_add_expert_format(pdutree, NULL, &ei_cflow_no_template_found,
+                                     tvb, offset, length,
+                                     "Subtemplate Data (%u byte%s), template %u not found",
+                                     length, plurality(length, "", "s"), subtemplate_id);
+    }
+}
 
 static guint
 dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, int offset,
@@ -6375,6 +6442,12 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
         case 290:
             ti = proto_tree_add_item(pdutree, hf_cflow_encrypted_technology,
                                      tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+
+        case 292:
+            ti = proto_tree_add_item(pdutree, hf_cflow_subtemplate_list,
+                                     tvb, offset, length, ENC_NA);
+            dissect_v10_pdu_subtemplate_list(tvb, pinfo, ti, offset, length, hdrinfo_p);
             break;
 
         case 294:
@@ -12157,6 +12230,18 @@ proto_register_netflow(void)
           FT_UINT16, BASE_DEC, NULL, 0x0,
           "Template field length", HFILL}
         },
+        {&hf_cflow_subtemplate_id,
+         {"SubTemplateList Id", "cflow.subtemplate_id",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          "ID of the Template used to encode and decode"
+          " the subTemplateList Content", HFILL}
+        },
+        {&hf_cflow_subtemplate_semantic,
+         {"SubTemplateList Semantic", "cflow.subtemplate_semantic",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          "Indicates the relationship among the different Data Records"
+          " within this Structured Data Information Element", HFILL}
+        },
 
         /* options */
         {&hf_cflow_option_scope_length,
@@ -13463,6 +13548,11 @@ proto_register_netflow(void)
         {&hf_cflow_encrypted_technology,
          {"Encrypted Technology", "cflow.encrypted_technology",
           FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        {&hf_cflow_subtemplate_list,
+         {"SubTemplate List", "cflow.subtemplate_list",
+          FT_NONE, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         {&hf_cflow_bgp_validity_state,
@@ -19320,7 +19410,8 @@ proto_register_netflow(void)
         &ett_dataflowset,
         &ett_fwdstat,
         &ett_mpls_label,
-        &ett_tcpflags
+        &ett_tcpflags,
+        &ett_subtemplate_list
     };
 
     static ei_register_info ei[] = {
@@ -19360,6 +19451,9 @@ proto_register_netflow(void)
         { &ei_unexpected_sequence_number,
           { "cflow.unexpected_sequence_number", PI_SEQUENCE, PI_WARN,
             "Unexpected flow sequence for domain ID", EXPFILL}},
+        { &ei_cflow_subtemplate_bad_length,
+          { "cflow.subtemplate_bad_length", PI_UNDECODED, PI_WARN,
+            "SubTemplateList bad length", EXPFILL}},
     };
 
     module_t *netflow_module;
