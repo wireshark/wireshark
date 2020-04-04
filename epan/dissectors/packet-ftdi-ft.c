@@ -226,6 +226,9 @@ static const value_string bitmode_vals[] = {
     {0, NULL}
 };
 
+#define MODEM_STATUS_BIT_FS_64_MAX_PACKET  (1 << 0)
+#define MODEM_STATUS_BIT_HS_512_MAX_PACKET (1 << 1)
+
 void proto_register_ftdi_ft(void);
 void proto_reg_handoff_ftdi_ft(void);
 
@@ -617,7 +620,7 @@ dissect_request_set_bitmode(tvbuff_t *tvb, packet_info *pinfo _U_, gint offset, 
 }
 
 static gint
-dissect_modem_status_bytes(tvbuff_t *tvb, packet_info *pinfo _U_, gint offset, proto_tree *tree)
+dissect_modem_status_bytes(tvbuff_t *tvb, packet_info *pinfo _U_, gint offset, proto_tree *tree, gint *out_rx_len)
 {
     static const int *modem_status_bits[] = {
         &hf_modem_status_fs_max_packet,
@@ -637,14 +640,30 @@ dissect_modem_status_bytes(tvbuff_t *tvb, packet_info *pinfo _U_, gint offset, p
         &hf_line_status_tx_empty,
         NULL
     };
+    guint64 modem_status;
 
-    proto_tree_add_bitmask(tree, tvb, offset, hf_modem_status,
-        ett_modem_status, modem_status_bits, ENC_LITTLE_ENDIAN);
+    proto_tree_add_bitmask_ret_uint64(tree, tvb, offset, hf_modem_status,
+        ett_modem_status, modem_status_bits, ENC_LITTLE_ENDIAN, &modem_status);
     offset++;
 
     proto_tree_add_bitmask(tree, tvb, offset, hf_line_status,
         ett_line_status, line_status_bits, ENC_LITTLE_ENDIAN);
     offset++;
+
+    if (out_rx_len)
+    {
+        *out_rx_len = tvb_reported_length_remaining(tvb, offset);
+        if (modem_status & MODEM_STATUS_BIT_FS_64_MAX_PACKET)
+        {
+            /* 2 bytes modem status, 62 bytes payload */
+            *out_rx_len = MIN(*out_rx_len, 62);
+        }
+        else if (modem_status & MODEM_STATUS_BIT_HS_512_MAX_PACKET)
+        {
+            /* 2 bytes modem status, 510 bytes payload */
+            *out_rx_len = MIN(*out_rx_len, 510);
+        }
+    }
 
     return 2;
 }
@@ -695,6 +714,38 @@ get_recorded_interface_mode(packet_info *pinfo, usb_conv_info_t *usb_conv_info, 
     }
 
     return 0; /* Default to 0, which is plain serial data */
+}
+
+static gint
+dissect_serial_payload(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, usb_conv_info_t *usb_conv_info, FTDI_INTERFACE interface)
+{
+    gint              bytes;
+    guint32           k_bus_id;
+    guint32           k_device_address;
+
+    k_bus_id = usb_conv_info->bus_id;
+    k_device_address = usb_conv_info->device_address;
+
+    bytes = tvb_reported_length_remaining(tvb, offset);
+    if (bytes > 0)
+    {
+        guint8 bitmode;
+
+        bitmode = get_recorded_interface_mode(pinfo, usb_conv_info, interface);
+        if (bitmode == BITMODE_MPSSE)
+        {
+            ftdi_mpsse_info_t mpsse_info = {
+                .bus_id         = k_bus_id,
+                .device_address = k_device_address,
+                .chip           = identify_chip(usb_conv_info),
+                .iface          = interface,
+            };
+            tvbuff_t *mpsse_payload_tvb = tvb_new_subset_remaining(tvb, offset);
+            call_dissector_with_data(ftdi_mpsse_handle, mpsse_payload_tvb, pinfo, tree, &mpsse_info);
+        }
+    }
+
+    return bytes;
 }
 
 static gint
@@ -835,7 +886,7 @@ dissect_ftdi_ft(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 switch (request_data->request)
                 {
                 case REQUEST_GET_MODEM_STAT:
-                    offset += dissect_modem_status_bytes(tvb, pinfo, offset, main_tree);
+                    offset += dissect_modem_status_bytes(tvb, pinfo, offset, main_tree, NULL);
                     break;
                 case REQUEST_GET_LAT_TIMER:
                     offset += dissect_response_get_lat_timer(tvb, pinfo, offset, main_tree);
@@ -864,8 +915,7 @@ dissect_ftdi_ft(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     {
         const char *interface_str;
         FTDI_INTERFACE interface;
-        gint payload_hf, rx_hf, tx_hf;
-        gint bytes;
+        gint rx_hf, tx_hf;
 
         interface = endpoint_to_interface(usb_conv_info);
         switch (interface)
@@ -897,38 +947,55 @@ dissect_ftdi_ft(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "FTDI FT");
         if (usb_conv_info->direction == P2P_DIR_RECV)
         {
+            gint total_rx_len = 0;
+            gint rx_len;
+            tvbuff_t *rx_tvb = tvb_new_composite();
+
             col_add_fstr(pinfo->cinfo, COL_INFO, "INTERFACE %s RX", interface_str);
-            /* First two bytes are status */
-            offset += dissect_modem_status_bytes(tvb, pinfo, offset, main_tree);
-            payload_hf = rx_hf;
+
+            do
+            {
+                /* First two bytes are status */
+                offset += dissect_modem_status_bytes(tvb, pinfo, offset, main_tree, &rx_len);
+                total_rx_len += rx_len;
+
+                proto_tree_add_item(main_tree, rx_hf, tvb, offset, rx_len, ENC_NA);
+                if (rx_len > 0)
+                {
+                    tvbuff_t *rx_tvb_fragment = tvb_new_subset_length(tvb, offset, rx_len);
+                    tvb_composite_append(rx_tvb, rx_tvb_fragment);
+                    offset += rx_len;
+                }
+            }
+            while (tvb_reported_length_remaining(tvb, offset) > 0);
+
+            tvb_composite_finalize(rx_tvb);
+            if (total_rx_len > 0)
+            {
+                col_append_fstr(pinfo->cinfo, COL_INFO, " %d bytes", total_rx_len);
+                add_new_data_source(pinfo, rx_tvb, "RX Payload");
+                dissect_serial_payload(rx_tvb, 0, pinfo, tree, usb_conv_info, interface);
+            }
         }
         else
         {
+            gint bytes;
+
             col_add_fstr(pinfo->cinfo, COL_INFO, "INTERFACE %s TX", interface_str);
-            payload_hf = tx_hf;
-        }
-        bytes = tvb_reported_length_remaining(tvb, offset);
-        if (bytes > 0)
-        {
-            guint8 bitmode;
+            bytes = tvb_reported_length_remaining(tvb, offset);
 
-            col_append_fstr(pinfo->cinfo, COL_INFO, " %d bytes", bytes);
-            proto_tree_add_item(main_tree, payload_hf, tvb, offset, bytes, ENC_NA);
-
-            bitmode = get_recorded_interface_mode(pinfo, usb_conv_info, interface);
-            if (bitmode == BITMODE_MPSSE)
+            if (bytes > 0)
             {
-                ftdi_mpsse_info_t mpsse_info = {
-                    .bus_id         = k_bus_id,
-                    .device_address = k_device_address,
-                    .chip           = identify_chip(usb_conv_info),
-                    .iface          = interface,
-                };
-                tvbuff_t *mpsse_payload_tvb = tvb_new_subset_remaining(tvb, offset);
-                call_dissector_with_data(ftdi_mpsse_handle, mpsse_payload_tvb, pinfo, tree, &mpsse_info);
-            }
+                tvbuff_t *tx_tvb;
 
-            offset += bytes;
+                col_append_fstr(pinfo->cinfo, COL_INFO, " %d bytes", bytes);
+                proto_tree_add_item(main_tree, tx_hf, tvb, offset, bytes, ENC_NA);
+
+                tx_tvb = tvb_new_subset_length(tvb, offset, bytes);
+                add_new_data_source(pinfo, tx_tvb, "TX Payload");
+                dissect_serial_payload(tx_tvb, 0, pinfo, tree, usb_conv_info, interface);
+                offset += bytes;
+            }
         }
     }
 
