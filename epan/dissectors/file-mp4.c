@@ -463,7 +463,7 @@ dissect_mp4_stsz_body(tvbuff_t *tvb, gint offset, gint len _U_,
 
 
 static gint
-dissect_mp4_stsc_body(tvbuff_t *tvb, gint offset, gint len _U_,
+dissect_mp4_stsc_body(tvbuff_t *tvb, gint offset, gint len,
         packet_info *pinfo _U_, guint depth _U_, proto_tree *tree)
 {
     guint32  entry_count;
