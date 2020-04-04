@@ -1,4 +1,4 @@
--- 3GPP TS 36.423 V15.8.0 (2019-12)
+-- 3GPP TS 36.423 V15.9.0 (2020-03)
 -- 9.3.5	Information Element definitions
 -- **************************************************************
 --
@@ -847,6 +847,8 @@ EN-DC-ResourceConfigurationExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+EPCHandoverRestrictionListContainer ::= OCTET STRING
+-- The octets of the OCTET STRING contain the Handover Restriction List IE as specified in TS 36.413 [4]. --
 
 EPLMNs ::= SEQUENCE (SIZE(1..maxnoofEPLMNs)) OF PLMN-Identity
 

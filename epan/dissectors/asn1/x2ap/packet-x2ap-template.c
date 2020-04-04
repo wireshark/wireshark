@@ -3,7 +3,7 @@
  * X2 Application Protocol (X2AP);
  * 3GPP TS 36.423 packet dissection
  * Copyright 2007-2014, Anders Broman <anders.broman@ericsson.com>
- * Copyright 2016-2019, Pascal Quantin <pascal@wireshark.org>
+ * Copyright 2016-2020, Pascal Quantin <pascal@wireshark.org>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -12,7 +12,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * Ref:
- * 3GPP TS 36.423 V15.8.0 (2019-12)
+ * 3GPP TS 36.423 V15.9.0 (2020-03)
  */
 
 #include "config.h"
@@ -148,6 +148,7 @@ static int ett_x2ap_measurementTimingConfiguration = -1;
 static int ett_x2ap_LastVisitedNGRANCellInformation = -1;
 static int ett_x2ap_LastVisitedUTRANCellInformation = -1;
 static int ett_x2ap_EndcSONConfigurationTransfer = -1;
+static int ett_x2ap_EPCHandoverRestrictionListContainer = -1;
 #include "packet-x2ap-ett.c"
 
 typedef enum {
@@ -608,6 +609,7 @@ void proto_register_x2ap(void) {
     &ett_x2ap_LastVisitedNGRANCellInformation,
     &ett_x2ap_LastVisitedUTRANCellInformation,
     &ett_x2ap_EndcSONConfigurationTransfer,
+    &ett_x2ap_EPCHandoverRestrictionListContainer,
 #include "packet-x2ap-ettarr.c"
   };
 

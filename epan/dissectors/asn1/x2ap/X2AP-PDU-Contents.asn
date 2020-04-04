@@ -1,4 +1,4 @@
--- 3GPP TS 36.423 V15.8.0 (2019-12)
+-- 3GPP TS 36.423 V15.9.0 (2020-03)
 -- 9.3.4	PDU Definitions
 -- **************************************************************
 --
@@ -179,7 +179,8 @@ IMPORTS
 	EndcSONConfigurationTransfer,
 	NRNeighbour-Information,
 	InterfaceInstanceIndication,
-	BPLMN-ID-Info-NR
+	BPLMN-ID-Info-NR,
+	EPCHandoverRestrictionListContainer
 
 
 FROM X2AP-IEs
@@ -469,6 +470,7 @@ FROM X2AP-Containers
 	id-InterfaceInstanceIndication,
 	id-BPLMN-ID-Info-NR,
 	id-ERABs-transferred-to-MeNB,
+	id-EPCHandoverRestrictionListContainer,
 
 	maxCellineNB,
 	maxnoofBearers,
@@ -540,7 +542,8 @@ UE-ContextInformation ::= SEQUENCE {
 UE-ContextInformation-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 { ID id-ManagementBasedMDTallowed			CRITICALITY ignore	EXTENSION ManagementBasedMDTallowed					PRESENCE optional }|
 { ID id-ManagementBasedMDTPLMNList			CRITICALITY ignore	EXTENSION MDTPLMNList									PRESENCE optional }|
-{ ID id-UESidelinkAggregateMaximumBitRate	CRITICALITY ignore	EXTENSION UESidelinkAggregateMaximumBitRate		PRESENCE optional},
+{ ID id-UESidelinkAggregateMaximumBitRate	CRITICALITY ignore	EXTENSION UESidelinkAggregateMaximumBitRate		PRESENCE optional }|
+{ ID id-EPCHandoverRestrictionListContainer CRITICALITY ignore	EXTENSION EPCHandoverRestrictionListContainer		PRESENCE optional },
 	...
 }
 
@@ -2309,7 +2312,8 @@ UE-ContextInformationRetrieve ::= SEQUENCE {
 }
 
 UE-ContextInformationRetrieve-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
-{ ID id-UESidelinkAggregateMaximumBitRate	CRITICALITY ignore	EXTENSION UESidelinkAggregateMaximumBitRate		PRESENCE optional},
+{ ID id-UESidelinkAggregateMaximumBitRate	CRITICALITY ignore	EXTENSION UESidelinkAggregateMaximumBitRate		PRESENCE optional }|
+{ ID id-EPCHandoverRestrictionListContainer CRITICALITY ignore	EXTENSION EPCHandoverRestrictionListContainer		PRESENCE optional },
 	...
 }
 

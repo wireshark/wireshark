@@ -668,6 +668,15 @@ ScheduledCommunicationTime/timeofDayEnd DISPLAY=BASE_DEC|BASE_UNIT_STRING STRING
     dissect_s1ap_EN_DCSONConfigurationTransfer_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
   }
 
+#.FN_BODY EPCHandoverRestrictionListContainer VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+  proto_tree *subtree;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_EPCHandoverRestrictionListContainer);
+    dissect_s1ap_HandoverRestrictionList_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
+
 #.END
 
 #.FN_HDR HandoverRequest
@@ -1244,6 +1253,7 @@ id-BPLMN-ID-Info-EUTRA						ProtocolIE-ID
 id-BPLMN-ID-Info-NR						ProtocolIE-ID
 id-NBIoT-UL-DL-AlignmentOffset					ProtocolIE-ID
 id-ERABs-transferred-to-MeNB					ProtocolIE-ID
+id-EPCHandoverRestrictionListContainer				ProtocolIE-ID
 
 #.REGISTER
 
@@ -1578,6 +1588,7 @@ AdditionalPLMNs-Item						N x2ap.extension id-additionalPLMNs-Item
 BPLMN-ID-Info-EUTRA						N x2ap.extension id-BPLMN-ID-Info-EUTRA
 BPLMN-ID-Info-NR						N x2ap.extension id-BPLMN-ID-Info-NR
 NBIoT-UL-DL-AlignmentOffset					N x2ap.extension id-NBIoT-UL-DL-AlignmentOffset
+EPCHandoverRestrictionListContainer				N x2ap.extension id-EPCHandoverRestrictionListContainer
 
 # X2AP-PDU-Descriptions.asn  Interface Elementary Procedures
 #X2AP-ELEMENTARY-PROCEDURE

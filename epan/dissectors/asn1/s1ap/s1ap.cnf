@@ -22,8 +22,10 @@ Cause
 #.EXPORTS
 EN-DCSONConfigurationTransfer_PDU
 ENB-StatusTransfer-TransparentContainer_PDU
+EUTRAN-CGI_PDU
 Global-ENB-ID_PDU
 Global-ENB-ID
+HandoverRestrictionList_PDU
 LastVisitedEUTRANCellInformation_PDU
 LastVisitedGERANCellInformation_PDU
 SourceeNB-ToTargeteNB-TransparentContainer_PDU
@@ -35,11 +37,12 @@ SONtransferResponseContainer
 SONtransferCause_PDU
 TargeteNB-ToSourceeNB-TransparentContainer_PDU
 UE-HistoryInformation_PDU
-EUTRAN-CGI_PDU
 
 #.PDU
 EN-DCSONConfigurationTransfer
 ENB-StatusTransfer-TransparentContainer
+EUTRAN-CGI
+HandoverRestrictionList
 LastVisitedEUTRANCellInformation
 LastVisitedGERANCellInformation
 S1AP-PDU
@@ -50,7 +53,6 @@ SONtransferResponseContainer
 SONtransferCause
 TargeteNB-ToSourceeNB-TransparentContainer
 UE-HistoryInformation
-EUTRAN-CGI
 
 #.MAKE_ENUM
 HandoverType
