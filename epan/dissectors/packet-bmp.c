@@ -374,7 +374,7 @@ dissect_bmp_peer_up_notification(tvbuff_t *tvb, proto_tree *tree, packet_info *p
  *
  */
 static void
-dissect_bmp_stat_report(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, int offset, gint8 flags _U_)
+dissect_bmp_stat_report(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset, gint8 flags _U_)
 {
     guint32 stat_len, stat_type;
     guint32 i;
