@@ -1669,7 +1669,7 @@ dissect_zpas_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 static gboolean
 dissect_zusim_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-        gint offset, gint role, guint16 type, guint8 *parameter_stream _U_,
+        gint offset, gint role, guint16 type, guint8 *parameter_stream,
         guint parameter_number, gint parameter_length, void **data _U_)
 {
     guint32      value;
