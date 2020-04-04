@@ -3321,7 +3321,7 @@ get_rdmnet_tcp_message_length(packet_info *pinfo _U_, tvbuff_t *tvb, int offset,
 }
 
 static int
-dissect_rdmnet_over_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_rdmnet_over_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   tcp_dissect_pdus(tvb, pinfo, tree, TRUE, RDMNET_TCP_FRAME_HEADER_LENGTH,
                    get_rdmnet_tcp_message_length, dissect_one_rdmnet_over_tcp_message, data);
@@ -3332,7 +3332,7 @@ dissect_rdmnet_over_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 /******************************************************************************/
 /* Heuristic dissector                                                        */
 static gboolean
-dissect_rdmnet_over_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_rdmnet_over_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   dissect_rdmnet_over_tcp(tvb, pinfo, tree, data);
   return TRUE;
