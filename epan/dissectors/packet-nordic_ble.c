@@ -96,7 +96,7 @@
  *  +--------+--------+--------+--------+--------+--------+--------+--------+
  *  |                           Channel  (1 byte)                           |
  *  +--------+--------+--------+--------+--------+--------+--------+--------+
- *  |                          RSSI (dBm)  (1 byte)                         |
+ *  |                      RSSISample (dBm)  (1 byte)                       |
  *  +--------+--------+--------+--------+--------+--------+--------+--------+
  *  |                             Event counter                             |
  *  |                               (2 bytes)                               |
@@ -124,6 +124,12 @@
  *
  *  Channel:
  *   The channel index being used.
+ *
+ * RSSIsample:
+ *   RSSI sample raw value. The value of this register is read as a
+ *   positive value while the actual received signal strength is a
+ *   negative value. Actual received signal strength is therefore
+ *   as follows: rssi = -RSSISAMPLE dBm
  *
  *  Delta time:
  *   This is the time in micro seconds from the end of the previous received
@@ -621,8 +627,8 @@ proto_register_nordic_ble(void)
                 NULL, HFILL }
         },
         { &hf_nordic_ble_rssi,
-            { "RSSI (dBm)", "nordic_ble.rssi",
-                FT_INT16, BASE_DEC, NULL, 0x0,
+            { "RSSI", "nordic_ble.rssi",
+                FT_INT8, BASE_DEC | BASE_UNIT_STRING, &units_dbm, 0x0,
                 "Received Signal Strength Indicator", HFILL }
         },
         { &hf_nordic_ble_event_counter,
