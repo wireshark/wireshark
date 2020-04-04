@@ -22,7 +22,7 @@ find_library(SYSTEMD_LIBRARY
 )
 
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(SYSTEMD
+find_package_handle_standard_args(Systemd
   REQUIRED_VARS   SYSTEMD_LIBRARY SYSTEMD_INCLUDE_DIR
   VERSION_VAR     PC_SYSTEMD_VERSION)
 

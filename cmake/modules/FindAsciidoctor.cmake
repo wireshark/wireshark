@@ -174,7 +174,7 @@ if(ASCIIDOCTOR_EXECUTABLE)
 endif(ASCIIDOCTOR_EXECUTABLE)
 
 include( FindPackageHandleStandardArgs )
-find_package_handle_standard_args( ASCIIDOCTOR
+find_package_handle_standard_args( Asciidoctor
     REQUIRED_VARS ASCIIDOCTOR_EXECUTABLE
     VERSION_VAR ASCIIDOCTOR_VERSION
     )

@@ -31,7 +31,7 @@ find_library( BCG729_LIBRARY
 )
 
 include( FindPackageHandleStandardArgs )
-find_package_handle_standard_args( bcg729 DEFAULT_MSG BCG729_LIBRARY BCG729_INCLUDE_DIR )
+find_package_handle_standard_args( BCG729 DEFAULT_MSG BCG729_LIBRARY BCG729_INCLUDE_DIR )
 
 if( BCG729_FOUND )
   set( BCG729_INCLUDE_DIRS ${BCG729_INCLUDE_DIR} )
