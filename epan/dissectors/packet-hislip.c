@@ -138,7 +138,7 @@ static const range_string messagetypestring[] =
 {
     { HISLIP_INITIALIZE                     , HISLIP_INITIALIZE                     , "Initialize" },
     { HISLIP_INITIALIZERESPONSE             , HISLIP_INITIALIZERESPONSE             , "InitializeResponse" },
-    { HISLIP_FATALERROR                     , HISLIP_ERROR                          , "FatalError" },
+    { HISLIP_FATALERROR                     , HISLIP_FATALERROR                     , "FatalError" },
     { HISLIP_ERROR                          , HISLIP_ERROR                          , "Error" },
     { HISLIP_ASYNCLOCK                      , HISLIP_ASYNCLOCK                      , "AsyncLock" },
     { HISLIP_ASYNCLOCK_RESPONSE             , HISLIP_ASYNCLOCK_RESPONSE             , "AsyncLockResponse" },

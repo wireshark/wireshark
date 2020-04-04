@@ -1740,7 +1740,7 @@ static const range_string vals_tn5250_dpt_id[] = {
 #define CORE_AREA_COMMAND_KEYS  0x80
 
 static const range_string vals_tn5250_dfdpck_data_field[] = {
-  { 0x00,  0x40, "Invalid Data Field Type"},
+  { 0x00,  0x3f, "Invalid Data Field Type"},
   { 0x40,  0x40, "Top Row Command Key Functions"},
   { 0x41,  0x79, "Invalid Data Field Type"},
   { 0x80,  0x80, "Core Area Key Command Functions"},

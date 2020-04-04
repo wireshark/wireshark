@@ -1173,7 +1173,10 @@ For fields of that type, you would declare an array of "range_string"s:
     };
 
 If INTVAL_MIN equals INTVAL_MAX for a given entry the range_string
-behavior collapses to the one of value_string.
+behavior collapses to the one of value_string. Note that each range_string
+within the array is tested in order, so any 'catch-all' entries need to come
+after specific individual entries.
+
 For FT_(U)INT* fields that need a 'range_string' struct, the 'strings' field
 would be set to 'RVALS(rvalstringname)'. Furthermore, 'display' field must be
 ORed with 'BASE_RANGE_STRING' (e.g. BASE_DEC|BASE_RANGE_STRING).

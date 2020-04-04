@@ -317,7 +317,7 @@ static const range_string subtype_range_rvals[] = {
     { 0x7f, 0x7f,   "Experimental Format Stream" },
     { 0x80, 0x81,   "Reserved for future protocols" },
     { 0x82, 0x82,   "Non Time Synchronous Control Format" },
-    { 0x83, 0xed,   "Reserved for future protocols" },
+    { 0x83, 0xeb,   "Reserved for future protocols" },
     { 0xec, 0xec,   "ECC Signed Control Format" },
     { 0xed, 0xed,   "ECC Encrypted Control Format" },
     { 0xee, 0xee,   "AES Encrypted Format Discrete" },

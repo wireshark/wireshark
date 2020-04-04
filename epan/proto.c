@@ -8056,6 +8056,39 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 			}
 		}
 	}
+
+	if (hfinfo->display & BASE_RANGE_STRING) {
+		const range_string *rs = (const range_string*)(hfinfo->strings);
+		if (rs) {
+			const range_string *this_it = rs;
+
+			do {
+				if (this_it->value_max < this_it->value_min) {
+					g_warning("value_range_string error:  %s (%s) entry for \"%s\" - max(%u 0x%x) is less than min(%u 0x%x)\n",
+							  hfinfo->name, hfinfo->abbrev,
+							  this_it->strptr,
+							  this_it->value_max, this_it->value_max,
+							  this_it->value_min, this_it->value_min);
+					++this_it;
+					continue;
+				}
+
+				for (const range_string *prev_it=rs; prev_it < this_it; ++prev_it) {
+					/* Not OK if this one is completely hidden by an earlier one! */
+					if ((prev_it->value_min <= this_it->value_min) && (prev_it->value_max >= this_it->value_max)) {
+						g_warning("value_range_string error:  %s (%s) hidden by earlier entry "
+								  "(prev=\"%s\":  %u 0x%x -> %u 0x%x)  (this=\"%s\":  %u 0x%x -> %u 0x%x)\n",
+								  hfinfo->name, hfinfo->abbrev,
+								  prev_it->strptr, prev_it->value_min, prev_it->value_min,
+								  prev_it->value_max, prev_it->value_max,
+								  this_it->strptr, this_it->value_min, this_it->value_min,
+								  this_it->value_max, this_it->value_max);
+					}
+				}
+				++this_it;
+			} while (this_it->strptr);
+		}
+	}
 #endif
 
 	switch (hfinfo->type) {

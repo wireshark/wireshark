@@ -169,7 +169,7 @@ static const range_string optommp_mm_areas[] = {
             "Email Configuration - Read/Write" },
     {   0xf1540000, 0xf1540efc,
             "Serial Event Configuration - Read/Write" },
-    {   0xf1560000, 0xf1f60f7f,
+    {   0xf1560000, 0xf1560f7f,
             "Wiegand Serial Event Configuration - Read/Write" },
     {   0xf1808000, 0xf1809ffe,
             "SNAP High-Density Digital - Read Only" },

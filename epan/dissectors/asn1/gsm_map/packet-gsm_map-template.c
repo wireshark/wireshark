@@ -361,7 +361,6 @@ static const range_string gsm_map_na_vals[] = {
   { 3, 3, "national (significant) number (national use)" },
   { 4, 4, "international number" },
   { 5, 0x6f, "spare" },
-  { 0x70, 0x7e, "spare" },
   { 0x70, 0x7e, "reserved for national use" },
   { 0x7f, 0x7f, "spare" },
   { 0, 0, NULL }
