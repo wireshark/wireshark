@@ -3710,7 +3710,6 @@ proto_tree_add_item_ret_time_string(proto_tree *tree, int hfindex,
 	const gint start, gint length, const guint encoding,
 	wmem_allocator_t *scope, char **retval)
 {
-	proto_item *pi;
 	header_field_info *hfinfo = proto_registrar_get_nth(hfindex);
 	field_info	  *new_fi;
 	nstime_t    time_stamp;
@@ -3749,9 +3748,7 @@ proto_tree_add_item_ret_time_string(proto_tree *tree, int hfindex,
 
 	new_fi->flags |= (encoding & ENC_LITTLE_ENDIAN) ? FI_LITTLE_ENDIAN : FI_BIG_ENDIAN;
 
-	pi = proto_tree_add_node(tree, new_fi);
-
-	return pi;
+	return proto_tree_add_node(tree, new_fi);
 }
 
 /* Gets data from tvbuff, adds it to proto_tree, increments offset,
