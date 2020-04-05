@@ -1,6 +1,6 @@
 import struct
 import random
-from typing import List, Union, Type
+from typing import List, Union, Type, Iterator
 import os
 
 from pypacker.layer12 import ethernet
@@ -43,7 +43,7 @@ def create_packet(
     return packet.bin()
 
 
-def create_conversation(protocol: Union[Type[tcp.TCP], Type[udp.UDP]]) -> List[bytes]:
+def create_conversation(protocol: Union[Type[tcp.TCP], Type[udp.UDP]]) -> Iterator[bytes]:
     src_port = random.choice(PORTS)
     dst_port = random.choice(PORTS)
     for p in range(PACKETS_PER_CONVERSATION // 2):
@@ -64,13 +64,13 @@ if __name__ == "__main__":
     max_port = max(PORTS)
     bpf = f"tcp portrange {min_port}-{max_port} or udp portrange {min_port}-{max_port}"
     display_filter = (
-        f"((tcp.srcport >= {min_port} and tcp.srcport <= {max_port})"
+        f"(({max_port} >= tcp.srcport >= {min_port})"
         f" or "
-        f"(tcp.dstport >= {min_port} and tcp.dstport <= {max_port}))"
+        f"({max_port} >= tcp.dstport >= {min_port}))"
         f" or "
-        f"((udp.srcport >= {min_port} and udp.srcport <= {max_port})"
+        f"(({max_port} >= udp.srcport >= {min_port})"
         f" or "
-        f"(udp.dstport >= {min_port} and udp.dstport <= {max_port}))"
+        f"({max_port} >= udp.dstport >= {min_port}))"
     )
     print("BPF:", bpf)
     print("Display filter:", display_filter)

@@ -121,13 +121,13 @@ int main(int argc, char *argv[]) {
     }
 
     char *bpf = "tcp portrange 4000-4019 or udp portrange 4000-4019";
-    char *dfilter = "((tcp.srcport >= 4000 and tcp.srcport <= 4019)"
+    char *dfilter = "((4019 >= tcp.srcport >= 4000)"
                     " or "
-                    "(tcp.dstport >= 4000 and tcp.dstport <= 4019))"
+                    "(4019 >= tcp.dstport >= 4000))"
                     " or "
-                    "((udp.srcport >= 4000 and udp.srcport <= 4019)"
+                    "((4019 >= udp.srcport >= 4000)"
                     " or "
-                    "(udp.dstport >= 4000 and udp.dstport <= 4019))";
+                    "(4019 >= udp.dstport >= 4000))";
     char *three_fields[] = {
             "ip.proto",
             "tcp.srcport",
