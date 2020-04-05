@@ -19,7 +19,7 @@ PORTS = list(range(4000, 4020))
 PACKETS_PER_CONVERSATION = 1000
 
 # Split evenly between TCP and UDP
-CONVERSATIONS = 210
+CONVERSATIONS = 420
 
 
 def write_cap(file_path: str, packets: List[bytes]):

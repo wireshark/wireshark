@@ -11,10 +11,10 @@
 #define ARRAY_SIZE(arr)     (sizeof(arr) / sizeof((arr)[0]))
 
 typedef struct {
-    char* title;
-    char* bpf;
-    char* dfilter;
-    char** fields;
+    char *title;
+    char *bpf;
+    char *dfilter;
+    char **fields;
 } benchmark_case;
 
 typedef struct {
@@ -56,19 +56,19 @@ int load_cap(char *file, packet **packets, char errbuff[PCAP_ERRBUF_SIZE]) {
     struct pcap_pkthdr *header;
     const u_char *data;
 
-    packet* inner_packets = (packet *)malloc(sizeof(packet) * allocated_packets);
+    packet *inner_packets = (packet *) malloc(sizeof(packet) * allocated_packets);
     while (pcap_next_ex(pcap, &header, &data) >= 0) {
 
         if (p_count >= allocated_packets) {
             allocated_packets *= 2;
-            inner_packets = (packet * )realloc(inner_packets, allocated_packets * sizeof(packet));
+            inner_packets = (packet *) realloc(inner_packets, allocated_packets * sizeof(packet));
         }
 
         packet p = {header, data};
         inner_packets[p_count] = p;
         p_count++;
     }
-    inner_packets = (packet *)realloc(inner_packets, p_count * sizeof(packet));
+    inner_packets = (packet *) realloc(inner_packets, p_count * sizeof(packet));
     *packets = inner_packets;
     printf("Cap has been loaded, %d packets were loaded\n", p_count);
     return p_count;
@@ -77,26 +77,28 @@ int load_cap(char *file, packet **packets, char errbuff[PCAP_ERRBUF_SIZE]) {
 void benchmark(packet packets[], int packet_len, char *bpf, char *display_filter, char *fields[], int fields_len) {
     char err_msg[512];
     int filter_id = marine_add_filter(bpf, display_filter, fields, fields_len, err_msg);
+    struct timespec start_time, end_time;
+
 
     if (filter_id < 0) {
-        fprintf(stderr,"Error creating filter id: %s\n", err_msg);
+        fprintf(stderr, "Error creating filter id: %s\n", err_msg);
         return;
     }
 
     size_t memory_start = get_current_rss();
-    clock_t start = clock();
+    clock_gettime(CLOCK_MONOTONIC_RAW, &start_time);
     for (int i = 0; i < packet_len; ++i) {
         packet p = packets[i];
         marine_result *result = marine_dissect_packet(filter_id, (char *) p.data, p.header->len);
         assert(result->result == 1);
         marine_free(result);
     }
-    clock_t end = clock();
+    clock_gettime(CLOCK_MONOTONIC_RAW, &end_time);
     size_t memory_end = get_current_rss();
 
-    float total_time = ((float) end - start) / CLOCKS_PER_SEC;
-    float pps = (float) packet_len / total_time;
-    float memory_usage = ((float) memory_end - memory_start) / 1024 / 1024;
+    double total_time = (end_time.tv_sec - start_time.tv_sec) + ((end_time.tv_nsec - start_time.tv_nsec) * 1e-9);
+    double pps = packet_len / ((double) total_time);
+    double memory_usage = (memory_end - memory_start) / 1024.0 / 1024.0;
     printf("%d packets took: %f Sec, which is %f pps!\nmemory usage: %lf MB\n", packet_len, total_time, pps,
            memory_usage);
 }
@@ -116,7 +118,7 @@ int main(int argc, char *argv[]) {
     char errbuff[PCAP_ERRBUF_SIZE];
     int packet_count = load_cap(cap_file, &packets, errbuff);
     if (packet_count < 0) {
-        fprintf(stderr,"\nCouldn't load the cap %s\n", errbuff);
+        fprintf(stderr, "\nCouldn't load the cap %s\n", errbuff);
         return -1;
     }
 
@@ -145,11 +147,11 @@ int main(int argc, char *argv[]) {
     };
 
     benchmark_case cases[] = {
-            {"Benchmark with BPF", bpf, NULL, NULL},
-            {"Benchmark with Display filter", NULL, dfilter, NULL},
-            {"Benchmark with BPF and Display filter", bpf, dfilter, NULL},
-            {"Benchmark with three extracted fields", NULL, NULL, three_fields},
-            {"Benchmark with eight extracted fields", NULL, NULL, eight_fields},
+            {"Benchmark with BPF",                                            bpf, NULL,    NULL},
+            {"Benchmark with Display filter",         NULL,                        dfilter, NULL},
+            {"Benchmark with BPF and Display filter",                         bpf, dfilter, NULL},
+            {"Benchmark with three extracted fields", NULL,                        NULL,    three_fields},
+            {"Benchmark with eight extracted fields", NULL,                        NULL,    eight_fields},
             {"Benchmark with BPF, Display filter and three extracted fields", bpf, dfilter, three_fields},
             {"Benchmark with BPF, Display filter and eight extracted fields", bpf, dfilter, eight_fields},
     };
@@ -165,8 +167,8 @@ int main(int argc, char *argv[]) {
     for (int case_index = 0; case_index < num_of_cases; ++case_index) {
         benchmark_case current = cases[case_index];
         int num_of_fields = (current.fields != NULL) ? ARRAY_SIZE(current.fields) : 0;
-        packet* start_packet = packets + (packet_per_case * case_index);
-        
+        packet *start_packet = packets + (packet_per_case * case_index);
+
         print_title(current.title);
         benchmark(start_packet, packet_per_case, current.bpf, current.dfilter, current.fields, num_of_fields);
     }
