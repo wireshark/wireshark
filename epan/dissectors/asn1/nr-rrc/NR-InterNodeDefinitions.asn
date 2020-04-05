@@ -1,4 +1,4 @@
--- 3GPP TS 38.331 V15.8.0 (2019-12)
+-- 3GPP TS 38.331 V15.9.0 (2020-03)
 
 NR-InterNodeDefinitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -199,7 +199,13 @@ CG-Config-v1560-IEs ::=             SEQUENCE {
             cellForWhichToReportCGI-EUTRA              EUTRA-PhysCellId
         }                                                                               OPTIONAL
     }                                                                                   OPTIONAL,
-    nonCriticalExtension                SEQUENCE {}                                     OPTIONAL
+    nonCriticalExtension                CG-Config-v1590-IEs                             OPTIONAL
+}
+
+CG-Config-v1590-IEs ::=             SEQUENCE {
+    scellFrequenciesSN-NR               SEQUENCE (SIZE (1.. maxNrofServingCells-1)) OF  ARFCN-ValueNR      OPTIONAL,
+    scellFrequenciesSN-EUTRA            SEQUENCE (SIZE (1.. maxNrofServingCells-1)) OF  ARFCN-ValueEUTRA   OPTIONAL,
+    nonCriticalExtension                SEQUENCE {}                                                        OPTIONAL
 }
 
 PH-TypeListSCG ::=                  SEQUENCE (SIZE (1..maxNrofServingCells)) OF PH-InfoSCG
@@ -322,7 +328,12 @@ CG-ConfigInfo-v1560-IEs ::=	 SEQUENCE {
 CG-ConfigInfo-v1570-IEs ::=  SEQUENCE {
     sftdFrequencyList-NR                SFTD-FrequencyList-NR                                     OPTIONAL,
     sftdFrequencyList-EUTRA             SFTD-FrequencyList-EUTRA                                  OPTIONAL,
-    nonCriticalExtension                SEQUENCE {}                                               OPTIONAL
+    nonCriticalExtension                CG-ConfigInfo-v1590-IEs                                   OPTIONAL
+}
+
+CG-ConfigInfo-v1590-IEs ::=  SEQUENCE {
+    servFrequenciesMN-NR            SEQUENCE (SIZE (1.. maxNrofServingCells-1)) OF  ARFCN-ValueNR     OPTIONAL,
+    nonCriticalExtension            SEQUENCE {}                                                       OPTIONAL
 }
 
 SFTD-FrequencyList-NR ::=               SEQUENCE (SIZE (1..maxCellSFTD)) OF ARFCN-ValueNR
@@ -341,13 +352,16 @@ ConfigRestrictInfoSCG ::=       SEQUENCE {
         upBound                         ServCellIndex
     }                                                                                             OPTIONAL,   -- Cond SN-AddMod
     maxMeasFreqsSCG                     INTEGER(1..maxMeasFreqsMN)                                OPTIONAL,
--- TBD Late Drop: If maxMeasIdentitiesSCG is used needs to be decided after RAN4 replies to the LS on measurement requirements for MR-DC.
-    maxMeasIdentitiesSCG-NR             INTEGER(1..maxMeasIdentitiesMN)                           OPTIONAL,
+    dummy                               INTEGER(1..maxMeasIdentitiesMN)                           OPTIONAL,
     ...,
     [[
     selectedBandEntriesMNList        SEQUENCE (SIZE (1..maxBandComb)) OF SelectedBandEntriesMN    OPTIONAL,
     pdcch-BlindDetectionSCG          INTEGER (1..15)                                              OPTIONAL,
     maxNumberROHC-ContextSessionsSN  INTEGER(0.. 16384)                                           OPTIONAL
+    ]],
+    [[
+    maxIntraFreqMeasIdentitiesSCG     INTEGER(1..maxMeasIdentitiesMN)                             OPTIONAL,
+    maxInterFreqMeasIdentitiesSCG     INTEGER(1..maxMeasIdentitiesMN)                             OPTIONAL
     ]]
 }
 
