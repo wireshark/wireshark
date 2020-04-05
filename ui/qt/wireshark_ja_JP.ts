@@ -4100,6 +4100,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>%1 を保存中</translation>
     </message>
     <message>
+        <source>Analyzing IAX2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Save forward stream CSV</source>
         <translation>順方向ストリームCSVを保存</translation>
     </message>
@@ -6601,8 +6605,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>すべての表示されたパケットを無視します</translation>
     </message>
     <message>
-        <source>Unignore All Displayed</source>
-        <translation>すべての表示されたパケットの無視を解除</translation>
+        <source>U&amp;nignore All Displayed</source>
+        <oldsource>Unignore All Displayed</oldsource>
+        <translation type="unfinished">すべての表示されたパケットの無視を解除</translation>
     </message>
     <message>
         <source>Set/Unset Time Reference</source>
@@ -7587,8 +7592,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>表示されているものすべてをマーク解除(&amp;U)</translation>
     </message>
     <message>
-        <source>U&amp;nignore all displayed packets</source>
-        <translation>すべての表示されたパケットの無視を解除します(&amp;U)</translation>
+        <source>Unignore all displayed packets</source>
+        <oldsource>U&amp;nignore all displayed packets</oldsource>
+        <translation type="unfinished">すべての表示されたパケットの無視を解除します(&amp;U)</translation>
     </message>
     <message>
         <source>All VoIP Calls</source>
@@ -9049,6 +9055,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Frame</source>
         <translation>フレーム</translation>
     </message>
+    <message>
+        <source>TextLabel</source>
+        <translation type="unfinished">テキストラベル</translation>
+    </message>
 </context>
 <context>
     <name>ProtoTree</name>
@@ -10275,6 +10285,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Raw (*.raw)</source>
         <translation>無加工形式 (*.raw)</translation>
+    </message>
+    <message>
+        <source>Analyzing RTP</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Information</source>
@@ -11705,6 +11719,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>No valid search area selected. Please report this to the development team.</source>
         <translation>有効な検索範囲が選択されていません。どうかこれを開発チームに報告してください</translation>
+    </message>
+    <message>
+        <source>Searching for %1</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>No packet contained those bytes.</source>

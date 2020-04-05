@@ -4116,6 +4116,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Salvataggio di %1</translation>
     </message>
     <message>
+        <source>Analyzing IAX2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Save forward stream CSV</source>
         <translation>Salva CSV del flusso diretto</translation>
     </message>
@@ -6617,8 +6621,9 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Ignora tutti i pacchetti visualizzati</translation>
     </message>
     <message>
-        <source>Unignore All Displayed</source>
-        <translation>Considera tutti i visualizzati</translation>
+        <source>U&amp;nignore All Displayed</source>
+        <oldsource>Unignore All Displayed</oldsource>
+        <translation type="unfinished">Considera tutti i visualizzati</translation>
     </message>
     <message>
         <source>Set/Unset Time Reference</source>
@@ -7603,8 +7608,9 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Rim&amp;uovi la selezione da tutti i visualizzati</translation>
     </message>
     <message>
-        <source>U&amp;nignore all displayed packets</source>
-        <translation>Co&amp;nsidera tutti i pacchetti visualizzati</translation>
+        <source>Unignore all displayed packets</source>
+        <oldsource>U&amp;nignore all displayed packets</oldsource>
+        <translation type="unfinished">Co&amp;nsidera tutti i pacchetti visualizzati</translation>
     </message>
     <message>
         <source>All VoIP Calls</source>
@@ -9073,6 +9079,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <source>Frame</source>
         <translation>Frame</translation>
     </message>
+    <message>
+        <source>TextLabel</source>
+        <translation type="unfinished">EtichettaTesto</translation>
+    </message>
 </context>
 <context>
     <name>ProtoTree</name>
@@ -10299,6 +10309,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Raw (*.raw)</source>
         <translation>Raw (*.raw)</translation>
+    </message>
+    <message>
+        <source>Analyzing RTP</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Information</source>
@@ -11729,6 +11743,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>No valid search area selected. Please report this to the development team.</source>
         <translation>Nessuna area di ricerca valida selezionata. Segnala il problema alla squadra di sviluppo.</translation>
+    </message>
+    <message>
+        <source>Searching for %1</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>No packet contained those bytes.</source>

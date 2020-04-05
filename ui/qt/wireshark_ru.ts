@@ -4130,6 +4130,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Сохранение %1</translation>
     </message>
     <message>
+        <source>Analyzing IAX2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Save forward stream CSV</source>
         <translation>Сохранить прямой поток CSV</translation>
     </message>
@@ -6635,8 +6639,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Игнорировать все показанные пакеты</translation>
     </message>
     <message>
-        <source>Unignore All Displayed</source>
-        <translation>Отменить Игнорирование Всех Показанных</translation>
+        <source>U&amp;nignore All Displayed</source>
+        <oldsource>Unignore All Displayed</oldsource>
+        <translation type="unfinished">Отменить Игнорирование Всех Показанных</translation>
     </message>
     <message>
         <source>Set/Unset Time Reference</source>
@@ -7621,8 +7626,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>&amp;Отменить пометку Всего Отображённого</translation>
     </message>
     <message>
-        <source>U&amp;nignore all displayed packets</source>
-        <translation>О&amp;тменить игнорирование всех показанных пакетов</translation>
+        <source>Unignore all displayed packets</source>
+        <oldsource>U&amp;nignore all displayed packets</oldsource>
+        <translation type="unfinished">О&amp;тменить игнорирование всех показанных пакетов</translation>
     </message>
     <message>
         <source>All VoIP Calls</source>
@@ -9091,6 +9097,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Frame</source>
         <translation>Кадр</translation>
     </message>
+    <message>
+        <source>TextLabel</source>
+        <translation type="unfinished">Текстовая Метка</translation>
+    </message>
 </context>
 <context>
     <name>ProtoTree</name>
@@ -10317,6 +10327,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Raw (*.raw)</source>
         <translation>Raw (*.raw)</translation>
+    </message>
+    <message>
+        <source>Analyzing RTP</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Information</source>
@@ -11747,6 +11761,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>No valid search area selected. Please report this to the development team.</source>
         <translation>Не выбрано правильное пространство поиска. Пожалуйста, сообщите об этом команде разработчиков.</translation>
+    </message>
+    <message>
+        <source>Searching for %1</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>No packet contained those bytes.</source>
