@@ -1,4 +1,4 @@
--- 3GPP TS 38.423 V15.6.0 (2019-12)
+-- 3GPP TS 38.423 V15.7.0 (2020-03)
 -- 9.3.7	Constant definitions
 -- **************************************************************
 --
@@ -248,5 +248,22 @@ id-CNTypeRestrictionsForServing																			ProtocolIE-ID ::= 136
 id-DRBs-transferred-to-MN																			ProtocolIE-ID ::= 137
 id-ULForwardingProposal																				ProtocolIE-ID ::= 138
 id-EndpointIPAddressAndPort 																			ProtocolIE-ID ::= 139
+-- WS extension
+id-Unknown-140																						ProtocolIE-ID ::= 140
+id-Unknown-141																						ProtocolIE-ID ::= 141
+id-Unknown-142																						ProtocolIE-ID ::= 142
+id-Unknown-143																						ProtocolIE-ID ::= 143
+id-Unknown-144																						ProtocolIE-ID ::= 144
+id-Unknown-145																						ProtocolIE-ID ::= 145
+id-Unknown-146																						ProtocolIE-ID ::= 146
+id-Unknown-147																						ProtocolIE-ID ::= 147
+id-Unknown-148																						ProtocolIE-ID ::= 148
+id-Unknown-149																						ProtocolIE-ID ::= 149
+id-Unknown-150																						ProtocolIE-ID ::= 150
+id-Unknown-151																						ProtocolIE-ID ::= 151
+id-Unknown-152																						ProtocolIE-ID ::= 152
+id-Unknown-153																						ProtocolIE-ID ::= 153
+id-Unknown-154																						ProtocolIE-ID ::= 154
+id-FiveGCMobilityRestrictionListContainer															ProtocolIE-ID ::= 155
 
 END
