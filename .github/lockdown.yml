@@ -1,0 +1,10 @@
+# Configure the Repo Lockdown GitHub App to automatically close pull requests.
+# See https://github.com/apps/repo-lockdown
+
+pulls:
+  comment: |
+    Hi, thank you for your contribution!
+
+    GitHub is however not the right place for these, please have a look at
+    <https://www.wireshark.org/docs/wsdg_html_chunked/ChSrcContribute.html>
+    for further instructions.
