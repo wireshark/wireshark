@@ -97,7 +97,7 @@ void benchmark(packet packets[], int packet_len, char *bpf, char *display_filter
     float total_time = ((float) end - start) / CLOCKS_PER_SEC;
     float pps = (float) packet_len / total_time;
     float memory_usage = ((float) memory_end - memory_start) / 1024 / 1024;
-    printf("%d packets took: %f Sec, which is %f pps!\nmemory usage: %lf MB\n", 30000, total_time, pps,
+    printf("%d packets took: %f Sec, which is %f pps!\nmemory usage: %lf MB\n", packet_len, total_time, pps,
            memory_usage);
 }
 
