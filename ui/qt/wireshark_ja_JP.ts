@@ -6338,8 +6338,9 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>すべての表示されたパケットを無視します</translation>
     </message>
     <message>
-        <source>Unignore All Displayed</source>
-        <translation>すべての表示されたパケットの無視を解除</translation>
+        <source>U&amp;nignore All Displayed</source>
+        <oldsource>Unignore All Displayed</oldsource>
+        <translation type="unfinished">すべての表示されたパケットの無視を解除</translation>
     </message>
     <message>
         <source>Set/Unset Time Reference</source>
@@ -7328,8 +7329,9 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>表示されているものすべてをマーク解除</translation>
     </message>
     <message>
-        <source>U&amp;nignore all displayed packets</source>
-        <translation>すべての表示されたパケットの無視を解除します</translation>
+        <source>Unignore all displayed packets</source>
+        <oldsource>U&amp;nignore all displayed packets</oldsource>
+        <translation type="unfinished">すべての表示されたパケットの無視を解除します</translation>
     </message>
     <message>
         <source>All VoIP Calls</source>

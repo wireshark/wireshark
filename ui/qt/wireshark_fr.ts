@@ -6314,8 +6314,9 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>Ignorer tous les paquets affichés</translation>
     </message>
     <message>
-        <source>Unignore All Displayed</source>
-        <translation>Ne plus ignorer tous les affichés</translation>
+        <source>U&amp;nignore All Displayed</source>
+        <oldsource>Unignore All Displayed</oldsource>
+        <translation type="unfinished">Ne plus ignorer tous les affichés</translation>
     </message>
     <message>
         <source>Set/Unset Time Reference</source>
@@ -7304,7 +7305,8 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>U&amp;nignore all displayed packets</source>
+        <source>Unignore all displayed packets</source>
+        <oldsource>U&amp;nignore all displayed packets</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>

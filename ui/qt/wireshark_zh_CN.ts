@@ -6331,8 +6331,9 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>忽略所有已经显示的分组</translation>
     </message>
     <message>
-        <source>Unignore All Displayed</source>
-        <translation>取消忽略所有显示的分组</translation>
+        <source>U&amp;nignore All Displayed</source>
+        <oldsource>Unignore All Displayed</oldsource>
+        <translation type="unfinished">取消忽略所有显示的分组</translation>
     </message>
     <message>
         <source>Set/Unset Time Reference</source>
@@ -7321,8 +7322,9 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>取消所有显示的标记(&amp;U)</translation>
     </message>
     <message>
-        <source>U&amp;nignore all displayed packets</source>
-        <translation>取消忽略所有已经显示的分组(&amp;N)</translation>
+        <source>Unignore all displayed packets</source>
+        <oldsource>U&amp;nignore all displayed packets</oldsource>
+        <translation type="unfinished">取消忽略所有已经显示的分组(&amp;N)</translation>
     </message>
     <message>
         <source>All VoIP Calls</source>

@@ -6317,8 +6317,9 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
         <translation>Ignoruj wszystkie wyświetlane pakiety</translation>
     </message>
     <message>
-        <source>Unignore All Displayed</source>
-        <translation>Odignoruj wszystkie wyświetlane</translation>
+        <source>U&amp;nignore All Displayed</source>
+        <oldsource>Unignore All Displayed</oldsource>
+        <translation type="unfinished">Odignoruj wszystkie wyświetlane</translation>
     </message>
     <message>
         <source>Set/Unset Time Reference</source>
@@ -7307,7 +7308,8 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>U&amp;nignore all displayed packets</source>
+        <source>Unignore all displayed packets</source>
+        <oldsource>U&amp;nignore all displayed packets</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>

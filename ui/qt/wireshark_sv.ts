@@ -6329,8 +6329,9 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
         <translation>Ignorera alla visade paket</translation>
     </message>
     <message>
-        <source>Unignore All Displayed</source>
-        <translation>Avignorera alla visade</translation>
+        <source>U&amp;nignore All Displayed</source>
+        <oldsource>Unignore All Displayed</oldsource>
+        <translation type="unfinished">Avignorera alla visade</translation>
     </message>
     <message>
         <source>Set/Unset Time Reference</source>
@@ -7319,7 +7320,8 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>U&amp;nignore all displayed packets</source>
+        <source>Unignore all displayed packets</source>
+        <oldsource>U&amp;nignore all displayed packets</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
