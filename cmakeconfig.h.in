@@ -322,9 +322,6 @@
 /* Define to the version of this package. */
 #cmakedefine PACKAGE_VERSION
 
-/* Support for pcapng */
-#cmakedefine PCAP_NG_DEFAULT 1
-
 /* Define if we have QtMultimedia */
 #define QT_MULTIMEDIA_LIB 1
 

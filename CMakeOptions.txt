@@ -62,7 +62,6 @@ option(ENABLE_STATIC            "Build Wireshark libraries statically" OFF)
 option(USE_STATIC               "Always link statically with external libraries" OFF)
 option(ENABLE_PLUGINS           "Build with plugins" ON)
 option(ENABLE_PLUGIN_IFDEMO     "Build with plugin interface demo" OFF)
-option(ENABLE_PCAP_NG_DEFAULT   "Enable pcapng as default file format" ON)
 
 option(ENABLE_ZLIB       "Build with zlib compression support" ON)
 option(ENABLE_MINIZIP    "Build with zip file compression support" ON)

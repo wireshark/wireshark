@@ -1509,10 +1509,6 @@ foreach(_plugin_src_dir ${PLUGIN_SRC_DIRS})
 	add_subdirectory( ${_plugin_src_dir} )
 endforeach()
 
-if(ENABLE_PCAP_NG_DEFAULT)
-	set(PCAP_NG_DEFAULT 1)
-endif()
-
 # Large file support (e.g. make off_t 64 bit if supported)
 include(gmxTestLargeFiles)
 gmx_test_large_files(GMX_LARGEFILES)

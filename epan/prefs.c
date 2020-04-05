@@ -4156,11 +4156,7 @@ pre_init_prefs(void)
 
 /* set the default values for the capture dialog box */
     prefs.capture_prom_mode             = TRUE;
-#ifdef PCAP_NG_DEFAULT
     prefs.capture_pcap_ng               = TRUE;
-#else
-    prefs.capture_pcap_ng               = FALSE;
-#endif
     prefs.capture_real_time             = TRUE;
     prefs.capture_no_extcap             = FALSE;
     prefs.capture_auto_scroll           = TRUE;

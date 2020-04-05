@@ -155,11 +155,7 @@ GTree *frames_user_comments = NULL;
 static struct select_item     selectfrm[MAX_SELECTIONS];
 static guint                  max_selected              = 0;
 static int                    keep_em                   = 0;
-#ifdef PCAP_NG_DEFAULT
 static int                    out_file_type_subtype     = WTAP_FILE_TYPE_SUBTYPE_PCAPNG; /* default to pcapng   */
-#else
-static int                    out_file_type_subtype     = WTAP_FILE_TYPE_SUBTYPE_PCAP; /* default to pcap     */
-#endif
 static int                    out_frame_type            = -2; /* Leave frame type alone */
 static int                    verbose                   = 0;  /* Not so verbose         */
 static struct time_adjustment time_adj                  = {NSTIME_INIT_ZERO, 0}; /* no adjustment */
@@ -830,11 +826,7 @@ print_usage(FILE *output)
     fprintf(output, "  -i <seconds per file>  split the packet output to different files based on\n");
     fprintf(output, "                         uniform time intervals with a maximum of\n");
     fprintf(output, "                         <seconds per file> each.\n");
-#ifdef PCAP_NG_DEFAULT
     fprintf(output, "  -F <capture type>      set the output file type; default is pcapng.\n");
-#else
-    fprintf(output, "  -F <capture type>      set the output file type; default is pcap.\n");
-#endif
     fprintf(output, "                         An empty \"-F\" option will list the file types.\n");
     fprintf(output, "  -T <encap type>        set the output file encapsulation type; default is the\n");
     fprintf(output, "                         same as the input file. An empty \"-T\" option will\n");

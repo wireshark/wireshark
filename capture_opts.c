@@ -88,11 +88,7 @@ capture_opts_init(capture_options *capture_opts)
     capture_opts->saving_to_file                  = FALSE;
     capture_opts->save_file                       = NULL;
     capture_opts->group_read_access               = FALSE;
-#ifdef PCAP_NG_DEFAULT
     capture_opts->use_pcapng                      = TRUE;             /* Save as pcapng by default */
-#else
-    capture_opts->use_pcapng                      = FALSE;            /* Save as pcap by default */
-#endif
     capture_opts->real_time_mode                  = TRUE;
     capture_opts->show_info                       = TRUE;
     capture_opts->restart                         = FALSE;
