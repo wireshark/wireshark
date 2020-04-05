@@ -135,13 +135,6 @@ static int hf_gsm_map_len = -1;
 static int hf_gsm_map_disc_par = -1;
 static int hf_gsm_map_dlci = -1;
 static int hf_gsm_apn_str = -1;
-static int hf_gsm_map_locationnumber_odd_even = -1;
-static int hf_gsm_map_locationnumber_nai = -1;
-static int hf_gsm_map_locationnumber_inn = -1;
-static int hf_gsm_map_locationnumber_npi = -1;
-static int hf_gsm_map_locationnumber_apri = -1;
-static int hf_gsm_map_locationnumber_screening_ind = -1;
-static int hf_gsm_map_locationnumber_digits = -1;
 static int hf_gsm_map_ericsson_locationInformation_rat = -1;
 static int hf_gsm_map_ericsson_locationInformation_lac = -1;
 static int hf_gsm_map_ericsson_locationInformation_ci = -1;
@@ -2042,7 +2035,7 @@ static int hf_NokiaMAP_Extensions_AccessSubscriptionListExt_item = -1;  /* Acces
 static int hf_NokiaMAP_Extensions_AllowedServiceData_amr_wb_allowed = -1;
 
 /*--- End of included file: packet-gsm_map-hf.c ---*/
-#line 160 "./asn1/gsm_map/packet-gsm_map-template.c"
+#line 153 "./asn1/gsm_map/packet-gsm_map-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_gsm_map = -1;
@@ -2795,7 +2788,7 @@ static gint ett_NokiaMAP_Extensions_AccessSubscriptionListExt = -1;
 static gint ett_NokiaMAP_Extensions_AllowedServiceData = -1;
 
 /*--- End of included file: packet-gsm_map-ett.c ---*/
-#line 197 "./asn1/gsm_map/packet-gsm_map-template.c"
+#line 190 "./asn1/gsm_map/packet-gsm_map-template.c"
 
 static expert_field ei_gsm_map_unknown_sequence3 = EI_INIT;
 static expert_field ei_gsm_map_unknown_sequence = EI_INIT;
@@ -2952,53 +2945,6 @@ static const value_string gsm_map_ericsson_locationInformation_rat_vals[] = {
   { 0, NULL }
 };
 
-/* ITU-T Q.763 (12/1999)
- * 3.30 Location number
- */
-/* b) Nature of address indicator */
-static const range_string gsm_map_na_vals[] = {
-  { 0, 0, "spare" },
-  { 1, 1, "reserved for subscriber number (national use)" },
-  { 2, 2, "reserved for unknown (national use)" },
-  { 3, 3, "national (significant) number (national use)" },
-  { 4, 4, "international number" },
-  { 5, 0x6f, "spare" },
-  { 0x70, 0x7e, "reserved for national use" },
-  { 0x7f, 0x7f, "spare" },
-  { 0, 0, NULL }
-};
-
-/* d) Numbering plan indicator */
-static const value_string gsm_map_np_vals[] = {
-  {  0, "spare" },
-  {  1, "ISDN (telephony) numbering plan (ITU-T Recommendation E.164)" },
-  {  2, "spare" },
-  {  3, "Data numbering plan (ITU-T Recommendation X.121) (national use)" },
-  {  4, "Telex numbering plan (ITU-T Recommendation F.69) (national use)" },
-  {  5, "private numbering plan" },
-  {  6, "reserved for national use" },
-  {  7, "spare" },
-  { 0, NULL }
-};
-/*
- * e) Address presentation restricted indicator
- */
-static const value_string gsm_map_addr_pres_rest_vals[] = {
-  {  0, "presentation allowed" },
-  {  1, "presentation restricted" },
-  {  2, "address not available (national use)" },
-  {  3, "spare" },
-  { 0, NULL }
-};
-
-/* f) Screening indicator */
-static const value_string gsm_map_screening_ind_vals[] = {
-  {  0, "reserved" },
-  {  1, "user provided, verified and passed" },
-  {  2, "reserved" },
-  {  3, "network provided" },
-  { 0, NULL }
-};
 
 /* returns value in kb/s */
 static guint
@@ -4696,7 +4642,7 @@ dissect_gsm_map_PLMN_Id(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_gsm_map_E_UTRAN_CGI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1183 "./asn1/gsm_map/gsm_map.cnf"
+#line 1164 "./asn1/gsm_map/gsm_map.cnf"
   tvbuff_t *parameter_tvb;
   proto_tree *subtree;
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -4727,7 +4673,7 @@ dissect_gsm_map_NR_CGI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_gsm_map_TA_Id(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1193 "./asn1/gsm_map/gsm_map.cnf"
+#line 1174 "./asn1/gsm_map/gsm_map.cnf"
   tvbuff_t *parameter_tvb;
   proto_tree *subtree;
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -6653,7 +6599,7 @@ dissect_gsm_map_sm_SM_RP_MTI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 static int
 dissect_gsm_map_sm_SM_RP_SMEA(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1173 "./asn1/gsm_map/gsm_map.cnf"
+#line 1154 "./asn1/gsm_map/gsm_map.cnf"
   tvbuff_t *payload_tvb;
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &payload_tvb);
@@ -8801,7 +8747,7 @@ dissect_gsm_map_ms_CancelLocationRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
 int
 dissect_gsm_map_ms_GeographicalInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1203 "./asn1/gsm_map/gsm_map.cnf"
+#line 1184 "./asn1/gsm_map/gsm_map.cnf"
   tvbuff_t	*parameter_tvb;
   proto_tree	*subtree;
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -8825,9 +8771,6 @@ dissect_gsm_map_ms_LocationNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 #line 1119 "./asn1/gsm_map/gsm_map.cnf"
  tvbuff_t	*parameter_tvb;
  proto_tree	*subtree;
- const char	*digit_str;
- guint8		na;
- guint8		np;
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
 
@@ -8835,23 +8778,7 @@ dissect_gsm_map_ms_LocationNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
       return offset;
 
   subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_LocationNumber);
-
-  proto_tree_add_item(subtree, hf_gsm_map_locationnumber_odd_even, tvb, 0, 1, ENC_BIG_ENDIAN);
-  na = tvb_get_guint8(tvb,0) & 0x7f;
-  proto_tree_add_item(subtree, hf_gsm_map_locationnumber_nai, tvb, 0, 1, ENC_BIG_ENDIAN);
-
-  proto_tree_add_item(subtree, hf_gsm_map_locationnumber_inn, tvb, 1, 1, ENC_BIG_ENDIAN);
-  np = (tvb_get_guint8(tvb,1) & 0x70) >> 4;
-  proto_tree_add_item(subtree, hf_gsm_map_locationnumber_npi, tvb, 1, 1, ENC_BIG_ENDIAN);
-  proto_tree_add_item(subtree, hf_gsm_map_locationnumber_apri, tvb, 1, 1, ENC_BIG_ENDIAN);
-  proto_tree_add_item(subtree, hf_gsm_map_locationnumber_screening_ind, tvb, 1, 1, ENC_BIG_ENDIAN);
-
- digit_str = tvb_bcd_dig_to_wmem_packet_str(tvb, 2, -1, NULL, FALSE);
-
- proto_tree_add_string(subtree, hf_gsm_map_locationnumber_digits, tvb, 2, -1, digit_str);
-
- if ((na == 3) && (np==1))/*International Number & E164*/
-	dissect_e164_cc(tvb, subtree, 2, E164_ENC_BCD);
+  dissect_isup_location_number_parameter(parameter_tvb, actx->pinfo, subtree, NULL);
 
 
 
@@ -8872,7 +8799,7 @@ dissect_gsm_map_ms_LSAIdentity(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 static int
 dissect_gsm_map_ms_GeodeticInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1213 "./asn1/gsm_map/gsm_map.cnf"
+#line 1194 "./asn1/gsm_map/gsm_map.cnf"
   tvbuff_t *parameter_tvb;
   proto_tree *subtree;
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -20237,7 +20164,7 @@ dissect_gsm_ss_LCS_PeriodicTriggeredInvokeRes(gboolean implicit_tag _U_, tvbuff_
 
 static int
 dissect_gsm_map_ericsson_T_locationInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1148 "./asn1/gsm_map/gsm_map.cnf"
+#line 1129 "./asn1/gsm_map/gsm_map.cnf"
   tvbuff_t *parameter_tvb;
   proto_tree *subtree;
   guint8 rat;
@@ -22053,7 +21980,7 @@ dissect_NokiaMAP_Extensions_AllowedServiceData(gboolean implicit_tag _U_, tvbuff
 
 
 /*--- End of included file: packet-gsm_map-fn.c ---*/
-#line 1101 "./asn1/gsm_map/packet-gsm_map-template.c"
+#line 1047 "./asn1/gsm_map/packet-gsm_map-template.c"
 
 /* Specific translation for MAP V3 */
 const value_string gsm_map_V1V2_opr_code_strings[] = {
@@ -22276,7 +22203,7 @@ const value_string gsm_map_opr_code_strings[] = {
 /* Unknown or empty loop list OPERATION */
 
 /*--- End of included file: packet-gsm_map-table.c ---*/
-#line 1112 "./asn1/gsm_map/packet-gsm_map-template.c"
+#line 1058 "./asn1/gsm_map/packet-gsm_map-template.c"
   { 0, NULL }
 };
 
@@ -22494,7 +22421,7 @@ static const value_string gsm_map_err_code_string_vals[] = {
 /* Unknown or empty loop list OPERATION */
 
 /*--- End of included file: packet-gsm_map-table.c ---*/
-#line 1118 "./asn1/gsm_map/packet-gsm_map-template.c"
+#line 1064 "./asn1/gsm_map/packet-gsm_map-template.c"
     { 0, NULL }
 };
 #endif
@@ -24662,34 +24589,6 @@ void proto_register_gsm_map(void) {
           "Data Link Connection Indicator", HFILL }},
       { &hf_gsm_apn_str,
         { "APN", "gsm_map.apn_str",
-          FT_STRING, BASE_NONE, NULL, 0,
-          NULL, HFILL }},
-      { &hf_gsm_map_locationnumber_odd_even,
-        { "Odd/Even", "gsm_map.locationnumber.odd_even",
-          FT_BOOLEAN, 8, NULL, 0x80,
-          NULL, HFILL }},
-      { &hf_gsm_map_locationnumber_nai,
-        { "Nature of address indicator", "gsm_map.locationnumber.nai",
-          FT_UINT8, BASE_RANGE_STRING | BASE_DEC, RVALS(gsm_map_na_vals), 0x3f,
-          NULL, HFILL }},
-      { &hf_gsm_map_locationnumber_inn,
-        { "Internal Network Number indicator (INN)", "gsm_map.locationnumber.inn",
-          FT_BOOLEAN, 8, NULL, 0x80,
-          NULL, HFILL }},
-      { &hf_gsm_map_locationnumber_npi,
-        { "Numbering plan indicator", "gsm_map.locationnumber.npi",
-          FT_UINT8, BASE_DEC, VALS(gsm_map_np_vals), 0x30,
-          NULL, HFILL }},
-      { &hf_gsm_map_locationnumber_apri,
-        { "Address presentation restricted indicator", "gsm_map.locationnumber.apri",
-          FT_UINT8, BASE_DEC, VALS(gsm_map_addr_pres_rest_vals), 0x0c,
-          NULL, HFILL }},
-      { &hf_gsm_map_locationnumber_screening_ind,
-        { "Screening indicator", "gsm_map.locationnumber.screening_ind",
-          FT_UINT8, BASE_DEC, VALS(gsm_map_screening_ind_vals), 0x03,
-          NULL, HFILL }},
-      { &hf_gsm_map_locationnumber_digits,
-        { "Address digits", "gsm_map.locationnumber.digits",
           FT_STRING, BASE_NONE, NULL, 0,
           NULL, HFILL }},
       { &hf_gsm_map_ericsson_locationInformation_rat,
@@ -32115,7 +32014,7 @@ void proto_register_gsm_map(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-gsm_map-hfarr.c ---*/
-#line 3409 "./asn1/gsm_map/packet-gsm_map-template.c"
+#line 3327 "./asn1/gsm_map/packet-gsm_map-template.c"
   };
 
   /* List of subtrees */
@@ -32870,7 +32769,7 @@ void proto_register_gsm_map(void) {
     &ett_NokiaMAP_Extensions_AllowedServiceData,
 
 /*--- End of included file: packet-gsm_map-ettarr.c ---*/
-#line 3448 "./asn1/gsm_map/packet-gsm_map-template.c"
+#line 3366 "./asn1/gsm_map/packet-gsm_map-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -33014,7 +32913,7 @@ void proto_register_gsm_map(void) {
 
 
 /*--- End of included file: packet-gsm_map-dis-tab.c ---*/
-#line 3508 "./asn1/gsm_map/packet-gsm_map-template.c"
+#line 3426 "./asn1/gsm_map/packet-gsm_map-template.c"
   oid_add_from_string("ericsson-gsm-Map-Ext","1.2.826.0.1249.58.1.0" );
   oid_add_from_string("accessTypeNotAllowed-id","1.3.12.2.1107.3.66.1.2");
   /*oid_add_from_string("map-ac networkLocUp(1) version3(3)","0.4.0.0.1.0.1.3" );
