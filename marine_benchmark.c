@@ -8,8 +8,14 @@
 #include <sys/resource.h>
 #include <zconf.h>
 
-#define CASES 7
+#define ARRAY_SIZE(arr)     (sizeof(arr) / sizeof((arr)[0]))
 
+typedef struct {
+    char* title;
+    char* bpf;
+    char* dfilter;
+    char** fields;
+} benchmark_case;
 
 typedef struct {
     struct pcap_pkthdr *header;
@@ -45,7 +51,7 @@ int load_cap(char *file, packet **packets, char errbuff[PCAP_ERRBUF_SIZE]) {
         return -1;
     }
 
-    int allocated_packets = 10000;
+    int allocated_packets = 16384;
     int p_count = 0;
     struct pcap_pkthdr *header;
     const u_char *data;
@@ -81,9 +87,9 @@ void benchmark(packet packets[], int packet_len, char *bpf, char *display_filter
     clock_t start = clock();
     for (int i = 0; i < packet_len; ++i) {
         packet p = packets[i];
-        marine_result *packet_results = marine_dissect_packet(filter_id, (char *) p.data, p.header->len);
-        assert(packet_results->result == 1);
-        marine_free(packet_results);
+        marine_result *result = marine_dissect_packet(filter_id, (char *) p.data, p.header->len);
+        assert(result->result == 1);
+        marine_free(result);
     }
     clock_t end = clock();
     size_t memory_end = get_current_rss();
@@ -91,7 +97,7 @@ void benchmark(packet packets[], int packet_len, char *bpf, char *display_filter
     float total_time = ((float) end - start) / CLOCKS_PER_SEC;
     float pps = (float) packet_len / total_time;
     float memory_usage = ((float) memory_end - memory_start) / 1024 / 1024;
-    printf("%d packets took: %f Sec, which is %f pps!\n The test took: %lf MB\n", 30000, total_time, pps,
+    printf("%d packets took: %f Sec, which is %f pps!\nmemory usage: %lf MB\n", 30000, total_time, pps,
            memory_usage);
 }
 
@@ -114,9 +120,6 @@ int main(int argc, char *argv[]) {
         return -1;
     }
 
-    int packet_per_case = packet_count / CASES;
-
-    int part = 0;
     char *bpf = "tcp portrange 4000-4019 or udp portrange 4000-4019";
     char *dfilter = "((tcp.srcport >= 4000 and tcp.srcport <= 4019)"
                     " or "
@@ -127,49 +130,47 @@ int main(int argc, char *argv[]) {
                     "(udp.dstport >= 4000 and udp.dstport <= 4019))";
     char *three_fields[] = {
             "ip.proto",
-            "eth.dst",
-            "ip.host"
+            "tcp.srcport",
+            "udp.srcport"
     };
     char *eight_fields[] = {
             "ip.proto",
-            "eth.dst",
-            "ip.host",
+            "tcp.srcport",
+            "udp.srcport",
             "eth.src",
-            "eth.type",
+            "ip.host",
             "ip.hdr_len",
             "ip.version",
             "frame.encap_type"
     };
 
+    benchmark_case cases[] = {
+            {"Benchmark with BPF", bpf, NULL, NULL},
+            {"Benchmark with Display filter", NULL, dfilter, NULL},
+            {"Benchmark with BPF and Display filter", bpf, dfilter, NULL},
+            {"Benchmark with three extracted fields", NULL, NULL, three_fields},
+            {"Benchmark with eight extracted fields", NULL, NULL, eight_fields},
+            {"Benchmark with BPF, Display filter and three extracted fields", bpf, dfilter, three_fields},
+            {"Benchmark with BPF, Display filter and eight extracted fields", bpf, dfilter, eight_fields},
+    };
+
+    int num_of_cases = ARRAY_SIZE(cases);
+    int packet_per_case = packet_count / num_of_cases;
+
     init_marine();
     size_t memory_start = get_current_rss();
-    print_title("Benchmark with BPF");
 
-    // By doing `packets + (packet_per_case * part++)` we will make sure that each case will have they own unique packets
-    benchmark(packets + (packet_per_case * part++), packet_per_case, bpf, NULL, NULL, 0);
-
-    print_title("Benchmark with Display filter");
-    benchmark(packets + (packet_per_case * part++), packet_per_case, NULL, dfilter, NULL, 0);
-
-    print_title("Benchmark with BPF and Display filter");
-    benchmark(packets + (packet_per_case * part++), packet_per_case, bpf, dfilter, NULL, 0);
-
-    print_title("Benchmark with three extracted fields");
-    benchmark(packets + (packet_per_case * part++), packet_per_case, NULL, NULL, three_fields, 3);
-
-    print_title("Benchmark with eight extracted fields");
-    benchmark(packets + (packet_per_case * part++), packet_per_case, NULL, NULL, eight_fields, 8);
-
-    print_title("Benchmark with BPF, Display filter and three extracted fields");
-    benchmark(packets + (packet_per_case * part++), packet_per_case, bpf, dfilter, three_fields, 3);
-
-    print_title("Benchmark with BPF, Display filter and eight extracted fields");
-    benchmark(packets + (packet_per_case * part), packet_per_case, bpf, dfilter, eight_fields, 8);
+    for (int case_index = 0; case_index < num_of_cases; ++case_index) {
+        benchmark_case current = cases[case_index];
+        int num_of_fields = (current.fields != NULL) ? ARRAY_SIZE(current.fields) : 0;
+        print_title(current.title);
+        benchmark(packets + (packet_per_case * case_index), packet_per_case, current.bpf, current.dfilter, current.fields, num_of_fields);
+    }
 
     size_t memory_end = get_current_rss();
-    printf("Total memory usage: %lf MB\n", (((float) memory_end - memory_start) / 1024 / 1024));
-    free(packets);
+    printf("\nTotal memory usage: %lf MB\n", (((float) memory_end - memory_start) / 1024 / 1024));
     destroy_marine();
+    free(packets);
     return 0;
 }
 
