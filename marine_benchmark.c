@@ -158,13 +158,17 @@ int main(int argc, char *argv[]) {
     int packet_per_case = packet_count / num_of_cases;
 
     init_marine();
+    // This will make sure that each test will be cleared and avoid random in memory usages
+    set_epan_auto_reset_count(packet_per_case);
     size_t memory_start = get_current_rss();
 
     for (int case_index = 0; case_index < num_of_cases; ++case_index) {
         benchmark_case current = cases[case_index];
         int num_of_fields = (current.fields != NULL) ? ARRAY_SIZE(current.fields) : 0;
+        packet* start_packet = packets + (packet_per_case * case_index);
+        
         print_title(current.title);
-        benchmark(packets + (packet_per_case * case_index), packet_per_case, current.bpf, current.dfilter, current.fields, num_of_fields);
+        benchmark(start_packet, packet_per_case, current.bpf, current.dfilter, current.fields, num_of_fields);
     }
 
     size_t memory_end = get_current_rss();
