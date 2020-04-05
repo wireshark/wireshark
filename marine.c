@@ -230,7 +230,7 @@ static gboolean prefs_loaded = FALSE;
 
 static void reset_epan_mem(capture_file *cf, epan_dissect_t *edt, gboolean tree, gboolean visual);
 
-inline static int is_only_bpf(packet_filter* filter) {
+inline static int is_only_bpf(const packet_filter* const filter) {
     return filter->has_bpf && filter->dfcode == NULL && filter->output_fields == NULL;
 }
 

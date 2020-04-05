@@ -97,7 +97,7 @@ void benchmark(packet packets[], int packet_len, char *bpf, char *display_filter
     size_t memory_end = get_current_rss();
 
     double total_time = (end_time.tv_sec - start_time.tv_sec) + ((end_time.tv_nsec - start_time.tv_nsec) * 1e-9);
-    double pps = packet_len / ((double) total_time);
+    double pps = packet_len / total_time;
     double memory_usage = (memory_end - memory_start) / 1024.0 / 1024.0;
     printf("%d packets took: %f Sec, which is %f pps!\nmemory usage: %lf MB\n", packet_len, total_time, pps,
            memory_usage);
