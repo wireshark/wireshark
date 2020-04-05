@@ -6546,8 +6546,9 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Ignorera alla visade paket</translation>
     </message>
     <message>
-        <source>Unignore All Displayed</source>
-        <translation>Avignorera alla visade</translation>
+        <source>U&amp;nignore All Displayed</source>
+        <oldsource>Unignore All Displayed</oldsource>
+        <translation type="unfinished">Avignorera alla visade</translation>
     </message>
     <message>
         <source>Set/Unset Time Reference</source>
@@ -7532,8 +7533,9 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>&amp;Avmarkera alla visade</translation>
     </message>
     <message>
-        <source>U&amp;nignore all displayed packets</source>
-        <translation>A&amp;vignorera alla visade paket</translation>
+        <source>Unignore all displayed packets</source>
+        <oldsource>U&amp;nignore all displayed packets</oldsource>
+        <translation type="unfinished">A&amp;vignorera alla visade paket</translation>
     </message>
     <message>
         <source>All VoIP Calls</source>

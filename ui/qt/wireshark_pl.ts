@@ -6550,8 +6550,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Ignoruj wszystkie wyświetlane pakiety</translation>
     </message>
     <message>
-        <source>Unignore All Displayed</source>
-        <translation>Odignoruj wszystkie wyświetlane</translation>
+        <source>U&amp;nignore All Displayed</source>
+        <oldsource>Unignore All Displayed</oldsource>
+        <translation type="unfinished">Odignoruj wszystkie wyświetlane</translation>
     </message>
     <message>
         <source>Set/Unset Time Reference</source>
@@ -7536,7 +7537,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>U&amp;nignore all displayed packets</source>
+        <source>Unignore all displayed packets</source>
+        <oldsource>U&amp;nignore all displayed packets</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>

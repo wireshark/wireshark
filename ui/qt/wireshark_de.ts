@@ -6583,8 +6583,9 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Alle angezeigten Pakete ignorieren</translation>
     </message>
     <message>
-        <source>Unignore All Displayed</source>
-        <translation>Alle angezeigte Pakete nicht mehr ignorieren</translation>
+        <source>U&amp;nignore All Displayed</source>
+        <oldsource>Unignore All Displayed</oldsource>
+        <translation type="unfinished">Alle angezeigte Pakete nicht mehr ignorieren</translation>
     </message>
     <message>
         <source>Set/Unset Time Reference</source>
@@ -7569,8 +7570,9 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Markier&amp;ung bei allen angezeigten Paketen entfernen</translation>
     </message>
     <message>
-        <source>U&amp;nignore all displayed packets</source>
-        <translation>Alle angezeigte Pakete nicht mehr ig&amp;norieren</translation>
+        <source>Unignore all displayed packets</source>
+        <oldsource>U&amp;nignore all displayed packets</oldsource>
+        <translation type="unfinished">Alle angezeigte Pakete nicht mehr ig&amp;norieren</translation>
     </message>
     <message>
         <source>All VoIP Calls</source>
