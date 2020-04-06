@@ -48,16 +48,16 @@ Wiretap:: The wiretap library is used to read and write capture files in libpcap
 pcapng, and many other file formats. Source code is in the
 _wiretap_ directory.
 
-Capture:: The interface with the capture engine. Source code is in the
+Capture:: The interface to the capture engine. Source code is in the
 root directory.
 
-Dumpcap:: The capture engine itself. This is the only part that is to execute
-with elevated privileges. Source code is in the root directory.
+Dumpcap:: The capture engine itself. This is the only part that executes with
+elevated privileges. Source code is in the root directory.
 
-Npcap and libpcap:: These are separate libraries that provide packet capture
+Npcap and libpcap:: These are external libraries that provide packet capture
 and filtering support on different platforms. The filtering in Npcap and libpcap
 works at a much lower level than Wireshark’s display filters and uses a
-significantly different mechanism. That’s why we have different display and
+significantly different mechanism. That’s why there are different display and
 capture filter syntaxes.
 
 
@@ -68,10 +68,10 @@ capture filter syntaxes.
 Capturing takes packets from a network adapter and saves them to a file
 on your hard disk.
 
-Since raw network adapter access requires elevated privileges these functions
-are isolated into the `dumpcap` program. It’s only this program that needs these
-privileges, allowing the main part of the code (dissectors, user interface,
-etc) to run with normal user privileges.
+Since raw network adapter access requires elevated privileges, these functions
+are isolated to the `dumpcap` program. Placing the capture functionality
+into `dumpcap` allows the rest of the code (dissectors, user interface,
+etc.) to run with normal user privileges.
 
 To hide all the low-level machine dependent details from Wireshark, the libpcap
 and Npcap (see <<ChLibsPcap>>) libraries are used. These libraries provide a
@@ -84,24 +84,36 @@ applications.
 
 Wireshark can read and write capture files in its natural file formats, pcapng
 and pcap, which are used by many other network capturing tools, such as tcpdump.
-In addition to this, as one of its strengths, Wireshark can read and write files
-in many different file formats of other network capturing tools. The wiretap
-library, developed together with Wireshark, provides a general purpose interface
-to read and write all the file formats. If you need to add support for another
-capture file format this is the place to start.
+Additionally, Wireshark supports reading and writing packet capture files
+in formats used by other network capture tools. This support is implemented in
+Wireshark's wiretap library, which provides a general purpose interface for
+reading and writing packet capture formats and supports more than twenty
+packet capture formats.
 
 [[ChWorksDissectPackets]]
 
 === Dissect packets
 
-While Wireshark is loading packets from a file each packet is dissected.
-Wireshark tries to detect the packet type and gets as much information from the
-packet as possible. In this run though, only the information shown in the packet
-list pane is needed.
+Wireshark dissects packets in what it calls 'two-pass' dissection.
 
-As the user selects a specific packet in the packet list pane this packet will
-be dissected again. This time, Wireshark tries to get every single piece of
-information and put it into the packet details pane.
+Wireshark performs a first pass of dissecting all packets as they are loaded
+from the file. All packets are dissected sequentially and this information
+is used to populate Wireshark's packet list pane and to build state and
+other information needed when displaying the packet.
+
+Wireshark later performs 'second pass' ad-hoc dissections on the
+packets that it needs data from. This enables Wireshark to fill in fields that
+require future knowledge, like the 'response in frame #' fields,
+and correctly calculate reassembly frame dependencies.
+
+For example, Wireshark will perform an ad-hoc dissection when a user selects
+a packet (to display the packet details),
+calculates a statistic (so all values are computed),
+or performs another action that requires packet data.
+However, because Wireshark may only dissect
+the packets that are needed, there is no guarantee that
+Wireshark will dissect all packets again, nor is there any guarantee as to the
+order that the packets will be dissected after the first pass.
 
 // End of WSDG Chapter Works
 
