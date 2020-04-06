@@ -7530,8 +7530,9 @@ dissect_japan_isup_carrier_information(tvbuff_t *parameter_tvb, packet_info *pin
 
 static const range_string japan_isup_charge_delay_type_value[] = {
   {  0,    0,    "Spare" },
-  {  1,    0xfc, "Reserved for network specific use" },
-  {  0x81, 0xfa, "Spare" },                         /* TODO: overlaps with previous, need to check (non-free) spec */
+  {  1,    0x80, "Reserved for network specific use" },
+  {  0x81, 0xfa, "Spare" },
+  {  0xfb, 0xfc, "Reserved" },
   {  0xfd, 0xfd, "Charge rate transfer" },
   {  0xfe, 0xfe, "Terminating charge area information" },
   {  0xff, 0xff, "Spare" },
