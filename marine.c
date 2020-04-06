@@ -607,6 +607,32 @@ WS_DLL_PUBLIC int validate_bpf(char *bpf) {
     return TRUE;
 }
 
+int inner_compile_dfilter(char *dfilter, dfilter_t **dfcode, char *err_msg) {
+    char *dfilter_err_msg;
+
+    int compile_status = dfilter_compile(dfilter, dfcode, &dfilter_err_msg);
+
+    if (!compile_status) {
+        if (err_msg != NULL) {
+            strcpy(err_msg, dfilter_err_msg);
+        }
+        g_free(dfilter_err_msg);
+    }
+
+    return compile_status;
+}
+
+WS_DLL_PUBLIC int validate_display_filter(char *dfilter) {
+    dfilter_t *dfcode = NULL;
+
+    if (!inner_compile_dfilter(dfilter, &dfcode, NULL)) {
+        return FALSE;
+    }
+
+    dfilter_free(dfcode);
+    return TRUE;
+}
+
 WS_DLL_PUBLIC int marine_add_filter(char *bpf, char *dfilter, char **fields, int fields_len, char *err_msg) {
     // TODO make the error codes consts
     struct bpf_program fcode;
@@ -622,10 +648,8 @@ WS_DLL_PUBLIC int marine_add_filter(char *bpf, char *dfilter, char **fields, int
         }
     }
 
-    if (dfilter != NULL) { // TODO add a function to validate display filters
-        char *dfilter_err_msg;
-        if (!dfilter_compile(dfilter, &dfcode, &dfilter_err_msg)) {
-            strcpy(err_msg, dfilter_err_msg);
+    if (dfilter != NULL) {
+        if (!inner_compile_dfilter(dfilter, &dfcode, err_msg)) {
             return -2;
         }
     }
