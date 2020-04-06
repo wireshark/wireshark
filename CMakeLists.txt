@@ -2445,6 +2445,7 @@ if(BUILD_marine)
 			tshark-tap-register.c
 			marine.c
 			${TSHARK_TAP_SRC}
+			marine.h
 			)
 
 	# Uncomment these lines to run Marine as a binary (after you add a main() entry point)
@@ -2462,6 +2463,23 @@ if(BUILD_marine)
 			LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 			ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
 endif()
+
+if(BUILD_marine_benchmark)
+	set(marine_benchmark_LIBS
+			${marine_LIBS}
+			)
+	set(marine_benchmark_FILES
+			${marine_FILES}
+			marine_benchmark.c
+			)
+
+	set_executable_resources(marine_benchmark "Marine Benchmark" UNIQUE_RC)
+	add_executable(marine_benchmark ${marine_benchmark_FILES})
+	set_extra_executable_properties(marine_benchmark "Executables")
+	target_link_libraries(marine_benchmark ${marine_benchmark_LIBS})
+	install(TARGETS marine_benchmark RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+endif()
+
 
 if(BUILD_tfshark)
 	set(tfshark_LIBS
@@ -3136,6 +3154,7 @@ set(CLEAN_C_FILES
 	${dumpcap_FILES}
 	${wireshark_FILES}
 	${marine_FILES}
+	${marine_benchmark_FILES}
 	${tshark_FILES}
 	${rawshark_FILES}
 	${dftest_FILES}

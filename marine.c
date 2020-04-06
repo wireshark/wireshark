@@ -13,6 +13,7 @@
 // TODO remove unused imports
 // TODO remove Windows ifdefs, we're not going to support Windows for now.
 // TODO find a good way to write tests for performance, accuracy and memory leaks in the C code.
+#include "marine.h"
 
 #include <config.h>
 
@@ -221,10 +222,6 @@ typedef struct {
     output_fields_t *output_fields;
 } packet_filter;
 
-typedef struct {
-    char *output;
-    int result;
-} marine_result;
 
 static GHashTable *packet_filters;
 static int *packet_filter_keys[4096];
@@ -233,6 +230,9 @@ static gboolean prefs_loaded = FALSE;
 
 static void reset_epan_mem(capture_file *cf, epan_dissect_t *edt, gboolean tree, gboolean visual);
 
+inline static int is_only_bpf(const packet_filter* const filter) {
+    return filter->has_bpf && filter->dfcode == NULL && filter->output_fields == NULL;
+}
 
 static void format_field_values(output_fields_t *fields, gpointer field_index, gchar *value) {
     guint indx;
@@ -510,6 +510,9 @@ marine_inner_dissect_packet(capture_file *cf, packet_filter *filter, const unsig
             return 0;
         }
         free(hdr);
+        if (is_only_bpf(filter)) {
+            return TRUE;
+        }
     }
 
     wtap_rec_init(&rec);
