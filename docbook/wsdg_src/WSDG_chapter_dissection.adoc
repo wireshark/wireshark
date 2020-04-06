@@ -20,9 +20,9 @@ displayed.
 
 Dissectors can either be built-in to Wireshark or written as a self-registering
 plugin (a shared library or DLL).
-There is little difference in having your dissector as either a plugin or
-built-in. On the Windows platform you have limited function access through the
-ABI exposed by functions declared as WS_DLL_PUBLIC.
+There is little difference in having your dissector as either a plugin
+or built-in.  You have limited function access through the ABI exposed
+by functions declared as WS_DLL_PUBLIC.
 
 The big benefit of writing a dissector as a plugin is that rebuilding
 a plugin is much faster than rebuilding wireshark after editing a built-in
