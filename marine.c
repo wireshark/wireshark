@@ -511,7 +511,7 @@ marine_inner_dissect_packet(capture_file *cf, packet_filter *filter, const unsig
         }
         free(hdr);
         if (is_only_bpf(filter)) {
-            return 1;
+            return TRUE;
         }
     }
 
