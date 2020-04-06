@@ -19,6 +19,7 @@
 #include <epan/to_str.h>
 #include <epan/reassemble.h>
 #include <epan/expert.h>
+#include <epan/proto_data.h>
 #include <epan/stats_tree.h>
 #include "packet-bacapp.h"
 
@@ -43,6 +44,7 @@ static int bacapp_tap = -1;
 #define BACAPP_SEGMENT_NAK 0x02
 #define BACAPP_SENT_BY 0x01
 
+#define BACAPP_MAX_RECURSION_DEPTH 100 // Arbitrary
 
 /**
  * dissect_bacapp ::= CHOICE {
@@ -6227,6 +6229,7 @@ static gint ett_bacapp_value = -1;
 static expert_field ei_bacapp_bad_length = EI_INIT;
 static expert_field ei_bacapp_bad_tag = EI_INIT;
 static expert_field ei_bacapp_opening_tag = EI_INIT;
+static expert_field ei_bacapp_max_recursion_depth_reached = EI_INIT;
 
 static gint32 propertyIdentifier = -1;
 static gint32 propertyArrayIndex = -1;
@@ -8490,6 +8493,14 @@ fAbstractSyntaxNType(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
     } else {
         g_snprintf(ar, sizeof(ar), "Abstract Type: ");
     }
+
+    unsigned recursion_depth = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_bacapp, 0));
+    if (++recursion_depth >= BACAPP_MAX_RECURSION_DEPTH) {
+        proto_tree_add_expert(tree, pinfo, &ei_bacapp_max_recursion_depth_reached, tvb, 0, 0);
+        return offset;
+    }
+    p_add_proto_data(pinfo->pool, pinfo, proto_bacapp, 0, GUINT_TO_POINTER(recursion_depth));
+
     while (tvb_reported_length_remaining(tvb, offset) > 0) {  /* exit loop if nothing happens inside */
         lastoffset = offset;
         fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
@@ -9183,6 +9194,9 @@ fAbstractSyntaxNType(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
         }
         if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
+    recursion_depth = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_bacapp, 0));
+    recursion_depth--;
+    p_add_proto_data(pinfo->pool, pinfo, proto_bacapp, 0, GUINT_TO_POINTER(recursion_depth));
     return offset;
 }
 
@@ -15283,6 +15297,9 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     bacinfo.instance_ident = NULL;
     bacinfo.object_ident = NULL;
 
+    /* Recursion depth */
+    p_add_proto_data(pinfo->pool, pinfo, proto_bacapp, 0, GUINT_TO_POINTER(0));
+
     switch (bacapp_type) {
     case BACAPP_TYPE_CONFIRMED_SERVICE_REQUEST:
         /* segmented messages have 2 additional bytes */
@@ -15799,6 +15816,8 @@ proto_register_bacapp(void)
         { &ei_bacapp_bad_length, { "bacapp.bad_length", PI_MALFORMED, PI_ERROR, "Wrong length indicated", EXPFILL }},
         { &ei_bacapp_bad_tag, { "bacapp.bad_tag", PI_MALFORMED, PI_ERROR, "Wrong tag found", EXPFILL }},
         { &ei_bacapp_opening_tag, { "bacapp.bad_opening_tag", PI_MALFORMED, PI_ERROR, "Expected Opening Tag!", EXPFILL }},
+        { &ei_bacapp_max_recursion_depth_reached, { "bacapp.max_recursion_depth_reached",
+            PI_PROTOCOL, PI_WARN, "Maximum allowed recursion depth reached. Dissection stopped.", EXPFILL }}
     };
 
     expert_module_t* expert_bacapp;
