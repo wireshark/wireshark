@@ -15,9 +15,58 @@ Wireshark 3.2.3 Release Notes
 
    The following vulnerabilities have been fixed:
 
-     • wnpa-sec-2020-07[2] A dissector went awry.
+     • wnpa-sec-2020-07[2] The BACapp dissector could crash. Bug
+       16474[3]. CVE-2020-11647[4].
 
    The following bugs have been fixed:
+
+     • Add (IETF) QUIC Dissector. Bug 13881[5].
+
+     • Rename profile name loses list selection. Bug 15966[6].
+
+     • Dissector bug warning dissecting TLS Certificate Request with
+       many names. Bug 16202[7].
+
+     • Only ACKs, but no DATA frames are visible in -> TCP Stream Graph
+       -> Time Sequence (tcptrace). Bug 16281[8].
+
+     • Copy>Description does not work properly for all tree items. Bug
+       16323[9].
+
+     • Importing profiles in Windows - zip files fail and from directory
+       crashes Wireshark. Bug 16410[10].
+
+     • Packet List selection is gone when adding or removing a display
+       filter. Bug 16414[11].
+
+     • Check for updates, and auto-update, not working in 3.2.1. Bug
+       16416[12].
+
+     • f5ethtrailer: TLS trailer creates incorrect CLIENT keylog
+       entries. Bug 16417[13].
+
+     • Buildbot crash output: randpkt-2020-03-04-18423.pcap. Bug
+       16424[14].
+
+     • File open dialog shows garbled time stamps. Bug 16429[15].
+
+     • RTCP Bye without optional reason reported as [Malformed Packet].
+       Bug 16434[16].
+
+     • [oss-fuzz] #20732: Undefined-shift in dissect_rtcp. Bug
+       16445[17].
+
+     • SOMEIP: SOME/IP-SD dissector fails to register SOME/IP ports, if
+       IPv6 is being used (BUG). Bug 16448[18].
+
+     • tshark logs: "…​could not be opened: Too many open files.". Bug
+       16457[19].
+
+     • Typo in About Wireshark > Keyboard Shortcuts > Unignore All
+       Displayed. Bug 16472[20].
+
+     • Buildbot crash output: randpkt-2020-04-02-31746.pcap. Bug
+       16477[21].
 
   New and Updated Features
 
@@ -29,9 +78,13 @@ Wireshark 3.2.3 Release Notes
 
   Updated Protocol Support
 
+   AFS, BACapp, Bluetooth, CoAP, Diameter3GPP, F5 Ethernet trailer, GSM
+   RLC MAC, ISIS, ISIS CLV, ISIS HELLO, ISIS LSP, ISIS SNP, NAS 5GS, NR
+   RRC, pcap, QUIC, RPCAP, RTCP, SOME/IP-SD, TLS, and WSP
+
   New and Updated Capture File Support
 
-   There is no new or updated capture file support in this release.
+   pcap
 
  Getting Wireshark
 
@@ -43,7 +96,7 @@ Wireshark 3.2.3 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[3] on the Wireshark web site.
+   be found on the download page[22] on the Wireshark web site.
 
  File Locations
 
@@ -57,24 +110,43 @@ Wireshark 3.2.3 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[4] and on the
+  Community support is available on Wireshark’s Q&A site[23] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[5].
+  for all of Wireshark’s mailing lists can be found on the web site[24].
 
-  Bugs and feature requests can be reported on the bug tracker[6].
+  Bugs and feature requests can be reported on the bug tracker[25].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[7].
+  A complete FAQ is available on the Wireshark web site[26].
 
-  Last updated 2020-04-05 08:19:04 UTC
+  Last updated 2020-04-08 19:33:25 UTC
 
  References
 
    1. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16416
    2. https://www.wireshark.org/security/wnpa-sec-2020-07
-   3. https://www.wireshark.org/download.html#thirdparty
-   4. https://ask.wireshark.org/
-   5. https://www.wireshark.org/lists/
-   6. https://bugs.wireshark.org/
-   7. https://www.wireshark.org/faq.html
+   3. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16474
+   4. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-11647
+   5. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=13881
+   6. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15966
+   7. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16202
+   8. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16281
+   9. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16323
+  10. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16410
+  11. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16414
+  12. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16416
+  13. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16417
+  14. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16424
+  15. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16429
+  16. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16434
+  17. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16445
+  18. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16448
+  19. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16457
+  20. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16472
+  21. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16477
+  22. https://www.wireshark.org/download.html#thirdparty
+  23. https://ask.wireshark.org/
+  24. https://www.wireshark.org/lists/
+  25. https://bugs.wireshark.org/
+  26. https://www.wireshark.org/faq.html

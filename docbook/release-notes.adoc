@@ -28,7 +28,7 @@ The following vulnerabilities have been fixed:
 * wssalink:2020-07[]
 The BACapp dissector could crash.
 wsbuglink:16474[].
-// cveidlink:2019-xxxxx[].
+cveidlink:2020-11647[].
 // Fixed in master: 15dc2f6bd4
 // Fixed in master-3.2: 4738fec56d
 // Fixed in master-3.0: 5c04660835
@@ -40,7 +40,7 @@ The following bugs have been fixed:
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
 //* Wireshark is solely responsible for the decline of shopping malls in your area.
-// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v3.2.3rc0..| grep ' Bug:' | awk '{print $2}' | sort -n -u ` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
+// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v3.2.4rc0..| grep ' Bug:' | awk '{print $2}' | sort -n -u ` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
 
 * Add (IETF) QUIC Dissector. wsbuglink:13881[].
 
