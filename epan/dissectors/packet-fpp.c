@@ -88,8 +88,6 @@ static const fragment_items fpp_frag_items = {
 #define FPP_PREAMBLE_LENGTH		8
 #define FPP_CRC_LENGTH			4
 
-#define FPP_CONVERSATION_ID		0
-
 typedef enum {
 	FPP_Packet_Expess,
 	FPP_Packet_Verify,
@@ -302,7 +300,7 @@ drop_conversation(conversation_t *conv) {
 static void
 drop_fragments(packet_info *pinfo) {
 	tvbuff_t *tvbuf;
-	tvbuf = fragment_delete(&fpp_reassembly_table, pinfo, 1, NULL);
+	tvbuf = fragment_delete(&fpp_reassembly_table, pinfo, pinfo->p2p_dir, NULL);
 	if (tvbuf != NULL) {
 		tvb_free(tvbuf);
 	}
@@ -328,9 +326,9 @@ dissect_preemption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 
 	conversation_t *conv;
 	fpp_ctx_t *ctx;
 
-	conv = find_conversation_by_id(pinfo->num, ENDPOINT_NONE, FPP_CONVERSATION_ID, 0);
+	conv = find_conversation_by_id(pinfo->num, ENDPOINT_NONE, pinfo->p2p_dir, 0);
 	if (!conv) {
-		conv = conversation_new_by_id(pinfo->num, ENDPOINT_NONE, FPP_CONVERSATION_ID, 0);
+		conv = conversation_new_by_id(pinfo->num, ENDPOINT_NONE, pinfo->p2p_dir, 0);
 	}
 
 	/* Create a tree for the preamble. */
@@ -377,7 +375,7 @@ dissect_preemption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 
 			}
 
 			fragment_add_check(&fpp_reassembly_table,
-								tvb, FPP_PREAMBLE_LENGTH, pinfo, 1, NULL,
+								tvb, FPP_PREAMBLE_LENGTH, pinfo, pinfo->p2p_dir, NULL,
 								0, frag_size, TRUE);
 
 			set_address_tvb(&pinfo->dl_dst, AT_ETHER, 6, tvb, 8);
@@ -405,7 +403,7 @@ dissect_preemption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 
 				if ((ctx) && (ctx->preemption) && (ctx->frame_cnt == smd1) && (frag_cnt_next(ctx->frag_cnt) == smd2)) {
 					fpp_pdata_t *fpp_pdata = wmem_new(wmem_file_scope(), fpp_pdata_t);
 					fpp_pdata->offset = ctx->size;
-					p_add_proto_data(wmem_file_scope(), pinfo, proto_fpp, 0, fpp_pdata);
+					p_add_proto_data(wmem_file_scope(), pinfo, proto_fpp, pinfo->p2p_dir, fpp_pdata);
 
 					ctx->size += frag_size;
 					ctx->frag_cnt = smd2;
@@ -415,10 +413,10 @@ dissect_preemption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 
 				}
 			}
 
-			fpp_pdata_t *fpp_pdata = (fpp_pdata_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fpp, 0);
+			fpp_pdata_t *fpp_pdata = (fpp_pdata_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fpp, pinfo->p2p_dir);
 			if (fpp_pdata) {
 				fragment_add_check(&fpp_reassembly_table,
-									tvb, FPP_PREAMBLE_LENGTH, pinfo, 1, NULL,
+									tvb, FPP_PREAMBLE_LENGTH, pinfo, pinfo->p2p_dir, NULL,
 									fpp_pdata->offset, frag_size, TRUE);
 			} else {
 				drop_fragments(pinfo);
@@ -436,18 +434,18 @@ dissect_preemption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 
 				if ((ctx) && (ctx->preemption) && (ctx->frame_cnt == smd1) && (frag_cnt_next(ctx->frag_cnt) == smd2)) {
 					fpp_pdata_t *fpp_pdata = wmem_new(wmem_file_scope(), fpp_pdata_t);
 					fpp_pdata->offset = ctx->size;
-					p_add_proto_data(wmem_file_scope(), pinfo, proto_fpp, 0, fpp_pdata);
+					p_add_proto_data(wmem_file_scope(), pinfo, proto_fpp, pinfo->p2p_dir, fpp_pdata);
 				}
 
 				drop_conversation(conv);
 			}
 
-			fpp_pdata_t *fpp_pdata = (fpp_pdata_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fpp, 0);
+			fpp_pdata_t *fpp_pdata = (fpp_pdata_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fpp, pinfo->p2p_dir);
 			if (fpp_pdata) {
 				save_fragmented = pinfo->fragmented;
 				pinfo->fragmented = TRUE;
 				frag_data = fragment_add_check(&fpp_reassembly_table,
-												tvb, FPP_PREAMBLE_LENGTH, pinfo, 1, NULL,
+												tvb, FPP_PREAMBLE_LENGTH, pinfo, pinfo->p2p_dir, NULL,
 												fpp_pdata->offset, frag_size, FALSE);
 				// Attempt reassembly.
 				new_tvb = process_reassembled_data(tvb, FPP_PREAMBLE_LENGTH, pinfo,
