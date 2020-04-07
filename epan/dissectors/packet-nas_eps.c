@@ -3594,8 +3594,13 @@ de_esm_remote_ue_context_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
                 curr_offset += 2;
                 break;
             case 2:
-                proto_tree_add_item(subtree, hf_nas_eps_esm_remote_ue_context_list_ue_context_ipv6_prefix, tvb, curr_offset, 8, ENC_NA);
-                curr_offset += 8;
+                {
+                    ws_in6_addr prefix;
+                    memset(&prefix, 0, sizeof(prefix));
+                    tvb_memcpy(tvb, (guint8*)&prefix.bytes[0], offset, 8);
+                    proto_tree_add_ipv6(subtree, hf_nas_eps_esm_remote_ue_context_list_ue_context_ipv6_prefix, tvb, curr_offset, 8, &prefix);
+                    curr_offset += 8;
+                }
                 break;
             case 0:
             default:
@@ -7979,7 +7984,7 @@ proto_register_nas_eps(void)
     },
     { &hf_nas_eps_esm_remote_ue_context_list_ue_context_ipv6_prefix,
         { "IPv6 prefix","nas_eps.esm.remote_ue_context_list.ue_context.ipv6_prefix",
-        FT_BYTES, BASE_NONE, NULL, 0x0,
+        FT_IPv6, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_nas_eps_esm_pkmf_address_type,
