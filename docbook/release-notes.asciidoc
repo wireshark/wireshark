@@ -18,13 +18,13 @@ It is used for troubleshooting, analysis, development and education.
 // The following vulnerabilities have been fixed:
 
 * wssalink:2020-07[]
-A dissector went awry.
-// wsbuglink:xxxx[].
+The BACapp dissector could crash.
+wsbuglink:16474[].
 // cveidlink:2019-xxxxx[].
-// Fixed in master: xxxx
-// Fixed in master-3.2: xxxx
-// Fixed in master-3.0: xxxx
-// Fixed in master-2.6: xxxx
+// Fixed in master: 15dc2f6bd4
+// Fixed in master-3.2: 4738fec56d
+// Fixed in master-3.0: 5c04660835
+// Fixed in master-2.6: 6f56fc9496
 
 The following bugs have been fixed:
 
@@ -32,7 +32,13 @@ The following bugs have been fixed:
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
 //* Wireshark convinced you to switch seats on the plane while neglecting to tell you that its seat was noticeably moist.
-// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.6.16rc0..| grep ' Bug:' | awk '{print $2}' | sort -n -u ` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
+// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.6.17rc0..| grep ' Bug:' | awk '{print $2}' | sort -n -u ` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
+
+* RTCP Bye without optional reason reported as [Malformed Packet]. wsbuglink:16434[].
+
+* [oss-fuzz] #20732: Undefined-shift in dissect_rtcp. wsbuglink:16445[].
+
+* [oss-fuzz] #21541: Stack-overflow in fAbstractSyntaxNType. wsbuglink:16474[].
 
 === New and Updated Features
 
@@ -51,6 +57,8 @@ There are no new protocols in this release.
 // Add one protocol per line between the -- delimiters.
 [commaize]
 --
+BACapp
+RTCP
 --
 
 === New and Updated Capture File Support
