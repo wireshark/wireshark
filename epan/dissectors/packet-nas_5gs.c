@@ -3092,6 +3092,9 @@ de_nas_5gs_sm_pdu_address(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 {
     proto_item *ti;
     guint32 value;
+    ws_in6_addr   interface_id;
+
+    memset(&interface_id, 0, sizeof(interface_id));
 
     /* 0 Spare    0 Spare    0 Spare    0 Spare    PDU session type value */
     ti = proto_tree_add_item_ret_uint(tree, hf_nas_5gs_sm_pdu_ses_type, tvb, offset, 1, ENC_BIG_ENDIAN, &value);
@@ -3107,14 +3110,16 @@ de_nas_5gs_sm_pdu_address(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
         /* If the PDU session type value indicates IPv6, the PDU address information in octet 4 to octet 11
          * contains an interface identifier for the IPv6 link local address.
          */
-        proto_tree_add_item(tree, hf_nas_5gs_sm_pdu_addr_inf_ipv6, tvb, offset, 8, ENC_NA);
+        tvb_memcpy(tvb, (guint8*)&interface_id.bytes[8], offset, 8);
+        proto_tree_add_ipv6(tree, hf_nas_5gs_sm_pdu_addr_inf_ipv6, tvb, offset, 8, &interface_id);
         break;
     case 3:
         /* If the PDU session type value indicates IPv4v6, the PDU address information in octet 4 to octet 11
          * contains an interface identifier for the IPv6 link local address and in octet 12 to octet 15
          * contains an IPv4 address.
          */
-        proto_tree_add_item(tree, hf_nas_5gs_sm_pdu_addr_inf_ipv6, tvb, offset, 8, ENC_NA);
+        tvb_memcpy(tvb, (guint8*)&interface_id.bytes[8], offset, 8);
+        proto_tree_add_ipv6(tree, hf_nas_5gs_sm_pdu_addr_inf_ipv6, tvb, offset, 8, &interface_id);
         offset += 8;
         proto_tree_add_item(tree, hf_nas_5gs_sm_pdu_addr_inf_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
         break;
@@ -7910,7 +7915,7 @@ proto_register_nas_5gs(void)
         },
         { &hf_nas_5gs_sm_pdu_addr_inf_ipv6,
         { "PDU address information", "nas_5gs.sm.pdu_addr_inf_ipv6",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
+            FT_IPv6, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_nas_5gs_sm_qos_rule_id,
