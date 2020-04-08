@@ -962,7 +962,7 @@ static const value_string o43pxeclient_boot_menu_types[] = {
 
 static gboolean novell_string = FALSE;
 
-static guint dhcp_uuid_endian = ENC_LITTLE_ENDIAN;
+static gint dhcp_uuid_endian = ENC_LITTLE_ENDIAN;
 
 static const enum_val_t dhcp_uuid_endian_vals[] = {
 	{ "Little Endian", "Little Endian",	ENC_LITTLE_ENDIAN},
@@ -2447,7 +2447,7 @@ dissect_dhcpopt_client_full_domain_name(tvbuff_t *tvb, packet_info *pinfo, proto
 	};
 	guint8 fqdn_flags;
 	int offset = 0, length = tvb_reported_length(tvb);
-	const gchar	*dns_name;
+	const guchar	*dns_name;
 	guint		dns_name_len;
 
 	if (length < 3) {
@@ -2466,7 +2466,7 @@ dissect_dhcpopt_client_full_domain_name(tvbuff_t *tvb, packet_info *pinfo, proto
 
 	if (length > 3) {
 		if (fqdn_flags & F_FQDN_E) {
-			get_dns_name(tvb, offset+3, length-3, offset+3, &dns_name, &dns_name_len);
+			get_dns_name(tvb, offset+3, length-3, offset+3, (const char **)&dns_name, &dns_name_len);
 			proto_tree_add_string(tree, hf_dhcp_fqdn_name,
 				tvb, offset+3, length-3, format_text(wmem_packet_scope(), dns_name, dns_name_len));
 		} else {
@@ -2772,8 +2772,8 @@ static int
 dissect_dhcpopt_dhcp_domain_search(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	int length = tvb_reported_length(tvb);
-        gchar		*name_out;
-	const gchar	*dns_name;
+	gchar		*name_out;
+	const guchar	*dns_name;
 	guint		dns_name_len;
 
 	/* Encoding Long Options in the Dynamic Host Configuration Protocol (DHCPv4) (RFC 3396) */
@@ -2808,8 +2808,8 @@ dissect_dhcpopt_dhcp_domain_search(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 		while (composite_offset < tvb_reported_length(rfc3396_dns_domain_search_list.tvb_composite)) {
 			/* use the get_dns_name method that manages all techniques of RFC 1035 (compression pointer and so on) */
 			consumedx = get_dns_name(rfc3396_dns_domain_search_list.tvb_composite, composite_offset,
-				tvb_reported_length(rfc3396_dns_domain_search_list.tvb_composite), 0, &dns_name, &dns_name_len);
-                        name_out = format_text(wmem_packet_scope(), dns_name, dns_name_len);
+				tvb_reported_length(rfc3396_dns_domain_search_list.tvb_composite), 0, (const gchar **)&dns_name, &dns_name_len);
+			name_out = format_text(wmem_packet_scope(), dns_name, dns_name_len);
 			if (rfc3396_dns_domain_search_list.total_number_of_block == 1) {
 				/* RFC 3396 is not used, so we can easily link the fqdn with v_tree. */
 				proto_tree_add_string(tree, hf_dhcp_option_dhcp_dns_domain_search_list_fqdn, tvb, composite_offset, consumedx, name_out);
@@ -2829,9 +2829,9 @@ static int
 dissect_dhcpopt_sip_servers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	int length = tvb_reported_length(tvb);
-	const gchar	*dns_name;
+	const guchar	*dns_name;
 	guint		dns_name_len;
-        gchar           *name_out;
+	gchar		*name_out;
 
 	/* Encoding Long Options in the Dynamic Host Configuration Protocol (DHCPv4) (RFC 3396) */
 	/* Domain Names - Implementation And Specification (RFC 1035) */
@@ -2882,8 +2882,8 @@ dissect_dhcpopt_sip_servers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			while (composite_offset < tvb_reported_length(rfc3396_sip_server.tvb_composite)) {
 				/* use the get_dns_name method that manages all techniques of RFC 1035 (compression pointer and so on) */
 				consumedx = get_dns_name(rfc3396_sip_server.tvb_composite, composite_offset, tvb_reported_length(rfc3396_sip_server.tvb_composite),
-					1 /* ignore enc */, &dns_name, &dns_name_len);
-                                name_out = format_text(wmem_packet_scope(), dns_name, dns_name_len);
+					1 /* ignore enc */, (const gchar **)&dns_name, &dns_name_len);
+				name_out = format_text(wmem_packet_scope(), dns_name, dns_name_len);
 
 				if (rfc3396_sip_server.total_number_of_block == 1) {
 					/* RFC 3396 is not used, so we can easily link the fqdn with v_tree. */
@@ -3084,7 +3084,7 @@ static int
 dissect_dhcpopt_rdnss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	int offset = 0;
-	const gchar *dns_name;
+	const guchar *dns_name;
 	guint dns_name_len;
 
 	if (tvb_reported_length(tvb) < 10) {
@@ -3099,7 +3099,7 @@ dissect_dhcpopt_rdnss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
 	proto_tree_add_item(tree, hf_dhcp_option_rdnss_sec_dns_server, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
-	get_dns_name(tvb, offset, tvb_reported_length_remaining(tvb,offset), offset, &dns_name, &dns_name_len);
+	get_dns_name(tvb, offset, tvb_reported_length_remaining(tvb,offset), offset, (const gchar **)&dns_name, &dns_name_len);
 	proto_tree_add_string(tree, hf_dhcp_option_rdnss_domain, tvb, offset,
 			tvb_reported_length_remaining(tvb,offset), format_text(wmem_packet_scope(), dns_name, dns_name_len));
 
@@ -3248,7 +3248,7 @@ dissect_dhcpopt_avaya_ip_telephone(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	int offset = 0;
 	proto_tree *o242avaya_v_tree;
 	proto_item *avaya_ti;
-	const guint8 *avaya_option = NULL;
+	const gchar *avaya_option = NULL;
 	wmem_strbuf_t *avaya_param_buf = NULL;
 
 	/* minimum length is 5 bytes */
@@ -3256,7 +3256,7 @@ dissect_dhcpopt_avaya_ip_telephone(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		expert_add_info_format(pinfo, tree, &ei_dhcp_bad_length, "Avaya IP Telephone option length isn't >= 5");
 		return 1;
 	}
-	avaya_ti = proto_tree_add_item_ret_string(tree, hf_dhcp_option242_avaya, tvb, offset, tvb_reported_length(tvb), ENC_ASCII|ENC_NA, wmem_packet_scope(), &avaya_option);
+	avaya_ti = proto_tree_add_item_ret_string(tree, hf_dhcp_option242_avaya, tvb, offset, tvb_reported_length(tvb), ENC_ASCII|ENC_NA, wmem_packet_scope(), (const guint8 **)&avaya_option);
 	o242avaya_v_tree = proto_item_add_subtree(avaya_ti, ett_dhcp_option242_suboption);
 	avaya_param_buf = wmem_strbuf_new(wmem_packet_scope(), "");
 	gchar **fields = wmem_strsplit(wmem_packet_scope(), avaya_option, ",", -1);
@@ -4534,7 +4534,7 @@ static int
 dissect_vendor_bsdp_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *v_tree,
 				   tvbuff_t *tvb, int optoff, int optend)
 {
-	int         suboptoff = optoff;
+	int	 suboptoff = optoff;
 	int	    attributes_off;
 	guint8      subopt, string_len;
 	guint8      subopt_len, attributes_len;
@@ -4694,7 +4694,7 @@ static int
 dissect_vendor_cisco_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *v_tree,
 				   tvbuff_t *tvb, int optoff, int optend)
 {
-	int         suboptoff = optoff;
+	int	 suboptoff = optoff;
 	guint8      subopt;
 	guint8      subopt_len;
 	guint       item_len;
@@ -4799,11 +4799,11 @@ dissect_cisco_vendor_info_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 static int
 dissect_vendor_generic_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *v_tree,
-				 tvbuff_t *tvb, int optoff, int optend)
+				 tvbuff_t *tvb, guint32 optoff, guint32 optend)
 {
-	int	    suboptoff = optoff;
+	guint32	    suboptoff = optoff;
 	guint8	    subopt;
-	int	    subopt_len;
+	guint32	    subopt_len;
 	proto_item *item;
 	proto_tree *sub_tree;
 
@@ -4838,10 +4838,10 @@ dissect_vendor_generic_suboption(packet_info *pinfo, proto_item *v_ti, proto_tre
 static int
 dissect_dhcpopt_vi_vendor_specific_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	int offset = 0;
-	int enterprise = 0;
-	int s_end = 0;
-	int option_data_len = 0;
+	guint32 offset = 0;
+	guint32 enterprise = 0;
+	guint32 s_end = 0;
+	guint32 option_data_len = 0;
 	proto_item *vti;
 	proto_tree *e_tree;
 
@@ -5234,7 +5234,7 @@ dissect_vendor_tr111_suboption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 			}
 			else if (o125_tr111_opt[subopt].ftype == oui) {
 				/* Get hex string.  Expecting 6 characters. */
-				gchar   *oui_string =  tvb_get_string_enc(wmem_packet_scope(), tvb, offset, subopt_len, ENC_ASCII);
+				const gchar   *oui_string =  (gchar *)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, subopt_len, ENC_ASCII);
 				/* Convert to OUI number.  Only 3 bytes so no data lost in downcast. */
 				guint32 oui_number = (guint32)strtol(oui_string, NULL, 16);
 				/* Add item using oui_vals */
@@ -5523,9 +5523,9 @@ static void
 dissect_packetcable_mta_cap(proto_tree *v_tree, packet_info *pinfo, tvbuff_t *tvb, int voff, int len)
 {
 	guint16	       raw_val;
-	guint32        flow_val	  = 0;
-	int	           off	  = PKT_MDC_TLV_OFF + voff;
-	int	           subopt_off, max_len;
+	guint32	flow_val	  = 0;
+	int		   off	  = PKT_MDC_TLV_OFF + voff;
+	int		   subopt_off, max_len;
 	guint	       tlv_len, i, mib_val;
 	guint8	       asc_val[3] = "  ", flow_val_str[5];
 	proto_item    *ti, *mib_ti;
@@ -6605,8 +6605,8 @@ dissect_packetcable_ietf_ccc(packet_info *pinfo, proto_item *v_ti, proto_tree *v
 	proto_tree   *pkt_s_tree;
 	proto_item   *vti;
 	int	      max_timer_val = 255;
-	const gchar  *dns_name;
-	guint         dns_name_len;
+	const guchar *dns_name;
+	guint	     dns_name_len;
 
 	subopt = tvb_get_guint8(tvb, suboptoff);
 	suboptoff++;
@@ -6649,7 +6649,7 @@ dissect_packetcable_ietf_ccc(packet_info *pinfo, proto_item *v_ti, proto_tree *v
 		switch (prov_type) {
 
 		case 0:
-			get_dns_name(tvb, suboptoff, subopt_len, suboptoff, &dns_name, &dns_name_len);
+			get_dns_name(tvb, suboptoff, subopt_len, suboptoff, (const char **)&dns_name, &dns_name_len);
 			proto_item_append_text(vti, "%s (%u byte%s)", format_text(wmem_packet_scope(), dns_name, dns_name_len),
 					       subopt_len - 1, plurality(subopt_len, "", "s") );
 			break;
@@ -6707,7 +6707,7 @@ dissect_packetcable_ietf_ccc(packet_info *pinfo, proto_item *v_ti, proto_tree *v
 		break;
 
 	case PKT_CCC_KRB_REALM: /* String values */
-		get_dns_name(tvb, suboptoff, subopt_len, suboptoff, &dns_name, &dns_name_len);
+		get_dns_name(tvb, suboptoff, subopt_len, suboptoff, (const gchar **)&dns_name, &dns_name_len);
 		proto_item_append_text(vti, "%s (%u byte%s)", format_text(wmem_packet_scope(), dns_name, dns_name_len),
 				       subopt_len, plurality(subopt_len, "", "s") );
 		suboptoff += subopt_len;
@@ -6832,7 +6832,7 @@ dissect_dhcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 		/* The "DHCP magic" is mandatory for proxyDHCP. Use it as a heuristic. */
 		if (!tvb_bytes_exist(tvb, VENDOR_INFO_OFFSET, 4) ||
 		    tvb_get_ntohl(tvb, VENDOR_INFO_OFFSET) != 0x63825363) {
-         /* Not a DHCP packet at all. */
+	 /* Not a DHCP packet at all. */
 			return 0;
 		}
 		isProxyDhcp = TRUE;
@@ -10018,8 +10018,8 @@ proto_register_dhcp(void)
 			uat_dhcp_record_update_cb, /* update callback	     */
 			uat_dhcp_record_free_cb,   /* free callback	     */
 			NULL,			   /* post update callback   */
-			NULL,			   /* reset callback         */
-			dhcp_uat_flds);	           /* UAT field definitions  */
+			NULL,			   /* reset callback	 */
+			dhcp_uat_flds);		   /* UAT field definitions  */
 
 	prefs_register_uat_preference(dhcp_module,
 				      "custom_dhcp_table",
