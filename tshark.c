@@ -2232,6 +2232,7 @@ main(int argc, char *argv[])
   output_fields = NULL;
 
 clean_exit:
+  cf_close(&cfile);
   g_free(cf_name);
   destroy_print_stream(print_stream);
 #ifdef HAVE_LIBPCAP
@@ -2243,7 +2244,6 @@ clean_exit:
   free_filter_lists();
   wtap_cleanup();
   free_progdirs();
-  cf_close(&cfile);
   dfilter_free(dfcode);
   return exit_status;
 }
