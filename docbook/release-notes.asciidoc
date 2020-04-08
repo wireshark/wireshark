@@ -17,7 +17,7 @@ The following vulnerabilities have been fixed:
 * wssalink:2020-07[]
 The BACapp dissector could crash.
 wsbuglink:16474[].
-// cveidlink:2019-xxxxx[].
+cveidlink:2020-11647[].
 // Fixed in master: 15dc2f6bd4
 // Fixed in master-3.2: 4738fec56d
 // Fixed in master-3.0: 5c04660835

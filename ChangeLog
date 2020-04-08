@@ -1,0 +1,679 @@
+commit 510b992f73
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Apr 7 14:31:58 2020 -0700
+
+    Prep for 3.0.10.
+    
+    Change-Id: I037e885b61fbfe9687bcea3684fe818cd51244e7
+    Reviewed-on: https://code.wireshark.org/review/36743
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit bbccf1302b
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Sun Apr 5 23:30:56 2020 +0200
+
+    lwm2mtlv: Handle 8 bytes Float
+    
+    In LwM2M TLV format a Float can be a 4 or 8 bytes floating point value.
+    Allocate a separate FT_DOUBLE header field to handle this.
+    
+    Refactor common code between OMA and UAT defined resources.
+    
+    Bug: 16485
+    Change-Id: I45fe782a32444215959951f0b202de360a3b24b8
+    Reviewed-on: https://code.wireshark.org/review/36724
+    Petri-Dish: Stig Bjørlykke <stig@bjorlykke.org>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Stig Bjørlykke <stig@bjorlykke.org>
+    (cherry picked from commit 4e9e2bd934e0bdbd8ace2557be5a0cc8d92fc977)
+    Reviewed-on: https://code.wireshark.org/review/36741
+    (cherry picked from commit c8a7ef7f680f047a5547400e298324c595b680f6)
+    Reviewed-on: https://code.wireshark.org/review/36742
+
+commit 5c04660835
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Apr 6 10:15:31 2020 -0700
+
+    BACapp: Add a nesting / recursion check.
+    
+    Track our recursion depth in fAbstractSyntaxNType. It calls several
+    functions which in turn call it, which makes it easy to overflow the
+    stack.
+    
+    Bug: 16474
+    Change-Id: Ibad29272f99449bfa13b7422692e20ba8a79e19c
+    Reviewed-on: https://code.wireshark.org/review/36725
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    Petri-Dish: Gerald Combs <gerald@wireshark.org>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 15dc2f6bd4c9a674333cbc97260362524d5364de)
+    Reviewed-on: https://code.wireshark.org/review/36735
+
+commit c8edc4da1e
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Apr 5 08:46:30 2020 +0000
+
+    [Automatic update for 2020-04-05]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: Ic48e72b98a2c64ec2e40d3c2ae486128b507045f
+    Reviewed-on: https://code.wireshark.org/review/36711
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit f282dcde19
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Wed Apr 1 13:06:00 2020 -0700
+
+    Handle -k better on platforms that don't support it.
+    
+    Have ws80211_init() return an indication that channel setting isn't
+    supported on those platforms.
+    
+    In dumpcap, try to set up ws80211 before checking the channel argument
+    and, if it fails, report the failure, rather than failing because the
+    "convert channel name to channel code" routine fails.
+    
+    See
+    
+        https://ask.wireshark.org/question/15535/dumpcap-k-is-not-accepting-channel-type-values/
+    
+    for an example of confusion caused by the previous behavior.
+    
+    Change-Id: I303f560704700bbcd4f0ecea041f8632744212f3
+    Reviewed-on: https://code.wireshark.org/review/36659
+    Petri-Dish: Guy Harris <gharris@sonic.net>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Guy Harris <gharris@sonic.net>
+    (cherry picked from commit 0975bf792a5609157349053385badca1f9c29cd7)
+    Reviewed-on: https://code.wireshark.org/review/36661
+
+commit 7d71e3e70a
+Author: Uli Heilmeier <uh@heilmeier.eu>
+Date:   Wed Apr 1 09:49:47 2020 +0200
+
+    QT/UI: Fix shortcut
+    
+    Shortcut should be in text and not in tooltip
+    
+    Bug: 16472
+    Change-Id: I2139eab83dfbca51126a555476948373fee15237
+    Reviewed-on: https://code.wireshark.org/review/36651
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Petri-Dish: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    (cherry picked from commit 8e5007442e73884b44b5cb204d9179d587607809)
+    Reviewed-on: https://code.wireshark.org/review/36658
+    Petri-Dish: Gerald Combs <gerald@wireshark.org>
+
+commit 1e01c051cd
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Tue Mar 31 19:19:59 2020 -0700
+
+    Make the message type values hex.
+    
+    That's what I'm doing in the rpcap protocol I-D I'm writing, as it makes
+    it a bit cleaner to do the "uppermost bit means reply" stuff.
+    
+    Change-Id: Ic6114ff9fe6df5cf6498798281189f1fbe658e60
+    Reviewed-on: https://code.wireshark.org/review/36647
+    Reviewed-by: Guy Harris <gharris@sonic.net>
+    (cherry picked from commit 9b7a54d86c197af42c7b9a0a7925b42a637acd3c)
+    Reviewed-on: https://code.wireshark.org/review/36649
+
+commit 9f5ee1bd67
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Thu Mar 26 21:01:58 2020 +0100
+
+    bluetooth: Update Assigned Numbers
+    
+    Change-Id: I71e5550a261e958ce74330b6d286fe8a11585e9a
+    Reviewed-on: https://code.wireshark.org/review/36594
+    Petri-Dish: Stig Bjørlykke <stig@bjorlykke.org>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Reviewed-by: Stig Bjørlykke <stig@bjorlykke.org>
+    (cherry picked from commit db1d0402f2f75fc0cfcf1c014e0cce68b4901b6b)
+    Reviewed-on: https://code.wireshark.org/review/36619
+    Reviewed-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Petri-Dish: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+
+commit 6b586f994a
+Author: Graham Bloice <graham.bloice@trihedral.com>
+Date:   Sat Apr 13 16:39:16 2019 +0100
+
+    modbustcp: fix a shadowed variable warning
+    
+    The checkapi code dislikes variables named time so rename it.
+    
+    Change-Id: I49727203baacb32869b78d047e86b478b8e5c25c
+    Reviewed-on: https://code.wireshark.org/review/32840
+    Reviewed-by: Graham Bloice <graham.bloice@trihedral.com>
+    Petri-Dish: Graham Bloice <graham.bloice@trihedral.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    (cherry picked from commit 65b5f50859d6f2bf7c5c8bec575ac7b2675fc896)
+    Reviewed-on: https://code.wireshark.org/review/36625
+    Petri-Dish: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+
+commit 22b15e80c6
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Mar 29 08:45:04 2020 +0000
+
+    [Automatic update for 2020-03-29]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: I24c42f83584a36dfd7b28693da2c0cf43db7e3b8
+    Reviewed-on: https://code.wireshark.org/review/36617
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit c753d6c790
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Wed Mar 25 13:38:11 2020 -0700
+
+    Maintain cf->state, because file cleanup depends on it.
+    
+    If we're capturing to multiple files, whenever we are told about a new
+    file, we must close the old file, so we don't leak file descriptors and
+    wtap structures.
+    
+    Have cf_close() handle the work of closing, the way it does in file.c,
+    and, when we *open* a file, set the state in capture_file to
+    FILE_READ_IN_PROGRESS.
+    
+    Bug: 16457
+    Change-Id: I04a01c30571b7e3575dee5e7252a59bb1ee8abbc
+    Reviewed-on: https://code.wireshark.org/review/36580
+    Petri-Dish: Guy Harris <gharris@sonic.net>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Guy Harris <gharris@sonic.net>
+    (cherry picked from commit 3662a69036f33a169301cfc76bd3a3c09023a68d)
+    Reviewed-on: https://code.wireshark.org/review/36582
+
+commit 054553eb3a
+Author: Peter Wu <peter@lekensteyn.nl>
+Date:   Thu Mar 5 03:21:41 2020 +0000
+
+    gitlab-ci: upgrade to Clang 10, drop special -Wframe-larger-than case
+    
+    Requires an updated wireshark/wireshark-ubuntu-dev image:
+    https://github.com/wireshark/wireshark-ubuntu-dev-docker/pull/2
+    
+    Remove -Wframe-larger-than while at it. The default size in our CMake
+    config is 32k. Clang should not significantly go over it. If so, then it
+    has to be solved there, and not in the Gitlab config.
+    
+    Change-Id: I3891fcbd9dec8e5a4597404aa8131f28a1755a02
+    Reviewed-on: https://code.wireshark.org/review/36369
+    Reviewed-by: Peter Wu <peter@lekensteyn.nl>
+    (cherry picked from commit 7579d9844839d34ac5fcfcc6e3037a6ddc381583)
+    Reviewed-on: https://code.wireshark.org/review/36570
+
+commit b8f2f8133f
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Sun Mar 22 14:10:27 2020 +0100
+
+    RTCP: contain BYE packet dissection to its stated length
+    
+    The Goodbye RTCP packet dissection has to derive whether the optional
+    "Reason for leaving" string is present or not. This has to be derived
+    from the length. When put into a compound RTCP packet, the length
+    derivation from the TVB length does not work, because another RTCP
+    packet may follow in this compound RTCP packet.
+    
+    With this change the stated length of this RTCP packet is passed to
+    the RTCP BYE packet dissection function in order to make a proper
+    length determination and not overrun into the next RTCP packet in the
+    compound RTCP packet.
+    
+    Bug: 16434
+    Change-Id: Iab0fdd52c745028a9928bbef6c731ff649213277
+    Reviewed-on: https://code.wireshark.org/review/36532
+    Petri-Dish: Anders Broman <a.broman58@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit f998e785d5ead49c57ef282765519d4ae75e056e)
+    Reviewed-on: https://code.wireshark.org/review/36536
+    Reviewed-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Petri-Dish: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Reviewed-by: Peter Wu <peter@lekensteyn.nl>
+
+commit 7a8111ef38
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Mar 22 08:42:49 2020 +0000
+
+    [Automatic update for 2020-03-22]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: I664eaf10c1d16dfec9a839951911c1286c9e6202
+    Reviewed-on: https://code.wireshark.org/review/36530
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 549687f161
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Fri Mar 20 23:33:55 2020 -0700
+
+    Fix the nanosecond-resolution pcap magic numbers.
+    
+    See NSEC_TCPDUMP_MAGIC in
+    
+         https://github.com/the-tcpdump-group/libpcap/blob/master/sf-pcap.c
+    
+    The last octet is 0x4d, not 0xd4.
+    
+    Change-Id: Ie49a7a9c33e59fe119746bec910522a46b46c2f6
+    Reviewed-on: https://code.wireshark.org/review/36519
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit a955d38f3a9f8c9952897a5319abc8f8924d15b7)
+    Reviewed-on: https://code.wireshark.org/review/36521
+
+commit 60ac353b27
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Fri Mar 20 22:38:33 2020 -0700
+
+    Handle nanosecond-resolution pcap files.
+    
+    Change-Id: I799c00822e5a815005b50b57325ac729e0d3eec2
+    Reviewed-on: https://code.wireshark.org/review/36515
+    Petri-Dish: Guy Harris <guy@alum.mit.edu>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit c4d32e8ddf6608891145b1605a9eaa40f2467a8d)
+    Reviewed-on: https://code.wireshark.org/review/36517
+
+commit 8b182afe5b
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Thu Mar 19 09:01:31 2020 +0100
+
+    CMake: fix detection of Lua development package
+    
+    See https://www.wireshark.org/lists/wireshark-dev/202003/msg00054.html
+    
+    Change-Id: I10a854a4dcd5320fce8ca3e6ff5722225c56c5d9
+    Reviewed-on: https://code.wireshark.org/review/36494
+    Petri-Dish: Pascal Quantin <pascal@wireshark.org>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 2ba42a047e767dd7e9fcd1f7256c2ab301b2c76d)
+    Reviewed-on: https://code.wireshark.org/review/36498
+    Reviewed-by: Pascal Quantin <pascal@wireshark.org>
+
+commit 65ff55c295
+Author: Dario Lombardo <lomato@gmail.com>
+Date:   Tue Mar 17 08:44:28 2020 +0100
+
+    rtcp: extend mantissa and bitrate to 64 bit.
+    
+    This is required to allow the maximum valid exponent (63) to
+    be used.
+    
+    Bug: 16445
+    Change-Id: I1473cebbe74a59785f03a882e3bc1af4b881d444
+    Reviewed-on: https://code.wireshark.org/review/36451
+    Reviewed-by: Pascal Quantin <pascal@wireshark.org>
+    Petri-Dish: Pascal Quantin <pascal@wireshark.org>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit fbca66fc8df04ee680706073b8b4b16b4736bd89)
+    Reviewed-on: https://code.wireshark.org/review/36482
+
+commit 63b2658ba6
+Author: Moshe Kaplan <me@moshekaplan.com>
+Date:   Sun Mar 15 13:54:48 2020 -0400
+
+    wslua: Fix crash on TvbRange:__tostring for a zero-length TVB
+    
+    Fields such as 'frame.time_delta' have no byte selection, they are added
+    with offset 0 and length 0, and evidently 'ws_tvb' is NULL. As
+    tvb_bytes_to_str expects a non-NULL tvb, explicitly check for this and
+    add a dummy placeholder. This is intended to be a human-readable string,
+    so prefer `<EMPTY>` over an empty string.
+    
+    Change-Id: I32efe4cbefc6bcf0fa9fb94fcf25d7bf1628f3a7
+    Reviewed-on: https://code.wireshark.org/review/36440
+    Petri-Dish: Peter Wu <peter@lekensteyn.nl>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Peter Wu <peter@lekensteyn.nl>
+    (cherry picked from commit 4a8da5fbde2b731aeba451735497b46361873282)
+    Reviewed-on: https://code.wireshark.org/review/36477
+
+commit b13a829aec
+Author: Peter Wu <peter@lekensteyn.nl>
+Date:   Sat Mar 14 16:30:50 2020 +0000
+
+    tools: do not install doxygen
+    
+    Most people will never generate API documentation by running the
+    'wsar_html' target and will not notice any feature degradation.
+    
+    On Ubuntu 18.04, doxygen depends on libclang1-6.0 (and indirectly
+    libllvm6.0), 108M can be saved by not installing these.
+    
+    Change-Id: I51b58f4106696b5475c48afcdaed256f9a97cc81
+    Reviewed-on: https://code.wireshark.org/review/36416
+    Reviewed-by: Peter Wu <peter@lekensteyn.nl>
+    (cherry picked from commit 2b50d124ec511268ff459335744761adeace018d)
+    Reviewed-on: https://code.wireshark.org/review/36475
+
+commit cc5b85e27f
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sun Mar 15 14:05:41 2020 -0700
+
+    Remove unwanted newline.
+    
+    The error message is included in parentheses as part of a larger error
+    message, so you don't want a newline at the end.
+    
+    Change-Id: Iabff74941972504770c45b94b124e25d124b512c
+    Reviewed-on: https://code.wireshark.org/review/36441
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 5b4af5b65bfdd705165049116ed8e57724b119b0)
+    Reviewed-on: https://code.wireshark.org/review/36443
+
+commit 502f902683
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Mar 15 08:43:48 2020 +0000
+
+    [Automatic update for 2020-03-15]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: I1f4e934d3847c38bb2012c1b79c9e61a3f89b20b
+    Reviewed-on: https://code.wireshark.org/review/36428
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 860ed6798c
+Author: Peter Wu <peter@lekensteyn.nl>
+Date:   Sat Mar 14 16:18:39 2020 +0000
+
+    gitlab-ci: test nopcap build with gcc-7 instead of gcc-8
+    
+    gcc-7 is included with build-essential on Ubuntu 18.04, not installing
+    an additional gcc-8 saves 110M on disk. The coverage should more or less
+    be the same, even very old compilers will catch typical build failures.
+    
+    Change-Id: I03c95dcd1c83b02390489a47de7e2a8d2d757232
+    Reviewed-on: https://code.wireshark.org/review/36415
+    Reviewed-by: Dario Lombardo <lomato@gmail.com>
+    Reviewed-by: Peter Wu <peter@lekensteyn.nl>
+    (cherry picked from commit 7e89bd873aa96577252cea6e9016fac15533f909)
+    Reviewed-on: https://code.wireshark.org/review/36419
+
+commit c2d385bc14
+Author: Peter Wu <peter@lekensteyn.nl>
+Date:   Wed Mar 11 22:18:21 2020 +0000
+
+    gitlab-ci: print tshark --version for OpenSUSE and Debian
+    
+    Add missing output directory for Debian (obj-x86_64-linux-gnu). Restore
+    a working LD_LIBRARY_PATH setting for OpenSUSE, this has never worked
+    since v3.1.0rc0-590-gc77ee0008d.
+    
+    Change-Id: I4f2c2e4636e7dd0233e7f08a88ba3789b021f274
+    Reviewed-on: https://code.wireshark.org/review/36378
+    Reviewed-by: Peter Wu <peter@lekensteyn.nl>
+    (cherry picked from commit 9dcba0c68a3ee9608da319187f5a1b30def77c52)
+    Reviewed-on: https://code.wireshark.org/review/36409
+
+commit cfc0daf517
+Author: Peter Wu <peter@lekensteyn.nl>
+Date:   Wed Mar 11 00:31:16 2020 +0000
+
+    gitlab-ci: remove GCC-5
+    
+    As previously in commit 6bb691189c ("gitlab-ci: remove unnecessary jobs,
+    upgrade versions"), GCC 5 support would only catch two issues. From the
+    respective commits:
+    
+        epan/dissectors/packet-synphasor.c:782:7: error: ‘ai’ may be used uninitialized in this function [-Werror=maybe-uninitialized]
+        ui/qt/wireless_frame.h:63:25: error: in-class initialization of non-static data member is a C++11 extension [-Werror,-Wc++11-extensions]
+    
+    These are normally just false positive warnings in old compilers, fixed
+    in newer GCC. It fails only because it was built from git master as
+    opposed to a release branch where -Werror is disabled by default.
+    
+    Save some resources, and remove GCC 5. The CentOS-7 job still tests the
+    old GCC 4.8.5 compiler. Newer GCC versions are handled by other jobs.
+    
+    Change-Id: I9f49d59e6476ea8bcd9e135dba1c94b37a2f047f
+    Reviewed-on: https://code.wireshark.org/review/36366
+    Reviewed-by: Peter Wu <peter@lekensteyn.nl>
+    (cherry picked from commit 0ec5ca3ecf683073c1fd841f7a91d34f8260252c)
+    Reviewed-on: https://code.wireshark.org/review/36376
+
+commit 36a9d67843
+Author: Markku Leiniö <markku@iki.fi>
+Date:   Tue Mar 10 10:33:47 2020 +0200
+
+    Lua: Fix description for pinfo.dst_port
+    
+    Change-Id: If0f6aeb357f0267cdf13763e7710ea221cc2600c
+    Reviewed-on: https://code.wireshark.org/review/36355
+    Reviewed-by: Stig Bjørlykke <stig@bjorlykke.org>
+    (cherry picked from commit 166c06ff15302967483ec9e564636f331d0bfbea)
+    Reviewed-on: https://code.wireshark.org/review/36356
+    (cherry picked from commit e3726eab6bb775a78c9769c0281109a1515db5b7)
+    Reviewed-on: https://code.wireshark.org/review/36357
+
+commit 9944c99c17
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Mar 8 08:45:46 2020 +0000
+
+    [Automatic update for 2020-03-08]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: I5fa2352671a84c8147cbf8e036fe77db91175318
+    Reviewed-on: https://code.wireshark.org/review/36333
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit dfa4125b70
+Author: Mark Vitale <mvitale@sinenomine.net>
+Date:   Wed Dec 18 16:31:23 2019 -0500
+
+    afs: correctly calulate padding for strings
+    
+    length+value strings in AFS are padded to a multiple of 4 octets.
+    A bug caused the dissector to add an extra 4-octet pad when no padding
+    was required.  This causes any field after the string to be
+    mis-dissected, resulting in a false alarm "Malformed packet".
+    
+    Correct the padding logic to eliminate the false alarm.
+    
+    Change-Id: I2edc58f20830c2df99d87cdd7d0cbf3bc9b92991
+    Reviewed-on: https://code.wireshark.org/review/36297
+    Reviewed-by: Tomasz Moń <desowin@gmail.com>
+    Petri-Dish: Tomasz Moń <desowin@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Pascal Quantin <pascal@wireshark.org>
+    (cherry picked from commit 77d2bf81a75f682cf09f07ac02b2f4cb92324a59)
+    Reviewed-on: https://code.wireshark.org/review/36316
+
+commit fa622cbf56
+Author: Peter Wu <peter@lekensteyn.nl>
+Date:   Thu Mar 5 01:54:04 2020 +0000
+
+    gitlab-ci: remove unnecessary jobs, upgrade versions
+    
+    The point of testing multiple compiler versions is to catch bugs that
+    only occur in one particular version. After an analysis of 800+ failed
+    builds, it appears that a lot of the checks are redundant. Changes:
+    
+    * Drop GCC 6 and keep GCC 5, Ubuntu 16.04 default GCC is 5.3. Fixes for
+      warnings in old compilers: commit 829d2c3752 (GCC 5 + 6), commit
+      e451ea0a4d (Clang 5, GCC 4 + 5). Maybe GCC 5 can also be dropped since
+      Ubuntu 18.04 is around for a while.
+    * Drop clang-nopcap, all errors caught by Clang were also caught by GCC.
+      One change caught by gcc-8-nopcap but not Clang: commit 036c3d6bc7.
+    * Remove Clang 5: even though it triggers some unique failures, no major
+      distro ships with it so remove it.
+    * Drop old Clang versions, newer versions catch all warnings from older.
+    * Upgrade to Clang 8 which is already installed in the Docker image.
+    * Remove EOL Fedora 28 and 29, use latest (31).
+    * Remove EOL openSUSE Leap 42.3, keep 15.1 as the latest.
+    
+    Reduces from 20 jobs (15 build, 5 test) to 10 jobs (7 build, 3 test).
+    
+    Change-Id: I4a355dd1a90cbbef9525bd63a8544fa3e22369a2
+    Reviewed-on: https://code.wireshark.org/review/36281
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 6bb691189c04a8fd0d618c112290b19ea6d28a0e)
+    Reviewed-on: https://code.wireshark.org/review/36309
+    Reviewed-by: Peter Wu <peter@lekensteyn.nl>
+
+commit 10ebfddda8
+Author: Juergen Kosel <juergen.kosel@gmx.de>
+Date:   Thu Aug 1 20:18:04 2019 +0200
+
+    debian-setup.sh: Correct order of apt-get update and add_package
+    
+    apt-get update must be called before calling add_package
+    otherwise available packages appear as unavailable.
+    
+    Change-Id: Ie449ca9037950b82908f72a3951401cc0c6496d1
+    Signed-off-by: Juergen Kosel <juergen.kosel@gmx.de>
+    Reviewed-on: https://code.wireshark.org/review/34162
+    Reviewed-by: Dario Lombardo <lomato@gmail.com>
+    (cherry picked from commit e7852aa3ba4e14280987a122fb8337ee9b93cde1)
+    Reviewed-on: https://code.wireshark.org/review/36308
+    Reviewed-by: Peter Wu <peter@lekensteyn.nl>
+
+commit 42acace529
+Author: Juergen Kosel <juergen.kosel@gmx.de>
+Date:   Wed Jul 24 19:00:40 2019 +0200
+
+    debian-setup.sh: Add package lsb-release
+    
+    The package lsb-release is a build requirement.
+    Especially needed to build wireshark in a docker container based on
+    debian:stable.
+    
+    This change is a prerequisite for the change discussed in
+    https://code.wireshark.org/review/#/c/34042
+    
+    Change-Id: Ib8ec73c8bffcb8761ad5748882aa9418e8cd7948
+    Signed-off-by: Juergen Kosel <juergen.kosel@gmx.de>
+    Reviewed-on: https://code.wireshark.org/review/34071
+    Petri-Dish: Roland Knall <rknall@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Roland Knall <rknall@gmail.com>
+    (cherry picked from commit 76e227bcefcbea3703447df18c5c08b83b2bc8bd)
+    Reviewed-on: https://code.wireshark.org/review/36307
+    Reviewed-by: Peter Wu <peter@lekensteyn.nl>
+
+commit 5149df7796
+Author: Anders Broman <anders.broman@ericsson.com>
+Date:   Thu Mar 5 08:27:31 2020 +0100
+
+    NAS-5GS: PDU session reactivation result error cause wrong offset used.
+    
+    Change-Id: I16001d96f69ab3256ae229f629a1969ca42dadc4
+    Reviewed-on: https://code.wireshark.org/review/36285
+    Petri-Dish: Anders Broman <a.broman58@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit b7996de3716de39ffe4c5c57bbbfe58d5bc5fad2)
+    Reviewed-on: https://code.wireshark.org/review/36288
+    Reviewed-by: Pascal Quantin <pascal@wireshark.org>
+
+commit 3e26471f02
+Author: Juergen Kosel <juergen.kosel@gmx.de>
+Date:   Fri May 10 21:25:54 2019 +0200
+
+    gitlab-ci: Add job to create debian install-packages
+    
+    Inspired by the description in https://about.gitlab.com/2016/10/12/automated-debian-package-build-with-gitlab-ci/
+    the gitlab-ci job build-debian-deb generates *.deb files
+    These files are available as build artifacts for 3 days.
+    
+    Change-Id: Ic0b01c161e659c3ed9dbbd6387fa8960e34d50d3
+    Signed-off-by: Juergen Kosel <juergen.kosel@gmx.de>
+    Reviewed-on: https://code.wireshark.org/review/34042
+    Reviewed-by: Dario Lombardo <lomato@gmail.com>
+    Reviewed-by: Peter Wu <peter@lekensteyn.nl>
+    (cherry picked from commit b1e74c527b43e67d73dc2df4b0963c7aa41a160f)
+    Reviewed-on: https://code.wireshark.org/review/36284
+
+commit 49348bcf37
+Author: Dario Lombardo <lomato@gmail.com>
+Date:   Wed Nov 6 13:39:11 2019 +0000
+
+    gitlab-ci: fix wrong job name.
+    
+    Change-Id: Ia14af8922e5e717d931480225fd0202b697f9155
+    Reviewed-on: https://code.wireshark.org/review/35003
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit dd9af8018d1e14b5bdf2fb6a824511ec0ae18738)
+    Reviewed-on: https://code.wireshark.org/review/36282
+    Reviewed-by: Peter Wu <peter@lekensteyn.nl>
+
+commit 49a542dcdf
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Wed Mar 4 18:19:59 2020 +0100
+
+    Diameter 3GPP: fix dissection of MBMS-Bearer-Event AVP
+    
+    As reported in https://www.wireshark.org/lists/wireshark-users/202003/msg00004.html
+    
+    Change-Id: I5eb911b9b86e34f01102afe649401a6393603e2c
+    Reviewed-on: https://code.wireshark.org/review/36274
+    Petri-Dish: Pascal Quantin <pascal@wireshark.org>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Pascal Quantin <pascal@wireshark.org>
+    (cherry picked from commit 57de65c9e7091032df635423bd203c99763db0ac)
+    Reviewed-on: https://code.wireshark.org/review/36278
+
+commit 5ff5495497
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Mar 1 08:46:52 2020 +0000
+
+    [Automatic update for 2020-03-01]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: Id4e97225fc4681bfe584d59dea36047a7010e34f
+    Reviewed-on: https://code.wireshark.org/review/36248
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit af88f9d569
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Wed Feb 26 21:32:36 2020 -0800
+
+    Fix some typoes in comments.
+    
+    Change-Id: I951e183e24bf77e0f2f09266e2dc5db7a4caf0ec
+    Reviewed-on: https://code.wireshark.org/review/36211
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 1ed9ddd26a0fb0e9098668f1046975334b859cc0)
+    Reviewed-on: https://code.wireshark.org/review/36213
+
+commit cc8f7726c0
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Wed Feb 26 21:17:11 2020 -0800
+
+    Clean up a comment in the preferences file.
+    
+    In the file, the channel name doesn't have UPDATE_CHANNEL_ in front of
+    it; it's just DEVELOPMENT or STABLE.
+    
+    Change-Id: I11a8e10b3c0ee6c4eec2568bf94d42c4098b82a5
+    Reviewed-on: https://code.wireshark.org/review/36207
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (backported from commit e1e8e2dce97076941c8b48e8a5d06f46e3009b6f)
+    Reviewed-on: https://code.wireshark.org/review/36209
+
+commit 3148291512
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Feb 26 14:24:50 2020 -0800
+
+    3.0.9 → 3.0.10.
+    
+    Change-Id: I9adb8751670d537ae87fdfdb8b517fada6450b91
+    Reviewed-on: https://code.wireshark.org/review/36201
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
