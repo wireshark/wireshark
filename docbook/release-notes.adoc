@@ -76,6 +76,8 @@ The following bugs have been fixed:
 
 * Buildbot crash output: randpkt-2020-04-02-31746.pcap. wsbuglink:16477[].
 
+* tshark live capture finishes with a use-after-free. wsbuglink:16487[].
+
 
 === New and Updated Features
 
