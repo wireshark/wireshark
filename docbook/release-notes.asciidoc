@@ -41,6 +41,8 @@ The following bugs have been fixed:
 
 * [oss-fuzz] #21541: Stack-overflow in fAbstractSyntaxNType. wsbuglink:16474[].
 
+* tshark live capture finishes with a use-after-free. wsbuglink:16487[].
+
 === New and Updated Features
 
 There are no new features in this release.
