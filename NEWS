@@ -9,9 +9,18 @@ Wireshark 2.6.16 Release Notes
 
   Bug Fixes
 
-     • wnpa-sec-2020-07[1] A dissector went awry.
+     • wnpa-sec-2020-07[1] The BACapp dissector could crash. Bug
+       16474[2]. CVE-2020-11647[3].
 
    The following bugs have been fixed:
+
+     • RTCP Bye without optional reason reported as [Malformed Packet].
+       Bug 16434[4].
+
+     • [oss-fuzz] #20732: Undefined-shift in dissect_rtcp. Bug 16445[5].
+
+     • [oss-fuzz] #21541: Stack-overflow in fAbstractSyntaxNType. Bug
+       16474[6].
 
   New and Updated Features
 
@@ -22,6 +31,8 @@ Wireshark 2.6.16 Release Notes
    There are no new protocols in this release.
 
   Updated Protocol Support
+
+   BACapp and RTCP
 
   New and Updated Capture File Support
 
@@ -41,7 +52,7 @@ Wireshark 2.6.16 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[2] on the Wireshark web site.
+   be found on the download page[7] on the Wireshark web site.
 
  File Locations
 
@@ -52,44 +63,49 @@ Wireshark 2.6.16 Release Notes
 
  Known Problems
 
-  The BER dissector might infinitely loop. Bug 1516[3].
+  The BER dissector might infinitely loop. Bug 1516[8].
 
   Capture filters aren’t applied when capturing from named pipes. Bug
-  1814[4].
+  1814[9].
 
   Filtering tshark captures with read filters (-R) no longer works. Bug
-  2234[5].
+  2234[10].
 
-  Application crash when changing real-time option. Bug 4035[6].
+  Application crash when changing real-time option. Bug 4035[11].
 
   Wireshark and TShark will display incorrect delta times in some cases.
-  Bug 4985[7].
+  Bug 4985[12].
 
   Wireshark should let you work with multiple capture files. Bug
-  10488[8].
+  10488[13].
 
  Getting Help
 
-  Community support is available on Wireshark’s Q&A site[9] and on the
+  Community support is available on Wireshark’s Q&A site[14] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[10].
+  for all of Wireshark’s mailing lists can be found on the web site[15].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[11].
+  A complete FAQ is available on the Wireshark web site[16].
 
-  Last updated 2020-04-05 08:48:35 UTC
+  Last updated 2020-04-08 19:33:11 UTC
 
  References
 
    1. https://www.wireshark.org/security/wnpa-sec-2020-07
-   2. https://www.wireshark.org/download.html#thirdparty
-   3. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1516
-   4. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1814
-   5. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2234
-   6. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4035
-   7. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4985
-   8. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10488
-   9. https://ask.wireshark.org/
-  10. https://www.wireshark.org/lists/
-  11. https://www.wireshark.org/faq.html
+   2. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16474
+   3. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-11647
+   4. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16434
+   5. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16445
+   6. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16474
+   7. https://www.wireshark.org/download.html#thirdparty
+   8. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1516
+   9. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1814
+  10. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2234
+  11. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4035
+  12. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4985
+  13. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10488
+  14. https://ask.wireshark.org/
+  15. https://www.wireshark.org/lists/
+  16. https://www.wireshark.org/faq.html
