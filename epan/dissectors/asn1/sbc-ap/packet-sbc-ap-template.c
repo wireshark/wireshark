@@ -26,7 +26,7 @@
 #include "packet-lte-rrc.h"
 
 #define PNAME  "SBc Application Part"
-#define PSNAME "SBCAP"
+#define PSNAME "SBcAP"
 #define PFNAME "sbcap"
 
 void proto_register_sbc_ap(void);
@@ -150,7 +150,7 @@ dissect_sbc_ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     proto_tree      *sbc_ap_tree = NULL;
 
     /* make entry in the Protocol column on summary display */
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, PNAME);
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
 
     /* create the sbc_ap protocol tree */
     if (tree) {
