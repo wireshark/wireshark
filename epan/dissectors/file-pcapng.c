@@ -135,6 +135,8 @@ static int hf_pcapng_option_data_packet_darwin_dpeb_id = -1;
 static int hf_pcapng_option_data_packet_darwin_svc_class = -1;
 static int hf_pcapng_option_data_packet_darwin_edpeb_id = -1;
 
+static expert_field ei_block_length_too_short = EI_INIT;
+static expert_field ei_block_length_not_multiple_of_4 = EI_INIT;
 static expert_field ei_invalid_option_length = EI_INIT;
 static expert_field ei_invalid_record_length = EI_INIT;
 static expert_field ei_missing_idb = EI_INIT;
@@ -555,10 +557,11 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
     proto_item   *options_item;
     proto_tree   *option_tree;
     proto_item   *option_item;
+    proto_item   *option_length_item;
     proto_item   *p_item;
     gint          offset = 0;
-    guint16       option_code;
-    gint          option_length;
+    guint32       option_code;
+    guint32       option_length;
     gint          hfj_pcapng_option_code;
     const guint8 *str = NULL;
     wmem_strbuf_t *strbuf;
@@ -581,10 +584,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
 
     while (tvb_captured_length_remaining(tvb, offset)) {
         str = NULL;
-        option_code   = tvb_get_guint16(tvb, offset, encoding);
-        option_length = tvb_get_guint16(tvb, offset + 2, encoding);
-
-        option_item = proto_tree_add_item(options_tree, hf_pcapng_option, tvb, offset, option_length + 2 * 2, ENC_NA);
+        option_item = proto_tree_add_item(options_tree, hf_pcapng_option, tvb, offset, -1, ENC_NA);
         option_tree = proto_item_add_subtree(option_item, ett_pcapng_option);
 
         switch (block_type) {
@@ -620,16 +620,18 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
             hfj_pcapng_option_code = hf_pcapng_option_code;
         }
 
+        proto_tree_add_item_ret_uint(option_tree, hfj_pcapng_option_code, tvb, offset, 2, encoding, &option_code);
         if (vals)
             proto_item_append_text(option_item, ": %s", val_to_str_const(option_code, vals, "Unknown"));
-
-        proto_tree_add_item(option_tree, hfj_pcapng_option_code, tvb, offset, 2, encoding);
         offset += 2;
 
-        proto_tree_add_item(option_tree, hf_pcapng_option_length, tvb, offset, 2, encoding);
+        option_length_item = proto_tree_add_item_ret_uint(option_tree, hf_pcapng_option_length, tvb, offset, 2, encoding, &option_length);
         offset += 2;
 
-        if (option_code == 0 && option_length == 0) {
+        if (option_code == 0) {
+            if (option_length != 0)
+                expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
+            proto_item_set_len(option_item, option_length + 2 * 2);
             break;
         } else if (option_code == 1) {
             proto_tree_add_item_ret_string(option_tree, hf_pcapng_option_data_comment, tvb, offset, option_length, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
@@ -668,7 +670,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 break;
             case 4:
                 if (option_length != 8) {
-                    proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
+                    expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
                     break;
                 }
@@ -686,7 +688,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 break;
             case 5:
                 if (option_length != 17) {
-                    proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
+                    expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
                     break;
                 }
@@ -704,7 +706,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 break;;
             case 6:
                 if (option_length != 6) {
-                    proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
+                    expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
                     break;
                 }
@@ -716,7 +718,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 break;
             case 7:
                 if (option_length != 8) {
-                    proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
+                    expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
                     break;
                 }
@@ -730,7 +732,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 break;
             case 8:
                 if (option_length != 8) {
-                    proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
+                    expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
                     break;
                 }
@@ -760,7 +762,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 guint64     resolution;
 
                 if (option_length != 1) {
-                    proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
+                    expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
                     break;
                 }
@@ -856,7 +858,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
             }
             case 10:
                 if (option_length != 4) {
-                    proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
+                    expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
                     break;
                 }
@@ -871,7 +873,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 break;
             case 11:
                 if (option_length == 0) {
-                    proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
+                    expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     break;
                 }
 
@@ -888,7 +890,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 break;
             case 13:
                 if (option_length != 1) {
-                    proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
+                    expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
                     break;
                 }
@@ -901,7 +903,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 break;
             case 14:
                 if (option_length != 8) {
-                    proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
+                    expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
                     break;
                 }
@@ -931,7 +933,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
             switch (option_code) {
             case 2:
                 if (option_length != 4) {
-                    proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
+                    expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
                     break;
                 }
@@ -974,7 +976,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 break;
             case 3:
                 if (option_length != 4) {
-                    proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
+                    expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
                     break;
                 }
@@ -988,7 +990,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 break;
             case 4:
                 if (option_length != 16) {
-                    proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
+                    expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
                     break;
                 }
@@ -1010,7 +1012,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
             switch (option_code) {
             case 2:
                 if (option_length != 8) {
-                    proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
+                    expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
                     break;
                 }
@@ -1021,7 +1023,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 break;
             case 3:
                 if (option_length != 8) {
-                    proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
+                    expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
                     break;
                 }
@@ -1032,7 +1034,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 break;
             case 4:
                 if (option_length != 8) {
-                    proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
+                    expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
                     break;
                 }
@@ -1045,7 +1047,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 break;
             case 5:
                 if (option_length != 8) {
-                    proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
+                    expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
                     break;
                 }
@@ -1058,7 +1060,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 break;
             case 6:
                 if (option_length != 8) {
-                    proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
+                    expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
                     break;
                 }
@@ -1071,7 +1073,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 break;
             case 7:
                 if (option_length != 8) {
-                    proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
+                    expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
                     break;
                 }
@@ -1084,7 +1086,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 break;
             case 8:
                 if (option_length != 8) {
-                    proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
+                    expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
                     break;
                 }
@@ -1105,7 +1107,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
             switch (option_code) {
             case 2:
                 if (option_length != 4) {
-                    proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
+                    expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
                     break;
                 }
@@ -1135,7 +1137,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 break;
             case 4:
                 if (option_length != 8) {
-                    proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
+                    expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
                     break;
                 }
@@ -1203,12 +1205,13 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
             offset += option_length;
         }
 
-        if (option_length % 4) {
+        if ((option_length % 4) != 0) {
             proto_item_set_len(option_item, option_length + 2 * 2 + (4 - option_length % 4));
             option_length = 4 - option_length % 4;
             proto_tree_add_item(option_tree, hf_pcapng_option_padding, tvb, offset, option_length, ENC_NA);
             offset += option_length;
-        }
+        } else
+            proto_item_set_len(option_item, option_length + 2 * 2);
 
         if (str)
             proto_item_append_text(option_item, " = %s", str);
@@ -1267,6 +1270,7 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 {
     proto_tree      *block_tree;
     proto_item      *block_item;
+    proto_item      *block_length_item;
     proto_tree      *block_data_tree;
     proto_item      *block_data_item;
     proto_item      *byte_order_magic_item;
@@ -1290,8 +1294,21 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
     proto_tree_add_bitmask_with_flags(block_tree, tvb, offset, hf_pcapng_block_type, ett_pcapng_option, hfx_pcapng_block_type, encoding, BMT_NO_APPEND);
     offset += 4;
 
-    proto_tree_add_item(block_tree, hf_pcapng_block_length, tvb, offset, 4, encoding);
-    block_data_length = tvb_get_guint32(tvb, offset, encoding) - 3 * 4;
+    block_length_item = proto_tree_add_item_ret_uint(block_tree, hf_pcapng_block_length, tvb, offset, 4, encoding, &block_data_length);
+    if (block_data_length < 3*4)
+        expert_add_info(pinfo, block_length_item, &ei_block_length_too_short);
+    /*
+     * To quote the current pcapng spec, "Block Total Length (32 bits) ...
+     * This value MUST be a multiple of 4."
+     */
+    if ((block_data_length % 4) != 0)
+        expert_add_info(pinfo, block_length_item, &ei_block_length_not_multiple_of_4);
+
+    /*
+     * Subtract the per-block overhead (block type, block length, trailing
+     * block length).
+     */
+    block_data_length -= 3*4;
     offset += 4;
 
     block_data_item = proto_tree_add_item(block_tree, hf_pcapng_block_data, tvb, offset, block_data_length, ENC_NA);
@@ -1445,10 +1462,11 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
         proto_item  *records_item;
         proto_tree  *record_tree;
         proto_item  *record_item;
+        proto_item  *record_length_item;
         gint         offset_record_start;
         gint         offset_string_start;
-        guint16      record_code;
-        gint         record_length;
+        guint32      record_code;
+        guint32      record_length;
         gint         string_length;
         gchar       *str = NULL;
         address      addr;
@@ -1458,26 +1476,25 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 
         offset_record_start = offset;
         while (block_data_length - (offset_record_start - offset) > 0) {
-            record_code   = tvb_get_guint16(tvb, offset, encoding);
-            record_length = tvb_get_guint16(tvb, offset + 2, encoding);
-
-            record_item = proto_tree_add_item(records_tree, hf_pcapng_record, tvb, offset, record_length + 2 * 2, ENC_NA);
+            record_item = proto_tree_add_item(records_tree, hf_pcapng_record, tvb, offset, -1, ENC_NA);
             record_tree = proto_item_add_subtree(record_item, ett_pcapng_record);
 
+            proto_tree_add_item_ret_uint(record_tree, hf_pcapng_record_code, tvb, offset, 2, encoding, &record_code);
             proto_item_append_text(record_item, ": %s", val_to_str_const(record_code, record_code_vals, "Unknown"));
-
-            proto_tree_add_item(record_tree, hf_pcapng_record_code, tvb, offset, 2, encoding);
             offset += 2;
 
-            proto_tree_add_item(record_tree, hf_pcapng_record_length, tvb, offset, 2, encoding);
+            record_length_item = proto_tree_add_item_ret_uint(record_tree, hf_pcapng_record_length, tvb, offset, 2, encoding, &record_length);
             offset += 2;
 
-            if (record_code == 0 && record_length == 0) {
+            if (record_code == 0) {
+                if (record_length != 0)
+                    expert_add_info(pinfo, record_length_item, &ei_invalid_record_length);
+                proto_item_set_len(record_item, record_length + 2 * 2);
                 break;
             } else switch (record_code) {
             case 0x0001: /* IPv4 Record */
                 if (record_length < 5) {
-                    proto_tree_add_expert(record_tree, pinfo, &ei_invalid_record_length, tvb, offset, record_length);
+                    expert_add_info(pinfo, record_length_item, &ei_invalid_record_length);
                     offset += record_length;
                     break;
                 }
@@ -1487,12 +1504,18 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                 offset += 4;
 
                 offset_string_start = offset;
-                while (offset - offset_string_start < record_length - 4) {
+                while ((guint)(offset - offset_string_start) < record_length - 4) {
                     string_length = tvb_strnlen(tvb, offset, (offset - offset_string_start) + record_length - 4);
                     if (string_length >= 0) {
                         proto_tree_add_item(record_tree, hf_pcapng_record_name, tvb, offset, string_length + 1, encoding);
                         offset += string_length + 1;
                     } else {
+                        /*
+                         * XXX - flag with an error, as this means we didn't
+                         * see a terminating NUL, but the spec says "zero
+                         * or more zero-terminated UTF-8 strings containing
+                         * the DNS entries for that address".
+                         */
                         proto_tree_add_item(record_tree, hf_pcapng_record_data, tvb, offset, (record_length - 4) - (offset - offset_string_start), encoding);
                         offset += (record_length - 4) - (offset - offset_string_start);
                     }
@@ -1502,7 +1525,7 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                 break;
             case 0x0002: /* IPv6 Record */
                 if (record_length < 17) {
-                    proto_tree_add_expert(record_tree, pinfo, &ei_invalid_option_length, tvb, offset, record_length);
+                    expert_add_info(pinfo, record_length_item, &ei_invalid_record_length);
                     offset += record_length;
                     break;
                 }
@@ -1512,12 +1535,18 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                 offset += 16;
 
                 offset_string_start = offset;
-                while (offset - offset_string_start < record_length - 16) {
+                while ((guint)(offset - offset_string_start) < record_length - 16) {
                     string_length = tvb_strnlen(tvb, offset, (offset - offset_string_start) + record_length - 16);
                     if (string_length >= 0) {
                         proto_tree_add_item(record_tree, hf_pcapng_record_name, tvb, offset, string_length + 1, encoding);
                         offset += string_length + 1;
                     } else {
+                        /*
+                         * XXX - flag with an error, as this means we didn't
+                         * see a terminating NUL, but the spec says "zero
+                         * or more zero-terminated UTF-8 strings containing
+                         * the DNS entries for that address".
+                         */
                         proto_tree_add_item(record_tree, hf_pcapng_record_data, tvb, offset, (record_length - 16) - (offset - offset_string_start), encoding);
                         offset += (record_length - 16) - (offset - offset_string_start);
                     }
@@ -1536,7 +1565,8 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                 record_length = 4 - record_length % 4;
                 proto_tree_add_item(record_tree, hf_pcapng_record_padding, tvb, offset, record_length, ENC_NA);
                 offset += record_length;
-            }
+            } else
+                proto_item_set_len(record_item, record_length + 2 * 2);
 
             if (str)
                 proto_item_append_text(record_item, " = %s", str);
@@ -1805,7 +1835,7 @@ proto_register_pcapng(void)
         },
         { &hf_pcapng_option_length,
             { "Length",                                    "pcapng.options.option.length",
-            FT_INT64, BASE_DEC, NULL, 0x00,
+            FT_UINT16, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_pcapng_option_data,
@@ -2180,7 +2210,7 @@ proto_register_pcapng(void)
         },
         { &hf_pcapng_record_length,
             { "Length",                                    "pcapng.records.record.length",
-            FT_INT64, BASE_DEC, NULL, 0x00,
+            FT_UINT16, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_pcapng_record_data,
@@ -2241,6 +2271,8 @@ proto_register_pcapng(void)
     };
 
     static ei_register_info ei[] = {
+        { &ei_block_length_too_short, { "pcapng.block_length_too_short", PI_PROTOCOL, PI_ERROR, "Block length is < 12 bytes", EXPFILL }},
+        { &ei_block_length_not_multiple_of_4, { "pcapng.block_length_too_short", PI_PROTOCOL, PI_ERROR, "Block length is not a multiple of 4", EXPFILL }},
         { &ei_invalid_option_length, { "pcapng.invalid_option_length", PI_PROTOCOL, PI_ERROR, "Invalid Option Length", EXPFILL }},
         { &ei_invalid_record_length, { "pcapng.invalid_record_length", PI_PROTOCOL, PI_ERROR, "Invalid Record Length", EXPFILL }},
         { &ei_missing_idb, { "pcapng.no_interfaces", PI_PROTOCOL, PI_ERROR, "No Interface Description before block that requires it", EXPFILL }},
