@@ -14,9 +14,12 @@ It is used for troubleshooting, analysis, development and education.
 
 == What’s New
 
-Wireshark 3.2.0 to 3.2.2 might not update automatically on macOS in some cases.
-If you're running those versions on macOS you might have to update to a later version manually.
-wsbuglink:16416[]
+* Wireshark 3.2.0 to 3.2.2 might not update automatically on macOS in some cases.
+  If you're running those versions on macOS you might have to update to a later version manually.
+  wsbuglink:16416[]
+
+* The Windows installers now ship with Npcap 0.9989.
+  They previously shipped with Npcap 0.9986.
 
 === Bug Fixes
 
