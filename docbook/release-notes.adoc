@@ -14,25 +14,18 @@ It is used for troubleshooting, analysis, development and education.
 
 == What’s New
 
-* Wireshark 3.2.0 to 3.2.2 might not update automatically on macOS in some cases.
-  If you're running those versions on macOS you might have to update to a later version manually.
-  wsbuglink:16416[]
-
-* The Windows installers now ship with Npcap 0.9989.
-  They previously shipped with Npcap 0.9986.
-
 === Bug Fixes
 
 The following vulnerabilities have been fixed:
 
-* wssalink:2020-07[]
-The BACapp dissector could crash.
-wsbuglink:16474[].
-cveidlink:2020-11647[].
-// Fixed in master: 15dc2f6bd4
-// Fixed in master-3.2: 4738fec56d
-// Fixed in master-3.0: 5c04660835
-// Fixed in master-2.6: 6f56fc9496
+* wssalink:2020-08[]
+A dissector went awry.
+// wsbuglink:xxxx[].
+// cveidlink:2020-xxxx[].
+// Fixed in master: xxxx
+// Fixed in master-3.2: xxxx
+// Fixed in master-3.0: xxxx
+// Fixed in master-2.6: xxxx
 
 The following bugs have been fixed:
 
@@ -41,42 +34,6 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 //* Wireshark is solely responsible for the decline of shopping malls in your area.
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v3.2.4rc0..| grep ' Bug:' | awk '{print $2}' | sort -n -u ` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
-
-* Add (IETF) QUIC Dissector. wsbuglink:13881[].
-
-* Rename profile name loses list selection. wsbuglink:15966[].
-
-* Dissector bug warning dissecting TLS Certificate Request with many names. wsbuglink:16202[].
-
-* Only ACKs, but no DATA frames are visible in -&gt; TCP Stream Graph -&gt; Time Sequence (tcptrace). wsbuglink:16281[].
-
-* Copy&gt;Description does not work properly for all tree items. wsbuglink:16323[].
-
-* Importing profiles in Windows - zip files fail and from directory crashes Wireshark. wsbuglink:16410[].
-
-* Packet List selection is gone when adding or removing a display filter. wsbuglink:16414[].
-
-* Check for updates, and auto-update, not working in 3.2.1. wsbuglink:16416[].
-
-* f5ethtrailer: TLS trailer creates incorrect CLIENT keylog entries. wsbuglink:16417[].
-
-* Buildbot crash output: randpkt-2020-03-04-18423.pcap. wsbuglink:16424[].
-
-* File open dialog shows garbled time stamps. wsbuglink:16429[].
-
-* RTCP Bye without optional reason reported as [Malformed Packet]. wsbuglink:16434[].
-
-* [oss-fuzz] #20732: Undefined-shift in dissect_rtcp. wsbuglink:16445[].
-
-* SOMEIP: SOME/IP-SD dissector fails to register SOME/IP ports, if IPv6 is being used (BUG). wsbuglink:16448[].
-
-* tshark logs: &quot;...could not be opened: Too many open files.&quot;. wsbuglink:16457[].
-
-* Typo in About Wireshark &gt; Keyboard Shortcuts &gt; Unignore All Displayed. wsbuglink:16472[].
-
-* Buildbot crash output: randpkt-2020-04-02-31746.pcap. wsbuglink:16477[].
-
-* tshark live capture finishes with a use-after-free. wsbuglink:16487[].
 
 
 === New and Updated Features
@@ -102,37 +59,15 @@ There are no new protocols in this release.
 // Add one protocol per line between the -- delimiters.
 [commaize]
 --
-AFS
-BACapp
-Bluetooth
-CoAP
-Diameter3GPP
-F5 Ethernet trailer
-GSM RLC MAC
-ISIS
-ISIS CLV
-ISIS HELLO
-ISIS LSP
-ISIS SNP
-NAS 5GS
-NR RRC
-pcap
-QUIC
-RPCAP
-RTCP
-SOME/IP-SD
-TLS
-WSP
 --
 
 === New and Updated Capture File Support
 
-// There is no new or updated capture file support in this release.
+There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-[commaize]
---
-pcap
---
+// [commaize]
+// --
+// --
 
 // === New and Updated Capture Interfaces support
 
