@@ -8,20 +8,23 @@ include::attributes.asciidoc[]
 
 == What is Wireshark?
 
+Wireshark is the world’s most popular network protocol analyzer.
+It is used for troubleshooting, analysis, development and education.
+
 == What’s New
 
 === Bug Fixes
 
 The following vulnerabilities have been fixed:
 
-* wssalink:2020-07[]
-The BACapp dissector could crash.
-wsbuglink:16474[].
-cveidlink:2020-11647[].
-// Fixed in master: 15dc2f6bd4
-// Fixed in master-3.2: 4738fec56d
-// Fixed in master-3.0: 5c04660835
-// Fixed in master-2.6: 6f56fc9496
+* wssalink:2020-08[]
+A dissector went awry.
+// wsbuglink:xxxx[].
+// cveidlink:2020-xxxx[].
+// Fixed in master: xxxx
+// Fixed in master-3.2: xxxx
+// Fixed in master-3.0: xxxx
+// Fixed in master-2.6: xxxx
 
 The following bugs have been fixed:
 
@@ -30,18 +33,6 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 //* Wireshark slowly leaked water under the kitchen sink over the course of several months, causing a big mess.
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v3.0.11rc0..| grep ' Bug:' | awk '{print $2}' | sort -n -u ` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
-
-* RTCP Bye without optional reason reported as [Malformed Packet]. wsbuglink:16434[].
-
-* [oss-fuzz] #20732: Undefined-shift in dissect_rtcp. wsbuglink:16445[].
-
-* tshark logs: &quot;...could not be opened: Too many open files.&quot;. wsbuglink:16457[].
-
-* Typo in About Wireshark &gt; Keyboard Shortcuts &gt; Unignore All Displayed. wsbuglink:16472[].
-
-* [oss-fuzz] #21541: Stack-overflow in fAbstractSyntaxNType. wsbuglink:16474[].
-
-* tshark live capture finishes with a use-after-free. wsbuglink:16487[].
 
 === New and Updated Features
 
@@ -64,24 +55,15 @@ There are no new protocols in this release.
 // Add one protocol per line between the -- delimiters.
 [commaize]
 --
-AFS
-BACapp
-Bluetooth
-Diameter3GPP
-Modbus/TCP
-NAS 5GS
-pcap
-RTCP
 --
 
 === New and Updated Capture File Support
 
-// There is no new or updated capture file support in this release.
+There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-[commaize]
---
-pcap
---
+// [commaize]
+// --
+// --
 
 === New and Updated Capture Interfaces support
 
