@@ -43,6 +43,7 @@ static int hf_usbll_split_sc = -1;
 static int hf_usbll_split_port = -1;
 static int hf_usbll_split_s = -1;
 static int hf_usbll_split_e = -1;
+static int hf_usbll_split_u = -1;
 static int hf_usbll_split_iso_se = -1;
 static int hf_usbll_split_et = -1;
 static int hf_usbll_split_crc5 = -1;
@@ -59,6 +60,8 @@ static expert_field ei_undecoded = EI_INIT;
 static expert_field ei_wrong_crc5 = EI_INIT;
 static expert_field ei_wrong_split_crc5 = EI_INIT;
 static expert_field ei_wrong_crc16 = EI_INIT;
+static expert_field ei_invalid_e_u = EI_INIT;
+static expert_field ei_invalid_se = EI_INIT;
 
 static int usbll_address_type = -1;
 
@@ -146,6 +149,8 @@ static const value_string usb_endpoint_type_vals[] = {
 #define SPLIT_BITS_GET_HUB_ADDRESS(bits) (guint8)(bits & 0x007F)
 #define SPLIT_BITS_GET_HUB_PORT(bits) (guint8)((bits & 0x7F00) >> 8)
 #define SPLIT_BITS_GET_ENDPOINT_TYPE(bits) ((bits & 0x060000) >> 17)
+#define SPLIT_BIT_SPEED 0x8000
+#define SPLIT_BIT_E_U 0x10000
 #define SPLIT_BIT_START_COMPLETE 0x0080
 
 #define USBLL_ADDRESS_STANDARD 0
@@ -174,6 +179,7 @@ typedef struct usbll_data {
     usbll_address_t src;
     usbll_address_t dst;
     struct usbll_data *prev;
+    struct usbll_data *next;
 } usbll_data_t;
 
 static usbll_data_t *usbll_data_ptr = NULL;
@@ -371,26 +377,10 @@ dissect_usbll_split(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint of
 {
     guint8           hub_address;
     guint8           hub_port;
+    proto_item      *split_e_u;
+    proto_item      *split_se;
 
-    /* S/E fields have special meaning for Isochronous transfers */
     gint32 tmp = tvb_get_gint24(tvb, offset, ENC_LITTLE_ENDIAN);
-    static const int *split_fields[] = {
-        &hf_usbll_split_hub_addr,
-        &hf_usbll_split_sc,
-        &hf_usbll_split_port,
-        &hf_usbll_split_s,
-        &hf_usbll_split_e,
-        &hf_usbll_split_et,
-        NULL
-    };
-    static const int *split_iso_fields[] = {
-        &hf_usbll_split_hub_addr,
-        &hf_usbll_split_sc,
-        &hf_usbll_split_port,
-        &hf_usbll_split_iso_se,
-        &hf_usbll_split_et,
-        NULL
-    };
 
     hub_address = SPLIT_BITS_GET_HUB_ADDRESS(tmp);
     hub_port = SPLIT_BITS_GET_HUB_PORT(tmp);
@@ -401,15 +391,38 @@ dissect_usbll_split(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint of
 
     col_append_str(pinfo->cinfo, COL_INFO, (tmp & SPLIT_BIT_START_COMPLETE) ? " Complete" : " Start");
 
-    if (tmp & SPLIT_BIT_START_COMPLETE)
-        usbll_data_ptr->is_split_complete = TRUE;
-    else
-        usbll_data_ptr->is_split_complete = FALSE;
+    proto_tree_add_uint(tree, hf_usbll_split_hub_addr, tvb, offset, 3, tmp);
+    proto_tree_add_uint(tree, hf_usbll_split_sc, tvb, offset, 3, tmp);
+    proto_tree_add_uint(tree, hf_usbll_split_port, tvb, offset, 3, tmp);
 
-    if (SPLIT_BITS_GET_ENDPOINT_TYPE(tmp) == USB_EP_TYPE_ISOCHRONOUS)
-        proto_tree_add_bitmask_list(tree, tvb, offset, 3, split_iso_fields, ENC_LITTLE_ENDIAN);
-    else
-        proto_tree_add_bitmask_list(tree, tvb, offset, 3, split_fields, ENC_LITTLE_ENDIAN);
+    if (tmp & SPLIT_BIT_START_COMPLETE) {
+        usbll_data_ptr->is_split_complete = TRUE;
+
+        proto_tree_add_uint(tree, hf_usbll_split_s, tvb, offset, 3, tmp);
+        split_e_u = proto_tree_add_uint(tree, hf_usbll_split_u, tvb, offset, 3, tmp);
+
+        if (tmp & SPLIT_BIT_E_U)
+            expert_add_info(pinfo, split_e_u, &ei_invalid_e_u);
+    } else {
+        usbll_data_ptr->is_split_complete = FALSE;
+        /* S/E fields have special meaning for Isochronous OUT transfers */
+        if (SPLIT_BITS_GET_ENDPOINT_TYPE(tmp) == USB_EP_TYPE_ISOCHRONOUS) {
+            split_se = proto_tree_add_uint(tree, hf_usbll_split_iso_se, tvb, offset, 3, tmp);
+
+            if( usbll_data_ptr->next &&
+                usbll_data_ptr->next->pid == USB_PID_TOKEN_IN &&
+               (tmp & SPLIT_BIT_SPEED ||
+                tmp & SPLIT_BIT_E_U))
+                expert_add_info(pinfo, split_se, &ei_invalid_se);
+        } else {
+            proto_tree_add_uint(tree, hf_usbll_split_s, tvb, offset, 3, tmp);
+            split_e_u = proto_tree_add_uint(tree, hf_usbll_split_e, tvb, offset, 3, tmp);
+
+            if (tmp & SPLIT_BIT_E_U)
+                expert_add_info(pinfo, split_e_u, &ei_invalid_e_u);
+        }
+    }
+    proto_tree_add_uint(tree, hf_usbll_split_et, tvb, offset, 3, tmp);
 
     proto_tree_add_checksum(tree, tvb, offset,
                             hf_usbll_split_crc5, hf_usbll_split_crc5_status, &ei_wrong_split_crc5, pinfo,
@@ -521,8 +534,11 @@ dissect_usbll_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
     if (PINFO_FD_VISITED(pinfo))
         usbll_data_ptr = usbll_restore_data(pinfo);
-    else
+    else {
         usbll_data_ptr = usbll_create_data(pinfo, pid);
+        if (usbll_data_ptr->prev)
+            usbll_data_ptr->prev->next = usbll_data_ptr;
+    }
 
     switch (pid)
     {
@@ -634,6 +650,10 @@ proto_register_usbll(void)
             { "E", "usbll.split_e",
               FT_UINT24, BASE_DEC, NULL, 0x010000,
               "Unused. Must be 0.", HFILL }},
+        { &hf_usbll_split_u,
+            { "U", "usbll.split_u",
+              FT_UINT24, BASE_DEC, NULL, 0x010000,
+              "Unused. Must be 0.", HFILL }},
         { &hf_usbll_split_iso_se,
             { "Start and End", "usbll.split_se",
               FT_UINT24, BASE_DEC, VALS(usb_split_iso_se_vals), 0x018000,
@@ -670,6 +690,8 @@ proto_register_usbll(void)
         { &ei_wrong_crc5, { "usbll.crc5.wrong", PI_PROTOCOL, PI_WARN, "Wrong CRC", EXPFILL }},
         { &ei_wrong_split_crc5, { "usbll.split_crc5.wrong", PI_PROTOCOL, PI_WARN, "Wrong CRC", EXPFILL }},
         { &ei_wrong_crc16, { "usbll.crc16.wrong", PI_PROTOCOL, PI_WARN, "Wrong CRC", EXPFILL }},
+        { &ei_invalid_e_u, { "usbll.invalid_e_u", PI_MALFORMED, PI_ERROR, "Invalid bit (Must be 0)", EXPFILL }},
+        { &ei_invalid_se, { "usbll.invalid_se", PI_MALFORMED, PI_ERROR, "Invalid bits (Must be 00 for Split Isochronous IN)", EXPFILL }},
     };
 
     static gint *ett[] = {
