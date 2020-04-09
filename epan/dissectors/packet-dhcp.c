@@ -302,6 +302,11 @@ static int hf_dhcp_option43_cl_device_id_ca = -1;			/* 43:53 CL  */
 static int hf_dhcp_option43_cl_device_id_x509 = -1;			/* 43:54 CL  */
 static int hf_dhcp_option43_cl_end = -1;				/* 43:255 CL */
 
+static int hf_dhcp_option43_aerohive_suboption = -1;			/* 43 suboption */
+static int hf_dhcp_option43_aerohive_unknown = -1;			/* 43:X AEROHIVE */
+static int hf_dhcp_option43_aerohive_xiqhostname = -1;			/* 43:225 AEROHIVE */
+static int hf_dhcp_option43_aerohive_xiqipaddress = -1;			/* 43:226 AEROHIVE */
+
 static int hf_dhcp_option43_bsdp_suboption = -1;			/* 43 suboption */
 static int hf_dhcp_option43_bsdp_message_type = -1;			/* 43:1 BSDP  */
 static int hf_dhcp_option43_bsdp_version = -1;				/* 43:2 BSDP  */
@@ -1108,6 +1113,8 @@ static const enum_val_t pkt_ccc_protocol_versions[] = {
 #define APPLE_BSDP_CLIENT "AAPLBSDPC/"
 
 #define CISCO_VCID "cisco"
+
+#define AEROHIVE_VCID "AEROHIVE"
 
 static gint pkt_ccc_protocol_version = PACKETCABLE_CCC_RFC_3495;
 static guint pkt_ccc_option = 122;
@@ -4694,7 +4701,7 @@ static int
 dissect_vendor_cisco_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *v_tree,
 				   tvbuff_t *tvb, int optoff, int optend)
 {
-	int	 suboptoff = optoff;
+	int	    suboptoff = optoff;
 	guint8      subopt;
 	guint8      subopt_len;
 	guint       item_len;
@@ -4796,6 +4803,90 @@ dissect_cisco_vendor_info_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	return TRUE;
 }
 
+/* Aerohive (Extremenetworks) Vendor Specific Information */
+
+static const value_string option43_aerohive_suboption_vals[] = {
+	{  225, "XiqHostname" },	/* String */
+	{  226, "XiqIpAddress" },	/* Ipv4address */
+
+	{ 0, NULL}
+};
+
+static int
+dissect_vendor_aerohive_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *v_tree,
+				   tvbuff_t *tvb, int optoff, int optend)
+{
+	int	    suboptoff = optoff;
+	guint8      subopt;
+	guint8      subopt_len;
+	guint       item_len;
+	proto_tree *o43aerohive_v_tree;
+	proto_item *vti;
+
+	subopt = tvb_get_guint8(tvb, optoff);
+	suboptoff++;
+
+	if (suboptoff >= optend) {
+		expert_add_info_format(pinfo, v_ti, &ei_dhcp_missing_subopt_length,
+									"Suboption %d: No room left in option for suboption length", subopt);
+		return (optend);
+	} else {
+		subopt_len = tvb_get_guint8(tvb, suboptoff);
+		item_len = subopt_len + 2;
+	}
+
+	vti = proto_tree_add_uint_format_value(v_tree, hf_dhcp_option43_aerohive_suboption,
+				tvb, optoff, item_len, subopt, "(%d) %s",
+				subopt, val_to_str_const(subopt, option43_aerohive_suboption_vals, "Unknown"));
+
+	o43aerohive_v_tree = proto_item_add_subtree(vti, ett_dhcp_option43_suboption);
+	proto_tree_add_item(o43aerohive_v_tree, hf_dhcp_suboption_length, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
+	suboptoff++;
+
+	if (suboptoff+subopt_len > optend) {
+		expert_add_info_format(pinfo, vti, &ei_dhcp_missing_subopt_value,
+						"Suboption %d: Not sufficient room left in option for suboption value", subopt);
+		return (optend);
+	}
+
+	switch(subopt)
+	{
+		case 225:
+			proto_tree_add_item(o43aerohive_v_tree, hf_dhcp_option43_aerohive_xiqhostname, tvb, suboptoff, subopt_len, ENC_ASCII|ENC_NA);
+			break;
+		case 226:
+			proto_tree_add_item(o43aerohive_v_tree, hf_dhcp_option43_aerohive_xiqipaddress, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
+			break;
+		default:
+			proto_tree_add_item(o43aerohive_v_tree, hf_dhcp_option43_aerohive_unknown, tvb, suboptoff, subopt_len, ENC_NA);
+	}
+
+	optoff += item_len;
+	return optoff;
+}
+
+static gboolean
+dissect_aerohive_vendor_info_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+	int offset = 0;
+	dhcp_option_data_t *option_data = (dhcp_option_data_t*)data;
+	proto_tree* vendor_tree;
+
+	if ((option_data->vendor_class_id == NULL) ||
+		(strncmp((const gchar*)option_data->vendor_class_id, AEROHIVE_VCID, strlen(AEROHIVE_VCID)) != 0))
+		return FALSE;
+
+	/* Cisco ACI Fabric*/
+	proto_item_append_text(tree, " (Aerohive)");
+	vendor_tree = proto_item_add_subtree(tree, ett_dhcp_option);
+
+	while (tvb_reported_length_remaining(tvb, offset) > 0) {
+		offset = dissect_vendor_aerohive_suboption(pinfo, tree, vendor_tree,
+			tvb, offset, tvb_reported_length(tvb));
+	}
+
+	return TRUE;
+}
 
 static int
 dissect_vendor_generic_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *v_tree,
@@ -8205,6 +8296,28 @@ proto_register_dhcp(void)
 		    "Option 43:PXE Client 255 End", HFILL }},
 
 
+	       /* AEROHIVE (Extremenetworks) vendor suboptions */
+	       { &hf_dhcp_option43_aerohive_suboption,
+		 { "Option 43 Suboption", "dhcp.option.vendor.cisco.suboption",
+		   FT_UINT8, BASE_DEC, VALS(option43_aerohive_suboption_vals), 0x0,
+		   "Option 43:AEROHIVE Suboption", HFILL }},
+
+		{ &hf_dhcp_option43_aerohive_unknown,
+		  { "Unknown", "dhcp.option.vendor.aerohive.unknown",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
+
+	       { &hf_dhcp_option43_aerohive_xiqhostname,
+		 { "HM FQDN", "dhcp.option.vendor.aerohive.xiqhostname",
+		   FT_STRING, BASE_NONE, NULL, 0x0,
+		   "Hive Manager NG FQDN", HFILL }},
+
+	       { &hf_dhcp_option43_aerohive_xiqipaddress,
+		 { "HM IP", "dhcp.option.vendor.aerohive.xiqipaddress",
+		   FT_IPv4, BASE_NONE, NULL, 0x0,
+		   "Hive Manager NG IP address", HFILL }},
+
+
 		{ &hf_dhcp_option43_cl_suboption,
 		  { "Option 43 Suboption", "dhcp.option.vendor.cl.suboption",
 		    FT_UINT8, BASE_DEC, VALS(option43_cl_suboption_vals), 0x0,
@@ -10104,6 +10217,7 @@ proto_reg_handoff_dhcp(void)
 	heur_dissector_add( "dhcp.vendor_info", dissect_aruba_ap_vendor_info_heur, ARUBA_AP, "aruba_ap_dhcp", proto_dhcp, HEURISTIC_ENABLE );
 	heur_dissector_add( "dhcp.vendor_info", dissect_aruba_instant_ap_vendor_info_heur, ARUBA_INSTANT_AP, "aruba_instant_ap_dhcp", proto_dhcp, HEURISTIC_ENABLE );
 	heur_dissector_add( "dhcp.vendor_info", dissect_apple_bsdp_vendor_info_heur, "Apple BSDP", "apple_bsdp_info_dhcp", proto_dhcp, HEURISTIC_ENABLE );
+	heur_dissector_add( "dhcp.vendor_info", dissect_aerohive_vendor_info_heur, "AEROHIVE", "aerohive_info_dhcp", proto_dhcp, HEURISTIC_ENABLE );
 	heur_dissector_add( "dhcp.vendor_info", dissect_cisco_vendor_info_heur, "Cisco", "cisco_info_dhcp", proto_dhcp, HEURISTIC_ENABLE );
 
 	/* Create dissection function handles for DHCP Enterprise dissection */
