@@ -3,6 +3,8 @@
 include::attributes.adoc[]
 = Wireshark User’s Guide: Version {wireshark-version}
 
+:source-highlighter: coderay
+
 [[Preface]]
 ["preface",id="Preface"]
 == Preface

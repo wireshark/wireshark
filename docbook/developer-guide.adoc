@@ -8,6 +8,7 @@ include::attributes.adoc[]
 // currently surrounded by plus signs for AsciiDoc compatibility.
 :dlt-glob: DLT_*
 :qt-lts-version: 5.12
+:source-highlighter: coderay
 
 [[Preface]]
 ["preface",id="Preface"]

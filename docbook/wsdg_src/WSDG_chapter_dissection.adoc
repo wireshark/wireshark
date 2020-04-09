@@ -63,7 +63,7 @@ Plugins are easier to write initially, so let’s start with that.
 With a little care, the plugin can be converted into a built-in dissector.
 
 .Dissector Initialisation.
-====
+[source,c]
 ----
 #include "config.h"
 #include <epan/packet.h>
@@ -82,7 +82,6 @@ proto_register_foo(void)
         );
 }
 ----
-====
 
 Let’s go through this a bit at a time. First we have some boilerplate
 include files. These will be pretty constant to start with.
@@ -118,7 +117,7 @@ obtain a handle to the protocol's dissector.
 Next we need a handoff routine.
 
 .Dissector Handoff.
-====
+[source,c]
 ----
 void
 proto_reg_handoff_foo(void)
@@ -129,7 +128,6 @@ proto_reg_handoff_foo(void)
     dissector_add_uint("udp.port", FOO_PORT, foo_handle);
 }
 ----
-====
 
 A handoff routine associates a protocol handler with the protocol's
 traffic. It consists of two major steps: The first step is to create a
@@ -151,7 +149,7 @@ The next step is to write the dissecting function, `dissect_foo()`.
 We'll start with a basic placeholder.
 
 .Dissection.
-====
+[source,c]
 ----
 static int
 dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data _U_)
@@ -163,7 +161,6 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data 
     return tvb_captured_length(tvb);
 }
 ----
-====
 
 `dissect_foo()` is called to dissect the packets presented to it. The packet data
 is held in a special buffer referenced here as `tvb`. The packet_info structure
@@ -183,7 +180,7 @@ The dissector doesn't do anything other than identify the protocol and label it.
 Here is the dissector's complete code:
 
 .Complete _packet-foo.c_:.
-====
+[source,c]
 ----
 #include "config.h"
 #include <epan/packet.h>
@@ -255,7 +252,7 @@ The first thing we will do is to build a subtree to decode our results into.
 This helps to keep things looking nice in the detailed display.
 
 .Plugin Packet Dissection.
-====
+[source,c]
 ----
 static int
 dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -269,7 +266,6 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     return tvb_captured_length(tvb);
 }
 ----
-====
 
 What we're doing here is adding a subtree to the dissection.
 This subtree will hold all the details of this protocol and so not clutter
@@ -295,7 +291,7 @@ Two statically allocated arrays are added at the beginning of
 `proto_register_protocol()`.
 
 .Registering data structures.
-====
+[source,c]
 ----
 void
 proto_register_foo(void)
@@ -324,29 +320,26 @@ proto_register_foo(void)
     proto_register_subtree_array(ett, array_length(ett));
 }
 ----
-====
 
 The variables `hf_foo_pdu_type` and `ett_foo` also need to be declared somewhere near the top of the file.
 
 .Dissector data structure globals.
-====
+[source,c]
 ----
 static int hf_foo_pdu_type = -1;
 
 static gint ett_foo = -1;
 ----
-====
 
 Now we can enhance the protocol display with some packet detail.
 
 .Dissector starting to dissect the packets.
-====
+[source,c]
 ----
     proto_item *ti = proto_tree_add_item(tree, proto_foo, tvb, 0, -1, ENC_NA);
     proto_tree *foo_tree = proto_item_add_subtree(ti, ett_foo);
     proto_tree_add_item(foo_tree, hf_foo_pdu_type, tvb, 0, 1, ENC_BIG_ENDIAN);
 ----
-====
 
 As mentioned earlier, the foo protocol begins with an 8-bit `packet type`
 which can have three possible values: 1 - initialisation, 2 - terminate, 3 - data.
@@ -402,7 +395,7 @@ Now let’s finish off dissecting the simple protocol. We need to add a few
 more variables to the hfarray, and a couple more procedure calls.
 
 .Wrapping up the packet dissection.
-====
+[source,c]
 ----
 ...
 static int hf_foo_flags = -1;
@@ -458,7 +451,6 @@ proto_register_foo(void) {
 }
 ...
 ----
-====
 
 This dissects all the bits of this simple hypothetical protocol. We've
 introduced a new variable offsetinto the mix to help keep track of where we are
@@ -474,7 +466,7 @@ extra things. First we add a simple table of type to name.
 
 
 .Naming the packet types.
-====
+[source,c]
 ----
 static const value_string packettypenames[] = {
     { 1, "Initialise" },
@@ -483,7 +475,6 @@ static const value_string packettypenames[] = {
     { 0, NULL }
 };
 ----
-====
 
 This is a handy data structure that can be used to look up a name for a value.
 There are routines to directly access this lookup table, but we don't need to
@@ -491,7 +482,7 @@ do that, as the support code already has that added in. We just have to give
 these details to the appropriate part of the data, using the `VALS` macro.
 
 .Adding Names to the protocol.
-====
+[source,c]
 ----
    { &hf_foo_pdu_type,
         { "FOO PDU Type", "foo.type",
@@ -500,13 +491,12 @@ these details to the appropriate part of the data, using the `VALS` macro.
         NULL, HFILL }
     }
 ----
-====
 
 This helps in deciphering the packets, and we can do a similar thing for the
 flags structure. For this we need to add some more data to the table though.
 
 .Adding Flags to the protocol.
-====
+[source,c]
 ----
 #define FOO_START_FLAG      0x01
 #define FOO_END_FLAG        0x02
@@ -561,7 +551,6 @@ proto_register_foo(void) {
 }
 ...
 ----
-====
 
 Some things to note here. For the flags, as each bit is a different flag, we use
 the type `FT_BOOLEAN`, as the flag is either on or off. Second, we include the flag
@@ -582,7 +571,7 @@ protocol traces. Second, we can also display this information in the dissection
 window.
 
 .Enhancing the display.
-====
+[source,c]
 ----
 static int
 dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -606,7 +595,6 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     return tvb_captured_length(tvb);
 }
 ----
-====
 
 So here, after grabbing the value of the first 8 bits, we use it with one of the
 built-in utility routines `val_to_str()`, to lookup the value. If the value
@@ -635,7 +623,7 @@ such as packet reassembly. The following shows a technique to achieve this
 effect.
 
 .Decompressing data packets for dissection.
-====
+[source,c]
 ----
     guint8 flags = tvb_get_guint8(tvb, offset);
     offset ++;
@@ -655,7 +643,6 @@ effect.
     offset = 0;
     /* process next_tvb from here on */
 ----
-====
 
 The first steps here are to recognise the compression. In this case a flag byte
 alerts us to the fact the remainder of the packet is compressed. Next we
@@ -735,7 +722,7 @@ msg_pkt ::= SEQUENCE {
 ----
 
 .Reassembling fragments - Part 1
-====
+[source,c]
 ----
 #include <epan/reassemble.h>
    ...
@@ -755,7 +742,6 @@ if (flags & FL_FRAGMENT) { /* fragmented */
         tvb_captured_length_remaining(tvb, offset), /* fragment length - to the end */
         flags & FL_FRAG_LAST); /* More fragments? */
 ----
-====
 
 We start by saving the fragmented state of this packet, so we can restore it
 later. Next comes some protocol specific stuff, to dig the fragment data out of
@@ -786,7 +772,7 @@ amount of parameters:
   might be a flag as in this case, or there may be a counter in the protocol.
 
 .Reassembling fragments part 2
-====
+[source,c]
 ----
     new_tvb = process_reassembled_data(tvb, offset, pinfo,
         "Reassembled Message", frag_msg, &msg_frag_items,
@@ -813,7 +799,6 @@ else { /* Not fragmented */
 .....
 pinfo->fragmented = save_fragmented;
 ----
-====
 
 Having passed the fragment data to the reassembly handler, we can now check if
 we have the whole message. If there is enough information, this routine will
@@ -829,7 +814,7 @@ you wish.
 Now the mysterious data we passed into the `fragment_add_seq_check()`.
 
 .Reassembling fragments - Initialisation
-====
+[source,c]
 ----
 static reassembly_table reassembly_table;
 
@@ -840,7 +825,6 @@ proto_register_msg(void)
         &addresses_ports_reassembly_table_functions);
 }
 ----
-====
 
 First a `reassembly_table` structure is declared and initialised in the protocol
 initialisation routine. The second parameter specifies the functions that should
@@ -856,7 +840,7 @@ protocol may use. The hf variables need to be placed in the structure something
 like the following. Of course the names may need to be adjusted.
 
 .Reassembling fragments - Data
-====
+[source,c]
 ----
 ...
 static int hf_msg_fragments = -1;
@@ -937,7 +921,6 @@ static gint *ett[] =
 &ett_msg_fragments
 ...
 ----
-====
 
 These hf variables are used internally within the reassembly routines to make
 useful links, and to add data to the dissection. It produces links from one
@@ -967,7 +950,7 @@ This sounds complicated, but there is a simple solution.
 This function is implemented in _epan/dissectors/packet-tcp.h_.
 
 .Reassembling TCP fragments
-====
+[source,c]
 ----
 #include "config.h"
 
@@ -1006,7 +989,6 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
 ...
 ----
-====
 
 As you can see this is really simple. Just call `tcp_dissect_pdus()` in your
 main dissection routine and move you message parsing code into another function.
@@ -1043,7 +1025,7 @@ integer handle, and registered with the routine `register_tap()`. This takes a
 string name with which to find it again.
 
 .Initialising a tap
-====
+[source,c]
 ----
 #include <epan/packet.h>
 #include <epan/tap.h>
@@ -1061,7 +1043,6 @@ void proto_register_foo(void)
        ...
     foo_tap = register_tap("foo");
 ----
-====
 
 Whilst you can program a tap without protocol specific data, it is generally not
 very useful. Therefore it’s a good idea to declare a structure that can be
@@ -1077,7 +1058,7 @@ specific structure and then calling `tap_queue_packet`, probably as the last par
 of the dissector.
 
 .Calling a protocol tap
-====
+[source,c]
 ----
 static int
 dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -1092,7 +1073,6 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     return tvb_captured_length(tvb);
 }
 ----
-====
 
 This now enables those interested parties to listen in on the details
 of this protocol conversation.
@@ -1113,7 +1093,7 @@ of step between two different plugins.
 Here is a mechanism to produce statistics from the above TAP interface.
 
 .Initialising a stats interface
-====
+[source,c]
 ----
 /* register all http trees */
 static void register_foo_stat_trees(void) {
@@ -1126,7 +1106,6 @@ WS_DLL_PUBLIC_DEF void plugin_register_tap_listener(void)
     register_foo_stat_trees();
 }
 ----
-====
 
 Working from the bottom up, first the plugin interface entry point is defined,
 `plugin_register_tap_listener()`. This simply calls the initialisation function
@@ -1152,7 +1131,7 @@ strings, an integer, and three callback functions.
 In this case we only need the first two functions, as there is nothing specific to clean up.
 
 .Initialising a stats session
-====
+[source,c]
 ----
 static const guint8* st_str_packets = "Total Packets";
 static const guint8* st_str_packet_types = "FOO Packet Types";
@@ -1165,7 +1144,6 @@ static void foo_stats_tree_init(stats_tree* st)
     st_node_packet_types = stats_tree_create_pivot(st, st_str_packet_types, st_node_packets);
 }
 ----
-====
 
 In this case we create a new tree node, to handle the total packets,
 and as a child of that we create a pivot table to handle the stats about
@@ -1173,7 +1151,7 @@ different packet types.
 
 
 .Generating the stats
-====
+[source,c]
 ----
 static int foo_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t* edt, const void* p)
 {
@@ -1184,7 +1162,6 @@ static int foo_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissec
     return 1;
 }
 ----
-====
 
 In this case the processing of the stats is quite simple. First we call the
 `tick_stat_node` for the `st_str_packets` packet node, to count packets. Then a
