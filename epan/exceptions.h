@@ -348,7 +348,7 @@
 	    (except_state|=EXCEPT_CAUGHT)) \
 		/* user's code goes here */
 
-#define CATCH7(t, u,v,w,x,y,z) \
+#define CATCH7(t,u,v,w,x,y,z) \
 	if (except_state == 0 && exc != 0 && \
 	    (exc->except_id.except_code == (t) || \
 	     exc->except_id.except_code == (u) || \
