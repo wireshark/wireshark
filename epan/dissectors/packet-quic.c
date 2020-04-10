@@ -17,7 +17,7 @@
  * https://tools.ietf.org/html/draft-ietf-quic-invariants-07
  *
  * Extension:
- * https://tools.ietf.org/html/draft-ferrieuxhamchaoui-quic-lossbit-03
+ * https://tools.ietf.org/html/draft-ferrieuxhamchaoui-quic-lossbits-03
  * https://tools.ietf.org/html/draft-pauly-quic-datagram-05
  * https://tools.ietf.org/html/draft-huitema-quic-ts-02
  * https://tools.ietf.org/html/draft-iyengar-quic-delayed-ack-00

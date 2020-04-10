@@ -4,8 +4,8 @@
  * RFC 5352
  * RFC 5354
  * RFC 5356
- * http://www.ietf.org/internet-drafts/draft-dreibholz-asap-hropt-03.txt
- * http://www.ietf.org/internet-drafts/draft-dreibholz-rserpool-delay-02.txt
+ * https://tools.ietf.org/html/draft-dreibholz-rserpool-asap-hropt-03
+ * https://tools.ietf.org/html/draft-dreibholz-rserpool-delay-02
  *
  * The code is not as simple as possible for the current protocol
  * but allows to be easily adopted to future versions of the protocol.

@@ -156,7 +156,7 @@ typedef struct duplicate_result_key {
 #define ARPOP_RREPLY   4       /* RARP reply.  */
 #endif
 
-/*Additional parameters as per http://www.iana.org/assignments/arp-parameters*/
+/* Additional parameters as per https://www.iana.org/assignments/arp-parameters */
 #ifndef ARPOP_DRARPREQUEST
 #define ARPOP_DRARPREQUEST 5   /* DRARP request.  */
 #endif
@@ -179,7 +179,7 @@ typedef struct duplicate_result_key {
 #define ATMARPOP_NAK   10      /* ATMARP NAK.  */
 #endif
 
-/*Additional parameters as per http://www.iana.org/assignments/arp-parameters*/
+/* Additional parameters as per https://www.iana.org/assignments/arp-parameters */
 #ifndef ARPOP_MARS_REQUEST
 #define ARPOP_MARS_REQUEST   11       /*MARS request message. */
 #endif

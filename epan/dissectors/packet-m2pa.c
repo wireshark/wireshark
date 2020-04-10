@@ -1,9 +1,9 @@
 /* packet-m2pa.c
  * Routines for MTP2 Peer Adaptation Layer dissection
  * It is hopefully (needs testing) compliant to
- * http://www.ietf.org/internet-drafts/draft-ietf-sigtran-m2pa-02.txt
- * http://www.ietf.org/internet-drafts/draft-ietf-sigtran-m2pa-08.txt
- * http://tools.ietf.org/rfc/rfc4165.txt
+ * https://tools.ietf.org/html/draft-ietf-sigtran-m2pa-02
+ * https://tools.ietf.org/html/draft-ietf-sigtran-m2pa-08
+ * https://tools.ietf.org/html/rfc4165
  *
  * Copyright 2001, 2002, Jeff Morriss <jeff.morriss.ws [AT] gmail.com>,
  * updated by Michael Tuexen <tuexen [AT] fh-muenster.de>

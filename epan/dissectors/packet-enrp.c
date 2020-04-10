@@ -4,7 +4,7 @@
  * RFC 5353
  * RFC 5354
  * RFC 5356
- * http://www.ietf.org/internet-drafts/draft-dreibholz-enrp-takeover-00.txt
+ * https://tools.ietf.org/html/draft-dreibholz-rserpool-enrp-takeover-00
  *
  * The code is not as simple as possible for the current protocol
  * but allows to be easily adopted to future versions of the protocol.

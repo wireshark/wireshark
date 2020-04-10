@@ -3531,7 +3531,7 @@ static int dissect_ccp_oui_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 }
 
 /* The following configuration option types are mentioned at
- * https://www.iana.org/assignments/ppp-numbers as referencing RFC1962; however,
+ * https://www.iana.org/assignments/ppp-numbers/ppp-numbers.xhtml as referencing RFC1962; however,
  * RFC1962 only mentions Proprietary Compression OUI in section 4.1.  These
  * others are therefore being treated as section 4.2 "Other Compression Types",
  * in terms of how they are dissected:

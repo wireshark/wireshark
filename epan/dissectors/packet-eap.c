@@ -121,12 +121,12 @@ const value_string eap_code_vals[] = {
 
 /*
 References:
-  1) http://www.iana.org/assignments/ppp-numbers PPP EAP REQUEST/RESPONSE TYPES
-  2) http://www.ietf.org/internet-drafts/draft-ietf-pppext-rfc2284bis-02.txt
+  1) https://www.iana.org/assignments/ppp-numbers PPP EAP REQUEST/RESPONSE TYPES
+  2) https://tools.ietf.org/html/draft-ietf-pppext-rfc2284bis-02
   3) RFC2284
   4) RFC3748
-  5) http://www.iana.org/assignments/eap-numbers EAP registry (updated 2011-02-22)
-  6) http://tools.ietf.org/html/draft-bersani-eap-synthesis-sharedkeymethods-00
+  5) https://www.iana.org/assignments/eap-numbers EAP registry (updated 2011-02-22)
+  6) https://tools.ietf.org/html/draft-bersani-eap-synthesis-sharedkeymethods-00
 */
 
 static const value_string eap_type_vals[] = {

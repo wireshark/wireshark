@@ -2,8 +2,8 @@
  * Routines for ISDN Q.921-User Adaptation Layer dissection
  *
  * It is hopefully (needs testing) compliant to
- *   http://www.ietf.org/rfc/rfc3057.txt
- *   http://www.ietf.org/internet-drafts/draft-ietf-sigtran-iua-imp-guide-01.txt
+ *   https://tools.ietf.org/html/rfc3057
+ *   https://tools.ietf.org/html/draft-ietf-sigtran-iua-imp-guide-01
  * To do: - provide better handling of length parameters
  *
  * Copyright 2002, Michael Tuexen <tuexen [AT] fh-muenster.de>

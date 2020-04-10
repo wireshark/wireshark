@@ -14,7 +14,7 @@
  *
  * 3GPP TS 44.318 version 8.4.0 Release 8
  *
- * http://www.3gpp.org/specs/numbering.htm
+ * https://www.3gpp.org/specifications/specification-numbering
  * 3GPP TS 24.008 V6.2.0 (2003-09)
  * Technical Specification
  * 3rd Generation Partnership Project;
@@ -1168,7 +1168,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 	case 42:
 		/* 11.2.42 AP Location
 		 * The rest of the IE is coded as in [GEOPRIV], not including IEI and length, if present
-		 * http://www.ietf.org/internet-drafts/draft-ietf-geopriv-dhcp-civil-05.txt
+		 * https://tools.ietf.org/html/draft-ietf-geopriv-dhcp-civil-05
 		 */
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_ap_location, tvb, ie_offset, ie_len, ENC_NA);
 		break;

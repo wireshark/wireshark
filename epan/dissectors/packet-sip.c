@@ -287,7 +287,7 @@ static ws_mempbrk_pattern pbrk_addr_end;
 static ws_mempbrk_pattern pbrk_via_param_end;
 
 
-/* PUBLISH method added as per http://www.ietf.org/internet-drafts/draft-ietf-sip-publish-01.txt */
+/* PUBLISH method added as per https://tools.ietf.org/html/draft-ietf-sip-publish-01 */
 static const char *sip_methods[] = {
 #define SIP_METHOD_INVALID  0
         "<Invalid method>",      /* Pad so that the real methods start at index 1 */
@@ -328,9 +328,9 @@ static const char *sip_methods[] = {
 };
 
 /* from RFC 3261
- * Updated with info from http://www.iana.org/assignments/sip-parameters
+ * Updated with info from https://www.iana.org/assignments/sip-parameters
  * (last updated 2009-11-11)
- * Updated with: http://www.ietf.org/internet-drafts/draft-ietf-sip-resource-priority-05.txt
+ * Updated with: https://tools.ietf.org/html/draft-ietf-sip-resource-priority-05
  */
 typedef struct {
         const char *name;

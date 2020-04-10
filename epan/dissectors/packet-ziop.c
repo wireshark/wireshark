@@ -5,7 +5,7 @@
  *
  * According with GIOP Compression RFP revised submission
  * OMG mars/2008-12-20
- * http://www.omg.org/docs/ptc/09-01-03.pdf
+ * https://www.omg.org/spec/ZIOP/1.0/Beta1/PDF
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

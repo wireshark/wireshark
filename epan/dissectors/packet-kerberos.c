@@ -4038,7 +4038,7 @@ dissect_kerberos_KDC_REQ_BODY(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
    * accordingly.
    *
    * Ref: Section 7.2.1 of
-   * http://www.ietf.org/internet-drafts/draft-ietf-krb-wg-kerberos-clarifications-07.txt
+   * https://tools.ietf.org/html/draft-ietf-krb-wg-kerberos-clarifications-07
    */
   if (actx->pinfo->destport == UDP_PORT_KERBEROS && actx->pinfo->ptype == PT_UDP) {
     conversation = find_conversation(actx->pinfo->num, &actx->pinfo->src, &actx->pinfo->dst, ENDPOINT_UDP,

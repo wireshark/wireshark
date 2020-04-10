@@ -524,7 +524,7 @@ static const value_string lock_delay_unit_vals[] = {
     {0,NULL}
 };
 
-/* From http://www.usb.org/developers/docs/devclass_docs/termt10.pdf */
+/* From https://www.usb.org/sites/default/files/termt10.pdf */
 static const value_string terminal_types_vals[] = {
     /* USB Terminal Types */
     {0x0100, "USB Undefined"},

@@ -1,11 +1,11 @@
 /* packet-m3ua.c
  * Routines for MTP3 User Adaptation Layer dissection
  * It is hopefully (needs testing) compliant to
- * http://www.ietf.org/internet-drafts/draft-ietf-sigtran-m3ua-05.txt (expired)
- * http://www.ietf.org/internet-drafts/draft-ietf-sigtran-m3ua-06.txt (expired)
- * http://www.ietf.org/internet-drafts/draft-ietf-sigtran-m3ua-07.txt (expired)
- * http://www.ietf.org/rfc/rfc3332.txt
- * http://datatracker.ietf.org/doc/rfc4666/
+ * https://tools.ietf.org/html/draft-ietf-sigtran-m3ua-05 (expired)
+ * https://tools.ietf.org/html/draft-ietf-sigtran-m3ua-06 (expired)
+ * https://tools.ietf.org/html/draft-ietf-sigtran-m3ua-07 (expired)
+ * https://tools.ietf.org/html/rfc3332
+ * https://datatracker.ietf.org/doc/rfc4666/
  *
  * Copyright 2000, 2001, 2002, 2003, 2004 Michael Tuexen <tuexen [AT] fh-muenster.de>
  *

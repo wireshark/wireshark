@@ -29,17 +29,17 @@
  ** ( http://www.ietf.org/rfc/rfc3954.txt ? for NetFlow v9 information)
  **
  ** IPFIX
- ** http://tools/ietf.org/html/rfc5103 Bidirectional Flow Export Using IP Flow Information Export (IPFIX)
- ** http://tools.ietf.org/html/rfc5610 Exporting Type Information for
+ ** https://tools.ietf.org/html/rfc5103 Bidirectional Flow Export Using IP Flow Information Export (IPFIX)
+ ** https://tools.ietf.org/html/rfc5610 Exporting Type Information for
  **                                     IP Flow Information Export (IPFIX) Information Elements
- ** http://tools.ietf.org/html/rfc7011 Specification of the IP Flow Information Export (IPFIX) Protocol
+ ** https://tools.ietf.org/html/rfc7011 Specification of the IP Flow Information Export (IPFIX) Protocol
  **                                     for the Exchange of Flow Information
- ** http://tools.ietf.org/html/rfc7012 Information Model for IP Flow Information Export (IPFIX)
- ** http://tools.ietf.org/html/rfc7013 Guidelines for Authors and Reviewers of
+ ** https://tools.ietf.org/html/rfc7012 Information Model for IP Flow Information Export (IPFIX)
+ ** https://tools.ietf.org/html/rfc7013 Guidelines for Authors and Reviewers of
  **                                     IP Flow Information Export (IPFIX) Information Elements
  **
- ** http://www.iana.org/assignments/ipfix/ipfix.xml     [version dated: 2014-08-13]
- ** http://www.iana.org/assignments/psamp-parameters/psamp-parameters.xml
+ ** https://www.iana.org/assignments/ipfix/ipfix.xml     [version dated: 2014-08-13]
+ ** https://www.iana.org/assignments/psamp-parameters/psamp-parameters.xml
  ** for IPFIX
  **
  *****************************************************************************
@@ -55,7 +55,7 @@
  **
  ** See also
  **
- ** http://www.cisco.com/en/US/docs/ios/solutions_docs/netflow/nfwhite.html
+ ** https://www.cisco.com/en/US/docs/ios/solutions_docs/netflow/nfwhite.html
  **
  *****************************************************************************
  ** NetFlow forwarding status and template fixes

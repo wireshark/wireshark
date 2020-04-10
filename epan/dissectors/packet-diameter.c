@@ -470,7 +470,7 @@ dissect_diameter_eap_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	return tvb_reported_length(tvb);
 }
 
-/* http://www.3gpp2.org/public_html/X/VSA-VSE.cfm */
+/* https://www.3gpp2.org/Public_html/X/VSA-VSE.cfm */
 static const value_string diameter_3gpp2_exp_res_vals[]= {
 	{ 5001,	"Diameter_Error_User_No_WLAN_Subscription"},
 	{ 5002,	"Diameter_Error_Roaming_Not_Allowed(Obsoleted)"},

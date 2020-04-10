@@ -668,7 +668,7 @@ static const value_string isis_lsp_grp_types[] = {
 
 /*
 http://www.iana.org/assignments/isis-tlv-codepoints/isis-tlv-codepoints.xhtml#isis-tlv-codepoints-22-23-141-222-223
-http://ietfreport.isoc.org/idref/draft-ietf-isis-segment-routing-extensions/
+https://tools.ietf.org/html/rfc8667
 */
 static const value_string isis_lsp_ext_is_reachability_code_vals[] = {
     { 3, "Administrative group (color)" },
@@ -695,8 +695,8 @@ static const value_string isis_lsp_ext_is_reachability_code_vals[] = {
     { 28, "MTU" },
     { 29, "SPB-Metric" },
     { 30, "SPB-A-OALG" },
-    { 31, "Adj-SID" },          /* Suggested Value */
-    { 32, "LAN-Adj-SID" },      /* Suggested Value */
+    { 31, "Adj-SID" },
+    { 32, "LAN-Adj-SID" },
     { 43, "SRv6 End.X SID" },       /* Suggested Value */
     { 44, "SRv6 LAN End.X SID" },   /* Suggested Value */
     { 250, "Reserved for Cisco-specific extensions" },

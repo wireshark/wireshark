@@ -7,7 +7,7 @@
  * In association with Global Star Solutions, ULC.
  *
  * Last Updated to:
- * http://www.3gpp2.org/Public_html/specs/C.S0016-C_v2.0_081031.pdf
+ * https://www.3gpp2.org/Public_html/Specs/C.S0016-C_v2.0_081031.pdf
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
