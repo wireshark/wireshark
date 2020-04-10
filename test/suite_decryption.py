@@ -77,7 +77,7 @@ class case_decrypt_80211(subprocesstest.SubprocessTestCase):
                 ))
         self.assertTrue(self.grepOutput('Who has 192.168.5.5'))   # Verifies GTK is correct
         self.assertTrue(self.grepOutput('DHCP Request'))          # Verifies TK is correct
-        self.assertTrue(self.grepOutput('Echo \(ping\) request')) # Verifies TK is correct
+        self.assertTrue(self.grepOutput(r'Echo \(ping\) request')) # Verifies TK is correct
 
     def test_80211_wpa_tdls(self, cmd_tshark, capture_file, features):
         '''WPA decode traffic in a TDLS (Tunneled Direct-Link Setup) session (802.11z)'''
@@ -184,7 +184,7 @@ class case_decrypt_80211(subprocesstest.SubprocessTestCase):
                 ))
         self.assertTrue(self.grepOutput('Who has 192.168.5.5')) # Verifies GTK is correct
         self.assertTrue(self.grepOutput('DHCP Request'))        # Verifies TK is correct
-        self.assertTrue(self.grepOutput('Echo \(ping\) request')) # Verifies TK is correct
+        self.assertTrue(self.grepOutput(r'Echo \(ping\) request')) # Verifies TK is correct
 
     def test_80211_wpa_gcmp(self, cmd_tshark, capture_file, features):
         '''IEEE 802.11 decode GCMP'''
@@ -198,7 +198,7 @@ class case_decrypt_80211(subprocesstest.SubprocessTestCase):
                 ))
         self.assertTrue(self.grepOutput('Who has 192.168.5.5')) # Verifies GTK is correct
         self.assertTrue(self.grepOutput('DHCP Request'))        # Verifies TK is correct
-        self.assertTrue(self.grepOutput('Echo \(ping\) request')) # Verifies TK is correct
+        self.assertTrue(self.grepOutput(r'Echo \(ping\) request')) # Verifies TK is correct
 
     def test_80211_wpa_gcmp_256(self, cmd_tshark, capture_file, features):
         '''IEEE 802.11 decode GCMP-256'''
@@ -212,7 +212,7 @@ class case_decrypt_80211(subprocesstest.SubprocessTestCase):
                 ))
         self.assertTrue(self.grepOutput('Who has 192.168.5.5')) # Verifies GTK is correct
         self.assertTrue(self.grepOutput('DHCP Request'))        # Verifies TK is correct
-        self.assertTrue(self.grepOutput('Echo \(ping\) request')) # Verifies TK is correct
+        self.assertTrue(self.grepOutput(r'Echo \(ping\) request')) # Verifies TK is correct
 
 @fixtures.mark_usefixtures('test_env')
 @fixtures.uses_fixtures
