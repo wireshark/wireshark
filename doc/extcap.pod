@@ -121,10 +121,12 @@ Example 3:
     flag {failure=Permission denied opening Ubertooth device}
 
 Example 4:
+
     arg {number=0}{call=--username}{display=Username}{type=string}
     arg {number=1}{call=--password}{display=Password}{type=password}
 
 Example 5:
+
     arg {number=0}{call=--start}{display=Start Time}{type=timestamp}
     arg {number=1}{call=--end}{display=End Time}{type=timestamp}
 
