@@ -33,6 +33,7 @@ static int proto_btle_rf = -1;
 static int proto_nordic_ble = -1;
 
 static int hf_access_address = -1;
+static int hf_coding_indicator = -1;
 static int hf_crc = -1;
 static int hf_master_bd_addr = -1;
 static int hf_slave_bd_addr = -1;
@@ -386,6 +387,15 @@ static const value_string aux_pdu_common_vals[] = {
 };
 static value_string_ext aux_pdu_common_vals_ext = VALUE_STRING_EXT_INIT(aux_pdu_common_vals);
 
+static const value_string le_coding_indicators[] =
+{
+    { 0, "FEC Block 2 coded using S=8" },
+    { 1, "FEC Block 2 coded using S=2" },
+    { 2, "Reserved" },
+    { 3, "Reserved" },
+    { 0, NULL }
+};
+
 static const value_string sleep_clock_accuracy_vals[] = {
     { 0x00, "251 ppm to 500 ppm" },
     { 0x01, "151 ppm to 250 ppm" },
@@ -715,6 +725,11 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         }
     }
     offset += 4;
+
+    if (btle_context && btle_context->phy == LE_CODED_PHY) {
+        proto_tree_add_item(btle_tree, hf_coding_indicator, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset += 1;
+    }
 
     if (bluetooth_data)
         interface_id = bluetooth_data->interface_id;
@@ -1817,6 +1832,11 @@ proto_register_btle(void)
         { &hf_access_address,
             { "Access Address",                  "btle.access_address",
             FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_coding_indicator,
+            { "Coding Indicator",                "btle.coding_indicator",
+            FT_UINT8, BASE_DEC, VALS(le_coding_indicators), 0x3,
             NULL, HFILL }
         },
         { &hf_master_bd_addr,

@@ -48,6 +48,10 @@ typedef enum {
 #define BTLE_PDU_TYPE_ADVERTISING 1 /* Advertising physical channel PDU */
 #define BTLE_PDU_TYPE_DATA        2 /* Data physical channel PDU */
 
+#define LE_1M_PHY     0
+#define LE_2M_PHY     1
+#define LE_CODED_PHY  2
+
 typedef struct {
     btle_AA_category_t aa_category;
     btle_CONNECT_REQ_t connection_info;
@@ -61,6 +65,7 @@ typedef struct {
     guint8 pdu_type;
     guint8 aux_pdu_type;
     guint8 channel;
+    guint8 phy;
 
     union {
         void              *data;

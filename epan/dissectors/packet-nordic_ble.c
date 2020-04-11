@@ -276,10 +276,6 @@ static const value_string le_phys[] =
     { 0, NULL }
 };
 
-#define LE_1M_PHY     0
-#define LE_2M_PHY     1
-#define LE_CODED_PHY  2
-
 static const value_string le_aux_ext_adv[] = {
     { 0, "AUX_ADV_IND" },
     { 1, "AUX_CHAIN_IND" },
