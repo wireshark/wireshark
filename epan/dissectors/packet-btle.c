@@ -368,6 +368,24 @@ static const value_string pdu_type_vals[] = {
 };
 static value_string_ext pdu_type_vals_ext = VALUE_STRING_EXT_INIT(pdu_type_vals);
 
+static const value_string aux_pdu_type_vals[] = {
+    { 0x03, "AUX_SCAN_REQ" },
+    { 0x05, "AUX_CONNECT_REQ" },
+    { 0x07, "AUX_COMMON" },
+    { 0x08, "AUX_CONNECT_RSP" },
+    { 0, NULL}
+};
+static value_string_ext aux_pdu_type_vals_ext = VALUE_STRING_EXT_INIT(aux_pdu_type_vals);
+
+static const value_string aux_pdu_common_vals[] = {
+    { 0, "AUX_ADV_IND" },
+    { 1, "AUX_CHAIN_IND" },
+    { 2, "AUX_SYNC_IND" },
+    { 3, "AUX_SCAN_RSP" },
+    { 0, NULL}
+};
+static value_string_ext aux_pdu_common_vals_ext = VALUE_STRING_EXT_INIT(aux_pdu_common_vals);
+
 static const value_string sleep_clock_accuracy_vals[] = {
     { 0x00, "251 ppm to 500 ppm" },
     { 0x01, "151 ppm to 250 ppm" },
@@ -577,6 +595,17 @@ btle_crc(tvbuff_t *tvb, const guint8 payload_len, const guint32 crc_init)
     return state;
 }
 
+static const gchar * adv_pdu_type_str_get(const btle_context_t *btle_context, guint32 pdu_type)
+{
+    if (!btle_context || !(btle_context->channel < 37)) {
+        return val_to_str_ext_const(pdu_type, &pdu_type_vals_ext, "Unknown");
+    } else if (pdu_type == 0x07 && btle_context->aux_pdu_type_valid) {
+        return val_to_str_ext_const(btle_context->aux_pdu_type, &aux_pdu_common_vals_ext, "Unknown");
+    } else {
+        return val_to_str_ext_const(pdu_type, &aux_pdu_type_vals_ext, "Unknown");
+    }
+}
+
 /*
  * Reverses the bits in each byte of a 32-bit word.
  *
@@ -764,9 +793,9 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             break;
         }
 
-        proto_item_append_text(advertising_header_item, " (PDU Type: %s",
-                               val_to_str_ext_const(pdu_type, &pdu_type_vals_ext, "Unknown"));
-        proto_tree_add_item(advertising_header_tree, hf_advertising_header_pdu_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_item_append_text(advertising_header_item, " (PDU Type: %s", adv_pdu_type_str_get(btle_context, pdu_type));
+        item = proto_tree_add_item(advertising_header_tree, hf_advertising_header_pdu_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_item_append_text(item, " %s", adv_pdu_type_str_get(btle_context, pdu_type));
         proto_tree_add_item(advertising_header_tree, hf_advertising_header_rfu_1, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
         if (ch_sel_valid) {
@@ -795,7 +824,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
         proto_item_append_text(advertising_header_item, ")");
 
-        col_set_str(pinfo->cinfo, COL_INFO, val_to_str_ext_const(pdu_type, &pdu_type_vals_ext, "Unknown"));
+        col_set_str(pinfo->cinfo, COL_INFO, adv_pdu_type_str_get(btle_context, pdu_type));
 
         offset += 1;
 
@@ -1812,7 +1841,7 @@ proto_register_btle(void)
         },
         { &hf_advertising_header_pdu_type,
             { "PDU Type",                        "btle.advertising_header.pdu_type",
-            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &pdu_type_vals_ext, 0x0F,
+            FT_UINT8, BASE_HEX, NULL, 0x0F,
             NULL, HFILL }
         },
         { &hf_advertising_header_rfu_1,
