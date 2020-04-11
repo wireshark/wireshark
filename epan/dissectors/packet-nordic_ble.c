@@ -197,8 +197,16 @@
 #define US_PER_BYTE_1M_PHY   8
 #define US_PER_BYTE_2M_PHY   4
 
+#define US_PER_BYTE_CODED_PHY_S8 64
+#define US_PER_BYTE_CODED_PHY_S2 16
+
 #define PREAMBLE_LEN_1M_PHY  1
 #define PREAMBLE_LEN_2M_PHY  2
+
+/* Preamble + Access Address + CI + TERM1 */
+#define FEC1_BLOCK_S8_US (80 + 256 + 16 + 24)
+#define TERM2_S8_US      24
+#define TERM2_S2_US       6
 
 void proto_reg_handoff_nordic_ble(void);
 void proto_register_nordic_ble(void);
@@ -275,6 +283,9 @@ static const value_string le_phys[] =
     { 7, "Reserved" },
     { 0, NULL }
 };
+
+#define CI_S8 0
+#define CI_S2 1
 
 static const value_string le_aux_ext_adv[] = {
     { 0, "AUX_ADV_IND" },
@@ -422,7 +433,7 @@ dissect_flags(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, 
     return offset;
 }
 
-static guint16 packet_time_get(nordic_ble_context_t *nordic_ble_context)
+static guint16 packet_time_get(nordic_ble_context_t *nordic_ble_context, guint8 ci)
 {
     /* Calculate packet time according to this packets PHY */
     guint16 ble_payload_length = nordic_ble_context->payload_length - nordic_ble_context->event_packet_length;
@@ -432,6 +443,19 @@ static guint16 packet_time_get(nordic_ble_context_t *nordic_ble_context)
             return  US_PER_BYTE_1M_PHY * (PREAMBLE_LEN_1M_PHY + ble_payload_length);
         case LE_2M_PHY:
             return US_PER_BYTE_2M_PHY * (PREAMBLE_LEN_2M_PHY + ble_payload_length);
+        case LE_CODED_PHY:
+        {
+            /* Subtract Access address and CI */
+            guint16 fec2_block_len = ble_payload_length - 4 - 1;
+
+            switch (ci) {
+                case CI_S8:
+                    return FEC1_BLOCK_S8_US + fec2_block_len * US_PER_BYTE_CODED_PHY_S8 + TERM2_S8_US;
+                case CI_S2:
+                    return FEC1_BLOCK_S8_US + fec2_block_len * US_PER_BYTE_CODED_PHY_S2 + TERM2_S2_US;
+            }
+        }
+        /* Fallthrough */
         default:
             return 0; /* Unknown */
     }
@@ -463,7 +487,7 @@ dissect_ble_delta_time(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tre
     }
     offset += 4;
 
-    packet_time = packet_time_get(nordic_ble_context);
+    packet_time = packet_time_get(nordic_ble_context, 0 /* This version never supported Coded PHY */);
     pi = proto_tree_add_uint(tree, hf_nordic_ble_packet_time, tvb, offset, 4, packet_time);
     proto_item_set_generated(pi);
 
@@ -507,7 +531,8 @@ dissect_ble_timestamp(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree
         last_packet_start_time = saved_packet_times->packet_start_time;
     }
 
-    packet_time = packet_time_get(nordic_ble_context);
+    guint8 ci = tvb_get_guint8(tvb, offset + 4 + 4);
+    packet_time = packet_time_get(nordic_ble_context, ci);
     item = proto_tree_add_uint(tree, hf_nordic_ble_packet_time, tvb, offset, 4, packet_time);
     proto_item_set_generated(item);
 
