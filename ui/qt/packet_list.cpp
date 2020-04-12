@@ -1595,13 +1595,11 @@ void PacketList::ignoreFrame()
 
     if (selectionModel() && selectionModel()->hasSelection())
     {
-        QList<int> rows;
         foreach (QModelIndex idx, selectionModel()->selectedRows(0))
         {
             if (idx.isValid())
             {
                 frames << idx;
-                rows << idx.row();
             }
         }
     }
