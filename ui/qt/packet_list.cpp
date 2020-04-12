@@ -1561,14 +1561,12 @@ void PacketList::markFrame()
 
     if (selectionModel() && selectionModel()->hasSelection())
     {
-        QList<int> rows;
         QModelIndexList selRows = selectionModel()->selectedRows(0);
         foreach (QModelIndex idx, selRows)
         {
             if (idx.isValid())
             {
                 frames << idx;
-                rows << idx.row();
             }
         }
     }
