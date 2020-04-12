@@ -1,4 +1,4 @@
-Text2pcap (Wireshark) 3.2.3 (v3.2.3rc0-9-g9aa35e37a2dd)
+Text2pcap (Wireshark) 3.2.4 (v3.2.4rc0-2-g829b454ebea2)
 Generate a capture file from an ASCII hexdump of packets.
 See https://www.wireshark.org for more information.
 

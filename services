@@ -3890,6 +3890,7 @@ dsmipv6		4191/udp	# Dual Stack MIPv6 NAT Traversal
 azeti		4192/tcp	# Azeti Agent Service
 azeti-bd	4192/udp	# azeti blinddate
 pvxplusio	4193/tcp	# PxPlus remote file srvr
+aws-wsp		4195/tcp/udp/sctp/dccp	# AWS protocol for cloud remoting solution
 hctl		4197/tcp/udp	# Harman HControl Protocol
 eims-admin	4199/tcp/udp	# EIMS ADMIN
 corelccam	4300/tcp/udp	# Corel CCam
@@ -4022,6 +4023,7 @@ prchat-user	4455/tcp/udp	# PR Chat User
 prchat-server	4456/tcp/udp	# PR Chat Server
 prRegister	4457/tcp/udp	# PR Register
 mcp		4458/tcp/udp	# Matrix Configuration Protocol
+ntske		4460/tcp	# Network Time Security Key Establishment
 hpssmgmt	4484/tcp/udp	# hpssmgmt service
 assyst-dr	4485/tcp	# Assyst Data Repository Service
 icms		4486/tcp/udp	# Integrated Client Message Service
