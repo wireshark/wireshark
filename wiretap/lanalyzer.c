@@ -294,7 +294,7 @@ wtap_open_return_val lanalyzer_open(wtap *wth, int *err, gchar **err_info)
       }
 
       /* Read the major and minor version numbers */
-      if (record_length < 2) {
+      if (record_length < sizeof header_fixed) {
             /*
              * Not enough room for the major and minor version numbers.
              * Just treat that as a "not a LANalyzer file" indication.
@@ -355,6 +355,12 @@ wtap_open_return_val lanalyzer_open(wtap *wth, int *err, gchar **err_info)
             switch (record_type) {
                   /* Trace Summary Record */
             case RT_Summary:
+                  if (record_length < sizeof summary) {
+                        *err = WTAP_ERR_BAD_FILE;
+                        *err_info = g_strdup_printf("lanalyzer: summary record length %u is too short",
+                                                    record_length);
+                        return WTAP_OPEN_ERROR;
+                  }
                   if (!wtap_read_bytes(wth->fh, summary,
                                        sizeof summary, err, err_info))
                         return WTAP_OPEN_ERROR;
@@ -406,8 +412,15 @@ wtap_open_return_val lanalyzer_open(wtap *wth, int *err, gchar **err_info)
                         *err_info = g_strdup_printf("lanalyzer: file has more than one summary record");
                         return WTAP_OPEN_ERROR;
                   }
-
                   found_summary = TRUE;
+
+                  /* Skip the rest of the record */
+                  record_length -= sizeof summary;
+                  if (record_length != 0) {
+                        if (!wtap_read_bytes(wth->fh, NULL, record_length, err, err_info)) {
+                              return WTAP_OPEN_ERROR;
+                        }
+                  }
                   break;
 
                   /* Trace Packet Data Record */
