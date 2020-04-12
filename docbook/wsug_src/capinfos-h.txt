@@ -1,4 +1,4 @@
-Capinfos (Wireshark) 2.6.16 (v2.6.16rc0-2-g152a37b2)
+Capinfos (Wireshark) 2.6.17 (v2.6.17rc0-2-g2e6b6865)
 Print various information (infos) about capture files.
 See https://www.wireshark.org for more information.
 
