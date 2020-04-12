@@ -325,17 +325,6 @@ wtap_open_return_val lanalyzer_open(wtap *wth, int *err, gchar **err_info)
             g_free(comment);
       }
 
-      /* If we made it this far, then the file is a LANAlyzer file.
-       * Let's get some info from it. Note that we get wth->snapshot_length
-       * from a record later in the file. */
-      wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_LANALYZER;
-      lanalyzer = (lanalyzer_t *)g_malloc(sizeof(lanalyzer_t));
-      wth->priv = (void *)lanalyzer;
-      wth->subtype_read = lanalyzer_read;
-      wth->subtype_seek_read = lanalyzer_seek_read;
-      wth->snapshot_length = 0;
-      wth->file_tsprec = WTAP_TSPREC_NSEC;
-
       /*
        * Read records until we find the start of packets.
        * The document cited above claims that the first 11 records are
@@ -354,7 +343,7 @@ wtap_open_return_val lanalyzer_open(wtap *wth, int *err, gchar **err_info)
                          * End of file and no packets;
                          * accept this file.
                          */
-                        return WTAP_OPEN_MINE;
+                        break;
                   }
                   return WTAP_OPEN_ERROR;
             }
