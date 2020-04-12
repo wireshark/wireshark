@@ -331,7 +331,7 @@ wtap_open_return_val lanalyzer_open(wtap *wth, int *err, gchar **err_info)
        * in a particular sequence of types, but at least one capture
        * doesn't have all the types listed in the order listed.
        *
-       * If we don't have a summary file, we don't know the link-layer
+       * If we don't have a summary record, we don't know the link-layer
        * header type, so we can't read the file.
        */
       found_summary = FALSE;
