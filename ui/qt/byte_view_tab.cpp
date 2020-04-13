@@ -302,10 +302,14 @@ void ByteViewTab::selectedFieldChanged(FieldInformation *selected)
 
         setCurrentIndex(idx);
 
-        p_start = selected->parentField()->position().start;
-        p_length = selected->parentField()->position().length;
+        FieldInformation *parentField = selected->parentField();
+
+        p_start = parentField->position().start;
+        p_length = parentField->position().length;
         fa_start = selected->appendix().start;
         fa_length = selected->appendix().length;
+
+        delete parentField;
     }
 
     if (byte_view_text)
