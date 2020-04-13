@@ -17,7 +17,7 @@
  *
  * Specification reference:
  * RFC 5050
- * http://tools.ietf.org/html/rfc5050
+ * https://tools.ietf.org/html/rfc5050
  */
 
 /*

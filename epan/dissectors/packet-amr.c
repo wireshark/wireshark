@@ -9,8 +9,8 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * References:
- * RFC 3267  http://www.ietf.org/rfc/rfc3267.txt?number=3267
- * RFC 4867  http://www.rfc-editor.org/rfc/rfc4867.txt
+ * RFC 3267  https://tools.ietf.org/html/rfc3267
+ * RFC 4867  https://tools.ietf.org/html/rfc4867
  * 3GPP TS 26.101 for AMR-NB, 3GPP TS 26.201 for AMR-WB
  */
 

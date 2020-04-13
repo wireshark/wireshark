@@ -37,7 +37,7 @@
  * Add GSS-API authentication per rfc-1961
  * Add CHAP authentication
  * Decode FLAG bits per
- *  http://archive.socks.permeo.com/draft/draft-ietf-aft-socks-pro-v5-04.txt
+ *  https://tools.ietf.org/html/draft-ietf-aft-socks-pro-v5-04
  * In call_next_dissector, could load the destination address into
  *  pinfo->src or pinfo->dst structure before calling next dissector.
 */

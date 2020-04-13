@@ -26,7 +26,7 @@
  ** Cisco ASA5500 Series
  ** http://www.cisco.com/en/US/docs/security/asa/asa83/netflow/netflow.html
  **
- ** ( http://www.ietf.org/rfc/rfc3954.txt ? for NetFlow v9 information)
+ ** ( https://tools.ietf.org/html/rfc3954 ? for NetFlow v9 information)
  **
  ** IPFIX
  ** https://tools.ietf.org/html/rfc5103 Bidirectional Flow Export Using IP Flow Information Export (IPFIX)

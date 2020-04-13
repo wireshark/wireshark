@@ -17,7 +17,7 @@
 
 /*
  * This dissector tries to dissect the H.263 protocol according to
- * RFC 2190, http://www.ietf.org/rfc/rfc2190.txt
+ * RFC 2190, https://www.ietf.org/rfc/rfc2190
  */
 
 #include "config.h"

@@ -1,6 +1,6 @@
 /* packet-negoex.c
  * Dissect the NEGOEX security protocol
- * as described here: http://tools.ietf.org/id/draft-zhu-negoex-04.txt
+ * as described here: https://tools.ietf.org/html/draft-zhu-negoex-04
  * Copyright 2012 Richard Sharpe <realrichardsharpe@gmail.com>
  * Routines for SPNEGO Extended Negotiation Security Mechanism
  *

@@ -7,7 +7,7 @@
  * Currently maintained by Jeff Weston <weston@itd.nrl.navy.mil>.
  *
  * Updated to Olsr.org and NRLOLSR packages by Henning Rogge <rogge@fgan.de>
- * http://www.ietf.org/rfc/rfc3626.txt
+ * https://www.ietf.org/rfc/rfc3626
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

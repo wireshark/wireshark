@@ -6,7 +6,7 @@
  *
  * Routines for Port Control Protocol packet disassembly
  * (backwards compatible with NAT Port Mapping protocol)
- * RFC6887: Port Control Protocol (PCP) http://tools.ietf.org/html/rfc6887
+ * RFC6887: Port Control Protocol (PCP) https://tools.ietf.org/html/rfc6887
  *
  * Copyright 2012, Michael Mann
  *

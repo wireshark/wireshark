@@ -1800,7 +1800,7 @@ build_address_avp(const avp_type_t *type _U_, guint32 code,
 	a->vendor = vendor;
 /*
  * It seems like the radius AVPs 1-255 will use the defs from RADIUS in which case:
- * http://www.ietf.org/rfc/rfc2865.txt?number=2865
+ * https://tools.ietf.org/html/rfc2685
  * Address
  *    The Address field is four octets.  The value 0xFFFFFFFF indicates
  *    that the NAS Should allow the user to select an address (e.g.

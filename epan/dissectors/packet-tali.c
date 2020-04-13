@@ -6,7 +6,7 @@
  *             In association with Avalanche Mobile BV, http://www.avmob.com
  *
  * Dissector of a TALI (Transport Adapter Layer Interface) version 1.0, as defined by the
- * Tekelec (www.tekelec.com) in RFC 3094, http://www.ietf.org/rfc/rfc3094.txt
+ * Tekelec (www.tekelec.com) in RFC 3094, https://www.ietf.org/rfc/rfc3094
  *
  * Refer to the AUTHORS file or the AUTHORS section in the man page
  * for contacting the author(s) of this file.

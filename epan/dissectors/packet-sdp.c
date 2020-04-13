@@ -9,7 +9,7 @@
  * Copyright 1998 Gerald Combs
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
- * Ref http://www.ietf.org/rfc/rfc4566.txt?number=4566
+ * Ref https://www.ietf.org/rfc/rfc4566
  */
 
 #include "config.h"
@@ -1877,7 +1877,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
             }
             break;
         case SDP_CRYPTO:
-            /* http://tools.ietf.org/html/rfc4568
+            /* https://tools.ietf.org/html/rfc4568
             * 9.1.  Generic "Crypto" Attribute Grammar
             *
             *   The ABNF grammar for the crypto attribute is defined below:

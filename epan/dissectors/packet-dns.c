@@ -12,7 +12,7 @@
 /*
  * RFC 1034, RFC 1035
  * RFC 2136 for dynamic DNS
- * http://datatracker.ietf.org/doc/draft-cheshire-dnsext-multicastdns/
+ * https://datatracker.ietf.org/doc/draft-cheshire-dnsext-multicastdns/
  *  for multicast DNS
  * RFC 4795 for link-local multicast name resolution (LLMNR)
  *

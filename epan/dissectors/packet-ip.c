@@ -907,7 +907,7 @@ dissect_ipopt_ext_security(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 /* The Commercial IP Security Option (CIPSO) is defined in IETF draft
  * draft-ietf-cipso-ipsecurity-01.txt and FIPS 188, a copy of both documents
  * can be found at the NetLabel project page, http://netlabel.sf.net or at
- * http://tools.ietf.org/html/draft-ietf-cipso-ipsecurity-01 */
+ * https://tools.ietf.org/html/draft-ietf-cipso-ipsecurity-01 */
 static const value_string cipso_tag_type_vals[] = {
    {0,   "Padding"},
    {1,   "Restrictive Category Bitmap"},
@@ -2114,7 +2114,7 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
    * L3 IP destination address will be the last entry in the routing header
    * EXCEPT when the table is exhausted (pointer is greater than the length).
    * In this case, the final L3 IP destination address is the one in the L3
-   * header. (REF: http://tools.ietf.org/html/rfc791#section-3.1)
+   * header. (REF: https://tools.ietf.org/html/rfc791#section-3.1)
    */
   if (hlen > IPH_MIN_LEN) {
     /* There's more than just the fixed-length header.  See if we've got
@@ -2137,7 +2137,7 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
    *
    * Flag a low TTL if the packet is not destined for a multicast address
    * (e.g. 224.0.0.0/4) ... and the payload isn't protocol 103 (PIM).
-   * (see http://tools.ietf.org/html/rfc3973#section-4.7).
+   * (see https://tools.ietf.org/html/rfc3973#section-4.7).
    */
   if (in4_addr_is_local_network_control_block(dst32)) {
     if (iph->ip_proto == IP_PROTO_IGMP)

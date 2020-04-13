@@ -1,6 +1,6 @@
 /* packet-geneve.c
  * Routines for Geneve - Generic Network Virtualization Encapsulation
- * http://tools.ietf.org/html/draft-ietf-nvo3-geneve
+ * https://tools.ietf.org/html/draft-ietf-nvo3-geneve
  *
  * Copyright (c) 2014 VMware, Inc. All Rights Reserved.
  * Author: Jesse Gross <jesse@nicira.com>

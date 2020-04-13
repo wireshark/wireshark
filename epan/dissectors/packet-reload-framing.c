@@ -130,7 +130,7 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     reload_framing_info = (reload_conv_info_t *)conversation_get_proto_data(conversation, proto_reload_framing);
 
   /* Get the type
-   * http://tools.ietf.org/html/draft-ietf-p2psip-base-12
+   * https://tools.ietf.org/html/draft-ietf-p2psip-base-12
    * 5.6.2.  Framing Header
    */
   type = tvb_get_guint8(tvb, 0);

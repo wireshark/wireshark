@@ -7,7 +7,7 @@
  *
  * Monday, June 27, 2005
  * Support for the ICMP extensions for MPLS
- * (http://www.ietf.org/proceedings/01aug/I-D/draft-ietf-mpls-icmp-02.txt
+ * (https://tools.ietf.org/html/draft-ietf-mpls-icmp-02
  *  which has been replaced by rfcs 4884 and 4950)
  * by   Maria-Luiza Crivat <luizacri@gmail.com>
  * &    Brice Augustin <bricecotte@gmail.com>
@@ -1314,7 +1314,7 @@ get_best_guess_mstimeofday(tvbuff_t * tvb, gint offset, guint32 comp_ts)
 	guint32 be_ts, le_ts;
 
 	/* Account for the special case from RFC 792 as best we can by clearing
-	 * the msb.  Ref: [Page 16] of http://tools.ietf.org/html/rfc792:
+	 * the msb.  Ref: [Page 16] of https://tools.ietf.org/html/rfc792:
 
 	 If the time is not available in milliseconds or cannot be provided
 	 with respect to midnight UT then any time can be inserted in a

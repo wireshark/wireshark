@@ -8,7 +8,7 @@
  * Copyright 1998 Gerald Combs
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
- * Ref http://www.ietf.org/rfc/rfc4733.txt?number=4733
+ * Ref https://tools.ietf.org/html/rfc4733
  */
 
 /*

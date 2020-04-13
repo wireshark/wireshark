@@ -20,8 +20,8 @@
  * Here are some links:
  *
  * http://www.cs.berkeley.edu/~lazzaro/rtpmidi/
- * http://www.faqs.org/rfcs/rfc4695.html
- * http://www.faqs.org/rfcs/rfc6295.html
+ * https://tools.ietf.org/html/rfc4695
+ * https://tools.ietf.org/html/rfc6295
  * http://www.midi.org/
  *
  * 2012-02-24

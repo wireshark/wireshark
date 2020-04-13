@@ -233,7 +233,7 @@ static gboolean use_main_tree  = TRUE;
  *
  * dated September 7, 1995, and
  *
- *   http://tools.ietf.org/html/draft-ietf-idmr-pim-spec-02
+ *   https://tools.ietf.org/html/draft-ietf-idmr-pim-spec-02
  *
  * dated September 7, 1995, both entitled "Protocol Independent Multicast-
  * Sparse Mode (PIM-SM): Protocol Specification", describe a protocol that
@@ -258,7 +258,7 @@ static gboolean use_main_tree  = TRUE;
  *
  * Looking at the Dense Mode specs,
  *
- *   http://tools.ietf.org/html/draft-ietf-idmr-pim-dm-spec-02
+ *   https://tools.ietf.org/html/draft-ietf-idmr-pim-dm-spec-02
  *
  * entitled "Protocol Independent Multicast-Dense Mode (PIM-DM): Protocol
  * Specification", dated September 1995, describes a protocol that runs

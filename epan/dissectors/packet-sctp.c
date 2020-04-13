@@ -20,8 +20,8 @@
  * - RFC 5061
  * - RFC 6525
  * - RFC 7053
- * - http://tools.ietf.org/html/draft-stewart-sctp-pktdrprep-02
- * - http://tools.ietf.org/html/draft-ladha-sctp-nonce-02
+ * - https://tools.ietf.org/html/draft-stewart-sctp-pktdrprep-02
+ * - https://tools.ietf.org/html/draft-ladha-sctp-nonce-02
  *
  * Still to do (so stay tuned)
  * - error checking mode

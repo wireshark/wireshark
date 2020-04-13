@@ -146,7 +146,7 @@ static dissector_handle_t bgp_handle;
 #define BGP_OPTION_AUTHENTICATION    1   /* RFC1771 */
 #define BGP_OPTION_CAPABILITY        2   /* RFC2842 */
 
-/* https://www.iana.org/assignments/capability-codes.xhtml (last updated 2018-08-21) */
+/* https://www.iana.org/assignments/capability-codes/capability-codes.xhtml (last updated 2018-08-21) */
 /* BGP capability code */
 #define BGP_CAPABILITY_RESERVED                      0  /* RFC5492 */
 #define BGP_CAPABILITY_MULTIPROTOCOL                 1  /* RFC2858 */

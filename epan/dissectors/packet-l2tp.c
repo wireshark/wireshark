@@ -19,10 +19,10 @@
 
 /*
  * RFC 2661 for L2TPv2
- * http://tools.ietf.org/html/rfc2661
+ * https://tools.ietf.org/html/rfc2661
  *
  * RFC 3931 for L2TPv3
- * http://tools.ietf.org/html/rfc3931
+ * https://tools.ietf.org/html/rfc3931
  *
  * Layer Two Tunneling Protocol "L2TP" number assignments:
  *     http://www.iana.org/assignments/l2tp-parameters
@@ -30,16 +30,16 @@
  * Pseudowire types:
  *
  * RFC 4591 for Frame Relay
- * http://tools.ietf.org/html/rfc4591
+ * https://tools.ietf.org/html/rfc4591
  *
  * RFC 4454 for ATM
- * http://tools.ietf.org/html/rfc4454
+ * https://tools.ietf.org/html/rfc4454
  *
  * RFC 4719 for Ethernet
- * http://tools.ietf.org/html/rfc4719
+ * https://tools.ietf.org/html/rfc4719
  *
  * RFC 4349 for HDLC
- * http://tools.ietf.org/html/rfc4349
+ * https://tools.ietf.org/html/rfc4349
  *
  * XXX - what about LAPD?
  */

@@ -17,11 +17,11 @@
  * there are some Internet-Drafts for a protocol that looks like a
  * descendant or other variant of this:
  *
- *	http://tools.ietf.org/html/draft-taylor-ipdc-00
- *	http://tools.ietf.org/html/draft-dugan-ipdc-connection-00
- *	http://tools.ietf.org/html/draft-elliott-ipdc-media-00
- *	http://tools.ietf.org/html/draft-bell-ipdc-signaling-00
- *	http://tools.ietf.org/html/draft-pickett-ipdc-management-00
+ *	https://tools.ietf.org/html/draft-taylor-ipdc-00
+ *	https://tools.ietf.org/html/draft-dugan-ipdc-connection-00
+ *	https://tools.ietf.org/html/draft-elliott-ipdc-media-00
+ *	https://tools.ietf.org/html/draft-bell-ipdc-signaling-00
+ *	https://tools.ietf.org/html/draft-pickett-ipdc-management-00
  */
 
 #include "config.h"

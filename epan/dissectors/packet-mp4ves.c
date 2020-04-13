@@ -10,7 +10,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * References:
- * http://www.ietf.org/rfc/rfc3016.txt?number=3016
+ * https://tools.ietf.org/html/rfc3016
  */
 
 #include "config.h"

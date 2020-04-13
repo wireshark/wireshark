@@ -3,8 +3,8 @@
  * Parser created by Henning Rogge <henning.rogge@fkie.fraunhofer.de> of Fraunhover
  * TLV values decoding by Francois Schneider <francois.schneider_@_airbus.com>
  *
- * http://tools.ietf.org/html/rfc5444
- * http://tools.ietf.org/html/rfc5498
+ * https://tools.ietf.org/html/rfc5444
+ * https://tools.ietf.org/html/rfc5498
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

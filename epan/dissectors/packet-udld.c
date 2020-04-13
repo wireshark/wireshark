@@ -17,7 +17,7 @@
 /*
  * See
  *
- *  http://tools.ietf.org/rfc/rfc5171.txt
+ *  https://tools.ietf.org/rfc/rfc5171
  *
  * for some information on UDLD.
  */

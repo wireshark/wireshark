@@ -10,7 +10,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * Protocol ref:
- * http://tools.ietf.org/html/draft-davie-stt-07
+ * https://tools.ietf.org/html/draft-davie-stt-07
  */
 
 #include "config.h"

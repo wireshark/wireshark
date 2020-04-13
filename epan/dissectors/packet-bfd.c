@@ -7,7 +7,7 @@
  *   5883: Bidirectional Forwarding Detection (BFD) for Multihop Paths
  *   5884: Bidirectional Forwarding Detection (BFD) for MPLS Label Switched Paths (LSPs)
  *   5885: Bidirectional Forwarding Detection (BFD) for the Pseudowire Virtual Circuit Connectivity Verification (VCCV)
- * (and http://tools.ietf.org/html/draft-ietf-bfd-base-01 for version 0)
+ * (and https://tools.ietf.org/html/draft-ietf-bfd-base-01 for version 0)
  *
  * Copyright 2003, Hannes Gredler <hannes@juniper.net>
  * Copyright 2006, Balint Reczey <Balint.Reczey@ericsson.com>
@@ -41,7 +41,7 @@ void proto_reg_handoff_bfd(void);
 #define UDP_PORT_RANGE_BFD_CTRL  "3784,4784"
 #define UDP_PORT_BFD_ECHO  3785
 
-/* As per RFC 6428 : http://tools.ietf.org/html/rfc6428
+/* As per RFC 6428 : https://tools.ietf.org/html/rfc6428
    Section: 3.5 */
 #define TLV_TYPE_MPLSTP_SECTION_MEP   0
 #define TLV_TYPE_MPLSTP_LSP_MEP       1
@@ -545,7 +545,7 @@ dissect_bfd_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 }
 
 /* BFD CV Source MEP-ID TLV Decoder,
-   As per RFC 6428 : http://tools.ietf.org/html/rfc6428
+   As per RFC 6428 : https://tools.ietf.org/html/rfc6428
    sections - 3.5.1, 3.5.2, 3.5.3 */
 void
 dissect_bfd_mep (tvbuff_t *tvb, proto_tree *tree, const int hfindex)

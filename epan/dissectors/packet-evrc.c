@@ -12,9 +12,9 @@
  *   for Wideband Spread Spectrum Digital Systems
  *                      3GPP2 C.S0014-E v1.0      TIA-127-?
  *
- * RFC 3558  http://www.ietf.org/rfc/rfc3558.txt?number=3558
- * RFC 4788  http://www.ietf.org/rfc/rfc4788.txt?number=4788
- * RFC 5188  http://www.ietf.org/rfc/rfc5188.txt?number=5188
+ * RFC 3558  https://tools.ietf.org/html/rfc3558
+ * RFC 4788  https://tools.ietf.org/html/rfc4788
+ * RFC 5188  https://tools.ietf.org/html/rfc5188
  * draft-agupta-payload-rtp-evrc-nw2k-00
  *
  * Wireshark - Network traffic analyzer

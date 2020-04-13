@@ -10,9 +10,9 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * Ref:
- * http://tools.ietf.org/html/rfc3830  MIKEY
- * http://tools.ietf.org/html/rfc6043  MIKEY-TICKET (ID role required for SAKKE)
- * http://tools.ietf.org/html/rfc6509  MIKEY-SAKKE
+ * https://tools.ietf.org/html/rfc3830  MIKEY
+ * https://tools.ietf.org/html/rfc6043  MIKEY-TICKET (ID role required for SAKKE)
+ * https://tools.ietf.org/html/rfc6509  MIKEY-SAKKE
  */
 
 /*

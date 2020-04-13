@@ -2,11 +2,11 @@
  * packet-rtcdc.c
  * Routines for the RTCWeb Data Channel Protocol dissection
  * as specified in
- * http://tools.ietf.org/html/draft-jesup-rtcweb-data-protocol-03
+ * https://tools.ietf.org/html/draft-jesup-rtcweb-data-protocol-03
  * and specified in
- * http://tools.ietf.org/html/draft-ietf-rtcweb-data-protocol-08
+ * https://tools.ietf.org/html/draft-ietf-rtcweb-data-protocol-08
  * We might want to remove the support of
- * http://tools.ietf.org/html/draft-jesup-rtcweb-data-protocol-03
+ * https://tools.ietf.org/html/draft-jesup-rtcweb-data-protocol-03
  * in the future, but I'll leave it in for now.
  * Copyright 2012 - 2013, Michael Tuexen <tuexen@wireshark.org>
  *

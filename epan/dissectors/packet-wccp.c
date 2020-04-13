@@ -270,7 +270,7 @@ static expert_field ei_wccp_a_zero_not_c = EI_INIT;
 /*
  * At
  *
- *      http://tools.ietf.org/html/draft-forster-wrec-wccp-v1-00
+ *      https://tools.ietf.org/html/draft-forster-wrec-wccp-v1-00
  *
  * is a copy of the now-expired Internet-Draft for WCCP 1.0.
  *

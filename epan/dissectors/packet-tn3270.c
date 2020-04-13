@@ -13,13 +13,13 @@
  *
  *
  *  RFC 1041: Telnet 3270 Regime Option
- *    http://tools.ietf.org/html/rfc1041
+ *    https://tools.ietf.org/html/rfc1041
  *
  *  RFC 1576: TN3270 Current Practices
- *    http://tools.ietf.org/html/rfc1576
+ *    https://tools.ietf.org/html/rfc1576
  *
  *  RFC 2355: TN3270 Enhancements
- *    http://tools.ietf.org/html/rfc2355
+ *    https://tools.ietf.org/html/rfc2355
  *
  *
  * Copyright 2009, Robert Hogan <robert@roberthogan.net>
