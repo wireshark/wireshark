@@ -1214,7 +1214,7 @@ dis_field_dt(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint32 *offse
 
 /* 9.2.3.15 TP-Status (TP-ST) */
 static const value_string dis_field_st_error_vals[] = {
-    { 0x00,  "Short message transaction completed" },
+    { 0x00,  "No error, short message transaction completed" },
     { 0x01,  "Temporary error, SC still trying to transfer SM" },
     { 0x02,  "Permanent error, SC is not making any more transfer attempts" },
     { 0x03,  "Temporary error, SC is not making any more transfer attempts" },
