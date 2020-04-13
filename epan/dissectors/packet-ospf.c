@@ -133,6 +133,7 @@ static const value_string auth_vals[] = {
 #define OSPF_RI_OPTIONS_TES             0x10
 #define OSPF_RI_OPTIONS_P2PLAN          0x08
 #define OSPF_RI_OPTIONS_ETE             0x04
+#define OSPF_RI_OPTIONS_HOST            0x01
 
 #define OSPF_LLS_EXT_OPTIONS_LR         0x00000001
 #define OSPF_LLS_EXT_OPTIONS_RS         0x00000002
@@ -442,6 +443,7 @@ static const true_false_string tfs_arbitrary_standard = { "Arbitrary", "Standard
 #define OSPF_V2_ROUTER_LSA_FLAG_V 0x04
 #define OSPF_V2_ROUTER_LSA_FLAG_W 0x08
 #define OSPF_V2_ROUTER_LSA_FLAG_N 0x10
+#define OSPF_V2_ROUTER_LSA_FLAG_H 0x80
 #define OSPF_V3_ROUTER_LSA_FLAG_B 0x01
 #define OSPF_V3_ROUTER_LSA_FLAG_E 0x02
 #define OSPF_V3_ROUTER_LSA_FLAG_V 0x04
@@ -758,6 +760,7 @@ static int hf_ospf_ri_options_srs = -1;
 static int hf_ospf_ri_options_tes = -1;
 static int hf_ospf_ri_options_p2plan = -1;
 static int hf_ospf_ri_options_ete = -1;
+static int hf_ospf_ri_options_host = -1;
 
 /* OSPF Extended Link Opaque LSA */
 static int hf_ospf_ls_elink_tlv = -1;
@@ -818,6 +821,7 @@ static int hf_ospf_v2_router_lsa_flag_e = -1;
 static int hf_ospf_v2_router_lsa_flag_v = -1;
 static int hf_ospf_v2_router_lsa_flag_w = -1;
 static int hf_ospf_v2_router_lsa_flag_n = -1;
+static int hf_ospf_v2_router_lsa_flag_h = -1;
 static int hf_ospf_v3_router_lsa_flag = -1;
 static int hf_ospf_v3_router_lsa_flag_b = -1;
 static int hf_ospf_v3_router_lsa_flag_e = -1;
@@ -1060,12 +1064,7 @@ static const int *bf_v3_lls_relay_options[] = {
     NULL
 };
 static const int *bf_v2_router_lsa_flags[] = {
-    &hf_ospf_v2_router_lsa_flag_v,
-    &hf_ospf_v2_router_lsa_flag_e,
-    &hf_ospf_v2_router_lsa_flag_b,
-    NULL
-};
-static const int *bf_v2_router_lsa_mt_flags[] = {
+    &hf_ospf_v2_router_lsa_flag_h,
     &hf_ospf_v2_router_lsa_flag_n,
     &hf_ospf_v2_router_lsa_flag_w,
     &hf_ospf_v2_router_lsa_flag_v,
@@ -1116,6 +1115,7 @@ static const int *bf_ri_options[] = {
     &hf_ospf_ri_options_tes,
     &hf_ospf_ri_options_p2plan,
     &hf_ospf_ri_options_ete,
+    &hf_ospf_ri_options_host,
     NULL
 };
 static const int *bf_v3_options[] = {
@@ -3327,11 +3327,7 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
 
     case OSPF_LSTYPE_ROUTER:
         /* flags field in an router-lsa */
-        if (options & OSPF_V2_OPTIONS_MT) {
-            proto_tree_add_bitmask(ospf_lsa_tree, tvb, offset, hf_ospf_v2_router_lsa_flag, ett_ospf_v2_router_lsa_flags, bf_v2_router_lsa_mt_flags, ENC_BIG_ENDIAN);
-        } else {
-            proto_tree_add_bitmask(ospf_lsa_tree, tvb, offset, hf_ospf_v2_router_lsa_flag, ett_ospf_v2_router_lsa_flags, bf_v2_router_lsa_flags, ENC_BIG_ENDIAN);
-        }
+        proto_tree_add_bitmask(ospf_lsa_tree, tvb, offset, hf_ospf_v2_router_lsa_flag, ett_ospf_v2_router_lsa_flags, bf_v2_router_lsa_flags, ENC_BIG_ENDIAN);
 
         nr_links = tvb_get_ntohs(tvb, offset + 2);
         proto_tree_add_item(ospf_lsa_tree, hf_ospf_lsa_number_of_links, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
@@ -4248,6 +4244,9 @@ proto_register_ospf(void)
         {&hf_ospf_ri_options_ete,
          { "(ETE) Experimental TE", "ospf.ri.options.ete", FT_BOOLEAN, 8,
            TFS(&tfs_capable_not_capable), OSPF_RI_OPTIONS_ETE, NULL, HFILL }},
+        {&hf_ospf_ri_options_host,
+         { "Host Router", "ospf.ri.options.host", FT_BOOLEAN, 8,
+           TFS(&tfs_capable_not_capable), OSPF_RI_OPTIONS_HOST, NULL, HFILL }},
 
         {&hf_ospf_tlv_type_opaque,
          { "TLV Type", "ospf.tlv_type.opaque", FT_UINT16, BASE_DEC, VALS(ri_tlv_type_vals), 0x0,
@@ -4325,6 +4324,9 @@ proto_register_ospf(void)
         {&hf_ospf_v2_router_lsa_flag_n,
          { "(N) flag", "ospf.v2.router.lsa.flags.n", FT_BOOLEAN, 8,
            TFS(&tfs_yes_no), OSPF_V2_ROUTER_LSA_FLAG_N, NULL, HFILL }},
+        {&hf_ospf_v2_router_lsa_flag_h,
+         { "(H) flag", "ospf.v2.router.lsa.flags.h", FT_BOOLEAN, 8,
+           TFS(&tfs_yes_no), OSPF_V2_ROUTER_LSA_FLAG_H, NULL, HFILL }},
         {&hf_ospf_v3_router_lsa_flag,
          { "Flags", "ospf.v3.router.lsa.flags", FT_UINT8, BASE_HEX,
            NULL, 0x0, NULL, HFILL }},
