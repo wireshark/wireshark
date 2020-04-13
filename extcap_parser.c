@@ -245,6 +245,7 @@ static void extcap_free_value(extcap_value *v) {
 
     g_free(v->call);
     g_free(v->display);
+    g_free(v->parent);
 
     g_free(v);
 }
