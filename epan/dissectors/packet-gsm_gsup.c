@@ -977,7 +977,7 @@ proto_register_gsup(void)
 		    "Invalid Information Element Length", EXPFILL } },
 	};
 
-	proto_gsup = proto_register_protocol("Osmocom General Subscriber Update Protocol", "gsup", "gsup");
+	proto_gsup = proto_register_protocol("Osmocom General Subscriber Update Protocol", "GSUP", "gsup");
 	proto_register_field_array(proto_gsup, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
