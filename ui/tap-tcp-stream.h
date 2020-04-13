@@ -71,11 +71,8 @@ struct tcp_graph {
  *        destination address types are AT_NONE the address and port
  *        information will be filled in using the first packet in the
  *        specified stream.
- * @param stream_known If FALSE, session information will be filled in using
- *        the currently selected packet. If FALSE, session information will
- *        be matched against tg.
  */
-void graph_segment_list_get(capture_file *cf, struct tcp_graph *tg, gboolean stream_known );
+void graph_segment_list_get(capture_file *cf, struct tcp_graph *tg);
 void graph_segment_list_free(struct tcp_graph * );
 
 /* for compare_headers() */
@@ -88,7 +85,7 @@ int compare_headers(address *saddr1, address *daddr1, guint16 sport1, guint16 dp
 int get_num_dsegs(struct tcp_graph * );
 int get_num_acks(struct tcp_graph *, int * );
 
-struct tcpheader *select_tcpip_session(capture_file *, struct segment * );
+guint32 select_tcpip_session(capture_file *);
 
 /* This is used by rtt module only */
 struct rtt_unack {

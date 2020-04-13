@@ -123,23 +123,14 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
     num_sack_ranges_(-1),
     ma_window_size_(1.0)
 {
-    struct segment current;
     int graph_idx = -1;
 
     ui->setupUi(this);
     if (parent) loadGeometry(parent->width() * 2 / 3, parent->height() * 4 / 5);
     setAttribute(Qt::WA_DeleteOnClose, true);
 
-    graph_.type = GRAPH_UNDEFINED;
-    set_address(&graph_.src_address, AT_NONE, 0, NULL);
-    graph_.src_port = 0;
-    set_address(&graph_.dst_address, AT_NONE, 0, NULL);
-    graph_.dst_port = 0;
-    graph_.stream = 0;
-    graph_.segments = NULL;
-
-    struct tcpheader *header = select_tcpip_session(cap_file_, &current);
-    if (!header) {
+    guint32 th_stream = select_tcpip_session(cap_file_);
+    if (th_stream == G_MAXUINT32) {
         done(QDialog::Rejected);
         return;
     }
@@ -196,11 +187,7 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
 
     memset (&graph_, 0, sizeof(graph_));
     graph_.type = graph_type;
-    copy_address(&graph_.src_address, &current.ip_src);
-    graph_.src_port = current.th_sport;
-    copy_address(&graph_.dst_address, &current.ip_dst);
-    graph_.dst_port = current.th_dport;
-    graph_.stream = header->th_stream;
+    graph_.stream = th_stream;
     findStream();
 
     showWidgetsForGraphType();
@@ -369,6 +356,8 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
 
 TCPStreamDialog::~TCPStreamDialog()
 {
+    graph_segment_list_free(&graph_);
+
     delete ui;
 }
 
@@ -518,7 +507,7 @@ void TCPStreamDialog::findStream()
         ui->streamNumberSpinBox->clearFocus();
     ui->streamNumberSpinBox->setEnabled(false);
     graph_segment_list_free(&graph_);
-    graph_segment_list_get(cap_file_, &graph_, TRUE);
+    graph_segment_list_get(cap_file_, &graph_);
     ui->streamNumberSpinBox->setEnabled(true);
     if (spin_box_focused)
         ui->streamNumberSpinBox->setFocus();
@@ -2102,10 +2091,13 @@ void TCPStreamDialog::on_actionSwitchDirection_triggered()
 
     copy_address(&tmp_addr, &graph_.src_address);
     tmp_port = graph_.src_port;
+    free_address(&graph_.src_address);
     copy_address(&graph_.src_address, &graph_.dst_address);
     graph_.src_port = graph_.dst_port;
+    free_address(&graph_.dst_address);
     copy_address(&graph_.dst_address, &tmp_addr);
     graph_.dst_port = tmp_port;
+    free_address(&tmp_addr);
 
     fillGraph(/*reset_axes=*/true, /*set_focus=*/false);
 }
@@ -2195,8 +2187,6 @@ void TCPStreamDialog::GraphUpdater::doUpdate()
         if ((int(dialog_->graph_.stream) != new_stream) &&
             (new_stream >= 0 && new_stream < int(get_tcp_stream_count()))) {
             dialog_->graph_.stream = new_stream;
-            clear_address(&dialog_->graph_.src_address);
-            clear_address(&dialog_->graph_.dst_address);
             dialog_->findStream();
         }
         dialog_->fillGraph(reset_axes, /*set_focus =*/false);
