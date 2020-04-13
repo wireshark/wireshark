@@ -1111,28 +1111,25 @@ static void
 dissect_lsp_ext_ip_reachability_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree,
     int offset, isis_data_t *isis _U_, int length)
 {
-    proto_tree *subtree = NULL;
-    proto_tree *subclv_tree = NULL;
-    proto_item *ti_subtree = NULL;
-    proto_item *ti_subclvs = NULL;
-    guint8     ctrl_info;
-    guint      bit_length;
-    int        byte_length;
-    union {
-       guint8 addr_bytes[4];
-       guint32 addr;
-    } prefix;
-    address    prefix_addr;
-    guint      len,i;
-    guint      subclvs_len;
-    guint      clv_code, clv_len;
-    gint       clv_offset;
-    gchar      *prefix_str;
+    proto_tree  *subtree = NULL;
+    proto_tree  *subclv_tree = NULL;
+    proto_item  *ti_subtree = NULL;
+    proto_item  *ti_subclvs = NULL;
+    guint8      ctrl_info;
+    guint       bit_length;
+    int         byte_length;
+    ws_in4_addr prefix;
+    address     prefix_addr;
+    guint       len,i;
+    guint       subclvs_len;
+    guint       clv_code, clv_len;
+    gint        clv_offset;
+    gchar       *prefix_str;
 
     while (length > 0) {
         ctrl_info = tvb_get_guint8(tvb, offset+4);
         bit_length = ctrl_info & 0x3f;
-        byte_length = tvb_get_ipv4_addr_with_prefix_len(tvb, offset+5, prefix.addr_bytes, bit_length);
+        byte_length = tvb_get_ipv4_addr_with_prefix_len(tvb, offset+5, &prefix, bit_length);
         if (byte_length == -1) {
             proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_short_clv, tvb, offset, -1,
                  "IPv4 prefix has an invalid length: %d bits", bit_length );
@@ -1146,7 +1143,7 @@ dissect_lsp_ext_ip_reachability_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tre
         subtree = proto_tree_add_subtree(tree, tvb, offset, 5+byte_length+subclvs_len,
                             ett_isis_lsp_part_of_clv_ext_ip_reachability, &ti_subtree, "Ext. IP Reachability");
 
-        set_address(&prefix_addr, AT_IPv4, 4, prefix.addr_bytes);
+        set_address(&prefix_addr, AT_IPv4, 4, &prefix);
         prefix_str = address_to_str(wmem_packet_scope(), &prefix_addr);
         proto_item_append_text(ti_subtree, ": %s/%u", prefix_str, bit_length);
 
@@ -1155,7 +1152,7 @@ dissect_lsp_ext_ip_reachability_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tre
         proto_tree_add_item(subtree, hf_isis_lsp_ext_ip_reachability_subtlv, tvb, offset+4, 1, ENC_NA);
         proto_tree_add_item(subtree, hf_isis_lsp_ext_ip_reachability_prefix_length, tvb, offset+4, 1, ENC_NA);
 
-        proto_tree_add_ipv4(subtree, hf_isis_lsp_ext_ip_reachability_ipv4_prefix, tvb, offset + 5, byte_length, prefix.addr);
+        proto_tree_add_ipv4(subtree, hf_isis_lsp_ext_ip_reachability_ipv4_prefix, tvb, offset + 5, byte_length, prefix);
 
         len = 5 + byte_length;
         if ((ctrl_info & 0x40) != 0) {

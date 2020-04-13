@@ -2671,32 +2671,29 @@ decode_path_prefix4(proto_tree *tree, packet_info *pinfo, int hf_path_id, int hf
                     const char *tag)
 {
     proto_tree *prefix_tree;
-    union {
-       guint8 addr_bytes[4];
-       guint32 addr;
-    } ip_addr;        /* IP address                         */
-    guint8 plen;      /* prefix length                      */
-    int    length;    /* number of octets needed for prefix */
+    ws_in4_addr ip_addr; /* IP address                         */
+    guint8 plen;         /* prefix length                      */
+    int    length;       /* number of octets needed for prefix */
     guint32 path_identifier;
     address addr;
 
     /* snarf path identifier length and prefix */
     path_identifier = tvb_get_ntohl(tvb, offset);
     plen = tvb_get_guint8(tvb, offset + 4);
-    length = tvb_get_ipv4_addr_with_prefix_len(tvb, offset + 4 + 1, ip_addr.addr_bytes, plen);
+    length = tvb_get_ipv4_addr_with_prefix_len(tvb, offset + 4 + 1, &ip_addr, plen);
     if (length < 0) {
         proto_tree_add_expert_format(tree, pinfo, &ei_bgp_length_invalid, tvb, offset + 4 , 1, "%s length %u invalid (> 32)",
             tag, plen);
         return -1;
     }
     /* put prefix into protocol tree */
-    set_address(&addr, AT_IPv4, 4, ip_addr.addr_bytes);
+    set_address(&addr, AT_IPv4, 4, &ip_addr);
     prefix_tree = proto_tree_add_subtree_format(tree, tvb, offset,  4 + 1 + length,
                             ett_bgp_prefix, NULL, "%s/%u PathId %u ",
                             address_to_str(wmem_packet_scope(), &addr), plen, path_identifier);
     proto_tree_add_item(prefix_tree, hf_path_id, tvb, offset, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(prefix_tree, hf_bgp_prefix_length, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_ipv4(prefix_tree, hf_addr, tvb, offset + 4 + 1, length, ip_addr.addr);
+    proto_tree_add_ipv4(prefix_tree, hf_addr, tvb, offset + 4 + 1, length, ip_addr);
     return(4 + 1 + length);
 }
 
@@ -2708,17 +2705,14 @@ decode_prefix4(proto_tree *tree, packet_info *pinfo, proto_item *parent_item, in
                const char *tag)
 {
     proto_tree *prefix_tree;
-    union {
-       guint8 addr_bytes[4];
-       guint32 addr;
-    } ip_addr;        /* IP address                         */
-    guint8 plen;      /* prefix length                      */
-    int    length;    /* number of octets needed for prefix */
+    ws_in4_addr ip_addr; /* IP address                         */
+    guint8 plen;         /* prefix length                      */
+    int    length;       /* number of octets needed for prefix */
     address addr;
 
     /* snarf length and prefix */
     plen = tvb_get_guint8(tvb, offset);
-    length = tvb_get_ipv4_addr_with_prefix_len(tvb, offset + 1, ip_addr.addr_bytes, plen);
+    length = tvb_get_ipv4_addr_with_prefix_len(tvb, offset + 1, &ip_addr, plen);
     if (length < 0) {
         proto_tree_add_expert_format(tree, pinfo, &ei_bgp_length_invalid, tvb, offset, 1, "%s length %u invalid (> 32)",
             tag, plen);
@@ -2726,7 +2720,7 @@ decode_prefix4(proto_tree *tree, packet_info *pinfo, proto_item *parent_item, in
     }
 
     /* put prefix into protocol tree */
-    set_address(&addr, AT_IPv4, 4, ip_addr.addr_bytes);
+    set_address(&addr, AT_IPv4, 4, &ip_addr);
     prefix_tree = proto_tree_add_subtree_format(tree, tvb, offset,
             1 + length, ett_bgp_prefix, NULL,
             "%s/%u", address_to_str(wmem_packet_scope(), &addr), plen);
@@ -2736,8 +2730,7 @@ decode_prefix4(proto_tree *tree, packet_info *pinfo, proto_item *parent_item, in
 
     proto_tree_add_uint_format(prefix_tree, hf_bgp_prefix_length, tvb, offset, 1, plen, "%s prefix length: %u",
         tag, plen);
-    proto_tree_add_ipv4(prefix_tree, hf_addr, tvb, offset + 1, length,
-            ip_addr.addr);
+    proto_tree_add_ipv4(prefix_tree, hf_addr, tvb, offset + 1, length, ip_addr);
     return(1 + length);
 }
 
@@ -5522,12 +5515,9 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
     guint               plen;               /* length of the prefix address, in bits */
     guint               labnum;             /* number of labels             */
     guint16             tnl_id;             /* Tunnel Identifier */
-    union {
-       guint8 addr_bytes[4];
-       guint32 addr;
-    } ip4addr;                              /* IPv4 address                 */
+    ws_in4_addr         ip4addr;            /* IPv4 address                 */
     address addr;
-    ws_in6_addr   ip6addr;            /* IPv6 address                 */
+    ws_in6_addr         ip6addr;            /* IPv6 address                 */
     guint16             rd_type;            /* Route Distinguisher type     */
     guint16             nlri_type;          /* NLRI Type                    */
     guint16             tmp16;
@@ -5582,7 +5572,7 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
                     return -1;
                 }
                 plen -= (labnum * 3*8);
-                length = tvb_get_ipv4_addr_with_prefix_len(tvb, offset, ip4addr.addr_bytes, plen);
+                length = tvb_get_ipv4_addr_with_prefix_len(tvb, offset, &ip4addr, plen);
                 if (length < 0) {
                     proto_tree_add_expert_format(tree, pinfo, &ei_bgp_prefix_length_invalid, tvb, start_offset, 1,
                                         "%s Labeled IPv4 prefix length %u invalid",
@@ -5590,7 +5580,7 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
                     return -1;
                 }
 
-                set_address(&addr, AT_IPv4, 4, ip4addr.addr_bytes);
+                set_address(&addr, AT_IPv4, 4, &ip4addr);
                 if (total_length > 0) {
                     prefix_tree = proto_tree_add_subtree_format(tree, tvb, start_offset,
                                          (offset + length) - start_offset,
@@ -5613,8 +5603,7 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
                 proto_tree_add_string_format(prefix_tree, hf_bgp_label_stack, tvb, start_offset + 1, 3 * labnum, wmem_strbuf_get_str(stack_strbuf),
                                         "%s Label Stack: %s", tag, wmem_strbuf_get_str(stack_strbuf));
                 total_length += (1 + labnum*3) + length;
-                proto_tree_add_ipv4(prefix_tree, hf_addr4, tvb, offset,
-                                        length, ip4addr.addr);
+                proto_tree_add_ipv4(prefix_tree, hf_addr4, tvb, offset, length, ip4addr);
                 break;
             case SAFNUM_MCAST_VPN:
                 total_length = decode_mcast_vpn_nlri(tree, tvb, offset, afi);
@@ -5700,14 +5689,14 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
                 tnl_id = tvb_get_ntohs(tvb, offset + 1);
                 offset += 3; /* Length + Tunnel Id */
                 plen -= 16; /* 2-octet Identifier */
-                length = tvb_get_ipv4_addr_with_prefix_len(tvb, offset, ip4addr.addr_bytes, plen);
+                length = tvb_get_ipv4_addr_with_prefix_len(tvb, offset, &ip4addr, plen);
                 if (length < 0) {
                     proto_tree_add_expert_format(tree, pinfo, &ei_bgp_prefix_length_invalid, tvb, start_offset, 1,
                                         "%s Tunnel IPv4 prefix length %u invalid",
                                         tag, plen + 16);
                     return -1;
                 }
-                set_address(&addr, AT_IPv4, 4, ip4addr.addr_bytes);
+                set_address(&addr, AT_IPv4, 4, &ip4addr);
                 prefix_tree = proto_tree_add_subtree_format(tree, tvb, start_offset,
                                          (offset + length) - start_offset,
                                          ett_bgp_prefix, NULL,
@@ -5718,8 +5707,7 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
 
                 proto_tree_add_item(prefix_tree, hf_bgp_mp_nlri_tnl_id, tvb,
                                     start_offset + 1, 2, ENC_BIG_ENDIAN);
-                proto_tree_add_ipv4(prefix_tree, hf_addr4, tvb, offset,
-                                        length, ip4addr.addr);
+                proto_tree_add_ipv4(prefix_tree, hf_addr4, tvb, offset, length, ip4addr);
                 total_length = 1 + 2 + length; /* length field + Tunnel Id + IPv4 len */
                 break;
             case SAFNUM_SR_POLICY:
@@ -5751,14 +5739,14 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
                 }
                 plen -= 8*8;
 
-                length = tvb_get_ipv4_addr_with_prefix_len(tvb, offset + 8, ip4addr.addr_bytes, plen);
+                length = tvb_get_ipv4_addr_with_prefix_len(tvb, offset + 8, &ip4addr, plen);
                 if (length < 0) {
                 proto_tree_add_expert_format(tree, pinfo, &ei_bgp_prefix_length_invalid, tvb, start_offset, 1,
                                              "%s Labeled VPN IPv4 prefix length %u invalid",
                                              tag, plen + (labnum * 3*8) + 8*8);
                      return -1;
                 }
-                set_address(&addr, AT_IPv4, 4, ip4addr.addr_bytes);
+                set_address(&addr, AT_IPv4, 4, &ip4addr);
                 prefix_tree = proto_tree_add_subtree_format(tree, tvb, start_offset,
                                                  (offset + 8 + length) - start_offset,
                                                  ett_bgp_prefix, NULL, "BGP Prefix");
@@ -5767,7 +5755,7 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
                 proto_tree_add_string(prefix_tree, hf_bgp_label_stack, tvb, start_offset + 1, 3 * labnum, wmem_strbuf_get_str(stack_strbuf));
                 proto_tree_add_string(prefix_tree, hf_bgp_rd, tvb, start_offset + 1 + 3 * labnum, 8, decode_bgp_rd(tvb, offset));
 
-                proto_tree_add_ipv4(prefix_tree, hf_addr4, tvb, offset + 8, length, ip4addr.addr);
+                proto_tree_add_ipv4(prefix_tree, hf_addr4, tvb, offset + 8, length, ip4addr);
 
                 total_length = (1 + labnum * 3 + 8) + length;
                 break;

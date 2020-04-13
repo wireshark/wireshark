@@ -12,6 +12,9 @@
 #ifndef __ADDR_AND_MASK_H__
 #define __ADDR_AND_MASK_H__
 
+#include <wsutil/inet_ipv4.h>
+#include <wsutil/inet_ipv6.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -27,7 +30,7 @@ extern "C" {
 #define PREFIX_LEN_ZERO		2
 
 extern int tvb_get_ipv4_addr_with_prefix_len(tvbuff_t *tvb, int offset,
-    guint8 *addr, guint32 prefix_len);
+    ws_in4_addr *addr, guint32 prefix_len);
 
 extern int tvb_get_ipv6_addr_with_prefix_len(tvbuff_t *tvb, int offset,
     ws_in6_addr *addr, guint32 prefix_len);
