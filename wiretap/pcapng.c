@@ -916,8 +916,7 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
                  */
             case(OPT_IDB_FILTER): /* if_filter */
                 if (oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
-                    wtapng_if_descr_filter_t if_filter;
-                    memset(&if_filter, 0, sizeof(if_filter));
+                    wtapng_if_descr_filter_t if_filter = {0};
 
                     /* The first byte of the Option Data keeps a code of the filter used (e.g. if this is a libpcap string,
                      * or BPF bytecode.

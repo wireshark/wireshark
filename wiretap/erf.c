@@ -2733,11 +2733,9 @@ static int populate_interface_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo
   int interface_index = -1;
   wtap_block_t int_data = NULL;
   wtapng_if_descr_mandatory_t* int_data_mand = NULL;
-  wtapng_if_descr_filter_t if_filter;
+  wtapng_if_descr_filter_t if_filter = {0};
   guint32 if_num = 0;
   struct erf_if_info* if_info = NULL;
-
-  memset(&if_filter, 0, sizeof(if_filter));
 
   if (!wth || !state || !pseudo_header || !state->if_map)
     return -1;
@@ -2926,14 +2924,12 @@ static int populate_stream_info(erf_t *erf_priv _U_, wtap *wth, union wtap_pseud
   int interface_index = -1;
   wtap_block_t int_data = NULL;
   wtapng_if_descr_mandatory_t* int_data_mand = NULL;
-  wtapng_if_descr_filter_t if_filter;
+  wtapng_if_descr_filter_t if_filter = {0};
   guint32 if_num = 0;
   gint32 stream_num = -1;
   guint8 *tag_ptr_tmp;
   guint32 remaining_len_tmp;
   struct erf_if_info* if_info = NULL;
-
-  memset(&if_filter, 0, sizeof(if_filter));
 
   if (!wth || !pseudo_header || !state || !state->if_map)
     return -1;
@@ -3124,7 +3120,7 @@ static int populate_anchor_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo_he
 /* Populates the capture and interface information for display on the Capture File Properties */
 static int populate_summary_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo_header *pseudo_header, Buffer *buf, guint32 packet_size, GPtrArray *anchor_mappings_to_update)
 {
-  struct erf_meta_read_state state;
+  struct erf_meta_read_state state = {0};
   struct erf_meta_read_state *state_post = NULL;
   guint64 host_id;
   guint8 source_id;
@@ -3136,8 +3132,6 @@ static int populate_summary_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo_h
 
   if (!erf_priv || !wth || !pseudo_header)
     return -1;
-
-  memset(&state, 0, sizeof(struct erf_meta_read_state));
 
   erf_get_source_from_header(pseudo_header, &host_id, &source_id);
 
@@ -3335,14 +3329,13 @@ static gboolean get_user_comment_string(wtap_dumper *wdh, gchar** user_comment_p
 }
 
 static gboolean erf_dump_priv_compare_capture_comment(wtap_dumper *wdh _U_, erf_dump_t *dump_priv, const union wtap_pseudo_header *pseudo_header, const guint8 *pd){
-  struct erf_meta_read_state state;
+  struct erf_meta_read_state state = {0};
   struct erf_meta_tag tag = {0, 0, NULL};
   guint32 tagtotallength;
   gboolean found_capture_section = FALSE;
   gboolean found_normal_section = FALSE;
   gchar* comment_ptr = NULL;
 
-  memset(&state, 0, sizeof(struct erf_meta_read_state));
   state.remaining_len = pseudo_header->erf.phdr.wlen;
   memcpy(&(state.tag_ptr), &pd, sizeof(pd));
 

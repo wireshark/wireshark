@@ -627,7 +627,7 @@ static gboolean visual_dump(wtap_dumper *wdh, const wtap_rec *rec,
 {
     const union wtap_pseudo_header *pseudo_header = &rec->rec_header.packet_header.pseudo_header;
     struct visual_write_info * visual = (struct visual_write_info *)wdh->priv;
-    struct visual_pkt_hdr vpkt_hdr;
+    struct visual_pkt_hdr vpkt_hdr = {0};
     size_t hdr_size = sizeof vpkt_hdr;
     guint delta_msec;
     guint32 packet_status;
@@ -657,9 +657,6 @@ static gboolean visual_dump(wtap_dumper *wdh, const wtap_rec *rec,
        can be done. */
     if (visual == 0)
         return FALSE;
-
-    /* Zero out unused and reserved fields in the packet header. */
-    memset(&vpkt_hdr, 0, hdr_size);
 
     /* Visual UpTime capture files have a capture start time in the
        file header.  Each packet has a capture time (in msec) relative
@@ -760,7 +757,7 @@ static gboolean visual_dump_finish(wtap_dumper *wdh, int *err)
 {
     struct visual_write_info * visual = (struct visual_write_info *)wdh->priv;
     size_t n_to_write;
-    struct visual_file_hdr vfile_hdr;
+    struct visual_file_hdr vfile_hdr = {0};
     const char *magicp;
     size_t magic_size;
 
@@ -792,8 +789,6 @@ static gboolean visual_dump_finish(wtap_dumper *wdh, int *err)
         return FALSE;
     }
 
-    /* Initialize the file header with zeroes for the reserved fields. */
-    memset(&vfile_hdr, '\0', sizeof vfile_hdr);
     vfile_hdr.num_pkts = GUINT32_TO_LE(visual->index_table_index);
     vfile_hdr.start_time = GUINT32_TO_LE(visual->start_time);
     vfile_hdr.max_length = GUINT16_TO_LE(65535);

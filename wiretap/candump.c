@@ -57,9 +57,8 @@ candump_write_packet(wtap_rec *rec, Buffer *buf, const msg_t *msg)
 
     if (msg->is_fd)
     {
-        canfd_frame_t canfd_frame;
+        canfd_frame_t canfd_frame = {0};
 
-        memset(&canfd_frame, 0, sizeof(canfd_frame));
         canfd_frame.can_id = msg->id;
         canfd_frame.flags  = msg->flags;
         canfd_frame.len    = msg->data.length;
@@ -69,9 +68,8 @@ candump_write_packet(wtap_rec *rec, Buffer *buf, const msg_t *msg)
     }
     else
     {
-        can_frame_t can_frame;
+        can_frame_t can_frame = {0};
 
-        memset(&can_frame, 0, sizeof(can_frame));
         can_frame.can_id  = msg->id;
         can_frame.can_dlc = msg->data.length;
         memcpy(can_frame.data, msg->data.data, msg->data.length);
@@ -91,7 +89,7 @@ candump_write_packet(wtap_rec *rec, Buffer *buf, const msg_t *msg)
 static gboolean
 candump_parse(FILE_T fh, msg_t *msg, gint64 *offset, int *err, char **err_info)
 {
-    candump_state_t state;
+    candump_state_t state = {0};
     gboolean        ok;
     gint64          seek_off;
 
@@ -99,7 +97,6 @@ candump_parse(FILE_T fh, msg_t *msg, gint64 *offset, int *err, char **err_info)
     ws_debug_printf("%s: Trying candump file decoder\n", G_STRFUNC);
 #endif
 
-    memset(&state, 0, sizeof(state));
     state.fh = fh;
 
     do
