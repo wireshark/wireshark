@@ -213,6 +213,7 @@ static gint ett_extended_advertising_cte_info = -1;
 static gint ett_extended_advertising_data_info = -1;
 static gint ett_extended_advertising_aux_pointer = -1;
 static gint ett_extended_advertising_sync_info = -1;
+static gint ett_extended_advertising_acad = -1;
 
 static const int *hfx_extended_advertising_flags[] = {
     &hf_extended_advertising_flags_adva,
@@ -1164,7 +1165,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 acad_len -= 3;
             }
 
-            if (flags & 0x20 || pdu_type == 0x05) {
+            if (flags & 0x20) {
                 guint32 sync_offset, interval;
                 proto_item  *sync_info_item;
                 proto_tree  *sync_info_tree;
@@ -1219,18 +1220,16 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 acad_len -= 1;
             }
 
-            if (flags & 0x80) {
-                /* Reserved */
-            }
+            if (acad_len > 0) {
+                sub_item = proto_tree_add_item(ext_header_tree, hf_extended_advertising_header_acad, tvb, offset, acad_len, ENC_NA);
+                sub_tree = proto_item_add_subtree(sub_item, ett_extended_advertising_acad);
 
-            if (acad_len > 0)
-            {
-                /* Controller Advertising Data */
+                /* Additional Controller Advertising Data */
                 bluetooth_eir_ad_data_t *ad_data = wmem_new0(wmem_packet_scope(), bluetooth_eir_ad_data_t);
                 ad_data->interface_id = interface_id;
                 ad_data->adapter_id = adapter_id;
                 next_tvb = tvb_new_subset_length(tvb, offset, acad_len);
-                call_dissector_with_data(btcommon_ad_handle, next_tvb, pinfo, ext_header_tree, ad_data);
+                call_dissector_with_data(btcommon_ad_handle, next_tvb, pinfo, sub_tree, ad_data);
 
                 offset += acad_len;
             }
@@ -1241,7 +1240,16 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 ad_data->interface_id = interface_id;
                 ad_data->adapter_id = adapter_id;
                 next_tvb = tvb_new_subset_length(tvb, offset, tvb_reported_length_remaining(tvb, offset) - 3);
-                call_dissector_with_data(btcommon_ad_handle, next_tvb, pinfo, btle_tree, ad_data);
+
+                if (btle_context && btle_context->aux_pdu_type_valid && btle_context->aux_pdu_type == 3) {
+                    /* AUX_SCAN_RSP */
+                    sub_item = proto_tree_add_item(btle_tree, hf_scan_response_data, tvb, offset, tvb_reported_length_remaining(tvb, offset) - 3, ENC_NA);
+                    sub_tree = proto_item_add_subtree(sub_item, ett_scan_response_data);
+
+                    call_dissector_with_data(btcommon_ad_handle, next_tvb, pinfo, sub_tree, ad_data);
+                } else {
+                    call_dissector_with_data(btcommon_ad_handle, next_tvb, pinfo, btle_tree, ad_data);
+                }
 
                 offset += tvb_reported_length_remaining(tvb, offset) - 3;
             }
@@ -2657,6 +2665,7 @@ proto_register_btle(void)
         &ett_extended_advertising_data_info,
         &ett_extended_advertising_aux_pointer,
         &ett_extended_advertising_sync_info,
+        &ett_extended_advertising_acad,
         &ett_data_header,
         &ett_features,
         &ett_tx_phys,
