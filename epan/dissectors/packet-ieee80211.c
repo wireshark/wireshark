@@ -10736,7 +10736,7 @@ wnm_bss_trans_mgmt_req(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
   guint8 mode;
   gint   left = tvb_reported_length_remaining(tvb, offset);
   int tmp_sublen;
-  const guint8 ids[] = { TAG_NEIGHBOR_REPORT };
+  const guint8 ids[] = { TAG_NEIGHBOR_REPORT, TAG_VENDOR_SPECIFIC_IE};
 
   static const int *ieee80211_ff_request_flags[] = {
     &hf_ieee80211_ff_request_mode_pref_cand,
@@ -10851,7 +10851,7 @@ wnm_bss_trans_mgmt_resp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int
   guint8 code;
   gint   left;
   int tmp_sublen;
-  const guint8 ids[] = { TAG_NEIGHBOR_REPORT };
+  const guint8 ids[] = { TAG_NEIGHBOR_REPORT, TAG_VENDOR_SPECIFIC_IE };
 
   offset += add_ff_dialog_token(tree, tvb, pinfo, offset);
   code = tvb_get_guint8(tvb, offset);
