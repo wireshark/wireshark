@@ -3553,7 +3553,6 @@ static int hf_ieee80211_ff_request_mode_bss_term_included = -1;
 static int hf_ieee80211_ff_request_mode_ess_disassoc_imminent = -1;
 static int hf_ieee80211_ff_disassoc_timer = -1;
 static int hf_ieee80211_ff_validity_interval = -1;
-static int hf_ieee80211_ff_bss_termination_duration = -1;
 static int hf_ieee80211_ff_url_len = -1;
 static int hf_ieee80211_ff_url = -1;
 static int hf_ieee80211_ff_target_bss = -1;
@@ -10735,7 +10734,7 @@ wnm_bss_trans_mgmt_req(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
 {
   int    start = offset;
   guint8 mode;
-  gint   left;
+  gint   left = tvb_reported_length_remaining(tvb, offset);
   int tmp_sublen;
   const guint8 ids[] = { TAG_NEIGHBOR_REPORT };
 
@@ -10747,6 +10746,11 @@ wnm_bss_trans_mgmt_req(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
     &hf_ieee80211_ff_request_mode_ess_disassoc_imminent,
     NULL
   };
+
+  if (left < 5) {
+    expert_add_info(pinfo, tree, &ei_ieee80211_bad_length);
+    return offset - start;
+  }
 
   offset += add_ff_dialog_token(tree, tvb, pinfo, offset);
 
@@ -10761,25 +10765,67 @@ wnm_bss_trans_mgmt_req(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
   proto_tree_add_item(tree, hf_ieee80211_ff_validity_interval, tvb, offset, 1,
                       ENC_LITTLE_ENDIAN);
   offset += 1;
+  left -= 5;
 
   if (mode & 0x08) {
-    proto_tree_add_item(tree, hf_ieee80211_ff_bss_termination_duration,
-                        tvb, offset, 8, ENC_NA);
+    proto_item *item;
+    proto_tree  *sub_tree;
+    guint8 sub_id, sub_len;
+
+    // BSS termination Duration sub element is the same as the neighbor report sub element
+    if (left < 12) {
+      expert_add_info(pinfo, tree, &ei_ieee80211_bad_length);
+      return offset - start;
+    }
+
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, 12, ett_tag_neighbor_report_subelement_tree,
+                                      NULL, "BSS Termination Duration");
+
+    sub_id = tvb_get_guint8(tvb, offset);
+    item = proto_tree_add_item(sub_tree, hf_ieee80211_tag_neighbor_report_subelement_id,
+                               tvb, offset, 1, ENC_NA);
+    offset += 1;
+    if (sub_id != NR_SUB_ID_BSS_TER_DUR) {
+      expert_add_info_format(pinfo, item, &ei_ieee80211_inv_val,
+                             "Incorrect BSS Termination Duration subelement ID");
+    }
+
+    sub_len = tvb_get_guint8(tvb, offset);
+    item = proto_tree_add_item(sub_tree, hf_ieee80211_tag_neighbor_report_subelement_length,
+                               tvb, offset, 1, ENC_NA);
+    offset += 1;
+    if (sub_len != 10) {
+       expert_add_info_format(pinfo, item, &ei_ieee80211_inv_val,
+                              "Incorrect BSS Termination Duration subelement length");
+    }
+
+    proto_tree_add_item(sub_tree, hf_ieee80211_tag_neighbor_report_subelement_bss_ter_tsf,
+                        tvb, offset, 8, ENC_LITTLE_ENDIAN);
     offset += 8;
+    proto_tree_add_item(sub_tree, hf_ieee80211_tag_neighbor_report_subelement_bss_dur,
+                        tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+    left -= 12;
   }
 
   if (mode & 0x10) {
     guint8 url_len;
+
     url_len = tvb_get_guint8(tvb, offset);
+    if (left < url_len) {
+      expert_add_info(pinfo, tree, &ei_ieee80211_bad_length);
+      return offset - start;
+    }
+
     proto_tree_add_item(tree, hf_ieee80211_ff_url_len, tvb, offset, 1,
                         ENC_LITTLE_ENDIAN);
     offset += 1;
     proto_tree_add_item(tree, hf_ieee80211_ff_url, tvb, offset, url_len,
                         ENC_ASCII|ENC_NA);
     offset += url_len;
+    left -= url_len + 1;
   }
 
-  left = tvb_reported_length_remaining(tvb, offset);
   if (left > 0) {
     proto_tree_add_item(tree, hf_ieee80211_ff_bss_transition_candidate_list_entries,
                         tvb, offset, left, ENC_NA);
@@ -27969,11 +28015,6 @@ proto_register_ieee80211(void)
       FT_UINT8, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
-    {&hf_ieee80211_ff_bss_termination_duration,
-     {"BSS Termination Duration", "wlan.fixed.bss_termination_duration",
-      FT_BYTES, BASE_NONE, NULL, 0,
-      NULL, HFILL }},
-
     {&hf_ieee80211_ff_url_len,
      {"Session Information URL Length",
       "wlan.fixed.session_information.url_length",
@@ -34631,7 +34672,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tag_neighbor_report_subelement_bss_dur,
      {"Duration", "wlan.nreport.subelem.bss_dur",
-      FT_UINT16, BASE_DEC, NULL, 0,
+      FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_minutes, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_neighbor_report_subelement_tsf_offset,
