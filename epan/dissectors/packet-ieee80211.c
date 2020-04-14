@@ -8630,7 +8630,7 @@ dissect_anqp_info(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offse
   case ANQP_INFO_ANQP_VENDOR_SPECIFIC_LIST:
     proto_tree_add_item_ret_uint(tree, hf_ieee80211_tag_oui, tvb, offset, 3, ENC_BIG_ENDIAN, &oui);
     offset += 3;
-    vendor_tvb = tvb_new_subset_length(tvb, offset, len);
+    vendor_tvb = tvb_new_subset_length(tvb, offset, len - 3);
 
     anqp_info.request = request;
     anqp_info.idx = idx;
