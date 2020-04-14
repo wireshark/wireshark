@@ -262,12 +262,12 @@ dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   vlan_tree = NULL;
 
   ti = proto_tree_add_item(tree, hfi_vlan, tvb, 0, 4, ENC_NA);
-  vlan_nested_count = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_vlan, 0));
+  vlan_nested_count = p_get_proto_depth(pinfo, proto_vlan);
   if (++vlan_nested_count > VLAN_MAX_NESTED_TAGS) {
     expert_add_info(pinfo, ti, &ei_vlan_too_many_tags);
     return tvb_captured_length(tvb);
   }
-  p_add_proto_data(pinfo->pool, pinfo, proto_vlan, 0, GUINT_TO_POINTER(vlan_nested_count));
+  p_set_proto_depth(pinfo, proto_vlan, vlan_nested_count);
 
   if (tree) {
 

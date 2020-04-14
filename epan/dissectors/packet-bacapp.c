@@ -8498,12 +8498,12 @@ fAbstractSyntaxNType(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
         g_snprintf(ar, sizeof(ar), "Abstract Type: ");
     }
 
-    unsigned recursion_depth = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_bacapp, 0));
+    unsigned recursion_depth = p_get_proto_depth(pinfo, proto_bacapp);
     if (++recursion_depth >= BACAPP_MAX_RECURSION_DEPTH) {
         proto_tree_add_expert(tree, pinfo, &ei_bacapp_max_recursion_depth_reached, tvb, 0, 0);
         return offset;
     }
-    p_add_proto_data(pinfo->pool, pinfo, proto_bacapp, 0, GUINT_TO_POINTER(recursion_depth));
+    p_set_proto_depth(pinfo, proto_bacapp, recursion_depth);
 
     while (tvb_reported_length_remaining(tvb, offset) > 0) {  /* exit loop if nothing happens inside */
         lastoffset = offset;
@@ -9198,9 +9198,8 @@ fAbstractSyntaxNType(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
         }
         if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
-    recursion_depth = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_bacapp, 0));
-    recursion_depth--;
-    p_add_proto_data(pinfo->pool, pinfo, proto_bacapp, 0, GUINT_TO_POINTER(recursion_depth));
+    recursion_depth = p_get_proto_depth(pinfo, proto_bacapp);
+    p_set_proto_depth(pinfo, proto_bacapp, recursion_depth - 1);
     return offset;
 }
 
