@@ -1107,10 +1107,7 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 			curr_pos = strstr(curr_pos, "ddress");
 			if ((curr_pos) && (curr_pos < next_pos)) {
 				curr_pos += 6;
-				curr_pos = nettrace_parse_address(curr_pos, next_pos, TRUE/*SRC */, &exported_pdu_info);
-			} else {
-				/* address not found*/
-				curr_pos = next_pos;
+				nettrace_parse_address(curr_pos, next_pos, TRUE/*SRC */, &exported_pdu_info);
 			}
 		}
 
