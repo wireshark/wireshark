@@ -1304,12 +1304,12 @@ nfs_full_name_snoop(packet_info *pinfo, nfs_name_snoop_t *nns, int *len, char **
 	parent_nns = (nfs_name_snoop_t *)g_hash_table_lookup(nfs_name_snoop_matched, &key);
 
 	if (parent_nns) {
-		unsigned fs_depth = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_nfs, 0));
+		unsigned fs_depth = p_get_proto_depth(pinfo, proto_nfs);
 		if (++fs_depth >= NFS_MAX_FS_DEPTH) {
 			nns->fs_cycle = true;
 			return;
 		}
-		p_add_proto_data(pinfo->pool, pinfo, proto_nfs, 0, GUINT_TO_POINTER(fs_depth));
+		p_set_proto_depth(pinfo, proto_nfs, fs_depth);
 
 		nfs_full_name_snoop(pinfo, parent_nns, len, name, pos);
 		if (*name) {
@@ -1318,8 +1318,7 @@ nfs_full_name_snoop(packet_info *pinfo, nfs_name_snoop_t *nns, int *len, char **
 					   ((*pos)[-1] != '/')?"/":"", nns->name);
 			DISSECTOR_ASSERT((*pos-*name) <= *len);
 		}
-		fs_depth--;
-		p_add_proto_data(pinfo->pool, pinfo, proto_nfs, 0, GUINT_TO_POINTER(fs_depth));
+		p_set_proto_depth(pinfo, proto_nfs, fs_depth - 1);
 		return;
 	}
 
