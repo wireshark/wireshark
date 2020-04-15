@@ -15,11 +15,13 @@
 #include "config.h"
 
 #include <stdio.h>
+#include <stdbool.h>
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/exceptions.h>
 #include <epan/expert.h>
+#include <epan/proto_data.h>
 #include <epan/to_str.h>
 #include <epan/decode_as.h>
 #include <epan/crc16-tvb.h>
@@ -924,6 +926,7 @@ static expert_field ei_nfs_bitmap_no_dissector = EI_INIT;
 static expert_field ei_nfs_bitmap_skip_value = EI_INIT;
 static expert_field ei_nfs_bitmap_undissected_data = EI_INIT;
 static expert_field ei_nfs4_stateid_deprecated = EI_INIT;
+static expert_field ei_nfs_file_system_cycle = EI_INIT;
 
 static const true_false_string tfs_read_write = { "Read", "Write" };
 
@@ -1005,6 +1008,7 @@ typedef struct nfs_name_snoop {
 	unsigned char *parent;
 	int	       full_name_len;
 	char	      *full_name;
+	bool	       fs_cycle;
 } nfs_name_snoop_t;
 
 typedef struct nfs_name_snoop_key {
@@ -1268,9 +1272,10 @@ nfs_name_snoop_add_fh(int xid, tvbuff_t *tvb, int fh_offset, int fh_length)
 	g_hash_table_replace(nfs_name_snoop_matched, key, nns);
 }
 
+#define NFS_MAX_FS_DEPTH 100
 
 static void
-nfs_full_name_snoop(nfs_name_snoop_t *nns, int *len, char **name, char **pos)
+nfs_full_name_snoop(packet_info *pinfo, nfs_name_snoop_t *nns, int *len, char **name, char **pos)
 {
 	nfs_name_snoop_t     *parent_nns = NULL;
 	nfs_name_snoop_key_t  key;
@@ -1299,13 +1304,22 @@ nfs_full_name_snoop(nfs_name_snoop_t *nns, int *len, char **name, char **pos)
 	parent_nns = (nfs_name_snoop_t *)g_hash_table_lookup(nfs_name_snoop_matched, &key);
 
 	if (parent_nns) {
-		nfs_full_name_snoop(parent_nns, len, name, pos);
+		unsigned fs_depth = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_nfs, 0));
+		if (++fs_depth >= NFS_MAX_FS_DEPTH) {
+			nns->fs_cycle = true;
+			return;
+		}
+		p_add_proto_data(pinfo->pool, pinfo, proto_nfs, 0, GUINT_TO_POINTER(fs_depth));
+
+		nfs_full_name_snoop(pinfo, parent_nns, len, name, pos);
 		if (*name) {
 			/* make sure components are '/' separated */
 			*pos += g_snprintf(*pos, (*len+1) - (gulong)(*pos-*name), "%s%s",
 					   ((*pos)[-1] != '/')?"/":"", nns->name);
 			DISSECTOR_ASSERT((*pos-*name) <= *len);
 		}
+		fs_depth--;
+		p_add_proto_data(pinfo->pool, pinfo, proto_nfs, 0, GUINT_TO_POINTER(fs_depth));
 		return;
 	}
 
@@ -1347,7 +1361,7 @@ nfs_name_snoop_fh(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int fh_of
 				char *name = NULL, *pos = NULL;
 				int len = 0;
 
-				nfs_full_name_snoop(nns, &len, &name, &pos);
+				nfs_full_name_snoop(pinfo, nns, &len, &name, &pos);
 				if (name) {
 					nns->full_name = name;
 					nns->full_name_len = len;
@@ -1398,6 +1412,10 @@ nfs_name_snoop_fh(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int fh_of
 					fh_offset, 0, nns->full_name, "%s", nns->full_name);
 			}
 			proto_item_set_generated(fh_item);
+		}
+
+		if (nns->fs_cycle) {
+			proto_tree_add_expert(tree, pinfo, &ei_nfs_file_system_cycle, tvb, 0, 0);
 		}
 	}
 }
@@ -14519,6 +14537,7 @@ proto_register_nfs(void)
 		{ &ei_nfs_bitmap_undissected_data, { "nfs.bitmap_undissected_data", PI_PROTOCOL, PI_WARN,
 			"There is some bitmap data left undissected", EXPFILL }},
 		{ &ei_nfs4_stateid_deprecated, { "nfs.stateid.deprecated", PI_PROTOCOL, PI_WARN, "State ID deprecated in CLOSE responses [RFC7530 16.2.5]", EXPFILL }},
+		{ &ei_nfs_file_system_cycle, { "nfs.file_system_cycle", PI_PROTOCOL, PI_WARN, "Possible file system cycle detected", EXPFILL }},
 	};
 
 	module_t *nfs_module;
