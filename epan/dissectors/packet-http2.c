@@ -36,6 +36,7 @@
 
 #ifdef HAVE_NGHTTP2
 #include <epan/uat.h>
+#include <epan/decode_as.h>
 #include <nghttp2/nghttp2.h>
 #endif
 
@@ -85,6 +86,8 @@ static dissector_table_t media_type_dissector_table;
  * Note: DESEGMENT_ONE_MORE_SEGMENT is not supported. Subdissector can set pinfo->desegment_len
  * to missing nbytes of the head length if entire length of message is undetermined. */
 static dissector_table_t streaming_content_type_dissector_table;
+
+static dissector_table_t stream_id_content_type_dissector_table;
 
 #ifdef HAVE_NGHTTP2
 /* The type of reassembly mode contains:
@@ -262,6 +265,28 @@ typedef struct {
     guint32 current_stream_id;
     tcp_flow_t *fwd_flow;
 } http2_session_t;
+
+#ifdef HAVE_NGHTTP2
+/* Decode as functions */
+static gpointer
+http2_current_stream_id_value(packet_info* pinfo)
+{
+    return GUINT_TO_POINTER(http2_get_stream_id(pinfo));
+}
+
+static void
+http2_streamid_prompt(packet_info* pinfo, gchar* result)
+{
+
+    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "stream (%u)", http2_get_stream_id(pinfo));
+}
+
+void decode_as_http2_populate_list(const gchar* table_name _U_, decode_as_add_to_list_func add_to_list, gpointer ui_element)
+{
+    decode_as_default_populate_list("media_type", add_to_list, ui_element);
+}
+
+#endif /*HAVE_NGHTTP2*/
 
 static GHashTable* streamid_hash = NULL;
 
@@ -1596,6 +1621,10 @@ populate_http_header_tracking(tvbuff_t *tvb, packet_info *pinfo, http2_session_t
             body_info->content_type = get_content_type_only(header_value, header_value_length);
             body_info->content_type_parameters = get_content_type_parameters_only(header_value, header_value_length);
             stream_info->reassembly_mode = http2_get_data_reassembly_mode(body_info->content_type);
+            dissector_handle_t handle = dissector_get_string_handle(media_type_dissector_table, body_info->content_type);
+            if (handle) {
+                dissector_add_uint("http2.streamid", stream_info->stream_id, handle);
+            }
         }
     }
 }
@@ -2207,16 +2236,21 @@ dissect_body_data(proto_tree *tree, packet_info *pinfo, http2_session_t* h2sessi
     http2_data_stream_body_info_t *body_info = get_data_stream_body_info(pinfo, h2session);
     gchar *content_type = body_info->content_type;
     http_message_info_t metadata_used_for_media_type_handle = { HTTP_OTHERS, body_info->content_type_parameters, NULL, NULL };
+    guint32 stream_id;
 
+    stream_id = http2_get_stream_id(pinfo);
     if (!streaming_mode)
         proto_tree_add_item(tree, hf_http2_data_data, tvb, start, length, encoding);
 
     if (content_type != NULL) {
         /* add it to STREAM level */
-        proto_tree *ptree = proto_tree_get_parent_tree(tree);
+        proto_tree* ptree = proto_tree_get_parent_tree(tree);
         dissector_try_string((streaming_mode ? streaming_content_type_dissector_table : media_type_dissector_table),
-                             content_type, tvb_new_subset_length(tvb, start, length), pinfo,
-                             ptree, &metadata_used_for_media_type_handle);
+            content_type, tvb_new_subset_length(tvb, start, length), pinfo,
+            ptree, &metadata_used_for_media_type_handle);
+    } else {
+        dissector_try_uint_new(stream_id_content_type_dissector_table, stream_id,
+            tvb_new_subset_length(tvb, start, length), pinfo, proto_tree_get_parent_tree(tree), TRUE, &metadata_used_for_media_type_handle);
     }
 }
 
@@ -3923,6 +3957,13 @@ proto_register_http2(void)
 
     /* Fill hash table with static headers */
     register_static_headers();
+
+    /* Decode As handling */
+    static build_valid_func http2_current_stream_values[1] = { http2_current_stream_id_value };
+    static decode_as_value_t http2_da_stream_id_values[1] = { {http2_streamid_prompt, 1, http2_current_stream_values} };
+    static decode_as_t http2_da_stream_id = { "http2", "http2.streamid", 1, 0, http2_da_stream_id_values, "HTTP2", "Stream ID as",
+                                       decode_as_http2_populate_list, decode_as_default_reset, decode_as_default_change, NULL };
+    register_decode_as(&http2_da_stream_id);
 #endif
 
     register_init_routine(&http2_init_protocol);
@@ -3938,6 +3979,9 @@ proto_register_http2(void)
     streaming_content_type_dissector_table =
         register_dissector_table("streaming_content_type",
             "Data Transmitted over HTTP2 in Streaming Mode", proto_http2, FT_STRING, BASE_NONE);
+
+    stream_id_content_type_dissector_table =
+        register_dissector_table("http2.streamid", "HTTP2 content type in stream", proto_http2, FT_UINT32, BASE_DEC);
 
     http2_tap = register_tap("http2");
     http2_follow_tap = register_tap("http2_follow");
