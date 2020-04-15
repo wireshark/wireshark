@@ -1578,6 +1578,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tfs_acknowledged_not_acknowledged@Base 1.99.2
  tfs_activated_deactivated@Base 2.5.1
  tfs_active_inactive@Base 1.9.1
+ tfs_add_drop@Base 3.3.0
  tfs_allocated_by_receiver_sender@Base 1.99.1
  tfs_allow_block@Base 1.9.1
  tfs_allowed_not_allowed@Base 1.9.1

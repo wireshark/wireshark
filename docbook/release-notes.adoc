@@ -63,6 +63,7 @@ Tunnel Extensible Authentication Protocol (TEAP)
 USB Printer (USBPRINTER)
 Java Debug Wire Protocol (JDWP)
 ScyllaDB RPC
+Dynamic Link Exchange Protocol (DLEP)
 --
 
 === Updated Protocol Support

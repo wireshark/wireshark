@@ -103,6 +103,7 @@ const true_false_string tfs_external_internal = { "External", "Internal" };
 const true_false_string tfs_changed_not_changed = { "Changed", "Not Changed" };
 const true_false_string tfs_needed_not_needed = { "Needed", "Not Needed" };
 const true_false_string tfs_selected_not_selected = { "Selected", "Not Selected" };
+const true_false_string tfs_add_drop = { "Add", "Drop" };
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html

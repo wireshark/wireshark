@@ -116,6 +116,7 @@ WS_DLL_PUBLIC const true_false_string tfs_external_internal;
 WS_DLL_PUBLIC const true_false_string tfs_changed_not_changed;
 WS_DLL_PUBLIC const true_false_string tfs_needed_not_needed;
 WS_DLL_PUBLIC const true_false_string tfs_selected_not_selected;
+WS_DLL_PUBLIC const true_false_string tfs_add_drop;
 
 #ifdef __cplusplus
 }
