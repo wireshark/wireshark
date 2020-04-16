@@ -687,9 +687,8 @@ static int hf_nfs4_io_hints_mask = -1;
 static int hf_nfs4_io_hint_count = -1;
 static int hf_nfs4_io_advise_hint = -1;
 static int hf_nfs4_bytes_copied = -1;
+static int hf_nfs4_read_plus_contents = -1;
 static int hf_nfs4_read_plus_content_type = -1;
-static int hf_nfs4_read_plus_content_count = -1;
-static int hf_nfs4_read_plus_content_index = -1;
 static int hf_nfs4_block_size = -1;
 static int hf_nfs4_block_count = -1;
 static int hf_nfs4_reloff_blocknum = -1;
@@ -8538,34 +8537,18 @@ static const value_string read_plus_content_names[] = {
 static value_string_ext read_plus_content_names_ext = VALUE_STRING_EXT_INIT(read_plus_content_names);
 
 static int
-dissect_nfs4_read_plus_content(tvbuff_t *tvb, int offset, proto_tree *tree)
+dissect_nfs4_read_plus_content(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-	proto_item *sub_fitem;
 	proto_tree *ss_tree;
-	proto_tree *subtree;
 	proto_item *ss_fitem;
-	guint       i;
-	guint       count;
 	guint       type;
 
-	count = tvb_get_ntohl(tvb, offset);
-	sub_fitem = proto_tree_add_item(tree, hf_nfs4_read_plus_content_count,
-					tvb, offset, 4, ENC_BIG_ENDIAN);
+	ss_fitem = proto_tree_add_item_ret_uint(tree, hf_nfs4_read_plus_content_type,
+						tvb, offset, 4, ENC_BIG_ENDIAN, &type);
+	ss_tree = proto_item_add_subtree(ss_fitem, ett_nfs4_read_plus_content_sub);
 	offset += 4;
 
-	subtree = proto_item_add_subtree(sub_fitem, ett_nfs4_read_plus_content_sub);
-	for (i = 0; i < count; i++) {
-		ss_fitem = proto_tree_add_uint_format(subtree, hf_nfs4_read_plus_content_index,
-							tvb, offset+0, 4, i, "Content [%u]", i);
-		ss_tree = proto_item_add_subtree(ss_fitem,
-						 ett_nfs4_read_plus_content_sub);
-		offset += 4;
-
-		type = tvb_get_ntohl(tvb, offset);
-		proto_tree_add_uint(ss_tree, hf_nfs4_read_plus_content_type, tvb, offset, 0, type);
-		offset += 4;
-
-		switch (type) {
+	switch (type) {
 		case NFS4_CONTENT_DATA:
 			offset = dissect_rpc_uint64(tvb, ss_tree, hf_nfs4_offset, offset);
 			dissect_rpc_uint32(tvb, ss_tree, hf_nfs4_read_data_length, offset); /* don't change offset */
@@ -8573,11 +8556,10 @@ dissect_nfs4_read_plus_content(tvbuff_t *tvb, int offset, proto_tree *tree)
 			break;
 		case NFS4_CONTENT_HOLE:
 			offset = dissect_rpc_uint64(tvb, ss_tree, hf_nfs4_offset, offset);
-			offset = dissect_rpc_uint32(tvb, ss_tree, hf_nfs4_count, offset);
+			offset = dissect_rpc_uint64(tvb, ss_tree, hf_nfs4_length, offset);
 			break;
 		default:
 			break;
-		}
 	}
 
 	return offset;
@@ -10997,7 +10979,7 @@ dissect_nfs4_response_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 		case NFS4_OP_READ_PLUS:
 			if (status == NFS4_OK) {
 				offset = dissect_rpc_uint32(tvb, newftree, hf_nfs4_eof, offset);
-				offset = dissect_nfs4_read_plus_content(tvb, offset, newftree);
+				offset = dissect_rpc_array(tvb, pinfo, newftree, offset, dissect_nfs4_read_plus_content, hf_nfs4_read_plus_contents);
 			}
 			break;
 
@@ -14150,17 +14132,13 @@ proto_register_nfs(void)
 			"bytes copied", "nfs.bytes_copied", FT_UINT64, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 
+		{ &hf_nfs4_read_plus_contents, {
+			"Contents", "nfs.contents",
+			FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+
 		{ &hf_nfs4_read_plus_content_type, {
 			"Content Type", "nfs.content.type", FT_UINT32, BASE_DEC | BASE_EXT_STRING,
 			&read_plus_content_names_ext, 0, NULL, HFILL }},
-
-		{ &hf_nfs4_read_plus_content_count, {
-			"Content count", "nfs.content.count", FT_UINT32, BASE_DEC,
-			NULL, 0, NULL, HFILL }},
-
-		{ &hf_nfs4_read_plus_content_index, {
-			"Content index", "nfs.content.index", FT_UINT32, BASE_DEC,
-			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs4_block_size, {
 			"Content index", "nfs.content.index", FT_UINT32, BASE_DEC,
