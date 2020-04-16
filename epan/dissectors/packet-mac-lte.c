@@ -237,6 +237,31 @@ static int hf_mac_lte_control_dual_conn_power_headroom_c4 = -1;
 static int hf_mac_lte_control_dual_conn_power_headroom_c3 = -1;
 static int hf_mac_lte_control_dual_conn_power_headroom_c2 = -1;
 static int hf_mac_lte_control_dual_conn_power_headroom_c1 = -1;
+static int hf_mac_lte_control_dual_conn_power_headroom_c15 = -1;
+static int hf_mac_lte_control_dual_conn_power_headroom_c14 = -1;
+static int hf_mac_lte_control_dual_conn_power_headroom_c13 = -1;
+static int hf_mac_lte_control_dual_conn_power_headroom_c12 = -1;
+static int hf_mac_lte_control_dual_conn_power_headroom_c11 = -1;
+static int hf_mac_lte_control_dual_conn_power_headroom_c10 = -1;
+static int hf_mac_lte_control_dual_conn_power_headroom_c9 = -1;
+static int hf_mac_lte_control_dual_conn_power_headroom_c8 = -1;
+static int hf_mac_lte_control_dual_conn_power_headroom_c23 = -1;
+static int hf_mac_lte_control_dual_conn_power_headroom_c22 = -1;
+static int hf_mac_lte_control_dual_conn_power_headroom_c21 = -1;
+static int hf_mac_lte_control_dual_conn_power_headroom_c20 = -1;
+static int hf_mac_lte_control_dual_conn_power_headroom_c19 = -1;
+static int hf_mac_lte_control_dual_conn_power_headroom_c18 = -1;
+static int hf_mac_lte_control_dual_conn_power_headroom_c17 = -1;
+static int hf_mac_lte_control_dual_conn_power_headroom_c16 = -1;
+static int hf_mac_lte_control_dual_conn_power_headroom_c31 = -1;
+static int hf_mac_lte_control_dual_conn_power_headroom_c30 = -1;
+static int hf_mac_lte_control_dual_conn_power_headroom_c29 = -1;
+static int hf_mac_lte_control_dual_conn_power_headroom_c28 = -1;
+static int hf_mac_lte_control_dual_conn_power_headroom_c27 = -1;
+static int hf_mac_lte_control_dual_conn_power_headroom_c26 = -1;
+static int hf_mac_lte_control_dual_conn_power_headroom_c25 = -1;
+static int hf_mac_lte_control_dual_conn_power_headroom_c24 = -1;
+
 static int hf_mac_lte_control_dual_conn_power_headroom_reserved = -1;
 static int hf_mac_lte_control_dual_conn_power_headroom_power_backoff = -1;
 static int hf_mac_lte_control_dual_conn_power_headroom_value = -1;
@@ -4341,6 +4366,65 @@ static void lookup_rlc_channel_from_lcid(guint16 ueid,
 }
 
 
+/* Work out whether there are 1 or 4 bytes of C bits in Dual-Conn PHR CE */
+guint get_dual_conn_phr_num_c_bytes(tvbuff_t *tvb, guint offset,
+                                    gboolean isSimultPUCCHPUSCHPCell,
+                                    gboolean isSimultPUCCHPUSCHPSCell,
+                                    guint subheader_length)
+{
+    if (subheader_length < 4) {
+        /* Can't be 4 */
+        return 1;
+    }
+
+    guint8  scell_bitmap_byte = tvb_get_guint8(tvb, offset);
+    guint i, byte_offset;
+
+    /* Count bits set. */
+    guint byte_bits_set = 0;
+    for (i=1; i <= 7; ++i) {
+        byte_bits_set += (scell_bitmap_byte & (0x1 << i) ? 1 : 0);
+    }
+
+    /* Only work out length for 1-byte case (skip C byte itself). */
+    byte_offset = offset+1;
+
+    /* These 2 fields depend upon seeing correct RRC signalling.. */
+    if (isSimultPUCCHPUSCHPCell) {
+        if ((tvb_get_guint8(tvb, byte_offset) & 0x40) == 0) {
+            byte_offset++;
+        }
+        byte_offset++;
+    }
+    if (isSimultPUCCHPUSCHPSCell) {
+        if ((tvb_get_guint8(tvb, byte_offset) & 0x40) == 0) {
+            byte_offset++;
+        }
+        byte_offset++;
+    }
+
+    /* Now walk number of entries set */
+    for (i=0; i <= byte_bits_set; i++) {
+        /* But take care to not walk past the end. */
+        if ((byte_offset-offset) >= subheader_length) {
+            /* Went off the end - assume 4... */
+            return 4;
+        }
+        if ((tvb_get_guint8(tvb, byte_offset) & 0x40) == 0) {
+            byte_offset++;
+        }
+        byte_offset++;
+    }
+
+    /* Give verdict */
+    if ((byte_offset-offset) == subheader_length) {
+        return 1;
+    }
+    else {
+        return 4;
+    }
+}
+
 
 #define MAX_HEADERS_IN_PDU 1024
 
@@ -5190,7 +5274,8 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         proto_item *ti;
                         proto_tree *dcphr_cell_tree;
                         proto_item *dcphr_cell_ti;
-                        guint8 scell_bitmap;
+                        guint8 scell_bitmap_byte;
+                        guint32 scell_bitmap_word;
                         guint8 byte;
                         guint i;
                         guint32 curr_offset = offset;
@@ -5211,8 +5296,17 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                                                 "Dual Connectivity Power Headroom Report");
                         dcphr_tree = proto_item_add_subtree(dcphr_ti, ett_mac_lte_dual_conn_power_headroom);
 
-                        /* TODO: add support for 4 bytes long SCell index */
-                        scell_bitmap = tvb_get_guint8(tvb, curr_offset);
+                        /* Work out (heuristically) whether we have 1 or 4 bytes of C bits.
+                         * Should be based upon highest sCellIndex and/or whether UE is in dual-connectivity,
+                         * but for now trust subheader length and see which one fits. */
+                        guint num_c_bytes = get_dual_conn_phr_num_c_bytes(tvb, curr_offset,
+                                                                          p_mac_lte_info->isSimultPUCCHPUSCHPCell,
+                                                                          p_mac_lte_info->isSimultPUCCHPUSCHPSCell,
+                                                                          pdu_lengths[n]);
+
+                        scell_bitmap_byte = tvb_get_guint8(tvb, curr_offset);
+
+                        /* Do first byte (C1-C7) */
                         proto_tree_add_item(dcphr_tree, hf_mac_lte_control_dual_conn_power_headroom_c7,
                                             tvb, curr_offset, 1, ENC_BIG_ENDIAN);
                         proto_tree_add_item(dcphr_tree, hf_mac_lte_control_dual_conn_power_headroom_c6,
@@ -5230,11 +5324,69 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         /* Check Reserved bit */
                         ti = proto_tree_add_item(dcphr_tree, hf_mac_lte_control_dual_conn_power_headroom_reserved,
                                                  tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-                        if (scell_bitmap & 0x01) {
+                        if (scell_bitmap_byte & 0x01) {
                             expert_add_info_format(pinfo, ti, &ei_mac_lte_reserved_not_zero,
                                                    "Dual Connectivity Power Headroom Report Reserved bit not zero");
                         }
                         curr_offset++;
+
+                        if (num_c_bytes == 4) {
+                            /* Do other 3 bytes (C8-C31) */
+                            proto_tree_add_item(dcphr_tree, hf_mac_lte_control_dual_conn_power_headroom_c15,
+                                                tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(dcphr_tree, hf_mac_lte_control_dual_conn_power_headroom_c14,
+                                                tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(dcphr_tree, hf_mac_lte_control_dual_conn_power_headroom_c13,
+                                                tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(dcphr_tree, hf_mac_lte_control_dual_conn_power_headroom_c12,
+                                                tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(dcphr_tree, hf_mac_lte_control_dual_conn_power_headroom_c11,
+                                                tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(dcphr_tree, hf_mac_lte_control_dual_conn_power_headroom_c10,
+                                                tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(dcphr_tree, hf_mac_lte_control_dual_conn_power_headroom_c9,
+                                                tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(dcphr_tree, hf_mac_lte_control_dual_conn_power_headroom_c8,
+                                                tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                            curr_offset++;
+
+                            proto_tree_add_item(dcphr_tree, hf_mac_lte_control_dual_conn_power_headroom_c23,
+                                                tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(dcphr_tree, hf_mac_lte_control_dual_conn_power_headroom_c22,
+                                                tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(dcphr_tree, hf_mac_lte_control_dual_conn_power_headroom_c21,
+                                                tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(dcphr_tree, hf_mac_lte_control_dual_conn_power_headroom_c20,
+                                                tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(dcphr_tree, hf_mac_lte_control_dual_conn_power_headroom_c19,
+                                                tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(dcphr_tree, hf_mac_lte_control_dual_conn_power_headroom_c18,
+                                                tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(dcphr_tree, hf_mac_lte_control_dual_conn_power_headroom_c17,
+                                                tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(dcphr_tree, hf_mac_lte_control_dual_conn_power_headroom_c16,
+                                                tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                            curr_offset++;
+
+                            proto_tree_add_item(dcphr_tree, hf_mac_lte_control_dual_conn_power_headroom_c31,
+                                                tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(dcphr_tree, hf_mac_lte_control_dual_conn_power_headroom_c30,
+                                                tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(dcphr_tree, hf_mac_lte_control_dual_conn_power_headroom_c29,
+                                                tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(dcphr_tree, hf_mac_lte_control_dual_conn_power_headroom_c28,
+                                                tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(dcphr_tree, hf_mac_lte_control_dual_conn_power_headroom_c27,
+                                                tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(dcphr_tree, hf_mac_lte_control_dual_conn_power_headroom_c26,
+                                                tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(dcphr_tree, hf_mac_lte_control_dual_conn_power_headroom_c25,
+                                                tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(dcphr_tree, hf_mac_lte_control_dual_conn_power_headroom_c24,
+                                                tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                            curr_offset++;
+                        }
+
 
                         if (p_mac_lte_info->isSimultPUCCHPUSCHPCell) {
                             /* PCell PH Type 2 is present */
@@ -5329,8 +5481,21 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                                    val_to_str_ext_const((byte&0x3f), &pcmaxc_vals_ext, "Unknown"));
                             curr_offset++;
                         }
-                        for (i = 1, scell_bitmap>>=1; i <= 7; i++, scell_bitmap>>=1) {
-                            if (scell_bitmap & 0x01) {
+
+                        /* Add entry for each set bit. Iterate over 32 entries regardless */
+                        if (num_c_bytes == 1) {
+                            scell_bitmap_word = scell_bitmap_byte << 24; /* least significant 3 bytes will be 0 */
+                        }
+                        else {
+                            scell_bitmap_word = tvb_get_ntohl(tvb, offset);
+                        }
+
+                        for (i=1; i < 31; i++) {
+                            /* Work out how much shift to adddress this bit */
+                            guint byte_shift = (31-i)/8;
+                            guint bit_shift = i % 8;
+                            /* Is entry for scell i present? */
+                            if (scell_bitmap_word & (0x01 << (byte_shift*8 + bit_shift))) {
                                 byte = tvb_get_guint8(tvb, curr_offset);
                                 dcphr_cell_tree = proto_tree_add_subtree_format(dcphr_tree, tvb, curr_offset, (!(byte&0x40)?2:1),
                                                     ett_mac_lte_dual_conn_power_headroom_cell, &dcphr_cell_ti, "SCell Index %u PUSCH", i);
@@ -8748,6 +8913,150 @@ void proto_register_mac_lte(void)
             { "SCell Index 1 Power Headroom",
               "mac-lte.control.dual-conn-power-headroom.c1", FT_BOOLEAN, 8,
               TFS(&mac_lte_scell_ph_vals), 0x02, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_dual_conn_power_headroom_c15,
+            { "SCell Index 15 Power Headroom",
+              "mac-lte.control.dual-conn-power-headroom.c15", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_ph_vals), 0x80, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_dual_conn_power_headroom_c14,
+            { "SCell Index 14 Power Headroom",
+              "mac-lte.control.dual-conn-power-headroom.c14", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_ph_vals), 0x40, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_dual_conn_power_headroom_c13,
+            { "SCell Index 13 Power Headroom",
+              "mac-lte.control.dual-conn-power-headroom.c13", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_ph_vals), 0x20, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_dual_conn_power_headroom_c12,
+            { "SCell Index 12 Power Headroom",
+              "mac-lte.control.dual-conn-power-headroom.c12", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_ph_vals), 0x10, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_dual_conn_power_headroom_c11,
+            { "SCell Index 11 Power Headroom",
+              "mac-lte.control.dual-conn-power-headroom.c11", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_ph_vals), 0x08, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_dual_conn_power_headroom_c10,
+            { "SCell Index 10 Power Headroom",
+              "mac-lte.control.dual-conn-power-headroom.c10", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_ph_vals), 0x04, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_dual_conn_power_headroom_c9,
+            { "SCell Index 9 Power Headroom",
+              "mac-lte.control.dual-conn-power-headroom.c9", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_ph_vals), 0x02, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_dual_conn_power_headroom_c8,
+            { "SCell Index 8 Power Headroom",
+              "mac-lte.control.dual-conn-power-headroom.c8", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_ph_vals), 0x01, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_dual_conn_power_headroom_c23,
+            { "SCell Index 23 Power Headroom",
+              "mac-lte.control.dual-conn-power-headroom.c23", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_ph_vals), 0x80, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_dual_conn_power_headroom_c22,
+            { "SCell Index 22 Power Headroom",
+              "mac-lte.control.dual-conn-power-headroom.c22", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_ph_vals), 0x40, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_dual_conn_power_headroom_c21,
+            { "SCell Index 21 Power Headroom",
+              "mac-lte.control.dual-conn-power-headroom.c21", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_ph_vals), 0x20, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_dual_conn_power_headroom_c20,
+            { "SCell Index 20 Power Headroom",
+              "mac-lte.control.dual-conn-power-headroom.c20", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_ph_vals), 0x10, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_dual_conn_power_headroom_c19,
+            { "SCell Index 19 Power Headroom",
+              "mac-lte.control.dual-conn-power-headroom.c19", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_ph_vals), 0x08, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_dual_conn_power_headroom_c18,
+            { "SCell Index 18 Power Headroom",
+              "mac-lte.control.dual-conn-power-headroom.c18", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_ph_vals), 0x04, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_dual_conn_power_headroom_c17,
+            { "SCell Index 17 Power Headroom",
+              "mac-lte.control.dual-conn-power-headroom.c17", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_ph_vals), 0x02, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_dual_conn_power_headroom_c16,
+            { "SCell Index 16 Power Headroom",
+              "mac-lte.control.dual-conn-power-headroom.c16", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_ph_vals), 0x01, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_dual_conn_power_headroom_c31,
+            { "SCell Index 31 Power Headroom",
+              "mac-lte.control.dual-conn-power-headroom.c31", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_ph_vals), 0x80, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_dual_conn_power_headroom_c30,
+            { "SCell Index 30 Power Headroom",
+              "mac-lte.control.dual-conn-power-headroom.c30", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_ph_vals), 0x40, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_dual_conn_power_headroom_c29,
+            { "SCell Index 29 Power Headroom",
+              "mac-lte.control.dual-conn-power-headroom.c29", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_ph_vals), 0x20, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_dual_conn_power_headroom_c28,
+            { "SCell Index 28 Power Headroom",
+              "mac-lte.control.dual-conn-power-headroom.c28", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_ph_vals), 0x10, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_dual_conn_power_headroom_c27,
+            { "SCell Index 27 Power Headroom",
+              "mac-lte.control.dual-conn-power-headroom.c27", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_ph_vals), 0x08, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_dual_conn_power_headroom_c26,
+            { "SCell Index 26 Power Headroom",
+              "mac-lte.control.dual-conn-power-headroom.c26", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_ph_vals), 0x04, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_dual_conn_power_headroom_c25,
+            { "SCell Index 25 Power Headroom",
+              "mac-lte.control.dual-conn-power-headroom.c25", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_ph_vals), 0x02, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_dual_conn_power_headroom_c24,
+            { "SCell Index 24 Power Headroom",
+              "mac-lte.control.dual-conn-power-headroom.c24", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_ph_vals), 0x01, NULL, HFILL
             }
         },
         { &hf_mac_lte_control_dual_conn_power_headroom_reserved,
