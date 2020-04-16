@@ -33,6 +33,7 @@ private:
     Ui::ColumnPreferencesFrame *ui;
     ColumnListModel * model_;
     ColumnProxyModel * proxyModel_;
+    ColumnTypeDelegate * delegate_;
 
 private slots:
     void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
