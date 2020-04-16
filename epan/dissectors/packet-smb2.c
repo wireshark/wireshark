@@ -583,6 +583,8 @@ static int hf_smb2_unparsed_path_length = -1;
 static int hf_smb2_symlink_substitute_name = -1;
 static int hf_smb2_symlink_print_name = -1;
 static int hf_smb2_symlink_flags = -1;
+static int hf_smb2_bad_signature = -1;
+static int hf_smb2_good_signature = -1;
 
 static gint ett_smb2 = -1;
 static gint ett_smb2_olb = -1;
@@ -689,12 +691,14 @@ static gint ett_smb2_error_context = -1;
 static gint ett_smb2_error_redir_context = -1;
 static gint ett_smb2_error_redir_ip_list = -1;
 static gint ett_smb2_read_flags = -1;
+static gint ett_smb2_signature = -1;
 
 static expert_field ei_smb2_invalid_length = EI_INIT;
 static expert_field ei_smb2_bad_response = EI_INIT;
 static expert_field ei_smb2_invalid_getinfo_offset = EI_INIT;
 static expert_field ei_smb2_invalid_getinfo_size = EI_INIT;
 static expert_field ei_smb2_empty_getinfo_buffer = EI_INIT;
+static expert_field ei_smb2_invalid_signature = EI_INIT;
 
 static int smb2_tap = -1;
 static int smb2_eo_tap = -1;
@@ -3354,18 +3358,24 @@ dissect_smb2_secblob(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb2_i
 static void smb2_generate_decryption_keys(smb2_conv_info_t *conv, smb2_sesid_info_t *ses)
 {
 	gboolean has_seskey = memcmp(ses->session_key, zeros, NTLMSSP_KEY_LEN) != 0;
+	gboolean has_signkey = memcmp(ses->signing_key, zeros, NTLMSSP_KEY_LEN) != 0;
 	gboolean has_client_key = memcmp(ses->client_decryption_key, zeros, AES_KEY_SIZE) != 0;
 	gboolean has_server_key = memcmp(ses->server_decryption_key, zeros, AES_KEY_SIZE) != 0;
 
 	/* if all decryption keys are provided, nothing to do */
-	if (has_client_key && has_server_key)
+	if (has_client_key && has_server_key && has_signkey)
 		return;
 
 	/* otherwise, generate them from session key, if it's there */
 	if (!has_seskey)
 		return;
 
-	if (conv->dialect == SMB2_DIALECT_300) {
+	/* generate decryption keys */
+	if (conv->dialect <= SMB2_DIALECT_210) {
+		if (!has_signkey)
+			memcpy(ses->signing_key, ses->session_key,
+			       NTLMSSP_KEY_LEN);
+	} else if (conv->dialect < SMB2_DIALECT_311) {
 		if (!has_server_key)
 			smb2_key_derivation(ses->session_key,
 					    NTLMSSP_KEY_LEN,
@@ -3378,6 +3388,12 @@ static void smb2_generate_decryption_keys(smb2_conv_info_t *conv, smb2_sesid_inf
 					    "SMB2AESCCM", 11,
 					    "ServerOut", 10,
 					    ses->client_decryption_key);
+		if (!has_signkey)
+			smb2_key_derivation(ses->session_key,
+					    NTLMSSP_KEY_LEN,
+					    "SMB2AESCMAC", 12,
+					    "SmbSign", 8,
+					    ses->signing_key);
 	} else if (conv->dialect >= SMB2_DIALECT_311) {
 		if (!has_server_key)
 			smb2_key_derivation(ses->session_key,
@@ -3391,9 +3407,16 @@ static void smb2_generate_decryption_keys(smb2_conv_info_t *conv, smb2_sesid_inf
 					    "SMBS2CCipherKey", 16,
 					    ses->preauth_hash, SMB2_PREAUTH_HASH_SIZE,
 					    ses->client_decryption_key);
+		if (!has_signkey)
+			smb2_key_derivation(ses->session_key,
+					    NTLMSSP_KEY_LEN,
+					    "SMBSigningKey", 14,
+					    ses->preauth_hash, SMB2_PREAUTH_HASH_SIZE,
+					    ses->signing_key);
 	}
 
-
+	DEBUG("Generated Sign key");
+	HEXDUMP(ses->signing_key, NTLMSSP_KEY_LEN)
 	DEBUG("Generated S2C key");
 	HEXDUMP(ses->client_decryption_key, AES_KEY_SIZE);
 	DEBUG("Generated C2S key");
@@ -5854,6 +5877,7 @@ smb2_pipe_set_file_id(packet_info *pinfo, smb2_info_t *si)
 }
 
 static gboolean smb2_pipe_reassembly = TRUE;
+static gboolean smb2_verify_signatures = FALSE;
 static reassembly_table smb2_pipe_reassembly_table;
 
 static int
@@ -10126,6 +10150,69 @@ dissect_smb2_tid_sesid(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, 
 	return offset;
 }
 
+static void
+dissect_smb2_signature(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree, smb2_info_t *si)
+{
+	proto_item   *item = NULL;
+	proto_tree   *stree = NULL;
+	gcry_error_t err;
+	gcry_mac_hd_t md;
+	guint8 mac[NTLMSSP_KEY_LEN];
+	size_t len = NTLMSSP_KEY_LEN;
+	int i, remaining;
+
+	item = proto_tree_add_item(tree, hf_smb2_signature, tvb, offset, 16, ENC_NA);
+
+	if (!si || !si->session ||!si->conv)
+		return;
+
+	if (!smb2_verify_signatures || !(si->flags & SMB2_FLAGS_SIGNATURE))
+		return;
+
+	if (memcmp(si->session->signing_key, zeros, NTLMSSP_KEY_LEN) == 0) {
+		return;
+	}
+
+	if (tvb_reported_length(tvb) > tvb_captured_length(tvb))
+		return;
+
+	remaining = tvb_reported_length_remaining(tvb, offset + NTLMSSP_KEY_LEN);
+
+	if (si->conv->dialect < SMB2_DIALECT_300) {
+		err = gcry_mac_open(&md, GCRY_MAC_HMAC_SHA256, 0, NULL);
+		if (err)
+			return;
+	} else {
+		err = gcry_mac_open(&md, GCRY_MAC_CMAC_AES, 0, NULL);
+		if (err)
+			return;
+
+	}
+
+	gcry_mac_setkey(md, si->session->signing_key, len);
+	gcry_mac_write(md, tvb_get_ptr(tvb, 0, 48), 48);
+	gcry_mac_write(md, zeros, NTLMSSP_KEY_LEN);
+	gcry_mac_write(md, tvb_get_ptr(tvb, offset + NTLMSSP_KEY_LEN, remaining), remaining);
+	gcry_mac_read(md, &mac[0], &len);
+	gcry_mac_close(md);
+
+	stree = proto_item_add_subtree(item, ett_smb2_signature);
+
+	if (memcmp(&mac[0], tvb_get_ptr(tvb, offset, NTLMSSP_KEY_LEN), NTLMSSP_KEY_LEN) == 0) {
+		proto_tree_add_item(stree, hf_smb2_good_signature, tvb, offset, 16, ENC_NA);
+		return; /* signature matched */
+	}
+
+	item = proto_tree_add_item(stree, hf_smb2_bad_signature, tvb, offset, 16, ENC_NA);
+	proto_item_append_text(item, " ");
+	for (i = 0; i < NTLMSSP_KEY_LEN; i++)
+		proto_item_append_text(item, "%02x", mac[i]);
+	proto_item_set_generated(item);
+	expert_add_info(pinfo, item, &ei_smb2_invalid_signature);
+
+	return;
+}
+
 static int
 dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolean first_in_chain)
 {
@@ -10291,9 +10378,8 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 		offset = dissect_smb2_tid_sesid(pinfo, header_tree, tvb, offset, si);
 
 		/* Signature */
-		proto_tree_add_item(header_tree, hf_smb2_signature, tvb, offset, 16, ENC_NA);
+		dissect_smb2_signature(pinfo, tvb, offset, header_tree, si);
 		offset += 16;
-
 		proto_item_set_len(header_item, offset);
 
 		/* Check if this is a special packet type and it has non-regular title */
@@ -11052,6 +11138,16 @@ proto_register_smb2(void)
 
 		{ &hf_smb2_file_endoffile_info,
 			{ "SMB2_FILE_ENDOFFILE_INFO", "smb2.file_endoffile_info", FT_NONE, BASE_NONE,
+			NULL, 0, NULL, HFILL }
+		},
+
+		{ &hf_smb2_good_signature,
+			{ "Good signature", "smb2.good_signature", FT_NONE, BASE_NONE,
+			NULL, 0, NULL, HFILL }
+		},
+
+		{ &hf_smb2_bad_signature,
+			{ "Bad signature. Should be", "smb2.bad_signature", FT_NONE, BASE_NONE,
 			NULL, 0, NULL, HFILL }
 		},
 
@@ -13009,6 +13105,7 @@ proto_register_smb2(void)
 		&ett_smb2_error_redir_context,
 		&ett_smb2_error_redir_ip_list,
 		&ett_smb2_read_flags,
+		&ett_smb2_signature,
 	};
 
 	static ei_register_info ei[] = {
@@ -13017,6 +13114,7 @@ proto_register_smb2(void)
 		{ &ei_smb2_invalid_getinfo_offset, { "smb2.invalid_getinfo_offset", PI_MALFORMED, PI_ERROR, "Input buffer offset isn't past the fixed data in the message", EXPFILL }},
 		{ &ei_smb2_invalid_getinfo_size, { "smb2.invalid_getinfo_size", PI_MALFORMED, PI_ERROR, "Input buffer length goes past the end of the message", EXPFILL }},
 		{ &ei_smb2_empty_getinfo_buffer, { "smb2.empty_getinfo_buffer", PI_PROTOCOL, PI_WARN, "Input buffer length is empty for a quota request", EXPFILL }},
+		{ &ei_smb2_invalid_signature, { "smb2.invalid_signature", PI_MALFORMED, PI_ERROR, "Invalid Signature", EXPFILL }},
 	};
 
 	expert_module_t* expert_smb2;
@@ -13049,6 +13147,11 @@ proto_register_smb2(void)
 		"Reassemble Named Pipes over SMB2",
 		"Whether the dissector should reassemble Named Pipes over SMB2 commands",
 		&smb2_pipe_reassembly);
+
+	prefs_register_bool_preference(smb2_module, "verify_signatures",
+		"Verify SMB2 Signatures",
+		"Whether the dissector should try to verify SMB2 signatures",
+		&smb2_verify_signatures);
 
 	seskey_uat = uat_new("Secret session key to use for decryption",
 			     sizeof(smb2_seskey_field_t),
