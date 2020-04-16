@@ -423,49 +423,47 @@ dissect_usbll_split(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint of
 static gint
 dissect_usbll_handshake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
+    if (usbll_data_ptr->prev) {
+        if (usbll_data_ptr->prev->prev &&
+            usbll_data_ptr->prev->prev->prev &&
+            usbll_data_ptr->prev->prev->prev->pid == USB_PID_SPECIAL_SPLIT &&
+            !usbll_data_ptr->prev->prev->prev->is_split_complete)
+            usbll_set_address(tree, tvb, pinfo, usbll_data_ptr->prev->prev->prev->dst.device,
+                              usbll_data_ptr->prev->prev->prev->dst.endpoint,
+                              USBLL_ADDRESS_DEV_TO_HOST | USBLL_ADDRESS_HUB_PORT,
+                              &usbll_data_ptr->src, &usbll_data_ptr->dst);
 
-    if (usbll_data_ptr->prev &&
-        usbll_data_ptr->prev->prev &&
-        usbll_data_ptr->prev->prev->prev &&
-        usbll_data_ptr->prev->prev->prev->pid == USB_PID_SPECIAL_SPLIT &&
-        !usbll_data_ptr->prev->prev->prev->is_split_complete)
-        usbll_set_address(tree, tvb, pinfo, usbll_data_ptr->prev->prev->prev->dst.device,
-                          usbll_data_ptr->prev->prev->prev->dst.endpoint,
-                          USBLL_ADDRESS_DEV_TO_HOST | USBLL_ADDRESS_HUB_PORT,
-                          &usbll_data_ptr->src, &usbll_data_ptr->dst);
+        else if (usbll_data_ptr->prev->prev &&
+            usbll_data_ptr->prev->prev->pid == USB_PID_SPECIAL_SPLIT &&
+            !usbll_data_ptr->prev->prev->is_split_complete)
+            usbll_set_address(tree, tvb, pinfo, usbll_data_ptr->prev->prev->dst.device,
+                              usbll_data_ptr->prev->prev->dst.endpoint,
+                              USBLL_ADDRESS_DEV_TO_HOST | USBLL_ADDRESS_HUB_PORT,
+                              &usbll_data_ptr->src, &usbll_data_ptr->dst);
 
-    else if (usbll_data_ptr->prev &&
-        usbll_data_ptr->prev->prev &&
-        usbll_data_ptr->prev->prev->pid == USB_PID_SPECIAL_SPLIT &&
-        !usbll_data_ptr->prev->prev->is_split_complete)
-        usbll_set_address(tree, tvb, pinfo, usbll_data_ptr->prev->prev->dst.device,
-                          usbll_data_ptr->prev->prev->dst.endpoint,
-                          USBLL_ADDRESS_DEV_TO_HOST | USBLL_ADDRESS_HUB_PORT,
-                          &usbll_data_ptr->src, &usbll_data_ptr->dst);
+        else if (usbll_data_ptr->prev->prev &&
+            usbll_data_ptr->prev->prev->pid == USB_PID_SPECIAL_SPLIT &&
+            usbll_data_ptr->prev->prev->is_split_complete &&
+            usbll_data_ptr->pid == USB_PID_HANDSHAKE_NYET)
+            usbll_set_address(tree, tvb, pinfo, usbll_data_ptr->prev->prev->dst.device,
+                              usbll_data_ptr->prev->prev->dst.endpoint,
+                              USBLL_ADDRESS_DEV_TO_HOST | USBLL_ADDRESS_HUB_PORT,
+                              &usbll_data_ptr->src, &usbll_data_ptr->dst);
 
-    else if (usbll_data_ptr->prev &&
-        usbll_data_ptr->prev->prev &&
-        usbll_data_ptr->prev->prev->pid == USB_PID_SPECIAL_SPLIT &&
-        usbll_data_ptr->prev->prev->is_split_complete &&
-        usbll_data_ptr->pid == USB_PID_HANDSHAKE_NYET)
-        usbll_set_address(tree, tvb, pinfo, usbll_data_ptr->prev->prev->dst.device,
-                          usbll_data_ptr->prev->prev->dst.endpoint,
-                          USBLL_ADDRESS_DEV_TO_HOST | USBLL_ADDRESS_HUB_PORT,
-                          &usbll_data_ptr->src, &usbll_data_ptr->dst);
+        else if (usbll_data_ptr->prev->dst.flags & USBLL_ADDRESS_HOST)
+            usbll_set_address(tree, tvb, pinfo,
+                              usbll_data_ptr->prev->src.device,
+                              usbll_data_ptr->prev->src.endpoint,
+                              USBLL_ADDRESS_HOST_TO_DEV,
+                              &usbll_data_ptr->src, &usbll_data_ptr->dst);
 
-    else if (usbll_data_ptr->prev->dst.flags & USBLL_ADDRESS_HOST)
-        usbll_set_address(tree, tvb, pinfo,
-                          usbll_data_ptr->prev->src.device,
-                          usbll_data_ptr->prev->src.endpoint,
-                          USBLL_ADDRESS_HOST_TO_DEV,
-                          &usbll_data_ptr->src, &usbll_data_ptr->dst);
-
-    else
-        usbll_set_address(tree, tvb, pinfo,
-                          usbll_data_ptr->prev->dst.device,
-                          usbll_data_ptr->prev->dst.endpoint,
-                          USBLL_ADDRESS_DEV_TO_HOST,
-                          &usbll_data_ptr->src, &usbll_data_ptr->dst);
+        else
+            usbll_set_address(tree, tvb, pinfo,
+                              usbll_data_ptr->prev->dst.device,
+                              usbll_data_ptr->prev->dst.endpoint,
+                              USBLL_ADDRESS_DEV_TO_HOST,
+                              &usbll_data_ptr->src, &usbll_data_ptr->dst);
+    }
     return offset;
 }
 
@@ -490,6 +488,12 @@ usbll_create_data(packet_info *pinfo, guint32 pid)
     n_data_ptr->prev = usbll_data_ptr;
 
     return n_data_ptr;
+}
+
+static void
+usbll_cleanup_data(void)
+{
+    usbll_data_ptr = NULL;
 }
 
 static int
@@ -680,6 +684,7 @@ proto_register_usbll(void)
     expert_register_field_array(expert_module, ei, array_length(ei));
 
     register_dissector("usbll", dissect_usbll_packet, proto_usbll);
+    register_cleanup_routine(usbll_cleanup_data);
 
     usbll_address_type = address_type_dissector_register("AT_USBLL", "USBLL Address",
                                                          usbll_addr_to_str, usbll_addr_str_len,
