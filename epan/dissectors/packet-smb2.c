@@ -10149,7 +10149,7 @@ dissect_smb2_tid_sesid(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, 
 
 	return offset;
 }
-
+#if GCRYPT_VERSION_NUMBER >= 0x010600
 static void
 dissect_smb2_signature(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree, smb2_info_t *si)
 {
@@ -10212,6 +10212,7 @@ dissect_smb2_signature(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree
 
 	return;
 }
+#endif
 
 static int
 dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolean first_in_chain)
@@ -10378,7 +10379,11 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 		offset = dissect_smb2_tid_sesid(pinfo, header_tree, tvb, offset, si);
 
 		/* Signature */
+#if GCRYPT_VERSION_NUMBER >= 0x010800
 		dissect_smb2_signature(pinfo, tvb, offset, header_tree, si);
+#else
+		proto_tree_add_item(header_tree, hf_smb2_signature, tvb, offset, 16, ENC_NA);
+#endif
 		offset += 16;
 		proto_item_set_len(header_item, offset);
 
