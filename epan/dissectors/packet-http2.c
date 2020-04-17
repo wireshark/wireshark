@@ -2786,8 +2786,13 @@ dissect_http2_data(tvbuff_t *tvb, packet_info *pinfo, http2_session_t* http2_ses
 
 /* Headers */
 static int
+#ifdef HAVE_NGHTTP2
 dissect_http2_headers(tvbuff_t *tvb, packet_info *pinfo, http2_session_t* h2session, proto_tree *http2_tree,
                       guint offset, guint8 flags)
+#else
+dissect_http2_headers(tvbuff_t *tvb, packet_info *pinfo, http2_session_t* h2session _U_, proto_tree *http2_tree,
+                      guint offset, guint8 flags)
+#endif
 {
     guint16 padding;
     gint headlen;
@@ -2894,7 +2899,7 @@ static int
 #ifdef HAVE_NGHTTP2
 dissect_http2_settings(tvbuff_t *tvb, packet_info *pinfo _U_, http2_session_t* h2session, proto_tree *http2_tree, guint offset, guint8 flags)
 #else
-dissect_http2_settings(tvbuff_t *tvb, packet_info *pinfo _U_, http2_session_t* h2session, proto_tree *http2_tree, guint offset, guint8 flags _U_)
+dissect_http2_settings(tvbuff_t *tvb, packet_info *pinfo _U_, http2_session_t* h2session _U_, proto_tree *http2_tree, guint offset, guint8 flags _U_)
 #endif
 {
     guint32 settingsid;
@@ -2981,8 +2986,13 @@ dissect_http2_settings(tvbuff_t *tvb, packet_info *pinfo _U_, http2_session_t* h
 
 /* Push Promise */
 static int
+#ifdef HAVE_NGHTTP2
 dissect_http2_push_promise(tvbuff_t *tvb, packet_info *pinfo _U_, http2_session_t* h2session, proto_tree *http2_tree,
                            guint offset, guint8 flags _U_)
+#else
+dissect_http2_push_promise(tvbuff_t *tvb, packet_info *pinfo _U_, http2_session_t* h2session _U_, proto_tree *http2_tree,
+                           guint offset, guint8 flags _U_)
+#endif
 {
     guint16 padding;
     gint headlen;
@@ -3068,7 +3078,11 @@ dissect_http2_window_update(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *h
 }
 
 static int
+#ifdef HAVE_NGHTTP2
 dissect_http2_continuation(tvbuff_t *tvb, packet_info *pinfo _U_, http2_session_t* h2session, proto_tree *http2_tree, guint offset, guint8 flags)
+#else
+dissect_http2_continuation(tvbuff_t *tvb, packet_info *pinfo _U_, http2_session_t* h2session _U_, proto_tree *http2_tree, guint offset, guint8 flags)
+#endif
 {
     guint16 padding;
     gint headlen;
