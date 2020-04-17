@@ -3092,7 +3092,7 @@ static const value_string wfa_mbo_oce_attr_id_vals[] = {
   { MBO_TRANSITION_REASON, "Transition Reason Code BTM Request"},
   { MBO_TRANSITION_REJECTION_REASON, "Transition Rejection Reason Code"},
   { MBO_ASSOCIATION_RETRY_DELAY, "Association Retry Delay"},
-  { OCE_CAPABILTY_INDICATION, "OCE Capability Indication " },
+  { OCE_CAPABILTY_INDICATION, "OCE Capability Indication" },
   { OCE_RSSI_ASSOCIATION_REJECTION, "RSSI-based (Re-)Association Rejection" },
   { OCE_REDUCED_WAN_METRICS, "Reduced WAN Metrics" },
   { OCE_RNR_COMPLETENESS, "RNR Completeness" },
@@ -4928,7 +4928,7 @@ static int hf_ieee80211_wfa_ie_mbo_cellular_pref = -1;
 static int hf_ieee80211_wfa_ie_mbo_transition_reason = -1;
 static int hf_ieee80211_wfa_ie_mbo_transition_rej_reason = -1;
 static int hf_ieee80211_wfa_ie_mbo_assoc_retry_delay = -1;
-static int hf_ieee80211_wfa_ie_oce_cap = -1;
+static int hf_ieee80211_wfa_ie_oce_cap_ctrl = -1;
 static int hf_ieee80211_wfa_ie_oce_cap_release = -1;
 static int hf_ieee80211_wfa_ie_oce_cap_sta_cfon = -1;
 static int hf_ieee80211_wfa_ie_oce_cap_11b_only_ap = -1;
@@ -14225,7 +14225,7 @@ dissect_owe_transition_mode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static int
 dissect_mbo_oce(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-  int len = tvb_captured_length(tvb);
+  int len = tvb_reported_length(tvb);
   int offset = 0;
 
   while (len >= 2) {
@@ -14326,14 +14326,12 @@ dissect_mbo_oce(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
       break;
     case MBO_ASSOCIATION_RETRY_DELAY:
     {
-      proto_item *delay_item;
       if (attr_len != 2) {
         expert_add_info(pinfo, attr_tree, &ei_ieee80211_bad_length);
         return offset;
       }
-      delay_item = proto_tree_add_item(attr_tree, hf_ieee80211_wfa_ie_mbo_assoc_retry_delay, tvb, offset,
-                                       2, ENC_LITTLE_ENDIAN);
-      proto_item_append_text(delay_item, " (s)");
+      proto_tree_add_item(attr_tree, hf_ieee80211_wfa_ie_mbo_assoc_retry_delay, tvb, offset,
+                          2, ENC_LITTLE_ENDIAN);
       break;
     }
     case OCE_CAPABILTY_INDICATION:
@@ -14345,7 +14343,7 @@ dissect_mbo_oce(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
         expert_add_info(pinfo, attr_tree, &ei_ieee80211_bad_length);
         return offset;
       }
-      cap_item = proto_tree_add_item(attr_tree, hf_ieee80211_wfa_ie_oce_cap, tvb, offset, 1, ENC_NA);
+      cap_item = proto_tree_add_item(attr_tree, hf_ieee80211_wfa_ie_oce_cap_ctrl, tvb, offset, 1, ENC_NA);
       cap_tree = proto_item_add_subtree(cap_item, ett_oce_cap);
       proto_tree_add_item(cap_tree, hf_ieee80211_wfa_ie_oce_cap_release, tvb, offset, 1, ENC_NA);
       proto_tree_add_item(cap_tree, hf_ieee80211_wfa_ie_oce_cap_sta_cfon, tvb, offset, 1, ENC_NA);
@@ -14357,18 +14355,14 @@ dissect_mbo_oce(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
     }
     case OCE_RSSI_ASSOCIATION_REJECTION:
     {
-      proto_item *item;
-
       if (attr_len != 2) {
         expert_add_info(pinfo, attr_tree, &ei_ieee80211_bad_length);
         return offset;
       }
-      item = proto_tree_add_item(attr_tree, hf_ieee80211_wfa_ie_oce_rssi_assoc_rej_delta, tvb,
-                                 offset, 1, ENC_NA);
-      proto_item_append_text(item, " (dB)");
-      item = proto_tree_add_item(attr_tree, hf_ieee80211_wfa_ie_oce_rssi_assoc_rej_delay, tvb,
-                                 offset + 1, 1, ENC_NA);
-      proto_item_append_text(item, " (s)");
+      proto_tree_add_item(attr_tree, hf_ieee80211_wfa_ie_oce_rssi_assoc_rej_delta, tvb,
+                          offset, 1, ENC_NA);
+      proto_tree_add_item(attr_tree, hf_ieee80211_wfa_ie_oce_rssi_assoc_rej_delay, tvb,
+                          offset + 1, 1, ENC_NA);
       break;
     }
     case OCE_REDUCED_WAN_METRICS:
@@ -35108,10 +35102,10 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_wfa_ie_mbo_assoc_retry_delay,
      {"Re-association Delay", "wlan.wfa.ie.mbo.assoc_retry.delay",
-      FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+      FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0, NULL, HFILL }},
 
-    {&hf_ieee80211_wfa_ie_oce_cap,
-     {"OCE Control", "wlan.wfa.ie.oce.cap",
+    {&hf_ieee80211_wfa_ie_oce_cap_ctrl,
+     {"OCE Control", "wlan.wfa.ie.oce.cap.ctrl",
       FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&hf_ieee80211_wfa_ie_oce_cap_release,
@@ -35140,11 +35134,11 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_wfa_ie_oce_rssi_assoc_rej_delta,
      {"Delta RSSI", "wlan.wfa.ie.oce.rssi_assoc_rej.delta",
-      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+      FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_decibels, 0, NULL, HFILL }},
 
     {&hf_ieee80211_wfa_ie_oce_rssi_assoc_rej_delay,
      {"Retry Delay", "wlan.wfa.ie.oce.rssi_assoc_rej.delay",
-      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+      FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0, NULL, HFILL }},
 
     {&hf_ieee80211_wfa_ie_oce_wan_metrics_avail_cap,
      {"Available Capacity", "wlan.wfa.ie.oce.wan_metrics.avail_cap",
@@ -35167,7 +35161,7 @@ proto_register_ieee80211(void)
       FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
 
     {&hf_ieee80211_wfa_ie_oce_probe_suppr_ssid,
-     {"BSSID", "wlan.wfa.ie.oce.probe_suppr.ssid",
+     {"SSID", "wlan.wfa.ie.oce.probe_suppr.ssid",
       FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 
     {&hf_ieee80211_wfa_anqp_mbo_subtype,
