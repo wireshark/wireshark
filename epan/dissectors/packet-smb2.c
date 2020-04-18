@@ -10379,7 +10379,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 		offset = dissect_smb2_tid_sesid(pinfo, header_tree, tvb, offset, si);
 
 		/* Signature */
-#if GCRYPT_VERSION_NUMBER >= 0x010800
+#if GCRYPT_VERSION_NUMBER >= 0x010600
 		dissect_smb2_signature(pinfo, tvb, offset, header_tree, si);
 #else
 		proto_tree_add_item(header_tree, hf_smb2_signature, tvb, offset, 16, ENC_NA);
