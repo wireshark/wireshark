@@ -796,6 +796,8 @@ WS_DLL_PUBLIC_DEF const value_string dvbci_event[] = {
 
 static int proto_dvbci = -1;
 
+static dissector_handle_t dvbci_handle;
+
 static const gchar *dvbci_sek = NULL;
 static const gchar *dvbci_siv = NULL;
 static gboolean dvbci_dissect_lsc_msg = FALSE;
@@ -6317,15 +6319,14 @@ proto_register_dvbci(void)
     exported_pdu_tap = register_export_pdu_tap("DVB-CI");
 
     register_shutdown_routine(dvbci_shutdown);
+
+    dvbci_handle = register_dissector("dvb-ci", dissect_dvbci, proto_dvbci);
 }
 
 
 void
 proto_reg_handoff_dvbci(void)
 {
-    dissector_handle_t dvbci_handle;
-
-    dvbci_handle = create_dissector_handle(dissect_dvbci, proto_dvbci);
     dissector_add_uint("wtap_encap", WTAP_ENCAP_DVBCI, dvbci_handle);
 
     data_handle = find_dissector("data");
