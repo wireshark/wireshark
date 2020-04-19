@@ -607,14 +607,15 @@ WS_DLL_PUBLIC int validate_bpf(char *bpf) {
     return TRUE;
 }
 
-int inner_compile_dfilter(char *dfilter, dfilter_t **dfcode, char *err_msg) {
+int inner_compile_dfilter(char *dfilter, dfilter_t **dfcode, char **err_msg) {
     char *dfilter_err_msg;
 
     int compile_status = dfilter_compile(dfilter, dfcode, &dfilter_err_msg);
 
     if (!compile_status) {
         if (err_msg != NULL) {
-            strcpy(err_msg, dfilter_err_msg);
+            *err_msg = (char *)malloc(strlen(dfilter_err_msg) + 1);
+            strcpy(*err_msg, dfilter_err_msg);
         }
         g_free(dfilter_err_msg);
     }
@@ -633,7 +634,7 @@ WS_DLL_PUBLIC int validate_display_filter(char *dfilter) {
     return TRUE;
 }
 
-WS_DLL_PUBLIC int marine_add_filter(char *bpf, char *dfilter, char **fields, int fields_len, char *err_msg) {
+WS_DLL_PUBLIC int marine_add_filter(char *bpf, char *dfilter, char **fields, int fields_len, char **err_msg) {
     // TODO make the error codes consts
     struct bpf_program fcode;
     dfilter_t *dfcode = NULL;
@@ -643,7 +644,9 @@ WS_DLL_PUBLIC int marine_add_filter(char *bpf, char *dfilter, char **fields, int
     if (bpf != NULL) {
         has_bpf = TRUE;
         if (compile_bpf(bpf, &fcode) != 0) {
-            strcpy(err_msg, "Failed compiling the BPF");
+            char *error = "Failed compiling the BPF";
+            *err_msg = (char *)malloc(strlen(error) + 1);
+            strcpy(*err_msg, error);
             return -1;
         }
     }
@@ -666,10 +669,11 @@ WS_DLL_PUBLIC int marine_add_filter(char *bpf, char *dfilter, char **fields, int
         GSList *it = NULL;
         GSList *invalid_fields = output_fields_valid(packet_output_fields);
         if (invalid_fields != NULL) {
-            strcpy(err_msg, "Some fields aren't valid:\n");
+            *err_msg = (char *)malloc(512);
+            strcpy(*err_msg, "Some fields aren't valid:\n");
             for (it = invalid_fields; it != NULL; it = g_slist_next(it)) {
-                strcat(err_msg, "\t");
-                strcat(err_msg, (gchar *) it->data); // TODO: with long field names, this allows buffer overflow
+                strcat(*err_msg, "\t");
+                strcat(*err_msg, (gchar *) it->data); // TODO: with long field names, this allows buffer overflow
             }
             output_fields_free(packet_output_fields);
             g_slist_free(invalid_fields);
@@ -688,6 +692,10 @@ WS_DLL_PUBLIC int marine_add_filter(char *bpf, char *dfilter, char **fields, int
     g_hash_table_insert(packet_filters, key, filter);
     packet_filter_keys[size] = key;
     return size;
+}
+
+WS_DLL_PUBLIC void public_free(void *ptr) {
+    free(ptr);
 }
 
 wtap *

@@ -75,13 +75,14 @@ int load_cap(char *file, packet **packets, char errbuff[PCAP_ERRBUF_SIZE]) {
 }
 
 void benchmark(packet packets[], int packet_len, char *bpf, char *display_filter, char *fields[], int fields_len) {
-    char err_msg[512];
-    int filter_id = marine_add_filter(bpf, display_filter, fields, fields_len, err_msg);
+    char *err_msg;
+    int filter_id = marine_add_filter(bpf, display_filter, fields, fields_len, &err_msg);
     struct timespec start_time, end_time;
 
 
     if (filter_id < 0) {
         fprintf(stderr, "Error creating filter id: %s\n", err_msg);
+        free(err_msg);
         return;
     }
 
