@@ -780,7 +780,7 @@ static void
 acdr_payload_handler(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                      acdr_dissector_data_t *data, const char *proto_name)
 {
-    if (data->header_added && ip_dissector_handle) {
+    if (data->header_added && ip_dissector_handle && data->media_type != ACDR_DTLS) {
         call_dissector(ip_dissector_handle, tvb, pinfo, tree);
         if (proto_name)
             col_set_str(pinfo->cinfo, COL_PROTOCOL, proto_name);
