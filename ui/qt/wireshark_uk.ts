@@ -6270,11 +6270,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>Прибрати всі відображені пакети</translation>
     </message>
     <message>
-        <source>U&amp;nignore All Displayed</source>
-        <oldsource>Unignore All Displayed</oldsource>
-        <translation type="unfinished">Повернути Всі Відображені</translation>
-    </message>
-    <message>
         <source>Set/Unset Time Reference</source>
         <translation>Встановити/Зняти Точку Відліку Часу</translation>
     </message>
@@ -6851,6 +6846,14 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>Знайти Поп&amp;ередній</translation>
     </message>
     <message>
+        <source>U&amp;nignore All Displayed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unignore all displayed packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Time Shift…</source>
         <translation>Зсув Часу...</translation>
     </message>
@@ -7258,11 +7261,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>&amp;Unmark All Displayed</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Unignore all displayed packets</source>
-        <oldsource>U&amp;nignore all displayed packets</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>

@@ -6368,11 +6368,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>Игнорировать все показанные пакеты</translation>
     </message>
     <message>
-        <source>U&amp;nignore All Displayed</source>
-        <oldsource>Unignore All Displayed</oldsource>
-        <translation type="unfinished">Отменить Игнорирование Всех Показанных</translation>
-    </message>
-    <message>
         <source>Set/Unset Time Reference</source>
         <translation>Установить/Отменить Привязку По Времени</translation>
     </message>
@@ -6949,6 +6944,14 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>Найти Пр&amp;едыдущий</translation>
     </message>
     <message>
+        <source>U&amp;nignore All Displayed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unignore all displayed packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Time Shift…</source>
         <translation>Временной Сдвиг…</translation>
     </message>
@@ -7357,11 +7360,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>&amp;Unmark All Displayed</source>
         <translation>&amp;Отменить пометку Всего Отображённого</translation>
-    </message>
-    <message>
-        <source>Unignore all displayed packets</source>
-        <oldsource>U&amp;nignore all displayed packets</oldsource>
-        <translation type="unfinished">О&amp;тменить игнорирование всех показанных пакетов</translation>
     </message>
     <message>
         <source>All VoIP Calls</source>

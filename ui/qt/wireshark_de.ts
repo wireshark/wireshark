@@ -6351,11 +6351,6 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <translation>Alle angezeigten Pakete ignorieren</translation>
     </message>
     <message>
-        <source>U&amp;nignore All Displayed</source>
-        <oldsource>Unignore All Displayed</oldsource>
-        <translation type="unfinished">Alle angezeigte Pakete nicht mehr ignorieren</translation>
-    </message>
-    <message>
         <source>Set/Unset Time Reference</source>
         <translation>Zeitreferenz setzen/zurücksetzen</translation>
     </message>
@@ -6932,6 +6927,14 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <translation>Vorheriges finden</translation>
     </message>
     <message>
+        <source>U&amp;nignore All Displayed</source>
+        <translation>Alle angezeigte Pakete nicht mehr ig&amp;norieren</translation>
+    </message>
+    <message>
+        <source>Unignore all displayed packets</source>
+        <translation>Alle angezeigte Pakete nicht mehr ignorieren</translation>
+    </message>
+    <message>
         <source>Time Shift…</source>
         <translation>Zeitverschieben...</translation>
     </message>
@@ -7340,11 +7343,6 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <source>&amp;Unmark All Displayed</source>
         <translation>Markier&amp;ung bei allen angezeigten Paketen entfernen</translation>
-    </message>
-    <message>
-        <source>Unignore all displayed packets</source>
-        <oldsource>U&amp;nignore all displayed packets</oldsource>
-        <translation type="unfinished">Alle angezeigte Pakete nicht mehr ig&amp;norieren</translation>
     </message>
     <message>
         <source>All VoIP Calls</source>

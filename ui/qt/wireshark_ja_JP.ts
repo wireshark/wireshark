@@ -6338,11 +6338,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>すべての表示されたパケットを無視します</translation>
     </message>
     <message>
-        <source>U&amp;nignore All Displayed</source>
-        <oldsource>Unignore All Displayed</oldsource>
-        <translation type="unfinished">すべての表示されたパケットの無視を解除</translation>
-    </message>
-    <message>
         <source>Set/Unset Time Reference</source>
         <translation>時間参照を設定/設定解除します</translation>
     </message>
@@ -6919,6 +6914,14 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>前を検索(&amp;v)</translation>
     </message>
     <message>
+        <source>U&amp;nignore All Displayed</source>
+        <translation>すべての表示されているものの無視を解除します(&amp;U)</translation>
+    </message>
+    <message>
+        <source>Unignore all displayed packets</source>
+        <translation>すべての表示されたパケットの無視を解除します</translation>
+    </message>
+    <message>
         <source>Time Shift…</source>
         <translation>時間調整…</translation>
     </message>
@@ -7327,11 +7330,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>&amp;Unmark All Displayed</source>
         <translation>表示されているものすべてをマーク解除</translation>
-    </message>
-    <message>
-        <source>Unignore all displayed packets</source>
-        <oldsource>U&amp;nignore all displayed packets</oldsource>
-        <translation type="unfinished">すべての表示されたパケットの無視を解除します</translation>
     </message>
     <message>
         <source>All VoIP Calls</source>
