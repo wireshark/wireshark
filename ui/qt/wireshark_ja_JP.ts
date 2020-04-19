@@ -6567,11 +6567,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>すべての表示されたパケットを無視します</translation>
     </message>
     <message>
-        <source>U&amp;nignore All Displayed</source>
-        <oldsource>Unignore All Displayed</oldsource>
-        <translation type="unfinished">すべての表示されたパケットの無視を解除</translation>
-    </message>
-    <message>
         <source>Set/Unset Time Reference</source>
         <translation>時間参照を設定/設定解除します</translation>
     </message>
@@ -7148,6 +7143,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>各々の選択されたパケットを無視/無視を解除します</translation>
     </message>
     <message>
+        <source>U&amp;nignore All Displayed</source>
+        <translation>すべての表示されているものの無視を解除します(&amp;U)</translation>
+    </message>
+    <message>
+        <source>Unignore all displayed packets</source>
+        <translation>すべての表示されたパケットの無視を解除します</translation>
+    </message>
+    <message>
         <source>Time Shift…</source>
         <translation>時間調整…</translation>
     </message>
@@ -7552,11 +7555,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>&amp;Unmark All Displayed</source>
         <translation>表示されているものすべてをマーク解除(&amp;U)</translation>
-    </message>
-    <message>
-        <source>Unignore all displayed packets</source>
-        <oldsource>U&amp;nignore all displayed packets</oldsource>
-        <translation type="unfinished">すべての表示されたパケットの無視を解除します(&amp;n)</translation>
     </message>
     <message>
         <source>All VoIP Calls</source>
