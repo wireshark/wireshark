@@ -48,37 +48,37 @@ static int proto_synphasor	 = -1;
 #define G_PMU_ID_LEN 16
 
 /* the ett... variables hold the state (open/close) of the treeview in the GUI */
-static gint ett_synphasor	   = -1; /* root element for this protocol */
+static gint ett_synphasor			= -1; /* root element for this protocol */
   /* used in the common header */
-  static gint ett_frtype	   = -1;
-  static gint ett_timequal	   = -1;
+  static gint ett_frtype			= -1;
+  static gint ett_timequal			= -1;
   /* used for config frames */
-  static gint ett_conf		   = -1;
-    static gint ett_conf_station   = -1;
-      static gint ett_conf_format  = -1;
-      static gint ett_conf_phnam   = -1;
-      static gint ett_conf_annam   = -1;
-      static gint ett_conf_dgnam   = -1;
-      static gint ett_conf_phconv  = -1;
-      static gint ett_conf_phlist  = -1;
-      static gint ett_conf_phflags = -1;
-      static gint ett_conf_phmod_flags = -1;
-      static gint ett_conf_ph_user_flags = -1;
-      static gint ett_conf_anconv  = -1;
-      static gint ett_conf_anlist  = -1;
-      static gint ett_conf_dgmask  = -1;
-      static gint ett_conf_chnam   = -1;
-      static gint ett_conf_wgs84   = -1;
+  static gint ett_conf				= -1;
+    static gint ett_conf_station		= -1;
+      static gint ett_conf_format		= -1;
+      static gint ett_conf_phnam		= -1;
+      static gint ett_conf_annam		= -1;
+      static gint ett_conf_dgnam		= -1;
+      static gint ett_conf_phconv		= -1;
+      static gint ett_conf_phlist		= -1;
+      static gint ett_conf_phflags		= -1;
+      static gint ett_conf_phmod_flags		= -1;
+      static gint ett_conf_ph_user_flags	= -1;
+      static gint ett_conf_anconv		= -1;
+      static gint ett_conf_anlist		= -1;
+      static gint ett_conf_dgmask		= -1;
+      static gint ett_conf_chnam		= -1;
+      static gint ett_conf_wgs84		= -1;
   /* used for data frames */
-  static gint ett_data		   = -1;
-    static gint ett_data_block	   = -1;
-      static gint ett_data_stat	   = -1;
-      static gint ett_data_phasors = -1;
-      static gint ett_data_analog  = -1;
-      static gint ett_data_digital = -1;
+  static gint ett_data				= -1;
+    static gint ett_data_block			= -1;
+      static gint ett_data_stat			= -1;
+      static gint ett_data_phasors		= -1;
+      static gint ett_data_analog		= -1;
+      static gint ett_data_digital		= -1;
   /* used for command frames */
-  static gint ett_command	   = -1;
-  static gint ett_status_word_mask = -1;
+  static gint ett_command			= -1;
+  static gint ett_status_word_mask		= -1;
 
 /* handles to the header fields hf[] in proto_register_synphasor() */
 static int hf_sync			= -1;
@@ -144,31 +144,34 @@ static int hf_data_statb08to06		= -1;
 static int hf_data_statb05to04		= -1;
 static int hf_data_statb03to00		= -1;
 static int hf_command			= -1;
+static int hf_cfg_frame_num		= -1;
 
 /* Generated from convert_proto_tree_add_text.pl */
-static int hf_synphasor_data = -1;
-static int hf_synphasor_checksum = -1;
-static int hf_synphasor_checksum_status = -1;
-static int hf_synphasor_num_phasors = -1;
-static int hf_synphasor_num_analog_values = -1;
-static int hf_synphasor_num_digital_status_words = -1;
-static int hf_synphasor_rate_of_transmission = -1;
-static int hf_synphasor_phasor = -1;
-static int hf_synphasor_actual_frequency_value = -1;
-static int hf_synphasor_rate_change_frequency = -1;
-static int hf_synphasor_frequency_deviation_from_nominal = -1;
-static int hf_synphasor_analog_value = -1;
-static int hf_synphasor_digital_status_word = -1;
-static int hf_synphasor_conversion_factor = -1;
-static int hf_synphasor_factor_for_analog_value = -1;
-static int hf_synphasor_channel_name = -1;
-static int hf_synphasor_extended_frame_data = -1;
-static int hf_synphasor_unknown_data = -1;
-static int hf_synphasor_status_word_mask_normal_state = -1;
-static int hf_synphasor_status_word_mask_valid_bits = -1;
+static int hf_synphasor_data					= -1;
+static int hf_synphasor_checksum				= -1;
+static int hf_synphasor_checksum_status				= -1;
+static int hf_synphasor_num_phasors				= -1;
+static int hf_synphasor_num_analog_values			= -1;
+static int hf_synphasor_num_digital_status_words		= -1;
+static int hf_synphasor_rate_of_transmission			= -1;
+static int hf_synphasor_phasor					= -1;
+static int hf_synphasor_actual_frequency_value			= -1;
+static int hf_synphasor_rate_change_frequency			= -1;
+static int hf_synphasor_frequency_deviation_from_nominal	= -1;
+static int hf_synphasor_analog_value				= -1;
+static int hf_synphasor_digital_status_word			= -1;
+static int hf_synphasor_conversion_factor			= -1;
+static int hf_synphasor_factor_for_analog_value			= -1;
+static int hf_synphasor_channel_name				= -1;
+static int hf_synphasor_extended_frame_data			= -1;
+static int hf_synphasor_unknown_data				= -1;
+static int hf_synphasor_status_word_mask_normal_state		= -1;
+static int hf_synphasor_status_word_mask_valid_bits		= -1;
 
-static expert_field ei_synphasor_extended_frame_data = EI_INIT;
-static expert_field ei_synphasor_checksum = EI_INIT;
+static expert_field ei_synphasor_extended_frame_data	= EI_INIT;
+static expert_field ei_synphasor_checksum		= EI_INIT;
+static expert_field ei_synphasor_data_error		= EI_INIT;
+static expert_field ei_synphasor_pmu_not_sync		= EI_INIT;
 
 static dissector_handle_t synphasor_udp_handle;
 
@@ -185,7 +188,7 @@ enum FrameType {
 /* Structures to save CFG frame content. */
 
 /* type to indicate the format for (D)FREQ/PHASORS/ANALOG in data frame	 */
-typedef enum { integer,		/* 16 bit signed integer */
+typedef enum {	integer,	/* 16 bit signed integer */
 	       floating_point	/* single precision floating point */
 } data_format;
 
@@ -195,19 +198,19 @@ typedef enum { V, A } unit_e;
 
 /* holds the information required to dissect a single phasor */
 typedef struct {
-	char	      name[MAX_NAME_LEN + 1];
-	unit_e        unit;
-	guint32	      conv; /* cfg-2 conversion factor in 10^-5 scale */
-	float	      conv_cfg3; /* cfg-3 conversion scale factor */
-	float	      angle_offset_cfg3; /* cfg-3 angle offset */
+	char	name[MAX_NAME_LEN + 1];
+	unit_e	unit;
+	guint32	conv;			/* cfg-2 conversion factor in 10^-5 scale */
+	float	conv_cfg3;		/* cfg-3 conversion scale factor */
+	float	angle_offset_cfg3;	/* cfg-3 angle offset */
 } phasor_info;
 
 /* holds the information for an analog value */
 typedef struct {
 	char	name[MAX_NAME_LEN + 1];
-	guint32 conv; /* cfg-2 conversion scale factor, user defined scaling (so it's pretty useless) */
-	float	conv_cfg3; /* cfg-3 conversion scale factor */
-	float	offset_cfg3; /* cfg-3 conversion offset */
+	guint32	conv;		/* cfg-2 conversion scale factor, user defined scaling (so it's pretty useless) */
+	float	conv_cfg3;	/* cfg-3 conversion scale factor */
+	float	offset_cfg3;	/* cfg-3 conversion offset */
 } analog_info;
 
 /* holds information required to dissect a single PMU block in a data frame */
@@ -228,27 +231,28 @@ typedef struct {
 /* holds the id the configuration comes from an and
  * an array of config_block members */
 typedef struct {
-	guint32      fnum;	     /* frame number */
-	guint16      id;	     /* (Stream Source ID) identifies source of stream */
-	wmem_array_t *config_blocks; /* Contains a config_block struct for
+	guint32		fnum;		/* frame number */
+	guint16		id;		/* (Stream Source ID) identifies source of stream */
+	guint32		time_base;	/* Time base - resolution of FRACSEC time stamp. */
+	wmem_array_t	*config_blocks; /* Contains a config_block struct for
 				      * every PMU included in the config frame */
 } config_frame;
 
 /* strings for type bits in SYNC */
 static const value_string typenames[] = {
-	{ 0, "Data Frame"	     },
-	{ 1, "Header Frame"	     },
-	{ 2, "Configuration Frame 1" },
-	{ 3, "Configuration Frame 2" },
-	{ 4, "Command Frame"	     },
-	{ 5, "Configuration Frame 3" },
-	{ 0, NULL		     }
+	{ 0, "Data Frame"		},
+	{ 1, "Header Frame"		},
+	{ 2, "Configuration Frame 1"	},
+	{ 3, "Configuration Frame 2"	},
+	{ 4, "Command Frame"		},
+	{ 5, "Configuration Frame 3"	},
+	{ 0, NULL			}
 };
 
 /* strings for version bits in SYNC */
 static const value_string versionnames[] = {
-	{ 1, "Defined in IEEE Std C37.118-2005" },
-	{ 2, "Added in IEEE Std C37.118.2-2011" },
+	{ 1, "Defined in IEEE Std C37.118-2005"	},
+	{ 2, "Added in IEEE Std C37.118.2-2011"	},
 	{ 0, NULL				}
 };
 
@@ -258,25 +262,25 @@ static const true_false_string leapseconddir = {
 	"Delete"
 };
 static const value_string timequalcodes[] = {
-	{ 0xF, "Clock failure, time not reliable"    },
-	{ 0xB, "Clock unlocked, time within 10 s"    },
-	{ 0xA, "Clock unlocked, time within 1 s"     },
-	{ 0x9, "Clock unlocked, time within 10^-1 s" },
-	{ 0x8, "Clock unlocked, time within 10^-2 s" },
-	{ 0x7, "Clock unlocked, time within 10^-3 s" },
-	{ 0x6, "Clock unlocked, time within 10^-4 s" },
-	{ 0x5, "Clock unlocked, time within 10^-5 s" },
-	{ 0x4, "Clock unlocked, time within 10^-6 s" },
-	{ 0x3, "Clock unlocked, time within 10^-7 s" },
-	{ 0x2, "Clock unlocked, time within 10^-8 s" },
-	{ 0x1, "Clock unlocked, time within 10^-9 s" },
-	{ 0x0, "Normal operation, clock locked"	     },
-	{  0 , NULL				     }
+	{ 0xF, "Clock failure, time not reliable"	},
+	{ 0xB, "Clock unlocked, time within 10 s"	},
+	{ 0xA, "Clock unlocked, time within 1 s"	},
+	{ 0x9, "Clock unlocked, time within 10^-1 s"	},
+	{ 0x8, "Clock unlocked, time within 10^-2 s"	},
+	{ 0x7, "Clock unlocked, time within 10^-3 s"	},
+	{ 0x6, "Clock unlocked, time within 10^-4 s"	},
+	{ 0x5, "Clock unlocked, time within 10^-5 s"	},
+	{ 0x4, "Clock unlocked, time within 10^-6 s"	},
+	{ 0x3, "Clock unlocked, time within 10^-7 s"	},
+	{ 0x2, "Clock unlocked, time within 10^-8 s"	},
+	{ 0x1, "Clock unlocked, time within 10^-9 s"	},
+	{ 0x0, "Normal operation, clock locked"		},
+	{  0 , NULL					}
 };
 
 /* strings for flags in the FORMAT word of a configuration frame */
 static const true_false_string conf_formatb123names = {
-	"32-bit IEEE point",
+	"32-bit IEEE floating point",
 	"16-bit integer"
 };
 static const true_false_string conf_formatb0names = {
@@ -286,13 +290,13 @@ static const true_false_string conf_formatb0names = {
 
 /* strings to decode ANUNIT in configuration frame */
 static const range_string conf_anconvnames[] = {
-	{  0,	0, "single point-on-wave" },
-	{  1,	1, "rms of analog input"  },
-	{  2,	2, "peak of input"	  },
-	{  3,	4, "undefined"		  },
-	{  5,  64, "reserved"		  },
-	{ 65, 255, "user defined"	  },
-	{  0,	0, NULL			  }
+	{  0,	0, "single point-on-wave"	},
+	{  1,	1, "rms of analog input"	},
+	{  2,	2, "peak of input"		},
+	{  3,	4, "undefined"			},
+	{  5,  64, "reserved"			},
+	{ 65, 255, "user defined"		},
+	{  0,	0, NULL				}
 };
 
 /* strings for the FNOM field */
@@ -357,23 +361,23 @@ static const true_false_string conf_phasor_mod_b01 = {
 };
 
 static const value_string conf_phasor_type[] = {
-	{ 0, "Voltage, Zero sequence" },
-	{ 1, "Voltage, Positive sequence" },
-	{ 2, "Voltage, Negative sequence" },
-	{ 3, "Voltage, Reserved" },
-	{ 4, "Voltage, Phase A" },
-	{ 5, "Voltage, Phase B" },
-	{ 6, "Voltage, Phase C" },
-	{ 7, "Voltage, Reserved" },
-	{ 8, "Current, Zero sequence" },
-	{ 9, "Current, Positive sequence" },
-	{ 10, "Current, Negative sequence" },
-	{ 11, "Current, Reserved" },
-	{ 12, "Current, Phase A" },
-	{ 13, "Current, Phase B" },
-	{ 14, "Current, Phase C" },
-	{ 15, "Current, Reserved" },
-	{ 0, NULL }
+	{ 0, "Voltage, Zero sequence"		},
+	{ 1, "Voltage, Positive sequence"	},
+	{ 2, "Voltage, Negative sequence"	},
+	{ 3, "Voltage, Reserved"		},
+	{ 4, "Voltage, Phase A"			},
+	{ 5, "Voltage, Phase B"			},
+	{ 6, "Voltage, Phase C"			},
+	{ 7, "Voltage, Reserved"		},
+	{ 8, "Current, Zero sequence"		},
+	{ 9, "Current, Positive sequence"	},
+	{ 10, "Current, Negative sequence"	},
+	{ 11, "Current, Reserved"		},
+	{ 12, "Current, Phase A"		},
+	{ 13, "Current, Phase B"		},
+	{ 14, "Current, Phase C"		},
+	{ 15, "Current, Reserved"		},
+	{  0, NULL				}
 };
 
 static const true_false_string conf_phasor_type_b03 = {
@@ -382,15 +386,15 @@ static const true_false_string conf_phasor_type_b03 = {
 };
 
 static const value_string conf_phasor_type_b02to00[] = {
-	{ 0, "Zero sequence" },
-	{ 1, "Positive sequence" },
-	{ 2, "Negative sequence" },
-	{ 3, "Reserved" },
-	{ 4, "Phase A" },
-	{ 5, "Phase B" },
-	{ 6, "Phase C" },
-	{ 7, "Reserved" },
-	{ 0, NULL }
+	{ 0, "Zero sequence"	},
+	{ 1, "Positive sequence"},
+	{ 2, "Negative sequence"},
+	{ 3, "Reserved"		},
+	{ 4, "Phase A"		},
+	{ 5, "Phase B"		},
+	{ 6, "Phase C"		},
+	{ 7, "Reserved"		},
+	{ 0, NULL		}
 };
 
 static const true_false_string conf_phasor_user_defined = {
@@ -400,11 +404,11 @@ static const true_false_string conf_phasor_user_defined = {
 
 /* strings for flags in the STAT word of a data frame */
 static const value_string data_statb15to14names[] = {
-	{ 0, "Good measurement data, no errors" },
-	{ 1, "PMU error, no information about data" },
-	{ 2, "PMU in test mode or absent data tags have been inserted (do not use values)" },
-	{ 3, "PMU error (do not use values)" },
-	{ 0, NULL }
+	{ 0, "Good measurement data, no errors"							},
+	{ 1, "PMU error, no information about data"						},
+	{ 2, "PMU in test mode or absent data tags have been inserted (do not use values)"	},
+	{ 3, "PMU error (do not use values)"							},
+	{ 0, NULL										}
 };
 static const true_false_string data_statb13names = {
 	"Synchronization lost",
@@ -427,41 +431,41 @@ static const true_false_string data_statb09names = {
 	"Data not modified"
 };
 static const value_string      data_statb08to06names[] = {
-	{ 0, "Not used (indicates code from previous version of profile)" },
-	{ 1, "Estimated maximum time error < 100 ns" },
-	{ 2, "Estimated maximum time error < 1 " UTF8_MICRO_SIGN "s"	  },
-	{ 3, "Estimated maximum time error < 10 " UTF8_MICRO_SIGN "s"	  },
-	{ 4, "Estimated maximum time error < 100 " UTF8_MICRO_SIGN "s"	  },
-	{ 5, "Estimated maximum time error < 1 ms"			  },
-	{ 6, "Estimated maximum time error < 10 ms"			  },
-	{ 7, "Estimated maximum time error > 10 ms or time error unknown" },
-	{ 0, NULL							  }
+	{ 0, "Not used (indicates code from previous version of profile)"	},
+	{ 1, "Estimated maximum time error < 100 ns" 				},
+	{ 2, "Estimated maximum time error < 1 " UTF8_MICRO_SIGN "s"		},
+	{ 3, "Estimated maximum time error < 10 " UTF8_MICRO_SIGN "s"		},
+	{ 4, "Estimated maximum time error < 100 " UTF8_MICRO_SIGN "s"		},
+	{ 5, "Estimated maximum time error < 1 ms"				},
+	{ 6, "Estimated maximum time error < 10 ms"				},
+	{ 7, "Estimated maximum time error > 10 ms or time error unknown"	},
+	{ 0, NULL								}
 };
 static const value_string      data_statb05to04names[] = {
-	{ 0, "Locked or unlocked less than 10 s" },
-	{ 1, "Unlocked for 10-100 s"		 },
-	{ 2, "Unlocked for 100-1000 s"	 },
-	{ 3, "Unlocked for over 1000 s"	 },
-	{ 0, NULL			 }
+	{ 0, "Locked or unlocked less than 10 s"},
+	{ 1, "Unlocked for 10-100 s"		},
+	{ 2, "Unlocked for 100-1000 s"		},
+	{ 3, "Unlocked for over 1000 s"		},
+	{ 0, NULL				}
 };
 static const value_string      data_statb03to00names[] = {
-	{ 0x0, "Manual"		    },
-	{ 0x1, "Magnitude low"	    },
-	{ 0x2, "Magnitude high"	    },
-	{ 0x3, "Phase-angel diff"   },
-	{ 0x4, "Frequency high or low" },
-	{ 0x5, "df/dt high"	    },
-	{ 0x6, "Reserved"	    },
-	{ 0x7, "Digital"	    },
-	{ 0x8, "User defined"	    },
-	{ 0x9, "User defined"	    },
-	{ 0xA, "User defined"	    },
-	{ 0xB, "User defined"	    },
-	{ 0xC, "User defined"	    },
-	{ 0xD, "User defined"	    },
-	{ 0xE, "User defined"	    },
-	{ 0xF, "User defined"	    },
-	{  0 , NULL		    }
+	{ 0x0, "Manual"				},
+	{ 0x1, "Magnitude low"			},
+	{ 0x2, "Magnitude high"			},
+	{ 0x3, "Phase-angel diff"		},
+	{ 0x4, "Frequency high or low"		},
+	{ 0x5, "df/dt high"			},
+	{ 0x6, "Reserved"			},
+	{ 0x7, "Digital"			},
+	{ 0x8, "User defined"			},
+	{ 0x9, "User defined"			},
+	{ 0xA, "User defined"			},
+	{ 0xB, "User defined"			},
+	{ 0xC, "User defined"			},
+	{ 0xD, "User defined"			},
+	{ 0xE, "User defined"			},
+	{ 0xF, "User defined"			},
+	{   0, NULL				}
 };
 
 /* strings to decode the commands (CMD Field) acording Table 15, p.26
@@ -477,19 +481,19 @@ static const value_string      data_statb03to00names[] = {
 *  zzzz xxxx xxxx xxxx  -  All codes where zzzz ≠ 0 reserved.
 */
 static const range_string command_names[] = {
-	{  0x0000, 0x0000, "reserved codes"	   },
-	{  0x0001, 0x0001, "data transmission off" },
-	{  0x0002, 0x0002, "data transmission on"  },
-	{  0x0003, 0x0003, "send HDR frame"	   },
-	{  0x0004, 0x0004, "send CFG-1 frame"      },
-	{  0x0005, 0x0005, "send CFG-2 frame"      },
-	{  0x0006, 0x0006, "send CFG-3 frame"      },
-	{  0x0007, 0x0007, "reserved codes"	   },
-	{  0x0008, 0x0008, "extended frame"	   },
-	{  0x0009, 0x00FF, "reserved codes"	   },
-	{  0x0100, 0x0FFF, "user designation"	   },
-	{  0x1000, 0xFFFF, "reserved codes"	   },
-	{  0x0000, 0x0000, NULL			   }
+	{  0x0000, 0x0000, "reserved codes"		},
+	{  0x0001, 0x0001, "data transmission off"	},
+	{  0x0002, 0x0002, "data transmission on"	},
+	{  0x0003, 0x0003, "send HDR frame"		},
+	{  0x0004, 0x0004, "send CFG-1 frame"		},
+	{  0x0005, 0x0005, "send CFG-2 frame"		},
+	{  0x0006, 0x0006, "send CFG-3 frame"		},
+	{  0x0007, 0x0007, "reserved codes"		},
+	{  0x0008, 0x0008, "extended frame"		},
+	{  0x0009, 0x00FF, "reserved codes"		},
+	{  0x0100, 0x0FFF, "user designation"		},
+	{  0x1000, 0xFFFF, "reserved codes"		},
+	{  0x0000, 0x0000, NULL				}
 };
 
 
@@ -537,20 +541,29 @@ static gboolean check_crc(tvbuff_t *tvb, guint16 *computedcrc)
  */
 static config_frame *config_frame_fast(tvbuff_t *tvb)
 {
-	guint16	      idcode, num_pmu;
-	gint	      offset;
-	config_frame *frame;
+	guint16		num_pmu;
+	gint		offset;
+	config_frame	*frame;
 
 	/* get a new frame and initialize it */
 	frame = wmem_new(wmem_file_scope(), config_frame);
 
 	frame->config_blocks = wmem_array_new(wmem_file_scope(), sizeof(config_block));
 
-	idcode = tvb_get_ntohs(tvb, 4);
-	frame->id	= idcode;
+	// Start with Stream Source ID - identifies source of stream
+	offset = 4;
+	frame->id = tvb_get_ntohs(tvb, offset);
 
-	num_pmu = tvb_get_ntohs(tvb, 18);
-	offset = 20; /* start of repeating blocks */
+	/* Skip to time base for FRACSEC */
+	offset += 11; // high 8 bits reserved for flags, so +1 byte
+	frame->time_base = tvb_get_guint24(tvb, offset,ENC_BIG_ENDIAN);
+
+	/* Next number of PMU blocks */
+	offset += 3;
+	num_pmu = tvb_get_ntohs(tvb, offset);
+
+	// Start of repeating blocks
+	offset += 2;
 
 	while (num_pmu) {
 		guint16	     format_flags;
@@ -661,7 +674,7 @@ static config_frame * config_3_frame_fast(tvbuff_t *tvb)
 
 	frame->config_blocks = wmem_array_new(wmem_file_scope(), sizeof(config_block));
 
-	// Start with Frame ID
+	// Start with Stream Source ID - identifies source of stream
 	offset = 4;
 	frame->id = tvb_get_ntohs(tvb, offset);
 
@@ -669,8 +682,12 @@ static config_frame * config_3_frame_fast(tvbuff_t *tvb)
 	offset += 10;
 	frame_not_fragmented = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN) == 0;
 
+	/* Skip to time base for FRACSEC */
+	offset += 3; // high 8 bits reserved for flags, so +1 byte
+	frame->time_base = tvb_get_guint24(tvb, offset,ENC_BIG_ENDIAN);
+
 	/* Skip to number of PMU blocks */
-	offset += 6;
+	offset += 3;
 	num_pmu = tvb_get_ntohs(tvb, offset);
 
 	/* start of repeating blocks */
@@ -830,13 +847,16 @@ static config_frame * config_3_frame_fast(tvbuff_t *tvb)
  * Returns the framesize, in contrast to most
  * other helper functions that return the offset.
  */
-static gint dissect_header(tvbuff_t *tvb, proto_tree *tree)
+static gint dissect_header(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
 {
 	proto_tree *temp_tree;
 	proto_item *temp_item;
+	config_frame *conf;
 
 	gint	offset = 0;
-	guint16 framesize;
+	guint16	framesize;
+
+	conf = (config_frame *)p_get_proto_data(wmem_file_scope(), pinfo, proto_synphasor, 0);
 
 	/* SYNC and flags */
 	temp_item = proto_tree_add_item(tree, hf_sync, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -866,7 +886,14 @@ static gint dissect_header(tvbuff_t *tvb, proto_tree *tree)
 	proto_tree_add_item(temp_tree, hf_timeqal_timequalindic, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	proto_tree_add_item(tree, hf_fracsec,  tvb, offset, 3, ENC_BIG_ENDIAN);
+	if (conf){
+		guint32 fracsec_raw = tvb_get_guint24(tvb, offset, ENC_BIG_ENDIAN);
+		float	fracsec_ms = 1000.0f*fracsec_raw/conf->time_base;
+		proto_tree_add_uint_format(tree, hf_fracsec, tvb, offset, 3, fracsec_raw, "Fraction of second: %.6g ms, raw: %u", fracsec_ms, fracsec_raw);
+	} else
+	{
+		proto_tree_add_item(tree, hf_fracsec,  tvb, offset, 3, ENC_BIG_ENDIAN);
+	}
 	/*offset += 3;*/
 
 	return framesize;
@@ -1131,7 +1158,7 @@ static gint dissect_DIGITAL(tvbuff_t *tvb, proto_tree *tree, config_block *block
 static gint dissect_PHUNIT(tvbuff_t *tvb, proto_tree *tree, gint offset, gint cnt)
 {
 	proto_tree *temp_tree;
-	int i;
+	gint i;
 
 	if (0 == cnt)
 		return offset;
@@ -1160,7 +1187,7 @@ static gint dissect_PHUNIT(tvbuff_t *tvb, proto_tree *tree, gint offset, gint cn
 static gint dissect_PHSCALE(tvbuff_t *tvb, proto_tree *tree, gint offset, gint cnt)
 {
 	proto_tree *temp_tree;
-	int i;
+	gint i;
 
 	if (0 == cnt) {
 		return offset;
@@ -1233,7 +1260,7 @@ static gint dissect_ANUNIT(tvbuff_t *tvb, proto_tree *tree, gint offset, gint cn
 {
 	proto_item *temp_item;
 	proto_tree *temp_tree;
-	int i;
+	gint i;
 
 	if (0 == cnt)
 		return offset;
@@ -1268,7 +1295,7 @@ static gint dissect_ANUNIT(tvbuff_t *tvb, proto_tree *tree, gint offset, gint cn
 static gint dissect_ANSCALE(tvbuff_t *tvb, proto_tree *tree, gint offset, gint cnt)
 {
 	proto_tree *temp_tree;
-	int i;
+	gint i;
 
 	if (0 == cnt) {
 		return offset;
@@ -1306,7 +1333,7 @@ static gint dissect_ANSCALE(tvbuff_t *tvb, proto_tree *tree, gint offset, gint c
 static gint dissect_DIGUNIT(tvbuff_t *tvb, proto_tree *tree, gint offset, gint cnt)
 {
 	proto_tree *temp_tree, *mask_tree;
-	int i;
+	gint i;
 
 	if (0 == cnt)
 		return offset;
@@ -1332,7 +1359,7 @@ static gint dissect_DIGUNIT(tvbuff_t *tvb, proto_tree *tree, gint offset, gint c
 static gint dissect_CHNAM(tvbuff_t *tvb, proto_tree *tree, gint offset, gint cnt, const char *prefix)
 {
 	proto_tree *temp_tree;
-	int i;
+	gint i;
 
 	if (0 == cnt)
 		return offset;
@@ -1356,7 +1383,7 @@ static gint dissect_CHNAM(tvbuff_t *tvb, proto_tree *tree, gint offset, gint cnt
 static gint dissect_config_3_CHNAM(tvbuff_t *tvb, proto_tree *tree, gint offset, gint cnt, const char *prefix)
 {
 	proto_tree *temp_tree, *chnam_tree;
-	int i;
+	gint i;
 	guint8 name_length;
 	gint temp_offset;
 	gint subsection_length = 0;
@@ -1691,10 +1718,10 @@ static int dissect_data_frame(tvbuff_t	  *tvb,
 			      proto_item  *data_item, /* all items are placed beneath this item	  */
 			      packet_info *pinfo)     /* used to find the data from a CFG-2 or CFG-3 frame */
 {
-	proto_tree   *data_tree;
-	gint	      offset	 = 0;
-	guint	      i;
-	config_frame *conf;
+	proto_tree	*data_tree;
+	gint		offset	 = 0;
+	guint		i;
+	config_frame	*conf;
 
 	proto_item_set_text(data_item, "Measurement data");
 	data_tree = proto_item_add_subtree(data_item, ett_data);
@@ -1714,8 +1741,9 @@ static int dissect_data_frame(tvbuff_t	  *tvb,
 			}
 
 			if (tvb_reported_length(tvb) == reported_size) {
-				proto_item_append_text(data_item, ", using frame number %"G_GUINT32_FORMAT" as configuration frame",
-						       conf->fnum);
+				// Add link to CFG Frame
+				proto_item* item = proto_tree_add_uint(data_tree, hf_cfg_frame_num, tvb, 0,0, conf->fnum);
+				proto_item_set_generated(item);
 				config_found = TRUE;
 			}
 		}
@@ -1737,8 +1765,16 @@ static int dissect_data_frame(tvbuff_t	  *tvb,
 		/* STAT */
 		proto_tree *temp_tree = proto_tree_add_subtree(block_tree, tvb, offset, 2, ett_data_stat, NULL, "Flags");
 
-		proto_tree_add_item(temp_tree, hf_data_statb15to14, tvb, offset, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(temp_tree, hf_data_statb13,	    tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_item *temp_item = proto_tree_add_item(temp_tree, hf_data_statb15to14, tvb, offset, 2, ENC_BIG_ENDIAN);
+		guint16 flag_bits = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN)  >> 14; // Get bits 15-14
+		if (flag_bits != 0) {
+			expert_add_info(pinfo, temp_item, &ei_synphasor_data_error);
+		}
+		temp_item = proto_tree_add_item(temp_tree, hf_data_statb13,	    tvb, offset, 2, ENC_BIG_ENDIAN);
+		flag_bits = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN); // Get flag bits
+		if ((flag_bits >> 13)&1) { // Check 13 bit
+			expert_add_info(pinfo, temp_item, &ei_synphasor_pmu_not_sync);
+		}
 		proto_tree_add_item(temp_tree, hf_data_statb12,	    tvb, offset, 2, ENC_BIG_ENDIAN);
 		proto_tree_add_item(temp_tree, hf_data_statb11,	    tvb, offset, 2, ENC_BIG_ENDIAN);
 		proto_tree_add_item(temp_tree, hf_data_statb10,	    tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1860,14 +1896,12 @@ static int dissect_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 
 			conversation_add_proto_data(conversation, proto_synphasor, frame);
 		}
-		else if (DATA == frame_type) {
-			conversation_t *conversation = find_conversation_pinfo(pinfo, 0);
-
-			if (conversation) {
-				config_frame *conf = (config_frame *)conversation_get_proto_data(conversation, proto_synphasor);
-				/* no problem if 'conf' is NULL, the DATA frame dissector checks this again */
-			p_add_proto_data(wmem_file_scope(), pinfo, proto_synphasor, 0, conf);
-			}
+		// Add conf to any frame for dissection fracsec
+		conversation_t *conversation = find_conversation_pinfo(pinfo, 0);
+		if (conversation) {
+			config_frame *conf = (config_frame *)conversation_get_proto_data(conversation, proto_synphasor);
+			/* no problem if 'conf' is NULL, the frame dissector checks this again */
+		p_add_proto_data(wmem_file_scope(), pinfo, proto_synphasor, 0, conf);
 		}
 	} /* if (!visited) */
 
@@ -1887,8 +1921,8 @@ static int dissect_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 
 		/* synphasor_tree is where from now on all new elements for this protocol get added */
 		synphasor_tree = proto_item_add_subtree(temp_item, ett_synphasor);
-
-		framesize = dissect_header(tvb, synphasor_tree);
+		// Add pinfo for dissection fracsec
+		framesize = dissect_header(tvb, synphasor_tree, pinfo);
 		offset = 14; /* header is 14 bytes long */
 
 		/* check CRC, call appropriate subdissector for the rest of the frame if CRC is correct*/
@@ -2189,9 +2223,13 @@ void proto_register_synphasor(void)
 		  NULL, 0, NULL, HFILL }},
 
 	/* Data types for data frames */
+		/* Link to CFG Frame */
+		{ &hf_cfg_frame_num,
+		{ "Dissected using configuration from frame", "synphasor.data.conf_frame", FT_FRAMENUM, BASE_NONE, NULL, 0x0,"", HFILL }},
+
 		/* Flags in the STAT word */
 		{ &hf_data_statb15to14,
-		{ "Data error", "synphasor.data.error", FT_UINT16, BASE_HEX,
+		{ "Data error", "synphasor.data.status", FT_UINT16, BASE_HEX,
 		  VALS(data_statb15to14names), 0xC000, NULL, HFILL }},
 
 		{ &hf_data_statb13,
@@ -2288,6 +2326,8 @@ void proto_register_synphasor(void)
 	static ei_register_info ei[] = {
 		{ &ei_synphasor_extended_frame_data, { "synphasor.extended_frame_data.unaligned", PI_PROTOCOL, PI_WARN, "Size not multiple of 16-bit word", EXPFILL }},
 		{ &ei_synphasor_checksum, { "synphasor.bad_checksum", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
+		{ &ei_synphasor_data_error, { "synphasor.data_error", PI_RESPONSE_CODE, PI_NOTE, "Data Error flag set", EXPFILL }},
+		{ &ei_synphasor_pmu_not_sync, { "synphasor.pmu_not_sync", PI_RESPONSE_CODE, PI_NOTE, "PMU not sync flag set", EXPFILL }},
 	};
 
 	expert_module_t* expert_synphasor;
