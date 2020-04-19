@@ -4117,7 +4117,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Analyzing IAX2</source>
-        <translation type="unfinished"></translation>
+        <translation>Analisi IAX2</translation>
     </message>
     <message>
         <source>Save forward stream CSV</source>
@@ -4500,11 +4500,11 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>No interfaces found.</source>
-        <translation type="unfinished">Nessuna interfaccia trovata.</translation>
+        <translation>Nessuna interfaccia trovata.</translation>
     </message>
     <message>
         <source>This version of Wireshark was built without packet capture support.</source>
-        <translation type="unfinished"></translation>
+        <translation>Questa versione di Wireshark è stata compilata senza supporto per la cattura dei pacchetti.</translation>
     </message>
     <message>
         <source>Local Pipe Path</source>
@@ -6621,11 +6621,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Ignora tutti i pacchetti visualizzati</translation>
     </message>
     <message>
-        <source>U&amp;nignore All Displayed</source>
-        <oldsource>Unignore All Displayed</oldsource>
-        <translation type="unfinished">Considera tutti i visualizzati</translation>
-    </message>
-    <message>
         <source>Set/Unset Time Reference</source>
         <translation>Imposta/Rimuovi il riferimento temporale</translation>
     </message>
@@ -7206,6 +7201,14 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Ignora o considera ogni pacchetto selezionato</translation>
     </message>
     <message>
+        <source>U&amp;nignore All Displayed</source>
+        <translation>Co&amp;nsidera tutti i visualizzati</translation>
+    </message>
+    <message>
+        <source>Unignore all displayed packets</source>
+        <translation>Considera tutti i pacchetti visualizzati</translation>
+    </message>
+    <message>
         <source>Time Shift…</source>
         <translation>Spostamento temporale...</translation>
     </message>
@@ -7606,11 +7609,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>&amp;Unmark All Displayed</source>
         <translation>Rim&amp;uovi la selezione da tutti i visualizzati</translation>
-    </message>
-    <message>
-        <source>Unignore all displayed packets</source>
-        <oldsource>U&amp;nignore all displayed packets</oldsource>
-        <translation type="unfinished">Co&amp;nsidera tutti i pacchetti visualizzati</translation>
     </message>
     <message>
         <source>All VoIP Calls</source>
@@ -9081,7 +9079,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>TextLabel</source>
-        <translation type="unfinished">EtichettaTesto</translation>
+        <translation>EtichettaTesto</translation>
     </message>
 </context>
 <context>
@@ -10312,7 +10310,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Analyzing RTP</source>
-        <translation type="unfinished"></translation>
+        <translation>Analisi RTP</translation>
     </message>
     <message>
         <source>Information</source>
@@ -11746,7 +11744,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Searching for %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Ricerca di %1</translation>
     </message>
     <message>
         <source>No packet contained those bytes.</source>

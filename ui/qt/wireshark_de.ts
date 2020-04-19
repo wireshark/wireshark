@@ -4117,7 +4117,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Analyzing IAX2</source>
-        <translation type="unfinished"></translation>
+        <translation>Analysiere IAX2</translation>
     </message>
     <message>
         <source>Save forward stream CSV</source>
@@ -6621,11 +6621,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Alle angezeigten Pakete ignorieren</translation>
     </message>
     <message>
-        <source>U&amp;nignore All Displayed</source>
-        <oldsource>Unignore All Displayed</oldsource>
-        <translation type="unfinished">Alle angezeigte Pakete nicht mehr ignorieren</translation>
-    </message>
-    <message>
         <source>Set/Unset Time Reference</source>
         <translation>Zeitreferenz setzen/zurücksetzen</translation>
     </message>
@@ -7206,6 +7201,14 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Jedes ausgewählte Paket ignorieren bzw. Ignorieren zurücksetzen</translation>
     </message>
     <message>
+        <source>U&amp;nignore All Displayed</source>
+        <translation>Alle angezeigte Pakete nicht mehr ig&amp;norieren</translation>
+    </message>
+    <message>
+        <source>Unignore all displayed packets</source>
+        <translation>Alle angezeigte Pakete nicht mehr ignorieren</translation>
+    </message>
+    <message>
         <source>Time Shift…</source>
         <translation>Zeitverschieben...</translation>
     </message>
@@ -7606,11 +7609,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>&amp;Unmark All Displayed</source>
         <translation>Markier&amp;ung bei allen angezeigten Paketen entfernen</translation>
-    </message>
-    <message>
-        <source>Unignore all displayed packets</source>
-        <oldsource>U&amp;nignore all displayed packets</oldsource>
-        <translation type="unfinished">Alle angezeigte Pakete nicht mehr ig&amp;norieren</translation>
     </message>
     <message>
         <source>All VoIP Calls</source>
@@ -9081,7 +9079,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>TextLabel</source>
-        <translation type="unfinished">Textbeschriftung</translation>
+        <translation>Textbeschriftung</translation>
     </message>
 </context>
 <context>
@@ -10312,7 +10310,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Analyzing RTP</source>
-        <translation type="unfinished"></translation>
+        <translation>Analysiere RTP</translation>
     </message>
     <message>
         <source>Information</source>
@@ -11746,7 +11744,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Searching for %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Suche nach %1</translation>
     </message>
     <message>
         <source>No packet contained those bytes.</source>

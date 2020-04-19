@@ -4101,7 +4101,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Analyzing IAX2</source>
-        <translation type="unfinished"></translation>
+        <translation>IAX2を解析中</translation>
     </message>
     <message>
         <source>Save forward stream CSV</source>
@@ -4484,11 +4484,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>No interfaces found.</source>
-        <translation type="unfinished">インターフェースが見つかりません</translation>
+        <translation>インターフェースが見つかりません</translation>
     </message>
     <message>
         <source>This version of Wireshark was built without packet capture support.</source>
-        <translation type="unfinished"></translation>
+        <translation>このバージョンの Wireshark はパケットキャプチャをサポートせずビルドされました</translation>
     </message>
     <message>
         <source>Local Pipe Path</source>
@@ -6605,11 +6605,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>すべての表示されたパケットを無視します</translation>
     </message>
     <message>
-        <source>U&amp;nignore All Displayed</source>
-        <oldsource>Unignore All Displayed</oldsource>
-        <translation type="unfinished">すべての表示されたパケットの無視を解除</translation>
-    </message>
-    <message>
         <source>Set/Unset Time Reference</source>
         <translation>時間参照を設定/設定解除します</translation>
     </message>
@@ -6983,7 +6978,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&amp;I/O Graphs</source>
-        <translation type="unfinished"></translation>
+        <translation>入出力グラフ(&amp;I)</translation>
     </message>
     <message>
         <source>&amp;Conversations</source>
@@ -7188,6 +7183,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Ignore or unignore each selected packet</source>
         <translation>各々の選択されたパケットを無視/無視を解除します</translation>
+    </message>
+    <message>
+        <source>U&amp;nignore All Displayed</source>
+        <translation>すべての表示されているものの無視を解除します(&amp;U)</translation>
+    </message>
+    <message>
+        <source>Unignore all displayed packets</source>
+        <translation>すべての表示されたパケットの無視を解除します</translation>
     </message>
     <message>
         <source>Time Shift…</source>
@@ -7590,11 +7593,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>&amp;Unmark All Displayed</source>
         <translation>表示されているものすべてをマーク解除(&amp;U)</translation>
-    </message>
-    <message>
-        <source>Unignore all displayed packets</source>
-        <oldsource>U&amp;nignore all displayed packets</oldsource>
-        <translation type="unfinished">すべての表示されたパケットの無視を解除します(&amp;U)</translation>
     </message>
     <message>
         <source>All VoIP Calls</source>
@@ -9057,7 +9055,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>TextLabel</source>
-        <translation type="unfinished">テキストラベル</translation>
+        <translation>テキストラベル</translation>
     </message>
 </context>
 <context>
@@ -10288,7 +10286,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Analyzing RTP</source>
-        <translation type="unfinished"></translation>
+        <translation>RTP解析中</translation>
     </message>
     <message>
         <source>Information</source>
@@ -11722,7 +11720,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Searching for %1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 検索中</translation>
     </message>
     <message>
         <source>No packet contained those bytes.</source>
@@ -12332,11 +12330,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>SyntaxLineEdit</name>
     <message>
         <source>&quot;%1&quot; is deprecated in favour of &quot;%2&quot;. See the User&apos;s Guide.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; は非推奨で &quot;%2&quot; が推奨されます。ユーザーズガイドを参照ください</translation>
     </message>
     <message>
         <source>&quot;%1&quot; may have unexpected results. See the User&apos;s Guide.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; は予期せぬ結果となるかもしれません。ユーザーズガイドを参照ください</translation>
     </message>
 </context>
 <context>
