@@ -2082,43 +2082,77 @@ http2_follow_index_filter(guint stream, guint sub_stream)
 static guint8
 dissect_http2_header_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_tree, guint offset, guint8 type)
 {
-    proto_item *ti_flags;
-    proto_tree *flags_tree;
-    guint8 flags;
 
-    ti_flags = proto_tree_add_item(http2_tree, hf_http2_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
-    flags_tree = proto_item_add_subtree(ti_flags, ett_http2_flags);
-    flags = tvb_get_guint8(tvb, offset);
+    guint64 flags_val;
+    const int** fields;
+
+    static const int* http2_hdr_flags[] = {
+        &hf_http2_flags_unused_headers,
+        &hf_http2_flags_priority,
+        &hf_http2_flags_padded,
+        &hf_http2_flags_end_headers,
+        &hf_http2_flags_end_stream,
+        NULL
+    };
+
+    static const int* http2_data_flags[] = {
+        &hf_http2_flags_unused_data,
+        &hf_http2_flags_padded,
+        &hf_http2_flags_end_stream,
+        NULL
+    };
+
+    static const int* http2_settings_flags[] = {
+        &hf_http2_flags_unused_settings,
+        &hf_http2_flags_settings_ack,
+        NULL
+    };
+
+    static const int* http2_push_promise_flags[] = {
+        &hf_http2_flags_unused_push_promise,
+        &hf_http2_flags_padded,
+        &hf_http2_flags_end_headers,
+        NULL
+    };
+
+    static const int* http2_continuation_flags[] = {
+        &hf_http2_flags_unused_continuation,
+        &hf_http2_flags_padded,
+        &hf_http2_flags_end_headers,
+        NULL
+    };
+
+    static const int* http2_ping_flags[] = {
+        &hf_http2_flags_unused_ping,
+        &hf_http2_flags_ping_ack,
+        NULL
+    };
+
+    static const int* http2_unused_flags[] = {
+        &hf_http2_flags_unused,
+        NULL
+    };
+
+
 
     switch(type){
         case HTTP2_DATA:
-            proto_tree_add_item(flags_tree, hf_http2_flags_end_stream, tvb, offset, 1, ENC_NA);
-            proto_tree_add_item(flags_tree, hf_http2_flags_padded, tvb, offset, 1, ENC_NA);
-            proto_tree_add_item(flags_tree, hf_http2_flags_unused_data, tvb, offset, 1, ENC_BIG_ENDIAN);
+            fields = http2_data_flags;
             break;
         case HTTP2_HEADERS:
-            proto_tree_add_item(flags_tree, hf_http2_flags_end_stream, tvb, offset, 1, ENC_NA);
-            proto_tree_add_item(flags_tree, hf_http2_flags_end_headers, tvb, offset, 1, ENC_NA);
-            proto_tree_add_item(flags_tree, hf_http2_flags_padded, tvb, offset, 1, ENC_NA);
-            proto_tree_add_item(flags_tree, hf_http2_flags_priority, tvb, offset, 1, ENC_NA);
-            proto_tree_add_item(flags_tree, hf_http2_flags_unused_headers, tvb, offset, 1, ENC_BIG_ENDIAN);
+            fields = http2_hdr_flags;
             break;
         case HTTP2_SETTINGS:
-            proto_tree_add_item(flags_tree, hf_http2_flags_settings_ack, tvb, offset, 1, ENC_NA);
-            proto_tree_add_item(flags_tree, hf_http2_flags_unused_settings, tvb, offset, 1, ENC_BIG_ENDIAN);
+            fields = http2_settings_flags;
             break;
         case HTTP2_PUSH_PROMISE:
-            proto_tree_add_item(flags_tree, hf_http2_flags_end_headers, tvb, offset, 1, ENC_NA);
-            proto_tree_add_item(flags_tree, hf_http2_flags_padded, tvb, offset, 1, ENC_NA);
-            proto_tree_add_item(flags_tree, hf_http2_flags_unused_push_promise, tvb, offset, 1, ENC_BIG_ENDIAN);
+            fields = http2_push_promise_flags;
             break;
         case HTTP2_CONTINUATION:
-            proto_tree_add_item(flags_tree, hf_http2_flags_end_headers, tvb, offset, 1, ENC_NA);
-            proto_tree_add_item(flags_tree, hf_http2_flags_unused_continuation, tvb, offset, 1, ENC_BIG_ENDIAN);
+            fields = http2_continuation_flags;
             break;
         case HTTP2_PING:
-            proto_tree_add_item(flags_tree, hf_http2_flags_ping_ack, tvb, offset, 1, ENC_NA);
-            proto_tree_add_item(flags_tree, hf_http2_flags_unused_ping, tvb, offset, 1, ENC_BIG_ENDIAN);
+            fields = http2_ping_flags;
             break;
         case HTTP2_PRIORITY:
         case HTTP2_RST_STREAM:
@@ -2128,11 +2162,14 @@ dissect_http2_header_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ht
         case HTTP2_BLOCKED:
         default:
             /* Does not define any flags */
-            proto_tree_add_item(flags_tree, hf_http2_flags_unused, tvb, offset, 1, ENC_BIG_ENDIAN);
+            fields = http2_unused_flags;
             break;
     }
 
-    return flags;
+    proto_tree_add_bitmask_with_flags_ret_uint64(http2_tree, tvb, offset, hf_http2_flags,
+        ett_http2_flags, fields, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT, &flags_val);
+    return (guint8)flags_val;
+
 }
 
 /* helper function to get the padding data for the frames that feature them */
