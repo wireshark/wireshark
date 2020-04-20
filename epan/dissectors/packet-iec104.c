@@ -584,6 +584,13 @@ static const value_string qoi_r_types[] = {
 	{ 0, NULL }
 };
 
+static const value_string qrp_r_types[] = {
+	{ 0,		"Not used" },
+	{ 1,		"General reset of process" },
+	{ 2,		"Reset of pending information with time tag of the event buffer" },
+	{ 0, NULL }
+};
+
 static const true_false_string tfs_blocked_not_blocked = { "Blocked", "Not blocked" };
 static const true_false_string tfs_substituted_not_substituted = { "Substituted", "Not Substituted" };
 static const true_false_string tfs_not_topical_topical = { "Not Topical", "Topical" };
@@ -669,6 +676,7 @@ static int hf_coi  = -1;
 static int hf_coi_r  = -1;
 static int hf_coi_i  = -1;
 static int hf_qoi  = -1;
+static int hf_qrp  = -1;
 static int hf_bcr_count = -1;
 static int hf_bcr_sq = -1;
 static int hf_bcr_cy = -1;
@@ -1215,6 +1223,16 @@ static void get_QOI(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tre
 
 	(*offset)++;
 }
+
+/* ====================================================================
+    QRP: Qualifier of reset process command
+   ==================================================================== */
+static void get_QRP(tvbuff_t* tvb, guint8* offset, proto_tree* iec104_header_tree)
+{
+	proto_tree_add_item(iec104_header_tree, hf_qrp, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+
+	(*offset)++;
+}
 /* .... end Misc. functions for dissection of signal values */
 
 
@@ -1376,6 +1394,7 @@ static int dissect_iec60870_asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 		case M_EI_NA_1:
 		case C_IC_NA_1:
 		case C_CS_NA_1:
+		case C_RP_NA_1:
 		case P_ME_NA_1:
 		case P_ME_NB_1:
 		case P_ME_NC_1:
@@ -1561,6 +1580,9 @@ static int dissect_iec60870_asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 					break;
 				case C_CS_NA_1: /* 103   Clock synchronization command  */
 					get_CP56Time(tvb, &offset, trSignal);
+					break;
+				case C_RP_NA_1: /* 105   reset process command  */
+					get_QRP(tvb, &offset, trSignal);
 					break;
 				case P_ME_NA_1: /* 110   Parameter of measured value, normalized value */
 					get_NVA(tvb, &offset, trSignal);
@@ -2106,6 +2128,10 @@ proto_register_iec60870_asdu(void)
 
 		{ &hf_qoi,
 		  { "QOI", "iec60870_asdu.qoi", FT_UINT8, BASE_DEC, VALS(qoi_r_types), 0,
+		    NULL, HFILL }},
+
+		{ &hf_qrp,
+		  { "QRP", "iec60870_asdu.qrp", FT_UINT8, BASE_DEC, VALS(qrp_r_types), 0,
 		    NULL, HFILL }},
 
 		{ &hf_bcr_count,
