@@ -473,7 +473,7 @@ static void lwm2m_add_resource(lwm2m_resource_t *resource, hf_register_info *hf,
 	HFILL_INIT(*hf);
 }
 
-void lwm2m_allocate_fields(lwm2m_allocated_fields_t *fields, lwm2m_resource_t *lwm2m_resources, guint num_lwm2m_resources)
+static void lwm2m_allocate_fields(lwm2m_allocated_fields_t *fields, lwm2m_resource_t *lwm2m_resources, guint num_lwm2m_resources)
 {
 	guint resource_index;
 
@@ -515,7 +515,7 @@ void lwm2m_allocate_fields(lwm2m_allocated_fields_t *fields, lwm2m_resource_t *l
 	}
 }
 
-const lwm2m_resource_t *lwm2m_search_float_resources(guint object_id, guint resource_id,
+static const lwm2m_resource_t *lwm2m_search_float_resources(guint object_id, guint resource_id,
 						     const lwm2m_allocated_fields_t *fields)
 {
 	const lwm2m_resource_t *resource = NULL;
@@ -532,7 +532,7 @@ const lwm2m_resource_t *lwm2m_search_float_resources(guint object_id, guint reso
 	return resource;
 }
 
-const lwm2m_resource_t *lwm2m_search_fields(guint object_id, guint resource_id, guint length_of_value,
+static const lwm2m_resource_t *lwm2m_search_fields(guint object_id, guint resource_id, guint length_of_value,
 					    const lwm2m_allocated_fields_t *fields,
 					    const lwm2m_resource_t *lwm2m_resources, guint num_lwm2m_resources)
 {
@@ -555,7 +555,7 @@ const lwm2m_resource_t *lwm2m_search_fields(guint object_id, guint resource_id, 
 	return resource;
 }
 
-void lwm2m_free_fields(lwm2m_allocated_fields_t *fields)
+static void lwm2m_free_fields(lwm2m_allocated_fields_t *fields)
 {
 	if (fields->hf) {
 		/* Deregister all fields */
