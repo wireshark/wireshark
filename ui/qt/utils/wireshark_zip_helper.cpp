@@ -150,7 +150,7 @@ bool WiresharkZipHelper::unzip(QString zipFile, QString directory, bool (*fileCh
 #define UINT32_MAX  (0xffffffff)
 #endif
 
-unsigned long qDateToDosDate(QDateTime time)
+static unsigned long qDateToDosDate(QDateTime time)
 {
     QDate ld = time.toLocalTime().date();
 
