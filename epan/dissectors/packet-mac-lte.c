@@ -4367,10 +4367,10 @@ static void lookup_rlc_channel_from_lcid(guint16 ueid,
 
 
 /* Work out whether there are 1 or 4 bytes of C bits in Dual-Conn PHR CE */
-guint get_dual_conn_phr_num_c_bytes(tvbuff_t *tvb, guint offset,
-                                    gboolean isSimultPUCCHPUSCHPCell,
-                                    gboolean isSimultPUCCHPUSCHPSCell,
-                                    guint subheader_length)
+static guint get_dual_conn_phr_num_c_bytes(tvbuff_t *tvb, guint offset,
+                                           gboolean isSimultPUCCHPUSCHPCell,
+                                           gboolean isSimultPUCCHPUSCHPSCell,
+                                           guint subheader_length)
 {
     if (subheader_length < 4) {
         /* Can't be 4 */
