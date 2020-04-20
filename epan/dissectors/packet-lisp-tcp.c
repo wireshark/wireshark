@@ -68,6 +68,7 @@ static int hf_lisp_tcp_message_eid_prefix_afi = -1;
 static int hf_lisp_tcp_message_eid_ipv4 = -1;
 static int hf_lisp_tcp_message_eid_ipv6 = -1;
 static int hf_lisp_tcp_message_eid_mac = -1;
+static int hf_lisp_tcp_message_eid_dn = -1;
 static int hf_lisp_tcp_message_rloc_afi = -1;
 static int hf_lisp_tcp_message_rloc_ipv4 = -1;
 static int hf_lisp_tcp_message_rloc_ipv6 = -1;
@@ -141,6 +142,7 @@ dissect_lisp_tcp_message_eid_prefix(tvbuff_t *tvb, packet_info *pinfo, proto_tre
         guint offset, proto_item *tim)
 {
     proto_tree *prefix_tree, *lcaf_tree;
+    gint str_len;
     guint8 prefix_length;
     guint16 prefix_afi, addr_len = 0;
     const gchar *prefix;
@@ -187,6 +189,11 @@ dissect_lisp_tcp_message_eid_prefix(tvbuff_t *tvb, packet_info *pinfo, proto_tre
         case AFNUM_EUI48:
             proto_tree_add_item(prefix_tree, hf_lisp_tcp_message_eid_mac, tvb, offset, EUI48_ADDRLEN, ENC_NA);
             offset += EUI48_ADDRLEN;
+            break;
+        case AFNUM_DISTNAME:
+            str_len = tvb_strsize(tvb, offset);
+            proto_tree_add_item(prefix_tree, hf_lisp_tcp_message_eid_dn, tvb, offset, str_len, ENC_ASCII|ENC_NA);
+            offset += str_len;
             break;
     }
     return offset;
@@ -638,6 +645,9 @@ proto_register_lisp_tcp(void)
         { &hf_lisp_tcp_message_eid_mac,
             { "Address", "lisp-tcp.message.eid.mac",
             FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_lisp_tcp_message_eid_dn,
+            { "Address", "lisp-tcp.message.eid.dn",
+            FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_lisp_tcp_message_rloc_afi,
             { "RLOC AFI", "lisp-tcp.message.rloc.afi",
             FT_UINT16, BASE_DEC, VALS(afn_vals), 0x0, NULL, HFILL }},

@@ -26,9 +26,10 @@ void proto_reg_handoff_lisp(void);
 /*
  * See RFC 6830 "Locator/ID Separation Protocol (LISP)",
  * draft-ietf-lisp-lcaf-05 "LISP Canonical Address Format (LCAF)",
- * draft-ietf-lisp-sec-04 "LISP-Security (LISP-SEC)", and
- * draft-ermagan-lisp-nat-traversal-03 "NAT traversal for LISP" for packet
- * format and protocol information.
+ * draft-ietf-lisp-sec-04 "LISP-Security (LISP-SEC)",
+ * draft-ermagan-lisp-nat-traversal-03 "NAT traversal for LISP",
+ * draft-farinacci-lisp-name-encoding-09 "LISP Distinguished Name Encoding"
+ * for packet format and protocol information.
  */
 
 #define LCAF_DRAFT_VERSION  "05"
@@ -164,6 +165,7 @@ static int hf_lisp_mreq_record_prefix_afi = -1;
 static int hf_lisp_mreq_record_prefix_ipv4 = -1;
 static int hf_lisp_mreq_record_prefix_ipv6 = -1;
 static int hf_lisp_mreq_record_prefix_mac = -1;
+static int hf_lisp_mreq_record_prefix_dn = -1;
 
 /* Map-Reply fields */
 static int hf_lisp_mrep_record = -1;
@@ -215,6 +217,7 @@ static int hf_lisp_mapping_eid_afi = -1;
 static int hf_lisp_mapping_eid_ipv4 = -1;
 static int hf_lisp_mapping_eid_ipv6 = -1;
 static int hf_lisp_mapping_eid_mac = -1;
+static int hf_lisp_mapping_eid_dn = -1;
 
 /* Locator fields */
 static int hf_lisp_loc = -1;
@@ -252,6 +255,7 @@ static int hf_lisp_lcaf_iid_afi = -1;
 static int hf_lisp_lcaf_iid_ipv4 = -1;
 static int hf_lisp_lcaf_iid_ipv6 = -1;
 static int hf_lisp_lcaf_iid_mac = -1;
+static int hf_lisp_lcaf_iid_dn = -1;
 
 /* LCAF ASN fields */
 static int hf_lisp_lcaf_asn = -1;
@@ -532,6 +536,10 @@ get_addr_str(tvbuff_t *tvb, gint offset, guint16 afi, guint16 *addr_len)
         case AFNUM_EUI48:
             *addr_len = EUI48_ADDRLEN;
             addr_str  = tvb_ether_to_str(tvb, offset);
+            return addr_str;
+        case AFNUM_DISTNAME:
+            *addr_len = tvb_strsize(tvb, offset);
+            addr_str  = tvb_get_const_stringz(tvb, offset, NULL);
             return addr_str;
         default:
             return NULL;
@@ -1919,6 +1927,7 @@ dissect_lisp_mapping(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tree,
         guint8 rec_cnt, int rec, gboolean referral, gint offset, proto_item *tim)
 {
     int          i;
+    gint         str_len;
     guint16      addr_len      = 0;
     guint8       prefix_mask, loc_cnt;
     guint16      flags;
@@ -2034,7 +2043,12 @@ dissect_lisp_mapping(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tree,
             proto_tree_add_item(lisp_mapping_tree, hf_lisp_mapping_eid_mac, tvb, offset, EUI48_ADDRLEN, ENC_NA);
             offset += EUI48_ADDRLEN;
             break;
-        }
+        case AFNUM_DISTNAME:
+            str_len = tvb_strsize(tvb, offset);
+            proto_tree_add_item(lisp_mapping_tree, hf_lisp_mapping_eid_dn, tvb, offset, str_len, ENC_ASCII|ENC_NA);
+            offset += str_len;
+            break;
+    }
 
     /* Locators */
     for(i=0; i < loc_cnt; i++) {
@@ -2221,6 +2235,7 @@ dissect_lisp_map_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tre
 
     /* Query records */
     for(i=0; i < rec_cnt; i++) {
+        gint str_len;
         guint16 prefix_mask;
         guint16 prefix_afi;
         const gchar *prefix;
@@ -2274,6 +2289,11 @@ dissect_lisp_map_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tre
             case AFNUM_EUI48:
                 proto_tree_add_item(lisp_record_tree, hf_lisp_mreq_record_prefix_mac, tvb, offset, EUI48_ADDRLEN, ENC_NA);
                 offset += EUI48_ADDRLEN;
+                break;
+            case AFNUM_DISTNAME:
+                str_len = tvb_strsize(tvb, offset);
+                proto_tree_add_item(lisp_record_tree, hf_lisp_mreq_record_prefix_dn, tvb, offset, str_len, ENC_ASCII|ENC_NA);
+                offset += str_len;
                 break;
         }
         proto_item_append_text(tir, " %d: %s/%d", i+1, prefix, prefix_mask);
@@ -3015,6 +3035,9 @@ proto_register_lisp(void)
         { &hf_lisp_mreq_record_prefix_mac,
             { "Prefix", "lisp.mreq.record.prefix.mac",
             FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_lisp_mreq_record_prefix_dn,
+            { "Prefix", "lisp.mreq.record.prefix.dn",
+            FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_lisp_mreq_record,
             { "Map-Request Record", "lisp.mreq.record",
             FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -3195,6 +3218,9 @@ proto_register_lisp(void)
         { &hf_lisp_mapping_eid_mac,
             { "EID Prefix", "lisp.mapping.eid.mac",
             FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_lisp_mapping_eid_dn,
+            { "EID Prefix", "lisp.mapping.eid.dn",
+            FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_lisp_ecm_flags_sec,
             { "S bit (LISP-SEC capable)", "lisp.ecm.flags.sec",
             FT_BOOLEAN, 32, TFS(&tfs_set_notset), ECM_FLAG_S, NULL, HFILL }},
@@ -3255,6 +3281,9 @@ proto_register_lisp(void)
         { &hf_lisp_lcaf_iid_mac,
             { "Address", "lisp.lcaf.iid.mac",
             FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_iid_dn,
+            { "Address", "lisp.lcaf.iid.dn",
+            FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_lisp_lcaf_asn,
             { "AS Number", "lisp.lcaf.asn",
             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
