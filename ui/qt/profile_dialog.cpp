@@ -359,6 +359,9 @@ void ProfileDialog::updateWidgets()
             if (rows.count() > 1)
                 enable_ok = false;
         }
+
+        if (enable_ok && ! model_->checkIfDeleted(index) && index.data(ProfileModel::DATA_STATUS).toInt() == PROF_STAT_CHANGED)
+            hintUrl.clear();
     }
 
     pd_ui_->hintLabel->setUrl(hintUrl);
