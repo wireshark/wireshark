@@ -26,7 +26,7 @@ protected:
     virtual bool event(QEvent *event) override;
     virtual bool eventFilter(QObject *obj, QEvent *ev) override;
 
-    virtual WiresharkMimeData * createMimeData(QString name, int position);
+    virtual WiresharkMimeData * createMimeData(QString name, int position) override;
 
 public slots:
     void filterExpressionsChanged();

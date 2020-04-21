@@ -219,8 +219,6 @@ void FilterExpressionToolBar::editFilter()
     if (! sender())
         return;
 
-    closeMenu(qobject_cast<QAction *>(sender()));
-
     QString label = ((QAction *)sender())->property(dfe_property_label_).toString();
     QString expr = ((QAction *)sender())->property(dfe_property_expression_).toString();
 
