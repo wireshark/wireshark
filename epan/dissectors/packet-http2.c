@@ -1738,9 +1738,13 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset, prot
                 break;
             }
 
+#if (NGHTTP2_VERSION_NUM >= 0x010B00)
+            rv = (int)nghttp2_hd_inflate_hd2(hd_inflater, &nv,
+                &inflate_flags, headbuf, headlen, final);
+#else
             rv = (int)nghttp2_hd_inflate_hd(hd_inflater, &nv,
-                                            &inflate_flags, headbuf, headlen, final);
-
+                &inflate_flags, headbuf, headlen, final);
+#endif
             if(rv < 0) {
                 break;
             }
