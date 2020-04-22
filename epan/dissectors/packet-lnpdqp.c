@@ -16,7 +16,6 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
 
 #include <epan/asn1.h>
@@ -74,7 +73,7 @@ static int hf_lnpdqp_calledPartyNumber = -1;      /* ServiceKey */
 static int hf_lnpdqp_oli = -1;                    /* OriginatingStationType */
 
 /*--- End of included file: packet-lnpdqp-hf.c ---*/
-#line 59 "./asn1/lnpdqp/packet-lnpdqp-template.c"
+#line 58 "./asn1/lnpdqp/packet-lnpdqp-template.c"
 
 static int ett_lnpdqp = -1;
 static int ett_lnpdqp_digitstype = -1;
@@ -87,7 +86,7 @@ static gint ett_lnpdqp_ProvideInstructionArg_U = -1;
 static gint ett_lnpdqp_ServiceKey = -1;
 
 /*--- End of included file: packet-lnpdqp-ett.c ---*/
-#line 64 "./asn1/lnpdqp/packet-lnpdqp-template.c"
+#line 63 "./asn1/lnpdqp/packet-lnpdqp-template.c"
 
 
 /* Type of Digits (octet 1, bits A-H) */
@@ -396,7 +395,7 @@ static int dissect_ProvideInstructionArg_PDU(tvbuff_t *tvb _U_, packet_info *pin
 
 
 /*--- End of included file: packet-lnpdqp-fn.c ---*/
-#line 217 "./asn1/lnpdqp/packet-lnpdqp-template.c"
+#line 216 "./asn1/lnpdqp/packet-lnpdqp-template.c"
 
 static int
 dissect_lnpdqp_cc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
@@ -523,7 +522,7 @@ void proto_register_lnpdqp(void) {
         "OriginatingStationType", HFILL }},
 
 /*--- End of included file: packet-lnpdqp-hfarr.c ---*/
-#line 315 "./asn1/lnpdqp/packet-lnpdqp-template.c"
+#line 314 "./asn1/lnpdqp/packet-lnpdqp-template.c"
   };
 
   /* List of subtrees */
@@ -540,7 +539,7 @@ void proto_register_lnpdqp(void) {
     &ett_lnpdqp_ServiceKey,
 
 /*--- End of included file: packet-lnpdqp-ettarr.c ---*/
-#line 324 "./asn1/lnpdqp/packet-lnpdqp-template.c"
+#line 323 "./asn1/lnpdqp/packet-lnpdqp-template.c"
   };
 
   /* Register protocol */

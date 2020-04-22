@@ -19,9 +19,7 @@
  */
 
 #include <config.h>
-#include <glib.h>
 #include <wsutil/str_util.h>
-#include <stdio.h>
 
 #include <epan/packet.h>
 #include <epan/expert.h>

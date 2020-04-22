@@ -59,7 +59,6 @@
 #include <wsutil/strtoi.h>
 #include <wsutil/file_util.h>
 #include <wsutil/report_message.h>
-#include <glib.h>
 #include <string.h>
 
 #ifdef HAVE_LIBXML2

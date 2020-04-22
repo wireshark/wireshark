@@ -9,6 +9,8 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
+
+#include <epan/packet.h>
 #include "packet-knxip.h"
 
 void proto_register_cemi(void);

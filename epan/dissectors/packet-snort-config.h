@@ -9,13 +9,10 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-
-#include <glib.h>
-
 #ifndef __PACKET_SNORT_CONFIG_H__
 #define __PACKET_SNORT_CONFIG_H__
 
-#include "ws_attributes.h"
+#include <glib.h>
 
 /* #define SNORT_CONFIG_DEBUG */
 #ifdef  SNORT_CONFIG_DEBUG

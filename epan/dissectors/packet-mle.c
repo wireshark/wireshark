@@ -20,7 +20,6 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <math.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>

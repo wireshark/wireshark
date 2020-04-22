@@ -26,11 +26,8 @@
  *
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/exceptions.h>
@@ -39,7 +36,6 @@
 #include <epan/proto_data.h>
 #include <wsutil/str_util.h>
 
-#include <stdio.h>
 #include <string.h>
 
 #include "packet-ber.h"

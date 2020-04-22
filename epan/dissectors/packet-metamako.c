@@ -20,7 +20,6 @@
 
 #include <epan/packet.h>
 
-#include <glib.h>
 #include <glib/gprintf.h>
 
 void proto_register_metamako(void);

@@ -18,9 +18,9 @@
  */
 #ifndef __PACKET_JXTA_H__
 #define __PACKET_JXTA_H__
-#include <glib.h>
 
-#include <epan/packet.h>
+#include <glib.h>
+#include <epan/address.h>
 
 /**
 *   Stream Conversation data
@@ -30,4 +30,5 @@ typedef struct jxta_tap_header {
     address dest_address;
     guint32 size;
 } jxta_tap_header;
+
 #endif

@@ -17,7 +17,6 @@
 
 #include "config.h"
 
-#include "glib.h"
 #include "packet-h248.h"
 
 void proto_register_h248_dot10(void);

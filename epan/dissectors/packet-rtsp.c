@@ -19,7 +19,6 @@
 
 #include <stdio.h>	/* for sscanf() */
 
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/req_resp_hdrs.h>
 #include <epan/prefs.h>

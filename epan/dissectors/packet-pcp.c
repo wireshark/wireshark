@@ -12,7 +12,6 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
-#include <glib.h>
 #include "packet-tcp.h"
 #include "packet-tls-utils.h"
 

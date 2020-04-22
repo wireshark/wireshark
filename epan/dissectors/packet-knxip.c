@@ -17,8 +17,20 @@
  *
  * for the specifications.
  */
-#include "packet-knxip.h"
+
+#include <stdlib.h>
+#include <string.h>
+
+#include <epan/packet.h>
+#include <epan/expert.h>
+#include <epan/proto.h>
+#include <epan/ipproto.h>
+#include <epan/prefs.h>
+#include <epan/tvbuff.h>
 #include <epan/strutil.h>
+
+#include "packet-knxip.h"
+#include "packet-knxip_decrypt.h"
 
 #define ECDH_PUBLIC_VALUE_SIZE  32
 

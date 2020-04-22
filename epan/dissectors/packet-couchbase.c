@@ -43,9 +43,7 @@
 #include "packet-tcp.h"
 #include "packet-tls.h"
 
-#include <glib.h>
 #include <math.h>
-#include <stdio.h>
 
 #define PNAME  "Couchbase Protocol"
 #define PSNAME "Couchbase"

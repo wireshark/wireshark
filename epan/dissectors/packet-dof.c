@@ -178,8 +178,6 @@
 #include <config.h>
 
 #include <ctype.h>
-#include <stdio.h>
-#include <glib.h>
 
 #include <wsutil/wsgcrypt.h>
 #if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */

@@ -19,7 +19,6 @@
 
 #include "config.h"
 
-
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/prefs.h>

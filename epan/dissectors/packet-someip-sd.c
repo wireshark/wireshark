@@ -13,8 +13,6 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#include <glib.h>
-
 #include <config.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>

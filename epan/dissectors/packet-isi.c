@@ -12,7 +12,6 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/packet.h>

@@ -24,9 +24,7 @@
 #include <wsutil/ws_printf.h>
 #include <epan/range.h>
 
-#include <glib.h>
 #include <string.h>
-#include <stdlib.h>
 
 #include <wsutil/strtoi.h>
 #include <wsutil/str_util.h>

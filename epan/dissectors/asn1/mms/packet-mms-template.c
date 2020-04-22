@@ -11,9 +11,6 @@
 
 #include "config.h"
 
-#include <glib.h>
-#include <stdio.h>
-
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/asn1.h>
