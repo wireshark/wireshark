@@ -4061,8 +4061,8 @@ dissect_pfcp_remote_gtp_u_peer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     /* DI (if present)*/
     if (flags & 0x4) {
         /* Length of Destination Interface field */
-        proto_tree_add_item_ret_uint(tree, hf_pfcp_remote_gtp_u_peer_length_di, tvb, offset, 1, ENC_BIG_ENDIAN, &length_di);
-        offset += 1;
+        proto_tree_add_item_ret_uint(tree, hf_pfcp_remote_gtp_u_peer_length_di, tvb, offset, 2, ENC_BIG_ENDIAN, &length_di);
+        offset += 2;
 
         /* Destination Interface */
         offset += decode_pfcp_destination_interface(tvb, pinfo, tree, item, offset, length_di);
@@ -4070,8 +4070,8 @@ dissect_pfcp_remote_gtp_u_peer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     /* NI (if present)*/
     if (flags & 0x8) {
         /* Length of Network Instance field */
-        proto_tree_add_item_ret_uint(tree, hf_pfcp_remote_gtp_u_peer_length_ni, tvb, offset, 1, ENC_BIG_ENDIAN, &length_ni);
-        offset += 1;
+        proto_tree_add_item_ret_uint(tree, hf_pfcp_remote_gtp_u_peer_length_ni, tvb, offset, 2, ENC_BIG_ENDIAN, &length_ni);
+        offset += 2;
 
         /* Network Instance */
         offset += decode_pfcp_network_instance(tvb, pinfo, tree, item, offset, length_ni);
@@ -8259,12 +8259,12 @@ proto_register_pfcp(void)
         },
         { &hf_pfcp_remote_gtp_u_peer_length_di,
         { "Length of Destination Interface field", "pfcp.node_id_length_di",
-            FT_UINT8, BASE_DEC, NULL, 0,
+            FT_UINT16, BASE_DEC, NULL, 0,
             NULL, HFILL }
         },
         { &hf_pfcp_remote_gtp_u_peer_length_ni,
         { "Length of Network Instance field", "pfcp.node_id_length_ni",
-            FT_UINT8, BASE_DEC, NULL, 0,
+            FT_UINT16, BASE_DEC, NULL, 0,
             NULL, HFILL }
         },
         { &hf_pfcp_ur_seqn,
