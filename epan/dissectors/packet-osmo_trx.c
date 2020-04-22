@@ -474,7 +474,8 @@ static int dissect_otrxc(tvbuff_t *tvb, packet_info *pinfo,
 	 * a random source port, so let's try to guess by destport. */
 	if (msg_dir == OTRXCD_DIR_UNKNOWN) {
 		expert_add_info(pinfo, ti, &ei_otrxc_injected_msg);
-		msg_dir = otrxcd_guess_dir(pinfo);
+		if ((msg_dir = otrxcd_guess_dir(pinfo)) == OTRXCD_DIR_UNKNOWN)
+			expert_add_info(pinfo, ti, &ei_otrxc_unknown_dir);
 	}
 
 	/* Add a generated field, so we can filter bursts by direction */
