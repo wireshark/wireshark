@@ -1318,6 +1318,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-lbmpdm.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-lbmpdmtcp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-lbmr.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-lbmsrs.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-lbtrm.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-lbtru.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-lbttcp.c

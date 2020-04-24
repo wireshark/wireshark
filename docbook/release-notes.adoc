@@ -64,6 +64,7 @@ USB Printer (USBPRINTER)
 Java Debug Wire Protocol (JDWP)
 ScyllaDB RPC
 Dynamic Link Exchange Protocol (DLEP)
+LBM Stateful Resolution Service (LBMSRS)
 --
 
 === Updated Protocol Support
