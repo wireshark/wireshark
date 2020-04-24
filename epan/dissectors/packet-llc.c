@@ -519,6 +519,21 @@ dissect_snap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 	switch (oui) {
 
 	case OUI_HP_2:
+		/*
+		 * We don't use the standard SNAP OUI mechanism here
+		 * because that only calls the subdissector for
+		 * information frames, and, according to the HP document
+		 * at
+		 *
+		 *	http://www.hp.com/sbso/bus_protect/teaming.pdf
+		 *
+		 * the heartbeats are sent to 03-00-C7-00-00-EE in SNAP
+		 * frames in unnumbered TEST frames, not information
+		 * frames (numbered or unnumbered).
+		 *
+		 * See the comment in epan/dissectors/packet-hpteam.c
+		 * for more details.
+		 */
 		oui_info = get_snap_oui_info(oui);
 		hf = *oui_info->field_info->p_id;
 		proto_tree_add_uint(snap_tree, hf, tvb, offset+3, 2, etype);
