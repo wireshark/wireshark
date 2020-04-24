@@ -243,6 +243,8 @@ static int hf_isakmp_notify_data_3gpp_emergency_call_numbers_flag_b3_fire_brigad
 static int hf_isakmp_notify_data_3gpp_emergency_call_numbers_flag_b4_marine_guard = -1;
 static int hf_isakmp_notify_data_3gpp_emergency_call_numbers_flag_b5_mountain_rescue = -1;
 
+static int hf_iskamp_notify_data_3gpp_emergency_call_number = -1;
+
 static attribute_common_fields hf_isakmp_tek_key_attr = { -1, -1, -1, -1, -1 };
 
 static attribute_common_fields hf_isakmp_ipsec_attr = { -1, -1, -1, -1, -1 };
@@ -4987,32 +4989,22 @@ dissect_notif(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_t
         {
           /* As specified in 3GPP TS 23.302 (Section 8.1.2.3) and TS 24.008 (Section 10.5.3.13) */
           proto_tree *em_call_num_tree;
-          proto_item *em_call_num_item;
 
           /* Main Payload Subtree */
-          em_call_num_item = proto_tree_add_item(tree,hf_text_only,tvb,offset,length,ENC_BIG_ENDIAN);
-          proto_item_set_text(em_call_num_item, "Emergency Call Numbers");
-          em_call_num_tree = proto_item_add_subtree(em_call_num_item, ett_isakmp_notify_data_3gpp_emergency_call_numbers_main);
+          em_call_num_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_isakmp_notify_data_3gpp_emergency_call_numbers_main, NULL, "Emergency Call Numbers");
 
           /* Payload Octet 5 - Length of IE Contents */
           proto_tree_add_item(em_call_num_tree, hf_isakmp_notify_data_3gpp_emergency_call_numbers_len, tvb, offset, 1, ENC_BIG_ENDIAN);
           offset += 1;
 
           /* Subtree for actual values */
-          proto_item *current_emergency_call_number_header;
           proto_tree *current_emergency_call_number_tree;
-
-          proto_item *current_emergency_call_number_item;
 
           while(offset<offset_end){
             guint8 current_em_num_len = tvb_get_guint8(tvb,offset)+1; //Total length including octets 3 and 4 for proper highlighting
 
-            /* Header to main payload subtree */
-            current_emergency_call_number_header = proto_tree_add_item(em_call_num_tree,hf_text_only,tvb,offset,current_em_num_len,ENC_BIG_ENDIAN);
-            proto_item_set_text(current_emergency_call_number_header, "Emergency Number");
-
             /* Subtree for elements*/
-            current_emergency_call_number_tree = proto_item_add_subtree(current_emergency_call_number_header, ett_isakmp_notify_data_3gpp_emergency_call_numbers_element);
+            current_emergency_call_number_tree = proto_tree_add_subtree(em_call_num_tree, tvb, offset, current_em_num_len, ett_isakmp_notify_data_3gpp_emergency_call_numbers_element, NULL, "Emergency Number");
 
             /*IE Octet 3 Number of octets used to encode the Emergency Service Category Value and the Number digits. */
             proto_tree_add_item(current_emergency_call_number_tree, hf_isakmp_notify_data_3gpp_emergency_call_numbers_element_len,tvb,offset,1,ENC_BIG_ENDIAN);
@@ -5036,25 +5028,8 @@ dissect_notif(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_t
             offset += 1;
 
             /*IE Octet 5 to j | Digit_N+1 | Digit_N | */
-            current_emergency_call_number_item = proto_tree_add_item(current_emergency_call_number_tree, hf_text_only,tvb,offset,current_em_num_len,ENC_BIG_ENDIAN);
-            proto_item_set_text(current_emergency_call_number_item, "Emergency Number: ");
-            int current_element_offset = 0;
             current_em_num_len -= 2; //Not counting octets 3 and 4
-            //appending digits
-            while(current_element_offset<current_em_num_len){
-              //Digit 1
-              proto_item_append_text(current_emergency_call_number_item, "%d",
-                  tvb_get_guint8(tvb, offset+current_element_offset)&0x0F
-                  );
-              //Digit2
-              //(1111 XXXX indicates odd number of digits and bits 5 to 8 are spare)
-              if( (tvb_get_guint8(tvb, offset+current_element_offset)&0xF0) != 0xF0)
-                proto_item_append_text(current_emergency_call_number_item, "%d",
-                    (tvb_get_guint8(tvb, offset+current_element_offset)&0xF0)>>4
-                    );
-
-              current_element_offset += 1;
-            }
+            proto_tree_add_string(current_emergency_call_number_tree, hf_iskamp_notify_data_3gpp_emergency_call_number, tvb, offset, current_em_num_len, tvb_bcd_dig_to_wmem_packet_str(tvb, offset, current_em_num_len, NULL, FALSE));
             offset += current_em_num_len; //moving to the next number in the list
           }
         }
@@ -7954,7 +7929,10 @@ proto_register_isakmp(void)
       { "Mountain Rescue", "isakmp.notify.priv.3gpp.emergency_call_numbers_flag_b5_mountain_rescue",
         FT_UINT8, BASE_DEC, NULL, 0x10,
         NULL, HFILL }},
-
+    { &hf_iskamp_notify_data_3gpp_emergency_call_number,
+      { "Emergency Number", "isakmp.notify.priv.3gpp.emergency_call_number",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }}
   };
 
 
