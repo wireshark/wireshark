@@ -326,7 +326,7 @@ static void dissect_dtls_alert(tvbuff_t *tvb, packet_info *pinfo,
 /* handshake protocol dissector */
 static void dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
                                    proto_tree *tree, guint32 offset,
-                                   guint32 record_length,
+                                   guint32 record_length, gboolean maybe_encrypted,
                                    SslSession *session, gint is_from_server,
                                    SslDecryptSession *conv_data, guint8 content_type);
 
@@ -387,7 +387,6 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   conversation = find_or_create_conversation(pinfo);
   ssl_session = ssl_get_session(conversation, dtls_handle);
   session = &ssl_session->session;
-  is_from_server = ssl_packet_from_server(session, dtls_associations, pinfo);
 
   if (session->last_nontls_frame != 0 &&
       session->last_nontls_frame >= pinfo->num) {
@@ -395,6 +394,9 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
      * used, but this packet comes too early. */
     return 0;
   }
+
+  ssl_debug_printf("\ndissect_dtls enter frame #%u (%s)\n", pinfo->num, pinfo->fd->visited ? "already visited" : "first time");
+  is_from_server = ssl_packet_from_server(session, dtls_associations, pinfo);
 
   /* try decryption only the first time we see this packet
    * (to keep cipher synchronized) */
@@ -691,20 +693,6 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
   sequence_number       = tvb_get_ntoh48(tvb, offset + 5);
   record_length         = tvb_get_ntohs(tvb, offset + 11);
 
-  if(ssl){
-    if(ssl_packet_from_server(session, dtls_associations, pinfo)){
-     if (ssl->server) {
-      ssl->server->seq=sequence_number;
-      ssl->server->epoch=epoch;
-     }
-    }
-    else{
-     if (ssl->client) {
-      ssl->client->seq=sequence_number;
-      ssl->client->epoch=epoch;
-     }
-    }
-  }
   if (!ssl_is_valid_content_type(content_type)) {
 
     /* if we don't have a valid content_type, there's no sense
@@ -715,6 +703,20 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
     /* Set the protocol column */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "DTLS");
     return offset + 13 + record_length;
+  }
+
+  if (ssl) {
+    if (is_from_server) {
+      if (ssl->server) {
+        ssl->server->seq = sequence_number;
+        ssl->server->epoch = epoch;
+      }
+    } else {
+      if (ssl->client) {
+        ssl->client->seq = sequence_number;
+        ssl->client->epoch = epoch;
+      }
+    }
   }
 
   /*
@@ -764,7 +766,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
   /*
    * now dissect the next layer
    */
-  ssl_debug_printf("dissect_dtls_record: content_type %d\n",content_type);
+  ssl_debug_printf("dissect_dtls_record: content_type %d epoch %d seq %"G_GUINT64_FORMAT"\n", content_type, epoch, sequence_number);
 
   /* try to decrypt record on the first pass, if possible. Store decrypted
    * record for later usage (without having to decrypt again). */
@@ -786,7 +788,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
                                    is_from_server, ssl);
     if (ssl) {
         ssl_finalize_decryption(ssl, tls_get_master_key_map(TRUE));
-        ssl_change_cipher(ssl, ssl_packet_from_server(session, dtls_associations, pinfo));
+        ssl_change_cipher(ssl, is_from_server);
     }
     /* Heuristic: any later ChangeCipherSpec is not a resumption of this
      * session. Set the flag after ssl_finalize_decryption such that it has
@@ -811,11 +813,11 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
       /* try to retrieve and use decrypted handshake record, if any. */
       if (decrypted) {
         dissect_dtls_handshake(decrypted, pinfo, dtls_record_tree, 0,
-                               tvb_reported_length(decrypted), session, is_from_server,
+                               tvb_reported_length(decrypted), FALSE, session, is_from_server,
                                ssl, content_type);
       } else {
         dissect_dtls_handshake(tvb, pinfo, dtls_record_tree, offset,
-                               record_length, session, is_from_server, ssl,
+                               record_length, TRUE, session, is_from_server, ssl,
                                content_type);
       }
       break;
@@ -855,7 +857,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
         ssl_debug_printf("%s decrypted len %d\n", G_STRFUNC, record->data_len);
 
         saved_match_port = pinfo->match_uint;
-        if (ssl_packet_from_server(session, dtls_associations, pinfo)) {
+        if (is_from_server) {
           pinfo->match_uint = pinfo->srcport;
         } else {
           pinfo->match_uint = pinfo->destport;
@@ -979,8 +981,8 @@ dissect_dtls_alert(tvbuff_t *tvb, packet_info *pinfo,
 static void
 dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
                        proto_tree *tree, guint32 offset,
-                       guint32 record_length, SslSession *session,
-                       gint is_from_server,
+                       guint32 record_length, gboolean maybe_encrypted,
+                       SslSession *session, gint is_from_server,
                        SslDecryptSession* ssl, guint8 content_type)
 {
   /*     struct {
@@ -1051,7 +1053,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
        * situation where the first octet of the encrypted handshake
        * message is actually a known handshake message type.
        */
-      if (offset + fragment_length <= record_length)
+      if (!maybe_encrypted || offset + fragment_length <= record_length)
           msg_type_str = try_val_to_str(msg_type, ssl_31_handshake_type);
 
       if (!msg_type_str && !first_iteration)
