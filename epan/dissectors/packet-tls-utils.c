@@ -2930,13 +2930,13 @@ ssl_create_flow(void)
 void
 ssl_change_cipher(SslDecryptSession *ssl_session, gboolean server)
 {
-    ssl_debug_printf("ssl_change_cipher %s\n", (server)?"SERVER":"CLIENT");
-    if (server) {
-        ssl_session->server = ssl_session->server_new;
-        ssl_session->server_new = NULL;
-    } else {
-        ssl_session->client = ssl_session->client_new;
-        ssl_session->client_new = NULL;
+    SslDecoder **new_decoder = server ? &ssl_session->server_new : &ssl_session->client_new;
+    SslDecoder **dest = server ? &ssl_session->server : &ssl_session->client;
+    ssl_debug_printf("ssl_change_cipher %s%s\n", server ? "SERVER" : "CLIENT",
+            *new_decoder ? "" : " (No decoder found - retransmission?)");
+    if (*new_decoder) {
+        *dest = *new_decoder;
+        *new_decoder = NULL;
     }
 }
 /* }}} */
