@@ -4456,7 +4456,7 @@ dissect_ieee802154_assoc_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     };
 
     cap = tvb_get_guint8(tvb, 0);
-    col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", (cap & IEEE802154_CMD_CINFO_DEVICE_TYPE) ? tfs_cinfo_device_type.true_string : tfs_cinfo_device_type.false_string);
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", tfs_get_string(cap & IEEE802154_CMD_CINFO_DEVICE_TYPE, &tfs_cinfo_device_type));
 
     /* Create a subtree for this command frame. */
     subtree = proto_tree_add_subtree(tree, tvb, 0, 1, ett_ieee802154_cmd, NULL,

@@ -6338,9 +6338,7 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 							tfstring = (const struct true_false_string*) hfinfo->strings;
 						}
 						offset_r += protoo_strlcpy(result+offset_r,
-								number64 ?
-								tfstring->true_string :
-								tfstring->false_string, size-offset_r);
+								tfs_get_string(!!number64, tfstring), size-offset_r);
 
 						offset_e += protoo_strlcpy(expr+offset_e,
 								number64 ? "1" : "0", size-offset_e);
@@ -9098,7 +9096,7 @@ fill_label_boolean(field_info *fi, gchar *label_str)
 	}
 
 	/* Fill in the textual info */
-	label_fill(label_str, bitfield_byte_length, hfinfo, value ? tfstring->true_string : tfstring->false_string);
+	label_fill(label_str, bitfield_byte_length, hfinfo, tfs_get_string(!!value, tfstring));
 }
 
 static const char *
@@ -11953,8 +11951,7 @@ _proto_tree_add_bits_ret_val(proto_tree *tree, const int hfindex, tvbuff_t *tvb,
 			tfstring = (const true_false_string *)hf_field->strings;
 		return proto_tree_add_boolean_format(tree, hfindex, tvb, offset, length, (guint32)value,
 			"%s = %s: %s",
-			bf_str, hf_field->name,
-			value ? tfstring->true_string : tfstring->false_string);
+			bf_str, hf_field->name, tfs_get_string(!!value, tfstring));
 		break;
 
 	case FT_CHAR:
@@ -12135,8 +12132,7 @@ proto_tree_add_split_bits_item_ret_val(proto_tree *tree, const int hfindex, tvbu
 		return proto_tree_add_boolean_format(tree, hfindex,
 						     tvb, octet_offset, octet_length, (guint32)value,
 						     "%s = %s: %s",
-						     bf_str, hf_field->name,
-						     value ? tfstring->true_string : tfstring->false_string);
+						     bf_str, hf_field->name, tfs_get_string(!!value, tfstring));
 		break;
 
 	case FT_CHAR:

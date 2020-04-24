@@ -1605,6 +1605,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tfs_fail_success@Base 1.9.1
  tfs_found_not_found@Base 1.9.1
  tfs_full_half@Base 1.99.1
+ tfs_get_string@Base 3.3.0
  tfs_group_unique_name@Base 1.9.1
  tfs_high_low@Base 1.9.1
  tfs_high_normal@Base 2.5.1

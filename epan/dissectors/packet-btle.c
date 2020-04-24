@@ -816,7 +816,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
         if (ch_sel_valid) {
             proto_item_append_text(advertising_header_item, ", ChSel: %s",
-                                   (header & 0x20) ? tfs_ch_sel.true_string : tfs_ch_sel.false_string);
+                                   tfs_get_string(header & 0x20, &tfs_ch_sel));
             proto_tree_add_item(advertising_header_tree, hf_advertising_header_ch_sel, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         } else {
             proto_tree_add_item(advertising_header_tree, hf_advertising_header_rfu_2, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -824,7 +824,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
         if (tx_add_valid) {
             proto_item_append_text(advertising_header_item, ", TxAdd: %s",
-                                   (header & 0x40) ? tfs_random_public.true_string : tfs_random_public.false_string);
+                                   tfs_get_string(header & 0x40, &tfs_random_public));
             proto_tree_add_item(advertising_header_tree, hf_advertising_header_randomized_tx, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         } else {
             proto_tree_add_item(advertising_header_tree, hf_advertising_header_rfu_3, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -832,7 +832,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
         if (rx_add_valid) {
             proto_item_append_text(advertising_header_item, ", RxAdd: %s",
-                                   (header & 0x80) ? tfs_random_public.true_string : tfs_random_public.false_string);
+                                   tfs_get_string(header & 0x80, &tfs_random_public));
             proto_tree_add_item(advertising_header_tree, hf_advertising_header_randomized_rx, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         } else {
             proto_tree_add_item(advertising_header_tree, hf_advertising_header_rfu_4, tvb, offset, 1, ENC_LITTLE_ENDIAN);

@@ -3897,7 +3897,7 @@ decode_pfcp_urr_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, prot
     offset += 4;
 
     proto_item_append_text(item, "%s %u",
-        ((urr_id_flag)? pfcp_id_predef_dynamic_tfs.true_string : pfcp_id_predef_dynamic_tfs.false_string),
+        tfs_get_string(urr_id_flag, &pfcp_id_predef_dynamic_tfs),
         (urr_id & 0x7fffffff));
 
     return offset;
@@ -4657,7 +4657,7 @@ decode_pfcp_far_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, prot
     offset += 4;
 
     proto_item_append_text(item, "%s %u",
-        ((far_id_flag)? pfcp_id_predef_dynamic_tfs.true_string : pfcp_id_predef_dynamic_tfs.false_string),
+        tfs_get_string(far_id_flag, &pfcp_id_predef_dynamic_tfs),
         (far_id & 0x7fffffff));
 
     return offset;
@@ -4695,7 +4695,7 @@ decode_pfcp_qer_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, prot
     offset += 4;
 
     proto_item_append_text(item, "%s %u",
-        ((qer_id_flag)? pfcp_id_predef_dynamic_tfs.true_string : pfcp_id_predef_dynamic_tfs.false_string),
+        tfs_get_string(qer_id_flag, &pfcp_id_predef_dynamic_tfs),
         (qer_id & 0x7fffffff));
 
     return offset;

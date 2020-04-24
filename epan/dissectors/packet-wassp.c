@@ -5201,9 +5201,7 @@ int dissect_wassp_tlv(proto_tree *wassp_tree, tvbuff_t *tvb, packet_info *pinfo,
 		case EID_RU_STATE:                     // 11
 			proto_tree_add_item(tlv_tree, hf_wassp_tlv_eid_rustate, tvb, offset + TLV_VALUE, length - 4, ENC_BIG_ENDIAN);
 			proto_item_append_text(tlvi, ": %s",
-					       (tvb_get_guint8(tvb, offset + TLV_VALUE) ?
-						wassp_eid_rustate_types.true_string :
-						wassp_eid_rustate_types.false_string));
+					       tfs_get_string(tvb_get_guint8(tvb, offset + TLV_VALUE), &wassp_eid_rustate_types));
 			offset += length;
 			break;
 

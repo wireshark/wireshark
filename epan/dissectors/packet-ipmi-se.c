@@ -2655,7 +2655,7 @@ add_events(tvbuff_t *tvb, int offs, proto_tree *tree, const struct true_false_st
 			}
 			msk = 1 << j;
 			proto_tree_add_boolean_format_value(s_tree, *bsel[i][j], tvb, offs, 1,
-					val & msk, "%s", (val & msk) ? tfs->true_string : tfs->false_string);
+					val & msk, "%s", tfs_get_string(val & msk, tfs));
 		}
 	}
 }

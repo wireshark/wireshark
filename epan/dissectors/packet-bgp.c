@@ -6945,7 +6945,7 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, guint16 tlen,
                         cost_com_item = proto_tree_add_item(community_tree, hf_bgp_ext_com_cost_cost, tvb,
                             offset+4, 4, ENC_BIG_ENDIAN);
                         proto_item_append_text(cost_com_item, " (%s)",
-                            (tvb_get_guint8(tvb, offset+3) & BGP_EXT_COM_COST_CID_REP) ? tfs_cost_replace.true_string : tfs_cost_replace.false_string);
+                            tfs_get_string(tvb_get_guint8(tvb, offset+3) & BGP_EXT_COM_COST_CID_REP, &tfs_cost_replace));
 
                         proto_item_append_text(community_item, " %u, POI: %s (%s)",
                                 tvb_get_ntohl(tvb, offset+4),
@@ -6967,7 +6967,7 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, guint16 tlen,
                         proto_tree_add_item(ospf_rt_opt_tree, hf_bgp_ext_com_value_ospf_rt_options_mt,
                                 tvb, offset+7, 1, ENC_BIG_ENDIAN);
                         proto_item_append_text(ospf_rt_opt_item, " (Metric: %s)",
-                                (tvb_get_guint8(tvb,offset+7) & BGP_OSPF_RTYPE_METRIC_TYPE) ? tfs_ospf_rt_mt.true_string : tfs_ospf_rt_mt.false_string);
+                                tfs_get_string(tvb_get_guint8(tvb,offset+7) & BGP_OSPF_RTYPE_METRIC_TYPE, &tfs_ospf_rt_mt));
 
                         proto_item_append_text(community_item, " Area: %s, Type: %s",
                                 tvb_ip_to_str(tvb,offset+2),
@@ -7021,7 +7021,7 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, guint16 tlen,
                         cost_com_item = proto_tree_add_item(community_tree, hf_bgp_ext_com_cost_cost, tvb,
                             offset+4, 4, ENC_BIG_ENDIAN);
                         proto_item_append_text(cost_com_item, " (%s)",
-                            (tvb_get_guint8(tvb, offset+3) & BGP_EXT_COM_COST_CID_REP) ? tfs_cost_replace.true_string : tfs_cost_replace.false_string);
+                            tfs_get_string(tvb_get_guint8(tvb, offset+3) & BGP_EXT_COM_COST_CID_REP, &tfs_cost_replace));
 
                         proto_item_append_text(community_item, " %u, POI: %s (%s)",
                                 tvb_get_ntohl(tvb, offset+4),
@@ -7129,7 +7129,7 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, guint16 tlen,
                         proto_item_set_generated(ti);
 
                         proto_item_append_text(community_item, " %s, Label: %u",
-                                (tvb_get_guint8(tvb, offset+2) & BGP_EXT_COM_ESI_LABEL_FLAGS) ? tfs_esi_label_flag.true_string : tfs_esi_label_flag.false_string,
+                                tfs_get_string(tvb_get_guint8(tvb, offset+2) & BGP_EXT_COM_ESI_LABEL_FLAGS, &tfs_esi_label_flag),
                                 tvb_get_ntoh24(tvb,offset+5) >> 4);
                         }
                         break;
@@ -7222,7 +7222,7 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, guint16 tlen,
                         proto_tree_add_item(ospf_rt_opt_tree, hf_bgp_ext_com_value_ospf_rt_options_mt,
                                 tvb, offset+7, 1, ENC_BIG_ENDIAN);
                         proto_item_append_text(ospf_rt_opt_item, " (Metric: %s)",
-                                (tvb_get_guint8(tvb,offset+7) & BGP_OSPF_RTYPE_METRIC_TYPE) ? tfs_ospf_rt_mt.true_string : tfs_ospf_rt_mt.false_string);
+                                tfs_get_string(tvb_get_guint8(tvb,offset+7) & BGP_OSPF_RTYPE_METRIC_TYPE, &tfs_ospf_rt_mt));
 
                         proto_item_append_text(community_item, " Area: %s, Type: %s",
                                 tvb_ip_to_str(tvb,offset+2),
@@ -7263,8 +7263,8 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, guint16 tlen,
                         proto_tree_add_item(community_tree, hf_bgp_ext_com_flow_act_term_act, tvb, offset+7, 1, ENC_BIG_ENDIAN);
 
                         proto_item_append_text(community_item, " Sample: %s, Terminal: %s",
-                                (tvb_get_guint8(tvb,offset+7) & BGP_EXT_COM_FSPEC_ACT_S) ? tfs_yes_no.true_string : tfs_yes_no.false_string,
-                                (tvb_get_guint8(tvb,offset+7) & BGP_EXT_COM_FSPEC_ACT_T) ? tfs_yes_no.true_string : tfs_yes_no.false_string);
+                                tfs_get_string(tvb_get_guint8(tvb,offset+7) & BGP_EXT_COM_FSPEC_ACT_S, &tfs_yes_no),
+                                tfs_get_string(tvb_get_guint8(tvb,offset+7) & BGP_EXT_COM_FSPEC_ACT_T, &tfs_yes_no));
                         break;
 
                     case BGP_EXT_COM_STYPE_EXP_F_RED: /* Flow spec redirect [RFC5575] */
@@ -7412,9 +7412,9 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, guint16 tlen,
 
                         proto_tree_add_item(eigrp_flags_tree, hf_bgp_ext_com_eigrp_flags_rt, tvb, offset+2, 2, ENC_BIG_ENDIAN);
                         proto_item_append_text(eigrp_flags_tree, " (%s)",
-                                (tvb_get_ntohs(tvb, offset+2) & BGP_EXT_COM_EXP_EIGRP_FLAG_RT) ? tfs_eigrp_rtype.true_string : tfs_eigrp_rtype.false_string);
+                                tfs_get_string(tvb_get_ntohs(tvb, offset+2) & BGP_EXT_COM_EXP_EIGRP_FLAG_RT, &tfs_eigrp_rtype));
                         proto_item_append_text(community_tree, " %s route",
-                                (tvb_get_ntohs(tvb, offset+2) & BGP_EXT_COM_EXP_EIGRP_FLAG_RT) ? tfs_eigrp_rtype.true_string : tfs_eigrp_rtype.false_string);
+                                tfs_get_string(tvb_get_ntohs(tvb, offset+2) & BGP_EXT_COM_EXP_EIGRP_FLAG_RT, &tfs_eigrp_rtype));
 
                         proto_tree_add_item(community_tree, hf_bgp_ext_com_eigrp_rtag, tvb, offset+4, 4, ENC_BIG_ENDIAN);
                         proto_item_append_text(community_tree, ", Tag: %u", tvb_get_ntohl(tvb, offset+4));

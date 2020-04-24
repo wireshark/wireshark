@@ -844,7 +844,7 @@ dissect_netlink_route_ifla_attrs(tvbuff_t *tvb, void *data, struct packet_netlin
 			return 1;
 		case WS_IFLA_CARRIER:
 			proto_tree_add_item_ret_boolean(tree, &hfi_netlink_route_ifla_carrier, tvb, offset, len, nl_data->encoding, &flag);
-			proto_item_append_text(tree, ": %s", flag ? tfs_restricted_not_restricted.true_string : tfs_restricted_not_restricted.false_string);
+			proto_item_append_text(tree, ": %s", tfs_get_string(flag, &tfs_restricted_not_restricted));
 			return 1;
 		case WS_IFLA_CARRIER_CHANGES:
 			proto_tree_add_item_ret_uint(tree, &hfi_netlink_route_ifla_carrier_changes, tvb, offset, len, nl_data->encoding, &value);

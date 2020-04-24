@@ -521,15 +521,11 @@ static int dissect_iso14443_atqb(tvbuff_t *tvb, gint offset,
     nad_supported = tvb_get_guint8(tvb, offset) & 0x02;
     proto_tree_add_boolean_bits_format_value(prot_inf_tree,
             hf_iso14443_nad_supported, tvb, 8*offset+6, 1, nad_supported,
-            "%s", nad_supported ?
-            tfs_supported_not_supported.true_string :
-            tfs_supported_not_supported.false_string);
+            "%s", tfs_get_string(nad_supported, &tfs_supported_not_supported));
     cid_supported = tvb_get_guint8(tvb, offset) & 0x01;
     proto_tree_add_boolean_bits_format_value(prot_inf_tree,
             hf_iso14443_cid_supported, tvb, 8*offset+7, 1, cid_supported,
-            "%s", cid_supported ?
-            tfs_supported_not_supported.true_string :
-            tfs_supported_not_supported.false_string);
+            "%s", tfs_get_string(cid_supported, &tfs_supported_not_supported));
     offset++;
 
     /* XXX - extended ATQB */
@@ -571,8 +567,7 @@ dissect_iso14443_cmd_type_wupb(tvbuff_t *tvb, packet_info *pinfo,
                 tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_iso14443_wupb,
                 tvb, offset, 1, ENC_BIG_ENDIAN);
-        msg_type = (param & 0x08) ?
-            tfs_wupb_reqb.true_string : tfs_wupb_reqb.false_string;
+        msg_type = tfs_get_string(param & 0x08, &tfs_wupb_reqb);
         col_set_str(pinfo->cinfo, COL_INFO, msg_type);
         proto_item_append_text(ti, ": %s", msg_type);
         proto_tree_add_uint_bits_format_value(tree, hf_iso14443_n,
@@ -772,15 +767,11 @@ static int dissect_iso14443_ats(tvbuff_t *tvb, gint offset,
         cid_supported = tvb_get_guint8(tvb, offset) & 0x02;
         proto_tree_add_boolean_bits_format_value(tc1_tree,
                 hf_iso14443_cid_supported, tvb, 8*offset+6, 1, cid_supported,
-                "%s", cid_supported ?
-                tfs_supported_not_supported.true_string :
-                tfs_supported_not_supported.false_string);
+                "%s", tfs_get_string(cid_supported, &tfs_supported_not_supported));
         nad_supported = tvb_get_guint8(tvb, offset) & 0x01;
         proto_tree_add_boolean_bits_format_value(tc1_tree,
                 hf_iso14443_nad_supported, tvb, 8*offset+7, 1, nad_supported,
-                "%s", nad_supported ?
-                tfs_supported_not_supported.true_string :
-                tfs_supported_not_supported.false_string);
+                "%s", tfs_get_string(nad_supported, &tfs_supported_not_supported));
         offset++;
     }
     hist_len = tl - (offset - offset_tl);
@@ -1147,8 +1138,7 @@ dissect_iso14443_cmd_type_block(tvbuff_t *tvb, packet_info *pinfo,
 
         case R_BLOCK_TYPE:
             col_append_sep_str(pinfo->cinfo, COL_INFO, NULL,
-                    (pcb & 0x10) ?
-                    tfs_nak_ack.true_string : tfs_nak_ack.false_string);
+                    tfs_get_string(pcb & 0x10, &tfs_nak_ack));
             proto_tree_add_item(pcb_tree, hf_iso14443_nak,
                     tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(pcb_tree, hf_iso14443_cid_following,

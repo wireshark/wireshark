@@ -3397,9 +3397,9 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         proto_tree_add_item(ftree, hf_isakmp_flag_r, tvb, offset, 1, ENC_BIG_ENDIAN);
 
         proto_item_append_text(fti, " (%s, %s, %s)",
-                               (flags & I_FLAG) ? flag_i.true_string : flag_i.false_string,
-                               (flags & V_FLAG) ? flag_v.true_string : flag_v.false_string,
-                               (flags & R_FLAG) ? flag_r.true_string : flag_r.false_string);
+                               tfs_get_string(flags & I_FLAG, &flag_i),
+                               tfs_get_string(flags & V_FLAG, &flag_v),
+                               tfs_get_string(flags & R_FLAG, &flag_r));
       }
       offset += 1;
     }
@@ -3412,8 +3412,8 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     if (isakmp_version == 2) {
       col_append_fstr(pinfo->cinfo, COL_INFO, " MID=%02u %s %s",
                       hdr.message_id,
-                      (flags & I_FLAG) ? flag_i.true_string : flag_i.false_string,
-                      (flags & R_FLAG) ? flag_r.true_string : flag_r.false_string);
+                      tfs_get_string(flags & I_FLAG, &flag_i),
+                      tfs_get_string(flags & R_FLAG, &flag_r));
     }
 
     if (hdr.length < ISAKMP_HDR_SIZE) {

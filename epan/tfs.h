@@ -12,6 +12,7 @@
 #ifndef __TFS_H__
 #define __TFS_H__
 
+#include <glib.h>
 #include "ws_symbol_export.h"
 
 #ifdef __cplusplus
@@ -24,9 +25,11 @@ extern "C" {
 
 /** Struct for boolean enumerations */
 typedef struct true_false_string {
-        const char      *true_string;   /**< The string presented when true  */
-        const char      *false_string;  /**< The string presented when false */
+    const char *true_string;   /**< The string presented when true  */
+    const char *false_string;  /**< The string presented when false */
 } true_false_string;
+
+WS_DLL_PUBLIC const char *tfs_get_string(gboolean, const true_false_string *);
 
 /*
  * A default set of true/false strings that dissectors can use for
@@ -119,3 +122,16 @@ WS_DLL_PUBLIC const true_false_string tfs_selected_not_selected;
 #endif /* __cplusplus */
 
 #endif /* __TFS_H__ */
+
+/*
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
