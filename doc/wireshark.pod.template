@@ -467,10 +467,6 @@ List the data link types supported by the interface and exit.
 List time stamp types supported for the interface. If no time stamp type can be
 set, no time stamp types are listed.
 
-=item -m E<lt>fontE<gt>
-
-Set the font name used for most text.
-
 =item -n
 
 Disable network object name resolution (such as hostname, TCP and UDP port
