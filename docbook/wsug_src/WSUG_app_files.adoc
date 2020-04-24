@@ -177,7 +177,7 @@ _/usr/local/etc_.
 |_ss7pcs_|SS7 point code resolution.
 |===
 
-[float]
+[discrete]
 ===== File contents
 
 preferences::
