@@ -159,6 +159,7 @@ set(WSUG_GRAPHICS
 	wsug_graphics/ws-go-menu.png
 	wsug_graphics/ws-goto-packet.png
 	wsug_graphics/ws-gui-preferences.png
+	wsug_graphics/ws-gui-preferences-advanced.png
 	wsug_graphics/ws-help-menu.png
 	wsug_graphics/ws-list-pane.png # Outdated
 	wsug_graphics/ws-main-toolbar.png
