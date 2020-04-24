@@ -4570,7 +4570,8 @@ dissect_openflow_flow_desc_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     while (offset < desc_end) {
         offset = dissect_openflow_instruction_v6(tvb, pinfo, desc_tree, offset, length);
     }
-
+    if (desc_end < length)
+               return dissect_openflow_flow_desc_v6(tvb, pinfo, tree, offset, length);
     return offset;
 }
 
