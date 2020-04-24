@@ -32,7 +32,6 @@ S<[ B<-k> ]>
 S<[ B<-K> E<lt>keytabE<gt> ]>
 S<[ B<-l> ]>
 S<[ B<-L> ]>
-S<[ B<-m> E<lt>fontE<gt> ]>
 S<[ B<-n> ]>
 S<[ B<-N> E<lt>name resolving flagsE<gt> ] >
 S<[ B<-o> E<lt>preference/recent settingE<gt> ] ...>
