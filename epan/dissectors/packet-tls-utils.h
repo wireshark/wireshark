@@ -823,6 +823,18 @@ typedef struct ssl_common_dissect {
         gint hs_client_keyex_yc;
         gint hs_server_keyex_point;
         gint hs_client_keyex_point;
+        gint hs_server_keyex_xs_len;
+        gint hs_client_keyex_xc_len;
+        gint hs_server_keyex_xs;
+        gint hs_client_keyex_xc;
+        gint hs_server_keyex_vs_len;
+        gint hs_client_keyex_vc_len;
+        gint hs_server_keyex_vs;
+        gint hs_client_keyex_vc;
+        gint hs_server_keyex_rs_len;
+        gint hs_client_keyex_rc_len;
+        gint hs_server_keyex_rs;
+        gint hs_client_keyex_rc;
         gint hs_server_keyex_modulus;
         gint hs_server_keyex_exponent;
         gint hs_server_keyex_sig;
@@ -1153,7 +1165,8 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1, -1, -1,                                 \
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
+        -1, -1, -1, -1,                                                 \
     },                                                                  \
     /* ett */ {                                                         \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
@@ -1576,6 +1589,66 @@ ssl_common_dissect_t name = {   \
       { "Pubkey", prefix ".handshake.client_point",                     \
         FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
         "EC Diffie-Hellman client pubkey", HFILL }                      \
+    },                                                                  \
+    { & name .hf.hs_server_keyex_xs_len,                                \
+      { "Pubkey Length", prefix ".handshake.xs_len",                    \
+        FT_UINT8, BASE_DEC, NULL, 0x0,                                  \
+        "Length of EC J-PAKE server public key", HFILL }                \
+    },                                                                  \
+    { & name .hf.hs_client_keyex_xc_len,                                \
+      { "Pubkey Length", prefix ".handshake.xc_len",                    \
+        FT_UINT8, BASE_DEC, NULL, 0x0,                                  \
+        "Length of EC J-PAKE client public key", HFILL }                \
+    },                                                                  \
+    { & name .hf.hs_server_keyex_xs,                                    \
+      { "Pubkey", prefix ".handshake.xs",                               \
+        FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
+        "EC J-PAKE server public key", HFILL }                          \
+    },                                                                  \
+    { & name .hf.hs_client_keyex_xc,                                    \
+      { "Pubkey", prefix ".handshake.xc",                               \
+        FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
+        "EC J-PAKE client public key", HFILL }                          \
+    },                                                                  \
+    { & name .hf.hs_server_keyex_vs_len,                                \
+      { "Ephemeral Pubkey Length", prefix ".handshake.vs_len",          \
+        FT_UINT8, BASE_DEC, NULL, 0x0,                                  \
+        "Length of EC J-PAKE server ephemeral public key", HFILL }      \
+    },                                                                  \
+    { & name .hf.hs_client_keyex_vc_len,                                \
+      { "Ephemeral Pubkey Length", prefix ".handshake.vc_len",          \
+        FT_UINT8, BASE_DEC, NULL, 0x0,                                  \
+        "Length of EC J-PAKE client ephemeral public key", HFILL }      \
+    },                                                                  \
+    { & name .hf.hs_server_keyex_vs,                                    \
+      { "Ephemeral Pubkey", prefix ".handshake.vs",                     \
+        FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
+        "EC J-PAKE server ephemeral public key", HFILL }                \
+    },                                                                  \
+    { & name .hf.hs_client_keyex_vc,                                    \
+      { "Ephemeral Pubkey", prefix ".handshake.vc",                     \
+        FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
+        "EC J-PAKE client ephemeral public key", HFILL }                \
+    },                                                                  \
+    { & name .hf.hs_server_keyex_rs_len,                                \
+      { "Schnorr signature Length", prefix ".handshake.rs_len",         \
+        FT_UINT8, BASE_DEC, NULL, 0x0,                                  \
+        "Length of EC J-PAKE server Schnorr signature", HFILL }         \
+    },                                                                  \
+    { & name .hf.hs_client_keyex_rc_len,                                \
+      { "Schnorr signature Length", prefix ".handshake.rc_len",         \
+        FT_UINT8, BASE_DEC, NULL, 0x0,                                  \
+        "Length of EC J-PAKE client Schnorr signature", HFILL }         \
+    },                                                                  \
+    { & name .hf.hs_server_keyex_rs,                                    \
+      { "Schnorr signature", prefix ".handshake.rs",                    \
+        FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
+        "EC J-PAKE server Schnorr signature", HFILL }                   \
+    },                                                                  \
+    { & name .hf.hs_client_keyex_rc,                                    \
+      { "Schnorr signature", prefix ".handshake.rc",                    \
+        FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
+        "EC J-PAKE client Schnorr signature", HFILL }                   \
     },                                                                  \
     { & name .hf.hs_server_keyex_modulus,                               \
       { "Modulus", prefix ".handshake.modulus",                         \

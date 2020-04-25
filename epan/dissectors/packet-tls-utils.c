@@ -8886,6 +8886,64 @@ dissect_ssl3_hnd_cli_keyex_rsa_psk(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     proto_tree_add_item(ssl_psk_tree, hf->hf.hs_client_keyex_epms, tvb,
                         offset + 2, epms_len, ENC_NA);
 }
+
+/* Used in EC J-PAKE cipher suites */
+static void
+dissect_ssl3_hnd_cli_keyex_ecjpake(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                                   proto_tree *tree, guint32 offset,
+                                   guint32 length)
+{
+    /*
+     *  struct {
+     *      ECPoint V;
+     *      opaque r<1..2^8-1>;
+     *  } ECSchnorrZKP;
+     *
+     *  struct {
+     *      ECPoint X;
+     *      ECSchnorrZKP zkp;
+     *  } ECJPAKEKeyKP;
+     *
+     *  struct {
+     *      ECJPAKEKeyKP ecjpake_key_kp;
+     *  } ClientECJPAKEParams;
+     *
+     *  select (KeyExchangeAlgorithm) {
+     *      case ecjpake:
+     *          ClientECJPAKEParams params;
+     *  } ClientKeyExchange;
+     */
+
+    gint        point_len;
+    proto_tree *ssl_ecjpake_tree;
+
+    ssl_ecjpake_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+                                              hf->ett.keyex_params, NULL,
+                                              "EC J-PAKE Client Params");
+
+    /* ECJPAKEKeyKP.X */
+    point_len = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(ssl_ecjpake_tree, hf->hf.hs_client_keyex_xc_len, tvb,
+                        offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ssl_ecjpake_tree, hf->hf.hs_client_keyex_xc, tvb,
+                        offset + 1, point_len, ENC_NA);
+    offset += 1 + point_len;
+
+    /* ECJPAKEKeyKP.zkp.V */
+    point_len = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(ssl_ecjpake_tree, hf->hf.hs_client_keyex_vc_len, tvb,
+                        offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ssl_ecjpake_tree, hf->hf.hs_client_keyex_vc, tvb,
+                        offset + 1, point_len, ENC_NA);
+    offset += 1 + point_len;
+
+    /* ECJPAKEKeyKP.zkp.r */
+    point_len = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(ssl_ecjpake_tree, hf->hf.hs_client_keyex_rc_len, tvb,
+                        offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ssl_ecjpake_tree, hf->hf.hs_client_keyex_rc, tvb,
+                        offset + 1, point_len, ENC_NA);
+}
 /* ClientKeyExchange algo-specific dissectors. }}} */
 
 
@@ -8947,10 +9005,8 @@ dissect_ssl3_hnd_srv_keyex_sig(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_i
                                  hf->hf.hs_server_keyex_sig);
 }
 
-static void
-dissect_ssl3_hnd_srv_keyex_ecdh(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
-                                proto_tree *tree, guint32 offset, guint32 offset_end,
-                                guint16 version, gboolean anon)
+static guint32
+dissect_tls_ecparameters(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 offset_end)
 {
     /*
      * RFC 4492 ECC cipher suites for TLS
@@ -8966,6 +9022,34 @@ dissect_ssl3_hnd_srv_keyex_ecdh(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_
      *              NamedCurve namedcurve;
      *      };
      *  } ECParameters;
+     */
+
+    gint        curve_type;
+
+    /* ECParameters.curve_type */
+    curve_type = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf->hf.hs_server_keyex_curve_type, tvb,
+                        offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    if (curve_type != 3)
+        return offset_end; /* only named_curves are supported */
+
+    /* case curve_type == named_curve; ECParameters.namedcurve */
+    proto_tree_add_item(tree, hf->hf.hs_server_keyex_named_curve, tvb,
+                        offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    return offset;
+}
+
+static void
+dissect_ssl3_hnd_srv_keyex_ecdh(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
+                                proto_tree *tree, guint32 offset, guint32 offset_end,
+                                guint16 version, gboolean anon)
+{
+    /*
+     * RFC 4492 ECC cipher suites for TLS
      *
      *  struct {
      *      opaque point <1..2^8-1>;
@@ -8983,25 +9067,15 @@ dissect_ssl3_hnd_srv_keyex_ecdh(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_
      *  } ServerKeyExchange;
      */
 
-    gint        curve_type;
     gint        point_len;
     proto_tree *ssl_ecdh_tree;
 
     ssl_ecdh_tree = proto_tree_add_subtree(tree, tvb, offset, offset_end - offset,
                                   hf->ett.keyex_params, NULL, "EC Diffie-Hellman Server Params");
 
-    /* ECParameters.curve_type */
-    curve_type = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(ssl_ecdh_tree, hf->hf.hs_server_keyex_curve_type, tvb,
-                        offset, 1, ENC_BIG_ENDIAN);
-    offset++;
-    if (curve_type != 3)
+    offset = dissect_tls_ecparameters(hf, tvb, ssl_ecdh_tree, offset, offset_end);
+    if (offset >= offset_end)
         return; /* only named_curves are supported */
-
-    /* case curve_type == named_curve; ECParameters.namedcurve */
-    proto_tree_add_item(ssl_ecdh_tree, hf->hf.hs_server_keyex_named_curve, tvb,
-                        offset, 2, ENC_BIG_ENDIAN);
-    offset += 2;
 
     /* ECPoint.point */
     point_len = tvb_get_guint8(tvb, offset);
@@ -9113,6 +9187,68 @@ dissect_ssl3_hnd_srv_keyex_psk(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     proto_tree_add_item(ssl_psk_tree, hf->hf.hs_server_keyex_hint, tvb,
                         offset + 2, hint_len, ENC_NA);
 }
+
+/* Used in EC J-PAKE cipher suites */
+static void
+dissect_ssl3_hnd_srv_keyex_ecjpake(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                                   proto_tree *tree, guint32 offset, guint32 offset_end)
+{
+    /*
+     *  struct {
+     *      ECPoint V;
+     *      opaque r<1..2^8-1>;
+     *  } ECSchnorrZKP;
+     *
+     *  struct {
+     *      ECPoint X;
+     *      ECSchnorrZKP zkp;
+     *  } ECJPAKEKeyKP;
+     *
+     *  struct {
+     *      ECParameters curve_params;
+     *      ECJPAKEKeyKP ecjpake_key_kp;
+     *  } ServerECJPAKEParams;
+     *
+     *  select (KeyExchangeAlgorithm) {
+     *      case ecjpake:
+     *          ServerECJPAKEParams params;
+     *  } ServerKeyExchange;
+     */
+
+    gint        point_len;
+    proto_tree *ssl_ecjpake_tree;
+
+    ssl_ecjpake_tree = proto_tree_add_subtree(tree, tvb, offset, offset_end - offset,
+                                              hf->ett.keyex_params, NULL,
+                                              "EC J-PAKE Server Params");
+
+    offset = dissect_tls_ecparameters(hf, tvb, ssl_ecjpake_tree, offset, offset_end);
+    if (offset >= offset_end)
+        return; /* only named_curves are supported */
+
+    /* ECJPAKEKeyKP.X */
+    point_len = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(ssl_ecjpake_tree, hf->hf.hs_server_keyex_xs_len, tvb,
+                        offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ssl_ecjpake_tree, hf->hf.hs_server_keyex_xs, tvb,
+                        offset + 1, point_len, ENC_NA);
+    offset += 1 + point_len;
+
+    /* ECJPAKEKeyKP.zkp.V */
+    point_len = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(ssl_ecjpake_tree, hf->hf.hs_server_keyex_vs_len, tvb,
+                        offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ssl_ecjpake_tree, hf->hf.hs_server_keyex_vs, tvb,
+                        offset + 1, point_len, ENC_NA);
+    offset += 1 + point_len;
+
+    /* ECJPAKEKeyKP.zkp.r */
+    point_len = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(ssl_ecjpake_tree, hf->hf.hs_server_keyex_rs_len, tvb,
+                        offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ssl_ecjpake_tree, hf->hf.hs_server_keyex_rs, tvb,
+                        offset + 1, point_len, ENC_NA);
+}
 /* ServerKeyExchange algo-specific dissectors. }}} */
 
 /* Client Key Exchange and Server Key Exchange handshake dissections. {{{ */
@@ -9159,8 +9295,8 @@ ssl_dissect_hnd_cli_keyex(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     case KEX_SRP_SHA_RSA:
         /* XXX: implement support for SRP_SHA* */
         break;
-    case KEX_ECJPAKE: /* https://datatracker.ietf.org/doc/draft-cragie-tls-ecjpake/ used in Thread Commissioning */
-        /* XXX: implement support for ECJPAKE */
+    case KEX_ECJPAKE: /* https://tools.ietf.org/html/draft-cragie-tls-ecjpake-01 used in Thread Commissioning */
+        dissect_ssl3_hnd_cli_keyex_ecjpake(hf, tvb, tree, offset, length);
         break;
     default:
         /* XXX: add info message for not supported KEX algo */
@@ -9215,8 +9351,8 @@ ssl_dissect_hnd_srv_keyex(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *
     case KEX_SRP_SHA_RSA:
         /* XXX: implement support for SRP_SHA* */
         break;
-    case KEX_ECJPAKE: /* https://datatracker.ietf.org/doc/draft-cragie-tls-ecjpake/ used in Thread Commissioning */
-        /* XXX: implement support for ECJPAKE */
+    case KEX_ECJPAKE: /* https://tools.ietf.org/html/draft-cragie-tls-ecjpake-01 used in Thread Commissioning */
+        dissect_ssl3_hnd_srv_keyex_ecjpake(hf, tvb, tree, offset, offset_end);
         break;
     default:
         /* XXX: add info message for not supported KEX algo */
