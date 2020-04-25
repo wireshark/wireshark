@@ -3582,9 +3582,6 @@ dissect_cisco_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	guint32 offset = 0;
 	guint length = tvb_reported_length(tvb);
 
-	field_info *fi;
-	gchar* value_str;
-
 	proto_tree *upoe_data = NULL;
 	proto_item *tf = NULL;
 	proto_item *parent_item = proto_tree_get_parent(tree);
@@ -3614,49 +3611,37 @@ dissect_cisco_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	/* ACI */
 	case 0xc9:
 		tf = proto_tree_add_item(tree, hf_cisco_aci_portstate, tvb, offset, length, ENC_NA);
-		fi = PITEM_FINFO(tf);
-		value_str = fvalue_to_string_repr(NULL, &fi->value, FTREPR_DISPLAY, fi->hfinfo->display);
-		proto_item_append_text(parent_item, ": %s", value_str);
+		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(wmem_packet_scope(), tf));
 		offset += length;
 		length -= length;
 		break;
 	case 0xca:
 		tf = proto_tree_add_item(tree, hf_cisco_aci_noderole, tvb, offset, length, ENC_NA);
-		fi = PITEM_FINFO(tf);
-		value_str = fvalue_to_string_repr(NULL, &fi->value, FTREPR_DISPLAY, fi->hfinfo->display);
-		proto_item_append_text(parent_item, ": %s", value_str);
+		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(wmem_packet_scope(), tf));
 		offset += length;
 		length -= length;
 		break;
 	case 0xcb:
 		tf = proto_tree_add_item(tree, hf_cisco_aci_nodeid, tvb, offset, length, ENC_NA);
-		fi = PITEM_FINFO(tf);
-		value_str = fvalue_to_string_repr(NULL, &fi->value, FTREPR_DISPLAY, fi->hfinfo->display);
-		proto_item_append_text(parent_item, ": %s", value_str);
+		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(wmem_packet_scope(), tf));
 		offset += 4;
 		length -= 4;
 		break;
 	case 0xcc:
 		tf = proto_tree_add_item(tree, hf_cisco_aci_unknowncc, tvb, offset, length, ENC_NA);
-		fi = PITEM_FINFO(tf);
-		value_str = fvalue_to_string_repr(NULL, &fi->value, FTREPR_DISPLAY, fi->hfinfo->display);
-		proto_item_append_text(parent_item, ": %s", value_str);
+		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(wmem_packet_scope(), tf));
 		offset += length;
 		length -= length;
 		break;
 	case 0xcd:
 		tf = proto_tree_add_item(tree, hf_cisco_aci_pod, tvb, offset, 2, ENC_NA);
-		fi = PITEM_FINFO(tf);
-		value_str = fvalue_to_string_repr(NULL, &fi->value, FTREPR_DISPLAY, fi->hfinfo->display);
-		proto_item_append_text(parent_item, ": %s", value_str);
+		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(wmem_packet_scope(), tf));
 		offset += 2;
 		length -= 2;
 		break;
 	case 0xce:
 		tf = proto_tree_add_item(tree, hf_cisco_aci_fabricname, tvb, offset, length, ENC_ASCII|ENC_NA);
-		fi = PITEM_FINFO(tf);
-		value_str = fvalue_to_string_repr(NULL, &fi->value, FTREPR_DISPLAY, fi->hfinfo->display);
-		proto_item_append_text(parent_item, ": %s", value_str);
+		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(wmem_packet_scope(), tf));
 		offset += length;
 		length -= length;
 		break;
@@ -3664,9 +3649,7 @@ dissect_cisco_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		proto_tree_add_item(tree, hf_cisco_aci_apiclist, tvb, offset, length, ENC_NA);
 		while (length > 0) {
 			tf = proto_tree_add_item(tree, hf_cisco_aci_apicid, tvb, offset, 1, ENC_NA);
-			fi = PITEM_FINFO(tf);
-			value_str = fvalue_to_string_repr(NULL, &fi->value, FTREPR_DISPLAY, fi->hfinfo->display);
-			proto_item_append_text(parent_item, ": ID %s", value_str);
+			proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(wmem_packet_scope(), tf));
 			offset++;
 			length--;
 			proto_tree_add_item(tree, hf_cisco_aci_apicipv4, tvb, offset, 4, ENC_NA);
@@ -3679,81 +3662,61 @@ dissect_cisco_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		break;
 	case 0xd0:
 		tf = proto_tree_add_item(tree, hf_cisco_aci_nodeip, tvb, offset, length, ENC_NA);
-		fi = PITEM_FINFO(tf);
-		value_str = fvalue_to_string_repr(NULL, &fi->value, FTREPR_DISPLAY, fi->hfinfo->display);
-		proto_item_append_text(parent_item, ": %s", value_str);
+		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(wmem_packet_scope(), tf));
 		offset += 4;
 		length -= 4;
 		break;
 	case 0xd1:
 		tf = proto_tree_add_item(tree, hf_cisco_aci_unknownd1, tvb, offset, length, ENC_NA);
-		fi = PITEM_FINFO(tf);
-		value_str = fvalue_to_string_repr(NULL, &fi->value, FTREPR_DISPLAY, fi->hfinfo->display);
-		proto_item_append_text(parent_item, ": %s", value_str);
+		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(wmem_packet_scope(), tf));
 		offset += length;
 		length -= length;
 		break;
 	case 0xd2:
 		tf = proto_tree_add_item(tree, hf_cisco_aci_version, tvb, offset, length, ENC_ASCII|ENC_NA);
-		fi = PITEM_FINFO(tf);
-		value_str = fvalue_to_string_repr(NULL, &fi->value, FTREPR_DISPLAY, fi->hfinfo->display);
-		proto_item_append_text(parent_item, ": %s", value_str);
+		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(wmem_packet_scope(), tf));
 		offset += length;
 		length -= length;
 		break;
 	case 0xd3:
 		tf = proto_tree_add_item(tree, hf_cisco_aci_fabricvlan, tvb, offset, 2, ENC_NA);
-		fi = PITEM_FINFO(tf);
-		value_str = fvalue_to_string_repr(NULL, &fi->value, FTREPR_DISPLAY, fi->hfinfo->display);
-		proto_item_append_text(parent_item, ": %s", value_str);
+		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(wmem_packet_scope(), tf));
 		offset += 2;
 		length -= 2;
 		break;
 	case 0xd4:
 		tf = proto_tree_add_item(tree, hf_cisco_aci_serialno, tvb, offset, length, ENC_ASCII|ENC_NA);
-		fi = PITEM_FINFO(tf);
-		value_str = fvalue_to_string_repr(NULL, &fi->value, FTREPR_DISPLAY, fi->hfinfo->display);
-		proto_item_append_text(parent_item, ": %s", value_str);
+		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(wmem_packet_scope(), tf));
 		offset += length;
 		length -= length;
 		break;
 	case 0xd6:
 		tf = proto_tree_add_item(tree, hf_cisco_aci_model, tvb, offset, length, ENC_ASCII|ENC_NA);
-		fi = PITEM_FINFO(tf);
-		value_str = fvalue_to_string_repr(NULL, &fi->value, FTREPR_DISPLAY, fi->hfinfo->display);
-		proto_item_append_text(parent_item, ": %s", value_str);
+		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(wmem_packet_scope(), tf));
 		offset += length;
 		length -= length;
 		break;
 	case 0xd7:
 		tf = proto_tree_add_item(tree, hf_cisco_aci_nodename, tvb, offset, length, ENC_ASCII|ENC_NA);
-		fi = PITEM_FINFO(tf);
-		value_str = fvalue_to_string_repr(NULL, &fi->value, FTREPR_DISPLAY, fi->hfinfo->display);
-		proto_item_append_text(parent_item, ": %s", value_str);
+		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(wmem_packet_scope(), tf));
 		offset += length;
 		length -= length;
 		break;
 	case 0xd8:
 		tf = proto_tree_add_item(tree, hf_cisco_aci_portmode, tvb, offset, length, ENC_NA);
-		fi = PITEM_FINFO(tf);
-		value_str = fvalue_to_string_repr(NULL, &fi->value, FTREPR_DISPLAY, fi->hfinfo->display);
-		proto_item_append_text(parent_item, ": %s", value_str);
+		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(wmem_packet_scope(), tf));
 		offset += length;
 		length -= length;
 		break;
 	case 0xd9:
 		tf = proto_tree_add_item(tree, hf_cisco_aci_unknownd9, tvb, offset, length, ENC_NA);
-		fi = PITEM_FINFO(tf);
-		value_str = fvalue_to_string_repr(NULL, &fi->value, FTREPR_DISPLAY, fi->hfinfo->display);
-		proto_item_append_text(parent_item, ": %s", value_str);
+		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(wmem_packet_scope(), tf));
 		offset += length;
 		length -= length;
 		break;
 	case 0xda:
 		tf = proto_tree_add_item(tree, hf_cisco_aci_apicmode, tvb, offset, length, ENC_NA);
-		fi = PITEM_FINFO(tf);
-		value_str = fvalue_to_string_repr(NULL, &fi->value, FTREPR_DISPLAY, fi->hfinfo->display);
-		proto_item_append_text(parent_item, ": %s", value_str);
+		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(wmem_packet_scope(), tf));
 		offset += length;
 		length -= length;
 		break;

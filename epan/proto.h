@@ -1065,7 +1065,13 @@ WS_DLL_PUBLIC void proto_item_set_end(proto_item *ti, tvbuff_t *tvb, gint end);
  @return the current length */
 WS_DLL_PUBLIC int proto_item_get_len(const proto_item *ti);
 
-
+/** Get display representation of a proto_item.
+ * Can be used, for example, to append that to the parent item of
+ * that item.
+ @param scope the wmem scope to use to allocate the string
+ @param ti the item from which to get the display representation
+ @return the display representation */
+WS_DLL_PUBLIC char *proto_item_get_display_repr(wmem_allocator_t *scope, proto_item *pi);
 
 /** Creates a new proto_tree root.
  @return the new tree root */
