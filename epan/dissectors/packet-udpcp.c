@@ -116,16 +116,6 @@ static const value_string msg_type_vals[] = {
 /* Reassembly table. */
 static reassembly_table udpcp_reassembly_table;
 
-static guint udpcp_hash(gconstpointer k)
-{
-    return GPOINTER_TO_UINT(k);
-}
-
-static gint udpcp_equal(gconstpointer k1, gconstpointer k2)
-{
-    return k1 == k2;
-}
-
 static gpointer udpcp_temporary_key(const packet_info *pinfo _U_, const guint32 id _U_, const void *data)
 {
     return (gpointer)data;
@@ -147,8 +137,8 @@ static void udpcp_free_persistent_key(gpointer ptr _U_)
 
 reassembly_table_functions udpcp_reassembly_table_functions =
 {
-    udpcp_hash,
-    udpcp_equal,
+    g_direct_hash,
+    g_direct_equal,
     udpcp_temporary_key,
     udpcp_persistent_key,
     udpcp_free_temporary_key,
