@@ -125,6 +125,8 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
 {
     int graph_idx = -1;
 
+    memset(&graph_, 0, sizeof(graph_));
+
     ui->setupUi(this);
     if (parent) loadGeometry(parent->width() * 2 / 3, parent->height() * 4 / 5);
     setAttribute(Qt::WA_DeleteOnClose, true);
@@ -185,7 +187,6 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
     ctx_menu_.addAction(ui->actionWindowScaling);
     set_action_shortcuts_visible_in_context_menu(ctx_menu_.actions());
 
-    memset (&graph_, 0, sizeof(graph_));
     graph_.type = graph_type;
     graph_.stream = th_stream;
     findStream();
