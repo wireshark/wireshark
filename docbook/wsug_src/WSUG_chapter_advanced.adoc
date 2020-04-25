@@ -570,7 +570,13 @@ Set when the all of the following are true:
 [discrete]
 ==== TCP ZeroWindow
 
-Set when the window size is zero and non of SYN, FIN, or RST are set.
+Set when the receive window size is zero and none of SYN, FIN, or RST are set.
+
+The _window_ field in each TCP header advertises the amount of data a receiver can accept.
+If the receiver can’t accept any more data it will set the window value to zero, which tells the sender to pause its transmission.
+In some specific cases this is normal -- for example, a printer might use a zero window to pause the transmission of a print job while it loads or reverses a sheet of paper.
+However, in most cases this indicates a performance or capacity problem on the receiving end.
+It might take a long time (sometimes several minutes) to resume a paused connection, even if the underlying condition that caused the zero window clears up quickly.
 
 // TCP_A_ZERO_WINDOW_PROBE
 [discrete]
