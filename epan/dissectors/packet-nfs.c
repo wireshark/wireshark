@@ -1163,7 +1163,7 @@ nfs_name_snoop_add_name(int xid, tvbuff_t *tvb, int name_offset, int name_len, i
 
 	nns->full_name_len = 0;
 	nns->full_name = NULL;
-	nns->fs_cycle = false;
+	nns->fs_cycle = FALSE;
 
 	/* any old entry will be deallocated and removed */
 	g_hash_table_insert(nfs_name_snoop_unmatched, GINT_TO_POINTER(xid), nns);
