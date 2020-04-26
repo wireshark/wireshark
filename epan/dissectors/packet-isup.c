@@ -3960,7 +3960,6 @@ static void
 dissect_ansi_isup_transit_network_selection_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo _U_, proto_tree *parameter_tree, proto_item *parameter_item _U_)
 {
   gint        offset = 0;
-  const char *digit_str;
 
   static const int * indicators_fields[] = {
     &hf_ansi_isup_spare_b7,
@@ -3972,8 +3971,7 @@ dissect_ansi_isup_transit_network_selection_parameter(tvbuff_t *parameter_tvb, p
   proto_tree_add_bitmask_list(parameter_tree, parameter_tvb, 0, 1, indicators_fields, ENC_NA);
   offset = 1;
 
-  digit_str = tvb_bcd_dig_to_wmem_packet_str(parameter_tvb, offset, 2, NULL, FALSE);
-  proto_tree_add_string(parameter_tree, hf_ansi_isup_nw_id, parameter_tvb, offset, 2, digit_str);
+  proto_tree_add_item(parameter_tree, hf_ansi_isup_nw_id, parameter_tvb, offset, 2, ENC_BCD_DIGITS_0_9);
   offset += 2;
   proto_tree_add_item(parameter_tree, hf_ansi_isup_circuit_code, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
 
@@ -4000,7 +3998,6 @@ static void
 dissect_ansi_isup_param_carrier_id(tvbuff_t *parameter_tvb, packet_info *pinfo _U_, proto_tree *parameter_tree, proto_item *parameter_item _U_)
 {
   int offset = 0;
-  const char *digit_str;
 
   static const int * flags[] = {
     &hf_ansi_isup_spare_b7,
@@ -4012,8 +4009,7 @@ dissect_ansi_isup_param_carrier_id(tvbuff_t *parameter_tvb, packet_info *pinfo _
   proto_tree_add_bitmask_list(parameter_tree, parameter_tvb, offset, 1, flags, ENC_BIG_ENDIAN);
   offset++;
 
-  digit_str = tvb_bcd_dig_to_wmem_packet_str(parameter_tvb, offset, 2, NULL, FALSE);
-  proto_tree_add_string(parameter_tree, hf_ansi_isup_nw_id, parameter_tvb, offset, 2, digit_str);
+  proto_tree_add_item(parameter_tree, hf_ansi_isup_nw_id, parameter_tvb, offset, 2, ENC_BCD_DIGITS_0_9);
 
 }
 
@@ -7247,7 +7243,7 @@ dissect_japan_isup_contractor_number(tvbuff_t *parameter_tvb, proto_tree *parame
 {
   int         offset = 0;
   int         parameter_length;
-  const char *digit_str;
+  char        *digit_str;
 
   parameter_length = tvb_reported_length_remaining(parameter_tvb, offset);
 
@@ -7258,8 +7254,7 @@ dissect_japan_isup_contractor_number(tvbuff_t *parameter_tvb, proto_tree *parame
   proto_tree_add_item(parameter_tree, hf_isup_numbering_plan_indicator, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
 
-  digit_str = tvb_bcd_dig_to_wmem_packet_str( parameter_tvb, offset, parameter_length-2, NULL, FALSE);
-  proto_tree_add_string(parameter_tree, hf_japan_isup_contractor_number,  parameter_tvb, offset, parameter_length-offset, digit_str);
+  proto_tree_add_item_ret_display_string(parameter_tree, hf_japan_isup_contractor_number,  parameter_tvb, offset, parameter_length-2, ENC_BCD_DIGITS_0_9, wmem_packet_scope(), &digit_str);
 
   proto_item_append_text(parameter_item, " %s", digit_str);
 

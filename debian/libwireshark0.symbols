@@ -1720,6 +1720,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tvb_free@Base 1.9.1
  tvb_free_chain@Base 1.12.0~rc1
  tvb_get_ascii_7bits_string@Base 1.12.0~rc1
+ tvb_get_bcd_string@Base 3.3.0
  tvb_get_bits16@Base 1.9.1
  tvb_get_bits32@Base 1.9.1
  tvb_get_bits64@Base 1.9.1

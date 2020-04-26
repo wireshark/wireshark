@@ -760,8 +760,7 @@ de_nas_5gs_mm_5gs_mobile_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
             /* Scheme output octet 12-x */
             if (scheme_id == 0) {
                 new_tvb = tvb_new_subset_length(tvb, offset, len - 8);
-                digit_str = tvb_bcd_dig_to_wmem_packet_str(new_tvb, 0, -1, NULL, FALSE);
-                proto_tree_add_string(tree, hf_nas_5gs_mm_suci_msin, new_tvb, 0, -1, digit_str);
+                proto_tree_add_item(tree, hf_nas_5gs_mm_suci_msin, new_tvb, 0, -1, ENC_BCD_DIGITS_0_9);
             } else {
                 proto_item *pi = proto_tree_add_item(tree, hf_nas_5gs_mm_scheme_output, tvb, offset, len - 8, ENC_NA);
                 if ((scheme_id == 1 && len >= 49) || (scheme_id == 2 && len >= 50)) {

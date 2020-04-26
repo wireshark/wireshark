@@ -946,7 +946,6 @@ dissect_ain_AINDigits(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 #line 185 "./asn1/ain/ain.cnf"
   tvbuff_t *parameter_tvb;
   proto_tree *subtree;
-  const char *digit_str;
 
     offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -961,8 +960,7 @@ dissect_ain_AINDigits(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
   proto_tree_add_item(subtree, hf_ain_numbering_plan, parameter_tvb, 1, 1, ENC_BIG_ENDIAN);
 
-  digit_str = tvb_bcd_dig_to_wmem_packet_str(parameter_tvb, 2, tvb_reported_length_remaining(parameter_tvb,2), NULL, FALSE);
-  proto_tree_add_string(subtree, hf_ain_bcd_digits, parameter_tvb, 2, -1, digit_str);
+  proto_tree_add_item(subtree, hf_ain_bcd_digits, parameter_tvb, 2, tvb_reported_length_remaining(parameter_tvb, 2), ENC_BCD_DIGITS_0_9);
 
 
 
@@ -1548,10 +1546,9 @@ dissect_ain_CollectedAddressInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 static int
 dissect_ain_CarrierFormat(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 204 "./asn1/ain/ain.cnf"
+#line 202 "./asn1/ain/ain.cnf"
   tvbuff_t *parameter_tvb;
   proto_tree *subtree;
-  const char *digit_str;
 
     offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -1568,8 +1565,7 @@ dissect_ain_CarrierFormat(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
   proto_tree_add_item(subtree, hf_ain_nr_digits, parameter_tvb, 1, 1, ENC_BIG_ENDIAN);
 
   /* 2nd Digit 1st Digit .. */
-  digit_str = tvb_bcd_dig_to_wmem_packet_str(parameter_tvb, 2, tvb_reported_length_remaining(parameter_tvb,2), NULL, FALSE);
-  proto_tree_add_string(subtree, hf_ain_carrier_bcd_digits, parameter_tvb, 2, -1, digit_str);
+  proto_tree_add_item(subtree, hf_ain_carrier_bcd_digits, parameter_tvb, 2, tvb_reported_length_remaining(parameter_tvb, 2), ENC_BCD_DIGITS_0_9);
 
 
 
@@ -3214,10 +3210,9 @@ dissect_ain_SEQUENCE_SIZE_1_2_OF_AMALineNumber(gboolean implicit_tag _U_, tvbuff
 
 static int
 dissect_ain_AMAslpID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 225 "./asn1/ain/ain.cnf"
+#line 221 "./asn1/ain/ain.cnf"
   tvbuff_t *parameter_tvb;
   proto_tree *subtree;
-  const char *digit_str;
 
     offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -3228,8 +3223,7 @@ dissect_ain_AMAslpID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
   subtree = proto_item_add_subtree(actx->created_item, ett_ain_amaslpid);
 
-  digit_str = tvb_bcd_dig_to_wmem_packet_str(parameter_tvb, 0, tvb_reported_length_remaining(parameter_tvb,0), NULL, FALSE);
-  proto_tree_add_string(subtree, hf_ain_amaslpid, parameter_tvb, 0, -1, digit_str);
+  proto_tree_add_item(subtree, hf_ain_amaslpid, parameter_tvb, 0, tvb_reported_length_remaining(parameter_tvb, 0), ENC_BCD_DIGITS_0_9);
 
 
 

@@ -308,9 +308,8 @@ static guint16 evaluate_meta_item_dxt(proto_tree *meta_tree, tvbuff_t *tvb, pack
     guint8              dir, nsapi, rat, aal5proto;
     guint16             phylinkid, localdevid, remotedevid, tapgroupid;
     guint32             tlli;
-    guint64             ts, imsi, imei, cell;
+    guint64             ts, cell;
     sscop_payload_info *p_sscop_info;
-    const gchar        *imsi_str, *imei_str;
     proto_item         *cell_item, *imsi_item, *imei_item;
     proto_tree         *cell_tree, *imsi_tree, *imei_tree;
 
@@ -342,22 +341,18 @@ static guint16 evaluate_meta_item_dxt(proto_tree *meta_tree, tvbuff_t *tvb, pack
                 offs, 1, nsapi);
             break;
         case META_ID_IMSI:
-            imsi     = tvb_get_letoh64(tvb, offs);
-            imsi_str = tvb_bcd_dig_to_wmem_packet_str(tvb, offs, 8, NULL, FALSE);
-            imsi_item = proto_tree_add_string(meta_tree, hf_meta_item_imsi_digits, tvb,
-                offs, 8, imsi_str);
+            imsi_item = proto_tree_add_item(meta_tree, hf_meta_item_imsi_digits, tvb,
+                offs, 8, ENC_BCD_DIGITS_0_9);
             imsi_tree = proto_item_add_subtree(imsi_item, ett_meta_imsi);
-            proto_tree_add_uint64(imsi_tree, hf_meta_item_imsi_value,
-                tvb, offs, 8, imsi);
+            proto_tree_add_item(imsi_tree, hf_meta_item_imsi_value,
+                tvb, offs, 8, ENC_LITTLE_ENDIAN);
             break;
         case META_ID_IMEI:
-            imei     = tvb_get_letoh64(tvb, offs);
-            imei_str = tvb_bcd_dig_to_wmem_packet_str(tvb, offs, 8, NULL, FALSE);
-            imei_item = proto_tree_add_string(meta_tree, hf_meta_item_imei_digits, tvb,
-                offs, 8, imei_str);
+            imei_item = proto_tree_add_item(meta_tree, hf_meta_item_imei_digits, tvb,
+                offs, 8, ENC_BCD_DIGITS_0_9);
             imei_tree = proto_item_add_subtree(imei_item, ett_meta_imei);
-            proto_tree_add_uint64(imei_tree, hf_meta_item_imei_value,
-                tvb, offs, 8, imei);
+            proto_tree_add_item(imei_tree, hf_meta_item_imei_value,
+                tvb, offs, 8, ENC_LITTLE_ENDIAN);
             break;
         case META_ID_APN:
             proto_tree_add_item(meta_tree, hf_meta_item_apn, tvb,
@@ -675,7 +670,7 @@ proto_register_meta(void)
         },
         { &hf_meta_item_imsi_digits,
           { "IMSI digits", "meta.imsi_digits",
-            FT_STRINGZ, BASE_NONE, NULL, 0,
+            FT_STRING, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
         { &hf_meta_item_imsi_value,
@@ -685,7 +680,7 @@ proto_register_meta(void)
         },
         { &hf_meta_item_imei_digits,
           { "IMEI digits", "meta.imei_digits",
-            FT_STRINGZ, BASE_NONE, NULL, 0,
+            FT_STRING, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
         { &hf_meta_item_imei_value,

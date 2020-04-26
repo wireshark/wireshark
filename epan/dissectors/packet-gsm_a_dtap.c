@@ -778,13 +778,6 @@ static guint8 epc_test_loop_mode;
 #define NUM_GSM_DTAP_ELEM (sizeof(gsm_dtap_elem_strings)/sizeof(value_string))
 gint ett_gsm_dtap_elem[NUM_GSM_DTAP_ELEM];
 
-static dgt_set_t Dgt_mbcd = {
-    {
-    /* 0   1   2   3   4   5   6   7   8   9   a   b   c   d   e   f */
-      '0','1','2','3','4','5','6','7','8','9','*','#','a','b','c','?'
-    }
-};
-
 /*
  * [9] 10.5.3.1 Authentication parameter RAND
  */
@@ -1183,7 +1176,7 @@ de_emerg_num_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 o
     guint8      count;
     proto_tree *subtree;
     proto_item *item;
-    const char *digit_str;
+    char       *digit_str;
 
     curr_offset = offset;
 
@@ -1214,8 +1207,7 @@ de_emerg_num_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 o
         curr_offset++;
         en_len--;
 
-        digit_str = tvb_bcd_dig_to_wmem_packet_str(tvb, curr_offset, en_len, NULL, FALSE);
-        item = proto_tree_add_string(subtree, hf_gsm_a_dtap_emergency_bcd_num, tvb, curr_offset, en_len, digit_str);
+        item = proto_tree_add_item_ret_display_string(subtree, hf_gsm_a_dtap_emergency_bcd_num, tvb, curr_offset, en_len, ENC_BCD_DIGITS_0_9, wmem_packet_scope(), &digit_str);
 
         /* Check for values that aren't digits; they get mapped to '?' */
         if(strchr(digit_str,'?')){
@@ -2247,7 +2239,7 @@ const value_string gsm_a_dtap_screening_ind_values[] = {
 };
 
 static guint16
-de_bcd_num(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, int header_field, const gchar **extracted_address)
+de_bcd_num(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, int header_field, gchar **extracted_address)
 {
     guint8      extension;
     guint32     curr_offset, num_string_len;
@@ -2275,8 +2267,7 @@ de_bcd_num(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 
     num_string_len = len - (curr_offset - offset);
 
-    *extracted_address = tvb_bcd_dig_to_wmem_packet_str(tvb, curr_offset, num_string_len, &Dgt_mbcd, FALSE);
-    item = proto_tree_add_string(tree, header_field, tvb, curr_offset, num_string_len, *extracted_address);
+    item = proto_tree_add_item_ret_display_string(tree, header_field, tvb, curr_offset, num_string_len, ENC_KEYPAD_ABC_TBCD, wmem_packet_scope(), extracted_address);
 
     /* Check for an end mark, which gets mapped to '?' */
     if(strchr(*extracted_address,'?')){
@@ -2371,7 +2362,7 @@ de_sub_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset,
 guint16
 de_cld_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    const gchar *extr_addr;
+    gchar *extr_addr;
 
     de_bcd_num(tvb, tree, pinfo, offset, len, hf_gsm_a_dtap_cld_party_bcd_num, &extr_addr);
 
@@ -2409,7 +2400,7 @@ de_cld_party_sub_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
 static guint16
 de_clg_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    const gchar *extr_addr;
+    gchar *extr_addr;
 
     de_bcd_num(tvb, tree, pinfo, offset, len, hf_gsm_a_dtap_clg_party_bcd_num, &extr_addr);
 
@@ -2620,7 +2611,7 @@ de_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, gu
 static guint16
 de_conn_num(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    const gchar *extr_addr;
+    gchar *extr_addr;
 
     de_bcd_num(tvb, tree, pinfo, offset, len, hf_gsm_a_dtap_conn_num, &extr_addr);
 
@@ -2873,7 +2864,7 @@ de_recall_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
 static guint16
 de_red_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    const gchar *extr_addr;
+    gchar *extr_addr;
 
     de_bcd_num(tvb, tree, pinfo, offset, len, hf_gsm_a_dtap_red_party_bcd_num, &extr_addr);
 

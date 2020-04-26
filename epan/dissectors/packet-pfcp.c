@@ -5440,7 +5440,6 @@ static void dissect_pfcp_user_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     int offset = 0;
     guint64 flags_val;
     guint32 length_imsi, length_imei, length_msisdn, length_nai;
-    const gchar *mei_str;
 
     static const int * pfcp_user_id_flags[] = {
         &hf_pfcp_spare_b7_b3,
@@ -5476,8 +5475,7 @@ static void dissect_pfcp_user_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         * a default digit set of 0-9 returning "?" for overdecadic digits a pointer to the EP
         * allocated string will be returned.
         */
-        mei_str = tvb_bcd_dig_to_wmem_packet_str( tvb, offset, length_imei, NULL, FALSE);
-        proto_tree_add_string(tree, hf_pfcp_user_id_imei, tvb, offset, length_imei, mei_str);
+        proto_tree_add_item(tree, hf_pfcp_user_id_imei, tvb, offset, length_imei, ENC_BCD_DIGITS_0_9);
         offset += length_imei;
     }
 

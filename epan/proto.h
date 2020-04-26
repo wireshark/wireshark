@@ -491,6 +491,9 @@ void proto_report_dissector_bug(const char *format, ...)
 #define ENC_CP855                0x0000003E
 #define ENC_CP866                0x00000040
 #define ENC_ISO_646_BASIC        0x00000042
+#define ENC_BCD_DIGITS_0_9       0x00000044 /* Packed BCD, digits 0-9 */
+#define ENC_KEYPAD_ABC_TBCD      0x00000046 /* Keypad-with-a/b/c "telephony BCD" = 0-9, *, #, a, b, c */
+#define ENC_KEYPAD_BC_TBCD       0x00000048 /* Keypad-with-B/C "telephony BCD" = 0-9, B, C, *, # */
 /*
  * TODO:
  *
