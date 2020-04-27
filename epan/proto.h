@@ -1072,7 +1072,7 @@ WS_DLL_PUBLIC int proto_item_get_len(const proto_item *ti);
  * Can be used, for example, to append that to the parent item of
  * that item.
  @param scope the wmem scope to use to allocate the string
- @param ti the item from which to get the display representation
+ @param pi the item from which to get the display representation
  @return the display representation */
 WS_DLL_PUBLIC char *proto_item_get_display_repr(wmem_allocator_t *scope, proto_item *pi);
 
