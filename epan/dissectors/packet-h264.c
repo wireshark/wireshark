@@ -806,41 +806,49 @@ dissect_h264_exp_golomb_code(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint
 
 /* This function is adapted to parsing NAL units from SDP data where the
  * base64 coding may add extra padding
+ * Returns TRUE if there is a non-zero bit in remaining of tvb (skipping the current bit)
+ *         FALSE if the rest of the tvb is zeros
  */
 
 static gboolean
 more_rbsp_data(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo _U_, gint bit_offset)
 {
-    int    offset;
-    int    remaining_length;
-    int    last_one_bit;
-    guint8 b = 0;
+    int    current_bit_offset;
+    int    byte_offset;
+    int    tvb_length;
+    int    significant_bits_mask;
+    int    i;
+    guint8 current_byte;
 
     /* XXX might not be the best way of doing things but:
-     * Serch from the end of the tvb for the first '1' bit
-     * assuming that it's the RTBSP stop bit
+     * Search in the tvb for the first '1' bit
+     * assuming that it's the RTBSP stop bit or
+     * some data representation
      */
 
+    /*Skip current treating bit*/
+    current_bit_offset = bit_offset + 1;
+
+    /*Mask for non processed bits of the current byte*/
+    significant_bits_mask = (1 << (8 - (current_bit_offset & 0x07))) - 1;
+
     /* Set offset to the byte we are treating */
-    offset = bit_offset>>3;
-    remaining_length = tvb_reported_length_remaining(tvb, offset);
-    /* If there is more then 2 bytes left there *should* be more data */
-    if (remaining_length>2) {
-        return TRUE;
-    }
-    /* Start from last bit */
-    last_one_bit = (tvb_reported_length(tvb) << 3);
+    byte_offset = current_bit_offset >> 3;
 
-    for (b = 0; !b; ) {
-        last_one_bit--;
-        b = tvb_get_bits8(tvb, last_one_bit, 1);
-    }
+    tvb_length = tvb_reported_length(tvb);
 
-    if (last_one_bit == bit_offset) {
-        return FALSE;
+    for (i = byte_offset; i < tvb_length; i++) {
+        current_byte = tvb_get_guint8(tvb, i);
+
+        if ((current_byte & significant_bits_mask) != 0) {
+            return TRUE;
+        }
+
+        /* For the rest of bytes every bits are significant*/
+        significant_bits_mask = 0xFF;
     }
 
-    return TRUE;
+    return FALSE;
 }
 
 static int
