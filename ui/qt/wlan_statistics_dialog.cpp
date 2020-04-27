@@ -501,8 +501,10 @@ WlanStatisticsDialog::WlanStatisticsDialog(QWidget &parent, CaptureFile &cf, con
             << tr("Deauths") << tr("Other");
     statsTreeWidget()->setHeaderLabels(header_labels);
     updateHeaderLabels();
-    statsTreeWidget()->setItemDelegateForColumn(col_pct_packets_, new PercentBarDelegate());
-    statsTreeWidget()->setItemDelegateForColumn(col_pct_retry_, new PercentBarDelegate());
+    packets_delegate_ = new PercentBarDelegate();
+    statsTreeWidget()->setItemDelegateForColumn(col_pct_packets_, packets_delegate_);
+    retry_delegate_ = new PercentBarDelegate();
+    statsTreeWidget()->setItemDelegateForColumn(col_pct_retry_, retry_delegate_);
     statsTreeWidget()->sortByColumn(col_bssid_, Qt::AscendingOrder);
 
     // resizeColumnToContents doesn't work well here, so set sizes manually.
@@ -546,6 +548,8 @@ WlanStatisticsDialog::WlanStatisticsDialog(QWidget &parent, CaptureFile &cf, con
 
 WlanStatisticsDialog::~WlanStatisticsDialog()
 {
+    delete packets_delegate_;
+    delete retry_delegate_;
     delete add_station_timer_;
 }
 
