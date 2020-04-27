@@ -467,7 +467,7 @@ win32_merge_file (HWND h_wnd, const wchar_t *title, GString *file_name, GString 
 }
 
 void
-win32_export_file(HWND h_wnd, const wchar_t *title, capture_file *cf, export_type_e export_type) {
+win32_export_file(HWND h_wnd, const wchar_t *title, capture_file *cf, export_type_e export_type, const gchar *range_) {
     OPENFILENAME     *ofn;
     TCHAR             file_name[MAX_PATH] = _T("");
     char             *dirname;
@@ -500,6 +500,12 @@ win32_export_file(HWND h_wnd, const wchar_t *title, capture_file *cf, export_typ
     ofn->lpTemplateName = _T("WIRESHARK_EXPORTFILENAME_TEMPLATE");
 
     /* Fill in our print (and export) args */
+
+    /* init the printing range */
+    packet_range_init(&print_args.range, cf);
+
+    if (strlen(range_) > 0)
+        packet_range_convert_selection_str(&print_args.range, range_);
 
     print_args.format              = PR_FMT_TEXT;
     print_args.to_file             = TRUE;
@@ -1705,11 +1711,6 @@ export_file_hook_proc(HWND ef_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
 
     switch(msg) {
         case WM_INITDIALOG: {
-            OPENFILENAME *ofnp = (OPENFILENAME *) l_param;
-            capture_file *cf = (capture_file *) ofnp->lCustData;
-
-            /* init the printing range */
-            packet_range_init(&print_args.range, cf);
             /* default to displayed packets */
             print_args.range.process_filtered = TRUE;
             range_handle_wm_initdialog(ef_hwnd, &print_args.range);

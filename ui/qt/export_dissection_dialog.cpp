@@ -52,6 +52,8 @@ ExportDissectionDialog::ExportDissectionDialog(QWidget *parent, capture_file *ca
     cap_file_(cap_file)
 #if !defined(Q_OS_WIN)
     , save_bt_(NULL)
+#else
+    , sel_range_(selRange)
 #endif /* Q_OS_WIN */
 {
     setWindowTitle(wsApp->windowTitleString(tr("Export Packet Dissections")));
@@ -162,7 +164,7 @@ void ExportDissectionDialog::show()
         WiresharkFileDialog::show();
     }
 #else // Q_OS_WIN
-    win32_export_file((HWND)parentWidget()->effectiveWinId(), windowTitle().toStdWString().c_str(), cap_file_, export_type_);
+    win32_export_file((HWND)parentWidget()->effectiveWinId(), windowTitle().toStdWString().c_str(), cap_file_, export_type_, sel_range_.toStdString().c_str());
 #endif // Q_OS_WIN
 }
 
