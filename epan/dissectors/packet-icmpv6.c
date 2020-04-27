@@ -81,6 +81,7 @@ void proto_reg_handoff_icmpv6(void);
  * RFC 7400: 6LoWPAN-GHC: Generic Header Compression for IPv6 over Low-Power Wireless Personal Area Networks (6LoWPANs)
  * RFC 7731: MPL Control Message
  * RFC 8335: PROBE: A Utility for Probing Interfaces
+ * RFC 8781: Discovering PREF64 in Router Advertisements
  * http://www.iana.org/assignments/icmpv6-parameters (last updated 2016-02-24)
  */
 
@@ -238,6 +239,9 @@ static int hf_icmpv6_opt_6cio_unassigned2 = -1;
 
 static int hf_icmpv6_opt_captive_portal = -1;
 
+static int hf_icmpv6_opt_pref64_scaled_lifetime = -1;
+static int hf_icmpv6_opt_pref64_plc = -1;
+static int hf_icmpv6_opt_pref64_prefix = -1;
 /* RFC 2710: Multicast Listener Discovery for IPv6 */
 static int hf_icmpv6_mld_mrd = -1;
 static int hf_icmpv6_mld_multicast_address = -1;
@@ -937,6 +941,7 @@ static const true_false_string tfs_ni_flag_a = {
 #define ND_OPT_AUTH_BORDER_ROUTER       35
 #define ND_OPT_6CIO                     36
 #define ND_OPT_CAPPORT                  37
+#define ND_OPT_PREF64                   38
 
 static const value_string option_vals[] = {
 /*  1 */   { ND_OPT_SOURCE_LINKADDR,           "Source link-layer address" },
@@ -975,7 +980,8 @@ static const value_string option_vals[] = {
 /* 35 */   { ND_OPT_AUTH_BORDER_ROUTER,        "Authoritative Border Router" },            /* [RFC6775] */
 /* 36 */   { ND_OPT_6CIO,                      "6LoWPAN Capability Indication Option" },   /* [RFC7400] */
 /* 37 */   { ND_OPT_CAPPORT,                   "DHCP Captive-Portal" },                    /* [RFC7710] */
-/* 38-137  Unassigned */
+/* 38 */   { ND_OPT_PREF64,                    "PREF64 Option" },                          /* [RFC8781] */
+/* 39-137  Unassigned */
    { 138,                              "CARD Request" },                           /* [RFC4065] */
    { 139,                              "CARD Reply" },                             /* [RFC4065] */
 /* 140-252 Unassigned */
@@ -1334,6 +1340,21 @@ static const value_string ext_echo_reply_state_str[] = {
     { 4, "Delay"},
     { 5, "Probe"},
     { 6, "Failed"},
+    { 0, NULL}
+    };
+
+
+/* RFC 8781 */
+#define ND_OPT_PREF64_SL          0xFFF8
+#define ND_OPT_PREF64_PLC         0x0007
+
+static const value_string pref64_plc_str[] = {
+    { 0, "96 bits prefix length"},
+    { 1, "64 bits prefix length"},
+    { 2, "56 bits prefix length"},
+    { 3, "48 bits prefix length"},
+    { 4, "40 bits prefix length"},
+    { 5, "32 bits prefix length"},
     { 0, NULL}
     };
 
@@ -2508,6 +2529,54 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 proto_item_set_url(ti_cp);
                 opt_offset += opt_len - 2;
 
+            }
+            break;
+            case ND_OPT_PREF64: /* PREF64 Option (38) */
+            {
+                ws_in6_addr prefix;
+                guint32 plc;
+
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_pref64_scaled_lifetime, tvb, opt_offset, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item_ret_uint(icmp6opt_tree, hf_icmpv6_opt_pref64_plc, tvb, opt_offset, 2, ENC_BIG_ENDIAN, &plc);
+                opt_offset += 2;
+
+                /* Prefix */
+                memset(&prefix.bytes, 0, sizeof(prefix));
+                switch(plc){
+                    case 0: /* 96 bits prefix length */
+                        tvb_memcpy(tvb, (guint8 *)&prefix.bytes, opt_offset, 12);
+                        proto_tree_add_ipv6(icmp6opt_tree, hf_icmpv6_opt_pref64_prefix, tvb, opt_offset, 12, &prefix);
+                        opt_offset += 12;
+                        break;
+                    case 1: /* 64 bits prefix length */
+                        tvb_memcpy(tvb, (guint8 *)&prefix.bytes, opt_offset, 8);
+                        proto_tree_add_ipv6(icmp6opt_tree, hf_icmpv6_opt_pref64_prefix, tvb, opt_offset, 8, &prefix);
+                        opt_offset += 8;
+                        break;
+                    case 2: /* 56 bits prefix length */
+                        tvb_memcpy(tvb, (guint8 *)&prefix.bytes, opt_offset, 7);
+                        proto_tree_add_ipv6(icmp6opt_tree, hf_icmpv6_opt_pref64_prefix, tvb, opt_offset, 7, &prefix);
+                        opt_offset += 7;
+                        break;
+                    case 3: /* 48 bits prefix length */
+                        tvb_memcpy(tvb, (guint8 *)&prefix.bytes, opt_offset, 6);
+                        proto_tree_add_ipv6(icmp6opt_tree, hf_icmpv6_opt_pref64_prefix, tvb, opt_offset, 6, &prefix);
+                        opt_offset += 6;
+                        break;
+                    case 4: /* 40 bits prefix length */
+                        tvb_memcpy(tvb, (guint8 *)&prefix.bytes, opt_offset, 5);
+                        proto_tree_add_ipv6(icmp6opt_tree, hf_icmpv6_opt_pref64_prefix, tvb, opt_offset, 5, &prefix);
+                        opt_offset += 5;
+                        break;
+                    case 5: /* 32 bits prefix length */
+                        tvb_memcpy(tvb, (guint8 *)&prefix.bytes, opt_offset, 4);
+                        proto_tree_add_ipv6(icmp6opt_tree, hf_icmpv6_opt_pref64_prefix, tvb, opt_offset, 4, &prefix);
+                        opt_offset += 4;
+                        break;
+                    default:
+                        expert_add_info(pinfo, ti_opt_len, &ei_icmpv6_invalid_option_length);
+                        break;
+                }
             }
             break;
             default :
@@ -5128,6 +5197,16 @@ proto_register_icmpv6(void)
         { &hf_icmpv6_opt_captive_portal,
            { "Captive Portal", "icmpv6.opt.captive_portal", FT_STRING, BASE_NONE, NULL, 0x00,
              "The contact URI for the captive portal that the user should connect to", HFILL }},
+
+        { &hf_icmpv6_opt_pref64_scaled_lifetime,
+          { "Scaled Lifetime", "icmpv6.opt.pref64.scaled_lifetime", FT_UINT16, BASE_DEC, NULL, ND_OPT_PREF64_SL,
+            "The maximum time in units of 8 seconds over which this NAT64 prefix MAY be used", HFILL }},
+        { &hf_icmpv6_opt_pref64_plc,
+          { "PLC (Prefix Length Code)", "icmpv6.opt.pref64.plc", FT_UINT16, BASE_HEX, VALS(pref64_plc_str), ND_OPT_PREF64_PLC,
+            "This field encodes the NAT64 Prefix Length", HFILL }},
+        { &hf_icmpv6_opt_pref64_prefix,
+          { "Prefix", "icmpv6.opt.pref64.prefix", FT_IPv6, BASE_NONE, NULL, 0x00,
+            "NAT64 Prefix", HFILL }},
 
         /* RFC2710:  Multicast Listener Discovery for IPv6 */
         { &hf_icmpv6_mld_mrd,
