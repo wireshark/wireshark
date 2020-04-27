@@ -1003,70 +1003,70 @@ extern void proto_cleanup(void);
 WS_DLL_PUBLIC gboolean proto_field_is_referenced(proto_tree *tree, int proto_id);
 
 /** Create a subtree under an existing item.
- @param ti the parent item of the new subtree
+ @param pi the parent item of the new subtree
  @param idx one of the ett_ array elements registered with proto_register_subtree_array()
  @return the new subtree */
-WS_DLL_PUBLIC proto_tree* proto_item_add_subtree(proto_item *ti, const gint idx) G_GNUC_WARN_UNUSED_RESULT;
+WS_DLL_PUBLIC proto_tree* proto_item_add_subtree(proto_item *pi, const gint idx) G_GNUC_WARN_UNUSED_RESULT;
 
 /** Get an existing subtree under an item.
- @param ti the parent item of the subtree
+ @param pi the parent item of the subtree
  @return the subtree or NULL */
-WS_DLL_PUBLIC proto_tree* proto_item_get_subtree(proto_item *ti);
+WS_DLL_PUBLIC proto_tree* proto_item_get_subtree(proto_item *pi);
 
 /** Get the parent of a subtree item.
- @param ti the child item in the subtree
+ @param pi the child item in the subtree
  @return parent item or NULL */
-WS_DLL_PUBLIC proto_item* proto_item_get_parent(const proto_item *ti);
+WS_DLL_PUBLIC proto_item* proto_item_get_parent(const proto_item *pi);
 
 /** Get Nth generation parent item.
- @param ti the child item in the subtree
+ @param pi the child item in the subtree
  @param gen the generation to get (using 1 here is the same as using proto_item_get_parent())
  @return parent item */
-WS_DLL_PUBLIC proto_item* proto_item_get_parent_nth(proto_item *ti, int gen);
+WS_DLL_PUBLIC proto_item* proto_item_get_parent_nth(proto_item *pi, int gen);
 
 /** Replace text of item after it already has been created.
- @param ti the item to set the text
+ @param pi the item to set the text
  @param format printf like format string
  @param ... printf like parameters */
-WS_DLL_PUBLIC void proto_item_set_text(proto_item *ti, const char *format, ...)
+WS_DLL_PUBLIC void proto_item_set_text(proto_item *pi, const char *format, ...)
     G_GNUC_PRINTF(2,3);
 
 /** Append to text of item after it has already been created.
- @param ti the item to append the text to
+ @param pi the item to append the text to
  @param format printf like format string
  @param ... printf like parameters */
-WS_DLL_PUBLIC void proto_item_append_text(proto_item *ti, const char *format, ...)
+WS_DLL_PUBLIC void proto_item_append_text(proto_item *pi, const char *format, ...)
     G_GNUC_PRINTF(2,3);
 
 /** Prepend to text of item after it has already been created.
- @param ti the item to prepend the text to
+ @param pi the item to prepend the text to
  @param format printf like format string
  @param ... printf like parameters */
-WS_DLL_PUBLIC void proto_item_prepend_text(proto_item *ti, const char *format, ...)
+WS_DLL_PUBLIC void proto_item_prepend_text(proto_item *pi, const char *format, ...)
     G_GNUC_PRINTF(2,3);
 
 /** Set proto_item's length inside tvb, after it has already been created.
- @param ti the item to set the length
+ @param pi the item to set the length
  @param length the new length ot the item */
-WS_DLL_PUBLIC void proto_item_set_len(proto_item *ti, const gint length);
+WS_DLL_PUBLIC void proto_item_set_len(proto_item *pi, const gint length);
 
 /**
  * Sets the length of the item based on its start and on the specified
  * offset, which is the offset past the end of the item; as the start
  * in the item is relative to the beginning of the data source tvbuff,
  * we need to pass in a tvbuff.
- @param ti the item to set the length
+ @param pi the item to set the length
  @param tvb end is relative to this tvbuff
  @param end this end offset is relative to the beginning of tvb
  @todo make usage clearer, I don't understand it!
  */
-WS_DLL_PUBLIC void proto_item_set_end(proto_item *ti, tvbuff_t *tvb, gint end);
+WS_DLL_PUBLIC void proto_item_set_end(proto_item *pi, tvbuff_t *tvb, gint end);
 
 /** Get length of a proto_item. Useful after using proto_tree_add_item()
  * to add a variable-length field (e.g., FT_NSTRING_UINT8).
- @param ti the item to get the length from
+ @param pi the item to get the length from
  @return the current length */
-WS_DLL_PUBLIC int proto_item_get_len(const proto_item *ti);
+WS_DLL_PUBLIC int proto_item_get_len(const proto_item *pi);
 
 /** Get display representation of a proto_item.
  * Can be used, for example, to append that to the parent item of
