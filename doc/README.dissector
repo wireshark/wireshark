@@ -1719,6 +1719,9 @@ currently supported are:
         and thus no code points above 0xFFFF
     ENC_UCS_4 - UCS-4-encoded Unicode
     ENC_WINDOWS_1250 - Windows-1250 code page
+    ENC_WINDOWS_1251 - Windows-1251 code page
+    ENC_WINDOWS_1252 - Windows-1252 code page
+    ENC_ISO_646_BASIC - ISO 646 "basic code table"
     ENC_ISO_8859_1 - ISO 8859-1
     ENC_ISO_8859_2 - ISO 8859-2
     ENC_ISO_8859_3 - ISO 8859-3
@@ -1739,7 +1742,9 @@ currently supported are:
         in 3GPP TS 23.038
     ENC_EBCDIC - EBCDIC
     ENC_MAC_ROMAN - MAC ROMAN
-    ENC_CP437 - DOS CP437
+    ENC_CP437 - DOS code page 437
+    ENC_CP855 - DOS code page 855
+    ENC_CP866 - DOS code page 866
     ENC_ASCII_7BITS - 7 bits ASCII
     ENC_T61 - ITU T.61
 
