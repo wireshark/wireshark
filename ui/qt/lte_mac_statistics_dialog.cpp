@@ -536,8 +536,10 @@ LteMacStatisticsDialog::LteMacStatisticsDialog(QWidget &parent, CaptureFile &cf,
     // Will set whole-UE headings originally.
     updateHeaderLabels();
 
-    statsTreeWidget()->setItemDelegateForColumn(col_ul_padding_percent_, new PercentBarDelegate());
-    statsTreeWidget()->setItemDelegateForColumn(col_dl_padding_percent_, new PercentBarDelegate());
+    ul_delegate_ = new PercentBarDelegate();
+    statsTreeWidget()->setItemDelegateForColumn(col_ul_padding_percent_, ul_delegate_);
+    dl_delegate_ = new PercentBarDelegate();
+    statsTreeWidget()->setItemDelegateForColumn(col_dl_padding_percent_, dl_delegate_);
 
     statsTreeWidget()->sortByColumn(col_rnti_, Qt::AscendingOrder);
 
@@ -608,6 +610,8 @@ LteMacStatisticsDialog::LteMacStatisticsDialog(QWidget &parent, CaptureFile &cf,
 // Destructor.
 LteMacStatisticsDialog::~LteMacStatisticsDialog()
 {
+    delete ul_delegate_;
+    delete dl_delegate_;
 }
 
 // Update system/common counters, and redraw if changed.

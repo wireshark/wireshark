@@ -15,6 +15,7 @@
 #include <QLabel>
 #include <QCheckBox>
 
+#include <ui/qt/models/percent_bar_delegate.h>
 
 // Common channel stats
 typedef struct mac_lte_common_stats {
@@ -48,6 +49,7 @@ private:
     QLabel *commonStatsLabel_;
     QCheckBox *showSRFilterCheckBox_;
     QCheckBox *showRACHFilterCheckBox_;
+    PercentBarDelegate *ul_delegate_, *dl_delegate_;
     QString   displayFilter_;
 
     // Callbacks for register_tap_listener
