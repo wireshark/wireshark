@@ -248,6 +248,7 @@ static int hf_lisp_lcaf_afi_list_afi = -1;
 static int hf_lisp_lcaf_afi_list_ipv4 = -1;
 static int hf_lisp_lcaf_afi_list_ipv6 = -1;
 static int hf_lisp_lcaf_afi_list_mac = -1;
+static int hf_lisp_lcaf_afi_list_dn = -1;
 
 /* LCAF IID fields */
 static int hf_lisp_lcaf_iid = -1;
@@ -263,6 +264,7 @@ static int hf_lisp_lcaf_asn_afi = -1;
 static int hf_lisp_lcaf_asn_ipv4 = -1;
 static int hf_lisp_lcaf_asn_ipv6 = -1;
 static int hf_lisp_lcaf_asn_mac = -1;
+static int hf_lisp_lcaf_asn_dn = -1;
 
 /* LCAF Geo Coordinates fields */
 static int hf_lisp_lcaf_geo_lat = -1;
@@ -280,6 +282,7 @@ static int hf_lisp_lcaf_geo_afi = -1;
 static int hf_lisp_lcaf_geo_ipv4 = -1;
 static int hf_lisp_lcaf_geo_ipv6 = -1;
 static int hf_lisp_lcaf_geo_mac = -1;
+static int hf_lisp_lcaf_geo_dn = -1;
 
 /* LCAF NATT fields */
 static int hf_lisp_lcaf_natt_msport = -1;
@@ -296,6 +299,7 @@ static int hf_lisp_lcaf_nonce_loc_afi = -1;
 static int hf_lisp_lcaf_nonce_loc_ipv4 = -1;
 static int hf_lisp_lcaf_nonce_loc_ipv6 = -1;
 static int hf_lisp_lcaf_nonce_loc_mac = -1;
+static int hf_lisp_lcaf_nonce_loc_dn = -1;
 
 /* LCAF Multicast Group Membership Information fields */
 static int hf_lisp_lcaf_mcinfo_flags = -1;
@@ -356,11 +360,13 @@ static int hf_lisp_lcaf_kv_key_afi = -1;
 static int hf_lisp_lcaf_kv_key_ipv4 = -1;
 static int hf_lisp_lcaf_kv_key_ipv6 = -1;
 static int hf_lisp_lcaf_kv_key_mac = -1;
+static int hf_lisp_lcaf_kv_key_dn = -1;
 static int hf_lisp_lcaf_kv_value = -1;
 static int hf_lisp_lcaf_kv_value_afi = -1;
 static int hf_lisp_lcaf_kv_value_ipv4 = -1;
 static int hf_lisp_lcaf_kv_value_ipv6 = -1;
 static int hf_lisp_lcaf_kv_value_mac = -1;
+static int hf_lisp_lcaf_kv_value_dn = -1;
 
 /* Encapsulated Control Message fields */
 static int hf_lisp_ecm_flags_sec = -1;
@@ -743,6 +749,7 @@ dissect_lcaf_afi_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     gint old_offset;
     gint remaining = length;
     gint i = 1;
+    gint str_len;
 
     guint16            addr_len = 0;
     guint16            afi;
@@ -789,6 +796,13 @@ dissect_lcaf_afi_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 offset    += EUI48_ADDRLEN;
                 remaining -= EUI48_ADDRLEN;
                 break;
+            case AFNUM_DISTNAME:
+                str_len = tvb_strsize(tvb, offset);
+                proto_tree_add_item(lisp_afi_list_tree, hf_lisp_lcaf_afi_list_dn, tvb, offset, str_len, ENC_ASCII|ENC_NA);
+                proto_item_append_text(tir, " %d. Distinguished Name: %s", i, tvb_get_const_stringz(tvb, offset, NULL));
+                offset    += str_len;
+                remaining -= str_len;
+                break;
             default:
                 expert_add_info_format(pinfo, tree, &ei_lisp_unexpected_field,
                         "Unexpected AFI (%d), cannot decode", afi);
@@ -823,6 +837,7 @@ dissect_lcaf_iid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offse
 {
     const gchar *ip_address;
     guint16 afi, addr_len = 0;
+    gint str_len;
 
     /* Instance ID (4 bytes) */
     proto_tree_add_item(tree, hf_lisp_lcaf_iid, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -861,6 +876,11 @@ dissect_lcaf_iid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offse
                     tvb, offset, EUI48_ADDRLEN, ENC_NA);
             offset += EUI48_ADDRLEN;
             break;
+        case AFNUM_DISTNAME:
+            str_len = tvb_strsize(tvb, offset);
+            proto_tree_add_item(tree, hf_lisp_lcaf_iid_dn, tvb, offset, str_len, ENC_ASCII|ENC_NA);
+            offset += str_len;
+            break;
         default:
             expert_add_info_format(pinfo, tree, &ei_lisp_unexpected_field,
                     "Unexpected Instance ID AFI (%d), cannot decode", afi);
@@ -891,6 +911,7 @@ dissect_lcaf_asn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offse
 {
     const gchar *addr;
     guint16 afi, addr_len = 0;
+    gint str_len;
 
     /* AS Number (4 bytes) */
     proto_tree_add_item(tree, hf_lisp_lcaf_asn, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -928,6 +949,11 @@ dissect_lcaf_asn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offse
             proto_tree_add_item(tree, hf_lisp_lcaf_asn_mac,
                     tvb, offset, EUI48_ADDRLEN, ENC_NA);
             offset += EUI48_ADDRLEN;
+            break;
+        case AFNUM_DISTNAME:
+            str_len = tvb_strsize(tvb, offset);
+            proto_tree_add_item(tree, hf_lisp_lcaf_asn_dn, tvb, offset, str_len, ENC_ASCII|ENC_NA);
+            offset += str_len;
             break;
         default:
             expert_add_info_format(pinfo, tree, &ei_lisp_unexpected_field,
@@ -967,6 +993,7 @@ dissect_lcaf_geo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offse
     guint8 min, sec;
     guint32 alt;
     guint16 afi;
+    gint str_len;
     const gchar *ip_address;
     const guint16 mask = 0x7FFF;   /* prepare mask for N or E bit */
     proto_item *ti_lat, *ti_lon, *ti_alt;
@@ -1092,6 +1119,11 @@ dissect_lcaf_geo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offse
                     tvb, offset, EUI48_ADDRLEN, ENC_NA);
             offset += EUI48_ADDRLEN;
             break;
+        case AFNUM_DISTNAME:
+            str_len = tvb_strsize(tvb, offset);
+            proto_tree_add_item(tree, hf_lisp_lcaf_geo_dn, tvb, offset, str_len, ENC_ASCII|ENC_NA);
+            offset += str_len;
+            break;
         default:
             expert_add_info_format(pinfo, tree, &ei_lisp_unexpected_field,
                     "Unexpected Geo Coordinates AFI (%d), cannot decode", afi);
@@ -1192,6 +1224,7 @@ dissect_lcaf_nonce_loc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint
 {
     const gchar *addr;
     guint16 afi, addr_len = 0;
+    gint str_len;
 
     /* Reserved (1 byte) */
     proto_tree_add_item(tree, hf_lisp_lcaf_nonce_loc_res, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1234,6 +1267,11 @@ dissect_lcaf_nonce_loc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint
             proto_tree_add_item(tree, hf_lisp_lcaf_nonce_loc_mac,
                     tvb, offset, EUI48_ADDRLEN, ENC_NA);
             offset += EUI48_ADDRLEN;
+            break;
+        case AFNUM_DISTNAME:
+            str_len = tvb_strsize(tvb, offset);
+            proto_tree_add_item(tree, hf_lisp_lcaf_nonce_loc_dn, tvb, offset, str_len, ENC_ASCII|ENC_NA);
+            offset += str_len;
             break;
         default:
             expert_add_info_format(pinfo, tree, &ei_lisp_unexpected_field,
@@ -1597,6 +1635,7 @@ dissect_lcaf_kv_addr_pair(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     const gchar *key_str, *value_str;
     proto_item  *ti_key, *ti_value;
     proto_tree  *key_tree, *value_tree;
+    gint         str_len;
 
     ti_key   = proto_tree_add_item(tree, hf_lisp_lcaf_kv_key, tvb, offset, 2, ENC_NA);
     key_tree = proto_item_add_subtree(ti_key, ett_lisp_lcaf_kv_key);
@@ -1628,6 +1667,11 @@ dissect_lcaf_kv_addr_pair(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             proto_tree_add_item(key_tree, hf_lisp_lcaf_kv_key_mac,
                     tvb, offset, EUI48_ADDRLEN, ENC_NA);
             offset += EUI48_ADDRLEN;
+            break;
+        case AFNUM_DISTNAME:
+            str_len = tvb_strsize(tvb, offset);
+            proto_tree_add_item(key_tree, hf_lisp_lcaf_kv_key_dn, tvb, offset, str_len, ENC_ASCII|ENC_NA);
+            offset += str_len;
             break;
         default:
             expert_add_info_format(pinfo, key_tree, &ei_lisp_unexpected_field,
@@ -1667,6 +1711,11 @@ dissect_lcaf_kv_addr_pair(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             proto_tree_add_item(value_tree, hf_lisp_lcaf_kv_value_mac,
                     tvb, offset, EUI48_ADDRLEN, ENC_NA);
             offset += EUI48_ADDRLEN;
+            break;
+        case AFNUM_DISTNAME:
+            str_len = tvb_strsize(tvb, offset);
+            proto_tree_add_item(value_tree, hf_lisp_lcaf_kv_value_dn, tvb, offset, str_len, ENC_ASCII|ENC_NA);
+            offset += str_len;
             break;
         default:
             expert_add_info_format(pinfo, value_tree, &ei_lisp_unexpected_field,
@@ -3266,6 +3315,9 @@ proto_register_lisp(void)
         { &hf_lisp_lcaf_afi_list_mac,
             { "List Item Address", "lisp.lcaf.afi_list.mac",
             FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_afi_list_dn,
+            { "List Item Address", "lisp.lcaf.afi_list.dn",
+            FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_lisp_lcaf_iid,
             { "Instance ID", "lisp.lcaf.iid",
             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
@@ -3299,6 +3351,9 @@ proto_register_lisp(void)
         { &hf_lisp_lcaf_asn_mac,
             { "Address", "lisp.lcaf.asn.mac",
             FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_asn_dn,
+            { "Address", "lisp.lcaf.asn.dn",
+            FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_lisp_lcaf_geo_lat,
             { "Latitude", "lisp.lcaf.geo.lat",
             FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -3344,6 +3399,9 @@ proto_register_lisp(void)
         { &hf_lisp_lcaf_geo_mac,
             { "Address", "lisp.lcaf.geo.mac",
             FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_geo_dn,
+            { "Address", "lisp.lcaf.geo.dn",
+            FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_lisp_lcaf_nonce_loc_res,
             { "Reserved bits", "lisp.lcaf.nonce_loc.res",
             FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
@@ -3362,6 +3420,9 @@ proto_register_lisp(void)
         { &hf_lisp_lcaf_nonce_loc_mac,
             { "Address", "lisp.lcaf.nonce_loc.mac",
             FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_nonce_loc_dn,
+            { "Address", "lisp.lcaf.nonce_loc.dn",
+            FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_lisp_lcaf_mcinfo_flags,
             { "Multicast Info Flags", "lisp.lcaf.mcinfo.flags",
             FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
@@ -3512,6 +3573,9 @@ proto_register_lisp(void)
         { &hf_lisp_lcaf_kv_key_mac,
             { "Key", "lisp.lcaf.kv_key.mac",
             FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_kv_key_dn,
+            { "Key", "lisp.lcaf.kv_key.dn",
+            FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_lisp_lcaf_kv_value,
             { "Value", "lisp.lcaf.kv_value",
             FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -3527,6 +3591,9 @@ proto_register_lisp(void)
         { &hf_lisp_lcaf_kv_value_mac,
             { "Value", "lisp.lcaf.kv_value.mac",
             FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_kv_value_dn,
+            { "Value", "lisp.lcaf.kv_value.dn",
+            FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_lisp_lcaf_natt_rloc,
             { "RLOC", "lisp.lcaf.natt.rloc",
             FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
