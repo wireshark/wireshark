@@ -309,7 +309,7 @@ bool FilterExpressionToolBar::eventFilter(QObject *obj, QEvent *event)
     return QToolBar::eventFilter(obj, event);
 }
 
-void FilterExpressionToolBar::closeMenu(QAction */*sender*/)
+void FilterExpressionToolBar::closeMenu(QAction * /*sender*/)
 {
     foreach(QAction * entry, actions())
     {
