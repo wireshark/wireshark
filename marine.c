@@ -634,6 +634,49 @@ WS_DLL_PUBLIC int validate_display_filter(char *dfilter) {
     return TRUE;
 }
 
+int parse_output_fields(output_fields_t *output_fields, char **fields, int fields_len, char **err_msg) {
+    for (int i = 0; i < fields_len; i++) {
+        output_fields_add(output_fields, fields[i]);
+    }
+
+    GSList *it = NULL;
+    GSList *invalid_fields = output_fields_valid(output_fields);
+    if (invalid_fields != NULL) {
+        if (err_msg == NULL) {
+            return -1;
+        }
+
+        int current_err_size = 64;
+        *err_msg = (char *)malloc(current_err_size);
+        strcpy(*err_msg, "Some fields aren't valid:\n");
+
+        for (it = invalid_fields; it != NULL; it = g_slist_next(it)) {
+            current_err_size = current_err_size + strlen((gchar *) it->data) + 1;
+            *err_msg = (char *) realloc(*err_msg, current_err_size);
+            strcat(*err_msg, "\t");
+            strcat(*err_msg, (gchar *) it->data);
+        }
+
+        output_fields_free(output_fields);
+        g_slist_free(invalid_fields);
+
+        return -1;
+    }
+
+    return 0;
+}
+
+WS_DLL_PUBLIC int validate_fields(char **fields, int fields_len) {
+    output_fields_t *output_fields = output_fields_new();
+
+    if (parse_output_fields(output_fields, fields, fields_len, NULL) != 0) {
+        return FALSE;
+    }
+
+    output_fields_free(output_fields);
+    return TRUE;
+}
+
 WS_DLL_PUBLIC int marine_add_filter(char *bpf, char *dfilter, char **fields, int fields_len, char **err_msg) {
     // TODO make the error codes consts
     struct bpf_program fcode;
@@ -657,26 +700,12 @@ WS_DLL_PUBLIC int marine_add_filter(char *bpf, char *dfilter, char **fields, int
         }
     }
 
-    if (fields_len > 0) { // TODO add a function to validate output fields
+    if (fields_len > 0) {
         packet_output_fields = output_fields_new();
         packet_output_fields->separator = '\t'; // TODO make const/configurable
         packet_output_fields->quote = '"';
 
-        for (int i = 0; i < fields_len; i++) {
-            output_fields_add(packet_output_fields, fields[i]);
-        }
-
-        GSList *it = NULL;
-        GSList *invalid_fields = output_fields_valid(packet_output_fields);
-        if (invalid_fields != NULL) {
-            *err_msg = (char *)malloc(512);
-            strcpy(*err_msg, "Some fields aren't valid:\n");
-            for (it = invalid_fields; it != NULL; it = g_slist_next(it)) {
-                strcat(*err_msg, "\t");
-                strcat(*err_msg, (gchar *) it->data); // TODO: with long field names, this allows buffer overflow
-            }
-            output_fields_free(packet_output_fields);
-            g_slist_free(invalid_fields);
+        if (parse_output_fields(packet_output_fields, fields, fields_len, err_msg) != 0) {
             return -3;
         }
     }
