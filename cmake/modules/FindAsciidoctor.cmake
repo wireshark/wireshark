@@ -20,9 +20,9 @@ FIND_PROGRAM(ASCIIDOCTOR_EXECUTABLE
 )
 
 if(ASCIIDOCTOR_EXECUTABLE)
-    # The AsciidctorJ wrapper script sets -Xmx256m. This isn't enough
-    # for the User's Guide.
-    set(_asciidoctorj_opts -Xmx800m $ENV{ASCIIDOCTORJ_OPTS})
+    # As of 2.2.0 the AsciidctorJ wrapper script sets -Xmn128m -Xms256m -Xmx256m.
+    # This isn't enough for the User's Guide.
+    set(_asciidoctorj_opts -Xmn256m -Xms512m -Xmx2048m $ENV{ASCIIDOCTORJ_OPTS})
     execute_process( COMMAND ${ASCIIDOCTOR_EXECUTABLE} --version OUTPUT_VARIABLE _ad_full_version )
     separate_arguments(_ad_full_version)
     list(GET _ad_full_version 1 ASCIIDOCTOR_VERSION)
