@@ -16,27 +16,14 @@
 #  Omniidl is part of the OmniOrb distribution, and is available at
 #  http://omniorb.sourceforge.net
 #
-#  This program is free software; you can redistribute it and/or modify it
-#  under the terms of the GNU General Public License as published by
-#  the Free Software Foundation; either version 2 of the License, or
-#  (at your option) any later version.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#  General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program; if not, write to the Free Software
-#  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
-#  02111-1307, USA.
+#  SPDX-License-Identifier: GPL-2.0-or-later
 
 
 # Description:
 #
 #   Omniidl Back-end which parses an IDL list of "Operation" nodes
 #   passed from wireshark_be2.py and generates "C" code for compiling
-#   as a plugin for the  Wireshark IP Protocol Analyser.
+#   as a dissector for Wireshark.
 #
 #
 # Strategy (sneaky but ...)
@@ -2197,8 +2184,8 @@ for (i_@aname@=0; i_@aname@ < @aval@; i_@aname@++) {
     template_wireshark_copyright = """\
 /*
  * Wireshark - Network traffic analyzer
- * By Gerald Combs
- * Copyright 1999 - 2012 Gerald Combs
+ * By Gerald Combs <gerald@@wireshark.org>
+ * Copyright 1998 Gerald Combs
  */
 """
 
@@ -2210,7 +2197,7 @@ for (i_@aname@=0; i_@aname@ < @aval@; i_@aname@++) {
 
     template_Modelines = """\
 /*
- * Editor modelines
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 4
@@ -2226,10 +2213,7 @@ for (i_@aname@=0; i_@aname@ < @aval@; i_@aname@++) {
 
 #include "config.h"
 
-#include <gmodule.h>
-
 #include <string.h>
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/proto.h>
 #include <epan/dissectors/packet-giop.h>
