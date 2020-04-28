@@ -773,6 +773,8 @@ gint ett_gsm_common_elem[NUM_GSM_COMMON_ELEM];
 #define  ELLIPSOID_POINT_WITH_ALT 8
 #define  ELLIPSOID_POINT_WITH_ALT_AND_UNCERT_ELLIPSOID 9
 #define  ELLIPSOID_ARC 10
+#define  HIGH_ACC_ELLIPSOID_PNT_WITH_UNCERT_ELLIPSOID 11
+#define  HIGH_ACC_ELLIPSOID_PNT_WITH__ALT_AND_UNCERT_ELLIPSOID 12
 /*
 4 3 2 1
 0 0 0 0 Ellipsoid Point
@@ -782,18 +784,22 @@ gint ett_gsm_common_elem[NUM_GSM_COMMON_ELEM];
 1 0 0 0 Ellipsoid point with altitude
 1 0 0 1 Ellipsoid point with altitude and uncertainty Ellipsoid
 1 0 1 0 Ellipsoid Arc
+1 0 1 1 High Accuracy Ellipsoid point with uncertainty ellipse
+1 1 0 0 High Accuracy Ellipsoid point with altitude and uncertainty ellipsoid
 other values reserved for future use
 */
 
 /* TS 23 032 Table 2a: Coding of Type of Shape */
 static const value_string type_of_shape_vals[] = {
-    { ELLIPSOID_POINT,                               "Ellipsoid Point"},
-    { ELLIPSOID_POINT_WITH_UNCERT_CIRC,              "Ellipsoid point with uncertainty Circle"},
-    { ELLIPSOID_POINT_WITH_UNCERT_ELLIPSE,           "Ellipsoid point with uncertainty Ellipse"},
-    { POLYGON,                                       "Polygon"},
-    { ELLIPSOID_POINT_WITH_ALT,                      "Ellipsoid point with altitude"},
-    { ELLIPSOID_POINT_WITH_ALT_AND_UNCERT_ELLIPSOID, "Ellipsoid point with altitude and uncertainty Ellipsoid"},
-    { ELLIPSOID_ARC,                                 "Ellipsoid Arc"},
+    { ELLIPSOID_POINT,                                          "Ellipsoid Point"},
+    { ELLIPSOID_POINT_WITH_UNCERT_CIRC,                         "Ellipsoid point with uncertainty Circle"},
+    { ELLIPSOID_POINT_WITH_UNCERT_ELLIPSE,                      "Ellipsoid point with uncertainty Ellipse"},
+    { POLYGON,                                                  "Polygon"},
+    { ELLIPSOID_POINT_WITH_ALT,                                 "Ellipsoid point with altitude"},
+    { ELLIPSOID_POINT_WITH_ALT_AND_UNCERT_ELLIPSOID,            "Ellipsoid point with altitude and uncertainty Ellipsoid"},
+    { ELLIPSOID_ARC,                                            "Ellipsoid Arc"},
+    { HIGH_ACC_ELLIPSOID_PNT_WITH_UNCERT_ELLIPSOID,             "High Accuracy Ellipsoid point with uncertainty ellipse"},
+    { HIGH_ACC_ELLIPSOID_PNT_WITH__ALT_AND_UNCERT_ELLIPSOID,    "High Accuracy Ellipsoid point with altitude and uncertainty ellipsoid"},
     { 0,    NULL }
 };
 

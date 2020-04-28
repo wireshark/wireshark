@@ -390,6 +390,18 @@ static int hf_diameter_3gpp_core_network_restrictions = -1;
 static int hf_diameter_3gpp_core_network_restrictions_spare_bits = -1;
 static int hf_diameter_3gpp_core_network_restrictions_bit1 = -1;
 static int hf_diameter_3gpp_core_network_restrictions_bit0 = -1;
+static int hf_diameter_3gpp_supported_gad_shapes = -1;
+static int hf_diameter_3gpp_highaccuracyellipsoidpointwithaltitudeanduncertaintyellipsoid_bit8 = -1;
+static int hf_diameter_3gpp_highaccuracyellipsoidpointwithuncertaintyellipse_bit7 = -1;
+static int hf_diameter_3gpp_ellipsoidarc_bit6 = -1;
+static int hf_diameter_3gpp_ellipsoidpointwithaltitudeanduncertaintyelipsoid_bit5 = -1;
+static int hf_diameter_3gpp_ellipsoidpointwithaltitude_bit4 = -1;
+static int hf_diameter_3gpp_polygon_bit3 = -1;
+static int hf_diameter_3gpp_ellipsoidpointwithuncertaintyellipse_bit2 = -1;
+static int hf_diameter_3gpp_ellipsoidpointwithuncertaintycircle_bit1 = -1;
+static int hf_diameter_3gpp_ellipsoidpoint_bit0 = -1;
+
+
 static int hf_diameter_3gpp_uar_flags_flags_spare_bits = -1;
 static int hf_diameter_3gpp_feature_list1_sh_flags_spare_bits = -1;
 static int hf_diameter_3gpp_feature_list2_s6a_flags_spare_bits = -1;
@@ -518,6 +530,7 @@ static gint diameter_3gpp_air_flags_ett = -1;
 static gint diameter_3gpp_preferred_data_mode_ett = -1;
 static gint diameter_3gpp_v2x_permission_ett = -1;
 static gint diameter_3gpp_core_network_restrictions_ett = -1;
+static gint diameter_3gpp_supported_gad_shapes_ett = -1;
 static gint diameter_3gpp_plr_flags_ett = -1;
 static gint diameter_3gpp_pla_flags_ett = -1;
 static gint diameter_3gpp_deferred_location_type_ett = -1;
@@ -2550,6 +2563,33 @@ dissect_diameter_3gpp_core_network_restrictions(tvbuff_t *tvb, packet_info *pinf
     return 4;
 }
 
+/* AVP Code: 2510 Supported-GAD-Shapes */
+static int
+dissect_diameter_3gpp_supported_gad_shapes(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data)
+{
+    static const int* flags[] = {
+        &hf_diameter_3gpp_highaccuracyellipsoidpointwithaltitudeanduncertaintyellipsoid_bit8,
+        &hf_diameter_3gpp_highaccuracyellipsoidpointwithuncertaintyellipse_bit7,
+        &hf_diameter_3gpp_ellipsoidarc_bit6,
+        &hf_diameter_3gpp_ellipsoidpointwithaltitudeanduncertaintyelipsoid_bit5,
+        &hf_diameter_3gpp_ellipsoidpointwithaltitude_bit4,
+        &hf_diameter_3gpp_polygon_bit3,
+        &hf_diameter_3gpp_ellipsoidpointwithuncertaintyellipse_bit2,
+        &hf_diameter_3gpp_ellipsoidpointwithuncertaintycircle_bit1,
+        &hf_diameter_3gpp_ellipsoidpoint_bit0,
+        NULL
+    };
+
+    diam_sub_dis_t* diam_sub_dis_inf = (diam_sub_dis_t*)data;
+
+    /* Hide the item created in packet-diameter.c and only show the one created here */
+    proto_item_set_hidden(diam_sub_dis_inf->item);
+
+    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_supported_gad_shapes, diameter_3gpp_supported_gad_shapes_ett, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+
+    return 4;
+}
+
 /* AVP Code: 2516 EUTRAN-Positioning-Data */
 static int
 dissect_diameter_3gpp_eutran_positioning_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -3140,6 +3180,9 @@ proto_reg_handoff_diameter_3gpp(void)
 
     /* AVP Code: 1704 Core-Network-Restrictions */
     dissector_add_uint("diameter.3gpp", 1704, create_dissector_handle(dissect_diameter_3gpp_core_network_restrictions, proto_diameter_3gpp));
+
+    /* AVP Code: 2510 Supported-GAD-Shapes */
+    dissector_add_uint("diameter.3gpp", 2510, create_dissector_handle(dissect_diameter_3gpp_supported_gad_shapes, proto_diameter_3gpp));
 
     /* AVP Code: 2516 EUTRAN-Positioning-Data */
     dissector_add_uint("diameter.3gpp", 2516, create_dissector_handle(dissect_diameter_3gpp_eutran_positioning_data, proto_diameter_3gpp));
@@ -5498,6 +5541,58 @@ proto_register_diameter_3gpp(void)
           FT_UINT32, BASE_HEX, NULL, 0x00000001,
           NULL, HFILL }
         },
+        { &hf_diameter_3gpp_supported_gad_shapes,
+        { "Supported-GAD-Shapes", "diameter.3gpp.supported_gad_shapes",
+          FT_UINT32, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }
+        },
+
+        { &hf_diameter_3gpp_highaccuracyellipsoidpointwithaltitudeanduncertaintyellipsoid_bit8,
+        { "highAccuracyEllipsoidPointWithAltitudeAndUncertaintyEllipsoid", "diameter.3gpp.highaccuracyellipsoidpointwithaltitudeanduncertaintyellipsoid_bit8",
+          FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x00000100,
+          NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_highaccuracyellipsoidpointwithuncertaintyellipse_bit7,
+        { "highAccuracyEllipsoidPointWithUncertaintyEllipse", "diameter.3gpp.highaccuracyellipsoidpointwithuncertaintyellipse_bit7",
+          FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x00000080,
+          NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_ellipsoidarc_bit6,
+        { "ellipsoidArc", "diameter.3gpp.ellipsoidarc_bit6",
+          FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x00000040,
+          NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_ellipsoidpointwithaltitudeanduncertaintyelipsoid_bit5,
+        { "ellipsoidPointWithAltitudeAndUncertaintyElipsoid", "diameter.3gpp.ellipsoidpointwithaltitudeanduncertaintyelipsoid_bit5",
+          FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x00000020,
+          NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_ellipsoidpointwithaltitude_bit4,
+        { "ellipsoidPointWithAltitude", "diameter.3gpp.ellipsoidpointwithaltitude_bit4",
+          FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x00000010,
+          NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_polygon_bit3,
+        { "polygon", "diameter.3gpp.polygon_bit3",
+          FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x00000008,
+          NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_ellipsoidpointwithuncertaintyellipse_bit2,
+        { "ellipsoidPointWithUncertaintyEllipse", "diameter.3gpp.ellipsoidpointwithuncertaintyellipse_bit2",
+          FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x00000004,
+          NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_ellipsoidpointwithuncertaintycircle_bit1,
+        { "ellipsoidPointWithUncertaintyCircle", "diameter.3gpp.ellipsoidpointwithuncertaintycircle_bit1",
+          FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x00000002,
+          NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_ellipsoidpoint_bit0,
+        { "ellipsoidPoint", "diameter.3gpp.ellipsoidpoint_bit0",
+          FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x00000001,
+          NULL, HFILL }
+        },
+
         { &hf_diameter_3gpp_plr_flags,
         { "PLR-Flags", "diameter.3gpp.plr_flags",
           FT_UINT32, BASE_HEX, NULL, 0x0,
@@ -5778,6 +5873,7 @@ proto_register_diameter_3gpp(void)
         &diameter_3gpp_preferred_data_mode_ett,
         &diameter_3gpp_v2x_permission_ett,
         &diameter_3gpp_core_network_restrictions_ett,
+        &diameter_3gpp_supported_gad_shapes_ett,
         &diameter_3gpp_plr_flags_ett,
         &diameter_3gpp_pla_flags_ett,
         &diameter_3gpp_deferred_location_type_ett,
