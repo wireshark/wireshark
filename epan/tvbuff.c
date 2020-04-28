@@ -1600,7 +1600,7 @@ tvb_get_letohieee_double(tvbuff_t *tvb, const int offset)
 static inline void
 validate_single_byte_ascii_encoding(const guint encoding)
 {
-	const guint enc = encoding & ~ENC_STR_MASK;
+	const guint enc = encoding & ~ENC_CHARENCODING_MASK;
 
 	switch (enc) {
 	    case ENC_UTF_16:

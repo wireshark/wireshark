@@ -286,6 +286,9 @@ void proto_report_dissector_bug(const char *format, ...)
                                            (hfinfo)->type == FT_RELATIVE_TIME)
 
 /*
+ * Encoding flags that apply to multiple data types.
+ */
+/*
  * The encoding of a field of a particular type may involve more
  * than just whether it's big-endian or little-endian and its size.
  *
@@ -343,6 +346,163 @@ void proto_report_dissector_bug(const char *format, ...)
 #endif
 
 /*
+ * For protocols (FT_PROTOCOL), aggregate items with subtrees (FT_NONE),
+ * opaque byte-array fields (FT_BYTES), and other fields where there
+ * is no choice of encoding (either because it's "just a bucket
+ * of bytes" or because the encoding is completely fixed), we
+ * have ENC_NA (for "Not Applicable").
+ */
+#define ENC_NA          0x00000000
+
+/*
+ * Encoding for character strings - and for character-encoded values
+ * for non-string types.
+ *
+ * Historically, the only place the representation mattered for strings
+ * was with FT_UINT_STRINGs, where we had FALSE for the string length
+ * being big-endian and TRUE for it being little-endian.
+ *
+ * We now have encoding values for the character encoding.  The encoding
+ * values are encoded in all but the top bit (which is the byte-order
+ * bit, required for FT_UINT_STRING and for UCS-2 and UTF-16 strings)
+ * and the bottom bit (which we ignore for now so that programs that
+ * pass TRUE for the encoding just do ASCII).  (The encodings are given
+ * directly as even numbers in hex, so that make-init-lua.pl can just
+ * turn them into numbers for use in init.lua.)
+ *
+ * We don't yet process ASCII and UTF-8 differently.  Ultimately, for
+ * ASCII, all bytes with the 8th bit set should be mapped to some "this
+ * is not a valid character" code point, as ENC_ASCII should mean "this
+ * is ASCII, not some extended variant thereof".  We should also map
+ * 0x00 to that as well - null-terminated and null-padded strings
+ * never have NULs in them, but counted strings might.  (Either that,
+ * or the values for strings should be counted, not null-terminated.)
+ * For UTF-8, invalid UTF-8 sequences should be mapped to the same
+ * code point.
+ *
+ * For display, perhaps we should also map control characters to the
+ * Unicode glyphs showing the name of the control character in small
+ * caps, diagonally.  (Unfortunately, those only exist for C0, not C1.)
+ *
+ * *DO NOT* add anything to this set that is not a character encoding!
+ */
+#define ENC_CHARENCODING_MASK    0x0000FFFE  /* mask out byte-order bits and other bits used with string encodings */
+#define ENC_ASCII                0x00000000
+#define ENC_ISO_646_IRV          ENC_ASCII   /* ISO 646 International Reference Version = ASCII */
+#define ENC_UTF_8                0x00000002
+#define ENC_UTF_16               0x00000004
+#define ENC_UCS_2                0x00000006
+#define ENC_UCS_4                0x00000008
+#define ENC_ISO_8859_1           0x0000000A
+#define ENC_ISO_8859_2           0x0000000C
+#define ENC_ISO_8859_3           0x0000000E
+#define ENC_ISO_8859_4           0x00000010
+#define ENC_ISO_8859_5           0x00000012
+#define ENC_ISO_8859_6           0x00000014
+#define ENC_ISO_8859_7           0x00000016
+#define ENC_ISO_8859_8           0x00000018
+#define ENC_ISO_8859_9           0x0000001A
+#define ENC_ISO_8859_10          0x0000001C
+#define ENC_ISO_8859_11          0x0000001E
+/* #define ENC_ISO_8859_12          0x00000020 ISO 8859-12 was abandoned */
+#define ENC_ISO_8859_13          0x00000022
+#define ENC_ISO_8859_14          0x00000024
+#define ENC_ISO_8859_15          0x00000026
+#define ENC_ISO_8859_16          0x00000028
+#define ENC_WINDOWS_1250         0x0000002A
+#define ENC_3GPP_TS_23_038_7BITS 0x0000002C
+#define ENC_EBCDIC               0x0000002E
+#define ENC_MAC_ROMAN            0x00000030
+#define ENC_CP437                0x00000032
+#define ENC_ASCII_7BITS          0x00000034
+#define ENC_T61                  0x00000036
+#define ENC_EBCDIC_CP037         0x00000038
+#define ENC_WINDOWS_1252         0x0000003A
+#define ENC_WINDOWS_1251         0x0000003C
+#define ENC_CP855                0x0000003E
+#define ENC_CP866                0x00000040
+#define ENC_ISO_646_BASIC        0x00000042
+#define ENC_BCD_DIGITS_0_9       0x00000044 /* Packed BCD, digits 0-9 */
+#define ENC_KEYPAD_ABC_TBCD      0x00000046 /* Keypad-with-a/b/c "telephony BCD" = 0-9, *, #, a, b, c */
+#define ENC_KEYPAD_BC_TBCD       0x00000048 /* Keypad-with-B/C "telephony BCD" = 0-9, B, C, *, # */
+/*
+ * TODO:
+ *
+ * These could probably be used by existing code:
+ *
+ *  "IBM MS DBCS"
+ *  JIS C 6226
+ *
+ * As those are added, change code such as the code in packet-bacapp.c
+ * to use them.
+ */
+
+/*
+ * This is a modifier for FT_UINT_STRING and FT_UINT_BYTES values;
+ * it indicates that the length field should be interpreted as per
+ * sections 2.5.2.11 Octet String through 2.5.2.14 Long Character
+ * String of the ZigBee Cluster Library Specification, where if all
+ * bits are set in the length field, the string has an invalid value,
+ * and the number of octets in the value is 0.
+ */
+#define ENC_ZIGBEE               0x40000000
+
+/*
+ * For cases where either native type or string encodings could both be
+ * valid arguments, we need something to distinguish which one is being
+ * passed as the argument, because ENC_BIG_ENDIAN and ENC_ASCII are both
+ * 0x00000000. So we use ENC_STR_NUM or ENC_STR_HEX bit-or'ed with
+ * ENC_ASCII and its ilk.
+ *
+ * XXX - ENC_STR_NUM is not yet supported by any code in Wireshark,
+ * and these are aonly used for byte arrays.  Presumably they could
+ * also be used for integral values in the future.
+ */
+/* this is for strings as numbers "12345" */
+#define ENC_STR_NUM     0x01000000
+/* this is for strings as hex "1a2b3c" */
+#define ENC_STR_HEX     0x02000000
+/* a convenience macro for either of the above */
+#define ENC_STRING      0x03000000
+/* Kept around for compatibility for Lua scripts; code should use ENC_CHARENCODING_MASK */
+#define ENC_STR_MASK    0x0000FFFE
+
+/*
+ * For cases where the number is allowed to have a leading '+'/'-'
+ * this can't collide with ENC_SEP_* because they can be used simultaneously
+ *
+ * XXX - this is not used anywhere in Wireshark's code, dating back to
+ * at least Wireshark 2.6 and continuing to the current version.
+ * Perhaps the intent was to use it in the future, but 1) I'm not sure
+ * why it would be combined with ENC_SEP_, as byte arrays have no sign
+ * but integral values do, and 2) if we were to support string encodings
+ * for integral types, presumably whether it's signed (FT_INTn) or
+ * unsigned (FT_UINTn) would suffice to indicate whether the value
+ * can be signed or not.
+ */
+#define ENC_NUM_PREF    0x00200000
+
+/*
+ * Encodings for byte arrays.
+ *
+ * For cases where the byte array is encoded as a string composed of
+ * pairs of hex digits, possibly with a separator character between
+ * the pairs.  That's specified by the encoding having ENC_STR_HEX,
+ * plus one of these values, set.
+ *
+ * See hex_str_to_bytes_encoding() in epan/strutil.h for details.
+ */
+#define ENC_SEP_NONE    0x00010000
+#define ENC_SEP_COLON   0x00020000
+#define ENC_SEP_DASH    0x00040000
+#define ENC_SEP_DOT     0x00080000
+#define ENC_SEP_SPACE   0x00100000
+/* a convenience macro for the above */
+#define ENC_SEP_MASK    0x001F0000
+
+/*
+ * Encodings for time values.
+ *
  * Historically FT_TIMEs were only timespecs; the only question was whether
  * they were stored in big- or little-endian format.
  *
@@ -417,122 +577,23 @@ void proto_report_dissector_bug(const char *format, ...)
 #define ENC_TIME_CLASSIC_MAC_OS_SECS 0x00000026
 
 /*
- * This is a modifier for FT_UINT_STRING and FT_UINT_BYTES values;
- * it indicates that the length field should be interpreted as per
- * sections 2.5.2.11 Octet String through 2.5.2.14 Long Character
- * String of the ZigBee Cluster Library Specification, where if all
- * bits are set in the length field, the string has an invalid value,
- * and the number of octets in the value is 0.
+ * For cases where a string encoding contains a timestamp, use one
+ * of these (but only one). These values can collide with the ENC_SEP_
+ * values used when a string encoding contains a byte array, because
+ * you can't do both at the same time.  They must not, however,
+ * overlap with the character encoding values.
  */
-#define ENC_ZIGBEE               0x40000000
+#define ENC_ISO_8601_DATE       0x00010000
+#define ENC_ISO_8601_TIME       0x00020000
+#define ENC_ISO_8601_DATE_TIME  0x00030000
+#define ENC_RFC_822             0x00040000
+#define ENC_RFC_1123            0x00080000
+/* a convenience macro for the above - for internal use only */
+#define ENC_STR_TIME_MASK       0x000F0000
 
 /*
- * Historically, the only place the representation mattered for strings
- * was with FT_UINT_STRINGs, where we had FALSE for the string length
- * being big-endian and TRUE for it being little-endian.
- *
- * We now have encoding values for the character encoding.  The encoding
- * values are encoded in all but the top bit (which is the byte-order
- * bit, required for FT_UINT_STRING and for UCS-2 and UTF-16 strings)
- * and the bottom bit (which we ignore for now so that programs that
- * pass TRUE for the encoding just do ASCII).  (The encodings are given
- * directly as even numbers in hex, so that make-init-lua.pl can just
- * turn them into numbers for use in init.lua.)
- *
- * We don't yet process ASCII and UTF-8 differently.  Ultimately, for
- * ASCII, all bytes with the 8th bit set should be mapped to some "this
- * is not a valid character" code point, as ENC_ASCII should mean "this
- * is ASCII, not some extended variant thereof".  We should also map
- * 0x00 to that as well - null-terminated and null-padded strings
- * never have NULs in them, but counted strings might.  (Either that,
- * or the values for strings should be counted, not null-terminated.)
- * For UTF-8, invalid UTF-8 sequences should be mapped to the same
- * code point.
- *
- * For display, perhaps we should also map control characters to the
- * Unicode glyphs showing the name of the control character in small
- * caps, diagonally.  (Unfortunately, those only exist for C0, not C1.)
- *
- * *DO NOT* add anything to this set that is not a character encoding!
+ * Encodings for variable-length integral types.
  */
-#define ENC_CHARENCODING_MASK    0x3FFFFFFE  /* mask out byte-order bits and Zigbee bits */
-#define ENC_ASCII                0x00000000
-#define ENC_ISO_646_IRV          ENC_ASCII   /* ISO 646 International Reference Version = ASCII */
-#define ENC_UTF_8                0x00000002
-#define ENC_UTF_16               0x00000004
-#define ENC_UCS_2                0x00000006
-#define ENC_UCS_4                0x00000008
-#define ENC_ISO_8859_1           0x0000000A
-#define ENC_ISO_8859_2           0x0000000C
-#define ENC_ISO_8859_3           0x0000000E
-#define ENC_ISO_8859_4           0x00000010
-#define ENC_ISO_8859_5           0x00000012
-#define ENC_ISO_8859_6           0x00000014
-#define ENC_ISO_8859_7           0x00000016
-#define ENC_ISO_8859_8           0x00000018
-#define ENC_ISO_8859_9           0x0000001A
-#define ENC_ISO_8859_10          0x0000001C
-#define ENC_ISO_8859_11          0x0000001E
-/* #define ENC_ISO_8859_12          0x00000020 ISO 8859-12 was abandoned */
-#define ENC_ISO_8859_13          0x00000022
-#define ENC_ISO_8859_14          0x00000024
-#define ENC_ISO_8859_15          0x00000026
-#define ENC_ISO_8859_16          0x00000028
-#define ENC_WINDOWS_1250         0x0000002A
-#define ENC_3GPP_TS_23_038_7BITS 0x0000002C
-#define ENC_EBCDIC               0x0000002E
-#define ENC_MAC_ROMAN            0x00000030
-#define ENC_CP437                0x00000032
-#define ENC_ASCII_7BITS          0x00000034
-#define ENC_T61                  0x00000036
-#define ENC_EBCDIC_CP037         0x00000038
-#define ENC_WINDOWS_1252         0x0000003A
-#define ENC_WINDOWS_1251         0x0000003C
-#define ENC_CP855                0x0000003E
-#define ENC_CP866                0x00000040
-#define ENC_ISO_646_BASIC        0x00000042
-#define ENC_BCD_DIGITS_0_9       0x00000044 /* Packed BCD, digits 0-9 */
-#define ENC_KEYPAD_ABC_TBCD      0x00000046 /* Keypad-with-a/b/c "telephony BCD" = 0-9, *, #, a, b, c */
-#define ENC_KEYPAD_BC_TBCD       0x00000048 /* Keypad-with-B/C "telephony BCD" = 0-9, B, C, *, # */
-/*
- * TODO:
- *
- * These could probably be used by existing code:
- *
- *  "IBM MS DBCS"
- *  JIS C 6226
- *
- * As those are added, change code such as the code in packet-bacapp.c
- * to use them.
- */
-
-/*
- * For protocols (FT_PROTOCOL), aggregate items with subtrees (FT_NONE),
- * opaque byte-array fields (FT_BYTES), and other fields where there
- * is no choice of encoding (either because it's "just a bucket
- * of bytes" or because the encoding is completely fixed), we
- * have ENC_NA (for "Not Applicable").
- */
-#define ENC_NA          0x00000000
-
-/* For cases where either native type or string encodings could both be
- * valid arguments, we need something to distinguish which one is being
- * passed as the argument, because ENC_BIG_ENDIAN and ENC_ASCII are both
- * 0x00000000. So we use ENC_STR_NUM or ENC_STR_HEX bit-or'ed with
- * ENC_ASCII and its ilk.
- */
-/* this is for strings as numbers "12345" */
-#define ENC_STR_NUM     0x01000000
-/* this is for strings as hex "1a2b3c" */
-#define ENC_STR_HEX     0x02000000
-/* a convenience macro for either of the above */
-#define ENC_STRING      0x03000000
-/* mask out ENC_STR_* and related bits - should this replace ENC_CHARENCODING_MASK? */
-#define ENC_STR_MASK    0x0000FFFE
-
-/* for cases where the number is allowed to have a leading '+'/'-' */
-/* this can't collide with ENC_SEP_* because they can be used simultaneously */
-#define ENC_NUM_PREF    0x00200000
 
 /* Use varint format as described in Protobuf protocol
  * https://developers.google.cn/protocol-buffers/docs/encoding
@@ -550,30 +611,6 @@ void proto_report_dissector_bug(const char *format, ...)
 #define ENC_VARINT_ZIGZAG        0x00000008
 
 #define ENC_VARIANT_MASK         (ENC_VARINT_PROTOBUF|ENC_VARINT_QUIC|ENC_VARINT_ZIGZAG)
-
-/* For cases where a string encoding contains hex, bit-or one or more
- * of these for the allowed separator(s), as well as with ENC_STR_HEX.
- * See hex_str_to_bytes_encoding() in epan/strutil.h for details.
- */
-#define ENC_SEP_NONE    0x00010000
-#define ENC_SEP_COLON   0x00020000
-#define ENC_SEP_DASH    0x00040000
-#define ENC_SEP_DOT     0x00080000
-#define ENC_SEP_SPACE   0x00100000
-/* a convenience macro for the above */
-#define ENC_SEP_MASK    0x001F0000
-
-/* For cases where a string encoding contains a timestamp, use one
- * of these (but only one). These values can collide with above, because
- * you can't do both at the same time.
- */
-#define ENC_ISO_8601_DATE       0x00010000
-#define ENC_ISO_8601_TIME       0x00020000
-#define ENC_ISO_8601_DATE_TIME  0x00030000
-#define ENC_RFC_822             0x00040000
-#define ENC_RFC_1123            0x00080000
-/* a convenience macro for the above - for internal use only */
-#define ENC_STR_TIME_MASK       0x000F0000
 
 /* Values for header_field_info.display */
 
