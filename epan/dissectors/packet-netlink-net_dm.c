@@ -394,7 +394,7 @@ dissect_net_dm_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_d
 		proto_tree_add_item(tree, &hfi_net_dm_hw, tvb, offset, len, nl_data->encoding);
 		return 1;
 	case WS_NET_DM_ATTR_FLOW_ACTION_COOKIE:
-		proto_tree_add_bytes_item(tree, &hfi_net_dm_flow_action_cookie, tvb, offset, len, ENC_NA, NULL, NULL, NULL);
+		proto_tree_add_item(tree, &hfi_net_dm_flow_action_cookie, tvb, offset, len, ENC_NA);
 		return 1;
 	default:
 		return 0;

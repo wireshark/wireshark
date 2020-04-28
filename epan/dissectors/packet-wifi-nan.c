@@ -973,11 +973,13 @@ dissect_attr_sda(proto_tree* attr_tree, tvbuff_t* tvb, gint offset, guint16 attr
 
     if (service_ctr_byte & BITMASK_SERVICE_INFO_PRESENT)
     {
-        proto_tree_add_item(attr_tree, hf_nan_attr_sda_service_info_len, tvb,
-            offset, 1, ENC_BIG_ENDIAN);
-        gint service_info_len = tvb_get_guint8(tvb, offset);
-        proto_tree_add_bytes_item(attr_tree, hf_nan_attr_sda_service_info, tvb,
-            offset + 1, service_info_len, ENC_BIG_ENDIAN, NULL, NULL, NULL);
+        guint32 service_info_len;
+
+        /* XXX - use FT_UINT_BYTES? */
+        proto_tree_add_item_ret_uint(attr_tree, hf_nan_attr_sda_service_info_len, tvb,
+            offset, 1, ENC_BIG_ENDIAN, &service_info_len);
+        proto_tree_add_item(attr_tree, hf_nan_attr_sda_service_info, tvb,
+            offset + 1, service_info_len, ENC_NA);
         // offset += service_info_len + 1;
     }
 }
@@ -1540,8 +1542,8 @@ dissect_attr_availability(proto_tree* attr_tree, tvbuff_t* tvb, gint offset, gui
                 time_bitmap_ctr_fields, ENC_LITTLE_ENDIAN);
             proto_tree_add_item_ret_uint(entry_tree, hf_nan_time_bitmap_len, tvb,
                 offset + 2, 1, ENC_LITTLE_ENDIAN, &time_bitmap_len);
-            proto_tree_add_bytes_item(entry_tree, hf_nan_time_bitmap, tvb,
-                offset + 3, time_bitmap_len, ENC_BIG_ENDIAN, NULL, NULL, NULL);
+            proto_tree_add_item(entry_tree, hf_nan_time_bitmap, tvb,
+                offset + 3, time_bitmap_len, ENC_NA);
             hdr_len = 5;
             offset += 3 + time_bitmap_len;
         }
@@ -1669,8 +1671,8 @@ dissect_attr_ndc(proto_tree* attr_tree, tvbuff_t* tvb, gint offset, guint16 attr
             time_bitmap_ctr_fields, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(entry_tree, hf_nan_time_bitmap_len, tvb,
             offset + 3, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_bytes_item(entry_tree, hf_nan_time_bitmap, tvb,
-            offset + 4, time_bitmap_len, ENC_BIG_ENDIAN, NULL, NULL, NULL);
+        proto_tree_add_item(entry_tree, hf_nan_time_bitmap, tvb,
+            offset + 4, time_bitmap_len, ENC_NA);
 
         offset += time_bitmap_len + 4;
         dissected_len += time_bitmap_len + 4;

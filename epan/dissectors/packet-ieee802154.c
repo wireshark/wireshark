@@ -3297,7 +3297,7 @@ dissect_ieee802154_tap_tlvs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 break;
             }
             default:
-                proto_tree_add_bytes_item(tlvtree, hf_ieee802154_tap_tlv_unknown, tvb, offset, length, ENC_NA, NULL, NULL, NULL);
+                proto_tree_add_item(tlvtree, hf_ieee802154_tap_tlv_unknown, tvb, offset, length, ENC_NA);
                 proto_item_append_text(proto_tree_get_parent(tlvtree), "Unknown TLV");
                 break;
         } /* switch (tlv_type) */

@@ -736,13 +736,8 @@ static void dissect_optommp_data_block_byte(proto_item **ti, proto_tree *tree,
 {
     if( tvb_reported_length(tvb) >= *poffset + 1 )
     {
-        GByteArray *unused_ret_val = NULL;
-        unused_ret_val = g_byte_array_new();
-        /* CheckAPI.pl complained when using ENC_BIG_ENDIAN as the sixth
-        *  parameter, so set it to 0x0 */
-        *ti = proto_tree_add_bytes_item(tree, hf_optommp_data_block_byte, tvb,
-            *poffset, 1, 0x0, unused_ret_val, NULL, NULL);
-        g_byte_array_free(unused_ret_val, TRUE);
+        *ti = proto_tree_add_item(tree, hf_optommp_data_block_byte, tvb,
+            *poffset, 1, ENC_NA);
     }
 
     ++(*poffset);
