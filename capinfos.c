@@ -294,7 +294,37 @@ order_string(order_t order)
 static gchar *
 absolute_time_string(nstime_t *timer, int tsprecision, capture_info *cf_info)
 {
-  static gchar  time_string_buf[4+1+2+1+2+1+2+1+2+1+2+1+9+1+1];
+  /*
+   *    https://web.archive.org/web/20120513133703/http://www.idrbt.ac.in/publications/workingpapers/Working%20Paper%20No.%209.pdf
+   *
+   * says:
+   *
+   *    A 64-bit Unix time would be safe for the indefinite future, as
+   *    this variable would not overflow until 2**63 or
+   *    9,223,372,036,854,775,808 (over nine quintillion) seconds
+   *    after the beginning of the Unix epoch - corresponding to
+   *    GMT 15:30:08, Sunday, 4th December, 292,277,026,596.
+   *
+   * So, if we're displaying the time as YYYY-MM-DD HH:MM:SS.SSSSSSSSS,
+   * we'll have the buffer be large enouth for a date of the format
+   * 292277026596-MM-DD HH:MM:SS.SSSSSSSSS, which is the biggest value
+   * you'll get with a 64-bit time_t and a nanosecond-resolution
+   * fraction-of-a-second.
+   *
+   * That's 12+1+2+1+2+1+2+1+2+2+2+1+9+1, including the terminating
+   * \0, or 39.
+   *
+   * If we're displaying the time as epoch time, and the time is
+   * unsigned, 2^64-1 is 18446744073709551615, so the buffer has
+   * to be big enough for 18446744073709551615.999999999.  That's
+   * 20+1+9+1, including the terminating '\0', or 31.  If it's
+   * signed, 2^63 is 9223372036854775808, so the buffer has to
+   * be big enough for -9223372036854775808.999999999, which is
+   * again 20+1+9+1, or 31.
+   *
+   * So we go with 39.
+   */
+  static gchar time_string_buf[39];
   struct tm *ti_tm;
 
   if (cf_info->times_known && cf_info->packet_count > 0) {
@@ -303,46 +333,46 @@ absolute_time_string(nstime_t *timer, int tsprecision, capture_info *cf_info)
 
       case WTAP_TSPREC_SEC:
         g_snprintf(time_string_buf, sizeof time_string_buf,
-                   "%lu",
-                   (unsigned long)timer->secs);
+                   "%"G_GINT64_MODIFIER"d",
+                   (gint64)timer->secs);
         break;
 
       case WTAP_TSPREC_DSEC:
         g_snprintf(time_string_buf, sizeof time_string_buf,
-                   "%lu%s%01d",
-                   (unsigned long)timer->secs,
+                   "%"G_GINT64_MODIFIER"d%s%01d",
+                   (gint64)timer->secs,
                    decimal_point,
                    timer->nsecs / 100000000);
         break;
 
       case WTAP_TSPREC_CSEC:
         g_snprintf(time_string_buf, sizeof time_string_buf,
-                   "%lu%s%02d",
-                   (unsigned long)timer->secs,
+                   "%"G_GINT64_MODIFIER"d%s%02d",
+                   (gint64)timer->secs,
                    decimal_point,
                    timer->nsecs / 10000000);
         break;
 
       case WTAP_TSPREC_MSEC:
         g_snprintf(time_string_buf, sizeof time_string_buf,
-                   "%lu%s%03d",
-                   (unsigned long)timer->secs,
+                   "%"G_GINT64_MODIFIER"d%s%03d",
+                   (gint64)timer->secs,
                    decimal_point,
                    timer->nsecs / 1000000);
         break;
 
       case WTAP_TSPREC_USEC:
         g_snprintf(time_string_buf, sizeof time_string_buf,
-                   "%lu%s%06d",
-                   (unsigned long)timer->secs,
+                   "%"G_GINT64_MODIFIER"d%s%06d",
+                   (gint64)timer->secs,
                    decimal_point,
                    timer->nsecs / 1000);
         break;
 
       case WTAP_TSPREC_NSEC:
         g_snprintf(time_string_buf, sizeof time_string_buf,
-                   "%lu%s%09d",
-                   (unsigned long)timer->secs,
+                   "%"G_GINT64_MODIFIER"d%s%09d",
+                   (gint64)timer->secs,
                    decimal_point,
                    timer->nsecs);
         break;
@@ -457,23 +487,32 @@ relative_time_string(nstime_t *timer, int tsprecision, capture_info *cf_info, gb
 {
   const gchar  *second = want_seconds ? " second" : "";
   const gchar  *plural = want_seconds ? "s" : "";
-  static gchar  time_string_buf[4+1+2+1+2+1+2+1+2+1+2+1+1];
+  /*
+   * If we're displaying the time as epoch time, and the time is
+   * unsigned, 2^64-1 is 18446744073709551615, so the buffer has
+   * to be big enough for "18446744073709551615.999999999 seconds".
+   * That's 20+1+9+1+7+1, including the terminating '\0', or 39.
+   * If it'ssigned, 2^63 is 9223372036854775808, so the buffer has to
+   * be big enough for "-9223372036854775808.999999999 seconds",
+   * which is again 20+1+9+1+7+1, or 39.
+   */
+  static gchar  time_string_buf[39];
 
   if (cf_info->times_known && cf_info->packet_count > 0) {
     switch (tsprecision) {
 
     case WTAP_TSPREC_SEC:
       g_snprintf(time_string_buf, sizeof time_string_buf,
-                 "%lu%s%s",
-                 (unsigned long)timer->secs,
+                 "%"G_GINT64_MODIFIER"d%s%s",
+                 (gint64)timer->secs,
                  second,
                  timer->secs == 1 ? "" : plural);
       break;
 
     case WTAP_TSPREC_DSEC:
       g_snprintf(time_string_buf, sizeof time_string_buf,
-                 "%lu%s%01d%s%s",
-                 (unsigned long)timer->secs,
+                 "%"G_GINT64_MODIFIER"d%s%01d%s%s",
+                 (gint64)timer->secs,
                  decimal_point,
                  timer->nsecs / 100000000,
                  second,
@@ -482,8 +521,8 @@ relative_time_string(nstime_t *timer, int tsprecision, capture_info *cf_info, gb
 
     case WTAP_TSPREC_CSEC:
       g_snprintf(time_string_buf, sizeof time_string_buf,
-                 "%lu%s%02d%s%s",
-                 (unsigned long)timer->secs,
+                 "%"G_GINT64_MODIFIER"d%s%02d%s%s",
+                 (gint64)timer->secs,
                  decimal_point,
                  timer->nsecs / 10000000,
                  second,
@@ -492,8 +531,8 @@ relative_time_string(nstime_t *timer, int tsprecision, capture_info *cf_info, gb
 
     case WTAP_TSPREC_MSEC:
       g_snprintf(time_string_buf, sizeof time_string_buf,
-                 "%lu%s%03d%s%s",
-                 (unsigned long)timer->secs,
+                 "%"G_GINT64_MODIFIER"d%s%03d%s%s",
+                 (gint64)timer->secs,
                  decimal_point,
                  timer->nsecs / 1000000,
                  second,
@@ -502,8 +541,8 @@ relative_time_string(nstime_t *timer, int tsprecision, capture_info *cf_info, gb
 
     case WTAP_TSPREC_USEC:
       g_snprintf(time_string_buf, sizeof time_string_buf,
-                 "%lu%s%06d%s%s",
-                 (unsigned long)timer->secs,
+                 "%"G_GINT64_MODIFIER"d%s%06d%s%s",
+                 (gint64)timer->secs,
                  decimal_point,
                  timer->nsecs / 1000,
                  second,
@@ -512,8 +551,8 @@ relative_time_string(nstime_t *timer, int tsprecision, capture_info *cf_info, gb
 
     case WTAP_TSPREC_NSEC:
       g_snprintf(time_string_buf, sizeof time_string_buf,
-                 "%lu%s%09d%s%s",
-                 (unsigned long)timer->secs,
+                 "%"G_GINT64_MODIFIER"d%s%09d%s%s",
+                 (gint64)timer->secs,
                  decimal_point,
                  timer->nsecs,
                  second,
