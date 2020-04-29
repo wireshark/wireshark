@@ -23,13 +23,20 @@ extern "C" {
  * true_false strings
  */
 
-/** Struct for boolean enumerations */
+/** Struct for boolean representation */
 typedef struct true_false_string {
     const char *true_string;   /**< The string presented when true  */
     const char *false_string;  /**< The string presented when false */
 } true_false_string;
 
-WS_DLL_PUBLIC const char *tfs_get_string(gboolean, const true_false_string *);
+/** Returns the string representing the true or false value.
+ *
+ * From the given true_false_string return the appropriate string pointer
+ * @param[in] value The boolean value for which the string representation is sought
+ * @param[in] tfs   The true_false_string containing the relevant strings
+ * @return          Pointer to the appropriate string
+ */
+WS_DLL_PUBLIC const char *tfs_get_string(gboolean value, const true_false_string *tfs);
 
 /*
  * A default set of true/false strings that dissectors can use for

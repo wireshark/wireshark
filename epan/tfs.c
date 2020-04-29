@@ -13,6 +13,7 @@
 
 #include "tfs.h"
 
+/** Returns the string representing the true or false value. */
 const char *tfs_get_string(gboolean value, const true_false_string *tfs)
 {
     return value ? tfs->true_string : tfs->false_string;
