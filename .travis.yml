@@ -55,6 +55,10 @@ matrix:
       env:
         - CXX=clang++
         - CC=clang
+  allow_failures:
+    # Those builds frequently fail due to builds longer than maximum allowed.
+    # Let them fail quietly.
+    arch: ppc64le
 before_install:
   - echo $TRAVIS_OS_NAME
   # macos
