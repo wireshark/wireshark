@@ -139,6 +139,7 @@ static expert_field ei_block_length_too_short = EI_INIT;
 static expert_field ei_block_length_not_multiple_of_4 = EI_INIT;
 static expert_field ei_invalid_option_length = EI_INIT;
 static expert_field ei_invalid_record_length = EI_INIT;
+static expert_field ei_missing_idb = EI_INIT;
 
 static gint ett_pcapng = -1;
 static gint ett_pcapng_section_header_block = -1;
@@ -1357,6 +1358,10 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
         }
         break;
     case BLOCK_PACKET:
+        if (0 == wmem_array_get_count(info->interfaces) && info->frame_number == 1) {
+            expert_add_info(pinfo, block_tree, &ei_missing_idb);
+        }
+
         proto_item_append_text(block_item, " %u", info->frame_number);
 
         proto_tree_add_item(block_data_tree, hf_pcapng_packet_block_interface_id, tvb, offset, 2, encoding);
@@ -1406,6 +1411,10 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 
         break;
     case BLOCK_SIMPLE_PACKET:
+        if (0 == wmem_array_get_count(info->interfaces) && info->frame_number == 1) {
+            expert_add_info(pinfo, block_tree, &ei_missing_idb);
+        }
+
         proto_item_append_text(block_item, " %u", info->frame_number);
 
         proto_tree_add_item_ret_uint(block_data_tree, hf_pcapng_packet_length, tvb, offset, 4, encoding, &captured_length);
@@ -1562,6 +1571,10 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 
         break;
     case BLOCK_INTERFACE_STATISTICS:
+        if (0 == wmem_array_get_count(info->interfaces) && info->frame_number == 1) {
+            expert_add_info(pinfo, block_tree, &ei_missing_idb);
+        }
+
         proto_tree_add_item(block_data_tree, hf_pcapng_interface_id, tvb, offset, 4, encoding);
         interface_id = tvb_get_guint32(tvb, offset, encoding);
         offset += 4;
@@ -1574,6 +1587,10 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 
         break;
     case BLOCK_ENHANCED_PACKET:
+        if (0 == wmem_array_get_count(info->interfaces) && info->frame_number == 1) {
+            expert_add_info(pinfo, block_tree, &ei_missing_idb);
+        }
+
         proto_item_append_text(block_item, " %u", info->frame_number);
 
         proto_tree_add_item(block_data_tree, hf_pcapng_interface_id, tvb, offset, 4, encoding);
@@ -2251,6 +2268,7 @@ proto_register_pcapng(void)
         { &ei_block_length_not_multiple_of_4, { "pcapng.block_length_too_short", PI_PROTOCOL, PI_ERROR, "Block length is not a multiple of 4", EXPFILL }},
         { &ei_invalid_option_length, { "pcapng.invalid_option_length", PI_PROTOCOL, PI_ERROR, "Invalid Option Length", EXPFILL }},
         { &ei_invalid_record_length, { "pcapng.invalid_record_length", PI_PROTOCOL, PI_ERROR, "Invalid Record Length", EXPFILL }},
+        { &ei_missing_idb, { "pcapng.no_interfaces", PI_PROTOCOL, PI_ERROR, "No Interface Description before block that requires it", EXPFILL }},
     };
 
     static gint *ett[] = {
