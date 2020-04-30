@@ -221,7 +221,6 @@ typedef struct interface_info_s {
 } interface_info_t;
 
 typedef struct {
-    gboolean shb_read;            /**< Set when first SHB read */
     guint current_section_number; /**< Section number of the current section being read sequentially */
     GArray *sections;             /**< Sections found in the capture file. */
     GArray *interfaces;           /**< Interfaces found in the capture file. */
@@ -2498,7 +2497,9 @@ pcapng_read_unknown_block(FILE_T fh, pcapng_block_header_t *bh,
 
 static block_return_val
 pcapng_read_block(wtap *wth, FILE_T fh, pcapng_t *pn,
-                  section_info_t *section_info, wtapng_block_t *wblock,
+                  section_info_t *section_info,
+                  section_info_t *new_section_info,
+                  wtapng_block_t *wblock,
                   int *err, gchar **err_info)
 {
     block_return_val ret;
@@ -2551,12 +2552,37 @@ pcapng_read_block(wtap *wth, FILE_T fh, pcapng_t *pn,
 
         pcapng_debug("pcapng_read_block: block_type 0x%x", bh.block_type);
 
-        ret = pcapng_read_section_header_block(fh, &bh, section_info, wblock,
-                                               err, err_info);
+        /*
+         * Fill in the section_info_t passed to us for use when
+         * there's a new SHB; don't overwrite the existing SHB,
+         * if there is one.
+         */
+        ret = pcapng_read_section_header_block(fh, &bh, new_section_info,
+                                               wblock, err, err_info);
         if (ret != PCAPNG_BLOCK_OK) {
             return ret;
         }
+
+        /*
+         * This is the current section; use its byte order, not that
+         * of the section pointed to by section_info (which could be
+         * null).
+         */
+        section_info = new_section_info;
     } else {
+        /*
+         * Not an SHB.
+         *
+         * If section_info is null, it means we're calling this from
+         * pcapng_open() to see whether the file begins with an SHB.
+         * It doesn't, which means that it is not a pcapng file.
+         */
+        if (section_info == NULL) {
+            *err = 0;
+            *err_info = NULL;
+            return PCAPNG_BLOCK_NOT_SHB;
+        }
+
         if (section_info->byte_swapped) {
             bh.block_type         = GUINT32_SWAP_LE_BE(bh.block_type);
             bh.block_total_length = GUINT32_SWAP_LE_BE(bh.block_total_length);
@@ -2565,17 +2591,6 @@ pcapng_read_block(wtap *wth, FILE_T fh, pcapng_t *pn,
         wblock->type = bh.block_type;
 
         pcapng_debug("pcapng_read_block: block_type 0x%x", bh.block_type);
-
-        if (!pn->shb_read) {
-            /*
-             * No SHB seen yet, so we're trying to read the first block
-             * during an open, to see whether it's an SHB; if what we
-             * read doesn't look like an SHB, this isn't a pcapng file.
-             */
-            *err = 0;
-            *err_info = NULL;
-            return PCAPNG_BLOCK_NOT_SHB;
-        }
 
         /* Don't try to allocate memory for a huge number of options, as
            that might fail and, even if it succeeds, it might not leave
@@ -2706,9 +2721,8 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
     pcapng_t *pcapng;
     pcapng_block_header_t bh;
     gint64 saved_offset;
-    section_info_t first_section;
+    section_info_t first_section, new_section, *current_section;
 
-    pn.shb_read = FALSE;
     pn.interfaces = NULL;
 
     /* we don't know the byte swapping of the file yet */
@@ -2722,8 +2736,13 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
     wblock.rec = NULL;
 
     pcapng_debug("pcapng_open: opening file");
-    /* read first block */
-    switch (pcapng_read_block(wth, wth->fh, &pn, &first_section, &wblock,
+    /*
+     * Read first block.
+     *
+     * There is no current section_info yet, so don't pass any.
+     * Pass a pointer to first_section to fill in.
+     */
+    switch (pcapng_read_block(wth, wth->fh, &pn, NULL, &first_section, &wblock,
                               err, err_info)) {
 
     case PCAPNG_BLOCK_OK:
@@ -2755,7 +2774,6 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
         wtap_block_free(wblock.block);
         return WTAP_OPEN_NOT_MINE;
     }
-    pn.shb_read = TRUE;
 
     /*
      * At this point, we've decided this is a pcapng file, not
@@ -2812,7 +2830,13 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
         /* go back to where we were */
         file_seek(wth->fh, saved_offset, SEEK_SET, err);
 
-        if (first_section.byte_swapped) {
+        /*
+         * Get a pointer to the current section's section_info_t.
+         */
+        current_section = &g_array_index(pcapng->sections, section_info_t,
+                                         pcapng->current_section_number);
+
+        if (current_section->byte_swapped) {
             bh.block_type         = GUINT32_SWAP_LE_BE(bh.block_type);
         }
 
@@ -2822,16 +2846,9 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
             break;  /* No more IDB:s */
         }
 
-        /*
-         * We pass this first_section, so that if it finds *another* SHB,
-         * it doesn't scribble on the first section_info_t in
-         * pcapng->sections.
-         *
-         * XXX - but are there other ways in which we don't handle a
-         * section with 0 or more IDBs and no other block types,
-         * followed by a non-empty
-         */
-        if (pcapng_read_block(wth, wth->fh, pcapng, &first_section, &wblock, err, err_info) != PCAPNG_BLOCK_OK) {
+        if (pcapng_read_block(wth, wth->fh, pcapng, current_section,
+                              &new_section, &wblock,
+                              err, err_info) != PCAPNG_BLOCK_OK) {
             wtap_block_free(wblock.block);
             if (*err == 0) {
                 pcapng_debug("No more IDBs available...");
@@ -2856,7 +2873,7 @@ pcapng_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
             gchar **err_info, gint64 *data_offset)
 {
     pcapng_t *pcapng = (pcapng_t *)wth->priv;
-    section_info_t section_info;
+    section_info_t *current_section, new_section;
     wtapng_block_t wblock;
     wtap_block_t wtapng_if_descr;
     wtap_block_t if_stats;
@@ -2869,21 +2886,23 @@ pcapng_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
     pcapng->add_new_ipv4 = wth->add_new_ipv4;
     pcapng->add_new_ipv6 = wth->add_new_ipv6;
 
-    /*
-     * Get the section_info_t for the current section.
-     *
-     * We make a copy of the section_info_t, so that if we happen to be
-     * reading an SHB, it won't overwrite the one in the array of
-     * section_info_t's.
-     */
-    section_info = g_array_index(pcapng->sections, section_info_t,
-                                 pcapng->current_section_number);
-
     /* read next block */
     while (1) {
         *data_offset = file_tell(wth->fh);
         pcapng_debug("pcapng_read: data_offset is %" G_GINT64_MODIFIER "d", *data_offset);
-        if (pcapng_read_block(wth, wth->fh, pcapng, &section_info, &wblock, err, err_info) != PCAPNG_BLOCK_OK) {
+
+        /*
+         * Get the section_info_t for the current section.
+         */
+        current_section = &g_array_index(pcapng->sections, section_info_t,
+                                         pcapng->current_section_number);
+
+        /*
+         * Read the next block.
+         */
+        if (pcapng_read_block(wth, wth->fh, pcapng, current_section,
+                              &new_section, &wblock,
+                              err, err_info) != PCAPNG_BLOCK_OK) {
             pcapng_debug("pcapng_read: data_offset is finally %" G_GINT64_MODIFIER "d", *data_offset);
             pcapng_debug("pcapng_read: couldn't read packet block");
             wtap_block_free(wblock.block);
@@ -2913,8 +2932,8 @@ pcapng_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
                  * section_info_t's for this file.
                  */
                 pcapng->current_section_number++;
-                section_info.shb_off = *data_offset;
-                g_array_append_val(pcapng->sections, section_info);
+                new_section.shb_off = *data_offset;
+                g_array_append_val(pcapng->sections, new_section);
                 break;
 
             case(BLOCK_TYPE_IDB):
@@ -3009,7 +3028,7 @@ pcapng_seek_read(wtap *wth, gint64 seek_off,
                  int *err, gchar **err_info)
 {
     pcapng_t *pcapng = (pcapng_t *)wth->priv;
-    section_info_t *section_infop, section_info;
+    section_info_t *section_info, new_section;
     wtapng_block_t wblock;
 
 
@@ -3037,9 +3056,9 @@ pcapng_seek_read(wtap *wth, gint64 seek_off,
      */
     guint section_number = pcapng->sections->len - 1;
     for (;;) {
-        section_infop = &g_array_index(pcapng->sections, section_info_t,
+        section_info = &g_array_index(pcapng->sections, section_info_t,
                                       section_number);
-        if (section_infop->shb_off <= seek_off)
+        if (section_info->shb_off <= seek_off)
             break;
 
         /*
@@ -3050,18 +3069,13 @@ pcapng_seek_read(wtap *wth, gint64 seek_off,
         section_number--;
     }
 
-    /*
-     * Make a copy of the section_info_t, so that if we happen to be
-     * reading an SHB, it won't overwrite the one in the array of
-     * section_info_t's.
-     */
-    section_info = *section_infop;
-
     wblock.frame_buffer = buf;
     wblock.rec = rec;
 
     /* read the block */
-    if (pcapng_read_block(wth, wth->random_fh, pcapng, &section_info, &wblock, err, err_info) != PCAPNG_BLOCK_OK) {
+    if (pcapng_read_block(wth, wth->random_fh, pcapng, section_info,
+                          &new_section, &wblock,
+                          err, err_info) != PCAPNG_BLOCK_OK) {
         pcapng_debug("pcapng_seek_read: couldn't read packet block (err=%d).",
                       *err);
         wtap_block_free(wblock.block);
