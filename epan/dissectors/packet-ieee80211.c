@@ -31015,52 +31015,52 @@ proto_register_ieee80211(void)
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_anqp_nai_realm_encoding,
-     {"NAI Realm Encoding", "wlan.fixed.naqp_nai_realm_list.encoding",
+     {"NAI Realm Encoding", "wlan.fixed.anqp_nai_realm_list.encoding",
       FT_UINT8, BASE_DEC, VALS(nai_realm_encoding_vals), 0x01,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_anqp_nai_realm_length,
-     {"NAI Realm Length", "wlan.fixed.naqp_nai_realm_list.realm_length",
+     {"NAI Realm Length", "wlan.fixed.anqp_nai_realm_list.realm_length",
       FT_UINT8, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_anqp_nai_realm,
-     {"NAI Realm", "wlan.fixed.naqp_nai_realm_list.realm",
+     {"NAI Realm", "wlan.fixed.anqp_nai_realm_list.realm",
       FT_STRING, BASE_NONE, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_anqp_nai_realm_eap_count,
-     {"EAP Method Count", "wlan.fixed.naqp_nai_realm_list.eap_method_count",
+     {"EAP Method Count", "wlan.fixed.anqp_nai_realm_list.eap_method_count",
       FT_UINT8, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_anqp_nai_realm_eap_len,
-     {"EAP Method subfield Length", "wlan.fixed.naqp_nai_realm_list.eap_method_len",
+     {"EAP Method subfield Length", "wlan.fixed.anqp_nai_realm_list.eap_method_len",
       FT_UINT8, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_anqp_nai_realm_eap_method,
-     {"EAP Method", "wlan.fixed.naqp_nai_realm_list.eap_method",
+     {"EAP Method", "wlan.fixed.anqp_nai_realm_list.eap_method",
       FT_UINT8, BASE_DEC|BASE_EXT_STRING, &eap_type_vals_ext, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_anqp_nai_realm_auth_param_count,
-     {"Authentication Parameter Count", "wlan.fixed.naqp_nai_realm_list.auth_param_count",
+     {"Authentication Parameter Count", "wlan.fixed.anqp_nai_realm_list.auth_param_count",
       FT_UINT8, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_anqp_nai_realm_auth_param_id,
-     {"Authentication Parameter ID", "wlan.fixed.naqp_nai_realm_list.auth_param_id",
+     {"Authentication Parameter ID", "wlan.fixed.anqp_nai_realm_list.auth_param_id",
       FT_UINT8, BASE_DEC, VALS(nai_realm_auth_param_id_vals), 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_anqp_nai_realm_auth_param_len,
-     {"Authentication Parameter Length", "wlan.fixed.naqp_nai_realm_list.auth_param_len",
+     {"Authentication Parameter Length", "wlan.fixed.anqp_nai_realm_list.auth_param_len",
       FT_UINT8, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_anqp_nai_realm_auth_param_value,
-     {"Authentication Parameter Value", "wlan.fixed.naqp_nai_realm_list.auth_param_value",
+     {"Authentication Parameter Value", "wlan.fixed.anqp_nai_realm_list.auth_param_value",
       FT_BYTES, BASE_NONE, NULL, 0,
       NULL, HFILL }},
 
@@ -38883,7 +38883,7 @@ proto_register_ieee80211(void)
         "Invalid NAI Realm List", EXPFILL }},
 
     { &ei_ieee80211_ff_anqp_nai_realm_eap_len,
-      { "wlan.fixed.naqp_nai_realm_list.eap_method_len.invalid", PI_MALFORMED, PI_ERROR,
+      { "wlan.fixed.anqp_nai_realm_list.eap_method_len.invalid", PI_MALFORMED, PI_ERROR,
         "Invalid EAP Method subfield", EXPFILL }},
 
     { &ei_hs20_anqp_ofn_length,
