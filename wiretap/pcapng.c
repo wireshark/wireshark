@@ -208,6 +208,7 @@ typedef struct section_info_t {
     gboolean byte_swapped; /**< TRUE if this section is not in our byte order */
     guint16 version_major; /**< Major version number of this section */
     guint16 version_minor; /**< Minor version number of this section */
+    GArray *interfaces;    /**< Interfaces found in this section */
     gint64 shb_off;        /**< File offset of the SHB for this section */
 } section_info_t;
 
@@ -223,7 +224,6 @@ typedef struct interface_info_s {
 typedef struct {
     guint current_section_number; /**< Section number of the current section being read sequentially */
     GArray *sections;             /**< Sections found in the capture file. */
-    GArray *interfaces;           /**< Interfaces found in the capture file. */
     wtap_new_ipv4_callback_t add_new_ipv4;
     wtap_new_ipv6_callback_t add_new_ipv6;
 } pcapng_t;
@@ -1124,7 +1124,7 @@ pcapng_read_decryption_secrets_block(FILE_T fh, pcapng_block_header_t *bh,
 }
 
 static gboolean
-pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
+pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh,
                          const section_info_t *section_info,
                          wtapng_block_t *wblock,
                          int *err, gchar **err_info, gboolean enhanced)
@@ -1272,13 +1272,14 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
                   packet.cap_len,
                   packet.interface_id);
 
-    if (packet.interface_id >= pn->interfaces->len) {
+    if (packet.interface_id >= section_info->interfaces->len) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("pcapng_read_packet_block: interface index %u is not less than interface count %u",
-                                    packet.interface_id, pn->interfaces->len);
+        *err_info = g_strdup_printf("pcapng_read_packet_block: interface index %u is not less than section interface count %u",
+                                    packet.interface_id,
+                                    section_info->interfaces->len);
         return FALSE;
     }
-    iface_info = g_array_index(pn->interfaces, interface_info_t,
+    iface_info = g_array_index(section_info->interfaces, interface_info_t,
                                packet.interface_id);
 
     if (packet.cap_len > wtap_max_snaplen_for_encap(iface_info.wtap_encap)) {
@@ -1480,7 +1481,6 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
 
 static gboolean
 pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh,
-                                pcapng_t *pn,
                                 const section_info_t *section_info,
                                 wtapng_block_t *wblock,
                                 int *err, gchar **err_info)
@@ -1511,12 +1511,12 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh,
         return FALSE;
     }
 
-    if (0 >= pn->interfaces->len) {
+    if (0 >= section_info->interfaces->len) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup("pcapng_read_simple_packet_block: SPB appeared before any IDBs");
+        *err_info = g_strdup("pcapng_read_simple_packet_block: SPB appeared before any IDBs in the section");
         return FALSE;
     }
-    iface_info = g_array_index(pn->interfaces, interface_info_t, 0);
+    iface_info = g_array_index(section_info->interfaces, interface_info_t, 0);
 
     if (section_info->byte_swapped) {
         simple_packet.packet_len   = GUINT32_SWAP_LE_BE(spb.packet_len);
@@ -2610,15 +2610,15 @@ pcapng_read_block(wtap *wth, FILE_T fh, pcapng_t *pn,
                     return PCAPNG_BLOCK_ERROR;
                 break;
             case(BLOCK_TYPE_PB):
-                if (!pcapng_read_packet_block(fh, &bh, pn, section_info, wblock, err, err_info, FALSE))
+                if (!pcapng_read_packet_block(fh, &bh, section_info, wblock, err, err_info, FALSE))
                     return PCAPNG_BLOCK_ERROR;
                 break;
             case(BLOCK_TYPE_SPB):
-                if (!pcapng_read_simple_packet_block(fh, &bh, pn, section_info, wblock, err, err_info))
+                if (!pcapng_read_simple_packet_block(fh, &bh, section_info, wblock, err, err_info))
                     return PCAPNG_BLOCK_ERROR;
                 break;
             case(BLOCK_TYPE_EPB):
-                if (!pcapng_read_packet_block(fh, &bh, pn, section_info, wblock, err, err_info, TRUE))
+                if (!pcapng_read_packet_block(fh, &bh, section_info, wblock, err, err_info, TRUE))
                     return PCAPNG_BLOCK_ERROR;
                 break;
             case(BLOCK_TYPE_NRB):
@@ -2671,7 +2671,8 @@ pcapng_read_block(wtap *wth, FILE_T fh, pcapng_t *pn,
 
 /* Process an IDB that we've just read. The contents of wblock are copied as needed. */
 static void
-pcapng_process_idb(wtap *wth, pcapng_t *pcapng, wtapng_block_t *wblock)
+pcapng_process_idb(wtap *wth, section_info_t *section_info,
+                   wtapng_block_t *wblock)
 {
     wtap_block_t int_data = wtap_block_create(WTAP_BLOCK_IF_DESCR);
     interface_info_t iface_info;
@@ -2699,7 +2700,7 @@ pcapng_process_idb(wtap *wth, pcapng_t *pcapng, wtapng_block_t *wblock)
     else
         iface_info.fcslen = -1;
 
-    g_array_append_val(pcapng->interfaces, iface_info);
+    g_array_append_val(section_info->interfaces, iface_info);
 }
 
 /* Process a DSB that we have just read. */
@@ -2722,8 +2723,6 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
     pcapng_block_header_t bh;
     gint64 saved_offset;
     section_info_t first_section, new_section, *current_section;
-
-    pn.interfaces = NULL;
 
     /* we don't know the byte swapping of the file yet */
     first_section.byte_swapped = FALSE;
@@ -2795,13 +2794,18 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
      * in C, that's section 0. :-)
      */
     pcapng->current_section_number = 0;
+
+    /*
+     * Create the array of interfaces for the first section.
+     */
+    first_section.interfaces = g_array_new(FALSE, FALSE, sizeof(interface_info_t));
+
     /*
      * Allocate the sections table with space reserved for the first
      * section, and add that section.
      */
     pcapng->sections = g_array_sized_new(FALSE, FALSE, sizeof(section_info_t), 1);
     g_array_append_val(pcapng->sections, first_section);
-    pcapng->interfaces = g_array_new(FALSE, FALSE, sizeof(interface_info_t));
 
     wth->subtype_read = pcapng_read;
     wth->subtype_seek_read = pcapng_seek_read;
@@ -2858,7 +2862,7 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
                 return WTAP_OPEN_ERROR;
             }
         }
-        pcapng_process_idb(wth, pcapng, &wblock);
+        pcapng_process_idb(wth, current_section, &wblock);
         wtap_block_free(wblock.block);
         pcapng_debug("pcapng_open: Read IDB number_of_interfaces %u, wtap_encap %i",
                       wth->interface_data->len, wth->file_encap);
@@ -2932,6 +2936,7 @@ pcapng_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
                  * section_info_t's for this file.
                  */
                 pcapng->current_section_number++;
+                new_section.interfaces = g_array_new(FALSE, FALSE, sizeof(interface_info_t));
                 new_section.shb_off = *data_offset;
                 g_array_append_val(pcapng->sections, new_section);
                 break;
@@ -2939,7 +2944,7 @@ pcapng_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
             case(BLOCK_TYPE_IDB):
                 /* A new interface */
                 pcapng_debug("pcapng_read: block type BLOCK_TYPE_IDB");
-                pcapng_process_idb(wth, pcapng, &wblock);
+                pcapng_process_idb(wth, current_section, &wblock);
                 wtap_block_free(wblock.block);
                 break;
 
@@ -3102,8 +3107,16 @@ pcapng_close(wtap *wth)
     pcapng_t *pcapng = (pcapng_t *)wth->priv;
 
     pcapng_debug("pcapng_close: closing file");
+
+    /*
+     * Free up the interfaces tables for all the sections.
+     */
+    for (guint i = 0; i < pcapng->sections->len; i++) {
+        section_info_t *section_info = &g_array_index(pcapng->sections,
+                                                      section_info_t, i);
+        g_array_free(section_info->interfaces, TRUE);
+    }
     g_array_free(pcapng->sections, TRUE);
-    g_array_free(pcapng->interfaces, TRUE);
 }
 
 typedef struct pcapng_block_size_t
