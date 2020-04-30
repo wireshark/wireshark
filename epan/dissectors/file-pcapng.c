@@ -180,7 +180,7 @@ static const int *hfx_pcapng_block_type[] = {
 };
 
 struct info {
-    guint32        file_number;
+    guint32        section_number;
     guint32        interface_number;
     guint32        darwin_process_event_number;
     guint32        frame_number;
@@ -1281,8 +1281,8 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 
     switch (block_type) {
     case BLOCK_SECTION_HEADER: /* Section Header Block */
-        proto_item_append_text(block_item, " %u", info->file_number);
-        info->file_number += 1;
+        proto_item_append_text(block_item, " %u", info->section_number);
+        info->section_number += 1;
         info->interface_number = 0;
         info->darwin_process_event_number = 0;
         info->frame_number = 1;
@@ -1662,7 +1662,7 @@ dissect_pcapng(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         return 0;
     }
 
-    info.file_number = 1;
+    info.section_number = 1;
     info.interface_number = 0;
     info.darwin_process_event_number = 0;
     info.frame_number = 1;
