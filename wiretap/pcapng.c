@@ -3088,6 +3088,7 @@ pcapng_close(wtap *wth)
     pcapng_t *pcapng = (pcapng_t *)wth->priv;
 
     pcapng_debug("pcapng_close: closing file");
+    g_array_free(pcapng->sections, TRUE);
     g_array_free(pcapng->interfaces, TRUE);
 }
 
