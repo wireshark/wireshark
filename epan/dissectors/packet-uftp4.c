@@ -1695,7 +1695,7 @@ static void dissect_uftp_complete(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     offset += 2;
     proto_tree_add_item(complete_tree, hf_uftp_complete_status, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
-    proto_tree_add_item(complete_tree, hf_uftp_complete_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(complete_tree, hf_uftp_complete_reserved, tvb, offset, 3, ENC_BIG_ENDIAN);
     offset += 3;
 
     extlen_total = hlen - COMPLETE_LEN;
