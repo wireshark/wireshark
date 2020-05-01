@@ -1307,9 +1307,8 @@ wtapng_process_dsb(wtap *wth, wtap_block_t dsb)
 		wth->add_new_secrets(dsb_mand->secrets_type, dsb_mand->secrets_data, dsb_mand->secrets_len);
 }
 
-gboolean
-wtap_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
-	gchar **err_info, gint64 *offset)
+static void
+wtap_init_rec(wtap *wth, wtap_rec *rec)
 {
 	/*
 	 * Set the packet encapsulation to the file's encapsulation
@@ -1323,6 +1322,16 @@ wtap_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
 	 */
 	rec->rec_header.packet_header.pkt_encap = wth->file_encap;
 	rec->tsprec = wth->file_tsprec;
+}
+
+gboolean
+wtap_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
+	gchar **err_info, gint64 *offset)
+{
+	/*
+	 * Initialize the record to default values.
+	 */
+	wtap_init_rec(wth, rec);
 
 	*err = 0;
 	*err_info = NULL;
@@ -1473,17 +1482,9 @@ wtap_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec, Buffer *buf,
     int *err, gchar **err_info)
 {
 	/*
-	 * Set the packet encapsulation to the file's encapsulation
-	 * value; if that's not WTAP_ENCAP_PER_PACKET, it's the
-	 * right answer (and means that the read routine for this
-	 * capture file type doesn't have to set it), and if it
-	 * *is* WTAP_ENCAP_PER_PACKET, the caller needs to set it
-	 * anyway.
-	 *
-	 * Do the same for the packet time stamp resolution.
+	 * Initialize the record to default values.
 	 */
-	rec->rec_header.packet_header.pkt_encap = wth->file_encap;
-	rec->tsprec = wth->file_tsprec;
+	wtap_init_rec(wth, rec);
 
 	*err = 0;
 	*err_info = NULL;
