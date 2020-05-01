@@ -99,7 +99,15 @@ void CaptureFilePropertiesDialog::updateWidgets()
     ui->commentsTextEdit->setEnabled(enable);
 
     fillDetails();
-    ui->commentsTextEdit->setText(cf_read_section_comment(cap_file_.capFile()));
+    // XXX - this just handles the first comment in the first section;
+    // add support for multiple sections with multiple comments.
+    wtap_block_t shb = wtap_file_get_shb(cap_file_.capFile()->provider.wth, 0);
+    char *shb_comment;
+    if (wtap_block_get_nth_string_option_value(shb, OPT_COMMENT, 0,
+                                               &shb_comment) == WTAP_OPTTYPE_SUCCESS)
+        ui->commentsTextEdit->setText(shb_comment);
+    else
+        ui->commentsTextEdit->setText(NULL);
 
     WiresharkDialog::updateWidgets();
 }
@@ -252,107 +260,116 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
         out << table_end;
     }
 
-    // Capture Section
-    out << section_tmpl_.arg(tr("Capture"));
-    out << table_begin;
+    // Information from file sections.
+    for (guint section_number = 0;
+         section_number < wtap_file_get_num_shbs(cap_file_.capFile()->provider.wth);
+         section_number++) {
 
-    wtap_block_t shb_inf = wtap_file_get_shb(cap_file_.capFile()->provider.wth);
-    char *str;
+        // If we have more than one section, add headers for each section.
+        if (wtap_file_get_num_shbs(cap_file_.capFile()->provider.wth) > 1)
+            out << section_tmpl_.arg(QString(tr("Section %1"))
+                                     .arg(section_number));
 
-    if (shb_inf != nullptr) {
-      QString capture_hardware(unknown);
-      if (wtap_block_get_string_option_value(shb_inf, OPT_SHB_HARDWARE, &str) == WTAP_OPTTYPE_SUCCESS) {
-          if (str[0] != '\0') {
-              capture_hardware = str;
-          }
-      }
-      // capture HW
-      out << table_row_begin
-          << table_vheader_tmpl.arg(tr("Hardware"))
-          << table_data_tmpl.arg(capture_hardware)
-          << table_row_end;
-
-      QString capture_os(unknown);
-      if (wtap_block_get_string_option_value(shb_inf, OPT_SHB_OS, &str) == WTAP_OPTTYPE_SUCCESS) {
-          if (str[0] != '\0') {
-              capture_os = str;
-          }
-      }
-      out << table_row_begin
-          << table_vheader_tmpl.arg(tr("OS"))
-          << table_data_tmpl.arg(capture_os)
-          << table_row_end;
-
-      QString capture_app(unknown);
-      if (wtap_block_get_string_option_value(shb_inf, OPT_SHB_USERAPPL, &str) == WTAP_OPTTYPE_SUCCESS) {
-          if (str[0] != '\0') {
-              capture_app = str;
-          }
-      }
-      out << table_row_begin
-          << table_vheader_tmpl.arg(tr("Application"))
-          << table_data_tmpl.arg(capture_app)
-          << table_row_end;
-    }
-
-    out << table_end;
-
-    // capture interfaces info
-    if (summary.ifaces->len > 0) {
-        out << section_tmpl_.arg(tr("Interfaces"));
+        // Capture Section
+        out << section_tmpl_.arg(tr("Capture"));
         out << table_begin;
 
-        out << table_ul_row_begin
-            << table_hheader20_tmpl.arg(tr("Interface"))
-            << table_hheader20_tmpl.arg(tr("Dropped packets"))
-            << table_hheader20_tmpl.arg(tr("Capture filter"))
-            << table_hheader20_tmpl.arg(tr("Link type"))
-            << table_hheader20_tmpl.arg(tr("Packet size limit"))
-            << table_row_end;
-    }
+        wtap_block_t shb_inf = wtap_file_get_shb(cap_file_.capFile()->provider.wth, section_number);
+        char *str;
 
-    for (guint i = 0; i < summary.ifaces->len; i++) {
-        iface_summary_info iface;
-        iface = g_array_index(summary.ifaces, iface_summary_info, i);
+        if (shb_inf != nullptr) {
+            QString capture_hardware(unknown);
+            if (wtap_block_get_string_option_value(shb_inf, OPT_SHB_HARDWARE, &str) == WTAP_OPTTYPE_SUCCESS) {
+                if (str[0] != '\0') {
+                    capture_hardware = str;
+                }
+            }
+            // capture HW
+            out << table_row_begin
+                << table_vheader_tmpl.arg(tr("Hardware"))
+                << table_data_tmpl.arg(capture_hardware)
+                << table_row_end;
 
-        /* interface */
-        QString interface_name(unknown);
-        if (iface.descr) {
-            interface_name = iface.descr;
-        } else if (iface.name)
-        {
-            interface_name = iface.name;
+            QString capture_os(unknown);
+            if (wtap_block_get_string_option_value(shb_inf, OPT_SHB_OS, &str) == WTAP_OPTTYPE_SUCCESS) {
+                if (str[0] != '\0') {
+                    capture_os = str;
+                }
+            }
+            out << table_row_begin
+                << table_vheader_tmpl.arg(tr("OS"))
+                << table_data_tmpl.arg(capture_os)
+                << table_row_end;
+
+            QString capture_app(unknown);
+            if (wtap_block_get_string_option_value(shb_inf, OPT_SHB_USERAPPL, &str) == WTAP_OPTTYPE_SUCCESS) {
+                if (str[0] != '\0') {
+                    capture_app = str;
+                }
+            }
+            out << table_row_begin
+                << table_vheader_tmpl.arg(tr("Application"))
+                << table_data_tmpl.arg(capture_app)
+                << table_row_end;
         }
 
-        /* Dropped count */
-        QString interface_drops(unknown);
-        if (iface.drops_known) {
-            interface_drops = QString("%1 (%2%)").arg(iface.drops).arg(QString::number(
-                /* MSVC cannot convert from unsigned __int64 to float, so first convert to signed __int64 */
-                summary.packet_count ? (100.0 * (gint64)iface.drops)/summary.packet_count : 0, 'f', 1));
-        }
-
-        /* Capture filter */
-        QString interface_cfilter(unknown);
-        if (iface.cfilter && iface.cfilter[0] != '\0') {
-            interface_cfilter = iface.cfilter;
-        } else if (iface.name) {
-            interface_cfilter = QString(tr("none"));
-        }
-
-        QString interface_snaplen = QString(tr("%1 bytes").arg(iface.snap));
-
-        out << table_row_begin
-            << table_data_tmpl.arg(interface_name)
-            << table_data_tmpl.arg(interface_drops)
-            << table_data_tmpl.arg(interface_cfilter)
-            << table_data_tmpl.arg(wtap_encap_description(iface.encap_type))
-            << table_data_tmpl.arg(interface_snaplen)
-            << table_row_end;
-
-    }
-    if (summary.ifaces->len > 0) {
         out << table_end;
+
+        // capture interfaces info
+        if (summary.ifaces->len > 0) {
+            out << section_tmpl_.arg(tr("Interfaces"));
+            out << table_begin;
+
+            out << table_ul_row_begin
+                << table_hheader20_tmpl.arg(tr("Interface"))
+                << table_hheader20_tmpl.arg(tr("Dropped packets"))
+                << table_hheader20_tmpl.arg(tr("Capture filter"))
+                << table_hheader20_tmpl.arg(tr("Link type"))
+                << table_hheader20_tmpl.arg(tr("Packet size limit"))
+                << table_row_end;
+        }
+
+        for (guint i = 0; i < summary.ifaces->len; i++) {
+            iface_summary_info iface;
+            iface = g_array_index(summary.ifaces, iface_summary_info, i);
+
+            /* interface */
+            QString interface_name(unknown);
+            if (iface.descr) {
+                interface_name = iface.descr;
+            } else if (iface.name) {
+                interface_name = iface.name;
+            }
+
+            /* Dropped count */
+            QString interface_drops(unknown);
+            if (iface.drops_known) {
+                interface_drops = QString("%1 (%2%)").arg(iface.drops).arg(QString::number(
+                    /* MSVC cannot convert from unsigned __int64 to float, so first convert to signed __int64 */
+                    summary.packet_count ? (100.0 * (gint64)iface.drops)/summary.packet_count : 0, 'f', 1));
+            }
+
+            /* Capture filter */
+            QString interface_cfilter(unknown);
+            if (iface.cfilter && iface.cfilter[0] != '\0') {
+                interface_cfilter = iface.cfilter;
+            } else if (iface.name) {
+                interface_cfilter = QString(tr("none"));
+            }
+
+            QString interface_snaplen = QString(tr("%1 bytes").arg(iface.snap));
+
+            out << table_row_begin
+                << table_data_tmpl.arg(interface_name)
+                << table_data_tmpl.arg(interface_drops)
+                << table_data_tmpl.arg(interface_cfilter)
+                << table_data_tmpl.arg(wtap_encap_description(iface.encap_type))
+                << table_data_tmpl.arg(interface_snaplen)
+                << table_row_end;
+        }
+        if (summary.ifaces->len > 0) {
+            out << table_end;
+        }
     }
 
     // Statistics Section
@@ -520,16 +537,23 @@ void CaptureFilePropertiesDialog::fillDetails()
     cursor.insertHtml(summary);
     cursor.insertBlock(); // Work around rendering oddity.
 
-    QString file_comments = cf_read_section_comment(cap_file_.capFile());
-    if (!file_comments.isEmpty()) {
-        QString file_comments_html;
+    // XXX - this just shows the first comment in the first section;
+    // add support for multiple sections with multiple comments.
+    wtap_block_t shb = wtap_file_get_shb(cap_file_.capFile()->provider.wth, 0);
+    char *shb_comment;
+    if (wtap_block_get_nth_string_option_value(shb, OPT_COMMENT, 0,
+                                               &shb_comment) == WTAP_OPTTYPE_SUCCESS) {
+        QString section_comment = shb_comment;
+        QString section_comment_html;
 
-        QString comment_escaped = html_escape(file_comments).replace('\n', "<br>");
-        file_comments_html = section_tmpl_.arg(tr("File Comment"));
-        file_comments_html += para_tmpl_.arg(comment_escaped);
+        if (!section_comment.isEmpty()) {
+            QString comment_escaped = html_escape(section_comment).replace('\n', "<br>");
+            section_comment_html += section_tmpl_.arg(QString(tr("Section Comment")));
+            section_comment_html += para_tmpl_.arg(comment_escaped);
 
-        cursor.insertBlock();
-        cursor.insertHtml(file_comments_html);
+            cursor.insertBlock();
+            cursor.insertHtml(section_comment_html);
+        }
     }
 
     if (cap_file_.capFile()->packet_comment_count > 0) {

@@ -184,8 +184,8 @@ typedef struct _capture_info {
   wtap_compression_type compression_type;
   int                   file_encap;
   int                   file_tsprec;
+  wtap                 *wth;
   gint64                filesize;
-  wtap_block_t          shb;
   guint64               packet_bytes;
   gboolean              times_known;
   nstime_t              start_time;
@@ -744,38 +744,51 @@ print_stats(const gchar *filename, capture_info *cf_info)
   }
   if (cap_order)          printf     ("Strict time order:   %s\n", order_string(cf_info->order));
 
-  if (cf_info->shb != NULL) {
-    if (cap_file_more_info) {
-      char *str;
+  gboolean has_multiple_sections = (wtap_file_get_num_shbs(cf_info->wth) > 1);
 
-      if (wtap_block_get_string_option_value(cf_info->shb, OPT_SHB_HARDWARE, &str) == WTAP_OPTTYPE_SUCCESS)
-        show_option_string("Capture hardware:    ", str);
-      if (wtap_block_get_string_option_value(cf_info->shb, OPT_SHB_OS, &str) == WTAP_OPTTYPE_SUCCESS)
-        show_option_string("Capture oper-sys:    ", str);
-      if (wtap_block_get_string_option_value(cf_info->shb, OPT_SHB_USERAPPL, &str) == WTAP_OPTTYPE_SUCCESS)
-        show_option_string("Capture application: ", str);
-    }
-    if (cap_comment) {
-      unsigned int i;
-      char *str;
+  for (guint section_number = 0;
+       section_number < wtap_file_get_num_shbs(cf_info->wth);
+       section_number++) {
+    wtap_block_t shb;
 
-      for (i = 0; wtap_block_get_nth_string_option_value(cf_info->shb, OPT_COMMENT, i, &str) == WTAP_OPTTYPE_SUCCESS; i++) {
-        show_option_string("Capture comment:     ", str);
+    // If we have more than one section, add headers for each section.
+    if (has_multiple_sections)
+      printf("Section %u:\n\n", section_number);
+
+    shb = wtap_file_get_shb(cf_info->wth, section_number);
+    if (shb != NULL) {
+      if (cap_file_more_info) {
+        char *str;
+
+        if (wtap_block_get_string_option_value(shb, OPT_SHB_HARDWARE, &str) == WTAP_OPTTYPE_SUCCESS)
+          show_option_string("Capture hardware:    ", str);
+        if (wtap_block_get_string_option_value(shb, OPT_SHB_OS, &str) == WTAP_OPTTYPE_SUCCESS)
+          show_option_string("Capture oper-sys:    ", str);
+        if (wtap_block_get_string_option_value(shb, OPT_SHB_USERAPPL, &str) == WTAP_OPTTYPE_SUCCESS)
+          show_option_string("Capture application: ", str);
       }
-    }
+      if (cap_comment) {
+        unsigned int i;
+        char *str;
 
-    if (cap_file_idb && cf_info->num_interfaces != 0) {
-      guint i;
-      g_assert(cf_info->num_interfaces == cf_info->idb_info_strings->len);
-      printf     ("Number of interfaces in file: %u\n", cf_info->num_interfaces);
-      for (i = 0; i < cf_info->idb_info_strings->len; i++) {
-        gchar *s = g_array_index(cf_info->idb_info_strings, gchar*, i);
-        guint32 packet_count = 0;
-        if (i < cf_info->interface_packet_counts->len)
-          packet_count = g_array_index(cf_info->interface_packet_counts, guint32, i);
-        printf   ("Interface #%u info:\n", i);
-        printf   ("%s", s);
-        printf   ("                     Number of packets = %u\n", packet_count);
+        for (i = 0; wtap_block_get_nth_string_option_value(shb, OPT_COMMENT, i, &str) == WTAP_OPTTYPE_SUCCESS; i++) {
+          show_option_string("Capture comment:     ", str);
+        }
+      }
+
+      if (cap_file_idb && cf_info->num_interfaces != 0) {
+        guint i;
+        g_assert(cf_info->num_interfaces == cf_info->idb_info_strings->len);
+        printf     ("Number of interfaces in file: %u\n", cf_info->num_interfaces);
+        for (i = 0; i < cf_info->idb_info_strings->len; i++) {
+          gchar *s = g_array_index(cf_info->idb_info_strings, gchar*, i);
+          guint32 packet_count = 0;
+          if (i < cf_info->interface_packet_counts->len)
+            packet_count = g_array_index(cf_info->interface_packet_counts, guint32, i);
+          printf   ("Interface #%u info:\n", i);
+          printf   ("%s", s);
+          printf   ("                     Number of packets = %u\n", packet_count);
+        }
       }
     }
 
@@ -1026,27 +1039,36 @@ print_stats_table(const gchar *filename, capture_info *cf_info)
     putquote();
   }
 
-  if (cf_info->shb != NULL) {
+  for (guint section_number = 0;
+       section_number < wtap_file_get_num_shbs(cf_info->wth);
+       section_number++) {
+    wtap_block_t shb;
+
+    // If we have more than one section, add headers for each section.
+    if (wtap_file_get_num_shbs(cf_info->wth) > 1)
+      printf("Section %u: \n", section_number);
+
+    shb = wtap_file_get_shb(cf_info->wth, section_number);
     if (cap_file_more_info) {
       char *str;
 
       putsep();
       putquote();
-      if (wtap_block_get_string_option_value(cf_info->shb, OPT_SHB_HARDWARE, &str) == WTAP_OPTTYPE_SUCCESS) {
+      if (wtap_block_get_string_option_value(shb, OPT_SHB_HARDWARE, &str) == WTAP_OPTTYPE_SUCCESS) {
         printf("%s", str);
       }
       putquote();
 
       putsep();
       putquote();
-      if (wtap_block_get_string_option_value(cf_info->shb, OPT_SHB_OS, &str) == WTAP_OPTTYPE_SUCCESS) {
+      if (wtap_block_get_string_option_value(shb, OPT_SHB_OS, &str) == WTAP_OPTTYPE_SUCCESS) {
         printf("%s", str);
       }
       putquote();
 
       putsep();
       putquote();
-      if (wtap_block_get_string_option_value(cf_info->shb, OPT_SHB_USERAPPL, &str) == WTAP_OPTTYPE_SUCCESS) {
+      if (wtap_block_get_string_option_value(shb, OPT_SHB_USERAPPL, &str) == WTAP_OPTTYPE_SUCCESS) {
         printf("%s", str);
       }
       putquote();
@@ -1068,7 +1090,11 @@ print_stats_table(const gchar *filename, capture_info *cf_info)
       char *opt_comment;
       gboolean have_cap = FALSE;
 
-      for (i = 0; wtap_block_get_nth_string_option_value(cf_info->shb, OPT_COMMENT, i, &opt_comment) == WTAP_OPTTYPE_SUCCESS; i++) {
+      // If we have more than one section, add headers for each section.
+      if (wtap_file_get_num_shbs(cf_info->wth) > 1)
+        printf("Section %u: \n", section_number);
+
+      for (i = 0; wtap_block_get_nth_string_option_value(shb, OPT_COMMENT, i, &opt_comment) == WTAP_OPTTYPE_SUCCESS; i++) {
         have_cap = TRUE;
         putsep();
         putquote();
@@ -1134,7 +1160,6 @@ static int
 process_cap_file(const char *filename, gboolean need_separator)
 {
   int                   status = 0;
-  wtap                 *wth;
   int                   err;
   gchar                *err_info;
   gint64                size;
@@ -1159,8 +1184,8 @@ process_cap_file(const char *filename, gboolean need_separator)
   guint                 i;
   wtapng_iface_descriptions_t *idb_info;
 
-  wth = wtap_open_offline(filename, WTAP_TYPE_AUTO, &err, &err_info, FALSE);
-  if (!wth) {
+  cf_info.wth = wtap_open_offline(filename, WTAP_TYPE_AUTO, &err, &err_info, FALSE);
+  if (!cf_info.wth) {
     cfile_open_failure_message("capinfos", filename, err, err_info);
     return 2;
   }
@@ -1176,11 +1201,9 @@ process_cap_file(const char *filename, gboolean need_separator)
   nstime_set_zero(&cur_time);
   nstime_set_zero(&prev_time);
 
-  cf_info.shb = wtap_file_get_shb(wth);
-
   cf_info.encap_counts = g_new0(int,WTAP_NUM_ENCAP_TYPES);
 
-  idb_info = wtap_file_get_idb_info(wth);
+  idb_info = wtap_file_get_idb_info(cf_info.wth);
 
   g_assert(idb_info->interface_data != NULL);
 
@@ -1194,9 +1217,9 @@ process_cap_file(const char *filename, gboolean need_separator)
 
   /* Register callbacks for new name<->address maps from the file and
      decryption secrets from the file. */
-  wtap_set_cb_new_ipv4(wth, count_ipv4_address);
-  wtap_set_cb_new_ipv6(wth, count_ipv6_address);
-  wtap_set_cb_new_secrets(wth, count_decryption_secret);
+  wtap_set_cb_new_ipv4(cf_info.wth, count_ipv4_address);
+  wtap_set_cb_new_ipv6(cf_info.wth, count_ipv6_address);
+  wtap_set_cb_new_secrets(cf_info.wth, count_decryption_secret);
 
   /* Zero out the counters for the callbacks. */
   num_ipv4_addresses = 0;
@@ -1206,7 +1229,7 @@ process_cap_file(const char *filename, gboolean need_separator)
   /* Tally up data that we need to parse through the file to find */
   wtap_rec_init(&rec);
   ws_buffer_init(&buf, 1514);
-  while (wtap_read(wth, &rec, &buf, &err, &err_info, &data_offset))  {
+  while (wtap_read(cf_info.wth, &rec, &buf, &err, &err_info, &data_offset))  {
     if (rec.presence_flags & WTAP_HAS_TS) {
       prev_time = cur_time;
       cur_time = rec.ts;
@@ -1267,7 +1290,7 @@ process_cap_file(const char *filename, gboolean need_separator)
            * grow the array to be big enough for the new number of
            * interfaces.
            */
-          idb_info = wtap_file_get_idb_info(wth);
+          idb_info = wtap_file_get_idb_info(cf_info.wth);
 
           cf_info.num_interfaces = idb_info->interface_data->len;
           g_array_set_size(cf_info.interface_packet_counts, cf_info.num_interfaces);
@@ -1303,7 +1326,7 @@ process_cap_file(const char *filename, gboolean need_separator)
    * We do this at the end, so we can get information for all IDBs in
    * the file, even those that come after packet records.
    */
-  idb_info = wtap_file_get_idb_info(wth);
+  idb_info = wtap_file_get_idb_info(cf_info.wth);
 
   cf_info.idb_info_strings = g_array_sized_new(FALSE, FALSE, sizeof(gchar*), cf_info.num_interfaces);
   cf_info.num_interfaces = idb_info->interface_data->len;
@@ -1328,35 +1351,35 @@ process_cap_file(const char *filename, gboolean need_separator)
           "  (will continue anyway, checksums might be incorrect)\n");
     } else {
         cleanup_capture_info(&cf_info);
-        wtap_close(wth);
+        wtap_close(cf_info.wth);
         return 2;
     }
   }
 
   /* File size */
-  size = wtap_file_size(wth, &err);
+  size = wtap_file_size(cf_info.wth, &err);
   if (size == -1) {
     fprintf(stderr,
         "capinfos: Can't get size of \"%s\": %s.\n",
         filename, g_strerror(err));
     cleanup_capture_info(&cf_info);
-    wtap_close(wth);
+    wtap_close(cf_info.wth);
     return 2;
   }
 
   cf_info.filesize = size;
 
   /* File Type */
-  cf_info.file_type = wtap_file_type_subtype(wth);
-  cf_info.compression_type = wtap_get_compression_type(wth);
+  cf_info.file_type = wtap_file_type_subtype(cf_info.wth);
+  cf_info.compression_type = wtap_get_compression_type(cf_info.wth);
 
   /* File Encapsulation */
-  cf_info.file_encap = wtap_file_encap(wth);
+  cf_info.file_encap = wtap_file_encap(cf_info.wth);
 
-  cf_info.file_tsprec = wtap_file_tsprec(wth);
+  cf_info.file_tsprec = wtap_file_tsprec(cf_info.wth);
 
   /* Packet size limit (snaplen) */
-  cf_info.snaplen = wtap_snapshot_length(wth);
+  cf_info.snaplen = wtap_snapshot_length(cf_info.wth);
   if (cf_info.snaplen > 0)
     cf_info.snap_set = TRUE;
   else
@@ -1406,7 +1429,7 @@ process_cap_file(const char *filename, gboolean need_separator)
   }
 
   cleanup_capture_info(&cf_info);
-  wtap_close(wth);
+  wtap_close(cf_info.wth);
 
   return status;
 }

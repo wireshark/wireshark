@@ -95,13 +95,19 @@ wtap_file_tsprec(wtap *wth)
 	return wth->file_tsprec;
 }
 
-wtap_block_t
-wtap_file_get_shb(wtap *wth)
+guint
+wtap_file_get_num_shbs(wtap *wth)
 {
-	if ((wth == NULL) || (wth->shb_hdrs == NULL) || (wth->shb_hdrs->len == 0))
+	return wth->shb_hdrs->len;
+}
+
+wtap_block_t
+wtap_file_get_shb(wtap *wth, guint shb_num)
+{
+	if ((wth == NULL) || (wth->shb_hdrs == NULL) || (shb_num >= wth->shb_hdrs->len))
 		return NULL;
 
-	return g_array_index(wth->shb_hdrs, wtap_block_t, 0);
+	return g_array_index(wth->shb_hdrs, wtap_block_t, shb_num);
 }
 
 GArray*

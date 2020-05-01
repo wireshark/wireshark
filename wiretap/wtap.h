@@ -1861,19 +1861,29 @@ WS_DLL_PUBLIC
 int wtap_file_tsprec(wtap *wth);
 
 /**
+ * @brief Gets number of section header blocks.
+ * @details Returns the number of existing SHBs.
+ *
+ * @param wth The wiretap session.
+ * @return The number of existing section headers.
+ */
+WS_DLL_PUBLIC
+guint wtap_file_get_num_shbs(wtap *wth);
+
+/**
  * @brief Gets existing section header block, not for new file.
- * @details Returns the pointer to the existing SHB, without creating a
+ * @details Returns the pointer to an existing SHB, without creating a
  *          new one. This should only be used for accessing info, not
  *          for creating a new file based on existing SHB info. Use
  *          wtap_file_get_shb_for_new_file() for that.
  *
  * @param wth The wiretap session.
- * @return The existing section header, which must NOT be g_free'd.
- *
- * XXX - need to be updated to handle multiple SHBs.
+ * @param shb_num The ordinal number (0-based) of the section header
+ * in the file
+ * @return The specified existing section header, which must NOT be g_free'd.
  */
 WS_DLL_PUBLIC
-wtap_block_t wtap_file_get_shb(wtap *wth);
+wtap_block_t wtap_file_get_shb(wtap *wth, guint shb_num);
 
 /**
  * @brief Gets new section header block for new file, based on existing info.
