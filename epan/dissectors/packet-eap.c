@@ -57,6 +57,8 @@ static int hf_eap_sim_reserved = -1;
 static int hf_eap_sim_subtype_attribute = -1;
 static int hf_eap_sim_subtype_type = -1;
 static int hf_eap_sim_subtype_length = -1;
+static int hf_eap_sim_notification_type = -1;
+static int hf_eap_sim_error_code_type = -1;
 static int hf_eap_sim_subtype_value = -1;
 
 static int hf_eap_aka_subtype = -1;
@@ -64,6 +66,8 @@ static int hf_eap_aka_reserved = -1;
 static int hf_eap_aka_subtype_attribute = -1;
 static int hf_eap_aka_subtype_type = -1;
 static int hf_eap_aka_subtype_length = -1;
+static int hf_eap_aka_notification_type = -1;
+static int hf_eap_aka_error_code_type = -1;
 static int hf_eap_aka_subtype_value = -1;
 
 static int hf_eap_leap_version = -1;
@@ -233,7 +237,9 @@ References:
   5) 3GPP TS 24.302
 */
 
+#define AT_NOTIFICATION 12
 #define AT_IDENTITY 14
+#define AT_CLIENT_ERROR_CODE 22
 
 static const value_string eap_sim_aka_attribute_vals[] = {
   {   1, "AT_RAND" },
@@ -256,8 +262,10 @@ static const value_string eap_sim_aka_attribute_vals[] = {
   {  22, "AT_CLIENT_ERROR_CODE" },
   {  23, "AT_KDF_INPUT"},
   {  24, "AT_KDF"},
+  { 128, "Unassigned" },
   { 129, "AT_IV" },
   { 130, "AT_ENCR_DATA" },
+  { 131, "Unassigned" },
   { 132, "AT_NEXT_PSEUDONYM" },
   { 133, "AT_NEXT_REAUTH_ID" },
   { 134, "AT_CHECKCODE" },
@@ -266,9 +274,39 @@ static const value_string eap_sim_aka_attribute_vals[] = {
   { 137, "AT_IPMS_IND" },
   { 138, "AT_IPMS_RES" },
   { 139, "AT_TRUST_IND" },
+  { 140, "AT_SHORT_NAME_FOR_NETWORK" },
+  { 141, "AT_FULL_NAME_FOR_NETWORK" },
+  { 142, "AT_RQSI_IND" },
+  { 143, "AT_RQSI_RES" },
+  { 144, "AT_TWAN_CONN_MODE" },
+  { 145, "AT_VIRTUAL_NETWORK_ID" },
+  { 146, "AT_VIRTUAL_NETWORK_REQ" },
+  { 147, "AT_CONNECTIVITY_TYPE" },
+  { 148, "AT_HANDOVER_INDICATION" },
+  { 149, "AT_HANDOVER_SESSION_ID" },
+  { 150, "AT_MN_SERIAL_ID" },
+  { 151, "AT_DEVICE_IDENTITY" },
   { 0, NULL }
 };
 value_string_ext eap_sim_aka_attribute_vals_ext = VALUE_STRING_EXT_INIT(eap_sim_aka_attribute_vals);
+
+static const value_string eap_sim_aka_notification_vals[] = {
+  {    0, "General Failure after Authentication" },
+  { 1026, "User has been temporarily denied access" },
+  { 1031, "User has not subscribed to the requested service" },
+  { 8192, "Failure to Terminate the Authentication Exchange" },
+  {16384, "General Failure" },
+  {32768, "Success" },
+  {0, NULL }
+};
+
+static const value_string eap_sim_aka_client_error_codes[] = {
+  { 0, "Unable to process packet" },
+  { 1, "Unsupported version" },
+  { 2, "Insufficient number of challenges" },
+  { 3, "RANDs are not fresh" },
+  { 0, NULL }
+};
 
 const value_string eap_ms_chap_v2_opcode_vals[] = {
   { MS_CHAP_V2_CHALLENGE,       "Challenge" },
@@ -701,12 +739,20 @@ dissect_eap_sim(proto_tree *eap_tree, tvbuff_t *tvb, packet_info* pinfo, int off
     aoffset += 1;
     aleft   -= 1;
 
-    if (type == AT_IDENTITY) {
-      proto_tree_add_item(attr_tree, hf_eap_identity_actual_len, tvb, aoffset, 2, ENC_BIG_ENDIAN);
-      dissect_eap_identity(tvb, pinfo, attr_tree, aoffset + 2, tvb_get_ntohs(tvb, aoffset));
+    switch(type){
+      case AT_IDENTITY:
+        proto_tree_add_item(attr_tree, hf_eap_identity_actual_len, tvb, aoffset, 2, ENC_BIG_ENDIAN);
+        dissect_eap_identity(tvb, pinfo, attr_tree, aoffset + 2, tvb_get_ntohs(tvb, aoffset));
+        break;
+      case AT_NOTIFICATION:
+        proto_tree_add_item(attr_tree, hf_eap_sim_notification_type, tvb, aoffset, 2, ENC_BIG_ENDIAN);
+        break;
+      case AT_CLIENT_ERROR_CODE:
+        proto_tree_add_item(attr_tree, hf_eap_sim_error_code_type, tvb, aoffset, 2, ENC_BIG_ENDIAN);
+        break;
+      default:
+        proto_tree_add_item(attr_tree, hf_eap_sim_subtype_value, tvb, aoffset, aleft, ENC_NA);
     }
-    else
-      proto_tree_add_item(attr_tree, hf_eap_sim_subtype_value, tvb, aoffset, aleft, ENC_NA);
 
     offset += 4 * length;
     left   -= 4 * length;
@@ -758,12 +804,20 @@ dissect_eap_aka(proto_tree *eap_tree, tvbuff_t *tvb, packet_info* pinfo, int off
     aoffset += 1;
     aleft   -= 1;
 
-    if (type == AT_IDENTITY) {
-      proto_tree_add_item(attr_tree, hf_eap_identity_actual_len, tvb, aoffset, 2, ENC_BIG_ENDIAN);
-      dissect_eap_identity(tvb, pinfo, attr_tree, aoffset + 2, tvb_get_ntohs(tvb, aoffset));
+    switch(type){
+      case AT_IDENTITY:
+        proto_tree_add_item(attr_tree, hf_eap_identity_actual_len, tvb, aoffset, 2, ENC_BIG_ENDIAN);
+        dissect_eap_identity(tvb, pinfo, attr_tree, aoffset + 2, tvb_get_ntohs(tvb, aoffset));
+        break;
+      case AT_NOTIFICATION:
+        proto_tree_add_item(attr_tree, hf_eap_aka_notification_type, tvb, aoffset, 2, ENC_BIG_ENDIAN);
+        break;
+      case AT_CLIENT_ERROR_CODE:
+        proto_tree_add_item(attr_tree, hf_eap_aka_error_code_type, tvb, aoffset, 2, ENC_BIG_ENDIAN);
+        break;
+      default:
+        proto_tree_add_item(attr_tree, hf_eap_aka_subtype_value, tvb, aoffset, aleft, ENC_NA);
     }
-    else
-      proto_tree_add_item(attr_tree, hf_eap_aka_subtype_value, tvb, aoffset, aleft, ENC_NA);
 
     offset += 4 * length;
     left   -= 4 * length;
@@ -1561,6 +1615,16 @@ proto_register_eap(void)
       FT_UINT8, BASE_DEC, NULL, 0x0,
       NULL, HFILL }},
 
+    { &hf_eap_sim_notification_type, {
+      "EAP-SIM Notification Type", "eap.sim.notification_type",
+      FT_UINT16, BASE_DEC, VALS(eap_sim_aka_notification_vals), 0x0,
+      NULL, HFILL }},
+
+    { &hf_eap_sim_error_code_type, {
+      "EAP-SIM Error Code", "eap.sim.error_code",
+      FT_UINT16, BASE_DEC, VALS(eap_sim_aka_client_error_codes), 0x0,
+      NULL, HFILL }},
+
     { &hf_eap_sim_subtype_value, {
       "EAP-SIM Value", "eap.sim.subtype.value",
       FT_BYTES, BASE_NONE, NULL, 0x0,
@@ -1589,6 +1653,16 @@ proto_register_eap(void)
     { &hf_eap_aka_subtype_length, {
       "EAP-AKA Length", "eap.aka.subtype.len",
       FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+
+    { &hf_eap_aka_notification_type, {
+      "EAP-AKA Notification Type", "eap.aka.notification_type",
+      FT_UINT16, BASE_DEC, VALS(eap_sim_aka_notification_vals), 0x0,
+      NULL, HFILL }},
+
+    { &hf_eap_aka_error_code_type, {
+      "EAP-AKA Error Code", "eap.aka.error_code",
+      FT_UINT16, BASE_DEC, VALS(eap_sim_aka_client_error_codes), 0x0,
       NULL, HFILL }},
 
     { &hf_eap_aka_subtype_value, {
