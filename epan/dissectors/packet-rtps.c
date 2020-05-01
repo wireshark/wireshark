@@ -627,8 +627,8 @@ static const value_string entity_id_vals[] = {
   { ENTITYID_BUILTIN_PUBLICATIONS_READER,                       "ENTITYID_BUILTIN_PUBLICATIONS_READER" },
   { ENTITYID_BUILTIN_SUBSCRIPTIONS_WRITER,                      "ENTITYID_BUILTIN_SUBSCRIPTIONS_WRITER" },
   { ENTITYID_BUILTIN_SUBSCRIPTIONS_READER,                      "ENTITYID_BUILTIN_SUBSCRIPTIONS_READER" },
-  { ENTITYID_BUILTIN_SDP_PARTICIPANT_WRITER,                    "ENTITYID_BUILTIN_SDP_PARTICIPANT_WRITER" },
-  { ENTITYID_BUILTIN_SDP_PARTICIPANT_READER,                    "ENTITYID_BUILTIN_SDP_PARTICIPANT_READER" },
+  { ENTITYID_BUILTIN_PARTICIPANT_WRITER,                        "ENTITYID_BUILTIN_PARTICIPANT_WRITER" },
+  { ENTITYID_BUILTIN_PARTICIPANT_READER,                        "ENTITYID_BUILTIN_PARTICIPANT_READER" },
   { ENTITYID_P2P_BUILTIN_PARTICIPANT_MESSAGE_WRITER,            "ENTITYID_P2P_BUILTIN_PARTICIPANT_MESSAGE_WRITER" },
   { ENTITYID_P2P_BUILTIN_PARTICIPANT_MESSAGE_READER,            "ENTITYID_P2P_BUILTIN_PARTICIPANT_MESSAGE_READER" },
   { ENTITYID_SEDP_BUILTIN_PUBLICATIONS_SECURE_WRITER,           "ENTITYID_SEDP_BUILTIN_PUBLICATIONS_SECURE_WRITER" },
@@ -1822,7 +1822,7 @@ static void append_status_info(packet_info *pinfo,
     case ENTITYID_BUILTIN_SUBSCRIPTIONS_WRITER:
       writerId = "r";
       break;
-    case ENTITYID_BUILTIN_SDP_PARTICIPANT_WRITER:
+    case ENTITYID_BUILTIN_PARTICIPANT_WRITER:
       writerId = "p";
       break;
     case ENTITYID_P2P_BUILTIN_PARTICIPANT_MESSAGE_WRITER:
@@ -7352,8 +7352,8 @@ static void dissect_DATA_v1(tvbuff_t *tvb, packet_info *pinfo, gint offset, guin
    * ENTITYID_BUILTIN_SUBSCRIPTIONS_WRITER      |    0   | r-
    * ENTITYID_BUILTIN_PUBLICATIONS_WRITER       |    1   | w+
    * ENTITYID_BUILTIN_PUBLICATIONS_WRITER       |    0   | w-
-   * ENTITYID_BUILTIN_SDP_PARTICIPANT_WRITER    |    1   | p+
-   * ENTITYID_BUILTIN_SDP_PARTICIPANT_WRITER    |    0   | p-   (*)
+   * ENTITYID_BUILTIN_PARTICIPANT_WRITER        |    1   | p+
+   * ENTITYID_BUILTIN_PARTICIPANT_WRITER        |    0   | p-   (*)
    * ENTITYID_BUILTIN_TOPIC_WRITER              |    1   | t+   (*)
    * ENTITYID_BUILTIN_TOPIC_WRITER              |    0   | t-   (*)
    *
@@ -7367,9 +7367,9 @@ static void dissect_DATA_v1(tvbuff_t *tvb, packet_info *pinfo, gint offset, guin
       col_append_str(pinfo->cinfo, COL_INFO, SM_EXTRA_RPLUS);
   } else if (wid == ENTITYID_BUILTIN_SUBSCRIPTIONS_WRITER && (flags & FLAG_DATA_A) == 0) {
       col_append_str(pinfo->cinfo, COL_INFO, SM_EXTRA_RMINUS);
-  } else if (wid == ENTITYID_BUILTIN_SDP_PARTICIPANT_WRITER && (flags & FLAG_DATA_A) != 0) {
+  } else if (wid == ENTITYID_BUILTIN_PARTICIPANT_WRITER && (flags & FLAG_DATA_A) != 0) {
       col_append_str(pinfo->cinfo, COL_INFO, SM_EXTRA_PPLUS);
-  } else if (wid == ENTITYID_BUILTIN_SDP_PARTICIPANT_WRITER && (flags & FLAG_DATA_A) == 0) {
+  } else if (wid == ENTITYID_BUILTIN_PARTICIPANT_WRITER && (flags & FLAG_DATA_A) == 0) {
       col_append_str(pinfo->cinfo, COL_INFO, SM_EXTRA_PMINUS);
   } else if (wid == ENTITYID_BUILTIN_TOPIC_WRITER && (flags & FLAG_DATA_A) != 0) {
       col_append_str(pinfo->cinfo, COL_INFO, SM_EXTRA_TPLUS);
