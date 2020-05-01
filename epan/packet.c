@@ -520,6 +520,12 @@ dissect_record(epan_dissect_t *edt, int file_type_subtype,
 	edt->pi.cinfo = cinfo;
 	edt->pi.presence_flags = 0;
 	edt->pi.num = fd->num;
+	/*
+	 * XXX - this doesn't check the wtap_rec because, for
+	 * some capture files, time stamps are supplied only
+	 * when reading sequentially, so we keep the time stamp
+	 * in the frame_data structure.
+	 */
 	if (fd->has_ts) {
 		edt->pi.presence_flags |= PINFO_HAS_TS;
 		edt->pi.abs_ts = fd->abs_ts;
