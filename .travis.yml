@@ -73,12 +73,10 @@ before_script:
   - cd build
   - cmake -GNinja ..
 script:
-  - ninja
+  - ninja || travis_assert
   - ninja test-programs
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo setcap cap_net_raw,cap_net_admin+eip run/dumpcap; fi
   - pytest
-  - cd ..
 after_script:
-  - cd build
   - if [ -f run/tshark ]; then run/tshark --version; fi
   - ../test/travis-upload-artifacts.sh
