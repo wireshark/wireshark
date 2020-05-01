@@ -6258,7 +6258,6 @@ static gboolean dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, p
      * | <pid_id>                      |            0x0000             |
      * +---------------+---------------+---------------+---------------+
     */
-    case PID_IS_RELIABLE:
     case PID_TYPE2_NAME:
     case PID_TYPE2_CHECKSUM:
     case PID_RELIABILITY_ENABLED:
