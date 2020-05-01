@@ -7877,7 +7877,7 @@ dissect_hs20_anqp_operator_friendly_name(proto_tree *tree, tvbuff_t *tvb,
     int start_offset = offset;
 
     ofn_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1, ett_val,
-                                        &pi, "Friendly Name %d", ofn_index);
+                                        &pi, "Friendly Name [%d]", ofn_index + 1);
 
     item = proto_tree_add_item(ofn_tree, hf_array[0],
                                tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -7886,9 +7886,9 @@ dissect_hs20_anqp_operator_friendly_name(proto_tree *tree, tvbuff_t *tvb,
       expert_add_info(pinfo, item, &ei_hs20_anqp_ofn_length);
       break;
     }
-    proto_tree_add_item(tree, hf_array[1],
+    proto_tree_add_item(ofn_tree, hf_array[1],
                         tvb, offset, 3, ENC_ASCII|ENC_NA);
-    proto_tree_add_item(tree, hf_array[2],
+    proto_tree_add_item(ofn_tree, hf_array[2],
                         tvb, offset + 3, vlen - 3, ENC_UTF_8|ENC_NA);
     offset += vlen;
 
