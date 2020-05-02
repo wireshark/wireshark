@@ -259,7 +259,7 @@ extern GString* dtd_preparse(const gchar* dname,const  gchar* fname, GString* er
 	if (!in) {
 		if (err)
 			g_string_append_printf(err, "Could not open file: '%s', error: %s",fullname,g_strerror(errno));
-
+		g_free(fullname);
 		return NULL;
 	}
 
@@ -268,7 +268,8 @@ extern GString* dtd_preparse(const gchar* dname,const  gchar* fname, GString* er
 			g_string_append_printf(err, "Can't initialize scanner: %s",
 			    strerror(errno));
 		fclose(in);
-		return FALSE;
+		g_free(fullname);
+		return NULL;
 	}
 
 	Dtd_PreParse_set_in(in, scanner);
