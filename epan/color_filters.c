@@ -156,6 +156,7 @@ color_filters_set_tmp(guint8 filt_nr, const gchar *filter, gboolean disabled, gc
             if (!dfilter_compile(tmpfilter, &compiled_filter, &local_err_msg)) {
                 *err_msg = g_strdup_printf( "Could not compile color filter name: \"%s\" text: \"%s\".\n%s", name, filter, local_err_msg);
                 g_free(local_err_msg);
+                g_free(name);
                 return FALSE;
             } else {
                 g_free(colorf->filter_text);
