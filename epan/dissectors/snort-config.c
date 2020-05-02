@@ -468,8 +468,15 @@ char *expand_reference(SnortConfig_t *snort_config, char *reference)
         prefix_replacement = (char*)g_hash_table_lookup(snort_config->references_prefixes, prefix);
 
         /* Append prefix and remainder, and return!!!! */
-        g_snprintf(expanded_reference, 512, "%s%s", prefix_replacement, reference+length+1);
-        return expanded_reference;
+        if (prefix_replacement) {
+            g_snprintf(expanded_reference, 512, "%s%s", prefix_replacement, reference+length+1);
+            return expanded_reference;
+        }
+        else {
+            /* Just return the original reference */
+            return reference;
+        }
+
     }
     return "ERROR: Reference didn't contain prefix and ','!";
 }

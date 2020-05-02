@@ -566,7 +566,7 @@ dissect_mic_e(	tvbuff_t    *tvb,
 		latitude[ 3 ] = dst_code_entry->digit;
 		n_s = dst_code_entry->n_s;
 
-		latitude[ 4 ] = '.';
+		/* '.' already set */
 
 		dst_code_entry = dst_code_lookup( addr[ 4 ] );
 		latitude[ 5 ] = dst_code_entry->digit;
