@@ -3382,8 +3382,7 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 * We must first find the conversation and, if we don't find
 	 * one, create it.
 	 */
-	if (conversation == NULL)
-		conversation = find_or_create_conversation(pinfo);
+	conversation = find_or_create_conversation(pinfo);
 	old_rfk.conv_id = conversation->conv_index;
 	old_rfk.seq = seq;
 	old_rfk.port = pinfo->srcport;
