@@ -155,6 +155,11 @@ wtap_file_get_idb_info(wtap *wth)
 	return idb_info;
 }
 
+void
+wtap_add_idb(wtap *wth, wtap_block_t idb)
+{
+	g_array_append_val(wth->interface_data, idb);
+}
 
 void
 wtap_free_idb_info(wtapng_iface_descriptions_t *idb_info)

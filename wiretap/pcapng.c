@@ -2687,7 +2687,7 @@ pcapng_process_idb(wtap *wth, section_info_t *section_info,
     if_descr_mand->num_stat_entries = 0;
     if_descr_mand->interface_statistics = NULL;
 
-    g_array_append_val(wth->interface_data, int_data);
+    wtap_add_idb(wth, int_data);
 
     iface_info.wtap_encap = wblock_if_descr_mand->wtap_encap;
     iface_info.snap_len = wblock_if_descr_mand->snap_len;

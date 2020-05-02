@@ -2068,7 +2068,7 @@ int erf_populate_interfaces(wtap *wth)
     wtap_block_add_string_option_format(int_data, OPT_IDB_NAME, "Port %c", 'A'+i);
     wtap_block_add_string_option_format(int_data, OPT_IDB_DESCR, "ERF Interface Id %d (Port %c)", i, 'A'+i);
 
-    g_array_append_val(wth->interface_data, int_data);
+    wtap_add_idb(wth, int_data);
   }
 
   return 0;
@@ -2499,7 +2499,7 @@ int erf_populate_interface(erf_t *erf_priv, wtap *wth, union wtap_pseudo_header 
   erf_set_interface_descr(int_data, OPT_IDB_DESCR, host_id, source_id, if_num, NULL);
 
   if_map->interfaces[if_num].if_index = (int) wth->interface_data->len;
-  g_array_append_val(wth->interface_data, int_data);
+  wtap_add_idb(wth, int_data);
 
   return if_map->interfaces[if_num].if_index;
 }

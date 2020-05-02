@@ -1159,7 +1159,7 @@ success:
 
 		descr_mand->num_stat_entries = 0;          /* Number of ISB:s */
 		descr_mand->interface_statistics = NULL;
-		g_array_append_val(wth->interface_data, descr);
+		wtap_add_idb(wth, descr);
 
 	}
 	return wth;
