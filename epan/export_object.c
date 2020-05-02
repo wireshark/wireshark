@@ -82,7 +82,7 @@ static GString *eo_rename(GString *gstr, gsize maxlen, int dupn)
 {
     GString *gstr_tmp;
     gchar *tmp_ptr;
-    GString *ext_str;
+    GString *ext_str = NULL;
 
     gstr_tmp = g_string_new("");
     if (dupn != 0) {
@@ -95,13 +95,17 @@ static GString *eo_rename(GString *gstr, gsize maxlen, int dupn)
             gstr = g_string_truncate(gstr, maxlen - (strlen(gstr_tmp->str) + ext_str->len));
         gstr = g_string_append(gstr, gstr_tmp->str);
         gstr = g_string_append(gstr, ext_str->str);
-        g_string_free(ext_str, TRUE);
     }
     else {
         if ( gstr->len >= (maxlen - strlen(gstr_tmp->str)) )
             gstr = g_string_truncate(gstr, maxlen - strlen(gstr_tmp->str));
         gstr = g_string_append(gstr, gstr_tmp->str);
     }
+
+    if (ext_str) {
+        g_string_free(ext_str, TRUE);
+    }
+
     g_string_free(gstr_tmp, TRUE);
     return gstr;
 }
