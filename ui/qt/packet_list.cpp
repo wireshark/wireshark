@@ -1161,8 +1161,8 @@ void PacketList::captureFileReadFinished()
 
 void PacketList::freeze()
 {
-    setUpdatesEnabled(false);
     column_state_ = header()->saveState();
+    setVisible(false);
     if (currentIndex().isValid()) {
         frozen_row_ = currentIndex().row();
     } else {
@@ -1178,7 +1178,7 @@ void PacketList::freeze()
 
 void PacketList::thaw(bool restore_selection)
 {
-    setUpdatesEnabled(true);
+    setVisible(true);
     setModel(packet_list_model_);
 
     // Resetting the model resets our column widths so we restore them here.

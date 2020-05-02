@@ -379,6 +379,11 @@ cf_close(capture_file *cf)
   /* Clean up the record metadata. */
   wtap_rec_cleanup(&cf->rec);
 
+  /* Clear the packet list. */
+  packet_list_freeze();
+  packet_list_clear();
+  packet_list_thaw();
+
   /* Free up the packet buffer. */
   ws_buffer_free(&cf->buf);
 
@@ -407,11 +412,6 @@ cf_close(capture_file *cf)
     g_array_free(cf->linktypes, TRUE);
     cf->linktypes = NULL;
   }
-
-  /* Clear the packet list. */
-  packet_list_freeze();
-  packet_list_clear();
-  packet_list_thaw();
 
   cf->f_datalen = 0;
   nstime_set_zero(&cf->elapsed_time);
