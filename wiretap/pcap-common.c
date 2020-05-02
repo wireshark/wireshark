@@ -18,7 +18,7 @@
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include "atm.h"
-#include "erf.h"
+#include "erf_record.h"
 #include "pcap-encap.h"
 #include "pcap-common.h"
 

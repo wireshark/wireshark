@@ -13,7 +13,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
-#include <wiretap/erf.h>
+#include <wiretap/erf_record.h>
 
 void proto_reg_handoff_opa_snc(void);
 void proto_register_opa_snc(void);

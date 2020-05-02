@@ -37,7 +37,7 @@
 #include <epan/decode_as.h>
 #include <epan/proto_data.h>
 
-#include <wiretap/erf.h>
+#include <wiretap/erf_record.h>
 #include <wsutil/str_util.h>
 
 #include "packet-ip.h"

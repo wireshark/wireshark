@@ -12,7 +12,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <wiretap/erf.h>
+#include <wiretap/erf_record.h>
 
 void proto_reg_handoff_opa_9b(void);
 void proto_register_opa_9b(void);

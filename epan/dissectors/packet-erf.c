@@ -21,7 +21,7 @@
 
 /*
 */
-#include "wiretap/erf.h"
+#include "wiretap/erf_record.h"
 
 void proto_register_erf(void);
 void proto_reg_handoff_erf(void);

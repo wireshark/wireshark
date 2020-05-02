@@ -34,7 +34,7 @@
 #include "packet-nsh.h"
 #include "packet-acdr.h"
 #include <epan/crc32-tvb.h>
-#include <wiretap/erf.h>
+#include <wiretap/erf_record.h>
 
 void proto_register_eth(void);
 void proto_reg_handoff_eth(void);

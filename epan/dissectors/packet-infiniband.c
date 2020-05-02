@@ -20,7 +20,7 @@
 #include <epan/etypes.h>
 #include <epan/show_exception.h>
 #include <epan/decode_as.h>
-#include <wiretap/erf.h>
+#include <wiretap/erf_record.h>
 
 #include "packet-infiniband.h"
 

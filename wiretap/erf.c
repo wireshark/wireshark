@@ -35,6 +35,8 @@
 #include "pcap-encap.h"
 #include "pcapng.h"
 #include "erf.h"
+#include "erf_record.h"
+#include "erf-common.h"
 
 struct erf_anchor_mapping {
   guint64 host_id;
@@ -65,6 +67,8 @@ static void erf_close(wtap *wth);
 
 static int populate_summary_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo_header *pseudo_header, Buffer *buf, guint32 packet_size, GPtrArray *anchor_mappings_to_update);
 static int erf_update_anchors_from_header(erf_t *erf_priv, wtap_rec *rec, union wtap_pseudo_header *pseudo_header, guint64 host_id, GPtrArray *anchor_mappings_to_update);
+static int erf_get_source_from_header(union wtap_pseudo_header *pseudo_header, guint64 *host_id, guint8 *source_id);
+static int erf_populate_interface(erf_t* erf_priv, wtap *wth, union wtap_pseudo_header *pseudo_header, guint64 host_id, guint8 source_id, guint8 if_num);
 
 typedef struct {
   gboolean write_next_extra_meta;
@@ -82,7 +86,7 @@ typedef struct {
   GRand *rand;
 } erf_dump_t;
 
-erf_dump_t* erf_dump_priv_create(void);
+static erf_dump_t* erf_dump_priv_create(void);
 static void erf_dump_priv_free(erf_dump_t *dump_priv);
 static gboolean erf_dump_priv_compare_capture_comment(wtap_dumper *wdh, erf_dump_t *dump_priv,const union wtap_pseudo_header *pseudo_header, const guint8 *pd);
 static gboolean erf_comment_to_sections(wtap_dumper *wdh, guint16 section_type, guint16 section_id, gchar *comment, GPtrArray *sections);
@@ -1725,7 +1729,7 @@ static gboolean erf_write_meta_record(wtap_dumper *wdh, erf_dump_t *dump_priv, g
 
 }
 
-erf_dump_t *erf_dump_priv_create(void) {
+static erf_dump_t *erf_dump_priv_create(void) {
   erf_dump_t *dump_priv;
 
   dump_priv = (erf_dump_t*)g_malloc(sizeof(erf_dump_t));
@@ -2026,7 +2030,7 @@ int erf_dump_open(wtap_dumper *wdh, int *err _U_)
   return TRUE;
 }
 
-int erf_get_source_from_header(union wtap_pseudo_header *pseudo_header, guint64 *host_id, guint8 *source_id)
+static int erf_get_source_from_header(union wtap_pseudo_header *pseudo_header, guint64 *host_id, guint8 *source_id)
 {
   guint8   type;
   guint8   has_more;
@@ -2388,7 +2392,7 @@ static int erf_update_implicit_host_id(erf_t *erf_priv, wtap *wth, guint64 impli
   return 0;
 }
 
-int erf_populate_interface(erf_t *erf_priv, wtap *wth, union wtap_pseudo_header *pseudo_header, guint64 host_id, guint8 source_id, guint8 if_num)
+static int erf_populate_interface(erf_t *erf_priv, wtap *wth, union wtap_pseudo_header *pseudo_header, guint64 host_id, guint8 source_id, guint8 if_num)
 {
   wtap_block_t int_data;
   wtapng_if_descr_mandatory_t* int_data_mand;
