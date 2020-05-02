@@ -2468,7 +2468,7 @@ column_hidden_type_description_cb(void)
 static char *
 column_hidden_to_str_cb(pref_t* pref, gboolean default_val)
 {
-    GString     *cols_hidden = g_string_new ("");
+    GString     *cols_hidden;
     GList       *clp;
     fmt_data    *cfmt;
     pref_t  *format_pref;
@@ -2476,6 +2476,7 @@ column_hidden_to_str_cb(pref_t* pref, gboolean default_val)
     if (default_val)
         return g_strdup(pref->default_val.string);
 
+    cols_hidden = g_string_new("");
     format_pref = prefs_find_preference(gui_column_module, PRS_COL_FMT);
     clp = (format_pref) ? *format_pref->varp.list : NULL;
     while (clp) {
