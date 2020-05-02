@@ -211,7 +211,6 @@ typedef struct _rtps_dissector_data {
 #define PID_TYPE_CHECKSUM                       (0x08)
 #define PID_TYPE2_NAME                          (0x09)
 #define PID_TYPE2_CHECKSUM                      (0x0a)
-#define PID_IS_RELIABLE                         (0x0f)
 #define PID_EXPECTS_ACK                         (0x10)
 #define PID_MANAGER_KEY                         (0x12)
 #define PID_SEND_QUEUE_SIZE                     (0x13)

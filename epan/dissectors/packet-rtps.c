@@ -959,7 +959,6 @@ static const value_string parameter_id_v2_vals[] = {
   { PID_TYPE_CHECKSUM,                  "PID_TYPE_CHECKSUM [deprecated]" },
   { PID_TYPE2_NAME,                     "PID_TYPE2_NAME [deprecated]" },
   { PID_TYPE2_CHECKSUM,                 "PID_TYPE2_CHECKSUM [deprecated]" },
-  { PID_IS_RELIABLE,                    "PID_IS_RELIABLE [deprecated]" },
   { PID_EXPECTS_ACK,                    "PID_EXPECTS_ACK [deprecated]" },
   { PID_MANAGER_KEY,                    "PID_MANAGER_KEY [deprecated]" },
   { PID_SEND_QUEUE_SIZE,                "PID_SEND_QUEUE_SIZE [deprecated]" },
