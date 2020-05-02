@@ -3783,6 +3783,7 @@ unistim_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *e
 
     /* free data */
     g_free(comment);
+    g_string_free(g_tmp, TRUE);
 
     tapinfo->redraw |= REDRAW_UNISTIM;
 
