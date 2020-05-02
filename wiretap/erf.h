@@ -376,7 +376,6 @@ int erf_dump_open(wtap_dumper *wdh, int *err);
 erf_t* erf_priv_create(void);
 erf_t* erf_priv_free(erf_t* erf_priv);
 
-int erf_populate_interfaces(wtap *wth);
 int erf_populate_interface(erf_t* erf_priv, wtap *wth, union wtap_pseudo_header *pseudo_header, guint64 host_id, guint8 source_id, guint8 if_num);
 int erf_populate_interface_from_header(erf_t* erf_priv, wtap *wth, union wtap_pseudo_header *pseudo_header);
 int erf_get_source_from_header(union wtap_pseudo_header *pseudo_header, guint64 *host_id, guint8 *source_id);

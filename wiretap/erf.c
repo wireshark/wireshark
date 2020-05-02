@@ -2026,54 +2026,6 @@ int erf_dump_open(wtap_dumper *wdh, int *err _U_)
   return TRUE;
 }
 
-/*
- * TODO: Replace uses in pcapng and pcap with
- * erf_read_header() and/or erf_populate_interface_from_header() and delete.
- */
-int erf_populate_interfaces(wtap *wth)
-{
-  wtap_block_t int_data;
-  wtapng_if_descr_mandatory_t* int_data_mand;
-  int i;
-
-  if (!wth)
-    return -1;
-
-  /* Preemptively create interface entries for 4 interfaces, since this is the max number in ERF */
-  for (i=0; i<4; i++) {
-
-    int_data = wtap_block_create(WTAP_BLOCK_IF_DESCR);
-    int_data_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(int_data);
-
-    int_data_mand->wtap_encap = WTAP_ENCAP_ERF;
-    /* int_data.time_units_per_second = (1LL<<32);  ERF format resolution is 2^-32, capture resolution is unknown */
-    int_data_mand->time_units_per_second = 1000000000; /* XXX Since Wireshark only supports down to nanosecond resolution we have to dilute to this */
-    int_data_mand->snap_len = 65535; /* ERF max length */
-
-    /* XXX: if_IPv4addr opt 4  Interface network address and netmask.*/
-    /* XXX: if_IPv6addr opt 5  Interface network address and prefix length (stored in the last byte).*/
-    /* XXX: if_MACaddr  opt 6  Interface Hardware MAC address (48 bits).*/
-    /* XXX: if_EUIaddr  opt 7  Interface Hardware EUI address (64 bits)*/
-    /* XXX: if_speed    opt 8  Interface speed (in bits per second)*/
-    /* int_data.if_tsresol = 0xa0;  ERF format resolution is 2^-32 = 0xa0, capture resolution is unknown */
-    wtap_block_add_uint8_option(int_data, OPT_IDB_TSRESOL, 0x09); /* XXX Since Wireshark only supports down to nanosecond resolution we have to dilute to this */
-
-    /* XXX: if_tzone      10  Time zone for GMT support (TODO: specify better). */
-
-    /* XXX if_tsoffset; opt 14  A 64 bits integer value that specifies an offset (in seconds)...*/
-    /* Interface statistics */
-    int_data_mand->num_stat_entries = 0;
-    int_data_mand->interface_statistics = NULL;
-
-    wtap_block_add_string_option_format(int_data, OPT_IDB_NAME, "Port %c", 'A'+i);
-    wtap_block_add_string_option_format(int_data, OPT_IDB_DESCR, "ERF Interface Id %d (Port %c)", i, 'A'+i);
-
-    wtap_add_idb(wth, int_data);
-  }
-
-  return 0;
-}
-
 int erf_get_source_from_header(union wtap_pseudo_header *pseudo_header, guint64 *host_id, guint8 *source_id)
 {
   guint8   type;
