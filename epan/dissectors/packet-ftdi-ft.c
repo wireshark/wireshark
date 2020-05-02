@@ -969,12 +969,16 @@ dissect_ftdi_ft(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             }
             while (tvb_reported_length_remaining(tvb, offset) > 0);
 
-            tvb_composite_finalize(rx_tvb);
             if (total_rx_len > 0)
             {
+                tvb_composite_finalize(rx_tvb);
                 col_append_fstr(pinfo->cinfo, COL_INFO, " %d bytes", total_rx_len);
                 add_new_data_source(pinfo, rx_tvb, "RX Payload");
                 dissect_serial_payload(rx_tvb, 0, pinfo, tree, usb_conv_info, interface);
+            }
+            else
+            {
+                tvb_free_chain(rx_tvb);
             }
         }
         else
