@@ -969,6 +969,10 @@
         <translation>Temps écoulé</translation>
     </message>
     <message>
+        <source>Section %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Capture</source>
         <translation>Capture</translation>
     </message>
@@ -1065,8 +1069,12 @@
         <translation>Débit moyen (bits/s)</translation>
     </message>
     <message>
+        <source>Section Comment</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>File Comment</source>
-        <translation>Commentaire du Fichier</translation>
+        <translation type="vanished">Commentaire du Fichier</translation>
     </message>
     <message>
         <source>Packet Comments</source>

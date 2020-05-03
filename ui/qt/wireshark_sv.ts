@@ -992,6 +992,10 @@
         <translation>Förflutet</translation>
     </message>
     <message>
+        <source>Section %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Capture</source>
         <translation>Fånga</translation>
     </message>
@@ -1088,8 +1092,12 @@
         <translation>Genomsnittligt bitar/s</translation>
     </message>
     <message>
+        <source>Section Comment</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>File Comment</source>
-        <translation>Filkommentar</translation>
+        <translation type="vanished">Filkommentar</translation>
     </message>
     <message>
         <source>Packet Comments</source>

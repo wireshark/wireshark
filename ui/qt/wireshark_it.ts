@@ -992,6 +992,10 @@
         <translation>Trascorso</translation>
     </message>
     <message>
+        <source>Section %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Capture</source>
         <translation>Cattura</translation>
     </message>
@@ -1088,8 +1092,12 @@
         <translation>Bit/s medi</translation>
     </message>
     <message>
+        <source>Section Comment</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>File Comment</source>
-        <translation>Commento file</translation>
+        <translation type="vanished">Commento file</translation>
     </message>
     <message>
         <source>Packet Comments</source>

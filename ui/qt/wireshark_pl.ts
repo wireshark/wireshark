@@ -999,6 +999,10 @@
         <translation>Minęło</translation>
     </message>
     <message>
+        <source>Section %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Capture</source>
         <translation>Przechwytuj</translation>
     </message>
@@ -1095,8 +1099,12 @@
         <translation>Średnio bitów/s</translation>
     </message>
     <message>
+        <source>Section Comment</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>File Comment</source>
-        <translation>Komentarz pliku</translation>
+        <translation type="vanished">Komentarz pliku</translation>
     </message>
     <message>
         <source>Packet Comments</source>

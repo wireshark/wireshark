@@ -992,6 +992,10 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Section %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Capture</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1088,7 +1092,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>File Comment</source>
+        <source>Section Comment</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

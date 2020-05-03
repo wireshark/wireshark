@@ -985,6 +985,10 @@
         <translation>经过时间</translation>
     </message>
     <message>
+        <source>Section %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Capture</source>
         <translation>捕获</translation>
     </message>
@@ -1081,8 +1085,12 @@
         <translation>平均 比特/秒</translation>
     </message>
     <message>
+        <source>Section Comment</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>File Comment</source>
-        <translation>文件注释</translation>
+        <translation type="vanished">文件注释</translation>
     </message>
     <message>
         <source>Packet Comments</source>

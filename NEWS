@@ -44,9 +44,10 @@ Wireshark 3.3.0 Release Notes
   New Protocol Support
 
    AudioCodes Debug Recording (ACDR), Cisco MisCabling Protocol (MCP),
-   Java Debug Wire Protocol (JDWP), OBSAI UDP-based Communication
-   Protocol (UDPCP), Tunnel Extensible Authentication Protocol (TEAP),
-   and USB Printer (USBPRINTER)
+   Dynamic Link Exchange Protocol (DLEP), Java Debug Wire Protocol
+   (JDWP), OBSAI UDP-based Communication Protocol (UDPCP), ScyllaDB RPC,
+   Tunnel Extensible Authentication Protocol (TEAP), and USB Printer
+   (USBPRINTER)
 
   Updated Protocol Support
 
@@ -88,7 +89,7 @@ Wireshark 3.3.0 Release Notes
 
   A complete FAQ is available on the Wireshark web site[6].
 
-  Last updated 2020-04-26 08:06:23 UTC
+  Last updated 2020-05-03 08:04:55 UTC
 
  References
 

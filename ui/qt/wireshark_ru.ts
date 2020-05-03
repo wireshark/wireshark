@@ -93,7 +93,7 @@
     </message>
     <message>
         <source>The directory %1 could not be created.</source>
-        <translation type="unfinished"></translation>
+        <translation>Каталог %1 не может быть создан.</translation>
     </message>
     <message>
         <source>Show in Finder</source>
@@ -999,6 +999,10 @@
         <translation>Прошло</translation>
     </message>
     <message>
+        <source>Section %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Capture</source>
         <translation>Захват</translation>
     </message>
@@ -1095,8 +1099,12 @@
         <translation>В среднем бит/с</translation>
     </message>
     <message>
+        <source>Section Comment</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>File Comment</source>
-        <translation>Комментарии к файлу</translation>
+        <translation type="vanished">Комментарии к файлу</translation>
     </message>
     <message>
         <source>Packet Comments</source>
@@ -1188,15 +1196,15 @@
     <name>CaptureOptionsDialog</name>
     <message>
         <source>Input</source>
-        <translation type="unfinished"></translation>
+        <translation>Ввод</translation>
     </message>
     <message>
         <source>Interface</source>
-        <translation type="unfinished">Интерфейс</translation>
+        <translation>Интерфейс</translation>
     </message>
     <message>
         <source>Traffic</source>
-        <translation type="unfinished"></translation>
+        <translation>Трафик</translation>
     </message>
     <message>
         <source>Link-layer Header</source>
@@ -1204,15 +1212,15 @@
     </message>
     <message>
         <source>Promiscuous</source>
-        <translation type="unfinished">Смешанный</translation>
+        <translation>Смешанный</translation>
     </message>
     <message>
         <source>Snaplen (B)</source>
-        <translation type="unfinished">Длина снимка (Байт)</translation>
+        <translation>Длина снимка (Байт)</translation>
     </message>
     <message>
         <source>Buffer (MB)</source>
-        <translation type="unfinished">Буфер (МБайт)</translation>
+        <translation>Буфер (МБайт)</translation>
     </message>
     <message>
         <source>Monitor Mode</source>
@@ -1220,7 +1228,7 @@
     </message>
     <message>
         <source>Capture Filter</source>
-        <translation type="unfinished">Фильтр Захвата</translation>
+        <translation>Фильтр Захвата</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You probably want to enable this. Usually a network card will only capture the traffic sent to its own network address. If you want to capture all traffic that the network card can &amp;quot;see&amp;quot;, mark this option. See the FAQ for some more details of capturing packets from a switched network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -10440,7 +10448,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished">Ошибка</translation>
+        <translation>Ошибка</translation>
     </message>
     <message>
         <source>Save forward stream CSV</source>

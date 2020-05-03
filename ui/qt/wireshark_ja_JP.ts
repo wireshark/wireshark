@@ -985,6 +985,10 @@
         <translation>経過時間</translation>
     </message>
     <message>
+        <source>Section %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Capture</source>
         <translation>キャプチャ</translation>
     </message>
@@ -1081,8 +1085,12 @@
         <translation>平均ビット数毎秒</translation>
     </message>
     <message>
+        <source>Section Comment</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>File Comment</source>
-        <translation>ファイルコメント</translation>
+        <translation type="vanished">ファイルコメント</translation>
     </message>
     <message>
         <source>Packet Comments</source>

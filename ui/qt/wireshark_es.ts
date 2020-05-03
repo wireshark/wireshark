@@ -21,15 +21,15 @@
     </message>
     <message>
         <source>&lt;span size=\&quot;x-large\&quot; weight=\&quot;bold\&quot;&gt;Network Protocol Analyzer&lt;/span&gt;</source>
-        <translation>&lt;span size=\&quot;x-large\&quot; weight=\&quot;bold\&quot;&gt;Analizador de protocolos de red&lt;/span&gt;</translation>
+        <translation>&lt;span size=\&quot;x-large\&quot; weight=\&quot;bold\&quot;&gt;Analizador de protocolo de red&lt;/span&gt;</translation>
     </message>
     <message>
         <source>Copy the version information to the clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia la información de versión al portapapeles</translation>
     </message>
     <message>
         <source>Copy To Clipboard</source>
-        <translation type="unfinished">Copiar al portapapeles</translation>
+        <translation>Copiar al portapapeles</translation>
     </message>
     <message>
         <source>Authors</source>
@@ -37,15 +37,15 @@
     </message>
     <message>
         <source>Search Authors</source>
-        <translation type="unfinished"></translation>
+        <translation>Buscar autores</translation>
     </message>
     <message>
         <source>Folders</source>
-        <translation>Directorios</translation>
+        <translation>Carpetas</translation>
     </message>
     <message>
         <source>Filter by path</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtrar por ruta</translation>
     </message>
     <message>
         <source>Plugins</source>
@@ -57,11 +57,11 @@
     </message>
     <message>
         <source>Search Plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>Buscar complementos</translation>
     </message>
     <message>
         <source>Filter by type:</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtrar por tipo:</translation>
     </message>
     <message>
         <source>Keyboard Shortcuts</source>
@@ -69,11 +69,11 @@
     </message>
     <message>
         <source>Search Shortcuts</source>
-        <translation type="unfinished"></translation>
+        <translation>Buscar atajos</translation>
     </message>
     <message>
         <source>Acknowledgments</source>
-        <translation type="unfinished"></translation>
+        <translation>Agradecimientos</translation>
     </message>
     <message>
         <source>License</source>
@@ -97,7 +97,7 @@
     </message>
     <message>
         <source>Show in Finder</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostrar en Finder</translation>
     </message>
     <message>
         <source>Show in Folder</source>
@@ -105,7 +105,7 @@
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished"></translation>
+        <translation>Copiar</translation>
     </message>
     <message numerus="yes">
         <source>Copy Row(s)</source>
@@ -119,16 +119,16 @@
     <name>AddressEditorFrame</name>
     <message>
         <source>Frame</source>
-        <translation>Trama</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Name Resolution Preferences…</source>
         <oldsource>Name Resolution Preferences...</oldsource>
-        <translation>Preferencias de resolución de nombres</translation>
+        <translation>Preferencias de resolución de nombre…</translation>
     </message>
     <message>
         <source>Address:</source>
-        <translation>Dirección: </translation>
+        <translation>Dirección:</translation>
     </message>
     <message>
         <source>Name:</source>
@@ -136,26 +136,26 @@
     </message>
     <message>
         <source>Can&apos;t assign %1 to %2</source>
-        <translation>No es posible asignar %1 a %2</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>AdvancedPrefsModel</name>
     <message>
         <source>Name</source>
-        <translation type="unfinished">Nombre</translation>
+        <translation>Nombre</translation>
     </message>
     <message>
         <source>Status</source>
-        <translation type="unfinished">Estado</translation>
+        <translation>Estado</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Tipo</translation>
     </message>
     <message>
         <source>Value</source>
-        <translation type="unfinished"></translation>
+        <translation>Valor</translation>
     </message>
 </context>
 <context>
@@ -169,22 +169,22 @@
     <name>AuthorListModel</name>
     <message>
         <source>Name</source>
-        <translation type="unfinished">Nombre</translation>
+        <translation>Nombre</translation>
     </message>
     <message>
         <source>Email</source>
-        <translation type="unfinished"></translation>
+        <translation>Correo electrónico</translation>
     </message>
 </context>
 <context>
     <name>BluetoothAttServerAttributesDialog</name>
     <message>
         <source>Bluetooth ATT Server Attributes</source>
-        <translation>Atributos del servidor ATT Bluetooth</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Handle</source>
-        <translation>Handle</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>UUID</source>
@@ -224,15 +224,15 @@
     </message>
     <message>
         <source>Mark/Unmark Row</source>
-        <translation type="unfinished"></translation>
+        <translation>Marcar/Desmarcar fila</translation>
     </message>
     <message>
         <source>Ctrl-M</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl-M</translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
-        <translation type="unfinished"></translation>
+        <translation>Marcar/Desmarcar celda</translation>
     </message>
     <message>
         <source>Save Table Image</source>
@@ -240,7 +240,7 @@
     </message>
     <message>
         <source>PNG Image (*.png)</source>
-        <translation>Imagen PNG (*.png)</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -347,7 +347,7 @@
     </message>
     <message>
         <source>Value</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Valor</translation>
     </message>
     <message>
         <source>Changes</source>
@@ -367,7 +367,7 @@
     </message>
     <message>
         <source>Copy All</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Copiar todo</translation>
     </message>
     <message>
         <source>Save as image</source>
@@ -375,19 +375,19 @@
     </message>
     <message>
         <source>Mark/Unmark Row</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Marcar/Desmarcar fila</translation>
     </message>
     <message>
         <source>Ctrl-M</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ctrl-M</translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Marcar/Desmarcar celda</translation>
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished">Desconocido</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Bluetooth Device - %1%2</source>
@@ -411,7 +411,7 @@
     </message>
     <message>
         <source>PNG Image (*.png)</source>
-        <translation type="unfinished">Imagen PNG (*.png)</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -454,7 +454,7 @@
     </message>
     <message>
         <source>Is Local Adapter</source>
-        <translation>Adaptador local</translation>
+        <translation>Es adaptador local</translation>
     </message>
     <message>
         <source>All Interfaces</source>
@@ -462,202 +462,11 @@
     </message>
     <message>
         <source>Show information steps</source>
-        <translation>Mostrar pasos de información</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>%1 items; Right click for more option; Double click for device details</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Copy Cell</source>
-        <translation>Copiar celda</translation>
-    </message>
-    <message>
-        <source>Copy Rows</source>
-        <translation>Copiar filas</translation>
-    </message>
-    <message>
-        <source>Copy All</source>
-        <translation>Copiar todo </translation>
-    </message>
-    <message>
-        <source>Save as image</source>
-        <translation>Guardar como imagen</translation>
-    </message>
-    <message>
-        <source>Mark/Unmark Row</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Ctrl-M</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Mark/Unmark Cell</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>true</source>
-        <translation>sí</translation>
-    </message>
-    <message>
-        <source>Save Table Image</source>
-        <translation>Guardar imagen de tabla</translation>
-    </message>
-    <message>
-        <source>PNG Image (*.png)</source>
-        <translation>Imagen PNG (*.png)</translation>
-    </message>
-</context>
-<context>
-    <name>BluetoothHciSummaryDialog</name>
-    <message>
-        <source>Bluetooth HCI Summary</source>
-        <translation>Resumen HCI Bluetooth</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>Nombre</translation>
-    </message>
-    <message>
-        <source>OGF</source>
-        <translation>OGF</translation>
-    </message>
-    <message>
-        <source>OCF</source>
-        <translation>OCF</translation>
-    </message>
-    <message>
-        <source>Opcode</source>
-        <translation>Opcode</translation>
-    </message>
-    <message>
-        <source>Event</source>
-        <translation>Evento</translation>
-    </message>
-    <message>
-        <source>Subevent</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Status</source>
-        <translation>Estado</translation>
-    </message>
-    <message>
-        <source>Reason</source>
-        <translation>Razón</translation>
-    </message>
-    <message>
-        <source>Hardware Error</source>
-        <translation>Error de hardware</translation>
-    </message>
-    <message>
-        <source>Occurrence</source>
-        <translation>Periodicidad</translation>
-    </message>
-    <message>
-        <source>Link Control Commands</source>
-        <translation>Comandos de control de enlace</translation>
-    </message>
-    <message>
-        <source>0x01</source>
-        <translation>0x01</translation>
-    </message>
-    <message>
-        <source>0</source>
-        <translation>0</translation>
-    </message>
-    <message>
-        <source>Link Policy Commands</source>
-        <translation>Comandos de polìticas de enlace</translation>
-    </message>
-    <message>
-        <source>0x02</source>
-        <translation>0x02</translation>
-    </message>
-    <message>
-        <source>Controller &amp; Baseband Commands</source>
-        <translation>Comandos de controlador y banda base</translation>
-    </message>
-    <message>
-        <source>0x03</source>
-        <translation>0x03</translation>
-    </message>
-    <message>
-        <source>Informational Parameters</source>
-        <translation>Parámetros informacionales</translation>
-    </message>
-    <message>
-        <source>0x04</source>
-        <translation>0x04</translation>
-    </message>
-    <message>
-        <source>Status Parameters</source>
-        <translation>Parámetros de estado</translation>
-    </message>
-    <message>
-        <source>0x05</source>
-        <translation>0x05</translation>
-    </message>
-    <message>
-        <source>Testing Commands</source>
-        <translation>Comandos de prueba</translation>
-    </message>
-    <message>
-        <source>0x06</source>
-        <translation>0x06</translation>
-    </message>
-    <message>
-        <source>LE Controller Commands</source>
-        <translation>Comandos de controlador LE</translation>
-    </message>
-    <message>
-        <source>0x08</source>
-        <translation>0x08</translation>
-    </message>
-    <message>
-        <source>Bluetooth Logo Testing Commands</source>
-        <translation>Comandos de prueba para cert. Bluetooth Logo</translation>
-    </message>
-    <message>
-        <source>0x3E</source>
-        <translation>0x3E</translation>
-    </message>
-    <message>
-        <source>Vendor-Specific Commands</source>
-        <translation>Comandos específicos del proveedor</translation>
-    </message>
-    <message>
-        <source>0x3F</source>
-        <translation>0x3F</translation>
-    </message>
-    <message>
-        <source>Unknown OGF</source>
-        <translation>OGF desconocida</translation>
-    </message>
-    <message>
-        <source>Events</source>
-        <translation>Eventos</translation>
-    </message>
-    <message>
-        <source>Hardware Errors</source>
-        <translation>Errores de hardware</translation>
-    </message>
-    <message>
-        <source>Results filter:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Display filter:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>All Interfaces</source>
-        <translation>Todas las interfaces</translation>
-    </message>
-    <message>
-        <source>All Adapters</source>
-        <translation>Todos los adaptadores</translation>
+        <translation>%1 ítems; Clic derecho para más opción; Doble clic para detalles de dispositivo</translation>
     </message>
     <message>
         <source>Copy Cell</source>
@@ -677,31 +486,19 @@
     </message>
     <message>
         <source>Mark/Unmark Row</source>
-        <translation type="unfinished"></translation>
+        <translation>Marcar/Desmarcar fila</translation>
     </message>
     <message>
-        <source>Ctrl+M</source>
-        <translation type="unfinished"></translation>
+        <source>Ctrl-M</source>
+        <translation>Ctrl-M</translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
+        <translation>Marcar/Desmarcar celda</translation>
+    </message>
+    <message>
+        <source>true</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Unknown</source>
-        <translation>Desconocido</translation>
-    </message>
-    <message>
-        <source>Adapter %1</source>
-        <translation>Adaptador %1</translation>
-    </message>
-    <message>
-        <source>Frame %1</source>
-        <translation>Trama %1</translation>
-    </message>
-    <message>
-        <source>Pending</source>
-        <translation>Pendiente</translation>
     </message>
     <message>
         <source>Save Table Image</source>
@@ -709,14 +506,217 @@
     </message>
     <message>
         <source>PNG Image (*.png)</source>
-        <translation>Imagen PNG (*.png)</translation>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>BluetoothHciSummaryDialog</name>
+    <message>
+        <source>Bluetooth HCI Summary</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>Nombre</translation>
+    </message>
+    <message>
+        <source>OGF</source>
+        <translation>OGF</translation>
+    </message>
+    <message>
+        <source>OCF</source>
+        <translation>OCF</translation>
+    </message>
+    <message>
+        <source>Opcode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Event</source>
+        <translation>Evento</translation>
+    </message>
+    <message>
+        <source>Subevent</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Status</source>
+        <translation>Estado</translation>
+    </message>
+    <message>
+        <source>Reason</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hardware Error</source>
+        <translation>Error de hardware</translation>
+    </message>
+    <message>
+        <source>Occurrence</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Link Control Commands</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>0x01</source>
+        <translation>0x01</translation>
+    </message>
+    <message>
+        <source>0</source>
+        <translation>0</translation>
+    </message>
+    <message>
+        <source>Link Policy Commands</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>0x02</source>
+        <translation>0x02</translation>
+    </message>
+    <message>
+        <source>Controller &amp; Baseband Commands</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>0x03</source>
+        <translation>0x03</translation>
+    </message>
+    <message>
+        <source>Informational Parameters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>0x04</source>
+        <translation>0x04</translation>
+    </message>
+    <message>
+        <source>Status Parameters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>0x05</source>
+        <translation>0x05</translation>
+    </message>
+    <message>
+        <source>Testing Commands</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>0x06</source>
+        <translation>0x06</translation>
+    </message>
+    <message>
+        <source>LE Controller Commands</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>0x08</source>
+        <translation>0x08</translation>
+    </message>
+    <message>
+        <source>Bluetooth Logo Testing Commands</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>0x3E</source>
+        <translation>0x3E</translation>
+    </message>
+    <message>
+        <source>Vendor-Specific Commands</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>0x3F</source>
+        <translation>0x3F</translation>
+    </message>
+    <message>
+        <source>Unknown OGF</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Events</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hardware Errors</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Results filter:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display filter:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All Interfaces</source>
+        <translation type="unfinished">Todas las interfaces</translation>
+    </message>
+    <message>
+        <source>All Adapters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy Cell</source>
+        <translation type="unfinished">Copiar celda</translation>
+    </message>
+    <message>
+        <source>Copy Rows</source>
+        <translation type="unfinished">Copiar filas</translation>
+    </message>
+    <message>
+        <source>Copy All</source>
+        <translation type="unfinished">Copiar todo</translation>
+    </message>
+    <message>
+        <source>Save as image</source>
+        <translation type="unfinished">Guardar como imagen</translation>
+    </message>
+    <message>
+        <source>Mark/Unmark Row</source>
+        <translation type="unfinished">Marcar/Desmarcar fila</translation>
+    </message>
+    <message>
+        <source>Ctrl+M</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mark/Unmark Cell</source>
+        <translation type="unfinished">Marcar/Desmarcar celda</translation>
+    </message>
+    <message>
+        <source>Unknown</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Adapter %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Frame %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pending</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Table Image</source>
+        <translation type="unfinished">Guardar imagen de tabla</translation>
+    </message>
+    <message>
+        <source>PNG Image (*.png)</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>ByteViewTab</name>
     <message>
         <source>Packet bytes</source>
-        <translation>Bytes del paquete</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -734,34 +734,34 @@
     <name>CaptureFile</name>
     <message>
         <source> [closing]</source>
-        <translation>[cerrando]</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source> [closed]</source>
-        <translation>[cerrado]</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>CaptureFileDialog</name>
     <message>
         <source>This capture file contains comments.</source>
-        <translation>Este archivo de captura tiene comentarios.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>The file format you chose doesn&apos;t support comments. Do you want to save the capture in a format that supports comments or discard the comments and save in the format you chose?</source>
-        <translation>El formato que Ud. eligió no soporta comentarios. Debe elegir entre guardar la captura en un formato que soporte comentarios, o descartar los comentarios y guardar la captura en el formato seleccionado.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Discard comments and save</source>
-        <translation>Descartar comentarios y guardar</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Save in another format</source>
-        <translation>Elegir otro formato</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>No file format in which it can be saved supports comments. Do you want to discard the comments and save in the format you chose?</source>
-        <translation>No se pueden guardar los comentarios en este formato, y no hay formatos que soporten comentarios. ¿Quiere descartar los comentarios y guardar la captura en el formato seleccionado?</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>All Files (</source>
@@ -769,15 +769,15 @@
     </message>
     <message>
         <source>All Capture Files</source>
-        <translation>Todos los archivos de captura</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Format:</source>
-        <translation>Formato:</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Size:</source>
-        <translation>Tamaño:</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Start / elapsed:</source>
@@ -789,27 +789,27 @@
     </message>
     <message>
         <source>Prepend packets</source>
-        <translation>Anteponer paquetes</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Insert packets from the selected file before the current file. Packet timestamps will be ignored.</source>
-        <translation>Insertar paquetes del archivo elegido antes del archivo actual. No se tomarán en cuenta los tiempos de los paquetes.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Merge chronologically</source>
-        <translation>Unir cronológicamente</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Insert packets in chronological order.</source>
-        <translation>Insertar paquetes en orden cronológico.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Append packets</source>
-        <translation>Anexar paquetes</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Insert packets from the selected file after the current file. Packet timestamps will be ignored.</source>
-        <translation>Insertar paquetes del archivo elegido después del archivo actual. No se tomarán en cuenta los tiempos de los paquetes.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Read filter:</source>
@@ -817,47 +817,47 @@
     </message>
     <message>
         <source>Compress with g&amp;zip</source>
-        <translation>Comprimir con g&amp;zip</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Open Capture File</source>
         <oldsource>Wireshark: Open Capture File</oldsource>
-        <translation>Abrir archivo de captura</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Save Capture File As</source>
         <oldsource>Wireshark: Save Capture File As</oldsource>
-        <translation>Guardar archivo de captura como</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Save as:</source>
-        <translation>Guardar como:</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Export Specified Packets</source>
         <oldsource>Wireshark: Export Specified Packets</oldsource>
-        <translation>Exportar paquetes especificados</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Export as:</source>
-        <translation>Exportar como:</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Merge Capture File</source>
         <oldsource>Wireshark: Merge Capture File</oldsource>
-        <translation>Unir archivo de captura</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>directory</source>
-        <translation>directorio</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>unknown file format</source>
-        <translation>formato de archivo desconocido</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>error opening file</source>
-        <translation>error al abrir archivo</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
         <source>%1, error after %Ln data record(s)</source>
@@ -883,50 +883,50 @@
     </message>
     <message>
         <source>unknown</source>
-        <translation>desconocido</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>CaptureFilePropertiesDialog</name>
     <message>
         <source>Details</source>
-        <translation>Detalles</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Capture file comments</source>
-        <translation>Comentarios del archivo de captura</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Refresh</source>
-        <translation>Actualizar</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Copy To Clipboard</source>
-        <translation>Copiar al portapapeles</translation>
+        <translation type="unfinished">Copiar al portapapeles</translation>
     </message>
     <message>
         <source>Save Comments</source>
-        <translation>Guardar comentarios</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Capture File Properties</source>
-        <translation>Propiedades del archivo de captura</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Unknown</source>
-        <translation>Desconocido</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>File</source>
-        <translation>Archivo</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Name</source>
-        <translation>Nombre</translation>
+        <translation type="unfinished">Nombre</translation>
     </message>
     <message>
         <source>Length</source>
-        <translation>Duración</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Hash (SHA256)</source>
@@ -942,147 +942,149 @@
     </message>
     <message>
         <source>Format</source>
-        <translation>Formato</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Encapsulation</source>
-        <translation>Encapsulación</translation>
+        <translation type="unfinished">Encapsulado</translation>
     </message>
     <message>
         <source>Snapshot length</source>
-        <translation>Duración de la instantánea</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Time</source>
-        <translation>Tiempo</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>First packet</source>
-        <translation>Primer paquete</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Last packet</source>
-        <translation>Último paquete</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Elapsed</source>
-        <translation>Transcurrido</translation>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Section %1</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Capture</source>
-        <translation>Captura</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Hardware</source>
-        <translation>Hardware</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>OS</source>
-        <translation>Sistema operativo</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Application</source>
-        <translation>Aplicación</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Interfaces</source>
-        <translation>Interfaces</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Interface</source>
-        <translation>Interfaz</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Dropped packets</source>
-        <translation>Paquetes perdidos</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Capture filter</source>
-        <translation>Filtro de captura</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Link type</source>
-        <translation>Tipo de enlace</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Packet size limit</source>
-        <translation>Límite de tamaño de paquetes</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>none</source>
-        <translation>ninguno</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>%1 bytes</source>
-        <translation>%1 bytes</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Statistics</source>
-        <translation>Estadísticas</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Measurement</source>
-        <translation>Medición</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Captured</source>
-        <translation>Capturado</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Displayed</source>
-        <translation>Mostrado</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Marked</source>
-        <translation>Marcado</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Packets</source>
-        <translation>Paquetes</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Time span, s</source>
-        <translation>Lapso de tiempo, seg</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Average pps</source>
-        <translation>Paq/seg promedio</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Average packet size, B</source>
-        <translation>Tamaño promedio de paquetes, B</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Bytes</source>
-        <translation>Bytes</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Average bytes/s</source>
-        <translation>Bytes/seg promedio</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Average bits/s</source>
-        <translation>Bits/seg promedio</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>File Comment</source>
-        <translation>Comentario del archivo</translation>
+        <source>Section Comment</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Packet Comments</source>
-        <translation>Comentarios del paquete</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;p&gt;Frame %1: </source>
-        <translation>&lt;p&gt;Trama %1: </translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Created by Wireshark %1
 
 </source>
-        <translation>Creado por Wireshark %1
-
-</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1162,7 +1164,7 @@
     </message>
     <message>
         <source>Interface</source>
-        <translation type="unfinished">Interfaz</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Traffic</source>
@@ -1194,7 +1196,7 @@
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You probably want to enable this. Usually a network card will only capture the traffic sent to its own network address. If you want to capture all traffic that the network card can &amp;quot;see&amp;quot;, mark this option. See the FAQ for some more details of capturing packets from a switched network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Es posible que desee activar esto. Por lo general, una tarjeta de red sólo capturará el tráfico enviado a su propia dirección de red. Si desea capturar todo el tráfico que la tarjeta de red pueda &amp;quot;ver&amp;quot;, marque esta opción. Vea el FAQ para más detalles sobre la captura de paquetes desde una red conmutada. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Enable promiscuous mode on all interfaces</source>
@@ -1230,11 +1232,11 @@
     </message>
     <message>
         <source>File:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Archivo:</translation>
     </message>
     <message>
         <source>Browse…</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Explorar…</translation>
     </message>
     <message>
         <source>Output format:</source>
@@ -1462,7 +1464,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>CapturePreferencesFrame</name>
     <message>
         <source>Frame</source>
-        <translation>Cuadro</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Default interface</source>
@@ -1470,7 +1472,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You probably want to enable this. Usually a network card will only capture the traffic sent to its own network address. If you want to capture all traffic that the network card can &amp;quot;see&amp;quot;, mark this option. See the FAQ for some more details of capturing packets from a switched network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Es posible que desee activar esto. Por lo general, una tarjeta de red sólo capturará el tráfico enviado a su propia dirección de red. Si desea capturar todo el tráfico que la tarjeta de red pueda &amp;quot;ver&amp;quot;, marque esta opción. Vea el FAQ para más detalles sobre la captura de paquetes desde una red conmutada. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Capture packets in promiscuous mode</source>
@@ -1568,7 +1570,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Import</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Importar</translation>
     </message>
     <message>
         <source>Select a file and add its filters to the end of the list.</source>
@@ -1638,7 +1640,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>ColumnEditorFrame</name>
     <message>
         <source>Frame</source>
-        <translation>Cuadro</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Title:</source>
@@ -1677,7 +1679,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>ColumnListModel</name>
     <message>
         <source>Displayed</source>
-        <translation type="unfinished">Mostrado</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Title</source>
@@ -1685,7 +1687,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tipo</translation>
     </message>
     <message>
         <source>Fields</source>
@@ -1704,7 +1706,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>ColumnPreferencesFrame</name>
     <message>
         <source>Frame</source>
-        <translation>Cuadro</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Add a new column</source>
@@ -1731,7 +1733,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Copiar</translation>
     </message>
     <message>
         <source>Copy filter text to the clipboard.</source>
@@ -1913,7 +1915,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>unknown</source>
-        <translation type="unfinished">desconocido</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;none&gt;</source>
@@ -1929,11 +1931,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Value</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Valor</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tipo</translation>
     </message>
     <message>
         <source>Default</source>
@@ -2056,7 +2058,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Value</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Valor</translation>
     </message>
     <message>
         <source>If the field you have selected has a known set of valid values they will be listed here.</source>
@@ -2266,7 +2268,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>EthernetAddressModel</name>
     <message>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tipo</translation>
     </message>
     <message>
         <source>Name</source>
@@ -2438,11 +2440,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Export As:</source>
         <oldsource>Export as:</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Exportar como:</translation>
     </message>
     <message>
         <source>Plain text (*.txt)</source>
-        <translation type="unfinished"></translation>
+        <translation>Texto plano (*.txt)</translation>
     </message>
     <message>
         <source>Comma Separated Values - summary (*.csv)</source>
@@ -2458,7 +2460,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>JSON (*.json)</source>
-        <translation type="unfinished"></translation>
+        <translation>JSON (*.json)</translation>
     </message>
     <message>
         <source>C Arrays - bytes (*.c, *.h)</source>
@@ -2723,7 +2725,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>FilterExpressionFrame</name>
     <message>
         <source>Frame</source>
-        <translation>Cuadro</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Filter Buttons Preferences…</source>
@@ -2827,7 +2829,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Copiar</translation>
     </message>
     <message>
         <source>IPv4 source address.</source>
@@ -3178,7 +3180,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>FontColorPreferencesFrame</name>
     <message>
         <source>Frame</source>
-        <translation>Cuadro</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Main window font:</source>
@@ -3284,23 +3286,23 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>File</source>
-        <translation>Archivo</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Name</source>
-        <translation>Nombre</translation>
+        <translation type="unfinished">Nombre</translation>
     </message>
     <message>
         <source>Length</source>
-        <translation>Duración</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Format</source>
-        <translation>Formato</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Snapshot length</source>
-        <translation>Duración de la instantánea</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Data</source>
@@ -3308,19 +3310,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>First packet</source>
-        <translation>Primer paquete</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Last packet</source>
-        <translation>Último paquete</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Elapsed</source>
-        <translation>Transcurrido</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Packets</source>
-        <translation>Paquetes</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Invokes</source>
@@ -3511,7 +3513,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>0</source>
-        <translation>0</translation>
+        <translation type="unfinished">0</translation>
     </message>
     <message>
         <source>Zoom In</source>
@@ -3527,7 +3529,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>-</source>
-        <translation>-</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Move Up 10 Pixels</source>
@@ -3709,7 +3711,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Copiar</translation>
     </message>
     <message>
         <source>Copy graphs from another profile.</source>
@@ -3836,11 +3838,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Status</source>
-        <translation>Estado</translation>
+        <translation type="unfinished">Estado</translation>
     </message>
     <message>
         <source>Length</source>
-        <translation>Duración</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Reverse</source>
@@ -4071,64 +4073,64 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>ImportTextDialog</name>
     <message>
         <source>Import From</source>
-        <translation type="unfinished"></translation>
+        <translation>Importar desde</translation>
     </message>
     <message>
         <source>File:</source>
-        <translation type="unfinished"></translation>
+        <translation>Archivo:</translation>
     </message>
     <message>
         <source>Set name of text file to import</source>
-        <translation type="unfinished"></translation>
+        <translation>Establece el nombre de archivo de texto para importar</translation>
     </message>
     <message>
         <source>Browse for text file to import</source>
-        <translation type="unfinished"></translation>
+        <translation>Busque el archivo de texto para importar</translation>
     </message>
     <message>
         <source>Browse…</source>
         <oldsource>Browse...</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Explorar…</translation>
     </message>
     <message>
         <source>Offsets in the text file are in octal notation</source>
-        <translation type="unfinished"></translation>
+        <translation>Los intervalos en el archivo de texto están en notación octal</translation>
     </message>
     <message>
         <source>Octal</source>
-        <translation type="unfinished"></translation>
+        <translation>Octal</translation>
     </message>
     <message>
         <source>Offsets:</source>
-        <translation type="unfinished"></translation>
+        <translation>Intervalos:</translation>
     </message>
     <message>
         <source>Offsets in the text file are in hexadecimal notation</source>
-        <translation type="unfinished"></translation>
+        <translation>Los intervalos en el archivo de texto están en notación hexadecimal</translation>
     </message>
     <message>
         <source>Hexadecimal</source>
-        <translation type="unfinished"></translation>
+        <translation>Hexadecimal</translation>
     </message>
     <message>
         <source>Offsets in the text file are in decimal notation</source>
-        <translation type="unfinished"></translation>
+        <translation>Los intervalos en el archivo de texto están en notación decimal</translation>
     </message>
     <message>
         <source>Decimal</source>
-        <translation type="unfinished"></translation>
+        <translation>Decimal</translation>
     </message>
     <message>
         <source>Timestamp format:</source>
-        <translation type="unfinished"></translation>
+        <translation>Formato de hora</translation>
     </message>
     <message>
         <source>Whether or not the file contains information indicating the direction (inbound or outbound) of the packet.</source>
-        <translation type="unfinished"></translation>
+        <translation>Si el archivo contiene o no información indicando la dirección (entrada o salida) del paquete.</translation>
     </message>
     <message>
         <source>Direction indication:</source>
-        <translation type="unfinished"></translation>
+        <translation>Indicación de dirección:</translation>
     </message>
     <message>
         <source>ExportPDU</source>
@@ -4140,35 +4142,35 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Maximum frame length:</source>
-        <translation type="unfinished"></translation>
+        <translation>Tamaño máximo de trama:</translation>
     </message>
     <message>
         <source>Encapsulation</source>
-        <translation>Encapsulación</translation>
+        <translation>Encapsulado</translation>
     </message>
     <message>
         <source>The text file has no offset</source>
-        <translation type="unfinished"></translation>
+        <translation>El archivo de texto no tiene intervalo</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation>Ninguno</translation>
     </message>
     <message>
         <source>The format in which to parse timestamps in the text file (e.g. %H:%M:%S.). Format specifiers are based on strptime(3)</source>
-        <translation type="unfinished"></translation>
+        <translation>El formato en el que analizar horas en el archivo de texto (e.j. %H:%M:%S.). Los especificadores de formato están basados en strptime(3)</translation>
     </message>
     <message>
         <source>Encapsulation Type:</source>
-        <translation type="unfinished"></translation>
+        <translation>Tipo de encapsulado:</translation>
     </message>
     <message>
         <source>Encapsulation type of the frames in the import capture file</source>
-        <translation type="unfinished"></translation>
+        <translation>Tipo de encapsulado de las tramas en el archivo de importación de captura</translation>
     </message>
     <message>
         <source>The UDP, TCP or SCTP source port for each frame</source>
-        <translation type="unfinished"></translation>
+        <translation>El puerto de origen UDP, TCP o SCTP para cada trama</translation>
     </message>
     <message>
         <source>The SCTP DATA payload protocol identifier for each frame</source>
@@ -4176,103 +4178,103 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>The UDP, TCP or SCTP destination port for each frame</source>
-        <translation type="unfinished"></translation>
+        <translation>El puerto de destino UDP, TCP o SCTP para cada trama</translation>
     </message>
     <message>
         <source>Prefix each frame with an Ethernet header</source>
-        <translation type="unfinished"></translation>
+        <translation>Prefijo para cada trama con una cabecera ethernet</translation>
     </message>
     <message>
         <source>Ethernet</source>
-        <translation type="unfinished"></translation>
+        <translation>Ethernet</translation>
     </message>
     <message>
         <source>Prefix each frame with an Ethernet, IPv4 and SCTP header</source>
-        <translation type="unfinished"></translation>
+        <translation>Prefijo para cada trama con una cabecera ethernet, IPv4 y SCTP</translation>
     </message>
     <message>
         <source>SCTP</source>
-        <translation type="unfinished"></translation>
+        <translation>SCTP</translation>
     </message>
     <message>
         <source>PPI:</source>
-        <translation type="unfinished"></translation>
+        <translation>PPI:</translation>
     </message>
     <message>
         <source>Protocol (dec):</source>
-        <translation type="unfinished"></translation>
+        <translation>Protocolo (dec):</translation>
     </message>
     <message>
         <source>Leave frames unchanged</source>
-        <translation type="unfinished"></translation>
+        <translation>Dejar tramas igual</translation>
     </message>
     <message>
         <source>No dummy header</source>
-        <translation type="unfinished"></translation>
+        <translation>Sin cabecera simulada</translation>
     </message>
     <message>
         <source>Tag:</source>
-        <translation type="unfinished"></translation>
+        <translation>Etiqueta:</translation>
     </message>
     <message>
         <source>Prefix each frame with an Ethernet, IPv4 and UDP header</source>
-        <translation type="unfinished"></translation>
+        <translation>Prefijo para cada trama con una cabecera ethernet, IPv4 y UDP</translation>
     </message>
     <message>
         <source>UDP</source>
-        <translation type="unfinished"></translation>
+        <translation>UDP</translation>
     </message>
     <message>
         <source>Source port:</source>
-        <translation type="unfinished"></translation>
+        <translation>Puerto de origen:</translation>
     </message>
     <message>
         <source>The Ethertype value of each frame</source>
-        <translation type="unfinished"></translation>
+        <translation>El valor Ethertype para cada trama</translation>
     </message>
     <message>
         <source>Prefix each frame with an Ethernet, IPv4 and TCP header</source>
-        <translation type="unfinished"></translation>
+        <translation>Prefijo para cada trama con una cabecera ethernet, IPv4 y TCP</translation>
     </message>
     <message>
         <source>TCP</source>
-        <translation type="unfinished"></translation>
+        <translation>TCP</translation>
     </message>
     <message>
         <source>The SCTP verification tag for each frame</source>
-        <translation type="unfinished"></translation>
+        <translation>La etiqueta de verificación SCTP para cada trama</translation>
     </message>
     <message>
         <source>Destination port:</source>
-        <translation type="unfinished"></translation>
+        <translation>Puerto de destino:</translation>
     </message>
     <message>
         <source>Ethertype (hex):</source>
-        <translation type="unfinished"></translation>
+        <translation>Ethertype (hex):</translation>
     </message>
     <message>
         <source>The IPv4 protocol ID for each frame</source>
-        <translation type="unfinished"></translation>
+        <translation>El ID de protocolo IPv4 para cada trama</translation>
     </message>
     <message>
         <source>Prefix each frame with an Ethernet, IPv4 and SCTP (DATA) header</source>
-        <translation type="unfinished"></translation>
+        <translation>Prefijo para cada trama con una cabecera ethernet, IPv4 y SCTP (Datos)</translation>
     </message>
     <message>
         <source>SCTP (Data)</source>
-        <translation type="unfinished"></translation>
+        <translation>SCTP (Datos)</translation>
     </message>
     <message>
         <source>Prefix each frame with an Ethernet and IPv4 header</source>
-        <translation type="unfinished"></translation>
+        <translation>Prefijo para cada trama con una cabecera ethernet y IPv4</translation>
     </message>
     <message>
         <source>IPv4</source>
-        <translation type="unfinished"></translation>
+        <translation>IPv4</translation>
     </message>
     <message>
         <source>The maximum size of the frames to write to the import capture file (max 256kiB)</source>
-        <translation type="unfinished"></translation>
+        <translation>El tamaño máximo de trama para escribir en el archivo de importación de captura (máx 256kiB)</translation>
     </message>
     <message>
         <source>Import From Hex Dump</source>
@@ -4280,7 +4282,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Import</source>
-        <translation type="unfinished"></translation>
+        <translation>Importar</translation>
     </message>
     <message>
         <source>Import Text File</source>
@@ -4288,7 +4290,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Example: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Ejemplo: %1</translation>
     </message>
     <message>
         <source>&lt;i&gt;(Wrong date format)&lt;/i&gt;</source>
@@ -4296,7 +4298,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;i&gt;(No format will be applied)&lt;/i&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;i&gt;(No se aplicará formato)&lt;/i&gt;</translation>
     </message>
 </context>
 <context>
@@ -4405,7 +4407,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Interface</source>
-        <translation type="unfinished">Interfaz</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4491,7 +4493,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Capture filter</source>
-        <translation type="unfinished">Filtro de captura</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4628,7 +4630,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Frame</source>
-        <translation>Cuadro</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>SQN/Reason</source>
@@ -4931,11 +4933,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Frame</source>
-        <translation>Cuadro</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Reason</source>
-        <translation>Razón</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>SQN/Reason</source>
@@ -5250,7 +5252,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Bytes</source>
-        <translation>Bytes</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>First Frame</source>
@@ -5314,7 +5316,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>LayoutPreferencesFrame</name>
     <message>
         <source>Frame</source>
-        <translation>Cuadro</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Pane 1:</source>
@@ -5334,7 +5336,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ninguno</translation>
     </message>
     <message>
         <source>Pane 2:</source>
@@ -5465,7 +5467,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>0</source>
-        <translation>0</translation>
+        <translation type="unfinished">0</translation>
     </message>
     <message>
         <source>Zoom In</source>
@@ -5481,7 +5483,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>-</source>
-        <translation>-</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Move Up 10 Pixels</source>
@@ -5641,7 +5643,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Time</source>
-        <translation>Tiempo</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Sequence Number</source>
@@ -5791,7 +5793,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Import</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Importar</translation>
     </message>
     <message>
         <source>from zip file</source>
@@ -5937,11 +5939,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Go to packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Ir a paquete</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation>Cancelar</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>File Set</source>
@@ -5957,15 +5959,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&amp;Zoom</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Zoom</translation>
     </message>
     <message>
         <source>&amp;Time Display Format</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Formato de visualización de hora</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished"></translation>
+        <translation>Copiar</translation>
     </message>
     <message>
         <source>Manual pages</source>
@@ -5973,7 +5975,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Apply as Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Aplicar como filtro</translation>
     </message>
     <message>
         <source>Prepare a Filter</source>
@@ -5981,7 +5983,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>SCTP</source>
-        <translation type="unfinished"></translation>
+        <translation>SCTP</translation>
     </message>
     <message>
         <source>TCP Stream Graphs</source>
@@ -5989,39 +5991,39 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>BACnet</source>
-        <translation type="unfinished"></translation>
+        <translation>BACnet</translation>
     </message>
     <message>
         <source>HTTP</source>
-        <translation type="unfinished"></translation>
+        <translation>HTTP</translation>
     </message>
     <message>
         <source>900000000</source>
-        <translation type="unfinished">900000000</translation>
+        <translation>900000000</translation>
     </message>
     <message>
         <source>&amp;File</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Archivo</translation>
     </message>
     <message>
         <source>&amp;Capture</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Captura</translation>
     </message>
     <message>
         <source>&amp;Help</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Ayuda</translation>
     </message>
     <message>
         <source>&amp;Go</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Ir</translation>
     </message>
     <message>
         <source>&amp;View</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Visualización</translation>
     </message>
     <message>
         <source>&amp;Analyze</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Analizar</translation>
     </message>
     <message>
         <source>Follow</source>
@@ -6029,7 +6031,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&amp;Statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Estadísticas</translation>
     </message>
     <message>
         <source>29West</source>
@@ -6045,19 +6047,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>UIM</source>
-        <translation type="unfinished"></translation>
+        <translation>UIM</translation>
     </message>
     <message>
         <source>Telephon&amp;y</source>
-        <translation type="unfinished"></translation>
+        <translation>Telefonía</translation>
     </message>
     <message>
         <source>RTSP</source>
-        <translation type="unfinished"></translation>
+        <translation>RTSP</translation>
     </message>
     <message>
         <source>&amp;Edit</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Edición</translation>
     </message>
     <message>
         <source>Main Toolbar</source>
@@ -6073,7 +6075,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Quit Wireshark</source>
-        <translation type="unfinished"></translation>
+        <translation>Salir de Wireshark</translation>
     </message>
     <message>
         <source>&amp;Start</source>
@@ -6141,7 +6143,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Wiki</source>
-        <translation type="unfinished"></translation>
+        <translation>Wiki</translation>
     </message>
     <message>
         <source>Sample Captures</source>
@@ -6149,7 +6151,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&amp;About Wireshark</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Acerca de Wireshark</translation>
     </message>
     <message>
         <source>Ask (Q&amp;&amp;A)</source>
@@ -6225,7 +6227,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&amp;Save</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Guardar</translation>
     </message>
     <message>
         <source>Save as a different file</source>
@@ -6313,7 +6315,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Value</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Valor</translation>
     </message>
     <message>
         <source>As Filter</source>
@@ -6349,12 +6351,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Osmux</source>
-        <translation type="unfinished"></translation>
+        <translation>Osmux</translation>
     </message>
     <message>
         <source>&amp;Tools</source>
         <oldsource>Tools</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Herramientas</translation>
     </message>
     <message>
         <source>Wireless Toolbar</source>
@@ -6410,7 +6412,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&amp;Merge…</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Fusionar…</translation>
     </message>
     <message>
         <source>&amp;Import from Hex Dump…</source>
@@ -6418,15 +6420,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Save this capture file</source>
-        <translation type="unfinished"></translation>
+        <translation>Guardar este archivo de captura</translation>
     </message>
     <message>
         <source>Save &amp;As…</source>
-        <translation type="unfinished"></translation>
+        <translation>Guardar &amp;como…</translation>
     </message>
     <message>
         <source>Export Specified Packets…</source>
-        <translation type="unfinished"></translation>
+        <translation>Exportar paquetes especificados…</translation>
     </message>
     <message>
         <source>Export Packet &amp;Bytes…</source>
@@ -6434,7 +6436,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&amp;Print…</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Imprimir…</translation>
     </message>
     <message>
         <source>Reload this file</source>
@@ -6592,7 +6594,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Capture File Properties</source>
-        <translation>Propiedades del archivo de captura</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Capture file properties</source>
@@ -6968,11 +6970,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Bluetooth Devices</source>
-        <translation>Dispositivos Bluetooth</translation>
+        <translation type="unfinished">Dispositivos Bluetooth</translation>
     </message>
     <message>
         <source>Bluetooth HCI Summary</source>
-        <translation>Resumen HCI Bluetooth</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Display Filter &amp;Expression…</source>
@@ -7539,7 +7541,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Bluetooth ATT Server Attributes</source>
         <oldsource>ATT Server Attributes</oldsource>
-        <translation>Atributos del servidor ATT Bluetooth</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Show Packet in New &amp;Window</source>
@@ -7915,7 +7917,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>MainWindowPreferencesFrame</name>
     <message>
         <source>Frame</source>
-        <translation>Cuadro</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Checking this will save the size, position, and maximized state of the main window.</source>
@@ -7936,7 +7938,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Browse…</source>
         <oldsource>Browse...</oldsource>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Explorar…</translation>
     </message>
     <message>
         <source>The most recently used folder</source>
@@ -8101,23 +8103,23 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>File</source>
-        <translation>Archivo</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Name</source>
-        <translation>Nombre</translation>
+        <translation type="unfinished">Nombre</translation>
     </message>
     <message>
         <source>Length</source>
-        <translation>Duración</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Format</source>
-        <translation>Formato</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Snapshot length</source>
-        <translation>Duración de la instantánea</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Data</source>
@@ -8125,19 +8127,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>First packet</source>
-        <translation>Primer paquete</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Last packet</source>
-        <translation>Último paquete</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Elapsed</source>
-        <translation>Transcurrido</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Packets</source>
-        <translation>Paquetes</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Service Indicator (SI) Totals</source>
@@ -8157,7 +8159,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Bytes</source>
-        <translation>Bytes</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Bytes/MSU</source>
@@ -8212,7 +8214,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Packets</source>
-        <translation>Paquetes</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Packets/s</source>
@@ -8383,7 +8385,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Bytes</source>
-        <translation>Bytes</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -8473,11 +8475,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>-</source>
-        <translation>-</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Displayed</source>
-        <translation>Mostrado</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&amp;Marked packets only</source>
@@ -8505,7 +8507,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Captured</source>
-        <translation>Capturado</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -8531,7 +8533,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tipo</translation>
     </message>
     <message>
         <source>Path</source>
@@ -8570,14 +8572,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tipo</translation>
     </message>
 </context>
 <context>
     <name>PreferenceEditorFrame</name>
     <message>
         <source>Frame</source>
-        <translation>Cuadro</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>…</source>
@@ -8631,7 +8633,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Capture</source>
-        <translation type="unfinished">Captura</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Expert</source>
@@ -8718,7 +8720,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Import</source>
         <comment>noun</comment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Importar</translation>
     </message>
     <message>
         <source>Export</source>
@@ -8942,7 +8944,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tipo</translation>
     </message>
 </context>
 <context>
@@ -8964,7 +8966,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>ProgressFrame</name>
     <message>
         <source>Frame</source>
-        <translation>Cuadro</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>TextLabel</source>
@@ -8995,7 +8997,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Copiar</translation>
     </message>
     <message>
         <source>All Visible Items</source>
@@ -9015,7 +9017,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Value</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Valor</translation>
     </message>
     <message>
         <source>As Filter</source>
@@ -9058,7 +9060,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Packets</source>
-        <translation>Paquetes</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Percent Bytes</source>
@@ -9066,7 +9068,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Bytes</source>
-        <translation>Bytes</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Bits/s</source>
@@ -9110,7 +9112,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Copiar</translation>
     </message>
     <message>
         <source>as CSV</source>
@@ -9196,7 +9198,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Apply as Filter</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Aplicar como filtro</translation>
     </message>
     <message>
         <source>Prepare a Filter</source>
@@ -9216,7 +9218,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Copiar</translation>
     </message>
     <message>
         <source>UNKNOWN</source>
@@ -9348,7 +9350,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tipo</translation>
     </message>
     <message>
         <source>UEId</source>
@@ -9472,7 +9474,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Unknown</source>
-        <translation>Desconocido</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>UE Id</source>
@@ -9480,7 +9482,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Name</source>
-        <translation>Nombre</translation>
+        <translation type="unfinished">Nombre</translation>
     </message>
     <message>
         <source>Mode</source>
@@ -9621,7 +9623,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ninguno</translation>
     </message>
     <message>
         <source>1 of</source>
@@ -9774,7 +9776,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tipo</translation>
     </message>
     <message>
         <source>Messages</source>
@@ -9976,7 +9978,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Status</source>
-        <translation>Estado</translation>
+        <translation type="unfinished">Estado</translation>
     </message>
     <message>
         <source>Reverse</source>
@@ -10383,7 +10385,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Packets</source>
-        <translation>Paquetes</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Time Span (s)</source>
@@ -10485,7 +10487,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>0</source>
-        <translation>0</translation>
+        <translation type="unfinished">0</translation>
     </message>
     <message>
         <source>Zoom In</source>
@@ -10501,7 +10503,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>-</source>
-        <translation>-</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Move Left 10 Pixels</source>
@@ -10621,7 +10623,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Unknown</source>
-        <translation>Desconocido</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -10656,7 +10658,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Packets</source>
-        <translation>Paquetes</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Lost</source>
@@ -10676,7 +10678,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Status</source>
-        <translation>Estado</translation>
+        <translation type="unfinished">Estado</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
@@ -10785,7 +10787,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Copiar</translation>
     </message>
     <message>
         <source>as CSV</source>
@@ -10856,7 +10858,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>0</source>
-        <translation>0</translation>
+        <translation type="unfinished">0</translation>
     </message>
     <message>
         <source>Zoom In</source>
@@ -10872,7 +10874,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>-</source>
-        <translation>-</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Move Up 10 Pixels</source>
@@ -11107,7 +11109,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Statistics</source>
-        <translation>Estadísticas</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Chunk Statistics</source>
@@ -11376,7 +11378,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Bytes</source>
-        <translation>Bytes</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>time [secs]</source>
@@ -11509,7 +11511,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>SearchFrame</name>
     <message>
         <source>Frame</source>
-        <translation>Cuadro</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search the Info column of the packet list (summary pane), decoded packet display labels (tree view pane) or the ASCII-converted packet data (hex view pane).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -11525,7 +11527,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Packet bytes</source>
-        <translation>Bytes del paquete</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search for strings containing narrow (UTF-8 and ASCII) or wide (UTF-16) characters.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -11574,7 +11576,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Cancel</source>
-        <translation>Cancelar</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>No valid search type selected. Please report this to the development team.</source>
@@ -11637,7 +11639,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Time</source>
-        <translation type="unfinished">Tiempo</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Comment</source>
@@ -11782,7 +11784,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>0</source>
-        <translation>0</translation>
+        <translation type="unfinished">0</translation>
     </message>
     <message>
         <source>Zoom In</source>
@@ -11798,7 +11800,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>-</source>
-        <translation type="unfinished">-</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Move Up 10 Pixels</source>
@@ -11979,7 +11981,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ninguno</translation>
     </message>
     <message>
         <source>Base64</source>
@@ -12051,7 +12053,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Copiar</translation>
     </message>
     <message>
         <source>Save as</source>
@@ -12186,7 +12188,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tipo</translation>
     </message>
     <message>
         <source>Description</source>
@@ -12295,7 +12297,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tipo</translation>
     </message>
     <message>
         <source>MA Window (s)</source>
@@ -12404,7 +12406,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>0</source>
-        <translation>0</translation>
+        <translation type="unfinished">0</translation>
     </message>
     <message>
         <source>Zoom In</source>
@@ -12420,7 +12422,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>-</source>
-        <translation>-</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Move Up 10 Pixels</source>
@@ -12780,7 +12782,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Copiar</translation>
     </message>
     <message>
         <source>Copy a text representation of the tree to the clipboard</source>
@@ -12904,7 +12906,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Copiar</translation>
     </message>
     <message>
         <source>as CSV</source>
@@ -12924,7 +12926,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Unknown</source>
-        <translation>Desconocido</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -13067,7 +13069,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Copiar</translation>
     </message>
     <message>
         <source>as CSV</source>
@@ -13126,7 +13128,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Packets</source>
-        <translation type="unfinished">Paquetes</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>State</source>
@@ -13223,7 +13225,7 @@ a:hover {
     </message>
     <message>
         <source>Show in Finder</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Mostrar en Finder</translation>
     </message>
     <message>
         <source>Show in Folder</source>
@@ -13273,11 +13275,11 @@ a:hover {
     <name>WirelessFrame</name>
     <message>
         <source>Frame</source>
-        <translation>Cuadro</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Interface</source>
-        <translation>Interfaz</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Set the 802.11 channel.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
