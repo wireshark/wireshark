@@ -2578,16 +2578,13 @@ dissect_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* Dissect TB data */
         offset = dissect_tb_data(tvb, pinfo, tree, offset, p_fp_info, &mac_fdd_dch_handle, data);
 
-        /* QE (uplink only) */
+        /* QE and CRCI bits (uplink only) */
         if (p_fp_info->is_uplink) {
             proto_tree_add_item(tree, hf_fp_quality_estimate, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
-        }
-
-        /* CRCI bits (uplink only) */
-        if (p_fp_info->is_uplink) {
             offset = dissect_crci_bits(tvb, pinfo, tree, p_fp_info, offset);
         }
+
         if (preferences_header_checksum) {
             verify_header_crc(tvb, pinfo, header_crc_pi, header_crc, header_length);
         }
@@ -4122,10 +4119,11 @@ heur_dissect_fp_dcch_over_dch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
     /* Making sure we have at least enough bytes for header (3) + footer (2) */
     captured_length = tvb_captured_length(tvb);
-    reported_length = tvb_reported_length(tvb);
     if (captured_length < 5) {
         return FALSE;
     }
+    reported_length = tvb_reported_length(tvb);
+
     tfi = tvb_get_guint8(tvb, 2) & 0x1f;
 
     /* Checking if this is a DCH frame with 0 TBs*/

@@ -958,7 +958,7 @@ dissect_rpc_authunix_groups(tvbuff_t* tvb, proto_tree* tree, int offset)
 
 	gids_count = tvb_get_ntohl(tvb,offset);
 	gtree = proto_tree_add_subtree_format(tree, tvb, offset,
-			4+gids_count*4, ett_rpc_gids, &gitem, "Auxiliary GIDs (%d)", gids_count);
+			4+gids_count*4, ett_rpc_gids, &gitem, "Auxiliary GIDs (%u)", gids_count);
 	offset += 4;
 
 	/* first, open with [ */
@@ -977,7 +977,7 @@ dissect_rpc_authunix_groups(tvbuff_t* tvb, proto_tree* tree, int offset)
 			if (gids_i > 0)
 				proto_item_append_text(gitem, ", ");
 
-			proto_item_append_text(gitem, "%d", gids_entry);
+			proto_item_append_text(gitem, "%u", gids_entry);
 		} else if (tree && gids_i == 16) {
 			proto_item_append_text(gitem, "...");
 		}
@@ -2471,7 +2471,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				/* No, so it's a duplicate request.
 				   Mark it as such. */
 				col_prepend_fstr(pinfo->cinfo, COL_INFO,
-						 "[RPC retransmission of #%d]",
+						 "[RPC retransmission of #%u]",
 						 rpc_call->req_num);
 				proto_tree_add_item(rpc_tree, hf_rpc_dup, tvb,
 						    0, 0, ENC_NA);
@@ -2479,7 +2479,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 						    tvb, 0,0, rpc_call->req_num);
 			}
 			if(rpc_call->rep_num){
-				col_append_fstr(pinfo->cinfo, COL_INFO," (Reply In %d)", rpc_call->rep_num);
+				col_append_fstr(pinfo->cinfo, COL_INFO," (Reply In %u)", rpc_call->rep_num);
 			}
 		} else {
 			/* Prepare the value data.
@@ -2630,7 +2630,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				&ns);
 			proto_item_set_generated(tmp_item);
 
-			col_append_fstr(pinfo->cinfo, COL_INFO," (Call In %d)", rpc_call->req_num);
+			col_append_fstr(pinfo->cinfo, COL_INFO," (Call In %u)", rpc_call->req_num);
 		}
 
 
@@ -2648,7 +2648,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				/* No, so it's a duplicate reply.
 				   Mark it as such. */
 				col_prepend_fstr(pinfo->cinfo, COL_INFO,
-						"[RPC duplicate of #%d]", rpc_call->rep_num);
+						"[RPC duplicate of #%u]", rpc_call->rep_num);
 				tmp_item=proto_tree_add_item(rpc_tree,
 					hf_rpc_dup, tvb, 0,0, ENC_NA);
 				proto_item_set_generated(tmp_item);
