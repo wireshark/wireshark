@@ -364,7 +364,7 @@ is_valid_path(const char *path)
     if(path[0] != '/')
         return FALSE;
     for(ptr=path+1; *ptr!='\0'; ptr++)
-        if( (g_ascii_isprint(*ptr) == 0) || (strchr(invalid_path_chars, *ptr) != NULL) )
+        if(!g_ascii_isprint(*ptr) || (strchr(invalid_path_chars, *ptr) != NULL) )
             return FALSE;
     return TRUE;
 }
