@@ -1410,7 +1410,8 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 
         break;
     case BLOCK_SIMPLE_PACKET:
-        if (0 == wmem_array_get_count(info->interfaces)) {
+        interface_id = 0;
+        if (interface_id >= wmem_array_get_count(info->interfaces)) {
             expert_add_info(pinfo, block_tree, &ei_missing_idb);
         }
 
@@ -1418,8 +1419,6 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 
         proto_tree_add_item_ret_uint(block_data_tree, hf_pcapng_packet_length, tvb, offset, 4, encoding, &captured_length);
         offset += 4;
-
-        interface_id = 0;
 
         packet_data_item = proto_tree_add_item(block_data_tree, hf_pcapng_packet_data, tvb, offset, captured_length, encoding);
 
@@ -1570,12 +1569,11 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 
         break;
     case BLOCK_INTERFACE_STATISTICS:
-        if (0 == wmem_array_get_count(info->interfaces) && info->frame_number == 1) {
-            expert_add_info(pinfo, block_tree, &ei_missing_idb);
-        }
-
         proto_tree_add_item(block_data_tree, hf_pcapng_interface_id, tvb, offset, 4, encoding);
         interface_id = tvb_get_guint32(tvb, offset, encoding);
+        if (interface_id >= wmem_array_get_count(info->interfaces)) {
+            expert_add_info(pinfo, block_tree, &ei_missing_idb);
+        }
         offset += 4;
 
         pcapng_add_timestamp(block_data_tree, pinfo, tvb, offset, encoding, interface_id, info);
