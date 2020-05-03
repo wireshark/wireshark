@@ -1371,13 +1371,14 @@ add_string_fmt(string_fmt_e format, gchar *plain) {
 
 static gboolean
 parse_field_string_format(gchar *format) {
-    GString *plain_s = g_string_new("");
     size_t len;
     size_t pos = 0;
 
     if (!format) {
         return FALSE;
     }
+
+    GString *plain_s = g_string_new("");
 
     len = strlen(format);
     g_ptr_array_set_size(string_fmts, 0);
