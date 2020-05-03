@@ -512,11 +512,11 @@ static const value_string timestamp_resolution_base_vals[] = {
 };
 
 static const value_string packet_hash_algorithm_vals[] = {
-    { 0x00,  "2's complement" },
-    { 0x01,  "XOR" },
-    { 0x02,  "CRC32" },
-    { 0x03,  "MD5" },
-    { 0x04,  "SHA1" },
+    { 0,  "2's complement" },
+    { 1,  "XOR" },
+    { 2,  "CRC32" },
+    { 3,  "MD5" },
+    { 4,  "SHA1" },
     { 0, NULL }
 };
 
@@ -1924,7 +1924,7 @@ proto_register_pcapng(void)
         },
         { &hf_pcapng_option_data_packet_hash_algorithm,
             { "Hash Algorithm",                            "pcapng.options.option.data.packet.hash.algorithm",
-            FT_UINT8, BASE_HEX, VALS(packet_hash_algorithm_vals), 0x00,
+            FT_UINT8, BASE_DEC, VALS(packet_hash_algorithm_vals), 0x00,
             NULL, HFILL }
         },
         { &hf_pcapng_option_data_packet_hash_data,
@@ -2079,12 +2079,12 @@ proto_register_pcapng(void)
         },
         { &hf_pcapng_packet_block_interface_id,
             { "Interface",                                 "pcapng.packet.interface_id",
-            FT_UINT16, BASE_HEX, NULL, 0x00,
+            FT_UINT16, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_pcapng_packet_block_drops_count,
             { "Drops Count",                               "pcapng.packet.drops_count",
-            FT_UINT16, BASE_HEX, NULL, 0x00,
+            FT_UINT16, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_pcapng_captured_length,
@@ -2109,7 +2109,7 @@ proto_register_pcapng(void)
         },
         { &hf_pcapng_interface_id,
             { "Interface",                                 "pcapng.interface_id",
-            FT_UINT16, BASE_HEX, NULL, 0x00,
+            FT_UINT16, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_pcapng_timestamp_high,
