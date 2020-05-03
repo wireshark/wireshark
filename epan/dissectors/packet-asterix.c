@@ -6327,9 +6327,9 @@ static const value_string valstr_021_165_TI[] = {
 };
 static const FieldPart I021_165_TAR = { 10, 1.0/32.0, FIELD_PART_FLOAT, &hf_021_165_TAR, NULL };
 static const FieldPart I021_165_TI = { 2, 1.0, FIELD_PART_UINT, &hf_021_165_TI, NULL };
-static const FieldPart I021_165_ROT = { 7, 1.0, FIELD_PART_UINT, &hf_021_165_ROT, NULL };
+static const FieldPart I021_165_ROT = { 7, 1.0/4.0, FIELD_PART_UINT, &hf_021_165_ROT, NULL };
 static const FieldPart *I021_165_PARTS[] = { &IXXX_6bit_spare, &I021_165_TAR, NULL };
-static const FieldPart *I021_165_PARTS_v0_2[] = { &I021_165_TI, &IXXX_6bit_spare, &IXXX_FX,
+static const FieldPart *I021_165_PARTS_v0_2[] = { &I021_165_TI, &IXXX_5bit_spare, &IXXX_FX,
                                                   &I021_165_ROT, &IXXX_FX, NULL };
 
 /* Target Status */
@@ -12908,7 +12908,7 @@ void proto_register_asterix (void)
         { &hf_021_165, { "165, Track Angle Rate", "asterix.021_165", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_021_165_v0_2, { "165, Rate of Turn", "asterix.021_165", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_021_165_TAR, { "TAR [deg/s]", "asterix.021_165_TAR", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-        { &hf_021_165_TI, { "TI", "asterix.021_165_TI", FT_UINT8, BASE_DEC, VALS (valstr_021_165_TI), 0x80, NULL, HFILL } },
+        { &hf_021_165_TI, { "TI", "asterix.021_165_TI", FT_UINT8, BASE_DEC, VALS (valstr_021_165_TI), 0xc0, NULL, HFILL } },
         { &hf_021_165_ROT, { "ROT", "asterix.021_165_ROT", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
         { &hf_021_170, { "170, Target Identification", "asterix.021_170", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_021_200, { "200, Target Status", "asterix.021_200", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
