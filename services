@@ -4074,6 +4074,7 @@ mtsserver	4602/tcp	# EAX MTS Server
 menandmice-upg	4603/tcp	# Men & Mice Upgrade Agent
 irp		4604/tcp	# Identity Registration Protocol
 sixchat		4605/tcp	# Direct End to End Secure Chat Protocol
+sixid		4606/tcp	# Secure ID to IP registration and lookup
 ventoso		4621/udp	# Bidirectional single port remote radio VOIP and Control stream
 dots-signal	4646/tcp/udp	# Distributed Denial-of-Service Open Threat Signaling (DOTS) Signal Channel
 playsta2-app	4658/tcp/udp	# PlayStation2 App Port
