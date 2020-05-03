@@ -561,9 +561,9 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
 
     /* First, make sure we have enough data to do the check. */
     captured_length = tvb_captured_length(tvb);
-    reported_length = tvb_reported_length(tvb);
     if (captured_length < MIN_HDR_LEN)
         return 0;
+    reported_length = tvb_reported_length(tvb);
 
     tcp_framing_offset = 0;
     if ((!is_udp) && (captured_length >= TCP_FRAME_COOKIE_LEN) &&
