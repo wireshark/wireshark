@@ -614,8 +614,7 @@ int inner_compile_dfilter(char *dfilter, dfilter_t **dfcode, char **err_msg) {
 
     if (!compile_status) {
         if (err_msg != NULL) {
-            *err_msg = (char *)malloc(strlen(dfilter_err_msg) + 1);
-            strcpy(*err_msg, dfilter_err_msg);
+            *err_msg = strdup(dfilter_err_msg);
         }
         g_free(dfilter_err_msg);
     }
@@ -646,13 +645,16 @@ int parse_output_fields(output_fields_t *output_fields, char **fields, int field
             return -1;
         }
 
-        int current_err_size = 64;
-        *err_msg = (char *)malloc(current_err_size);
-        strcpy(*err_msg, "Some fields aren't valid:\n");
+        int total_size = 0;
+        for (it = invalid_fields; it != NULL; it = g_slist_next(it)) {
+            total_size += strlen((gchar *) it->data) + 1;
+        }
+
+        char *error_start = "Some fields aren't valid:\n";
+        *err_msg = (char *)malloc(total_size + strlen(error_start) + 1);
+        strcpy(*err_msg, error_start);
 
         for (it = invalid_fields; it != NULL; it = g_slist_next(it)) {
-            current_err_size = current_err_size + strlen((gchar *) it->data) + 1;
-            *err_msg = (char *) realloc(*err_msg, current_err_size);
             strcat(*err_msg, "\t");
             strcat(*err_msg, (gchar *) it->data);
         }
@@ -666,7 +668,7 @@ int parse_output_fields(output_fields_t *output_fields, char **fields, int field
     return 0;
 }
 
-WS_DLL_PUBLIC int validate_fields(char **fields, int fields_len) {
+WS_DLL_PUBLIC int validate_fields(char **fields, size_t fields_len) {
     output_fields_t *output_fields = output_fields_new();
 
     if (parse_output_fields(output_fields, fields, fields_len, NULL) != 0) {
@@ -677,7 +679,7 @@ WS_DLL_PUBLIC int validate_fields(char **fields, int fields_len) {
     return TRUE;
 }
 
-WS_DLL_PUBLIC int marine_add_filter(char *bpf, char *dfilter, char **fields, int fields_len, char **err_msg) {
+WS_DLL_PUBLIC int marine_add_filter(char *bpf, char *dfilter, char **fields, size_t fields_len, char **err_msg) {
     // TODO make the error codes consts
     struct bpf_program fcode;
     dfilter_t *dfcode = NULL;
@@ -687,9 +689,7 @@ WS_DLL_PUBLIC int marine_add_filter(char *bpf, char *dfilter, char **fields, int
     if (bpf != NULL) {
         has_bpf = TRUE;
         if (compile_bpf(bpf, &fcode) != 0) {
-            char *error = "Failed compiling the BPF";
-            *err_msg = (char *)malloc(strlen(error) + 1);
-            strcpy(*err_msg, error);
+            *err_msg = strdup("Failed compiling the BPF");
             return -1;
         }
     }
