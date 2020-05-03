@@ -25,11 +25,11 @@
     </message>
     <message>
         <source>Copy the version information to the clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Скопіювати інформацію про версію до буферу обміну</translation>
     </message>
     <message>
         <source>Copy To Clipboard</source>
-        <translation type="unfinished">Скопіювати До Буферу Обміну</translation>
+        <translation>Скопіювати До Буферу Обміну</translation>
     </message>
     <message>
         <source>Authors</source>
@@ -37,7 +37,7 @@
     </message>
     <message>
         <source>Search Authors</source>
-        <translation type="unfinished"></translation>
+        <translation>Пошук авторів</translation>
     </message>
     <message>
         <source>Folders</source>
@@ -45,7 +45,7 @@
     </message>
     <message>
         <source>Filter by path</source>
-        <translation type="unfinished"></translation>
+        <translation>Фільтр за шляхом</translation>
     </message>
     <message>
         <source>Plugins</source>
@@ -53,27 +53,27 @@
     </message>
     <message>
         <source>No plugins found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Плагіни не знайдено.</translation>
     </message>
     <message>
         <source>Search Plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>Пошук Плагінів</translation>
     </message>
     <message>
         <source>Filter by type:</source>
-        <translation type="unfinished"></translation>
+        <translation>Фільтр за типом:</translation>
     </message>
     <message>
         <source>Keyboard Shortcuts</source>
-        <translation type="unfinished"></translation>
+        <translation>Комбінації Клавіш</translation>
     </message>
     <message>
         <source>Search Shortcuts</source>
-        <translation type="unfinished"></translation>
+        <translation>Шукати Комбінації Клавіш</translation>
     </message>
     <message>
         <source>Acknowledgments</source>
-        <translation type="unfinished"></translation>
+        <translation>Подяки</translation>
     </message>
     <message>
         <source>License</source>
@@ -81,38 +81,38 @@
     </message>
     <message>
         <source>The directory does not exist</source>
-        <translation type="unfinished"></translation>
+        <translation>Директорія не існує</translation>
     </message>
     <message>
         <source>Should the directory %1 be created?</source>
-        <translation type="unfinished"></translation>
+        <translation>Створити директорію %1?</translation>
     </message>
     <message>
         <source>The directory could not be created</source>
-        <translation type="unfinished"></translation>
+        <translation>Неможливо створити директорію</translation>
     </message>
     <message>
         <source>The directory %1 could not be created.</source>
-        <translation type="unfinished"></translation>
+        <translation>Неможливо створити директорію %1.</translation>
     </message>
     <message>
         <source>Show in Finder</source>
-        <translation type="unfinished"></translation>
+        <translation>Показати у Finder&apos;і</translation>
     </message>
     <message>
         <source>Show in Folder</source>
-        <translation type="unfinished"></translation>
+        <translation>Показати у Папці</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished">Скопіювати</translation>
+        <translation>Скопіювати</translation>
     </message>
     <message numerus="yes">
         <source>Copy Row(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Скопіювати Рядок</numerusform>
+            <numerusform>Скопіювати Рядки</numerusform>
+            <numerusform>Скопіювати Рядки</numerusform>
         </translation>
     </message>
 </context>
@@ -148,22 +148,22 @@
     </message>
     <message>
         <source>Status</source>
-        <translation type="unfinished">Статус</translation>
+        <translation>Статус</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Тип</translation>
     </message>
     <message>
         <source>Value</source>
-        <translation type="unfinished">Значення</translation>
+        <translation>Значення</translation>
     </message>
 </context>
 <context>
     <name>ApplyLineEdit</name>
     <message>
         <source>Apply changes</source>
-        <translation type="unfinished"></translation>
+        <translation>Застосувати зміни</translation>
     </message>
 </context>
 <context>
@@ -174,7 +174,7 @@
     </message>
     <message>
         <source>Email</source>
-        <translation type="unfinished"></translation>
+        <translation>Email</translation>
     </message>
 </context>
 <context>
@@ -225,15 +225,15 @@
     </message>
     <message>
         <source>Mark/Unmark Row</source>
-        <translation type="unfinished"></translation>
+        <translation>Позначити Рядок/Відмінити Позначення</translation>
     </message>
     <message>
         <source>Ctrl-M</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+M</translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
-        <translation type="unfinished"></translation>
+        <translation>Позначити Клітинку/Відмінити Позначення</translation>
     </message>
     <message>
         <source>Save Table Image</source>
@@ -248,67 +248,67 @@
     <name>BluetoothDeviceDialog</name>
     <message>
         <source>Bluetooth Device</source>
-        <translation type="unfinished"></translation>
+        <translation>Пристрій Bluetooth</translation>
     </message>
     <message>
         <source>BD_ADDR</source>
-        <translation type="unfinished">BD_ADDR</translation>
+        <translation>BD_ADDR</translation>
     </message>
     <message>
         <source>OUI</source>
-        <translation type="unfinished">УІО (OUI)</translation>
+        <translation>УІО (OUI)</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Ім&apos;я</translation>
     </message>
     <message>
         <source>Class of Device</source>
-        <translation type="unfinished"></translation>
+        <translation>Клас Пристрою</translation>
     </message>
     <message>
         <source>LMP Version</source>
-        <translation type="unfinished">Версія LMP</translation>
+        <translation>Версія LMP</translation>
     </message>
     <message>
         <source>LMP Subversion</source>
-        <translation type="unfinished">Підверсія LMP</translation>
+        <translation>Підверсія LMP</translation>
     </message>
     <message>
         <source>Manufacturer</source>
-        <translation type="unfinished">Виробник</translation>
+        <translation>Виробник</translation>
     </message>
     <message>
         <source>HCI Version</source>
-        <translation type="unfinished">Версія HCI</translation>
+        <translation>Версія HCI</translation>
     </message>
     <message>
         <source>HCI Revision</source>
-        <translation type="unfinished">Ревізія HCI</translation>
+        <translation>Ревізія HCI</translation>
     </message>
     <message>
         <source>Scan</source>
-        <translation type="unfinished"></translation>
+        <translation>Сканувати</translation>
     </message>
     <message>
         <source>Authentication</source>
-        <translation type="unfinished"></translation>
+        <translation>Аутентифікація</translation>
     </message>
     <message>
         <source>Encryption</source>
-        <translation type="unfinished"></translation>
+        <translation>Шифрування</translation>
     </message>
     <message>
         <source>ACL MTU</source>
-        <translation type="unfinished"></translation>
+        <translation>ACL MTU</translation>
     </message>
     <message>
         <source>ACL Total Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Усього Пакетів ACL</translation>
     </message>
     <message>
         <source>SCO MTU</source>
-        <translation type="unfinished"></translation>
+        <translation>SCO MTU</translation>
     </message>
     <message>
         <source>SCO Total Packets</source>
@@ -372,11 +372,11 @@
     </message>
     <message>
         <source>Ctrl-M</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ctrl+M</translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Позначити Клітинку/Відмінити Позначення</translation>
     </message>
     <message>
         <source>Unknown</source>
@@ -400,11 +400,11 @@
     </message>
     <message>
         <source>Save Table Image</source>
-        <translation type="unfinished">Зберегти Зображення Таблиці</translation>
+        <translation>Зберегти Зображення Таблиці</translation>
     </message>
     <message>
         <source>PNG Image (*.png)</source>
-        <translation type="unfinished">Зображення PNG (*.png)</translation>
+        <translation>Зображення PNG (*.png)</translation>
     </message>
 </context>
 <context>
@@ -423,7 +423,7 @@
     </message>
     <message>
         <source>Name</source>
-        <translation>Назва</translation>
+        <translation>Ім&apos;я</translation>
     </message>
     <message>
         <source>LMP Version</source>
@@ -479,15 +479,15 @@
     </message>
     <message>
         <source>Mark/Unmark Row</source>
-        <translation type="unfinished"></translation>
+        <translation>Вибрати/Зняти позначку з рядка</translation>
     </message>
     <message>
         <source>Ctrl-M</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ctrl+M</translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Позначити Клітинку/Відмінити Позначення</translation>
     </message>
     <message>
         <source>true</source>
@@ -642,7 +642,7 @@
     </message>
     <message>
         <source>Display filter:</source>
-        <translation type="unfinished">Фільтр відображення:</translation>
+        <translation>Фільтр відображення:</translation>
     </message>
     <message>
         <source>All Interfaces</source>
@@ -678,7 +678,7 @@
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Позначити Клітинку/Відмінити Позначення</translation>
     </message>
     <message>
         <source>Unknown</source>
@@ -716,7 +716,7 @@
     <name>ByteViewText</name>
     <message>
         <source>Show bytes as hexadecimal</source>
-        <translation type="unfinished"></translation>
+        <translation>Показати байти в шістнадцятковій системі числення</translation>
     </message>
     <message>
         <source>Show text based on packet</source>
@@ -778,7 +778,7 @@
     </message>
     <message>
         <source>Automatically detect file type</source>
-        <translation type="unfinished"></translation>
+        <translation>Автоматично визначати тип файлу</translation>
     </message>
     <message>
         <source>Prepend packets</source>
@@ -926,15 +926,15 @@
     </message>
     <message>
         <source>Hash (SHA256)</source>
-        <translation type="unfinished"></translation>
+        <translation>Хеш (SHA256)</translation>
     </message>
     <message>
         <source>Hash (RIPEMD160)</source>
-        <translation type="unfinished"></translation>
+        <translation>Хеш (RIPEMD160)</translation>
     </message>
     <message>
         <source>Hash (SHA1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Хеш (SHA1)</translation>
     </message>
     <message>
         <source>Format</source>
@@ -1062,11 +1062,11 @@
     </message>
     <message>
         <source>File Comment</source>
-        <translation type="unfinished"></translation>
+        <translation>Коментар до Файлу</translation>
     </message>
     <message>
         <source>Packet Comments</source>
-        <translation type="unfinished"></translation>
+        <translation>Коментарі до Пакету</translation>
     </message>
     <message>
         <source>&lt;p&gt;Frame %1: </source>
@@ -1200,12 +1200,12 @@
     <message>
         <source>megabytes</source>
         <oldsource>Megabytes</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>мегабайтів</translation>
     </message>
     <message>
         <source>kilobytes</source>
         <oldsource>Kilobytes</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>кілобайтів</translation>
     </message>
     <message>
         <source>seconds</source>
@@ -1276,7 +1276,7 @@
     <message>
         <source>Capture filter for selected interfaces:</source>
         <oldsource>Capture Filter for selected Interfaces:</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Фільтр захоплення для вибраних інтерфейсів:</translation>
     </message>
     <message>
         <source>Compile BPFs</source>
@@ -1293,7 +1293,7 @@
     <message>
         <source>gigabytes</source>
         <oldsource>Gigabytes</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>гігабайтів</translation>
     </message>
     <message>
         <source>Switch to the next file after the specified number of packets have been captured.</source>
@@ -1452,12 +1452,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Multiple files: Requested filesize too large. The filesize cannot be greater than 2 GiB.</source>
         <oldsource>Multiple files: Requested filesize too large! The filesize cannot be greater than 2 GiB.</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Набір файлів: Заданий розмір файлу завеликий. Розмір файлу не може бути більшим за 2 ГіБ.</translation>
     </message>
     <message>
         <source>Multiple files: No capture file name given. You must specify a filename if you want to use multiple files.</source>
         <oldsource>Multiple files: No capture file name given! You must specify a filename if you want to use multiple files.</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Набір файлів: Не задано імені файлу захоплення. Ви повинні вказати ім&apos;я файлу для використання набору файлів.</translation>
     </message>
     <message>
         <source>Multiple files: No file limit given. You must specify a file size, interval, or number of packets for each file.</source>
@@ -1488,7 +1488,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Capture packets in pcapng format</source>
-        <translation type="unfinished"></translation>
+        <translation>Захоплювати пакети в форматі pcapng</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Update the list of packets while capture is in progress. This can result in dropped packets on high-speed networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1519,7 +1519,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>ColoringRulesDelegate</name>
     <message>
         <source>the &quot;@&quot; symbol will be ignored.</source>
-        <translation type="unfinished"></translation>
+        <translation>символ &quot;@&quot; буде проігноровано.</translation>
     </message>
 </context>
 <context>
@@ -1570,7 +1570,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Apply as filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Застосувати як фільтр</translation>
     </message>
     <message>
         <source>Import</source>
@@ -1590,15 +1590,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Coloring Rules %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Правила Розфарбовування %1</translation>
     </message>
     <message>
         <source>Copy coloring rules from another profile.</source>
-        <translation type="unfinished"></translation>
+        <translation>Скопіювати правила розфарбовування з іншого профілю.</translation>
     </message>
     <message>
         <source>Open </source>
-        <translation type="unfinished"></translation>
+        <translation>Відкрити </translation>
     </message>
     <message>
         <source>Double click to edit. Drag to move. Rules are processed in order until a match is found.</source>
@@ -1625,11 +1625,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>ColoringRulesModel</name>
     <message>
         <source>New coloring rule</source>
-        <translation type="unfinished"></translation>
+        <translation>Нове правило розфарбовування</translation>
     </message>
     <message>
         <source>Unable to save coloring rules: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Неможливо зберегти правила розфарбовування: %1</translation>
     </message>
     <message>
         <source>Name</source>
@@ -1637,7 +1637,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Фільтр</translation>
     </message>
 </context>
 <context>
@@ -1649,17 +1649,17 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Title:</source>
         <oldsource>Title</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Заголовок:</translation>
     </message>
     <message>
         <source>Type:</source>
         <oldsource>Type</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Тип:</translation>
     </message>
     <message>
         <source>Fields:</source>
         <oldsource>Fields</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Поля:</translation>
     </message>
     <message>
         <source>Occurrence:</source>
@@ -1687,15 +1687,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Title</source>
-        <translation type="unfinished"></translation>
+        <translation>Заголовок</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Тип</translation>
     </message>
     <message>
         <source>Fields</source>
-        <translation type="unfinished"></translation>
+        <translation>Поля</translation>
     </message>
     <message>
         <source>Field Occurence</source>
@@ -1714,11 +1714,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Add a new column</source>
-        <translation type="unfinished"></translation>
+        <translation>Додати нову колонку</translation>
     </message>
     <message>
         <source>Delete selected column</source>
-        <translation type="unfinished"></translation>
+        <translation>Видалити вибрану колонку</translation>
     </message>
     <message>
         <source>Show displayed columns only</source>
@@ -1726,7 +1726,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Reset all changes</source>
-        <translation type="unfinished"></translation>
+        <translation>Скинути всі зміни</translation>
     </message>
 </context>
 <context>
@@ -1888,7 +1888,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Open </source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Відкрити </translation>
     </message>
 </context>
 <context>
@@ -1939,7 +1939,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Тип</translation>
     </message>
     <message>
         <source>Default</source>
@@ -2272,7 +2272,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>EthernetAddressModel</name>
     <message>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Тип</translation>
     </message>
     <message>
         <source>Name</source>
@@ -2693,7 +2693,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Open </source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Відкрити </translation>
     </message>
     <message>
         <source>New capture filter</source>
@@ -4388,7 +4388,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>InterfaceToolbarLineEdit</name>
     <message>
         <source>Apply changes</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Застосувати зміни</translation>
     </message>
 </context>
 <context>
@@ -8492,7 +8492,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Тип</translation>
     </message>
     <message>
         <source>Path</source>
@@ -8531,7 +8531,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Тип</translation>
     </message>
 </context>
 <context>
@@ -8908,7 +8908,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Тип</translation>
     </message>
 </context>
 <context>
@@ -9310,7 +9310,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Тип</translation>
     </message>
     <message>
         <source>UEId</source>
@@ -9524,7 +9524,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Authentication</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Аутентифікація</translation>
     </message>
     <message>
         <source>Null authentication</source>
@@ -9736,7 +9736,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Тип</translation>
     </message>
     <message>
         <source>Messages</source>
@@ -12128,11 +12128,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Filter</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Фільтр</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Тип</translation>
     </message>
     <message>
         <source>Description</source>
@@ -12237,7 +12237,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Тип</translation>
     </message>
     <message>
         <source>MA Window (s)</source>
@@ -12903,7 +12903,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Open </source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Відкрити </translation>
     </message>
 </context>
 <context>
@@ -12950,7 +12950,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Open </source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Відкрити </translation>
     </message>
 </context>
 <context>
@@ -13165,11 +13165,11 @@ a:hover {
     </message>
     <message>
         <source>Show in Finder</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Показати у Finder&apos;і</translation>
     </message>
     <message>
         <source>Show in Folder</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Показати у Папці</translation>
     </message>
     <message>
         <source>All interfaces shown</source>
@@ -13321,7 +13321,7 @@ a:hover {
     </message>
     <message>
         <source>SSID</source>
-        <translation type="unfinished"></translation>
+        <translation>SSID</translation>
     </message>
     <message>
         <source>Percent Packets</source>
