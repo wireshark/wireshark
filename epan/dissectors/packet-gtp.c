@@ -95,6 +95,7 @@ static dissector_handle_t gtp_handle, gtp_prime_handle;
 #define GTP_TPDU_AS_PDCP_LTE 1
 #define GTP_TPDU_AS_PDCP_NR 2
 #define GTP_TPDU_AS_SYNC 3
+#define GTP_TPDU_AS_ETHERNET 4
 
 static gboolean g_gtp_over_tcp = TRUE;
 gboolean g_gtp_session = FALSE;
@@ -839,6 +840,7 @@ static const enum_val_t gtp_decode_tpdu_as[] = {
     {"pdcp-lte", "PDCP-LTE",   GTP_TPDU_AS_PDCP_LTE },
     {"pdcp-nr", "PDCP-NR",   GTP_TPDU_AS_PDCP_NR },
     {"sync", "SYNC",   GTP_TPDU_AS_SYNC},
+    {"eth", "ETHERNET",   GTP_TPDU_AS_ETHERNET},
     {NULL, NULL, 0}
 };
 
@@ -2305,6 +2307,7 @@ gtpstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 }
 
 
+static dissector_handle_t eth_handle;
 static dissector_handle_t ip_handle;
 static dissector_handle_t ipv6_handle;
 static dissector_handle_t ppp_handle;
@@ -9859,6 +9862,12 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
             col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "GTP <");
             col_append_str(pinfo->cinfo, COL_PROTOCOL, ">");
             break;
+        case GTP_TPDU_AS_ETHERNET:
+            next_tvb = tvb_new_subset_remaining(tvb, offset);
+            call_dissector(eth_handle, next_tvb, pinfo, tree);
+            col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "GTP <");
+            col_append_str(pinfo->cinfo, COL_PROTOCOL, ">");
+            break;
         default:
             proto_tree_add_item(tree, hf_gtp_tpdu_data, tvb, offset, -1, ENC_NA);
             break;
@@ -11507,6 +11516,7 @@ proto_reg_handoff_gtp(void)
 
 
 
+        eth_handle           = find_dissector_add_dependency("eth_withoutfcs", proto_gtp);
         ip_handle            = find_dissector_add_dependency("ip", proto_gtp);
         ipv6_handle          = find_dissector_add_dependency("ipv6", proto_gtp);
         ppp_handle           = find_dissector_add_dependency("ppp", proto_gtp);
