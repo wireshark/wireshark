@@ -1745,7 +1745,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-smb-direct.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-smb.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-smb2.c
-	${CMAKE_CURRENT_SOURCE_DIR}/packet-smcr.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-smc.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-sml.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-smp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-smpp.c
