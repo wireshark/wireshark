@@ -551,11 +551,14 @@ get_iface_list_string(capture_options *capture_opts, guint32 style)
 
             if (style & IFLIST_QUOTE_IF_DESCRIPTION)
                 g_string_append_printf(iface_list_string, "'");
-            if (interface_opts->descr == NULL && interface_opts->name) {
+            if (interface_opts->descr == NULL) {
                 /*
                  * We don't have a description; generate one.
                  */
-                interface_opts->descr = get_interface_descriptive_name(interface_opts->name);
+                if (interface_opts->name != NULL)
+                    interface_opts->descr = get_interface_descriptive_name(interface_opts->name);
+                else
+                    interface_opts->descr = g_strdup("(Unknown)");
             }
             g_string_append_printf(iface_list_string, "%s", interface_opts->descr);
             if (style & IFLIST_QUOTE_IF_DESCRIPTION)
