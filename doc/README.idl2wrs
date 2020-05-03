@@ -93,18 +93,23 @@ steps 3 or 4 instead.
 
 
 5. Copy the resulting C code to your Wireshark src directory, edit the
-   following files to include the packet-test-idl.c
+   following file to include the packet-test-idl.c
 
    cp packet-test-idl.c /dir/where/wireshark/lives/epan/dissectors/
-   edit epan/dissectors/CMakeLists.txt
+   cp /dir/where/wireshark/lives/epan/dissectors/CMakeLists.txt.example \
+     /dir/where/wireshark/lives/epan/dissectors/CMakeLists.txt
+   nano /dir/where/wireshark/lives/epan/dissectors/CMakeLists.txt
 
-6. Run configure
 
-   ./configure (or ./autogen.sh)
+6. Run CMake
+
+   cmake /dir/where/wireshark/lives
+
 
 7. Compile the code
 
    make
+
 
 8. Good Luck !!
 
