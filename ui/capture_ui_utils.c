@@ -558,8 +558,11 @@ get_iface_list_string(capture_options *capture_opts, guint32 style)
                 /*
                  * We don't have a display name; generate one.
                  */
-                if (interface_opts->descr == NULL && interface_opts->name) {
-                    interface_opts->descr = get_interface_descriptive_name(interface_opts->name);
+                if (interface_opts->descr == NULL) {
+                    if (interface_opts->name != NULL)
+                        interface_opts->descr = get_interface_descriptive_name(interface_opts->name);
+                    else
+                        interface_opts->descr = g_strdup("(Unknown)");
                 }
                 interface_opts->display_name = g_strdup(interface_opts->descr);
             }
