@@ -1425,7 +1425,7 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
             captured_length = MIN(reported_length, interface_description->snap_len);
         }
         ti = proto_tree_add_uint(block_data_tree, hf_pcapng_captured_length, tvb, 0, 0, captured_length);
-        proto_item_set_generated(ti);
+        PROTO_ITEM_SET_GENERATED(ti);
 
         packet_data_item = proto_tree_add_item(block_data_tree, hf_pcapng_packet_data, tvb, offset, captured_length, encoding);
 
