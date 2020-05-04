@@ -1043,11 +1043,21 @@ text_import(text_import_info_t *info)
     hdr_data_chunk = FALSE;
     hdr_export_pdu = FALSE;
 
-    offset_base = (info->offset_type == OFFSET_NONE) ? 0 :
-                  (info->offset_type == OFFSET_HEX) ? 16 :
-                  (info->offset_type == OFFSET_OCT) ? 8 :
-                  (info->offset_type == OFFSET_DEC) ? 10 :
-                  16;
+    switch (info->offset_type)
+    {
+        case OFFSET_NONE:
+            offset_base = 0;
+            break;
+        case OFFSET_HEX:
+            offset_base = 16;
+            break;
+        case OFFSET_OCT:
+            offset_base = 8;
+            break;
+        case OFFSET_DEC:
+            offset_base = 10;
+            break;
+    }
 
     has_direction = info->has_direction;
 

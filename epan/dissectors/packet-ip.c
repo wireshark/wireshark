@@ -1553,7 +1553,8 @@ dissect_ip_options(tvbuff_t *tvb, int offset, guint length,
       if (opt == IPOPT_EOOL)
       {
         local_proto = proto_ip_option_eol;
-      } else if (opt == IPOPT_NOP) {
+      } else {
+        /* i.e. opt is IPOPT_NOP */
         local_proto = proto_ip_option_nop;
 
         if (opt_item && (nop_count == 0 || offset % 4)) {
@@ -1566,10 +1567,7 @@ dissect_ip_options(tvbuff_t *tvb, int offset, guint length,
         } else {
           nop_count = 0;
         }
-      } else {
-        g_assert_not_reached();
       }
-
 
       field_item = proto_tree_add_item(opt_tree, local_proto, tvb, offset, 1, ENC_NA);
       field_tree = proto_item_add_subtree(field_item, ett_ip_option_other);
