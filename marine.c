@@ -607,25 +607,12 @@ WS_DLL_PUBLIC int validate_bpf(char *bpf) {
     return TRUE;
 }
 
-int inner_compile_dfilter(char *dfilter, dfilter_t **dfcode, char **err_msg) {
-    char *dfilter_err_msg;
-
-    int compile_status = dfilter_compile(dfilter, dfcode, &dfilter_err_msg);
-
-    if (!compile_status) {
-        if (err_msg != NULL) {
-            *err_msg = strdup(dfilter_err_msg);
-        }
-        g_free(dfilter_err_msg);
-    }
-
-    return compile_status;
-}
-
 WS_DLL_PUBLIC int validate_display_filter(char *dfilter) {
     dfilter_t *dfcode = NULL;
+    char *err_msg;
 
-    if (!inner_compile_dfilter(dfilter, &dfcode, NULL)) {
+    if (!dfilter_compile(dfilter, &dfcode, &err_msg)) {
+        g_free(err_msg);
         return FALSE;
     }
 
@@ -651,7 +638,7 @@ int parse_output_fields(output_fields_t *output_fields, char **fields, int field
         }
 
         char *error_start = "Some fields aren't valid:\n";
-        *err_msg = (char *)malloc(total_size + strlen(error_start) + 1);
+        *err_msg = (char *)g_malloc0(total_size + strlen(error_start) + 1);
         strcpy(*err_msg, error_start);
 
         for (it = invalid_fields; it != NULL; it = g_slist_next(it)) {
@@ -689,13 +676,13 @@ WS_DLL_PUBLIC int marine_add_filter(char *bpf, char *dfilter, char **fields, siz
     if (bpf != NULL) {
         has_bpf = TRUE;
         if (compile_bpf(bpf, &fcode) != 0) {
-            *err_msg = strdup("Failed compiling the BPF");
+            *err_msg = g_strdup("Failed compiling the BPF");
             return -1;
         }
     }
 
     if (dfilter != NULL) {
-        if (!inner_compile_dfilter(dfilter, &dfcode, err_msg)) {
+        if (!dfilter_compile(dfilter, &dfcode, err_msg)) {
             return -2;
         }
     }
@@ -723,8 +710,8 @@ WS_DLL_PUBLIC int marine_add_filter(char *bpf, char *dfilter, char **fields, siz
     return size;
 }
 
-WS_DLL_PUBLIC void public_free(void *ptr) {
-    free(ptr);
+WS_DLL_PUBLIC void marine_free_err_msg(char *ptr) {
+    g_free(ptr);
 }
 
 wtap *
