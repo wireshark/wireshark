@@ -82,7 +82,7 @@ void benchmark(packet packets[], int packet_len, char *bpf, char *display_filter
 
     if (filter_id < 0) {
         fprintf(stderr, "Error creating filter id: %s\n", err_msg);
-        free(err_msg);
+        marine_free_err_msg(err_msg);
         return;
     }
 
