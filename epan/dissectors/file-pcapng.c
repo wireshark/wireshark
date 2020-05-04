@@ -1321,6 +1321,10 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
         info->interface_number = 0;
         info->darwin_process_event_number = 0;
         info->frame_number = 1;
+        if (info->interfaces != NULL) {
+            wmem_free(wmem_packet_scope(), info->interfaces);
+        }
+        info->interfaces = wmem_array_new(wmem_packet_scope(), sizeof(struct interface_description));
 
         byte_order_magic_item = proto_tree_add_item(block_data_tree, hf_pcapng_section_header_byte_order_magic, tvb, offset, 4, ENC_NA);
         if (encoding == ENC_BIG_ENDIAN)
