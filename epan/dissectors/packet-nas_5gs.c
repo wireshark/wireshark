@@ -3183,10 +3183,10 @@ de_nas_5gs_sm_qos_flow_des(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 {
 
     proto_tree *sub_tree, *sub_tree2;
-    proto_item *item;
+    proto_item *item, *sub_item;
     int i = 1, j = 1;
     guint32 param_len, param_id;
-    guint32 curr_offset, start_offset;
+    guint32 curr_offset, start_offset, start_offset2;
     guint8 num_param;
     guint32 unit, mult, val;
     const char *unit_str;
@@ -3202,8 +3202,9 @@ de_nas_5gs_sm_qos_flow_des(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 
     while ((curr_offset - offset) < len) {
 
-        /* QoS fow description */
-        sub_tree = proto_tree_add_subtree_format(tree, tvb, curr_offset, -1, ett_nas_5gs_sm_qos_params, &item, "QoS flow description %u", i);
+        /* QoS flow description */
+        sub_tree = proto_tree_add_subtree_format(tree, tvb, curr_offset, len - (curr_offset - offset), ett_nas_5gs_sm_qos_params, &item, "QoS flow description %u", i);
+        start_offset = curr_offset;
 
         /* 0 0 QFI */
         proto_tree_add_item(sub_tree, hf_nas_5gs_sm_qfi, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
@@ -3223,9 +3224,8 @@ de_nas_5gs_sm_qos_flow_des(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 
         while (num_param > 0) {
             /* Parameter list */
-            sub_tree2 = proto_tree_add_subtree_format(sub_tree, tvb, curr_offset, -1, ett_nas_5gs_sm_qos_rules, &item, "Parameter %u", j);
-
-            start_offset = curr_offset;
+            sub_tree2 = proto_tree_add_subtree_format(sub_tree, tvb, curr_offset, len - (curr_offset - offset), ett_nas_5gs_sm_qos_rules, &sub_item, "Parameter %u", j);
+            start_offset2 = curr_offset;
 
             /* Parameter identifier */
             proto_tree_add_item_ret_uint(sub_tree2, hf_nas_5gs_sm_param_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &param_id);
@@ -3283,10 +3283,10 @@ de_nas_5gs_sm_qos_flow_des(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
             }
             num_param--;
             j++;
-            proto_item_set_len(item, curr_offset - start_offset);
+            proto_item_set_len(sub_item, curr_offset - start_offset2);
         }
-
         i++;
+        proto_item_set_len(item, curr_offset - start_offset);
     }
 
     return len;
