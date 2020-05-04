@@ -8073,6 +8073,9 @@ dissect_hs20_anqp_wan_metrics(proto_tree *tree, tvbuff_t *tvb, int offset, gbool
   if (request)
     return;
 
+  if(tvb_reported_length_remaining(tvb, offset) < 13)
+    return;
+
   proto_tree_add_item(tree, hf_ieee80211_hs20_anqp_wan_metrics_link_status,
                       tvb, offset, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(tree, hf_ieee80211_hs20_anqp_wan_metrics_symmetric_link,
