@@ -44,6 +44,7 @@ static int hf_eap_identity_wlan_prefix = -1;
 static int hf_eap_identity_wlan_mcc = -1;
 static int hf_eap_identity_wlan_mcc_mnc_2digits = -1;
 static int hf_eap_identity_wlan_mcc_mnc_3digits = -1;
+static int hf_eap_identity_unknown_data = -1;
 
 static int hf_eap_notification = -1;
 
@@ -638,6 +639,11 @@ dissect_eap_identity_wlan(tvbuff_t *tvb, packet_info* pinfo, proto_tree* tree, i
     (guint)(strlen(tokens[3]) - strlen("mcc")), mcc);
 end:
   g_strfreev(tokens);
+  /* Some devices add 0x00 bytes assumed to be padding which may lead to offset errors. */
+  if(tvb_captured_length_remaining(tvb, offset + size) != 0){
+      proto_tree_add_item(tree, hf_eap_identity_unknown_data, tvb, offset + size,
+        tvb_captured_length_remaining(tvb, offset + size), ENC_NA);
+  }
   return ret;
 }
 
@@ -1424,6 +1430,11 @@ proto_register_eap(void)
     { &hf_eap_identity_wlan_mcc_mnc_3digits, {
       "WLAN Identity Mobile Network Code", "eap.identity.wlan.mnc",
       FT_UINT16, BASE_DEC|BASE_EXT_STRING, &mcc_mnc_3digits_codes_ext, 0x0, NULL, HFILL }},
+
+    { &hf_eap_identity_unknown_data, {
+      "Unknown Data", "eap.identity.data_unk",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
 
     { &hf_eap_identity_actual_len, {
       "Identity Actual Length", "eap.identity.actual_len",
