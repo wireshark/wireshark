@@ -194,6 +194,7 @@ struct info {
 
 struct interface_description {
     guint32  link_type;
+    guint32  snap_len;
     guint64  timestamp_resolution;
     guint64  timestamp_offset;
 };
@@ -1362,6 +1363,7 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
         offset += 2;
 
         proto_tree_add_item(block_data_tree, hf_pcapng_interface_description_snap_length, tvb, offset, 4, encoding);
+        interface_description.snap_len = tvb_get_guint32(tvb, offset, encoding);
         offset += 4;
 
         next_tvb = tvb_new_subset_length(tvb, offset, block_data_length - 2 - 2 - 4);
@@ -1424,14 +1426,22 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
         break;
     case BLOCK_SIMPLE_PACKET: {
         struct interface_description *interface_description;
+        proto_item *ti;
 
         interface_description = get_interface_description(info, 0,
             pinfo, block_tree);
 
         proto_item_append_text(block_item, " %u", info->frame_number);
 
-        proto_tree_add_item_ret_uint(block_data_tree, hf_pcapng_packet_length, tvb, offset, 4, encoding, &captured_length);
+        proto_tree_add_item_ret_uint(block_data_tree, hf_pcapng_packet_length, tvb, offset, 4, encoding, &reported_length);
         offset += 4;
+
+        captured_length = reported_length;
+        if (interface_description && interface_description->snap_len != 0) {
+            captured_length = MIN(reported_length, interface_description->snap_len);
+        }
+        ti = proto_tree_add_uint(block_data_tree, hf_pcapng_captured_length, tvb, 0, 0, captured_length);
+        proto_item_set_generated(ti);
 
         packet_data_item = proto_tree_add_item(block_data_tree, hf_pcapng_packet_data, tvb, offset, captured_length, encoding);
 
