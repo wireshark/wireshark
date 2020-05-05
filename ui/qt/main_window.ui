@@ -362,6 +362,7 @@
     <addaction name="actionViewPacketList"/>
     <addaction name="actionViewPacketDetails"/>
     <addaction name="actionViewPacketBytes"/>
+    <addaction name="actionViewPacketDiagram"/>
     <addaction name="separator"/>
     <addaction name="menuTime_Display_Format"/>
     <addaction name="menuName_Resolution"/>
@@ -2471,6 +2472,20 @@
    </property>
    <property name="toolTip">
     <string>Show or hide the packet bytes</string>
+   </property>
+  </action>
+  <action name="actionViewPacketDiagram">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Packet &amp;Diagram</string>
+   </property>
+   <property name="toolTip">
+    <string>Show or hide the packet diagram</string>
    </property>
   </action>
   <action name="actionViewInternalsConversationHashTables">

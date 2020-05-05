@@ -1462,7 +1462,7 @@ void IOGraphDialog::on_buttonBox_helpRequested()
     wsApp->helpTopicAction(HELP_STATS_IO_GRAPH_DIALOG);
 }
 
-// XXX - Copied from tcp_stream_dialog. This should be common code.
+// XXX - We have similar code in tcp_stream_dialog and packet_diagram. Should this be a common routine?
 void IOGraphDialog::on_buttonBox_accepted()
 {
     QString file_name, extension;

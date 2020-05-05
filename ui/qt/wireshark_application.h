@@ -205,6 +205,7 @@ signals:
     /* Signals activation and stop of a capture. The value provides the number of active captures */
     void captureActive(int);
 
+    void zoomRegularFont(const QFont & font);
     void zoomMonospaceFont(const QFont & font);
 
 public slots:

@@ -85,6 +85,7 @@ class FilterDialog;
 class FunnelStatistics;
 class WelcomePage;
 class PacketCommentDialog;
+class PacketDiagram;
 class PacketList;
 class ProtoTree;
 #if defined(HAVE_LIBNL) && defined(HAVE_NL80211)
@@ -191,7 +192,8 @@ private:
     // probably be full-on values instead of pointers.
     PacketList *packet_list_;
     ProtoTree *proto_tree_;
-    ByteViewTab * byte_view_tab_;
+    ByteViewTab *byte_view_tab_;
+    PacketDiagram *packet_diagram_;
     QWidget *previous_focus_;
     FileSetDialog *file_set_dialog_;
     QWidget empty_pane_;

@@ -1188,13 +1188,17 @@ void WiresharkApplication::zoomTextFont(int zoomLevel)
 {
     // Scale by 10%, rounding to nearest half point, minimum 1 point.
     // XXX Small sizes repeat. It might just be easier to create a map of multipliers.
-    zoomed_font_ = mono_font_;
     qreal zoom_size = mono_font_.pointSize() * 2 * qPow(qreal(1.1), zoomLevel);
     zoom_size = qRound(zoom_size) / qreal(2.0);
     zoom_size = qMax(zoom_size, qreal(1.0));
-    zoomed_font_.setPointSizeF(zoom_size);
 
+    zoomed_font_ = mono_font_;
+    zoomed_font_.setPointSizeF(zoom_size);
     emit zoomMonospaceFont(zoomed_font_);
+
+    QFont zoomed_application_font = font();
+    zoomed_application_font.setPointSizeF(zoom_size);
+    emit zoomRegularFont(zoomed_application_font);
 }
 
 #if defined(HAVE_SOFTWARE_UPDATE) && defined(Q_OS_WIN)

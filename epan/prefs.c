@@ -122,6 +122,7 @@ static const enum_val_t gui_layout_content[] = {
     {"PLIST", "PLIST", 1},
     {"PDETAILS", "PDETAILS", 2},
     {"PBYTES", "PBYTES", 3},
+    {"PDIAGRAM", "PDIAGRAM", 4},
     {NULL, NULL, -1}
 };
 

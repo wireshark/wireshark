@@ -57,6 +57,7 @@ DIAG_ON(frame-larger-than=)
 #include "funnel_statistics.h"
 #include "import_text_dialog.h"
 #include "interface_toolbar.h"
+#include "packet_diagram.h"
 #include "packet_list.h"
 #include "proto_tree.h"
 #include "simple_dialog.h"
@@ -466,20 +467,23 @@ MainWindow::MainWindow(QWidget *parent) :
     packet_list_->setProtoTree(proto_tree_);
     packet_list_->installEventFilter(this);
 
+    packet_diagram_ = new PacketDiagram(&master_split_);
+
     welcome_page_ = main_ui_->welcomePage;
 
-    connect(proto_tree_, SIGNAL(fieldSelected(FieldInformation *)),
-            this, SIGNAL(fieldSelected(FieldInformation *)));
-    connect(packet_list_, SIGNAL(fieldSelected(FieldInformation *)),
-            this, SIGNAL(fieldSelected(FieldInformation *)));
-    connect(this, SIGNAL(fieldSelected(FieldInformation *)),
-            this, SLOT(setMenusForSelectedTreeRow(FieldInformation *)));
-    connect(this, SIGNAL(fieldSelected(FieldInformation *)),
-            main_ui_->statusBar, SLOT(selectedFieldChanged(FieldInformation *)));
+    connect(proto_tree_, &ProtoTree::fieldSelected,
+            this, &MainWindow::fieldSelected);
+    connect(packet_list_, &PacketList::fieldSelected,
+            this, &MainWindow::fieldSelected);
+    connect(this, &MainWindow::fieldSelected,
+            this, &MainWindow::setMenusForSelectedTreeRow);
+    connect(this, &MainWindow::fieldSelected,
+            main_ui_->statusBar, &MainStatusBar::selectedFieldChanged);
 
-    connect(this, SIGNAL(fieldHighlight(FieldInformation *)),
-            main_ui_->statusBar, SLOT(highlightedFieldChanged(FieldInformation *)));
-    connect(wsApp, SIGNAL(captureActive(int)), this, SIGNAL(captureActive(int)));
+    connect(this, &MainWindow::fieldHighlight,
+            main_ui_->statusBar, &MainStatusBar::highlightedFieldChanged);
+    connect(wsApp, &WiresharkApplication::captureActive,
+            this, &MainWindow::captureActive);
 
     byte_view_tab_ = new ByteViewTab(&master_split_);
 
@@ -543,14 +547,14 @@ MainWindow::MainWindow(QWidget *parent) :
             filter_expression_toolbar_, &FilterExpressionToolBar::filterExpressionsChanged);
 
     /* Connect change of capture file */
-    connect(this, SIGNAL(setCaptureFile(capture_file*)),
-            main_ui_->searchFrame, SLOT(setCaptureFile(capture_file*)));
-    connect(this, SIGNAL(setCaptureFile(capture_file*)),
-            main_ui_->statusBar, SLOT(setCaptureFile(capture_file*)));
-    connect(this, SIGNAL(setCaptureFile(capture_file*)),
-            packet_list_, SLOT(setCaptureFile(capture_file*)));
-    connect(this, SIGNAL(setCaptureFile(capture_file*)),
-            proto_tree_, SLOT(setCaptureFile(capture_file*)));
+    connect(this, &MainWindow::setCaptureFile,
+            main_ui_->searchFrame, &SearchFrame::setCaptureFile);
+    connect(this, &MainWindow::setCaptureFile,
+            main_ui_->statusBar, &MainStatusBar::setCaptureFile);
+    connect(this, &MainWindow::setCaptureFile,
+            packet_list_, &PacketList::setCaptureFile);
+    connect(this, &MainWindow::setCaptureFile,
+            proto_tree_, &ProtoTree::setCaptureFile);
 
     connect(wsApp, SIGNAL(zoomMonospaceFont(QFont)),
             packet_list_, SLOT(setMonospaceFont(QFont)));
@@ -701,6 +705,7 @@ QMenu *MainWindow::createPopupMenu()
     menu->addAction(main_ui_->actionViewPacketList);
     menu->addAction(main_ui_->actionViewPacketDetails);
     menu->addAction(main_ui_->actionViewPacketBytes);
+    menu->addAction(main_ui_->actionViewPacketDiagram);
     return menu;
 }
 
@@ -2058,6 +2063,7 @@ void MainWindow::initShowHideMainWidgets()
     shmw_actions[main_ui_->actionViewPacketList] = packet_list_;
     shmw_actions[main_ui_->actionViewPacketDetails] = proto_tree_;
     shmw_actions[main_ui_->actionViewPacketBytes] = byte_view_tab_;
+    shmw_actions[main_ui_->actionViewPacketDiagram] = packet_diagram_;
 
     foreach(QAction *shmwa, shmw_actions.keys()) {
         shmwa->setData(QVariant::fromValue(shmw_actions[shmwa]));

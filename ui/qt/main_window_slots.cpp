@@ -127,6 +127,7 @@ DIAG_ON(frame-larger-than=)
 #include "mtp3_summary_dialog.h"
 #include "multicast_statistics_dialog.h"
 #include "packet_comment_dialog.h"
+#include "packet_diagram.h"
 #include "packet_dialog.h"
 #include "packet_list.h"
 #include "credentials_dialog.h"
@@ -360,6 +361,7 @@ void MainWindow::updatePreferenceActions()
     main_ui_->actionViewPacketList->setEnabled(prefs_has_layout_pane_content(layout_pane_content_plist));
     main_ui_->actionViewPacketDetails->setEnabled(prefs_has_layout_pane_content(layout_pane_content_pdetails));
     main_ui_->actionViewPacketBytes->setEnabled(prefs_has_layout_pane_content(layout_pane_content_pbytes));
+    main_ui_->actionViewPacketDiagram->setEnabled(prefs_has_layout_pane_content(layout_pane_content_pdiagram));
 
     main_ui_->actionViewNameResolutionPhysical->setChecked(gbl_resolv_flags.mac_name);
     main_ui_->actionViewNameResolutionNetwork->setChecked(gbl_resolv_flags.network_name);
@@ -378,6 +380,7 @@ void MainWindow::updateRecentActions()
     main_ui_->actionViewPacketList->setChecked(recent.packet_list_show && prefs_has_layout_pane_content(layout_pane_content_plist));
     main_ui_->actionViewPacketDetails->setChecked(recent.tree_view_show && prefs_has_layout_pane_content(layout_pane_content_pdetails));
     main_ui_->actionViewPacketBytes->setChecked(recent.byte_view_show && prefs_has_layout_pane_content(layout_pane_content_pbytes));
+    main_ui_->actionViewPacketDiagram->setChecked(recent.packet_diagram_show && prefs_has_layout_pane_content(layout_pane_content_pdiagram));
 
     foreach(QAction *action, main_ui_->menuInterfaceToolbars->actions()) {
         if (g_list_find_custom(recent.interface_toolbars, action->text().toUtf8(), (GCompareFunc)strcmp)) {
@@ -2299,6 +2302,9 @@ void MainWindow::showHideMainWidgets(QAction *action)
     } else if (widget == byte_view_tab_) {
         recent.byte_view_show = show;
         main_ui_->actionViewPacketBytes->setChecked(show);
+    } else if (widget == packet_diagram_) {
+        recent.packet_diagram_show = show;
+        main_ui_->actionViewPacketDiagram->setChecked(show);
     } else {
         foreach(QAction *action, main_ui_->menuInterfaceToolbars->actions()) {
             QToolBar *toolbar = action->data().value<QToolBar *>();

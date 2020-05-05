@@ -991,7 +991,7 @@ static inline gboolean proto_item_is_url(proto_item *ti) {
 #define PROTO_ITEM_IS_URL(ti) proto_item_is_url((ti))
 
 /** Mark this protocol field as a URL
-* @param ti The item to mark as a URL. May be NULL.
+ * @param ti The item to mark as a URL. May be NULL.
  */
 static inline void proto_item_set_url(proto_item *ti) {
     if (ti) {
@@ -1106,6 +1106,13 @@ WS_DLL_PUBLIC void proto_item_set_end(proto_item *pi, tvbuff_t *tvb, gint end);
  @param pi the item to get the length from
  @return the current length */
 WS_DLL_PUBLIC int proto_item_get_len(const proto_item *pi);
+
+/** Set the bit offset and length for the specified proto_item.
+ * @param ti The item to set.
+ * @param bits_offset The number of bits from the beginning of the field.
+ * @param bits_offset The new length in bits.
+ */
+void proto_item_set_bits_offset_len(proto_item *ti, int bits_offset, int bits_len);
 
 /** Get display representation of a proto_item.
  * Can be used, for example, to append that to the parent item of

@@ -1823,6 +1823,7 @@ void TCPStreamDialog::transformYRange(const QCPRange &y_range1)
     sp->yAxis2->setRangeLower(yp2.y1());
 }
 
+// XXX - We have similar code in io_graph_dialog and packet_diagram. Should this be a common routine?
 void TCPStreamDialog::on_buttonBox_accepted()
 {
     QString file_name, extension;

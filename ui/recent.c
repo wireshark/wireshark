@@ -35,6 +35,7 @@
 #define RECENT_KEY_PACKET_LIST_SHOW           "gui.packet_list_show"
 #define RECENT_KEY_TREE_VIEW_SHOW             "gui.tree_view_show"
 #define RECENT_KEY_BYTE_VIEW_SHOW             "gui.byte_view_show"
+#define RECENT_KEY_PACKET_DIAGRAM_SHOW        "gui.packet_diagram_show"
 #define RECENT_KEY_STATUSBAR_SHOW             "gui.statusbar_show"
 #define RECENT_KEY_PACKET_LIST_COLORIZE       "gui.packet_list_colorize"
 #define RECENT_GUI_TIME_FORMAT                "gui.time_format"
@@ -844,6 +845,10 @@ write_profile_recent(void)
             RECENT_KEY_BYTE_VIEW_SHOW,
             recent.byte_view_show);
 
+    write_recent_boolean(rf, "Packet diagram show (hide)",
+            RECENT_KEY_PACKET_DIAGRAM_SHOW,
+            recent.packet_diagram_show);
+
     write_recent_boolean(rf, "Statusbar show (hide)",
             RECENT_KEY_STATUSBAR_SHOW,
             recent.statusbar_show);
@@ -1054,6 +1059,8 @@ read_set_recent_pair_static(gchar *key, const gchar *value,
         parse_recent_boolean(value, &recent.tree_view_show);
     } else if (strcmp(key, RECENT_KEY_BYTE_VIEW_SHOW) == 0) {
         parse_recent_boolean(value, &recent.byte_view_show);
+    } else if (strcmp(key, RECENT_KEY_PACKET_DIAGRAM_SHOW) == 0) {
+        parse_recent_boolean(value, &recent.packet_diagram_show);
     } else if (strcmp(key, RECENT_KEY_STATUSBAR_SHOW) == 0) {
         parse_recent_boolean(value, &recent.statusbar_show);
     } else if (strcmp(key, RECENT_KEY_PACKET_LIST_COLORIZE) == 0) {
@@ -1323,6 +1330,7 @@ recent_read_profile_static(char **rf_path_return, int *rf_errno_return)
     recent.packet_list_show          = TRUE;
     recent.tree_view_show            = TRUE;
     recent.byte_view_show            = TRUE;
+    recent.packet_diagram_show       = TRUE;
     recent.statusbar_show            = TRUE;
     recent.packet_list_colorize      = TRUE;
     recent.gui_time_format           = TS_RELATIVE;

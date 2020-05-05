@@ -60,6 +60,7 @@ public:
     bool tvbContains(FieldInformation *);
     unsigned flag(unsigned mask);
     const QString moduleName();
+    QString toString();
     QString url();
 
     const QByteArray printableData();

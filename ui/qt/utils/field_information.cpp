@@ -136,16 +136,23 @@ const QString FieldInformation::moduleName()
     return module_name;
 }
 
+QString FieldInformation::toString()
+{
+    QString repr;
+    gchar *repr_str;
+    repr_str = fvalue_to_string_repr(NULL, &fi_->value, FTREPR_DISPLAY, fi_->hfinfo->display);
+    if (repr_str) {
+        repr = repr_str;
+    }
+    wmem_free(NULL, repr_str);
+    return repr;
+}
+
 QString FieldInformation::url()
 {
     QString url;
     if (flag(FI_URL) && headerInfo().isValid && IS_FT_STRING(fi_->hfinfo->type)) {
-        gchar *url_str;
-        url_str = fvalue_to_string_repr(NULL, &fi_->value, FTREPR_DISPLAY, fi_->hfinfo->display);
-        if (url_str) {
-            url = url_str;
-        }
-        wmem_free(NULL, url_str);
+        url = toString();
     }
     return url;
 }

@@ -1860,7 +1860,7 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
   ti = proto_tree_add_item(tree, proto_ip, tvb, offset, hlen, ENC_NA);
   ip_tree = proto_item_add_subtree(ti, ett_ip);
 
-  tf = proto_tree_add_item(ip_tree, hf_ip_version, tvb, offset, 1, ENC_NA);
+  tf = proto_tree_add_bits_item(ip_tree, hf_ip_version, tvb, 0, 4, ENC_NA);
   if (iph->ip_ver != 4) {
     col_add_fstr(pinfo->cinfo, COL_INFO,
                  "Bogus IPv4 version (%u, must be 4)", iph->ip_ver);
@@ -1997,7 +1997,6 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 
   if (ip_security_flag) {
     /* RFC 3514 - The Security Flag in the IPv4 Header (April Fool's joke) */
-    proto_item *sf;
     static int * const ip_flags_evil[] = {
         &hf_ip_flags_sf,
         &hf_ip_flags_df,
@@ -2005,10 +2004,10 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
         NULL
     };
 
-    sf = proto_tree_add_bitmask_with_flags(ip_tree, tvb, offset + 6, hf_ip_flags,
+    tf = proto_tree_add_bitmask_with_flags(ip_tree, tvb, offset + 6, hf_ip_flags,
         ett_ip_flags, ip_flags_evil, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_TFS | BMT_NO_INT);
     if (iph->ip_off & IP_RF) {
-        expert_add_info(pinfo, sf, &ei_ip_evil_packet);
+        expert_add_info(pinfo, tf, &ei_ip_evil_packet);
     }
   } else {
     static int * const ip_flags[] = {
@@ -2017,12 +2016,13 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
         &hf_ip_flags_mf,
         NULL
     };
-    proto_tree_add_bitmask_with_flags(ip_tree, tvb, offset + 6, hf_ip_flags,
+    tf = proto_tree_add_bitmask_with_flags(ip_tree, tvb, offset + 6, hf_ip_flags,
         ett_ip_flags, ip_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_TFS | BMT_NO_INT);
   }
+  proto_item_set_bits_offset_len(tf, 0, 3);
 
-  proto_tree_add_uint(ip_tree, hf_ip_frag_offset, tvb, offset + 6, 2, (iph->ip_off & IP_OFFSET)*8);
-
+  tf = proto_tree_add_uint(ip_tree, hf_ip_frag_offset, tvb, offset + 6, 2, (iph->ip_off & IP_OFFSET)*8);
+  proto_item_set_bits_offset_len(tf, 3, 13);
 
   iph->ip_ttl = tvb_get_guint8(tvb, offset + 8);
   if (tree) {
@@ -2334,7 +2334,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   col_clear(pinfo->cinfo, COL_INFO);
   col_add_fstr(pinfo->cinfo, COL_INFO, "Bogus IP version (%u)", version);
   ip_tree = proto_item_add_subtree(ti, ett_ip);
-  tf = proto_tree_add_item(ip_tree, hf_ip_version, tvb, 0, 1, ENC_NA);
+  tf = proto_tree_add_bits_item(ip_tree, hf_ip_version, tvb, 0, 4, ENC_NA);
   expert_add_info(pinfo, tf, &ei_ip_bogus_ip_version);
   return 1;
 }
@@ -2438,7 +2438,7 @@ proto_register_ip(void)
   static hf_register_info hf[] = {
     { &hf_ip_version,
       { "Version", "ip.version", FT_UINT8, BASE_DEC,
-        NULL, 0xF0, NULL, HFILL }},
+        NULL, 0x00, NULL, HFILL }},
 
     { &hf_ip_hdr_len,
       { "Header Length", "ip.hdr_len", FT_UINT8, BASE_DEC,
