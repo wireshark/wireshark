@@ -501,9 +501,7 @@ public:
         }
 
         // Update channel with tap_info.
-        if (channel_item != NULL) {
-            channel_item->update(tap_info);
-        }
+        channel_item->update(tap_info);
     }
 
     // Draw UE entry

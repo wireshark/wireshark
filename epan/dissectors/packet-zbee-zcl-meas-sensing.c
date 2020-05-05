@@ -1291,7 +1291,7 @@ decode_flow_meas_value(gchar *s, guint16 value)
 static void
 decode_flow_meas_min_value(gchar *s, guint16 value)
 {
-    if ( (value > ZBEE_ZCL_ATTR_ID_FLOW_MEAS_MIN_LO_VALUE) ||
+    if ( /*(value < ZBEE_ZCL_ATTR_ID_FLOW_MEAS_MIN_LO_VALUE) ||*/
          (value > ZBEE_ZCL_ATTR_ID_FLOW_MEAS_MIN_HI_VALUE) )
         g_snprintf(s, ITEM_LABEL_LENGTH, "Out of range");
     else
