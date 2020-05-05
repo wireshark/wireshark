@@ -564,28 +564,28 @@ dissect_someip_sd_pdu_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (ttl > 0) {
         switch (type) {
         case SD_ENTRY_FIND_SERVICE:
-            ti = proto_tree_add_uint64_format_value(tree, hf_someip_sd_entry_type_findservice, tvb, offset, SD_ENTRY_LENGTH, uniqueid, "on 0x%012lx", uniqueid);
+            ti = proto_tree_add_uint64_format_value(tree, hf_someip_sd_entry_type_findservice, tvb, offset, SD_ENTRY_LENGTH, uniqueid, "on 0x%012" G_GINT64_MODIFIER "x", uniqueid);
             break;
         case SD_ENTRY_OFFER_SERVICE:
-            ti = proto_tree_add_uint64_format_value(tree, hf_someip_sd_entry_type_offerservice, tvb, offset, SD_ENTRY_LENGTH, uniqueid, "on 0x%012lx", uniqueid);
+            ti = proto_tree_add_uint64_format_value(tree, hf_someip_sd_entry_type_offerservice, tvb, offset, SD_ENTRY_LENGTH, uniqueid, "on 0x%012" G_GINT64_MODIFIER "x", uniqueid);
             break;
         case SD_ENTRY_SUBSCRIBE_EVENTGROUP:
-            ti = proto_tree_add_uint64_format_value(tree, hf_someip_sd_entry_type_subscribeeventgroup, tvb, offset, SD_ENTRY_LENGTH, uniqueid, "on 0x%012lx", uniqueid);
+            ti = proto_tree_add_uint64_format_value(tree, hf_someip_sd_entry_type_subscribeeventgroup, tvb, offset, SD_ENTRY_LENGTH, uniqueid, "on 0x%012" G_GINT64_MODIFIER "x", uniqueid);
             break;
         case SD_ENTRY_SUBSCRIBE_EVENTGROUP_ACK:
-            ti = proto_tree_add_uint64_format_value(tree, hf_someip_sd_entry_type_subscribeeventgroupack, tvb, offset, SD_ENTRY_LENGTH, uniqueid, "on 0x%012lx", uniqueid);
+            ti = proto_tree_add_uint64_format_value(tree, hf_someip_sd_entry_type_subscribeeventgroupack, tvb, offset, SD_ENTRY_LENGTH, uniqueid, "on 0x%012" G_GINT64_MODIFIER "x", uniqueid);
             break;
         }
     } else {
         switch (type) {
         case SD_ENTRY_STOP_OFFER_SERVICE:
-            ti = proto_tree_add_uint64_format_value(tree, hf_someip_sd_entry_type_stopofferservice, tvb, offset, SD_ENTRY_LENGTH, uniqueid, "on 0x%012lx", uniqueid);
+            ti = proto_tree_add_uint64_format_value(tree, hf_someip_sd_entry_type_stopofferservice, tvb, offset, SD_ENTRY_LENGTH, uniqueid, "on 0x%012" G_GINT64_MODIFIER "x", uniqueid);
             break;
         case SD_ENTRY_STOP_SUBSCRIBE_EVENTGROUP:
-            ti = proto_tree_add_uint64_format_value(tree, hf_someip_sd_entry_type_stopsubscribeeventgroup, tvb, offset, SD_ENTRY_LENGTH, uniqueid, "on 0x%012lx", uniqueid);
+            ti = proto_tree_add_uint64_format_value(tree, hf_someip_sd_entry_type_stopsubscribeeventgroup, tvb, offset, SD_ENTRY_LENGTH, uniqueid, "on 0x%012" G_GINT64_MODIFIER "x", uniqueid);
             break;
         case SD_ENTRY_SUBSCRIBE_EVENTGROUP_NACK:
-            ti = proto_tree_add_uint64_format_value(tree, hf_someip_sd_entry_type_subscribeeventgroupnack, tvb, offset, SD_ENTRY_LENGTH, uniqueid, "on 0x%012lx", uniqueid);
+            ti = proto_tree_add_uint64_format_value(tree, hf_someip_sd_entry_type_subscribeeventgroupnack, tvb, offset, SD_ENTRY_LENGTH, uniqueid, "on 0x%012" G_GINT64_MODIFIER "x", uniqueid);
             break;
         }
     }
