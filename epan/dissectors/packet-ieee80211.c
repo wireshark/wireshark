@@ -7412,6 +7412,10 @@ dissect_anqp_capab_list(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int
         len--;
         switch (subtype) {
         case WFA_ANQP_SUBTYPE_HS20:
+          proto_tree_add_item(vtree, hf_ieee80211_hs20_anqp_subtype, tvb, offset, 1, ENC_NA);
+          proto_tree_add_item(vtree, hf_ieee80211_hs20_anqp_reserved, tvb, offset + 1, 1, ENC_NA);
+          offset += 2;
+          len -= 2;
           dissect_hs20_anqp_hs_capability_list(vtree, tvb, offset, end);
           break;
         default:
