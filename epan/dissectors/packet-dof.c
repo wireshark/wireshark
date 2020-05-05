@@ -5915,12 +5915,6 @@ static int dissect_dof_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     if (session == NULL)
     {
         session = create_tcp_session_data(pinfo, conversation);
-        if (!session)
-        {
-            fprintf(stderr, "! session");
-            return 0;
-        }
-
         conversation_add_proto_data(conversation, proto_2008_1_dof_tcp, session);
     }
 
@@ -5930,13 +5924,7 @@ static int dissect_dof_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     packet = (tcp_packet_data *)p_get_proto_data(wmem_file_scope(), pinfo, proto_2008_1_dof_tcp, 0);
     if (packet == NULL)
     {
-        packet = (tcp_packet_data *)wmem_alloc0(wmem_file_scope(), sizeof(tcp_packet_data));
-        if (!packet)
-        {
-            fprintf(stderr, "! packet");
-            return 0;
-        }
-
+        packet = wmem_new0(wmem_file_scope(), tcp_packet_data);
         p_add_proto_data(wmem_file_scope(), pinfo, proto_2008_1_dof_tcp, 0, packet);
     }
 
@@ -6038,12 +6026,6 @@ static int dissect_dof_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                         /* This is the default state, NULL and 0. */
                         ref_is_new = TRUE;
                         ref = wmem_new0(wmem_file_scope(), tcp_dof_packet_ref);
-                        if (!ref)
-                        {
-                            fprintf(stderr, "! ref");
-                            return offset;
-                        }
-
                         ref->transport_packet.sender_id = last->transport_packet.sender_id;
                         ref->transport_packet.receiver_id = last->transport_packet.receiver_id;
                         ref->start_offset = raw_offset;
@@ -6164,25 +6146,13 @@ static int dissect_tunnel_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     if (session == NULL)
     {
         session = create_tcp_session_data(pinfo, conversation);
-        if (!session)
-        {
-            fprintf(stderr, "! session");
-            return 0;
-        }
-
         conversation_add_proto_data(conversation, proto_2012_1_tunnel, session);
     }
 
     packet = (tcp_packet_data *)p_get_proto_data(wmem_file_scope(), pinfo, proto_2012_1_tunnel, 0);
     if (packet == NULL)
     {
-        packet = (tcp_packet_data *)wmem_alloc0(wmem_file_scope(), sizeof(tcp_packet_data));
-        if (!packet)
-        {
-            fprintf(stderr, "! packet");
-            return 0;
-        }
-
+        packet = wmem_new0(wmem_file_scope(), tcp_packet_data);
         p_add_proto_data(wmem_file_scope(), pinfo, proto_2012_1_tunnel, 0, packet);
     }
 
@@ -6260,13 +6230,7 @@ static int dissect_tunnel_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
                         /* This is the default state, NULL and 0. */
                         ref_is_new = TRUE;
-                        ref = (tcp_dof_packet_ref *)wmem_alloc0(wmem_file_scope(), sizeof(tcp_dof_packet_ref));
-                        if (!ref)
-                        {
-                            fprintf(stderr, "! ref");
-                            return offset;
-                        }
-
+                        ref = wmem_new0(wmem_file_scope(), tcp_dof_packet_ref);
                         ref->transport_packet.sender_id = last->transport_packet.sender_id;
                         ref->transport_packet.receiver_id = last->transport_packet.receiver_id;
                         ref->start_offset = raw_offset;
@@ -7483,7 +7447,6 @@ static int dissect_ccm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     secmode_api_data = (dof_secmode_api_data *)data;
     if (secmode_api_data == NULL)
     {
-        fprintf(stderr, "secmode_api_data == NULL");
         return 0;
     }
 
@@ -8161,14 +8124,12 @@ static int dissect_oap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
     if (api_data == NULL)
     {
-        fprintf(stderr, "api_data == NULL");
         return 0;
     }
 
     packet_data = api_data->packet;
     if (packet_data == NULL)
     {
-        fprintf(stderr, "packet_data == NULL");
         return 0;
     }
 
