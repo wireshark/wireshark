@@ -607,25 +607,12 @@ WS_DLL_PUBLIC int validate_bpf(char *bpf) {
     return TRUE;
 }
 
-int inner_compile_dfilter(char *dfilter, dfilter_t **dfcode, char *err_msg) {
-    char *dfilter_err_msg;
-
-    int compile_status = dfilter_compile(dfilter, dfcode, &dfilter_err_msg);
-
-    if (!compile_status) {
-        if (err_msg != NULL) {
-            strcpy(err_msg, dfilter_err_msg);
-        }
-        g_free(dfilter_err_msg);
-    }
-
-    return compile_status;
-}
-
 WS_DLL_PUBLIC int validate_display_filter(char *dfilter) {
     dfilter_t *dfcode = NULL;
+    char *err_msg;
 
-    if (!inner_compile_dfilter(dfilter, &dfcode, NULL)) {
+    if (!dfilter_compile(dfilter, &dfcode, &err_msg)) {
+        g_free(err_msg);
         return FALSE;
     }
 
@@ -633,7 +620,53 @@ WS_DLL_PUBLIC int validate_display_filter(char *dfilter) {
     return TRUE;
 }
 
-WS_DLL_PUBLIC int marine_add_filter(char *bpf, char *dfilter, char **fields, int fields_len, char *err_msg) {
+int parse_output_fields(output_fields_t *output_fields, char **fields, int fields_len, char **err_msg) {
+    for (int i = 0; i < fields_len; i++) {
+        output_fields_add(output_fields, fields[i]);
+    }
+
+    GSList *it = NULL;
+    GSList *invalid_fields = output_fields_valid(output_fields);
+    if (invalid_fields != NULL) {
+        if (err_msg == NULL) {
+            return -1;
+        }
+
+        int total_size = 0;
+        for (it = invalid_fields; it != NULL; it = g_slist_next(it)) {
+            total_size += strlen((gchar *) it->data) + 1;
+        }
+
+        char *error_start = "Some fields aren't valid:\n";
+        *err_msg = (char *)g_malloc0(total_size + strlen(error_start) + 1);
+        strcpy(*err_msg, error_start);
+
+        for (it = invalid_fields; it != NULL; it = g_slist_next(it)) {
+            strcat(*err_msg, "\t");
+            strcat(*err_msg, (gchar *) it->data);
+        }
+
+        output_fields_free(output_fields);
+        g_slist_free(invalid_fields);
+
+        return -1;
+    }
+
+    return 0;
+}
+
+WS_DLL_PUBLIC int validate_fields(char **fields, size_t fields_len) {
+    output_fields_t *output_fields = output_fields_new();
+
+    if (parse_output_fields(output_fields, fields, fields_len, NULL) != 0) {
+        return FALSE;
+    }
+
+    output_fields_free(output_fields);
+    return TRUE;
+}
+
+WS_DLL_PUBLIC int marine_add_filter(char *bpf, char *dfilter, char **fields, size_t fields_len, char **err_msg) {
     // TODO make the error codes consts
     struct bpf_program fcode;
     dfilter_t *dfcode = NULL;
@@ -643,36 +676,23 @@ WS_DLL_PUBLIC int marine_add_filter(char *bpf, char *dfilter, char **fields, int
     if (bpf != NULL) {
         has_bpf = TRUE;
         if (compile_bpf(bpf, &fcode) != 0) {
-            strcpy(err_msg, "Failed compiling the BPF");
+            *err_msg = g_strdup("Failed compiling the BPF");
             return -1;
         }
     }
 
     if (dfilter != NULL) {
-        if (!inner_compile_dfilter(dfilter, &dfcode, err_msg)) {
+        if (!dfilter_compile(dfilter, &dfcode, err_msg)) {
             return -2;
         }
     }
 
-    if (fields_len > 0) { // TODO add a function to validate output fields
+    if (fields_len > 0) {
         packet_output_fields = output_fields_new();
         packet_output_fields->separator = '\t'; // TODO make const/configurable
         packet_output_fields->quote = '"';
 
-        for (int i = 0; i < fields_len; i++) {
-            output_fields_add(packet_output_fields, fields[i]);
-        }
-
-        GSList *it = NULL;
-        GSList *invalid_fields = output_fields_valid(packet_output_fields);
-        if (invalid_fields != NULL) {
-            strcpy(err_msg, "Some fields aren't valid:\n");
-            for (it = invalid_fields; it != NULL; it = g_slist_next(it)) {
-                strcat(err_msg, "\t");
-                strcat(err_msg, (gchar *) it->data); // TODO: with long field names, this allows buffer overflow
-            }
-            output_fields_free(packet_output_fields);
-            g_slist_free(invalid_fields);
+        if (parse_output_fields(packet_output_fields, fields, fields_len, err_msg) != 0) {
             return -3;
         }
     }
@@ -688,6 +708,10 @@ WS_DLL_PUBLIC int marine_add_filter(char *bpf, char *dfilter, char **fields, int
     g_hash_table_insert(packet_filters, key, filter);
     packet_filter_keys[size] = key;
     return size;
+}
+
+WS_DLL_PUBLIC void marine_free_err_msg(char *ptr) {
+    g_free(ptr);
 }
 
 wtap *
