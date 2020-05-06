@@ -337,6 +337,7 @@
 #define CI_LOGICAL_SEG_E_KEY        0x00
 
 #define CI_E_KEY_FORMAT_VAL         0x04
+#define CI_E_SERIAL_NUMBER_KEY_FORMAT_VAL 0x05
 
 #define CI_DATA_SEG_TYPE_MASK       0x1F
 #define CI_DATA_SEG_SIMPLE          0x00
@@ -496,9 +497,15 @@ typedef struct cip_conn_info {
 
 typedef struct cip_req_info {
    dissector_handle_t         dissector;
+
+   // This is the CIP Service Code. It does not include the Response bit.
    guint8                     bService;
    guint                      IOILen;
    void                      *pIOI;
+
+   guint                      RouteConnectionPathLen;
+   void                      *pRouteConnectionPath;
+
    void                      *pData;
    cip_simple_request_info_t *ciaData;
    cip_conn_info_t*           connInfo;
@@ -550,7 +557,8 @@ extern int  dissect_cip_set_attribute_list_rsp(tvbuff_t *tvb, packet_info *pinfo
    int offset, cip_simple_request_info_t* req_data);
 extern void dissect_deviceid(tvbuff_t *tvb, int offset, proto_tree *tree,
    int hf_vendor, int hf_devtype, int hf_prodcode,
-   int hf_compatibility, int hf_comp_bit, int hf_majrev, int hf_minrev);
+   int hf_compatibility, int hf_comp_bit, int hf_majrev, int hf_minrev,
+   gboolean generate);
 extern int  dissect_optional_attr_list(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
    int offset, int total_len);
 extern int  dissect_optional_service_list(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
@@ -561,6 +569,7 @@ extern int  dissect_padded_epath_len_uint(packet_info *pinfo, proto_tree *tree, 
    int offset, int total_len);
 
 extern void load_cip_request_data(packet_info *pinfo, cip_simple_request_info_t *req_data);
+extern void reset_cip_request_info(cip_simple_request_info_t* req_data);
 extern gboolean should_dissect_cip_response(tvbuff_t *tvb, int offset, guint8 gen_status);
 
 
