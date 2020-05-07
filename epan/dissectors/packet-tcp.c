@@ -384,6 +384,7 @@ static expert_field ei_tcp_analysis_zero_window = EI_INIT;
 static expert_field ei_tcp_analysis_zero_window_probe_ack = EI_INIT;
 static expert_field ei_tcp_analysis_tfo_syn = EI_INIT;
 static expert_field ei_tcp_analysis_tfo_ack = EI_INIT;
+static expert_field ei_tcp_analysis_tfo_ignored = EI_INIT;
 static expert_field ei_tcp_scps_capable = EI_INIT;
 static expert_field ei_tcp_option_snack_sequence = EI_INIT;
 static expert_field ei_tcp_option_wscale_shift_invalid = EI_INIT;
@@ -3981,6 +3982,7 @@ dissect_tcpopt_tfo_payload(tvbuff_t *tvb, int offset, guint optlen,
 {
     proto_item *ti;
     struct tcpheader *tcph = (struct tcpheader*)data;
+    struct tcp_analysis *tcpd;
 
     if (optlen == 2) {
         /* Fast Open Cookie Request */
@@ -3994,6 +3996,14 @@ dissect_tcpopt_tfo_payload(tvbuff_t *tvb, int offset, guint optlen,
         col_append_str(pinfo->cinfo, COL_INFO, " TFO=C");
         if ((tcph->th_flags & (TH_SYN|TH_ACK)) == TH_SYN) {
             expert_add_info(pinfo, ti, &ei_tcp_analysis_tfo_syn);
+
+            /* Is this a SYN with data and the cookie? */
+            if (tcph->th_have_seglen && tcph->th_seglen) {
+                tcpd = get_tcp_conversation_data(NULL, pinfo);
+                if (tcpd) {
+                    tcpd->tfo_syn_data = 1;
+                }
+            }
         }
     }
 }
@@ -6412,6 +6422,8 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             if ((tcp_relative_seq && tcph->th_ack > 1) ||
                (!tcp_relative_seq && tcpd && (tcph->th_ack - tcpd->rev->base_seq) > 1)) {
                 expert_add_info(pinfo, tf, &ei_tcp_analysis_tfo_ack);
+            } else if (tcpd && tcpd->tfo_syn_data) {
+                expert_add_info(pinfo, tf, &ei_tcp_analysis_tfo_ignored);
             }
         }
     } else {
@@ -7719,7 +7731,8 @@ proto_register_tcp(void)
         { &ei_tcp_analysis_zero_window, { "tcp.analysis.zero_window", PI_SEQUENCE, PI_WARN, "TCP Zero Window segment", EXPFILL }},
         { &ei_tcp_analysis_zero_window_probe_ack, { "tcp.analysis.zero_window_probe_ack", PI_SEQUENCE, PI_NOTE, "ACK to a TCP Zero Window Probe", EXPFILL }},
         { &ei_tcp_analysis_tfo_syn, { "tcp.analysis.tfo_syn", PI_SEQUENCE, PI_NOTE, "TCP SYN with TFO Cookie", EXPFILL }},
-        { &ei_tcp_analysis_tfo_ack, { "tcp.analysis.tfo_ack", PI_SEQUENCE, PI_NOTE, "TCP SYN-ACK accepting data", EXPFILL }},
+        { &ei_tcp_analysis_tfo_ack, { "tcp.analysis.tfo_ack", PI_SEQUENCE, PI_NOTE, "TCP SYN-ACK accepting TFO data", EXPFILL }},
+        { &ei_tcp_analysis_tfo_ignored, { "tcp.analysis.tfo_ignored", PI_SEQUENCE, PI_NOTE, "TCP SYN-ACK ignoring TFO data", EXPFILL }},
         { &ei_tcp_scps_capable, { "tcp.analysis.zero_window_probe_ack", PI_SEQUENCE, PI_NOTE, "Connection establish request (SYN-ACK): SCPS Capabilities Negotiated", EXPFILL }},
         { &ei_tcp_option_snack_sequence, { "tcp.options.snack.sequence", PI_SEQUENCE, PI_NOTE, "SNACK Sequence", EXPFILL }},
         { &ei_tcp_option_wscale_shift_invalid, { "tcp.options.wscale.shift.invalid", PI_PROTOCOL, PI_WARN, "Window scale shift exceeds 14", EXPFILL }},
