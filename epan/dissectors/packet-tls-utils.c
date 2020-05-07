@@ -3034,7 +3034,7 @@ ssl_create_decompressor(gint compression)
 
     if (compression == 0) return NULL;
     ssl_debug_printf("ssl_create_decompressor: compression method %d\n", compression);
-    decomp = (SslDecompress *)wmem_alloc(wmem_file_scope(), sizeof(SslDecompress));
+    decomp = wmem_new(wmem_file_scope(), SslDecompress);
     decomp->compression = compression;
     switch (decomp->compression) {
 #ifdef HAVE_ZLIB
@@ -3112,7 +3112,7 @@ ssl_create_flow(void)
 {
   SslFlow *flow;
 
-  flow = (SslFlow *)wmem_alloc(wmem_file_scope(), sizeof(SslFlow));
+  flow = wmem_new(wmem_file_scope(), SslFlow);
   flow->byte_seq = 0;
   flow->flags = 0;
   flow->multisegment_pdus = wmem_tree_new(wmem_file_scope());
@@ -3146,7 +3146,7 @@ ssl_create_decoder(const SslCipherSuite *cipher_suite, gint cipher_algo,
     SslDecoder *dec;
     ssl_cipher_mode_t mode = cipher_suite->mode;
 
-    dec = (SslDecoder *)wmem_alloc0(wmem_file_scope(), sizeof(SslDecoder));
+    dec = wmem_new0(wmem_file_scope(), SslDecoder);
     /* init mac buffer: mac storage is embedded into decoder struct to save a
      memory allocation and waste samo more memory*/
     dec->cipher_suite=cipher_suite;

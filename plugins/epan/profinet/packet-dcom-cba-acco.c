@@ -498,7 +498,7 @@ cba_pdev_add(packet_info *pinfo, const address *addr)
     }
 
     /* not found, create a new */
-    pdev = (cba_pdev_t *)wmem_alloc(wmem_file_scope(), sizeof(cba_pdev_t));
+    pdev = wmem_new(wmem_file_scope(), cba_pdev_t);
     memcpy( (void *) (pdev->ip), addr->data, 4);
     pdev->first_packet = pinfo->num;
     pdev->ldevs        = NULL;
@@ -564,7 +564,7 @@ cba_ldev_add(packet_info *pinfo, cba_pdev_t *pdev, const char *name)
     }
 
     /* not found, create a new */
-    ldev = (cba_ldev_t *)wmem_alloc(wmem_file_scope(), sizeof(cba_ldev_t));
+    ldev = wmem_new(wmem_file_scope(), cba_ldev_t);
     ldev->name         = wmem_strdup(wmem_file_scope(), name);
     ldev->first_packet = pinfo->num;
     ldev->ldev_object  = NULL;
@@ -739,7 +739,7 @@ cba_frame_connect(packet_info *pinfo, cba_ldev_t *cons_ldev, cba_ldev_t *prov_ld
         }
     }
 
-    frame = (cba_frame_t *)wmem_alloc(wmem_file_scope(), sizeof(cba_frame_t));
+    frame = wmem_new(wmem_file_scope(), cba_frame_t);
 
     frame->consparent          = cons_ldev;
     frame->provparent          = prov_ldev;
@@ -973,7 +973,7 @@ cba_connection_connect(packet_info *pinfo, cba_ldev_t *cons_ldev, cba_ldev_t *pr
         }
     }
 
-    conn = (cba_connection_t *)wmem_alloc(wmem_file_scope(), sizeof(cba_connection_t));
+    conn = wmem_new(wmem_file_scope(), cba_connection_t);
 
     conn->consparentacco      = cons_ldev;
     conn->provparentacco      = prov_ldev;
@@ -1882,7 +1882,7 @@ dissect_ICBAAccoServer_DisconnectMe_rqst(tvbuff_t *tvb, int offset,
     cons_ldev = cba_acco_add(pinfo, szStr);
 
     if (prov_ldev != NULL && cons_ldev != NULL) {
-        call = (server_disconnectme_call_t *)wmem_alloc(wmem_file_scope(), sizeof(server_disconnectme_call_t));
+        call = wmem_new(wmem_file_scope(), server_disconnectme_call_t);
         call->cons = cons_ldev;
         call->prov = prov_ldev;
         di->call_data->private_data = call;
@@ -1953,7 +1953,7 @@ dissect_ICBAAccoServerSRT_DisconnectMe_rqst(tvbuff_t *tvb, int offset,
     cons_ldev = cba_acco_add(pinfo, szStr);
 
     if (prov_ldev != NULL && cons_ldev != NULL) {
-        call = (server_disconnectme_call_t *)wmem_alloc(wmem_file_scope(), sizeof(server_disconnectme_call_t));
+        call = wmem_new(wmem_file_scope(), server_disconnectme_call_t);
         call->cons = cons_ldev;
         call->prov = prov_ldev;
         di->call_data->private_data = call;

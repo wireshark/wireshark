@@ -7084,7 +7084,7 @@ int dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     guint               pdu_instance = GPOINTER_TO_UINT(data);
 
     /* Allocate and zero tap struct */
-    mac_lte_tap_info *tap_info = (mac_lte_tap_info *)wmem_alloc0(wmem_file_scope(), sizeof(mac_lte_tap_info));
+    mac_lte_tap_info *tap_info = wmem_new0(wmem_file_scope(), mac_lte_tap_info);
 
     /* Set protocol name */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MAC-LTE");

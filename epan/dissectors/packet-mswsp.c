@@ -3669,7 +3669,7 @@ static const value_string RT_VALS[] =  {
 	{0, NULL}
 };
 
-#define EP_ALLOC(T) (T*)wmem_alloc(wmem_packet_scope(), sizeof(T))
+#define EP_ALLOC(T) wmem_new(wmem_packet_scope(), T)
 
 static int parse_rType(tvbuff_t *tvb, int offset, proto_tree *tree, enum rType *rtype, const char **str)
 {

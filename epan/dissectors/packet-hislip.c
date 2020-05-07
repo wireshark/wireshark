@@ -772,7 +772,7 @@ dissect_hislip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         if(!PINFO_FD_VISITED(pinfo))
         {
             /* This is a new request */
-            hislip_trans = (hislip_transaction_t *)wmem_alloc(wmem_file_scope(), sizeof(hislip_transaction_t));
+            hislip_trans = wmem_new(wmem_file_scope(), hislip_transaction_t);
             hislip_trans->req_frame = pinfo->num;
             hislip_trans->rep_frame = 0;
             hislip_trans->messagetype = hislip_data.messagetype;

@@ -153,7 +153,7 @@ guint32 get_fragment_pdu_id(packet_info *pinfo) {
 static wmem_map_t* s101_fragment_info_hash = NULL;
 
 s101_fragment_t* new_fragment_info(packet_info *pinfo) {
-    s101_fragment_t* fi = (s101_fragment_t*)wmem_alloc(wmem_file_scope(), sizeof(s101_fragment_t));
+    s101_fragment_t* fi = wmem_new(wmem_file_scope(), s101_fragment_t);
     if (NULL == fi) { return fi; }
     fi->id = pinfo->num;
     fi->offset = 0;

@@ -2722,14 +2722,14 @@ dissect_rlc_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     fpi = (fp_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fp, 0);
     if (fpi == NULL) {
         /* Allocate new info struct for this frame */
-        fpi = (fp_info *)wmem_alloc0(wmem_file_scope(), sizeof(fp_info));
+        fpi = wmem_new0(wmem_file_scope(), fp_info);
     } else {
         fpInfoAlreadySet = TRUE;
     }
     rlci = (rlc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_umts_rlc, 0);
     if (rlci == NULL) {
         /* Allocate new info struct for this frame */
-        rlci = (rlc_info *)wmem_alloc0(wmem_file_scope(), sizeof(rlc_info));
+        rlci = wmem_new0(wmem_file_scope(), rlc_info);
     } else {
         rlcInfoAlreadySet = TRUE;
     }

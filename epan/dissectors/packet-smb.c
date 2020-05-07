@@ -4611,7 +4611,7 @@ dissect_rename_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	/* save the offset/len for this transaction */
 	if (si->sip && !pinfo->fd->visited) {
-		rni = (smb_rename_saved_info_t *)wmem_alloc(wmem_file_scope(), sizeof(smb_rename_saved_info_t));
+		rni = wmem_new(wmem_file_scope(), smb_rename_saved_info_t);
 		rni->old_name = wmem_strdup(wmem_file_scope(), old_name);
 		rni->new_name = wmem_strdup(wmem_file_scope(), new_name);
 
@@ -5075,7 +5075,7 @@ dissect_write_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 	/* save the offset/len for this transaction */
 	if (si->sip && !pinfo->fd->visited) {
-		rwi	    = (rw_info_t *)wmem_alloc(wmem_file_scope(), sizeof(rw_info_t));
+		rwi	    = wmem_new(wmem_file_scope(), rw_info_t);
 		rwi->offset = ofs;
 		rwi->len    = cnt;
 		rwi->fid    = fid;
@@ -6316,7 +6316,7 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 	/* store the locking data for the response */
 	if ((!pinfo->fd->visited) && si->sip) {
-		ld = (smb_locking_saved_info_t *)wmem_alloc(wmem_file_scope(), sizeof(smb_locking_saved_info_t));
+		ld = wmem_new(wmem_file_scope(), smb_locking_saved_info_t);
 		ld->type	 = lt;
 		ld->oplock_level = ol;
 		ld->num_lock	 = num_lock;
@@ -6373,7 +6373,7 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 				/* remember the unlock for the reply */
 				if (ld) {
 					smb_lock_info_t *li;
-					li = (smb_lock_info_t *)wmem_alloc(wmem_file_scope(), sizeof(smb_lock_info_t));
+					li = wmem_new(wmem_file_scope(), smb_lock_info_t);
 					li->next = ld->unlocks;
 					ld->unlocks = li;
 					li->pid = lock_pid;
@@ -6450,7 +6450,7 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 				/* remember the lock for the reply */
 				if (ld) {
 					smb_lock_info_t *li;
-					li = (smb_lock_info_t *)wmem_alloc(wmem_file_scope(), sizeof(smb_lock_info_t));
+					li = wmem_new(wmem_file_scope(), smb_lock_info_t);
 					li->next = ld->locks;
 					ld->locks = li;
 					li->pid = lock_pid;
@@ -7079,7 +7079,7 @@ dissect_read_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
 	/* save the offset/len for this transaction */
 	if (si->sip && !pinfo->fd->visited) {
-		rwi = (rw_info_t *)wmem_alloc(wmem_file_scope(), sizeof(rw_info_t));
+		rwi = wmem_new(wmem_file_scope(), rw_info_t);
 		rwi->offset = ofs;
 		rwi->len = maxcnt;
 		rwi->fid = fid;
@@ -7346,7 +7346,7 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 	/* save the offset/len for this transaction */
 	if (si->sip && !pinfo->fd->visited) {
-		rwi	    = (rw_info_t *)wmem_alloc(wmem_file_scope(), sizeof(rw_info_t));
+		rwi	    = wmem_new(wmem_file_scope(), rw_info_t);
 		rwi->offset = ofs;
 		rwi->len    = datalen;
 		rwi->fid    = fid;
@@ -7718,7 +7718,7 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 					if (ntlmssph && (ntlmssph->type == 3)) {
 						smb_uid_t *smb_uid;
 
-						smb_uid = (smb_uid_t *)wmem_alloc(wmem_file_scope(), sizeof(smb_uid_t));
+						smb_uid = wmem_new(wmem_file_scope(), smb_uid_t);
 						smb_uid->logged_in  = -1;
 						smb_uid->logged_out = -1;
 						smb_uid->domain  = wmem_strdup(wmem_file_scope(), ntlmssph->domain_name);
@@ -14316,7 +14316,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 						 * smb_transact2_info_t
 						 * structure.
 						 */
-						t2i = (smb_transact2_info_t *)wmem_alloc(wmem_file_scope(), sizeof(smb_transact2_info_t));
+						t2i = wmem_new(wmem_file_scope(), smb_transact2_info_t);
 						t2i->subcmd = subcmd;
 						t2i->info_level = -1;
 						t2i->resume_keys = FALSE;
@@ -14465,7 +14465,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					 * Allocate a new smb_transact_info_t
 					 * structure.
 					 */
-					tri = (smb_transact_info_t *)wmem_alloc(wmem_file_scope(), sizeof(smb_transact_info_t));
+					tri = wmem_new(wmem_file_scope(), smb_transact_info_t);
 					tri->subcmd = -1;
 					tri->trans_subcmd = -1;
 					tri->function = -1;
@@ -18081,7 +18081,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 			*/
 			sip = (smb_saved_info_t *)g_hash_table_lookup(si->ct->unmatched, GUINT_TO_POINTER(pid_mid));
 			if (sip != NULL) {
-				new_key = (smb_saved_info_key_t *)wmem_alloc(wmem_file_scope(), sizeof(smb_saved_info_key_t));
+				new_key = wmem_new(wmem_file_scope(), smb_saved_info_key_t);
 				new_key->frame = pinfo->num;
 				new_key->pid_mid = pid_mid;
 				g_hash_table_insert(si->ct->matched, new_key,
@@ -18208,7 +18208,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 						   or it's a continuation of
 						   a response we've seen. */
 						sip->frame_res = pinfo->num;
-						new_key = (smb_saved_info_key_t *)wmem_alloc(wmem_file_scope(), sizeof(smb_saved_info_key_t));
+						new_key = wmem_new(wmem_file_scope(), smb_saved_info_key_t);
 						new_key->frame = sip->frame_res;
 						new_key->pid_mid = pid_mid;
 						g_hash_table_insert(si->ct->matched, new_key, sip);
@@ -18243,7 +18243,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 				}
 			}
 			if (si->request) {
-				sip = (smb_saved_info_t *)wmem_alloc(wmem_file_scope(), sizeof(smb_saved_info_t));
+				sip = wmem_new(wmem_file_scope(), smb_saved_info_t);
 				sip->frame_req = pinfo->num;
 				sip->frame_res = 0;
 				sip->req_time = pinfo->abs_ts;
@@ -18258,7 +18258,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 				sip->fid = 0;
 				sip->fid_seen_in_request = 0;
 				g_hash_table_insert(si->ct->unmatched, GUINT_TO_POINTER(pid_mid), sip);
-				new_key = (smb_saved_info_key_t *)wmem_alloc(wmem_file_scope(), sizeof(smb_saved_info_key_t));
+				new_key = wmem_new(wmem_file_scope(), smb_saved_info_key_t);
 				new_key->frame = sip->frame_req;
 				new_key->pid_mid = pid_mid;
 				g_hash_table_insert(si->ct->matched, new_key, sip);

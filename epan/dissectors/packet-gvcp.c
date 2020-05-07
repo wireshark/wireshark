@@ -2587,7 +2587,7 @@ static int dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	if (!gvcp_info)
 	{
 		gint stream_channel_count = 0;
-		gvcp_info = (gvcp_conv_info_t*)wmem_alloc(wmem_file_scope(), sizeof(gvcp_conv_info_t));
+		gvcp_info = wmem_new(wmem_file_scope(), gvcp_conv_info_t);
 		gvcp_info->pdus = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
 		for (; stream_channel_count < GVCP_MAX_STREAM_CHANNEL_COUNT; stream_channel_count++)
 		{
@@ -2601,7 +2601,7 @@ static int dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 		if (key_code == 0x42)
 		{
 			/* This is a request */
-			gvcp_trans = (gvcp_transaction_t*)wmem_alloc(wmem_packet_scope(), sizeof(gvcp_transaction_t));
+			gvcp_trans = wmem_new(wmem_packet_scope(), gvcp_transaction_t);
 			gvcp_trans->req_frame = pinfo->num;
 			gvcp_trans->rep_frame = 0;
 			gvcp_trans->addr_list = 0;

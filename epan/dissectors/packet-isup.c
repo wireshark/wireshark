@@ -9644,7 +9644,7 @@ dissect_ansi_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree 
 
   offset +=  MESSAGE_TYPE_LENGTH;
 
-  tap_rec = (isup_tap_rec_t *)wmem_alloc(wmem_packet_scope(), sizeof(isup_tap_rec_t));
+  tap_rec = wmem_new(wmem_packet_scope(), isup_tap_rec_t);
   tap_rec->message_type   = message_type;
   tap_rec->calling_number = NULL;
   tap_rec->called_number  = NULL;
@@ -9945,7 +9945,7 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
 
   offset +=  MESSAGE_TYPE_LENGTH;
 
-  tap_rec = (isup_tap_rec_t *)wmem_alloc(wmem_packet_scope(), sizeof(isup_tap_rec_t));
+  tap_rec = wmem_new(wmem_packet_scope(), isup_tap_rec_t);
   tap_rec->message_type   = message_type;
   tap_rec->calling_number = NULL;
   tap_rec->called_number  = NULL;

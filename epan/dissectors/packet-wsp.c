@@ -4633,7 +4633,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree *wsp_tree = NULL;
 
     wsp_info_value_t *stat_info;
-    stat_info = (wsp_info_value_t *)wmem_alloc(wmem_packet_scope(), sizeof(wsp_info_value_t));
+    stat_info = wmem_new(wmem_packet_scope(), wsp_info_value_t);
     stat_info->status_code = 0;
 
 /* This field shows up as the "Info" column in the display; you should make

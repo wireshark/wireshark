@@ -3377,7 +3377,7 @@ dissect_btmesh_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     proto_tree_add_item(sub_tree, hf_btmesh_nid, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    dec_ctx = (network_decryption_ctx_t *)wmem_alloc(wmem_packet_scope(), sizeof(network_decryption_ctx_t));
+    dec_ctx = wmem_new(wmem_packet_scope(), network_decryption_ctx_t);
     dec_ctx->net_nonce_type = BTMESH_NONCE_TYPE_NETWORK;
 
     de_obf_tvb = btmesh_network_find_key_and_decrypt(tvb, pinfo, &decrypted_data, &enc_data_len, dec_ctx);

@@ -560,7 +560,7 @@ new_byte(char full_byte, guint8 **data, guint8 *data_len)
 
   if ((*data_len) == 0) {
     /* if data was never stored in this buffer before */
-    *data = (guint8 *)wmem_alloc(wmem_packet_scope(), sizeof(guint8));
+    *data = wmem_new(wmem_packet_scope(), guint8);
     (**data) = full_byte;
     (*data_len)++;
   } else {
@@ -629,7 +629,7 @@ prepare_data_for_found_packet(tvbuff_t *tvb, guint8 unalignment_offset)
 {
   mtp2_recognized_packet_t *packet;
 
-  packet = (mtp2_recognized_packet_t *)wmem_alloc(wmem_packet_scope(), sizeof(mtp2_recognized_packet_t));
+  packet = wmem_new(wmem_packet_scope(), mtp2_recognized_packet_t);
   /* store values */
   packet->data = tvb;
   packet->unalignment_offset = unalignment_offset;
@@ -663,7 +663,7 @@ dissect_mtp2_tvb(tvbuff_t* tvb, mtp2_mtp2_flag_search_t back_mtp2_flag_search, g
   mtp2_dissect_tvb_res_t        *result = NULL;                 /* the result structure */
 
   /* initialize the result structure, this will be returned at the end */
-  result = (mtp2_dissect_tvb_res_t *)wmem_alloc(wmem_packet_scope(), sizeof(mtp2_dissect_tvb_res_t));
+  result = wmem_new(wmem_packet_scope(), mtp2_dissect_tvb_res_t);
   result->mtp2_remain_data.before_first_flag = NULL;
   result->mtp2_remain_data.before_fh_unalignment_offset = 0;
   result->mtp2_remain_data.before_fh_frame_reset = FALSE;
@@ -953,13 +953,13 @@ dissect_mtp2_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
   /* there is no proto data in the conversation */
   if (conversation_get_proto_data(conversation, proto_mtp2) == NULL) {
     /* create a new convo data and fill it with initial data */
-    convo_data = (mtp2_convo_data_t *) wmem_alloc(wmem_file_scope(), sizeof(mtp2_convo_data_t));
+    convo_data = wmem_new(wmem_file_scope(), mtp2_convo_data_t);
     copy_address_wmem(wmem_file_scope(), &convo_data->addr_a, &pinfo->src);
     copy_address_wmem(wmem_file_scope(), &convo_data->addr_b, &pinfo->dst);
     convo_data->port_a = pinfo->srcport;
     convo_data->port_b = pinfo->destport;
-    convo_data->forward = (mtp2_convo_data_prev_packet_t *) wmem_alloc(wmem_file_scope(), sizeof(mtp2_convo_data_prev_packet_t));
-    convo_data->backward = (mtp2_convo_data_prev_packet_t *) wmem_alloc(wmem_file_scope(), sizeof(mtp2_convo_data_prev_packet_t));
+    convo_data->forward = wmem_new(wmem_file_scope(), mtp2_convo_data_prev_packet_t);
+    convo_data->backward = wmem_new(wmem_file_scope(), mtp2_convo_data_prev_packet_t);
     convo_data->forward->mtp2_flag_search.set = convo_data->backward->mtp2_flag_search.set= FALSE;
     convo_data->forward->mtp2_flag_search.mtp2_flag_search = convo_data->backward->mtp2_flag_search.mtp2_flag_search = 0x00;
     convo_data->forward->data_buff = convo_data->backward->data_buff = 0x00;
@@ -983,7 +983,7 @@ dissect_mtp2_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
   /* if there is no per packet data -> create it */
   if (mtp2_ppd == NULL) {
-    mtp2_ppd = (mtp2_ppd_t *) wmem_alloc(wmem_file_scope(), sizeof(mtp2_ppd_t));
+    mtp2_ppd = wmem_new(wmem_file_scope(), mtp2_ppd_t);
     /* set the the proto_data_fields
      * because these are the values which we would like to see
      * if this packet is seen again */

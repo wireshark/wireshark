@@ -6218,7 +6218,7 @@ dissect_dcerpc_dg_rqst(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
         wmem_map_insert(dcerpc_dg_calls, call_key, call_value);
 
-        new_matched_key = (dcerpc_matched_key *)wmem_alloc(wmem_file_scope(), sizeof(dcerpc_matched_key));
+        new_matched_key = wmem_new(wmem_file_scope(), dcerpc_matched_key);
         new_matched_key->frame = pinfo->num;
         new_matched_key->call_id = hdr->seqnum;
         wmem_map_insert(dcerpc_matched, new_matched_key, call_value);

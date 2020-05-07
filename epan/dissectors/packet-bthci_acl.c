@@ -374,7 +374,7 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         key[5].length = 0;
         key[5].key = NULL;
 
-        chandle_data = (chandle_data_t *)wmem_alloc(wmem_file_scope(), sizeof(chandle_data_t));
+        chandle_data = wmem_new(wmem_file_scope(), chandle_data_t);
         chandle_data->start_fragments = wmem_tree_new(wmem_file_scope());
 
         wmem_tree_insert32_array(chandle_tree, key, chandle_data);

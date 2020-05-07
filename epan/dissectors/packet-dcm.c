@@ -809,7 +809,7 @@ dcm_state_assoc_new(dcm_state_t *dcm_data, guint32 packet_no)
 
     dcm_state_assoc_t *assoc;
 
-    assoc = (dcm_state_assoc_t *) wmem_alloc0(wmem_file_scope(), sizeof(dcm_state_assoc_t));
+    assoc = wmem_new0(wmem_file_scope(), dcm_state_assoc_t);
     assoc->packet_no = packet_no;           /* Identifier */
 
     /* add to the end of the list */
@@ -861,7 +861,7 @@ dcm_state_pctx_new(dcm_state_assoc_t *assoc, guint8 pctx_id)
 
     dcm_state_pctx_t *pctx;
 
-    pctx = (dcm_state_pctx_t *)wmem_alloc0(wmem_file_scope(), sizeof(dcm_state_pctx_t));
+    pctx = wmem_new0(wmem_file_scope(), dcm_state_pctx_t);
     pctx->id = pctx_id;
     pctx->syntax = DCM_UNK;
 
@@ -910,7 +910,7 @@ dcm_state_pdv_new(dcm_state_pctx_t *pctx, guint32 packet_no, guint32 offset)
 {
     dcm_state_pdv_t *pdv;
 
-    pdv = (dcm_state_pdv_t *) wmem_alloc0(wmem_file_scope(), sizeof(dcm_state_pdv_t));
+    pdv = wmem_new0(wmem_file_scope(), dcm_state_pdv_t);
     pdv->syntax = DCM_UNK;
     pdv->is_last_fragment = TRUE;       /* Continuation PDVs are more tricky */
     pdv->packet_no = packet_no;
@@ -1375,7 +1375,7 @@ dcm_export_create_object(packet_info *pinfo, dcm_state_assoc_t *assoc, dcm_state
         memmove(pdv_combined_curr, pdv->data, pdv->data_len);       /* this is a copy not a move */
 
         /* Add to list */
-        eo_info = (dicom_eo_t *)wmem_alloc0(wmem_file_scope(), sizeof(dicom_eo_t));
+        eo_info = wmem_new0(wmem_file_scope(), dicom_eo_t);
         eo_info->hostname = g_strdup(hostname);
         eo_info->filename = g_strdup(filename);
         eo_info->content_type = g_strdup(pdv->desc);

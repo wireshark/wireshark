@@ -1019,7 +1019,7 @@ dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     conversation = find_or_create_conversation(pinfo);
     cops_conv_info = (cops_conv_info_t *)conversation_get_proto_data(conversation, proto_cops);
     if (!cops_conv_info) {
-        cops_conv_info = (cops_conv_info_t *)wmem_alloc(wmem_file_scope(), sizeof(cops_conv_info_t));
+        cops_conv_info = wmem_new(wmem_file_scope(), cops_conv_info_t);
 
         cops_conv_info->pdus_tree = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
         conversation_add_proto_data(conversation, proto_cops, cops_conv_info);

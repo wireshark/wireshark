@@ -398,7 +398,7 @@ diameterstat_init(struct register_srt* srt _U_, GArray* srt_array)
 		g_hash_table_destroy(diameterstat_cmd_str_hash);
 	}
 
-	idx = (int *)wmem_alloc0(wmem_epan_scope(), sizeof(int));
+	idx = wmem_new0(wmem_epan_scope(), int);
 	diameterstat_cmd_str_hash = g_hash_table_new(g_str_hash,g_str_equal);
 	g_hash_table_insert(diameterstat_cmd_str_hash, "Unknown", idx);
 
@@ -430,7 +430,7 @@ diameterstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, cons
 
 	idx = (int*) g_hash_table_lookup(diameterstat_cmd_str_hash, diameter->cmd_str);
 	if (idx == NULL) {
-		idx = (int *)wmem_alloc(wmem_epan_scope(), sizeof(int));
+		idx = wmem_new(wmem_epan_scope(), int);
 		*idx = (int) g_hash_table_size(diameterstat_cmd_str_hash);
 		g_hash_table_insert(diameterstat_cmd_str_hash, (gchar*) diameter->cmd_str, idx);
 		init_srt_table_row(diameter_srt_table, *idx,  (const char*) diameter->cmd_str);
@@ -1359,7 +1359,7 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	int packet_len;
 	proto_item *pi, *cmd_item, *app_item, *version_item;
 	proto_tree *diam_tree;
-	diam_ctx_t *c = (diam_ctx_t *)wmem_alloc0(wmem_packet_scope(), sizeof(diam_ctx_t));
+	diam_ctx_t *c = wmem_new0(wmem_packet_scope(), diam_ctx_t);
 	int offset;
 	value_string *cmd_vs;
 	const char *cmd_str;
@@ -1538,7 +1538,7 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
 	if (!diameter_pair) {
 		/* create a "fake" diameter_pair structure */
-		diameter_pair = (diameter_req_ans_pair_t *)wmem_alloc(wmem_packet_scope(), sizeof(diameter_req_ans_pair_t));
+		diameter_pair = wmem_new(wmem_packet_scope(), diameter_req_ans_pair_t);
 		diameter_pair->hop_by_hop_id = hop_by_hop_id;
 		diameter_pair->cmd_code = cmd;
 		diameter_pair->result_code = 0;
@@ -1689,7 +1689,7 @@ dissect_diameter_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 	proto_item *pi;
 	proto_tree *diam_tree;
 	int offset = 0;
-	diam_ctx_t *c = (diam_ctx_t *)wmem_alloc0(wmem_packet_scope(), sizeof(diam_ctx_t));
+	diam_ctx_t *c = wmem_new0(wmem_packet_scope(), diam_ctx_t);
 	diam_sub_dis_t *diam_sub_dis_inf = wmem_new0(wmem_packet_scope(), diam_sub_dis_t);
 
 	/* Load header fields if not already done */
@@ -1864,8 +1864,8 @@ build_proto_avp(const avp_type_t *type _U_, guint32 code,
 		diam_vnd_t *vendor, const char *name _U_,
 		const value_string *vs _U_, void *data)
 {
-	diam_avp_t *a = (diam_avp_t *)wmem_alloc0(wmem_epan_scope(), sizeof(diam_avp_t));
-	proto_avp_t *t = (proto_avp_t *)wmem_alloc0(wmem_epan_scope(), sizeof(proto_avp_t));
+	diam_avp_t *a = wmem_new0(wmem_epan_scope(), diam_avp_t);
+	proto_avp_t *t = wmem_new0(wmem_epan_scope(), proto_avp_t);
 	gint *ettp = &(a->ett);
 
 	a->code = code;
@@ -1921,7 +1921,7 @@ build_simple_avp(const avp_type_t *type, guint32 code, diam_vnd_t *vendor,
 		base = (field_display_e)(base|BASE_EXT_STRING);
 	}
 
-	a = (diam_avp_t *)wmem_alloc0(wmem_epan_scope(), sizeof(diam_avp_t));
+	a = wmem_new0(wmem_epan_scope(), diam_avp_t);
 	a->code = code;
 	a->vendor = vendor;
 	a->dissector_v16 = type->v16;
@@ -1941,7 +1941,7 @@ build_appid_avp(const avp_type_t *type, guint32 code, diam_vnd_t *vendor,
 	diam_avp_t *a;
 	field_display_e base;
 
-	a = (diam_avp_t *)wmem_alloc0(wmem_epan_scope(), sizeof(diam_avp_t));
+	a = wmem_new0(wmem_epan_scope(), diam_avp_t);
 	a->code = code;
 	a->vendor = vendor;
 	a->dissector_v16 = type->v16;

@@ -1901,7 +1901,7 @@ static void rtps_util_add_coherent_set_general_cases_case(
   coherent_set_info_entry = (coherent_set_info*)wmem_map_lookup(coherent_set_tracking.coherent_set_registry_map,
     &coherent_set_info_key);
   if (!coherent_set_info_entry) {
-    coherent_set_info_entry = (coherent_set_info*)wmem_alloc0(wmem_file_scope(), sizeof(coherent_set_info));
+    coherent_set_info_entry = wmem_new0(wmem_file_scope(), coherent_set_info);
     coherent_set_info_entry->key = (coherent_set_key*)wmem_memdup(wmem_file_scope(), &coherent_set_info_key, sizeof(coherent_set_key));
     coherent_set_info_entry->is_set = FALSE;
     wmem_map_insert(

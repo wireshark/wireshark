@@ -409,8 +409,8 @@ dissect_scylla_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     guint64 msg_id = tvb_get_letoh64(tvb, offset + SCYLLA_HEADER_MSG_ID_OFFSET);
 
     if (!PINFO_FD_VISITED(pinfo) && response_expected(verb_type)) {
-        guint64 *key = (guint64 *)wmem_alloc(wmem_file_scope(), sizeof(guint64));
-        request_response_t *val = (request_response_t *)wmem_alloc(wmem_file_scope(), sizeof(request_response_t));
+        guint64 *key = wmem_new(wmem_file_scope(), guint64);
+        request_response_t *val = wmem_new(wmem_file_scope(), request_response_t);
         *key = msg_id;
         val->verb_type = verb_type;
         val->request_frame_num = pinfo->num;

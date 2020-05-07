@@ -2653,7 +2653,7 @@ pnio_ar_new(e_guid_t *aruuid)
     pnio_ar_t *ar;
 
 
-    ar = (pnio_ar_t *)wmem_alloc0(wmem_file_scope(), sizeof(pnio_ar_t));
+    ar = wmem_new0(wmem_file_scope(), pnio_ar_t);
 
     memcpy(&ar->aruuid, aruuid, sizeof(e_guid_t));
 

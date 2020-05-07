@@ -9211,7 +9211,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
         /* No.  Attach that information to the conversation, and add
         * it to the list of information structures.
         */
-        gtp_info = (gtp_conv_info_t *)wmem_alloc(wmem_file_scope(), sizeof(gtp_conv_info_t));
+        gtp_info = wmem_new(wmem_file_scope(), gtp_conv_info_t);
         /*Request/response matching tables*/
         gtp_info->matched = g_hash_table_new(gtp_sn_hash, gtp_sn_equal_matched);
         gtp_info->unmatched = g_hash_table_new(gtp_sn_hash, gtp_sn_equal_unmatched);

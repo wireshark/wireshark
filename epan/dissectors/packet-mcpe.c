@@ -136,7 +136,7 @@ mcpe_get_session_state(packet_info *pinfo) {
     state = (mcpe_session_state_t*)conversation_get_proto_data(conversation, proto_mcpe);
 
     if (state == NULL) {
-        state = (mcpe_session_state_t*)wmem_alloc(wmem_file_scope(), sizeof(mcpe_session_state_t));
+        state = wmem_new(wmem_file_scope(), mcpe_session_state_t);
         state->encrypted = FALSE;
         state->encryption_starts_after = 0;
 

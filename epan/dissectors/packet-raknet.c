@@ -238,7 +238,7 @@ raknet_get_session_state(packet_info *pinfo) {
     state = (raknet_session_state_t*)conversation_get_proto_data(conversation, proto_raknet);
 
     if (state == NULL) {
-        state = (raknet_session_state_t*)wmem_alloc(wmem_file_scope(), sizeof(raknet_session_state_t));
+        state = wmem_new(wmem_file_scope(), raknet_session_state_t);
         state->use_encryption = FALSE;
         state->subdissector = NULL;
         conversation_add_proto_data(conversation, proto_raknet, state);
