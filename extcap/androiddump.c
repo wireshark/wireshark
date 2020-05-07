@@ -1234,7 +1234,7 @@ static int register_interfaces(extcap_parameters * extcap_conf, const char *adb_
                         response[data_length] = '\0';
                         data_str = strtok(response, "\n");
                         while (data_str != NULL) {
-                            if (data_str && sscanf(data_str, "%*s %15s", pid) == 1 && strlen(pid) > 10 && strcmp(pid + 9, "22A8") == 0) {
+                            if (sscanf(data_str, "%*s %15s", pid) == 1 && strlen(pid) > 10 && strcmp(pid + 9, "22A8") == 0) {
                                 g_debug("Btsnoop Net Port for %s is %s", serial_number, pid + 9);
                                 break;
                             }
@@ -1562,7 +1562,7 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
 
             frame_length = raw_length * 3 + (raw_length / 20) * 4 + ((raw_length % 20) ? 2 : -2) + 29;
 
-            if (used_buffer_length + length < frame_length) {
+            if ((used_buffer_length + length) < frame_length) {
                 used_buffer_length += length;
                 break;
             }
@@ -1600,12 +1600,8 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
                     ts,
                     ms * 1000);
 
-            if (used_buffer_length + length >= frame_length) {
-                memmove(data, data + frame_length, (size_t)(used_buffer_length + length - frame_length));
-                used_buffer_length = (gssize)(used_buffer_length + length - frame_length);
-                length = 0;
-                continue;
-            }
+            memmove(data, data + frame_length, (size_t)(used_buffer_length + length - frame_length));
+            used_buffer_length = (gssize)(used_buffer_length + length - frame_length);
             length = 0;
         }
     }
