@@ -1956,7 +1956,8 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             proto_item_append_text(ti, ": ");
             if (error_codes & 0x01)
                 proto_item_append_text(ti, "Audio device is busy, subsequent commands use the new setting ");
-            if (error_codes & 0x01)
+            /* TODO: Haven't confirmed this bit against spec, but was previously wrongly also 0x01 */
+            if (error_codes & 0x02)
                 proto_item_append_text(ti, "Command is not supported ");
             if (error_codes & 0x10)
                 proto_item_append_text(ti, "Any other error ");
