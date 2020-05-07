@@ -91,10 +91,6 @@ void MainWindow::layoutPanes()
     empty_pane_.setParent(main_ui_->mainStack);
     extra_split_.setParent(main_ui_->mainStack);
 
-    // Show the master splitter here to prevent pending resize events changing packet list columns
-    // when the master splitter is set as current widget for the first time.
-    master_split_.show();
-
     // XXX We should try to preserve geometries if we can, e.g. by
     // checking to see if the layout type is the same.
     switch(prefs.gui_layout_type) {
@@ -160,6 +156,10 @@ void MainWindow::layoutPanes()
     packet_list_->setVisible(ms_children.contains(packet_list_) && recent.packet_list_show);
     proto_tree_->setVisible(ms_children.contains(proto_tree_) && recent.tree_view_show);
     byte_view_tab_->setVisible(ms_children.contains(byte_view_tab_) && recent.byte_view_show);
+
+    // Show the master splitter here to prevent pending resize events changing packet list columns
+    // when the master splitter is set as current widget for the first time.
+    master_split_.show();
 
     packet_list_->thaw(true);
     cur_layout_ = new_layout;
