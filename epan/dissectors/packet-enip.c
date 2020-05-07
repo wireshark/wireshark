@@ -60,8 +60,6 @@ void proto_reg_handoff_enip(void);
 #define UNREGISTER_SESSION 0x0066
 #define SEND_RR_DATA       0x006F
 #define SEND_UNIT_DATA     0x0070
-#define INDICATE_STATUS    0x0072
-#define CANCEL             0x0073
 
 /* EtherNet/IP status codes */
 #define SUCCESS               0x0000
@@ -73,18 +71,18 @@ void proto_reg_handoff_enip(void);
 #define UNSUPPORTED_PROT_REV  0x0069
 #define ENCAP_HEADER_ERROR    0x006A
 
-/* EtherNet/IP Common Data Format Type IDs */
-#define CDF_NULL              0x0000
-#define LIST_IDENTITY_RESP    0x000C
-#define LIST_ID_SECURITY      0x0086
-#define CONNECTION_BASED      0x00A1
-#define CONNECTION_TRANSPORT  0x00B1
-#define UNCONNECTED_MSG       0x00B2
-#define LIST_SERVICES_RESP    0x0100
-#define SOCK_ADR_INFO_OT      0x8000
-#define SOCK_ADR_INFO_TO      0x8001
-#define SEQ_ADDRESS           0x8002
-#define UNCONNECTED_MSG_DTLS  0x8003
+/* EtherNet/IP Common Packet Format Type IDs */
+#define CPF_ITEM_NULL                 0x0000
+#define CPF_ITEM_CIP_IDENTITY         0x000C
+#define CPF_ITEM_CIP_SECURITY         0x0086
+#define CPF_ITEM_CONNECTED_ADDRESS    0x00A1
+#define CPF_ITEM_CONNECTED_DATA       0x00B1
+#define CPF_ITEM_UNCONNECTED_DATA     0x00B2
+#define CPF_ITEM_LIST_SERVICES_RESP   0x0100
+#define CPF_ITEM_SOCK_ADR_INFO_OT     0x8000
+#define CPF_ITEM_SOCK_ADR_INFO_TO     0x8001
+#define CPF_ITEM_SEQUENCED_ADDRESS    0x8002
+#define CPF_ITEM_UNCONNECTED_MSG_DTLS 0x8003
 
 /* Initialize the protocol and registered fields */
 static int proto_enip = -1;
@@ -486,8 +484,6 @@ static const value_string encap_cmd_vals[] = {
    { UNREGISTER_SESSION,"Unregister Session" },
    { SEND_RR_DATA,      "Send RR Data"       },
    { SEND_UNIT_DATA,    "Send Unit Data"     },
-   { INDICATE_STATUS,   "Indicate Status"    },
-   { CANCEL,            "Cancel"             },
 
    { 0,                 NULL                 }
 };
@@ -506,19 +502,19 @@ static const value_string encap_status_vals[] = {
    { 0,                    NULL }
 };
 
-/* Translate function to Common data format values */
-static const value_string cdf_type_vals[] = {
-   { CDF_NULL,             "Null Address Item"        },
-   { LIST_IDENTITY_RESP,   "List Identity Response"   },
-   { LIST_ID_SECURITY,     "CIP Security Information" },
-   { CONNECTION_BASED,     "Connected Address Item"   },
-   { CONNECTION_TRANSPORT, "Connected Data Item"      },
-   { UNCONNECTED_MSG,      "Unconnected Data Item"    },
-   { LIST_SERVICES_RESP,   "List Services Response"   },
-   { SOCK_ADR_INFO_OT,     "Socket Address Info O->T" },
-   { SOCK_ADR_INFO_TO,     "Socket Address Info T->O" },
-   { SEQ_ADDRESS,          "Sequenced Address Item"   },
-   { UNCONNECTED_MSG_DTLS, "Unconnected Message over UDP"   },
+/* Translate function to Common packet format values */
+static const value_string cpf_type_vals[] = {
+   { CPF_ITEM_NULL,                 "Null Address Item"        },
+   { CPF_ITEM_CIP_IDENTITY,         "CIP Identity"             },
+   { CPF_ITEM_CIP_SECURITY,         "CIP Security Information" },
+   { CPF_ITEM_CONNECTED_ADDRESS,    "Connected Address Item"   },
+   { CPF_ITEM_CONNECTED_DATA,       "Connected Data Item"      },
+   { CPF_ITEM_UNCONNECTED_DATA,     "Unconnected Data Item"    },
+   { CPF_ITEM_LIST_SERVICES_RESP,   "List Services Response"   },
+   { CPF_ITEM_SOCK_ADR_INFO_OT,     "Socket Address Info O->T" },
+   { CPF_ITEM_SOCK_ADR_INFO_TO,     "Socket Address Info T->O" },
+   { CPF_ITEM_SEQUENCED_ADDRESS,    "Sequenced Address Item"   },
+   { CPF_ITEM_UNCONNECTED_MSG_DTLS, "Unconnected Message over UDP" },
 
    { 0,                    NULL }
 };
@@ -796,7 +792,7 @@ typedef struct enip_request_val {
 /*
  * Hash Functions
  */
-static gint
+static gboolean
 enip_request_equal(gconstpointer v, gconstpointer w)
 {
    const enip_request_key_t *v1 = (const enip_request_key_t *)v;
@@ -815,9 +811,9 @@ enip_request_equal(gconstpointer v, gconstpointer w)
                  )
             )
       )
-      return 1;
+      return TRUE;
 
-   return 0;
+   return FALSE;
 }
 
 static void
@@ -1062,7 +1058,7 @@ static gchar* cip_connection_conv_filter(packet_info *pinfo)
 static wmem_map_t *enip_conn_hashtable = NULL;
 static guint32 enip_unique_connid;
 
-static gint
+static gboolean
 enip_conn_equal(gconstpointer v, gconstpointer w)
 {
   const enip_conn_key_t *v1 = (const enip_conn_key_t *)v;
@@ -1073,9 +1069,9 @@ enip_conn_equal(gconstpointer v, gconstpointer w)
       (v1->triad.DeviceSerialNumber == v2->triad.DeviceSerialNumber) &&
       ((v1->O2TConnID == 0) || (v2->O2TConnID == 0) || (v1->O2TConnID == v2->O2TConnID)) &&
       ((v1->T2OConnID == 0) || (v2->T2OConnID == 0) || (v1->T2OConnID == v2->T2OConnID)))
-    return 1;
+    return TRUE;
 
-  return 0;
+  return FALSE;
 }
 
 static guint
@@ -1089,15 +1085,21 @@ enip_conn_hash (gconstpointer v)
    return val;
 }
 
+// Create a list of connection IDs and attach it to the conversation.
+enip_conv_info_t* create_connection_id_list(conversation_t* conversation)
+{
+   enip_conv_info_t* enip_info = wmem_new(wmem_file_scope(), enip_conv_info_t);
+   enip_info->O2TConnIDs = wmem_tree_new(wmem_file_scope());
+   enip_info->T2OConnIDs = wmem_tree_new(wmem_file_scope());
+
+   conversation_add_proto_data(conversation, proto_enip, enip_info);
+
+   return enip_info;
+}
+
 static void
 enip_open_cip_connection( packet_info *pinfo, cip_conn_info_t* connInfo)
 {
-   enip_conn_key_t  *conn_key;
-   enip_conn_val_t  *conn_val;
-   conversation_t   *conversation, *conversationTO;
-   enip_conv_info_t *enip_info;
-   address           dest_address;
-
    if (pinfo->fd->visited)
       return;
 
@@ -1107,12 +1109,12 @@ enip_open_cip_connection( packet_info *pinfo, cip_conn_info_t* connInfo)
       return;
    }
 
-   conn_key = wmem_new(wmem_file_scope(), enip_conn_key_t);
+   enip_conn_key_t* conn_key = wmem_new(wmem_file_scope(), enip_conn_key_t);
    conn_key->triad = connInfo->triad;
    conn_key->O2TConnID = connInfo->O2T.connID;
    conn_key->T2OConnID = connInfo->T2O.connID;
 
-   conn_val = (enip_conn_val_t *)wmem_map_lookup( enip_conn_hashtable, conn_key );
+   enip_conn_val_t* conn_val = (enip_conn_val_t *)wmem_map_lookup( enip_conn_hashtable, conn_key );
    if ( conn_val == NULL )
    {
       conn_val = wmem_new(wmem_file_scope(), enip_conn_val_t);
@@ -1150,6 +1152,7 @@ enip_open_cip_connection( packet_info *pinfo, cip_conn_info_t* connInfo)
              ((connInfo->O2T.ipaddress.type == AT_IPv6) && (memcmp(connInfo->O2T.ipaddress.data, &ipv6_zero, sizeof(ipv6_zero)) == 0)) ||
              (connInfo->O2T.type != CONN_TYPE_MULTICAST))
             copy_address_wmem(wmem_file_scope(), &connInfo->O2T.ipaddress, &pinfo->src);
+
          if ((connInfo->T2O.port == 0) || (connInfo->T2O.type == CONN_TYPE_MULTICAST))
             connInfo->T2O.port = ENIP_IO_PORT;
          if ((connInfo->T2O.ipaddress.type == AT_NONE) ||
@@ -1158,6 +1161,7 @@ enip_open_cip_connection( packet_info *pinfo, cip_conn_info_t* connInfo)
              (connInfo->T2O.type != CONN_TYPE_MULTICAST))
             copy_address_wmem(wmem_file_scope(), &connInfo->T2O.ipaddress, &pinfo->dst);
 
+         address dest_address;
          if (connInfo->O2T.ipaddress.type == AT_IPv6)
          {
              dest_address.type = AT_IPv6;
@@ -1172,31 +1176,29 @@ enip_open_cip_connection( packet_info *pinfo, cip_conn_info_t* connInfo)
 
          /* check for O->T conversation */
          /* similar logic to find_or_create_conversation(), but since I/O traffic
-         is on UDP, the pinfo parameter doesn't have the correct information */
+            is on UDP, the pinfo parameter doesn't have the correct information */
+         conversation_t* conversation;
          if ((conversation = find_conversation(pinfo->num, &pinfo->dst, &dest_address,
-                                              ENDPOINT_UDP, connInfo->O2T.port, 0, NO_PORT_B)) == NULL) {
-
+                                              ENDPOINT_UDP, connInfo->O2T.port, 0, NO_PORT_B)) == NULL)
+         {
             conversation = conversation_new(pinfo->num, &pinfo->dst, &dest_address,
                                             ENDPOINT_UDP, connInfo->O2T.port, 0, NO_PORT2);
          }
 
-         enip_info = (enip_conv_info_t *)conversation_get_proto_data(conversation, proto_enip);
+         enip_conv_info_t* enip_info = (enip_conv_info_t *)conversation_get_proto_data(conversation, proto_enip);
          if (enip_info == NULL)
          {
-            enip_info = wmem_new(wmem_file_scope(), enip_conv_info_t);
-            enip_info->O2TConnIDs = wmem_tree_new(wmem_file_scope());
-            enip_info->T2OConnIDs = wmem_tree_new(wmem_file_scope());
-
-            conversation_add_proto_data(conversation, proto_enip, enip_info);
+            enip_info = create_connection_id_list(conversation);
          }
          wmem_tree_insert32(enip_info->O2TConnIDs, connInfo->O2T.connID, (void *)conn_val);
 
          /* Check if separate T->O conversation is necessary.  If either side is multicast
             or ports aren't equal, a separate conversation must be generated */
          dest_address.data = connInfo->T2O.ipaddress.data;
+         conversation_t* conversationTO;
          if ((conversationTO = find_conversation(pinfo->num, &pinfo->src, &dest_address,
-                                                ENDPOINT_UDP, connInfo->T2O.port, 0, NO_PORT_B)) == NULL) {
-
+                                                ENDPOINT_UDP, connInfo->T2O.port, 0, NO_PORT_B)) == NULL)
+         {
              conversationTO = conversation_new(pinfo->num, &pinfo->src,
                                                &dest_address, ENDPOINT_UDP,
                                                connInfo->T2O.port, 0, NO_PORT2);
@@ -1205,31 +1207,19 @@ enip_open_cip_connection( packet_info *pinfo, cip_conn_info_t* connInfo)
          enip_info = (enip_conv_info_t *)conversation_get_proto_data(conversationTO, proto_enip);
          if (enip_info == NULL)
          {
-            enip_info = wmem_new(wmem_file_scope(), enip_conv_info_t);
-            enip_info->O2TConnIDs = wmem_tree_new(wmem_file_scope());
-            enip_info->T2OConnIDs = wmem_tree_new(wmem_file_scope());
-            conversation_add_proto_data(conversationTO, proto_enip, enip_info);
+            enip_info = create_connection_id_list(conversationTO);
          }
          wmem_tree_insert32(enip_info->T2OConnIDs, connInfo->T2O.connID, (void *)conn_val);
       }
       else
       {
          /* explicit message connection */
-         conversation = find_or_create_conversation(pinfo);
+         conversation_t* conversation = find_or_create_conversation(pinfo);
 
-         /* Do we already have a state structure for this conv */
-         enip_info = (enip_conv_info_t *)conversation_get_proto_data(conversation, proto_enip);
+         enip_conv_info_t* enip_info = (enip_conv_info_t *)conversation_get_proto_data(conversation, proto_enip);
          if (!enip_info)
          {
-            /*
-             * No.  Attach that information to the conversation, and add
-             * it to the list of information structures.
-             */
-            enip_info = wmem_new(wmem_file_scope(), enip_conv_info_t);
-            enip_info->O2TConnIDs = wmem_tree_new(wmem_file_scope());
-            enip_info->T2OConnIDs = wmem_tree_new(wmem_file_scope());
-
-            conversation_add_proto_data(conversation, proto_enip, enip_info);
+            enip_info = create_connection_id_list(conversation);
          }
          wmem_tree_insert32(enip_info->O2TConnIDs, connInfo->O2T.connID, (void *)conn_val);
          wmem_tree_insert32(enip_info->T2OConnIDs, connInfo->T2O.connID, (void *)conn_val);
@@ -1383,7 +1373,6 @@ enip_get_io_connid(packet_info *pinfo, guint32 connid, enum enip_connid_type* pc
 
    return conn_val;
 }
-
 
 static int
 dissect_tcpip_status(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
@@ -2077,7 +2066,6 @@ dissect_eip_security_trusted_auths(packet_info *pinfo, proto_tree *tree, proto_i
 static int
 dissect_eip_security_cert_revocation_list(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                                    int offset, int total_len)
-
 {
    return dissect_padded_epath_len_usint(pinfo, tree, item, tvb, offset, total_len);
 }
@@ -2420,22 +2408,22 @@ static void display_fwd_open_connection_path(enip_conn_val_t* conn_info, proto_t
 
 static void display_connection_information(packet_info* pinfo, tvbuff_t* tvb, proto_tree* tree, enip_conn_val_t* conn_info, enum enip_connid_type connid_type)
 {
-   proto_item* pi = NULL;
-   proto_tree* conn_info_tree = proto_tree_add_subtree(tree, tvb, 0, 0, ett_connection_info, &pi, "Connection Information");
-   proto_item_set_generated(pi);
+   proto_item* conn_info_item = NULL;
+   proto_tree* conn_info_tree = proto_tree_add_subtree(tree, tvb, 0, 0, ett_connection_info, &conn_info_item, "Connection Information");
+   proto_item_set_generated(conn_info_item);
 
    if (connid_type == ECIDT_O2T)
    {
-       proto_item_append_text(pi, ": O->T");
+       proto_item_append_text(conn_info_item, ": O->T");
    }
    else if (connid_type == ECIDT_T2O)
    {
-       proto_item_append_text(pi, ": T->O");
+       proto_item_append_text(conn_info_item, ": T->O");
    }
 
    display_fwd_open_connection_path(conn_info, conn_info_tree, tvb, pinfo);
 
-   pi = proto_tree_add_uint(conn_info_tree, hf_cip_cm_ot_api, tvb, 0, 0, conn_info->O2Tapi);
+   proto_item* pi = proto_tree_add_uint(conn_info_tree, hf_cip_cm_ot_api, tvb, 0, 0, conn_info->O2Tapi);
    proto_item_set_generated(pi);
 
    pi = proto_tree_add_uint(conn_info_tree, hf_cip_cm_to_api, tvb, 0, 0, conn_info->T2Oapi);
@@ -2603,7 +2591,7 @@ static void dissect_item_sockaddr_info(packet_info *pinfo, tvbuff_t* tvb, int of
       enip_request_info_t* request_info = (enip_request_info_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_REQUEST_INFO);
       if (request_info != NULL)
       {
-         if (item_type_id == SOCK_ADR_INFO_OT)
+         if (item_type_id == CPF_ITEM_SOCK_ADR_INFO_OT)
          {
             request_info->cip_info->connInfo->O2T.port = tvb_get_ntohs(tvb, offset + 2);
             alloc_address_tvb(wmem_file_scope(), &request_info->cip_info->connInfo->O2T.ipaddress,
@@ -2622,13 +2610,13 @@ static void dissect_item_sockaddr_info(packet_info *pinfo, tvbuff_t* tvb, int of
 // offset - Starts at the Connection ID
 // Returns: connid_type, conn_info
 static void dissect_item_sequenced_address(packet_info* pinfo, tvbuff_t* tvb, int offset,
-   proto_tree* item_tree, enum enip_connid_type* connid_type, enip_conn_val_t** conn_info)
+   proto_tree* tree, enum enip_connid_type* connid_type, enip_conn_val_t** conn_info)
 {
    guint32 connection_id;
-   proto_tree_add_item_ret_uint(item_tree, hf_enip_cpf_sai_connid, tvb, offset, 4, ENC_LITTLE_ENDIAN, &connection_id);
+   proto_tree_add_item_ret_uint(tree, hf_enip_cpf_sai_connid, tvb, offset, 4, ENC_LITTLE_ENDIAN, &connection_id);
 
    guint32 sequence_num;
-   proto_tree_add_item_ret_uint(item_tree, hf_enip_cpf_sai_seqnum, tvb, offset + 4, 4, ENC_LITTLE_ENDIAN, &sequence_num);
+   proto_tree_add_item_ret_uint(tree, hf_enip_cpf_sai_seqnum, tvb, offset + 4, 4, ENC_LITTLE_ENDIAN, &sequence_num);
 
    *conn_info = enip_get_io_connid(pinfo, connection_id, connid_type);
 
@@ -2710,6 +2698,12 @@ static void dissect_item_unconnected_message_over_udp(packet_info* pinfo, tvbuff
    }
 }
 
+static gboolean is_forward_open(guint8 cip_service)
+{
+   return (cip_service == SC_CM_FWD_OPEN
+      || cip_service == SC_CM_LARGE_FWD_OPEN);
+}
+
 /* Dissect Common Packet Format */
 static void
 dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
@@ -2728,17 +2722,17 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
 
    // Normal "Common Packet Format" configurations. See CIP Volume 2, Section 2-6.4.
    //    SendRRData (Unconnected):
-   //       Item 1: CDF_NULL
-   //       Item 2: UNCONNECTED_MSG
+   //       Item 1: CPF_ITEM_NULL
+   //       Item 2: CPF_ITEM_UNCONNECTED_DATA
    //    SendUnitData (Connected, Class 3):
-   //       Item 1: CONNECTION_BASED
-   //       Item 2: CONNECTION_TRANSPORT
-   //       Item 3 (Optional): SOCK_ADR_INFO_OT/SOCK_ADR_INFO_TO
+   //       Item 1: CPF_ITEM_CONNECTED_ADDRESS
+   //       Item 2: CPF_ITEM_CONNECTED_DATA
+   //       Item 3 (Optional): CPF_ITEM_SOCK_ADR_INFO_OT/CPF_ITEM_SOCK_ADR_INFO_TO
    //    Class 0/1 packet:
-   //       Item 1: SEQ_ADDRESS
-   //       Item 2: CONNECTION_TRANSPORT
+   //       Item 1: CPF_ITEM_SEQUENCED_ADDRESS
+   //       Item 2: CPF_ITEM_CONNECTED_DATA
    //    Unconnected Message over UDP:
-   //       Item 1: UNCONNECTED_MSG_DTLS
+   //       Item 1: CPF_ITEM_UNCONNECTED_MSG_DTLS
 
    /* Create item count tree */
    item_count = tvb_get_letohs( tvb, offset );
@@ -2786,12 +2780,12 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
 
           switch ( item_type_id )
           {
-            case CONNECTION_BASED:  // 1st Item for: Class 3 Connected Messages
+            case CPF_ITEM_CONNECTED_ADDRESS:  // 1st Item for: Class 3 Connected Messages
                conn_info = NULL;
                dissect_item_connected_address(pinfo, tvb, offset, item_tree, enip_item, request_key, &conn_info);
                break;
 
-            case UNCONNECTED_MSG_DTLS:  // Only item for: Unconnected messages over DTLS
+            case CPF_ITEM_UNCONNECTED_MSG_DTLS:  // Only item for: Unconnected messages over DTLS
             {
                ifacehndl = ENIP_CIP_INTERFACE;
 
@@ -2804,7 +2798,7 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
 
             /* Intentionally fall through */
 
-            case UNCONNECTED_MSG:  // 2nd Item for: Unconnected Messages
+            case CPF_ITEM_UNCONNECTED_DATA:  // 2nd Item for: Unconnected Messages
             {
                enip_request_info_t* request_info = NULL;
                if ( request_key )
@@ -2828,9 +2822,8 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
                if ((request_info != NULL) && (request_info->cip_info != NULL) &&
                    (request_info->cip_info->connInfo != NULL) &&
                    (request_key != NULL) &&
-                   (((request_info->cip_info->bService & CIP_SC_MASK) == SC_CM_FWD_OPEN) ||
-                    ((request_info->cip_info->bService & CIP_SC_MASK) == SC_CM_LARGE_FWD_OPEN))&&
-                    (request_info->cip_info->dissector == dissector_get_uint_handle( subdissector_class_table, CI_CLS_CM)))
+                   is_forward_open(request_info->cip_info->bService & CIP_SC_MASK) &&
+                   (request_info->cip_info->dissector == dissector_get_uint_handle(subdissector_class_table, CI_CLS_CM)))
                {
                   if (request_key->requesttype == ENIP_REQUEST_PACKET)
                   {
@@ -2848,7 +2841,7 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
                break;
             }
 
-            case CONNECTION_TRANSPORT:  // 2nd item for: Connected messages (both Class 0/1 and Class 3)
+            case CPF_ITEM_CONNECTED_DATA:  // 2nd item for: Connected messages (both Class 0/1 and Class 3)
                // Save the connection info for the conversation filter
                if (!pinfo->fd->visited && conn_info)
                {
@@ -2871,28 +2864,28 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
 
                break;
 
-            case LIST_IDENTITY_RESP:
+            case CPF_ITEM_CIP_IDENTITY:
                dissect_item_list_identity(pinfo, tvb, offset, item_tree);
                break;
 
-            case LIST_ID_SECURITY:
+            case CPF_ITEM_CIP_SECURITY:
                dissect_item_cip_security_information(tvb, offset, item_tree);
                break;
 
-            case SOCK_ADR_INFO_OT:  // Optional 3rd item for: Unconnected Messages
-            case SOCK_ADR_INFO_TO:
+            case CPF_ITEM_SOCK_ADR_INFO_OT:  // Optional 3rd item for: Unconnected Messages
+            case CPF_ITEM_SOCK_ADR_INFO_TO:
             {
                gboolean is_fwd_open = (FwdOpenRequest == TRUE) || (FwdOpenReply == TRUE);
                dissect_item_sockaddr_info(pinfo, tvb, offset, item_tree, item_type_id, is_fwd_open);
                break;
             }
 
-            case SEQ_ADDRESS:  // 1st item for: Class 0/1 connected data
+            case CPF_ITEM_SEQUENCED_ADDRESS:  // 1st item for: Class 0/1 connected data
                conn_info = NULL;
                dissect_item_sequenced_address(pinfo, tvb, offset, item_tree, &connid_type, &conn_info);
                break;
 
-            case LIST_SERVICES_RESP:
+            case CPF_ITEM_LIST_SERVICES_RESP:
                dissect_item_list_services_response(pinfo, tvb, offset, item_tree);
                break;
 
@@ -3117,8 +3110,6 @@ dissect_enip_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 
             break;
 
-         case INDICATE_STATUS:
-         case CANCEL:
          default:
 
             /* Can not decode - Just show the data */
@@ -3381,7 +3372,7 @@ proto_register_enip(void)
           "Options flags", HFILL }},
 
       { &hf_enip_encapver,
-        { "Encapsulation Version", "enip.encapver",
+        { "Encapsulation Protocol Version", "enip.encapver",
           FT_UINT16, BASE_DEC, NULL, 0,
           NULL, HFILL }},
 
@@ -3588,7 +3579,7 @@ proto_register_enip(void)
 
       { &hf_enip_cpf_typeid,
         { "Type ID", "enip.cpf.typeid",
-          FT_UINT16, BASE_HEX, VALS(cdf_type_vals), 0,
+          FT_UINT16, BASE_HEX, VALS(cpf_type_vals), 0,
           "Common Packet Format: Type of encapsulated item", HFILL }},
 
       { &hf_enip_cpf_length,
