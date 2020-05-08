@@ -397,11 +397,24 @@
    { SC_REMOVE_MEMBER,        "Remove Member" }, \
    { SC_GROUP_SYNC,           "Group Sync" }, \
 
+#define SEGMENT_VALUE_NOT_SET ((guint32)-1)
 typedef struct cip_simple_request_info {
+   // First Class ID
+   guint32 iClassA;
+   // Last Class ID
    guint32 iClass;
+
+   // First Instance ID
+   guint32 iInstanceA;
+   // Last Instance ID
    guint32 iInstance;
+
    guint32 iAttribute;
    guint32 iMember;
+
+   // First Connection Point
+   guint32 iConnPointA;
+   // Last Connection Point
    guint32 iConnPoint;
 } cip_simple_request_info_t;
 

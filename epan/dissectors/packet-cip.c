@@ -535,7 +535,6 @@ static gint ett_path_seg = -1;
 static gint ett_mcsc = -1;
 static gint ett_cia_path = -1;
 static gint ett_data_seg = -1;
-static gint ett_data_seg_data = -1;
 static gint ett_port_path = -1;
 static gint ett_network_seg = -1;
 static gint ett_network_seg_safety = -1;
@@ -3886,7 +3885,7 @@ attribute_info_t* cip_get_attribute(guint class_id, guint instance, guint attrib
       {
          pattr = &att_array->attrs[j];
          if ((pattr->class_id == class_id) &&
-             (instance != (guint)-1) &&
+             (instance != SEGMENT_VALUE_NOT_SET) &&
              (((instance == 0) && (pattr->class_instance == TRUE)) || ((instance != 0) && (pattr->class_instance == FALSE))) &&
              (pattr->attribute == attribute))
          {
@@ -4701,15 +4700,15 @@ static int dissect_segment_safety(packet_info* pinfo, tvbuff_t* tvb, int offset,
    return segment_len;
 }
 
-static int dissect_segment_data_simple(tvbuff_t* tvb, int offset, gboolean generate,
-   proto_tree* path_seg_tree, proto_item* path_seg_item)
+static int dissect_segment_data_simple(packet_info* pinfo, tvbuff_t* tvb, int offset, gboolean generate,
+   proto_tree* path_seg_tree, proto_item* path_seg_item, cip_simple_request_info_t* req_data)
 {
-   /* Segment size */
    guint16 seg_size = tvb_get_guint8(tvb, offset + 1) * 2;
+   int segment_len = seg_size + 2;
 
    if (generate)
    {
-      proto_item* it = proto_tree_add_uint(path_seg_tree, hf_cip_data_seg_size_simple, tvb, 0, 0, seg_size);
+      proto_item* it = proto_tree_add_uint(path_seg_tree, hf_cip_data_seg_size_simple, tvb, 0, 0, seg_size / 2);
       proto_item_set_generated(it);
    }
    else
@@ -4717,24 +4716,32 @@ static int dissect_segment_data_simple(tvbuff_t* tvb, int offset, gboolean gener
       proto_tree_add_item(path_seg_tree, hf_cip_data_seg_size_simple, tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
    }
 
+   if (generate)
+   {
+      return segment_len;
+   }
+
    /* Segment data  */
-   if (seg_size != 0 && generate == FALSE)
+   if (seg_size != 0)
    {
-      proto_item* ds_data_item;
-      proto_tree* ds_data_tree = proto_tree_add_subtree(path_seg_tree, tvb, offset + 2, 0, ett_data_seg_data, &ds_data_item, "Data");
+      int parsed_data_len = 0;
+      if (req_data && req_data->iClass == CI_CLS_MOTION
+         && req_data->iConnPointA != SEGMENT_VALUE_NOT_SET
+         && req_data->iConnPoint != SEGMENT_VALUE_NOT_SET)
+      {
+         parsed_data_len += dissect_motion_configuration_block(tvb, pinfo, path_seg_tree, path_seg_item, offset + 2);
+      }
 
-      for (int i = 0; i < seg_size / 2; i++)
-         proto_tree_add_item(ds_data_tree, hf_cip_data_seg_item, tvb, offset + 2 + (i * 2), 2, ENC_LITTLE_ENDIAN);
-
-      proto_item_set_len(ds_data_item, seg_size);
+      int remaining_data_len = seg_size - parsed_data_len;
+      if (remaining_data_len > 0)
+      {
+         proto_tree_add_item(path_seg_tree, hf_cip_data_seg_item, tvb, offset + 2 + parsed_data_len, remaining_data_len, ENC_NA);
+      }
    }
 
-   if (generate == FALSE)
-   {
-      proto_item_set_len(path_seg_item, 2 + seg_size);
-   }
+   proto_item_set_len(path_seg_item, segment_len);
 
-   return 2 + seg_size;
+   return segment_len;
 }
 
 static int dissect_segment_ansi_extended_symbol(packet_info* pinfo, tvbuff_t* tvb, int offset,
@@ -5077,13 +5084,26 @@ int dissect_cip_segment_single(packet_info *pinfo, tvbuff_t *tvb, int offset, pr
             switch (logical_seg_type)
             {
                case CI_LOGICAL_SEG_CLASS_ID:
+               {
+                  guint32 ClassID;
                   segment_len = dissect_cia(tvb, offset, segment_type, generate, packed, pinfo,
                        epath_item, path_seg_tree, path_seg_item, &cia_ret_item,
-                       "Class", cip_class_names_vals, (req_data == NULL) ? NULL : &req_data->iClass,
+                       "Class", cip_class_names_vals, &ClassID,
                        hf_cip_class8, hf_cip_class16, hf_cip_class32);
                   if (segment_len == 0)
                   {
                      return 0;
+                  }
+
+                  if (req_data)
+                  {
+                     req_data->iClass = ClassID;
+
+                     // Save the first ClassID separately.
+                     if (req_data->iClassA == SEGMENT_VALUE_NOT_SET)
+                     {
+                        req_data->iClassA = ClassID;
+                     }
                   }
 
                   if (req_data != NULL)
@@ -5100,13 +5120,33 @@ int dissect_cip_segment_single(packet_info *pinfo, tvbuff_t *tvb, int offset, pr
                   }
 
                   break;
+               }
 
                case CI_LOGICAL_SEG_INST_ID:
+               {
+                  guint32 InstanceID;
                   segment_len = dissect_cia(tvb, offset, segment_type, generate, packed, pinfo,
                        epath_item, path_seg_tree, path_seg_item, &cia_ret_item,
-                       "Instance", NULL, (req_data == NULL) ? NULL : &req_data->iInstance,
+                       "Instance", NULL, &InstanceID,
                        hf_cip_instance8, hf_cip_instance16, hf_cip_instance32);
+                  if (segment_len == 0)
+                  {
+                     return 0;
+                  }
+
+                  if (req_data)
+                  {
+                     req_data->iInstance = InstanceID;
+
+                     // Save the first InstanceID separately.
+                     if (req_data->iInstanceA == SEGMENT_VALUE_NOT_SET)
+                     {
+                        req_data->iInstanceA = InstanceID;
+                     }
+                  }
+
                   break;
+               }
 
                case CI_LOGICAL_SEG_MBR_ID:
                   segment_len = dissect_cia(tvb, offset, segment_type, generate, packed, pinfo,
@@ -5138,11 +5178,30 @@ int dissect_cip_segment_single(packet_info *pinfo, tvbuff_t *tvb, int offset, pr
                   break;
 
                case CI_LOGICAL_SEG_CON_POINT:
+               {
+                  guint32 ConnPoint;
                   segment_len = dissect_cia(tvb, offset, segment_type, generate, packed, pinfo,
-                       epath_item, path_seg_tree, path_seg_item, &cia_ret_item,
-                       "Connection Point", NULL, (req_data == NULL) ? NULL : &req_data->iConnPoint,
-                       hf_cip_conpoint8, hf_cip_conpoint16, hf_cip_conpoint32);
+                     epath_item, path_seg_tree, path_seg_item, &cia_ret_item,
+                     "Connection Point", NULL, &ConnPoint,
+                     hf_cip_conpoint8, hf_cip_conpoint16, hf_cip_conpoint32);
+                  if (segment_len == 0)
+                  {
+                     return 0;
+                  }
+
+                  if (req_data)
+                  {
+                     req_data->iConnPoint = ConnPoint;
+
+                     // Save the first ConnPoint separately.
+                     if (req_data->iConnPointA == SEGMENT_VALUE_NOT_SET)
+                     {
+                        req_data->iConnPointA = ConnPoint;
+                     }
+                  }
+
                   break;
+               }
 
                case CI_LOGICAL_SEG_SPECIAL:
                    segment_len = dissect_segment_logical_special(pinfo, tvb, offset, generate,
@@ -5187,7 +5246,7 @@ int dissect_cip_segment_single(packet_info *pinfo, tvbuff_t *tvb, int offset, pr
             switch( segment_type & CI_DATA_SEG_TYPE_MASK)
             {
                case CI_DATA_SEG_SIMPLE:
-                  segment_len = dissect_segment_data_simple(tvb, offset, generate, path_seg_tree, path_seg_item);
+                  segment_len = dissect_segment_data_simple(pinfo, tvb, offset, generate, path_seg_tree, path_seg_item, req_data);
                   proto_item_append_text(epath_item, "[Data]" );
                   break;
 
@@ -5241,12 +5300,17 @@ int dissect_cip_segment_single(packet_info *pinfo, tvbuff_t *tvb, int offset, pr
 
 void reset_cip_request_info(cip_simple_request_info_t* req_data)
 {
-   // All code relies on the fact that if something is (-1), then it's not defined yet.
-   req_data->iClass = (guint32)-1;
-   req_data->iInstance = (guint32)-1;
-   req_data->iAttribute = (guint32)-1;
-   req_data->iMember = (guint32)-1;
-   req_data->iConnPoint = (guint32)-1;
+   req_data->iClass = SEGMENT_VALUE_NOT_SET;
+   req_data->iClassA = SEGMENT_VALUE_NOT_SET;
+
+   req_data->iInstance = SEGMENT_VALUE_NOT_SET;
+   req_data->iInstanceA = SEGMENT_VALUE_NOT_SET;
+
+   req_data->iAttribute = SEGMENT_VALUE_NOT_SET;
+   req_data->iMember = SEGMENT_VALUE_NOT_SET;
+
+   req_data->iConnPoint = SEGMENT_VALUE_NOT_SET;
+   req_data->iConnPointA = SEGMENT_VALUE_NOT_SET;
 }
 
 void dissect_epath(tvbuff_t *tvb, packet_info *pinfo, proto_tree *path_tree, proto_item *epath_item, int offset, int path_length,
@@ -6455,6 +6519,7 @@ dissect_cip_cm_fwd_open_req(cip_req_info_t *preq_info, proto_tree *cmd_tree, tvb
          preq_info->connInfo->O2T.type = O2TType;
          preq_info->connInfo->safety = safety_fwdopen;
          preq_info->connInfo->ClassID = connection_path.iClass;
+         // The 2nd Connection Point defines the Motion I/O Format.
          preq_info->connInfo->ConnPoint = connection_path.iConnPoint;
 
          preq_info->connInfo->FwdOpenPathLenBytes = conn_path_size;
@@ -7737,7 +7802,7 @@ dissect_cip_cco_data( proto_tree *item_tree, proto_item *ti, tvbuff_t *tvb, int 
          {
             /* Success responses */
             if (((service & CIP_SC_MASK) == SC_GET_ATT_ALL) &&
-                (req_data.iInstance != (guint32)-1))
+                (req_data.iInstance != SEGMENT_VALUE_NOT_SET))
             {
                if (req_data.iInstance == 0)
                {
@@ -7801,7 +7866,7 @@ dissect_cip_cco_data( proto_tree *item_tree, proto_item *ti, tvbuff_t *tvb, int 
             break;
          case SC_SET_ATT_ALL:
             if ((req_data.iInstance == 0) ||
-                (req_data.iInstance == (guint32)-1))
+                (req_data.iInstance == SEGMENT_VALUE_NOT_SET))
             {
                /* Just add raw data */
                proto_tree_add_item(cmd_data_tree, hf_cip_data, tvb, offset+2+req_path_size, item_length-req_path_size-2, ENC_NA);
@@ -8248,7 +8313,7 @@ proto_register_cip(void)
       { &hf_cip_data_seg_type, { "Data Segment Type", "cip.data_segment.type", FT_UINT8, BASE_DEC, VALS(cip_data_segment_type_vals), CI_DATA_SEG_TYPE_MASK, NULL, HFILL }},
       { &hf_cip_data_seg_size_simple, { "Data Size", "cip.data_segment.size", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_word_words, 0, NULL, HFILL }},
       { &hf_cip_data_seg_size_extended, { "Data Size", "cip.data_segment.size", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0, NULL, HFILL } },
-      { &hf_cip_data_seg_item, { "Data", "cip.data_segment.data", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+      { &hf_cip_data_seg_item, { "Data", "cip.data_segment.data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
       { &hf_cip_symbol, { "ANSI Symbol", "cip.symbol", FT_STRING, BASE_NONE, NULL, 0, "ANSI Extended Symbol Segment", HFILL }},
       { &hf_cip_symbol_size, { "Symbolic Symbol Size", "cip.symbol.size", FT_UINT8, BASE_DEC, NULL, 0x1F, NULL, HFILL } },
       { &hf_cip_symbol_ascii, { "ASCII Symbol", "cip.ascii_symbol", FT_STRING, BASE_NONE, NULL, 0, "ASCII Symbol Segment", HFILL } },
@@ -8660,7 +8725,6 @@ proto_register_cip(void)
       &ett_mcsc,
       &ett_cia_path,
       &ett_data_seg,
-      &ett_data_seg_data,
       &ett_cmd_data,
       &ett_port_path,
       &ett_network_seg,

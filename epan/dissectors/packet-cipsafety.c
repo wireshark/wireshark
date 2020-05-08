@@ -1131,7 +1131,7 @@ dissect_cip_s_validator_data( proto_tree *item_tree,
          {
             /* Success responses */
             if (((service & CIP_SC_MASK) == SC_GET_ATT_ALL) &&
-                (req_data.iInstance != (guint32)-1) &&
+                (req_data.iInstance != SEGMENT_VALUE_NOT_SET) &&
                 (req_data.iInstance != 0))
             {
                 dissect_cip_get_attribute_all_rsp(tvb, pinfo, cmd_data_tree, offset + 4 + add_stat_size, &req_data);
