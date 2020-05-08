@@ -145,6 +145,18 @@ struct usb_hid_global_state {
     unsigned int usage_page;
 };
 
+static wmem_tree_t *report_descriptors = NULL;
+
+typedef struct _report_descriptor report_descriptor_t;
+
+struct _report_descriptor {
+    usb_conv_info_t         usb_info;
+
+    int                     desc_length;
+    guint8                 *desc_body;
+
+    report_descriptor_t    *next;
+};
 
 /* HID class specific descriptor types */
 #define USB_DT_HID        0x21
@@ -3180,6 +3192,55 @@ static const value_string keycode_vals[] = {
 };
 value_string_ext keycode_vals_ext = VALUE_STRING_EXT_INIT(keycode_vals);
 
+static gboolean
+is_correct_interface(usb_conv_info_t *info1, usb_conv_info_t *info2)
+{
+    return (info1->bus_id == info2->bus_id) &&
+           (info1->device_address == info2->device_address) &&
+           (info1->interfaceNum == info2->interfaceNum);
+}
+
+/* Returns the report descriptor */
+static report_descriptor_t _U_ *
+get_report_descriptor(packet_info *pinfo _U_, usb_conv_info_t *usb_info)
+{
+    guint32 bus_id = usb_info->bus_id;
+    guint32 device_address = usb_info->device_address;
+    guint32 interface = usb_info->interfaceNum;
+    wmem_tree_key_t key[] = {
+        {1, &bus_id},
+        {1, &device_address},
+        {1, &interface},
+        {1, &pinfo->num},
+        {0, NULL}
+    };
+
+    report_descriptor_t *data = NULL;
+    data = (report_descriptor_t*) wmem_tree_lookup32_array_le(report_descriptors, key);
+    if (data && is_correct_interface(usb_info, &data->usb_info))
+        return data;
+
+    return NULL;
+}
+
+/* Inserts the report descriptor */
+static void
+insert_report_descriptor(packet_info *pinfo, report_descriptor_t *data)
+{
+    guint32 bus_id = data->usb_info.bus_id;
+    guint32 device_address = data->usb_info.device_address;
+    guint32 interface = data->usb_info.interfaceNum;
+    wmem_tree_key_t key[] = {
+        {1, &bus_id},
+        {1, &device_address},
+        {1, &interface},
+        {1, &pinfo->num},
+        {0, NULL}
+    };
+
+    wmem_tree_insert32_array(report_descriptors, key, data);
+}
+
 /* Returns usage page string */
 static const char*
 get_usage_page_string(guint32 usage_page)
@@ -3650,6 +3711,7 @@ dissect_usb_hid_get_report_descriptor(packet_info *pinfo _U_, proto_tree *parent
     proto_tree *tree;
     int old_offset=offset;
     struct usb_hid_global_state initial_global;
+    report_descriptor_t *data = wmem_new(wmem_file_scope(), report_descriptor_t);
 
     memset(&initial_global, 0, sizeof(struct usb_hid_global_state));
 
@@ -3657,6 +3719,11 @@ dissect_usb_hid_get_report_descriptor(packet_info *pinfo _U_, proto_tree *parent
                                           -1, "HID Report");
     tree = proto_item_add_subtree(item, ett_usb_hid_report);
     offset = dissect_usb_hid_report_item(pinfo, tree, tvb, offset, usb_conv_info, &initial_global);
+
+    data->usb_info = *usb_conv_info;
+    data->desc_length = offset - old_offset;
+    tvb_memdup(wmem_file_scope(), tvb, old_offset, data->desc_length);
+    insert_report_descriptor(pinfo, data);
 
     proto_item_set_len(item, offset-old_offset);
 
@@ -4709,6 +4776,8 @@ proto_register_usb_hid(void)
         &ett_usb_hid_wValue,
         &ett_usb_hid_descriptor
     };
+
+    report_descriptors = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
     proto_usb_hid = proto_register_protocol("USB HID", "USBHID", "usbhid");
     proto_register_field_array(proto_usb_hid, hf, array_length(hf));
