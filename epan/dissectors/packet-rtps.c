@@ -10327,10 +10327,11 @@ static gboolean dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     /* Gets the E (Little endian) flag */
     encoding = ((flags & FLAG_E) != 0) ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN;
 
-    /* Octect-to-next-header */
+    /* Octets-to-next-header */
     octets_to_next_header = tvb_get_guint16(tvb, offset + 2, encoding);
-    if ((octets_to_next_header == 0) && (version >= 0x0200))
+    if ((octets_to_next_header == 0) && (version >= 0x0200) && (submessageId != SUBMESSAGE_PAD) && (submessageId != SUBMESSAGE_INFO_TS)) {
       octets_to_next_header = tvb_reported_length_remaining(tvb, offset + 4);
+    }
     next_submsg = offset + octets_to_next_header + 4;
 
     /* Set length of this item */
