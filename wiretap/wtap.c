@@ -988,6 +988,9 @@ static struct encap_type_info encap_table_base[] = {
 
 	/* WTAP_ENCAP_USB_2_0 */
 	{ "usb-20", "USB 2.0/1.1/1.0 packets" },
+
+	/* WTAP_ENCAP_MP4 */
+	{ "mp4", "MP4 files" },
 };
 
 WS_DLL_LOCAL
