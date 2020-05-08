@@ -7,7 +7,11 @@
  * Original Author: Jeffrey Wildman <jeffrey.wildman@ll.mit.edu>
  *
  * Extended and supplemented by Uli Heilmeier <uh@heilmeier.eu>, 2020
- * FIXME: Decoding of RFC 8629, RFC 8651, RFC8703, RFC8757 needs to be implemented
+ * Extended by:
+ * RFC 8757 Latency Range Extension
+ * RFC 8629 Multi-Hop Forwarding Extension
+ * RFC 8703 Link Identifier Extension
+ * TODO: Decoding of RFC 8651 Control-Plane-Based Pause Extension needs to be implemented
  *
  * SPDX-License-Identifier: MIT
  *
@@ -52,6 +56,10 @@
 #define DLEP_DIT_RLQR_LEN           1
 #define DLEP_DIT_RLQT_LEN           1
 #define DLEP_DIT_MTU_LEN            2
+#define DLEP_DIT_HOP_CNT_LEN        2
+#define DLEP_DIT_HOP_CNTRL_LEN      2
+#define DLEP_DIT_LI_LENGTH_LEN      2
+#define DLEP_DIT_LAT_RANGE_LEN      16
 
 /* DLEP Data Item Flags Lengths (bytes) */
 #define DLEP_DIT_V4CONN_FLAGS_LEN   1
@@ -167,6 +175,10 @@
 #define DLEP_DIT_V6SUBNET_FLAGMASK_BITLEN   DLEP_DIT_V6SUBNET_FLAGS_LEN * 8
 #define DLEP_DIT_V6SUBNET_FLAGMASK_ADDDROP  0x01
 
+/* RFC 8629 Hop Count Flags */
+#define DLEP_DIT_HOP_CNT_FLAGMASK_P         0x80
+#define DLEP_DIT_HOP_CNT_FLAGMASK_RESERVED  0x7F
+
 /* Section 15.14: DLEP Well-known Port */
 #define DLEP_UDP_PORT "854"
 #define DLEP_TCP_PORT "854"
@@ -249,6 +261,15 @@ static gint hf_dlep_dataitem_resources = -1;
 static gint hf_dlep_dataitem_rlqr = -1;
 static gint hf_dlep_dataitem_rlqt = -1;
 static gint hf_dlep_dataitem_mtu = -1;
+static gint hf_dlep_dataitem_hop_count_flags = -1;
+static gint hf_dlep_dataitem_hop_count_flags_p = -1;
+static gint hf_dlep_dataitem_hop_count_flags_reserved = -1;
+static gint hf_dlep_dataitem_hop_count = -1;
+static gint hf_dlep_dataitem_hop_control = -1;
+static gint hf_dlep_dataitem_li_length = -1;
+static gint hf_dlep_dataitem_li = -1;
+static gint hf_dlep_dataitem_max_lat = -1;
+static gint hf_dlep_dataitem_min_lat = -1;
 
 static const value_string signal_type_vals[] = {
   { DLEP_SIG_RESERVED,  "Reserved"        },
@@ -334,6 +355,17 @@ static const range_string extension_code_vals[] = {
   { 5,                  65519,              "Unassigned"                },
   { 65520,              65534,              "Reserved for Private Use"  },
   { 0,                  0,                  NULL                        }
+};
+
+static const range_string hop_cntrl_action_vals[] = {
+  { 0,     0,     "Reset"                  },
+  { 1,     1,     "Terminate"              },
+  { 2,     2,     "Direct Connection"      },
+  { 3,     3,     "Suppress Forwarding"    },
+  { 4,     65519, "Specification Required" },
+  { 65520, 65534, "Private Use"            },
+  { 65535, 65535, "Reserved"               },
+  { 0,     0,     NULL                     }
 };
 
 static expert_field ei_dlep_signal_unexpected_length = EI_INIT;
@@ -776,6 +808,91 @@ decode_dataitem_mtu(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *pt, i
   return offset;
 }
 
+/* RFC 8629 Multi-Hop Extension Hop Count*/
+  static int
+decode_dataitem_hop_cnt(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *pt, int len, packet_info *pinfo)
+{
+  proto_item *pi_field = NULL;
+  static const int * hop_cnt_flags[] = {
+      &hf_dlep_dataitem_hop_count_flags_p,
+      &hf_dlep_dataitem_hop_count_flags_reserved,
+      NULL
+      };
+
+  proto_tree_add_bitmask(pt, tvb, offset, hf_dlep_dataitem_hop_count_flags, ett_dlep_flags, hop_cnt_flags, ENC_BIG_ENDIAN);
+  offset+=1;
+  pi_field = proto_tree_add_item(pt, hf_dlep_dataitem_hop_count, tvb, offset, 1, ENC_NA);
+  proto_item_append_text(pi, ": %s Hops", proto_item_get_display_repr(wmem_packet_scope(), pi_field));
+  offset+=1;
+
+  if (len != DLEP_DIT_HOP_CNT_LEN)
+    expert_add_info(pinfo, pi, &ei_dlep_dataitem_unexpected_length);
+
+  return offset;
+}
+
+/* RFC 8629 Multi-Hop Extension Hop Control*/
+  static int
+decode_dataitem_hop_cntrl(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *pt, int len, packet_info *pinfo)
+{
+  proto_item *pi_field = NULL;
+
+  pi_field = proto_tree_add_item(pt, hf_dlep_dataitem_hop_control, tvb, offset, DLEP_DIT_HOP_CNTRL_LEN, ENC_BIG_ENDIAN);
+  proto_item_append_text(pi, ": %s", proto_item_get_display_repr(wmem_packet_scope(), pi_field));
+  offset+=DLEP_DIT_HOP_CNTRL_LEN;
+
+  if (len != DLEP_DIT_HOP_CNTRL_LEN)
+    expert_add_info(pinfo, pi, &ei_dlep_dataitem_unexpected_length);
+
+  return offset;
+}
+
+/* RFC 8703 Link Identifier Extension Length */
+  static int
+decode_dataitem_li_length(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *pt, int len, packet_info *pinfo)
+{
+  proto_item *pi_field = NULL;
+
+  pi_field = proto_tree_add_item(pt, hf_dlep_dataitem_li_length, tvb, offset, DLEP_DIT_LI_LENGTH_LEN, ENC_BIG_ENDIAN);
+  proto_item_append_text(pi, ": %s Bytes", proto_item_get_display_repr(wmem_packet_scope(), pi_field));
+  offset+=DLEP_DIT_LI_LENGTH_LEN;
+
+  if (len != DLEP_DIT_LI_LENGTH_LEN)
+    expert_add_info(pinfo, pi, &ei_dlep_dataitem_unexpected_length);
+
+  return offset;
+}
+
+/* RFC 8703 Link Identifier Extension Data */
+  static int
+decode_dataitem_li(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *pt, int len, packet_info *pinfo _U_)
+{
+  proto_tree_add_item(pt, hf_dlep_dataitem_li, tvb, offset, len, ENC_NA);
+  proto_item_append_text(pi, ": %s", tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, len));
+  offset+=len;
+
+  return offset;
+}
+
+/* RFC 8757 Latency Range Extension */
+  static int
+decode_dataitem_lat_range(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *pt, int len, packet_info *pinfo)
+{
+  proto_item *max_lat = NULL;
+  proto_item *min_lat = NULL;
+
+  max_lat = proto_tree_add_item(pt, hf_dlep_dataitem_max_lat, tvb, offset, 8, ENC_BIG_ENDIAN);
+  offset+=8;
+  min_lat = proto_tree_add_item(pt, hf_dlep_dataitem_min_lat, tvb, offset, 8, ENC_BIG_ENDIAN);
+  proto_item_append_text(pi, ": %s - %s (us)", proto_item_get_display_repr(wmem_packet_scope(), min_lat), proto_item_get_display_repr(wmem_packet_scope(), max_lat));
+  offset+=8;
+
+  if (len != DLEP_DIT_LAT_RANGE_LEN)
+    expert_add_info(pinfo, pi, &ei_dlep_dataitem_unexpected_length);
+
+  return offset;
+}
+
 /**
  * Section 11.3: DLEP Generic Data Item
  *
@@ -880,6 +997,21 @@ decode_dataitem(tvbuff_t *tvb, int offset, proto_tree *pt, packet_info *pinfo)
       break;
     case DLEP_DIT_MTU:
       offset=decode_dataitem_mtu(tvb, offset, dataitem_pi, dataitem_pt, dataitem_length, pinfo);
+      break;
+    case DLEP_DIT_HOP_CNT:
+      offset=decode_dataitem_hop_cnt(tvb, offset, dataitem_pi, dataitem_pt, dataitem_length, pinfo);
+      break;
+    case DLEP_DIT_HOP_CNTRL:
+      offset=decode_dataitem_hop_cntrl(tvb, offset, dataitem_pi, dataitem_pt, dataitem_length, pinfo);
+      break;
+    case DLEP_DIT_LI_LENGTH:
+      offset=decode_dataitem_li_length(tvb, offset, dataitem_pi, dataitem_pt, dataitem_length, pinfo);
+      break;
+    case DLEP_DIT_LI:
+      offset=decode_dataitem_li(tvb, offset, dataitem_pi, dataitem_pt, dataitem_length, pinfo);
+      break;
+    case DLEP_DIT_LAT_RANGE:
+      offset=decode_dataitem_lat_range(tvb, offset, dataitem_pi, dataitem_pt, dataitem_length, pinfo);
       break;
     default:
       proto_tree_add_item(dataitem_pt, hf_dlep_dataitem_value, tvb, offset, dataitem_length, ENC_NA);
@@ -1165,7 +1297,7 @@ proto_register_dlep(void)
       { "Current Data Rate (Transmit) (bps)", "dlep.dataitem.cdrt", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
     { &hf_dlep_dataitem_latency,
-      { "Latency (ms)", "dlep.dataitem.latency", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }
+      { "Latency (us)", "dlep.dataitem.latency", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
     { &hf_dlep_dataitem_resources,
       { "Resources (%)", "dlep.dataitem.resources", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
@@ -1178,6 +1310,33 @@ proto_register_dlep(void)
     },
     { &hf_dlep_dataitem_mtu,
       { "Maximum Transmission Unit (bytes)", "dlep.dataitem.mtu", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
+    },
+    { &hf_dlep_dataitem_hop_count_flags,
+      { "Flags", "dlep.dataitem.hop_count_flags", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }
+    },
+    { &hf_dlep_dataitem_hop_count_flags_p,
+      { "P-Bit", "dlep.dataitem.hop_count_flags.p", FT_BOOLEAN, 8, TFS(&tfs_set_notset), DLEP_DIT_HOP_CNT_FLAGMASK_P, "Destination is potentially directly reachable", HFILL }
+    },
+    { &hf_dlep_dataitem_hop_count_flags_reserved,
+      { "Reserved", "dlep.dataitem.hop_count_flags.reserved", FT_UINT8, BASE_HEX, NULL, DLEP_DIT_HOP_CNT_FLAGMASK_RESERVED, NULL, HFILL }
+    },
+    { &hf_dlep_dataitem_hop_count,
+      { "Hop Count", "dlep.dataitem.hop_count", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
+    },
+    { &hf_dlep_dataitem_hop_control,
+      { "Hop Control", "dlep.dataitem.hop_control", FT_UINT16, BASE_DEC|BASE_RANGE_STRING, RVALS(hop_cntrl_action_vals), 0x0, NULL, HFILL }
+    },
+    { &hf_dlep_dataitem_li_length,
+      { "Link Identifier Length", "dlep.dataitem.link_identifier_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
+    },
+    { &hf_dlep_dataitem_li,
+      { "Link Identifier", "dlep.dataitem.link_identifier", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
+    },
+    { &hf_dlep_dataitem_max_lat,
+      { "Maximum Latency (us)", "dlep.dataitem.max_latency", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }
+    },
+    { &hf_dlep_dataitem_min_lat,
+      { "Minimum Latency (us)", "dlep.dataitem.min_latency", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }
     }
   };
 
