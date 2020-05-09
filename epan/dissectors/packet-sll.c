@@ -23,6 +23,7 @@
 #include "packet-eth.h"
 #include "packet-ppp.h"
 #include "packet-gre.h"
+#include "packet-arp.h"
 #include <epan/addr_resolv.h>
 #include <epan/etypes.h>
 #include <epan/arptypes.h>
@@ -99,7 +100,7 @@ static header_field_info hfi_sll_pkttype SLL_HFI_INIT =
 /* ARP hardware type?  With Linux extensions? */
 static header_field_info hfi_sll_hatype SLL_HFI_INIT =
 	{ "Link-layer address type",	"sll.hatype", FT_UINT16, BASE_DEC,
-	  NULL, 0x0, NULL, HFILL };
+	  VALS(arp_hrd_vals), 0x0, NULL, HFILL };
 
 static header_field_info hfi_sll_halen SLL_HFI_INIT =
 	{ "Link-layer address length",	"sll.halen", FT_UINT16, BASE_DEC,
