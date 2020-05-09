@@ -127,7 +127,6 @@ int dissect_ieee8021ad(tvbuff_t *tvb, packet_info *pinfo,
 
     encap_proto = tvb_get_ntohs(tvb, IEEE8021AD_LEN - 2);
     ethertype_data.fh_tree = ieee8021ad_tree;
-    ethertype_data.etype_id = hf_ieee8021ah_etype;
     ethertype_data.trailer_id = hf_ieee8021ah_trailer;
     ethertype_data.fcs_len = 0;
 
@@ -182,7 +181,10 @@ int dissect_ieee8021ad(tvbuff_t *tvb, packet_info *pinfo,
                             ctci & 0x0FFF);
 
         ethertype_data.etype = tvb_get_ntohs(tvb, IEEE8021AD_LEN * 2 - 2);
-        ethertype_data.offset_after_ethertype = IEEE8021AD_LEN * 2;
+        proto_tree_add_uint(ieee8021ad_tree, hf_ieee8021ah_etype, tvb,
+                            IEEE8021AD_LEN * 2 - 2, 2, ethertype_data.etype);
+
+        ethertype_data.payload_offset = IEEE8021AD_LEN * 2;
 
         /* 802.1ad tags are always followed by an ethertype; call next
            dissector based on ethertype */
@@ -200,8 +202,12 @@ int dissect_ieee8021ad(tvbuff_t *tvb, packet_info *pinfo,
         /* label should be 802.1ad not .1ah */
         proto_item_set_text(ptree, "IEEE 802.1ad, ID: %d", tci & 0x0FFF);
 
+        /* Add the Ethernet type to the protocol tree */
+        proto_tree_add_uint(ieee8021ad_tree, hf_ieee8021ah_etype, tvb,
+                            IEEE8021AD_LEN - 2, 2, encap_proto);
+
         ethertype_data.etype = encap_proto;
-        ethertype_data.offset_after_ethertype = IEEE8021AD_LEN;
+        ethertype_data.payload_offset = IEEE8021AD_LEN;
 
         /* 802.1ad tags are always followed by an ethertype; call next
            dissector based on ethertype */
@@ -261,6 +267,8 @@ dissect_ieee8021ah_common(tvbuff_t *tvb, packet_info *pinfo,
     }
 
     encap_proto = tvb_get_ntohs(tvb, IEEE8021AH_LEN - 2);
+    proto_tree_add_uint(tree, hf_ieee8021ah_etype, tvb,
+                        IEEE8021AD_LEN - 2, 2, encap_proto);
 
     /* 802.1ah I-tags are always followed by an ethertype; call next
        dissector based on ethertype */
@@ -269,8 +277,7 @@ dissect_ieee8021ah_common(tvbuff_t *tvb, packet_info *pinfo,
        to next dissector, not 802.1ad tree */
     ethertype_data.etype = encap_proto;
     ethertype_data.fh_tree = tree;
-    ethertype_data.offset_after_ethertype = IEEE8021AH_LEN;
-    ethertype_data.etype_id = hf_ieee8021ah_etype;
+    ethertype_data.payload_offset = IEEE8021AH_LEN;
     ethertype_data.trailer_id = hf_ieee8021ah_trailer;
     ethertype_data.fcs_len = 0;
 

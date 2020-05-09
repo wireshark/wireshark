@@ -224,15 +224,11 @@ dissect_ethertype(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 		return 0;
 	ethertype_data = (ethertype_data_t*)data;
 
-	/* Add the Ethernet type to the protocol tree */
-	proto_tree_add_uint(ethertype_data->fh_tree, ethertype_data->etype_id, tvb,
-				    ethertype_data->offset_after_ethertype - 2, 2, ethertype_data->etype);
-
 	/* Get the captured length and reported length of the data
 	   after the Ethernet type. */
-	captured_length = tvb_captured_length_remaining(tvb, ethertype_data->offset_after_ethertype);
+	captured_length = tvb_captured_length_remaining(tvb, ethertype_data->payload_offset);
 	reported_length = tvb_reported_length_remaining(tvb,
-							ethertype_data->offset_after_ethertype);
+							ethertype_data->payload_offset);
 
 	/* Remember how much data there is after the Ethernet type,
 	   including any trailer and FCS. */
@@ -251,7 +247,7 @@ dissect_ethertype(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 				captured_length = reported_length;
 		}
 	}
-	next_tvb = tvb_new_subset_length_caplen(tvb, ethertype_data->offset_after_ethertype, captured_length,
+	next_tvb = tvb_new_subset_length_caplen(tvb, ethertype_data->payload_offset, captured_length,
 				  reported_length);
 
 	p_add_proto_data(pinfo->pool, pinfo, proto_ethertype, pinfo->curr_layer_num, GUINT_TO_POINTER((guint)ethertype_data->etype));
@@ -297,7 +293,7 @@ dissect_ethertype(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 		}
 	}
 
-	add_dix_trailer(pinfo, tree, ethertype_data->fh_tree, ethertype_data->trailer_id, tvb, next_tvb, ethertype_data->offset_after_ethertype,
+	add_dix_trailer(pinfo, tree, ethertype_data->fh_tree, ethertype_data->trailer_id, tvb, next_tvb, ethertype_data->payload_offset,
 			length_before, ethertype_data->fcs_len);
 
 	return tvb_captured_length(tvb);

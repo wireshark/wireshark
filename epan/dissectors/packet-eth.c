@@ -557,10 +557,11 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
     dissect_address_data(tvb, pinfo, fh_tree, TRUE);
 
+    proto_tree_add_uint(fh_tree, hf_eth_type, tvb, 12, 2, ehdr->type);
+
     ethertype_data.etype = ehdr->type;
-    ethertype_data.offset_after_ethertype = ETH_HEADER_SIZE;
+    ethertype_data.payload_offset = ETH_HEADER_SIZE;
     ethertype_data.fh_tree = fh_tree;
-    ethertype_data.etype_id = hf_eth_type;
     ethertype_data.trailer_id = hf_eth_trailer;
     ethertype_data.fcs_len = fcs_len;
 

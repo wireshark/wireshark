@@ -350,10 +350,11 @@ dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   } else {
     ethertype_data_t ethertype_data;
 
+    proto_tree_add_uint(vlan_tree, &hfi_vlan_etype, tvb, 2, 2, encap_proto);
+
     ethertype_data.etype = encap_proto;
-    ethertype_data.offset_after_ethertype = 4;
+    ethertype_data.payload_offset = 4;
     ethertype_data.fh_tree = vlan_tree;
-    ethertype_data.etype_id = hfi_vlan_etype.id;
     ethertype_data.trailer_id = hfi_vlan_trailer.id;
     ethertype_data.fcs_len = 0;
 

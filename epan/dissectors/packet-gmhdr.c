@@ -261,10 +261,12 @@ dissect_gmhdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
   } else {
     ethertype_data_t ethertype_data;
 
+    proto_tree_add_uint(gmhdr_tree, hf_gmhdr_etype, tvb, offset - 2, 2,
+                        encap_proto);
+
     ethertype_data.etype = encap_proto;
-    ethertype_data.offset_after_ethertype = offset;
+    ethertype_data.payload_offset = offset;
     ethertype_data.fh_tree = gmhdr_tree;
-    ethertype_data.etype_id = hf_gmhdr_etype;
     ethertype_data.trailer_id = hf_gmhdr_trailer;
     ethertype_data.fcs_len = 0;
 

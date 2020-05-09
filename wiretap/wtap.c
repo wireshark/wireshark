@@ -438,7 +438,7 @@ static struct encap_type_info encap_table_base[] = {
 	{ "ieee-802-11-avs", "IEEE 802.11 plus AVS radio header" },
 
 	/* WTAP_ENCAP_SLL */
-	{ "linux-sll", "Linux cooked-mode capture" },
+	{ "linux-sll", "Linux cooked-mode capture v1" },
 
 	/* WTAP_ENCAP_FRELAY */
 	{ "frelay", "Frame Relay" },
@@ -991,6 +991,9 @@ static struct encap_type_info encap_table_base[] = {
 
 	/* WTAP_ENCAP_MP4 */
 	{ "mp4", "MP4 files" },
+
+	/* WTAP_ENCAP_SLL2 */
+	{ "linux-sll2", "Linux cooked-mode capture v2" },
 };
 
 WS_DLL_LOCAL

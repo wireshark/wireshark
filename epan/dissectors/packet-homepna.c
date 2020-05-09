@@ -94,12 +94,12 @@ dissect_homepna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
     offset += (control_length-2);
 
     protocol = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_uint(homepna_tree, hf_homepna_etype, tvb, offset, 2, protocol);
     offset += 2;
 
     ethertype_data.etype = protocol;
-    ethertype_data.offset_after_ethertype = offset;
+    ethertype_data.payload_offset = offset;
     ethertype_data.fh_tree = homepna_tree;
-    ethertype_data.etype_id = hf_homepna_etype;
     ethertype_data.trailer_id = hf_homepna_trailer;
     ethertype_data.fcs_len = 4;
 

@@ -57,12 +57,12 @@ dissect_ttag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     offset += 6;
 
     encap_proto = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_uint(ttag_tree, hf_ttag_eth_type, tvb, offset, 2, encap_proto);
     offset += 2;
 
     ethertype_data.etype = encap_proto;
-    ethertype_data.offset_after_ethertype = offset;
+    ethertype_data.payload_offset = offset;
     ethertype_data.fh_tree = ttag_tree;
-    ethertype_data.etype_id = hf_ttag_eth_type;
     /* ttag doesn't define a trailer, but there's no way to tell Ethertype dissector that.
      * At least use the correct header field to reflect that and allow proper filter expression,
      * although it will still be attached to our tree instead of Ethernet II.

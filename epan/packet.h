@@ -775,9 +775,8 @@ extern void dissect_file(struct epan_dissect *edt,
 typedef struct ethertype_data_s
 {
     guint16 etype;
-    int offset_after_ethertype;
+    int payload_offset;
     proto_tree *fh_tree;
-    int etype_id;
     int trailer_id;
     int fcs_len;
 } ethertype_data_t;

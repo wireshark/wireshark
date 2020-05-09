@@ -116,13 +116,13 @@ dissect_vmlab(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
     /* Encapsulated Ethertype is also part of the block*/
     encap_proto = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_uint(vmlab_tree, hf_vmlab_etype, tvb, offset, 2, encap_proto);
     offset += 2;
 
     /* Now call whatever was encapsulated*/
     ethertype_data.etype = encap_proto;
-    ethertype_data.offset_after_ethertype = offset;
+    ethertype_data.payload_offset = offset;
     ethertype_data.fh_tree = vmlab_tree;
-    ethertype_data.etype_id = hf_vmlab_etype;
     ethertype_data.trailer_id = hf_vmlab_trailer;
     ethertype_data.fcs_len = 0;
 

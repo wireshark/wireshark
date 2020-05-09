@@ -223,7 +223,7 @@ static const struct {
 	 * this number as well (why can't people stick to protocols when it
 	 * comes to allocating/using DLT types).
 	 */
-	{ 113,		WTAP_ENCAP_SLL },	/* Linux cooked capture */
+	{ 113,		WTAP_ENCAP_SLL },	/* Linux cooked capture v1 */
 
 	{ 114,		WTAP_ENCAP_LOCALTALK },	/* Localtalk */
 
@@ -463,6 +463,9 @@ static const struct {
 
 	/* DisplayPort AUX channel monitor */
 	{ 275,		WTAP_ENCAP_DPAUXMON },
+
+	/* Linux cooked capture v2 */
+	{ 276,		WTAP_ENCAP_SLL2 },
 
 	/* Elektrobit High Speed Capture and Replay */
 	{ 279,		WTAP_ENCAP_EBHSCR },
