@@ -2732,6 +2732,7 @@ dis_msg_status_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
         udl = oct;
 
         DIS_FIELD_UDL(tree, offset);
+        offset++;
     }
 
     if (udl > 0)
