@@ -483,14 +483,64 @@ const value_string arp_hrd_vals[] = {
   {ARPHRD_TIA_102_PRJ_25_CAI, "TIA-102 Project 25 CAI"     },
   {ARPHRD_WIEGAND_INTERFACE,  "Wiegand Interface"          },
   {ARPHRD_PURE_IP,            "Pure IP"                    },
-  {ARPHDR_HW_EXP1,            "Experimental 1"             },
-  {ARPHDR_HFI,                "HFI"                        },
-  {ARPHDR_HW_EXP2,            "Experimental 2"             },
+  {ARPHRD_HW_EXP1,            "Experimental 1"             },
+  {ARPHRD_HFI,                "HFI"                        },
+  {ARPHRD_HW_EXP2,            "Experimental 2"             },
+  {ARPHRD_AETHERNET,          "AEthernet"                  },
   /* Virtual ARP types for non ARP hardware used in Linux cooked mode. */
+  {ARPHRD_RSRVD,              "Notional KISS type"         },
+  {ARPHRD_ADAPT,              "ADAPT"                      },
+  {ARPHRD_ROSE,               "ROSE"                       },
+  {ARPHRD_X25,                "CCITT X.25"                 },
+  {ARPHRD_HWX25,              "Boards with X.25 in firmware"},
+  {ARPHRD_CAN,                "Controller Area Network"    },
+  {ARPHRD_PPP,                "PPP"                        },
+  {ARPHRD_CISCO,              "Cisco HDLC"                 },
+  {ARPHRD_LAPB,               "LAPB"                       },
+  {ARPHRD_DDCMP,              "Digital's DDCMP protocol"   },
+  {ARPHRD_RAWHDLC,            "Raw HDLC"                   },
+  {ARPHRD_RAWIP,              "Raw IP"                     },
+
+  {ARPHRD_TUNNEL,             "IPIP tunnel"                },
+  {ARPHRD_TUNNEL6,            "IP6IP6 tunnel"              },
+  {ARPHRD_FRAD,               "Frame Relay Access Device"  },
+  {ARPHRD_SKIP,               "SKIP vif"                   },
   {ARPHRD_LOOPBACK,           "Loopback"                   },
+  {ARPHRD_FDDI,               "Fiber Distributed Data Interface"},
+  {ARPHRD_BIF,                "AP1000 BIF"                 },
+  {ARPHRD_SIT,                "sit0 device - IPv6-in-IPv4" },
+  {ARPHRD_IPDDP,              "IP over DDP tunneller"      },
   {ARPHRD_IPGRE,              "GRE over IP"                },
+  {ARPHRD_PIMREG,             "PIMSM register interface"   },
+  {ARPHRD_HIPPI,              "High Performance Parallel Interface"},
+  {ARPHRD_ASH,                "Nexus 64Mbps Ash"           },
+  {ARPHRD_ECONET,             "Acorn Econet"               },
+  {ARPHRD_IRDA,               "Linux-IrDA"                 },
+/* ARP works differently on different FC media .. so  */
+  {ARPHRD_FCPP,               "Point to point fibrechannel" },
+  {ARPHRD_FCAL,               "Fibrechannel arbitrated loop" },
+  {ARPHRD_FCPL,               "Fibrechannel public loop"   },
+  {ARPHRD_FCFABRIC, "Fibrechannel fabric"},
+	/* 787->799 reserved for fibrechannel media types */
+  {ARPHRD_IEEE802_TR,         "Magic type ident for TR"    },
+  {ARPHRD_IEEE80211,          "IEEE 802.11"                },
+  {ARPHRD_IEEE80211_PRISM,    "IEEE 802.11 + Prism2 header" },
+  {ARPHRD_IEEE80211_RADIOTAP, "IEEE 802.11 + radiotap header" },
+  {ARPHRD_IEEE802154,         "IEEE 802.15.4"              },
+  {ARPHRD_IEEE802154_MONITOR, "IEEE 802.15.4 network monitor" },
+
+  {ARPHRD_PHONET,             "PhoNet media type"          },
+  {ARPHRD_PHONET_PIPE,        "PhoNet pipe header"         },
+  {ARPHRD_CAIF,               "CAIF media type"            },
+  {ARPHRD_IP6GRE,             "GRE over IPv6"              },
   {ARPHRD_NETLINK,            "Netlink"                    },
-  {0, NULL                  } };
+  {ARPHRD_6LOWPAN,            "IPv6 over LoWPAN"           },
+  {ARPHRD_VSOCKMON,           "Vsock monitor header"       },
+
+  {ARPHRD_VOID,               "Void type, nothing is known" },
+  {ARPHRD_NONE,               "zero header length"         },
+  {0, NULL                                                 }
+};
 
 /* Offsets of fields within an ARP packet. */
 #define AR_HRD          0
