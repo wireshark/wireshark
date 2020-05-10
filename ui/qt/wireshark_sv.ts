@@ -1096,10 +1096,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>File Comment</source>
-        <translation type="vanished">Filkommentar</translation>
-    </message>
-    <message>
         <source>Packet Comments</source>
         <translation>Paketkommentarer</translation>
     </message>

@@ -993,7 +993,7 @@
     </message>
     <message>
         <source>Section %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Sezione %1</translation>
     </message>
     <message>
         <source>Capture</source>
@@ -1093,11 +1093,7 @@
     </message>
     <message>
         <source>Section Comment</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>File Comment</source>
-        <translation type="vanished">Commento file</translation>
+        <translation>Commento sezione</translation>
     </message>
     <message>
         <source>Packet Comments</source>

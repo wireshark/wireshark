@@ -1103,10 +1103,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>File Comment</source>
-        <translation type="vanished">Komentarz pliku</translation>
-    </message>
-    <message>
         <source>Packet Comments</source>
         <translation>Komentarze pakietu</translation>
     </message>

@@ -45,23 +45,23 @@
 
 # http://standards-oui.ieee.org/cid/cid.csv:
 #   Content-Length: 8725
-#   Last-Modified: Sun, 03 May 2020 08:00:18 GMT
+#   Last-Modified: Sun, 10 May 2020 18:00:36 GMT
 
 # http://standards-oui.ieee.org/iab/iab.csv:
 #   Content-Length: 381245
-#   Last-Modified: Sun, 03 May 2020 08:00:30 GMT
+#   Last-Modified: Sun, 10 May 2020 18:00:47 GMT
 
 # http://standards-oui.ieee.org/oui/oui.csv:
-#   Content-Length: 2524784
-#   Last-Modified: Sun, 03 May 2020 08:00:58 GMT
+#   Content-Length: 2525835
+#   Last-Modified: Sun, 10 May 2020 18:01:17 GMT
 
 # http://standards-oui.ieee.org/oui28/mam.csv:
-#   Content-Length: 330614
-#   Last-Modified: Sun, 03 May 2020 08:00:36 GMT
+#   Content-Length: 331458
+#   Last-Modified: Sun, 10 May 2020 18:00:54 GMT
 
 # http://standards-oui.ieee.org/oui36/oui36.csv:
-#   Content-Length: 338312
-#   Last-Modified: Sun, 03 May 2020 08:00:52 GMT
+#   Content-Length: 338479
+#   Last-Modified: Sun, 10 May 2020 18:01:10 GMT
 
 00:00:00	00:00:00	Officially Xerox, but 0:0:0:0:0:0 is more common
 00:00:01	Xerox	Xerox Corporation
@@ -7304,7 +7304,7 @@
 00:1B:C5:09:D0:00/36	Navitar	Navitar Inc
 00:1B:C5:09:E0:00/36	K+KMesst	K+K Messtechnik GmbH
 00:1B:C5:09:F0:00/36	ENTESp	ENTE Sp. z o.o.
-00:1B:C5:0A:00:00/36	HomerSof	HomerSoft sp. z o.o.
+00:1B:C5:0A:00:00/36	Silvair
 00:1B:C5:0A:10:00/36	Hangzhou	Hangzhou Zhiping Technology Co., Ltd.
 00:1B:C5:0A:20:00/36	HettichB	Hettich Benelux
 00:1B:C5:0A:30:00/36	PANetwor	P A Network Laboratory Co.,Ltd
@@ -16049,6 +16049,7 @@
 00:90:FF	TellusTe	Tellus Technology Inc.
 00:91:D6	CrystalG	Crystal Group, Inc.
 00:91:FA	SynapseP	Synapse Product Development
+00:92:7D	FicosaIn	Ficosa Internationa(Taicang) C0.,Ltd.
 00:92:FA	Shenzhen	Shenzhen Wisky Technology Co.,Ltd
 00:93:63	Uni-Link	Uni-Link Technology Co., Ltd.
 00:94:A1	F5Networ	F5 Networks, Inc.
@@ -17355,6 +17356,7 @@
 04:40:A9	NewH3CTe	New H3C Technologies Co., Ltd
 04:41:69	GoPro
 04:44:A1	TeleconG	Telecon Galicia,S.A.
+04:45:62	ANDRASpz	ANDRA Sp. z o. o.
 04:45:A1	NIRIT-Xi	NIRIT- Xinwei Telecom Technology Co., Ltd.
 04:46:65	MurataMa	Murata Manufacturing Co., Ltd.
 04:48:9A	Apple	Apple, Inc.
@@ -19050,6 +19052,7 @@
 18:D2:25	Fiberhom	Fiberhome Telecommunication Technologies Co.,LTD
 18:D2:76	HuaweiTe	Huawei Technologies Co.,Ltd
 18:D5:B6	SMGHoldi	SMG Holdings LLC
+18:D6:1C	Shenzhen	Shenzhen TINNO Mobile Technology Corp.
 18:D6:6A	Inmarsat
 18:D6:C7	Tp-LinkT	Tp-Link Technologies Co.,Ltd.
 18:D6:CF	KurthEle	Kurth Electronic GmbH
@@ -19095,6 +19098,7 @@
 1A:75:FB	Autosar
 1A:BB:FB	UHDAllia	UHD Alliance
 1C:00:42	NARITech	NARI Technology Co., Ltd.
+1C:01:2D	FicerTec	Ficer Technology
 1C:02:19	Guangdon	Guangdong Oppo Mobile Telecommunications Corp.,Ltd
 1C:05:B7	Chongqin	Chongqing Trantor Technology Co., Ltd.
 1C:06:56	IDY	IDY Corporation
@@ -19308,7 +19312,7 @@
 1C:87:79:D0:00:00/28	Shenzhen	Shenzhen Innovaconn Systems Co.,Ltd
 1C:87:79:E0:00:00/28	ASSYSTEM	ASSYSTEM France
 1C:88:79:00:00:00/28	Newps	Newps co.,ltd
-1C:88:79:10:00:00/28	ANDRASp	ANDRA Sp. z o.o.
+1C:88:79:10:00:00/28	ANDRASpz	ANDRA Sp. z o. o.
 1C:88:79:20:00:00/28	Airsmart	Airsmart System Co.,Ltd
 1C:88:79:30:00:00/28	Shenzhen	Shenzhen Xiaoxi Technology Co., Ltd.
 1C:88:79:40:00:00/28	Ultraflu	Ultraflux
@@ -21785,6 +21789,7 @@
 3C:A3:48	vivoMobi	vivo Mobile Communication Co., Ltd.
 3C:A5:81	vivoMobi	vivo Mobile Communication Co., Ltd.
 3C:A6:16	vivoMobi	vivo Mobile Communication Co., Ltd.
+3C:A6:2F	AVMAudio	AVM Audiovisuelles Marketing und Computersysteme GmbH
 3C:A7:2B	MRVCommu	MRV Communications (Networks) LTD
 3C:A8:2A	HewlettP	Hewlett Packard
 3C:A9:F4	IntelCor	Intel Corporate
@@ -22718,6 +22723,7 @@
 44:13:19	WkkTechn	Wkk Technology Ltd.
 44:13:D0	zte	zte corporation
 44:14:41	AudioCon	AudioControl Inc.
+44:16:22	Microsof	Microsoft Corporation
 44:18:47	HunanScr	Hunan Scrown Electronic Information Tech.Co.,Ltd
 44:18:4F	Fitview
 44:18:FD	Apple	Apple, Inc.
@@ -23925,7 +23931,7 @@
 54:47:D3	TsatAs	Tsat As
 54:48:10	Dell	Dell Inc.
 54:48:9C	Cdoubles	Cdoubles Electronics Co. Ltd.
-54:48:E6	BeijingX	Beijing Xiaomi Mobile Software Co.,Ltd
+54:48:E6	BeijingX	Beijing Xiaomi Mobile Software Co., Ltd
 54:4A:00	Cisco	Cisco Systems, Inc
 54:4A:05	wenglors	wenglor sensoric gmbh
 54:4A:16	TexasIns	Texas Instruments
@@ -24253,7 +24259,7 @@
 58:B3:FC	Shenzhen	Shenzhen Rf-Link Technology Co.,Ltd.
 58:B4:2D	YSTenTec	YSTen Technology Co.,Ltd
 58:B5:68	Securita	Securitas Direct España, Sau
-58:B6:23	BeijingX	Beijing Xiaomi Mobile Software Co.,Ltd
+58:B6:23	BeijingX	Beijing Xiaomi Mobile Software Co., Ltd
 58:B6:33	RuckusWi	Ruckus Wireless
 58:B9:61	SOLEMEle	SOLEM Electronique
 58:B9:E1	Crystalf	Crystalfontz America, Inc.
@@ -24932,6 +24938,7 @@
 64:34:09	BITwaveP	BITwave Pte Ltd
 64:35:1C	e-CONIND	e-CON SYSTEMS INDIA PVT LTD
 64:3A:B1	SichuanT	Sichuan Tianyi Comheart Telecomco.,Ltd
+64:3A:EA	Cisco	Cisco Systems, Inc
 64:3E:8C	HuaweiTe	Huawei Technologies Co.,Ltd
 64:3F:5F	Exablaze
 64:42:14	Swisscom	Swisscom Energy Solutions AG
@@ -26517,6 +26524,7 @@
 70:B3:D5:2C:30:00/36	Proterra
 70:B3:D5:2C:40:00/36	Hodwa	Hodwa Co., Ltd
 70:B3:D5:2C:70:00/36	Worldsen	Worldsensing
+70:B3:D5:2C:80:00/36	Slat
 70:B3:D5:2C:90:00/36	SeasonDe	Season Design Technology
 70:B3:D5:2C:A0:00/36	Tattile	Tattile Srl
 70:B3:D5:2C:C0:00/36	WeWorkCo	WeWork Companies, Inc.
@@ -27740,6 +27748,7 @@
 70:B3:D5:84:30:00/36	Research	OOO Research and Production Center "Computer Technologies"
 70:B3:D5:84:40:00/36	SANSFILT	SANSFIL Technologies
 70:B3:D5:84:50:00/36	Harborsi	Harborside Technology
+70:B3:D5:84:60:00/36	National	National Time & Signal Corp.
 70:B3:D5:84:70:00/36	Ai-Lynx
 70:B3:D5:84:80:00/36	Aldridge	Aldridge Electrical Industries
 70:B3:D5:84:90:00/36	RF-Tuote	RF-Tuote Oy
@@ -32159,6 +32168,7 @@
 94:AC:CA	trivumte	trivum technologies GmbH
 94:AE:61	AlcatelL	Alcatel Lucent
 94:AE:E3	BeldenHi	Belden Hirschmann Industries (Suzhou) Ltd.
+94:AE:F0	Cisco	Cisco Systems, Inc
 94:B0:1F	Apple	Apple, Inc.
 94:B1:0A	SamsungE	Samsung Electronics Co.,Ltd
 94:B2:CC	Pioneer	Pioneer Corporation
@@ -34902,6 +34912,7 @@ BA:C4:85	Fraunhof	Fraunhofer IIS
 BA:F2:1C	Iso/Tc22	Iso/Tc22/Sc31
 BC:02:00	StewartA	Stewart Audio
 BC:02:4A	HMDGloba	HMD Global Oy
+BC:03:A7	MfpMiche	Mfp Michelin
 BC:05:43	AVM	AVM GmbH
 BC:09:63	Apple	Apple, Inc.
 BC:0D:A5	TexasIns	Texas Instruments
@@ -36294,6 +36305,7 @@ CC:D8:1F	MaipuCom	Maipu Communication Technology Co.,Ltd.
 CC:D8:C1	Cisco	Cisco Systems, Inc
 CC:D9:AC	IntelCor	Intel Corporate
 CC:D9:E9	SCREngin	SCR Engineers Ltd.
+CC:DB:93	Cisco	Cisco Systems, Inc
 CC:DC:55	Dragonch	Dragonchip Limited
 CC:E0:C3	EXTENTec	EXTEN Technologies, Inc.
 CC:E1:7F	JuniperN	Juniper Networks
@@ -36343,7 +36355,15 @@ D0:12:42	BIOS	BIOS Corporation
 D0:13:1E	SunrexTe	Sunrex Technology Corp
 D0:13:FD	LGElectr	LG Electronics (Mobile Communications)
 D0:14:11	IEEERegi	IEEE Registration Authority
+D0:14:11:00:00:00/28	EkkoSens	EkkoSense Ltd
+D0:14:11:10:00:00/28	Private
+D0:14:11:20:00:00/28	EvocoLab	Evoco Labs CO., LTD
+D0:14:11:30:00:00/28	iLOQ	iLOQ Oy
+D0:14:11:40:00:00/28	powerall
+D0:14:11:70:00:00/28	Realwave	Realwave Inc.
 D0:14:11:80:00:00/28	VideoSec	Video Security, Inc.
+D0:14:11:B0:00:00/28	CYLTek	CYLTek Co.,LTD.
+D0:14:11:C0:00:00/28	ShenZhen	Shen Zhen HaiHe Hi-Tech Co., Ltd
 D0:15:4A	zte	zte corporation
 D0:15:A6	ArubaaHe	Aruba, a Hewlett Packard Enterprise Company
 D0:16:B4	HuaweiTe	Huawei Technologies Co.,Ltd
@@ -36589,7 +36609,7 @@ D0:D9:4F:30:00:00/28	BeijingY	Beijing Yiwangxuntong Technology
 D0:D9:4F:40:00:00/28	peikerCE	peiker CEE
 D0:D9:4F:50:00:00/28	OptigoNe	Optigo Networks
 D0:D9:4F:60:00:00/28	HyundaiA	Hyundai Autohow
-D0:D9:4F:70:00:00/28	Private
+D0:D9:4F:70:00:00/28	Mitsubis	Mitsubishi Electric US, Inc.
 D0:D9:4F:80:00:00/28	ApptionL	Apption Labs Limited
 D0:D9:4F:90:00:00/28	Hangzhou	Hangzhou xiaoben technology co.,Ltd
 D0:D9:4F:A0:00:00/28	Shenzhen	Shenzhen FDC Electuonic Co.,Ltd.
@@ -37737,6 +37757,7 @@ E4:1E:0A:C0:00:00/28	Teletask	Teletask Belgium
 E4:1E:0A:D0:00:00/28	ROMOWind	ROMO Wind A/S
 E4:1E:0A:E0:00:00/28	Shanghai	Shanghai LeXiang Technology Co., Ltd
 E4:1F:13	IBM	IBM Corp
+E4:1F:7B	Cisco	Cisco Systems, Inc
 E4:1F:E9	Dunkermo	Dunkermotoren GmbH
 E4:22:A5	Plantron	Plantronics, Inc.
 E4:23:54	Shenzhen	Shenzhen Fuzhi Software Technology Co.,Ltd

@@ -1089,10 +1089,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>File Comment</source>
-        <translation type="vanished">ファイルコメント</translation>
-    </message>
-    <message>
         <source>Packet Comments</source>
         <translation>パケットコメント</translation>
     </message>

@@ -1073,10 +1073,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>File Comment</source>
-        <translation type="vanished">Commentaire du Fichier</translation>
-    </message>
-    <message>
         <source>Packet Comments</source>
         <translation>Commentaires du Paquet</translation>
     </message>

@@ -1089,10 +1089,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>File Comment</source>
-        <translation type="vanished">文件注释</translation>
-    </message>
-    <message>
         <source>Packet Comments</source>
         <translation>分组注释</translation>
     </message>
