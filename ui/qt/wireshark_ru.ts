@@ -85,7 +85,7 @@
     </message>
     <message>
         <source>The directory %1 could not be created.</source>
-        <translation type="unfinished"></translation>
+        <translation>Папка %1 не может быть создана.</translation>
     </message>
     <message>
         <source>Show in Finder</source>
@@ -6949,7 +6949,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Unignore all displayed packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Перестать игнорировать все отображенные пакеты</translation>
     </message>
     <message>
         <source>Time Shift…</source>
@@ -7654,7 +7654,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Clear Menu</source>
-        <translation>Меню Очистка</translation>
+        <translation>Очистить меню</translation>
     </message>
     <message>
         <source>Please wait while Wireshark is initializing</source>
