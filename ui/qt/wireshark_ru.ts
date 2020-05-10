@@ -93,7 +93,7 @@
     </message>
     <message>
         <source>The directory %1 could not be created.</source>
-        <translation type="unfinished"></translation>
+        <translation>Каталог %1 не может быть создан.</translation>
     </message>
     <message>
         <source>Show in Finder</source>
@@ -2240,11 +2240,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>non-heuristic protocols</source>
-        <translation type="unfinished"></translation>
+        <translation>неэвристические протоколы</translation>
     </message>
     <message>
         <source>heuristic protocols</source>
-        <translation type="unfinished"></translation>
+        <translation>эвристические протоколы</translation>
     </message>
 </context>
 <context>
@@ -2309,7 +2309,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Address</source>
-        <translation type="unfinished">Адрес</translation>
+        <translation>Адрес</translation>
     </message>
     <message>
         <source>All entries</source>
@@ -2317,7 +2317,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Hosts</source>
-        <translation type="unfinished">Хосты</translation>
+        <translation>Хосты</translation>
     </message>
     <message>
         <source>Ethernet Addresses</source>
@@ -2329,7 +2329,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Ethernet Well-Known Addresses</source>
-        <translation type="unfinished">Широко известные Ethernet-адреса</translation>
+        <translation>Широко известные Ethernet-адреса</translation>
     </message>
 </context>
 <context>
@@ -3029,6 +3029,22 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <oldsource>Save as...</oldsource>
         <translation>Сохранить как</translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln client pkt(s), </source>
+        <translation type="vanished">
+            <numerusform>%Ln пакет клиента, </numerusform>
+            <numerusform>%Ln пакеты клиента, </numerusform>
+            <numerusform>%Ln пакеты клиента, </numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln server pkt(s), </source>
+        <translation type="vanished">
+            <numerusform>%Ln пакет сервера,</numerusform>
+            <numerusform>%Ln пакеты сервера,</numerusform>
+            <numerusform>%Ln пакеты сервера,</numerusform>
+        </translation>
+    </message>
     <message>
         <source>ASCII</source>
         <translation>ASCII</translation>
@@ -3071,26 +3087,26 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message numerus="yes">
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;client&lt;/span&gt; pkt(s), </source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln пакет &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;клиента&lt;/span&gt;, </numerusform>
+            <numerusform>%Ln пакеты &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;клиента&lt;/span&gt;,</numerusform>
+            <numerusform>%Ln пакеты &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;клиента&lt;/span&gt;, </numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;server&lt;/span&gt; pkt(s), </source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln пакет &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;сервера&lt;/span&gt;, </numerusform>
+            <numerusform>%Ln пакеты &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;сервера&lt;/span&gt;, </numerusform>
+            <numerusform>%Ln пакеты &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;сервера&lt;/span&gt;, </numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln turn(s).</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln очереди.</numerusform>
+            <numerusform>%Ln очереди.</numerusform>
+            <numerusform>%Ln очереди.</numerusform>
         </translation>
     </message>
     <message>
@@ -3783,7 +3799,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Wireshark I/O Graphs: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Графики Ввода/Вывода Wireshark: %1</translation>
     </message>
     <message>
         <source>Filtered packets</source>
@@ -3791,11 +3807,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>All Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Все Пакеты</translation>
     </message>
     <message>
         <source>TCP Errors</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибки TCP</translation>
     </message>
     <message>
         <source>Hover over the graph for details.</source>
@@ -7868,7 +7884,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Clear Menu</source>
-        <translation>Меню Очистка</translation>
+        <translation>Очистить меню</translation>
     </message>
     <message>
         <source>Please wait while Wireshark is initializing</source>
@@ -9711,7 +9727,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Capture File Comments</source>
-        <translation type="unfinished"></translation>
+        <translation>Комментарии в файле захвата</translation>
     </message>
     <message>
         <source>Comment</source>
