@@ -4,6 +4,7 @@
 #define WIRESHARK_MARINE_H
 
 #include <glib.h>
+#define ARRAY_SIZE(arr)     (sizeof(arr) / sizeof((arr)[0]))
 
 typedef struct {
     char *output;
