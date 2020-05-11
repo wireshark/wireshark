@@ -129,7 +129,8 @@ enum scylla_packets {
     PAXOS_ACCEPT = 40,
     PAXOS_LEARN = 41,
     HINT_MUTATION = 42,
-    LAST = 43,
+    PAXOS_PRUNE = 43,
+    LAST = 44,
 };
 
 static const val64_string packettypenames[] = {
@@ -176,6 +177,7 @@ static const val64_string packettypenames[] = {
     {PAXOS_ACCEPT,                               "PAXOS_ACCEPT"},
     {PAXOS_LEARN,                                "PAXOS_LEARN"},
     {HINT_MUTATION,                              "HINT_MUTATION"},
+    {PAXOS_PRUNE,                                "PAXOS_PRUNE"},
     {0, NULL}
 };
 
