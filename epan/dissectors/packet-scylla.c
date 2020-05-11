@@ -22,6 +22,7 @@
 
 #include <config.h>
 
+#include <epan/expert.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/dissectors/packet-tcp.h>
@@ -46,6 +47,7 @@ void proto_register_scylla(void);
 static int proto_scylla = -1;
 
 static int hf_scylla_request = -1;
+static int hf_scylla_request_response_frame = -1;
 static int hf_scylla_timeout = -1;
 static int hf_scylla_verb = -1;
 static int hf_scylla_msg_id = -1;
@@ -80,6 +82,8 @@ static gint ett_scylla_mut_pkey = -1;
 static gint ett_scylla_read_data = -1;
 
 static gboolean scylla_desegment = TRUE;
+
+static expert_field ei_scylla_response_missing = EI_INIT;
 
 enum scylla_packets {
     CLIENT_ID = 0,
@@ -272,7 +276,7 @@ dissect_scylla_response_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *scyll
 }
 
 static int
-dissect_scylla_msg_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *scylla_tree, proto_item *ti, guint64 verb_type, guint32 len)
+dissect_scylla_msg_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *scylla_tree, proto_item *ti, guint64 verb_type, guint32 len, request_response_t *req_resp)
 {
     gint offset = 0;
 
@@ -351,6 +355,17 @@ dissect_scylla_msg_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *scylla_tre
         proto_tree_add_item(scylla_tree, hf_scylla_payload, tvb, offset, len, ENC_NA);
         break;
     }
+
+    /* req_resp will only be set if fd was already visited (PINFO_FD_VISITED(pinfo)) */
+    if (req_resp) {
+        if (req_resp->response_frame_num > 0) {
+            proto_item *rep = proto_tree_add_uint(scylla_tree, hf_scylla_request_response_frame, tvb, 0, 0, req_resp->response_frame_num);
+            proto_item_set_generated(rep);
+        } else {
+            expert_add_info(pinfo, request_ti, &ei_scylla_response_missing);
+        }
+    }
+
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Scylla");
     col_clear(pinfo->cinfo, COL_INFO);
     col_add_fstr(pinfo->cinfo, COL_INFO, "Request %s",
@@ -411,17 +426,22 @@ dissect_scylla_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     }
 
     guint64 msg_id = tvb_get_letoh64(tvb, offset + SCYLLA_HEADER_MSG_ID_OFFSET);
+    void *req_resp = NULL;
 
-    if (!PINFO_FD_VISITED(pinfo) && response_expected(verb_type)) {
-        guint64 *key = wmem_new(wmem_file_scope(), guint64);
-        request_response_t *val = wmem_new(wmem_file_scope(), request_response_t);
-        *key = msg_id;
-        val->verb_type = verb_type;
-        val->request_frame_num = pinfo->num;
-        wmem_map_insert(conv_map, key, val);
+    if (response_expected(verb_type)) {
+        if (!PINFO_FD_VISITED(pinfo)) {
+            guint64 *key = wmem_new(wmem_file_scope(), guint64);
+            request_response_t *val = wmem_new(wmem_file_scope(), request_response_t);
+            *key = msg_id;
+            val->verb_type = verb_type;
+            val->request_frame_num = pinfo->num;
+            wmem_map_insert(conv_map, key, val);
+        } else {
+            req_resp = wmem_map_lookup(conv_map, &msg_id);
+        }
     }
 
-    return dissect_scylla_msg_pdu(tvb, pinfo, scylla_tree, ti, verb_type, len);
+    return dissect_scylla_msg_pdu(tvb, pinfo, scylla_tree, ti, verb_type, len, (request_response_t *)req_resp);
 }
 
 static int
@@ -438,6 +458,7 @@ proto_register_scylla(void)
     static hf_register_info hf[] = {
         // RPC header
         { &hf_scylla_request, { "request", "scylla.request", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_scylla_request_response_frame, { "Response frame", "scylla.request.response", FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0x0, NULL, HFILL } },
         { &hf_scylla_timeout, { "RPC timeout", "scylla.timeout", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_scylla_verb, { "verb", "scylla.verb", FT_UINT64, BASE_DEC|BASE_VAL64_STRING, VALS64(packettypenames), 0x0, NULL, HFILL } },
         { &hf_scylla_msg_id, { "msg id", "scylla.msg_id", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL } },
@@ -463,6 +484,12 @@ proto_register_scylla(void)
 
     };
 
+    static ei_register_info ei[] = {
+        { &ei_scylla_response_missing,
+          { "scylla.ei_scylla_response_missing",
+                  PI_COMMENTS_GROUP, PI_NOTE, "Response has not arrived yet", EXPFILL }},
+    };
+
     /* Setup protocol subtree array */
     static gint *ett[] = {
         &ett_scylla,
@@ -474,6 +501,8 @@ proto_register_scylla(void)
         &ett_scylla_read_data,
     };
 
+    expert_module_t* expert_scylla;
+
     proto_scylla = proto_register_protocol("Scylla RPC protocol", "Scylla", "scylla");
     module_t* scylla_module = prefs_register_protocol(proto_scylla, NULL);
     prefs_register_bool_preference(scylla_module, "desegment",
@@ -483,6 +512,8 @@ proto_register_scylla(void)
 
     proto_register_field_array(proto_scylla, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_scylla = expert_register_protocol(proto_scylla);
+    expert_register_field_array(expert_scylla, ei, array_length(ei));
 }
 
 void
