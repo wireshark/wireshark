@@ -797,7 +797,6 @@ INPUT                  = \
         @DOXYGEN_TOP_LEVEL_SOURCES@ \
         @DOXYGEN_INPUT_DIRECTORY@/capchild \
         @DOXYGEN_INPUT_DIRECTORY@/caputils \
-        @DOXYGEN_INPUT_DIRECTORY@/cmbuild \
         @DOXYGEN_INPUT_DIRECTORY@/epan \
         @DOXYGEN_INPUT_DIRECTORY@/extcap \
         @DOXYGEN_INPUT_DIRECTORY@/plugins \
