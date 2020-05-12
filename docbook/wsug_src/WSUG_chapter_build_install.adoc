@@ -168,9 +168,25 @@ For special cases, there are some command line parameters available:
 
 * `/NCRC` disables the CRC check. We recommend against using this flag.
 
+* `/EXTRACOMPONENTS` comma separated list of optional components to install.
+The following extcap binaries are supported.
+
+
+** `androiddump` - Provide interfaces to capture from Android devices
+
+** `ciscodump` - Provide interfaces to capture from a remote Cisco router through SSH
+
+** `randpktdump` - Provide an interface to generate random captures using randpkt
+
+** `sshdump` - Provide interfaces to capture from a remote host through SSH using a remote capture binary
+
+** `udpdump` - Provide an UDP receiver that gets packets from network devices
+
 Example:
 ----
 > Wireshark-win64-wireshark-2.0.5.exe /NCRC /S /desktopicon=yes /quicklaunchicon=no /D=C:\Program Files\Foo
+
+> Wireshark-win64-3.3.0.exe /S /EXTRACOMPONENTS=sshdump,udpdump
 ----
 
 Running the installer without any parameters shows the normal interactive installer.
