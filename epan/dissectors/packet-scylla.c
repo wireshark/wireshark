@@ -366,11 +366,13 @@ response_expected(guint64 verb_type)
     case GOSSIP_DIGEST_ACK:
     case GOSSIP_DIGEST_ACK2:
     case GOSSIP_SHUTDOWN:
+    case DEFINITIONS_UPDATE:
     case MUTATION:
     case MUTATION_DONE:
     case MUTATION_FAILED:
     case HINT_MUTATION:
     case PAXOS_LEARN:
+    case PAXOS_PRUNE:
         return FALSE;
     default:
         return TRUE;
