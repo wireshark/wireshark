@@ -400,6 +400,8 @@ static dissector_handle_t ieee80211_radio_handle;
 static capture_dissector_handle_t ieee80211_cap_handle;
 static capture_dissector_handle_t ieee80211_datapad_cap_handle;
 
+static dissector_table_t vendor_dissector_table;
+
 /* Settings */
 static gboolean radiotap_bit14_fcs = FALSE;
 static gboolean radiotap_interpret_high_rates_as_mcs = FALSE;
@@ -2127,6 +2129,8 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 	guint	  rtap_ns_offset;
 	guint	  rtap_ns_offset_next;
 	gboolean  zero_length_psdu = FALSE;
+	guint32   ven_ns_id;
+	tvbuff_t  *ven_data_tvb;
 
 	/* our non-standard overrides */
 	static struct radiotap_override overrides[] = {
@@ -2392,18 +2396,19 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 					    tvb, offset, 3, ENC_BIG_ENDIAN);
 			proto_tree_add_item(ven_tree, hf_radiotap_ven_subns,
 					    tvb, offset + 3, 1, ENC_LITTLE_ENDIAN);
+			/* Get OUI and sub namespace as UINT32 */
+			ven_ns_id = tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
 			if (iter.tlv_mode) {
 				proto_tree_add_item(ven_tree, hf_radiotap_ven_item, tvb,
 						    offset + 4, 2, ENC_LITTLE_ENDIAN);
-				proto_tree_add_item(ven_tree, hf_radiotap_ven_data, tvb,
-						    offset + 8, iter.this_arg_size - 8,
-						    ENC_NA);
+				ven_data_tvb = tvb_new_subset_length(tvb, offset + 8, iter.this_arg_size - 8);
 			} else {
 				proto_tree_add_item(ven_tree, hf_radiotap_ven_skip, tvb,
 						    offset + 4, 2, ENC_LITTLE_ENDIAN);
-				proto_tree_add_item(ven_tree, hf_radiotap_ven_data, tvb,
-						    offset + 6, iter.this_arg_size - 6,
-						    ENC_NA);
+				ven_data_tvb = tvb_new_subset_length(tvb, offset + 6, iter.this_arg_size - 6);
+			}
+			if (!dissector_try_uint_new(vendor_dissector_table, ven_ns_id, ven_data_tvb, pinfo, ven_tree, TRUE, NULL)) {
+				proto_tree_add_item(ven_tree, hf_radiotap_ven_data, ven_data_tvb, 0, -1, ENC_NA);
 			}
 		}
 
@@ -4718,6 +4723,10 @@ void proto_register_radiotap(void)
 	expert_radiotap = expert_register_protocol(proto_radiotap);
 	expert_register_field_array(expert_radiotap, ei, array_length(ei));
 	register_dissector("radiotap", dissect_radiotap, proto_radiotap);
+
+	/* Subdissector table for vendor namespace, the key is OUI with sub namespace (4 bytes) */
+	vendor_dissector_table = register_dissector_table("radiotap.vendor",
+		"Vendor namespace", proto_radiotap, FT_UINT32, BASE_HEX);
 
 	radiotap_module = prefs_register_protocol(proto_radiotap, NULL);
 	prefs_register_bool_preference(radiotap_module, "bit14_fcs_in_header",
