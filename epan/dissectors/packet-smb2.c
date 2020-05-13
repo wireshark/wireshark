@@ -487,6 +487,11 @@ static int hf_smb2_svhdx_open_device_context_server_service_version = -1;
 static int hf_smb2_svhdx_open_device_context_virtual_sector_size = -1;
 static int hf_smb2_svhdx_open_device_context_physical_sector_size = -1;
 static int hf_smb2_svhdx_open_device_context_virtual_size = -1;
+static int hf_smb2_app_instance_version_struct_size = -1;
+static int hf_smb2_app_instance_version_reserved = -1;
+static int hf_smb2_app_instance_version_padding = -1;
+static int hf_smb2_app_instance_version_high = -1;
+static int hf_smb2_app_instance_version_low = -1;
 static int hf_smb2_posix_v1_version = -1;
 static int hf_smb2_posix_v1_request = -1;
 static int hf_smb2_posix_v1_supported_features = -1;
@@ -659,6 +664,8 @@ static gint ett_smb2_DH2C_buffer = -1;
 static gint ett_smb2_dh2x_flags = -1;
 static gint ett_smb2_APP_INSTANCE_buffer = -1;
 static gint ett_smb2_svhdx_open_device_context = -1;
+static gint ett_smb2_app_instance_version_buffer = -1;
+static gint ett_smb2_app_instance_version_buffer_version = -1;
 static gint ett_smb2_posix_v1_request = -1;
 static gint ett_smb2_posix_v1_response = -1;
 static gint ett_smb2_posix_v1_supported_features = -1;
@@ -8283,6 +8290,67 @@ dissect_smb2_svhdx_open_device_context(tvbuff_t *tvb, packet_info *pinfo _U_, pr
 	}
 }
 
+/*
+ * SMB2_CREATE_APP_INSTANCE_VERSION
+ *  2 - structure size - 24
+ *  2 - reserved
+ *  4 - padding
+ *  8 - AppInstanceVersionHigh
+ *  8 - AppInstanceVersionHigh
+ */
+
+static void
+dissect_smb2_app_instance_version_buffer_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, smb2_info_t *si _U_)
+{
+	int         offset   = 0;
+	proto_item *item;
+	proto_item *sub_tree;
+	proto_item *version_sub_tree;
+	guint64 	version_high;
+	guint64 	version_low;
+
+	item = proto_tree_get_parent(tree);
+
+	proto_item_append_text(item, ": CREATE APP INSTANCE VERSION");
+	sub_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_smb2_app_instance_version_buffer, NULL, "APP INSTANCE VERSION");
+
+	/* struct size */
+	proto_tree_add_item(sub_tree, hf_smb2_app_instance_version_struct_size,
+			    tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	offset += 2;
+
+	/* reserved */
+	proto_tree_add_item(sub_tree, hf_smb2_app_instance_version_reserved,
+			    tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	offset += 2;
+
+	/* padding */
+	proto_tree_add_item(sub_tree, hf_smb2_app_instance_version_padding,
+			    tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	version_sub_tree = proto_tree_add_subtree(sub_tree, tvb, offset, -1, ett_smb2_app_instance_version_buffer_version, NULL, "version");
+
+	/* version high */
+	proto_tree_add_item_ret_uint64(version_sub_tree, hf_smb2_app_instance_version_high,
+			    tvb, offset, 8, ENC_LITTLE_ENDIAN, &version_high);
+	offset += 8;
+
+	/* version low */
+	proto_tree_add_item_ret_uint64(version_sub_tree, hf_smb2_app_instance_version_low,
+			    tvb, offset, 8, ENC_LITTLE_ENDIAN, &version_low);
+	offset += 8;
+
+	proto_item_append_text(version_sub_tree, " : %" G_GUINT64_FORMAT ".%" G_GUINT64_FORMAT "", version_high, version_low);
+	proto_item_append_text(sub_tree, ", version: %" G_GUINT64_FORMAT ".%" G_GUINT64_FORMAT "", version_high, version_low);
+}
+
+static void
+dissect_smb2_app_instance_version_buffer_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, smb2_info_t *si _U_)
+{
+	report_create_context_malformed_buffer(tvb, pinfo, tree, "APP INSTANCE Version Response");
+}
+
 static const int *posix_flags_fields[] = {
 	&hf_smb2_posix_v1_case_sensitive,
 	&hf_smb2_posix_v1_posix_lock,
@@ -8561,6 +8629,8 @@ struct create_context_data_tag_dissectors create_context_dissectors_array[] = {
 	  { dissect_smb2_APP_INSTANCE_buffer_request, dissect_smb2_APP_INSTANCE_buffer_response } },
 	{ "9ecfcb9c-c104-43e6-980e-158da1f6ec83", "SVHDX_OPEN_DEVICE_CONTEXT",
 	  { dissect_smb2_svhdx_open_device_context, dissect_smb2_svhdx_open_device_context} },
+	{ "b7d082b9-563b-4f07-a07b-524a8116a010", "SMB2_CREATE_APP_INSTANCE_VERSION",
+	   { dissect_smb2_app_instance_version_buffer_request, dissect_smb2_app_instance_version_buffer_response } },
 	{ "34263501-2921-4912-2586-447794114531", "SMB2_POSIX_V1_CAPS",
 	  { dissect_smb2_posix_v1_caps_request, dissect_smb2_posix_v1_caps_response } },
 	{ "AAPL", "SMB2_AAPL_CREATE_CONTEXT",
@@ -12634,6 +12704,31 @@ proto_register_smb2(void)
 			NULL, 0, "The current length of the virtual disk, in bytes", HFILL }
 		},
 
+		{ &hf_smb2_app_instance_version_struct_size,
+			{ "Struct Size", "smb2.app_instance_version.struct_size", FT_UINT16, BASE_DEC,
+			NULL, 0, NULL, HFILL }
+		},
+
+		{ &hf_smb2_app_instance_version_reserved,
+			{ "Reserved", "smb2.app_instance_version.reserved", FT_UINT16, BASE_DEC,
+			NULL, 0, NULL, HFILL }
+		},
+
+		{ &hf_smb2_app_instance_version_padding,
+			{ "Padding", "smb2.app_instance_version.padding", FT_UINT32, BASE_HEX,
+			NULL, 0, NULL, HFILL }
+		},
+
+		{ &hf_smb2_app_instance_version_high,
+			{ "AppInstanceVersionHigh", "smb2.app_instance_version.version.high", FT_UINT64, BASE_DEC,
+			NULL, 0, NULL, HFILL }
+		},
+
+		{ &hf_smb2_app_instance_version_low,
+			{ "AppInstanceVersionLow", "smb2.app_instance_version.version.low", FT_UINT64, BASE_DEC,
+			NULL, 0, NULL, HFILL }
+		},
+
 		{ &hf_smb2_posix_v1_version,
 			{ "Version", "smb2.posix_v1_version", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }
@@ -13086,6 +13181,8 @@ proto_register_smb2(void)
 		&ett_smb2_dh2x_flags,
 		&ett_smb2_APP_INSTANCE_buffer,
 		&ett_smb2_svhdx_open_device_context,
+		&ett_smb2_app_instance_version_buffer,
+		&ett_smb2_app_instance_version_buffer_version,
 		&ett_smb2_posix_v1_request,
 		&ett_smb2_posix_v1_response,
 		&ett_smb2_posix_v1_supported_features,
