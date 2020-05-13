@@ -64,7 +64,7 @@ int bluetooth_device_tap = -1;
 int bluetooth_hci_summary_tap = -1;
 
 const value_string bluetooth_uuid_vals[] = {
-    /* Protocol Identifiers - https://www.bluetooth.org/en-us/specification/assigned-numbers/service-discovery */
+    /* Protocol Identifiers - https://www.bluetooth.com/specifications/assigned-numbers/service-discovery/ */
     { 0x0001,   "SDP" },
     { 0x0002,   "UDP" },
     { 0x0003,   "RFCOMM" },
@@ -90,7 +90,7 @@ const value_string bluetooth_uuid_vals[] = {
     { 0x001E,   "MCAP Control Channel" },
     { 0x001F,   "MCAP Data Channel" },
     { 0x0100,   "L2CAP" },
-    /* Traditional Services - https://www.bluetooth.org/en-us/specification/assigned-numbers/service-discovery */
+    /* Traditional Services - https://www.bluetooth.com/specifications/assigned-numbers/service-discovery/ */
     { 0x1000,   "Service Discovery Server Service Class ID" },
     { 0x1001,   "Browse Group Descriptor Service Class ID" },
     { 0x1002,   "Public Browse Group" },

@@ -13,8 +13,8 @@
  * JFIF media decoding functionality provided by Olivier Biot.
  *
  * The JFIF specifications are found at several locations, such as:
- * http://www.jpeg.org/public/jfif.pdf
- * http://www.w3.org/Graphics/JPEG/itu-t81.pdf
+ * https://www.w3.org/Graphics/JPEG/jfif3.pdf
+ * https://www.w3.org/Graphics/JPEG/itu-t81.pdf
  *
  * The Exif specifications are found at several locations, such as:
  * http://www.exif.org/

@@ -10,7 +10,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * This code is based on the protocol specification:
- *   http://www.spice-space.org/docs/spice_protocol.pdf
+ *   https://www.spice-space.org/spice-protocol.html
  *   and the source - git://cgit.freedesktop.org/spice/spice-protocol
  */
 
