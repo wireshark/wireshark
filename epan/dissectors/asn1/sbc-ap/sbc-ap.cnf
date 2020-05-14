@@ -61,10 +61,6 @@ ProtocolIE-Field/value ie_field_value
 #.FN_PARS ProtocolExtensionField/extensionValue  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolExtensionFieldExtensionValue
 
 #.FN_PARS  ProcedureCode  VAL_PTR = &ProcedureCode
-#.FN_FTR ProcedureCode
-   col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
-                   val_to_str(ProcedureCode, sbc_ap_ProcedureCode_vals,
-                              "unknown message"));
 #.END
 
 #.FN_PARS InitiatingMessage/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_InitiatingMessageValue
@@ -251,6 +247,16 @@ PWS-Failure-Indication                  N sbc_ap.proc.imsg id-PWS-Failure-Indica
 #.TYPE_ATTR
 Message-Identifier TYPE = FT_UINT16 DISPLAY = BASE_DEC|BASE_EXT_STRING STRINGS = &lte_rrc_messageIdentifier_vals_ext
 
+#.FN_HDR Write-Replace-Warning-Request
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Write-Replace-Warning-Request");
+#.FN_HDR Write-Replace-Warning-Response
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Write-Replace-Warning-Response");
+#.FN_HDR Stop-Warning-Request
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Stop-Warning-Request");
+#.FN_HDR Stop-Warning-Response
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Stop-Warning-Response");
+#.FN_HDR Error-Indication
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Error-Indication");
 #.FN_HDR Write-Replace-Warning-Indication
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Write-Replace-Warning-Indication");
 #.FN_HDR Stop-Warning-Indication
