@@ -1095,6 +1095,11 @@ radius_string(radius_attr_info_t *a, proto_tree *tree, packet_info *pinfo _U_, t
 void
 radius_octets(radius_attr_info_t *a, proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, int offset, int len, proto_item *avp_item)
 {
+	if (len == 0) {
+		proto_item_append_text(avp_item, "[wrong length]");
+		return;
+	}
+
 	proto_tree_add_item(tree, a->hf, tvb, offset, len, ENC_NA);
 	proto_item_append_text(avp_item, "%s", tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, len));
 }
