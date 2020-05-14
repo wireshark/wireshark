@@ -541,10 +541,10 @@ sharkd_session_process_load(const char *buf, const jsmntok_t *tokens, int count)
 	const char *tok_file = json_find_attr(buf, tokens, count, "file");
 	int err = 0;
 
-	fprintf(stderr, "load: filename=%s\n", tok_file);
-
 	if (!tok_file)
 		return;
+
+	fprintf(stderr, "load: filename=%s\n", tok_file);
 
 	if (sharkd_cf_open(tok_file, WTAP_TYPE_AUTO, FALSE, &err) != CF_OK)
 	{
