@@ -460,14 +460,12 @@ dissect_coap_opt_location_query(tvbuff_t *tvb, proto_item *head_item, proto_tree
 	proto_item_append_text(head_item, ": %s", str);
 }
 
-/* draft-ietf-core-object-security-07 */
+/* rfc8613 */
 static void
-dissect_coap_opt_object_security(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree, gint offset, gint opt_length, packet_info *pinfo, coap_info *coinfo, coap_common_dissect_t *dissect_hf)
+dissect_coap_opt_object_security(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree, gint offset, gint opt_length, packet_info *pinfo, coap_info *coinfo, coap_common_dissect_t *dissect_hf, guint8 code_class)
 {
 	guint8 flag_byte = 0;
-	gboolean non_compressed = FALSE;
-	gboolean expand = FALSE;
-	gboolean signature_present = FALSE;
+	gboolean reserved = FALSE;
 	gboolean kid_context_present = FALSE;
 	gboolean kid_present = FALSE;
 	guint8 piv_len = 0;
@@ -478,10 +476,13 @@ dissect_coap_opt_object_security(tvbuff_t *tvb, proto_item *head_item, proto_tre
 
 	coinfo->oscore_info->piv = NULL;
 	coinfo->oscore_info->piv_len = 0;
+	coinfo->oscore_info->request_piv = NULL;
+	coinfo->oscore_info->request_piv_len = 0;
 	coinfo->oscore_info->kid_context = NULL;
 	coinfo->oscore_info->kid_context_len = 0;
 	coinfo->oscore_info->kid = NULL;
 	coinfo->oscore_info->kid_len = 0;
+	coinfo->oscore_info->response = FALSE;
 
 	if (opt_length == 0) { /* option length is zero, means flag byte is 0x00*/
 		/* add info to the head of the packet detail */
@@ -489,14 +490,8 @@ dissect_coap_opt_object_security(tvbuff_t *tvb, proto_item *head_item, proto_tre
 	} else {
 		flag_byte = tvb_get_guint8(tvb, offset);
 
-		proto_tree_add_item(subtree, dissect_hf->hf.opt_object_security_non_compressed, tvb, offset, 1, ENC_BIG_ENDIAN);
-		non_compressed = flag_byte & COAP_OBJECT_SECURITY_NON_COMPRESSED_MASK;
-
-		proto_tree_add_item(subtree, dissect_hf->hf.opt_object_security_expand, tvb, offset, 1, ENC_BIG_ENDIAN);
-		expand = flag_byte & COAP_OBJECT_SECURITY_EXPAND_MASK;
-
-		proto_tree_add_item(subtree, dissect_hf->hf.opt_object_security_signature, tvb, offset, 1, ENC_BIG_ENDIAN);
-		signature_present = flag_byte & COAP_OBJECT_SECURITY_SIGNATURE_MASK;
+		proto_tree_add_item(subtree, dissect_hf->hf.opt_object_security_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+		reserved = flag_byte & COAP_OBJECT_SECURITY_RESERVED_MASK;
 
 		proto_tree_add_item(subtree, dissect_hf->hf.opt_object_security_kid_context_present, tvb, offset, 1, ENC_BIG_ENDIAN);
 		kid_context_present = flag_byte & COAP_OBJECT_SECURITY_KID_CONTEXT_MASK;
@@ -514,7 +509,7 @@ dissect_coap_opt_object_security(tvbuff_t *tvb, proto_item *head_item, proto_tre
 		offset += 1;
 		kid_len -= 1;
 
-		if (non_compressed || expand || signature_present) {
+		if (reserved) {
 			/* how these bits are handled is not yet specified */
 			expert_add_info_format(pinfo, subtree, &dissect_hf->ei.opt_object_security_bad, "Unsupported format");
 		}
@@ -523,6 +518,12 @@ dissect_coap_opt_object_security(tvbuff_t *tvb, proto_item *head_item, proto_tre
 			proto_tree_add_item(subtree, dissect_hf->hf.opt_object_security_piv, tvb, offset, piv_len, ENC_NA);
 			coinfo->oscore_info->piv = (guint8 *) tvb_memdup(wmem_packet_scope(), tvb, offset, piv_len);
 			coinfo->oscore_info->piv_len = piv_len;
+
+			if (code_class == 0) {
+				/* If this is a request, copy PIV to request_piv */
+				coinfo->oscore_info->request_piv = (guint8 *) tvb_memdup(wmem_packet_scope(), tvb, offset, piv_len);
+				coinfo->oscore_info->request_piv_len = piv_len;
+			}
 
 			offset += piv_len;
 			kid_len -= piv_len;
@@ -544,14 +545,10 @@ dissect_coap_opt_object_security(tvbuff_t *tvb, proto_item *head_item, proto_tre
 		}
 
 		if (kid_present) {
-			if(kid_len > 0) {
-				proto_tree_add_item(subtree, dissect_hf->hf.opt_object_security_kid, tvb, offset, kid_len, ENC_NA);
-				coinfo->oscore_info->kid = (guint8 *) tvb_memdup(wmem_packet_scope(), tvb, offset, kid_len);
-				coinfo->oscore_info->kid_len = kid_len;
+			proto_tree_add_item(subtree, dissect_hf->hf.opt_object_security_kid, tvb, offset, kid_len, ENC_NA);
+			coinfo->oscore_info->kid = (guint8 *) tvb_memdup(wmem_packet_scope(), tvb, offset, kid_len);
+			coinfo->oscore_info->kid_len = kid_len;
 
-			} else {
-				expert_add_info_format(pinfo, subtree, &dissect_hf->ei.opt_object_security_bad, "Key ID flag is set but there are no remaining bytes to be processed");
-			}
 		}
 
 		proto_item_append_text(head_item, ": Key ID:%s, Key ID Context:%s, Partial IV:%s",
@@ -849,7 +846,7 @@ dissect_coap_options_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tr
 		break;
 	case COAP_OPT_OBJECT_SECURITY:
 		dissect_coap_opt_object_security(tvb, item, subtree, offset,
-		    opt_length, pinfo, coinfo, dissect_hf);
+		    opt_length, pinfo, coinfo, dissect_hf, code_class);
 		break;
 	case COAP_OPT_URI_PATH:
 		dissect_coap_opt_uri_path(tvb, item, subtree, offset,
@@ -1230,7 +1227,7 @@ dissect_coap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 							coap_trans->oscore_info->kid_context = (guint8 *) wmem_memdup(wmem_file_scope(), coinfo->oscore_info->kid_context, coinfo->oscore_info->kid_context_len);
 						}
 						if (coinfo->oscore_info->piv) {
-							coap_trans->oscore_info->piv = (guint8 *) wmem_memdup(wmem_file_scope(), coinfo->oscore_info->piv, coinfo->oscore_info->piv_len);
+							coap_trans->oscore_info->request_piv = (guint8 *) wmem_memdup(wmem_file_scope(), coinfo->oscore_info->request_piv, coinfo->oscore_info->request_piv_len);
 						}
 					}
 					wmem_map_insert(ccinfo->messages, coap_token_str, (void *)coap_trans);
@@ -1253,17 +1250,12 @@ dissect_coap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 						}
 						coinfo->oscore_info->kid_context_len = coap_trans->oscore_info->kid_context_len;
 
-						/* If PIV is present within the response (current dissection), do not overwrite it! */
-						if (coinfo->oscore_info->piv_len > 0) {
-							/* Indicate to OSCORE that this response contains its own PIV */
-							coinfo->oscore_info->piv_in_response = TRUE;
-							coap_trans->oscore_info->piv_in_response = TRUE;
-						} else if (coap_trans->oscore_info->piv_len > 0) {
-							/* Use the PIV from the request */
-							coinfo->oscore_info->piv = (guint8 *) wmem_memdup(wmem_packet_scope(), coap_trans->oscore_info->piv, coap_trans->oscore_info->piv_len);
-							coinfo->oscore_info->piv_len = coap_trans->oscore_info->piv_len;
+						if (coap_trans->oscore_info->request_piv) {
+							coinfo->oscore_info->request_piv = (guint8 *) wmem_memdup(wmem_packet_scope(), coap_trans->oscore_info->request_piv, coap_trans->oscore_info->request_piv_len);
 						}
+						coinfo->oscore_info->request_piv_len = coap_trans->oscore_info->request_piv_len;
 						coinfo->oscore_info->response = TRUE;
+
 					}
 				}
 			}
@@ -1363,10 +1355,10 @@ dissect_coap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 				it = proto_tree_add_bytes(coap_tree, hf_coap_oscore_kid_context, tvb, 0, coap_trans->oscore_info->kid_context_len, coap_trans->oscore_info->kid_context);
 				proto_item_set_generated(it);
 
-				if (coap_trans->oscore_info->piv_in_response) {
+				if (coinfo->oscore_info->piv_len) {
 					it = proto_tree_add_bytes(coap_tree, hf_coap_oscore_piv, tvb, 0, coinfo->oscore_info->piv_len, coinfo->oscore_info->piv);
 				} else {
-					it = proto_tree_add_bytes(coap_tree, hf_coap_oscore_piv, tvb, 0, coap_trans->oscore_info->piv_len, coap_trans->oscore_info->piv);
+					it = proto_tree_add_bytes(coap_tree, hf_coap_oscore_piv, tvb, 0, coinfo->oscore_info->request_piv_len, coinfo->oscore_info->request_piv);
 				}
 				proto_item_set_generated(it);
 			}

@@ -18,9 +18,7 @@
 #define COAP_TOKEN_LEN_MASK					0x0F
 #define COAP_BLOCK_MFLAG_MASK					0x08
 #define COAP_BLOCK_SIZE_MASK					0x07
-#define COAP_OBJECT_SECURITY_NON_COMPRESSED_MASK		0x80
-#define COAP_OBJECT_SECURITY_EXPAND_MASK			0x40
-#define COAP_OBJECT_SECURITY_SIGNATURE_MASK			0x20
+#define COAP_OBJECT_SECURITY_RESERVED_MASK			0xE0
 #define COAP_OBJECT_SECURITY_KID_CONTEXT_MASK			0x10
 #define COAP_OBJECT_SECURITY_KID_MASK				0x08
 #define COAP_OBJECT_SECURITY_PIVLEN_MASK			0x07
@@ -94,9 +92,7 @@ typedef struct coap_common_dissect {
 		int opt_block_size;
 		int opt_uri_query;
 		int opt_unknown;
-		int opt_object_security_non_compressed;
-		int opt_object_security_expand;
-		int opt_object_security_signature;
+		int opt_object_security_reserved;
 		int opt_object_security_kid_context_present;
 		int opt_object_security_kid_present;
 		int opt_object_security_piv_len;
@@ -141,7 +137,6 @@ coap_common_dissect_t name = {							\
 		-1, -1, -1, -1, -1, -1, -1, -1, -1, -1,				\
 		-1, -1, -1, -1, -1, -1, -1, -1, -1, -1,				\
 		-1, -1, -1, -1, -1, -1, -1, -1, -1, -1,				\
-		-1, -1,								\
 		},								\
 	/* ett */ {								\
 		-1, -1,								\
@@ -259,19 +254,9 @@ coap_common_dissect_t name = {							\
 	    FT_STRING, BASE_NONE, NULL, 0x0,					\
 	    NULL, HFILL }							\
 	},									\
-	{ & name .hf.opt_object_security_non_compressed,			\
-	  { "Non-compressed COSE message",  prefix ".opt.object_security_non_compressed",\
-	    FT_BOOLEAN, 8, NULL, COAP_OBJECT_SECURITY_NON_COMPRESSED_MASK,	\
-	    NULL, HFILL }							\
-	},									\
-	{ & name .hf.opt_object_security_expand,				\
-	  { "Expanded Flag Byte",  prefix ".opt.object_security_expand",	\
-	    FT_BOOLEAN, 8, NULL, COAP_OBJECT_SECURITY_EXPAND_MASK,		\
-	    NULL, HFILL }							\
-	},									\
-	{ & name .hf.opt_object_security_signature,				\
-	  { "Signature Present",  prefix ".opt.object_security_signature",	\
-	    FT_BOOLEAN, 8, NULL, COAP_OBJECT_SECURITY_SIGNATURE_MASK,		\
+	{ & name .hf.opt_object_security_reserved,				\
+	  { "Reserved",  prefix ".opt.object_security_reserved",		\
+	    FT_BOOLEAN, 8, NULL, COAP_OBJECT_SECURITY_RESERVED_MASK,		\
 	    NULL, HFILL }							\
 	},									\
 	{ & name .hf.opt_object_security_kid_context_present,			\
