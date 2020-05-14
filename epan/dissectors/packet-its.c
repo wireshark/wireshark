@@ -677,7 +677,9 @@ static int hf_ivi_offsetPosition = -1;            /* DeltaReferencePosition */
 static int hf_ivi_deltaLatitude = -1;             /* DeltaLatitude */
 static int hf_ivi_deltaLongitude = -1;            /* DeltaLongitude */
 static int hf_ivi_dValue = -1;                    /* INTEGER_1_16384 */
+static int hf_ivi_unit_01 = -1;                   /* T_unit */
 static int hf_ivi_dodValue = -1;                  /* INTEGER_1_16384 */
+static int hf_ivi_unit_02 = -1;                   /* T_unit_01 */
 static int hf_ivi_ISO14823Attributes_item = -1;   /* ISO14823Attributes_item */
 static int hf_ivi_dtm = -1;                       /* DTM */
 static int hf_ivi_edt = -1;                       /* EDT */
@@ -758,6 +760,7 @@ static int hf_ivi_exhaustEmissionValues = -1;     /* ExhaustEmissionValues */
 static int hf_ivi_dieselEmissionValues = -1;      /* DieselEmissionValues */
 static int hf_ivi_soundLevel = -1;                /* SoundLevel */
 static int hf_ivi_wValue = -1;                    /* INTEGER_1_16384 */
+static int hf_ivi_unit_03 = -1;                   /* T_unit_02 */
 static int hf_ivi_segment = -1;                   /* Segment */
 static int hf_ivi_area = -1;                      /* PolygonalLine */
 static int hf_ivi_computedSegment = -1;           /* ComputedSegment */
@@ -783,6 +786,7 @@ static int hf_ivi_vln = -1;                       /* Distance */
 static int hf_ivi_wei = -1;                       /* Weight */
 static int hf_ivi_spm = -1;                       /* INTEGER_0_250 */
 static int hf_ivi_mns = -1;                       /* INTEGER_0_250 */
+static int hf_ivi_unit_04 = -1;                   /* T_unit_03 */
 static int hf_ivi_dcj = -1;                       /* INTEGER_1_128 */
 static int hf_ivi_dcr = -1;                       /* INTEGER_1_128 */
 static int hf_ivi_tpl = -1;                       /* INTEGER_1_128 */
@@ -2734,7 +2738,6 @@ dissect_its_SubCauseCodeType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
   hf_index = *find_subcause_from_cause((CauseCodeType_enum) ((its_private_data_t*)actx->private_data)->cause_code);
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, NULL, FALSE);
-
 
 
 
@@ -8298,9 +8301,21 @@ dissect_ivi_INTEGER_1_16384(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 }
 
 
+
+static int
+dissect_ivi_T_unit(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 774 "./asn1/its/its.cnf"
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                           2U, 8U, NULL, FALSE);
+
+
+  return offset;
+}
+
+
 static const per_sequence_t ivi_Distance_sequence[] = {
   { &hf_ivi_dValue          , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ivi_INTEGER_1_16384 },
-  { &hf_ivi_unit            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ivi_RSCUnit },
+  { &hf_ivi_unit_01         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ivi_T_unit },
   { NULL, 0, 0, NULL }
 };
 
@@ -8313,9 +8328,21 @@ dissect_ivi_Distance(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 }
 
 
+
+static int
+dissect_ivi_T_unit_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 764 "./asn1/its/its.cnf"
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                           10U, 12U, NULL, FALSE);
+
+
+  return offset;
+}
+
+
 static const per_sequence_t ivi_Weight_sequence[] = {
   { &hf_ivi_wValue          , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ivi_INTEGER_1_16384 },
-  { &hf_ivi_unit            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ivi_RSCUnit },
+  { &hf_ivi_unit_03         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ivi_T_unit_02 },
   { NULL, 0, 0, NULL }
 };
 
@@ -8355,10 +8382,22 @@ dissect_ivi_INTEGER_0_250(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 }
 
 
+
+static int
+dissect_ivi_T_unit_03(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 759 "./asn1/its/its.cnf"
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                           0U, 1U, NULL, FALSE);
+
+
+  return offset;
+}
+
+
 static const per_sequence_t ivi_SPE_sequence[] = {
   { &hf_ivi_spm             , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_ivi_INTEGER_0_250 },
   { &hf_ivi_mns             , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_ivi_INTEGER_0_250 },
-  { &hf_ivi_unit            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ivi_RSCUnit },
+  { &hf_ivi_unit_04         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ivi_T_unit_03 },
   { NULL, 0, 0, NULL }
 };
 
@@ -8552,9 +8591,21 @@ dissect_ivi_SEQUENCE_SIZE_1_4__OF_DestinationRoad(tvbuff_t *tvb _U_, int offset 
 }
 
 
+
+static int
+dissect_ivi_T_unit_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 769 "./asn1/its/its.cnf"
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                           2U, 9U, NULL, FALSE);
+
+
+  return offset;
+}
+
+
 static const per_sequence_t ivi_DistanceOrDuration_sequence[] = {
   { &hf_ivi_dodValue        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ivi_INTEGER_1_16384 },
-  { &hf_ivi_unit            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ivi_RSCUnit },
+  { &hf_ivi_unit_02         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ivi_T_unit_01 },
   { NULL, 0, 0, NULL }
 };
 
@@ -17780,10 +17831,18 @@ void proto_register_its(void)
       { "value", "ivi.value",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_1_16384", HFILL }},
+    { &hf_ivi_unit_01,
+      { "unit", "ivi.unit",
+        FT_UINT32, BASE_DEC, VALS(ivi_RSCUnit_vals), 0,
+        NULL, HFILL }},
     { &hf_ivi_dodValue,
       { "value", "ivi.value",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_1_16384", HFILL }},
+    { &hf_ivi_unit_02,
+      { "unit", "ivi.unit",
+        FT_UINT32, BASE_DEC, VALS(ivi_RSCUnit_vals), 0,
+        "T_unit_01", HFILL }},
     { &hf_ivi_ISO14823Attributes_item,
       { "ISO14823Attributes item", "ivi.ISO14823Attributes_item",
         FT_UINT32, BASE_DEC, VALS(ivi_ISO14823Attributes_item_vals), 0,
@@ -18104,6 +18163,10 @@ void proto_register_its(void)
       { "value", "ivi.value",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_1_16384", HFILL }},
+    { &hf_ivi_unit_03,
+      { "unit", "ivi.unit",
+        FT_UINT32, BASE_DEC, VALS(ivi_RSCUnit_vals), 0,
+        "T_unit_02", HFILL }},
     { &hf_ivi_segment,
       { "segment", "ivi.segment_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -18204,6 +18267,10 @@ void proto_register_its(void)
       { "mns", "ivi.mns",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_250", HFILL }},
+    { &hf_ivi_unit_04,
+      { "unit", "ivi.unit",
+        FT_UINT32, BASE_DEC, VALS(ivi_RSCUnit_vals), 0,
+        "T_unit_03", HFILL }},
     { &hf_ivi_dcj,
       { "dcj", "ivi.dcj",
         FT_UINT32, BASE_DEC, NULL, 0,
