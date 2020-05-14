@@ -4,7 +4,7 @@
  *
  * This dissector includes items from:
  *    CIP Volume 1: Common Industrial Protocol, Edition 3.24
- *    CIP Volume 2: EtherNet/IP Adaptation of CIP, Edition 1.23
+ *    CIP Volume 2: EtherNet/IP Adaptation of CIP, Edition 1.26
  *    CIP Volume 8: CIP Security, Edition 1.6
  *
  * Copyright 2003-2004
@@ -35,6 +35,8 @@
 #include <epan/expert.h>
 #include <epan/decode_as.h>
 #include <epan/proto_data.h>
+#include <ipproto.h>
+
 #include "packet-tcp.h"
 #include "packet-cip.h"
 #include "packet-enip.h"
@@ -171,6 +173,9 @@ static int hf_tcpip_status_interface_config = -1;
 static int hf_tcpip_status_mcast_pending = -1;
 static int hf_tcpip_status_interface_config_pending = -1;
 static int hf_tcpip_status_acd = -1;
+static int hf_tcpip_acd_fault = -1;
+static int hf_tcpip_status_iana_port_admin_change = -1;
+static int hf_tcpip_status_iana_protocol_admin_change = -1;
 static int hf_tcpip_status_reserved = -1;
 static int hf_tcpip_config_cap = -1;
 static int hf_tcpip_config_cap_bootp = -1;
@@ -207,6 +212,13 @@ static int hf_tcpip_lcd_arp_pdu = -1;
 static int hf_tcpip_select_acd = -1;
 static int hf_tcpip_quick_connect = -1;
 static int hf_tcpip_encap_inactivity = -1;
+
+static int hf_tcpip_port_count = -1;
+static int hf_tcpip_port_name = -1;
+static int hf_tcpip_port_number = -1;
+static int hf_tcpip_port_protocol = -1;
+static int hf_tcpip_port_admin_state = -1;
+static int hf_tcpip_port_admin_capability = -1;
 
 static int hf_elink_interface_flags = -1;
 static int hf_elink_iflags_link_status = -1;
@@ -374,6 +386,7 @@ static gint ett_security_profiles = -1;
 static gint ett_iana_port_state_flags = -1;
 static gint ett_connection_info = -1;
 static gint ett_connection_path_info = -1;
+static gint ett_cmd_data = -1;
 
 static expert_field ei_mal_tcpip_status = EI_INIT;
 static expert_field ei_mal_tcpip_config_cap = EI_INIT;
@@ -1384,6 +1397,9 @@ dissect_tcpip_status(packet_info *pinfo, proto_tree *tree, proto_item *item, tvb
       &hf_tcpip_status_mcast_pending,
       &hf_tcpip_status_interface_config_pending,
       &hf_tcpip_status_acd,
+      &hf_tcpip_acd_fault,
+      &hf_tcpip_status_iana_port_admin_change,
+      &hf_tcpip_status_iana_protocol_admin_change,
       &hf_tcpip_status_reserved,
       NULL
    };
@@ -2144,6 +2160,43 @@ dissect_eip_cert_ca_cert(packet_info *pinfo, proto_tree *tree, proto_item *item,
    return path_size + 1;
 }
 
+static int dissect_tcpip_port_information(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+   int offset)
+{
+   int start_offset = offset;
+
+   guint32 port_count;
+   proto_tree_add_item_ret_uint(tree, hf_tcpip_port_count, tvb, offset, 1, ENC_LITTLE_ENDIAN, &port_count);
+   offset++;
+
+   for (guint32 i = 0; i < port_count; ++i)
+   {
+      proto_item *port_item;
+      proto_tree *port_tree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_cmd_data, &port_item, "Port");
+
+      offset += dissect_cip_string_type(pinfo, port_tree, item, tvb, offset, hf_tcpip_port_name, CIP_SHORT_STRING_TYPE);
+
+      proto_tree_add_item(port_tree, hf_tcpip_port_number, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      offset += 2;
+
+      proto_tree_add_item(port_tree, hf_tcpip_port_protocol, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      offset++;
+
+      proto_tree_add_item(port_tree, hf_tcpip_port_admin_state, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      offset++;
+
+      proto_tree_add_item(port_tree, hf_tcpip_port_admin_capability, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      offset++;
+   }
+
+   return offset - start_offset;
+}
+
+static int dissect_tcpip_port_admin(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+   int offset, int total_len _U_)
+{
+   return dissect_tcpip_port_information(pinfo, tree, item, tvb, offset);
+}
 
 attribute_info_t enip_attribute_vals[] = {
 
@@ -2170,6 +2223,7 @@ attribute_info_t enip_attribute_vals[] = {
    {0xF5, FALSE, 11, 10, "Last Conflict Detected",    cip_dissector_func,   NULL, dissect_tcpip_last_conflict},
    {0xF5, FALSE, 12, 11, "EtherNet/IP Quick Connect", cip_bool,             &hf_tcpip_quick_connect, NULL},
    {0xF5, FALSE, 13, 12, "Encapsulation Inactivity Timeout", cip_uint,      &hf_tcpip_encap_inactivity, NULL},
+   {0xF5, FALSE, 14, -1, "IANA Port Admin",           cip_dissector_func,   NULL, dissect_tcpip_port_admin },
 
     /* Ethernet Link Object (class attributes) */
    {0xF6, TRUE, 1, 0, CLASS_ATTRIBUTE_1_NAME, cip_uint, &hf_attr_class_revision, NULL },
@@ -3694,9 +3748,24 @@ proto_register_enip(void)
           FT_UINT32, BASE_DEC, VALS(enip_tcpip_status_acd_vals), 0x00000040,
           NULL, HFILL }},
 
+      { &hf_tcpip_acd_fault,
+        { "ACD Fault", "cip.tcpip.status.acd_fault",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000080,
+          NULL, HFILL }},
+
+      { &hf_tcpip_status_iana_port_admin_change,
+        { "IANA Port Admin Change Pending", "cip.tcpip.status.iana_port_admin",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000100,
+          NULL, HFILL }},
+
+      { &hf_tcpip_status_iana_protocol_admin_change,
+        { "IANA Protocol Admin Change Pending", "cip.tcpip.status.iana_protocol_admin",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000200,
+          NULL, HFILL }},
+
       { &hf_tcpip_status_reserved,
         { "Reserved", "cip.tcpip.status.reserved",
-          FT_UINT32, BASE_HEX, NULL, 0xFFFFFF80,
+          FT_UINT32, BASE_HEX, NULL, 0xFFFFFC00,
           NULL, HFILL }},
 
       { &hf_tcpip_config_cap,
@@ -3876,6 +3945,13 @@ proto_register_enip(void)
         { "Encapsulation Inactivity Timeout", "cip.tcpip.encap_inactivity",
           FT_UINT16, BASE_DEC, NULL, 0x0,
           NULL, HFILL }},
+
+      { &hf_tcpip_port_count, { "Port Count", "cip.tcpip.port_count", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
+      { &hf_tcpip_port_name, { "Port Name", "cip.tcpip.port_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
+      { &hf_tcpip_port_number, { "Port Number", "cip.tcpip.port_number", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+      { &hf_tcpip_port_protocol, { "Protocol", "cip.tcpip.protocol", FT_UINT8, BASE_DEC | BASE_EXT_STRING, &ipproto_val_ext, 0, NULL, HFILL } },
+      { &hf_tcpip_port_admin_state, { "Admin State", "cip.tcpip.admin_state", FT_BOOLEAN, BASE_NONE, TFS(&tfs_open_closed), 0, NULL, HFILL } },
+      { &hf_tcpip_port_admin_capability, { "Admin Capability", "cip.tcpip.admin_capability", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
 
       { &hf_elink_interface_speed,
         { "Interface Speed", "cip.elink.interface_speed",
@@ -4575,7 +4651,8 @@ proto_register_enip(void)
       &ett_security_profiles,
       &ett_iana_port_state_flags,
       &ett_connection_info,
-      &ett_connection_path_info
+      &ett_connection_path_info,
+      &ett_cmd_data
    };
 
    static ei_register_info ei[] = {
