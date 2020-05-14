@@ -22,7 +22,7 @@
  * http://cgit.osmocom.org/libosmocore/tree/include/osmocom/core/gsmtap.h
  *
  * Example programs generating GSMTAP data are airprobe
- * (http://airprobe.org/) or OsmocomBB (http://bb.osmocom.org/)
+ * (http://git.gnumonks.org/cgit/airprobe/) or OsmocomBB (http://bb.osmocom.org/)
  *
  * It has also been used for Tetra by the OsmocomTETRA project.
  * (http://tetra.osmocom.org/)

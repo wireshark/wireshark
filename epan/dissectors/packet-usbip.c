@@ -17,7 +17,7 @@
  *
  * See
  *
- *    https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/plain/Documentation/usb/usbip_protocol.txt
+ *    https://www.kernel.org/doc/Documentation/usb/usbip_protocol.txt
  */
 
 #include <config.h>
