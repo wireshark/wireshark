@@ -3302,7 +3302,7 @@ ssl_generate_pre_master_secret(SslDecryptSession *ssl_session,
         guint psk_len, pre_master_len;
 
         if (!ssl_psk || (ssl_psk[0] == 0)) {
-            ssl_debug_printf("%s: can't find pre-shared-key\n", G_STRFUNC);
+            ssl_debug_printf("%s: can't find pre-shared key\n", G_STRFUNC);
             return FALSE;
         }
 
@@ -9398,8 +9398,8 @@ ssl_common_register_dtls_alpn_dissector_table(const char *name,
 void
 ssl_common_register_options(module_t *module, ssl_common_options_t *options, gboolean is_dtls)
 {
-        prefs_register_string_preference(module, "psk", "Pre-Shared-Key",
-             "Pre-Shared-Key as HEX string. Should be 0 to 16 bytes.",
+        prefs_register_string_preference(module, "psk", "Pre-Shared Key",
+             "Pre-Shared Key as HEX string. Should be 0 to 16 bytes.",
              &(options->psk));
 
         if (is_dtls) {
