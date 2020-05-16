@@ -567,7 +567,8 @@ static int hf_pfcp_trace_information_session_trace_depth = -1;
 static int hf_pfcp_trace_information_length_list_interfaces = -1;
 static int hf_pfcp_trace_information_list_interfaces = -1;
 static int hf_pfcp_trace_information_length_ipaddress = -1;
-static int hf_pfcp_trace_information_ipaddress = -1;
+static int hf_pfcp_trace_information_ipv4 = -1;
+static int hf_pfcp_trace_information_ipv6 = -1;
 
 static int hf_pfcp_frame_route = -1;
 static int hf_pfcp_frame_routing = -1;
@@ -5763,7 +5764,7 @@ dissect_pfcp_trace_information(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     offset += length_trigger_events;
 
     /* m+1   Session Trace Depth */
-    proto_tree_add_item_ret_uint(tree, hf_pfcp_trace_information_session_trace_depth, tvb, offset, 1, ENC_BIG_ENDIAN, &length_trigger_events);
+    proto_tree_add_item(tree, hf_pfcp_trace_information_session_trace_depth, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
     /* m+2   Length of List of Interfaces */
@@ -5771,15 +5772,19 @@ dissect_pfcp_trace_information(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     offset += 1;
 
     /* (m+3) to p   List of Interfaces */
-    proto_tree_add_item(tree, hf_pfcp_trace_information_list_interfaces, tvb, offset, length_trigger_events, ENC_NA);
+    proto_tree_add_item(tree, hf_pfcp_trace_information_list_interfaces, tvb, offset, length_list_interfaces, ENC_NA);
     offset += length_list_interfaces;
 
     /* p+1   Length of IP address of Trace Collection Entity  */
     proto_tree_add_item_ret_uint(tree, hf_pfcp_trace_information_length_ipaddress, tvb, offset, 1, ENC_BIG_ENDIAN, &length_ipaddress);
     offset += 1;
 
-    /* (p+2) to q   IP Address */
-    proto_tree_add_item(tree, hf_pfcp_trace_information_ipaddress, tvb, offset, length_ipaddress, ENC_NA);
+    /* (p+2) to q   IP Address of Trace Collection Entity */
+    if (length_ipaddress == 4) {
+        proto_tree_add_item(tree, hf_pfcp_trace_information_ipv4, tvb, offset, length_ipaddress, ENC_NA);
+    } else if (length_ipaddress == 16) {
+        proto_tree_add_item(tree, hf_pfcp_trace_information_ipv6, tvb, offset, length_ipaddress, ENC_NA);
+    }
     offset += length_ipaddress;
 
     if (offset < length) {
@@ -11211,9 +11216,14 @@ proto_register_pfcp(void)
             FT_UINT8, BASE_DEC, NULL, 0,
             NULL, HFILL }
         },
-        { &hf_pfcp_trace_information_ipaddress,
-        { "IP Address", "pfcp.trace_information.ipaddress",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
+        { &hf_pfcp_trace_information_ipv4,
+        { "IP Address of Trace Collection Entity", "pfcp.trace_information.ipv4",
+            FT_IPv4, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_trace_information_ipv6,
+        { "IP Address of Trace Collection Entity", "pfcp.trace_information.ipv6",
+            FT_IPv6, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
 
