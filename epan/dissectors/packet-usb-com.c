@@ -479,7 +479,6 @@ dissect_usb_com_descriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                     k_device_address = usb_conv_info->device_address;
                     k_frame_number = pinfo->num;
 
-                    offset = 3;
                     control_item = proto_tree_add_item_ret_uint(subtree, hf_usb_com_descriptor_control_interface, tvb, offset, 1, ENC_LITTLE_ENDIAN, &master);
 
                     if (master != usb_conv_info->interfaceNum) {
