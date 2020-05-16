@@ -5388,8 +5388,8 @@ static void dissect_pfcp_ethertype(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 {
     int offset = 0;
 
-    proto_tree_add_item(tree, hf_pfcp_ethertype, tvb, offset, 1, ENC_NA);
-    offset += 1;
+    proto_tree_add_item(tree, hf_pfcp_ethertype, tvb, offset, 2, ENC_NA);
+    offset += 2;
 
     if (offset < length) {
         proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
