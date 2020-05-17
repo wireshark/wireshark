@@ -324,11 +324,11 @@
     </message>
     <message>
         <source>LE ISO MTU</source>
-        <translation type="unfinished"></translation>
+        <translation>LE ISO MTU</translation>
     </message>
     <message>
         <source>LE ISO Total Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Всего пакетов LE ISO</translation>
     </message>
     <message>
         <source>Inquiry Mode</source>
@@ -1220,7 +1220,7 @@
     </message>
     <message>
         <source>Monitor Mode</source>
-        <translation>Режим Мониторинга</translation>
+        <translation>Режим Монитора</translation>
     </message>
     <message>
         <source>Capture Filter</source>
@@ -1268,7 +1268,7 @@
     </message>
     <message>
         <source>Browse…</source>
-        <translation>Просмотр...</translation>
+        <translation>Открыть...</translation>
     </message>
     <message>
         <source>Output format:</source>
@@ -1336,20 +1336,21 @@
     </message>
     <message>
         <source>when time is a multiple of</source>
-        <translation type="unfinished"></translation>
+        <translation>когда время кратно</translation>
     </message>
     <message>
         <source>Switch to the next file when the (wall clock) time is an even multiple of the specified interval.
 For example, use 1 hour to have a new file created every hour on the hour.</source>
-        <translation type="unfinished"></translation>
+        <translation>Переключить на следующий файл, когда время (настенных часов) превысит указанный интервал.
+Например, используйте 1 час, чтобы получить новый файл, который создаётся на 1 час каждый час работы.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;After capturing has switched to the next file and the given number of files has exceeded, the oldest file will be removed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Если после переключения записи данных на следующий файл указанное число файлов будет превышено, самый старый файл будет удалён.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Use a ring buffer with </source>
-        <translation type="unfinished"></translation>
+        <translation>Использовать кольцевой буфер с</translation>
     </message>
     <message>
         <source>files</source>
@@ -1365,7 +1366,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Using this option will show the captured packets immediately on the main screen. Please note: this will slow down capturing, so increased packet drops might appear.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Использование этой опции позволит показывать захваченные пакеты немедленно на главном экране. Обратите внимание: это уменьшит скорость захвата, поэтому может увеличиться потеря пакетов.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Update list of packets in real-time</source>
@@ -1373,7 +1374,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This will scroll the &amp;quot;Packet List&amp;quot; automatically to the latest captured packet, when the &amp;quot;Update list of packets in real-time&amp;quot; option is used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Это позволит прокручивать &amp;quot;Список Пакетов&amp;quot; автоматически к последнему захваченному пакету, когда &amp;quot;Опция обновления списка пакетов в реальном времени &amp;quot; включена.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Automatically scroll during live capture</source>
@@ -1381,11 +1382,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show the capture info dialog while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Показывать диалоговую информацию о захвате во время захвата.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Show capture information during live capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Показывать информацию о захвате при захвате в реальном времени</translation>
     </message>
     <message>
         <source>Name Resolution</source>
@@ -1393,7 +1394,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Perform MAC layer name resolution while capturing.</source>
-        <translation type="unfinished"></translation>
+        <translation>Выполнять разрешение имён MAC-уровня во время захвата.</translation>
     </message>
     <message>
         <source>Resolve MAC addresses</source>
@@ -1401,7 +1402,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perform network layer name resolution while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Выполнять разрешение имён сетевого уровня во время захвата.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Resolve network names</source>
@@ -1409,7 +1410,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Perform transport layer name resolution while capturing.</source>
-        <translation type="unfinished"></translation>
+        <translation>Выполнять разрешение имён транспортного уровня во время захвата.</translation>
     </message>
     <message>
         <source>Resolve transport names</source>
@@ -1421,11 +1422,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified number of packets have been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Остановить захват после достижения указанного числа захваченных пакетов.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Stop capturing after the specified number of packets have been captured.</source>
-        <translation type="unfinished"></translation>
+        <translation>Остановить захват после достижения указанного числа захваченных пакетов.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified number of files have been created.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1437,11 +1438,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Stop capturing after the specified amount of data has been captured.</source>
-        <translation type="unfinished"></translation>
+        <translation>Остановить захват после достижения указанного объёма захваченных данных.</translation>
     </message>
     <message>
         <source>Stop capturing after the specified amount of time has passed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Прекратить захват после окончания указанного времени.</translation>
     </message>
     <message>
         <source>Capture Options</source>
@@ -1461,7 +1462,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>%1: %2</source>
-        <translation type="unfinished">%1: %2</translation>
+        <translation>%1: %2</translation>
     </message>
     <message>
         <source>Addresses</source>
@@ -1473,7 +1474,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>no addresses</source>
-        <translation type="unfinished"></translation>
+        <translation>нет адресов</translation>
     </message>
     <message>
         <source>Error</source>
@@ -1481,15 +1482,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Multiple files: Requested filesize too large. The filesize cannot be greater than 2 GiB.</source>
-        <translation type="unfinished"></translation>
+        <translation>Множество файлов: Запрошенный размер файла слишком велик. Размер файла не может превышать 2 ГиБ.</translation>
     </message>
     <message>
         <source>Multiple files: No capture file name given. You must specify a filename if you want to use multiple files.</source>
-        <translation type="unfinished"></translation>
+        <translation>Множество файлов: Не указано имя файла захвата. Вы должны указать имя файла, если хотите использовать множество файлов.</translation>
     </message>
     <message>
         <source>Multiple files: No file limit given. You must specify a file size, interval, or number of packets for each file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Множество файлов: Не указано ограничение для файла. Вы должны указать размер файла, интервал или число пакетов для каждого файла.</translation>
     </message>
 </context>
 <context>
@@ -1727,7 +1728,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Field Occurence</source>
-        <translation type="unfinished"></translation>
+        <translation>Вхождение Поля</translation>
     </message>
     <message>
         <source>New Column</source>
@@ -1750,7 +1751,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Show displayed columns only</source>
-        <translation type="unfinished"></translation>
+        <translation>Показать только отображенные столбцы</translation>
     </message>
     <message>
         <source>Reset all changes</source>
@@ -1823,11 +1824,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>CredentialsDialog</name>
     <message>
         <source>Wireshark - Credentials</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark - Учетные данные</translation>
     </message>
     <message>
         <source>Credentials</source>
-        <translation type="unfinished"></translation>
+        <translation>Учетные данные</translation>
     </message>
 </context>
 <context>
@@ -2017,7 +2018,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Left align buttons</source>
-        <translation type="unfinished"></translation>
+        <translation>Выравнять кнопки по левой границе</translation>
     </message>
     <message>
         <source>Display Filter Expression</source>
@@ -2306,7 +2307,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished">Имя</translation>
+        <translation>Имя</translation>
     </message>
     <message>
         <source>Address</source>
@@ -2593,7 +2594,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>ExtcapArgumentFileSelection</name>
     <message>
         <source>Clear</source>
-        <translation type="unfinished"></translation>
+        <translation>Очистить</translation>
     </message>
     <message>
         <source>All Files (</source>
@@ -2605,7 +2606,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Select File</source>
-        <translation type="unfinished"></translation>
+        <translation>Выбрать файл</translation>
     </message>
 </context>
 <context>
@@ -2710,7 +2711,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Not Selected</source>
-        <translation type="unfinished">Не Выбрано</translation>
+        <translation>Не Выбрано</translation>
     </message>
 </context>
 <context>
@@ -3015,11 +3016,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>macOS Extras</source>
-        <translation type="unfinished"></translation>
+        <translation>macOS Extras</translation>
     </message>
     <message>
         <source>Extra macOS packages</source>
-        <translation type="unfinished"></translation>
+        <translation>Пакеты Extra macOS</translation>
     </message>
     <message>
         <source>Name</source>
@@ -3164,10 +3165,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message numerus="yes">
         <source>%Ln total sub stream(s).</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln подпоток(ов).</numerusform>
+            <numerusform>%Ln подпоток(ов).</numerusform>
+            <numerusform>%Ln подпоток(ов).</numerusform>
         </translation>
     </message>
     <message>
@@ -3252,11 +3253,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>System Default</source>
-        <translation type="unfinished"></translation>
+        <translation>Системный</translation>
     </message>
     <message>
         <source>Solid</source>
-        <translation type="unfinished"></translation>
+        <translation>Заливка</translation>
     </message>
     <message>
         <source>Sample ignored packet text</source>
@@ -3528,7 +3529,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 
 &lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;Перейти к пакету под курсором&lt;/td&gt;&lt;/th&gt;
 
-&lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;Переключить мышь на перетягивание / масштабирование&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;Переключить мышь на перетягивание / масштаб&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;t&lt;/th&gt;&lt;td&gt;Переключить начальное время захвата / сессии&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;Пробел&lt;/th&gt;&lt;td&gt;Переключить перекрестье&lt;/td&gt;&lt;/th&gt;
 
@@ -3703,7 +3704,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Toggle mouse drag / zoom behavior</source>
-        <translation>Переключать режим работы мыши: перетягивание / зуммирование</translation>
+        <translation>Переключать режим работы мыши: перетягивание / масштаб</translation>
     </message>
     <message>
         <source>Z</source>
@@ -4175,7 +4176,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Browse…</source>
         <oldsource>Browse...</oldsource>
-        <translation>Просмотр...</translation>
+        <translation>Открыть...</translation>
     </message>
     <message>
         <source>Offsets in the text file are in octal notation</source>
@@ -4446,15 +4447,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;p&gt;Local interfaces are unavailable because no packet capture driver is installed.&lt;/p&gt;&lt;p&gt;You can fix this by installing &lt;a href=&quot;https://nmap.org/npcap/&quot;&gt;Npcap&lt;/a&gt; or &lt;a href=&quot;https://www.winpcap.org/install/default.htm&quot;&gt;WinPcap&lt;/a&gt;.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>Локальные интерфейсы недоступны, потому что драйвер захвата пакетов не загружен.&lt;p&gt;Вы можете исправить это, установив &lt;a href=&quot;https://nmap.org/npcap/&quot;&gt;Npcap&lt;/a&gt; или &lt;a href=&quot;https://www.winpcap.org/install/default.htm&quot;&gt;WinPcap&lt;/a&gt;.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;Local interfaces are unavailable because the packet capture driver isn&apos;t loaded.&lt;/p&gt;&lt;p&gt;You can fix this by running &lt;pre&gt;net start npcap&lt;/pre&gt; if you have Npcap installed or &lt;pre&gt;net start npf&lt;/pre&gt; if you have WinPcap installed. Both commands must be run as Administrator.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Локальные интерфейсы недоступны, потому что драйвер захвата пакетов не загружен.&lt;/p&gt;&lt;p&gt;Вы можете исправить это командой &lt;pre&gt;net start npcap&lt;/pre&gt;если у Вас установлен Npcap или командой &lt;pre&gt;net start npf&lt;/pre&gt; в случае WinPcap. Обе команды должны быть запущены от имени Администратора.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;You don&apos;t have permission to capture on local interfaces.&lt;/p&gt;&lt;p&gt;You can fix this by &lt;a href=&quot;file://%1&quot;&gt;installing ChmodBPF&lt;/a&gt;.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Вы не имеете  разрешения выполнять захват на локальных интерфейсах.&lt;/p&gt;&lt;p&gt;Вы можете &lt;a href=&quot;file://%1&quot;&gt;установить ChmodBPF, чтобы исправить это&lt;/a&gt;.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>You don&apos;t have permission to capture on local interfaces.</source>
@@ -4550,7 +4551,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Monitor Mode</source>
-        <translation>Режим Мониторинга</translation>
+        <translation>Режим Монитора</translation>
     </message>
     <message>
         <source>Capture Filter</source>
@@ -5443,7 +5444,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Show column definition in column context menu</source>
-        <translation type="unfinished"></translation>
+        <translation>Показывать определение столбца в контекстом меню столбца</translation>
     </message>
     <message>
         <source>Status Bar settings:</source>
@@ -5526,7 +5527,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 
 &lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;Перейти к пакету под курсором&lt;/td&gt;&lt;/th&gt;
 
-&lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;Переключить мышь на перетягивание / масштабирование&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;Переключить мышь на перетягивание / масштаб&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;t&lt;/th&gt;&lt;td&gt;Переключить начальное время захвата / сессии&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;Пробел&lt;/th&gt;&lt;td&gt;Переключить перекрестье&lt;/td&gt;&lt;/th&gt;
 
@@ -5671,7 +5672,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Toggle mouse drag / zoom behavior</source>
-        <translation>Переключать режим работы мыши: перетягивание / зуммирование</translation>
+        <translation>Переключать режим работы мыши: перетягивание / масштаб</translation>
     </message>
     <message>
         <source>Z</source>
@@ -5956,10 +5957,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message numerus="yes">
         <source>%Ln byte(s)</source>
         <oldsource>, %1 bytes</oldsource>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln байт</numerusform>
+            <numerusform>%Ln байт</numerusform>
+            <numerusform>%Ln байт</numerusform>
         </translation>
     </message>
     <message>
@@ -5981,7 +5982,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source> %1 Selected: %2 (%3%)</source>
-        <translation type="unfinished"></translation>
+        <translation> %1 Выбраны: %2 (%3%)</translation>
     </message>
     <message>
         <source> %1 Marked: %2 (%3%)</source>
@@ -5998,7 +5999,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source> %1 Comments: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 Комментарии: %2</translation>
     </message>
     <message>
         <source> %1  Load time: %2:%3.%4</source>
@@ -6022,11 +6023,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>selected personal profile</source>
-        <translation type="unfinished"></translation>
+        <translation>выбранный личный профиль</translation>
     </message>
     <message>
         <source>all personal profiles</source>
-        <translation type="unfinished"></translation>
+        <translation>все личные профили</translation>
     </message>
     <message>
         <source>Packets: %1</source>
@@ -6599,7 +6600,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>&amp;Mark/Unmark Packet(s)</source>
         <oldsource>&amp;Mark/Unmark Packet</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Выполнить/Отменить Пометку Пакета</translation>
     </message>
     <message>
         <source>Mark All Displayed</source>
@@ -6632,7 +6633,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>&amp;Ignore/Unignore Packet(s)</source>
         <oldsource>&amp;Ignore/Unignore Packet</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Игнорировать/Отменить Игнорирование Пакета</translation>
     </message>
     <message>
         <source>Ignore All Displayed</source>
@@ -7092,11 +7093,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Display Filter &amp;Expression…</source>
-        <translation type="unfinished"></translation>
+        <translation>Показать Дисплейный &amp;Фильтр…</translation>
     </message>
     <message>
         <source>Display Filter Expression…</source>
-        <translation>Выражение Дисплейного Фильтра</translation>
+        <translation>Показать Дисплейный Фильтр…</translation>
     </message>
     <message>
         <source>No GSM statistics registered</source>
@@ -7160,7 +7161,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Credentials</source>
-        <translation type="unfinished"></translation>
+        <translation>Учетные данные</translation>
     </message>
     <message>
         <source>&amp;Options…</source>
@@ -7180,15 +7181,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>As Plain &amp;Text</source>
-        <translation type="unfinished"></translation>
+        <translation>Как Обычный &amp;Текст</translation>
     </message>
     <message>
         <source>As &amp;CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>Как &amp;CSV</translation>
     </message>
     <message>
         <source>As &amp;YAML</source>
-        <translation type="unfinished"></translation>
+        <translation>Как &amp;YAML</translation>
     </message>
     <message>
         <source>All Visible Items</source>
@@ -7216,19 +7217,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Mark or unmark each selected packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Пометить / отменить пометку всех выбранных пакетов</translation>
     </message>
     <message>
         <source>Ignore or unignore each selected packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Игнорировать / перестать игнорировать все выбранные пакеты</translation>
     </message>
     <message>
         <source>U&amp;nignore All Displayed</source>
-        <translation type="unfinished"></translation>
+        <translation>Н&amp;е Игнорировать Все Показанные</translation>
     </message>
     <message>
         <source>Unignore all displayed packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Перестать игнорировать все отображенные пакеты</translation>
     </message>
     <message>
         <source>Time Shift…</source>
@@ -8062,7 +8063,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Browse…</source>
         <oldsource>Browse...</oldsource>
-        <translation>Просмотр...</translation>
+        <translation>Открыть...</translation>
     </message>
     <message>
         <source>The most recently used folder</source>
@@ -8110,15 +8111,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Custom window title to be appended to the existing title&lt;br/&gt;%F = file path of the capture file&lt;br/&gt;%P = profile name&lt;br/&gt;%S = a conditional separator (&amp;quot; - &amp;quot;) that only shows when surrounded by variables with values or static text&lt;br/&gt;%V = version info&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Кастомное название будет добавлено после существующего заголовка&lt;br/&gt;%F = путь к файлу захвата&lt;br/&gt;%P = имя профиля&lt;br/&gt;%S = условный сепаратор (&amp;quot; - &amp;quot;) который только появляется, если окружен переменными со значениями или статическим текстом&lt;br/&gt;%V = информация о версии&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Prepend window title</source>
-        <translation type="unfinished"></translation>
+        <translation>Добавить перед заголовком окна</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Custom window title to be prepended to the existing title&lt;br/&gt;%F = file path of the capture file&lt;br/&gt;%P = profile name&lt;br/&gt;%S = a conditional separator (&amp;quot; - &amp;quot;) that only shows when surrounded by variables with values or static text&lt;br/&gt;%V = version info&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Кастомное название будет добавлено перед существующим заголовком&lt;br/&gt;%F = путь к файлу захвата&lt;br/&gt;%P = имя профиля&lt;br/&gt;%S = условный сепаратор (&amp;quot; - &amp;quot;) который только появляется, если окружен переменными со значениями или статическим текстом&lt;br/&gt;%V = информация о версии&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Language: </source>
@@ -8551,11 +8552,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Column Preferences</source>
-        <translation type="unfinished"></translation>
+        <translation>Настройки Столбца</translation>
     </message>
     <message>
         <source>Edit Column</source>
-        <translation type="unfinished"></translation>
+        <translation>Редактировать Столбец</translation>
     </message>
     <message>
         <source>Resize to Contents</source>
@@ -8563,23 +8564,23 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Resize Column to Width</source>
-        <translation type="unfinished"></translation>
+        <translation>Изменить размер столбцов по ширине</translation>
     </message>
     <message>
         <source>Resolve Names</source>
-        <translation type="unfinished"></translation>
+        <translation>Разрешить Имена</translation>
     </message>
     <message>
         <source>Remove this Column</source>
-        <translation type="unfinished"></translation>
+        <translation>Удалить этот Столбец</translation>
     </message>
     <message>
         <source>Column %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Столбец %1</translation>
     </message>
     <message>
         <source>Width:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ширина:</translation>
     </message>
 </context>
 <context>
@@ -8690,7 +8691,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished">Имя</translation>
+        <translation>Имя</translation>
     </message>
     <message>
         <source>Port</source>
@@ -8698,7 +8699,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished">Тип</translation>
+        <translation>Тип</translation>
     </message>
 </context>
 <context>
@@ -8739,7 +8740,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>PrefsModel</name>
     <message>
         <source>Advanced</source>
-        <translation>Улучшенный</translation>
+        <translation>Дополнительно</translation>
     </message>
     <message>
         <source>Appearance</source>
@@ -8825,7 +8826,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>ProfileDialog</name>
     <message>
         <source>Search for profile …</source>
-        <translation type="unfinished"></translation>
+        <translation>Искать профиль …</translation>
     </message>
     <message>
         <source>Create a new profile using default settings.</source>
@@ -8833,7 +8834,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove this profile. System provided profiles cannot be removed. The default profile will be reset upon deletion.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Удалить этот профиль. Системные профили не могут быть удалены. Профиль по умолчанию будет установлен при удалении.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Copy this profile.</source>
@@ -8846,12 +8847,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Import</source>
         <comment>noun</comment>
-        <translation type="unfinished">Импорт</translation>
+        <translation>Импорт</translation>
     </message>
     <message>
         <source>Export</source>
         <comment>noun</comment>
-        <translation type="unfinished">Экспорт</translation>
+        <translation>Экспорт</translation>
     </message>
     <message>
         <source>New profile</source>
@@ -8863,55 +8864,63 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Exporting profiles</source>
-        <translation type="unfinished"></translation>
+        <translation>Экспортирование профилей</translation>
     </message>
     <message>
         <source>No profiles found for export</source>
-        <translation type="unfinished"></translation>
+        <translation>Профили для экспорта не найдены</translation>
     </message>
     <message>
         <source>Select zip file for export</source>
-        <translation type="unfinished"></translation>
+        <translation>Выбрать zip файл для экспорта</translation>
+    </message>
+    <message numerus="yes">
+        <source>… %Ln selected personal profile(s)</source>
+        <translation type="vanished">
+            <numerusform>… %Ln выбранный личный профиль</numerusform>
+            <numerusform>… %Ln выбранных личных профиля</numerusform>
+            <numerusform>… %Ln выбранных личных профиля</numerusform>
+        </translation>
     </message>
     <message numerus="yes">
         <source>%Ln selected personal profile(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln выбранный личный профиль</numerusform>
+            <numerusform>%Ln выбранных личных профиля</numerusform>
+            <numerusform>%Ln выбранных личных профиля</numerusform>
         </translation>
     </message>
     <message>
         <source>An import of profiles is not allowed, while changes are pending</source>
-        <translation type="unfinished"></translation>
+        <translation>Нельзя импортировать профили, когда происходят изменения</translation>
     </message>
     <message>
         <source>An import is pending to be saved. Additional imports are not allowed</source>
-        <translation type="unfinished"></translation>
+        <translation>Происходит импортирование. Дополнительные импорты невозможны.</translation>
     </message>
     <message>
         <source>An export of profiles is only allowed for personal profiles</source>
-        <translation type="unfinished"></translation>
+        <translation>Экспорт профиля доступен только для личных профилей</translation>
     </message>
     <message>
         <source>An export of profiles is not allowed, while changes are pending</source>
-        <translation type="unfinished"></translation>
+        <translation>Нельзя экспортировать профили, когда происходят изменения</translation>
     </message>
     <message numerus="yes">
         <source>%Ln profile(s) exported</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln профиль экспортирован.</numerusform>
+            <numerusform>%Ln профилей экспортировано</numerusform>
+            <numerusform>%Ln профилей экспортировано</numerusform>
         </translation>
     </message>
     <message>
         <source>Select zip file for import</source>
-        <translation type="unfinished"></translation>
+        <translation>Выбрать zip файл для импорта</translation>
     </message>
     <message>
         <source>Select directory for import</source>
-        <translation type="unfinished"></translation>
+        <translation>Выбрать папку для импорта</translation>
     </message>
     <message>
         <source>Zip File (*.zip)</source>
@@ -8923,11 +8932,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>from directory</source>
-        <translation type="unfinished">из каталога</translation>
+        <translation>из каталога</translation>
     </message>
     <message>
         <source>all personal profiles</source>
-        <translation type="unfinished"></translation>
+        <translation>все личные профили</translation>
     </message>
     <message>
         <source>Error</source>
@@ -8935,31 +8944,31 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>An error has occurred while exporting profiles</source>
-        <translation type="unfinished"></translation>
+        <translation>Произошла ошибка при экспорте профилей</translation>
     </message>
     <message>
         <source>No profiles found for import in %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Профили для импорта не найдены в %1</translation>
     </message>
     <message numerus="yes">
         <source>%Ln profile(s) imported</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln профиль импортирован</numerusform>
+            <numerusform>%Ln профилей импортировано</numerusform>
+            <numerusform>%Ln профилей импортировано</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>, %Ln profile(s) skipped</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>, %Ln профиль пропущен</numerusform>
+            <numerusform>, %Ln профилей пропущено</numerusform>
+            <numerusform>, %Ln профилей пропущено</numerusform>
         </translation>
     </message>
     <message>
         <source>Importing profiles</source>
-        <translation type="unfinished"></translation>
+        <translation>Импортирование профилей</translation>
     </message>
     <message numerus="yes">
         <source>%Ln profile(s) selected</source>
@@ -8974,43 +8983,43 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>ProfileModel</name>
     <message>
         <source>Resetting to default</source>
-        <translation type="unfinished"></translation>
+        <translation>Возврат к настройкам по умолчанию</translation>
     </message>
     <message>
         <source>Imported profile</source>
-        <translation type="unfinished"></translation>
+        <translation>Импортированный профиль</translation>
     </message>
     <message>
         <source>This is a system provided profile</source>
-        <translation>Это системный профиль.</translation>
+        <translation>Это системный профиль</translation>
     </message>
     <message>
         <source>A profile change for this name is pending</source>
-        <translation type="unfinished"></translation>
+        <translation>Для этого названия применяется изменение профиля</translation>
     </message>
     <message>
         <source> (See: %1)</source>
-        <translation type="unfinished"></translation>
+        <translation>(См.: %1`)</translation>
     </message>
     <message>
         <source>This is an invalid profile definition</source>
-        <translation type="unfinished"></translation>
+        <translation>Этот профиль неправильный</translation>
     </message>
     <message>
         <source>A profile already exists with this name</source>
-        <translation type="unfinished"></translation>
+        <translation>Профиль с таким именем уже существует</translation>
     </message>
     <message>
         <source>A profile with this name is being deleted</source>
-        <translation type="unfinished"></translation>
+        <translation>Профиль с таким именем удаляется</translation>
     </message>
     <message>
         <source>Created from default settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Создан из настроек по умолчанию</translation>
     </message>
     <message>
         <source>system provided</source>
-        <translation type="unfinished"></translation>
+        <translation>системный</translation>
     </message>
     <message>
         <source>deleted</source>
@@ -9023,23 +9032,23 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Exporting profiles while changes are pending is not allowed</source>
-        <translation type="unfinished"></translation>
+        <translation>Экспортировать профили, когда происходят изменения нельзя</translation>
     </message>
     <message>
         <source>No profiles found to export</source>
-        <translation type="unfinished"></translation>
+        <translation>Профили для экспорта не найдены</translation>
     </message>
     <message>
         <source>Can&apos;t delete profile directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Невозможно удалить каталог профиля</translation>
     </message>
     <message>
         <source>A profile name cannot contain the following characters: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Название профиля не может содержать следующие знаки: %1</translation>
     </message>
     <message>
         <source>A profile name cannot contain the &apos;/&apos; character</source>
-        <translation type="unfinished"></translation>
+        <translation>Название профиля не может содержать знак &apos;/&apos;</translation>
     </message>
     <message>
         <source>A profile cannot start or end with a period (.)</source>
@@ -9059,38 +9068,38 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Renamed from: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Переименовано из: %1</translation>
     </message>
     <message>
         <source>Copied from: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Скопировано из: %1</translation>
     </message>
     <message>
         <source>renamed to %1</source>
-        <translation type="unfinished"></translation>
+        <translation>переименовано в %1</translation>
     </message>
     <message>
         <source>Profile</source>
-        <translation type="unfinished"></translation>
+        <translation>Профиль</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished">Тип</translation>
+        <translation>Тип</translation>
     </message>
 </context>
 <context>
     <name>ProfileSortModel</name>
     <message>
         <source>All profiles</source>
-        <translation type="unfinished"></translation>
+        <translation>Все профили</translation>
     </message>
     <message>
         <source>Personal profiles</source>
-        <translation type="unfinished"></translation>
+        <translation>Личные профили</translation>
     </message>
     <message>
         <source>Global profiles</source>
-        <translation type="unfinished"></translation>
+        <translation>Глобальные профили</translation>
     </message>
 </context>
 <context>
@@ -9101,7 +9110,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>TextLabel</source>
-        <translation type="unfinished">Текстовая Метка</translation>
+        <translation>Текстовая Метка</translation>
     </message>
 </context>
 <context>
@@ -9116,7 +9125,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Collapse Subtrees</source>
-        <translation type="unfinished">Свернуть Подчинённые Деревья</translation>
+        <translation>Свернуть поддеревья</translation>
     </message>
     <message>
         <source>Expand All</source>
@@ -9132,11 +9141,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>All Visible Items</source>
-        <translation type="unfinished">Все Видимые Пункты</translation>
+        <translation>Все Видимые Объекты</translation>
     </message>
     <message>
         <source>All Visible Selected Tree Items</source>
-        <translation type="unfinished">Все Видимые Пункты Выбранного Дерева</translation>
+        <translation>Все Видимые Элементы Выбранного Дерева</translation>
     </message>
     <message>
         <source>Description</source>
@@ -9148,23 +9157,23 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Value</source>
-        <translation type="unfinished">Значение</translation>
+        <translation>Значение</translation>
     </message>
     <message>
         <source>As Filter</source>
-        <translation type="unfinished">Как Фильтр</translation>
+        <translation>Как Фильтр</translation>
     </message>
     <message>
         <source>Wiki Protocol Page</source>
-        <translation type="unfinished">Wiki-страница Протокола</translation>
+        <translation>Wiki-страница Протокола</translation>
     </message>
     <message>
         <source>Filter Field Reference</source>
-        <translation type="unfinished">Справка по Полю Фильтра</translation>
+        <translation>Справка по Полю Фильтра</translation>
     </message>
     <message>
         <source>Wiki Page for %1</source>
-        <translation type="unfinished">Страница Wiki для %1</translation>
+        <translation>Страница Wiki для %1</translation>
     </message>
     <message>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
@@ -9781,7 +9790,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Hosts</source>
-        <translation type="unfinished">Hosts</translation>
+        <translation>Hosts</translation>
     </message>
     <message>
         <source>Search for entry (min 3 characters)</source>
@@ -9797,7 +9806,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Capture File Comments</source>
-        <translation type="unfinished"></translation>
+        <translation>Комментарии в файле захвата</translation>
     </message>
     <message>
         <source>Comment</source>
@@ -10340,19 +10349,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Save was interrupted</source>
-        <translation type="unfinished"></translation>
+        <translation>Сохранение было прервано</translation>
     </message>
     <message>
         <source>Save or read of file was failed during saving</source>
-        <translation type="unfinished"></translation>
+        <translation>Сохранение или чтение файла не удалось при сохранении</translation>
     </message>
     <message>
         <source>Codec is not supported, file is incomplete</source>
-        <translation type="unfinished"></translation>
+        <translation>Кодек не поддерживается, файл не полон</translation>
     </message>
     <message>
         <source>Codec rate is not supported, file is incomplete</source>
-        <translation type="unfinished"></translation>
+        <translation>Битрейт кодека не поддерживается, файл не полон</translation>
     </message>
     <message>
         <source>Unknown error occured</source>
@@ -10490,7 +10499,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Play</source>
-        <translation type="unfinished"></translation>
+        <translation>Играть</translation>
     </message>
     <message>
         <source>Source Address</source>
@@ -10571,7 +10580,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 
 &lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;Перейти к пакету под курсором&lt;/td&gt;&lt;/th&gt;
 
-&lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;Переключить мышь на перетягивание / масштабирование&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;Переключить мышь на перетягивание / масштаб&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;t&lt;/th&gt;&lt;td&gt;Переключить начальное время захвата / сессии&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;Пробел&lt;/th&gt;&lt;td&gt;Переключить перекрестье&lt;/td&gt;&lt;/th&gt;
 
@@ -10713,7 +10722,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Toggle mouse drag / zoom behavior</source>
-        <translation>Переключать режим работы мыши: перетягивание / зуммирование</translation>
+        <translation>Переключать режим работы мыши: перетягивание / масштаб</translation>
     </message>
     <message>
         <source>Z</source>
@@ -10769,15 +10778,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Double click to change audio routing</source>
-        <translation type="unfinished"></translation>
+        <translation>Щелкните дважды, чтобы изменить аудио прохождение</translation>
     </message>
     <message>
         <source>Start: %1. Double click to set start of playback.</source>
-        <translation type="unfinished"></translation>
+        <translation>Начало: %1. Двойной клик, чтобы установить начало воспроизведения.</translation>
     </message>
     <message>
         <source>Start: %1, cursor: %2. Press &quot;G&quot; to go to packet %3. Double click to set start of playback.</source>
-        <translation type="unfinished"></translation>
+        <translation>Начало: %1, курсор: %2. Нажмите &quot;G&quot;, чтобы перейти к пакету %3. Двойной клик, чтобы установить начало воспроизведения.</translation>
     </message>
     <message>
         <source>Unknown</source>
@@ -11152,7 +11161,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Toggle mouse drag / zoom behavior</source>
-        <translation>Переключать режим работы мыши: перетягивание / зуммирование</translation>
+        <translation>Переключать режим работы мыши: перетягивание / масштаб</translation>
     </message>
     <message>
         <source>Z</source>
@@ -11766,7 +11775,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Searching for %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Поиск %1</translation>
     </message>
     <message>
         <source>No packet contained those bytes.</source>
@@ -12384,11 +12393,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>SyntaxLineEdit</name>
     <message>
         <source>&quot;%1&quot; is deprecated in favour of &quot;%2&quot;. See the User&apos;s Guide.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; устарел, используйте &quot;%2&quot;. См. Руководство Пользователя.</translation>
     </message>
     <message>
         <source>&quot;%1&quot; may have unexpected results. See the User&apos;s Guide.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; может приводить к непредсказуемым результатам. Cм. Руководство Пользователя.</translation>
     </message>
 </context>
 <context>
@@ -12501,7 +12510,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 &lt;tr&gt;&lt;th&gt;d&lt;/th&gt;&lt;td&gt;Переключить направление (поменять местами конечные точки TCP)&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;Перейти к пакету под курсором&lt;/td&gt;&lt;/th&gt;
 
-&lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;Переключить мышь на перетягивание / масштабирование&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;Переключить мышь на перетягивание / масштаб&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;s&lt;/th&gt;&lt;td&gt;Переключить относительные / абсолютные номера последовательностей&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;t&lt;/th&gt;&lt;td&gt;Переключить начальное время захвата / сессии&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;Space&lt;/th&gt;&lt;td&gt;Переключить перекрестье&lt;/td&gt;&lt;/th&gt;
@@ -12762,7 +12771,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Toggle mouse drag / zoom behavior</source>
-        <translation>Переключать режим работы мыши: перетягивание / зуммирование</translation>
+        <translation>Переключать режим работы мыши: перетягивание / масштаб</translation>
     </message>
     <message>
         <source>Z</source>
@@ -13257,7 +13266,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Display time as time of day</source>
-        <translation type="unfinished"></translation>
+        <translation>Показывать время как время дня </translation>
     </message>
     <message>
         <source>Copy as CSV</source>
