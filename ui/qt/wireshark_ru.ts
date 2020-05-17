@@ -1280,7 +1280,7 @@
     </message>
     <message>
         <source>Monitor Mode</source>
-        <translation>Режим Мониторинга</translation>
+        <translation>Режим Монитора</translation>
     </message>
     <message>
         <source>Enable promiscuous mode on all interfaces</source>
@@ -3297,7 +3297,7 @@ PLEASE NOTE: One option MUST be selected.</source>
 
 &lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;Перейти к пакету под курсором&lt;/td&gt;&lt;/th&gt;
 
-&lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;Переключить мышь на перетягивание / масштабирование&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;Переключить мышь на перетягивание / масштаб&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;t&lt;/th&gt;&lt;td&gt;Переключить начальное время захвата / сессии&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;Пробел&lt;/th&gt;&lt;td&gt;Переключить перекрестье&lt;/td&gt;&lt;/th&gt;
 
@@ -3331,7 +3331,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>drags</source>
-        <translation>перетягивания</translation>
+        <translation>перетягивание</translation>
     </message>
     <message>
         <source>Select using the mouse button.</source>
@@ -3339,7 +3339,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>zooms</source>
-        <translation>масштабы</translation>
+        <translation>масштаб</translation>
     </message>
     <message>
         <source>Interval</source>
@@ -3472,7 +3472,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Toggle mouse drag / zoom behavior</source>
-        <translation>Переключать режим работы мыши: перетягивание / зуммирование</translation>
+        <translation>Переключать режим работы мыши: перетягивание / масштаб</translation>
     </message>
     <message>
         <source>Z</source>
@@ -4291,7 +4291,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Monitor Mode</source>
-        <translation>Режим Мониторинга</translation>
+        <translation>Режим Монитора</translation>
     </message>
     <message>
         <source>Capture Filter</source>
@@ -5263,7 +5263,7 @@ PLEASE NOTE: One option MUST be selected.</source>
 
 &lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;Перейти к пакету под курсором&lt;/td&gt;&lt;/th&gt;
 
-&lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;Переключить мышь на перетягивание / масштабирование&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;Переключить мышь на перетягивание / масштаб&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;t&lt;/th&gt;&lt;td&gt;Переключить начальное время захвата / сессии&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;Пробел&lt;/th&gt;&lt;td&gt;Переключить перекрестье&lt;/td&gt;&lt;/th&gt;
 
@@ -5280,7 +5280,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>drags</source>
-        <translation>перетягивания</translation>
+        <translation>перетягивание</translation>
     </message>
     <message>
         <source>Select using the mouse button.</source>
@@ -5288,7 +5288,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>zooms</source>
-        <translation>масштабы</translation>
+        <translation>масштаб</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Reset the graph to its initial state.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -5408,7 +5408,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Toggle mouse drag / zoom behavior</source>
-        <translation>Переключать режим работы мыши: перетягивание / зуммирование</translation>
+        <translation>Переключать режим работы мыши: перетягивание / масштаб</translation>
     </message>
     <message>
         <source>Z</source>
@@ -6945,7 +6945,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>U&amp;nignore All Displayed</source>
-        <translation type="unfinished"></translation>
+        <translation>Н&amp;е Игнорировать Все Показанные</translation>
     </message>
     <message>
         <source>Unignore all displayed packets</source>
@@ -8407,7 +8407,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Advanced</source>
         <extracomment>Names of special preferences handled by the GUI</extracomment>
-        <translation>Улучшенный</translation>
+        <translation>Дополнительно</translation>
     </message>
     <message>
         <source>Appearance</source>
@@ -9995,7 +9995,7 @@ PLEASE NOTE: One option MUST be selected.</source>
 
 &lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;Перейти к пакету под курсором&lt;/td&gt;&lt;/th&gt;
 
-&lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;Переключить мышь на перетягивание / масштабирование&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;Переключить мышь на перетягивание / масштаб&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;t&lt;/th&gt;&lt;td&gt;Переключить начальное время захвата / сессии&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;Пробел&lt;/th&gt;&lt;td&gt;Переключить перекрестье&lt;/td&gt;&lt;/th&gt;
 
@@ -10137,7 +10137,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Toggle mouse drag / zoom behavior</source>
-        <translation>Переключать режим работы мыши: перетягивание / зуммирование</translation>
+        <translation>Переключать режим работы мыши: перетягивание / масштаб</translation>
     </message>
     <message>
         <source>Z</source>
@@ -10568,7 +10568,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Toggle mouse drag / zoom behavior</source>
-        <translation>Переключать режим работы мыши: перетягивание / зуммирование</translation>
+        <translation>Переключать режим работы мыши: перетягивание / масштаб</translation>
     </message>
     <message>
         <source>Z</source>
@@ -11913,7 +11913,7 @@ PLEASE NOTE: One option MUST be selected.</source>
 &lt;tr&gt;&lt;th&gt;d&lt;/th&gt;&lt;td&gt;Переключить направление (поменять местами конечные точки TCP)&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;Перейти к пакету под курсором&lt;/td&gt;&lt;/th&gt;
 
-&lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;Переключить мышь на перетягивание / масштабирование&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;Переключить мышь на перетягивание / масштаб&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;s&lt;/th&gt;&lt;td&gt;Переключить относительные / абсолютные номера последовательностей&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;t&lt;/th&gt;&lt;td&gt;Переключить начальное время захвата / сессии&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;Space&lt;/th&gt;&lt;td&gt;Переключить перекрестье&lt;/td&gt;&lt;/th&gt;
@@ -11970,7 +11970,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>drags</source>
-        <translation>перетягивания</translation>
+        <translation>перетягивание</translation>
     </message>
     <message>
         <source>Select using the mouse button.</source>
@@ -11978,7 +11978,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>zooms</source>
-        <translation>масштабы</translation>
+        <translation>масштаб</translation>
     </message>
     <message>
         <source>Display Round Trip Time vs Sequence Number</source>
@@ -12174,7 +12174,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Toggle mouse drag / zoom behavior</source>
-        <translation>Переключать режим работы мыши: перетягивание / зуммирование</translation>
+        <translation>Переключать режим работы мыши: перетягивание / масштаб</translation>
     </message>
     <message>
         <source>Z</source>
