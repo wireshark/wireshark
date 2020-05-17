@@ -5812,6 +5812,7 @@ iclid		18242/tcp	# Checkpoint router monitoring
 clusterxl	18243/tcp	# Checkpoint router state backup
 gv-pf		18262/tcp/udp	# GV NetConfig Service
 ac-cluster	18463/tcp/udp	# AC Cluster
+heythings	18516/udp	# HeyThings Device communicate service
 rds-ib		18634/tcp/udp	# Reliable Datagram Service
 rds-ip		18635/tcp/udp	# Reliable Datagram Service over IP
 vdmmesh		18668/tcp	# Manufacturing Execution Systems Mesh Communication
