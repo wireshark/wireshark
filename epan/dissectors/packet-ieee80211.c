@@ -7650,6 +7650,51 @@ static const value_string nai_realm_encoding_vals[] = {
   { 0, NULL }
 };
 
+static const range_string hs20_oper_class_rvals[] = {
+  {   0,   0, "Unknown" }, /* 0 should not be used */
+  {   1,  80, "Reserved" },
+  {  81,  81, "2.407 GHz, Channels 1-13, 25 MHz Spacing" },
+  {  82,  82, "2.414 GHz, Channel 14, 25 MHz Spacing" },
+  {  83,  83, "2.407 GHz, Channels 1-9, 40 MHz Spacing" },
+  {  84,  84, "2.407 GHz, Channels 5-13, 40 MHz Spacing" },
+  {  85,  93, "Reserved" },
+  {  94,  94, "3.0 GHz, Channels 133 and 137, 20 MHz Spacing" },
+  {  95,  95, "3.0 GHz, Channels 132, 134, 136, and 138, 10 MHz Spacing" },
+  {  96,  96, "3.0025 GHz, Channels 131-138, 5 MHz Spacing" },
+  {  97, 100, "Reserved" },
+  { 101, 101, "4.85 GHz, Channels 21 and 25, 20 MHz Spacing" },
+  { 102, 102, "4.89 GHz, Channels 11, 13, 15, 17, and 19, 10 MHz Spacing" },
+  { 103, 103, "4.9375 GHz, Channels 1-10, 5 MHz Spacing" },
+  { 104, 104, "4.0 GHz, Channels 184 and 192, 40 MHz Spacing" },
+  { 105, 105, "4.0 GHz, Channels 188 and 196, 40 MHz Spacing" },
+  { 106, 106, "4.0 GHz, Channels 191 and 195, 20 MHz Spacing" },
+  { 107, 107, "4.0 GHz, Channels 189, 191, 193, 195, and 197, 10 MHz Spacing" },
+  { 108, 108, "4.0025 GHz, Channels 188-197, 5 MHz Spacing" },
+  { 109, 109, "4.0 GHz, Channels 184, 188, 192, and 196, 20 MHz Spacing" },
+  { 110, 110, "4.0 GHz, Channels 183-189, 10 MHz Spacing" },
+  { 111, 111, "4.0025 GHz, Channels 182-189, 5 MHz Spacing" },
+  { 112, 112, "5.0 GHz, Channels 8, 12, and 16, 20 MHz Spacing" },
+  { 113, 113, "5.0 GHz, Channels 7-11, 10 MHz Spacing" },
+  { 114, 114, "5.0 GHz, Channels 6-11, 5 MHz Spacing" },
+  { 115, 115, "5.0 GHz, Channels 36, 40, 44, and 48, 20 MHz Spacing" },
+  { 116, 116, "5.0 GHz, Channels 36 and 44, 40 MHz Spacing" },
+  { 117, 117, "5.0 GHz, Channels 40 and 48, 40 MHz Spacing" },
+  { 118, 118, "5.0 GHz, Channels 52, 56, 60, and 64, 20 MHz Spacing" },
+  { 119, 119, "5.0 GHz, Channels 52 and 60, 40 MHz Spacing" },
+  { 120, 120, "5.0 GHz, Channels 56 and 64, 40 MHz Spacing" },
+  { 121, 121, "5.0 GHz, Channels 100, 104, 108, 112, 116, 120, 124, 128, 132, 136, and 140, 20 MHz Spacing" },
+  { 122, 122, "5.0 GHz, Channels 100, 108, 116, 124, and 132, 40 MHz Spacing" },
+  { 123, 123, "5.0 GHz, Channels 104, 112, 120, 128, and 136, 40 MHz Spacing" },
+  { 124, 124, "5.0 GHz, Channels 149, 153, 157, and 161, 20 MHz Spacing" },
+  { 125, 125, "5.0 GHz, Channels 149, 153, 157, 161, 165, and 169, 20 MHz Spacing" },
+  { 126, 126, "5.0 GHz, Channels 149 and 157, 40 MHz Spacing" },
+  { 127, 127, "5.0 GHz, Channels 153 and 161, 40 MHz Spacing" },
+  { 128, 191, "Reserved" },
+  { 192, 254, "Vendor-Specific" },
+  { 255, 255, "Reserved" },
+  {   0,   0, NULL }
+};
+
 static const value_string nai_realm_auth_param_id_vals[] = {
   {   1, "Expanded EAP Method" },
   {   2, "Non-EAP Inner Authentication Type" },
@@ -31445,7 +31490,8 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_hs20_anqp_oper_class_indic,
      {"Operating Class", "wlan.hs20.anqp.oper_class_indic.oper_class",
-      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+      FT_UINT8, BASE_DEC | BASE_RANGE_STRING, RVALS(hs20_oper_class_rvals),
+      0, NULL, HFILL }},
 
     {&hf_ieee80211_hs20_osu_friendly_names_len,
      {"OSU Friendly Name Length", "wlan.hs20.osu_friendly_names_len",
