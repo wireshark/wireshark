@@ -8004,6 +8004,27 @@ dissect_hs20_anqp_wan_metrics(proto_tree *tree, tvbuff_t *tvb, int offset, gbool
                       tvb, offset, 2, ENC_LITTLE_ENDIAN);
 }
 
+static const value_string hs20_cc_proto_vals[] = {
+  {  1, "ICMP" },
+  {  6, "TCP" },
+  { 17, "UDP" },
+  { 50, "ESP" },
+  {  0, NULL }
+};
+
+static const value_string hs20_cc_port_vals[] = {
+  {    0, "[Supported]" }, /* Used to indicate ICMP, ESP for IPSec VPN, or IKEv2 for IPSec VPN */
+  {   20, "FTP" },
+  {   22, "SSH" },
+  {   80, "HTTP" },
+  {  443, "HTTPS" },
+  {  500, "IKEv2 for IPSec VPN" },
+  { 1723, "PPTP for IPSec VPN" },
+  { 4500, "[Optional] IKEv2 for IPSec VPN" },
+  { 5060, "VOIP" },
+  {    0, NULL },
+};
+
 static const value_string hs20_cc_status_vals[] = {
   { 0, "Closed" },
   { 1, "Open" },
@@ -8025,10 +8046,10 @@ dissect_hs20_anqp_connection_capability(proto_tree *tree, tvbuff_t *tvb,
     status = tvb_get_guint8(tvb, offset + 3);
 
     tuple = proto_tree_add_subtree_format(tree, tvb, offset, 4, ett_hs20_cc_proto_port_tuple, NULL,
-                               "ProtoPort Tuple - ip_proto=%u port_num=%u status=%s",
-                               ip_proto, port_num,
-                               val_to_str(status, hs20_cc_status_vals,
-                                          "Reserved (%u)"));
+                               "ProtoPort Tuple - ip_proto=%s port_num=%s status=%s",
+                               val_to_str(ip_proto, hs20_cc_proto_vals, "Unknown (%u)"),
+                               val_to_str(port_num, hs20_cc_port_vals, "Unknown (%u)"),
+                               val_to_str(status, hs20_cc_status_vals, "Reserved (%u)"));
     proto_tree_add_item(tuple, hf_ieee80211_hs20_anqp_cc_proto_ip_proto,
                         tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset++;
@@ -31391,12 +31412,12 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_hs20_anqp_cc_proto_ip_proto,
      {"IP Protocol", "wlan.hs20.anqp.cc.ip_proto",
-      FT_UINT8, BASE_DEC, NULL, 0,
+      FT_UINT8, BASE_DEC, VALS(hs20_cc_proto_vals), 0,
       "ProtoPort Tuple - IP Protocol", HFILL }},
 
     {&hf_ieee80211_hs20_anqp_cc_proto_port_num,
      {"Port Number", "wlan.hs20.anqp.cc.port_num",
-      FT_UINT16, BASE_DEC, NULL, 0,
+      FT_UINT16, BASE_DEC, VALS(hs20_cc_port_vals), 0,
       "ProtoPort Tuple - Port Number", HFILL }},
 
     {&hf_ieee80211_hs20_anqp_cc_proto_status,
