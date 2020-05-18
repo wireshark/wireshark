@@ -276,7 +276,6 @@ static int hf_nas_5gs_sm_qfi = -1;
 static int hf_nas_5gs_sm_mapd_eps_b_cont_id = -1;
 static int hf_nas_5gs_sm_mapd_eps_b_cont_opt_code = -1;
 static int hf_nas_5gs_sm_qos_des_flow_opt_code = -1;
-static int hf_nas_5gs_sm_mapd_eps_b_cont_DEB = -1;
 static int hf_nas_5gs_sm_mapd_eps_b_cont_E = -1;
 static int hf_nas_5gs_sm_mapd_eps_b_cont_num_eps_parms = -1;
 static int hf_nas_5gs_sm_mapd_eps_b_cont_E_mod = -1;
@@ -2899,12 +2898,6 @@ static const value_string nas_5gs_sm_mapd_eps_b_cont_opt_code_vals[] = {
     { 0,    NULL }
 };
 
-static const value_string nas_5gs_sm_mapd_eps_b_cont_DEB_vals[] = {
-    { 0x0,  "the EPS bearer is not the default EPS bearer." },
-    { 0x01, "the EPS bearer is the default EPS bearer" },
-    { 0,    NULL }
-};
-
 static const value_string nas_5gs_sm_mapd_eps_b_cont_E_vals[] = {
     { 0x0,  "parameters list is not included" },
     { 0x01, "parameters list is included" },
@@ -2922,7 +2915,7 @@ static const value_string nas_5gs_sm_mapd_eps_b_cont_param_id_vals[] = {
     { 0x02, "Mapped extended EPS QoS parameters" },
     { 0x03, "Traffic flow template" },
     { 0x04, "APN-AMBR" },
-    { 0x05, "extended APN-AMBR" },
+    { 0x05, "Extended APN-AMBR" },
     { 0,    NULL }
 };
 
@@ -2944,7 +2937,7 @@ de_nas_5gs_sm_mapped_eps_b_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
 
     static const int * mapd_eps_b_cont_flags[] = {
         &hf_nas_5gs_sm_mapd_eps_b_cont_opt_code,
-        &hf_nas_5gs_sm_mapd_eps_b_cont_DEB,
+        &hf_nas_5gs_spare_b5,
         &hf_nas_5gs_sm_mapd_eps_b_cont_E,
         &hf_nas_5gs_sm_mapd_eps_b_cont_num_eps_parms,
         NULL
@@ -2952,7 +2945,7 @@ de_nas_5gs_sm_mapped_eps_b_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
 
     static const int * mapd_eps_b_cont_flags_modify[] = {
         &hf_nas_5gs_sm_mapd_eps_b_cont_opt_code,
-        &hf_nas_5gs_sm_mapd_eps_b_cont_DEB,
+        &hf_nas_5gs_spare_b5,
         &hf_nas_5gs_sm_mapd_eps_b_cont_E_mod,
         &hf_nas_5gs_sm_mapd_eps_b_cont_num_eps_parms,
         NULL
@@ -2974,8 +2967,8 @@ de_nas_5gs_sm_mapped_eps_b_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
         curr_offset += 2;
         curr_len -= 2;
 
-        /*     8   7      6    5   4  3  2  1          */
-        /* operation code | DEB |  E | number of EPS params     */
+        /*  8     7     6     5     4     3     2     1          */
+        /* operation code | spare | E | number of EPS params     */
         proto_item_set_len(item, length + 3);
 
         num_eps_parms = tvb_get_guint8(tvb, curr_offset);
@@ -3012,7 +3005,7 @@ de_nas_5gs_sm_mapped_eps_b_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
             curr_offset++;
             curr_len--;
 
-            proto_item_set_len(item, length + 3);
+            proto_item_set_len(item, length + 2);
             /*content of the EPS parameter contents field */
             switch (param_id) {
             case 1:
@@ -8090,11 +8083,6 @@ proto_register_nas_5gs(void)
         { &hf_nas_5gs_sm_qos_des_flow_opt_code,
         { "Operation code",   "nas_5gs.sm.hf_nas_5gs_sm_qos_des_flow_opt_code",
             FT_UINT8, BASE_DEC, VALS(nas_5gs_sm_qos_des_flow_opt_code_vals), 0xe0,
-            NULL, HFILL }
-        },
-        { &hf_nas_5gs_sm_mapd_eps_b_cont_DEB,
-        { "DEB bit",   "nas_5gs.sm.mapd_eps_b_cont_DEB",
-            FT_UINT8, BASE_DEC, VALS(nas_5gs_sm_mapd_eps_b_cont_DEB_vals), 0x20,
             NULL, HFILL }
         },
         { &hf_nas_5gs_sm_mapd_eps_b_cont_E,
