@@ -13,20 +13,32 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * Please refer to the following specs for protocol detail:
- * - RFC 5389, formerly draft-ietf-behave-rfc3489bis-18
- * - RFC 5245, formerly draft-ietf-mmusic-ice-19
- * - RFC 5780, formerly draft-ietf-behave-nat-behavior-discovery-08
- * - RFC 5766, formerly draft-ietf-behave-turn-16
- * - RFC 6156, formerly draft-ietf-behave-turn-ipv6-11
  * - RFC 3489 (Addition of deprecated attributes for diagnostics purpose)
- * - RFC 6062
- * - RFC 6544
+ *             STUN - Simple Traversal of User Datagram Protocol (UDP)
+ *             Through Network Address Translators (NATs) (superseeded by RFC 5389)
+ * - RFC 5389, formerly draft-ietf-behave-rfc3489bis-18
+ *             Session Traversal Utilities for NAT (STUN) (superseeded by RFC 8489)
+ * - RFC 8489  Session Traversal Utilities for NAT (STUN)
+ * - RFC 5780, formerly draft-ietf-behave-nat-behavior-discovery-08
+ *             NAT Behavior Discovery Using Session Traversal Utilities for NAT (STUN)
+ * - RFC 5766, formerly draft-ietf-behave-turn-16
+ *             Traversal Using Relays around NAT (TURN)
+ * - RFC 6062  Traversal Using Relays around NAT (TURN) Extensions for TCP Allocations
+ * - RFC 6156, formerly draft-ietf-behave-turn-ipv6-11
+ *             Traversal Using Relays around NAT (TURN) Extension for IPv6
+ * - RFC 5245, formerly draft-ietf-mmusic-ice-19
+ *             Interactive Connectivity Establishment (ICE)
+ * - RFC 6544  TCP Candidates with Interactive Connectivity Establishment (ICE)
  *
- * From MS (Lync)
+ * Iana registered values:
+ * https://www.iana.org/assignments/stun-parameters/stun-parameters.xhtml
+ *
+ * From MS
  * MS-TURN: Traversal Using Relay NAT (TURN) Extensions https://docs.microsoft.com/en-us/openspecs/office_protocols/ms-turn
- * MS-ICE2BWN: Interactive Connectivity Establishment (ICE) 2.0 Bandwidth Management Extensions https://docs.microsoft.com/en-us/openspecs/office_protocols/ms-ice2bwm
  * MS-TURNBWM:  Traversal using Relay NAT (TURN) Bandwidth Management Extensions https://docs.microsoft.com/en-us/openspecs/office_protocols/ms-turnbwm
+ * MS-ICE: Interactive Connectivity Establishment (ICE) Extensions https://docs.microsoft.com/en-us/openspecs/office_protocols/ms-ice
  * MS-ICE2:  Interactive Connectivity Establishment ICE Extensions 2.0 https://docs.microsoft.com/en-us/openspecs/office_protocols/ms-ice2
+ * MS-ICE2BWN: Interactive Connectivity Establishment (ICE) 2.0 Bandwidth Management Extensions https://docs.microsoft.com/en-us/openspecs/office_protocols/ms-ice2bwm
  */
 
 #include "config.h"
@@ -141,6 +153,15 @@ typedef struct _stun_conv_info_t {
     wmem_tree_t *transaction_pdus;
 } stun_conv_info_t;
 
+/* STUN versions RFC5389 and newer split off the leading 32 bits of the
+ * transaction ID into a magic cookie (called message cookie in this
+ * dissector to avoid confusion with the MAGIC_COOKIE attribute) and
+ * shortens the real transaction ID to 96 bits.
+ * This allows to differentiate between the legacy version of RFC3489
+ * and all newer versions.
+ */
+#define MESSAGE_COOKIE 0x2112A442
+#define TURN_MAGIC_COOKIE 0x72C64BC6
 
 /* Message classes */
 #define REQUEST         0x0000
@@ -150,67 +171,110 @@ typedef struct _stun_conv_info_t {
 
 
 /* Methods */
-#define BINDING                 0x0001 /* draft-ietf-behave-rfc3489bis-17 */
-#define ALLOCATE                0x0003 /* draft-ietf-behave-turn-10*/
-#define REFRESH                 0x0004 /* draft-ietf-behave-turn-10*/
-#define CHANNELBIND             0x0009 /* draft-ietf-behave-turn-10*/
-#define CREATE_PERMISSION       0x0008 /* draft-ietf-behave-turn-10 */
-/* Indications */
-#define SEND                    0x0006 /* draft-ietf-behave-turn-10*/
-#define DATA_IND                0x0007 /* draft-ietf-behave-turn-10*/
+/* 0x000-0x07F IETF Review */
+#define BINDING                 0x0001 /* RFC8489 */
+#define SHARED_SECRET           0x0002 /* RFC3489 */
+#define ALLOCATE                0x0003 /* RFC8489 */
+#define REFRESH                 0x0004 /* RFC8489 */
+#define SEND                    0x0006 /* RFC8656 */
+#define DATA_IND                0x0007 /* RFC8656 */
+#define CREATE_PERMISSION       0x0008 /* RFC8656 */
+#define CHANNELBIND             0x0009 /* RFC8656 */
 /* TCP specific */
-#define CONNECT                 0x000a /* rfc6062 */
-#define CONNECTION_BIND         0x000b /* rfc6062 */
-#define CONNECTION_ATTEMPT      0x000c /* rfc6062 */
+#define CONNECT                 0x000a /* RFC6062 */
+#define CONNECTION_BIND         0x000b /* RFC6062 */
+#define CONNECTION_ATTEMPT      0x000c /* RFC6062 */
+#define GOOG_PING               0x0080 /* Google undocumented */
 
+/* 0x080-0x0FF Expert Review */
 
 /* Attribute Types */
-/* Comprehension-required range (0x0000-0x7FFF) */
-#define MAPPED_ADDRESS          0x0001 /* draft-ietf-behave-rfc3489bis-17 */
-#define RESPONSE_ADDRESS        0x0002 /* Deprecated */
-#define CHANGE_REQUEST          0x0003 /* draft-ietf-behave-nat-behavior-discovery-03 */
-#define SOURCE_ADDRESS          0x0004 /* Deprecated */
-#define CHANGED_ADDRESS         0x0005 /* Deprecated */
-#define USERNAME                0x0006 /* draft-ietf-behave-rfc3489bis-17 */
-#define PASSWORD                0x0007 /* Deprecated */
-#define MESSAGE_INTEGRITY       0x0008 /* draft-ietf-behave-rfc3489bis-17 */
-#define ERROR_CODE              0x0009 /* draft-ietf-behave-rfc3489bis-17 */
-#define UNKNOWN_ATTRIBUTES      0x000a /* draft-ietf-behave-rfc3489bis-17 */
-#define REFLECTED_FROM          0x000b /* Deprecated */
-#define CHANNEL_NUMBER          0x000c /* draft-ietf-behave-turn-10 */
-#define LIFETIME                0x000d /* draft-ietf-behave-turn-10 */
-#define MAGIC_COOKIE            0x000f /* MS-TURN / turn-08 */
-#define BANDWIDTH               0x0010 /* turn-07 */
-#define DESTINATION_ADDRESS     0x0011 /* MS-TURN / turn-08 */
-#define XOR_PEER_ADDRESS        0x0012 /* draft-ietf-behave-turn-10 */
-#define DATA                    0x0013 /* draft-ietf-behave-turn-10 */
-#define REALM                   0x0014 /* draft-ietf-behave-rfc3489bis-17 */
-#define NONCE                   0x0015 /* draft-ietf-behave-rfc3489bis-17 */
-#define XOR_RELAYED_ADDRESS     0x0016 /* draft-ietf-behave-turn-10 */
-#define REQUESTED_ADDRESS_TYPE  0x0017 /* draft-ietf-behave-turn-ipv6-03 */
-#define EVEN_PORT               0x0018 /* draft-ietf-behave-turn-10 */
-#define REQUESTED_TRANSPORT     0x0019 /* draft-ietf-behave-turn-10 */
-#define DONT_FRAGMENT           0x001a /* draft-ietf-behave-turn-10 */
-#define XOR_MAPPED_ADDRESS      0x0020 /* draft-ietf-behave-rfc3489bis-17 */
-#define RESERVATION_TOKEN       0x0022 /* draft-ietf-behave-turn-10 */
-#define PRIORITY                0x0024 /* draft-ietf-mmusic-ice-19 */
-#define USE_CANDIDATE           0x0025 /* draft-ietf-mmusic-ice-19 */
-#define PADDING                 0x0026 /* draft-ietf-behave-nat-behavior-discovery-03 */
+/* 0x0000-0x3FFF IETF Review comprehension-required range */
+#define MAPPED_ADDRESS          0x0001 /* RFC8489, MS-TURN */
+#define RESPONSE_ADDRESS        0x0002 /* Deprecated, RFC3489 */
+#define CHANGE_REQUEST          0x0003 /* Deprecated, RFC3489 */
+#define SOURCE_ADDRESS          0x0004 /* Deprecated, RFC3489 */
+#define CHANGED_ADDRESS         0x0005 /* Deprecated, RFC3489 */
+#define USERNAME                0x0006 /* RFC8489, MS-TURN */
+#define PASSWORD                0x0007 /* Deprecated, RFC3489 */
+#define MESSAGE_INTEGRITY       0x0008 /* RFC8489, MS-TURN */
+#define ERROR_CODE              0x0009 /* RFC8489, MS-TURN */
+#define UNKNOWN_ATTRIBUTES      0x000a /* RFC8489, MS-TURN */
+#define REFLECTED_FROM          0x000b /* Deprecated, RFC3489 */
+#define CHANNEL_NUMBER          0x000c /* RFC8656 */
+#define LIFETIME                0x000d /* RFC8656, MS-TURN */
+/* 0x000e reserved */
+/* 0x000f reserved collision */
+#define MAGIC_COOKIE            0x000f /* MS-TURN */
+/* 0x0010 fix reference */
+#define BANDWIDTH               0x0010 /* MS-TURN */
+/* 0x0011 reserved collision */
+#define DESTINATION_ADDRESS     0x0011 /* MS-TURN */
+#define XOR_PEER_ADDRESS        0x0012 /* RFC8656, MS-TURN */
+#define DATA                    0x0013 /* RFC8656, MS-TURN */
+/* Note: REALM and NONCE have swapped attribute numbers in MS-TURN */
+#define REALM                   0x0014 /* RFC8489, MS-TURN */
+#define NONCE                   0x0015 /* RFC8489, MS-TURN */
+#define XOR_RELAYED_ADDRESS     0x0016 /* RFC8656 */
+#define REQUESTED_ADDRESS_FAMILY 0x0017 /* RFC8656, MS-TURN */
+#define EVEN_PORT               0x0018 /* RFC8656 */
+#define REQUESTED_TRANSPORT     0x0019 /* RFC8656 */
+#define DONT_FRAGMENT           0x001a /* RFC8656 */
+#define ACCESS_TOKEN            0x001b /* RFC7635 */
+#define MESSAGE_INTEGRITY_SHA256 0x001c /* RFC8489 */
+#define PASSWORD_ALGORITHM      0x001d /* RFC8489 */
+#define USERHASH                0x001e /* RFC8489 */
+/* 0x001f Reserved */
+#define XOR_MAPPED_ADDRESS      0x0020 /* RFC8489 */
+/* 0x0021 add deprecated TIMER-VAL */
+#define RESERVATION_TOKEN       0x0022 /* RFC8656 */
+/* 0x0023 Reserved */
+#define PRIORITY                0x0024 /* RFC8445 */
+#define USE_CANDIDATE           0x0025 /* RFC8445 */
+#define PADDING                 0x0026 /* RFC5780 */
+/* 0x0027 collision RESPONSE-PORT RFC5780 */
 #define XOR_RESPONSE_TARGET     0x0027 /* draft-ietf-behave-nat-behavior-discovery-03 */
+/* 0x0028 Reserved collision */
 #define XOR_REFLECTED_FROM      0x0028 /* draft-ietf-behave-nat-behavior-discovery-03 */
+/* 0x0029 Reserved */
 #define CONNECTION_ID           0x002a /* rfc6062 */
-#define ICMP                    0x0030 /* Moved from TURN to a future I-D */
-/* Comprehension-optional range (0x8000-0xFFFF) */
+/* 0x002b-0x002f unassigned */
+/* 0x0030 collision reserved */
+#define LEGACY_ICMP             0x0030 /* Moved from TURN to 0x8004 */
+/* 0x0031-0x3fff Unassigned */
+
+/* 0x4000-0x7FFF Expert Review comprehension-required range */
+/* 0x4000-0x7fff Unassigned */
+
+/* 0x8000-0xBFFF IETF Review comprehension-optional range */
+#define ADDITIONAL_ADDRESS_FAMILY 0x8000 /* RFC8656 */
+#define ADDRESS_ERROR_CODE      0x8001 /* RFC8656 */
+#define PASSWORD_ALGORITHMS     0x8002 /* RFC8489 */
+#define ALTERNATE_DOMAIN        0x8003 /* RFC8489 */
+#define ICMP                    0x8004 /* RFC8656 */
+/* 0x8005-0x8021 Unassigned collision */
 #define MS_VERSION              0x8008 /* MS-TURN */
+/* collision */
 #define MS_XOR_MAPPED_ADDRESS   0x8020 /* MS-TURN */
-#define SOFTWARE                0x8022 /* draft-ietf-behave-rfc3489bis-17 */
-#define ALTERNATE_SERVER        0x8023 /* draft-ietf-behave-rfc3489bis-17 */
-#define CACHE_TIMEOUT           0x8027 /* draft-ietf-behave-nat-behavior-discovery-03 */
-#define FINGERPRINT             0x8028 /* draft-ietf-behave-rfc3489bis-17 */
-#define ICE_CONTROLLED          0x8029 /* draft-ietf-mmusic-ice-19 */
-#define ICE_CONTROLLING         0x802a /* draft-ietf-mmusic-ice-19 */
-#define RESPONSE_ORIGIN         0x802b /* draft-ietf-behave-nat-behavior-discovery-03 */
-#define OTHER_ADDRESS           0x802c /* draft-ietf-behave-nat-behavior-discovery-03 */
+#define SOFTWARE                0x8022 /* RFC8489 */
+#define ALTERNATE_SERVER        0x8023 /* RFC8489 */
+/* 0x8024 Reserved */
+#define TRANSACTION_TRANSMIT_COUNTER 0x8025 /* RFC7982 */
+/* 0x8026 Reserved */
+#define CACHE_TIMEOUT           0x8027 /* RFC5780 */
+#define FINGERPRINT             0x8028 /* RFC8489 */
+#define ICE_CONTROLLED          0x8029 /* RFC8445 */
+#define ICE_CONTROLLING         0x802a /* RFC8445 */
+#define RESPONSE_ORIGIN         0x802b /* RFC5780 */
+#define OTHER_ADDRESS           0x802c /* RFC5780 */
+#define ECN_CHECK_STUN          0x802d /* RFC6679 */
+#define THIRD_PARTY_AUTHORIZATION 0x802e /* RFC7635 */
+/* 0x802f Unassigned */
+#define MOBILITY_TICKET         0x8030 /* RFC8016 */
+/* 0x8031-0xBFFF Unassigned collision */
+#define MS_ALTERNATE_HOST_NAME  0x8032 /* MS-TURN */
+#define MS_APP_ID               0x8037 /* MS-TURN */
+#define MS_SECURE_TAG           0x8039 /* MS-TURN */
 #define MS_SEQUENCE_NUMBER      0x8050 /* MS-TURN */
 #define MS_CANDIDATE_IDENTIFIER 0x8054 /* MS-ICE2 */
 #define MS_SERVICE_QUALITY      0x8055 /* MS-TURN */
@@ -230,7 +294,16 @@ typedef struct _stun_conv_info_t {
 #define LOCATION_PROFILE        0x8068 /* MS-TURNBWM */
 #define MS_IMPLEMENTATION_VER   0x8070 /* MS-ICE2 */
 #define MS_ALT_MAPPED_ADDRESS   0x8090 /* MS-TURN */
+#define MS_MULTIPLEXED_TURN_SESSION_ID 0x8095 /* MS_TURN */
 
+/* 0xC000-0xFFFF Expert Review comprehension-optional range */
+#define CISCO_STUN_FLOWDATA     0xc000 /* Cisco undocumented */
+#define ENF_FLOW_DESCRIPTION    0xc001 /* Cisco undocumented */
+#define ENF_NETWORK_STATUS      0xc002 /* Cisco undocumented */
+/* 0xc003-0xc058 Unassigned */
+#define GOOG_MISC_INFO          0xc059 /* Google undocumented */
+#define GOOG_MESSAGE_INTEGRITY_32 0xc05a /* Google undocumented */
+/* 0xc05b-0xffff Unassigned */
 
 /* Initialize the subtree pointers */
 static gint ett_stun = -1;
@@ -264,6 +337,7 @@ static const value_string classes[] = {
 
 static const value_string methods[] = {
     {BINDING           , "Binding"},
+    {SHARED_SECRET     , "SharedSecret"},
     {ALLOCATE          , "Allocate"},
     {REFRESH           , "Refresh"},
     {SEND              , "Send"},
@@ -273,11 +347,13 @@ static const value_string methods[] = {
     {CONNECT           , "Connect"},
     {CONNECTION_BIND   , "ConnectionBind"},
     {CONNECTION_ATTEMPT, "ConnectionAttempt"},
+    {GOOG_PING         , "GooglePing"},
     {0x00              , NULL}
 };
 
 
 static const value_string attributes[] = {
+  /* 0x0000-0x3FFF IETF Review comprehension-required range */
     {MAPPED_ADDRESS        , "MAPPED-ADDRESS"},
     {RESPONSE_ADDRESS      , "RESPONSE_ADDRESS"},
     {CHANGE_REQUEST        , "CHANGE_REQUEST"},
@@ -299,10 +375,14 @@ static const value_string attributes[] = {
     {REALM                 , "REALM"},
     {NONCE                 , "NONCE"},
     {XOR_RELAYED_ADDRESS   , "XOR-RELAYED-ADDRESS"},
-    {REQUESTED_ADDRESS_TYPE, "REQUESTED-ADDRESS-TYPE"},
+    {REQUESTED_ADDRESS_FAMILY, "REQUESTED-ADDRESS-FAMILY"},
     {EVEN_PORT             , "EVEN-PORT"},
     {REQUESTED_TRANSPORT   , "REQUESTED-TRANSPORT"},
     {DONT_FRAGMENT         , "DONT-FRAGMENT"},
+    {ACCESS_TOKEN          , "ACCESS-TOKEN"},
+    {MESSAGE_INTEGRITY_SHA256, "MESSAGE-INTEGRITY-SHA256"},
+    {PASSWORD_ALGORITHM    , "PASSWORD-ALGORITHM"},
+    {USERHASH              , "USERHASH"},
     {XOR_MAPPED_ADDRESS    , "XOR-MAPPED-ADDRESS"},
     {RESERVATION_TOKEN     , "RESERVATION-TOKEN"},
     {PRIORITY              , "PRIORITY"},
@@ -311,18 +391,33 @@ static const value_string attributes[] = {
     {XOR_RESPONSE_TARGET   , "XOR-RESPONSE-TARGET"},
     {XOR_REFLECTED_FROM    , "XOR-REFELECTED-FROM"},
     {CONNECTION_ID         , "CONNECTION-ID"},
-    {ICMP                  , "ICMP"},
+    {LEGACY_ICMP           , "LEGACY-ICMP"},
 
+  /* 0x4000-0x7FFF Expert Review comprehension-required range */
+
+  /* 0x8000-0xBFFF IETF Review comprehension-optional range */
+    {ADDITIONAL_ADDRESS_FAMILY, "ADDITIONAL-ADDRESS-FAMILY"},
+    {ADDRESS_ERROR_CODE    , "ADDRESS-ERROR-CODE"},
+    {PASSWORD_ALGORITHMS   , "PASSWORD-ALGORITHMS"},
+    {ALTERNATE_DOMAIN      , "ALTERNATE-DOMAIN"},
+    {ICMP                  , "ICMP"},
     {MS_VERSION            , "MS-VERSION"},
     {MS_XOR_MAPPED_ADDRESS , "XOR-MAPPED-ADDRESS"},
     {SOFTWARE              , "SOFTWARE"},
     {ALTERNATE_SERVER      , "ALTERNATE-SERVER"},
+    {TRANSACTION_TRANSMIT_COUNTER, "TRANSACTION-TRANSMIT-COUNTER"},
     {CACHE_TIMEOUT         , "CACHE-TIMEOUT"},
     {FINGERPRINT           , "FINGERPRINT"},
     {ICE_CONTROLLED        , "ICE-CONTROLLED"},
     {ICE_CONTROLLING       , "ICE-CONTROLLING"},
     {RESPONSE_ORIGIN       , "RESPONSE-ORIGIN"},
     {OTHER_ADDRESS         , "OTHER-ADDRESS"},
+    {ECN_CHECK_STUN        , "ECN-CHECK-STUN"},
+    {THIRD_PARTY_AUTHORIZATION, "THIRD-PARTY-AUTHORIZATION"},
+    {MOBILITY_TICKET       , "MOBILITY-TICKET"},
+    {MS_ALTERNATE_HOST_NAME, "MS-ALTERNATE-HOST-NAME"},
+    {MS_APP_ID             , "MS-APP-ID"},
+    {MS_SECURE_TAG         , "MS-SECURE-TAG"},
     {MS_SEQUENCE_NUMBER    , "MS-SEQUENCE-NUMBER"},
     {MS_CANDIDATE_IDENTIFIER, "MS-CANDIDATE-IDENTIFIER"},
     {MS_SERVICE_QUALITY    , "MS-SERVICE-QUALITY"},
@@ -342,6 +437,15 @@ static const value_string attributes[] = {
     {LOCATION_PROFILE      , "Location Profile"},
     {MS_IMPLEMENTATION_VER , "MS-IMPLEMENTATION-VERSION"},
     {MS_ALT_MAPPED_ADDRESS , "MS-ALT-MAPPED-ADDRESS"},
+    {MS_MULTIPLEXED_TURN_SESSION_ID, "MS-MULTIPLEXED-TURN-SESSION-ID"},
+
+  /* 0xC000-0xFFFF Expert Review comprehension-optional range */
+    {CISCO_STUN_FLOWDATA   , "CISCO-STUN-FLOWDATA"},
+    {ENF_FLOW_DESCRIPTION   , "ENF-FLOW-DESCRIPTION"},
+    {ENF_NETWORK_STATUS    , "ENF-NETWORK-STATUS"},
+    {GOOG_MISC_INFO        , "GOOG-MISC-INFO"},
+    {GOOG_MESSAGE_INTEGRITY_32, "GOOG-MESSAGE_INTEGRITY-32"},
+
     {0x00                  , NULL}
 };
 static value_string_ext attributes_ext = VALUE_STRING_EXT_INIT(attributes);
@@ -413,6 +517,8 @@ static const value_string ms_version_vals[] = {
     {0x00000002, "MS-ICE2"},
     {0x00000003, "MS-ICE2 with SHA256"},
     {0x00000004, "MS-ICE2 with SHA256 and IPv6"},
+    {0x00000005, "MULTIPLEXED TURN over UDP only"},
+    {0x00000006, "MULTIPLEXED TURN over UDP and TCP"},
     {0x00, NULL}
 };
 
@@ -451,6 +557,13 @@ static const value_string federation_vals[] = {
     {0x00, NULL}
 };
 
+static const value_string password_algorithm_vals[] = {
+    {0x0000, "Reserved"},
+    {0x0001, "MD5"},
+    {0x0002, "SHA-256"},
+    {0x0000, NULL}
+};
+
 static guint
 get_stun_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
                      int offset, void *data _U_)
@@ -460,7 +573,7 @@ get_stun_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
     guint   captured_length = tvb_captured_length(tvb);
 
     if ((captured_length >= TCP_FRAME_COOKIE_LEN) &&
-        (tvb_get_ntohl(tvb, 6) == 0x2112a442)) {
+        (tvb_get_ntohl(tvb, 6) == MESSAGE_COOKIE)) {
         /*
          * The magic cookie is off by two, so this appears to be
          * RFC 4571 framing, as per RFC 6544; use the length
@@ -567,7 +680,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
 
     tcp_framing_offset = 0;
     if ((!is_udp) && (captured_length >= TCP_FRAME_COOKIE_LEN) &&
-       (tvb_get_ntohl(tvb, 6) == 0x2112a442)) {
+       (tvb_get_ntohl(tvb, 6) == MESSAGE_COOKIE)) {
         /*
          * The magic cookie is off by two, so this appears to be
          * RFC 4571 framing, as per RFC 6544; the STUN/TURN
@@ -616,7 +729,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
         return 0;
 
     /* Check if it is really a STUN message */
-    if ( tvb_get_ntohl(tvb, tcp_framing_offset + 4) != 0x2112a442)
+    if ( tvb_get_ntohl(tvb, tcp_framing_offset + 4) != MESSAGE_COOKIE)
         return 0;
 
     /* check if payload enough */
@@ -878,8 +991,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                 proto_tree_add_item_ret_string(att_tree, hf_stun_att_password, tvb, offset, att_length, ENC_UTF_8|ENC_NA, wmem_packet_scope(), &dep_password);
                 proto_item_append_text(att_tree, " (Deprecated): %s", dep_password);
                 if (att_length % 4 != 0)
-                    proto_tree_add_uint(att_tree, hf_stun_att_padding,
-                                        tvb, offset+att_length, 4-(att_length % 4), 4-(att_length % 4));
+                    proto_tree_add_uint(att_tree, hf_stun_att_padding, tvb, offset+att_length, 4-(att_length % 4), 4-(att_length % 4));
                 }
                 break;
 
@@ -955,8 +1067,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                     user_name_str);
 
                 if (att_length % 4 != 0)
-                    proto_tree_add_uint(att_tree, hf_stun_att_padding,
-                                        tvb, offset+att_length, 4-(att_length % 4), 4-(att_length % 4));
+                    proto_tree_add_uint(att_tree, hf_stun_att_padding, tvb, offset+att_length, 4-(att_length % 4), 4-(att_length % 4));
                 break;
             }
             case MESSAGE_INTEGRITY:
@@ -1128,7 +1239,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                 }
                 break;
 
-            case REQUESTED_ADDRESS_TYPE:
+            case REQUESTED_ADDRESS_FAMILY:
                 if (att_length < 1)
                     break;
                 proto_tree_add_item(att_tree, hf_stun_att_family, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1158,6 +1269,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                 proto_tree_add_uint(att_tree, hf_stun_att_padding, tvb, offset, att_length, att_length);
                 break;
 
+            case LEGACY_ICMP:
             case ICMP:
                 if (att_length < 4)
                     break;
@@ -1438,7 +1550,7 @@ proto_register_stun(void)
         },
         { &hf_stun_length,
           { "Message Length", "stun.length", FT_UINT16,
-            BASE_DEC, NULL, 0x0, NULL, HFILL }
+            BASE_DEC, NULL, 0x0, "Payload (attributes) length", HFILL }
         },
         { &hf_stun_cookie,
           { "Message Cookie", "stun.cookie", FT_BYTES,
@@ -1583,7 +1695,7 @@ proto_register_stun(void)
         },
         { &hf_stun_att_lifetime,
           { "Lifetime", "stun.att.lifetime", FT_UINT32,
-            BASE_DEC, NULL, 0x0, NULL, HFILL}
+            BASE_DEC, NULL, 0x0, "Session time remaining (seconds)", HFILL}
          },
         { &hf_stun_att_change_ip,
           { "Change IP","stun.att.change-ip", FT_BOOLEAN,
@@ -1627,7 +1739,7 @@ proto_register_stun(void)
         },
         { &hf_stun_att_bandwidth,
           { "Bandwidth", "stun.port.bandwidth", FT_UINT32,
-            BASE_DEC, NULL, 0x0, NULL, HFILL }
+            BASE_DEC, NULL, 0x0, "Peak Bandwidth (kBit/s)", HFILL }
         },
 
         { &hf_stun_att_ms_version,
