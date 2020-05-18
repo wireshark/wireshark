@@ -1282,6 +1282,7 @@ static value_string_ext aruba_mgt_typevals_ext = VALUE_STRING_EXT_INIT(aruba_mgt
 #define ANQP_INFO_VENUE_URL                      277
 #define ANQP_INFO_ADVICE_OF_CHARGE               278
 #define ANQP_INFO_LOCAL_CONTENT                  279
+#define ANQP_INFO_NETWORK_AUTH_TYPE_TIMESTAMP    280
 #define ANQP_INFO_ANQP_VENDOR_SPECIFIC_LIST    56797
 
 /* ANQP information ID - IEEE Std 802.11u-2011 - Table 7-43bk */
@@ -1312,6 +1313,8 @@ static const value_string anqp_info_id_vals[] = {
   {ANQP_INFO_VENUE_URL, "Venue URL"},
   {ANQP_INFO_ADVICE_OF_CHARGE, "Advice of Charge"},
   {ANQP_INFO_LOCAL_CONTENT, "Local Content"},
+  {ANQP_INFO_NETWORK_AUTH_TYPE_TIMESTAMP,
+   "Network Authentication Type with Timestamp"},
   {ANQP_INFO_ANQP_VENDOR_SPECIFIC_LIST, "ANQP vendor-specific list"},
   {0, NULL}
 };
@@ -3500,6 +3503,17 @@ static int hf_ieee80211_ff_anqp_venue_name = -1;
 static int hf_ieee80211_ff_anqp_nw_auth_type_indicator = -1;
 static int hf_ieee80211_ff_anqp_nw_auth_type_url_len = -1;
 static int hf_ieee80211_ff_anqp_nw_auth_type_url = -1;
+static int hf_ieee80211_ff_anqp_nw_auth_type_ts_indicator = -1;
+static int hf_ieee80211_ff_anqp_nw_auth_type_ts_url_len = -1;
+static int hf_ieee80211_ff_anqp_nw_auth_type_ts_url = -1;
+static int hf_ieee80211_ff_anqp_nw_auth_type_ts_year = -1;
+static int hf_ieee80211_ff_anqp_nw_auth_type_ts_mon = -1;
+static int hf_ieee80211_ff_anqp_nw_auth_type_ts_day = -1;
+static int hf_ieee80211_ff_anqp_nw_auth_type_ts_hr = -1;
+static int hf_ieee80211_ff_anqp_nw_auth_type_ts_min = -1;
+static int hf_ieee80211_ff_anqp_nw_auth_type_ts_sec = -1;
+static int hf_ieee80211_ff_anqp_nw_auth_type_ts_msec = -1;
+static int hf_ieee80211_ff_anqp_nw_auth_type_ts_rsvd = -1;
 static int hf_ieee80211_ff_anqp_roaming_consortium_oi_len = -1;
 static int hf_ieee80211_ff_anqp_roaming_consortium_oi = -1;
 static int hf_ieee80211_ff_anqp_ip_addr_avail_ipv6 = -1;
@@ -7517,6 +7531,55 @@ dissect_network_auth_type(proto_tree *tree, tvbuff_t *tvb, int offset, int end)
 }
 
 static void
+dissect_anqp_network_auth_type_timestamp(proto_tree *tree, tvbuff_t *tvb, int offset, int end)
+{
+  while (offset + 2 <= end) {
+    guint8 len;
+    proto_tree_add_item(tree, hf_ieee80211_ff_anqp_nw_auth_type_ts_indicator,
+                        tvb, offset, 1, ENC_NA);
+    len = tvb_get_guint8(tvb, offset + 1);
+    proto_tree_add_item(tree, hf_ieee80211_ff_anqp_nw_auth_type_ts_url_len,
+                        tvb, offset, 1, ENC_NA);
+    offset += 2;
+    if(len)
+      proto_tree_add_item(tree, hf_ieee80211_ff_anqp_nw_auth_type_ts_url,
+                          tvb, offset, len, ENC_ASCII|ENC_NA);
+    offset += len;
+    /* Optional Time Value - Either 0 or 10 octets */
+    /* Format: Octet 0-1: Year (0-65534)
+               Octet 2: Month (0-12)
+               Octet 3: Day of month (0-31)
+               Octet 4: Hours (0-23)
+               Octet 5: Minutes (0-59)
+               Octet 6: Seconds (0-59)
+               Octet 7-8: Milliseconds (0-999)
+               Octet 9: Reserved */
+    if ((offset + 10) < end) {
+      /* Enough bytes to dissect a timestamp */
+      proto_tree_add_item(tree, hf_ieee80211_ff_anqp_nw_auth_type_ts_year,
+                          tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_ff_anqp_nw_auth_type_ts_mon,
+                          tvb, offset, 1, ENC_NA);
+      proto_tree_add_item(tree, hf_ieee80211_ff_anqp_nw_auth_type_ts_day,
+                          tvb, offset, 1, ENC_NA);
+      proto_tree_add_item(tree, hf_ieee80211_ff_anqp_nw_auth_type_ts_hr,
+                          tvb, offset, 1, ENC_NA);
+      proto_tree_add_item(tree, hf_ieee80211_ff_anqp_nw_auth_type_ts_min,
+                          tvb, offset, 1, ENC_NA);
+      proto_tree_add_item(tree, hf_ieee80211_ff_anqp_nw_auth_type_ts_sec,
+                          tvb, offset, 1, ENC_NA);
+      proto_tree_add_item(tree, hf_ieee80211_ff_anqp_nw_auth_type_ts_msec,
+                          tvb, offset, 2, ENC_NA);
+      proto_tree_add_item(tree, hf_ieee80211_ff_anqp_nw_auth_type_ts_rsvd,
+                          tvb, offset, 1, ENC_NA);
+      offset += 10;
+    } else {
+      /* Not enough bytes to dissect a timestamp */
+    }
+  }
+}
+
+static void
 add_manuf(proto_item *item, tvbuff_t *tvb, int offset)
 {
   const gchar *manuf_name;
@@ -8730,6 +8793,9 @@ dissect_anqp_info(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offse
     break;
   case ANQP_INFO_ADVICE_OF_CHARGE:
     dissect_hs20_anqp_advice_of_charge(tree, tvb, offset, offset + len);
+    break;
+  case ANQP_INFO_NETWORK_AUTH_TYPE_TIMESTAMP:
+    dissect_anqp_network_auth_type_timestamp(tree, tvb, offset, offset + len);
     break;
   default:
     proto_tree_add_item(tree, hf_ieee80211_ff_anqp_info,
@@ -30984,8 +31050,64 @@ proto_register_ieee80211(void)
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_anqp_nw_auth_type_url,
-     {"Re-direct URL", "wlan.fixed.anqp.nw_auth_type_url",
+     {"Re-direct URL", "wlan.fixed.anqp.nw_auth_type.url",
       FT_STRING, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_anqp_nw_auth_type_ts_indicator,
+     {"Network Authentication Type w/ Timestamp Indicator",
+      "wlan.fixed.anqp.nw_auth_type_ts.indicator",
+      FT_UINT8, BASE_DEC, VALS(nw_auth_type_vals), 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_anqp_nw_auth_type_ts_url_len,
+     {"Re-direct URL Length", "wlan.fixed.anqp.nw_auth_type_ts.url_len",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_anqp_nw_auth_type_ts_url,
+     {"Re-direct URL", "wlan.fixed.anqp.nw_auth_type_ts.url",
+      FT_STRING, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_anqp_nw_auth_type_ts_year,
+     {"Timestamp (Year)", "wlan.fixed.anqp.nw_auth_type_ts.year",
+      FT_UINT16, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_anqp_nw_auth_type_ts_mon,
+     {"Timestamp (Month)", "wlan.fixed.anqp.nw_auth_type_ts.mon",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_anqp_nw_auth_type_ts_day,
+     {"Timestamp (Day)", "wlan.fixed.anqp.nw_auth_type_ts.day",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_anqp_nw_auth_type_ts_hr,
+     {"Timestamp (Hours)", "wlan.fixed.anqp.nw_auth_type_ts.hr",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_anqp_nw_auth_type_ts_min,
+     {"Timestamp (Minutes)", "wlan.fixed.anqp.nw_auth_type_ts.min",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_anqp_nw_auth_type_ts_sec,
+     {"Timestamp (Seconds)", "wlan.fixed.anqp.nw_auth_type_ts.sec",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_anqp_nw_auth_type_ts_msec,
+     {"Timestamp (Milliseconds)", "wlan.fixed.anqp.nw_auth_type_ts.msec",
+      FT_UINT16, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_anqp_nw_auth_type_ts_rsvd,
+     {"Timestamp (Reserved)", "wlan.fixed.anqp.nw_auth_type_ts.rsvd",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_anqp_roaming_consortium_oi_len,
