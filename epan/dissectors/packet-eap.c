@@ -44,7 +44,7 @@ static int hf_eap_identity_wlan_prefix = -1;
 static int hf_eap_identity_wlan_mcc = -1;
 static int hf_eap_identity_wlan_mcc_mnc_2digits = -1;
 static int hf_eap_identity_wlan_mcc_mnc_3digits = -1;
-static int hf_eap_identity_unknown_data = -1;
+static int hf_eap_identity_padding = -1;
 
 static int hf_eap_notification = -1;
 
@@ -601,25 +601,40 @@ dissect_eap_identity_wlan(tvbuff_t *tvb, packet_info* pinfo, proto_tree* tree, i
   guint8      eap_identity_prefix = 0;
   guint8*     identity = NULL;
   gchar**     tokens = NULL;
+  gchar**     realm_tokens = NULL;
   guint       ntokens = 0;
+  guint       nrealm_tokens = 0;
   gboolean    ret = TRUE;
   int         hf_eap_identity_wlan_mcc_mnc;
   proto_item* item;
 
   identity = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, size, ENC_ASCII);
 
-  tokens = g_strsplit_set(identity, "@.", -1);
+  /* Split the Identity and the NAI Realm first */
+  tokens = g_strsplit_set(identity, "@", -1);
 
   while(tokens[ntokens])
     ntokens++;
+
+  /* tokens[0] is the identity, tokens[1] is the NAI Realm */
+  if (ntokens != 2) {
+    ret = FALSE;
+    proto_tree_add_item(tree, hf_eap_identity, tvb, offset, size, ENC_ASCII|ENC_NA);
+    goto end;
+  }
+
+  realm_tokens = g_strsplit_set(tokens[1], ".", -1);
+
+  while(realm_tokens[nrealm_tokens])
+    nrealm_tokens++;
 
   /* The WLAN identity must have the form of
      <imsi>@wlan.mnc<mnc>.mcc<mcc>.3gppnetwork.org
      If not, we don't have a wlan identity
   */
-  if (ntokens != 6 || g_ascii_strncasecmp(tokens[1], "wlan", 4) ||
-      g_ascii_strncasecmp(tokens[4], "3gppnetwork", 11) ||
-      g_ascii_strncasecmp(tokens[5], "org", 3)) {
+  if (ntokens != 2 || nrealm_tokens != 5 || g_ascii_strncasecmp(realm_tokens[0], "wlan", 4) ||
+      g_ascii_strncasecmp(realm_tokens[3], "3gppnetwork", 11) ||
+      g_ascii_strncasecmp(realm_tokens[4], "org", 3)) {
     ret = FALSE;
     goto end;
   }
@@ -651,37 +666,42 @@ dissect_eap_identity_wlan(tvbuff_t *tvb, packet_info* pinfo, proto_tree* tree, i
       expert_add_info(pinfo, item, &ei_eap_identity_invalid);
   }
 
-  /* guess if we have a 3 bytes mnc by comparing the first bytes with the imsi */
-  /* XXX Should we force matches on "mnc" and "mmc"? */
-  if (!sscanf(tokens[2], "%*3c%u", &mnc) || !sscanf(tokens[3], "%*3c%u", &mcc)) {
+  /* EAP identities do not always equate to IMSIs.  We should
+   * still add the MCC and MNC values for non-permanent EAP
+   * identities. */
+  if (!sscanf(realm_tokens[1] + 3, "%u", &mnc) || !sscanf(realm_tokens[2] + 3, "%u", &mcc)) {
     ret = FALSE;
     goto end;
   }
 
-  if (!g_ascii_strncasecmp(tokens[0], tokens[2] + 3, 3)) {
+  if (!try_val_to_str_ext(mcc * 100 + mnc, &mcc_mnc_2digits_codes_ext)) {
+    /* May have
+     * (1) an invalid 2-digit MNC so it won't resolve,
+     * (2) an invalid 3-digit MNC so it won't resolve, or
+     * (3) a valid 3-digit MNC.
+     * For all cases we treat as 3-digit MNC and continue. */
     mcc_mnc = 1000 * mcc + mnc;
     hf_eap_identity_wlan_mcc_mnc = hf_eap_identity_wlan_mcc_mnc_3digits;
   } else {
+    /* We got a 2-digit MNC match */
     mcc_mnc = 100 * mcc + mnc;
     hf_eap_identity_wlan_mcc_mnc = hf_eap_identity_wlan_mcc_mnc_2digits;
   }
 
-  proto_tree_add_uint(eap_identity_tree, hf_eap_identity_wlan_mcc_mnc,
-    tvb, offset + (guint)strlen(tokens[0]) + (guint)strlen("@wlan.") +
-    (guint)strlen("mnc"), (guint)strlen(tokens[2]) - (guint)strlen("mnc"),
-    mcc_mnc);
-
+  /* Add MCC then MNC */
   proto_tree_add_uint(eap_identity_tree, hf_eap_identity_wlan_mcc,
     tvb, offset + (guint)(strlen(tokens[0]) + strlen("@wlan.") +
-    strlen(tokens[2]) + 1 + strlen("mcc")),
-    (guint)(strlen(tokens[3]) - strlen("mcc")), mcc);
+    strlen(realm_tokens[1]) + 1 + strlen("mcc")),
+    (guint)(strlen(realm_tokens[2]) - strlen("mcc")), mcc);
+
+  proto_tree_add_uint(eap_identity_tree, hf_eap_identity_wlan_mcc_mnc,
+    tvb, offset + (guint)strlen(tokens[0]) + (guint)strlen("@wlan.") +
+    (guint)strlen("mnc"), (guint)strlen(realm_tokens[1]) - (guint)strlen("mnc"),
+    mcc_mnc);
+
 end:
   g_strfreev(tokens);
-  /* Some devices add 0x00 bytes assumed to be padding which may lead to offset errors. */
-  if(tvb_captured_length_remaining(tvb, offset + size) != 0){
-      proto_tree_add_item(tree, hf_eap_identity_unknown_data, tvb, offset + size,
-        tvb_captured_length_remaining(tvb, offset + size), ENC_NA);
-  }
+
   return ret;
 }
 
@@ -712,6 +732,7 @@ dissect_eap_sim(proto_tree *eap_tree, tvbuff_t *tvb, packet_info* pinfo, int off
   /* Rest of EAP-SIM data is in Type-Len-Value format. */
   while (left >= 2) {
     guint8      type, length;
+    gint        padding;
     proto_item *pi;
     proto_tree *attr_tree;
     int         aoffset;
@@ -743,6 +764,15 @@ dissect_eap_sim(proto_tree *eap_tree, tvbuff_t *tvb, packet_info* pinfo, int off
       case AT_IDENTITY:
         proto_tree_add_item(attr_tree, hf_eap_identity_actual_len, tvb, aoffset, 2, ENC_BIG_ENDIAN);
         dissect_eap_identity(tvb, pinfo, attr_tree, aoffset + 2, tvb_get_ntohs(tvb, aoffset));
+        /* If we have a disparity between the EAP-SIM length (minus the
+         * first 4 bytes of header fields) * 4 and the Identity Actual
+         * Length then it's padding and we need to adjust for that
+         * accurately before looking at the next EAP-SIM attribute. */
+        padding = ((length - 1) * 4) - tvb_get_ntohs(tvb, aoffset);
+        if (padding != 0) {
+          proto_tree_add_item(attr_tree, hf_eap_identity_padding, tvb,
+            aoffset + 2 + tvb_get_ntohs(tvb, aoffset), padding, ENC_NA);
+        }
         break;
       case AT_NOTIFICATION:
         proto_tree_add_item(attr_tree, hf_eap_sim_notification_type, tvb, aoffset, 2, ENC_BIG_ENDIAN);
@@ -763,6 +793,7 @@ static void
 dissect_eap_aka(proto_tree *eap_tree, tvbuff_t *tvb, packet_info* pinfo, int offset, gint size)
 {
   gint left = size;
+
   proto_tree_add_item(eap_tree, hf_eap_aka_subtype, tvb, offset, 1, ENC_BIG_ENDIAN);
 
   offset += 1;
@@ -777,6 +808,7 @@ dissect_eap_aka(proto_tree *eap_tree, tvbuff_t *tvb, packet_info* pinfo, int off
   /* Rest of EAP-AKA data is in Type-Len-Value format. */
   while (left >= 2) {
     guint8       type, length;
+    gint         padding;
     proto_item  *pi;
     proto_tree  *attr_tree;
     int          aoffset;
@@ -808,6 +840,15 @@ dissect_eap_aka(proto_tree *eap_tree, tvbuff_t *tvb, packet_info* pinfo, int off
       case AT_IDENTITY:
         proto_tree_add_item(attr_tree, hf_eap_identity_actual_len, tvb, aoffset, 2, ENC_BIG_ENDIAN);
         dissect_eap_identity(tvb, pinfo, attr_tree, aoffset + 2, tvb_get_ntohs(tvb, aoffset));
+        /* If we have a disparity between the EAP-AKA length (minus the
+         * first 4 bytes of header fields) * 4 and the Identity Actual
+         * Length then it's padding and we need to adjust for that
+         * accurately before looking at the next EAP-AKA attribute. */
+        padding = ((length - 1) * 4) - tvb_get_ntohs(tvb, aoffset);
+        if (padding != 0) {
+          proto_tree_add_item(attr_tree, hf_eap_identity_padding, tvb,
+            aoffset + 2 + tvb_get_ntohs(tvb, aoffset), padding, ENC_NA);
+        }
         break;
       case AT_NOTIFICATION:
         proto_tree_add_item(attr_tree, hf_eap_aka_notification_type, tvb, aoffset, 2, ENC_BIG_ENDIAN);
@@ -840,7 +881,6 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
   proto_tree     *eap_tree;
   proto_tree     *eap_tls_flags_tree;
   proto_item     *eap_type_item;
-  proto_item     *eap_identity_item;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "EAP");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -970,8 +1010,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         **********************************************************************/
       case EAP_TYPE_ID:
         if (size > 0) {
-          eap_identity_item = proto_tree_add_item(eap_tree, hf_eap_identity, tvb, offset, size, ENC_ASCII|ENC_NA);
-          dissect_eap_identity(tvb, pinfo, eap_identity_item, offset, size);
+          dissect_eap_identity(tvb, pinfo, eap_tree, offset, size);
         }
         if (conversation_state && !PINFO_FD_VISITED(pinfo)) {
           conversation_state->leap_state  =  0;
@@ -1485,8 +1524,8 @@ proto_register_eap(void)
       "WLAN Identity Mobile Network Code", "eap.identity.wlan.mnc",
       FT_UINT16, BASE_DEC|BASE_EXT_STRING, &mcc_mnc_3digits_codes_ext, 0x0, NULL, HFILL }},
 
-    { &hf_eap_identity_unknown_data, {
-      "Unknown Data", "eap.identity.data_unk",
+    { &hf_eap_identity_padding, {
+      "Padding", "eap.identity.padding",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       NULL, HFILL }},
 
