@@ -37,13 +37,13 @@ static int hf_eap_type = -1;
 static int hf_eap_type_nak = -1;
 
 static int hf_eap_identity = -1;
-static int hf_eap_identity_pseudo = -1;
-static int hf_eap_identity_reauth = -1;
+static int hf_eap_identity_full = -1;
 static int hf_eap_identity_actual_len = -1;
-static int hf_eap_identity_wlan_prefix = -1;
-static int hf_eap_identity_wlan_mcc = -1;
-static int hf_eap_identity_wlan_mcc_mnc_2digits = -1;
-static int hf_eap_identity_wlan_mcc_mnc_3digits = -1;
+static int hf_eap_identity_prefix = -1;
+static int hf_eap_identity_type = -1;
+static int hf_eap_identity_mcc = -1;
+static int hf_eap_identity_mcc_mnc_2digits = -1;
+static int hf_eap_identity_mcc_mnc_3digits = -1;
 static int hf_eap_identity_padding = -1;
 
 static int hf_eap_notification = -1;
@@ -195,16 +195,19 @@ static const value_string eap_type_vals[] = {
 };
 value_string_ext eap_type_vals_ext = VALUE_STRING_EXT_INIT(eap_type_vals);
 
-const value_string eap_identity_wlan_prefix_vals[] = {
-  { '0', "EAP-AKA Permanent" },
-  { '1', "EAP-SIM Permanent" },
-  { '2', "EAP-AKA Pseudonym" },
-  { '3', "EAP-SIM Pseudonym" },
-  { '4', "EAP-AKA Reauth ID" },
-  { '5', "EAP-SIM Reauth ID" },
-  { '6', "EAP-AKA Prime Permanent" },
-  { '7', "EAP-AKA Prime Pseudonym" },
-  { '8', "EAP-AKA Prime Reauth ID" },
+const value_string eap_identity_prefix_vals[] = {
+  { 0x00, "Encrypted IMSI" },
+  {  '0', "EAP-AKA Permanent" },
+  {  '1', "EAP-SIM Permanent" },
+  {  '2', "EAP-AKA Pseudonym" },
+  {  '3', "EAP-SIM Pseudonym" },
+  {  '4', "EAP-AKA Reauth ID" },
+  {  '5', "EAP-SIM Reauth ID" },
+  {  '6', "EAP-AKA Prime Permanent" },
+  {  '7', "EAP-AKA Prime Pseudonym" },
+  {  '8', "EAP-AKA Prime Reauth ID" },
+  {  'C', "Conservative Peer" },
+  {  'a', "Anonymous Identity" },
   { 0, NULL }
 };
 
@@ -599,13 +602,14 @@ dissect_eap_identity_wlan(tvbuff_t *tvb, packet_info* pinfo, proto_tree* tree, i
   guint       mcc_mnc = 0;
   proto_tree* eap_identity_tree = NULL;
   guint8      eap_identity_prefix = 0;
+  const gchar* eap_identity_value;
   guint8*     identity = NULL;
   gchar**     tokens = NULL;
   gchar**     realm_tokens = NULL;
   guint       ntokens = 0;
   guint       nrealm_tokens = 0;
   gboolean    ret = TRUE;
-  int         hf_eap_identity_wlan_mcc_mnc;
+  int         hf_eap_identity_mcc_mnc;
   proto_item* item;
 
   identity = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, size, ENC_ASCII);
@@ -642,27 +646,48 @@ dissect_eap_identity_wlan(tvbuff_t *tvb, packet_info* pinfo, proto_tree* tree, i
   /* It is very likely that we have a WLAN identity (EAP-AKA/EAP-SIM) */
   /* Go on with the dissection */
   eap_identity_tree = proto_item_add_subtree(tree, ett_identity);
-  eap_identity_prefix = tokens[0][0];
-  item = proto_tree_add_uint(eap_identity_tree, hf_eap_identity_wlan_prefix,
-    tvb, offset, 1, eap_identity_prefix);
+  proto_tree_add_item(eap_identity_tree, hf_eap_identity_prefix, tvb, offset, 1, ENC_NA);
+  eap_identity_prefix = tvb_get_guint8(tvb, offset);
+  eap_identity_value = try_val_to_str(eap_identity_prefix, eap_identity_prefix_vals);
+  item = proto_tree_add_string(eap_identity_tree, hf_eap_identity_type,
+    tvb, offset, 1, eap_identity_value ? eap_identity_value : "Unknown");
 
   switch(eap_identity_prefix) {
-    case '0':
-    case '1':
-    case '6':
+    case 0x00: /* Encrypted IMSI */
+      proto_tree_add_item(eap_identity_tree, hf_eap_identity_full, tvb, offset + 1, size - 1, ENC_ASCII || ENC_NA);
+      proto_tree_add_item(eap_identity_tree, hf_eap_identity, tvb, offset + 1, (guint)strlen(tokens[0]), ENC_ASCII || ENC_NA);
+      break;
+    case '0': /* EAP-AKA Permanent */
+    case '1': /* EAP-SIM Permanent */
+    case '6': /* EAP-AKA' Permanent */
+      proto_tree_add_item(eap_identity_tree, hf_eap_identity_full, tvb, offset + 1, size - 1, ENC_ASCII || ENC_NA);
       dissect_e212_utf8_imsi(tvb, pinfo, eap_identity_tree, offset + 1, (guint)strlen(tokens[0]) - 1);
       break;
-    case '2':
-    case '3':
-    case '7':
-      proto_tree_add_item(eap_identity_tree, hf_eap_identity_pseudo, tvb, offset + 1, (guint)strlen(tokens[0]) - 1, ENC_ASCII|ENC_NA);
+    case '2': /* EAP-AKA Pseudonym */
+    case '3': /* EAP-SIM Pseudonym */
+    case '7': /* EAP-AKA' Pseudonym */
+      proto_tree_add_item(eap_identity_tree, hf_eap_identity_full, tvb, offset + 1, size - 1, ENC_ASCII || ENC_NA);
+      proto_tree_add_item(eap_identity_tree, hf_eap_identity, tvb, offset + 1, (guint)strlen(tokens[0]) - 1, ENC_ASCII|ENC_NA);
       break;
-    case '4':
-    case '5':
-    case '8':
-      proto_tree_add_item(eap_identity_tree, hf_eap_identity_reauth, tvb, offset + 1, (guint)strlen(tokens[0]) - 1, ENC_ASCII|ENC_NA);
+    case '4': /* EAP-AKA Reauth ID */
+    case '5': /* EAP-SIM Reauth ID */
+    case '8': /* EAP-AKA' Reauth ID */
+      proto_tree_add_item(eap_identity_tree, hf_eap_identity_full, tvb, offset + 1, size - 1, ENC_ASCII || ENC_NA);
+      proto_tree_add_item(eap_identity_tree, hf_eap_identity, tvb, offset + 1, (guint)strlen(tokens[0]) - 1, ENC_ASCII|ENC_NA);
       break;
+    case 'C': /* Conservative Peer */
+      proto_tree_add_item(eap_identity_tree, hf_eap_identity_full, tvb, offset + 1, size - 1, ENC_ASCII || ENC_NA);
+      proto_tree_add_item(eap_identity_tree, hf_eap_identity, tvb, offset + 1, (guint)strlen(tokens[0]) - 1, ENC_ASCII|ENC_NA);
+      break;
+    case 'a': /* Anonymous User */
+      proto_tree_add_item(eap_identity_tree, hf_eap_identity_full, tvb, offset, size, ENC_ASCII || ENC_NA);
+      proto_tree_add_item(eap_identity_tree, hf_eap_identity, tvb, offset, (guint)strlen(tokens[0]), ENC_ASCII|ENC_NA);
+      break;
+    case 'G': /* TODO: 'G' Unknown */
+    case 'I': /* TODO: 'I' Unknown */
     default:
+      proto_tree_add_item(eap_identity_tree, hf_eap_identity_full, tvb, offset + 1, size - 1, ENC_ASCII || ENC_NA);
+      proto_tree_add_item(eap_identity_tree, hf_eap_identity, tvb, offset + 1, (guint)strlen(tokens[0]) - 1, ENC_ASCII|ENC_NA);
       expert_add_info(pinfo, item, &ei_eap_identity_invalid);
   }
 
@@ -681,24 +706,22 @@ dissect_eap_identity_wlan(tvbuff_t *tvb, packet_info* pinfo, proto_tree* tree, i
      * (3) a valid 3-digit MNC.
      * For all cases we treat as 3-digit MNC and continue. */
     mcc_mnc = 1000 * mcc + mnc;
-    hf_eap_identity_wlan_mcc_mnc = hf_eap_identity_wlan_mcc_mnc_3digits;
+    hf_eap_identity_mcc_mnc = hf_eap_identity_mcc_mnc_3digits;
   } else {
     /* We got a 2-digit MNC match */
     mcc_mnc = 100 * mcc + mnc;
-    hf_eap_identity_wlan_mcc_mnc = hf_eap_identity_wlan_mcc_mnc_2digits;
+    hf_eap_identity_mcc_mnc = hf_eap_identity_mcc_mnc_2digits;
   }
 
-  /* Add MCC then MNC */
-  proto_tree_add_uint(eap_identity_tree, hf_eap_identity_wlan_mcc,
-    tvb, offset + (guint)(strlen(tokens[0]) + strlen("@wlan.") +
-    strlen(realm_tokens[1]) + 1 + strlen("mcc")),
-    (guint)(strlen(realm_tokens[2]) - strlen("mcc")), mcc);
-
-  proto_tree_add_uint(eap_identity_tree, hf_eap_identity_wlan_mcc_mnc,
+  proto_tree_add_uint(eap_identity_tree, hf_eap_identity_mcc_mnc,
     tvb, offset + (guint)strlen(tokens[0]) + (guint)strlen("@wlan.") +
     (guint)strlen("mnc"), (guint)strlen(realm_tokens[1]) - (guint)strlen("mnc"),
     mcc_mnc);
 
+  proto_tree_add_uint(eap_identity_tree, hf_eap_identity_mcc,
+    tvb, offset + (guint)(strlen(tokens[0]) + strlen("@wlan.") +
+    strlen(tokens[2]) + 1 + strlen("mcc")),
+    (guint)(strlen(tokens[3]) - strlen("mcc")), mcc);
 end:
   g_strfreev(tokens);
 
@@ -1497,31 +1520,31 @@ proto_register_eap(void)
       FT_STRING, BASE_NONE, NULL, 0x0,
       NULL, HFILL }},
 
-    { &hf_eap_identity_pseudo, {
-      "Identity (Pseudonym)", "eap.identity.pseudo",
+    { &hf_eap_identity_prefix, {
+      "Identity Prefix", "eap.identity.prefix",
+      FT_CHAR, BASE_HEX, NULL, 0x0,
+      NULL, HFILL }},
+
+    { &hf_eap_identity_type, {
+      "Identity Type", "eap.identity.type",
       FT_STRING, BASE_NONE, NULL, 0x0,
       NULL, HFILL }},
 
-    { &hf_eap_identity_reauth, {
-      "Identity (Reauth)", "eap.identity.reauth",
+    { &hf_eap_identity_full, {
+      "Identity (Full)", "eap.identity.full",
       FT_STRING, BASE_NONE, NULL, 0x0,
       NULL, HFILL }},
 
-    { &hf_eap_identity_wlan_prefix, {
-      "WLAN Identity Prefix", "eap.identity.wlan.prefix",
-      FT_CHAR, BASE_HEX, VALS(eap_identity_wlan_prefix_vals), 0x0,
-      NULL, HFILL }},
-
-    { &hf_eap_identity_wlan_mcc, {
-      "WLAN Identity Mobile Country Code", "eap.identity.wlan.mcc",
+    { &hf_eap_identity_mcc, {
+      "Identity Mobile Country Code", "eap.identity.mcc",
       FT_UINT16, BASE_DEC|BASE_EXT_STRING, &E212_codes_ext, 0x0, NULL, HFILL }},
 
-    { &hf_eap_identity_wlan_mcc_mnc_2digits, {
-      "WLAN Identity Mobile Network Code", "eap.identity.wlan.mnc",
+    { &hf_eap_identity_mcc_mnc_2digits, {
+      "Identity Mobile Network Code", "eap.identity.mnc",
       FT_UINT16, BASE_DEC|BASE_EXT_STRING, &mcc_mnc_2digits_codes_ext, 0x0, NULL, HFILL }},
 
-    { &hf_eap_identity_wlan_mcc_mnc_3digits, {
-      "WLAN Identity Mobile Network Code", "eap.identity.wlan.mnc",
+    { &hf_eap_identity_mcc_mnc_3digits, {
+      "Identity Mobile Network Code", "eap.identity.mnc",
       FT_UINT16, BASE_DEC|BASE_EXT_STRING, &mcc_mnc_3digits_codes_ext, 0x0, NULL, HFILL }},
 
     { &hf_eap_identity_padding, {
