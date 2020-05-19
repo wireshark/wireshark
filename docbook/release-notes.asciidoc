@@ -13,21 +13,18 @@ It is used for troubleshooting, analysis, development and education.
 
 == What’s New
 
-The Windows installers now ship with Qt 5.12.8.
-They previously shipped with Qt 5.12.6.
-
 === Bug Fixes
 
 The following vulnerabilities have been fixed:
 
-* wssalink:2020-08[]
-The NFS dissector could crash.
-wsbuglink:16476[].
+* wssalink:2020-09[]
+A dissector went awry.
+// wsbuglink:xxxx[].
 // cveidlink:2020-xxxx[].
-// Fixed in master: fc6763989c
-// Fixed in master-3.2: 84afe20cb3,e3257d7cd2
-// Fixed in master-3.0: 6b2844bfb7,dcb2760553,4d646e5f25
-// Fixed in master-2.6: e6e98eab8e,88bdf254ce,b82c7ba32b
+// Fixed in master: xxxx
+// Fixed in master-3.2: xxxx
+// Fixed in master-3.0: xxxx
+// Fixed in master-2.6: xxxx
 
 The following bugs have been fixed:
 
@@ -36,22 +33,6 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 //* Wireshark slowly leaked water under the kitchen sink over the course of several months, causing a big mess.
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v3.0.12rc0..| grep ' Bug:' | awk '{print $2}' | sort -n -u ` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
-
-* PVS-Studio analyser long list of issues. wsbuglink:16335[].
-
-* pcapng file dissector incorrectly computes nanoseconds from timestamps because it assumes the resolution is in nanoseconds. wsbuglink:16440[].
-
-* Read of uninitialized memory in detect_camins_file. wsbuglink:16458[].
-
-* Read of uninitialized memory in lanalyzer_read_trace_record. wsbuglink:16459[].
-
-* Range parameter on numeric parameter in extcap plugin doesn't work. wsbuglink:16510[].
-
-* capinfos &quot;Capture duration&quot; output is truncated if there are more than 11 digits of seconds and fractions of a second. wsbuglink:16519[].
-
-* MIME Files Format/pcapng: Simple Packet Block parsed incorrectly. wsbuglink:16526[].
-
-* Buildbot crash output: fuzz-2020-05-13-12195.pcap. wsbuglink:16564[].
 
 === New and Updated Features
 
@@ -74,37 +55,15 @@ There are no new protocols in this release.
 // Add one protocol per line between the -- delimiters.
 [commaize]
 --
-AoE
-APRS
-ASN.1 BER
-FTP
-GSM SMS
-Infiniband
-ISObus VT
-MAC LTE
-NFS
-ONC RPC
-OSC
-pcapng
-PDCP LTE
-SDP
-SIP
-Snort
-STUN
-UMTS FP
 --
 
 === New and Updated Capture File Support
 
-// There is no new or updated capture file support in this release.
+There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-[commaize]
---
-Camins
-Catapult DCT 2000
-Lanalyzer
-MPEG
---
+// [commaize]
+// --
+// --
 
 === New and Updated Capture Interfaces support
 
