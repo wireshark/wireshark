@@ -101,7 +101,14 @@ enum {
   DPP_PKEX_EXCHANGE_REQUEST       = 7,
   DPP_PKEX_EXCHANGE_RESPONSE      = 8,
   DPP_PKEX_COMMIT_REVEAL_REQUEST  = 9,
-  DPP_PKEX_COMMIT_REVEAL_RESPONSE = 10
+  DPP_PKEX_COMMIT_REVEAL_RESPONSE = 10,
+  DPP_CONFIG_RESULT               = 11,
+  DPP_CONNECTION_STATUS_RESULT    = 12,
+  DPP_PRESENCE_ANNOUNCEMENT       = 13,
+  DPP_RECONFIG_ANNOUNCEMENT       = 14,
+  DPP_RECONFIG_AUTH_REQUEST       = 15,
+  DPP_RECONFIG_AUTH_RESP          = 16,
+  DPP_RECONFIG_AUTH_CONFORM       = 17
 };
 
 static const value_string dpp_public_action_subtypes[] = {
@@ -114,6 +121,13 @@ static const value_string dpp_public_action_subtypes[] = {
   { DPP_PKEX_EXCHANGE_RESPONSE,      "PKEX Exchange Response" },
   { DPP_PKEX_COMMIT_REVEAL_REQUEST,  "PKEX Commit-Reveal Request" },
   { DPP_PKEX_COMMIT_REVEAL_RESPONSE, "PKEX Commit-Reveal Response" },
+  { DPP_CONFIG_RESULT,               "Configuration Result" },
+  { DPP_CONNECTION_STATUS_RESULT,    "Connection Status Result" },
+  { DPP_PRESENCE_ANNOUNCEMENT,       "Presence Announcement" },
+  { DPP_RECONFIG_ANNOUNCEMENT,       "Reconfig Announcement" },
+  { DPP_RECONFIG_AUTH_REQUEST,       "Reconfig Authentication Request" },
+  { DPP_RECONFIG_AUTH_RESP,          "Reconfig Authentication Response" },
+  { DPP_RECONFIG_AUTH_CONFORM,       "Reconfig Authentication Confirm" },
   { 0, NULL }
 };
 
