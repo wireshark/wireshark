@@ -22,13 +22,13 @@ They previously shipped with Qt 5.12.6.
 The following vulnerabilities have been fixed:
 
 * wssalink:2020-08[]
-A dissector went awry.
-// wsbuglink:xxxx[].
+The NFS dissector could crash.
+wsbuglink:16476[].
 // cveidlink:2020-xxxx[].
-// Fixed in master: xxxx
-// Fixed in master-3.2: xxxx
-// Fixed in master-3.0: xxxx
-// Fixed in master-2.6: xxxx
+// Fixed in master: fc6763989c
+// Fixed in master-3.2: 84afe20cb3,e3257d7cd2
+// Fixed in master-3.0: 6b2844bfb7,dcb2760553,4d646e5f25
+// Fixed in master-2.6: e6e98eab8e,88bdf254ce,b82c7ba32b
 
 The following bugs have been fixed:
 
@@ -36,8 +36,37 @@ The following bugs have been fixed:
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
 //* Wireshark is solely responsible for the decline of shopping malls in your area.
-// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v3.2.4rc0..| grep ' Bug:' | awk '{print $2}' | sort -n -u ` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
+// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v3.2.5rc0..| grep ' Bug:' | awk '{print $2}' | sort -n -u ` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
 
+* SDP dissector does not parse sprop-parameter-sets field. wsbuglink:16322[].
+
+* PVS-Studio analyser long list of issues. wsbuglink:16335[].
+
+* Can't have duplicate personal and global profile names. wsbuglink:16423[].
+
+* pcapng file dissector incorrectly computes nanoseconds from timestamps because it assumes the resolution is in nanoseconds. wsbuglink:16440[].
+
+* Read of uninitialized memory in detect_camins_file. wsbuglink:16458[].
+
+* Read of uninitialized memory in lanalyzer_read_trace_record. wsbuglink:16459[].
+
+* capture -&gt; options -&gt; select interface -&gt; (choose) -&gt; SEGV. wsbuglink:16489[].
+
+* SOMEIP: SOME/IP dissector ignores the length field configuration of structs. wsbuglink:16490[].
+
+* Packet List Pane doesn't consume the entire pane. wsbuglink:16491[].
+
+* Range parameter on numeric parameter in extcap plugin doesn't work. wsbuglink:16510[].
+
+* Export Packet Dissections not working on Windows (Wireshark 3.2.x). wsbuglink:16516[].
+
+* capinfos &quot;Capture duration&quot; output is truncated if there are more than 11 digits of seconds and fractions of a second. wsbuglink:16519[].
+
+* MIME Files Format/pcapng: Simple Packet Block parsed incorrectly. wsbuglink:16526[].
+
+* SOMEIP: SOME/IP-SD unique id is not unique for eventgroup types (BUG). wsbuglink:16549[].
+
+* Buildbot crash output: fuzz-2020-05-13-12195.pcap. wsbuglink:16564[].
 
 === New and Updated Features
 
@@ -66,11 +95,11 @@ There are no new protocols in this release.
 
 === New and Updated Capture File Support
 
-There is no new or updated capture file support in this release.
+// There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-// [commaize]
-// --
-// --
+[commaize]
+--
+--
 
 // === New and Updated Capture Interfaces support
 
