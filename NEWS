@@ -14,9 +14,32 @@ Wireshark 3.0.11 Release Notes
 
    The following vulnerabilities have been fixed:
 
-     • wnpa-sec-2020-08[1] A dissector went awry.
+     • wnpa-sec-2020-08[1] The NFS dissector could crash. Bug 16476[2].
 
    The following bugs have been fixed:
+
+     • PVS-Studio analyser long list of issues. Bug 16335[3].
+
+     • pcapng file dissector incorrectly computes nanoseconds from
+       timestamps because it assumes the resolution is in nanoseconds.
+       Bug 16440[4].
+
+     • Read of uninitialized memory in detect_camins_file. Bug 16458[5].
+
+     • Read of uninitialized memory in lanalyzer_read_trace_record. Bug
+       16459[6].
+
+     • Range parameter on numeric parameter in extcap plugin doesn’t
+       work. Bug 16510[7].
+
+     • capinfos "Capture duration" output is truncated if there are more
+       than 11 digits of seconds and fractions of a second. Bug
+       16519[8].
+
+     • MIME Files Format/pcapng: Simple Packet Block parsed incorrectly.
+       Bug 16526[9].
+
+     • Buildbot crash output: fuzz-2020-05-13-12195.pcap. Bug 16564[10].
 
   New and Updated Features
 
@@ -28,9 +51,13 @@ Wireshark 3.0.11 Release Notes
 
   Updated Protocol Support
 
+   AoE, APRS, ASN.1 BER, FTP, GSM SMS, Infiniband, ISObus VT, MAC LTE,
+   NFS, ONC RPC, OSC, pcapng, PDCP LTE, SDP, SIP, Snort, STUN, and UMTS
+   FP
+
   New and Updated Capture File Support
 
-   There is no new or updated capture file support in this release.
+   Camins, Catapult DCT 2000, Lanalyzer, and MPEG
 
   New and Updated Capture Interfaces support
 
@@ -46,7 +73,7 @@ Wireshark 3.0.11 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[2] on the Wireshark web site.
+   be found on the download page[11] on the Wireshark web site.
 
  File Locations
 
@@ -60,23 +87,32 @@ Wireshark 3.0.11 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[3] and on the
+  Community support is available on Wireshark’s Q&A site[12] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[4].
+  for all of Wireshark’s mailing lists can be found on the web site[13].
 
-  Bugs and feature requests can be reported on the bug tracker[5].
+  Bugs and feature requests can be reported on the bug tracker[14].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[6].
+  A complete FAQ is available on the Wireshark web site[15].
 
-  Last updated 2020-05-17 08:29:56 UTC
+  Last updated 2020-05-19 17:54:28 UTC
 
  References
 
    1. https://www.wireshark.org/security/wnpa-sec-2020-08
-   2. https://www.wireshark.org/download.html#thirdparty
-   3. https://ask.wireshark.org/
-   4. https://www.wireshark.org/lists/
-   5. https://bugs.wireshark.org/
-   6. https://www.wireshark.org/faq.html
+   2. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16476
+   3. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16335
+   4. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16440
+   5. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16458
+   6. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16459
+   7. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16510
+   8. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16519
+   9. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16526
+  10. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16564
+  11. https://www.wireshark.org/download.html#thirdparty
+  12. https://ask.wireshark.org/
+  13. https://www.wireshark.org/lists/
+  14. https://bugs.wireshark.org/
+  15. https://www.wireshark.org/faq.html
