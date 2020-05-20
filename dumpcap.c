@@ -2895,7 +2895,7 @@ capture_loop_init_pcapng_output(capture_options *capture_opts, loop_data *ld)
     }
 
     gboolean successful = TRUE;
-    int      err;
+    int      err = 0;
     GString *os_info_str = g_string_new("");
 
     get_os_version_info(os_info_str);
@@ -2995,8 +2995,7 @@ capture_loop_init_pcapng_output(capture_options *capture_opts, loop_data *ld)
 static gboolean
 capture_loop_init_output(capture_options *capture_opts, loop_data *ld, char *errmsg, int errmsg_len)
 {
-    int               err;
-    gboolean          successful;
+    int err = 0;
 
     g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_init_output");
 
@@ -3032,6 +3031,7 @@ capture_loop_init_output(capture_options *capture_opts, loop_data *ld, char *err
         }
     }
     if (ld->pdh) {
+        gboolean successful;
         if (capture_opts->use_pcapng) {
             successful = capture_loop_init_pcapng_output(capture_opts, ld);
         } else {
