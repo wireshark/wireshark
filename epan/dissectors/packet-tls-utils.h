@@ -151,10 +151,10 @@ typedef enum {
 #define SSL_HND_CERT_TYPE_RAW_PUBLIC_KEY     2
 
 /* https://github.com/quicwg/base-drafts/wiki/Temporary-IANA-Registry#quic-transport-parameters */
-#define SSL_HND_QUIC_TP_ORIGINAL_CONNECTION_ID              0x00
+#define SSL_HND_QUIC_TP_ORIGINAL_DESTINATION_CONNECTION_ID  0x00
 #define SSL_HND_QUIC_TP_MAX_IDLE_TIMEOUT                    0x01
 #define SSL_HND_QUIC_TP_STATELESS_RESET_TOKEN               0x02
-#define SSL_HND_QUIC_TP_MAX_PACKET_SIZE                     0x03
+#define SSL_HND_QUIC_TP_MAX_UDP_PAYLOAD_SIZE                0x03
 #define SSL_HND_QUIC_TP_INITIAL_MAX_DATA                    0x04
 #define SSL_HND_QUIC_TP_INITIAL_MAX_STREAM_DATA_BIDI_LOCAL  0x05
 #define SSL_HND_QUIC_TP_INITIAL_MAX_STREAM_DATA_BIDI_REMOTE 0x06
@@ -166,6 +166,8 @@ typedef enum {
 #define SSL_HND_QUIC_TP_DISABLE_ACTIVE_MIGRATION            0x0c
 #define SSL_HND_QUIC_TP_PREFERRED_ADDRESS                   0x0d
 #define SSL_HND_QUIC_TP_ACTIVE_CONNECTION_ID_LIMIT          0x0e
+#define SSL_HND_QUIC_TP_INITIAL_SOURCE_CONNECTION_ID        0x0f
+#define SSL_HND_QUIC_TP_RETRY_SOURCE_CONNECTION_ID          0x10
 #define SSL_HND_QUIC_TP_MAX_DATAGRAM_FRAME_SIZE             0x20 /* https://tools.ietf.org/html/draft-pauly-quic-datagram-05 */
 #define SSL_HND_QUIC_TP_LOSS_BITS                           0x1057 /* https://tools.ietf.org/html/draft-ferrieuxhamchaoui-quic-lossbits-03 */
 #define SSL_HND_QUIC_TP_ENABLE_TIME_STAMP                   0x7157 /* https://tools.ietf.org/html/draft-huitema-quic-ts-02 */
@@ -914,7 +916,7 @@ typedef struct ssl_common_dissect {
         gint hs_ext_quictp_parameter_len;
         gint hs_ext_quictp_parameter_len_old;
         gint hs_ext_quictp_parameter_value;
-        gint hs_ext_quictp_parameter_ocid;
+        gint hs_ext_quictp_parameter_original_destination_connection_id;
         gint hs_ext_quictp_parameter_max_idle_timeout;
         gint hs_ext_quictp_parameter_stateless_reset_token;
         gint hs_ext_quictp_parameter_initial_max_data;
@@ -925,7 +927,7 @@ typedef struct ssl_common_dissect {
         gint hs_ext_quictp_parameter_initial_max_streams_uni;
         gint hs_ext_quictp_parameter_ack_delay_exponent;
         gint hs_ext_quictp_parameter_max_ack_delay;
-        gint hs_ext_quictp_parameter_max_packet_size;
+        gint hs_ext_quictp_parameter_max_udp_payload_size;
         gint hs_ext_quictp_parameter_pa_ipv4address;
         gint hs_ext_quictp_parameter_pa_ipv6address;
         gint hs_ext_quictp_parameter_pa_ipv4port;
@@ -934,6 +936,8 @@ typedef struct ssl_common_dissect {
         gint hs_ext_quictp_parameter_pa_connectionid;
         gint hs_ext_quictp_parameter_pa_statelessresettoken;
         gint hs_ext_quictp_parameter_active_connection_id_limit;
+        gint hs_ext_quictp_parameter_initial_source_connection_id;
+        gint hs_ext_quictp_parameter_retry_source_connection_id;
         gint hs_ext_quictp_parameter_max_datagram_frame_size;
         gint hs_ext_quictp_parameter_loss_bits;
         gint hs_ext_quictp_parameter_min_ack_delay;
@@ -1166,7 +1170,7 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1,                                                 \
+        -1, -1, -1, -1, -1, -1,                                         \
     },                                                                  \
     /* ett */ {                                                         \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
@@ -2017,10 +2021,10 @@ ssl_common_dissect_t name = {   \
         FT_BYTES, BASE_NONE, NULL, 0x00,                                \
         NULL, HFILL }                                                   \
     },                                                                  \
-    { & name .hf.hs_ext_quictp_parameter_ocid,                          \
-      { "original_connection_id", prefix ".quic.parameter.ocid",        \
+    { & name .hf.hs_ext_quictp_parameter_original_destination_connection_id, \
+      { "original_destination_connection_id", prefix ".quic.parameter.original_destination_connection_id", \
         FT_BYTES, BASE_NONE, NULL, 0x00,                                \
-        "The value of the Destination Connection ID field from the first Initial packet sent by the client", HFILL } \
+        "Destination Connection ID from the first Initial packet sent by the client", HFILL } \
     },                                                                  \
     { & name .hf.hs_ext_quictp_parameter_max_idle_timeout,              \
       { "max_idle_timeout", prefix ".quic.parameter.max_idle_timeout",  \
@@ -2032,10 +2036,10 @@ ssl_common_dissect_t name = {   \
         FT_BYTES, BASE_NONE, NULL, 0x00,                                \
         "Used in verifying a stateless reset", HFILL }                  \
     },                                                                  \
-    { & name .hf.hs_ext_quictp_parameter_max_packet_size,               \
-      { "max_packet_size", prefix ".quic.parameter.max_packet_size",    \
+    { & name .hf.hs_ext_quictp_parameter_max_udp_payload_size,          \
+      { "max_udp_payload_size", prefix ".quic.parameter.max_udp_payload_size", \
         FT_UINT64, BASE_DEC, NULL, 0x00,                                \
-        "Indicates that packets larger than this limit will be dropped", HFILL }    \
+        "Maximum UDP payload size that the endpoint is willing to receive", HFILL }    \
     },                                                                  \
     { & name .hf.hs_ext_quictp_parameter_initial_max_data,              \
       { "initial_max_data", prefix ".quic.parameter.initial_max_data",  \
@@ -2115,6 +2119,16 @@ ssl_common_dissect_t name = {   \
     { & name .hf.hs_ext_quictp_parameter_active_connection_id_limit,    \
       { "Active Connection ID Limit", prefix ".quic.parameter.active_connection_id_limit", \
         FT_UINT64, BASE_DEC, NULL, 0x00,                                \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_quictp_parameter_initial_source_connection_id,  \
+      { "Initial Source Connection ID", prefix ".quic.parameter.initial_source_connection_id", \
+        FT_BYTES, BASE_NONE, NULL, 0x00,                                \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_quictp_parameter_retry_source_connection_id,    \
+      { "Retry Source Connection ID", prefix ".quic.parameter.retry_source_connection_id", \
+        FT_BYTES, BASE_NONE, NULL, 0x00,                                \
         NULL, HFILL }                                                   \
     },                                                                  \
     { & name .hf.hs_ext_quictp_parameter_max_datagram_frame_size,       \

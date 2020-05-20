@@ -12,9 +12,9 @@
 
 /*
  * See https://quicwg.org
- * https://tools.ietf.org/html/draft-ietf-quic-transport-27
- * https://tools.ietf.org/html/draft-ietf-quic-tls-27
- * https://tools.ietf.org/html/draft-ietf-quic-invariants-07
+ * https://tools.ietf.org/html/draft-ietf-quic-transport-28
+ * https://tools.ietf.org/html/draft-ietf-quic-tls-28
+ * https://tools.ietf.org/html/draft-ietf-quic-invariants-08
  *
  * Extension:
  * https://tools.ietf.org/html/draft-ferrieuxhamchaoui-quic-lossbits-03
@@ -23,7 +23,7 @@
  * https://tools.ietf.org/html/draft-iyengar-quic-delayed-ack-00
  *
  * Currently supported QUIC version(s): draft -21, draft -22, draft -23,
- * draft-24, draft-25, draft-26, draft-27.
+ * draft-24, draft-25, draft-26, draft-27, draft-28.
  * For a table of supported QUIC versions per Wireshark version, see
  * https://github.com/quicwg/base-drafts/wiki/Tools#wireshark
  *
@@ -371,6 +371,7 @@ const value_string quic_version_vals[] = {
     { 0xff000019, "draft-25" },
     { 0xff00001a, "draft-26" },
     { 0xff00001b, "draft-27" },
+    { 0xff00001c, "draft-28" },
     { 0, NULL }
 };
 
@@ -483,6 +484,7 @@ static const range_string quic_transport_error_code_vals[] = {
     { 0x0009, 0x0009, "CONNECTION_ID_LIMIT_ERROR" },
     { 0x000A, 0x000A, "PROTOCOL_VIOLATION" },
     { 0x000B, 0x000B, "INVALID_TOKEN" },
+    { 0x000C, 0x000C, "APPLICATION_ERROR" },
     { 0x000D, 0x000D, "CRYPTO_BUFFER_EXCEEDED" },
     { 0x000E, 0x000E, "KEY_UPDATE_ERROR" },
     { 0x0100, 0x01FF, "CRYPTO_ERROR" },

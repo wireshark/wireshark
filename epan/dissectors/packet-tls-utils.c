@@ -1568,10 +1568,10 @@ const value_string compress_certificate_algorithm_vals[] = {
 
 
 const value_string quic_transport_parameter_id[] = {
-    { SSL_HND_QUIC_TP_ORIGINAL_CONNECTION_ID, "original_connection_id" },
+    { SSL_HND_QUIC_TP_ORIGINAL_DESTINATION_CONNECTION_ID, "original_destination_connection_id" },
     { SSL_HND_QUIC_TP_MAX_IDLE_TIMEOUT, "max_idle_timeout" },
     { SSL_HND_QUIC_TP_STATELESS_RESET_TOKEN, "stateless_reset_token" },
-    { SSL_HND_QUIC_TP_MAX_PACKET_SIZE, "max_packet_size" },
+    { SSL_HND_QUIC_TP_MAX_UDP_PAYLOAD_SIZE, "max_udp_payload_size" },
     { SSL_HND_QUIC_TP_INITIAL_MAX_DATA, "initial_max_data" },
     { SSL_HND_QUIC_TP_INITIAL_MAX_STREAM_DATA_BIDI_LOCAL, "initial_max_stream_data_bidi_local" },
     { SSL_HND_QUIC_TP_INITIAL_MAX_STREAM_DATA_BIDI_REMOTE, "initial_max_stream_data_bidi_remote" },
@@ -1583,6 +1583,8 @@ const value_string quic_transport_parameter_id[] = {
     { SSL_HND_QUIC_TP_DISABLE_ACTIVE_MIGRATION, "disable_active_migration" },
     { SSL_HND_QUIC_TP_PREFERRED_ADDRESS, "preferred_address" },
     { SSL_HND_QUIC_TP_ACTIVE_CONNECTION_ID_LIMIT, "active_connection_id_limit" },
+    { SSL_HND_QUIC_TP_INITIAL_SOURCE_CONNECTION_ID, "initial_source_connection_id" },
+    { SSL_HND_QUIC_TP_RETRY_SOURCE_CONNECTION_ID, "retry_source_connection_id" },
     { SSL_HND_QUIC_TP_MAX_DATAGRAM_FRAME_SIZE, "max_datagram_frame_size" },
     { SSL_HND_QUIC_TP_LOSS_BITS, "loss_bits" },
     { SSL_HND_QUIC_TP_ENABLE_TIME_STAMP, "enable_time_stamp" },
@@ -6913,8 +6915,8 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
                             tvb, offset, parameter_length, ENC_NA);
 
         switch (parameter_type) {
-            case SSL_HND_QUIC_TP_ORIGINAL_CONNECTION_ID:
-                proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_ocid,
+            case SSL_HND_QUIC_TP_ORIGINAL_DESTINATION_CONNECTION_ID:
+                proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_original_destination_connection_id,
                                     tvb, offset, parameter_length, ENC_NA);
                 offset += parameter_length;
             break;
@@ -6929,8 +6931,8 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
                                     tvb, offset, 16, ENC_BIG_ENDIAN);
                 offset += 16;
             break;
-            case SSL_HND_QUIC_TP_MAX_PACKET_SIZE:
-                proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_max_packet_size,
+            case SSL_HND_QUIC_TP_MAX_UDP_PAYLOAD_SIZE:
+                proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_max_udp_payload_size,
                                                tvb, offset, -1, ENC_VARINT_QUIC, &value, &len);
                 proto_item_append_text(parameter_tree, " %" G_GINT64_MODIFIER "u", value);
                 /*TODO display expert info about invalid value (< 1252 or >65527) ? */
@@ -7023,6 +7025,16 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
                                                tvb, offset, -1, ENC_VARINT_QUIC, &value, &len);
                 proto_item_append_text(parameter_tree, " %" G_GINT64_MODIFIER "u", value);
                 offset += len;
+            break;
+            case SSL_HND_QUIC_TP_INITIAL_SOURCE_CONNECTION_ID:
+                proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_initial_source_connection_id,
+                                    tvb, offset, parameter_length, ENC_NA);
+                offset += parameter_length;
+            break;
+            case SSL_HND_QUIC_TP_RETRY_SOURCE_CONNECTION_ID:
+                proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_retry_source_connection_id,
+                                    tvb, offset, parameter_length, ENC_NA);
+                offset += parameter_length;
             break;
             case SSL_HND_QUIC_TP_MAX_DATAGRAM_FRAME_SIZE:
                 proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_max_datagram_frame_size,
