@@ -15,6 +15,12 @@
  * discovery and setup, or whether they use different protocols
  * for streaming packets.
  *
+ * A later manual at
+ *
+ *    https://community.liveaction.com/wp-content/uploads/2020/02/Omnipeek-UserGuide-2-20.pdf
+ *
+ * speaks of Aruba and Cisco access points together, mentioning port 5000.
+ *
  * Apparently Aruba supports several protocols, including Peek remote.
  * See the packet-aruba-erm dissector.
  *
