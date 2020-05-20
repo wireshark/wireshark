@@ -86,8 +86,11 @@ typedef struct _enc_key_t {
 	int fd_num; /* remember where we learned a key */
 	guint id; /* a unique id of the key, relative to fd_num */
 	char id_str[KRB_MAX_ID_STR_LEN+1];
+	struct _enc_key_t	*same_list;
+	guint num_same;
 } enc_key_t;
 extern enc_key_t *enc_key_list;
+extern wmem_map_t *kerberos_longterm_keys;
 
 guint8 *
 decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
@@ -138,7 +141,7 @@ extern gboolean krb_decrypt;
 int dissect_kerberos_ChangePasswdData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 /*--- End of included file: packet-kerberos-exp.h ---*/
-#line 108 "./asn1/kerberos/packet-kerberos-template.h"
+#line 111 "./asn1/kerberos/packet-kerberos-template.h"
 
 #ifdef __cplusplus
 }

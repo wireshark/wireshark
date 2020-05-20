@@ -78,8 +78,11 @@ typedef struct _enc_key_t {
 	int fd_num; /* remember where we learned a key */
 	guint id; /* a unique id of the key, relative to fd_num */
 	char id_str[KRB_MAX_ID_STR_LEN+1];
+	struct _enc_key_t	*same_list;
+	guint num_same;
 } enc_key_t;
 extern enc_key_t *enc_key_list;
+extern wmem_map_t *kerberos_longterm_keys;
 
 guint8 *
 decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,

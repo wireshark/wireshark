@@ -333,6 +333,7 @@ read_keytab_file_from_preferences(void)
 #include <krb5.h>
 enc_key_t *enc_key_list=NULL;
 static guint kerberos_longterm_ids = 0;
+wmem_map_t *kerberos_longterm_keys = NULL;
 
 static gboolean
 enc_key_list_cb(wmem_allocator_t* allocator _U_, wmem_cb_event_t event _U_, void *user_data _U_)
@@ -341,6 +342,153 @@ enc_key_list_cb(wmem_allocator_t* allocator _U_, wmem_cb_event_t event _U_, void
 	kerberos_longterm_ids = 0;
 	/* keep the callback registered */
 	return TRUE;
+}
+
+static gint enc_key_cmp_id(gconstpointer k1, gconstpointer k2)
+{
+	const enc_key_t *key1 = (const enc_key_t *)k1;
+	const enc_key_t *key2 = (const enc_key_t *)k2;
+
+	if (key1->fd_num < key2->fd_num) {
+		return -1;
+	}
+	if (key1->fd_num > key2->fd_num) {
+		return 1;
+	}
+
+	if (key1->id < key2->id) {
+		return -1;
+	}
+	if (key1->id > key2->id) {
+		return 1;
+	}
+
+	return 0;
+}
+
+static gboolean
+enc_key_content_equal(gconstpointer k1, gconstpointer k2)
+{
+	const enc_key_t *key1 = (const enc_key_t *)k1;
+	const enc_key_t *key2 = (const enc_key_t *)k2;
+	int cmp;
+
+	if (key1->keytype != key2->keytype) {
+		return FALSE;
+	}
+
+	if (key1->keylength != key2->keylength) {
+		return FALSE;
+	}
+
+	cmp = memcmp(key1->keyvalue, key2->keyvalue, key1->keylength);
+	if (cmp != 0) {
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+static guint
+enc_key_content_hash(gconstpointer k)
+{
+	const enc_key_t *key = (const enc_key_t *)k;
+	guint ret = 0;
+
+	ret += wmem_strong_hash((const guint8 *)&key->keytype,
+				sizeof(key->keytype));
+	ret += wmem_strong_hash((const guint8 *)&key->keylength,
+				sizeof(key->keylength));
+	ret += wmem_strong_hash((const guint8 *)key->keyvalue,
+				key->keylength);
+
+	return ret;
+}
+
+static void
+kerberos_key_map_insert(wmem_map_t *key_map, enc_key_t *new_key)
+{
+	enc_key_t *existing = NULL;
+	enc_key_t *cur = NULL;
+	gint cmp;
+
+	existing = (enc_key_t *)wmem_map_lookup(key_map, new_key);
+	if (existing == NULL) {
+		wmem_map_insert(key_map, new_key, new_key);
+		return;
+	}
+
+	if (existing->fd_num == -1 && new_key->fd_num != -1) {
+		/*
+		 * We can't reference a learnt key
+		 * from a longterm key. As they have
+		 * a shorter lifetime.
+		 *
+		 * So just let the learnt key remember the
+		 * match.
+		 */
+		new_key->same_list = existing;
+		new_key->num_same = existing->num_same + 1;
+		return;
+	}
+
+	/*
+	 * If a key with the same content (keytype,keylength,keyvalue)
+	 * already exists, we want the earliest key to be
+	 * in the list.
+	 */
+	cmp = enc_key_cmp_id(new_key, existing);
+	if (cmp == 0) {
+		/*
+		 * It's the same, nothing to do...
+		 */
+		return;
+	}
+	if (cmp < 0) {
+		/* The new key has should be added to the list. */
+		new_key->same_list = existing;
+		new_key->num_same = existing->num_same + 1;
+		wmem_map_insert(key_map, new_key, new_key);
+		return;
+	}
+
+	/*
+	 * We want to link the new_key to the existing one.
+	 *
+	 * But we want keep the list sorted, so we need to forward
+	 * to the correct spot.
+	 */
+	for (cur = existing; cur->same_list != NULL; cur = cur->same_list) {
+		cmp = enc_key_cmp_id(new_key, cur->same_list);
+		if (cmp == 0) {
+			/*
+			 * It's the same, nothing to do...
+			 */
+			return;
+		}
+
+		if (cmp < 0) {
+			/*
+			 * We found the correct spot,
+			 * the new_key should added
+			 * between existing and existing->same_list
+			 */
+			new_key->same_list = cur->same_list;
+			new_key->num_same = cur->num_same;
+			break;
+		}
+	}
+
+	/*
+	 * finally link new_key to existing
+	 * and fix up the numbers
+	 */
+	cur->same_list = new_key;
+	for (cur = existing; cur != new_key; cur = cur->same_list) {
+		cur->num_same += 1;
+	}
+
+	return;
 }
 
 static void
@@ -457,8 +605,8 @@ static void used_encryption_key(proto_tree *tree, packet_info *pinfo,
 	proto_tree_add_expert_format(tree, pinfo, &ei_kerberos_decrypted_keytype,
 				     cryptotvb, 0, 0,
 				     "Decrypted keytype %d usage %d "
-				     "using %s (id=%s) (%02x%02x%02x%02x...)",
-				     ek->keytype, usage, ek->key_origin, ek->id_str,
+				     "using %s (id=%s same=%u) (%02x%02x%02x%02x...)",
+				     ek->keytype, usage, ek->key_origin, ek->id_str, ek->num_same,
 				     ek->keyvalue[0] & 0xFF, ek->keyvalue[1] & 0xFF,
 				     ek->keyvalue[2] & 0xFF, ek->keyvalue[3] & 0xFF);
 }
@@ -476,8 +624,9 @@ static void used_signing_key(proto_tree *tree, packet_info *pinfo,
 	proto_tree_add_expert_format(tree, pinfo, &ei_kerberos_decrypted_keytype,
 				     tvb, 0, 0,
 				     "%s checksum %d keytype %d "
-				     "using %s (id=%s) (%02x%02x%02x%02x...)",
-				     reason, checksum, ek->keytype, ek->key_origin, ek->id_str,
+				     "using %s (id=%s same=%u) (%02x%02x%02x%02x...)",
+				     reason, checksum, ek->keytype, ek->key_origin,
+				     ek->id_str, ek->num_same,
 				     ek->keyvalue[0] & 0xFF, ek->keyvalue[1] & 0xFF,
 				     ek->keyvalue[2] & 0xFF, ek->keyvalue[3] & 0xFF);
 }
@@ -557,6 +706,7 @@ read_keytab_file(const char *filename)
 				fprintf(stderr, "KERBEROS ERROR: Could not release the entry: %d", ret);
 				ret = 0; /* try to continue with the next entry */
 			}
+			kerberos_key_map_insert(kerberos_longterm_keys, new_key);
 		}
 	}while(ret==0);
 
@@ -1100,6 +1250,7 @@ read_keytab_file(const char *filename)
 				fprintf(stderr, "KERBEROS ERROR: Could not release the entry: %d", ret);
 				ret = 0; /* try to continue with the next entry */
 			}
+			kerberos_key_map_insert(kerberos_longterm_keys, new_key);
 		}
 	}while(ret==0);
 
@@ -3215,6 +3366,9 @@ void proto_register_kerberos(void) {
 
 #if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
 	wmem_register_callback(wmem_epan_scope(), enc_key_list_cb, NULL);
+	kerberos_longterm_keys = wmem_map_new(wmem_epan_scope(),
+					      enc_key_content_hash,
+					      enc_key_content_equal);
 #endif /* defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS) */
 #endif
 
