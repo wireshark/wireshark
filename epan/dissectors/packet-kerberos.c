@@ -743,6 +743,15 @@ read_keytab_file_from_preferences(void)
 enc_key_t *enc_key_list=NULL;
 static guint kerberos_longterm_ids = 0;
 
+static gboolean
+enc_key_list_cb(wmem_allocator_t* allocator _U_, wmem_cb_event_t event _U_, void *user_data _U_)
+{
+	enc_key_list = NULL;
+	kerberos_longterm_ids = 0;
+	/* keep the callback registered */
+	return TRUE;
+}
+
 static void
 add_encryption_key(packet_info *pinfo,
 		   kerberos_private_data_t *private_data,
@@ -751,6 +760,13 @@ add_encryption_key(packet_info *pinfo,
 		   int keytype, int keylength, const char *keyvalue,
 		   const char *origin)
 {
+	/*
+	 * As long as we have enc_key_list, we need to
+	 * use wmem_epan_scope(), when that's gone
+	 * we can dynamically select the scope based on
+	 * how long we'll need the particular key.
+	 */
+	wmem_allocator_t *key_scope = wmem_epan_scope();
 	enc_key_t *new_key;
 
 	private_data->last_added_key = NULL;
@@ -759,7 +775,7 @@ add_encryption_key(packet_info *pinfo,
 		return;
 	}
 
-	new_key=(enc_key_t *)g_malloc(sizeof(enc_key_t));
+	new_key = wmem_new0(key_scope, enc_key_t);
 	g_snprintf(new_key->key_origin, KRB_MAX_ORIG_LEN, "%s learnt in frame %u",origin,pinfo->num);
 	new_key->fd_num = pinfo->num;
 	new_key->id = ++private_data->learnt_key_ids;
@@ -921,7 +937,7 @@ read_keytab_file(const char *filename)
 			int i;
 			char *pos;
 
-			new_key = g_new(enc_key_t, 1);
+			new_key = wmem_new0(wmem_epan_scope(), enc_key_t);
 			new_key->fd_num = -1;
 			new_key->id = ++kerberos_longterm_ids;
 			g_snprintf(new_key->id_str, KRB_MAX_ID_STR_LEN, "keytab.%u", new_key->id);
@@ -1464,7 +1480,7 @@ read_keytab_file(const char *filename)
 			unsigned int i;
 			char *pos;
 
-			new_key = g_new0(enc_key_t, 1);
+			new_key = wmem_new0(wmem_epan_scope(), enc_key_t);
 			new_key->fd_num = -1;
 			new_key->id = ++kerberos_longterm_ids;
 			g_snprintf(new_key->id_str, KRB_MAX_ID_STR_LEN, "keytab.%u", new_key->id);
@@ -5725,7 +5741,7 @@ dissect_kerberos_EncryptedChallenge(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 
 /*--- End of included file: packet-kerberos-fn.c ---*/
-#line 2671 "./asn1/kerberos/packet-kerberos-template.c"
+#line 2687 "./asn1/kerberos/packet-kerberos-template.c"
 
 #ifdef HAVE_KERBEROS
 static const ber_sequence_t PA_ENC_TS_ENC_sequence[] = {
@@ -7040,7 +7056,7 @@ void proto_register_kerberos(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-kerberos-hfarr.c ---*/
-#line 3141 "./asn1/kerberos/packet-kerberos-template.c"
+#line 3157 "./asn1/kerberos/packet-kerberos-template.c"
 	};
 
 	/* List of subtrees */
@@ -7139,7 +7155,7 @@ void proto_register_kerberos(void) {
     &ett_kerberos_KrbFastArmoredRep,
 
 /*--- End of included file: packet-kerberos-ettarr.c ---*/
-#line 3164 "./asn1/kerberos/packet-kerberos-template.c"
+#line 3180 "./asn1/kerberos/packet-kerberos-template.c"
 	};
 
 	static ei_register_info ei[] = {
@@ -7175,6 +7191,10 @@ void proto_register_kerberos(void) {
 				   "Kerberos keytab file",
 				   "The keytab file containing all the secrets",
 				   &keytab_filename, FALSE);
+
+#if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
+	wmem_register_callback(wmem_epan_scope(), enc_key_list_cb, NULL);
+#endif /* defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS) */
 #endif
 
 }
