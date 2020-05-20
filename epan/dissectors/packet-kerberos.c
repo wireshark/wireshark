@@ -769,8 +769,7 @@ add_encryption_key(packet_info *pinfo,
 	enc_key_list=new_key;
 	new_key->keytype=keytype;
 	new_key->keylength=keylength;
-	/*XXX this needs to be freed later */
-	new_key->keyvalue=(char *)g_memdup(keyvalue, keylength);
+	memcpy(new_key->keyvalue, keyvalue, MIN(keylength, KRB_MAX_KEY_LENGTH));
 
 	private_data->last_added_key = new_key;
 }
@@ -941,7 +940,10 @@ read_keytab_file(const char *filename)
 			*pos=0;
 			new_key->keytype=key.key.enctype;
 			new_key->keylength=key.key.length;
-			new_key->keyvalue=(char *)g_memdup(key.key.contents, key.key.length);
+			memcpy(new_key->keyvalue,
+			       key.key.contents,
+			       MIN(key.key.length, KRB_MAX_KEY_LENGTH));
+
 			enc_key_list=new_key;
 			ret = krb5_free_keytab_entry_contents(krb5_ctx, &key);
 			if (ret) {
@@ -1481,7 +1483,10 @@ read_keytab_file(const char *filename)
 			*pos=0;
 			new_key->keytype=key.keyblock.keytype;
 			new_key->keylength=(int)key.keyblock.keyvalue.length;
-			new_key->keyvalue = (guint8 *)g_memdup(key.keyblock.keyvalue.data, (guint)key.keyblock.keyvalue.length);
+			memcpy(new_key->keyvalue,
+			       key.keyblock.keyvalue.data,
+			       MIN((guint)key.keyblock.keyvalue.length, KRB_MAX_KEY_LENGTH));
+
 			enc_key_list=new_key;
 			ret = krb5_kt_free_entry(krb5_ctx, &key);
 			if (ret) {
@@ -5720,7 +5725,7 @@ dissect_kerberos_EncryptedChallenge(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 
 /*--- End of included file: packet-kerberos-fn.c ---*/
-#line 2666 "./asn1/kerberos/packet-kerberos-template.c"
+#line 2671 "./asn1/kerberos/packet-kerberos-template.c"
 
 #ifdef HAVE_KERBEROS
 static const ber_sequence_t PA_ENC_TS_ENC_sequence[] = {
@@ -7035,7 +7040,7 @@ void proto_register_kerberos(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-kerberos-hfarr.c ---*/
-#line 3136 "./asn1/kerberos/packet-kerberos-template.c"
+#line 3141 "./asn1/kerberos/packet-kerberos-template.c"
 	};
 
 	/* List of subtrees */
@@ -7134,7 +7139,7 @@ void proto_register_kerberos(void) {
     &ett_kerberos_KrbFastArmoredRep,
 
 /*--- End of included file: packet-kerberos-ettarr.c ---*/
-#line 3159 "./asn1/kerberos/packet-kerberos-template.c"
+#line 3164 "./asn1/kerberos/packet-kerberos-template.c"
 	};
 
 	static ei_register_info ei[] = {
