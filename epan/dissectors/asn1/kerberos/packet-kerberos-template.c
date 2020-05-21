@@ -761,6 +761,66 @@ read_keytab_file(const char *filename)
 	}
 }
 
+struct decrypt_krb5_with_cb_state {
+	proto_tree *tree;
+	packet_info *pinfo;
+	kerberos_private_data_t *private_data;
+	int usage;
+	int keytype;
+	tvbuff_t *cryptotvb;
+	krb5_error_code (*decrypt_cb_fn)(
+		const krb5_keyblock *key,
+		int usage,
+		void *decrypt_cb_data);
+	void *decrypt_cb_data;
+	enc_key_t *ek;
+};
+
+static void
+decrypt_krb5_with_cb_try_key(gpointer __key _U_, gpointer value, gpointer userdata)
+{
+	struct decrypt_krb5_with_cb_state *state =
+		(struct decrypt_krb5_with_cb_state *)userdata;
+	enc_key_t *ek = (enc_key_t *)value;
+	krb5_error_code ret;
+	krb5_keytab_entry key;
+
+	if (state->ek != NULL) {
+		/*
+		 * we're done.
+		 */
+		return;
+	}
+
+	/* shortcircuit and bail out if enctypes are not matching */
+	if ((state->keytype != -1) && (ek->keytype != state->keytype)) {
+		/*
+		 * don't stop traversing...
+		 * try the next one...
+		 */
+		return;
+	}
+
+	key.key.enctype=ek->keytype;
+	key.key.length=ek->keylength;
+	key.key.contents=ek->keyvalue;
+	ret = state->decrypt_cb_fn(&(key.key),
+				   state->usage,
+				   state->decrypt_cb_data);
+	if (ret != 0) {
+		/*
+		 * don't stop traversing...
+		 * try the next one...
+		 */
+		return;
+	}
+
+	/*
+	 * we're done, remember the key
+	 */
+	state->ek = ek;
+}
+
 static krb5_error_code
 decrypt_krb5_with_cb(proto_tree *tree,
 		     packet_info *pinfo,
@@ -774,27 +834,27 @@ decrypt_krb5_with_cb(proto_tree *tree,
 			void *decrypt_cb_data),
 		     void *decrypt_cb_data)
 {
-	krb5_error_code ret;
-	enc_key_t *ek;
-	krb5_keytab_entry key;
+	wmem_map_t *key_map = kerberos_all_keys;
+	struct decrypt_krb5_with_cb_state state = {
+		.tree = tree,
+		.pinfo = pinfo,
+		.private_data = private_data,
+		.usage = usage,
+		.cryptotvb = cryptotvb,
+		.keytype = keytype,
+		.decrypt_cb_fn = decrypt_cb_fn,
+		.decrypt_cb_data = decrypt_cb_data,
+	};
 
 	read_keytab_file_from_preferences();
 
-	for(ek=enc_key_list;ek;ek=ek->next){
-		/* shortcircuit and bail out if enctypes are not matching */
-		if((keytype != -1) && (ek->keytype != keytype)) {
-			continue;
-		}
+	insert_longterm_keys_into_key_map(key_map);
 
-		key.key.enctype=ek->keytype;
-		key.key.length=ek->keylength;
-		key.key.contents=ek->keyvalue;
-		ret = decrypt_cb_fn(&(key.key), usage, decrypt_cb_data);
-		if(ret == 0) {
-			used_encryption_key(tree, pinfo, private_data,
-					    ek, usage, cryptotvb);
-			return 0;
-		}
+	wmem_map_foreach(key_map, decrypt_krb5_with_cb_try_key, &state);
+	if (state.ek != NULL) {
+		used_encryption_key(tree, pinfo, private_data,
+				    state.ek, usage, cryptotvb);
+		return 0;
 	}
 
 	return -1;
