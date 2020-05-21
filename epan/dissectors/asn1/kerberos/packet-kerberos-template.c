@@ -334,6 +334,7 @@ read_keytab_file_from_preferences(void)
 enc_key_t *enc_key_list=NULL;
 static guint kerberos_longterm_ids = 0;
 wmem_map_t *kerberos_longterm_keys = NULL;
+static wmem_map_t *kerberos_all_keys = NULL;
 
 static gboolean
 enc_key_list_cb(wmem_allocator_t* allocator _U_, wmem_cb_event_t event _U_, void *user_data _U_)
@@ -491,6 +492,43 @@ kerberos_key_map_insert(wmem_map_t *key_map, enc_key_t *new_key)
 	return;
 }
 
+struct insert_longterm_keys_into_key_map_state {
+	wmem_map_t *key_map;
+};
+
+static void insert_longterm_keys_into_key_map_cb(gpointer __key _U_,
+						 gpointer value,
+						 gpointer user_data)
+{
+	struct insert_longterm_keys_into_key_map_state *state =
+		(struct insert_longterm_keys_into_key_map_state *)user_data;
+	enc_key_t *key = (enc_key_t *)value;
+
+	kerberos_key_map_insert(state->key_map, key);
+}
+
+static void insert_longterm_keys_into_key_map(wmem_map_t *key_map)
+{
+	/*
+	 * Because the kerberos_longterm_keys are allocated on
+	 * wmem_epan_scope() and kerberos_all_keys are allocated
+	 * on wmem_file_scope(), we need to plug the longterm keys
+	 * back to kerberos_all_keys if a new file was loaded
+	 * and wmem_file_scope() got cleared.
+	 */
+	if (wmem_map_size(key_map) < wmem_map_size(kerberos_longterm_keys)) {
+		struct insert_longterm_keys_into_key_map_state state = {
+			.key_map = key_map,
+		};
+		/*
+		 * Reference all longterm keys into kerberos_all_keys
+		 */
+		wmem_map_foreach(kerberos_longterm_keys,
+				 insert_longterm_keys_into_key_map_cb,
+				 &state);
+	}
+}
+
 static void
 add_encryption_key(packet_info *pinfo,
 		   kerberos_private_data_t *private_data,
@@ -514,6 +552,8 @@ add_encryption_key(packet_info *pinfo,
 		return;
 	}
 
+	insert_longterm_keys_into_key_map(kerberos_all_keys);
+
 	new_key = wmem_new0(key_scope, enc_key_t);
 	g_snprintf(new_key->key_origin, KRB_MAX_ORIG_LEN, "%s learnt in frame %u",origin,pinfo->num);
 	new_key->fd_num = pinfo->num;
@@ -526,6 +566,7 @@ add_encryption_key(packet_info *pinfo,
 	new_key->keylength=keylength;
 	memcpy(new_key->keyvalue, keyvalue, MIN(keylength, KRB_MAX_KEY_LENGTH));
 
+	kerberos_key_map_insert(kerberos_all_keys, new_key);
 	private_data->last_added_key = new_key;
 }
 
@@ -3403,6 +3444,10 @@ void proto_register_kerberos(void) {
 	kerberos_longterm_keys = wmem_map_new(wmem_epan_scope(),
 					      enc_key_content_hash,
 					      enc_key_content_equal);
+	kerberos_all_keys = wmem_map_new_autoreset(wmem_epan_scope(),
+						   wmem_file_scope(),
+						   enc_key_content_hash,
+						   enc_key_content_equal);
 #endif /* defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS) */
 #endif
 
