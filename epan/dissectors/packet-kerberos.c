@@ -1491,17 +1491,80 @@ decrypt_krb5_krb_cfx_dce(proto_tree *tree,
 extern krb5_error_code
 krb5int_c_mandatory_cksumtype(krb5_context, krb5_enctype, krb5_cksumtype *);
 
+struct verify_krb5_pac_state {
+	krb5_pac pac;
+	krb5_cksumtype server_checksum;
+	enc_key_t *server_ek;
+	krb5_cksumtype kdc_checksum;
+	enc_key_t *kdc_ek;
+};
+
+static void
+verify_krb5_pac_try_key(gpointer __key _U_, gpointer value, gpointer userdata)
+{
+	struct verify_krb5_pac_state *state =
+		(struct verify_krb5_pac_state *)userdata;
+	enc_key_t *ek = (enc_key_t *)value;
+	krb5_keyblock keyblock;
+	krb5_cksumtype checksumtype = 0;
+	krb5_error_code ret;
+
+	if (state->server_checksum == 0 && state->kdc_checksum == 0) {
+		/*
+		 * nothing more todo, stop traversing.
+		 */
+		return;
+	}
+
+	if (state->server_ek != NULL && state->kdc_ek != NULL) {
+		/*
+		 * we're done.
+		 */
+		return;
+	}
+
+	ret = krb5int_c_mandatory_cksumtype(krb5_ctx, ek->keytype,
+					    &checksumtype);
+	if (ret != 0) {
+		/*
+		 * the key is not usable, keep traversing.
+		 * try the next key...
+		 */
+		return;
+	}
+
+	keyblock.magic = KV5M_KEYBLOCK;
+	keyblock.enctype = ek->keytype;
+	keyblock.length = ek->keylength;
+	keyblock.contents = (guint8 *)ek->keyvalue;
+
+	if (checksumtype == state->server_checksum && state->server_ek == NULL) {
+		ret = krb5_pac_verify(krb5_ctx, state->pac, 0, NULL,
+				      &keyblock, NULL);
+		if (ret == 0) {
+			state->server_ek = ek;
+		}
+	}
+
+	if (checksumtype == state->kdc_checksum && state->kdc_ek == NULL) {
+		ret = krb5_pac_verify(krb5_ctx, state->pac, 0, NULL,
+				      NULL, &keyblock);
+		if (ret == 0) {
+			state->kdc_ek = ek;
+		}
+	}
+}
+
 static void
 verify_krb5_pac(proto_tree *tree _U_, asn1_ctx_t *actx, tvbuff_t *pactvb)
 {
 	krb5_error_code ret;
-	enc_key_t *ek = NULL;;
 	krb5_data checksum_data = {0,0,NULL};
-	krb5_cksumtype server_checksum = 0;
-	krb5_cksumtype kdc_checksum = 0;
 	int length = tvb_captured_length(pactvb);
 	const guint8 *pacbuffer = NULL;
-	krb5_pac pac;
+	struct verify_krb5_pac_state state = {
+		.kdc_checksum = 0,
+	};
 
 	/* don't do anything if we are not attempting to decrypt data */
 	if(!krb_decrypt || length < 1){
@@ -1515,7 +1578,7 @@ verify_krb5_pac(proto_tree *tree _U_, asn1_ctx_t *actx, tvbuff_t *pactvb)
 
 	pacbuffer = tvb_get_ptr(pactvb, 0, length);
 
-	ret = krb5_pac_parse(krb5_ctx, pacbuffer, length, &pac);
+	ret = krb5_pac_parse(krb5_ctx, pacbuffer, length, &state.pac);
 	if (ret != 0) {
 		proto_tree_add_expert_format(tree, actx->pinfo, &ei_kerberos_decrypted_keytype,
 					     pactvb, 0, 0,
@@ -1524,63 +1587,34 @@ verify_krb5_pac(proto_tree *tree _U_, asn1_ctx_t *actx, tvbuff_t *pactvb)
 		return;
 	}
 
-	ret = krb5_pac_get_buffer(krb5_ctx, pac, KRB5_PAC_SERVER_CHECKSUM,
+	ret = krb5_pac_get_buffer(krb5_ctx, state.pac, KRB5_PAC_SERVER_CHECKSUM,
 				  &checksum_data);
 	if (ret == 0) {
-		server_checksum = pletoh32(checksum_data.data);
+		state.server_checksum = pletoh32(checksum_data.data);
 		krb5_free_data_contents(krb5_ctx, &checksum_data);
 	};
-	ret = krb5_pac_get_buffer(krb5_ctx, pac, KRB5_PAC_PRIVSVR_CHECKSUM,
+	ret = krb5_pac_get_buffer(krb5_ctx, state.pac, KRB5_PAC_PRIVSVR_CHECKSUM,
 				  &checksum_data);
 	if (ret == 0) {
-		kdc_checksum = pletoh32(checksum_data.data);
+		state.kdc_checksum = pletoh32(checksum_data.data);
 		krb5_free_data_contents(krb5_ctx, &checksum_data);
 	};
 
 	read_keytab_file_from_preferences();
 
-	for(ek=enc_key_list;ek;ek=ek->next){
-		krb5_keyblock keyblock;
-		krb5_cksumtype checksumtype = 0;
-
-		if (server_checksum == 0 && kdc_checksum == 0) {
-			break;
-		}
-
-		ret = krb5int_c_mandatory_cksumtype(krb5_ctx, ek->keytype,
-						    &checksumtype);
-		if (ret != 0) {
-			continue;
-		}
-
-		keyblock.magic = KV5M_KEYBLOCK;
-		keyblock.enctype = ek->keytype;
-		keyblock.length = ek->keylength;
-		keyblock.contents = (guint8 *)ek->keyvalue;
-
-		if (checksumtype == server_checksum) {
-			ret = krb5_pac_verify(krb5_ctx, pac, 0, NULL,
-					      &keyblock, NULL);
-			if (ret == 0) {
-				used_signing_key(tree, actx->pinfo, ek, pactvb,
-						 server_checksum, "Verified Server");
-				server_checksum = 0;
-			}
-		}
-
-		if (checksumtype == kdc_checksum) {
-			ret = krb5_pac_verify(krb5_ctx, pac, 0, NULL,
-					      NULL, &keyblock);
-			if (ret == 0) {
-				used_signing_key(tree, actx->pinfo, ek, pactvb,
-						 kdc_checksum, "Verified KDC");
-				kdc_checksum = 0;
-			}
-		}
-
+	wmem_map_foreach(kerberos_longterm_keys,
+			 verify_krb5_pac_try_key,
+			 &state);
+	if (state.server_ek != NULL) {
+		used_signing_key(tree, actx->pinfo, state.server_ek, pactvb,
+				 state.server_checksum, "Verified Server");
+	}
+	if (state.kdc_ek != NULL) {
+		used_signing_key(tree, actx->pinfo, state.kdc_ek, pactvb,
+				 state.kdc_checksum, "Verified KDC");
 	}
 
-	krb5_pac_free(krb5_ctx, pac);
+	krb5_pac_free(krb5_ctx, state.pac);
 }
 #endif /* HAVE_KRB5_PAC_VERIFY */
 
@@ -5892,7 +5926,7 @@ dissect_kerberos_EncryptedChallenge(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 
 /*--- End of included file: packet-kerberos-fn.c ---*/
-#line 2838 "./asn1/kerberos/packet-kerberos-template.c"
+#line 2872 "./asn1/kerberos/packet-kerberos-template.c"
 
 #ifdef HAVE_KERBEROS
 static const ber_sequence_t PA_ENC_TS_ENC_sequence[] = {
@@ -7207,7 +7241,7 @@ void proto_register_kerberos(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-kerberos-hfarr.c ---*/
-#line 3308 "./asn1/kerberos/packet-kerberos-template.c"
+#line 3342 "./asn1/kerberos/packet-kerberos-template.c"
 	};
 
 	/* List of subtrees */
@@ -7306,7 +7340,7 @@ void proto_register_kerberos(void) {
     &ett_kerberos_KrbFastArmoredRep,
 
 /*--- End of included file: packet-kerberos-ettarr.c ---*/
-#line 3331 "./asn1/kerberos/packet-kerberos-template.c"
+#line 3365 "./asn1/kerberos/packet-kerberos-template.c"
 	};
 
 	static ei_register_info ei[] = {
