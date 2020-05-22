@@ -117,6 +117,7 @@ typedef struct {
 	enc_key_t *last_added_key;
 	gint save_encryption_key_parent_hf_index;
 	kerberos_key_save_fn save_encryption_key_fn;
+	guint learnt_key_ids;
 } kerberos_private_data_t;
 
 static dissector_handle_t kerberos_handle_udp;
@@ -435,7 +436,7 @@ static int hf_kerberos_PAC_OPTIONS_FLAGS_forward_to_full_dc = -1;
 static int hf_kerberos_PAC_OPTIONS_FLAGS_resource_based_constrained_delegation = -1;
 
 /*--- End of included file: packet-kerberos-hf.c ---*/
-#line 215 "./asn1/kerberos/packet-kerberos-template.c"
+#line 216 "./asn1/kerberos/packet-kerberos-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_kerberos = -1;
@@ -532,7 +533,7 @@ static gint ett_kerberos_PA_FX_FAST_REPLY = -1;
 static gint ett_kerberos_KrbFastArmoredRep = -1;
 
 /*--- End of included file: packet-kerberos-ett.c ---*/
-#line 236 "./asn1/kerberos/packet-kerberos-template.c"
+#line 237 "./asn1/kerberos/packet-kerberos-template.c"
 
 static expert_field ei_kerberos_decrypted_keytype = EI_INIT;
 static expert_field ei_kerberos_address = EI_INIT;
@@ -653,7 +654,7 @@ typedef enum _KERBEROS_PADATA_TYPE_enum {
 } KERBEROS_PADATA_TYPE_enum;
 
 /*--- End of included file: packet-kerberos-val.h ---*/
-#line 248 "./asn1/kerberos/packet-kerberos-template.c"
+#line 249 "./asn1/kerberos/packet-kerberos-template.c"
 
 static void
 call_kerberos_callbacks(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int tag, kerberos_callbacks *cb)
@@ -740,6 +741,7 @@ read_keytab_file_from_preferences(void)
 #endif /* _WIN32 */
 #include <krb5.h>
 enc_key_t *enc_key_list=NULL;
+static guint kerberos_longterm_ids = 0;
 
 static void
 add_encryption_key(packet_info *pinfo,
@@ -758,8 +760,11 @@ add_encryption_key(packet_info *pinfo,
 	}
 
 	new_key=(enc_key_t *)g_malloc(sizeof(enc_key_t));
-	g_snprintf(new_key->key_origin, KRB_MAX_ORIG_LEN, "%s learnt from frame %u",origin,pinfo->num);
+	g_snprintf(new_key->key_origin, KRB_MAX_ORIG_LEN, "%s learnt in frame %u",origin,pinfo->num);
 	new_key->fd_num = pinfo->num;
+	new_key->id = ++private_data->learnt_key_ids;
+	g_snprintf(new_key->id_str, KRB_MAX_ID_STR_LEN, "%d.%u",
+		   new_key->fd_num, new_key->id);
 	new_key->next=enc_key_list;
 	enc_key_list=new_key;
 	new_key->keytype=keytype;
@@ -842,11 +847,12 @@ static void used_encryption_key(proto_tree *tree, packet_info *pinfo,
 				kerberos_private_data_t *private_data _U_,
 				enc_key_t *ek, int usage, tvbuff_t *cryptotvb)
 {
+
 	proto_tree_add_expert_format(tree, pinfo, &ei_kerberos_decrypted_keytype,
 				     cryptotvb, 0, 0,
-				     "Decrypted keytype %d usage %d in frame %u "
-				     "using %s (%02x%02x%02x%02x...)",
-				     ek->keytype, usage, pinfo->fd->num, ek->key_origin,
+				     "Decrypted keytype %d usage %d "
+				     "using %s (id=%s) (%02x%02x%02x%02x...)",
+				     ek->keytype, usage, ek->key_origin, ek->id_str,
 				     ek->keyvalue[0] & 0xFF, ek->keyvalue[1] & 0xFF,
 				     ek->keyvalue[2] & 0xFF, ek->keyvalue[3] & 0xFF);
 }
@@ -863,9 +869,9 @@ static void used_signing_key(proto_tree *tree, packet_info *pinfo,
 {
 	proto_tree_add_expert_format(tree, pinfo, &ei_kerberos_decrypted_keytype,
 				     tvb, 0, 0,
-				     "%s checksum %d keytype %d in frame %u "
-				     "using %s (%02x%02x%02x%02x...)",
-				     reason, checksum, ek->keytype, pinfo->fd->num, ek->key_origin,
+				     "%s checksum %d keytype %d "
+				     "using %s (id=%s) (%02x%02x%02x%02x...)",
+				     reason, checksum, ek->keytype, ek->key_origin, ek->id_str,
 				     ek->keyvalue[0] & 0xFF, ek->keyvalue[1] & 0xFF,
 				     ek->keyvalue[2] & 0xFF, ek->keyvalue[3] & 0xFF);
 }
@@ -918,6 +924,8 @@ read_keytab_file(const char *filename)
 
 			new_key = g_new(enc_key_t, 1);
 			new_key->fd_num = -1;
+			new_key->id = ++kerberos_longterm_ids;
+			g_snprintf(new_key->id_str, KRB_MAX_ID_STR_LEN, "keytab.%u", new_key->id);
 			new_key->next = enc_key_list;
 
 			/* generate origin string, describing where this key came from */
@@ -1456,6 +1464,8 @@ read_keytab_file(const char *filename)
 
 			new_key = g_new0(enc_key_t, 1);
 			new_key->fd_num = -1;
+			new_key->id = ++kerberos_longterm_ids;
+			g_snprintf(new_key->id_str, KRB_MAX_ID_STR_LEN, "keytab.%u", new_key->id);
 			new_key->next = enc_key_list;
 
 			/* generate origin string, describing where this key came from */
@@ -5710,7 +5720,7 @@ dissect_kerberos_EncryptedChallenge(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 
 /*--- End of included file: packet-kerberos-fn.c ---*/
-#line 2656 "./asn1/kerberos/packet-kerberos-template.c"
+#line 2666 "./asn1/kerberos/packet-kerberos-template.c"
 
 #ifdef HAVE_KERBEROS
 static const ber_sequence_t PA_ENC_TS_ENC_sequence[] = {
@@ -7025,7 +7035,7 @@ void proto_register_kerberos(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-kerberos-hfarr.c ---*/
-#line 3126 "./asn1/kerberos/packet-kerberos-template.c"
+#line 3136 "./asn1/kerberos/packet-kerberos-template.c"
 	};
 
 	/* List of subtrees */
@@ -7124,7 +7134,7 @@ void proto_register_kerberos(void) {
     &ett_kerberos_KrbFastArmoredRep,
 
 /*--- End of included file: packet-kerberos-ettarr.c ---*/
-#line 3149 "./asn1/kerberos/packet-kerberos-template.c"
+#line 3159 "./asn1/kerberos/packet-kerberos-template.c"
 	};
 
 	static ei_register_info ei[] = {

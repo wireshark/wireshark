@@ -109,6 +109,7 @@ typedef struct {
 	enc_key_t *last_added_key;
 	gint save_encryption_key_parent_hf_index;
 	kerberos_key_save_fn save_encryption_key_fn;
+	guint learnt_key_ids;
 } kerberos_private_data_t;
 
 static dissector_handle_t kerberos_handle_udp;
@@ -331,6 +332,7 @@ read_keytab_file_from_preferences(void)
 #endif /* _WIN32 */
 #include <krb5.h>
 enc_key_t *enc_key_list=NULL;
+static guint kerberos_longterm_ids = 0;
 
 static void
 add_encryption_key(packet_info *pinfo,
@@ -349,8 +351,11 @@ add_encryption_key(packet_info *pinfo,
 	}
 
 	new_key=(enc_key_t *)g_malloc(sizeof(enc_key_t));
-	g_snprintf(new_key->key_origin, KRB_MAX_ORIG_LEN, "%s learnt from frame %u",origin,pinfo->num);
+	g_snprintf(new_key->key_origin, KRB_MAX_ORIG_LEN, "%s learnt in frame %u",origin,pinfo->num);
 	new_key->fd_num = pinfo->num;
+	new_key->id = ++private_data->learnt_key_ids;
+	g_snprintf(new_key->id_str, KRB_MAX_ID_STR_LEN, "%d.%u",
+		   new_key->fd_num, new_key->id);
 	new_key->next=enc_key_list;
 	enc_key_list=new_key;
 	new_key->keytype=keytype;
@@ -433,11 +438,12 @@ static void used_encryption_key(proto_tree *tree, packet_info *pinfo,
 				kerberos_private_data_t *private_data _U_,
 				enc_key_t *ek, int usage, tvbuff_t *cryptotvb)
 {
+
 	proto_tree_add_expert_format(tree, pinfo, &ei_kerberos_decrypted_keytype,
 				     cryptotvb, 0, 0,
-				     "Decrypted keytype %d usage %d in frame %u "
-				     "using %s (%02x%02x%02x%02x...)",
-				     ek->keytype, usage, pinfo->fd->num, ek->key_origin,
+				     "Decrypted keytype %d usage %d "
+				     "using %s (id=%s) (%02x%02x%02x%02x...)",
+				     ek->keytype, usage, ek->key_origin, ek->id_str,
 				     ek->keyvalue[0] & 0xFF, ek->keyvalue[1] & 0xFF,
 				     ek->keyvalue[2] & 0xFF, ek->keyvalue[3] & 0xFF);
 }
@@ -454,9 +460,9 @@ static void used_signing_key(proto_tree *tree, packet_info *pinfo,
 {
 	proto_tree_add_expert_format(tree, pinfo, &ei_kerberos_decrypted_keytype,
 				     tvb, 0, 0,
-				     "%s checksum %d keytype %d in frame %u "
-				     "using %s (%02x%02x%02x%02x...)",
-				     reason, checksum, ek->keytype, pinfo->fd->num, ek->key_origin,
+				     "%s checksum %d keytype %d "
+				     "using %s (id=%s) (%02x%02x%02x%02x...)",
+				     reason, checksum, ek->keytype, ek->key_origin, ek->id_str,
 				     ek->keyvalue[0] & 0xFF, ek->keyvalue[1] & 0xFF,
 				     ek->keyvalue[2] & 0xFF, ek->keyvalue[3] & 0xFF);
 }
@@ -509,6 +515,8 @@ read_keytab_file(const char *filename)
 
 			new_key = g_new(enc_key_t, 1);
 			new_key->fd_num = -1;
+			new_key->id = ++kerberos_longterm_ids;
+			g_snprintf(new_key->id_str, KRB_MAX_ID_STR_LEN, "keytab.%u", new_key->id);
 			new_key->next = enc_key_list;
 
 			/* generate origin string, describing where this key came from */
@@ -1047,6 +1055,8 @@ read_keytab_file(const char *filename)
 
 			new_key = g_new0(enc_key_t, 1);
 			new_key->fd_num = -1;
+			new_key->id = ++kerberos_longterm_ids;
+			g_snprintf(new_key->id_str, KRB_MAX_ID_STR_LEN, "keytab.%u", new_key->id);
 			new_key->next = enc_key_list;
 
 			/* generate origin string, describing where this key came from */

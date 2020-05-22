@@ -68,6 +68,12 @@ show_krb_recordmark(proto_tree *tree, tvbuff_t *tvb, gint start, guint32 krb_rm)
 
 #ifdef HAVE_KERBEROS
 #define KRB_MAX_ORIG_LEN	256
+/*
+ * "18446744073709551615.18446744073709551615"
+ * sizeof("18446744073709551615") includes '\0',
+ * which is used once for '.' and then for '\0'.
+ */
+#define KRB_MAX_ID_STR_LEN (sizeof("18446744073709551615")*2)
 
 #if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
 typedef struct _enc_key_t {
@@ -77,6 +83,8 @@ typedef struct _enc_key_t {
 	char *keyvalue;
 	char 			key_origin[KRB_MAX_ORIG_LEN+1];
 	int fd_num; /* remember where we learned a key */
+	guint id; /* a unique id of the key, relative to fd_num */
+	char id_str[KRB_MAX_ID_STR_LEN+1];
 } enc_key_t;
 extern enc_key_t *enc_key_list;
 
@@ -129,7 +137,7 @@ extern gboolean krb_decrypt;
 int dissect_kerberos_ChangePasswdData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 /*--- End of included file: packet-kerberos-exp.h ---*/
-#line 99 "./asn1/kerberos/packet-kerberos-template.h"
+#line 107 "./asn1/kerberos/packet-kerberos-template.h"
 
 #ifdef __cplusplus
 }
