@@ -196,6 +196,12 @@ uat_wep_key_record_update_cb(void* r, char** err)
           return FALSE;
         }
         break;
+      case DOT11DECRYPT_KEY_TYPE_TK:
+        if (rec->key != DOT11DECRYPT_KEY_TYPE_TK) {
+          *err = g_strdup("Invalid TK key format");
+          return FALSE;
+        }
+        break;
       default:
         *err = g_strdup("Invalid key format");
         return FALSE;
@@ -2791,6 +2797,7 @@ static const value_string wep_type_vals[] = {
   { DOT11DECRYPT_KEY_TYPE_WEP, STRING_KEY_TYPE_WEP },
   { DOT11DECRYPT_KEY_TYPE_WPA_PWD, STRING_KEY_TYPE_WPA_PWD },
   { DOT11DECRYPT_KEY_TYPE_WPA_PSK, STRING_KEY_TYPE_WPA_PSK },
+  { DOT11DECRYPT_KEY_TYPE_TK, STRING_KEY_TYPE_TK },
   { 0x00, NULL }
 };
 
@@ -25996,7 +26003,7 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *wep_tree    = NULL;
     guint32     iv;
     guint8      wep_key, keybyte;
-    DOT11DECRYPT_KEY_ITEM  used_key;
+    DOT11DECRYPT_KEY_ITEM  used_key = { 0 };
 
     if (len == reported_len) {
       next_tvb = try_decrypt(tvb, pinfo, hdr_len, reported_len,
@@ -26090,10 +26097,13 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
             proto_item_set_generated(ti);
 
             /* Also add the PMK used to to decrypt the packet. (PMK==PSK) */
-            bytes_to_hexstr(out_buff, used_key.KeyData.Wpa.Psk, used_key.KeyData.Wpa.PskLen);
-            out_buff[2*used_key.KeyData.Wpa.PskLen] = '\0';
-            ti = proto_tree_add_string(wep_tree, hf_ieee80211_fc_analysis_pmk, tvb, 0, 0, out_buff);
-            proto_item_set_generated(ti);
+            if (used_key.KeyData.Wpa.PskLen > 0) {
+
+              bytes_to_hexstr(out_buff, used_key.KeyData.Wpa.Psk, used_key.KeyData.Wpa.PskLen);
+              out_buff[2*used_key.KeyData.Wpa.PskLen] = '\0';
+              ti = proto_tree_add_string(wep_tree, hf_ieee80211_fc_analysis_pmk, tvb, 0, 0, out_buff);
+              proto_item_set_generated(ti);
+            }
 
           } else { /* Encrypted with Group Key */
             key_len = Dot11DecryptGetGTK(&used_key, &key);
@@ -27284,7 +27294,7 @@ set_dot11decrypt_keys(void)
 
     if (dk != NULL)
     {
-      DOT11DECRYPT_KEY_ITEM          key;
+      DOT11DECRYPT_KEY_ITEM key = { 0 };
       if (dk->type == DOT11DECRYPT_KEY_TYPE_WEP)
       {
         gboolean res;
@@ -27339,6 +27349,18 @@ set_dot11decrypt_keys(void)
           keys->Keys[keys->nKeys] = key;
           keys->nKeys += 1;
         }
+      }
+      else if (dk->type == DOT11DECRYPT_KEY_TYPE_TK)
+      {
+        key.KeyType = DOT11DECRYPT_KEY_TYPE_TK;
+
+        bytes = g_byte_array_new();
+        hex_str_to_bytes(dk->key->str, bytes, FALSE);
+
+        memcpy(key.Tk.Tk, bytes->data, bytes->len);
+        key.Tk.Len = bytes->len;
+        keys->Keys[keys->nKeys] = key;
+        keys->nKeys += 1;
       }
       free_key_string(dk);
       if (bytes) {
@@ -38709,7 +38731,8 @@ proto_register_ieee80211(void)
       UAT_FLD_CSTRING(uat_wep_key_records, string, "Key",
                         "wep:<wep hexadecimal key>\n"
                         "wpa-pwd:<passphrase>[:<ssid>]\n"
-                        "wpa-psk:<wpa hexadecimal key>"),
+                        "wpa-psk:<wpa hexadecimal key>\n"
+                        "tk:<hexadecimal key>\n"),
       UAT_END_FIELDS
     };
 

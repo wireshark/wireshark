@@ -72,6 +72,7 @@ extern "C" {
 #define STRING_KEY_TYPE_WEP "wep"
 #define STRING_KEY_TYPE_WPA_PWD "wpa-pwd"
 #define STRING_KEY_TYPE_WPA_PSK "wpa-psk"
+#define STRING_KEY_TYPE_TK "tk"
 
 #ifdef __cplusplus
 }

@@ -305,6 +305,7 @@ Dot11DecryptCopyKey(PDOT11DECRYPT_SEC_ASSOCIATION sa, PDOT11DECRYPT_KEY_ITEM key
             memcpy(key, sa->key, sizeof(DOT11DECRYPT_KEY_ITEM));
         else
             memset(key, 0, sizeof(DOT11DECRYPT_KEY_ITEM));
+        key->KeyData.Wpa.PtkLen = sa->wpa.ptk_len;
         memcpy(key->KeyData.Wpa.Ptk, sa->wpa.ptk, sa->wpa.ptk_len);
         key->KeyData.Wpa.Akm = sa->wpa.akm;
         key->KeyData.Wpa.Cipher = sa->wpa.cipher;
@@ -928,6 +929,92 @@ INT Dot11DecryptScanEapolForKeys(
     return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
 }
 
+static int
+Dot11DecryptGetNbrOfTkKeys(PDOT11DECRYPT_CONTEXT ctx)
+{
+    int nbr = 0;
+    for (size_t i = 0; i < ctx->keys_nr; i++) {
+        if (ctx->keys[i].KeyType == DOT11DECRYPT_KEY_TYPE_TK) {
+            nbr++;
+        }
+    }
+    return nbr;
+}
+
+static int
+Dot11DecryptUsingUserTk(
+    PDOT11DECRYPT_CONTEXT ctx,
+    UCHAR *decrypt_data,
+    guint mac_header_len,
+    guint *decrypt_len,
+    DOT11DECRYPT_SEC_ASSOCIATION_ID *id,
+    DOT11DECRYPT_KEY_ITEM *used_key)
+{
+    int ret = DOT11DECRYPT_RET_REQ_DATA;
+    DOT11DECRYPT_SEC_ASSOCIATION *sa = Dot11DecryptNewSa(id);
+    DOT11DECRYPT_KEY_ITEM *key;
+    if (sa == NULL) {
+        return ret;
+    }
+
+    sa->wpa.akm = 2;
+    sa->validKey = TRUE;
+
+    /* Try decrypt packet with all user TKs applicable ciphers */
+    for (size_t key_index = 0; key_index < ctx->keys_nr; key_index++) {
+        key = &ctx->keys[key_index];
+        if (key->KeyType != DOT11DECRYPT_KEY_TYPE_TK) {
+            continue;
+        }
+        int ciphers_to_try[4] = { 0 };
+        switch (key->Tk.Len) {
+            case DOT11DECRYPT_WEP_40_KEY_LEN:
+            case DOT11DECRYPT_WEP_104_KEY_LEN:
+                /* TBD implement */
+                continue;
+            case 256 / 8:
+                ciphers_to_try[0] = 9; /* GCMP-256 */
+                ciphers_to_try[1] = 10; /* CCMP-256 */
+                break;
+            case 128 / 8:
+                ciphers_to_try[0] = 4; /* CCMP-128 */
+                ciphers_to_try[1] = 8; /* GCMP-128 */
+                ciphers_to_try[2] = 2; /* TKIP */
+                break;
+            default:
+                continue;
+        }
+
+        sa->key = key;
+
+        for (int i = 0; ciphers_to_try[i] != 0; i++) {
+            sa->wpa.cipher = ciphers_to_try[i];
+            if (sa->wpa.cipher == 2 /* TKIP */) {
+                sa->wpa.key_ver = 1;
+                memcpy(DOT11DECRYPT_GET_TK_TKIP(sa->wpa.ptk),
+                       key->Tk.Tk, key->Tk.Len);
+            } else {
+                sa->wpa.key_ver = 2;
+                sa->wpa.akm = 2;
+                memcpy(DOT11DECRYPT_GET_TK(sa->wpa.ptk, sa->wpa.akm),
+                       key->Tk.Tk, key->Tk.Len);
+            }
+            sa->wpa.ptk_len = Dot11DecryptGetPtkLen(sa->wpa.akm, sa->wpa.cipher) / 8;
+            ret = Dot11DecryptRsnaMng(decrypt_data, mac_header_len, decrypt_len, used_key, sa);
+            if (ret == DOT11DECRYPT_RET_SUCCESS) {
+                /* Successfully decrypted using user TK. Add SA formed from user TK so that
+                 * subsequent frames can be decrypted much faster using normal code path
+                 * without trying each and every user TK entered.
+                 */
+                Dot11DecryptAddSa(ctx, id, sa);
+                return ret;
+            }
+        }
+    }
+    g_free(sa);
+    return ret;
+}
+
 INT Dot11DecryptDecryptPacket(
     PDOT11DECRYPT_CONTEXT ctx,
     const guint8 *data,
@@ -979,55 +1066,59 @@ INT Dot11DecryptDecryptPacket(
     /* check if data is encrypted (use the WEP bit in the Frame Control field) */
     if (DOT11DECRYPT_WEP(data[1])==0) {
         return DOT11DECRYPT_RET_NO_DATA_ENCRYPTED;
+    }
+    PDOT11DECRYPT_SEC_ASSOCIATION sa;
+
+    /* create new header and data to modify */
+    *decrypt_len = tot_len;
+    memcpy(decrypt_data, data, *decrypt_len);
+
+    /* encrypted data */
+    DEBUG_PRINT_LINE("Encrypted data", DEBUG_LEVEL_3);
+
+    /* check the Extension IV to distinguish between WEP encryption and WPA encryption */
+    /* refer to IEEE 802.11i-2004, 8.2.1.2, pag.35 for WEP,    */
+    /*          IEEE 802.11i-2004, 8.3.2.2, pag. 45 for TKIP,  */
+    /*          IEEE 802.11i-2004, 8.3.3.2, pag. 57 for CCMP   */
+    if (DOT11DECRYPT_EXTIV(data[mac_header_len + 3]) == 0) {
+        DEBUG_PRINT_LINE("WEP encryption", DEBUG_LEVEL_3);
+        /* get the Security Association structure for the STA and AP */
+        sa = Dot11DecryptGetSa(ctx, &id);
+        if (sa == NULL) {
+            return DOT11DECRYPT_RET_REQ_DATA;
+        }
+        return Dot11DecryptWepMng(ctx, decrypt_data, mac_header_len, decrypt_len, key, sa);
     } else {
-        PDOT11DECRYPT_SEC_ASSOCIATION sa;
+        DEBUG_PRINT_LINE("TKIP or CCMP encryption", DEBUG_LEVEL_3);
 
-        /* create new header and data to modify */
-        *decrypt_len = tot_len;
-        memcpy(decrypt_data, data, *decrypt_len);
+        /* If the destination is a multicast address use the group key. This will not work if the AP is using
+            more than one group key simultaneously.  I've not seen this in practice, however.
+            Usually an AP will rotate between the two key index values of 1 and 2 whenever
+            it needs to change the group key to be used. */
+        if (((const DOT11DECRYPT_MAC_FRAME_ADDR4 *)(data))->addr1[0] & 0x01) {
+            DEBUG_PRINT_LINE("Broadcast/Multicast address. This is encrypted with a group key.", DEBUG_LEVEL_3);
 
-        /* encrypted data */
-        DEBUG_PRINT_LINE("Encrypted data", DEBUG_LEVEL_3);
-
-        /* check the Extension IV to distinguish between WEP encryption and WPA encryption */
-        /* refer to IEEE 802.11i-2004, 8.2.1.2, pag.35 for WEP,    */
-        /*          IEEE 802.11i-2004, 8.3.2.2, pag. 45 for TKIP,  */
-        /*          IEEE 802.11i-2004, 8.3.3.2, pag. 57 for CCMP   */
-        if (DOT11DECRYPT_EXTIV(data[mac_header_len + 3]) == 0) {
-            DEBUG_PRINT_LINE("WEP encryption", DEBUG_LEVEL_3);
-            /* get the Security Association structure for the STA and AP */
-            sa = Dot11DecryptGetSa(ctx, &id);
-            if (sa == NULL) {
-                return DOT11DECRYPT_RET_REQ_DATA;
-            }
-            return Dot11DecryptWepMng(ctx, decrypt_data, mac_header_len, decrypt_len, key, sa);
-        } else {
-            DEBUG_PRINT_LINE("TKIP or CCMP encryption", DEBUG_LEVEL_3);
-
-            /* If the destination is a multicast address use the group key. This will not work if the AP is using
-               more than one group key simultaneously.  I've not seen this in practice, however.
-               Usually an AP will rotate between the two key index values of 1 and 2 whenever
-               it needs to change the group key to be used. */
-            if (((const DOT11DECRYPT_MAC_FRAME_ADDR4 *)(data))->addr1[0] & 0x01) {
-                DEBUG_PRINT_LINE("Broadcast/Multicast address. This is encrypted with a group key.", DEBUG_LEVEL_3);
-
-                /* force STA address to broadcast MAC so we load the SA for the groupkey */
-                memcpy(id.sta, broadcast_mac, DOT11DECRYPT_MAC_LEN);
+            /* force STA address to broadcast MAC so we load the SA for the groupkey */
+            memcpy(id.sta, broadcast_mac, DOT11DECRYPT_MAC_LEN);
 
 #ifdef DOT11DECRYPT_DEBUG
-                g_snprintf(msgbuf, MSGBUF_LEN, "ST_MAC: %2X.%2X.%2X.%2X.%2X.%2X\t", id.sta[0],id.sta[1],id.sta[2],id.sta[3],id.sta[4],id.sta[5]);
-                DEBUG_PRINT_LINE(msgbuf, DEBUG_LEVEL_3);
+            g_snprintf(msgbuf, MSGBUF_LEN, "ST_MAC: %2X.%2X.%2X.%2X.%2X.%2X\t", id.sta[0],id.sta[1],id.sta[2],id.sta[3],id.sta[4],id.sta[5]);
+            DEBUG_PRINT_LINE(msgbuf, DEBUG_LEVEL_3);
 #endif
-            }
-            /* search for a cached Security Association for current BSSID and STA/broadcast MAC */
-            sa = Dot11DecryptGetSa(ctx, &id);
-            if (sa == NULL) {
-                return DOT11DECRYPT_RET_REQ_DATA;
-            }
-            /* Decrypt the packet using the appropriate SA */
-            return Dot11DecryptRsnaMng(decrypt_data, mac_header_len, decrypt_len, key, sa);
         }
-    }
+        /* search for a cached Security Association for current BSSID and STA/broadcast MAC */
+        int ret = DOT11DECRYPT_RET_REQ_DATA;
+        sa = Dot11DecryptGetSa(ctx, &id);
+        if (sa != NULL) {
+            /* Decrypt the packet using the appropriate SA */
+            ret = Dot11DecryptRsnaMng(decrypt_data, mac_header_len, decrypt_len, key, sa);
+        }
+        if (ret != DOT11DECRYPT_RET_SUCCESS && Dot11DecryptGetNbrOfTkKeys(ctx) > 0) {
+            /* Decryption with known SAs failed. Try decrypt with TK user entries */
+            ret = Dot11DecryptUsingUserTk(ctx, decrypt_data, mac_header_len, decrypt_len, &id, key);
+        }
+        return ret;
+     }
     return DOT11DECRYPT_RET_UNSUCCESS;
 }
 
@@ -1321,6 +1412,12 @@ Dot11DecryptRsnaMng(
 
     /* remove TKIP/CCMP header */
     *decrypt_len-=8;
+
+    if (*decrypt_len < mac_header_len) {
+        DEBUG_PRINT_LINE("Invalid decryption length < mac_header_len", DEBUG_LEVEL_3);
+        g_free(try_data);
+        return DOT11DECRYPT_RET_UNSUCCESS;
+    }
 
     /* copy the decrypted data into the decrypt buffer GCS*/
     memcpy(decrypt_data + mac_header_len, try_data + mac_header_len + 8,
@@ -1827,7 +1924,7 @@ Dot11DecryptValidateKey(
         case DOT11DECRYPT_KEY_TYPE_WPA_PSK:
             break;
 
-        case DOT11DECRYPT_KEY_TYPE_WPA_PMK:
+        case DOT11DECRYPT_KEY_TYPE_TK:
             break;
 
         default:
@@ -2511,6 +2608,40 @@ parse_key_string(gchar* input_string, guint8 key_type)
 
         g_byte_array_free(key_ba, TRUE);
         return dk;
+
+    case DOT11DECRYPT_KEY_TYPE_TK:
+        {
+            /* From IEEE 802.11-2016 Table 12-4 Cipher suite key lengths */
+            static const guint8 allowed_key_lengths[] = {
+// TBD          40 / 8,  /* WEP-40 */
+// TBD          104 / 8, /* WEP-104 */
+                256 / 8, /* TKIP, GCMP-256, CCMP-256 */
+                128 / 8, /* CCMP-128, GCMP-128 */
+            };
+            gboolean key_length_ok = FALSE;
+
+            key_ba = g_byte_array_new();
+            res = hex_str_to_bytes(input_string, key_ba, FALSE);
+
+            for (size_t i = 0; i < sizeof(allowed_key_lengths); i++) {
+                if (key_ba->len == allowed_key_lengths[i]) {
+                    key_length_ok = TRUE;
+                    break;
+                }
+            }
+            if (!res || !key_length_ok) {
+                g_byte_array_free(key_ba, TRUE);
+                return NULL;
+            }
+            dk = (decryption_key_t*)g_malloc(sizeof(decryption_key_t));
+            dk->type = DOT11DECRYPT_KEY_TYPE_TK;
+            dk->key  = g_string_new(input_string);
+            dk->bits = (guint) dk->key->len * 4;
+            dk->ssid = NULL;
+
+            g_byte_array_free(key_ba, TRUE);
+            return dk;
+        }
     }
 
     /* Type not supported */

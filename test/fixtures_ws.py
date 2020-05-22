@@ -302,6 +302,44 @@ def test_env(base_env, conf_path, request, dirs):
 
 
 @fixtures.fixture
+def test_env_80211_user_tk(base_env, conf_path, request, dirs):
+    '''A process environment with a populated configuration directory.'''
+    # Populate our UAT files
+    uat_files = [
+        '80211_keys',
+    ]
+    # uat.c replaces backslashes...
+    key_dir_path = os.path.join(dirs.key_dir, '').replace('\\', '\\x5c')
+    for uat in uat_files:
+        template_file = os.path.join(dirs.config_dir, uat + '.user_tk_tmpl')
+        out_file = os.path.join(conf_path, uat)
+        with open(template_file, 'r') as f:
+            template_contents = f.read()
+        cf_contents = template_contents.replace('TEST_KEYS_DIR', key_dir_path)
+        with open(out_file, 'w') as f:
+            f.write(cf_contents)
+
+    env = base_env
+    env['WIRESHARK_RUN_FROM_BUILD_DIRECTORY'] = '1'
+    env['WIRESHARK_QUIT_AFTER_CAPTURE'] = '1'
+
+    # Allow GUI tests to be run without opening windows nor requiring a Xserver.
+    # Set envvar QT_DEBUG_BACKINGSTORE=1 to save the window contents to a file
+    # in the current directory, output0000.png, output0001.png, etc. Note that
+    # this will overwrite existing files.
+    if sys.platform == 'linux':
+        # This option was verified working on Arch Linux with Qt 5.12.0-2 and
+        # Ubuntu 16.04 with libqt5gui5 5.5.1+dfsg-16ubuntu7.5. On macOS and
+        # Windows it unfortunately crashes (Qt 5.12.0).
+        env['QT_QPA_PLATFORM'] = 'minimal'
+
+    # Remove this if test instances no longer inherit from SubprocessTestCase?
+    if isinstance(request.instance, subprocesstest.SubprocessTestCase):
+        # Inject the test environment as default if it was not overridden.
+        request.instance.injected_test_env = env
+    return env
+
+@fixtures.fixture
 def unicode_env(home_path, make_env):
     '''A Wireshark configuration directory with Unicode in its path.'''
     home_env = 'APPDATA' if sys.platform.startswith('win32') else 'HOME'
