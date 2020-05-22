@@ -119,8 +119,10 @@ typedef struct {
 	gint save_encryption_key_parent_hf_index;
 	kerberos_key_save_fn save_encryption_key_fn;
 	guint learnt_key_ids;
+	guint missing_key_ids;
 	wmem_list_t *decryption_keys;
 	wmem_list_t *learnt_keys;
+	wmem_list_t *missing_keys;
 	guint32 within_PA_TGS_REQ;
 	enc_key_t *PA_TGS_REQ_key;
 	enc_key_t *PA_TGS_REQ_subkey;
@@ -259,6 +261,7 @@ static gint ett_krb_pa_enc_ts_enc = -1;
 #endif
 #include "packet-kerberos-ett.c"
 
+static expert_field ei_kerberos_missing_keytype = EI_INIT;
 static expert_field ei_kerberos_decrypted_keytype = EI_INIT;
 static expert_field ei_kerberos_learnt_keytype = EI_INIT;
 static expert_field ei_kerberos_address = EI_INIT;
@@ -301,6 +304,7 @@ kerberos_new_private_data(void)
 
 	p->decryption_keys = wmem_list_new(wmem_packet_scope());
 	p->learnt_keys = wmem_list_new(wmem_packet_scope());
+	p->missing_keys = wmem_list_new(wmem_packet_scope());
 
 	return p;
 }
@@ -781,7 +785,10 @@ save_KrbFastResponse_strengthen_key(tvbuff_t *tvb, int offset, int length,
 
 static void used_encryption_key(proto_tree *tree, packet_info *pinfo,
 				kerberos_private_data_t *private_data,
-				enc_key_t *ek, int usage, tvbuff_t *cryptotvb)
+				enc_key_t *ek, int usage, tvbuff_t *cryptotvb,
+				const char *keymap_name,
+				guint keymap_size,
+				guint decryption_count)
 {
 	proto_item *item = NULL;
 	enc_key_t *sek = NULL;
@@ -793,6 +800,11 @@ static void used_encryption_key(proto_tree *tree, packet_info *pinfo,
 				     ek->keytype, usage, ek->key_origin, ek->id_str, ek->num_same,
 				     ek->keyvalue[0] & 0xFF, ek->keyvalue[1] & 0xFF,
 				     ek->keyvalue[2] & 0xFF, ek->keyvalue[3] & 0xFF);
+	expert_add_info_format(pinfo, item, &ei_kerberos_decrypted_keytype,
+			       "Used keymap=%s num_keys=%u num_tries=%u)",
+			       keymap_name,
+			       keymap_size,
+			       decryption_count);
 	if (ek->src1 != NULL) {
 		sek = ek->src1;
 		expert_add_info_format(pinfo, item, &ei_kerberos_decrypted_keytype,
@@ -825,6 +837,39 @@ static void used_encryption_key(proto_tree *tree, packet_info *pinfo,
 	private_data->last_decryption_key = ek;
 }
 
+static void missing_encryption_key(proto_tree *tree, packet_info *pinfo,
+				   kerberos_private_data_t *private_data,
+				   int keytype, int usage, tvbuff_t *cryptotvb,
+				   const char *keymap_name,
+				   guint keymap_size,
+				   guint decryption_count)
+{
+	proto_item *item = NULL;
+	enc_key_t *mek = NULL;
+
+	mek = wmem_new0(wmem_packet_scope(), enc_key_t);
+	g_snprintf(mek->key_origin, KRB_MAX_ORIG_LEN,
+		   "keytype %d usage %d missing in frame %u",
+		   keytype, usage, pinfo->num);
+	mek->fd_num = pinfo->num;
+	mek->id = ++private_data->missing_key_ids;
+	g_snprintf(mek->id_str, KRB_MAX_ID_STR_LEN, "missing.%u",
+		   mek->id);
+	mek->keytype=keytype;
+
+	item = proto_tree_add_expert_format(tree, pinfo, &ei_kerberos_missing_keytype,
+					    cryptotvb, 0, 0,
+					    "Missing keytype %d usage %d (id=%s)",
+					    keytype, usage, mek->id_str);
+	expert_add_info_format(pinfo, item, &ei_kerberos_missing_keytype,
+			       "Used keymap=%s num_keys=%u num_tries=%u)",
+			       keymap_name,
+			       keymap_size,
+			       decryption_count);
+
+	kerberos_key_list_append(private_data->missing_keys, mek);
+}
+
 #endif /* HAVE_HEIMDAL_KERBEROS || HAVE_MIT_KERBEROS */
 
 #if defined(HAVE_MIT_KERBEROS)
@@ -834,7 +879,10 @@ static void used_signing_key(proto_tree *tree, packet_info *pinfo,
 			     kerberos_private_data_t *private_data,
 			     enc_key_t *ek, tvbuff_t *tvb,
 			     krb5_cksumtype checksum,
-			     const char *reason)
+			     const char *reason,
+			     const char *keymap_name,
+			     guint keymap_size,
+			     guint verify_count)
 {
 	proto_item *item = NULL;
 	enc_key_t *sek = NULL;
@@ -847,6 +895,11 @@ static void used_signing_key(proto_tree *tree, packet_info *pinfo,
 				     ek->id_str, ek->num_same,
 				     ek->keyvalue[0] & 0xFF, ek->keyvalue[1] & 0xFF,
 				     ek->keyvalue[2] & 0xFF, ek->keyvalue[3] & 0xFF);
+	expert_add_info_format(pinfo, item, &ei_kerberos_decrypted_keytype,
+			       "Used keymap=%s num_keys=%u num_tries=%u)",
+			       keymap_name,
+			       keymap_size,
+			       verify_count);
 	sek = ek->same_list;
 	while (sek != NULL) {
 		expert_add_info_format(pinfo, item, &ei_kerberos_decrypted_keytype,
@@ -860,6 +913,43 @@ static void used_signing_key(proto_tree *tree, packet_info *pinfo,
 	}
 	kerberos_key_list_append(private_data->decryption_keys, ek);
 }
+
+static void missing_signing_key(proto_tree *tree, packet_info *pinfo,
+				kerberos_private_data_t *private_data,
+				tvbuff_t *tvb,
+				krb5_cksumtype checksum,
+				int keytype,
+				const char *reason,
+				const char *keymap_name,
+				guint keymap_size,
+				guint verify_count)
+{
+	proto_item *item = NULL;
+	enc_key_t *mek = NULL;
+
+	mek = wmem_new0(wmem_packet_scope(), enc_key_t);
+	g_snprintf(mek->key_origin, KRB_MAX_ORIG_LEN,
+		   "checksum %d keytype %d missing in frame %u",
+		   checksum, keytype, pinfo->num);
+	mek->fd_num = pinfo->num;
+	mek->id = ++private_data->missing_key_ids;
+	g_snprintf(mek->id_str, KRB_MAX_ID_STR_LEN, "missing.%u",
+		   mek->id);
+	mek->keytype=keytype;
+
+	item = proto_tree_add_expert_format(tree, pinfo, &ei_kerberos_missing_keytype,
+					    tvb, 0, 0,
+					    "%s checksum %d keytype %d (id=%s)",
+					    reason, checksum, keytype, mek->id_str);
+	expert_add_info_format(pinfo, item, &ei_kerberos_missing_keytype,
+			       "Used keymap=%s num_keys=%u num_tries=%u)",
+			       keymap_name,
+			       keymap_size,
+			       verify_count);
+
+	kerberos_key_list_append(private_data->missing_keys, mek);
+}
+
 #endif /* HAVE_KRB5_PAC_VERIFY */
 
 static krb5_context krb5_ctx;
@@ -1014,6 +1104,7 @@ struct decrypt_krb5_with_cb_state {
 		int usage,
 		void *decrypt_cb_data);
 	void *decrypt_cb_data;
+	guint count;
 	enc_key_t *ek;
 };
 
@@ -1123,6 +1214,7 @@ decrypt_krb5_with_cb_try_key(gpointer __key _U_, gpointer value, gpointer userda
 			return;
 		}
 
+		state->count += 1;
 		ret = state->decrypt_cb_fn(k,
 					   state->usage,
 					   state->decrypt_cb_data);
@@ -1177,6 +1269,7 @@ decrypt_krb5_with_cb_try_key(gpointer __key _U_, gpointer value, gpointer userda
 			return;
 		}
 
+		state->count += 1;
 		ret = state->decrypt_cb_fn(k,
 					   state->usage,
 					   state->decrypt_cb_data);
@@ -1218,6 +1311,7 @@ decrypt_krb5_with_cb_try_key(gpointer __key _U_, gpointer value, gpointer userda
 	key.key.enctype=ek->keytype;
 	key.key.length=ek->keylength;
 	key.key.contents=ek->keyvalue;
+	state->count += 1;
 	ret = state->decrypt_cb_fn(&(key.key),
 				   state->usage,
 				   state->decrypt_cb_data);
@@ -1248,6 +1342,7 @@ decrypt_krb5_with_cb(proto_tree *tree,
 			void *decrypt_cb_data),
 		     void *decrypt_cb_data)
 {
+	const char *key_map_name = "all_keys";
 	wmem_map_t *key_map = kerberos_all_keys;
 	struct decrypt_krb5_with_cb_state state = {
 		.tree = tree,
@@ -1267,10 +1362,18 @@ decrypt_krb5_with_cb(proto_tree *tree,
 	wmem_map_foreach(key_map, decrypt_krb5_with_cb_try_key, &state);
 	if (state.ek != NULL) {
 		used_encryption_key(tree, pinfo, private_data,
-				    state.ek, usage, cryptotvb);
+				    state.ek, usage, cryptotvb,
+				    key_map_name,
+				    wmem_map_size(key_map),
+				    state.count);
 		return 0;
 	}
 
+	missing_encryption_key(tree, pinfo, private_data,
+			       keytype, usage, cryptotvb,
+			       key_map_name,
+			       wmem_map_size(key_map),
+			       state.count);
 	return -1;
 }
 
@@ -1597,11 +1700,42 @@ decrypt_krb5_krb_cfx_dce(proto_tree *tree,
 extern krb5_error_code
 krb5int_c_mandatory_cksumtype(krb5_context, krb5_enctype, krb5_cksumtype *);
 
+static int
+keytype_for_cksumtype(krb5_cksumtype checksum)
+{
+#define _ARRAY_SIZE(X) (sizeof(X) / sizeof((X)[0]))
+	static const int keytypes[] = {
+		18,
+		17,
+		23,
+	};
+	guint i;
+
+	for (i = 0; i < _ARRAY_SIZE(keytypes); i++) {
+		krb5_cksumtype checksumtype = 0;
+		krb5_error_code ret;
+
+		ret = krb5int_c_mandatory_cksumtype(krb5_ctx,
+						    keytypes[i],
+						    &checksumtype);
+		if (ret != 0) {
+			continue;
+		}
+		if (checksum == checksumtype) {
+			return keytypes[i];
+		}
+	}
+
+	return -1;
+}
+
 struct verify_krb5_pac_state {
 	krb5_pac pac;
 	krb5_cksumtype server_checksum;
+	guint server_count;
 	enc_key_t *server_ek;
 	krb5_cksumtype kdc_checksum;
+	guint kdc_count;
 	enc_key_t *kdc_ek;
 };
 
@@ -1645,6 +1779,7 @@ verify_krb5_pac_try_key(gpointer __key _U_, gpointer value, gpointer userdata)
 	keyblock.contents = (guint8 *)ek->keyvalue;
 
 	if (checksumtype == state->server_checksum && state->server_ek == NULL) {
+		state->server_count += 1;
 		ret = krb5_pac_verify(krb5_ctx, state->pac, 0, NULL,
 				      &keyblock, NULL);
 		if (ret == 0) {
@@ -1653,6 +1788,7 @@ verify_krb5_pac_try_key(gpointer __key _U_, gpointer value, gpointer userdata)
 	}
 
 	if (checksumtype == state->kdc_checksum && state->kdc_ek == NULL) {
+		state->kdc_count += 1;
 		ret = krb5_pac_verify(krb5_ctx, state->pac, 0, NULL,
 				      NULL, &keyblock);
 		if (ret == 0) {
@@ -1715,12 +1851,34 @@ verify_krb5_pac(proto_tree *tree _U_, asn1_ctx_t *actx, tvbuff_t *pactvb)
 	if (state.server_ek != NULL) {
 		used_signing_key(tree, actx->pinfo, private_data,
 				 state.server_ek, pactvb,
-				 state.server_checksum, "Verified Server");
+				 state.server_checksum, "Verified Server",
+				 "longterm_keys",
+				 wmem_map_size(kerberos_longterm_keys),
+				 state.server_count);
+	} else {
+		int keytype = keytype_for_cksumtype(state.server_checksum);
+		missing_signing_key(tree, actx->pinfo, private_data,
+				    pactvb, state.server_checksum, keytype,
+				    "Missing Server",
+				    "longterm_keys",
+				    wmem_map_size(kerberos_longterm_keys),
+				    state.server_count);
 	}
 	if (state.kdc_ek != NULL) {
 		used_signing_key(tree, actx->pinfo, private_data,
 				 state.kdc_ek, pactvb,
-				 state.kdc_checksum, "Verified KDC");
+				 state.kdc_checksum, "Verified KDC",
+				 "longterm_keys",
+				 wmem_map_size(kerberos_longterm_keys),
+				 state.kdc_count);
+	} else {
+		int keytype = keytype_for_cksumtype(state.kdc_checksum);
+		missing_signing_key(tree, actx->pinfo, private_data,
+				    pactvb, state.kdc_checksum, keytype,
+				    "Missing KDC",
+				    "longterm_keys",
+				    wmem_map_size(kerberos_longterm_keys),
+				    state.kdc_count);
 	}
 
 	krb5_pac_free(krb5_ctx, state.pac);
@@ -1887,7 +2045,8 @@ decrypt_krb5_data(proto_tree *tree _U_, packet_info *pinfo,
 			char *user_data;
 
 			used_encryption_key(tree, pinfo, zero_private,
-					    ek, usage, cryptotvb);
+					    ek, usage, cryptotvb,
+					    "enc_key_list", 0, 0);
 
 			krb5_crypto_destroy(krb5_ctx, crypto);
 			/* return a private wmem_alloced blob to the caller */
@@ -3763,6 +3922,20 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		struct kerberos_display_key_state display_state = {
 			.tree = kerberos_tree,
 			.pinfo = pinfo,
+			.expindex = &ei_kerberos_missing_keytype,
+			.name = "Missing",
+			.tvb = tvb,
+		};
+
+		wmem_list_foreach(private_data->missing_keys,
+				  kerberos_display_key,
+				  &display_state);
+	}
+
+	if (kerberos_tree != NULL) {
+		struct kerberos_display_key_state display_state = {
+			.tree = kerberos_tree,
+			.pinfo = pinfo,
 			.expindex = &ei_kerberos_decrypted_keytype,
 			.name = "Used",
 			.tvb = tvb,
@@ -4135,6 +4308,7 @@ void proto_register_kerberos(void) {
 	};
 
 	static ei_register_info ei[] = {
+		{ &ei_kerberos_missing_keytype, { "kerberos.missing_keytype", PI_DECRYPTION, PI_WARN, "Missing keytype", EXPFILL }},
 		{ &ei_kerberos_decrypted_keytype, { "kerberos.decrypted_keytype", PI_SECURITY, PI_CHAT, "Decryted keytype", EXPFILL }},
 		{ &ei_kerberos_learnt_keytype, { "kerberos.learnt_keytype", PI_SECURITY, PI_CHAT, "Learnt keytype", EXPFILL }},
 		{ &ei_kerberos_address, { "kerberos.address.unknown", PI_UNDECODED, PI_WARN, "KRB Address: I don't know how to parse this type of address yet", EXPFILL }},
