@@ -261,6 +261,7 @@ typedef struct {
     nghttp2_hd_inflater *hd_inflater[2];
     http2_header_repr_info_t header_repr_info[2];
     wmem_map_t *per_stream_info;
+    gboolean    fix_dynamic_table[2];
 #endif
     guint32 current_stream_id;
     tcp_flow_t *fwd_flow;
@@ -1186,6 +1187,10 @@ get_http2_session(packet_info *pinfo, conversation_t* conversation)
         h2session->per_stream_info = wmem_map_new(wmem_file_scope(),
                                                   g_direct_hash,
                                                   g_direct_equal);
+        /* Unless found otherwise, assume that some earlier Header Block
+         * Fragments were missing and that recovery should be attempted. */
+        h2session->fix_dynamic_table[0] = TRUE;
+        h2session->fix_dynamic_table[1] = TRUE;
 #endif
 
         h2session->fwd_flow = tcpd->fwd;
@@ -1673,6 +1678,62 @@ try_add_named_header_field(proto_tree *tree, tvbuff_t *tvb, int offset, guint32 
 }
 
 static void
+fix_partial_header_dissection_support(nghttp2_hd_inflater *hd_inflater, gboolean *fix_it)
+{
+    /* Workaround is not necessary or has already been applied, skip. */
+    if (!*fix_it) {
+        return;
+    }
+    *fix_it = FALSE;
+
+    /* Sanity-check: the workaround should fill an empty dynamic table only and
+     * not evict existing entries. It is expected to be empty given that this is
+     * the first time processing headers, but double-check just to be sure.
+     */
+    if (nghttp2_hd_inflate_get_dynamic_table_size(hd_inflater) != 0) {
+        // Dynamic table is non-empty, do not touch it!
+        return;
+    }
+
+    /* Support dissection of headers where the capture starts in the middle of a
+     * TCP stream. In that case, the Headers Block Fragment might reference
+     * earlier dynamic table entries unknown to the decompressor. To avoid a
+     * fatal error that breaks all future header dissection in this connection,
+     * populate the dynamic table with some dummy entries.
+     * See also https://github.com/nghttp2/nghttp2/issues/1389
+     *
+     * The number of entries in the dynamic table is dependent on the maximum
+     * table size (SETTINGS_HEADER_TABLE_SIZE, defaults to 4096 bytes) and the
+     * size of individual entries (32 + name length + value length where 32 is
+     * the overhead from RFC 7541, Section 4.1). Since earlier header fields in
+     * the dynamic table are unknown, we will try to use a small dummy header
+     * field to maximize the number of entries: "<unknown>" with no value.
+     *
+     * The binary instruction to insert this is defined in Figure 7 of RFC 7541.
+     */
+    static const guint8 dummy_header[] = "\x40"
+                                         "\x09"      /* Name String Length */
+                                         "<unknown>" /* Name String */
+                                         "\0";       /* Value Length */
+    const int dummy_header_size = sizeof(dummy_header) - 1;
+    const int dummy_entries_to_add = 4096 / (32 + dummy_header_size - 3);
+    for (int i = dummy_entries_to_add - 1; i >= 0; --i) {
+        nghttp2_nv nv;
+        int inflate_flags = 0;
+        int rv = (int)nghttp2_hd_inflate_hd2(hd_inflater, &nv, &inflate_flags,
+                                             dummy_header, dummy_header_size,
+                                             i == 0);
+        if (rv != dummy_header_size) {
+            g_log(G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
+                  "unexpected decompression state: %d != %d", rv,
+                  dummy_header_size);
+            break;
+        }
+    }
+    nghttp2_hd_inflate_end_headers(hd_inflater);
+}
+
+static void
 inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree,
                            guint headlen, http2_session_t *h2session, guint8 flags)
 {
@@ -1724,6 +1785,8 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset, prot
         flow_index = select_http2_flow_index(pinfo, h2session);
         hd_inflater = h2session->hd_inflater[flow_index];
         header_repr_info = &h2session->header_repr_info[flow_index];
+
+        fix_partial_header_dissection_support(hd_inflater, &h2session->fix_dynamic_table[flow_index]);
 
         final = flags & HTTP2_FLAGS_END_HEADERS;
 
