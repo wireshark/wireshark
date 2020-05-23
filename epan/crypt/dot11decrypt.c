@@ -194,28 +194,10 @@ static INT Dot11DecryptRsnaMicCheck(
     int akm)
     ;
 
-/**
- * @param ctx [IN] pointer to the current context
- * @param id [IN] id of the association (composed by BSSID and MAC of
- * the station)
- * @return
- * - index of the Security Association structure if found
- * - -1, if the specified addresses pair BSSID-STA MAC has not been found
- */
-static INT Dot11DecryptGetSa(
-    PDOT11DECRYPT_CONTEXT ctx,
-    DOT11DECRYPT_SEC_ASSOCIATION_ID *id)
-    ;
-
 static PDOT11DECRYPT_SEC_ASSOCIATION
-Dot11DecryptGetSaPtr(
+Dot11DecryptGetSa(
     PDOT11DECRYPT_CONTEXT ctx,
-    DOT11DECRYPT_SEC_ASSOCIATION_ID *id)
-    ;
-
-static INT Dot11DecryptStoreSa(
-    PDOT11DECRYPT_CONTEXT ctx,
-    DOT11DECRYPT_SEC_ASSOCIATION_ID *id)
+    const DOT11DECRYPT_SEC_ASSOCIATION_ID *id)
     ;
 
 static INT Dot11DecryptGetSaAddress(
@@ -498,7 +480,7 @@ Dot11DecryptDecryptKeyData(PDOT11DECRYPT_CONTEXT ctx,
     /* search for a cached Security Association for current BSSID and AP */
     memcpy(id.bssid, bssid, DOT11DECRYPT_MAC_LEN);
     memcpy(id.sta, sta, DOT11DECRYPT_MAC_LEN);
-    sa = Dot11DecryptGetSaPtr(ctx, &id);
+    sa = Dot11DecryptGetSa(ctx, &id);
     if (sa == NULL || !sa->validKey) {
         DEBUG_PRINT_LINE("No valid SA for BSSID found", DEBUG_LEVEL_3);
         return DOT11DECRYPT_RET_UNSUCCESS;
@@ -593,24 +575,31 @@ Dot11DecryptDecryptKeyData(PDOT11DECRYPT_CONTEXT ctx,
     return DOT11DECRYPT_RET_SUCCESS;
 }
 
-
-/* Return a pointer the the requested SA. If it doesn't exist create it. */
+/**
+ * @param ctx [IN] pointer to the current context
+ * @param id [IN] id of the association (composed by BSSID and MAC of
+ * the station)
+ * @return a pointer the the requested SA. If it doesn't exist create it.
+ */
 static PDOT11DECRYPT_SEC_ASSOCIATION
-Dot11DecryptGetSaPtr(
+Dot11DecryptGetSa(
     PDOT11DECRYPT_CONTEXT ctx,
-    DOT11DECRYPT_SEC_ASSOCIATION_ID *id)
+    const DOT11DECRYPT_SEC_ASSOCIATION_ID *id)
 {
-    int sa_index;
+    DOT11DECRYPT_SEC_ASSOCIATION *sa;
+    sa = (DOT11DECRYPT_SEC_ASSOCIATION *)g_hash_table_lookup(ctx->sa_hash, id);
 
-    /* search for a cached Security Association for supplied BSSID and STA MAC  */
-    if ((sa_index=Dot11DecryptGetSa(ctx, id))==-1) {
-        /* create a new Security Association if it doesn't currently exist      */
-        if ((sa_index=Dot11DecryptStoreSa(ctx, id))==-1) {
-            return NULL;
+    if (sa == NULL) {
+        sa = g_new0(DOT11DECRYPT_SEC_ASSOCIATION, 1);
+        void *key = g_memdup(id, sizeof(DOT11DECRYPT_SEC_ASSOCIATION_ID));
+        if (sa == NULL || key == NULL) {
+            g_free(key);
+            g_free(sa);
         }
+        sa->saId = *id;
+        g_hash_table_insert(ctx->sa_hash, key, sa);
     }
-    /* get the Security Association structure   */
-    return &ctx->sa[sa_index];
+    return sa;
 }
 
 int
@@ -764,7 +753,7 @@ INT Dot11DecryptScanTdlsForKeys(
         memcpy(id.bssid, initiator, DOT11DECRYPT_MAC_LEN);
     }
 
-    sa = Dot11DecryptGetSaPtr(ctx, &id);
+    sa = Dot11DecryptGetSa(ctx, &id);
     if (sa == NULL){
         return DOT11DECRYPT_RET_REQ_DATA;
     }
@@ -877,7 +866,7 @@ INT Dot11DecryptScanEapolForKeys(
     /* search for a cached Security Association for current BSSID and AP */
     memcpy(id.bssid, bssid, DOT11DECRYPT_MAC_LEN);
     memcpy(id.sta, sta, DOT11DECRYPT_MAC_LEN);
-    sa = Dot11DecryptGetSaPtr(ctx, &id);
+    sa = Dot11DecryptGetSa(ctx, &id);
     if (sa == NULL){
         DEBUG_PRINT_LINE("No SA for BSSID found", DEBUG_LEVEL_3);
         return DOT11DECRYPT_RET_REQ_DATA;
@@ -887,7 +876,7 @@ INT Dot11DecryptScanEapolForKeys(
     memcpy(id.sta, broadcast_mac, DOT11DECRYPT_MAC_LEN);
 
     /* get the Security Association structure for the broadcast MAC and AP */
-    broadcast_sa = Dot11DecryptGetSaPtr(ctx, &id);
+    broadcast_sa = Dot11DecryptGetSa(ctx, &id);
     if (broadcast_sa == NULL) {
         DEBUG_PRINT_LINE("No broadcast SA for BSSID found", DEBUG_LEVEL_3);
         return DOT11DECRYPT_RET_REQ_DATA;
@@ -966,7 +955,7 @@ INT Dot11DecryptDecryptPacket(
         PDOT11DECRYPT_SEC_ASSOCIATION sa;
 
         /* get the Security Association structure for the STA and AP */
-        sa = Dot11DecryptGetSaPtr(ctx, &id);
+        sa = Dot11DecryptGetSa(ctx, &id);
         if (sa == NULL){
             return DOT11DECRYPT_RET_REQ_DATA;
         }
@@ -1004,7 +993,7 @@ INT Dot11DecryptDecryptPacket(
 #endif
 
                 /* search for a cached Security Association for current BSSID and broadcast MAC */
-                sa = Dot11DecryptGetSaPtr(ctx, &id);
+                sa = Dot11DecryptGetSa(ctx, &id);
                 if (sa == NULL)
                     return DOT11DECRYPT_RET_REQ_DATA;
             }
@@ -1081,12 +1070,12 @@ Dot11DecryptCleanKeys(
 
 static void
 Dot11DecryptRecurseCleanSA(
-    PDOT11DECRYPT_SEC_ASSOCIATION sa)
+    gpointer first_sa)
 {
-    if (sa->next != NULL) {
-        Dot11DecryptRecurseCleanSA(sa->next);
-        g_free(sa->next);
-        sa->next = NULL;
+    DOT11DECRYPT_SEC_ASSOCIATION *sa = (DOT11DECRYPT_SEC_ASSOCIATION *)first_sa;
+    if (sa != NULL) {
+        Dot11DecryptRecurseCleanSA((gpointer)sa->next);
+        g_free(sa);
     }
 }
 
@@ -1094,12 +1083,9 @@ static void
 Dot11DecryptCleanSecAssoc(
     PDOT11DECRYPT_CONTEXT ctx)
 {
-    PDOT11DECRYPT_SEC_ASSOCIATION psa;
-    int i;
-
-    for (psa = ctx->sa, i = 0; i < DOT11DECRYPT_MAX_SEC_ASSOCIATIONS_NR; i++, psa++) {
-        /* To iterate is human, to recurse, divine */
-        Dot11DecryptRecurseCleanSA(psa);
+    if (ctx->sa_hash != NULL) {
+        g_hash_table_destroy(ctx->sa_hash);
+        ctx->sa_hash = NULL;
     }
 }
 
@@ -1123,6 +1109,21 @@ INT Dot11DecryptSetLastSSID(
     return DOT11DECRYPT_RET_SUCCESS;
 }
 
+static guint
+Dot11DecryptSaHash(gconstpointer key)
+{
+    GBytes *bytes = g_bytes_new_static(key, sizeof(DOT11DECRYPT_SEC_ASSOCIATION_ID));
+    guint hash = g_bytes_hash(bytes);
+    g_bytes_unref(bytes);
+    return hash;
+}
+
+static gboolean
+Dot11DecryptIsSaIdEqual(gconstpointer key1, gconstpointer key2)
+{
+    return memcmp(key1, key2, sizeof(DOT11DECRYPT_SEC_ASSOCIATION_ID)) == 0;
+}
+
 INT Dot11DecryptInitContext(
     PDOT11DECRYPT_CONTEXT ctx)
 {
@@ -1132,13 +1133,14 @@ INT Dot11DecryptInitContext(
     }
 
     Dot11DecryptCleanKeys(ctx);
+    Dot11DecryptCleanSecAssoc(ctx);
 
-    ctx->first_free_index=0;
-    ctx->index=-1;
-    ctx->sa_index=-1;
     ctx->pkt_ssid_len = 0;
-
-    memset(ctx->sa, 0, DOT11DECRYPT_MAX_SEC_ASSOCIATIONS_NR * sizeof(DOT11DECRYPT_SEC_ASSOCIATION));
+    ctx->sa_hash = g_hash_table_new_full(Dot11DecryptSaHash, Dot11DecryptIsSaIdEqual,
+                                         g_free, Dot11DecryptRecurseCleanSA);
+    if (ctx->sa_hash == NULL) {
+        return DOT11DECRYPT_RET_UNSUCCESS;
+    }
 
     DEBUG_PRINT_LINE("Context initialized!", DEBUG_LEVEL_5);
     return DOT11DECRYPT_RET_SUCCESS;
@@ -1154,10 +1156,6 @@ INT Dot11DecryptDestroyContext(
 
     Dot11DecryptCleanKeys(ctx);
     Dot11DecryptCleanSecAssoc(ctx);
-
-    ctx->first_free_index=0;
-    ctx->index=-1;
-    ctx->sa_index=-1;
 
     DEBUG_PRINT_LINE("Context destroyed!", DEBUG_LEVEL_5);
     return DOT11DECRYPT_RET_SUCCESS;
@@ -1629,14 +1627,14 @@ Dot11DecryptRsna4WHandshake(
 
             memcpy(id.sta, sa->saId.sta, DOT11DECRYPT_MAC_LEN);
             memcpy(id.bssid, sa->saId.bssid, DOT11DECRYPT_MAC_LEN);
-            sa = Dot11DecryptGetSaPtr(ctx, &id);
+            sa = Dot11DecryptGetSa(ctx, &id);
             if (sa == NULL) {
                 return DOT11DECRYPT_RET_REQ_DATA;
             }
 
             /* Get broadcacst SA for the current BSSID */
             memcpy(id.sta, broadcast_mac, DOT11DECRYPT_MAC_LEN);
-            broadcast_sa = Dot11DecryptGetSaPtr(ctx, &id);
+            broadcast_sa = Dot11DecryptGetSa(ctx, &id);
             if (broadcast_sa == NULL) {
                 return DOT11DECRYPT_RET_REQ_DATA;
             }
@@ -1829,77 +1827,6 @@ Dot11DecryptValidateKey(
     }
     return ret;
 }
-
-static INT
-Dot11DecryptGetSa(
-    PDOT11DECRYPT_CONTEXT ctx,
-    DOT11DECRYPT_SEC_ASSOCIATION_ID *id)
-{
-    INT sa_index;
-    if (ctx->sa_index!=-1) {
-        /* at least one association was stored                               */
-        /* search for the association from sa_index to 0 (most recent added) */
-        for (sa_index=ctx->sa_index; sa_index>=0; sa_index--) {
-            if (ctx->sa[sa_index].used) {
-                if (memcmp(id, &(ctx->sa[sa_index].saId), sizeof(DOT11DECRYPT_SEC_ASSOCIATION_ID))==0) {
-                    ctx->index=sa_index;
-                    return sa_index;
-                }
-            }
-        }
-    }
-
-    return -1;
-}
-
-static INT
-Dot11DecryptStoreSa(
-    PDOT11DECRYPT_CONTEXT ctx,
-    DOT11DECRYPT_SEC_ASSOCIATION_ID *id)
-{
-    INT last_free;
-    if (ctx->first_free_index>=DOT11DECRYPT_MAX_SEC_ASSOCIATIONS_NR) {
-        /* there is no empty space available. FAILURE */
-        return -1;
-    }
-    if (ctx->sa[ctx->first_free_index].used) {
-        /* last addition was in the middle of the array (and the first_free_index was just incremented by 1)   */
-        /* search for a free space from the first_free_index to DOT11DECRYPT_STA_INFOS_NR (to avoid free blocks in */
-        /*              the middle)                                                                            */
-        for (last_free=ctx->first_free_index; last_free<DOT11DECRYPT_MAX_SEC_ASSOCIATIONS_NR; last_free++)
-            if (!ctx->sa[last_free].used)
-                break;
-
-        if (last_free>=DOT11DECRYPT_MAX_SEC_ASSOCIATIONS_NR) {
-            /* there is no empty space available. FAILURE */
-            return -1;
-        }
-
-        /* store first free space index */
-        ctx->first_free_index=last_free;
-    }
-
-    /* use this info */
-    ctx->index=ctx->first_free_index;
-
-    /* reset the info structure */
-    memset(ctx->sa+ctx->index, 0, sizeof(DOT11DECRYPT_SEC_ASSOCIATION));
-
-    ctx->sa[ctx->index].used=1;
-
-    /* set the info structure */
-    memcpy(&(ctx->sa[ctx->index].saId), id, sizeof(DOT11DECRYPT_SEC_ASSOCIATION_ID));
-
-    /* increment by 1 the first_free_index (heuristic) */
-    ctx->first_free_index++;
-
-    /* set the sa_index if the added index is greater the the sa_index */
-    if (ctx->index > ctx->sa_index)
-        ctx->sa_index=ctx->index;
-
-    return ctx->index;
-}
-
 
 static INT
 Dot11DecryptGetSaAddress(

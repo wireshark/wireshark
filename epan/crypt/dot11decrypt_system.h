@@ -32,7 +32,6 @@
 #define	DOT11DECRYPT_RET_SUCCESS_HANDSHAKE  	 -1
 
 #define	DOT11DECRYPT_MAX_KEYS_NR	        	 64
-#define	DOT11DECRYPT_MAX_SEC_ASSOCIATIONS_NR	256
 
 /*	Decryption algorithms fields size definition (bytes)		*/
 #define	DOT11DECRYPT_WPA_NONCE_LEN		         32
@@ -107,11 +106,6 @@ typedef struct _DOT11DECRYPT_SEC_ASSOCIATION {
      */
     struct _DOT11DECRYPT_SEC_ASSOCIATION* next;
 
-	/**
-	 * This flag define whether this item is used or not. Accepted
-     * values are TRUE and FALSE
-	 */
-	UINT8 used;
 	DOT11DECRYPT_SEC_ASSOCIATION_ID saId;
 	DOT11DECRYPT_KEY_ITEM *key;
 	UINT8 handshake;
@@ -133,16 +127,11 @@ typedef struct _DOT11DECRYPT_SEC_ASSOCIATION {
 } DOT11DECRYPT_SEC_ASSOCIATION, *PDOT11DECRYPT_SEC_ASSOCIATION;
 
 typedef struct _DOT11DECRYPT_CONTEXT {
-	DOT11DECRYPT_SEC_ASSOCIATION sa[DOT11DECRYPT_MAX_SEC_ASSOCIATIONS_NR];
-	INT sa_index;
+	GHashTable *sa_hash;
 	DOT11DECRYPT_KEY_ITEM keys[DOT11DECRYPT_MAX_KEYS_NR];
 	size_t keys_nr;
-
-        CHAR pkt_ssid[DOT11DECRYPT_WPA_SSID_MAX_LEN];
-        size_t pkt_ssid_len;
-
-	INT index;
-	INT first_free_index;
+	CHAR pkt_ssid[DOT11DECRYPT_WPA_SSID_MAX_LEN];
+	size_t pkt_ssid_len;
 } DOT11DECRYPT_CONTEXT, *PDOT11DECRYPT_CONTEXT;
 
 typedef enum _DOT11DECRYPT_HS_MSG_TYPE {
