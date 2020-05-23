@@ -168,7 +168,7 @@ static INT Dot11DecryptRsna4WHandshake(
     PDOT11DECRYPT_CONTEXT ctx,
     PDOT11DECRYPT_EAPOL_PARSED eapol_parsed,
     const guint8 *eapol_raw,
-    DOT11DECRYPT_SEC_ASSOCIATION *sa,
+    DOT11DECRYPT_SEC_ASSOCIATION_ID *id,
     const guint tot_len);
 
 /**
@@ -579,24 +579,54 @@ Dot11DecryptDecryptKeyData(PDOT11DECRYPT_CONTEXT ctx,
  * @param ctx [IN] pointer to the current context
  * @param id [IN] id of the association (composed by BSSID and MAC of
  * the station)
- * @return a pointer the the requested SA. If it doesn't exist create it.
+ * @return a pointer the the requested SA. NULL if it doesn't exist.
  */
 static PDOT11DECRYPT_SEC_ASSOCIATION
 Dot11DecryptGetSa(
     PDOT11DECRYPT_CONTEXT ctx,
     const DOT11DECRYPT_SEC_ASSOCIATION_ID *id)
 {
-    DOT11DECRYPT_SEC_ASSOCIATION *sa;
-    sa = (DOT11DECRYPT_SEC_ASSOCIATION *)g_hash_table_lookup(ctx->sa_hash, id);
+    return (DOT11DECRYPT_SEC_ASSOCIATION *)g_hash_table_lookup(ctx->sa_hash, id);
+}
 
-    if (sa == NULL) {
-        sa = g_new0(DOT11DECRYPT_SEC_ASSOCIATION, 1);
-        void *key = g_memdup(id, sizeof(DOT11DECRYPT_SEC_ASSOCIATION_ID));
-        if (sa == NULL || key == NULL) {
-            g_free(key);
-            g_free(sa);
-        }
+static PDOT11DECRYPT_SEC_ASSOCIATION
+Dot11DecryptNewSa(const DOT11DECRYPT_SEC_ASSOCIATION_ID *id)
+{
+    PDOT11DECRYPT_SEC_ASSOCIATION sa = g_new0(DOT11DECRYPT_SEC_ASSOCIATION, 1);
+    if (sa != NULL) {
         sa->saId = *id;
+    }
+    return sa;
+}
+
+static DOT11DECRYPT_SEC_ASSOCIATION *
+Dot11DecryptPrependSa(
+    DOT11DECRYPT_SEC_ASSOCIATION *existing_sa,
+    DOT11DECRYPT_SEC_ASSOCIATION *new_sa)
+{
+    DOT11DECRYPT_SEC_ASSOCIATION tmp_sa;
+
+    /* Add new SA first in list, but copy by value into existing record
+     * so that sa_hash need not be updated with new value */
+    tmp_sa = *existing_sa;
+    *existing_sa = *new_sa;
+    *new_sa = tmp_sa;
+    existing_sa->next = new_sa;
+    return existing_sa;
+}
+
+/* Add SA, keep existing (if any). Return pointer to newly inserted (first) SA */
+static PDOT11DECRYPT_SEC_ASSOCIATION
+Dot11DecryptAddSa(
+    PDOT11DECRYPT_CONTEXT ctx,
+    const DOT11DECRYPT_SEC_ASSOCIATION_ID *id,
+    DOT11DECRYPT_SEC_ASSOCIATION *sa)
+{
+    DOT11DECRYPT_SEC_ASSOCIATION *existing_sa = Dot11DecryptGetSa(ctx, id);
+    if (existing_sa != NULL) {
+        sa = Dot11DecryptPrependSa(existing_sa, sa);
+    } else {
+        void *key = g_memdup(id, sizeof(DOT11DECRYPT_SEC_ASSOCIATION_ID));
         g_hash_table_insert(ctx->sa_hash, key, sa);
     }
     return sa;
@@ -753,42 +783,41 @@ INT Dot11DecryptScanTdlsForKeys(
         memcpy(id.bssid, initiator, DOT11DECRYPT_MAC_LEN);
     }
 
+    /* Check if already derived this key */
     sa = Dot11DecryptGetSa(ctx, &id);
-    if (sa == NULL){
-        return DOT11DECRYPT_RET_REQ_DATA;
-    }
-
-    if (sa->validKey) {
-        if (memcmp(sa->wpa.nonce, data + offset_fte + 52, DOT11DECRYPT_WPA_NONCE_LEN) == 0) {
+    PDOT11DECRYPT_SEC_ASSOCIATION iter_sa;
+    for (iter_sa = sa; iter_sa != NULL; iter_sa = iter_sa->next) {
+        if (iter_sa->validKey &&
+            memcmp(iter_sa->wpa.nonce, data + offset_fte + 52,
+                   DOT11DECRYPT_WPA_NONCE_LEN) == 0)
+        {
             /* Already have valid key for this SA, no need to redo key derivation */
             return DOT11DECRYPT_RET_SUCCESS_HANDSHAKE;
-        } else {
-            /* We are opening a new session with the same two STA, save previous sa  */
-            DOT11DECRYPT_SEC_ASSOCIATION *tmp_sa = g_new(DOT11DECRYPT_SEC_ASSOCIATION, 1);
-            memcpy(tmp_sa, sa, sizeof(DOT11DECRYPT_SEC_ASSOCIATION));
-            sa->next = tmp_sa;
-            sa->validKey = FALSE;
         }
     }
-    if (Dot11DecryptTDLSDeriveKey(sa, data, offset_rsne, offset_fte, offset_timeout, offset_link, action)
-         == DOT11DECRYPT_RET_SUCCESS) {
-         return DOT11DECRYPT_RET_SUCCESS_HANDSHAKE;
+    /* We are opening a new session with the same two STA (previous sa will be kept if any) */
+    sa = Dot11DecryptNewSa(&id);
+    if (sa == NULL) {
+        return DOT11DECRYPT_RET_REQ_DATA;
     }
+    if (Dot11DecryptTDLSDeriveKey(sa, data, offset_rsne, offset_fte,
+            offset_timeout, offset_link, action) == DOT11DECRYPT_RET_SUCCESS) {
+        Dot11DecryptAddSa(ctx, &id, sa);
+        return DOT11DECRYPT_RET_SUCCESS_HANDSHAKE;
+    }
+    g_free(sa);
     return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
 }
 
 static INT
 Dot11DecryptCopyBroadcastKey(
-    PDOT11DECRYPT_EAPOL_PARSED eapol_parsed,
-    PDOT11DECRYPT_SEC_ASSOCIATION broadcast_sa)
+    PDOT11DECRYPT_CONTEXT ctx,
+    const PDOT11DECRYPT_EAPOL_PARSED eapol_parsed,
+    const DOT11DECRYPT_SEC_ASSOCIATION_ID *id)
 {
-    DOT11DECRYPT_SEC_ASSOCIATION *tmp_sa;
-
-    /* We are rekeying, save old sa */
-    /* TODO Avoid creating SA first time as we're not really rekeying. */
-    tmp_sa = (DOT11DECRYPT_SEC_ASSOCIATION *)g_malloc(sizeof(DOT11DECRYPT_SEC_ASSOCIATION));
-    memcpy(tmp_sa, broadcast_sa, sizeof(DOT11DECRYPT_SEC_ASSOCIATION));
-    broadcast_sa->next = tmp_sa;
+    DOT11DECRYPT_SEC_ASSOCIATION_ID broadcast_id;
+    DOT11DECRYPT_SEC_ASSOCIATION *sa;
+    DOT11DECRYPT_SEC_ASSOCIATION *broadcast_sa;
 
     if (!eapol_parsed->gtk || eapol_parsed->gtk_len == 0) {
         DEBUG_PRINT_LINE("No broadcast key found", DEBUG_LEVEL_3);
@@ -798,8 +827,30 @@ Dot11DecryptCopyBroadcastKey(
         DEBUG_PRINT_LINE("Broadcast key too large", DEBUG_LEVEL_3);
         return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
     }
-    broadcast_sa->validKey = TRUE;
 
+    sa = Dot11DecryptGetSa(ctx, id);
+    if (sa == NULL) {
+        DEBUG_PRINT_LINE("No SA for BSSID found", DEBUG_LEVEL_3);
+        return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
+    }
+
+    /* Broadcast SA for the current BSSID */
+    memcpy(broadcast_id.bssid, id->bssid, DOT11DECRYPT_MAC_LEN);
+    memcpy(broadcast_id.sta, broadcast_mac, DOT11DECRYPT_MAC_LEN);
+
+    broadcast_sa = Dot11DecryptNewSa(&broadcast_id);
+    if (broadcast_sa == NULL) {
+        DEBUG_PRINT_LINE("Failed to alloc broadcast sa", DEBUG_LEVEL_3);
+        return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
+    }
+
+    /* Retrieve AKMS / cipher etc from handshake message 2 */
+
+    broadcast_sa->wpa.key_ver = sa->wpa.key_ver;
+    broadcast_sa->wpa.akm = sa->wpa.akm;
+    broadcast_sa->wpa.cipher = sa->wpa.tmp_group_cipher;
+    broadcast_sa->wpa.ptk_len = sa->wpa.ptk_len;
+    broadcast_sa->validKey = TRUE;
     DEBUG_DUMP("Broadcast key:", eapol_parsed->gtk, eapol_parsed->gtk_len);
 
     /* Since this is a GTK and its size is only 32 bytes (vs. the 64 byte size of a PTK),
@@ -808,14 +859,15 @@ Dot11DecryptCopyBroadcastKey(
      * GTK are used for decryption.) */
     memset(broadcast_sa->wpa.ptk, 0, sizeof(broadcast_sa->wpa.ptk));
     memcpy(broadcast_sa->wpa.ptk + 32, eapol_parsed->gtk, eapol_parsed->gtk_len);
+    Dot11DecryptAddSa(ctx, &broadcast_id, broadcast_sa);
     return DOT11DECRYPT_RET_SUCCESS_HANDSHAKE;
 }
 
 static int
 Dot11DecryptGroupHandshake(
+    PDOT11DECRYPT_CONTEXT ctx,
     PDOT11DECRYPT_EAPOL_PARSED eapol_parsed,
-    DOT11DECRYPT_SEC_ASSOCIATION *sa,
-    DOT11DECRYPT_SEC_ASSOCIATION *broadcast_sa,
+    const DOT11DECRYPT_SEC_ASSOCIATION_ID *id,
     const guint tot_len)
 {
 
@@ -828,13 +880,7 @@ Dot11DecryptGroupHandshake(
         DEBUG_PRINT_LINE("Not Group handshake message 1", DEBUG_LEVEL_3);
         return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
     }
-
-    /* Retrieve AKMS / cipher etc from 4-way handshake message 2 */
-    broadcast_sa->wpa.key_ver = sa->wpa.key_ver;
-    broadcast_sa->wpa.akm = sa->wpa.akm;
-    broadcast_sa->wpa.cipher = sa->wpa.tmp_group_cipher;
-    broadcast_sa->wpa.ptk_len = sa->wpa.ptk_len;
-    return Dot11DecryptCopyBroadcastKey(eapol_parsed, broadcast_sa);
+    return Dot11DecryptCopyBroadcastKey(ctx, eapol_parsed, id);
 }
 
 INT Dot11DecryptScanEapolForKeys(
@@ -846,8 +892,6 @@ INT Dot11DecryptScanEapolForKeys(
     const UCHAR sta[DOT11DECRYPT_MAC_LEN])
 {
     DOT11DECRYPT_SEC_ASSOCIATION_ID id;
-    PDOT11DECRYPT_SEC_ASSOCIATION sa;
-    PDOT11DECRYPT_SEC_ASSOCIATION broadcast_sa;
 
     /* Callers provide these guarantees, so let's make them explicit. */
     DISSECTOR_ASSERT(tot_len <= DOT11DECRYPT_EAPOL_MAX_LEN);
@@ -866,21 +910,6 @@ INT Dot11DecryptScanEapolForKeys(
     /* search for a cached Security Association for current BSSID and AP */
     memcpy(id.bssid, bssid, DOT11DECRYPT_MAC_LEN);
     memcpy(id.sta, sta, DOT11DECRYPT_MAC_LEN);
-    sa = Dot11DecryptGetSa(ctx, &id);
-    if (sa == NULL){
-        DEBUG_PRINT_LINE("No SA for BSSID found", DEBUG_LEVEL_3);
-        return DOT11DECRYPT_RET_REQ_DATA;
-    }
-
-    /* force STA address to be the broadcast MAC so we create an SA for the groupkey */
-    memcpy(id.sta, broadcast_mac, DOT11DECRYPT_MAC_LEN);
-
-    /* get the Security Association structure for the broadcast MAC and AP */
-    broadcast_sa = Dot11DecryptGetSa(ctx, &id);
-    if (broadcast_sa == NULL) {
-        DEBUG_PRINT_LINE("No broadcast SA for BSSID found", DEBUG_LEVEL_3);
-        return DOT11DECRYPT_RET_REQ_DATA;
-    }
 
     switch (eapol_parsed->msg_type) {
         case DOT11DECRYPT_HS_MSG_TYPE_4WHS_1:
@@ -888,10 +917,9 @@ INT Dot11DecryptScanEapolForKeys(
         case DOT11DECRYPT_HS_MSG_TYPE_4WHS_3:
         case DOT11DECRYPT_HS_MSG_TYPE_4WHS_4:
             return Dot11DecryptRsna4WHandshake(ctx, eapol_parsed, eapol_raw,
-                                               sa, tot_len);
+                                               &id, tot_len);
         case DOT11DECRYPT_HS_MSG_TYPE_GHS_1:
-            return Dot11DecryptGroupHandshake(eapol_parsed, sa,
-                                              broadcast_sa, tot_len);
+            return Dot11DecryptGroupHandshake(ctx, eapol_parsed, &id, tot_len);
         case DOT11DECRYPT_HS_MSG_TYPE_INVALID:
         default:
             DEBUG_PRINT_LINE("Invalid message type", DEBUG_LEVEL_3);
@@ -954,12 +982,6 @@ INT Dot11DecryptDecryptPacket(
     } else {
         PDOT11DECRYPT_SEC_ASSOCIATION sa;
 
-        /* get the Security Association structure for the STA and AP */
-        sa = Dot11DecryptGetSa(ctx, &id);
-        if (sa == NULL){
-            return DOT11DECRYPT_RET_REQ_DATA;
-        }
-
         /* create new header and data to modify */
         *decrypt_len = tot_len;
         memcpy(decrypt_data, data, *decrypt_len);
@@ -973,6 +995,11 @@ INT Dot11DecryptDecryptPacket(
         /*          IEEE 802.11i-2004, 8.3.3.2, pag. 57 for CCMP   */
         if (DOT11DECRYPT_EXTIV(data[mac_header_len + 3]) == 0) {
             DEBUG_PRINT_LINE("WEP encryption", DEBUG_LEVEL_3);
+            /* get the Security Association structure for the STA and AP */
+            sa = Dot11DecryptGetSa(ctx, &id);
+            if (sa == NULL) {
+                return DOT11DECRYPT_RET_REQ_DATA;
+            }
             return Dot11DecryptWepMng(ctx, decrypt_data, mac_header_len, decrypt_len, key, sa);
         } else {
             DEBUG_PRINT_LINE("TKIP or CCMP encryption", DEBUG_LEVEL_3);
@@ -991,13 +1018,12 @@ INT Dot11DecryptDecryptPacket(
                 g_snprintf(msgbuf, MSGBUF_LEN, "ST_MAC: %2X.%2X.%2X.%2X.%2X.%2X\t", id.sta[0],id.sta[1],id.sta[2],id.sta[3],id.sta[4],id.sta[5]);
                 DEBUG_PRINT_LINE(msgbuf, DEBUG_LEVEL_3);
 #endif
-
-                /* search for a cached Security Association for current BSSID and broadcast MAC */
-                sa = Dot11DecryptGetSa(ctx, &id);
-                if (sa == NULL)
-                    return DOT11DECRYPT_RET_REQ_DATA;
             }
-
+            /* search for a cached Security Association for current BSSID and STA/broadcast MAC */
+            sa = Dot11DecryptGetSa(ctx, &id);
+            if (sa == NULL) {
+                return DOT11DECRYPT_RET_REQ_DATA;
+            }
             /* Decrypt the packet using the appropriate SA */
             return Dot11DecryptRsnaMng(decrypt_data, mac_header_len, decrypt_len, key, sa);
         }
@@ -1416,18 +1442,15 @@ Dot11DecryptRsna4WHandshake(
     PDOT11DECRYPT_CONTEXT ctx,
     PDOT11DECRYPT_EAPOL_PARSED eapol_parsed,
     const guint8 *eapol_raw,
-    DOT11DECRYPT_SEC_ASSOCIATION *sa,
+    DOT11DECRYPT_SEC_ASSOCIATION_ID *id,
     const guint tot_len)
 {
     DOT11DECRYPT_KEY_ITEM *tmp_key, *tmp_pkt_key, pkt_key;
-    DOT11DECRYPT_SEC_ASSOCIATION *tmp_sa;
+    DOT11DECRYPT_SEC_ASSOCIATION *sa;
     INT key_index;
     INT ret = 1;
     UCHAR useCache=FALSE;
     UCHAR eapol[DOT11DECRYPT_EAPOL_MAX_LEN];
-
-    if (sa->key!=NULL)
-        useCache=TRUE;
 
     if (eapol_parsed->len > DOT11DECRYPT_EAPOL_MAX_LEN ||
         eapol_parsed->key_len > DOT11DECRYPT_EAPOL_MAX_LEN ||
@@ -1455,26 +1478,27 @@ Dot11DecryptRsna4WHandshake(
         /* local value, the Supplicant discards the message.                                                               */
         /* -> not checked, the Authenticator will be send another Message 1 (hopefully!)                                   */
 
-        /* This saves the sa since we are reauthenticating which will overwrite our current sa GCS*/
-        if( sa->handshake >= 2) {
-            tmp_sa= g_new(DOT11DECRYPT_SEC_ASSOCIATION, 1);
-            memcpy(tmp_sa, sa, sizeof(DOT11DECRYPT_SEC_ASSOCIATION));
-            sa->validKey=FALSE;
-            sa->next=tmp_sa;
-        }
-
         /* save ANonce (from authenticator) to derive the PTK with the SNonce (from the 2 message) */
         if (!eapol_parsed->nonce) {
             DEBUG_PRINT_LINE("ANonce missing", DEBUG_LEVEL_5);
             return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
         }
+
+        sa = Dot11DecryptGetSa(ctx, id);
+        if (sa == NULL || sa->handshake >= 2) {
+            /* Either no SA exists or one exists but we're reauthenticating */
+            sa = Dot11DecryptNewSa(id);
+            if (sa == NULL) {
+                DEBUG_PRINT_LINE("Failed to alloc broadcast sa", DEBUG_LEVEL_3);
+                return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
+            }
+            sa = Dot11DecryptAddSa(ctx, id, sa);
+        }
         memcpy(sa->wpa.nonce, eapol_parsed->nonce, 32);
 
         /* get the Key Descriptor Version (to select algorithm used in decryption -CCMP or TKIP-) */
         sa->wpa.key_ver = eapol_parsed->key_version;
-
         sa->handshake=1;
-
         return DOT11DECRYPT_RET_SUCCESS_HANDSHAKE;
     }
 
@@ -1488,9 +1512,17 @@ Dot11DecryptRsna4WHandshake(
         /* the Authenticator silently discards Message 2.                                                     */
         /* -> not checked; the Supplicant will send another message 2 (hopefully!)                            */
 
+        sa = Dot11DecryptGetSa(ctx, id);
+        if (sa == NULL) {
+            DEBUG_PRINT_LINE("No SA for BSSID found", DEBUG_LEVEL_3);
+            return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
+        }
         if (!eapol_parsed->nonce) {
             DEBUG_PRINT_LINE("SNonce missing", DEBUG_LEVEL_5);
             return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
+        }
+        if (sa->key != NULL) {
+            useCache = TRUE;
         }
 
         int akm = -1;
@@ -1622,28 +1654,7 @@ Dot11DecryptRsna4WHandshake(
         /* If using WPA2 PSK, message 3 will contain an RSN for the group key (GTK KDE).
            In order to properly support decrypting WPA2-PSK packets, we need to parse this to get the group key. */
         if (eapol_parsed->key_type == DOT11DECRYPT_RSN_WPA2_KEY_DESCRIPTOR) {
-            PDOT11DECRYPT_SEC_ASSOCIATION broadcast_sa;
-            DOT11DECRYPT_SEC_ASSOCIATION_ID id;
-
-            memcpy(id.sta, sa->saId.sta, DOT11DECRYPT_MAC_LEN);
-            memcpy(id.bssid, sa->saId.bssid, DOT11DECRYPT_MAC_LEN);
-            sa = Dot11DecryptGetSa(ctx, &id);
-            if (sa == NULL) {
-                return DOT11DECRYPT_RET_REQ_DATA;
-            }
-
-            /* Get broadcacst SA for the current BSSID */
-            memcpy(id.sta, broadcast_mac, DOT11DECRYPT_MAC_LEN);
-            broadcast_sa = Dot11DecryptGetSa(ctx, &id);
-            if (broadcast_sa == NULL) {
-                return DOT11DECRYPT_RET_REQ_DATA;
-            }
-            /* Retrieve AKMS / cipher etc from handshake message 2 */
-            broadcast_sa->wpa.key_ver = sa->wpa.key_ver;
-            broadcast_sa->wpa.akm = sa->wpa.akm;
-            broadcast_sa->wpa.cipher = sa->wpa.tmp_group_cipher;
-            broadcast_sa->wpa.ptk_len = sa->wpa.ptk_len;
-            return Dot11DecryptCopyBroadcastKey(eapol_parsed, broadcast_sa);
+            return Dot11DecryptCopyBroadcastKey(ctx, eapol_parsed, id);
        }
     }
 
@@ -1658,9 +1669,6 @@ Dot11DecryptRsna4WHandshake(
         /* Authenticator silently discards Message 4.                                                            */
 
         DEBUG_PRINT_LINE("4-way handshake message 4", DEBUG_LEVEL_3);
-
-        sa->handshake=4;
-
         return DOT11DECRYPT_RET_SUCCESS_HANDSHAKE;
     }
     return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
