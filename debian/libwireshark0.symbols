@@ -817,7 +817,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  get_ipv6_hash_table@Base 1.12.0~rc1
  get_ipxnet_hash_table@Base 1.12.0~rc1
  get_iso_646_string@Base 3.1.0
- get_key_string@Base 1.9.1
  get_mac_lte_proto_data@Base 1.9.1
  get_mac_nr_proto_data@Base 2.5.2
  get_manuf_hashtable@Base 1.12.0~rc1

@@ -119,7 +119,6 @@ typedef struct _DOT11DECRYPT_SEC_ASSOCIATION {
 
 	struct {
 		UINT8 key_ver;		/* Key descriptor version	*/
-		UINT64 pn;		/* only used with CCMP AES -if needed replay check- */
 		UCHAR nonce[DOT11DECRYPT_WPA_NONCE_LEN];
 		/* used to derive PTK, ANonce stored, SNonce taken	*/
 		/* the 2nd packet of the 4W handshake			*/
@@ -355,26 +354,6 @@ Dot11DecryptGetGTK(const PDOT11DECRYPT_KEY_ITEM key, const guint8 **gtk);
  */
 extern INT Dot11DecryptSetKeys(
 	PDOT11DECRYPT_CONTEXT ctx,
-	DOT11DECRYPT_KEY_ITEM keys[],
-	const size_t keys_nr)
-	;
-
-/**
- * It gets the keys collection fom the specified context.
- * @param ctx [IN] pointer to the current context
- * @param keys [IN] a preallocated array of keys to be returned
- * @param keys_nr [IN] the number of keys to return (the key array must
- * be able to contain at least keys_nr keys)
- * @return The number of keys returned
- * @note
- * Any key could be modified, as stated in the DOT11DECRYPT_KEY_ITEM description.
- * @note
- * This function is not thread-safe when used in parallel with context
- * management functions and the packet process function on the same
- * context.
- */
-INT Dot11DecryptGetKeys(
-	const PDOT11DECRYPT_CONTEXT ctx,
 	DOT11DECRYPT_KEY_ITEM keys[],
 	const size_t keys_nr)
 	;

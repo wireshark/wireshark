@@ -194,22 +194,11 @@ typedef struct _DOT11DECRYPT_KEYS_COLLECTION {
  * - DOT11DECRYPT_KEY_TYPE_WPA_PSK (WPA + 256-bit raw key)
  * @return A pointer to a freshly-g_malloc()ed decryption_key_t struct on
  *   success, or NULL on failure.
- * @see get_key_string(), free_key_string()
+ * @see free_key_string()
  */
 WS_DLL_PUBLIC
 decryption_key_t*
 parse_key_string(gchar* key_string, guint8 key_type);
-
-/**
- * Returns a newly allocated string representing the given decryption_key_t
- * struct.
- * @param dk [IN] Pointer to the key to be converted
- * @return A g_malloc()ed string representation of the key
- * @see parse_key_string()
- */
-WS_DLL_PUBLIC
-gchar*
-get_key_string(decryption_key_t* dk);
 
 /**
  * Releases memory associated with a given decryption_key_t struct.

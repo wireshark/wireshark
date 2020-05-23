@@ -237,7 +237,7 @@ static void try_scan_tdls_keys(tvbuff_t *tvb, packet_info *pinfo, int offset);
 
 static tvbuff_t *
 try_decrypt(tvbuff_t *tvb, packet_info *pinfo, guint offset, guint len,
-            guint8 *algorithm, guint32 *sec_header, guint32 *sec_trailer,
+            guint8 *algorithm, guint32 *sec_trailer,
             PDOT11DECRYPT_KEY_ITEM used_key);
 
 static int weak_iv(guchar *iv);
@@ -24875,7 +24875,6 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
   ((tvb_get_guint8(tvb, hdr_len) | 0x20) & 0x7f))
 #define IS_CCMP(tvb, hdr_len)  (tvb_get_guint8(tvb, hdr_len + 2) == 0)
   guint8 algorithm=G_MAXUINT8;
-  guint32 sec_header=0;
   guint32 sec_trailer=0;
 
   p_add_proto_data(wmem_file_scope(), pinfo, proto_wlan, IS_DMG_KEY, GINT_TO_POINTER(isDMG));
@@ -26001,7 +26000,7 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
 
     if (len == reported_len) {
       next_tvb = try_decrypt(tvb, pinfo, hdr_len, reported_len,
-                             &algorithm, &sec_header, &sec_trailer, &used_key);
+                             &algorithm, &sec_trailer, &used_key);
     }
 
     keybyte = tvb_get_guint8(tvb, hdr_len + 3);
@@ -27213,10 +27212,10 @@ static void try_scan_tdls_keys(tvbuff_t *tvb, packet_info *pinfo _U_, int offset
   }
 }
 
-/* It returns the algorithm used for decryption and the header and trailer lengths. */
+/* It returns the algorithm used for decryption and trailer length. */
 static tvbuff_t *
 try_decrypt(tvbuff_t *tvb, packet_info *pinfo, guint offset, guint len,
-            guint8 *algorithm, guint32 *sec_header, guint32 *sec_trailer,
+            guint8 *algorithm, guint32 *sec_trailer,
             PDOT11DECRYPT_KEY_ITEM used_key)
 {
   const guint8      *enc_data;
@@ -27238,24 +27237,19 @@ try_decrypt(tvbuff_t *tvb, packet_info *pinfo, guint offset, guint len,
     *algorithm=used_key->KeyType;
     switch (*algorithm) {
       case DOT11DECRYPT_KEY_TYPE_WEP:
-        *sec_header=DOT11DECRYPT_WEP_HEADER;
         *sec_trailer=DOT11DECRYPT_WEP_TRAILER;
         break;
       case DOT11DECRYPT_KEY_TYPE_CCMP:
-        *sec_header=DOT11DECRYPT_RSNA_HEADER;
         *sec_trailer=DOT11DECRYPT_CCMP_TRAILER;
         break;
       case DOT11DECRYPT_KEY_TYPE_CCMP_256:
-        *sec_header = DOT11DECRYPT_RSNA_HEADER;
         *sec_trailer = DOT11DECRYPT_CCMP_256_TRAILER;
         break;
       case DOT11DECRYPT_KEY_TYPE_GCMP:
       case DOT11DECRYPT_KEY_TYPE_GCMP_256:
-        *sec_header = DOT11DECRYPT_RSNA_HEADER;
         *sec_trailer = DOT11DECRYPT_GCMP_TRAILER;
         break;
       case DOT11DECRYPT_KEY_TYPE_TKIP:
-        *sec_header=DOT11DECRYPT_RSNA_HEADER;
         *sec_trailer=DOT11DECRYPT_TKIP_TRAILER;
         break;
       default:

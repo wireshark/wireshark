@@ -1117,35 +1117,6 @@ Dot11DecryptCleanSecAssoc(
     }
 }
 
-INT Dot11DecryptGetKeys(
-    const PDOT11DECRYPT_CONTEXT ctx,
-    DOT11DECRYPT_KEY_ITEM keys[],
-    const size_t keys_nr)
-{
-    UINT i;
-    UINT j;
-    DEBUG_TRACE_START();
-
-    if (ctx==NULL) {
-        DEBUG_PRINT_LINE("NULL context", DEBUG_LEVEL_5);
-        DEBUG_TRACE_END();
-        return 0;
-    } else if (keys==NULL) {
-        DEBUG_PRINT_LINE("NULL keys array", DEBUG_LEVEL_5);
-        DEBUG_TRACE_END();
-        return (INT)ctx->keys_nr;
-    } else {
-        for (i=0, j=0; i<ctx->keys_nr && i<keys_nr && i<DOT11DECRYPT_MAX_KEYS_NR; i++) {
-            memcpy(&keys[j], &ctx->keys[i], sizeof(keys[j]));
-            j++;
-            DEBUG_PRINT_LINE("Got a key", DEBUG_LEVEL_5);
-        }
-
-        DEBUG_TRACE_END();
-        return j;
-    }
-}
-
 /*
  * XXX - This won't be reliable if a packet containing SSID "B" shows
  * up in the middle of a 4-way handshake for SSID "A".
@@ -2648,42 +2619,6 @@ free_key_string(decryption_key_t *dk)
     if (dk->ssid)
         g_byte_array_free(dk->ssid, TRUE);
     g_free(dk);
-}
-
-/*
- * Returns a newly allocated string representing the given decryption_key_t
- * struct, or NULL if something is wrong...
- */
-gchar*
-get_key_string(decryption_key_t* dk)
-{
-    gchar* output_string = NULL;
-
-    if(dk == NULL || dk->key == NULL)
-        return NULL;
-
-    switch(dk->type) {
-        case DOT11DECRYPT_KEY_TYPE_WEP:
-            output_string = g_strdup(dk->key->str);
-            break;
-        case DOT11DECRYPT_KEY_TYPE_WPA_PWD:
-            if(dk->ssid == NULL)
-                output_string = g_strdup(dk->key->str);
-            else {
-                gchar* ssid = format_uri(NULL, dk->ssid, ":");
-                output_string = g_strdup_printf("%s:%s",
-                    dk->key->str, ssid);
-                wmem_free(NULL, ssid);
-            }
-            break;
-        case DOT11DECRYPT_KEY_TYPE_WPA_PMK:
-            output_string = g_strdup(dk->key->str);
-            break;
-        default:
-            return NULL;
-    }
-
-    return output_string;
 }
 
 static INT
