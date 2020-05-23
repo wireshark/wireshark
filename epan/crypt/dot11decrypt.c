@@ -783,7 +783,6 @@ INT Dot11DecryptScanTdlsForKeys(
     }
     if (Dot11DecryptTDLSDeriveKey(sa, data, offset_rsne, offset_fte, offset_timeout, offset_link, action)
          == DOT11DECRYPT_RET_SUCCESS) {
-         DEBUG_TRACE_END();
          return DOT11DECRYPT_RET_SUCCESS_HANDSHAKE;
     }
     return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
@@ -930,19 +929,15 @@ INT Dot11DecryptDecryptPacket(
     CHAR msgbuf[MSGBUF_LEN];
 #endif
 
-    DEBUG_TRACE_START();
-
     if (decrypt_len) {
         *decrypt_len = 0;
     }
     if (ctx==NULL) {
         DEBUG_PRINT_LINE("NULL context", DEBUG_LEVEL_5);
-        DEBUG_TRACE_END();
         return DOT11DECRYPT_RET_REQ_DATA;
     }
     if (data==NULL || tot_len==0) {
         DEBUG_PRINT_LINE("NULL data or length=0", DEBUG_LEVEL_5);
-        DEBUG_TRACE_END();
         return DOT11DECRYPT_RET_REQ_DATA;
     }
 
@@ -1028,17 +1023,14 @@ INT Dot11DecryptSetKeys(
 {
     INT i;
     INT success;
-    DEBUG_TRACE_START();
 
     if (ctx==NULL || keys==NULL) {
         DEBUG_PRINT_LINE("NULL context or NULL keys array", DEBUG_LEVEL_3);
-        DEBUG_TRACE_END();
         return 0;
     }
 
     if (keys_nr>DOT11DECRYPT_MAX_KEYS_NR) {
         DEBUG_PRINT_LINE("Keys number greater than maximum", DEBUG_LEVEL_3);
-        DEBUG_TRACE_END();
         return 0;
     }
 
@@ -1068,8 +1060,6 @@ INT Dot11DecryptSetKeys(
     }
 
     ctx->keys_nr=success;
-
-    DEBUG_TRACE_END();
     return success;
 }
 
@@ -1077,11 +1067,8 @@ static void
 Dot11DecryptCleanKeys(
     PDOT11DECRYPT_CONTEXT ctx)
 {
-    DEBUG_TRACE_START();
-
     if (ctx==NULL) {
         DEBUG_PRINT_LINE("NULL context", DEBUG_LEVEL_5);
-        DEBUG_TRACE_END();
         return;
     }
 
@@ -1090,7 +1077,6 @@ Dot11DecryptCleanKeys(
     ctx->keys_nr=0;
 
     DEBUG_PRINT_LINE("Keys collection cleaned!", DEBUG_LEVEL_5);
-    DEBUG_TRACE_END();
 }
 
 static void
@@ -1140,11 +1126,8 @@ INT Dot11DecryptSetLastSSID(
 INT Dot11DecryptInitContext(
     PDOT11DECRYPT_CONTEXT ctx)
 {
-    DEBUG_TRACE_START();
-
     if (ctx==NULL) {
         DEBUG_PRINT_LINE("NULL context", DEBUG_LEVEL_5);
-        DEBUG_TRACE_END();
         return DOT11DECRYPT_RET_UNSUCCESS;
     }
 
@@ -1158,18 +1141,14 @@ INT Dot11DecryptInitContext(
     memset(ctx->sa, 0, DOT11DECRYPT_MAX_SEC_ASSOCIATIONS_NR * sizeof(DOT11DECRYPT_SEC_ASSOCIATION));
 
     DEBUG_PRINT_LINE("Context initialized!", DEBUG_LEVEL_5);
-    DEBUG_TRACE_END();
     return DOT11DECRYPT_RET_SUCCESS;
 }
 
 INT Dot11DecryptDestroyContext(
     PDOT11DECRYPT_CONTEXT ctx)
 {
-    DEBUG_TRACE_START();
-
     if (ctx==NULL) {
         DEBUG_PRINT_LINE("NULL context", DEBUG_LEVEL_5);
-        DEBUG_TRACE_END();
         return DOT11DECRYPT_RET_UNSUCCESS;
     }
 
@@ -1181,7 +1160,6 @@ INT Dot11DecryptDestroyContext(
     ctx->sa_index=-1;
 
     DEBUG_PRINT_LINE("Context destroyed!", DEBUG_LEVEL_5);
-    DEBUG_TRACE_END();
     return DOT11DECRYPT_RET_SUCCESS;
 }
 
@@ -1769,20 +1747,17 @@ Dot11DecryptRsnaMicCheck(
         /* Mic check algoritm determined by AKM type */
         if (Dot11DecryptGetIntegrityAlgoFromAkm(akm, &algo, &hmac)) {
             DEBUG_PRINT_LINE("Unknown Mic check algo", DEBUG_LEVEL_3);
-            DEBUG_TRACE_END();
             return DOT11DECRYPT_RET_UNSUCCESS;
         };
     }
     if (hmac) {
         if (ws_hmac_buffer(algo, c_mic, eapol, eapol_len, KCK, kck_len)) {
             DEBUG_PRINT_LINE("HMAC_BUFFER", DEBUG_LEVEL_3);
-            DEBUG_TRACE_END();
             return DOT11DECRYPT_RET_UNSUCCESS;
         }
     } else {
         if (ws_cmac_buffer(algo, c_mic, eapol, eapol_len, KCK, kck_len)) {
             DEBUG_PRINT_LINE("HMAC_BUFFER", DEBUG_LEVEL_3);
-            DEBUG_TRACE_END();
             return DOT11DECRYPT_RET_UNSUCCESS;
         }
     }
@@ -1799,11 +1774,9 @@ Dot11DecryptValidateKey(
 {
     size_t len;
     UCHAR ret=TRUE;
-    DEBUG_TRACE_START();
 
     if (key==NULL) {
         DEBUG_PRINT_LINE("NULL key", DEBUG_LEVEL_5);
-        DEBUG_TRACE_START();
         return FALSE;
     }
 
@@ -1854,8 +1827,6 @@ Dot11DecryptValidateKey(
         default:
             ret=FALSE;
     }
-
-    DEBUG_TRACE_END();
     return ret;
 }
 
