@@ -3186,6 +3186,7 @@ static int
 dissect_krb5_decrypt_authorization_data(gboolean imp_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx,
 					proto_tree *tree, int hf_index _U_)
 {
+	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
 	guint8 *plaintext;
 	int length;
 	tvbuff_t *next_tvb;
@@ -3198,10 +3199,15 @@ dissect_krb5_decrypt_authorization_data(gboolean imp_tag _U_, tvbuff_t *tvb, int
 	 * Authenticators are encrypted with usage
 	 * == 5 or
 	 * == 4
+	 *
+	 * 4. TGS-REQ KDC-REQ-BODY AuthorizationData, encrypted with
+	 *    the TGS session key (section 5.4.1)
+	 * 5. TGS-REQ KDC-REQ-BODY AuthorizationData, encrypted with
+	 *    the TGS authenticator subkey (section 5.4.1)
 	 */
-	plaintext=decrypt_krb5_data_asn1(tree, actx, 5, next_tvb, NULL);
-
-	if(!plaintext){
+	if (private_data->PA_TGS_REQ_subkey != NULL) {
+		plaintext=decrypt_krb5_data_asn1(tree, actx, 5, next_tvb, NULL);
+	} else {
 		plaintext=decrypt_krb5_data_asn1(tree, actx, 4, next_tvb, NULL);
 	}
 
@@ -7024,7 +7030,7 @@ dissect_kerberos_EncryptedChallenge(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 
 /*--- End of included file: packet-kerberos-fn.c ---*/
-#line 3708 "./asn1/kerberos/packet-kerberos-template.c"
+#line 3714 "./asn1/kerberos/packet-kerberos-template.c"
 
 #ifdef HAVE_KERBEROS
 static const ber_sequence_t PA_ENC_TS_ENC_sequence[] = {
@@ -8542,7 +8548,7 @@ void proto_register_kerberos(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-kerberos-hfarr.c ---*/
-#line 4293 "./asn1/kerberos/packet-kerberos-template.c"
+#line 4299 "./asn1/kerberos/packet-kerberos-template.c"
 	};
 
 	/* List of subtrees */
@@ -8646,7 +8652,7 @@ void proto_register_kerberos(void) {
     &ett_kerberos_EncryptedChallenge,
 
 /*--- End of included file: packet-kerberos-ettarr.c ---*/
-#line 4316 "./asn1/kerberos/packet-kerberos-template.c"
+#line 4322 "./asn1/kerberos/packet-kerberos-template.c"
 	};
 
 	static ei_register_info ei[] = {

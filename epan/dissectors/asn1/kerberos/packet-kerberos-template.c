@@ -2745,6 +2745,7 @@ static int
 dissect_krb5_decrypt_authorization_data(gboolean imp_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx,
 					proto_tree *tree, int hf_index _U_)
 {
+	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
 	guint8 *plaintext;
 	int length;
 	tvbuff_t *next_tvb;
@@ -2757,10 +2758,15 @@ dissect_krb5_decrypt_authorization_data(gboolean imp_tag _U_, tvbuff_t *tvb, int
 	 * Authenticators are encrypted with usage
 	 * == 5 or
 	 * == 4
+	 *
+	 * 4. TGS-REQ KDC-REQ-BODY AuthorizationData, encrypted with
+	 *    the TGS session key (section 5.4.1)
+	 * 5. TGS-REQ KDC-REQ-BODY AuthorizationData, encrypted with
+	 *    the TGS authenticator subkey (section 5.4.1)
 	 */
-	plaintext=decrypt_krb5_data_asn1(tree, actx, 5, next_tvb, NULL);
-
-	if(!plaintext){
+	if (private_data->PA_TGS_REQ_subkey != NULL) {
+		plaintext=decrypt_krb5_data_asn1(tree, actx, 5, next_tvb, NULL);
+	} else {
 		plaintext=decrypt_krb5_data_asn1(tree, actx, 4, next_tvb, NULL);
 	}
 
