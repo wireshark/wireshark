@@ -2702,6 +2702,7 @@ static int
 dissect_krb5_decrypt_authenticator_data (gboolean imp_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx,
 											proto_tree *tree, int hf_index _U_)
 {
+	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
 	guint8 *plaintext;
 	int length;
 	tvbuff_t *next_tvb;
@@ -2714,10 +2715,17 @@ dissect_krb5_decrypt_authenticator_data (gboolean imp_tag _U_, tvbuff_t *tvb, in
 	 * Authenticators are encrypted with usage
 	 * == 7 or
 	 * == 11
+	 *
+	 * 7.  TGS-REQ PA-TGS-REQ padata AP-REQ Authenticator
+	 *     (includes TGS authenticator subkey), encrypted with the
+	 *     TGS session key (section 5.5.1)
+	 * 11. AP-REQ Authenticator (includes application
+	 *     authenticator subkey), encrypted with the application
+	 *     session key (section 5.5.1)
 	 */
-	plaintext=decrypt_krb5_data_asn1(tree, actx, 7, next_tvb, NULL);
-
-	if(!plaintext){
+	if (private_data->within_PA_TGS_REQ > 0) {
+		plaintext=decrypt_krb5_data_asn1(tree, actx, 7, next_tvb, NULL);
+	} else {
 		plaintext=decrypt_krb5_data_asn1(tree, actx, 11, next_tvb, NULL);
 	}
 
