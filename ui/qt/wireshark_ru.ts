@@ -1056,7 +1056,7 @@
     </message>
     <message>
         <source>Marked</source>
-        <translation>Помеченный</translation>
+        <translation>Помечено</translation>
     </message>
     <message>
         <source>Packets</source>
@@ -2361,7 +2361,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Show…</source>
         <oldsource>Show...</oldsource>
-        <translation>Показать...</translation>
+        <translation>Показать…</translation>
     </message>
     <message>
         <source>Error</source>
@@ -3111,7 +3111,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source> Click to select.</source>
-        <translation>Щёлкните, чтобы выбрать.</translation>
+        <translation> Щёлкните, чтобы выбрать.</translation>
     </message>
     <message>
         <source>Regex Find:</source>
@@ -7219,7 +7219,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Decode &amp;As…</source>
-        <translation>Декодировать &amp;Как...</translation>
+        <translation>Декодировать &amp;Как…</translation>
     </message>
     <message>
         <source>Export PDUs to File…</source>

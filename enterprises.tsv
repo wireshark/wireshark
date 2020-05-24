@@ -5,7 +5,7 @@
 # The format used here is: <NUMERICAL_ID><SPACE><NAME>
 # Where SPACE can be any sequence of spaces and tabs.
 #
-# (last updated 2020-05-15)
+# (last updated 2020-05-23)
 
 0	Reserved
 1	NxNetworks
@@ -354,7 +354,7 @@
 344	Compuware Corporation
 345	Epson Research Center
 346	Fibernet
-347	Dot Hill Systems
+347	Seagate Technology
 348	American Express Company
 349	Compu-Shack
 350	Parallan Computer, Inc.
@@ -35219,7 +35219,7 @@
 35387	Ning
 35388	Beyel
 35389	KIWIGRID
-35390	Credoc services CVBA
+35390	Fednot asbl / vzw	# formerly 'Credoc services CVBA'
 35391	HealthTrio, LLC
 35392	sepox.de
 35393	Blue Vervet Ltd
@@ -39824,7 +39824,7 @@
 39996	sys4 AG
 39997	Netsumo Ltd
 39998	Beijing Lanxum New Technology
-39999	Prodo Telecom (An OT Company)
+39999	IDEMIA SPAIN PRODO SLU	# formerly 'Prodo Telecom (An OT Company)'
 40000	Kapsi Internet-käyttäjät ry
 40001	WineSOFT
 40002	Open System Co., Ltd.
@@ -51211,7 +51211,7 @@
 51399	secure.car
 51400	Max Planck Society Administrative Headquarters
 51401	Hunan Normal University
-51402	NT-SRV LTD
+51402	1G5 Solutions	# formerly 'NT-SRV LTD'
 51403	Ooe Landesfeuerwehrverband
 51404	Università degli Studi dell'Insubria
 51405	infoscore austria gmbh
@@ -51603,7 +51603,7 @@
 51791	Corsearch, Inc
 51792	Björnsholms Åkeri AB
 51793	Derakhshan Sanat Isatis (DSI)
-51794	Bosch Software Innovations GmbH
+51794	Bosch.IO GmbH
 51795	Ovoo Sp. z o. o.
 51796	Citadel LLC
 51797	Bachmann electronic GmbH
@@ -55486,7 +55486,7 @@
 55679	Sunmark Credit Union
 55680	American Library Association
 55681	Zeplay LLC
-55682	Julian Jacobi
+55682	JayJay
 55683	Swissomation Inc.
 55684	RBZ am Schuetzenpark
 55685	Albert Neef Consulting
@@ -55599,3 +55599,38 @@
 55792	DAERZK
 55793	Communauté PKILabs
 55794	NINGBO DEYE INVERTER TECHNOLOGY Co., LTD
+55795	BIZ-CHO
+55796	ORANO SA
+55797	Some Idiots Are Savants
+55798	OCN
+55799	E Squared
+55800	smartics
+55801	Buypass AS
+55802	GLOTEC ENGINEERING (SA) (PTY) LTD.
+55803	GBS Backup B.V.
+55804	Neural Inference Solutions Inc.
+55805	eBay Inc
+55806	Alertus Technologies LLC
+55807	Baronics LLC
+55808	Drifting Mind Studio
+55809	Crystal Crest Cleaners
+55810	Vitesco Technologies
+55811	JSC "MIR UPAKOVKI"
+55812	Laboratories of Molecular Anthropology and Microbiome Research
+55813	HashiCorp, Inc.
+55814	RnD Center "IMPULSE"
+55815	Factor-y S.r.l.
+55816	LifeLens Technologies
+55817	Teichmann Integration Services
+55818	Cunningham Research Corporation Limited
+55819	Eko-Okna S.A.
+55820	MedPics LLC
+55821	ELTACOM
+55822	Clover Cyber
+55823	Perry Familia
+55824	SKS
+55825	Tiny Tiny Computing
+55826	Nerd-Residenz
+55827	Uplevel Systems, Inc
+55828	Marshall Community Credit Union
+55829	Arthur18
