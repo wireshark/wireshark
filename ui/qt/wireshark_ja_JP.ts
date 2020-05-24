@@ -986,7 +986,7 @@
     </message>
     <message>
         <source>Section %1</source>
-        <translation type="unfinished"></translation>
+        <translation>セクション %1</translation>
     </message>
     <message>
         <source>Capture</source>
@@ -1086,7 +1086,7 @@
     </message>
     <message>
         <source>Section Comment</source>
-        <translation type="unfinished"></translation>
+        <translation>セクション コメント</translation>
     </message>
     <message>
         <source>Packet Comments</source>
