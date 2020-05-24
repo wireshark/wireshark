@@ -1048,7 +1048,7 @@
     </message>
     <message>
         <source>Marked</source>
-        <translation>Помеченный</translation>
+        <translation>Помечено</translation>
     </message>
     <message>
         <source>Packets</source>
@@ -2177,7 +2177,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Show…</source>
         <oldsource>Show...</oldsource>
-        <translation>Показать...</translation>
+        <translation>Показать…</translation>
     </message>
     <message>
         <source>Error</source>
