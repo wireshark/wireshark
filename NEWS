@@ -1,4 +1,4 @@
-Wireshark 2.6.17 Release Notes
+Wireshark 2.6.18 Release Notes
 
  What is Wireshark?
 
@@ -9,29 +9,9 @@ Wireshark 2.6.17 Release Notes
 
   Bug Fixes
 
-     • wnpa-sec-2020-08[1] The NFS dissector could crash. Bug 16476[2].
+     • wnpa-sec-2020-09[1] A dissector went awry.
 
    The following bugs have been fixed:
-
-     • PVS-Studio analyser long list of issues. Bug 16335[3].
-
-     • pcapng file dissector incorrectly computes nanoseconds from
-       timestamps because it assumes the resolution is in nanoseconds.
-       Bug 16440[4].
-
-     • Read of uninitialized memory in detect_camins_file. Bug 16458[5].
-
-     • Read of uninitialized memory in lanalyzer_read_trace_record. Bug
-       16459[6].
-
-     • capinfos "Capture duration" output is truncated if there are more
-       than 11 digits of seconds and fractions of a second. Bug
-       16519[7].
-
-     • MIME Files Format/pcapng: Simple Packet Block parsed incorrectly.
-       Bug 16526[8].
-
-     • Buildbot crash output: fuzz-2020-05-13-12195.pcap. Bug 16564[9].
 
   New and Updated Features
 
@@ -43,13 +23,9 @@ Wireshark 2.6.17 Release Notes
 
   Updated Protocol Support
 
-   AoE, APRS, ASN.1 BER, FTP, GSM SMS, Infiniband, ISObus VT, MAC LTE,
-   NFS, ONC RPC, OSC, pcapng, PDCP LTE, RADIUS, RLC LTE, SDP, SIP,
-   Snort, and STUN
-
   New and Updated Capture File Support
 
-   Camins, Catapult DCT 2000, Lanalyzer, and MPEG
+   There is no new or updated capture file support in this release.
 
   New and Updated Capture Interfaces support
 
@@ -65,7 +41,7 @@ Wireshark 2.6.17 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[10] on the Wireshark web site.
+   be found on the download page[2] on the Wireshark web site.
 
  File Locations
 
@@ -76,52 +52,44 @@ Wireshark 2.6.17 Release Notes
 
  Known Problems
 
-  The BER dissector might infinitely loop. Bug 1516[11].
+  The BER dissector might infinitely loop. Bug 1516[3].
 
   Capture filters aren’t applied when capturing from named pipes. Bug
-  1814[12].
+  1814[4].
 
   Filtering tshark captures with read filters (-R) no longer works. Bug
-  2234[13].
+  2234[5].
 
-  Application crash when changing real-time option. Bug 4035[14].
+  Application crash when changing real-time option. Bug 4035[6].
 
   Wireshark and TShark will display incorrect delta times in some cases.
-  Bug 4985[15].
+  Bug 4985[7].
 
   Wireshark should let you work with multiple capture files. Bug
-  10488[16].
+  10488[8].
 
  Getting Help
 
-  Community support is available on Wireshark’s Q&A site[17] and on the
+  Community support is available on Wireshark’s Q&A site[9] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[18].
+  for all of Wireshark’s mailing lists can be found on the web site[10].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[19].
+  A complete FAQ is available on the Wireshark web site[11].
 
-  Last updated 2020-05-19 18:16:26 UTC
+  Last updated 2020-05-24 08:45:48 UTC
 
  References
 
-   1. https://www.wireshark.org/security/wnpa-sec-2020-08
-   2. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16476
-   3. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16335
-   4. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16440
-   5. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16458
-   6. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16459
-   7. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16519
-   8. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16526
-   9. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16564
-  10. https://www.wireshark.org/download.html#thirdparty
-  11. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1516
-  12. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1814
-  13. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2234
-  14. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4035
-  15. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4985
-  16. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10488
-  17. https://ask.wireshark.org/
-  18. https://www.wireshark.org/lists/
-  19. https://www.wireshark.org/faq.html
+   1. https://www.wireshark.org/security/wnpa-sec-2020-09
+   2. https://www.wireshark.org/download.html#thirdparty
+   3. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1516
+   4. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1814
+   5. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2234
+   6. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4035
+   7. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4985
+   8. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10488
+   9. https://ask.wireshark.org/
+  10. https://www.wireshark.org/lists/
+  11. https://www.wireshark.org/faq.html
