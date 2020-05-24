@@ -2786,7 +2786,8 @@ static int
 dissect_krb5_decrypt_KDC_REP_data (gboolean imp_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx,
 									proto_tree *tree, int hf_index _U_)
 {
-	guint8 *plaintext;
+	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+	guint8 *plaintext = NULL;
 	int length;
 	tvbuff_t *next_tvb;
 
@@ -2799,15 +2800,45 @@ dissect_krb5_decrypt_KDC_REP_data (gboolean imp_tag _U_, tvbuff_t *tvb, int offs
 	 * == 3 or
 	 * == 8 or
 	 * == 9
+	 *
+	 * 3. AS-REP encrypted part (includes TGS session key or
+	 *    application session key), encrypted with the client key
+	 *    (section 5.4.2)
+	 *
+	 * 8. TGS-REP encrypted part (includes application session
+	 *    key), encrypted with the TGS session key (section
+	 *    5.4.2)
+	 * 9. TGS-REP encrypted part (includes application session
+	 *    key), encrypted with the TGS authenticator subkey
+	 *    (section 5.4.2)
+	 *
+	 * We currently don't have a way to find the TGS-REQ state
+	 * in order to check if an authenticator subkey was used.
+	 *
+	 * But if we client used FAST and we got a strengthen_key,
+	 * we're sure an authenticator subkey was used.
+	 *
+	 * Windows don't use an authenticator subkey without FAST,
+	 * but heimdal does.
+	 *
+	 * For now try 8 before 9 in order to avoid overhead and false
+	 * positives for the 'kerberos.missing_keytype' filter in pure
+	 * windows captures.
 	 */
-	plaintext=decrypt_krb5_data_asn1(tree, actx, 3, next_tvb, NULL);
-
-	if(!plaintext){
-		plaintext=decrypt_krb5_data_asn1(tree, actx, 8, next_tvb, NULL);
-	}
-
-	if(!plaintext){
-		plaintext=decrypt_krb5_data_asn1(tree, actx, 9, next_tvb, NULL);
+	switch (private_data->msg_type) {
+	case KERBEROS_APPLICATIONS_AS_REP:
+		plaintext=decrypt_krb5_data_asn1(tree, actx, 3, next_tvb, NULL);
+		break;
+	case KERBEROS_APPLICATIONS_TGS_REP:
+		if (private_data->fast_strengthen_key != NULL) {
+			plaintext=decrypt_krb5_data_asn1(tree, actx, 9, next_tvb, NULL);
+		} else {
+			plaintext=decrypt_krb5_data_asn1(tree, actx, 8, next_tvb, NULL);
+			if(!plaintext){
+				plaintext=decrypt_krb5_data_asn1(tree, actx, 9, next_tvb, NULL);
+			}
+		}
+		break;
 	}
 
 	if(plaintext){
