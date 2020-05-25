@@ -131,31 +131,6 @@ Page custom DisplayUSBPcapPage
 ; ============================================================================
 !include "Sections.nsh"
 
-; ========= Macro to unselect and disable a section =========
-
-!macro DisableSection SECTION
-
-  Push $0
-    SectionGetFlags "${SECTION}" $0
-    IntOp $0 $0 & ${SECTION_OFF}
-    IntOp $0 $0 | ${SF_RO}
-    SectionSetFlags "${SECTION}" $0
-  Pop $0
-
-!macroend
-
-; ========= Macro to enable (unreadonly) a section =========
-!define SECTION_ENABLE   0xFFFFFFEF
-!macro EnableSection SECTION
-
-  Push $0
-    SectionGetFlags "${SECTION}" $0
-    IntOp $0 $0 & ${SECTION_ENABLE}
-    SectionSetFlags "${SECTION}" $0
-  Pop $0
-
-!macroend
-
 ; ============================================================================
 ; Command Line
 ; ============================================================================
