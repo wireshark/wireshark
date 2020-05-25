@@ -283,14 +283,14 @@ void RelatedPacketDelegate::clear()
 void RelatedPacketDelegate::setCurrentFrame(guint32 current_frame)
  {
     current_frame_ = current_frame;
-    foreach (int frame_num, related_frames_.keys()) {
-        addRelatedFrame(frame_num, related_frames_[frame_num]);
+    foreach (ft_framenum_type_t framenum_type, related_frames_) {
+        addRelatedFrame(-1, framenum_type); /* No need to check if this element belongs to the hash... */
     }
  }
 
 void RelatedPacketDelegate::addRelatedFrame(int frame_num, ft_framenum_type_t framenum_type)
 {
-    if (!related_frames_.keys().contains(frame_num))
+    if (frame_num != -1 && !related_frames_.contains(frame_num))
         related_frames_[frame_num] = framenum_type;
 
     // Last match wins. Last match might not make sense, however.
