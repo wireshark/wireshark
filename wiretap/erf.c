@@ -1868,6 +1868,26 @@ static gboolean erf_dump(
     other_phdr.erf.phdr.wlen = (guint16)total_wlen;
 
     pseudo_header = &other_phdr;
+  } else if (rec->presence_flags & WTAP_HAS_TS) {
+    // Update timestamp if changed.
+    time_t secs;
+    int nsecs;
+    guint64 ts = pseudo_header->erf.phdr.ts;
+
+    secs = (long) (ts >> 32);
+    ts  = ((ts & 0xffffffff) * 1000 * 1000 * 1000);
+    ts += (ts & 0x80000000) << 1; /* rounding */
+    nsecs = ((int) (ts >> 32));
+    if (nsecs >= 1000000000) {
+      nsecs -= 1000000000;
+      secs += 1;
+    }
+
+    if (secs != rec->ts.secs || nsecs != rec->ts.nsecs) {
+      other_phdr = *pseudo_header;
+      other_phdr.erf.phdr.ts = ((guint64) rec->ts.secs << 32) + (((guint64) rec->ts.nsecs <<32) / 1000 / 1000 / 1000);
+      pseudo_header = &other_phdr;
+    }
   }
 
   /* We now have a (real or fake) ERF record */
