@@ -622,6 +622,7 @@ static int hf_gtpv2_node_name = -1;
 static int hf_gtpv2_length_of_node_realm = -1;
 static int hf_gtpv2_node_realm = -1;
 static int hf_gtpv2_ms_ts = -1;
+static int hf_gtpv2_origination_ts = -1;
 static int hf_gtpv2_mon_event_inf_nsur = -1;
 static int hf_gtpv2_mon_event_inf_nsui = -1;
 static int hf_gtpv2_mon_event_inf_scef_reference_id = -1;
@@ -7353,7 +7354,7 @@ dissect_gtpv2_integer_number(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
  */
 
 static void
-dissect_gtpv2_ms_ts(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
+dissect_gtpv2_ms_ts(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type, guint8 instance _U_, session_args_t * args _U_)
 {
     int offset = 0;
     /* Octets 5 to 10 represent a 48 bit unsigned integer in network order format and are encoded as
@@ -7361,7 +7362,15 @@ dissect_gtpv2_ms_ts(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, pro
      * rounded value of 1000 x the value of the 64-bit timestamp (Seconds  + (Fraction / (1<<32)))
      * defined in section 6 of IETF RFC 5905
      */
-    proto_tree_add_item(tree, hf_gtpv2_ms_ts, tvb, offset, 6, ENC_TIME_MSEC_NTP | ENC_BIG_ENDIAN);
+    switch (message_type) {
+    case GTPV2_CREATE_SESSION_REQUEST:
+        /*proto_item_append_text(item, "Origination time stamp");*/
+        proto_tree_add_item(tree, hf_gtpv2_origination_ts, tvb, offset, length, ENC_BIG_ENDIAN);
+        break;
+    default:
+        proto_tree_add_item(tree, hf_gtpv2_ms_ts, tvb, offset, 6, ENC_TIME_MSEC_NTP | ENC_BIG_ENDIAN);
+        break;
+    }
 }
 
 /*
@@ -11030,6 +11039,11 @@ void proto_register_gtpv2(void)
       },
       { &hf_gtpv2_ms_ts,
       { "Millisecond Time Stamp", "gtpv2.ms_ts",
+          FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_origination_ts,
+      { "Origination Time Stamp", "gtpv2.ms_ts",
           FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0,
           NULL, HFILL }
       },
