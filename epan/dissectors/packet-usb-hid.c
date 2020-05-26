@@ -4699,7 +4699,7 @@ proto_register_usb_hid(void)
                 NULL, 0x00, NULL, HFILL }},
 
         { &hf_usbhid_data,
-            { "Data", "usbhid.data", FT_NONE, BASE_NONE,
+            { "HID Data", "usbhid.data", FT_BYTES, BASE_NONE,
                 NULL, 0x00, NULL, HFILL }},
     };
 
