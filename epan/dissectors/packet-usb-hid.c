@@ -77,6 +77,7 @@ static gint ett_usb_hid_report = -1;
 static gint ett_usb_hid_item_header = -1;
 static gint ett_usb_hid_wValue = -1;
 static gint ett_usb_hid_descriptor = -1;
+static gint ett_usb_hid_data = -1;
 
 static int hf_usb_hid_request = -1;
 static int hf_usb_hid_value = -1;
@@ -4294,6 +4295,24 @@ dissect_usb_hid_control_class_intf(tvbuff_t *tvb, packet_info *pinfo,
     return tvb_captured_length(tvb);
 }
 
+/* Dissect USB HID data/reports */
+static gint
+dissect_usb_hid_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    guint offset = 0;
+    proto_item *hid_ti;
+    proto_tree _U_ *hid_tree;
+    guint remaining = tvb_reported_length_remaining(tvb, offset);
+
+    if (remaining) {
+        hid_ti = proto_tree_add_item(tree, hf_usbhid_data, tvb, offset, -1, ENC_NA);
+        hid_tree = proto_item_add_subtree(hid_ti, ett_usb_hid_data);
+        offset += remaining;
+    }
+
+    return offset;
+}
+
 /* Dissector for HID class-specific control request as defined in
  * USBHID 1.11, Chapter 7.2.
  * returns the number of bytes consumed */
@@ -4321,7 +4340,7 @@ dissect_usb_hid_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
             return dissect_usb_hid_control_class_intf(tvb, pinfo, tree, usb_conv_info);
     }
 
-    return 0;
+    return dissect_usb_hid_data(tvb, pinfo, tree, data);
 }
 
 /* dissect a descriptor that is specific to the HID class */
@@ -4774,7 +4793,8 @@ proto_register_usb_hid(void)
         &ett_usb_hid_report,
         &ett_usb_hid_item_header,
         &ett_usb_hid_wValue,
-        &ett_usb_hid_descriptor
+        &ett_usb_hid_descriptor,
+        &ett_usb_hid_data
     };
 
     report_descriptors = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
@@ -4792,16 +4812,16 @@ proto_register_usb_hid(void)
 void
 proto_reg_handoff_usb_hid(void)
 {
-    dissector_handle_t usb_hid_control_handle, usb_hid_descr_handle;
+    dissector_handle_t usb_hid_control_handle, usb_hid_interrupt_handle, usb_hid_descr_handle;
 
-    usb_hid_control_handle = create_dissector_handle(
-                        dissect_usb_hid_control, proto_usb_hid);
+    usb_hid_control_handle = create_dissector_handle(dissect_usb_hid_control, proto_usb_hid);
     dissector_add_uint("usb.control", IF_CLASS_HID, usb_hid_control_handle);
-
     dissector_add_for_decode_as("usb.device", usb_hid_control_handle);
 
-    usb_hid_descr_handle = create_dissector_handle(
-                        dissect_usb_hid_class_descriptors, proto_usb_hid);
+    usb_hid_interrupt_handle = create_dissector_handle(dissect_usb_hid_data, proto_usb_hid);
+    dissector_add_uint("usb.interrupt", IF_CLASS_HID, usb_hid_interrupt_handle);
+
+    usb_hid_descr_handle = create_dissector_handle(dissect_usb_hid_class_descriptors, proto_usb_hid);
     dissector_add_uint("usb.descriptor", IF_CLASS_HID, usb_hid_descr_handle);
 }
 
