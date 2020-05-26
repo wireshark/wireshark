@@ -7365,7 +7365,7 @@ dissect_gtpv2_ms_ts(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, pro
     switch (message_type) {
     case GTPV2_CREATE_SESSION_REQUEST:
         /*proto_item_append_text(item, "Origination time stamp");*/
-        proto_tree_add_item(tree, hf_gtpv2_origination_ts, tvb, offset, length, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_gtpv2_origination_ts, tvb, offset, length, ENC_TIME_MSEC_NTP | ENC_BIG_ENDIAN);
         break;
     default:
         proto_tree_add_item(tree, hf_gtpv2_ms_ts, tvb, offset, 6, ENC_TIME_MSEC_NTP | ENC_BIG_ENDIAN);
