@@ -1066,6 +1066,7 @@ static const value_string http2_type_vals[] = {
 #define HTTP2_HEADER_TRANSFER_ENCODING "transfer-encoding"
 #define HTTP2_HEADER_PATH ":path"
 #define HTTP2_HEADER_CONTENT_TYPE "content-type"
+#define HTTP2_HEADER_UNKNOWN "<unknown>"
 
 /* header matching helpers */
 #define IS_HTTP2_END_STREAM(flags)   (flags & HTTP2_FLAGS_END_STREAM)
@@ -1598,7 +1599,9 @@ populate_http_header_tracking(tvbuff_t *tvb, packet_info *pinfo, http2_session_t
 
     /* Was this header used to initiate transfer of data frames? We'll use this later for reassembly */
     if (strcmp(header_name, HTTP2_HEADER_STATUS) == 0 ||
-                strcmp(header_name, HTTP2_HEADER_METHOD) == 0) {
+                strcmp(header_name, HTTP2_HEADER_METHOD) == 0 ||
+                /* If we are in the middle of a stream assume there might be data transfer */
+                strcmp(header_name, HTTP2_HEADER_UNKNOWN)){
         http2_data_stream_reassembly_info_t *reassembly_info = get_data_reassembly_info(pinfo, h2session);
         if (reassembly_info->data_initiated_in == 0) {
             reassembly_info->data_initiated_in = get_http2_frame_num(tvb, pinfo);
@@ -1713,7 +1716,7 @@ fix_partial_header_dissection_support(nghttp2_hd_inflater *hd_inflater, gboolean
      */
     static const guint8 dummy_header[] = "\x40"
                                          "\x09"      /* Name String Length */
-                                         "<unknown>" /* Name String */
+                                         HTTP2_HEADER_UNKNOWN /* Name String */
                                          "\0";       /* Value Length */
     const int dummy_header_size = sizeof(dummy_header) - 1;
     const int dummy_entries_to_add = 4096 / (32 + dummy_header_size - 3);
