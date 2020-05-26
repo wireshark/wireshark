@@ -65,6 +65,7 @@ Java Debug Wire Protocol (JDWP)
 ScyllaDB RPC
 Dynamic Link Exchange Protocol (DLEP)
 LBM Stateful Resolution Service (LBMSRS)
+Asphodel Protocol
 --
 
 === Updated Protocol Support
