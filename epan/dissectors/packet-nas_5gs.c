@@ -450,16 +450,20 @@ static expert_field ei_nas_5gs_unknown_value = EI_INIT;
 static expert_field ei_nas_5gs_num_pkt_flt = EI_INIT;
 static expert_field ei_nas_5gs_not_diss = EI_INIT;
 
-#define NAS_5GS_PLAIN_NAS_MSG 0
+#define NAS_5GS_PLAIN_NAS_MSG          0
+#define NAS_5GS_INTEG_NAS_MSG          1
+#define NAS_5GS_INTEG_CIPH_NAS_MSG     2
+#define NAS_5GS_INTEG_NEW_NAS_MSG      3
+#define NAS_5GS_INTEG_CIPH_NEW_NAS_MSG 4
 
 static void dissect_nas_5gs_updp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset);
 
 static const value_string nas_5gs_security_header_type_vals[] = {
-    { 0,    "Plain NAS message, not security protected"},
-    { 1,    "Integrity protected"},
-    { 2,    "Integrity protected and ciphered"},
-    { 3,    "Integrity protected with new 5GS security context"},
-    { 4,    "Integrity protected and ciphered with new 5GS security context"},
+    { NAS_5GS_PLAIN_NAS_MSG,          "Plain NAS message, not security protected"},
+    { NAS_5GS_INTEG_NAS_MSG,          "Integrity protected"},
+    { NAS_5GS_INTEG_CIPH_NAS_MSG,     "Integrity protected and ciphered"},
+    { NAS_5GS_INTEG_NEW_NAS_MSG,      "Integrity protected with new 5GS security context"},
+    { NAS_5GS_INTEG_CIPH_NEW_NAS_MSG, "Integrity protected and ciphered with new 5GS security context"},
     { 0,    NULL }
 };
 
@@ -6813,8 +6817,8 @@ dissect_nas_5gs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     proto_tree_add_item(sub_tree, hf_nas_5gs_seq_no, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    /* XXX Check if encryted or not and if not call dissect_nas_5gs_common()*/
-    if (g_nas_5gs_null_decipher) {
+    if ((seq_hdr_type != NAS_5GS_INTEG_CIPH_NAS_MSG && seq_hdr_type != NAS_5GS_INTEG_CIPH_NEW_NAS_MSG) ||
+        g_nas_5gs_null_decipher) {
         return dissect_nas_5gs_common(tvb, pinfo, nas_5gs_tree, offset, data);
     } else {
         proto_tree_add_subtree(nas_5gs_tree, tvb, offset, -1, ett_nas_5gs_enc, NULL, "Encrypted data");
