@@ -380,6 +380,7 @@ enc_key_t *enc_key_list=NULL;
 static guint kerberos_longterm_ids = 0;
 wmem_map_t *kerberos_longterm_keys = NULL;
 static wmem_map_t *kerberos_all_keys = NULL;
+static wmem_map_t *kerberos_app_session_keys = NULL;
 
 static gboolean
 enc_key_list_cb(wmem_allocator_t* allocator _U_, wmem_cb_event_t event _U_, void *user_data _U_)
@@ -461,6 +462,13 @@ kerberos_key_map_insert(wmem_map_t *key_map, enc_key_t *new_key)
 	existing = (enc_key_t *)wmem_map_lookup(key_map, new_key);
 	if (existing == NULL) {
 		wmem_map_insert(key_map, new_key, new_key);
+		return;
+	}
+
+	if (key_map != kerberos_all_keys) {
+		/*
+		 * It should already be linked to the existing key...
+		 */
 		return;
 	}
 
@@ -740,7 +748,19 @@ save_EncAPRepPart_subkey(tvbuff_t *tvb, int offset, int length,
 			 int parent_hf_index,
 			 int hf_index)
 {
+	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+
 	save_encryption_key(tvb, offset, length, actx, tree, parent_hf_index, hf_index);
+
+	if (actx->pinfo->fd->visited) {
+		return;
+	}
+
+	if (private_data->last_added_key == NULL) {
+		return;
+	}
+
+	kerberos_key_map_insert(kerberos_app_session_keys, private_data->last_added_key);
 }
 
 static void
@@ -1350,8 +1370,8 @@ decrypt_krb5_with_cb(proto_tree *tree,
 			void *decrypt_cb_data),
 		     void *decrypt_cb_data)
 {
-	const char *key_map_name = "all_keys";
-	wmem_map_t *key_map = kerberos_all_keys;
+	const char *key_map_name = NULL;
+	wmem_map_t *key_map = NULL;
 	struct decrypt_krb5_with_cb_state state = {
 		.tree = tree,
 		.pinfo = pinfo,
@@ -1365,7 +1385,18 @@ decrypt_krb5_with_cb(proto_tree *tree,
 
 	read_keytab_file_from_preferences();
 
-	insert_longterm_keys_into_key_map(key_map);
+	switch (usage) {
+	case KRB5_KU_USAGE_INITIATOR_SEAL:
+	case KRB5_KU_USAGE_ACCEPTOR_SEAL:
+		key_map_name = "app_session_keys";
+		key_map = kerberos_app_session_keys;
+		break;
+	default:
+		key_map_name = "all_keys";
+		key_map = kerberos_all_keys;
+		insert_longterm_keys_into_key_map(key_map);
+		break;
+	}
 
 	wmem_map_foreach(key_map, decrypt_krb5_with_cb_try_key, &state);
 	if (state.ek != NULL) {
@@ -4405,6 +4436,10 @@ void proto_register_kerberos(void) {
 						   wmem_file_scope(),
 						   enc_key_content_hash,
 						   enc_key_content_equal);
+	kerberos_app_session_keys = wmem_map_new_autoreset(wmem_epan_scope(),
+							   wmem_file_scope(),
+							   enc_key_content_hash,
+							   enc_key_content_equal);
 #endif /* defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS) */
 #endif
 
