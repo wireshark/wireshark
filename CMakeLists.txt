@@ -1276,9 +1276,12 @@ if (QT_FOUND)
 		find_program(DMGBUILD_EXECUTABLE dmgbuild
 			DOC "Path to the dmgbuild utility"
 		)
+		# https://doc.qt.io/qt-5/supported-platforms.html
 		# https://doc.qt.io/qt-5.11/supported-platforms-and-configurations.html
 		# CMake < 3.7 doesn't support VERSION_GREATER_EQUAL.
-		if(Qt5Widgets_VERSION VERSION_GREATER "5.11.999")
+		if(Qt5Widgets_VERSION VERSION_GREATER "5.14.999")
+			set(MIN_MACOS_VERSION 10.13)
+		elseif(Qt5Widgets_VERSION VERSION_GREATER "5.11.999")
 			set(MIN_MACOS_VERSION 10.12)
 		elseif(Qt5Widgets_VERSION VERSION_GREATER "5.9.999")
 			set(MIN_MACOS_VERSION 10.11)
