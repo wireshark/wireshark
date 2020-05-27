@@ -2313,6 +2313,8 @@ dissect_usb_interface_descriptor(packet_info *pinfo, proto_tree *parent_tree,
 
         /* Register conversation for this interface in case CONTROL messages are sent to it */
         usb_trans_info->interface_info = get_usb_iface_conv_info(pinfo, interface_num);
+        usb_trans_info->interface_info->bus_id = usb_conv_info->bus_id;
+        usb_trans_info->interface_info->device_address = usb_conv_info->device_address;
 
         alternate_setting.altSetting = alt_setting;
         alternate_setting.interfaceClass = tvb_get_guint8(tvb, offset);
