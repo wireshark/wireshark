@@ -1395,13 +1395,13 @@ static void missing_signing_key(proto_tree *tree, packet_info *pinfo,
 
 static krb5_context krb5_ctx;
 
+#ifdef HAVE_KRB5_C_FX_CF2_SIMPLE
 static void
 krb5_fast_key(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb,
 	      enc_key_t *ek1 _U_, const char *p1 _U_,
 	      enc_key_t *ek2 _U_, const char *p2 _U_,
 	      const char *origin _U_)
 {
-#ifdef HAVE_KRB5_C_FX_CF2_SIMPLE
 	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
 	krb5_error_code ret;
 	krb5_keyblock k1;
@@ -1444,8 +1444,16 @@ krb5_fast_key(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb,
 			   ek1, ek2);
 
 	krb5_free_keyblock(krb5_ctx, k);
-#endif
 }
+#else
+static void
+krb5_fast_key(asn1_ctx_t *actx _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_,
+	      enc_key_t *ek1 _U_, const char *p1 _U_,
+	      enc_key_t *ek2 _U_, const char *p2 _U_,
+	      const char *origin _U_)
+{
+}
+#endif
 
 USES_APPLE_DEPRECATED_API
 void
@@ -7061,7 +7069,7 @@ dissect_kerberos_EncryptedChallenge(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 
 /*--- End of included file: packet-kerberos-fn.c ---*/
-#line 3745 "./asn1/kerberos/packet-kerberos-template.c"
+#line 3753 "./asn1/kerberos/packet-kerberos-template.c"
 
 #ifdef HAVE_KERBEROS
 static const ber_sequence_t PA_ENC_TS_ENC_sequence[] = {
@@ -8579,7 +8587,7 @@ void proto_register_kerberos(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-kerberos-hfarr.c ---*/
-#line 4330 "./asn1/kerberos/packet-kerberos-template.c"
+#line 4338 "./asn1/kerberos/packet-kerberos-template.c"
 	};
 
 	/* List of subtrees */
@@ -8683,7 +8691,7 @@ void proto_register_kerberos(void) {
     &ett_kerberos_EncryptedChallenge,
 
 /*--- End of included file: packet-kerberos-ettarr.c ---*/
-#line 4353 "./asn1/kerberos/packet-kerberos-template.c"
+#line 4361 "./asn1/kerberos/packet-kerberos-template.c"
 	};
 
 	static ei_register_info ei[] = {
