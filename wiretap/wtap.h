@@ -806,6 +806,21 @@ struct ieee_802_11ad {
     guint8   mcs;            /* MCS index */
 };
 
+/*
+ * 802.11ax (HE).
+ */
+struct ieee_802_11ax {
+    /* Which of this information is present? */
+    guint    has_mcs_index:1;
+    guint    has_bwru:1;
+    guint    has_gi:1;
+
+    guint8   nsts:4;         /* Number of Space-time Streams */
+    guint8   mcs:4;          /* MCS index */
+    guint8   bwru:4;         /* Bandwidth/RU allocation */
+    guint8   gi:2;           /* Guard Interval */
+};
+
 union ieee_802_11_phy_info {
     struct ieee_802_11_fhss info_11_fhss;
     struct ieee_802_11b info_11b;
@@ -814,6 +829,7 @@ union ieee_802_11_phy_info {
     struct ieee_802_11n info_11n;
     struct ieee_802_11ac info_11ac;
     struct ieee_802_11ad info_11ad;
+    struct ieee_802_11ax info_11ax;
 };
 
 struct ieee_802_11_phdr {

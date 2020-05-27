@@ -1016,7 +1016,7 @@ static const value_string he_midamble_periodicity_vals[] = {
 
 static void
 dissect_radiotap_he_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-	int offset)
+	int offset, struct ieee_802_11ax *info_11ax)
 {
 	guint16 ppdu_format = tvb_get_letohs(tvb, offset) &
 		IEEE80211_RADIOTAP_HE_PPDU_FORMAT_MASK;
@@ -1045,6 +1045,10 @@ dissect_radiotap_he_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 	gboolean midamble_periodicity_known = FALSE;
 	guint16 data1 = tvb_get_letohs(tvb, offset);
 	guint16 data2 = 0;
+	guint16 data3 = 0;
+	guint16 data5 = 0;
+	guint16 data6 = 0;
+
 	guint8 ltf_symbol_size = 0;
 
 	/*
@@ -1132,6 +1136,11 @@ dissect_radiotap_he_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 	if (!stbc_known)
 		data3_headers[7] = &hf_radiotap_he_stbc_unknown;
 
+	data3 = tvb_get_letohs(tvb, offset);
+	if (data_mcs_known) {
+		info_11ax->has_mcs_index = TRUE;
+		info_11ax->mcs = (data3 & IEEE80211_RADIOTAP_HE_DATA_MCS_MASK) >> 8;
+	}
 	proto_tree_add_bitmask(he_info_tree, tvb, offset,
 		hf_radiotap_he_info_data_3, ett_radiotap_he_info_data_3,
 		data3_headers, ENC_LITTLE_ENDIAN);
@@ -1170,6 +1179,7 @@ dissect_radiotap_he_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 			data4_he_mu_headers, ENC_LITTLE_ENDIAN);
 	}
 
+	//data4 = tvb_get_letohs(tvb, offset);
 	offset += 2;
 
 	/*
@@ -1192,6 +1202,15 @@ dissect_radiotap_he_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 		data5_headers[6] = &hf_radiotap_txbf_unknown;
 	if (!pe_disambiguity_known)
 		data5_headers[7] = &hf_radiotap_pe_disambiguity_unknown;
+	data5 = tvb_get_letohs(tvb, offset);
+	if (gi_known) {
+		info_11ax->has_gi = TRUE;
+		info_11ax->gi = (data5 & IEEE80211_RADIOTAP_HE_GI_MASK) >> 4;
+	}
+	if (data_bw_ru_alloc_known) {
+		info_11ax->has_bwru = TRUE;
+		info_11ax->bwru = (data5 & IEEE80211_RADIOTAP_HE_DATA_BANDWIDTH_RU_ALLOC_MASK);
+	}
 	proto_tree_add_bitmask(he_info_tree, tvb, offset,
 		hf_radiotap_he_info_data_5, ett_radiotap_he_info_data_5,
 		data5_headers, ENC_LITTLE_ENDIAN);
@@ -1206,6 +1225,10 @@ dissect_radiotap_he_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 	proto_tree_add_bitmask(he_info_tree, tvb, offset,
 		hf_radiotap_he_info_data_6, ett_radiotap_he_info_data_6,
 		data6_headers, ENC_LITTLE_ENDIAN);
+	data6 = tvb_get_letohs(tvb, offset);
+
+	info_11ax->nsts = data6 & IEEE80211_RADIOTAP_HE_NSTS_MASK;
+
 }
 
 static const int *flags1_headers[] = {
@@ -2944,7 +2967,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 			 * without this field.
 			 */
 			phdr.phy = PHDR_802_11_PHY_11AX;
-			dissect_radiotap_he_info(tvb, pinfo, radiotap_tree, offset);
+			dissect_radiotap_he_info(tvb, pinfo, radiotap_tree, offset, &phdr.phy_info.info_11ax);
 			break;
 		case IEEE80211_RADIOTAP_HE_MU:
 			dissect_radiotap_he_mu_info(tvb, pinfo, item_tree, offset);
