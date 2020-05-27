@@ -514,7 +514,8 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         static const int* bits[] = {
             &hf_foo_startflag,
             &hf_foo_endflag,
-            &hf_foo_priorityflag
+            &hf_foo_priorityflag,
+            NULL
         };
 
         proto_tree_add_bitmask(foo_tree, tvb, offset, hf_foo_flags, ett_foo, bits, ENC_BIG_ENDIAN);
