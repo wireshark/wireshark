@@ -1103,11 +1103,6 @@ rrc_rotate(guint8 *data, int len, guint16 rrc, int unrotate)
 }
 
 
-#define KRB5_KU_USAGE_ACCEPTOR_SEAL     22
-#define KRB5_KU_USAGE_ACCEPTOR_SIGN     23
-#define KRB5_KU_USAGE_INITIATOR_SEAL    24
-#define KRB5_KU_USAGE_INITIATOR_SIGN    25
-
 static void
 decrypt_gssapi_krb_cfx_wrap(proto_tree *tree,
                             packet_info *pinfo,
@@ -1933,7 +1928,7 @@ void proto_register_spnego(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-spnego-hfarr.c ---*/
-#line 1388 "./asn1/spnego/packet-spnego-template.c"
+#line 1383 "./asn1/spnego/packet-spnego-template.c"
   };
 
   /* List of subtrees */
@@ -1956,7 +1951,7 @@ void proto_register_spnego(void) {
     &ett_spnego_InitialContextToken_U,
 
 /*--- End of included file: packet-spnego-ettarr.c ---*/
-#line 1398 "./asn1/spnego/packet-spnego-template.c"
+#line 1393 "./asn1/spnego/packet-spnego-template.c"
   };
 
   static ei_register_info ei[] = {

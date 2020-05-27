@@ -26,6 +26,19 @@
 extern "C" {
 #endif /* __cplusplus */
 
+#ifndef KRB5_KU_USAGE_ACCEPTOR_SEAL
+#define KRB5_KU_USAGE_ACCEPTOR_SEAL     22
+#endif
+#ifndef KRB5_KU_USAGE_ACCEPTOR_SIGN
+#define KRB5_KU_USAGE_ACCEPTOR_SIGN     23
+#endif
+#ifndef KRB5_KU_USAGE_INITIATOR_SEAL
+#define KRB5_KU_USAGE_INITIATOR_SEAL    24
+#endif
+#ifndef KRB5_KU_USAGE_INITIATOR_SIGN
+#define KRB5_KU_USAGE_INITIATOR_SIGN    25
+#endif
+
 /* This is a list of callback functions a caller can use to specify that
    octet strings in kerberos to be passed back to application specific
    dissectors, outside of kerberos.
@@ -143,7 +156,7 @@ extern gboolean krb_decrypt;
 int dissect_kerberos_ChangePasswdData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 /*--- End of included file: packet-kerberos-exp.h ---*/
-#line 113 "./asn1/kerberos/packet-kerberos-template.h"
+#line 126 "./asn1/kerberos/packet-kerberos-template.h"
 
 #ifdef __cplusplus
 }

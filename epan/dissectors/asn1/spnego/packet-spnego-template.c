@@ -651,11 +651,6 @@ rrc_rotate(guint8 *data, int len, guint16 rrc, int unrotate)
 }
 
 
-#define KRB5_KU_USAGE_ACCEPTOR_SEAL     22
-#define KRB5_KU_USAGE_ACCEPTOR_SIGN     23
-#define KRB5_KU_USAGE_INITIATOR_SEAL    24
-#define KRB5_KU_USAGE_INITIATOR_SIGN    25
-
 static void
 decrypt_gssapi_krb_cfx_wrap(proto_tree *tree,
                             packet_info *pinfo,

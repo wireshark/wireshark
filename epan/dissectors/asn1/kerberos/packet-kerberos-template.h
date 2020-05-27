@@ -18,6 +18,19 @@
 extern "C" {
 #endif /* __cplusplus */
 
+#ifndef KRB5_KU_USAGE_ACCEPTOR_SEAL
+#define KRB5_KU_USAGE_ACCEPTOR_SEAL     22
+#endif
+#ifndef KRB5_KU_USAGE_ACCEPTOR_SIGN
+#define KRB5_KU_USAGE_ACCEPTOR_SIGN     23
+#endif
+#ifndef KRB5_KU_USAGE_INITIATOR_SEAL
+#define KRB5_KU_USAGE_INITIATOR_SEAL    24
+#endif
+#ifndef KRB5_KU_USAGE_INITIATOR_SIGN
+#define KRB5_KU_USAGE_INITIATOR_SIGN    25
+#endif
+
 /* This is a list of callback functions a caller can use to specify that
    octet strings in kerberos to be passed back to application specific
    dissectors, outside of kerberos.
