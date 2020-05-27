@@ -61,8 +61,9 @@ psid-peer-to-peer-distribution-of-security-management-information   Psid ::= 136
 psid-traffic-light-manoeuver-service                                Psid ::= 137           -- ISO-19091-ETSI-TS-103-301
 psid-road-and-lane-topology-service                                 Psid ::= 138           -- ISO-19091-ETSI-TS-103-301
 psid-infrastructure-to-vehicle-information-service                  Psid ::= 139           -- ISO-19321-ETSI-TS-103-301
-psid-traffic-light-control-service                                  Psid ::= 140           -- ISO-19091-ETSI-TS-103-301
+psid-traffic-light-control-requests-service                         Psid ::= 140           -- ISO-19091-ETSI-TS-103-301
 psid-geonetworking-management-communications                        Psid ::= 141           -- ETSI-EN-302-636-4-1
+psid-traffic-light-control-status-service                           Psid ::= 637           -- ISO-19091-ETSI-TS-103-301
 
 -- 0x8e to 0xFF 0p80-09 to 0p80-7F Not allocated
 
