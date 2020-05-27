@@ -45,7 +45,11 @@ AD-MANDATORY-FOR-KDC
 ChangePasswdDataMS
 EncryptedData
 EtypeList
+FastOptions
 KerberosFlags
+KrbFastFinished
+KrbFastResponse
+KrbFastReq
 KRB5SignedPath
 KRB5SignedPathData
 KRB5SignedPathPrincipals
@@ -401,7 +405,9 @@ KrbFastArmorTypes PROT_PREFIX UPPER_CASE
 
 #.FN_BODY EncryptionKey
   kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+##ifdef HAVE_KERBEROS
   int start_offset = offset;
+##endif
 
   %(DEFAULT_BODY)s
 
@@ -421,7 +427,9 @@ KrbFastArmorTypes PROT_PREFIX UPPER_CASE
   gint save_encryption_key_parent_hf_index = private_data->save_encryption_key_parent_hf_index;
   kerberos_key_save_fn saved_encryption_key_fn = private_data->save_encryption_key_fn;
   private_data->save_encryption_key_parent_hf_index = hf_kerberos_authenticator;
+##ifdef HAVE_KERBEROS
   private_data->save_encryption_key_fn = save_Authenticator_subkey;
+##endif
 %(DEFAULT_BODY)s
   private_data->save_encryption_key_parent_hf_index = save_encryption_key_parent_hf_index;
   private_data->save_encryption_key_fn = saved_encryption_key_fn;
@@ -431,7 +439,9 @@ KrbFastArmorTypes PROT_PREFIX UPPER_CASE
   gint save_encryption_key_parent_hf_index = private_data->save_encryption_key_parent_hf_index;
   kerberos_key_save_fn saved_encryption_key_fn = private_data->save_encryption_key_fn;
   private_data->save_encryption_key_parent_hf_index = hf_kerberos_encAPRepPart;
+##ifdef HAVE_KERBEROS
   private_data->save_encryption_key_fn = save_EncAPRepPart_subkey;
+##endif
 %(DEFAULT_BODY)s
   private_data->save_encryption_key_parent_hf_index = save_encryption_key_parent_hf_index;
   private_data->save_encryption_key_fn = saved_encryption_key_fn;
@@ -450,7 +460,9 @@ KrbFastArmorTypes PROT_PREFIX UPPER_CASE
   default:
     private_data->save_encryption_key_parent_hf_index = -1;
   }
+##ifdef HAVE_KERBEROS
   private_data->save_encryption_key_fn = save_EncKDCRepPart_key;
+##endif
 %(DEFAULT_BODY)s
   private_data->save_encryption_key_parent_hf_index = save_encryption_key_parent_hf_index;
   private_data->save_encryption_key_fn = saved_encryption_key_fn;
@@ -460,7 +472,9 @@ KrbFastArmorTypes PROT_PREFIX UPPER_CASE
   gint save_encryption_key_parent_hf_index = private_data->save_encryption_key_parent_hf_index;
   kerberos_key_save_fn saved_encryption_key_fn = private_data->save_encryption_key_fn;
   private_data->save_encryption_key_parent_hf_index = hf_kerberos_encTicketPart;
+##ifdef HAVE_KERBEROS
   private_data->save_encryption_key_fn = save_EncTicketPart_key;
+##endif
 %(DEFAULT_BODY)s
   private_data->save_encryption_key_parent_hf_index = save_encryption_key_parent_hf_index;
   private_data->save_encryption_key_fn = saved_encryption_key_fn;
@@ -470,17 +484,9 @@ KrbFastArmorTypes PROT_PREFIX UPPER_CASE
   gint save_encryption_key_parent_hf_index = private_data->save_encryption_key_parent_hf_index;
   kerberos_key_save_fn saved_encryption_key_fn = private_data->save_encryption_key_fn;
   private_data->save_encryption_key_parent_hf_index = hf_kerberos_ticket_info_item;
+##ifdef HAVE_KERBEROS
   private_data->save_encryption_key_fn = save_KrbCredInfo_key;
-%(DEFAULT_BODY)s
-  private_data->save_encryption_key_parent_hf_index = save_encryption_key_parent_hf_index;
-  private_data->save_encryption_key_fn = saved_encryption_key_fn;
-
-#.FN_BODY KrbFastResponse/strengthen-key
-  kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
-  gint save_encryption_key_parent_hf_index = private_data->save_encryption_key_parent_hf_index;
-  kerberos_key_save_fn saved_encryption_key_fn = private_data->save_encryption_key_fn;
-  private_data->save_encryption_key_parent_hf_index = hf_kerberos_KrbFastResponse;
-  private_data->save_encryption_key_fn = save_KrbFastResponse_strengthen_key;
+##endif
 %(DEFAULT_BODY)s
   private_data->save_encryption_key_parent_hf_index = save_encryption_key_parent_hf_index;
   private_data->save_encryption_key_fn = saved_encryption_key_fn;
