@@ -67,7 +67,7 @@ protected:
 private:
     Ui::TCPStreamDialog *ui;
     capture_file *cap_file_;
-    QMap<double, struct segment *> time_stamp_map_;
+    QMultiMap<double, struct segment *> time_stamp_map_;
     double ts_offset_;
     bool ts_origin_conn_;
     QMap<double, struct segment *> sequence_num_map_;

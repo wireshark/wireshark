@@ -1339,7 +1339,7 @@ void IOGraphDialog::on_dragRadioButton_toggled(bool checked)
 void IOGraphDialog::on_zoomRadioButton_toggled(bool checked)
 {
     if (checked) mouse_drags_ = false;
-    ui->ioPlot->setInteractions(0);
+    ui->ioPlot->setInteractions(QCP::Interactions());
 }
 
 void IOGraphDialog::on_logCheckBox_toggled(bool checked)
@@ -1524,7 +1524,7 @@ void IOGraphDialog::makeCsv(QTextStream &stream) const
         }
     }
 
-    stream << endl;
+    stream << '\n';
 
     for (int interval = 0; interval <= max_interval; interval++) {
         double interval_start = (double)interval * ((double)ui_interval / 1000.0);
@@ -1536,7 +1536,7 @@ void IOGraphDialog::makeCsv(QTextStream &stream) const
             }
             stream << "," << value;
         }
-        stream << endl;
+        stream << '\n';
     }
 }
 

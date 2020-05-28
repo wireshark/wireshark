@@ -1003,7 +1003,7 @@ void WiresharkApplication::removeDynamicMenuGroupItem(int group, QAction *sg_act
 
 void WiresharkApplication::clearDynamicMenuGroupItems()
 {
-    foreach (int group, dynamic_menu_groups_.uniqueKeys()) {
+    foreach (int group, dynamic_menu_groups_.keys()) {
         dynamic_menu_groups_[group].clear();
     }
 }
@@ -1056,14 +1056,14 @@ QList<QAction *> WiresharkApplication::removedMenuGroupItems(int group)
 
 void WiresharkApplication::clearAddedMenuGroupItems()
 {
-    foreach (int group, added_menu_groups_.uniqueKeys()) {
+    foreach (int group, added_menu_groups_.keys()) {
         added_menu_groups_[group].clear();
     }
 }
 
 void WiresharkApplication::clearRemovedMenuGroupItems()
 {
-    foreach (int group, removed_menu_groups_.uniqueKeys()) {
+    foreach (int group, removed_menu_groups_.keys()) {
         foreach (QAction *action, removed_menu_groups_[group]) {
             delete action;
         }
