@@ -429,7 +429,11 @@ void SimpleDialog::show()
 const MessagePair SimpleDialog::splitMessage(QString &message) const
 {
     if (message.startsWith(primary_delimiter_)) {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+        QStringList parts = message.split(primary_delimiter_, Qt::SkipEmptyParts);
+#else
         QStringList parts = message.split(primary_delimiter_, QString::SkipEmptyParts);
+#endif
         switch (parts.length()) {
         case 0:
             return MessagePair(QString(), QString());

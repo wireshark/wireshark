@@ -156,7 +156,7 @@ void SequenceDiagram::setData(_seq_analysis_info *sainfo)
 
             new_data.key = cur_key;
             new_data.value = sai;
-            data_->insertMulti(new_data.key, new_data);
+            data_->insert(new_data.key, new_data);
 
             key_ticks.append(cur_key);
             key_labels.append(sai->time_str);

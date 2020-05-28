@@ -588,7 +588,7 @@ void TCPStreamDialog::fillGraph(bool reset_axes, bool set_focus)
             first = false;
         }
         if (insert) {
-            time_stamp_map_.insertMulti(ts - ts_offset_, seg);
+            time_stamp_map_.insert(ts - ts_offset_, seg);
         }
     }
 
@@ -1938,7 +1938,7 @@ void TCPStreamDialog::on_zoomRadioButton_toggled(bool checked)
 {
     if (checked) {
         mouse_drags_ = false;
-        ui->streamPlot->setInteractions(0);
+        ui->streamPlot->setInteractions(QCP::Interactions());
     }
 }
 

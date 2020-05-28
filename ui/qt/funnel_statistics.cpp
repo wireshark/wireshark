@@ -323,7 +323,7 @@ static void register_menu_cb(const char *name,
 
 static void deregister_menu_cb(funnel_menu_callback callback)
 {
-    foreach (int group, funnel_actions_.uniqueKeys()) {
+    foreach (int group, funnel_actions_.keys()) {
         QList<FunnelAction *>::iterator it = funnel_actions_[group].begin();
         while (it != funnel_actions_[group].end()) {
             FunnelAction *funnel_action = *it;

@@ -205,7 +205,7 @@ void WirelessFrame::on_helperToolButton_clicked()
     if (helper_path.isEmpty()) return;
 
     QString command = QString("\"%1\"").arg(helper_path);
-    QProcess::startDetached(command);
+    QProcess::startDetached(command, QStringList());
 }
 
 void WirelessFrame::on_prefsToolButton_clicked()

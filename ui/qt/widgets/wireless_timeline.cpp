@@ -398,12 +398,16 @@ void WirelessTimeline::wheelEvent(QWheelEvent *event)
 {
     // "Most mouse types work in steps of 15 degrees, in which case the delta
     // value is a multiple of 120; i.e., 120 units * 1/8 = 15 degrees"
-    double steps = event->delta() / 120.0;
+    double steps = event->angleDelta().y() / 120.0;
     if (steps != 0.0) {
         zoom_level += steps;
         if (zoom_level < 0) zoom_level = 0;
         if (zoom_level > TIMELINE_MAX_ZOOM) zoom_level = TIMELINE_MAX_ZOOM;
-        zoom((float)event->pos().x() / width());
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+        zoom(event->position().x() / width());
+#else
+        zoom(event->posF().x() / width());
+#endif
     }
 }
 
