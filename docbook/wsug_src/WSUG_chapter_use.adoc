@@ -875,7 +875,6 @@ This field is also where the current applied filter is displayed.
 Applying a display filter on large capture files might take quite a long time.
 
 |image:wsug_graphics/toolbar/filter-toolbar-recent.png[{filter-icon-attrs}]|Recent|Select from a list of recently applied filters.
-|btn:[Expression...]|Filter Expression|Open a dialog box that lets you edit a display filter from a list of protocol fields as described in <<ChWorkFilterAddExpressionSection>>
 |image:wsug_graphics/toolbar/filter-toolbar-add.png[{filter-icon-attrs}]|Add Button|Add a new filter expression button.
 |btn:[Squirrels]|Expression Button|Example filter expression button named “Squirrels”.
 |===
