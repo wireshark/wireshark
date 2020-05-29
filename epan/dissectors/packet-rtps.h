@@ -43,6 +43,17 @@
 extern "C" {
 #endif
 
+#define LONG_ALIGN(x)   (x = (x+3)&0xfffffffc)
+#define SHORT_ALIGN(x)  (x = (x+1)&0xfffffffe)
+#define MAX_ARRAY_DIMENSION 10
+#define ALIGN_ME(offset, alignment)   \
+        offset = (((offset) + ((alignment) - 1)) & ~((alignment) - 1))
+#define ALIGN_ZERO(offset, alignment, zero) (offset -= zero, ALIGN_ME(offset, alignment), offset += zero)
+
+#define KEY_COMMENT     ("  //@key")
+
+#define LONG_ALIGN_ZERO(x,zero) (x -= zero, LONG_ALIGN(x), x += zero)
+#define SHORT_ALIGN_ZERO(x,zero) (x -= zero, SHORT_ALIGN(x), x += zero)
 
 typedef enum {
     RTI_CDR_TK_NULL = 0,
@@ -95,8 +106,45 @@ typedef enum {
     RTI_CDR_TYPE_OBJECT_TYPE_KIND_MAP_TYPE=20,
     RTI_CDR_TYPE_OBJECT_TYPE_KIND_UNION_TYPE=21,
     RTI_CDR_TYPE_OBJECT_TYPE_KIND_STRUCTURE_TYPE=22,
-    RTI_CDR_TYPE_OBJECT_TYPE_KIND_ANNOTATION_TYPE=23
+    RTI_CDR_TYPE_OBJECT_TYPE_KIND_ANNOTATION_TYPE=23,
+    RTI_CDR_TYPE_OBJECT_TYPE_KIND_MODULE=24
 } RTICdrTypeObjectTypeKind;
+
+
+static const value_string type_object_kind [] = {
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_NO_TYPE,          "NO_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_BOOLEAN_TYPE,     "BOOLEAN_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_BYTE_TYPE,        "BYTE_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_INT_16_TYPE,      "INT_16_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_UINT_16_TYPE,     "UINT_16_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_INT_32_TYPE,      "INT_32_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_UINT_32_TYPE,     "UINT_32_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_INT_64_TYPE,      "INT_64_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_UINT_64_TYPE,     "UINT_64_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_FLOAT_32_TYPE,    "FLOAT_32_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_FLOAT_64_TYPE,    "FLOAT_64_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_FLOAT_128_TYPE,   "FLOAT_128_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_CHAR_8_TYPE,      "CHAR_8_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_CHAR_32_TYPE,     "CHAR_32_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_ENUMERATION_TYPE, "ENUMERATION_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_BITSET_TYPE,      "BITSET_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_ALIAS_TYPE,       "ALIAS_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_ARRAY_TYPE,       "ARRAY_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_SEQUENCE_TYPE,    "SEQUENCE_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_STRING_TYPE,      "STRING_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_MAP_TYPE,         "MAP_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_UNION_TYPE,       "UNION_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_STRUCTURE_TYPE,   "STRUCTURE_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_ANNOTATION_TYPE,  "ANNOTATION_TYPE" },
+  { 0, NULL }
+};
+
+typedef enum {
+    EXTENSIBILITY_INVALID = 1,
+    EXTENSIBILITY_FINAL,
+    EXTENSIBILITY_EXTENSIBLE,
+    EXTENSIBILITY_MUTABLE
+} RTICdrTypeObjectExtensibility;
 
 typedef struct _rtps_dissector_data {
   guint16 encapsulation_id;
@@ -106,7 +154,18 @@ typedef struct _rtps_dissector_data {
   gint position_in_batch;
 } rtps_dissector_data;
 
+/***************************************************************************/
+/* Preferences                                                             */
+/***************************************************************************/
+static guint rtps_max_batch_samples_dissected = 16;
+static gboolean enable_topic_info = TRUE;
+static gboolean enable_rtps_reassembly = FALSE;
+static gboolean enable_user_data_dissection = FALSE;
+static dissector_table_t rtps_type_name_table;
 
+/***************************************************************************/
+/* Variable definitions                                                    */
+/***************************************************************************/
 #define RTPS_MAGIC_NUMBER   0x52545053 /* RTPS */
 #define RTPX_MAGIC_NUMBER   0x52545058 /* RTPX */
 #define RTPS_SEQUENCENUMBER_UNKNOWN     0xffffffff00000000 /* {-1,0} as uint64 */
@@ -527,6 +586,11 @@ typedef struct _rtps_dissector_data {
 #define BY_RECEPTION_TIMESTAMP          (0)
 #define BY_SOURCE_TIMESTAMP             (1)
 
+/* Member flags */
+#define MEMBER_IS_KEY                   (1)
+#define MEMBER_OPTIONAL                 (2)
+#define MEMBER_SHAREABLE                (4)
+#define MEMBER_UNION_DEFAULT            (8)
 /* Participant message data kind */
 #define PARTICIPANT_MESSAGE_DATA_KIND_UNKNOWN (0x00000000)
 #define PARTICIPANT_MESSAGE_DATA_KIND_AUTOMATIC_LIVELINESS_UPDATE (0x00000001)
@@ -576,6 +640,21 @@ typedef struct _rtps_dissector_data {
 #define RTI_OSAPI_COMPRESSION_CLASS_ID_BZIP2     (2)
 #define RTI_OSAPI_COMPRESSION_CLASS_ID_AUTO      (G_MAXUINT32)
 
+/* These are registered in packet-rtps.c but used in packet-rtps-utils.c */
+static gint ett_rtps_dissection_tree = -1;
+static int hf_rtps_dissection_boolean                            = -1;
+static int hf_rtps_dissection_byte                               = -1;
+static int hf_rtps_dissection_int16                              = -1;
+static int hf_rtps_dissection_uint16                             = -1;
+static int hf_rtps_dissection_int32                              = -1;
+static int hf_rtps_dissection_uint32                             = -1;
+static int hf_rtps_dissection_int64                              = -1;
+static int hf_rtps_dissection_uint64                             = -1;
+static int hf_rtps_dissection_float                              = -1;
+static int hf_rtps_dissection_double                             = -1;
+static int hf_rtps_dissection_int128                             = -1;
+static int hf_rtps_dissection_string                             = -1;
+
 /* Utilities to add elements to the protocol tree for packet-rtps.h and packet-rtps2.h */
 extern guint16 rtps_util_add_protocol_version(proto_tree *tree, tvbuff_t* tvb, gint offset);
 extern guint16 rtps_util_add_vendor_id(proto_tree *tree, tvbuff_t * tvb, gint offset);
@@ -624,6 +703,8 @@ extern void dissect_INFO_SRC(tvbuff_t *tvb, packet_info *pinfo, gint offset, gui
                         const guint encoding, int octets_to_next_header, proto_tree *tree, guint16 rtps_version);
 extern void dissect_INFO_TS(tvbuff_t *tvb, packet_info *pinfo, gint offset, guint8 flags,
                         const guint encoding, int octets_to_next_header, proto_tree *tree);
+static void rtps_util_dissect_parameter_header(tvbuff_t * tvb, gint * offset,
+        const guint encoding, guint32 * member_id, guint32 * member_length);
 
 
 #ifdef __cplusplus
