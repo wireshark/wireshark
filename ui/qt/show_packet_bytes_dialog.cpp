@@ -293,8 +293,24 @@ void ShowPacketBytesDialog::saveAs()
     if (file_name.isEmpty())
         return;
 
+    QFile::OpenMode open_mode = QFile::WriteOnly;
+    switch (show_as_) {
+    case ShowAsASCII:
+    case ShowAsASCIIandControl:
+    case ShowAsCArray:
+    case ShowAsHexDump:
+    case ShowAsISO8859_1:
+    case ShowAsYAML:
+    case ShowAsHTML:
+    case ShowAsUTF8:
+        open_mode |= QFile::Text;
+    // case ShowAsUTF16: ???
+    default:
+        break;
+    }
+
     QFile file(file_name);
-    file.open(QIODevice::WriteOnly);
+    file.open(open_mode);
 
     switch (show_as_) {
 

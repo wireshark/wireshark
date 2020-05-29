@@ -47,8 +47,6 @@
 #include <QPrintDialog>
 #include <QPrinter>
 #include <QScrollBar>
-#include <QTextEdit>
-#include <QTextStream>
 
 // To do:
 // - Show text while tapping.
