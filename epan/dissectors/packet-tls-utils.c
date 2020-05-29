@@ -507,6 +507,7 @@ const value_string ssl_31_content_type[] = {
     { 22, "Handshake" },
     { 23, "Application Data" },
     { 24, "Heartbeat" },
+    { 25, "Connection ID" },
     { 0x00, NULL }
 };
 
@@ -1166,6 +1167,7 @@ const value_string tls_hello_extension_types[] = {
     { SSL_HND_HELLO_EXT_POST_HANDSHAKE_AUTH, "post_handshake_auth" }, /* RFC 8446 */
     { SSL_HND_HELLO_EXT_SIGNATURE_ALGORITHMS_CERT, "signature_algorithms_cert" }, /* RFC 8446 */
     { SSL_HND_HELLO_EXT_KEY_SHARE, "key_share" }, /* RFC 8446 */
+    { SSL_HND_HELLO_EXT_CONNECTION_ID, "connection_id" }, /* draft-ietf-tls-dtls-connection-id-07 */
     { SSL_HND_HELLO_EXT_GREASE_0A0A, "Reserved (GREASE)" }, /* RFC 8701 */
     { SSL_HND_HELLO_EXT_GREASE_1A1A, "Reserved (GREASE)" }, /* RFC 8701 */
     { SSL_HND_HELLO_EXT_GREASE_2A2A, "Reserved (GREASE)" }, /* RFC 8701 */
@@ -1955,6 +1957,52 @@ gint ssl_get_keyex_alg(gint cipher)
     /* }}} */
 }
 
+static wmem_list_t *connection_id_session_list = NULL;
+
+void
+ssl_init_cid_list(void) {
+    connection_id_session_list = wmem_list_new(wmem_file_scope());
+}
+
+void
+ssl_cleanup_cid_list(void) {
+    wmem_destroy_list(connection_id_session_list);
+}
+
+void
+ssl_add_session_by_cid(SslDecryptSession *session)
+{
+    wmem_list_append(connection_id_session_list, session);
+}
+
+SslDecryptSession *
+ssl_get_session_by_cid(tvbuff_t *tvb, guint32 offset)
+{
+    SslDecryptSession * ssl_cid = NULL;
+    wmem_list_frame_t *it = wmem_list_head(connection_id_session_list);
+
+    while (it != NULL && ssl_cid == NULL) {
+        SslDecryptSession * ssl = (SslDecryptSession *)wmem_list_frame_data(it);
+        DISSECTOR_ASSERT(ssl != NULL);
+        SslSession *session = &ssl->session;
+
+        if (session->client_cid_len > 0 && tvb_bytes_exist(tvb, offset, session->client_cid_len)) {
+            if (tvb_memeql(tvb, offset, session->client_cid, session->client_cid_len) == 0) {
+                ssl_cid = ssl;
+            }
+        }
+
+        if (session->server_cid_len > 0) {
+            if (tvb_memeql(tvb, offset, session->server_cid, session->server_cid_len) == 0) {
+                ssl_cid = ssl;
+            }
+        }
+
+        it = wmem_list_frame_next(it);
+    }
+
+    return ssl_cid;
+}
 
 /* StringInfo structure (len + data) functions {{{ */
 
@@ -4069,7 +4117,9 @@ tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
         _U_
 #endif
         ,
-        const guchar *in, guint16 inl, StringInfo *out_str, guint *outl)
+        const guchar *in, guint16 inl,
+        const guchar *cid, guint8 cidl,
+        StringInfo *out_str, guint *outl)
 {
     /* RFC 5246 (TLS 1.2) 6.2.3.3 defines the TLSCipherText.fragment as:
      * GenericAEADCipher: { nonce_explicit, [content] }
@@ -4079,6 +4129,7 @@ tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
      */
     const guint16   version = ssl->session.version;
     const gboolean  is_v12 = version == TLSV1DOT2_VERSION || version == DTLSV1DOT2_VERSION;
+    const gboolean  is_cid = ct == SSL_ID_TLS12_CID && version == DTLSV1DOT2_VERSION;
     gcry_error_t    err;
     const guchar   *explicit_nonce = NULL, *ciphertext;
     guint           ciphertext_len, auth_tag_len;
@@ -4186,11 +4237,30 @@ tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
     if (decoder->cipher_suite->mode == MODE_CCM || decoder->cipher_suite->mode == MODE_CCM_8) {
         /* size of plaintext, additional authenticated data and auth tag. */
         guint64 lengths[3] = { ciphertext_len, is_v12 ? 13 : 0, auth_tag_len };
+        if (is_cid) {
+            lengths[1] = 13 + 1 + cidl; /* cid length (1 byte) + cid (cidl bytes)*/
+        }
         gcry_cipher_ctl(decoder->evp, GCRYCTL_SET_CCM_LENGTHS, lengths, sizeof(lengths));
     }
 
     /* (D)TLS 1.2 needs specific AAD, TLS 1.3 (before -25) uses empty AAD. */
-    if (is_v12) {
+    if (is_cid) { /* if connection ID */
+        guchar aad[14+DTLS_MAX_CID_LENGTH];
+        guint aad_len = 14 + cidl;
+        phton64(aad, decoder->seq);         /* record sequence number */
+        phton16(aad, decoder->epoch);       /* DTLS 1.2 includes epoch. */
+        aad[8] = ct;                        /* TLSCompressed.type */
+        phton16(aad + 9, record_version);   /* TLSCompressed.version */
+        memcpy(aad + 11, cid, cidl);        /* cid */
+        aad[11 + cidl] = cidl;              /* cid_length */
+        phton16(aad + 12 + cidl, ciphertext_len);  /* TLSCompressed.length */
+        ssl_print_data("AAD", aad, aad_len);
+        err = gcry_cipher_authenticate(decoder->evp, aad, aad_len);
+        if (err) {
+            ssl_debug_printf("%s failed to set AAD: %s\n", G_STRFUNC, gcry_strerror(err));
+            return FALSE;
+        }
+    } else if (is_v12) {
         guchar aad[13];
         phton64(aad, decoder->seq);         /* record sequence number */
         if (version == DTLSV1DOT2_VERSION) {
@@ -4272,10 +4342,11 @@ tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
 /* Record decryption glue based on security parameters {{{ */
 /* Assume that we are called only for a non-NULL decoder which also means that
  * we have a non-NULL decoder->cipher_suite. */
-int
+gint
 ssl_decrypt_record(SslDecryptSession *ssl, SslDecoder *decoder, guint8 ct, guint16 record_version,
         gboolean ignore_mac_failed,
-        const guchar *in, guint16 inl, StringInfo *comp_str, StringInfo *out_str, guint *outl)
+        const guchar *in, guint16 inl, const guchar *cid, guint8 cidl,
+        StringInfo *comp_str, StringInfo *out_str, guint *outl)
 {
     guint   pad, worklen, uncomplen, maclen, mac_fraglen = 0;
     guint8 *mac = NULL, *mac_frag = NULL;
@@ -4304,7 +4375,7 @@ ssl_decrypt_record(SslDecryptSession *ssl, SslDecoder *decoder, guint8 ct, guint
         decoder->cipher_suite->mode == MODE_POLY1305 ||
         ssl->session.version == TLSV1DOT3_VERSION) {
 
-        if (!tls_decrypt_aead_record(ssl, decoder, ct, record_version, ignore_mac_failed, in, inl, out_str, &worklen)) {
+        if (!tls_decrypt_aead_record(ssl, decoder, ct, record_version, ignore_mac_failed, in, inl, cid, cidl, out_str, &worklen)) {
             /* decryption failed */
             return -1;
         }
@@ -7563,6 +7634,53 @@ ssl_dissect_hnd_hello_ext_esni(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_i
 }
 /** TLS Extensions (in Client Hello and Server Hello). }}} */
 
+/* Connection ID dissection. {{{ */
+static guint32
+ssl_dissect_ext_connection_id(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
+                              proto_tree *tree, guint32 offset, SslDecryptSession *ssl,
+                              guint8 cidl, guint8 **session_cid, guint8 *session_cidl)
+{
+    /* keep track of the decrypt session only for the first pass */
+    if (cidl > 0 && !PINFO_FD_VISITED(pinfo)) {
+      tvb_ensure_bytes_exist(tvb, offset + 1, cidl);
+      *session_cidl = cidl;
+      *session_cid = (guint8*)wmem_alloc0(wmem_file_scope(), cidl);
+      tvb_memcpy(tvb, *session_cid, offset + 1, cidl);
+      if (ssl) {
+          ssl_add_session_by_cid(ssl);
+      }
+    }
+
+    proto_tree_add_item(tree, hf->hf.hs_ext_connection_id_length,
+                        tvb, offset, 1, ENC_NA);
+    offset++;
+
+    proto_tree_add_item(tree, hf->hf.hs_ext_connection_id,
+                        tvb, offset, cidl, ENC_NA);
+    offset += cidl;
+
+    return offset;
+}
+
+static guint32
+ssl_dissect_hnd_hello_ext_connection_id(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
+                                        proto_tree *tree, guint32 offset, guint8 hnd_type,
+                                        SslSession *session, SslDecryptSession *ssl)
+{
+    guint8 cidl = tvb_get_guint8(tvb, offset);
+
+    switch (hnd_type) {
+    case SSL_HND_CLIENT_HELLO:
+        return ssl_dissect_ext_connection_id(hf, tvb, pinfo, tree, offset, ssl,
+                                             cidl, &session->client_cid, &session->client_cid_len);
+    case SSL_HND_SERVER_HELLO:
+        return ssl_dissect_ext_connection_id(hf, tvb, pinfo, tree, offset, ssl,
+                                             cidl, &session->server_cid, &session->server_cid_len);
+    default:
+        return offset;
+    }
+} /* }}} */
+
 /* Whether the Content and Handshake Types are valid; handle Protocol Version. {{{ */
 gboolean
 ssl_is_valid_content_type(guint8 type)
@@ -7573,6 +7691,7 @@ ssl_is_valid_content_type(guint8 type)
     case SSL_ID_HANDSHAKE:
     case SSL_ID_APP_DATA:
     case SSL_ID_HEARTBEAT:
+    case SSL_ID_TLS12_CID:
         return TRUE;
     }
     return FALSE;
@@ -8757,6 +8876,9 @@ ssl_dissect_hnd_extension(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
             break;
         case SSL_HND_HELLO_EXT_ENCRYPTED_SERVER_NAME:
             offset = ssl_dissect_hnd_hello_ext_esni(hf, tvb, pinfo, ext_tree, offset, next_offset, hnd_type, ssl);
+            break;
+        case SSL_HND_HELLO_EXT_CONNECTION_ID:
+            offset = ssl_dissect_hnd_hello_ext_connection_id(hf, tvb, pinfo, ext_tree, offset, hnd_type, session, ssl);
             break;
         default:
             proto_tree_add_item(ext_tree, hf->hf.hs_ext_data,

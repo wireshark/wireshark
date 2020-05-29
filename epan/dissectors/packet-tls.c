@@ -1080,7 +1080,7 @@ decrypt_ssl3_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset, SslDecryp
      * is successful*/
     ssl_decrypted_data_avail = ssl_decrypted_data.data_len;
     success = ssl_decrypt_record(ssl, decoder, content_type, record_version, tls_ignore_mac_failed,
-                           tvb_get_ptr(tvb, offset, record_length), record_length,
+                           tvb_get_ptr(tvb, offset, record_length), record_length, NULL, 0,
                            &ssl_compressed_data, &ssl_decrypted_data, &ssl_decrypted_data_avail) == 0;
     /*  */
     if (!success) {
@@ -1119,7 +1119,7 @@ decrypt_tls13_early_data(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
 
         ssl_decrypted_data_avail = ssl_decrypted_data.data_len;
         success = ssl_decrypt_record(ssl, ssl->client, SSL_ID_APP_DATA, 0x303, FALSE,
-                                     tvb_get_ptr(tvb, offset, record_length), record_length,
+                                     tvb_get_ptr(tvb, offset, record_length), record_length, NULL, 0,
                                      &ssl_compressed_data, &ssl_decrypted_data, &ssl_decrypted_data_avail) == 0;
         if (success) {
             tls_save_decrypted_record(pinfo, tvb_raw_offset(tvb)+offset, ssl, SSL_ID_APP_DATA, ssl->client, TRUE, curr_layer_num_ssl);
@@ -1157,7 +1157,7 @@ decrypt_tls13_early_data(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
         }
 
         ssl_decrypted_data_avail = ssl_decrypted_data.data_len;
-        success = ssl_decrypt_record(ssl, ssl->client, SSL_ID_APP_DATA, 0x303, FALSE, record, record_length,
+        success = ssl_decrypt_record(ssl, ssl->client, SSL_ID_APP_DATA, 0x303, FALSE, record, record_length, NULL, 0,
                                      &ssl_compressed_data, &ssl_decrypted_data, &ssl_decrypted_data_avail) == 0;
         if (success) {
             ssl_debug_printf("Early data decryption succeeded, cipher = %#x\n", cipher);
@@ -2076,6 +2076,8 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
             }
             dissect_ssl3_heartbeat(tvb, pinfo, ssl_record_tree, offset, session, record_length, plaintext);
         }
+        break;
+    case SSL_ID_TLS12_CID:
         break;
     }
     offset += record_length; /* skip to end of record */

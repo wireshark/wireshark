@@ -39,7 +39,8 @@ typedef enum {
     SSL_ID_ALERT                   = 0x15,
     SSL_ID_HANDSHAKE               = 0x16,
     SSL_ID_APP_DATA                = 0x17,
-    SSL_ID_HEARTBEAT               = 0x18
+    SSL_ID_HEARTBEAT               = 0x18,
+    SSL_ID_TLS12_CID               = 0x19
 } ContentType;
 
 typedef enum {
@@ -121,6 +122,7 @@ typedef enum {
 #define SSL_HND_HELLO_EXT_POST_HANDSHAKE_AUTH           49
 #define SSL_HND_HELLO_EXT_SIGNATURE_ALGORITHMS_CERT     50
 #define SSL_HND_HELLO_EXT_KEY_SHARE                     51
+#define SSL_HND_HELLO_EXT_CONNECTION_ID                 53
 #define SSL_HND_HELLO_EXT_GREASE_0A0A                   2570
 #define SSL_HND_HELLO_EXT_GREASE_1A1A                   6682
 #define SSL_HND_HELLO_EXT_GREASE_2A2A                   10794
@@ -430,6 +432,19 @@ typedef struct _SslSession {
     /* First pass only: track an in-progress handshake reassembly (>0) */
     guint32     client_hs_reassembly_id;
     guint32     server_hs_reassembly_id;
+
+    /* Connection ID extension
+
+    struct {
+        opaque cid<0..2^8-1>;
+    } ConnectionId;
+    */
+#define DTLS_MAX_CID_LENGTH 256
+
+    guint8 *client_cid;
+    guint8 *server_cid;
+    guint8  client_cid_len;
+    guint8  server_cid_len;
 } SslSession;
 
 /* RFC 5246, section 8.1 says that the master secret is always 48 bytes */
@@ -514,6 +529,22 @@ gboolean ssldecrypt_uat_fld_port_chk_cb(void*, const char*, unsigned, const void
 gboolean ssldecrypt_uat_fld_fileopen_chk_cb(void*, const char*, unsigned, const void*, const void*, char** err);
 gboolean ssldecrypt_uat_fld_password_chk_cb(void*, const char*, unsigned, const void*, const void*, char** err);
 gchar* ssl_association_info(const char* dissector_table_name, const char* table_protocol);
+
+/** Initialize the list of sessions with connection ID */
+void ssl_init_cid_list(void);
+
+/** Release resource allocated for the list of sessions with connection ID */
+void ssl_cleanup_cid_list(void);
+
+/** Add a session to the list of sessions using connection ID */
+void ssl_add_session_by_cid(SslDecryptSession *ssl);
+
+/**
+ * Return a session with a matching connection ID
+ * @param tvb a buffer containing a connection ID
+ * @param offset offset of the connection ID in tvb
+ */
+SslDecryptSession *ssl_get_session_by_cid(tvbuff_t *tvb, guint32 offset);
 
 /** Retrieve a SslSession, creating it if it did not already exist.
  * @param conversation The SSL conversation.
@@ -627,6 +658,8 @@ ssl_change_cipher(SslDecryptSession *ssl_session, gboolean server);
  @param ignore_mac_failed whether to ignore MAC or authenticity failures
  @param in a pointer to the ssl record to be decrypted
  @param inl the record length
+ @param cid a pointer to the connection ID to use in AEAD or NULL
+ @param cidl the connection ID length or 0 if cid is NULL
  @param comp_str a pointer to the store the compression data
  @param out_str a pointer to the store for the decrypted data
  @param outl the decrypted data len
@@ -634,7 +667,8 @@ ssl_change_cipher(SslDecryptSession *ssl_session, gboolean server);
 extern gint
 ssl_decrypt_record(SslDecryptSession *ssl, SslDecoder *decoder, guint8 ct, guint16 record_version,
         gboolean ignore_mac_failed,
-        const guchar *in, guint16 inl, StringInfo *comp_str, StringInfo *out_str, guint *outl);
+        const guchar *in, guint16 inl, const guchar *cid, guint8 cidl,
+        StringInfo *comp_str, StringInfo *out_str, guint *outl);
 
 /**
  * Given a cipher algorithm and its mode, a hash algorithm and the secret (with
@@ -801,6 +835,8 @@ typedef struct ssl_common_dissect {
         gint hs_ext_max_fragment_length;
         gint hs_ext_padding_data;
         gint hs_ext_type;
+        gint hs_ext_connection_id_length;
+        gint hs_ext_connection_id;
         gint hs_sig_hash_alg;
         gint hs_sig_hash_alg_len;
         gint hs_sig_hash_algs;
@@ -1170,7 +1206,7 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1,                                         \
+        -1, -1, -1, -1, -1, -1, -1, -1,                                 \
     },                                                                  \
     /* ett */ {                                                         \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
@@ -2144,6 +2180,16 @@ ssl_common_dissect_t name = {   \
     { & name .hf.hs_ext_quictp_parameter_min_ack_delay,                 \
       { "min_ack_delay", prefix ".quic.parameter.min_ack_delay",        \
         FT_UINT64, BASE_DEC, NULL, 0x00,                                \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_connection_id_length,                           \
+      { "Connection ID length", prefix ".connection_id_length",         \
+        FT_UINT8, BASE_DEC, NULL, 0x00,                                 \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_connection_id,                                  \
+      { "Connection ID", prefix ".connection_id",                       \
+        FT_BYTES, BASE_NONE, NULL, 0x00,                                \
         NULL, HFILL }                                                   \
     },                                                                  \
     { & name .hf.esni_suite,                                            \
