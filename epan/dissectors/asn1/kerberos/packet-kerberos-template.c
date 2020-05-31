@@ -891,6 +891,9 @@ static void used_encryption_key(proto_tree *tree, packet_info *pinfo,
 	kerberos_key_list_append(private_data->decryption_keys, ek);
 	private_data->last_decryption_key = ek;
 }
+#endif /* HAVE_HEIMDAL_KERBEROS || HAVE_MIT_KERBEROS */
+
+#ifdef HAVE_MIT_KERBEROS
 
 static void missing_encryption_key(proto_tree *tree, packet_info *pinfo,
 				   kerberos_private_data_t *private_data,
@@ -924,10 +927,6 @@ static void missing_encryption_key(proto_tree *tree, packet_info *pinfo,
 
 	kerberos_key_list_append(private_data->missing_keys, mek);
 }
-
-#endif /* HAVE_HEIMDAL_KERBEROS || HAVE_MIT_KERBEROS */
-
-#if defined(HAVE_MIT_KERBEROS)
 
 #ifdef HAVE_KRB5_PAC_VERIFY
 static void used_signing_key(proto_tree *tree, packet_info *pinfo,

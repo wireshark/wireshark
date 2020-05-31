@@ -1307,6 +1307,9 @@ static void used_encryption_key(proto_tree *tree, packet_info *pinfo,
 	kerberos_key_list_append(private_data->decryption_keys, ek);
 	private_data->last_decryption_key = ek;
 }
+#endif /* HAVE_HEIMDAL_KERBEROS || HAVE_MIT_KERBEROS */
+
+#ifdef HAVE_MIT_KERBEROS
 
 static void missing_encryption_key(proto_tree *tree, packet_info *pinfo,
 				   kerberos_private_data_t *private_data,
@@ -1340,10 +1343,6 @@ static void missing_encryption_key(proto_tree *tree, packet_info *pinfo,
 
 	kerberos_key_list_append(private_data->missing_keys, mek);
 }
-
-#endif /* HAVE_HEIMDAL_KERBEROS || HAVE_MIT_KERBEROS */
-
-#if defined(HAVE_MIT_KERBEROS)
 
 #ifdef HAVE_KRB5_PAC_VERIFY
 static void used_signing_key(proto_tree *tree, packet_info *pinfo,
@@ -7020,7 +7019,7 @@ dissect_kerberos_EncryptedChallenge(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 
 /*--- End of included file: packet-kerberos-fn.c ---*/
-#line 3819 "./asn1/kerberos/packet-kerberos-template.c"
+#line 3818 "./asn1/kerberos/packet-kerberos-template.c"
 
 #ifdef HAVE_KERBEROS
 static const ber_sequence_t PA_ENC_TS_ENC_sequence[] = {
@@ -8640,7 +8639,7 @@ void proto_register_kerberos(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-kerberos-hfarr.c ---*/
-#line 4590 "./asn1/kerberos/packet-kerberos-template.c"
+#line 4589 "./asn1/kerberos/packet-kerberos-template.c"
 	};
 
 	/* List of subtrees */
@@ -8744,7 +8743,7 @@ void proto_register_kerberos(void) {
     &ett_kerberos_EncryptedChallenge,
 
 /*--- End of included file: packet-kerberos-ettarr.c ---*/
-#line 4617 "./asn1/kerberos/packet-kerberos-template.c"
+#line 4616 "./asn1/kerberos/packet-kerberos-template.c"
 	};
 
 	static ei_register_info ei[] = {
