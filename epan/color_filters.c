@@ -519,8 +519,8 @@ static int
 read_filters_file(const gchar *path, FILE *f, gpointer user_data, color_filter_add_cb_func add_cb)
 {
 #define INIT_BUF_SIZE 128
-    gchar    *name             = NULL;
-    gchar    *filter_exp       = NULL;
+    gchar    *name;
+    gchar    *filter_exp;
     guint32   name_len         = INIT_BUF_SIZE;
     guint32   filter_exp_len   = INIT_BUF_SIZE;
     guint32   i                = 0;

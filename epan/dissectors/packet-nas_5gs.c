@@ -1823,6 +1823,7 @@ de_nas_5gs_mm_pld_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
                 }
                 type_backup = nas5gs_data->payload_container_type;
                 nas5gs_data->payload_container_type = payload_type;
+                /* N.B. this recursive call can overwrite nas5gs_data->payload_container_type */
                 de_nas_5gs_mm_pld_cont(tvb, subtree, pinfo, curr_offset, payload_len - (curr_offset - entry_offset), NULL, 0);
                 curr_offset = entry_offset + payload_len + 2;
                 nas5gs_data->payload_container_type = type_backup;

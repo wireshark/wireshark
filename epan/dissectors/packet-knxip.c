@@ -2936,6 +2936,7 @@ static guint8 dissect_timer_notify( guint8 header_length, tvbuff_t* tvb, packet_
               proto_item_append_text( node, " (%s)", mac_info );
             }
 
+	    /* TODO: mac_error is never being set... */
             if( mac_error )
             {
               expert_add_info_format( pinfo, node, KIP_WARNING, "OK with wrong key" );

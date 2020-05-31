@@ -4383,7 +4383,7 @@ static guint get_dual_conn_phr_num_c_bytes(tvbuff_t *tvb, guint offset,
     /* Count bits set. */
     guint byte_bits_set = 0;
     for (i=1; i <= 7; ++i) {
-        byte_bits_set += (scell_bitmap_byte & (0x1 << i) ? 1 : 0);
+        byte_bits_set += ((scell_bitmap_byte & (0x1 << i)) ? 1 : 0);
     }
 
     /* Only work out length for 1-byte case (skip C byte itself). */

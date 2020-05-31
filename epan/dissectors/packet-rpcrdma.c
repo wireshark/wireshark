@@ -584,8 +584,7 @@ static guint get_write_list_size(tvbuff_t *tvb, guint max_offset, guint offset)
             break;
 
         chunk_size = get_write_chunk_size(tvb, offset);
-        if ((offset > max_offset) ||
-            (max_offset - offset < chunk_size))
+        if (max_offset - offset < chunk_size)
             return 0;
         offset += chunk_size;
     }

@@ -2472,7 +2472,7 @@ static const value_string aim_icq_data_types[] = {
 };
 
 
-static int dissect_aim_tlv_value_icq(proto_item *ti, guint16 subtype, tvbuff_t *tvb, packet_info *pinfo _U_);
+static int dissect_aim_tlv_value_icq(proto_item *ti, guint16 subtype, tvbuff_t *tvb, packet_info *pinfo);
 
 #define TLV_ICQ_META_DATA 			  0x0001
 

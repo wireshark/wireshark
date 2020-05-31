@@ -1130,9 +1130,9 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     tl_tree = proto_tree_add_subtree_format(arp_tree, tvb, ATM_AR_SHTL, 1,
                              ett_atmarp_tl, NULL,
                              "Sender ATM number type/length: %s/%u",
-                             (ar_shtl & ATMARP_IS_E164 ?
-                              "E.164" :
-                              "ATM Forum NSAPA"),
+                             (ar_shtl & ATMARP_IS_E164) ?
+                                  "E.164" :
+                                  "ATM Forum NSAPA",
                              ar_shl);
     proto_tree_add_boolean(tl_tree, hf_atmarp_sht, tvb, ATM_AR_SHTL, 1, ar_shtl);
     proto_tree_add_uint(tl_tree, hf_atmarp_shl, tvb, ATM_AR_SHTL, 1, ar_shtl);
@@ -1140,9 +1140,9 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     tl_tree = proto_tree_add_subtree_format(arp_tree, tvb, ATM_AR_SSTL, 1,
                              ett_atmarp_tl, NULL,
                              "Sender ATM subaddress type/length: %s/%u",
-                             (ar_sstl & ATMARP_IS_E164 ?
-                              "E.164" :
-                              "ATM Forum NSAPA"),
+                             (ar_sstl & ATMARP_IS_E164) ?
+                                  "E.164" :
+                                  "ATM Forum NSAPA",
                              ar_ssl);
     proto_tree_add_boolean(tl_tree, hf_atmarp_sst, tvb, ATM_AR_SSTL, 1, ar_sstl);
     proto_tree_add_uint(tl_tree, hf_atmarp_ssl, tvb, ATM_AR_SSTL, 1, ar_sstl);
@@ -1155,9 +1155,9 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     tl_tree = proto_tree_add_subtree_format(arp_tree, tvb, ATM_AR_THTL, 1,
                              ett_atmarp_tl, NULL,
                              "Target ATM number type/length: %s/%u",
-                             (ar_thtl & ATMARP_IS_E164 ?
-                              "E.164" :
-                              "ATM Forum NSAPA"),
+                             (ar_thtl & ATMARP_IS_E164) ?
+                                  "E.164" :
+                                  "ATM Forum NSAPA",
                              ar_thl);
     proto_tree_add_boolean(tl_tree, hf_atmarp_tht, tvb, ATM_AR_THTL, 1, ar_thtl);
     proto_tree_add_uint(tl_tree, hf_atmarp_thl, tvb, ATM_AR_THTL, 1, ar_thtl);
@@ -1165,9 +1165,9 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     tl_tree = proto_tree_add_subtree_format(arp_tree, tvb, ATM_AR_TSTL, 1,
                              ett_atmarp_tl, NULL,
                              "Target ATM subaddress type/length: %s/%u",
-                             (ar_tstl & ATMARP_IS_E164 ?
-                              "E.164" :
-                              "ATM Forum NSAPA"),
+                             (ar_tstl & ATMARP_IS_E164) ?
+                                  "E.164" :
+                                  "ATM Forum NSAPA",
                              ar_tsl);
     proto_tree_add_boolean(tl_tree, hf_atmarp_tst, tvb, ATM_AR_TSTL, 1, ar_tstl);
     proto_tree_add_uint(tl_tree, hf_atmarp_tsl, tvb, ATM_AR_TSTL, 1, ar_tstl);

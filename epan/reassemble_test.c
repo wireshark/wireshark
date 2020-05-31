@@ -116,9 +116,9 @@ print_fd(fragment_head *fd, gboolean is_head) {
     int i;
 
     g_assert(fd != NULL);
-    printf("        %08x %08x %3d %3d %3d", fd, fd->next, fd->frame, fd->offset, fd->len);
+    printf("        %p %p %3u %3u %3u", fd, fd->next, fd->frame, fd->offset, fd->len);
     if (is_head) {
-        printf(" %3d %3d", fd->datalen, fd->reassembled_in);
+        printf(" %3u %3u", fd->datalen, fd->reassembled_in);
     } else {
         printf( "        ");
     }

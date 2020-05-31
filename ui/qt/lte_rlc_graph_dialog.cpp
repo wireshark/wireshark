@@ -322,7 +322,7 @@ void LteRlcGraphDialog::showEvent(QShowEvent *)
 // Respond to a key press.
 void LteRlcGraphDialog::keyPressEvent(QKeyEvent *event)
 {
-    int pan_pixels = event->modifiers() & Qt::ShiftModifier ? 1 : 10;
+    int pan_pixels = (event->modifiers() & Qt::ShiftModifier) ? 1 : 10;
 
     switch(event->key()) {
     case Qt::Key_Minus:
