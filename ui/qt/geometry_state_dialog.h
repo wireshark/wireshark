@@ -49,16 +49,11 @@ public:
 //
 // Pass in the parent on macOS and NULL elsewhere so that we have an
 // independent window that un-maximizes correctly.
-#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
-#define DEFAULT_WINDOW_FLAGS Qt::WindowFlags()
-#else
-#define DEFAULT_WINDOW_FLAGS 0
-#endif
 
 #ifdef Q_OS_MAC
-    explicit GeometryStateDialog(QWidget *parent, Qt::WindowFlags f = DEFAULT_WINDOW_FLAGS) : QDialog(parent, f) {}
+    explicit GeometryStateDialog(QWidget *parent, Qt::WindowFlags f = Qt::WindowFlags()) : QDialog(parent, f) {}
 #else
-    explicit GeometryStateDialog(QWidget *, Qt::WindowFlags f = DEFAULT_WINDOW_FLAGS) : QDialog(NULL, f) {}
+    explicit GeometryStateDialog(QWidget *, Qt::WindowFlags f = Qt::WindowFlags()) : QDialog(NULL, f) {}
 #endif
     ~GeometryStateDialog();
 

@@ -377,7 +377,7 @@ bool InterfaceTreeCacheModel::isAvailableField(const QModelIndex &index) const
 Qt::ItemFlags InterfaceTreeCacheModel::flags(const QModelIndex &index) const
 {
     if (! index.isValid())
-        return 0;
+        return Qt::ItemFlags();
 
     Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 

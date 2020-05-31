@@ -91,7 +91,7 @@ bool UatModel::revertChanges(QString &error)
 Qt::ItemFlags UatModel::flags(const QModelIndex &index) const
 {
     if (!index.isValid())
-        return 0;
+        return Qt::ItemFlags();
 
     uat_field_t *field = &uat_->fields[index.column()];
 
