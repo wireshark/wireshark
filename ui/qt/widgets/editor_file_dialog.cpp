@@ -25,7 +25,7 @@ EditorFileDialog::EditorFileDialog(const QModelIndex& index, enum FileMode mode,
     , caption_(caption)
     , directory_(directory)
     , filter_(filter)
-    , options_(0)
+    , options_(QFileDialog::Options())
 {
     if (mode_ == Directory)
         options_ = QFileDialog::ShowDirsOnly;

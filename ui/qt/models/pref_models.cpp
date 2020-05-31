@@ -536,13 +536,13 @@ bool AdvancedPrefsModel::setData(const QModelIndex &dataindex, const QVariant &v
 Qt::ItemFlags AdvancedPrefsModel::flags(const QModelIndex &index) const
 {
     if (!index.isValid())
-        return 0;
+        return Qt::ItemFlags();
 
     QModelIndex modelIndex = mapToSource(index);
 
     PrefsItem* item = static_cast<PrefsItem*>(modelIndex.internalPointer());
     if (item == NULL)
-        return 0;
+        return Qt::ItemFlags();
 
     Qt::ItemFlags flags = QAbstractItemModel::flags(index);
     if (item->getPref() == NULL) {
@@ -680,7 +680,7 @@ QVariant ModulePrefsModel::data(const QModelIndex &dataindex, int role) const
 Qt::ItemFlags ModulePrefsModel::flags(const QModelIndex &index) const
 {
     if (!index.isValid())
-        return 0;
+        return Qt::ItemFlags();
 
     bool disable_capture = true;
 #ifdef HAVE_LIBPCAP

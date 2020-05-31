@@ -189,7 +189,7 @@ QModelIndex EnabledProtocolsModel::index(int row, int column, const QModelIndex&
 Qt::ItemFlags EnabledProtocolsModel::flags(const QModelIndex &index) const
 {
     if (!index.isValid())
-        return 0;
+        return Qt::ItemFlags();
 
     Qt::ItemFlags flags = QAbstractItemModel::flags(index);
     switch(index.column())

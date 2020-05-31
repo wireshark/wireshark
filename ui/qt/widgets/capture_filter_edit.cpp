@@ -209,8 +209,13 @@ CaptureFilterEdit::CaptureFilterEdit(QWidget *parent, bool plain) :
 
     QComboBox *cf_combo = qobject_cast<QComboBox *>(parent);
     if (cf_combo) {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+        connect(cf_combo, static_cast<void (QComboBox::*)(const QString &)>(&QComboBox::textActivated),
+                this, &CaptureFilterEdit::textEdited);
+#else
         connect(cf_combo, static_cast<void (QComboBox::*)(const QString &)>(&QComboBox::activated),
                 this, &CaptureFilterEdit::textEdited);
+#endif
     }
 
     QThread *syntax_thread = new QThread;
