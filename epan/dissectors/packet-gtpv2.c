@@ -629,6 +629,11 @@ static int hf_gtpv2_mon_event_inf_scef_reference_id = -1;
 static int hf_gtpv2_mon_event_inf_scef_id_length = -1;
 static int hf_gtpv2_mon_event_inf_scef_id = -1;
 static int hf_gtpv2_mon_event_inf_remaining_number_of_reports = -1;
+static int hf_gtpv2_mon_event_ext_inf_lrtp = -1;
+static int hf_gtpv2_mon_event_ext_inf_scef_reference_id = -1;
+static int hf_gtpv2_mon_event_ext_inf_scef_id_length = -1;
+static int hf_gtpv2_mon_event_ext_inf_scef_id = -1;
+static int hf_gtpv2_mon_event_ext_inf_remain_min_period_loc_report_type = -1;
 static int hf_gtpv2_rohc_profiles_bit0 = -1;
 static int hf_gtpv2_rohc_profiles_bit1 = -1;
 static int hf_gtpv2_rohc_profiles_bit2 = -1;
@@ -7990,7 +7995,30 @@ dissect_gtpv2_ext_trs_inf(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tre
 static void
 dissect_gtpv2_ie_mon_event_ext_inf(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, proto_item* item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_, session_args_t* args _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
+    int   offset = 0;
+    guint32 lrtp, scef_id_len;
+
+    /* Octet 5 Bit 1 LRTP Bit 2-8 Spare */
+    proto_tree_add_bits_item(tree, hf_gtpv2_spare_bits, tvb, offset, 7, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_gtpv2_mon_event_ext_inf_lrtp, tvb, offset, 1, ENC_BIG_ENDIAN, &lrtp);
+    offset++;
+    /* Octet 6 to 9 SCEF Reference ID */
+    proto_tree_add_item(tree, hf_gtpv2_mon_event_ext_inf_scef_reference_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    /* Octet 10 Length of SCEF ID */
+    proto_tree_add_item_ret_uint(tree, hf_gtpv2_mon_event_ext_inf_scef_id_length, tvb, offset, 1, ENC_BIG_ENDIAN, &scef_id_len);
+    offset++;
+    /* Octet 11 to k SCEF ID */
+    proto_tree_add_item(tree, hf_gtpv2_mon_event_ext_inf_scef_id, tvb, offset, scef_id_len, ENC_UTF_8 | ENC_NA);
+    offset = offset + scef_id_len;
+    if (lrtp) {
+        proto_tree_add_item(tree, hf_gtpv2_mon_event_ext_inf_remain_min_period_loc_report_type, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+    }
+
+    if(offset < length){
+        proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, offset, length- offset);
+    }
 }
 
 
@@ -11077,6 +11105,31 @@ void proto_register_gtpv2(void)
       { &hf_gtpv2_mon_event_inf_remaining_number_of_reports,
           { "Remaining Number of Reports", "gtpv2.mon_event_inf.remaining_number_of_reports",
           FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_mon_event_ext_inf_lrtp,
+      { "LRTP (Remaining Minimum Periodic Location Reporting Time Present)", "gtpv2.mon_event_ext_inf.lrtp",
+          FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x01,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_mon_event_ext_inf_scef_reference_id,
+          { "SCEF Reference ID", "gtpv2.mon_event_ext_inf.scef_reference_id",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_mon_event_ext_inf_scef_id_length,
+          { "SCEF ID length", "gtpv2.mon_event_ext_inf.scef_id_length",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_mon_event_ext_inf_scef_id,
+          { "SCEF ID", "gtpv2.mon_event_ext_inf.scef_id",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_mon_event_ext_inf_remain_min_period_loc_report_type,
+          { "Remaining Minimum Periodic Location Reporting Time", "gtpv2.mon_event_ext_inf.remain_min_period_loc_report_type",
+          FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0x0,
           NULL, HFILL }
       },
       { &hf_gtpv2_rohc_profile_flags,
