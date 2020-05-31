@@ -2381,7 +2381,7 @@ static krb5_context krb5_ctx;
 USES_APPLE_DEPRECATED_API
 
 static void
-krb5_fast_key(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb,
+krb5_fast_key(asn1_ctx_t *actx _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_,
 	      enc_key_t *ek1 _U_, const char *p1 _U_,
 	      enc_key_t *ek2 _U_, const char *p2 _U_,
 	      const char *origin _U_)
