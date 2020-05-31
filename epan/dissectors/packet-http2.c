@@ -1680,6 +1680,21 @@ try_add_named_header_field(proto_tree *tree, tvbuff_t *tvb, int offset, guint32 
     }
 }
 
+#if NGHTTP2_VERSION_NUM < 0x010B00  /* 1.11.0 */
+static inline ssize_t nghttp2_hd_inflate_hd2(nghttp2_hd_inflater *inflater,
+                                             nghttp2_nv *nv_out,
+                                             int *inflate_flags,
+                                             const uint8_t *in, size_t inlen,
+                                             int in_final)
+{
+DIAG_OFF(cast-qual)
+    uint8_t *in_buf = (uint8_t *)in;
+DIAG_ON(cast-qual)
+    return nghttp2_hd_inflate_hd(inflater, nv_out, inflate_flags, in_buf, inlen,
+                                 in_final);
+}
+#endif
+
 static void
 fix_partial_header_dissection_support(nghttp2_hd_inflater *hd_inflater, gboolean *fix_it)
 {
@@ -1804,13 +1819,9 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset, prot
                 break;
             }
 
-#if (NGHTTP2_VERSION_NUM >= 0x010B00)
             rv = (int)nghttp2_hd_inflate_hd2(hd_inflater, &nv,
-                &inflate_flags, headbuf, headlen, final);
-#else
-            rv = (int)nghttp2_hd_inflate_hd(hd_inflater, &nv,
-                &inflate_flags, headbuf, headlen, final);
-#endif
+                                             &inflate_flags, headbuf, headlen, final);
+
             if(rv < 0) {
                 break;
             }
