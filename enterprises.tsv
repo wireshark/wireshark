@@ -5,7 +5,7 @@
 # The format used here is: <NUMERICAL_ID><SPACE><NAME>
 # Where SPACE can be any sequence of spaces and tabs.
 #
-# (last updated 2020-05-23)
+# (last updated 2020-05-30)
 
 0	Reserved
 1	NxNetworks
@@ -814,7 +814,7 @@
 805	Applications Management Corp
 806	Travelers Insurance Company
 807	Taiwan International Standard Electronics Ltd.
-808	US Patent and Trademark Office Rick
+808	US Patent and Trademark Office
 809	Hynet, Ltd.
 810	Aydin, Corp.
 811	ADDTRON Technology Co., Ltd.
@@ -18432,7 +18432,7 @@
 18580	Whetstone Software
 18581	SPD-Bundestagsfraktion
 18582	Slack Ltd.
-18583	Bit 9 Inc.
+18583	Vmware Carbon Black	# formerly 'Bit 9 Inc.'
 18584	Avanex  Co.
 18585	GuangDong Poson Company.Ltd
 18586	bbassett.net
@@ -53309,7 +53309,6 @@
 53500	IVES-SYSTEM Sp. z o. o.
 53501	DC IT-Consulting
 53502	RealexPayments
-53503	Sprint Federal Operations
 53504	Stephens College
 53505	TELERYS COMMUNICATION
 53506	Kaman Inc.
@@ -55634,3 +55633,31 @@
 55827	Uplevel Systems, Inc
 55828	Marshall Community Credit Union
 55829	Arthur18
+55830	Gazprom Remont
+55831	Speedway LLC
+55832	Fidelity National Information Services
+55833	Shenzhen boride technology co. LTD
+55834	NorthHinkle
+55835	Sutra Tech Labs Inc
+55836	MFA Informatik AG
+55837	Schäckermann
+55838	DLinuxguy INC.
+55839	Lynxgistics Inter Freight Co., Ltd.
+55840	JieYue technical service studio
+55841	Tibasamaneh
+55842	Lagoni Engineering
+55843	AXXICON Moulds Eindhoven BV
+55844	Nebig Verpakkingen B.V.
+55845	Mevi Beheer
+55846	Smits Groep
+55847	Libéma Exploitatie B.V.
+55848	Swifthosting ApS
+55849	Mizar Magic and Research Network
+55850	Veea Systems Ltd
+55851	Jordan Klein
+55852	Saṃvásana Holdings
+55853	BaaSid International Lab Co.,LTD. (Taiwan)
+55854	Pagebe.fr
+55855	UkrTrade ltd
+55856	EMCO Chemical Distributors, Inc.
+55857	DD Cloud
