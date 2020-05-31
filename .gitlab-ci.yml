@@ -122,3 +122,14 @@ build:debian-stable:
     paths:
       - debian-packages/*.deb
     expire_in: 3 days
+test:debian-stable:
+  image: debian:stable
+  stage: test
+  script:
+    - apt-get update
+    - DEBIAN_FRONTEND=noninteractive apt-get install ./debian-packages/*.deb -y
+    - tshark --version
+  variables:
+    GIT_STRATEGY: none
+  dependencies:
+    - build:debian-stable
