@@ -64,6 +64,7 @@
 #include <version_info.h>
 #include <wiretap/wtap_opttypes.h>
 #include <wiretap/pcapng.h>
+#include <wiretap/pcap-encap.h>
 
 #include "globals.h"
 #include <epan/timestamp.h>
@@ -184,6 +185,9 @@ static frame_data prev_cap_frame;
 static guint32 epan_auto_reset_count = 20000; // TODO make this configurable
 static gboolean epan_auto_reset = TRUE;
 
+const unsigned int ETHERNET_ENCAP = 1;
+const unsigned int WIFI_ENCAP = 23;
+
 /*
  * The way the packet decode is to be written.
  */
@@ -220,6 +224,7 @@ typedef struct {
     struct bpf_program fcode;
     dfilter_t *dfcode;
     output_fields_t *output_fields;
+    int wtap_encap;
 } packet_filter;
 
 
@@ -526,7 +531,7 @@ marine_inner_dissect_packet(capture_file *cf, packet_filter *filter, const unsig
     (&rec)->presence_flags = WTAP_HAS_CAP_LEN;
     (&rec)->rec_header.packet_header.caplen = len;
     (&rec)->rec_header.packet_header.len = len;
-    (&rec)->rec_header.packet_header.pkt_encap = 1;
+    (&rec)->rec_header.packet_header.pkt_encap = filter->wtap_encap;
     (&rec)->rec_header.ft_specific_header.record_len = len;
     (&rec)->rec_header.ft_specific_header.record_type = len;
     (&rec)->rec_header.syscall_header.record_type = len;
@@ -582,10 +587,10 @@ WS_DLL_PUBLIC marine_result *marine_dissect_packet(int filter_id, unsigned char 
     return result;
 }
 
-int compile_bpf(char *bpf, struct bpf_program *fcode) {
+int compile_bpf(char *bpf, struct bpf_program *fcode, int wtap_encap) {
     pcap_t *pc;
 
-    pc = pcap_open_dead(DLT_EN10MB, MIN_PACKET_SIZE);
+    pc = pcap_open_dead(wtap_wtap_encap_to_pcap_encap(wtap_encap), MIN_PACKET_SIZE);
     if (pc == NULL) {
         return -1;
     }
@@ -596,10 +601,10 @@ int compile_bpf(char *bpf, struct bpf_program *fcode) {
     return compile_status;
 }
 
-WS_DLL_PUBLIC int validate_bpf(char *bpf) {
+WS_DLL_PUBLIC int validate_bpf(char *bpf, int wtap_encap) {
     struct bpf_program temp_fcode;
 
-    if (compile_bpf(bpf, &temp_fcode) != 0) {
+    if (compile_bpf(bpf, &temp_fcode, wtap_encap) != 0) {
         return FALSE;
     }
 
@@ -666,7 +671,7 @@ WS_DLL_PUBLIC int validate_fields(char **fields, size_t fields_len) {
     return TRUE;
 }
 
-WS_DLL_PUBLIC int marine_add_filter(char *bpf, char *dfilter, char **fields, size_t fields_len, char **err_msg) {
+WS_DLL_PUBLIC int marine_add_filter(char *bpf, char *dfilter, char **fields, size_t fields_len, int wtap_encap, char **err_msg) {
     // TODO make the error codes consts
     struct bpf_program fcode;
     dfilter_t *dfcode = NULL;
@@ -675,7 +680,7 @@ WS_DLL_PUBLIC int marine_add_filter(char *bpf, char *dfilter, char **fields, siz
 
     if (bpf != NULL) {
         has_bpf = TRUE;
-        if (compile_bpf(bpf, &fcode) != 0) {
+        if (compile_bpf(bpf, &fcode, wtap_encap) != 0) {
             *err_msg = g_strdup("Failed compiling the BPF");
             return -1;
         }
@@ -705,6 +710,7 @@ WS_DLL_PUBLIC int marine_add_filter(char *bpf, char *dfilter, char **fields, siz
     filter->fcode = fcode;
     filter->dfcode = dfcode;
     filter->output_fields = packet_output_fields;
+    filter->wtap_encap = wtap_encap;
     g_hash_table_insert(packet_filters, key, filter);
     packet_filter_keys[size] = key;
     return size;
