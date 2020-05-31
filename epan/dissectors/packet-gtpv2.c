@@ -8437,13 +8437,15 @@ dissect_gtpv2_ie_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
         proto_tree_add_item(ie_tree, hf_gtpv2_ie_len, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
-        /* CR Spare Instance Octet 4*/
-        proto_tree_add_item(ie_tree, hf_gtpv2_cr, tvb, offset, 1, ENC_BIG_ENDIAN);
 
         /* ch8.120 breaks the format described in ch8.2.1 */
         if (type == GTPV2_IE_MON_EVENT_INF) {
+            proto_tree_add_bits_item(ie_tree, hf_gtpv2_spare_bits, tvb, offset << 3, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(ie_tree, hf_gtpv2_mon_event_inf_nsui, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(ie_tree, hf_gtpv2_mon_event_inf_nsur, tvb, offset, 1, ENC_BIG_ENDIAN);
+        } else {
+            /* CR Spare Instance Octet 4*/
+            proto_tree_add_item(ie_tree, hf_gtpv2_cr, tvb, offset, 1, ENC_BIG_ENDIAN);
         }
 
         instance = tvb_get_guint8(tvb, offset) & 0x0f;
