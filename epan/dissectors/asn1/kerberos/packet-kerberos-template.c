@@ -44,6 +44,15 @@
 
 #include <stdio.h>
 
+// krb5.h needs to be included before the defines in packet-kerberos.h
+#if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
+#ifdef _WIN32
+/* prevent redefinition warnings in krb5's win-mac.h */
+#define SSIZE_T_DEFINED
+#endif /* _WIN32 */
+#include <krb5.h>
+#endif
+
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/strutil.h>
@@ -406,11 +415,6 @@ read_keytab_file_from_preferences(void)
 #endif /* HAVE_KERBEROS */
 
 #if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
-#ifdef _WIN32
-/* prevent redefinition warnings in krb5's win-mac.h */
-#define SSIZE_T_DEFINED
-#endif /* _WIN32 */
-#include <krb5.h>
 enc_key_t *enc_key_list=NULL;
 static guint kerberos_longterm_ids = 0;
 wmem_map_t *kerberos_longterm_keys = NULL;

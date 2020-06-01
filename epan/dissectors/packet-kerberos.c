@@ -52,6 +52,15 @@
 
 #include <stdio.h>
 
+// krb5.h needs to be included before the defines in packet-kerberos.h
+#if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
+#ifdef _WIN32
+/* prevent redefinition warnings in krb5's win-mac.h */
+#define SSIZE_T_DEFINED
+#endif /* _WIN32 */
+#include <krb5.h>
+#endif
+
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/strutil.h>
@@ -494,7 +503,7 @@ static int hf_kerberos_PAC_OPTIONS_FLAGS_forward_to_full_dc = -1;
 static int hf_kerberos_PAC_OPTIONS_FLAGS_resource_based_constrained_delegation = -1;
 
 /*--- End of included file: packet-kerberos-hf.c ---*/
-#line 273 "./asn1/kerberos/packet-kerberos-template.c"
+#line 282 "./asn1/kerberos/packet-kerberos-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_kerberos = -1;
@@ -596,7 +605,7 @@ static gint ett_kerberos_KrbFastArmoredRep = -1;
 static gint ett_kerberos_EncryptedChallenge = -1;
 
 /*--- End of included file: packet-kerberos-ett.c ---*/
-#line 298 "./asn1/kerberos/packet-kerberos-template.c"
+#line 307 "./asn1/kerberos/packet-kerberos-template.c"
 
 static expert_field ei_kerberos_missing_keytype = EI_INIT;
 static expert_field ei_kerberos_decrypted_keytype = EI_INIT;
@@ -724,7 +733,7 @@ typedef enum _KERBEROS_KRBFASTARMORTYPES_enum {
 } KERBEROS_KRBFASTARMORTYPES_enum;
 
 /*--- End of included file: packet-kerberos-val.h ---*/
-#line 312 "./asn1/kerberos/packet-kerberos-template.c"
+#line 321 "./asn1/kerberos/packet-kerberos-template.c"
 
 static void
 call_kerberos_callbacks(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int tag, kerberos_callbacks *cb)
@@ -822,11 +831,6 @@ read_keytab_file_from_preferences(void)
 #endif /* HAVE_KERBEROS */
 
 #if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
-#ifdef _WIN32
-/* prevent redefinition warnings in krb5's win-mac.h */
-#define SSIZE_T_DEFINED
-#endif /* _WIN32 */
-#include <krb5.h>
 enc_key_t *enc_key_list=NULL;
 static guint kerberos_longterm_ids = 0;
 wmem_map_t *kerberos_longterm_keys = NULL;
@@ -7019,7 +7023,7 @@ dissect_kerberos_EncryptedChallenge(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 
 /*--- End of included file: packet-kerberos-fn.c ---*/
-#line 3818 "./asn1/kerberos/packet-kerberos-template.c"
+#line 3822 "./asn1/kerberos/packet-kerberos-template.c"
 
 #ifdef HAVE_KERBEROS
 static const ber_sequence_t PA_ENC_TS_ENC_sequence[] = {
@@ -8639,7 +8643,7 @@ void proto_register_kerberos(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-kerberos-hfarr.c ---*/
-#line 4589 "./asn1/kerberos/packet-kerberos-template.c"
+#line 4593 "./asn1/kerberos/packet-kerberos-template.c"
 	};
 
 	/* List of subtrees */
@@ -8743,7 +8747,7 @@ void proto_register_kerberos(void) {
     &ett_kerberos_EncryptedChallenge,
 
 /*--- End of included file: packet-kerberos-ettarr.c ---*/
-#line 4616 "./asn1/kerberos/packet-kerberos-template.c"
+#line 4620 "./asn1/kerberos/packet-kerberos-template.c"
 	};
 
 	static ei_register_info ei[] = {
