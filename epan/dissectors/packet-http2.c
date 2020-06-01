@@ -1601,7 +1601,7 @@ populate_http_header_tracking(tvbuff_t *tvb, packet_info *pinfo, http2_session_t
     if (strcmp(header_name, HTTP2_HEADER_STATUS) == 0 ||
                 strcmp(header_name, HTTP2_HEADER_METHOD) == 0 ||
                 /* If we are in the middle of a stream assume there might be data transfer */
-                strcmp(header_name, HTTP2_HEADER_UNKNOWN)){
+                strcmp(header_name, HTTP2_HEADER_UNKNOWN) == 0){
         http2_data_stream_reassembly_info_t *reassembly_info = get_data_reassembly_info(pinfo, h2session);
         if (reassembly_info->data_initiated_in == 0) {
             reassembly_info->data_initiated_in = get_http2_frame_num(tvb, pinfo);
