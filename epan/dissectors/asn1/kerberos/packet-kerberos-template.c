@@ -1059,7 +1059,7 @@ krb5_fast_key(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb,
 
 	krb5_free_keyblock(krb5_ctx, k);
 }
-#else
+#else /* HAVE_KRB5_C_FX_CF2_SIMPLE */
 static void
 krb5_fast_key(asn1_ctx_t *actx _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_,
 	      enc_key_t *ek1 _U_, const char *p1 _U_,
@@ -1067,7 +1067,7 @@ krb5_fast_key(asn1_ctx_t *actx _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_,
 	      const char *origin _U_)
 {
 }
-#endif
+#endif /* HAVE_KRB5_C_FX_CF2_SIMPLE */
 
 USES_APPLE_DEPRECATED_API
 void
@@ -1360,7 +1360,7 @@ decrypt_krb5_with_cb_try_key(gpointer __key _U_, gpointer value, gpointer userda
 		 */
 		return;
 	}
-#endif
+#endif /* HAVE_KRB5_C_FX_CF2_SIMPLE */
 
 	/* shortcircuit and bail out if enctypes are not matching */
 	if ((state->keytype != -1) && (ek->keytype != state->keytype)) {
@@ -3178,7 +3178,7 @@ dissect_krb5_decrypt_EncryptedChallenge(gboolean imp_tag _U_, tvbuff_t *tvb, int
 	}
 	return offset;
 }
-#endif
+#endif /* HAVE_KERBEROS */
 
 static const int *hf_krb_pa_supported_enctypes_fields[] = {
 	&hf_krb_pa_supported_enctypes_des_cbc_crc,
@@ -3926,7 +3926,7 @@ dissect_kerberos_FastOptions(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
   return offset;
 }
 
-#endif
+#endif /* HAVE_KERBEROS */
 
 /* Make wrappers around exported functions for now */
 int
@@ -4025,7 +4025,7 @@ kerberos_display_key(gpointer data _U_, gpointer userdata _U_)
 				       sek->keyvalue[2] & 0xFF, sek->keyvalue[3] & 0xFF);
 		sek = sek->same_list;
 	}
-#endif
+#endif /* HAVE_KERBEROS */
 }
 
 static gint
@@ -4584,7 +4584,7 @@ void proto_register_kerberos(void) {
     { &hf_krb_pausec,
       { "pausec", "kerberos.pausec",
         FT_UINT32, BASE_DEC, NULL, 0, "Microseconds", HFILL }},
-#endif
+#endif /* HAVE_KERBEROS */
 
 #include "packet-kerberos-hfarr.c"
 	};
@@ -4666,7 +4666,7 @@ void proto_register_kerberos(void) {
 							   enc_key_content_hash,
 							   enc_key_content_equal);
 #endif /* defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS) */
-#endif
+#endif /* HAVE_KERBEROS */
 
 }
 static int wrap_dissect_gss_kerb(tvbuff_t *tvb, int offset, packet_info *pinfo,
