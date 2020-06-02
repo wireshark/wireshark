@@ -201,8 +201,8 @@ void desktop_show_in_folder(const QString file_path)
 
 #if defined(Q_OS_WIN)
     QString path = QDir::toNativeSeparators(file_path);
-    QString command = "explorer.exe /select," + path;
-    success = QProcess::startDetached(command);
+    QStringList explorer_args = QStringList() << "/select," + path;
+    success = QProcess::startDetached("explorer.exe", explorer_args);
 #elif defined(Q_OS_MAC)
     QStringList script_args;
     QString escaped_path = file_path;
