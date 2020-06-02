@@ -10365,6 +10365,7 @@ dtap_rr_paging_req_type_1(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
     guint32 curr_offset;
     guint32 consumed;
     guint   curr_len;
+    guint8 l2plen = tvb_get_guint8(tvb, 0) >> 2;
 
     curr_offset = offset;
     curr_len = len;
@@ -10380,8 +10381,11 @@ dtap_rr_paging_req_type_1(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
     /* RR Mobile Identity 10.5.1.4 O TLV 3-10 */
     ELEM_OPT_TLV(0x17, GSM_A_PDU_TYPE_COMMON, DE_MID, " - Mobile Identity 2");
 
-    /* RR P1 Rest Octets 10.5.2.23 M V 0-17 */
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_P1_REST_OCT, NULL, ei_gsm_a_rr_missing_mandatory_element);
+    /* 9.1.22.4 P1 Rest Octets: The sum of the length of this IE and the L2 Pseudo Length of the message equals 22. */
+    if (l2plen < 22) {
+        /* RR P1 Rest Octets 10.5.2.23 M V 0-17 */
+        ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_P1_REST_OCT, NULL, ei_gsm_a_rr_missing_mandatory_element);
+    }
 
 }
 
