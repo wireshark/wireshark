@@ -1242,9 +1242,11 @@ static gboolean
 pcap_write_bt_pseudoheader(wtap_dumper *wdh,
     const union wtap_pseudo_header *pseudo_header, int *err)
 {
+	guint32 direction;
 	struct pcap_bt_phdr bt_hdr;
 
-	bt_hdr.direction = GUINT32_TO_BE(pseudo_header->p2p.sent ? LIBPCAP_BT_PHDR_SENT : LIBPCAP_BT_PHDR_RECV);
+	direction = pseudo_header->p2p.sent ? LIBPCAP_BT_PHDR_SENT : LIBPCAP_BT_PHDR_RECV;
+	bt_hdr.direction = GUINT32_TO_BE(direction);
 	if (!wtap_dump_file_write(wdh, &bt_hdr, sizeof bt_hdr, err))
 		return FALSE;
 	wdh->bytes_dumped += sizeof bt_hdr;
