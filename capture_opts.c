@@ -660,9 +660,20 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
      * If the argument is a number, treat it as an index into the list
      * of adapters, as printed by "tshark -D".
      *
-     * This should be OK on UNIX systems, as interfaces shouldn't have
+     * This should be OK on UN*X systems, as interfaces shouldn't have
      * names that begin with digits.  It can be useful on Windows, where
      * more than one interface can have the same name.
+     *
+     * XXX - "shouldn't have names that begin with digits" is not true
+     * on Linux; see
+     *
+     *    https://github.com/the-tcpdump-group/tcpdump/issues/522
+     *
+     * tcpdump handles that by trying to open the device by name and,
+     * if that fails *and* the name is a syntactically valid number
+     * (optional sign, followed by decimal digits), reports an error
+     * if it's not a valid interface index, and otherwise uses it as
+     * an interface index.
      */
     adapter_index = strtol(optarg_str_p, &p, 10);
     if (p != NULL && *p == '\0') {
