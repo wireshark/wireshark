@@ -58,7 +58,6 @@ dissect_hbbak(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 	eth_type_outer = tvb_get_ntohs(tvb, offset);
 	proto_tree_add_uint(hbbak_tree, hf_hbbak_etype_outer, tvb,
 			    offset, 2, eth_type_outer);
-	offset += 2;
 
 	ethertype_data.etype = eth_type_outer;
 	ethertype_data.payload_offset = HBBAK_SIZE;
