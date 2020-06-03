@@ -8339,7 +8339,6 @@ dissect_smb2_app_instance_version_buffer_request(tvbuff_t *tvb, packet_info *pin
 	/* version low */
 	proto_tree_add_item_ret_uint64(version_sub_tree, hf_smb2_app_instance_version_low,
 			    tvb, offset, 8, ENC_LITTLE_ENDIAN, &version_low);
-	offset += 8;
 
 	proto_item_append_text(version_sub_tree, " : %" G_GUINT64_FORMAT ".%" G_GUINT64_FORMAT "", version_high, version_low);
 	proto_item_append_text(sub_tree, ", version: %" G_GUINT64_FORMAT ".%" G_GUINT64_FORMAT "", version_high, version_low);
