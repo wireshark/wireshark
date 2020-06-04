@@ -315,6 +315,7 @@ static int hf_diameter_3gpp_mbms_abs_time_ofmbms_data_tfer = -1;
 static int hf_diameter_3gpp_udp_port = -1;
 static int hf_diameter_3gpp_imeisv = -1;
 static int hf_diameter_3gpp_af_charging_identifier = -1;
+static int hf_diameter_3gpp_service_urn = -1;
 static int hf_diameter_3gpp_af_application_identifier = -1;
 static int hf_diameter_3gpp_charging_rule_name = -1;
 static int hf_diameter_3gpp_monitoring_key = -1;
@@ -805,6 +806,28 @@ dissect_diameter_3gpp_af_charging_identifier(tvbuff_t *tvb, packet_info *pinfo _
                                               ENC_UTF_8 | ENC_NA, wmem_packet_scope(), (const guint8**)&diam_sub_dis->avp_str);
         proto_item_set_generated(item);
     }
+
+    return length;
+}
+
+/*
+ * AVP Code: 525 Service-URN
+ */
+static int
+dissect_diameter_3gpp_service_urn(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data)
+{
+    proto_item* item;
+    int offset = 0;
+    int length = tvb_reported_length(tvb);
+    diam_sub_dis_t* diam_sub_dis = (diam_sub_dis_t*)data;
+
+    if (!tvb_ascii_isprint(tvb, 0, length))
+        return length;
+
+    item = proto_tree_add_item_ret_string(tree, hf_diameter_3gpp_service_urn, tvb, offset, length,
+        ENC_UTF_8 | ENC_NA, wmem_packet_scope(), (const guint8**)&diam_sub_dis->avp_str);
+    proto_item_set_generated(item);
+
 
     return length;
 }
@@ -3005,6 +3028,9 @@ proto_reg_handoff_diameter_3gpp(void)
     /* AVP Code: 505 AF-Charging-Identifier */
     dissector_add_uint("diameter.3gpp", 505, create_dissector_handle(dissect_diameter_3gpp_af_charging_identifier, proto_diameter_3gpp));
 
+    /* AVP Code: 525 Service-URN */
+    dissector_add_uint("diameter.3gpp", 525, create_dissector_handle(dissect_diameter_3gpp_service_urn, proto_diameter_3gpp));
+
     /* AVP Code: 600 Visited-Network-Identifier */
     dissector_add_uint("diameter.3gpp", 600, create_dissector_handle(dissect_diameter_3gpp_visited_nw_id, proto_diameter_3gpp));
 
@@ -4861,6 +4887,11 @@ proto_register_diameter_3gpp(void)
         },
         { &hf_diameter_3gpp_af_charging_identifier,
             { "AF-Charging-Identifier", "diameter.3gpp.af_charging_identifier",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_service_urn,
+            { "Service-URN", "diameter.3gpp.service_urn",
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
