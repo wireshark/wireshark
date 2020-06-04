@@ -289,7 +289,7 @@ coap_common_dissect_t name = {							\
 	    NULL, HFILL }							\
 	},									\
 	{ & name .hf.opt_object_security_kid_context,				\
-	  { "Partial IV",  prefix ".opt.object_security_kid_context",		\
+	  { "Key ID Context",  prefix ".opt.object_security_kid_context",	\
 	    FT_BYTES, BASE_NONE, NULL, 0x00,					\
 	    NULL, HFILL }							\
 	},									\
