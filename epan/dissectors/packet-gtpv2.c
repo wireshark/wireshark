@@ -7791,7 +7791,7 @@ void proto_register_gtpv2(void)
         },
         { &hf_gtpv2_seq,
           {"Sequence Number", "gtpv2.seq",
-           FT_UINT32, BASE_HEX_DEC, NULL, 0x0,
+           FT_UINT24, BASE_HEX_DEC, NULL, 0x0,
            "SEQ", HFILL}
         },
         { &hf_gtpv2_msg_prio,
