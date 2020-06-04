@@ -21,6 +21,8 @@
 #include "packet-gre.h"
 #include "packet-wccp.h"
 
+#define GRE_IN_UDP_PORT 4754
+
 void proto_register_gre(void);
 void proto_reg_handoff_gre(void);
 
@@ -29,7 +31,8 @@ void proto_reg_handoff_gre(void);
  * "Generic Routing Encapsulation over IPv4 networks", RFC 2637
  * "Point-to-Point Tunneling Protocol (PPTP)", RFC 2784 "Generic
  * Routing Encapsulation (GRE)", RFC 2890 "Key and Sequence
- * Number Extensions to GRE" and draft-ietf-mpls-in-ip-or-gre-07.txt
+ * Number Extensions to GRE", RFC 8086 "GRE-in-UDP Encapsulation",
+ * and draft-ietf-mpls-in-ip-or-gre-07.txt
  * "Encapsulating MPLS in IP or Generic Routing Encapsulation (GRE)".
  */
 
@@ -752,6 +755,7 @@ proto_reg_handoff_gre(void)
 
     gre_handle = create_dissector_handle(dissect_gre, proto_gre);
     dissector_add_uint("ip.proto", IP_PROTO_GRE, gre_handle);
+    dissector_add_uint("udp.port", GRE_IN_UDP_PORT, gre_handle);
     gre_cap_handle = create_capture_dissector_handle(capture_gre, proto_gre);
     capture_dissector_add_uint("ip.proto", IP_PROTO_GRE, gre_cap_handle);
 }
