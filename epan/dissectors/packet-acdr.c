@@ -779,8 +779,14 @@ static void
 acdr_payload_handler(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                      acdr_dissector_data_t *data, const char *proto_name)
 {
-    if (data->header_added && ip_dissector_handle && data->media_type != ACDR_DTLS) {
-        call_dissector(ip_dissector_handle, tvb, pinfo, tree);
+    if (data->header_added) {
+        dissector_handle_t dissector = ip_dissector_handle;
+        if (data->media_type == ACDR_DTLS || data->media_type == ACDR_T38)
+            dissector = udp_dissector_handle;
+        if (dissector)
+            call_dissector(dissector, tvb, pinfo, tree);
+        else
+            call_data_dissector(tvb, pinfo, tree);
         if (proto_name)
             col_set_str(pinfo->cinfo, COL_PROTOCOL, proto_name);
         return;
@@ -1116,10 +1122,10 @@ create_acdr_tree(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
     proto_item_set_len(header_ti, acdr_header_length);
     if (header_added) {
         p_add_proto_data(pinfo->pool, pinfo, proto_acdr, 0, GUINT_TO_POINTER(media_type));
-        switch (media_type) {
-            case ACDR_VoiceAI: proto_name = "VoiceAI"; break;
-            case ACDR_T38: proto_name = "T38"; break;
-        }
+        if (media_type == ACDR_VoiceAI)
+            proto_name = "VoiceAI";
+        else if (media_type == ACDR_DTLS)
+            proto_name = "DTLS data";
     }
 
     // Header extension
@@ -1904,17 +1910,6 @@ dissect_acdr_mii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 }
 
 static int
-dissect_acdr_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
-{
-    acdr_dissector_data_t *acdr_data = (acdr_dissector_data_t *) data;
-
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "DTLS data");
-    if (acdr_data->header_added && udp_dissector_handle)
-        return call_dissector(udp_dissector_handle, tvb, pinfo, tree);
-    return call_data_dissector(tvb, pinfo, tree);
-}
-
-static int
 dissect_acdr_v1501(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "V150.1");
@@ -2044,7 +2039,6 @@ proto_reg_handoff_acdr(void)
     dissector_add_uint("acdr.media_type", ACDR_DSP_AC5X_MII, acdr_mii_dissector_handle);
     dissector_add_uint("acdr.media_type", ACDR_DSP_TDM_PLAYBACK, acdr_mii_dissector_handle);
     dissector_add_uint("acdr.media_type", ACDR_DSP_NET_PLAYBACK, acdr_mii_dissector_handle);
-    dissector_add_uint("acdr.media_type", ACDR_DTLS, create_dissector_handle(dissect_acdr_dtls, -1));
     dissector_add_uint("acdr.media_type", ACDR_V1501, create_dissector_handle(dissect_acdr_v1501, -1));
     dissector_add_uint("acdr.media_type", ACDR_SIGNALING, create_dissector_handle(dissect_acdr_signaling, -1));
     dissector_add_uint("acdr.media_type", ACDR_FRAGMENTED, create_dissector_handle(dissect_acdr_fragmented, -1));
