@@ -3533,8 +3533,8 @@ proto_register_nan(void)
         },
         { &hf_nan_attr_availability_reserved_multicast_schedule_change_changed,
             {
-            "Reserved (Multicast Schedule Change Attribute Changed)",
-            "nan.availability.reserved_multicast_schedule_changed",
+            "Reserved (Multicast Schedule Change Attribute Change Changed)",
+            "nan.availability.reserved_multicast_schedule_change_changed",
             FT_BOOLEAN, 16, NULL, 0x200, NULL, HFILL
             }
         },
@@ -3723,7 +3723,7 @@ proto_register_nan(void)
         { &hf_nan_attr_ndl_ctrl_ndc_pres,
             {
             "NDC Attribute Present",
-            "nan.ndc.ctrl.ndc_pres",
+            "nan.ndl.ctrl.ndc_pres",
             FT_BOOLEAN, 8, NULL, 0x4, NULL, HFILL
             }
         },
