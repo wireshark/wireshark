@@ -3721,10 +3721,12 @@ dissect_usb_hid_get_report_descriptor(packet_info *pinfo _U_, proto_tree *parent
     tree = proto_item_add_subtree(item, ett_usb_hid_report);
     offset = dissect_usb_hid_report_item(pinfo, tree, tvb, offset, usb_conv_info, &initial_global);
 
-    data->usb_info = *usb_conv_info;
-    data->desc_length = offset - old_offset;
-    tvb_memdup(wmem_file_scope(), tvb, old_offset, data->desc_length);
-    insert_report_descriptor(pinfo, data);
+    if (usb_conv_info) {
+        data->usb_info = *usb_conv_info;
+        data->desc_length = offset - old_offset;
+        tvb_memdup(wmem_file_scope(), tvb, old_offset, data->desc_length);
+        insert_report_descriptor(pinfo, data);
+    }
 
     proto_item_set_len(item, offset-old_offset);
 
