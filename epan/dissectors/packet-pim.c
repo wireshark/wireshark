@@ -45,26 +45,29 @@ void proto_reg_handoff_pim(void);
 
 /* PIM Message hello options */
 
-#define PIM_HELLO_HOLD_T 1          /* Hold Time [RFC4601] */
-#define PIM_HELLO_LAN_PRUNE_DELAY 2 /*LAN Prune Delay [RFC3973] */
+#define PIM_HELLO_HOLD_T 1          /* Hold Time [RFC7761] */
+#define PIM_HELLO_LAN_PRUNE_DELAY 2 /* LAN Prune Delay [RFC3973] */
 #define PIM_HELLO_LABEL_PARA 17     /* Label Parameters [Dino_Farinacci] */
-#define PIM_HELLO_DR_PRIORITY 19    /* DR Priority */
+#define PIM_HELLO_DEPRECATED_18 18  /* Deprecated */
+#define PIM_HELLO_DR_PRIORITY 19    /* DR Priority [RFC7761] */
 #define PIM_HELLO_GEN_ID 20         /* Generation ID [RFC3973] */
 #define PIM_HELLO_STATE_REFRESH 21  /* State-Refresh [RFC3973] */
 #define PIM_HELLO_BIDIR_CAPA 22     /* Bidirectional Capable [RFC5015] */
 #define PIM_HELLO_VCI_CAPA 23       /* VCI Capability */
-#define PIM_HELLO_VAR_ADDR_LST 24   /* variable Address List [RFC4601] */
+#define PIM_HELLO_VAR_ADDR_LST 24   /* variable Address List [RF7761] */
 #define PIM_HELLO_VAR_NEIG_LST 25   /* variable Neighbor List TLV */
 #define PIM_HELL0_JOIN_ATTR 26      /* Join Attribute [RFC5384] */
-#define PIM_HELLO_O_TCP_CAPA 27     /* variable PIM-over-TCP-Capable */
-#define PIM_HELLO_O_SCTP_CAPA 28    /* variable PIM-over-SCTP-Capable */
+#define PIM_HELLO_O_TCP_CAPA 27     /* variable PIM-over-TCP-Capable [RFC6559] */
+#define PIM_HELLO_O_SCTP_CAPA 28    /* variable PIM-over-SCTP-Capable [RFC6559] */
 #define PIM_HELLO_VAR_POP_COUNT 29  /* variable Pop-Count [RFC6807] */
 #define PIM_HELLO_MT_ID 30          /* PIM MT-ID [RFC6420] */
 #define PIM_HELLO_INT_ID 31         /* Interface ID [RFC6395] */
 #define PIM_HELLO_ECMP_REDIR  32    /* PIM ECMP Redirect Hello Option [RFC6754] */
 #define PIM_HELLO_VPC_PEER_ID 33    /* 2 vPC Peer ID */
-#define PIM_HELLO_DR_LB_CAPA 34     /* variable DR Load Balancing Capability [draft-ietf-pim-drlb] */
-#define PIM_HELLO_LB_GDR 35         /* variable DR Load Balancing GDR (LBGDR) [draft-ietf-pim-drlb] */
+#define PIM_HELLO_DR_LB_CAPA 34     /* variable DR Load Balancing Capability [RFC8775] */
+#define PIM_HELLO_DR_LB_LIST 35     /* variable DR Load Balancing List [RFC8775] */
+#define PIM_HELLO_HIER_JP_ATTR 36   /* Hierarchical Join/Prune Attribute [RFC7887] */
+#define PIM_HELLO_ADDR_LST 65001    /* Address list, old implementation */
 #define PIM_HELLO_RPF_PROXY 65004   /* RPF Proxy Vector (Cisco proprietary) */
 
 /* PIM BIDIR DF election messages */
@@ -100,19 +103,32 @@ static const value_string pimbdirdfvals[] = {
 };
 
 static const value_string pim_opt_vals[] = {
-    {1, "Hold Time"},
-    {2, "LAN Prune Delay"},
-    {18, "Deprecated and should not be used"},
-    {19, "DR Priority"},
-    {20, "Generation ID"},
-    {21, "State Refresh Capable"},
-    {22, "Bidir Capable"},
-    {24, "Address List"},
-    {65001, "Address List"},    /* old implementation */
-    {65004, "RPF Proxy Vector"},
-    {0, NULL}
+    { PIM_HELLO_HOLD_T,          "Hold Time" },
+    { PIM_HELLO_LAN_PRUNE_DELAY, "LAN Prune Delay" },
+    { PIM_HELLO_LABEL_PARA,      "Label Parameters" },
+    { PIM_HELLO_DEPRECATED_18,   "Deprecated" },
+    { PIM_HELLO_DR_PRIORITY,     "DR Priority" },
+    { PIM_HELLO_GEN_ID,          "Generation ID" },
+    { PIM_HELLO_STATE_REFRESH,   "State-Refresh" },
+    { PIM_HELLO_BIDIR_CAPA,      "Bidirectional Capable" },
+    { PIM_HELLO_VCI_CAPA,        "VCI Capability" },
+    { PIM_HELLO_VAR_ADDR_LST,    "Address List" },
+    { PIM_HELLO_VAR_NEIG_LST,    "Neighbor List TLV" },
+    { PIM_HELL0_JOIN_ATTR,       "Join Attribute" },
+    { PIM_HELLO_O_TCP_CAPA,      "PIM-over-TCP-Capable" },
+    { PIM_HELLO_O_SCTP_CAPA,     "PIM-over-SCTP-Capable" },
+    { PIM_HELLO_VAR_POP_COUNT,   "Pop-Count" },
+    { PIM_HELLO_MT_ID,           "PIM MT-ID" },
+    { PIM_HELLO_INT_ID,          "Interface ID" },
+    { PIM_HELLO_ECMP_REDIR,      "PIM ECMP Redirect Hello Option" },
+    { PIM_HELLO_VPC_PEER_ID,     "vPC Peer ID" },
+    { PIM_HELLO_DR_LB_CAPA,      "DR Load Balancing Capability" },
+    { PIM_HELLO_DR_LB_LIST,      "DR Load Balancing List" },
+    { PIM_HELLO_HIER_JP_ATTR,    "Hierarchical Join/Prune Attribute" },
+    { PIM_HELLO_ADDR_LST,        "Address list, old implementation" },
+    { PIM_HELLO_RPF_PROXY,       "RPF Proxy Vector (Cisco proprietary)" },
+    { 0, NULL }
 };
-
 
 enum pimv2_addrtype {
     pimv2_unicast, pimv2_group, pimv2_source
@@ -971,7 +987,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                 break;
 
             case PIM_HELLO_VAR_ADDR_LST: /* address list */
-            case 65001: /* address list (old implementations) */
+            case PIM_HELLO_ADDR_LST:     /* address list (old implementations) */
             {
                 int i;
                 proto_tree *sub_tree = NULL;
@@ -989,21 +1005,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                 }
                 break;
             }
-            case PIM_HELLO_LABEL_PARA:
-            case PIM_HELLO_BIDIR_CAPA:
-            case PIM_HELLO_VCI_CAPA:
-            case PIM_HELLO_VAR_NEIG_LST:
-            case PIM_HELL0_JOIN_ATTR:
-            case PIM_HELLO_O_TCP_CAPA:
-            case PIM_HELLO_O_SCTP_CAPA:
-            case PIM_HELLO_VAR_POP_COUNT:
-            case PIM_HELLO_MT_ID:
-            case PIM_HELLO_INT_ID:
-            case PIM_HELLO_ECMP_REDIR:
-            case PIM_HELLO_VPC_PEER_ID:
-            case PIM_HELLO_DR_LB_CAPA:
-            case PIM_HELLO_LB_GDR:
-            case PIM_HELLO_RPF_PROXY:
+
             default:
                 if (opt_len)
                     proto_tree_add_item(opt_tree, hf_pim_optionvalue, tvb,
