@@ -482,6 +482,7 @@ static const value_string ccwa_class_vals[] = {
 
 static const value_string biev_assigned_number_vals[] = {
     { 1,   "Enhanced Safety" },
+    { 2,   "Battery Level" },
     { 0, NULL }
 };
 
@@ -1149,7 +1150,7 @@ dissect_biev_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         if (value > 65535) {
             expert_add_info(pinfo, pitem, &ei_biev_assigned_number);
-        } else if (value > 1) {
+        } else if (value > 2) {
             expert_add_info(pinfo, pitem, &ei_biev_assigned_number_no);
         }
     } else if (parameter_number == 1) {
