@@ -4988,11 +4988,11 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>ACK frames</source>
-        <translation type="unfinished"></translation>
+        <translation>Tramas ACK</translation>
     </message>
     <message>
         <source>ACK bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Bytes ACK</translation>
     </message>
     <message>
         <source>ACK frames/bytes</source>
@@ -5000,7 +5000,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>ACK rate</source>
-        <translation type="unfinished"></translation>
+        <translation>Tasa ACK</translation>
     </message>
     <message>
         <source>CREQ frames</source>
@@ -5032,7 +5032,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Display filter:</source>
-        <translation type="unfinished">Filtro de visualización:</translation>
+        <translation>Filtro de visualización:</translation>
     </message>
     <message>
         <source>Regenerate statistics using this display filter</source>
@@ -5216,7 +5216,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Auto-resize columns to content</source>
-        <translation type="unfinished">Cambiar automáticamente tamaño de columna al contenido</translation>
+        <translation>Cambiar automáticamente tamaño de columna al contenido</translation>
     </message>
     <message>
         <source>Resize columns to content size</source>
@@ -5382,11 +5382,11 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Include SR frames in filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Incluir tramas SR en filtro</translation>
     </message>
     <message>
         <source>Include RACH frames in filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Incluir tramas RACH en filtro</translation>
     </message>
 </context>
 <context>
@@ -5717,11 +5717,11 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Include SR frames in filter</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Incluir tramas SR en filtro</translation>
     </message>
     <message>
         <source>Include RACH frames in filter</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Incluir tramas RACH en filtro</translation>
     </message>
     <message>
         <source>Use RLC frames only from MAC frames</source>
@@ -5729,15 +5729,15 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>UL Frames</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tramas UL</translation>
     </message>
     <message>
         <source>UL Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Bytes UL</translation>
     </message>
     <message>
         <source>UL MB/s</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">MB/s UL</translation>
     </message>
     <message>
         <source>UL ACKs</source>
@@ -5753,15 +5753,15 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>DL Frames</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tramas DL</translation>
     </message>
     <message>
         <source>DL Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Bytes DL</translation>
     </message>
     <message>
         <source>DL MB/s</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">MB/s DL</translation>
     </message>
     <message>
         <source>DL ACKs</source>
@@ -9349,27 +9349,27 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>RNTI</source>
-        <translation type="unfinished"></translation>
+        <translation>RNTI</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished">Tipo</translation>
+        <translation>Tipo</translation>
     </message>
     <message>
         <source>UEId</source>
-        <translation type="unfinished"></translation>
+        <translation>UEId</translation>
     </message>
     <message>
         <source>UL Frames</source>
-        <translation type="unfinished"></translation>
+        <translation>Tramas UL</translation>
     </message>
     <message>
         <source>UL Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Bytes UL</translation>
     </message>
     <message>
         <source>UL MB/s</source>
-        <translation type="unfinished"></translation>
+        <translation>MB/s UL</translation>
     </message>
     <message>
         <source>UL Padding %</source>
@@ -9381,15 +9381,15 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>DL Frames</source>
-        <translation type="unfinished"></translation>
+        <translation>Tramas DL</translation>
     </message>
     <message>
         <source>DL Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Bytes DL</translation>
     </message>
     <message>
         <source>DL MB/s</source>
-        <translation type="unfinished"></translation>
+        <translation>MB/s DL</translation>
     </message>
     <message>
         <source>DL Padding %</source>
@@ -9481,7 +9481,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>UE Id</source>
-        <translation type="unfinished"></translation>
+        <translation>UE Id</translation>
     </message>
     <message>
         <source>Name</source>
