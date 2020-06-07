@@ -200,8 +200,8 @@ wmem_tree_new(wmem_allocator_t *allocator)
     wmem_tree_t *tree;
 
     tree = wmem_new0(allocator, wmem_tree_t);
-    tree->master    = allocator;
-    tree->allocator = allocator;
+    tree->metadata_allocator    = allocator;
+    tree->data_allocator = allocator;
 
     return tree;
 }
@@ -215,8 +215,8 @@ wmem_tree_reset_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event,
     tree->root = NULL;
 
     if (event == WMEM_CB_DESTROY_EVENT) {
-        wmem_unregister_callback(tree->master, tree->master_cb_id);
-        wmem_free(tree->master, tree);
+        wmem_unregister_callback(tree->metadata_allocator, tree->metadata_scope_cb_id);
+        wmem_free(tree->metadata_allocator, tree);
     }
 
     return TRUE;
@@ -228,23 +228,23 @@ wmem_tree_destroy_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_,
 {
     wmem_tree_t *tree = (wmem_tree_t *)user_data;
 
-    wmem_unregister_callback(tree->allocator, tree->slave_cb_id);
+    wmem_unregister_callback(tree->data_allocator, tree->data_scope_cb_id);
 
     return FALSE;
 }
 
 wmem_tree_t *
-wmem_tree_new_autoreset(wmem_allocator_t *master, wmem_allocator_t *slave)
+wmem_tree_new_autoreset(wmem_allocator_t *metadata_scope, wmem_allocator_t *data_scope)
 {
     wmem_tree_t *tree;
 
-    tree = wmem_new0(master, wmem_tree_t);
-    tree->master    = master;
-    tree->allocator = slave;
+    tree = wmem_new0(metadata_scope, wmem_tree_t);
+    tree->metadata_allocator = metadata_scope;
+    tree->data_allocator = data_scope;
 
-    tree->master_cb_id = wmem_register_callback(master, wmem_tree_destroy_cb,
+    tree->metadata_scope_cb_id = wmem_register_callback(metadata_scope, wmem_tree_destroy_cb,
             tree);
-    tree->slave_cb_id  = wmem_register_callback(slave, wmem_tree_reset_cb,
+    tree->data_scope_cb_id  = wmem_register_callback(data_scope, wmem_tree_reset_cb,
             tree);
 
     return tree;
@@ -283,14 +283,14 @@ free_tree_node(wmem_allocator_t *allocator, wmem_tree_node_t* node, gboolean fre
 void
 wmem_tree_destroy(wmem_tree_t *tree, gboolean free_keys, gboolean free_values)
 {
-    free_tree_node(tree->allocator, tree->root, free_keys, free_values);
-    if (tree->master) {
-        wmem_unregister_callback(tree->master, tree->master_cb_id);
+    free_tree_node(tree->data_allocator, tree->root, free_keys, free_values);
+    if (tree->metadata_allocator) {
+        wmem_unregister_callback(tree->metadata_allocator, tree->metadata_scope_cb_id);
     }
-    if (tree->allocator) {
-        wmem_unregister_callback(tree->allocator, tree->slave_cb_id);
+    if (tree->data_allocator) {
+        wmem_unregister_callback(tree->data_allocator, tree->data_scope_cb_id);
     }
-    wmem_free(tree->master, tree);
+    wmem_free(tree->metadata_allocator, tree);
 }
 
 gboolean
@@ -357,7 +357,7 @@ lookup_or_insert32_node(wmem_tree_t *tree, guint32 key,
 
     /* is this the first node ?*/
     if (!node) {
-        new_node = create_node(tree->allocator, NULL, GUINT_TO_POINTER(key),
+        new_node = create_node(tree->data_allocator, NULL, GUINT_TO_POINTER(key),
                 CREATE_DATA(func, data), WMEM_NODE_COLOR_BLACK, is_subtree);
         tree->root = new_node;
         return new_node;
@@ -380,7 +380,7 @@ lookup_or_insert32_node(wmem_tree_t *tree, guint32 key,
             }
             else {
                 /* new node to the left */
-                new_node = create_node(tree->allocator, node, GUINT_TO_POINTER(key),
+                new_node = create_node(tree->data_allocator, node, GUINT_TO_POINTER(key),
                         CREATE_DATA(func, data), WMEM_NODE_COLOR_RED,
                         is_subtree);
                 node->left = new_node;
@@ -392,7 +392,7 @@ lookup_or_insert32_node(wmem_tree_t *tree, guint32 key,
             }
             else {
                 /* new node to the right */
-                new_node = create_node(tree->allocator, node, GUINT_TO_POINTER(key),
+                new_node = create_node(tree->data_allocator, node, GUINT_TO_POINTER(key),
                         CREATE_DATA(func, data), WMEM_NODE_COLOR_RED,
                         is_subtree);
                 node->right = new_node;
@@ -450,7 +450,7 @@ wmem_tree_insert(wmem_tree_t *tree, const void *key, void *data, compare_func cm
 
     /* is this the first node ?*/
     if (!node) {
-        tree->root = create_node(tree->allocator, node, key,
+        tree->root = create_node(tree->data_allocator, node, key,
                 data, WMEM_NODE_COLOR_BLACK, FALSE);
         return tree->root;
     }
@@ -470,7 +470,7 @@ wmem_tree_insert(wmem_tree_t *tree, const void *key, void *data, compare_func cm
                 node = node->left;
             }
             else {
-                new_node = create_node(tree->allocator, node, key,
+                new_node = create_node(tree->data_allocator, node, key,
                         data, WMEM_NODE_COLOR_RED, FALSE);
                 node->left = new_node;
             }
@@ -481,7 +481,7 @@ wmem_tree_insert(wmem_tree_t *tree, const void *key, void *data, compare_func cm
             }
             else {
                 /* new node to the right */
-                new_node = create_node(tree->allocator, node, key,
+                new_node = create_node(tree->data_allocator, node, key,
                         data, WMEM_NODE_COLOR_RED, FALSE);
                 node->right = new_node;
             }
@@ -599,7 +599,7 @@ wmem_tree_insert_string(wmem_tree_t* tree, const gchar* k, void* v, guint32 flag
     char *key;
     compare_func cmp;
 
-    key = wmem_strdup(tree->allocator, k);
+    key = wmem_strdup(tree->data_allocator, k);
 
     if (flags & WMEM_TREE_STRING_NOCASE) {
         cmp = (compare_func)g_ascii_strcasecmp;
@@ -638,7 +638,7 @@ wmem_tree_remove_string(wmem_tree_t* tree, const gchar* k, guint32 flags)
 static void *
 create_sub_tree(void* d)
 {
-    return wmem_tree_new(((wmem_tree_t *)d)->allocator);
+    return wmem_tree_new(((wmem_tree_t *)d)->data_allocator);
 }
 
 void

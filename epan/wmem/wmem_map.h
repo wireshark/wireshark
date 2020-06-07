@@ -59,20 +59,20 @@ wmem_map_new(wmem_allocator_t *allocator,
 G_GNUC_MALLOC;
 
 /** Creates a map with two allocator scopes. The base structure lives in the
- * master scope, however the data lives in the slave scope. Every time free_all
- * occurs in the slave scope the map is transparently emptied without affecting
- * the location of the master structure.
+ * metadata scope, and the map data lives in the data scope. Every time free_all
+ * occurs in the data scope the map is transparently emptied without affecting
+ * the location of the base / metadata structure.
  *
- * WARNING: None of the map (even the part in the master scope) can be used
- * after the slave scope has been *destroyed*.
+ * WARNING: None of the map (even the part in the metadata scope) can be used
+ * after the data scope has been *destroyed*.
  *
  * The primary use for this function is to create maps that reset for each new
  * capture file that is loaded. This can be done by specifying wmem_epan_scope()
- * as the master and wmem_file_scope() as the slave.
+ * as the metadata scope and wmem_file_scope() as the data scope.
  */
 WS_DLL_PUBLIC
 wmem_map_t *
-wmem_map_new_autoreset(wmem_allocator_t *master, wmem_allocator_t *slave,
+wmem_map_new_autoreset(wmem_allocator_t *metadata_scope, wmem_allocator_t *data_scope,
         GHashFunc hash_func, GEqualFunc eql_func)
 G_GNUC_MALLOC;
 
