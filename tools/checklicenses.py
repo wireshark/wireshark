@@ -18,8 +18,8 @@ def PrintUsage():
            to the script file. This will be correct given the normal location
            of the script in "<root>/tools".
 
-  --ignore-suppressions  Ignores path-specific license whitelist. Useful when
-                         trying to remove a suppression/whitelist entry.
+  --ignore-suppressions  Ignores path-specific allowed license. Useful when
+                         trying to remove a suppression/allowed entry.
 
   tocheck  Specifies the directory, relative to root, to check. This defaults
            to "." so it checks everything.
@@ -29,7 +29,7 @@ Examples:
   python checklicenses.py --root ~/chromium/src third_party""")
 
 
-WHITELISTED_LICENSES = [
+ALLOWED_LICENSES = [
     'BSD',
     'BSD (2 clause)',
     'BSD (2 clause) GPL (v2 or later)',
@@ -49,7 +49,7 @@ WHITELISTED_LICENSES = [
 ]
 
 
-PATH_SPECIFIC_WHITELISTED_LICENSES = {
+PATH_SPECIFIC_ALLOWED_LICENSES = {
     'caputils/airpcap.h': [
         'BSD-3-Clause',
     ],
@@ -213,20 +213,20 @@ def check_licenses(options, args):
       continue
 
     # Support files which provide a choice between licenses.
-    if any(item in WHITELISTED_LICENSES for item in license.split(';')):
+    if any(item in ALLOWED_LICENSES for item in license.split(';')):
       continue
 
     if not options.ignore_suppressions:
       found_path_specific = False
-      for prefix in PATH_SPECIFIC_WHITELISTED_LICENSES:
+      for prefix in PATH_SPECIFIC_ALLOWED_LICENSES:
         if (filename.startswith(prefix) and
-            license in PATH_SPECIFIC_WHITELISTED_LICENSES[prefix]):
+            license in PATH_SPECIFIC_ALLOWED_LICENSES[prefix]):
           found_path_specific = True
           break
       if found_path_specific:
         continue
 
-    reason = "'%s' has non-whitelisted license '%s'" % (filename, license)
+    reason = "License '%s' for '%s' is not allowed." % (license, filename)
     success = False
     print(reason)
     exit_status = 1
@@ -253,7 +253,7 @@ def main():
   option_parser.add_option('--ignore-suppressions',
                            action='store_true',
                            default=False,
-                           help='Ignore path-specific license whitelist.')
+                           help='Ignore path-specific allowed license.')
   options, args = option_parser.parse_args()
   return check_licenses(options, args)
 

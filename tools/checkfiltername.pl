@@ -196,14 +196,14 @@ sub checkprotoabbrev {
 
 			#now check the acceptable "fields from a different protocol"
 			if ($errorline == 1) {
-				if (is_from_other_protocol_whitelist($_[0], $currfile) == 1) {
+				if (is_from_other_protocol_allowed($_[0], $currfile) == 1) {
 					$errorline = 0;
 				}
 			}
 
 			#now check the acceptable "fields that include a version number"
 			if ($errorline == 1) {
-				if (is_protocol_version_whitelist($_[0], $currfile) == 1) {
+				if (is_protocol_version_allowed($_[0], $currfile) == 1) {
 					$errorline = 0;
 				}
 			}
@@ -219,10 +219,10 @@ sub checkprotoabbrev {
 		}
 
 		if (($abbrev ne "") && (lc($abbrev) eq lc($afterabbrev))) {
-			#Allow ASN.1 generated files to duplicate part of proto name
+			# Allow ASN.1 generated files to duplicate part of proto name
 			if ((!(grep {$currfile eq $_ } @asn1automatedfilelist))   &&
-				#Check "approved" whitelist
-				(is_proto_dup_whitelist($abbrev, $check_dup_abbrev) == 0)) {
+				# Check allowed list
+				(is_proto_dup_allowed($abbrev, $check_dup_abbrev) == 0)) {
 				if ($showlinenoFlag) {
 					push(@elements_dup, "$_[1] $_[0] duplicates PROTOABBREV of $abbrev\n");
 				} else {
@@ -322,7 +322,7 @@ sub printprevfile {
 # to be provided to add to it. Acknowledge these dissectors aren't
 # a problem for the pre-commit script
 #--------------------------------------------------------------------
-sub is_proto_dup_whitelist {
+sub is_proto_dup_allowed {
 	if (($_[0] eq "amf") && (index($_[1], "amf0") >= 0)) {return 1;}
 	if (($_[0] eq "amf") && (index($_[1], "amf3") >= 0)) {return 1;}
 	if (($_[0] eq "amqp") && (index($_[1], "amqp") >= 0)) {return 1;}
@@ -364,7 +364,7 @@ sub is_proto_dup_whitelist {
 # justification will need to be provided to add to it.
 # Acknowledge these dissectors aren't a problem for the pre-commit script
 #--------------------------------------------------------------------
-sub is_from_other_protocol_whitelist {
+sub is_from_other_protocol_allowed {
 	my $proto_filename;
 	my $dir_index = rindex($_[1], "\\");
 
@@ -446,10 +446,10 @@ sub is_from_other_protocol_whitelist {
 #--------------------------------------------------------------------
 # This is a list of dissectors that use their (protocol) version number
 # as part of the first display filter segment, which checkfiltername
-# usually complains about.  Whitelist them so it can pass
+# usually complains about. Manually allow them so that they can pass
 # pre-commit script
 #--------------------------------------------------------------------
-sub is_protocol_version_whitelist {
+sub is_protocol_version_allowed {
 	my $proto_filename;
 	my $dir_index = rindex($_[1], "\\");
 
