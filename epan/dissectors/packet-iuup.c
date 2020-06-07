@@ -150,7 +150,7 @@ static dissector_handle_t iuup_handle;
 
 static gboolean dissect_fields = FALSE;
 static gboolean two_byte_pseudoheader = FALSE;
-static guint global_dynamic_payload_type = 0;
+static range_t *global_dynamic_payload_type_range = 0;
 
 
 #define PDUTYPE_DATA_WITH_CRC 0
@@ -828,22 +828,20 @@ static int find_iuup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 
 void proto_reg_handoff_iuup(void) {
     static gboolean iuup_prefs_initialized = FALSE;
-    static guint saved_dynamic_payload_type = 0;
+    static range_t *saved_dynamic_payload_type_range = NULL;
 
     if (!iuup_prefs_initialized) {
         dissector_add_string("rtp_dyn_payload_type","VND.3GPP.IUFP", iuup_handle);
         iuup_prefs_initialized = TRUE;
     } else {
-        if ( saved_dynamic_payload_type > 95 ) {
-            dissector_delete_uint("rtp.pt", saved_dynamic_payload_type, iuup_handle);
-        }
+        dissector_delete_uint_range("rtp.pt", saved_dynamic_payload_type_range, iuup_handle);
+        wmem_free(wmem_epan_scope(), saved_dynamic_payload_type_range);
     }
 
-    saved_dynamic_payload_type = global_dynamic_payload_type;
+    saved_dynamic_payload_type_range = range_copy(wmem_epan_scope(), global_dynamic_payload_type_range);
 
-    if ( global_dynamic_payload_type > 95 ) {
-        dissector_add_uint("rtp.pt", global_dynamic_payload_type, iuup_handle);
-    }
+    range_remove_value(wmem_epan_scope(), &saved_dynamic_payload_type_range, 0);
+    dissector_add_uint_range("rtp.pt", saved_dynamic_payload_type_range, iuup_handle);
 }
 
 
@@ -994,11 +992,11 @@ void proto_register_iuup(void) {
                                    "The payload contains a two byte pseudoheader indicating direction and circuit_id",
                                    &two_byte_pseudoheader);
 
-    prefs_register_uint_preference(iuup_module, "dynamic.payload.type",
+    prefs_register_range_preference(iuup_module, "dynamic.payload.type",
                                    "IuUP dynamic payload type",
-                                   "The dynamic payload type which will be interpreted as IuUP",
-                                   10,
-                                   &global_dynamic_payload_type);
+                                   "Dynamic payload types which will be interpreted as IuUP"
+                                   "; values must be in the range 1 - 127",
+                                   &global_dynamic_payload_type_range, 127);
 }
 
 /*

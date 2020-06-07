@@ -49,9 +49,9 @@ static gint ett_h263P_extra_hdr = -1;
 static gint ett_h263P_payload   = -1;
 static gint ett_h263P_data = -1;
 
-/* The dynamic payload type which will be dissected as H.263-1998/H263-2000 */
+/* The dynamic payload type which will be dissected as H.263-1998/H.263-2000 */
 
-static guint temp_dynamic_payload_type = 0;
+static range_t *temp_dynamic_payload_type_range = NULL;
 
 static dissector_handle_t h263P_handle;
 
@@ -192,7 +192,7 @@ dissect_h263P( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 void
 proto_reg_handoff_h263P(void)
 {
-    static guint dynamic_payload_type;
+    static range_t *dynamic_payload_type_range;
     static gboolean h263P_prefs_initialized = FALSE;
 
     if (!h263P_prefs_initialized) {
@@ -201,14 +201,12 @@ proto_reg_handoff_h263P(void)
         h263P_prefs_initialized = TRUE;
       }
     else {
-        if ( dynamic_payload_type > 95 )
-            dissector_delete_uint("rtp.pt", dynamic_payload_type, h263P_handle);
+        dissector_delete_uint_range("rtp.pt", dynamic_payload_type_range, h263P_handle);
+        wmem_free(wmem_epan_scope(), dynamic_payload_type_range);
     }
-    dynamic_payload_type = temp_dynamic_payload_type;
-
-    if ( dynamic_payload_type > 95 ){
-        dissector_add_uint("rtp.pt", dynamic_payload_type, h263P_handle);
-    }
+    dynamic_payload_type_range = range_copy(wmem_epan_scope(), temp_dynamic_payload_type_range);
+    range_remove_value(wmem_epan_scope(), &dynamic_payload_type_range, 0);
+    dissector_add_uint_range("rtp.pt", dynamic_payload_type_range, h263P_handle);
 }
 
 
@@ -382,20 +380,19 @@ proto_register_h263P(void)
 
 
     proto_h263P = proto_register_protocol("ITU-T Recommendation H.263 RTP Payload header (RFC4629)",
-        "H263P", "h263p");
+        "H.263P", "h263p");
 
     proto_register_field_array(proto_h263P, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
     h263P_module = prefs_register_protocol(proto_h263P, proto_reg_handoff_h263P);
 
-    prefs_register_uint_preference(h263P_module,
+    prefs_register_range_preference(h263P_module,
                        "dynamic.payload.type",
-                       "H263-1998 and H263-2000 dynamic payload type",
-                       "The dynamic payload type which will be interpreted as H264"
-                       "; The value must be greater than 95",
-                       10,
-                       &temp_dynamic_payload_type);
+                       "H.263-1998 and H.263-2000 dynamic payload types",
+                       "Dynamic payload types which will be interpreted as H.263"
+                       "; values must be in the range 1 - 127",
+                       &temp_dynamic_payload_type_range, 127);
 
     h263P_handle = register_dissector("h263P", dissect_h263P, proto_h263P);
 }

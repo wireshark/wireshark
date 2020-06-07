@@ -2883,8 +2883,8 @@ static gint ett_rtp_midi_sysex_common_nrt			= -1;
 static gint ett_rtp_midi_sysex_common_tune_note			= -1;
 
 
-static guint rtp_midi_payload_type_value	= 0;
-static guint saved_payload_type_value;
+static range_t *rtp_midi_payload_type_range	= NULL;
+static range_t *saved_payload_type_range        = NULL;
 
 
 static int proto_rtp_midi			= -1;
@@ -10021,8 +10021,12 @@ proto_register_rtp_midi( void )
 	proto_register_field_array( proto_rtp_midi, hf, array_length( hf ) );
 	proto_register_subtree_array( ett, array_length( ett ) );
 
-	rtp_midi_module = prefs_register_protocol ( proto_rtp_midi, proto_reg_handoff_rtp_midi );
-	prefs_register_uint_preference ( rtp_midi_module, "midi_payload_type_value", "Payload Type for RFC 4695/6295 RTP-MIDI", "This is the value of the Payload Type field that specifies RTP-MIDI", 10, &rtp_midi_payload_type_value );
+	rtp_midi_module = prefs_register_protocol( proto_rtp_midi, proto_reg_handoff_rtp_midi );
+	prefs_register_range_preference( rtp_midi_module, "midi_payload_type_value",
+			"Payload Types for RFC 4695/6295 RTP-MIDI",
+			"Dynamic payload types which will be interpreted as RTP-MIDI"
+			"; values must be in the range 1 - 127",
+			&rtp_midi_payload_type_range, 127);
 	rtp_midi_handle = register_dissector( RTP_MIDI_DISSECTOR_ABBREVIATION, dissect_rtp_midi, proto_rtp_midi );
 }
 
@@ -10039,12 +10043,12 @@ proto_reg_handoff_rtp_midi( void )
 		rtp_midi_prefs_initialized = TRUE;
 	}
 	else {
-		dissector_delete_uint( "rtp.pt", saved_payload_type_value, rtp_midi_handle );
+		dissector_delete_uint_range( "rtp.pt", saved_payload_type_range, rtp_midi_handle );
+		wmem_free(wmem_epan_scope(), saved_payload_type_range);
 	}
-	if ( rtp_midi_payload_type_value > 95 ){
-		saved_payload_type_value = rtp_midi_payload_type_value;
-		dissector_add_uint( "rtp.pt", saved_payload_type_value, rtp_midi_handle );
-	}
+	saved_payload_type_range = range_copy(wmem_epan_scope(), rtp_midi_payload_type_range);
+	range_remove_value(wmem_epan_scope(), &saved_payload_type_range, 0);
+	dissector_add_uint_range( "rtp.pt", saved_payload_type_range, rtp_midi_handle );
 
 }
 

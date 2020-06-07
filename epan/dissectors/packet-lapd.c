@@ -69,7 +69,7 @@ static gint ett_lapd_address = -1;
 static gint ett_lapd_control = -1;
 static gint ett_lapd_checksum = -1;
 
-static guint pref_lapd_rtp_payload_type = 0;
+static range_t *pref_lapd_rtp_payload_type_range = NULL;
 static guint pref_lapd_sctp_ppi = 0;
 
 static expert_field ei_lapd_abort = EI_INIT;
@@ -706,11 +706,11 @@ proto_register_lapd(void)
 				       "Use GSM SAPI values",
 				       "Use SAPI values as specified in TS 48 056",
 				       &global_lapd_gsm_sapis);
-	prefs_register_uint_preference(lapd_module, "rtp_payload_type",
-				       "RTP payload type for embedded LAPD",
-				       "RTP payload type for embedded LAPD. It must be one of the dynamic types "
-				       "from 96 to 127. Set it to 0 to disable.",
-				       10, &pref_lapd_rtp_payload_type);
+	prefs_register_range_preference(lapd_module, "rtp_payload_type",
+				       "RTP payload types for embedded LAPD",
+				       "RTP payload types for embedded LAPD"
+				       "; values must be in the range 1 - 127",
+				       &pref_lapd_rtp_payload_type_range, 127);
 	prefs_register_uint_preference(lapd_module, "sctp_payload_protocol_identifier",
 				       "SCTP Payload Protocol Identifier for LAPD",
 				       "SCTP Payload Protocol Identifier for LAPD. It is a "
@@ -722,7 +722,7 @@ void
 proto_reg_handoff_lapd(void)
 {
 	static gboolean init = FALSE;
-	static guint lapd_rtp_payload_type;
+	static range_t* lapd_rtp_payload_type_range = NULL;
 	static guint lapd_sctp_ppi;
 
 	if (!init) {
@@ -736,16 +736,16 @@ proto_reg_handoff_lapd(void)
 
 		init = TRUE;
 	} else {
-		if ((lapd_rtp_payload_type > 95) && (lapd_rtp_payload_type < 128))
-			dissector_delete_uint("rtp.pt", lapd_rtp_payload_type, lapd_bitstream_handle);
+		dissector_delete_uint_range("rtp.pt", lapd_rtp_payload_type_range, lapd_bitstream_handle);
+		wmem_free(wmem_epan_scope(), lapd_rtp_payload_type_range);
 
 		if (lapd_sctp_ppi > 0)
 			dissector_delete_uint("sctp.ppi", lapd_sctp_ppi, lapd_handle);
 	}
 
-	lapd_rtp_payload_type = pref_lapd_rtp_payload_type;
-	if ((lapd_rtp_payload_type > 95) && (lapd_rtp_payload_type < 128))
-		dissector_add_uint("rtp.pt", lapd_rtp_payload_type, lapd_bitstream_handle);
+	lapd_rtp_payload_type_range = range_copy(wmem_epan_scope(), pref_lapd_rtp_payload_type_range);
+	range_remove_value(wmem_epan_scope(), &lapd_rtp_payload_type_range, 0);
+	dissector_add_uint_range("rtp.pt", lapd_rtp_payload_type_range, lapd_bitstream_handle);
 
 	lapd_sctp_ppi = pref_lapd_sctp_ppi;
 	if (lapd_sctp_ppi > 0)

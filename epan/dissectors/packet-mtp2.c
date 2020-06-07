@@ -160,7 +160,7 @@ static reassembly_table mtp2_reassembly_table;
 
 /* variables needed for property registration to wireshark menu */
 static range_t *mtp2_rtp_payload_types;
-static range_t *pref_mtp2_rtp_payload_types;
+static range_t *pref_mtp2_rtp_payload_types = NULL;
 static gboolean reverse_bit_order_mtp2 = FALSE;
 
 static expert_field ei_mtp2_checksum_error = EI_INIT;
@@ -1296,8 +1296,8 @@ proto_register_mtp2(void)
                                  &reverse_bit_order_mtp2);
   prefs_register_range_preference(mtp2_module, "rtp_payload_type",
                                  "RTP payload types for embedded packets in RTP stream",
-                                 "RTP payload types for embedded packets in RTP stream. Must be of the dynamic types "
-                                 "from 96 to 127.",
+                                 "RTP payload types for embedded packets in RTP stream"
+                                 "; values must be in the range 1 - 127",
                                  &pref_mtp2_rtp_payload_types,
                                  127);
   register_init_routine(&mtp2_init_routine);
@@ -1323,15 +1323,13 @@ proto_reg_handoff_mtp2(void)
     dissector_add_string("rtp_dyn_payload_type", "MTP2", mtp2_bitstream_handle);
     init = TRUE;
   } else {
-    if (!value_is_in_range(mtp2_rtp_payload_types, 0)) {
-      dissector_delete_uint_range("rtp.pt", mtp2_rtp_payload_types, mtp2_bitstream_handle);
-    }
+    dissector_delete_uint_range("rtp.pt", mtp2_rtp_payload_types, mtp2_bitstream_handle);
+    wmem_free(wmem_epan_scope(), mtp2_rtp_payload_types);
   }
 
   mtp2_rtp_payload_types = range_copy(wmem_epan_scope(), pref_mtp2_rtp_payload_types);
-  if (!value_is_in_range(mtp2_rtp_payload_types, 0)) {
-    dissector_add_uint_range("rtp.pt", mtp2_rtp_payload_types, mtp2_bitstream_handle);
-  }
+  range_remove_value(wmem_epan_scope(), &mtp2_rtp_payload_types, 0);
+  dissector_add_uint_range("rtp.pt", mtp2_rtp_payload_types, mtp2_bitstream_handle);
 }
 
 /*

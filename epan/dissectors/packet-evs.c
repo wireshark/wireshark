@@ -59,8 +59,8 @@ static int ett_evs_header = -1;
 static int ett_evs_speech = -1;
 static int ett_evs_voice_data = -1;
 
-/* The dynamic payload type which will be dissected as EVS */
-static guint temp_dynamic_payload_type = 0;
+/* The dynamic payload type range which will be dissected as EVS */
+static range_t *temp_dynamic_payload_type_range = NULL;
 
 static const value_string evs_protected_payload_sizes_value[] = {
     {    48, "EVS Primary SID 2.4" },
@@ -905,12 +905,11 @@ proto_register_evs(void)
 
     evs_module = prefs_register_protocol(proto_evs, proto_reg_handoff_evs);
 
-    prefs_register_uint_preference(evs_module, "dynamic.payload.type",
-        "EVS dynamic payload type",
-        "The dynamic payload type which will be interpreted as EVS"
-        "; The value must be greater than 95",
-        10,
-        &temp_dynamic_payload_type);
+    prefs_register_range_preference(evs_module, "dynamic.payload.type",
+        "EVS dynamic payload types",
+        "Dynamic payload types which will be interpreted as EVS"
+        "; values must be in the range 1 - 127",
+        &temp_dynamic_payload_type_range, 127);
 
     evs_handle = register_dissector("evs", dissect_evs, proto_evs);
 
@@ -919,7 +918,7 @@ proto_register_evs(void)
 void
 proto_reg_handoff_evs(void)
 {
-    static guint              dynamic_payload_type;
+    static range_t           *dynamic_payload_type_range = NULL;
     static gboolean           evs_prefs_initialized = FALSE;
 
     if (!evs_prefs_initialized) {
@@ -927,15 +926,14 @@ proto_reg_handoff_evs(void)
         evs_prefs_initialized = TRUE;
     }
     else {
-        if (dynamic_payload_type > 95)
-            dissector_delete_uint("rtp.pt", dynamic_payload_type, evs_handle);
+        dissector_delete_uint_range("rtp.pt", dynamic_payload_type_range, evs_handle);
+        wmem_free(wmem_epan_scope(), dynamic_payload_type_range);
     }
 
-    dynamic_payload_type = temp_dynamic_payload_type;
+    dynamic_payload_type_range = range_copy(wmem_epan_scope(), temp_dynamic_payload_type_range);
 
-    if (dynamic_payload_type > 95) {
-        dissector_add_uint("rtp.pt", dynamic_payload_type, evs_handle);
-    }
+    range_remove_value(wmem_epan_scope(), &dynamic_payload_type_range, 0);
+    dissector_add_uint_range("rtp.pt", dynamic_payload_type_range, evs_handle);
 }
 
 /*

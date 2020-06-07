@@ -63,9 +63,11 @@ static void add_bits(offset_struct* poffset, gint len_bits);
 
 /* Wireshark ID of the ISMACRYP protocol */
 static int proto_ismacryp = -1;
+static int proto_ismacryp_v11 = -1;
+static int proto_ismacryp_v20 = -1;
 
 /* parameters set in preferences */
-static guint    pref_dynamic_payload_type     = 0; /* RTP dynamic payload type */
+static range_t *pref_dynamic_payload_type_range = NULL; /* RTP dynamic payload types */
 static guint    pref_au_size_length           = DEFAULT_AU_SIZE_LENGTH;            /* default Au size length */
 static guint    pref_au_index_length          = DEFAULT_AU_INDEX_LENGTH;           /* default Au index length */
 static guint    pref_au_index_delta_length    = DEFAULT_AU_INDEX_DELTA_LENGTH;     /* default Au index delta length */
@@ -844,6 +846,10 @@ void proto_register_ismacryp (void)
 	module_t *ismacryp_module;
 
 	proto_ismacryp = proto_register_protocol ("ISMACryp Protocol", "ISMACRYP", "ismacryp");
+	proto_ismacryp_v11 = proto_register_protocol_in_name_only ("ISMACryp Protocol v1.1",
+			"ISMACRYP 1.1", "ismacryp_v11", proto_ismacryp, FT_PROTOCOL);
+	proto_ismacryp_v20 = proto_register_protocol_in_name_only ("ISMACryp Protocol v2.0",
+			"ISMACRYP 2.0", "ismacryp_v20", proto_ismacryp, FT_PROTOCOL);
 	proto_register_field_array (proto_ismacryp, hf, array_length (hf));
 	proto_register_subtree_array (ett, array_length (ett));
 
@@ -851,11 +857,11 @@ void proto_register_ismacryp (void)
 	/* this registers our preferences, function proto_reg_handoff_ismacryp is called when preferences are applied */
 	ismacryp_module = prefs_register_protocol(proto_ismacryp, proto_reg_handoff_ismacryp);
 
-	prefs_register_uint_preference(ismacryp_module, "dynamic.payload.type",
-							   "ISMACryp dynamic payload type",
-							   "The dynamic payload type which will be interpreted as ISMACryp",
-							   10,
-							   &pref_dynamic_payload_type);
+	prefs_register_range_preference(ismacryp_module, "dynamic.payload.type",
+				   "ISMACryp dynamic payload types",
+				   "Dynamic payload types which will be interpreted as ISMACryp"
+				   "; values must be in the range 1 - 127",
+				   &pref_dynamic_payload_type_range, 127);
 
 	prefs_register_enum_preference(ismacryp_module, "version",
 					       "ISMACryp version",
@@ -989,14 +995,14 @@ void proto_reg_handoff_ismacryp(void)
 {
 	static gboolean ismacryp_prefs_initialized = FALSE;
 	static dissector_handle_t ismacryp_handle;
-	static guint dynamic_payload_type;
+	static range_t *dynamic_payload_type_range;
 
 	if (!ismacryp_prefs_initialized) {
 		dissector_handle_t ismacryp_v11_handle;
 		dissector_handle_t ismacryp_v20_handle;
 		ismacryp_handle = create_dissector_handle(dissect_ismacryp, proto_ismacryp);
-		ismacryp_v11_handle = create_dissector_handle(dissect_ismacryp_v11, proto_ismacryp);
-		ismacryp_v20_handle = create_dissector_handle(dissect_ismacryp_v20, proto_ismacryp);
+		ismacryp_v11_handle = create_dissector_handle(dissect_ismacryp_v11, proto_ismacryp_v11);
+		ismacryp_v20_handle = create_dissector_handle(dissect_ismacryp_v20, proto_ismacryp_v20);
 		ismacryp_prefs_initialized = TRUE;
 		dissector_add_string("rtp_dyn_payload_type", "ISMACRYP", ismacryp_handle);
 		dissector_add_string("rtp_dyn_payload_type", "enc-mpeg4-generic", ismacryp_v11_handle);
@@ -1004,15 +1010,14 @@ void proto_reg_handoff_ismacryp(void)
 	  }
 	else { /* ismacryp_prefs_initialized = TRUE */
 		/* delete existing association of ismacryp with payload_type */
-		if ( dynamic_payload_type > 95 ) {
-			dissector_delete_uint("rtp.pt", dynamic_payload_type, ismacryp_handle);
-		}
+		dissector_delete_uint_range("rtp.pt", dynamic_payload_type_range, ismacryp_handle);
+		wmem_free(wmem_epan_scope(), dynamic_payload_type_range);
 	}
 	/* always do the following */
-	dynamic_payload_type = pref_dynamic_payload_type; /*update payload_type to new value */
-	if ( dynamic_payload_type > 95 ) {
-		dissector_add_uint("rtp.pt", dynamic_payload_type, ismacryp_handle);
-	}
+	/* update payload_type to new value */
+	dynamic_payload_type_range = range_copy(wmem_epan_scope(), pref_dynamic_payload_type_range);
+	range_remove_value(wmem_epan_scope(), &dynamic_payload_type_range, 0);
+	dissector_add_uint_range("rtp.pt", dynamic_payload_type_range, ismacryp_handle);
 
 }
 

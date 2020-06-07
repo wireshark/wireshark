@@ -391,7 +391,6 @@ static expert_field ei_h265_value_to_large = EI_INIT;
 
 /* The dynamic payload type range which will be dissected as H.265 */
 
-#define RTP_PT_DEFAULT_RANGE "0"
 static range_t *temp_dynamic_payload_type_range = NULL;
 
 static dissector_handle_t h265_handle;
@@ -2988,18 +2987,6 @@ dissect_h265(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	return tvb_captured_length(tvb);
 }
 
-static void
-range_delete_h265_rtp_pt_callback(guint32 rtp_pt, gpointer ptr _U_) {
-	if (rtp_pt >= 96 && rtp_pt <= 127)
-		dissector_delete_uint("rtp.pt", rtp_pt, h265_handle);
-}
-
-static void
-range_add_h265_rtp_pt_callback(guint32 rtp_pt, gpointer ptr _U_) {
-	if (rtp_pt >= 96 && rtp_pt <= 127)
-		dissector_add_uint("rtp.pt", rtp_pt, h265_handle);
-}
-
 void
 proto_register_h265(void)
 {
@@ -4599,7 +4586,7 @@ proto_register_h265(void)
 	};
 
 	/* Register the protocol name and description */
-	proto_h265 = proto_register_protocol("H.265", "H265", "h265");
+	proto_h265 = proto_register_protocol("H.265", "H.265", "h265");
 
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_h265, hf, array_length(hf));
@@ -4613,9 +4600,9 @@ proto_register_h265(void)
 
 
 	prefs_register_range_preference(h265_module, "dynamic.payload.type",
-		"H265 dynamic payload types",
-		"Dynamic payload types which will be interpreted as H265"
-		"; Values must be in the range 96 - 127",
+		"H.265 dynamic payload types",
+		"Dynamic payload types which will be interpreted as H.265"
+		"; values must be in the range 1 - 127",
 		&temp_dynamic_payload_type_range, 127);
 
 	h265_handle = register_dissector("h265", dissect_h265, proto_h265);
@@ -4634,12 +4621,13 @@ proto_reg_handoff_h265(void)
 		h265_prefs_initialized = TRUE;
 	}
 	else {
-		range_foreach(dynamic_payload_type_range, range_delete_h265_rtp_pt_callback, NULL);
+		dissector_delete_uint_range("rtp.pt", dynamic_payload_type_range, h265_handle);
 		wmem_free(wmem_epan_scope(), dynamic_payload_type_range);
 	}
 
 	dynamic_payload_type_range = range_copy(wmem_epan_scope(), temp_dynamic_payload_type_range);
-	range_foreach(dynamic_payload_type_range, range_add_h265_rtp_pt_callback, NULL);
+	range_remove_value(wmem_epan_scope(), &dynamic_payload_type_range, 0);
+	dissector_add_uint_range("rtp.pt", dynamic_payload_type_range, h265_handle);
 }
 
 /*
