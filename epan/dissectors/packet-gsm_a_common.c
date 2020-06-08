@@ -854,6 +854,7 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     if (length < 2)
         return;
     type_of_shape = tvb_get_guint8(tvb,offset)>>4;
+    offset++;
     switch (type_of_shape) {
     case ELLIPSOID_POINT:
         /* Ellipsoid Point */
@@ -867,7 +868,6 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
         /* Ellipsoid Point with altitude and uncertainty ellipsoid */
     case ELLIPSOID_ARC:
         /* Ellipsoid Arc */
-        offset++;
         if (length < 4)
             return;
         proto_tree_add_item(tree, hf_gsm_a_geo_loc_sign_of_lat, tvb, offset, 1, ENC_BIG_ENDIAN);
