@@ -21,6 +21,8 @@ def PrintUsage():
   --ignore-suppressions  Ignores path-specific allowed license. Useful when
                          trying to remove a suppression/allowed entry.
 
+  --list-allowed  Print a list of allowed licenses and exit.
+
   tocheck  Specifies the directory, relative to root, to check. This defaults
            to "." so it checks everything.
 
@@ -143,16 +145,13 @@ PATH_SPECIFIC_ALLOWED_LICENSES = {
     'tools/licensecheck.pl': [
         'GPL (v2)'
     ],
-    # Generated files for GTK pixbuf binary bundling
-    'ui/gtk/wireshark-gresources.h': [
-        'UNKNOWN',
-    ],
-    'ui/gtk/wireshark-gresources.c': [
-        'UNKNOWN',
-    ],
 }
 
 def check_licenses(options, args):
+  if options.list_allowed:
+    print('\n'.join(ALLOWED_LICENSES))
+    sys.exit(0)
+
   # Figure out which directory we have to check.
   if len(args) == 0:
     # No directory to check specified, use the repository root.
@@ -250,6 +249,10 @@ def main():
                            'will normally be the repository root.')
   option_parser.add_option('-v', '--verbose', action='store_true',
                            default=False, help='Print debug logging')
+  option_parser.add_option('--list-allowed',
+                           action='store_true',
+                           default=False,
+                           help='Print a list of allowed licenses and exit.')
   option_parser.add_option('--ignore-suppressions',
                            action='store_true',
                            default=False,
