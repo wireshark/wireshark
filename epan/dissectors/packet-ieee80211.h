@@ -510,6 +510,7 @@ typedef struct anqp_info_dissector_data {
 #define TAG_FILS_INDICATION          240  /* IEEE Std 802.11ai */
 #define TAG_DIFF_INITIAL_LINK_SETUP  241  /* IEEE Std 802.11ai */
 #define TAG_FRAGMENT                 242  /* IEEE Std 802.11ai */
+#define TAG_RSNX                     244
 #define TAG_ELEMENT_ID_EXTENSION     255  /* IEEE Std 802.11ai */
 
 extern const value_string ie_tag_num_vals[];

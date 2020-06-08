@@ -583,6 +583,7 @@ const value_string ie_tag_num_vals[] = {
   { TAG_FILS_INDICATION,                      "FILS Indication"},
   { TAG_DIFF_INITIAL_LINK_SETUP,              "Differential Initial Link Setup"},
   { TAG_FRAGMENT,                             "Fragment"},
+  { TAG_RSNX,                                 "RSN eXtension"},
   { TAG_ELEMENT_ID_EXTENSION,                 "Element ID Extension" },
   { 0, NULL }
 };
@@ -5914,6 +5915,13 @@ static int hf_ieee80211_tag_twt_target_wake_time = -1;
 static int hf_ieee80211_tag_twt_nom_min_twt_wake_dur = -1;
 static int hf_ieee80211_tag_twt_wake_interval_mantissa = -1;
 static int hf_ieee80211_tag_twt_channel = -1;
+
+static int hf_ieee80211_tag_rsnx_length = -1;
+static int hf_ieee80211_tag_rsnx_protected_twt_operations_support = -1;
+static int hf_ieee80211_tag_rsnx_sae_hash_to_element = -1;
+static int hf_ieee80211_tag_rsnx_reserved_b6b7 = -1;
+static int hf_ieee80211_tag_rsnx_reserved = -1;
+
 
 /* ************************************************************************* */
 /*                              RFC 8110 fields                              */
@@ -22200,6 +22208,43 @@ ieee80211_tag_twt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
   offset += 2;
 
   proto_tree_add_item(tree, hf_ieee80211_tag_twt_channel, tvb, offset, 1, ENC_NA);
+
+  return tvb_captured_length(tvb);
+}
+
+
+static int
+ieee80211_tag_rsnx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+  int tag_len = tvb_reported_length(tvb);
+  ieee80211_tagged_field_data_t* field_data = (ieee80211_tagged_field_data_t*)data;
+  int offset = 0;
+
+  if (tag_len < 1)
+  {
+    expert_add_info_format(pinfo, field_data->item_tag_length, &ei_ieee80211_tag_length, "Tag Length %u wrong, must be >= 1", tag_len);
+    return tvb_captured_length(tvb);
+  }
+
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_rsnx_length, tvb, offset, 1,
+                      ENC_LITTLE_ENDIAN);
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_rsnx_protected_twt_operations_support, tvb, offset, 1,
+                      ENC_LITTLE_ENDIAN);
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_rsnx_sae_hash_to_element, tvb, offset, 1,
+                      ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(tree, hf_ieee80211_tag_rsnx_reserved_b6b7, tvb, offset, 1,
+                      ENC_LITTLE_ENDIAN);
+  offset += 1;
+
+  /* all rest of payload is reserved... */
+  while (offset < tag_len) {
+    proto_tree_add_item(tree, hf_ieee80211_tag_rsnx_reserved, tvb, offset, 1,
+                        ENC_LITTLE_ENDIAN);
+    offset += 1;
+  }
 
   return tvb_captured_length(tvb);
 }
@@ -38703,6 +38748,26 @@ proto_register_ieee80211(void)
       {"TWT Channel", "wlan.twt.channel",
        FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 
+    {&hf_ieee80211_tag_rsnx_length,
+      {"RSNX Length", "wlan.rsnx.length",
+       FT_UINT8, BASE_DEC, NULL, 0xF0, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_rsnx_protected_twt_operations_support,
+      {"Protected TWT Operations Support", "wlan.rsnx.protected_twt_operations_support",
+       FT_UINT8, BASE_DEC, NULL, 0x08, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_rsnx_sae_hash_to_element,
+      {"SAE Hash to element", "wlan.rsnx.sae_hash_to_element",
+       FT_UINT8, BASE_DEC, NULL, 0x04, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_rsnx_reserved_b6b7,
+      {"Reserved", "wlan.rsnx.reserved",
+       FT_UINT8, BASE_HEX, NULL, 0x03, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_rsnx_reserved,
+      {"Reserved", "wlan.rsnx.reserved",
+       FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }},
+
     {&hf_ieee80211_owe_dh_parameter_group,
      {"Group", "wlan.ext_tag.owe_dh_parameter.group",
       FT_UINT32, BASE_DEC, VALS(owe_dh_parameter_group_vals), 0x0, NULL, HFILL }},
@@ -39708,6 +39773,7 @@ proto_reg_handoff_ieee80211(void)
   dissector_add_uint("wlan.tag.number", TAG_SWITCHING_STREAM, create_dissector_handle(ieee80211_tag_switching_stream, -1));
   dissector_add_uint("wlan.tag.number", TAG_ELEMENT_ID_EXTENSION, create_dissector_handle(ieee80211_tag_element_id_extension, -1));
   dissector_add_uint("wlan.tag.number", TAG_TWT, create_dissector_handle(ieee80211_tag_twt, -1));
+  dissector_add_uint("wlan.tag.number", TAG_RSNX, create_dissector_handle(ieee80211_tag_rsnx, -1));
 
   /* Vendor specific actions */
   dissector_add_uint("wlan.action.vendor_specific", OUI_MARVELL, create_dissector_handle(dissect_vendor_action_marvell, -1));
