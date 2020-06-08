@@ -90,6 +90,7 @@ static const value_string result_values[]  = {
     { LWRES_R_UNEXPECTEDEND,    "Unexpected end of input" },
     { LWRES_R_FAILURE,          "Generic failure" },
     { LWRES_R_IOERROR,          "I/O Error" },
+    { LWRES_R_NOTIMPLEMENTED,   "Not Implemented"},
     { LWRES_R_UNEXPECTED,       "Unexpected" },
     { LWRES_R_TRAILINGDATA,     "Trailing data" },
     { LWRES_R_INCOMPLETE,       "Incomplete" },

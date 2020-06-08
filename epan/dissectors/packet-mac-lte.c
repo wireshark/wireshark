@@ -710,6 +710,7 @@ static const value_string mch_lcid_vals[] =
     { 26,                           "26"},
     { 27,                           "27"},
     { 28,                           "28"},
+    { 29,                           "Reserved"},
     { MCH_SCHEDULING_INFO_LCID,     "MCH Scheduling Information"},
     { PADDING_LCID,                 "Padding" },
     { 0, NULL }

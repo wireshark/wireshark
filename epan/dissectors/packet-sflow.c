@@ -109,6 +109,7 @@ static const value_string sflow_5_ieee80211_versions [] = {
 static const value_string sflow_245_counterstype[] = {
     { SFLOW_245_COUNTERS_GENERIC,  "Generic counters"},
     { SFLOW_245_COUNTERS_ETHERNET, "Ethernet counters"},
+    { SFLOW_245_COUNTERS_TOKENRING,"Token Ring counters"},
     { SFLOW_245_COUNTERS_FDDI,     "FDDI counters"},
     { SFLOW_245_COUNTERS_VG,       "100baseVG counters"},
     { SFLOW_245_COUNTERS_WAN,      "WAN counters"},

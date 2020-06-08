@@ -206,7 +206,9 @@ static const value_string mysql_command_vals[] = {
 	{MYSQL_STMT_RESET, "Reset Statement"},
 	{MYSQL_SET_OPTION, "Set Option"},
 	{MYSQL_STMT_FETCH, "Fetch Data"},
+	{MYSQL_DAEMON, "Daemon"},
 	{MYSQL_BINLOG_DUMP_GTID, "Send Binlog GTID"},
+	{MYSQL_RESET_CONNECTION, "Reset Connection"},
 	{0, NULL}
 };
 static value_string_ext mysql_command_vals_ext = VALUE_STRING_EXT_INIT(mysql_command_vals);
