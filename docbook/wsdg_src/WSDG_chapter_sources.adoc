@@ -831,73 +831,71 @@ Change-Id: Ia62137c785d505e9d0f1536a333b421a85480741
 
 ==== Code Requirements
 
-The core maintainers have done a lot of work fixing bugs and making code
-compile on the various platforms Wireshark supports.
+To ensure Wireshark’s code quality and to reduce friction in the code review process, there are some things you should consider before submitting a patch:
 
-To ensure Wireshark’s source code quality, and to reduce the workload of the
-core maintainers, there are some things you should think about _before_
-submitting a patch.
+Follow the Wireshark source code style guide::
+Wireshark runs on many platforms, and can be compiled with a number of different compilers.
+It’s easy to write code that compiles on your machine, but doesn’t compile elsewhere.
+The guidelines at <<ChCodeStyle>> describe the techniques and APIs that you can use to write high-quality, portable, and maintainable code in our environment.
 
-.Pay attention to the coding guidelines
-[WARNING]
-====
-Ignoring the code requirements will make it very likely that your patch will
-be rejected.
-====
-
-* _Follow the Wireshark source code style guide._ Just because something
-  compiles on your platform, that doesn't mean it'll compile on all of the other
-  platforms for which Wireshark is built. Wireshark runs on many platforms, and
-  can be compiled with a number of different compilers. See <<ChCodeStyle>>for
-  details.
-
-* _Submit dissectors as built-in whenever possible._ Developing a new dissector
-as a plugin is a good idea because compiling and testing is quicker, but it’s
-best to convert dissectors to the built-in style before submitting for check in.
-This reduces the number of files that must be installed with Wireshark and
-ensures your dissector will be available on all platforms.
+Submit dissectors as built-in whenever possible::
 +
-This is no hard-and-fast rule though. Many dissectors are straightforward so they
-can easily be put into "the big pile", while some are ASN.1 based which takes a
-different approach, and some multiple source file dissectors are more suitable to
-be placed separately as plugins.
+--
+Developing a new dissector as a plugin can make compiling and testing quicker, but it’s usually best to convert it to built-in before submitting for review.
+This reduces the number of files that must be installed with Wireshark and ensures your dissector will be available on all platforms.
 
-* _Ensure Wireshark Git Pre-Commit Hook is in the repository._  In your local
-repository directory, there will be a .git/hooks/ directory, with sample git hooks
-for running automatic actions before and after git commands. You can also
-optionally install other hooks that you find useful.
-+
-In particular, the pre-commit hook will run every time you commit a change and can
-be used to automatically check for various errors in your code. The sample git
-pre-commit hook simply detects whitespace errors such as mixed tabs and spaces;
-to install it just remove the .sample suffice from the existing pre-commit.sample file.
-+
-Wireshark provides a custom pre-commit hook which does additional Wireshark-specific API
-and formatting checks, but it might return false positives. If you want to install it,
-copy the pre-commit file from the tools directory (cp ./tools/pre-commit .git/hooks/)
-and make sure it is executable or it will not be run.
-+
-If the pre-commit hook is preventing you from committing what you believe is a valid
-change, you can run git commit --no-verify to skip running the hooks. Warning: using
---no-verify avoids the commit-msg hook, and thus will not automatically add the required
-Change-ID to your commit. In case you are not updating an existing patch you may generate
-a Change-ID by running git review -i (or git commit --amend if don't use git review).
-+
+Dissectors vary, so this is not a hard-and-fast rule.
+Most dissectors are single C modules that can easily be put into “the big pile.”
+Some (most notably ASN.1 dissectors) are generated using templates and configuration files.
+Others are split across multiple source files and are often more suitable to be placed in a separate plugin directory.
+--
 
-Additionally, if your system supports symbolic links, as all UNIX-like
-platforms do, you can use them instead of copying files.  Running ln -s
-./tools/pre-commit .git/hooks creates a symbolic link that will make the
-hook to be up-to-date with the current master.  The same can be done for
-commit-msg script.
+Ensure that the Wireshark Git Pre-Commit Hook is in the repository::
++
+--
+In your local repository directory, there will be a __.git/hooks/__ directory, with sample git hooks for running automatic actions before and after git commands.
+You can also optionally install other hooks that you find useful.
 
+In particular, the _pre-commit_ hook will run every time you commit a change and can be used to automatically check for various errors in your code.
+The sample git pre-commit hook simply detects whitespace errors such as mixed tabs and spaces.
+To install it just remove the .sample suffix from the existing _pre-commit.sample_ file.
 
-* _Fuzz test your changes!_ Fuzz testing is a very
-effective way to automatically find a lot of dissector related bugs.
-You'll take a capture file containing packets affecting your dissector
-and the fuzz test will randomly change bytes in this file, so that unusual
-code paths in your dissector are checked. There are tools available to
-automatically do this on any number of input files, see:
-{wireshark-wiki-url}FuzzTesting for details.
+Wireshark provides a custom pre-commit hook which does additional Wireshark-specific API and formatting checks, but it might return false positives.
+If you want to install it, copy the pre-commit file from the tools directory (`cp ./tools/pre-commit .git/hooks/`) and make sure it is executable or it will not be run.
+
+If the pre-commit hook is preventing you from committing what you believe is a valid change, you can run `git commit --no-verify` to skip running the hooks.
+Warning: using --no-verify avoids the commit-msg hook, and thus will not automatically add the required Change-ID to your commit.
+In case you are not updating an existing patch you may generate a Change-ID by running `git review -i` (or `git commit --amend` if don't use git review).
+
+Additionally, if your system supports symbolic links, as all UNIX-like platforms do, you can use them instead of copying files.
+`Running ln -s ./tools/pre-commit .git/hooks` creates a symbolic link that will make the hook to be up-to-date with the current master.
+The same can be done for commit-msg script.
+--
+
+:spdx-license-url: https://spdx.org/licenses/
+Choose a compatible license::
++
+--
+Wireshark is released under the {spdx-license-url}GPL-2.0-or-later.html[GPL version 2 or later], and it is strongly recommended that incoming code use that license.
+If that is not possible, it *must* use a compatible license.
+The following licenses are currently allowed:
+
+* BSD {spdx-license-url}BSD-1-Clause.html[1], {spdx-license-url}BSD-2-Clause.html[2], {spdx-license-url}BSD-3-Clause.html[3] clause
+* {spdx-license-url}GPL-3.0-or-later.html[GPL version 3 or later] *with* the https://www.gnu.org/software/bison/manual/html_node/Conditions.html[Bison parser exception]
+* {spdx-license-url}ISC.html[ISC]
+* {spdx-license-url}LGPL-2.0-or-later.html[LGPL v2 or later], including {spdx-license-url}LGPL-2.1-or-later.html[v2.1]
+* {spdx-license-url}MIT.html[MIT] / {spdx-license-url}X11.html[X11]
+* {wikipedia-main-url}Public_domain[Public domain]
+* {spdx-license-url}Zlib.html[zlib/libpng]
+
+Notable incompatible licenses include {spdx-license-url}Apache-2.0.html[Apache 2.0], {spdx-license-url}GPL-3.0-or-later.html[GPL 3.0], and {spdx-license-url}LGPL-3.0-or-later.html[LGPL 3.0].
+--
+
+Fuzz test your changes::
+Fuzz testing is a very effective way of finding dissector related bugs.
+In our case fuzzing involves making random changes to capture files and feeding them to TShark in order to try to make it crash or hang.
+There are tools available to automatically do this on any number of input files.
+See {wireshark-wiki-url}FuzzTesting for details.
 
 [[ChSrcUpload]]
 
