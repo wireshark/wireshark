@@ -7544,7 +7544,6 @@ static gint parse_GetImageInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *offs
     proto_item *GetImageInfo_header_item;
     proto_tree *GetImageInfo_SM_tree;
     guint32 numSMs;
-    nstime_t ts;
 
     gint local_offset = *offset;
 
@@ -7556,9 +7555,8 @@ static gint parse_GetImageInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *offs
 
     local_offset = parse_Image(GetImageInfo_header_tree, tvb, &local_offset);
 
-    ts.secs = (time_t)tvb_get_guint64(tvb, local_offset, ENC_BIG_ENDIAN);
-    ts.nsecs = 0;
-    proto_tree_add_time(GetImageInfo_header_tree, hf_opa_GetImageInfo_sweepStart, tvb, local_offset, 8, &ts);
+    proto_tree_add_item(GetImageInfo_header_tree, hf_opa_GetImageInfo_sweepStart,
+            tvb, local_offset, 8, ENC_TIME_SECS|ENC_BIG_ENDIAN);
     local_offset += 8;
     proto_tree_add_item(GetImageInfo_header_tree, hf_opa_GetImageInfo_sweepDuration, tvb, local_offset, 4, ENC_BIG_ENDIAN);
     local_offset += 4;
