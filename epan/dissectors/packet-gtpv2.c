@@ -3038,22 +3038,9 @@ dissect_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_ite
 
 /* Diameter 3GPP AVP Code: 22 3GPP-User-Location-Info */
 /*
- * TS 29.061 v9.2.0
+ * TS 29.061 v15.5.0
  * 16.4.7.2 Coding 3GPP Vendor-Specific RADIUS attributes
- *
- * For P-GW, the Geographic Location Type values and coding are defined as follows:
- *
- * 0        CGI
- * 1        SAI
- * 2        RAI
- * 3-127    Spare for future use
- * 128      TAI
- * 129      ECGI
- * 130      TAI and ECGI
- * 131-255  Spare for future use
  */
-
-
 static const value_string geographic_location_type_vals[] = {
     {0,   "CGI"},
     {1,   "SAI"},
@@ -3066,7 +3053,11 @@ static const value_string geographic_location_type_vals[] = {
     {133, "extended eNodeB ID"},
     {134, "TAI and extended eNodeB ID"},
     {135, "NCGI"},
-    {136, "TAI and NCGI"},
+    {136, "5GS TAI"},
+    {137, "5GS TAI and NCGI"},
+    {138, "NG-RAN Node ID"},
+    {139, "5GS TAI and NG-RAN Node ID"},
+    /* 140-255	Spare for future use */
     {0, NULL}
 };
 
@@ -3143,7 +3134,17 @@ dissect_diameter_3gpp_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         }
         return length;
     case 136:
-        /* TAI and NCGI */
+        /* 5GS TAI */
+        {
+            proto_tree *subtree;
+
+            subtree = proto_tree_add_subtree(tree, tvb, offset, 5, ett_gtpv2_uli_field, NULL,
+                                             "Tracking Area Identity (TAI)");
+            diam_sub_dis->avp_str = dissect_gtpv2_tai(tvb, pinfo, subtree, &offset);
+        }
+        return length;
+    case 137:
+        /* 5GS TAI and NCGI */
         {
             gchar *mcc_mnc_str;
             guint64 nr_cell_id;
