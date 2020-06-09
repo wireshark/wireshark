@@ -196,8 +196,10 @@ static int hf_hartip_pt_rsp_analog_channel_fixed = -1;
 /* Command 77 response */
 static int hf_hartip_pt_rsp_io_card = -1;
 static int hf_hartip_pt_rsp_channel = -1;
+static int hf_hartip_pt_req_tx_preamble_count = -1;
 static int hf_hartip_pt_rsp_embedded_cmd_delimiter = -1;
 static int hf_hartip_pt_rsp_poll_address = -1;
+static int hf_hartip_pt_rsp_unique_id = -1;
 static int hf_hartip_pt_rsp_embedded_cmd = -1;
 
 /* Command 31 and 178 response */
@@ -318,6 +320,9 @@ static int st_node_requests = -1;
 static int st_node_responses = -1;
 static int st_node_publish = -1;
 static int st_node_errors = -1;
+
+/* Local flags for pass through dissection. */
+#define HARTIP_PT_IS_RSP    0x01
 
 static void
 hartip_stats_tree_init(stats_tree* st)
@@ -849,16 +854,35 @@ dissect_cmd48(proto_tree *body_tree, tvbuff_t *tvb, gint offset, gint bodylen)
 }
 
 static gint
-dissect_cmd77(proto_tree *body_tree, tvbuff_t *tvb, gint offset, gint bodylen)
+dissect_cmd77(proto_tree *body_tree, tvbuff_t *tvb, gint offset, gint bodylen, gint flags)
 {
   guint8  byte_count;
   gint    length = bodylen;
 
   if (length >= 6) {
+     guint8 delimiter;
+
      offset += dissect_byte(body_tree, hf_hartip_pt_rsp_io_card,                tvb, offset);
      offset += dissect_byte(body_tree, hf_hartip_pt_rsp_channel,                tvb, offset);
+     if (!(flags & HARTIP_PT_IS_RSP)) {
+       offset += dissect_byte(body_tree, hf_hartip_pt_req_tx_preamble_count, tvb, offset);
+     }
+
+     delimiter = tvb_get_guint8(tvb, offset);
      offset += dissect_byte(body_tree, hf_hartip_pt_rsp_embedded_cmd_delimiter, tvb, offset);
-     offset += dissect_byte(body_tree, hf_hartip_pt_rsp_poll_address,           tvb, offset);
+
+     if ((delimiter & 0x80) == 0) {
+       guint8 short_addr;
+       short_addr = tvb_get_guint8(tvb, offset);
+       short_addr &= 0x3F;
+       proto_tree_add_uint(body_tree, hf_hartip_pt_rsp_poll_address, tvb, offset, 1, short_addr);
+       offset += 1;
+     } else {
+       /* TODO  Chop of the two first bits here, too? */
+       proto_tree_add_item(body_tree, hf_hartip_pt_rsp_unique_id, tvb, offset, 5, ENC_NA);
+       offset += 5;
+     }
+
      offset += dissect_byte(body_tree, hf_hartip_pt_rsp_embedded_cmd,           tvb, offset);
 
      byte_count = tvb_get_guint8(tvb, offset);
@@ -1043,7 +1067,7 @@ dissect_cmd31(proto_tree *body_tree, tvbuff_t *tvb, gint offset, gint bodylen)
 
 static gint
 dissect_parse_hart_cmds(proto_tree *body_tree, tvbuff_t *tvb, guint8 cmd,
-                        gint offset, gint bodylen)
+                        gint offset, gint bodylen, gint flags)
 {
   switch(cmd)
   {
@@ -1096,7 +1120,7 @@ dissect_parse_hart_cmds(proto_tree *body_tree, tvbuff_t *tvb, guint8 cmd,
   case 48:
     return dissect_cmd48(body_tree, tvb, offset, bodylen);
   case 77:
-    return dissect_cmd77(body_tree, tvb, offset, bodylen);
+    return dissect_cmd77(body_tree, tvb, offset, bodylen, flags);
   case 178:
     return dissect_cmd178(body_tree, tvb, offset, bodylen);
   case 203:
@@ -1210,7 +1234,11 @@ dissect_pass_through(proto_tree *body_tree, tvbuff_t *tvb, gint offset,
   }
 
   if (length > 1) {
-    result = dissect_parse_hart_cmds(body_tree, tvb, cmd, offset, (length - 1));
+    gint flags = 0;
+    if ( is_rsp ) {
+      flags |= HARTIP_PT_IS_RSP;
+    }
+    result = dissect_parse_hart_cmds(body_tree, tvb, cmd, offset, (length - 1), flags);
     if (result == 0 ) {
       proto_tree_add_item(body_tree, hf_hartip_pt_payload, tvb, offset,
                           (length - 1), ENC_NA);
@@ -2065,15 +2093,25 @@ proto_register_hartip(void)
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
+    { &hf_hartip_pt_req_tx_preamble_count,
+      { "Transmit Preamble Count",     "hart_ip.pt.rsp.tx_preamble_count",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_hartip_pt_rsp_embedded_cmd_delimiter,
-      { "Embedded Command Delimter",   "hart_ip.pt.rsp.embedded_command_delimter",
+      { "Embedded Command Delimiter",  "hart_ip.pt.rsp.embedded_command_delimter",
         FT_UINT8, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_hartip_pt_rsp_poll_address,
       { "Poll Address",                "hart_ip.pt.rsp.poll_address",
         FT_UINT8, BASE_DEC, NULL, 0x0,
-        NULL, HFILL }
+        "Embedded Command Short Address", HFILL }
+    },
+    { &hf_hartip_pt_rsp_unique_id,
+      { "Unique ID",                   "hart_ip.pt.rsp.unique_id",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        "Embedded Command Long Address", HFILL }
     },
     { &hf_hartip_pt_rsp_embedded_cmd,
       { "Embedded Command",            "hart_ip.pt.rsp.embedded_command",
