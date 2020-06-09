@@ -37,6 +37,8 @@
 #define pcapng_debug(...)
 #endif
 
+#define ROUND_TO_4BYTE(len) ((len + 3) & ~3)
+
 static gboolean
 pcapng_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
             gchar **err_info, gint64 *data_offset);
@@ -156,6 +158,9 @@ struct option {
 #define OPT_EPB_FLAGS        0x0002
 #define OPT_EPB_HASH         0x0003
 #define OPT_EPB_DROPCOUNT    0x0004
+#define OPT_EPB_PACKETID     0x0005
+#define OPT_EPB_QUEUE        0x0006
+#define OPT_EPB_VERDICT      0x0007
 
 #define OPT_NRB_DNSNAME      0x0002
 #define OPT_NRB_DNSV4ADDR    0x0003
@@ -163,6 +168,11 @@ struct option {
 
 /* MSBit of option code means "local type" */
 #define OPT_LOCAL_FLAG       0x8000
+
+/* OPT_EPB_VERDICT sub-types */
+#define OPT_VERDICT_TYPE_HW  0
+#define OPT_VERDICT_TYPE_TC  1
+#define OPT_VERDICT_TYPE_XDP 2
 
 /*
  * In order to keep from trying to allocate large chunks of memory,
@@ -1142,6 +1152,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh,
     guint8 *opt_ptr;
     pcapng_option_header_t *oh;
     guint8 *option_content;
+    gpointer option_content_copy;
     int pseudo_header_len;
     int fcslen;
 #ifdef HAVE_PLUGINS
@@ -1339,6 +1350,12 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh,
     wblock->rec->opt_comment = NULL;
     wblock->rec->rec_header.packet_header.drop_count  = -1;
     wblock->rec->rec_header.packet_header.pack_flags  = 0;
+    wblock->rec->rec_header.packet_header.packet_id  = 0;
+    wblock->rec->rec_header.packet_header.interface_queue  = 0;
+    if (wblock->rec->packet_verdict != NULL) {
+        g_ptr_array_free(wblock->rec->packet_verdict, TRUE);
+        wblock->rec->packet_verdict = NULL;
+    }
 
     /* FCS length default */
     fcslen = iface_info.fcslen;
@@ -1348,6 +1365,9 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh,
      * epb_flags      2
      * epb_hash       3
      * epb_dropcount  4
+     * epb_packetid   5
+     * epb_queue      6
+     * epb_verdict    7
      */
     to_read = block_total_length -
         (int)sizeof(pcapng_block_header_t) -
@@ -1442,6 +1462,91 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh,
                 }
 
                 pcapng_debug("pcapng_read_packet_block: drop_count %" G_GINT64_MODIFIER "u", wblock->rec->rec_header.packet_header.drop_count);
+                break;
+            case(OPT_EPB_PACKETID):
+                if (oh->option_length != 8) {
+                    *err = WTAP_ERR_BAD_FILE;
+                    *err_info = g_strdup_printf("pcapng_read_packet_block: packet block packet id option length %u is not 8",
+                                                oh->option_length);
+                    /* XXX - free anything? */
+                    return FALSE;
+                }
+                /*  Don't cast a guint8 * into a guint64 *--the
+                 *  guint8 * may not point to something that's
+                 *  aligned correctly.
+                 */
+                wblock->rec->presence_flags |= WTAP_HAS_PACKET_ID;
+                memcpy(&wblock->rec->rec_header.packet_header.packet_id, option_content, sizeof(guint64));
+                if (section_info->byte_swapped) {
+                    wblock->rec->rec_header.packet_header.packet_id = GUINT64_SWAP_LE_BE(wblock->rec->rec_header.packet_header.packet_id);
+                    memcpy(option_content, &wblock->rec->rec_header.packet_header.packet_id, sizeof(guint64));
+                }
+                pcapng_debug("pcapng_read_packet_block: packet_id %" G_GINT64_MODIFIER "u", wblock->rec->rec_header.packet_header.packet_id);
+                break;
+            case(OPT_EPB_QUEUE):
+                if (oh->option_length != 4) {
+                    *err = WTAP_ERR_BAD_FILE;
+                    *err_info = g_strdup_printf("pcapng_read_packet_block: packet block queue option length %u is not 4",
+                                                oh->option_length);
+                    /* XXX - free anything? */
+                    return FALSE;
+                }
+                /*  Don't cast a guint8 * into a guint32 *--the
+                 *  guint8 * may not point to something that's
+                 *  aligned correctly.
+                 */
+                wblock->rec->presence_flags |= WTAP_HAS_INT_QUEUE;
+                memcpy(&wblock->rec->rec_header.packet_header.interface_queue, option_content, sizeof(guint32));
+                if (section_info->byte_swapped) {
+                    wblock->rec->rec_header.packet_header.interface_queue = GUINT32_SWAP_LE_BE(wblock->rec->rec_header.packet_header.interface_queue);
+                    memcpy(option_content, &wblock->rec->rec_header.packet_header.interface_queue, sizeof(guint32));
+                }
+                pcapng_debug("pcapng_read_packet_block: queue %u", wblock->rec->rec_header.packet_header.interface_queue);
+                break;
+            case(OPT_EPB_VERDICT):
+                if (oh->option_length < 1 ||
+                    ((option_content[0] == OPT_VERDICT_TYPE_TC ||
+                      option_content[0] == OPT_VERDICT_TYPE_XDP) &&
+                     oh->option_length != 9)) {
+                    *err = WTAP_ERR_BAD_FILE;
+                    if (oh->option_length < 1)
+                        *err_info = g_strdup_printf("pcapng_read_packet_block: packet block verdict option length %u is < 1",
+                                                    oh->option_length);
+                    else
+                        *err_info = g_strdup_printf("pcapng_read_packet_block: packet block verdict option length %u is != 9",
+                                                    oh->option_length);
+                    /* XXX - free anything? */
+                    return FALSE;
+                }
+                /* Silently ignore unknown options */
+                if (option_content[0] > OPT_VERDICT_TYPE_XDP)
+                    continue;
+
+                if (wblock->rec->packet_verdict == NULL) {
+                    wblock->rec->presence_flags |= WTAP_HAS_VERDICT;
+                    wblock->rec->packet_verdict = g_ptr_array_new_with_free_func((GDestroyNotify) g_bytes_unref);
+                }
+
+                option_content_copy = g_memdup(option_content, oh->option_length);
+
+                /* For Linux XDP and TC we might need to byte swap */
+                if (section_info->byte_swapped &&
+                    (option_content[0] == OPT_VERDICT_TYPE_TC ||
+                     option_content[0] == OPT_VERDICT_TYPE_XDP)) {
+                    guint64 result;
+
+                    memcpy(&result, option_content + 1, sizeof(result));
+                    result = GUINT64_SWAP_LE_BE(result);
+                    memcpy(option_content + 1, &result, sizeof(result));
+                }
+
+                g_ptr_array_add(wblock->rec->packet_verdict,
+                                g_bytes_new_with_free_func(option_content_copy,
+                                                           oh->option_length,
+                                                           g_free,
+                                                           option_content_copy));
+                pcapng_debug("pcapng_read_packet_block: verdict type %u, data len %u",
+                             option_content[0], oh->option_length - 1);
                 break;
             default:
 #ifdef HAVE_PLUGINS
@@ -1593,6 +1698,12 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh,
     wblock->rec->opt_comment = NULL;
     wblock->rec->rec_header.packet_header.drop_count = 0;
     wblock->rec->rec_header.packet_header.pack_flags = 0;
+    wblock->rec->rec_header.packet_header.packet_id = 0;
+    wblock->rec->rec_header.packet_header.interface_queue = 0;
+    if (wblock->rec->packet_verdict != NULL) {
+        g_ptr_array_free(wblock->rec->packet_verdict, TRUE);
+        wblock->rec->packet_verdict = NULL;
+    }
 
     memset((void *)&wblock->rec->rec_header.packet_header.pseudo_header, 0, sizeof(union wtap_pseudo_header));
     pseudo_header_len = pcap_process_pseudo_header(fh,
@@ -3379,6 +3490,25 @@ pcapng_write_enhanced_packet_block(wtap_dumper *wdh, const wtap_rec *rec,
         have_options = TRUE;
         options_total_length = options_total_length + 12;
     }
+    if (rec->presence_flags & WTAP_HAS_PACKET_ID) {
+        have_options = TRUE;
+        options_total_length = options_total_length + 12;
+    }
+    if (rec->presence_flags & WTAP_HAS_INT_QUEUE) {
+        have_options = TRUE;
+        options_total_length = options_total_length + 8;
+    }
+    if (rec->presence_flags & WTAP_HAS_VERDICT && rec->packet_verdict != NULL) {
+
+        for(guint i = 0; i < rec->packet_verdict->len; i++) {
+            gsize len;
+            GBytes *verdict = (GBytes *) g_ptr_array_index(rec->packet_verdict, i);
+
+            if (g_bytes_get_data(verdict, &len) && len != 0)
+                options_total_length += ROUND_TO_4BYTE(4 + len);
+        }
+        have_options = TRUE;
+    }
     if (have_options) {
         /* End-of options tag */
         options_total_length += 4;
@@ -3465,6 +3595,35 @@ pcapng_write_enhanced_packet_block(wtap_dumper *wdh, const wtap_rec *rec,
      *                                                                data acquisition system and the capture library.
      * epb_dropcount   4   8          A 64bit integer value specifying the number of packets lost (by the interface and the operating system)
      *                                between this packet and the preceding one.
+     * epb_packetid    5   8          The epb_packetid option is a 64-bit unsigned integer that
+     *                                uniquely identifies the packet.  If the same packet is seen
+     *                                by multiple interfaces and there is a way for the capture
+     *                                application to correlate them, the same epb_packetid value
+     *                                must be used.  An example could be a router that captures
+     *                                packets on all its interfaces in both directions.  When a
+     *                                packet hits interface A on ingress, an EPB entry gets
+     *                                created, TTL gets decremented, and right before it egresses
+     *                                on interface B another EPB entry gets created in the trace
+     *                                file.  In this case, two packets are in the capture file,
+     *                                which are not identical but the epb_packetid can be used to
+     *                                correlate them.
+     * epb_queue       6   4          The epb_queue option is a 32-bit unsigned integer that
+     *                                identifies on which queue of the interface the specific
+     *                                packet was received.
+     * epb_verdict     7   variable   The epb_verdict option stores a verdict of the packet.  The
+     *                                verdict indicates what would be done with the packet after
+     *                                processing it.  For example, a firewall could drop the
+     *                                packet.  This verdict can be set by various components, i.e.
+     *                                Hardware, Linux's eBPF TC or XDP framework, etc.  etc.  The
+     *                                first octet specifies the verdict type, while the following
+     *                                octets contain the actual verdict data, whose size depends on
+     *                                the verdict type, and hence from the value in the first
+     *                                octet.  The verdict type can be: Hardware (type octet = 0,
+     *                                size = variable), Linux_eBPF_TC (type octet = 1, size = 8
+     *                                (64-bit unsigned integer), value = TC_ACT_* as defined in the
+     *                                Linux pck_cls.h include), Linux_eBPF_XDP (type octet = 2,
+     *                                size = 8 (64-bit unsigned integer), value = xdp_action as
+     *                                defined in the Linux pbf.h include).
      * opt_endofopt    0   0          It delimits the end of the optional fields. This block cannot be repeated within a given list of options.
      */
     if (rec->opt_comment) {
@@ -3512,6 +3671,58 @@ pcapng_write_enhanced_packet_block(wtap_dumper *wdh, const wtap_rec *rec,
             return FALSE;
         wdh->bytes_dumped += 8;
         pcapng_debug("pcapng_write_enhanced_packet_block: Wrote Options drop count: %" G_GINT64_MODIFIER "u", rec->rec_header.packet_header.drop_count);
+    }
+    if (rec->presence_flags & WTAP_HAS_PACKET_ID) {
+        option_hdr.type         = OPT_EPB_PACKETID;
+        option_hdr.value_length = 8;
+        if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
+            return FALSE;
+        wdh->bytes_dumped += 4;
+        if (!wtap_dump_file_write(wdh, &rec->rec_header.packet_header.packet_id, 8, err))
+            return FALSE;
+        wdh->bytes_dumped += 8;
+        pcapng_debug("pcapng_write_enhanced_packet_block: Wrote Options packet id: %" G_GINT64_MODIFIER "u", rec->rec_header.packet_header.packet_id);
+    }
+    if (rec->presence_flags & WTAP_HAS_INT_QUEUE) {
+        option_hdr.type         = OPT_EPB_QUEUE;
+        option_hdr.value_length = 4;
+        if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
+            return FALSE;
+        wdh->bytes_dumped += 4;
+        if (!wtap_dump_file_write(wdh, &rec->rec_header.packet_header.interface_queue, 4, err))
+            return FALSE;
+        wdh->bytes_dumped += 4;
+        pcapng_debug("pcapng_write_enhanced_packet_block: Wrote Options queue: %u", rec->rec_header.packet_header.interface_queue);
+    }
+    if (rec->presence_flags & WTAP_HAS_VERDICT && rec->packet_verdict != NULL) {
+
+        for(guint i = 0; i < rec->packet_verdict->len; i++) {
+            gsize len;
+            GBytes *verdict = (GBytes *) g_ptr_array_index(rec->packet_verdict, i);
+            const guint8 *verdict_data = (const guint8 *) g_bytes_get_data(verdict, &len);
+
+            if (verdict_data && len != 0) {
+
+                option_hdr.type         = OPT_EPB_VERDICT;
+                option_hdr.value_length = (guint16) len;
+                if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
+                    return FALSE;
+                wdh->bytes_dumped += 4;
+                if (!wtap_dump_file_write(wdh, verdict_data, len, err))
+                    return FALSE;
+                wdh->bytes_dumped += len;
+
+                if (ROUND_TO_4BYTE(len) != len) {
+                    size_t plen = ROUND_TO_4BYTE(len) - len;
+
+                    if (!wtap_dump_file_write(wdh, &zero_pad, plen, err))
+                        return FALSE;
+                    wdh->bytes_dumped += plen;
+                }
+                pcapng_debug("pcapng_write_enhanced_packet_block: Wrote Options verdict: %u",
+                             verdict_data[0]);
+            }
+        }
     }
     /* Write end of options if we have options */
     if (have_options) {

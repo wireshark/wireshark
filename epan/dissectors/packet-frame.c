@@ -62,12 +62,19 @@ static int hf_frame_md5_hash = -1;
 static int hf_frame_marked = -1;
 static int hf_frame_ignored = -1;
 static int hf_link_number = -1;
+static int hf_frame_packet_id = -1;
+static int hf_frame_verdict = -1;
+static int hf_frame_verdict_hardware = -1;
+static int hf_frame_verdict_tc = -1;
+static int hf_frame_verdict_xdp = -1;
+static int hf_frame_verdict_unknown = -1;
 static int hf_frame_protocols = -1;
 static int hf_frame_color_filter_name = -1;
 static int hf_frame_color_filter_text = -1;
 static int hf_frame_interface_id = -1;
 static int hf_frame_interface_name = -1;
 static int hf_frame_interface_description = -1;
+static int hf_frame_interface_queue = -1;
 static int hf_frame_pack_flags = -1;
 static int hf_frame_pack_direction = -1;
 static int hf_frame_pack_reception_type = -1;
@@ -88,6 +95,7 @@ static gint ett_frame = -1;
 static gint ett_ifname = -1;
 static gint ett_flags = -1;
 static gint ett_comments = -1;
+static gint ett_verdict = -1;
 
 static expert_field ei_comments_text = EI_INIT;
 static expert_field ei_arrive_time_out_of_range = EI_INIT;
@@ -129,11 +137,76 @@ static const value_string packet_word_reception_types[] = {
 	{ 0, NULL }
 };
 
+static const val64_string verdict_ebpf_tc_types[] = {
+	{ -1, "TC_ACT_UNSPEC"},
+	{ 0, "TC_ACT_OK"},
+	{ 1, "TC_ACT_RECLASSIFY"},
+	{ 2, "TC_ACT_SHOT"},
+	{ 3, "TC_ACT_PIPE"},
+	{ 4, "TC_ACT_STOLEN"},
+	{ 5, "TC_ACT_QUEUED"},
+	{ 6, "TC_ACT_REPEAT"},
+	{ 7, "TC_ACT_REDIRECT"},
+	{ 8, "TC_ACT_TRAP"},
+	{ 0, NULL }
+};
+
+static const val64_string verdict_ebpf_xdp_types[] = {
+	{ 0, "XDP_ABORTED"},
+	{ 1, "XDP_DROP"},
+	{ 2, "XDP_PASS"},
+	{ 3, "XDP_TX"},
+	{ 4, "XDP_REDIRECT"},
+	{ 0, NULL }
+};
+
 static dissector_table_t wtap_encap_dissector_table;
 static dissector_table_t wtap_fts_rec_dissector_table;
 
 /* The number of tree items required to add an exception to the tree */
 #define EXCEPTION_TREE_ITEMS 10
+
+/* OPT_EPB_VERDICT sub-types */
+#define OPT_VERDICT_TYPE_HW  0
+#define OPT_VERDICT_TYPE_TC  1
+#define OPT_VERDICT_TYPE_XDP 2
+
+static const char *
+get_verdict_type_string(guint8 type)
+{
+	switch(type) {
+	case OPT_VERDICT_TYPE_HW:
+		return "Hardware";
+	case OPT_VERDICT_TYPE_TC:
+		return "eBPF_TC";
+	case OPT_VERDICT_TYPE_XDP:
+		return "eBPF_XDP";
+	}
+	return "Unknown";
+}
+
+static void
+format_verdict_summary(wtap_rec *rec, char *buffer, size_t n)
+{
+	buffer[0] = 0;
+
+	for(guint i = 0; i < rec->packet_verdict->len; i++) {
+		char *format = i ? ", %s (%u)" : "%s (%u)";
+		size_t offset = strlen(buffer);
+		GBytes *verdict = (GBytes *) g_ptr_array_index(rec->packet_verdict, i);
+		const guint8 *data;
+
+		if (verdict == NULL)
+			continue;
+
+		if (offset >= n)
+			return;
+
+		data = (const guint8 *) g_bytes_get_data(verdict, NULL);
+		snprintf(buffer + offset, n - offset,
+			 format, get_verdict_type_string(data[0]), data[0]);
+	}
+}
 
 static void
 ensure_tree_item(proto_tree *tree, gint count)
@@ -447,6 +520,10 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 			}
 		}
 
+		if (pinfo->rec->presence_flags & WTAP_HAS_INT_QUEUE)
+			proto_tree_add_uint(fh_tree, hf_frame_interface_queue, tvb, 0, 0,
+					    pinfo->rec->rec_header.packet_header.interface_queue);
+
 		if (pinfo->rec->presence_flags & WTAP_HAS_PACK_FLAGS) {
 			proto_tree *flags_tree;
 			proto_item *flags_item;
@@ -469,6 +546,62 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 			flags_item = proto_tree_add_uint(fh_tree, hf_frame_pack_flags, tvb, 0, 0, pinfo->rec->rec_header.packet_header.pack_flags);
 			flags_tree = proto_item_add_subtree(flags_item, ett_flags);
 			proto_tree_add_bitmask_list_value(flags_tree, tvb, 0, 0, flags, pinfo->rec->rec_header.packet_header.pack_flags);
+		}
+
+		if (pinfo->rec->presence_flags & WTAP_HAS_PACKET_ID)
+			proto_tree_add_uint64(fh_tree, hf_frame_packet_id, tvb, 0, 0,
+					      pinfo->rec->rec_header.packet_header.packet_id);
+
+		if (pinfo->rec->presence_flags & WTAP_HAS_VERDICT &&
+		    pinfo->rec->packet_verdict != NULL) {
+			char line_buffer[128];
+			proto_tree *verdict_tree;
+			proto_item *verdict_item;
+
+			format_verdict_summary(pinfo->rec, line_buffer, sizeof(line_buffer));
+			verdict_item = proto_tree_add_string(fh_tree, hf_frame_verdict, tvb, 0, 0, line_buffer);
+			verdict_tree = proto_item_add_subtree(verdict_item, ett_verdict);
+
+			for(guint i = 0; i < pinfo->rec->packet_verdict->len; i++) {
+
+				GBytes *verdict = (GBytes *) g_ptr_array_index(pinfo->rec->packet_verdict, i);
+				const guint8 *verdict_data;
+				gsize len;
+
+				if (verdict == NULL)
+					continue;
+
+				verdict_data = (const guint8 *) g_bytes_get_data(verdict, &len);
+
+				if (len == 0)
+					continue;
+
+				len -= 1;
+				switch(verdict_data[0]) {
+				case OPT_VERDICT_TYPE_HW:
+					proto_tree_add_bytes_with_length(verdict_tree, hf_frame_verdict_hardware,
+									 tvb, 0, 0, verdict_data + 1, (gint) len);
+					break;
+				case OPT_VERDICT_TYPE_TC:
+					if (len == 8) {
+						gint64 val;
+						memcpy(&val, verdict_data + 1, sizeof(val));
+						proto_tree_add_int64(verdict_tree, hf_frame_verdict_tc, tvb, 0, 0, val);
+					}
+					break;
+				case OPT_VERDICT_TYPE_XDP:
+					if (len == 8) {
+						gint64 val;
+						memcpy(&val, verdict_data + 1, sizeof(val));
+						proto_tree_add_int64(verdict_tree, hf_frame_verdict_xdp, tvb, 0, 0, val);
+					}
+					break;
+				default:
+					proto_tree_add_bytes_with_length(verdict_tree, hf_frame_verdict_unknown,
+									 tvb, 0, 0, verdict_data, (gint) len + 1);
+					break;
+				}
+			}
 		}
 
 		if (pinfo->rec->rec_type == REC_TYPE_PACKET)
@@ -941,6 +1074,11 @@ proto_register_frame(void)
 		    FT_STRING, BASE_NONE, NULL, 0x0,
 		    "The descriptionfor this interface", HFILL }},
 
+		{ &hf_frame_interface_queue,
+		  { "Interface queue", "frame.interface_queue",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }},
+
 		{ &hf_frame_pack_flags,
 		  { "Packet flags", "frame.packet_flags",
 		    FT_UINT32, BASE_HEX, NULL, 0x0,
@@ -1010,6 +1148,38 @@ proto_register_frame(void)
 		  { "Comment", "frame.comment",
 		    FT_STRING, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }},
+
+		{ &hf_frame_packet_id,
+		  { "Packet id", "frame.packet_id",
+		    FT_UINT64, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_frame_verdict,
+		  { "Verdict", "frame.verdict",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_frame_verdict_hardware,
+		  { "Hardware", "frame.verdict.hw",
+		    FT_BYTES, SEP_SPACE, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_frame_verdict_tc,
+		  { "eBPF TC", "frame.verdict.ebpf_tc",
+		    FT_INT64, BASE_DEC|BASE_VAL64_STRING,
+		    VALS64(verdict_ebpf_tc_types), 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_frame_verdict_xdp,
+		  { "eBPF XDP", "frame.verdict.ebpf_xdp",
+		    FT_INT64, BASE_DEC|BASE_VAL64_STRING,
+		    VALS64(verdict_ebpf_xdp_types), 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_frame_verdict_unknown,
+		  { "Unknown", "frame.verdict.unknown",
+		    FT_BYTES, SEP_SPACE, NULL, 0x0,
+		    NULL, HFILL }},
 	};
 
 	static hf_register_info hf_encap =
@@ -1022,7 +1192,8 @@ proto_register_frame(void)
 		&ett_frame,
 		&ett_ifname,
 		&ett_flags,
-		&ett_comments
+		&ett_comments,
+		&ett_verdict,
 	};
 
 	static ei_register_info ei[] = {

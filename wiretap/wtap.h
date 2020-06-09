@@ -1304,6 +1304,8 @@ typedef struct {
     guint64   drop_count;       /* number of packets lost (by the interface and the
                                    operating system) between this packet and the preceding one. */
     guint32   pack_flags;       /* various flags, as per pcapng EPB */
+    guint32   interface_queue;  /* queue of the interface the packet was received on. */
+    guint64   packet_id;        /* unique packet identifier */
 
     union wtap_pseudo_header  pseudo_header;
 } wtap_packet_header;
@@ -1412,7 +1414,11 @@ typedef struct {
      */
     gchar     *opt_comment;     /* NULL if not available */
     gboolean  has_comment_changed; /* TRUE if the comment has been changed. Currently only valid while dumping. */
-
+    GPtrArray *packet_verdict;     /* packet verdicts. It would have made more
+                                      sense to put this in packet_header above
+                                      but due to the way the current code is
+                                      reusing the wtap_rec structure, it's
+                                      impossible to nicely clean it up. */
     /*
      * We use a Buffer so that we don't have to allocate and free
      * a buffer for the options for each record.
@@ -1448,6 +1454,9 @@ typedef struct {
 #define WTAP_HAS_COMMENTS      0x00000008  /**< comments */
 #define WTAP_HAS_DROP_COUNT    0x00000010  /**< drop count */
 #define WTAP_HAS_PACK_FLAGS    0x00000020  /**< packet flags */
+#define WTAP_HAS_PACKET_ID     0x00000040  /**< packet id */
+#define WTAP_HAS_INT_QUEUE     0x00000080  /**< interface queue */
+#define WTAP_HAS_VERDICT       0x00000100  /**< packet verdict */
 
 /**
  * Holds the required data from pcapng:s Section Header block(SHB).

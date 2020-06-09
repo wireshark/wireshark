@@ -1486,6 +1486,10 @@ wtap_rec_cleanup(wtap_rec *rec)
 	g_free(rec->opt_comment);
 	rec->opt_comment = NULL;
 	ws_buffer_free(&rec->options_buf);
+	if (rec->packet_verdict != NULL) {
+		g_ptr_array_free(rec->packet_verdict, TRUE);
+		rec->packet_verdict = NULL;
+	}
 }
 
 gboolean
