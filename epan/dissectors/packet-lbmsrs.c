@@ -852,6 +852,10 @@ static gboolean check_lbmsrs_packet(tvbuff_t *tvb, guint offset)
         offset += 3;
         /*move the offset by the metadata length*/
         offset += rsocket_metadata_len;
+        if (tvb_length < (offset - start_offset + 6))
+        {
+            return FALSE;
+        }
     }
 
 
