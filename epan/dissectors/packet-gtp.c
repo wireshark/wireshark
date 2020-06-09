@@ -216,6 +216,7 @@ static int hf_gtp_rai_rac = -1;
 static int hf_gtp_lac = -1;
 static int hf_gtp_tac = -1;
 static int hf_gtp_eci = -1;
+static int hf_gtp_ncgi_nrci = -1;
 static int hf_gtp_ranap_cause = -1;
 static int hf_gtp_recovery = -1;
 static int hf_gtp_reorder = -1;
@@ -2225,10 +2226,20 @@ static const value_string geographic_location_type[] = {
     {1, "Service Area Identity (SAI)"},
     {2, "Routing Area Identification (RAI)"},
 /* reserved for future used (3-->127) */
-    {128, "Tracking Area identity (TAI)"},                                              /* Radius */
-    {129, "E-UTRAN Cell Global Identification (ECGI)"},                                 /* Radius */
-    {130, "Tracking Area identity & E-UTRAN Cell Global Identification (TAI & ECGI)"},  /* Radius */
-/* reserved for future used (131-->255) */
+/* values below used by Radius */
+    {128, "TAI"},
+    {129, "ECGI"},
+    {130, "TAI & ECGI"},
+    {131, "eNodeB ID"},
+    {132, "TAI and eNodeB ID"},
+    {133, "extended eNodeB ID"},
+    {134, "TAI and extended eNodeB ID"},
+    {135, "NCGI"},
+    {136, "5GS TAI"},
+    {137, "5GS TAI and NCGI"},
+    {138, "NG-RAN Node ID"},
+    {139, "5GS TAI and NG-RAN Node ID"},
+/* reserved for future used (140-->255) */
     {0, NULL}
 };
 
@@ -6652,6 +6663,26 @@ gchar *dissect_radius_user_loc(proto_tree * tree, tvbuff_t * tvb, packet_info* p
             offset+=3;
             proto_tree_add_item(tree, hf_gtp_eci, tvb, offset, 4, ENC_BIG_ENDIAN);
             break;
+        case 135:
+            /* NCGI */
+            {
+                proto_tree_add_item(tree, hf_gtp_ncgi_nrci, tvb, offset, 5, ENC_BIG_ENDIAN);
+            }
+            break;
+        case 136:
+            /* 5GS TAI */
+            {
+                dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, E212_TAI, TRUE);
+            }
+            break;
+        case 137:
+            /* 5GS TAI and NCGI */
+            {
+                dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, E212_TAI, TRUE);
+                offset += 3;
+                proto_tree_add_item(tree, hf_gtp_ncgi_nrci, tvb, offset, 5, ENC_BIG_ENDIAN);
+            }
+            break;
         default:
             expert_add_info(pinfo, ti, &ei_gtp_ext_geo_loc_type);
             break;
@@ -10681,6 +10712,11 @@ proto_register_gtp(void)
           {"ECI", "gtp.eci",
            FT_UINT32, BASE_DEC, NULL, 0x0FFFFFFF,
            "E-UTRAN Cell Identifier", HFILL}
+        },
+        {&hf_gtp_ncgi_nrci,
+         {"NR Cell Identifier", "gtp.ncgi_nrci",
+          FT_UINT40, BASE_HEX, NULL, 0xfffffffff0,
+          NULL, HFILL}
         },
         {&hf_gtp_ranap_cause,
          { "RANAP cause", "gtp.ranap_cause",
