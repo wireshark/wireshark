@@ -328,8 +328,13 @@ get_compiler_info(GString *str)
   #if defined(__clang__)
 	/*
 	 * We know this isn't clang/C2, as _MSC_FULL_VER isn't defined.
+	 *
+	 * Strip out trailing space from clang's __VERSION__ to be consistent
+	 * with other compilers.
 	 */
-	g_string_append_printf(str, "\n\nBuilt using clang %s.\n", __VERSION__);
+	gchar* version = g_strstrip(g_strdup(__VERSION__));
+	g_string_append_printf(str, "\n\nBuilt using clang %s.\n", version);
+	g_free(version);
   #elif defined(__llvm__)
 	/* llvm-gcc */
 	g_string_append_printf(str, "\n\nBuilt using llvm-gcc %s.\n", __VERSION__);
