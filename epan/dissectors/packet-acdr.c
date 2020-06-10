@@ -866,7 +866,7 @@ dissect_rtp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 m
     call_dissector(rtp_dissector_handle, tvb, pinfo, tree);
 
     // see that the bottom protocol is indeed RTP and not some other protocol on top RTP
-    if (tree) {
+    if (tree && tree->last_child) {
         if (!strncmp(tree->last_child->finfo->hfinfo->name, "Real-Time Transport Protocol", 28)) {
             // add the length & offset fields to the RTP payload
             rtp_data_tree = tree->last_child->last_child; // the rtp subtree->the payload field
