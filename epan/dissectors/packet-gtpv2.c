@@ -7997,11 +7997,12 @@ static void
 dissect_gtpv2_ie_mon_event_ext_inf(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, proto_item* item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_, session_args_t* args _U_)
 {
     int   offset = 0;
-    guint32 lrtp, scef_id_len;
+    gboolean lrtp;
+    guint32 scef_id_len;
 
     /* Octet 5 Bit 1 LRTP Bit 2-8 Spare */
     proto_tree_add_bits_item(tree, hf_gtpv2_spare_bits, tvb, offset, 7, ENC_BIG_ENDIAN);
-    proto_tree_add_item_ret_uint(tree, hf_gtpv2_mon_event_ext_inf_lrtp, tvb, offset, 1, ENC_BIG_ENDIAN, &lrtp);
+    proto_tree_add_item_ret_boolean(tree, hf_gtpv2_mon_event_ext_inf_lrtp, tvb, offset, 1, ENC_BIG_ENDIAN, &lrtp);
     offset++;
     /* Octet 6 to 9 SCEF Reference ID */
     proto_tree_add_item(tree, hf_gtpv2_mon_event_ext_inf_scef_reference_id, tvb, offset, 4, ENC_BIG_ENDIAN);
