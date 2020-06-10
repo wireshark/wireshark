@@ -6,6 +6,8 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
+ * RFC 5533
+ *
  * SHIM6 support added by Matthijs Mekking <matthijs@NLnetLabs.nl>
  */
 
