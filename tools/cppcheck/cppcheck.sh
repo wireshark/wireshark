@@ -10,6 +10,7 @@
 #       -a      disable suppression list (see $CPPCHECK_DIR/suppressions)
 #       -c      colorize html output
 #       -h      html output (default is gcc)
+#       -x      xml output (default is gcc)
 #       -j n    threads (default: 4)
 #       -l n    check files from the last [n] commits
 #       -v      quiet mode
@@ -38,6 +39,7 @@ SUPPRESSIONS="--suppressions-list=$CPPCHECK_DIR/suppressions"
 INCLUDES="--includes-file=$CPPCHECK_DIR/includes"
 MODE="gcc"
 COLORIZE_HTML_MODE="no"
+XML_ARG=""
 
 colorize_worker()
 {
@@ -54,11 +56,12 @@ colorize()
     [ -z "$1" ] && colorize_worker || colorize_worker <<< "$1"
 }
 
-while getopts "achj:l:v" OPTCHAR ; do
+while getopts "achxj:l:v" OPTCHAR ; do
     case $OPTCHAR in
         a) SUPPRESSIONS=" " ;;
         c) COLORIZE_HTML_MODE="yes" ;;
         h) MODE="html" ;;
+        x) MODE="xml" ;;
         j) THREADS="$OPTARG" ;;
         l) LAST_COMMITS="$OPTARG" ;;
         v) QUIET=" " ;;
@@ -91,6 +94,10 @@ if [ -z "$TARGET" ] ; then
     TARGET=.
 fi
 
+if [ "$MODE" = "xml" ]; then
+    XML_ARG="--xml"
+fi
+
 # Use a little-documented feature of the shell to pass SIGINTs only to the
 # child process (cppcheck in this case). That way the final 'echo' still
 # runs and we aren't left with broken HTML.
@@ -102,7 +109,7 @@ $CPPCHECK --force --enable=style $QUIET    \
     -i doc/ \
     -i epan/dissectors/asn1/ \
     --std=c99 --template=$TEMPLATE   \
-    -j $THREADS $TARGET 2>&1 | colorize
+    -j $THREADS $TARGET $XML_ARG 2>&1 | colorize
 
 if [ "$MODE" = "html" ]; then
     echo "</table></body></html>"
