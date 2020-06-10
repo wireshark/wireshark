@@ -25,6 +25,7 @@
 
 #include <epan/conversation.h>
 #include <epan/packet.h>
+#include <epan/reassemble.h>
 #include <epan/proto_data.h>
 #include <epan/expert.h>
 #include <epan/wmem/wmem.h>
@@ -57,7 +58,21 @@ static int hf_coap_oscore_kid					= -1;
 static int hf_coap_oscore_kid_context				= -1;
 static int hf_coap_oscore_piv					= -1;
 
+static int hf_blocks						= -1;
+static int hf_block						= -1;
+static int hf_block_overlap					= -1;
+static int hf_block_overlap_conflicts				= -1;
+static int hf_block_multiple_tails				= -1;
+static int hf_block_too_long					= -1;
+static int hf_block_error					= -1;
+static int hf_block_count					= -1;
+static int hf_block_reassembled_in				= -1;
+static int hf_block_reassembled_length				= -1;
+
 static gint ett_coap						= -1;
+
+static gint ett_block						= -1;
+static gint ett_blocks						= -1;
 
 static expert_field ei_retransmitted				= EI_INIT;
 
@@ -247,6 +262,31 @@ static const value_string vals_ctype[] = {
 };
 
 static const char *nullstr = "(null)";
+
+static reassembly_table coap_block_reassembly_table;
+
+static const fragment_items coap_block_frag_items = {
+	/* Fragment subtrees */
+	&ett_block,
+	&ett_blocks,
+	/* Fragment fields */
+	&hf_blocks,
+	&hf_block,
+	&hf_block_overlap,
+	&hf_block_overlap_conflicts,
+	&hf_block_multiple_tails,
+	&hf_block_too_long,
+	&hf_block_error,
+	&hf_block_count,
+	/* Reassembled in field */
+	&hf_block_reassembled_in,
+	/* Reassembled length field */
+	&hf_block_reassembled_length,
+	/* Reassembled data field */
+	NULL,
+	/* Tag */
+	"Block fragments"
+};
 
 void proto_reg_handoff_coap(void);
 
@@ -1367,7 +1407,21 @@ dissect_coap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
 	/* dissect the payload */
 	if (coap_length > offset) {
-		dissect_coap_payload(tvb, pinfo, coap_tree, parent_tree, offset, coap_length, code_class, coinfo, &dissect_coap_hf, FALSE);
+		if (coinfo->block_number == DEFAULT_COAP_BLOCK_NUMBER) {
+			dissect_coap_payload(tvb, pinfo, coap_tree, parent_tree, offset, coap_length,
+					     code_class, coinfo, &dissect_coap_hf, FALSE);
+		} else {
+			fragment_head *frag_msg = fragment_add_seq_check(&coap_block_reassembly_table, tvb, offset,
+									 pinfo, 0, NULL, coinfo->block_number,
+									 coap_length - offset, coinfo->block_mflag);
+			tvbuff_t *frag_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled CoAP blocks",
+								      frag_msg, &coap_block_frag_items, NULL, coap_tree);
+
+			if (frag_tvb) {
+				dissect_coap_payload(frag_tvb, pinfo, coap_tree, parent_tree, 0, tvb_reported_length(frag_tvb),
+						     code_class, coinfo, &dissect_coap_hf, FALSE);
+			}
+		}
 	}
 
 	return coap_length;
@@ -1472,11 +1526,63 @@ proto_register_coap(void)
 		  { "OSCORE Partial IV", "coap.oscore_piv", FT_BYTES, BASE_NONE, NULL, 0x0,
 		    "Matched OSCORE Partial IV", HFILL }
 		},
+		{ &hf_blocks,
+		  { "Blocks", "coap.blocks",
+			FT_NONE, BASE_NONE, NULL, 0x00,
+			NULL, HFILL }
+		},
+		{ &hf_block,
+		  { "Block", "coap.block",
+			FT_FRAMENUM, BASE_NONE, NULL, 0x00,
+			NULL, HFILL }
+		},
+		{ &hf_block_overlap,
+		  { "Block overlap", "coap.block.overlap",
+			FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_block_overlap_conflicts,
+		  { "Block overlapping with conflicting data", "coap.block.overlap.conflicts",
+			FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_block_multiple_tails,
+		  { "Block has multiple tails", "coap.block.multiple_tails",
+			FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_block_too_long,
+		  { "Block too long", "coap.block.too_long",
+			FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_block_error,
+		  { "Block defragmentation error", "coap.block.error",
+			FT_FRAMENUM, BASE_NONE, NULL, 0x00,
+			NULL, HFILL }
+		},
+		{ &hf_block_count,
+		  { "Block count", "coap.block.count",
+			FT_UINT32, BASE_DEC, NULL, 0x00,
+			NULL, HFILL }
+		},
+		{ &hf_block_reassembled_in,
+		  { "Reassembled in", "coap.block.reassembled.in",
+			FT_FRAMENUM, BASE_NONE, NULL, 0x00,
+			NULL, HFILL }
+		},
+		{ &hf_block_reassembled_length,
+		  { "Reassembled block length", "coap.block.reassembled.length",
+			FT_UINT32, BASE_DEC, NULL, 0x00,
+			NULL, HFILL }
+		},
 		COAP_COMMON_HF_LIST(dissect_coap_hf, "coap")
 	};
 
 	static gint *ett[] = {
 		&ett_coap,
+		&ett_block,
+		&ett_blocks,
 		COAP_COMMON_ETT_LIST(dissect_coap_hf)
 	};
 
@@ -1495,6 +1601,8 @@ proto_register_coap(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_coap = expert_register_protocol(proto_coap);
 	expert_register_field_array(expert_coap, ei, array_length(ei));
+
+	reassembly_table_register (&coap_block_reassembly_table, &addresses_reassembly_table_functions);
 
 	coap_handle = register_dissector("coap", dissect_coap, proto_coap);
 }
