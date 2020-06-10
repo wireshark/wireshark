@@ -1372,6 +1372,35 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
             break;
         }
         computed_cksum = in_cksum(cksum_vec, cksum_vec_len);
+        /*
+         * in_cksum() should never return 0xFFFF here, because, to quote
+         * RFC 1624 section 3 "Discussion":
+         *
+         *     In one's complement, there are two representations of
+         *     zero: the all zero and the all one bit values, often
+         *     referred to as +0 and -0.  One's complement addition
+         *     of non-zero inputs can produce -0 as a result, but
+         *     never +0.  Since there is guaranteed to be at least
+         *     one non-zero field in the IP header, and the checksum
+         *     field in the protocol header is the complement of the
+         *     sum, the checksum field can never contain ~(+0), which
+         *     is -0 (0xFFFF).  It can, however, contain ~(-0), which
+         *     is +0 (0x0000).
+         *
+         * RFC 1624 is discussing the checksum of the *IPv4* header,
+         * where the "version" field is 4, ensuring that, in a valid
+         * IPv4 header, there is at least one non-zero field, but it
+         * also applies to an OSPF packet, because, for OSPFv2, the
+         * header includes a version field with the value 2 and, for
+         * OSPFv3, the pseudo-header includes the non-zero IP protocol
+         * number for OSPF, so at least one field in the checksummed
+         * data is non-zero.
+         *
+         * in_cksum() returns the negation of the one's-complement
+         * sum of all the data handed to it, and that data won't be
+         * all zero, so the sum won't be 0 (+0), and thus the negation
+         * won't be -0, i.e. won't be 0xFFFF.
+         */
         if (computed_cksum == 0) {
             proto_item_append_text(ti_sum, " [correct]");
         } else {
