@@ -347,9 +347,6 @@ static int hf_ac45x_packet = -1;
 static int hf_ac48x_packet = -1;
 static int hf_ac49x_packet = -1;
 static int hf_ac5x_packet = -1;
-static int hf_cas_packet = -1;
-static int hf_ha_packet = -1;
-static int hf_netbricks_packet = -1;
 
 static int hf_signaling_packet = -1;
 static int hf_acdr_signaling_opcode = -1;
@@ -366,7 +363,6 @@ static int ett_ac5x_packet = -1;
 static int ett_ac5x_mii_packet = -1;
 static int ett_mii_header = -1;
 static int ett_signaling_packet = -1;
-static int ett_netbricks_packet = -1;
 static int ett_extra_data = -1;
 static int ett_c5_cntrl_flags = -1;
 static int ett_5x_analysis_packet_header = -1;
@@ -1707,26 +1703,8 @@ proto_register_acdr(void)
                 NULL, 0x3F,
                 "Protocol Proprietary", HFILL }
         },
-        { &hf_cas_packet,
-            { "CAS Trace", "acdr.cas_trace",
-                FT_NONE, BASE_NONE,
-                NULL, 0x0,
-                NULL, HFILL }
-        },
         { &hf_signaling_packet,
             { "Signaling Packet", "acdr.signaling_packet",
-                FT_NONE, BASE_NONE,
-                NULL, 0x0,
-                NULL, HFILL }
-        },
-        { &hf_ha_packet,
-            { "HA Trace", "acdr.ha_trace",
-                FT_NONE, BASE_NONE,
-                NULL, 0x0,
-                NULL, HFILL }
-        },
-        { &hf_netbricks_packet,
-            { "NetBricks Trace", "acdr.netbricks_trace",
                 FT_NONE, BASE_NONE,
                 NULL, 0x0,
                 NULL, HFILL }
@@ -1779,7 +1757,6 @@ proto_register_acdr(void)
         &ett_ac5x_mii_packet,
         &ett_mii_header,
         &ett_signaling_packet,
-        &ett_netbricks_packet,
         &ett_extra_data,
         &ett_c5_cntrl_flags,
         &ett_5x_analysis_packet_header,
