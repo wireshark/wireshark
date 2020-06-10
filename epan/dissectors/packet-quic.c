@@ -12,9 +12,9 @@
 
 /*
  * See https://quicwg.org
- * https://tools.ietf.org/html/draft-ietf-quic-transport-28
- * https://tools.ietf.org/html/draft-ietf-quic-tls-28
- * https://tools.ietf.org/html/draft-ietf-quic-invariants-08
+ * https://tools.ietf.org/html/draft-ietf-quic-transport-29
+ * https://tools.ietf.org/html/draft-ietf-quic-tls-29
+ * https://tools.ietf.org/html/draft-ietf-quic-invariants-09
  *
  * Extension:
  * https://tools.ietf.org/html/draft-ferrieuxhamchaoui-quic-lossbits-03
@@ -22,8 +22,8 @@
  * https://tools.ietf.org/html/draft-huitema-quic-ts-02
  * https://tools.ietf.org/html/draft-iyengar-quic-delayed-ack-00
  *
- * Currently supported QUIC version(s): draft -21, draft -22, draft -23,
- * draft-24, draft-25, draft-26, draft-27, draft-28.
+ * Currently supported QUIC version(s): draft -23, draft-24, draft-25,
+ * draft-26, draft-27, draft-28, draft-29.
  * For a table of supported QUIC versions per Wireshark version, see
  * https://github.com/quicwg/base-drafts/wiki/Tools#wireshark
  *
@@ -372,6 +372,7 @@ const value_string quic_version_vals[] = {
     { 0xff00001a, "draft-26" },
     { 0xff00001b, "draft-27" },
     { 0xff00001c, "draft-28" },
+    { 0xff00001d, "draft-29" },
     { 0, NULL }
 };
 
@@ -474,7 +475,7 @@ static const range_string quic_transport_error_code_vals[] = {
     /* 0x00 - 0x3f Assigned via Standards Action or IESG Review policies. */
     { 0x0000, 0x0000, "NO_ERROR" },
     { 0x0001, 0x0001, "INTERNAL_ERROR" },
-    { 0x0002, 0x0002, "SERVER_BUSY" },
+    { 0x0002, 0x0002, "CONNECTION_REFUSED" },
     { 0x0003, 0x0003, "FLOW_CONTROL_ERROR" },
     { 0x0004, 0x0004, "STREAM_ID_ERROR" },
     { 0x0005, 0x0005, "STREAM_STATE_ERROR" },
@@ -1508,9 +1509,9 @@ quic_derive_initial_secrets(const quic_cid_t *cid,
                             const gchar **error)
 {
     /*
-     * https://tools.ietf.org/html/draft-ietf-quic-tls-23#section-5.2
+     * https://tools.ietf.org/html/draft-ietf-quic-tls-29#section-5.2
      *
-     * initial_salt = 0xc3eef712c72ebb5a11a7d2432bb46365bef9f502
+     * initial_salt = 0xafbfec289993d24c9e9786f19c6111e04390a899
      * initial_secret = HKDF-Extract(initial_salt, client_dst_connection_id)
      *
      * client_initial_secret = HKDF-Expand-Label(initial_secret,
@@ -1520,23 +1521,22 @@ quic_derive_initial_secrets(const quic_cid_t *cid,
      *
      * Hash for handshake packets is SHA-256 (output size 32).
      */
-    static const guint8 handshake_salt_draft_22[20] = {
-        0x7f, 0xbc, 0xdb, 0x0e, 0x7c, 0x66, 0xbb, 0xe9, 0x19, 0x3a,
-        0x96, 0xcd, 0x21, 0x51, 0x9e, 0xbd, 0x7a, 0x02, 0x64, 0x4a
-    };
     static const guint8 handshake_salt_draft_23[20] = {
         0xc3, 0xee, 0xf7, 0x12, 0xc7, 0x2e, 0xbb, 0x5a, 0x11, 0xa7,
         0xd2, 0x43, 0x2b, 0xb4, 0x63, 0x65, 0xbe, 0xf9, 0xf5, 0x02,
     };
-
+    static const guint8 handshake_salt_draft_29[20] = {
+        0xaf, 0xbf, 0xec, 0x28, 0x99, 0x93, 0xd2, 0x4c, 0x9e, 0x97,
+        0x86, 0xf1, 0x9c, 0x61, 0x11, 0xe0, 0x43, 0x90, 0xa8, 0x99
+    };
     gcry_error_t    err;
     guint8          secret[HASH_SHA2_256_LENGTH];
 
-    if (is_quic_draft_max(version, 22)) {
-        err = hkdf_extract(GCRY_MD_SHA256, handshake_salt_draft_22, sizeof(handshake_salt_draft_22),
+    if (is_quic_draft_max(version, 28)) {
+        err = hkdf_extract(GCRY_MD_SHA256, handshake_salt_draft_23, sizeof(handshake_salt_draft_23),
                            cid->cid, cid->len, secret);
     } else {
-        err = hkdf_extract(GCRY_MD_SHA256, handshake_salt_draft_23, sizeof(handshake_salt_draft_23),
+        err = hkdf_extract(GCRY_MD_SHA256, handshake_salt_draft_29, sizeof(handshake_salt_draft_29),
                            cid->cid, cid->len, secret);
     }
     if (err) {
