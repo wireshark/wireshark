@@ -17,7 +17,6 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/to_str.h>
-#include <epan/in_cksum.h>
 #include <epan/nlpid.h>
 #include <epan/etypes.h>
 #include <stdio.h>
