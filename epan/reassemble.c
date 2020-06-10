@@ -2624,9 +2624,10 @@ process_reassembled_data(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 		 * add it to the protocol tree.
 		 */
 		if (fd_head != NULL && fit->hf_reassembled_in != NULL) {
-			proto_tree_add_uint(tree,
+			proto_item *fei = proto_tree_add_uint(tree,
 				*(fit->hf_reassembled_in), tvb,
 				0, 0, fd_head->reassembled_in);
+			proto_item_set_generated(fei);
 		}
 	}
 	return next_tvb;
