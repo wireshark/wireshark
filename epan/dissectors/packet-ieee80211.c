@@ -731,6 +731,12 @@ static const value_string ieee80211_supported_rates_vals[] = {
   { 0xC8, "36(B)" },
   { 0xE0, "48(B)" },
   { 0xEC, "54(B)" },
+  /* BSS membership selector */
+  { 0xFA, "SAE Hash to Element Only" },
+  { 0xFB, "EPD" }, /* 802.11ak */
+  { 0xFC, "GLK" }, /* 802.11ak */
+  { 0xFD, "VHT PHY" },
+  { 0xFE, "HT PHY" },
   { 0xFF, "BSS requires support for mandatory features of HT PHY (IEEE 802.11 - Clause 20)" },
   { 0,    NULL}
 };
