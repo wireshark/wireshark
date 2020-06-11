@@ -2627,7 +2627,7 @@ process_reassembled_data(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 			proto_item *fei = proto_tree_add_uint(tree,
 				*(fit->hf_reassembled_in), tvb,
 				0, 0, fd_head->reassembled_in);
-			proto_item_set_generated(fei);
+			PROTO_ITEM_SET_GENERATED(fei);
 		}
 	}
 	return next_tvb;
