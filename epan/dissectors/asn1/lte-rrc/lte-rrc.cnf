@@ -548,7 +548,10 @@ MasterInformationBlock/schedulingInfoSIB1-BR-r13 TYPE=FT_UINT32 DISPLAY=BASE_DEC
   if (nas_sec_param_from_eutra_tvb) {
     length = tvb_reported_length(nas_sec_param_from_eutra_tvb);
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_nas_SecurityParam);
-    de_emm_sec_par_from_eutra(nas_sec_param_from_eutra_tvb, subtree, actx->pinfo, 0, length, NULL, 0);
+    if (private_data_get_rat_target_type(actx) == T_targetRAT_Type_eutra)
+      de_nas_5gs_n1_mode_to_s1_mode_nas_transparent_cont(nas_sec_param_from_eutra_tvb, subtree, actx->pinfo);
+    else
+      de_emm_sec_par_from_eutra(nas_sec_param_from_eutra_tvb, subtree, actx->pinfo, 0, length, NULL, 0);
   }
 
 #.FN_BODY SecurityConfigHO/handoverType/interRAT/nas-SecurityParamToEUTRA VAL_PTR = &nas_sec_param_to_eutra_tvb
