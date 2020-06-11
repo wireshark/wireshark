@@ -123,6 +123,8 @@ static int hf_mac_lte_dlsch_lcid = -1;
 static int hf_mac_lte_ulsch_lcid = -1;
 static int hf_mac_lte_sch_extended = -1;
 static int hf_mac_lte_sch_format = -1;
+static int hf_mac_lte_sch_reserved2 = -1;
+static int hf_mac_lte_sch_elcid = -1;
 static int hf_mac_lte_sch_length = -1;
 static int hf_mac_lte_mch_reserved = -1;
 static int hf_mac_lte_mch_format2 = -1;
@@ -596,6 +598,7 @@ static const true_false_string mac_lte_scell_status_vals = {
     "Deactivated"
 };
 
+#define EXT_LOGICAL_CHANNEL_ID_LCID            0x10
 #define ACTIVATION_DEACTIVATION_CSI_RS_LCID    0x15
 #define RECOMMENDED_BIT_RATE_LCID              0x16
 #define SC_PTM_STOP_INDICATION_LCID            0x17
@@ -621,6 +624,7 @@ static const value_string dlsch_lcid_vals[] =
     { 8,                                      "8"},
     { 9,                                      "9"},
     { 10,                                     "10"},
+    { EXT_LOGICAL_CHANNEL_ID_LCID,            "Extended logical channel ID field"},
     { ACTIVATION_DEACTIVATION_CSI_RS_LCID,    "Activation/Deactivation of CSI-RS"},
     { RECOMMENDED_BIT_RATE_LCID,              "Recommended Bit Rate"},
     { SC_PTM_STOP_INDICATION_LCID,            "SC-PTM Stop Indication"},
@@ -662,6 +666,7 @@ static const value_string ulsch_lcid_vals[] =
     { 10,                                   "10"},
     { 11,                                   "CCCH (Category 0)"},
     { 12,                                   "CCCH (frequency hopping for unicast)"},
+    { EXT_LOGICAL_CHANNEL_ID_LCID,          "Extended logical channel ID field"},
     { RECOMMENDED_BIT_RATE_QUERY_LCID,      "Recommended Bit Rate Query"},
     { SPS_CONFIRMATION_LCID,                "SPS Confirmation"},
     { TRUNCATED_SIDELINK_BSR_LCID,          "Truncated Sidelink BSR"},
@@ -1557,7 +1562,7 @@ typedef struct dynamic_lcid_drb_mapping_t {
 } dynamic_lcid_drb_mapping_t;
 
 typedef struct ue_dynamic_drb_mappings_t {
-    dynamic_lcid_drb_mapping_t mapping[11];  /* Index is LCID */
+    dynamic_lcid_drb_mapping_t mapping[39];  /* Index is LCID */
     guint8 drb_to_lcid_mappings[32];         /* Also map drbid -> lcid */
 } ue_dynamic_drb_mappings_t;
 
@@ -4445,6 +4450,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     /* Keep track of LCIDs and lengths as we dissect the header */
     guint16          number_of_headers = 0;
     guint8           lcids[MAX_HEADERS_IN_PDU];
+    guint8           elcids[MAX_HEADERS_IN_PDU];
     gint32           pdu_lengths[MAX_HEADERS_IN_PDU];
 
     proto_item *pdu_header_ti;
@@ -4545,6 +4551,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         proto_item *ti;
         gint       offset_start_subheader = offset;
         guint8 first_byte = tvb_get_guint8(tvb, offset);
+        const gchar *lcid_str;
 
         /* Add PDU block header subtree.
            Default with length of 1 byte. */
@@ -4583,37 +4590,45 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
             lcid_ti = proto_tree_add_item(pdu_subheader_tree, hf_mac_lte_ulsch_lcid,
                                           tvb, offset, 1, ENC_BIG_ENDIAN);
-            write_pdu_label_and_info(pdu_ti, NULL, pinfo,
-                                     "(%s",
-                                     val_to_str_const(lcids[number_of_headers],
-                                                      ulsch_lcid_vals, "(Unknown LCID)"));
-            if (lcids[number_of_headers] == 11 || lcids[number_of_headers] == 12) {
-                /* This LCID is used for CCCH by Category 0 devices / devices using frequency hopping for unicast
-                   Let's remap it to LCID 0 for statistics and other checks */
-                lcids[number_of_headers] = 0;
+            if (lcids[number_of_headers] != EXT_LOGICAL_CHANNEL_ID_LCID) {
+                write_pdu_label_and_info(pdu_ti, NULL, pinfo,
+                                         "(%s",
+                                         val_to_str_const(lcids[number_of_headers],
+                                                          ulsch_lcid_vals, "(Unknown LCID)"));
+                if (lcids[number_of_headers] == 11 || lcids[number_of_headers] == 12) {
+                    /* This LCID is used for CCCH by Category 0 devices / devices using frequency hopping for unicast
+                       Let's remap it to LCID 0 for statistics and other checks */
+                    lcids[number_of_headers] = 0;
+                }
+            } else {
+                write_pdu_label_and_info(pdu_ti, NULL, pinfo, "(%u", tvb_get_guint8(tvb, offset+1) + 32);
             }
         }
         else {
             /* Downlink */
             lcid_ti = proto_tree_add_item(pdu_subheader_tree, hf_mac_lte_dlsch_lcid,
                                           tvb, offset, 1, ENC_BIG_ENDIAN);
-            write_pdu_label_and_info(pdu_ti, NULL, pinfo,
-                                     "(%s",
-                                     val_to_str_const(lcids[number_of_headers],
-                                                      dlsch_lcid_vals, "(Unknown LCID)"));
+            if (lcids[number_of_headers] != EXT_LOGICAL_CHANNEL_ID_LCID) {
+                write_pdu_label_and_info(pdu_ti, NULL, pinfo,
+                                         "(%s",
+                                         val_to_str_const(lcids[number_of_headers],
+                                                          dlsch_lcid_vals, "(Unknown LCID)"));
 
-            if ((lcids[number_of_headers] == DRX_COMMAND_LCID) ||
-                (lcids[number_of_headers] == LONG_DRX_COMMAND_LCID)) {
-                expert_add_info_format(pinfo, lcid_ti, &ei_mac_lte_dlsch_lcid,
-                                       "%sDRX command received for UE %u (RNTI %u)",
-                                       (lcids[number_of_headers] == LONG_DRX_COMMAND_LCID) ? "Long " :"",
-                                       p_mac_lte_info->ueid, p_mac_lte_info->rnti);
+                if ((lcids[number_of_headers] == DRX_COMMAND_LCID) ||
+                    (lcids[number_of_headers] == LONG_DRX_COMMAND_LCID)) {
+                    expert_add_info_format(pinfo, lcid_ti, &ei_mac_lte_dlsch_lcid,
+                                           "%sDRX command received for UE %u (RNTI %u)",
+                                           (lcids[number_of_headers] == LONG_DRX_COMMAND_LCID) ? "Long " :"",
+                                           p_mac_lte_info->ueid, p_mac_lte_info->rnti);
+                }
+            } else {
+                write_pdu_label_and_info(pdu_ti, NULL, pinfo, "(%u", tvb_get_guint8(tvb, offset+1) + 32);
             }
         }
         offset++;
 
         /* Remember if we've seen a data subheader */
-        if (lcids[number_of_headers] <= 10) {
+        if (lcids[number_of_headers] <= 10 || lcids[number_of_headers] == EXT_LOGICAL_CHANNEL_ID_LCID) {
             have_seen_data_header = TRUE;
             expecting_body_data = TRUE;
         }
@@ -4623,7 +4638,8 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
         /* Show an expert item if a control subheader (except Padding) appears
            *after* a data PDU */
-        if (have_seen_data_header && (lcids[number_of_headers] > 10) && (lcids[number_of_headers] != PADDING_LCID)) {
+        if (have_seen_data_header && (lcids[number_of_headers] > 10) &&
+            (lcids[number_of_headers] != EXT_LOGICAL_CHANNEL_ID_LCID) && (lcids[number_of_headers] != PADDING_LCID)) {
             expert_add_info_format(pinfo, lcid_ti, &ei_mac_lte_control_subheader_after_data_subheader,
                                    "%cL-SCH control subheaders should not appear after data subheaders",
                                    (p_mac_lte_info->direction == DIRECTION_UPLINK) ? 'U' : 'D');
@@ -4662,6 +4678,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
         /* Remember that we've seen non-padding control */
         if ((lcids[number_of_headers] > 10) &&
+            (lcids[number_of_headers] != EXT_LOGICAL_CHANNEL_ID_LCID) &&
             (lcids[number_of_headers] != PADDING_LCID) &&
             (lcids[number_of_headers] != SC_MCCH_SC_MTCH_LCID)) {
             have_seen_non_padding_control = TRUE;
@@ -4673,6 +4690,22 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             return;
         }
 
+        if (lcids[number_of_headers] == EXT_LOGICAL_CHANNEL_ID_LCID) {
+            guint8 elcid;
+
+            ti = proto_tree_add_item(pdu_subheader_tree, hf_mac_lte_sch_reserved2,
+                                     tvb, offset, 1, ENC_BIG_ENDIAN);
+            if (reserved != 0) {
+                expert_add_info_format(pinfo, ti, &ei_mac_lte_reserved_not_zero,
+                                       "%cL-SCH header Reserved bits not zero",
+                                       (p_mac_lte_info->direction == DIRECTION_UPLINK) ? 'U' : 'D');
+            }
+            elcid = (tvb_get_guint8(tvb, offset) & 0x3f);
+            elcids[number_of_headers] = elcid + 32;
+            proto_tree_add_uint_format_value(pdu_subheader_tree, hf_mac_lte_sch_elcid, tvb, offset,
+                                             1, elcid, "%u (%u)", elcids[number_of_headers], elcid);
+            offset++;
+        }
 
         /********************************************************************/
         /* Length field follows if not the last header or for a fixed-sized
@@ -4745,40 +4778,29 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 break;
         }
 
+        if (lcids[number_of_headers] != EXT_LOGICAL_CHANNEL_ID_LCID) {
+            lcid_str = val_to_str_const(initial_lcid, (p_mac_lte_info->direction == DIRECTION_UPLINK) ?
+                                        ulsch_lcid_vals : dlsch_lcid_vals, "Unknown");
+        } else {
+            lcid_str = wmem_strdup_printf(wmem_packet_scope(), "%u", elcids[number_of_headers]);
+        }
+
         /* Append summary to subheader root */
-        proto_item_append_text(pdu_subheader_ti, " (lcid=%s",
-                               val_to_str_const(initial_lcid,
-                                                (p_mac_lte_info->direction == DIRECTION_UPLINK) ?
-                                                    ulsch_lcid_vals :
-                                                        dlsch_lcid_vals,
-                                                "Unknown"));
+        proto_item_append_text(pdu_subheader_ti, " (lcid=%s", lcid_str);
 
         switch (pdu_lengths[number_of_headers]) {
             case -1:
                 proto_item_append_text(pdu_subheader_ti, ", length is remainder)");
-                proto_item_append_text(pdu_header_ti, " (%s:remainder)",
-                                       val_to_str_const(initial_lcid,
-                                                        (p_mac_lte_info->direction == DIRECTION_UPLINK) ?
-                                                            ulsch_lcid_vals : dlsch_lcid_vals,
-                                                        "Unknown"));
+                proto_item_append_text(pdu_header_ti, " (%s:remainder)", lcid_str);
                 break;
             case 0:
                 proto_item_append_text(pdu_subheader_ti, ")");
-                proto_item_append_text(pdu_header_ti, " (%s)",
-                                       val_to_str_const(initial_lcid,
-                                                        (p_mac_lte_info->direction == DIRECTION_UPLINK) ?
-                                                            ulsch_lcid_vals : dlsch_lcid_vals,
-                                                        "Unknown"));
+                proto_item_append_text(pdu_header_ti, " (%s)", lcid_str);
                 break;
             default:
                 proto_item_append_text(pdu_subheader_ti, ", length=%d)",
                                        pdu_lengths[number_of_headers]);
-                proto_item_append_text(pdu_header_ti, " (%s:%u)",
-                                       val_to_str_const(initial_lcid,
-                                                        (p_mac_lte_info->direction == DIRECTION_UPLINK) ?
-                                                            ulsch_lcid_vals : dlsch_lcid_vals,
-                                                        "Unknown"),
-                                       pdu_lengths[number_of_headers]);
+                proto_item_append_text(pdu_header_ti, " (%s:%u)", lcid_str, pdu_lengths[number_of_headers]);
                 break;
         }
 
@@ -4832,7 +4854,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
     for (n=0; n < number_of_headers; n++) {
         /* Get out of loop once see any data SDU subheaders */
-        if ((lcids[n] <= 10) ||
+        if ((lcids[n] <= 10) || lcids[n] == EXT_LOGICAL_CHANNEL_ID_LCID ||
             ((p_mac_lte_info->direction == DIRECTION_DOWNLINK) && (lcids[n] == SC_MCCH_SC_MTCH_LCID))) {
             break;
         }
@@ -5980,8 +6002,14 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             data_length = (pdu_lengths[n] == -1) ?
                             tvb_reported_length_remaining(tvb, offset) :
                             pdu_lengths[n];
-            tap_info->sdus_for_lcid[lcids[n]]++;
-            tap_info->bytes_for_lcid[lcids[n]] += data_length;
+            if ((lcids[n] >= 3) && (lcids[n] <= 10)) {
+                tap_info->sdus_for_lcid[lcids[n]]++;
+                tap_info->bytes_for_lcid[lcids[n]] += data_length;
+            } else if ((lcids[n] == EXT_LOGICAL_CHANNEL_ID_LCID) &&
+                       (elcids[n] >= 32) && (elcids[n] <= 38)) {
+                tap_info->sdus_for_lcid[elcids[n]-21]++;
+                tap_info->bytes_for_lcid[elcids[n]-21] += data_length;
+            }
             offset += data_length;
         }
         if (lcids[number_of_headers-1] == PADDING_LCID) {
@@ -6121,7 +6149,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             }
         }
 
-        else if ((lcids[n] >= 3) && (lcids[n] <= 10)) {
+        else if (((lcids[n] >= 3) && (lcids[n] <= 10)) || (lcids[n] == EXT_LOGICAL_CHANNEL_ID_LCID)) {
 
             /* Look for mapping for this LCID to drb channel set by UAT table or through
                configuration protocol. */
@@ -6129,11 +6157,12 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             guint8 seqnum_length;
             gint drb_id;
             gboolean rlc_ext_li_field;
+            guint8 lcid = (lcids[n] == EXT_LOGICAL_CHANNEL_ID_LCID) ? elcids[n] : lcids[n];
             guint8 priority = get_mac_lte_channel_priority(p_mac_lte_info->ueid,
-                                                           lcids[n], p_mac_lte_info->direction);
+                                                           lcid, p_mac_lte_info->direction);
 
             lookup_rlc_channel_from_lcid(p_mac_lte_info->ueid,
-                                         lcids[n],
+                                         lcid,
                                          p_mac_lte_info->direction,
                                          &rlc_channel_type,
                                          &seqnum_length,
@@ -6216,8 +6245,14 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         offset += data_length;
 
         /* Update tap sdu and byte count for this channel */
-        tap_info->sdus_for_lcid[lcids[n]]++;
-        tap_info->bytes_for_lcid[lcids[n]] += data_length;
+        if ((lcids[n] >= 3) && (lcids[n] <= 10)) {
+            tap_info->sdus_for_lcid[lcids[n]]++;
+            tap_info->bytes_for_lcid[lcids[n]] += data_length;
+        } else if ((lcids[n] == EXT_LOGICAL_CHANNEL_ID_LCID) &&
+                   (elcids[n] >= 32) && (elcids[n] <= 38)) {
+            tap_info->sdus_for_lcid[elcids[n]-21]++;
+            tap_info->bytes_for_lcid[elcids[n]-21] += data_length;
+        }
     }
 
     /* Was this a Msg3 that led to a CR answer? */
@@ -7665,7 +7700,7 @@ void set_mac_lte_channel_mapping(drb_mapping_t *drb_mapping)
         lcid = drb_mapping->lcid;
 
         /* Ignore if LCID is out of range */
-        if ((lcid < 3) || (lcid > 10)) {
+        if ((lcid < 3) || (lcid > 10 && lcid < 32) || (lcid > 38)) {
             return;
         }
     }
@@ -8264,6 +8299,18 @@ void proto_register_mac_lte(void)
             { "LCID",
               "mac-lte.ulsch.lcid", FT_UINT8, BASE_HEX, VALS(ulsch_lcid_vals), 0x1f,
               "UL-SCH Logical Channel Identifier", HFILL
+            }
+        },
+        { &hf_mac_lte_sch_reserved2,
+            { "SCH reserved bits",
+              "mac-lte.sch.reserved2", FT_UINT8, BASE_HEX, NULL, 0xc0,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_sch_elcid,
+            { "eLCID",
+              "mac-lte.sch.elcid", FT_UINT8, BASE_DEC, NULL, 0x3f,
+              NULL, HFILL
             }
         },
         { &hf_mac_lte_sch_format,

@@ -338,7 +338,7 @@ mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
             te->stats.UL_total_bytes += si->single_number_of_bytes;
         }
         else {
-            for (i = 0; i < 11; i++) {
+            for (i = 0; i < MAC_LTE_DATA_LCID_COUNT_MAX; i++) {
                 te->stats.UL_total_bytes += si->bytes_for_lcid[i];
             }
         }
@@ -388,7 +388,7 @@ mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
             te->stats.DL_total_bytes += si->single_number_of_bytes;
         }
         else {
-            for (i = 0; i < 11; i++) {
+            for (i = 0; i < MAC_LTE_DATA_LCID_COUNT_MAX; i++) {
                 te->stats.DL_total_bytes += si->bytes_for_lcid[i];
             }
         }

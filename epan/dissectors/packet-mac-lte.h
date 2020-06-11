@@ -182,6 +182,8 @@ typedef struct mac_lte_info
     guint16            oob_rnti[MAX_SRs];
 } mac_lte_info;
 
+ /* 0 to 10 and 32 to 38 */
+#define MAC_LTE_DATA_LCID_COUNT_MAX 18
 
 typedef struct mac_lte_tap_info {
     /* Info from context */
@@ -200,8 +202,8 @@ typedef struct mac_lte_tap_info {
 
     /* Number of bytes (which part is used depends upon context settings) */
     guint32  single_number_of_bytes;
-    guint32  bytes_for_lcid[11];
-    guint32  sdus_for_lcid[11];
+    guint32  bytes_for_lcid[MAC_LTE_DATA_LCID_COUNT_MAX];
+    guint32  sdus_for_lcid[MAC_LTE_DATA_LCID_COUNT_MAX];
     guint8   number_of_rars;
     guint8   number_of_paging_ids;
 

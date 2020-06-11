@@ -2062,6 +2062,15 @@ SL-V2X-ConfigCommon-r14/offsetDFN-r14 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lte_rr
     mapping->lcid_present = TRUE;
   }
 
+#.FN_BODY DRB-ToAddMod/eag_5/logicalChannelIdentity-r15 VAL_PTR=&value
+  guint32 value;
+  drb_mapping_t *mapping = private_data_get_drb_mapping(actx);
+%(DEFAULT_BODY)s
+  if (mapping != NULL) {
+    mapping->lcid = (guint8)value;
+    mapping->lcid_present = TRUE;
+  }
+
 #.FN_BODY SN-FieldLength VAL_PTR=&value
   guint32 value;
   drb_mapping_t *mapping = private_data_get_drb_mapping(actx);
