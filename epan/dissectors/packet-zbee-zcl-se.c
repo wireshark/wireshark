@@ -1514,7 +1514,6 @@ static int hf_zbee_zcl_price_tariff_resolution_period = -1;
 static int hf_zbee_zcl_price_cpp_auth = -1;
 static int hf_zbee_zcl_price_cpp_price_tier= -1;
 static int hf_zbee_zcl_price_rate_label = -1;
-static int hf_zbee_zcl_price_rate_label_length = -1;
 static int hf_zbee_zcl_price_unit_of_measure = -1;
 static int hf_zbee_zcl_price_currency = -1;
 static int hf_zbee_zcl_price_trailing_digit_and_price_tier = -1;
@@ -2254,10 +2253,9 @@ dissect_zcl_price_get_credit_payment(tvbuff_t *tvb, proto_tree *tree, guint *off
 static void
 dissect_zcl_price_publish_price(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    guint   rate_label_len;
-    guint8 *rate_label_data;
     nstime_t start_time;
     nstime_t current_time;
+    int length;
 
     static const int * trailing_digit[] = {
         &hf_zbee_zcl_price_tier,
@@ -2280,15 +2278,9 @@ dissect_zcl_price_publish_price(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     proto_tree_add_item(tree, hf_zbee_zcl_price_provider_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
     *offset += 4;
 
-    /* Rate Label Length */
-    rate_label_len = tvb_get_guint8(tvb, *offset); /* string length */
-    proto_tree_add_item(tree, hf_zbee_zcl_price_rate_label_length, tvb, *offset, 1, ENC_NA);
-    *offset += 1;
-
     /* Rate Label */
-    rate_label_data = tvb_get_string_enc(wmem_packet_scope(), tvb, *offset, rate_label_len, ENC_LITTLE_ENDIAN);
-    proto_tree_add_string(tree, hf_zbee_zcl_price_rate_label, tvb, *offset, rate_label_len, rate_label_data);
-    *offset += rate_label_len;
+    proto_tree_add_item_ret_length(tree, hf_zbee_zcl_price_rate_label, tvb, *offset, 1, ENC_NA | ENC_ZIGBEE, &length);
+    *offset += length;
 
     /* Issuer Event ID */
     proto_tree_add_item(tree, hf_zbee_zcl_price_issuer_event_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
@@ -3212,12 +3204,8 @@ proto_register_zbee_zcl_price(void)
             { "CPP Auth", "zbee_zcl_se.price.cpp_auth", FT_UINT8, BASE_DEC, NULL,
             0x00, NULL, HFILL } },
 
-        { &hf_zbee_zcl_price_rate_label_length,
-            { "Rate Label Length", "zbee_zcl_se.price.rate_label.length", FT_UINT8, BASE_DEC, NULL,
-            0x00, NULL, HFILL } },
-
         { &hf_zbee_zcl_price_rate_label,
-            { "Rate Label", "zbee_zcl_se.price.rate_label", FT_STRING, BASE_NONE, NULL,
+            { "Rate Label", "zbee_zcl_se.price.rate_label", FT_UINT_STRING, BASE_NONE, NULL,
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_price_unit_of_measure,
@@ -3521,7 +3509,7 @@ proto_register_zbee_zcl_price(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_price_tier_labels_tier_label,
-            { "Tariff Label", "zbee_zcl_se.price.tier_labels.tier_label", FT_STRING, BASE_NONE, NULL,
+            { "Tariff Label", "zbee_zcl_se.price.tier_labels.tier_label", FT_UINT_STRING, BASE_NONE, NULL,
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_price_billing_period_start_time,
@@ -3581,7 +3569,7 @@ proto_register_zbee_zcl_price(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_price_credit_payment_ref,
-            { "Credit Payment Ref", "zbee_zcl_se.price.credit_payment.ref", FT_STRING, BASE_NONE, NULL,
+            { "Credit Payment Ref", "zbee_zcl_se.price.credit_payment.ref", FT_UINT_STRING, BASE_NONE, NULL,
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_price_old_currency,
@@ -8023,12 +8011,10 @@ static int hf_zbee_zcl_msg_ext_ctrl = -1;
 static int hf_zbee_zcl_msg_ext_ctrl_status = -1;
 static int hf_zbee_zcl_msg_start_time = -1;
 static int hf_zbee_zcl_msg_duration = -1;
-static int hf_zbee_zcl_msg_message_length = - 1;
 static int hf_zbee_zcl_msg_message = -1;
 static int hf_zbee_zcl_msg_confirm_time = -1;
 static int hf_zbee_zcl_msg_confirm_ctrl = -1;
 static int hf_zbee_zcl_msg_confirm_response = -1;
-static int hf_zbee_zcl_msg_confirm_response_length = - 1;
 static int hf_zbee_zcl_msg_implementation_time = -1;
 static int hf_zbee_zcl_msg_earliest_time = -1;
 
@@ -8170,7 +8156,6 @@ static void
 dissect_zcl_msg_display(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
     guint   msg_len;
-    guint8 *msg_data;
 
     static const int * message_ctrl_flags[] = {
         &hf_zbee_zcl_msg_ctrl_tx,
@@ -8202,14 +8187,8 @@ dissect_zcl_msg_display(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     proto_tree_add_item(tree, hf_zbee_zcl_msg_duration, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
     *offset += 2;
 
-    /* Message Length */
-    msg_len = tvb_get_guint8(tvb, *offset); /* string length */
-    proto_tree_add_item(tree, hf_zbee_zcl_msg_message_length, tvb, *offset, 1, ENC_NA);
-    *offset += 1;
-
     /* Message */
-    msg_data = tvb_get_string_enc(wmem_packet_scope(), tvb, *offset, msg_len, ENC_LITTLE_ENDIAN);
-    proto_tree_add_string(tree, hf_zbee_zcl_msg_message, tvb, *offset, msg_len, msg_data);
+    proto_tree_add_item_ret_length(tree, hf_zbee_zcl_msg_message, tvb, *offset, 1, ENC_NA | ENC_ZIGBEE, &msg_len);
     *offset += msg_len;
 
     /* (Optional) Extended Message Control */
@@ -8298,7 +8277,6 @@ static void
 dissect_zcl_msg_confirm(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
     guint   msg_len;
-    guint8 *msg_data;
     nstime_t confirm_time;
 
     /* Message ID */
@@ -8316,19 +8294,10 @@ dissect_zcl_msg_confirm(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     proto_tree_add_item(tree, hf_zbee_zcl_msg_confirm_ctrl, tvb, *offset, 1, ENC_NA);
     *offset += 1;
 
-    /* (Optional) Response Text Length */
-    if ( tvb_reported_length_remaining(tvb, *offset) <= 0 ) return;
-    msg_len = tvb_get_guint8(tvb, *offset); /* string length */
-    proto_tree_add_item(tree, hf_zbee_zcl_msg_confirm_response_length, tvb, *offset, 1, ENC_NA);
-    *offset += 1;
-
     /* (Optional) Response Text, but is we have a length we expect to find the subsequent string */
-    if (msg_len > 0) {
-        msg_data = tvb_get_string_enc(wmem_packet_scope(), tvb, *offset, msg_len, ENC_LITTLE_ENDIAN);
-        proto_tree_add_string(tree, hf_zbee_zcl_msg_confirm_response, tvb, *offset, msg_len, msg_data);
-        *offset += msg_len;
-    }
-
+    if ( tvb_reported_length_remaining(tvb, *offset) <= 0 ) return;
+    proto_tree_add_item_ret_length(tree, hf_zbee_zcl_msg_confirm_response, tvb, *offset, 1, ENC_NA | ENC_ZIGBEE, &msg_len);
+    *offset += msg_len;
 } /* dissect_zcl_msg_confirm */
 
 /**
@@ -8431,12 +8400,8 @@ proto_register_zbee_zcl_msg(void)
             { "Duration", "zbee_zcl_se.msg.message.duration", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_zcl_msg_duration),
             0x00, NULL, HFILL } },
 
-        { &hf_zbee_zcl_msg_message_length,
-            { "Message Length", "zbee_zcl_se.msg.message.length", FT_UINT8, BASE_DEC, NULL,
-            0x00, NULL, HFILL } },
-
         { &hf_zbee_zcl_msg_message,
-            { "Message", "zbee_zcl_se.msg.message", FT_STRING, BASE_NONE, NULL,
+            { "Message", "zbee_zcl_se.msg.message", FT_UINT_STRING, BASE_NONE, NULL,
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_msg_confirm_time,
@@ -8447,12 +8412,8 @@ proto_register_zbee_zcl_msg(void)
             { "Confirmation Control", "zbee_zcl_se.msg.message.confirm.ctrl", FT_BOOLEAN, 8, TFS(&tfs_no_yes),
             ZBEE_ZCL_MSG_CONFIRM_CTRL_MASK, NULL, HFILL } },
 
-        { &hf_zbee_zcl_msg_confirm_response_length,
-            { "Response Length", "zbee_zcl_se.msg.message.length", FT_UINT8, BASE_DEC, NULL,
-            0x00, NULL, HFILL } },
-
         { &hf_zbee_zcl_msg_confirm_response,
-            { "Response", "zbee_zcl_se.msg.message", FT_STRING, BASE_NONE, NULL,
+            { "Response", "zbee_zcl_se.msg.message", FT_UINT_STRING, BASE_NONE, NULL,
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_msg_implementation_time,
@@ -11971,7 +11932,7 @@ proto_register_zbee_zcl_calendar(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_calendar_name,
-            { "Calendar Name", "zbee_zcl_se.calendar.name", FT_STRING, BASE_NONE, NULL,
+            { "Calendar Name", "zbee_zcl_se.calendar.name", FT_UINT_STRING, BASE_NONE, NULL,
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_calendar_command_index,
@@ -12363,8 +12324,7 @@ static void
 dissect_zcl_daily_schedule_publish_schedule(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
     nstime_t start_time;
-    guint msg_len;
-    guint8 *msg_data;
+    int length;
 
     /* Provider Id */
     proto_tree_add_item(tree, hf_zbee_zcl_daily_schedule_provider_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
@@ -12393,11 +12353,8 @@ dissect_zcl_daily_schedule_publish_schedule(tvbuff_t *tvb, proto_tree *tree, gui
     *offset += 1;
 
     /* Schedule Name */
-    msg_len = tvb_get_guint8(tvb, *offset); /* string length */
-    *offset += 1;
-    msg_data = tvb_get_string_enc(wmem_packet_scope(), tvb, *offset, msg_len, ENC_LITTLE_ENDIAN);
-    proto_tree_add_string(tree, hf_zbee_zcl_daily_schedule_name, tvb, *offset, msg_len, msg_data);
-    *offset += msg_len;
+    proto_tree_add_item_ret_length(tree, hf_zbee_zcl_daily_schedule_name, tvb, *offset, 1, ENC_NA | ENC_ZIGBEE, &length);
+    *offset += length;
 } /*dissect_zcl_daily_schedule_publish_schedule*/
 
 /**
@@ -12594,7 +12551,7 @@ proto_register_zbee_zcl_daily_schedule(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_daily_schedule_name,
-            { "Schedule Name", "zbee_zcl_se.daily_schedule.name", FT_STRING, BASE_NONE, NULL,
+            { "Schedule Name", "zbee_zcl_se.daily_schedule.name", FT_UINT_STRING, BASE_NONE, NULL,
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_daily_schedule_command_index,
