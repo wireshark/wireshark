@@ -203,24 +203,22 @@ ProtocolIE-Field/value ie_field_value
 
 #.FN_BODY NAS-PDU VAL_PTR = &parameter_tvb
 
-tvbuff_t *parameter_tvb=NULL;
+  tvbuff_t *parameter_tvb=NULL;
+  guint tvb_len;
 
 %(DEFAULT_BODY)s
 
-  if (tvb_reported_length(parameter_tvb) > 0) {
+  tvb_len = tvb_reported_length(parameter_tvb);
+  if (tvb_len > 0) {
     struct ngap_private_data *ngap_data = ngap_get_private_data(actx->pinfo);
     if (ngap_data->protocol_ie_id == id_NASC) {
-      GlobalRANNodeID_enum source_ranmode_id, target_ranmode_id;
-      source_ranmode_id = ngap_get_ranmode_id(&actx->pinfo->src, actx->pinfo->srcport, actx->pinfo);
-      target_ranmode_id = ngap_get_ranmode_id(&actx->pinfo->dst, actx->pinfo->destport, actx->pinfo);
       proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_ngap_NASC);
-      if (source_ranmode_id == globalGNB_ID && target_ranmode_id == globalGNB_ID) {
-        de_nas_5gs_intra_n1_mode_nas_transparent_cont(parameter_tvb, subtree, actx->pinfo);
-      } else if (target_ranmode_id == globalGNB_ID) {
+      /* use an heuristic based on the payload length to identify the Intra N1 mode
+         NAS transparent container or the S1 mode to N1 mode NAS transparent container */
+      if (tvb_len == 8)
         de_nas_5gs_s1_mode_to_n1_mode_nas_transparent_cont(parameter_tvb, subtree, actx->pinfo);
-      } else if (target_ranmode_id == globalNgENB_ID) {
-        de_nas_5gs_n1_mode_to_s1_mode_nas_transparent_cont(parameter_tvb, subtree, actx->pinfo);
-      }
+      else
+        de_nas_5gs_intra_n1_mode_nas_transparent_cont(parameter_tvb, subtree, actx->pinfo);
     } else {
       if (nas_5gs_handle) {
         proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_ngap_NAS_PDU);
