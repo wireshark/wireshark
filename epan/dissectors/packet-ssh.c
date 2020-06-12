@@ -167,6 +167,9 @@ static int hf_ssh_hostkey_ecdsa_curve_id = -1;
 static int hf_ssh_hostkey_ecdsa_curve_id_length = -1;
 static int hf_ssh_hostkey_ecdsa_q = -1;
 static int hf_ssh_hostkey_ecdsa_q_length = -1;
+static int hf_ssh_hostkey_eddsa_key = -1;
+static int hf_ssh_hostkey_eddsa_key_length = -1;
+
 static int hf_ssh_kex_h_sig = -1;
 static int hf_ssh_kex_h_sig_length = -1;
 
@@ -704,6 +707,9 @@ ssh_tree_add_hostkey(tvbuff_t *tvb, int offset, proto_tree *parent_tree, const c
                                       hf_ssh_hostkey_ecdsa_curve_id, hf_ssh_hostkey_ecdsa_curve_id_length);
         ssh_tree_add_string(tvb, offset, tree,
                             hf_ssh_hostkey_ecdsa_q, hf_ssh_hostkey_ecdsa_q_length);
+    } else if (g_str_has_prefix(key_type, "ssh-ed")) {
+        ssh_tree_add_string(tvb, offset, tree,
+                            hf_ssh_hostkey_eddsa_key, hf_ssh_hostkey_eddsa_key_length);
     } else {
         remaining_len = key_len - (type_len + 4);
         proto_tree_add_item(tree, hf_ssh_hostkey_data, tvb, offset, remaining_len, ENC_NA);
@@ -726,6 +732,7 @@ ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
 
     proto_item *ti;
     proto_item *key_ex_tree = NULL;
+    const gchar *key_ex_title = "Key Exchange";
 
     struct ssh_peer_data *peer_data = &global_data->peer_data[is_response];
 
@@ -786,7 +793,9 @@ ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree_add_uint(tree, hf_ssh_padding_length, tvb, offset, 1, padding_length);
     offset += 1;
 
-    key_ex_tree = proto_tree_add_subtree(tree, tvb, offset, plen-1, ett_key_exchange, NULL, "Key Exchange");
+    if (global_data->kex)
+        key_ex_title = wmem_strdup_printf(wmem_packet_scope(), "%s (method:%s)", key_ex_title, global_data->kex);
+    key_ex_tree = proto_tree_add_subtree(tree, tvb, offset, plen-1, ett_key_exchange, NULL, key_ex_title);
 
     /* msg_code */
     msg_code = tvb_get_guint8(tvb, offset);
@@ -1114,7 +1123,9 @@ static void ssh_set_kex_specific_dissector(struct ssh_flow_data *global_data)
         global_data->kex_specific_dissector = ssh_dissect_kex_dh_gex;
     }
     else if (g_str_has_prefix(kex_name, "ecdh-sha2-") ||
-        strcmp(kex_name, "curve25519-sha256@libssh.org") == 0)
+        strcmp(kex_name, "curve25519-sha256@libssh.org") == 0 ||
+        strcmp(kex_name, "curve25519-sha256") == 0 ||
+        strcmp(kex_name, "curve448-sha512") == 0)
     {
         global_data->kex_specific_dissector = ssh_dissect_kex_ecdh;
     }
@@ -1516,6 +1527,16 @@ proto_register_ssh(void)
 
         { &hf_ssh_hostkey_ecdsa_q_length,
           { "ECDSA public key length",  "ssh.host_key.ecdsa.q_length",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_hostkey_eddsa_key,
+          { "EdDSA public key",  "ssh.host_key.eddsa.key",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_hostkey_eddsa_key_length,
+          { "EdDSA public key length",  "ssh.host_key.eddsa.key_length",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
