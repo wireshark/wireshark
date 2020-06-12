@@ -1175,10 +1175,8 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
 
         proto_item_append_text(ti, ": ");
         if (termination_cause & 0x01)
-            proto_item_append_text(ti, "Audio was terminated ");
-
-        if (termination_cause & 0x01)
         {
+            proto_item_append_text(ti, "Audio was terminated ");
             col_append_fstr(pinfo->cinfo, COL_INFO, "VT Control audio signal termination: Audio was terminated");
         }
         else

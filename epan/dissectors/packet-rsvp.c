@@ -4778,7 +4778,7 @@ dissect_rsvp_label(proto_tree *ti, proto_tree *rsvp_object_tree,
         if(unassigned_upstream_label == 0xffffffff){ /* Unassigned upstream label, see RFC 8359 */
             proto_item_append_text(ti, ":  Unassigned upstream label ( 0x%x )",unassigned_upstream_label);
         }
-        else if(unassigned_upstream_label != 0xffffffff){
+        else {
             proto_tree_add_item(rsvp_object_tree, hf_rsvp_ctype_label, tvb, offset+3, 1, ENC_BIG_ENDIAN);
             if (rsvp_generalized_label_option == 1) { /* FF: no generalized label interpretation */
                 proto_item_set_text(ti, "%s: Generalized: ", name);
