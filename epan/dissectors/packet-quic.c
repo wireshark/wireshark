@@ -1921,17 +1921,24 @@ quic_process_payload(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U_
 
 #ifdef HAVE_LIBGCRYPT_AEAD
 static void
-quic_verify_retry_token(tvbuff_t *tvb, quic_packet_info_t *quic_packet, const quic_cid_t *odcid)
+quic_verify_retry_token(tvbuff_t *tvb, quic_packet_info_t *quic_packet, const quic_cid_t *odcid, guint32 version)
 {
     /*
      * Verify the Retry Integrity Tag using the fixed key from
-     * https://tools.ietf.org/html/draft-ietf-quic-tls-25#section-5.8
+     * https://tools.ietf.org/html/draft-ietf-quic-tls-29#section-5.8
      */
-    static const guint8 key[] = {
+    static const guint8 key_draft_29[] = {
+        0xcc, 0xce, 0x18, 0x7e, 0xd0, 0x9a, 0x09, 0xd0,
+        0x57, 0x28, 0x15, 0x5a, 0x6c, 0xb9, 0x6b, 0xe1
+    };
+    static const guint8 nonce_draft_29[] = {
+        0xe5, 0x49, 0x30, 0xf9, 0x7f, 0x21, 0x36, 0xf0, 0x53, 0x0a, 0x8c, 0x1c
+    };
+    static const guint8 key_draft_25[] = {
         0x4d, 0x32, 0xec, 0xdb, 0x2a, 0x21, 0x33, 0xc8,
         0x41, 0xe4, 0x04, 0x3d, 0xf2, 0x7d, 0x44, 0x30,
     };
-    static const guint8 nonce[] = {
+    static const guint8 nonce_draft_25[] = {
         0x4d, 0x16, 0x11, 0xd0, 0x55, 0x13, 0xa5, 0x52, 0xc5, 0x87, 0xd5, 0x75,
     };
     gcry_cipher_hd_t    h = NULL;
@@ -1942,9 +1949,17 @@ quic_verify_retry_token(tvbuff_t *tvb, quic_packet_info_t *quic_packet, const qu
 
     err = gcry_cipher_open(&h, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_GCM, 0);
     DISSECTOR_ASSERT_HINT(err == 0, "create cipher");
-    err = gcry_cipher_setkey(h, key, sizeof(key));
+    if (is_quic_draft_max(version, 28)) {
+       err = gcry_cipher_setkey(h, key_draft_25, sizeof(key_draft_25));
+    } else {
+       err = gcry_cipher_setkey(h, key_draft_29, sizeof(key_draft_29));
+    }
     DISSECTOR_ASSERT_HINT(err == 0, "set key");
-    err = gcry_cipher_setiv(h, nonce, sizeof(nonce));
+    if (is_quic_draft_max(version, 28)) {
+        err = gcry_cipher_setiv(h, nonce_draft_25, sizeof(nonce_draft_25));
+    } else {
+        err = gcry_cipher_setiv(h, nonce_draft_29, sizeof(nonce_draft_29));
+    }
     DISSECTOR_ASSERT_HINT(err == 0, "set nonce");
     G_STATIC_ASSERT(sizeof(odcid->len) == 1);
     err = gcry_cipher_authenticate(h, odcid, 1 + odcid->len);
@@ -2080,7 +2095,7 @@ dissect_quic_retry_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
         if (!PINFO_FD_VISITED(pinfo) && odcid) {
             // Skip validation if the Initial Packet is unknown, for example due
             // to packet loss in the capture file.
-            quic_verify_retry_token(tvb, quic_packet, odcid);
+            quic_verify_retry_token(tvb, quic_packet, odcid, version);
         }
 #else
         (void)odcid;
