@@ -30,7 +30,7 @@ static const char *dfe_property_label_ = "display_filter_expression_label";
 static const char *dfe_property_expression_ = "display_filter_expression_expr";
 static const char *dfe_menu_ = "filter_menu";
 
-#define PARENT_SEPARATOR "&&"
+#define PARENT_SEPARATOR "//"
 
 struct filter_expression_data
 {
