@@ -4203,7 +4203,7 @@ dissect_tcpopt_sack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
         proto_tree_add_uint_format(field_tree, hf_tcp_option_sack_sle, tvb,
                                    offset, 4, leftedge,
                                    "left edge = %u%s", leftedge,
-                                   tcp_relative_seq ? " (relative)" : "");
+                                   (tcp_analyze_seq && tcp_relative_seq) ? " (relative)" : "");
 
         optlen -= 4;
         if (optlen < 4) {
@@ -4216,7 +4216,7 @@ dissect_tcpopt_sack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
         proto_tree_add_uint_format(field_tree, hf_tcp_option_sack_sre, tvb,
                                    offset+4, 4, rightedge,
                                    "right edge = %u%s", rightedge,
-                                   tcp_relative_seq ? " (relative)" : "");
+                                   (tcp_analyze_seq && tcp_relative_seq) ? " (relative)" : "");
         tcp_info_append_uint(pinfo, "SLE", leftedge);
         tcp_info_append_uint(pinfo, "SRE", rightedge);
         num_sack_ranges++;
@@ -5233,7 +5233,7 @@ dissect_tcpopt_snack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 
     ack   = tvb_get_ntohl(tvb, 8);
 
-    if (tcp_relative_seq) {
+    if (tcp_analyze_seq && tcp_relative_seq) {
         ack -= tcpd->rev->base_seq;
     }
 
@@ -5260,7 +5260,7 @@ dissect_tcpopt_snack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
         proto_item_set_hidden(hidden_item);
 
         proto_tree_add_expert_format(field_tree, pinfo, &ei_tcp_option_snack_sequence, tvb, offset+2, 4,
-                            "SNACK Sequence %u - %u%s", hole_start, hole_end, ((tcp_relative_seq) ? " (relative)" : ""));
+                            "SNACK Sequence %u - %u%s", hole_start, hole_end, ((tcp_analyze_seq && tcp_relative_seq) ? " (relative)" : ""));
 
         tcp_info_append_uint(pinfo, "SNLE", hole_start);
         tcp_info_append_uint(pinfo, "SNRE", hole_end);
@@ -6359,7 +6359,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     }
 
     if (!icmp_ip) {
-        if(tcp_relative_seq) {
+        if(tcp_relative_seq && tcp_analyze_seq) {
             proto_tree_add_uint_format_value(tcp_tree, hf_tcp_seq, tvb, offset + 4, 4, tcph->th_seq, "%u    (relative sequence number)", tcph->th_seq);
             proto_tree_add_uint(tcp_tree, hf_tcp_seq_abs, tvb, offset + 4, 4, tcph->th_rawseq);
         } else {
@@ -6394,7 +6394,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     }
     proto_item_set_len(ti, tcph->th_hlen);
     if (tcph->th_have_seglen) {
-        if(tcp_relative_seq) {
+        if(tcp_relative_seq && tcp_analyze_seq) {
             if (tcph->th_flags&(TH_SYN|TH_FIN))  {
                 tf=proto_tree_add_uint_format_value(tcp_tree, hf_tcp_nxtseq, tvb, offset, 0, nxtseq + 1, "%u    (relative sequence number)", nxtseq + 1);
             } else  {
@@ -6413,12 +6413,12 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     tf = proto_tree_add_uint(tcp_tree, hf_tcp_ack, tvb, offset + 8, 4, tcph->th_ack);
     hide_seqack_abs_item = proto_tree_add_uint(tcp_tree, hf_tcp_ack_abs, tvb, offset + 8, 4, tcph->th_rawack);
     if (tcph->th_flags & TH_ACK) {
-        if (tcp_relative_seq) {
+        if (tcp_relative_seq && tcp_analyze_seq) {
             proto_item_append_text(tf, "    (relative ack number)");
         } else {
             proto_item_set_hidden(hide_seqack_abs_item);
         }
-        if (tcph->th_flags & TH_SYN) {
+        if ((tcph->th_flags & TH_SYN) && tcp_analyze_seq) {
             if ((tcp_relative_seq && tcph->th_ack > 1) ||
                (!tcp_relative_seq && tcpd && (tcph->th_ack - tcpd->rev->base_seq) > 1)) {
                 expert_add_info(pinfo, tf, &ei_tcp_analysis_tfo_ack);
@@ -7912,7 +7912,7 @@ proto_register_tcp(void)
         "Make the TCP dissector analyze TCP sequence numbers to find and flag segment retransmissions, missing segments and RTT",
         &tcp_analyze_seq);
     prefs_register_bool_preference(tcp_module, "relative_sequence_numbers",
-        "Relative sequence numbers",
+        "Relative sequence numbers (Requires \"Analyze TCP sequence numbers\")",
         "Make the TCP dissector use relative sequence numbers instead of absolute ones. "
         "To use this option you must also enable \"Analyze TCP sequence numbers\". ",
         &tcp_relative_seq);
