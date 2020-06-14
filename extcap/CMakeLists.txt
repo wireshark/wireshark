@@ -18,9 +18,6 @@ if(LIBSSH_FOUND)
 	set(CMAKE_REQUIRED_LIBRARIES ${LIBSSH_LIBRARIES})
 	check_function_exists(ssh_userauth_agent LIBSSH_USERAUTH_AGENT_FOUND)
 	cmake_pop_check_state()
-	if(LIBSSH_USERAUTH_AGENT_FOUND)
-		set(HAVE_SSH_USERAUTH_AGENT 1)
-	endif()
 endif()
 
 # Ensure "run/extcap" exists
