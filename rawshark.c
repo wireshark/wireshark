@@ -1344,7 +1344,7 @@ parse_field_string_format(gchar *format) {
 
     while (pos < len) {
         if (format[pos] == '%') {
-            if (pos >= len) { /* There should always be a following character */
+            if (pos >= (len-1)) { /* There should always be a following specifier character */
                 return FALSE;
             }
             pos++;
