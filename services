@@ -5984,6 +5984,7 @@ a27-ran-ran	28119/udp	# A27 cdma2000 RAN Management
 voxelstorm	28200/tcp/udp	# VoxelStorm game server
 siemensgsm	28240/tcp/udp	# Siemens GSM
 bosswave	28589/tcp	# Building operating system services wide area verified exchange
+saltd-licensing	29000/tcp	# Siemens Licensing Server
 sgsap		29118/sctp	# SGsAP in 3GPP
 otmp		29167/tcp/udp	# ObTools Message Protocol
 sbcap		29168/sctp	# SBcAP in 3GPP

@@ -9554,6 +9554,34 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>LCID 10</translation>
     </message>
     <message>
+        <source>LCID 32</source>
+        <translation type="unfinished">LCID 32</translation>
+    </message>
+    <message>
+        <source>LCID 33</source>
+        <translation type="unfinished">LCID 33</translation>
+    </message>
+    <message>
+        <source>LCID 34</source>
+        <translation type="unfinished">LCID 34</translation>
+    </message>
+    <message>
+        <source>LCID 35</source>
+        <translation type="unfinished">LCID 35</translation>
+    </message>
+    <message>
+        <source>LCID 36</source>
+        <translation type="unfinished">LCID 36</translation>
+    </message>
+    <message>
+        <source>LCID 37</source>
+        <translation type="unfinished">LCID 37</translation>
+    </message>
+    <message>
+        <source>LCID 38</source>
+        <translation type="unfinished">LCID 38</translation>
+    </message>
+    <message>
         <source>TM</source>
         <translation>TM</translation>
     </message>

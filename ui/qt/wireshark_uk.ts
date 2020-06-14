@@ -9479,6 +9479,34 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>LCID 32</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LCID 33</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LCID 34</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LCID 35</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LCID 36</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LCID 37</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LCID 38</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>TM</source>
         <translation type="unfinished"></translation>
     </message>
