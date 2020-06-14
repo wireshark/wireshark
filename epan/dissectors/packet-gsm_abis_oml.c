@@ -717,6 +717,7 @@ static int ett_oml_fom = -1;
 static int ett_oml_fom_att = -1;
 
 static expert_field ei_unknown_type = EI_INIT;
+static expert_field ei_length_mismatch = EI_INIT;
 
 enum {
 	OML_DIALECT_ETSI,
@@ -1821,6 +1822,13 @@ dissect_abis_oml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 	proto_tree_add_item(oml_tree, hf_oml_length, tvb, offset++,
 			    1, ENC_LITTLE_ENDIAN);
 
+	/* Check whether the indicated length is correct */
+	if (len != tvb_reported_length_remaining(tvb, offset)) {
+		expert_add_info_format(pinfo, ti, &ei_length_mismatch,
+			"Indicated length (%u) does not match the actual (%u)",
+			len, tvb_reported_length_remaining(tvb, offset));
+	}
+
 	if (global_oml_dialect == OML_DIALECT_ERICSSON) {
 		/* Ericsson OM2000 only sharese the common header above
 		 * and has completely custom/proprietary message format
@@ -2175,7 +2183,10 @@ proto_register_abis_oml(void)
 	};
 
 	static ei_register_info ei[] = {
-		{ &ei_unknown_type, { "gsm_abis_oml.expert.unknown_type", PI_PROTOCOL, PI_NOTE, "Unknown TLV type", EXPFILL }},
+		{ &ei_unknown_type, { "gsm_abis_oml.expert.unknown_type", PI_PROTOCOL, PI_NOTE,
+				      "Unknown TLV type", EXPFILL }},
+		{ &ei_length_mismatch, { "gsm_abis_oml.expert.length_mismatch", PI_PROTOCOL, PI_WARN,
+					 "Indicated length does not match the actual", EXPFILL }},
 	};
 
 	module_t *oml_module;
