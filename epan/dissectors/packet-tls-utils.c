@@ -6867,7 +6867,7 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
         guint64 value;
         guint32 len = 0;
 
-        parameter_tree = proto_tree_add_subtree(tree, tvb, offset, 4, hf->ett.hs_ext_quictp_parameter,
+        parameter_tree = proto_tree_add_subtree(tree, tvb, offset, 2, hf->ett.hs_ext_quictp_parameter,
                                                 NULL, "Parameter");
         /* TransportParameter ID and Length. */
         if (use_varint_encoding) {
