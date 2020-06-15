@@ -350,6 +350,7 @@ static inline gboolean is_quic_draft_max(guint32 version, guint8 max_version) {
 const value_string quic_version_vals[] = {
     { 0x00000000, "Version Negotiation" },
     { 0x51303434, "Google Q044" },
+    { 0x51303530, "Google Q050 (draft-27)" },
     { 0xfaceb001, "Facebook mvfst (draft-22)" },
     { 0xfaceb002, "Facebook mvfst (draft-27)" },
     { 0xff000004, "draft-04" },
@@ -1538,10 +1539,18 @@ quic_derive_initial_secrets(const quic_cid_t *cid,
         0xaf, 0xbf, 0xec, 0x28, 0x99, 0x93, 0xd2, 0x4c, 0x9e, 0x97,
         0x86, 0xf1, 0x9c, 0x61, 0x11, 0xe0, 0x43, 0x90, 0xa8, 0x99
     };
+    static const guint8 hanshake_salt_draft_q50[20] = {
+        0x50, 0x45, 0x74, 0xEF, 0xD0, 0x66, 0xFE, 0x2F, 0x9D, 0x94,
+        0x5C, 0xFC, 0xDB, 0xD3, 0xA7, 0xF0, 0xD3, 0xB5, 0x6B, 0x45
+    };
+
     gcry_error_t    err;
     guint8          secret[HASH_SHA2_256_LENGTH];
 
-    if (is_quic_draft_max(version, 22)) {
+    if (version == 0x51303530) {
+        err = hkdf_extract(GCRY_MD_SHA256, hanshake_salt_draft_q50, sizeof(hanshake_salt_draft_q50),
+                           cid->cid, cid->len, secret);
+    } else if (is_quic_draft_max(version, 22)) {
         err = hkdf_extract(GCRY_MD_SHA256, handshake_salt_draft_22, sizeof(handshake_salt_draft_22),
                            cid->cid, cid->len, secret);
     } else if (is_quic_draft_max(version, 28)) {
