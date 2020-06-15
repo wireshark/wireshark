@@ -1196,6 +1196,22 @@ dissect_acdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 }
 
 static int
+dissect_acdr_voiceai(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+	/*
+	 * I guess this is just a blob of JSON.
+	 *
+	 * Do *NOT* pass data to the JSON dissector; it's expecting
+	 * an http_message_info_t *, and that's *NOT* what we hand
+	 * subdissectors.  Hilarity ensures; see
+	 *
+	 *    https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16622
+	 */
+	call_dissector(json_dissector_handle, tvb, pinfo, tree);
+	return tvb_captured_length(tvb);
+}
+
+static int
 dissect_acdr_tls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     acdr_dissector_data_t *acdr_data = (acdr_dissector_data_t *) data;
@@ -1986,7 +2002,7 @@ proto_reg_handoff_acdr(void)
     dissector_add_uint_with_preference("tcp.port", PORT_AC_DR, acdr_dissector_handle);
 
     // Register "local" media types
-    dissector_add_uint("acdr.media_type", ACDR_VoiceAI, json_dissector_handle);
+    dissector_add_uint("acdr.media_type", ACDR_VoiceAI, create_dissector_handle(dissect_acdr_voiceai, -1));
     dissector_add_uint("acdr.media_type", ACDR_TLS, create_dissector_handle(dissect_acdr_tls, -1));
     dissector_add_uint("acdr.media_type", ACDR_TLSPeek, create_dissector_handle(dissect_acdr_tls, -1));
     dissector_add_uint("acdr.media_type", ACDR_SIP, create_dissector_handle(dissect_acdr_sip, -1));
