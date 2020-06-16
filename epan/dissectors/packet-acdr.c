@@ -371,6 +371,8 @@ static int ett_session_id = -1;
 
 static expert_field ei_acdr_version_not_supported = EI_INIT;
 
+static int proto_rtp;
+
 static dissector_table_t media_type_table;
 static dissector_table_t tls_application_table;
 static dissector_table_t tls_application_port_table;
@@ -403,7 +405,6 @@ static void dissect_rtp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 static int  dissect_signaling_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void create_5x_analysis_packet_header_subtree(proto_tree *tree, tvbuff_t *tvb);
 static void create_5x_hpi_packet_header_subtree(proto_tree *tree, tvbuff_t *tvb);
-
 
 static int
 create_full_session_id_subtree(proto_tree *tree, tvbuff_t *tvb, int offset, guint8 ver)
@@ -863,7 +864,7 @@ dissect_rtp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 m
 
     // see that the bottom protocol is indeed RTP and not some other protocol on top RTP
     if (tree && tree->last_child) {
-        if (!strncmp(tree->last_child->finfo->hfinfo->name, "Real-Time Transport Protocol", 28)) {
+        if (tree->last_child->finfo->hfinfo->id == proto_rtp) {
             // add the length & offset fields to the RTP payload
             rtp_data_tree = tree->last_child->last_child; // the rtp subtree->the payload field
 
@@ -1988,6 +1989,8 @@ proto_reg_handoff_acdr(void)
     proto_ac5x = proto_get_id_by_filter_name("ac5x");
     dsp_5x_MII_dissector_handle = find_dissector("ac5xmii");
     proto_ac5xmii = proto_get_id_by_filter_name("ac5xmii");
+
+    proto_rtp = proto_get_id_by_filter_name("rtp");
 
     udp_stun_dissector_handle = find_dissector("stun-udp");
     xml_dissector_handle = find_dissector("xml");
