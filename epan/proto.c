@@ -7461,7 +7461,7 @@ proto_get_frame_protocols(const wmem_list_t *layers, gboolean *is_ip,
 	const char *proto_name;
 
 	/* Walk the list of a available protocols in the packet and
-	   find "major" ones. */
+	   attempt to find "major" ones. */
 	/* It might make more sense to assemble and return a bitfield. */
 	while (protos != NULL)
 	{
@@ -7497,8 +7497,7 @@ proto_is_frame_protocol(const wmem_list_t *layers, const char* proto_name)
 	const char *name;
 
 	/* Walk the list of a available protocols in the packet and
-	   find "major" ones. */
-	/* It might make more sense to assemble and return a bitfield. */
+	   attempt to find the specified protocol. */
 	while (protos != NULL)
 	{
 		proto_id = GPOINTER_TO_INT(wmem_list_frame_data(protos));
