@@ -239,7 +239,7 @@ static const value_string usb_hid_globalitem_bTag_vals[] = {
     {15, "[Reserved]"},
     {0, NULL}
 };
-#define USBHID_LOCALITEM_TAG_USAGE_PAGE     0
+#define USBHID_LOCALITEM_TAG_USAGE          0
 #define USBHID_LOCALITEM_TAG_USAGE_MIN      1
 #define USBHID_LOCALITEM_TAG_USAGE_MAX      2
 #define USBHID_LOCALITEM_TAG_DESIG_INDEX    3
@@ -251,7 +251,7 @@ static const value_string usb_hid_globalitem_bTag_vals[] = {
 #define USBHID_LOCALITEM_TAG_STRING_MAX     9
 #define USBHID_LOCALITEM_TAG_DELIMITER     10 /* Also listed as reserved in spec! */
 static const value_string usb_hid_localitem_bTag_vals[] = {
-    {USBHID_LOCALITEM_TAG_USAGE_PAGE,   "Usage"},
+    {USBHID_LOCALITEM_TAG_USAGE,        "Usage"},
     {USBHID_LOCALITEM_TAG_USAGE_MIN,    "Usage Minimum"},
     {USBHID_LOCALITEM_TAG_USAGE_MAX,    "Usage Maximum"},
     {USBHID_LOCALITEM_TAG_DESIG_INDEX,  "Designator Index"},
@@ -3549,7 +3549,7 @@ dissect_usb_hid_report_localitem_data(packet_info *pinfo _U_, proto_tree *tree, 
     guint32 val;
 
     switch (bTag) {
-        case USBHID_LOCALITEM_TAG_USAGE_PAGE:
+        case USBHID_LOCALITEM_TAG_USAGE:
             if (bSize > 2) {
                 /* Full page ID */
                 proto_tree_add_item(tree, hf_usb_hid_localitem_usage, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
