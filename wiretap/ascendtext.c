@@ -219,8 +219,8 @@ wtap_open_return_val ascend_open(wtap *wth, int *err, gchar **err_info)
   offset = ascend_find_next_packet(wth, err, err_info);
   if (offset == -1) {
     if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
-      return WTAP_OPEN_ERROR;
-    return WTAP_OPEN_NOT_MINE;
+      return WTAP_OPEN_ERROR;  /* read error */
+    return WTAP_OPEN_NOT_MINE; /* EOF */
   }
 
   /* Do a trial parse of the first packet just found to see if we might
@@ -415,8 +415,10 @@ static gboolean ascend_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
     return FALSE;
 
   offset = ascend_find_next_packet(wth, err, err_info);
-  if (offset == -1)
+  if (offset == -1) {
+    /* EOF or read error */
     return FALSE;
+  }
   if (!parse_ascend(ascend, wth->fh, rec, buf, wth->snapshot_length,
                     &ascend->next_packet_seek_start, err, err_info))
     return FALSE;
