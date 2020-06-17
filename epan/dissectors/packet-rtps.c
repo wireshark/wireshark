@@ -4084,11 +4084,11 @@ static void rtps_util_add_typeobject(proto_tree *tree, packet_info * pinfo,
 }
 
 
-static void rtps_add_zlib_compressed_typeobject(proto_tree *tree _U_, packet_info * pinfo _U_,
-  tvbuff_t * tvb _U_, gint offset _U_, const guint encoding _U_, guint compressed_size _U_,
-  guint decompressed_size _U_, type_mapping * type_mapping_object) {
-
 #ifdef HAVE_ZLIB
+static void rtps_add_zlib_compressed_typeobject(proto_tree *tree, packet_info * pinfo,
+  tvbuff_t * tvb, gint offset, const guint encoding, guint compressed_size,
+  guint decompressed_size, type_mapping * type_mapping_object) {
+
   tvbuff_t *decompressed_data_child_tvb;
   tvbuff_t *compressed_type_object_subset;
   proto_tree *decompressed_type_object_subtree;
@@ -4105,8 +4105,14 @@ static void rtps_add_zlib_compressed_typeobject(proto_tree *tree _U_, packet_inf
     proto_tree_add_subtree(tree, compressed_type_object_subset,
       0, 0, ett_rtps_decompressed_type_object, NULL, "[Failed to decompress type object]");
   }
-#endif
 }
+#else
+static void rtps_add_zlib_compressed_typeobject(proto_tree *tree _U_, packet_info * pinfo _U_,
+  tvbuff_t * tvb _U_, gint offset _U_, const guint encoding _U_, guint compressed_size _U_,
+  guint decompressed_size _U_, type_mapping * type_mapping_object _U_)
+{
+}
+#endif
 
 /* ------------------------------------------------------------------------- */
 /* Insert in the protocol tree the next bytes interpreted as Sequence of
