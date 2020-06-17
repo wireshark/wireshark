@@ -932,8 +932,9 @@ dissect_pim_addr(proto_tree* tree, tvbuff_t *tvb, int offset, enum pimv2_addrtyp
                     case PIM_JOIN_ATTRIBUTE_TYPE_RPF:
                         if ((ja_length == 6) || (ja_length == 18)) {
                             int advance_attr;
-                            dissect_pim_addr(ja_tree, tvb, ja_offset, pimv2_unicast, NULL, NULL,
-                                    hf_pim_unicast_addr_ipv4, hf_pim_unicast_addr_ipv6, &advance_attr);
+                            if (!dissect_pim_addr(ja_tree, tvb, ja_offset, pimv2_unicast, NULL, NULL,
+                                    hf_pim_unicast_addr_ipv4, hf_pim_unicast_addr_ipv6, &advance_attr))
+                                break;
                         } else {
                             proto_tree_add_item(ja_tree, hf_pim_source_ja_value, tvb, ja_offset, ja_length, ENC_NA);
                         }
