@@ -22,8 +22,8 @@
  * https://tools.ietf.org/html/draft-huitema-quic-ts-02
  * https://tools.ietf.org/html/draft-iyengar-quic-delayed-ack-00
  *
- * Currently supported QUIC version(s): draft -23, draft-24, draft-25,
- * draft-26, draft-27, draft-28, draft-29.
+ * Currently supported QUIC version(s): draft-21, draft-22, draft-23, draft-24,
+ * draft-25, draft-26, draft-27, draft-28, draft-29.
  * For a table of supported QUIC versions per Wireshark version, see
  * https://github.com/quicwg/base-drafts/wiki/Tools#wireshark
  *
@@ -1521,6 +1521,10 @@ quic_derive_initial_secrets(const quic_cid_t *cid,
      *
      * Hash for handshake packets is SHA-256 (output size 32).
      */
+    static const guint8 handshake_salt_draft_22[20] = {
+        0x7f, 0xbc, 0xdb, 0x0e, 0x7c, 0x66, 0xbb, 0xe9, 0x19, 0x3a,
+        0x96, 0xcd, 0x21, 0x51, 0x9e, 0xbd, 0x7a, 0x02, 0x64, 0x4a
+    };
     static const guint8 handshake_salt_draft_23[20] = {
         0xc3, 0xee, 0xf7, 0x12, 0xc7, 0x2e, 0xbb, 0x5a, 0x11, 0xa7,
         0xd2, 0x43, 0x2b, 0xb4, 0x63, 0x65, 0xbe, 0xf9, 0xf5, 0x02,
@@ -1532,7 +1536,10 @@ quic_derive_initial_secrets(const quic_cid_t *cid,
     gcry_error_t    err;
     guint8          secret[HASH_SHA2_256_LENGTH];
 
-    if (is_quic_draft_max(version, 28)) {
+    if (is_quic_draft_max(version, 22)) {
+        err = hkdf_extract(GCRY_MD_SHA256, handshake_salt_draft_22, sizeof(handshake_salt_draft_22),
+                           cid->cid, cid->len, secret);
+    } else if (is_quic_draft_max(version, 28)) {
         err = hkdf_extract(GCRY_MD_SHA256, handshake_salt_draft_23, sizeof(handshake_salt_draft_23),
                            cid->cid, cid->len, secret);
     } else {
