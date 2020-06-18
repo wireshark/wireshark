@@ -1176,34 +1176,6 @@ dissect_radiotap_he_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 		(const int **)data6_headers, ENC_LITTLE_ENDIAN);
 }
 
-static const int *flags1_headers[] = {
-	&hf_radiotap_he_mu_sig_b_mcs,
-	&hf_radiotap_he_mu_sig_b_mcs_known,
-	&hf_radiotap_he_mu_sig_b_dcm,
-	&hf_radiotap_he_mu_sig_b_dcm_known,
-	&hf_radiotap_he_mu_reserved_f1_b7,
-	&hf_radiotap_he_mu_ru_0_known,
-	&hf_radiotap_he_mu_ru_1_known,
-	&hf_radiotap_he_mu_ru_2_known,
-	&hf_radiotap_he_mu_ru_3_known,
-	&hf_radiotap_he_mu_center_26_tone_ru_bit_known,
-	&hf_radiotap_he_mu_center_26_tone_ru_value,
-	&hf_radiotap_he_mu_sig_b_compression_known,
-	&hf_radiotap_he_mu_sig_b_syms_mu_mimo_users_known,
-	NULL
-};
-
-static const int *flags2_headers[] = {
-	&hf_radiotap_he_mu_bw_from_bw_in_sig_a,
-	&hf_radiotap_he_mu_bw_from_bw_in_sig_a_known,
-	&hf_radiotap_he_mu_sig_b_compression_from_sig_a,
-	&hf_radiotap_he_mu_sig_b_syms_mu_mimo_users,
-	&hf_radiotap_he_mu_preamble_puncturing,
-	&hf_radiotap_he_mu_preamble_puncturing_known,
-	&hf_radiotap_he_mu_reserved_f2_b11_b15,
-	NULL
-};
-
 /*
  * NOTE: this is a suggested field, not a defined field, and its bit
  * assignment and format are subject to change, although an experimental
@@ -1231,6 +1203,42 @@ dissect_radiotap_he_mu_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 	guint16 flags2;
 	gboolean bw_from_bw_sig_a_known = FALSE;
 
+	/*
+	 * This is set differetly for each packet, depending on
+	 * which values in flags1 are known.  It thus will not
+	 * work if it's static.
+	 */
+	int *flags1_headers[] = {
+		&hf_radiotap_he_mu_sig_b_mcs,
+		&hf_radiotap_he_mu_sig_b_mcs_known,
+		&hf_radiotap_he_mu_sig_b_dcm,
+		&hf_radiotap_he_mu_sig_b_dcm_known,
+		&hf_radiotap_he_mu_reserved_f1_b7,
+		&hf_radiotap_he_mu_ru_0_known,
+		&hf_radiotap_he_mu_ru_1_known,
+		&hf_radiotap_he_mu_ru_2_known,
+		&hf_radiotap_he_mu_ru_3_known,
+		&hf_radiotap_he_mu_center_26_tone_ru_bit_known,
+		&hf_radiotap_he_mu_center_26_tone_ru_value,
+		&hf_radiotap_he_mu_sig_b_compression_known,
+		&hf_radiotap_he_mu_sig_b_syms_mu_mimo_users_known,
+		NULL
+	};
+
+	/*
+	 * Same story but for flags2.
+	 */
+	int *flags2_headers[] = {
+		&hf_radiotap_he_mu_bw_from_bw_in_sig_a,
+		&hf_radiotap_he_mu_bw_from_bw_in_sig_a_known,
+		&hf_radiotap_he_mu_sig_b_compression_from_sig_a,
+		&hf_radiotap_he_mu_sig_b_syms_mu_mimo_users,
+		&hf_radiotap_he_mu_preamble_puncturing,
+		&hf_radiotap_he_mu_preamble_puncturing_known,
+		&hf_radiotap_he_mu_reserved_f2_b11_b15,
+		NULL
+	};
+
 	if (flags1 & IEEE80211_RADIOTAP_HE_MU_SIG_B_MCS_KNOWN)
 		sig_b_mcs_known = TRUE;
 	if (flags1 & IEEE80211_RADIOTAP_HE_MU_SIG_B_DCM_KNOWN)
@@ -1254,9 +1262,13 @@ dissect_radiotap_he_mu_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 	he_mu_info_tree = proto_tree_add_subtree(tree, tvb, offset, 8,
 		ett_radiotap_he_mu_info, NULL, "HE-MU information");
 
+	/*
+	 * XXX - the cast is the result of the type of that argument not
+	 * being what it should be.  That should be fixed.
+	 */
 	proto_tree_add_bitmask(he_mu_info_tree, tvb, offset,
 		hf_radiotap_he_mu_info_flags_1, ett_radiotap_he_mu_info_flags_1,
-		flags1_headers, ENC_LITTLE_ENDIAN);
+		(const int **)flags1_headers, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	flags2 = tvb_get_letohs(tvb, offset);
@@ -1268,9 +1280,13 @@ dissect_radiotap_he_mu_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 	if (!mu_symbol_cnt_or_user_cnt_known)
 		flags2_headers[3] = &hf_radiotap_he_mu_sig_b_syms_mu_mimo_users_unknown;
 
+	/*
+	 * XXX - the cast is the result of the type of that argument not
+	 * being what it should be.  That should be fixed.
+	 */
 	proto_tree_add_bitmask(he_mu_info_tree, tvb, offset,
 		hf_radiotap_he_mu_info_flags_2, ett_radiotap_he_mu_info_flags_2,
-		flags2_headers, ENC_LITTLE_ENDIAN);
+		(const int **)flags2_headers, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	proto_tree_add_item(he_mu_info_tree,
