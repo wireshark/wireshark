@@ -880,55 +880,10 @@ static const true_false_string tfs_pri_sec_80_mhz = {
 	"primary"
 };
 
-static const int *data3_headers[] = {
-	&hf_radiotap_he_bss_color,
-	&hf_radiotap_he_beam_change,
-	&hf_radiotap_he_ul_dl,
-	&hf_radiotap_he_data_mcs,
-	&hf_radiotap_he_data_dcm,
-	&hf_radiotap_he_coding,
-	&hf_radiotap_he_ldpc_extra_symbol_segment,
-	&hf_radiotap_he_stbc,
-	NULL
-};
-
 static const value_string he_coding_vals[] = {
 	{ 0, "BCC" },
 	{ 1, "LDPC" },
 	{ 0, NULL }
-};
-
-static const int *data4_he_su_and_he_ext_su_headers[] = {
-	&hf_radiotap_spatial_reuse,
-	&hf_radiotap_he_su_reserved,
-	NULL
-};
-
-static const int *data4_he_trig_headers[] = {
-	&hf_radiotap_spatial_reuse_1,
-	&hf_radiotap_spatial_reuse_2,
-	&hf_radiotap_spatial_reuse_3,
-	&hf_radiotap_spatial_reuse_4,
-	NULL
-};
-
-static const int *data4_he_mu_headers[] = {
-	&hf_radiotap_spatial_reuse,
-	&hf_radiotap_sta_id_user_captured,
-	&hf_radiotap_he_mu_reserved,
-	NULL
-};
-
-static const int *data5_headers[] = {
-	&hf_radiotap_data_bandwidth_ru_allocation,
-	&hf_radiotap_gi,
-	&hf_radiotap_ltf_symbol_size,
-	&hf_radiotap_num_ltf_symbols,
-	&hf_radiotap_d5_reserved_b11,
-	&hf_radiotap_pre_fec_padding_factor,
-	&hf_radiotap_txbf,
-	&hf_radiotap_pe_disambiguity,
-	NULL
 };
 
 static const value_string he_data_bw_ru_alloc_vals[] = {
@@ -977,15 +932,6 @@ static const value_string he_num_ltf_symbols_vals[] = {
 	{ 6, "reserved" },
 	{ 7, "reserved" },
 	{ 0, NULL }
-};
-
-static const int *data6_headers[] = {
-	&hf_radiotap_he_nsts,
-	&hf_radiotap_he_doppler_value,
-	&hf_radiotap_he_d6_reserved_00e0,
-	&hf_radiotap_he_txop_value,
-	&hf_radiotap_midamble_periodicity,
-	NULL
 };
 
 static const value_string he_nsts_vals[] = {
@@ -1050,6 +996,68 @@ dissect_radiotap_he_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 	guint16 data6 = 0;
 
 	guint8 ltf_symbol_size = 0;
+
+	/*
+	 * This is set differetly for each packet, depending on
+	 * which values in data3 are known.  It thus will not
+	 * work if it's static.
+	 */
+	int *data3_headers[] = {
+		&hf_radiotap_he_bss_color,
+		&hf_radiotap_he_beam_change,
+		&hf_radiotap_he_ul_dl,
+		&hf_radiotap_he_data_mcs,
+		&hf_radiotap_he_data_dcm,
+		&hf_radiotap_he_coding,
+		&hf_radiotap_he_ldpc_extra_symbol_segment,
+		&hf_radiotap_he_stbc,
+		NULL
+	};
+
+	/*
+	 * Same story but for data4.
+	 */
+	int *data4_he_trig_headers[] = {
+		&hf_radiotap_spatial_reuse_1,
+		&hf_radiotap_spatial_reuse_2,
+		&hf_radiotap_spatial_reuse_3,
+		&hf_radiotap_spatial_reuse_4,
+		NULL
+	};
+	int *data4_he_su_and_he_ext_su_headers[] = {
+		&hf_radiotap_spatial_reuse,
+		&hf_radiotap_he_su_reserved,
+		NULL
+	};
+	int *data4_he_mu_headers[] = {
+		&hf_radiotap_spatial_reuse,
+		&hf_radiotap_sta_id_user_captured,
+		&hf_radiotap_he_mu_reserved,
+		NULL
+	};
+	int *data5_headers[] = {
+		&hf_radiotap_data_bandwidth_ru_allocation,
+		&hf_radiotap_gi,
+		&hf_radiotap_ltf_symbol_size,
+		&hf_radiotap_num_ltf_symbols,
+		&hf_radiotap_d5_reserved_b11,
+		&hf_radiotap_pre_fec_padding_factor,
+		&hf_radiotap_txbf,
+		&hf_radiotap_pe_disambiguity,
+		NULL
+	};
+
+	/*
+	 * Same story, but for data6.
+	 */
+	int *data6_headers[] = {
+		&hf_radiotap_he_nsts,
+		&hf_radiotap_he_doppler_value,
+		&hf_radiotap_he_d6_reserved_00e0,
+		&hf_radiotap_he_txop_value,
+		&hf_radiotap_midamble_periodicity,
+		NULL
+	};
 
 	/*
 	 * Determine what is known.
@@ -1141,11 +1149,19 @@ dissect_radiotap_he_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 		info_11ax->has_mcs_index = TRUE;
 		info_11ax->mcs = (data3 & IEEE80211_RADIOTAP_HE_DATA_MCS_MASK) >> 8;
 	}
+	/*
+	 * XXX - the cast is the result of the type of that argument not
+	 * being what it should be.  That should be fixed.
+	 */
 	proto_tree_add_bitmask(he_info_tree, tvb, offset,
 		hf_radiotap_he_info_data_3, ett_radiotap_he_info_data_3,
-		data3_headers, ENC_LITTLE_ENDIAN);
+		(const int **)data3_headers, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
+	/*
+	 * XXX - the casts are the result of the type of that argument not
+	 * being what it should be.  That should be fixed.
+	 */
 	if (ppdu_format == IEEE80211_RADIOTAP_HE_PPDU_FORMAT_HE_SU ||
 		ppdu_format == IEEE80211_RADIOTAP_HE_PPDU_FORMAT_HE_EXT_SU) {
 		if (!spatial_reuse_1_known)
@@ -1153,7 +1169,7 @@ dissect_radiotap_he_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 				&hf_radiotap_spatial_reuse_unknown;
 		proto_tree_add_bitmask(he_info_tree, tvb, offset,
 			hf_radiotap_he_info_data_4, ett_radiotap_he_info_data_4,
-			data4_he_su_and_he_ext_su_headers, ENC_LITTLE_ENDIAN);
+			(const int **)data4_he_su_and_he_ext_su_headers, ENC_LITTLE_ENDIAN);
 	} else if (ppdu_format == IEEE80211_RADIOTAP_HE_PPDU_FORMAT_HE_TRIG) {
 		if (!spatial_reuse_1_known)
 			data4_he_trig_headers[0] =
@@ -1169,14 +1185,14 @@ dissect_radiotap_he_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 				&hf_radiotap_spatial_reuse_4_unknown;
 		proto_tree_add_bitmask(he_info_tree, tvb, offset,
 			hf_radiotap_he_info_data_4, ett_radiotap_he_info_data_4,
-			data4_he_trig_headers, ENC_LITTLE_ENDIAN);
+			(const int **)data4_he_trig_headers, ENC_LITTLE_ENDIAN);
 	} else {
 		if (!spatial_reuse_1_known)
 			data4_he_mu_headers[0] =
 				&hf_radiotap_spatial_reuse_unknown;
 		proto_tree_add_bitmask(he_info_tree, tvb, offset,
 			hf_radiotap_he_info_data_4, ett_radiotap_he_info_data_4,
-			data4_he_mu_headers, ENC_LITTLE_ENDIAN);
+			(const int **)data4_he_mu_headers, ENC_LITTLE_ENDIAN);
 	}
 
 	//data4 = tvb_get_letohs(tvb, offset);
@@ -1211,9 +1227,13 @@ dissect_radiotap_he_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 		info_11ax->has_bwru = TRUE;
 		info_11ax->bwru = (data5 & IEEE80211_RADIOTAP_HE_DATA_BANDWIDTH_RU_ALLOC_MASK);
 	}
+	/*
+	 * XXX - the cast is the result of the type of that argument not
+	 * being what it should be.  That should be fixed.
+	 */
 	proto_tree_add_bitmask(he_info_tree, tvb, offset,
 		hf_radiotap_he_info_data_5, ett_radiotap_he_info_data_5,
-		data5_headers, ENC_LITTLE_ENDIAN);
+		(const int **)data5_headers, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	if (!doppler_known)
@@ -1222,9 +1242,13 @@ dissect_radiotap_he_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 		data6_headers[3] = &hf_radiotap_he_txop_value_unknown;
 	if (!midamble_periodicity_known)
 		data6_headers[4] = &hf_radiotap_midamble_periodicity_unknown;
+	/*
+	 * XXX - the cast is the result of the type of that argument not
+	 * being what it should be.  That should be fixed.
+	 */
 	proto_tree_add_bitmask(he_info_tree, tvb, offset,
 		hf_radiotap_he_info_data_6, ett_radiotap_he_info_data_6,
-		data6_headers, ENC_LITTLE_ENDIAN);
+		(const int **)data6_headers, ENC_LITTLE_ENDIAN);
 	data6 = tvb_get_letohs(tvb, offset);
 
 	info_11ax->nsts = data6 & IEEE80211_RADIOTAP_HE_NSTS_MASK;
