@@ -70,6 +70,14 @@ WS_DLL_PUBLIC gboolean color_filters_used(void);
  */
 WS_DLL_PUBLIC gboolean tmp_color_filters_used(void);
 
+/** Get the filter string of a temporary color filter
+ *
+ * @param filt_nr a number 1-10 pointing to a temporary color
+ * @return the current filter string which is assigned to the specified slot, or NULL if not available.
+ */
+WS_DLL_PUBLIC gchar*
+color_filters_get_tmp(guint8 filt_nr);
+
 /** Set the filter string of a temporary color filter
  *
  * @param filt_nr a number 1-10 pointing to a temporary color

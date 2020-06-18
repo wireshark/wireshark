@@ -137,6 +137,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  color_filters_clone@Base 2.1.0
  color_filters_colorize_packet@Base 2.1.0
  color_filters_export@Base 2.1.0
+ color_filters_get_tmp@Base 3.3.0
  color_filters_import@Base 2.1.0
  color_filters_init@Base 2.1.0
  color_filters_prime_edt@Base 2.1.0

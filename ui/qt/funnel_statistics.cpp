@@ -42,6 +42,7 @@ static void funnel_statistics_retap_packets(funnel_ops_id_t *ops_id);
 static void funnel_statistics_copy_to_clipboard(GString *text);
 static const gchar *funnel_statistics_get_filter(funnel_ops_id_t *ops_id);
 static void funnel_statistics_set_filter(funnel_ops_id_t *ops_id, const char* filter_string);
+static gchar* funnel_statistics_get_color_filter_slot(guint8 filter_num);
 static void funnel_statistics_set_color_filter_slot(guint8 filter_num, const gchar* filter_string);
 static gboolean funnel_statistics_open_file(funnel_ops_id_t *ops_id, const char* fname, const char* filter, char**);
 static void funnel_statistics_reload_packets(funnel_ops_id_t *ops_id);
@@ -130,6 +131,7 @@ FunnelStatistics::FunnelStatistics(QObject *parent, CaptureFile &cf) :
     funnel_ops_->copy_to_clipboard = funnel_statistics_copy_to_clipboard;
     funnel_ops_->get_filter = funnel_statistics_get_filter;
     funnel_ops_->set_filter = funnel_statistics_set_filter;
+    funnel_ops_->get_color_filter_slot = funnel_statistics_get_color_filter_slot;
     funnel_ops_->set_color_filter_slot = funnel_statistics_set_color_filter_slot;
     funnel_ops_->open_file = funnel_statistics_open_file;
     funnel_ops_->reload_packets = funnel_statistics_reload_packets;
@@ -239,6 +241,10 @@ void funnel_statistics_set_filter(funnel_ops_id_t *ops_id, const char* filter_st
     if (!ops_id || !ops_id->funnel_statistics) return;
 
     ops_id->funnel_statistics->emitSetDisplayFilter(filter_string);
+}
+
+gchar* funnel_statistics_get_color_filter_slot(guint8 filter_num) {
+    return color_filters_get_tmp(filter_num);
 }
 
 void funnel_statistics_set_color_filter_slot(guint8 filter_num, const gchar* filter_string) {

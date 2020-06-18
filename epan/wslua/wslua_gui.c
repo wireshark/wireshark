@@ -929,13 +929,55 @@ WSLUA_FUNCTION wslua_set_filter(lua_State* L) { /* Set the main filter text. */
     return 0;
 }
 
+WSLUA_FUNCTION wslua_get_color_filter_slot(lua_State* L) { /*
+    Gets the current https://wiki.wireshark.org/ColoringRules[packet coloring rule] (by index) for the
+    current session. Wireshark reserves 10 slots for these coloring rules. Requires a GUI.
+*/
+#define WSLUA_ARG_get_color_filter_slot_ROW 1 /*
+    The index (1-10) of the desired color filter value in the temporary coloring rules list.
+
+    .Default background colors
+    [cols="3",options="header"]
+    |===
+    |Index |RGB (hex) |Color
+    |1  |ffc0c0 |{set:cellbgcolor:#ffc0c0} pink 1
+    |2  |ffc0ff |{set:cellbgcolor:#ffc0ff} pink 2
+    |3  |e0c0e0 |{set:cellbgcolor:#e0c0e0} purple 1
+    |4  |c0c0ff |{set:cellbgcolor:#c0c0ff} purple 2
+    |5  |c0e0e0 |{set:cellbgcolor:#c0e0e0} green 1
+    |6  |c0ffff |{set:cellbgcolor:#c0ffff} green 2
+    |7  |c0ffc0 |{set:cellbgcolor:#c0ffc0} green 3
+    |8  |ffffc0 |{set:cellbgcolor:#ffffc0} yellow 1
+    |9  |e0e0c0 |{set:cellbgcolor:#e0e0c0} yellow 2
+    |10 |e0e0e0 |{set:cellbgcolor:#e0e0e0} gray
+    |===
+    */
+    guint8 row = (guint8)luaL_checkinteger(L, WSLUA_ARG_get_color_filter_slot_ROW);
+    gchar* filter_str = NULL;
+
+    if (!ops->get_color_filter_slot) {
+        WSLUA_ERROR(get_color_filter_slot, "GUI not available");
+        return 0;
+    }
+
+    filter_str = ops->get_color_filter_slot(row);
+    if (filter_str == NULL) {
+        lua_pushnil(L);
+    } else {
+        lua_pushstring(L, filter_str);
+        g_free(filter_str);
+    }
+
+    return 1;
+}
+
 WSLUA_FUNCTION wslua_set_color_filter_slot(lua_State* L) { /*
     Sets a https://wiki.wireshark.org/ColoringRules[packet coloring rule] (by index) for the current session.
     Wireshark reserves 10 slots for these coloring rules.
     Requires a GUI.
 */
 #define WSLUA_ARG_set_color_filter_slot_ROW 1 /*
-    The index (0-9) of the desired color in the temporary coloring rules list.
+    The index (1-10) of the desired color in the temporary coloring rules list.
     The default foreground is black and the default backgrounds are listed below.
 
     // XXX We need get the colors working, e.g. by adding them to a stylesheet.
@@ -943,16 +985,16 @@ WSLUA_FUNCTION wslua_set_color_filter_slot(lua_State* L) { /*
     [cols="3",options="header"]
     |===
     |Index |RGB (hex) |Color
-    |0 |ffc0c0 |{set:cellbgcolor:#ffc0c0} pink 1
-    |1 |ffc0ff |{set:cellbgcolor:#ffc0ff} pink 2
-    |2 |e0c0e0 |{set:cellbgcolor:#e0c0e0} purple 1
-    |3 |c0c0ff |{set:cellbgcolor:#c0c0ff} purple 2
-    |4 |c0e0e0 |{set:cellbgcolor:#c0e0e0} green 1
-    |5 |c0ffff |{set:cellbgcolor:#c0ffff} green 2
-    |6 |c0ffc0 |{set:cellbgcolor:#c0ffc0} green 3
-    |7 |ffffc0 |{set:cellbgcolor:#ffffc0} yellow 1
-    |8 |e0e0c0 |{set:cellbgcolor:#e0e0c0} yellow 2
-    |9 |e0e0e0 |{set:cellbgcolor:#e0e0e0} gray
+    |1  |ffc0c0 |{set:cellbgcolor:#ffc0c0} pink 1
+    |2  |ffc0ff |{set:cellbgcolor:#ffc0ff} pink 2
+    |3  |e0c0e0 |{set:cellbgcolor:#e0c0e0} purple 1
+    |4  |c0c0ff |{set:cellbgcolor:#c0c0ff} purple 2
+    |5  |c0e0e0 |{set:cellbgcolor:#c0e0e0} green 1
+    |6  |c0ffff |{set:cellbgcolor:#c0ffff} green 2
+    |7  |c0ffc0 |{set:cellbgcolor:#c0ffc0} green 3
+    |8  |ffffc0 |{set:cellbgcolor:#ffffc0} yellow 1
+    |9  |e0e0c0 |{set:cellbgcolor:#e0e0c0} yellow 2
+    |10 |e0e0e0 |{set:cellbgcolor:#e0e0e0} gray
     |===
 
     The color list can be set from the command line using two unofficial preferences: `gui.colorized_frame.bg` and `gui.colorized_frame.fg`, which require 10 hex RGB codes (6 hex digits each), e.g.
