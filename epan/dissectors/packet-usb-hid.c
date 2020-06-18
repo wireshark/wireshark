@@ -3724,7 +3724,7 @@ dissect_usb_hid_get_report_descriptor(packet_info *pinfo _U_, proto_tree *parent
     if (usb_conv_info) {
         data->usb_info = *usb_conv_info;
         data->desc_length = offset - old_offset;
-        tvb_memdup(wmem_file_scope(), tvb, old_offset, data->desc_length);
+        data->desc_body = (guint8*) tvb_memdup(wmem_file_scope(), tvb, old_offset, data->desc_length);
         insert_report_descriptor(pinfo, data);
     }
 
