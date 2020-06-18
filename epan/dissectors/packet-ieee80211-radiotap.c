@@ -3940,7 +3940,7 @@ void proto_register_radiotap(void)
 		  IEEE80211_RADIOTAP_HE_DATA_BW_RU_ALLOCATION_KNOWN, NULL, HFILL}},
 
 		{&hf_radiotap_he_doppler_known,
-		 {"Dopler known", "radiotap.he.data_1.doppler_known",
+		 {"Doppler known", "radiotap.he.data_1.doppler_known",
 		  FT_BOOLEAN, 16, TFS(&tfs_known_unknown),
 		  IEEE80211_RADIOTAP_HE_DOPPLER_KNOWN, NULL, HFILL}},
 
@@ -4249,12 +4249,12 @@ void proto_register_radiotap(void)
 		  NULL, HFILL}},
 
 		{&hf_radiotap_he_doppler_value,
-		 {"Dopler value", "radiotap.he.data_6.doppler_value",
+		 {"Doppler value", "radiotap.he.data_6.doppler_value",
 		  FT_UINT16, BASE_HEX, NULL, IEEE80211_RADIOTAP_HE_DOPLER_VALUE,
 		  NULL, HFILL}},
 
 		{&hf_radiotap_he_doppler_value_unknown,
-		 {"Dopler value unknown", "radiotap.he.data_6.doppler_value_unknown",
+		 {"Doppler value unknown", "radiotap.he.data_6.doppler_value_unknown",
 		  FT_UINT16, BASE_HEX, NULL, IEEE80211_RADIOTAP_HE_DOPLER_VALUE,
 		  NULL, HFILL}},
 
