@@ -1255,34 +1255,6 @@ dissect_radiotap_he_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 
 }
 
-static const int *flags1_headers[] = {
-	&hf_radiotap_he_mu_sig_b_mcs,
-	&hf_radiotap_he_mu_sig_b_mcs_known,
-	&hf_radiotap_he_mu_sig_b_dcm,
-	&hf_radiotap_he_mu_sig_b_dcm_known,
-	&hf_radiotap_he_mu_chan2_center_26_tone_ru_bit_known,
-	&hf_radiotap_he_mu_chan1_rus_known,
-	&hf_radiotap_he_mu_chan2_rus_known,
-	&hf_radiotap_he_mu_reserved_f1_b10_b11,
-	&hf_radiotap_he_mu_chan1_center_26_tone_ru_bit_known,
-	&hf_radiotap_he_mu_chan1_center_26_tone_ru_value,
-	&hf_radiotap_he_mu_sig_b_compression_known,
-	&hf_radiotap_he_mu_sig_b_syms_mu_mimo_users_known,
-	NULL
-};
-
-static const int *flags2_headers[] = {
-	&hf_radiotap_he_mu_bw_from_bw_in_sig_a,
-	&hf_radiotap_he_mu_bw_from_bw_in_sig_a_known,
-	&hf_radiotap_he_mu_sig_b_compression_from_sig_a,
-	&hf_radiotap_he_mu_sig_b_syms_mu_mimo_users,
-	&hf_radiotap_he_mu_preamble_puncturing,
-	&hf_radiotap_he_mu_preamble_puncturing_known,
-	&hf_radiotap_he_mu_chan2_center_26_tone_ru_value,
-	&hf_radiotap_he_mu_reserved_f2_b12_b15,
-	NULL
-};
-
 static void
 not_captured_custom(gchar *result, guint32 value _U_)
 {
@@ -1324,6 +1296,42 @@ dissect_radiotap_he_mu_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 	gboolean mu_bw_from_bw_sig_a_known = FALSE;
 	guint8 bw_from_sig_a = 0;
 	guint16 flags2;
+
+	/*
+	 * This is set differetly for each packet, depending on
+	 * which values in flags1 are known.  It thus will not
+	 * work if it's static.
+	 */
+	int *flags1_headers[] = {
+		&hf_radiotap_he_mu_sig_b_mcs,
+		&hf_radiotap_he_mu_sig_b_mcs_known,
+		&hf_radiotap_he_mu_sig_b_dcm,
+		&hf_radiotap_he_mu_sig_b_dcm_known,
+		&hf_radiotap_he_mu_chan2_center_26_tone_ru_bit_known,
+		&hf_radiotap_he_mu_chan1_rus_known,
+		&hf_radiotap_he_mu_chan2_rus_known,
+		&hf_radiotap_he_mu_reserved_f1_b10_b11,
+		&hf_radiotap_he_mu_chan1_center_26_tone_ru_bit_known,
+		&hf_radiotap_he_mu_chan1_center_26_tone_ru_value,
+		&hf_radiotap_he_mu_sig_b_compression_known,
+		&hf_radiotap_he_mu_sig_b_syms_mu_mimo_users_known,
+		NULL
+	};
+
+	/*
+	 * Same story but for flags2.
+	 */
+	int *flags2_headers[] = {
+		&hf_radiotap_he_mu_bw_from_bw_in_sig_a,
+		&hf_radiotap_he_mu_bw_from_bw_in_sig_a_known,
+		&hf_radiotap_he_mu_sig_b_compression_from_sig_a,
+		&hf_radiotap_he_mu_sig_b_syms_mu_mimo_users,
+		&hf_radiotap_he_mu_preamble_puncturing,
+		&hf_radiotap_he_mu_preamble_puncturing_known,
+		&hf_radiotap_he_mu_chan2_center_26_tone_ru_value,
+		&hf_radiotap_he_mu_reserved_f2_b12_b15,
+		NULL
+	};
 
 	if (flags1 & IEEE80211_RADIOTAP_HE_MU_SIG_B_MCS_KNOWN)
 		sig_b_mcs_known = TRUE;
@@ -1462,16 +1470,24 @@ dissect_radiotap_he_mu_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 	he_mu_info_tree = proto_tree_add_subtree(tree, tvb, offset, 12,
 		ett_radiotap_he_mu_info, NULL, "HE-MU information");
 
+	/*
+	 * XXX - the cast is the result of the type of that argument not
+	 * being what it should be.  That should be fixed.
+	 */
 	proto_tree_add_bitmask(he_mu_info_tree, tvb, offset,
 				hf_radiotap_he_mu_info_flags_1,
 				ett_radiotap_he_mu_info_flags_1,
-				flags1_headers, ENC_LITTLE_ENDIAN);
+				(const int **)flags1_headers, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
+	/*
+	 * XXX - the cast is the result of the type of that argument not
+	 * being what it should be.  That should be fixed.
+	 */
 	proto_tree_add_bitmask(he_mu_info_tree, tvb, offset,
 				hf_radiotap_he_mu_info_flags_2,
 				ett_radiotap_he_mu_info_flags_2,
-				flags2_headers, ENC_LITTLE_ENDIAN);
+				(const int **)flags2_headers, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	mu_chan1_rus = proto_tree_add_subtree(he_mu_info_tree, tvb, offset, 4,
