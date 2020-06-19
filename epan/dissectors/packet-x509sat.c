@@ -961,7 +961,7 @@ dissect_x509sat_T_intDay(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 }
 
 
-static const int * T_bitDay_bits[] = {
+static int * const T_bitDay_bits[] = {
   &hf_x509sat_T_bitDay_sunday,
   &hf_x509sat_T_bitDay_monday,
   &hf_x509sat_T_bitDay_tuesday,
@@ -1003,7 +1003,7 @@ dissect_x509sat_T_intNamedDays(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 }
 
 
-static const int * T_bitNamedDays_bits[] = {
+static int * const T_bitNamedDays_bits[] = {
   &hf_x509sat_T_bitNamedDays_sunday,
   &hf_x509sat_T_bitNamedDays_monday,
   &hf_x509sat_T_bitNamedDays_tuesday,
@@ -1120,7 +1120,7 @@ dissect_x509sat_T_intWeek(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 }
 
 
-static const int * T_bitWeek_bits[] = {
+static int * const T_bitWeek_bits[] = {
   &hf_x509sat_T_bitWeek_week1,
   &hf_x509sat_T_bitWeek_week2,
   &hf_x509sat_T_bitWeek_week3,
@@ -1176,7 +1176,7 @@ dissect_x509sat_T_intMonth(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 }
 
 
-static const int * T_bitMonth_bits[] = {
+static int * const T_bitMonth_bits[] = {
   &hf_x509sat_T_bitMonth_january,
   &hf_x509sat_T_bitMonth_february,
   &hf_x509sat_T_bitMonth_march,

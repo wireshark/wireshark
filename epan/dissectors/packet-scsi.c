@@ -773,7 +773,7 @@ static reassembly_table scsi_reassembly_table;
 /*
  * Required by all commands
  */
-const int *cdb_control_fields[6] = {
+int * const cdb_control_fields[6] = {
     &hf_scsi_control_vendor_specific,
     &hf_scsi_control_reserved,
     &hf_scsi_control_naca,
@@ -3072,11 +3072,11 @@ static const value_string inq_tpgs_vals[] = {
 static int
 dissect_spc_inq_sccsflags(tvbuff_t *tvb, int offset, proto_tree *tree, int version)
 {
-    static const int *sccs_fields_spc2[] = {
+    static int * const sccs_fields_spc2[] = {
         &hf_scsi_inq_sccs,
         NULL
     };
-    static const int *sccs_fields_spc3[] = {
+    static int * const sccs_fields_spc3[] = {
         &hf_scsi_inq_sccs,
         &hf_scsi_inq_acc,
         &hf_scsi_inq_tpgs,
@@ -3114,21 +3114,21 @@ dissect_spc_inq_sccsflags(tvbuff_t *tvb, int offset, proto_tree *tree, int versi
 static int
 dissect_spc_inq_bqueflags(tvbuff_t *tvb, int offset, proto_tree *tree, int version)
 {
-    static const int *bqe_fields_spc[] = {
+    static int * const bqe_fields_spc[] = {
         &hf_scsi_inq_encserv,
         &hf_scsi_inq_multip,
         &hf_scsi_inq_mchngr,
         &hf_scsi_inq_ackreqq,
         NULL
     };
-    static const int *bqe_fields_spc2[] = {
+    static int * const bqe_fields_spc2[] = {
         &hf_scsi_inq_bque,
         &hf_scsi_inq_encserv,
         &hf_scsi_inq_multip,
         &hf_scsi_inq_mchngr,
         NULL
     };
-    static const int *bqe_fields_spc4[] = {
+    static int * const bqe_fields_spc4[] = {
         &hf_scsi_inq_bque,
         &hf_scsi_inq_encserv,
         &hf_scsi_inq_multip,
@@ -3164,25 +3164,25 @@ dissect_spc_inq_bqueflags(tvbuff_t *tvb, int offset, proto_tree *tree, int versi
 static int
 dissect_spc_inq_reladrflags(tvbuff_t *tvb, int offset, proto_tree *tree, int version)
 {
-    static const int *reladr_fields_spc[] = {
+    static int * const reladr_fields_spc[] = {
         &hf_scsi_inq_reladr,
         &hf_scsi_inq_linked,
         &hf_scsi_inq_trandis,
         &hf_scsi_inq_cmdque,
         NULL
     };
-    static const int *reladr_fields_spc2[] = {
+    static int * const reladr_fields_spc2[] = {
         &hf_scsi_inq_reladr,
         &hf_scsi_inq_linked,
         &hf_scsi_inq_cmdque,
         NULL
     };
-    static const int *reladr_fields_spc3[] = {
+    static int * const reladr_fields_spc3[] = {
         &hf_scsi_inq_linked,
         &hf_scsi_inq_cmdque,
         NULL
     };
-    static const int *reladr_fields_spc4[] = {
+    static int * const reladr_fields_spc4[] = {
         &hf_scsi_inq_cmdque,
         NULL
     };
@@ -3209,7 +3209,7 @@ dissect_spc_inq_reladrflags(tvbuff_t *tvb, int offset, proto_tree *tree, int ver
     return offset;
 }
 
-static const int *peripheral_fields[] = {
+static int * const peripheral_fields[] = {
     &hf_scsi_inq_qualifier,
     &hf_scsi_inq_devtype,
     NULL
@@ -3224,7 +3224,7 @@ dissect_spc_inquiry(tvbuff_t *tvb_a, packet_info *pinfo,
 {
     guint8             flags, i, version;
 
-    static const int *inq_control_fields[] = {
+    static int * const inq_control_fields[] = {
         &hf_scsi_inq_control_vendor_specific,
         &hf_scsi_inq_control_reserved,
         &hf_scsi_inq_control_naca,
@@ -3232,7 +3232,7 @@ dissect_spc_inquiry(tvbuff_t *tvb_a, packet_info *pinfo,
         &hf_scsi_inq_control_obs2,
         NULL
     };
-    static const int *aca_fields_spc[] = {
+    static int * const aca_fields_spc[] = {
         &hf_scsi_inq_aerc,  /* obsolete in spc3 and forward */
         &hf_scsi_inq_trmtsk,/* obsolete in spc2 and forward */
         &hf_scsi_inq_normaca,
@@ -3240,20 +3240,20 @@ dissect_spc_inquiry(tvbuff_t *tvb_a, packet_info *pinfo,
         &hf_scsi_inq_rdf,
         NULL
     };
-    static const int *aca_fields_spc2[] = {
+    static int * const aca_fields_spc2[] = {
         &hf_scsi_inq_aerc,      /* obsolete in spc3 and forward */
         &hf_scsi_inq_normaca,
         &hf_scsi_inq_hisup,
         &hf_scsi_inq_rdf,
         NULL
     };
-    static const int *aca_fields_spc3[] = {
+    static int * const aca_fields_spc3[] = {
         &hf_scsi_inq_normaca,
         &hf_scsi_inq_hisup,
         &hf_scsi_inq_rdf,
         NULL
     };
-    static const int *rmb_fields[] = {
+    static int * const rmb_fields[] = {
         &hf_scsi_inq_rmb,
         NULL
     };
@@ -3422,13 +3422,13 @@ static const value_string cscd_desc_type_code_vals[] = {
 };
 #endif
 
-static const int *per_dev_type_bitmask_fields[] = {
+static int * const per_dev_type_bitmask_fields[] = {
         &hf_scsi_spc_xcopy_lu_type,
         &hf_scsi_spc_xcopy_per_dev_type,
         NULL
 };
 
-static const int *xcopy_param_list_bits[] = {
+static int * const xcopy_param_list_bits[] = {
         &hf_scsi_spc_xcopy_param_str,
         &hf_scsi_spc_xcopy_param_list_id_usage,
         &hf_scsi_spc_xcopy_param_priority,
@@ -3734,11 +3734,11 @@ static int
 dissect_scsi_log_page(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                       guint offset)
 {
-    static const int *pcflags_fields[] = {
+    static int * const pcflags_fields[] = {
         &hf_scsi_log_pagecode,
         NULL
     };
-    static const int *paramflags_fields[] = {
+    static int * const paramflags_fields[] = {
         &hf_scsi_log_pf_du,
         &hf_scsi_log_pf_ds,
         &hf_scsi_log_pf_tsd,
@@ -3842,12 +3842,12 @@ dissect_spc_logselect(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                       guint offset, gboolean isreq, gboolean iscdb,
                       guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    static const int *ppcflags_fields[] = {
+    static int * const ppcflags_fields[] = {
         &hf_scsi_log_pcr,
         &hf_scsi_log_sp,
         NULL
     };
-    static const int *pcflags_fields[] = {
+    static int * const pcflags_fields[] = {
         &hf_scsi_log_pc,
         NULL
     };
@@ -3885,12 +3885,12 @@ dissect_spc_logsense(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                      guint offset, gboolean isreq, gboolean iscdb,
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    static const int *ppcflags_fields[] = {
+    static int * const ppcflags_fields[] = {
         &hf_scsi_log_ppc,
         &hf_scsi_log_sp,
         NULL
     };
-    static const int *pcflags_fields[] = {
+    static int * const pcflags_fields[] = {
         &hf_scsi_log_pc,
         &hf_scsi_log_pagecode,
         NULL
@@ -4955,7 +4955,7 @@ dissect_spc_preventallowmediaremoval(tvbuff_t *tvb, packet_info *pinfo _U_, prot
                                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     if (isreq && iscdb) {
-        static const int *prevent_allow_fields[] = {
+        static int * const prevent_allow_fields[] = {
             &hf_scsi_prevent_allow_prevent,
             NULL
         };
@@ -5064,7 +5064,7 @@ dissect_spc_persistentreserveout(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
                             offset +8, 8, ENC_NA);
         if (cdata->itlq->flags == 0x07) {
             /* Service action REGISTER AND MOVE */
-            const int *persresv_fields[] = {
+            static int * const persresv_fields[] = {
                 &hf_scsi_persresv_control_rsvd,
                 &hf_scsi_persresv_control_unreg,
                 &hf_scsi_persresv_control_aptpl,
@@ -5086,7 +5086,7 @@ dissect_spc_persistentreserveout(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
         }
         else {
             /* Other service actions than REGISTER AND MOVE. */
-            const int *persresv_fields[] = {
+            static int * const persresv_fields[] = {
                 &hf_scsi_persresv_control_rsvd1,
                 &hf_scsi_persresv_control_spec_i_pt,
                 &hf_scsi_persresv_control_all_tg_pt,
@@ -5561,7 +5561,7 @@ dissect_scsi_descriptor_snsinfo(tvbuff_t *tvb, proto_tree *sns_tree, guint offse
           case 6:
              /*OSD object identification*/
              if (desc_length==0x1e) {
-                 static const int *command_functions[] = {
+                 static int * const command_functions[] = {
                      &hf_scsi_sns_osd_object_validation,
                      &hf_scsi_sns_osd_object_cmd_cap_v,
                      &hf_scsi_sns_osd_object_command,

@@ -54,7 +54,7 @@ static int hf_btsmp_public_key_y = -1;
 static int hf_btsmp_dhkey_check = -1;
 static int hf_btsmp_notification_type = -1;
 
-static const int *hfx_btsmp_key_distribution[] = {
+static int * const hfx_btsmp_key_distribution[] = {
     &hf_btsmp_key_dist_reserved,
     &hf_btsmp_key_dist_linkkey,
     &hf_btsmp_key_dist_sign,
@@ -63,7 +63,7 @@ static const int *hfx_btsmp_key_distribution[] = {
     NULL
 };
 
-static const int *hfx_btsmp_authreq[] = {
+static int * const hfx_btsmp_authreq[] = {
     &hf_btsmp_reserved_flag,
     &hf_btsmp_keypress_flag,
     &hf_btsmp_secure_connection_flag,

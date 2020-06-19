@@ -431,7 +431,7 @@ static const value_string dlm3_rs[] = {
  * Fields
  */
 
-static const int *m_exflags_fields[] = {
+static int * const m_exflags_fields[] = {
   &hf_dlm3_m_exflags_timeout,
   &hf_dlm3_m_exflags_forceunlock,
   &hf_dlm3_m_exflags_altcw,
@@ -454,31 +454,31 @@ static const int *m_exflags_fields[] = {
   NULL
 };
 
-static const int *rs_flags_fields[] = {
+static int * const rs_flags_fields[] = {
   &hf_dlm3_rs_flags_need_slots,
   NULL
 };
 
-static const int *m_sbflags_fields[] = {
+static int * const m_sbflags_fields[] = {
   &hf_dlm3_m_sbflags_altmode,
   &hf_dlm3_m_sbflags_valnotvalid,
   &hf_dlm3_m_sbflags_demoted,
   NULL
 };
 
-static const int *m_flags_fields[] = {
+static int * const m_flags_fields[] = {
   &hf_dlm3_m_flags_orphan,
   &hf_dlm3_m_flags_user,
   NULL
 };
 
-static const int *m_asts_fields[] = {
+static int * const m_asts_fields[] = {
   &hf_dlm3_m_asts_bast,
   &hf_dlm3_m_asts_comp,
   NULL
 };
 
-static const int *rf_lsflags_fields[] = {
+static int * const rf_lsflags_fields[] = {
   &hf_dlm3_rf_lsflags_timeout,
   &hf_dlm3_rf_lsflags_forceunlock,
   &hf_dlm3_rf_lsflags_altcw,
@@ -501,7 +501,7 @@ static const int *rf_lsflags_fields[] = {
   NULL
 };
 
-static const int *rl_exflags_fields[] = {
+static int * const rl_exflags_fields[] = {
   &hf_dlm3_rl_exflags_timeout,
   &hf_dlm3_rl_exflags_forceunlock,
   &hf_dlm3_rl_exflags_altcw,
@@ -524,13 +524,13 @@ static const int *rl_exflags_fields[] = {
   NULL
 };
 
-static const int *rl_flags_fields[] = {
+static int * const rl_flags_fields[] = {
   &hf_dlm3_rl_flags_orphan,
   &hf_dlm3_rl_flags_user,
   NULL
 };
 
-static const int *rl_asts_fields[] = {
+static int * const rl_asts_fields[] = {
   &hf_dlm3_rl_asts_bast,
   &hf_dlm3_rl_asts_comp,
   NULL

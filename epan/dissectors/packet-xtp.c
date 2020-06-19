@@ -878,7 +878,7 @@ dissect_xtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 	guint          cmd_options;
 	vec_t          cksum_vec[1];
 	gboolean       have_btag;
-	static const int * cmd_options_flags[] = {
+	static int * const cmd_options_flags[] = {
 		&hf_xtp_cmd_options_nocheck,
 		&hf_xtp_cmd_options_edge,
 		&hf_xtp_cmd_options_noerr,

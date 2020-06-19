@@ -1795,7 +1795,7 @@ static const value_string homeplug_av_fc_del_type_vals[] = {
 #define HOMEPLUG_AV_RSP_DATA_MASK  0x03
 #define HOMEPLUG_AV_RSP_MGMT_MASK  0x0C
 
-static const int *rsof_sack_fields[] = {
+static int * const rsof_sack_fields[] = {
     &hf_homeplug_av_cfs,
     &hf_homeplug_av_bdf,
     &hf_homeplug_av_svn,
@@ -2560,7 +2560,7 @@ dissect_homeplug_av_beacon_payload(ptvcursor_t *cursor)
         tree = ptvcursor_tree(cursor);
         tvb = ptvcursor_tvbuff(cursor);
 
-        static const int *bcn1_fields[] = {
+        static int * const bcn1_fields[] = {
             &hf_homeplug_av_bcn_nid,
             &hf_homeplug_av_bcn_hm,
             NULL
@@ -2571,7 +2571,7 @@ dissect_homeplug_av_beacon_payload(ptvcursor_t *cursor)
 
         ptvcursor_add(cursor, hf_homeplug_av_bcn_stei, 1, ENC_BIG_ENDIAN);
 
-        static const int *bcn2_fields[] = {
+        static int * const bcn2_fields[] = {
             &hf_homeplug_av_bcn_type,
             &hf_homeplug_av_bcn_ncnr,
             &hf_homeplug_av_bcn_npsm,
@@ -2584,7 +2584,7 @@ dissect_homeplug_av_beacon_payload(ptvcursor_t *cursor)
 
         ptvcursor_add(cursor, hf_homeplug_av_bcn_slot_use, 1, ENC_BIG_ENDIAN);
 
-        static const int *bcn3_fields[] = {
+        static int * const bcn3_fields[] = {
             &hf_homeplug_av_bcn_slot_id,
             &hf_homeplug_av_bcn_aclss,
             &hf_homeplug_av_bcn_hoip,
@@ -2595,7 +2595,7 @@ dissect_homeplug_av_beacon_payload(ptvcursor_t *cursor)
         proto_tree_add_bitmask_list(tree, tvb, ptvcursor_current_offset(cursor), 1, bcn3_fields, ENC_BIG_ENDIAN);
         ptvcursor_advance(cursor, 1);
 
-        static const int *bcn4_fields[] = {
+        static int * const bcn4_fields[] = {
             &hf_homeplug_av_bcn_nm,
             &hf_homeplug_av_bcn_cco_cap,
             &hf_homeplug_av_bcn_rsf,
@@ -2658,7 +2658,7 @@ dissect_homeplug_av_start_of_frame(ptvcursor_t *cursor)
         ptvcursor_add(cursor, hf_homeplug_av_dtei, 1, ENC_BIG_ENDIAN);
         ptvcursor_add(cursor, hf_homeplug_av_lid, 1, ENC_BIG_ENDIAN);
 
-        static const int *sof1_fields[] = {
+        static int * const sof1_fields[] = {
             &hf_homeplug_av_cfs,
             &hf_homeplug_av_bdf,
             &hf_homeplug_av_hp10df,
@@ -2673,7 +2673,7 @@ dissect_homeplug_av_start_of_frame(ptvcursor_t *cursor)
         ptvcursor_add(cursor, hf_homeplug_av_ppb, 1, ENC_BIG_ENDIAN);
         ptvcursor_add(cursor, hf_homeplug_av_sof_ble, 1, ENC_BIG_ENDIAN);
 
-        static const int *sof2_fields[] = {
+        static int * const sof2_fields[] = {
             &hf_homeplug_av_sof_pbsz,
             &hf_homeplug_av_sof_num_sym,
             &hf_homeplug_av_sof_tmi_av,
@@ -2683,7 +2683,7 @@ dissect_homeplug_av_start_of_frame(ptvcursor_t *cursor)
         proto_tree_add_bitmask_list(tree, tvb, ptvcursor_current_offset(cursor), 1, sof2_fields, ENC_BIG_ENDIAN);
         ptvcursor_advance(cursor, 1);
 
-        static const int *sof3_fields[] = {
+        static int * const sof3_fields[] = {
             &hf_homeplug_av_fl_av,
             &hf_homeplug_av_sof_mpdu_cnt,
             &hf_homeplug_av_sof_burst_cnt,
@@ -2693,7 +2693,7 @@ dissect_homeplug_av_start_of_frame(ptvcursor_t *cursor)
         proto_tree_add_bitmask_list(tree, tvb, ptvcursor_current_offset(cursor), 2, sof3_fields, ENC_LITTLE_ENDIAN);
         ptvcursor_advance(cursor, 2);
 
-        static const int *sof4_fields[] = {
+        static int * const sof4_fields[] = {
             &hf_homeplug_av_sof_bbf,
             &hf_homeplug_av_sof_mrtfl,
             &hf_homeplug_av_sof_dccpcf,
@@ -2705,7 +2705,7 @@ dissect_homeplug_av_start_of_frame(ptvcursor_t *cursor)
         proto_tree_add_bitmask_list(tree, tvb, ptvcursor_current_offset(cursor), 1, sof4_fields, ENC_BIG_ENDIAN);
         ptvcursor_advance(cursor, 1);
 
-        static const int *sof5_fields[] = {
+        static int * const sof5_fields[] = {
             &hf_homeplug_av_sof_rsr,
             &hf_homeplug_av_sof_clst,
             &hf_homeplug_av_sof_mfs_cmd_mgmt,
@@ -2716,7 +2716,7 @@ dissect_homeplug_av_start_of_frame(ptvcursor_t *cursor)
         proto_tree_add_bitmask_list(tree, tvb, ptvcursor_current_offset(cursor), 1, sof5_fields, ENC_BIG_ENDIAN);
         ptvcursor_advance(cursor, 1);
 
-        static const int *sof6_fields[] = {
+        static int * const sof6_fields[] = {
             &hf_homeplug_av_sof_mfs_rsp_mgmt,
             &hf_homeplug_av_sof_mfs_rsp_data,
             &hf_homeplug_av_sof_bm_sack,
@@ -2783,7 +2783,7 @@ dissect_homeplug_av_rtscts(ptvcursor_t *cursor)
         ptvcursor_add(cursor, hf_homeplug_av_dtei, 1, ENC_BIG_ENDIAN);
         ptvcursor_add(cursor, hf_homeplug_av_lid, 1, ENC_BIG_ENDIAN);
 
-        static const int *rtscts_fields[] = {
+        static int * const rtscts_fields[] = {
             &hf_homeplug_av_cfs,
             &hf_homeplug_av_bdf,
             &hf_homeplug_av_hp10df,
@@ -2827,7 +2827,7 @@ dissect_homeplug_av_sound(ptvcursor_t *cursor)
         ptvcursor_add(cursor, hf_homeplug_av_dtei, 1, ENC_BIG_ENDIAN);
         ptvcursor_add(cursor, hf_homeplug_av_lid, 1, ENC_BIG_ENDIAN);
 
-        static const int *sound1_fields[] = {
+        static int * const sound1_fields[] = {
             &hf_homeplug_av_cfs,
             &hf_homeplug_av_sound_pbsz,
             &hf_homeplug_av_sound_bdf,
@@ -2840,7 +2840,7 @@ dissect_homeplug_av_sound(ptvcursor_t *cursor)
         proto_tree_add_bitmask_list(tree, tvb, ptvcursor_current_offset(cursor), 1, sound1_fields, ENC_BIG_ENDIAN);
         ptvcursor_advance(cursor, 1);
 
-        static const int *sound2_fields[] = {
+        static int * const sound2_fields[] = {
             &hf_homeplug_av_fl_av,
             &hf_homeplug_av_sound_mpdu_cnt,
             NULL
@@ -2852,7 +2852,7 @@ dissect_homeplug_av_sound(ptvcursor_t *cursor)
         ptvcursor_add(cursor, hf_homeplug_av_ppb, 1, ENC_BIG_ENDIAN);
         ptvcursor_add(cursor, hf_homeplug_av_sound_src, 1, ENC_BIG_ENDIAN);
 
-        static const int *sound3_fields[] = {
+        static int * const sound3_fields[] = {
             &hf_homeplug_av_sound_add_req_tm,
             &hf_homeplug_av_sound_max_pb_sym,
             &hf_homeplug_av_sound_ecsf,
@@ -2863,7 +2863,7 @@ dissect_homeplug_av_sound(ptvcursor_t *cursor)
         proto_tree_add_bitmask_list(tree, tvb, ptvcursor_current_offset(cursor), 1, sound3_fields, ENC_BIG_ENDIAN);
         ptvcursor_advance(cursor, 1);
 
-        static const int *sound4_fields[] = {
+        static int * const sound4_fields[] = {
             &hf_homeplug_av_sound_ems,
             &hf_homeplug_av_sound_esgisf,
             &hf_homeplug_av_sound_elgisf,
@@ -2903,7 +2903,7 @@ dissect_homeplug_av_rsof(ptvcursor_t *cursor)
         ptvcursor_advance(cursor, 8); /* 1 byte for bitmask field, plus 7 bytes of variable data */
         /* TODO: fill in variable fields */
 
-        static const int *rsof2_fields[] = {
+        static int * const rsof2_fields[] = {
             &hf_homeplug_av_rsof_fl,
             &hf_homeplug_av_rsof_tmi,
             &hf_homeplug_av_rsof_pbsz,
@@ -2913,7 +2913,7 @@ dissect_homeplug_av_rsof(ptvcursor_t *cursor)
         proto_tree_add_bitmask_list(tree, tvb, ptvcursor_current_offset(cursor), 2, rsof2_fields, ENC_LITTLE_ENDIAN);
         ptvcursor_advance(cursor, 2);
 
-        static const int *rsof3_fields[] = {
+        static int * const rsof3_fields[] = {
             &hf_homeplug_av_rsof_num_sym,
             &hf_homeplug_av_rsof_mfs_cmd_mgmt,
             &hf_homeplug_av_rsof_mfs_cmd_data,
@@ -3901,7 +3901,7 @@ dissect_homeplug_av_sniffer_ind(ptvcursor_t *cursor)
 
             del_type &= bitmask;
 
-            static const int *frame_control_fields[] = {
+            static int * const frame_control_fields[] = {
                 &hf_homeplug_av_fc_del_type,
                 &hf_homeplug_av_fc_access,
                 &hf_homeplug_av_fc_snid,

@@ -1167,7 +1167,7 @@ const value_string dns_classes[] = {
   {0,NULL}
 };
 
-static const int *dns_csync_flags[] = {
+static int * const dns_csync_flags[] = {
     &hf_dns_csync_flags_immediate,
     &hf_dns_csync_flags_soaminimum,
     NULL

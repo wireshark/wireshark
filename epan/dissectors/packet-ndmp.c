@@ -861,7 +861,7 @@ static int
 dissect_butype_attrs(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		proto_tree *parent_tree)
 {
-	static const int * attribute_flags[] = {
+	static int * const attribute_flags[] = {
 		&hf_ndmp_butype_attr_recover_utf8,
 		&hf_ndmp_butype_attr_backup_utf8,
 		&hf_ndmp_butype_attr_recover_incremental,
@@ -935,7 +935,7 @@ static int
 dissect_fs_invalid(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		proto_tree *parent_tree)
 {
-	static const int * invalid_flags[] = {
+	static int * const invalid_flags[] = {
 		&hf_ndmp_fs_invalid_used_inodes,
 		&hf_ndmp_fs_invalid_total_inodes,
 		&hf_ndmp_fs_invalid_avail_size,
@@ -1040,7 +1040,7 @@ static int
 dissect_tape_attr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		proto_tree *parent_tree)
 {
-	static const int * attribute_flags[] = {
+	static int * const attribute_flags[] = {
 		&hf_ndmp_tape_attr_unload,
 		&hf_ndmp_tape_attr_rewind,
 		NULL
@@ -1312,7 +1312,7 @@ static int
 dissect_execute_cdb_flags(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		proto_tree *parent_tree)
 {
-	static const int * cdb_flags[] = {
+	static int * const cdb_flags[] = {
 		&hf_ndmp_execute_cdb_flags_data_in,
 		&hf_ndmp_execute_cdb_flags_data_out,
 		NULL
@@ -1601,7 +1601,7 @@ static int
 dissect_tape_invalid(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		proto_tree *parent_tree)
 {
-	static const int * invalid_tapes[] = {
+	static int * const invalid_tapes[] = {
 		&hf_ndmp_tape_invalid_partition,
 		&hf_ndmp_tape_invalid_space_remain,
 		&hf_ndmp_tape_invalid_total_space,
@@ -1638,7 +1638,7 @@ static int
 dissect_tape_flags(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		proto_tree *parent_tree)
 {
-	static const int * tape_flags[] = {
+	static int * const tape_flags[] = {
 		&hf_ndmp_tape_flags_unload,
 		&hf_ndmp_tape_flags_error,
 		&hf_ndmp_tape_flags_write_protect,
@@ -2341,7 +2341,7 @@ static int
 dissect_file_invalids(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		proto_tree *parent_tree)
 {
-	static const int * invalid_files[] = {
+	static int * const invalid_files[] = {
 		&hf_ndmp_file_invalid_group,
 		&hf_ndmp_file_invalid_ctime,
 		&hf_ndmp_file_invalid_atime,
@@ -2639,7 +2639,7 @@ static int
 dissect_state_invalids(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		proto_tree *parent_tree)
 {
-	static const int * invalid_states[] = {
+	static int * const invalid_states[] = {
 		&hf_ndmp_state_invalid_etr,
 		&hf_ndmp_state_invalid_ebr,
 		NULL

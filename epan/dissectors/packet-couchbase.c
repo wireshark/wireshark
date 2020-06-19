@@ -872,14 +872,14 @@ const value_string vbucket_states_vals[] = {
   {0, NULL}
 };
 
-static const int * datatype_vals[] = {
+static int * const datatype_vals[] = {
   &hf_datatype_json,
   &hf_datatype_snappy,
   &hf_datatype_xattr,
   NULL
 };
 
-static const int * subdoc_flags[] = {
+static int * const subdoc_flags[] = {
   &hf_subdoc_flags_mkdirp,
   &hf_subdoc_flags_xattrpath,
   &hf_subdoc_flags_expandmacros,
@@ -887,7 +887,7 @@ static const int * subdoc_flags[] = {
   NULL
 };
 
-static const int * subdoc_doc_flags[] = {
+static int * const subdoc_doc_flags[] = {
   &hf_subdoc_doc_flags_mkdoc,
   &hf_subdoc_doc_flags_add,
   &hf_subdoc_doc_flags_accessdeleted,
@@ -895,7 +895,7 @@ static const int * subdoc_doc_flags[] = {
   NULL
 };
 
-static const int *set_with_meta_extra_flags[] = {
+static int * const set_with_meta_extra_flags[] = {
         &hf_force_meta,
         &hf_force_accept,
         &hf_regenerate_cas,
@@ -903,7 +903,7 @@ static const int *set_with_meta_extra_flags[] = {
         NULL
 };
 
-static const int *del_with_meta_extra_flags[] = {
+static int * const del_with_meta_extra_flags[] = {
         &hf_force_meta,
         &hf_force_accept,
         &hf_regenerate_cas,
@@ -945,7 +945,7 @@ static const value_string dcp_system_event_id_vals [] = {
     {0, NULL}
 };
 
-static const int * snapshot_marker_flags [] = {
+static int * const snapshot_marker_flags [] = {
     &hf_extras_flags_dcp_snapshot_marker_memory,
     &hf_extras_flags_dcp_snapshot_marker_disk,
     &hf_extras_flags_dcp_snapshot_marker_chk,
@@ -1231,7 +1231,7 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   case PROTOCOL_BINARY_CMD_TAP_CONNECT:
     {
-    static const int * extra_flags[] = {
+    static int * const extra_flags[] = {
         &hf_extras_flags_backfill,
         &hf_extras_flags_dump,
         &hf_extras_flags_list_vbuckets,
@@ -1280,7 +1280,7 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   case PROTOCOL_BINARY_DCP_OPEN_CONNECTION:
     if (extlen) {
       if (request) {
-        static const int * extra_flags[] = {
+        static int * const extra_flags[] = {
           &hf_extras_flags_dcp_connection_type,
           &hf_extras_flags_dcp_include_xattrs,
           &hf_extras_flags_dcp_no_value,
@@ -1306,7 +1306,7 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   case PROTOCOL_BINARY_DCP_ADD_STREAM:
     if (extlen) {
       if (request) {
-        static const int * extra_flags[] = {
+        static int * const extra_flags[] = {
           &hf_extras_flags_dcp_add_stream_takeover,
           &hf_extras_flags_dcp_add_stream_diskonly,
           &hf_extras_flags_dcp_add_stream_latest,
@@ -1327,7 +1327,7 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   case PROTOCOL_BINARY_DCP_STREAM_REQUEST:
     if (extlen) {
       if (request) {
-        static const int * extra_flags[] = {
+        static int * const extra_flags[] = {
           NULL
         };
 
@@ -1381,7 +1381,7 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   case PROTOCOL_BINARY_DCP_MUTATION:
     if (extlen) {
       if (request) {
-        static const int * extra_flags[] = {
+        static int * const extra_flags[] = {
           NULL
         };
 
@@ -1501,7 +1501,7 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   case PROTOCOL_BINARY_DCP_PREPARE: {
     if (extlen) {
       if (request) {
-        static const int * extra_flags[] = {
+        static int * const extra_flags[] = {
           NULL
         };
         proto_tree_add_item(extras_tree, hf_extras_by_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
@@ -1592,7 +1592,7 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   case PROTOCOL_BINARY_DCP_OSO_SNAPSHOT: {
     if (extlen) {
       if (request) {
-        static const int * extra_flags[] = {
+        static int * const extra_flags[] = {
           &hf_extras_flags_dcp_oso_snapshot_begin,
           &hf_extras_flags_dcp_oso_snapshot_end,
           NULL

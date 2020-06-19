@@ -517,7 +517,7 @@ dissect_hello_restart_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
     proto_item *hold_time_item;
 
     if (length >= 1) {
-        static const int * flags[] = {
+        static int * const flags[] = {
             &hf_isis_hello_clv_restart_flags_sa,
             &hf_isis_hello_clv_restart_flags_ra,
             &hf_isis_hello_clv_restart_flags_rr,
@@ -743,7 +743,7 @@ dissect_hello_reverse_metric_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
 
     guint32 sub_length;
 
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_isis_hello_reverse_metric_flag_reserved,
         &hf_isis_hello_reverse_metric_flag_u,
         &hf_isis_hello_reverse_metric_flag_w,

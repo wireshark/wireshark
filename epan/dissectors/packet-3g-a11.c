@@ -535,7 +535,7 @@ static const value_string a11_ses_msid_type_vals[] =
     { 0, NULL },
 };
 
-static const int * a11_flags[] = {
+static int * const a11_flags[] = {
     &hf_a11_s,
     &hf_a11_b,
     &hf_a11_d,

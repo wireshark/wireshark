@@ -50,7 +50,7 @@ dissect_h261( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 	proto_item *ti            = NULL;
 	proto_tree *h261_tree     = NULL;
 	unsigned int offset       = 0;
-	static const int * bits[] = {
+	static int * const bits[] = {
 		/* SBIT 1st octet, 3 bits */
 		&hf_h261_sbit,
 		/* EBIT 1st octet, 3 bits */

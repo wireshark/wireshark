@@ -395,7 +395,7 @@ dissect_rx_acks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int 
 static int
 dissect_rx_flags(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *parent_tree, int offset)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_rx_flags_free_packet,
 		&hf_rx_flags_more_packets,
 		&hf_rx_flags_last_packet,

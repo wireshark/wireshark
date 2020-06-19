@@ -137,7 +137,7 @@ dissect_rftap_header(tvbuff_t *tvb, proto_tree *tree, guint32 *dlt, const guint8
     gfloat  float_val;
     char    *power_units;
 
-    static const int *flag_fields[] = {
+    static int * const flag_fields[] = {
         &hf_rftap_present_dlt,
         &hf_rftap_present_freq,
         &hf_rftap_present_nomfreq,

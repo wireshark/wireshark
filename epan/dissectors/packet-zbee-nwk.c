@@ -480,7 +480,7 @@ dissect_zbee_nwk_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     zbee_nwk_hints_t       *nwk_hints;
     gboolean                unicast_src;
 
-    static const int * fcf_flags_2007[] = {
+    static int * const fcf_flags_2007[] = {
         &hf_zbee_nwk_frame_type,
         &hf_zbee_nwk_proto_version,
         &hf_zbee_nwk_discover_route,
@@ -493,7 +493,7 @@ dissect_zbee_nwk_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
         NULL
     };
 
-    static const int * fcf_flags[] = {
+    static int * const fcf_flags[] = {
         &hf_zbee_nwk_frame_type,
         &hf_zbee_nwk_proto_version,
         &hf_zbee_nwk_discover_route,
@@ -696,7 +696,7 @@ dissect_zbee_nwk_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 
         /* Add multicast control field (ZigBee 2006 and later). */
         if ((packet.version >= ZBEE_VERSION_2007) && packet.multicast) {
-            static const int * multicast_flags[] = {
+            static int * const multicast_flags[] = {
                 &hf_zbee_nwk_mcast_mode,
                 &hf_zbee_nwk_mcast_radius,
                 &hf_zbee_nwk_mcast_max_radius,
@@ -938,14 +938,14 @@ dissect_zbee_nwk_route_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     guint8  route_options;
     guint16 dest_addr;
 
-    static const int * nwk_route_command_options_2007[] = {
+    static int * const nwk_route_command_options_2007[] = {
         &hf_zbee_nwk_cmd_route_opt_multicast,
         &hf_zbee_nwk_cmd_route_opt_dest_ext,
         &hf_zbee_nwk_cmd_route_opt_many_to_one,
         NULL
     };
 
-    static const int * nwk_route_command_options[] = {
+    static int * const nwk_route_command_options[] = {
         &hf_zbee_nwk_cmd_route_opt_repair,
         NULL
     };
@@ -1005,14 +1005,14 @@ dissect_zbee_nwk_route_rep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     guint16 orig_addr;
     guint16 resp_addr;
 
-    static const int * nwk_route_command_options_2007[] = {
+    static int * const nwk_route_command_options_2007[] = {
         &hf_zbee_nwk_cmd_route_opt_multicast,
         &hf_zbee_nwk_cmd_route_opt_resp_ext,
         &hf_zbee_nwk_cmd_route_opt_orig_ext,
         NULL
     };
 
-    static const int * nwk_route_command_options[] = {
+    static int * const nwk_route_command_options[] = {
         &hf_zbee_nwk_cmd_route_opt_repair,
         NULL
     };
@@ -1115,7 +1115,7 @@ dissect_zbee_nwk_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 static guint
 dissect_zbee_nwk_leave(tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
-    static const int * leave_options[] = {
+    static int * const leave_options[] = {
         &hf_zbee_nwk_cmd_leave_rejoin,
         &hf_zbee_nwk_cmd_leave_request,
         &hf_zbee_nwk_cmd_leave_children,
@@ -1181,7 +1181,7 @@ dissect_zbee_nwk_route_rec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 static guint
 dissect_zbee_nwk_rejoin_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, zbee_nwk_packet * packet, guint offset)
 {
-    static const int * capabilities[] = {
+    static int * const capabilities[] = {
         &hf_zbee_nwk_cmd_cinfo_alt_coord,
         &hf_zbee_nwk_cmd_cinfo_type,
         &hf_zbee_nwk_cmd_cinfo_power,
@@ -1253,7 +1253,7 @@ dissect_zbee_nwk_link_status(tvbuff_t *tvb, proto_tree *tree, guint offset)
     guint8  options;
     int     i, link_count;
     proto_tree *subtree;
-    static const int * link_options[] = {
+    static int * const link_options[] = {
         &hf_zbee_nwk_cmd_link_last,
         &hf_zbee_nwk_cmd_link_first,
         &hf_zbee_nwk_cmd_link_count,
@@ -1315,7 +1315,7 @@ dissect_zbee_nwk_ed_timeout_request(tvbuff_t *tvb, proto_tree *tree, guint offse
 static guint
 dissect_zbee_nwk_ed_timeout_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 {
-    static const int * end_device_parent_info[] = {
+    static int * const end_device_parent_info[] = {
         &hf_zbee_nwk_cmd_prnt_info_mac_data_poll_keepalive_supported,
         &hf_zbee_nwk_cmd_prnt_info_ed_to_req_keepalive_supported,
         &hf_zbee_nwk_cmd_prnt_info_power_negotiation_supported,
@@ -1526,7 +1526,7 @@ static int dissect_zbee_beacon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     guint8       version;
     guint32      profile;
 
-    static const int * beacon_fields[] = {
+    static int * const beacon_fields[] = {
         &hf_zbee_beacon_stack_profile,
         &hf_zbee_beacon_version,
         &hf_zbee_beacon_router_capacity,
@@ -1699,7 +1699,7 @@ dissect_zbee_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     guint       pie_length;
     guint       offset = 0;
 
-    static const int * fields[] = {
+    static int * const fields[] = {
         &hf_ieee802154_zigbee_ie_id,
         &hf_ieee802154_zigbee_ie_length,
         NULL

@@ -151,7 +151,7 @@ static dissector_handle_t charging_ase_handle;
 /*--- Included file: packet-charging_ase-fn.c ---*/
 #line 1 "./asn1/charging_ase/packet-charging_ase-fn.c"
 
-static const int * ChargingControlIndicators_bits[] = {
+static int * const ChargingControlIndicators_bits[] = {
   &hf_charging_ase_ChargingControlIndicators_subscriberCharge,
   &hf_charging_ase_ChargingControlIndicators_immediateChangeOfActuallyAppliedTariff,
   &hf_charging_ase_ChargingControlIndicators_delayUntilStart,
@@ -213,7 +213,7 @@ dissect_charging_ase_TariffDuration(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 }
 
 
-static const int * SubTariffControl_bits[] = {
+static int * const SubTariffControl_bits[] = {
   &hf_charging_ase_SubTariffControl_oneTimeCharge,
   NULL
 };
@@ -257,7 +257,7 @@ dissect_charging_ase_SEQUENCE_SIZE_minCommunicationTariffNum_maxCommunicationTar
 }
 
 
-static const int * T_tariffControlIndicators_bits[] = {
+static int * const T_tariffControlIndicators_bits[] = {
   &hf_charging_ase_T_tariffControlIndicators_non_cyclicTariff,
   NULL
 };
@@ -378,7 +378,7 @@ dissect_charging_ase_SEQUENCE_SIZE_minCommunicationTariffNum_maxCommunicationTar
 }
 
 
-static const int * T_tariffControlIndicators_01_bits[] = {
+static int * const T_tariffControlIndicators_01_bits[] = {
   &hf_charging_ase_T_tariffControlIndicators_01_non_cyclicTariff,
   NULL
 };
@@ -697,7 +697,7 @@ dissect_charging_ase_AddOnChargingInformation(gboolean implicit_tag _U_, tvbuff_
 }
 
 
-static const int * T_acknowledgementIndicators_bits[] = {
+static int * const T_acknowledgementIndicators_bits[] = {
   &hf_charging_ase_T_acknowledgementIndicators_accepted,
   NULL
 };
@@ -758,7 +758,7 @@ dissect_charging_ase_StartCharging(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 }
 
 
-static const int * T_stopIndicators_bits[] = {
+static int * const T_stopIndicators_bits[] = {
   &hf_charging_ase_T_stopIndicators_callAttemptChargesApplicable,
   NULL
 };

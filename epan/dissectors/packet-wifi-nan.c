@@ -424,14 +424,14 @@ static const value_string attribute_types[] = {
 };
 
 // Bitmask fields shared by multiple attributes
-static const int* map_control_fields[] = {
+static int* const map_control_fields[] = {
     &hf_nan_map_ctrl_map_id,
     &hf_nan_map_ctrl_availability_interval_duration,
     &hf_nan_map_ctrl_repeat,
     NULL
 };
 
-static const int* time_bitmap_ctr_fields[] = {
+static int* const time_bitmap_ctr_fields[] = {
     &hf_nan_time_bitmap_ctrl_bit_duration,
     &hf_nan_time_bitmap_ctrl_period,
     &hf_nan_time_bitmap_ctrl_start_offset,
@@ -891,7 +891,7 @@ dissect_attr_sda(proto_tree* attr_tree, tvbuff_t* tvb, gint offset, guint16 attr
         offset + 10, 1, ENC_BIG_ENDIAN);
     offset += 11;
 
-    static const int* service_ctr_fields[] = {
+    static int* const service_ctr_fields[] = {
         &hf_nan_attr_sda_sc_type,
         &hf_nan_attr_sda_sc_matching_filter,
         &hf_nan_attr_sda_sc_service_response,
@@ -957,7 +957,7 @@ dissect_attr_sda(proto_tree* attr_tree, tvbuff_t* tvb, gint offset, guint16 attr
             offset, 1, ENC_LITTLE_ENDIAN);
         gint srf_len = tvb_get_guint8(tvb, offset);
 
-        static const int* srf_ctr_fields[] = {
+        static int* const srf_ctr_fields[] = {
             &hf_nan_attr_sda_srf_ctr_type,
             &hf_nan_attr_sda_srf_ctr_include,
             &hf_nan_attr_sda_srf_ctr_bloom_filter_index,
@@ -998,7 +998,7 @@ dissect_attr_sdea(proto_tree* attr_tree, tvbuff_t* tvb, gint offset, guint16 att
     offset += 4;
     guint16 dissected_len = 1;
 
-    static const int* sdea_ctr_fields[] = {
+    static int* const sdea_ctr_fields[] = {
         &hf_nan_attr_sdea_ctr_fsd,
         &hf_nan_attr_sdea_ctr_fsd_w_gas,
         &hf_nan_attr_sdea_ctr_data_path,
@@ -1064,7 +1064,7 @@ dissect_attr_connection_capability(proto_tree* attr_tree, tvbuff_t* tvb, gint of
         return;
     }
 
-    static const int* connection_cap_bitmap_fields[] = {
+    static int* const connection_cap_bitmap_fields[] = {
         &hf_nan_attr_connection_cap_wifi_direct,
         &hf_nan_attr_connection_cap_p2ps,
         &hf_nan_attr_connection_cap_tdls,
@@ -1111,7 +1111,7 @@ dissect_attr_p2p_operation(proto_tree* attr_tree, tvbuff_t* tvb, gint offset, gu
     }
 
     guint sub_offset = offset + 3;
-    static const int* p2p_bitmap_fields[] = {
+    static int* const p2p_bitmap_fields[] = {
         &hf_nan_attr_p2p_device_role_device,
         &hf_nan_attr_p2p_device_role_group_owner,
         &hf_nan_attr_p2p_device_role_client,
@@ -1204,7 +1204,7 @@ dissect_attr_further_availability_map(proto_tree* attr_tree, tvbuff_t* tvb, gint
     proto_tree_add_item(attr_tree, hf_nan_attr_further_av_map_id, tvb, sub_offset, 1, ENC_BIG_ENDIAN);
     sub_offset++;
 
-    static const int* availability_entry_control_fields[] = {
+    static int* const availability_entry_control_fields[] = {
         &hf_nan_attr_further_av_map_entry_av_interval_duration,
         NULL
     };
@@ -1272,19 +1272,19 @@ dissect_attr_device_capability(proto_tree* attr_tree, tvbuff_t* tvb, gint offset
         return;
     }
 
-    static const int* device_cap_map_id_fields[] = {
+    static int* const device_cap_map_id_fields[] = {
         &hf_nan_attr_device_cap_map_id_apply_to,
         &hf_nan_attr_device_cap_map_id_associated_maps,
         NULL
     };
-    static const int* device_cap_committed_dw_fields[] = {
+    static int* const device_cap_committed_dw_fields[] = {
         &hf_nan_attr_device_cap_committed_dw_24ghz,
         &hf_nan_attr_device_cap_committed_dw_5ghz,
         &hf_nan_attr_device_cap_committed_dw_24ghz_overwrite,
         &hf_nan_attr_device_cap_committed_dw_5ghz_overwrite,
         NULL
     };
-    static const int* device_cap_supported_bands_fields[] = {
+    static int* const device_cap_supported_bands_fields[] = {
         &hf_nan_attr_device_cap_supported_bands_reserved_tv_whitespaces,
         &hf_nan_attr_device_cap_supported_bands_sub_1ghz,
         &hf_nan_attr_device_cap_supported_bands_24ghz,
@@ -1293,19 +1293,19 @@ dissect_attr_device_capability(proto_tree* attr_tree, tvbuff_t* tvb, gint offset
         &hf_nan_attr_device_cap_supported_bands_reserved_60ghz,
         NULL
     };
-    static const int* device_cap_op_mode_fields[] = {
+    static int* const device_cap_op_mode_fields[] = {
         &hf_nan_attr_device_cap_op_mode_phy,
         &hf_nan_attr_device_cap_op_mode_vht8080,
         &hf_nan_attr_device_cap_op_mode_vht160,
         &hf_nan_attr_device_cap_op_mode_reserved_paging_ndl,
         NULL
     };
-    static const int* device_cap_antennas_fields[] = {
+    static int* const device_cap_antennas_fields[] = {
         &hf_nan_attr_device_cap_antennas_tx,
         &hf_nan_attr_device_cap_antennas_rx,
         NULL
     };
-    static const int* device_cap_capabilities_fields[] = {
+    static int* const device_cap_capabilities_fields[] = {
         &hf_nan_attr_device_cap_capabilities_dfs_master,
         &hf_nan_attr_device_cap_capabilities_extended_key_id,
         &hf_nan_attr_device_cap_capabilities_simul_ndp_reception,
@@ -1342,12 +1342,12 @@ dissect_attr_ndp(proto_tree* attr_tree, tvbuff_t* tvb, gint offset, guint16 attr
     proto_tree_add_item(attr_tree, hf_nan_dialog_tokens, tvb, sub_offset, 1, ENC_BIG_ENDIAN);
     sub_offset++;
 
-    static const int* ndp_type_status_fields[] = {
+    static int* const ndp_type_status_fields[] = {
         &hf_nan_attr_ndp_type,
         &hf_nan_status_1,
         NULL
     };
-    static const int* ndp_control_fields[] = {
+    static int* const ndp_control_fields[] = {
         &hf_nan_attr_ndp_ctrl_confirm,
         &hf_nan_attr_ndp_ctrl_security_pres,
         &hf_nan_attr_ndp_ctrl_publish_id_pres,
@@ -1401,12 +1401,12 @@ dissect_attr_ndpe(proto_tree* attr_tree, tvbuff_t* tvb, gint offset, guint16 att
         return;
     }
 
-    static const int* ndp_type_status_fields[] = {
+    static int* const ndp_type_status_fields[] = {
         &hf_nan_attr_ndp_type,
         &hf_nan_status_1,
         NULL
     };
-    static const int* ndp_control_fields[] = {
+    static int* const ndp_control_fields[] = {
         &hf_nan_attr_ndp_ctrl_confirm,
         &hf_nan_attr_ndp_ctrl_security_pres,
         &hf_nan_attr_ndp_ctrl_publish_id_pres,
@@ -1490,7 +1490,7 @@ dissect_attr_availability(proto_tree* attr_tree, tvbuff_t* tvb, gint offset, gui
         return;
     }
 
-    static const int* availability_ctr_fields[] = {
+    static int* const availability_ctr_fields[] = {
         &hf_nan_attr_availability_map_id,
         &hf_nan_attr_availability_committed_changed,
         &hf_nan_attr_availability_potential_changed,
@@ -1500,7 +1500,7 @@ dissect_attr_availability(proto_tree* attr_tree, tvbuff_t* tvb, gint offset, gui
         &hf_nan_attr_availability_reserved_multicast_schedule_change_changed,
         NULL
     };
-    static const int* availability_entry_ctr_fields[] = {
+    static int* const availability_entry_ctr_fields[] = {
         &hf_nan_attr_availability_entry_ctr_type,
         &hf_nan_attr_availability_entry_ctr_pref,
         &hf_nan_attr_availability_entry_ctr_utilization,
@@ -1643,12 +1643,12 @@ dissect_attr_ndc(proto_tree* attr_tree, tvbuff_t* tvb, gint offset, guint16 attr
         return;
     }
 
-    static const int* ndc_ctr_fields[] = {
+    static int* const ndc_ctr_fields[] = {
         &hf_nan_attr_ndc_ctrl_selected,
         NULL
     };
 
-    static const int* ndc_map_id_fields[] = {
+    static int* const ndc_map_id_fields[] = {
         &hf_nan_attr_ndc_map_id_related_sch,
         NULL
     };
@@ -1693,12 +1693,12 @@ dissect_attr_ndl(proto_tree* attr_tree, tvbuff_t* tvb, gint offset, guint16 attr
     proto_tree_add_item(attr_tree, hf_nan_dialog_tokens, tvb, sub_offset, 1, ENC_BIG_ENDIAN);
     sub_offset++;
 
-    static const int* ndl_type_status_fields[] = {
+    static int* const ndl_type_status_fields[] = {
         &hf_nan_attr_ndl_type,
         &hf_nan_status_1,
         NULL
     };
-    static const int* ndl_control_fields[] = {
+    static int* const ndl_control_fields[] = {
         &hf_nan_attr_ndl_ctrl_peer_id,
         &hf_nan_attr_ndl_ctrl_immutable_schedule_pres,
         &hf_nan_attr_ndl_ctrl_ndc_pres,
@@ -1783,7 +1783,7 @@ dissect_attr_unaligned_schedule(proto_tree* attr_tree, tvbuff_t* tvb, gint offse
 
     guint sub_offset = offset + 3;
     guint dissected_len = 0;
-    static const int* control_fields[] = {
+    static int* const control_fields[] = {
         &hf_nan_attr_unaligned_sch_ctrl_schedule_id,
         &hf_nan_attr_unaligned_sch_ctrl_seq_id,
         NULL
@@ -1801,7 +1801,7 @@ dissect_attr_unaligned_schedule(proto_tree* attr_tree, tvbuff_t* tvb, gint offse
     proto_tree_add_item(attr_tree, hf_nan_attr_unaligned_sch_count_down, tvb, sub_offset, 1, ENC_BIG_ENDIAN);
     sub_offset++;
 
-    static const int* ulw_overwrite_fields[] = {
+    static int* const ulw_overwrite_fields[] = {
         &hf_nan_attr_unaligned_sch_ulw_overwrite_all,
         &hf_nan_attr_unaligned_sch_ulw_overwrite_map_id,
         NULL
@@ -1815,7 +1815,7 @@ dissect_attr_unaligned_schedule(proto_tree* attr_tree, tvbuff_t* tvb, gint offse
     // ULW Control and Band ID or Channel Entry present
     if (dissected_len < attr_len)
     {
-        static const int* ulw_control_fields[] = {
+        static int* const ulw_control_fields[] = {
             &hf_nan_attr_unaligned_sch_ulw_ctrl_type,
             &hf_nan_attr_unaligned_sch_ulw_ctrl_channel_av,
             &hf_nan_attr_unaligned_sch_ulw_ctrl_rxnss,
@@ -1873,7 +1873,7 @@ static void
 dissect_attr_ranging_info(proto_tree* attr_tree, tvbuff_t* tvb, gint offset)
 {
     guint sub_offset = offset + 3;
-    static const int* location_info_availability_fields[] = {
+    static int* const location_info_availability_fields[] = {
         &hf_nan_attr_ranging_info_location_info_avail_lci,
         &hf_nan_attr_ranging_info_location_info_avail_geospatial,
         &hf_nan_attr_ranging_info_location_info_avail_civic_location,
@@ -1905,12 +1905,12 @@ dissect_attr_ranging_setup(proto_tree* attr_tree, tvbuff_t* tvb, gint offset, gu
     proto_tree_add_item(attr_tree, hf_nan_dialog_tokens, tvb, sub_offset, 1, ENC_BIG_ENDIAN);
     sub_offset++;
 
-    static const int* ranging_setup_type_status_fields[] = {
+    static int* const ranging_setup_type_status_fields[] = {
         &hf_nan_attr_ranging_setup_type,
         &hf_nan_status_2,
         NULL
     };
-    static const int* ranging_setup_ctrl_fields[] = {
+    static int* const ranging_setup_ctrl_fields[] = {
         &hf_nan_attr_ranging_setup_ctrl_report_req,
         &hf_nan_attr_ranging_setup_ctrl_ftm_params,
         &hf_nan_attr_ranging_setup_ctrl_entry_list,
@@ -1931,7 +1931,7 @@ dissect_attr_ranging_setup(proto_tree* attr_tree, tvbuff_t* tvb, gint offset, gu
 
     if (ftm_check)
     {
-        static const int* ranging_setup_ftm_param_fields[] = {
+        static int* const ranging_setup_ftm_param_fields[] = {
             &hf_nan_attr_ranging_setup_ftm_max_burst_duration,
             &hf_nan_attr_ranging_setup_ftm_min_delta,
             &hf_nan_attr_ranging_setup_ftm_max_per_burst,
@@ -1980,7 +1980,7 @@ dissect_attr_element_container(proto_tree* attr_tree, tvbuff_t* tvb, gint offset
     guint sub_offset = offset + 3;
 
     // Some header fields and trees are reused.
-    static const int* container_map_id_fields[] = {
+    static int* const container_map_id_fields[] = {
         &hf_nan_attr_device_cap_map_id_apply_to,
         &hf_nan_attr_device_cap_map_id_associated_maps,
         NULL
@@ -2057,7 +2057,7 @@ dissect_attr_extended_p2p_operation(proto_tree* attr_tree, tvbuff_t* tvb, gint o
     }
 
     guint sub_offset = offset + 3;
-    static const int* ext_p2p_bitmap_fields[] = {
+    static int* const ext_p2p_bitmap_fields[] = {
         &hf_nan_attr_p2p_device_role_device,
         &hf_nan_attr_p2p_device_role_group_owner,
         &hf_nan_attr_p2p_device_role_client,

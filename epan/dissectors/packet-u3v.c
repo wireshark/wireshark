@@ -1023,7 +1023,7 @@ static const value_string u3v_descriptor_subtypes[] =
     { 0, NULL }
 };
 
-static const int *speed_support_fields[] = {
+static int * const speed_support_fields[] = {
     &hf_u3v_device_info_descriptor_bmSpeedSupport_low_speed,
     &hf_u3v_device_info_descriptor_bmSpeedSupport_full_speed,
     &hf_u3v_device_info_descriptor_bmSpeedSupport_high_speed,

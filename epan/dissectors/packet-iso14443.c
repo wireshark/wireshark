@@ -315,7 +315,7 @@ static int hf_iso14443_write_block = -1;
 static int hf_iso14443_write_block_number = -1;
 static int hf_iso14443_write_block_data = -1;
 
-static const int *bit_rate_fields[] = {
+static int * const bit_rate_fields[] = {
     &hf_iso14443_same_bit_rate,
     &hf_iso14443_picc_pcd_847,
     &hf_iso14443_picc_pcd_424,
@@ -326,7 +326,7 @@ static const int *bit_rate_fields[] = {
     NULL
 };
 
-static const int *ats_ta1_fields[] = {
+static int * const ats_ta1_fields[] = {
     &hf_iso14443_same_d,
     &hf_iso14443_ds8,
     &hf_iso14443_ds4,

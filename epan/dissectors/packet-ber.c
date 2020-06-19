@@ -3953,7 +3953,7 @@ malformed:
 /* 8.6 Encoding of a bitstring value */
 
 int
-dissect_ber_constrained_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, gint32 min_len, gint32 max_len, const int **named_bits, int num_named_bits, gint hf_id, gint ett_id, tvbuff_t **out_tvb)
+dissect_ber_constrained_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, gint32 min_len, gint32 max_len, int * const *named_bits, int num_named_bits, gint hf_id, gint ett_id, tvbuff_t **out_tvb)
 {
     gint8       ber_class;
     gboolean    pc, ind;
@@ -4070,12 +4070,12 @@ dissect_ber_constrained_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, proto
                     // Process 8 bits at a time instead of 64, each field masks a
                     // single byte.
                     const int bit_offset = 8 * i;
-                    const int** section_named_bits = named_bits + bit_offset;
+                    int* const* section_named_bits = named_bits + bit_offset;
                     int* flags[9];
                     if (num_named_bits - bit_offset > 8) {
                         memcpy(&flags[0], named_bits + bit_offset, 8 * sizeof(int*));
                         flags[8] = NULL;
-                        section_named_bits = (const int** )flags;
+                        section_named_bits = (int* const*)flags;
                     }
 
                     // If less data is available than the number of named bits, then
@@ -4128,7 +4128,7 @@ dissect_ber_constrained_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, proto
 
 
 int
-dissect_ber_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const int **named_bits, gint num_named_bits, gint hf_id, gint ett_id, tvbuff_t **out_tvb)
+dissect_ber_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, int * const *named_bits, gint num_named_bits, gint hf_id, gint ett_id, tvbuff_t **out_tvb)
 {
     return dissect_ber_constrained_bitstring(implicit_tag, actx, parent_tree, tvb, offset, -1, -1, named_bits, num_named_bits, hf_id, ett_id, out_tvb);
 }

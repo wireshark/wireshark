@@ -561,7 +561,7 @@ static proto_item *
 add_awdl_version(tvbuff_t *tvb, int offset, proto_tree *tree) {
   proto_item *version_item;
   guint64 version;
-  static const int *fields[] = {
+  static int * const fields[] = {
     &hf_awdl_version_major,
     &hf_awdl_version_minor,
     NULL
@@ -609,7 +609,7 @@ awdl_tag_service_params(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
   proto_tree *values_tree;
   int offset = 0;
 
-  static const int *bitmask_fields[] = {
+  static int * const bitmask_fields[] = {
     &hf_awdl_serviceparams_bitmask_0,
     &hf_awdl_serviceparams_bitmask_1,
     &hf_awdl_serviceparams_bitmask_2,
@@ -645,7 +645,7 @@ awdl_tag_service_params(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     NULL
   };
 
-  static const int *value_fields[] = {
+  static int * const value_fields[] = {
     &hf_awdl_serviceparams_values_0,
     &hf_awdl_serviceparams_values_1,
     &hf_awdl_serviceparams_values_2,
@@ -707,7 +707,7 @@ awdl_tag_channel_sequence(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
   wmem_strbuf_t *strbuf;
   int offset = 0;
 
-  static const int *flags_fields[] = {
+  static int * const flags_fields[] = {
     &hf_awdl_channelseq_legacy_control_channel,
     &hf_awdl_channelseq_legacy_bandwidth,
     &hf_awdl_channelseq_legacy_band,
@@ -924,7 +924,7 @@ awdl_tag_datapath_state(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
   int offset = 0;
   guint16 flags;
 
-  static const int *flags_fields[] = {
+  static int * const flags_fields[] = {
     &hf_awdl_datastate_flags_0,
     &hf_awdl_datastate_flags_1,
     &hf_awdl_datastate_flags_2,
@@ -944,7 +944,7 @@ awdl_tag_datapath_state(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     NULL
   };
 
-  static const int *channel_map_fields[] = {
+  static int * const channel_map_fields[] = {
     &hf_awdl_datastate_social_channel_map_6,
     &hf_awdl_datastate_social_channel_map_44,
     &hf_awdl_datastate_social_channel_map_149,
@@ -952,7 +952,7 @@ awdl_tag_datapath_state(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     NULL
   };
 
-  static const int *extflags_fields[] = {
+  static int * const extflags_fields[] = {
     &hf_awdl_datastate_extflags_0,
     &hf_awdl_datastate_extflags_1,
     &hf_awdl_datastate_extflags_2,
@@ -1057,7 +1057,7 @@ awdl_tag_ht_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
   int offset = 0;
   int tag_len = tvb_reported_length(tvb);
 
-  static const int *awdl_ht[] = {
+  static int * const awdl_ht[] = {
     &hf_awdl_ht_ldpc_coding,
     &hf_awdl_ht_chan_width,
     &hf_awdl_ht_sm_pwsave,

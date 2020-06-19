@@ -1095,7 +1095,7 @@ static int hf_dvbci_sas_sess_state = -1;
 static int hf_dvbci_sas_msg_nb = -1;
 static int hf_dvbci_sas_msg_len = -1;
 
-static const int *dvb_ci_res_id_fields[] = {
+static int * const dvb_ci_res_id_fields[] = {
   &hf_dvbci_res_id_type,
   &hf_dvbci_res_class,
   &hf_dvbci_res_type,
@@ -1103,7 +1103,7 @@ static const int *dvb_ci_res_id_fields[] = {
   NULL
 };
 
-static const int *dvbci_opp_dlv_sys_hint_fields[] = {
+static int * const dvbci_opp_dlv_sys_hint_fields[] = {
     &hf_dvbci_dlv_sys_hint_t,
     &hf_dvbci_dlv_sys_hint_s,
     &hf_dvbci_dlv_sys_hint_c,

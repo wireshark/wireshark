@@ -557,7 +557,7 @@ typedef enum
 } EC_CMD_TYPE;
 
 /* Esc Feature Reg 8  */
-static const int * ecat_esc_reg_8[] = {
+static int * const ecat_esc_reg_8[] = {
     &hf_ecat_reg_esc_features_fmmurestrict,
     &hf_ecat_reg_esc_features_smaddrrestrict,
     &hf_ecat_reg_esc_features_dcsupport,
@@ -570,7 +570,7 @@ static const int * ecat_esc_reg_8[] = {
 };
 
 /* Esc Status Reg 100 */
-static const int * ecat_esc_reg_100[] =
+static int * const ecat_esc_reg_100[] =
 {
     &hf_ecat_reg_dlctrl1_killnonecat,
     &hf_ecat_reg_dlctrl1_port0extlinkdetect,
@@ -589,7 +589,7 @@ static const value_string vals_esc_reg_101[] = {
    { 0, NULL },
 };
 
-static const int *ecat_esc_reg_101[] =
+static int * const ecat_esc_reg_101[] =
 {
     &hf_ecat_reg_dlctrl2_port0,
     &hf_ecat_reg_dlctrl2_port1,
@@ -598,19 +598,19 @@ static const int *ecat_esc_reg_101[] =
     NULL
 };
 
-static const int *ecat_esc_reg_102[] = {
+static int * const ecat_esc_reg_102[] = {
     &hf_ecat_reg_dlctrl3_fifosize,
     &hf_ecat_reg_dlctrl3_lowebusjit,
     NULL
 };
 
-static const int *ecat_esc_reg_103[] = {
+static int * const ecat_esc_reg_103[] = {
     &hf_ecat_reg_dlctrl4_2ndaddress,
     NULL
 };
 
 /* Esc Status Reg 110 */
-static const int *ecat_esc_reg_110[] =
+static int * const ecat_esc_reg_110[] =
 {
     &hf_ecat_reg_dlstatus1_operation,
     &hf_ecat_reg_dlstatus1_pdiwatchdog,
@@ -631,7 +631,7 @@ static const value_string vals_esc_reg_111[] = {
    { 0, NULL},
 };
 
-static const int *ecat_esc_reg_111[] =
+static int * const ecat_esc_reg_111[] =
 {
     &hf_ecat_reg_dlstatus2_port0,
     &hf_ecat_reg_dlstatus2_port1,
@@ -649,14 +649,14 @@ static const value_string vals_esc_reg_120[] = {
    { 0, NULL},
 };
 
-static const int *ecat_esc_reg_120[] = {
+static int * const ecat_esc_reg_120[] = {
     &hf_ecat_reg_alctrl_ctrl,
     &hf_ecat_reg_alctrl_errack,
     &hf_ecat_reg_alctrl_id,
     NULL
 };
 
-static const int *ecat_esc_reg_130[] = {
+static int * const ecat_esc_reg_130[] = {
     &hf_ecat_reg_alstatus_status,
     &hf_ecat_reg_alstatus_err,
     &hf_ecat_reg_alstatus_id,
@@ -684,12 +684,12 @@ static const value_string vals_esc_reg_140[] = {
    { 0, NULL},
 };
 
-static const int *ecat_esc_reg_140[] = {
+static int * const ecat_esc_reg_140[] = {
     &hf_ecat_reg_pdictrl1_pdi,
     NULL
 };
 
-static const int *ecat_esc_reg_141[] = {
+static int * const ecat_esc_reg_141[] = {
     &hf_ecat_reg_pdictrl2_devemul,
     &hf_ecat_reg_pdictrl2_enhlnkdetect,
     &hf_ecat_reg_pdictrl2_dcsyncout,
@@ -701,7 +701,7 @@ static const int *ecat_esc_reg_141[] = {
     NULL
 };
 
-static const int *ecat_esc_reg_200[] = {
+static int * const ecat_esc_reg_200[] = {
     &hf_ecat_reg_ecat_mask_latchevt,
     &hf_ecat_reg_ecat_mask_escstatevt,
     &hf_ecat_reg_ecat_mask_alstatevt,
@@ -716,7 +716,7 @@ static const int *ecat_esc_reg_200[] = {
     NULL
 };
 
-static const int *ecat_esc_reg_204[] = {
+static int * const ecat_esc_reg_204[] = {
     &hf_ecat_reg_pdiL_alctrl,
     &hf_ecat_reg_pdiL_latchin,
     &hf_ecat_reg_pdiL_sync0,
@@ -734,7 +734,7 @@ static const int *ecat_esc_reg_204[] = {
     NULL
 };
 
-static const int *ecat_esc_reg_210[] = {
+static int * const ecat_esc_reg_210[] = {
     &hf_ecat_reg_ecat_latchevt,
     &hf_ecat_reg_ecat_escstatevt,
     &hf_ecat_reg_ecat_alstatevt,
@@ -749,7 +749,7 @@ static const int *ecat_esc_reg_210[] = {
     NULL
 };
 
-static const int *ecat_esc_reg_220[] = {
+static int * const ecat_esc_reg_220[] = {
     &hf_ecat_reg_pdi1_alctrl,
     &hf_ecat_reg_pdi1_latchin,
     &hf_ecat_reg_pdi1_sync0,
@@ -767,31 +767,31 @@ static const int *ecat_esc_reg_220[] = {
     NULL
 };
 
-static const int *ecat_esc_reg_300[] = {
+static int * const ecat_esc_reg_300[] = {
     &hf_ecat_reg_crc0_frame,
     &hf_ecat_reg_crc0_rx,
     NULL
 };
 
-static const int *ecat_esc_reg_302[] = {
+static int * const ecat_esc_reg_302[] = {
     &hf_ecat_reg_crc1_frame,
     &hf_ecat_reg_crc1_rx,
     NULL
 };
 
-static const int *ecat_esc_reg_304[] = {
+static int * const ecat_esc_reg_304[] = {
     &hf_ecat_reg_crc2_frame,
     &hf_ecat_reg_crc2_rx,
     NULL
 };
 
-static const int *ecat_esc_reg_306[] = {
+static int * const ecat_esc_reg_306[] = {
     &hf_ecat_reg_crc3_frame,
     &hf_ecat_reg_crc3_rx,
     NULL
 };
 
-static const int *ecat_esc_reg_440[] = {
+static int * const ecat_esc_reg_440[] = {
     &hf_ecat_reg_wd_status_pdwatchdog,
     NULL
 };
@@ -804,7 +804,7 @@ static const true_false_string tfs_esc_reg_500_1 = {
     "Reset Bit 501.0 to 0", "Do not change Bit 501.0"
 };
 
-static const int *ecat_esc_reg_500[] = {
+static int * const ecat_esc_reg_500[] = {
     &hf_ecat_reg_eeprom_assign_ctrl,
     &hf_ecat_reg_eeprom_assign_pdiaccess,
     &hf_ecat_reg_eeprom_assign_status,
@@ -815,7 +815,7 @@ static const true_false_string tfs_esc_reg_502_5 = {
     "PDI emulates EEPROM", "Normal operation"
 };
 
-static const int *ecat_esc_reg_502[] = {
+static int * const ecat_esc_reg_502[] = {
     &hf_ecat_reg_ctrlstat_wraccess,
     &hf_ecat_reg_ctrlstat_eepromemul,
     &hf_ecat_reg_ctrlstat_8bacc,
@@ -831,7 +831,7 @@ static const int *ecat_esc_reg_502[] = {
     NULL
 };
 
-static const int *ecat_esc_reg_510[] = {
+static int * const ecat_esc_reg_510[] = {
     &hf_ecat_reg_mio_ctrlstat_wracc1,
     &hf_ecat_reg_mio_ctrlstat_offsphy,
     &hf_ecat_reg_mio_ctrlstat_rdacc,
@@ -841,20 +841,20 @@ static const int *ecat_esc_reg_510[] = {
     NULL
 };
 
-static const int *ecat_esc_reg_512[] = {
+static int * const ecat_esc_reg_512[] = {
     &hf_ecat_reg_mio_addr_phyaddr,
     &hf_ecat_reg_mio_addr_mioaddr,
     NULL
 };
 
-static const int *ecat_esc_reg_516[] = {
+static int * const ecat_esc_reg_516[] = {
     &hf_ecat_reg_mio_access_ecatacc,
     &hf_ecat_reg_mio_access_pdiacc,
     &hf_ecat_reg_mio_access_forcereset,
     NULL
 };
 
-static const int *ecat_esc_reg_518[] = {
+static int * const ecat_esc_reg_518[] = {
     &hf_ecat_reg_mio_status0_physlink,
     &hf_ecat_reg_mio_status0_link,
     &hf_ecat_reg_mio_status0_linkstatuserr,
@@ -864,7 +864,7 @@ static const int *ecat_esc_reg_518[] = {
     NULL
 };
 
-static const int *ecat_esc_reg_519[] = {
+static int * const ecat_esc_reg_519[] = {
     &hf_ecat_reg_mio_status1_physlink,
     &hf_ecat_reg_mio_status1_link,
     &hf_ecat_reg_mio_status1_linkstatuserr,
@@ -874,7 +874,7 @@ static const int *ecat_esc_reg_519[] = {
     NULL
 };
 
-static const int *ecat_esc_reg_51A[] = {
+static int * const ecat_esc_reg_51A[] = {
     &hf_ecat_reg_mio_status2_physlink,
     &hf_ecat_reg_mio_status2_link,
     &hf_ecat_reg_mio_status2_linkstatuserr,
@@ -884,7 +884,7 @@ static const int *ecat_esc_reg_51A[] = {
     NULL
 };
 
-static const int *ecat_esc_reg_51B[] = {
+static int * const ecat_esc_reg_51B[] = {
     &hf_ecat_reg_mio_status3_physlink,
     &hf_ecat_reg_mio_status3_link,
     &hf_ecat_reg_mio_status3_linkstatuserr,
@@ -934,7 +934,7 @@ static int ecat_reg_800(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb,
     proto_item* item;
     proto_tree* subtree;
 
-    static const int *reg4[] = {
+    static int * const reg4[] = {
         &hf_ecat_reg_syncman_pmode,
         &hf_ecat_reg_syncman_access,
         &hf_ecat_reg_syncman_irq_ecat,
@@ -946,7 +946,7 @@ static int ecat_reg_800(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb,
         &hf_ecat_reg_syncman_3bufstate,
         NULL
     };
-    static const int *reg6[] = {
+    static int * const reg6[] = {
         &hf_ecat_reg_syncman_enable,
         &hf_ecat_reg_syncman_repeatreq,
         &hf_ecat_reg_syncman_latchsmchg_ecat,
@@ -1000,14 +1000,14 @@ static const true_false_string tfs_esc_reg_9801 = {
     "PDI", "ECAT"
 };
 
-static const int *ecat_esc_reg_980[] = {
+static int * const ecat_esc_reg_980[] = {
     &hf_ecat_reg_dc_cycunitctrl_access_cyclic,
     &hf_ecat_reg_dc_cycunitctrl_access_latch0,
     &hf_ecat_reg_dc_cycunitctrl_access_latch1,
     NULL
 };
 
-static const int *ecat_esc_reg_981[] = {
+static int * const ecat_esc_reg_981[] = {
     &hf_ecat_reg_dc_activation_enablecyclic,
     &hf_ecat_reg_dc_activation_gen_sync0,
     &hf_ecat_reg_dc_activation_gen_sync1,
@@ -1019,19 +1019,19 @@ static const int *ecat_esc_reg_981[] = {
     NULL
 };
 
-static const int *ecat_esc_reg_984[] = {
+static int * const ecat_esc_reg_984[] = {
     &hf_ecat_reg_dc_activationstat_sync0pend,
     &hf_ecat_reg_dc_activationstat_sync1pend,
     &hf_ecat_reg_dc_activationstat_stimeoutofrange,
     NULL
 };
 
-static const int *ecat_esc_reg_98e[] = {
+static int * const ecat_esc_reg_98e[] = {
     &hf_ecat_reg_dc_sync0_status_triggered,
     NULL
 };
 
-static const int *ecat_esc_reg_98f[] = {
+static int * const ecat_esc_reg_98f[] = {
     &hf_ecat_reg_dc_sync1_status_triggered,
     NULL
 };
@@ -1040,24 +1040,24 @@ static const true_false_string tfs_esc_reg_9A8E1 = {
     "Single event", "Continuous"
 };
 
-static const int *ecat_esc_reg_9a8[] = {
+static int * const ecat_esc_reg_9a8[] = {
     &hf_ecat_reg_dc_latch0_ctrl_pos,
     &hf_ecat_reg_dc_latch0_ctrl_neg,
     NULL
 };
-static const int *ecat_esc_reg_9a9[] = {
+static int * const ecat_esc_reg_9a9[] = {
     &hf_ecat_reg_dc_latch1_ctrl_pos,
     &hf_ecat_reg_dc_latch1_ctrl_neg,
     NULL
 };
 
-static const int *ecat_esc_reg_9ae[] = {
+static int * const ecat_esc_reg_9ae[] = {
     &hf_ecat_reg_dc_latch0_status_eventpos,
     &hf_ecat_reg_dc_latch0_status_eventneg,
     &hf_ecat_reg_dc_latch0_status_pinstate,
     NULL
 };
-static const int *ecat_esc_reg_9af[] = {
+static int * const ecat_esc_reg_9af[] = {
     &hf_ecat_reg_dc_latch1_status_eventpos,
     &hf_ecat_reg_dc_latch1_status_eventneg,
     &hf_ecat_reg_dc_latch1_status_pinstate,
@@ -1073,7 +1073,7 @@ typedef struct
    guint16								length;
    guint16								repeat;
    int*									phf;
-   const int**							bitmask_info;
+   int* const							*bitmask_info;
    gint*								pett;
    register_dissect_func				*dissect;
 } ecat_esc_reg_info;

@@ -2442,7 +2442,7 @@ proto_free_deregistered_fields (void);
  @param indices array of ett indices
  @param num_indices the number of records in indices */
 WS_DLL_PUBLIC void
-proto_register_subtree_array(gint *const *indices, const int num_indices);
+proto_register_subtree_array(gint * const *indices, const int num_indices);
 
 /** Get name of registered header_field number n.
  @param n item # n (0-indexed)
@@ -2757,7 +2757,7 @@ proto_find_undecoded_data(proto_tree *tree, guint length);
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_bitmask(proto_tree *tree, tvbuff_t *tvb, const guint offset,
-        const int hf_hdr, const gint ett, const int **fields, const guint encoding);
+        const int hf_hdr, const gint ett, int * const *fields, const guint encoding);
 
 /** This function will dissect a sequence of bytes that describe a bitmask.
     The value of the integer containing the bitmask is returned through
@@ -2783,7 +2783,7 @@ proto_tree_add_bitmask(proto_tree *tree, tvbuff_t *tvb, const guint offset,
  @return the newly created item, and *retval is set to the decoded value masked/shifted according to bitmask */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_bitmask_ret_uint64(proto_tree *tree, tvbuff_t *tvb, const guint offset,
-        const int hf_hdr, const gint ett, const int **fields,
+        const int hf_hdr, const gint ett, int * const *fields,
         const guint encoding, guint64 *retval);
 
 /** This function will dissect a sequence of bytes that describe a bitmask.
@@ -2811,7 +2811,7 @@ proto_tree_add_bitmask_ret_uint64(proto_tree *tree, tvbuff_t *tvb, const guint o
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_bitmask_with_flags(proto_tree *tree, tvbuff_t *tvb, const guint offset,
-        const int hf_hdr, const gint ett, const int **fields, const guint encoding, const int flags);
+        const int hf_hdr, const gint ett, int * const *fields, const guint encoding, const int flags);
 
 /** This function will dissect a sequence of bytes that describe a bitmask.
     This has "filterable" bitmask header functionality of proto_tree_add_bitmask
@@ -2841,7 +2841,7 @@ proto_tree_add_bitmask_with_flags(proto_tree *tree, tvbuff_t *tvb, const guint o
  @return the newly created item, and *retval is set to the decoded value masked/shifted according to bitmask */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_bitmask_with_flags_ret_uint64(proto_tree *tree, tvbuff_t *tvb, const guint offset,
-        const int hf_hdr, const gint ett, const int **fields,
+        const int hf_hdr, const gint ett, int * const *fields,
         const guint encoding, const int flags, guint64 *retval);
 
 /** This function will dissect a value that describe a bitmask. Similar to proto_tree_add_bitmask(),
@@ -2865,7 +2865,7 @@ proto_tree_add_bitmask_with_flags_ret_uint64(proto_tree *tree, tvbuff_t *tvb, co
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_bitmask_value(proto_tree *tree, tvbuff_t *tvb, const guint offset,
-        const int hf_hdr, const gint ett, const int **fields, const guint64 value);
+        const int hf_hdr, const gint ett, int * const *fields, const guint64 value);
 
 /** This function will dissect a value that describe a bitmask. Similar to proto_tree_add_bitmask(),
     but with a passed in value (presumably because it can't be retrieved directly from tvb)
@@ -2892,7 +2892,7 @@ proto_tree_add_bitmask_value(proto_tree *tree, tvbuff_t *tvb, const guint offset
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_bitmask_value_with_flags(proto_tree *tree, tvbuff_t *tvb, const guint offset,
-        const int hf_hdr, const gint ett, const int **fields, const guint64 value, const int flags);
+        const int hf_hdr, const gint ett, int * const *fields, const guint64 value, const int flags);
 
 /** This function will dissect a sequence of bytes that describe a bitmask. Similar
     to proto_tree_add_bitmask(), but with no "header" item to group all of the fields
@@ -2910,7 +2910,7 @@ proto_tree_add_bitmask_value_with_flags(proto_tree *tree, tvbuff_t *tvb, const g
  @param encoding big or little endian byte representation (ENC_BIG_ENDIAN/ENC_LITTLE_ENDIAN/ENC_HOST_ENDIAN) */
 WS_DLL_PUBLIC void
 proto_tree_add_bitmask_list(proto_tree *tree, tvbuff_t *tvb, const guint offset,
-                                const int len, const int **fields, const guint encoding);
+                                const int len, int * const *fields, const guint encoding);
 
 /** This function will dissect a value that describe a bitmask. Similar to proto_tree_add_bitmask_list(),
     but with a passed in value (presumably because it can't be retrieved directly from tvb)
@@ -2928,7 +2928,7 @@ proto_tree_add_bitmask_list(proto_tree *tree, tvbuff_t *tvb, const guint offset,
  @param value bitmask value */
 WS_DLL_PUBLIC void
 proto_tree_add_bitmask_list_value(proto_tree *tree, tvbuff_t *tvb, const guint offset,
-                                const int len, const int **fields, const guint64 value);
+                                const int len, int * const *fields, const guint64 value);
 
 
 /** This function will dissect a sequence of bytes that describe a bitmask.
@@ -2954,7 +2954,7 @@ proto_tree_add_bitmask_list_value(proto_tree *tree, tvbuff_t *tvb, const guint o
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_bitmask_len(proto_tree *tree, tvbuff_t *tvb, const guint offset, const guint len,
-        const int hf_hdr, const gint ett, const int **fields, struct expert_field* exp, const guint encoding);
+        const int hf_hdr, const gint ett, int * const *fields, struct expert_field* exp, const guint encoding);
 
 /** Add a text with a subtree of bitfields.
  @param tree the tree to append this item to
@@ -2971,7 +2971,7 @@ proto_tree_add_bitmask_len(proto_tree *tree, tvbuff_t *tvb, const guint offset, 
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_bitmask_text(proto_tree *tree, tvbuff_t *tvb, const guint offset, const guint len,
         const char *name, const char *fallback,
-        const gint ett, const int **fields, const guint encoding, const int flags);
+        const gint ett, int * const *fields, const guint encoding, const int flags);
 
 #define BMT_NO_FLAGS    0x00    /**< Don't use any flags */
 #define BMT_NO_APPEND   0x01    /**< Don't change the title at all */

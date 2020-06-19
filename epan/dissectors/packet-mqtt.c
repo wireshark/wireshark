@@ -758,7 +758,7 @@ static guint dissect_string(tvbuff_t *tvb, proto_tree *tree, guint offset, int h
 /* MQTT v5.0: Reason Codes */
 static void dissect_mqtt_reason_code(proto_tree *mqtt_tree, tvbuff_t *tvb, guint offset, guint8 mqtt_msg_type)
 {
-  static const int *hf_rcode[] = {
+  static int * const hf_rcode[] = {
     NULL, /* RESERVED */
     NULL, /* CONNECT */
     &hf_mqtt_reason_code_connack,
@@ -915,7 +915,7 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   mqtt_properties_t mqtt_will_properties = { 0 };
   guint       offset = 0;
 
-  static const int *publish_fields[] = {
+  static int * const publish_fields[] = {
     &hf_mqtt_msg_type,
     &hf_mqtt_dup_flag,
     &hf_mqtt_qos_level,
@@ -923,7 +923,7 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     NULL
   };
 
-  static const int *v31_pubrel_sub_unsub_fields[] = {
+  static int * const v31_pubrel_sub_unsub_fields[] = {
     &hf_mqtt_msg_type,
     &hf_mqtt_dup_flag,
     &hf_mqtt_qos_level,
@@ -931,13 +931,13 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     NULL
   };
 
-  static const int *other_fields[] = {
+  static int * const other_fields[] = {
     &hf_mqtt_msg_type,
     &hf_mqtt_reserved,
     NULL
   };
 
-  static const int *connect_flags[] = {
+  static int * const connect_flags[] = {
     &hf_mqtt_conflag_user,
     &hf_mqtt_conflag_passwd,
     &hf_mqtt_conflag_will_retain,
@@ -948,13 +948,13 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     NULL
   };
 
-  static const int *connack_flags[] = {
+  static int * const connack_flags[] = {
     &hf_mqtt_conackflag_reserved,
     &hf_mqtt_conackflag_sp,
     NULL
   };
 
-  static const int *v50_subscription_flags[] = {
+  static int * const v50_subscription_flags[] = {
     &hf_mqtt_subscription_reserved,
     &hf_mqtt_subscription_retain,
     &hf_mqtt_subscription_rap,

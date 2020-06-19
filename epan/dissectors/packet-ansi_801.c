@@ -501,7 +501,7 @@ static void
 for_pr_gps_almanac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint len, guint32 offset)
 {
 	guint32	saved_offset = offset;
-	const gint *fields[] = {
+	int * const fields[] = {
 		&hf_ansi_801_num_sv_p32,
 		&hf_ansi_801_week_num,
 		&hf_ansi_801_toa,
@@ -522,7 +522,7 @@ static void
 for_pr_gps_nav_msg_bits(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint len, guint32 offset)
 {
 	guint32	saved_offset = offset;
-	const gint *fields[] = {
+	int * const fields[] = {
 		&hf_ansi_801_num_sv_p16,
 		&hf_ansi_801_part_num16,
 		&hf_ansi_801_total_parts16,

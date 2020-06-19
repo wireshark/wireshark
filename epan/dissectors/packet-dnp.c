@@ -1423,7 +1423,7 @@ dnp3_al_process_iin(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *a
 {
   guint16     al_iin;
   proto_item *tiin;
-  static const int* indications[] = {
+  static int* const indications[] = {
       &hf_dnp3_al_iin_rst,
       &hf_dnp3_al_iin_dt,
       &hf_dnp3_al_iin_dol,
@@ -2941,7 +2941,7 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree   *al_tree, *robj_tree;
   const gchar  *func_code_str, *obj_type_str;
   nstime_t      al_cto;
-  static const int * control_flags[] = {
+  static int * const control_flags[] = {
     &hf_dnp3_al_fir,
     &hf_dnp3_al_fin,
     &hf_dnp3_al_con,
@@ -3321,7 +3321,7 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     gboolean    crc_OK = FALSE;
     tvbuff_t   *next_tvb;
     guint       i;
-    static const int * transport_flags[] = {
+    static int * const transport_flags[] = {
       &hf_dnp3_tr_fin,
       &hf_dnp3_tr_fir,
       &hf_dnp3_tr_seq,

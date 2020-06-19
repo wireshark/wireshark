@@ -8617,7 +8617,7 @@ proto_register_field_init(header_field_info *hfinfo, const int parent)
 }
 
 void
-proto_register_subtree_array(gint *const *indices, const int num_indices)
+proto_register_subtree_array(gint * const *indices, const int num_indices)
 {
 	int	i;
 	gint	*const *ptr = indices;
@@ -11291,7 +11291,7 @@ proto_construct_match_selected_string(field_info *finfo, epan_dissect_t *edt)
 
 static gboolean
 proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
-			    const int len, const gint ett, const int **fields,
+			    const int len, const gint ett, int * const *fields,
 			    const int flags, gboolean first,
 			    gboolean use_parent_tree,
 			    proto_tree* tree, guint64 value)
@@ -11610,7 +11610,7 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 proto_item *
 proto_tree_add_bitmask_ret_uint64(proto_tree *parent_tree, tvbuff_t *tvb,
 		       const guint offset, const int hf_hdr,
-		       const gint ett, const int **fields,
+		       const gint ett, int * const *fields,
 		       const guint encoding, guint64 *retval)
 {
 	return proto_tree_add_bitmask_with_flags_ret_uint64(parent_tree, tvb, offset, hf_hdr, ett, fields, encoding, BMT_NO_INT|BMT_NO_TFS, retval);
@@ -11636,7 +11636,7 @@ proto_tree_add_bitmask_ret_uint64(proto_tree *parent_tree, tvbuff_t *tvb,
 proto_item *
 proto_tree_add_bitmask(proto_tree *parent_tree, tvbuff_t *tvb,
 		       const guint offset, const int hf_hdr,
-		       const gint ett, const int **fields,
+		       const gint ett, int * const *fields,
 		       const guint encoding)
 {
 	return proto_tree_add_bitmask_with_flags(parent_tree, tvb, offset, hf_hdr, ett, fields, encoding, BMT_NO_INT|BMT_NO_TFS);
@@ -11647,7 +11647,7 @@ proto_tree_add_bitmask(proto_tree *parent_tree, tvbuff_t *tvb,
  */
 proto_item *
 proto_tree_add_bitmask_with_flags_ret_uint64(proto_tree *parent_tree, tvbuff_t *tvb, const guint offset,
-		const int hf_hdr, const gint ett, const int **fields, const guint encoding, const int flags,
+		const int hf_hdr, const gint ett, int * const *fields, const guint encoding, const int flags,
 		guint64 *retval)
 {
 	proto_item        *item = NULL;
@@ -11682,7 +11682,7 @@ proto_tree_add_bitmask_with_flags_ret_uint64(proto_tree *parent_tree, tvbuff_t *
  */
 proto_item *
 proto_tree_add_bitmask_with_flags(proto_tree *parent_tree, tvbuff_t *tvb, const guint offset,
-		const int hf_hdr, const gint ett, const int **fields, const guint encoding, const int flags)
+		const int hf_hdr, const gint ett, int * const *fields, const guint encoding, const int flags)
 {
 	proto_item        *item = NULL;
 	header_field_info *hf;
@@ -11707,7 +11707,7 @@ proto_tree_add_bitmask_with_flags(proto_tree *parent_tree, tvbuff_t *tvb, const 
    can't be retrieved directly from tvb) */
 proto_item *
 proto_tree_add_bitmask_value(proto_tree *parent_tree, tvbuff_t *tvb, const guint offset,
-		const int hf_hdr, const gint ett, const int **fields, const guint64 value)
+		const int hf_hdr, const gint ett, int * const *fields, const guint64 value)
 {
 	return proto_tree_add_bitmask_value_with_flags(parent_tree, tvb, offset,
 						hf_hdr, ett, fields, value, BMT_NO_INT|BMT_NO_TFS);
@@ -11716,7 +11716,7 @@ proto_tree_add_bitmask_value(proto_tree *parent_tree, tvbuff_t *tvb, const guint
 /* Similar to proto_tree_add_bitmask_value(), but with control of flag values */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_bitmask_value_with_flags(proto_tree *parent_tree, tvbuff_t *tvb, const guint offset,
-		const int hf_hdr, const gint ett, const int **fields, const guint64 value, const int flags)
+		const int hf_hdr, const gint ett, int * const *fields, const guint64 value, const int flags)
 {
 	proto_item        *item = NULL;
 	header_field_info *hf;
@@ -11744,7 +11744,7 @@ proto_tree_add_bitmask_value_with_flags(proto_tree *parent_tree, tvbuff_t *tvb, 
 /* Similar to proto_tree_add_bitmask(), but with no "header" item to group all of the fields */
 void
 proto_tree_add_bitmask_list(proto_tree *tree, tvbuff_t *tvb, const guint offset,
-								const int len, const int **fields, const guint encoding)
+								const int len, int * const *fields, const guint encoding)
 {
 	guint64 value;
 
@@ -11757,7 +11757,7 @@ proto_tree_add_bitmask_list(proto_tree *tree, tvbuff_t *tvb, const guint offset,
 
 WS_DLL_PUBLIC void
 proto_tree_add_bitmask_list_value(proto_tree *tree, tvbuff_t *tvb, const guint offset,
-								const int len, const int **fields, const guint64 value)
+								const int len, int * const *fields, const guint64 value)
 {
 	if (tree) {
 		proto_item_add_bitmask_tree(NULL, tvb, offset, len, -1, fields,
@@ -11780,7 +11780,7 @@ proto_tree_add_bitmask_list_value(proto_tree *tree, tvbuff_t *tvb, const guint o
 proto_item *
 proto_tree_add_bitmask_len(proto_tree *parent_tree, tvbuff_t *tvb,
 		       const guint offset,  const guint len, const int hf_hdr,
-		       const gint ett, const int **fields, struct expert_field* exp,
+		       const gint ett, int * const *fields, struct expert_field* exp,
 		       const guint encoding)
 {
 	proto_item        *item = NULL;
@@ -11833,7 +11833,7 @@ proto_item *
 proto_tree_add_bitmask_text(proto_tree *parent_tree, tvbuff_t *tvb,
 			    const guint offset, const guint len,
 			    const char *name, const char *fallback,
-			    const gint ett, const int **fields,
+			    const gint ett, int * const *fields,
 			    const guint encoding, const int flags)
 {
 	proto_item *item = NULL;

@@ -1405,7 +1405,7 @@ dissect_DEVMODE_fields(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	guint32 fields;
 	proto_item *hidden_item;
 
-	static const int * hf_fields[] = {
+	static int * const hf_fields[] = {
 		&hf_devmode_fields_orientation,
 		&hf_devmode_fields_papersize,
 		&hf_devmode_fields_paperlength,
@@ -2005,7 +2005,7 @@ dissect_job_status(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		   proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
 	guint32 status;
-	static const int * hf_status[] = {
+	static int * const hf_status[] = {
 		&hf_job_status_user_intervention,
 		&hf_job_status_blocked,
 		&hf_job_status_deleted,
@@ -2123,7 +2123,7 @@ dissect_printer_attributes(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			   proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
 	guint32 attributes;
-	static const int * hf_attributes[] = {
+	static int * const hf_attributes[] = {
 		&hf_printer_attributes_published,
 		&hf_printer_attributes_raw_only,
 		&hf_printer_attributes_enable_bidi,
@@ -2232,7 +2232,7 @@ dissect_printer_driver_attributes(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				  proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
 	guint32 attributes;
-	static const int * hf_attributes[] = {
+	static int * const hf_attributes[] = {
 		&hf_printer_driver_attributes_package_aware,
 		&hf_printer_driver_attributes_xps,
 		&hf_printer_driver_attributes_sandbox_enabled,
@@ -2882,7 +2882,7 @@ dissect_notify_options_flags(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			     proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
 	guint32 flags;
-	static const int * hf_flags[] = {
+	static int * const hf_flags[] = {
 		&hf_notify_options_flags_refresh,
 		NULL
 	};
@@ -3061,7 +3061,7 @@ SpoolssRFFPCNEX_q(tvbuff_t *tvb, int offset,
 			     dcerpc_info *di, guint8 *drep)
 {
 	guint32 flags;
-	static const int * hf_flags[] = {
+	static int * const hf_flags[] = {
 		&hf_rffpcnex_flags_timeout,
 		&hf_rffpcnex_flags_delete_driver,
 		&hf_rffpcnex_flags_set_driver,
@@ -3833,7 +3833,7 @@ SpoolssEnumPrinters_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	guint32 level, flags;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-	static const int * hf_flags[] = {
+	static int * const hf_flags[] = {
 		&hf_enumprinters_flags_network,
 		&hf_enumprinters_flags_shared,
 		&hf_enumprinters_flags_remote,

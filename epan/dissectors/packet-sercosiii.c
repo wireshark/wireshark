@@ -796,7 +796,7 @@ static void dissect_siii_mdt_hp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 {
   proto_tree *subtree;
 
-  static const int * ctrl_fields[] = {
+  static int * const ctrl_fields[] = {
     &hf_siii_mdt_hotplug_control_svc_switch,
     &hf_siii_mdt_hotplug_control_param,
     NULL
@@ -814,7 +814,7 @@ static void dissect_siii_mdt_hp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 static void dissect_siii_mdt_devctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-  static const int * ctrl_fields[] = {
+  static int * const ctrl_fields[] = {
     &hf_siii_at_dev_control_ident,
     &hf_siii_mdt_dev_control_change_topology,
     &hf_siii_mdt_dev_control_top_control,
@@ -830,7 +830,7 @@ static void dissect_siii_mdt_svc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
   proto_tree *subtree;
   proto_item *ti;
 
-  static const int * svch_fields[] = {
+  static int * const svch_fields[] = {
     &hf_siii_mdt_svch_dbe, /* data block element */
     &hf_siii_mdt_svch_eot, /* end of transmission */
     &hf_siii_mdt_svch_rw,  /* read or write */
@@ -856,7 +856,7 @@ static void dissect_siii_mdt_svc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 
 static void dissect_siii_mdt_cp0(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-  static const int * version_fields[] = {
+  static int * const version_fields[] = {
     &hf_siii_mdt_version_switch_off_sercos_telegrams,
     &hf_siii_mdt_version_fast_cp_switch,
     &hf_siii_mdt_version_transmission_of_communication_parameters_mdt0_cp0,
@@ -968,7 +968,7 @@ static void dissect_siii_mdt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 static void dissect_siii_at_svc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint devno _U_) /* devno will be used in later versions */
 {
-  static const int * svch_fields[] = {
+  static int * const svch_fields[] = {
     &hf_siii_at_svch_valid,
     &hf_siii_at_svch_error,
     &hf_siii_at_svch_busy,
@@ -984,7 +984,7 @@ static void dissect_siii_at_svc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 static void dissect_siii_at_devstat(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-  static const int * status[] = {
+  static int * const status[] = {
     &hf_siii_at_dev_status_commwarning,
     &hf_siii_at_dev_status_change_topology,
     &hf_siii_at_dev_status_top_status,
@@ -1004,7 +1004,7 @@ static void dissect_siii_at_hp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 {
   proto_tree *subtree;
 
-  static const int * status[] = {
+  static int * const status[] = {
     &hf_siii_at_hotplug_status_error,
     &hf_siii_at_hotplug_status_hp0_finished,
     &hf_siii_at_hotplug_status_param,

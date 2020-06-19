@@ -333,7 +333,7 @@ static gint hf_eigrp_flags_eot = -1;
 static gint hf_eigrp_flags_condrecv = -1;
 
 static gint ett_eigrp_flags = -1;
-static const int *eigrp_flag_fields[] = {
+static int * const eigrp_flag_fields[] = {
     &hf_eigrp_flags_init,
     &hf_eigrp_flags_condrecv,
     &hf_eigrp_flags_restart,
@@ -387,7 +387,7 @@ static gint hf_eigrp_stub_flags_redist = -1;
 static gint hf_eigrp_stub_flags_leakmap = -1;
 
 static gint ett_eigrp_stub_flags = -1;
-static const int *eigrp_stub_flag_fields[] = {
+static int * const eigrp_stub_flag_fields[] = {
     &hf_eigrp_stub_flags_connected,
     &hf_eigrp_stub_flags_static,
     &hf_eigrp_stub_flags_summary,

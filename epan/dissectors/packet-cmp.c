@@ -495,7 +495,7 @@ dissect_cmp_PKIStatus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 }
 
 
-static const int * PKIFailureInfo_bits[] = {
+static int * const PKIFailureInfo_bits[] = {
   &hf_cmp_PKIFailureInfo_badAlg,
   &hf_cmp_PKIFailureInfo_badMessageCheck,
   &hf_cmp_PKIFailureInfo_badRequest,

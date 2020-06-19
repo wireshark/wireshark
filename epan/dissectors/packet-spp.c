@@ -100,7 +100,7 @@ dissect_spp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	guint16     spp_seq;
 	const char *spp_msg_string;
 	guint16	    low_socket, high_socket;
-	static const int * ctrl[] = {
+	static int * const ctrl[] = {
 		&hf_spp_connection_control_sys,
 		&hf_spp_connection_control_send_ack,
 		&hf_spp_connection_control_attn,

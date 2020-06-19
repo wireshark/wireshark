@@ -3626,7 +3626,7 @@ static int hf_ieee80211_ff_block_ack_params_policy = -1;
 static int hf_ieee80211_ff_block_ack_params_tid = -1;
 static int hf_ieee80211_ff_block_ack_params_buffer_size = -1;
 
-static const int *ieee80211_ff_block_ack_params_fields[] = {
+static int * const ieee80211_ff_block_ack_params_fields[] = {
   &hf_ieee80211_ff_block_ack_params_amsdu_permitted,
   &hf_ieee80211_ff_block_ack_params_policy,
   &hf_ieee80211_ff_block_ack_params_tid,
@@ -3640,7 +3640,7 @@ static int hf_ieee80211_ff_block_ack_ssc = -1;
 static int hf_ieee80211_ff_block_ack_ssc_fragment = -1;
 static int hf_ieee80211_ff_block_ack_ssc_sequence = -1;
 
-static const int *ieee80211_ff_block_ack_ssc_fields[] = {
+static int * const ieee80211_ff_block_ack_ssc_fields[] = {
   &hf_ieee80211_ff_block_ack_ssc_fragment,
   &hf_ieee80211_ff_block_ack_ssc_sequence,
   NULL
@@ -3651,7 +3651,7 @@ static int hf_ieee80211_ff_delba_param_reserved = -1;
 static int hf_ieee80211_ff_delba_param_init = -1;
 static int hf_ieee80211_ff_delba_param_tid = -1;
 
-static const int *ieee80211_ff_delba_param_fields[] = {
+static int * const ieee80211_ff_delba_param_fields[] = {
   &hf_ieee80211_ff_delba_param_reserved,
   &hf_ieee80211_ff_delba_param_init,
   &hf_ieee80211_ff_delba_param_tid,
@@ -3673,7 +3673,7 @@ static int hf_ieee80211_ff_qos_info_ap_queue_req = -1;
 static int hf_ieee80211_ff_qos_info_ap_txop_request = -1;
 static int hf_ieee80211_ff_qos_info_ap_more_data_ack = -1;
 
-static const int *ieee80211_ff_qos_info_ap_fields[] = {
+static int * const ieee80211_ff_qos_info_ap_fields[] = {
   &hf_ieee80211_ff_qos_info_ap_edca_param_set_counter,
   &hf_ieee80211_ff_qos_info_ap_q_ack,
   &hf_ieee80211_ff_qos_info_ap_queue_req,
@@ -3691,7 +3691,7 @@ static int hf_ieee80211_ff_qos_info_sta_q_ack = -1;
 static int hf_ieee80211_ff_qos_info_sta_max_sp_length = -1;
 static int hf_ieee80211_ff_qos_info_sta_more_data_ack = -1;
 
-static const int *ieee80211_ff_qos_info_sta_fields[] = {
+static int * const ieee80211_ff_qos_info_sta_fields[] = {
   &hf_ieee80211_ff_qos_info_sta_ac_vo,
   &hf_ieee80211_ff_qos_info_sta_ac_vi,
   &hf_ieee80211_ff_qos_info_sta_ac_bk,
@@ -3707,7 +3707,7 @@ static int hf_ieee80211_ff_sm_pwr_save_enabled = -1;
 static int hf_ieee80211_ff_sm_pwr_save_sm_mode = -1;
 static int hf_ieee80211_ff_sm_pwr_save_reserved = -1;
 
-static const int *ieee80211_ff_sw_pwr_save_fields[] = {
+static int * const ieee80211_ff_sw_pwr_save_fields[] = {
   &hf_ieee80211_ff_sm_pwr_save_enabled,
   &hf_ieee80211_ff_sm_pwr_save_sm_mode,
   &hf_ieee80211_ff_sm_pwr_save_reserved,
@@ -3721,7 +3721,7 @@ static int hf_ieee80211_ff_psmp_param_set_n_sta = -1;
 static int hf_ieee80211_ff_psmp_param_set_more_psmp = -1;
 static int hf_ieee80211_ff_psmp_param_set_psmp_sequence_duration = -1;
 
-static const int *ieee80211_ff_psmp_param_set_fields[] = {
+static int * const ieee80211_ff_psmp_param_set_fields[] = {
   &hf_ieee80211_ff_psmp_param_set_n_sta,
   &hf_ieee80211_ff_psmp_param_set_more_psmp,
   &hf_ieee80211_ff_psmp_param_set_psmp_sequence_duration,
@@ -3769,7 +3769,7 @@ static int hf_ieee80211_ff_ant_selection_5 = -1;
 static int hf_ieee80211_ff_ant_selection_6 = -1;
 static int hf_ieee80211_ff_ant_selection_7 = -1;
 
-static const int *ieee80211_ff_ant_selection_fields[] = {
+static int * const ieee80211_ff_ant_selection_fields[] = {
   &hf_ieee80211_ff_ant_selection_0,
   &hf_ieee80211_ff_ant_selection_1,
   &hf_ieee80211_ff_ant_selection_2,
@@ -3787,7 +3787,7 @@ static int hf_ieee80211_ff_ext_channel_switch_announcement_new_ope_class = -1;
 static int hf_ieee80211_ff_ext_channel_switch_announcement_new_chan_number = -1;
 static int hf_ieee80211_ff_ext_channel_switch_announcement_switch_count = -1;
 
-static const int *ieee80211_ff_ext_channel_switch_announcement_fields[] = {
+static int * const ieee80211_ff_ext_channel_switch_announcement_fields[] = {
   &hf_ieee80211_ff_ext_channel_switch_announcement_switch_mode,
   &hf_ieee80211_ff_ext_channel_switch_announcement_new_ope_class,
   &hf_ieee80211_ff_ext_channel_switch_announcement_new_chan_number,
@@ -3801,7 +3801,7 @@ static int hf_ieee80211_ff_ht_info_40_mhz_intolerant = -1;
 static int hf_ieee80211_ff_ht_info_sta_chan_width = -1;
 static int hf_ieee80211_ff_ht_info_reserved = -1;
 
-static const int *ieee80211_ff_ht_info_fields[] = {
+static int * const ieee80211_ff_ht_info_fields[] = {
   &hf_ieee80211_ff_ht_info_information_request,
   &hf_ieee80211_ff_ht_info_40_mhz_intolerant,
   &hf_ieee80211_ff_ht_info_sta_chan_width,
@@ -4552,7 +4552,7 @@ static int hf_ieee80211_ff_vht_mimo_cntrl_first_feedback_seg = -1;
 static int hf_ieee80211_ff_vht_mimo_cntrl_reserved = -1;
 static int hf_ieee80211_ff_vht_mimo_cntrl_sounding_dialog_token_number = -1;
 
-static const int *hf_ieee80211_ff_vht_mimo_cntrl_fields[] = {
+static int * const hf_ieee80211_ff_vht_mimo_cntrl_fields[] = {
   &hf_ieee80211_ff_vht_mimo_cntrl_nc_index,
   &hf_ieee80211_ff_vht_mimo_cntrl_nr_index,
   &hf_ieee80211_ff_vht_mimo_cntrl_channel_width,
@@ -5091,7 +5091,7 @@ static int hf_ieee80211_tsinfo_ack = -1;
 static int hf_ieee80211_tsinfo_sched = -1;
 static int hf_ieee80211_tsinfo_rsv = -1;
 
-static const int *ieee80211_tsinfo_fields[] = {
+static int * const ieee80211_tsinfo_fields[] = {
   &hf_ieee80211_tsinfo_type,
   &hf_ieee80211_tsinfo_tsid,
   &hf_ieee80211_tsinfo_dir,
@@ -5371,7 +5371,7 @@ static int hf_ieee80211_ff_bic_abft_count = -1;
 static int hf_ieee80211_ff_bic_nabft = -1;
 static int hf_ieee80211_ff_bic_pcp = -1;
 static int hf_ieee80211_ff_bic_reserved = -1;
-static const int *ieee80211_ff_bic_fields[] = {
+static int * const ieee80211_ff_bic_fields[] = {
   &hf_ieee80211_ff_bic_cc_present,
   &hf_ieee80211_ff_bic_discovery_mode,
   &hf_ieee80211_ff_bic_next_beacon,
@@ -9129,7 +9129,7 @@ add_ff_dmg_params(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int o
 static guint
 add_ff_cap_info(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
 {
-  static const int *ieee80211_ap_fields[] = {
+  static int * const ieee80211_ap_fields[] = {
     &hf_ieee80211_ff_cf_ess,
     &hf_ieee80211_ff_cf_ibss,
     &hf_ieee80211_ff_cf_ap_poll,
@@ -9147,7 +9147,7 @@ add_ff_cap_info(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int off
     NULL
   };
 
-  static const int *ieee80211_sta_fields[] = {
+  static int * const ieee80211_sta_fields[] = {
     &hf_ieee80211_ff_cf_ess,
     &hf_ieee80211_ff_cf_ibss,
     &hf_ieee80211_ff_cf_sta_poll,
@@ -9312,7 +9312,7 @@ dissect_ftm_params(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void
   int offset = 0;
   int len = 0;
   proto_tree *ftm_param_tree = tree;
-  static const int *ieee80211_ftm_params_fields1[] = {
+  static int * const ieee80211_ftm_params_fields1[] = {
     &hf_ieee80211_ff_ftm_param_status_indication,
     &hf_ieee80211_ff_ftm_param_value,
     &hf_ieee80211_ff_ftm_param_reserved1,
@@ -9320,7 +9320,7 @@ dissect_ftm_params(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void
     &hf_ieee80211_ff_ftm_param_burst_duration,
     NULL};
 
-  static const int *ieee80211_ftm_params_fields2[] = {
+  static int * const ieee80211_ftm_params_fields2[] = {
     &hf_ieee80211_ff_ftm_param_min_delta_ftm,
     &hf_ieee80211_ff_ftm_param_partial_tsf_timer,
     &hf_ieee80211_ff_ftm_param_partial_tsf_no_pref,
@@ -9329,7 +9329,7 @@ dissect_ftm_params(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void
     &hf_ieee80211_ff_ftm_param_ftm_per_burst,
     NULL};
 
-  static const int *ieee80211_ftm_params_fields3[] = {
+  static int * const ieee80211_ftm_params_fields3[] = {
     &hf_ieee80211_ff_ftm_param_reserved2,
     &hf_ieee80211_ff_ftm_param_format_and_bw,
     &hf_ieee80211_ff_ftm_param_burst_period,
@@ -9713,7 +9713,7 @@ add_ff_mimo_cntrl(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int o
 {
   proto_item *mimo_item;
   proto_tree *mimo_tree;
-  static const int *ieee80211_mimo_fields[] = {
+  static int * const ieee80211_mimo_fields[] = {
     &hf_ieee80211_ff_mimo_cntrl_nc_index,
     &hf_ieee80211_ff_mimo_cntrl_nr_index,
     &hf_ieee80211_ff_mimo_cntrl_channel_width,
@@ -9859,11 +9859,11 @@ add_ff_psmp_sta_info(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, in
 static guint
 add_ff_schedule_info(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
 {
-  static const int *ieee80211_schedule_info_fields1[] = {
+  static int * const ieee80211_schedule_info_fields1[] = {
     &hf_ieee80211_sched_info_agg,
     NULL
   };
-  static const int *ieee80211_schedule_info_fields2[] = {
+  static int * const ieee80211_schedule_info_fields2[] = {
     &hf_ieee80211_sched_info_agg,
     &hf_ieee80211_sched_info_tsid,
     &hf_ieee80211_sched_info_dir,
@@ -10894,7 +10894,7 @@ wnm_bss_trans_mgmt_req(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
   int tmp_sublen;
   const guint8 ids[] = { TAG_NEIGHBOR_REPORT, TAG_VENDOR_SPECIFIC_IE};
 
-  static const int *ieee80211_ff_request_flags[] = {
+  static int * const ieee80211_ff_request_flags[] = {
     &hf_ieee80211_ff_request_mode_pref_cand,
     &hf_ieee80211_ff_request_mode_abridged,
     &hf_ieee80211_ff_request_mode_disassoc_imminent,
@@ -11394,7 +11394,7 @@ add_ff_beamforming_ctrl(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_,
   guint16 bf_field = tvb_get_letohs(tvb, offset);
   gboolean isInit = (bf_field & 0x2) >> 1;
   gboolean isResp = (bf_field & 0x4) >> 2;
-  static const int *ieee80211_ff_beamforming_ctrl[] = {
+  static int * const ieee80211_ff_beamforming_ctrl[] = {
     &hf_ieee80211_ff_bf_train,
     &hf_ieee80211_ff_bf_is_init,
     &hf_ieee80211_ff_bf_is_resp,
@@ -11404,7 +11404,7 @@ add_ff_beamforming_ctrl(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_,
     NULL
   };
 
-  static const int *ieee80211_ff_beamforming_ctrl_grant[] = {
+  static int * const ieee80211_ff_beamforming_ctrl_grant[] = {
     &hf_ieee80211_ff_bf_train,
     &hf_ieee80211_ff_bf_is_init,
     &hf_ieee80211_ff_bf_is_resp,
@@ -11429,7 +11429,7 @@ add_ff_beamforming_ctrl(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_,
 static guint
 add_ff_dynamic_allocation(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
 {
-  static const int *ieee80211_ff_dynamic_allocation[] = {
+  static int * const ieee80211_ff_dynamic_allocation[] = {
     &hf_ieee80211_ff_TID,
     &hf_ieee80211_ff_alloc_type,
     &hf_ieee80211_ff_src_aid,
@@ -11449,7 +11449,7 @@ add_ff_dynamic_allocation(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U
 static guint
 add_ff_beamformed_link(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
 {
-  static const int *ieee80211_ff_beamformed_link[] = {
+  static int * const ieee80211_ff_beamformed_link[] = {
     &hf_ieee80211_ff_blm_unit_index,
     &hf_ieee80211_ff_blm_maint_value,
     &hf_ieee80211_ff_blm_is_master,
@@ -11465,7 +11465,7 @@ add_ff_beamformed_link(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, 
 static guint
 add_ff_BRP_request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
 {
-  static const int *ieee80211_ff_BRP_request[] = {
+  static int * const ieee80211_ff_BRP_request[] = {
     &hf_ieee80211_ff_brp_L_RX,
     &hf_ieee80211_ff_brp_TX_TRN_REQ,
     &hf_ieee80211_ff_brp_MID_REQ,
@@ -11489,7 +11489,7 @@ add_ff_BRP_request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int 
 static guint
 add_ff_sector_sweep_feedback_from_iss(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
 {
-  static const int *ieee80211_ff_sector_sweep_feedback_from_iss[] = {
+  static int * const ieee80211_ff_sector_sweep_feedback_from_iss[] = {
     &hf_ieee80211_ff_sswf_total_sectors,
     &hf_ieee80211_ff_sswf_num_rx_dmg_ants,
     &hf_ieee80211_ff_sswf_reserved1,
@@ -11507,7 +11507,7 @@ add_ff_sector_sweep_feedback_from_iss(proto_tree *tree, tvbuff_t *tvb, packet_in
 static guint
 add_ff_sector_sweep_feedback_to_iss(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
 {
-  static const int *ieee80211_ff_sector_sweep_feedback_to_iss[] = {
+  static int * const ieee80211_ff_sector_sweep_feedback_to_iss[] = {
     &hf_ieee80211_ff_sswf_sector_select,
     &hf_ieee80211_ff_sswf_dmg_antenna_select,
     &hf_ieee80211_ff_sswf_snr_report,
@@ -11525,7 +11525,7 @@ add_ff_sector_sweep_feedback_to_iss(proto_tree *tree, tvbuff_t *tvb, packet_info
 static guint
 add_ff_sector_sweep(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
 {
-  static const int *ieee80211_ff_sector_sweep[] = {
+  static int * const ieee80211_ff_sector_sweep[] = {
     &hf_ieee80211_ff_ssw_direction,
     &hf_ieee80211_ff_ssw_cdown,
     &hf_ieee80211_ff_ssw_sector_id,
@@ -11543,7 +11543,7 @@ add_ff_sector_sweep(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int
 static guint
 add_ff_dmg_params(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
 {
-  static const int *ieee80211_ff_dmg_params[] = {
+  static int * const ieee80211_ff_dmg_params[] = {
     &hf_ieee80211_ff_dmg_params_bss,
     &hf_ieee80211_ff_dmg_params_cbap_only,
     &hf_ieee80211_ff_dmg_params_cbap_src,
@@ -11712,7 +11712,7 @@ add_tag_relay_capabilities(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
   int tag_len = tvb_reported_length(tvb);
   ieee80211_tagged_field_data_t* field_data = (ieee80211_tagged_field_data_t*)data;
   int offset = 0;
-  static const int *ieee80211_tag_relay_capabilities[] = {
+  static int * const ieee80211_tag_relay_capabilities[] = {
     &hf_ieee80211_tag_relay_support,
     &hf_ieee80211_tag_relay_use,
     &hf_ieee80211_tag_relay_permission,
@@ -12378,12 +12378,12 @@ static guint
 add_ff_s1g_twt_teardown(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
 {
   guint8 twt_flow_id = tvb_get_guint8(tvb, offset);
-  static const int *ieee80211_twt_individual_flow[] = {
+  static int * const ieee80211_twt_individual_flow[] = {
     &hf_ieee80211_twt_individual_flow_id,
     &hf_ieee80211_twt_neg_type,
     NULL,
   };
-  static const int *ieee80211_twt_bcast_flow[] = {
+  static int * const ieee80211_twt_bcast_flow[] = {
     &hf_ieee80211_twt_bcast_id,
     &hf_ieee80211_twt_neg_type,
     NULL,
@@ -12868,7 +12868,7 @@ dissect_he_feedback_matrix(proto_tree *tree, tvbuff_t *tvb, int offset,
   return bit_offset;
 }
 
-static const int *he_mimo_control_headers[] = {
+static int * const he_mimo_control_headers[] = {
   &hf_ieee80211_he_mimo_control_nc_index,
   &hf_ieee80211_he_mimo_control_nr_index,
   &hf_ieee80211_he_mimo_control_bw,
@@ -13753,7 +13753,7 @@ dissect_wme_qos_info(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int of
 {
   proto_item *wme_qos_info_item;
 
-  static const int *ieee80211_mgt_req[] = {
+  static int * const ieee80211_mgt_req[] = {
     &hf_ieee80211_wfa_ie_wme_qos_info_sta_max_sp_length,
     &hf_ieee80211_wfa_ie_wme_qos_info_sta_ac_be,
     &hf_ieee80211_wfa_ie_wme_qos_info_sta_ac_bk,
@@ -13763,7 +13763,7 @@ dissect_wme_qos_info(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int of
     NULL
   };
 
-  static const int *ieee80211_mgt_resp[] = {
+  static int * const ieee80211_mgt_resp[] = {
     &hf_ieee80211_wfa_ie_wme_qos_info_ap_u_apsd,
     &hf_ieee80211_wfa_ie_wme_qos_info_ap_parameter_set_count,
     &hf_ieee80211_wfa_ie_wme_qos_info_ap_reserved,
@@ -13817,7 +13817,7 @@ decode_qos_parameter_set(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, in
     proto_tree *ac_tree, *ecw_tree;
     guint8 aci_aifsn, ecw, ecwmin, ecwmax;
     guint16 cwmin, cwmax;
-    static const int *ieee80211_wfa_ie_wme[] = {
+    static int * const ieee80211_wfa_ie_wme[] = {
         &hf_ieee80211_wfa_ie_wme_acp_aifsn,
         &hf_ieee80211_wfa_ie_wme_acp_acm,
         &hf_ieee80211_wfa_ie_wme_acp_aci,
@@ -13979,7 +13979,7 @@ dissect_vendor_ie_wpawme(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, in
         }
         case 2:   /* WME TSPEC Element */
         {
-            static const int *ieee80211_wfa_ie_wme_tspec_tsinfo[] = {
+            static int * const ieee80211_wfa_ie_wme_tspec_tsinfo[] = {
               &hf_ieee80211_wfa_ie_wme_tspec_tsinfo_tid,
               &hf_ieee80211_wfa_ie_wme_tspec_tsinfo_direction,
               &hf_ieee80211_wfa_ie_wme_tspec_tsinfo_psb,
@@ -14095,7 +14095,7 @@ dissect_hs20_osen(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void*
   proto_item *pwcsi = NULL;
   guint16 pwc_count = 0, pwc_index = 0;
   guint16 akms_count = 0, akms_index = 0;
-  static const int *osen_rsn_cap[] = {
+  static int * const osen_rsn_cap[] = {
     &hf_ieee80211_osen_rsn_cap_preauth,
     &hf_ieee80211_osen_rsn_cap_no_pairwise,
     &hf_ieee80211_osen_rsn_cap_ptksa_replay_counter,
@@ -14247,7 +14247,7 @@ static const value_string hs20_indication_release_number_vals[] = {
 static int
 dissect_hs20_indication(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
-  static const int *ieee80211_hs20_indication[] = {
+  static int * const ieee80211_hs20_indication[] = {
     &hf_ieee80211_hs20_indication_dgaf_disabled,
     &hf_ieee80211_hs20_indication_pps_mo_id_present,
     &hf_ieee80211_hs20_indication_anqp_domain_id_present,
@@ -14780,7 +14780,7 @@ static const value_string atheros_ie_type_vals[] = {
   { 0,                 NULL }
 };
 
-static const int *ieee80211_atheros_ie_cap[] = {
+static int * const ieee80211_atheros_ie_cap[] = {
   &hf_ieee80211_atheros_ie_cap_f_turbop,
   &hf_ieee80211_atheros_ie_cap_f_comp,
   &hf_ieee80211_atheros_ie_cap_f_ff,
@@ -15444,7 +15444,7 @@ dissect_rsn_ie(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
   guint16     pcs_count, akms_count, pmkid_count;
   guint       ii;
   int         tag_end = offset + tag_len;
-  static const int *ieee80211_rsn_cap[] = {
+  static int * const ieee80211_rsn_cap[] = {
     &hf_ieee80211_rsn_cap_preauth,
     &hf_ieee80211_rsn_cap_no_pairwise,
     &hf_ieee80211_rsn_cap_ptksa_replay_counter,
@@ -15630,7 +15630,7 @@ dissect_extended_capabilities_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
   ieee80211_tagged_field_data_t* field_data = (ieee80211_tagged_field_data_t*)data;
   int offset = 0;
   proto_item *ti_ex_cap;
-  static const int *ieee80211_tag_extended_capabilities_byte1[] = {
+  static int * const ieee80211_tag_extended_capabilities_byte1[] = {
     &hf_ieee80211_tag_extended_capabilities_b0,
     &hf_ieee80211_tag_extended_capabilities_b1,
     &hf_ieee80211_tag_extended_capabilities_b2,
@@ -15641,7 +15641,7 @@ dissect_extended_capabilities_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     &hf_ieee80211_tag_extended_capabilities_b7,
     NULL
   };
-  static const int *ieee80211_tag_extended_capabilities_byte2[] = {
+  static int * const ieee80211_tag_extended_capabilities_byte2[] = {
     &hf_ieee80211_tag_extended_capabilities_b8,
     &hf_ieee80211_tag_extended_capabilities_b9,
     &hf_ieee80211_tag_extended_capabilities_b10,
@@ -15652,7 +15652,7 @@ dissect_extended_capabilities_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     &hf_ieee80211_tag_extended_capabilities_b15,
     NULL
   };
-  static const int *ieee80211_tag_extended_capabilities_byte3[] = {
+  static int * const ieee80211_tag_extended_capabilities_byte3[] = {
     &hf_ieee80211_tag_extended_capabilities_b16,
     &hf_ieee80211_tag_extended_capabilities_b17,
     &hf_ieee80211_tag_extended_capabilities_b18,
@@ -15663,7 +15663,7 @@ dissect_extended_capabilities_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     &hf_ieee80211_tag_extended_capabilities_b23,
     NULL
   };
-  static const int *ieee80211_tag_extended_capabilities_byte4[] = {
+  static int * const ieee80211_tag_extended_capabilities_byte4[] = {
     &hf_ieee80211_tag_extended_capabilities_b24,
     &hf_ieee80211_tag_extended_capabilities_b25,
     &hf_ieee80211_tag_extended_capabilities_b26,
@@ -15674,7 +15674,7 @@ dissect_extended_capabilities_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     &hf_ieee80211_tag_extended_capabilities_b31,
     NULL
   };
-  static const int *ieee80211_tag_extended_capabilities_byte5[] = {
+  static int * const ieee80211_tag_extended_capabilities_byte5[] = {
     &hf_ieee80211_tag_extended_capabilities_b32,
     &hf_ieee80211_tag_extended_capabilities_b33,
     &hf_ieee80211_tag_extended_capabilities_b34,
@@ -15685,7 +15685,7 @@ dissect_extended_capabilities_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     &hf_ieee80211_tag_extended_capabilities_b39,
     NULL
   };
-  static const int *ieee80211_tag_extended_capabilities_byte6[] = {
+  static int * const ieee80211_tag_extended_capabilities_byte6[] = {
     &hf_ieee80211_tag_extended_capabilities_b40,
     &hf_ieee80211_tag_extended_capabilities_serv_int_granularity,
     &hf_ieee80211_tag_extended_capabilities_b44,
@@ -15694,7 +15694,7 @@ dissect_extended_capabilities_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     &hf_ieee80211_tag_extended_capabilities_b47,
     NULL
   };
-  static const int *ieee80211_tag_extended_capabilities_byte7[] = {
+  static int * const ieee80211_tag_extended_capabilities_byte7[] = {
     &hf_ieee80211_tag_extended_capabilities_b48,
     &hf_ieee80211_tag_extended_capabilities_b49,
     &hf_ieee80211_tag_extended_capabilities_b50,
@@ -15706,7 +15706,7 @@ dissect_extended_capabilities_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     NULL
   };
 
-  static const int *ieee80211_tag_extended_capabilities_byte8[] = {
+  static int * const ieee80211_tag_extended_capabilities_byte8[] = {
     &hf_ieee80211_tag_extended_capabilities_b56,
     &hf_ieee80211_tag_extended_capabilities_b57,
     &hf_ieee80211_tag_extended_capabilities_b58,
@@ -15718,7 +15718,7 @@ dissect_extended_capabilities_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     NULL
   };
 
-  static const int *ieee80211_tag_extended_capabilities_bytes89[] = {
+  static int * const ieee80211_tag_extended_capabilities_bytes89[] = {
     &hf_ieee80211_tag_extended_capabilities_b56_2,
     &hf_ieee80211_tag_extended_capabilities_b57_2,
     &hf_ieee80211_tag_extended_capabilities_b58_2,
@@ -15737,7 +15737,7 @@ dissect_extended_capabilities_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     NULL
   };
 
-  static const int *ieee80211_tag_extended_capabilities_byte10[] = {
+  static int * const ieee80211_tag_extended_capabilities_byte10[] = {
     &hf_ieee80211_tag_extended_capabilities_b72,
     &hf_ieee80211_tag_extended_capabilities_b73,
     &hf_ieee80211_tag_extended_capabilities_b74,
@@ -15863,7 +15863,7 @@ dissect_vht_mcs_set(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
   proto_item *ti;
   proto_tree *mcs_tree;
-  static const int *ieee80211_vht_mcsset_rx_max_mcs[] = {
+  static int * const ieee80211_vht_mcsset_rx_max_mcs[] = {
     &hf_ieee80211_vht_mcsset_rx_max_mcs_for_1_ss,
     &hf_ieee80211_vht_mcsset_rx_max_mcs_for_2_ss,
     &hf_ieee80211_vht_mcsset_rx_max_mcs_for_3_ss,
@@ -15874,7 +15874,7 @@ dissect_vht_mcs_set(proto_tree *tree, tvbuff_t *tvb, int offset)
     &hf_ieee80211_vht_mcsset_rx_max_mcs_for_8_ss,
     NULL
   };
-  static const int *ieee80211_vht_mcsset_tx_max_mcs[] = {
+  static int * const ieee80211_vht_mcsset_tx_max_mcs[] = {
     &hf_ieee80211_vht_mcsset_tx_max_mcs_for_1_ss,
     &hf_ieee80211_vht_mcsset_tx_max_mcs_for_2_ss,
     &hf_ieee80211_vht_mcsset_tx_max_mcs_for_3_ss,
@@ -15930,7 +15930,7 @@ dissect_vht_capability_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
   int tag_len = tvb_reported_length(tvb);
   ieee80211_tagged_field_data_t* field_data = (ieee80211_tagged_field_data_t*)data;
   int offset = 0;
-  static const int *ieee80211_vht_caps[] = {
+  static int * const ieee80211_vht_caps[] = {
     &hf_ieee80211_vht_max_mpdu_length,
     &hf_ieee80211_vht_supported_chan_width_set,
     &hf_ieee80211_vht_rx_ldpc,
@@ -15982,7 +15982,7 @@ dissect_vht_operation_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
   int offset = 0;
   proto_item *op_item;
   proto_tree *op_tree;
-  static const int *ieee80211_vht_op_max_basic_mcs[] = {
+  static int * const ieee80211_vht_op_max_basic_mcs[] = {
     &hf_ieee80211_vht_op_max_basic_mcs_for_1_ss,
     &hf_ieee80211_vht_op_max_basic_mcs_for_2_ss,
     &hf_ieee80211_vht_op_max_basic_mcs_for_3_ss,
@@ -16506,7 +16506,7 @@ dissect_pu_buffer_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
   int tag_len = tvb_reported_length(tvb);
   ieee80211_tagged_field_data_t* field_data = (ieee80211_tagged_field_data_t*)data;
   int offset = 0;
-  static const int *ieee80211_pu_buffer_status[] = {
+  static int * const ieee80211_pu_buffer_status[] = {
     &hf_ieee80211_tag_pu_buffer_status_ac_bk,
     &hf_ieee80211_tag_pu_buffer_status_ac_be,
     &hf_ieee80211_tag_pu_buffer_status_ac_vi,
@@ -16747,7 +16747,7 @@ static int
 dissect_operating_mode_notification(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
   int offset = 0;
-  static const int *ieee80211_operat_mode_field[] = {
+  static int * const ieee80211_operat_mode_field[] = {
     &hf_ieee80211_operat_mode_field_channel_width,
     &hf_ieee80211_operat_mode_field_reserved,
     &hf_ieee80211_operat_mode_field_rxnss,
@@ -16915,7 +16915,7 @@ dissect_ht_info_ie_1_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
   int tag_len = tvb_reported_length(tvb);
   ieee80211_tagged_field_data_t* field_data = (ieee80211_tagged_field_data_t*)data;
   int offset = 0;
-  static const int *ieee80211_ht_info1_field[] = {
+  static int * const ieee80211_ht_info1_field[] = {
     &hf_ieee80211_ht_info_secondary_channel_offset,
     &hf_ieee80211_ht_info_sta_channel_width,
     &hf_ieee80211_ht_info_rifs_mode,
@@ -16923,7 +16923,7 @@ dissect_ht_info_ie_1_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     NULL
   };
 
-  static const int *ieee80211_ht_info2_field[] = {
+  static int * const ieee80211_ht_info2_field[] = {
     &hf_ieee80211_ht_info_protection,
     &hf_ieee80211_ht_info_non_greenfield_sta_present,
     &hf_ieee80211_ht_info_reserved_b11,
@@ -16933,7 +16933,7 @@ dissect_ht_info_ie_1_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     NULL
   };
 
-  static const int *ieee80211_ht_info3_field[] = {
+  static int * const ieee80211_ht_info3_field[] = {
     &hf_ieee80211_ht_info_reserved_b24_b29,
     &hf_ieee80211_ht_info_dual_beacon,
     &hf_ieee80211_ht_info_dual_cts_protection,
@@ -16985,7 +16985,7 @@ dissect_wapi_param_set(tvbuff_t *tvb, packet_info *pinfo,
   proto_tree *subtree;
   guint16 loop_cnt, version, akm_cnt  = 1, ucast_cnt = 1, bkid_cnt = 1;
   guint8  akm_suite_type = 0, ucast_cipher_type = 0, mcast_cipher_type = 0;
-  static const int *ieee80211_tag_wapi_param_set[] = {
+  static int * const ieee80211_tag_wapi_param_set[] = {
     &hf_ieee80211_tag_wapi_param_set_capab_preauth,
     &hf_ieee80211_tag_wapi_param_set_capab_rsvd,
     NULL
@@ -17566,7 +17566,7 @@ dissect_bss_available_admission_capacity_ie(tvbuff_t *tvb, packet_info *pinfo, p
   ieee80211_tagged_field_data_t* field_data = (ieee80211_tagged_field_data_t*)data;
   int offset = 0;
   guint16 bitmask;
-  static const int *ieee80211_tag_bss_avb_adm_cap_bitmask[] = {
+  static int * const ieee80211_tag_bss_avb_adm_cap_bitmask[] = {
     &hf_ieee80211_tag_bss_avb_adm_cap_bitmask_up0,
     &hf_ieee80211_tag_bss_avb_adm_cap_bitmask_up1,
     &hf_ieee80211_tag_bss_avb_adm_cap_bitmask_up2,
@@ -17693,7 +17693,7 @@ dissect_rm_enabled_capabilities_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree
   ieee80211_tagged_field_data_t* field_data = (ieee80211_tagged_field_data_t*)data;
   int offset = 0;
   proto_item *ti_ex_cap;
-  static const int *ieee80211_tag_rm_enabled_capabilities_octet1[] = {
+  static int * const ieee80211_tag_rm_enabled_capabilities_octet1[] = {
     &hf_ieee80211_tag_rm_enabled_capabilities_b0,
     &hf_ieee80211_tag_rm_enabled_capabilities_b1,
     &hf_ieee80211_tag_rm_enabled_capabilities_b2,
@@ -17705,7 +17705,7 @@ dissect_rm_enabled_capabilities_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     NULL
   };
 
-  static const int *ieee80211_tag_rm_enabled_capabilities_octet2[] = {
+  static int * const ieee80211_tag_rm_enabled_capabilities_octet2[] = {
     &hf_ieee80211_tag_rm_enabled_capabilities_b8,
     &hf_ieee80211_tag_rm_enabled_capabilities_b9,
     &hf_ieee80211_tag_rm_enabled_capabilities_b10,
@@ -17717,7 +17717,7 @@ dissect_rm_enabled_capabilities_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     NULL
   };
 
-  static const int *ieee80211_tag_rm_enabled_capabilities_octet3[] = {
+  static int * const ieee80211_tag_rm_enabled_capabilities_octet3[] = {
     &hf_ieee80211_tag_rm_enabled_capabilities_b16,
     &hf_ieee80211_tag_rm_enabled_capabilities_b17,
     &hf_ieee80211_tag_rm_enabled_capabilities_b18to20,
@@ -17725,7 +17725,7 @@ dissect_rm_enabled_capabilities_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     NULL
   };
 
-  static const int *ieee80211_tag_rm_enabled_capabilities_octet4[] = {
+  static int * const ieee80211_tag_rm_enabled_capabilities_octet4[] = {
     &hf_ieee80211_tag_rm_enabled_capabilities_b24to26,
     &hf_ieee80211_tag_rm_enabled_capabilities_b27,
     &hf_ieee80211_tag_rm_enabled_capabilities_b28,
@@ -17735,7 +17735,7 @@ dissect_rm_enabled_capabilities_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     NULL
   };
 
-  static const int *ieee80211_tag_rm_enabled_capabilities_octet5[] = {
+  static int * const ieee80211_tag_rm_enabled_capabilities_octet5[] = {
     &hf_ieee80211_tag_rm_enabled_capabilities_b32,
     &hf_ieee80211_tag_rm_enabled_capabilities_b33,
     &hf_ieee80211_tag_rm_enabled_capabilities_o5,
@@ -17877,7 +17877,7 @@ dissect_20_40_bss_coexistence(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
   int tag_len = tvb_reported_length(tvb);
   ieee80211_tagged_field_data_t* field_data = (ieee80211_tagged_field_data_t*)data;
   int offset = 0;
-  static const int *ieee80211_20_40_bss_coexistence_fields[] = {
+  static int * const ieee80211_20_40_bss_coexistence_fields[] = {
     &hf_ieee80211_tag_20_40_bc_information_request,
     &hf_ieee80211_tag_20_40_bc_forty_mhz_intolerant,
     &hf_ieee80211_tag_20_40_bc_20_mhz_bss_witdh_request,
@@ -17908,7 +17908,7 @@ dissect_ht_capability_ie_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 {
   proto_item *cap_item, *ti;
   proto_tree *cap_tree;
-  static const int *ieee80211_ht[] = {
+  static int * const ieee80211_ht[] = {
     &hf_ieee80211_ht_ldpc_coding,
     &hf_ieee80211_ht_chan_width,
     &hf_ieee80211_ht_sm_pwsave,
@@ -17926,7 +17926,7 @@ dissect_ht_capability_ie_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     NULL
   };
 
-  static const int *ieee80211_htex[] = {
+  static int * const ieee80211_htex[] = {
     &hf_ieee80211_htex_pco,
     &hf_ieee80211_htex_transtime,
     &hf_ieee80211_htex_mcs,
@@ -17935,7 +17935,7 @@ dissect_ht_capability_ie_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     NULL
   };
 
-  static const int *ieee80211_txbf[] = {
+  static int * const ieee80211_txbf[] = {
     &hf_ieee80211_txbf_cap,
     &hf_ieee80211_txbf_rcv_ssc,
     &hf_ieee80211_txbf_tx_ssc,
@@ -17959,7 +17959,7 @@ dissect_ht_capability_ie_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     NULL
   };
 
-  static const int *ieee80211_antsel[] = {
+  static int * const ieee80211_antsel[] = {
     &hf_ieee80211_antsel_b0,
     &hf_ieee80211_antsel_b1,
     &hf_ieee80211_antsel_b2,
@@ -18072,7 +18072,7 @@ static int
 dissect_ht_info_ie_1_0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
                        guint32 tag_len, proto_item *ti_len)
 {
-  static const int *ieee80211_hta1[] = {
+  static int * const ieee80211_hta1[] = {
     &hf_ieee80211_hta_ext_chan_offset,
     &hf_ieee80211_hta_rec_tx_width,
     &hf_ieee80211_hta_rifs_mode,
@@ -18081,13 +18081,13 @@ dissect_ht_info_ie_1_0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
     NULL
   };
 
-  static const int *ieee80211_hta2[] = {
+  static int * const ieee80211_hta2[] = {
     &hf_ieee80211_hta_operating_mode,
     &hf_ieee80211_hta_non_gf_devices,
     NULL
   };
 
-  static const int *ieee80211_hta3[] = {
+  static int * const ieee80211_hta3[] = {
     &hf_ieee80211_hta_basic_stbc_mcs,
     &hf_ieee80211_hta_dual_stbc_protection,
     &hf_ieee80211_hta_secondary_beacon,
@@ -18720,7 +18720,7 @@ dissect_interworking(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
   int tag_len = tvb_reported_length(tvb);
   ieee80211_tagged_field_data_t* field_data = (ieee80211_tagged_field_data_t*)data;
   int offset = 0;
-  static const int *ieee80211_tag_interworking[] = {
+  static int * const ieee80211_tag_interworking[] = {
     &hf_ieee80211_tag_interworking_access_network_type,
     &hf_ieee80211_tag_interworking_internet,
     &hf_ieee80211_tag_interworking_asra,
@@ -19291,7 +19291,7 @@ ieee80211_tag_tim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
   ieee80211_tagged_field_data_t* field_data = (ieee80211_tagged_field_data_t*)data;
   int offset = 0;
   guint aid, pvb_len, n1, i, j, byte;
-  static const int *ieee80211_tim_bmapctl[] = {
+  static int * const ieee80211_tim_bmapctl[] = {
     &hf_ieee80211_tim_bmapctl_mcast,
     &hf_ieee80211_tim_bmapctl_offset,
     NULL
@@ -19772,14 +19772,14 @@ ieee80211_tag_tclas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
   int offset = 0;
   guint8 type;
   guint8 version;
-  static const int *ieee80211_tclas_class_mask0[] = {
+  static int * const ieee80211_tclas_class_mask0[] = {
     &hf_ieee80211_tclas_class_mask0_src_addr,
     &hf_ieee80211_tclas_class_mask0_dst_addr,
     &hf_ieee80211_tclas_class_mask0_type,
     NULL
   };
 
-  static const int *ieee80211_tclas_class_mask1[] = {
+  static int * const ieee80211_tclas_class_mask1[] = {
     &hf_ieee80211_tclas_class_mask1_ver,
     &hf_ieee80211_tclas_class_mask1_src_ip,
     &hf_ieee80211_tclas_class_mask1_dst_ip,
@@ -19789,7 +19789,7 @@ ieee80211_tag_tclas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     NULL
   };
 
-  static const int *ieee80211_tclas_class_mask1_4[] = {
+  static int * const ieee80211_tclas_class_mask1_4[] = {
     &hf_ieee80211_tclas_class_mask1_ver,
     &hf_ieee80211_tclas_class_mask1_src_ip,
     &hf_ieee80211_tclas_class_mask1_dst_ip,
@@ -19800,7 +19800,7 @@ ieee80211_tag_tclas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     NULL
   };
 
-  static const int *ieee80211_tclas_class_mask2[] = {
+  static int * const ieee80211_tclas_class_mask2[] = {
     &hf_ieee80211_tclas_class_mask2_tci,
     NULL
   };
@@ -20087,7 +20087,7 @@ ieee80211_tag_measure_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
   guint8 request_type;
   proto_item *parent_item;
   proto_tree *sub_tree;
-  static const int *ieee80211_tag_measure_request_mode[] = {
+  static int * const ieee80211_tag_measure_request_mode[] = {
     &hf_ieee80211_tag_measure_request_mode_parallel,
     &hf_ieee80211_tag_measure_request_mode_enable,
     &hf_ieee80211_tag_measure_request_mode_request,
@@ -20394,14 +20394,14 @@ ieee80211_tag_measure_rep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
   proto_item *parent_item;
   proto_tree *sub_tree;
   guint8 report_type;
-  static const int *ieee80211_tag_measure_report_mode[] = {
+  static int * const ieee80211_tag_measure_report_mode[] = {
     &hf_ieee80211_tag_measure_report_mode_late,
     &hf_ieee80211_tag_measure_report_mode_incapable,
     &hf_ieee80211_tag_measure_report_mode_refused,
     &hf_ieee80211_tag_measure_report_mode_reserved,
     NULL
   };
-  static const int *ieee80211_tag_measure_map_field[] = {
+  static int * const ieee80211_tag_measure_map_field[] = {
     &hf_ieee80211_tag_measure_map_field_bss,
     &hf_ieee80211_tag_measure_map_field_ofdm,
     &hf_ieee80211_tag_measure_map_field_unident_signal,
@@ -20410,7 +20410,7 @@ ieee80211_tag_measure_rep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     &hf_ieee80211_tag_measure_map_field_reserved,
     NULL
   };
-  static const int *ieee80211_tag_measure_report_frame_info[] = {
+  static int * const ieee80211_tag_measure_report_frame_info[] = {
     &hf_ieee80211_tag_measure_report_frame_info_phy_type,
     &hf_ieee80211_tag_measure_report_frame_info_frame_type,
     NULL
@@ -20669,7 +20669,7 @@ ieee80211_tag_measure_rep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         }
         case MEASURE_REP_BEACON_SUB_REPORTED_FRAME_BODY_FRAG_ID:
         {
-          static const int *ieee80211_tag_measure_reported_frame_frag_id[] = {
+          static int * const ieee80211_tag_measure_reported_frame_frag_id[] = {
             &hf_ieee80211_tag_measure_reported_frame_frag_rep_id,
             &hf_ieee80211_tag_measure_reported_frame_frag_number,
             &hf_ieee80211_tag_measure_reported_frame_frag_more,
@@ -20826,7 +20826,7 @@ ieee80211_tag_erp_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
   int tag_len = tvb_reported_length(tvb);
   ieee80211_tagged_field_data_t* field_data = (ieee80211_tagged_field_data_t*)data;
   int offset = 0;
-  static const int *ieee80211_tag_erp_info_flags[] = {
+  static int * const ieee80211_tag_erp_info_flags[] = {
     &hf_ieee80211_tag_erp_info_erp_present,
     &hf_ieee80211_tag_erp_info_use_protection,
     &hf_ieee80211_tag_erp_info_barker_preamble_mode,
@@ -21184,12 +21184,12 @@ static const val64_string he_mimo_cntrl_feedback_vals[] = {
   { 0, NULL }
 };
 
-static const int *he_phy_first_byte_headers[] = {
+static int * const he_phy_first_byte_headers[] = {
   &hf_ieee80211_he_phy_cap_reserved_b0,
   NULL,
 };
 
-static const int *he_phy_channel_width_set_headers[] = {
+static int * const he_phy_channel_width_set_headers[] = {
   &hf_ieee80211_he_40mhz_channel_2_4ghz,
   &hf_ieee80211_he_40_and_80_mhz_5ghz,
   &hf_ieee80211_he_160_mhz_5ghz,
@@ -21200,7 +21200,7 @@ static const int *he_phy_channel_width_set_headers[] = {
   NULL
 };
 
-static const int *he_phy_b8_to_b23_headers[] = {
+static int * const he_phy_b8_to_b23_headers[] = {
   &hf_ieee80211_he_phy_cap_punctured_preamble_rx,
   &hf_ieee80211_he_phy_cap_device_class,
   &hf_ieee80211_he_phy_cap_ldpc_coding_in_payload,
@@ -21216,7 +21216,7 @@ static const int *he_phy_b8_to_b23_headers[] = {
   NULL
 };
 
-static const int *he_phy_b24_to_b39_headers[] = {
+static int * const he_phy_b24_to_b39_headers[] = {
   &hf_ieee80211_he_phy_cap_dcm_max_constellation_tx,
   &hf_ieee80211_he_phy_cap_dcm_max_nss_tx,
   &hf_ieee80211_he_phy_cap_dcm_max_constellation_rx,
@@ -21230,7 +21230,7 @@ static const int *he_phy_b24_to_b39_headers[] = {
   NULL
 };
 
-static const int *he_phy_b40_to_b55_headers[] = {
+static int * const he_phy_b40_to_b55_headers[] = {
   &hf_ieee80211_he_phy_cap_number_of_sounding_dims_lte_80,
   &hf_ieee80211_he_phy_cap_number_of_sounding_dims_gt_80,
   &hf_ieee80211_he_phy_cap_ng_eq_16_su_fb,
@@ -21246,7 +21246,7 @@ static const int *he_phy_b40_to_b55_headers[] = {
   NULL
 };
 
-static const int *he_phy_b56_to_b71_headers[] = {
+static int * const he_phy_b56_to_b71_headers[] = {
   &hf_ieee80211_he_phy_cap_srp_based_sr_support,
   &hf_ieee80211_he_phy_cap_power_boost_factor_ar_support,
   &hf_ieee80211_he_phy_cap_he_su_ppdu_etc_gi,
@@ -21263,7 +21263,7 @@ static const int *he_phy_b56_to_b71_headers[] = {
   NULL
 };
 
-static const int *he_phy_b72_to_b87_headers[] = {
+static int * const he_phy_b72_to_b87_headers[] = {
   &hf_ieee80211_he_phy_cap_longer_than_16_he_sigb_ofdm_symbol_support,
   &hf_ieee80211_he_phy_cap_non_triggered_cqi_feedback,
   &hf_ieee80211_he_phy_cap_tx_1024_qam_242_tone_ru_support,
@@ -21275,7 +21275,7 @@ static const int *he_phy_b72_to_b87_headers[] = {
   NULL
 };
 
-static const int *he_mcs_map_80_rx_headers [] = {
+static int * const he_mcs_map_80_rx_headers [] = {
   &hf_ieee80211_he_mcs_max_he_mcs_80_rx_1_ss,
   &hf_ieee80211_he_mcs_max_he_mcs_80_rx_2_ss,
   &hf_ieee80211_he_mcs_max_he_mcs_80_rx_3_ss,
@@ -21287,7 +21287,7 @@ static const int *he_mcs_map_80_rx_headers [] = {
   NULL
 };
 
-static const int *he_mcs_map_80_tx_headers [] = {
+static int * const he_mcs_map_80_tx_headers [] = {
   &hf_ieee80211_he_mcs_max_he_mcs_80_tx_1_ss,
   &hf_ieee80211_he_mcs_max_he_mcs_80_tx_2_ss,
   &hf_ieee80211_he_mcs_max_he_mcs_80_tx_3_ss,
@@ -21299,7 +21299,7 @@ static const int *he_mcs_map_80_tx_headers [] = {
   NULL
 };
 
-static const int *he_mcs_map_80p80_rx_headers [] = {
+static int * const he_mcs_map_80p80_rx_headers [] = {
   &hf_ieee80211_he_mcs_max_he_mcs_80p80_rx_1_ss,
   &hf_ieee80211_he_mcs_max_he_mcs_80p80_rx_2_ss,
   &hf_ieee80211_he_mcs_max_he_mcs_80p80_rx_3_ss,
@@ -21311,7 +21311,7 @@ static const int *he_mcs_map_80p80_rx_headers [] = {
   NULL
 };
 
-static const int *he_mcs_map_80p80_tx_headers [] = {
+static int * const he_mcs_map_80p80_tx_headers [] = {
   &hf_ieee80211_he_mcs_max_he_mcs_80p80_tx_1_ss,
   &hf_ieee80211_he_mcs_max_he_mcs_80p80_tx_2_ss,
   &hf_ieee80211_he_mcs_max_he_mcs_80p80_tx_3_ss,
@@ -21323,7 +21323,7 @@ static const int *he_mcs_map_80p80_tx_headers [] = {
   NULL
 };
 
-static const int *he_mcs_map_160_rx_headers [] = {
+static int * const he_mcs_map_160_rx_headers [] = {
   &hf_ieee80211_he_mcs_max_he_mcs_160_rx_1_ss,
   &hf_ieee80211_he_mcs_max_he_mcs_160_rx_2_ss,
   &hf_ieee80211_he_mcs_max_he_mcs_160_rx_3_ss,
@@ -21335,7 +21335,7 @@ static const int *he_mcs_map_160_rx_headers [] = {
   NULL
 };
 
-static const int *he_mcs_map_160_tx_headers [] = {
+static int * const he_mcs_map_160_tx_headers [] = {
   &hf_ieee80211_he_mcs_max_he_mcs_160_tx_1_ss,
   &hf_ieee80211_he_mcs_max_he_mcs_160_tx_2_ss,
   &hf_ieee80211_he_mcs_max_he_mcs_160_tx_3_ss,
@@ -21437,7 +21437,7 @@ dissect_he_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
   }
 
   proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee80211_he_mac_capabilities,
-                        ett_he_mac_capabilities, (const int**)he_mac_headers,
+                        ett_he_mac_capabilities, he_mac_headers,
                         ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
   offset += 6;
 
@@ -21646,7 +21646,7 @@ dissect_he_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 }
 
-static const int *he_operation_headers[] = {
+static int * const he_operation_headers[] = {
   &hf_ieee80211_he_operation_default_pe_duration,
   &hf_ieee80211_he_operation_twt_required,
   &hf_ieee80211_he_operation_txop_duration_rts_threshold,
@@ -21657,7 +21657,7 @@ static const int *he_operation_headers[] = {
   NULL
 };
 
-static const int *he_bss_color_info_headers[] = {
+static int * const he_bss_color_info_headers[] = {
   &hf_ieee80211_he_bss_color_info_bss_color,
   &hf_ieee80211_he_bss_color_partial_bss_color,
   &hf_ieee80211_he_bss_color_bss_color_disabled,
@@ -21672,7 +21672,7 @@ static const value_string he_mcs_map_vals[] = {
   { 0, NULL }
 };
 
-static const int *he_basic_he_mcs_header[] = {
+static int * const he_basic_he_mcs_header[] = {
   &hf_ieee80211_he_oper_max_he_mcs_for_1_ss,
   &hf_ieee80211_he_oper_max_he_mcs_for_2_ss,
   &hf_ieee80211_he_oper_max_he_mcs_for_3_ss,
@@ -21747,7 +21747,7 @@ dissect_he_operation(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     }
 }
 
-static const int *uora_headers[] = {
+static int * const uora_headers[] = {
   &hf_ieee80211_he_uora_eocwmin,
   &hf_ieee80211_he_uora_owcwmax,
   &hf_ieee80211_he_uora_reserved,
@@ -21764,7 +21764,7 @@ dissect_uora_parameter_set(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
   offset++;
 }
 
-static const int *muac_aci_aifsn_headers[] = {
+static int * const muac_aci_aifsn_headers[] = {
   &hf_ieee80211_he_muac_aifsn,
   &hf_ieee80211_he_muac_acm,
   &hf_ieee80211_he_muac_aci,
@@ -21826,7 +21826,7 @@ dissect_mu_edca_parameter_set(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 #define SRG_INFORMATION_PRESENT            0x08
 #define HESIGA_SPATIAL_REUSE_VAL15_ALLOWED 0x10
 
-static const int *sr_control_field_headers[] = {
+static int * const sr_control_field_headers[] = {
   &hf_ieee80211_he_srp_disallowed,
   &hf_ieee80211_he_non_srg_obss_pd_sr_disallowed,
   &hf_ieee80211_he_non_srg_offset_present,
@@ -21880,7 +21880,7 @@ dissect_ndp_feedback_report_set(tvbuff_t *tvb, packet_info *pinfo _U_,
                         1, ENC_NA);
 }
 
-static const int *bss_new_color_headers[] = {
+static int * const bss_new_color_headers[] = {
   &hf_ieee80211_he_new_bss_color_info_color,
   &hf_ieee80211_he_new_bss_color_info_reserved,
   NULL
@@ -21900,7 +21900,7 @@ dissect_bss_color_change(tvbuff_t *tvb, packet_info *pinfo _U_,
                                 ENC_NA, BMT_NO_APPEND);
 }
 
-static const int *ess_info_field_headers[] = {
+static int * const ess_info_field_headers[] = {
   &hf_ieee80211_he_ess_report_planned_ess,
   &hf_ieee80211_he_ess_report_edge_of_ess,
   NULL
@@ -21970,7 +21970,7 @@ dissect_anti_clogging_token(tvbuff_t *tvb, packet_info *pinfo _U_,
  * AC=VI and AC=VO.
  */
 
-static const int *esp_headers[] = {
+static int * const esp_headers[] = {
   &hf_ieee80211_esp_access_category,
   &hf_ieee80211_esp_reserved,
   &hf_ieee80211_esp_data_format,
@@ -22102,7 +22102,7 @@ ieee80211_tag_twt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
   int offset = 0;
   proto_item *item;
 
-  static const int *ieee80211_twt_ctrl_field[] = {
+  static int * const ieee80211_twt_ctrl_field[] = {
     &hf_ieee80211_tag_twt_ndp_paging_indicator,
     &hf_ieee80211_tag_twt_responder_pm_mode,
     &hf_ieee80211_tag_twt_neg_type,
@@ -22110,7 +22110,7 @@ ieee80211_tag_twt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     NULL,
   };
 
-  static const int *ieee80211_twt_req_type_field[] = {
+  static int * const ieee80211_twt_req_type_field[] = {
     &hf_ieee80211_tag_twt_req_type_req,
     &hf_ieee80211_tag_twt_req_type_setup_cmd,
     &hf_ieee80211_tag_twt_req_type_trigger,
@@ -22271,7 +22271,7 @@ ieee80211_tag_fils_indication(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     return tvb_captured_length(tvb);
   }
 
-  static const int * ieee80211_tag_fils_indication_info[] = {
+  static int * const ieee80211_tag_fils_indication_info[] = {
     &hf_ieee80211_tag_fils_indication_info_nr_pk,
     &hf_ieee80211_tag_fils_indication_info_nr_realm,
     &hf_ieee80211_tag_fils_indication_info_ip_config,
@@ -22498,7 +22498,7 @@ ieee80211_tag_mesh_configuration(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
   int offset = 0;
   proto_item *item;
   proto_tree *subtree;
-  static const int *ieee80211_mesh_config_cap[] = {
+  static int * const ieee80211_mesh_config_cap[] = {
     &hf_ieee80211_mesh_config_cap_accepting,
     &hf_ieee80211_mesh_config_cap_mcca_support,
     &hf_ieee80211_mesh_config_cap_mcca_enabled,
@@ -22578,7 +22578,7 @@ ieee80211_tag_mesh_preq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
   targs = tvb_get_guint8(tvb, offset);
   offset += 1;
   for (i = 0; i < targs; i++) {
-    const int * targ_flags[] = {
+    static int * const targ_flags[] = {
       &hf_ieee80211_ff_hwmp_targ_to_flags,
       &hf_ieee80211_ff_hwmp_targ_usn_flags,
       NULL
@@ -22700,7 +22700,7 @@ ieee80211_tag_mesh_channel_switch(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
   int tag_len = tvb_reported_length(tvb);
   ieee80211_tagged_field_data_t* field_data = (ieee80211_tagged_field_data_t*)data;
   int offset = 0;
-  static const int * ieee80211_mesh_chswitch_flag[] = {
+  static int * const ieee80211_mesh_chswitch_flag[] = {
     &hf_ieee80211_mesh_chswitch_flag_initiator,
     &hf_ieee80211_mesh_chswitch_flag_txrestrict,
     NULL
@@ -22832,7 +22832,7 @@ ieee80211_tag_dmg_capabilities(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   int tag_len = tvb_reported_length(tvb);
   ieee80211_tagged_field_data_t* field_data = (ieee80211_tagged_field_data_t*)data;
   int offset = 0;
-  static const int * ieee80211_tag_dmg_cap1[] = {
+  static int * const ieee80211_tag_dmg_cap1[] = {
     &hf_ieee80211_tag_reverse_direction,
     &hf_ieee80211_tag_hlts,
     &hf_ieee80211_tag_tpc,
@@ -22846,7 +22846,7 @@ ieee80211_tag_dmg_capabilities(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     NULL
   };
 
-  static const int * ieee80211_tag_dmg_cap2[] = {
+  static int * const ieee80211_tag_dmg_cap2[] = {
     &hf_ieee80211_tag_min_mpdu_spacing,
     &hf_ieee80211_tag_ba_flow_control,
     &hf_ieee80211_tag_max_sc_rx_mcs,
@@ -22856,7 +22856,7 @@ ieee80211_tag_dmg_capabilities(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     NULL
   };
 
-  static const int * ieee80211_tag_dmg_cap3[] = {
+  static int * const ieee80211_tag_dmg_cap3[] = {
     &hf_ieee80211_tag_low_power_supported,
     &hf_ieee80211_tag_code_rate,
     &hf_ieee80211_tag_dtp,
@@ -22870,7 +22870,7 @@ ieee80211_tag_dmg_capabilities(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     NULL
   };
 
-  static const int * ieee80211_tag_dmg_cap4[] = {
+  static int * const ieee80211_tag_dmg_cap4[] = {
     &hf_ieee80211_tag_pcp_tddti,
     &hf_ieee80211_tag_pcp_PSA,
     &hf_ieee80211_tag_pcp_handover,
@@ -22882,7 +22882,7 @@ ieee80211_tag_dmg_capabilities(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     NULL
   };
 
-  static const int * ieee80211_tag_dmg_cap5[] = {
+  static int * const ieee80211_tag_dmg_cap5[] = {
     &hf_ieee80211_tag_ext_sc_mcs_max_tx,
     &hf_ieee80211_tag_ext_sc_mcs_tx_code_7_8,
     &hf_ieee80211_tag_ext_sc_mcs_max_rx,
@@ -22941,7 +22941,7 @@ ieee80211_tag_dmg_operation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   int tag_len = tvb_reported_length(tvb);
   ieee80211_tagged_field_data_t* field_data = (ieee80211_tagged_field_data_t*)data;
   int offset = 0;
-  static const int * ieee80211_tag_dmg_operation_flags[] = {
+  static int * const ieee80211_tag_dmg_operation_flags[] = {
     &hf_ieee80211_tag_pcp_tddti,
     &hf_ieee80211_tag_pcp_PSA,
     &hf_ieee80211_tag_pcp_handover,
@@ -22977,7 +22977,7 @@ ieee80211_tag_antenna_section_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
   int tag_len = tvb_reported_length(tvb);
   ieee80211_tagged_field_data_t* field_data = (ieee80211_tagged_field_data_t*)data;
   int offset = 0;
-  static const int * ieee80211_tag_antenna[] = {
+  static int * const ieee80211_tag_antenna[] = {
     &hf_ieee80211_tag_type,
     &hf_ieee80211_tag_tap1,
     &hf_ieee80211_tag_state1,
@@ -23179,7 +23179,7 @@ ieee80211_tag_dmg_beam_refinement(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
   int tag_len = tvb_reported_length(tvb);
   ieee80211_tagged_field_data_t* field_data = (ieee80211_tagged_field_data_t*)data;
   int offset = 0;
-  static const int * ieee80211_dmg_beam_refinement_fields[] = {
+  static int * const ieee80211_dmg_beam_refinement_fields[] = {
     &hf_ieee80211_tag_initiator,
     &hf_ieee80211_tag_tx_train_res,
     &hf_ieee80211_tag_rx_train_res,
@@ -23248,7 +23248,7 @@ ieee80211_tag_dmg_tspec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     expert_add_info_format(pinfo, field_data->item_tag_length, &ei_ieee80211_tag_length, "Tag Length %u wrong, must be at least 14", tag_len);
     return tvb_captured_length(tvb);
   }
-  static const int * ieee80211_tag_tspec_flags[] = {
+  static int * const ieee80211_tag_tspec_flags[] = {
     &hf_ieee80211_tag_tspec_allocation_id,
     &hf_ieee80211_tag_tspec_allocation_type,
     &hf_ieee80211_tag_tspec_allocation_format,
@@ -23366,13 +23366,13 @@ ieee80211_tag_multi_band(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
   ieee80211_tagged_field_data_t* field_data = (ieee80211_tagged_field_data_t*)data;
   int offset = 0;
   gboolean chiper_present, addr_present;
-  static const int * ieee80211_tag_multi_band_ctrl[] = {
+  static int * const ieee80211_tag_multi_band_ctrl[] = {
     &hf_ieee80211_tag_multi_band_ctrl_sta_role,
     &hf_ieee80211_tag_multi_band_ctrl_addr_present,
     &hf_ieee80211_tag_multi_band_ctrl_cipher_present,
     NULL
   };
-  static const int * ieee80211_tag_multi_band_conn[] = {
+  static int * const ieee80211_tag_multi_band_conn[] = {
     &hf_ieee80211_tag_multi_band_conn_ap,
     &hf_ieee80211_tag_multi_band_conn_pcp,
     &hf_ieee80211_tag_multi_band_conn_dls,
@@ -23499,7 +23499,7 @@ ieee80211_tag_switching_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   int tag_len = tvb_reported_length(tvb);
   ieee80211_tagged_field_data_t* field_data = (ieee80211_tagged_field_data_t*)data;
   int offset = 0;
-  static const int * ieee80211_tag_switching_stream_flags[] = {
+  static int * const ieee80211_tag_switching_stream_flags[] = {
     &hf_ieee80211_tag_switching_stream_old_tid,
     &hf_ieee80211_tag_switching_stream_old_direction,
     &hf_ieee80211_tag_switching_stream_new_tid,
@@ -23905,7 +23905,7 @@ dissect_ieee80211_mgt(guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tree
 /*
  * Dissect a Block Ack request (which is also used in Trigger frames).
  */
-static const int *block_ack_control_headers[] = {
+static int * const block_ack_control_headers[] = {
   &hf_ieee80211_block_ack_control_ack_policy,
   &hf_ieee80211_block_ack_control_type,
   &hf_ieee80211_block_ack_control_reserved,
@@ -23913,7 +23913,7 @@ static const int *block_ack_control_headers[] = {
   NULL
 };
 
-static const int *multi_sta_aid_tid_headers[] = {
+static int * const multi_sta_aid_tid_headers[] = {
   &hf_ieee80211_block_ack_multi_sta_aid11,
   &hf_ieee80211_block_ack_multi_sta_ack_type,
   &hf_ieee80211_block_ack_multi_sta_tid,
@@ -24275,7 +24275,7 @@ static const true_false_string mu_mimo_ltf_mode_tfs = {
   "HE single stream pilot HE LTF mode"
 };
 
-static const int *he_trig_frm_bar_ctrl_fields[] = {
+static int * const he_trig_frm_bar_ctrl_fields[] = {
   &hf_ieee80211_he_trigger_bar_ctrl_ba_ack_policy,
   &hf_ieee80211_he_trigger_bar_ctrl_ba_type,
   &hf_ieee80211_he_trigger_bar_ctrl_reserved,
@@ -24283,7 +24283,7 @@ static const int *he_trig_frm_bar_ctrl_fields[] = {
   NULL
 };
 
-static const int *he_trig_frm_bar_info_fields[] = {
+static int * const he_trig_frm_bar_info_fields[] = {
   &hf_ieee80211_he_trigger_bar_info_blk_ack_seq_ctrl,
   NULL
 };
@@ -24338,7 +24338,7 @@ add_gcr_mu_bar_trigger_frame_common_info(proto_tree *tree, tvbuff_t *tvb,
                         ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
 }
 
-static const int *common_info_headers[] = {
+static int * const common_info_headers[] = {
   &hf_ieee80211_he_trigger_type,
   &hf_ieee80211_he_trigger_ul_length,
   &hf_ieee80211_he_trigger_more_tf,
@@ -24437,7 +24437,7 @@ static const value_string preferred_ac_vals[] = {
   { 0, NULL }
 };
 
-static const int *basic_trigger_dependent_user_headers[] = {
+static int * const basic_trigger_dependent_user_headers[] = {
   &hf_ieee80211_he_trigger_mpdu_mu_spacing,
   &hf_ieee80211_he_trigger_tid_aggregation_limit,
   &hf_ieee80211_he_trigger_dependent_reserved1,
@@ -24483,7 +24483,7 @@ add_mu_bar_trigger_dependent_user_info(proto_tree *tree, tvbuff_t *tvb,
 }
 
 
-static const int *nfrp_trigger_dependent_user_headers[] = {
+static int * const nfrp_trigger_dependent_user_headers[] = {
   &hf_ieee80211_he_trigger_starting_aid,
   &hf_ieee80211_he_trigger_dependent_reserved2,
   &hf_ieee80211_he_trigger_feedback_type,
@@ -24522,7 +24522,7 @@ target_rssi_base_custom(gchar *result, guint32 target_rssi)
   }
 }
 
-static const int *user_info_headers_no_2045[] = {
+static int * const user_info_headers_no_2045[] = {
   &hf_ieee80211_he_trigger_aid12,
   &hf_ieee80211_he_trigger_ru_allocation_region,
   &hf_ieee80211_he_trigger_ru_allocation,
@@ -24536,7 +24536,7 @@ static const int *user_info_headers_no_2045[] = {
   NULL
 };
 
-static const int *user_info_headers_2045[] = {
+static int * const user_info_headers_2045[] = {
   &hf_ieee80211_he_trigger_aid12,
   &hf_ieee80211_he_trigger_ru_allocation_region,
   &hf_ieee80211_he_trigger_ru_allocation,
@@ -24681,7 +24681,7 @@ static const true_false_string he_ndp_annc_he_subfield_vals = {
   "VHT NDP Announcement frame"
 };
 
-static const int *vht_ndp_headers[] = {
+static int * const vht_ndp_headers[] = {
   &hf_ieee80211_vht_ndp_annc_token_reserved,
   &hf_ieee80211_vht_ndp_annc_he_subfield,
   &hf_ieee80211_vht_ndp_annc_token_number,
@@ -24737,14 +24737,14 @@ dissect_ieee80211_vht_ndp_annc(tvbuff_t *tvb, packet_info *pinfo _U_,
   return offset;
 }
 
-static const int *he_ndp_headers[] = {
+static int * const he_ndp_headers[] = {
   &hf_ieee80211_he_ndp_annc_reserved,
   &hf_ieee80211_he_ndp_annc_he_subfield,
   &hf_ieee80211_he_ndp_sounding_dialog_token_number,
   NULL
 };
 
-static const int *he_ndp_sta_headers[] = {
+static int * const he_ndp_sta_headers[] = {
   &hf_ieee80211_he_ndp_annc_aid11,
   &hf_ieee80211_he_ndp_annc_ru_start,
   &hf_ieee80211_he_ndp_annc_ru_end,
@@ -27021,7 +27021,7 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
   guint16     eapol_data_len;
   proto_tree *keydes_tree;
   proto_tree *ti = NULL;
-  static const int * wlan_rsna_eapol_wpa_keydes_keyinfo[] = {
+  static int * const wlan_rsna_eapol_wpa_keydes_keyinfo[] = {
     &hf_wlan_rsna_eapol_wpa_keydes_keyinfo_keydes_version,
     &hf_wlan_rsna_eapol_wpa_keydes_keyinfo_key_type,
     &hf_wlan_rsna_eapol_wpa_keydes_keyinfo_key_index,

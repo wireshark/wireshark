@@ -428,7 +428,7 @@ dissect_acse_EXTERNALt(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 }
 
 
-static const int * T_AARQ_protocol_version_bits[] = {
+static int * const T_AARQ_protocol_version_bits[] = {
   &hf_acse_T_AARQ_protocol_version_version1,
   NULL
 };
@@ -614,7 +614,7 @@ dissect_acse_AE_invocation_identifier(gboolean implicit_tag _U_, tvbuff_t *tvb _
 }
 
 
-static const int * ACSE_requirements_bits[] = {
+static int * const ACSE_requirements_bits[] = {
   &hf_acse_ACSE_requirements_authentication,
   &hf_acse_ACSE_requirements_aSO_context_negotiation,
   &hf_acse_ACSE_requirements_higher_level_association,
@@ -964,7 +964,7 @@ dissect_acse_AARQ_apdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 }
 
 
-static const int * T_AARE_protocol_version_bits[] = {
+static int * const T_AARE_protocol_version_bits[] = {
   &hf_acse_T_AARE_protocol_version_version1,
   NULL
 };

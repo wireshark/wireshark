@@ -569,7 +569,7 @@ dissect_bmp_peer_header(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int
     proto_item *ti;
     proto_item *subtree;
 
-    static const int * peer_flags[] = {
+    static int * const peer_flags[] = {
         &hf_peer_flags_ipv6,
         &hf_peer_flags_post_policy,
         &hf_peer_flags_as_path,
@@ -577,7 +577,7 @@ dissect_bmp_peer_header(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int
         &hf_peer_flags_res,
         NULL
     };
-    static const int * peer_flags_loc_rib[] = {
+    static int * const peer_flags_loc_rib[] = {
         &hf_peer_flags_loc_rib,
         &hf_peer_flags_loc_rib_res,
         NULL

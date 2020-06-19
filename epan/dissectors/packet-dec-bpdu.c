@@ -86,7 +86,7 @@ dissect_dec_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     guint8  bpdu_type;
     proto_tree *bpdu_tree;
     proto_item *ti;
-    static const int * bpdu_flags[] = {
+    static int * const bpdu_flags[] = {
         &hf_dec_bpdu_flags_short_timers,
         &hf_dec_bpdu_flags_tcack,
         &hf_dec_bpdu_flags_tc,

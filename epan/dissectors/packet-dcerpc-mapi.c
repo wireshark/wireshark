@@ -9206,7 +9206,7 @@ int
 mapi_dissect_bitmap_ulEventType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item *item;
-	static const int * mapi_ulEventType_fields[] = {
+	static int * const mapi_ulEventType_fields[] = {
 		&hf_mapi_ulEventType_fnevCriticalError,
 		&hf_mapi_ulEventType_fnevNewMail,
 		&hf_mapi_ulEventType_fnevObjectCreated,

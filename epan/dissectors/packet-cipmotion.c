@@ -506,7 +506,7 @@ static const value_string cip_sc_vals[] = {
 static int dissect_axis_status(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
    int offset, int total_len _U_)
 {
-   static const int* bits[] = {
+   static int* const bits[] = {
       &hf_cip_axis_sts_local_ctrl,
       &hf_cip_axis_sts_alarm,
       &hf_cip_axis_sts_dc_bus,
@@ -543,7 +543,7 @@ static int dissect_axis_status(packet_info *pinfo _U_, proto_tree *tree, proto_i
 static int dissect_axis_status2(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
    int offset, int total_len _U_)
 {
-   static const int* bits[] = {
+   static int* const bits[] = {
       &hf_cip_axis_sts2_motor,
       &hf_cip_axis_sts2_regenerate,
       &hf_cip_axis_sts2_ride_thru,
@@ -579,7 +579,7 @@ static int dissect_axis_status2(packet_info *pinfo _U_, proto_tree *tree, proto_
 static int dissect_event_checking_control(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
    int offset, int total_len _U_)
 {
-   static const int* bits[] = {
+   static int* const bits[] = {
       &hf_cip_evnt_ctrl_reg1_pos,
       &hf_cip_evnt_ctrl_reg1_neg,
       &hf_cip_evnt_ctrl_reg2_pos,
@@ -610,7 +610,7 @@ static int dissect_event_checking_control(packet_info *pinfo _U_, proto_tree *tr
 static int dissect_event_checking_status(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
    int offset, int total_len _U_)
 {
-   static const int* bits[] = {
+   static int* const bits[] = {
       &hf_cip_evnt_sts_reg1_pos,
       &hf_cip_evnt_sts_reg1_neg,
       &hf_cip_evnt_sts_reg2_pos,
@@ -641,7 +641,7 @@ static int dissect_event_checking_status(packet_info *pinfo _U_, proto_tree *tre
 static int dissect_actual_data_set_bits(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
    int offset, int total_len _U_)
 {
-   static const int* bits[] = {
+   static int* const bits[] = {
       &hf_cip_act_data_pos,
       &hf_cip_act_data_vel,
       &hf_cip_act_data_acc,
@@ -656,7 +656,7 @@ static int dissect_actual_data_set_bits(packet_info *pinfo _U_, proto_tree *tree
 static int dissect_command_data_set_bits(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
    int offset, int total_len _U_)
 {
-   static const int* bits[] = {
+   static int* const bits[] = {
       &hf_cip_cmd_data_pos_cmd,
       &hf_cip_cmd_data_vel_cmd,
       &hf_cip_cmd_data_acc_cmd,
@@ -672,7 +672,7 @@ static int dissect_command_data_set_bits(packet_info *pinfo _U_, proto_tree *tre
 static int dissect_command_control(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
    int offset, int total_len _U_)
 {
-   static const int* bits[] = {
+   static int* const bits[] = {
       &hf_cip_intrp,
       &hf_cip_position_data_type,
       NULL
@@ -686,7 +686,7 @@ static int dissect_command_control(packet_info *pinfo _U_, proto_tree *tree, pro
 static int dissect_status_data_set_bits(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
    int offset, int total_len _U_)
 {
-   static const int* bits[] = {
+   static int* const bits[] = {
       &hf_cip_sts_flt,
       &hf_cip_sts_alrm,
       &hf_cip_sts_sts,
@@ -703,7 +703,7 @@ static int dissect_status_data_set_bits(packet_info *pinfo _U_, proto_tree *tree
 static int dissect_node_control(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
    int offset, int total_len _U_)
 {
-   static const int* bits[] = {
+   static int* const bits[] = {
       &hf_cip_node_control_remote,
       &hf_cip_node_control_sync,
       &hf_cip_node_data_valid,
@@ -719,7 +719,7 @@ static int dissect_node_control(packet_info *pinfo _U_, proto_tree *tree, proto_
 static int dissect_node_status(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
    int offset, int total_len _U_)
 {
-   static const int* bits[] = {
+   static int* const bits[] = {
       &hf_cip_node_control_remote,
       &hf_cip_node_control_sync,
       &hf_cip_node_data_valid,
@@ -735,7 +735,7 @@ static int dissect_node_status(packet_info *pinfo _U_, proto_tree *tree, proto_i
 static int dissect_time_data_set(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
    int offset, int total_len _U_)
 {
-   static const int* bits[] = {
+   static int* const bits[] = {
       &hf_cip_time_data_stamp,
       &hf_cip_time_data_offset,
       &hf_cip_time_data_diag,
@@ -751,7 +751,7 @@ static int dissect_time_data_set(packet_info *pinfo _U_, proto_tree *tree, proto
 static int dissect_control_status(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
    int offset, int total_len _U_)
 {
-   static const int* bits[] = {
+   static int* const bits[] = {
       &hf_cip_control_status_complete,
       &hf_cip_control_status_bus_up,
       &hf_cip_control_status_bus_unload,
@@ -767,7 +767,7 @@ static int dissect_control_status(packet_info *pinfo _U_, proto_tree *tree, prot
 static int dissect_feedback_mode(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
    int offset, int total_len _U_)
 {
-   static const int* bits[] = {
+   static int* const bits[] = {
       &hf_cip_feedback_mode,
       &hf_cip_feedback_data_type,
       NULL
@@ -781,7 +781,7 @@ static int dissect_feedback_mode(packet_info *pinfo _U_, proto_tree *tree, proto
 static int dissect_connection_configuration_bits(packet_info* pinfo _U_, proto_tree* tree, proto_item* item _U_, tvbuff_t* tvb,
    int offset, int total_len _U_)
 {
-   static const int* bits[] = {
+   static int* const bits[] = {
       &hf_connection_configuration_bits_power,
       &hf_connection_configuration_bits_safety_bit_valid,
       &hf_connection_configuration_bits_allow_network_safety,

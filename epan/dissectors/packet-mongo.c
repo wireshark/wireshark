@@ -830,7 +830,7 @@ dissect_op_msg_section(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tr
 static int
 dissect_mongo_op_msg(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree)
 {
-  static const int * mongo_msg_flags[] = {
+  static int * const mongo_msg_flags[] = {
     &hf_mongo_msg_flags_checksumpresent,
     &hf_mongo_msg_flags_moretocome,
     &hf_mongo_msg_flags_exhaustallowed,

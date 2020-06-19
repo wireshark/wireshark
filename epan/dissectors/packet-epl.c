@@ -2747,7 +2747,7 @@ static gint
 dissect_epl_soc(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset)
 {
 	guint8  flags;
-	static const int * soc_flags[] = {
+	static int * const soc_flags[] = {
 		&hf_epl_soc_mc,
 		&hf_epl_soc_ps,
 		NULL
@@ -2783,7 +2783,7 @@ dissect_epl_preq(struct epl_convo *convo, proto_tree *epl_tree, tvbuff_t *tvb, p
 	guint16 len;
 	guint8  pdoversion;
 	guint8  flags;
-	static const int * req_flags[] = {
+	static int * const req_flags[] = {
 		&hf_epl_preq_ms,
 		&hf_epl_preq_ea,
 		&hf_epl_preq_rd,
@@ -2821,7 +2821,7 @@ dissect_epl_pres(struct epl_convo *convo, proto_tree *epl_tree, tvbuff_t *tvb, p
 	guint16  len;
 	guint8  pdoversion;
 	guint8  state, flags, flags2;
-	static const int * res_flags[] = {
+	static int * const res_flags[] = {
 		&hf_epl_pres_ms,
 		&hf_epl_pres_en,
 		&hf_epl_pres_rd,
@@ -3152,7 +3152,7 @@ dissect_epl_asnd_nmtdna(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo,
 	guint32     lease_time;
 	guint32     lease_time_s;
 	nstime_t    us;
-	static const int * dna_flags[] = {
+	static int * const dna_flags[] = {
 		&hf_epl_asnd_nmtcommand_nmtdna_ltv,
 		&hf_epl_asnd_nmtcommand_nmtdna_hpm,
 		&hf_epl_asnd_nmtcommand_nmtdna_nnn,

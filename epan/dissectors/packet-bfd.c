@@ -469,7 +469,7 @@ dissect_bfd_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
         switch (bfd_version) {
             case 0:
                 {
-                static const int * bfd_message_flags[] = {
+                static int * const bfd_message_flags[] = {
                     &hf_bfd_flags_h,
                     &hf_bfd_flags_d_v0,
                     &hf_bfd_flags_p_v0,
@@ -482,7 +482,7 @@ dissect_bfd_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
             case 1:
             default:
                 {
-                static const int * bfd_message_flags[] = {
+                static int * const bfd_message_flags[] = {
                     &hf_bfd_flags_p,
                     &hf_bfd_flags_f,
                     &hf_bfd_flags_c,

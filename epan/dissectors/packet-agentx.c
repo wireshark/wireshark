@@ -785,7 +785,7 @@ dissect_agentx_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 	guint32 trans_id;
 	guint32 packet_id;
 	guint32 payload_len;
-	static const int * pdu_flags[] = {
+	static int * const pdu_flags[] = {
 		&hf_flags_register,
 		&hf_flags_newindex,
 		&hf_flags_anyindex,

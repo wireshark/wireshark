@@ -215,7 +215,7 @@ dissect_spnego_MechTypeList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 }
 
 
-static const int * ContextFlags_bits[] = {
+static int * const ContextFlags_bits[] = {
   &hf_spnego_ContextFlags_delegFlag,
   &hf_spnego_ContextFlags_mutualFlag,
   &hf_spnego_ContextFlags_replayFlag,
@@ -1370,7 +1370,7 @@ dissect_spnego_krb5_cfx_flags(tvbuff_t *tvb, int offset,
                               proto_tree *spnego_krb5_tree,
                               guint8 cfx_flags _U_)
 {
-  static const int * flags[] = {
+  static int * const flags[] = {
     &hf_spnego_krb5_cfx_flags_04,
     &hf_spnego_krb5_cfx_flags_02,
     &hf_spnego_krb5_cfx_flags_01,

@@ -1181,7 +1181,7 @@ static const true_false_string tfs_must_must_not = { "MUST", "MUST NOT" };
 static void
 dissect_reqxmit_policy (tvbuff_t * tvb, proto_tree * tree, int start)
 {
-  static const gint *requests[] = {
+  static int * const requests[] = {
     &hf_docsis_tlv_sflow_reqxmit_all_cm_broadcast,
     &hf_docsis_tlv_sflow_reqxmit_priority_multicast,
     &hf_docsis_tlv_sflow_reqxmit_req_data_requests,
@@ -2791,7 +2791,7 @@ dissect_modemcap (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int sta
           case CAP_EM:
             if (length == 4)
               {
-                static const int * cap_em[] = {
+                static int * const cap_em[] = {
                   &hf_docsis_tlv_mcap_em_1x1,
                   &hf_docsis_tlv_mcap_em_light_sleep,
                   NULL
@@ -2818,7 +2818,7 @@ dissect_modemcap (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int sta
           case CAP_EM_PREF:
             if (length == 4)
               {
-                static const gint *em_pref[] = {
+                static int * const em_pref[] = {
                   &hf_docsis_tlv_mcap_em_pref_1x1,
                   &hf_docsis_tlv_mcap_em_pref_dls,
                   NULL
@@ -2879,7 +2879,7 @@ dissect_modemcap (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int sta
           case CAP_DOWN_OFDM_CHAN_SUBC_QAM_MOD_SUP:
             if (length == 2)
               {
-                static const gint *ofdm_qam_mod_sup[] = {
+                static int * const ofdm_qam_mod_sup[] = {
                   &hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_reserved,
                   &hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_qpsk,
                   &hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_16qam,
@@ -2906,7 +2906,7 @@ dissect_modemcap (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int sta
           case CAP_UP_OFDMA_CHAN_SUBC_QAM_MOD_SUP:
             if (length == 2)
               {
-                static const gint *ofdma_qam_mod_sup[] = {
+                static int * const ofdma_qam_mod_sup[] = {
                   &hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_reserved,
                   &hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_qpsk,
                   &hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_8qam,
@@ -2935,7 +2935,7 @@ dissect_modemcap (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int sta
           case CAP_DOWN_LOWER_BAND_EDGE_CONF:
             if (length == 1)
               {
-                static const gint *down_lower_band_edge_conf[] = {
+                static int * const down_lower_band_edge_conf[] = {
                   &hf_docsis_tlv_mcap_down_lower_band_edge_conf_108,
                   &hf_docsis_tlv_mcap_down_lower_band_edge_conf_258,
                   NULL
@@ -2952,7 +2952,7 @@ dissect_modemcap (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int sta
           case CAP_DOWN_UPPER_BAND_EDGE_CONF:
             if (length == 1)
               {
-                static const gint *down_upper_band_edge_conf[] = {
+                static int * const down_upper_band_edge_conf[] = {
                   &hf_docsis_tlv_mcap_down_upper_band_edge_conf_1218,
                   &hf_docsis_tlv_mcap_down_upper_band_edge_conf_1794,
                   &hf_docsis_tlv_mcap_down_upper_band_edge_conf_1002,
@@ -3014,7 +3014,7 @@ dissect_modemcap (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int sta
           case CAP_DIPL_DOWN_LOWER_BAND_EDGE:
             if (length == 1)
               {
-                static const gint *dipl_down_lower_band_edge[] = {
+                static int * const dipl_down_lower_band_edge[] = {
                   &hf_docsis_tlv_mcap_dipl_down_lower_band_edge_108,
                   &hf_docsis_tlv_mcap_dipl_down_lower_band_edge_258,
                   NULL
@@ -3031,7 +3031,7 @@ dissect_modemcap (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int sta
          case CAP_DIPL_DOWN_UPPER_BAND_EDGE:
             if (length == 1)
               {
-                static const gint *dipl_down_upper_band_edge[] = {
+                static int * const dipl_down_upper_band_edge[] = {
                   &hf_docsis_tlv_mcap_dipl_down_upper_band_edge_1218,
                   &hf_docsis_tlv_mcap_dipl_down_upper_band_edge_1794,
                   &hf_docsis_tlv_mcap_dipl_down_upper_band_edge_1002,
@@ -3049,7 +3049,7 @@ dissect_modemcap (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int sta
           case CAP_DIPL_UP_UPPER_BAND_EDGE:
             if (length == 1)
               {
-                static const gint *dipl_up_upper_band_edge[] = {
+                static int * const dipl_up_upper_band_edge[] = {
                   &hf_docsis_tlv_mcap_dipl_up_upper_band_edge_42,
                   &hf_docsis_tlv_mcap_dipl_up_upper_band_edge_65,
                   &hf_docsis_tlv_mcap_dipl_up_upper_band_edge_85,

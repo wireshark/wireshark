@@ -123,7 +123,7 @@ static int hf_setup_map_local = -1;
 static int hf_dma_sg_combined = -1;
 static int hf_aligned_temp_buffer = -1;
 
-static const int *transfer_flags_fields[] = {
+static int * const transfer_flags_fields[] = {
     &hf_short_not_ok,
     &hf_iso_asap,
     &hf_no_transfer_dma_map,
@@ -377,13 +377,13 @@ static expert_field ei_usbport_invalid_path_depth = EI_INIT;
 
 static int usb_address_type = -1;
 
-static const int *usb_endpoint_fields[] = {
+static int * const usb_endpoint_fields[] = {
     &hf_usb_endpoint_direction,
     &hf_usb_endpoint_number,
     NULL
 };
 
-static const int *usb_usbpcap_info_fields[] = {
+static int * const usb_usbpcap_info_fields[] = {
     &hf_usb_usbpcap_info_reserved,
     &hf_usb_usbpcap_info_direction,
     NULL
@@ -696,7 +696,7 @@ static const value_string usb_freebsd_transfer_type_vals[] = {
 #define FREEBSD_FLAG_NO_PIPE_OK       0x00000080
 #define FREEBSD_FLAG_STALL_PIPE       0x00000100
 
-static const int *usb_xferflags_fields[] = {
+static int * const usb_xferflags_fields[] = {
     &hf_usb_xferflags_force_short_xfer,
     &hf_usb_xferflags_short_xfer_ok,
     &hf_usb_xferflags_short_frames_ok,
@@ -731,7 +731,7 @@ static const int *usb_xferflags_fields[] = {
 #define FREEBSD_STATUS_CAN_CANCEL_IMMED  0x00040000
 #define FREEBSD_STATUS_DOING_CALLBACK    0x00080000
 
-static const int *usb_xferstatus_fields[] = {
+static int * const usb_xferstatus_fields[] = {
     &hf_usb_xferstatus_open,
     &hf_usb_xferstatus_transferring,
     &hf_usb_xferstatus_did_dma_delay,
@@ -839,7 +839,7 @@ static const value_string usb_freebsd_speed_vals[] = {
 #define FREEBSD_FRAMEFLAG_READ         0x00000001
 #define FREEBSD_FRAMEFLAG_DATA_FOLLOWS 0x00000002
 
-static const int *usb_frame_flags_fields[] = {
+static int * const usb_frame_flags_fields[] = {
     &hf_usb_frame_flags_read,
     &hf_usb_frame_flags_data_follows,
     NULL
@@ -3719,7 +3719,7 @@ dissect_usb_bmrequesttype(proto_tree *parent_tree, tvbuff_t *tvb, int offset, gu
 {
     guint64 val;
 
-    static const int *bmRequestType_bits[] = {
+    static int * const bmRequestType_bits[] = {
         &hf_usb_bmRequestType_direction,
         &hf_usb_bmRequestType_type,
         &hf_usb_bmRequestType_recipient,
@@ -4929,7 +4929,7 @@ dissect_netmon_usb_port(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent, v
     proto_tree *usb_port_tree;
     int offset = 0;
     struct netmon_provider_id_data *provider_id_data = (struct netmon_provider_id_data*)data;
-    static const int *keyword_fields[] = {
+    static int * const keyword_fields[] = {
         &hf_usbport_keyword_diagnostic,
         &hf_usbport_keyword_power_diagnostics,
         &hf_usbport_keyword_perf_diagnostics,

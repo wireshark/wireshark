@@ -2321,7 +2321,7 @@ dissect_rtcp_mcptt_location_ie(tvbuff_t* tvb, packet_info* pinfo, int offset, pr
 {
     guint32 loc_type;
     int start_offset = offset;
-    const int* ECGI_flags[] = {
+    static int * const ECGI_flags[] = {
         &hf_rtcp_mcptt_enodebid,
         &hf_rtcp_mcptt_cellid,
         NULL
@@ -2981,7 +2981,7 @@ dissect_rtcp_sdes( tvbuff_t *tvb, int offset, proto_tree *tree,
 static void parse_xr_type_specific_field(tvbuff_t *tvb, gint offset, guint block_type,
                                          proto_tree *tree, guint8 *thinning)
 {
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_rtcp_xr_stats_loss_flag,
         &hf_rtcp_xr_stats_dup_flag,
         &hf_rtcp_xr_stats_jitter_flag,

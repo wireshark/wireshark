@@ -37,7 +37,7 @@ static int hf_mpls_mac_tlv_value = -1;
 static int hf_mpls_mac_tlv_sequence_number = -1;
 
 
-static const int *mpls_mac_flags[] = {
+static int * const mpls_mac_flags[] = {
   &hf_mpls_mac_flags_a,
   &hf_mpls_mac_flags_r,
   &hf_mpls_mac_flags_reserved,

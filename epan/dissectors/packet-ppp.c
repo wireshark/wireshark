@@ -1856,7 +1856,7 @@ dissect_lcp_async_map_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     proto_tree *field_tree;
     proto_item *tf, *ti;
     int offset = 0;
-    static const int *asyncmap_fields[] = {
+    static int * const asyncmap_fields[] = {
         &hf_lcp_opt_asyncmap_us,  &hf_lcp_opt_asyncmap_rs,
         &hf_lcp_opt_asyncmap_gs,  &hf_lcp_opt_asyncmap_fs,
         &hf_lcp_opt_asyncmap_esc, &hf_lcp_opt_asyncmap_sub,
@@ -2048,7 +2048,7 @@ dissect_lcp_fcs_alternatives_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     proto_tree *field_tree;
     proto_item *tf;
     int offset = 0;
-    static const int *fcs_alternatives_fields[] = {
+    static int * const fcs_alternatives_fields[] = {
         &hf_lcp_opt_fcs_alternatives_ccitt32,
         &hf_lcp_opt_fcs_alternatives_ccitt16,
         &hf_lcp_opt_fcs_alternatives_null,
@@ -2398,7 +2398,7 @@ dissect_lcp_cobs_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     proto_tree *field_tree;
     proto_item *tf;
     int offset = 0;
-    static const int *cobs_flags_fields[] = {
+    static int * const cobs_flags_fields[] = {
         &hf_lcp_opt_cobs_flags_res,
         &hf_lcp_opt_cobs_flags_pre,
         &hf_lcp_opt_cobs_flags_zxe,
@@ -3589,7 +3589,7 @@ dissect_ccp_stac_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     proto_item *tf;
     int offset = 0;
     int length = tvb_reported_length(tvb);
-    static const int *check_mode_fields[] = {
+    static int * const check_mode_fields[] = {
         &hf_ccp_opt_cm_reserved,
         &hf_ccp_opt_cm_check_mode,
         NULL
@@ -3662,7 +3662,7 @@ dissect_ccp_mppe_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     proto_tree *field_tree;
     proto_item *tf;
     int offset = 0;
-    static const int *supported_bits_fields[] = {
+    static int * const supported_bits_fields[] = {
         &hf_ccp_opt_supported_bits_h,
         &hf_ccp_opt_supported_bits_m,
         &hf_ccp_opt_supported_bits_s,
@@ -3716,7 +3716,7 @@ dissect_ccp_bsdcomp_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     proto_tree *field_tree;
     proto_item *tf;
     int offset = 0;
-    static const int *vd_fields[] = {
+    static int * const vd_fields[] = {
         &hf_ccp_opt_vd_vers,
         &hf_ccp_opt_vd_dict,
         NULL
@@ -4931,7 +4931,7 @@ dissect_bcp_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     guint8 mac_type;
     gint captured_length, reported_length, pad_length;
     tvbuff_t *next_tvb;
-    static const int * bcp_bpdu_flags[] = {
+    static int * const bcp_bpdu_flags[] = {
         &hf_bcp_bpdu_fcs_present,
         &hf_bcp_bpdu_zeropad,
         &hf_bcp_bpdu_bcontrol,
@@ -5172,7 +5172,7 @@ dissect_pppmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     tvbuff_t       *next_tvb;
     int             offset       = 0, length_remaining;
     int             length_field = 0, pid_field = 0, hdr_length = 0;
-    static const int * subframe_flags[] = {
+    static int * const subframe_flags[] = {
         &hf_pppmux_flags_pid,
         &hf_pppmux_flags_field_length,
         NULL
@@ -5262,7 +5262,7 @@ dissect_pppmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 #define IPHC_CRTP_CS_CID8        1
 #define IPHC_CRTP_CS_CID16       2
 
-static const int *iphc_crtp_fh_flags_fields[] = {
+static int * const iphc_crtp_fh_flags_fields[] = {
     &hf_iphc_crtp_fh_cidlenflag,
     &hf_iphc_crtp_fh_dataflag,
     NULL
@@ -5681,14 +5681,14 @@ dissect_mp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     gint        hdrlen;
     fragment_head *frag_mp;
     tvbuff_t    *next_tvb;
-    static const int * mp_flags[] = {
+    static int * const mp_flags[] = {
         &hf_mp_frag_first,
         &hf_mp_frag_last,
         &hf_mp_sequence_num_cls,
         &hf_mp_sequence_num_reserved,
         NULL
     };
-    static const int * mp_short_flags[] = {
+    static int * const mp_short_flags[] = {
         &hf_mp_frag_first,
         &hf_mp_frag_last,
         &hf_mp_short_sequence_num_cls,

@@ -151,13 +151,13 @@ static gint ett_pcapng_records = -1;
 static gint ett_pcapng_record = -1;
 static gint ett_pcapng_packet_data = -1;
 
-static const int *hfx_pcapng_option_data_interface_timestamp_resolution[] = {
+static int * const hfx_pcapng_option_data_interface_timestamp_resolution[] = {
     &hf_pcapng_option_data_interface_timestamp_resolution_base,
     &hf_pcapng_option_data_interface_timestamp_resolution_value,
     NULL
 };
 
-static const int *hfx_pcapng_option_data_packet_flags_link_layer_errors[] = {
+static int * const hfx_pcapng_option_data_packet_flags_link_layer_errors[] = {
     &hf_pcapng_option_data_packet_flags_link_layer_errors_symbol,
     &hf_pcapng_option_data_packet_flags_link_layer_errors_preamble,
     &hf_pcapng_option_data_packet_flags_link_layer_errors_start_frame_delimiter,
@@ -170,7 +170,7 @@ static const int *hfx_pcapng_option_data_packet_flags_link_layer_errors[] = {
     NULL
 };
 
-static const int *hfx_pcapng_option_data_packet_flags[] = {
+static int * const hfx_pcapng_option_data_packet_flags[] = {
     &hf_pcapng_option_data_packet_flags_reserved,
     &hf_pcapng_option_data_packet_flags_fcs_length,
     &hf_pcapng_option_data_packet_flags_reception_type,
@@ -178,7 +178,7 @@ static const int *hfx_pcapng_option_data_packet_flags[] = {
     NULL
 };
 
-static const int *hfx_pcapng_block_type[] = {
+static int * const hfx_pcapng_block_type[] = {
     &hf_pcapng_block_type_vendor,
     &hf_pcapng_block_type_value,
     NULL

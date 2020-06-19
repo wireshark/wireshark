@@ -476,7 +476,7 @@ static int hf_radiotap_vw_info_rx_layer_1_info_1 = -1;
 static int hf_radiotap_vw_info_rx_vht_frame_received_with_vht_sig_b_length = -1;
 static int hf_radiotap_vw_info_rx_vht_frame_received_without_vht_sig_b_length = -1;
 static int hf_radiotap_vw_info_rx_factory_internal = -1;
-static const int *radiotap_info_rx_fields[] = {
+static int * const radiotap_info_rx_fields[] = {
     &hf_radiotap_vw_info_rx_crypto_wep_encoded,
     &hf_radiotap_vw_info_rx_crypto_tkip_encoded,
     &hf_radiotap_vw_info_rx_crypto_rx_tkip_tsc_seqskip,
@@ -516,7 +516,7 @@ static int hf_radiotap_vw_info_tx_last_mpdu_of_a_mpdu = -1;
 static int hf_radiotap_vw_info_tx_msdu_of_a_msdu = -1;
 static int hf_radiotap_vw_info_tx_first_msdu_of_a_msdu = -1;
 static int hf_radiotap_vw_info_tx_last_msdu_of_a_msdu = -1;
-static const int *radiotap_info_tx_fields[] = {
+static int * const radiotap_info_tx_fields[] = {
     &hf_radiotap_vw_info_tx_crypto_wep_encoded,
     &hf_radiotap_vw_info_tx_crypto_tkip_encoded,
     &hf_radiotap_vw_info_tx_crypto_c_bit_error,
@@ -621,7 +621,7 @@ dissect_ixveriwave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     int         ifg_flag = 0;
     proto_tree  *vwrft, *vw_rfinfo_tree = NULL, *rfinfo_contextp_tree;
 
-    static const int * context_a_flags[] = {
+    static int * const context_a_flags[] = {
         &hf_radiotap_rfinfo_contextpA_snr_noise_valid,
         &hf_radiotap_rfinfo_contextpA_pfe_valid,
         &hf_radiotap_rfinfo_contextpA_pfe_is_cck,
@@ -636,7 +636,7 @@ dissect_ixveriwave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
         &hf_radiotap_rfinfo_contextpA_qam_modulation,
         NULL
     };
-    static const int * context_b_flags[] = {
+    static int * const context_b_flags[] = {
         &hf_radiotap_rfinfo_contextpB_snr_noise_valid,
         &hf_radiotap_rfinfo_contextpB_pfe_valid,
         &hf_radiotap_rfinfo_contextpB_pfe_is_cck,
@@ -651,7 +651,7 @@ dissect_ixveriwave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
         &hf_radiotap_rfinfo_contextpB_qam_modulation,
         NULL
     };
-    static const int * context_c_flags[] = {
+    static int * const context_c_flags[] = {
         &hf_radiotap_rfinfo_contextpC_snr_noise_valid,
         &hf_radiotap_rfinfo_contextpC_pfe_valid,
         &hf_radiotap_rfinfo_contextpC_pfe_is_cck,
@@ -666,7 +666,7 @@ dissect_ixveriwave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
         &hf_radiotap_rfinfo_contextpC_qam_modulation,
         NULL
     };
-    static const int * context_d_flags[] = {
+    static int * const context_d_flags[] = {
         &hf_radiotap_rfinfo_contextpD_snr_noise_valid,
         &hf_radiotap_rfinfo_contextpD_pfe_valid,
         &hf_radiotap_rfinfo_contextpD_pfe_is_cck,
@@ -1563,7 +1563,7 @@ ethernettap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_t
     if (length_remaining >= 4) {
         if (vwf_txf == 0) {
             /* then it's an rx case */
-            static const int * vw_error_rx_flags[] = {
+            static int * const vw_error_rx_flags[] = {
                 &hf_ixveriwave_vw_error_1_alignment_error,
                 &hf_ixveriwave_vw_error_1_packet_fcs_error,
                 &hf_ixveriwave_vw_error_1_bad_magic_byte_signature,
@@ -1580,7 +1580,7 @@ ethernettap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_t
             proto_tree_add_bitmask(tap_tree, tvb, offset, hf_ixveriwave_vw_error, ett_ethernettap_error, vw_error_rx_flags, ENC_LITTLE_ENDIAN);
         } else {
             /* it's a tx case */
-            static const int * vw_error_tx_flags[] = {
+            static int * const vw_error_tx_flags[] = {
                 &hf_ixveriwave_vw_error_1_packet_fcs_error,
                 &hf_ixveriwave_vw_error_1_ip_checksum_error,
                 &hf_ixveriwave_vw_error_1_underflow,
@@ -2128,7 +2128,7 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* info */
     if (!(vw_flags & VW_RADIOTAPF_TXF)) {                   /* then it's an rx case */
         /*FPGA_VER_vVW510021 version decodes */
-        static const int * vw_info_rx_2_flags[] = {
+        static int * const vw_info_rx_2_flags[] = {
             &hf_radiotap_vw_info_2_ack_withheld_from_frame,
             &hf_radiotap_vw_info_2_sent_cts_to_self_before_data,
             &hf_radiotap_vw_info_2_mpdu_of_a_mpdu,
@@ -2143,7 +2143,7 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_bitmask(tap_tree, tvb, offset, hf_radiotap_vw_info, ett_radiotap_info, vw_info_rx_2_flags, ENC_LITTLE_ENDIAN);
 
     } else {                                    /* it's a tx case */
-        static const int * vw_info_tx_2_flags[] = {
+        static int * const vw_info_tx_2_flags[] = {
             &hf_radiotap_vw_info_2_mpdu_of_a_mpdu,
             &hf_radiotap_vw_info_2_first_mpdu_of_a_mpdu,
             &hf_radiotap_vw_info_2_last_pdu_of_a_mpdu,
@@ -2878,7 +2878,7 @@ wlantap_dissect_octo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* the error flags field is only 16 bits (instead of 32) to save space */
     if (cmd_type != 1) {
         /* then it's an rx case */
-        static const int * vw_errors_rx_flags[] = {
+        static int * const vw_errors_rx_flags[] = {
             &hf_radiotap_vw_errors_rx_sig_field_crc_parity_error,
             &hf_radiotap_vw_errors_rx_non_supported_service_field,
             &hf_radiotap_vw_errors_rx_frame_length_error,
@@ -2910,7 +2910,7 @@ wlantap_dissect_octo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_bitmask(vw_l2l4info_tree, tvb, offset, hf_radiotap_vw_errors, ett_radiotap_errors, vw_errors_rx_flags, ENC_LITTLE_ENDIAN);
 
     } else {                                  /* it's a tx case */
-        static const int * vw_errors_tx_flags[] = {
+        static int * const vw_errors_tx_flags[] = {
             &hf_radiotap_vw_errors_tx_2_crc32_error,
             &hf_radiotap_vw_errors_tx_2_ip_checksum_error,
             &hf_radiotap_vw_errors_tx_2_ack_timeout,

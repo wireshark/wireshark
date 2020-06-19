@@ -802,7 +802,7 @@ static const mysql_exec_dissector_t mysql_exec_dissectors[] = {
 	{ 0x00, 0, NULL },
 };
 
-static const int *mysql_rfsh_flags[] = {
+static int * const mysql_rfsh_flags[] = {
 	&hf_mysql_rfsh_grants,
 	&hf_mysql_rfsh_log,
 	&hf_mysql_rfsh_tables,
@@ -814,7 +814,7 @@ static const int *mysql_rfsh_flags[] = {
 	NULL
 };
 
-static const int *mysql_stat_flags[] = {
+static int * const mysql_stat_flags[] = {
 	&hf_mysql_stat_it,
 	&hf_mysql_stat_ac,
 	&hf_mysql_stat_mu,
@@ -833,7 +833,7 @@ static const int *mysql_stat_flags[] = {
 	NULL
 };
 
-static const int *mysql_caps_flags[] = {
+static int * const mysql_caps_flags[] = {
 	&hf_mysql_cap_long_password,
 	&hf_mysql_cap_found_rows,
 	&hf_mysql_cap_long_flag,
@@ -853,7 +853,7 @@ static const int *mysql_caps_flags[] = {
 	NULL
 };
 
-static const int * mysql_extcaps_flags[] = {
+static int * const mysql_extcaps_flags[] = {
 	&hf_mysql_cap_multi_statements,
 	&hf_mysql_cap_multi_results,
 	&hf_mysql_cap_ps_multi_results,
@@ -867,7 +867,7 @@ static const int * mysql_extcaps_flags[] = {
 	NULL
 };
 
-static const int * mysql_fld_flags[] = {
+static int * const mysql_fld_flags[] = {
 	&hf_mysql_fld_not_null,
 	&hf_mysql_fld_primary_key,
 	&hf_mysql_fld_unique_key,

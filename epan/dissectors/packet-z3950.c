@@ -2113,7 +2113,7 @@ dissect_z3950_ReferenceId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 }
 
 
-static const int * ProtocolVersion_U_bits[] = {
+static int * const ProtocolVersion_U_bits[] = {
   &hf_z3950_ProtocolVersion_U_version_1,
   &hf_z3950_ProtocolVersion_U_version_2,
   &hf_z3950_ProtocolVersion_U_version_3,
@@ -2140,7 +2140,7 @@ dissect_z3950_ProtocolVersion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 }
 
 
-static const int * Options_U_bits[] = {
+static int * const Options_U_bits[] = {
   &hf_z3950_Options_U_search,
   &hf_z3950_Options_U_present,
   &hf_z3950_Options_U_delSet,

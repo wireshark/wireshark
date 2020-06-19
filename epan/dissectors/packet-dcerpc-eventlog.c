@@ -376,7 +376,7 @@ int
 eventlog_dissect_bitmap_eventlogReadFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item *item;
-	static const int * eventlog_eventlogReadFlags_fields[] = {
+	static int * const eventlog_eventlogReadFlags_fields[] = {
 		&hf_eventlog_eventlogReadFlags_EVENTLOG_SEQUENTIAL_READ,
 		&hf_eventlog_eventlogReadFlags_EVENTLOG_SEEK_READ,
 		&hf_eventlog_eventlogReadFlags_EVENTLOG_FORWARDS_READ,
@@ -416,7 +416,7 @@ int
 eventlog_dissect_bitmap_eventlogEventTypes(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item *item;
-	static const int * eventlog_eventlogEventTypes_fields[] = {
+	static int * const eventlog_eventlogEventTypes_fields[] = {
 		&hf_eventlog_eventlogEventTypes_EVENTLOG_ERROR_TYPE,
 		&hf_eventlog_eventlogEventTypes_EVENTLOG_WARNING_TYPE,
 		&hf_eventlog_eventlogEventTypes_EVENTLOG_INFORMATION_TYPE,

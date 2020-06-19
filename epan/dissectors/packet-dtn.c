@@ -925,7 +925,7 @@ dissect_version_5_and_6_primary_header(packet_info *pinfo,
     proto_item        *ti_cust_scheme_offset, *ti_cust_ssp_offset;
     proto_item        *ti_rprt_scheme_offset, *ti_rprt_ssp_offset;
     proto_tree        *gen_flag_tree, *srr_flag_tree, *proc_flag_tree, *cos_flag_tree;
-    static const int * pri_flags[] = {
+    static int * const pri_flags[] = {
         &hf_bundle_procflags_fragment,
         &hf_bundle_procflags_admin,
         &hf_bundle_procflags_dont_fragment,
@@ -935,7 +935,7 @@ dissect_version_5_and_6_primary_header(packet_info *pinfo,
         NULL
     };
 
-    static const int * srr_flags[] = {
+    static int * const srr_flags[] = {
         &hf_bundle_srrflags_report_receipt,
         &hf_bundle_srrflags_report_cust_accept,
         &hf_bundle_srrflags_report_forward,
@@ -1174,7 +1174,7 @@ dissect_payload_header(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
     /* This is really a SDNV but there are only 7 bits defined so leave it this way*/
 
     if (version == 4) {
-        static const gint *flags[] = {
+        static int * const flags[] = {
             &hf_bundle_payload_flags_replicate_hdr,
             &hf_bundle_payload_flags_xmit_report,
             &hf_bundle_payload_flags_discard_on_fail,
@@ -1863,7 +1863,7 @@ display_extension_block(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int
     case BUNDLE_BLOCK_TYPE_EXTENDED_COS:
     {
         int flags;
-        static const int * ecos_flags_fields[] = {
+        static int * const ecos_flags_fields[] = {
             &hf_ecos_flags_critical,
             &hf_ecos_flags_streaming,
             &hf_ecos_flags_flowlabel,

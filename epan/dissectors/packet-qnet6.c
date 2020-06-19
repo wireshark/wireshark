@@ -1967,7 +1967,7 @@ dissect_qnet6_kif_msgsend_msg_devctl(tvbuff_t * tvb, packet_info * pinfo, proto_
   gint        combine_len, left;
   const char *p;
   guint32     dcmd;
-  static const int *dcmd_fields[] = {
+  static int * const dcmd_fields[] = {
     &hf_qnet6_kif_msg_devctl_dcmd_cmd,
     &hf_qnet6_kif_msg_devctl_dcmd_class,
     &hf_qnet6_kif_msg_devctl_dcmd_ccmd,
@@ -2031,7 +2031,7 @@ dissect_qnet6_kif_msgsend_msg_read(tvbuff_t * tvb, packet_info * pinfo _U_, prot
   int     ret = -1;
   guint32 xtypes;
   gint    combine_len, left;
-  static const int *xtypes_fields[] = {
+  static int * const xtypes_fields[] = {
     &hf_qnet6_kif_msg_io_read_xtypes_0_7,
     &hf_qnet6_kif_msg_io_read_xtypes_8,
     &hf_qnet6_kif_msg_io_read_xtypes_14,
@@ -2098,7 +2098,7 @@ dissect_qnet6_kif_msgsend_msg_write(tvbuff_t * tvb, packet_info * pinfo _U_, pro
   int     ret = -1;
   guint32 xtypes;
   gint    combine_len, left;
-  static const int *xtypes_fields[] = {
+  static int * const xtypes_fields[] = {
     &hf_qnet6_kif_msg_io_write_xtypes_0_7,
     &hf_qnet6_kif_msg_io_write_xtypes_8,
     &hf_qnet6_kif_msg_io_write_xtypes_14,
@@ -2274,7 +2274,7 @@ dissect_qnet6_kif_msgsend_msg_chmod(tvbuff_t * tvb, packet_info * pinfo _U_, pro
 {
   int  ret = -1;
   gint combine_len, left;
-  static const int *chmod_fields[] = {
+  static int * const chmod_fields[] = {
     &hf_qnet6_kif_msg_io_chmod_other_exe,
     &hf_qnet6_kif_msg_io_chmod_other_write,
     &hf_qnet6_kif_msg_io_chmod_other_read,
@@ -2526,7 +2526,7 @@ dissect_qnet6_kif_msgsend_msg_sync(tvbuff_t * tvb, packet_info * pinfo _U_, prot
 {
   int  ret = -1;
   gint combine_len, left;
-  static const int *sync_fields[] = {
+  static int * const sync_fields[] = {
     &hf_qnet6_kif_msg_syncflag_dsync,
     &hf_qnet6_kif_msg_syncflag_sync,
     &hf_qnet6_kif_msg_syncflag_rsync,
@@ -2651,7 +2651,7 @@ dissect_qnet6_kif_msgsend_msg_openfd(tvbuff_t * tvb, packet_info * pinfo _U_, pr
   int         ret = -1;
   gint        combine_len, left;
   proto_tree *stree;
-  static const int *openfd_ioflag_fields[] = {
+  static int * const openfd_ioflag_fields[] = {
     &hf_qnet6_kif_msg_openfd_ioflag_access,
     &hf_qnet6_kif_msg_openfd_ioflag_append,
     &hf_qnet6_kif_msg_openfd_ioflag_dsync,
@@ -2716,7 +2716,7 @@ dissect_qnet6_kif_msgsend_msg_mmap(tvbuff_t * tvb, packet_info * pinfo _U_, prot
   int         ret = -1;
   gint        combine_len, left;
   proto_tree *stree;
-  static const int *prot_fields[] = {
+  static int * const prot_fields[] = {
     &hf_qnet6_kif_msg_io_mmap_prot_read,
     &hf_qnet6_kif_msg_io_mmap_prot_write,
     &hf_qnet6_kif_msg_io_mmap_prot_exec,
@@ -2819,7 +2819,7 @@ dissect_qnet6_kif_msgsend_msg_notify(tvbuff_t * tvb, packet_info * pinfo _U_, pr
   guint64     timo;
   guint32     nfds, i, j, n, m;
   guint8      sevent[20], srevent[20]; /* enough to fit "read,write,rdband" */
-  static const int *notify_flags_fields[] = {
+  static int * const notify_flags_fields[] = {
     &hf_qnet6_kif_msg_io_notify_flags_28,
     &hf_qnet6_kif_msg_io_notify_flags_29,
     &hf_qnet6_kif_msg_io_notify_flags_30,
@@ -2988,7 +2988,7 @@ dissect_qnet6_kif_msgsend_msg(tvbuff_t * tvb, packet_info * pinfo, proto_tree * 
   guint8       extra_type;
   gint         rlen, head_len;
   int          ret = -1;
-  static const int *ioflag_fields[] = {
+  static int * const ioflag_fields[] = {
     &hf_qnet6_kif_msg_connect_ioflag_access,
     &hf_qnet6_kif_msg_connect_ioflag_append,
     &hf_qnet6_kif_msg_connect_ioflag_dsync,
@@ -3005,7 +3005,7 @@ dissect_qnet6_kif_msgsend_msg(tvbuff_t * tvb, packet_info * pinfo, proto_tree * 
     &hf_qnet6_kif_msg_connect_ioflag_async,
     NULL
   };
-  static const int *mode_fields[] = {
+  static int * const mode_fields[] = {
     &hf_qnet6_kif_msg_connect_mode_other_exe,
     &hf_qnet6_kif_msg_connect_mode_other_write,
     &hf_qnet6_kif_msg_connect_mode_other_read,
@@ -3021,7 +3021,7 @@ dissect_qnet6_kif_msgsend_msg(tvbuff_t * tvb, packet_info * pinfo, proto_tree * 
     &hf_qnet6_kif_msg_connect_mode_format,
     NULL
   };
-  static const int *eflag_fields[] = {
+  static int * const eflag_fields[] = {
     &hf_qnet6_kif_msg_connect_eflag_dir,
     &hf_qnet6_kif_msg_connect_eflag_dot,
     &hf_qnet6_kif_msg_connect_eflag_dotdot,
@@ -4017,7 +4017,7 @@ dissect_qnet6(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * dat
   gint        offset = 0;
   gint        len, plen, cklen;
   guint32     crc, crcp;
-  static const int * flags[] = {
+  static int * const flags[] = {
     &hf_qnet6_l4_flags_first,
     &hf_qnet6_l4_flags_last,
     &hf_qnet6_l4_flags_crc,

@@ -164,7 +164,7 @@ static const value_string amp_ari_struct_type[] = {
 
 
 /* AMP Message Header */
-static const int *amp_message_header[] = {
+static int * const amp_message_header[] = {
     &hf_amp_reserved,
     &hf_amp_acl,
     &hf_amp_nack,
@@ -174,7 +174,7 @@ static const int *amp_message_header[] = {
 };
 
 /* TNVC Flags */
-static const int *amp_tnvc_flags[] = {
+static int * const amp_tnvc_flags[] = {
     &hf_amp_tnvc_reserved,
     &hf_amp_tnvc_mixed,
     &hf_amp_tnvc_typed,
@@ -184,7 +184,7 @@ static const int *amp_tnvc_flags[] = {
 };
 
 /* ARI Flags */
-static const int *amp_ari_flags[] = {
+static int * const amp_ari_flags[] = {
     &hf_ari_nickname,
     &hf_ari_parameters,
     &hf_ari_issuer,

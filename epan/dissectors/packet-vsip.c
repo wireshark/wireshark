@@ -897,7 +897,7 @@ static guint32 vsip_PingResp(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t 
    int soffset = offset;
    guint16 len;
    proto_item *ti;
-   const int  *supp_conn_types[] = {
+   static int * const supp_conn_types[] = {
         &hf_vsip_PingResp_SuppConnTypes_VOLATILE,
         &hf_vsip_PingResp_SuppConnTypes_RTP,
         &hf_vsip_PingResp_SuppConnTypes_SSL,

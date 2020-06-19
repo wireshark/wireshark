@@ -164,32 +164,32 @@ static const value_string str_ipmb_loc_statuses[] = {
 	{ 0, NULL }
 };
 
-static const gint * bits_trace_block_type[] = {
+static int * const bits_trace_block_type[] = {
 	&hf_trace_channel_num,
 	&hf_trace_packet_type,
 	NULL
 };
 
-static const gint * bits_ipmb_protocol_data[] = {
+static int * const bits_ipmb_protocol_data[] = {
 	&hf_trace_ipmb_link_num,
 	&hf_trace_ipmb_red_chn,
 	&hf_trace_dir,
 	NULL
 };
 
-static const gint * bits_host_protocol_data[] = {
+static int * const bits_host_protocol_data[] = {
 	&hf_trace_dir,
 	NULL
 };
 
-static const gint * bits_chn_state_info[] = {
+static int * const bits_chn_state_info[] = {
 	&hf_trace_ipmb_ovr_state,
 	&hf_trace_ipmb_loc_state,
 	NULL
 };
 
 /* HPM.2 Trace Collection tree indices. */
-static gint * const ipmi_trace_ett[] = {
+static int * const ipmi_trace_ett[] = {
 	&ett_ipmi_trace,
 	&ett_trace_block_type,
 	&ett_trace_timestamp,

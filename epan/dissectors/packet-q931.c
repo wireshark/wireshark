@@ -1971,7 +1971,7 @@ static void
 dissect_q931_pl_binary_parameters_ie(tvbuff_t *tvb, int offset, int len,
     proto_tree *tree)
 {
-    const int * fields[] = {
+    static int * const fields[] = {
         &hf_q931_fast_select,
         &hf_q931_pl_request,
         &hf_q931_pl_binary_confirmation,

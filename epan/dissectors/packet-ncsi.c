@@ -209,7 +209,7 @@ static const value_string ncsi_bf_filter_vals[] = {
 static void
 ncsi_proto_tree_add_lstat(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
-    static const int *lstat_fields[] = {
+    static int * const lstat_fields[] = {
         &hf_ncsi_lstat_flag,
         &hf_ncsi_lstat_speed_duplex,
         &hf_ncsi_lstat_autoneg,
@@ -260,7 +260,7 @@ dissect_ncsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree *ncsi_tree, *ncsi_payload_tree;
     proto_item *ti, *pti;
     guint8 type, plen;
-    static const int *type_fields[] = {
+    static int * const type_fields[] = {
         &hf_ncsi_type_code,
         &hf_ncsi_type_resp,
         NULL,

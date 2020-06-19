@@ -1528,14 +1528,14 @@ dissect_afield(gboolean dect_packet_type, guint8 *ba,
 			break;
 		case 3:		/* Fixed Part Capabilities */
 			{
-			static const int * cap1_flags[] = {
+			static int * const cap1_flags[] = {
 				&hf_dect_A_Tail_Qt_3_A12,
 				&hf_dect_A_Tail_Qt_3_A13,
 				&hf_dect_A_Tail_Qt_3_A14,
 				&hf_dect_A_Tail_Qt_3_A15,
 				NULL
 			};
-			static const int * cap2_flags[] = {
+			static int * const cap2_flags[] = {
 				&hf_dect_A_Tail_Qt_3_A16,
 				&hf_dect_A_Tail_Qt_3_A17,
 				&hf_dect_A_Tail_Qt_3_A18,
@@ -1546,7 +1546,7 @@ dissect_afield(gboolean dect_packet_type, guint8 *ba,
 				&hf_dect_A_Tail_Qt_3_A23,
 				NULL
 			};
-			static const int * cap3_flags[] = {
+			static int * const cap3_flags[] = {
 				&hf_dect_A_Tail_Qt_3_A24,
 				&hf_dect_A_Tail_Qt_3_A25,
 				&hf_dect_A_Tail_Qt_3_A26,
@@ -1557,7 +1557,7 @@ dissect_afield(gboolean dect_packet_type, guint8 *ba,
 				&hf_dect_A_Tail_Qt_3_A31,
 				NULL
 			};
-			static const int * cap4_flags[] = {
+			static int * const cap4_flags[] = {
 				&hf_dect_A_Tail_Qt_3_A32,
 				&hf_dect_A_Tail_Qt_3_A33,
 				&hf_dect_A_Tail_Qt_3_A34,
@@ -1569,7 +1569,7 @@ dissect_afield(gboolean dect_packet_type, guint8 *ba,
 				NULL
 			};
 
-			static const int * cap5_flags[] = {
+			static int * const cap5_flags[] = {
 				&hf_dect_A_Tail_Qt_3_A40,
 				&hf_dect_A_Tail_Qt_3_A41,
 				&hf_dect_A_Tail_Qt_3_A42,

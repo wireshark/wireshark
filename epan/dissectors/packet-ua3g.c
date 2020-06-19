@@ -2445,7 +2445,7 @@ decode_beep(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
             }
         case 0x04: /* Start Beep */
             {
-                static const int *destinations[] = {
+                static int * const destinations[] = {
                     &hf_ua3g_beep_beep_destination_handset,
                     &hf_ua3g_beep_beep_destination_headset,
                     &hf_ua3g_beep_beep_destination_loudspeaker,
@@ -3795,7 +3795,7 @@ decode_unsolicited_msg(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                         offset++;
                         length--;
                     } else {
-                        static const int *hardware_config[] = {
+                        static int * const hardware_config[] = {
                             &hf_ua3g_unsolicited_msg_hardware_config_export_full,
                             &hf_ua3g_unsolicited_msg_hardware_config_ethernet_hardware,
                             &hf_ua3g_unsolicited_msg_hardware_config_extended_edition,
@@ -3851,7 +3851,7 @@ decode_unsolicited_msg(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                                 }
 
                                 if (length >= 1) {
-                                    const int *capability_info[] = {
+                                    int * const capability_info[] = {
                                         &hf_ua3g_unsolicited_msg_capability_info_vpn,
                                         &hf_ua3g_unsolicited_msg_capability_info_ipsec,
                                         &hf_ua3g_unsolicited_msg_capability_info_dtls,
@@ -3972,7 +3972,7 @@ static void
 decode_special_key(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_,
            guint offset, guint8 opcode)
 {
-    static const int * special_keys[] = {
+    static int * const special_keys[] = {
         &hf_ua3g_special_key_shift,
         &hf_ua3g_special_key_ctrl,
         &hf_ua3g_special_key_alt,

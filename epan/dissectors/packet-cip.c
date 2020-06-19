@@ -3024,7 +3024,7 @@ static int dissect_id_revision(packet_info *pinfo, proto_tree *tree, proto_item 
 static int dissect_id_status(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
    int offset, int total_len)
 {
-   static const int * status[] = {
+   static int * const status[] = {
       &hf_id_status_owned,
       &hf_id_status_conf,
       &hf_id_status_extended1,
@@ -3101,7 +3101,7 @@ static int dissect_time_sync_grandmaster_clock(packet_info *pinfo, proto_tree *t
    proto_tree_add_item( tree, hf_time_sync_gm_clock_offset_scaled_log_variance, tvb, offset+12, 2, ENC_LITTLE_ENDIAN);
    proto_tree_add_item( tree, hf_time_sync_gm_clock_current_utc_offset, tvb, offset+14, 2, ENC_LITTLE_ENDIAN);
 
-   static const int* bits[] = {
+   static int* const bits[] = {
       &hf_time_sync_gm_clock_time_property_flags_leap61,
       &hf_time_sync_gm_clock_time_property_flags_leap59,
       &hf_time_sync_gm_clock_time_property_flags_current_utc_valid,
@@ -3149,7 +3149,7 @@ static int dissect_time_sync_local_clock(packet_info *pinfo, proto_tree *tree, p
    proto_tree_add_item( tree, hf_time_sync_local_clock_offset_scaled_log_variance, tvb, offset+12, 2, ENC_LITTLE_ENDIAN);
    proto_tree_add_item( tree, hf_time_sync_local_clock_current_utc_offset, tvb, offset+14, 2, ENC_LITTLE_ENDIAN);
 
-   static const int* bits[] = {
+   static int* const bits[] = {
       &hf_time_sync_local_clock_time_property_flags_leap61,
       &hf_time_sync_local_clock_time_property_flags_leap59,
       &hf_time_sync_local_clock_time_property_flags_current_utc_valid,
@@ -3297,7 +3297,7 @@ static int dissect_time_sync_clock_type(packet_info *pinfo, proto_tree *tree, pr
       return total_len;
    }
 
-   static const int* bits[] = {
+   static int* const bits[] = {
       &hf_time_sync_clock_type_management,
       &hf_time_sync_clock_type_end_to_end,
       &hf_time_sync_clock_type_boundary,
@@ -4175,7 +4175,7 @@ static void
 dissect_transport_type_trigger(tvbuff_t *tvb, int offset, proto_tree *tree,
                  int hf_ttt, int hf_direction, int hf_trigger, int hf_class, gint ett)
 {
-   const int* bits[] = {
+   int* const bits[] = {
       &hf_direction,
       &hf_trigger,
       &hf_class,
@@ -7609,7 +7609,7 @@ dissect_cip_cco_all_attribute_common( proto_tree *cmd_tree, proto_item *ti,
    ot_rtf = (temp_data >> 1) & 7;
    to_rtf = (temp_data >> 4) & 7;
 
-   static const int* connection_flags[] = {
+   static int *const connection_flags[] = {
       &hf_cip_cco_con_type,
       &hf_cip_cco_ot_rtf,
       &hf_cip_cco_to_rtf,
@@ -8175,7 +8175,7 @@ void dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_
 
 void dissect_cip_run_idle(tvbuff_t* tvb, int offset, proto_tree* item_tree)
 {
-   static const int * run_idle_header[] = {
+   static int * const run_idle_header[] = {
       &hf_32bitheader_roo,
       &hf_32bitheader_coo,
       &hf_32bitheader_run_idle,

@@ -586,7 +586,7 @@ static int dissect_dvb_s2_gse(tvbuff_t *tvb, int cur_off, proto_tree *tree, pack
 
     tvbuff_t   *next_tvb;
 
-    static const int * gse_header_bitfields[] = {
+    static int * const gse_header_bitfields[] = {
         &hf_dvb_s2_gse_hdr_start,
         &hf_dvb_s2_gse_hdr_stop,
         &hf_dvb_s2_gse_hdr_labeltype,
@@ -751,7 +751,7 @@ static int dissect_dvb_s2_bb(tvbuff_t *tvb, int cur_off, proto_tree *tree, packe
 
     int         sub_dissected        = 0, flag_is_ms = 0, new_off = 0;
 
-    static const int * bb_header_bitfields[] = {
+    static int * const bb_header_bitfields[] = {
         &hf_dvb_s2_bb_matype1_gs,
         &hf_dvb_s2_bb_matype1_mis,
         &hf_dvb_s2_bb_matype1_acm,
@@ -869,7 +869,7 @@ static int dissect_dvb_s2_modeadapt(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     proto_item *ti;
     proto_tree *dvb_s2_modeadapt_tree;
 
-    static const int * modeadapt_acm_bitfields[] = {
+    static int * const modeadapt_acm_bitfields[] = {
         &hf_dvb_s2_modeadapt_acm_fecframe,
         &hf_dvb_s2_modeadapt_acm_pilot,
         &hf_dvb_s2_modeadapt_acm_modcod,

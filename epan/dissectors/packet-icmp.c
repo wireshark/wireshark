@@ -501,7 +501,7 @@ dissect_mip_extensions(tvbuff_t * tvb, int offset, proto_tree * tree)
 	proto_tree *mip_tree = NULL;
 	gint numCOAs;
 	gint i;
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_icmp_mip_r,
 		&hf_icmp_mip_b,
 		&hf_icmp_mip_h,
@@ -792,7 +792,7 @@ dissect_interface_information_object(tvbuff_t * tvb, gint offset,
 	name_flag = (c_type & INT_INFO_NAME) >> 1;
 
 	{
-		static const gint *c_type_fields[] = {
+		static int * const c_type_fields[] = {
 			&hf_icmp_int_info_role,
 			&hf_icmp_int_info_reserved,
 			&hf_icmp_int_info_ifindex,

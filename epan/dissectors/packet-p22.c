@@ -986,7 +986,7 @@ dissect_p22_AuthorizingUsersField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 }
 
 
-static const int * NotificationRequests_bits[] = {
+static int * const NotificationRequests_bits[] = {
   &hf_p22_NotificationRequests_rn,
   &hf_p22_NotificationRequests_nrn,
   &hf_p22_NotificationRequests_ipm_return,
@@ -3189,7 +3189,7 @@ dissect_p22_User_Identity_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 }
 
 
-static const int * Access_Request_bits[] = {
+static int * const Access_Request_bits[] = {
   &hf_p22_Access_Request_read,
   &hf_p22_Access_Request_insert,
   &hf_p22_Access_Request_replace,
@@ -3801,7 +3801,7 @@ dissect_p22_RecipientCategory(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 }
 
 
-static const int * RecipientSecurityRequest_bits[] = {
+static int * const RecipientSecurityRequest_bits[] = {
   &hf_p22_RecipientSecurityRequest_content_non_repudiation,
   &hf_p22_RecipientSecurityRequest_content_proof,
   &hf_p22_RecipientSecurityRequest_ipn_non_repudiation,

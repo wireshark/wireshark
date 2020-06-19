@@ -438,7 +438,7 @@ static gint ett_btsdp_supported_features_mdep_role        = -1;
 static gint ett_btsdp_supported_features_mdep_description = -1;
 static gint ett_btsdp_protocol                            = -1;
 
-static const int *hfx_ctn_supported_features[] = {
+static int * const hfx_ctn_supported_features[] = {
     &hf_ctn_supported_features_reserved,
     &hf_ctn_supported_features_forward,
     &hf_ctn_supported_features_delete,
@@ -450,7 +450,7 @@ static const int *hfx_ctn_supported_features[] = {
     NULL
 };
 
-static const int *hfx_mps_mpsd_scenarios[] = {
+static int * const hfx_mps_mpsd_scenarios[] = {
     &hf_mps_mpsd_scenarios_reserved,
     &hf_mps_mpsd_scenarios_37,
     &hf_mps_mpsd_scenarios_36,
@@ -493,7 +493,7 @@ static const int *hfx_mps_mpsd_scenarios[] = {
     NULL
 };
 
-static const int *hfx_mps_mpmd_scenarios[] = {
+static int * const hfx_mps_mpmd_scenarios[] = {
     &hf_mps_mpmd_scenarios_reserved,
     &hf_mps_mpmd_scenarios_18,
     &hf_mps_mpmd_scenarios_17,
@@ -517,7 +517,7 @@ static const int *hfx_mps_mpmd_scenarios[] = {
     NULL
 };
 
-static const int *hfx_mps_supported_profile_and_protocol_dependency[] = {
+static int * const hfx_mps_supported_profile_and_protocol_dependency[] = {
     &hf_mps_supported_profile_and_protocol_dependency_reserved,
     &hf_mps_supported_profile_and_protocol_dependency_dis_connection_order_behaviour,
     &hf_mps_supported_profile_and_protocol_dependency_gavdp_requirements,
@@ -525,7 +525,7 @@ static const int *hfx_mps_supported_profile_and_protocol_dependency[] = {
     NULL
 };
 
-static const int *hfx_map_supported_features[] = {
+static int * const hfx_map_supported_features[] = {
     &hf_map_supported_features_reserved,
     &hf_map_supported_features_extended_event_report_1_1,
     &hf_map_supported_features_instance_information_feature,
@@ -537,7 +537,7 @@ static const int *hfx_map_supported_features[] = {
     NULL
 };
 
-static const int *hfx_pbap_pse_supported_repositories[] = {
+static int * const hfx_pbap_pse_supported_repositories[] = {
     &hf_pbap_pse_supported_repositories_reserved,
     &hf_pbap_pse_supported_repositories_favourites,
     &hf_pbap_pse_supported_repositories_speed_dial,
@@ -546,7 +546,7 @@ static const int *hfx_pbap_pse_supported_repositories[] = {
     NULL
 };
 
-static const int *hfx_pbap_pse_supported_features[] = {
+static int * const hfx_pbap_pse_supported_features[] = {
     &hf_pbap_pse_supported_features_reserved,
     &hf_pbap_pse_supported_features_default_contact_image_format,
     &hf_pbap_pse_supported_features_contact_referencing,

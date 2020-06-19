@@ -756,7 +756,7 @@ dissect_zbee_nwk_gp_cmd_commissioning(tvbuff_t *tvb, packet_info *pinfo, proto_t
     GSList *GSList_i;
     tvbuff_t *payload_tvb;
 
-    static const int * options[] = {
+    static int * const options[] = {
         &hf_zbee_nwk_gp_cmd_comm_opt_mac_sec_num_cap,
         &hf_zbee_nwk_gp_cmd_comm_opt_rx_on_cap,
         &hf_zbee_nwk_gp_cmd_comm_opt_appli_info_present,
@@ -766,7 +766,7 @@ dissect_zbee_nwk_gp_cmd_commissioning(tvbuff_t *tvb, packet_info *pinfo, proto_t
         &hf_zbee_nwk_gp_cmd_comm_opt_ext_opt,
         NULL
     };
-    static const int * ext_options[] = {
+    static int * const ext_options[] = {
         &hf_zbee_nwk_gp_cmd_comm_ext_opt_sec_level_cap,
         &hf_zbee_nwk_gp_cmd_comm_ext_opt_key_type,
         &hf_zbee_nwk_gp_cmd_comm_ext_opt_gpd_key_present,
@@ -774,14 +774,14 @@ dissect_zbee_nwk_gp_cmd_commissioning(tvbuff_t *tvb, packet_info *pinfo, proto_t
         &hf_zbee_nwk_gp_cmd_comm_ext_opt_outgoing_counter,
         NULL
     };
-    static const int * appli_info[] = {
+    static int * const appli_info[] = {
         &hf_zbee_nwk_gp_cmd_comm_appli_info_mip,
         &hf_zbee_nwk_gp_cmd_comm_appli_info_mmip,
         &hf_zbee_nwk_gp_cmd_comm_appli_info_gclp,
         &hf_zbee_nwk_gp_cmd_comm_appli_info_crp,
         NULL
     };
-    static const int * length_of_clid_list[] = {
+    static int * const length_of_clid_list[] = {
         &hf_zbee_nwk_gp_cmd_comm_length_of_clid_list_server,
         &hf_zbee_nwk_gp_cmd_comm_length_of_clid_list_client,
         NULL
@@ -955,7 +955,7 @@ static guint
 dissect_zbee_nwk_gp_cmd_channel_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     zbee_nwk_green_power_packet *packet _U_, guint offset)
 {
-    static const int * channels[] = {
+    static int * const channels[] = {
         &hf_zbee_nwk_gp_cmd_channel_request_toggling_behaviour_1st,
         &hf_zbee_nwk_gp_cmd_channel_request_toggling_behaviour_2nd,
         NULL
@@ -981,7 +981,7 @@ static guint
 dissect_zbee_nwk_gp_cmd_channel_configuration(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     zbee_nwk_green_power_packet *packet _U_, guint offset)
 {
-    static const int * channels[] = {
+    static int * const channels[] = {
         &hf_zbee_nwk_gp_cmd_channel_configuration,
         NULL
     };
@@ -1079,7 +1079,7 @@ dissect_zbee_nwk_gp_cmd_commissioning_reply(tvbuff_t *tvb, packet_info *pinfo, p
     GSList *GSList_i;
     tvbuff_t *payload_tvb;
 
-    static const int * options[] = {
+    static int * const options[] = {
         &hf_zbee_nwk_gp_cmd_comm_rep_opt_panid_present,
         &hf_zbee_nwk_gp_cmd_comm_rep_opt_sec_key_present,
         &hf_zbee_nwk_gp_cmd_comm_rep_opt_key_encr,
@@ -1194,7 +1194,7 @@ dissect_zbee_nwk_gp_cmd_read_attributes(tvbuff_t *tvb, packet_info *pinfo _U_, p
     guint tvb_len;
     guint8 i;
 
-    static const int * options[] = {
+    static int * const options[] = {
         &hf_zbee_nwk_gp_cmd_read_att_opt_multi_rec,
         &hf_zbee_nwk_gp_cmd_read_att_opt_man_field_present,
         NULL
@@ -1260,7 +1260,7 @@ dissect_zbee_nwk_gp_cmd_write_attributes(tvbuff_t *tvb, packet_info *pinfo _U_, 
     guint end_byte;
     //guint8 i;
 
-    static const int * options[] = {
+    static int * const options[] = {
         &hf_zbee_nwk_gp_cmd_read_att_opt_multi_rec,
         &hf_zbee_nwk_gp_cmd_read_att_opt_man_field_present,
         NULL
@@ -1335,7 +1335,7 @@ dissect_zbee_nwk_gp_cmd_read_attributes_response(tvbuff_t *tvb, packet_info *pin
     guint tvb_len;
     guint end_byte;
 
-    static const int * options[] = {
+    static int * const options[] = {
         &hf_zbee_nwk_gp_cmd_read_att_opt_multi_rec,
         &hf_zbee_nwk_gp_cmd_read_att_opt_man_field_present,
         NULL
@@ -1730,14 +1730,14 @@ dissect_zbee_nwk_gp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     proto_item *ti = NULL;
     tvbuff_t *payload_tvb;
     zbee_nwk_green_power_packet packet;
-    static const int * fields[] = {
+    static int * const fields[] = {
         &hf_zbee_nwk_gp_frame_type,
         &hf_zbee_nwk_gp_proto_version,
         &hf_zbee_nwk_gp_auto_commissioning,
         &hf_zbee_nwk_gp_fc_ext,
         NULL
     };
-    static const int * ext_fields[] = {
+    static int * const ext_fields[] = {
         &hf_zbee_nwk_gp_fc_ext_app_id,
         &hf_zbee_nwk_gp_fc_ext_sec_level,
         &hf_zbee_nwk_gp_fc_ext_sec_key,

@@ -2869,7 +2869,7 @@ static int hf_artnet_poll_target_port_bottom = -1;
 
 static gint ett_artnet_poll_talktome = -1;
 
-static const int *artnet_poll_talktome_fields[] = {
+static int * const artnet_poll_talktome_fields[] = {
   &hf_artnet_poll_talktome_reply_change,
   &hf_artnet_poll_talktome_diag,
   &hf_artnet_poll_talktome_diag_unicast,
@@ -2988,7 +2988,7 @@ static int hf_artnet_poll_reply_good_input_dmx_sip = -1;
 static int hf_artnet_poll_reply_good_input_dmx_test = -1;
 static int hf_artnet_poll_reply_good_input_data = -1;
 
-static const int *artnet_poll_reply_status_fields[] = {
+static int * const artnet_poll_reply_status_fields[] = {
   &hf_artnet_poll_reply_status_ubea_present,
   &hf_artnet_poll_reply_status_rdm_supported,
   &hf_artnet_poll_reply_status_rom_booted,
@@ -2997,7 +2997,7 @@ static const int *artnet_poll_reply_status_fields[] = {
   NULL
 };
 
-static const int *artnet_poll_reply_good_input_fields[] = {
+static int * const artnet_poll_reply_good_input_fields[] = {
   &hf_artnet_poll_reply_good_input_recv_error,
   &hf_artnet_poll_reply_good_input_disabled,
   &hf_artnet_poll_reply_good_input_dmx_text,
@@ -3007,7 +3007,7 @@ static const int *artnet_poll_reply_good_input_fields[] = {
   NULL
 };
 
-static const int *artnet_poll_reply_good_output_fields[] = {
+static int * const artnet_poll_reply_good_output_fields[] = {
   &hf_artnet_poll_reply_good_output_merge_ltp,
   &hf_artnet_poll_reply_good_output_short,
   &hf_artnet_poll_reply_good_output_merge_artnet,
@@ -3018,7 +3018,7 @@ static const int *artnet_poll_reply_good_output_fields[] = {
   NULL
 };
 
-static const int *artnet_poll_reply_status2_fields[] = {
+static int * const artnet_poll_reply_status2_fields[] = {
   &hf_artnet_poll_reply_status2_web_supported,
   &hf_artnet_poll_reply_status2_dhcp_used,
   &hf_artnet_poll_reply_status2_dhcp_supported,
@@ -3059,13 +3059,13 @@ static int hf_artnet_address_command = -1;
 static gint ett_artnet_address_netswitch = -1;
 static gint ett_artnet_address_subswitch = -1;
 
-static const int *artnet_address_netswitch_fields[] = {
+static int * const artnet_address_netswitch_fields[] = {
   &hf_artnet_address_netswitch_net,
   &hf_artnet_address_netswitch_write,
   NULL
 };
 
-static const int *artnet_address_subswitch_fields[] = {
+static int * const artnet_address_subswitch_fields[] = {
   &hf_artnet_address_subswitch_sub,
   &hf_artnet_address_subswitch_write,
   NULL
@@ -3179,7 +3179,7 @@ static int hf_artnet_ip_prog_port = -1;
 
 static gint ett_artnet_ip_prog_command = -1;
 
-static const int *artnet_ip_prog_command_fields[] = {
+static int * const artnet_ip_prog_command_fields[] = {
   &hf_artnet_ip_prog_command_prog_port,
   &hf_artnet_ip_prog_command_prog_sm,
   &hf_artnet_ip_prog_command_prog_ip,
@@ -3201,7 +3201,7 @@ static int hf_artnet_ip_prog_reply_status_dhcp_enable = -1;
 
 static gint ett_artnet_ip_prog_reply_status = -1;
 
-static const int *artnet_ip_prog_reply_status_fields[] = {
+static int * const artnet_ip_prog_reply_status_fields[] = {
   &hf_artnet_ip_prog_reply_status_unused,
   &hf_artnet_ip_prog_reply_status_dhcp_enable,
   NULL

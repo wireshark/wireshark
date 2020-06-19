@@ -370,7 +370,7 @@ dissect_winsrepl_wins_name(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
 	char  name_str[(NETBIOS_NAME_LEN - 1)*4 + 1];
 	int   name_type;
 	guint32 flags;
-	static const int * name_flags[] = {
+	static int * const name_flags[] = {
 		&hf_winsrepl_name_flags_rectype,
 		&hf_winsrepl_name_flags_recstate,
 		&hf_winsrepl_name_flags_local,

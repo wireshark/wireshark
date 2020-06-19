@@ -483,7 +483,7 @@ static expert_field ei_giop_message_size_too_big = EI_INIT;
 static expert_field ei_giop_invalid_v_minor = EI_INIT;
 
 
-static const int *giop_message_flags[] = {
+static int * const giop_message_flags[] = {
   &hf_giop_message_flags_ziop_enabled,
   &hf_giop_message_flags_ziop_supported,
   &hf_giop_message_flags_fragment,

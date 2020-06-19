@@ -195,7 +195,7 @@ static gint ett_netlink_attr_type = -1;
 static dissector_table_t netlink_dissector_table;
 
 
-static const int *netlink_header_get_flags[] = {
+static int * const netlink_header_get_flags[] = {
 	&hfi_netlink_hdr_flag_request.id,
 	&hfi_netlink_hdr_flag_multi.id,
 	&hfi_netlink_hdr_flag_ack.id,
@@ -209,7 +209,7 @@ static const int *netlink_header_get_flags[] = {
 	NULL
 };
 
-static const int *netlink_header_new_flags[] = {
+static int * const netlink_header_new_flags[] = {
 	&hfi_netlink_hdr_flag_request.id,
 	&hfi_netlink_hdr_flag_multi.id,
 	&hfi_netlink_hdr_flag_ack.id,
@@ -224,7 +224,7 @@ static const int *netlink_header_new_flags[] = {
 	NULL
 };
 
-static const int *netlink_header_standard_flags[] = {
+static int * const netlink_header_standard_flags[] = {
 	&hfi_netlink_hdr_flag_request.id,
 	&hfi_netlink_hdr_flag_multi.id,
 	&hfi_netlink_hdr_flag_ack.id,

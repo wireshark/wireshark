@@ -814,7 +814,7 @@ attribute_types_reset_cb(void)
 /* MS-ADTS specification, section 6.3.1.1, NETLOGON_NT_VERSION Options Bits */
 static int dissect_mscldap_ntver_flags(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 {
-  static const int * flags[] = {
+  static int * const flags[] = {
     &hf_mscldap_ntver_flags_v1,
     &hf_mscldap_ntver_flags_v5,
     &hf_mscldap_ntver_flags_v5ex,
@@ -3432,7 +3432,7 @@ dissect_ldap_DirSyncFlags(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, -1, &val);
 
   if (val >0) {
-    const int *flags[] = {
+    static int * const flags[] = {
       &hf_ldap_object_security_flag,
       &hf_ldap_ancestor_first_flag,
       &hf_ldap_public_data_only_flag,
@@ -4283,7 +4283,7 @@ static const true_false_string tfs_ads_fnc = {
 };
 static int dissect_mscldap_netlogon_flags(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 {
-  static const int * flags[] = {
+  static int * const flags[] = {
     &hf_mscldap_netlogon_flags_fnc,
     &hf_mscldap_netlogon_flags_dnc,
     &hf_mscldap_netlogon_flags_dns,
@@ -4593,7 +4593,7 @@ dissect_ldap_oid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* 
 static void
 ldap_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 access)
 {
-  static const int * access_flags[] = {
+  static int * const access_flags[] = {
     &hf_ldap_AccessMask_ADS_CONTROL_ACCESS,
     &hf_ldap_AccessMask_ADS_LIST_OBJECT,
     &hf_ldap_AccessMask_ADS_DELETE_TREE,

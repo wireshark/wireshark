@@ -3599,7 +3599,7 @@ dissect_krb5_decrypt_EncryptedChallenge(gboolean imp_tag _U_, tvbuff_t *tvb, int
 }
 #endif /* HAVE_KERBEROS */
 
-static const int *hf_krb_pa_supported_enctypes_fields[] = {
+static int * const hf_krb_pa_supported_enctypes_fields[] = {
 	&hf_krb_pa_supported_enctypes_des_cbc_crc,
 	&hf_krb_pa_supported_enctypes_des_cbc_md5,
 	&hf_krb_pa_supported_enctypes_rc4_hmac,
@@ -3631,7 +3631,7 @@ dissect_kerberos_PA_SUPPORTED_ENCTYPES(gboolean implicit_tag _U_, tvbuff_t *tvb 
 	return offset;
 }
 
-static const int *hf_krb_ad_ap_options_fields[] = {
+static int * const hf_krb_ad_ap_options_fields[] = {
 	&hf_krb_ad_ap_options_cbt,
 	NULL,
 };
@@ -4853,7 +4853,7 @@ dissect_kerberos_Authenticator(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 }
 
 
-static const int * TicketFlags_bits[] = {
+static int * const TicketFlags_bits[] = {
   &hf_kerberos_TicketFlags_reserved,
   &hf_kerberos_TicketFlags_forwardable,
   &hf_kerberos_TicketFlags_forwarded,
@@ -5340,7 +5340,7 @@ dissect_kerberos_SEQUENCE_OF_PA_DATA(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 }
 
 
-static const int * KDCOptions_bits[] = {
+static int * const KDCOptions_bits[] = {
   &hf_kerberos_KDCOptions_reserved,
   &hf_kerberos_KDCOptions_forwardable,
   &hf_kerberos_KDCOptions_forwarded,
@@ -5606,7 +5606,7 @@ dissect_kerberos_TGS_REP(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 }
 
 
-static const int * APOptions_bits[] = {
+static int * const APOptions_bits[] = {
   &hf_kerberos_APOptions_reserved,
   &hf_kerberos_APOptions_use_session_key,
   &hf_kerberos_APOptions_mutual_required,
@@ -6710,7 +6710,7 @@ dissect_kerberos_PA_S4U_X509_USER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 }
 
 
-static const int * PAC_OPTIONS_FLAGS_bits[] = {
+static int * const PAC_OPTIONS_FLAGS_bits[] = {
   &hf_kerberos_PAC_OPTIONS_FLAGS_claims,
   &hf_kerberos_PAC_OPTIONS_FLAGS_branch_aware,
   &hf_kerberos_PAC_OPTIONS_FLAGS_forward_to_full_dc,
@@ -7104,7 +7104,7 @@ dissect_kerberos_KrbFastReq(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
   return offset;
 }
 
-static const int * FastOptions_bits[] = {
+static int * const FastOptions_bits[] = {
   &hf_kerberos_FastOptions_reserved,
   &hf_kerberos_FastOptions_hide_client_names,
   &hf_kerberos_FastOptions_spare_bit2,

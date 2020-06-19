@@ -90,7 +90,7 @@ dissect_smc_exchangemedium (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
                     guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    static const int *exchg_fields[] = {
+    static int * const exchg_fields[] = {
         &hf_scsi_smc_inv1,
         &hf_scsi_smc_inv2,
         NULL
@@ -116,7 +116,7 @@ dissect_smc_position_to_element (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
                     guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    static const int *pte_fields[] = {
+    static int * const pte_fields[] = {
         &hf_scsi_smc_invert,
         NULL
     };
@@ -153,7 +153,7 @@ dissect_smc_initialize_element_status_with_range (tvbuff_t *tvb, packet_info *pi
                     guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    static const int *range_fields[] = {
+    static int * const range_fields[] = {
         &hf_scsi_smc_fast,
         &hf_scsi_smc_range,
         NULL
@@ -192,7 +192,7 @@ dissect_smc_movemedium (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    static const int *move_fields[] = {
+    static int * const move_fields[] = {
         &hf_scsi_smc_invert,
         NULL
     };

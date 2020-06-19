@@ -357,7 +357,7 @@ dissect_pkixac_RoleSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 }
 
 
-static const int * ClassList_bits[] = {
+static int * const ClassList_bits[] = {
   &hf_pkixac_ClassList_unmarked,
   &hf_pkixac_ClassList_unclassified,
   &hf_pkixac_ClassList_restricted,

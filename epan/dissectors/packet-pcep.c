@@ -1381,7 +1381,7 @@ dissect_pcep_tlvs(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, gint length, 
     int         i, j;
     int         padding = 0;
 
-    static const int *tlv_stateful_pce_capability_flags[] = {
+    static int * const tlv_stateful_pce_capability_flags[] = {
         &hf_pcep_lsp_update_capability,
         &hf_pcep_include_db_version,
         &hf_pcep_lsp_instantiation_capability,
@@ -1391,7 +1391,7 @@ dissect_pcep_tlvs(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, gint length, 
         NULL
     };
 
-    static const int *tlv_sr_pce_capability_flags[] = {
+    static int * const tlv_sr_pce_capability_flags[] = {
         &hf_pcep_sr_pce_capability_flags_l,
         NULL
     };
@@ -1753,7 +1753,7 @@ dissect_subobj_sr(proto_tree *pcep_subobj_tree, packet_info *pinfo, tvbuff_t *tv
     guint32 label;
     guint8  tc, bos, ttl;
 
-    static const int *subobj_sr_flags[] = {
+    static int * const subobj_sr_flags[] = {
         &hf_pcep_subobj_sr_flags_m,
         &hf_pcep_subobj_sr_flags_c,
         &hf_pcep_subobj_sr_flags_s,
@@ -1878,7 +1878,7 @@ dissect_subobj_unnumb_interfaceID(proto_tree *pcep_subobj_tree, packet_info *pin
         case PCEP_RECORD_ROUTE_OBJ:
         case PCEP_SRRO_OBJ:
             {
-            static const int * flags[] = {
+            static int * const flags[] = {
                 &pcep_subobj_flags_lpa,
                 &pcep_subobj_flags_lpu,
                 NULL
@@ -3479,7 +3479,7 @@ dissect_pcep_obj_tree(proto_tree *pcep_tree, packet_info *pinfo, tvbuff_t *tvb, 
     proto_tree *pcep_object_tree;
     proto_item *pcep_object_item;
 
-    static const int *pcep_hdr_obj_flags[] = {
+    static int * const pcep_hdr_obj_flags[] = {
         &hf_pcep_hdr_obj_flags_i,
         &hf_pcep_hdr_obj_flags_p,
         &hf_pcep_hdr_obj_flags_reserved,

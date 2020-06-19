@@ -673,7 +673,7 @@ typedef struct _video_conv_info_t {
  */
 static int
 dissect_bmControl(proto_tree *tree, tvbuff_t *tvb, int offset,
-                  gint ett_subtree, const int** bm_items)
+                  gint ett_subtree, int * const *bm_items)
 {
     guint8 bm_size = 0;
 
@@ -699,7 +699,7 @@ dissect_bmControl(proto_tree *tree, tvbuff_t *tvb, int offset,
 static int
 dissect_usb_video_camera_terminal(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-    static const int *control_bits[] = {
+    static int * const control_bits[] = {
         &hf_usb_vid_cam_control_D[0],
         &hf_usb_vid_cam_control_D[1],
         &hf_usb_vid_cam_control_D[2],
@@ -743,7 +743,7 @@ dissect_usb_video_camera_terminal(proto_tree *tree, tvbuff_t *tvb, int offset)
 static int
 dissect_usb_video_processing_unit(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-    static const int *control_bits[] = {
+    static int * const control_bits[] = {
         &hf_usb_vid_proc_control_D[0],
         &hf_usb_vid_proc_control_D[1],
         &hf_usb_vid_proc_control_D[2],
@@ -780,7 +780,7 @@ dissect_usb_video_processing_unit(proto_tree *tree, tvbuff_t *tvb, int offset)
     /* UVC 1.1 added bmVideoStandards */
     if (tvb_reported_length_remaining(tvb, offset) > 0)
     {
-        static const int *standard_bits[] = {
+        static int * const standard_bits[] = {
             &hf_usb_vid_proc_standards_D[0],
             &hf_usb_vid_proc_standards_D[1],
             &hf_usb_vid_proc_standards_D[2],
@@ -1055,11 +1055,11 @@ dissect_usb_video_streaming_input_header(proto_tree *tree, tvbuff_t *tvb, int of
     guint8 num_formats;
     guint8 bm_size;
 
-    static const int *info_bits[] = {
+    static int * const info_bits[] = {
         &hf_usb_vid_streaming_info_D[0],
         NULL
     };
-    static const int *control_bits[] = {
+    static int * const control_bits[] = {
         &hf_usb_vid_streaming_control_D[0],
         &hf_usb_vid_streaming_control_D[1],
         &hf_usb_vid_streaming_control_D[2],
@@ -1136,7 +1136,7 @@ static int
 dissect_usb_video_format(proto_tree *tree, tvbuff_t *tvb, int offset,
                          guint8 subtype)
 {
-    static const int *interlace_bits[] = {
+    static int * const interlace_bits[] = {
         &hf_usb_vid_is_interlaced,
         &hf_usb_vid_interlaced_fields,
         &hf_usb_vid_field_1_first,
@@ -1170,7 +1170,7 @@ dissect_usb_video_format(proto_tree *tree, tvbuff_t *tvb, int offset,
     }
     else if (subtype == VS_FORMAT_MJPEG)
     {
-        static const int * flags[] = {
+        static int * const  flags[] = {
             &hf_usb_vid_mjpeg_fixed_samples,
             NULL
         };
@@ -1227,7 +1227,7 @@ static int
 dissect_usb_video_frame(proto_tree *tree, tvbuff_t *tvb, int offset,
                         guint8 subtype)
 {
-    static const int *capability_bits[] = {
+    static int * const capability_bits[] = {
         &hf_usb_vid_frame_stills_supported,
         &hf_usb_vid_frame_fixed_frame_rate,
         NULL
@@ -1510,7 +1510,7 @@ dissect_usb_vid_probe(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 {
     proto_tree *tree;
 
-    static const int *hint_bits[] = {
+    static int * const hint_bits[] = {
         &hf_usb_vid_probe_hint_D[0],
         &hf_usb_vid_probe_hint_D[1],
         &hf_usb_vid_probe_hint_D[2],
@@ -1541,7 +1541,7 @@ dissect_usb_vid_probe(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
     /* UVC 1.1 fields */
     if (tvb_reported_length_remaining(tvb, offset) > 0)
     {
-        static const int *framing_bits[] = {
+        static int * const framing_bits[] = {
             &hf_usb_vid_probe_framing_D[0],
             &hf_usb_vid_probe_framing_D[1],
             NULL
@@ -1658,7 +1658,7 @@ get_control_selector_name(guint8 entity_id, guint8 control_sel, usb_conv_info_t 
 static int
 dissect_usb_vid_control_info(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-    static const int *capability_bits[] = {
+    static int * const capability_bits[] = {
         &hf_usb_vid_control_info_D[0],
         &hf_usb_vid_control_info_D[1],
         &hf_usb_vid_control_info_D[2],

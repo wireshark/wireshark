@@ -2444,7 +2444,7 @@ dissect_dhcpopt_slp_service_scope(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 static int
 dissect_dhcpopt_client_full_domain_name(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	static const int * fqdn_hf_flags[] = {
+	static int * const fqdn_hf_flags[] = {
 		&hf_dhcp_fqdn_mbz,
 		&hf_dhcp_fqdn_n,
 		&hf_dhcp_fqdn_e,
@@ -3558,7 +3558,7 @@ dissect_vendor_pxeclient_suboption(packet_info *pinfo, proto_item *v_ti, proto_t
 		NULL
 	};
 
-	static const int * o43pxe_discovery_hf_flags[] = {
+	static int * const o43pxe_discovery_hf_flags[] = {
 		&hf_dhcp_option43_pxeclient_discovery_control_bc,
 		&hf_dhcp_option43_pxeclient_discovery_control_mc,
 		&hf_dhcp_option43_pxeclient_discovery_control_serverlist,
@@ -4112,7 +4112,7 @@ rfc3825_fixpoint_to_decimal(struct rfc3825_location_fixpoint_t *fixpoint, struct
 static int
 dissect_dhcpopt_isns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	static const int *isns_functions_hf_flags[] = {
+	static int * const isns_functions_hf_flags[] = {
 		&hf_dhcp_option_isns_functions_enabled,
 		&hf_dhcp_option_isns_functions_dd_authorization,
 		&hf_dhcp_option_isns_functions_sec_policy_distibution,
@@ -4120,7 +4120,7 @@ dissect_dhcpopt_isns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 		NULL
 	};
 
-	static const int *isns_dda_hf_flags[] = {
+	static int * const isns_dda_hf_flags[] = {
 		&hf_dhcp_option_isns_discovery_domain_access_enabled,
 		&hf_dhcp_option_isns_discovery_domain_access_control_node,
 		&hf_dhcp_option_isns_discovery_domain_access_iscsi_target,
@@ -4131,7 +4131,7 @@ dissect_dhcpopt_isns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 		NULL
 	};
 
-	static const int *isns_administrative_flags[] = {
+	static int * const isns_administrative_flags[] = {
 		&hf_dhcp_option_isns_administrative_flags_enabled,
 		&hf_dhcp_option_isns_administrative_flags_heartbeat,
 		&hf_dhcp_option_isns_administrative_flags_management_scns,
@@ -4140,7 +4140,7 @@ dissect_dhcpopt_isns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 		NULL
 	};
 
-	static const int *isns_server_security_flags[] = {
+	static int * const isns_server_security_flags[] = {
 		&hf_dhcp_option_isns_server_security_bitmap_enabled,
 		&hf_dhcp_option_isns_server_security_bitmap_ike_ipsec_enabled,
 		&hf_dhcp_option_isns_server_security_bitmap_main_mode,
@@ -4527,7 +4527,7 @@ static const value_string option43_bsdp_suboption_vals[] = {
 static void
 dissect_vendor_bsdp_boot_image(proto_tree *v_tree, tvbuff_t *tvb, int optoff)
 {
-	static const int * dhcp_o43_bsdp_attributes_flags[] = {
+	static int * const dhcp_o43_bsdp_attributes_flags[] = {
 		&hf_dhcp_option43_bsdp_boot_image_attribute_install,
 		&hf_dhcp_option43_bsdp_boot_image_attribute_kind,
 		&hf_dhcp_option43_bsdp_boot_image_attribute_reserved,
@@ -5747,7 +5747,7 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, packet_info *pinfo, tvbuff_t *tv
 			}
 			subtree = proto_item_add_subtree(ti, ett_dhcp_option);
 			if (raw_val == PKT_MDC_PROV_FLOWS) {
-				static const int * flows[] = {
+				static int * const flows[] = {
 					&hf_dhcp_pkt_mdc_supp_flow_secure,
 					&hf_dhcp_pkt_mdc_supp_flow_hybrid,
 					&hf_dhcp_pkt_mdc_supp_flow_basic,
@@ -5790,7 +5790,7 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, packet_info *pinfo, tvbuff_t *tv
 					switch (raw_val) {
 
 					case PKT_MDC_MIB_CL: {
-						static const int * cl_flags[] = {
+						static int * const cl_flags[] = {
 							&hf_dhcp_pkt_mdc_mib_cl_mta,
 							&hf_dhcp_pkt_mdc_mib_cl_signaling,
 							&hf_dhcp_pkt_mdc_mib_cl_management_event,
@@ -5806,7 +5806,7 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, packet_info *pinfo, tvbuff_t *tv
 						break;
 
 					case PKT_MDC_MIB_IETF: {
-						static const int * ietf_flags[] = {
+						static int * const ietf_flags[] = {
 							&hf_dhcp_pkt_mdc_mib_ietf_mta,
 							&hf_dhcp_pkt_mdc_mib_ietf_signaling,
 							&hf_dhcp_pkt_mdc_mib_ietf_management_event,
@@ -5819,7 +5819,7 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, packet_info *pinfo, tvbuff_t *tv
 						break;
 
 					case PKT_MDC_MIB_EURO: {
-						static const int * euro_flags[] = {
+						static int * const euro_flags[] = {
 							&hf_dhcp_pkt_mdc_mib_euro_mta,
 							&hf_dhcp_pkt_mdc_mib_euro_signaling,
 							&hf_dhcp_pkt_mdc_mib_euro_management_event,
@@ -6386,7 +6386,7 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len, gboo
 		subtree = proto_item_add_subtree(ti, ett_dhcp_option);
 		if (tlv_type == DOCSIS_CM_CAP_RNGHLDOFF_SUP && tlv_len >= 4)
 		{
-			const int * flags[] = {
+			static int * const flags[] = {
 				&hf_dhcp_docsis_cm_cap_ranging_hold_off_cm,
 				&hf_dhcp_docsis_cm_cap_ranging_hold_off_eps,
 				&hf_dhcp_docsis_cm_cap_ranging_hold_off_emta,
@@ -6399,7 +6399,7 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len, gboo
 		}
 		if (tlv_type == DOCSIS_CM_CAP_USSYMRATE_SUP)
 		{
-			const int * flags[] = {
+			static int * const flags[] = {
 				&hf_dhcp_docsis_cm_cap_ussymrate_160,
 				&hf_dhcp_docsis_cm_cap_ussymrate_320,
 				&hf_dhcp_docsis_cm_cap_ussymrate_640,
@@ -6413,7 +6413,7 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len, gboo
 		}
 		if (tlv_type == DOCSIS_CM_CAP_Opt802MPLSSup && tlv_len >= 4)
 		{
-			const int * flags[] = {
+			static int * const flags[] = {
 				&hf_dhcp_docsis_cm_cap_mpls_stpid,
 				&hf_dhcp_docsis_cm_cap_mpls_svid,
 				&hf_dhcp_docsis_cm_cap_mpls_spcp,
@@ -6907,7 +6907,7 @@ dissect_dhcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	guint16	      flags, secs;
 	int	      offset_delta;
 	guint8	      overload				     = 0; /* DHCP option overload */
-	static const int * dhcp_flags[] = {
+	static int * const dhcp_flags[] = {
 		&hf_dhcp_flags_broadcast,
 		&hf_dhcp_flags_reserved,
 		NULL

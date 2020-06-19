@@ -3109,7 +3109,7 @@ static int dissect_lbmr_tnwg_ctxinst_opt(tvbuff_t * tvb, int offset, packet_info
     proto_tree * opt_tree = NULL;
     proto_item * opt_item = NULL;
     guint8 opt_len = 0;
-    static const int * flags[] =
+    static int * const flags[] =
     {
         &hf_lbmr_tnwg_opt_ctxinst_flags_ignore,
         NULL
@@ -3130,7 +3130,7 @@ static int dissect_lbmr_tnwg_address_opt(tvbuff_t * tvb, int offset, packet_info
     proto_tree * opt_tree = NULL;
     proto_item * opt_item = NULL;
     guint8 opt_len = 0;
-    static const int * flags[] =
+    static int * const flags[] =
     {
         &hf_lbmr_tnwg_opt_address_flags_ignore,
         NULL
@@ -3153,7 +3153,7 @@ static int dissect_lbmr_tnwg_domain_opt(tvbuff_t * tvb, int offset, packet_info 
     proto_tree * opt_tree = NULL;
     proto_item * opt_item = NULL;
     guint8 opt_len = 0;
-    static const int * flags[] =
+    static int * const flags[] =
     {
         &hf_lbmr_tnwg_opt_domain_flags_ignore,
         NULL
@@ -3174,7 +3174,7 @@ static int dissect_lbmr_tnwg_name_opt(tvbuff_t * tvb, int offset, packet_info * 
     proto_tree * opt_tree = NULL;
     proto_item * opt_item = NULL;
     guint8 opt_len = 0;
-    static const int * flags[] =
+    static int * const flags[] =
     {
         &hf_lbmr_tnwg_opt_name_flags_ignore,
         NULL
@@ -3197,7 +3197,7 @@ static int dissect_lbmr_tnwg_unknown_opt(tvbuff_t * tvb, int offset, packet_info
     proto_tree * opt_tree = NULL;
     proto_item * opt_item = NULL;
     guint8 opt_len = 0;
-    static const int * flags[] =
+    static int * const flags[] =
     {
         &hf_lbmr_tnwg_opt_flags_ignore,
         NULL
@@ -3260,7 +3260,7 @@ static int dissect_lbmr_tnwg_interest_rec(tvbuff_t * tvb, int offset, packet_inf
     proto_item * rec_item = NULL;
     guint16 rec_len = 0;
     gint string_len = 0;
-    static const int * flags[] =
+    static int * const flags[] =
     {
         &hf_lbmr_tnwg_interest_rec_flags_pattern,
         &hf_lbmr_tnwg_interest_rec_flags_cancel,
@@ -3322,7 +3322,7 @@ static int dissect_lbmr_tnwg_ctxinfo(tvbuff_t * tvb, int offset, packet_info * p
 {
     proto_tree * ctxinfo_tree = NULL;
     proto_item * ctxinfo_item = NULL;
-    static const int * flags1[] =
+    static int * const flags1[] =
     {
         &hf_lbmr_tnwg_ctxinfo_flags1_query,
         &hf_lbmr_tnwg_ctxinfo_flags1_tnwg_src,
@@ -3425,7 +3425,7 @@ static int dissect_lbmr_tmr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_,
     char * name = NULL;
     proto_item * ti = NULL;
     proto_tree * tinfo_tree = NULL;
-    static const int * flags[] =
+    static int * const flags[] =
     {
         &hf_lbmr_tmr_flags_response,
         &hf_lbmr_tmr_flags_wildcard_pcre,
@@ -3589,7 +3589,7 @@ static int dissect_lbmr_tir_options(tvbuff_t * tvb, int offset, packet_info * pi
     proto_tree * otree = NULL;
     proto_item * optlen_item = NULL;
     proto_tree * optlen_tree = NULL;
-    static const int * opt_ume_flags[] =
+    static int * const opt_ume_flags[] =
     {
         &hf_lbmr_topt_ume_flags_ignore,
         &hf_lbmr_topt_ume_flags_latejoin,
@@ -3598,28 +3598,28 @@ static int dissect_lbmr_tir_options(tvbuff_t * tvb, int offset, packet_info * pi
         &hf_lbmr_topt_ume_flags_acktosrc,
         NULL
     };
-    static const int * opt_ume_store_flags[] =
+    static int * const opt_ume_store_flags[] =
     {
         &hf_lbmr_topt_ume_store_flags_ignore,
         NULL
     };
-    static const int * opt_ume_store_group_flags[] =
+    static int * const opt_ume_store_group_flags[] =
     {
         &hf_lbmr_topt_ume_store_group_flags_ignore,
         NULL
     };
-    static const int * opt_latejoin_flags[] =
+    static int * const opt_latejoin_flags[] =
     {
         &hf_lbmr_topt_latejoin_flags_ignore,
         &hf_lbmr_topt_latejoin_flags_acktosrc,
         NULL
     };
-    static const int * opt_umq_rcridx_flags[] =
+    static int * const opt_umq_rcridx_flags[] =
     {
         &hf_lbmr_topt_umq_rcridx_flags_ignore,
         NULL
     };
-    static const int * opt_umq_qinfo_flags[] =
+    static int * const opt_umq_qinfo_flags[] =
     {
         &hf_lbmr_topt_umq_qinfo_flags_ignore,
         &hf_lbmr_topt_umq_qinfo_flags_queue,
@@ -3629,47 +3629,47 @@ static int dissect_lbmr_tir_options(tvbuff_t * tvb, int offset, packet_info * pi
         &hf_lbmr_topt_umq_qinfo_flags_participants_only,
         NULL
     };
-    static const int * opt_cost_flags[] =
+    static int * const opt_cost_flags[] =
     {
         &hf_lbmr_topt_cost_flags_ignore,
         NULL
     };
-    static const int * opt_otid_flags[] =
+    static int * const opt_otid_flags[] =
     {
         &hf_lbmr_topt_otid_flags_ignore,
         NULL
     };
-    static const int * opt_ctxinst_flags[] =
+    static int * const opt_ctxinst_flags[] =
     {
         &hf_lbmr_topt_ctxinst_flags_ignore,
         NULL
     };
-    static const int * opt_ctxinsts_flags[] =
+    static int * const opt_ctxinsts_flags[] =
     {
         &hf_lbmr_topt_ctxinsts_flags_ignore,
         NULL
     };
-    static const int * opt_ulb_flags[] =
+    static int * const opt_ulb_flags[] =
     {
         &hf_lbmr_topt_ulb_flags_ignore,
         NULL
     };
-    static const int * opt_ctxinstq_flags[] =
+    static int * const opt_ctxinstq_flags[] =
     {
         &hf_lbmr_topt_ctxinstq_flags_ignore,
         NULL
     };
-    static const int * opt_domain_id_flags[] =
+    static int * const opt_domain_id_flags[] =
     {
         &hf_lbmr_topt_domain_id_flags_ignore,
         NULL
     };
-    static const int * opt_exfunc_flags[] =
+    static int * const opt_exfunc_flags[] =
     {
         &hf_lbmr_topt_exfunc_flags_ignore,
         NULL
     };
-    static const int * opt_exfunc_functionality_flags[] =
+    static int * const opt_exfunc_functionality_flags[] =
     {
         &hf_lbmr_topt_exfunc_functionality_flags_ulb,
         &hf_lbmr_topt_exfunc_functionality_flags_umq,
@@ -4365,7 +4365,7 @@ static int dissect_lbmr_pser(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
     int hdr_len = 0;
     int len = 0;
     int topic_len = 0;
-    static const int * flags[] =
+    static int * const flags[] =
     {
         &hf_lbmr_pser_flags_option,
         NULL
@@ -4453,13 +4453,13 @@ int lbmr_dissect_umq_qmgmt(tvbuff_t * tvb, int offset, packet_info * pinfo, prot
     guint16 idx;
     guint8 flags_val = 0;
     int len_dissected = 0;
-    static const int * flags[] =
+    static int * const flags[] =
     {
         &hf_qmgmt_flags_i_flag,
         &hf_qmgmt_flags_n_flag,
         NULL
     };
-    static const int * il_flags[] =
+    static int * const il_flags[] =
     {
         &hf_qmgmt_flags_i_flag,
         &hf_qmgmt_flags_n_flag,
@@ -4510,7 +4510,7 @@ int lbmr_dissect_umq_qmgmt(tvbuff_t * tvb, int offset, packet_info * pinfo, prot
             {
                 proto_item * il_subtree_item = NULL;
                 proto_tree * il_subtree = NULL;
-                static const int * il_inst_flags[] =
+                static int * const il_inst_flags[] =
                 {
                     &hf_qmgmt_il_inst_flags_m_flag,
                     &hf_qmgmt_il_inst_flags_q_flag,
@@ -4612,7 +4612,7 @@ static int dissect_lbmr_ctxinfo(tvbuff_t * tvb, int offset, packet_info * pinfo 
 {
     guint16 flags16 = 0;
     guint8 reclen = 0;
-    static const int * flags[] =
+    static int * const flags[] =
     {
         &hf_lbmr_ctxinfo_flags_query,
         &hf_lbmr_ctxinfo_flags_ip,
@@ -4644,7 +4644,7 @@ static int dissect_lbmr_ctxinfo(tvbuff_t * tvb, int offset, packet_info * pinfo 
 /*----------------------------------------------------------------------------*/
 static int dissect_lbmr_topic_res_request(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
 {
-    static const int * flags[] =
+    static int * const flags[] =
     {
         &hf_lbmr_topic_res_request_flags_gw_remote_interest,
         &hf_lbmr_topic_res_request_flags_context_query,
@@ -4786,7 +4786,7 @@ static int dissect_lbmr_rctxinfo_rec(tvbuff_t * tvb, int offset, packet_info * p
     proto_tree * subtree = NULL;
     proto_item * subtree_item = NULL;
     guint8 opt_type = 0;
-    static const int * flags[] =
+    static int * const flags[] =
     {
         &hf_lbmr_rctxinfo_rec_flags_query,
         NULL
@@ -4889,7 +4889,7 @@ static int dissect_lbmr_opt_src_id(tvbuff_t * tvb, int offset, packet_info * pin
 {
     proto_tree * subtree = NULL;
     proto_item * subtree_item = NULL;
-    static const int * flags[] =
+    static int * const flags[] =
     {
         &hf_lbmr_opt_src_id_flags_ignore,
         NULL
@@ -4908,7 +4908,7 @@ static int dissect_lbmr_opt_src_type(tvbuff_t * tvb, int offset, packet_info * p
 {
     proto_tree * subtree = NULL;
     proto_item * subtree_item = NULL;
-    static const int * flags[] =
+    static int * const flags[] =
     {
         &hf_lbmr_opt_src_type_flags_ignore,
         NULL
@@ -4927,7 +4927,7 @@ static int dissect_lbmr_opt_version(tvbuff_t * tvb, int offset, packet_info * pi
 {
     proto_tree * subtree = NULL;
     proto_item * subtree_item = NULL;
-    static const int * flags[] =
+    static int * const flags[] =
     {
         &hf_lbmr_opt_version_flags_ignore,
         &hf_lbmr_opt_version_flags_ume,
@@ -4948,7 +4948,7 @@ static int dissect_lbmr_opt_local_domain(tvbuff_t * tvb, int offset, packet_info
 {
     proto_tree * subtree = NULL;
     proto_item * subtree_item = NULL;
-    static const int * flags[] =
+    static int * const flags[] =
     {
         &hf_lbmr_opt_local_domain_flags_ignore,
         NULL

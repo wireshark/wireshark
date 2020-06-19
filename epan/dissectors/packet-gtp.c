@@ -5200,7 +5200,7 @@ decode_qos_umts(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tr
 
     if ((type == 3) && (rel_ind == 8)) {
         /* Release 8 or higher P-GW QoS profile */
-        static const int * arp_flags[] = {
+        static int * const arp_flags[] = {
             &hf_gtp_qos_arp_pci,
             &hf_gtp_qos_arp_pl,
             &hf_gtp_qos_arp_pvi,
@@ -9274,13 +9274,13 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     }
     if (tree) {
         if (gtp_prime) {
-            const int * gtp_prime_flags[] = {
+            static int * const gtp_prime_flags[] = {
                 &hf_gtp_prime_flags_ver,
                 &hf_gtp_flags_pt,
                 &hf_gtp_flags_spare1,
                 NULL
             };
-            const int * gtp_prime_v0_flags[] = {
+            static int * const gtp_prime_v0_flags[] = {
                 &hf_gtp_prime_flags_ver,
                 &hf_gtp_flags_pt,
                 &hf_gtp_flags_spare1,
@@ -9310,7 +9310,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                     ett_gtp_flags, gtp_prime_flags, gtp_hdr->flags, BMT_NO_APPEND);
             }
         } else {
-            const int * gtp_flags[] = {
+            static int * const gtp_flags[] = {
                 &hf_gtp_flags_ver,
                 &hf_gtp_flags_pt,
                 &hf_gtp_flags_spare2,
@@ -9319,7 +9319,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                 &hf_gtp_flags_pn,
                 NULL
             };
-            const int * gtp_v0_flags[] = {
+            static int * const gtp_v0_flags[] = {
                 &hf_gtp_flags_ver,
                 &hf_gtp_flags_pt,
                 &hf_gtp_flags_spare1,
@@ -9552,18 +9552,18 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                              * Container has a variable length and its content is
                              * specified in 3GPP TS 38.415 [31].
                              */
-                            static const int * flags1[] = {
+                            static int * const flags1[] = {
                                 &hf_gtp_ext_hdr_pdu_ses_cont_ppp,
                                 &hf_gtp_ext_hdr_pdu_ses_cont_rqi,
                                 &hf_gtp_ext_hdr_pdu_ses_cont_qos_flow_id,
                                 NULL
                             };
-                            static const int * flags2[] = {
+                            static int * const flags2[] = {
                                 &hf_gtp_ext_hdr_pdu_ses_cont_ppi,
                                 &hf_gtp_spare_b4b0,
                                 NULL
                             };
-                            static const int * flags3[] = {
+                            static int * const flags3[] = {
                                 &hf_gtp_spare_b7b6,
                                 &hf_gtp_ext_hdr_pdu_ses_cont_qos_flow_id,
                                 NULL

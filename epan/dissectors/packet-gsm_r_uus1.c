@@ -217,7 +217,7 @@ de_gsm_r_uus1_chpc_forward(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     proto_tree_add_item(sub_tree, hf_gsm_r_uus1_chpc_pl_call, tvb, curr_offset, 1, ENC_NA);
     curr_offset += 1;
 
-    static const int * cause_flags[] = {
+    static int * const cause_flags[] = {
         &hf_gsm_r_uus1_chpc_cause_power,
         &hf_gsm_r_uus1_chpc_cause_radio,
         &hf_gsm_r_uus1_chpc_cause_reserved3,

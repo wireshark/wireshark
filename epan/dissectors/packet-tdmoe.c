@@ -50,7 +50,7 @@ dissect_tdmoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 	guint16     channels;
 	guint16     subaddress;
 	gint32 offset = 0;
-	static const gint *flags[] = { &hf_tdmoe_yellow_alarm, &hf_tdmoe_sig_bits_present, NULL };
+	static int * const flags[] = { &hf_tdmoe_yellow_alarm, &hf_tdmoe_sig_bits_present, NULL };
 	int         chan;
 
 	/* Check that there's enough data */

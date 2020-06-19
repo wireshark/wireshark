@@ -1287,7 +1287,7 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                 offset++;
 
                 /* Break down the 27-bits of the grant field, according to 38.213, section 8.2 */
-                static const int *rar_grant_fields[] = {
+                static int * const rar_grant_fields[] = {
                     &hf_mac_nr_rar_grant_hopping,
                     &hf_mac_nr_rar_grant_fra,
                     &hf_mac_nr_rar_grant_tsa,
@@ -1779,7 +1779,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                     case MULTIPLE_ENTRY_PHR_1_LCID:
                     case MULTIPLE_ENTRY_PHR_4_LCID:
                     {
-                        static const int * me_phr_byte1_flags[] = {
+                        static int * const me_phr_byte1_flags[] = {
                             &hf_mac_nr_control_me_phr_c7_flag,
                             &hf_mac_nr_control_me_phr_c6_flag,
                             &hf_mac_nr_control_me_phr_c5_flag,
@@ -1790,7 +1790,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                             &hf_mac_nr_control_me_phr_reserved,
                             NULL
                         };
-                        static const int * me_phr_byte2_flags[] = {
+                        static int * const me_phr_byte2_flags[] = {
                             &hf_mac_nr_control_me_phr_c15_flag,
                             &hf_mac_nr_control_me_phr_c14_flag,
                             &hf_mac_nr_control_me_phr_c13_flag,
@@ -1801,7 +1801,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                             &hf_mac_nr_control_me_phr_c8_flag,
                             NULL
                         };
-                        static const int * me_phr_byte3_flags[] = {
+                        static int * const me_phr_byte3_flags[] = {
                             &hf_mac_nr_control_me_phr_c23_flag,
                             &hf_mac_nr_control_me_phr_c22_flag,
                             &hf_mac_nr_control_me_phr_c21_flag,
@@ -1812,7 +1812,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                             &hf_mac_nr_control_me_phr_c16_flag,
                             NULL
                         };
-                        static const int * me_phr_byte4_flags[] = {
+                        static int * const me_phr_byte4_flags[] = {
                             &hf_mac_nr_control_me_phr_c31_flag,
                             &hf_mac_nr_control_me_phr_c30_flag,
                             &hf_mac_nr_control_me_phr_c29_flag,
@@ -1837,7 +1837,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                             offset += 3;
                         }
 
-                        static const int *ph_fields1[] = {
+                        static int * const ph_fields1[] = {
                             &hf_mac_nr_control_me_phr_ph_c1,
                             &hf_mac_nr_control_me_phr_ph_c2,
                             &hf_mac_nr_control_me_phr_ph_c3,
@@ -1846,7 +1846,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                             &hf_mac_nr_control_me_phr_ph_c6,
                             &hf_mac_nr_control_me_phr_ph_c7,
                         };
-                        static const int *ph_fields2_3_4[] = {
+                        static int * const ph_fields2_3_4[] = {
                             &hf_mac_nr_control_me_phr_ph_c8,
                             &hf_mac_nr_control_me_phr_ph_c9,
                             &hf_mac_nr_control_me_phr_ph_c10,
@@ -1947,7 +1947,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                     case SHORT_TRUNCATED_BSR_LCID:
                     case SHORT_BSR_LCID:
                         {
-                            static const int *hf_mac_nr_control_bsr_short_bs_lcg[] = {
+                            static int * const hf_mac_nr_control_bsr_short_bs_lcg[] = {
                                 &hf_mac_nr_control_bsr_short_bs_lcg0,
                                 &hf_mac_nr_control_bsr_short_bs_lcg1,
                                 &hf_mac_nr_control_bsr_short_bs_lcg2,
@@ -1970,7 +1970,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         break;
                     case LONG_TRUNCATED_BSR_LCID:
                         {
-                            static const int * long_bsr_flags[] = {
+                            static int * const long_bsr_flags[] = {
                                 &hf_mac_nr_control_bsr_long_lcg7,
                                 &hf_mac_nr_control_bsr_long_lcg6,
                                 &hf_mac_nr_control_bsr_long_lcg5,
@@ -2002,7 +2002,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         break;
                     case LONG_BSR_LCID:
                         {
-                            static const int * long_bsr_flags[] = {
+                            static int * const long_bsr_flags[] = {
                                 &hf_mac_nr_control_bsr_long_lcg7,
                                 &hf_mac_nr_control_bsr_long_lcg6,
                                 &hf_mac_nr_control_bsr_long_lcg5,
@@ -2103,7 +2103,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         break;
                     case PUCCH_SPATIAL_REL_ACT_DEACT_LCID:
                         {
-                            static const int * pucch_spatial_rel_act_deact_flags[] = {
+                            static int * const pucch_spatial_rel_act_deact_flags[] = {
                                 &hf_mac_nr_control_pucch_spatial_rel_act_deact_s8,
                                 &hf_mac_nr_control_pucch_spatial_rel_act_deact_s7,
                                 &hf_mac_nr_control_pucch_spatial_rel_act_deact_s6,
@@ -2211,7 +2211,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         break;
                     case SP_CSI_REPORT_ON_PUCCH_ACT_DEACT_LCID:
                         {
-                            static const int * sp_csi_report_on_pucch_act_deact_flags[] = {
+                            static int * const sp_csi_report_on_pucch_act_deact_flags[] = {
                                 &hf_mac_nr_control_sp_csi_report_on_pucch_act_deact_s7,
                                 &hf_mac_nr_control_sp_csi_report_on_pucch_act_deact_s6,
                                 &hf_mac_nr_control_sp_csi_report_on_pucch_act_deact_s5,
@@ -2250,7 +2250,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                     case TCI_STATES_ACT_DEACT_FOR_UE_SPEC_PDSCH_LCID:
                         {
                             guint32 start_offset = offset;
-                            static const int * tci_states_act_deact_for_ue_spec_pdsc_flags[] = {
+                            static int * const tci_states_act_deact_for_ue_spec_pdsc_flags[] = {
                                 &hf_mac_nr_control_tci_states_act_deact_for_ue_spec_pdsch_t7,
                                 &hf_mac_nr_control_tci_states_act_deact_for_ue_spec_pdsch_t6,
                                 &hf_mac_nr_control_tci_states_act_deact_for_ue_spec_pdsch_t5,
@@ -2279,7 +2279,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                     case APER_CSI_TRIGGER_STATE_SUBSELECT_LCID:
                         {
                             guint32 start_offset = offset;
-                            static const int * aper_csi_trigger_state_subselect_flags[] = {
+                            static int * const aper_csi_trigger_state_subselect_flags[] = {
                                 &hf_mac_nr_control_aper_csi_trigger_state_subselect_t7,
                                 &hf_mac_nr_control_aper_csi_trigger_state_subselect_t6,
                                 &hf_mac_nr_control_aper_csi_trigger_state_subselect_t5,
@@ -2309,7 +2309,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         {
                             gboolean ad;
                             guint32 start_offset = offset;
-                            static const int * sp_csi_rs_csi_im_res_set_act_deact_flags[] = {
+                            static int * const sp_csi_rs_csi_im_res_set_act_deact_flags[] = {
                                 &hf_mac_nr_control_sp_csi_rs_csi_im_res_set_act_deact_reserved3,
                                 &hf_mac_nr_control_sp_csi_rs_csi_im_res_set_act_deact_tci_state_id,
                                 NULL
@@ -2345,7 +2345,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         break;
                     case DUPLICATION_ACTIVATION_DEACTIVATION_LCID:
                         {
-                            static const int * dupl_act_deact_flags[] = {
+                            static int * const dupl_act_deact_flags[] = {
                                 &hf_mac_nr_control_dupl_act_deact_drb7,
                                 &hf_mac_nr_control_dupl_act_deact_drb6,
                                 &hf_mac_nr_control_dupl_act_deact_drb5,
@@ -2364,7 +2364,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         break;
                     case SCELL_ACTIVATION_DEACTIVATION_4_LCID:
                         {
-                            static const int * scell_act_deact_1_flags[] = {
+                            static int * const scell_act_deact_1_flags[] = {
                                 &hf_mac_nr_control_scell_act_deact_cell7,
                                 &hf_mac_nr_control_scell_act_deact_cell6,
                                 &hf_mac_nr_control_scell_act_deact_cell5,
@@ -2375,7 +2375,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                 &hf_mac_nr_control_scell_act_deact_reserved,
                                 NULL
                             };
-                            static const int * scell_act_deact_2_flags[] = {
+                            static int * const scell_act_deact_2_flags[] = {
                                 &hf_mac_nr_control_scell_act_deact_cell15,
                                 &hf_mac_nr_control_scell_act_deact_cell14,
                                 &hf_mac_nr_control_scell_act_deact_cell13,
@@ -2386,7 +2386,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                 &hf_mac_nr_control_scell_act_deact_cell8,
                                 NULL
                             };
-                            static const int * scell_act_deact_3_flags[] = {
+                            static int * const scell_act_deact_3_flags[] = {
                                 &hf_mac_nr_control_scell_act_deact_cell23,
                                 &hf_mac_nr_control_scell_act_deact_cell22,
                                 &hf_mac_nr_control_scell_act_deact_cell21,
@@ -2397,7 +2397,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                 &hf_mac_nr_control_scell_act_deact_cell16,
                                 NULL
                             };
-                            static const int * scell_act_deact_4_flags[] = {
+                            static int * const scell_act_deact_4_flags[] = {
                                 &hf_mac_nr_control_scell_act_deact_cell31,
                                 &hf_mac_nr_control_scell_act_deact_cell30,
                                 &hf_mac_nr_control_scell_act_deact_cell29,
@@ -2423,7 +2423,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         break;
                     case SCELL_ACTIVATION_DEACTIVATION_1_LCID:
                         {
-                            static const int * scell_act_deact_1_flags[] = {
+                            static int * const scell_act_deact_1_flags[] = {
                                 &hf_mac_nr_control_scell_act_deact_cell7,
                                 &hf_mac_nr_control_scell_act_deact_cell6,
                                 &hf_mac_nr_control_scell_act_deact_cell5,

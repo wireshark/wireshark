@@ -188,7 +188,7 @@ dissect_aodv_rreq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aodv_tree,
     const gchar       *orig_addr_v6;
     guint32            orig_seqno;
     int                extlen;
-    static const int * aodv_flags[] = {
+    static int * const aodv_flags[] = {
         &hf_aodv_flags_rreq_join,
         &hf_aodv_flags_rreq_repair,
         &hf_aodv_flags_rreq_gratuitous,
@@ -286,7 +286,7 @@ dissect_aodv_rrep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aodv_tree,
     const gchar       *orig_addr_v6;
     guint32            lifetime;
     int                extlen;
-    static const int * aodv_flags[] = {
+    static int * const aodv_flags[] = {
         &hf_aodv_flags_rrep_repair,
         &hf_aodv_flags_rrep_ack,
         NULL
@@ -382,7 +382,7 @@ dissect_aodv_rerr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aodv_tree,
     proto_tree *aodv_unreach_dest_tree;
     guint8      dest_count;
     int         i;
-    static const int * aodv_flags[] = {
+    static int * const aodv_flags[] = {
         &hf_aodv_flags_rerr_nodelete,
         NULL
     };
@@ -438,7 +438,7 @@ dissect_aodv_draft_01_v6_rreq(tvbuff_t *tvb, packet_info *pinfo,
     const gchar       *dest_addr_v6;
     const gchar       *orig_addr_v6;
     int                extlen;
-    static const int * aodv_flags[] = {
+    static int * const aodv_flags[] = {
         &hf_aodv_flags_rreq_join,
         &hf_aodv_flags_rreq_repair,
         &hf_aodv_flags_rreq_gratuitous,
@@ -515,7 +515,7 @@ dissect_aodv_draft_01_v6_rrep(tvbuff_t *tvb, packet_info *pinfo,
     const gchar       *orig_addr_v6;
     guint32            lifetime;
     int                extlen;
-    static const int * aodv_flags[] = {
+    static int * const aodv_flags[] = {
         &hf_aodv_flags_rrep_repair,
         &hf_aodv_flags_rrep_ack,
         NULL
@@ -587,7 +587,7 @@ dissect_aodv_draft_01_v6_rerr(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *aodv_unreach_dest_tree;
     guint8      dest_count;
     int         i;
-    static const int * aodv_flags[] = {
+    static int * const aodv_flags[] = {
         &hf_aodv_flags_rerr_nodelete,
         NULL
     };

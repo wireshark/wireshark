@@ -123,7 +123,7 @@ dissect_ppi_gps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
     proto_item *version_item, *length_item, *pt;
     proto_item *gps_line = NULL;
 
-    static const int * ppi_gps_present_flags[] = {
+    static int * const ppi_gps_present_flags[] = {
         &hf_ppi_gps_present_gpsflags_flags,
         &hf_ppi_gps_present_lat,
         &hf_ppi_gps_present_lon,
@@ -141,7 +141,7 @@ dissect_ppi_gps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
         NULL
     };
 
-    static const int * ppi_antenna_gps_flags[] = {
+    static int * const ppi_antenna_gps_flags[] = {
         &hf_ppi_gps_gpsflags_flag0_nofix,
         &hf_ppi_gps_gpsflags_flag1_gpsfix,
         &hf_ppi_gps_gpsflags_flag2_diffgps,

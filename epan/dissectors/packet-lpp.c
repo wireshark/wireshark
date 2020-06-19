@@ -4210,7 +4210,7 @@ dissect_lpp_Acknowledgement(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 }
 
 
-static const int * T_lpp_message_segmentation_req_r14_bits[] = {
+static int * const T_lpp_message_segmentation_req_r14_bits[] = {
   &hf_lpp_T_lpp_message_segmentation_req_r14_serverToTarget,
   &hf_lpp_T_lpp_message_segmentation_req_r14_targetToServer,
   NULL
@@ -4578,7 +4578,7 @@ dissect_lpp_SegmentationInfo_r14(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 }
 
 
-static const int * T_lpp_message_segmentation_r14_bits[] = {
+static int * const T_lpp_message_segmentation_r14_bits[] = {
   &hf_lpp_T_lpp_message_segmentation_r14_serverToTarget,
   &hf_lpp_T_lpp_message_segmentation_r14_targetToServer,
   NULL
@@ -4661,7 +4661,7 @@ dissect_lpp_GNSS_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
 }
 
 
-static const int * T_sbas_IDs_bits[] = {
+static int * const T_sbas_IDs_bits[] = {
   &hf_lpp_T_sbas_IDs_waas,
   &hf_lpp_T_sbas_IDs_egnos,
   &hf_lpp_T_sbas_IDs_msas,
@@ -4692,7 +4692,7 @@ dissect_lpp_SBAS_IDs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 }
 
 
-static const int * T_posModes_bits[] = {
+static int * const T_posModes_bits[] = {
   &hf_lpp_T_posModes_standalone,
   &hf_lpp_T_posModes_ue_based,
   &hf_lpp_T_posModes_ue_assisted,
@@ -4770,7 +4770,7 @@ dissect_lpp_GNSS_SignalIDs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 }
 
 
-static const int * T_accessTypes_bits[] = {
+static int * const T_accessTypes_bits[] = {
   &hf_lpp_T_accessTypes_eutra,
   &hf_lpp_T_accessTypes_utra,
   &hf_lpp_T_accessTypes_gsm,
@@ -4881,7 +4881,7 @@ dissect_lpp_GNSS_SupportList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 }
 
 
-static const int * T_gnss_ids_bits[] = {
+static int * const T_gnss_ids_bits[] = {
   &hf_lpp_T_gnss_ids_gps,
   &hf_lpp_T_gnss_ids_sbas,
   &hf_lpp_T_gnss_ids_qzss,
@@ -4942,7 +4942,7 @@ dissect_lpp_GNSS_ReferenceLocationSupport(tvbuff_t *tvb _U_, int offset _U_, asn
 }
 
 
-static const int * T_ionoModel_bits[] = {
+static int * const T_ionoModel_bits[] = {
   &hf_lpp_T_ionoModel_klobuchar,
   &hf_lpp_T_ionoModel_neQuick,
   NULL
@@ -5102,7 +5102,7 @@ dissect_lpp_GNSS_DifferentialCorrectionsSupport(tvbuff_t *tvb _U_, int offset _U
 }
 
 
-static const int * T_clockModel_bits[] = {
+static int * const T_clockModel_bits[] = {
   &hf_lpp_T_clockModel_model_1,
   &hf_lpp_T_clockModel_model_2,
   &hf_lpp_T_clockModel_model_3,
@@ -5121,7 +5121,7 @@ dissect_lpp_T_clockModel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 }
 
 
-static const int * T_orbitModel_bits[] = {
+static int * const T_orbitModel_bits[] = {
   &hf_lpp_T_orbitModel_model_1,
   &hf_lpp_T_orbitModel_model_2,
   &hf_lpp_T_orbitModel_model_3,
@@ -5226,7 +5226,7 @@ dissect_lpp_GNSS_AcquisitionAssistanceSupport(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 
-static const int * T_almanacModel_bits[] = {
+static int * const T_almanacModel_bits[] = {
   &hf_lpp_T_almanacModel_model_1,
   &hf_lpp_T_almanacModel_model_2,
   &hf_lpp_T_almanacModel_model_3,
@@ -5260,7 +5260,7 @@ dissect_lpp_GNSS_AlmanacSupport(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 }
 
 
-static const int * T_utc_Model_bits[] = {
+static int * const T_utc_Model_bits[] = {
   &hf_lpp_T_utc_Model_model_1,
   &hf_lpp_T_utc_Model_model_2,
   &hf_lpp_T_utc_Model_model_3,
@@ -5664,7 +5664,7 @@ dissect_lpp_A_GNSS_ProvideCapabilities_eag_1(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 
-static const int * T_periodicAssistanceData_r15_bits[] = {
+static int * const T_periodicAssistanceData_r15_bits[] = {
   &hf_lpp_T_periodicAssistanceData_r15_solicited,
   &hf_lpp_T_periodicAssistanceData_r15_unsolicited,
   NULL
@@ -5711,7 +5711,7 @@ dissect_lpp_A_GNSS_ProvideCapabilities(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 }
 
 
-static const int * T_otdoa_Mode_bits[] = {
+static int * const T_otdoa_Mode_bits[] = {
   &hf_lpp_T_otdoa_Mode_ue_assisted,
   &hf_lpp_T_otdoa_Mode_ue_assisted_NB_r14,
   &hf_lpp_T_otdoa_Mode_ue_assisted_NB_TDD_r15,
@@ -6113,7 +6113,7 @@ dissect_lpp_OTDOA_ProvideCapabilities(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 }
 
 
-static const int * T_ecid_MeasSupported_bits[] = {
+static int * const T_ecid_MeasSupported_bits[] = {
   &hf_lpp_T_ecid_MeasSupported_rsrpSup,
   &hf_lpp_T_ecid_MeasSupported_rsrqSup,
   &hf_lpp_T_ecid_MeasSupported_ueRxTxSup,
@@ -6235,7 +6235,7 @@ dissect_lpp_ECID_ProvideCapabilities(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 }
 
 
-static const int * T_sensor_Modes_r13_bits[] = {
+static int * const T_sensor_Modes_r13_bits[] = {
   &hf_lpp_T_sensor_Modes_r13_standalone,
   &hf_lpp_T_sensor_Modes_r13_ue_assisted,
   &hf_lpp_T_sensor_Modes_r13_ue_based,
@@ -6383,7 +6383,7 @@ dissect_lpp_Sensor_ProvideCapabilities_r13(tvbuff_t *tvb _U_, int offset _U_, as
 }
 
 
-static const int * T_tbs_Modes_r13_bits[] = {
+static int * const T_tbs_Modes_r13_bits[] = {
   &hf_lpp_T_tbs_Modes_r13_standalone,
   &hf_lpp_T_tbs_Modes_r13_ue_assisted,
   &hf_lpp_T_tbs_Modes_r13_ue_based,
@@ -6414,7 +6414,7 @@ dissect_lpp_MBS_AssistanceDataSupportList_r14(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 
-static const int * T_mbs_ConfigSupport_r14_bits[] = {
+static int * const T_mbs_ConfigSupport_r14_bits[] = {
   &hf_lpp_T_mbs_ConfigSupport_r14_tb1,
   &hf_lpp_T_mbs_ConfigSupport_r14_tb2,
   &hf_lpp_T_mbs_ConfigSupport_r14_tb3,
@@ -6477,7 +6477,7 @@ dissect_lpp_TBS_ProvideCapabilities_r13(tvbuff_t *tvb _U_, int offset _U_, asn1_
 }
 
 
-static const int * T_wlan_Modes_r13_bits[] = {
+static int * const T_wlan_Modes_r13_bits[] = {
   &hf_lpp_T_wlan_Modes_r13_standalone,
   &hf_lpp_T_wlan_Modes_r13_ue_assisted,
   &hf_lpp_T_wlan_Modes_r13_ue_based,
@@ -6493,7 +6493,7 @@ dissect_lpp_T_wlan_Modes_r13(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 }
 
 
-static const int * T_wlan_MeasSupported_r13_bits[] = {
+static int * const T_wlan_MeasSupported_r13_bits[] = {
   &hf_lpp_T_wlan_MeasSupported_r13_rssi_r13,
   &hf_lpp_T_wlan_MeasSupported_r13_rtt_r13,
   NULL
@@ -6508,7 +6508,7 @@ dissect_lpp_T_wlan_MeasSupported_r13(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 }
 
 
-static const int * T_wlan_AP_AD_Supported_r14_bits[] = {
+static int * const T_wlan_AP_AD_Supported_r14_bits[] = {
   &hf_lpp_T_wlan_AP_AD_Supported_r14_ap_identifier,
   &hf_lpp_T_wlan_AP_AD_Supported_r14_ap_location,
   NULL
@@ -6569,7 +6569,7 @@ dissect_lpp_WLAN_ProvideCapabilities_r13(tvbuff_t *tvb _U_, int offset _U_, asn1
 }
 
 
-static const int * T_bt_Modes_r13_bits[] = {
+static int * const T_bt_Modes_r13_bits[] = {
   &hf_lpp_T_bt_Modes_r13_standalone,
   &hf_lpp_T_bt_Modes_r13_ue_assisted,
   NULL
@@ -6584,7 +6584,7 @@ dissect_lpp_T_bt_Modes_r13(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 }
 
 
-static const int * T_bt_MeasSupported_r13_bits[] = {
+static int * const T_bt_MeasSupported_r13_bits[] = {
   &hf_lpp_T_bt_MeasSupported_r13_rssi_r13,
   NULL
 };
@@ -6875,7 +6875,7 @@ dissect_lpp_PeriodicSessionID_r15(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 }
 
 
-static const int * UpdateCapabilities_r15_bits[] = {
+static int * const UpdateCapabilities_r15_bits[] = {
   &hf_lpp_UpdateCapabilities_r15_primaryCellID_r15,
   NULL
 };
@@ -8001,7 +8001,7 @@ dissect_lpp_INTEGER_0_503(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 }
 
 
-static const int * T_adType_r14_bits[] = {
+static int * const T_adType_r14_bits[] = {
   &hf_lpp_T_adType_r14_prs,
   &hf_lpp_T_adType_r14_nprs,
   NULL
@@ -8096,7 +8096,7 @@ dissect_lpp_TBS_RequestAssistanceData_r14(tvbuff_t *tvb _U_, int offset _U_, asn
 }
 
 
-static const int * T_requestedAD_r14_bits[] = {
+static int * const T_requestedAD_r14_bits[] = {
   &hf_lpp_T_requestedAD_r14_ap_identifier,
   &hf_lpp_T_requestedAD_r14_ap_location,
   NULL
@@ -15295,7 +15295,7 @@ dissect_lpp_OTDOA_RequestLocationInformation(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 
-static const int * T_requestedMeasurements_bits[] = {
+static int * const T_requestedMeasurements_bits[] = {
   &hf_lpp_T_requestedMeasurements_rsrpReq,
   &hf_lpp_T_requestedMeasurements_rsrqReq,
   &hf_lpp_T_requestedMeasurements_ueRxTxReq,
@@ -15369,7 +15369,7 @@ dissect_lpp_Sensor_RequestLocationInformation_r13(tvbuff_t *tvb _U_, int offset 
 }
 
 
-static const int * T_mbsRequestedMeasurements_r14_bits[] = {
+static int * const T_mbsRequestedMeasurements_r14_bits[] = {
   &hf_lpp_T_mbsRequestedMeasurements_r14_rssi,
   NULL
 };
@@ -15412,7 +15412,7 @@ dissect_lpp_TBS_RequestLocationInformation_r13(tvbuff_t *tvb _U_, int offset _U_
 }
 
 
-static const int * T_requestedMeasurements_r13_bits[] = {
+static int * const T_requestedMeasurements_r13_bits[] = {
   &hf_lpp_T_requestedMeasurements_r13_rssi,
   &hf_lpp_T_requestedMeasurements_r13_rtt,
   NULL
@@ -15455,7 +15455,7 @@ dissect_lpp_WLAN_RequestLocationInformation_r13(tvbuff_t *tvb _U_, int offset _U
 }
 
 
-static const int * T_requestedMeasurements_r13_01_bits[] = {
+static int * const T_requestedMeasurements_r13_01_bits[] = {
   &hf_lpp_T_requestedMeasurements_r13_01_rssi,
   NULL
 };
@@ -16082,7 +16082,7 @@ dissect_lpp_CommonIEsProvideLocationInformation_eag_1(tvbuff_t *tvb _U_, int off
 }
 
 
-static const int * LocationSource_r13_bits[] = {
+static int * const LocationSource_r13_bits[] = {
   &hf_lpp_LocationSource_r13_a_gnss,
   &hf_lpp_LocationSource_r13_wlan,
   &hf_lpp_LocationSource_r13_bt,

@@ -1392,7 +1392,7 @@ dissect_tcpip_status(packet_info *pinfo, proto_tree *tree, proto_item *item, tvb
                      int offset, int total_len)
 
 {
-   static const int * status[] = {
+   static int * const status[] = {
       &hf_tcpip_status_interface_config,
       &hf_tcpip_status_mcast_pending,
       &hf_tcpip_status_interface_config_pending,
@@ -1419,7 +1419,7 @@ dissect_tcpip_config_cap(packet_info *pinfo, proto_tree *tree, proto_item *item,
                          int offset, int total_len)
 
 {
-   static const int * capabilities[] = {
+   static int * const capabilities[] = {
       &hf_tcpip_config_cap_bootp,
       &hf_tcpip_config_cap_dns,
       &hf_tcpip_config_cap_dhcp,
@@ -1447,7 +1447,7 @@ dissect_tcpip_config_control(packet_info *pinfo, proto_tree *tree, proto_item *i
                              int offset, int total_len)
 
 {
-   static const int * control_bits[] = {
+   static int * const control_bits[] = {
       &hf_tcpip_config_control_config,
       &hf_tcpip_config_control_dns,
       &hf_tcpip_config_control_reserved,
@@ -1582,7 +1582,7 @@ dissect_elink_interface_flags(packet_info *pinfo, proto_tree *tree, proto_item *
                               int offset, int total_len)
 
 {
-   static const int * flags[] = {
+   static int * const flags[] = {
       &hf_elink_iflags_link_status,
       &hf_elink_iflags_duplex,
       &hf_elink_iflags_neg_status,
@@ -1673,7 +1673,7 @@ static int
 dissect_elink_interface_capability(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
    int offset, int total_len _U_)
 {
-   static const int * bits[] = {
+   static int * const bits[] = {
       &hf_elink_icapability_capability_bits_manual,
       &hf_elink_icapability_capability_bits_auto_neg,
       &hf_elink_icapability_capability_bits_auto_mdix,
@@ -1735,7 +1735,7 @@ dissect_elink_interface_control(packet_info *pinfo, proto_tree *tree, proto_item
                                 int offset, int total_len)
 
 {
-   static const int * control_bits[] = {
+   static int * const control_bits[] = {
       &hf_elink_icontrol_control_bits_auto_neg,
       &hf_elink_icontrol_control_bits_forced_duplex,
       &hf_elink_icontrol_control_bits_reserved,
@@ -1848,7 +1848,7 @@ dissect_dlr_capability_flags(packet_info *pinfo, proto_tree *tree, proto_item *i
                              int offset, int total_len)
 
 {
-   static const int * capabilities[] = {
+   static int * const capabilities[] = {
       &hf_dlr_capflags_announce_base_node,
       &hf_dlr_capflags_beacon_base_node,
       &hf_dlr_capflags_reserved1,
@@ -1909,7 +1909,7 @@ dissect_eip_security_cap(packet_info *pinfo, proto_tree *tree, proto_item *item,
                                    int offset, int total_len)
 
 {
-   static const int * capabilities[] = {
+   static int * const capabilities[] = {
       &hf_eip_security_capflags_secure_renegotiation,
       &hf_eip_security_capflags_reserved,
       NULL
@@ -2090,7 +2090,7 @@ static int
 dissect_eip_cert_cap_flags(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                                    int offset, int total_len)
 {
-   static const int * capabilities[] = {
+   static int * const capabilities[] = {
       &hf_eip_cert_capflags_push,
       &hf_eip_cert_capflags_reserved,
       NULL
@@ -2388,7 +2388,7 @@ static void dissect_item_list_identity(packet_info* pinfo, tvbuff_t* tvb, int of
 // offset - Starts at the "Security Profiles" field.
 static void dissect_item_cip_security_information(tvbuff_t* tvb, int offset, proto_tree* item_tree)
 {
-   static const int * security_profiles[] = {
+   static int * const security_profiles[] = {
       &hf_enip_security_profiles_eip_integrity,
       &hf_enip_security_profiles_eip_confidentiality,
       &hf_enip_security_profiles_cip_authorization,
@@ -2396,7 +2396,7 @@ static void dissect_item_cip_security_information(tvbuff_t* tvb, int offset, pro
       &hf_enip_security_profiles_reserved,
       NULL
    };
-   static const int * iana_flags[] = {
+   static int * const iana_flags[] = {
       &hf_enip_iana_port_state_flags_tcp_44818,
       &hf_enip_iana_port_state_flags_udp_44818,
       &hf_enip_iana_port_state_flags_udp_2222,
@@ -2426,7 +2426,7 @@ static void dissect_item_list_services_response(packet_info* pinfo, tvbuff_t* tv
    proto_tree_add_item(item_tree, hf_enip_encapver, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 
    /* Capability flags */
-   static const int* capability_bits[] = {
+   static int* const capability_bits[] = {
       &hf_enip_lsr_tcp,
       &hf_enip_lsr_udp,
       NULL
@@ -3289,7 +3289,7 @@ dissect_dlr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
    else if ( dlr_frametype == DLR_FT_LINK_STAT )
    {
       /* Link_Status/Neighbor_Status */
-      static const int* bits[] = {
+      static int* const bits[] = {
          &hf_dlr_lnknbrstatus_port1,
          &hf_dlr_lnknbrstatus_port2,
          &hf_dlr_lnknbrstatus_reserved,

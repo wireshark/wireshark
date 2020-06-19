@@ -97,20 +97,20 @@ static int hf_ccid_bHardwareErrorCode = -1;
 
 static dissector_handle_t usb_ccid_handle;
 
-static const int *bVoltageLevel_fields[] = {
+static int * const bVoltageLevel_fields[] = {
     &hf_ccid_bVoltageSupport18,
     &hf_ccid_bVoltageSupport30,
     &hf_ccid_bVoltageSupport50,
     NULL
 };
 
-static const int *dwProtocols_fields[] = {
+static int * const dwProtocols_fields[] = {
     &hf_ccid_dwProtocols_t0,
     &hf_ccid_dwProtocols_t1,
     NULL
 };
 
-static const int *bFeatures_fields[] = {
+static int * const bFeatures_fields[] = {
     /* XXX - add the missing components */
     &hf_ccid_dwFeatures_autoParam,
     &hf_ccid_dwFeatures_autoIccActivation,
@@ -129,13 +129,13 @@ static const int *bFeatures_fields[] = {
     NULL
 };
 
-static const int *bPINSupport_fields[] = {
+static int * const bPINSupport_fields[] = {
     &hf_ccid_bPINSupport_modify,
     &hf_ccid_bPINSupport_vrfy,
     NULL
 };
 
-static const int *bmSlotICCState_fields[] = {
+static int * const bmSlotICCState_fields[] = {
     &hf_ccid_bmSlotICCState_slot0Current,
     &hf_ccid_bmSlotICCState_slot0Changed,
     &hf_ccid_bmSlotICCState_slot1Current,
@@ -147,7 +147,7 @@ static const int *bmSlotICCState_fields[] = {
     NULL
 };
 
-static const int *bStatus_fields[] = {
+static int * const bStatus_fields[] = {
     &hf_ccid_bStatus_bmIccStatus,
     &hf_ccid_bStatus_bmCommandStatus,
     NULL

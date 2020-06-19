@@ -2344,7 +2344,7 @@ static int dissect_aeron_data(tvbuff_t * tvb, int offset, packet_info * pinfo, p
     proto_item * channel_item;
     proto_item * frame_length_item;
     guint32 frame_length;
-    static const int * flags[] =
+    static int * const flags[] =
     {
         &hf_aeron_data_flags_b,
         &hf_aeron_data_flags_e,
@@ -2547,7 +2547,7 @@ static int dissect_aeron_sm(tvbuff_t * tvb, int offset, packet_info * pinfo, pro
     proto_item * item;
     proto_item * rcv_window_item;
     guint32 frame_length;
-    static const int * flags[] =
+    static int * const flags[] =
     {
         &hf_aeron_sm_flags_s,
         NULL
@@ -2686,7 +2686,7 @@ static int dissect_aeron_heartbeat(tvbuff_t * tvb, int offset, packet_info * pin
     proto_item * channel_item;
     proto_item * frame_length_item;
     guint32 frame_length;
-    static const int * flags[] =
+    static int * const flags[] =
     {
         &hf_aeron_heartbeat_flags_b,
         &hf_aeron_heartbeat_flags_e,
@@ -2755,7 +2755,7 @@ static int dissect_aeron_rtt(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
     proto_item * frame_length_item;
     proto_item * item;
     guint32 frame_length;
-    static const int * flags[] =
+    static int * const flags[] =
     {
         &hf_aeron_rtt_flags_r,
         NULL

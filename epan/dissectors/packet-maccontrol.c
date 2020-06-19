@@ -64,7 +64,7 @@ static expert_field ei_macctrl_opcode = EI_INIT;
 static expert_field ei_macctrl_cbfc_enbv = EI_INIT;
 static expert_field ei_macctrl_dst_address = EI_INIT;
 
-static const int *macctrl_cbfc_enbv_list[] = {
+static int * const macctrl_cbfc_enbv_list[] = {
   &hf_macctrl_cbfc_enbv_c0,
   &hf_macctrl_cbfc_enbv_c1,
   &hf_macctrl_cbfc_enbv_c2,
@@ -76,7 +76,7 @@ static const int *macctrl_cbfc_enbv_list[] = {
   NULL
 };
 
-static const int *macctrl_cbfc_pause_times_list[] = {
+static int * const macctrl_cbfc_pause_times_list[] = {
   &hf_macctrl_cbfc_pause_time_c0,
   &hf_macctrl_cbfc_pause_time_c1,
   &hf_macctrl_cbfc_pause_time_c2,

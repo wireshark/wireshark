@@ -363,7 +363,7 @@ int
 atsvc_dissect_bitmap_DaysOfMonth(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item *item;
-	static const int * atsvc_atsvc_DaysOfMonth_fields[] = {
+	static int * const atsvc_atsvc_DaysOfMonth_fields[] = {
 		&hf_atsvc_atsvc_DaysOfMonth_First,
 		&hf_atsvc_atsvc_DaysOfMonth_Second,
 		&hf_atsvc_atsvc_DaysOfMonth_Third,
@@ -429,7 +429,7 @@ int
 atsvc_dissect_bitmap_Flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item *item;
-	static const int * atsvc_atsvc_Flags_fields[] = {
+	static int * const atsvc_atsvc_Flags_fields[] = {
 		&hf_atsvc_atsvc_Flags_JOB_RUN_PERIODICALLY,
 		&hf_atsvc_atsvc_Flags_JOB_EXEC_ERROR,
 		&hf_atsvc_atsvc_Flags_JOB_RUNS_TODAY,
@@ -470,7 +470,7 @@ int
 atsvc_dissect_bitmap_DaysOfWeek(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item *item;
-	static const int * atsvc_atsvc_DaysOfWeek_fields[] = {
+	static int * const atsvc_atsvc_DaysOfWeek_fields[] = {
 		&hf_atsvc_atsvc_DaysOfWeek_DAYSOFWEEK_MONDAY,
 		&hf_atsvc_atsvc_DaysOfWeek_DAYSOFWEEK_TUESDAY,
 		&hf_atsvc_atsvc_DaysOfWeek_DAYSOFWEEK_WEDNESDAY,

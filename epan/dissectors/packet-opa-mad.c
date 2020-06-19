@@ -1013,7 +1013,7 @@ static gint hf_opa_mad_status_NM_reserved1 = -1;
 static gint hf_opa_mad_status_NM_InvalidField = -1;
 static gint hf_opa_mad_status_NM_RedirectRqrd = -1;
 static gint hf_opa_mad_status_NM_Busy = -1;
-static const gint *_mad_status[] = {
+static int * const _mad_status[] = {
     &hf_opa_mad_status_NM_ClassSpecific,
     &hf_opa_mad_status_NM_reserved1,
     &hf_opa_mad_status_NM_InvalidField,
@@ -1047,32 +1047,32 @@ static gint hf_opa_attribute_modifier_P3 = -1;
 static gint hf_opa_attribute_modifier_S = -1;
 static gint hf_opa_attribute_modifier_S2 = -1;
 static gint hf_opa_attribute_modifier_Y = -1;
-static const gint *_attribute_modifier_Nps2AP[] = {
+static int * const _attribute_modifier_Nps2AP[] = {
     &hf_opa_attribute_modifier_NP,
     &hf_opa_attribute_modifier_S2,
     &hf_opa_attribute_modifier_A,
     &hf_opa_attribute_modifier_P,
     NULL
 };
-static const gint *_attribute_modifier_NpS2P[] = {
+static int * const _attribute_modifier_NpS2P[] = {
     &hf_opa_attribute_modifier_NP,
     &hf_opa_attribute_modifier_S2,
     &hf_opa_attribute_modifier_P,
     NULL
 };
-static const gint *_attribute_modifier_NpAP[] = {
+static int * const _attribute_modifier_NpAP[] = {
     &hf_opa_attribute_modifier_NP,
     &hf_opa_attribute_modifier_A,
     &hf_opa_attribute_modifier_P,
     NULL
 };
-static const gint *_attribute_modifier_NbP2B[] = {
+static int * const _attribute_modifier_NbP2B[] = {
     &hf_opa_attribute_modifier_NB,
     &hf_opa_attribute_modifier_P2,
     &hf_opa_attribute_modifier_B,
     NULL
 };
-static const gint *_attribute_modifier_NbA2B2IE[] = {
+static int * const _attribute_modifier_NbA2B2IE[] = {
     &hf_opa_attribute_modifier_NB,
     &hf_opa_attribute_modifier_A2,
     &hf_opa_attribute_modifier_B2,
@@ -1080,50 +1080,50 @@ static const gint *_attribute_modifier_NbA2B2IE[] = {
     &hf_opa_attribute_modifier_E,
     NULL
 };
-static const gint *_attribute_modifier_NpSAP[] = {
+static int * const _attribute_modifier_NpSAP[] = {
     &hf_opa_attribute_modifier_NP,
     &hf_opa_attribute_modifier_S,
     &hf_opa_attribute_modifier_A,
     &hf_opa_attribute_modifier_P,
     NULL
 };
-static const gint *_attribute_modifier_NbA3B3[] = {
+static int * const _attribute_modifier_NbA3B3[] = {
     &hf_opa_attribute_modifier_NB,
     &hf_opa_attribute_modifier_A3,
     &hf_opa_attribute_modifier_B3,
     NULL
 };
-static const gint *_attribute_modifier_NbP3A4B4[] = {
+static int * const _attribute_modifier_NbP3A4B4[] = {
     &hf_opa_attribute_modifier_NB,
     &hf_opa_attribute_modifier_P3,
     &hf_opa_attribute_modifier_A4,
     &hf_opa_attribute_modifier_B4,
     NULL
 };
-static const gint *_attribute_modifier_A5LP[] = {
+static int * const _attribute_modifier_A5LP[] = {
     &hf_opa_attribute_modifier_A5,
     &hf_opa_attribute_modifier_L,
     &hf_opa_attribute_modifier_P,
     NULL
 };
-static const gint *_attribute_modifier_NbYAP[] = {
+static int * const _attribute_modifier_NbYAP[] = {
     &hf_opa_attribute_modifier_NB,
     &hf_opa_attribute_modifier_Y,
     &hf_opa_attribute_modifier_A,
     &hf_opa_attribute_modifier_P,
     NULL
 };
-static const gint *_attribute_modifier_NpP[] = {
+static int * const _attribute_modifier_NpP[] = {
     &hf_opa_attribute_modifier_NP,
     &hf_opa_attribute_modifier_P,
     NULL
 };
-static const gint *_attribute_modifier_NbP[] = {
+static int * const _attribute_modifier_NbP[] = {
     &hf_opa_attribute_modifier_NB,
     &hf_opa_attribute_modifier_P,
     NULL
 };
-static const gint *_attribute_modifier_NbP3A6B5[] = {
+static int * const _attribute_modifier_NbP3A6B5[] = {
     &hf_opa_attribute_modifier_NB,
     &hf_opa_attribute_modifier_P3,
     &hf_opa_attribute_modifier_A6,
@@ -1221,7 +1221,7 @@ static gint hf_opa_Trap_DataValid_QP2 = -1;
 static gint hf_opa_Trap_DataValid_Gid1 = -1;
 static gint hf_opa_Trap_DataValid_Gid2 = -1;
 static gint hf_opa_Trap_DataValid_Reserved = -1;
-static const gint *_Trap_DataValid[] = {
+static int * const _Trap_DataValid[] = {
     &hf_opa_Trap_DataValid_Lid1,
     &hf_opa_Trap_DataValid_Lid2,
     &hf_opa_Trap_DataValid_PKey,
@@ -1321,7 +1321,7 @@ static gint hf_opa_SwitchInfo_AdaptiveRoutingFrequency = -1;
 static gint hf_opa_SwitchInfo_AdaptiveRoutingLostRoutesOnly = -1;
 static gint hf_opa_SwitchInfo_AdaptiveRoutingThreshold = -1;
 static gint hf_opa_SwitchInfo_reserved6 = -1;
-static const gint *_SwitchInfo_AdaptiveRouting[] = {
+static int * const _SwitchInfo_AdaptiveRouting[] = {
     &hf_opa_SwitchInfo_AdaptiveRoutingEnable,
     &hf_opa_SwitchInfo_AdaptiveRoutingPause,
     &hf_opa_SwitchInfo_AdaptiveRoutingAlgorithm,
@@ -1336,7 +1336,7 @@ static gint hf_opa_SwitchInfo_SwitchCapabilityMask_reserved = -1;
 static gint hf_opa_SwitchInfo_SwitchCapabilityMask_IsAddrRangeConfigSupported = -1;
 static gint hf_opa_SwitchInfo_SwitchCapabilityMask_reserved2 = -1;
 static gint hf_opa_SwitchInfo_SwitchCapabilityMask_IsAdaptiveRoutingSupported = -1;
-static const gint *_SwitchInfo_SwitchCapabilityMask[] = {
+static int * const _SwitchInfo_SwitchCapabilityMask[] = {
     &hf_opa_SwitchInfo_SwitchCapabilityMask_reserved,
     &hf_opa_SwitchInfo_SwitchCapabilityMask_IsAddrRangeConfigSupported,
     &hf_opa_SwitchInfo_SwitchCapabilityMask_reserved2,
@@ -1411,7 +1411,7 @@ static gint hf_opa_PortInfo_PortMode_IsVLMarkerEnabled = -1;
 static gint hf_opa_PortInfo_PortMode_reserved2 = -1;
 static gint hf_opa_PortInfo_PortMode_Is16BTrapQueryEnabled = -1;
 static gint hf_opa_PortInfo_PortMode_reserved3 = -1;
-static const gint *_PortInfo_PortMode[] = {
+static int * const _PortInfo_PortMode[] = {
     &hf_opa_PortInfo_PortMode_reserved,
     &hf_opa_PortInfo_PortMode_IsActiveOptimizeEnabled,
     &hf_opa_PortInfo_PortMode_IsPassThroughEnabled,
@@ -1460,7 +1460,7 @@ static gint hf_opa_PortInfo_PortErrorAction_PortRcvErrorPktLenTooShort = -1;
 static gint hf_opa_PortInfo_PortErrorAction_PortRcvErrorPktLenTooLong = -1;
 static gint hf_opa_PortInfo_PortErrorAction_PortRcvErrorBadPktLen = -1;
 static gint hf_opa_PortInfo_PortErrorAction_reserved4 = -1;
-static const gint *_PortInfo_PortErrorAction[] = {
+static int * const _PortInfo_PortErrorAction[] = {
     &hf_opa_PortInfo_PortErrorAction_ExcessiveBufferOverrun,
     &hf_opa_PortInfo_PortErrorAction_reserved,
     &hf_opa_PortInfo_PortErrorAction_FmConfigErrorExceedMulticastLimit,
@@ -1520,7 +1520,7 @@ static gint hf_opa_PortInfo_CapabilityMask_IsAutomaticMigrationSupported = -1;
 static gint hf_opa_PortInfo_CapabilityMask_reserved5 = -1;
 static gint hf_opa_PortInfo_CapabilityMask_IsSM = -1;
 static gint hf_opa_PortInfo_CapabilityMask_reserved6 = -1;
-static const gint *_PortInfo_CapabilityMask[] = {
+static int * const _PortInfo_CapabilityMask[] = {
     &hf_opa_PortInfo_CapabilityMask_reserved,
     &hf_opa_PortInfo_CapabilityMask_IsCapabilityMaskNoticeSupported,
     &hf_opa_PortInfo_CapabilityMask_reserved2,
@@ -1545,7 +1545,7 @@ static gint hf_opa_PortInfo_CapabilityMask3_IsSharedSpaceSupported = -1;
 static gint hf_opa_PortInfo_CapabilityMask3_reserved2 = -1;
 static gint hf_opa_PortInfo_CapabilityMask3_IsVLMarkerSupported = -1;
 static gint hf_opa_PortInfo_CapabilityMask3_IsVLrSupported = -1;
-static const gint *_PortInfo_CapabilityMask3[] = {
+static int * const _PortInfo_CapabilityMask3[] = {
     &hf_opa_PortInfo_CapabilityMask3_reserved,
     &hf_opa_PortInfo_CapabilityMask3_IsSnoopSupported,
     &hf_opa_PortInfo_CapabilityMask3_IsAsyncSCtoVLSupported,
@@ -1580,7 +1580,7 @@ static gint hf_opa_PortStates_PortUnsleepState = -1;
 static gint hf_opa_PortStates_DownDefaultState = -1;
 static gint hf_opa_PortStates_PortPhysicalState = -1;
 static gint hf_opa_PortStates_PortState = -1;
-static const gint *_PortStates[] = {
+static int * const _PortStates[] = {
     &hf_opa_PortStates_reserved,
     &hf_opa_PortStates_LEDEnabled,
     &hf_opa_PortStates_IsSMConfigurationStarted,
@@ -1941,7 +1941,7 @@ static gint hf_opa_ClearPortStatus_LinkDowned = -1;
 static gint hf_opa_ClearPortStatus_UncorrectableErrors = -1;
 static gint hf_opa_ClearPortStatus_reserved = -1;
 static gint hf_opa_ClearPortStatus_CounterSelectMask = -1;
-static const gint *_ClearPortStatus_CounterSelectMask[] = {
+static int * const _ClearPortStatus_CounterSelectMask[] = {
     &hf_opa_ClearPortStatus_PortXmitData,
     &hf_opa_ClearPortStatus_PortRcvData,
     &hf_opa_ClearPortStatus_PortXmitPkts,
@@ -2037,7 +2037,7 @@ static gint hf_opa_ErrorPortInfo_ErrorInfoSelectMask_PortRcvSwitchRelayErrorInfo
 static gint hf_opa_ErrorPortInfo_ErrorInfoSelectMask_UncorrectableErrorInfo = -1;
 static gint hf_opa_ErrorPortInfo_ErrorInfoSelectMask_FMConfigErrorInfo = -1;
 static gint hf_opa_ErrorPortInfo_ErrorInfoSelectMask_reserved = -1;
-static const gint *_ErrorPortInfo_ErrorInfoSelectMask[] = {
+static int * const _ErrorPortInfo_ErrorInfoSelectMask[] = {
     &hf_opa_ErrorPortInfo_ErrorInfoSelectMask_PortRcvErrorInfo,
     &hf_opa_ErrorPortInfo_ErrorInfoSelectMask_ExcessiveBufferOverrunInfo,
     &hf_opa_ErrorPortInfo_ErrorInfoSelectMask_PortXmitConstraintErrorInfo,
@@ -2195,7 +2195,7 @@ static gint hf_opa_ClearPortCounters_LinkDowned = -1;
 static gint hf_opa_ClearPortCounters_UncorrectableErrors = -1;
 static gint hf_opa_ClearPortCounters_reserved = -1;
 static gint hf_opa_ClearPortCounters_CounterSelectMask = -1;
-static const gint *_ClearPortCounters_CounterSelectMask[] = {
+static int * const _ClearPortCounters_CounterSelectMask[] = {
     &hf_opa_ClearPortCounters_PortXmitData,
     &hf_opa_ClearPortCounters_PortRcvData,
     &hf_opa_ClearPortCounters_PortXmitPkts,
@@ -2256,7 +2256,7 @@ static gint hf_opa_ClearAllPortCounters_LinkDowned = -1;
 static gint hf_opa_ClearAllPortCounters_UncorrectableErrors = -1;
 static gint hf_opa_ClearAllPortCounters_reserved = -1;
 static gint hf_opa_ClearAllPortCounters_CounterSelectMask = -1;
-static const gint *_ClearAllPortCounters_CounterSelectMask[] = {
+static int * const _ClearAllPortCounters_CounterSelectMask[] = {
     &hf_opa_ClearAllPortCounters_PortXmitData,
     &hf_opa_ClearAllPortCounters_PortRcvData,
     &hf_opa_ClearAllPortCounters_PortXmitPkts,
@@ -2440,7 +2440,7 @@ static gint hf_opa_ClearVFPortCounters_PortVFRcvBubble = -1;
 static gint hf_opa_ClearVFPortCounters_PortVFMarkFECN = -1;
 static gint hf_opa_ClearVFPortCounters_reserved = -1;
 static gint hf_opa_ClearVFPortCounters_CounterSelectMask = -1;
-static const gint *_ClearVFPortCounters_CounterSelectMask[] = {
+static int * const _ClearVFPortCounters_CounterSelectMask[] = {
     &hf_opa_ClearVFPortCounters_PortVFXmitData,
     &hf_opa_ClearVFPortCounters_PortVFRcvData,
     &hf_opa_ClearVFPortCounters_PortVFXmitPkts,

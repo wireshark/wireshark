@@ -91,7 +91,7 @@ dissect_interlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 	}
 
 	if (ilh_tree) {
-		static const int * flags[] = {
+		static int * const flags[] = {
 			&hf_interlink_flags_req_ack,
 			&hf_interlink_flags_inc_ack_port,
 			NULL

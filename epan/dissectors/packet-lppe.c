@@ -2914,7 +2914,7 @@ dissect_lppe_OMA_LPPe_RequestCapabilities(tvbuff_t *tvb _U_, int offset _U_, asn
 }
 
 
-static const int * T_iP_Address_support_bits[] = {
+static int * const T_iP_Address_support_bits[] = {
   &hf_lppe_T_iP_Address_support_iPv4,
   &hf_lppe_T_iP_Address_support_iPv6,
   &hf_lppe_T_iP_Address_support_nat,
@@ -3082,7 +3082,7 @@ dissect_lppe_OMA_LPPe_RelativeLocationChange_Capabilities(tvbuff_t *tvb _U_, int
 }
 
 
-static const int * OMA_LPPe_HighAccuracyFormatCapabilities_bits[] = {
+static int * const OMA_LPPe_HighAccuracyFormatCapabilities_bits[] = {
   &hf_lppe_OMA_LPPe_HighAccuracyFormatCapabilities_hAposition,
   &hf_lppe_OMA_LPPe_HighAccuracyFormatCapabilities_hAvelocity,
   NULL
@@ -3134,7 +3134,7 @@ dissect_lppe_OMA_LPPe_SegmentedAssistanceData_ProvideCapabs(tvbuff_t *tvb _U_, i
 }
 
 
-static const int * T_relativeLocationReportingSupport_bits[] = {
+static int * const T_relativeLocationReportingSupport_bits[] = {
   &hf_lppe_T_relativeLocationReportingSupport_geo,
   &hf_lppe_T_relativeLocationReportingSupport_civic,
   &hf_lppe_T_relativeLocationReportingSupport_otherProviders,
@@ -3240,7 +3240,7 @@ dissect_lppe_OMA_LPPe_ScheduledLocation_Capabilities(tvbuff_t *tvb _U_, int offs
 }
 
 
-static const int * OMA_LPPe_FixedAccessTypes_bits[] = {
+static int * const OMA_LPPe_FixedAccessTypes_bits[] = {
   &hf_lppe_OMA_LPPe_FixedAccessTypes_cable,
   &hf_lppe_OMA_LPPe_FixedAccessTypes_dsl,
   &hf_lppe_OMA_LPPe_FixedAccessTypes_lan,
@@ -3258,7 +3258,7 @@ dissect_lppe_OMA_LPPe_FixedAccessTypes(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 }
 
 
-static const int * OMA_LPPe_WirelessAccessTypes_bits[] = {
+static int * const OMA_LPPe_WirelessAccessTypes_bits[] = {
   &hf_lppe_OMA_LPPe_WirelessAccessTypes_gsm,
   &hf_lppe_OMA_LPPe_WirelessAccessTypes_utra,
   &hf_lppe_OMA_LPPe_WirelessAccessTypes_lte,
@@ -3333,7 +3333,7 @@ dissect_lppe_OMA_LPPe_CommonIEsProvideCapabilities(tvbuff_t *tvb _U_, int offset
 }
 
 
-static const int * T_ionoModel_bits[] = {
+static int * const T_ionoModel_bits[] = {
   &hf_lppe_T_ionoModel_localKlobuchar,
   &hf_lppe_T_ionoModel_ionoStormWarning,
   &hf_lppe_T_ionoModel_wideAreaIonoSurface,
@@ -3363,7 +3363,7 @@ dissect_lppe_OMA_LPPe_AGNSS_IonosphericModelSupport(tvbuff_t *tvb _U_, int offse
 }
 
 
-static const int * T_tropoModel_bits[] = {
+static int * const T_tropoModel_bits[] = {
   &hf_lppe_T_tropoModel_localTroposphereDelay,
   &hf_lppe_T_tropoModel_surfaceParameters,
   NULL
@@ -3586,7 +3586,7 @@ dissect_lppe_OMA_LPPe_AGNSS_AssistanceDataSupportList(tvbuff_t *tvb _U_, int off
 }
 
 
-static const int * T_ionosphereMeasurementSupport_bits[] = {
+static int * const T_ionosphereMeasurementSupport_bits[] = {
   &hf_lppe_T_ionosphereMeasurementSupport_tecPerSVsupport,
   &hf_lppe_T_ionosphereMeasurementSupport_zenithTecSupport,
   NULL
@@ -3617,7 +3617,7 @@ dissect_lppe_OMA_LPPe_AGNSS_EnvironmentObservationSupportList(tvbuff_t *tvb _U_,
 }
 
 
-static const int * T_modeSupport_bits[] = {
+static int * const T_modeSupport_bits[] = {
   &hf_lppe_T_modeSupport_ueBased,
   &hf_lppe_T_modeSupport_ueAssisted,
   NULL
@@ -3632,7 +3632,7 @@ dissect_lppe_T_modeSupport(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 }
 
 
-static const int * T_haGNSSantennaInformationSupport_bits[] = {
+static int * const T_haGNSSantennaInformationSupport_bits[] = {
   &hf_lppe_T_haGNSSantennaInformationSupport_antennaDescriptionSupported,
   &hf_lppe_T_haGNSSantennaInformationSupport_antennaOrientationSupported,
   NULL
@@ -3750,7 +3750,7 @@ dissect_lppe_OMA_LPPe_OTDOA_ProvideCapabilities(tvbuff_t *tvb _U_, int offset _U
 }
 
 
-static const int * T_eotdSupport_bits[] = {
+static int * const T_eotdSupport_bits[] = {
   &hf_lppe_T_eotdSupport_ueBased,
   &hf_lppe_T_eotdSupport_ueAssisted,
   NULL
@@ -3795,7 +3795,7 @@ dissect_lppe_OMA_LPPe_OTDOA_UTRA_ProvideCapabilities(tvbuff_t *tvb _U_, int offs
 }
 
 
-static const int * T_ecid_lte_MeasSupported_bits[] = {
+static int * const T_ecid_lte_MeasSupported_bits[] = {
   &hf_lppe_T_ecid_lte_MeasSupported_rsrp,
   &hf_lppe_T_ecid_lte_MeasSupported_rsrq,
   &hf_lppe_T_ecid_lte_MeasSupported_ueRxTx,
@@ -3813,7 +3813,7 @@ dissect_lppe_T_ecid_lte_MeasSupported(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 }
 
 
-static const int * T_ecid_lte_eNodeB_ADSupported_bits[] = {
+static int * const T_ecid_lte_eNodeB_ADSupported_bits[] = {
   &hf_lppe_T_ecid_lte_eNodeB_ADSupported_bslist,
   &hf_lppe_T_ecid_lte_eNodeB_ADSupported_bslocation,
   &hf_lppe_T_ecid_lte_eNodeB_ADSupported_transmit_power,
@@ -3835,7 +3835,7 @@ dissect_lppe_T_ecid_lte_eNodeB_ADSupported(tvbuff_t *tvb _U_, int offset _U_, as
 }
 
 
-static const int * T_ecid_utra_HeNB_ADSupported_bits[] = {
+static int * const T_ecid_utra_HeNB_ADSupported_bits[] = {
   &hf_lppe_T_ecid_utra_HeNB_ADSupported_bslist,
   &hf_lppe_T_ecid_utra_HeNB_ADSupported_bslocation,
   &hf_lppe_T_ecid_utra_HeNB_ADSupported_locationreliability,
@@ -3872,7 +3872,7 @@ dissect_lppe_OMA_LPPe_ECID_LTE_ProvideCapabilities(tvbuff_t *tvb _U_, int offset
 }
 
 
-static const int * T_ecid_gsm_MeasSupported_bits[] = {
+static int * const T_ecid_gsm_MeasSupported_bits[] = {
   &hf_lppe_T_ecid_gsm_MeasSupported_rxLevel,
   &hf_lppe_T_ecid_gsm_MeasSupported_tA,
   &hf_lppe_T_ecid_gsm_MeasSupported_nMR_GERAN,
@@ -3890,7 +3890,7 @@ dissect_lppe_T_ecid_gsm_MeasSupported(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 }
 
 
-static const int * T_ecid_gsm_ADSupported_bits[] = {
+static int * const T_ecid_gsm_ADSupported_bits[] = {
   &hf_lppe_T_ecid_gsm_ADSupported_bslist,
   &hf_lppe_T_ecid_gsm_ADSupported_bslocation,
   &hf_lppe_T_ecid_gsm_ADSupported_transmit_power,
@@ -3926,7 +3926,7 @@ dissect_lppe_OMA_LPPe_ECID_GSM_ProvideCapabilities(tvbuff_t *tvb _U_, int offset
 }
 
 
-static const int * T_ecid_utra_MeasSupported_bits[] = {
+static int * const T_ecid_utra_MeasSupported_bits[] = {
   &hf_lppe_T_ecid_utra_MeasSupported_measuredResultsList,
   &hf_lppe_T_ecid_utra_MeasSupported_tdd_timingAdvance,
   &hf_lppe_T_ecid_utra_MeasSupported_mRL_utra_CarrierRSSI,
@@ -3949,7 +3949,7 @@ dissect_lppe_T_ecid_utra_MeasSupported(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 }
 
 
-static const int * T_ecid_utra_nodeB_ADSupported_bits[] = {
+static int * const T_ecid_utra_nodeB_ADSupported_bits[] = {
   &hf_lppe_T_ecid_utra_nodeB_ADSupported_bslist,
   &hf_lppe_T_ecid_utra_nodeB_ADSupported_bslocation,
   &hf_lppe_T_ecid_utra_nodeB_ADSupported_transmit_power,
@@ -3970,7 +3970,7 @@ dissect_lppe_T_ecid_utra_nodeB_ADSupported(tvbuff_t *tvb _U_, int offset _U_, as
 }
 
 
-static const int * T_ecid_utra_HNB_ADSupported_bits[] = {
+static int * const T_ecid_utra_HNB_ADSupported_bits[] = {
   &hf_lppe_T_ecid_utra_HNB_ADSupported_bslist,
   &hf_lppe_T_ecid_utra_HNB_ADSupported_bslocation,
   &hf_lppe_T_ecid_utra_HNB_ADSupported_locationreliability,
@@ -4006,7 +4006,7 @@ dissect_lppe_OMA_LPPe_ECID_UTRA_ProvideCapabilities(tvbuff_t *tvb _U_, int offse
 }
 
 
-static const int * T_wlan_ecid_MeasSupported_bits[] = {
+static int * const T_wlan_ecid_MeasSupported_bits[] = {
   &hf_lppe_T_wlan_ecid_MeasSupported_apSSID,
   &hf_lppe_T_wlan_ecid_MeasSupported_apSN,
   &hf_lppe_T_wlan_ecid_MeasSupported_apDevType,
@@ -4035,7 +4035,7 @@ dissect_lppe_T_wlan_ecid_MeasSupported(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 }
 
 
-static const int * OMA_LPPe_WLAN_AP_Type_List_bits[] = {
+static int * const OMA_LPPe_WLAN_AP_Type_List_bits[] = {
   &hf_lppe_OMA_LPPe_WLAN_AP_Type_List_ieee802_11a,
   &hf_lppe_OMA_LPPe_WLAN_AP_Type_List_ieee802_11b,
   &hf_lppe_OMA_LPPe_WLAN_AP_Type_List_ieee802_11g,
@@ -4093,7 +4093,7 @@ dissect_lppe_OMA_LPPe_WLAN_AP_Capability(tvbuff_t *tvb _U_, int offset _U_, asn1
 }
 
 
-static const int * T_wlan_ap_ADSupported_bits[] = {
+static int * const T_wlan_ap_ADSupported_bits[] = {
   &hf_lppe_T_wlan_ap_ADSupported_aplist,
   &hf_lppe_T_wlan_ap_ADSupported_aplocation,
   &hf_lppe_T_wlan_ap_ADSupported_locationreliability,
@@ -4113,7 +4113,7 @@ dissect_lppe_T_wlan_ap_ADSupported(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 }
 
 
-static const int * T_additional_wlan_ecid_MeasSupported_bits[] = {
+static int * const T_additional_wlan_ecid_MeasSupported_bits[] = {
   &hf_lppe_T_additional_wlan_ecid_MeasSupported_oc,
   &hf_lppe_T_additional_wlan_ecid_MeasSupported_ueMacAddr,
   NULL
@@ -4146,7 +4146,7 @@ dissect_lppe_OMA_LPPe_WLAN_AP_ProvideCapabilities(tvbuff_t *tvb _U_, int offset 
 }
 
 
-static const int * T_ecid_wimax_MeasSupported_bits[] = {
+static int * const T_ecid_wimax_MeasSupported_bits[] = {
   &hf_lppe_T_ecid_wimax_MeasSupported_rTD,
   &hf_lppe_T_ecid_wimax_MeasSupported_rTDstd,
   &hf_lppe_T_ecid_wimax_MeasSupported_nMR,
@@ -4203,7 +4203,7 @@ dissect_lppe_OMA_LPPe_Sensor_ProvideCapabilities(tvbuff_t *tvb _U_, int offset _
 }
 
 
-static const int * T_srnMeasurements_bits[] = {
+static int * const T_srnMeasurements_bits[] = {
   &hf_lppe_T_srnMeasurements_rssi,
   &hf_lppe_T_srnMeasurements_rtd,
   NULL
@@ -4232,7 +4232,7 @@ dissect_lppe_OMA_LPPe_SRN_MeasurementMask(tvbuff_t *tvb _U_, int offset _U_, asn
 }
 
 
-static const int * T_supportedAssistanceData_bits[] = {
+static int * const T_supportedAssistanceData_bits[] = {
   &hf_lppe_T_supportedAssistanceData_srnGroup,
   &hf_lppe_T_supportedAssistanceData_antennaPattern,
   NULL
@@ -4616,7 +4616,7 @@ dissect_lppe_OMA_LPPe_CommonIEsRequestAssistanceData(tvbuff_t *tvb _U_, int offs
 }
 
 
-static const int * T_ionoreq_bits[] = {
+static int * const T_ionoreq_bits[] = {
   &hf_lppe_T_ionoreq_klobucharModel,
   &hf_lppe_T_ionoreq_ionoStormWarning,
   NULL
@@ -4743,7 +4743,7 @@ dissect_lppe_OMA_LPPe_AGNSS_IonosphericModelReq(tvbuff_t *tvb _U_, int offset _U
 }
 
 
-static const int * T_troposphereModelReq_bits[] = {
+static int * const T_troposphereModelReq_bits[] = {
   &hf_lppe_T_troposphereModelReq_delay,
   &hf_lppe_T_troposphereModelReq_surface,
   NULL
@@ -5209,7 +5209,7 @@ dissect_lppe_T_lteCell(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 }
 
 
-static const int * T_requestedCells_bits[] = {
+static int * const T_requestedCells_bits[] = {
   &hf_lppe_T_requestedCells_eNBs,
   &hf_lppe_T_requestedCells_heNBs,
   NULL
@@ -5239,7 +5239,7 @@ dissect_lppe_OMA_LPPe_OTDOA_RequestAssistanceData(tvbuff_t *tvb _U_, int offset 
 }
 
 
-static const int * T_eotdAssistanceReq_bits[] = {
+static int * const T_eotdAssistanceReq_bits[] = {
   &hf_lppe_T_eotdAssistanceReq_ueAssisted,
   &hf_lppe_T_eotdAssistanceReq_ueBased,
   NULL
@@ -5268,7 +5268,7 @@ dissect_lppe_OMA_LPPe_EOTD_RequestAssistanceData(tvbuff_t *tvb _U_, int offset _
 }
 
 
-static const int * T_otdoaUtraAssistanceReq_bits[] = {
+static int * const T_otdoaUtraAssistanceReq_bits[] = {
   &hf_lppe_T_otdoaUtraAssistanceReq_ueAssisted,
   &hf_lppe_T_otdoaUtraAssistanceReq_ueBased,
   NULL
@@ -5297,7 +5297,7 @@ dissect_lppe_OMA_LPPe_OTDOA_UTRA_RequestAssistanceData(tvbuff_t *tvb _U_, int of
 }
 
 
-static const int * T_eNBrequestedAD_bits[] = {
+static int * const T_eNBrequestedAD_bits[] = {
   &hf_lppe_T_eNBrequestedAD_bslist,
   &hf_lppe_T_eNBrequestedAD_bslocation,
   &hf_lppe_T_eNBrequestedAD_transmit_power,
@@ -5319,7 +5319,7 @@ dissect_lppe_T_eNBrequestedAD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 }
 
 
-static const int * T_heNBrequestedAD_bits[] = {
+static int * const T_heNBrequestedAD_bits[] = {
   &hf_lppe_T_heNBrequestedAD_bslist,
   &hf_lppe_T_heNBrequestedAD_bslocation,
   &hf_lppe_T_heNBrequestedAD_locationreliability,
@@ -5355,7 +5355,7 @@ dissect_lppe_OMA_LPPe_ECID_LTE_RequestAssistanceData(tvbuff_t *tvb _U_, int offs
 }
 
 
-static const int * T_requestedAD_bits[] = {
+static int * const T_requestedAD_bits[] = {
   &hf_lppe_T_requestedAD_bslist,
   &hf_lppe_T_requestedAD_bslocation,
   &hf_lppe_T_requestedAD_transmit_power,
@@ -5390,7 +5390,7 @@ dissect_lppe_OMA_LPPe_ECID_GSM_RequestAssistanceData(tvbuff_t *tvb _U_, int offs
 }
 
 
-static const int * T_nBrequestedAD_bits[] = {
+static int * const T_nBrequestedAD_bits[] = {
   &hf_lppe_T_nBrequestedAD_bslist,
   &hf_lppe_T_nBrequestedAD_bslocation,
   &hf_lppe_T_nBrequestedAD_transmit_power,
@@ -5411,7 +5411,7 @@ dissect_lppe_T_nBrequestedAD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 }
 
 
-static const int * T_hNBrequestedAD_bits[] = {
+static int * const T_hNBrequestedAD_bits[] = {
   &hf_lppe_T_hNBrequestedAD_bslist,
   &hf_lppe_T_hNBrequestedAD_bslocation,
   &hf_lppe_T_hNBrequestedAD_locationreliability,
@@ -5446,7 +5446,7 @@ dissect_lppe_OMA_LPPe_ECID_UTRA_RequestAssistanceData(tvbuff_t *tvb _U_, int off
 }
 
 
-static const int * T_requestedAD_01_bits[] = {
+static int * const T_requestedAD_01_bits[] = {
   &hf_lppe_T_requestedAD_01_aplist,
   &hf_lppe_T_requestedAD_01_aplocation,
   &hf_lppe_T_requestedAD_01_locationreliability,
@@ -12555,7 +12555,7 @@ dissect_lppe_OMA_LPPe_AGNSS_PositioningInstructions(tvbuff_t *tvb _U_, int offse
 }
 
 
-static const int * T_ionosphereMeasurementsReq_bits[] = {
+static int * const T_ionosphereMeasurementsReq_bits[] = {
   &hf_lppe_T_ionosphereMeasurementsReq_tecPerSV,
   &hf_lppe_T_ionosphereMeasurementsReq_zenithTEC,
   NULL
@@ -12639,7 +12639,7 @@ dissect_lppe_OMA_LPPe_OTDOA_UTRA_RequestLocationInformation(tvbuff_t *tvb _U_, i
 }
 
 
-static const int * T_requestedMeasurements_bits[] = {
+static int * const T_requestedMeasurements_bits[] = {
   &hf_lppe_T_requestedMeasurements_rsrp,
   &hf_lppe_T_requestedMeasurements_rsrq,
   &hf_lppe_T_requestedMeasurements_ueRxTx,
@@ -12671,7 +12671,7 @@ dissect_lppe_OMA_LPPe_ECID_LTE_RequestLocationInformation(tvbuff_t *tvb _U_, int
 }
 
 
-static const int * T_requestedMeasurements_01_bits[] = {
+static int * const T_requestedMeasurements_01_bits[] = {
   &hf_lppe_T_requestedMeasurements_01_rxLevel,
   &hf_lppe_T_requestedMeasurements_01_tA,
   &hf_lppe_T_requestedMeasurements_01_nMR_GERAN,
@@ -12703,7 +12703,7 @@ dissect_lppe_OMA_LPPe_ECID_GSM_RequestLocationInformation(tvbuff_t *tvb _U_, int
 }
 
 
-static const int * T_requestedMeasurements_02_bits[] = {
+static int * const T_requestedMeasurements_02_bits[] = {
   &hf_lppe_T_requestedMeasurements_02_measuredResultsList,
   &hf_lppe_T_requestedMeasurements_02_tdd_timingAdvance,
   &hf_lppe_T_requestedMeasurements_02_mRL_utra_CarrierRSSI,
@@ -12740,7 +12740,7 @@ dissect_lppe_OMA_LPPe_ECID_UTRA_RequestLocationInformation(tvbuff_t *tvb _U_, in
 }
 
 
-static const int * T_requestedMeasurements_03_bits[] = {
+static int * const T_requestedMeasurements_03_bits[] = {
   &hf_lppe_T_requestedMeasurements_03_apSSID,
   &hf_lppe_T_requestedMeasurements_03_apSN,
   &hf_lppe_T_requestedMeasurements_03_apDevType,
@@ -12769,7 +12769,7 @@ dissect_lppe_T_requestedMeasurements_03(tvbuff_t *tvb _U_, int offset _U_, asn1_
 }
 
 
-static const int * T_additionalRequestedMeasurements_bits[] = {
+static int * const T_additionalRequestedMeasurements_bits[] = {
   &hf_lppe_T_additionalRequestedMeasurements_oc,
   &hf_lppe_T_additionalRequestedMeasurements_ueMacAddr,
   NULL
@@ -12799,7 +12799,7 @@ dissect_lppe_OMA_LPPe_WLAN_AP_RequestLocationInformation(tvbuff_t *tvb _U_, int 
 }
 
 
-static const int * T_requestedMeasurements_04_bits[] = {
+static int * const T_requestedMeasurements_04_bits[] = {
   &hf_lppe_T_requestedMeasurements_04_rTD,
   &hf_lppe_T_requestedMeasurements_04_rTDstd,
   &hf_lppe_T_requestedMeasurements_04_nMR,
@@ -15190,7 +15190,7 @@ dissect_lppe_T_primaryMotionState(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 }
 
 
-static const int * T_secondaryMotionState_bits[] = {
+static int * const T_secondaryMotionState_bits[] = {
   &hf_lppe_T_secondaryMotionState_stationary,
   &hf_lppe_T_secondaryMotionState_pedestrian,
   &hf_lppe_T_secondaryMotionState_running,

@@ -349,7 +349,7 @@ static gboolean use_main_tree  = TRUE;
  * Protocol Specification", also describes a protocol that runs atop IP,
  * with a protocol number of 103, and with a PIM version number field of 2.
  */
-static const gint *pim_src_flags_fields[] = {
+static int * const pim_src_flags_fields[] = {
     &hf_pim_src_flags_a,
     &hf_pim_src_flags_s,
     &hf_pim_src_flags_w,
@@ -358,14 +358,14 @@ static const gint *pim_src_flags_fields[] = {
     NULL
 };
 
-static const int *pim_group_addr_flags[] = {
+static int * const pim_group_addr_flags[] = {
     &hf_pim_group_addr_flags_b,
     &hf_pim_group_addr_flags_reserved,
     &hf_pim_group_addr_flags_z,
     NULL
 };
 
-static const int *pim_source_addr_flags[] = {
+static int * const pim_source_addr_flags[] = {
     &hf_pim_source_addr_flags_reserved,
     &hf_pim_source_addr_flags_s,
     &hf_pim_source_addr_flags_w,
@@ -373,7 +373,7 @@ static const int *pim_source_addr_flags[] = {
     NULL
 };
 
-static const int *pim_source_ja_flags[] = {
+static int * const pim_source_ja_flags[] = {
     &hf_pim_source_ja_flags_f,
     &hf_pim_source_ja_flags_e,
     &hf_pim_source_ja_flags_attr_type,

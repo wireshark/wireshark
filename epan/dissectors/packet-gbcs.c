@@ -1409,7 +1409,7 @@ dissect_gbcs_message_gbt_header(tvbuff_t *tvb, proto_tree *tree, guint *offset,
     proto_tree_add_item(gbt_header_tree, hf_gbcs_message_gbt_header_general_block_transfer, tvb, *offset, 1, ENC_NA);
     *offset += 1;
 
-    static const int* block_control[] = {
+    static int* const block_control[] = {
             &hf_gbcs_message_gbt_header_block_control_last_block,
             &hf_gbcs_message_gbt_header_block_control_streaming,
             &hf_gbcs_message_gbt_header_block_control_window,

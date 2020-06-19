@@ -55,7 +55,7 @@ static gint ett_ebhscr_packet_header = -1;
 static gint ett_ebhscr_status = -1;
 static gint ett_ebhscr_mjr_hdr = -1;
 
-static const int *eth_error_bits[] = {
+static int * const eth_error_bits[] = {
 	&hf_eth_crc_error,
 	&hf_eth_mii_foe,
 	&hf_eth_payload_foe,
@@ -67,7 +67,7 @@ static const int *eth_error_bits[] = {
 	NULL
 };
 
-static const int *eth_mjr_hdr_bits[] = {
+static int * const eth_mjr_hdr_bits[] = {
 	&hf_eth_link_up_down,
 	&hf_eth_master_slave,
 	&hf_eth_speed,

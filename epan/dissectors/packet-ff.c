@@ -2232,7 +2232,7 @@ dissect_ff_msg_sm_find_tag_reply_req_dup_detection_state(tvbuff_t *tvb,
      * Bit 1:    1 = Duplicate Device Index Detected
      *           0 = Duplicate Device Index Not Detected
      */
-    static const int * dup_flags[] = {
+    static int * const dup_flags[] = {
         &hf_ff_sm_find_tag_reply_dup_reserved,
         &hf_ff_sm_find_tag_reply_dup_pd_tag,
         &hf_ff_sm_find_tag_reply_dup_device,
@@ -2501,7 +2501,7 @@ dissect_ff_msg_sm_id_rsp_smk_state(tvbuff_t *tvb,
      *    0 = Not Synchronized with SNTP Time Server
      *    1 = Synchronized with SNTP Time Server
      */
-    static const int * state_flags[] = {
+    static int * const state_flags[] = {
         &hf_ff_sm_id_rsp_smk_state_name,
         &hf_ff_sm_id_rsp_smk_state_sync,
         NULL
@@ -2531,7 +2531,7 @@ dissect_ff_msg_sm_id_rsp_dev_type(tvbuff_t *tvb,
      *    6 = Type D-3 and Type D-1 Device
      *    7 = Type D-3 and D-2 and Type D-1 Device
      */
-    static const int * device_flags[] = {
+    static int * const device_flags[] = {
         &hf_ff_sm_id_rsp_dev_type_link,
         &hf_ff_sm_id_rsp_dev_type_iogateway,
         &hf_ff_sm_id_rsp_dev_type_hse,
@@ -2561,7 +2561,7 @@ dissect_ff_msg_sm_id_rsp_dev_redundancy_state(tvbuff_t *tvb,
      *    1 = Type D-2 Device
      *    2 = Type D-3 Device
      */
-    static const int * state_flags[] = {
+    static int * const state_flags[] = {
         &hf_ff_sm_id_rsp_dev_redundancy_state_reserved,
         &hf_ff_sm_id_rsp_dev_redundancy_state_role,
         &hf_ff_sm_id_rsp_dev_redundancy_state_type,
@@ -2584,7 +2584,7 @@ dissect_ff_msg_sm_id_rsp_dup_detection_state(tvbuff_t *tvb,
      * Bit 1:    1 = Duplicate Device Index Detected
      *           0 = Duplicate Device Index Not Detected
      */
-    static const int * dup_flags[] = {
+    static int * const dup_flags[] = {
         &hf_ff_sm_id_rsp_dup_detection_state_reserved,
         &hf_ff_sm_id_rsp_dup_detection_state_pd_tag,
         &hf_ff_sm_id_rsp_dup_detection_state_device,
@@ -2901,7 +2901,7 @@ dissect_ff_msg_sm_set_assign_info_req_dev_redundancy_state(tvbuff_t *tvb,
      *    1 = Type D-2 Device
      *    2 = Type D-3 Device
      */
-    static const int * state_flags[] = {
+    static int * const state_flags[] = {
         &hf_ff_sm_set_assign_info_req_dev_redundancy_state_reserved,
         &hf_ff_sm_set_assign_info_req_dev_redundancy_state_role,
         &hf_ff_sm_set_assign_info_req_dev_redundancy_state_type,
@@ -2924,7 +2924,7 @@ dissect_ff_msg_sm_set_assign_info_req_clear_dup_detection_state(tvbuff_t *tvb,
      * Bit 1:    1 = Do not clear Duplicate Device Index Detected
      *           0 = Clear Duplicate Device Index Detected
      */
-    static const int * state_flags[] = {
+    static int * const state_flags[] = {
         &hf_ff_sm_set_assign_info_req_clear_dup_detection_state_reserved,
         &hf_ff_sm_set_assign_info_req_clear_dup_detection_state_pd_tag,
         &hf_ff_sm_set_assign_info_req_clear_dup_detection_state_device_index,
@@ -3336,7 +3336,7 @@ dissect_ff_msg_sm_dev_annunc_req_smk_state(tvbuff_t *tvb,
      *    0 = Not Synchronized with SNTP Time Server
      *    1 = Synchronized with SNTP Time Server
      */
-    static const int * state_flags[] = {
+    static int * const state_flags[] = {
         &hf_ff_sm_dev_annunc_req_smk_state_name,
         &hf_ff_sm_dev_annunc_req_smk_state_sync,
         NULL
@@ -3367,7 +3367,7 @@ dissect_ff_msg_sm_dev_annunc_req_dev_type(tvbuff_t *tvb,
      *    6 = Type D-3 and Type D-1 Device
      *    7 = Type D-3 and D-2 and Type D-1 Device
      */
-    static const int * device_flags[] = {
+    static int * const device_flags[] = {
         &hf_ff_sm_dev_annunc_req_dev_type_link,
         &hf_ff_sm_dev_annunc_req_dev_type_iogateway,
         &hf_ff_sm_dev_annunc_req_dev_type_hse,
@@ -3397,7 +3397,7 @@ dissect_ff_msg_sm_dev_annunc_req_dev_redundancy_state(tvbuff_t *tvb,
      *    1 = Type D-2 Device
      *    2 = Type D-3 Device
      */
-    static const int * device_flags[] = {
+    static int * const device_flags[] = {
         &hf_ff_sm_dev_annunc_req_dev_redundancy_state_reserved,
         &hf_ff_sm_dev_annunc_req_dev_redundancy_state_role,
         &hf_ff_sm_dev_annunc_req_dev_redundancy_state_type,
@@ -3420,7 +3420,7 @@ dissect_ff_msg_sm_dev_annunc_req_dup_detection_state(tvbuff_t *tvb,
      * Bit 1:    1 = Duplicate Device Index Detected
      *           0 = Duplicate Device Index Not Detected
      */
-    static const int * state_flags[] = {
+    static int * const state_flags[] = {
         &hf_ff_sm_dev_annunc_req_dup_detection_state_reserved,
         &hf_ff_sm_dev_annunc_req_dup_detection_state_pd_tag,
         &hf_ff_sm_dev_annunc_req_dup_detection_state_device,
@@ -7776,7 +7776,7 @@ dissect_ff_msg_lr_get_info_rsp_lr_flags(tvbuff_t *tvb,
      *             0 = False Transmit on both interfaces
      *             1 = True  Transmit on one interface
      */
-    static const int * lan_flags[] = {
+    static int * const lan_flags[] = {
         &hf_ff_lr_get_info_rsp_lr_flags_reserved,
         &hf_ff_lr_get_info_rsp_lr_flags_load_balance,
         &hf_ff_lr_get_info_rsp_lr_flags_diag,
@@ -7966,7 +7966,7 @@ dissect_ff_msg_lr_put_info_req_lr_flags(tvbuff_t *tvb,
      *             0 = False Transmit on both interfaces
      *             1 = True  Transmit on one interface
      */
-    static const int * lan_flags[] = {
+    static int * const lan_flags[] = {
         &hf_ff_lr_put_info_req_lr_flags_reserved,
         &hf_ff_lr_put_info_req_lr_flags_load_balance,
         &hf_ff_lr_put_info_req_lr_flags_diag,
@@ -8101,7 +8101,7 @@ dissect_ff_msg_lr_put_info_rsp_lr_flags(tvbuff_t *tvb,
      *             0 = False Transmit on both interfaces
      *             1 = True  Transmit on one interface
      */
-    static const int * lan_flags[] = {
+    static int * const lan_flags[] = {
         &hf_ff_lr_put_info_rsp_lr_flags_reserved,
         &hf_ff_lr_put_info_rsp_lr_flags_load_balance,
         &hf_ff_lr_put_info_rsp_lr_flags_diag,
@@ -8461,7 +8461,7 @@ dissect_ff_msg_diagnostic_msg_req_dup_detection_stat(tvbuff_t *tvb,
      * Bit 18:   1 = Duplicate Device Index Detected
      *           0 = Duplicate Device Index Not Detected
      */
-    static const int * dup_flags[] = {
+    static int * const dup_flags[] = {
         &hf_ff_lr_diagnostic_msg_req_dup_detection_state_reserved,
         &hf_ff_lr_diagnostic_msg_req_dup_detection_state_pd_tag,
         &hf_ff_lr_diagnostic_msg_req_dup_detection_state_device,
@@ -10885,7 +10885,7 @@ static void
 dissect_ff_msg_hdr_proto_and_type(tvbuff_t *tvb,
     gint offset, proto_tree *tree)
 {
-    static const int * header[] = {
+    static int * const header[] = {
         &hf_ff_hdr_proto_id,
         &hf_ff_hdr_confirm_msg_type,
         NULL
@@ -10904,7 +10904,7 @@ static void
 dissect_ff_msg_hdr_opts(tvbuff_t *tvb,
     gint offset, proto_tree *tree)
 {
-    static const int * options[] = {
+    static int * const options[] = {
         &hf_ff_hdr_opts_msg_num,
         &hf_ff_hdr_opts_invoke_id,
         &hf_ff_hdr_opts_timestamp,

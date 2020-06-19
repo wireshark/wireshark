@@ -672,13 +672,13 @@ dissect_mmc4_readdiscinformation (tvbuff_t *tvb_a, packet_info *pinfo _U_, proto
             ett_scsi_control, cdb_control_fields, ENC_BIG_ENDIAN);
     }
     if (!isreq) {
-        static const int *disk_fields[] = {
+        static int * const disk_fields[] = {
             &hf_scsi_mmc_disc_info_erasable,
             &hf_scsi_mmc_disc_info_state_of_last_session,
             &hf_scsi_mmc_disc_info_disk_status,
             NULL
         };
-        static const int *format_fields[] = {
+        static int * const format_fields[] = {
             &hf_scsi_mmc_disc_info_did_v,
             &hf_scsi_mmc_disc_info_dbc_v,
             &hf_scsi_mmc_disc_info_uru,
@@ -980,13 +980,13 @@ dissect_mmc4_readtrackinformation (tvbuff_t *tvb_a, packet_info *pinfo _U_, prot
             ett_scsi_control, cdb_control_fields, ENC_BIG_ENDIAN);
     }
     if (!isreq) {
-        static const int *track_fields[] = {
+        static int * const track_fields[] = {
             &hf_scsi_mmc_rti_damage,
             &hf_scsi_mmc_rti_copy,
             &hf_scsi_mmc_rti_track_mode,
             NULL
         };
-        static const int *data_fields[] = {
+        static int * const data_fields[] = {
             &hf_scsi_mmc_rti_rt,
             &hf_scsi_mmc_rti_blank,
             &hf_scsi_mmc_rti_packet,
@@ -1045,7 +1045,7 @@ dissect_mmc4_geteventstatusnotification (tvbuff_t *tvb, packet_info *pinfo _U_, 
 
 {
     if (tree && isreq && iscdb) {
-        static const int *notification_fields[] = {
+        static int * const notification_fields[] = {
             &hf_scsi_mmc_gesn_device_busy,
             &hf_scsi_mmc_gesn_multi_initiator,
             &hf_scsi_mmc_gesn_media,
@@ -1228,7 +1228,7 @@ dissect_mmc_preventallowmediaremoval(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 {
     if (isreq && iscdb) {
         guint8 flags;
-        static const int *prevent_allow_fields[] = {
+        static int * const prevent_allow_fields[] = {
             &hf_scsi_mmc_prevent_allow_persistent,
             &hf_scsi_mmc_prevent_allow_prevent,
             NULL

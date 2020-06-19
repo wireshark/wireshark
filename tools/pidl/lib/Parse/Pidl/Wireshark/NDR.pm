@@ -218,7 +218,7 @@ sub Bitmap($$$$)
 	}
 	if ($element_count > 0) {
 		$self->pidl_code("proto_item *item;");
-		$self->pidl_code("static const int * $ifname\_$name\_fields[] = {");
+		$self->pidl_code("static int * const $ifname\_$name\_fields[] = {");
 		$self->indent;
 		foreach (@{$e->{ELEMENTS}}) {
 			next unless (/([^ ]*) (.*)/);

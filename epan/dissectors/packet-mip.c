@@ -603,7 +603,7 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree, packet_info
     case REV_SUPP_EXT:      /* RFC 3543 */
       {
       /* flags */
-      static const int * flags[] = {
+      static int * const flags[] = {
         &hf_mip_rext_i,
         &hf_mip_rext_reserved,
         NULL
@@ -630,7 +630,7 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree, packet_info
       break;
     case UDP_TUN_REQ_EXT:   /* RFC 3519 */
       {
-      static const int * flags[] = {
+      static int * const flags[] = {
         &hf_mip_utrqext_f,
         &hf_mip_utrqext_r,
         &hf_mip_utrqext_reserved2,
@@ -655,7 +655,7 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree, packet_info
       break;
     case UDP_TUN_REP_EXT:   /* RFC 3519 */
       {
-      static const int * flags[] = {
+      static int * const flags[] = {
         &hf_mip_utrpext_f,
         &hf_mip_utrpext_reserved,
         NULL
@@ -844,7 +844,7 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                tvb_ip_to_str(tvb, 12));
 
     if (tree) {
-      static const int * flags[] = {
+      static int * const flags[] = {
         &hf_mip_s,
         &hf_mip_b,
         &hf_mip_d,
@@ -966,7 +966,7 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                tvb_ip_to_str(tvb, 12));
 
     if (tree) {
-      static const int * mip_flags[] = {
+      static int * const mip_flags[] = {
         &hf_mip_rev_a,
         &hf_mip_rev_i,
         &hf_mip_rev_reserved2,
@@ -1012,7 +1012,7 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                tvb_ip_to_str(tvb, 4));
 
     if (tree) {
-      static const int * mip_flags[] = {
+      static int * const mip_flags[] = {
         &hf_mip_ack_i,
         &hf_mip_ack_reserved2,
         NULL

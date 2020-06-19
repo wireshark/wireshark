@@ -607,7 +607,7 @@ netlogon_dissect_EXTRA_FLAGS(tvbuff_t *tvb, int offset,
                              packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep)
 {
     guint32 mask;
-    static const int * extraflags[] = {
+    static int * const extraflags[] = {
         &hf_netlogon_extra_flags_root_forest,
         &hf_netlogon_trust_flags_dc_firsthop,
         &hf_netlogon_trust_flags_rodc_to_dc,
@@ -777,7 +777,7 @@ netlogon_dissect_USER_ACCOUNT_CONTROL(tvbuff_t *tvb, int offset,
                                       packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep)
 {
     guint32 mask;
-    static const int * uac[] = {
+    static int * const uac[] = {
         &hf_netlogon_user_account_control_dont_require_preauth,
         &hf_netlogon_user_account_control_use_des_key_only,
         &hf_netlogon_user_account_control_not_delegated,
@@ -1479,7 +1479,7 @@ netlogon_dissect_GROUP_MEMBERSHIP_ATTRIBUTES(tvbuff_t *tvb, int offset,
                                              packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep)
 {
     guint32 mask;
-    static const int * attr[] = {
+    static int * const attr[] = {
         &hf_netlogon_group_attrs_enabled,
         &hf_netlogon_group_attrs_enabled_by_default,
         &hf_netlogon_group_attrs_mandatory,
@@ -1574,7 +1574,7 @@ netlogon_dissect_USER_FLAGS(tvbuff_t *tvb, int offset,
                             packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep)
 {
     guint32 mask;
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_netlogon_user_flags_resource_groups,
         &hf_netlogon_user_flags_extra_sids,
         NULL
@@ -5310,7 +5310,7 @@ netlogon_dissect_DOMAIN_TRUST_FLAGS(tvbuff_t *tvb, int offset,
                                     packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep)
 {
     guint32 mask;
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_netlogon_trust_flags_inbound,
         &hf_netlogon_trust_flags_native_mode,
         &hf_netlogon_trust_flags_primary,
@@ -5368,7 +5368,7 @@ netlogon_dissect_DOMAIN_TRUST_ATTRIBS(tvbuff_t *tvb, int offset,
                                       packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep)
 {
     guint32 mask;
-    static const int * attr[] = {
+    static int * const attr[] = {
         &hf_netlogon_trust_attribs_treat_as_external,
         &hf_netlogon_trust_attribs_within_forest,
         &hf_netlogon_trust_attribs_cross_organization,
@@ -5483,7 +5483,7 @@ netlogon_dissect_GET_DCNAME_REQUEST_FLAGS(tvbuff_t *tvb, int offset,
                                           packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep)
 {
     guint32 mask;
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_netlogon_get_dcname_request_flags_return_flat_name,
         &hf_netlogon_get_dcname_request_flags_return_dns_name,
         &hf_netlogon_get_dcname_request_flags_is_flat_name,
@@ -5589,7 +5589,7 @@ netlogon_dissect_DC_FLAGS(tvbuff_t *tvb, int offset,
 {
     guint32 mask;
     proto_item *item;
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_netlogon_dc_flags_dns_forest_flag,
         &hf_netlogon_dc_flags_dns_domain_flag,
         &hf_netlogon_dc_flags_dns_controller_flag,
@@ -6642,7 +6642,7 @@ netlogon_dissect_netrlogoncomputeclientdigest_reply(tvbuff_t *tvb, int offset,
 }
 static int netlogon_dissect_neg_options(tvbuff_t *tvb,proto_tree *tree,guint32 flags,int offset)
 {
-    static const int * hf_flags[] = {
+    static int * const hf_flags[] = {
 #if 0
         &hf_netlogon_neg_flags_80000000,
 #endif
@@ -7612,7 +7612,7 @@ static int dissect_secchan_nl_auth_message(tvbuff_t *tvb, int offset,
     proto_tree *subtree = NULL;
     guint32 messagetype;
     guint64 messageflags;
-    static const int *flag_fields[] = {
+    static int * const flag_fields[] = {
         &hf_netlogon_secchan_nl_message_flags_nb_domain,
         &hf_netlogon_secchan_nl_message_flags_nb_host,
         &hf_netlogon_secchan_nl_message_flags_dns_domain,

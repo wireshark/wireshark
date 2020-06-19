@@ -612,7 +612,7 @@ static int hf_bthci_cmd_authenticated_payload_timeout = -1;
 static int hf_bthci_cmd_extended_inquiry_length = -1;
 
 
-static const int *hfx_bthci_cmd_le_event_mask[] = {
+static int * const hfx_bthci_cmd_le_event_mask[] = {
     &hf_bthci_cmd_le_event_mask_le_reserved,
     &hf_bthci_cmd_le_event_mask_le_biginfo_advertising_report,
     &hf_bthci_cmd_le_event_mask_le_transmit_power_reporting,
@@ -651,7 +651,7 @@ static const int *hfx_bthci_cmd_le_event_mask[] = {
     NULL
 };
 
-static const int *hfx_bthci_cmd_adv_properties[] = {
+static int * const hfx_bthci_cmd_adv_properties[] = {
     &hf_bthci_cmd_advertising_properties_reserved,
     &hf_bthci_cmd_advertising_properties_incl_txpower,
     &hf_bthci_cmd_advertising_properties_anonymous_adv,
@@ -663,20 +663,20 @@ static const int *hfx_bthci_cmd_adv_properties[] = {
     NULL
 };
 
-static const int *hfx_bthci_cmd_periodic_adv_properties[] = {
+static int * const hfx_bthci_cmd_periodic_adv_properties[] = {
     &hf_bthci_cmd_periodic_advertising_properties_reserved,
     &hf_bthci_cmd_advertising_properties_incl_txpower,
     NULL
 };
 
-static const int *hfx_btcmd_all_phys[] = {
+static int * const hfx_btcmd_all_phys[] = {
     &hf_bthci_cmd_all_phys_reserved,
     &hf_bthci_cmd_all_phys_rx_pref,
     &hf_bthci_cmd_all_phys_tx_pref,
     NULL
 };
 
-static const int *hfx_btcmd_phys_pref[] = {
+static int * const hfx_btcmd_phys_pref[] = {
     &hf_bthci_cmd_phys_pref_reserved,
     &hf_bthci_cmd_phys_pref_le_coded,
     &hf_bthci_cmd_phys_pref_le_2m,
@@ -684,20 +684,20 @@ static const int *hfx_btcmd_phys_pref[] = {
     NULL
 };
 
-static const int *hfx_btcmd_phy_options[] = {
+static int * const hfx_btcmd_phy_options[] = {
     &hf_bthci_cmd_phy_options_reserved,
     &hf_bthci_cmd_phy_options_coding,
     NULL
 };
 
-static const int *hfx_btcmd_le_scan_phys[] = {
+static int * const hfx_btcmd_le_scan_phys[] = {
     &hf_bthci_cmd_le_scan_phys_reserved,
     &hf_bthci_cmd_le_scan_phys_le_coded,
     &hf_bthci_cmd_le_scan_phys_le_1m,
     NULL
 };
 
-static const int *hfx_btcmd_le_phys[] = {
+static int * const hfx_btcmd_le_phys[] = {
     &hf_bthci_cmd_le_phys_reserved,
     &hf_bthci_cmd_le_phys_le_coded,
     &hf_bthci_cmd_le_phys_le_2m,
@@ -705,7 +705,7 @@ static const int *hfx_btcmd_le_phys[] = {
     NULL
 };
 
-static const int *hfx_btcmd_sync_cte_type[] = {
+static int * const hfx_btcmd_sync_cte_type[] = {
     &hf_bthci_cmd_sync_cte_type_reserved,
     &hf_bthci_cmd_sync_cte_type_sync_only_with_cte,
     &hf_bthci_cmd_sync_cte_type_no_sync_aod_2us,
@@ -714,7 +714,7 @@ static const int *hfx_btcmd_sync_cte_type[] = {
     NULL
 };
 
-static const int *hfx_btcmd_cte_types[] = {
+static int * const hfx_btcmd_cte_types[] = {
     &hf_bthci_cmd_cte_types_reserved,
     &hf_bthci_cmd_cte_types_aod_2us,
     &hf_bthci_cmd_cte_types_aod_1us,
@@ -722,7 +722,7 @@ static const int *hfx_btcmd_cte_types[] = {
     NULL
 };
 
-static const int *hfx_bthci_cmd_sco_packet_type[] = {
+static int * const hfx_bthci_cmd_sco_packet_type[] = {
     &hf_bthci_cmd_sco_packet_type_reserved,
     &hf_bthci_cmd_sco_packet_type_3ev5,
     &hf_bthci_cmd_sco_packet_type_2ev5,
@@ -737,7 +737,7 @@ static const int *hfx_bthci_cmd_sco_packet_type[] = {
     NULL
 };
 
-static const int *hfx_bthci_cmd_packet_type[] = {
+static int * const hfx_bthci_cmd_packet_type[] = {
     &hf_bthci_cmd_packet_type_dh5,
     &hf_bthci_cmd_packet_type_dm5,
     &hf_bthci_cmd_packet_type_3dh5,
@@ -971,7 +971,7 @@ static gint hf_btcommon_eir_ad_mesh_msg = -1;
 static gint hf_btcommon_eir_ad_mesh_pbadv = -1;
 static gint hf_btcommon_eir_ad_mesh_beacon = -1;
 
-static const int *hfx_btcommon_eir_ad_ips_flags[] = {
+static int * const hfx_btcommon_eir_ad_ips_flags[] = {
     &hf_btcommon_eir_ad_ips_flags_reserved,
     &hf_btcommon_eir_ad_ips_flags_location_name,
     &hf_btcommon_eir_ad_ips_flags_uncertainty,
@@ -983,7 +983,7 @@ static const int *hfx_btcommon_eir_ad_ips_flags[] = {
     NULL
 };
 
-static const int *hfx_btcommon_eir_ad_ips_uncertainty[] = {
+static int * const hfx_btcommon_eir_ad_ips_uncertainty[] = {
     &hf_btcommon_eir_ad_ips_uncertainty_reserved,
     &hf_btcommon_eir_ad_ips_uncertainty_precision,
     &hf_btcommon_eir_ad_ips_uncertainty_update_time,
@@ -991,7 +991,7 @@ static const int *hfx_btcommon_eir_ad_ips_uncertainty[] = {
     NULL
 };
 
-static const int *hfx_btcommon_eir_ad_tds_flags[] = {
+static int * const hfx_btcommon_eir_ad_tds_flags[] = {
     &hf_btcommon_eir_ad_tds_flags_reserved,
     &hf_btcommon_eir_ad_tds_flags_transport_state,
     &hf_btcommon_eir_ad_tds_flags_transport_data_incomplete,
@@ -999,7 +999,7 @@ static const int *hfx_btcommon_eir_ad_tds_flags[] = {
     NULL
 };
 
-static const int *hfx_btcommon_eir_ad_le_features_0[] = {
+static int * const hfx_btcommon_eir_ad_le_features_0[] = {
     &hf_btcommon_eir_ad_le_features_encryption,
     &hf_btcommon_eir_ad_le_features_connection_parameters_request_procedure,
     &hf_btcommon_eir_ad_le_features_extended_reject_indication,
@@ -1011,7 +1011,7 @@ static const int *hfx_btcommon_eir_ad_le_features_0[] = {
     NULL
 };
 
-static const int *hfx_btcommon_eir_ad_le_features_1[] = {
+static int * const hfx_btcommon_eir_ad_le_features_1[] = {
     &hf_btcommon_eir_ad_le_features_2m_phy,
     &hf_btcommon_eir_ad_le_features_stable_modulation_index_tx,
     &hf_btcommon_eir_ad_le_features_stable_modulation_index_rx,
@@ -1023,18 +1023,18 @@ static const int *hfx_btcommon_eir_ad_le_features_1[] = {
     NULL
 };
 
-static const int *hfx_btcommon_eir_ad_le_features_2[] = {
+static int * const hfx_btcommon_eir_ad_le_features_2[] = {
     &hf_btcommon_eir_ad_le_features_minimum_number_of_used_channels_procedure,
     &hf_btcommon_eir_ad_le_features_reserved_1_7,
     NULL
 };
 
-static const int *hfx_btcommon_eir_ad_le_features_reserved[] = {
+static int * const hfx_btcommon_eir_ad_le_features_reserved[] = {
     &hf_btcommon_eir_ad_le_features_reserved,
     NULL
 };
 
-static const int **hfx_btcommon_eir_ad_le_features[] = {
+static int * const *hfx_btcommon_eir_ad_le_features[] = {
     hfx_btcommon_eir_ad_le_features_0,
     hfx_btcommon_eir_ad_le_features_1,
     hfx_btcommon_eir_ad_le_features_2,

@@ -11509,7 +11509,7 @@ dissect_nbap_CommonPhysicalChannelID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 }
 
 
-static const int * PreambleSignatures_bits[] = {
+static int * const PreambleSignatures_bits[] = {
   &hf_nbap_PreambleSignatures_signature15,
   &hf_nbap_PreambleSignatures_signature14,
   &hf_nbap_PreambleSignatures_signature13,
@@ -29166,7 +29166,7 @@ dissect_nbap_RACH_SlotFormat(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 }
 
 
-static const int * RACH_SubChannelNumbers_bits[] = {
+static int * const RACH_SubChannelNumbers_bits[] = {
   &hf_nbap_RACH_SubChannelNumbers_subCh11,
   &hf_nbap_RACH_SubChannelNumbers_subCh10,
   &hf_nbap_RACH_SubChannelNumbers_subCh9,

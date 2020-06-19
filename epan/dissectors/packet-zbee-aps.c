@@ -776,7 +776,7 @@ dissect_zbee_aps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     guint8                                      fcf;
     guint8                                      offset = 0;
 
-    static const int   * frag_ack_flags[] = {
+    static int * const frag_ack_flags[] = {
         &hf_zbee_aps_block_ack1,
         &hf_zbee_aps_block_ack2,
         &hf_zbee_aps_block_ack3,

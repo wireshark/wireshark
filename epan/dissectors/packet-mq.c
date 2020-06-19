@@ -104,7 +104,7 @@ static int hf_mq_tsh_tcf_first = -1;
 static int hf_mq_tsh_tcf_last = -1;
 static int hf_mq_tsh_tcf_reqacc = -1;
 static int hf_mq_tsh_tcf_dlq = -1;
-static const int *pf_flds_tcf[] =
+static int * const pf_flds_tcf[] =
 {
     &hf_mq_tsh_tcf_dlq       ,
     &hf_mq_tsh_tcf_reqacc    ,
@@ -122,7 +122,7 @@ static int hf_mq_tsh_tcf2_HdrComp = -1;
 static int hf_mq_tsh_tcf2_MsgComp = -1;
 static int hf_mq_tsh_tcf2_CSH = -1;
 static int hf_mq_tsh_tcf2_CmitIntv = -1;
-static const int *pf_flds_tcf2[] =
+static int * const pf_flds_tcf2[] =
 {
     &hf_mq_tsh_tcf2_CmitIntv,
     &hf_mq_tsh_tcf2_CSH     ,
@@ -194,7 +194,7 @@ static int hf_mq_id_icf1_RqstSecu = -1;
 static int hf_mq_id_icf1_mqreq = -1;
 static int hf_mq_id_icf1_svrsec = -1;
 static int hf_mq_id_icf1_runtime = -1;
-static const int *pf_flds_icf1[] =
+static int * const pf_flds_icf1[] =
 {
     &hf_mq_id_icf1_runtime ,
     &hf_mq_id_icf1_svrsec  ,
@@ -216,7 +216,7 @@ static int hf_mq_id_ief1_mxmsgsz = -1;
 static int hf_mq_id_ief1_mxmsgpb = -1;
 static int hf_mq_id_ief1_seqwrap = -1;
 static int hf_mq_id_ief1_hbint = -1;
-static const int *pf_flds_ief1[] =
+static int * const pf_flds_ief1[] =
 {
     &hf_mq_id_ief1_hbint  ,
     &hf_mq_id_ief1_seqwrap,
@@ -238,7 +238,7 @@ static int hf_mq_id_icf2_XARunTApp = -1;
 static int hf_mq_id_icf2_SPIRqst = -1;
 static int hf_mq_id_icf2_DualUOW = -1;
 static int hf_mq_id_icf2_CanTrcRte = -1;
-static const int *pf_flds_icf2[] =
+static int * const pf_flds_icf2[] =
 {
     &hf_mq_id_icf2_CanTrcRte,
     &hf_mq_id_icf2_SPIRqst  ,
@@ -255,7 +255,7 @@ static const int *pf_flds_icf2[] =
 static int hf_mq_id_ief2_HdrCmpLst = -1;
 static int hf_mq_id_ief2_MsgCmpLst = -1;
 static int hf_mq_id_ief2_SSLReset = -1;
-static const int *pf_flds_ief2[] =
+static int * const pf_flds_ief2[] =
 {
     &hf_mq_id_ief2_SSLReset ,
     &hf_mq_id_ief2_MsgCmpLst,
@@ -267,7 +267,7 @@ static const int *pf_flds_ief2[] =
 static int hf_mq_id_icf3_CanMsgPrp = -1;
 static int hf_mq_id_icf3_CanMulticast = -1;
 static int hf_mq_id_icf3_MPlxSyGet = -1;
-static const int *pf_flds_icf3[] =
+static int * const pf_flds_icf3[] =
 {
     &hf_mq_id_icf3_MPlxSyGet,
     &hf_mq_id_icf3_CanMulticast,
@@ -281,7 +281,7 @@ static int hf_mq_id_ief3_CanMulticast = -1;
 static int hf_mq_id_ief3_PropIntSep = -1;
 static int hf_mq_id_ief3_MPlxSyGet = -1;
 static int hf_mq_id_ief3_ProtAlgorit = -1;
-static const int *pf_flds_ief3[] =
+static int * const pf_flds_ief3[] =
 {
     &hf_mq_id_ief3_ProtAlgorit,
     &hf_mq_id_ief3_MPlxSyGet,
@@ -345,7 +345,7 @@ static int hf_mq_spi_spgo_size = -1;
 static int hf_mq_spi_opt_blank = -1;
 static int hf_mq_spi_opt_syncp = -1;
 static int hf_mq_spi_opt_deferred = -1;
-static const int *pf_flds_spiopt[] =
+static int * const pf_flds_spiopt[] =
 {
     &hf_mq_spi_opt_deferred,
     &hf_mq_spi_opt_syncp,
@@ -361,7 +361,7 @@ static int hf_mq_close_options_DELETE_PURGE = -1;
 static int hf_mq_close_options_KEEP_SUB = -1;
 static int hf_mq_close_options_REMOVE_SUB = -1;
 static int hf_mq_close_options_QUIESCE = -1;
-static const int *pf_flds_clsopt[] =
+static int * const pf_flds_clsopt[] =
 {
     &hf_mq_close_options_QUIESCE     ,
     &hf_mq_close_options_REMOVE_SUB  ,
@@ -395,7 +395,7 @@ static int hf_mq_open_options_NO_READ_AHEAD = -1;
 static int hf_mq_open_options_READ_AHEAD = -1;
 static int hf_mq_open_options_NO_MULTICAST = -1;
 static int hf_mq_open_options_BIND_ON_GROUP = -1;
-static const int *pf_flds_opnopt[] =
+static int * const pf_flds_opnopt[] =
 {
     &hf_mq_open_options_BIND_ON_GROUP  ,
     &hf_mq_open_options_NO_MULTICAST   ,
@@ -562,7 +562,7 @@ static int hf_mq_gmo_options_SET_SIGNAL = -1;
 static int hf_mq_gmo_options_NO_SYNCPOINT = -1;
 static int hf_mq_gmo_options_SYNCPOINT = -1;
 static int hf_mq_gmo_options_WAIT = -1;
-static const int *pf_flds_gmoopt[] =
+static int * const pf_flds_gmoopt[] =
 {
     &hf_mq_gmo_options_PROPERTIES_COMPATIBILITY,
     &hf_mq_gmo_options_PROPERTIES_IN_HANDLE    ,
@@ -601,7 +601,7 @@ static int hf_mq_gmo_matchoptions_MATCH_MSG_SEQ_NUMBER = -1;
 static int hf_mq_gmo_matchoptions_MATCH_GROUP_ID = -1;
 static int hf_mq_gmo_matchoptions_MATCH_CORREL_ID = -1;
 static int hf_mq_gmo_matchoptions_MATCH_MSG_ID = -1;
-static const int *pf_flds_mtchopt[] =
+static int * const pf_flds_mtchopt[] =
 {
     &hf_mq_gmo_matchoptions_MATCH_MSG_TOKEN     ,
     &hf_mq_gmo_matchoptions_MATCH_OFFSET        ,
@@ -626,7 +626,7 @@ static int hf_mq_lpoo_xtradata = -1;
 static int hf_mq_lpoo_lpiopts_SAVE_IDENTITY_CTXT = -1;
 static int hf_mq_lpoo_lpiopts_SAVE_ORIGIN_CTXT = -1;
 static int hf_mq_lpoo_lpiopts_SAVE_USER_CTXT = -1;
-static const int *pf_flds_lpooopt[] =
+static int * const pf_flds_lpooopt[] =
 {
     &hf_mq_lpoo_lpiopts_SAVE_USER_CTXT,
     &hf_mq_lpoo_lpiopts_SAVE_ORIGIN_CTXT,
@@ -698,7 +698,7 @@ static int hf_mq_pmo_options_NEW_MSG_ID = -1;
 static int hf_mq_pmo_options_DEFAULT_CONTEXT = -1;
 static int hf_mq_pmo_options_NO_SYNCPOINT = -1;
 static int hf_mq_pmo_options_SYNCPOINT = -1;
-static const int *pf_flds_pmoopt[] =
+static int * const pf_flds_pmoopt[] =
 {
     &hf_mq_pmo_options_NOT_OWN_SUBS            ,
     &hf_mq_pmo_options_SUPPRESS_REPLYTO        ,
@@ -733,7 +733,7 @@ static int hf_mq_xa_tmflags_success = -1;
 static int hf_mq_xa_tmflags_resume = -1;
 static int hf_mq_xa_tmflags_fail = -1;
 static int hf_mq_xa_tmflags_onephase = -1;
-static const int *pf_flds_tmflags[] =
+static int * const pf_flds_tmflags[] =
 {
     &hf_mq_xa_tmflags_onephase  ,
     &hf_mq_xa_tmflags_fail      ,
@@ -770,7 +770,7 @@ static int hf_mq_msgreq_flags_selection = -1;
 static int hf_mq_msgreq_flags_F00000008 = -1;
 static int hf_mq_msgreq_flags_F00000004 = -1;
 static int hf_mq_msgreq_flags_F00000002 = -1;
-static const int *pf_flds_msgreq_flags[] =
+static int * const pf_flds_msgreq_flags[] =
 {
     &hf_mq_msgreq_flags_selection,
     &hf_mq_msgreq_flags_F00000008,
@@ -810,7 +810,7 @@ static int hf_mq_head_flags = -1;
 static int hf_mq_head_struct = -1;
 
 static int hf_mq_dh_flags_newmsgid = -1;
-static const int *pf_flds_dh_flags[] =
+static int * const pf_flds_dh_flags[] =
 {
     &hf_mq_dh_flags_newmsgid,
     NULL
@@ -824,7 +824,7 @@ static int hf_mq_iih_flags_passexpir = -1;
 static int hf_mq_iih_flags_replyfmtnone = -1;
 static int hf_mq_iih_flags_ignorepurg = -1;
 static int hf_mq_iih_flags_cmqrqstresp = -1;
-static const int *pf_flds_iih_flags[] =
+static int * const pf_flds_iih_flags[] =
 {
     &hf_mq_iih_flags_cmqrqstresp ,
     &hf_mq_iih_flags_ignorepurg  ,
@@ -871,7 +871,7 @@ static int hf_mq_tmc2_QMgrName = -1;
 static int hf_mq_cih_flags_synconret = -1;
 static int hf_mq_cih_flags_replywonulls = -1;
 static int hf_mq_cih_flags_passexpir = -1;
-static const int *pf_flds_cih_flags[] =
+static int * const pf_flds_cih_flags[] =
 {
     &hf_mq_cih_flags_synconret   ,
     &hf_mq_cih_flags_replywonulls,
@@ -915,7 +915,7 @@ static int hf_mq_rfh_length = -1;
 static int hf_mq_rfh_string = -1;
 
 static int hf_mq_rmh_flags_last = -1;
-static const int *pf_flds_rmh_flags[] =
+static int * const pf_flds_rmh_flags[] =
 {
     &hf_mq_rmh_flags_last,
     NULL

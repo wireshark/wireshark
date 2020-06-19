@@ -65,7 +65,7 @@ static const value_string xip_serval_proto_vals[] = {
 	{ 0,				NULL },
 };
 
-static const gint *xip_serval_cext_flags[] = {
+static int * const xip_serval_cext_flags[] = {
 	&hf_xip_serval_cext_syn,
 	&hf_xip_serval_cext_rsyn,
 	&hf_xip_serval_cext_ack,

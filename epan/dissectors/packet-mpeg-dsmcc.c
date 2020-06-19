@@ -916,28 +916,28 @@ static const value_string dsmcc_payload_name_vals[] = {
 };
 
 /* U-N Session Message Flags */
-static const int *bf_message_id[] = {
+static int * const bf_message_id[] = {
     &hf_dsmcc_un_sess_flag_message_discriminator,
     &hf_dsmcc_un_sess_flag_message_scenario,
     &hf_dsmcc_un_sess_flag_message_type,
     NULL
 };
-static const int *bf_transaction_id[] = {
+static int * const bf_transaction_id[] = {
     &hf_dsmcc_un_sess_flag_transaction_id_originator,
     &hf_dsmcc_un_sess_flag_transaction_id_number,
     NULL
 };
-static const int *bf_rsrc_number[] = {
+static int * const bf_rsrc_number[] = {
     &hf_dsmcc_un_sess_rsrc_flag_num_assignor,
     &hf_dsmcc_un_sess_rsrc_flag_num_value,
     NULL
 };
-static const int *bf_rsrc_association_tag[] = {
+static int * const bf_rsrc_association_tag[] = {
     &hf_dsmcc_un_sess_rsrc_flag_association_tag_assignor,
     &hf_dsmcc_un_sess_rsrc_flag_association_tag_value,
     NULL
 };
-static const int *bf_rsrc_flags[] = {
+static int * const bf_rsrc_flags[] = {
     &hf_dsmcc_un_sess_rsrc_flag_view,
     &hf_dsmcc_un_sess_rsrc_flag_attribute,
     &hf_dsmcc_un_sess_rsrc_flag_allocator,

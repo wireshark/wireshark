@@ -881,7 +881,7 @@ static void
 dissect_optional_0d(tvbuff_t *tvb, proto_tree *tree)
 {
 	int		offset, len, pad;
-	static const int * fields[] = {
+	static int * const fields[] = {
 		&hf_sna_nlp_opti_0d_target,
 		&hf_sna_nlp_opti_0d_arb,
 		&hf_sna_nlp_opti_0d_reliable,
@@ -920,7 +920,7 @@ static void
 dissect_optional_0e(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int		bits, offset;
-	static const int * fields[] = {
+	static int * const fields[] = {
 		&hf_sna_nlp_opti_0e_gap,
 		&hf_sna_nlp_opti_0e_idle,
 		NULL
@@ -981,7 +981,7 @@ dissect_optional_14(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree	*sub_tree;
 	int		len, pad, type, offset, num, sublen;
-	static const int * opti_14_si_fields[] = {
+	static int * const opti_14_si_fields[] = {
 		&hf_sna_nlp_opti_14_si_refifo,
 		&hf_sna_nlp_opti_14_si_mobility,
 		&hf_sna_nlp_opti_14_si_dirsearch,
@@ -990,7 +990,7 @@ dissect_optional_14(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		&hf_sna_nlp_opti_14_si_mnpsrscv,
 		NULL
 	};
-	static const int * opti_14_rr_fields[] = {
+	static int * const opti_14_rr_fields[] = {
 		&hf_sna_nlp_opti_14_rr_bfe,
 		NULL
 	};
@@ -1078,14 +1078,14 @@ static void
 dissect_optional_22(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int		bits, type;
-	static const int * opti_22_2_fields[] = {
+	static int * const opti_22_2_fields[] = {
 		&hf_sna_nlp_opti_22_type,
 		&hf_sna_nlp_opti_22_raa,
 		&hf_sna_nlp_opti_22_parity,
 		&hf_sna_nlp_opti_22_arb,
 		NULL
 	};
-	static const int * opti_22_3_fields[] = {
+	static int * const opti_22_3_fields[] = {
 		&hf_sna_nlp_opti_22_ratereq,
 		&hf_sna_nlp_opti_22_raterep,
 		NULL
@@ -1204,19 +1204,19 @@ dissect_nlp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	guint8		nhdr_0, nhdr_1, nhdr_x, thdr_8, thdr_9, fid;
 	guint32		thdr_len, thdr_dlf;
 	guint16		subindx;
-	static const int * nlp_nhdr_0_fields[] = {
+	static int * const nlp_nhdr_0_fields[] = {
 		&hf_sna_nlp_sm,
 		&hf_sna_nlp_tpf,
 		NULL
 	};
-	static const int * nlp_nhdr_1_fields[] = {
+	static int * const nlp_nhdr_1_fields[] = {
 		&hf_sna_nlp_ft,
 		&hf_sna_nlp_tspi,
 		&hf_sna_nlp_slowdn1,
 		&hf_sna_nlp_slowdn2,
 		NULL
 	};
-	static const int * nlp_nhdr_8_fields[] = {
+	static int * const nlp_nhdr_8_fields[] = {
 		&hf_sna_nlp_setupi,
 		&hf_sna_nlp_somi,
 		&hf_sna_nlp_eomi,
@@ -1225,7 +1225,7 @@ dissect_nlp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		&hf_sna_nlp_retryi,
 		NULL
 	};
-	static const int * nlp_nhdr_9_fields[] = {
+	static int * const nlp_nhdr_9_fields[] = {
 		&hf_sna_nlp_lmi,
 		&hf_sna_nlp_cqfi,
 		&hf_sna_nlp_osi,
@@ -1408,7 +1408,7 @@ static void
 dissect_xid3(tvbuff_t *tvb, proto_tree *tree)
 {
 	guint		dlen, offset;
-	static const int * sna_xid_3_fields[] = {
+	static int * const sna_xid_3_fields[] = {
 		&hf_sna_xid_3_init_self,
 		&hf_sna_xid_3_stand_bind,
 		&hf_sna_xid_3_gener_bind,
@@ -1422,7 +1422,7 @@ dissect_xid3(tvbuff_t *tvb, proto_tree *tree)
 		&hf_sna_xid_3_cpchange,
 		NULL
 	};
-	static const int * sna_xid_10_fields[] = {
+	static int * const sna_xid_10_fields[] = {
 		&hf_sna_xid_3_asend_bind,
 		&hf_sna_xid_3_arecv_bind,
 		&hf_sna_xid_3_quiesce,
@@ -1431,17 +1431,17 @@ dissect_xid3(tvbuff_t *tvb, proto_tree *tree)
 		&hf_sna_xid_3_pacing,
 		NULL
 	};
-	static const int * sna_xid_11_fields[] = {
+	static int * const sna_xid_11_fields[] = {
 		&hf_sna_xid_3_tgshare,
 		&hf_sna_xid_3_dedsvc,
 		NULL
 	};
-	static const int * sna_xid_12_fields[] = {
+	static int * const sna_xid_12_fields[] = {
 		&hf_sna_xid_3_negcsup,
 		&hf_sna_xid_3_negcomp,
 		NULL
 	};
-	static const int * sna_xid_15_fields[] = {
+	static int * const sna_xid_15_fields[] = {
 		&hf_sna_xid_3_partg,
 		&hf_sna_xid_3_dlur,
 		&hf_sna_xid_3_dlus,
@@ -1826,7 +1826,7 @@ dissect_fid4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8		th_byte, mft;
 	guint16		def, oef;
 	guint32		dsaf, osaf;
-	static const int * byte0_fields[] = {
+	static int * const byte0_fields[] = {
 		&hf_sna_th_fid,
 		&hf_sna_th_tg_sweep,
 		&hf_sna_th_er_vr_supp_ind,
@@ -1834,29 +1834,29 @@ dissect_fid4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		&hf_sna_th_ntwk_prty,
 		NULL
 	};
-	static const int * byte1_fields[] = {
+	static int * const byte1_fields[] = {
 		&hf_sna_th_tgsf,
 		&hf_sna_th_mft,
 		&hf_sna_th_piubf,
 		NULL
 	};
-	static const int * byte2_mft_fields[] = {
+	static int * const byte2_mft_fields[] = {
 		&hf_sna_th_nlpoi,
 		&hf_sna_th_nlp_cp,
 		&hf_sna_th_ern,
 		NULL
 	};
-	static const int * byte2_fields[] = {
+	static int * const byte2_fields[] = {
 		&hf_sna_th_iern,
 		&hf_sna_th_ern,
 		NULL
 	};
-	static const int * byte3_fields[] = {
+	static int * const byte3_fields[] = {
 		&hf_sna_th_vrn,
 		&hf_sna_th_tpf,
 		NULL
 	};
-	static const int * byte4_fields[] = {
+	static int * const byte4_fields[] = {
 		&hf_sna_th_vr_cwi,
 		&hf_sna_th_tg_nonfifo_ind,
 		&hf_sna_th_vr_sqti,
@@ -1864,7 +1864,7 @@ dissect_fid4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		&hf_sna_th_tg_snf,
 		NULL
 	};
-	static const int * byte6_fields[] = {
+	static int * const byte6_fields[] = {
 		&hf_sna_th_vrprq,
 		&hf_sna_th_vrprs,
 		&hf_sna_th_vr_cwri,
@@ -1873,7 +1873,7 @@ dissect_fid4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		&hf_sna_th_vr_snf_send,
 		NULL
 	};
-	static const int * byte16_fields[] = {
+	static int * const byte16_fields[] = {
 		&hf_sna_th_snai,
 	/* We luck out here because in their infinite wisdom the SNA
 	 * architects placed the MPF and EFI fields in the same bitfield
@@ -2151,7 +2151,7 @@ dissect_rh(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	gboolean	is_response;
 	guint8		rh_0;
-	static const int * sna_rh_fields[] = {
+	static int * const sna_rh_fields[] = {
 		&hf_sna_rh_rri,
 		&hf_sna_rh_ru_category,
 		&hf_sna_rh_fi,
@@ -2160,7 +2160,7 @@ dissect_rh(tvbuff_t *tvb, int offset, proto_tree *tree)
 		&hf_sna_rh_eci,
 		NULL
 	};
-	static const int * sna_rh_1_req_fields[] = {
+	static int * const sna_rh_1_req_fields[] = {
 		&hf_sna_rh_dr1,
 		&hf_sna_rh_lcci,
 		&hf_sna_rh_dr2,
@@ -2170,7 +2170,7 @@ dissect_rh(tvbuff_t *tvb, int offset, proto_tree *tree)
 		&hf_sna_rh_pi,
 		NULL
 	};
-	static const int * sna_rh_1_rsp_fields[] = {
+	static int * const sna_rh_1_rsp_fields[] = {
 		&hf_sna_rh_dr1,
 		&hf_sna_rh_dr2,
 		&hf_sna_rh_rti,
@@ -2178,7 +2178,7 @@ dissect_rh(tvbuff_t *tvb, int offset, proto_tree *tree)
 		&hf_sna_rh_pi,
 		NULL
 	};
-	static const int * sna_rh_2_req_fields[] = {
+	static int * const sna_rh_2_req_fields[] = {
 		&hf_sna_rh_bbi,
 		&hf_sna_rh_ebi,
 		&hf_sna_rh_cdi,
@@ -2236,7 +2236,7 @@ dissect_control_05hpr(tvbuff_t *tvb, proto_tree *tree, int hpr,
 		      enum parse parse)
 {
 	guint16		offset, len, pad;
-	static const int * sna_control_05hpr_fields[] = {
+	static int * const sna_control_05hpr_fields[] = {
 		&hf_sna_control_05_ptp,
 		NULL
 	};

@@ -507,7 +507,7 @@ static void
 nbns_add_nbns_flags(column_info *cinfo, proto_tree *nbns_tree, tvbuff_t *tvb, int offset, int is_wack)
 {
     guint16     flag;
-    static const int * req_flags[] = {
+    static int * const req_flags[] = {
         &hf_nbns_flags_response,
         &hf_nbns_flags_opcode,
         &hf_nbns_flags_truncated,
@@ -516,7 +516,7 @@ nbns_add_nbns_flags(column_info *cinfo, proto_tree *nbns_tree, tvbuff_t *tvb, in
         NULL
     };
 
-    static const int * resp_flags[] = {
+    static int * const resp_flags[] = {
         &hf_nbns_flags_response,
         &hf_nbns_flags_opcode,
         &hf_nbns_flags_authoritative,
@@ -528,7 +528,7 @@ nbns_add_nbns_flags(column_info *cinfo, proto_tree *nbns_tree, tvbuff_t *tvb, in
         NULL
     };
 
-    static const int * resp_wack_flags[] = {
+    static int * const resp_wack_flags[] = {
         &hf_nbns_flags_response,
         &hf_nbns_flags_opcode,
         &hf_nbns_flags_authoritative,
@@ -568,7 +568,7 @@ nbns_add_nb_flags(proto_tree *rr_tree, tvbuff_t *tvb, int offset)
 {
     proto_item *tf;
     gushort flag;
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_nbns_nb_flags_group,
         &hf_nbns_nb_flags_ont,
         NULL
@@ -585,7 +585,7 @@ nbns_add_nb_flags(proto_tree *rr_tree, tvbuff_t *tvb, int offset)
 static void
 nbns_add_name_flags(proto_tree *rr_tree, tvbuff_t *tvb, int offset)
 {
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_nbns_name_flags_group,
         &hf_nbns_name_flags_ont,
         &hf_nbns_name_flags_drg,
@@ -1118,7 +1118,7 @@ dissect_nbdgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     int name_type;
     int len;
 
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_nbdgm_fragment,
         &hf_nbdgm_first,
         &hf_nbdgm_node_type,
@@ -1276,7 +1276,7 @@ dissect_nbss_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint8        error_code;
     tvbuff_t     *next_tvb;
     const char   *saved_proto;
-    static const int * nbss_flags[] = {
+    static int * const nbss_flags[] = {
         &hf_nbss_flags_e,
         NULL
     };

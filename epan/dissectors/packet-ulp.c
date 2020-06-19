@@ -2404,7 +2404,7 @@ dissect_ulp_GANSSPositioningMethodTypes(tvbuff_t *tvb _U_, int offset _U_, asn1_
 }
 
 
-static const int * GANSSSignals_bits[] = {
+static int * const GANSSSignals_bits[] = {
   &hf_ulp_GANSSSignals_signal1,
   &hf_ulp_GANSSSignals_signal2,
   &hf_ulp_GANSSSignals_signal3,
@@ -2486,7 +2486,7 @@ dissect_ulp_T_addPosID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 }
 
 
-static const int * T_addPosMode_bits[] = {
+static int * const T_addPosMode_bits[] = {
   &hf_ulp_T_addPosMode_standalone,
   &hf_ulp_T_addPosMode_setBased,
   &hf_ulp_T_addPosMode_setAssisted,

@@ -580,7 +580,7 @@ dissect_diameter_user_name(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 static int
 dissect_diameter_mip6_feature_vector(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
 {
-	const int *flags_rfc[] = {
+	static int * const flags_rfc[] = {
 		&hf_diameter_mip6_feature_vector_mip6_integrated,
 		&hf_diameter_mip6_feature_vector_local_home_agent_assignment,
 		&hf_diameter_mip6_feature_vector_pmip6_supported,
@@ -589,8 +589,8 @@ dissect_diameter_mip6_feature_vector(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 		NULL
 	};
 
-	const int *flags_3gpp[] = {
-	&hf_diameter_3gpp_mip6_feature_vector_assign_local_ip,
+	static int * const flags_3gpp[] = {
+	    &hf_diameter_3gpp_mip6_feature_vector_assign_local_ip,
 	    &hf_diameter_3gpp_mip6_feature_vector_mip4_supported,
 	    &hf_diameter_3gpp_mip6_feature_vector_optimized_idle_mode_mobility,
 	    &hf_diameter_3gpp_mip6_feature_vector_gtpv2_supported,
@@ -876,7 +876,7 @@ dissect_diameter_avp(diam_ctx_t *c, tvbuff_t *tvb, int offset, diam_sub_dis_t *d
 
 	/* Flags */
 	{
-		static const int * diameter_avp_flags[] = {
+		static int * const diameter_avp_flags[] = {
 			&hf_diameter_avp_flags_vendor_specific,
 			&hf_diameter_avp_flags_mandatory,
 			&hf_diameter_avp_flags_protected,
@@ -1339,7 +1339,7 @@ static const char *msgflags_str[] = {
 	"RP--", "RP-T", "RPE-", "RPET"
 };
 
-static const int *diameter_flags_fields[] = {
+static int * const diameter_flags_fields[] = {
 	&hf_diameter_flags_request,
 	&hf_diameter_flags_proxyable,
 	&hf_diameter_flags_error,

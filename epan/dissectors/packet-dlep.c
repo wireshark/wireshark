@@ -813,7 +813,7 @@ decode_dataitem_mtu(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *pt, i
 decode_dataitem_hop_cnt(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *pt, int len, packet_info *pinfo)
 {
   proto_item *pi_field = NULL;
-  static const int * hop_cnt_flags[] = {
+  static int * const hop_cnt_flags[] = {
       &hf_dlep_dataitem_hop_count_flags_p,
       &hf_dlep_dataitem_hop_count_flags_reserved,
       NULL

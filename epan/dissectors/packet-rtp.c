@@ -1858,7 +1858,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     static struct _rtp_info rtp_info_arr[4];
     static int rtp_info_current = 0;
     struct _rtp_info *rtp_info;
-    static const int * octet1_fields[] = {
+    static int * const octet1_fields[] = {
         &hf_rtp_version,
         &hf_rtp_padding,
         &hf_rtp_extension,
@@ -2343,7 +2343,7 @@ dissect_rtp_shim_header(tvbuff_t *tvb, gint start, packet_info *pinfo _U_, proto
     guint32     timestamp;
     guint32     sync_src;
     const char *pt = NULL;
-    static const int * octet1_fields[] = {
+    static int * const octet1_fields[] = {
         &hf_rtp_version,
         &hf_rtp_padding,
         &hf_rtp_extension,

@@ -166,7 +166,7 @@ static void
 dissect_task_mgmt_flags(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 {
     proto_item *item;
-    static const int * mgmt_flags[] = {
+    static int * const mgmt_flags[] = {
         &hf_fcp_mgmt_flags_obsolete,
         &hf_fcp_mgmt_flags_clear_aca,
         &hf_fcp_mgmt_flags_target_reset,
@@ -253,7 +253,7 @@ dissect_rsp_flags(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 {
     proto_item *item;
     guint8      flags;
-    static const int * resid_present_flags[] = {
+    static int * const resid_present_flags[] = {
         &hf_fcp_rsp_flags_bidi,
         &hf_fcp_rsp_flags_bidi_rru,
         &hf_fcp_rsp_flags_bidi_rro,
@@ -265,7 +265,7 @@ dissect_rsp_flags(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
         NULL
     };
 
-    static const int * no_resid_flags[] = {
+    static int * const no_resid_flags[] = {
         &hf_fcp_rsp_flags_bidi,
         &hf_fcp_rsp_flags_conf_req,
         &hf_fcp_rsp_flags_resid_under,

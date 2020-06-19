@@ -1707,7 +1707,7 @@ dissect_gtpv2_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, pro
     offset += 1;
 
     /* Octet 6 Spare PCE BCE CS */
-    static const int* oct6_flags[] = {
+    static int* const oct6_flags[] = {
         &hf_gtpv2_spare_b7_b3,
         &hf_gtpv2_cause_pce,
         &hf_gtpv2_cause_bce,
@@ -2325,7 +2325,7 @@ dissect_gtpv2_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_ite
 {
     int offset = 0;
 
-    static const int* oct5_flags[] = {
+    static int* const oct5_flags[] = {
         &hf_gtpv2_daf,
         &hf_gtpv2_dtf,
         &hf_gtpv2_hi,
@@ -2347,7 +2347,7 @@ dissect_gtpv2_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_ite
 
     offset += 1;
 
-    static const int* oct6_flags[] = {
+    static int* const oct6_flags[] = {
     &hf_gtpv2_sqci,
     &hf_gtpv2_uimsi,
     &hf_gtpv2_cfsi,
@@ -2370,7 +2370,7 @@ dissect_gtpv2_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_ite
         return;
     }
     /* Only present in version 9 and higher */
-    static const int* oct7_flags[] = {
+    static int* const oct7_flags[] = {
         &hf_gtpv2_retloc,
         &hf_gtpv2_pbic,
         &hf_gtpv2_srni,
@@ -2389,7 +2389,7 @@ dissect_gtpv2_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_ite
     if (length == 3) {
         return;
     }
-    static const int* oct8_flags[] = {
+    static int* const oct8_flags[] = {
         &hf_gtpv2_cprai,
         &hf_gtpv2_arrl,
         &hf_gtpv2_ppof,
@@ -2409,7 +2409,7 @@ dissect_gtpv2_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_ite
         return;
     }
 
-    static const int* oct9_flags[] = {
+    static int* const oct9_flags[] = {
         &hf_gtpv2_nsi,
         &hf_gtpv2_uasi,
         &hf_gtpv2_dtci,
@@ -2429,7 +2429,7 @@ dissect_gtpv2_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_ite
         return;
     }
 
-    static const int* oct10_flags[] = {
+    static int* const oct10_flags[] = {
         &hf_gtpv2_roaai,
         &hf_gtpv2_epcosi,
         &hf_gtpv2_cpopci,
@@ -2448,7 +2448,7 @@ dissect_gtpv2_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_ite
         return;
     }
 
-    static const int* oct11_flags[] = {
+    static int* const oct11_flags[] = {
         &hf_gtpv2_5gsnn26,
         &hf_gtpv2_reprefi,
         &hf_gtpv2_5gsiwk,
@@ -2467,7 +2467,7 @@ dissect_gtpv2_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_ite
         return;
     }
 
-    static const int* oct12_flags[] = {
+    static int* const oct12_flags[] = {
         &hf_gtpv2_spare_b7_b5,
         &hf_gtpv2_n5gnmi,
         &hf_gtpv2_5gcnrs,
@@ -2738,7 +2738,7 @@ dissect_gtpv2_ecgi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *off
     guint32     octet4;
     guint8      spare;
     guint32     ECGI;
-    const int* ECGI_flags[] = {
+    static int* const ECGI_flags[] = {
         &hf_gtpv2_enodebid,
         &hf_gtpv2_cellid,
         NULL
@@ -3015,7 +3015,7 @@ dissect_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_ite
     int         offset = 0;
     guint       flags;
 
-    static const int * gtpv2_uli_flags[] = {
+    static int * const gtpv2_uli_flags[] = {
         &hf_gtpv2_uli_ext_macro_enb_id_flg,
         &hf_gtpv2_uli_macro_enb_id_flg,
         &hf_gtpv2_uli_lai_flg,
@@ -3526,7 +3526,7 @@ dissect_gtpv2_pdn_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
  * 8.31 Trace Information
  */
  /* List of NE Types */
-static const int* trace_ne_types_flags_oct1[] = {
+static int* const trace_ne_types_flags_oct1[] = {
     &hf_gtpv2_tra_info_lne_sgw,
     &hf_gtpv2_tra_info_lne_mme,
     &hf_gtpv2_tra_info_lne_bm_sc,
@@ -3538,7 +3538,7 @@ static const int* trace_ne_types_flags_oct1[] = {
     NULL
 };
 
-static const int* trace_ne_types_flags_oct2[] = {
+static int* const trace_ne_types_flags_oct2[] = {
     &hf_gtpv2_tra_info_tra_info_ng_ran_node,
     &hf_gtpv2_tra_info_lne_upf,
     &hf_gtpv2_tra_info_lne_pcf,
@@ -4472,7 +4472,7 @@ dissect_gtpv2_mm_context_utms_q(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
         ear_len = tvb_get_guint8(tvb, offset);
         proto_tree_add_item(tree, hf_gtpv2_mm_context_ear_len, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
-        static const int * ear_flags[] = {
+        static int * const ear_flags[] = {
             &hf_gtpv2_mm_context_nrsrna,
             NULL
         };
@@ -4687,7 +4687,7 @@ dissect_gtpv2_mm_context_eps_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
      *            spare               |    USSRNA | NRSRNA
      */
     if(ex_access_res_data_len > 0){
-        static const int* ear_flags[] = {
+        static int* const ear_flags[] = {
             &hf_gtpv2_spare_b7_b5,
             &hf_gtpv2_mm_context_nruna,
             &hf_gtpv2_mm_context_nrusrna,
@@ -6191,7 +6191,7 @@ dissect_gtpv2_csg_info_rep_action(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 {
     int offset = 0;
 
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_gtpv2_csg_info_rep_action_b2,
         &hf_gtpv2_csg_info_rep_action_b1,
         &hf_gtpv2_csg_info_rep_action_b0,
@@ -6276,7 +6276,7 @@ static void
 dissect_gtpv2_node_features(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
 {
     int offset = 0;
-    static const int * features[] = {
+    static int * const features[] = {
         &hf_gtpv2_node_features_prn,
         &hf_gtpv2_node_features_mabr,
         &hf_gtpv2_node_features_ntsr,
@@ -6644,7 +6644,7 @@ dissect_gtpv2_twan_identifier(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     int offset = 0;
     guint8 flags=0;
     guint32 ssid_len, civa_len, op_name_len, relay_id_type, relay_id_len, circuit_id_id_len;
-    const int* twan_id_flags[] = {
+    static int* const twan_id_flags[] = {
         &hf_gtpv2_twan_laii,
         &hf_gtpv2_twan_opnai,
         &hf_gtpv2_twan_plmni,
@@ -7083,7 +7083,7 @@ dissect_gtpv2_pres_rep_area_action(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     int offset = 0;
     tvbuff_t * new_tvb;
 
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_gtpv2_pres_rep_area_act_inapra,
         &hf_gtpv2_pres_rep_area_action,
         NULL
@@ -7121,7 +7121,7 @@ dissect_gtpv2_pres_rep_area_information(tvbuff_t *tvb, packet_info *pinfo _U_, p
     offset+=3;
 
     /*Octet 8    Spare Spare Spare Spare INAPRA APRA OPRA IPRA */
-    static const int * gtpv2_pres_rep_area_info_flags[] = {
+    static int * const gtpv2_pres_rep_area_info_flags[] = {
         &hf_gtpv2_pres_rep_area_info_flags_b4_b7_spare,
         &hf_gtpv2_pres_rep_area_info_flags_b3_inapra,
         &hf_gtpv2_pres_rep_area_info_flags_b2_apra,
@@ -7145,7 +7145,7 @@ dissect_gtpv2_pres_rep_area_information(tvbuff_t *tvb, packet_info *pinfo _U_, p
     offset+=3;
 
         /*Octet a+3          Spare Spare Spare Spare Spare APRA OPRA IPRA */
-    static const int * gtpv2_pres_rep_area_info_flags_no_inapra[] = {
+    static int * const gtpv2_pres_rep_area_info_flags_no_inapra[] = {
       &hf_gtpv2_pres_rep_area_info_flags_b3_b7_spare,
       &hf_gtpv2_pres_rep_area_info_flags_b2_apra,
       &hf_gtpv2_pres_rep_area_info_flags_b1_opra,
@@ -7413,7 +7413,7 @@ static void
 dissect_gtpv2_ciot_opt_support_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
 {
    int               offset;
-   static const int *ciot_flags[] = {
+   static int * const ciot_flags[] = {
        &hf_gtpv2_ciot_support_ind_spare_bits,
        &hf_gtpv2_ciot_support_ind_bit4,
        &hf_gtpv2_ciot_support_ind_bit3,
@@ -7458,7 +7458,7 @@ dissect_gtpv2_header_comp_comf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 {
     int offset = 0;
 
-    static const int * gtpv2_rohc_profile_flags_flags[] = {
+    static int * const gtpv2_rohc_profile_flags_flags[] = {
         &hf_gtpv2_rohc_profiles_bit7,
         &hf_gtpv2_rohc_profiles_bit6,
         &hf_gtpv2_rohc_profiles_bit5,
@@ -7538,7 +7538,7 @@ static void
 dissect_gtpv2_secondary_rat_usage_data_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
 {
    int offset = 0;
-   static const int *secondary_rat_usage_data_report_flags[] = {
+   static int * const secondary_rat_usage_data_report_flags[] = {
        &hf_gtpv2_secondary_rat_usage_data_report_spare_bits,
        &hf_gtpv2_secondary_rat_usage_data_report_bit2,
        &hf_gtpv2_secondary_rat_usage_data_report_bit1,
@@ -7615,7 +7615,7 @@ dissect_gtpv2_max_pkt_loss_rte(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree
     int offset = 0;
     guint8 oct;
 
-    static const int* flags_oct1[] = {
+    static int* const flags_oct1[] = {
         &hf_gtpv2_spare_b7_b2,
         &hf_gtpv2_max_pkt_loss_rte_dl_flg,
         &hf_gtpv2_max_pkt_loss_rte_ul_flg,
@@ -7660,7 +7660,7 @@ dissect_gtpv2_apn_rte_cntrl_status(tvbuff_t* tvb, packet_info* pinfo _U_, proto_
 }
 /* 3GPP TS 32.422 V15.1.0 (2018-06) 5.5 List of interfaces (O)*/
 
-static const int* ext_tra_info_list_of_if_flags_oct1[] = {
+static int* const ext_tra_info_list_of_if_flags_oct1[] = {
     &hf_gtpv2_ext_tra_info_loi_mscs_cap,
     &hf_gtpv2_ext_tra_info_loi_mscs_map_f,
     &hf_gtpv2_ext_tra_info_loi_mscs_map_e,
@@ -7672,20 +7672,20 @@ static const int* ext_tra_info_list_of_if_flags_oct1[] = {
     NULL
 };
 
-static const int* ext_tra_info_list_of_if_flags_oct2[] = {
+static int* const ext_tra_info_list_of_if_flags_oct2[] = {
     &hf_gtpv2_ext_tra_info_loi_mscs_map_c,
     &hf_gtpv2_ext_tra_info_loi_mscs_map_d,
     NULL
 };
 
-static const int* ext_tra_info_list_of_if_flags_oct3[] = {
+static int* const ext_tra_info_list_of_if_flags_oct3[] = {
     &hf_gtpv2_ext_tra_info_loi_mgw_iuup,
     &hf_gtpv2_ext_tra_info_loi_mgw_nbup,
     &hf_gtpv2_ext_tra_info_loi_mgw_mc,
     NULL
 };
 
-static const int* ext_tra_info_list_of_if_flags_oct4[] = {
+static int* const ext_tra_info_list_of_if_flags_oct4[] = {
     &hf_gtpv2_ext_tra_info_loi_sgsn_ge,
     &hf_gtpv2_ext_tra_info_loi_sgsn_gs,
     &hf_gtpv2_ext_tra_info_loi_sgsn_map_gf,
@@ -7697,7 +7697,7 @@ static const int* ext_tra_info_list_of_if_flags_oct4[] = {
     NULL
 };
 
-static const int* ext_tra_info_list_of_if_flags_oct5[] = {
+static int* const ext_tra_info_list_of_if_flags_oct5[] = {
     &hf_gtpv2_ext_tra_info_loi_sgsn_s13,
     &hf_gtpv2_ext_tra_info_loi_sgsn_s3,
     &hf_gtpv2_ext_tra_info_loi_sgsn_s4,
@@ -7705,14 +7705,14 @@ static const int* ext_tra_info_list_of_if_flags_oct5[] = {
     NULL
 };
 
-static const int* ext_tra_info_list_of_if_flags_oct6[] = {
+static int* const ext_tra_info_list_of_if_flags_oct6[] = {
     &hf_gtpv2_ext_tra_info_loi_ggsn_gmb,
     &hf_gtpv2_ext_tra_info_loi_ggsn_gi,
     &hf_gtpv2_ext_tra_info_loi_ggsn_gn,
     NULL
 };
 
-static const int* ext_tra_info_list_of_if_flags_oct7[] = {
+static int* const ext_tra_info_list_of_if_flags_oct7[] = {
     &hf_gtpv2_ext_tra_info_loi_rnc_uu,
     &hf_gtpv2_ext_tra_info_loi_rnc_iub,
     &hf_gtpv2_ext_tra_info_loi_rnc_iur,
@@ -7720,12 +7720,12 @@ static const int* ext_tra_info_list_of_if_flags_oct7[] = {
     NULL
 };
 
-static const int* ext_tra_info_list_of_if_flags_oct8[] = {
+static int* const ext_tra_info_list_of_if_flags_oct8[] = {
     &hf_gtpv2_ext_tra_info_loi_bm_sc_gmb,
     NULL
 };
 
-static const int* ext_tra_info_list_of_if_flags_oct9[] = {
+static int* const ext_tra_info_list_of_if_flags_oct9[] = {
     &hf_gtpv2_ext_tra_info_loi_mme_s13,
     &hf_gtpv2_ext_tra_info_loi_mme_s11,
     &hf_gtpv2_ext_tra_info_loi_mme_s10,
@@ -7735,7 +7735,7 @@ static const int* ext_tra_info_list_of_if_flags_oct9[] = {
     NULL
 };
 
-static const int* ext_tra_info_list_of_if_flags_oct10[] = {
+static int* const ext_tra_info_list_of_if_flags_oct10[] = {
     &hf_gtpv2_ext_tra_info_loi_sgw_gxc,
     &hf_gtpv2_ext_tra_info_loi_sgw_s11,
     &hf_gtpv2_ext_tra_info_loi_sgw_s8b,
@@ -7744,7 +7744,7 @@ static const int* ext_tra_info_list_of_if_flags_oct10[] = {
     NULL
 };
 
-static const int* ext_tra_info_list_of_if_flags_oct11[] = {
+static int* const ext_tra_info_list_of_if_flags_oct11[] = {
     &hf_gtpv2_ext_tra_info_loi_pdn_gw_sgi,
     &hf_gtpv2_ext_tra_info_loi_pdn_gw_s8b,
     &hf_gtpv2_ext_tra_info_loi_pdn_gw_gx,
@@ -7756,14 +7756,14 @@ static const int* ext_tra_info_list_of_if_flags_oct11[] = {
     NULL
 };
 
-static const int* ext_tra_info_list_of_if_flags_oct12[] = {
+static int* const ext_tra_info_list_of_if_flags_oct12[] = {
     &hf_gtpv2_ext_tra_info_loi_enb_uu,
     &hf_gtpv2_ext_tra_info_loi_enb_x2,
     &hf_gtpv2_ext_tra_info_loi_enb_s1_mme,
     NULL
 };
 
-static const int* ext_tra_info_list_of_if_flags_oct13[] = {
+static int* const ext_tra_info_list_of_if_flags_oct13[] = {
     &hf_gtpv2_ext_tra_info_loi_hss_sh,
     &hf_gtpv2_ext_tra_info_loi_hss_s6a,
     &hf_gtpv2_ext_tra_info_loi_hss_s6d,
@@ -7775,7 +7775,7 @@ static const int* ext_tra_info_list_of_if_flags_oct13[] = {
     NULL
 };
 
-static const int* ext_tra_info_list_of_if_flags_oct14[] = {
+static int* const ext_tra_info_list_of_if_flags_oct14[] = {
     &hf_gtpv2_ext_tra_info_loi_eir_map_gf,
     &hf_gtpv2_ext_tra_info_loi_eir_s13p,
     &hf_gtpv2_ext_tra_info_loi_eir_s13,
@@ -7783,7 +7783,7 @@ static const int* ext_tra_info_list_of_if_flags_oct14[] = {
     NULL
 };
 
-static const int* ext_tra_info_list_of_if_flags_oct15[] = {
+static int* const ext_tra_info_list_of_if_flags_oct15[] = {
     &hf_gtpv2_ext_tra_info_loi_amf_n20,
     &hf_gtpv2_ext_tra_info_loi_amf_n15,
     &hf_gtpv2_ext_tra_info_loi_amf_n14,
@@ -7795,20 +7795,20 @@ static const int* ext_tra_info_list_of_if_flags_oct15[] = {
     NULL
 };
 
-static const int* ext_tra_info_list_of_if_flags_oct16[] = {
+static int* const ext_tra_info_list_of_if_flags_oct16[] = {
     &hf_gtpv2_ext_tra_info_loi_amf_n22,
     &hf_gtpv2_ext_tra_info_loi_amf_n26,
     NULL
 };
 
-static const int* ext_tra_info_list_of_if_flags_oct17[] = {
+static int* const ext_tra_info_list_of_if_flags_oct17[] = {
     &hf_gtpv2_ext_tra_info_loi_pcf_n15,
     &hf_gtpv2_ext_tra_info_loi_pcf_n7,
     &hf_gtpv2_ext_tra_info_loi_pcf_n5,
     NULL
 };
 
-static const int* ext_tra_info_list_of_if_flags_oct18[] = {
+static int* const ext_tra_info_list_of_if_flags_oct18[] = {
     &hf_gtpv2_ext_tra_info_loi_smf_s5_c,
     &hf_gtpv2_ext_tra_info_loi_smf_n11,
     &hf_gtpv2_ext_tra_info_loi_smf_n10,
@@ -7817,12 +7817,12 @@ static const int* ext_tra_info_list_of_if_flags_oct18[] = {
     NULL
 };
 
-static const int* ext_tra_info_list_of_if_flags_oct19[] = {
+static int* const ext_tra_info_list_of_if_flags_oct19[] = {
     &hf_gtpv2_ext_tra_info_loi_upf_n4,
     NULL
 };
 
-static const int* ext_tra_info_list_of_if_flags_oct20[] = {
+static int* const ext_tra_info_list_of_if_flags_oct20[] = {
     &hf_gtpv2_ext_tra_info_loi_ng_ran_node_e1_c,
     &hf_gtpv2_ext_tra_info_loi_ng_ran_node_f1_c,
     &hf_gtpv2_ext_tra_info_loi_ng_ran_node_Uu,
@@ -8519,7 +8519,7 @@ dissect_gtpv2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data
     gtpv2_hdr_t * gtpv2_hdr = NULL;
     guint64 gtpv2_hdr_flags;
 
-    static const int * gtpv2_flags[] = {
+    static int * const gtpv2_flags[] = {
         &hf_gtpv2_version,
         &hf_gtpv2_p,
         &hf_gtpv2_t,

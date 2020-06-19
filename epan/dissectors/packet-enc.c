@@ -85,7 +85,7 @@ dissect_enc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   proto_tree    *enc_tree;
   proto_item    *ti;
 
-  static const int *flags[] = {
+  static int * const flags[] = {
     &hf_enc_flags_payload_enc,
     &hf_enc_flags_payload_auth,
     &hf_enc_flags_payload_compress,

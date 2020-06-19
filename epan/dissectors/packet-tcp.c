@@ -597,7 +597,7 @@ static guint32 mptcp_stream_count;
  */
 static wmem_tree_t *mptcp_tokens = NULL;
 
-static const int *tcp_option_mptcp_capable_v0_flags[] = {
+static int * const tcp_option_mptcp_capable_v0_flags[] = {
   &hf_tcp_option_mptcp_checksum_flag,
   &hf_tcp_option_mptcp_B_flag,
   &hf_tcp_option_mptcp_H_v0_flag,
@@ -605,7 +605,7 @@ static const int *tcp_option_mptcp_capable_v0_flags[] = {
   NULL
 };
 
-static const int *tcp_option_mptcp_capable_v1_flags[] = {
+static int * const tcp_option_mptcp_capable_v1_flags[] = {
   &hf_tcp_option_mptcp_checksum_flag,
   &hf_tcp_option_mptcp_B_flag,
   &hf_tcp_option_mptcp_H_v1_flag,
@@ -613,12 +613,12 @@ static const int *tcp_option_mptcp_capable_v1_flags[] = {
   NULL
 };
 
-static const int *tcp_option_mptcp_join_flags[] = {
+static int * const tcp_option_mptcp_join_flags[] = {
   &hf_tcp_option_mptcp_backup_flag,
   NULL
 };
 
-static const int *tcp_option_mptcp_dss_flags[] = {
+static int * const tcp_option_mptcp_dss_flags[] = {
   &hf_tcp_option_mptcp_F_flag,
   &hf_tcp_option_mptcp_m_flag,
   &hf_tcp_option_mptcp_M_flag,
@@ -5607,7 +5607,7 @@ dissect_tcpopt_rvbd_trpy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     guint16 sport, dport, flags;
     int offset = 0,
         optlen = tvb_reported_length(tvb);
-    static const int * rvbd_trpy_flags[] = {
+    static int * const rvbd_trpy_flags[] = {
         &hf_tcp_option_rvbd_trpy_flag_fw_rst_probe,
         &hf_tcp_option_rvbd_trpy_flag_fw_rst_inner,
         &hf_tcp_option_rvbd_trpy_flag_fw_rst,

@@ -799,7 +799,7 @@ static const true_false_string ip_opt_sec_prot_auth_fti_tfs = {
   "Final octet"
 };
 
-static const int *ip_opt_sec_prot_auth_fields_byte_1[] = {
+static int * const ip_opt_sec_prot_auth_fields_byte_1[] = {
   &hf_ip_opt_sec_prot_auth_genser,
   &hf_ip_opt_sec_prot_auth_siop_esi,
   &hf_ip_opt_sec_prot_auth_sci,
@@ -810,7 +810,7 @@ static const int *ip_opt_sec_prot_auth_fields_byte_1[] = {
   NULL
 };
 
-static const int *ip_opt_sec_prot_auth_fields_byte_n[] = {
+static int * const ip_opt_sec_prot_auth_fields_byte_n[] = {
   &hf_ip_opt_sec_prot_auth_unassigned2,
   &hf_ip_opt_sec_prot_auth_fti,
   NULL
@@ -2008,7 +2008,7 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
   if (ip_security_flag) {
     /* RFC 3514 - The Security Flag in the IPv4 Header (April Fool's joke) */
     proto_item *sf;
-    const int *ip_flags_evil[] = {
+    static int * const ip_flags_evil[] = {
         &hf_ip_flags_sf,
         &hf_ip_flags_df,
         &hf_ip_flags_mf,
@@ -2021,7 +2021,7 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
         expert_add_info(pinfo, sf, &ei_ip_evil_packet);
     }
   } else {
-    const int *ip_flags[] = {
+    static int * const ip_flags[] = {
         &hf_ip_flags_rf,
         &hf_ip_flags_df,
         &hf_ip_flags_mf,

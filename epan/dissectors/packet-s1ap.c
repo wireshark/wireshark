@@ -5395,7 +5395,7 @@ dissect_s1ap_EncryptionAlgorithms(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
                                      16, 16, TRUE, NULL, 0, &parameter_tvb, NULL);
 
   if(parameter_tvb){
-    const gint *fields[] = {
+    static int * const fields[] = {
       &hf_s1ap_encryptionAlgorithms_EEA1,
       &hf_s1ap_encryptionAlgorithms_EEA2,
       &hf_s1ap_encryptionAlgorithms_EEA3,
@@ -6269,7 +6269,7 @@ dissect_s1ap_MeasurementsToActivate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
                                      8, 8, FALSE, NULL, 0, &parameter_tvb, NULL);
 
   if(parameter_tvb){
-    const gint *fields[] = {
+    static int * const fields[] = {
       &hf_s1ap_measurementsToActivate_M1,
       &hf_s1ap_measurementsToActivate_M2,
       &hf_s1ap_measurementsToActivate_M3,
@@ -6520,7 +6520,7 @@ dissect_s1ap_IntegrityProtectionAlgorithms(tvbuff_t *tvb _U_, int offset _U_, as
                                      16, 16, TRUE, NULL, 0, &parameter_tvb, NULL);
 
   if(parameter_tvb){
-    const gint *fields[] = {
+    static int * const fields[] = {
       &hf_s1ap_integrityProtectionAlgorithms_EIA1,
       &hf_s1ap_integrityProtectionAlgorithms_EIA2,
       &hf_s1ap_integrityProtectionAlgorithms_EIA3,
@@ -6546,7 +6546,7 @@ dissect_s1ap_InterfacesToTrace(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
                                      8, 8, FALSE, NULL, 0, &parameter_tvb, NULL);
 
   if(parameter_tvb){
-    const gint *fields[] = {
+    static int * const fields[] = {
       &hf_s1ap_interfacesToTrace_S1_MME,
       &hf_s1ap_interfacesToTrace_X2,
       &hf_s1ap_interfacesToTrace_Uu,
@@ -7176,7 +7176,7 @@ dissect_s1ap_MDT_Location_Info(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
                                      8, 8, FALSE, NULL, 0, &parameter_tvb, NULL);
 
   if(parameter_tvb){
-    const gint *fields[] = {
+    static int * const fields[] = {
       &hf_s1ap_MDT_Location_Info_GNSS,
       &hf_s1ap_MDT_Location_Info_E_CID,
       &hf_s1ap_MDT_Location_Info_Reserved,
@@ -7683,7 +7683,7 @@ dissect_s1ap_NRencryptionAlgorithms(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
                                      16, 16, TRUE, NULL, 0, &parameter_tvb, NULL);
 
   if (parameter_tvb) {
-    const gint *fields[] = {
+    static int * const fields[] = {
       &hf_s1ap_NRencryptionAlgorithms_NEA1,
       &hf_s1ap_NRencryptionAlgorithms_NEA2,
       &hf_s1ap_NRencryptionAlgorithms_NEA3,
@@ -7709,7 +7709,7 @@ dissect_s1ap_NRintegrityProtectionAlgorithms(tvbuff_t *tvb _U_, int offset _U_, 
                                      16, 16, TRUE, NULL, 0, &parameter_tvb, NULL);
 
   if (parameter_tvb) {
-    const gint *fields[] = {
+    static int * const fields[] = {
       &hf_s1ap_NRintegrityProtectionAlgorithms_NIA1,
       &hf_s1ap_NRintegrityProtectionAlgorithms_NIA2,
       &hf_s1ap_NRintegrityProtectionAlgorithms_NIA3,
@@ -9994,7 +9994,7 @@ dissect_s1ap_UE_Application_Layer_Measurement_Capability(tvbuff_t *tvb _U_, int 
                                      8, 8, FALSE, NULL, 0, &parameter_tvb, NULL);
 
   if(parameter_tvb){
-    const gint *fields[] = {
+    static int * const fields[] = {
       &hf_s1ap_UE_Application_Layer_Measurement_Capability_QoE_Measurement_for_streaming_service,
       &hf_s1ap_UE_Application_Layer_Measurement_Capability_QoE_Measurement_for_MTSI_service,
       &hf_s1ap_UE_Application_Layer_Measurement_Capability_Reserved,

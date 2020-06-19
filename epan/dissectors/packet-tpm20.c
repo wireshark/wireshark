@@ -626,7 +626,7 @@ dissect_auth_common(tvbuff_t *tvb, packet_info *pinfo _U_,
 	proto_tree *auth, proto_tree *tree _U_, gint *offset)
 {
 	guint nonce_size, auth_size;
-	const int *attrib_fields[] = {
+	static int * const attrib_fields[] = {
 		&hf_session_attribs_cont,
 		&hf_session_attribs_auditex,
 		&hf_session_attribs_auditreset,

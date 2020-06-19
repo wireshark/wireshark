@@ -183,7 +183,7 @@ static int hf_pdu_flags_ddgst = -1;
 static int hf_pdu_flags_data_last = -1;
 static int hf_pdu_flags_data_success = -1;
 
-static const int *nvme_tcp_pdu_flags[] = {
+static int * const nvme_tcp_pdu_flags[] = {
     &hf_pdu_flags_hdgst,
     &hf_pdu_flags_ddgst,
     &hf_pdu_flags_data_last,

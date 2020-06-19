@@ -209,7 +209,7 @@ static gint ett_sql = -1;
 
 #define TCP_PORT_TNS			1521 /* Not IANA registered */
 
-static const int * tns_connect_flags[] = {
+static int * const tns_connect_flags[] = {
 	&hf_tns_conn_flag_nareq,
 	&hf_tns_conn_flag_nalink,
 	&hf_tns_conn_flag_enablena,
@@ -218,7 +218,7 @@ static const int * tns_connect_flags[] = {
 	NULL
 };
 
-static const int * tns_service_options[] = {
+static int * const tns_service_options[] = {
 	&hf_tns_sopt_flag_bconn,
 	&hf_tns_sopt_flag_pc,
 	&hf_tns_sopt_flag_hc,
@@ -494,7 +494,7 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 	proto_tree *data_tree;
 	guint data_func_id;
 	gboolean is_request;
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_tns_data_flag_send,
 		&hf_tns_data_flag_rc,
 		&hf_tns_data_flag_c,
@@ -848,7 +848,7 @@ static void dissect_tns_connect(tvbuff_t *tvb, int offset, packet_info *pinfo _U
 	proto_tree *connect_tree;
 	guint32 cd_offset, cd_len;
 	int tns_offset = offset-8;
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_tns_ntp_flag_hangon,
 		&hf_tns_ntp_flag_crel,
 		&hf_tns_ntp_flag_tduio,

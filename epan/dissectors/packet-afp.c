@@ -1192,7 +1192,7 @@ static guint16
 decode_vol_bitmap (proto_tree *tree, tvbuff_t *tvb, gint offset)
 {
 	guint16	 bitmap;
-	static const int * bitmaps[] = {
+	static int * const bitmaps[] = {
 		&hf_afp_vol_bitmap_Attributes,
 		&hf_afp_vol_bitmap_Signature,
 		&hf_afp_vol_bitmap_CreateDate,
@@ -1220,7 +1220,7 @@ static guint16
 decode_vol_attribute (proto_tree *tree, tvbuff_t *tvb, gint offset)
 {
 	guint16	 bitmap;
-	static const int * bitmaps[] = {
+	static int * const bitmaps[] = {
 		&hf_afp_vol_attribute_ReadOnly,
 		&hf_afp_vol_attribute_HasVolumePassword,
 		&hf_afp_vol_attribute_SupportsFileIDs,
@@ -1336,7 +1336,7 @@ static guint16
 decode_file_bitmap (proto_tree *tree, tvbuff_t *tvb, gint offset)
 {
 	guint16	 bitmap;
-	static const int * bitmaps[] = {
+	static int * const bitmaps[] = {
 		&hf_afp_file_bitmap_Attributes,
 		&hf_afp_file_bitmap_ParentDirID,
 		&hf_afp_file_bitmap_CreateDate,
@@ -1368,7 +1368,7 @@ static guint16
 decode_file_attribute(proto_tree *tree, tvbuff_t *tvb, gint offset, int shared)
 {
 	guint16	    attribute;
-	static const int * not_shared_attr[] = {
+	static int * const not_shared_attr[] = {
 		&hf_afp_file_attribute_Invisible,
 		&hf_afp_file_attribute_MultiUser,
 		&hf_afp_file_attribute_System,
@@ -1384,7 +1384,7 @@ decode_file_attribute(proto_tree *tree, tvbuff_t *tvb, gint offset, int shared)
 		NULL
 	};
 
-	static const int * shared_attr[] = {
+	static int * const shared_attr[] = {
 		&hf_afp_file_attribute_Invisible,
 		&hf_afp_file_attribute_System,
 		&hf_afp_file_attribute_WriteInhibit,
@@ -1413,7 +1413,7 @@ decode_file_attribute(proto_tree *tree, tvbuff_t *tvb, gint offset, int shared)
 static void
 decode_access_rights (proto_tree *tree, tvbuff_t *tvb, int hf, gint offset)
 {
-	static const int * rights[] = {
+	static int * const rights[] = {
 		&hf_afp_dir_ar_o_search,
 		&hf_afp_dir_ar_o_read,
 		&hf_afp_dir_ar_o_write,
@@ -1615,7 +1615,7 @@ static guint16
 decode_dir_bitmap (proto_tree *tree, tvbuff_t *tvb, gint offset)
 {
 	guint16	 bitmap;
-	static const int * bitmaps[] = {
+	static int * const bitmaps[] = {
 		&hf_afp_dir_bitmap_Attributes,
 		&hf_afp_dir_bitmap_ParentDirID,
 		&hf_afp_dir_bitmap_CreateDate,
@@ -1646,7 +1646,7 @@ static guint16
 decode_dir_attribute(proto_tree *tree, tvbuff_t *tvb, gint offset)
 {
 	guint16	 attribute;
-	static const int * attributes[] = {
+	static int * const attributes[] = {
 		&hf_afp_dir_attribute_Invisible,
 		&hf_afp_dir_attribute_IsExpFolder,
 		&hf_afp_dir_attribute_System,
@@ -2062,7 +2062,7 @@ dissect_reply_afp_get_server_param(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 	proto_tree *sub_tree;
 	proto_item *item;
 
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_afp_vol_flag_passwd,
 		&hf_afp_vol_flag_has_config,
 		NULL
@@ -2126,7 +2126,7 @@ dissect_query_afp_with_vol_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 static gint
 dissect_query_afp_open_fork(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
 {
-	static const int * access[] = {
+	static int * const access[] = {
 		&hf_afp_access_read,
 		&hf_afp_access_write,
 		&hf_afp_access_deny_read,
@@ -3660,7 +3660,7 @@ dissect_reply_afp_get_session_token(tvbuff_t *tvb, packet_info *pinfo _U_, proto
 }
 
 /* ************************** */
-static const int * afp_message_bitmaps[] = {
+static int * const afp_message_bitmaps[] = {
 	&hf_afp_message_bitmap_REQ,
 	&hf_afp_message_bitmap_UTF,
 	NULL
@@ -3732,7 +3732,7 @@ dissect_reply_afp_get_server_message(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 }
 
 /* ************************** */
-static const int * afp_user_bitmaps[] = {
+static int * const afp_user_bitmaps[] = {
 	&hf_afp_user_bitmap_UID,
 	&hf_afp_user_bitmap_GID,
 	&hf_afp_user_bitmap_UUID,
@@ -3816,7 +3816,7 @@ decode_attr_name (proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, gint 
 static gint
 decode_attr_bitmap (proto_tree *tree, tvbuff_t *tvb, gint offset)
 {
-	static const int * bitmaps[] = {
+	static int * const bitmaps[] = {
 		&hf_afp_extattr_bitmap_NoFollow,
 		&hf_afp_extattr_bitmap_Create,
 		&hf_afp_extattr_bitmap_Replace,
@@ -3989,7 +3989,7 @@ static gint
 decode_acl_access_bitmap(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
 	guint32	bitmap;
-	static const int * bitmaps[] = {
+	static int * const bitmaps[] = {
 		&hf_afp_acl_access_bitmap_read_data,
 		&hf_afp_acl_access_bitmap_write_data,
 		&hf_afp_acl_access_bitmap_execute,
@@ -4577,7 +4577,7 @@ static guint16
 decode_acl_list_bitmap(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
 	guint16 bitmap;
-	static const int * bitmaps[] = {
+	static int * const bitmaps[] = {
 		&hf_afp_acl_list_bitmap_UUID,
 		&hf_afp_acl_list_bitmap_GRPUUID,
 		&hf_afp_acl_list_bitmap_ACL,
@@ -4599,7 +4599,7 @@ decode_ace_flags_bitmap(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
 	guint32 bitmap;
 
-	static const int * bitmaps[] = {
+	static int * const bitmaps[] = {
 		&hf_afp_ace_flags_allow,
 		&hf_afp_ace_flags_deny,
 		&hf_afp_ace_flags_inherited,
@@ -4826,7 +4826,7 @@ dissect_afp_server_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 	guint   len;
 	guint   i;
 
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_afp_server_flag_copyfile,
 		&hf_afp_server_flag_passwd,
 		&hf_afp_server_flag_no_save_passwd,

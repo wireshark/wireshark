@@ -172,7 +172,7 @@ static gint hf_link16_contlabel = -1;
 
 static gint ett_link16 = -1;
 
-static const int *link16_initial_word_fields[] = {
+static int * const link16_initial_word_fields[] = {
     &hf_link16_wordformat,
     &hf_link16_label,
     &hf_link16_sublabel,
@@ -180,18 +180,18 @@ static const int *link16_initial_word_fields[] = {
     NULL
 };
 
-static const int * link16_continuation_word_fields[] = {
+static int * const link16_continuation_word_fields[] = {
     &hf_link16_wordformat,
     &hf_link16_contlabel,
     NULL
 };
 
-static const int * link16_extension_or_other_word_fields[] = {
+static int * const link16_extension_or_other_word_fields[] = {
     &hf_link16_wordformat,
     NULL
 };
 
-static const int ** link16_fields[4] = {
+static int * const *link16_fields[4] = {
     link16_initial_word_fields,
     link16_continuation_word_fields,
     link16_extension_or_other_word_fields,

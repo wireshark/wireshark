@@ -202,7 +202,7 @@ static int hf_fip_flag_sol      = -1;
 static int hf_fip_flag_fport    = -1;
 static int hf_fip_descriptors   = -1;
 
-static const int *hf_fip_flags_fields[] = {
+static int * const hf_fip_flags_fields[] = {
     &hf_fip_flag_fpma,
     &hf_fip_flag_spma,
     &hf_fip_flag_rec_p2p,
@@ -285,16 +285,16 @@ fip_desc_fc4f(tvbuff_t *tvb, proto_tree *tree, proto_item *item)
     guint mask;
     guint offset;
 
-    static const int *types_word0[] = { /* types 0 - 31 */
+    static int * const types_word0[] = { /* types 0 - 31 */
         &hf_fip_type_ip,
         &hf_fip_type_fcp,
         NULL
     };
-    static const int *types_word1[] = { /* types 32 - 63 */
+    static int * const types_word1[] = { /* types 32 - 63 */
         &hf_fip_type_gs3,
         NULL
     };
-    static const int *fcp_feat[] = {
+    static int * const fcp_feat[] = {
         &hf_fip_fcp_feat_t,
         &hf_fip_fcp_feat_i,
         NULL

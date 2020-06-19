@@ -5811,7 +5811,7 @@ dissect_ngap_EUTRAencryptionAlgorithms(tvbuff_t *tvb _U_, int offset _U_, asn1_c
                                      16, 16, TRUE, NULL, 0, &parameter_tvb, NULL);
 
   if (parameter_tvb) {
-    const gint *fields[] = {
+    static int * const fields[] = {
       &hf_ngap_EUTRAencryptionAlgorithms_eea1,
       &hf_ngap_EUTRAencryptionAlgorithms_eea2,
       &hf_ngap_EUTRAencryptionAlgorithms_eea3,
@@ -5837,7 +5837,7 @@ dissect_ngap_EUTRAintegrityProtectionAlgorithms(tvbuff_t *tvb _U_, int offset _U
                                      16, 16, TRUE, NULL, 0, &parameter_tvb, NULL);
 
   if (parameter_tvb) {
-    const gint *fields[] = {
+    static int * const fields[] = {
       &hf_ngap_EUTRAintegrityProtectionAlgorithms_eia1,
       &hf_ngap_EUTRAintegrityProtectionAlgorithms_eia2,
       &hf_ngap_EUTRAintegrityProtectionAlgorithms_eia3,
@@ -6332,7 +6332,7 @@ dissect_ngap_InterfacesToTrace(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
                                      8, 8, FALSE, NULL, 0, &parameter_tvb, NULL);
 
   if (parameter_tvb) {
-    const gint *fields[] = {
+    static int * const fields[] = {
       &hf_ngap_InterfacesToTrace_NG_C,
       &hf_ngap_InterfacesToTrace_Xn_C,
       &hf_ngap_InterfacesToTrace_Uu,
@@ -6586,7 +6586,7 @@ dissect_ngap_RATRestrictionInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_c
                                      8, 8, TRUE, NULL, 0, &parameter_tvb, NULL);
 
   if (parameter_tvb) {
-    const gint *fields[] = {
+    static int * const fields[] = {
       &hf_ngap_RATRestrictionInformation_e_UTRA,
       &hf_ngap_RATRestrictionInformation_nR,
       &hf_ngap_RATRestrictionInformation_reserved,
@@ -6905,7 +6905,7 @@ dissect_ngap_NRencryptionAlgorithms(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
                                      16, 16, TRUE, NULL, 0, &parameter_tvb, NULL);
 
   if (parameter_tvb) {
-    const gint *fields[] = {
+    static int * const fields[] = {
       &hf_ngap_NrencyptionAlgorithms_nea1,
       &hf_ngap_NrencyptionAlgorithms_nea2,
       &hf_ngap_NrencyptionAlgorithms_nea3,
@@ -6931,7 +6931,7 @@ dissect_ngap_NRintegrityProtectionAlgorithms(tvbuff_t *tvb _U_, int offset _U_, 
                                      16, 16, TRUE, NULL, 0, &parameter_tvb, NULL);
 
   if (parameter_tvb) {
-    const gint *fields[] = {
+    static int * const fields[] = {
       &hf_ngap_NrintegrityProtectionAlgorithms_nia1,
       &hf_ngap_NrintegrityProtectionAlgorithms_nia2,
       &hf_ngap_NrintegrityProtectionAlgorithms_nia3,

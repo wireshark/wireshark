@@ -138,7 +138,7 @@ CODE START
 static void
 winreg_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 access)
 {
-	static const int* access_flags[] = {
+	static int* const access_flags[] = {
 		&hf_winreg_winreg_AccessMask_KEY_WOW64_32KEY,
 		&hf_winreg_winreg_AccessMask_KEY_WOW64_64KEY,
 		&hf_winreg_winreg_AccessMask_KEY_CREATE_LINK,

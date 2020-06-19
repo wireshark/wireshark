@@ -95,7 +95,7 @@ dissect_tpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	guint8	version, type;
 	guint16	id, cport;
 
-	static const int * tpcp_flags[] = {
+	static int * const tpcp_flags[] = {
 		&hf_tpcp_flags_tcp,
 		&hf_tpcp_flags_redir,
 		&hf_tpcp_flags_xon,

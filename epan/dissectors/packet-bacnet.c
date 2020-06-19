@@ -305,7 +305,7 @@ static gint ett_bacnet_update_control = -1;
 
 static dissector_handle_t bacnet_handle = NULL;
 
-static const int * control_flags[] = {
+static int * const control_flags[] = {
 	&hf_bacnet_control_net,
 	&hf_bacnet_control_res1,
 	&hf_bacnet_control_dest,
@@ -317,7 +317,7 @@ static const int * control_flags[] = {
 	NULL
 };
 
-static const int * update_control_flags[] = {
+static int * const update_control_flags[] = {
 	&hf_bacnet_update_control_remove,
 	&hf_bacnet_update_control_more_follows,
 	&hf_bacnet_update_control_clear_set2,
@@ -329,7 +329,7 @@ static const int * update_control_flags[] = {
 	NULL
 };
 
-static const int * wrapper_control_flags[] = {
+static int * const wrapper_control_flags[] = {
 	&hf_bacnet_wrapper_control_secured_by_router,
 	&hf_bacnet_wrapper_control_non_trusted_source,
 	&hf_bacnet_wrapper_control_do_not_decrypt,

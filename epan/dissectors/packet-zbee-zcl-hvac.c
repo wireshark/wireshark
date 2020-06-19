@@ -223,7 +223,7 @@ dissect_zbee_zcl_pump_config_control(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 void
 dissect_zcl_pump_config_control_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
 {
-    static const int * pump_status[] = {
+    static int * const pump_status[] = {
         &hf_zbee_zcl_pump_config_control_status_device_fault,
         &hf_zbee_zcl_pump_config_control_status_supply_fault,
         &hf_zbee_zcl_pump_config_control_status_speed_low,
@@ -236,7 +236,7 @@ dissect_zcl_pump_config_control_attr_data(proto_tree *tree, tvbuff_t *tvb, guint
         NULL
     };
 
-    static const int * alarm_mask[] = {
+    static int * const alarm_mask[] = {
         &hf_zbee_zcl_pump_config_control_alarm_volt_too_low,
         &hf_zbee_zcl_pump_config_control_alarm_volt_too_high,
         &hf_zbee_zcl_pump_config_control_alarm_pwr_missing_phase,

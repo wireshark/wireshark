@@ -918,7 +918,7 @@ dissect_spnego_krb5_cfx_flags(tvbuff_t *tvb, int offset,
                               proto_tree *spnego_krb5_tree,
                               guint8 cfx_flags _U_)
 {
-  static const int * flags[] = {
+  static int * const flags[] = {
     &hf_spnego_krb5_cfx_flags_04,
     &hf_spnego_krb5_cfx_flags_02,
     &hf_spnego_krb5_cfx_flags_01,

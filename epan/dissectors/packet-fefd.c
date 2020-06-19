@@ -82,12 +82,12 @@ dissect_fefd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     guint16     length;
     proto_tree *tlv_tree;
     int         real_length;
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_fefd_flags_rt,
         &hf_fefd_flags_rsy,
         NULL
     };
-    static const int * headers[] = {
+    static int * const headers[] = {
         &hf_fefd_version,
         &hf_fefd_opcode,
         NULL

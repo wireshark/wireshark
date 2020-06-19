@@ -2822,7 +2822,7 @@ dissect_tds_query_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, td
     /* offset += len; */
 }
 
-static const int *dbrpc_options_hf_fields[] = {
+static int * const dbrpc_options_hf_fields[] = {
     &hf_tds_dbrpc_options_recompile,
     &hf_tds_dbrpc_options_params,
     NULL
@@ -2961,7 +2961,7 @@ dissect_tds5_curclose_token(tvbuff_t *tvb, packet_info *pinfo, guint offset,
     return cur - offset;
 }
 
-static const int *tds_curdeclare_hf_fields[] = {
+static int * const tds_curdeclare_hf_fields[] = {
     &hf_tds_curdeclare_options_rdonly,
     &hf_tds_curdeclare_options_updatable,
     &hf_tds_curdeclare_options_sensitive,
@@ -3127,7 +3127,7 @@ dissect_tds5_curfetch_token(tvbuff_t *tvb, packet_info *pinfo, guint offset,
     return cur - offset;
 }
 
-static const int *tds_curinfo_hf_fields[] = {
+static int * const tds_curinfo_hf_fields[] = {
     &hf_tds_curinfo_cursor_status_declared,
     &hf_tds_curinfo_cursor_status_open,
     &hf_tds_curinfo_cursor_status_closed,
@@ -3278,7 +3278,13 @@ dissect_tds5_curopen_token(tvbuff_t *tvb, packet_info *pinfo, guint offset,
     return cur - offset;
 }
 
-static const int *hf_req_0[9] = {
+/*
+ * Each of these covers the 8 bits of a byte, so they have
+ * 9 elements - one for each bit, plus the terminating NULL.
+ *
+ * Some have early NULLs as placeholders.
+ */
+static int * const hf_req_0[9] = {
     &hf_tds_capability_req_lang,
     &hf_tds_capability_req_rpc,
     &hf_tds_capability_req_evt,
@@ -3288,7 +3294,7 @@ static const int *hf_req_0[9] = {
     &hf_tds_capability_req_dynf,
     NULL, NULL}; /* Two nulls until I can figure out the types. */
 
-static const int *hf_req_1[9] = {
+static int * const hf_req_1[9] = {
     &hf_tds_capability_req_msg,
     &hf_tds_capability_req_param,
     &hf_tds_capability_data_int1,
@@ -3299,7 +3305,7 @@ static const int *hf_req_1[9] = {
     &hf_tds_capability_data_vchar,
     NULL};
 
-static const int *hf_req_2[9] = {
+static int * const hf_req_2[9] = {
     &hf_tds_capability_data_bin,
     &hf_tds_capability_data_vbin,
     &hf_tds_capability_data_mny8,
@@ -3310,7 +3316,7 @@ static const int *hf_req_2[9] = {
     &hf_tds_capability_data_flt8,
     NULL};
 
-static const int *hf_req_3[9] = {
+static int * const hf_req_3[9] = {
     &hf_tds_capability_data_num,
     &hf_tds_capability_data_text,
     &hf_tds_capability_data_image,
@@ -3321,7 +3327,7 @@ static const int *hf_req_3[9] = {
     &hf_tds_capability_data_datetimen,
     NULL};
 
-static const int *hf_req_4[9] = {
+static int * const hf_req_4[9] = {
     &hf_tds_capability_data_moneyn,
     &hf_tds_capability_csr_prev,
     &hf_tds_capability_csr_first,
@@ -3332,7 +3338,7 @@ static const int *hf_req_4[9] = {
     &hf_tds_capability_con_oob,
     NULL};
 
-static const int *hf_req_5[9] = {
+static int * const hf_req_5[9] = {
     &hf_tds_capability_con_inband,
     &hf_tds_capability_con_logical,
     &hf_tds_capability_proto_text,
@@ -3343,7 +3349,7 @@ static const int *hf_req_5[9] = {
     &hf_tds_capability_proto_dynamic,
     NULL};
 
-static const int *hf_req_6[9] = {
+static int * const hf_req_6[9] = {
     &hf_tds_capability_proto_dynproc,
     &hf_tds_capability_data_fltn,
     &hf_tds_capability_data_bitn,
@@ -3354,7 +3360,7 @@ static const int *hf_req_6[9] = {
     &hf_tds_capability_object_char,
     NULL};
 
-static const int *hf_req_7[9] = {
+static int * const hf_req_7[9] = {
     &hf_tds_capability_object_binary,
     &hf_tds_capability_data_columnstatus,
     &hf_tds_capability_widetable,
@@ -3364,7 +3370,7 @@ static const int *hf_req_7[9] = {
     NULL,NULL, /* 56 and 60 reserved */
     NULL};
 
-static const int *hf_req_8[9] = {
+static int * const hf_req_8[9] = {
     &hf_tds_capability_data_uintn,
     &hf_tds_capability_cur_implicit,
     &hf_tds_capability_data_nlbin,
@@ -3375,7 +3381,7 @@ static const int *hf_req_8[9] = {
     &hf_tds_capability_data_date,
     NULL};
 
-static const int *hf_req_9[9] = {
+static int * const hf_req_9[9] = {
     &hf_tds_capability_data_time,
     &hf_tds_capability_data_interval,
     &hf_tds_capability_csr_scroll,
@@ -3386,7 +3392,7 @@ static const int *hf_req_9[9] = {
     &hf_tds_capability_req_srvpktsize,
     NULL};
 
-static const int *hf_req_10[9] = {
+static int * const hf_req_10[9] = {
     &hf_tds_capability_data_unitext,
     &hf_tds_capability_cap_clusterfailover,
     &hf_tds_capability_data_sint1,
@@ -3397,7 +3403,7 @@ static const int *hf_req_10[9] = {
     &hf_tds_capability_req_dbrpc2,
     NULL};
 
-static const int *hf_resp_0[9] = {
+static int * const hf_resp_0[9] = {
     &hf_tds_capability_res_nomsg,
     &hf_tds_capability_res_noeed,
     &hf_tds_capability_res_noparam,
@@ -3408,7 +3414,7 @@ static const int *hf_resp_0[9] = {
     NULL, /* 0 unused */
     NULL};
 
-static const int *hf_resp_1[9] = {
+static int * const hf_resp_1[9] = {
     &hf_tds_capability_data_nochar,
     &hf_tds_capability_data_novchar,
     &hf_tds_capability_data_nobin,
@@ -3419,7 +3425,7 @@ static const int *hf_resp_1[9] = {
     &hf_tds_capability_data_nodate4,
     NULL};
 
-static const int *hf_resp_2[9] = {
+static int * const hf_resp_2[9] = {
     &hf_tds_capability_data_noflt4,
     &hf_tds_capability_data_noflt8,
     &hf_tds_capability_data_nonum,
@@ -3430,7 +3436,7 @@ static const int *hf_resp_2[9] = {
     &hf_tds_capability_data_nolbin,
     NULL};
 
-static const int *hf_resp_3[9] = {
+static int * const hf_resp_3[9] = {
     &hf_tds_capability_data_nointn,
     &hf_tds_capability_data_nodatetimen,
     &hf_tds_capability_data_nomoneyn,
@@ -3441,7 +3447,7 @@ static const int *hf_resp_3[9] = {
     &hf_tds_capability_data_nosensitivity,
     NULL};
 
-static const int *hf_resp_4[9] = {
+static int * const hf_resp_4[9] = {
     &hf_tds_capability_data_noboundary,
     &hf_tds_capability_res_notdsdebug,
     &hf_tds_capability_res_nostripblanks,
@@ -3452,7 +3458,7 @@ static const int *hf_resp_4[9] = {
     &hf_tds_capability_object_nobinary,
     NULL};
 
-static const int *hf_resp_5[9] = {
+static int * const hf_resp_5[9] = {
     &hf_tds_capability_data_nouint2,
     &hf_tds_capability_data_nouint4,
     &hf_tds_capability_data_nouint8,
@@ -3463,7 +3469,7 @@ static const int *hf_resp_5[9] = {
     NULL, /* 40 unused */
     NULL};
 
-static const int *hf_resp_6[9] = {
+static int * const hf_resp_6[9] = {
     &hf_tds_capability_blob_nonchar_16,
     &hf_tds_capability_blob_nonchar_8,
     &hf_tds_capability_blob_nonchar_scsu,
@@ -3474,7 +3480,7 @@ static const int *hf_resp_6[9] = {
     &hf_tds_capability_data_nosint1,
     NULL};
 
-static const int *hf_resp_7[9] = {
+static int * const hf_resp_7[9] = {
     &hf_tds_capability_no_largeident,
     &hf_tds_capability_no_blob_nchar_16,
     &hf_tds_capability_no_srvpktsize,
@@ -3485,36 +3491,36 @@ static const int *hf_resp_7[9] = {
     &hf_tds_capability_res_suppress_doneinproc,
     NULL};
 
-static const int *hf_resp_8[9] = {
+static int * const hf_resp_8[9] = {
     &hf_tds_capability_res_force_rowfmt2,
     NULL, NULL, NULL, /* 65-67 reserved */
     NULL, NULL, NULL, NULL, /* 68-71 reserved */
     NULL};
 
-static const int *(* const hf_req_array[])[9] = {
-    &hf_req_0,
-    &hf_req_1,
-    &hf_req_2,
-    &hf_req_3,
-    &hf_req_4,
-    &hf_req_5,
-    &hf_req_6,
-    &hf_req_7,
-    &hf_req_8,
-    &hf_req_9,
-    &hf_req_10
+static int * const *hf_req_array[] = {
+    hf_req_0,
+    hf_req_1,
+    hf_req_2,
+    hf_req_3,
+    hf_req_4,
+    hf_req_5,
+    hf_req_6,
+    hf_req_7,
+    hf_req_8,
+    hf_req_9,
+    hf_req_10
    };
 
-static const int *(* const hf_resp_array[])[9] = {
-    &hf_resp_0,
-    &hf_resp_1,
-    &hf_resp_2,
-    &hf_resp_3,
-    &hf_resp_4,
-    &hf_resp_5,
-    &hf_resp_6,
-    &hf_resp_7,
-    &hf_resp_8
+static int * const *hf_resp_array[] = {
+    hf_resp_0,
+    hf_resp_1,
+    hf_resp_2,
+    hf_resp_3,
+    hf_resp_4,
+    hf_resp_5,
+    hf_resp_6,
+    hf_resp_7,
+    hf_resp_8
    };
 
 static guint
@@ -3543,14 +3549,14 @@ dissect_tds5_capability_token(tvbuff_t *tvb, packet_info *pinfo, guint offset,
         }
 
         for (cap=0; cap < caplen; cap++) {
-            const int **hf_array = NULL;
+            int * const *hf_array = NULL;
             char name[ITEM_LABEL_LENGTH];
             int ett;
 
             switch (captype) {
                 case TDS_CAP_REQUEST:
                     if (cap < array_length(hf_req_array)) {
-                        hf_array = (const int **) hf_req_array[cap];
+                        hf_array = hf_req_array[cap];
                         g_snprintf(name, ITEM_LABEL_LENGTH, "Req caps %d-%d: ",
                                    cap*8, (cap + 1)*8 - 1);
                         ett = ett_tds_capability_req;
@@ -3558,7 +3564,7 @@ dissect_tds5_capability_token(tvbuff_t *tvb, packet_info *pinfo, guint offset,
                     break;
                 case TDS_CAP_RESPONSE:
                     if (cap < array_length(hf_resp_array)) {
-                        hf_array = (const int **) hf_resp_array[cap];
+                        hf_array = hf_resp_array[cap];
                         g_snprintf(name, ITEM_LABEL_LENGTH, "Resp caps %d-%d: ",
                                    cap*8, (cap + 1)*8 - 1);
                         ett = ett_tds_capability_resp;
@@ -6084,7 +6090,7 @@ dissect_tds7_colmetadata_token(tvbuff_t *tvb, struct _netlib_data *nl_data, guin
  * One  field is not valid in this token.
  */
 
-static const int *done_status_flags[] = {
+static int * const done_status_flags[] = {
     &hf_tds_done_status_more,
     &hf_tds_done_status_error,
     &hf_tds_done_status_inxact,
@@ -6124,7 +6130,7 @@ dissect_tds_done_token(tvbuff_t *tvb, guint offset, proto_tree *tree, tds_conv_i
  * All fields are valid in this token.
  */
 
-static const int *doneproc_status_flags[] = {
+static int * const doneproc_status_flags[] = {
     &hf_tds_done_status_more,
     &hf_tds_done_status_error,
     &hf_tds_done_status_inxact,
@@ -6167,7 +6173,7 @@ dissect_tds_doneproc_token(tvbuff_t *tvb, guint offset, proto_tree *tree, tds_co
  * This token occurs much more frequently when stored procedures are used, so
  * it's worthwhile to make a separate list.
  */
-static const int *doneinproc_status_flags[] = {
+static int * const doneinproc_status_flags[] = {
     &hf_tds_done_status_more,
     &hf_tds_done_status_error,
     &hf_tds_done_status_inxact,
@@ -6810,7 +6816,7 @@ dissect_netlib_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     conversation_t *conv;
     tds_conv_info_t *tds_info;
 
-    static const int *status_flags[] = {
+    static int * const status_flags[] = {
         &hf_tds_status_eom,
         &hf_tds_status_ignore,
         &hf_tds_status_event_notif,

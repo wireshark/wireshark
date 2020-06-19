@@ -937,7 +937,7 @@ static const char *mon_names[12] = {
 	"Dec"
 };
 
-static const int *ntp_header_fields[] = {
+static int * const ntp_header_fields[] = {
 	&hf_ntp_flags_li,
 	&hf_ntp_flags_vn,
 	&hf_ntp_flags_mode,
@@ -952,7 +952,7 @@ static const int *ntp_header_fields[] = {
 	* | Status  | Sel | Count | Code  |
 	* +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 	*/
-static const int *peer_status_flags[] = {
+static int * const peer_status_flags[] = {
 	&hf_ntpctrl_peer_status_b0,
 	&hf_ntpctrl_peer_status_b1,
 	&hf_ntpctrl_peer_status_b2,
@@ -964,7 +964,7 @@ static const int *peer_status_flags[] = {
 	NULL
 };
 
-static const int *ntppriv_peer_list_flags[] = {
+static int * const ntppriv_peer_list_flags[] = {
 	&hf_ntppriv_mode7_peer_flags_config,
 	&hf_ntppriv_mode7_peer_flags_syspeer,
 	&hf_ntppriv_mode7_peer_flags_burst,
@@ -976,7 +976,7 @@ static const int *ntppriv_peer_list_flags[] = {
 	NULL
 };
 
-static const int *ntppriv_config_flags[] = {
+static int * const ntppriv_config_flags[] = {
 	&hf_ntppriv_mode7_config_flags_auth,
 	&hf_ntppriv_mode7_config_flags_prefer,
 	&hf_ntppriv_mode7_config_flags_burst,
@@ -986,7 +986,7 @@ static const int *ntppriv_config_flags[] = {
 	NULL
 };
 
-static const int *ntppriv_sys_flag_flags[] = {
+static int * const ntppriv_sys_flag_flags[] = {
 	&hf_ntppriv_mode7_sys_flags_bclient,
 	&hf_ntppriv_mode7_sys_flags_pps,
 	&hf_ntppriv_mode7_sys_flags_ntp,
@@ -998,7 +998,7 @@ static const int *ntppriv_sys_flag_flags[] = {
 	NULL
 };
 
-static const int *ntppriv_reset_stats_flags[] = {
+static int * const ntppriv_reset_stats_flags[] = {
 	&hf_ntppriv_mode7_reset_stats_flags_allpeers,
 	&hf_ntppriv_mode7_reset_stats_flags_io,
 	&hf_ntppriv_mode7_reset_stats_flags_sys,
@@ -1385,7 +1385,7 @@ dissect_ntp_ctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 	tvbparse_t *tt;
 	tvbparse_elem_t *element;
 
-	static const int *ntpctrl_flags[] = {
+	static int * const ntpctrl_flags[] = {
 		&hf_ntpctrl_flags2_r,
 		&hf_ntpctrl_flags2_error,
 		&hf_ntpctrl_flags2_more,
@@ -1434,7 +1434,7 @@ dissect_ntp_ctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 			 * |  Error Code   |   reserved    |
 			 * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 			 */
-			static const int *errorstatus[] = {
+			static int * const errorstatus[] = {
 				&hf_ntpctrl_error_status_word,
 				NULL
 			};
@@ -1460,7 +1460,7 @@ dissect_ntp_ctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 					 * |LI | ClkSource | Count | Code  |
 					 * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 					 */
-					static const int *systemstatus[] = {
+					static int * const systemstatus[] = {
 						&hf_ntpctrl_sys_status_li,
 						&hf_ntpctrl_sys_status_clksrc,
 						&hf_ntpctrl_sys_status_count,
@@ -1482,7 +1482,7 @@ dissect_ntp_ctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 				 * | Clock Status  |  Event Code   |
 				 * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 				 */
-				static const int *clockstatus[] = {
+				static int * const clockstatus[] = {
 					&hf_ntpctrl_clk_status,
 					&hf_ntpctrl_clk_status_code,
 					NULL
@@ -1681,7 +1681,7 @@ dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 	wmem_tree_key_t key[3];
 	guint32 seq;
 
-	static const int *priv_flags[] = {
+	static int * const priv_flags[] = {
 		&hf_ntppriv_flags_r,
 		&hf_ntppriv_flags_more,
 		&hf_ntp_flags_vn,
@@ -1689,7 +1689,7 @@ dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 		NULL
 	};
 
-	static const int *auth_flags[] = {
+	static int * const auth_flags[] = {
 		&hf_ntppriv_auth,
 		&hf_ntppriv_seq,
 		NULL

@@ -74,7 +74,7 @@ dissect_hp_erm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     proto_tree *hp_erm_tree;
     tvbuff_t   *eth_tvb;
     int        offset = 0;
-    const gint *flags[] = {
+    int * const flags[] = {
         &hf_hp_erm_unknown2,
         &hf_hp_erm_priority,
         &hf_hp_erm_cfi,

@@ -1595,7 +1595,7 @@ static const value_string kernel_type_vals[] = {
     { 0,  NULL }
 };
 
-static const int * ncp_pingflags1[] = {
+static int * const ncp_pingflags1[] = {
     &hf_bit1pingflags1,
     &hf_bit2pingflags1,
     &hf_bit3pingflags1,
@@ -1615,7 +1615,7 @@ static const int * ncp_pingflags1[] = {
     NULL
 };
 
-static const int * ncp_pingflags2[] = {
+static int * const ncp_pingflags2[] = {
     &hf_bit1pingflags2,
     &hf_bit2pingflags2,
     &hf_bit3pingflags2,
@@ -1635,7 +1635,7 @@ static const int * ncp_pingflags2[] = {
     NULL
 };
 
-static const int * ncp_pingvflags1[] = {
+static int * const ncp_pingvflags1[] = {
     &hf_bit1pingvflags1,
     &hf_bit2pingvflags1,
     &hf_bit3pingvflags1,
@@ -1655,7 +1655,7 @@ static const int * ncp_pingvflags1[] = {
     NULL
 };
 
-static const int * ncp_pingpflags1[] = {
+static int * const ncp_pingpflags1[] = {
     &hf_bit1pingpflags1,
     &hf_bit2pingpflags1,
     &hf_bit3pingpflags1,
@@ -1675,7 +1675,7 @@ static const int * ncp_pingpflags1[] = {
     NULL
 };
 
-static const int * ndsprotflags[] = {
+static int * const ndsprotflags[] = {
     &hf_ndsprot1flag,
     &hf_ndsprot2flag,
     &hf_ndsprot3flag,
@@ -1695,7 +1695,7 @@ static const int * ndsprotflags[] = {
     NULL
 };
 
-static const int * ncp_infoflagsl[] = {
+static int * const ncp_infoflagsl[] = {
     &hf_bit1infoflagsl,
     &hf_bit2infoflagsl,
     &hf_bit3infoflagsl,
@@ -1715,7 +1715,7 @@ static const int * ncp_infoflagsl[] = {
     NULL
 };
 
-static const int * ncp_infoflagsh[] = {
+static int * const ncp_infoflagsh[] = {
     &hf_bit1infoflagsh,
     &hf_bit2infoflagsh,
     &hf_bit3infoflagsh,
@@ -1735,7 +1735,7 @@ static const int * ncp_infoflagsh[] = {
     NULL
 };
 
-static const int * ncp_retinfoflagsh[] = {
+static int * const ncp_retinfoflagsh[] = {
     &hf_bit1retinfoflagsh,
     &hf_bit2retinfoflagsh,
     &hf_bit3retinfoflagsh,
@@ -1755,7 +1755,7 @@ static const int * ncp_retinfoflagsh[] = {
     NULL
 };
 
-static const int * ncp_acflags[] = {
+static int * const ncp_acflags[] = {
     &hf_bit1acflags,
     &hf_bit2acflags,
     &hf_bit3acflags,
@@ -1775,7 +1775,7 @@ static const int * ncp_acflags[] = {
     NULL
 };
 
-static const int * ncp_eflags[] = {
+static int * const ncp_eflags[] = {
     &hf_bit1eflags,
     &hf_bit2eflags,
     &hf_bit3eflags,
@@ -1795,7 +1795,7 @@ static const int * ncp_eflags[] = {
     NULL
 };
 
-static const int * ncp_cflags[] = {
+static int * const ncp_cflags[] = {
     &hf_bit1cflags,
     &hf_bit2cflags,
     &hf_bit3cflags,
@@ -1815,7 +1815,7 @@ static const int * ncp_cflags[] = {
     NULL
 };
 
-static const int * ncp_lflags[] = {
+static int * const ncp_lflags[] = {
     &hf_bit1lflags,
     &hf_bit2lflags,
     &hf_bit3lflags,
@@ -1835,7 +1835,7 @@ static const int * ncp_lflags[] = {
     NULL
 };
 
-static const int * ncp_nflags[] = {
+static int * const ncp_nflags[] = {
     &hf_bit1nflags,
     &hf_bit2nflags,
     &hf_bit3nflags,
@@ -1855,7 +1855,7 @@ static const int * ncp_nflags[] = {
     NULL
 };
 
-static const int * ncp_rflags[] = {
+static int * const ncp_rflags[] = {
     &hf_bit1rflags,
     &hf_bit2rflags,
     &hf_bit3rflags,
@@ -1875,7 +1875,7 @@ static const int * ncp_rflags[] = {
     NULL
 };
 
-static const int * ncp_outflags[] = {
+static int * const ncp_outflags[] = {
     &hf_bit1outflags,
     &hf_bit2outflags,
     &hf_bit3outflags,
@@ -1895,7 +1895,7 @@ static const int * ncp_outflags[] = {
     NULL
 };
 
-static const int * ncp_siflags[] = {
+static int * const ncp_siflags[] = {
     &hf_bit1siflags,
     &hf_bit2siflags,
     &hf_bit3siflags,
@@ -1915,7 +1915,7 @@ static const int * ncp_siflags[] = {
     NULL
 };
 
-static const int * ncp_vflags[] = {
+static int * const ncp_vflags[] = {
     &hf_bit1vflags,
     &hf_bit2vflags,
     &hf_bit3vflags,
@@ -1935,7 +1935,7 @@ static const int * ncp_vflags[] = {
     NULL
 };
 
-static const int * nds_bitflags[] = {
+static int * const nds_bitflags[] = {
     &hf_nds_bit1,
     &hf_nds_bit2,
     &hf_nds_bit3,
@@ -1955,7 +1955,7 @@ static const int * nds_bitflags[] = {
     NULL
 };
 
-static const int * ncp_l1flagsl[] = {
+static int * const ncp_l1flagsl[] = {
     &hf_bit1l1flagsl,
     &hf_bit2l1flagsl,
     &hf_bit3l1flagsl,
@@ -1975,7 +1975,7 @@ static const int * ncp_l1flagsl[] = {
     NULL
 };
 
-static const int * ncp_l1flagsh[] = {
+static int * const ncp_l1flagsh[] = {
     &hf_bit1l1flagsh,
     &hf_bit2l1flagsh,
     &hf_bit3l1flagsh,
@@ -3328,7 +3328,7 @@ print_nds_values(proto_tree *vtree, packet_info* pinfo, tvbuff_t *tvb, guint32 s
             /* Entry or Attribute Privileges */
             if (entry_rights) {
                 /* if Entries then use these bits */
-                static const int * entries[] = {
+                static int * const entries[] = {
                     &hf_nds_compare_attributes,
                     &hf_nds_read_attribute,
                     &hf_nds_write_add_delete_attribute,
@@ -3353,7 +3353,7 @@ print_nds_values(proto_tree *vtree, packet_info* pinfo, tvbuff_t *tvb, guint32 s
             else
             {
                 /* if attribute rights then do these bits */
-                static const int * rights[] = {
+                static int * const rights[] = {
                     &hf_nds_browse_entry,
                     &hf_nds_add_entry,
                     &hf_nds_delete_entry,

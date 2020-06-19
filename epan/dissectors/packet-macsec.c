@@ -99,7 +99,7 @@ static int dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         }
         macsec_tree = proto_item_add_subtree(macsec_item, ett_macsec);
 
-        static const int * flags[] = {
+        static int * const flags[] = {
             &hf_macsec_TCI_V,
             &hf_macsec_TCI_ES,
             &hf_macsec_TCI_SC,

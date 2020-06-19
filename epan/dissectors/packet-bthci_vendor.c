@@ -114,7 +114,7 @@ static int hf_broadcom_build_base = -1;
 static int hf_broadcom_build_number = -1;
 static int hf_broadcom_data = -1;
 
-static const int *hfx_le_multi_advertising_channel_map[] = {
+static int * const hfx_le_multi_advertising_channel_map[] = {
     &hf_broadcom_le_multi_advertising_channel_map_reserved,
     &hf_broadcom_le_multi_advertising_channel_map_39,
     &hf_broadcom_le_multi_advertising_channel_map_38,
@@ -1608,14 +1608,14 @@ static int hf_intel_set_event_mask_sco_rejected_via_lmp = -1;
 static int hf_intel_set_event_mask_bootup = -1;
 static int hf_intel_data = -1;
 
-static const int *hfx_intel_scan_status[] = {
+static int * const hfx_intel_scan_status[] = {
     &hf_intel_scan_status_reserved,
     &hf_intel_scan_status_page_scan,
     &hf_intel_scan_status_inquiry_scan,
     NULL
 };
 
-static const int *hfx_intel_set_event_mask[] = {
+static int * const hfx_intel_set_event_mask[] = {
     &hf_intel_set_event_mask_reserved_15_63,
     &hf_intel_set_event_mask_firmware_trace_string,
     &hf_intel_set_event_mask_le_link_established,

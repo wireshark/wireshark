@@ -727,7 +727,7 @@ tdm_secondary_header_dissector ( proto_tree* ehs_secondary_header_tree, tvbuff_t
     for ( j=0; j < num_major_frames; ++j )
     {
       proto_tree* major_tree;
-      const int * major_fields[] = {
+      static int * const major_fields[] = {
         /* &hf_ehs_sh_tdm_mjfs_reserved, */
         &hf_ehs_sh_tdm_mjfs_parent_frame_error,
         &hf_ehs_sh_tdm_mjfs_checksum_error,
@@ -744,7 +744,7 @@ tdm_secondary_header_dissector ( proto_tree* ehs_secondary_header_tree, tvbuff_t
   for ( j=0; j < num_minor_frames; ++j )
   {
     proto_tree* minor_tree;
-    const int * minor_fields[] = {
+    static int * const minor_fields[] = {
         &hf_ehs_sh_tdm_mnfs_parent_frame_error,
         &hf_ehs_sh_tdm_mnfs_data_not_available,
         &hf_ehs_sh_tdm_mnfs_checksum_error,

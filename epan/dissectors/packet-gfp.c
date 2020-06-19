@@ -91,7 +91,7 @@ static const range_string gfp_pli_rvals[] = {
     {0, 0, NULL}
 };
 
-static const int *gfp_type_data_fields[] = {
+static int * const gfp_type_data_fields[] = {
     &hf_gfp_pti,
     &hf_gfp_pfi,
     &hf_gfp_exi,
@@ -99,7 +99,7 @@ static const int *gfp_type_data_fields[] = {
     NULL
 };
 
-static const int *gfp_type_management_fields[] = {
+static int * const gfp_type_management_fields[] = {
     &hf_gfp_pti,
     &hf_gfp_pfi,
     &hf_gfp_exi,

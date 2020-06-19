@@ -490,7 +490,7 @@ dissect_twamp_server_greeting(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     return tvb_captured_length(tvb);
 }
 
-static const int * twamp_error_estimate_flags[] = {
+static int * const twamp_error_estimate_flags[] = {
     &hf_twamp_error_estimate_b15,
     &hf_twamp_error_estimate_b14,
     &hf_twamp_error_estimate_scale,

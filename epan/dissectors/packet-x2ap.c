@@ -5364,7 +5364,7 @@ dissect_x2ap_T_transmissionModes(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
                                      8, 8, FALSE, NULL, 0, &parameter_tvb, NULL);
 
   if(parameter_tvb){
-    const gint *fields[] = {
+    static int * const fields[] = {
       &hf_x2ap_MDT_transmissionModes_tm1,
       &hf_x2ap_MDT_transmissionModes_tm2,
       &hf_x2ap_MDT_transmissionModes_tm3,
@@ -5658,7 +5658,7 @@ dissect_x2ap_EncryptionAlgorithms(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
                                      16, 16, TRUE, NULL, 0, &parameter_tvb, NULL);
 
   if(parameter_tvb){
-    const gint *fields[] = {
+    static int * const fields[] = {
       &hf_x2ap_encryptionAlgorithms_EEA1,
       &hf_x2ap_encryptionAlgorithms_EEA2,
       &hf_x2ap_encryptionAlgorithms_EEA3,
@@ -6991,7 +6991,7 @@ dissect_x2ap_IntegrityProtectionAlgorithms(tvbuff_t *tvb _U_, int offset _U_, as
                                      16, 16, TRUE, NULL, 0, &parameter_tvb, NULL);
 
   if(parameter_tvb){
-    const gint *fields[] = {
+    static int * const fields[] = {
       &hf_x2ap_integrityProtectionAlgorithms_EIA1,
       &hf_x2ap_integrityProtectionAlgorithms_EIA2,
       &hf_x2ap_integrityProtectionAlgorithms_EIA3,
@@ -7027,7 +7027,7 @@ dissect_x2ap_InterfacesToTrace(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
                                      8, 8, FALSE, NULL, 0, &parameter_tvb, NULL);
 
   if(parameter_tvb){
-    const gint *fields[] = {
+    static int * const fields[] = {
       &hf_x2ap_interfacesToTrace_S1_MME,
       &hf_x2ap_interfacesToTrace_X2,
       &hf_x2ap_interfacesToTrace_Uu,
@@ -7689,7 +7689,7 @@ dissect_x2ap_MeasurementsToActivate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
                                      8, 8, FALSE, NULL, 0, &parameter_tvb, NULL);
 
   if(parameter_tvb){
-    const gint *fields[] = {
+    static int * const fields[] = {
       &hf_x2ap_measurementsToActivate_M1,
       &hf_x2ap_measurementsToActivate_M2,
       &hf_x2ap_measurementsToActivate_M3,
@@ -7753,7 +7753,7 @@ dissect_x2ap_MDT_Location_Info(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
                                      8, 8, FALSE, NULL, 0, &parameter_tvb, NULL);
 
   if(parameter_tvb){
-    const gint *fields[] = {
+    static int * const fields[] = {
       &hf_x2ap_MDT_Location_Info_GNSS,
       &hf_x2ap_MDT_Location_Info_E_CID,
       &hf_x2ap_MDT_Location_Info_Reserved,
@@ -8361,7 +8361,7 @@ dissect_x2ap_NRencryptionAlgorithms(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
                                      16, 16, TRUE, NULL, 0, &parameter_tvb, NULL);
 
   if (parameter_tvb) {
-    const gint *fields[] = {
+    static int * const fields[] = {
       &hf_x2ap_NRencryptionAlgorithms_NEA1,
       &hf_x2ap_NRencryptionAlgorithms_NEA2,
       &hf_x2ap_NRencryptionAlgorithms_NEA3,
@@ -8387,7 +8387,7 @@ dissect_x2ap_NRintegrityProtectionAlgorithms(tvbuff_t *tvb _U_, int offset _U_, 
                                      16, 16, TRUE, NULL, 0, &parameter_tvb, NULL);
 
   if (parameter_tvb) {
-    const gint *fields[] = {
+    static int * const fields[] = {
       &hf_x2ap_NRintegrityProtectionAlgorithms_NIA1,
       &hf_x2ap_NRintegrityProtectionAlgorithms_NIA2,
       &hf_x2ap_NRintegrityProtectionAlgorithms_NIA3,
@@ -9036,7 +9036,7 @@ dissect_x2ap_ReportCharacteristics(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
                                      32, 32, FALSE, NULL, 0, &parameter_tvb, NULL);
 
   if(parameter_tvb){
-    const gint *fields[] = {
+    static int * const fields[] = {
       &hf_x2ap_ReportCharacteristics_PRBPeriodic,
       &hf_x2ap_ReportCharacteristics_TNLLoadIndPeriodic,
       &hf_x2ap_ReportCharacteristics_HWLoadIndPeriodic,
@@ -11128,7 +11128,7 @@ dissect_x2ap_T_measurementFailedReportCharacteristics(tvbuff_t *tvb _U_, int off
                                      32, 32, FALSE, NULL, 0, &parameter_tvb, NULL);
 
   if(parameter_tvb){
-    const gint *fields[] = {
+    static int * const fields[] = {
       &hf_x2ap_measurementFailedReportCharacteristics_PRBPeriodic,
       &hf_x2ap_measurementFailedReportCharacteristics_TNLLoadIndPeriodic,
       &hf_x2ap_measurementFailedReportCharacteristics_HWLoadIndPeriodic,

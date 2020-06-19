@@ -2892,7 +2892,7 @@ typedef struct hf_items {
   int *phf;
   gint bitmask_ett;
   int length;
-  const int **bitmask;
+  int * const *bitmask;
   gint encoding;
 } hf_items;
 
@@ -2995,7 +2995,7 @@ static guint32
 dissect_wcc(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
 {
 
-  static const int *wcc_byte[] = {
+  static int * const wcc_byte[] = {
     &hf_tn5250_wtd_ccc2_res,
     &hf_tn5250_wtd_ccc2_cursor,
     &hf_tn5250_wtd_ccc2_reset,
@@ -3065,28 +3065,28 @@ dissect_start_of_header(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
   int start = offset;
 
   /*TODO: Warn on invalid length. <= 7 */
-  static const int *byte[] = {
+  static int * const byte[] = {
     &hf_tn5250_soh_cursor_direction,
     &hf_tn5250_soh_screen_reverse,
     &hf_tn5250_soh_input_capable_only,
     NULL
   };
 
-  static const int *byte1[] = {
+  static int * const byte1[] = {
     &hf_tn5250_soh_pf24, &hf_tn5250_soh_pf23, &hf_tn5250_soh_pf22,
     &hf_tn5250_soh_pf21, &hf_tn5250_soh_pf20, &hf_tn5250_soh_pf19,
     &hf_tn5250_soh_pf18, &hf_tn5250_soh_pf17,
     NULL
   };
 
-  static const int *byte2[] = {
+  static int * const byte2[] = {
     &hf_tn5250_soh_pf16, &hf_tn5250_soh_pf15, &hf_tn5250_soh_pf14,
     &hf_tn5250_soh_pf13, &hf_tn5250_soh_pf12, &hf_tn5250_soh_pf11,
     &hf_tn5250_soh_pf10, &hf_tn5250_soh_pf9,
     NULL
   };
 
-  static const int *byte3[] = {
+  static int * const byte3[] = {
     &hf_tn5250_soh_pf8, &hf_tn5250_soh_pf7, &hf_tn5250_soh_pf6,
     &hf_tn5250_soh_pf5, &hf_tn5250_soh_pf4, &hf_tn5250_soh_pf3,
     &hf_tn5250_soh_pf2, &hf_tn5250_soh_pf1,
@@ -3142,7 +3142,7 @@ dissect_field_attribute_pair(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset
   int start = offset;
   int attribute_type;
 
-  static const int *byte[] = {
+  static int * const byte[] = {
      &hf_tn5250_wea_prim_attr_flag, &hf_tn5250_wea_prim_attr_col,
      &hf_tn5250_wea_prim_attr_blink, &hf_tn5250_wea_prim_attr_und,
      &hf_tn5250_wea_prim_attr_int, &hf_tn5250_wea_prim_attr_rev,
@@ -3185,7 +3185,7 @@ dissect_start_of_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
   int done = 0;
   int ffw = 0, fcw = 0, fa = 0;
 
-  static const int *byte[] = {
+  static int * const byte[] = {
     &hf_tn5250_ffw_id,
     &hf_tn5250_ffw_bypass,
     &hf_tn5250_ffw_dup,
@@ -3194,7 +3194,7 @@ dissect_start_of_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
     NULL
   };
 
-  static const int *byte1[] = {
+  static int * const byte1[] = {
     &hf_tn5250_ffw_auto,
     &hf_tn5250_ffw_fer,
     &hf_tn5250_ffw_monocase,
@@ -3204,7 +3204,7 @@ dissect_start_of_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
     NULL
   };
 
-  static const int *fabyte[] = {
+  static int * const fabyte[] = {
     &hf_tn5250_sf_attr_flag, &hf_tn5250_wea_prim_attr_col,
     &hf_tn5250_wea_prim_attr_blink, &hf_tn5250_wea_prim_attr_und,
     &hf_tn5250_wea_prim_attr_int, &hf_tn5250_wea_prim_attr_rev,
@@ -3272,7 +3272,7 @@ dissect_create_window(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
   int length = 0;
   int done = 0, minor_structure = 0;
 
-  static const int *byte[] = {
+  static int * const byte[] = {
     &hf_tn5250_wdsf_cw_flag1_1,
     &hf_tn5250_wdsf_cw_flag1_2,
     &hf_tn5250_wdsf_cw_flag1_reserved,
@@ -3288,7 +3288,7 @@ dissect_create_window(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
     { NULL, 0, 0, 0, 0 }
   };
 
-  static const int *cw_bp_flag1[] = {
+  static int * const cw_bp_flag1[] = {
     &hf_tn5250_wdsf_cw_bp_flag1_1,
     &hf_tn5250_wdsf_cw_bp_flag1_reserved,
     NULL
@@ -3312,7 +3312,7 @@ dissect_create_window(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
     { NULL, 0, 0, 0, 0 }
   };
 
-  static const int *cw_tf_flag1[] = {
+  static int * const cw_tf_flag1[] = {
     &hf_tn5250_wdsf_cw_tf_flag_orientation,
     &hf_tn5250_wdsf_cw_tf_flag_1,
     &hf_tn5250_wdsf_cw_tf_flag_reserved,
@@ -3366,13 +3366,13 @@ dissect_define_selection(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
   int done = 0, minor_structure = 0, digit_selection = 0;
   int minor_structure_start;
 
-  static const int *ds_flag1[] = {
+  static int * const ds_flag1[] = {
     &hf_tn5250_wdsf_ds_flag1_mouse_characteristics, &hf_tn5250_wdsf_ds_flag1_reserved,
     &hf_tn5250_wdsf_ds_flag1_auto_enter, &hf_tn5250_wdsf_ds_flag1_1,
     &hf_tn5250_wdsf_ds_flag1_2, NULL
   };
 
-  static const int *ds_flag2[] = {
+  static int * const ds_flag2[] = {
     &hf_tn5250_wdsf_ds_flag2_1, &hf_tn5250_wdsf_ds_flag2_2,
     &hf_tn5250_wdsf_ds_flag2_3, &hf_tn5250_wdsf_ds_flag2_4,
     &hf_tn5250_wdsf_ds_flag2_5, &hf_tn5250_wdsf_ds_flag2_6,
@@ -3380,18 +3380,18 @@ dissect_define_selection(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
     NULL
   };
 
-  static const int *ds_flag3[] = {
+  static int * const ds_flag3[] = {
     &hf_tn5250_wdsf_ds_flag3_1, &hf_tn5250_wdsf_ds_flag3_reserved,
     NULL
   };
 
-  static const int *ds_gdc[] = {
+  static int * const ds_gdc[] = {
     &hf_tn5250_wdsf_ds_gdc_indicators, &hf_tn5250_wdsf_ds_gdc_reserved,
     &hf_tn5250_wdsf_ds_gdc_selection_techniques,
     NULL
   };
 
-  static const int *ds_nws[] = {
+  static int * const ds_nws[] = {
     &hf_tn5250_wdsf_ds_nws_indicators, &hf_tn5250_wdsf_ds_nws_reserved,
     &hf_tn5250_wdsf_ds_nws_selection_techniques,
     NULL
@@ -3419,14 +3419,14 @@ dissect_define_selection(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
     { NULL, 0, 0, 0, 0 }
   };
 
-  static const int *ds_ct_flag1[] = {
+  static int * const ds_ct_flag1[] = {
     &hf_tn5250_wdsf_ds_ct_flag1_choice_state, &hf_tn5250_wdsf_ds_ct_flag1_2,
     &hf_tn5250_wdsf_ds_ct_flag1_3, &hf_tn5250_wdsf_ds_ct_flag1_4,
     &hf_tn5250_wdsf_ds_ct_flag1_5, &hf_tn5250_wdsf_ds_ct_flag1_numeric_selection,
     NULL
   };
 
-  static const int *ds_ct_flag2[] = {
+  static int * const ds_ct_flag2[] = {
     &hf_tn5250_wdsf_ds_ct_flag2_0, &hf_tn5250_wdsf_ds_ct_flag2_1,
     &hf_tn5250_wdsf_ds_ct_flag2_2, &hf_tn5250_wdsf_ds_ct_flag2_3,
     &hf_tn5250_wdsf_ds_ct_flag2_4, &hf_tn5250_wdsf_ds_ct_flag2_5,
@@ -3434,7 +3434,7 @@ dissect_define_selection(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
     NULL
   };
 
-  static const int *ds_ct_flag3[] = {
+  static int * const ds_ct_flag3[] = {
     &hf_tn5250_wdsf_ds_ct_flag3_0, &hf_tn5250_wdsf_ds_ct_flag3_1,
     &hf_tn5250_wdsf_ds_ct_flag3_2, &hf_tn5250_wdsf_ds_ct_flag3_reserved,
     NULL
@@ -3453,7 +3453,7 @@ dissect_define_selection(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
     { NULL, 0, 0, 0, 0 }
   };
 
-  static const int *ds_mbs_flag[] = {
+  static int * const ds_mbs_flag[] = {
     &hf_tn5250_wdsf_ds_mbs_flag_0, &hf_tn5250_wdsf_ds_mbs_flag_1,
     &hf_tn5250_wdsf_ds_mbs_flag_reserved,
     NULL
@@ -3472,7 +3472,7 @@ dissect_define_selection(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
     { NULL, 0, 0, 0, 0 }
   };
 
-  static const int *ds_cpda_flag[] = {
+  static int * const ds_cpda_flag[] = {
     &hf_tn5250_wdsf_ds_cpda_flag1_0, &hf_tn5250_wdsf_ds_cpda_flag1_1,
     &hf_tn5250_wdsf_ds_cpda_flag1_2, &hf_tn5250_wdsf_ds_cpda_flag1_reserved,
     NULL
@@ -3501,7 +3501,7 @@ dissect_define_selection(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
     { NULL, 0, 0, 0, 0 }
   };
 
-  static const int *ds_ci_flag[] = {
+  static int * const ds_ci_flag[] = {
     &hf_tn5250_wdsf_ds_ci_flag1_0, &hf_tn5250_wdsf_ds_ci_flag1_reserved,
     NULL
   };
@@ -3516,7 +3516,7 @@ dissect_define_selection(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
     { NULL, 0, 0, 0, 0 }
   };
 
-  static const int *ds_sbi_flag[] = {
+  static int * const ds_sbi_flag[] = {
     &hf_tn5250_wdsf_ds_sbi_flag1_0, &hf_tn5250_wdsf_ds_sbi_flag1_reserved,
     NULL
   };
@@ -3594,7 +3594,7 @@ dissect_define_scrollbar(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
   int start = offset;
   int done = 0, minor_structure = 0;
 
-  static const int *dsb_byte[] = {
+  static int * const dsb_byte[] = {
     &hf_tn5250_wdsf_dsb_flag1_0, &hf_tn5250_wdsf_dsb_flag1_1,
     &hf_tn5250_wdsf_dsb_flag1_reserved, &hf_tn5250_wdsf_dsb_flag1_7,
     NULL
@@ -3609,7 +3609,7 @@ dissect_define_scrollbar(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
     { NULL, 0, 0, 0, 0 }
   };
 
-  static const int *ds_sbi_flag[] = {
+  static int * const ds_sbi_flag[] = {
     &hf_tn5250_wdsf_ds_sbi_flag1_0, &hf_tn5250_wdsf_ds_sbi_flag1_reserved,
     NULL
   };
@@ -3652,12 +3652,12 @@ dissect_draw_erase_gridlines(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset
   int start = offset;
   int done = 0, minor_structure=0;
 
-  static const int *deg_byte[] = {
+  static int * const deg_byte[] = {
     &hf_tn5250_wdsf_deg_flag1_0, &hf_tn5250_wdsf_deg_flag1_reserved,
     NULL
   };
 
-  static const int *deg_byte2[] = {
+  static int * const deg_byte2[] = {
     &hf_tn5250_wdsf_deg_flag2_0, &hf_tn5250_wdsf_deg_flag2_reserved,
     NULL
   };
@@ -3674,7 +3674,7 @@ dissect_draw_erase_gridlines(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset
   };
 
 
-  static const int *deg_ms_byte[] = {
+  static int * const deg_ms_byte[] = {
     &hf_tn5250_wdsf_deg_ms_flag1_0, &hf_tn5250_wdsf_deg_ms_flag1_reserved,
     NULL
   };
@@ -3731,7 +3731,7 @@ dissect_wdsf_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offse
     { NULL, 0, 0, 0, 0 }
   };
 
-  static const int *rgw_byte[] = {
+  static int * const rgw_byte[] = {
     &hf_tn5250_wdsf_rgw_flag1_0,
     &hf_tn5250_wdsf_rgw_flag1_1,
     &hf_tn5250_wdsf_rgw_reserved,
@@ -3745,7 +3745,7 @@ dissect_wdsf_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offse
     { NULL, 0, 0, 0, 0 }
   };
 
-  static const int *ragc_byte[] = {
+  static int * const ragc_byte[] = {
     &hf_tn5250_wdsf_ragc_flag1_0,
     &hf_tn5250_wdsf_ragc_reserved,
     NULL
@@ -3758,7 +3758,7 @@ dissect_wdsf_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offse
     { NULL, 0, 0, 0, 0 }
   };
 
-  static const int *wdf_byte[] = {
+  static int * const wdf_byte[] = {
     &hf_tn5250_wdsf_wdf_flag1_0,
     &hf_tn5250_wdsf_wdf_flag1_reserved,
     NULL
@@ -3770,7 +3770,7 @@ dissect_wdsf_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offse
     { NULL, 0, 0, 0, 0 }
   };
 
-  static const int *pmb_byte[] = {
+  static int * const pmb_byte[] = {
     &hf_tn5250_wdsf_pmb_flag1_0, &hf_tn5250_wdsf_pmb_flag1_1,
     &hf_tn5250_wdsf_pmb_flag1_2, &hf_tn5250_wdsf_pmb_flag1_3,
     &hf_tn5250_wdsf_pmb_flag1_reserved,
@@ -3995,7 +3995,7 @@ dissect_save_partial_screen(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
   int start = offset;
   int length = 0;
 
-  static const int *byte[] = {
+  static int * const byte[] = {
     &hf_tn5250_sps_flag1_0,
     &hf_tn5250_sps_flag1_reserved,
     NULL
@@ -4027,7 +4027,7 @@ dissect_roll(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
 {
   int start = offset;
 
-  static const int *byte[] = {
+  static int * const byte[] = {
     &hf_tn5250_roll_flag1_0,
     &hf_tn5250_roll_flag1_reserved,
     &hf_tn5250_roll_flag1_lines,
@@ -4056,7 +4056,7 @@ dissect_write_single_structured_field_minor_fields(proto_tree *tn5250_tree,
   int start = offset;
   int done = 0, type = 0;
 
-  static const int *byte_wssf_kbc_flag1[] = {
+  static int * const byte_wssf_kbc_flag1[] = {
     &hf_tn5250_wssf_kbc_flag1_reserved,
     &hf_tn5250_wssf_kbc_flag1_5,
     &hf_tn5250_wssf_kbc_flag1_6,
@@ -4064,7 +4064,7 @@ dissect_write_single_structured_field_minor_fields(proto_tree *tn5250_tree,
     NULL
   };
 
-  static const int *byte_wssf_cc_flag1[] = {
+  static int * const byte_wssf_cc_flag1[] = {
     &hf_tn5250_wssf_cc_flag1_reserved,
     &hf_tn5250_wssf_cc_flag1_7,
     NULL
@@ -4113,7 +4113,7 @@ dissect_write_single_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb,
   int length, type, done = 0;
   guint32 namelength;
 
-  static const int *byte[] = {
+  static int * const byte[] = {
     &hf_tn5250_wssf_flag2_0,
     &hf_tn5250_wssf_flag2_1,
     &hf_tn5250_wssf_flag2_2,
@@ -4125,7 +4125,7 @@ dissect_write_single_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb,
     NULL
   };
 
-  static const int *ifc_byte[] = {
+  static int * const ifc_byte[] = {
     &hf_tn5250_wssf_ifc_flag1_0,
     &hf_tn5250_wssf_ifc_flag1_1to3,
     &hf_tn5250_wssf_ifc_flag1_4,
@@ -4135,7 +4135,7 @@ dissect_write_single_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb,
     NULL
   };
 
-  static const int *ifc_byte2[] = {
+  static int * const ifc_byte2[] = {
     &hf_tn5250_wssf_ifc_flag2_0,
     &hf_tn5250_wssf_ifc_flag2_1,
     &hf_tn5250_wssf_ifc_flag2_reserved,
@@ -4143,7 +4143,7 @@ dissect_write_single_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb,
     NULL
   };
 
-  static const int *ifd_byte[] = {
+  static int * const ifd_byte[] = {
     &hf_tn5250_wssf_ifd_flag1_0,
     &hf_tn5250_wssf_ifd_flag1_reserved,
     NULL
@@ -4270,13 +4270,13 @@ dissect_write_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offs
     { NULL, 0, 0, 0, 0 }
   };
 
-  static const int *qss_byte1[] = {
+  static int * const qss_byte1[] = {
     &hf_tn5250_wsf_qss_flag1_0,
     &hf_tn5250_wsf_qss_flag1_reserved,
     NULL
   };
 
-  static const int *qss_byte2[] = {
+  static int * const qss_byte2[] = {
     &hf_tn5250_wsf_qss_flag2_reserved,
     &hf_tn5250_wsf_qss_flag2_7,
     NULL
@@ -4301,7 +4301,7 @@ dissect_write_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offs
     { NULL, 0, 0, 0, 0 }
   };
 
-  static const int *rts_byte1[] = {
+  static int * const rts_byte1[] = {
     &hf_tn5250_rts_flag1_0,
     &hf_tn5250_rts_flag1_reserved,
     NULL
@@ -4315,7 +4315,7 @@ dissect_write_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offs
     { NULL, 0, 0, 0, 0 }
   };
 
-  static const int *dpo_byte1[] = {
+  static int * const dpo_byte1[] = {
     &hf_tn5250_dpo_flag1_0,
     &hf_tn5250_dpo_flag1_1,
     &hf_tn5250_dpo_flag1_2,
@@ -4327,7 +4327,7 @@ dissect_write_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offs
     NULL
   };
 
-  static const int *dpo_byte2[] = {
+  static int * const dpo_byte2[] = {
     &hf_tn5250_dpo_flag2_0,
     &hf_tn5250_dpo_flag2_reserved,
     NULL
@@ -4343,7 +4343,7 @@ dissect_write_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offs
     { NULL, 0, 0, 0, 0 }
   };
 
-  static const int *dtsf_byte1[] = {
+  static int * const dtsf_byte1[] = {
     &hf_tn5250_dtsf_flag1_0,
     &hf_tn5250_dtsf_flag1_1,
     &hf_tn5250_dtsf_flag1_2,
@@ -4355,7 +4355,7 @@ dissect_write_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offs
     NULL
   };
 
-  static const int *dtsf_byte2[] = {
+  static int * const dtsf_byte2[] = {
     &hf_tn5250_dtsf_flag2_0,
     &hf_tn5250_dtsf_flag2_1,
     &hf_tn5250_dtsf_flag2_2,
@@ -4376,7 +4376,7 @@ dissect_write_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offs
     { NULL, 0, 0, 0, 0 }
   };
 
-  static const int *dsl_byte1[] = {
+  static int * const dsl_byte1[] = {
     &hf_tn5250_dsl_flag1_0,
     &hf_tn5250_dsl_flag1_1,
     &hf_tn5250_dsl_flag1_2,
@@ -4401,7 +4401,7 @@ dissect_write_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offs
     { NULL, 0, 0, 0, 0 }
   };
 
-  static const int *wts_byte1[] = {
+  static int * const wts_byte1[] = {
     &hf_tn5250_wts_flag1_0,
     &hf_tn5250_wts_flag1_1,
     &hf_tn5250_wts_flag1_2,
@@ -4410,14 +4410,14 @@ dissect_write_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offs
     NULL
   };
 
-  static const int *wts_byte2[] = {
+  static int * const wts_byte2[] = {
     &hf_tn5250_wts_flag2_reserved,
     &hf_tn5250_wts_flag2_6,
     &hf_tn5250_wts_flag2_reserved2,
     NULL
   };
 
-  static const int *wts_byte3[] = {
+  static int * const wts_byte3[] = {
     &hf_tn5250_wts_flag3_0,
     &hf_tn5250_wts_flag3_1,
     &hf_tn5250_wts_flag3_2,
@@ -4439,7 +4439,7 @@ dissect_write_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offs
     { NULL, 0, 0, 0, 0 }
   };
 
-  static const int *wts_cld_byte1[] = {
+  static int * const wts_cld_byte1[] = {
     &hf_tn5250_wts_cld_flag1_0,
     &hf_tn5250_wts_cld_flag1_1,
     &hf_tn5250_wts_cld_flag1_2,
@@ -4451,7 +4451,7 @@ dissect_write_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offs
     NULL
   };
 
-  static const int *wts_cld_byte2[] = {
+  static int * const wts_cld_byte2[] = {
     &hf_tn5250_wts_cld_flag2_0,
     &hf_tn5250_wts_cld_flag2_1,
     &hf_tn5250_wts_cld_flag2_2,
@@ -4461,7 +4461,7 @@ dissect_write_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offs
     NULL
   };
 
-  static const int *wts_cld_byte3[] = {
+  static int * const wts_cld_byte3[] = {
     &hf_tn5250_wts_cld_flag3_0,
     &hf_tn5250_wts_cld_flag3_1,
     &hf_tn5250_wts_cld_flag3_2,
@@ -4503,7 +4503,7 @@ dissect_write_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offs
   };
 
 
-  static const int *dfdpck_coreflag[] = {
+  static int * const dfdpck_coreflag[] = {
     &hf_tn5250_dfdpck_coreflag_0,
     &hf_tn5250_dfdpck_coreflag_1,
     &hf_tn5250_dfdpck_coreflag_2,
@@ -4515,7 +4515,7 @@ dissect_write_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offs
     NULL
   };
 
-  static const int *dfdpck_toprowflag1[] = {
+  static int * const dfdpck_toprowflag1[] = {
     &hf_tn5250_dfdpck_toprowflag1_0,
     &hf_tn5250_dfdpck_toprowflag1_1,
     &hf_tn5250_dfdpck_toprowflag1_2,
@@ -4527,7 +4527,7 @@ dissect_write_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offs
     NULL
   };
 
-  static const int *dfdpck_toprowflag2[] = {
+  static int * const dfdpck_toprowflag2[] = {
     &hf_tn5250_dfdpck_toprowflag2_0,
     &hf_tn5250_dfdpck_toprowflag2_1,
     &hf_tn5250_dfdpck_toprowflag2_2,
@@ -4539,7 +4539,7 @@ dissect_write_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offs
     NULL
   };
 
-  static const int *dfdpck_toprowflag3[] = {
+  static int * const dfdpck_toprowflag3[] = {
     &hf_tn5250_dfdpck_toprowflag3_0,
     &hf_tn5250_dfdpck_toprowflag3_1,
     &hf_tn5250_dfdpck_toprowflag3_2,
@@ -4740,13 +4740,13 @@ dissect_query_reply(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
 {
   int start = offset;
 
-  static const int *byte[] = {
+  static int * const byte[] = {
     &hf_tn5250_qr_flag_0,
     &hf_tn5250_qr_flag_reserved,
     NULL
   };
 
-  static const int *byte1[] = {
+  static int * const byte1[] = {
     &hf_tn5250_qr_flag1_0,
     &hf_tn5250_qr_flag1_1,
     &hf_tn5250_qr_flag1_2,
@@ -4758,7 +4758,7 @@ dissect_query_reply(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
     NULL
   };
 
-  static const int *byte2[] = {
+  static int * const byte2[] = {
     &hf_tn5250_qr_flag2_0to3,
     &hf_tn5250_qr_flag2_4,
     &hf_tn5250_qr_flag2_5,
@@ -4831,7 +4831,7 @@ dissect_tn5250_header(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
   int start=offset;
   int error_flag;
 
-  static const int *byte[] = {
+  static int * const byte[] = {
     &hf_tn5250_ds_output_error,
     &hf_tn5250_attn_key,
     &hf_tn5250_sys_request_key,

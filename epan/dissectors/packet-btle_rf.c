@@ -56,7 +56,7 @@ static int hf_btle_rf_mic_checked_flag = -1;
 static int hf_btle_rf_mic_valid_flag = -1;
 static int hf_btle_rf_flags_rfu_2 = -1;
 
-static const int *hfs_btle_rf_flags[] = {
+static int * const hfs_btle_rf_flags[] = {
     &hf_btle_rf_dewhitened_flag,
     &hf_btle_rf_sigpower_valid_flag,
     &hf_btle_rf_noisepower_valid_flag,

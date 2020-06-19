@@ -293,7 +293,7 @@ dissect_ppi_vector_v1(tvbuff_t *tvb, packet_info *pinfo, int offset, gint length
     guint32 appsecific_num; /* appdata parser should add a subtree based on this value */
     guint32 flags=0, chars=0;
 
-    static const int * ppi_vector_present_flags[] = {
+    static int * const ppi_vector_present_flags[] = {
         &hf_ppi_vector_present_vflags,
         &hf_ppi_vector_present_vchars,
         &hf_ppi_vector_present_val_x,
@@ -637,7 +637,7 @@ dissect_ppi_vector_v2(tvbuff_t *tvb, packet_info *pinfo, int offset, gint length
     gdouble err_rot, err_off;
     guint32  appsecific_num; /* appdata parser should add a subtree based on this value */
 
-    static const int * ppi_vector_present_flags[] = {
+    static int * const ppi_vector_present_flags[] = {
         &hf_ppi_vector_present_vflags,
         &hf_ppi_vector_present_vchars,
         &hf_ppi_vector_present_val_x,

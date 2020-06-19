@@ -429,7 +429,7 @@ static const value_string file_types[] = {
     { 0, NULL }
 };
 
-static const int *announce_flags[] = {
+static int * const announce_flags[] = {
     &hf_uftp_announce_flags_restart,
     &hf_uftp_announce_flags_sync,
     &hf_uftp_announce_flags_syncpreview,
@@ -437,13 +437,13 @@ static const int *announce_flags[] = {
     NULL
 };
 
-static const int *infoack_flags[] = {
+static int * const infoack_flags[] = {
     &hf_uftp_infoack_flags_partial,
     &hf_uftp_infoack_flags_reserved,
     NULL
 };
 
-static const int *abort_flags[] = {
+static int * const abort_flags[] = {
     &hf_uftp_abort_flags_curfile,
     &hf_uftp_abort_flags_reserved,
     NULL

@@ -5613,7 +5613,7 @@ dissect_rsvp_admin_status(proto_tree *ti, proto_tree *rsvp_object_tree,
 {
     int         offset2 = offset + 4;
     guint32     status;
-    static const int * status_flags[] = {
+    static int * const status_flags[] = {
         &hf_rsvp_filter[RSVPF_ADMIN_STATUS_REFLECT],
         &hf_rsvp_filter[RSVPF_ADMIN_STATUS_HANDOVER],
         &hf_rsvp_filter[RSVPF_ADMIN_STATUS_LOCKOUT],
@@ -5667,7 +5667,7 @@ dissect_rsvp_lsp_attributes(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp
     guint32     attributes;
     guint16     tlv_type, tlv_len;
     proto_tree *ti2, *rsvp_lsp_attr_subtree;
-    static const int * rsvp_lsp_attr_flags[] = {
+    static int * const rsvp_lsp_attr_flags[] = {
         &hf_rsvp_lsp_attr_e2e,
         &hf_rsvp_lsp_attr_boundary,
         &hf_rsvp_lsp_attr_segment,

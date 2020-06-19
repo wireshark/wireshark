@@ -317,7 +317,7 @@ dissect_rtp_events( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 
 	guint8 rtp_evt;
 	guint8 octet;
-	static const int * events[] = {
+	static int * const events[] = {
 		&hf_rtp_events_end,
 		&hf_rtp_events_reserved,
 		&hf_rtp_events_volume,

@@ -5010,7 +5010,7 @@ dissect_notif(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_t
              * Bits 1 to 5 are coded as bits 1 to 5 of octet 3 of the Service Category
              * information element as specified in subclause 10.5.4.33. (TS 24.008)
              */
-            static const int * isakmp_notify_data_3gpp_emergency_call_numbers_flags[] = {
+            static int * const isakmp_notify_data_3gpp_emergency_call_numbers_flags[] = {
               &hf_isakmp_notify_data_3gpp_emergency_call_numbers_spare,
               &hf_isakmp_notify_data_3gpp_emergency_call_numbers_flag_b5_mountain_rescue,
               &hf_isakmp_notify_data_3gpp_emergency_call_numbers_flag_b4_marine_guard,

@@ -162,7 +162,7 @@ dissect_lacp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     proto_item *lacp_item, *tlv_type_item, *tlv_length_item;
     proto_item *ti;
 
-    static const int * actor_flags[] = {
+    static int * const actor_flags[] = {
         &hf_lacp_flags_a_activity,
         &hf_lacp_flags_a_timeout,
         &hf_lacp_flags_a_aggregation,
@@ -173,7 +173,7 @@ dissect_lacp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         &hf_lacp_flags_a_expired,
         NULL
     };
-    static const int * partner_flags[] = {
+    static int * const partner_flags[] = {
         &hf_lacp_flags_p_activity,
         &hf_lacp_flags_p_timeout,
         &hf_lacp_flags_p_aggregation,

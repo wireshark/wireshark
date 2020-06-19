@@ -1559,7 +1559,7 @@ dissect_ndr_nt_acct_ctrl(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			proto_tree *parent_tree, dcerpc_info *di, guint8 *drep)
 {
 	guint32 mask;
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_nt_acb_autolock,
 		&hf_nt_acb_pwnoexp,
 		&hf_nt_acb_svrtrust,

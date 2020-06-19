@@ -511,7 +511,7 @@ dissect_x509ce_SubjectKeyIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 }
 
 
-static const int * KeyUsage_bits[] = {
+static int * const KeyUsage_bits[] = {
   &hf_x509ce_KeyUsage_digitalSignature,
   &hf_x509ce_KeyUsage_contentCommitment,
   &hf_x509ce_KeyUsage_keyEncipherment,
@@ -885,7 +885,7 @@ dissect_x509ce_DistributionPointName(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 }
 
 
-static const int * OnlyCertificateTypes_bits[] = {
+static int * const OnlyCertificateTypes_bits[] = {
   &hf_x509ce_OnlyCertificateTypes_user,
   &hf_x509ce_OnlyCertificateTypes_authority,
   &hf_x509ce_OnlyCertificateTypes_attribute,
@@ -902,7 +902,7 @@ dissect_x509ce_OnlyCertificateTypes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 }
 
 
-static const int * ReasonFlags_bits[] = {
+static int * const ReasonFlags_bits[] = {
   &hf_x509ce_ReasonFlags_unused,
   &hf_x509ce_ReasonFlags_keyCompromise,
   &hf_x509ce_ReasonFlags_cACompromise,
@@ -1589,7 +1589,7 @@ dissect_x509ce_GeneralString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 }
 
 
-static const int * EntrustInfoFlags_bits[] = {
+static int * const EntrustInfoFlags_bits[] = {
   &hf_x509ce_EntrustInfoFlags_keyUpdateAllowed,
   &hf_x509ce_EntrustInfoFlags_newExtensions,
   &hf_x509ce_EntrustInfoFlags_pKIXCertificate,

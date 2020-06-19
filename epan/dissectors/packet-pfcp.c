@@ -1728,7 +1728,7 @@ static int decode_pfcp_c_tag(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 {
     guint64 flags_val;
 
-    static const int * pfcp_c_tag_flags[] = {
+    static int * const pfcp_c_tag_flags[] = {
         &hf_pfcp_spare_b7_b3,
         &hf_pfcp_c_tag_flags_b2_vid,
         &hf_pfcp_c_tag_flags_b1_dei,
@@ -1759,7 +1759,7 @@ static int decode_pfcp_s_tag(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 {
     guint64 flags_val;
 
-    static const int * pfcp_s_tag_flags[] = {
+    static int * const pfcp_s_tag_flags[] = {
         &hf_pfcp_spare_b7_b3,
         &hf_pfcp_s_tag_flags_b2_vid,
         &hf_pfcp_s_tag_flags_b1_dei,
@@ -1873,7 +1873,7 @@ dissect_pfcp_f_teid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
     int offset = 0;
     guint64 fteid_flags_val;
 
-    static const int * pfcp_fteid_flags[] = {
+    static int * const pfcp_fteid_flags[] = {
         &hf_pfcp_fteid_flg_spare,
         &hf_pfcp_fteid_flg_b3_ch_id,
         &hf_pfcp_fteid_flg_b2_ch,
@@ -2004,7 +2004,7 @@ dissect_pfcp_sdf_filter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
     guint32 fd_length;
     proto_tree *flow_desc_tree, *tos_tree, *spi_tree, *flow_label_tree, *sdf_filter_id_tree;
 
-    static const int * pfcp_sdf_filter_flags[] = {
+    static int * const pfcp_sdf_filter_flags[] = {
         &hf_pfcp_spare_h1,
         &hf_pfcp_sdf_filter_flags_b4_bid,
         &hf_pfcp_sdf_filter_flags_b3_fl,
@@ -2116,7 +2116,7 @@ dissect_pfcp_gate_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pr
 {
     int offset = 0;
 
-    static const int * pfcp_gate_status_flags[] = {
+    static int * const pfcp_gate_status_flags[] = {
         &hf_pfcp_gate_status_b3b2_ulgate,
         &hf_pfcp_gate_status_b0b1_dlgate,
         NULL
@@ -2271,7 +2271,7 @@ dissect_pfcp_volume_threshold(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     int offset = 0;
     guint64 flags_val;
 
-    static const int * pfcp_volume_threshold_flags[] = {
+    static int * const pfcp_volume_threshold_flags[] = {
         &hf_pfcp_spare_b7_b3,
         &hf_pfcp_volume_threshold_b2_dlvol,
         &hf_pfcp_volume_threshold_b1_ulvol,
@@ -2367,7 +2367,7 @@ dissect_pfcp_subseq_volume_threshold(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     int offset = 0;
     guint64 flags_val;
 
-    static const int * pfcp_subseq_volume_threshold_flags[] = {
+    static int * const pfcp_subseq_volume_threshold_flags[] = {
         &hf_pfcp_spare_b7_b3,
         &hf_pfcp_subseq_volume_threshold_b2_dlvol,
         &hf_pfcp_subseq_volume_threshold_b1_ulvol,
@@ -2454,7 +2454,7 @@ dissect_pfcp_reporting_triggers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 {
     int offset = 0;
 
-    static const int * pfcp_reporting_triggers_o5_flags[] = {
+    static int * const pfcp_reporting_triggers_o5_flags[] = {
         &hf_pfcp_reporting_triggers_o5_b7_liusa,
         &hf_pfcp_reporting_triggers_o5_b6_droth,
         &hf_pfcp_reporting_triggers_o5_b5_stopt,
@@ -2473,7 +2473,7 @@ dissect_pfcp_reporting_triggers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         return;
     }
 
-    static const int * pfcp_reporting_triggers_o6_flags[] = {
+    static int * const pfcp_reporting_triggers_o6_flags[] = {
         &hf_pfcp_spare_b7,
         &hf_pfcp_reporting_triggers_o6_b6_ipmjl,
         &hf_pfcp_reporting_triggers_o6_b5_evequ,
@@ -2560,7 +2560,7 @@ dissect_pfcp_report_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pr
 {
     int offset = 0;
 
-    static const int * pfcp_report_type_flags[] = {
+    static int * const pfcp_report_type_flags[] = {
         &hf_pfcp_spare_b7,
         &hf_pfcp_report_type_b6_uisr,
         &hf_pfcp_report_type_b5_sesr,
@@ -2663,7 +2663,7 @@ dissect_pfcp_up_function_features(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 {
     int offset = 0;
 
-    static const int * pfcp_up_function_features_o5_flags[] = {
+    static int * const pfcp_up_function_features_o5_flags[] = {
         &hf_pfcp_up_function_features_o5_b7_treu,
         &hf_pfcp_up_function_features_o5_b6_heeu,
         &hf_pfcp_up_function_features_o5_b5_pfdm,
@@ -2682,7 +2682,7 @@ dissect_pfcp_up_function_features(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
         return;
     }
 
-    static const int * pfcp_up_function_features_o6_flags[] = {
+    static int * const pfcp_up_function_features_o6_flags[] = {
         &hf_pfcp_up_function_features_o6_b7_epfar,
         &hf_pfcp_up_function_features_o6_b6_pfde,
         &hf_pfcp_up_function_features_o6_b5_frrt,
@@ -2701,7 +2701,7 @@ dissect_pfcp_up_function_features(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
         return;
     }
 
-    static const int * pfcp_up_function_features_o7_flags[] = {
+    static int * const pfcp_up_function_features_o7_flags[] = {
         &hf_pfcp_up_function_features_o7_b7_gcom,
         &hf_pfcp_up_function_features_o7_b6_bundl,
         &hf_pfcp_up_function_features_o7_b5_mte_n4,
@@ -2720,7 +2720,7 @@ dissect_pfcp_up_function_features(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
         return;
     }
 
-    static const int * pfcp_up_function_features_o8_flags[] = {
+    static int * const pfcp_up_function_features_o8_flags[] = {
         &hf_pfcp_up_function_features_o8_b7_mptcp,
         &hf_pfcp_up_function_features_o8_b6_tscu,
         &hf_pfcp_up_function_features_o8_b5_ip6pl,
@@ -2739,7 +2739,7 @@ dissect_pfcp_up_function_features(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
         return;
     }
 
-    static const int * pfcp_up_function_features_o9_flags[] = {
+    static int * const pfcp_up_function_features_o9_flags[] = {
         &hf_pfcp_spare_b7_b6,
         &hf_pfcp_up_function_features_o9_b5_ethar,
         &hf_pfcp_up_function_features_o9_b4_ciot,
@@ -2766,7 +2766,7 @@ dissect_pfcp_apply_action(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 {
     int offset = 0;
 
-    static const int * pfcp_apply_action_o5_flags[] = {
+    static int * const pfcp_apply_action_o5_flags[] = {
         &hf_pfcp_apply_action_flags_o5_b7_dfrt,
         &hf_pfcp_apply_action_flags_o5_b6_ipmd,
         &hf_pfcp_apply_action_flags_o5_b5_ipma,
@@ -2785,7 +2785,7 @@ dissect_pfcp_apply_action(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
         return;
     }
 
-    static const int * pfcp_apply_action_o6_flags[] = {
+    static int * const pfcp_apply_action_o6_flags[] = {
         &hf_pfcp_spare_b7_b1,
         &hf_pfcp_apply_action_flags_o6_b0_edrt,
         NULL
@@ -2808,7 +2808,7 @@ dissect_pfcp_dl_data_service_inf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     int offset = 0;
     guint64 flags;
 
-    static const int * pfcp_dl_data_service_inf_flags[] = {
+    static int * const pfcp_dl_data_service_inf_flags[] = {
         &hf_pfcp_spare_b7_b2,
         &hf_pfcp_dl_data_service_inf_b1_qfii,
         &hf_pfcp_dl_data_service_inf_b0_ppi,
@@ -2947,7 +2947,7 @@ dissect_pfcp_pfcpsmreq_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 {
     int offset = 0;
 
-    static const int * pfcp_pfcpsmreq_flags[] = {
+    static int * const pfcp_pfcpsmreq_flags[] = {
         &hf_pfcp_spare_b7_b3,
         &hf_pfcp_pfcpsmreq_flags_b2_qaurr,
         &hf_pfcp_pfcpsmreq_flags_b1_sndem,
@@ -2972,7 +2972,7 @@ dissect_pfcp_pfcpsrrsp_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 {
     int offset = 0;
 
-    static const int * pfcp_pfcpsrrsp_flags[] = {
+    static int * const pfcp_pfcpsrrsp_flags[] = {
         &hf_pfcp_spare_b7_b1,
         &hf_pfcp_pfcpsrrsp_flags_b0_drobu,
         NULL
@@ -3104,7 +3104,7 @@ dissect_pfcp_f_seid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
     guint64 seid_cp, *seid;
     guint32 *session;
 
-    static const int * pfcp_f_seid_flags[] = {
+    static int * const pfcp_f_seid_flags[] = {
         &hf_pfcp_spare_b7,
         &hf_pfcp_spare_b6,
         &hf_pfcp_spare_b5,
@@ -3269,7 +3269,7 @@ dissect_pfcp_pfd_contents(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
     guint32 len;
     proto_tree *afd_tree, *aurl_tree, *adnp_tree;
 
-    static const int * pfcp_pfd_contents_flags[] = {
+    static int * const pfcp_pfd_contents_flags[] = {
         &hf_pfcp_pfd_contents_flags_b7_adnp,
         &hf_pfcp_pfd_contents_flags_b6_aurl,
         &hf_pfcp_pfd_contents_flags_b5_afd,
@@ -3464,7 +3464,7 @@ dissect_pfcp_measurement_method(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 {
     int offset = 0;
 
-    static const int * pfcp_measurement_method_flags[] = {
+    static int * const pfcp_measurement_method_flags[] = {
         &hf_pfcp_spare_b7_b3,
         &hf_pfcp_measurement_method_flags_b2_event,
         &hf_pfcp_measurement_method_flags_b1_volume,
@@ -3490,7 +3490,7 @@ dissect_pfcp_usage_report_trigger(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 {
     int offset = 0;
 
-    static const int * pfcp_usage_report_trigger_o5_flags[] = {
+    static int * const pfcp_usage_report_trigger_o5_flags[] = {
         &hf_pfcp_usage_report_trigger_o5_b7_immer,
         &hf_pfcp_usage_report_trigger_o5_b6_droth,
         &hf_pfcp_usage_report_trigger_o5_b5_stopt,
@@ -3509,7 +3509,7 @@ dissect_pfcp_usage_report_trigger(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
         return;
     }
 
-    static const int * pfcp_usage_report_trigger_o6_flags[] = {
+    static int * const pfcp_usage_report_trigger_o6_flags[] = {
         &hf_pfcp_usage_report_trigger_o6_b7_eveth,
         &hf_pfcp_usage_report_trigger_o6_b6_macar,
         &hf_pfcp_usage_report_trigger_o6_b5_envcl,
@@ -3528,7 +3528,7 @@ dissect_pfcp_usage_report_trigger(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
         return;
     }
 
-    static const int * pfcp_usage_report_trigger_o7_flags[] = {
+    static int * const pfcp_usage_report_trigger_o7_flags[] = {
         &hf_pfcp_spare_b7_b3,
         &hf_pfcp_usage_report_trigger_o7_b2_ipmjl,
         &hf_pfcp_usage_report_trigger_o7_b1_tebur,
@@ -3635,7 +3635,7 @@ dissect_pfcp_volume_measurement(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     int offset = 0;
     guint64 flags;
 
-    static const int * pfcp_volume_measurement_flags[] = {
+    static int * const pfcp_volume_measurement_flags[] = {
         &hf_pfcp_spare_b7_b6,
         &hf_pfcp_volume_measurement_b5_dlnop,
         &hf_pfcp_volume_measurement_b4_ulnop,
@@ -3783,7 +3783,7 @@ dissect_pfcp_dropped_dl_traffic_threshold(tvbuff_t *tvb, packet_info *pinfo, pro
     int offset = 0;
     guint64 flags_val;
 
-    static const int * pfcp_dropped_dl_traffic_threshold_flags[] = {
+    static int * const pfcp_dropped_dl_traffic_threshold_flags[] = {
         &hf_pfcp_dropped_dl_traffic_threshold_b1_dlby,
         &hf_pfcp_dropped_dl_traffic_threshold_b0_dlpa,
         NULL
@@ -3822,7 +3822,7 @@ dissect_pfcp_volume_quota(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
     int offset = 0;
     guint64 flags_val;
 
-    static const int * pfcp_volume_quota_flags[] = {
+    static int * const pfcp_volume_quota_flags[] = {
         &hf_pfcp_spare_b7_b3,
         &hf_pfcp_volume_quota_b2_dlvol,
         &hf_pfcp_volume_quota_b1_ulvol,
@@ -4112,7 +4112,7 @@ dissect_pfcp_cp_function_features(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 {
     int offset = 0;
 
-    static const int * pfcp_cp_function_features_flags[] = {
+    static int * const pfcp_cp_function_features_flags[] = {
         &hf_pfcp_spare_b7,
         &hf_pfcp_cp_function_features_b6_ardr,
         &hf_pfcp_cp_function_features_b5_mpas,
@@ -4145,7 +4145,7 @@ dissect_pfcp_usage_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 {
     int offset = 0;
 
-    static const int * pfcp_usage_information_flags[] = {
+    static int * const pfcp_usage_information_flags[] = {
         &hf_pfcp_spare_h1,
         &hf_pfcp_usage_information_b3_ube,
         &hf_pfcp_usage_information_b2_uae,
@@ -4238,7 +4238,7 @@ dissect_pfcp_ue_ip_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     int offset = 0;
     guint64 ue_ip_address_flags;
 
-    static const int * pfcp_ue_ip_address_flags[] = {
+    static int * const pfcp_ue_ip_address_flags[] = {
         &hf_pfcp_spare_b7,
         &hf_pfcp_ue_ip_address_flag_b6_v6pl,
         &hf_pfcp_ue_ip_address_flag_b5_chv6,
@@ -4298,7 +4298,7 @@ dissect_pfcp_packet_rate(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pr
     int offset = 0;
     guint64 flags;
 
-    static const int * pfcp_packet_rate_flags[] = {
+    static int * const pfcp_packet_rate_flags[] = {
         &hf_pfcp_spare_b7_b4,
         &hf_pfcp_packet_rate_b2_aprc,
         &hf_pfcp_packet_rate_b1_dlpr,
@@ -4382,7 +4382,7 @@ dissect_pfcp_outer_hdr_rem(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
     int offset = 0;
     guint32 value;
 
-    static const int * pfcp_gtpu_ext_hdr_del_flags[] = {
+    static int * const pfcp_gtpu_ext_hdr_del_flags[] = {
         &hf_pfcp_gtpu_ext_hdr_del_b0_pdu_sess_cont,
         NULL
     };
@@ -4432,7 +4432,7 @@ dissect_pfcp_dl_flow_level_marking(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
     int offset = 0;
     guint64 flags_val;
 
-    static const int * pfcp_dl_flow_level_marking_flags[] = {
+    static int * const pfcp_dl_flow_level_marking_flags[] = {
         &hf_pfcp_spare_b7_b2,
         &hf_pfcp_dl_flow_level_marking_b1_sci,
         &hf_pfcp_dl_flow_level_marking_b0_ttc,
@@ -4532,7 +4532,7 @@ dissect_pfcp_measurement_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 {
     int offset = 0;
 
-    static const int * pfcp_measurement_info_flags[] = {
+    static int * const pfcp_measurement_info_flags[] = {
         &hf_pfcp_spare_b7_b5,
         &hf_pfcp_measurement_info_b4_mnop,
         &hf_pfcp_measurement_info_b3_istm,
@@ -4559,7 +4559,7 @@ dissect_pfcp_node_report_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 {
     int offset = 0;
 
-    static const int * pfcp_node_report_type_flags[] = {
+    static int * const pfcp_node_report_type_flags[] = {
         &hf_pfcp_spare_b7_b1,
         &hf_pfcp_node_report_type_b3_gpqr,
         &hf_pfcp_node_report_type_b2_ckdr,
@@ -4587,7 +4587,7 @@ dissect_pfcp_remote_gtp_u_peer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     guint64 flags;
     guint32 length_di, length_ni;
 
-    static const int * pfcp_remote_gtp_u_peer_flags[] = {
+    static int * const pfcp_remote_gtp_u_peer_flags[] = {
         &hf_pfcp_spare_b7_b4,
         &hf_pfcp_remote_gtp_u_peer_flags_b3_ni,
         &hf_pfcp_remote_gtp_u_peer_flags_b2_di,
@@ -4769,7 +4769,7 @@ dissect_pfcp_oci_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
 {
     int offset = 0;
 
-    static const int * pfcp_oci_flags_flags[] = {
+    static int * const pfcp_oci_flags_flags[] = {
         &hf_pfcp_spare_b7_b1,
         &hf_pfcp_oci_flags_b0_aoci,
         NULL
@@ -4793,7 +4793,7 @@ dissect_pfcp_pfcp_assoc_rel_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 {
     int offset = 0;
 
-    static const int * pfcp_pfcp_assoc_rel_req_flags[] = {
+    static int * const pfcp_pfcp_assoc_rel_req_flags[] = {
         &hf_pfcp_spare_b7_b1,
         &hf_pfcp_pfcp_assoc_rel_req_b0_sarr,
         NULL
@@ -4986,7 +4986,7 @@ dissect_pfcp_user_plane_ip_resource_infomation(tvbuff_t *tvb, packet_info *pinfo
     guint64 upiri_flags_val;
     guint32 upiri_teid_range;
 
-    static const int * pfcp_upiri_flags[] = {
+    static int * const pfcp_upiri_flags[] = {
         &hf_pfcp_spare_b7_b6,
         &hf_pfcp_upiri_flg_b6_assosi,
         &hf_pfcp_upiri_flg_b5_assoni,
@@ -5118,7 +5118,7 @@ dissect_pfcp_subsequent_volume_quota(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     int offset = 0;
     guint64 flags_val;
 
-    static const int * pfcp_subsequent_volume_quota_flags[] = {
+    static int * const pfcp_subsequent_volume_quota_flags[] = {
         &hf_pfcp_spare_b7_b3,
         &hf_pfcp_subsequent_volume_quota_b2_dlvol,
         &hf_pfcp_subsequent_volume_quota_b1_ulvol,
@@ -5260,7 +5260,7 @@ dissect_pfcp_additional_usage_reports_information(tvbuff_t *tvb, packet_info *pi
      *  Bit 7 of Octet 5 is the most significant bit and bit 1 of Octet 6 is the least significant bit.
      *  The bit 8 of octet 5 shall encode the AURI (Additional Usage Reports Indication) flag{...}.
     */
-    static const int * pfcp_additional_usage_reports_information_flags[] = {
+    static int * const pfcp_additional_usage_reports_information_flags[] = {
         &hf_pfcp_additional_usage_reports_information_b15_auri,
         &hf_pfcp_additional_usage_reports_information_b14_b0_number_value,
         NULL
@@ -5298,7 +5298,7 @@ static void dissect_pfcp_mac_address(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     int offset = 0;
     guint64 flags_val;
 
-    static const int * pfcp_mac_address_flags[] = {
+    static int * const pfcp_mac_address_flags[] = {
         &hf_pfcp_spare_b7_b4,
         &hf_pfcp_mac_address_flags_b3_udes,
         &hf_pfcp_mac_address_flags_b2_usou,
@@ -5405,7 +5405,7 @@ static void dissect_pfcp_proxying(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     int offset = 0;
     guint64 flags_val;
 
-    static const int * pfcp_proxying_flags[] = {
+    static int * const pfcp_proxying_flags[] = {
         &hf_pfcp_spare_b7_b2,
         &hf_pfcp_proxying_flags_b1_ins,
         &hf_pfcp_proxying_flags_b0_arp,
@@ -5446,7 +5446,7 @@ static void dissect_pfcp_ethernet_filter_properties(tvbuff_t *tvb, packet_info *
     int offset = 0;
     guint64 flags_val;
 
-    static const int * pfcp_ethernet_filter_properties_flags[] = {
+    static int * const pfcp_ethernet_filter_properties_flags[] = {
         &hf_pfcp_spare_b7_b1,
         &hf_pfcp_ethertype_filter_properties_flags_b0_bide,
         NULL
@@ -5490,7 +5490,7 @@ static void dissect_pfcp_user_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     guint64 flags_val;
     guint32 length_imsi, length_imei, length_msisdn, length_nai;
 
-    static const int * pfcp_user_id_flags[] = {
+    static int * const pfcp_user_id_flags[] = {
         &hf_pfcp_spare_b7_b3,
         &hf_pfcp_user_id_flags_b3_naif,
         &hf_pfcp_user_id_flags_b2_msisdnf,
@@ -5561,7 +5561,7 @@ static void dissect_pfcp_ethernet_pdu_session_information(tvbuff_t *tvb, packet_
 {
     int offset = 0;
 
-    static const int * pfcp_ethernet_pdu_session_information_flags[] = {
+    static int * const pfcp_ethernet_pdu_session_information_flags[] = {
         &hf_pfcp_spare_b7_b1,
         &hf_pfcp_ethernet_pdu_session_information_flags_b0_ethi,
         NULL
@@ -6022,7 +6022,7 @@ dissect_pfcp_pfcpsrreq_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 {
     int offset = 0;
 
-    static const int * pfcp_pfcpsrreq_flags[] = {
+    static int * const pfcp_pfcpsrreq_flags[] = {
         &hf_pfcp_spare_b7_b1,
         &hf_pfcp_pfcpsrreq_flags_b0_psdbu,
         NULL
@@ -6046,7 +6046,7 @@ dissect_pfcp_pfcpaureq_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 {
     int offset = 0;
 
-    static const int * pfcp_pfcpaureq_flags[] = {
+    static int * const pfcp_pfcpaureq_flags[] = {
         &hf_pfcp_spare_b7_b1,
         &hf_pfcp_pfcpaureq_flags_b0_parps,
         NULL
@@ -6265,7 +6265,7 @@ dissect_pfcp_alternative_smf_ip_address(tvbuff_t *tvb, packet_info *pinfo, proto
     int offset = 0;
     guint64 alternative_smf_ip_address_flags;
 
-    static const int * pfcp_alternative_smf_ip_address_flags[] = {
+    static int * const pfcp_alternative_smf_ip_address_flags[] = {
         &hf_pfcp_spare_b7_b2,
         &hf_pfcp_b1_v4,
         &hf_pfcp_b0_v6,
@@ -6302,7 +6302,7 @@ dissect_pfcp_packet_replication_and_detection_carry_on_information(tvbuff_t *tvb
 {
     int offset = 0;
 
-    static const int * pfcp_packet_replication_and_detection_carry_on_information_flags[] = {
+    static int * const pfcp_packet_replication_and_detection_carry_on_information_flags[] = {
         &hf_pfcp_spare_b7_b4,
         &hf_pfcp_packet_replication_and_detection_carry_on_information_flags_b3_dcaroni,
         &hf_pfcp_packet_replication_and_detection_carry_on_information_flags_b2_prin6i,
@@ -6381,7 +6381,7 @@ dissect_pfcp_pfcpasrsp_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 {
     int offset = 0;
 
-    static const int * pfcp_pfcpasrsp_flags_flags[] = {
+    static int * const pfcp_pfcpasrsp_flags_flags[] = {
         &hf_pfcp_spare_b7_b1,
         &hf_pfcp_pfcpasrsp_flags_flags_b0_psrei,
         NULL
@@ -6405,7 +6405,7 @@ dissect_pfcp_cp_pfcp_entity_ip_address(tvbuff_t *tvb, packet_info *pinfo, proto_
     int offset = 0;
     guint64 cp_pfcp_entity_ip_address_flags;
 
-    static const int * pfcp_cp_pfcp_entity_ip_address_flags[] = {
+    static int * const pfcp_cp_pfcp_entity_ip_address_flags[] = {
         &hf_pfcp_spare_b7_b2,
         &hf_pfcp_b1_v4,
         &hf_pfcp_b0_v6,
@@ -6442,7 +6442,7 @@ dissect_pfcp_pfcpsereq_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 {
     int offset = 0;
 
-    static const int * pfcp_pfcpsereq_flags_flags[] = {
+    static int * const pfcp_pfcpsereq_flags_flags[] = {
         &hf_pfcp_spare_b7_b1,
         &hf_pfcp_pfcpsereq_flags_flags_b0_resti,
         NULL
@@ -6466,7 +6466,7 @@ dissect_pfcp_ip_multicast_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     int offset = 0;
     guint64 ip_multicast_address_flags;
 
-    static const int * pfcp_ip_multicast_address_flags[] = {
+    static int * const pfcp_ip_multicast_address_flags[] = {
         &hf_pfcp_spare_b7_b4,
         &hf_pfcp_ip_multicast_address_flags_b3_any,
         &hf_pfcp_ip_multicast_address_flags_b2_range,
@@ -6520,7 +6520,7 @@ dissect_pfcp_source_ip_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     int offset = 0;
     guint64 source_ip_address_flags;
 
-    static const int * pfcp_source_ip_address_flags[] = {
+    static int * const pfcp_source_ip_address_flags[] = {
         &hf_pfcp_spare_b7_b3,
         &hf_pfcp_source_ip_address_flags_b2_mpl,
         &hf_pfcp_b1_v4,
@@ -6566,7 +6566,7 @@ dissect_pfcp_packet_rate_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     int offset = 0;
     guint64 flags_val;
 
-    static const int * pfcp_packet_rate_status_flags[] = {
+    static int * const pfcp_packet_rate_status_flags[] = {
         &hf_pfcp_spare_b7_b3,
         &hf_pfcp_packet_rate_status_flags_b2_apr,
         &hf_pfcp_packet_rate_status_flags_b1_dl,
@@ -6619,7 +6619,7 @@ dissect_pfcp_create_bridge_info_for_tsc(tvbuff_t *tvb, packet_info *pinfo, proto
 {
     int offset = 0;
 
-    static const int * pfcp_create_bridge_info_for_tsc_flags[] = {
+    static int * const pfcp_create_bridge_info_for_tsc_flags[] = {
         &hf_pfcp_spare_b7_b1,
         &hf_pfcp_create_bridge_info_for_tsc_flags_b0_bii,
         NULL
@@ -6669,7 +6669,7 @@ dissect_pfcp_tsn_bridge_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     int offset = 0;
     guint64 flags_val;
 
-    static const int * pfcp_tsn_bridge_id_flags[] = {
+    static int * const pfcp_tsn_bridge_id_flags[] = {
         &hf_pfcp_spare_b7_b4,
         &hf_pfcp_tsn_bridge_id_flags_b0_mac,
         NULL
@@ -6709,7 +6709,7 @@ dissect_pfcp_requested_clock_drift_control_information(tvbuff_t *tvb, packet_inf
 {
     int offset = 0;
 
-    static const int * pfcp_requested_clock_drift_control_information_flags[] = {
+    static int * const pfcp_requested_clock_drift_control_information_flags[] = {
         &hf_pfcp_spare_b7_b2,
         &hf_pfcp_requested_clock_drift_control_information_flags_b1_rrcr,
         &hf_pfcp_requested_clock_drift_control_information_flags_b0_rrto,
@@ -6841,7 +6841,7 @@ dissect_pfcp_requested_access_availability_control_information(tvbuff_t *tvb, pa
 {
     int offset = 0;
 
-    static const int * pfcp_requested_access_availability_control_information_flags[] = {
+    static int * const pfcp_requested_access_availability_control_information_flags[] = {
         &hf_pfcp_spare_b7_b1,
         &hf_pfcp_requested_access_availability_control_information_flags_b0_rrca,
         NULL
@@ -6896,7 +6896,7 @@ dissect_pfcp_mptcp_control_information(tvbuff_t *tvb, packet_info *pinfo, proto_
 {
     int offset = 0;
 
-    static const int * pfcp_mptcp_control_information_flags[] = {
+    static int * const pfcp_mptcp_control_information_flags[] = {
         &hf_pfcp_spare_b7_b1,
         &hf_pfcp_mptcp_control_information_flags_b0_tci,
         NULL
@@ -6919,7 +6919,7 @@ dissect_pfcp_atsss_ll_control_information(tvbuff_t *tvb, packet_info *pinfo, pro
 {
     int offset = 0;
 
-    static const int * pfcp_atsss_ll_control_information_flags[] = {
+    static int * const pfcp_atsss_ll_control_information_flags[] = {
         &hf_pfcp_spare_b7_b1,
         &hf_pfcp_atsss_ll_control_information_flags_b0_lli,
         NULL
@@ -6942,7 +6942,7 @@ dissect_pfcp_pmf_control_information(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 {
     int offset = 0;
 
-    static const int * pfcp_pmf_control_information_flags[] = {
+    static int * const pfcp_pmf_control_information_flags[] = {
         &hf_pfcp_spare_b7_b1,
         &hf_pfcp_pmf_control_information_flags_b0_pmfi,
         NULL
@@ -6966,7 +6966,7 @@ dissect_pfcp_mptcp_address_information(tvbuff_t *tvb, packet_info *pinfo, proto_
     int offset = 0;
     guint64 mptcp_address_flags;
 
-    static const int * pfcp_mptcp_ip_address_information_flags[] = {
+    static int * const pfcp_mptcp_ip_address_information_flags[] = {
         &hf_pfcp_spare_b7_b2,
         &hf_pfcp_mptcp_address_information_flags_b1_v6,
         &hf_pfcp_mptcp_address_information_flags_b0_v4,
@@ -7012,7 +7012,7 @@ dissect_pfcp_ue_link_specific_ip_address(tvbuff_t *tvb, packet_info *pinfo, prot
     int offset = 0;
     guint64 ue_link_specific_ip_address_flags;
 
-    static const int * pfcp_ue_link_specific_ip_address_flags[] = {
+    static int * const pfcp_ue_link_specific_ip_address_flags[] = {
         &hf_pfcp_spare_b7_b4,
         &hf_pfcp_ue_link_specific_ip_address_flags_b3_nv6,
         &hf_pfcp_ue_link_specific_ip_address_flags_b2_nv4,
@@ -7060,7 +7060,7 @@ dissect_pfcp_pmf_address_information(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     int offset = 0;
     guint64 pmf_address_information_flags;
 
-    static const int * pfcp_pmf_address_information_flags[] = {
+    static int * const pfcp_pmf_address_information_flags[] = {
         &hf_pfcp_spare_b7_b3,
         &hf_pfcp_pmf_address_information_flags_b2_mac,
         &hf_pfcp_pmf_address_information_flags_b1_v6,
@@ -7115,7 +7115,7 @@ dissect_pfcp_atsss_ll_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 {
     int offset = 0;
 
-    static const int * pfcp_atsss_ll_information_flags[] = {
+    static int * const pfcp_atsss_ll_information_flags[] = {
         &hf_pfcp_spare_b7_b1,
         &hf_pfcp_atsss_ll_information_flags_b0_lli,
         NULL
@@ -7203,7 +7203,7 @@ dissect_pfcp_qos_report_trigger(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 {
     int offset = 0;
 
-    static const int * pfcp_qos_report_trigger_flags[] = {
+    static int * const pfcp_qos_report_trigger_flags[] = {
         &hf_pfcp_spare_b7_b3,
         &hf_pfcp_qos_report_trigger_flags_b2_ire,
         &hf_pfcp_qos_report_trigger_flags_b1_thr,
@@ -7228,7 +7228,7 @@ dissect_pfcp_gtp_u_path_interface_type(tvbuff_t *tvb, packet_info *pinfo, proto_
 {
     int offset = 0;
 
-    static const int * pfcp_gtp_u_path_interface_type_flags[] = {
+    static int * const pfcp_gtp_u_path_interface_type_flags[] = {
         &hf_pfcp_spare_b7_b2,
         &hf_pfcp_gtp_u_path_interface_type_flags_b1_n3,
         &hf_pfcp_gtp_u_path_interface_type_flags_b0_n9,
@@ -7252,7 +7252,7 @@ dissect_pfcp_requested_qos_monitoring(tvbuff_t *tvb, packet_info *pinfo, proto_t
 {
     int offset = 0;
 
-    static const int * pfcp_requested_qos_monitoring_flags[] = {
+    static int * const pfcp_requested_qos_monitoring_flags[] = {
         &hf_pfcp_spare_b7_b3,
         &hf_pfcp_requested_qos_monitoring_flags_b2_rp,
         &hf_pfcp_requested_qos_monitoring_flags_b1_ul,
@@ -7277,7 +7277,7 @@ dissect_pfcp_reporting_frequency(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 {
     int offset = 0;
 
-    static const int * pfcp_reporting_frequency_flags[] = {
+    static int * const pfcp_reporting_frequency_flags[] = {
         &hf_pfcp_spare_b7_b3,
         &hf_pfcp_reporting_frequency_flags_b2_sesrl,
         &hf_pfcp_reporting_frequency_flags_b1_perio,
@@ -7303,7 +7303,7 @@ dissect_pfcp_packet_delay_thresholds(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     int offset = 0;
     guint64 packet_delay_thresholds_flags;
 
-    static const int * pfcp_packet_delay_thresholds_flags[] = {
+    static int * const pfcp_packet_delay_thresholds_flags[] = {
         &hf_pfcp_spare_b7_b3,
         &hf_pfcp_packet_delay_thresholds_flags_b2_rp,
         &hf_pfcp_packet_delay_thresholds_flags_b1_ul,
@@ -7364,7 +7364,7 @@ dissect_pfcp_qos_monitoring_measurement(tvbuff_t *tvb, packet_info *pinfo, proto
     int offset = 0;
     guint64 qos_monitoring_measurement_flags;
 
-    static const int * pfcp_qos_monitoring_measurement_flags[] = {
+    static int * const pfcp_qos_monitoring_measurement_flags[] = {
         &hf_pfcp_spare_b7_b4,
         &hf_pfcp_qos_monitoring_measurement_flags_b3_plmf,
         &hf_pfcp_qos_monitoring_measurement_flags_b2_rp,
@@ -7408,7 +7408,7 @@ dissect_pfcp_mt_edt_control_information(tvbuff_t *tvb, packet_info *pinfo, proto
 {
     int offset = 0;
 
-    static const int * pfcp_mt_edt_control_information_flags[] = {
+    static int * const pfcp_mt_edt_control_information_flags[] = {
         &hf_pfcp_spare_b7_b1,
         &hf_pfcp_mt_edt_control_information_flags_b0_rdsi,
         NULL
@@ -7448,7 +7448,7 @@ dissect_pfcp_qer_control_indications(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 {
     int offset = 0;
 
-    static const int * pfcp_qer_control_indications_o5_flags[] = {
+    static int * const pfcp_qer_control_indications_o5_flags[] = {
         &hf_pfcp_spare_b7_b3,
         &hf_pfcp_qer_control_indications_o5_b2_nord,
         &hf_pfcp_qer_control_indications_o5_b1_moed,
@@ -8547,7 +8547,7 @@ dissect_pfcp_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     pfcp_session_args_t *args = NULL;
     pfcp_hdr_t          *pfcp_hdr = NULL;
 
-    static const int * pfcp_hdr_flags[] = {
+    static int * const pfcp_hdr_flags[] = {
         &hf_pfcp_version,
         &hf_pfcp_spare_b4,
         &hf_pfcp_spare_b3,

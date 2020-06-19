@@ -552,7 +552,7 @@ dissect_isns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     guint16     flags;
     proto_tree *tt = NULL;
     proto_item *tpayload;
-    static const int * isns_flags[] = {
+    static int * const isns_flags[] = {
         &hf_isns_client,
         &hf_isns_server,
         &hf_isns_auth,
@@ -785,7 +785,7 @@ dissect_isns_attr_port(tvbuff_t *tvb, guint offset, proto_tree *tree, int hf_ind
 static void
 dissect_isns_attr_iscsi_node_type(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_isns_isnt_control,
         &hf_isns_isnt_initiator,
         &hf_isns_isnt_target,
@@ -801,7 +801,7 @@ dissect_isns_attr_iscsi_node_type(tvbuff_t *tvb, guint offset, proto_tree *tree)
 static void
 dissect_isns_attr_portal_security_bitmap(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_isns_psb_tunnel_mode,
         &hf_isns_psb_transport_mode,
         &hf_isns_psb_pfs,
@@ -830,7 +830,7 @@ dissect_isns_attr_scn_bitmap(tvbuff_t *tvb, guint offset, proto_tree *tree)
         30              DD/DDS MEMBER REMOVED (Mgmt Reg/SCN only)
         31 (Lsb)        DD/DDS MEMBER ADDED (Mgmt Reg/SCN only)
     */
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_isns_scn_bitmap_initiator_and_self_information_only,
         &hf_isns_scn_bitmap_target_and_self_information_only,
         &hf_isns_scn_bitmap_management_registration_scn,

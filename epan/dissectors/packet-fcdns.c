@@ -571,7 +571,7 @@ fcdns_hash (gconstpointer v)
 static void
 dissect_cos_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, const header_field_info *hfinfo)
 {
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hfi_fcdns_cos_f.id,
         &hfi_fcdns_cos_1.id,
         &hfi_fcdns_cos_2.id,
@@ -594,7 +594,7 @@ static void
 dissect_fc4features_and_type (proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 {
     guint8 type;
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hfi_fcdns_fc4features_i.id,
         &hfi_fcdns_fc4features_t.id,
         NULL
@@ -617,7 +617,7 @@ dissect_fc4features_and_type (proto_tree *parent_tree, tvbuff_t *tvb, int offset
 static void
 dissect_fc4features (proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 {
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hfi_fcdns_fc4features_i.id,
         &hfi_fcdns_fc4features_t.id,
         NULL

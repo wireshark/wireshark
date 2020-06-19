@@ -2074,7 +2074,7 @@ DEBUG_ENTRY("dissect_per_sequence_eag");
 
 */
 
-static tvbuff_t *dissect_per_bit_string_display(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, header_field_info *hfi, guint32 length, const int **named_bits, gint num_named_bits _U_)
+static tvbuff_t *dissect_per_bit_string_display(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, header_field_info *hfi, guint32 length, int * const *named_bits, gint num_named_bits _U_)
 {
 	tvbuff_t *out_tvb = NULL;
 	guint32  pad_length=0;
@@ -2135,12 +2135,12 @@ static tvbuff_t *dissect_per_bit_string_display(tvbuff_t *tvb, guint32 offset, a
 
 					// Process 8 bits at a time instead of 64, each field masks a
 					// single byte.
-					const int** section_named_bits = named_bits + bit_offset;
+					int* const * section_named_bits = named_bits + bit_offset;
 					int* flags[9];
 					if (num_named_bits - bit_offset > 8) {
 						memcpy(&flags[0], named_bits + bit_offset, 8 * sizeof(int*));
 						flags[8] = NULL;
-						section_named_bits = (const int** )flags;
+						section_named_bits = flags;
 					}
 
 					// TODO should non-zero pad bits be masked from the value?
@@ -2156,7 +2156,7 @@ static tvbuff_t *dissect_per_bit_string_display(tvbuff_t *tvb, guint32 offset, a
 	return out_tvb;
 }
 guint32
-dissect_per_bit_string(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension, const int **named_bits, gint num_named_bits, tvbuff_t **value_tvb, int *len)
+dissect_per_bit_string(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension, int * const *named_bits, gint num_named_bits, tvbuff_t **value_tvb, int *len)
 {
 	/*gint val_start, val_length;*/
 	guint32 length, fragmented_length = 0;

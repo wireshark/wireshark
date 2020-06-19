@@ -223,7 +223,7 @@ dissect_pkixtsp_PKIStatus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 }
 
 
-static const int * PKIFailureInfo_bits[] = {
+static int * const PKIFailureInfo_bits[] = {
   &hf_pkixtsp_PKIFailureInfo_badAlg,
   &hf_pkixtsp_PKIFailureInfo_spare_bit1,
   &hf_pkixtsp_PKIFailureInfo_badRequest,

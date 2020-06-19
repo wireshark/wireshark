@@ -333,12 +333,12 @@ dissect_request_reset(tvbuff_t *tvb, packet_info *pinfo _U_, gint offset, proto_
 static gint
 dissect_request_modem_ctrl(tvbuff_t *tvb, packet_info *pinfo _U_, gint offset, proto_tree *tree)
 {
-    static const int *lvalue_bits[] = {
+    static int * const lvalue_bits[] = {
         &hf_setup_lvalue_dtr,
         &hf_setup_lvalue_rts,
         NULL
     };
-    static const int *hvalue_bits[] = {
+    static int * const hvalue_bits[] = {
         &hf_setup_hvalue_dtr,
         &hf_setup_hvalue_rts,
         NULL
@@ -365,7 +365,7 @@ dissect_request_modem_ctrl(tvbuff_t *tvb, packet_info *pinfo _U_, gint offset, p
 static gint
 dissect_request_set_flow_ctrl(tvbuff_t *tvb, packet_info *pinfo _U_, gint offset, proto_tree *tree)
 {
-    static const int *hindex_bits[] = {
+    static int * const hindex_bits[] = {
         &hf_setup_hindex_rts_cts,
         &hf_setup_hindex_dtr_dsr,
         &hf_setup_hindex_xon_xoff,
@@ -392,15 +392,15 @@ dissect_request_set_flow_ctrl(tvbuff_t *tvb, packet_info *pinfo _U_, gint offset
 static gint
 dissect_request_set_baud_rate(tvbuff_t *tvb, packet_info *pinfo, gint offset, proto_tree *tree, FTDI_CHIP chip)
 {
-    static const int *lindex_bits[] = {
+    static int * const lindex_bits[] = {
         &hf_setup_lindex_baud_high,
         NULL
     };
-    static const int *hindex_bits[] = {
+    static int * const hindex_bits[] = {
         &hf_setup_hindex_baud_high,
         NULL
     };
-    static const int *hindex_bits_hispeed[] = {
+    static int * const hindex_bits_hispeed[] = {
         &hf_setup_hindex_baud_high,
         &hf_setup_hindex_baud_clock_divide,
         NULL
@@ -463,7 +463,7 @@ dissect_request_set_baud_rate(tvbuff_t *tvb, packet_info *pinfo, gint offset, pr
 static gint
 dissect_request_set_data(tvbuff_t *tvb, packet_info *pinfo _U_, gint offset, proto_tree *tree)
 {
-    static const int *hvalue_bits[] = {
+    static int * const hvalue_bits[] = {
         &hf_setup_hvalue_parity,
         &hf_setup_hvalue_stop_bits,
         &hf_setup_hvalue_break_bit,
@@ -622,7 +622,7 @@ dissect_request_set_bitmode(tvbuff_t *tvb, packet_info *pinfo _U_, gint offset, 
 static gint
 dissect_modem_status_bytes(tvbuff_t *tvb, packet_info *pinfo _U_, gint offset, proto_tree *tree, gint *out_rx_len)
 {
-    static const int *modem_status_bits[] = {
+    static int * const modem_status_bits[] = {
         &hf_modem_status_fs_max_packet,
         &hf_modem_status_hs_max_packet,
         &hf_modem_status_cts,
@@ -631,7 +631,7 @@ dissect_modem_status_bytes(tvbuff_t *tvb, packet_info *pinfo _U_, gint offset, p
         &hf_modem_status_dcd,
         NULL
     };
-    static const int *line_status_bits[] = {
+    static int * const line_status_bits[] = {
         &hf_line_status_receive_overflow,
         &hf_line_status_parity_error,
         &hf_line_status_framing_error,

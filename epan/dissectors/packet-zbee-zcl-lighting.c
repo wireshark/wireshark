@@ -755,7 +755,7 @@ dissect_zcl_color_control_move_to_color_temp(tvbuff_t *tvb, proto_tree *tree, gu
 static void
 dissect_zcl_color_control_color_loop_set(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    static const int *color_loop_update_fields[] = {
+    static int * const color_loop_update_fields[] = {
         &hf_zbee_zcl_color_control_color_loop_update_action,
         &hf_zbee_zcl_color_control_color_loop_update_direction,
         &hf_zbee_zcl_color_control_color_loop_update_time,
@@ -926,7 +926,7 @@ decode_startup_color_temperature(gchar *s, guint16 value)
 void
 dissect_zcl_color_control_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
 {
-    static const int *capabilities_fields[] = {
+    static int * const capabilities_fields[] = {
         &hf_zbee_zcl_color_control_attr_color_capabilities_hs,
         &hf_zbee_zcl_color_control_attr_color_capabilities_ehs,
         &hf_zbee_zcl_color_control_attr_color_capabilities_loop,
@@ -1722,13 +1722,13 @@ dissect_zbee_zcl_ballast_configuration(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 void
 dissect_zcl_ballast_configuration_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
 {
-    static const int * ballast_status[] = {
+    static int * const ballast_status[] = {
         &hf_zbee_zcl_ballast_configuration_status_non_operational,
         &hf_zbee_zcl_ballast_configuration_status_lamp_not_in_socket,
         NULL
     };
 
-    static const int * lamp_alarm_mode[] = {
+    static int * const lamp_alarm_mode[] = {
         &hf_zbee_zcl_ballast_configuration_lamp_alarm_mode_lamp_burn_hours,
         NULL
     };

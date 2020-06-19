@@ -213,7 +213,7 @@ gluster_hndsk_2_get_volume_info_reply(tvbuff_t *tvb, packet_info *pinfo,
 static int
 glusterfs_rpc_dissect_upcall_flags(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	static const int *flag_bits[] = {
+	static int * const flag_bits[] = {
 		&hg_gluster_cbk_upcall_flag_nlink,
 		&hg_gluster_cbk_upcall_flag_mode,
 		&hg_gluster_cbk_upcall_flag_own,

@@ -709,7 +709,7 @@ dissect_atn_ulcs_EXTERNALt(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 }
 
 
-static const int * T_aarq_apdu_protocol_version_bits[] = {
+static int * const T_aarq_apdu_protocol_version_bits[] = {
   &hf_atn_ulcs_T_aarq_apdu_protocol_version_version1,
   NULL
 };
@@ -935,7 +935,7 @@ dissect_atn_ulcs_AE_invocation_identifier(tvbuff_t *tvb _U_, int offset _U_, asn
 }
 
 
-static const int * ACSE_requirements_bits[] = {
+static int * const ACSE_requirements_bits[] = {
   &hf_atn_ulcs_ACSE_requirements_authentication,
   &hf_atn_ulcs_ACSE_requirements_application_context_negotiation,
   NULL
@@ -1212,7 +1212,7 @@ dissect_atn_ulcs_AARQ_apdu(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 }
 
 
-static const int * T_aare_apdu_protocol_version_bits[] = {
+static int * const T_aare_apdu_protocol_version_bits[] = {
   &hf_atn_ulcs_T_aare_apdu_protocol_version_version1,
   NULL
 };

@@ -2667,7 +2667,7 @@ process_l2tpv3_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 }
 
-static const int * l2tp_control_fields[] = {
+static int * const l2tp_control_fields[] = {
     &hf_l2tp_type,
     &hf_l2tp_length_bit,
     &hf_l2tp_seq_bit,
@@ -3045,7 +3045,7 @@ dissect_l2tp_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     l2tp_tree = proto_item_add_subtree(l2tp_item, ett_l2tp);
 
     if (tree) {
-        static const int * control_fields[] = {
+        static int * const control_fields[] = {
             &hf_l2tp_type,
             &hf_l2tp_length_bit,
             &hf_l2tp_seq_bit,

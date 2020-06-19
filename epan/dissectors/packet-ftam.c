@@ -650,7 +650,7 @@ static expert_field ei_ftam_zero_pdu = EI_INIT;
 /*--- Included file: packet-ftam-fn.c ---*/
 #line 1 "./asn1/ftam/packet-ftam-fn.c"
 
-static const int * Protocol_Version_U_bits[] = {
+static int * const Protocol_Version_U_bits[] = {
   &hf_ftam_Protocol_Version_U_version_1,
   &hf_ftam_Protocol_Version_U_version_2,
   NULL
@@ -706,7 +706,7 @@ dissect_ftam_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 }
 
 
-static const int * Service_Class_U_bits[] = {
+static int * const Service_Class_U_bits[] = {
   &hf_ftam_Service_Class_U_unconstrained_class,
   &hf_ftam_Service_Class_U_management_class,
   &hf_ftam_Service_Class_U_transfer_class,
@@ -735,7 +735,7 @@ dissect_ftam_Service_Class(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 }
 
 
-static const int * Functional_Units_U_bits[] = {
+static int * const Functional_Units_U_bits[] = {
   &hf_ftam_Functional_Units_U_spare_bit0,
   &hf_ftam_Functional_Units_U_spare_bit1,
   &hf_ftam_Functional_Units_U_read,
@@ -776,7 +776,7 @@ dissect_ftam_Functional_Units(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 }
 
 
-static const int * Attribute_Groups_U_bits[] = {
+static int * const Attribute_Groups_U_bits[] = {
   &hf_ftam_Attribute_Groups_U_storage,
   &hf_ftam_Attribute_Groups_U_security,
   &hf_ftam_Attribute_Groups_U_private,
@@ -1378,7 +1378,7 @@ dissect_ftam_Select_Attributes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 }
 
 
-static const int * Access_Request_U_bits[] = {
+static int * const Access_Request_U_bits[] = {
   &hf_ftam_Access_Request_U_read,
   &hf_ftam_Access_Request_U_insert,
   &hf_ftam_Access_Request_U_replace,
@@ -1666,7 +1666,7 @@ dissect_ftam_Object_Type_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 }
 
 
-static const int * Permitted_Actions_Attribute_bits[] = {
+static int * const Permitted_Actions_Attribute_bits[] = {
   &hf_ftam_Permitted_Actions_Attribute_read,
   &hf_ftam_Permitted_Actions_Attribute_insert,
   &hf_ftam_Permitted_Actions_Attribute_replace,
@@ -1860,7 +1860,7 @@ dissect_ftam_Object_Size_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 }
 
 
-static const int * Concurrency_Key_bits[] = {
+static int * const Concurrency_Key_bits[] = {
   &hf_ftam_Concurrency_Key_not_required,
   &hf_ftam_Concurrency_Key_shared,
   &hf_ftam_Concurrency_Key_exclusive,
@@ -2240,7 +2240,7 @@ dissect_ftam_F_DELETE_response(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 }
 
 
-static const int * Attribute_Names_bits[] = {
+static int * const Attribute_Names_bits[] = {
   &hf_ftam_Attribute_Names_read_pathname,
   &hf_ftam_Attribute_Names_read_permitted_actions,
   &hf_ftam_Attribute_Names_read_contents_type,
@@ -2571,7 +2571,7 @@ dissect_ftam_F_CHANGE_ATTRIB_response(gboolean implicit_tag _U_, tvbuff_t *tvb _
 }
 
 
-static const int * T_processing_mode_bits[] = {
+static int * const T_processing_mode_bits[] = {
   &hf_ftam_T_processing_mode_f_read,
   &hf_ftam_T_processing_mode_f_insert,
   &hf_ftam_T_processing_mode_f_replace,
@@ -3498,7 +3498,7 @@ dissect_ftam_F_CHANGE_PREFIX_response(gboolean implicit_tag _U_, tvbuff_t *tvb _
 }
 
 
-static const int * Equality_Comparision_bits[] = {
+static int * const Equality_Comparision_bits[] = {
   &hf_ftam_Equality_Comparision_no_value_available_matches,
   &hf_ftam_Equality_Comparision_equals_matches,
   NULL
@@ -3616,7 +3616,7 @@ dissect_ftam_Pathname_Pattern(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 }
 
 
-static const int * Relational_Comparision_bits[] = {
+static int * const Relational_Comparision_bits[] = {
   &hf_ftam_Relational_Comparision_no_value_available_matches,
   &hf_ftam_Relational_Comparision_equals_matches,
   &hf_ftam_Relational_Comparision_less_than_matches,

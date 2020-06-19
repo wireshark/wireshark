@@ -2945,7 +2945,7 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	}
 	case 0x07:	/* IEEE 802.3br Frame Preemption Protocol */
 	{
-		static const int * preemption_capabilities[] = {
+		static int * const preemption_capabilities[] = {
 			&hf_ieee_802_3br_aec_support,
 			&hf_ieee_802_3br_aec_enable,
 			&hf_ieee_802_3br_aec_active,

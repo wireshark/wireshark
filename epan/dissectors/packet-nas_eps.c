@@ -1388,7 +1388,7 @@ de_emm_eps_net_feature_sup(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _
 {
     guint32 curr_offset;
 
-    static const int* oct3_flags[] = {
+    static int* const oct3_flags[] = {
         &hf_nas_eps_emm_cp_ciot,
         &hf_nas_eps_emm_er_wo_pdn,
         &hf_nas_eps_emm_esr_ps,
@@ -1399,7 +1399,7 @@ de_emm_eps_net_feature_sup(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _
         NULL
     };
 
-    static const int* oct4_flags[] = {
+    static int* const oct4_flags[] = {
         &hf_nas_eps_emm_15_bearers,
         &hf_nas_eps_emm_iwkn26,
         &hf_nas_eps_emm_restrict_dcnr,
@@ -2032,7 +2032,7 @@ de_emm_ue_net_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 {
     guint32 curr_offset;
 
-    static const int * oct3_flags[] = {
+    static int * const oct3_flags[] = {
         &hf_nas_eps_emm_eea0,
         &hf_nas_eps_emm_128eea1,
         &hf_nas_eps_emm_128eea2,
@@ -2044,7 +2044,7 @@ de_emm_ue_net_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
         NULL
     };
 
-    static const int * oct4_flags[] = {
+    static int * const oct4_flags[] = {
         &hf_nas_eps_emm_eia0,
         &hf_nas_eps_emm_128eia1,
         &hf_nas_eps_emm_128eia2,
@@ -2056,7 +2056,7 @@ de_emm_ue_net_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
         NULL
     };
 
-    static const int * oct5_flags[] = {
+    static int * const oct5_flags[] = {
         &hf_nas_eps_emm_uea0,
         &hf_nas_eps_emm_uea1,
         &hf_nas_eps_emm_uea2,
@@ -2068,7 +2068,7 @@ de_emm_ue_net_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
         NULL
     };
 
-    static const int * oct6_flags[] = {
+    static int * const oct6_flags[] = {
         &hf_nas_eps_emm_ucs2_supp,
         &hf_nas_eps_emm_uia1,
         &hf_nas_eps_emm_uia2,
@@ -2080,7 +2080,7 @@ de_emm_ue_net_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
         NULL
     };
 
-    static const int * oct7_flags[] = {
+    static int * const oct7_flags[] = {
         &hf_nas_eps_emm_prose_dd_cap,
         &hf_nas_eps_emm_prose_cap,
         &hf_nas_eps_emm_h245_ash_cap,
@@ -2092,7 +2092,7 @@ de_emm_ue_net_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
         NULL
     };
 
-    static const int * oct8_flags[] = {
+    static int * const oct8_flags[] = {
         &hf_nas_eps_emm_epco_cap,
         &hf_nas_eps_emm_hc_cp_ciot_cap,
         &hf_nas_eps_emm_er_wo_pdn_cap,
@@ -2104,7 +2104,7 @@ de_emm_ue_net_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
         NULL
     };
 
-    static const int * oct9_flags[] = {
+    static int * const oct9_flags[] = {
         &hf_nas_eps_15_bearers_cap,
         &hf_nas_eps_sgc_cap,
         &hf_nas_eps_n1mode_cap,
@@ -2217,7 +2217,7 @@ de_emm_ue_sec_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 {
     guint32 curr_offset;
 
-    static const int * oct3_flags[] = {
+    static int * const oct3_flags[] = {
         &hf_nas_eps_emm_eea0,
         &hf_nas_eps_emm_128eea1,
         &hf_nas_eps_emm_128eea2,
@@ -2229,7 +2229,7 @@ de_emm_ue_sec_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
         NULL
     };
 
-    static const int * oct4_flags[] = {
+    static int * const oct4_flags[] = {
         &hf_nas_eps_emm_eia0,
         &hf_nas_eps_emm_128eia1,
         &hf_nas_eps_emm_128eia2,
@@ -2241,7 +2241,7 @@ de_emm_ue_sec_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
         NULL
     };
 
-    static const int * oct5_flags[] = {
+    static int * const oct5_flags[] = {
         &hf_nas_eps_emm_uea0,
         &hf_nas_eps_emm_uea1,
         &hf_nas_eps_emm_uea2,
@@ -2253,7 +2253,7 @@ de_emm_ue_sec_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
         NULL
     };
 
-    static const int * oct6_flags[] = {
+    static int * const oct6_flags[] = {
         &hf_nas_eps_spare_b7,
         &hf_nas_eps_emm_uia1,
         &hf_nas_eps_emm_uia2,
@@ -2265,7 +2265,7 @@ de_emm_ue_sec_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
         NULL
     };
 
-    static const int * oct7_flags[] = {
+    static int * const oct7_flags[] = {
         &hf_nas_eps_spare_b7,
         &hf_nas_eps_emm_gea1,
         &hf_nas_eps_emm_gea2,
@@ -2618,7 +2618,7 @@ de_emm_ue_add_sec_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
 {
     guint32 curr_offset;
 
-    static const int * oct3_flags[] = {
+    static int * const oct3_flags[] = {
         &hf_nas_eps_emm_5g_ea0,
         &hf_nas_eps_emm_128_5g_ea1,
         &hf_nas_eps_emm_128_5g_ea2,
@@ -2630,7 +2630,7 @@ de_emm_ue_add_sec_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
         NULL
     };
 
-    static const int * oct4_flags[] = {
+    static int * const oct4_flags[] = {
         &hf_nas_eps_emm_5g_ea8,
         &hf_nas_eps_emm_5g_ea9,
         &hf_nas_eps_emm_5g_ea10,
@@ -2642,7 +2642,7 @@ de_emm_ue_add_sec_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
         NULL
     };
 
-    static const int * oct5_flags[] = {
+    static int * const oct5_flags[] = {
         &hf_nas_eps_emm_5g_ia0,
         &hf_nas_eps_emm_128_5g_ia1,
         &hf_nas_eps_emm_128_5g_ia2,
@@ -2654,7 +2654,7 @@ de_emm_ue_add_sec_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
         NULL
     };
 
-    static const int * oct6_flags[] = {
+    static int * const oct6_flags[] = {
         &hf_nas_eps_emm_5g_ia8,
         &hf_nas_eps_emm_5g_ia9,
         &hf_nas_eps_emm_5g_ia10,
@@ -2725,7 +2725,7 @@ de_emm_ciph_key_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
     proto_tree *sub_tree;
 
     while ((curr_offset - offset) < len) {
-        static const int * flags1[] = {
+        static int * const flags1[] = {
             &hf_emm_ciph_key_data_pos_sib_type_1_1,
             &hf_emm_ciph_key_data_pos_sib_type_1_2,
             &hf_emm_ciph_key_data_pos_sib_type_1_3,
@@ -2736,7 +2736,7 @@ de_emm_ciph_key_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
             &hf_emm_ciph_key_data_pos_sib_type_2_1,
             NULL
         };
-        static const int * flags2[] = {
+        static int * const flags2[] = {
             &hf_emm_ciph_key_data_pos_sib_type_2_2,
             &hf_emm_ciph_key_data_pos_sib_type_2_3,
             &hf_emm_ciph_key_data_pos_sib_type_2_4,
@@ -2747,7 +2747,7 @@ de_emm_ciph_key_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
             &hf_emm_ciph_key_data_pos_sib_type_2_9,
             NULL
         };
-        static const int * flags3[] = {
+        static int * const flags3[] = {
             &hf_emm_ciph_key_data_pos_sib_type_2_10,
             &hf_emm_ciph_key_data_pos_sib_type_2_11,
             &hf_emm_ciph_key_data_pos_sib_type_2_12,
@@ -2758,7 +2758,7 @@ de_emm_ciph_key_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
             &hf_emm_ciph_key_data_pos_sib_type_2_17,
             NULL
         };
-        static const int * flags4[] = {
+        static int * const flags4[] = {
             &hf_emm_ciph_key_data_pos_sib_type_2_18,
             &hf_emm_ciph_key_data_pos_sib_type_2_19,
             &hf_emm_ciph_key_data_pos_sib_type_3_1,
@@ -2826,7 +2826,7 @@ static guint16
 de_emm_n1_ue_network_cap(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _U_,
     guint32 offset, guint len _U_, gchar* add_string _U_, int string_len _U_)
 {
-    static const int* flags_oct1[] = {
+    static int* const flags_oct1[] = {
         &hf_nas_eps_spare_b7_b4,
         &hf_emm_5g_up_ciot_b3,
         &hf_emm_5g_hc_cp_ciot,
@@ -3664,7 +3664,7 @@ de_esm_hdr_compr_config(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 {
     guint32 curr_offset = offset;
 
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_nas_eps_spare_b7,
         &hf_nas_eps_esm_hdr_comp_config_prof_0104,
         &hf_nas_eps_esm_hdr_comp_config_prof_0103,
@@ -3794,7 +3794,7 @@ static guint16
 de_esm_hdr_compr_config_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
                                guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_nas_eps_esm_hdr_compr_config_status_ebi7,
         &hf_nas_eps_esm_hdr_compr_config_status_ebi6,
         &hf_nas_eps_esm_hdr_compr_config_status_ebi5,

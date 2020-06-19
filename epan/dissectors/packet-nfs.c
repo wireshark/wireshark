@@ -1448,7 +1448,7 @@ dissect_fhandle_data_SVR4(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *tre
 	guint32	 len2;
 	guint32	 fhlen;		/* File handle length. */
 
-	static const int * fsid_fields[] = {
+	static int * const fsid_fields[] = {
 		&hf_nfs_fh_fsid_major32,
 		&hf_nfs_fh_fsid_minor32,
 		NULL
@@ -1690,7 +1690,7 @@ static int
 dissect_fhandle_data_NETAPP(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	int offset = 0;
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_nfs_fh_file_flag_mntpoint,
 		&hf_nfs_fh_file_flag_snapdir,
 		&hf_nfs_fh_file_flag_snapdir_ent,
@@ -1752,7 +1752,7 @@ static const value_string handle_type_strings[] = {
 static int
 dissect_fhandle_data_NETAPP_V4(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_nfs_fh_file_flag_mntpoint,
 		&hf_nfs_fh_file_flag_snapdir,
 		&hf_nfs_fh_file_flag_snapdir_ent,
@@ -1830,7 +1830,7 @@ dissect_fhandle_data_NETAPP_GX_v3(tvbuff_t* tvb, packet_info *pinfo _U_, proto_t
 		proto_tree *field_tree;
 		guint8      flags;
 		guint32     offset = 0;
-		static const int * fh_flags[] = {
+		static int * const fh_flags[] = {
 			&hf_nfs3_gxfh_sfhflags_resv1,
 			&hf_nfs3_gxfh_sfhflags_resv2,
 			&hf_nfs3_gxfh_sfhflags_ontapGX,
@@ -1842,7 +1842,7 @@ dissect_fhandle_data_NETAPP_GX_v3(tvbuff_t* tvb, packet_info *pinfo _U_, proto_t
 			NULL
 		};
 
-		static const int * fh_flags_ontap[] = {
+		static int * const fh_flags_ontap[] = {
 			&hf_nfs3_gxfh_sfhflags_resv1,
 			&hf_nfs3_gxfh_sfhflags_resv2,
 			&hf_nfs3_gxfh_sfhflags_ontap7G,
@@ -1854,7 +1854,7 @@ dissect_fhandle_data_NETAPP_GX_v3(tvbuff_t* tvb, packet_info *pinfo _U_, proto_t
 			NULL
 		};
 
-		static const int * utility_flags[] = {
+		static int * const utility_flags[] = {
 			&hf_nfs3_gxfh_utlfield_tree,
 			&hf_nfs3_gxfh_utlfield_jun,
 			&hf_nfs3_gxfh_utlfield_ver,
@@ -2167,19 +2167,19 @@ dissect_fhandle_data_PRIMARY_DATA(tvbuff_t* tvb, packet_info *pinfo _U_, proto_t
 	int offset = 0;
 	guint32 version;
 
-	static const int *fh_flags[] = {
+	static int * const fh_flags[] = {
 		&hf_nfs4_fh_pd_flags_version,
 		&hf_nfs4_fh_pd_flags_reserved,
 		NULL
 	};
 
-	static const int *fh_sites[] = {
+	static int * const fh_sites[] = {
 		&hf_nfs4_fh_pd_sites_inum,
 		&hf_nfs4_fh_pd_sites_siteid,
 		NULL
 	};
 
-	static const int *fh_spaces[] = {
+	static int * const fh_spaces[] = {
 		&hf_nfs4_fh_pd_spaces_snapid,
 		&hf_nfs4_fh_pd_spaces_container,
 		NULL
@@ -2775,7 +2775,7 @@ static const value_string nfs2_mode_names[] = {
 static int
 dissect_nfs2_mode(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-	static const int *modes[] = {
+	static int * const modes[] = {
 		&hf_nfs2_mode_name,
 		&hf_nfs2_mode_set_user_id,
 		&hf_nfs2_mode_set_group_id,
@@ -3609,7 +3609,7 @@ dissect_nfs3_write_verf(tvbuff_t *tvb, int offset, proto_tree *tree)
 static int
 dissect_nfs3_mode(tvbuff_t *tvb, int offset, proto_tree *tree, guint32 *mode)
 {
-	static const int *mode_bits[] = {
+	static int * const mode_bits[] = {
 		&hf_nfs3_mode_suid,
 		&hf_nfs3_mode_sgid,
 		&hf_nfs3_mode_sticky,
@@ -5796,7 +5796,7 @@ static int
 dissect_nfs3_fsinfo_reply(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
 	guint32	    status;
-	static const int *properties[] = {
+	static int * const properties[] = {
 		&hf_nfs3_fsinfo_properties_setattr,
 		&hf_nfs3_fsinfo_properties_pathconf,
 		&hf_nfs3_fsinfo_properties_symlinks,
@@ -6674,7 +6674,7 @@ static const value_string names_acetype4[] = {
 static int
 dissect_nfs_aceflags4(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *ace_tree)
 {
-    static const int *flags[] = {
+    static int * const flags[] = {
         &hf_nfs4_aceflag_file_inherit,
         &hf_nfs4_aceflag_dir_inherit,
         &hf_nfs4_aceflag_no_prop_inherit,
@@ -6884,7 +6884,7 @@ dissect_nfs4_ace(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,	proto_tree *
 #define ACL4_PROTECTED		0x00000002
 #define ACL4_DEFAULTED		0x00000004
 
-static const int *aclflags_fields[] = {
+static int * const aclflags_fields[] = {
 	&hf_nfs4_aclflag_auto_inherit,
 	&hf_nfs4_aclflag_protected,
 	&hf_nfs4_aclflag_defaulted,
@@ -6930,7 +6930,7 @@ dissect_nfs4_fattr_acl(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_item
 #define ACL4_SUPPORT_AUDIT_ACL	0x00000004
 #define ACL4_SUPPORT_ALARM_ACL	0x00000008
 
-static const int *aclsupport_fields[] = {
+static int * const aclsupport_fields[] = {
 	&hf_nfs4_aclsupport_allow_acl,
 	&hf_nfs4_aclsupport_deny_acl,
 	&hf_nfs4_aclsupport_audit_acl,
@@ -7012,7 +7012,7 @@ static const value_string nfs4_fattr4_fh_expire_type_names[] = {
 	{ 0, NULL }
 };
 
-static const int *nfs4_fattr_fh_expire_type_fields[] = {
+static int * const nfs4_fattr_fh_expire_type_fields[] = {
 	&hf_nfs4_fattr_fh_expiry_noexpire_with_open,
 	&hf_nfs4_fattr_fh_expiry_volatile_any,
 	&hf_nfs4_fattr_fh_expiry_vol_migration,
@@ -8164,7 +8164,7 @@ dissect_nfs4_lockdenied(tvbuff_t *tvb, int offset, proto_tree *tree)
 #define OPEN4_RESULT_PRESERVE_UNLINKED	0x00000008
 #define OPEN4_RESULT_MAY_NOTIFY_LOCK	0x00000020
 
-static const int *open4_result_flag_fields[] = {
+static int * const open4_result_flag_fields[] = {
 	&hf_nfs4_open_rflags_confirm,
 	&hf_nfs4_open_rflags_locktype_posix,
 	&hf_nfs4_open_rflags_preserve_unlinked,
@@ -9446,7 +9446,7 @@ dissect_nfs4_layoutget(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 	proto_tree *nfl_item;
 	proto_tree *nfl_tree;
 
-	static const int * layout_flags[] = {
+	static int * const layout_flags[] = {
 		&hf_nfs4_ff_layout_flags_no_layoutcommit,
 		&hf_nfs4_ff_layout_flags_no_io_thru_mds,
 		&hf_nfs4_ff_layout_flags_no_read_io,
@@ -9613,7 +9613,7 @@ dissect_nfs4_layoutget(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 static int
 dissect_nfs_create_session_flags(tvbuff_t *tvb, int offset, proto_tree *tree, int hf_csa)
 {
-	const int * flags[] = {
+	int * const flags[] = {
 		&hf_nfs4_create_session_flags_persist,
 		&hf_nfs4_create_session_flags_conn_back_chan,
 		&hf_nfs4_create_session_flags_conn_rdma,
@@ -9775,7 +9775,7 @@ static int nfs4_operation_tiers[] = {
 #define NFS4_OPERATION_TIER(op) \
 	((op) < G_N_ELEMENTS(nfs4_operation_tiers) ? nfs4_operation_tiers[(op)] : 0)
 
-static const int * nfs4_exchid_flags[] = {
+static int * const nfs4_exchid_flags[] = {
 	&hf_nfs4_exchid_flags_confirmed_r,
 	&hf_nfs4_exchid_flags_upd_conf_rec_a,
 	&hf_nfs4_exchid_flags_pnfs_ds,
@@ -10914,7 +10914,7 @@ dissect_nfs4_response_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 
 		case NFS4_OP_SEQUENCE:
 			{
-			static const int * sequence_flags[] = {
+			static int * const sequence_flags[] = {
 				&hf_nfs4_sequence_status_flags_cb_path_down,
 				&hf_nfs4_sequence_status_flags_cb_gss_contexts_expiring,
 				&hf_nfs4_sequence_status_flags_cb_gss_contexts_expired,

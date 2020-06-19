@@ -829,7 +829,7 @@ static int hf_vnc_fence_block_before = -1;
 static int hf_vnc_fence_payload_length = -1;
 static int hf_vnc_fence_payload = -1;
 
-static const int *vnc_fence_flags[] = {
+static int * const vnc_fence_flags[] = {
 	&hf_vnc_fence_request,
 	&hf_vnc_fence_sync_next,
 	&hf_vnc_fence_block_after,

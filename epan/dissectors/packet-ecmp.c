@@ -1571,7 +1571,7 @@ static void get_object_info_response(packet_info* pinfo, int offset, tvbuff_t *t
 					break;
 				case 3:
 					{
-						static const int * fields[] = {
+						static int * const fields[] = {
 							&hf_ecmp_param_format_bit_default_unipolar,
 							&hf_ecmp_param_format_write_allowed,
 							&hf_ecmp_param_format_read_not_allowed,
@@ -1764,7 +1764,7 @@ static void file_open(int offset, gboolean request, tvbuff_t *tvb, proto_tree* e
 	guint8 relative = 0;
 
 	if (request) {
-		static const int * fields[] = {
+		static int * const fields[] = {
 			&hf_ecmp_open_in_non_blocking_mode,
 			&hf_ecmp_open_file_relative_to_specified_directory_handle,
 			&hf_ecmp_file_access_mode,
@@ -1906,7 +1906,7 @@ static int get_file_attribute(packet_info* pinfo, int offset, guint8 attribute0,
 			break;
 		case 3:	/*display attrib*/
 			{
-				static const int * fields[] = {
+				static int * const fields[] = {
 					&hf_ecmp_display_attr_read_only,
 					&hf_ecmp_display_attr_hidden,
 					&hf_ecmp_display_attr_system,

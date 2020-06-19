@@ -1468,8 +1468,8 @@ class EthCtx:
     #--- eth_bits ---------------------------------------------------------------
     def eth_bits(self, tname, bits):
         out = ""
-        out += "static const "
-        out += "int * %(TABLE)s[] = {\n"
+        out += "static int * const "
+        out += "%(TABLE)s[] = {\n"
         for (val, id) in bits:
             out += '  &hf_%s_%s_%s,\n' % (self.eproto, tname, asn2c(id))
         out += "  NULL\n};\n"

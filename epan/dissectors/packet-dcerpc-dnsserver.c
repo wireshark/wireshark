@@ -745,7 +745,7 @@ int
 dnsserver_dissect_bitmap_DNS_LOG_LEVELS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item *item;
-	static const int * dnsserver_DNS_LOG_LEVELS_fields[] = {
+	static int * const dnsserver_DNS_LOG_LEVELS_fields[] = {
 		&hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_QUERY,
 		&hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_NOTIFY,
 		&hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_UPDATE,
@@ -789,7 +789,7 @@ int
 dnsserver_dissect_bitmap_DNS_RPC_PROTOCOLS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item *item;
-	static const int * dnsserver_DNS_RPC_PROTOCOLS_fields[] = {
+	static int * const dnsserver_DNS_RPC_PROTOCOLS_fields[] = {
 		&hf_dnsserver_DNS_RPC_PROTOCOLS_DNS_RPC_USE_TCPIP,
 		&hf_dnsserver_DNS_RPC_PROTOCOLS_DNS_RPC_USE_NAMED_PIPE,
 		&hf_dnsserver_DNS_RPC_PROTOCOLS_DNS_RPC_USE_LPC,
@@ -907,7 +907,7 @@ int
 dnsserver_dissect_bitmap_DNS_SELECT_FLAGS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item *item;
-	static const int * dnsserver_DNS_SELECT_FLAGS_fields[] = {
+	static int * const dnsserver_DNS_SELECT_FLAGS_fields[] = {
 		&hf_dnsserver_DNS_SELECT_FLAGS_DNS_RPC_VIEW_AUTHORITY_DATA,
 		&hf_dnsserver_DNS_SELECT_FLAGS_DNS_RPC_VIEW_CACHE_DATA,
 		&hf_dnsserver_DNS_SELECT_FLAGS_DNS_RPC_VIEW_GLUE_DATA,
@@ -956,7 +956,7 @@ int
 dnsserver_dissect_bitmap_DNS_RPC_NODE_FLAGS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item *item;
-	static const int * dnsserver_DNS_RPC_NODE_FLAGS_fields[] = {
+	static int * const dnsserver_DNS_RPC_NODE_FLAGS_fields[] = {
 		&hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_CACHE_DATA,
 		&hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_ZONE_ROOT,
 		&hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_AUTH_ZONE_ROOT,

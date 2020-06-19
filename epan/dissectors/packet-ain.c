@@ -3415,7 +3415,7 @@ dissect_ain_GenericDigitsList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 }
 
 
-static const int * ApplyRestrictions_U_bits[] = {
+static int * const ApplyRestrictions_U_bits[] = {
   &hf_ain_ApplyRestrictions_U_code,
   &hf_ain_ApplyRestrictions_U_toll,
   NULL
@@ -5621,7 +5621,7 @@ dissect_ain_DelayInterval(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 }
 
 
-static const int * Empty_bits[] = {
+static int * const Empty_bits[] = {
   &hf_ain_Empty_entireList,
   &hf_ain_Empty_outgoingmemorySlot,
   &hf_ain_Empty_incomingmemorySlot,
@@ -5709,7 +5709,7 @@ dissect_ain_Service1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 }
 
 
-static const int * Request1_bits[] = {
+static int * const Request1_bits[] = {
   &hf_ain_Request1_activationStatus,
   NULL
 };
@@ -5754,7 +5754,7 @@ dissect_ain_Service2(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 }
 
 
-static const int * Request2_bits[] = {
+static int * const Request2_bits[] = {
   &hf_ain_Request2_activationStatus,
   &hf_ain_Request2_delayInterval,
   NULL
@@ -5801,7 +5801,7 @@ dissect_ain_Service3(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 }
 
 
-static const int * Request3_bits[] = {
+static int * const Request3_bits[] = {
   &hf_ain_Request3_activationStatus,
   &hf_ain_Request3_entireList,
   &hf_ain_Request3_listSize,
@@ -5850,7 +5850,7 @@ dissect_ain_Service4(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 }
 
 
-static const int * Request4_bits[] = {
+static int * const Request4_bits[] = {
   &hf_ain_Request4_activationStatus,
   &hf_ain_Request4_forwardingDn,
   NULL
@@ -5897,7 +5897,7 @@ dissect_ain_Service5(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 }
 
 
-static const int * Request5_bits[] = {
+static int * const Request5_bits[] = {
   &hf_ain_Request5_activationStatus,
   &hf_ain_Request5_forwardingDn,
   &hf_ain_Request5_entireList,
@@ -5945,7 +5945,7 @@ dissect_ain_Service6(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 }
 
 
-static const int * Request6_bits[] = {
+static int * const Request6_bits[] = {
   &hf_ain_Request6_delayInterval,
   NULL
 };
@@ -6005,7 +6005,7 @@ dissect_ain_RequestGroups(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 }
 
 
-static const int * RequestMemorySlot_bits[] = {
+static int * const RequestMemorySlot_bits[] = {
   &hf_ain_RequestMemorySlot_incoming,
   &hf_ain_RequestMemorySlot_outgoing,
   NULL
@@ -6065,7 +6065,7 @@ dissect_ain_QueryRequestArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 }
 
 
-static const int * EDPRequest_U_bits[] = {
+static int * const EDPRequest_U_bits[] = {
   &hf_ain_EDPRequest_U_oCalledPartyBusy,
   &hf_ain_EDPRequest_U_oNoAnswer,
   &hf_ain_EDPRequest_U_oTermSeized,
@@ -6110,7 +6110,7 @@ dissect_ain_EDPRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 }
 
 
-static const int * EDPNotification_U_bits[] = {
+static int * const EDPNotification_U_bits[] = {
   &hf_ain_EDPNotification_U_oCalledPartyBusy,
   &hf_ain_EDPNotification_U_oNoAnswer,
   &hf_ain_EDPNotification_U_oTermSeized,

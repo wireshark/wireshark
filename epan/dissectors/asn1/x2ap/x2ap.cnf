@@ -169,7 +169,7 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
   tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
   if(parameter_tvb){
-    const gint *fields[] = {
+    static int * const fields[] = {
       &hf_x2ap_ReportCharacteristics_PRBPeriodic,
       &hf_x2ap_ReportCharacteristics_TNLLoadIndPeriodic,
       &hf_x2ap_ReportCharacteristics_HWLoadIndPeriodic,
@@ -191,7 +191,7 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
                                      32, 32, FALSE, NULL, 0, &parameter_tvb, NULL);
 
   if(parameter_tvb){
-    const gint *fields[] = {
+    static int * const fields[] = {
       &hf_x2ap_measurementFailedReportCharacteristics_PRBPeriodic,
       &hf_x2ap_measurementFailedReportCharacteristics_TNLLoadIndPeriodic,
       &hf_x2ap_measurementFailedReportCharacteristics_HWLoadIndPeriodic,
@@ -305,7 +305,7 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
   tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
   if(parameter_tvb){
-    const gint *fields[] = {
+    static int * const fields[] = {
       &hf_x2ap_interfacesToTrace_S1_MME,
       &hf_x2ap_interfacesToTrace_X2,
       &hf_x2ap_interfacesToTrace_Uu,
@@ -408,7 +408,7 @@ MME-Group-ID TYPE = FT_UINT16 DISPLAY = BASE_DEC_HEX
   tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
   if(parameter_tvb){
-    const gint *fields[] = {
+    static int * const fields[] = {
       &hf_x2ap_encryptionAlgorithms_EEA1,
       &hf_x2ap_encryptionAlgorithms_EEA2,
       &hf_x2ap_encryptionAlgorithms_EEA3,
@@ -423,7 +423,7 @@ MME-Group-ID TYPE = FT_UINT16 DISPLAY = BASE_DEC_HEX
   tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
   if(parameter_tvb){
-    const gint *fields[] = {
+    static int * const fields[] = {
       &hf_x2ap_integrityProtectionAlgorithms_EIA1,
       &hf_x2ap_integrityProtectionAlgorithms_EIA2,
       &hf_x2ap_integrityProtectionAlgorithms_EIA3,
@@ -453,7 +453,7 @@ MobilityParametersModificationRange/handoverTriggerChangeUpperLimit DISPLAY=BASE
   tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
   if(parameter_tvb){
-    const gint *fields[] = {
+    static int * const fields[] = {
       &hf_x2ap_measurementsToActivate_M1,
       &hf_x2ap_measurementsToActivate_M2,
       &hf_x2ap_measurementsToActivate_M3,
@@ -478,7 +478,7 @@ Threshold-RSRQ DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(x2ap_Threshold_RSRQ_fmt)
   tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
   if(parameter_tvb){
-    const gint *fields[] = {
+    static int * const fields[] = {
       &hf_x2ap_MDT_Location_Info_GNSS,
       &hf_x2ap_MDT_Location_Info_E_CID,
       &hf_x2ap_MDT_Location_Info_Reserved,
@@ -501,7 +501,7 @@ RSRPMeasurementResult/_item/rSRPMeasured DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(x2a
   tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
   if(parameter_tvb){
-    const gint *fields[] = {
+    static int * const fields[] = {
       &hf_x2ap_MDT_transmissionModes_tm1,
       &hf_x2ap_MDT_transmissionModes_tm2,
       &hf_x2ap_MDT_transmissionModes_tm3,
@@ -538,7 +538,7 @@ ExtendedBitRate DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_bit_sec
   tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
   if (parameter_tvb) {
-    const gint *fields[] = {
+    static int * const fields[] = {
       &hf_x2ap_NRencryptionAlgorithms_NEA1,
       &hf_x2ap_NRencryptionAlgorithms_NEA2,
       &hf_x2ap_NRencryptionAlgorithms_NEA3,
@@ -553,7 +553,7 @@ ExtendedBitRate DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_bit_sec
   tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
   if (parameter_tvb) {
-    const gint *fields[] = {
+    static int * const fields[] = {
       &hf_x2ap_NRintegrityProtectionAlgorithms_NIA1,
       &hf_x2ap_NRintegrityProtectionAlgorithms_NIA2,
       &hf_x2ap_NRintegrityProtectionAlgorithms_NIA3,

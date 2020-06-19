@@ -1300,7 +1300,7 @@ dissect_gprscdr_LCSQoSInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 }
 
 
-static const int * LevelOfCAMELService_bits[] = {
+static int * const LevelOfCAMELService_bits[] = {
   &hf_gprscdr_LevelOfCAMELService_basic,
   &hf_gprscdr_LevelOfCAMELService_callDurationSupervision,
   &hf_gprscdr_LevelOfCAMELService_onlineCharging,
@@ -2676,7 +2676,7 @@ dissect_gprscdr_ResultCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 }
 
 
-static const int * ServiceConditionChangeV651_bits[] = {
+static int * const ServiceConditionChangeV651_bits[] = {
   &hf_gprscdr_ServiceConditionChangeV651_qoSChange,
   &hf_gprscdr_ServiceConditionChangeV651_sGSNChange,
   &hf_gprscdr_ServiceConditionChangeV651_sGSNPLMNIDChange,
@@ -2911,7 +2911,7 @@ dissect_gprscdr_T_userLocationInformation_03(gboolean implicit_tag _U_, tvbuff_t
 }
 
 
-static const int * ServiceConditionChangeV750_bits[] = {
+static int * const ServiceConditionChangeV750_bits[] = {
   &hf_gprscdr_ServiceConditionChangeV750_qoSChange,
   &hf_gprscdr_ServiceConditionChangeV750_sGSNChange,
   &hf_gprscdr_ServiceConditionChangeV750_sGSNPLMNIDChange,
@@ -3471,7 +3471,7 @@ dissect_gprscdr_PresenceReportingAreaElementsList(gboolean implicit_tag _U_, tvb
 }
 
 
-static const int * PresenceReportingAreaNode_bits[] = {
+static int * const PresenceReportingAreaNode_bits[] = {
   &hf_gprscdr_PresenceReportingAreaNode_oCS,
   &hf_gprscdr_PresenceReportingAreaNode_pCRF,
   NULL
@@ -4244,7 +4244,7 @@ dissect_gprscdr_T_userLocationInformation_07(gboolean implicit_tag _U_, tvbuff_t
 }
 
 
-static const int * ServiceConditionChange_bits[] = {
+static int * const ServiceConditionChange_bits[] = {
   &hf_gprscdr_ServiceConditionChange_qoSChange,
   &hf_gprscdr_ServiceConditionChange_sGSNChange,
   &hf_gprscdr_ServiceConditionChange_sGSNPLMNIDChange,

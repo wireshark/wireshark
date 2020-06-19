@@ -6015,7 +6015,7 @@ cops_analyze_packetcable_dqos_obj(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 static void
 decode_docsis_request_transmission_policy(tvbuff_t *tvb, guint32 offset, proto_tree *tree) {
 
-    static const int *policies[] = {
+    static int * const policies[] = {
       &hf_cops_pcmm_request_transmission_policy_sf_all_cm,
       &hf_cops_pcmm_request_transmission_policy_sf_priority,
       &hf_cops_pcmm_request_transmission_policy_sf_request_for_request,

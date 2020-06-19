@@ -1153,7 +1153,7 @@ dissect_dcom_SAFEARRAY(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	guint32 u32SubStart;
 	guint32 u32TmpOffset;
 
-	static const int * features[] = {
+	static int * const features[] = {
 		&hf_dcom_sa_features_variant,
 		&hf_dcom_sa_features_dispatch,
 		&hf_dcom_sa_features_unknown,

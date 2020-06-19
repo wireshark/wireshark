@@ -2112,12 +2112,12 @@ dissect_rdpNegReq(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
   guint64 flags;
   guint32 length;
   proto_item *length_item;
-  static const int *flag_bits[] = {
+  static int * const flag_bits[] = {
     &hf_rdp_negReq_flag_restricted_admin_mode_req,
     &hf_rdp_negReq_flag_correlation_info_present,
     NULL
   };
-  static const int *requestedProtocols_bits[] = {
+  static int * const requestedProtocols_bits[] = {
     &hf_rdp_requestedProtocols_flag_ssl,
     &hf_rdp_requestedProtocols_flag_hybrid,
     &hf_rdp_requestedProtocols_flag_hybrid_ex,
@@ -2207,13 +2207,13 @@ static int
 dissect_rdpNegRsp(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   guint32 length;
   proto_item *length_item;
-  static const int *flag_bits[] = {
+  static int * const flag_bits[] = {
     &hf_rdp_negRsp_flag_extended_client_data_supported,
     &hf_rdp_negRsp_flag_dynvc_gfx_protocol_supported,
     &hf_rdp_negRsp_flag_restricted_admin_mode_supported,
     NULL
   };
-  static const int *selectedProtocol_bits[] = {
+  static int * const selectedProtocol_bits[] = {
     &hf_rdp_selectedProtocol_flag_ssl,
     &hf_rdp_selectedProtocol_flag_hybrid,
     &hf_rdp_selectedProtocol_flag_hybrid_ex,

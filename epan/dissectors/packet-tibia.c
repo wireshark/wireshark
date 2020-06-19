@@ -288,7 +288,7 @@ static gint hf_tibia_char_cond_pz            = -1;
 static gint hf_tibia_char_cond_bleeding      = -1;
 static gint hf_tibia_char_cond_hungry        = -1;
 
-static const int *char_conds[] = {
+static int * const char_conds[] = {
     &hf_tibia_char_cond_poisoned,
     &hf_tibia_char_cond_burning,
     &hf_tibia_char_cond_electrocuted,

@@ -1147,14 +1147,14 @@ static const value_string acknowledgement_kind_vals[] = {
   { 0, NULL }
 };
 
-static const int* TYPE_FLAG_FLAGS[] = {
+static int* const TYPE_FLAG_FLAGS[] = {
   &hf_rtps_flag_typeflag_nested,                /* Bit 2 */
   &hf_rtps_flag_typeflag_mutable,               /* Bit 1 */
   &hf_rtps_flag_typeflag_final,                 /* Bit 0 */
   NULL
 };
 
-static const int* MEMBER_FLAGS[] = {
+static int* const MEMBER_FLAGS[] = {
   &hf_rtps_flag_memberflag_union_default,       /* Bit 3 */
   &hf_rtps_flag_memberflag_shareable,           /* Bit 2 */
   &hf_rtps_flag_memberflag_optional,            /* Bit 1 */
@@ -1187,7 +1187,7 @@ const value_string class_id_enum_names[] = {
   { 0, NULL}
 };
 
-static const int* PAD_FLAGS[] = {
+static int* const PAD_FLAGS[] = {
   &hf_rtps_flag_reserved80,                     /* Bit 7 */
   &hf_rtps_flag_reserved40,                     /* Bit 6 */
   &hf_rtps_flag_reserved20,                     /* Bit 5 */
@@ -1199,7 +1199,7 @@ static const int* PAD_FLAGS[] = {
   NULL
 };
 
-static const int* DATA_FLAGSv1[] = {
+static int* const DATA_FLAGSv1[] = {
   &hf_rtps_flag_reserved80,                     /* Bit 7 */
   &hf_rtps_flag_reserved40,                     /* Bit 6 */
   &hf_rtps_flag_unregister,                     /* Bit 5 */
@@ -1211,7 +1211,7 @@ static const int* DATA_FLAGSv1[] = {
   NULL
 };
 
-static const int* DATA_FLAGSv2[] = {
+static int* const DATA_FLAGSv2[] = {
   &hf_rtps_flag_reserved80,                     /* Bit 7 */
   &hf_rtps_flag_reserved40,                     /* Bit 6 */
   &hf_rtps_flag_reserved20,                     /* Bit 5 */
@@ -1223,7 +1223,7 @@ static const int* DATA_FLAGSv2[] = {
   NULL
 };
 
-static const int* NOKEY_DATA_FRAG_FLAGS[] = {
+static int* const NOKEY_DATA_FRAG_FLAGS[] = {
   &hf_rtps_flag_reserved80,                     /* Bit 7 */
   &hf_rtps_flag_reserved40,                     /* Bit 6 */
   &hf_rtps_flag_reserved20,                     /* Bit 5 */
@@ -1235,7 +1235,7 @@ static const int* NOKEY_DATA_FRAG_FLAGS[] = {
   NULL
 };
 
-static const int* NOKEY_DATA_FLAGS[] = {
+static int* const NOKEY_DATA_FLAGS[] = {
   &hf_rtps_flag_reserved80,                     /* Bit 7 */
   &hf_rtps_flag_reserved40,                     /* Bit 6 */
   &hf_rtps_flag_reserved20,                     /* Bit 5 */
@@ -1247,7 +1247,7 @@ static const int* NOKEY_DATA_FLAGS[] = {
   NULL
 };
 
-static const int* ACKNACK_FLAGS[] = {
+static int* const ACKNACK_FLAGS[] = {
   &hf_rtps_flag_reserved80,                     /* Bit 7 */
   &hf_rtps_flag_reserved40,                     /* Bit 6 */
   &hf_rtps_flag_reserved20,                     /* Bit 5 */
@@ -1259,7 +1259,7 @@ static const int* ACKNACK_FLAGS[] = {
   NULL
 };
 
-static const int* NACK_FRAG_FLAGS[] = {
+static int* const NACK_FRAG_FLAGS[] = {
   &hf_rtps_flag_reserved80,                     /* Bit 7 */
   &hf_rtps_flag_reserved40,                     /* Bit 6 */
   &hf_rtps_flag_reserved20,                     /* Bit 5 */
@@ -1271,7 +1271,7 @@ static const int* NACK_FRAG_FLAGS[] = {
   NULL
 };
 
-static const int* GAP_FLAGS[] = {
+static int* const GAP_FLAGS[] = {
   &hf_rtps_flag_reserved80,                     /* Bit 7 */
   &hf_rtps_flag_reserved40,                     /* Bit 6 */
   &hf_rtps_flag_reserved20,                     /* Bit 5 */
@@ -1283,7 +1283,7 @@ static const int* GAP_FLAGS[] = {
   NULL
 };
 
-static const int* HEARTBEAT_FLAGS[] = {
+static int* const HEARTBEAT_FLAGS[] = {
   &hf_rtps_flag_reserved80,                     /* Bit 7 */
   &hf_rtps_flag_reserved40,                     /* Bit 6 */
   &hf_rtps_flag_reserved20,                     /* Bit 5 */
@@ -1295,7 +1295,7 @@ static const int* HEARTBEAT_FLAGS[] = {
   NULL
 };
 
-static const int* HEARTBEAT_BATCH_FLAGS[] = {
+static int* const HEARTBEAT_BATCH_FLAGS[] = {
   &hf_rtps_flag_reserved80,                     /* Bit 7 */
   &hf_rtps_flag_reserved40,                     /* Bit 6 */
   &hf_rtps_flag_reserved20,                     /* Bit 5 */
@@ -1307,7 +1307,7 @@ static const int* HEARTBEAT_BATCH_FLAGS[] = {
   NULL
 };
 
-static const int* HEARTBEAT_FRAG_FLAGS[] = {
+static int* const HEARTBEAT_FRAG_FLAGS[] = {
   &hf_rtps_flag_reserved80,                     /* Bit 7 */
   &hf_rtps_flag_reserved40,                     /* Bit 6 */
   &hf_rtps_flag_reserved20,                     /* Bit 5 */
@@ -1319,7 +1319,7 @@ static const int* HEARTBEAT_FRAG_FLAGS[] = {
   NULL
 };
 
-static const int* RTPS_DATA_FLAGS[] = {
+static int* const RTPS_DATA_FLAGS[] = {
   &hf_rtps_flag_reserved80,                     /* Bit 7 */
   &hf_rtps_flag_reserved40,                     /* Bit 6 */
   &hf_rtps_flag_reserved20,                     /* Bit 5 */
@@ -1331,7 +1331,7 @@ static const int* RTPS_DATA_FLAGS[] = {
   NULL
 };
 
-static const int* RTPS_DATA_FRAG_FLAGS[] = {
+static int* const RTPS_DATA_FRAG_FLAGS[] = {
   &hf_rtps_flag_reserved80,                     /* Bit 7 */
   &hf_rtps_flag_reserved40,                     /* Bit 6 */
   &hf_rtps_flag_reserved20,                     /* Bit 5 */
@@ -1343,7 +1343,7 @@ static const int* RTPS_DATA_FRAG_FLAGS[] = {
   NULL
 };
 
-static const int* RTPS_DATA_BATCH_FLAGS[] = {
+static int* const RTPS_DATA_BATCH_FLAGS[] = {
   &hf_rtps_flag_reserved80,                     /* Bit 7 */
   &hf_rtps_flag_reserved40,                     /* Bit 6 */
   &hf_rtps_flag_reserved20,                     /* Bit 5 */
@@ -1355,7 +1355,7 @@ static const int* RTPS_DATA_BATCH_FLAGS[] = {
   NULL
 };
 
-static const int* RTPS_SAMPLE_INFO_FLAGS16[] = {
+static int* const RTPS_SAMPLE_INFO_FLAGS16[] = {
   &hf_rtps_flag_reserved8000,                   /* Bit 15 */
   &hf_rtps_flag_reserved4000,                   /* Bit 14 */
   &hf_rtps_flag_reserved2000,                   /* Bit 13 */
@@ -1375,7 +1375,7 @@ static const int* RTPS_SAMPLE_INFO_FLAGS16[] = {
   NULL
 };
 
-static const int* INFO_TS_FLAGS[] = {
+static int* const INFO_TS_FLAGS[] = {
   &hf_rtps_flag_reserved80,                     /* Bit 7 */
   &hf_rtps_flag_reserved40,                     /* Bit 6 */
   &hf_rtps_flag_reserved20,                     /* Bit 5 */
@@ -1387,7 +1387,7 @@ static const int* INFO_TS_FLAGS[] = {
   NULL
 };
 
-static const int* INFO_SRC_FLAGS[] = {
+static int* const INFO_SRC_FLAGS[] = {
   &hf_rtps_flag_reserved80,                     /* Bit 7 */
   &hf_rtps_flag_reserved40,                     /* Bit 6 */
   &hf_rtps_flag_reserved20,                     /* Bit 5 */
@@ -1399,7 +1399,7 @@ static const int* INFO_SRC_FLAGS[] = {
   NULL
 };
 
-static const int* INFO_REPLY_IP4_FLAGS[] = {
+static int* const INFO_REPLY_IP4_FLAGS[] = {
   &hf_rtps_flag_reserved80,                     /* Bit 7 */
   &hf_rtps_flag_reserved40,                     /* Bit 6 */
   &hf_rtps_flag_reserved20,                     /* Bit 5 */
@@ -1411,7 +1411,7 @@ static const int* INFO_REPLY_IP4_FLAGS[] = {
   NULL
 };
 
-static const int* INFO_DST_FLAGS[] = {
+static int* const INFO_DST_FLAGS[] = {
   &hf_rtps_flag_reserved80,                     /* Bit 7 */
   &hf_rtps_flag_reserved40,                     /* Bit 6 */
   &hf_rtps_flag_reserved20,                     /* Bit 5 */
@@ -1423,7 +1423,7 @@ static const int* INFO_DST_FLAGS[] = {
   NULL
 };
 
-static const int* INFO_REPLY_FLAGS[] = {
+static int* const INFO_REPLY_FLAGS[] = {
   &hf_rtps_flag_reserved80,                     /* Bit 7 */
   &hf_rtps_flag_reserved40,                     /* Bit 6 */
   &hf_rtps_flag_reserved20,                     /* Bit 5 */
@@ -1435,7 +1435,7 @@ static const int* INFO_REPLY_FLAGS[] = {
   NULL
 };
 
-static const int * RTI_CRC_FLAGS[] = {
+static int* const RTI_CRC_FLAGS[] = {
   &hf_rtps_flag_reserved80,                     /* Bit 7 */
   &hf_rtps_flag_reserved40,                     /* Bit 6 */
   &hf_rtps_flag_reserved20,                     /* Bit 5 */
@@ -1447,7 +1447,7 @@ static const int * RTI_CRC_FLAGS[] = {
   NULL
 };
 /* It is a 4 bytes field but with these 8 bits is enough */
-static const int* STATUS_INFO_FLAGS[] = {
+static int* const STATUS_INFO_FLAGS[] = {
   &hf_rtps_flag_reserved80,                     /* Bit 7 */
   &hf_rtps_flag_reserved40,                     /* Bit 6 */
   &hf_rtps_flag_reserved20,                     /* Bit 5 */
@@ -1459,7 +1459,7 @@ static const int* STATUS_INFO_FLAGS[] = {
   NULL
 };
 
-static const int* BUILTIN_ENDPOINT_FLAGS[] = {
+static int* const BUILTIN_ENDPOINT_FLAGS[] = {
   &hf_rtps_flag_participant_secure_reader,                      /* Bit 27 */
   &hf_rtps_flag_participant_secure_writer,                      /* Bit 26 */
   &hf_rtps_flag_secure_participant_volatile_message_reader,     /* Bit 25 */
@@ -1488,7 +1488,7 @@ static const int* BUILTIN_ENDPOINT_FLAGS[] = {
   NULL
 };
 
-static const int* SECURE_FLAGS[] = {
+static int* const SECURE_FLAGS[] = {
   &hf_rtps_flag_reserved80,                     /* Bit 7 */
   &hf_rtps_flag_reserved40,                     /* Bit 6 */
   &hf_rtps_flag_reserved20,                     /* Bit 5 */
@@ -1500,7 +1500,7 @@ static const int* SECURE_FLAGS[] = {
   NULL
 };
 
-static const int* SECURE_PREFIX_FLAGS[] = {
+static int* const SECURE_PREFIX_FLAGS[] = {
   &hf_rtps_flag_reserved80,                     /* Bit 7 */
   &hf_rtps_flag_reserved40,                     /* Bit 6 */
   &hf_rtps_flag_reserved20,                     /* Bit 5 */
@@ -1512,7 +1512,7 @@ static const int* SECURE_PREFIX_FLAGS[] = {
   NULL
 };
 
-static const int* SECURE_POSTFIX_FLAGS[] = {
+static int* const SECURE_POSTFIX_FLAGS[] = {
   &hf_rtps_flag_reserved80,                     /* Bit 7 */
   &hf_rtps_flag_reserved40,                     /* Bit 6 */
   &hf_rtps_flag_reserved20,                     /* Bit 5 */
@@ -1524,7 +1524,7 @@ static const int* SECURE_POSTFIX_FLAGS[] = {
   NULL
 };
 
-static const int* ENDPOINT_SECURITY_INFO_FLAGS[] = {
+static int* const ENDPOINT_SECURITY_INFO_FLAGS[] = {
   &hf_rtps_flag_endpoint_security_attribute_flag_is_valid,                      /* Bit 31 */
   &hf_rtps_flag_endpoint_security_attribute_flag_is_liveliness_protected,       /* Bit 6 */
   &hf_rtps_flag_endpoint_security_attribute_flag_is_key_protected,              /* Bit 5 */
@@ -1536,14 +1536,14 @@ static const int* ENDPOINT_SECURITY_INFO_FLAGS[] = {
   NULL
 };
 
-static const int* PLUGIN_ENDPOINT_SECURITY_INFO_FLAGS[] = {
+static int* const PLUGIN_ENDPOINT_SECURITY_INFO_FLAGS[] = {
   &hf_rtps_flag_plugin_endpoint_security_attribute_flag_is_valid,                 /* Bit 31 */
   &hf_rtps_flag_plugin_endpoint_security_attribute_flag_is_liveliness_encrypted,  /* Bit 2 */
   &hf_rtps_flag_plugin_endpoint_security_attribute_flag_is_key_encrypted,         /* Bit 1 */
   &hf_rtps_flag_plugin_endpoint_security_attribute_flag_is_payload_encrypted,     /* Bit 0 */
   NULL
 };
-static const int* PARTICIPANT_SECURITY_INFO_FLAGS[] = {
+static int* const PARTICIPANT_SECURITY_INFO_FLAGS[] = {
   &hf_rtps_flag_participant_security_attribute_flag_is_valid,                     /* Bit 31 */
   &hf_rtps_flag_participant_security_attribute_flag_is_liveliness_protected,      /* Bit 2 */
   &hf_rtps_flag_participant_security_attribute_flag_is_discovery_protected,       /* Bit 1 */
@@ -1551,7 +1551,7 @@ static const int* PARTICIPANT_SECURITY_INFO_FLAGS[] = {
   NULL
 };
 
-static const int* PLUGIN_PARTICIPANT_SECURITY_INFO_FLAGS[] = {
+static int* const PLUGIN_PARTICIPANT_SECURITY_INFO_FLAGS[] = {
     &hf_rtps_flag_plugin_participant_security_attribute_flag_is_valid,                        /* Bit 31 */
     &hf_rtps_flag_plugin_participant_security_attribute_flag_is_liveliness_origin_encrypted,  /* Bit 5 */
     &hf_rtps_flag_plugin_participant_security_attribute_flag_is_discovery_origin_encrypted,   /* Bit 4 */
@@ -1563,7 +1563,7 @@ static const int* PLUGIN_PARTICIPANT_SECURITY_INFO_FLAGS[] = {
 };
 
 /* Vendor specific: RTI */
-static const int* APP_ACK_FLAGS[] = {
+static int* const APP_ACK_FLAGS[] = {
   &hf_rtps_flag_reserved80,                     /* Bit 7 */
   &hf_rtps_flag_reserved40,                     /* Bit 6 */
   &hf_rtps_flag_reserved20,                     /* Bit 5 */
@@ -1575,7 +1575,7 @@ static const int* APP_ACK_FLAGS[] = {
   NULL
 };
 /* Vendor specific: RTI */
-static const int* APP_ACK_CONF_FLAGS[] = {
+static int* const APP_ACK_CONF_FLAGS[] = {
   &hf_rtps_flag_reserved80,                     /* Bit 7 */
   &hf_rtps_flag_reserved40,                     /* Bit 6 */
   &hf_rtps_flag_reserved20,                     /* Bit 5 */
@@ -1587,7 +1587,7 @@ static const int* APP_ACK_CONF_FLAGS[] = {
   NULL
 };
 /* Vendor specific: RTI */
-static const int* HEARTBEAT_VIRTUAL_FLAGS[] = {
+static int* const HEARTBEAT_VIRTUAL_FLAGS[] = {
   &hf_rtps_flag_reserved80,                     /* Bit 7 */
   &hf_rtps_flag_reserved40,                     /* Bit 6 */
   &hf_rtps_flag_reserved20,                     /* Bit 5 */
@@ -1599,7 +1599,7 @@ static const int* HEARTBEAT_VIRTUAL_FLAGS[] = {
   NULL
 };
 /* Vendor specific: RTI */
-static const int* DATA_FRAG_FLAGS[] = {
+static int* const DATA_FRAG_FLAGS[] = {
   &hf_rtps_flag_reserved80,                     /* Bit 7 */
   &hf_rtps_flag_reserved40,                     /* Bit 6 */
   &hf_rtps_flag_reserved20,                     /* Bit 5 */
@@ -1612,7 +1612,7 @@ static const int* DATA_FRAG_FLAGS[] = {
 };
 #if 0
 /* Vendor specific: RTI */
-static const int* NACK_FLAGS[] = {
+static int* const NACK_FLAGS[] = {
   &hf_rtps_flag_reserved80,                     /* Bit 7 */
   &hf_rtps_flag_reserved40,                     /* Bit 6 */
   &hf_rtps_flag_reserved20,                     /* Bit 5 */
@@ -1625,7 +1625,7 @@ static const int* NACK_FLAGS[] = {
 };
 #endif
 
-static const int* VENDOR_BUILTIN_ENDPOINT_FLAGS[] = {
+static int* const VENDOR_BUILTIN_ENDPOINT_FLAGS[] = {
   &hf_rtps_flag_secure_service_request_reader,        /* Bit 5 */
   &hf_rtps_flag_secure_service_request_writer,        /* Bit 4 */
   &hf_rtps_flag_locator_ping_reader,                  /* Bit 3 */
@@ -1635,7 +1635,7 @@ static const int* VENDOR_BUILTIN_ENDPOINT_FLAGS[] = {
   NULL
 };
 
-static const int* ENDPOINT_SECURITY_ATTRIBUTES[] = {
+static int* const ENDPOINT_SECURITY_ATTRIBUTES[] = {
   &hf_rtps_flag_security_payload_protected,            /* Bit 3 */
   &hf_rtps_flag_security_submessage_protected,         /* Bit 2 */
   &hf_rtps_flag_security_discovery_protected,          /* Bit 1 */

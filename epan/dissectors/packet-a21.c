@@ -463,7 +463,7 @@ dissect_a21_mobile_subscription_information(tvbuff_t *tvb, packet_info *pinfo _U
 	proto_item* ti;
 	guint32 rec_len, sub_cls_len;
 
-	static const int* flags[] = {
+	static int * const flags[] = {
 	    &hf_a21_sc7,
 	    &hf_a21_sc6,
 	    &hf_a21_sc5,

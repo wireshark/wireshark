@@ -595,7 +595,7 @@ static void dissect_nhrp_mand(tvbuff_t    *tvb,
         case NHRP_RESOLUTION_REQ:
         case NHRP_RESOLUTION_REPLY:
             {
-            static const int * flags[] = {
+            static int * const flags[] = {
                 &hf_nhrp_flag_Q,
                 &hf_nhrp_flag_A,
                 &hf_nhrp_flag_D,
@@ -610,7 +610,7 @@ static void dissect_nhrp_mand(tvbuff_t    *tvb,
         case NHRP_REGISTRATION_REQ:
         case NHRP_REGISTRATION_REPLY:
             {
-            static const int * flags[] = {
+            static int * const flags[] = {
                 &hf_nhrp_flag_U2,
                 &hf_nhrp_flag_NAT,
                 NULL
@@ -622,7 +622,7 @@ static void dissect_nhrp_mand(tvbuff_t    *tvb,
         case NHRP_PURGE_REQ:
         case NHRP_PURGE_REPLY:
             {
-            static const int * flags[] = {
+            static int * const flags[] = {
                 &hf_nhrp_flag_N,
                 &hf_nhrp_flag_NAT,
                 NULL
@@ -632,7 +632,7 @@ static void dissect_nhrp_mand(tvbuff_t    *tvb,
             break;
         default:
             {
-            static const int * flags[] = {
+            static int * const flags[] = {
                 &hf_nhrp_flag_NAT,
                 NULL
             };

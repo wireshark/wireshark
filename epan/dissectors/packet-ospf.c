@@ -1034,36 +1034,36 @@ static gint ospf_v3_ls_type_to_filter (guint16 ls_type)
         return -1;
 }
 
-static const int *bf_dbd[] = {
+static int * const bf_dbd[] = {
     &hf_ospf_dbd_r,
     &hf_ospf_dbd_i,
     &hf_ospf_dbd_m,
     &hf_ospf_dbd_ms,
     NULL
 };
-static const int *bf_lls_ext_options[] = {
+static int * const bf_lls_ext_options[] = {
     &hf_ospf_lls_ext_options_rs,
     &hf_ospf_lls_ext_options_lr,
     NULL
 };
-static const int *bf_v3_lls_ext_options[] = {
+static int * const bf_v3_lls_ext_options[] = {
     &hf_ospf_v3_lls_ext_options_lr,
     &hf_ospf_v3_lls_ext_options_rs,
     NULL
 };
 
-static const int *bf_v3_lls_state_options[] = {
+static int * const bf_v3_lls_state_options[] = {
     &hf_ospf_v3_lls_state_options_r,
     &hf_ospf_v3_lls_state_options_a,
     &hf_ospf_v3_lls_state_options_n,
     NULL
 };
-static const int *bf_v3_lls_relay_options[] = {
+static int * const bf_v3_lls_relay_options[] = {
     &hf_ospf_v3_lls_relay_options_a,
     &hf_ospf_v3_lls_relay_options_n,
     NULL
 };
-static const int *bf_v2_router_lsa_flags[] = {
+static int * const bf_v2_router_lsa_flags[] = {
     &hf_ospf_v2_router_lsa_flag_h,
     &hf_ospf_v2_router_lsa_flag_n,
     &hf_ospf_v2_router_lsa_flag_w,
@@ -1072,20 +1072,20 @@ static const int *bf_v2_router_lsa_flags[] = {
     &hf_ospf_v2_router_lsa_flag_b,
     NULL
 };
-static const int *bf_v3_router_lsa_flags[] = {
+static int * const bf_v3_router_lsa_flags[] = {
     &hf_ospf_v3_router_lsa_flag_w,
     &hf_ospf_v3_router_lsa_flag_v,
     &hf_ospf_v3_router_lsa_flag_e,
     &hf_ospf_v3_router_lsa_flag_b,
     NULL
 };
-static const int *bf_v3_as_external_flags[] = {
+static int * const bf_v3_as_external_flags[] = {
     &hf_ospf_v3_as_external_flag_e,
     &hf_ospf_v3_as_external_flag_f,
     &hf_ospf_v3_as_external_flag_t,
     NULL
 };
-static const int *bf_v2_options[] = {
+static int * const bf_v2_options[] = {
     &hf_ospf_v2_options_dn,
     &hf_ospf_v2_options_o,
     &hf_ospf_v2_options_dc,
@@ -1096,7 +1096,7 @@ static const int *bf_v2_options[] = {
     &hf_ospf_v2_options_mt,
     NULL
 };
-static const int *bf_v2_options_lsa7[] = {
+static int * const bf_v2_options_lsa7[] = {
     &hf_ospf_v2_options_dn,
     &hf_ospf_v2_options_o,
     &hf_ospf_v2_options_dc,
@@ -1108,7 +1108,7 @@ static const int *bf_v2_options_lsa7[] = {
     NULL
 };
 /* Structures for handling the bitfield of the Options field of Optional Router Capabilites LSA (RFC4970). */
-static const int *bf_ri_options[] = {
+static int * const bf_ri_options[] = {
     &hf_ospf_ri_options_grc,
     &hf_ospf_ri_options_grh,
     &hf_ospf_ri_options_srs,
@@ -1118,7 +1118,7 @@ static const int *bf_ri_options[] = {
     &hf_ospf_ri_options_host,
     NULL
 };
-static const int *bf_v3_options[] = {
+static int * const bf_v3_options[] = {
     &hf_ospf_v3_options_at,
     &hf_ospf_v3_options_l,
     &hf_ospf_v3_options_af,
@@ -1130,25 +1130,25 @@ static const int *bf_v3_options[] = {
     &hf_ospf_v3_options_v6,
     NULL
 };
-static const int *bf_v3_prefix_options[] = {
+static int * const bf_v3_prefix_options[] = {
     &hf_ospf_v3_prefix_option_p,
     &hf_ospf_v3_prefix_option_mc,
     &hf_ospf_v3_prefix_option_la,
     &hf_ospf_v3_prefix_option_nu,
     NULL
 };
-static const int *bf_ospf_epfx_flags[] = {
+static int * const bf_ospf_epfx_flags[] = {
     &hf_ospf_ls_epfx_flag_a,
     &hf_ospf_ls_epfx_flag_n,
     &hf_ospf_ls_epfx_flag_unknown,
     NULL
 };
-static const int *bf_ospf_epfx_range_flags[] = {
+static int * const bf_ospf_epfx_range_flags[] = {
     &hf_ospf_ls_epfx_range_flag_ia,
     &hf_ospf_ls_epfx_range_flag_unknown,
     NULL
 };
-static const int *bf_ospf_pfxsid_flags[] = {
+static int * const bf_ospf_pfxsid_flags[] = {
     &hf_ospf_ls_pfxsid_flag_np,
     &hf_ospf_ls_pfxsid_flag_m,
     &hf_ospf_ls_pfxsid_flag_e,
@@ -1157,7 +1157,7 @@ static const int *bf_ospf_pfxsid_flags[] = {
     &hf_ospf_ls_pfxsid_flag_unknown,
     NULL
 };
-static const int *bf_ospf_adjsid_flags[] = {
+static int * const bf_ospf_adjsid_flags[] = {
     &hf_ospf_ls_adjsid_flag_b,
     &hf_ospf_ls_adjsid_flag_v,
     &hf_ospf_ls_adjsid_flag_l,

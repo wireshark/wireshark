@@ -951,13 +951,13 @@ static const value_string failover_server_state_vals[] = {
     { 0, NULL },
 };
 
-static const int *dhcpv6_failover_connect_flags_fields[] = {
+static int * const dhcpv6_failover_connect_flags_fields[] = {
     &hf_option_failover_connect_reserved_flag,
     &hf_option_failover_connect_f_flag,
     NULL
 };
 
-static const int *dhcpv6_failover_dns_flags_fields[] = {
+static int * const dhcpv6_failover_dns_flags_fields[] = {
     &hf_option_failover_dns_reserved_flag,
     &hf_option_failover_dns_u_flag,
     &hf_option_failover_dns_s_flag,
@@ -966,7 +966,7 @@ static const int *dhcpv6_failover_dns_flags_fields[] = {
     NULL
 };
 
-static const int *dhcpv6_failover_server_flags_fields[] = {
+static int * const dhcpv6_failover_server_flags_fields[] = {
     &hf_option_failover_server_reserved_flag,
     &hf_option_failover_server_a_flag,
     &hf_option_failover_server_s_flag,
@@ -980,7 +980,7 @@ typedef struct hopcount_info_t {
     gboolean   relay_message_previously_detected;
 } hopcount_info;
 
-static const int *dhcpv6_s46_rule_flags_fields[] = {
+static int * const dhcpv6_s46_rule_flags_fields[] = {
     &hf_option_s46_rule_reserved_flag,
     &hf_option_s46_rule_fmr_flag,
     NULL

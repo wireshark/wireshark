@@ -676,7 +676,7 @@ static const value_string file_types[] = {
     { 0, NULL }
 };
 
-static const int *announce_flags[] = {
+static int * const announce_flags[] = {
     &hf_uftp_announce_flags_sync,
     &hf_uftp_announce_flags_syncpreview,
     &hf_uftp_announce_flags_ipv6,
@@ -684,25 +684,25 @@ static const int *announce_flags[] = {
     NULL
 };
 
-static const int *encinfo_flags[] = {
+static int * const encinfo_flags[] = {
     &hf_uftp_encinfo_flags_client_auth,
     &hf_uftp_encinfo_flags_reserved,
     NULL
 };
 
-static const int *fileinfoack_flags[] = {
+static int * const fileinfoack_flags[] = {
     &hf_uftp_fileinfoack_flags_partial,
     &hf_uftp_fileinfoack_flags_reserved,
     NULL
 };
 
-static const int *abort_flags[] = {
+static int * const abort_flags[] = {
     &hf_uftp_abort_flags_curfile,
     &hf_uftp_abort_flags_reserved,
     NULL
 };
 
-static const int *cc_item_flags[] = {
+static int * const cc_item_flags[] = {
     &hf_uftp_congctrl_item_flags_clr,
     &hf_uftp_congctrl_item_flags_rtt,
     &hf_uftp_congctrl_item_flags_start,
@@ -711,7 +711,7 @@ static const int *cc_item_flags[] = {
     NULL
 };
 
-static const int *tfmcc_ack_flags[] = {
+static int * const tfmcc_ack_flags[] = {
     &hf_uftp_tfmccack_flags_clr,
     &hf_uftp_tfmccack_flags_rtt,
     &hf_uftp_tfmccack_flags_start,

@@ -1100,7 +1100,7 @@ dissect_opensafety_ssdo_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
     tvbuff_t      *new_tvb              = NULL;
     fragment_head *frag_msg             = NULL;
 
-    static const int * ssdo_sacmd_flags[] = {
+    static int * const ssdo_sacmd_flags[] = {
             &hf_oss_ssdo_sacmd_end_segment,
             &hf_oss_ssdo_sacmd_initiate,
             &hf_oss_ssdo_sacmd_toggle,

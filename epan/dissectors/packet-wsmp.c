@@ -220,7 +220,7 @@ dissect_wsmp_v3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 oct)
     guint16 count, ie_len, wsm_len;
     guint32 tpid, psid = 0;
 
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_wsmp_subtype,
         &hf_wsmp_N_header_opt_ind,
         &hf_wsmp_version_v3,

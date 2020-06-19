@@ -447,7 +447,7 @@ static int dlm_cookie_handler(proto_tree *tree, tvbuff_t *tvb, guint offset, int
 static int dlm_lkm_flags_handler(proto_tree *tree, tvbuff_t *tvb, guint offset,
 				 guint32 *dlm_lock_flags_ptr)
 {
-	static const int *flags[] = {
+	static int * const flags[] = {
 		&hf_dlm_lock_flag_unused1,
 		&hf_dlm_lock_flag_orphan,
 		&hf_dlm_lock_flag_parentable,
@@ -538,7 +538,7 @@ static void dissect_dlm_migrate_lockres(proto_tree *tree, tvbuff_t *tvb, int off
 	unsigned int i;
 	guint32 num_locks;
 
-	static const int * mres_flags[] = {
+	static int * const mres_flags[] = {
 		&hf_dlm_mres_flag_recovery,
 		&hf_dlm_mres_flag_migration,
 		&hf_dlm_mres_flag_all_done,

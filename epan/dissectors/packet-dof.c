@@ -935,7 +935,7 @@ static int hf_2009_9_dnp_1_dstport = -1;
 
 static int ett_2009_9_dnp_1_flags = -1;
 
-static const int *bitmask_2009_9_dnp_1_flags[] = {
+static int * const bitmask_2009_9_dnp_1_flags[] = {
     &hf_2009_9_dnp_1_flag_length,
     &hf_2009_9_dnp_1_flag_srcport,
     &hf_2009_9_dnp_1_flag_dstport,
@@ -1209,7 +1209,7 @@ static int ett_oap_1_cmdcontrol_flags = -1;
 static int ett_oap_1_cmdcontrol_ack = -1;
 static int ett_oap_1_alias = -1;
 
-static const int *bitmask_oap_1_cmdcontrol_flags[] = {
+static int * const bitmask_oap_1_cmdcontrol_flags[] = {
     &hf_oap_1_cmdcontrol_cache_flag,
     &hf_oap_1_cmdcontrol_verbosity_flag,
     &hf_oap_1_cmdcontrol_noexecute_flag,

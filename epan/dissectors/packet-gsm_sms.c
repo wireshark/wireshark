@@ -1505,7 +1505,7 @@ static const true_false_string tfs_status_report_active = { "A Status Report gen
 static void
 dis_iei_scp(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint32 offset, guint8 length, gsm_sms_udh_fields_t *p_udh_fields _U_)
 {
-    static const int * status_flags[] = {
+    static int * const status_flags[] = {
         &hf_gsm_sms_status_report_short_msg,
         &hf_gsm_sms_status_report_permanent_error,
         &hf_gsm_sms_status_report_temp_error_no_attempt,
@@ -1607,7 +1607,7 @@ dis_iei_tf(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint32 offset, 
 {
     proto_tree* subtree_colour;
 
-    static const int * format_flags[] = {
+    static int * const format_flags[] = {
         &hf_gsm_sms_formatting_mode_alignment,
         &hf_gsm_sms_formatting_mode_font_size,
         &hf_gsm_sms_formatting_mode_style_bold,
@@ -2267,7 +2267,7 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
 static void
 dis_field_pi(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 {
-    static const int * pi_flags[] = {
+    static int * const pi_flags[] = {
         &hf_gsm_sms_tp_extension,
         &hf_gsm_sms_tp_reserved,
         &hf_gsm_sms_tp_udl_present,

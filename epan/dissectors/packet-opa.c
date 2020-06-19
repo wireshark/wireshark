@@ -482,7 +482,7 @@ static gint hf_opa_KDETH_tidctrl = -1;
 static gint hf_opa_KDETH_tid = -1;
 static gint hf_opa_KDETH_offset_mode = -1;
 static gint hf_opa_KDETH_offset = -1;
-static const gint *_opa_KDETH_word1[] = {
+static int * const _opa_KDETH_word1[] = {
     &hf_opa_KDETH_kver,
     &hf_opa_KDETH_sh,
     &hf_opa_KDETH_intr,
@@ -494,7 +494,7 @@ static const gint *_opa_KDETH_word1[] = {
 };
 static gint hf_opa_KDETH_hcrc = -1;
 static gint hf_opa_KDETH_j_key = -1;
-static const gint *_opa_KDETH_word2[] = {
+static int * const _opa_KDETH_word2[] = {
     &hf_opa_KDETH_hcrc,
     &hf_opa_KDETH_j_key,
     NULL

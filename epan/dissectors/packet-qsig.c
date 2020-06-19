@@ -4321,7 +4321,7 @@ static int dissect_qsig_cc_Extension_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _
 /* --- Module Call-Offer-Operations-asn1-97 --- --- ---                       */
 
 
-static const int * qsig_co_ServiceList_bits[] = {
+static int * const qsig_co_ServiceList_bits[] = {
   &hf_qsig_co_ServiceList_callOffer,
   NULL
 };
@@ -4906,7 +4906,7 @@ dissect_qsig_dnd_DNDOverrideArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 }
 
 
-static const int * qsig_dnd_ServiceList_bits[] = {
+static int * const qsig_dnd_ServiceList_bits[] = {
   &hf_qsig_dnd_ServiceList_spare_bit0,
   &hf_qsig_dnd_ServiceList_dndo_low,
   &hf_qsig_dnd_ServiceList_dndo_medium,
@@ -5081,7 +5081,7 @@ static int dissect_qsig_dnd_Extension_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
 /* --- Module Call-Intrusion-Operations-asn1-97 --- --- ---                   */
 
 
-static const int * qsig_ci_ServiceList_bits[] = {
+static int * const qsig_ci_ServiceList_bits[] = {
   &hf_qsig_ci_ServiceList_spare_bit0,
   &hf_qsig_ci_ServiceList_spare_bit1,
   &hf_qsig_ci_ServiceList_spare_bit2,
@@ -6883,7 +6883,7 @@ static int dissect_qsig_cint_CintExtension_PDU(tvbuff_t *tvb _U_, packet_info *p
 /* --- Module Common-Information-Operations-asn1-97 --- --- ---               */
 
 
-static const int * qsig_cmn_FeatureIdList_bits[] = {
+static int * const qsig_cmn_FeatureIdList_bits[] = {
   &hf_qsig_cmn_FeatureIdList_reserved,
   &hf_qsig_cmn_FeatureIdList_ssCFreRoutingSupported,
   &hf_qsig_cmn_FeatureIdList_ssCTreRoutingSupported,
@@ -9924,7 +9924,7 @@ dissect_qsig_sms_SmSubmitParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 }
 
 
-static const int * qsig_sms_SmscControlParameterHeader_bits[] = {
+static int * const qsig_sms_SmscControlParameterHeader_bits[] = {
   &hf_qsig_sms_SmscControlParameterHeader_sRforTransactionCompleted,
   &hf_qsig_sms_SmscControlParameterHeader_sRforPermanentError,
   &hf_qsig_sms_SmscControlParameterHeader_sRforTempErrorSCnotTrying,

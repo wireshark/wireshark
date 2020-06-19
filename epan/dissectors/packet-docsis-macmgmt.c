@@ -3004,7 +3004,7 @@ dissect_any_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int pro
     case UCD_RANGING_HOLD_OFF_PRIORITY_FIELD:
       if (length == 4)
       {
-        static const int * ucd_rnghoff[] = {
+        static int * const ucd_rnghoff[] = {
           &hf_docsis_ucd_rnghoff_cm,
           &hf_docsis_ucd_rnghoff_erouter,
           &hf_docsis_ucd_rnghoff_emta,
@@ -3024,7 +3024,7 @@ dissect_any_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int pro
     case UCD_RANGING_CHANNEL_CLASS_ID:
       if (length == 4)
       {
-        static const int * ucd_chan_class_id[] = {
+        static int * const ucd_chan_class_id[] = {
           &hf_docsis_ucd_chan_class_id_cm,
           &hf_docsis_ucd_chan_class_id_erouter,
           &hf_docsis_ucd_chan_class_id_emta,
@@ -3096,7 +3096,7 @@ dissect_any_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int pro
     case UCD_OFDMA_TIMESTAMP_SNAPSHOT:
       if (length == 9)
       {
-        static const int* timestamp_snapshot_parts[] = {
+        static int* const timestamp_snapshot_parts[] = {
           &hf_docsis_ucd_ofdma_timestamp_snapshot_reserved,
           &hf_docsis_ucd_ofdma_timestamp_snapshot_d30timestamp,
           &hf_docsis_ucd_ofdma_timestamp_snapshot_4msbits_of_div20,
@@ -3215,14 +3215,14 @@ dissect_any_map (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, guint8 
   int pos;
   proto_item *it;
   proto_tree *map_tree;
-  static const int * ies[] = {
+  static int * const ies[] = {
     &hf_docsis_map_sid,
     &hf_docsis_map_iuc,
     &hf_docsis_map_offset,
     NULL
   };
 
-  static const int * probe_ies[] = {
+  static int * const probe_ies[] = {
     &hf_docsis_map_sid,
     &hf_docsis_map_mer,
     &hf_docsis_map_pw,
@@ -5095,19 +5095,19 @@ dissect_mdd_ds_active_channel_list(tvbuff_t * tvb, packet_info* pinfo _U_, proto
   proto_tree *mdd_tree;
   proto_item *mdd_item;
   int pos;
-  static const int * order_annex[] = {
+  static int * const order_annex[] = {
     &hf_docsis_mdd_downstream_active_channel_list_modulation_order,
     &hf_docsis_mdd_downstream_active_channel_list_annex,
     NULL
   };
-  static const int * cm_status_event[] = {
+  static int * const cm_status_event[] = {
     &hf_docsis_mdd_cm_status_event_enable_bitmask_mdd_timeout,
     &hf_docsis_mdd_cm_status_event_enable_bitmask_qam_fec_lock_failure,
     &hf_docsis_mdd_cm_status_event_enable_bitmask_mdd_recovery,
     &hf_docsis_mdd_cm_status_event_enable_bitmask_qam_fec_lock_recovery,
     NULL
   };
-  static const int * ofdm_plc_parameters[] = {
+  static int * const ofdm_plc_parameters[] = {
     &hf_docsis_mdd_ofdm_plc_parameters_tukey_raised_cosine_window,
     &hf_docsis_mdd_ofdm_plc_parameters_cyclic_prefix,
     &hf_docsis_mdd_ofdm_plc_parameters_sub_carrier_spacing,
@@ -5297,7 +5297,7 @@ dissect_mdd_upstream_active_channel_list(tvbuff_t * tvb, packet_info* pinfo _U_,
   proto_tree *mdd_tree;
   proto_item *mdd_item;
   int pos;
-  static const int * cm_status_event[] = {
+  static int * const cm_status_event[] = {
     &hf_docsis_mdd_cm_status_event_enable_bitmask_t4_timeout,
     &hf_docsis_mdd_cm_status_event_enable_bitmask_t3_retries_exceeded,
     &hf_docsis_mdd_cm_status_event_enable_bitmask_successful_ranging_after_t3_retries_exceeded,
@@ -5590,7 +5590,7 @@ dissect_mdd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
 
   proto_tree *tlv_tree;
   proto_item *tlv_item;
-  static const int * non_channel_events[] = {
+  static int * const non_channel_events[] = {
       &hf_docsis_mdd_cm_status_event_enable_non_channel_specific_events_sequence_out_of_range,
       &hf_docsis_mdd_cm_status_event_enable_non_channel_specific_events_cm_operating_on_battery_backup,
       &hf_docsis_mdd_cm_status_event_enable_non_channel_specific_events_cm_returned_to_ac_power,
@@ -5697,7 +5697,7 @@ dissect_mdd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
       break;
     case CM_STATUS_EVENT_ENABLE_FOR_DOCSIS_3_1_EVENTS:
       if (length == 4) {
-        static const int * mdd_cm_status_event_d31[] = {
+        static int * const mdd_cm_status_event_d31[] = {
           &hf_docsis_mdd_cm_status_event_d31_ofdm_prof_fail,
           &hf_docsis_mdd_cm_status_event_d31_prim_down_chan_change,
           &hf_docsis_mdd_cm_status_event_d31_dpd_mismatch,
@@ -7021,7 +7021,7 @@ dissect_optreq_tlv (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       if (length == 1)
       {
 
-         static const int * req_stat[] = {
+         static int * const req_stat[] = {
            &hf_docsis_optreq_reqstat_rxmer_stat_subc,
            &hf_docsis_optreq_reqstat_rxmer_subc_threshold_comp,
            &hf_docsis_optreq_reqstat_snr_marg_cand_prof,
@@ -7288,7 +7288,7 @@ dissect_rba (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
   guint32 tg_id, dcid;
   guint32 subband_index, nr_of_subbands;
 
-  static const int * rba_control_byte[] = {
+  static int * const rba_control_byte[] = {
     &hf_docsis_rba_resource_block_change_bit,
     &hf_docsis_rba_expiration_time_valid_bit,
     &hf_docsis_rba_control_byte_bitmask_rsvd,
@@ -7332,7 +7332,7 @@ dissect_macmgmt (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* d
   set_address_tvb (&pinfo->dl_dst, AT_ETHER, 6, tvb, 0);
   copy_address_shallow(&pinfo->dst, &pinfo->dl_dst);
 
-  static const int * multipart_field[] = {
+  static int * const multipart_field[] = {
     &hf_docsis_mgt_multipart_number_of_fragments,
     &hf_docsis_mgt_multipart_fragment_sequence_number,
     NULL

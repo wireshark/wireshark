@@ -43,7 +43,7 @@ static gint ett_cesoeth_cw = -1;
 static expert_field ei_cesoeth_reserved = EI_INIT;
 static expert_field ei_cesoeth_length = EI_INIT;
 
-static const int* cesoeth_l0_cw[] =
+static int* const cesoeth_l0_cw[] =
 {
     &hf_cesoeth_cw_reserved1,
     &hf_cesoeth_cw_l,
@@ -55,7 +55,7 @@ static const int* cesoeth_l0_cw[] =
     NULL
 };
 
-static const int* cesoeth_l1_cw[] =
+static int* const cesoeth_l1_cw[] =
 {
     &hf_cesoeth_cw_reserved1,
     &hf_cesoeth_cw_l,

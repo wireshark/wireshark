@@ -382,7 +382,7 @@ dissect_oer_enumerated(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tr
  *  If the lower and upper bounds of the effective size constraint are identical, 13.2 applies, otherwise 13.3 applies.
  */
 guint32
-dissect_oer_bit_string(tvbuff_t *tvb, guint32 offset _U_, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_, int min_len _U_, int max_len _U_, gboolean has_extension _U_, const int **named_bits _U_, gint num_named_bits _U_, tvbuff_t **value_tvb _U_, int *len _U_)
+dissect_oer_bit_string(tvbuff_t *tvb, guint32 offset _U_, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_, int min_len _U_, int max_len _U_, gboolean has_extension _U_, int * const *named_bits _U_, gint num_named_bits _U_, tvbuff_t **value_tvb _U_, int *len _U_)
 {
     dissect_oer_not_decoded_yet(tree, actx->pinfo, tvb, "Encoding of bitstring values not handled yet");
 

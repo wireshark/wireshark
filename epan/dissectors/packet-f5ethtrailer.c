@@ -357,7 +357,7 @@ static const value_string f5_flags_hwaction_vs[] = {
     {0, NULL}
 };
 
-static const int *hf_flags__fields[] = {
+static int * const hf_flags__fields[] = {
     &hf_flags_ingress,
     &hf_flags_hwaction,
     NULL,

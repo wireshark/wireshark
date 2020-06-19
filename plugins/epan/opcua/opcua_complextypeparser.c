@@ -572,7 +572,7 @@ void parseApplicationDescription(proto_tree *tree, tvbuff_t *tvb, packet_info *p
 }
 void parseRequestHeader(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset, const char *szFieldName)
 {
-  static const int *returnDiagnostics_mask[] = {
+  static int * const returnDiagnostics_mask[] = {
     &hf_opcua_returnDiag_mask_sl_symbolicId,
     &hf_opcua_returnDiag_mask_sl_localizedText,
     &hf_opcua_returnDiag_mask_sl_additionalinfo,

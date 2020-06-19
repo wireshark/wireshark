@@ -1018,7 +1018,7 @@ dissect_tcap_TCMessage(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 }
 
 
-static const int * AUDT_protocol_version_bits[] = {
+static int * const AUDT_protocol_version_bits[] = {
   &hf_tcap_AUDT_protocol_version_version1,
   NULL
 };
@@ -1118,7 +1118,7 @@ dissect_tcap_UniDialoguePDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 }
 
 
-static const int * AARQ_protocol_version_bits[] = {
+static int * const AARQ_protocol_version_bits[] = {
   &hf_tcap_AARQ_protocol_version_version1,
   NULL
 };
@@ -1189,7 +1189,7 @@ dissect_tcap_AARQ_apdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 }
 
 
-static const int * AARE_protocol_version_bits[] = {
+static int * const AARE_protocol_version_bits[] = {
   &hf_tcap_AARE_protocol_version_version1,
   NULL
 };

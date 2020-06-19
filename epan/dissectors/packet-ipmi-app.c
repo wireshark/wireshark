@@ -410,9 +410,9 @@ static const value_string vals_XX_auth[] = {
 static void
 rs01(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const gint *byte2[] = { &hf_ipmi_app_01_dev_prov_sdr, &hf_ipmi_app_01_dev_rev, NULL };
-	static const gint *byte3[] = { &hf_ipmi_app_01_dev_avail, &hf_ipmi_app_01_fw_rev_maj, NULL };
-	static const gint *byte6[] = { &hf_ipmi_app_01_ipmi_ads_chassis, &hf_ipmi_app_01_ipmi_ads_bridge,
+	static int * const byte2[] = { &hf_ipmi_app_01_dev_prov_sdr, &hf_ipmi_app_01_dev_rev, NULL };
+	static int * const byte3[] = { &hf_ipmi_app_01_dev_avail, &hf_ipmi_app_01_fw_rev_maj, NULL };
+	static int * const byte6[] = { &hf_ipmi_app_01_ipmi_ads_chassis, &hf_ipmi_app_01_ipmi_ads_bridge,
 		&hf_ipmi_app_01_ipmi_ads_ipmb_ev_gen, &hf_ipmi_app_01_ipmi_ads_ipmb_ev_recv,
 		&hf_ipmi_app_01_ipmi_ads_fru, &hf_ipmi_app_01_ipmi_ads_sel, &hf_ipmi_app_01_ipmi_ads_sdr,
 		&hf_ipmi_app_01_ipmi_ads_sensor, NULL };
@@ -442,7 +442,7 @@ rs01(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rs04(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const gint *byte2[] = { &hf_ipmi_app_04_fail_sel, &hf_ipmi_app_04_fail_sdr,
+	static int * const byte2[] = { &hf_ipmi_app_04_fail_sel, &hf_ipmi_app_04_fail_sdr,
 		&hf_ipmi_app_04_fail_bmc_fru, &hf_ipmi_app_04_fail_ipmb_sig, &hf_ipmi_app_04_fail_sdr_empty,
 		&hf_ipmi_app_04_fail_iua, &hf_ipmi_app_04_fail_bb_fw, &hf_ipmi_app_04_fail_oper_fw, NULL };
 	int res, fail;
@@ -485,8 +485,8 @@ rq05(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rq06(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const gint *byte1[] = { &hf_ipmi_app_06_syspwr_set, &hf_ipmi_app_06_syspwr_enum, NULL };
-	static const gint *byte2[] = { &hf_ipmi_app_06_devpwr_set, &hf_ipmi_app_06_devpwr_enum, NULL };
+	static int * const byte1[] = { &hf_ipmi_app_06_syspwr_set, &hf_ipmi_app_06_syspwr_enum, NULL };
+	static int * const byte2[] = { &hf_ipmi_app_06_devpwr_set, &hf_ipmi_app_06_devpwr_enum, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, "ACPI System Power State: ", NULL,
 			ett_ipmi_app_06_syspwr, byte1, ENC_LITTLE_ENDIAN, 0);
@@ -499,8 +499,8 @@ rq06(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rs07(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const gint *byte1[] = { &hf_ipmi_app_07_syspwr_enum, NULL };
-	static const gint *byte2[] = { &hf_ipmi_app_07_devpwr_enum, NULL };
+	static int * const byte1[] = { &hf_ipmi_app_07_syspwr_enum, NULL };
+	static int * const byte2[] = { &hf_ipmi_app_07_devpwr_enum, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, "ACPI System Power State: ", NULL,
 			ett_ipmi_app_07_syspwr, byte1, ENC_LITTLE_ENDIAN, 0);
@@ -528,11 +528,11 @@ static const value_string cc22[] = {
 static void
 rq24(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const gint *byte1[] = { &hf_ipmi_app_24_timer_use_dont_log,
+	static int * const byte1[] = { &hf_ipmi_app_24_timer_use_dont_log,
 		&hf_ipmi_app_24_timer_use_dont_stop, &hf_ipmi_app_24_timer_use_timer_use, NULL };
-	static const gint *byte2[] = { &hf_ipmi_app_24_timer_action_interrupt,
+	static int * const byte2[] = { &hf_ipmi_app_24_timer_action_interrupt,
 		&hf_ipmi_app_24_timer_action_timeout_action, NULL };
-	static const gint *byte4[] = { &hf_ipmi_app_24_expiration_flags_oem,
+	static int * const byte4[] = { &hf_ipmi_app_24_expiration_flags_oem,
 		&hf_ipmi_app_24_expiration_flags_smsos, &hf_ipmi_app_24_expiration_flags_osload,
 		&hf_ipmi_app_24_expiration_flags_biospost, &hf_ipmi_app_24_expiration_flags_biosfrb2, NULL };
 
@@ -551,11 +551,11 @@ rq24(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rs25(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const gint *byte1[] = { &hf_ipmi_app_25_timer_use_dont_log,
+	static int * const byte1[] = { &hf_ipmi_app_25_timer_use_dont_log,
 		&hf_ipmi_app_25_timer_use_started, &hf_ipmi_app_25_timer_use_timer_use, NULL };
-	static const gint *byte2[] = { &hf_ipmi_app_25_timer_action_interrupt,
+	static int * const byte2[] = { &hf_ipmi_app_25_timer_action_interrupt,
 		&hf_ipmi_app_25_timer_action_timeout_action, NULL };
-	static const gint *byte4[] = { &hf_ipmi_app_25_expiration_flags_oem, &hf_ipmi_app_25_expiration_flags_smsos,
+	static int * const byte4[] = { &hf_ipmi_app_25_expiration_flags_oem, &hf_ipmi_app_25_expiration_flags_smsos,
 		&hf_ipmi_app_25_expiration_flags_osload, &hf_ipmi_app_25_expiration_flags_biospost,
 		&hf_ipmi_app_25_expiration_flags_biosfrb2, NULL };
 
@@ -575,7 +575,7 @@ rs25(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rq2e(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const gint *byte1[] = { &hf_ipmi_app_2e_byte1_oem2, &hf_ipmi_app_2e_byte1_oem1,
+	static int * const byte1[] = { &hf_ipmi_app_2e_byte1_oem2, &hf_ipmi_app_2e_byte1_oem1,
 		&hf_ipmi_app_2e_byte1_oem0, &hf_ipmi_app_2e_byte1_sel, &hf_ipmi_app_2e_byte1_emb,
 		&hf_ipmi_app_2e_byte1_emb_full_intr, &hf_ipmi_app_2e_byte1_rmq_intr, NULL };
 
@@ -588,7 +588,7 @@ rq2e(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rs2f(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const gint *byte1[] = { &hf_ipmi_app_2f_byte1_oem2, &hf_ipmi_app_2f_byte1_oem1,
+	static int * const byte1[] = { &hf_ipmi_app_2f_byte1_oem2, &hf_ipmi_app_2f_byte1_oem1,
 		&hf_ipmi_app_2f_byte1_oem0, &hf_ipmi_app_2f_byte1_sel, &hf_ipmi_app_2f_byte1_emb,
 		&hf_ipmi_app_2f_byte1_emb_full_intr, &hf_ipmi_app_2f_byte1_rmq_intr, NULL };
 
@@ -601,7 +601,7 @@ rs2f(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rq30(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const gint *byte1[] = { &hf_ipmi_app_30_byte1_oem2, &hf_ipmi_app_30_byte1_oem1,
+	static int * const byte1[] = { &hf_ipmi_app_30_byte1_oem2, &hf_ipmi_app_30_byte1_oem1,
 		&hf_ipmi_app_30_byte1_oem0, &hf_ipmi_app_30_byte1_wd_pretimeout,
 		&hf_ipmi_app_30_byte1_emb, &hf_ipmi_app_30_byte1_rmq, NULL };
 
@@ -614,7 +614,7 @@ rq30(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rs31(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const gint *byte1[] = { &hf_ipmi_app_31_byte1_oem2, &hf_ipmi_app_31_byte1_oem1,
+	static int * const byte1[] = { &hf_ipmi_app_31_byte1_oem2, &hf_ipmi_app_31_byte1_oem1,
 		&hf_ipmi_app_31_byte1_oem0, &hf_ipmi_app_31_byte1_wd_pretimeout,
 		&hf_ipmi_app_31_byte1_emb, &hf_ipmi_app_31_byte1_rmq, NULL };
 
@@ -627,8 +627,8 @@ rs31(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rq32(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const gint *byte1[] = { &hf_ipmi_app_32_rq_chno, NULL };
-	static const gint *byte2[] = { &hf_ipmi_app_32_rq_state, NULL };
+	static int * const byte1[] = { &hf_ipmi_app_32_rq_chno, NULL };
+	static int * const byte2[] = { &hf_ipmi_app_32_rq_state, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL, ett_ipmi_app_32_rq_byte1,
 			byte1, ENC_LITTLE_ENDIAN, 0);
@@ -639,8 +639,8 @@ rq32(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rs32(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const gint *byte1[] = { &hf_ipmi_app_32_rs_chno, NULL };
-	static const gint *byte2[] = { &hf_ipmi_app_32_rs_state, NULL };
+	static int * const byte1[] = { &hf_ipmi_app_32_rs_chno, NULL };
+	static int * const byte2[] = { &hf_ipmi_app_32_rs_state, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL, ett_ipmi_app_32_rs_byte1,
 			byte1, ENC_LITTLE_ENDIAN, 0);
@@ -658,7 +658,7 @@ static const value_string cc33[] = {
 static void
 rs33(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const gint *byte1[] = { &hf_ipmi_app_33_rs_chan,
+	static int * const byte1[] = { &hf_ipmi_app_33_rs_chan,
 			&hf_ipmi_app_33_rs_priv, NULL };
 	tvbuff_t *next;
 	ipmi_dissect_arg_t arg;
@@ -683,7 +683,7 @@ rs33(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rq34(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	static const gint *byte1[] = { &hf_ipmi_app_34_track, &hf_ipmi_app_34_encrypt,
+	static int * const byte1[] = { &hf_ipmi_app_34_track, &hf_ipmi_app_34_encrypt,
 		&hf_ipmi_app_34_auth, &hf_ipmi_app_34_chan, NULL };
 	tvbuff_t *next;
 	ipmi_dissect_arg_t arg;
@@ -736,8 +736,8 @@ static const value_string cc35[] = {
 static void
 rq38(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const gint *byte1[] = { &hf_ipmi_app_38_rq_ipmi20, &hf_ipmi_app_38_rq_chan, NULL };
-	static const gint *byte2[] = { &hf_ipmi_app_38_rq_priv, NULL };
+	static int * const byte1[] = { &hf_ipmi_app_38_rq_ipmi20, &hf_ipmi_app_38_rq_chan, NULL };
+	static int * const byte2[] = { &hf_ipmi_app_38_rq_priv, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL, ett_ipmi_app_38_rq_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_bitmask_text(tree, tvb, 1, 1, NULL, NULL, ett_ipmi_app_38_rq_byte2, byte2, ENC_LITTLE_ENDIAN, 0);
@@ -746,13 +746,13 @@ rq38(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rs38(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const gint *byte1[] = { &hf_ipmi_app_38_rs_chan, NULL };
-	static const gint *byte2[] = { &hf_ipmi_app_38_rs_ipmi20, &hf_ipmi_app_38_rs_auth_oem,
+	static int * const byte1[] = { &hf_ipmi_app_38_rs_chan, NULL };
+	static int * const byte2[] = { &hf_ipmi_app_38_rs_ipmi20, &hf_ipmi_app_38_rs_auth_oem,
 		&hf_ipmi_app_38_rs_auth_straight, &hf_ipmi_app_38_rs_auth_md5, &hf_ipmi_app_38_rs_auth_md2,
 		&hf_ipmi_app_38_rs_auth_none, NULL };
-	static const gint *byte3[] = { &hf_ipmi_app_38_rs_kg, &hf_ipmi_app_38_rs_permsg, &hf_ipmi_app_38_rs_userauth,
+	static int * const byte3[] = { &hf_ipmi_app_38_rs_kg, &hf_ipmi_app_38_rs_permsg, &hf_ipmi_app_38_rs_userauth,
 		&hf_ipmi_app_38_rs_user_nonnull, &hf_ipmi_app_38_rs_user_null, &hf_ipmi_app_38_rs_user_anon, NULL };
-	static const gint *byte4[] = { &hf_ipmi_app_38_rs_ipmi20_conn, &hf_ipmi_app_38_rs_ipmi15_conn, NULL };
+	static int * const byte4[] = { &hf_ipmi_app_38_rs_ipmi20_conn, &hf_ipmi_app_38_rs_ipmi15_conn, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL, ett_ipmi_app_38_rs_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_bitmask_text(tree, tvb, 1, 1, NULL, NULL, ett_ipmi_app_38_rs_byte2, byte2, ENC_LITTLE_ENDIAN, BMT_NO_FALSE);
@@ -768,7 +768,7 @@ rs38(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rq39(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const gint *byte1[] = { &hf_ipmi_app_39_authtype, NULL };
+	static int * const byte1[] = { &hf_ipmi_app_39_authtype, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
 			ett_ipmi_app_39_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
@@ -793,8 +793,8 @@ static const value_string cc39[] = {
 static void
 rq3a(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const gint *byte1[] = { &hf_ipmi_app_3a_authtype, NULL };
-	static const gint *byte2[] = { &hf_ipmi_app_3a_privlevel, NULL };
+	static int * const byte1[] = { &hf_ipmi_app_3a_authtype, NULL };
+	static int * const byte2[] = { &hf_ipmi_app_3a_privlevel, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
 			ett_ipmi_app_3a_rq_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
@@ -807,8 +807,8 @@ rq3a(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rs3a(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const gint *byte1[] = { &hf_ipmi_app_3a_authtype_session, NULL };
-	static const gint *byte10[] = { &hf_ipmi_app_3a_maxpriv_session, NULL };
+	static int * const byte1[] = { &hf_ipmi_app_3a_authtype_session, NULL };
+	static int * const byte10[] = { &hf_ipmi_app_3a_maxpriv_session, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
 			ett_ipmi_app_3a_rs_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
@@ -833,7 +833,7 @@ static const value_string cc3a[] = {
 static void
 rq3b(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const gint *byte1[] = { &hf_ipmi_app_3b_req_priv, NULL };
+	static int * const byte1[] = { &hf_ipmi_app_3b_req_priv, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
 			ett_ipmi_app_3b_rq_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
@@ -842,7 +842,7 @@ rq3b(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rs3b(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const gint *byte1[] = { &hf_ipmi_app_3b_new_priv, NULL };
+	static int * const byte1[] = { &hf_ipmi_app_3b_new_priv, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
 			ett_ipmi_app_3b_rs_byte1, byte1, ENC_LITTLE_ENDIAN, 0);

@@ -1130,7 +1130,7 @@ dissect_mms_ObjectName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 }
 
 
-static const int * Transitions_bits[] = {
+static int * const Transitions_bits[] = {
   &hf_mms_Transitions_idle_to_disabled,
   &hf_mms_Transitions_active_to_disabled,
   &hf_mms_Transitions_disabled_to_idle,
@@ -7058,7 +7058,7 @@ dissect_mms_Integer16(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 }
 
 
-static const int * ParameterSupportOptions_bits[] = {
+static int * const ParameterSupportOptions_bits[] = {
   &hf_mms_ParameterSupportOptions_str1,
   &hf_mms_ParameterSupportOptions_str2,
   &hf_mms_ParameterSupportOptions_vnam,
@@ -7083,7 +7083,7 @@ dissect_mms_ParameterSupportOptions(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 }
 
 
-static const int * ServiceSupportOptions_bits[] = {
+static int * const ServiceSupportOptions_bits[] = {
   &hf_mms_ServiceSupportOptions_status,
   &hf_mms_ServiceSupportOptions_getNameList,
   &hf_mms_ServiceSupportOptions_identify,

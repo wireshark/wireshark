@@ -595,7 +595,7 @@ static const value_string isis_lsp_srv6_loc_sub_tlv_vals[] = {
     { 5,  "SRv6 End SID"},
     { 0, NULL } };
 
-static const int * adj_sid_flags[] = {
+static int * const adj_sid_flags[] = {
     &hf_isis_lsp_adj_sid_family_flag,
     &hf_isis_lsp_adj_sid_backup_flag,
     &hf_isis_lsp_adj_sid_value_flag,
@@ -604,26 +604,26 @@ static const int * adj_sid_flags[] = {
     NULL,
 };
 
-static const int * srv6_cap_flags[] = {
+static int * const srv6_cap_flags[] = {
     &hf_isis_lsp_clv_srv6_cap_flags_o,
     &hf_isis_lsp_clv_srv6_cap_flags_unused,
     NULL,
 };
 
-static const int * srv6_locator_flags[] = {
+static int * const srv6_locator_flags[] = {
     &hf_isis_lsp_srv6_loc_flags_d,
     &hf_isis_lsp_srv6_loc_flags_reserved,
     NULL,
 };
 
-static const int * srv6_endx_sid_flags[] = {
+static int * const srv6_endx_sid_flags[] = {
     &hf_isis_lsp_clv_srv6_endx_sid_flags_b,
     &hf_isis_lsp_clv_srv6_endx_sid_flags_s,
     &hf_isis_lsp_clv_srv6_endx_sid_flags_p,
     NULL,
 };
 
-static const int * prefix_sid_flags[] = {
+static int * const prefix_sid_flags[] = {
     &hf_isis_lsp_ext_ip_reachability_prefix_re_adv_flag,
     &hf_isis_lsp_ext_ip_reachability_prefix_node_sid_flag,
     &hf_isis_lsp_ext_ip_reachability_prefix_nophp_flag,
@@ -633,7 +633,7 @@ static const int * prefix_sid_flags[] = {
     NULL,
 };
 
-static const int * prefix_attr_flags[] = {
+static int * const prefix_attr_flags[] = {
     &hf_isis_lsp_prefix_attr_flags_x,
     &hf_isis_lsp_prefix_attr_flags_r,
     &hf_isis_lsp_prefix_attr_flags_n,
@@ -2110,7 +2110,7 @@ dissect_isis_lsp_clv_mt_cap_spb_instance(tvbuff_t *tvb, packet_info *pinfo,
     const int FIXED_LEN                      = NUM_TREES_OFFSET               + NUM_TREES_LEN;
     const int VLAN_ID_TUPLE_LEN = 8;
 
-    static const int *lsp_cap_spb_instance_vlanid_tuple[] = {
+    static int * const lsp_cap_spb_instance_vlanid_tuple[] = {
         &hf_isis_lsp_mt_cap_spb_instance_vlanid_tuple_u,
         &hf_isis_lsp_mt_cap_spb_instance_vlanid_tuple_m,
         &hf_isis_lsp_mt_cap_spb_instance_vlanid_tuple_a,
@@ -2202,7 +2202,7 @@ dissect_isis_lsp_clv_mt_cap_spbm_service_identifier(tvbuff_t *tvb, packet_info *
 
     const int ISID_LEN = 4;
 
-    static const int *lsp_cap_spbm_service_identifier[] = {
+    static int * const lsp_cap_spbm_service_identifier[] = {
         &hf_isis_lsp_mt_cap_spbm_service_identifier_t,
         &hf_isis_lsp_mt_cap_spbm_service_identifier_r,
         &hf_isis_lsp_mt_cap_spbm_service_identifier_reserved,
@@ -2253,7 +2253,7 @@ dissect_isis_lsp_clv_mt_cap_spbv_mac_address(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *tree, int offset, int subtype, int sublen)
 {
 
-    static const int *lsp_spb_short_mac_address[] = {
+    static int * const lsp_spb_short_mac_address[] = {
         &hf_isis_lsp_spb_short_mac_address_t,
         &hf_isis_lsp_spb_short_mac_address_r,
         &hf_isis_lsp_spb_short_mac_address_reserved,
@@ -2393,7 +2393,7 @@ dissect_isis_lsp_clv_sid_label_binding(tvbuff_t *tvb, packet_info* pinfo, proto_
     guint   clv_code = 0;
     guint   clv_len = 0;
 
-    static const int *lsp_sl_flags[] = {
+    static int * const lsp_sl_flags[] = {
         &hf_isis_lsp_sl_binding_flags_f,
         &hf_isis_lsp_sl_binding_flags_m,
         &hf_isis_lsp_sl_binding_flags_s,
@@ -2403,7 +2403,7 @@ dissect_isis_lsp_clv_sid_label_binding(tvbuff_t *tvb, packet_info* pinfo, proto_
         NULL
     };
 
-    static const int *lsp_sl_sub_tlv_flags[] = {
+    static int * const lsp_sl_sub_tlv_flags[] = {
         &hf_isis_lsp_sl_sub_tlv_flags_r,
         &hf_isis_lsp_sl_sub_tlv_flags_n,
         &hf_isis_lsp_sl_sub_tlv_flags_p,
@@ -4196,7 +4196,7 @@ dissect_isis_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
         return;
     }
     if (tree) {
-        static const int * attach_flags[] = {
+        static int * const attach_flags[] = {
             &hf_isis_lsp_error_metric,
             &hf_isis_lsp_expense_metric,
             &hf_isis_lsp_delay_metric,

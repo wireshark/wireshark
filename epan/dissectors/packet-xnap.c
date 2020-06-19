@@ -5258,7 +5258,7 @@ dissect_xnap_SEQUENCE_SIZE_1_maxnoofEPLMNs_OF_PLMN_Identity(tvbuff_t *tvb _U_, i
 }
 
 
-static const int * RAT_RestrictionInformation_bits[] = {
+static int * const RAT_RestrictionInformation_bits[] = {
   &hf_xnap_RAT_RestrictionInformation_e_UTRA,
   &hf_xnap_RAT_RestrictionInformation_nR,
   NULL
@@ -9294,7 +9294,7 @@ dissect_xnap_T_ng_ran_TraceID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 }
 
 
-static const int * T_interfaces_to_trace_bits[] = {
+static int * const T_interfaces_to_trace_bits[] = {
   &hf_xnap_T_interfaces_to_trace_ng_c,
   &hf_xnap_T_interfaces_to_trace_x_nc,
   &hf_xnap_T_interfaces_to_trace_uu,
@@ -9438,7 +9438,7 @@ dissect_xnap_UEContextID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 }
 
 
-static const int * T_nr_EncyptionAlgorithms_bits[] = {
+static int * const T_nr_EncyptionAlgorithms_bits[] = {
   &hf_xnap_T_nr_EncyptionAlgorithms_spare_bit0,
   &hf_xnap_T_nr_EncyptionAlgorithms_nea1_128,
   &hf_xnap_T_nr_EncyptionAlgorithms_nea2_128,
@@ -9455,7 +9455,7 @@ dissect_xnap_T_nr_EncyptionAlgorithms(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 }
 
 
-static const int * T_nr_IntegrityProtectionAlgorithms_bits[] = {
+static int * const T_nr_IntegrityProtectionAlgorithms_bits[] = {
   &hf_xnap_T_nr_IntegrityProtectionAlgorithms_spare_bit0,
   &hf_xnap_T_nr_IntegrityProtectionAlgorithms_nia1_128,
   &hf_xnap_T_nr_IntegrityProtectionAlgorithms_nia2_128,
@@ -9472,7 +9472,7 @@ dissect_xnap_T_nr_IntegrityProtectionAlgorithms(tvbuff_t *tvb _U_, int offset _U
 }
 
 
-static const int * T_e_utra_EncyptionAlgorithms_bits[] = {
+static int * const T_e_utra_EncyptionAlgorithms_bits[] = {
   &hf_xnap_T_e_utra_EncyptionAlgorithms_spare_bit0,
   &hf_xnap_T_e_utra_EncyptionAlgorithms_eea1_128,
   &hf_xnap_T_e_utra_EncyptionAlgorithms_eea2_128,
@@ -9489,7 +9489,7 @@ dissect_xnap_T_e_utra_EncyptionAlgorithms(tvbuff_t *tvb _U_, int offset _U_, asn
 }
 
 
-static const int * T_e_utra_IntegrityProtectionAlgorithms_bits[] = {
+static int * const T_e_utra_IntegrityProtectionAlgorithms_bits[] = {
   &hf_xnap_T_e_utra_IntegrityProtectionAlgorithms_spare_bit0,
   &hf_xnap_T_e_utra_IntegrityProtectionAlgorithms_eia1_128,
   &hf_xnap_T_e_utra_IntegrityProtectionAlgorithms_eia2_128,

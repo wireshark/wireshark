@@ -217,7 +217,7 @@ static int hf_msrp_vector_header = -1;
 static int hf_msrp_leave_all_event = -1;
 static int hf_msrp_number_of_values = -1;
 static gint ett_vector_header = -1;
-static const int *vector_header_fields[] = {
+static int * const vector_header_fields[] = {
     &hf_msrp_leave_all_event,
     &hf_msrp_number_of_values,
     NULL
@@ -234,7 +234,7 @@ static int hf_msrp_priority = -1;
 static int hf_msrp_rank = -1;
 static int hf_msrp_reserved = -1;
 static gint ett_priority_and_rank = -1;
-static const int *priority_and_rank_fields[] = {
+static int * const priority_and_rank_fields[] = {
     &hf_msrp_priority,
     &hf_msrp_rank,
     &hf_msrp_reserved,

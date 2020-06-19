@@ -468,7 +468,7 @@ dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 	guint8		src_vmname_len = 0, dst_vmname_len = 0;
 	guint8		variable_ns_len = 0;
 	guint32		vlan;
-	static const int * activity_flags[] = {
+	static int * const activity_flags[] = {
 		&hf_ns_activity_perf_collection,
 		&hf_ns_activity_pcb_zombie,
 		&hf_ns_activity_natpcb_zombie,
@@ -522,7 +522,7 @@ dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 
 	case NSPR_HEADER_VERSION204:
 		{
-		static const int * clflags[] = {
+		static int * const clflags[] = {
 			&hf_ns_clflags_res,
 			&hf_ns_clflags_rssh,
 			&hf_ns_clflags_rss,
@@ -561,7 +561,7 @@ dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 
 	case NSPR_HEADER_VERSION350:
 		{
-			static const int * cap_flags[] = {
+			static int * const cap_flags[] = {
 				&hf_ns_capflags_dbg,
 				&hf_ns_capflags_int,
 				&hf_ns_capflags_skipnwhdr,
@@ -638,7 +638,7 @@ void add35records(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tre
 	proto_tree* subtree;
 	proto_item* subitem;
 	unsigned int tcp_mode = 0;
-	static const int * cluster_flags[] = {
+	static int * const cluster_flags[] = {
 		&hf_ns_clu_clflags_fp,
 		&hf_ns_clu_clflags_fr,
 		&hf_ns_clu_clflags_dfd,

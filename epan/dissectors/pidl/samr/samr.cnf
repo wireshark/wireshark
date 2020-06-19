@@ -211,7 +211,7 @@ CODE START
 static void
 samr_connect_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 access)
 {
-	static const int* access_flags[] = {
+	static int* const access_flags[] = {
 		&hf_samr_samr_ConnectAccessMask_SAMR_ACCESS_LOOKUP_DOMAIN,
 		&hf_samr_samr_ConnectAccessMask_SAMR_ACCESS_ENUM_DOMAINS,
 		&hf_samr_samr_ConnectAccessMask_SAMR_ACCESS_CREATE_DOMAIN,
@@ -244,7 +244,7 @@ samr_dissect_bitmap_ConnectAccessMask(tvbuff_t *tvb, int offset, packet_info *pi
 static void
 samr_alias_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 access)
 {
-	static const int* access_flags[] = {
+	static int* const access_flags[] = {
 		&hf_samr_samr_AliasAccessMask_SAMR_ALIAS_ACCESS_ADD_MEMBER,
 		&hf_samr_samr_AliasAccessMask_SAMR_ALIAS_ACCESS_REMOVE_MEMBER,
 		&hf_samr_samr_AliasAccessMask_SAMR_ALIAS_ACCESS_GET_MEMBERS,
@@ -276,7 +276,7 @@ samr_dissect_bitmap_AliasAccessMask(tvbuff_t *tvb, int offset, packet_info *pinf
 static void
 samr_group_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 access)
 {
-	static const int* access_flags[] = {
+	static int* const access_flags[] = {
 		&hf_samr_samr_GroupAccessMask_SAMR_GROUP_ACCESS_GET_MEMBERS,
 		&hf_samr_samr_GroupAccessMask_SAMR_GROUP_ACCESS_REMOVE_MEMBER,
 		&hf_samr_samr_GroupAccessMask_SAMR_GROUP_ACCESS_ADD_MEMBER,
@@ -308,7 +308,7 @@ samr_dissect_bitmap_GroupAccessMask(tvbuff_t *tvb, int offset, packet_info *pinf
 static void
 samr_domain_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 access)
 {
-	static const int* access_flags[] = {
+	static int* const access_flags[] = {
 		&hf_samr_samr_DomainAccessMask_SAMR_DOMAIN_ACCESS_LOOKUP_INFO_1,
 		&hf_samr_samr_DomainAccessMask_SAMR_DOMAIN_ACCESS_SET_INFO_1,
 		&hf_samr_samr_DomainAccessMask_SAMR_DOMAIN_ACCESS_LOOKUP_INFO_2,
@@ -346,7 +346,7 @@ samr_dissect_bitmap_DomainAccessMask(tvbuff_t *tvb, int offset, packet_info *pin
 static void
 samr_user_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 access)
 {
-	static const int* access_flags[] = {
+	static int* const access_flags[] = {
 		&hf_samr_samr_UserAccessMask_SAMR_USER_ACCESS_CHANGE_GROUP_MEMBERSHIP,
 		&hf_samr_samr_UserAccessMask_SAMR_USER_ACCESS_GET_GROUP_MEMBERSHIP,
 		&hf_samr_samr_UserAccessMask_SAMR_USER_ACCESS_GET_GROUPS,

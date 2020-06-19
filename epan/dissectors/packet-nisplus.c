@@ -299,7 +299,7 @@ dissect_group_obj(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
 static int
 dissect_access_rights(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_nisplus_mask_world_read,
 		&hf_nisplus_mask_world_modify,
 		&hf_nisplus_mask_world_create,
@@ -331,7 +331,7 @@ dissect_table(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tre
 	proto_item* lock_item;
 	proto_tree* lock_tree;
 	int old_offset = offset;
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_nisplus_table_col_mask_binary,
 		&hf_nisplus_table_col_mask_encrypted,
 		&hf_nisplus_table_col_mask_xdr,
@@ -396,7 +396,7 @@ dissect_entry(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tre
 	proto_item* lock_item;
 	proto_tree* lock_tree;
 	int old_offset = offset;
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_nisplus_entry_mask_binary,
 		&hf_nisplus_entry_mask_crypt,
 		&hf_nisplus_entry_mask_xdr,

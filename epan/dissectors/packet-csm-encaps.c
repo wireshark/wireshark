@@ -219,7 +219,7 @@ dissect_csm_encaps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 
 
     if (tree) {
-        static const int * control_flags[] = {
+        static int * const control_flags[] = {
             &hf_csm_encaps_ctrl_ack,
             &hf_csm_encaps_ctrl_ack_suppress,
             &hf_csm_encaps_ctrl_endian,

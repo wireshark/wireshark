@@ -240,7 +240,7 @@ dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   guint vlan_nested_count;
   int hf1, hf2;
 
-  int * flags[] = {
+  int * const flags[] = {
       &hf1,
       &hf2,
       &hfi_vlan_id.id,
@@ -312,7 +312,7 @@ dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
       }
     }
 
-    proto_tree_add_bitmask_list(vlan_tree, tvb, 0, 2, (const int **)flags, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask_list(vlan_tree, tvb, 0, 2, flags, ENC_BIG_ENDIAN);
 
     if (gbl_resolv_flags.vlan_name) {
       item = proto_tree_add_string(vlan_tree, &hfi_vlan_id_name, tvb, 0, 2,

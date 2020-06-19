@@ -215,7 +215,7 @@ static gint ett_extended_advertising_aux_pointer = -1;
 static gint ett_extended_advertising_sync_info = -1;
 static gint ett_extended_advertising_acad = -1;
 
-static const int *hfx_extended_advertising_flags[] = {
+static int * const hfx_extended_advertising_flags[] = {
     &hf_extended_advertising_flags_adva,
     &hf_extended_advertising_flags_targeta,
     &hf_extended_advertising_flags_cteinfo,
@@ -227,7 +227,7 @@ static const int *hfx_extended_advertising_flags[] = {
     NULL
 };
 
-static const int *hfx_control_feature_set_1[] = {
+static int * const hfx_control_feature_set_1[] = {
     &hf_control_feature_set_le_encryption,
     &hf_control_feature_set_connection_parameters_request_procedure,
     &hf_control_feature_set_extended_reject_indication,
@@ -239,7 +239,7 @@ static const int *hfx_control_feature_set_1[] = {
     NULL
 };
 
-static const int *hfx_control_feature_set_2[] = {
+static int * const hfx_control_feature_set_2[] = {
     &hf_control_feature_set_le_2m_phy,
     &hf_control_feature_set_stable_modulation_index_transmitter,
     &hf_control_feature_set_stable_modulation_index_receiver,
@@ -251,13 +251,13 @@ static const int *hfx_control_feature_set_2[] = {
     NULL
 };
 
-static const int *hfx_control_feature_set_3[] = {
+static int * const hfx_control_feature_set_3[] = {
     &hf_control_feature_set_minimum_number_of_used_channels_procedure,
     &hf_control_feature_set_reserved_bits,
     NULL
 };
 
-static const int *hfx_control_phys_sender[] = {
+static int * const hfx_control_phys_sender[] = {
     &hf_control_phys_sender_le_1m_phy,
     &hf_control_phys_sender_le_2m_phy,
     &hf_control_phys_sender_le_coded_phy,
@@ -265,7 +265,7 @@ static const int *hfx_control_phys_sender[] = {
     NULL
 };
 
-static const int *hfx_control_phys_update[] = {
+static int * const hfx_control_phys_update[] = {
     &hf_control_phys_update_le_1m_phy,
     &hf_control_phys_update_le_2m_phy,
     &hf_control_phys_update_le_coded_phy,
@@ -273,7 +273,7 @@ static const int *hfx_control_phys_update[] = {
     NULL
 };
 
-static const int *hfx_control_phys[] = {
+static int * const hfx_control_phys[] = {
     &hf_control_phys_le_1m_phy,
     &hf_control_phys_le_2m_phy,
     &hf_control_phys_le_coded_phy,

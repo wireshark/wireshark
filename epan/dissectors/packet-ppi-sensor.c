@@ -162,7 +162,7 @@ dissect_ppi_sensor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     const gchar *type_str = "Unknown sensor";
     const gchar *unit_str = "Unknown unit";
 
-    static const int * ppi_sensor_present_flags[] = {
+    static int * const ppi_sensor_present_flags[] = {
         &hf_ppi_sensor_present_sensortype,
         &hf_ppi_sensor_present_scalefactor,
         &hf_ppi_sensor_present_val_x,

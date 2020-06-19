@@ -2194,7 +2194,7 @@ Example: (from the SCSI dissector)
     ...
     static gint ett_scsi_inq_peripheral = -1;
     ...
-    static const int *peripheral_fields[] = {
+    static int * const peripheral_fields[] = {
         &hf_scsi_inq_qualifier,
         &hf_scsi_inq_devtype,
         NULL

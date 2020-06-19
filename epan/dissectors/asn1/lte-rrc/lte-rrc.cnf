@@ -2524,7 +2524,7 @@ WLAN-OffloadConfig-r12/thresholdWLAN-RSSI-r12/thresholdWLAN-RSSI-High-r12 DISPLA
 
 #.FN_BODY MeasParameters-v1520/measGapPatterns-r15
   if (meas_gap_pattern_tvb) {
-    static const int *lte_rrc_meas_gap_pattern_flags[] = {
+    static int * const lte_rrc_meas_gap_pattern_flags[] = {
       &hf_lte_rrc_measGapPatterns_r15_bit1,
       &hf_lte_rrc_measGapPatterns_r15_bit2,
       &hf_lte_rrc_measGapPatterns_r15_bit3,

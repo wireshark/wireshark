@@ -1987,7 +1987,7 @@ static int samr_dissect_element_ValidatePassword_rep__(tvbuff_t *tvb _U_, int of
 static void
 samr_connect_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 access)
 {
-	static const int* access_flags[] = {
+	static int* const access_flags[] = {
 		&hf_samr_samr_ConnectAccessMask_SAMR_ACCESS_LOOKUP_DOMAIN,
 		&hf_samr_samr_ConnectAccessMask_SAMR_ACCESS_ENUM_DOMAINS,
 		&hf_samr_samr_ConnectAccessMask_SAMR_ACCESS_CREATE_DOMAIN,
@@ -2015,7 +2015,7 @@ samr_dissect_bitmap_ConnectAccessMask(tvbuff_t *tvb, int offset, packet_info *pi
 static void
 samr_alias_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 access)
 {
-	static const int* access_flags[] = {
+	static int* const access_flags[] = {
 		&hf_samr_samr_AliasAccessMask_SAMR_ALIAS_ACCESS_ADD_MEMBER,
 		&hf_samr_samr_AliasAccessMask_SAMR_ALIAS_ACCESS_REMOVE_MEMBER,
 		&hf_samr_samr_AliasAccessMask_SAMR_ALIAS_ACCESS_GET_MEMBERS,
@@ -2042,7 +2042,7 @@ samr_dissect_bitmap_AliasAccessMask(tvbuff_t *tvb, int offset, packet_info *pinf
 static void
 samr_group_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 access)
 {
-	static const int* access_flags[] = {
+	static int* const access_flags[] = {
 		&hf_samr_samr_GroupAccessMask_SAMR_GROUP_ACCESS_GET_MEMBERS,
 		&hf_samr_samr_GroupAccessMask_SAMR_GROUP_ACCESS_REMOVE_MEMBER,
 		&hf_samr_samr_GroupAccessMask_SAMR_GROUP_ACCESS_ADD_MEMBER,
@@ -2069,7 +2069,7 @@ samr_dissect_bitmap_GroupAccessMask(tvbuff_t *tvb, int offset, packet_info *pinf
 static void
 samr_domain_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 access)
 {
-	static const int* access_flags[] = {
+	static int* const access_flags[] = {
 		&hf_samr_samr_DomainAccessMask_SAMR_DOMAIN_ACCESS_LOOKUP_INFO_1,
 		&hf_samr_samr_DomainAccessMask_SAMR_DOMAIN_ACCESS_SET_INFO_1,
 		&hf_samr_samr_DomainAccessMask_SAMR_DOMAIN_ACCESS_LOOKUP_INFO_2,
@@ -2102,7 +2102,7 @@ samr_dissect_bitmap_DomainAccessMask(tvbuff_t *tvb, int offset, packet_info *pin
 static void
 samr_user_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 access)
 {
-	static const int* access_flags[] = {
+	static int* const access_flags[] = {
 		&hf_samr_samr_UserAccessMask_SAMR_USER_ACCESS_CHANGE_GROUP_MEMBERSHIP,
 		&hf_samr_samr_UserAccessMask_SAMR_USER_ACCESS_GET_GROUP_MEMBERSHIP,
 		&hf_samr_samr_UserAccessMask_SAMR_USER_ACCESS_GET_GROUPS,
@@ -2369,7 +2369,7 @@ int
 samr_dissect_bitmap_AcctFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item *item;
-	static const int * samr_samr_AcctFlags_fields[] = {
+	static int * const samr_samr_AcctFlags_fields[] = {
 		&hf_samr_samr_AcctFlags_ACB_DISABLED,
 		&hf_samr_samr_AcctFlags_ACB_HOMDIRREQ,
 		&hf_samr_samr_AcctFlags_ACB_PWNOTREQ,
@@ -2658,7 +2658,7 @@ int
 samr_dissect_bitmap_PasswordProperties(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item *item;
-	static const int * samr_samr_PasswordProperties_fields[] = {
+	static int * const samr_samr_PasswordProperties_fields[] = {
 		&hf_samr_samr_PasswordProperties_DOMAIN_PASSWORD_COMPLEX,
 		&hf_samr_samr_PasswordProperties_DOMAIN_PASSWORD_NO_ANON_CHANGE,
 		&hf_samr_samr_PasswordProperties_DOMAIN_PASSWORD_NO_CLEAR_CHANGE,
@@ -3718,7 +3718,7 @@ int
 samr_dissect_bitmap_GroupAttrs(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item *item;
-	static const int * samr_samr_GroupAttrs_fields[] = {
+	static int * const samr_samr_GroupAttrs_fields[] = {
 		&hf_samr_samr_GroupAttrs_SE_GROUP_MANDATORY,
 		&hf_samr_samr_GroupAttrs_SE_GROUP_ENABLED_BY_DEFAULT,
 		&hf_samr_samr_GroupAttrs_SE_GROUP_ENABLED,
@@ -5727,7 +5727,7 @@ int
 samr_dissect_bitmap_FieldsPresent(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item *item;
-	static const int * samr_samr_FieldsPresent_fields[] = {
+	static int * const samr_samr_FieldsPresent_fields[] = {
 		&hf_samr_samr_FieldsPresent_SAMR_FIELD_ACCOUNT_NAME,
 		&hf_samr_samr_FieldsPresent_SAMR_FIELD_FULL_NAME,
 		&hf_samr_samr_FieldsPresent_SAMR_FIELD_RID,
@@ -7895,7 +7895,7 @@ int
 samr_dissect_bitmap_ValidateFieldsPresent(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item *item;
-	static const int * samr_samr_ValidateFieldsPresent_fields[] = {
+	static int * const samr_samr_ValidateFieldsPresent_fields[] = {
 		&hf_samr_samr_ValidateFieldsPresent_SAMR_VALIDATE_FIELD_PASSWORD_LAST_SET,
 		&hf_samr_samr_ValidateFieldsPresent_SAMR_VALIDATE_FIELD_BAD_PASSWORD_TIME,
 		&hf_samr_samr_ValidateFieldsPresent_SAMR_VALIDATE_FIELD_LOCKOUT_TIME,

@@ -638,7 +638,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 
 		if (tree)
 		{
-			static const int * s_formats[] = {
+			static int * const s_formats[] = {
 				&hf_llcgprs_S_fmt,
 				&hf_llcgprs_As,
 				&hf_llcgprs_sspare,
@@ -709,7 +709,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 
 		if (tree)
 		{
-			static const int * i_formats[] = {
+			static int * const i_formats[] = {
 				&hf_llcgprs_U_fmt,
 				&hf_llcgprs_sp_bits,
 				&hf_llcgprs_NU,

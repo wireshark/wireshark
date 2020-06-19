@@ -660,7 +660,7 @@ dissect_someip_sd_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     gboolean        stop_parsing_after_entries = FALSE;
     guint32         offset_entriesarray;
 
-    static const int * someipsd_flags[] = {
+    static int * const someipsd_flags[] = {
         &hf_someip_sd_rebootflag,
         &hf_someip_sd_unicastflag,
         &hf_someip_sd_explicitiniteventflag,

@@ -266,7 +266,7 @@ int dissect_typeinfo_PARAMDESC(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree *sub_tree;
     guint32 u32SubStart;
 
-    static const int *flags[] = {
+    static int * const flags[] = {
         &hf_typeinfo_paramdesc_paramflags_fin,
         &hf_typeinfo_paramdesc_paramflags_fout,
         &hf_typeinfo_paramdesc_paramflags_flcid,
@@ -400,7 +400,7 @@ int dissect_typeinfo_FUNCDESC(tvbuff_t *tvb, int offset,
 
     guint32 u32SubStart;
 
-    static const int *flags[] = {
+    static int * const flags[] = {
         &hf_typeinfo_funcdesc_funcflags_frestricted,
         &hf_typeinfo_funcdesc_funcflags_fsource,
         &hf_typeinfo_funcdesc_funcflags_fbindable,
@@ -496,7 +496,7 @@ int dissect_typeinfo_TYPEATTR(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree *sub_tree;
     guint32 u32SubStart;
 
-    static const int *flags[] = {
+    static int * const flags[] = {
         &hf_typeinfo_typeflags_fappobject,
         &hf_typeinfo_typeflags_fcancreate,
         &hf_typeinfo_typeflags_flicensed,
@@ -735,7 +735,7 @@ int dissect_ITypeInfo_GetDocumentation_rqst(tvbuff_t *tvb, int offset,
 
     guint32 u32TmpOffset;
 
-    static const int *flags[] = {
+    static int * const flags[] = {
         &hf_typeinfo_docflags_name,
         &hf_typeinfo_docflags_docstring,
         &hf_typeinfo_docflags_helpctx,

@@ -398,7 +398,7 @@ dissect_v3_max_resp(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 static int
 dissect_v3_sqrv_bits(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
-    static const int * bits[] = {
+    static int * const bits[] = {
         &hf_suppress,
         &hf_qrv,
         NULL

@@ -3183,7 +3183,7 @@ dissect_krb5_decrypt_EncryptedChallenge(gboolean imp_tag _U_, tvbuff_t *tvb, int
 }
 #endif /* HAVE_KERBEROS */
 
-static const int *hf_krb_pa_supported_enctypes_fields[] = {
+static int * const hf_krb_pa_supported_enctypes_fields[] = {
 	&hf_krb_pa_supported_enctypes_des_cbc_crc,
 	&hf_krb_pa_supported_enctypes_des_cbc_md5,
 	&hf_krb_pa_supported_enctypes_rc4_hmac,
@@ -3215,7 +3215,7 @@ dissect_kerberos_PA_SUPPORTED_ENCTYPES(gboolean implicit_tag _U_, tvbuff_t *tvb 
 	return offset;
 }
 
-static const int *hf_krb_ad_ap_options_fields[] = {
+static int * const hf_krb_ad_ap_options_fields[] = {
 	&hf_krb_ad_ap_options_cbt,
 	NULL,
 };
@@ -3899,7 +3899,7 @@ dissect_kerberos_KrbFastReq(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
   return offset;
 }
 
-static const int * FastOptions_bits[] = {
+static int * const FastOptions_bits[] = {
   &hf_kerberos_FastOptions_reserved,
   &hf_kerberos_FastOptions_hide_client_names,
   &hf_kerberos_FastOptions_spare_bit2,

@@ -48,7 +48,7 @@ static int hf_vxlan_next_proto = -1;
 static int ett_vxlan = -1;
 static int ett_vxlan_flags = -1;
 
-static const int *flags_fields[] = {
+static int * const flags_fields[] = {
         &hf_vxlan_flag_g,
         &hf_vxlan_flag_d,
         &hf_vxlan_flag_i,
@@ -57,7 +57,7 @@ static const int *flags_fields[] = {
         NULL
     };
 
-static const int *gpe_flags_fields[] = {
+static int * const gpe_flags_fields[] = {
         &hf_vxlan_gpe_flag_ver,
         &hf_vxlan_gpe_flag_i,
         &hf_vxlan_gpe_flag_p,

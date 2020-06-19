@@ -310,7 +310,7 @@ dissect_usbll_token(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint of
     guint8           endpoint;
     guint16          address_bits;
 
-    static const int *address_fields[] = {
+    static int * const address_fields[] = {
         &hf_usbll_device_addr,
         &hf_usbll_endp,
         NULL

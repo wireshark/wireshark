@@ -4868,7 +4868,7 @@ int parse_CCategorizationSpec(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 	return offset;
 }
 
-static const int *mswsp_bool_options[] = {
+static int * const mswsp_bool_options[] = {
 	&hf_mswsp_bool_options_cursor,
 	&hf_mswsp_bool_options_async,
 	&hf_mswsp_bool_options_firstrows,

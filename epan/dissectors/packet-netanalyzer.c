@@ -147,7 +147,7 @@ static gint  hf_netanalyzer_buf_state                = -1;
 static gint  hf_netanalyzer_buf_source               = -1;
 static gint  hf_netanalyzer_timetick                 = -1;
 
-static const int *hfx_netanalyzer_status[] = {
+static int * const hfx_netanalyzer_status[] = {
   &hf_netanalyzer_status_rx_err,
   &hf_netanalyzer_status_align_err,
   &hf_netanalyzer_status_fcs,

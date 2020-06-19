@@ -771,7 +771,7 @@ ldap_conv_info_t *ldap_info;
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, -1, &val);
 
   if (val >0) {
-    const int *flags[] = {
+    static int * const flags[] = {
       &hf_ldap_object_security_flag,
       &hf_ldap_ancestor_first_flag,
       &hf_ldap_public_data_only_flag,

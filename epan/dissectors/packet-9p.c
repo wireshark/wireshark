@@ -960,7 +960,7 @@ static void dissect_9P_lflags(tvbuff_t *tvb, proto_tree *tree, int offset);
 static void dissect_9P_getattrflags(tvbuff_t *tvb, proto_tree *tree, int offset);
 static void dissect_9P_setattrflags(tvbuff_t *tvb, proto_tree *tree, int offset);
 
-static const int * _9P_modes[] = {
+static int * const _9P_modes[] = {
 	&hf_9P_mode_c,
 	&hf_9P_mode_t,
 	&hf_9P_mode_rwx,

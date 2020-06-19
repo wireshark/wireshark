@@ -208,7 +208,7 @@ dissect_pana_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void
 dissect_pana_flags(proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 flags)
 {
-        static const int * flag_fields[] = {
+        static int * const flag_fields[] = {
             &hf_pana_flag_r,
             &hf_pana_flag_s,
             &hf_pana_flag_c,
@@ -229,7 +229,7 @@ dissect_pana_flags(proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 f
 static void
 dissect_pana_avp_flags(proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 flags)
 {
-        static const int * flag_fields[] = {
+        static int * const flag_fields[] = {
             &hf_pana_avp_flag_v,
             NULL,
         };

@@ -3917,7 +3917,7 @@ dissect_h248_SignalType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 }
 
 
-static const int * NotifyCompletion_bits[] = {
+static int * const NotifyCompletion_bits[] = {
   &hf_h248_NotifyCompletion_onTimeOut,
   &hf_h248_NotifyCompletion_onInterruptByEvent,
   &hf_h248_NotifyCompletion_onInterruptByNewSignalDescr,
@@ -4401,7 +4401,7 @@ dissect_h248_DigitMapDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 }
 
 
-static const int * T_auditToken_bits[] = {
+static int * const T_auditToken_bits[] = {
   &hf_h248_T_auditToken_muxToken,
   &hf_h248_T_auditToken_modemToken,
   &hf_h248_T_auditToken_mediaToken,

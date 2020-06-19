@@ -213,7 +213,7 @@ static int dissect_regextval_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 static int dissect_denmssp_pdu(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    static const int *denmssp_flags[] = {
+    static int * const denmssp_flags[] = {
         &hf_denmssp_trafficCondition,
         &hf_denmssp_accident,
         &hf_denmssp_roadworks,
@@ -252,7 +252,7 @@ static int dissect_denmssp_pdu(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 
 static int dissect_camssp_pdu(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    static const int *camssp_flags[] = {
+    static int * const camssp_flags[] = {
         &hf_camssp_cenDsrcTollingZone,
         &hf_camssp_publicTransport,
         &hf_camssp_specialTransport,
@@ -2669,7 +2669,7 @@ dissect_its_PtActivation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 }
 
 
-static const int * its_AccelerationControl_bits[] = {
+static int * const its_AccelerationControl_bits[] = {
   &hf_its_AccelerationControl_brakePedalEngaged,
   &hf_its_AccelerationControl_gasPedalEngaged,
   &hf_its_AccelerationControl_emergencyBrakeEngaged,
@@ -3459,7 +3459,7 @@ dissect_its_StationType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 }
 
 
-static const int * its_ExteriorLights_bits[] = {
+static int * const its_ExteriorLights_bits[] = {
   &hf_its_ExteriorLights_lowBeamHeadlightsOn,
   &hf_its_ExteriorLights_highBeamHeadlightsOn,
   &hf_its_ExteriorLights_leftTurnSignalOn,
@@ -3584,7 +3584,7 @@ dissect_its_DangerousGoodsExtended(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 }
 
 
-static const int * its_SpecialTransportType_bits[] = {
+static int * const its_SpecialTransportType_bits[] = {
   &hf_its_SpecialTransportType_heavyLoad,
   &hf_its_SpecialTransportType_excessWidth,
   &hf_its_SpecialTransportType_excessLength,
@@ -3601,7 +3601,7 @@ dissect_its_SpecialTransportType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 }
 
 
-static const int * its_LightBarSirenInUse_bits[] = {
+static int * const its_LightBarSirenInUse_bits[] = {
   &hf_its_LightBarSirenInUse_lightBarActivated,
   &hf_its_LightBarSirenInUse_sirenActivated,
   NULL
@@ -3812,7 +3812,7 @@ dissect_its_PosFrontAx(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 }
 
 
-static const int * its_PositionOfOccupants_bits[] = {
+static int * const its_PositionOfOccupants_bits[] = {
   &hf_its_PositionOfOccupants_row1LeftOccupied,
   &hf_its_PositionOfOccupants_row1RightOccupied,
   &hf_its_PositionOfOccupants_row1MidOccupied,
@@ -3900,7 +3900,7 @@ dissect_its_VehicleIdentification(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 }
 
 
-static const int * its_EnergyStorageType_bits[] = {
+static int * const its_EnergyStorageType_bits[] = {
   &hf_its_EnergyStorageType_hydrogenStorage,
   &hf_its_EnergyStorageType_electricEnergyStorage,
   &hf_its_EnergyStorageType_liquidPropaneGas,
@@ -4002,7 +4002,7 @@ dissect_its_PathHistory(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 }
 
 
-static const int * its_EmergencyPriority_bits[] = {
+static int * const its_EmergencyPriority_bits[] = {
   &hf_its_EmergencyPriority_requestForRightOfWay,
   &hf_its_EmergencyPriority_requestForFreeCrossingAtATrafficLight,
   NULL
@@ -4854,7 +4854,7 @@ dissect_itsv1_PtActivation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 }
 
 
-static const int * itsv1_AccelerationControl_bits[] = {
+static int * const itsv1_AccelerationControl_bits[] = {
   &hf_itsv1_AccelerationControl_brakePedalEngaged,
   &hf_itsv1_AccelerationControl_gasPedalEngaged,
   &hf_itsv1_AccelerationControl_emergencyBrakeEngaged,
@@ -5099,7 +5099,7 @@ dissect_itsv1_HardShoulderStatus(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 }
 
 
-static const int * itsv1_DrivingLaneStatus_bits[] = {
+static int * const itsv1_DrivingLaneStatus_bits[] = {
   &hf_itsv1_DrivingLaneStatus_spare_bit0,
   &hf_itsv1_DrivingLaneStatus_outermostLaneClosed,
   &hf_itsv1_DrivingLaneStatus_secondLaneFromOutsideClosed,
@@ -5379,7 +5379,7 @@ dissect_itsv1_StationType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 }
 
 
-static const int * itsv1_ExteriorLights_bits[] = {
+static int * const itsv1_ExteriorLights_bits[] = {
   &hf_itsv1_ExteriorLights_lowBeamHeadlightsOn,
   &hf_itsv1_ExteriorLights_highBeamHeadlightsOn,
   &hf_itsv1_ExteriorLights_leftTurnSignalOn,
@@ -5494,7 +5494,7 @@ dissect_itsv1_DangerousGoodsExtended(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 }
 
 
-static const int * itsv1_SpecialTransportType_bits[] = {
+static int * const itsv1_SpecialTransportType_bits[] = {
   &hf_itsv1_SpecialTransportType_heavyLoad,
   &hf_itsv1_SpecialTransportType_excessWidth,
   &hf_itsv1_SpecialTransportType_excessLength,
@@ -5511,7 +5511,7 @@ dissect_itsv1_SpecialTransportType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 }
 
 
-static const int * itsv1_LightBarSirenInUse_bits[] = {
+static int * const itsv1_LightBarSirenInUse_bits[] = {
   &hf_itsv1_LightBarSirenInUse_lightBarActivated,
   &hf_itsv1_LightBarSirenInUse_sirenActivated,
   NULL
@@ -5722,7 +5722,7 @@ dissect_itsv1_PosFrontAx(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 }
 
 
-static const int * itsv1_PositionOfOccupants_bits[] = {
+static int * const itsv1_PositionOfOccupants_bits[] = {
   &hf_itsv1_PositionOfOccupants_row1LeftOccupied,
   &hf_itsv1_PositionOfOccupants_row1RightOccupied,
   &hf_itsv1_PositionOfOccupants_row1MidOccupied,
@@ -5810,7 +5810,7 @@ dissect_itsv1_VehicleIdentification(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 }
 
 
-static const int * itsv1_EnergyStorageType_bits[] = {
+static int * const itsv1_EnergyStorageType_bits[] = {
   &hf_itsv1_EnergyStorageType_hydrogenStorage,
   &hf_itsv1_EnergyStorageType_electricEnergyStorage,
   &hf_itsv1_EnergyStorageType_liquidPropaneGas,
@@ -5912,7 +5912,7 @@ dissect_itsv1_PathHistory(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 }
 
 
-static const int * itsv1_EmergencyPriority_bits[] = {
+static int * const itsv1_EmergencyPriority_bits[] = {
   &hf_itsv1_EmergencyPriority_requestForRightOfWay,
   &hf_itsv1_EmergencyPriority_requestForFreeCrossingAtATrafficLight,
   NULL
@@ -7949,7 +7949,7 @@ dissect_ivi_T_month_day(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 }
 
 
-static const int * ivi_PMD_bits[] = {
+static int * const ivi_PMD_bits[] = {
   &hf_ivi_PMD_national_holiday,
   &hf_ivi_PMD_even_days,
   &hf_ivi_PMD_odd_days,
@@ -8016,7 +8016,7 @@ dissect_ivi_T_hourMinutes(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 }
 
 
-static const int * ivi_DayOfWeek_bits[] = {
+static int * const ivi_DayOfWeek_bits[] = {
   &hf_ivi_DayOfWeek_unused,
   &hf_ivi_DayOfWeek_monday,
   &hf_ivi_DayOfWeek_tuesday,
@@ -9550,7 +9550,7 @@ dissect_dsrc_ApproachID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 }
 
 
-static const int * dsrc_LaneDirection_bits[] = {
+static int * const dsrc_LaneDirection_bits[] = {
   &hf_dsrc_LaneDirection_ingressPath,
   &hf_dsrc_LaneDirection_egressPath,
   NULL
@@ -9565,7 +9565,7 @@ dissect_dsrc_LaneDirection(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 }
 
 
-static const int * dsrc_LaneSharing_bits[] = {
+static int * const dsrc_LaneSharing_bits[] = {
   &hf_dsrc_LaneSharing_overlappingLaneDescriptionProvided,
   &hf_dsrc_LaneSharing_multipleLanesTreatedAsOneLane,
   &hf_dsrc_LaneSharing_otherNonMotorizedTrafficTypes,
@@ -9588,7 +9588,7 @@ dissect_dsrc_LaneSharing(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 }
 
 
-static const int * dsrc_LaneAttributes_Vehicle_bits[] = {
+static int * const dsrc_LaneAttributes_Vehicle_bits[] = {
   &hf_dsrc_LaneAttributes_Vehicle_isVehicleRevocableLane,
   &hf_dsrc_LaneAttributes_Vehicle_isVehicleFlyOverLane,
   &hf_dsrc_LaneAttributes_Vehicle_hovLaneUseOnly,
@@ -9609,7 +9609,7 @@ dissect_dsrc_LaneAttributes_Vehicle(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 }
 
 
-static const int * dsrc_LaneAttributes_Crosswalk_bits[] = {
+static int * const dsrc_LaneAttributes_Crosswalk_bits[] = {
   &hf_dsrc_LaneAttributes_Crosswalk_crosswalkRevocableLane,
   &hf_dsrc_LaneAttributes_Crosswalk_bicyleUseAllowed,
   &hf_dsrc_LaneAttributes_Crosswalk_isXwalkFlyOverLane,
@@ -9631,7 +9631,7 @@ dissect_dsrc_LaneAttributes_Crosswalk(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 }
 
 
-static const int * dsrc_LaneAttributes_Bike_bits[] = {
+static int * const dsrc_LaneAttributes_Bike_bits[] = {
   &hf_dsrc_LaneAttributes_Bike_bikeRevocableLane,
   &hf_dsrc_LaneAttributes_Bike_pedestrianUseAllowed,
   &hf_dsrc_LaneAttributes_Bike_isBikeFlyOverLane,
@@ -9651,7 +9651,7 @@ dissect_dsrc_LaneAttributes_Bike(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 }
 
 
-static const int * dsrc_LaneAttributes_Sidewalk_bits[] = {
+static int * const dsrc_LaneAttributes_Sidewalk_bits[] = {
   &hf_dsrc_LaneAttributes_Sidewalk_sidewalk_RevocableLane,
   &hf_dsrc_LaneAttributes_Sidewalk_bicyleUseAllowed,
   &hf_dsrc_LaneAttributes_Sidewalk_isSidewalkFlyOverLane,
@@ -9668,7 +9668,7 @@ dissect_dsrc_LaneAttributes_Sidewalk(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 }
 
 
-static const int * dsrc_LaneAttributes_Barrier_bits[] = {
+static int * const dsrc_LaneAttributes_Barrier_bits[] = {
   &hf_dsrc_LaneAttributes_Barrier_median_RevocableLane,
   &hf_dsrc_LaneAttributes_Barrier_median,
   &hf_dsrc_LaneAttributes_Barrier_whiteLineHashing,
@@ -9691,7 +9691,7 @@ dissect_dsrc_LaneAttributes_Barrier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 }
 
 
-static const int * dsrc_LaneAttributes_Striping_bits[] = {
+static int * const dsrc_LaneAttributes_Striping_bits[] = {
   &hf_dsrc_LaneAttributes_Striping_stripeToConnectingLanesRevocableLane,
   &hf_dsrc_LaneAttributes_Striping_stripeDrawOnLeft,
   &hf_dsrc_LaneAttributes_Striping_stripeDrawOnRight,
@@ -9710,7 +9710,7 @@ dissect_dsrc_LaneAttributes_Striping(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 }
 
 
-static const int * dsrc_LaneAttributes_TrackedVehicle_bits[] = {
+static int * const dsrc_LaneAttributes_TrackedVehicle_bits[] = {
   &hf_dsrc_LaneAttributes_TrackedVehicle_spec_RevocableLane,
   &hf_dsrc_LaneAttributes_TrackedVehicle_spec_commuterRailRoadTrack,
   &hf_dsrc_LaneAttributes_TrackedVehicle_spec_lightRailRoadTrack,
@@ -9728,7 +9728,7 @@ dissect_dsrc_LaneAttributes_TrackedVehicle(tvbuff_t *tvb _U_, int offset _U_, as
 }
 
 
-static const int * dsrc_LaneAttributes_Parking_bits[] = {
+static int * const dsrc_LaneAttributes_Parking_bits[] = {
   &hf_dsrc_LaneAttributes_Parking_parkingRevocableLane,
   &hf_dsrc_LaneAttributes_Parking_parallelParkingInUse,
   &hf_dsrc_LaneAttributes_Parking_headInParkingInUse,
@@ -9806,7 +9806,7 @@ dissect_dsrc_LaneAttributes(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 }
 
 
-static const int * dsrc_AllowedManeuvers_bits[] = {
+static int * const dsrc_AllowedManeuvers_bits[] = {
   &hf_dsrc_AllowedManeuvers_maneuverStraightAllowed,
   &hf_dsrc_AllowedManeuvers_maneuverLeftAllowed,
   &hf_dsrc_AllowedManeuvers_maneuverRightAllowed,
@@ -11408,7 +11408,7 @@ dissect_dsrc_FullPositionVector(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 }
 
 
-static const int * dsrc_GNSSstatus_bits[] = {
+static int * const dsrc_GNSSstatus_bits[] = {
   &hf_dsrc_GNSSstatus_unavailable,
   &hf_dsrc_GNSSstatus_isHealthy,
   &hf_dsrc_GNSSstatus_isMonitored,
@@ -11535,7 +11535,7 @@ dissect_dsrc_RTCMcorrections(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 }
 
 
-static const int * dsrc_IntersectionStatusObject_bits[] = {
+static int * const dsrc_IntersectionStatusObject_bits[] = {
   &hf_dsrc_IntersectionStatusObject_manualControlIsEnabled,
   &hf_dsrc_IntersectionStatusObject_stopTimeIsActivated,
   &hf_dsrc_IntersectionStatusObject_failureFlash,
@@ -12350,7 +12350,7 @@ dissect_dsrc_RequestorPositionVector(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 }
 
 
-static const int * dsrc_TransitVehicleStatus_bits[] = {
+static int * const dsrc_TransitVehicleStatus_bits[] = {
   &hf_dsrc_TransitVehicleStatus_loading,
   &hf_dsrc_TransitVehicleStatus_anADAuse,
   &hf_dsrc_TransitVehicleStatus_aBikeLoad,
@@ -14401,7 +14401,7 @@ dissect_tistpg_CustomerContract(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 }
 
 
-static const int * tistpg_TisProfile_bits[] = {
+static int * const tistpg_TisProfile_bits[] = {
   &hf_tistpg_TisProfile_reserved,
   &hf_tistpg_TisProfile_profileOne,
   &hf_tistpg_TisProfile_profileTwo,
@@ -14536,7 +14536,7 @@ dissect_tistpg_TisTpgSNM_Management(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 }
 
 
-static const int * tistpg_TpgAutomation_bits[] = {
+static int * const tistpg_TpgAutomation_bits[] = {
   &hf_tistpg_TpgAutomation_fullAutomated,
   &hf_tistpg_TpgAutomation_semiAutomated,
   &hf_tistpg_TpgAutomation_manual,
@@ -15548,7 +15548,7 @@ dissect_evcsn_NumericString_SIZE_1_16(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 }
 
 
-static const int * evcsn_ChargingSpotType_bits[] = {
+static int * const evcsn_ChargingSpotType_bits[] = {
   &hf_evcsn_ChargingSpotType_standardChargeMode1,
   &hf_evcsn_ChargingSpotType_standardChargeMode2,
   &hf_evcsn_ChargingSpotType_standardOrFastChargeMode3,
@@ -15923,7 +15923,7 @@ dissect_evrsr_AvailabilityStatus(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 }
 
 
-static const int * evrsr_SupportedPaymentTypes_bits[] = {
+static int * const evrsr_SupportedPaymentTypes_bits[] = {
   &hf_evrsr_SupportedPaymentTypes_contract,
   &hf_evrsr_SupportedPaymentTypes_externalIdentification,
   NULL

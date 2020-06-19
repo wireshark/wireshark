@@ -108,14 +108,14 @@ dissect_etag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     guint64 tci;
 
     /* Decoding per IEEE802.1BR-2012 */
-    static const int * fields1[] = {
+    static int * const fields1[] = {
         &hf_etag_pcp,
         &hf_etag_dei,
         &hf_etag_iecid_base,
         NULL
     };
 
-    static const int * fields2[] = {
+    static int * const fields2[] = {
         &hf_etag_res,
         &hf_etag_grp,
         &hf_etag_ecid_base,

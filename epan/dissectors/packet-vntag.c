@@ -57,7 +57,7 @@ dissect_vntag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 	   https://d2zmdbbm9feqrf.cloudfront.net/2012/usa/pdf/BRKDCT-2340.pdf p.61
 	   http://www.definethecloud.net/access-layer-network-virtualization-vn-tag-and-vepa
 	 */
-	static const int * fields[] = {
+	static int * const fields[] = {
 		&hf_vntag_dir,
 		&hf_vntag_ptr,
 		&hf_vntag_dst,

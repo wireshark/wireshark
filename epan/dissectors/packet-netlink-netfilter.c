@@ -684,7 +684,7 @@ static header_field_info hfi_nfct_attr_status_flag_offload NETLINK_NETFILTER_HFI
 		FT_UINT32, BASE_DEC, NULL, WS_IPS_OFFLOAD,
 		NULL, HFILL };
 
-static const int *hfi_nfct_attr_status_flags[] = {
+static int * const hfi_nfct_attr_status_flags[] = {
 	&hfi_nfct_attr_status_flag_offload.id,
 	&hfi_nfct_attr_status_flag_helper.id,
 	&hfi_nfct_attr_status_flag_untracked.id,
@@ -936,7 +936,7 @@ static header_field_info hfi_nfexp_attr_flag_userspace NETLINK_NETFILTER_HFI_INI
 		FT_UINT32, BASE_DEC, NULL, WS_NF_CT_EXPECT_USERSPACE,
 		NULL, HFILL };
 
-static const int *hfi_nfexp_attr_flags_bitfield[] = {
+static int * const hfi_nfexp_attr_flags_bitfield[] = {
 	&hfi_nfexp_attr_flag_userspace.id,
 	&hfi_nfexp_attr_flag_inactive.id,
 	&hfi_nfexp_attr_flag_permanent.id,

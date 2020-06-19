@@ -451,7 +451,7 @@ static const value_string juniper_proto_vals[] = {
   {0,                    NULL}
 };
 
-static const int * vn_flags[] = {
+static int * const vn_flags[] = {
   &hf_juniper_vn_flag_direction,
   &hf_juniper_vn_flag_mirror,
   &hf_juniper_vn_flag_reject,

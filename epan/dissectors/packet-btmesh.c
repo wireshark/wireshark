@@ -1095,7 +1095,7 @@ static const value_string btmesh_fault_array_vals[] = {
 
 #if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
 
-static const int *config_composition_data_status_features_headers[] = {
+static int * const config_composition_data_status_features_headers[] = {
     &hf_btmesh_config_composition_data_status_features_relay,
     &hf_btmesh_config_composition_data_status_features_proxy,
     &hf_btmesh_config_composition_data_status_features_friend,
@@ -1104,7 +1104,7 @@ static const int *config_composition_data_status_features_headers[] = {
     NULL
 };
 
-static const int *config_heartbeat_publication_set_features_headers[] = {
+static int * const config_heartbeat_publication_set_features_headers[] = {
     &hf_btmesh_config_heartbeat_publication_set_features_relay,
     &hf_btmesh_config_heartbeat_publication_set_features_proxy,
     &hf_btmesh_config_heartbeat_publication_set_features_friend,
@@ -1113,7 +1113,7 @@ static const int *config_heartbeat_publication_set_features_headers[] = {
     NULL
 };
 
-static const int *config_heartbeat_publication_status_features_headers[] = {
+static int * const config_heartbeat_publication_status_features_headers[] = {
     &hf_btmesh_config_heartbeat_publication_status_features_relay,
     &hf_btmesh_config_heartbeat_publication_status_features_proxy,
     &hf_btmesh_config_heartbeat_publication_status_features_friend,

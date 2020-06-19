@@ -3257,7 +3257,7 @@ static void
 dissect_isup_nature_of_connection_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint8 nature_of_connection_ind;
-  static const int * indicators[] = {
+  static int * const indicators[] = {
     &hf_isup_satellite_indicator,
     &hf_isup_continuity_check_indicator,
     &hf_isup_echo_control_device_indicator,
@@ -3277,7 +3277,7 @@ static void
 dissect_isup_forward_call_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint16 forward_call_ind = tvb_get_ntohs(parameter_tvb, 0);
-  static const int * indicators[] = {
+  static int * const indicators[] = {
     &hf_isup_forw_call_natnl_inatnl_call_indicator,
     &hf_isup_forw_call_end_to_end_method_indicator,
     &hf_isup_forw_call_interworking_indicator,
@@ -3452,13 +3452,13 @@ dissect_isup_called_party_number_parameter(tvbuff_t *parameter_tvb, packet_info 
   guint8       indicators1, indicators2;
   gint         offset = 0;
   gint         number_plan;
-  static const int *indicators1_flags[] = {
+  static int * const indicators1_flags[] = {
     &hf_isup_odd_even_indicator,
     &hf_isup_called_party_nature_of_address_indicator,
     NULL
   };
 
-  static const int *indicators2_flags[] = {
+  static int * const indicators2_flags[] = {
     &hf_isup_inn_indicator,
     &hf_isup_numbering_plan_indicator,
     NULL
@@ -3502,7 +3502,7 @@ dissect_isup_subsequent_number_parameter(tvbuff_t *parameter_tvb, packet_info *p
 static void
 dissect_isup_information_request_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  static const int * indicators[] = {
+  static int * const indicators[] = {
     &hf_isup_calling_party_address_request_indicator,
     &hf_isup_info_req_holding_indicator,
     &hf_isup_calling_partys_category_request_indicator,
@@ -3521,7 +3521,7 @@ dissect_isup_information_request_indicators_parameter(tvbuff_t *parameter_tvb, p
 static void
 dissect_isup_information_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  static const int * indicators[] = {
+  static int * const indicators[] = {
     &hf_isup_calling_party_address_response_indicator,
     &hf_isup_hold_provided_indicator,
     &hf_isup_calling_partys_category_response_indicator,
@@ -3553,7 +3553,7 @@ dissect_isup_continuity_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree
 static void
 dissect_isup_backward_call_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  static const int * indicators[] = {
+  static int * const indicators[] = {
     &hf_isup_backw_call_charge_ind,
     &hf_isup_backw_call_called_partys_status_ind,
     &hf_isup_backw_call_called_partys_category_ind,
@@ -3575,7 +3575,7 @@ dissect_isup_backward_call_indicators_parameter(tvbuff_t *parameter_tvb, proto_t
 static void
 dissect_ansi_isup_backward_call_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  static const int * indicators[] = {
+  static int * const indicators[] = {
     &hf_isup_backw_call_charge_ind,
     &hf_isup_backw_call_called_partys_status_ind,
     &hf_isup_backw_call_called_partys_category_ind,
@@ -3961,7 +3961,7 @@ dissect_ansi_isup_transit_network_selection_parameter(tvbuff_t *parameter_tvb, p
 {
   gint        offset = 0;
 
-  static const int * indicators_fields[] = {
+  static int * const indicators_fields[] = {
     &hf_ansi_isup_spare_b7,
     &hf_isup_type_of_network_identification,
     &hf_ansi_isup_tns_nw_id_plan,
@@ -3999,7 +3999,7 @@ dissect_ansi_isup_param_carrier_id(tvbuff_t *parameter_tvb, packet_info *pinfo _
 {
   int offset = 0;
 
-  static const int * flags[] = {
+  static int * const flags[] = {
     &hf_ansi_isup_spare_b7,
     &hf_ansi_isup_type_of_nw_id,
     &hf_ansi_isup_nw_id_plan,
@@ -4640,7 +4640,7 @@ static const value_string BAT_ASE_Report_Reason_vals[] = {
  */
 extern int dissect_codec_mode(proto_tree *tree, tvbuff_t *tvb, int offset, int len) {
   guint8 tempdata;
-  static const int * active_code_sets[] = {
+  static int * const active_code_sets[] = {
     &hf_active_code_set_12_2,
     &hf_active_code_set_10_2,
     &hf_active_code_set_7_95,
@@ -4652,7 +4652,7 @@ extern int dissect_codec_mode(proto_tree *tree, tvbuff_t *tvb, int offset, int l
     NULL
   };
 
-  static const int * supported_code_sets[] = {
+  static int * const supported_code_sets[] = {
     &hf_supported_code_set_12_2,
     &hf_supported_code_set_10_2,
     &hf_supported_code_set_7_95,
@@ -4742,7 +4742,7 @@ static int
 dissect_codec(tvbuff_t *parameter_tvb, proto_tree *bat_ase_element_tree, gint length_indicator, gint offset, gint identifier)
 {
 /* offset is at length indicator e.g 1 step past identifier */
-  static const int * compatibility_info[] = {
+  static int * const compatibility_info[] = {
     &hf_Instruction_ind_for_general_action,
     &hf_Send_notification_ind_for_general_action,
     &hf_Instruction_ind_for_pass_on_not_possible,
@@ -5087,21 +5087,21 @@ dissect_isup_application_transport_parameter(tvbuff_t *parameter_tvb, packet_inf
   tvbuff_t      *next_tvb = NULL;
   fragment_head *frag_msg = NULL;
 
-  static const int * apm_flags[] = {
+  static int * const apm_flags[] = {
     &hf_isup_extension_ind,
     &hf_isup_apm_si_ind,
     &hf_isup_apm_segmentation_ind,
     NULL
   };
 
-  static const int * app_trans_flags[] = {
+  static int * const app_trans_flags[] = {
     &hf_isup_extension_ind,
     &hf_isup_app_Send_notification_ind,
     &hf_isup_app_Release_call_ind,
     NULL
   };
 
-  static const int * app_field_flags[] = {
+  static int * const app_field_flags[] = {
     &hf_isup_extension_ind,
     &hf_isup_app_cont_ident,
     NULL
@@ -5258,7 +5258,7 @@ static void
 dissect_isup_optional_forward_call_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint8 ind;
-  static const int * indicators[] = {
+  static int * const indicators[] = {
     &hf_isup_cug_call_ind,
     &hf_isup_simple_segmentation_ind,
     &hf_isup_connected_line_identity_request_ind,
@@ -5281,12 +5281,12 @@ dissect_isup_calling_party_number_parameter(tvbuff_t *parameter_tvb, packet_info
   guint8       indicators1, indicators2;
   gint         offset = 0;
   gint         number_plan;
-  static const int * indicators1_fields[] = {
+  static int * const indicators1_fields[] = {
     &hf_isup_odd_even_indicator,
     &hf_isup_calling_party_nature_of_address_indicator,
     NULL
   };
-  static const int * indicators2_fields[] = {
+  static int * const indicators2_fields[] = {
     &hf_isup_ni_indicator,
     &hf_isup_numbering_plan_indicator,
     &hf_isup_address_presentation_restricted_indicator,
@@ -5315,12 +5315,12 @@ dissect_isup_original_called_number_parameter(tvbuff_t *parameter_tvb, packet_in
 {
   guint8      indicators1;
   gint        offset = 0;
-  static const int * indicators1_fields[] = {
+  static int * const indicators1_fields[] = {
     &hf_isup_odd_even_indicator,
     &hf_isup_calling_party_nature_of_address_indicator,
     NULL
   };
-  static const int * indicators2_fields[] = {
+  static int * const indicators2_fields[] = {
     &hf_isup_numbering_plan_indicator,
     &hf_isup_address_presentation_restricted_indicator,
     NULL
@@ -5346,12 +5346,12 @@ dissect_isup_redirecting_number_parameter(tvbuff_t *parameter_tvb, packet_info *
 {
   guint8      indicators1;
   gint        offset = 0;
-  static const int * indicators1_fields[] = {
+  static int * const indicators1_fields[] = {
     &hf_isup_odd_even_indicator,
     &hf_isup_calling_party_nature_of_address_indicator,
     NULL
   };
-  static const int * indicators2_fields[] = {
+  static int * const indicators2_fields[] = {
     &hf_isup_numbering_plan_indicator,
     &hf_isup_address_presentation_restricted_indicator,
     NULL
@@ -5376,12 +5376,12 @@ dissect_isup_redirection_number_parameter(tvbuff_t *parameter_tvb, packet_info *
 {
   guint8      indicators1;
   gint        offset = 0;
-  static const int * indicators1_fields[] = {
+  static int * const indicators1_fields[] = {
     &hf_isup_odd_even_indicator,
     &hf_isup_called_party_nature_of_address_indicator,
     NULL
   };
-  static const int * indicators2_fields[] = {
+  static int * const indicators2_fields[] = {
     &hf_isup_inn_indicator,
     &hf_isup_numbering_plan_indicator,
     NULL
@@ -5500,12 +5500,12 @@ dissect_isup_connected_number_parameter(tvbuff_t *parameter_tvb, packet_info *pi
 {
   guint8      indicators1;
   gint        offset = 0;
-  static const int * indicators1_fields[] = {
+  static int * const indicators1_fields[] = {
     &hf_isup_odd_even_indicator,
     &hf_isup_calling_party_nature_of_address_indicator,
     NULL
   };
-  static const int * indicators2_fields[] = {
+  static int * const indicators2_fields[] = {
     &hf_isup_numbering_plan_indicator,
     &hf_isup_address_presentation_restricted_indicator,
     &hf_isup_screening_indicator,
@@ -5531,7 +5531,7 @@ dissect_isup_transit_network_selection_parameter(tvbuff_t *parameter_tvb, packet
 {
   guint8      indicators1;
   gint        offset = 0;
-  static const int * indicators_fields[] = {
+  static int * const indicators_fields[] = {
     &hf_isup_odd_even_indicator,
     &hf_isup_type_of_network_identification,
     &hf_isup_network_identification_plan,
@@ -5577,7 +5577,7 @@ dissect_isup_automatic_congestion_level_parameter(tvbuff_t *parameter_tvb, proto
 static void
 dissect_isup_optional_backward_call_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  static const int * indicators[] = {
+  static int * const indicators[] = {
     &hf_isup_inband_information_ind,
     &hf_isup_call_diversion_may_occur_ind,
     &hf_isup_simple_segmentation_ind,
@@ -5622,14 +5622,14 @@ dissect_isup_user_to_user_indicators_parameter(tvbuff_t *parameter_tvb,
                                                proto_item *parameter_item)
 {
   guint8 indicators;
-  static const int * req_fields[] = {
+  static int * const req_fields[] = {
     &hf_isup_UUI_type,
     &hf_isup_UUI_req_service1,
     &hf_isup_UUI_req_service2,
     &hf_isup_UUI_req_service3,
     NULL
   };
-  static const int * res_fields[] = {
+  static int * const res_fields[] = {
     &hf_isup_UUI_type,
     &hf_isup_UUI_res_service1,
     &hf_isup_UUI_res_service2,
@@ -5919,7 +5919,7 @@ static const value_string IECD_req_ind_vals[] = {
 static void
 dissect_isup_echo_control_information_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 { guint8 indicator;
-  static const int * info[] = {
+  static int * const info[] = {
     &hf_isup_OECD_inf_ind,
     &hf_isup_IECD_inf_ind,
     &hf_isup_OECD_req_ind,
@@ -5946,7 +5946,7 @@ dissect_isup_message_compatibility_information_parameter(tvbuff_t *parameter_tvb
 {
   gint  offset = 0;
 
-  static const int * params[] = {
+  static int * const params[] = {
     &hf_isup_transit_at_intermediate_exchange_ind,
     &hf_isup_Release_call_ind,
     &hf_isup_Send_notification_ind,
@@ -6002,7 +6002,7 @@ dissect_isup_parameter_compatibility_information_parameter(tvbuff_t *parameter_t
   guint8 offset;
   guint8 instruction_indicators;
 
-  static const int * indicator_flags[] = {
+  static int * const indicator_flags[] = {
     &hf_isup_transit_at_intermediate_exchange_ind,
     &hf_isup_Release_call_ind,
     &hf_isup_Send_notification_ind,
@@ -6176,7 +6176,7 @@ dissect_isup_location_number_parameter(tvbuff_t *parameter_tvb, packet_info *pin
 {
   guint8      indicators1, indicators2;
   gint        offset = 0;
-  static const int * indicators1_fields[] = {
+  static int * const indicators1_fields[] = {
     &hf_isup_odd_even_indicator,
     &hf_isup_calling_party_nature_of_address_indicator,
     NULL
@@ -6413,12 +6413,12 @@ dissect_isup_called_in_number_parameter(tvbuff_t *parameter_tvb, packet_info *pi
 {
   guint8      indicators1;
   gint        offset = 0;
-  static const int * indicators1_fields[] = {
+  static int * const indicators1_fields[] = {
     &hf_isup_odd_even_indicator,
     &hf_isup_calling_party_nature_of_address_indicator,
     NULL
   };
-  static const int * indicators2_fields[] = {
+  static int * const indicators2_fields[] = {
     &hf_isup_numbering_plan_indicator,
     &hf_isup_address_presentation_restricted_indicator,
     NULL
@@ -6608,7 +6608,7 @@ dissect_isup_generic_number_parameter(tvbuff_t *parameter_tvb, packet_info *pinf
 {
   guint8      indicators1, indicators2;
   gint        offset = 0;
-  static const int * indicators1_fields[] = {
+  static int * const indicators1_fields[] = {
     &hf_isup_odd_even_indicator,
     &hf_isup_calling_party_nature_of_address_indicator,
     NULL
@@ -6667,7 +6667,7 @@ dissect_isup_generic_name_parameter(tvbuff_t *parameter_tvb, proto_tree *paramet
 {
   gint    gen_name_length;
   char   *gen_name = NULL;
-  static const int * indicators[] = {
+  static int * const indicators[] = {
     &hf_isup_generic_name_presentation,
     &hf_isup_generic_name_availability,
     &hf_isup_generic_name_type,
@@ -6704,7 +6704,7 @@ dissect_isup_charge_number_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo
 {
   guint8      indicators1;
   gint        offset = 0;
-  static const int * indicators1_fields[] = {
+  static int * const indicators1_fields[] = {
     &hf_isup_odd_even_indicator,
     &hf_isup_charge_number_nature_of_address_indicator,
     NULL

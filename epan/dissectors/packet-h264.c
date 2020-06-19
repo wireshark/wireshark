@@ -2525,7 +2525,7 @@ dissect_h264(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
 /* Capability */
 
-static const int *profile_fields[] = {
+static int * const profile_fields[] = {
     &hf_h264_par_profile_b,
     &hf_h264_par_profile_m,
     &hf_h264_par_profile_e,
@@ -2548,7 +2548,7 @@ dissect_h264_par_profile(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
     return offset;
 }
 
-static const int *AdditionalModesSupported_fields[] = {
+static int * const AdditionalModesSupported_fields[] = {
     &hf_h264_par_add_mode_sup_rcdo,
     NULL
 };
@@ -2566,7 +2566,7 @@ dissect_h264_par_AdditionalModesSupported(tvbuff_t *tvb, packet_info *pinfo _U_,
 }
 
 
-static const int *ProfileIOP_fields[] = {
+static int * const ProfileIOP_fields[] = {
     &hf_h264_par_constraint_set0_flag,
     &hf_h264_par_constraint_set1_flag,
     &hf_h264_par_constraint_set2_flag,

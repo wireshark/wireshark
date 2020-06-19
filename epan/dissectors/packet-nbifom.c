@@ -177,13 +177,13 @@ dissect_nbifom_routing_rules(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     guint64 flags;
 
     while ((curr_offset - offset) < (gint)params_content_len) {
-        static const int *flags1[] = {
+        static int * const flags1[] = {
             &hf_nbifom_routing_rule_routing_access,
             &hf_nbifom_routing_rule_spare,
             &hf_nbifom_routing_rule_op_code,
             NULL
         };
-        static const int *flags2[] = {
+        static int * const flags2[] = {
             &hf_nbifom_routing_rule_flags_prot_type_nxt_hdr,
             &hf_nbifom_routing_rule_flags_ipsec_spi,
             &hf_nbifom_routing_rule_flags_dst_addr_prefix_len,
@@ -333,7 +333,7 @@ dissect_nbifom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             break;
         case 8:
             if (pinfo->link_dir == P2P_DIR_UL) {
-                static const int * flags[] = {
+                static int * const flags[] = {
                     &hf_nbifom_param_contents_access_use_ind_spare,
                     &hf_nbifom_param_contents_access_use_ind_wlan_access_usable_val,
                     &hf_nbifom_param_contents_access_use_ind_3gpp_access_usable_val,

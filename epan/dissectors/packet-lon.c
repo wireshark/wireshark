@@ -205,7 +205,7 @@ dissect_lon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 	lon_tree = proto_item_add_subtree(ti, ett_lon);
 
 	{
-		static const gint *ppdu_fields[] = {
+		static int * const ppdu_fields[] = {
 			&hf_lon_ppdu_prio,
 			&hf_lon_ppdu_alt,
 			&hf_lon_ppdu_deltabl,
@@ -216,7 +216,7 @@ dissect_lon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 		offset++;
 	}
 	{
-		static const gint *npdu_fields[] = {
+		static int * const npdu_fields[] = {
 			&hf_lon_npdu_version,
 			&hf_lon_npdu_pdu_fmt,
 			&hf_lon_npdu_addr_fmt,
@@ -303,7 +303,7 @@ dissect_lon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 	{
 	case 0:        /* TPDU */
 		{
-		static const gint *tpdu_fields[] = {
+		static int * const tpdu_fields[] = {
 			&hf_lon_auth,
 			&hf_lon_tpdu_tpdu_type,
 			&hf_lon_trans_no,
@@ -346,7 +346,7 @@ dissect_lon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 		break;
 	case 1: /* SPDU */
 		{
-		static const gint *spdu_fields[] = {
+		static int * const spdu_fields[] = {
 			&hf_lon_auth,
 			&hf_lon_spdu_spdu_type,
 			&hf_lon_trans_no,
@@ -388,7 +388,7 @@ dissect_lon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 		break;
 	case 2: /* AuthPDU */
 		{
-		static const gint *authpdu_fields[] = {
+		static int * const authpdu_fields[] = {
 			&hf_lon_authpdu_fmt,
 			&hf_lon_authpdu_authpdu_type,
 			&hf_lon_trans_no,
@@ -430,7 +430,7 @@ dissect_apdu(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 	dest_type = tvb_get_guint8(tvb, offset);
 
 	if ((dest_type&0x80) == 0x80) { /* Network variable */
-		static const gint *nv_fields[] = {
+		static int * const nv_fields[] = {
 			&hf_lon_nv_dir,
 			&hf_lon_nv_selector,
 			NULL
@@ -439,7 +439,7 @@ dissect_apdu(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 					ett_nv, nv_fields, ENC_BIG_ENDIAN);
 		offset += 2;
 	} else if ((dest_type&0xc0) == 0) { /* Application */
-		static const gint *app_fields[] = {
+		static int * const app_fields[] = {
 			&hf_lon_app_code,
 			NULL
 		};
@@ -447,7 +447,7 @@ dissect_apdu(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 					ett_app, app_fields, ENC_BIG_ENDIAN);
 		offset++;
 	} else if ((dest_type&0xe0) == 0x60) { /* Network Management */
-		static const gint *nm_fields[] = {
+		static int * const nm_fields[] = {
 			&hf_lon_nm_code,
 			NULL
 		};
@@ -463,7 +463,7 @@ dissect_apdu(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 		}
 
 	} else if ((dest_type&0xf0) == 0x50) { /* Network Diagnostic */
-		static const gint *nd_fields[] = {
+		static int * const nd_fields[] = {
 			&hf_lon_nd_code,
 			NULL
 		};
@@ -471,7 +471,7 @@ dissect_apdu(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 					ett_nd, nd_fields, ENC_BIG_ENDIAN);
 		offset++;
 	} else if ((dest_type&0xf0) == 0x40) { /* Foreign Frame */
-		static const gint *ff_fields[] = {
+		static int * const ff_fields[] = {
 			&hf_lon_ff_code,
 			NULL
 		};

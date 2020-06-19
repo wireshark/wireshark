@@ -232,7 +232,7 @@ dissect_hci_mon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     guint32          k_frame_number;
     guint32          ident_length;
     guint32          command_length;
-    static const int *flags_fields[] = {
+    static int * const flags_fields[] = {
         &hf_flags_trusted_socket,
         NULL
     };

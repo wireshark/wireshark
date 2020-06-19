@@ -1007,7 +1007,7 @@ static const value_string auth_krb5_types[] = {
 static void
 dissect_authentication_type_pair(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-  static const int * auth_mods[] = {
+  static int * const auth_mods[] = {
     &hf_telnet_auth_mod_enc,
     &hf_telnet_auth_mod_cred_fwd,
     &hf_telnet_auth_mod_how,

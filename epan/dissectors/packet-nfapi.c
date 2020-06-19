@@ -1475,7 +1475,7 @@ static const value_string message_id_vals[] =
 static dissector_handle_t nfapi_handle;
 static dissector_table_t message_table;
 
-static const int * dl_bandwidth_support_fields[] = {
+static int * const dl_bandwidth_support_fields[] = {
 	&hf_nfapi_dl_bandwidth_support_6,
 	&hf_nfapi_dl_bandwidth_support_15,
 	&hf_nfapi_dl_bandwidth_support_25,
@@ -1485,7 +1485,7 @@ static const int * dl_bandwidth_support_fields[] = {
 	NULL
 };
 
-static const int * ul_bandwidth_support_fields[] = {
+static int * const ul_bandwidth_support_fields[] = {
 	&hf_nfapi_ul_bandwidth_support_6,
 	&hf_nfapi_ul_bandwidth_support_15,
 	&hf_nfapi_ul_bandwidth_support_25,
@@ -1495,7 +1495,7 @@ static const int * ul_bandwidth_support_fields[] = {
 	NULL
 };
 
-static const int * maximum_3gpp_release_supported_fields[] = {
+static int * const maximum_3gpp_release_supported_fields[] = {
 	&hf_nfapi_maximum_3gpp_release_supported_rel8,
 	&hf_nfapi_maximum_3gpp_release_supported_rel9,
 	&hf_nfapi_maximum_3gpp_release_supported_rel10,
@@ -2847,7 +2847,7 @@ static void dissect_ul_bandwidth_support_value(ptvcursor_t * ptvc, packet_info* 
 }
 static void dissect_dl_modulation_value(ptvcursor_t * ptvc, packet_info* pinfo)
 {
-	static const int * dl_modulation_support_fields[] = {
+	static int * const dl_modulation_support_fields[] = {
 		&hf_nfapi_dl_modulation_support_qpsk,
 		&hf_nfapi_dl_modulation_support_16qam,
 		&hf_nfapi_dl_modulation_support_64qam,
@@ -2868,7 +2868,7 @@ static void dissect_dl_modulation_value(ptvcursor_t * ptvc, packet_info* pinfo)
 }
 static void dissect_ul_modulation_value(ptvcursor_t * ptvc, packet_info* pinfo)
 {
-	static const int * ul_modulation_support_fields[] = {
+	static int * const ul_modulation_support_fields[] = {
 		&hf_nfapi_ul_modulation_support_qpsk,
 		&hf_nfapi_ul_modulation_support_16qam,
 		&hf_nfapi_ul_modulation_support_64qam,
@@ -8272,7 +8272,7 @@ static int dissect_p7_header(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	proto_tree *header_tree;
 	int offset = 0;
 	guint8 m_seg;
-	static const int *fields[] = {
+	static int * const fields[] = {
 		&hf_nfapi_p7_message_header_m,
 		&hf_nfapi_p7_message_header_segment,
 		NULL

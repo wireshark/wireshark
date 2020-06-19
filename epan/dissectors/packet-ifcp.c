@@ -228,7 +228,7 @@ static const true_false_string ifcp_flags_spc_tfs = {
 static int
 dissect_ifcpflags(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 {
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_ifcp_flags_ses,
         &hf_ifcp_flags_trp,
         &hf_ifcp_flags_spc,
@@ -247,7 +247,7 @@ dissect_ifcpflags(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 static void
 dissect_commonflags(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 {
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_ifcp_common_flags_crcv,
         NULL
     };

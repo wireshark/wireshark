@@ -1888,7 +1888,7 @@ typedef struct _smb_uid_t {
 static void
 smb_file_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 mask)
 {
-	static const int * mask_flags[] = {
+	static int * const mask_flags[] = {
 		&hf_smb_file_access_mask_write_attribute,
 		&hf_smb_file_access_mask_read_attribute,
 		&hf_smb_file_access_mask_execute,
@@ -1918,7 +1918,7 @@ struct access_mask_info smb_file_access_mask_info = {
 static void
 smb_dir_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 mask)
 {
-	static const int * mask_flags[] = {
+	static int * const mask_flags[] = {
 		&hf_smb_dir_access_mask_write_attribute,
 		&hf_smb_dir_access_mask_read_attribute,
 		&hf_smb_dir_access_mask_delete_child,
@@ -2323,7 +2323,7 @@ static const true_false_string tfs_da_writetru = {
 static int
 dissect_access(tvbuff_t *tvb, proto_tree *parent_tree, int offset, int hf_access)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_smb_access_writetru,
 		&hf_smb_access_caching,
 		&hf_smb_access_locality,
@@ -2423,7 +2423,7 @@ static const true_false_string tfs_file_attribute_encrypted = {
 static int
 dissect_file_attributes(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_smb_file_attr_archive_16bit,
 		&hf_smb_file_attr_directory_16bit,
 		&hf_smb_file_attr_volume_16bit,
@@ -2457,7 +2457,7 @@ dissect_file_ext_attr_bits(tvbuff_t *tvb, proto_tree *parent_tree, int offset,
 	 * Does the Win32 API documentation, or the NT Native API book,
 	 * suggest anything?
 	 */
-	static const int * mask_fields[] = {
+	static int * const mask_fields[] = {
 		&hf_smb_file_eattr_read_only,
 		&hf_smb_file_eattr_hidden,
 		&hf_smb_file_eattr_system,
@@ -2502,7 +2502,7 @@ dissect_file_ext_attr(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 static int
 dissect_dir_info_file_attributes(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_smb_file_attr_read_only_8bit,
 		&hf_smb_file_attr_hidden_8bit,
 		&hf_smb_file_attr_system_8bit,
@@ -2550,7 +2550,7 @@ static const true_false_string tfs_search_attribute_archive = {
 static int
 dissect_search_attributes(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_smb_search_attribute_read_only,
 		&hf_smb_search_attribute_hidden,
 		&hf_smb_search_attribute_system,
@@ -2576,7 +2576,7 @@ dissect_search_attributes(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 static int
 dissect_extended_file_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_smb_file_attr_read_only_16bit,
 		&hf_smb_file_attr_hidden_16bit,
 		&hf_smb_file_attr_system_16bit,
@@ -2704,7 +2704,7 @@ dissect_negprot_capabilities(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
 	guint32     mask;
 
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_smb_server_cap_raw_mode,
 		&hf_smb_server_cap_mpx_mode,
 		&hf_smb_server_cap_unicode,
@@ -2747,7 +2747,7 @@ static const true_false_string tfs_rm_write = {
 static int
 dissect_negprot_rawmode(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_smb_rm_read,
 		&hf_smb_rm_write,
 		NULL
@@ -2784,12 +2784,12 @@ static const true_false_string tfs_sm_sig_required = {
 static int
 dissect_negprot_security_mode(tvbuff_t *tvb, proto_tree *parent_tree, int offset, int wc)
 {
-	static const int * flags13[] = {
+	static int * const flags13[] = {
 		&hf_smb_sm_mode16,
 		&hf_smb_sm_password16,
 		NULL
 	};
-	static const int * flags17[] = {
+	static int * const flags17[] = {
 		&hf_smb_sm_mode,
 		&hf_smb_sm_password,
 		&hf_smb_sm_signatures,
@@ -3630,7 +3630,7 @@ static const value_string of_open[] = {
 static int
 dissect_open_function(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_smb_open_function_create,
 		&hf_smb_open_function_open,
 		NULL
@@ -3658,7 +3658,7 @@ static const true_false_string tfs_mf_verify = {
 static int
 dissect_move_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_smb_move_flags_verify,
 		&hf_smb_move_flags_dir,
 		&hf_smb_move_flags_file,
@@ -3686,7 +3686,7 @@ static const true_false_string tfs_cf_ea_action = {
 static int
 dissect_copy_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_smb_copy_flags_ea_action,
 		&hf_smb_copy_flags_tree_copy,
 		&hf_smb_copy_flags_verify,
@@ -3941,7 +3941,7 @@ dissect_nt_create_bits(tvbuff_t *tvb, proto_tree *parent_tree, int offset,
 	 * in the response. However, Windows does not do that. Or at least
 	 * Win2K doesn't.
 	 */
-	static const int * fields[] = {
+	static int * const fields[] = {
 		&hf_smb_nt_create_bits_oplock,
 		&hf_smb_nt_create_bits_boplock,
 		&hf_smb_nt_create_bits_dir,
@@ -3974,7 +3974,7 @@ dissect_smb_access_mask_bits(tvbuff_t *tvb, proto_tree *parent_tree,
 	 * and others come from the section on ZwOpenFile in "Windows(R)
 	 * NT(R)/2000 Native API Reference".
 	 */
-	static const int * fields[] = {
+	static int * const fields[] = {
 		&hf_smb_nt_access_mask_read,
 		&hf_smb_nt_access_mask_write,
 		&hf_smb_nt_access_mask_append,
@@ -4029,7 +4029,7 @@ dissect_nt_share_access_bits(tvbuff_t *tvb, proto_tree *parent_tree,
     int offset, int len, guint32 mask)
 {
 	proto_item *item;
-	static const int * fields[] = {
+	static int * const fields[] = {
 		&hf_smb_nt_share_access_read,
 		&hf_smb_nt_share_access_write,
 		&hf_smb_nt_share_access_delete,
@@ -4069,7 +4069,7 @@ dissect_nt_create_options_bits(tvbuff_t *tvb, proto_tree *parent_tree,
 	 *
 	 *	http://www.samba.org/samba/ftp/specs/smb-nt01.doc
 	 */
-	static const int * fields[] = {
+	static int * const fields[] = {
 		&hf_smb_nt_create_options_directory_file,
 		&hf_smb_nt_create_options_write_through,
 		&hf_smb_nt_create_options_sequential_only,
@@ -6249,7 +6249,7 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	proto_tree *tr         = NULL;
 	int         old_offset = offset;
 	smb_locking_saved_info_t *ld = NULL;
-	static const int * locks[] = {
+	static int * const locks[] = {
 		&hf_smb_lock_type_large,
 		&hf_smb_lock_type_cancel,
 		&hf_smb_lock_type_change,
@@ -6607,7 +6607,7 @@ static const true_false_string tfs_oa_lock = {
 static int
 dissect_open_action(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_smb_open_action_lock,
 		&hf_smb_open_action_open,
 		NULL
@@ -6805,12 +6805,12 @@ static const value_string ipc_state_read_mode_vals[] = {
 int
 dissect_ipc_state(tvbuff_t *tvb, proto_tree *parent_tree, int offset, gboolean setstate_flag)
 {
-	static const int * setstate_flags[] = {
+	static int * const setstate_flags[] = {
 		&hf_smb_ipc_state_nonblocking,
 		&hf_smb_ipc_state_read_mode,
 		NULL
 	};
-	static const int * not_setstate_flags[] = {
+	static int * const not_setstate_flags[] = {
 		&hf_smb_ipc_state_nonblocking,
 		&hf_smb_ipc_state_endpoint,
 		&hf_smb_ipc_state_pipe_type,
@@ -7518,7 +7518,7 @@ static const true_false_string tfs_setup_action_guest = {
 static int
 dissect_setup_action(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_smb_setup_action_guest,
 		NULL
 	};
@@ -8111,7 +8111,7 @@ static const true_false_string tfs_connect_support_extended_signature = {
 static int
 dissect_connect_support_bits(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_smb_connect_support_search,
 		&hf_smb_connect_support_in_dfs,
 		&hf_smb_connect_support_csc_mask_vals,
@@ -8144,7 +8144,7 @@ static const true_false_string tfs_extended_response = {
 static int
 dissect_connect_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_smb_connect_flags_dtid,
 		&hf_smb_connect_flags_ext_sig,
 		&hf_smb_connect_flags_ext_resp,
@@ -8721,7 +8721,7 @@ static const value_string is_directory_vals[] = {
 static int
 dissect_nt_security_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_smb_nt_security_flags_context_tracking,
 		&hf_smb_nt_security_flags_effective_only,
 		NULL
@@ -8834,7 +8834,7 @@ static const true_false_string tfs_nt_create_options_open_for_free_space_query =
 int
 dissect_nt_notify_completion_filter(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_smb_nt_notify_file_name,
 		&hf_smb_nt_notify_dir_name,
 		&hf_smb_nt_notify_attributes,
@@ -8859,7 +8859,7 @@ dissect_nt_notify_completion_filter(tvbuff_t *tvb, proto_tree *parent_tree, int 
 static int
 dissect_nt_ioctl_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_smb_nt_ioctl_flags_root_handle,
 		NULL
 	};
@@ -8902,7 +8902,7 @@ static const true_false_string tfs_nt_qsd_sacl = {
 int
 dissect_security_information_mask(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_smb_nt_qsd_owner,
 		&hf_smb_nt_qsd_group,
 		&hf_smb_nt_qsd_dacl,
@@ -11301,7 +11301,7 @@ dissect_ff2_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, in
 {
 	guint16               mask;
 	smb_transact2_info_t *t2i;
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_smb_ff2_backup,
 		&hf_smb_ff2_continue,
 		&hf_smb_ff2_resume,
@@ -11332,7 +11332,7 @@ dissect_ff2_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, in
 static int
 dissect_sfi_ioflag(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_smb_sfi_writetru,
 		&hf_smb_sfi_caching,
 		NULL
@@ -11808,7 +11808,7 @@ static guint16
 dissect_transaction_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
 	guint16     mask;
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_smb_transaction_flags_owt,
 		&hf_smb_transaction_flags_dtid,
 		NULL
@@ -11824,7 +11824,7 @@ dissect_transaction_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 static int
 dissect_get_dfs_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_smb_get_dfs_server_hold_storage,
 		&hf_smb_get_dfs_fielding,
 		NULL
@@ -11839,7 +11839,7 @@ dissect_get_dfs_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 static int
 dissect_dfs_referral_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_smb_dfs_referral_flags_name_list_referral,
 		&hf_smb_dfs_referral_flags_target_set_boundary,
 		NULL
@@ -13040,7 +13040,7 @@ dissect_qspi_unix_acl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 		  int offset, guint16 *bcp, gboolean *trunc)
 {
 	guint16 num_file_aces;
-	static const int *perm_fields[] = {
+	static int * const perm_fields[] = {
 		&hf_smb_posix_ace_perm_read,
 		&hf_smb_posix_ace_perm_write,
 		&hf_smb_posix_ace_perm_execute,
@@ -13241,7 +13241,7 @@ static const true_false_string tfs_i2f_hidden = {
 static int
 dissect_unix_info2_file_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset, int hf)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_smb_unix_info2_file_flags_secure_delete,
 		&hf_smb_unix_info2_file_flags_enable_undelete,
 		&hf_smb_unix_info2_file_flags_synchronous,
@@ -13810,7 +13810,7 @@ static const true_false_string tfs_quota_flags_enabled = {
 static void
 dissect_quota_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
-	static const int *mask[] = {
+	static int * const mask[] = {
 		&hf_smb_quota_flags_deny_disk,
 		&hf_smb_quota_flags_log_warning,
 		&hf_smb_quota_flags_log_limit,
@@ -15764,7 +15764,7 @@ dissect_ff2_response_data(tvbuff_t * tvb, packet_info * pinfo,
 static int
 dissect_fs_attributes(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		/* case sensitive search */
 		&hf_smb_fs_attr_css,
 		/* case preserved names */
@@ -15820,7 +15820,7 @@ dissect_fs_attributes(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 static int
 dissect_device_characteristics(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
-	static const int * mask[] = {
+	static int * const mask[] = {
 		&hf_smb_device_char_removable,
 		&hf_smb_device_char_read_only,
 		&hf_smb_device_char_floppy,
@@ -16279,7 +16279,7 @@ dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 	}
 
 	case 0x301: { 	/* MAC_QUERY_FS_INFO */
-		static const int * support_flags[] = {
+		static int * const support_flags[] = {
 			&hf_smb_mac_sup_access_ctrl,
 			&hf_smb_mac_sup_getset_comments,
 			&hf_smb_mac_sup_desktopdb_calls,
@@ -17843,7 +17843,7 @@ static const true_false_string tfs_smb_flags_response = {
 static int
 dissect_smb_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_smb_flags_response,
 		&hf_smb_flags_notify,
 		&hf_smb_flags_oplock,
@@ -17913,7 +17913,7 @@ static const true_false_string tfs_smb_flags2_string = {
 static int
 dissect_smb_flags2(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_smb_flags2_string,
 		&hf_smb_flags2_nt_error,
 		&hf_smb_flags2_roe,

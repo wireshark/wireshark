@@ -3368,7 +3368,7 @@ dissect_data_chunk(tvbuff_t *chunk_tvb,
   guint16 header_length;
   guint16 payload_offset;
 
-  static const int* chunk_flags[] = {
+  static int* const chunk_flags[] = {
     &hf_data_chunk_i_bit,
     &hf_data_chunk_u_bit,
     &hf_data_chunk_b_bit,

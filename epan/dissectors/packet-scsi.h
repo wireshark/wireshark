@@ -207,7 +207,7 @@ void dissect_scsi_snsinfo (tvbuff_t *, packet_info *, proto_tree *, guint, guint
 
 void dissect_scsi_lun(proto_tree *, tvbuff_t *, guint);
 
-extern const int *cdb_control_fields[6];
+extern int * const cdb_control_fields[6];
 extern gint ett_scsi_control;
 extern int hf_scsi_control;
 extern int hf_scsi_alloclen16;

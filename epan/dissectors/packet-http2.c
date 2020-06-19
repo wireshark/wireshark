@@ -2165,9 +2165,9 @@ dissect_http2_header_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ht
 {
 
     guint64 flags_val;
-    const int** fields;
+    int* const * fields;
 
-    static const int* http2_hdr_flags[] = {
+    static int* const http2_hdr_flags[] = {
         &hf_http2_flags_unused_headers,
         &hf_http2_flags_priority,
         &hf_http2_flags_padded,
@@ -2176,40 +2176,40 @@ dissect_http2_header_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ht
         NULL
     };
 
-    static const int* http2_data_flags[] = {
+    static int* const http2_data_flags[] = {
         &hf_http2_flags_unused_data,
         &hf_http2_flags_padded,
         &hf_http2_flags_end_stream,
         NULL
     };
 
-    static const int* http2_settings_flags[] = {
+    static int* const http2_settings_flags[] = {
         &hf_http2_flags_unused_settings,
         &hf_http2_flags_settings_ack,
         NULL
     };
 
-    static const int* http2_push_promise_flags[] = {
+    static int* const http2_push_promise_flags[] = {
         &hf_http2_flags_unused_push_promise,
         &hf_http2_flags_padded,
         &hf_http2_flags_end_headers,
         NULL
     };
 
-    static const int* http2_continuation_flags[] = {
+    static int* const http2_continuation_flags[] = {
         &hf_http2_flags_unused_continuation,
         &hf_http2_flags_padded,
         &hf_http2_flags_end_headers,
         NULL
     };
 
-    static const int* http2_ping_flags[] = {
+    static int* const http2_ping_flags[] = {
         &hf_http2_flags_unused_ping,
         &hf_http2_flags_ping_ack,
         NULL
     };
 
-    static const int* http2_unused_flags[] = {
+    static int* const http2_unused_flags[] = {
         &hf_http2_flags_unused,
         NULL
     };

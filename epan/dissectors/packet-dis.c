@@ -5135,7 +5135,7 @@ static gint parse_Link16_Message_Data(proto_tree *tree, tvbuff_t *tvb, gint offs
     Link16State state;
     tvbuff_t *newtvb;
 
-    static const int * jtids_message_header_fields[] = {
+    static int * const jtids_message_header_fields[] = {
         &hf_dis_signal_link16_time_slot_type,
         &hf_dis_signal_link16_rti,
         &hf_dis_signal_link16_stn,
@@ -5959,7 +5959,7 @@ static int dissect_DIS_PARSER_ENTITY_STATE_PDU(tvbuff_t *tvb, packet_info *pinfo
     if ((entityKind == DIS_ENTITYKIND_PLATFORM) &&
         (entityDomain == DIS_DOMAIN_LAND))
     {
-        static const int *entity_appearance_domain_land_bitmask[] =
+        static int * const entity_appearance_domain_land_bitmask[] =
         {
             &hf_appearance_landform_paint_scheme,
             &hf_appearance_landform_mobility,
@@ -5993,7 +5993,7 @@ static int dissect_DIS_PARSER_ENTITY_STATE_PDU(tvbuff_t *tvb, packet_info *pinfo
     }
     else if (entityKind == DIS_ENTITYKIND_LIFE_FORM)
     {
-        static const int *entity_appearance_kind_life_form_bitmask[] =
+        static int * const entity_appearance_kind_life_form_bitmask[] =
         {
             &hf_appearance_lifeform_paint_scheme,
             &hf_appearance_lifeform_health,
@@ -6134,7 +6134,7 @@ static int dissect_DIS_PARSER_ENTITY_STATE_UPDATE_PDU(tvbuff_t *tvb, packet_info
     if ((entityKind == DIS_ENTITYKIND_PLATFORM) &&
         (entityDomain == DIS_DOMAIN_LAND))
     {
-        static const int *entity_appearance_domain_land_bitmask[] =
+        static int * const entity_appearance_domain_land_bitmask[] =
         {
             &hf_appearance_landform_paint_scheme,
             &hf_appearance_landform_mobility,
@@ -6168,7 +6168,7 @@ static int dissect_DIS_PARSER_ENTITY_STATE_UPDATE_PDU(tvbuff_t *tvb, packet_info
     }
     else if (entityKind == DIS_ENTITYKIND_LIFE_FORM)
     {
-        static const int *entity_appearance_kind_life_form_bitmask[] =
+        static int * const entity_appearance_kind_life_form_bitmask[] =
         {
             &hf_appearance_lifeform_paint_scheme,
             &hf_appearance_lifeform_health,

@@ -375,7 +375,7 @@ static void srt_format_hs_ext_hsreq(proto_tree* tree, tvbuff_t* tvb, int baseoff
     const int vpatch = version & 0xff;
     proto_item_append_text(pi, " (%d.%d.%d)", vmajor, vminor, vpatch);
 
-    static const int * ext_hs_flags[] = {
+    static int * const ext_hs_flags[] = {
         &hf_srt_handshake_ext_flag_tsbpd_snd,
         &hf_srt_handshake_ext_flag_tsbpd_rcv,
         &hf_srt_handshake_ext_flag_haicrypt,
@@ -421,7 +421,7 @@ static void dissect_srt_hs_ext_field(proto_tree* tree,
         return;
     }
 
-    static const int * ext_hs_ext_field_flags[] = {
+    static int * const ext_hs_ext_field_flags[] = {
         &hf_srt_handshake_ext_field_v5_flag_hsreq,
         &hf_srt_handshake_ext_field_v5_flag_kmreq,
         &hf_srt_handshake_ext_field_v5_flag_config,

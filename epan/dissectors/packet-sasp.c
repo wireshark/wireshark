@@ -817,7 +817,7 @@ static void dissect_setlbstate_req(tvbuff_t *tvb, proto_tree *pay_load, guint32 
 {
     guint8 LB_uid_len;
 
-    static const int *lbflags[] = {
+    static int * const lbflags[] = {
         &hf_sasp_pushflag,
         &hf_sasp_trustflag,
         &hf_sasp_nochangeflag,
@@ -946,7 +946,7 @@ static guint32 dissect_weight_entry_data_comp(tvbuff_t *tvb, proto_tree *pay_loa
 {
     proto_tree *weight_entry_data_comp_tree;
 
-    static const int *wtflags[] = {
+    static int * const wtflags[] = {
         &hf_sasp_wed_contactsuccess_flag,
         &hf_sasp_wed_quiesce_flag,
         &hf_sasp_wed_registration_flag,

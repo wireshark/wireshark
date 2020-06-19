@@ -3266,7 +3266,7 @@ de_sup_codec_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
              *
              * Right now we are sure that at least the first octet of the bitmap is present
              */
-            static const int * oct1_flags[] = {
+            static int * const oct1_flags[] = {
                 &hf_gsm_a_dtap_codec_tdma_efr,
                 &hf_gsm_a_dtap_codec_umts_amr_2,
                 &hf_gsm_a_dtap_codec_umts_amr,
@@ -3286,7 +3286,7 @@ de_sup_codec_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
                 /*
                  * We can proceed with the second octet of the bitmap
                  */
-                static const int * oct2_flags[] = {
+                static int * const oct2_flags[] = {
                     &hf_gsm_a_dtap_codec_umts_evs,
                     &hf_gsm_a_dtap_codec_ohr_amr_wb,
                     &hf_gsm_a_dtap_codec_ofr_amr_wb,

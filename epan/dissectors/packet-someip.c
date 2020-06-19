@@ -2564,7 +2564,7 @@ dissect_someip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
     gint            tvb_length = tvb_captured_length_remaining(tvb, offset);
 
-    static const int *someip_tp_flags[] = {
+    static int * const someip_tp_flags[] = {
         &hf_someip_tp_reserved,
         &hf_someip_tp_more_segments,
         NULL

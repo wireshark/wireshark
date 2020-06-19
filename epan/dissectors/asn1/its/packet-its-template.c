@@ -205,7 +205,7 @@ static int dissect_regextval_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 static int dissect_denmssp_pdu(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    static const int *denmssp_flags[] = {
+    static int * const denmssp_flags[] = {
         &hf_denmssp_trafficCondition,
         &hf_denmssp_accident,
         &hf_denmssp_roadworks,
@@ -244,7 +244,7 @@ static int dissect_denmssp_pdu(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 
 static int dissect_camssp_pdu(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    static const int *camssp_flags[] = {
+    static int * const camssp_flags[] = {
         &hf_camssp_cenDsrcTollingZone,
         &hf_camssp_publicTransport,
         &hf_camssp_specialTransport,

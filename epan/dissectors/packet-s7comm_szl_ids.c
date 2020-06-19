@@ -34,7 +34,7 @@ static gint hf_s7comm_userdata_szl_id_partlist_num = -1;
 static gint hf_s7comm_userdata_szl_id_partlist_len = -1;
 static gint hf_s7comm_userdata_szl_id_partlist_cnt = -1;
 static gint ett_s7comm_userdata_szl_id = -1;
-static const int *s7comm_userdata_szl_id_fields[] = {
+static int * const s7comm_userdata_szl_id_fields[] = {
     &hf_s7comm_userdata_szl_id_type,
     &hf_s7comm_userdata_szl_id_partlist_ex,
     &hf_s7comm_userdata_szl_id_partlist_num,
@@ -545,7 +545,7 @@ static gint hf_s7comm_szl_xy22_00xx_al2_3 = -1;
 static gint hf_s7comm_szl_xy22_00xx_al3 = -1;
 
 static gint ett_s7comm_szl_xy22_00xx_al1 = -1;
-static const int *s7comm_szl_xy22_00xx_al1_fields[] = {
+static int * const s7comm_szl_xy22_00xx_al1_fields[] = {
     &hf_s7comm_szl_xy22_00xx_al1_0,
     &hf_s7comm_szl_xy22_00xx_al1_1,
     &hf_s7comm_szl_xy22_00xx_al1_2,
@@ -555,7 +555,7 @@ static const int *s7comm_szl_xy22_00xx_al1_fields[] = {
     NULL
 };
 static gint ett_s7comm_szl_xy22_00xx_al2 = -1;
-static const int *s7comm_szl_xy22_00xx_al2_fields[] = {
+static int * const s7comm_szl_xy22_00xx_al2_fields[] = {
     &hf_s7comm_szl_xy22_00xx_al2_0,
     &hf_s7comm_szl_xy22_00xx_al2_1,
     &hf_s7comm_szl_xy22_00xx_al2_2,
@@ -634,7 +634,7 @@ static gint hf_s7comm_szl_0131_0002_time = -1;
 static gint hf_s7comm_szl_0131_0002_res = -1;
 
 static gint ett_s7comm_szl_0131_0002_funkt_0 = -1;
-static const int *s7comm_szl_0131_0002_funkt_0_fields[] = {
+static int * const s7comm_szl_0131_0002_funkt_0_fields[] = {
     &hf_s7comm_szl_0131_0002_funkt_0_0,
     &hf_s7comm_szl_0131_0002_funkt_0_1,
     &hf_s7comm_szl_0131_0002_funkt_0_2,
@@ -646,7 +646,7 @@ static const int *s7comm_szl_0131_0002_funkt_0_fields[] = {
     NULL
 };
 static gint ett_s7comm_szl_0131_0002_funkt_1 = -1;
-static const int *s7comm_szl_0131_0002_funkt_1_fields[] = {
+static int * const s7comm_szl_0131_0002_funkt_1_fields[] = {
     &hf_s7comm_szl_0131_0002_funkt_1_0,
     &hf_s7comm_szl_0131_0002_funkt_1_1,
     &hf_s7comm_szl_0131_0002_funkt_1_2,
@@ -658,7 +658,7 @@ static const int *s7comm_szl_0131_0002_funkt_1_fields[] = {
     NULL
 };
 static gint ett_s7comm_szl_0131_0002_funkt_2 = -1;
-static const int *s7comm_szl_0131_0002_funkt_2_fields[] = {
+static int * const s7comm_szl_0131_0002_funkt_2_fields[] = {
     &hf_s7comm_szl_0131_0002_funkt_2_0,
     &hf_s7comm_szl_0131_0002_funkt_2_1,
     &hf_s7comm_szl_0131_0002_funkt_2_2,
@@ -670,7 +670,7 @@ static const int *s7comm_szl_0131_0002_funkt_2_fields[] = {
     NULL
 };
 static gint ett_s7comm_szl_0131_0002_trgereig_0 = -1;
-static const int *s7comm_szl_0131_0002_trgereig_0_fields[] = {
+static int * const s7comm_szl_0131_0002_trgereig_0_fields[] = {
     &hf_s7comm_szl_0131_0002_trgereig_0_0,
     &hf_s7comm_szl_0131_0002_trgereig_0_1,
     &hf_s7comm_szl_0131_0002_trgereig_0_2,
@@ -682,7 +682,7 @@ static const int *s7comm_szl_0131_0002_trgereig_0_fields[] = {
     NULL
 };
 static gint ett_s7comm_szl_0131_0002_trgereig_1 = -1;
-static const int *s7comm_szl_0131_0002_trgereig_1_fields[] = {
+static int * const s7comm_szl_0131_0002_trgereig_1_fields[] = {
     &hf_s7comm_szl_0131_0002_trgereig_1_0,
     &hf_s7comm_szl_0131_0002_trgereig_1_1,
     &hf_s7comm_szl_0131_0002_trgereig_1_2,
@@ -738,7 +738,7 @@ static gint hf_s7comm_szl_0131_0003_per_max = -1;
 static gint hf_s7comm_szl_0131_0003_res = -1;
 
 static gint ett_s7comm_szl_0131_0003_funkt_0 = -1;
-static const int *s7comm_szl_0131_0003_funkt_0_fields[] = {
+static int * const s7comm_szl_0131_0003_funkt_0_fields[] = {
     &hf_s7comm_szl_0131_0003_funkt_0_0,
     &hf_s7comm_szl_0131_0003_funkt_0_1,
     &hf_s7comm_szl_0131_0003_funkt_0_2,
@@ -750,7 +750,7 @@ static const int *s7comm_szl_0131_0003_funkt_0_fields[] = {
     NULL
 };
 static gint ett_s7comm_szl_0131_0003_funkt_1 = -1;
-static const int *s7comm_szl_0131_0003_funkt_1_fields[] = {
+static int * const s7comm_szl_0131_0003_funkt_1_fields[] = {
     &hf_s7comm_szl_0131_0003_funkt_1_0,
     &hf_s7comm_szl_0131_0003_funkt_1_1,
     &hf_s7comm_szl_0131_0003_funkt_1_2,
@@ -762,7 +762,7 @@ static const int *s7comm_szl_0131_0003_funkt_1_fields[] = {
     NULL
 };
 static gint ett_s7comm_szl_0131_0003_funkt_2 = -1;
-static const int *s7comm_szl_0131_0003_funkt_2_fields[] = {
+static int * const s7comm_szl_0131_0003_funkt_2_fields[] = {
     &hf_s7comm_szl_0131_0003_funkt_2_0,
     &hf_s7comm_szl_0131_0003_funkt_2_1,
     &hf_s7comm_szl_0131_0003_funkt_2_2,
@@ -774,7 +774,7 @@ static const int *s7comm_szl_0131_0003_funkt_2_fields[] = {
     NULL
 };
 static gint ett_s7comm_szl_0131_0003_funkt_3 = -1;
-static const int *s7comm_szl_0131_0003_funkt_3_fields[] = {
+static int * const s7comm_szl_0131_0003_funkt_3_fields[] = {
     &hf_s7comm_szl_0131_0003_funkt_3_0,
     &hf_s7comm_szl_0131_0003_funkt_3_1,
     &hf_s7comm_szl_0131_0003_funkt_3_2,
@@ -843,7 +843,7 @@ static gint hf_s7comm_szl_0131_0004_ver = -1;
 static gint hf_s7comm_szl_0131_0004_res = -1;
 
 static gint ett_s7comm_szl_0131_0004_funkt_0 = -1;
-static const int *s7comm_szl_0131_0004_funkt_0_fields[] = {
+static int * const s7comm_szl_0131_0004_funkt_0_fields[] = {
     &hf_s7comm_szl_0131_0004_funkt_0_0,
     &hf_s7comm_szl_0131_0004_funkt_0_1,
     &hf_s7comm_szl_0131_0004_funkt_0_2,
@@ -855,7 +855,7 @@ static const int *s7comm_szl_0131_0004_funkt_0_fields[] = {
     NULL
 };
 static gint ett_s7comm_szl_0131_0004_funkt_1 = -1;
-static const int *s7comm_szl_0131_0004_funkt_1_fields[] = {
+static int * const s7comm_szl_0131_0004_funkt_1_fields[] = {
     &hf_s7comm_szl_0131_0004_funkt_1_0,
     &hf_s7comm_szl_0131_0004_funkt_1_1,
     &hf_s7comm_szl_0131_0004_funkt_1_2,
@@ -867,7 +867,7 @@ static const int *s7comm_szl_0131_0004_funkt_1_fields[] = {
     NULL
 };
 static gint ett_s7comm_szl_0131_0004_funkt_2 = -1;
-static const int *s7comm_szl_0131_0004_funkt_2_fields[] = {
+static int * const s7comm_szl_0131_0004_funkt_2_fields[] = {
     &hf_s7comm_szl_0131_0004_funkt_2_0,
     &hf_s7comm_szl_0131_0004_funkt_2_1,
     &hf_s7comm_szl_0131_0004_funkt_2_2,
@@ -879,7 +879,7 @@ static const int *s7comm_szl_0131_0004_funkt_2_fields[] = {
     NULL
 };
 static gint ett_s7comm_szl_0131_0004_funkt_3 = -1;
-static const int *s7comm_szl_0131_0004_funkt_3_fields[] = {
+static int * const s7comm_szl_0131_0004_funkt_3_fields[] = {
     &hf_s7comm_szl_0131_0004_funkt_3_0,
     &hf_s7comm_szl_0131_0004_funkt_3_1,
     &hf_s7comm_szl_0131_0004_funkt_3_2,
@@ -891,7 +891,7 @@ static const int *s7comm_szl_0131_0004_funkt_3_fields[] = {
     NULL
 };
 static gint ett_s7comm_szl_0131_0004_funkt_4 = -1;
-static const int *s7comm_szl_0131_0004_funkt_4_fields[] = {
+static int * const s7comm_szl_0131_0004_funkt_4_fields[] = {
     &hf_s7comm_szl_0131_0004_funkt_4_0,
     &hf_s7comm_szl_0131_0004_funkt_4_1,
     &hf_s7comm_szl_0131_0004_funkt_4_2,
@@ -926,7 +926,7 @@ static gint hf_s7comm_szl_0131_0005_anz_mel = -1;
 static gint hf_s7comm_szl_0131_0005_res = -1;
 
 static gint ett_s7comm_szl_0131_0005_funkt_0 = -1;
-static const int *s7comm_szl_0131_0005_funkt_0_fields[] = {
+static int * const s7comm_szl_0131_0005_funkt_0_fields[] = {
     &hf_s7comm_szl_0131_0005_funkt_0_0,
     &hf_s7comm_szl_0131_0005_funkt_0_1,
     &hf_s7comm_szl_0131_0005_funkt_0_2,
@@ -1062,7 +1062,7 @@ static gint hf_s7comm_szl_0131_0006_verb_prog = -1;
 static gint hf_s7comm_szl_0131_0006_res3 = -1;
 
 static gint ett_s7comm_szl_0131_0006_funkt_0 = -1;
-static const int *s7comm_szl_0131_0006_funkt_0_fields[] = {
+static int * const s7comm_szl_0131_0006_funkt_0_fields[] = {
     &hf_s7comm_szl_0131_0006_funkt_0_0,
     &hf_s7comm_szl_0131_0006_funkt_0_1,
     &hf_s7comm_szl_0131_0006_funkt_0_2,
@@ -1074,7 +1074,7 @@ static const int *s7comm_szl_0131_0006_funkt_0_fields[] = {
     NULL
 };
 static gint ett_s7comm_szl_0131_0006_funkt_1 = -1;
-static const int *s7comm_szl_0131_0006_funkt_1_fields[] = {
+static int * const s7comm_szl_0131_0006_funkt_1_fields[] = {
     &hf_s7comm_szl_0131_0006_funkt_1_0,
     &hf_s7comm_szl_0131_0006_funkt_1_1,
     &hf_s7comm_szl_0131_0006_funkt_1_2,
@@ -1086,7 +1086,7 @@ static const int *s7comm_szl_0131_0006_funkt_1_fields[] = {
     NULL
 };
 static gint ett_s7comm_szl_0131_0006_funkt_2 = -1;
-static const int *s7comm_szl_0131_0006_funkt_2_fields[] = {
+static int * const s7comm_szl_0131_0006_funkt_2_fields[] = {
     &hf_s7comm_szl_0131_0006_funkt_2_0,
     &hf_s7comm_szl_0131_0006_funkt_2_1,
     &hf_s7comm_szl_0131_0006_funkt_2_2,
@@ -1098,7 +1098,7 @@ static const int *s7comm_szl_0131_0006_funkt_2_fields[] = {
     NULL
 };
 static gint ett_s7comm_szl_0131_0006_funkt_3 = -1;
-static const int *s7comm_szl_0131_0006_funkt_3_fields[] = {
+static int * const s7comm_szl_0131_0006_funkt_3_fields[] = {
     &hf_s7comm_szl_0131_0006_funkt_3_0,
     &hf_s7comm_szl_0131_0006_funkt_3_1,
     &hf_s7comm_szl_0131_0006_funkt_3_2,
@@ -1110,7 +1110,7 @@ static const int *s7comm_szl_0131_0006_funkt_3_fields[] = {
     NULL
 };
 static gint ett_s7comm_szl_0131_0006_funkt_6 = -1;
-static const int *s7comm_szl_0131_0006_funkt_6_fields[] = {
+static int * const s7comm_szl_0131_0006_funkt_6_fields[] = {
     &hf_s7comm_szl_0131_0006_funkt_6_0,
     &hf_s7comm_szl_0131_0006_funkt_6_1,
     &hf_s7comm_szl_0131_0006_funkt_6_2,
@@ -1122,7 +1122,7 @@ static const int *s7comm_szl_0131_0006_funkt_6_fields[] = {
     NULL
 };
 static gint ett_s7comm_szl_0131_0006_funkt_7 = -1;
-static const int *s7comm_szl_0131_0006_funkt_7_fields[] = {
+static int * const s7comm_szl_0131_0006_funkt_7_fields[] = {
     &hf_s7comm_szl_0131_0006_funkt_7_0,
     &hf_s7comm_szl_0131_0006_funkt_7_1,
     &hf_s7comm_szl_0131_0006_funkt_7_2,
@@ -1134,7 +1134,7 @@ static const int *s7comm_szl_0131_0006_funkt_7_fields[] = {
     NULL
 };
 static gint ett_s7comm_szl_0131_0006_zugtyp_0 = -1;
-static const int *s7comm_szl_0131_0006_zugtyp_0_fields[] = {
+static int * const s7comm_szl_0131_0006_zugtyp_0_fields[] = {
     &hf_s7comm_szl_0131_0006_zugtyp_0_0,
     &hf_s7comm_szl_0131_0006_zugtyp_0_1,
     &hf_s7comm_szl_0131_0006_zugtyp_0_2,
@@ -1146,7 +1146,7 @@ static const int *s7comm_szl_0131_0006_zugtyp_0_fields[] = {
     NULL
 };
 static gint ett_s7comm_szl_0131_0006_zugtyp_1 = -1;
-static const int *s7comm_szl_0131_0006_zugtyp_1_fields[] = {
+static int * const s7comm_szl_0131_0006_zugtyp_1_fields[] = {
     &hf_s7comm_szl_0131_0006_zugtyp_1_0,
     &hf_s7comm_szl_0131_0006_zugtyp_1_1,
     &hf_s7comm_szl_0131_0006_zugtyp_1_2,
@@ -1158,7 +1158,7 @@ static const int *s7comm_szl_0131_0006_zugtyp_1_fields[] = {
     NULL
 };
 static gint ett_s7comm_szl_0131_0006_zugtyp_2 = -1;
-static const int *s7comm_szl_0131_0006_zugtyp_2_fields[] = {
+static int * const s7comm_szl_0131_0006_zugtyp_2_fields[] = {
     &hf_s7comm_szl_0131_0006_zugtyp_2_0,
     &hf_s7comm_szl_0131_0006_zugtyp_2_1,
     &hf_s7comm_szl_0131_0006_zugtyp_2_2,
@@ -1170,7 +1170,7 @@ static const int *s7comm_szl_0131_0006_zugtyp_2_fields[] = {
     NULL
 };
 static gint ett_s7comm_szl_0131_0006_zugtyp_3 = -1;
-static const int *s7comm_szl_0131_0006_zugtyp_3_fields[] = {
+static int * const s7comm_szl_0131_0006_zugtyp_3_fields[] = {
     &hf_s7comm_szl_0131_0006_zugtyp_3_0,
     &hf_s7comm_szl_0131_0006_zugtyp_3_1,
     &hf_s7comm_szl_0131_0006_zugtyp_3_2,
@@ -1182,7 +1182,7 @@ static const int *s7comm_szl_0131_0006_zugtyp_3_fields[] = {
     NULL
 };
 static gint ett_s7comm_szl_0131_0006_zugtyp_6 = -1;
-static const int *s7comm_szl_0131_0006_zugtyp_6_fields[] = {
+static int * const s7comm_szl_0131_0006_zugtyp_6_fields[] = {
     &hf_s7comm_szl_0131_0006_zugtyp_6_0,
     &hf_s7comm_szl_0131_0006_zugtyp_6_1,
     &hf_s7comm_szl_0131_0006_zugtyp_6_2,
@@ -1194,7 +1194,7 @@ static const int *s7comm_szl_0131_0006_zugtyp_6_fields[] = {
     NULL
 };
 static gint ett_s7comm_szl_0131_0006_zugtyp_7 = -1;
-static const int *s7comm_szl_0131_0006_zugtyp_7_fields[] = {
+static int * const s7comm_szl_0131_0006_zugtyp_7_fields[] = {
     &hf_s7comm_szl_0131_0006_zugtyp_7_0,
     &hf_s7comm_szl_0131_0006_zugtyp_7_1,
     &hf_s7comm_szl_0131_0006_zugtyp_7_2,
@@ -1247,7 +1247,7 @@ static gint hf_s7comm_szl_0131_0007_len_3 = -1;
 static gint hf_s7comm_szl_0131_0007_res = -1;
 
 static gint ett_s7comm_szl_0131_0007_funkt_0 = -1;
-static const int *s7comm_szl_0131_0007_funkt_0_fields[] = {
+static int * const s7comm_szl_0131_0007_funkt_0_fields[] = {
     &hf_s7comm_szl_0131_0007_funkt_0_0,
     &hf_s7comm_szl_0131_0007_funkt_0_1,
     &hf_s7comm_szl_0131_0007_funkt_0_2,
@@ -1260,7 +1260,7 @@ static const int *s7comm_szl_0131_0007_funkt_0_fields[] = {
 };
 
 static gint ett_s7comm_szl_0131_0007_obj_0 = -1;
-static const int *s7comm_szl_0131_0007_obj_0_fields[] = {
+static int * const s7comm_szl_0131_0007_obj_0_fields[] = {
     &hf_s7comm_szl_0131_0007_obj_0_0,
     &hf_s7comm_szl_0131_0007_obj_0_1,
     &hf_s7comm_szl_0131_0007_obj_0_2,
@@ -1273,7 +1273,7 @@ static const int *s7comm_szl_0131_0007_obj_0_fields[] = {
 };
 
 static gint ett_s7comm_szl_0131_0007_mode = -1;
-static const int *s7comm_szl_0131_0007_mode_fields[] = {
+static int * const s7comm_szl_0131_0007_mode_fields[] = {
     &hf_s7comm_szl_0131_0007_mode_0,
     &hf_s7comm_szl_0131_0007_mode_1,
     NULL
@@ -1351,7 +1351,7 @@ static gint hf_s7comm_szl_0131_0009_anz_bsz = -1;
 static gint hf_s7comm_szl_0131_0009_res2 = -1;
 
 static gint ett_s7comm_szl_0131_0009_sync_k = -1;
-static const int *s7comm_szl_0131_0009_sync_k_fields[] = {
+static int * const s7comm_szl_0131_0009_sync_k_fields[] = {
     &hf_s7comm_szl_0131_0009_sync_k_0,
     &hf_s7comm_szl_0131_0009_sync_k_1,
     &hf_s7comm_szl_0131_0009_sync_k_2,
@@ -1359,7 +1359,7 @@ static const int *s7comm_szl_0131_0009_sync_k_fields[] = {
 };
 
 static gint ett_s7comm_szl_0131_0009_sync_mpi = -1;
-static const int *s7comm_szl_0131_0009_sync_mpi_fields[] = {
+static int * const s7comm_szl_0131_0009_sync_mpi_fields[] = {
     &hf_s7comm_szl_0131_0009_sync_mpi_0,
     &hf_s7comm_szl_0131_0009_sync_mpi_1,
     &hf_s7comm_szl_0131_0009_sync_mpi_2,
@@ -1367,7 +1367,7 @@ static const int *s7comm_szl_0131_0009_sync_mpi_fields[] = {
 };
 
 static gint ett_s7comm_szl_0131_0009_sync_mfi = -1;
-static const int *s7comm_szl_0131_0009_sync_mfi_fields[] = {
+static int * const s7comm_szl_0131_0009_sync_mfi_fields[] = {
     &hf_s7comm_szl_0131_0009_sync_mfi_0,
     &hf_s7comm_szl_0131_0009_sync_mfi_1,
     &hf_s7comm_szl_0131_0009_sync_mfi_2,
@@ -1419,7 +1419,7 @@ static gint hf_s7comm_szl_0131_0010_maxanz_arch = -1;
 static gint hf_s7comm_szl_0131_0010_res = -1;
 
 static gint ett_s7comm_szl_0131_0010_funk_1 = -1;
-static const int *s7comm_szl_0131_0010_funk_1_fields[] = {
+static int * const s7comm_szl_0131_0010_funk_1_fields[] = {
     &hf_s7comm_szl_0131_0010_funk_1_0,
     &hf_s7comm_szl_0131_0010_funk_1_1,
     &hf_s7comm_szl_0131_0010_funk_1_2,
@@ -1431,7 +1431,7 @@ static const int *s7comm_szl_0131_0010_funk_1_fields[] = {
     NULL
 };
 static gint ett_s7comm_szl_0131_0010_ber_meld_1 = -1;
-static const int *s7comm_szl_0131_0010_ber_meld_1_fields[] = {
+static int * const s7comm_szl_0131_0010_ber_meld_1_fields[] = {
     &hf_s7comm_szl_0131_0010_ber_meld_1_0,
     &hf_s7comm_szl_0131_0010_ber_meld_1_1,
     &hf_s7comm_szl_0131_0010_ber_meld_1_2,
@@ -1443,7 +1443,7 @@ static const int *s7comm_szl_0131_0010_ber_meld_1_fields[] = {
     NULL
 };
 static gint ett_s7comm_szl_0131_0010_ber_zus_1 = -1;
-static const int *s7comm_szl_0131_0010_ber_zus_1_fields[] = {
+static int * const s7comm_szl_0131_0010_ber_zus_1_fields[] = {
     &hf_s7comm_szl_0131_0010_ber_zus_1_0,
     &hf_s7comm_szl_0131_0010_ber_zus_1_1,
     &hf_s7comm_szl_0131_0010_ber_zus_1_2,
@@ -1455,7 +1455,7 @@ static const int *s7comm_szl_0131_0010_ber_zus_1_fields[] = {
     NULL
 };
 static gint ett_s7comm_szl_0131_0010_typ_zus_1 = -1;
-static const int *s7comm_szl_0131_0010_typ_zus_1_fields[] = {
+static int * const s7comm_szl_0131_0010_typ_zus_1_fields[] = {
     &hf_s7comm_szl_0131_0010_typ_zus_1_0,
     &hf_s7comm_szl_0131_0010_typ_zus_1_1,
     &hf_s7comm_szl_0131_0010_typ_zus_1_2,
@@ -1641,7 +1641,7 @@ static const value_string szl_0091_0000_berbgbr_areaid_names[] = {
     { 0,                                    NULL }
 };
 static gint ett_s7comm_szl_0091_0000_eastat = -1;
-static const int *s7comm_szl_0091_0000_eastat_fields[] = {
+static int * const s7comm_szl_0091_0000_eastat_fields[] = {
     &hf_s7comm_szl_0091_0000_eastat_0,
     &hf_s7comm_szl_0091_0000_eastat_1,
     &hf_s7comm_szl_0091_0000_eastat_2,
@@ -1654,7 +1654,7 @@ static const int *s7comm_szl_0091_0000_eastat_fields[] = {
     NULL
 };
 static gint ett_s7comm_szl_0091_0000_berbgbr = -1;
-static const int *s7comm_szl_0091_0000_berbgbr_fields[] = {
+static int * const s7comm_szl_0091_0000_berbgbr_fields[] = {
     &hf_s7comm_szl_0091_0000_berbgbr_0_2,
     &hf_s7comm_szl_0091_0000_berbgbr_3,
     &hf_s7comm_szl_0091_0000_berbgbr_areaid,
@@ -1718,7 +1718,7 @@ static gint hf_s7comm_szl_0096_xxxx_eastat_7 = -1;
 static gint hf_s7comm_szl_0096_xxxx_eastat_8 = -1;
 static gint hf_s7comm_szl_0096_xxxx_eastat_9 = -1;
 static gint ett_s7comm_szl_0096_xxxx_eastat = -1;
-static const int *s7comm_szl_0096_xxxx_eastat_fields[] = {
+static int * const s7comm_szl_0096_xxxx_eastat_fields[] = {
     &hf_s7comm_szl_0096_xxxx_eastat_0,
     &hf_s7comm_szl_0096_xxxx_eastat_1,
     &hf_s7comm_szl_0096_xxxx_eastat_2,
@@ -1737,7 +1737,7 @@ static gint hf_s7comm_szl_0096_xxxx_berbgbr_3 = -1;
 static gint hf_s7comm_szl_0096_xxxx_berbgbr_areaid = -1;
 static gint hf_s7comm_szl_0096_xxxx_berbgbr_7 = -1;
 static gint ett_s7comm_szl_0096_xxxx_berbgbr = -1;
-static const int *s7comm_szl_0096_xxxx_berbgbr_fields[] = {
+static int * const s7comm_szl_0096_xxxx_berbgbr_fields[] = {
     &hf_s7comm_szl_0096_xxxx_berbgbr_0_2,
     &hf_s7comm_szl_0096_xxxx_berbgbr_3,
     &hf_s7comm_szl_0096_xxxx_berbgbr_areaid,
@@ -1764,7 +1764,7 @@ static const value_string szl_0424_0000_bzu_id_names[] = {
     { 0,                                    NULL }
 };
 static gint ett_s7comm_szl_0424_0000_bzu_id = -1;
-static const int *s7comm_szl_0424_0000_bzu_id_fields[] = {
+static int * const s7comm_szl_0424_0000_bzu_id_fields[] = {
     &hf_s7comm_szl_0424_0000_bzu_id_req,
     &hf_s7comm_szl_0424_0000_bzu_id_pre,
     NULL

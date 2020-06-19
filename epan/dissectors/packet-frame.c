@@ -450,7 +450,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 		if (pinfo->rec->presence_flags & WTAP_HAS_PACK_FLAGS) {
 			proto_tree *flags_tree;
 			proto_item *flags_item;
-			static const int * flags[] = {
+			static int * const flags[] = {
 				&hf_frame_pack_direction,
 				&hf_frame_pack_reception_type,
 				&hf_frame_pack_fcs_length,

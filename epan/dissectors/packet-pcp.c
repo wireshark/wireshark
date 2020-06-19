@@ -1694,7 +1694,7 @@ static int dissect_pcp_partial_features(tvbuff_t *tvb, packet_info *pinfo, proto
     guint16     feature_flags;
     const gchar *feature_flags_string;
 
-    static const int * pcp_feature_flags_header_fields[] = {
+    static int * const pcp_feature_flags_header_fields[] = {
             &hf_pcp_features_flags_labels,
             &hf_pcp_features_flags_bad_label,
             &hf_pcp_features_flags_cert_reqd,

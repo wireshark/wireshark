@@ -135,7 +135,7 @@ dissect_UDPStatus(tvbuff_t *tvb, proto_tree *adwin_tree)
 	proto_tree *debug_tree;
 	proto_item *dt;
 
-	static const int * status_flags[] = {
+	static int * const status_flags[] = {
 		&hf_adwin_config_status_bootloader,
 		&hf_adwin_config_status_reprogrammable,
 		&hf_adwin_config_status_configurable,

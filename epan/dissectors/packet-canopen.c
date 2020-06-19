@@ -107,7 +107,7 @@ static int hf_canopen_time_stamp_days = -1;
 
 
   /* Download segment request (ccs=0) decode mask */
-static const int *sdo_cmd_fields_ccs0[] = {
+static int * const sdo_cmd_fields_ccs0[] = {
   &hf_canopen_sdo_cmd_ccs,
   &hf_canopen_sdo_cmd_toggle,
   &hf_canopen_sdo_cmd_updown_n,
@@ -115,7 +115,7 @@ static const int *sdo_cmd_fields_ccs0[] = {
   NULL
 };
 /* Initiate download request (ccs=1) decode mask */
-static const int *sdo_cmd_fields_ccs1[] = {
+static int * const sdo_cmd_fields_ccs1[] = {
   &hf_canopen_sdo_cmd_ccs,
   &hf_canopen_sdo_cmd_init_n,
   &hf_canopen_sdo_cmd_init_e,
@@ -123,37 +123,37 @@ static const int *sdo_cmd_fields_ccs1[] = {
   NULL
 };
 /* Initiate upload request (ccs=2) decode mask */
-static const int *sdo_cmd_fields_ccs2[] = {
+static int * const sdo_cmd_fields_ccs2[] = {
   &hf_canopen_sdo_cmd_ccs,
   NULL
 };
 /* Download segment request (ccs=3) decode mask */
-static const int *sdo_cmd_fields_ccs3[] = {
+static int * const sdo_cmd_fields_ccs3[] = {
   &hf_canopen_sdo_cmd_ccs,
   &hf_canopen_sdo_cmd_toggle,
   NULL
 };
 /*  */
-static const int *sdo_cmd_fields_ccs4[] = {
+static int * const sdo_cmd_fields_ccs4[] = {
   &hf_canopen_sdo_cmd_ccs,
   NULL
 };
 /* Block upload (ccs=5,cs=0) decode mask */
-static const int *sdo_cmd_fields_ccs5_subcommand0[] = {
+static int * const sdo_cmd_fields_ccs5_subcommand0[] = {
   &hf_canopen_sdo_cmd_ccs,
   &hf_canopen_sdo_cmd_block_crc_support,
   &hf_canopen_sdo_cmd_ccs5_subcommand,
   NULL
 };
 /* Block upload (ccs=5,cs=1,2,3) decode mask */
-static const int *sdo_cmd_fields_ccs5_subcommand1[] = {
+static int * const sdo_cmd_fields_ccs5_subcommand1[] = {
   &hf_canopen_sdo_cmd_ccs,
   &hf_canopen_sdo_cmd_ccs5_subcommand,
   NULL
 };
 
 /* Block download (ccs=6,cs=0) decode mask */
-static const int *sdo_cmd_fields_ccs6_subcommand0[] = {
+static int * const sdo_cmd_fields_ccs6_subcommand0[] = {
   &hf_canopen_sdo_cmd_ccs,
   &hf_canopen_sdo_cmd_block_crc_support,
   &hf_canopen_sdo_cmd_block_s,
@@ -161,14 +161,14 @@ static const int *sdo_cmd_fields_ccs6_subcommand0[] = {
   NULL
 };
 /* Block download (ccs=6,cs=1) decode mask */
-static const int *sdo_cmd_fields_ccs6_subcommand1[] = {
+static int * const sdo_cmd_fields_ccs6_subcommand1[] = {
   &hf_canopen_sdo_cmd_ccs,
   &hf_canopen_sdo_cmd_block_n,
   &hf_canopen_sdo_cmd_ccs6_subcommand,
   NULL
 };
 
-static const int **_sdo_cmd_fields_ccs[] = {
+static int * const *_sdo_cmd_fields_ccs[] = {
   sdo_cmd_fields_ccs0,
   sdo_cmd_fields_ccs1,
   sdo_cmd_fields_ccs2,
@@ -176,20 +176,20 @@ static const int **_sdo_cmd_fields_ccs[] = {
   sdo_cmd_fields_ccs4,
 };
 
-static const int **_sdo_cmd_fields_ccs5[] = {
+static int * const *_sdo_cmd_fields_ccs5[] = {
   sdo_cmd_fields_ccs5_subcommand0,
   sdo_cmd_fields_ccs5_subcommand1,
   sdo_cmd_fields_ccs5_subcommand1,
   sdo_cmd_fields_ccs5_subcommand1
 };
 
-static const int **_sdo_cmd_fields_ccs6[] = {
+static int * const *_sdo_cmd_fields_ccs6[] = {
   sdo_cmd_fields_ccs6_subcommand0,
   sdo_cmd_fields_ccs6_subcommand1
 };
 
 /* Emergency error register decode mask */
-static const int *em_err_reg_fields[] = {
+static int * const em_err_reg_fields[] = {
   &hf_canopen_em_err_reg_ge,
   &hf_canopen_em_err_reg_cu,
   &hf_canopen_em_err_reg_vo,
@@ -202,7 +202,7 @@ static const int *em_err_reg_fields[] = {
 };
 
 /* (scs=0) decode mask */
-static const int *sdo_cmd_fields_scs0[] = {
+static int * const sdo_cmd_fields_scs0[] = {
   &hf_canopen_sdo_cmd_scs,
   &hf_canopen_sdo_cmd_toggle,
   &hf_canopen_sdo_cmd_updown_n,
@@ -210,13 +210,13 @@ static const int *sdo_cmd_fields_scs0[] = {
   NULL
 };
 /* (scs=1) decode mask */
-static const int *sdo_cmd_fields_scs1[] = {
+static int * const sdo_cmd_fields_scs1[] = {
   &hf_canopen_sdo_cmd_scs,
   &hf_canopen_sdo_cmd_toggle,
   NULL
 };
 /* (scs=2) decode mask */
-static const int *sdo_cmd_fields_scs2[] = {
+static int * const sdo_cmd_fields_scs2[] = {
   &hf_canopen_sdo_cmd_scs,
   &hf_canopen_sdo_cmd_init_n,
   &hf_canopen_sdo_cmd_init_e,
@@ -224,31 +224,31 @@ static const int *sdo_cmd_fields_scs2[] = {
   NULL
 };
 /* (scs=3) decode mask */
-static const int *sdo_cmd_fields_scs3[] = {
+static int * const sdo_cmd_fields_scs3[] = {
   &hf_canopen_sdo_cmd_scs,
   NULL
 };
 /* (scs=4) decode mask */
-static const int *sdo_cmd_fields_scs4[] = {
+static int * const sdo_cmd_fields_scs4[] = {
   &hf_canopen_sdo_cmd_scs,
   NULL
 };
 /* (scs=5,ss=0) decode mask */
-static const int *sdo_cmd_fields_scs5_subcommand0[] = {
+static int * const sdo_cmd_fields_scs5_subcommand0[] = {
   &hf_canopen_sdo_cmd_scs,
   &hf_canopen_sdo_cmd_block_crc_support,
   &hf_canopen_sdo_cmd_scs5_subcommand,
   NULL
 };
 /* (scs=5,ss=1,2) decode mask */
-static const int *sdo_cmd_fields_scs5_subcommand1[] = {
+static int * const sdo_cmd_fields_scs5_subcommand1[] = {
   &hf_canopen_sdo_cmd_scs,
   &hf_canopen_sdo_cmd_scs5_subcommand,
   NULL
 };
 
 /* (scs=6,ss=0) decode mask */
-static const int *sdo_cmd_fields_scs6_subcommand0[] = {
+static int * const sdo_cmd_fields_scs6_subcommand0[] = {
   &hf_canopen_sdo_cmd_scs,
   &hf_canopen_sdo_cmd_block_crc_support,
   &hf_canopen_sdo_cmd_block_s,
@@ -256,7 +256,7 @@ static const int *sdo_cmd_fields_scs6_subcommand0[] = {
   NULL
 };
 /* (scs=6,ss=1) decode mask */
-static const int *sdo_cmd_fields_scs6_subcommand1[] = {
+static int * const sdo_cmd_fields_scs6_subcommand1[] = {
   &hf_canopen_sdo_cmd_scs,
   &hf_canopen_sdo_cmd_block_n,
   &hf_canopen_sdo_cmd_scs6_subcommand,
@@ -264,7 +264,7 @@ static const int *sdo_cmd_fields_scs6_subcommand1[] = {
 };
 
 
-static const int **_sdo_cmd_fields_scs[] = {
+static int * const *_sdo_cmd_fields_scs[] = {
   sdo_cmd_fields_scs0,
   sdo_cmd_fields_scs1,
   sdo_cmd_fields_scs2,
@@ -272,13 +272,13 @@ static const int **_sdo_cmd_fields_scs[] = {
   sdo_cmd_fields_scs4
 };
 
-static const int **_sdo_cmd_fields_scs5[] = {
+static int * const *_sdo_cmd_fields_scs5[] = {
   sdo_cmd_fields_scs5_subcommand0,
   sdo_cmd_fields_scs5_subcommand1,
   sdo_cmd_fields_scs5_subcommand1,
 };
 
-static const int **_sdo_cmd_fields_scs6[] = {
+static int * const *_sdo_cmd_fields_scs6[] = {
   sdo_cmd_fields_scs6_subcommand0,
   sdo_cmd_fields_scs6_subcommand1
 };
@@ -781,7 +781,7 @@ canopen_detect_msg_type(guint function_code, guint node_id)
 }
 
 
-static inline const int **
+static inline int * const *
 sdo_cmd_fields_scs(guint cs, guint subcommand)
 {
     if (cs < array_length(_sdo_cmd_fields_scs))
@@ -793,7 +793,7 @@ sdo_cmd_fields_scs(guint cs, guint subcommand)
     return NULL;
 }
 
-static inline const int **
+static inline int * const *
 sdo_cmd_fields_ccs(guint cs, guint subcommand)
 {
     if (cs < array_length(_sdo_cmd_fields_ccs))
@@ -815,7 +815,7 @@ dissect_sdo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *canopen_type_tree, gu
     guint8 sdo_mux = 0, sdo_pst = 0;
     /*sdo values used to choose dissector*/
     guint8 sdo_cs = 0, sdo_subcommand = 0;
-    const gint **sdo_cmd_fields;
+    int * const *sdo_cmd_fields;
 
     /* get SDO command specifier */
     sdo_cs = tvb_get_bits8(tvb, 0, 3);

@@ -944,7 +944,7 @@ static int dissect_s_validator_type(packet_info *pinfo, proto_tree *tree, proto_
       return total_len;
    }
 
-   static const int* bits[] = {
+   static int* const bits[] = {
       &hf_cip_svalidator_type_pc,
       &hf_cip_svalidator_type_conn_type,
       NULL
@@ -1439,7 +1439,7 @@ static void
 dissect_ack_byte( proto_tree *tree, tvbuff_t *tvb, int offset)
 {
    // TODO: add ack_byte validation
-   static const int* bits[] = {
+   static int* const bits[] = {
       &hf_cipsafety_ack_byte_ping_count_reply,
       &hf_cipsafety_ack_byte_reserved1,
       &hf_cipsafety_ack_byte_ping_response,
@@ -1455,7 +1455,7 @@ static void
 dissect_mcast_byte( proto_tree *tree, tvbuff_t *tvb, int offset)
 {
    // TODO: add mcast_byte validation
-   static const int* bits[] = {
+   static int* const bits[] = {
       &hf_cipsafety_mcast_byte_consumer_num,
       &hf_cipsafety_mcast_byte_reserved1,
       &hf_cipsafety_mcast_byte_mai,

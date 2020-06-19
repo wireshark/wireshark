@@ -2754,7 +2754,7 @@ dissect_rrlp_Rel5_MsrPosition_Req_Extension(tvbuff_t *tvb _U_, int offset _U_, a
 }
 
 
-static const int * GANSSPositioningMethod_bits[] = {
+static int * const GANSSPositioningMethod_bits[] = {
   &hf_rrlp_GANSSPositioningMethod_gps,
   &hf_rrlp_GANSSPositioningMethod_galileo,
   &hf_rrlp_GANSSPositioningMethod_sbas,
@@ -3792,7 +3792,7 @@ dissect_rrlp_GANSSNavModel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 }
 
 
-static const int * GANSSSignals_bits[] = {
+static int * const GANSSSignals_bits[] = {
   &hf_rrlp_GANSSSignals_signal1,
   &hf_rrlp_GANSSSignals_signal2,
   &hf_rrlp_GANSSSignals_signal3,
@@ -6432,7 +6432,7 @@ dissect_rrlp_INTEGER_0_16384(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 }
 
 
-static const int * PositionData_bits[] = {
+static int * const PositionData_bits[] = {
   &hf_rrlp_PositionData_e_otd,
   &hf_rrlp_PositionData_gps,
   &hf_rrlp_PositionData_galileo,
@@ -6799,7 +6799,7 @@ dissect_rrlp_ProtocolError(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 }
 
 
-static const int * GANSSPositioningMethodTypes_bits[] = {
+static int * const GANSSPositioningMethodTypes_bits[] = {
   &hf_rrlp_GANSSPositioningMethodTypes_msAssisted,
   &hf_rrlp_GANSSPositioningMethodTypes_msBased,
   &hf_rrlp_GANSSPositioningMethodTypes_standalone,
@@ -6815,7 +6815,7 @@ dissect_rrlp_GANSSPositioningMethodTypes(tvbuff_t *tvb _U_, int offset _U_, asn1
 }
 
 
-static const int * SBASID_bits[] = {
+static int * const SBASID_bits[] = {
   &hf_rrlp_SBASID_waas,
   &hf_rrlp_SBASID_egnos,
   &hf_rrlp_SBASID_masas,
@@ -6879,7 +6879,7 @@ dissect_rrlp_PosCapability_Req(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 }
 
 
-static const int * NonGANSSPositionMethods_bits[] = {
+static int * const NonGANSSPositionMethods_bits[] = {
   &hf_rrlp_NonGANSSPositionMethods_msAssistedEOTD,
   &hf_rrlp_NonGANSSPositionMethods_msBasedEOTD,
   &hf_rrlp_NonGANSSPositionMethods_msAssistedGPS,
@@ -6897,7 +6897,7 @@ dissect_rrlp_NonGANSSPositionMethods(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 }
 
 
-static const int * MultipleMeasurementSets_bits[] = {
+static int * const MultipleMeasurementSets_bits[] = {
   &hf_rrlp_MultipleMeasurementSets_eotd,
   &hf_rrlp_MultipleMeasurementSets_gps,
   &hf_rrlp_MultipleMeasurementSets_ganss,
@@ -6929,7 +6929,7 @@ dissect_rrlp_PosCapabilities(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 }
 
 
-static const int * GPSAssistance_bits[] = {
+static int * const GPSAssistance_bits[] = {
   &hf_rrlp_GPSAssistance_almanac,
   &hf_rrlp_GPSAssistance_uTCmodel,
   &hf_rrlp_GPSAssistance_ionosphericModel,
@@ -6953,7 +6953,7 @@ dissect_rrlp_GPSAssistance(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 }
 
 
-static const int * CommonGANSSAssistance_bits[] = {
+static int * const CommonGANSSAssistance_bits[] = {
   &hf_rrlp_CommonGANSSAssistance_referenceTime,
   &hf_rrlp_CommonGANSSAssistance_referenceLocation,
   &hf_rrlp_CommonGANSSAssistance_spare_bit2,
@@ -6972,7 +6972,7 @@ dissect_rrlp_CommonGANSSAssistance(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 }
 
 
-static const int * GANSSAssistance_bits[] = {
+static int * const GANSSAssistance_bits[] = {
   &hf_rrlp_GANSSAssistance_realTimeIntegrity,
   &hf_rrlp_GANSSAssistance_differentialCorrections,
   &hf_rrlp_GANSSAssistance_almanac,
@@ -7041,7 +7041,7 @@ dissect_rrlp_GANSSAssistanceSet(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 }
 
 
-static const int * GANSSModelID_bits[] = {
+static int * const GANSSModelID_bits[] = {
   &hf_rrlp_GANSSModelID_model1,
   &hf_rrlp_GANSSModelID_model2,
   &hf_rrlp_GANSSModelID_model3,

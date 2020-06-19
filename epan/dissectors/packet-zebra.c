@@ -1108,7 +1108,7 @@ zebra_route_ifindex(proto_tree *tree, tvbuff_t *tvb, int offset, guint16 len)
 static int
 zebra_route_message(proto_tree *tree, tvbuff_t *tvb, int offset, guint8 version)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_zebra_msg_nexthop,
 		&hf_zebra_msg_index,
 		&hf_zebra_msg_distance,
@@ -1117,7 +1117,7 @@ zebra_route_message(proto_tree *tree, tvbuff_t *tvb, int offset, guint8 version)
 		&hf_zebra_msg_tag,
 		NULL
 	};
-	static const int * flags4[] = {
+	static int * const flags4[] = {
 		&hf_zebra_msg_nexthop,
 		&hf_zebra_msg_index,
 		&hf_zebra_msg_distance,
@@ -1127,7 +1127,7 @@ zebra_route_message(proto_tree *tree, tvbuff_t *tvb, int offset, guint8 version)
 		&hf_zebra_msg4_srcpfx,
 		NULL
 	};
-	static const int * flags5[] = {
+	static int * const flags5[] = {
 		&hf_zebra_msg_nexthop,
 		&hf_zebra_msg5_distance,
 		&hf_zebra_msg5_metric,

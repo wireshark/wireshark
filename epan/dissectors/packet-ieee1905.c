@@ -1558,7 +1558,7 @@ dissect_1905_neighbor_device(tvbuff_t *tvb, packet_info *pinfo _U_,
     proto_item *pi = NULL;
     proto_item *neighbor_list = NULL;
     guint start;
-    static const int *flags[] = {
+    static int * const flags[] = {
       &hf_ieee1905_bridges_flag,
       NULL,
     };
@@ -2740,7 +2740,7 @@ static int
 dissect_ap_capability(tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree *tree, guint offset)
 {
-    static const int *capabilities[] = {
+    static int * const capabilities[] = {
       &hf_ieee1905_unassoc_sta_metrics_oper_flag,
       &hf_ieee1905_unassoc_sta_metrics_non_oper_flag,
       &hf_ieee1905_agent_init_steering,
@@ -2844,7 +2844,7 @@ static int
 dissect_ap_ht_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree *tree, guint offset)
 {
-    static const int *capabilities[] = {
+    static int * const capabilities[] = {
       &hf_ieee1905_max_supported_tx_streams,
       &hf_ieee1905_max_supported_rx_streams,
       &hf_ieee1905_short_gi_20mhz_flag,
@@ -2871,7 +2871,7 @@ static int
 dissect_ap_vht_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree *tree, guint offset)
 {
-    static const int *capabilities[] = {
+    static int * const capabilities[] = {
       &hf_ieee1905_vht_max_supported_tx_streams,
       &hf_ieee1905_vht_max_supported_rx_streams,
       &hf_ieee1905_short_gi_80mhz_flag,
@@ -2911,7 +2911,7 @@ dissect_ap_he_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_,
 {
     guint8 he_mcs_count = 0, he_mcs_index = 0;
     proto_tree *he_mcs_list = NULL;
-    static const int *he_capabilities[] = {
+    static int * const he_capabilities[] = {
       &hf_ieee1905_he_max_supported_tx_streams,
       &hf_ieee1905_he_max_supported_rx_streams,
       &hf_ieee1905_he_support_80plus_mhz_flag,
@@ -3070,7 +3070,7 @@ dissect_metric_reporting_policy(tvbuff_t *tvb, packet_info *pinfo _U_,
     proto_tree *radio_tree = NULL;
     proto_item *pi = NULL;
     guint saved_offset = 0;
-    static const int *ieee1905_reporting_policy_flags[] = {
+    static int * const ieee1905_reporting_policy_flags[] = {
         &hf_ieee1905_assoc_sta_traffic_stats_inclusion,
         &hf_ieee1905_assoc_sta_link_metrics_inclusion,
         &hf_ieee1905_reporting_policy_flags_reserved,
@@ -3143,7 +3143,7 @@ dissect_channel_preference(tvbuff_t *tvb, packet_info *pinfo _U_,
     proto_tree *class_list = NULL;
     proto_item *pi = NULL;
     guint saved_offset = 0;
-    static const int *preference[] = {
+    static int * const preference[] = {
       &hf_ieee1905_channel_pref_preference,
       &hf_ieee1905_channel_pref_reason,
       NULL,
@@ -3504,7 +3504,7 @@ dissect_unassociated_sta_link_metric_response(tvbuff_t *tvb, packet_info *pinfo 
 /*
  * Dissect a Steering request TLV
  */
-static const int *steering_flags[] = {
+static int * const steering_flags[] = {
   &hf_ieee1905_steering_request_mode_flag,
   &hf_ieee1905_btm_disassoc_imminent_flag,
   &hf_ieee1905_btm_abridged_flag,
@@ -3984,7 +3984,7 @@ static int
 dissect_client_association_event(tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree *tree, guint offset)
 {
-    static const int *association_flags[] = {
+    static int * const association_flags[] = {
       &hf_ieee1905_association_flag,
       &hf_ieee1905_association_event_reserved,
       NULL,
@@ -4052,7 +4052,7 @@ dissect_ap_metrics(tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree *tree, guint offset, guint16 len _U_)
 {
     guint8 presence_flags = 0;
-    static const int *flags[] = {
+    static int * const flags[] = {
         &hf_ieee1905_include_estimated_spi_ac_eq_be,
         &hf_ieee1905_include_estimated_spi_ac_eq_bk,
         &hf_ieee1905_include_estimated_spi_ac_eq_vo,
@@ -4459,7 +4459,7 @@ dissect_error_code(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 /*
  * Dissect a Channel Scan Reporting Policy TLV
  */
-static const int * channel_scan_rep_policy_headers[] = {
+static int * const  channel_scan_rep_policy_headers[] = {
   &hf_ieee1905_channel_scan_pol_report,
   &hf_ieee1905_channel_scan_pol_reserved,
   NULL
@@ -4486,7 +4486,7 @@ dissect_channel_scan_reporting_policy(tvbuff_t *tvb, packet_info *pinfo _U_,
 /*
  * Dissect a Channel Scan Capabilities TLV
  */
-static const int *channel_scan_capa_flags_headers[] = {
+static int * const channel_scan_capa_flags_headers[] = {
   &hf_ieee1905_channel_scan_capa_flags_on_boot_only,
   &hf_ieee1905_channel_scan_capa_flags_scan_impact,
   &hf_ieee1905_channel_scan_capa_flags_reserved,
@@ -4622,7 +4622,7 @@ dissect_channel_scan_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_,
 /*
  * Dissect a Channel Scan Request TLV
  */
-static const int *channel_scan_request_flags_headers[] = {
+static int * const channel_scan_request_flags_headers[] = {
   &hf_ieee1905_channel_scan_request_flags_fresh_scan,
   &hf_ieee1905_channel_scan_request_flags_reserved,
   NULL
@@ -4757,13 +4757,13 @@ static const range_string channel_scan_result_status_rvals[] = {
   { 0, 0, NULL }
 };
 
-static const int *channel_scan_result_neigh_flags[] = {
+static int * const channel_scan_result_neigh_flags[] = {
   &hf_ieee1905_channel_scan_result_load_element_present,
   &hf_ieee1905_channel_scan_result_neigh_reserved,
   NULL
 };
 
-static const int *channel_scan_result_flags[] = {
+static int * const channel_scan_result_flags[] = {
   &hf_ieee1905_channel_scan_result_scan_type,
   &hf_ieee1905_channel_scan_result_scan_flags_reserved,
   NULL
@@ -5063,7 +5063,7 @@ dissect_encrypted(tvbuff_t *tvb, packet_info *pinfo _U_,
 /*
  * Dissect a CAC Request TLV
  */
-static const int *cac_request_method_flags[] = {
+static int * const cac_request_method_flags[] = {
   &hf_ieee1905_cac_request_method,
   &hf_ieee1905_cac_request_completion_action,
   &hf_ieee1905_cac_request_completion_unsuccess,
@@ -5633,7 +5633,7 @@ static const value_string byte_counter_units_vals[] = {
   { 0, NULL }
 };
 
-static const int* r2_ap_capa_flags[] = {
+static int* const r2_ap_capa_flags[] = {
   &hf_ieee1905_byte_counter_units,
   &hf_ieee1905_r2_ap_capa_flags_reserved,
   NULL
@@ -5663,7 +5663,7 @@ dissect_r2_ap_capability(tvbuff_t *tvb, packet_info *pinfo _U_,
 /*
  * Dissect a Service Prioritization Rule TLV
  */
-static const int *default_802_1q_settings_flags[] = {
+static int * const default_802_1q_settings_flags[] = {
   &hf_ieee1905_default_802_1q_settings_default_pcp,
   &hf_ieee1905_default_802_1q_settings_reserved,
   NULL
@@ -5817,7 +5817,7 @@ dissect_packet_filtering_policy(tvbuff_t *tvb, packet_info *pinfo _U_,
 /*
  * Dissect a Ethernet Configuration Policy TLV
  */
-static const int *interface_type_header[] = {
+static int * const interface_type_header[] = {
   &hf_ieee1905_ethernet_config_policy_intf_type,
   &hf_ieee1905_ethernet_config_policy_reserved,
   NULL
@@ -5947,7 +5947,7 @@ dissect_r2_error_code(tvbuff_t *tvb, packet_info *pinfo _U_,
 /*
  * Dissect an AP Operational Backhaul BSS TLV:
  */
-static const int *ap_operational_backhaul_bss_config[] = {
+static int * const ap_operational_backhaul_bss_config[] = {
   &hf_ieee1905_r1_backhaul_association_disallowed,
   &hf_ieee1905_r2_above_backaul_association_dissallowed,
   &hf_ieee1905_ap_operational_backhaul_bss_reserved,
@@ -6045,7 +6045,7 @@ dissect_ap_operational_backhaul_bss(tvbuff_t *tvb, packet_info *pinfo _U_,
  * Dissect an AP Radio Advanced Capabilities TLV
  */
 
-static const int *ap_radio_advanced_capa_flags[] = {
+static int * const ap_radio_advanced_capa_flags[] = {
   &hf_ieee1905_ap_radio_advance_capa_backhaul_bss_traffic_sep,
   &hf_ieee1905_ap_radio_advance_capa_combined_r1_r2_backhaul,
   &hf_ieee1905_ap_radio_advance_capa_reserved,
@@ -6181,7 +6181,7 @@ dissect_tunneled(tvbuff_t *tvb, packet_info *pinfo _U_,
 /*
  * Dissect an R2 Steering Request TLV:
  */
-static const int *r2_steering_flags[] = {
+static int * const r2_steering_flags[] = {
   &hf_ieee1905_r2_steering_request_mode_flag,
   &hf_ieee1905_r2_btm_disassoc_imminent_flag,
   &hf_ieee1905_r2_btm_abridged_flag,
@@ -6290,7 +6290,7 @@ static int
 dissect_unsuccessful_association_policy(tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree *tree, guint offset, guint16 len _U_)
 {
-    static const int *capabilities[] = {
+    static int * const capabilities[] = {
       &hf_ieee1905_rpt_unsuccessful_assoc_report,
       NULL,
     };
@@ -6396,7 +6396,7 @@ dissect_disassociation_reason_code(tvbuff_t *tvb, packet_info *pinfo _U_,
 /*
  * Dissect a Backhaul STA Radio Capabilitoes TLV:
  */
-static const int *backhaul_sta_radio_capa_flags[] = {
+static int * const backhaul_sta_radio_capa_flags[] = {
     &hf_ieee1905_backhaul_sta_radio_capa_mac_included,
     &hf_ieee1905_backhaul_sta_radio_capa_reserved,
     NULL
@@ -6541,7 +6541,7 @@ dissect_akm_suite_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_,
 /*
  * Dissect a 1905 Encap DPP TLV:
  */
-static const int *ieee1905_encap_dpp_flags[] = {
+static int * const ieee1905_encap_dpp_flags[] = {
   &hf_ieee1905_dpp_encap_final_destination,
   &hf_ieee1905_dpp_encap_channel_list,
   &hf_ieee1905_dpp_encap_reserved,
@@ -7158,7 +7158,7 @@ dissect_ieee1905(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree *ieee1905_tree;
     guint16    message_type;
     guint       offset = 0;
-    static const int *flag_headers[] = {
+    static int * const flag_headers[] = {
       &hf_ieee1905_last_fragment,
       &hf_ieee1905_relay_indicator,
       NULL

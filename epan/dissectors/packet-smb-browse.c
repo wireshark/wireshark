@@ -369,7 +369,7 @@ static const true_false_string tfs_os_nts = {
 static void
 dissect_election_criterion_os(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_election_os_wfw,
 		&hf_election_os_ntw,
 		&hf_election_os_nts,
@@ -382,7 +382,7 @@ dissect_election_criterion_os(tvbuff_t *tvb, proto_tree *parent_tree, int offset
 static void
 dissect_election_criterion_desire(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_election_desire_flags_backup,
 		&hf_election_desire_flags_standby,
 		&hf_election_desire_flags_master,
@@ -437,7 +437,7 @@ dissect_smb_server_type_flags(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	guint32 flags;
 	int i;
 
-	static const int * type_flags[] = {
+	static int * const type_flags[] = {
 		&hf_server_type_workstation,
 		&hf_server_type_server,
 		&hf_server_type_sql,
@@ -699,7 +699,7 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 		break;
 
 	case BROWSE_RESETBROWSERSTATE_ANNOUNCEMENT: {
-		static const int * flags[] = {
+		static int * const flags[] = {
 			&hf_mb_reset_demote,
 			&hf_mb_reset_flush,
 			&hf_mb_reset_stop,

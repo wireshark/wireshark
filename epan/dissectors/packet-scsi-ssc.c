@@ -114,7 +114,7 @@ dissect_ssc_read6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    static const int *read6_fields[] = {
+    static int * const read6_fields[] = {
         &hf_scsi_ssc_sili,
         &hf_scsi_ssc_fixed,
         NULL
@@ -139,7 +139,7 @@ dissect_ssc_recoverbuffereddata (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
                     guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    static const int *recover_fields[] = {
+    static int * const recover_fields[] = {
         &hf_scsi_ssc_sili,
         &hf_scsi_ssc_fixed,
         NULL
@@ -164,7 +164,7 @@ dissect_ssc_reportdensitysupport (tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
                     guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    static const int *rd_fields[] = {
+    static int * const rd_fields[] = {
         &hf_scsi_ssc_medium_type,
         &hf_scsi_ssc_media,
         NULL
@@ -194,7 +194,7 @@ dissect_ssc_readreverse6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
                     guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    static const int *rr6_fields[] = {
+    static int * const rr6_fields[] = {
         &hf_scsi_ssc_bytord,
         &hf_scsi_ssc_sili,
         &hf_scsi_ssc_fixed,
@@ -220,7 +220,7 @@ dissect_ssc_read16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    static const int *read6_fields[] = {
+    static int * const read6_fields[] = {
         &hf_scsi_ssc_sili,
         &hf_scsi_ssc_fixed,
         NULL
@@ -247,7 +247,7 @@ dissect_ssc_write16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    static const int *write16_fields[] = {
+    static int * const write16_fields[] = {
         &hf_scsi_ssc_fcs,
         &hf_scsi_ssc_lcs,
         &hf_scsi_ssc_fixed,
@@ -275,7 +275,7 @@ dissect_ssc_writefilemarks16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
                     guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    static const int *wf16_fields[] = {
+    static int * const wf16_fields[] = {
         &hf_scsi_ssc_fcs,
         &hf_scsi_ssc_lcs,
         &hf_scsi_ssc_immed,
@@ -303,7 +303,7 @@ dissect_ssc_verify16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    static const int *verify16_fields[] = {
+    static int * const verify16_fields[] = {
         &hf_scsi_ssc_verify16_immed,
         &hf_scsi_ssc_bytcmp,
         &hf_scsi_ssc_fixed,
@@ -331,7 +331,7 @@ dissect_ssc_verify6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    static const int *verify6_fields[] = {
+    static int * const verify6_fields[] = {
         &hf_scsi_ssc_verify16_immed,
         &hf_scsi_ssc_bytcmp,
         &hf_scsi_ssc_fixed,
@@ -357,7 +357,7 @@ dissect_ssc_readreverse16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
                     guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    static const int *rr16_fields[] = {
+    static int * const rr16_fields[] = {
         &hf_scsi_ssc_bytord,
         &hf_scsi_ssc_sili,
         &hf_scsi_ssc_fixed,
@@ -385,7 +385,7 @@ dissect_ssc_write6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    static const int *write6_fields[] = {
+    static int * const write6_fields[] = {
         &hf_scsi_ssc_immed,
         NULL
     };
@@ -409,7 +409,7 @@ dissect_ssc_writefilemarks6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
                     guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    static const int *wf6_fields[] = {
+    static int * const wf6_fields[] = {
         &hf_scsi_ssc_immed,
         NULL
     };
@@ -433,11 +433,11 @@ dissect_ssc_loadunload (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    static const int *loadunload_immed_fields[] = {
+    static int * const loadunload_immed_fields[] = {
         &hf_scsi_ssc_immed,
         NULL
     };
-    static const int *loadunload_fields[] = {
+    static int * const loadunload_fields[] = {
         &hf_scsi_ssc_hold,
         &hf_scsi_ssc_eot,
         &hf_scsi_ssc_reten,
@@ -492,7 +492,7 @@ dissect_ssc_rewind (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    static const int *rewind_fields[] = {
+    static int * const rewind_fields[] = {
         &hf_scsi_ssc_immed,
         NULL
     };
@@ -515,7 +515,7 @@ dissect_ssc_setcapacity (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
                     guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    static const int *sc_fields[] = {
+    static int * const sc_fields[] = {
         &hf_scsi_ssc_immed,
         NULL
     };
@@ -538,7 +538,7 @@ dissect_ssc_locate10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    static const int *locate_fields[] = {
+    static int * const locate_fields[] = {
         &hf_scsi_ssc_bt,
         &hf_scsi_ssc_cp,
         &hf_scsi_ssc_immed,
@@ -564,13 +564,13 @@ dissect_ssc_locate16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    static const int *locate_fields[] = {
+    static int * const locate_fields[] = {
         &hf_scsi_ssc_dest_type,
         &hf_scsi_ssc_cp,
         &hf_scsi_ssc_immed,
         NULL
     };
-    static const int *bam_fields[] = {
+    static int * const bam_fields[] = {
         &hf_scsi_ssc_bam,
         NULL
     };
@@ -614,7 +614,7 @@ dissect_ssc_erase16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    static const int *erase16_fields[] = {
+    static int * const erase16_fields[] = {
         &hf_scsi_ssc_fcs,
         &hf_scsi_ssc_lcs,
         &hf_scsi_ssc_erase_immed,
@@ -694,7 +694,7 @@ dissect_ssc_formatmedium (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
                     guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    static const int *formatmedium_fields[] = {
+    static int * const formatmedium_fields[] = {
         &hf_scsi_ssc_verify,
         &hf_scsi_ssc_immed,
         NULL
@@ -750,7 +750,7 @@ dissect_ssc_readposition (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
         case SHORT_FORM_BLOCK_ID:
         case SHORT_FORM_VENDOR_SPECIFIC:
             {
-            static const int * block_id_flags[] = {
+            static int * const block_id_flags[] = {
                 &hf_scsi_ssc_readposition_bop,
                 &hf_scsi_ssc_readposition_eop,
                 &hf_scsi_ssc_readposition_bcu,
@@ -795,7 +795,7 @@ dissect_ssc_readposition (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 
         case LONG_FORM:
             {
-            static const int * long_form_flags[] = {
+            static int * const long_form_flags[] = {
                 &hf_scsi_ssc_readposition_bop,
                 &hf_scsi_ssc_readposition_eop,
                 &hf_scsi_ssc_readposition_mpu,
@@ -833,7 +833,7 @@ dissect_ssc_readposition (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 
         case EXTENDED_FORM:
             {
-            static const int * extended_form_flags[] = {
+            static int * const extended_form_flags[] = {
                 &hf_scsi_ssc_readposition_bop,
                 &hf_scsi_ssc_readposition_eop,
                 &hf_scsi_ssc_readposition_bcu,

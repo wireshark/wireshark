@@ -247,7 +247,7 @@ static void
 dissect_zcl_thermostat_schedule_days(proto_tree *tree, tvbuff_t *tvb, guint offset)
 {
 
-    static const int *thermostat_schedule_days[] = {
+    static int * const thermostat_schedule_days[] = {
         &hf_zbee_zcl_thermostat_schedule_day_sunday,
         &hf_zbee_zcl_thermostat_schedule_day_monday,
         &hf_zbee_zcl_thermostat_schedule_day_tuesday,
@@ -275,7 +275,7 @@ static void
 dissect_zcl_thermostat_schedule_mode(proto_tree *tree, tvbuff_t *tvb, guint offset)
 {
 
-    static const int *thermostat_schedule_modes[] = {
+    static int * const thermostat_schedule_modes[] = {
         &hf_zbee_zcl_thermostat_schedule_mode_heat,
         &hf_zbee_zcl_thermostat_schedule_mode_cool,
         NULL
@@ -763,7 +763,7 @@ static void dissect_zcl_ias_zone_status     (proto_tree *tree, tvbuff_t *tvb, gu
 static void
 dissect_zcl_ias_zone_status(proto_tree *tree, tvbuff_t *tvb, guint offset)
 {
-    static const int *ias_zone_statuses[] = {
+    static int * const ias_zone_statuses[] = {
         &hf_zbee_zcl_ias_zone_status_alarm1,
         &hf_zbee_zcl_ias_zone_status_alarm2,
         &hf_zbee_zcl_ias_zone_status_tamper,

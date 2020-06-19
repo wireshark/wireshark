@@ -136,7 +136,7 @@ static int hf_iax2_cap_speex16 = -1;
 static int hf_iax2_cap_opus = -1;
 static int hf_iax2_cap_testlaw = -1;
 
-static const int *hf_iax2_caps[] = {
+static int * const hf_iax2_caps[] = {
   &hf_iax2_cap_g723_1,
   &hf_iax2_cap_gsm,
   &hf_iax2_cap_ulaw,

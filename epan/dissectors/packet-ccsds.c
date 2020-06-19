@@ -308,7 +308,7 @@ dissect_ccsds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     guint16      checkword_field = 0;
     guint16      checkword_sum   = 0;
     tvbuff_t    *next_tvb;
-    static const int * header_flags[] = {
+    static int * const header_flags[] = {
         &hf_ccsds_version,
         &hf_ccsds_type,
         &hf_ccsds_secheader,

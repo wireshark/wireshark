@@ -851,7 +851,7 @@ dissect_ac_if_hdr_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
     guint8   if_in_collection, i;
     audio_conv_info_t *audio_conv_info;
 
-    static const int *bm_controls[] = {
+    static int * const bm_controls[] = {
         &hf_ac_if_hdr_controls_latency,
         &hf_ac_if_hdr_controls_rsv,
         NULL
@@ -918,7 +918,7 @@ dissect_ac_if_input_terminal(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
     audio_conv_info_t *audio_conv_info;
     gint               offset_start;
 
-    static const int *input_wchannelconfig[] = {
+    static int * const input_wchannelconfig[] = {
         &hf_ac_if_input_wchannelconfig_d0,
         &hf_ac_if_input_wchannelconfig_d1,
         &hf_ac_if_input_wchannelconfig_d2,
@@ -935,7 +935,7 @@ dissect_ac_if_input_terminal(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
         NULL
     };
 
-    static const int *input_bmchannelconfig[] = {
+    static int * const input_bmchannelconfig[] = {
         &hf_ac_if_input_bmchannelconfig_d0,
         &hf_ac_if_input_bmchannelconfig_d1,
         &hf_ac_if_input_bmchannelconfig_d2,
@@ -968,7 +968,7 @@ dissect_ac_if_input_terminal(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
         NULL
     };
 
-    static const int *controls[] = {
+    static int * const controls[] = {
         &hf_ac_if_input_controls_copy,
         &hf_ac_if_input_controls_connector,
         &hf_ac_if_input_controls_overload,
@@ -1036,7 +1036,7 @@ dissect_ac_if_output_terminal(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_
     audio_conv_info_t *audio_conv_info;
     gint               offset_start;
 
-    static const int *controls[] = {
+    static int * const controls[] = {
         &hf_ac_if_output_controls_copy,
         &hf_ac_if_output_controls_connector,
         &hf_ac_if_output_controls_overload,
@@ -1094,7 +1094,7 @@ dissect_ac_if_feature_unit(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
     proto_tree *bitmap_tree;
     proto_item *ti;
 
-    static const int *fu_controls0[] = {
+    static int * const fu_controls0[] = {
         &hf_ac_if_fu_controls_d0,
         &hf_ac_if_fu_controls_d1,
         &hf_ac_if_fu_controls_d2,
@@ -1105,7 +1105,7 @@ dissect_ac_if_feature_unit(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
         &hf_ac_if_fu_controls_d7,
         NULL };
 
-    static const int *fu_controls1[] = {
+    static int * const fu_controls1[] = {
         &hf_ac_if_fu_controls_d8,
         &hf_ac_if_fu_controls_d9,
         &hf_ac_if_fu_controls_rsv,
@@ -1190,7 +1190,7 @@ dissect_ac_if_mixed_unit(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
     gint     offset_start;
     guint8 nrinpins;
 
-    static const int *mu_channelconfig[] = {
+    static int * const mu_channelconfig[] = {
         &hf_ac_if_mu_channelconfig_d0,
         &hf_ac_if_mu_channelconfig_d1,
         &hf_ac_if_mu_channelconfig_d2,
@@ -1245,13 +1245,13 @@ dissect_ac_if_clock_source(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
         proto_tree *tree, usb_conv_info_t *usb_conv_info _U_)
 {
     gint offset_start;
-    static const int *cs_attributes[] = {
+    static int * const cs_attributes[] = {
         &hf_ac_if_clksrc_attr_type,
         &hf_ac_if_clksrc_attr_d2,
         &hf_ac_if_clksrc_attr_rsv,
         NULL
     };
-    static const int *cs_controls[] = {
+    static int * const cs_controls[] = {
         &hf_ac_if_clksrc_controls_freq,
         &hf_ac_if_clksrc_controls_validity,
         &hf_ac_if_clksrc_controls_rsv,
@@ -1283,7 +1283,7 @@ dissect_ac_if_clock_selector(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 {
     gint   offset_start;
     guint8 nrinpins;
-    static const int *cs_controls[] = {
+    static int * const cs_controls[] = {
         &hf_ac_if_clksel_controls_clksel,
         &hf_ac_if_clksel_controls_rsv,
         NULL
@@ -1319,14 +1319,14 @@ dissect_as_if_general_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
     audio_conv_info_t *audio_conv_info;
     gint               offset_start;
 
-    static const int *v2_controls[] = {
+    static int * const v2_controls[] = {
         &hf_as_if_gen_controls_active,
         &hf_as_if_gen_controls_valid,
         &hf_as_if_gen_controls_rsv,
         NULL
     };
 
-    static const int *v2_formats_type_i[] = {
+    static int * const v2_formats_type_i[] = {
         &hf_as_if_gen_formats_i_d0,
         &hf_as_if_gen_formats_i_d1,
         &hf_as_if_gen_formats_i_d2,
@@ -1337,7 +1337,7 @@ dissect_as_if_general_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
         NULL
     };
 
-    static const int *v2_formats_type_ii[] = {
+    static int * const v2_formats_type_ii[] = {
         &hf_as_if_gen_formats_ii_d0,
         &hf_as_if_gen_formats_ii_d1,
         &hf_as_if_gen_formats_ii_d2,
@@ -1347,7 +1347,7 @@ dissect_as_if_general_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
         NULL
     };
 
-    static const int *v2_formats_type_iii[] = {
+    static int * const v2_formats_type_iii[] = {
         &hf_as_if_gen_formats_iii_d0,
         &hf_as_if_gen_formats_iii_d1,
         &hf_as_if_gen_formats_iii_d2,
@@ -1365,7 +1365,7 @@ dissect_as_if_general_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
         NULL
     };
 
-    static const int *v2_formats_type_iv[] = {
+    static int * const v2_formats_type_iv[] = {
         &hf_as_if_gen_formats_iv_d0,
         &hf_as_if_gen_formats_iv_d1,
         &hf_as_if_gen_formats_iv_d2,
@@ -1392,7 +1392,7 @@ dissect_as_if_general_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
         NULL
     };
 
-    static const int *v2_channels[] = {
+    static int * const v2_channels[] = {
         &hf_as_if_gen_bmchannelconfig_d0,
         &hf_as_if_gen_bmchannelconfig_d1,
         &hf_as_if_gen_bmchannelconfig_d2,
@@ -1441,7 +1441,7 @@ dissect_as_if_general_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
         offset += 2;
     } else if (audio_conv_info->audio_ver_major==2) {
         guint8 format_type;
-        const int **formats_bitmask;
+        int * const *formats_bitmask;
 
         proto_tree_add_item(tree, hf_as_if_gen_term_link, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset++;
@@ -1653,18 +1653,18 @@ dissect_as_ep_general_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
     audio_conv_info_t *audio_conv_info;
     gint               offset_start = offset;
 
-    static const int *v1_attributes[] = {
+    static int * const v1_attributes[] = {
         &hf_as_ep_gen_bmattributes_d0,
         &hf_as_ep_gen_bmattributes_d1,
         &hf_as_ep_gen_bmattributes_rsv,
         &hf_as_ep_gen_bmattributes_d7,
         NULL
     };
-    static const int *v2_attributes[] = {
+    static int * const v2_attributes[] = {
         &hf_as_ep_gen_bmattributes_d7,
         NULL
     };
-    static const int *controls[] = {
+    static int * const controls[] = {
         &hf_as_ep_gen_controls_pitch,
         &hf_as_ep_gen_controls_data_overrun,
         &hf_as_ep_gen_controls_data_underrun,

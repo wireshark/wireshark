@@ -1652,7 +1652,7 @@ dissect_ieee1609dot2_INTEGER(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 }
 
 
-static const int * EndEntityType_bits[] = {
+static int * const EndEntityType_bits[] = {
   &hf_ieee1609dot2_EndEntityType_app,
   &hf_ieee1609dot2_EndEntityType_enrol,
   NULL

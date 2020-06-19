@@ -2402,7 +2402,7 @@ dissect_smb2_file_all_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pa
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int         length;
-	static const int *mode_fields[] = {
+	static int * const mode_fields[] = {
 		&hf_smb2_mode_file_write_through,
 		&hf_smb2_mode_file_sequential_only,
 		&hf_smb2_mode_file_no_intermediate_buffering,
@@ -3195,7 +3195,7 @@ dissect_smb2_buffercode(proto_tree *parent_tree, tvbuff_t *tvb, int offset, guin
 static int
 dissect_smb2_capabilities(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_smb2_cap_dfs,
 		&hf_smb2_cap_leasing,
 		&hf_smb2_cap_large_mtu,
@@ -3220,7 +3220,7 @@ dissect_smb2_capabilities(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 static int
 dissect_smb2_secmode(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_smb2_secmode_flags_sign_enabled,
 		&hf_smb2_secmode_flags_sign_required,
 		NULL
@@ -3237,7 +3237,7 @@ dissect_smb2_secmode(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 static int
 dissect_smb2_ses_req_flags(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_smb2_ses_req_flags_session_binding,
 		NULL
 	};
@@ -3255,7 +3255,7 @@ dissect_smb2_ses_req_flags(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 static int
 dissect_smb2_ses_flags(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_smb2_ses_flags_guest,
 		&hf_smb2_ses_flags_null,
 		&hf_smb2_ses_flags_encrypt,
@@ -3295,7 +3295,7 @@ static const value_string share_cache_vals[] = {
 static int
 dissect_smb2_share_flags(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	static const int *sf_fields[] = {
+	static int * const sf_fields[] = {
 		&hf_smb2_share_flags_dfs,
 		&hf_smb2_share_flags_dfs_root,
 		&hf_smb2_share_flags_restrict_exclusive_opens,
@@ -3331,7 +3331,7 @@ dissect_smb2_share_flags(proto_tree *tree, tvbuff_t *tvb, int offset)
 static int
 dissect_smb2_share_caps(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	static const int *sc_fields[] = {
+	static int * const sc_fields[] = {
 		&hf_smb2_share_caps_dfs,
 		&hf_smb2_share_caps_continuous_availability,
 		&hf_smb2_share_caps_scaleout,
@@ -4149,7 +4149,7 @@ dissect_smb2_find_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	offset_length_buffer_t olb;
 	const guint8 *buf;
 	guint8      il;
-	static const int *f_fields[] = {
+	static int * const f_fields[] = {
 		&hf_smb2_find_flags_restart_scans,
 		&hf_smb2_find_flags_single_entry,
 		&hf_smb2_find_flags_index_specified,
@@ -5165,7 +5165,7 @@ dissect_additional_information_sec_mask(tvbuff_t *tvb, proto_tree *parent_tree, 
 {
 	/*	Note that in SMB1 protocol some security flags were not defined yet - see dissect_security_information_mask()
 		So for SMB2 we have to use own dissector */
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_smb2_getsetinfo_additional_owner,
 		&hf_smb2_getsetinfo_additional_group,
 		&hf_smb2_getsetinfo_additional_dacl,
@@ -5782,7 +5782,7 @@ dissect_smb2_lock_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	while (lock_count--) {
 		proto_item *lock_item = NULL;
 		proto_tree *lock_tree = NULL;
-		static const int *lf_fields[] = {
+		static int * const lf_fields[] = {
 			&hf_smb2_lock_flags_shared,
 			&hf_smb2_lock_flags_exclusive,
 			&hf_smb2_lock_flags_unlock,
@@ -6155,7 +6155,7 @@ dissect_smb2_write_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	guint32 channel;
 	guint32 length;
 	guint64 off;
-	static const int *f_fields[] = {
+	static int * const f_fields[] = {
 		&hf_smb2_write_flags_write_through,
 		NULL
 	};
@@ -6599,7 +6599,7 @@ static const value_string smb2_ioctl_sqos_status_vals[] = {
 static void
 dissect_smb2_FSCTL_STORAGE_QOS_CONTROL(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, gboolean data_in)
 {
-	static const int * operations[] = {
+	static int * const operations[] = {
 		&hf_smb2_ioctl_sqos_op_set_logical_flow_id,
 		&hf_smb2_ioctl_sqos_op_set_policy,
 		&hf_smb2_ioctl_sqos_op_probe_policy,
@@ -6804,7 +6804,7 @@ dissect_smb2_NETWORK_INTERFACE_INFO(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	guint64     link_speed;
 	gfloat      val      = 0;
 	const char *unit     = NULL;
-	static const int * capability_flags[] = {
+	static int * const capability_flags[] = {
 		&hf_smb2_ioctl_network_interface_capability_rdma,
 		&hf_smb2_ioctl_network_interface_capability_rss,
 		NULL
@@ -7085,7 +7085,7 @@ dissect_smb2_FSCTL_SET_COMPRESSION(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 static int
 dissect_smb2_FSCTL_SET_INTEGRITY_INFORMATION(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, gboolean data_in)
 {
-	const int *integrity_flags[] = {
+	static int * const integrity_flags[] = {
 		&hf_smb2_integrity_flags_enforcement_off,
 		NULL
 	};
@@ -7609,7 +7609,7 @@ dissect_smb2_read_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	guint32 len;
 	guint64 off;
 
-	static const int *flags[] = {
+	static int * const flags[] = {
 	     &hf_smb2_read_flags_unbuffered,
 	     &hf_smb2_read_flags_compressed,
 	     NULL
@@ -7934,7 +7934,7 @@ dissect_smb2_DHnC_buffer_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 static void
 dissect_smb2_DH2Q_buffer_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, smb2_info_t *si _U_)
 {
-	static const int *dh2x_flags_fields[] = {
+	static int * const dh2x_flags_fields[] = {
 		&hf_smb2_dh2x_buffer_flags_persistent_handle,
 		NULL
 	};
@@ -8085,13 +8085,13 @@ dissect_smb2_MxAc_buffer_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 #define SMB2_LEASE_FLAGS_BREAK_IN_PROGRESS     0x00000002
 #define SMB2_LEASE_FLAGS_PARENT_LEASE_KEY_SET  0x00000004
 
-static const int *lease_state_fields[] = {
+static int * const lease_state_fields[] = {
 	&hf_smb2_lease_state_read_caching,
 	&hf_smb2_lease_state_handle_caching,
 	&hf_smb2_lease_state_write_caching,
 	NULL
 };
-static const int *lease_flags_fields[] = {
+static int * const lease_flags_fields[] = {
 	&hf_smb2_lease_flags_break_ack_required,
 	&hf_smb2_lease_flags_break_in_progress,
 	&hf_smb2_lease_flags_parent_lease_key_set,
@@ -8350,7 +8350,7 @@ dissect_smb2_app_instance_version_buffer_response(tvbuff_t *tvb, packet_info *pi
 	report_create_context_malformed_buffer(tvb, pinfo, tree, "APP INSTANCE Version Response");
 }
 
-static const int *posix_flags_fields[] = {
+static int * const posix_flags_fields[] = {
 	&hf_smb2_posix_v1_case_sensitive,
 	&hf_smb2_posix_v1_posix_lock,
 	&hf_smb2_posix_v1_posix_file_semantics,
@@ -8422,7 +8422,7 @@ static const value_string aapl_command_code_vals[] = {
 #define SMB2_AAPL_VOLUME_CAPS		0x00000002
 #define SMB2_AAPL_MODEL_INFO		0x00000004
 
-static const int *aapl_server_query_bitmap_fields[] = {
+static int * const aapl_server_query_bitmap_fields[] = {
 	&hf_smb2_aapl_server_query_bitmask_server_caps,
 	&hf_smb2_aapl_server_query_bitmask_volume_caps,
 	&hf_smb2_aapl_server_query_bitmask_model_info,
@@ -8434,7 +8434,7 @@ static const int *aapl_server_query_bitmap_fields[] = {
 #define SMB2_AAPL_UNIX_BASED			0x00000004
 #define SMB2_AAPL_SUPPORTS_NFS_ACE		0x00000008
 
-static const int *aapl_server_query_caps_fields[] = {
+static int * const aapl_server_query_caps_fields[] = {
 	&hf_smb2_aapl_server_query_caps_supports_read_dir_attr,
 	&hf_smb2_aapl_server_query_caps_supports_osx_copyfile,
 	&hf_smb2_aapl_server_query_caps_unix_based,
@@ -8498,7 +8498,7 @@ dissect_smb2_AAPL_buffer_request(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 #define SMB2_AAPL_CASE_SENSITIVE		0x00000002
 #define SMB2_AAPL_SUPPORTS_FULL_SYNC	0x00000004
 
-static const int *aapl_server_query_volume_caps_fields[] = {
+static int * const aapl_server_query_volume_caps_fields[] = {
 	&hf_smb2_aapl_server_query_volume_caps_support_resolve_id,
 	&hf_smb2_aapl_server_query_volume_caps_case_sensitive,
 	&hf_smb2_aapl_server_query_volume_caps_supports_full_sync,
@@ -8819,7 +8819,7 @@ dissect_smb2_create_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	guint64 end_of_file;
 	guint32	attr_mask;
 	offset_length_buffer_t e_olb;
-	static const int *create_rep_flags_fields[] = {
+	static int * const create_rep_flags_fields[] = {
 		&hf_smb2_create_rep_flags_reparse_point,
 		NULL
 	};
@@ -10415,7 +10415,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 
 		/* flags */
 		if (header_tree) {
-			static const int * flags[] = {
+			static int * const  flags[] = {
 				&hf_smb2_flags_response,
 				&hf_smb2_flags_async_cmd,
 				&hf_smb2_flags_chained,

@@ -575,7 +575,7 @@ static int hf_packet_type_sco_hv2 = -1;
 static int hf_packet_type_sco_hv1 = -1;
 static int hf_packet_type_sco_reserved_4_0 = -1;
 
-static const int *hfx_bthci_evt_le_features[] = {
+static int * const hfx_bthci_evt_le_features[] = {
     &hf_bthci_evt_le_features_encryption,
     &hf_bthci_evt_le_features_connection_parameters_request_procedure,
     &hf_bthci_evt_le_features_extended_reject_indication,
@@ -616,7 +616,7 @@ static const int *hfx_bthci_evt_le_features[] = {
     NULL
 };
 
-static const int *hfx_packet_type_acl[] = {
+static int * const hfx_packet_type_acl[] = {
     &hf_packet_type_acl_dh5,
     &hf_packet_type_acl_dm5,
     &hf_packet_type_acl_3dh5,
@@ -634,7 +634,7 @@ static const int *hfx_packet_type_acl[] = {
     NULL
 };
 
-static const int *hfx_packet_type_sco[] = {
+static int * const hfx_packet_type_sco[] = {
     &hf_packet_type_sco_reserved_15_8,
     &hf_packet_type_sco_hv3,
     &hf_packet_type_sco_hv2,
@@ -666,7 +666,7 @@ static int hf_bthci_evt_ext_advts_event_type_legacy = -1;
 static int hf_bthci_evt_ext_advts_event_type_data_status = -1;
 static int hf_bthci_evt_ext_advts_event_type_reserved = -1;
 
-static const int *hfx_bthci_evt_le_ext_advts_evt_type[] = {
+static int * const hfx_bthci_evt_le_ext_advts_evt_type[] = {
     &hf_bthci_evt_ext_advts_event_type_connectable,
     &hf_bthci_evt_ext_advts_event_type_scannable,
     &hf_bthci_evt_ext_advts_event_type_directed,
@@ -683,7 +683,7 @@ static int hf_bthci_evt_supported_switching_sample_rates_1us_sampling_aod_rx = -
 static int hf_bthci_evt_supported_switching_sample_rates_1us_switching_and_sampling_aoa_rx = -1;
 static int hf_bthci_evt_supported_switching_sample_rates_reserved = -1;
 
-static const int *hfx_bthci_evt_supported_switching_sample_rates[] = {
+static int * const hfx_bthci_evt_supported_switching_sample_rates[] = {
     &hf_bthci_evt_supported_switching_sample_rates_1us_switching_aod_tx,
     &hf_bthci_evt_supported_switching_sample_rates_1us_sampling_aod_rx,
     &hf_bthci_evt_supported_switching_sample_rates_1us_switching_and_sampling_aoa_rx,
@@ -695,7 +695,7 @@ static int hf_bthci_evt_simple_pairing_options = -1;
 static int hf_bthci_evt_simple_pairing_options_remote_public_key_validation = -1;
 static int hf_bthci_evt_simple_pairing_options_reserved = -1;
 
-static const int *hfx_bthci_evt_simple_pairing_options[] = {
+static int * const hfx_bthci_evt_simple_pairing_options[] = {
     &hf_bthci_evt_simple_pairing_options_remote_public_key_validation,
     &hf_bthci_evt_simple_pairing_options_reserved,
     NULL
@@ -706,7 +706,7 @@ static int hf_bthci_evt_transmit_power_level_flags_minimum_power = -1;
 static int hf_bthci_evt_transmit_power_level_flags_maximum_power = -1;
 static int hf_bthci_evt_transmit_power_level_flags_reserved = -1;
 
-static const int *hfx_bthci_evt_transmit_power_level_flags[] = {
+static int * const hfx_bthci_evt_transmit_power_level_flags[] = {
     &hf_bthci_evt_transmit_power_level_flags_minimum_power,
     &hf_bthci_evt_transmit_power_level_flags_maximum_power,
     &hf_bthci_evt_transmit_power_level_flags_reserved,

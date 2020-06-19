@@ -362,14 +362,14 @@ static const true_false_string wisun_netricity_sc_contention_control_tfs = {
     "Contention allowed in next contention state"
 };
 
-static const int * wisun_format_nested_ie[] = {
+static int * const wisun_format_nested_ie[] = {
     &hf_wisun_wsie_type,
     &hf_wisun_wsie_id,
     &hf_wisun_wsie_length,
     NULL
 };
 
-static const int * wisun_format_nested_ie_short[] = {
+static int * const wisun_format_nested_ie_short[] = {
     &hf_wisun_wsie_type,
     &hf_wisun_wsie_id_short,
     &hf_wisun_wsie_length_short,
@@ -625,14 +625,14 @@ dissect_wisun_hie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 static int
 dissect_wisun_schedule_common(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree)
 {
-    static const int * fields_usie_channel[] = {
+    static int * const fields_usie_channel[] = {
             &hf_wisun_usie_channel_plan,
             &hf_wisun_usie_channel_function,
             &hf_wisun_usie_channel_exclude,
             NULL
     };
 
-    static const int * fields_usie_channel_plan_explicit[] = {
+    static int * const fields_usie_channel_plan_explicit[] = {
             &hf_wisun_usie_explicit_frequency,
             &hf_wisun_usie_explicit_spacing,
             &hf_wisun_usie_explicit_reserved,
@@ -785,7 +785,7 @@ dissect_wisun_panie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, voi
     proto_tree *subtree;
     guint offset = 0;
     guint32 routingCost;
-    static const int * fields_panie_flags[] = {
+    static int * const fields_panie_flags[] = {
         &hf_wisun_panie_flag_parent_bsie,
         &hf_wisun_panie_flag_routing_method,
         &hf_wisun_panie_flag_version,
@@ -1007,7 +1007,7 @@ static int dissect_wisun_eapol_relay(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
 static int dissect_wisun_netricity_sc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    static const int * fields_sc[] = {
+    static int * const fields_sc[] = {
         &hf_wisun_netricity_sc_reserved,
         &hf_wisun_netricity_sc_tone_map_request,
         &hf_wisun_netricity_sc_contention_control,

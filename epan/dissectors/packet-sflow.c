@@ -2246,7 +2246,7 @@ dissect_sflow_5_expanded_counters_sample(tvbuff_t *tvb, proto_tree *tree, gint o
     }
 }
 
-static const int *sflow_lag_port_state_flags[] = {
+static int * const sflow_lag_port_state_flags[] = {
     &hf_sflow_lag_port_actoradminstate,
     &hf_sflow_lag_port_actoroperstate,
     &hf_sflow_lag_port_partneradminstate,

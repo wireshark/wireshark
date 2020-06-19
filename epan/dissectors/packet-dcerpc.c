@@ -588,7 +588,7 @@ static int hf_dcerpc_sec_vt_bitmask_sign = -1;
 static int hf_dcerpc_sec_vt_pcontext_uuid = -1;
 static int hf_dcerpc_sec_vt_pcontext_ver = -1;
 
-static const int *sec_vt_command_fields[] = {
+static int * const sec_vt_command_fields[] = {
     &hf_dcerpc_sec_vt_command_cmd,
     &hf_dcerpc_sec_vt_command_end,
     &hf_dcerpc_sec_vt_command_must,
@@ -614,18 +614,18 @@ static int hf_dcerpc_cmd_client_ipv4 = -1;
 static int hf_dcerpc_cmd_client_ipv6 = -1;
 static int hf_dcerpc_authentication_verifier = -1;
 
-static const int *dcerpc_cn_bind_trans_btfn_fields[] = {
+static int * const dcerpc_cn_bind_trans_btfn_fields[] = {
         &hf_dcerpc_cn_bind_trans_btfn_01,
         &hf_dcerpc_cn_bind_trans_btfn_02,
         NULL
 };
 
-static const int *sec_vt_bitmask_fields[] = {
+static int * const sec_vt_bitmask_fields[] = {
     &hf_dcerpc_sec_vt_bitmask_sign,
     NULL
 };
 
-static const int *dcerpc_cn_fault_flags_fields[] = {
+static int * const dcerpc_cn_fault_flags_fields[] = {
         &hf_dcerpc_cn_fault_flags_extended_error_info,
         NULL
 };
@@ -5132,7 +5132,7 @@ dissect_dcerpc_cn_rts(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     guint32    *cmd;
     guint32     i;
     const char *info_str        = NULL;
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_dcerpc_cn_rts_flags_ping,
         &hf_dcerpc_cn_rts_flags_other_cmd,
         &hf_dcerpc_cn_rts_flags_recycle_channel,
@@ -5476,7 +5476,7 @@ dissect_dcerpc_cn(tvbuff_t *tvb, int offset, packet_info *pinfo,
     dcerpc_auth_info       auth_info;
     tvbuff_t              *fragment_tvb;
     dcerpc_decode_as_data* decode_data = dcerpc_get_decode_data(pinfo);
-    static const int * hdr_flags[] = {
+    static int * const hdr_flags[] = {
         &hf_dcerpc_cn_flags_object,
         &hf_dcerpc_cn_flags_maybe,
         &hf_dcerpc_cn_flags_dne,
@@ -6376,7 +6376,7 @@ dissect_dcerpc_dg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     int                    auth_level;
     char                  *uuid_str;
     const char            *uuid_name      = NULL;
-    static const int * hdr_flags1[] = {
+    static int * const hdr_flags1[] = {
         &hf_dcerpc_dg_flags1_rsrvd_80,
         &hf_dcerpc_dg_flags1_broadcast,
         &hf_dcerpc_dg_flags1_idempotent,
@@ -6388,7 +6388,7 @@ dissect_dcerpc_dg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         NULL
     };
 
-    static const int * hdr_flags2[] = {
+    static int * const hdr_flags2[] = {
         &hf_dcerpc_dg_flags2_rsrvd_80,
         &hf_dcerpc_dg_flags2_rsrvd_40,
         &hf_dcerpc_dg_flags2_rsrvd_20,

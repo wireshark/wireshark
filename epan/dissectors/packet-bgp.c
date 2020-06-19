@@ -1861,7 +1861,7 @@ static int hf_bgp_evpn_nlri_igmp_mc_flags_v3 = -1;
 static int hf_bgp_evpn_nlri_igmp_mc_flags_ie = -1;
 static int hf_bgp_evpn_nlri_igmp_mc_flags_reserved = -1;
 
-static const int *evpn_nlri_igmp_mc_flags[] = {
+static int * const evpn_nlri_igmp_mc_flags[] = {
        &hf_bgp_evpn_nlri_igmp_mc_flags_v1,
        &hf_bgp_evpn_nlri_igmp_mc_flags_v2,
        &hf_bgp_evpn_nlri_igmp_mc_flags_v3,
@@ -2421,7 +2421,7 @@ static int hf_bgp_ls_igp_te_metric_bandwidth_utilized = -1;
 static int hf_bgp_ls_igp_te_metric_bandwidth_utilized_value = -1;
 static int hf_bgp_ls_igp_te_metric_reserved = -1;
 
-static const int *ls_igp_te_metric_flags[] = {
+static int * const ls_igp_te_metric_flags[] = {
        &hf_bgp_ls_igp_te_metric_flags_a,
        &hf_bgp_ls_igp_te_metric_flags_reserved,
        NULL
@@ -2931,7 +2931,7 @@ decode_mcast_vpn_nlri_addresses(proto_tree *tree, tvbuff_t *tvb,
 static void
 decode_bgp_flow_spec_dec_operator(proto_tree *tree, tvbuff_t *tvb, gint offset)
 {
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_bgp_flowspec_nlri_op_eol,
         &hf_bgp_flowspec_nlri_op_and,
         &hf_bgp_flowspec_nlri_op_val_len,
@@ -3021,7 +3021,7 @@ decode_bgp_nlri_op_dec_value(proto_tree *parent_tree, proto_item *parent_item, t
 static void
 decode_bgp_flow_spec_bitmask_operator(proto_tree *tree, tvbuff_t *tvb, gint offset)
 {
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_bgp_flowspec_nlri_op_eol,
         &hf_bgp_flowspec_nlri_op_and,
         &hf_bgp_flowspec_nlri_op_val_len,
@@ -3048,7 +3048,7 @@ decode_bgp_nlri_op_tcpf_value(proto_tree *parent_tree, proto_item *parent_item, 
     guint8 shift_amount=0;
     guint first_loop=0;
 
-    static const int * nlri_tcp_flags[] = {
+    static int * const nlri_tcp_flags[] = {
         &hf_bgp_flowspec_nlri_tcp_flags_cwr,
         &hf_bgp_flowspec_nlri_tcp_flags_ecn,
         &hf_bgp_flowspec_nlri_tcp_flags_urg,
@@ -3121,7 +3121,7 @@ decode_bgp_nlri_op_fflag_value(proto_tree *parent_tree, proto_item *parent_item,
     guint8 shift_amount=0;
     guint first_loop=0;
 
-    static const int * nlri_flags[] = {
+    static int * const nlri_flags[] = {
         &hf_bgp_flowspec_nlri_fflag_lf,
         &hf_bgp_flowspec_nlri_fflag_ff,
         &hf_bgp_flowspec_nlri_fflag_isf,
@@ -4308,7 +4308,7 @@ decode_link_state_attribute_tlv(proto_tree *tree, tvbuff_t *tvb, gint offset, pa
 
         case BGP_NLRI_TLV_NODE_FLAG_BITS:
             {
-            static const int * flags[] = {
+            static int * const flags[] = {
                 &hf_bgp_ls_node_flag_bits_overload,
                 &hf_bgp_ls_node_flag_bits_attached,
                 &hf_bgp_ls_node_flag_bits_external,
@@ -4365,7 +4365,7 @@ decode_link_state_attribute_tlv(proto_tree *tree, tvbuff_t *tvb, gint offset, pa
                   |I |V |H |  |  |  |  |  |
                   +--+--+--+--+--+--+--+--+
                 */
-                static const int *sr_capabilities_flags[] = {
+                static int * const sr_capabilities_flags[] = {
                     &hf_bgp_ls_sr_tlv_capabilities_flags_i,
                     &hf_bgp_ls_sr_tlv_capabilities_flags_v,
                     &hf_bgp_ls_sr_tlv_capabilities_flags_h,
@@ -4587,7 +4587,7 @@ decode_link_state_attribute_tlv(proto_tree *tree, tvbuff_t *tvb, gint offset, pa
                 break;
             }
             else {
-                static const int * nlri_flags[] = {
+                static int * const nlri_flags[] = {
                     &hf_bgp_ls_link_protection_type_extra_traffic,
                     &hf_bgp_ls_link_protection_type_unprotected,
                     &hf_bgp_ls_link_protection_type_shared,
@@ -4614,7 +4614,7 @@ decode_link_state_attribute_tlv(proto_tree *tree, tvbuff_t *tvb, gint offset, pa
             break;
         case BGP_NLRI_TLV_MPLS_PROTOCOL_MASK:
             {
-            static const int * flags[] = {
+            static int * const flags[] = {
                 &hf_bgp_ls_mpls_protocol_mask_flag_l,
                 &hf_bgp_ls_mpls_protocol_mask_flag_r,
                 NULL
@@ -4703,7 +4703,7 @@ decode_link_state_attribute_tlv(proto_tree *tree, tvbuff_t *tvb, gint offset, pa
                   |F |B |V |L |S |  |  |  |
                   +--+--+--+--+--+--+--+--+
                 */
-                static const int *adj_sid_isis_flags[] = {
+                static int * const adj_sid_isis_flags[] = {
                     &hf_bgp_ls_sr_tlv_adjacency_sid_flags_fi,
                     &hf_bgp_ls_sr_tlv_adjacency_sid_flags_bi,
                     &hf_bgp_ls_sr_tlv_adjacency_sid_flags_vi,
@@ -4717,7 +4717,7 @@ decode_link_state_attribute_tlv(proto_tree *tree, tvbuff_t *tvb, gint offset, pa
                   |B |V |L |S |  |  |  |  |
                   +--+--+--+--+--+--+--+--+
                 */
-                static const int *adj_sid_ospf_flags[] = {
+                static int * const adj_sid_ospf_flags[] = {
                     &hf_bgp_ls_sr_tlv_adjacency_sid_flags_bo,
                     &hf_bgp_ls_sr_tlv_adjacency_sid_flags_vo,
                     &hf_bgp_ls_sr_tlv_adjacency_sid_flags_lo,
@@ -4859,7 +4859,7 @@ decode_link_state_attribute_tlv(proto_tree *tree, tvbuff_t *tvb, gint offset, pa
                   |R |N |P |E |V |L |  |  |
                   +--+--+--+--+--+--+--+--+
                 */
-                static const int *prefix_sid_isis_flags[] = {
+                static int * const prefix_sid_isis_flags[] = {
                     &hf_bgp_ls_sr_tlv_prefix_sid_flags_r,
                     &hf_bgp_ls_sr_tlv_prefix_sid_flags_n,
                     &hf_bgp_ls_sr_tlv_prefix_sid_flags_p,
@@ -4874,7 +4874,7 @@ decode_link_state_attribute_tlv(proto_tree *tree, tvbuff_t *tvb, gint offset, pa
                   |  |NP|M |E |V |L |  |  |
                   +--+--+--+--+--+--+--+--+
                 */
-                static const int *prefix_sid_ospf_flags[] = {
+                static int * const prefix_sid_ospf_flags[] = {
                     &hf_bgp_ls_sr_tlv_prefix_sid_flags_np,
                     &hf_bgp_ls_sr_tlv_prefix_sid_flags_m,
                     &hf_bgp_ls_sr_tlv_prefix_sid_flags_e,
@@ -6360,7 +6360,7 @@ dissect_bgp_capability_item(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
             else {
                 int eclen = offset + clen;
 
-                static const int * timer_flags[] = {
+                static int * const timer_flags[] = {
                     &hf_bgp_cap_gr_timers_restart_flag,
                     &hf_bgp_cap_gr_timers_notification_flag,
                     &hf_bgp_cap_gr_timers_restart_time,
@@ -6380,7 +6380,7 @@ dissect_bgp_capability_item(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
                  * read it until the TLV ends
                  */
                 while (offset < eclen) {
-                    static const int * flags[] = {
+                    static int * const flags[] = {
                         &hf_bgp_cap_gr_flag_pfs,
                         NULL
                     };
@@ -6532,7 +6532,7 @@ dissect_bgp_capability_item(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
                 offset += clen;
             }
             else {
-                static const int * bgpsec_flags[] = {
+                static int * const bgpsec_flags[] = {
                     &hf_bgp_cap_bgpsec_version,
                     &hf_bgp_cap_bgpsec_sendreceive,
                     &hf_bgp_cap_bgpsec_reserved,
@@ -7050,7 +7050,7 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, guint16 tlen,
             case BGP_EXT_COM_TYPE_HIGH_TR_QOS: /* QoS Marking [Thomas_Martin_Knoll] */
             case BGP_EXT_COM_TYPE_HIGH_NTR_QOS: /* QoS Marking [Thomas_Martin_Knoll] */
                 {
-                static const int * qos_flags[] = {
+                static int * const qos_flags[] = {
                     &hf_bgp_ext_com_qos_flags_remarking,
                     &hf_bgp_ext_com_qos_flags_ignore_remarking,
                     &hf_bgp_ext_com_qos_flags_agg_marking,
@@ -7077,7 +7077,7 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, guint16 tlen,
                 proto_item_set_text(community_item, "CoS Capability");
 
                 for (i=1; i < 8; i++) {
-                    static const int * cos_flags[] = {
+                    static int * const cos_flags[] = {
                         &hf_bgp_ext_com_cos_flags_be,
                         &hf_bgp_ext_com_cos_flags_ef,
                         &hf_bgp_ext_com_cos_flags_af,
@@ -7148,7 +7148,7 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, guint16 tlen,
 
                     case BGP_EXT_COM_STYPE_EVPN_L2ATTR:
                         {
-                        static const int *l2attr_flags[] = {
+                        static int * const l2attr_flags[] = {
                             &hf_bgp_ext_com_evpn_l2attr_flag_reserved,
                             &hf_bgp_ext_com_evpn_l2attr_flag_ci,
                             &hf_bgp_ext_com_evpn_l2attr_flag_f,
@@ -7169,7 +7169,7 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, guint16 tlen,
 
                     case BGP_EXT_COM_STYPE_EVPN_ETREE:
                         {
-                        static const int *etree_flags[] = {
+                        static int * const etree_flags[] = {
                             &hf_bgp_ext_com_evpn_etree_flag_reserved,
                             &hf_bgp_ext_com_evpn_etree_flag_l,
                             NULL
@@ -7284,7 +7284,7 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, guint16 tlen,
 
                     case BGP_EXT_COM_STYPE_EXP_L2:
                         {
-                        static const int * com_l2_flags[] = {
+                        static int * const com_l2_flags[] = {
                             &hf_bgp_ext_com_l2_flag_d,
                             &hf_bgp_ext_com_l2_flag_z1,
                             &hf_bgp_ext_com_l2_flag_f,
@@ -7303,7 +7303,7 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, guint16 tlen,
 
                     case BGP_EXT_COM_STYPE_EXP_ETREE:
                         {
-                        static const int * com_etree_flags[] = {
+                        static int * const com_etree_flags[] = {
                             &hf_bgp_ext_com_etree_flag_reserved,
                             &hf_bgp_ext_com_etree_flag_p,
                             &hf_bgp_ext_com_etree_flag_v,
@@ -7696,7 +7696,7 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
         guint8  asn_len = 0;
         guint32 as_num;
 
-        static const int * path_flags[] = {
+        static int * const path_flags[] = {
             &hf_bgp_update_path_attribute_flags_optional,
             &hf_bgp_update_path_attribute_flags_transitive,
             &hf_bgp_update_path_attribute_flags_partial,
@@ -8299,19 +8299,19 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
                         switch (encaps_tunnel_subtype) {
                             case TUNNEL_SUBTLV_ENCAPSULATION:
                                 {
-                                static const int * vxlan_flags[] = {
+                                static int * const vxlan_flags[] = {
                                     &hf_bgp_update_encaps_tunnel_subtlv_vxlan_flags_valid_vnid,
                                     &hf_bgp_update_encaps_tunnel_subtlv_vxlan_flags_valid_mac,
                                     &hf_bgp_update_encaps_tunnel_subtlv_vxlan_flags_reserved,
                                     NULL
                                     };
-                                static const int * vxlan_gpe_flags[] = {
+                                static int * const vxlan_gpe_flags[] = {
                                     &hf_bgp_update_encaps_tunnel_subtlv_vxlan_gpe_flags_version,
                                     &hf_bgp_update_encaps_tunnel_subtlv_vxlan_gpe_flags_valid_vnid,
                                     &hf_bgp_update_encaps_tunnel_subtlv_vxlan_gpe_flags_reserved,
                                     NULL
                                     };
-                                static const int * nvgre_flags[] = {
+                                static int * const nvgre_flags[] = {
                                     &hf_bgp_update_encaps_tunnel_subtlv_nvgre_flags_valid_vnid,
                                     &hf_bgp_update_encaps_tunnel_subtlv_nvgre_flags_valid_mac,
                                     &hf_bgp_update_encaps_tunnel_subtlv_nvgre_flags_reserved,
@@ -8382,7 +8382,7 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
                                 break;
                             case TUNNEL_SUBTLV_BINDING_SID:
                                 {
-                                static const int * flags[] = {
+                                static int * const flags[] = {
                                     &hf_bgp_update_encaps_tunnel_subtlv_binding_sid_flags_specified,
                                     &hf_bgp_update_encaps_tunnel_subtlv_binding_sid_flags_invalid,
                                     &hf_bgp_update_encaps_tunnel_subtlv_binding_sid_flags_reserved,
@@ -8418,7 +8418,7 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
                                 break;
                             case TUNNEL_SUBTLV_SEGMENT_LIST:
                                 {
-                                static const int * flags[] = {
+                                static int * const flags[] = {
                                     &hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_flags_verification,
                                     &hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_flags_algorithm,
                                     &hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_flags_reserved,

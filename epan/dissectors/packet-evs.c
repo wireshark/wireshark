@@ -402,7 +402,7 @@ dissect_evs_cmr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *evs_tree, int
     switch (t_bits) {
     case 0:
     {
-        static const int * flags_t0[] = {
+        static int * const flags_t0[] = {
             &hf_evs_h_bit,
             &hf_evs_cmr_t,
             &hf_evs_cmr_t0_d,
@@ -416,7 +416,7 @@ dissect_evs_cmr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *evs_tree, int
     break;
     case 1:
     {
-        static const int * flags_t1[] = {
+        static int * const flags_t1[] = {
             &hf_evs_h_bit,
             &hf_evs_cmr_t,
             &hf_evs_cmr_t1_d,
@@ -430,7 +430,7 @@ dissect_evs_cmr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *evs_tree, int
     break;
     case 2:
     {
-        static const int * flags_t2[] = {
+        static int * const flags_t2[] = {
             &hf_evs_h_bit,
             &hf_evs_cmr_t,
             &hf_evs_cmr_t2_d,
@@ -444,7 +444,7 @@ dissect_evs_cmr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *evs_tree, int
     break;
     case 3:
     {
-        static const int * flags_t3[] = {
+        static int * const flags_t3[] = {
             &hf_evs_h_bit,
             &hf_evs_cmr_t,
             &hf_evs_cmr_t3_d,
@@ -458,7 +458,7 @@ dissect_evs_cmr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *evs_tree, int
     break;
     case 4:
     {
-        static const int * flags_t4[] = {
+        static int * const flags_t4[] = {
             &hf_evs_h_bit,
             &hf_evs_cmr_t,
             &hf_evs_cmr_t4_d,
@@ -472,7 +472,7 @@ dissect_evs_cmr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *evs_tree, int
     break;
     case 5:
     {
-        static const int * flags_t5[] = {
+        static int * const flags_t5[] = {
             &hf_evs_h_bit,
             &hf_evs_cmr_t,
             &hf_evs_cmr_t5_d,
@@ -486,7 +486,7 @@ dissect_evs_cmr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *evs_tree, int
     break;
     case 6:
     {
-        static const int * flags_t6[] = {
+        static int * const flags_t6[] = {
             &hf_evs_h_bit,
             &hf_evs_cmr_t,
             &hf_evs_cmr_t6_d,
@@ -500,7 +500,7 @@ dissect_evs_cmr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *evs_tree, int
     break;
     case 7:
     {
-        static const int * flags_t7[] = {
+        static int * const flags_t7[] = {
             &hf_evs_h_bit,
             &hf_evs_cmr_t,
             &hf_evs_cmr_t7_d,
@@ -695,7 +695,7 @@ dissect_evs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             num_toc);
 
         if (evs_mode_b == 0) {
-            static const int * flags_toc_mode_0[] = {
+            static int * const flags_toc_mode_0[] = {
                 &hf_evs_h_bit,
                 &hf_evs_f_bit,
                 &hf_evs_mode_bit,
@@ -707,7 +707,7 @@ dissect_evs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             proto_tree_add_bitmask_list(sub_tree, tvb, offset, 1, flags_toc_mode_0, ENC_BIG_ENDIAN);
             str = val_to_str_const((oct & 0x0f), evs_bit_rate_mode_0_values, "Unknown value");
         } else {
-            static const int * flags_toc_mode_1[] = {
+            static int * const flags_toc_mode_1[] = {
             &hf_evs_h_bit,
             &hf_evs_f_bit,
             &hf_evs_mode_bit,

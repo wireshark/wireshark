@@ -719,8 +719,8 @@ dissect_command_code(guint8 cmd, const char *cmd_str, tvbuff_t *tvb, proto_tree 
 {
     proto_item        *cmd_item;
     proto_tree        *cmd_tree;
-    const int        **cmd_bits;
-    static const int  *data_shifting_cmd_bits[] = {
+    int               * const *cmd_bits;
+    static int * const data_shifting_cmd_bits[] = {
         &hf_mpsse_command_b7,
         &hf_mpsse_command_b6,
         &hf_mpsse_command_b5,
@@ -732,7 +732,7 @@ dissect_command_code(guint8 cmd, const char *cmd_str, tvbuff_t *tvb, proto_tree 
         NULL
     };
 
-    static const int *non_data_shifting_cmd_bits[] = {
+    static int * const non_data_shifting_cmd_bits[] = {
         &hf_mpsse_command_b7,
         NULL
     };

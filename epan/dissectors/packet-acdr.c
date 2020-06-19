@@ -579,7 +579,7 @@ create_header_extension_subtree(proto_tree *tree, tvbuff_t *tvb, gint offset, gu
                 // Gen3 only: we should add one byte of C5 Control Flags
                 // C5 Control Flags
 
-                static const int *c5_cntrl_flags[] = {
+                static int * const c5_cntrl_flags[] = {
                     &hf_acdr_ext_c5_control_favorite,
                     NULL
                 };
@@ -1055,7 +1055,7 @@ create_acdr_tree(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
         ((extra_data == 0xAA) && ((version & 0xF) <= 3))) {
         proto_tree_add_item(acdr_tree, hf_acdr_data, tvb, offset, 1, ENC_BIG_ENDIAN);
     } else {
-        static const int *extra_data_bits[] = {
+        static int * const extra_data_bits[] = {
             &hf_acdr_data_li,
             &hf_acdr_data_mtce,
             &hf_acdr_data_encrypted,
