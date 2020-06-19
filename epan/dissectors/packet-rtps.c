@@ -3511,7 +3511,7 @@ static gint rtps_util_add_type_id(proto_tree *tree,
 
   offset += 2;
   if (short_number <= 13) {
-    ti = proto_tree_add_item(tree, hf_type, tvb, offset, 2, encoding);
+    proto_tree_add_item(tree, hf_type, tvb, offset, 2, encoding);
     if (append_info_item) {
       proto_item_append_text(append_info_item, "(%s)",
                 val_to_str(short_number, type_object_kind, "(0x%016x)"));
@@ -3520,7 +3520,7 @@ static gint rtps_util_add_type_id(proto_tree *tree,
   } else {
     ALIGN_ZERO(offset, 8, zero);
     longlong_number = tvb_get_guint64(tvb, offset, encoding);
-    ti = proto_tree_add_item(tree, hf_type, tvb, offset, 8, encoding);
+    proto_tree_add_item(tree, hf_type, tvb, offset, 8, encoding);
     if (append_info_item) {
         proto_item_append_text(append_info_item, "(0x%016" G_GINT64_MODIFIER "x)", longlong_number);
     }
