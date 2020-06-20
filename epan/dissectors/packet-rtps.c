@@ -6268,8 +6268,17 @@ static gint dissect_parameter_sequence(proto_tree *tree, packet_info *pinfo, tvb
   gboolean   dissect_return_value = FALSE;
   type_mapping * type_mapping_object = NULL;
   const gchar * param_name = NULL;
-  if (!pinfo->fd->visited)
+  if (!pinfo->fd->visited) {
+    /*
+     * At minimum, type_mapping_object->fields_visited must be
+     * initialized to 0, because we haven't visited any fields
+     * yet.  The routines that visit fields just set individual
+     * bits in type_mapping_object->fields_visited; they don't
+     * initialize it.
+     */
     type_mapping_object = wmem_new(wmem_file_scope(), type_mapping);
+    type_mapping_object->fields_visited = 0;
+  }
 
   rtps_parameter_sequence_tree = proto_tree_add_subtree_format(tree, tvb, offset, size,
           ett_rtps_parameter_sequence, &ti, "%s:", label);
