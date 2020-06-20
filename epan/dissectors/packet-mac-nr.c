@@ -1373,7 +1373,7 @@ static true_false_string subheader_f_vals = {
 
 /* Returns new subtree that was added for this item */
 static proto_item* dissect_me_phr_ph(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                                    const int *ph_item, const int *pcmax_f_c_item,
+                                    int ph_item, int pcmax_f_c_item,
                                     guint32 *PH, guint32 *offset)
 {
     /* Subtree for this entry */
@@ -1393,14 +1393,14 @@ static proto_item* dissect_me_phr_ph(tvbuff_t *tvb, packet_info *pinfo _U_, prot
        - a generated field added with the inferred type OR
        - just do proto_item_append_text() indicating what the type was
      */
-    proto_tree_add_item_ret_uint(entry_tree, *ph_item, tvb, *offset, 1, ENC_BIG_ENDIAN, PH);
+    proto_tree_add_item_ret_uint(entry_tree, ph_item, tvb, *offset, 1, ENC_BIG_ENDIAN, PH);
     (*offset)++;
 
     if (!V) {
         /* Reserved (2 bits) */
         proto_tree_add_item(entry_tree, hf_mac_nr_control_me_phr_reserved_2, tvb, *offset, 1, ENC_BIG_ENDIAN);
         /* pcmax_f_c (6 bits) */
-        proto_tree_add_item(entry_tree, *pcmax_f_c_item, tvb, *offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(entry_tree, pcmax_f_c_item, tvb, *offset, 1, ENC_BIG_ENDIAN);
         (*offset)++;
     }
 
@@ -1878,12 +1878,12 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         proto_item *entry_ti;
                         if (p_mac_nr_info->phr_type2_othercell) {
                             /* The PH and PCMAX,f,c fields can be either for a LTE or NR cell */
-                            entry_ti = dissect_me_phr_ph(tvb, pinfo, subheader_ti, &hf_mac_nr_control_me_phr_ph_type2_spcell,
-                                                         &hf_mac_nr_control_me_phr_pcmax_f_c_type2_spcell, &PH, &offset);
+                            entry_ti = dissect_me_phr_ph(tvb, pinfo, subheader_ti, hf_mac_nr_control_me_phr_ph_type2_spcell,
+                                                         hf_mac_nr_control_me_phr_pcmax_f_c_type2_spcell, &PH, &offset);
                             proto_item_append_text(entry_ti, " (Type2, SpCell PH=%u)", PH);
                         }
-                        entry_ti = dissect_me_phr_ph(tvb, pinfo, subheader_ti, &hf_mac_nr_control_me_phr_ph_type1_pcell,
-                                                     &hf_mac_nr_control_me_phr_pcmax_f_c_type1_pcell, &PH, &offset);
+                        entry_ti = dissect_me_phr_ph(tvb, pinfo, subheader_ti, hf_mac_nr_control_me_phr_ph_type1_pcell,
+                                                     hf_mac_nr_control_me_phr_pcmax_f_c_type1_pcell, &PH, &offset);
                         proto_item_append_text(entry_ti, " (Type1, PCell PH=%u)", PH);
 
 
@@ -1891,16 +1891,16 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         /* The PH and PCMAX,f,c fields can be either for a LTE or NR cell */
                         for (int n=1; n <= 7; n++) {
                             if (scell_bitmap1 & (1 << n)) {
-                                entry_ti = dissect_me_phr_ph(tvb, pinfo, subheader_ti, ph_fields1[n-1],
-                                                             &hf_mac_nr_control_me_phr_pcmax_f_c_typeX, &PH, &offset);
+                                entry_ti = dissect_me_phr_ph(tvb, pinfo, subheader_ti, *ph_fields1[n-1],
+                                                             hf_mac_nr_control_me_phr_pcmax_f_c_typeX, &PH, &offset);
                                 proto_item_append_text(entry_ti, " (SCellIndex %d PH=%u)", n, PH);
                             }
                         }
                         if (lcid == MULTIPLE_ENTRY_PHR_4_LCID) {
                             for (int n=0; n <= 23; n++) {
                                 if (scell_bitmap2_3_4 & (1 << n)) {
-                                    entry_ti = dissect_me_phr_ph(tvb, pinfo, subheader_ti, ph_fields2_3_4[n],
-                                                                 &hf_mac_nr_control_me_phr_pcmax_f_c_typeX, &PH, &offset);
+                                    entry_ti = dissect_me_phr_ph(tvb, pinfo, subheader_ti, *ph_fields2_3_4[n],
+                                                                 hf_mac_nr_control_me_phr_pcmax_f_c_typeX, &PH, &offset);
                                     proto_item_append_text(entry_ti, " (SCellIndex %d PH=%u)", n+8, PH);
                                 }
                             }
