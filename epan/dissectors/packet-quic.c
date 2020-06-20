@@ -1686,7 +1686,13 @@ quic_create_decoders(packet_info *pinfo, quic_info_data_t *quic_info, quic_ciphe
 {
     if (!quic_info->hash_algo) {
         if (!tls_get_cipher_info(pinfo, 0, &quic_info->cipher_algo, &quic_info->cipher_mode, &quic_info->hash_algo)) {
+#ifndef HAVE_LIBGCRYPT_CHACHA20
+            /* If this stream uses the ChaCha20-Poly1305 cipher, Libgcrypt 1.7.0
+             * or newer is required. */
+            *error = "Unable to retrieve cipher information; try upgrading Libgcrypt >= 1.7.0";
+#else
             *error = "Unable to retrieve cipher information";
+#endif
             return FALSE;
         }
     }
@@ -1921,17 +1927,7 @@ quic_process_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_
                                "Decryption skipped because keys are not available.");
     }
 }
-#else /* !HAVE_LIBGCRYPT_AEAD */
-static void
-quic_process_payload(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U_, proto_item *ti, guint offset _U_,
-                     quic_info_data_t *quic_info _U_, quic_packet_info_t *quic_packet _U_, gboolean from_server _U_,
-                     quic_cipher *cipher _U_, guint8 first_byte _U_, guint pkn_len _U_)
-{
-    expert_add_info_format(pinfo, ti, &ei_quic_decryption_failed, "Libgcrypt >= 1.6.0 is required for QUIC decryption");
-}
-#endif /* !HAVE_LIBGCRYPT_AEAD */
 
-#ifdef HAVE_LIBGCRYPT_AEAD
 static void
 quic_verify_retry_token(tvbuff_t *tvb, quic_packet_info_t *quic_packet, const quic_cid_t *odcid, guint32 version)
 {
@@ -2109,9 +2105,6 @@ dissect_quic_retry_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
             // to packet loss in the capture file.
             quic_verify_retry_token(tvb, quic_packet, odcid, version);
         }
-#else
-        (void)odcid;
-#endif
         if (quic_packet->retry_integrity_failure) {
             expert_add_info(pinfo, ti, &ei_quic_bad_retry);
         } else if (!quic_packet->retry_integrity_success) {
@@ -2120,6 +2113,11 @@ dissect_quic_retry_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
         } else {
             proto_item_append_text(ti, " [verified]");
         }
+#else
+        (void)odcid;
+        expert_add_info_format(pinfo, ti, &ei_quic_bad_retry,
+                "Libgcrypt >= 1.6.0 is required for Retry Packet verification");
+#endif
         offset += 16;
     }
 
@@ -2140,8 +2138,10 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
     guint64 payload_length;
     guint8  first_byte = 0;
     quic_info_data_t *conn = dgram_info->conn;
+#ifdef HAVE_LIBGCRYPT_AEAD
     const gboolean from_server = dgram_info->from_server;
     quic_cipher *cipher = NULL;
+#endif
     proto_item *ti;
 
     quic_extract_header(tvb, &long_packet_type, &version, &dcid, &scid);
@@ -2246,8 +2246,12 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
         return offset;
     }
     if (!conn || quic_packet->pkn_len == 0) {
+#ifndef HAVE_LIBGCRYPT_AEAD
+        expert_add_info_format(pinfo, quic_tree, &ei_quic_decryption_failed, "Libgcrypt >= 1.6.0 is required for QUIC decryption");
+#else
         // if not part of a connection, the full PKN cannot be reconstructed.
         expert_add_info_format(pinfo, quic_tree, &ei_quic_decryption_failed, "Failed to decrypt packet number");
+#endif
         return offset;
     }
 
@@ -2258,11 +2262,11 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
     /* Payload */
     ti = proto_tree_add_item(quic_tree, hf_quic_payload, tvb, offset, -1, ENC_NA);
 
+#ifdef HAVE_LIBGCRYPT_AEAD
     if (conn) {
         quic_process_payload(tvb, pinfo, quic_tree, ti, offset,
                              conn, quic_packet, from_server, cipher, first_byte, quic_packet->pkn_len);
     }
-#ifdef HAVE_LIBGCRYPT_AEAD
     if (!PINFO_FD_VISITED(pinfo) && !quic_packet->decryption.error) {
         // Packet number is verified to be valid, remember it.
         *quic_max_packet_number(conn, from_server, first_byte) = quic_packet->packet_number;
@@ -2282,7 +2286,9 @@ dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
     guint8  first_byte = 0;
     proto_item *ti;
     gboolean    key_phase = FALSE;
+#ifdef HAVE_LIBGCRYPT_AEAD
     quic_cipher *cipher = NULL;
+#endif
     quic_info_data_t *conn = dgram_info->conn;
     const gboolean from_server = dgram_info->from_server;
 
@@ -2346,16 +2352,16 @@ dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
     /* Protected Payload */
     ti = proto_tree_add_item(hdr_tree, hf_quic_protected_payload, tvb, offset, -1, ENC_NA);
 
+#ifdef HAVE_LIBGCRYPT_AEAD
     if (conn) {
         quic_process_payload(tvb, pinfo, quic_tree, ti, offset,
                              conn, quic_packet, from_server, cipher, first_byte, quic_packet->pkn_len);
-#ifdef HAVE_LIBGCRYPT_AEAD
         if (!PINFO_FD_VISITED(pinfo) && !quic_packet->decryption.error) {
             // Packet number is verified to be valid, remember it.
             *quic_max_packet_number(conn, from_server, first_byte) = quic_packet->packet_number;
         }
-#endif /* !HAVE_LIBGCRYPT_AEAD */
     }
+#endif /* !HAVE_LIBGCRYPT_AEAD */
     offset += tvb_reported_length_remaining(tvb, offset);
 
     return offset;
