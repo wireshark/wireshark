@@ -42,13 +42,13 @@ def get_url_lines(url):
         lines = response.read().decode().splitlines()
         response.close()
     except urllib.error.HTTPError as err:
-        print("HTTP error fetching {0}: {1}".format(url, err.reason))
+        exit_msg("HTTP error fetching {0}: {1}".format(url, err.reason))
     except urllib.error.URLError as err:
-        print("URL error fetching {0}: {1}".format(url, err.reason))
+        exit_msg("URL error fetching {0}: {1}".format(url, err.reason))
     except OSError as err:
-        print("OS error fetching {0}".format(url, err.strerror))
+        exit_msg("OS error fetching {0}".format(url, err.strerror))
     except:
-        print("Unexpected error:", sys.exc_info()[0])
+        exit_msg("Unexpected error:", sys.exc_info()[0])
 
     return lines
 
