@@ -5,7 +5,7 @@
 # The format used here is: <NUMERICAL_ID><SPACE><NAME>
 # Where SPACE can be any sequence of spaces and tabs.
 #
-# (last updated 2020-06-13)
+# (last updated 2020-06-20)
 
 0	Reserved
 1	NxNetworks
@@ -21930,7 +21930,7 @@
 22084	Industec Industria Metalurgica Ltda.
 22085	CIDE Consorcio para la Interoperabilidad de Documentos Electrónicos
 22086	Paul Poeltner
-22087	Invelica GmbH	# formerly 'Bodo Rueskamp'
+22087	Invelica GmbH
 22088	Alpine-Energie Holding AG
 22089	Paedagogische Hochschule Zentralschweiz
 22090	GCommerce Inc.
@@ -45067,7 +45067,7 @@
 45247	Triple Domain Vision Co., Ltd.
 45248	NetOcean
 45249	Banco Macro S.A.
-45250	Habr LLC
+45250	Habr Europe OÜ
 45251	axelIT Üzletfejlesztési Kft.
 45252	mDAKS GmbH
 45253	RMB Capital Management, LLC
@@ -50662,7 +50662,7 @@
 50849	VSV Frakt AB
 50850	SnowOncard
 50851	Gnome Rock
-50852	LECIP SLP CORPORATION
+50852	LECIP CORPORATION	# formerly 'LECIP SLP CORPORATION'
 50853	BERTIN IT
 50854	Communics Systemhaus GmbH
 50855	Block Center for Integrative Cancer Treatment
@@ -52819,7 +52819,7 @@
 53010	KECCEO AB
 53011	JH skogsentreprenad AB
 53012	Pine Rest
-53013	Dirección Adjunta de Rentas Aduaneras
+53013	Administración de Aduanera de Honduras	# formerly 'Dirección Adjunta de Rentas Aduaneras'
 53014	SIGMA SYSTEM CO.,LTD.
 53015	Murakami Business Consulting, Inc.
 53016	AXYS Technologies Inc
@@ -54205,7 +54205,7 @@
 54399	The ORP Project
 54400	Beijing Microvision Technology CO.,Ltd.
 54401	Canterbury District Health Board (CDHB)
-54402	Opensource ICT Solutions b.V.
+54402	Opensource ICT Solutions B.V.
 54403	Virgin Mobile UK SIT2
 54404	Virgin Mobile UK SIT1
 54405	Virgin Mobile UK PROD
@@ -55745,3 +55745,32 @@
 55939	Garantir Technologies Private Limited
 55940	Temas LLC
 55941	Wisdom Technologies Pvt Ltd
+55942	LightEdge Solutions
+55943	Opennetworks Kft.
+55944	Netlock Gmbh
+55945	MC-Technologies GmbH
+55946	Arra Networks
+55947	SkizNet
+55948	Rayn0r Ltd.
+55949	ALVO Spółka z ograniczoną odpowiedzialnością, Sp. k.
+55950	Keydok LLC
+55951	AmLight/AMPATH
+55952	Laboratorio de Modelos y Datos de la UNAM
+55953	FRAMATOME
+55954	Episource LLC
+55955	Suzhou China Asterfusion Co.,LTD
+55956	iret Gesellschaft zur Entwicklung elektronischer Steuerungen mbH
+55957	ICS Technologies
+55958	reply
+55959	NeoVolta Inc.
+55960	Charles Russell Speechlys
+55961	Intenta GmbH
+55962	PD Inc
+55963	Bendigo and Adelaide Bank Limited
+55964	Carman Systems
+55965	Ministry of Foreign Affairs of the Republic of Uzbekistan
+55966	KeySwing
+55967	County of Lackawanna
+55968	Ammega Group B.V.
+55969	Gulf International Development LLC
+55970	BHDev Desenvolvimento e Consultoria em Informatica LTDA
