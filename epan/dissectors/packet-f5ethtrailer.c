@@ -2864,7 +2864,7 @@ dissect_f5ethtrailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
        was able to append f5ethtrailer.  In many cases (and should be) this padding is zeros.
        The f5ethtrailer does not start with a zero, so trim off any leading zeros before
        looking for an f5ethtrailer. */
-    while (tvb_get_gint8(tvb, offset) == 0) {
+    while (tvb_offset_exists(tvb, offset) && tvb_get_gint8(tvb, offset) == 0) {
         offset++;
     }
 
