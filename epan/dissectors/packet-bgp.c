@@ -3810,6 +3810,7 @@ mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, wmem_strbu
                 case SAFNUM_LAB_VPNMULCAST:
                 case SAFNUM_LAB_VPNUNIMULC:
                 case SAFNUM_VPLS:
+                case SAFNUM_EVPN:
                     length = 4; /* the next-hop is simply an ipv4 addr */
                     wmem_strbuf_append_printf(strbuf, "IPv4=%s",
                                               tvb_ip_to_str(tvb, offset));
