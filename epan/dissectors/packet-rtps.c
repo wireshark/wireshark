@@ -1659,7 +1659,17 @@ static const int* ENDPOINT_SECURITY_ATTRIBUTES[] = {
   NULL
 };
 
+/*
+ * Flags indicating which fields have been filled in.
+ */
+#define GUID_HAS_HOST_ID     0x00000001
+#define GUID_HAS_APP_ID      0x00000002
+#define GUID_HAS_INSTANCE_ID 0x00000004
+#define GUID_HAS_ENTITY_ID   0x00000008
+#define GUID_HAS_ALL         0x0000000F
+
 typedef struct _endpoint_guid {
+  guint   fields_present;
   guint32 host_id;
   guint32 app_id;
   guint32 instance_id;
@@ -4045,6 +4055,8 @@ static void rtps_util_store_type_mapping(packet_info *pinfo, tvbuff_t *tvb, gint
         type_mapping_object->guid.app_id = tvb_get_ntohl(tvb, offset+4);
         type_mapping_object->guid.instance_id = tvb_get_ntohl(tvb, offset+8);
         type_mapping_object->guid.entity_id = tvb_get_ntohl(tvb, offset+12);
+        type_mapping_object->guid.fields_present |=
+                GUID_HAS_HOST_ID|GUID_HAS_HOST_ID|GUID_HAS_INSTANCE_ID|GUID_HAS_ENTITY_ID;
         type_mapping_object->fields_visited =
                 type_mapping_object->fields_visited | TOPIC_INFO_ADD_GUID;
         break;
@@ -4086,6 +4098,7 @@ static void rtps_util_store_type_mapping(packet_info *pinfo, tvbuff_t *tvb, gint
         break;
     }
     if ((type_mapping_object->fields_visited & TOPIC_INFO_ALL_SET) == TOPIC_INFO_ALL_SET &&
+            type_mapping_object->guid.fields_present == GUID_HAS_ALL &&
             !wmem_map_lookup(registry, &(type_mapping_object->guid))) {
       if (((type_mapping_object->guid.entity_id & 0x02) == 0x02) || ((type_mapping_object->guid.entity_id & 0x04) == 0x04)){
         /* If it is an application defined writer matches 0x02. Matches 0x04 if it is an application defined reader */
@@ -4097,6 +4110,7 @@ static void rtps_util_store_type_mapping(packet_info *pinfo, tvbuff_t *tvb, gint
 }
 static guint hash_by_guid(gconstpointer key) {
   const endpoint_guid * guid = (const endpoint_guid *) key;
+  DISSECTOR_ASSERT(guid->fields_present & GUID_HAS_APP_ID);
   return g_int_hash(&(guid->app_id));
 }
 
@@ -4109,8 +4123,10 @@ static gboolean compare_by_guid(gconstpointer a, gconstpointer b) {
 static type_mapping * rtps_util_get_topic_info(endpoint_guid * guid) {
   /* At this point, we know the boolean enable_topic_info is true */
   type_mapping * result = NULL;
-  if (guid)
-    result = (type_mapping *)wmem_map_lookup(registry, guid);
+  if (guid) {
+    if (guid->fields_present == GUID_HAS_ALL)
+      result = (type_mapping *)wmem_map_lookup(registry, guid);
+  }
   return result;
 }
 
@@ -4127,6 +4143,7 @@ static void rtps_util_format_typename(gchar * type_name, gchar ** output) {
 
 static void rtps_util_topic_info_add_tree(proto_tree *tree, tvbuff_t *tvb,
   gint offset, endpoint_guid * guid) {
+  /* Do not search unless the GUID is completely filled in */
   if (enable_topic_info) {
     proto_tree * topic_info_tree, * dw_qos_tree;
     proto_item * ti;
@@ -6278,6 +6295,7 @@ static gint dissect_parameter_sequence(proto_tree *tree, packet_info *pinfo, tvb
      */
     type_mapping_object = wmem_new(wmem_file_scope(), type_mapping);
     type_mapping_object->fields_visited = 0;
+    type_mapping_object->guid.fields_present = 0;
   }
 
   rtps_parameter_sequence_tree = proto_tree_add_subtree_format(tree, tvb, offset, size,
@@ -7682,6 +7700,7 @@ static void dissect_ACKNACK(tvbuff_t *tvb, packet_info *pinfo, gint offset, guin
                         hf_rtps_sm_wrentity_id_kind, ett_rtps_wrentity, "writerEntityId", &wid);
   offset += 4;
   guid->entity_id = wid;
+  guid->fields_present |= GUID_HAS_ENTITY_ID;
   rtps_util_topic_info_add_tree(tree, tvb, offset, guid);
 
   /* Bitmap */
@@ -7854,6 +7873,7 @@ static void dissect_HEARTBEAT(tvbuff_t *tvb, packet_info *pinfo, gint offset, gu
                         hf_rtps_sm_wrentity_id_kind, ett_rtps_wrentity, "writerEntityId", &wid);
   offset += 4;
   guid->entity_id = wid;
+  guid->fields_present |= GUID_HAS_ENTITY_ID;
   rtps_util_topic_info_add_tree(tree, tvb, offset, guid);
 
   /* First available Sequence Number */
@@ -7933,6 +7953,7 @@ static void dissect_HEARTBEAT_BATCH(tvbuff_t *tvb, packet_info *pinfo, gint offs
                         hf_rtps_sm_wrentity_id_kind, ett_rtps_wrentity, "writerEntityId", &wid);
   offset += 4;
   guid->entity_id = wid;
+  guid->fields_present |= GUID_HAS_ENTITY_ID;
   rtps_util_topic_info_add_tree(tree, tvb, offset, guid);
 
   /* First available Batch Sequence Number */
@@ -8074,6 +8095,7 @@ static void dissect_HEARTBEAT_VIRTUAL(tvbuff_t *tvb, packet_info *pinfo _U_, gin
     writer_id_offset = offset;
     offset += 4;
     guid->entity_id = wid;
+    guid->fields_present |= GUID_HAS_ENTITY_ID;
     rtps_util_topic_info_add_tree(tree, tvb, offset, guid);
 
     /* virtualGUID */
@@ -8275,6 +8297,7 @@ static void dissect_HEARTBEAT_FRAG(tvbuff_t *tvb, packet_info *pinfo, gint offse
                         hf_rtps_sm_wrentity_id_kind, ett_rtps_wrentity, "writerEntityId", &wid);
   offset += 4;
   guid->entity_id = wid;
+  guid->fields_present |= GUID_HAS_ENTITY_ID;
   rtps_util_topic_info_add_tree(tree, tvb, offset, guid);
 
   /* First available Sequence Number */
@@ -8395,6 +8418,7 @@ static void dissect_RTPS_DATA(tvbuff_t *tvb, packet_info *pinfo, gint offset, gu
                         hf_rtps_sm_wrentity_id_kind, ett_rtps_wrentity, "writerEntityId", &wid);
   offset += 4;
   guid->entity_id = wid;
+  guid->fields_present |= GUID_HAS_ENTITY_ID;
   rtps_util_topic_info_add_tree(tree, tvb, offset, guid);
 
   /* Sequence number */
@@ -8719,6 +8743,7 @@ static void dissect_RTPS_DATA_FRAG(tvbuff_t *tvb, packet_info *pinfo, gint offse
                         hf_rtps_sm_wrentity_id_kind, ett_rtps_wrentity, "writerEntityId", &wid);
   offset += 4;
   guid->entity_id = wid;
+  guid->fields_present |= GUID_HAS_ENTITY_ID;
   rtps_util_topic_info_add_tree(tree, tvb, offset, guid);
 
 
@@ -8948,6 +8973,7 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb, packet_info *pinfo, gint offs
                         hf_rtps_sm_wrentity_id_kind, ett_rtps_wrentity, "writerEntityId", &wid);
   offset += 4;
   guid->entity_id = wid;
+  guid->fields_present |= GUID_HAS_ENTITY_ID;
   rtps_util_topic_info_add_tree(tree, tvb, offset, guid);
 
 
@@ -9184,6 +9210,7 @@ static void dissect_GAP(tvbuff_t *tvb, packet_info *pinfo, gint offset,
                         ett_rtps_wrentity, "writerEntityId", &wid);
   offset += 4;
   guid->entity_id = wid;
+  guid->fields_present |= GUID_HAS_ENTITY_ID;
   rtps_util_topic_info_add_tree(tree, tvb, offset, guid);
 
 
@@ -9467,6 +9494,7 @@ static void dissect_INFO_DST(tvbuff_t *tvb, packet_info *pinfo, gint offset, gui
       dst_guid->host_id = tvb_get_ntohl(tvb, offset);
       dst_guid->app_id = tvb_get_ntohl(tvb, offset + 4);
       dst_guid->instance_id = tvb_get_ntohl(tvb, offset + 8);
+      dst_guid->fields_present |= GUID_HAS_HOST_ID|GUID_HAS_APP_ID|GUID_HAS_INSTANCE_ID;
   }
 }
 
@@ -9888,6 +9916,10 @@ static gboolean dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
   if ((majorRev != 1) && (majorRev != 2))
     return FALSE;
 
+  /* No fields have been set in either GUID yet. */
+  guid.fields_present = 0;
+  dst_guid.fields_present = 0;
+
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTPS");
   col_clear(pinfo->cinfo, COL_INFO);
 
@@ -9918,6 +9950,7 @@ static gboolean dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     guid.host_id = tvb_get_ntohl(tvb, offset+8);
     guid.app_id = tvb_get_ntohl(tvb, offset+12);
     guid.instance_id = tvb_get_ntohl(tvb, offset+16);
+    guid.fields_present |= GUID_HAS_HOST_ID|GUID_HAS_APP_ID|GUID_HAS_INSTANCE_ID;
 #ifdef RTI_BUILD
     pinfo->guid_prefix_host = tvb_get_ntohl(tvb, offset + 8);
     pinfo->guid_prefix_app  = tvb_get_ntohl(tvb, offset + 12);
