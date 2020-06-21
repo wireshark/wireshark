@@ -4143,7 +4143,6 @@ static void rtps_util_format_typename(gchar * type_name, gchar ** output) {
 
 static void rtps_util_topic_info_add_tree(proto_tree *tree, tvbuff_t *tvb,
   gint offset, endpoint_guid * guid) {
-  /* Do not search unless the GUID is completely filled in */
   if (enable_topic_info) {
     proto_tree * topic_info_tree, * dw_qos_tree;
     proto_item * ti;
@@ -6540,6 +6539,7 @@ static void dissect_APP_ACK_CONF(tvbuff_t *tvb,
     &wid);
   offset += 4;
   guid->entity_id = wid;
+  guid->fields_present |= GUID_HAS_ENTITY_ID;
   rtps_util_topic_info_add_tree(tree, tvb, offset, guid);
 
 
@@ -7220,6 +7220,7 @@ static void dissect_DATA_v2(tvbuff_t *tvb, packet_info *pinfo, gint offset, guin
                         hf_rtps_sm_wrentity_id_kind, ett_rtps_wrentity, "writerEntityId", &wid);
   offset += 4;
   guid->entity_id = wid;
+  guid->fields_present |= GUID_HAS_ENTITY_ID;
   rtps_util_topic_info_add_tree(tree, tvb, offset, guid);
 
   /* Sequence number */
@@ -7338,6 +7339,7 @@ static void dissect_DATA_FRAG(tvbuff_t *tvb, packet_info *pinfo, gint offset, gu
                         hf_rtps_sm_wrentity_id_kind, ett_rtps_wrentity, "writerEntityId", &wid);
   offset += 4;
   guid->entity_id = wid;
+  guid->fields_present |= GUID_HAS_ENTITY_ID;
   rtps_util_topic_info_add_tree(tree, tvb, offset, guid);
 
   /* Sequence number */
