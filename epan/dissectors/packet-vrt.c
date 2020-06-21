@@ -116,7 +116,7 @@ static const value_string tsm_types[] = {
     {0, NULL}
 };
 
-static const int *enable_hfs[] = {
+static int * const enable_hfs[] = {
     &hf_vrt_trailer_en_user3,
     &hf_vrt_trailer_en_user2,
     &hf_vrt_trailer_en_user1,
@@ -131,7 +131,7 @@ static const int *enable_hfs[] = {
     &hf_vrt_trailer_en_caltime
 };
 
-static const int *ind_hfs[] = {
+static int * const ind_hfs[] = {
     &hf_vrt_trailer_ind_user3,
     &hf_vrt_trailer_ind_user2,
     &hf_vrt_trailer_ind_user1,
