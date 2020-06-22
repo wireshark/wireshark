@@ -68,7 +68,11 @@ ScyllaDB RPC
 Dynamic Link Exchange Protocol (DLEP)
 LBM Stateful Resolution Service (LBMSRS)
 Asphodel Protocol
+<<<<<<< HEAD
 Technically Enhanced Capture Module Protocol (TECMP)
+=======
+Fortinet Single Sign-on (FSSO)
+>>>>>>> WIP: Add FSSO (Fortinet Single Sign-On) Dissector
 --
 
 === Updated Protocol Support
