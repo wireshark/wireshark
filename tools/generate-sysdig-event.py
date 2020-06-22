@@ -218,7 +218,7 @@ def main():
         ei_str = ''
         if param_id not in idx_id_to_name:
             idx_id_to_name[param_id] = event_var
-            ei_str = 'static const int *{}_indexes[] = {{ &{}, NULL }};'.format(
+            ei_str = 'static int * const {}_indexes[] = {{ &{}, NULL }};'.format(
                 event_var,
                 ', &'.join(param_l)
             )
@@ -240,6 +240,7 @@ def main():
     strip_re_l.append(re.compile('^#define\s+EVT_[A-Z0-9_]+\s+[0-9]+'))
     strip_re_l.append(re.compile('^\s*{\s*EVT_[A-Z0-9_]+\s*,\s*EVT_STR_[A-Z0-9_]+\s*}'))
     strip_re_l.append(re.compile('^static\s+const\s+int\s+\*\s*[a-z0-9_]+_[ex]_indexes\[\]\s*=\s*\{\s*&hf_param_.*NULL\s*\}\s*;'))
+    strip_re_l.append(re.compile('^static\s+int\s*\*\s+const\s+[a-z0-9_]+_[ex]_indexes\[\]\s*=\s*\{\s*&hf_param_.*NULL\s*\}\s*;'))
     strip_re_l.append(re.compile('^\s*#define\s+[a-z0-9_]+_[ex]_indexes\s+[a-z0-9_]+_indexes'))
     strip_re_l.append(re.compile('^\s*\{\s*EVT_[A-Z0-9_]+_[EX]\s*,\s*[a-z0-9_]+_[ex]_indexes\s*}\s*,'))
     strip_re_l.append(re.compile('^\s*{\s*&hf_param_.*},')) # Must all be on one line
