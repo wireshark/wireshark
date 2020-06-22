@@ -3239,7 +3239,9 @@ insert_report_descriptor(packet_info *pinfo, report_descriptor_t *data)
         {0, NULL}
     };
 
-    wmem_tree_insert32_array(report_descriptors, key, data);
+    /* only insert report descriptor the first time we parse it */
+    if (!PINFO_FD_VISITED(pinfo))
+        wmem_tree_insert32_array(report_descriptors, key, data);
 }
 
 /* Returns usage page string */
