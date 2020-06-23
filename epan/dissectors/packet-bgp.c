@@ -1843,6 +1843,7 @@ static int hf_bgp_evpn_nlri_esi_reserved = -1;
 static int hf_bgp_evpn_nlri_etag = -1;
 static int hf_bgp_evpn_nlri_mpls_ls1 = -1;
 static int hf_bgp_evpn_nlri_mpls_ls2 = -1;
+static int hf_bgp_evpn_nlri_vni = -1;
 static int hf_bgp_evpn_nlri_maclen = -1;
 static int hf_bgp_evpn_nlri_mac_addr = -1;
 static int hf_bgp_evpn_nlri_iplen = -1;
@@ -2596,6 +2597,35 @@ static link_state_data*
 load_link_state_data(packet_info *pinfo) {
     link_state_data *data =
         (link_state_data*)p_get_proto_data(pinfo->pool, pinfo, proto_bgp, LINK_STATE_DATA_KEY);
+    return data;
+}
+
+typedef struct _path_attr_data {
+    gboolean encaps_community_present;
+    guint16 encaps_tunnel_type;
+} path_attr_data;
+
+#define PATH_ATTR_DATA_KEY 1
+
+static void
+save_path_attr_encaps_tunnel_type(packet_info *pinfo, guint32 encaps_tunnel_type) {
+    path_attr_data *data =
+        (path_attr_data*)p_get_proto_data(pinfo->pool, pinfo, proto_bgp, PATH_ATTR_DATA_KEY);
+    if (!data) {
+        data = wmem_new0(pinfo->pool, path_attr_data);
+        data->encaps_tunnel_type = 0;
+        data->encaps_community_present = FALSE;
+    }
+    data->encaps_community_present = TRUE;
+    data->encaps_tunnel_type = encaps_tunnel_type;
+    p_add_proto_data(pinfo->pool, pinfo, proto_bgp, PATH_ATTR_DATA_KEY, data);
+    return;
+}
+
+static path_attr_data*
+load_path_attr_data(packet_info *pinfo) {
+    path_attr_data *data =
+        (path_attr_data*)p_get_proto_data(pinfo->pool, pinfo, proto_bgp, PATH_ATTR_DATA_KEY);
     return data;
 }
 
@@ -5044,6 +5074,7 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet
     guint8 ip_len;
     guint32 total_length = 0;
     guint32 or_length;
+    path_attr_data *data = NULL;
     proto_item *item;
     int ret;
 
@@ -5095,8 +5126,15 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet
         proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_etag, tvb, reader_offset,
                                    4, ENC_BIG_ENDIAN);
         reader_offset += 4;
-        proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_mpls_ls1, tvb, reader_offset, 3, ENC_BIG_ENDIAN);
-        reader_offset += 3;
+        data = load_path_attr_data(pinfo);
+        if (data && data->encaps_community_present &&
+                (data->encaps_tunnel_type == BGP_EXT_COM_TUNNEL_VXLAN || data->encaps_tunnel_type == BGP_EXT_COM_TUNNEL_VXLANGPE)) {
+            proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_vni, tvb, reader_offset, 3, ENC_BIG_ENDIAN);
+            reader_offset += 3;
+        } else {
+            proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_mpls_ls1, tvb, reader_offset, 3, ENC_BIG_ENDIAN);
+            reader_offset += 3;
+        }
         total_length = reader_offset - offset;
         break;
 
@@ -5180,13 +5218,24 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet
         } else {
             return -1;
         }
-        proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_mpls_ls1, tvb, reader_offset, 3, ENC_BIG_ENDIAN);
-        reader_offset += 3;
-        /* we check if we reached the end of the nlri reading fields one by one */
-        /* if not, the second optional label is in the payload */
-        if (reader_offset - start_offset < nlri_len) {
-            proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_mpls_ls2, tvb, reader_offset, 3, ENC_BIG_ENDIAN);
+        data = load_path_attr_data(pinfo);
+        if (data && data->encaps_community_present &&
+                (data->encaps_tunnel_type == BGP_EXT_COM_TUNNEL_VXLAN || data->encaps_tunnel_type == BGP_EXT_COM_TUNNEL_VXLANGPE)) {
+            proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_vni, tvb, reader_offset, 3, ENC_BIG_ENDIAN);
             reader_offset += 3;
+            if (reader_offset - start_offset < nlri_len) {
+                proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_vni, tvb, reader_offset, 3, ENC_BIG_ENDIAN);
+                reader_offset += 3;
+            }
+        } else {
+            proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_mpls_ls1, tvb, reader_offset, 3, ENC_BIG_ENDIAN);
+            reader_offset += 3;
+            /* we check if we reached the end of the nlri reading fields one by one */
+            /* if not, the second optional label is in the payload */
+            if (reader_offset - start_offset < nlri_len) {
+                proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_mpls_ls2, tvb, reader_offset, 3, ENC_BIG_ENDIAN);
+                reader_offset += 3;
+            }
         }
         total_length = reader_offset - offset;
         break;
@@ -5366,7 +5415,13 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet
                                     4, ENC_NA);
                 reader_offset += 4;
 
-                decode_MPLS_stack_tree(tvb, reader_offset, prefix_tree);
+                data = load_path_attr_data(pinfo);
+                if (data && data->encaps_community_present &&
+                        (data->encaps_tunnel_type == BGP_EXT_COM_TUNNEL_VXLAN || data->encaps_tunnel_type == BGP_EXT_COM_TUNNEL_VXLANGPE)) {
+                    proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_vni, tvb, reader_offset, 3, ENC_BIG_ENDIAN);
+                } else {
+                    decode_MPLS_stack_tree(tvb, reader_offset, prefix_tree);
+                }
                 total_length = 36;
                 break;
             case 58 :
@@ -5379,7 +5434,13 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet
                                     16, ENC_NA);
                 reader_offset += 16;
 
-                decode_MPLS_stack_tree(tvb, reader_offset, prefix_tree);
+                data = load_path_attr_data(pinfo);
+                if (data && data->encaps_community_present &&
+                        (data->encaps_tunnel_type == BGP_EXT_COM_TUNNEL_VXLAN || data->encaps_tunnel_type == BGP_EXT_COM_TUNNEL_VXLANGPE)) {
+                    proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_vni, tvb, reader_offset, 3, ENC_BIG_ENDIAN);
+                } else {
+                    decode_MPLS_stack_tree(tvb, reader_offset, prefix_tree);
+                }
                 total_length = 60;
                 break;
             default :
@@ -6774,7 +6835,7 @@ heuristic_as2_or_4_from_as_path(tvbuff_t *tvb, gint as_path_offset, gint end_att
  */
 
 static int
-dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, guint16 tlen, guint tvb_off)
+dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, guint16 tlen, guint tvb_off, packet_info *pinfo)
 {
     int             offset=0;
     int             end=0;
@@ -6786,6 +6847,7 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, guint16 tlen,
     proto_item      *communities_item=NULL;
     proto_item      *community_item=NULL;
     proto_item      *community_type_item=NULL;
+    guint32         encaps_tunnel_type;
 
     offset = tvb_off ;
     end = tvb_off + tlen ;
@@ -6978,7 +7040,8 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, guint16 tlen,
 
                     case BGP_EXT_COM_STYPE_OPA_ENCAP:
                         /* Community octets 2 through 5 are reserved and carry no useful value according to RFC 5512. */
-                        proto_tree_add_item(community_tree, hf_bgp_ext_com_tunnel_type, tvb, offset+6, 2, ENC_BIG_ENDIAN);
+                        proto_tree_add_item_ret_uint(community_tree, hf_bgp_ext_com_tunnel_type, tvb, offset+6, 2, ENC_BIG_ENDIAN, &encaps_tunnel_type);
+                        save_path_attr_encaps_tunnel_type(pinfo, encaps_tunnel_type);
 
                         proto_item_append_text(community_item, " %s",
                                 val_to_str_const(tvb_get_ntohs(tvb,offset+6), bgpext_com_tunnel_type, "Unknown"));
@@ -7528,6 +7591,7 @@ dissect_bgp_update_pmsi_attr(packet_info *pinfo, proto_tree *parent_tree, tvbuff
     proto_item      *opaque_value_type_item=NULL;
     proto_item      *pmsi_tunnel_type_item=NULL;
     proto_tree      *tunnel_id_tree=NULL;
+    path_attr_data  *data = NULL;
 
     offset = tvb_off ;
     tunnel_id_len = tlen - 5;
@@ -7538,7 +7602,13 @@ dissect_bgp_update_pmsi_attr(packet_info *pinfo, proto_tree *parent_tree, tvbuff
     pmsi_tunnel_type_item = proto_tree_add_item(parent_tree, hf_bgp_pmsi_tunnel_type, tvb, offset+1,
                                                 1, ENC_BIG_ENDIAN);
 
-    proto_tree_add_item(parent_tree, hf_bgp_update_mpls_label_value_20bits, tvb, offset+2, 3, ENC_BIG_ENDIAN);
+    data = load_path_attr_data(pinfo);
+    if (data && data->encaps_community_present &&
+            (data->encaps_tunnel_type == BGP_EXT_COM_TUNNEL_VXLAN || data->encaps_tunnel_type == BGP_EXT_COM_TUNNEL_VXLANGPE)) {
+        proto_tree_add_item(parent_tree, hf_bgp_evpn_nlri_vni, tvb, offset+2, 3, ENC_BIG_ENDIAN);
+    } else {
+        proto_tree_add_item(parent_tree, hf_bgp_update_mpls_label_value_20bits, tvb, offset+2, 3, ENC_BIG_ENDIAN);
+    }
 
     tunnel_id_item = proto_tree_add_item(parent_tree, hf_bgp_pmsi_tunnel_id, tvb, offset+5,
                         tunnel_id_len, ENC_NA);
@@ -8183,7 +8253,7 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
                     expert_add_info_format(pinfo, attr_len_item, &ei_bgp_ext_com_len_bad,
                                            "Community length %u wrong, must be modulo 8", tlen);
                 } else {
-                    dissect_bgp_update_ext_com(subtree2, tvb, tlen, o+i+aoff);
+                    dissect_bgp_update_ext_com(subtree2, tvb, tlen, o+i+aoff, pinfo);
                 }
                 break;
             case BGPTYPE_SAFI_SPECIFIC_ATTR:
@@ -11222,6 +11292,9 @@ proto_register_bgp(void)
       { &hf_bgp_evpn_nlri_mpls_ls2,
         { "MPLS Label 2", "bgp.evpn.nlri.mpls_ls2", FT_UINT24,
           BASE_DEC, NULL, BGP_MPLS_LABEL, NULL, HFILL}},
+      { &hf_bgp_evpn_nlri_vni,
+        { "VNI", "bgp.evpn.nlri.vni", FT_UINT24,
+          BASE_DEC, NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_evpn_nlri_maclen,
        { "MAC Address Length", "bgp.evpn.nlri.maclen", FT_UINT8,
           BASE_DEC, NULL, 0x0, NULL, HFILL}},
