@@ -12,168 +12,69 @@
 
 // TODO remove unused imports
 // TODO remove Windows ifdefs, we're not going to support Windows for now.
-// TODO find a good way to write tests for performance, accuracy and memory leaks in the C code.
+// TODO find a good way to write tests for performance, accuracy and memory
+// leaks in the C code.
 #include "marine.h"
-
-#include <config.h>
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <locale.h>
+#include "config.h"
+#include <glib.h>
 #include <limits.h>
-
-#ifdef HAVE_GETOPT_H
-
-#include <getopt.h>
-
-#endif
-
-#include <errno.h>
+#include <locale.h>
+#include <stdlib.h>
+#include <string.h>
 
 #ifdef _WIN32
-# include <winsock2.h>
+#include <winsock2.h>
 #endif
 
-#ifndef _WIN32
+#include "epan/addr_resolv.h"
+#include "epan/epan.h"
+#include "epan/packet_info.h"
+#include "epan/proto.h"
 
-#include <signal.h>
+#include "wiretap/wtap_opttypes.h"
+#include "wsutil/filesystem.h"
+#include "wsutil/privileges.h"
 
-#endif
-
-#ifndef HAVE_GETOPT_LONG
-
-#include "wsutil/wsgetopt.h"
-
-#endif
-
-#include <glib.h>
-
-#include <epan/exceptions.h>
-#include <epan/epan.h>
-
-#include <ui/clopts_common.h>
-#include <ui/cmdarg_err.h>
-#include <wsutil/filesystem.h>
-#include <wsutil/file_util.h>
-#include <wsutil/socket.h>
-#include <wsutil/privileges.h>
-#include <wsutil/report_message.h>
-#include <wsutil/please_report_bug.h>
-#include <cli_main.h>
-#include <version_info.h>
-#include <wiretap/wtap_opttypes.h>
-#include <wiretap/pcapng.h>
-#include <wiretap/pcap-encap.h>
-
-#include "globals.h"
-#include <epan/timestamp.h>
-#include <epan/packet.h>
+#include "epan/packet.h"
 
 #ifdef HAVE_LUA
-#include <epan/wslua/init_wslua.h>
+#include "epan/wslua/init_wslua.h"
 #endif
 
+#include "epan/column.h"
+#include "epan/prefs.h"
+#include "epan/print.h"
 #include "frame_tvbuff.h"
-#include <epan/disabled_protos.h>
-#include <epan/prefs.h>
-#include <epan/column.h>
-#include <epan/decode_as.h>
-#include <epan/print.h>
-#include <epan/addr_resolv.h>
 
-#ifdef HAVE_LIBPCAP
-
-#include "ui/capture_ui_utils.h"
-
-#endif
-
-#include "ui/taps.h"
-#include "ui/util.h"
-#include "ui/ws_ui_util.h"
-#include "ui/decode_as_utils.h"
-#include "ui/filter_files.h"
-#include "ui/cli/tshark-tap.h"
+#include "epan/timestamp.h"
 #include "ui/cli/tap-exportobject.h"
-#include "ui/tap_export_pdu.h"
 #include "ui/dissect_opts.h"
-#include "ui/failure_message.h"
+#include "ui/filter_files.h"
+#include "ui/taps.h"
+#include "ui/ws_ui_util.h"
 
 #if defined(HAVE_LIBSMI)
 #include "epan/oids.h"
 #endif
 
-#include "epan/maxmind_db.h"
-#include <epan/epan_dissect.h>
-#include <epan/tap.h>
-#include <epan/stat_tap_ui.h>
-#include <epan/conversation_table.h>
-#include <epan/srt_table.h>
-#include <epan/rtd_table.h>
-#include <epan/ex-opt.h>
-#include <epan/exported_pdu.h>
-#include <epan/secrets.h>
-
-#include "capture_opts.h"
+#include "epan/conversation.h"
+#include "epan/epan_dissect.h"
+#include "epan/tap.h"
 
 #include "caputils/capture-pcap-util.h"
+#include "epan/secrets.h"
 
-#ifdef HAVE_LIBPCAP
-
-#include "caputils/capture_ifinfo.h"
-
-#ifdef _WIN32
-#include "caputils/capture-wpcap.h"
-#endif /* _WIN32 */
-
-#include <capchild/capture_session.h>
-#include <capchild/capture_sync.h>
-#include <ui/capture_info.h>
-
-#endif /* HAVE_LIBPCAP */
-
-#include "log.h"
-#include <epan/funnel.h>
-
-#include <wsutil/str_util.h>
-#include <wsutil/utf8_entities.h>
-#include <wsutil/json_dumper.h>
+#include "epan/funnel.h"
 
 #include "extcap.h"
 
-#ifdef HAVE_PLUGINS
+#include "wiretap/wtap-int.h"
+#include "wiretap/wtap.h"
+#include "wiretap/pcap-encap.h"
 
-#include <wsutil/plugins.h>
+#include <pcap/bpf.h>
 
-#endif
-
-#include <wiretap/wtap-int.h>
-#include <wiretap/wtap.h>
-#include "epan/print.h"
-
-/* Exit codes */
-#define INVALID_OPTION 1
-#define INVALID_INTERFACE 2
-#define INVALID_FILE 2
-#define INVALID_FILTER 2
-#define INVALID_EXPORT 2
-#define INVALID_CAPABILITY 2
-#define INVALID_TAP 2
-#define INVALID_DATA_LINK 2
-#define INVALID_TIMESTAMP_TYPE 2
-#define INVALID_CAPTURE 2
-#define INIT_FAILED 2
-
-#define LONGOPT_EXPORT_OBJECTS          LONGOPT_BASE_APPLICATION+1
-#define LONGOPT_COLOR                   LONGOPT_BASE_APPLICATION+2
-#define LONGOPT_NO_DUPLICATE_KEYS       LONGOPT_BASE_APPLICATION+3
-#define LONGOPT_ELASTIC_MAPPING_FILTER  LONGOPT_BASE_APPLICATION+4
-
-#if 0
-#define tshark_debug(...) g_warning(__VA_ARGS__)
-#else
-#define tshark_debug(...)
-#endif
+#define MARINE_DEBUG 0
 
 capture_file cfile;
 
@@ -182,7 +83,7 @@ static frame_data ref_frame;
 static frame_data prev_dis_frame;
 static frame_data prev_cap_frame;
 
-static guint32 epan_auto_reset_count = 20000; // TODO make this configurable
+static guint32 epan_auto_reset_count = 100000; // TODO make this configurable
 static gboolean epan_auto_reset = TRUE;
 
 const unsigned int ETHERNET_ENCAP = 1;
@@ -816,10 +717,6 @@ marine_cf_open(capture_file *cf) {
     cf->provider.prev_cap = NULL;
     epan_free(cf->epan);
     cf->epan = marine_epan_new(cf);
-
-    wtap_set_cb_new_ipv4(cf->provider.wth, add_ipv4_name);
-    wtap_set_cb_new_ipv6(cf->provider.wth, (wtap_new_ipv6_callback_t) add_ipv6_name);
-    wtap_set_cb_new_secrets(cf->provider.wth, secrets_wtap_callback);
 }
 
 WS_DLL_PUBLIC int init_marine(void) {
@@ -882,6 +779,7 @@ WS_DLL_PUBLIC int init_marine(void) {
     marine_cf_open(&cfile);
 
     packet_filters = g_hash_table_new(g_int_hash, g_int_equal);
+    disable_name_resolution();
     return 0;
 }
 
@@ -901,6 +799,7 @@ WS_DLL_PUBLIC void destroy_marine(void) {
         if (filter->output_fields) {
             output_fields_free(filter->output_fields);
         }
+        free(filter);
     }
 
     reset_tap_listeners();
@@ -933,11 +832,79 @@ WS_DLL_PUBLIC guint32 get_epan_auto_reset_count(void) {
     return epan_auto_reset_count;
 }
 
+void remove_addr(void *key, void *value, void *user_data) {
+    wmem_map_t *map = (wmem_map_t *)user_data;
+    wmem_map_remove(map, key);
+    wmem_free(wmem_epan_scope(), value);
+}
+
+void _clear_addr_resolv_map(wmem_map_t *map) {
+    wmem_map_foreach(map, remove_addr, map);
+}
+
+void free_conv_fields(conversation_t *conv) {
+    wmem_free(wmem_epan_scope(), conv);
+}
+
+void free_conv(conversation_t *conv) {
+    conversation_t *prev;
+    while (conv != conv->last) {
+        prev = conv;
+        conv = conv->next;
+        free_conv_fields(prev);
+    }
+    free_conv_fields(conv);
+}
+
+void remove_conv(void *key, void *value, void *user_data) {
+    wmem_map_t *table = (wmem_map_t *)user_data;
+    wmem_map_remove(table, key);
+    free_conv((conversation_t *)value);
+}
+
+void _clear_conv_table(wmem_map_t *table) {
+    wmem_map_foreach(table, remove_conv, table);
+}
+
+#if MARINE_DEBUG
+void _clear_and_report(const char * name, void (*clear_func)(wmem_map_t *), wmem_map_t* map) {
+    guint size = wmem_map_size(map);
+    clear_func(map);
+    guint new_size = wmem_map_size(map);
+    if(size != 0) {
+        printf("%s: %d -> %d\n", name, size, new_size);
+    }
+}
+#define clear_addr_resolv_map(map) _clear_and_report(#map, _clear_addr_resolv_map, map)
+#define clear_conv_table(map) _clear_and_report(#map, _clear_conv_table, map)
+#else
+#define clear_addr_resolv_map(map) _clear_addr_resolv_map(map)
+#define clear_conv_table(map) _clear_conv_table(map)
+#endif
+
 static void reset_epan_mem(capture_file *cf, epan_dissect_t *edt, gboolean tree, gboolean visual) {
     if (!epan_auto_reset || (cf->count < epan_auto_reset_count))
         return;
 
-    //fprintf(stderr, "resetting session.\n");
+    // Sadly, wireshark caches ether name resolving even when resolving is
+    // disabled (Practically caching hex representation of macs) So we clear its
+    // cache ourselves
+    clear_addr_resolv_map(get_eth_hashtable());
+    clear_addr_resolv_map(get_ipv4_hash_table());
+    clear_addr_resolv_map(get_manuf_hashtable());
+    clear_addr_resolv_map(get_wka_hashtable());
+    clear_addr_resolv_map(get_serv_port_hashtable());
+    clear_addr_resolv_map(get_ipxnet_hash_table());
+    clear_addr_resolv_map(get_vlan_hash_table());
+    clear_addr_resolv_map(get_ipv6_hash_table());
+#if 0
+    // According to our measurements (2020-06-13) these have no effect
+    clear_conv_table(get_conversation_hashtable_exact());
+    clear_conv_table(get_conversation_hashtable_no_port2());
+    clear_conv_table(get_conversation_hashtable_no_addr2_or_port2());
+    clear_conv_table(get_conversation_hashtable_no_addr2());
+#endif
+    wmem_gc(wmem_epan_scope());
 
     epan_dissect_cleanup(edt);
     epan_free(cf->epan);

@@ -2471,6 +2471,7 @@ if(BUILD_marine_benchmark)
 	set(marine_benchmark_FILES
 			${marine_FILES}
 			marine_benchmark.c
+			marine_dev.h
 			)
 
 	set_executable_resources(marine_benchmark "Marine Benchmark" UNIQUE_RC)
@@ -2480,6 +2481,22 @@ if(BUILD_marine_benchmark)
 	install(TARGETS marine_benchmark RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
+if(BUILD_marine_stress)
+	set(marine_stress_LIBS
+			${marine_LIBS}
+			)
+	set(marine_stress_FILES
+			${marine_FILES}
+			marine_stress.c
+			marine_dev.h
+			)
+
+	set_executable_resources(marine_stress "Marine Stress" UNIQUE_RC)
+	add_executable(marine_stress ${marine_stress_FILES})
+	set_extra_executable_properties(marine_stress "Executables")
+	target_link_libraries(marine_stress ${marine_stress_LIBS})
+	install(TARGETS marine_stress RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+endif()
 
 if(BUILD_tfshark)
 	set(tfshark_LIBS
@@ -3155,6 +3172,7 @@ set(CLEAN_C_FILES
 	${wireshark_FILES}
 	${marine_FILES}
 	${marine_benchmark_FILES}
+	${marine_stress_FILES}
 	${tshark_FILES}
 	${rawshark_FILES}
 	${dftest_FILES}

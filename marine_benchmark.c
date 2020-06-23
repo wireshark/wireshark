@@ -1,12 +1,11 @@
 #include <stdio.h>
 #include <pcap.h>
 #include "marine.h"
+#include "marine_dev.h"
 #include <string.h>
 #include <assert.h>
 #include <time.h>
 #include <stdlib.h>
-#include <sys/resource.h>
-#include <zconf.h>
 
 typedef struct {
     char *title;
@@ -20,27 +19,6 @@ typedef struct {
     struct pcap_pkthdr *header;
     const u_char *data;
 } packet;
-
-
-/*
-* Author:  David Robert Nadeau
-* Site:    http://NadeauSoftware.com/
-* License: Creative Commons Attribution 3.0 Unported License
-*          http://creativecommons.org/licenses/by/3.0/deed.en_US
-*/
-size_t get_current_rss(void) {
-    long rss = 0L;
-    FILE *fp = NULL;
-    if ((fp = fopen("/proc/self/statm", "r")) == NULL) {
-        return (size_t) 0L;
-    }
-    if (fscanf(fp, "%*s%ld", &rss) != 1) {
-        fclose(fp);
-        return (size_t) 0L;
-    }
-    fclose(fp);
-    return (size_t) rss * (size_t) sysconf(_SC_PAGESIZE);
-}
 
 int load_cap(char *file, packet **packets, char errbuff[PCAP_ERRBUF_SIZE]) {
     printf("Start loading packets from cap\n");
