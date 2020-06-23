@@ -1667,6 +1667,31 @@ endif()
 
 feature_summary(WHAT ALL)
 
+# Newer Libgcrypt versions may be required for certain functionality:
+# 1.6
+# - IEEE 802.11 TDLS, AES-GCMP-128 and AES-GCMP-256 decryption
+# - IEEE 802.11 WPA3-Personal / SAE decryption
+# - BT Mesh decryption
+# - Distributed Object Framework (DOF) decryption
+# - IKEv2 integrity check
+# - LoRaWAN integrity check
+# - LTE PDCP integrity check
+# - QUIC decryption support
+# - SMB3 AES-128-CCM/GCM decryption
+# - TLS 1.3 0-RTT decryption
+# - TLS GCM/CCM ciphers integrity check
+# 1.7
+# - QUIC ChaCha20-Poly1305 decryption
+# - TLS 1.3 ChaCha20-Poly1305 decryption
+# 1.8
+# - dcerpc-netlogon NETLOGON_FLAG_AES decryption
+# - WireGuard decryption
+if(GCRYPT_VERSION VERSION_LESS 1.6.0)
+	message(WARNING "Libgcrypt version 1.6.0 or newer is strongly recommended for improved decryption support, found ${GCRYPT_VERSION}")
+elseif(GCRYPT_VERSION VERSION_LESS 1.8.0)
+	message(WARNING "Libgcrypt version 1.8.0 or newer is recommended for full decryption functionality, found ${GCRYPT_VERSION}")
+endif()
+
 # Should this be part of libui?
 if(WIN32)
 	set(PLATFORM_UI_SRC
