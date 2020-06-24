@@ -433,8 +433,15 @@ main(int argc, char *argv[])
 
     static const char    optstring[] = OPTSTRING_INIT;
 
-    /* Set the C-language locale to the native environment. */
+    /*
+     * Set the C-language locale to the native environment and set the
+     * code page to UTF-8 on Windows.
+     */
+#ifdef _WIN32
+    setlocale(LC_ALL, ".UTF-8");
+#else
     setlocale(LC_ALL, "");
+#endif
 
     cmdarg_err_init(rawshark_cmdarg_err, rawshark_cmdarg_err_cont);
 
