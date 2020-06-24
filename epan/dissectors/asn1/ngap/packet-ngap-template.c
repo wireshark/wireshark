@@ -516,19 +516,13 @@ dissect_ngap_media_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     } else if (!strcmp(n2_info_class, "PWS") ||
                !strcmp(n2_info_class, "PWS-BCAL") ||
                !strcmp(n2_info_class, "PWS-RF")) {
-      gdouble msg_type;
       cur_tok = json_get_object(json_data, cur_tok, "pwsInfo");
       if (!cur_tok)
         return 0;
       n2_info_content_tok = json_get_object(json_data, cur_tok, "pwsContainer");
       if (!n2_info_content_tok)
         return 0;
-      if (!json_get_double(json_data, n2_info_content_tok, "ngapMessageType", &msg_type))
-        return 0;
-      if (!strcmp(n2_info_class, "PWS-BCAL"))
-        subdissector = dissector_get_uint_handle(ngap_proc_sout_dissector_table, (guint32)msg_type);
-      else
-        subdissector = dissector_get_uint_handle(ngap_proc_imsg_dissector_table, (guint32)msg_type);
+      subdissector = ngap_handle;
     } else {
       return 0;
     }
