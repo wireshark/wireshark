@@ -14648,19 +14648,13 @@ dissect_ngap_media_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     } else if (!strcmp(n2_info_class, "PWS") ||
                !strcmp(n2_info_class, "PWS-BCAL") ||
                !strcmp(n2_info_class, "PWS-RF")) {
-      gdouble msg_type;
       cur_tok = json_get_object(json_data, cur_tok, "pwsInfo");
       if (!cur_tok)
         return 0;
       n2_info_content_tok = json_get_object(json_data, cur_tok, "pwsContainer");
       if (!n2_info_content_tok)
         return 0;
-      if (!json_get_double(json_data, n2_info_content_tok, "ngapMessageType", &msg_type))
-        return 0;
-      if (!strcmp(n2_info_class, "PWS-BCAL"))
-        subdissector = dissector_get_uint_handle(ngap_proc_sout_dissector_table, (guint32)msg_type);
-      else
-        subdissector = dissector_get_uint_handle(ngap_proc_imsg_dissector_table, (guint32)msg_type);
+      subdissector = ngap_handle;
     } else {
       return 0;
     }
@@ -14994,7 +14988,7 @@ proto_reg_handoff_ngap(void)
 
 
 /*--- End of included file: packet-ngap-dis-tab.c ---*/
-#line 584 "./asn1/ngap/packet-ngap-template.c"
+#line 578 "./asn1/ngap/packet-ngap-template.c"
 
     dissector_add_string("media_type", "application/vnd.3gpp.ngap", ngap_media_type_handle);
   } else {
@@ -18119,7 +18113,7 @@ void proto_register_ngap(void) {
         "UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-ngap-hfarr.c ---*/
-#line 732 "./asn1/ngap/packet-ngap-template.c"
+#line 726 "./asn1/ngap/packet-ngap-template.c"
   };
 
   /* List of subtrees */
@@ -18589,7 +18583,7 @@ void proto_register_ngap(void) {
     &ett_ngap_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-ngap-ettarr.c ---*/
-#line 763 "./asn1/ngap/packet-ngap-template.c"
+#line 757 "./asn1/ngap/packet-ngap-template.c"
   };
 
   static ei_register_info ei[] = {
