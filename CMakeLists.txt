@@ -1675,7 +1675,7 @@ feature_summary(WHAT ALL)
 # - Distributed Object Framework (DOF) decryption
 # - IKEv2 integrity check
 # - LoRaWAN integrity check
-# - LTE PDCP integrity check
+# - LTE PDCP EIA2 integrity check
 # - QUIC decryption support
 # - SMB3 AES-128-CCM/GCM decryption
 # - TLS 1.3 0-RTT decryption
