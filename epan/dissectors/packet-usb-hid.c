@@ -3473,9 +3473,7 @@ insert_report_descriptor(packet_info *pinfo, report_descriptor_t *data)
         {0, NULL}
     };
 
-    /* only insert report descriptor the first time we parse it */
-    if (!PINFO_FD_VISITED(pinfo) && parse_report_descriptor(data))
-        wmem_tree_insert32_array(report_descriptors, key, data);
+    wmem_tree_insert32_array(report_descriptors, key, data);
 }
 
 /* Returns usage page string */
@@ -3948,7 +3946,6 @@ dissect_usb_hid_get_report_descriptor(packet_info *pinfo _U_, proto_tree *parent
     proto_tree *tree;
     int old_offset=offset;
     struct usb_hid_global_state initial_global;
-    report_descriptor_t *data = wmem_new(wmem_file_scope(), report_descriptor_t);
 
     memset(&initial_global, 0, sizeof(struct usb_hid_global_state));
 
@@ -3957,11 +3954,21 @@ dissect_usb_hid_get_report_descriptor(packet_info *pinfo _U_, proto_tree *parent
     tree = proto_item_add_subtree(item, ett_usb_hid_report);
     offset = dissect_usb_hid_report_item(pinfo, tree, tvb, offset, usb_conv_info, &initial_global);
 
-    if (usb_conv_info) {
+    /* only insert report descriptor the first time we parse it */
+    if (!PINFO_FD_VISITED(pinfo) && usb_conv_info) {
+        wmem_allocator_t *scope = wmem_file_scope();
+        report_descriptor_t *data = wmem_new(scope, report_descriptor_t);
+
         data->usb_info = *usb_conv_info;
         data->desc_length = offset - old_offset;
-        data->desc_body = (guint8*) tvb_memdup(wmem_file_scope(), tvb, old_offset, data->desc_length);
-        insert_report_descriptor(pinfo, data);
+        data->desc_body = (guint8*) tvb_memdup(scope, tvb, old_offset, data->desc_length);
+
+        if (parse_report_descriptor(data)) {
+            insert_report_descriptor(pinfo, data);
+        } else {
+            wmem_free(scope, data->desc_body);
+            wmem_free(scope, data);
+        }
     }
 
     proto_item_set_len(item, offset-old_offset);
