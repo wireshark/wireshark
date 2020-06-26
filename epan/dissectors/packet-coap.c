@@ -321,8 +321,14 @@ coap_opt_check(packet_info *pinfo, proto_tree *subtree, guint opt_num, gint opt_
 			break;
 	}
 	if (i == (int)(array_length(coi))) {
-		expert_add_info_format(pinfo, subtree, &dissect_hf->ei.opt_invalid_number,
-			"Invalid Option Number %u", opt_num);
+		if (opt_num >= 2048 && opt_num <= 65535) {
+			/* private, vendor-specific or reserved for experiments */
+			expert_add_info_format(pinfo, subtree, &dissect_hf->ei.opt_unknown_number,
+					       "Unknown Option Number %u", opt_num);
+		} else {
+			expert_add_info_format(pinfo, subtree, &dissect_hf->ei.opt_invalid_number,
+					       "Invalid Option Number %u", opt_num);
+		}
 		return -1;
 	}
 	if (opt_length < coi[i].min || opt_length > coi[i].max) {
@@ -779,14 +785,14 @@ dissect_coap_options_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tr
 		return -1;
 	}
 
-	coap_opt_check(pinfo, coap_tree, *opt_num, opt_length, dissect_hf);
-
 	g_snprintf(strbuf, sizeof(strbuf),
-	    "#%u: %s", opt_count, val_to_str_const(*opt_num, vals_opt_type,
-	    *opt_num % 14 == 0 ? "No-Op" : "Unknown Option"));
+	    "#%u: %s", opt_count, val_to_str(*opt_num, vals_opt_type,
+	    *opt_num % 14 == 0 ? "No-Op" : "Unknown Option (%d)"));
 	item = proto_tree_add_string(coap_tree, dissect_hf->hf.opt_name,
 	    tvb, orig_offset, offset - orig_offset + opt_length, strbuf);
 	subtree = proto_item_add_subtree(item, dissect_hf->ett.option);
+
+	coap_opt_check(pinfo, subtree, *opt_num, opt_length, dissect_hf);
 
 	g_snprintf(strbuf, sizeof(strbuf),
 	    "Type %u, %s, %s%s", *opt_num,
