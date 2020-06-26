@@ -80,6 +80,7 @@ static int hf_nas_5gs_sm_msg_type = -1;
 static int hf_nas_5gs_updp_msg_type = -1;
 static int hf_nas_5gs_proc_trans_id = -1;
 static int hf_nas_5gs_spare_half_octet = -1;
+static int hf_nas_5gs_spare_octet = -1;
 static int hf_nas_5gs_pdu_session_id = -1;
 static int hf_nas_5gs_msg_elems = -1;
 static int hf_nas_5gs_mm_for = -1;
@@ -6880,54 +6881,6 @@ de_nas_5gs_s1_mode_to_n1_mode_nas_transparent_cont(tvbuff_t *tvb, proto_tree *tr
         NULL
     };
 
-    static int * const oct9_flags[] = {
-        &hf_nas_5gs_mm_5g_ea0,
-        &hf_nas_5gs_mm_128_5g_ea1,
-        &hf_nas_5gs_mm_128_5g_ea2,
-        &hf_nas_5gs_mm_128_5g_ea3,
-        &hf_nas_5gs_mm_5g_ea4,
-        &hf_nas_5gs_mm_5g_ea5,
-        &hf_nas_5gs_mm_5g_ea6,
-        &hf_nas_5gs_mm_5g_ea7,
-        NULL
-    };
-
-    static int * const oct10_flags[] = {
-        &hf_nas_5gs_mm_5g_ia0,
-        &hf_nas_5gs_mm_5g_128_ia1,
-        &hf_nas_5gs_mm_5g_128_ia2,
-        &hf_nas_5gs_mm_5g_128_ia3,
-        &hf_nas_5gs_mm_5g_ia4,
-        &hf_nas_5gs_mm_5g_ia5,
-        &hf_nas_5gs_mm_5g_ia6,
-        &hf_nas_5gs_mm_5g_ia7,
-        NULL
-    };
-
-    static int * const oct11_flags[] = {
-        &hf_nas_5gs_mm_eea0,
-        &hf_nas_5gs_mm_128eea1,
-        &hf_nas_5gs_mm_128eea2,
-        &hf_nas_5gs_mm_eea3,
-        &hf_nas_5gs_mm_eea4,
-        &hf_nas_5gs_mm_eea5,
-        &hf_nas_5gs_mm_eea6,
-        &hf_nas_5gs_mm_eea7,
-        NULL
-    };
-
-    static int * const oct12_flags[] = {
-        &hf_nas_5gs_mm_eia0,
-        &hf_nas_5gs_mm_128eia1,
-        &hf_nas_5gs_mm_128eia2,
-        &hf_nas_5gs_mm_eia3,
-        &hf_nas_5gs_mm_eia4,
-        &hf_nas_5gs_mm_eia5,
-        &hf_nas_5gs_mm_eia6,
-        &hf_nas_5gs_mm_eia7,
-        NULL
-    };
-
     proto_tree_add_item(tree, hf_nas_5gs_msg_auth_code, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
     proto_tree_add_item(tree, hf_nas_5gs_mm_nas_sec_algo_enc, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -6935,15 +6888,9 @@ de_nas_5gs_s1_mode_to_n1_mode_nas_transparent_cont(tvbuff_t *tvb, proto_tree *tr
     offset++;
     proto_tree_add_bitmask_list(tree, tvb, offset, 1, oct8_flags, ENC_NA);
     offset++;
-    proto_tree_add_bitmask_list(tree, tvb, offset, 1, oct9_flags, ENC_NA);
+    proto_tree_add_item(tree, hf_nas_5gs_spare_octet, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
-    proto_tree_add_bitmask_list(tree, tvb, offset, 1, oct10_flags, ENC_NA);
-    offset++;
-    if (tvb_reported_length_remaining(tvb, offset) > 0) {
-        proto_tree_add_bitmask_list(tree, tvb, offset, 1, oct11_flags, ENC_NA);
-        offset++;
-        proto_tree_add_bitmask_list(tree, tvb, offset, 1, oct12_flags, ENC_NA);
-    }
+    proto_tree_add_item(tree, hf_nas_5gs_spare_octet, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 /* 3GPP TS 29.502 chapter 6.1.6.4.2 and 29.518 chapter 6.1.6.4.2 */
@@ -7133,6 +7080,11 @@ proto_register_nas_5gs(void)
         { &hf_nas_5gs_spare_half_octet,
         { "Spare Half Octet",   "nas_5gs.spare_half_octet",
             FT_UINT8, BASE_DEC, NULL, 0xf0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_spare_octet,
+        { "Spare", "nas_5gs.spare_octet",
+            FT_UINT8, BASE_DEC, NULL, 0xff,
             NULL, HFILL }
         },
         { &hf_nas_5gs_pdu_session_id,
