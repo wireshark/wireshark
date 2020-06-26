@@ -113,6 +113,7 @@ typedef struct coap_common_dissect {
 
 	struct {
 		/* Generic expert info for malformed packets. */
+		expert_field opt_unknown_number;
 		expert_field opt_invalid_number;
 		expert_field opt_invalid_range;
 		expert_field opt_length_bad;
@@ -142,7 +143,7 @@ coap_common_dissect_t name = {							\
 		-1, -1,								\
 		},								\
 	/* ei */ {								\
-		EI_INIT, EI_INIT, EI_INIT, EI_INIT,				\
+		EI_INIT, EI_INIT, EI_INIT, EI_INIT, EI_INIT,			\
 		},								\
 }
 /* }}} */
@@ -360,6 +361,10 @@ coap_common_dissect_t name = {							\
 
 /* {{{ */
 #define COAP_COMMON_EI_LIST(name, prefix)					\
+	{ & name .ei.opt_unknown_number,					\
+	  { prefix ".unknown_option_number", PI_UNDECODED, PI_WARN,		\
+	    "Unknown Option Number", EXPFILL }					\
+	},									\
 	{ & name .ei.opt_invalid_number,					\
 	  { prefix ".invalid_option_number", PI_MALFORMED, PI_WARN,		\
 	    "Invalid Option Number", EXPFILL }					\
