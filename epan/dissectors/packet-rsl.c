@@ -2200,10 +2200,10 @@ dissect_rsl_ie_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, in
 
     /* Cause Value */
     octet = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(tree, hf_rsl_extension_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_rsl_class, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ie_tree, hf_rsl_extension_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ie_tree, hf_rsl_class, tvb, offset, 1, ENC_BIG_ENDIAN);
     if ((octet & 0x80) != 0x80) {
-        proto_tree_add_item(tree, hf_rsl_cause_value, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ie_tree, hf_rsl_cause_value, tvb, offset, 1, ENC_BIG_ENDIAN);
     } else {
         /* TODO: Cause Extension*/
         offset++;
