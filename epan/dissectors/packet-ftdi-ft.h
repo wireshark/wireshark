@@ -40,6 +40,7 @@ typedef struct _ftdi_mpsse_info_t {
     guint32         device_address;
     FTDI_CHIP       chip;
     FTDI_INTERFACE  iface;
+    gboolean        mcu_mode;
 } ftdi_mpsse_info_t;
 
 #endif /* __PACKET_FTDI_FT_H__ */

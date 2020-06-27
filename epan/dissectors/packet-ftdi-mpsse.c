@@ -30,6 +30,8 @@ static gint hf_mpsse_command_b5 = -1;
 static gint hf_mpsse_command_b6 = -1;
 static gint hf_mpsse_command_b7 = -1;
 static gint hf_mpsse_command_with_parameters = -1;
+static gint hf_mpsse_bad_command_error = -1;
+static gint hf_mpsse_bad_command_code = -1;
 static gint hf_mpsse_response = -1;
 static gint hf_mpsse_command_in = -1;
 static gint hf_mpsse_response_in = -1;
@@ -144,13 +146,18 @@ static const value_string command_vals[] = {
     {0x87, "Send Immediate (flush buffer back to the PC)"},
     {0x88, "Wait On I/O High (wait until GPIOL1 (JTAG) or I/O1 (CPU) is high)"},
     {0x89, "Wait On I/O Low (wait until GPIOL1 (JTAG) or I/O1 (CPU) is low)"},
+    {0, NULL}
+};
+static value_string_ext command_vals_ext = VALUE_STRING_EXT_INIT(command_vals);
+
+static const value_string cpumode_command_vals[] = {
     {CMD_CPUMODE_READ_SHORT_ADDR, "CPUMode Read Short Address"},
     {CMD_CPUMODE_READ_EXT_ADDR, "CPUMode Read Extended Address"},
     {CMD_CPUMODE_WRITE_SHORT_ADDR, "CPUMode Write Short Address"},
     {CMD_CPUMODE_WRITE_EXT_ADDR, "CPUMode Write Extended Address"},
     {0, NULL}
 };
-static value_string_ext command_vals_ext = VALUE_STRING_EXT_INIT(command_vals);
+static value_string_ext cpumode_command_vals_ext = VALUE_STRING_EXT_INIT(cpumode_command_vals);
 
 static const value_string ft2232d_only_command_vals[] = {
     {CMD_CLOCK_SET_DIVISOR, "Set TCK/SK Divisor"},
@@ -201,6 +208,7 @@ static const value_string command_b7_vals[] = {
 
 #define IS_DATA_SHIFTING_COMMAND_BIT_ACTIVE(cmd) ((cmd & (1u << 7)) == 0)
 #define IS_DATA_SHIFTING_BYTE_MODE(cmd)          ((cmd & (1u << 1)) == 0)
+#define IS_DATA_SHIFTING_MSB_FIRST(cmd)          ((cmd & (1u << 3)) == 0)
 #define IS_DATA_SHIFTING_WRITING_TDI(cmd)        (cmd & (1u << 4))
 #define IS_DATA_SHIFTING_READING_TDO(cmd)        (cmd & (1u << 5))
 #define IS_DATA_SHIFTING_WRITING_TMS(cmd)        (cmd & (1u << 6))
@@ -272,6 +280,11 @@ get_command_string(guint8 cmd, ftdi_mpsse_info_t *mpsse_info)
         break;
     }
 
+    if (!str && mpsse_info->mcu_mode)
+    {
+        str = try_val_to_str_ext(cmd, &cpumode_command_vals_ext);
+    }
+
     return str;
 }
 
@@ -285,7 +298,8 @@ static gboolean is_same_mpsse_instance(ftdi_mpsse_info_t *info1, ftdi_mpsse_info
     return (info1->bus_id == info2->bus_id) &&
            (info1->device_address == info2->device_address) &&
            (info1->chip == info2->chip) &&
-           (info1->iface == info2->iface);
+           (info1->iface == info2->iface) &&
+           (info1->mcu_mode == info2->mcu_mode);
 }
 
 static command_data_t *
@@ -295,11 +309,13 @@ get_recorded_command_data(packet_info *pinfo, ftdi_mpsse_info_t *mpsse_info)
     guint32         k_device_address = mpsse_info->device_address;
     guint32         k_chip = (guint32)mpsse_info->chip;
     guint32         k_interface = (guint32)mpsse_info->iface;
+    guint32         k_mcu_mode = mpsse_info->mcu_mode;
     wmem_tree_key_t key[] = {
         {1, &k_bus_id},
         {1, &k_device_address},
         {1, &k_chip},
         {1, &k_interface},
+        {1, &k_mcu_mode},
         {1, &pinfo->num},
         {0, NULL}
     };
@@ -320,11 +336,13 @@ static void insert_command_data_pointer(packet_info *pinfo, ftdi_mpsse_info_t *m
     guint32         k_device_address = mpsse_info->device_address;
     guint32         k_chip = (guint32)mpsse_info->chip;
     guint32         k_interface = (guint32)mpsse_info->iface;
+    guint32         k_mcu_mode = mpsse_info->mcu_mode;
     wmem_tree_key_t key[] = {
         {1, &k_bus_id},
         {1, &k_device_address},
         {1, &k_chip},
         {1, &k_interface},
+        {1, &k_mcu_mode},
         {1, &pinfo->num},
         {0, NULL}
     };
@@ -398,7 +416,11 @@ dissect_data_shifting_command_parameters(guint8 cmd, tvbuff_t *tvb, packet_info 
         proto_tree_add_uint_format(tree, hf_mpsse_length_uint8, tvb, offset, 1, length, "Length: %d bit%s", length + 1, plurality(length + 1, "", "s"));
         offset += 1;
 
-        if (IS_DATA_SHIFTING_WRITING_TDI(cmd) || IS_DATA_SHIFTING_WRITING_TMS(cmd))
+        if (IS_DATA_SHIFTING_WRITING_TMS(cmd) && IS_DATA_SHIFTING_READING_TDO(cmd) && IS_DATA_SHIFTING_MSB_FIRST(cmd))
+        {
+            /* These undocumented commands do not seem to consume the data byte, only the length */
+        }
+        else if (IS_DATA_SHIFTING_WRITING_TDI(cmd) || IS_DATA_SHIFTING_WRITING_TMS(cmd))
         {
             proto_tree_add_item(tree, hf_mpsse_bits_out, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
@@ -407,7 +429,11 @@ dissect_data_shifting_command_parameters(guint8 cmd, tvbuff_t *tvb, packet_info 
 
     if (!pinfo->fd->visited)
     {
-        if (IS_DATA_SHIFTING_READING_TDO(cmd))
+        if (mpsse_info->mcu_mode)
+        {
+            /* MCU mode seems to consume data shifting payloads but do not actually return any response data */
+        }
+        else if (IS_DATA_SHIFTING_READING_TDO(cmd))
         {
             record_command_data(cmd_data, pinfo, mpsse_info, cmd, IS_DATA_SHIFTING_BYTE_MODE(cmd) ? length + 1 : 1);
         }
@@ -682,6 +708,11 @@ static gint estimated_command_parameters_length(guint8 cmd, tvbuff_t *tvb, gint 
         else /* bit mode */
         {
             parameters_length = (IS_DATA_SHIFTING_WRITING_TDI(cmd) || IS_DATA_SHIFTING_WRITING_TMS(cmd)) ? 2 : 1;
+            if (IS_DATA_SHIFTING_WRITING_TMS(cmd) && IS_DATA_SHIFTING_READING_TDO(cmd) && IS_DATA_SHIFTING_MSB_FIRST(cmd))
+            {
+                /* These undocumented commands do not seem to consume the data byte, only the length */
+                parameters_length = 1;
+            }
         }
     }
     else
@@ -814,15 +845,29 @@ dissect_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset
 static gint
 dissect_response_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, command_data_t *cmd_data)
 {
+    gint         offset_start = offset;
+
     if (!cmd_data->is_response_set)
     {
         cmd_data->response_in_packet = pinfo->num;
         cmd_data->is_response_set = TRUE;
     }
 
-    proto_tree_add_expert(tree, pinfo, &ei_undecoded, tvb, offset, cmd_data->response_length);
+    if (is_valid_command(cmd_data->cmd, &cmd_data->mpsse_info))
+    {
+        proto_tree_add_expert(tree, pinfo, &ei_undecoded, tvb, offset, cmd_data->response_length);
+        offset += cmd_data->response_length;
+    }
+    else
+    {
+        proto_tree_add_item(tree, hf_mpsse_bad_command_error, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
 
-    return cmd_data->response_length;
+        proto_tree_add_item(tree, hf_mpsse_bad_command_code, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+    }
+
+    return offset - offset_start;
 }
 
 static gint
@@ -1033,6 +1078,16 @@ proto_register_ftdi_mpsse(void)
           { "Command with parameters", "ftdi-mpsse.command_with_parameters",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             "Command including optional parameter bytes", HFILL }
+        },
+        { &hf_mpsse_bad_command_error,
+          { "Error code", "ftdi-mpsse.bad_command.error",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            "Bad Command error code 0xFA", HFILL }
+        },
+        { &hf_mpsse_bad_command_code,
+          { "Received invalid command", "ftdi-mpsse.bad_command.command",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            "Byte which caused the bad command", HFILL }
         },
         { &hf_mpsse_response,
           { "Command response data", "ftdi-mpsse.response",

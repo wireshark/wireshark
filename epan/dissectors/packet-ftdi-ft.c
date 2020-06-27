@@ -732,13 +732,14 @@ dissect_serial_payload(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tre
         guint8 bitmode;
 
         bitmode = get_recorded_interface_mode(pinfo, usb_conv_info, interface);
-        if (bitmode == BITMODE_MPSSE)
+        if ((bitmode == BITMODE_MPSSE) || (bitmode == BITMODE_MCU))
         {
             ftdi_mpsse_info_t mpsse_info = {
                 .bus_id         = k_bus_id,
                 .device_address = k_device_address,
                 .chip           = identify_chip(usb_conv_info),
                 .iface          = interface,
+                .mcu_mode       = (bitmode == BITMODE_MCU),
             };
             tvbuff_t *mpsse_payload_tvb = tvb_new_subset_remaining(tvb, offset);
             call_dissector_with_data(ftdi_mpsse_handle, mpsse_payload_tvb, pinfo, tree, &mpsse_info);
