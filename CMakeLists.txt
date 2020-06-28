@@ -13,6 +13,9 @@ if(WIN32)
 else()
 	cmake_minimum_required(VERSION 3.5)
 endif()
+if(POLICY CMP0069)
+	cmake_policy(SET CMP0069 NEW)
+endif()
 if(POLICY CMP0074)
 	cmake_policy(SET CMP0074 NEW)
 endif()
@@ -55,6 +58,21 @@ message(STATUS "Generating build using CMake ${CMAKE_VERSION}")
 
 #Where to find local cmake scripts
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
+
+# CMake >= 3.9.0 enables LTO/IPO
+# Policy CMP0069 enables this behavior when we set the minimum CMake version < 3.9.0
+if (ENABLE_LTO)
+	include(CheckIPOSupported)
+	check_ipo_supported(RESULT lto_supported)
+	if(lto_supported)
+		set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+	endif()
+endif()
+if (CMAKE_INTERPROCEDURAL_OPTIMIZATION)
+	message(STATUS "LTO/IPO is enabled")
+else()
+	message(STATUS "LTO/LPO is not enabled")
+endif()
 
 # If our target platform is enforced by our generator, set
 # WIRESHARK_TARGET_PLATFORM accordingly. Otherwise use

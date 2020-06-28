@@ -49,6 +49,12 @@ option(ENABLE_FUZZER "Enable libFuzzer instrumentation for use with fuzzshark" O
 option(ENABLE_CHECKHF_CONFLICT "Enable hf conflict check for debugging (start-up may be slower)" OFF)
 option(ENABLE_CCACHE "Speed up compiling and linking using ccache if possible" OFF)
 
+if (WIN32)
+	option(ENABLE_LTO "Improves performance using Link time Optimization" ON)
+else()
+	option(ENABLE_LTO "Improves performance using Link time Optimization" OFF)
+endif()
+
 option(ENABLE_PCAP       "Enable libpcap support (required for capturing)" ON)
 #
 # AirPcap support is available only on Windows.  It might be nice to have it
