@@ -6042,6 +6042,7 @@ speedtrace-disc	33334/udp	# SpeedTrace TraceAgent Discovery
 traceroute	33434/tcp/udp	# traceroute use
 mtrace		33435/udp	# IP Multicast Traceroute
 snip-slave	33656/tcp/udp	# SNIP Slave
+digilent-adept	33890/tcp	# Adept IP protocol
 turbonote-2	34249/tcp/udp	# TurboNote Relay Server Default Port
 p-net-local	34378/tcp/udp	# P-Net on IP local
 p-net-remote	34379/tcp/udp	# P-Net on IP remote
