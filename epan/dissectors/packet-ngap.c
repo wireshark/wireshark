@@ -14608,6 +14608,10 @@ dissect_ngap_media_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   if (json_parse(json_data, tokens, ret) < 0)
     return 0;
   cur_tok = json_get_object(json_data, tokens, "n2InfoContainer");
+  if (!cur_tok) {
+      /* look for n2Information too*/
+      cur_tok = json_get_object(json_data, tokens, "n2Information");
+  }
   if (cur_tok) {
     n2_info_class = json_get_string(json_data, cur_tok, "n2InformationClass");
     if (!n2_info_class)
@@ -14988,7 +14992,7 @@ proto_reg_handoff_ngap(void)
 
 
 /*--- End of included file: packet-ngap-dis-tab.c ---*/
-#line 578 "./asn1/ngap/packet-ngap-template.c"
+#line 582 "./asn1/ngap/packet-ngap-template.c"
 
     dissector_add_string("media_type", "application/vnd.3gpp.ngap", ngap_media_type_handle);
   } else {
@@ -18113,7 +18117,7 @@ void proto_register_ngap(void) {
         "UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-ngap-hfarr.c ---*/
-#line 726 "./asn1/ngap/packet-ngap-template.c"
+#line 730 "./asn1/ngap/packet-ngap-template.c"
   };
 
   /* List of subtrees */
@@ -18583,7 +18587,7 @@ void proto_register_ngap(void) {
     &ett_ngap_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-ngap-ettarr.c ---*/
-#line 757 "./asn1/ngap/packet-ngap-template.c"
+#line 761 "./asn1/ngap/packet-ngap-template.c"
   };
 
   static ei_register_info ei[] = {

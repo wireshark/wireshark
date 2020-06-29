@@ -476,6 +476,10 @@ dissect_ngap_media_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   if (json_parse(json_data, tokens, ret) < 0)
     return 0;
   cur_tok = json_get_object(json_data, tokens, "n2InfoContainer");
+  if (!cur_tok) {
+      /* look for n2Information too*/
+      cur_tok = json_get_object(json_data, tokens, "n2Information");
+  }
   if (cur_tok) {
     n2_info_class = json_get_string(json_data, cur_tok, "n2InformationClass");
     if (!n2_info_class)
