@@ -1654,6 +1654,9 @@
 	<avp name="RRC-Counter-Timestamp" code="4320" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
 		<type type-name="Time"/>
 	</avp>
+	<avp name="TDA-Flags" code="4321" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
+		<type type-name="Unsigned32"/>
+	</avp>
 	<avp name="Idle-Status-Indication" code="4322" mandatory="mustnot" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
 		<grouped>
 			<gavp name="Idle-Status-Timestamp"/>
@@ -1665,6 +1668,9 @@
 		<type type-name="Time"/>
 	</avp>
 	<avp name="Active-Time" code="4324" mandatory="mustnot" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="Reachability-Cause" code="4325" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
 		<type type-name="Unsigned32"/>
 	</avp>
 	<!--
