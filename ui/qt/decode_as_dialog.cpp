@@ -182,6 +182,8 @@ void DecodeAsDialog::applyChanges()
 
 void DecodeAsDialog::on_buttonBox_clicked(QAbstractButton *button)
 {
+    ui->buttonBox->setFocus();
+
     switch (ui->buttonBox->standardButton(button)) {
     case QDialogButtonBox::Ok:
         applyChanges();
