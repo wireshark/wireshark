@@ -67,6 +67,7 @@ ScyllaDB RPC
 Dynamic Link Exchange Protocol (DLEP)
 LBM Stateful Resolution Service (LBMSRS)
 Asphodel Protocol
+Technically Enhanced Capture Module Protocol (TECMP)
 --
 
 === Updated Protocol Support
