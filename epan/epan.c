@@ -341,6 +341,7 @@ epan_cleanup(void)
 
 	dfilter_cleanup();
 	decode_clear_all();
+	decode_cleanup();
 
 #ifdef HAVE_LUA
 	/*

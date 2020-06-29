@@ -524,10 +524,14 @@ decode_clear_all(void)
     g_slist_free(dissector_reset_list);
     dissector_reset_list = NULL;
 
+    decode_dcerpc_reset_all();
+}
+
+void
+decode_cleanup(void)
+{
     g_list_free(decode_as_list);
     decode_as_list = NULL;
-
-    decode_dcerpc_reset_all();
 }
 
 /*

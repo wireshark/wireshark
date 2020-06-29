@@ -133,6 +133,10 @@ WS_DLL_PUBLIC int save_decode_as_entries(gchar** err);
  */
 WS_DLL_PUBLIC void decode_clear_all(void);
 
+/** Frees memory used by "decode as" routines. Called at program shutdown.
+ */
+WS_DLL_PUBLIC void decode_cleanup(void);
+
 /** This routine creates one entry in the list of protocol dissector
  * that need to be reset. It is called by the g_hash_table_foreach
  * routine once for each changed entry in a dissector table.
