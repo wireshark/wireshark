@@ -655,7 +655,7 @@ static const value_string tag_num_vals_eid_ext[] = {
 };
 static value_string_ext tag_num_vals_eid_ext_ext = VALUE_STRING_EXT_INIT(tag_num_vals_eid_ext);
 
-static const value_string wfa_subtype_vals[] = {
+const value_string wfa_subtype_vals[] = {
   { WFA_SUBTYPE_SUBSCRIPTION_REMEDIATION, "Subscription Remediation" },
   { WFA_SUBTYPE_DEAUTHENTICATION_IMMINENT, "Deauthentication Imminent" },
   { WFA_SUBTYPE_P2P, "P2P" },
@@ -2020,7 +2020,7 @@ static const value_string ff_pa_action_codes[] = {
   {PA_FTM_RESPONSE,                    "FTM Response"},
   {0x00, NULL}
 };
-static value_string_ext ff_pa_action_codes_ext = VALUE_STRING_EXT_INIT(ff_pa_action_codes);
+value_string_ext ff_pa_action_codes_ext = VALUE_STRING_EXT_INIT(ff_pa_action_codes);
 
 static const value_string category_codes[] = {
   {CAT_SPECTRUM_MGMT,                    "Spectrum Management (SM)"},
@@ -10302,7 +10302,7 @@ add_ff_action_block_ack(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int
   return offset - start;  /* Size of fixed fields */
 }
 
-static guint
+guint
 add_ff_action_public_fields(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset, guint8 code)
 {
   guint32  oui;
