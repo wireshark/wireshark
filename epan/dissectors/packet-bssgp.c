@@ -1876,8 +1876,8 @@ de_bssgp_ran_information_app_cont_unit(tvbuff_t *tvb, proto_tree *tree, packet_i
                  * System Information message contains the Message type octet followed by all the IEs composing the message
                  * payload. Each message is 21 octets long.
                  */
-                void            (*msg_fcn_p)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len);
-                gint            ett_tree;
+                void            (*msg_fcn_p)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len) = NULL;
+                gint            ett_tree = -1;
                 int             hf_idx;
                 const gchar     *msg_str;
                 proto_item      *si_item, *si_item2;
