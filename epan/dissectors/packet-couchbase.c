@@ -2321,6 +2321,7 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       }
     } else if ((datatype & DT_XATTR) && (opcode == PROTOCOL_BINARY_CMD_SET_WITH_META ||
       opcode == PROTOCOL_BINARY_DCP_MUTATION || opcode == PROTOCOL_BINARY_DCP_DELETION ||
+      opcode == PROTOCOL_BINARY_DCP_EXPIRATION || opcode == PROTOCOL_BINARY_DCP_PREPARE ||
       opcode == PROTOCOL_BINARY_CMD_DEL_WITH_META || opcode == PROTOCOL_BINARY_CMD_ADD_WITH_META ||
       opcode == PROTOCOL_BINARY_CMD_SETQ_WITH_META || opcode == PROTOCOL_BINARY_CMD_DELQ_WITH_META ||
       opcode == PROTOCOL_BINARY_CMD_ADDQ_WITH_META )) {
