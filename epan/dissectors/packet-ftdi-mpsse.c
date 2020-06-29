@@ -72,6 +72,7 @@ static gint ett_mpsse_direction = -1;
 static expert_field ei_undecoded = EI_INIT;
 static expert_field ei_response_without_command = EI_INIT;
 static expert_field ei_skipped_response_data = EI_INIT;
+static expert_field ei_reassembly_unavailable = EI_INIT;
 
 static dissector_handle_t ftdi_mpsse_handle;
 
@@ -973,7 +974,7 @@ dissect_ftdi_mpsse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         if (need_reassembly)
         {
             /* TODO: Implement desegmentation in FTDI FT and ask for one more segment */
-            REPORT_DISSECTOR_BUG("Reassembly is not implemented yet. Dissection will get out of sync.");
+            proto_tree_add_expert(main_tree, pinfo, &ei_reassembly_unavailable, tvb, offset, -1);
         }
     }
     else if (pinfo->p2p_dir == P2P_DIR_RECV)
@@ -1011,7 +1012,7 @@ dissect_ftdi_mpsse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         if (need_reassembly)
         {
             /* TODO: Implement desegmentation in FTDI FT and ask for one more segment */
-            REPORT_DISSECTOR_BUG("Reassembly is not implemented yet. Dissection will get out of sync.");
+            proto_tree_add_expert(main_tree, pinfo, &ei_reassembly_unavailable, tvb, offset, -1);
         }
     }
 
@@ -1240,6 +1241,7 @@ proto_register_ftdi_mpsse(void)
         { &ei_undecoded, { "ftdi-mpsse.undecoded", PI_UNDECODED, PI_WARN, "Not dissected yet (report to wireshark.org)", EXPFILL }},
         { &ei_response_without_command, { "ftdi-mpsse.response_without_command", PI_PROTOCOL, PI_ERROR, "Unable to associate response with command (response without command?)", EXPFILL }},
         { &ei_skipped_response_data, { "ftdi-mpsse.skipped_response_data", PI_PROTOCOL, PI_WARN, "Skipped response data while looking for Bad Command response", EXPFILL }},
+        { &ei_reassembly_unavailable, { "ftdi-mpsse.reassembly_unavailable", PI_UNDECODED, PI_ERROR, "Data source dissector does not support reassembly. Dissection will get out of sync.", EXPFILL }},
     };
 
     static gint *ett[] = {
