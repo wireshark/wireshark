@@ -2853,12 +2853,12 @@ dissect_couchbase(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 
     dissect_value(tvb, pinfo, couchbase_tree, offset, value_len, path_len,
                   opcode, request, datatype);
-  } else if (bodylen) {
-    proto_tree_add_item(couchbase_tree, hf_value, tvb, offset, bodylen,
+  } else if (value_len) {
+    proto_tree_add_item(couchbase_tree, hf_value, tvb, offset, value_len,
                         ENC_ASCII | ENC_NA);
     if (status == PROTOCOL_BINARY_RESPONSE_NOT_MY_VBUCKET || is_xerror(datatype, status)) {
       tvbuff_t *json_tvb;
-      json_tvb = tvb_new_subset_length_caplen(tvb, offset, bodylen, bodylen);
+      json_tvb = tvb_new_subset_length_caplen(tvb, offset, value_len, value_len);
       call_dissector(json_handle, json_tvb, pinfo, couchbase_tree);
 
     } else if (opcode == PROTOCOL_BINARY_CMD_SUBDOC_MULTI_LOOKUP) {
