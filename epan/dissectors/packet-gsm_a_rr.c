@@ -4335,7 +4335,7 @@ de_rr_meas_res(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint
 /*
  * [3] 10.5.2.21 Mobile Allocation
  */
-static guint16
+guint16
 de_rr_mob_all(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint32     curr_offset;

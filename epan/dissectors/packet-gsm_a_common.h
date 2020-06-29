@@ -774,6 +774,7 @@ guint16 de_rr_cip_mode_set(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
 WS_DLL_PUBLIC
 guint16 de_rr_cm_enq_mask(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 guint16 de_rr_meas_res(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+guint16 de_rr_mob_all(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 WS_DLL_PUBLIC
 guint16 de_rr_multirate_conf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 WS_DLL_PUBLIC
