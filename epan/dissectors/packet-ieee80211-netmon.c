@@ -23,6 +23,9 @@ void proto_reg_handoff_netmon_802_11(void);
 /* protocol */
 static int proto_netmon_802_11 = -1;
 
+/* Dissector */
+static dissector_handle_t netmon_802_11_handle;
+
 #define MIN_HEADER_LEN  32
 
 /* op_mode */
@@ -370,6 +373,7 @@ proto_register_netmon_802_11(void)
   proto_netmon_802_11 = proto_register_protocol("NetMon 802.11 capture header",
                                                 "NetMon 802.11",
                                                 "netmon_802_11");
+  netmon_802_11_handle = register_dissector("netmon_802_11", dissect_netmon_802_11, proto_netmon_802_11);
   proto_register_field_array(proto_netmon_802_11, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 }
@@ -377,12 +381,8 @@ proto_register_netmon_802_11(void)
 void
 proto_reg_handoff_netmon_802_11(void)
 {
-  dissector_handle_t netmon_802_11_handle;
-
   /* handle for 802.11+radio information dissector */
   ieee80211_radio_handle = find_dissector_add_dependency("wlan_radio", proto_netmon_802_11);
-  netmon_802_11_handle = create_dissector_handle(dissect_netmon_802_11,
-                                                 proto_netmon_802_11);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE_802_11_NETMON, netmon_802_11_handle);
 }
 
