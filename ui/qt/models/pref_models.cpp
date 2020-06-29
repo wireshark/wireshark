@@ -44,9 +44,9 @@ PrefsItem::PrefsItem(module_t *module, pref_t *pref, PrefsItem* parent)
     : ModelHelperTreeItem<PrefsItem>(parent),
     pref_(pref),
     module_(module),
+    name_(module->name ? module->name : module->parent->name),
     changed_(false)
 {
-    name_ = QString(module->name ? module->name : module->parent->name);
     if (pref_ != NULL) {
         name_ += QString(".%1").arg(prefs_get_name(pref_));
     }

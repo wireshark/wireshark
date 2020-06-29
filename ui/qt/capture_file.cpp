@@ -51,12 +51,12 @@ CaptureEvent::CaptureEvent(Context ctx, EventType evt, capture_session * session
 {
 }
 
-CaptureEvent::CaptureEvent(const CaptureEvent &ce)
+CaptureEvent::CaptureEvent(const CaptureEvent &ce) :
+    _ctx(ce._ctx),
+    _evt(ce._evt),
+    _filePath(ce._filePath),
+    _session(ce._session)
 {
-    _ctx = ce._ctx;
-    _evt = ce._evt;
-    _session = ce._session;
-    _filePath = ce._filePath;
 }
 
 CaptureEvent::Context CaptureEvent::captureContext() const

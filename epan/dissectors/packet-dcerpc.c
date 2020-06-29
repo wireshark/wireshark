@@ -4487,7 +4487,7 @@ dissect_dcerpc_cn_stub(tvbuff_t *tvb, int offset, packet_info *pinfo,
     fd_head = fragment_add_seq_next(&dcerpc_co_reassembly_table,
                                     decrypted_tvb, 0, pinfo, frame, NULL,
                                     tvb_reported_length(decrypted_tvb),
-                                    hdr->flags&PFC_LAST_FRAG ? FALSE : TRUE /* more_frags */);
+                                    !(hdr->flags & PFC_LAST_FRAG) /* more_frags */);
 
 end_cn_stub:
 
