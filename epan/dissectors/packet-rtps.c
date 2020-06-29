@@ -3984,7 +3984,8 @@ static gint rtps_util_add_type_library_element(proto_tree *tree, packet_info * p
   guint32 long_number;
   guint32 member_id = 0, member_length = 0;
   gint initial_offset = offset;
-  dissection_info * info = NULL;
+  dissection_info * info;
+  gboolean add_info = TRUE;
 
   info = wmem_new(wmem_file_scope(), dissection_info);
 
@@ -4023,6 +4024,8 @@ static gint rtps_util_add_type_library_element(proto_tree *tree, packet_info * p
       rtps_util_add_type_element_module(element_tree, pinfo, tvb, offset, encoding, info);
       break;
     default:
+      /* We have *not* filled in the info structure, so do *not* add it. */
+      add_info = FALSE;
       proto_item_append_text(element_tree, "Kind: %u", long_number);
       proto_tree_add_item(element_tree, hf_rtps_type_object_element_raw, tvb, offset,
                           member_length, encoding);
@@ -4038,7 +4041,9 @@ static gint rtps_util_add_type_library_element(proto_tree *tree, packet_info * p
   offset += 4;
   proto_item_set_len(element_tree, offset - initial_offset);
 
-  wmem_map_insert(dissection_infos, &(info->type_id), (void *) info);
+  if (add_info) {
+    wmem_map_insert(dissection_infos, &(info->type_id), (void *) info);
+  }
 
   return offset;
 }
