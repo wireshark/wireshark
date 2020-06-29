@@ -6522,7 +6522,7 @@ dissect_locking_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 			proto_tree *ltr;
 			smb_lock_info_t *li;
 			if (tree) {
-				litem = proto_tree_add_item(tree, hf_smb_lock_type, tvb, 0, 0, ENC_NA);
+				litem = proto_tree_add_uint(tree, hf_smb_lock_type, tvb, 0, 0, ld->type);
 				proto_item_set_generated(litem);
 				ltree = proto_item_add_subtree(litem, ett_smb_lock_type);
 
