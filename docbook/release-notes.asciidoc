@@ -17,8 +17,8 @@ It is used for troubleshooting, analysis, development and education.
 
 // The following vulnerabilities have been fixed:
 
-* wssalink:2020-09[]
-A dissector went awry.
+// * wssalink:2020-10[]
+// Foo dissector {crash,infinite loop}.
 // wsbuglink:xxxx[].
 // cveidlink:2020-xxxx[].
 // Fixed in master: xxxx
@@ -32,7 +32,17 @@ The following bugs have been fixed:
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
 //* Wireshark convinced you to switch seats on the plane while neglecting to tell you that its seat was noticeably moist.
-// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.6.18rc0..| grep ' Bug:' | awk '{print $2}' | sort -n -u ` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
+// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.6.19rc0..| grep ' Bug:' | awk '{print $2}' | sort -n -u ` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
+
+* The &quot;relative sequence number&quot; is same as &quot;raw sequence number&quot; when tcp.analyze_sequence_numbers:FALSE. wsbuglink:16604[].
+
+* Wireshark can misdissect the HE Radiotap field if it's ever dissected one with any value unknown. wsbuglink:16636[].
+
+* Buildbot crash output: fuzz-2020-06-19-5981.pcap. wsbuglink:16639[].
+
+* Buildbot crash output: fuzz-2020-06-20-7665.pcap. wsbuglink:16642[].
+
+* mergecap man page contains invalid formatting. wsbuglink:16652[].
 
 === New and Updated Features
 
@@ -51,6 +61,12 @@ There are no new protocols in this release.
 // Add one protocol per line between the -- delimiters.
 [commaize]
 --
+GSM RR
+GTPv2
+R3
+Radiotap
+RTPS
+TCP
 --
 
 === New and Updated Capture File Support
