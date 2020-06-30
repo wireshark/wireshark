@@ -1335,6 +1335,30 @@ dissect_coap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 		}
 	}
 
+	/* dissect the payload */
+	if (coap_length > offset) {
+		if (coinfo->block_number == DEFAULT_COAP_BLOCK_NUMBER) {
+			dissect_coap_payload(tvb, pinfo, coap_tree, parent_tree, offset, coap_length,
+					     code_class, coinfo, &dissect_coap_hf, FALSE);
+		} else {
+			proto_tree_add_bytes_format(coap_tree, hf_block_payload, tvb, offset,
+						    coap_length - offset, NULL, "Block Payload");
+			pi = proto_tree_add_uint(coap_tree, hf_block_length, tvb, offset, 0, coap_length - offset);
+			proto_item_set_generated(pi);
+
+			fragment_head *frag_msg = fragment_add_seq_check(&coap_block_reassembly_table, tvb, offset,
+									 pinfo, 0, NULL, coinfo->block_number,
+									 coap_length - offset, coinfo->block_mflag);
+			tvbuff_t *frag_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled CoAP blocks",
+								      frag_msg, &coap_block_frag_items, NULL, coap_tree);
+
+			if (frag_tvb) {
+				dissect_coap_payload(frag_tvb, pinfo, coap_tree, parent_tree, 0, tvb_reported_length(frag_tvb),
+						     code_class, coinfo, &dissect_coap_hf, FALSE);
+			}
+		}
+	}
+
 	/* add informations to the packet list */
 	if (coap_token_str != NULL)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", TKN:%s", coap_token_str);
@@ -1355,39 +1379,36 @@ dissect_coap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 		if (code_class == 0) {
 			/* This is a request */
 			if (coap_req_rsp->rsp_frame) {
-				proto_item *it;
-
-				it = proto_tree_add_uint(coap_tree, hf_coap_response_in,
-						tvb, 0, 0, coap_req_rsp->rsp_frame);
-				proto_item_set_generated(it);
+				pi = proto_tree_add_uint(coap_tree, hf_coap_response_in,
+							 tvb, 0, 0, coap_req_rsp->rsp_frame);
+				proto_item_set_generated(pi);
 			}
 			if (coap_req_rsp->req_frame != pinfo->num) {
 				col_append_str(pinfo->cinfo, COL_INFO, " [Retransmission]");
-				proto_item *it = proto_tree_add_uint(coap_tree, hf_coap_request_resend_in,
-				                                     tvb, 0, 0, coap_req_rsp->req_frame);
-				proto_item_set_generated(it);
-				expert_add_info(pinfo, it, &ei_retransmitted);
+				pi = proto_tree_add_uint(coap_tree, hf_coap_request_resend_in,
+							 tvb, 0, 0, coap_req_rsp->req_frame);
+				proto_item_set_generated(pi);
+				expert_add_info(pinfo, pi, &ei_retransmitted);
 			}
 		} else if ((code_class >= 2) && (code_class <= 5)) {
 			/* This is a reply */
 			if (coap_req_rsp->req_frame) {
-				proto_item *it;
 				nstime_t ns;
 
-				it = proto_tree_add_uint(coap_tree, hf_coap_response_to,
-						tvb, 0, 0, coap_req_rsp->req_frame);
-				proto_item_set_generated(it);
+				pi = proto_tree_add_uint(coap_tree, hf_coap_response_to,
+							 tvb, 0, 0, coap_req_rsp->req_frame);
+				proto_item_set_generated(pi);
 
 				nstime_delta(&ns, &pinfo->abs_ts, &coap_req_rsp->req_time);
-				it = proto_tree_add_time(coap_tree, hf_coap_response_time, tvb, 0, 0, &ns);
-				proto_item_set_generated(it);
+				pi = proto_tree_add_time(coap_tree, hf_coap_response_time, tvb, 0, 0, &ns);
+				proto_item_set_generated(pi);
 			}
 			if (coap_req_rsp->rsp_frame != pinfo->num) {
 				col_append_str(pinfo->cinfo, COL_INFO, " [Retransmission]");
-				proto_item *it = proto_tree_add_uint(coap_tree, hf_coap_response_resend_in,
-				                                     tvb, 0, 0, coap_req_rsp->rsp_frame);
-				proto_item_set_generated(it);
-				expert_add_info(pinfo, it, &ei_retransmitted);
+				pi = proto_tree_add_uint(coap_tree, hf_coap_response_resend_in,
+							 tvb, 0, 0, coap_req_rsp->rsp_frame);
+				proto_item_set_generated(pi);
+				expert_add_info(pinfo, pi, &ei_retransmitted);
 			}
 		}
 	}
@@ -1396,46 +1417,18 @@ dissect_coap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 		if ((code_class >= 2) && (code_class <= 5)) {
 			/* This is a reply */
 			if (coinfo->object_security && coap_trans->oscore_info) {
-				proto_item *it;
+				pi = proto_tree_add_bytes(coap_tree, hf_coap_oscore_kid, tvb, 0, coap_trans->oscore_info->kid_len, coap_trans->oscore_info->kid);
+				proto_item_set_generated(pi);
 
-				it = proto_tree_add_bytes(coap_tree, hf_coap_oscore_kid, tvb, 0, coap_trans->oscore_info->kid_len, coap_trans->oscore_info->kid);
-				proto_item_set_generated(it);
-
-				it = proto_tree_add_bytes(coap_tree, hf_coap_oscore_kid_context, tvb, 0, coap_trans->oscore_info->kid_context_len, coap_trans->oscore_info->kid_context);
-				proto_item_set_generated(it);
+				pi = proto_tree_add_bytes(coap_tree, hf_coap_oscore_kid_context, tvb, 0, coap_trans->oscore_info->kid_context_len, coap_trans->oscore_info->kid_context);
+				proto_item_set_generated(pi);
 
 				if (coinfo->oscore_info->piv_len) {
-					it = proto_tree_add_bytes(coap_tree, hf_coap_oscore_piv, tvb, 0, coinfo->oscore_info->piv_len, coinfo->oscore_info->piv);
+					pi = proto_tree_add_bytes(coap_tree, hf_coap_oscore_piv, tvb, 0, coinfo->oscore_info->piv_len, coinfo->oscore_info->piv);
 				} else {
-					it = proto_tree_add_bytes(coap_tree, hf_coap_oscore_piv, tvb, 0, coinfo->oscore_info->request_piv_len, coinfo->oscore_info->request_piv);
+					pi = proto_tree_add_bytes(coap_tree, hf_coap_oscore_piv, tvb, 0, coinfo->oscore_info->request_piv_len, coinfo->oscore_info->request_piv);
 				}
-				proto_item_set_generated(it);
-			}
-		}
-	}
-
-	/* dissect the payload */
-	if (coap_length > offset) {
-		if (coinfo->block_number == DEFAULT_COAP_BLOCK_NUMBER) {
-			dissect_coap_payload(tvb, pinfo, coap_tree, parent_tree, offset, coap_length,
-					     code_class, coinfo, &dissect_coap_hf, FALSE);
-		} else {
-			proto_item *it;
-
-			proto_tree_add_bytes_format(coap_tree, hf_block_payload, tvb, offset,
-					    coap_length - offset, NULL, "Block Payload");
-			it = proto_tree_add_uint(coap_tree, hf_block_length, tvb, offset, 0, coap_length - offset);
-			proto_item_set_generated(it);
-
-			fragment_head *frag_msg = fragment_add_seq_check(&coap_block_reassembly_table, tvb, offset,
-									 pinfo, 0, NULL, coinfo->block_number,
-									 coap_length - offset, coinfo->block_mflag);
-			tvbuff_t *frag_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled CoAP blocks",
-								      frag_msg, &coap_block_frag_items, NULL, coap_tree);
-
-			if (frag_tvb) {
-				dissect_coap_payload(frag_tvb, pinfo, coap_tree, parent_tree, 0, tvb_reported_length(frag_tvb),
-						     code_class, coinfo, &dissect_coap_hf, FALSE);
+				proto_item_set_generated(pi);
 			}
 		}
 	}
