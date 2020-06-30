@@ -1948,6 +1948,9 @@
    <property name="toolTip">
     <string>Change the way packets are dissected</string>
    </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Shift+U</string>
+   </property>
   </action>
   <action name="actionAnalyzeReloadLuaPlugins">
    <property name="text">
