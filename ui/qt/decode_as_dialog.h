@@ -51,6 +51,7 @@ public slots:
     void modelRowsReset();
 
 private slots:
+    void copyFromProfile(QString filename);
     void on_decodeAsTreeView_currentItemChanged(const QModelIndex &current, const QModelIndex &previous);
 
     void on_newToolButton_clicked();
