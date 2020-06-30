@@ -58,6 +58,9 @@ static int hf_coap_oscore_kid					= -1;
 static int hf_coap_oscore_kid_context				= -1;
 static int hf_coap_oscore_piv					= -1;
 
+static int hf_block_payload					= -1;
+static int hf_block_length					= -1;
+
 static int hf_blocks						= -1;
 static int hf_block						= -1;
 static int hf_block_overlap					= -1;
@@ -1417,6 +1420,13 @@ dissect_coap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 			dissect_coap_payload(tvb, pinfo, coap_tree, parent_tree, offset, coap_length,
 					     code_class, coinfo, &dissect_coap_hf, FALSE);
 		} else {
+			proto_item *it;
+
+			proto_tree_add_bytes_format(coap_tree, hf_block_payload, tvb, offset,
+					    coap_length - offset, NULL, "Block Payload");
+			it = proto_tree_add_uint(coap_tree, hf_block_length, tvb, offset, 0, coap_length - offset);
+			proto_item_set_generated(it);
+
 			fragment_head *frag_msg = fragment_add_seq_check(&coap_block_reassembly_table, tvb, offset,
 									 pinfo, 0, NULL, coinfo->block_number,
 									 coap_length - offset, coinfo->block_mflag);
@@ -1531,6 +1541,16 @@ proto_register_coap(void)
 		{ &hf_coap_oscore_piv,
 		  { "OSCORE Partial IV", "coap.oscore_piv", FT_BYTES, BASE_NONE, NULL, 0x0,
 		    "Matched OSCORE Partial IV", HFILL }
+		},
+		{ &hf_block_payload,
+		  { "Block Payload", "coap.block_payload",
+			FT_BYTES, BASE_NONE, NULL, 0x00,
+			NULL, HFILL }
+		},
+		{ &hf_block_length,
+		  { "Block Length", "coap.block_length",
+			FT_UINT32, BASE_DEC, NULL, 0x00,
+			NULL, HFILL }
 		},
 		{ &hf_blocks,
 		  { "Blocks", "coap.blocks",
