@@ -45,6 +45,7 @@ public slots:
 signals:
     void fieldSelected(FieldInformation *);
     void fieldHighlight(FieldInformation *);
+    void byteViewSettingsChanged(void);
 
 private:
     capture_file *cap_file_;
