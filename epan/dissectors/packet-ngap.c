@@ -14726,7 +14726,10 @@ dissect_ngap_media_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     col_append_sep_str(pinfo->cinfo, COL_PROTOCOL, "/", "NGAP");
     ngap_item = proto_tree_add_item(tree, proto_ngap, tvb, 0, -1, ENC_NA);
     ngap_tree = proto_item_add_subtree(ngap_item, ett_ngap);
+    gboolean save_writable = col_get_writable(pinfo->cinfo, COL_PROTOCOL);
+    col_set_writable(pinfo->cinfo, COL_PROTOCOL, FALSE);
     call_dissector_with_data(subdissector, tvb, pinfo, ngap_tree, NULL);
+    col_set_writable(pinfo->cinfo, COL_PROTOCOL, save_writable);
     return tvb_captured_length(tvb);
   } else {
     return 0;
@@ -15032,7 +15035,7 @@ proto_reg_handoff_ngap(void)
 
 
 /*--- End of included file: packet-ngap-dis-tab.c ---*/
-#line 582 "./asn1/ngap/packet-ngap-template.c"
+#line 585 "./asn1/ngap/packet-ngap-template.c"
 
     dissector_add_string("media_type", "application/vnd.3gpp.ngap", ngap_media_type_handle);
   } else {
@@ -18165,7 +18168,7 @@ void proto_register_ngap(void) {
         "UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-ngap-hfarr.c ---*/
-#line 730 "./asn1/ngap/packet-ngap-template.c"
+#line 733 "./asn1/ngap/packet-ngap-template.c"
   };
 
   /* List of subtrees */
@@ -18636,7 +18639,7 @@ void proto_register_ngap(void) {
     &ett_ngap_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-ngap-ettarr.c ---*/
-#line 761 "./asn1/ngap/packet-ngap-template.c"
+#line 764 "./asn1/ngap/packet-ngap-template.c"
   };
 
   static ei_register_info ei[] = {
