@@ -416,6 +416,12 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
         Intra E-UTRAN handover Source eNB to Target eNB
         Transparent Container 36.413
       */
+      case utrantolte:
+      /* utrantolte */
+      case gerantolte:
+      /* gerantolte */
+      case fivegs_to_eps:
+      /* fivegs_to_eps */
       dissect_s1ap_SourceeNB_ToTargeteNB_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
       break;
       case ltetoutran:
@@ -438,18 +444,9 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
       else
         de_bssgp_source_BSS_to_target_BSS_transp_cont(parameter_tvb, subtree, actx->pinfo, 0, tvb_reported_length(parameter_tvb), NULL, 0);
       break;
-      case utrantolte:
-      /* utrantolte */
-      break;
-      case gerantolte:
-      /* gerantolte */
-      break;
       case eps_to_5gs:
       /* eps_to_5gs */
       dissect_ngap_SourceNGRANNode_ToTargetNGRANNode_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
-      break;
-      case fivegs_to_eps:
-      /* fivegs_to_eps */
       break;
       default:
       break;
@@ -487,6 +484,12 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
         Intra E-UTRAN handover Target eNB to Source eNB
         Transparent Container 36.413
       */
+      case utrantolte:
+      /* utrantolte */
+      case gerantolte:
+      /* gerantolte */
+      case fivegs_to_eps:
+      /* fivegs_to_eps */
       dissect_s1ap_TargeteNB_ToSourceeNB_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
       break;
       case ltetoutran:
@@ -503,18 +506,9 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
       */
       de_bssgp_target_BSS_to_source_BSS_transp_cont(parameter_tvb, subtree, actx->pinfo, 0, tvb_reported_length(parameter_tvb), NULL, 0);
       break;
-      case utrantolte:
-      /* utrantolte */
-      break;
-      case gerantolte:
-      /* gerantolte */
-      break;
       case eps_to_5gs:
       /* eps_to_5gs */
       dissect_ngap_TargetNGRANNode_ToSourceNGRANNode_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
-      break;
-      case fivegs_to_eps:
-      /* fivegs_to_eps */
       break;
       default:
       break;
