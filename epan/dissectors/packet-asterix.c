@@ -3992,7 +3992,7 @@ static const AsterixField I001_150 = { FIXED, 1, 0, 0, &hf_001_150, NULL, { NULL
 static const AsterixField I001_161 = { FIXED, 2, 0, 0, &hf_001_161, I001_161_PARTS, { NULL } };
 static const AsterixField I001_170 = { FX, 1, 0, 0, &hf_001_170, I001_170_PARTS, { NULL } };
 static const AsterixField I001_200 = { FIXED, 4, 0, 0, &hf_001_200, NULL, { NULL } };
-static const AsterixField I001_210 = { FIXED, 1, 0, 0, &hf_001_210, NULL, { NULL } };
+static const AsterixField I001_210 = { FX, 1, 0, 0, &hf_001_210, NULL, { NULL } };
 static const AsterixField I001_RE = { RE, 0, 0, 1, &hf_001_RE, NULL, { NULL } };
 static const AsterixField I001_SP = { SP, 0, 0, 1, &hf_001_SP, NULL, { NULL } };
 
