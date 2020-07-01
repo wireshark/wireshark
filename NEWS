@@ -7,13 +7,44 @@ Wireshark 3.2.5 Release Notes
 
  What’s New
 
+  The Windows installers now ship with Npcap 0.9994. They previously
+  shipped with Npcap 0.9991.
+
+  The Windows installers now ship with USBPcap 1.5.4.0. They previously
+  shipped with USBPcap 1.5.3.0.
+
   Bug Fixes
 
    The following vulnerabilities have been fixed:
 
-     • wnpa-sec-2020-09[1] A dissector went awry.
+     • wnpa-sec-2020-09[1] GVCP dissector infinite loop. Bug 16029[2].
+       CVE-2020-15466[3].
 
    The following bugs have been fixed:
+
+     • Add decryption support for QUIC IETF version 0xfaceb001 and
+       0xfaceb002. Bug 16378[4].
+
+     • Windows Uninstall does not remove all files in Program Files. Bug
+       16601[5].
+
+     • The "relative sequence number" is same as "raw sequence number"
+       when tcp.analyze_sequence_numbers:FALSE. Bug 16604[6].
+
+     • Importing profiles from a different Windows PC fails. Bug
+       16608[7].
+
+     • Decode as not working correctly with multiple user profiles. Bug
+       16635[8].
+
+     • Wireshark can misdissect the HE Radiotap field if it’s ever
+       dissected one with any value unknown. Bug 16636[9].
+
+     • Buildbot crash output: fuzz-2020-06-19-5981.pcap. Bug 16639[10].
+
+     • Buildbot crash output: fuzz-2020-06-20-7665.pcap. Bug 16642[11].
+
+     • mergecap man page contains invalid formatting. Bug 16652[12].
 
   New and Updated Features
 
@@ -24,6 +55,9 @@ Wireshark 3.2.5 Release Notes
    There are no new protocols in this release.
 
   Updated Protocol Support
+
+   ASTERIX, CoAP, GSM RR, GTPv2, GVCP, LTE RRC, NAS-5GS, NGAP, QUIC, R3,
+   Radiotap, RTPS, and TCP
 
   New and Updated Capture File Support
 
@@ -39,7 +73,7 @@ Wireshark 3.2.5 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[2] on the Wireshark web site.
+   be found on the download page[13] on the Wireshark web site.
 
  File Locations
 
@@ -53,23 +87,34 @@ Wireshark 3.2.5 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[3] and on the
+  Community support is available on Wireshark’s Q&A site[14] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[4].
+  for all of Wireshark’s mailing lists can be found on the web site[15].
 
-  Bugs and feature requests can be reported on the bug tracker[5].
+  Bugs and feature requests can be reported on the bug tracker[16].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[6].
+  A complete FAQ is available on the Wireshark web site[17].
 
-  Last updated 2020-06-28 08:18:47 UTC
+  Last updated 2020-07-01 17:34:33 UTC
 
  References
 
    1. https://www.wireshark.org/security/wnpa-sec-2020-09
-   2. https://www.wireshark.org/download.html#thirdparty
-   3. https://ask.wireshark.org/
-   4. https://www.wireshark.org/lists/
-   5. https://bugs.wireshark.org/
-   6. https://www.wireshark.org/faq.html
+   2. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16029
+   3. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-15466
+   4. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16378
+   5. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16601
+   6. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16604
+   7. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16608
+   8. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16635
+   9. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16636
+  10. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16639
+  11. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16642
+  12. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16652
+  13. https://www.wireshark.org/download.html#thirdparty
+  14. https://ask.wireshark.org/
+  15. https://www.wireshark.org/lists/
+  16. https://bugs.wireshark.org/
+  17. https://www.wireshark.org/faq.html

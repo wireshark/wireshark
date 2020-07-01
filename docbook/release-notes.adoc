@@ -27,7 +27,7 @@ The following vulnerabilities have been fixed:
 * wssalink:2020-09[]
 GVCP dissector infinite loop.
 wsbuglink:16029[].
-// cveidlink:2020-xxxx[].
+cveidlink:2020-15466[].
 // Fixed in master: d70bd4489f
 // Fixed in master-3.2: 11f40896b6
 // Fixed in master-3.0: n/a
@@ -82,6 +82,7 @@ There are no new protocols in this release.
 // Add one protocol per line between the -- delimiters.
 [commaize]
 --
+ASTERIX
 CoAP
 GSM RR
 GTPv2
