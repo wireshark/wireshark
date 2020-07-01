@@ -34,20 +34,6 @@ The following bugs have been fixed:
 //* Wireshark slowly leaked water under the kitchen sink over the course of several months, causing a big mess.
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v3.0.13rc0..| grep ' Bug:' | awk '{print $2}' | sort -n -u ` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
 
-* Windows Uninstall does not remove all files in Program Files. wsbuglink:16601[].
-
-* The &quot;relative sequence number&quot; is same as &quot;raw sequence number&quot; when tcp.analyze_sequence_numbers:FALSE. wsbuglink:16604[].
-
-* Decode as not working correctly with multiple user profiles. wsbuglink:16635[].
-
-* Wireshark can misdissect the HE Radiotap field if it's ever dissected one with any value unknown. wsbuglink:16636[].
-
-* Buildbot crash output: fuzz-2020-06-19-5981.pcap. wsbuglink:16639[].
-
-* Buildbot crash output: fuzz-2020-06-20-7665.pcap. wsbuglink:16642[].
-
-* mergecap man page contains invalid formatting. wsbuglink:16652[].
-
 === New and Updated Features
 
 There are no new features in this release.
@@ -69,14 +55,6 @@ There are no new protocols in this release.
 // Add one protocol per line between the -- delimiters.
 [commaize]
 --
-ASTERIX
-CoAP
-GSM RR
-GTPv2
-R3
-Radiotap
-RTPS
-TCP
 --
 
 === New and Updated Capture File Support
