@@ -27,6 +27,7 @@
 typedef struct {
 	const gchar *ctype_str;
 	guint ctype_value;
+	guint block_option;                     /* Indicates Block1 or Block2 option */
 	guint block_number;
 	guint block_mflag;
 	wmem_strbuf_t *uri_str_strbuf;		/* the maximum is 1024 > 510 = Uri-Host:255 + Uri-Path:255 x 2 */
