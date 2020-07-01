@@ -86,6 +86,7 @@ typedef struct coap_common_dissect {
 		int opt_uri_path_recon;
 		int opt_observe_req;
 		int opt_observe_rsp;
+		int opt_hop_limit;
 		int opt_accept;
 		int opt_if_match;
 		int opt_block_number;
@@ -139,6 +140,7 @@ coap_common_dissect_t name = {							\
 		-1, -1, -1, -1, -1, -1, -1, -1, -1, -1,				\
 		-1, -1, -1, -1, -1, -1, -1, -1, -1, -1,				\
 		-1, -1, -1, -1, -1, -1, -1, -1, -1, -1,				\
+		-1, 								\
 		},								\
 	/* ett */ {								\
 		-1, -1,								\
@@ -314,6 +316,11 @@ coap_common_dissect_t name = {							\
 	{ & name .hf.opt_observe_rsp,						\
 	  { "Observe sequence number",  prefix ".opt.observe",			\
 	    FT_UINT32, BASE_DEC, NULL, 0x0,					\
+	    NULL, HFILL }							\
+	},									\
+	{ & name .hf.opt_hop_limit,						\
+	  { "Hop Limit",  prefix ".opt.hop_limit",				\
+	    FT_UINT8, BASE_DEC, NULL, 0x0,					\
 	    NULL, HFILL }							\
 	},									\
 	{ & name .hf.opt_accept,						\

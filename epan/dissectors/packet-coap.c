@@ -154,6 +154,7 @@ static const value_string vals_code[] = {
 	{ 163, "5.03 Service Unavailable" },
 	{ 164, "5.04 Gateway Timeout" },
 	{ 165, "5.05 Proxying Not Supported" },
+	{ 168, "5.08 Hop Limit Reached" },		/* RFC 8768 */
 
 	/* Signalling Codes */
 	{ 225, "7.01 CSM" },				/* RFC 8323 */
@@ -189,6 +190,7 @@ const value_string coap_vals_observe_options[] = {
 #define COAP_OPT_CONTENT_TYPE		12
 #define COAP_OPT_MAX_AGE		14
 #define COAP_OPT_URI_QUERY		15
+#define COAP_OPT_HOP_LIMIT		16	/* RFC 8768 */
 #define COAP_OPT_ACCEPT			17
 #define COAP_OPT_LOCATION_QUERY		20
 #define COAP_OPT_BLOCK2			23	/* RFC 7959 / RFC 8323 */
@@ -210,6 +212,7 @@ static const value_string vals_opt_type[] = {
 	{ COAP_OPT_CONTENT_TYPE,   "Content-Format" },
 	{ COAP_OPT_MAX_AGE,        "Max-age" },
 	{ COAP_OPT_URI_QUERY,      "Uri-Query" },
+	{ COAP_OPT_HOP_LIMIT,      "Hop-Limit" },
 	{ COAP_OPT_ACCEPT,         "Accept" },
 	{ COAP_OPT_LOCATION_QUERY, "Location-Query" },
 	{ COAP_OPT_PROXY_URI,      "Proxy-Uri" },
@@ -238,6 +241,7 @@ struct coap_option_range_t {
 	{ COAP_OPT_CONTENT_TYPE,    0,   2 },
 	{ COAP_OPT_MAX_AGE,         0,   4 },
 	{ COAP_OPT_URI_QUERY,       1, 255 },
+	{ COAP_OPT_HOP_LIMIT,       1,   1 },
 	{ COAP_OPT_ACCEPT,          0,   2 },
 	{ COAP_OPT_LOCATION_QUERY,  0, 255 },
 	{ COAP_OPT_PROXY_URI,       1,1034 },
@@ -911,6 +915,10 @@ dissect_coap_options_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tr
 			dissect_coap_opt_uint(tvb, item, subtree, offset,
 			    opt_length, dissect_hf->hf.opt_observe_rsp);
 		}
+		break;
+	case COAP_OPT_HOP_LIMIT:
+		dissect_coap_opt_uint(tvb, item, subtree, offset,
+		    opt_length, dissect_hf->hf.opt_hop_limit);
 		break;
 	case COAP_OPT_ACCEPT:
 		dissect_coap_opt_ctype(tvb, item, subtree, offset,
