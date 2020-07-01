@@ -1040,6 +1040,7 @@ static int hf_gsm_a_rr_group_channel_description = -1;
 static int hf_gsm_a_rr_cdma2000_description = -1;
 static int hf_gsm_a_rr_si_2quater_extension_information = -1;
 static int hf_gsm_a_rr_3g_supplementary_parameters_description = -1;
+static int hf_gsm_a_rr_priority_and_eutran_param_description = -1;
 static int hf_gsm_a_rr_multiband_reporting_present = -1;
 static int hf_gsm_a_rr_report_priority_description = -1;
 static int hf_gsm_a_rr_tdd_reporting_offset_present = -1;
@@ -7378,7 +7379,7 @@ de_rr_si2quater_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo 
                               /* There is still room left in the Rest Octets IE */
                               if (gsm_rr_csn_HL_flag(tvb, subtree, 0, bit_offset++, hf_gsm_a_rr_additions_in_rel_8))
                               { /* Additions in Rel-8 */
-                                if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, hf_gsm_a_rr_3g_supplementary_parameters_description))
+                                if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, hf_gsm_a_rr_priority_and_eutran_param_description))
                                 {
                                   bit_offset += de_rr_priority_and_eutran_param_desc(tvb, subtree, bit_offset);
                                 }
@@ -14579,6 +14580,7 @@ proto_register_gsm_a_rr(void)
             { &hf_gsm_a_rr_700_reporting, { "700 Reporting", "gsm_a.rr.700_reporting", FT_BOOLEAN, BASE_NONE, TFS(&tfs_present_not_present), 0x00, NULL, HFILL }},
             { &hf_gsm_a_rr_810_reporting, { "810 Reporting", "gsm_a.rr.810_reporting", FT_BOOLEAN, BASE_NONE, TFS(&tfs_present_not_present), 0x00, NULL, HFILL }},
             { &hf_gsm_a_rr_3g_supplementary_parameters_description, { "3G Supplementary Parameters Description", "gsm_a.rr.3g_supplementary_parameters_description", FT_BOOLEAN, BASE_NONE, TFS(&tfs_present_not_present), 0x00, NULL, HFILL }},
+            { &hf_gsm_a_rr_priority_and_eutran_param_description, { "Priority and E-UTRAN Parameters Description", "gsm_a.rr.priority_and_eutran_param_description", FT_BOOLEAN, BASE_NONE, TFS(&tfs_present_not_present), 0x00, NULL, HFILL }},
             { &hf_gsm_a_rr_3g_csg_description, { "3G CSG Description", "gsm_a.rr.3g_csg_description", FT_BOOLEAN, BASE_NONE, TFS(&tfs_present_not_present), 0x00, NULL, HFILL }},
             { &hf_gsm_a_rr_lsa_id_type, { "Type", "gsm_a.rr.lsa_id_type", FT_BOOLEAN, BASE_NONE, TFS(&tfs_short_lsa_id_lsa_id), 0x00, NULL, HFILL }},
             { &hf_gsm_a_rr_additional_lsa_id, { "Additional LSA ID", "gsm_a.rr.additional_lsa_id", FT_BOOLEAN, BASE_NONE, TFS(&tfs_present_not_present), 0x00, NULL, HFILL }},
