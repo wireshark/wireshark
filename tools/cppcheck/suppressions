@@ -2,3 +2,5 @@ variableScope
 duplicateExpression
 invalidscanf
 noConstructor
+internalAstError
+
