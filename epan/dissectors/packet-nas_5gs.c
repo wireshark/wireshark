@@ -4389,8 +4389,8 @@ nas_5gs_mm_registration_accept(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
     ELEM_OPT_TLV(0x16, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - T3502 value");
     /*34    Emergency number list    Emergency number list     9.11.3.17    O    TLV    5-50*/
     ELEM_OPT_TLV(0x34, GSM_A_PDU_TYPE_DTAP, DE_EMERGENCY_NUM_LIST, NULL);
-    /*7A    Extended emergency number list    Extended emergency number list 9.11.3.24    O    TLV    TBD*/
-    ELEM_OPT_TLV(0x7A, NAS_PDU_TYPE_EMM, DE_EMM_EXT_EMERG_NUM_LIST, NULL);
+    /*7A    Extended emergency number list    Extended emergency number list 9.11.3.24    O    TLV-E    7-65538 */
+    ELEM_OPT_TLV_E(0x7A, NAS_PDU_TYPE_EMM, DE_EMM_EXT_EMERG_NUM_LIST, NULL);
     /*73    SOR transparent container    SOR transparent container 9.11.3.51    O    TLV-E    20-2048 */
     ELEM_OPT_TLV_E(0x73, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_SOR_TRASP_CONT, NULL);
     /*78    EAP message    EAP message 9.10.2.2    O    TLV-E    7-1503 */
