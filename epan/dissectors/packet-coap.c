@@ -847,10 +847,12 @@ dissect_coap_options_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tr
 		    opt_length, coinfo, dissect_hf->hf.opt_uri_query);
 		break;
 	case COAP_OPT_BLOCK2:
+		coinfo->block_option = 2;
 		dissect_coap_opt_block(tvb, item, subtree, offset,
 		    opt_length, coinfo, dissect_hf);
 		break;
 	case COAP_OPT_BLOCK1:
+		coinfo->block_option = 1;
 		dissect_coap_opt_block(tvb, item, subtree, offset,
 		    opt_length, coinfo, dissect_hf);
 		break;
@@ -1057,6 +1059,7 @@ dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 	offset += 2;
 
 	/* initialize the external value */
+	coinfo->block_option = 0;
 	coinfo->block_number = DEFAULT_COAP_BLOCK_NUMBER;
 	coinfo->block_mflag  = 0;
 	coinfo->uri_str_strbuf   = wmem_strbuf_sized_new(wmem_packet_scope(), 0, 1024);
@@ -1211,9 +1214,13 @@ dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 	/* add informations to the packet list */
 	if (coap_token_str != NULL)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", TKN:%s", coap_token_str);
-	if (coinfo->block_number != DEFAULT_COAP_BLOCK_NUMBER)
+	if (coinfo->block_number != DEFAULT_COAP_BLOCK_NUMBER) {
+		/* The M bit is used in Block1 Option in a request and in Block2 Option in a response */
+		gboolean mflag_is_used = (((coinfo->block_option == 1) && (code_class == 0)) ||
+					  ((coinfo->block_option == 2) && (code_class >= 2) && (code_class <= 5)));
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %sBlock #%u",
-				coinfo->block_mflag ? "" : "End of ", coinfo->block_number);
+				(coinfo->block_mflag || !mflag_is_used) ? "" : "End of ", coinfo->block_number);
+	}
 	if (wmem_strbuf_get_len(coinfo->uri_str_strbuf) > 0) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", wmem_strbuf_get_str(coinfo->uri_str_strbuf));
 		/* Add a generated protocol item as well */
