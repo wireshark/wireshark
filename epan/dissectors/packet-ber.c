@@ -4654,9 +4654,10 @@ proto_reg_handoff_ber(void)
     syntax_names[i].value = 0;
     syntax_names[i].strptr = NULL;
 
-    /* allow the dissection of BER/DER carried over a TCP transport
+    /* allow the dissection of BER/DER carried over a TCP/UDP transport
        by using "Decode As..." */
     dissector_add_for_decode_as_with_preference("tcp.port", ber_handle);
+    dissector_add_for_decode_as_with_preference("udp.port", ber_handle);
 
     ber_update_oids();
 }
