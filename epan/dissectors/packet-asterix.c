@@ -77,7 +77,23 @@ static gint hf_001_042 = -1;
 static gint hf_001_042_X = -1;
 static gint hf_001_042_Y = -1;
 static gint hf_001_050 = -1;
+static gint hf_001_050_V = -1;
+static gint hf_001_050_G = -1;
+static gint hf_001_050_L = -1;
+static gint hf_001_050_SQUAWK = -1;
 static gint hf_001_060 = -1;
+static gint hf_001_060_QA4 = -1;
+static gint hf_001_060_QA2 = -1;
+static gint hf_001_060_QA1 = -1;
+static gint hf_001_060_QB4 = -1;
+static gint hf_001_060_QB2 = -1;
+static gint hf_001_060_QB1 = -1;
+static gint hf_001_060_QC4 = -1;
+static gint hf_001_060_QC2 = -1;
+static gint hf_001_060_QC1 = -1;
+static gint hf_001_060_QD4 = -1;
+static gint hf_001_060_QD2 = -1;
+static gint hf_001_060_QD1 = -1;
 static gint hf_001_070 = -1;
 static gint hf_001_070_V = -1;
 static gint hf_001_070_G = -1;
@@ -2407,6 +2423,52 @@ static const FieldPart I001_042_X = { 16, 1.0/64.0, FIELD_PART_FLOAT, &hf_001_04
 static const FieldPart I001_042_Y = { 16, 1.0/64.0, FIELD_PART_FLOAT, &hf_001_042_Y, NULL };
 static const FieldPart *I001_042_PARTS[] = { &I001_042_X, &I001_042_Y, NULL };
 
+/* Mode-2 Code */
+static const value_string valstr_001_050_V[] = {
+    { 0, "Code validated" },
+    { 1, "Code not validated" },
+    { 0, NULL }
+};
+static const value_string valstr_001_050_G[] = {
+    { 0, "Default" },
+    { 1, "Garbled code" },
+    { 0, NULL }
+};
+static const value_string valstr_001_050_L[] = {
+    { 0, "Mode-2 code as derived from the reply of the transponder" },
+    { 1, "Smoothed Mode-2 code as provided by a local tracker" },
+    { 0, NULL }
+};
+static const FieldPart I001_050_V = { 1, 1.0, FIELD_PART_UINT, &hf_001_050_V, NULL };
+static const FieldPart I001_050_G = { 1, 1.0, FIELD_PART_UINT, &hf_001_050_G, NULL };
+static const FieldPart I001_050_L = { 1, 1.0, FIELD_PART_UINT, &hf_001_050_L, NULL };
+static const FieldPart I001_050_SQUAWK = { 12, 1.0, FIELD_PART_SQUAWK, &hf_001_050_SQUAWK, NULL };
+static const FieldPart *I001_050_PARTS[] = { &I001_050_V, &I001_050_G, &I001_050_L, &IXXX_1bit_spare, &I001_050_SQUAWK, NULL };
+
+/* Mode-2 Code Confidence Indicator */
+static const value_string valstr_001_060_QA[] = {
+    { 0, "High quality pulse" },
+    { 1, "Low quality pulse" },
+    { 0, NULL }
+};
+static const FieldPart I001_060_QA4 = { 1, 1.0, FIELD_PART_UINT, &hf_001_060_QA4, NULL };
+static const FieldPart I001_060_QA2 = { 1, 1.0, FIELD_PART_UINT, &hf_001_060_QA2, NULL };
+static const FieldPart I001_060_QA1 = { 1, 1.0, FIELD_PART_UINT, &hf_001_060_QA1, NULL };
+static const FieldPart I001_060_QB4 = { 1, 1.0, FIELD_PART_UINT, &hf_001_060_QB4, NULL };
+static const FieldPart I001_060_QB2 = { 1, 1.0, FIELD_PART_UINT, &hf_001_060_QB2, NULL };
+static const FieldPart I001_060_QB1 = { 1, 1.0, FIELD_PART_UINT, &hf_001_060_QB1, NULL };
+static const FieldPart I001_060_QC4 = { 1, 1.0, FIELD_PART_UINT, &hf_001_060_QC4, NULL };
+static const FieldPart I001_060_QC2 = { 1, 1.0, FIELD_PART_UINT, &hf_001_060_QC2, NULL };
+static const FieldPart I001_060_QC1 = { 1, 1.0, FIELD_PART_UINT, &hf_001_060_QC1, NULL };
+static const FieldPart I001_060_QD4 = { 1, 1.0, FIELD_PART_UINT, &hf_001_060_QD4, NULL };
+static const FieldPart I001_060_QD2 = { 1, 1.0, FIELD_PART_UINT, &hf_001_060_QD2, NULL };
+static const FieldPart I001_060_QD1 = { 1, 1.0, FIELD_PART_UINT, &hf_001_060_QD1, NULL };
+static const FieldPart *I001_060_PARTS[] = { &IXXX_4bit_spare,
+                                              &I001_060_QA4, &I001_060_QA2, &I001_060_QA1,
+                                              &I001_060_QB4, &I001_060_QB2, &I001_060_QB1,
+                                              &I001_060_QC4, &I001_060_QC2, &I001_060_QC1,
+                                              &I001_060_QD4, &I001_060_QD2, &I001_060_QD1, NULL };
+
 /* Mode-3/A Code */
 static const value_string valstr_001_070_V[] = {
     { 0, "Code validated" },
@@ -2530,8 +2592,8 @@ static const AsterixField I001_020 = { FX_UAP, 1, 0, 0, &hf_001_020, I001_020_PA
 static const AsterixField I001_030 = { FX, 1, 0, 0, &hf_001_030, I001_030_PARTS, { NULL } };
 static const AsterixField I001_040 = { FIXED, 4, 0, 0, &hf_001_040, I001_040_PARTS, { NULL } };
 static const AsterixField I001_042 = { FIXED, 4, 0, 0, &hf_001_042, I001_042_PARTS, { NULL } };
-static const AsterixField I001_050 = { FIXED, 2, 0, 0, &hf_001_050, NULL, { NULL } };
-static const AsterixField I001_060 = { FIXED, 2, 0, 0, &hf_001_060, NULL, { NULL } };
+static const AsterixField I001_050 = { FIXED, 2, 0, 0, &hf_001_050, I001_050_PARTS, { NULL } };
+static const AsterixField I001_060 = { FIXED, 2, 0, 0, &hf_001_060, I001_060_PARTS, { NULL } };
 static const AsterixField I001_070 = { FIXED, 2, 0, 0, &hf_001_070, I001_070_PARTS, { NULL } };
 static const AsterixField I001_080 = { FIXED, 2, 0, 0, &hf_001_080, I001_080_PARTS, { NULL } };
 static const AsterixField I001_090 = { FIXED, 2, 0, 0, &hf_001_090, I001_090_PARTS, { NULL } };
@@ -11940,7 +12002,23 @@ void proto_register_asterix (void)
         { &hf_001_042_X, { "X[NM]", "asterix.001_042_X", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_001_042_Y, { "Y[NM]", "asterix.001_042_Y", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_001_050, { "050, Mode-2 Code in Octal Representation", "asterix.001_050", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_001_050_V, { "V", "asterix.001_050_V", FT_UINT8, BASE_DEC, VALS (valstr_001_050_V), 0x80, NULL, HFILL } },
+        { &hf_001_050_G, { "G", "asterix.001_050_G", FT_UINT8, BASE_DEC, VALS (valstr_001_050_G), 0x40, NULL, HFILL } },
+        { &hf_001_050_L, { "L", "asterix.001_050_L", FT_UINT8, BASE_DEC, VALS (valstr_001_050_L), 0x20, NULL, HFILL } },
+        { &hf_001_050_SQUAWK, { "SQUAWK", "asterix.001_050_SQUAWK", FT_UINT16, BASE_OCT, NULL, 0x0fff, NULL, HFILL } },
         { &hf_001_060, { "060, Mode-2 Code Confidence Indicator", "asterix.001_060", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_001_060_QA4, { "QA4", "asterix.001_060_QA4", FT_UINT8, BASE_DEC, VALS (valstr_001_060_QA), 0x08, NULL, HFILL } },
+        { &hf_001_060_QA2, { "QA2", "asterix.001_060_QA2", FT_UINT8, BASE_DEC, VALS (valstr_001_060_QA), 0x04, NULL, HFILL } },
+        { &hf_001_060_QA1, { "QA1", "asterix.001_060_QA1", FT_UINT8, BASE_DEC, VALS (valstr_001_060_QA), 0x02, NULL, HFILL } },
+        { &hf_001_060_QB4, { "QB4", "asterix.001_060_QB4", FT_UINT8, BASE_DEC, VALS (valstr_001_060_QA), 0x01, NULL, HFILL } },
+        { &hf_001_060_QB2, { "QB2", "asterix.001_060_QB2", FT_UINT8, BASE_DEC, VALS (valstr_001_060_QA), 0x80, NULL, HFILL } },
+        { &hf_001_060_QB1, { "QB1", "asterix.001_060_QB1", FT_UINT8, BASE_DEC, VALS (valstr_001_060_QA), 0x40, NULL, HFILL } },
+        { &hf_001_060_QC4, { "QC4", "asterix.001_060_QC4", FT_UINT8, BASE_DEC, VALS (valstr_001_060_QA), 0x20, NULL, HFILL } },
+        { &hf_001_060_QC2, { "QC2", "asterix.001_060_QC2", FT_UINT8, BASE_DEC, VALS (valstr_001_060_QA), 0x10, NULL, HFILL } },
+        { &hf_001_060_QC1, { "QC1", "asterix.001_060_QC1", FT_UINT8, BASE_DEC, VALS (valstr_001_060_QA), 0x08, NULL, HFILL } },
+        { &hf_001_060_QD4, { "QD4", "asterix.001_060_QD4", FT_UINT8, BASE_DEC, VALS (valstr_001_060_QA), 0x04, NULL, HFILL } },
+        { &hf_001_060_QD2, { "QD2", "asterix.001_060_QD2", FT_UINT8, BASE_DEC, VALS (valstr_001_060_QA), 0x02, NULL, HFILL } },
+        { &hf_001_060_QD1, { "QD1", "asterix.001_060_QD1", FT_UINT8, BASE_DEC, VALS (valstr_001_060_QA), 0x01, NULL, HFILL } },
         { &hf_001_070, { "070, Mode-3/A Code in Octal Representation", "asterix.001_070", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_001_070_V, { "V", "asterix.001_070_V", FT_UINT8, BASE_DEC, VALS (valstr_001_070_V), 0x80, NULL, HFILL } },
         { &hf_001_070_G, { "G", "asterix.001_070_G", FT_UINT8, BASE_DEC, VALS (valstr_001_070_G), 0x40, NULL, HFILL } },
