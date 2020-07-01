@@ -288,16 +288,24 @@ ProtocolIE-Field/value ie_field_value
     /* Don't want elements inside container to write to info column */
     col_set_writable(actx->pinfo->cinfo, COL_INFO, FALSE);
     subtree = proto_item_add_subtree(actx->created_item, ett_ngap_TargetToSource_TransparentContainer);
-    switch(ngap_data->handover_type_value) {
-    case intra5gs:
-    case eps_to_5gs:
-      dissect_ngap_TargetNGRANNode_ToSourceNGRANNode_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
-      break;
-    case fivegs_to_eps:
-      dissect_s1ap_TargeteNB_ToSourceeNB_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
-      break;
-    default:
-      break;
+    if (ngap_data->procedure_code == id_HandoverPreparation) {
+      switch(ngap_data->handover_type_value) {
+      case intra5gs:
+      case eps_to_5gs:
+        dissect_ngap_TargetNGRANNode_ToSourceNGRANNode_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+        break;
+      case fivegs_to_eps:
+        dissect_s1ap_TargeteNB_ToSourceeNB_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+        break;
+      default:
+        break;
+      }
+    } else {
+      if (ngap_dissect_target_ng_ran_container_as == NGAP_NG_RAN_CONTAINER_GNB) {
+        dissect_ngap_TargetNGRANNode_ToSourceNGRANNode_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+      } else if (ngap_dissect_target_ng_ran_container_as == NGAP_NG_RAN_CONTAINER_NG_ENB) {
+        dissect_s1ap_TargeteNB_ToSourceeNB_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+      }
     }
     /* Enable writing of the column again */
     col_set_writable(actx->pinfo->cinfo, COL_INFO, TRUE);
