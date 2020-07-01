@@ -1,0 +1,425 @@
+commit 4ca52fd59c
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Tue Jun 30 11:50:19 2020 +0200
+
+    ASTERIX: Fix data item I002/070
+    
+    I002/070 dissection is broken in two ways
+    - According to spec the name is "Plot Count Values"
+    - The bitfield for IDENT is interpreted incorrectly
+    
+    Bug: 16663
+    Change-Id: I224a53bcecf11a3cbc98bfaa3533caf51bea21ec
+    Reviewed-on: https://code.wireshark.org/review/37615
+    Petri-Dish: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 47a1b736bdbbf52b819c0a6525728467fccce800)
+    Reviewed-on: https://code.wireshark.org/review/37621
+    Reviewed-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Petri-Dish: Jaap Keuter <jaap.keuter@xs4all.nl>
+
+commit 897cc8aa0e
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Jun 30 11:25:16 2020 -0700
+
+    Prep for 2.6.18.
+    
+    Change-Id: Ia698f7ba71c7ceec8383cd18ba7102d3061c2d7e
+    Reviewed-on: https://code.wireshark.org/review/37626
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 93caa0b145
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Fri Jun 26 22:10:17 2020 +0200
+
+    DOC: fix layout mergecap manual page
+    
+    Bug: 16652
+    Change-Id: I2c0e0363b3ea77a616191476d6e27cca1204b7cc
+    Reviewed-on: https://code.wireshark.org/review/37564
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 5bd9a50e27cb9c2b21bdfd621ed0294d4b9aaea3)
+    Reviewed-on: https://code.wireshark.org/review/37596
+
+commit 9599286395
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jun 28 08:57:20 2020 +0000
+
+    [Automatic update for 2020-06-28]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: Ieff602bb8d38a22a725dd6bb0cb5e219259500fd
+    Reviewed-on: https://code.wireshark.org/review/37572
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit b3e6def13c
+Author: Uli Heilmeier <uh@heilmeier.eu>
+Date:   Sat Jun 13 15:25:16 2020 +0200
+
+    TCP: show relative numbers only when tcp_analyze_seq is enabled
+    
+    Relative sequence numbers work only with tcp.analyze_sequence_numbers
+    is enabled. Therefore we should also show relative seq numbers only
+    when both options are enabled.
+    
+    Expert info for TFO works also only when tcp_analyze_seq is enabled.
+    
+    Bug: 16604
+    Change-Id: I0a535c3c8b07a7a7d2c42761df49b5e8ac5b7563
+    Reviewed-on: https://code.wireshark.org/review/37469
+    Petri-Dish: Anders Broman <a.broman58@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    Reviewed-on: https://code.wireshark.org/review/37550
+
+commit bff3da46c9
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sun Jun 21 16:14:25 2020 -0700
+
+    RTPS: set the "we have an entity ID" flag whenever the entity ID is set.
+    
+    Also, remove a comment leftover from an earlier uncommitted version of
+    these changes.
+    
+    Change-Id: I0990a186bc280e11a6d0fda05748f5871fb227f1
+    Reviewed-on: https://code.wireshark.org/review/37542
+    Reviewed-by: Guy Harris <gharris@sonic.net>
+    (backported from commit 74d7c3d14f0ad79dbf657d80fcfb68bc16cff717)
+    Reviewed-on: https://code.wireshark.org/review/37545
+
+commit 16a3280f0b
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sun Jun 21 12:01:07 2020 -0700
+
+    RTPS: don't use incompletely filled in GUIDs.
+    
+    Add to the GUID type a bitmask that indicates which fields have been
+    filled in; start it out as 0, and then set bits in it as fields get
+    filled in.
+    
+    Do not add a type mapping object to the hash table unless the GUID is
+    completely filled in, and don't look for a type mapping object in the
+    hash table with a GUID that hasn't been completely filled in as a key.
+    
+    Bug: 16642
+    Change-Id: I31db92238adcb2ec2d70b2650e41b14d99001908
+    Reviewed-on: https://code.wireshark.org/review/37537
+    Petri-Dish: Guy Harris <gharris@sonic.net>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Guy Harris <gharris@sonic.net>
+    (backported from commit f97e20a011144a56bf72dd92c49167d17713a909)
+    Reviewed-on: https://code.wireshark.org/review/37541
+
+commit 41efa414ed
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jun 21 08:52:59 2020 +0000
+
+    [Automatic update for 2020-06-21]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: I5eaf9637851dcbc617cce04d5ad1c0988f91a62b
+    Reviewed-on: https://code.wireshark.org/review/37534
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 64522eb9e4
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sat Jun 20 03:14:43 2020 -0700
+
+    RTPS: initialize the fields_visited memer of a new type mapping object.
+    
+    Bug: 16639
+    Change-Id: Iac8957b3e2ebd41b636d5853c359954cff796527
+    Reviewed-on: https://code.wireshark.org/review/37521
+    Petri-Dish: Guy Harris <gharris@sonic.net>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Guy Harris <gharris@sonic.net>
+    (cherry picked from commit 2eb87432f71cee0d546a1d2178ad9c531ec656ff)
+    Reviewed-on: https://code.wireshark.org/review/37524
+
+commit c222f478ed
+Author: Guy Harris <gharris@sonic.net>
+Date:   Thu Jun 18 11:44:01 2020 -0700
+
+    radiotap: make tables that we modify automatic rather than static.
+    
+    Another instance of this problem that showed up when working on the fix
+    to the data types of those tables (fixing the data types mean that these
+    errors cause the conpile to fail; as indicated, that's one reason to fix
+    them).
+    
+    Change-Id: Ia1953b95968101f27fedd98a5fc2854101779deb
+    Reviewed-on: https://code.wireshark.org/review/37509
+    Reviewed-by: Guy Harris <gharris@sonic.net>
+    (cherry picked from commit fdf9610b84af9036d7a24ec4b46ffeb68cb66060)
+    Reviewed-on: https://code.wireshark.org/review/37513
+
+commit f460c3bb7d
+Author: Guy Harris <gharris@sonic.net>
+Date:   Thu Jun 18 00:27:31 2020 -0700
+
+    radiotap: make tables that we modify automatic rather than static.
+    
+    The arrays of pointers to header field hf_ values were getting
+    overwritten if the fields in question are unknown; that meant that, in
+    all future dissections, they would be dissected as unknown *even for
+    packets where they are known*.
+    
+    Make them auto arrays, instead, so that each call to the dissector has
+    its own copy, properly initialized at run time, that it can scribble
+    over as it chooses without damaging the array for the next call.
+    
+    This involves a cast to work around the type of the array argument being
+    "const int **", which means "pointer to pointer to const int",
+    not "pointer to const pointer to (non-const) int".  That meant that the
+    scribbling on the static array was *not* detected at compile time.
+    
+    Fixing the type is a *lot* of work, but may catch other instances of
+    this problem, and may prevent future instances of it.  That's a project
+    for a separate commit, however.
+    
+    Bug: 16636
+    Change-Id: I985157063488739bb59f87780c017e94e2380343
+    Reviewed-on: https://code.wireshark.org/review/37502
+    Petri-Dish: Guy Harris <gharris@sonic.net>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Guy Harris <gharris@sonic.net>
+    (cherry picked from commit 7a526325e9568a0722798dc1f386576464744e77)
+    Reviewed-on: https://code.wireshark.org/review/37507
+
+commit c7b4dddf90
+Author: Sébastien Deronne <sebastien.deronne@gmail.com>
+Date:   Wed Sep 11 20:55:39 2019 +0200
+
+    802.11 radiotap: Fix wrong data structure in the dissector for HE TRIGGER frames
+    
+    (patch from Getachew Redieteab)
+    
+    Change-Id: I180b20b513e901c2c157da9a2318a90c91fd040b
+    Reviewed-on: https://code.wireshark.org/review/34505
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Petri-Dish: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit 841c27c5a0bcbc1a91cae1d94b8c3501dcf59b01)
+    Reviewed-on: https://code.wireshark.org/review/37506
+    Reviewed-by: Guy Harris <gharris@sonic.net>
+
+commit db773f8d17
+Author: Guy Harris <gharris@sonic.net>
+Date:   Wed Jun 17 21:21:16 2020 -0700
+
+    radiotap: fix typo.
+    
+    Prof. Doppler's name is spelled with two "p"s.
+    
+    Change-Id: Ia25d45b0a890be8c954a67b1ce5860753c1de25d
+    Reviewed-on: https://code.wireshark.org/review/37498
+    Reviewed-by: Guy Harris <gharris@sonic.net>
+    (cherry picked from commit 8b168e998f3c0e8f6bb31a684bc44b40b7b541c7)
+    Reviewed-on: https://code.wireshark.org/review/37501
+
+commit 16fdb91e99
+Author: Guy Harris <gharris@sonic.net>
+Date:   Tue Jun 16 01:32:41 2020 -0700
+
+    proto: clean up comments.
+    
+    Say "attempt to XXX", as the attempt might not succeed.
+    
+    Fix a copied-and-pasted comment to reflect what
+    proto_is_frame_protocol() does.
+    
+    Change-Id: Ia16a98064b87001f019fda43f2db2970a89e355e
+    Reviewed-on: https://code.wireshark.org/review/37486
+    Reviewed-by: Guy Harris <gharris@sonic.net>
+    (cherry picked from commit 67e70dcad2dc219085ea044752fde0d4bce991a4)
+    Reviewed-on: https://code.wireshark.org/review/37489
+
+commit 629a821176
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jun 14 08:51:04 2020 +0000
+
+    [Automatic update for 2020-06-14]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: I60ce23328baa2b877b907e70f5679f6b850a3ad0
+    Reviewed-on: https://code.wireshark.org/review/37474
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 6737df72fc
+Author: Peter Wu <peter@lekensteyn.nl>
+Date:   Mon Dec 16 20:01:13 2019 +0100
+
+    CMake: fix CMake 3.16 warning about CMP0071
+    
+    Prevent a file from being processed by moc/uic as it is not needed. This
+    addresses a new CMake warning "Policy CMP0071 is not set: Let AUTOMOC
+    and AUTOUIC process GENERATED files."
+    
+    Change-Id: I8ed458099cdf29472dad29168786cf16b95595fa
+    Reviewed-on: https://code.wireshark.org/review/35468
+    Petri-Dish: Peter Wu <peter@lekensteyn.nl>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    (cherry picked from commit 5cfd8bca953e7cd87bd9253609c63f86e6c2009b)
+    Reviewed-on: https://code.wireshark.org/review/37436
+    Petri-Dish: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+
+commit 983e1434cf
+Author: Guy Harris <gharris@sonic.net>
+Date:   Tue Jun 9 15:56:44 2020 -0700
+
+    assa_r3: don't use proto_tree_add_string() on a non-string field.
+    
+    Do as we do elsewhere; use proto_tree_add_none_format().
+    
+    (Should this be done with an expert info?)
+    
+    Change-Id: I7f4514b6f4b6687b21c1912292f1153593bf8440
+    Reviewed-on: https://code.wireshark.org/review/37416
+    Petri-Dish: Guy Harris <gharris@sonic.net>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Guy Harris <gharris@sonic.net>
+    (cherry picked from commit cf66efa82e1b2cad44653be2f1f53661d828a79f)
+    Reviewed-on: https://code.wireshark.org/review/37422
+
+commit 18d328eb2f
+Author: Dario Lombardo <lomato@gmail.com>
+Date:   Fri Mar 15 23:12:21 2019 +0100
+
+    assa_r3: fix field type.
+    
+    Change-Id: I357019216d858f08d43e4c4118584c7a530ddb73
+    Reviewed-on: https://code.wireshark.org/review/32448
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    Petri-Dish: Anders Broman <a.broman58@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Dario Lombardo <lomato@gmail.com>
+    (cherry picked from commit 694d7fb349dc97c334efc569e76c43332235dfce)
+    Reviewed-on: https://code.wireshark.org/review/37420
+    Reviewed-by: Guy Harris <gharris@sonic.net>
+
+commit 9c67df022d
+Author: Guy Harris <gharris@sonic.net>
+Date:   Mon Jun 8 01:23:37 2020 -0700
+
+    icmp: fix indentation.
+    
+    Change-Id: I2a9e4ae098fd3c71cc4bfbf5ee56507933a205b7
+    Reviewed-on: https://code.wireshark.org/review/37402
+    Reviewed-by: Guy Harris <gharris@sonic.net>
+    (cherry picked from commit bc21aa158c1394e16c18038b27c72c2996072ab5)
+    Reviewed-on: https://code.wireshark.org/review/37405
+
+commit 02301b119a
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jun 7 08:55:47 2020 +0000
+
+    [Automatic update for 2020-06-07]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: I3b937044e9fc674fe73c272194f61de143898b0b
+    Reviewed-on: https://code.wireshark.org/review/37393
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit a2d88fd769
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Thu Jun 4 17:19:51 2020 +0200
+
+    GTPv2: the header sequence number is 3 bytes long, display it as FT_UINT24
+    
+    Change-Id: Id47b720a1ac4e11c0d3c4322fc4929e3d6ab8e9d
+    Reviewed-on: https://code.wireshark.org/review/37379
+    Reviewed-by: Pascal Quantin <pascal@wireshark.org>
+    Petri-Dish: Pascal Quantin <pascal@wireshark.org>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+    (cherry picked from commit 1bab3c4a0f61ef6c1532d57275aaa33c50042636)
+    Reviewed-on: https://code.wireshark.org/review/37382
+    Petri-Dish: Anders Broman <a.broman58@gmail.com>
+
+commit 3a4dfdc5b1
+Author: Pau Espin Pedrol <pespin@sysmocom.de>
+Date:   Tue Jun 2 17:08:08 2020 +0200
+
+    GSM RR: Fix wrong expert warning about missing P1 Rest Octets
+    
+    3GPP TS 04.08 sec 9.1.22 "Paging request type 1" states that "P1 Rest
+    Octets" is (M)andatory, but then in the same table states its length
+    ranges from 0 to 17, which means it can actually be missing on some
+    cases:
+    "The sum of the length of this IE and the L2 Pseudo Length of the
+    message equals 22."
+    
+    So that happens (l2 plen = 22) for instance when 2 IMSIs are provided in
+    a Paging Request Type 1 message. In that case, we shouldn't be warning
+    about the packet being malformed having the IE missing, since it's
+    actually expected.
+    
+    The l2 Pseudo Length is shifter 2 bits because that's how it's defined
+    in the spec (sec 10.5.2.19).
+    
+    Change-Id: I3dcb1d23c7d6fd2f1e370462481086516f24c7bb
+    Reviewed-on: https://code.wireshark.org/review/37361
+    Reviewed-by: Vadim Yanitskiy <axilirator@gmail.com>
+    Petri-Dish: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Harald Welte <laforge@gnumonks.org>
+    Reviewed-by: Pascal Quantin <pascal@wireshark.org>
+    (cherry picked from commit 469b0b2765ccfb63be1eb1bb3219d0d831094884)
+    Reviewed-on: https://code.wireshark.org/review/37365
+
+commit 792f274bd6
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun May 31 08:57:46 2020 +0000
+
+    [Automatic update for 2020-05-31]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: If90eb4dcbc33884d3b06ef79174dffec88e6b7af
+    Reviewed-on: https://code.wireshark.org/review/37342
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 1a41bba710
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun May 24 08:56:03 2020 +0000
+
+    [Automatic update for 2020-05-24]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: I89c4a290c3d93bbe86bd24c067cdb5169d4a0bd5
+    Reviewed-on: https://code.wireshark.org/review/37296
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit b45b29e92c
+Author: Guy Harris <gharris@sonic.net>
+Date:   Wed May 20 04:17:06 2020 -0700
+
+    peekremote: go to the Wayback Machine for a URL.
+    
+    That URL is now dead - Wildpackets is now (part of) LiveAction.
+    
+    Change-Id: I2dea461fa6e97034d9070cef397038bf606de98b
+    Reviewed-on: https://code.wireshark.org/review/37263
+    Reviewed-by: Guy Harris <gharris@sonic.net>
+    (cherry picked from commit 1aac1aa09c6a0eeb14132dc55118fc6de45b52b2)
+    Reviewed-on: https://code.wireshark.org/review/37266
+
+commit 72bf3da1db
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue May 19 13:34:57 2020 -0700
+
+    2.6.17 → 2.6.18.
+    
+    Change-Id: Ib88eb7aecef1165d4a6c240e286b40060bda3326
+    Reviewed-on: https://code.wireshark.org/review/37260
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>

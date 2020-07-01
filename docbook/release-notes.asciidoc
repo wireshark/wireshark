@@ -61,6 +61,7 @@ There are no new protocols in this release.
 // Add one protocol per line between the -- delimiters.
 [commaize]
 --
+ASTERIX
 GSM RR
 GTPv2
 R3
