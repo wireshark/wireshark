@@ -38778,19 +38778,19 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tag_rsnx_length,
       {"RSNX Length", "wlan.rsnx.length",
-       FT_UINT8, BASE_DEC, NULL, 0xF0, NULL, HFILL }},
+       FT_UINT8, BASE_DEC, NULL, 0x0F, NULL, HFILL }},
 
     {&hf_ieee80211_tag_rsnx_protected_twt_operations_support,
       {"Protected TWT Operations Support", "wlan.rsnx.protected_twt_operations_support",
-       FT_UINT8, BASE_DEC, NULL, 0x08, NULL, HFILL }},
+       FT_UINT8, BASE_DEC, NULL, 0x10, NULL, HFILL }},
 
     {&hf_ieee80211_tag_rsnx_sae_hash_to_element,
       {"SAE Hash to element", "wlan.rsnx.sae_hash_to_element",
-       FT_UINT8, BASE_DEC, NULL, 0x04, NULL, HFILL }},
+       FT_UINT8, BASE_DEC, NULL, 0x20, NULL, HFILL }},
 
     {&hf_ieee80211_tag_rsnx_reserved_b6b7,
       {"Reserved", "wlan.rsnx.reserved",
-       FT_UINT8, BASE_HEX, NULL, 0x03, NULL, HFILL }},
+       FT_UINT8, BASE_HEX, NULL, 0xC0, NULL, HFILL }},
 
     {&hf_ieee80211_tag_rsnx_reserved,
       {"Reserved", "wlan.rsnx.reserved",
