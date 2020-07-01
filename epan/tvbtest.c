@@ -301,7 +301,7 @@ run_tests(void)
 	guint		comp_reported_length[6];
 	int		len;
 
-	tvb_parent = tvb_new_real_data("", 0, 0);
+	tvb_parent = tvb_new_real_data((const guint8*)"", 0, 0);
 	for (i = 0; i < 3; i++) {
 		small[i] = g_new(guint8, 16);
 

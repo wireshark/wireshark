@@ -27,26 +27,26 @@ typedef struct
     const gchar *string;
     const gchar *resolved;
     guint encoded_len;
-    const gchar *encoded;
+    const guint8 *encoded;
     guint subids_len;
     guint32 subids[];
 } example_s;
 
 DIAG_OFF_PEDANTIC
-example_s ex1 = {"2.1.1", "joint-iso-itu-t.1.1", 2, "\x51\x01", 3, {2,1,1} };
-example_s ex2rel = {".81.1", ".81.1", 2, "\x51\x01", 2, {81,1} };
+example_s ex1 = {"2.1.1", "joint-iso-itu-t.1.1", 2, (const guint8 *)"\x51\x01", 3, {2,1,1} };
+example_s ex2rel = {".81.1", ".81.1", 2, (const guint8*)"\x51\x01", 2, {81,1} };
 example_s ex3 = {"2.1.127.16383.2097151.268435455.128.16384.2097152.268435456",
     "joint-iso-itu-t.1.127.16383.2097151.268435455.128.16384.2097152.268435456",
-    25, "\x51\x7f\xff\x7f\xff\xff\x7f\xff\xff\xff\x7f\x81\x00\x81\x80\x00\x81\x80\x80\x00\x81\x80\x80\x80\x00",
+    25, (const guint8*)"\x51\x7f\xff\x7f\xff\xff\x7f\xff\xff\xff\x7f\x81\x00\x81\x80\x00\x81\x80\x80\x00\x81\x80\x80\x80\x00",
     10, { 2, 1, 0x7F, 0x3FFF, 0x1FFFFF, 0x0FFFFFFF, 1+0x7F, 1+0x3FFF, 1+0x1FFFFF, 1+0x0FFFFFFF} };
 
-example_s ex4 = {"2.1", "joint-iso-itu-t.1", 1, "\x51", 2, {2,1} };
+example_s ex4 = {"2.1", "joint-iso-itu-t.1", 1, (const guint8*)"\x51", 2, {2,1} };
 example_s ex5 = {"2", "joint-iso-itu-t", 0, NULL, 1, {2} };
 example_s ex6rel = {".81.127.16383.2097151.268435455.128.16384.2097152.268435456",
     ".81.127.16383.2097151.268435455.128.16384.2097152.268435456",
-    25, "\x51\x7f\xff\x7f\xff\xff\x7f\xff\xff\xff\x7f\x81\x00\x81\x80\x00\x81\x80\x80\x00\x81\x80\x80\x80\x00",
+    25, (const guint8*)"\x51\x7f\xff\x7f\xff\xff\x7f\xff\xff\xff\x7f\x81\x00\x81\x80\x00\x81\x80\x80\x00\x81\x80\x80\x80\x00",
     9, { 81, 0x7F, 0x3FFF, 0x1FFFFF, 0x0FFFFFFF, 1+0x7F, 1+0x3FFF, 1+0x1FFFFF, 1+0x0FFFFFFF} };
-example_s ex7 = {"2.1.1", "joint-iso-itu-t.asn1.basic-encoding", 2, "\x51\x01", 3, {2,1,1} };
+example_s ex7 = {"2.1.1", "joint-iso-itu-t.asn1.basic-encoding", 2, (const guint8*)"\x51\x01", 3, {2,1,1} };
 DIAG_ON_PEDANTIC
 
 /*
