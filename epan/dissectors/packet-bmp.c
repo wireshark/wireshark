@@ -13,6 +13,7 @@
  * RFC7854 BGP Monitoring Protocol
  * RFC8671 Support for Adj-RIB-Out in the BGP Monitoring Protocol (BMP)
  * draft-ietf-grow-bmp-local-rib-06 Support for Local RIB in BGP Monitoring Protocol (BMP)
+ * draft-xu-grow-bmp-route-policy-attr-trace-04 BGP Route Policy and Attribute Trace Using BMP
  */
 
 #include "config.h"
@@ -37,6 +38,7 @@ void proto_reg_handoff_bmp(void);
 #define BMP_MSG_TYPE_INIT               0x04    /* Initiation Message */
 #define BMP_MSG_TYPE_TERM               0x05    /* Termination Message */
 #define BMP_MSG_TYPE_ROUTE_MIRRORING    0x06    /* Route Mirroring */
+#define BMP_MSG_TYPE_ROUTE_POLICY       0x64    /* Route Policy and Attribute Trace Message */
 
 /* BMP Initiation Message Types */
 #define BMP_INIT_INFO_STRING            0x00    /* String */
@@ -102,6 +104,13 @@ void proto_reg_handoff_bmp(void);
 #define BMP_TERM_REASON_REDUNDANT       0x03    /* Redundant connection */
 #define BMP_TERM_REASON_PERM_CLOSE      0x04    /* Session permanently administratively closed */
 
+/* BMP Route Policy TLV */
+#define BMP_ROUTE_POLICY_TLV_VRF            0x00
+#define BMP_ROUTE_POLICY_TLV_POLICY         0x01
+#define BMP_ROUTE_POLICY_TLV_PRE_POLICY     0x02
+#define BMP_ROUTE_POLICY_TLV_POST_POLICY    0x03
+#define BMP_ROUTE_POLICY_TLV_STRING         0x04
+
 static const value_string bmp_typevals[] = {
     { BMP_MSG_TYPE_ROUTE_MONITORING,    "Route Monitoring" },
     { BMP_MSG_TYPE_STAT_REPORT,         "Statistics Report" },
@@ -110,6 +119,7 @@ static const value_string bmp_typevals[] = {
     { BMP_MSG_TYPE_INIT,                "Initiation Message" },
     { BMP_MSG_TYPE_TERM,                "Termination Message" },
     { BMP_MSG_TYPE_ROUTE_MIRRORING,     "Route Mirroring" },
+    { BMP_MSG_TYPE_ROUTE_POLICY,        "Route Policy and Attribute Trace Message" },
     { 0, NULL }
 };
 
@@ -174,6 +184,28 @@ static const value_string stat_typevals[] = {
     { BMP_STAT_ROUTES_POST_ADJ_RIB_OUT,     "Routes in post-policy Adj-RIB-Out" },
     { BMP_STAT_ROUTES_PRE_PER_ADJ_RIB_OUT,  "Routes in per-AFI/SAFI pre-policy Adj-RIB-Out" },
     { BMP_STAT_ROUTES_POST_PER_ADJ_RIB_OUT, "Routes in per-AFI/SAFI post-policy Adj RIB-Out" },
+    { 0, NULL }
+};
+
+static const value_string route_policy_tlv_typevals[] = {
+    { BMP_ROUTE_POLICY_TLV_VRF,         "VRF/Table" },
+    { BMP_ROUTE_POLICY_TLV_POLICY,      "Policy TLV" },
+    { BMP_ROUTE_POLICY_TLV_PRE_POLICY,  "Pre Policy Attribute" },
+    { BMP_ROUTE_POLICY_TLV_POST_POLICY, "Post Policy Attribute" },
+    { BMP_ROUTE_POLICY_TLV_STRING,      "String" },
+    { 0, NULL }
+};
+
+static const value_string route_policy_tlv_policy_class_typevals[] = {
+    { 0, "Inbound policy" },
+    { 1, "Outbound policy" },
+    { 2, "Multi-protocol Redistribute" },
+    { 3, "Cross-VRF Redistribute" },
+    { 4, "VRF import" },
+    { 5, "VRF export" },
+    { 6, "Network" },
+    { 7, "Aggregation" },
+    { 8, "Route Withdraw" },
     { 0, NULL }
 };
 
@@ -261,6 +293,55 @@ static int hf_term_len = -1;
 static int hf_term_info = -1;
 static int hf_term_reason = -1;
 
+/* BMP Route Policy */
+static int hf_route_policy_flags = -1;
+static int hf_route_policy_flags_ipv6 = -1;
+static int hf_route_policy_flags_res = -1;
+static int hf_route_policy_rd = -1;
+static int hf_route_policy_prefix_length = -1;
+static int hf_route_policy_prefix_ipv4 = -1;
+static int hf_route_policy_prefix_reserved = -1;
+static int hf_route_policy_prefix_ipv6 = -1;
+static int hf_route_policy_route_origin = -1;
+static int hf_route_policy_event_count = -1;
+static int hf_route_policy_total_event_length = -1;
+static int hf_route_policy_single_event_length = -1;
+static int hf_route_policy_event_index = -1;
+static int hf_route_policy_timestamp_sec = -1;
+static int hf_route_policy_timestamp_msec = -1;
+static int hf_route_policy_path_identifier = -1;
+static int hf_route_policy_afi  = -1;
+static int hf_route_policy_safi  = -1;
+static int hf_route_policy_tlv  = -1;
+static int hf_route_policy_tlv_type  = -1;
+static int hf_route_policy_tlv_length  = -1;
+static int hf_route_policy_tlv_value  = -1;
+static int hf_route_policy_tlv_vrf_table_id  = -1;
+static int hf_route_policy_tlv_vrf_table_name = -1;
+static int hf_route_policy_tlv_policy_flags = -1;
+static int hf_route_policy_tlv_policy_flags_m  = -1;
+static int hf_route_policy_tlv_policy_flags_p = -1;
+static int hf_route_policy_tlv_policy_flags_d = -1;
+static int hf_route_policy_tlv_policy_flags_res = -1;
+static int hf_route_policy_tlv_policy_count = -1;
+static int hf_route_policy_tlv_policy_class = -1;
+static int hf_route_policy_tlv_policy_peer_ipv4 = -1;
+static int hf_route_policy_tlv_policy_peer_ipv6 = -1;
+static int hf_route_policy_tlv_policy_peer_reserved = -1;
+static int hf_route_policy_tlv_policy_peer_router_id = -1;
+static int hf_route_policy_tlv_policy_peer_as = -1;
+static int hf_route_policy_tlv_policy = -1;
+static int hf_route_policy_tlv_policy_name_length = -1;
+static int hf_route_policy_tlv_policy_item_id_length = -1;
+static int hf_route_policy_tlv_policy_name = -1;
+static int hf_route_policy_tlv_policy_item_id = -1;
+static int hf_route_policy_tlv_policy_flag = -1;
+static int hf_route_policy_tlv_policy_flag_c = -1;
+static int hf_route_policy_tlv_policy_flag_r = -1;
+static int hf_route_policy_tlv_policy_flag_res2 = -1;
+
+static int hf_route_policy_tlv_string  = -1;
+
 static gint ett_bmp = -1;
 static gint ett_bmp_route_monitoring = -1;
 static gint ett_bmp_stat_report = -1;
@@ -276,6 +357,10 @@ static gint ett_bmp_term = -1;
 static gint ett_bmp_term_type = -1;
 static gint ett_bmp_term_types = -1;
 static gint ett_bmp_route_mirroring = -1;
+static gint ett_bmp_route_policy_flags = -1;
+static gint ett_bmp_route_policy_tlv = -1;
+static gint ett_bmp_route_policy_tlv_policy_flags = -1;
+static gint ett_bmp_route_policy_tlv_policy = -1;
 
 static expert_field ei_stat_data_unknown = EI_INIT;
 
@@ -693,6 +778,281 @@ dissect_bmp_init(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, int of
 }
 
 /*
+   +---------------------------------------------------------------+
+   |                       Single event length                     |
+   +---------------------------------------------------------------+
+   |                           Event index                         |
+   +---------------------------------------------------------------+
+   |                       Timestamp(seconds)                      |
+   +---------------------------------------------------------------+
+   |                       Timestamp(microseconds)                 |
+   +---------------------------------------------------------------+
+   |                        Path Identifier                        |
+   +---------------------------------------------------------------+
+   |                              AFI                              |
+   +---------------------------------------------------------------+
+   |                              SAFI                             |
+   +---------------------------------------------------------------+
+   |                          VRF/Table TLV                        |
+   +---------------------------------------------------------------+
+   |                            Policy TLV                         |
+   +---------------------------------------------------------------+
+   |                     Pre Policy Attribute TLV                  |
+   +---------------------------------------------------------------+
+   |                     Post Policy Attribute TLV                 |
+   +---------------------------------------------------------------+
+   |                            String TLV                         |
+   +---------------------------------------------------------------+
+*/
+
+static int
+dissect_bmp_route_policy_event(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, int offset)
+{
+    guint32 single_event_length;
+
+    proto_tree_add_item_ret_uint(tree, hf_route_policy_single_event_length, tvb, offset, 2, ENC_NA, &single_event_length);
+    offset += 2;
+    single_event_length -=2;
+
+    proto_tree_add_item(tree, hf_route_policy_event_index, tvb, offset, 1, ENC_NA);
+    offset += 1;
+    single_event_length -=1;
+
+    proto_tree_add_item(tree, hf_route_policy_timestamp_sec, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    single_event_length -=4;
+
+    proto_tree_add_item(tree, hf_route_policy_timestamp_msec, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    single_event_length -=4;
+
+    proto_tree_add_item(tree, hf_route_policy_path_identifier, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    single_event_length -=4;
+
+    proto_tree_add_item(tree, hf_route_policy_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    single_event_length -=2;
+
+    proto_tree_add_item(tree, hf_route_policy_safi, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    single_event_length -=1;
+
+    while (single_event_length > 0) {
+        guint32 type, length;
+        proto_item *tlv_item;
+        proto_tree *tlv_tree;
+        tlv_item = proto_tree_add_item(tree, hf_route_policy_tlv, tvb, offset, 2+2, ENC_NA);
+        tlv_tree = proto_item_add_subtree(tlv_item, ett_bmp_route_policy_tlv);
+
+        proto_tree_add_item_ret_uint(tlv_tree, hf_route_policy_tlv_type, tvb, offset, 2, ENC_BIG_ENDIAN, &type);
+        offset += 2;
+        single_event_length -= 2;
+
+        proto_tree_add_item_ret_uint(tlv_tree, hf_route_policy_tlv_length, tvb, offset, 2, ENC_BIG_ENDIAN, &length);
+        offset += 2;
+        single_event_length -= 2;
+
+        proto_item_append_text(tlv_item, ": (t=%d,l=%d) %s", type, length, val_to_str(type, route_policy_tlv_typevals, "Unknown TLV Type (%02d)") );
+        proto_item_set_len(tlv_item, 2 + 2 + length);
+
+        proto_tree_add_item(tlv_tree, hf_route_policy_tlv_value, tvb, offset, length, ENC_NA);
+        switch(type){
+            case BMP_ROUTE_POLICY_TLV_VRF: {
+                proto_tree_add_item(tlv_tree, hf_route_policy_tlv_vrf_table_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tlv_tree, hf_route_policy_tlv_vrf_table_name, tvb, offset+4, length-4, ENC_ASCII|ENC_NA);
+                offset += length;
+                single_event_length -=length;
+            }
+            break;
+            case BMP_ROUTE_POLICY_TLV_POLICY: {
+                guint8 flags;
+                guint32 policy_count;
+                static int * const route_policy_tlv_policy_flags[] = {
+                    &hf_route_policy_tlv_policy_flags_m,
+                    &hf_route_policy_tlv_policy_flags_p,
+                    &hf_route_policy_tlv_policy_flags_d,
+                    &hf_route_policy_tlv_policy_flags_res,
+                    NULL
+                };
+                static int * const route_policy_tlv_policy_flag[] = {
+                    &hf_route_policy_tlv_policy_flag_c,
+                    &hf_route_policy_tlv_policy_flag_r,
+                    &hf_route_policy_tlv_policy_flag_res2,
+                    NULL
+                };
+
+                flags = tvb_get_guint8(tvb, offset);
+                proto_tree_add_bitmask(tlv_tree, tvb, offset, hf_route_policy_tlv_policy_flags, ett_bmp_route_policy_tlv_policy_flags, route_policy_tlv_policy_flags, ENC_NA);
+                offset += 1;
+                proto_tree_add_item_ret_uint(tlv_tree, hf_route_policy_tlv_policy_count, tvb, offset, 1, ENC_BIG_ENDIAN, &policy_count);
+                offset += 1;
+
+                proto_tree_add_item(tlv_tree, hf_route_policy_tlv_policy_class, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+
+                if(flags & BMP_PEER_FLAG_IPV6){
+                    proto_tree_add_item(tlv_tree, hf_route_policy_tlv_policy_peer_ipv6, tvb, offset, 16, ENC_NA);
+                    offset += 16;
+                } else {
+                    proto_tree_add_item(tlv_tree, hf_route_policy_tlv_policy_peer_reserved, tvb, offset, 12, ENC_NA);
+                    offset += 12;
+                    proto_tree_add_item(tlv_tree, hf_route_policy_tlv_policy_peer_ipv4, tvb, offset, 4, ENC_NA);
+                    offset += 4;
+                }
+
+                proto_tree_add_item(tlv_tree, hf_route_policy_tlv_policy_peer_router_id, tvb, offset, 4, ENC_NA);
+                offset += 4;
+
+                proto_tree_add_item(tlv_tree, hf_route_policy_tlv_policy_peer_as, tvb, offset, 4, ENC_NA);
+                offset += 4;
+
+                while(policy_count){
+                    proto_item *policy_item;
+                    proto_tree *policy_tree;
+                    const guint8 *policy_name, *policy_id;
+                    guint32 policy_name_length, policy_item_id_length;
+
+                    policy_item = proto_tree_add_item(tlv_tree, hf_route_policy_tlv_policy, tvb, offset, 2+2, ENC_NA);
+                    policy_tree = proto_item_add_subtree(policy_item, ett_bmp_route_policy_tlv_policy);
+
+
+                    proto_tree_add_item_ret_uint(policy_tree, hf_route_policy_tlv_policy_name_length, tvb, offset, 2, ENC_NA, &policy_name_length);
+                    offset += 2;
+
+                    proto_tree_add_item_ret_uint(policy_tree, hf_route_policy_tlv_policy_item_id_length, tvb, offset, 2, ENC_NA, &policy_item_id_length);
+                    offset += 2;
+
+                    proto_item_append_text(policy_tree, ": (t=%d,l=%d)", policy_name_length, policy_item_id_length);
+                    proto_item_set_len(policy_tree, 2 + 2 + policy_name_length + policy_item_id_length );
+
+                    proto_tree_add_item_ret_string(policy_tree, hf_route_policy_tlv_policy_name, tvb, offset, policy_name_length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &policy_name);
+                    proto_item_append_text(policy_tree, " name: %s", policy_name);
+                    offset += policy_name_length;
+
+                    proto_tree_add_item_ret_string(policy_tree, hf_route_policy_tlv_policy_item_id, tvb, offset, policy_item_id_length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &policy_id);
+                    proto_item_append_text(policy_tree, " id: %s", policy_id);
+                    offset += policy_item_id_length;
+
+                    proto_tree_add_bitmask(policy_tree, tvb, offset, hf_route_policy_tlv_policy_flag, ett_bmp_route_policy_tlv_policy_flags, route_policy_tlv_policy_flag, ENC_NA);
+                    offset += 1;
+
+                    policy_count--;
+                }
+                single_event_length -= length;
+            }
+            break;
+            case BMP_ROUTE_POLICY_TLV_PRE_POLICY: {
+                dissect_bgp_path_attr(tlv_tree, tvb, length, offset, pinfo);
+                offset += length;
+                single_event_length -= length;
+            }
+            break;
+            case BMP_ROUTE_POLICY_TLV_POST_POLICY: {
+                dissect_bgp_path_attr(tlv_tree, tvb, length, offset, pinfo);
+                offset += length;
+                single_event_length -= length;
+            }
+            break;
+            case BMP_ROUTE_POLICY_TLV_STRING: {
+                proto_tree_add_item(tlv_tree, hf_route_policy_tlv_string, tvb, offset, length, ENC_ASCII|ENC_NA);
+                offset += length;
+                single_event_length -= length;
+            }
+            break;
+            default:{
+                //TODO: Add expert info about undecoded type ?
+                offset += length;
+                single_event_length -=length;
+            }
+
+        }
+
+    }
+
+    return offset;
+}
+
+
+/*
+ * Dissect BMP Route Policy and Attribute Message
+ *
+ *   +---------------------------------------------------------------+
+ *   |V|                          Reserved                           |
+ *   +---------------------------------------------------------------+
+ *   |                        Route Distinguisher                    |
+ *   +---------------------------------------------------------------+
+ *   |                          Prefix length                        |
+ *   +---------------------------------------------------------------+
+ *   |                              Prefix                           |
+ *   +---------------------------------------------------------------+
+ *   |                           Route Origin                        |
+ *   +---------------------------------------------------------------+
+ *   |                          Event count                          |
+ *   +---------------------------------------------------------------+
+ *   |                       Total event length                      |
+ *   +---------------------------------------------------------------+
+ *   |                            1st Event                          |
+ *   +---------------------------------------------------------------+
+ *   |                            2nd Event                          |
+ *   +---------------------------------------------------------------+
+ *   ~                                                               ~
+ *   +                            ......                             +
+ *   ~                                                               ~
+ *   +---------------------------------------------------------------+
+ *   |                           Last Event                          |
+ *   +---------------------------------------------------------------+
+ *
+ */
+static void
+dissect_bmp_route_policy(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset, guint8 bmp_type _U_, guint16 len _U_)
+{
+    guint8 flags;
+    guint32 event_count;
+
+    static int * const route_policy_flags[] = {
+        &hf_route_policy_flags_ipv6,
+        &hf_route_policy_flags_res,
+        NULL
+    };
+
+    flags = tvb_get_guint8(tvb, offset);
+
+    proto_tree_add_bitmask(tree, tvb, offset, hf_route_policy_flags, ett_bmp_route_policy_flags, route_policy_flags, ENC_NA);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_route_policy_rd, tvb, offset, 8, ENC_NA);
+    offset += 8;
+
+    proto_tree_add_item(tree, hf_route_policy_prefix_length, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    if(flags & BMP_PEER_FLAG_IPV6){
+        proto_tree_add_item(tree, hf_route_policy_prefix_ipv6, tvb, offset, 16, ENC_NA);
+        offset += 16;
+    } else {
+        proto_tree_add_item(tree, hf_route_policy_prefix_reserved, tvb, offset, 12, ENC_NA);
+        offset += 12;
+        proto_tree_add_item(tree, hf_route_policy_prefix_ipv4, tvb, offset, 4, ENC_NA);
+        offset += 4;
+    }
+
+    proto_tree_add_item(tree, hf_route_policy_route_origin, tvb, offset, 4, ENC_NA);
+    offset += 4;
+
+    proto_tree_add_item_ret_uint(tree, hf_route_policy_event_count, tvb, offset, 1, ENC_NA, &event_count);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_route_policy_total_event_length, tvb, offset, 2, ENC_NA);
+    offset += 2;
+
+   while(event_count){
+        offset = dissect_bmp_route_policy_event(tvb, tree, pinfo, offset);
+        event_count--;
+    }
+}
+
+/*
  * Dissect BMP PDU and Common Header
  *
  *   0 1 2 3 4 5 6 7 8 1 2 3 4 5 6 7 8 1 2 3 4 5 6 7 8 1 2 3 4 5 6 7 8
@@ -785,13 +1145,15 @@ dissect_bmp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
         case BMP_MSG_TYPE_TERM:
             dissect_bmp_termination(tvb, bmp_tree, pinfo, offset, bmp_type, len);
             break;
+        case BMP_MSG_TYPE_ROUTE_POLICY:
+            dissect_bmp_route_policy(tvb, bmp_tree, pinfo, offset, bmp_type, len);
+            break;
         default:
             break;
     }
 
     return tvb_captured_length(tvb);
 }
-
 
 /* Main dissecting routine */
 static int
@@ -1017,8 +1379,147 @@ proto_register_bmp(void)
                 NULL, 0x0, NULL, HFILL }},
         { &hf_term_reason,
             { "Reason", "bmp.term.reason", FT_UINT16, BASE_DEC,
-                VALS(term_reason_typevals), 0x0, NULL, HFILL }}
+                VALS(term_reason_typevals), 0x0, NULL, HFILL }},
 
+        /* Route Policy */
+        { &hf_route_policy_flags,
+            { "Flags", "bmp.route_policy.flags", FT_UINT8, BASE_HEX,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_route_policy_flags_ipv6,
+            { "IPv6", "bmp.route_policy.flags.ipv6", FT_BOOLEAN, 8,
+                TFS(&tfs_set_notset), BMP_PEER_FLAG_IPV6, NULL, HFILL }},
+        { &hf_route_policy_flags_res,
+            { "Reserved", "bmp.route_policy.flags.res", FT_UINT8, BASE_HEX,
+                NULL, 0x7F, NULL, HFILL }},
+        { &hf_route_policy_rd,
+            { "Route Distinguisher", "bmp.route_policy.type", FT_UINT64, BASE_HEX_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_route_policy_prefix_length,
+            { "Prefix Length", "bmp.route_policy.prefix_length", FT_UINT8, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_route_policy_prefix_ipv4,
+            { "Prefix (IPv4)", "bmp.route_policy.prefix_ipv4", FT_IPv4, BASE_NONE,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_route_policy_prefix_reserved,
+            { "Prefix (Reserved)", "bmp.route_policy.prefix_reserved", FT_BYTES, BASE_NONE,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_route_policy_prefix_ipv6,
+            { "Prefix (IPv6)", "bmp.route_policy.prefix_ipv6", FT_IPv6, BASE_NONE,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_route_policy_route_origin,
+            { "Route origin", "bmp.route_policy.route_origin", FT_UINT32, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_route_policy_event_count,
+            { "Event count", "bmp.route_policy.event_count", FT_UINT8, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_route_policy_total_event_length,
+            { "Total Event Length", "bmp.route_policy.total_event_length", FT_UINT16, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_route_policy_single_event_length,
+            { "Single event length", "bmp.route_policy.single_event_length", FT_UINT16, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_route_policy_event_index,
+            { "Event count", "bmp.route_policy.event_index", FT_UINT8, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_route_policy_timestamp_sec,
+            { "Timestamp (sec)", "bmp.route_policy.timestamp.sec", FT_UINT32, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_route_policy_timestamp_msec,
+            { "Timestamp (msec)", "bmp.route_policy.timestamp.msec", FT_UINT32, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_route_policy_path_identifier,
+            { "Path Identifier", "bmp.route_policy.path_identifier", FT_UINT32, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_route_policy_afi,
+            { "AFI", "bmp.route_policy.afi", FT_UINT16, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_route_policy_safi,
+            { "SAFI", "bmp.route_policy.safi", FT_UINT8, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_route_policy_tlv,
+            { "TLV", "bmp.route_policy.tlv", FT_NONE, BASE_NONE,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_route_policy_tlv_type,
+            { "Type", "bmp.route_policy.tlv.type", FT_UINT16, BASE_DEC,
+                VALS(route_policy_tlv_typevals), 0x0, NULL, HFILL }},
+        { &hf_route_policy_tlv_length,
+            { "Length", "bmp.route_policy.tlv.length", FT_UINT16, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_route_policy_tlv_value,
+            { "Value", "bmp.route_policy.tlv.value", FT_BYTES, BASE_NONE,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_route_policy_tlv_vrf_table_id,
+            { "Table id", "bmp.route_policy.tlv.vrf.table_id", FT_UINT32, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_route_policy_tlv_vrf_table_name,
+            { "Table name", "bmp.route_policy.tlv.vrf.table_name", FT_STRING, BASE_NONE,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_route_policy_tlv_policy_flags,
+            { "Flags", "bmp.route_policy.tlv.policy.flags", FT_UINT8, BASE_HEX,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_route_policy_tlv_policy_flags_m,
+            { "M(atch)", "bmp.route_policy.tlv.policy.flags.m", FT_BOOLEAN, 8,
+                NULL, 0x80, NULL, HFILL }},
+        { &hf_route_policy_tlv_policy_flags_p,
+            { "P(ermit)", "bmp.route_policy.tlv.policy.flags.p", FT_BOOLEAN, 8,
+                NULL, 0x40, NULL, HFILL }},
+        { &hf_route_policy_tlv_policy_flags_d,
+            { "D(ifference)", "bmp.route_policy.tlv.policy.flags.d", FT_BOOLEAN, 8,
+                NULL, 0x20, NULL, HFILL }},
+        { &hf_route_policy_tlv_policy_flags_res,
+            { "Reserved", "bmp.route_policy.tlv.policy.flags.res", FT_UINT8, BASE_HEX,
+                NULL, 0x1F, NULL, HFILL }},
+        { &hf_route_policy_tlv_policy_count,
+            { "Policy Count", "bmp.route_policy.tlv.policy.count", FT_UINT8, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_route_policy_tlv_policy_class,
+            { "Policy Class", "bmp.route_policy.tlv.policy.class", FT_UINT8, BASE_HEX,
+                VALS(route_policy_tlv_policy_class_typevals), 0x0, NULL, HFILL }},
+        { &hf_route_policy_tlv_policy_peer_ipv4,
+            { "Peer (IPv4)", "bmp.route_policy.tlv.policy.peer_ipv4", FT_IPv4, BASE_NONE,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_route_policy_tlv_policy_peer_reserved,
+            { "Peer (Reserved)", "bmp.route_policy.tlv.policy.peer_reserved", FT_BYTES, BASE_NONE,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_route_policy_tlv_policy_peer_ipv6,
+            { "Peer (IPv6)", "bmp.route_policy.tlv.policy.peer_ipv6", FT_IPv6, BASE_NONE,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_route_policy_tlv_policy_peer_router_id,
+            { "Route Id", "bmp.route_policy.tlv.policy.peer.router_id", FT_IPv4, BASE_NONE,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_route_policy_tlv_policy_peer_as,
+            { "Peer AS", "bmp.route_policy.tlv.policy.peer.as", FT_UINT32, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_route_policy_tlv_policy,
+            { "Policy", "bmp.route_policy.tlv.policy", FT_NONE, BASE_NONE,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_route_policy_tlv_policy_name_length,
+            { "Policy Name Length", "bmp.route_policy.tlv.policy.name.length", FT_UINT16, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_route_policy_tlv_policy_item_id_length,
+            { "Policy ID Length", "bmp.route_policy.tlv.policy.item_id.length", FT_UINT16, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_route_policy_tlv_policy_name,
+            { "Policy Name", "bmp.route_policy.tlv.policy.name", FT_STRING, BASE_NONE,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_route_policy_tlv_policy_item_id,
+            { "Policy ID", "bmp.route_policy.tlv.policy.item_id", FT_STRING, BASE_NONE,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_route_policy_tlv_policy_flag,
+            { "Flag", "bmp.route_policy.tlv.policy.flag", FT_UINT8, BASE_HEX,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_route_policy_tlv_policy_flag_c,
+            { "C(haining)", "bmp.route_policy.tlv.policy.flag.c", FT_BOOLEAN, 8,
+                NULL, 0x80, NULL, HFILL }},
+        { &hf_route_policy_tlv_policy_flag_r,
+            { "R(ecursion)", "bmp.route_policy.tlv.policy.flag.r", FT_BOOLEAN, 8,
+                NULL, 0x40, NULL, HFILL }},
+        { &hf_route_policy_tlv_policy_flag_res2,
+            { "Reserved", "bmp.route_policy.tlv.policy.flag.res2", FT_UINT8, BASE_HEX,
+                NULL, 0x3F, NULL, HFILL }},
+        { &hf_route_policy_tlv_string,
+            { "String", "bmp.route_policy.tlv.string", FT_STRING, BASE_NONE,
+                NULL, 0x0, NULL, HFILL }},
     };
 
     /* Setup protocol subtree array */
@@ -1038,6 +1539,10 @@ proto_register_bmp(void)
         &ett_bmp_term_type,
         &ett_bmp_term_types,
         &ett_bmp_route_mirroring,
+        &ett_bmp_route_policy_flags,
+        &ett_bmp_route_policy_tlv,
+        &ett_bmp_route_policy_tlv_policy_flags,
+        &ett_bmp_route_policy_tlv_policy,
     };
 
     static ei_register_info ei[] = {

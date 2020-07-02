@@ -7701,7 +7701,7 @@ dissect_bgp_update_pmsi_attr(packet_info *pinfo, proto_tree *parent_tree, tvbuff
  * Dissect BGP path attributes
  *
  */
-static void
+void
 dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len, guint tvb_off, packet_info *pinfo)
 {
     guint8        bgpa_flags;                 /* path attributes          */
