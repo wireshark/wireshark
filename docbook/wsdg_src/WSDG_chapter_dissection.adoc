@@ -166,7 +166,7 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data 
 is held in a special buffer referenced here as `tvb`. The packet_info structure
 contains general data about the protocol and we can update
 information here. The tree parameter is where the detail dissection takes place.
-Note that the `_U_` following `tree` and `data` signals to the compiler that the
+Note that the `\_U_` following `tree` and `data` signals to the compiler that the
 parameters are unused, so that the compiler does not print a warning.
 
 For now we'll do the minimum we can get away with. `col_set_str()` is used to set
