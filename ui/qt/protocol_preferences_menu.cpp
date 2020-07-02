@@ -136,6 +136,12 @@ ProtocolPreferencesMenu::ProtocolPreferencesMenu()
     setModule(NULL);
 }
 
+ProtocolPreferencesMenu::ProtocolPreferencesMenu(const QString &title, const QString &module_name, QWidget *parent) :
+    QMenu(title, parent)
+{
+    setModule(module_name);
+}
+
 void ProtocolPreferencesMenu::setModule(const QString module_name)
 {
     QAction *action;
