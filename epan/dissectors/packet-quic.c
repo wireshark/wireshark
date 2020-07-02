@@ -978,7 +978,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
     proto_item *ti_ft, *ti_ftflags, *ti;
     proto_tree *ft_tree, *ftflags_tree;
     guint64 frame_type;
-    guint32 lenft;
+    gint32 lenft;
     guint   orig_offset = offset;
 
     ti_ft = proto_tree_add_item(quic_tree, hf_quic_frame, tvb, offset, 1, ENC_NA);
@@ -1010,7 +1010,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         case FT_ACK:
         case FT_ACK_ECN:{
             guint64 ack_range_count;
-            guint32 lenvar;
+            gint32 lenvar;
 
             if (frame_type == FT_ACK) {
                 col_append_fstr(pinfo->cinfo, COL_INFO, ", ACK");
@@ -1058,7 +1058,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         break;
         case FT_RESET_STREAM:{
             guint64 stream_id, error_code;
-            guint32 len_streamid = 0, len_finalsize = 0, len_error_code = 0;
+            gint32 len_streamid = 0, len_finalsize = 0, len_error_code = 0;
 
             col_append_fstr(pinfo->cinfo, COL_INFO, ", RS");
 
@@ -1078,9 +1078,9 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         }
         break;
         case FT_STOP_SENDING:{
-            guint32 len_streamid;
+            gint32 len_streamid;
             guint64 stream_id, error_code;
-            guint32 len_error_code = 0;
+            gint32 len_error_code = 0;
 
             col_append_fstr(pinfo->cinfo, COL_INFO, ", SS");
 
@@ -1098,7 +1098,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         break;
         case FT_CRYPTO: {
             guint64 crypto_offset, crypto_length;
-            guint32 lenvar;
+            gint32 lenvar;
             col_append_fstr(pinfo->cinfo, COL_INFO, ", CRYPTO");
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_crypto_offset, tvb, offset, -1, ENC_VARINT_QUIC, &crypto_offset, &lenvar);
             offset += lenvar;
@@ -1124,7 +1124,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         break;
         case FT_NEW_TOKEN: {
             guint64 token_length;
-            guint32 lenvar;
+            gint32 lenvar;
 
             col_append_fstr(pinfo->cinfo, COL_INFO, ", NT");
 
@@ -1144,7 +1144,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         case FT_STREAM_E:
         case FT_STREAM_F: {
             guint64 stream_id, stream_offset = 0, length;
-            guint32 lenvar;
+            gint32 lenvar;
 
             offset -= 1;
 
@@ -1186,7 +1186,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         }
         break;
         case FT_MAX_DATA:{
-            guint32 len_maximumdata;
+            gint32 len_maximumdata;
 
             col_append_fstr(pinfo->cinfo, COL_INFO, ", MD");
 
@@ -1195,7 +1195,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         }
         break;
         case FT_MAX_STREAM_DATA:{
-            guint32 len_streamid, len_maximumstreamdata;
+            gint32 len_streamid, len_maximumstreamdata;
             guint64 stream_id;
 
             col_append_fstr(pinfo->cinfo, COL_INFO, ", MSD");
@@ -1212,7 +1212,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         break;
         case FT_MAX_STREAMS_BIDI:
         case FT_MAX_STREAMS_UNI:{
-            guint32 len_streamid;
+            gint32 len_streamid;
 
             col_append_fstr(pinfo->cinfo, COL_INFO, ", MS");
 
@@ -1221,7 +1221,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         }
         break;
         case FT_DATA_BLOCKED:{
-            guint32 len_offset;
+            gint32 len_offset;
 
             col_append_fstr(pinfo->cinfo, COL_INFO, ", DB");
 
@@ -1230,7 +1230,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         }
         break;
         case FT_STREAM_DATA_BLOCKED:{
-            guint32 len_streamid, len_offset;
+            gint32 len_streamid, len_offset;
             guint64 stream_id;
 
             col_append_fstr(pinfo->cinfo, COL_INFO, ", SDB");
@@ -1247,7 +1247,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         break;
         case FT_STREAMS_BLOCKED_BIDI:
         case FT_STREAMS_BLOCKED_UNI:{
-            guint32 len_streamid;
+            gint32 len_streamid;
 
             col_append_fstr(pinfo->cinfo, COL_INFO, ", SB");
 
@@ -1256,9 +1256,9 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         }
         break;
         case FT_NEW_CONNECTION_ID:{
-            guint32 len_sequence;
-            guint32 len_retire_prior_to;
-            guint32 nci_length;
+            gint32 len_sequence;
+            gint32 len_retire_prior_to;
+            gint32 nci_length;
             gboolean valid_cid = FALSE;
 
             col_append_fstr(pinfo->cinfo, COL_INFO, ", NCI");
@@ -1292,7 +1292,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         }
         break;
         case FT_RETIRE_CONNECTION_ID:{
-            guint32 len_sequence;
+            gint32 len_sequence;
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_rci_sequence, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_sequence);
             offset += len_sequence;
         }
@@ -1313,7 +1313,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         break;
         case FT_CONNECTION_CLOSE_TPT:
         case FT_CONNECTION_CLOSE_APP:{
-            guint32 len_reasonphrase, len_frametype, len_error_code;
+            gint32 len_reasonphrase, len_frametype, len_error_code;
             guint64 len_reason = 0;
             guint64 error_code;
             const char *tls_alert = NULL;
@@ -1360,7 +1360,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         break;
         case FT_DATAGRAM:
         case FT_DATAGRAM_LENGTH:{
-            guint32 dg_length;
+            gint32 dg_length;
             guint64 length;
             col_append_fstr(pinfo->cinfo, COL_INFO, ", DG");
             if (frame_type == FT_DATAGRAM_LENGTH) {
@@ -1375,7 +1375,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         }
         break;
         case FT_ACK_FREQUENCY:{
-            guint32 length;
+            gint32 length;
 
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_af_sequence_number, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &length);
             offset += (guint32)length;
@@ -1388,7 +1388,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         }
         break;
         case FT_TIME_STAMP:{
-            guint32 length;
+            gint32 length;
 
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_ts, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &length);
             offset += (guint32)length;
@@ -2141,9 +2141,9 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
     guint8 long_packet_type;
     guint32 version;
     quic_cid_t  dcid = {.len=0}, scid = {.len=0};
-    guint32 len_token_length;
+    gint32 len_token_length;
     guint64 token_length;
-    guint32 len_payload_length;
+    gint32 len_payload_length;
     guint64 payload_length;
     guint8  first_byte = 0;
     quic_info_data_t *conn = dgram_info->conn;

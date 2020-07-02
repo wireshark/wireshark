@@ -2021,7 +2021,7 @@ guint16 rtps_util_add_vendor_id(proto_tree *tree,
  * } Locator_t;
  */
 void rtps_util_add_locator_t(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, gint offset,
-                             const guint encoding, const guint8 *label) {
+                             const guint encoding, const char *label) {
 
   proto_tree *ti;
   proto_tree *locator_tree;
@@ -2629,7 +2629,7 @@ static void rtps_util_add_timestamp_sec_and_fraction(proto_tree *tree,
   const guint encoding,
   int hf_time _U_) {
 
-  guint8  tempBuffer[MAX_TIMESTAMP_SIZE];
+  gchar  tempBuffer[MAX_TIMESTAMP_SIZE];
   gdouble absolute;
   gint32 sec;
   guint32 frac;
@@ -2809,7 +2809,7 @@ gint rtps_util_add_seq_string(proto_tree *tree, tvbuff_t *tvb, gint offset,
                               int hf_string, const char *label) {
   guint32 size;
   gint32 i, num_strings;
-  const guint8 *retVal;
+  const char *retVal;
   proto_tree *string_tree;
   gint start;
 
@@ -2827,7 +2827,7 @@ gint rtps_util_add_seq_string(proto_tree *tree, tvbuff_t *tvb, gint offset,
   for (i = 0; i < num_strings; ++i) {
     size = tvb_get_guint32(tvb, offset, encoding);
 
-    retVal = tvb_get_string_enc(wmem_packet_scope(), tvb, offset+4, size, ENC_ASCII);
+    retVal = (const char* )tvb_get_string_enc(wmem_packet_scope(), tvb, offset+4, size, ENC_ASCII);
 
     proto_tree_add_string_format(string_tree, hf_string, tvb, offset, size+4, retVal,
         "%s[%d]: %s", label, i, retVal);
@@ -3000,7 +3000,7 @@ static gint rtps_util_add_typecode(proto_tree *tree, tvbuff_t *tvb, gint offset,
      */
     case RTI_CDR_TK_UNION: {
         guint32     struct_name_len;
-        gint8      *struct_name;
+        guint8      *struct_name;
         const char *discriminator_name      = "<unknown>"; /* for unions */
         char       *discriminator_enum_name = NULL;        /* for unions with enum discriminator */
         /*guint32 defaultIdx;*/ /* Currently is ignored */
