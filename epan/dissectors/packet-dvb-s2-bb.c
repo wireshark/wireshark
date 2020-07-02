@@ -110,6 +110,7 @@ static int hf_dvb_s2_bb_sync = -1;
 static int hf_dvb_s2_bb_syncd = -1;
 static int hf_dvb_s2_bb_crc = -1;
 static int hf_dvb_s2_bb_crc_status = -1;
+static int hf_dvb_s2_bb_df = -1;
 static int hf_dvb_s2_bb_eip_crc32 = -1;
 
 static int hf_dvb_s2_bb_packetized = -1;
@@ -1221,6 +1222,9 @@ static int dissect_dvb_s2_bb(tvbuff_t *tvb, int cur_off, proto_tree *tree, packe
                     }
                 }
             }
+        } else {
+            proto_tree_add_item(dvb_s2_bb_tree, hf_dvb_s2_bb_df, tvb, cur_off + new_off, bb_data_len, ENC_NA);
+            new_off += bb_data_len;
         }
         break;
 
@@ -1518,6 +1522,11 @@ void proto_register_dvb_s2_modeadapt(void)
                 "Reserved Stream Type Data", "dvb-s2_bb.reserved",
                 FT_BYTES, BASE_NONE, NULL, 0x0,
                 "Stream of an unknown reserved type", HFILL}
+        },
+        {&hf_dvb_s2_bb_df, {
+                "BBFrame user data", "dvb-s2_bb.df",
+                FT_BYTES, BASE_NONE, NULL, 0x0,
+                NULL, HFILL}
         },
         {&hf_dvb_s2_bb_eip_crc32, {
                 "EIP CRC32", "dvb-s2_bb.eip_crc32",
