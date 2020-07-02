@@ -158,7 +158,7 @@ void ProtocolPreferencesMenu::setModule(const QString module_name)
         return;
     }
 
-    QAction *disable_action = new QAction(tr("Disable %1" UTF8_HORIZONTAL_ELLIPSIS).arg(short_name), this);
+    QAction *disable_action = new QAction(tr("Disable %1").arg(short_name), this);
     connect(disable_action, SIGNAL(triggered(bool)), this, SLOT(disableProtocolTriggered()));
     disable_action->setDisabled(!proto_can_toggle_protocol(proto_id));
 
