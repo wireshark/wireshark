@@ -17,9 +17,13 @@ chmod -R a+rX,go-w "/Library/Application Support/Wireshark"
 CHMOD_BPF_PLIST="/Library/LaunchDaemons/org.wireshark.ChmodBPF.plist"
 BPF_GROUP="access_bpf"
 BPF_GROUP_NAME="BPF device access ACL"
+min_gid=100
 
-dscl . -read /Groups/"$BPF_GROUP" > /dev/null 2>&1 || \
-    dseditgroup -q -o create "$BPF_GROUP"
+if ! dscl . -read /Groups/"$BPF_GROUP" > /dev/null 2>&1; then
+   free_gid=$(dscl . -list /Groups PrimaryGroupID | sort -bnk2 | awk -v min_gid=$min_gid 'BEGIN{i=min_gid}{if($2==i)i++}END{print i}')
+   dseditgroup -q -o create -i $free_gid -r "$BPF_GROUP_NAME" "$BPF_GROUP"
+fi
+
 dseditgroup -q -o edit -a "$USER" -t user "$BPF_GROUP"
 
 cp "/Library/Application Support/Wireshark/ChmodBPF/org.wireshark.ChmodBPF.plist" \
