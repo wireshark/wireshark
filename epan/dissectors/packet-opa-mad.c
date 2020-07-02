@@ -4637,10 +4637,10 @@ static gint parse_HFICongestionControlTable(proto_tree *parentTree, tvbuff_t *tv
     return local_offset;
 }
 /* Call appropriate parsing function */
-static gboolean call_SUBM_Parser(proto_tree *parentTree, tvbuff_t *tvb, guint *offset, MAD_t *MAD, guint16 AttributeID)
+static gboolean call_SUBM_Parser(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD, guint16 AttributeID)
 {
     proto_tree *SUBM_Attribute_header_tree = parentTree;
-    guint local_offset = *offset;
+    gint local_offset = *offset;
 
     if (!tvb_bytes_exist(tvb, local_offset, 8))
         return TRUE;
@@ -4810,14 +4810,14 @@ static gboolean parse_SUBM_Attribute(proto_tree *parentTree, tvbuff_t *tvb, gint
 /* Parse the Method from the MAD Common Header. */
 static void label_SUBM_Method(proto_item *SubMItem, MAD_t *MAD, packet_info *pinfo)
 {
-    const guchar *label = val_to_str_const(MAD->Method, SUBM_Methods, "(Unknown SM Method!)");
+    const gchar *label = val_to_str_const(MAD->Method, SUBM_Methods, "(Unknown SM Method!)");
     proto_item_append_text(SubMItem, " %s", label);
     col_append_str(pinfo->cinfo, COL_INFO, label);
 }
 /* Parse the Attribute from the MAD Common Header */
 static void label_SUBM_Attribute(proto_item *SubMItem, MAD_t *MAD, packet_info *pinfo)
 {
-    const guchar *label = val_to_str_const(MAD->AttributeID, SUBM_Attributes, "Attribute (Unknown SM Attribute!)");
+    const gchar *label = val_to_str_const(MAD->AttributeID, SUBM_Attributes, "Attribute (Unknown SM Attribute!)");
     proto_item_append_text(SubMItem, "%s", &label[11]);
     col_append_str(pinfo->cinfo, COL_INFO, &label[11]);
 }
@@ -5792,7 +5792,7 @@ static void parse_RID(proto_tree *SA_header_tree, tvbuff_t *tvb, gint *offset, M
 static gboolean parse_SUBA_Attribute(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD, RMPP_t *RMPP, SA_HEADER_t *SA_HEADER)
 {
     proto_tree *SUBA_Attribute_header_tree = parentTree;
-    guint local_offset = *offset;
+    gint local_offset = *offset;
 
     if (RMPP->Type == RMPP_ACK || SA_HEADER->AttributeOffset == 0 || (RMPP->PayloadLength <= 20 && RMPP->Type == RMPP_DATA) ||
         (!pref_attempt_rmpp_defragment && RMPP->Type == RMPP_DATA && RMPP->SegmentNumber != 1))
@@ -5963,14 +5963,14 @@ static gboolean parse_SUBA_Attribute(proto_tree *parentTree, tvbuff_t *tvb, gint
 /* Parse the SA Method from the MAD Common Header. */
 static void label_SUBA_Method(proto_item *SubAItem, MAD_t *MAD, packet_info *pinfo)
 {
-    const guchar *label = val_to_str_const(MAD->Method, SUBA_Methods, "(Unknown SA Method!)");
+    const gchar *label = val_to_str_const(MAD->Method, SUBA_Methods, "(Unknown SA Method!)");
     proto_item_append_text(SubAItem, " %s", label);
     col_append_str(pinfo->cinfo, COL_INFO, label);
 }
 /* Parse the SA Attribute from the MAD Common Header */
 static void label_SUBA_Attribute(proto_item *SubAItem, MAD_t *MAD, packet_info *pinfo)
 {
-    const guchar *label = val_to_str_const(MAD->AttributeID, SUBA_Attributes, "Attribute (Unknown SA Attribute!)");
+    const gchar *label = val_to_str_const(MAD->AttributeID, SUBA_Attributes, "Attribute (Unknown SA Attribute!)");
     proto_item_append_text(SubAItem, "%s", &label[11]);
     col_append_str(pinfo->cinfo, COL_INFO, &label[11]);
 }
@@ -6017,7 +6017,7 @@ static void parse_SUBNADMN(proto_tree *parentTree, packet_info *pinfo, tvbuff_t 
     gint old_offset;
     guint r, records, length;
     proto_tree *SA_record_tree;
-    const guchar *label;
+    const gchar *label;
     gboolean parent_was_opa_fe = proto_is_frame_protocol(pinfo->layers, "opa.fe");
 
     if (!parse_MAD_Common(parentTree, pinfo, tvb, offset, &MAD)) {
@@ -6750,7 +6750,7 @@ static gboolean parse_PM_Attribute(proto_tree *parentTree, tvbuff_t *tvb, gint *
 /* Parse the Method from the MAD Common Header. */
 static void label_PM_Method(proto_item *PMItem, MAD_t *MAD, packet_info *pinfo)
 {
-    const guchar *label = val_to_str_const(MAD->Method, PM_Methods, "(Unknown Perf Method!)");
+    const gchar *label = val_to_str_const(MAD->Method, PM_Methods, "(Unknown Perf Method!)");
     proto_item_append_text(PMItem, " %s", label);
     col_append_str(pinfo->cinfo, COL_INFO, label);
 }
@@ -6758,7 +6758,7 @@ static void label_PM_Method(proto_item *PMItem, MAD_t *MAD, packet_info *pinfo)
 /* Parse the Attribute from the MAD Common Header */
 static void label_PM_Attribute(proto_item *PMItem, MAD_t *MAD, packet_info *pinfo)
 {
-    const guchar *label = val_to_str_const(MAD->AttributeID, PM_Attributes, "Attribute (Unknown Perf Attribute!)");
+    const gchar *label = val_to_str_const(MAD->AttributeID, PM_Attributes, "Attribute (Unknown Perf Attribute!)");
     proto_item_append_text(PMItem, "%s", &label[11]);
     col_append_str(pinfo->cinfo, COL_INFO, &label[11]);
 }
@@ -8135,7 +8135,7 @@ static gboolean parse_PA_Attribute(proto_tree *parentTree, tvbuff_t *tvb, gint *
 /* Parse the Method from the MAD Common Header. */
 static void label_PA_Method(proto_item *PAItem, MAD_t *MAD, packet_info *pinfo)
 {
-    const guchar *label = val_to_str_const(MAD->Method, PA_Methods, "(Unknown Perf Method!)");
+    const gchar *label = val_to_str_const(MAD->Method, PA_Methods, "(Unknown Perf Method!)");
     proto_item_append_text(PAItem, " %s", label);
     col_append_str(pinfo->cinfo, COL_INFO, label);
 }
@@ -8143,7 +8143,7 @@ static void label_PA_Method(proto_item *PAItem, MAD_t *MAD, packet_info *pinfo)
 /* Parse the Attribute from the MAD Common Header */
 static void label_PA_Attribute(proto_item *PAItem, MAD_t *MAD, packet_info *pinfo)
 {
-    const guchar *label = val_to_str_const(MAD->AttributeID, PA_Attributes, "Attribute (Unknown Perf Attribute!)");
+    const gchar *label = val_to_str_const(MAD->AttributeID, PA_Attributes, "Attribute (Unknown Perf Attribute!)");
     proto_item_append_text(PAItem, "%s", &label[11]);
     col_append_str(pinfo->cinfo, COL_INFO, &label[11]);
 }
