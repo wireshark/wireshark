@@ -1197,7 +1197,7 @@ dhcpv6_domain(proto_tree *subtree, proto_item *v_item _U_, packet_info *pinfo, i
                     "Label Length: %u\n"
                     "This is not a DNS record encoded domain name. The value in the first octet of\n"
                     "a label is the length of the name that follows. It must equal 63 or less but in\n"
-                    "this case it is %u.", label_len);
+                    "this case it is %u.", label_len, label_len);
             ex_subtree = proto_item_add_subtree(exi, ett_clientfqdn_expert);
 
             if (num_labels) {
