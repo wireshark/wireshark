@@ -274,6 +274,9 @@ void SearchFrame::updateWidgets()
         return;
     }
 
+    // Enable completion only for display filter search.
+    sf_ui_->searchLineEdit->allowCompletion(search_type == df_search_);
+
     if (sf_ui_->searchLineEdit->text().isEmpty() || sf_ui_->searchLineEdit->syntaxState() == SyntaxLineEdit::Invalid) {
         sf_ui_->findButton->setEnabled(false);
     } else {

@@ -36,6 +36,7 @@ public:
 
     void setCompleter(QCompleter *c);
     QCompleter *completer() const { return completer_; }
+    void allowCompletion(bool enabled);
 
 public slots:
     void setStyleSheet(const QString &style_sheet);
@@ -70,6 +71,7 @@ private:
     QString syntax_error_message_;
     QString token_chars_;
     QColor busy_fg_;
+    bool completion_enabled_;
 
 private slots:
     void insertFieldCompletion(const QString &completion_text);

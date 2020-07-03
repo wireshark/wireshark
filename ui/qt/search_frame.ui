@@ -147,7 +147,7 @@
     </widget>
    </item>
    <item>
-    <widget class="SyntaxLineEdit" name="searchLineEdit">
+    <widget class="DisplayFilterEdit" name="searchLineEdit">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
        <horstretch>1</horstretch>
@@ -195,9 +195,9 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>SyntaxLineEdit</class>
+   <class>DisplayFilterEdit</class>
    <extends>QLineEdit</extends>
-   <header>widgets/syntax_line_edit.h</header>
+   <header>widgets/display_filter_edit.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
