@@ -1196,8 +1196,9 @@ dhcpv6_domain(proto_tree *subtree, proto_item *v_item _U_, packet_info *pinfo, i
                     offset, 1, label_len,
                     "Label Length: %u\n"
                     "This is not a DNS record encoded domain name. The value in the first octet of\n"
-                    "a label is the length of the name that follows. It must equal 63 or less but in\n"
-                    "this case it is %u.", label_len, label_len);
+                    "a label is the length of the name that follows and must be 63 octets or less.\n"
+                    "However, in this case it is %u which typically means the name is not DNS encoded.\n",
+                    label_len, label_len);
             ex_subtree = proto_item_add_subtree(exi, ett_clientfqdn_expert);
 
             if (num_labels) {
@@ -1224,7 +1225,7 @@ dhcpv6_domain(proto_tree *subtree, proto_item *v_item _U_, packet_info *pinfo, i
 
             exi = proto_tree_add_uint_format(subtree, hf_dhcpv6_domain_field_len_exceeded, tvb,
                     offset-1, 1, label_len,
-                    "ERROR: The length of this name, %u, exceeds the remaining length, %u, in the\n"
+                    "ERROR: The length of this name, %u, exceeds the remaining length, %d, in the\n"
                     "domain name field.\n", label_len, remlen);
             ex_subtree = proto_item_add_subtree(exi, ett_clientfqdn_expert);
 
@@ -1265,7 +1266,7 @@ dhcpv6_domain(proto_tree *subtree, proto_item *v_item _U_, packet_info *pinfo, i
             exi = proto_tree_add_uint_format(subtree, hf_dhcpv6_encoded_fqdn_len_gt_255, tvb,
                       first_lab_off, dpos-1, dpos,
                 "FQDN: %s%s\n"
-                "ERROR: The total length of DNS-encoded names of this FQDN, %u, exceeds 255,\n"
+                "ERROR: The total length of DNS-encoded names of this FQDN, %d, exceeds 255,\n"
                 "the maximum allowed.", decoded_name_str, (inc ? "<incomplete>" : " "), dpos);
             ex_subtree = proto_item_add_subtree(exi, ett_clientfqdn_expert);
             proto_tree_add_expert(ex_subtree, pinfo, &ei_dhcpv6_encoded_fqdn_len_gt_255, tvb,
@@ -3469,7 +3470,7 @@ proto_register_dhcpv6(void)
         { &ei_dhcpv6_domain_field_len_exceeded, { "dhcpv6.expert.domain_field_length_exceeded", PI_MALFORMED, PI_ERROR,
                                     "ERROR: FQDN exceeds length of the domain name field", EXPFILL }},
         { &ei_dhcpv6_encoded_fqdn_len_gt_255, { "dhcpv6.expert.encoded_fqdn_gt_255", PI_MALFORMED, PI_ERROR,
-                                    "ERROR: FQDN's *encoded* length, %u, exceeds 255 octets [RFC 1035 3.1.]", EXPFILL }},
+                                    "ERROR: FQDN's *encoded* length exceeds 255 octets [RFC 1035 3.1.]", EXPFILL }},
         { &ei_dhcpv6_root_only_domain_name, { "dhcpv6.expert.root_only_domain_name", PI_PROTOCOL, PI_ERROR,
                                     "ERROR: A root-only domain name cannot be resolved.", EXPFILL }},
         { &ei_dhcpv6_tld_lookup, { "dhcpv6.expert.tld_lookup", PI_COMMENTS_GROUP, PI_WARN,
