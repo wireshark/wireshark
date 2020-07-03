@@ -18264,7 +18264,7 @@ dissect_nr_rrc_T_nas_Container(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
   if (nas_5gs_tvb) {
     subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_nas_Container);
-    de_nas_5gs_s1_mode_to_n1_mode_nas_transparent_cont(tvb, subtree, actx->pinfo);
+    de_nas_5gs_s1_mode_to_n1_mode_nas_transparent_cont(nas_5gs_tvb, subtree, actx->pinfo);
   }
 
 
