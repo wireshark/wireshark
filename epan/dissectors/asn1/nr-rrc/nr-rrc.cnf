@@ -450,7 +450,7 @@ RAT-Type TYPE_PREFIX
 %(DEFAULT_BODY)s
   if (nas_5gs_tvb) {
     subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_nas_Container);
-    de_nas_5gs_s1_mode_to_n1_mode_nas_transparent_cont(tvb, subtree, actx->pinfo);
+    de_nas_5gs_s1_mode_to_n1_mode_nas_transparent_cont(nas_5gs_tvb, subtree, actx->pinfo);
   }
 
 #.TYPE_ATTR
