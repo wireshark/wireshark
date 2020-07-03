@@ -54,6 +54,7 @@ static dissector_handle_t nas_5gs_handle = NULL;
 static dissector_handle_t lte_rrc_conn_reconf_handle = NULL;
 static dissector_handle_t lte_rrc_conn_reconf_compl_handle = NULL;
 static dissector_handle_t lte_rrc_ul_dcch_handle = NULL;
+static dissector_handle_t lte_rrc_dl_dcch_handle = NULL;
 
 static wmem_map_t *nr_rrc_etws_cmas_dcs_hash = NULL;
 
@@ -246,7 +247,7 @@ typedef enum _T_targetRAT_Type_enum {
 } T_targetRAT_Type_enum;
 
 /*--- End of included file: packet-nr-rrc-val.h ---*/
-#line 59 "./asn1/nr-rrc/packet-nr-rrc-template.c"
+#line 60 "./asn1/nr-rrc/packet-nr-rrc-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_nr_rrc = -1;
@@ -659,7 +660,7 @@ static int hf_nr_rrc_mobilityFromNRCommand_01 = -1;  /* MobilityFromNRCommand_IE
 static int hf_nr_rrc_criticalExtensionsFuture_13 = -1;  /* T_criticalExtensionsFuture_13 */
 static int hf_nr_rrc_targetRAT_Type = -1;         /* T_targetRAT_Type */
 static int hf_nr_rrc_targetRAT_MessageContainer = -1;  /* T_targetRAT_MessageContainer */
-static int hf_nr_rrc_nas_SecurityParamFromNR = -1;  /* OCTET_STRING */
+static int hf_nr_rrc_nas_SecurityParamFromNR = -1;  /* T_nas_SecurityParamFromNR */
 static int hf_nr_rrc_nonCriticalExtension_21 = -1;  /* T_nonCriticalExtension_13 */
 static int hf_nr_rrc_pagingRecordList = -1;       /* PagingRecordList */
 static int hf_nr_rrc_nonCriticalExtension_22 = -1;  /* T_nonCriticalExtension_14 */
@@ -3283,7 +3284,7 @@ static int hf_nr_rrc_overheatingIndicationProhibitTimer = -1;  /* T_overheatingI
 static int dummy_hf_nr_rrc_eag_field = -1; /* never registered */
 
 /*--- End of included file: packet-nr-rrc-hf.c ---*/
-#line 63 "./asn1/nr-rrc/packet-nr-rrc-template.c"
+#line 64 "./asn1/nr-rrc/packet-nr-rrc-template.c"
 static int hf_nr_rrc_serialNumber_gs = -1;
 static int hf_nr_rrc_serialNumber_msg_code = -1;
 static int hf_nr_rrc_serialNumber_upd_nb = -1;
@@ -4574,7 +4575,7 @@ static gint ett_nr_rrc_T_overheatingAssistanceConfig = -1;
 static gint ett_nr_rrc_OverheatingAssistanceConfig = -1;
 
 /*--- End of included file: packet-nr-rrc-ett.c ---*/
-#line 99 "./asn1/nr-rrc/packet-nr-rrc-template.c"
+#line 100 "./asn1/nr-rrc/packet-nr-rrc-template.c"
 static gint ett_nr_rrc_DedicatedNAS_Message = -1;
 static gint ett_rr_rrc_targetRAT_MessageContainer = -1;
 static gint ett_nr_rrc_nas_Container = -1;
@@ -4599,6 +4600,7 @@ static gint ett_nr_rrc_eutra_SCG_Response = -1;
 static gint ett_nr_rrc_measResultSCG_FailureMRDC = -1;
 static gint ett_nr_rrc_ul_DCCH_MessageNR = -1;
 static gint ett_nr_rrc_ul_DCCH_MessageEUTRA = -1;
+static gint ett_rr_rrc_nas_SecurityParamFromNR = -1;
 
 static expert_field ei_nr_rrc_number_pages_le15 = EI_INIT;
 
@@ -19939,8 +19941,34 @@ dissect_nr_rrc_T_targetRAT_MessageContainer(tvbuff_t *tvb _U_, int offset _U_, a
     switch (nr_priv->target_rat_type) {
     case T_targetRAT_Type_eutra:
       /* eutra */
-      if (lte_rrc_conn_reconf_handle)
-        nr_rrc_call_dissector(lte_rrc_conn_reconf_handle, target_rat_msg_cont_tvb, actx->pinfo, subtree);
+      if (lte_rrc_dl_dcch_handle)
+        nr_rrc_call_dissector(lte_rrc_dl_dcch_handle, target_rat_msg_cont_tvb, actx->pinfo, subtree);
+      break;
+    default:
+      break;
+    }
+  }
+
+
+  return offset;
+}
+
+
+
+static int
+dissect_nr_rrc_T_nas_SecurityParamFromNR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *nas_sec_param_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, FALSE, &nas_sec_param_tvb);
+
+  if (nas_sec_param_tvb) {
+    nr_rrc_private_data_t *nr_priv = nr_rrc_get_private_data(actx);
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_rr_rrc_nas_SecurityParamFromNR);
+    switch (nr_priv->target_rat_type) {
+    case T_targetRAT_Type_eutra:
+      /* eutra */
+      de_nas_5gs_n1_mode_to_s1_mode_nas_transparent_cont(nas_sec_param_tvb, subtree, actx->pinfo);
       break;
     default:
       break;
@@ -19968,7 +19996,7 @@ dissect_nr_rrc_T_nonCriticalExtension_13(tvbuff_t *tvb _U_, int offset _U_, asn1
 static const per_sequence_t MobilityFromNRCommand_IEs_sequence[] = {
   { &hf_nr_rrc_targetRAT_Type, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_targetRAT_Type },
   { &hf_nr_rrc_targetRAT_MessageContainer, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_targetRAT_MessageContainer },
-  { &hf_nr_rrc_nas_SecurityParamFromNR, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_OCTET_STRING },
+  { &hf_nr_rrc_nas_SecurityParamFromNR, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nas_SecurityParamFromNR },
   { &hf_nr_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_OCTET_STRING },
   { &hf_nr_rrc_nonCriticalExtension_21, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_13 },
   { NULL, 0, 0, NULL }
@@ -44772,7 +44800,7 @@ static int dissect_UECapabilityEnquiry_v1560_IEs_PDU(tvbuff_t *tvb _U_, packet_i
 
 
 /*--- End of included file: packet-nr-rrc-fn.c ---*/
-#line 383 "./asn1/nr-rrc/packet-nr-rrc-template.c"
+#line 385 "./asn1/nr-rrc/packet-nr-rrc-template.c"
 
 void
 proto_register_nr_rrc(void) {
@@ -46410,7 +46438,7 @@ proto_register_nr_rrc(void) {
     { &hf_nr_rrc_nas_SecurityParamFromNR,
       { "nas-SecurityParamFromNR", "nr-rrc.nas_SecurityParamFromNR",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING", HFILL }},
+        NULL, HFILL }},
     { &hf_nr_rrc_nonCriticalExtension_21,
       { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -56893,7 +56921,7 @@ proto_register_nr_rrc(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-nr-rrc-hfarr.c ---*/
-#line 391 "./asn1/nr-rrc/packet-nr-rrc-template.c"
+#line 393 "./asn1/nr-rrc/packet-nr-rrc-template.c"
 
     { &hf_nr_rrc_serialNumber_gs,
       { "Geographical Scope", "nr-rrc.serialNumber.gs",
@@ -58282,7 +58310,7 @@ proto_register_nr_rrc(void) {
     &ett_nr_rrc_OverheatingAssistanceConfig,
 
 /*--- End of included file: packet-nr-rrc-ettarr.c ---*/
-#line 525 "./asn1/nr-rrc/packet-nr-rrc-template.c"
+#line 527 "./asn1/nr-rrc/packet-nr-rrc-template.c"
     &ett_nr_rrc_DedicatedNAS_Message,
     &ett_rr_rrc_targetRAT_MessageContainer,
     &ett_nr_rrc_nas_Container,
@@ -58306,7 +58334,8 @@ proto_register_nr_rrc(void) {
     &ett_nr_rrc_eutra_SCG_Response,
     &ett_nr_rrc_measResultSCG_FailureMRDC,
     &ett_nr_rrc_ul_DCCH_MessageNR,
-    &ett_nr_rrc_ul_DCCH_MessageEUTRA
+    &ett_nr_rrc_ul_DCCH_MessageEUTRA,
+    &ett_rr_rrc_nas_SecurityParamFromNR
   };
 
   static ei_register_info ei[] = {
@@ -58344,7 +58373,7 @@ proto_register_nr_rrc(void) {
 
 
 /*--- End of included file: packet-nr-rrc-dis-reg.c ---*/
-#line 568 "./asn1/nr-rrc/packet-nr-rrc-template.c"
+#line 571 "./asn1/nr-rrc/packet-nr-rrc-template.c"
 
   nr_rrc_etws_cmas_dcs_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(),
                                                      g_direct_hash, g_direct_equal);
@@ -58362,4 +58391,5 @@ proto_reg_handoff_nr_rrc(void)
   lte_rrc_conn_reconf_handle = find_dissector("lte-rrc.rrc_conn_reconf");
   lte_rrc_conn_reconf_compl_handle = find_dissector("lte-rrc.rrc_conn_reconf_compl");
   lte_rrc_ul_dcch_handle = find_dissector("lte-rrc.ul.dcch");
+  lte_rrc_dl_dcch_handle = find_dissector("lte-rrc.dl.dcch");
 }

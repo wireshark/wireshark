@@ -436,8 +436,25 @@ RAT-Type TYPE_PREFIX
     switch (nr_priv->target_rat_type) {
     case T_targetRAT_Type_eutra:
       /* eutra */
-      if (lte_rrc_conn_reconf_handle)
-        nr_rrc_call_dissector(lte_rrc_conn_reconf_handle, target_rat_msg_cont_tvb, actx->pinfo, subtree);
+      if (lte_rrc_dl_dcch_handle)
+        nr_rrc_call_dissector(lte_rrc_dl_dcch_handle, target_rat_msg_cont_tvb, actx->pinfo, subtree);
+      break;
+    default:
+      break;
+    }
+  }
+
+#.FN_BODY MobilityFromNRCommand-IEs/nas-SecurityParamFromNR VAL_PTR = &nas_sec_param_tvb
+  tvbuff_t *nas_sec_param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (nas_sec_param_tvb) {
+    nr_rrc_private_data_t *nr_priv = nr_rrc_get_private_data(actx);
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_rr_rrc_nas_SecurityParamFromNR);
+    switch (nr_priv->target_rat_type) {
+    case T_targetRAT_Type_eutra:
+      /* eutra */
+      de_nas_5gs_n1_mode_to_s1_mode_nas_transparent_cont(nas_sec_param_tvb, subtree, actx->pinfo);
       break;
     default:
       break;

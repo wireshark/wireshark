@@ -46,6 +46,7 @@ static dissector_handle_t nas_5gs_handle = NULL;
 static dissector_handle_t lte_rrc_conn_reconf_handle = NULL;
 static dissector_handle_t lte_rrc_conn_reconf_compl_handle = NULL;
 static dissector_handle_t lte_rrc_ul_dcch_handle = NULL;
+static dissector_handle_t lte_rrc_dl_dcch_handle = NULL;
 
 static wmem_map_t *nr_rrc_etws_cmas_dcs_hash = NULL;
 
@@ -120,6 +121,7 @@ static gint ett_nr_rrc_eutra_SCG_Response = -1;
 static gint ett_nr_rrc_measResultSCG_FailureMRDC = -1;
 static gint ett_nr_rrc_ul_DCCH_MessageNR = -1;
 static gint ett_nr_rrc_ul_DCCH_MessageEUTRA = -1;
+static gint ett_rr_rrc_nas_SecurityParamFromNR = -1;
 
 static expert_field ei_nr_rrc_number_pages_le15 = EI_INIT;
 
@@ -545,7 +547,8 @@ proto_register_nr_rrc(void) {
     &ett_nr_rrc_eutra_SCG_Response,
     &ett_nr_rrc_measResultSCG_FailureMRDC,
     &ett_nr_rrc_ul_DCCH_MessageNR,
-    &ett_nr_rrc_ul_DCCH_MessageEUTRA
+    &ett_nr_rrc_ul_DCCH_MessageEUTRA,
+    &ett_rr_rrc_nas_SecurityParamFromNR
   };
 
   static ei_register_info ei[] = {
@@ -582,4 +585,5 @@ proto_reg_handoff_nr_rrc(void)
   lte_rrc_conn_reconf_handle = find_dissector("lte-rrc.rrc_conn_reconf");
   lte_rrc_conn_reconf_compl_handle = find_dissector("lte-rrc.rrc_conn_reconf_compl");
   lte_rrc_ul_dcch_handle = find_dissector("lte-rrc.ul.dcch");
+  lte_rrc_dl_dcch_handle = find_dissector("lte-rrc.dl.dcch");
 }
