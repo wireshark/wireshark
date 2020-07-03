@@ -5005,6 +5005,18 @@ static int hf_ieee80211_aironet_ie_qos_paramset = -1;
 static int hf_ieee80211_aironet_ie_qos_val = -1;
 static int hf_ieee80211_aironet_ie_clientmfp = -1;
 
+static int hf_ieee80211_vs_sgdsn_tag = -1;
+static int hf_ieee80211_vs_sgdsn_type = -1;
+static int hf_ieee80211_vs_sgdsn_length = -1;
+static int hf_ieee80211_vs_sgdsn_version = -1;
+static int hf_ieee80211_vs_sgdsn_manufacturer = -1;
+static int hf_ieee80211_vs_sgdsn_model = -1;
+static int hf_ieee80211_vs_sgdsn_serialnumber = -1;
+static int hf_ieee80211_vs_sgdsn_gpscoord = -1;
+static int hf_ieee80211_vs_sgdsn_altitude = -1;
+static int hf_ieee80211_vs_sgdsn_speed = -1;
+static int hf_ieee80211_vs_sgdsn_heading = -1;
+
 static int hf_ieee80211_vs_nintendo_type = -1;
 static int hf_ieee80211_vs_nintendo_length = -1;
 static int hf_ieee80211_vs_nintendo_servicelist = -1;
@@ -6182,6 +6194,7 @@ static gint ett_hs20_cc_proto_port_tuple = -1;
 
 static gint ett_ssid_list = -1;
 
+static gint ett_sgdsn = -1;
 static gint ett_nintendo = -1;
 
 static gint ett_routerboard = -1;
@@ -15197,6 +15210,148 @@ dissect_vendor_ie_mist(proto_item *item _U_, proto_tree *ietree,
     }
 }
 
+
+enum vs_sgdsn_type {
+  SGDSN_VERSION = 0x01,
+  SGDSN_IDFR = 0x02,
+  SGDSN_IDANSI = 0x03,
+  SGDSN_LATITUDE = 0x04,
+  SGDSN_LONGITUDE = 0x05,
+  SGDSN_ALTITUDE_ABS = 0x06,
+  SGDSN_ALTITUDE_REL = 0x07,
+  SGDSN_LATITUDE_TAKEOFF = 0x08,
+  SGDSN_LONGITUDE_TAKEOFF = 0x09,
+  SGDSN_H_SPEED = 0x0a,
+  SGDSN_HEADING = 0x0b,
+};
+
+static const value_string ieee80211_vs_sgdsn_type_vals[] = {
+  { SGDSN_VERSION,  "Version"},
+  { SGDSN_IDFR, "ID FR"},
+  { SGDSN_IDANSI, "ID ANSI"},
+  { SGDSN_LATITUDE, "Latitude"},
+  { SGDSN_LONGITUDE, "Longitude"},
+  { SGDSN_ALTITUDE_ABS, "Altitude AMSL"},
+  { SGDSN_ALTITUDE_REL, "Altitude AGL"},
+  { SGDSN_LATITUDE_TAKEOFF, "Latitude Takeoff"},
+  { SGDSN_LONGITUDE_TAKEOFF, "Longitude Takeoff"},
+  { SGDSN_H_SPEED, "Horizontal Speed"},
+  { SGDSN_HEADING, "Heading"},
+  { 0, NULL }
+};
+
+static void
+dissect_vendor_ie_sgdsn(proto_item *item _U_, proto_tree *ietree,
+                       tvbuff_t *tvb, int offset, guint32 tag_len,
+                       packet_info *pinfo)
+{
+  // Technical specification defined in French law "NOR: ECOI1934044A"
+  // https://www.legifrance.gouv.fr/eli/arrete/2019/12/27/ECOI1934044A/jo/texte
+
+  guint8 type = tvb_get_guint8(tvb, offset);
+  offset += 1;
+  tag_len -= 1;
+
+  if (type == 1) {
+
+    while (tag_len > 2) {
+
+      guint8 tlv_type = tvb_get_guint8(tvb, offset);
+      guint8 tlv_len = tvb_get_guint8(tvb, offset+1);
+
+      if (tag_len < tlv_len) {
+        break;
+      }
+
+      proto_item *item_tlv = proto_tree_add_item(ietree, hf_ieee80211_vs_sgdsn_tag, tvb, offset, tlv_len + 2, ENC_NA);
+      proto_item *tree = proto_item_add_subtree(item_tlv, ett_sgdsn);
+
+      proto_tree_add_item(tree, hf_ieee80211_vs_sgdsn_type, tvb, offset, 1, ENC_NA);
+      proto_tree_add_item(tree, hf_ieee80211_vs_sgdsn_length, tvb, offset + 1,  1, ENC_NA);
+
+      offset += 2;
+      tag_len -= 2;
+
+      proto_item_append_text(tree, ": %s", val_to_str_const(tlv_type, ieee80211_vs_sgdsn_type_vals, "Unknown"));
+
+      switch(tlv_type) {
+      case SGDSN_VERSION:
+        if (tlv_len == 1) {
+          guint32 value;
+          proto_tree_add_item_ret_uint(tree, hf_ieee80211_vs_sgdsn_version, tvb, offset, 1, ENC_NA, &value);
+          proto_item_append_text(tree, ": %d", value);
+        } else {
+          expert_add_info_format(pinfo, tree, &ei_ieee80211_tag_length, "Value length must be 1");
+        }
+        break;
+      case SGDSN_IDFR:
+        if (tlv_len == 30) {
+          const guint8* string1;
+          const guint8* string2;
+          const guint8* string3;
+          proto_tree_add_item_ret_string(tree, hf_ieee80211_vs_sgdsn_manufacturer, tvb, offset, 3, ENC_ASCII|ENC_NA, wmem_packet_scope(), &string1);
+          proto_tree_add_item_ret_string(tree, hf_ieee80211_vs_sgdsn_model, tvb, offset+3, 3, ENC_ASCII|ENC_NA, wmem_packet_scope(), &string2);
+          proto_tree_add_item_ret_string(tree, hf_ieee80211_vs_sgdsn_serialnumber, tvb, offset+6, tlv_len-6, ENC_ASCII|ENC_NA, wmem_packet_scope(), &string3);
+          proto_item_append_text(tree, ": %s %s %s", string1, string2, string3);
+        } else {
+          expert_add_info_format(pinfo, tree, &ei_ieee80211_tag_length, "Value length must be 30");
+        }
+        break;
+      case SGDSN_LATITUDE_TAKEOFF:
+      case SGDSN_LATITUDE:
+      case SGDSN_LONGITUDE_TAKEOFF:
+      case SGDSN_LONGITUDE:
+        if (tlv_len == 4) {
+          gint32 value;
+          proto_tree_add_item_ret_int(tree, hf_ieee80211_vs_sgdsn_gpscoord, tvb, offset, 4, ENC_NA, &value);
+          proto_item_append_text(tree, ": %.5f", value / 100000.0);
+        } else {
+          expert_add_info_format(pinfo, tree, &ei_ieee80211_tag_length, "Value length must be 4");
+        }
+        break;
+      case SGDSN_ALTITUDE_ABS:
+      case SGDSN_ALTITUDE_REL:
+        if (tlv_len == 2) {
+          guint32 value;
+          proto_tree_add_item_ret_uint(tree, hf_ieee80211_vs_sgdsn_altitude, tvb, offset, 2, ENC_NA, &value);
+          proto_item_append_text(tree, ": %d m", value);
+        } else {
+          expert_add_info_format(pinfo, tree, &ei_ieee80211_tag_length, "Value length must be 4");
+        }
+        break;
+      case SGDSN_H_SPEED:
+        if (tlv_len == 1) {
+          guint32 value;
+          proto_tree_add_item_ret_uint(tree, hf_ieee80211_vs_sgdsn_speed, tvb, offset, 1, ENC_NA, &value);
+          proto_item_append_text(tree, ": %d m/s", value);
+        } else {
+          expert_add_info_format(pinfo, tree, &ei_ieee80211_tag_length, "Value length must be 1");
+        }
+        break;
+      case SGDSN_HEADING:
+        if (tlv_len == 2) {
+          guint32 value;
+          proto_tree_add_item_ret_uint(tree, hf_ieee80211_vs_sgdsn_heading, tvb, offset, 2, ENC_NA, &value);
+          proto_item_append_text(tree, ": %d deg", value);
+        } else {
+          expert_add_info_format(pinfo, tree, &ei_ieee80211_tag_length, "Value length must be 2");
+        }
+        break;
+      default:
+        expert_add_info_format(pinfo, tree, &ei_ieee80211_extra_data, "Unknown type");
+        break;
+      }
+
+      offset += tlv_len;
+      tag_len -= tlv_len;
+    }
+
+    if (tag_len) {
+      expert_add_info_format(pinfo, item, &ei_ieee80211_tag_length, "Remaining bytes, TLV structure error");
+    }
+  }
+}
+
 enum vs_nintendo_type {
   NINTENDO_SERVICES = 0x11,
   NINTENDO_CONSOLEID = 0xF0
@@ -21066,6 +21221,10 @@ ieee80211_tag_vendor_specific_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     case OUI_MIST:
       dissect_vendor_ie_mist(field_data->item_tag, tree, tvb, offset, tag_vs_len);
       break;
+    case OUI_SGDSN:
+      dissect_vendor_ie_sgdsn(field_data->item_tag, tree, tvb, offset, tag_vs_len, pinfo);
+      break;
+
     default:
       proto_tree_add_item(tree, hf_ieee80211_tag_vendor_data, tvb, offset, tag_vs_len, ENC_NA);
       break;
@@ -35731,6 +35890,62 @@ proto_register_ieee80211(void)
       FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x01,
       NULL, HFILL }},
 
+    /* Vendor Specific : SGDSN */
+    {&hf_ieee80211_vs_sgdsn_tag,
+     {"Tag", "wlan.vs.sgdsn.tag",
+      FT_NONE, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vs_sgdsn_type,
+     {"Type", "wlan.vs.sgdsn.type",
+      FT_UINT8, BASE_DEC, VALS(ieee80211_vs_sgdsn_type_vals), 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vs_sgdsn_length,
+     {"Length", "wlan.vs.sgdsn.length",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vs_sgdsn_version,
+     {"Version", "wlan.vs.sgdsn.tag.version",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vs_sgdsn_manufacturer,
+     {"Manufacturer", "wlan.vs.sgdsn.tag.manufacturer",
+      FT_STRING, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vs_sgdsn_model,
+     {"Model", "wlan.vs.sgdsn.tag.model",
+      FT_STRING, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vs_sgdsn_serialnumber,
+     {"Serial number", "wlan.vs.sgdsn.tag.serialnumber",
+      FT_STRING, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vs_sgdsn_gpscoord,
+     {"GPS Coord", "wlan.vs.sgdsn.tag.gpscoord",
+      FT_INT32, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vs_sgdsn_altitude,
+     {"Altitude", "wlan.vs.sgdsn.tag.altitude",
+      FT_UINT16, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vs_sgdsn_speed,
+     {"Speed", "wlan.vs.sgdsn.tag.speed",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vs_sgdsn_heading,
+     {"Altitude", "wlan.vs.sgdsn.tag.heading",
+      FT_UINT16, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
     /* Vendor Specific : Nintendo */
     {&hf_ieee80211_vs_nintendo_type,
      {"Type", "wlan.vs.nintendo.type",
@@ -39053,6 +39268,7 @@ proto_register_ieee80211(void)
 
     &ett_ssid_list,
 
+    &ett_sgdsn,
     &ett_nintendo,
 
     &ett_routerboard,
