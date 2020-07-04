@@ -119,7 +119,7 @@ static const value_string iso14443_bitrates[] = {
    this conversion is used for type A's FSCI and FSDI and for type B's
    maximum frame size */
 static const guint16 code_to_len[] = {
-    16, 24, 32, 40, 48, 64, 96, 128, 256
+    16, 24, 32, 40, 48, 64, 96, 128, 256, 512, 1024, 2048, 4096
 };
 #define LEN_CODE_MAX array_length(code_to_len)
 
