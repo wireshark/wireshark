@@ -33,19 +33,19 @@ AE-qualifier ::= INTEGER
 Calling-AE-qualifier ::= AE-qualifier
 Mechanism-name ::= OBJECT IDENTIFIER
 
--- this is all of the authentication mechanism related stuff 
+-- this is all of the authentication mechanism related stuff
 
 Calling-authentication-value ::= [2] IMPLICIT SEQUENCE {
     calling-authentication-value-indirect   INTEGER DEFAULT 0,
     calling-authentication-value-encoding   Authentication-value-encoding
 }
 
-Authentication-value-encoding ::= CHOICE { 
-    calling-authentication-value-single-asn1    [0] Calling-authentication-value-single-asn1, 
+Authentication-value-encoding ::= CHOICE {
+    calling-authentication-value-single-asn1    [0] Calling-authentication-value-single-asn1,
     calling-authentication-value-octet-aligned  [1] IMPLICIT OCTET STRING
 }
 
-Calling-authentication-value-single-asn1 ::= CHOICE { 
+Calling-authentication-value-single-asn1 ::= CHOICE {
     calling-authentication-value-c1222   Calling-authentication-value-c1222,
     calling-authentication-value-c1221   Calling-authentication-value-c1221
 }
@@ -60,13 +60,13 @@ Iv-element ::= OCTET STRING (SIZE(4))
 
 Calling-authentication-value-c1221 ::= [0] IMPLICIT CHOICE {
     c1221-auth-identification   [0] IMPLICIT OCTET STRING (SIZE(3|5..259)),
-    c1221-auth-request          [0] IMPLICIT OCTET STRING (SIZE(1..255)),
-    c1221-auth-response         [0] IMPLICIT OCTET STRING (SIZE(0|1..255)),
+    c1221-auth-request          [1] IMPLICIT OCTET STRING (SIZE(1..255)),
+    c1221-auth-response         [2] IMPLICIT OCTET STRING (SIZE(0|1..255)),
     ...
 }
 
--- now the user information (EPSEM) 
-User-information ::= EXTERNAL 
+-- now the user information (EPSEM)
+User-information ::= EXTERNAL
 
 --User-information EPSEM-TYPE ::= { ... }
 
