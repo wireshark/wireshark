@@ -858,7 +858,7 @@ proto_register_bfd(void)
     /* BFD Echo */
     static hf_register_info hf_echo[] = {
         { &hf_bfd_echo,
-          { "Echo", "bfd_echo",
+          { "Echo", "bfd_echo.packet",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             "Originator specific echo packet", HFILL }
         }
