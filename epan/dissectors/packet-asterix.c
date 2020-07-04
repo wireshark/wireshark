@@ -4748,7 +4748,7 @@ static const FieldPart *I011_610_PARTS[] = { &I011_610_BKN, &I011_610_I01, &I011
 /* Items */
 DIAG_OFF(pedantic)
 static const AsterixField I011_000 = { FIXED, 1, 0, 0, &hf_011_000, I011_000_PARTS, { NULL } };
-static const AsterixField I011_010 = { FIXED, 2, 0, 0, &hf_019_010, IXXX_SAC_SIC, { NULL } };
+static const AsterixField I011_010 = { FIXED, 2, 0, 0, &hf_011_010, IXXX_SAC_SIC, { NULL } };
 static const AsterixField I011_015 = { FIXED, 1, 0, 0, &hf_011_015, I011_015_PARTS, { NULL } };
 static const AsterixField I011_041 = { FIXED, 8, 0, 0, &hf_011_041, I011_041_PARTS, { NULL } };
 static const AsterixField I011_042 = { FIXED, 4, 0, 0, &hf_011_042, I011_042_PARTS, { NULL } };
@@ -12455,8 +12455,8 @@ void proto_register_asterix (void)
         { &hf_011_270_ORIENTATION, { "Orientation [deg]", "asterix.011_270_ORIENTATION", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_011_270_WIDTH, { "Width [m]", "asterix.011_270_WIDTH", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_011_290, { "290, System Track Update Ages", "asterix.011_290", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-        { &hf_011_290_01, { "#1: PSR Age", "asterix.011_290", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-        { &hf_011_290_01_PSR, { "PSR [s]", "asterix.011_290", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_011_290_01, { "#1: PSR Age", "asterix.011_290_01", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_011_290_01_PSR, { "PSR [s]", "asterix.011_290_01_PSR", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_011_290_02, { "#2: SSR Age", "asterix.011_290_02", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_011_290_02_SSR, { "SSR [s]", "asterix.011_290_02_SSR", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_011_290_03, { "#3: Mode 3/A Age", "asterix.011_290_03", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
@@ -12575,7 +12575,7 @@ void proto_register_asterix (void)
         { &hf_011_605, { "605, Tracks in Alert", "asterix.011_605", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_011_605_FTN, { "Fusion Track Number", "asterix.011_605_FTN", FT_UINT16, BASE_DEC, NULL, 0x0fff, NULL, HFILL } },
         { &hf_011_610, { "610, Holdbar Status", "asterix.011_610", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-        { &hf_011_610_BKN, { "Bank Number", "asterix.011_610", FT_UINT8, BASE_DEC, NULL, 0xf0, NULL, HFILL } },
+        { &hf_011_610_BKN, { "Bank Number", "asterix.011_610_BKN", FT_UINT8, BASE_DEC, NULL, 0xf0, NULL, HFILL } },
         { &hf_011_610_I01, { "I1", "asterix.011_610_I01", FT_UINT16, BASE_DEC, VALS(valstr_011_610_I01), 0x800, NULL, HFILL } },
         { &hf_011_610_I02, { "I2", "asterix.011_610_I02", FT_UINT16, BASE_DEC, VALS(valstr_011_610_I02), 0x400, NULL, HFILL } },
         { &hf_011_610_I03, { "I3", "asterix.011_610_I03", FT_UINT16, BASE_DEC, VALS(valstr_011_610_I03), 0x200, NULL, HFILL } },
