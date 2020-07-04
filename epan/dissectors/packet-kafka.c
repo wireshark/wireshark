@@ -1305,7 +1305,7 @@ decompress_lz4(tvbuff_t *tvb, packet_info *pinfo, int offset, guint32 length, tv
     LZ4F_errorCode_t rc = 0;
     size_t src_offset = 0, src_size = 0, dst_size = 0;
     guchar *decompressed_buffer = NULL;
-    tvbuff_t *composite_tvb = tvb_new_composite();
+    tvbuff_t *composite_tvb = NULL;
 
     int ret = 0;
 
@@ -1369,22 +1369,25 @@ decompress_lz4(tvbuff_t *tvb, packet_info *pinfo, int offset, guint32 length, tv
         if (dst_size == 0) {
             goto end;
         }
+        if (!composite_tvb) {
+            composite_tvb = tvb_new_composite();
+        }
         tvb_composite_append(composite_tvb,
                              tvb_new_child_real_data(tvb, (guint8*)decompressed_buffer, (guint)dst_size, (gint)dst_size));
         src_offset += src_size; // bump up the offset for the next iteration
     } while (rc > 0);
 
-    tvb_composite_finalize(composite_tvb);
-    *decompressed_tvb = composite_tvb;
-    *decompressed_offset = 0;
-    composite_tvb = NULL;
     ret = 1;
 end:
-    LZ4F_freeDecompressionContext(lz4_ctxt);
-    if (composite_tvb != NULL) {
-        tvb_free_chain(composite_tvb);
+    if (composite_tvb) {
+        tvb_composite_finalize(composite_tvb);
     }
-    if (ret == 0) {
+    LZ4F_freeDecompressionContext(lz4_ctxt);
+    if (ret == 1) {
+        *decompressed_tvb = composite_tvb;
+        *decompressed_offset = 0;
+    }
+    else {
         col_append_str(pinfo->cinfo, COL_INFO, " [lz4 decompression failed]");
     }
     return ret;
