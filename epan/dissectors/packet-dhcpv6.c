@@ -2273,21 +2273,19 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         enterprise_no = tvb_get_ntohl(tvb, off);
         ti = proto_tree_add_item(subtree, hf_vendoropts_enterprise, tvb, off, 4, ENC_BIG_ENDIAN);
 
-        if (optlen >= 4) {
-            if (enterprise_no == 4491) {
-                dissect_cablelabs_specific_opts(subtree, ti, pinfo, tvb, off+4, optlen-4);
-            } else {
-                int optoffset = 0;
+        if (enterprise_no == 4491) {
+            dissect_cablelabs_specific_opts(subtree, ti, pinfo, tvb, off+4, optlen-4);
+        } else {
+            int optoffset = 0;
 
-                while ((optlen - 4 - optoffset) > 0) {
-                    int olen = tvb_get_ntohs(tvb, off + optoffset + 6);
-                    subtree_2 = proto_tree_add_subtree(subtree, tvb, off + optoffset + 4,
-                                             4 + olen, ett_dhcpv6_option_vsoption, NULL, "option");
-                    proto_tree_add_item(subtree_2, hf_vendoropts_enterprise_option_code, tvb, off + optoffset + 4, 2, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(subtree_2, hf_vendoropts_enterprise_option_length, tvb, off + optoffset + 6, 2, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(subtree_2, hf_vendoropts_enterprise_option_data, tvb, off + optoffset + 8, olen, ENC_NA);
-                    optoffset += (4 + olen);
-                }
+            while ((optlen - 4 - optoffset) > 0) {
+                int olen = tvb_get_ntohs(tvb, off + optoffset + 6);
+                subtree_2 = proto_tree_add_subtree(subtree, tvb, off + optoffset + 4,
+                                         4 + olen, ett_dhcpv6_option_vsoption, NULL, "option");
+                proto_tree_add_item(subtree_2, hf_vendoropts_enterprise_option_code, tvb, off + optoffset + 4, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(subtree_2, hf_vendoropts_enterprise_option_length, tvb, off + optoffset + 6, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(subtree_2, hf_vendoropts_enterprise_option_data, tvb, off + optoffset + 8, olen, ENC_NA);
+                optoffset += (4 + olen);
             }
         }
         break;
