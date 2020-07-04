@@ -3051,7 +3051,7 @@ proto_register_dhcpv6(void)
 
         /* OPTION_CLIENT_FQDN */
         { &hf_clientfqdn_bad_msgtype,
-          { "Illegal Message Type", "dhcpv6.clientfqdn.bad_msgtype", FT_UINT8, BASE_HEX, &msgtype_vals_ext, 0x0, NULL, HFILL }},
+          { "Illegal Message Type", "dhcpv6.clientfqdn.bad_msgtype", FT_UINT8, BASE_HEX | BASE_EXT_STRING, &msgtype_vals_ext, 0x0, NULL, HFILL }},
         { &hf_clientfqdn_flags,
           { "Flags", "dhcpv6.client_fqdn_flags", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         /* Client's preferences */
