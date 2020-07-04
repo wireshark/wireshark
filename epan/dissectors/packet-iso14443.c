@@ -69,16 +69,14 @@ static const value_string iso14443_event[] = {
      (e)==ISO14443_EVT_DATA_PCD_TO_PICC_CRC_DROPPED)
 
 typedef enum _iso14443_cmd_t {
-    CMD_TYPE_WUPA,        /* REQA, WUPA or ATQA */
-    CMD_TYPE_WUPB,        /* REQB, WUPB or ATQB */
+    CMD_TYPE_WUPA,    /* REQA, WUPA or ATQA */
+    CMD_TYPE_WUPB,    /* REQB, WUPB or ATQB */
     CMD_TYPE_HLTA,
-    CMD_TYPE_UID,         /* anticollision or selection commands
-                             and their answers */
-    CMD_TYPE_ATS,         /* RATS or ATS */
-    CMD_TYPE_ATTRIB,      /* Attrib or the answer to Attrib */
-    CMD_TYPE_BLOCK,       /* I-, R- or S-blocks */
-    CMD_TYPE_READ_BLOCK,  /* Read block */
-    CMD_TYPE_WRITE_BLOCK, /* Write block */
+    CMD_TYPE_UID,     /* anticollision or selection commands
+                         and their answers */
+    CMD_TYPE_ATS,     /* RATS or ATS */
+    CMD_TYPE_ATTRIB,  /* Attrib or the answer to Attrib */
+    CMD_TYPE_BLOCK,   /* I-, R- or S-blocks */
     CMD_TYPE_UNKNOWN
 } iso14443_cmd_t;
 
@@ -96,13 +94,10 @@ typedef enum _iso14443_type_t {
     ISO14443_UNKNOWN
 } iso14443_type_t;
 
-static const range_string iso14443_short_frame[] = {
-    { 0x26, 0x26, "REQA" },
-    { 0x40, 0x40, "Proprietary / MAGIC WUPC1" },
-    { 0x41, 0x47, "Proprietary" },
-    { 0x52, 0x52, "WUPA" },
-    { 0x78, 0x7f, "Proprietary" },
-    { 0, 0, NULL }
+static const value_string iso14443_short_frame[] = {
+    { 0x26 , "REQA" },
+    { 0x52 , "WUPA" },
+    { 0, NULL }
 };
 
 /* the bit rate definitions in the attrib message */
@@ -306,14 +301,6 @@ static int hf_iso14443_reass_in = -1;
 static int hf_iso14443_reass_len = -1;
 static int hf_iso14443_crc = -1;
 static int hf_iso14443_crc_status = -1;
-static int hf_iso14443_ack = -1;
-static int hf_iso14443_nack = -1;
-static int hf_iso14443_read_block = -1;
-static int hf_iso14443_read_block_number = -1;
-static int hf_iso14443_read_block_data = -1;
-static int hf_iso14443_write_block = -1;
-static int hf_iso14443_write_block_number = -1;
-static int hf_iso14443_write_block_data = -1;
 
 static int * const bit_rate_fields[] = {
     &hf_iso14443_same_bit_rate,
@@ -373,7 +360,7 @@ dissect_iso14443_cmd_type_wupa(tvbuff_t *tvb, packet_info *pinfo,
 
     if (pinfo->p2p_dir == P2P_DIR_SENT) {
         const gchar *sf_str;
-        sf_str = try_rval_to_str(
+        sf_str = try_val_to_str(
             tvb_get_guint8(tvb, 0), iso14443_short_frame);
         proto_tree_add_item(tree, hf_iso14443_short_frame,
                 tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -836,122 +823,6 @@ dissect_iso14443_cmd_type_ats(tvbuff_t *tvb, packet_info *pinfo,
     return offset;
 }
 
-static int dissect_iso14443_ack_nack(tvbuff_t *tvb, packet_info *pinfo,
-           gint offset, proto_tree *tree)
-{
-    guint8 lni;
-
-    lni = tvb_get_guint8(tvb, offset) & 0x0F;
-    if (lni == 0x0A) {
-        proto_tree_add_item(tree, hf_iso14443_ack, tvb, offset, 1, ENC_BIG_ENDIAN);
-        col_set_str(pinfo->cinfo, COL_INFO, "ACK");
-    } else if (lni == 0x00 || lni == 0x01 || lni == 0x04 || lni == 0x05) {
-        proto_tree_add_item(tree, hf_iso14443_nack, tvb, offset, 1, ENC_BIG_ENDIAN);
-        col_set_str(pinfo->cinfo, COL_INFO, "NACK");
-    }
-    offset += 1;
-
-    return offset;
-}
-
-static int
-dissect_iso14443_cmd_type_read_block(tvbuff_t *tvb, packet_info *pinfo,
-        proto_tree *tree, void *data)
-{
-    gboolean crc_dropped = (gboolean)GPOINTER_TO_UINT(data);
-    proto_item *ti = proto_tree_get_parent(tree);
-    gint offset = 0;
-    guint32 block_number;
-
-    if (pinfo->p2p_dir == P2P_DIR_SENT) {
-        proto_item_append_text(ti, ": READBLOCK");
-        proto_tree_add_item(tree, hf_iso14443_read_block,
-                tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset += 1;
-        proto_tree_add_item_ret_uint(tree, hf_iso14443_read_block_number,
-                tvb, offset, 1, ENC_BIG_ENDIAN, &block_number);
-        offset += 1;
-        col_add_fstr(pinfo->cinfo, COL_INFO, "Read block (%u)", block_number);
-
-        if (!crc_dropped) {
-            proto_tree_add_checksum(tree, tvb, offset,
-                    hf_iso14443_crc, hf_iso14443_crc_status, &ei_iso14443_wrong_crc, pinfo,
-                    crc16_iso14443a_tvb_offset(tvb, 0, offset),
-                    ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
-            offset += CRC_LEN;
-        }
-    }
-    else if (pinfo->p2p_dir == P2P_DIR_RECV) {
-        if (tvb_reported_length_remaining(tvb, offset) >= 16) {
-            col_set_str(pinfo->cinfo, COL_INFO, "Data");
-            proto_item_append_text(ti, ": Block data");
-            proto_tree_add_item(tree, hf_iso14443_read_block_data,
-                tvb, offset, 4, ENC_NA);
-            offset += 4;
-            proto_tree_add_item(tree, hf_iso14443_read_block_data,
-                tvb, offset, 4, ENC_NA);
-            offset += 4;
-            proto_tree_add_item(tree, hf_iso14443_read_block_data,
-                tvb, offset, 4, ENC_NA);
-            offset += 4;
-            proto_tree_add_item(tree, hf_iso14443_read_block_data,
-                tvb, offset, 4, ENC_NA);
-            offset += 4;
-            if (!crc_dropped) {
-                proto_tree_add_checksum(tree, tvb, offset,
-                        hf_iso14443_crc, hf_iso14443_crc_status, &ei_iso14443_wrong_crc, pinfo,
-                        crc16_iso14443a_tvb_offset(tvb, 0, offset),
-                        ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
-                offset += CRC_LEN;
-            }
-        }
-        else if (tvb_reported_length_remaining(tvb, offset) == 1) {
-            offset = dissect_iso14443_ack_nack(tvb, pinfo, offset, tree);
-       }
-    }
-
-    return offset;
-}
-
-static int
-dissect_iso14443_cmd_type_write_block(tvbuff_t *tvb, packet_info *pinfo,
-        proto_tree *tree, void *data)
-{
-    gboolean crc_dropped = (gboolean)GPOINTER_TO_UINT(data);
-    proto_item *ti = proto_tree_get_parent(tree);
-    gint offset = 0;
-    guint32 block_number;
-
-    if (pinfo->p2p_dir == P2P_DIR_SENT) {
-        proto_item_append_text(ti, ": WRITEBLOCK");
-        proto_tree_add_item(tree, hf_iso14443_write_block,
-                tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset += 1;
-        proto_tree_add_item_ret_uint(tree, hf_iso14443_write_block_number,
-                tvb, offset, 1, ENC_BIG_ENDIAN, &block_number);
-        offset += 1;
-        col_add_fstr(pinfo->cinfo, COL_INFO, "Write block (%u)", block_number);
-        proto_tree_add_item(tree, hf_iso14443_write_block_data,
-                tvb, offset, 4, ENC_NA);
-        offset += 4;
-
-        if (!crc_dropped) {
-            proto_tree_add_checksum(tree, tvb, offset,
-                    hf_iso14443_crc, hf_iso14443_crc_status, &ei_iso14443_wrong_crc, pinfo,
-                    crc16_iso14443a_tvb_offset(tvb, 0, offset),
-                    ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
-            offset += CRC_LEN;
-        }
-    }
-    else if (pinfo->p2p_dir == P2P_DIR_RECV) {
-        if (tvb_reported_length_remaining(tvb, offset) == 1) {
-            offset = dissect_iso14443_ack_nack(tvb, pinfo, offset, tree);
-       }
-    }
-
-    return offset;
-}
-
 
 static int dissect_iso14443_attrib(tvbuff_t *tvb, gint offset,
         packet_info *pinfo, proto_tree *tree, gboolean crc_dropped)
@@ -1390,17 +1261,11 @@ static iso14443_cmd_t iso14443_get_cmd_type(
         else if (first_byte == 0x05) {
             return CMD_TYPE_WUPB;
         }
-        else if (first_byte == 0x30) {
-            return CMD_TYPE_READ_BLOCK;
-        }
         else if (first_byte == 0x50) {
             return CMD_TYPE_HLTA;
         }
         else if (first_byte == 0x1D) {
             return CMD_TYPE_ATTRIB;
-        }
-        else if (first_byte == 0xA2) {
-            return CMD_TYPE_WRITE_BLOCK;
         }
         else if (first_byte == 0xE0) {
             return CMD_TYPE_ATS;
@@ -1567,7 +1432,7 @@ proto_register_iso14443(void)
         },
         { &hf_iso14443_short_frame,
             { "Short frame", "iso14443.short_frame",
-                FT_UINT8, BASE_RANGE_STRING | BASE_HEX, RVALS(iso14443_short_frame), 0, NULL, HFILL }
+                FT_UINT8, BASE_HEX, VALS(iso14443_short_frame), 0, NULL, HFILL }
         },
         { &hf_iso14443_atqa_rfu1,
             { "RFU", "iso14443.atqa_rfu",
@@ -1974,38 +1839,6 @@ proto_register_iso14443(void)
         { &hf_iso14443_crc_status,
             { "CRC Status", "iso14443.crc.status",
                 FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0, NULL, HFILL }
-        },
-        { &hf_iso14443_read_block,
-            { "Read block", "iso14443.read_block",
-                FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
-        },
-        { &hf_iso14443_ack,
-            { "ACK", "iso14443.ack",
-                FT_UINT8, BASE_HEX, NULL, 0x0f, NULL, HFILL }
-        },
-        { &hf_iso14443_nack,
-            { "NACK", "iso14443.nack",
-                FT_UINT8, BASE_HEX, NULL, 0x0f, NULL, HFILL }
-        },
-        { &hf_iso14443_read_block_number,
-            { "Block number", "iso14443.read_block.number",
-                FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
-        },
-        { &hf_iso14443_read_block_data,
-            { "Block data", "iso14443.read_block.data",
-                FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
-        },
-        { &hf_iso14443_write_block,
-            { "Write block", "iso14443.write_block",
-                FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
-        },
-        { &hf_iso14443_write_block_number,
-            { "Block number", "iso14443.write_block.number",
-                FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
-        },
-        { &hf_iso14443_write_block_data,
-            { "Block data", "iso14443.write_block.data",
-                FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
         }
    };
 
@@ -2106,15 +1939,6 @@ proto_reg_handoff_iso14443(void)
   cmd_type_handle = create_dissector_handle(
           dissect_iso14443_cmd_type_block, proto_iso14443);
   dissector_add_uint("iso14443.cmd_type", CMD_TYPE_BLOCK, cmd_type_handle);
-
-  cmd_type_handle = create_dissector_handle(
-          dissect_iso14443_cmd_type_read_block, proto_iso14443);
-  dissector_add_uint("iso14443.cmd_type", CMD_TYPE_READ_BLOCK, cmd_type_handle);
-
-  cmd_type_handle = create_dissector_handle(
-          dissect_iso14443_cmd_type_write_block, proto_iso14443);
-  dissector_add_uint("iso14443.cmd_type", CMD_TYPE_WRITE_BLOCK, cmd_type_handle);
-
 }
 
 
