@@ -1628,7 +1628,6 @@ static int dissect_dvb_s2_table_tbtp(tvbuff_t *tvb, int cur_off, proto_tree *dvb
     if (dvb_s2_rcs_version == DVB_S2_RCS_TABLE_DECODING)
     {
         proto_tree_add_item(dvb_s2_hdr_table_tree, hf_dvb_s2_table_crc32, tvb, cur_off + new_off, 4, ENC_NA);
-        new_off += 4;
     }
 
     return (table_len - DVB_S2_TABLE_HEADER_RCS2_LEN);
