@@ -8,9 +8,21 @@
  *
  * Standards:
  *  ETSI EN 302 307 - Digital Video Broadcasting (DVB) - Framing Structure
- *  ETSI TS 102 606 - Digital Video Broadcasting (DVB) - Generic Stream Encapsulation (GSE) Protocol
+ *  ETSI TS 102 606-1 - Digital Video Broadcasting (DVB) - Generic Stream Encapsulation (GSE) Part 1: Protocol
  *  ETSI TS 102 771 - Digital Video Broadcasting (DVB) - GSE implementation guidelines
  *  SatLabs sl_561 - Mode Adaptation Interfaces for DVB-S2 equipment
+ *  RFC 4326 - Unidirectional Lightweight Encapsulation (ULE) for Transmission of IP Datagrams over an MPEG-2 Transport Stream (TS)
+ *  IANA registries:
+ *
+ *    Mandatory Extension Headers (or link-dependent type fields) for ULE (Range 0-255 decimal):
+ *
+ *      https://www.iana.org/assignments/ule-next-headers/ule-next-headers.xhtml#ule-next-headers-1
+ *
+ *  and
+ *
+ *    Optional Extension Headers for ULE (Range 256-511 decimal):
+ *
+ *      https://www.iana.org/assignments/ule-next-headers/ule-next-headers.xhtml#ule-next-headers-2
  *
  * Copyright 2012, Tobias Rutz <tobias.rutz@work-microwave.de>
  *
