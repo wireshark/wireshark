@@ -140,6 +140,7 @@ static int hf_dvb_s2_gse_hdr_labeltype = -1;
 static int hf_dvb_s2_gse_hdr_length = -1;
 static int hf_dvb_s2_gse_padding = -1;
 static int hf_dvb_s2_gse_proto = -1;
+static int hf_dvb_s2_gse_proto_ethertype = -1;
 static int hf_dvb_s2_gse_label6 = -1;
 static int hf_dvb_s2_gse_label3 = -1;
 static int hf_dvb_s2_gse_fragid = -1;
@@ -866,18 +867,10 @@ static const value_string gse_labeltype[] = {
 #define DVB_RCS2_NCR 0x0081
 #define DVB_RCS2_SIGNAL_TABLE 0x0082
 
-static const range_string gse_proto_str[] = {
-    {0x0000               , 0x00FF               , "not implemented"},
-    {DVB_RCS2_NCR         , DVB_RCS2_NCR         , "NCR"            },
-    {DVB_RCS2_SIGNAL_TABLE, DVB_RCS2_SIGNAL_TABLE, "Signaling Table"},
-    {0x0100               , 0x05FF               , "not implemented"},
-    {0x0600               , 0x07FF               , "not implemented"},
-    {ETHERTYPE_IP         , ETHERTYPE_IP         , "IPv4 Payload"   },
-    {0x0801               , 0x86DC               , "not implemented"},
-    {ETHERTYPE_IPv6       , ETHERTYPE_IPv6       , "IPv6 Payload"   },
-    {ETHERTYPE_VLAN       , ETHERTYPE_VLAN       , "VLAN"           },
-    {0x86DE               , 0xFFFF               , "not implemented"},
-    {0                    , 0                    , NULL             }
+static const value_string gse_proto_str[] = {
+    {DVB_RCS2_NCR,          "NCR"            },
+    {DVB_RCS2_SIGNAL_TABLE, "Signaling Table"},
+    {0, NULL}
 };
 
 #define DVB_S2_GSE_CRC32_LEN            4
@@ -964,8 +957,15 @@ static int dissect_dvb_s2_gse(tvbuff_t *tvb, int cur_off, proto_tree *tree, pack
             /* Start packet, decode the header */
             gse_proto = tvb_get_ntohs(tvb, cur_off + new_off);
 
-            proto_tree_add_item(dvb_s2_gse_tree, hf_dvb_s2_gse_proto, tvb, cur_off + new_off, 2, ENC_BIG_ENDIAN);
-
+            /* Protocol Type */
+            if (gse_proto <= 1535) {
+                /* Type 1 (Next-Header Type field) */
+                proto_tree_add_item(dvb_s2_gse_tree, hf_dvb_s2_gse_proto, tvb, cur_off + new_off, 2, ENC_BIG_ENDIAN);
+            }
+            else {
+                /* Type 2 (EtherType compatible Type Fields) */
+                proto_tree_add_item(dvb_s2_gse_tree, hf_dvb_s2_gse_proto_ethertype, tvb, cur_off + new_off, 2, ENC_BIG_ENDIAN);
+            }
             new_off += 2;
 
             if (BIT_IS_CLEAR(gse_hdr, DVB_S2_GSE_HDR_LABELTYPE_POS1) && BIT_IS_CLEAR(gse_hdr, DVB_S2_GSE_HDR_LABELTYPE_POS2)) {
@@ -1079,9 +1079,13 @@ static int dissect_dvb_s2_gse(tvbuff_t *tvb, int cur_off, proto_tree *tree, pack
                 new_off += data_len;
                 dissected = TRUE;
                 break;
+
+            default:
+                /* Not handled! TODO: expert info? */
+                break;
         }
 
-        if (dissected == FALSE) {
+        if (!dissected) {
             proto_tree_add_item(dvb_s2_gse_tree, hf_dvb_s2_gse_data, tvb, cur_off + new_off, data_len, ENC_NA);
             new_off += data_len;
         }
@@ -1589,7 +1593,12 @@ void proto_register_dvb_s2_modeadapt(void)
         },
         {&hf_dvb_s2_gse_proto, {
                 "Protocol", "dvb-s2_gse.proto",
-                FT_UINT16, BASE_HEX | BASE_RANGE_STRING, RVALS(gse_proto_str), 0x0,
+                FT_UINT16, BASE_HEX, VALS(gse_proto_str), 0x0,
+                "Protocol Type", HFILL}
+        },
+        {&hf_dvb_s2_gse_proto_ethertype, {
+                "Protocol", "dvb-s2_gse.proto",
+                FT_UINT16, BASE_HEX, VALS(etype_vals), 0x0,
                 "Protocol Type", HFILL}
         },
         {&hf_dvb_s2_gse_label6, {
