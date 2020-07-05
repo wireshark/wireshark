@@ -8506,6 +8506,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 <context>
     <name>PacketList</name>
     <message>
+        <source>Protocol Preferences</source>
+        <translation type="unfinished">Ustawienia protokołów</translation>
+    </message>
+    <message>
         <source>Summary as Text</source>
         <translation>Podsumowanie jako tekst</translation>
     </message>
@@ -8704,6 +8708,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>a preference</source>
         <translation>ustawienie</translation>
+    </message>
+    <message>
+        <source>Browse…</source>
+        <translation type="unfinished">Przeglądaj…</translation>
     </message>
     <message>
         <source>Open %1 preferences</source>

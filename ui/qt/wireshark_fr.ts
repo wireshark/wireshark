@@ -8465,6 +8465,10 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
 <context>
     <name>PacketList</name>
     <message>
+        <source>Protocol Preferences</source>
+        <translation type="unfinished">Préférences du Protocole</translation>
+    </message>
+    <message>
         <source>Summary as Text</source>
         <translation>Résumé en Texte</translation>
     </message>
@@ -8664,6 +8668,10 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <source>a preference</source>
         <translation>une préférence</translation>
+    </message>
+    <message>
+        <source>Browse…</source>
+        <translation type="unfinished">Feuilleter...</translation>
     </message>
     <message>
         <source>Open %1 preferences</source>

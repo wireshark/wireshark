@@ -41,14 +41,18 @@ Wireshark 3.3.0 Release Notes
        platforms where iLBC library
        (https://github.com/TimothyGu/libilbc) is available.
 
+     • Decode As entries can now be copied from other profiles using a
+       button in the dialog.
+
   New Protocol Support
 
    Asphodel Protocol, AudioCodes Debug Recording (ACDR), Cisco
    MisCabling Protocol (MCP), Dynamic Link Exchange Protocol (DLEP),
    Java Debug Wire Protocol (JDWP), LBM Stateful Resolution Service
    (LBMSRS), OBSAI UDP-based Communication Protocol (UDPCP), ScyllaDB
-   RPC, Tunnel Extensible Authentication Protocol (TEAP), and USB
-   Printer (USBPRINTER)
+   RPC, Technically Enhanced Capture Module Protocol (TECMP), Tunnel
+   Extensible Authentication Protocol (TEAP), and USB Printer
+   (USBPRINTER)
 
   Updated Protocol Support
 
@@ -90,7 +94,7 @@ Wireshark 3.3.0 Release Notes
 
   A complete FAQ is available on the Wireshark web site[6].
 
-  Last updated 2020-06-28 08:04:57 UTC
+  Last updated 2020-07-05 08:05:20 UTC
 
  References
 

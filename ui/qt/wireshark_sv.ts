@@ -8495,6 +8495,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
 <context>
     <name>PacketList</name>
     <message>
+        <source>Protocol Preferences</source>
+        <translation type="unfinished">Protokollinställningar</translation>
+    </message>
+    <message>
         <source>Summary as Text</source>
         <translation>Sammanfattning som text</translation>
     </message>
@@ -8694,6 +8698,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>a preference</source>
         <translation>en inställning</translation>
+    </message>
+    <message>
+        <source>Browse…</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Open %1 preferences</source>

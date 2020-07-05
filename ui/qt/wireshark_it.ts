@@ -8495,6 +8495,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
 <context>
     <name>PacketList</name>
     <message>
+        <source>Protocol Preferences</source>
+        <translation type="unfinished">Preferenze di protocollo</translation>
+    </message>
+    <message>
         <source>Summary as Text</source>
         <translation>Riepilogo come testo</translation>
     </message>
@@ -8694,6 +8698,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>a preference</source>
         <translation>una preferenza</translation>
+    </message>
+    <message>
+        <source>Browse…</source>
+        <translation type="unfinished">Sfoglia...</translation>
     </message>
     <message>
         <source>Open %1 preferences</source>
