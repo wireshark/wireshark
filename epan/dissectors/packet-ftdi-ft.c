@@ -15,6 +15,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <epan/reassemble.h>
 #include "packet-usb.h"
 #include "packet-ftdi-ft.h"
 
@@ -77,6 +78,16 @@ static gint hf_if_c_rx_payload = -1;
 static gint hf_if_c_tx_payload = -1;
 static gint hf_if_d_rx_payload = -1;
 static gint hf_if_d_tx_payload = -1;
+static gint hf_ftdi_fragments = -1;
+static gint hf_ftdi_fragment = -1;
+static gint hf_ftdi_fragment_overlap = -1;
+static gint hf_ftdi_fragment_overlap_conflicts = -1;
+static gint hf_ftdi_fragment_multiple_tails = -1;
+static gint hf_ftdi_fragment_too_long_fragment = -1;
+static gint hf_ftdi_fragment_error = -1;
+static gint hf_ftdi_fragment_count = -1;
+static gint hf_ftdi_reassembled_in = -1;
+static gint hf_ftdi_reassembled_length = -1;
 
 static gint ett_ftdi_ft = -1;
 static gint ett_modem_ctrl_lvalue = -1;
@@ -87,6 +98,31 @@ static gint ett_baudrate_hindex = -1;
 static gint ett_setdata_hvalue = -1;
 static gint ett_modem_status = -1;
 static gint ett_line_status = -1;
+static gint ett_ftdi_fragment = -1;
+static gint ett_ftdi_fragments = -1;
+
+static const fragment_items ftdi_frag_items = {
+    /* Fragment subtrees */
+    &ett_ftdi_fragment,
+    &ett_ftdi_fragments,
+    /* Fragment Fields */
+    &hf_ftdi_fragments,
+    &hf_ftdi_fragment,
+    &hf_ftdi_fragment_overlap,
+    &hf_ftdi_fragment_overlap_conflicts,
+    &hf_ftdi_fragment_multiple_tails,
+    &hf_ftdi_fragment_too_long_fragment,
+    &hf_ftdi_fragment_error,
+    &hf_ftdi_fragment_count,
+    /* Reassembled in field */
+    &hf_ftdi_reassembled_in,
+    /* Reassembled length field */
+    &hf_ftdi_reassembled_length,
+    /* Reassembled data field */
+    NULL,
+    /* Tag */
+    "FTDI FT fragments"
+};
 
 static dissector_handle_t ftdi_mpsse_handle;
 
@@ -94,8 +130,11 @@ static expert_field ei_undecoded = EI_INIT;
 
 static dissector_handle_t ftdi_ft_handle;
 
+static reassembly_table ftdi_reassembly_table;
+
 static wmem_tree_t *request_info = NULL;
 static wmem_tree_t *bitmode_info = NULL;
+static wmem_tree_t *desegment_info = NULL;
 
 typedef struct _request_data {
     guint32  bus_id;
@@ -111,6 +150,22 @@ typedef struct _bitmode_data {
     FTDI_INTERFACE interface;
     guint8         bitmode;
 } bitmode_data_t;
+
+typedef struct _desegment_data desegment_data_t;
+struct _desegment_data {
+    guint32           bus_id;
+    guint32           device_address;
+    FTDI_INTERFACE    interface;
+    guint8            bitmode;
+    /* First frame where the segmented data starts (reassembly key) */
+    guint32           first_frame;
+    guint32           last_frame;
+    gint              first_frame_offset;
+    /* Points to desegment data if the previous desegment data ends
+     * in last_frame that is equal to this desegment data first_frame.
+     */
+    desegment_data_t *previous;
+};
 
 #define REQUEST_RESET           0x00
 #define REQUEST_MODEM_CTRL      0x01
@@ -716,35 +771,261 @@ get_recorded_interface_mode(packet_info *pinfo, usb_conv_info_t *usb_conv_info, 
     return 0; /* Default to 0, which is plain serial data */
 }
 
-static gint
-dissect_serial_payload(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, usb_conv_info_t *usb_conv_info, FTDI_INTERFACE interface)
+static desegment_data_t *
+record_desegment_data(packet_info *pinfo, usb_conv_info_t *usb_conv_info,
+                      FTDI_INTERFACE interface, guint8 bitmode)
 {
-    gint              bytes;
+    guint32         k_bus_id = usb_conv_info->bus_id;
+    guint32         k_device_address = usb_conv_info->device_address;
+    guint32         k_interface = (guint32)interface;
+    guint32         k_direction = (guint32)usb_conv_info->direction;
+    wmem_tree_key_t key[] = {
+        {1, &k_bus_id},
+        {1, &k_device_address},
+        {1, &k_interface},
+        {1, &k_direction},
+        {1, &pinfo->num},
+        {0, NULL}
+    };
+    desegment_data_t *desegment_data = NULL;
+
+    desegment_data = wmem_new(wmem_file_scope(), desegment_data_t);
+    desegment_data->bus_id = usb_conv_info->bus_id;
+    desegment_data->device_address = usb_conv_info->device_address;
+    desegment_data->interface = interface;
+    desegment_data->bitmode = bitmode;
+    desegment_data->first_frame = pinfo->num;
+    /* Last frame is currently unknown */
+    desegment_data->last_frame = 0;
+    desegment_data->first_frame_offset = 0;
+    desegment_data->previous = NULL;
+
+    wmem_tree_insert32_array(desegment_info, key, desegment_data);
+    return desegment_data;
+}
+
+static desegment_data_t *
+get_recorded_desegment_data(packet_info *pinfo, usb_conv_info_t *usb_conv_info,
+                            FTDI_INTERFACE interface, guint8 bitmode)
+{
+    guint32         k_bus_id = usb_conv_info->bus_id;
+    guint32         k_device_address = usb_conv_info->device_address;
+    guint32         k_interface = (guint32)interface;
+    guint32         k_direction = (guint32)usb_conv_info->direction;
+    wmem_tree_key_t key[] = {
+        {1, &k_bus_id},
+        {1, &k_device_address},
+        {1, &k_interface},
+        {1, &k_direction},
+        {1, &pinfo->num},
+        {0, NULL}
+    };
+
+    desegment_data_t *desegment_data = NULL;
+    desegment_data = (desegment_data_t*)wmem_tree_lookup32_array_le(desegment_info, key);
+    if (desegment_data && desegment_data->bus_id == k_bus_id && desegment_data->device_address == k_device_address &&
+        desegment_data->interface == interface && desegment_data->bitmode == bitmode)
+    {
+        /* Return desegment data only if it is relevant to current packet */
+        if ((desegment_data->last_frame == 0) || (desegment_data->last_frame >= pinfo->num))
+        {
+            return desegment_data;
+        }
+    }
+
+    return NULL;
+}
+
+static void
+dissect_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, usb_conv_info_t *usb_conv_info,
+                FTDI_INTERFACE interface, guint8 bitmode)
+{
     guint32           k_bus_id;
     guint32           k_device_address;
 
     k_bus_id = usb_conv_info->bus_id;
     k_device_address = usb_conv_info->device_address;
 
-    bytes = tvb_reported_length_remaining(tvb, offset);
+    if (tvb && ((bitmode == BITMODE_MPSSE) || (bitmode == BITMODE_MCU)))
+    {
+        ftdi_mpsse_info_t mpsse_info = {
+            .bus_id = k_bus_id,
+            .device_address = k_device_address,
+            .chip = identify_chip(usb_conv_info),
+            .iface = interface,
+            .mcu_mode = (bitmode == BITMODE_MCU),
+        };
+        call_dissector_with_data(ftdi_mpsse_handle, tvb, pinfo, tree, &mpsse_info);
+    }
+}
+
+static gint
+dissect_serial_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *ftdi_tree,
+                       usb_conv_info_t *usb_conv_info, FTDI_INTERFACE interface)
+{
+    guint16           save_can_desegment;
+    int               save_desegment_offset;
+    guint32           save_desegment_len;
+    desegment_data_t *desegment_data;
+    guint32           bytes;
+
+    save_can_desegment = pinfo->can_desegment;
+    save_desegment_offset = pinfo->desegment_offset;
+    save_desegment_len = pinfo->desegment_len;
+
+    bytes = tvb_reported_length(tvb);
     if (bytes > 0)
     {
-        guint8 bitmode;
+        tvbuff_t *payload_tvb = NULL;
+        guint32   reassembled_bytes = 0;
+        guint8    bitmode;
+        guint8    curr_layer_num = pinfo->curr_layer_num;
 
         bitmode = get_recorded_interface_mode(pinfo, usb_conv_info, interface);
-        if ((bitmode == BITMODE_MPSSE) || (bitmode == BITMODE_MCU))
+
+        pinfo->can_desegment = 2;
+        pinfo->desegment_offset = 0;
+        pinfo->desegment_len = 0;
+
+        desegment_data = get_recorded_desegment_data(pinfo, usb_conv_info, interface, bitmode);
+        if (desegment_data)
         {
-            ftdi_mpsse_info_t mpsse_info = {
-                .bus_id         = k_bus_id,
-                .device_address = k_device_address,
-                .chip           = identify_chip(usb_conv_info),
-                .iface          = interface,
-                .mcu_mode       = (bitmode == BITMODE_MCU),
-            };
-            tvbuff_t *mpsse_payload_tvb = tvb_new_subset_remaining(tvb, offset);
-            call_dissector_with_data(ftdi_mpsse_handle, mpsse_payload_tvb, pinfo, tree, &mpsse_info);
+            fragment_head    *fd_head;
+            desegment_data_t *next_desegment_data = NULL;
+
+            if ((desegment_data->previous) && (desegment_data->first_frame == pinfo->num))
+            {
+                DISSECTOR_ASSERT(desegment_data->previous->last_frame == pinfo->num);
+
+                next_desegment_data = desegment_data;
+                desegment_data = desegment_data->previous;
+            }
+
+            if (!PINFO_FD_VISITED(pinfo))
+            {
+                /* Combine data reassembled so far with current tvb and check if this is last fragment or not */
+                fragment_item *item;
+                fd_head = fragment_get(&ftdi_reassembly_table, pinfo, desegment_data->first_frame, NULL);
+                DISSECTOR_ASSERT(fd_head && !(fd_head->flags & FD_DEFRAGMENTED) && fd_head->next);
+                payload_tvb = tvb_new_composite();
+                for (item = fd_head->next; item; item = item->next)
+                {
+                    DISSECTOR_ASSERT(reassembled_bytes == item->offset);
+                    tvb_composite_append(payload_tvb, item->tvb_data);
+                    reassembled_bytes += item->len;
+                }
+                tvb_composite_append(payload_tvb, tvb);
+                tvb_composite_finalize(payload_tvb);
+                add_new_data_source(pinfo, payload_tvb, "Reassembled");
+            }
+            else
+            {
+                fd_head = fragment_get_reassembled(&ftdi_reassembly_table, desegment_data->first_frame);
+                payload_tvb = process_reassembled_data(tvb, 0, pinfo, "Reassembled", fd_head,
+                                                       &ftdi_frag_items, NULL, ftdi_tree);
+            }
+
+            if (next_desegment_data)
+            {
+                fragment_head *next_head;
+                next_head = fragment_get_reassembled(&ftdi_reassembly_table, next_desegment_data->first_frame);
+                process_reassembled_data(tvb, 0, pinfo, "Reassembled", next_head, &ftdi_frag_items, NULL, ftdi_tree);
+            }
+
+            if ((desegment_data->first_frame == pinfo->num) && (desegment_data->first_frame_offset > 0))
+            {
+                payload_tvb = tvb_new_subset_length(tvb, 0, desegment_data->first_frame_offset);
+            }
+        }
+        else
+        {
+            /* Packet is not part of reassembly sequence, simply use it without modifications */
+            payload_tvb = tvb;
+        }
+
+        dissect_payload(payload_tvb, pinfo, tree, usb_conv_info, interface, bitmode);
+
+        if (!PINFO_FD_VISITED(pinfo))
+        {
+            /* FTDI FT dissector doesn't know if the last fragment is really the last one unless it passes
+             * the data to the next dissector. There is absolutely no metadata that could help with it as
+             * FTDI FT is pretty much a direct replacement to UART (COM port) and is pretty much transparent
+             * to the actual serial protocol used.
+             *
+             * Passing the data to next dissector results in curr_layer_num being increased if it dissected
+             * the data (when it is the last fragment). This would prevent the process_reassembled_data()
+             * (after the first pass) from returning the reassembled tvb in FTFI FT which in turn prevents
+             * the data from being passed to the next dissector.
+             *
+             * Override pinfo->curr_layer_num value when the fragments are being added to reassembly table.
+             * This is ugly hack. Is there any better approach?
+             *
+             * There doesn't seem to be a mechanism to "back-track" just added fragments to reassembly table,
+             * or any way to "shorten" the last added fragment. The most problematic case is when current
+             * packet is both last packet for previous reassembly and a first packet for next reassembly.
+             */
+            guint8 save_curr_layer_num = pinfo->curr_layer_num;
+            pinfo->curr_layer_num = curr_layer_num;
+
+            if (!pinfo->desegment_len)
+            {
+                if (desegment_data)
+                {
+                    /* Current tvb is really the last fragment */
+                    fragment_add_check(&ftdi_reassembly_table, tvb, 0, pinfo,
+                                       desegment_data->first_frame, NULL, reassembled_bytes, bytes, FALSE);
+                    desegment_data->last_frame = pinfo->num;
+                }
+            }
+            else
+            {
+                DISSECTOR_ASSERT_HINT(pinfo->desegment_len == DESEGMENT_ONE_MORE_SEGMENT,
+                                      "FTDI FT supports only DESEGMENT_ONE_MORE_SEGMENT");
+                if (!desegment_data)
+                {
+                    /* Start desegmenting */
+                    gint fragment_length = tvb_reported_length_remaining(tvb, pinfo->desegment_offset);
+                    desegment_data = record_desegment_data(pinfo, usb_conv_info, interface, bitmode);
+                    desegment_data->first_frame_offset = pinfo->desegment_offset;
+                    fragment_add_check(&ftdi_reassembly_table, tvb, pinfo->desegment_offset, pinfo,
+                                       desegment_data->first_frame, NULL, 0, fragment_length, TRUE);
+                }
+                else if (pinfo->desegment_offset == 0)
+                {
+                    /* Continue reassembling */
+                    fragment_add_check(&ftdi_reassembly_table, tvb, 0, pinfo,
+                                       desegment_data->first_frame, NULL, reassembled_bytes, bytes, TRUE);
+                }
+                else
+                {
+                    gint fragment_length;
+                    gint previous_bytes;
+                    desegment_data_t *previous_desegment_data;
+
+                    /* This packet contains both an end from a previous reassembly and start of a new one */
+                    DISSECTOR_ASSERT((guint32)pinfo->desegment_offset > reassembled_bytes);
+                    previous_bytes = pinfo->desegment_offset - reassembled_bytes;
+                    fragment_add_check(&ftdi_reassembly_table, tvb, 0, pinfo,
+                                       desegment_data->first_frame, NULL, reassembled_bytes, previous_bytes, FALSE);
+                    desegment_data->last_frame = pinfo->num;
+
+                    previous_desegment_data = desegment_data;
+                    fragment_length = bytes - previous_bytes;
+                    desegment_data = record_desegment_data(pinfo, usb_conv_info, interface, bitmode);
+                    desegment_data->first_frame_offset = previous_bytes;
+                    desegment_data->previous = previous_desegment_data;
+                    fragment_add_check(&ftdi_reassembly_table, tvb, previous_bytes, pinfo,
+                                       desegment_data->first_frame, NULL, 0, fragment_length, TRUE);
+                }
+            }
+
+            pinfo->curr_layer_num = save_curr_layer_num;
         }
     }
+
+    pinfo->can_desegment = save_can_desegment;
+    pinfo->desegment_offset = save_desegment_offset;
+    pinfo->desegment_len = save_desegment_len;
 
     return bytes;
 }
@@ -975,7 +1256,7 @@ dissect_ftdi_ft(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 tvb_composite_finalize(rx_tvb);
                 col_append_fstr(pinfo->cinfo, COL_INFO, " %d bytes", total_rx_len);
                 add_new_data_source(pinfo, rx_tvb, "RX Payload");
-                dissect_serial_payload(rx_tvb, 0, pinfo, tree, usb_conv_info, interface);
+                dissect_serial_payload(rx_tvb, pinfo, tree, main_tree, usb_conv_info, interface);
             }
             else
             {
@@ -998,7 +1279,7 @@ dissect_ftdi_ft(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
                 tx_tvb = tvb_new_subset_length(tvb, offset, bytes);
                 add_new_data_source(pinfo, tx_tvb, "TX Payload");
-                dissect_serial_payload(tx_tvb, 0, pinfo, tree, usb_conv_info, interface);
+                dissect_serial_payload(tx_tvb, pinfo, tree, main_tree, usb_conv_info, interface);
                 offset += bytes;
             }
         }
@@ -1298,6 +1579,56 @@ proto_register_ftdi_ft(void)
             FT_BYTES, BASE_NONE, NULL, 0x0,
             "Data to transmit on interface D", HFILL }
         },
+        { &hf_ftdi_fragments,
+          { "Payload fragments", "ftdift.fragments",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_ftdi_fragment,
+          { "Payload fragment", "ftdift.fragment",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_ftdi_fragment_overlap,
+          { "Payload fragment overlap", "ftdift.fragment.overlap",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_ftdi_fragment_overlap_conflicts,
+          { "Payload fragment overlapping with conflicting data", "ftdift.fragment.overlap.conflicts",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_ftdi_fragment_multiple_tails,
+          { "Payload has multiple tails", "ftdift.fragment.multiple_tails",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_ftdi_fragment_too_long_fragment,
+          { "Payload fragment too long", "ftdift.fragment.too_long_fragment",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_ftdi_fragment_error,
+          { "Payload defragmentation error", "ftdift.fragment.error",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_ftdi_fragment_count,
+          { "Payload fragment count", "ftdift.fragment.count",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_ftdi_reassembled_in,
+          { "Payload reassembled in", "ftdift.reassembled.in",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_ftdi_reassembled_length,
+          { "Payload reassembled length", "ftdift.reassembled.length",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
     };
 
     static ei_register_info ei[] = {
@@ -1314,10 +1645,13 @@ proto_register_ftdi_ft(void)
         &ett_setdata_hvalue,
         &ett_modem_status,
         &ett_line_status,
+        &ett_ftdi_fragment,
+        &ett_ftdi_fragments,
     };
 
     request_info = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     bitmode_info = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+    desegment_info = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
     proto_ftdi_ft = proto_register_protocol("FTDI FT USB", "FTDI FT", "ftdift");
     proto_register_field_array(proto_ftdi_ft, hf, array_length(hf));
@@ -1326,6 +1660,8 @@ proto_register_ftdi_ft(void)
 
     expert_module = expert_register_protocol(proto_ftdi_ft);
     expert_register_field_array(expert_module, ei, array_length(ei));
+
+    reassembly_table_register(&ftdi_reassembly_table, &addresses_ports_reassembly_table_functions);
 }
 
 void

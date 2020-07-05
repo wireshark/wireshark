@@ -926,6 +926,7 @@ dissect_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offse
 static gint
 dissect_ftdi_mpsse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
+    gboolean           need_reassembly = FALSE;
     ftdi_mpsse_info_t *mpsse_info = (ftdi_mpsse_info_t *)data;
     gint               offset = 0;
     proto_item        *main_item;
@@ -947,7 +948,6 @@ dissect_ftdi_mpsse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     if (pinfo->p2p_dir == P2P_DIR_SENT)
     {
         command_data_t *iter = head;
-        gboolean need_reassembly = FALSE;
 
         if (pinfo->fd->visited)
         {
@@ -970,17 +970,10 @@ dissect_ftdi_mpsse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         {
             offset += dissect_command(tvb, pinfo, main_tree, offset, &need_reassembly, mpsse_info, &iter);
         }
-
-        if (need_reassembly)
-        {
-            /* TODO: Implement desegmentation in FTDI FT and ask for one more segment */
-            proto_tree_add_expert(main_tree, pinfo, &ei_reassembly_unavailable, tvb, offset, -1);
-        }
     }
     else if (pinfo->p2p_dir == P2P_DIR_RECV)
     {
         command_data_t *iter = head;
-        gboolean need_reassembly = FALSE;
 
         if (!pinfo->fd->visited)
         {
@@ -1008,12 +1001,20 @@ dissect_ftdi_mpsse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                 iter = iter->next;
             }
         }
+    }
 
-        if (need_reassembly)
+    if (need_reassembly)
+    {
+        if (pinfo->can_desegment)
         {
-            /* TODO: Implement desegmentation in FTDI FT and ask for one more segment */
+            pinfo->desegment_offset = offset;
+            pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
+        }
+        else
+        {
             proto_tree_add_expert(main_tree, pinfo, &ei_reassembly_unavailable, tvb, offset, -1);
         }
+        offset += tvb_reported_length_remaining(tvb, offset);
     }
 
     if (tvb_reported_length_remaining(tvb, offset) > 0)
