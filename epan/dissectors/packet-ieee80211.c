@@ -940,11 +940,9 @@ static const value_string ieee80211_status_code[] = {
   { 123, "Authentication rejected because the password identifier is unknown" },
   { 124, "Requested TCLAS processing has been terminated by the AP due to insufficient QoS capacity" },
   { 125, "Requested TCLAS processing has been terminated by the AP due to conflict with higher layer QoS policies" },
-  { 125, "Request denied because source address of request is inconsistent with local MAC address policy" },
+  /*{ 125, "Request denied because source address of request is inconsistent with local MAC address policy" },*/
   { 126, "SAE authentication uses direct hashing, instead of looping, to obtain the PWE" },
   { 127, "Reserved"},
-  { 128, "Requested TCLAS processing has been terminated by the AP due to insufficient QoS capacity" },
-  { 129, "Requested TCLAS processing has been terminated by the AP due to conflict with higher layer QoS policies" },
   {   0, NULL}
 };
 value_string_ext ieee80211_status_code_ext = VALUE_STRING_EXT_INIT(ieee80211_status_code);
