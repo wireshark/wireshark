@@ -1,4 +1,4 @@
-Wireshark 3.0.12 Release Notes
+Wireshark 3.0.13 Release Notes
 
  What is Wireshark?
 
@@ -13,24 +13,6 @@ Wireshark 3.0.12 Release Notes
 
    The following bugs have been fixed:
 
-     • Windows Uninstall does not remove all files in Program Files. Bug
-       16601[1].
-
-     • The "relative sequence number" is same as "raw sequence number"
-       when tcp.analyze_sequence_numbers:FALSE. Bug 16604[2].
-
-     • Decode as not working correctly with multiple user profiles. Bug
-       16635[3].
-
-     • Wireshark can misdissect the HE Radiotap field if it’s ever
-       dissected one with any value unknown. Bug 16636[4].
-
-     • Buildbot crash output: fuzz-2020-06-19-5981.pcap. Bug 16639[5].
-
-     • Buildbot crash output: fuzz-2020-06-20-7665.pcap. Bug 16642[6].
-
-     • mergecap man page contains invalid formatting. Bug 16652[7].
-
   New and Updated Features
 
    There are no new features in this release.
@@ -40,8 +22,6 @@ Wireshark 3.0.12 Release Notes
    There are no new protocols in this release.
 
   Updated Protocol Support
-
-   ASTERIX, CoAP, GSM RR, GTPv2, R3, Radiotap, RTPS, and TCP
 
   New and Updated Capture File Support
 
@@ -61,7 +41,7 @@ Wireshark 3.0.12 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[8] on the Wireshark web site.
+   be found on the download page[1] on the Wireshark web site.
 
  File Locations
 
@@ -75,29 +55,22 @@ Wireshark 3.0.12 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[9] and on the
+  Community support is available on Wireshark’s Q&A site[2] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[10].
+  for all of Wireshark’s mailing lists can be found on the web site[3].
 
-  Bugs and feature requests can be reported on the bug tracker[11].
+  Bugs and feature requests can be reported on the bug tracker[4].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[12].
+  A complete FAQ is available on the Wireshark web site[5].
 
-  Last updated 2020-07-01 17:35:06 UTC
+  Last updated 2020-07-05 08:31:34 UTC
 
  References
 
-   1. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16601
-   2. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16604
-   3. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16635
-   4. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16636
-   5. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16639
-   6. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16642
-   7. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16652
-   8. https://www.wireshark.org/download.html#thirdparty
-   9. https://ask.wireshark.org/
-  10. https://www.wireshark.org/lists/
-  11. https://bugs.wireshark.org/
-  12. https://www.wireshark.org/faq.html
+   1. https://www.wireshark.org/download.html#thirdparty
+   2. https://ask.wireshark.org/
+   3. https://www.wireshark.org/lists/
+   4. https://bugs.wireshark.org/
+   5. https://www.wireshark.org/faq.html
