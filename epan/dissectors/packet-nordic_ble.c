@@ -232,7 +232,7 @@ static int hf_nordic_ble_flags = -1;
 static int hf_nordic_ble_crcok = -1;
 static int hf_nordic_ble_encrypted = -1;
 static int hf_nordic_ble_micok = -1;
-static int hf_nordic_ble_mic_not_relevant= -1;
+static int hf_nordic_ble_mic_not_relevant = -1;
 static int hf_nordic_ble_aux_type = -1;
 static int hf_nordic_ble_flag_reserved1 = -1;
 static int hf_nordic_ble_flag_reserved2 = -1;
@@ -263,12 +263,6 @@ static const true_false_string ok_incorrect =
 {
     "OK",
     "Incorrect"
-};
-
-static const true_false_string not_relevant =
-{
-    "Only relevant when encrypted",
-    "Only relevant when encrypted"
 };
 
 static const value_string le_phys[] =
@@ -812,9 +806,9 @@ proto_register_nordic_ble(void)
                 "Message Integrity Check state", HFILL }
         },
         { &hf_nordic_ble_mic_not_relevant,
-            { "MIC", "nordic_ble.mic_not_relevant",
-                FT_BOOLEAN, 8, TFS(&not_relevant), 0x08,
-                "Message Integrity Check state", HFILL }
+            { "MIC (not relevant)", "nordic_ble.mic_not_relevant",
+                FT_UINT8, BASE_DEC, NULL, 0x08,
+                "Message Integrity Check state is only relevant when encrypted", HFILL }
         },
         { &hf_nordic_ble_flag_reserved3,
             { "Reserved", "nordic_ble.flag_reserved3",
