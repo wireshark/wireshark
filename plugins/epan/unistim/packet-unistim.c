@@ -80,10 +80,6 @@ static int hf_unistim_cmd_add = -1;
 static int hf_unistim_len =-1;
 static int hf_terminal_id=-1;
 static int hf_basic_bit_field=-1;
-static const true_false_string basic_bit_yn={
-   "For Following Byte",
-   "For Following Byte"
-};
 
 static int hf_basic_switch_cmd=-1;
 static int hf_basic_phone_cmd=-1;
@@ -2542,7 +2538,7 @@ proto_register_unistim(void){
       },
       { &hf_basic_bit_field,
         {"FLAGS","unistim.bit.fields",FT_BOOLEAN,
-         8,TFS(&basic_bit_yn),0xff,NULL,HFILL}
+         8,NULL,0xff,NULL,HFILL}
       },
       { &hf_basic_switch_cmd ,
         {"Basic Cmd (switch)","unistim.basic.switch",FT_UINT8,
