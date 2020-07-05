@@ -1812,6 +1812,7 @@ void MainWindow::on_actionFileExportPacketBytes_triggered()
 void MainWindow::on_actionAnalyzeShowPacketBytes_triggered()
 {
     ShowPacketBytesDialog *spbd = new ShowPacketBytesDialog(*this, capture_file_);
+    spbd->addCodecs(text_codec_map_);
     spbd->show();
 }
 
@@ -2831,7 +2832,7 @@ void MainWindow::openFollowStreamDialog(follow_type_t type, guint stream_num, gu
     FollowStreamDialog *fsd = new FollowStreamDialog(*this, capture_file_, type);
     connect(fsd, SIGNAL(updateFilter(QString, bool)), this, SLOT(filterPackets(QString, bool)));
     connect(fsd, SIGNAL(goToPacket(int)), packet_list_, SLOT(goToPacket(int)));
-
+    fsd->addCodecs(text_codec_map_);
     fsd->show();
     if (use_stream_index) {
         // If a specific conversation was requested, then ignore any previous
