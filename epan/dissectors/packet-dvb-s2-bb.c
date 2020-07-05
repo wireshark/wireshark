@@ -1,7 +1,10 @@
 /* packet-dvb-s2-bb.c
  * Routines for DVB Dynamic Mode Adaptation dissection
  *  refer to
- *    http://satlabs.org/pdf/sl_561_Mode_Adaptation_Input_and_Output_Interfaces_for_DVB-S2_Equipment_v1.3.pdf
+ *    https://web.archive.org/web/20170226064346/http://satlabs.org/pdf/sl_561_Mode_Adaptation_Input_and_Output_Interfaces_for_DVB-S2_Equipment_v1.3.pdf
+ *
+ *    (http://satlabs.org/pdf/sl_561_Mode_Adaptation_Input_and_Output_Interfaces_for_DVB-S2_Equipment_v1.3.pdf
+ *    is no longer available)
  *
  * Standards:
  *  ETSI EN 302 307 - Digital Video Broadcasting (DVB) - Framing Structure
