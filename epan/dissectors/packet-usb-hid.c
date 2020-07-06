@@ -4711,19 +4711,19 @@ proto_register_usb_hid(void)
                 NULL, 0, NULL, HFILL }},
 
         { &hf_usb_hid_globalitem_log_min,
-            { "Logical minimum", "usbhid.item.global.log_min", FT_INT8, BASE_DEC,
+            { "Logical minimum", "usbhid.item.global.log_min", FT_INT32, BASE_DEC,
                 NULL, 0, NULL, HFILL }},
 
         { &hf_usb_hid_globalitem_log_max,
-            { "Logical maximum", "usbhid.item.global.log_max", FT_INT8, BASE_DEC,
+            { "Logical maximum", "usbhid.item.global.log_max", FT_INT32, BASE_DEC,
                 NULL, 0, NULL, HFILL }},
 
         { &hf_usb_hid_globalitem_phy_min,
-            { "Physical minimum", "usbhid.item.global.phy_min", FT_INT8, BASE_DEC,
+            { "Physical minimum", "usbhid.item.global.phy_min", FT_INT32, BASE_DEC,
                 NULL, 0, NULL, HFILL }},
 
         { &hf_usb_hid_globalitem_phy_max,
-            { "Physical maximum", "usbhid.item.global.phy_max", FT_INT8, BASE_DEC,
+            { "Physical maximum", "usbhid.item.global.phy_max", FT_INT32, BASE_DEC,
                 NULL, 0, NULL, HFILL }},
 
         { &hf_usb_hid_globalitem_unit_exp,
