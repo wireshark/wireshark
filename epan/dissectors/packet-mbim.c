@@ -3578,8 +3578,8 @@ static void mbim_decode_sms_cdma_text(tvbuff_t *tvb, proto_tree *tree, const int
             proto_tree_add_ascii_7bits_item(tree, hfindex, tvb, (offset << 3), size_in_chars);
             break;
         case MBIM_ENCODING_IA5:
-            src = tvb_get_ascii_7bits_string(wmem_packet_scope(), tvb, (offset << 3), size_in_chars);
-            dest = (unsigned char*)wmem_alloc(wmem_packet_scope(), size_in_chars+1);
+            src = (unsigned char*)tvb_get_ascii_7bits_string(wmem_packet_scope(), tvb, (offset << 3), size_in_chars);
+            dest = (unsigned char*)wmem_alloc(wmem_packet_scope(), (const size_t)size_in_chars+1);
             IA5_7BIT_decode(dest, src, size_in_chars);
             proto_tree_add_string(tree, hfindex, tvb, offset, size_in_bytes, dest);
             break;
@@ -6792,7 +6792,7 @@ dissect_mbim_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     gboolean is_32bits;
     guint32 nth_sig, length, next_index, base_offset, offset, datagram_index, datagram_length,
             nb, total = 0, ndp = 0, block_len, dss_session_id;
-    guint8 *signature;
+    const char *signature;
     dissector_handle_t dissector;
     tvbuff_t *datagram_tvb;
     const guint32 NTH16 = 0x484D434E;
@@ -6850,7 +6850,7 @@ dissect_mbim_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         base_offset = offset = next_index;
         nb = 0;
         subtree = proto_tree_add_subtree(mbim_tree, tvb, offset, 0, ett_mbim_msg_header, NULL, "NCM Datagram Pointer");
-        signature = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 4, ENC_ASCII);
+        signature = (const char* )tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 4, ENC_ASCII);
         if ((!is_32bits && !strncmp(signature, "IPS", 3)) ||
             (is_32bits && !strncmp(signature, "ips", 3))) {
             sig_ti = proto_tree_add_uint_format_value(subtree, hf_mbim_bulk_ndp_signature, tvb, offset,
