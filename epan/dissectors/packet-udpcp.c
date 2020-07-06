@@ -2,7 +2,7 @@
  *
  * Routines for UDPCP packet dissection (UDP-based reliable communication protocol).
  * Described in the Open Base Station Initiative Reference Point 1 Specification
- * (see http://www.obsai.com/specs/RP1%20Spec%20v2_1.pdf, Appendix A)
+ * (see https://web.archive.org/web/20171206005927/http://www.obsai.com/specs/RP1%20Spec%20v2_1.pdf, Appendix A)
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
