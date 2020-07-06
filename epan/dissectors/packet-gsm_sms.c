@@ -1238,7 +1238,7 @@ static const range_string dis_field_st_error01_reason_rvals[] = {
     { 0x04, 0x04,  "Quality of service not available" },
     { 0x05, 0x05,  "Error in SME" },
     { 0x06, 0x0F,  "Reserved" },
-    { 0x10, 0x0F,  "Values specific to each SC" },
+    { 0x10, 0x1F,  "Values specific to each SC" },
     { 0x00, 0x00,  NULL },
 };
 
