@@ -282,7 +282,8 @@ http2_streamid_prompt(packet_info* pinfo, gchar* result)
     g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "stream (%u)", http2_get_stream_id(pinfo));
 }
 
-void decode_as_http2_populate_list(const gchar* table_name _U_, decode_as_add_to_list_func add_to_list, gpointer ui_element)
+static void
+decode_as_http2_populate_list(const gchar* table_name _U_, decode_as_add_to_list_func add_to_list, gpointer ui_element)
 {
     decode_as_default_populate_list("media_type", add_to_list, ui_element);
 }
