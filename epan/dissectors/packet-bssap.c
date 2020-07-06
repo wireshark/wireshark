@@ -2240,7 +2240,7 @@ proto_register_bssap(void)
             NULL, HFILL }},
 
         { &hf_bssap_imeisv_ie,
-          { "IMEISV IE", "bssap.imeisv",
+          { "IMEISV IE", "bssap.imeisv_ie",
             FT_NONE, BASE_NONE, NULL, 0,
             NULL, HFILL }},
 
