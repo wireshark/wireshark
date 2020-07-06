@@ -82,6 +82,7 @@ gint dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, gint offset, guint e
         RTICdrTypeObjectExtensibility extensibility, gint offset_zero,
         guint16 flags, guint32 element_member_id);
 
+static
 gint dissect_mutable_member(proto_tree *tree , tvbuff_t * tvb, gint offset, guint encoding,
         dissection_info * info, gboolean * is_end) {
 
