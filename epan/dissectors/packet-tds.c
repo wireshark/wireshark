@@ -1752,7 +1752,7 @@ static const value_string tds_mars_type[] = {
  * TDS_ROW_TOKEN tokens.
  */
 struct _tds_col {
-    const guint8 *name;
+    const char *name;
     guint csize;
     guint32 utype;
     guint8 ctype;
