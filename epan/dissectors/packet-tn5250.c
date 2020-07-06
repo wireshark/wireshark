@@ -1160,8 +1160,8 @@ static const struct true_false_string tn5250_field_wssf_kbc_flag1_5 = {
 };
 
 static const struct true_false_string tn5250_field_wssf_kbc_flag1_6 = {
-  "Indicates type-ahead is on if set to logic 1 (and bit 5 set to 1). If bit 6 is set to 0 and bit 5 is set to 1, type-ahead is turned off. If bit 5 is set to 0, bit 6 is ignored.",
-  "Indicates type-ahead is on if set to logic 1 (and bit 5 set to 1). If bit 6 is set to 0 and bit 5 is set to 1, type-ahead is turned off. If bit 5 is set to 0, bit 6 is ignored."
+  "Indicates type-ahead is on if set to logic 1 (and bit 5 set to 1). If bit 5 is set to 0, bit 6 is ignored.",
+  "If bit 6 is set to 0 and bit 5 is set to 1, type-ahead is turned off. If bit 5 is set to 0, bit 6 is ignored."
 };
 
 static const struct true_false_string tn5250_field_wssf_kbc_flag1_7 = {
@@ -1227,8 +1227,8 @@ static const struct true_false_string tn5250_field_wssf_ifc_flag2_1 = {
 };
 
 static const struct true_false_string tn5250_field_wssf_ifc_flag2_7 = {
-  "Reserved for IBM image/fax-capable displays. It is used to download compression algorithms. Non-IBM displays should ignore this bit.",
-  "Reserved for IBM image/fax-capable displays. It is used to download compression algorithms. Non-IBM displays should ignore this bit."
+  "True. Reserved for IBM image/fax-capable displays. It is used to download compression algorithms. Non-IBM displays should ignore this bit.",
+  "False. Reserved for IBM image/fax-capable displays. It is used to download compression algorithms. Non-IBM displays should ignore this bit."
 };
 
 static const value_string vals_tn5250_image_format[] = {
