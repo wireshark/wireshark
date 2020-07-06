@@ -798,7 +798,7 @@ void proto_register_gbcs_gbz(void)
              FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
         {&hf_gbcs_gbz_firmware_hash,
-            {"Calculated Manufacture Image Hash", "gbcs_gbz.timestamp",
+            {"Calculated Manufacture Image Hash", "gbcs_gbz.firmware_hash",
              FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         {&hf_gbcs_gbz_future_alert_start,
