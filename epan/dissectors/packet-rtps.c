@@ -4533,16 +4533,6 @@ static gboolean compare_by_guid(gconstpointer a, gconstpointer b) {
   return memcmp(guid_a, guid_b, sizeof(endpoint_guid)) == 0;
 }
 
-gboolean union_compare(gconstpointer v1, gconstpointer v2) {
-  const union_member_mapping * a = (const union_member_mapping *) v1;
-  const union_member_mapping * b = (const union_member_mapping *) v2;
-  return ((a->union_type_id == b->union_type_id) && (a->discriminator == b->discriminator));
-}
-
-guint union_hash (gconstpointer v) {
-  return (guint) *(const guint64*) v;
-}
-
 static guint coherent_set_key_hash_by_key(gconstpointer key) {
   GBytes * coherent_set_object_key_bytes = NULL;
   coherent_set_object_key_bytes = g_bytes_new(key, sizeof(coherent_set_key));
