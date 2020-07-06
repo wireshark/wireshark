@@ -1099,7 +1099,7 @@ enip_conn_hash (gconstpointer v)
 }
 
 // Create a list of connection IDs and attach it to the conversation.
-enip_conv_info_t* create_connection_id_list(conversation_t* conversation)
+static enip_conv_info_t* create_connection_id_list(conversation_t* conversation)
 {
    enip_conv_info_t* enip_info = wmem_new(wmem_file_scope(), enip_conv_info_t);
    enip_info->O2TConnIDs = wmem_tree_new(wmem_file_scope());
