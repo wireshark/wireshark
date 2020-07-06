@@ -2058,8 +2058,8 @@ static const true_false_string tfs_printer_attributes_network = {
 };
 
 static const true_false_string tfs_printer_attributes_hidden = {
-	"Reserved",
-	"Reserved"
+	"True (Reserved)",
+	"False (Reserved)"
 };
 
 static const true_false_string tfs_printer_attributes_local = {
