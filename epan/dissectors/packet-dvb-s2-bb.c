@@ -139,7 +139,7 @@ static int hf_dvb_s2_gse_hdr_stop = -1;
 static int hf_dvb_s2_gse_hdr_labeltype = -1;
 static int hf_dvb_s2_gse_hdr_length = -1;
 static int hf_dvb_s2_gse_padding = -1;
-static int hf_dvb_s2_gse_proto = -1;
+static int hf_dvb_s2_gse_proto_next_header = -1;
 static int hf_dvb_s2_gse_proto_ethertype = -1;
 static int hf_dvb_s2_gse_label6 = -1;
 static int hf_dvb_s2_gse_label3 = -1;
@@ -867,9 +867,31 @@ static const value_string gse_labeltype[] = {
 #define DVB_RCS2_NCR 0x0081
 #define DVB_RCS2_SIGNAL_TABLE 0x0082
 
-static const value_string gse_proto_str[] = {
-    {DVB_RCS2_NCR,          "NCR"            },
-    {DVB_RCS2_SIGNAL_TABLE, "Signaling Table"},
+static const value_string gse_proto_next_header_str[] = {
+    /* Mandatory Extension Headers (or link-dependent type fields) for ULE (Range 0-255 decimal) */
+    {0x0000,                "Test SNDU"           },
+    {0x0001,                "Bridged Frame"       },
+    {0x0002,                "TS-Concat"           },
+    {0x0003,                "PDU-Concat"          },
+    {DVB_RCS2_NCR,          "NCR"                 },
+    {DVB_RCS2_SIGNAL_TABLE, "Signaling Table"     },
+    {131,                   "LL_RCS_DCP"          },
+    {132,                   "LL_RCS_1"            },
+    {133,                   "LL_RCS_TRANSEC_SYS"  },
+    {134,                   "LL_RCS_TRANSEC_PAY"  },
+    {135,                   "DVB-GSE_LLC"         },
+    /* Unassigned, private, unassigned ranges */
+    {200,                   "LL_RCS_FEC_EDT"      },
+    /* Unassigned */
+
+    /* Optional Extension Headers for ULE (Range 256-511 decimal) */
+    {256,                   "Extension-Padding"   },
+    {257,                   "Timestamp"   },
+    /* Unassigned */
+    {450,                   "LL_RCS_FEC_ADT"      },
+    {451,                   "LL_CRC32"            },
+    /* Unassigned */
+
     {0, NULL}
 };
 
@@ -960,7 +982,7 @@ static int dissect_dvb_s2_gse(tvbuff_t *tvb, int cur_off, proto_tree *tree, pack
             /* Protocol Type */
             if (gse_proto <= 1535) {
                 /* Type 1 (Next-Header Type field) */
-                proto_tree_add_item(dvb_s2_gse_tree, hf_dvb_s2_gse_proto, tvb, cur_off + new_off, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(dvb_s2_gse_tree, hf_dvb_s2_gse_proto_next_header, tvb, cur_off + new_off, 2, ENC_BIG_ENDIAN);
             }
             else {
                 /* Type 2 (EtherType compatible Type Fields) */
@@ -1591,9 +1613,9 @@ void proto_register_dvb_s2_modeadapt(void)
                 FT_UINT16, BASE_DEC, NULL, 0x0,
                 "GSE Padding Bytes", HFILL}
         },
-        {&hf_dvb_s2_gse_proto, {
+        {&hf_dvb_s2_gse_proto_next_header, {
                 "Protocol", "dvb-s2_gse.proto",
-                FT_UINT16, BASE_HEX, VALS(gse_proto_str), 0x0,
+                FT_UINT16, BASE_HEX, VALS(gse_proto_next_header_str), 0x0,
                 "Protocol Type", HFILL}
         },
         {&hf_dvb_s2_gse_proto_ethertype, {
