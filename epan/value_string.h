@@ -318,7 +318,7 @@ try_rval64_to_str_idx(const guint64 val, const range_string *rs, gint *idx);
 /* BYTES TO STRING MATCHING */
 
 typedef struct _bytes_string {
-  const guint8 *value;
+  const char *value;
   const size_t  value_length;
   const gchar  *strptr;
 } bytes_string;

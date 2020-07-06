@@ -3030,8 +3030,8 @@ tls13_hkdf_expand_label_context(int md, const StringInfo *secret,
 
     const guint8 label_vector_length = label_prefix_length + label_length;
     g_byte_array_append(info, &label_vector_length, 1);
-    g_byte_array_append(info, label_prefix, label_prefix_length);
-    g_byte_array_append(info, label, label_length);
+    g_byte_array_append(info, (const guint8 *)label_prefix, label_prefix_length);
+    g_byte_array_append(info, (const guint8*)label, label_length);
 
     g_byte_array_append(info, &context_length, 1);
     if (context_length) {
