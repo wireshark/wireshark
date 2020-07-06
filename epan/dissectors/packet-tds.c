@@ -8284,7 +8284,7 @@ proto_register_tds(void)
             NULL, HFILL }
         },
         { &hf_tds_dbrpc_rpcname,
-          { "DBRPC - RPC Name", "tds.dbrpc.rpcname_len",
+          { "DBRPC - RPC Name", "tds.dbrpc.rpcname",
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
