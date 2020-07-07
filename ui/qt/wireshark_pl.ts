@@ -3205,9 +3205,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Podpowiedź.</translation>
     </message>
     <message>
-        <source>Show and save data as</source>
-        <oldsource>Show data as</oldsource>
-        <translation>Pokaż i zapisz dane jako</translation>
+        <source>Show data as</source>
+        <oldsource>Show and save data as</oldsource>
+        <translation>Pokaż dane jako</translation>
     </message>
     <message>
         <source>Stream</source>

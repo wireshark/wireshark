@@ -3193,9 +3193,9 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Suggerimento.</translation>
     </message>
     <message>
-        <source>Show and save data as</source>
-        <oldsource>Show data as</oldsource>
-        <translation>Mostra e salva i dati come</translation>
+        <source>Show data as</source>
+        <oldsource>Show and save data as</oldsource>
+        <translation>Mostra i dati come</translation>
     </message>
     <message>
         <source>Stream</source>

@@ -3193,9 +3193,9 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Hinweis.</translation>
     </message>
     <message>
-        <source>Show and save data as</source>
-        <oldsource>Show data as</oldsource>
-        <translation>Daten anzeigen und speichern als</translation>
+        <source>Show data as</source>
+        <oldsource>Show and save data as</oldsource>
+        <translation>Daten anzeigen als</translation>
     </message>
     <message>
         <source>Stream</source>

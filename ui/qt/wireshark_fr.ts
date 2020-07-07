@@ -3167,8 +3167,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Astuce.</translation>
     </message>
     <message>
-        <source>Show and save data as</source>
-        <oldsource>Show data as</oldsource>
+        <source>Show data as</source>
+        <oldsource>Show and save data as</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
