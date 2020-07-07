@@ -5747,7 +5747,7 @@ dissect_tds7_colmetadata_token(tvbuff_t *tvb, struct _netlib_data *nl_data, guin
     proto_tree_add_item(tree, hf_tds_colmetadata_columns, tvb, cur, 2, ENC_LITTLE_ENDIAN);
     if (nl_data->num_cols > TDS_MAX_COLUMNS) {
         nl_data->num_cols = 0;
-        return 0;
+        return 2;
     }
     cur +=2;
 
