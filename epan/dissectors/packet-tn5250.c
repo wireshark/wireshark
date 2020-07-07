@@ -1118,50 +1118,50 @@ static const struct true_false_string tn5250_field_wssf_flag2_0 = {
 };
 
 static const struct true_false_string tn5250_field_wssf_flag2_1 = {
-  "Enhanced field exit required mode.",
-  "Enhanced field exit required mode not set"
+  "Set enhanced field exit required mode",
+  "Do not set enhanced field exit required mode"
 };
 
 static const struct true_false_string tn5250_field_wssf_flag2_2 = {
   "Resets enhanced field exit required mode",
-  "Does not reset enhanced field exit required mode"
+  "Do not reset enhanced field exit required mode"
 };
 
 static const struct true_false_string tn5250_field_wssf_flag2_3 = {
-  "Sets System/36* mode of operation",
-  "Does not set System/36* mode of operation"
+  "Set System/36* mode of operation",
+  "Do not set System/36* mode of operation"
 };
 
 static const struct true_false_string tn5250_field_wssf_flag2_4 = {
-  "Resets System/36* mode of operation",
-  "Does not reset System/36* mode of operation"
+  "Reset System/36* mode of operation",
+  "Do not reset System/36* mode of operation"
 };
 
 static const struct true_false_string tn5250_field_wssf_flag2_5 = {
-  "Set SBA code to X'04' in data returned for READ commands if set to logic 1.",
-  "Does not set SBA code to X'04' in data returned for READ commands."
+  "Set SBA code to X'04' in data returned for READ commands",
+  "Do not set SBA code to X'04' in data returned for READ commands"
 };
 
 static const struct true_false_string tn5250_field_wssf_flag2_6 = {
-  "Set SBA code to X'11' in data returned for READ commands if set to logic 1.",
-  "Does not set SBA code to X'11' in data returned for READ commands."
+  "Set SBA code to X'11' in data returned for READ commands",
+  "Do not set SBA code to X'11' in data returned for READ commands"
 };
 
 static const struct true_false_string tn5250_field_wssf_flag2_7 = {
-  "Customization applies to entire 5494 if set to logic 1",
-  "Customization does not apply to entire 5494 if set to logic 1"
+  "Customization applies to entire 5494",
+  "Customization does not apply to entire 5494"
 };
 
 /* 15.26.1 WRITE SINGLE STRUCTURED FIELD Command - 5250 WSC CUSTOMIZATION Command
    - Keystroke Buffering Control Minor Structure*/
 static const struct true_false_string tn5250_field_wssf_kbc_flag1_5 = {
-  "Change type-ahead state if set to logic 1",
-  "Change type-ahead state not set"
+  "Change type-ahead state",
+  "Do not change type-ahead state"
 };
 
 static const struct true_false_string tn5250_field_wssf_kbc_flag1_6 = {
-  "Indicates type-ahead is on if set to logic 1 (and bit 5 set to 1). If bit 5 is set to 0, bit 6 is ignored.",
-  "If bit 6 is set to 0 and bit 5 is set to 1, type-ahead is turned off. If bit 5 is set to 0, bit 6 is ignored."
+  "Turn on type-ahead if bit is set to 1; ignored if bit 5 is set to 0",
+  "Turn off type-ahead if bit 5 is set to 1; ignored if bit 5 is set to 0"
 };
 
 static const struct true_false_string tn5250_field_wssf_kbc_flag1_7 = {
