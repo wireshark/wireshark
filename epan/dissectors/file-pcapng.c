@@ -1156,7 +1156,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
 
                 proto_tree_add_item(option_tree, hf_pcapng_option_data_packet_drop_count, tvb, offset, 8, encoding);
                 value.u64 = tvb_get_guint64(tvb, offset, encoding);
-                str = wmem_strdup_printf(wmem_packet_scope(), "%"G_GUINT64_FORMAT, value.u64);
+                str = (const guint8*)wmem_strdup_printf(wmem_packet_scope(), "%"G_GUINT64_FORMAT, value.u64);
                 offset += 8;
 
                 break;
@@ -1165,7 +1165,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 value.u32 = tvb_get_guint32(tvb, offset, encoding);
                 offset += option_length;
 
-                str = wmem_strdup_printf(wmem_packet_scope(), "%u", value.u32);
+                str = (const guint8*)wmem_strdup_printf(wmem_packet_scope(), "%u", value.u32);
 
                 break;
             case 32770: /* Darwin Service Type */
@@ -1173,7 +1173,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 value.u32 = tvb_get_guint32(tvb, offset, encoding);
                 offset += option_length;
 
-                str = wmem_strdup_printf(wmem_packet_scope(), "%s", val_to_str_const(value.u32, option_code_darwin_svc_class_vals, "Unknown"));
+                str = (const guint8*)wmem_strdup_printf(wmem_packet_scope(), "%s", val_to_str_const(value.u32, option_code_darwin_svc_class_vals, "Unknown"));
 
                 break;
             case 32771: /* Darwin Effective DPEB ID */
@@ -1181,7 +1181,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 value.u32 = tvb_get_guint32(tvb, offset, encoding);
                 offset += option_length;
 
-                str = wmem_strdup_printf(wmem_packet_scope(), "%u", value.u32);
+                str = (const guint8*)wmem_strdup_printf(wmem_packet_scope(), "%u", value.u32);
 
                 break;
             default:
