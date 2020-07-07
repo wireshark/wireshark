@@ -87,7 +87,7 @@ static void rbm_set_info(packet_info* pinfo, const gchar* str)
 		col_append_fstr(pinfo->cinfo, COL_INFO, "Ruby Marshal Object: %s", str);
 }
 
-void get_rbm_integer(tvbuff_t* tvb, guint offset, gint32* value, guint* len)
+void get_rbm_integer(tvbuff_t* tvb, guint offset, gint32* value, gint* len)
 {
 	gint8 c;
 	c = (tvb_get_gint8(tvb, offset) ^ 128) - 128;
@@ -167,7 +167,7 @@ static void dissect_rbm_basic(tvbuff_t* tvb _U_, packet_info* pinfo, proto_tree*
 	rbm_set_info(pinfo, *type);
 }
 
-static void dissect_rbm_string_data_trailer(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint* offset, const guint8* label,
+static void dissect_rbm_string_data_trailer(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint* offset, const gchar* label,
 	const gchar* prefix, const gchar* trailer, gchar** value_str)
 {
 	gint32 value = 0;
@@ -185,7 +185,7 @@ static void dissect_rbm_string_data_trailer(tvbuff_t* tvb, packet_info* pinfo, p
 	*value_str = wmem_strdup_printf(wmem_packet_scope(), "%s%s%s", prefix, s, trailer);
 }
 
-static void dissect_rbm_string_data(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint* offset, const guint8* label,
+static void dissect_rbm_string_data(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint* offset, const gchar* label,
 	const gchar* prefix, gchar** value_str)
 {
 	dissect_rbm_string_data_trailer(tvb, pinfo, tree, offset, label, prefix, "", value_str);
@@ -194,7 +194,7 @@ static void dissect_rbm_string_data(tvbuff_t* tvb, packet_info* pinfo, proto_tre
 static void dissect_rbm_array(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint* offset, gchar** value_str)
 {
 	gint32 value;
-	guint len;
+	gint len;
 	gint32 i;
 	proto_tree* array_tree = NULL;
 	proto_tree* array_obj_tree = NULL;
@@ -220,7 +220,7 @@ static void dissect_rbm_array(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tre
 static void dissect_rbm_hash(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint* offset, gchar** value_str)
 {
 	gint32 value;
-	guint len;
+	gint len;
 	gint32 i;
 	proto_tree* hash_tree = NULL;
 	proto_tree* hash_obj_tree = NULL;
@@ -255,7 +255,7 @@ static void dissect_rbm_link(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree
 	gchar** type, gchar** value_str)
 {
 	gint32 value;
-	guint len;
+	gint len;
 	gchar* label;
 
 	switch (subtype) {
