@@ -1205,7 +1205,6 @@ static int hf_gsm_rlcmac_cell_parameter = -1;
 static int hf_gsm_rlcmac_diversity_tdd = -1;
 
 /* Unsorted FIXED and UNION fields */
-static int hf_pu_acknack_gprs = -1;
 static int hf_pu_acknack_egrps = -1;
 static int hf_pu_acknack = -1;
 static int hf_frequency_parameters = -1;
@@ -3516,6 +3515,13 @@ CSN_DESCR_BEGIN(Power_Control_Parameters_t)
 CSN_DESCR_END  (Power_Control_Parameters_t)
 
 static const
+CSN_DESCR_BEGIN(Fixed_Allocation_Parameters_t)
+  /* FIXME: Implement Fixed Allocation Parameters from old spec versions, removed in new ones */
+  M_PADDING_BITS(Fixed_Allocation_Parameters_t, &hf_padding),
+  CSN_ERROR     (Fixed_Allocation_Parameters_t, "01 <Fixed Allocation>", CSN_ERROR_STREAM_NOT_SUPPORTED, &ei_gsm_rlcmac_stream_not_supported),
+CSN_DESCR_END  (Fixed_Allocation_Parameters_t)
+
+static const
 CSN_DESCR_BEGIN(PU_AckNack_GPRS_AdditionsR99_t)
   M_NEXT_EXIST (PU_AckNack_GPRS_AdditionsR99_t, Exist_PacketExtendedTimingAdvance, 1, &hf_pu_acknack_gprs_additionsr99_packetextendedtimingadvance_exist),
   M_UINT       (PU_AckNack_GPRS_AdditionsR99_t,  PacketExtendedTimingAdvance, 2, &hf_packet_extended_timing_advance),
@@ -3540,9 +3546,8 @@ CSN_DESCR_BEGIN       (PU_AckNack_GPRS_t)
   M_NEXT_EXIST        (PU_AckNack_GPRS_t, Common_Uplink_Ack_Nack_Data.Exist_Extension_Bits, 1, &hf_pu_acknack_gprs_common_uplink_ack_nack_data_exist_extension_bits_exist),
   M_TYPE              (PU_AckNack_GPRS_t, Common_Uplink_Ack_Nack_Data.Extension_Bits, Extension_Bits_t),
 
-  M_UNION             (PU_AckNack_GPRS_t, 2, &hf_pu_acknack_gprs), /* Fixed Allocation was removed */
-  M_UINT              (PU_AckNack_GPRS_t,  u.FixedAllocationDummy,  1, &hf_pu_acknack_gprs_fixedallocationdummy),
-  CSN_ERROR           (PU_AckNack_GPRS_t, "01 <Fixed Allocation>", CSN_ERROR_STREAM_NOT_SUPPORTED, &ei_gsm_rlcmac_stream_not_supported),
+  M_NEXT_EXIST        (PU_AckNack_GPRS_t, Exist_Fixed_Allocation_Parameters, 1, &hf_pu_acknack_gprs_fixedallocationdummy),
+  M_TYPE              (PU_AckNack_GPRS_t, Fixed_Allocation_Parameters, Fixed_Allocation_Parameters_t),
 
   M_NEXT_EXIST_OR_NULL(PU_AckNack_GPRS_t, Exist_AdditionsR99, 1, &hf_additionsr99_exist),
   M_TYPE              (PU_AckNack_GPRS_t, AdditionsR99, PU_AckNack_GPRS_AdditionsR99_t),
@@ -15653,12 +15658,6 @@ proto_register_gsm_rlcmac(void)
 /* < End Packet System Information Type 13 message content > */
 
 /* Unsorted FIXED and UNION fields */
-    { &hf_pu_acknack_gprs,
-      { "PU_AckNack_GPRS",        "gsm_rlcmac.pu_acknack_gprs",
-        FT_UINT8, BASE_DEC, NULL, 0x0,
-        NULL, HFILL
-      }
-    },
     { &hf_pu_acknack_egrps,
       { "PU_AckNack_EGPRS",        "gsm_rlcmac.pu_acknack_egrps",
         FT_UINT8, BASE_DEC, NULL, 0x0,

@@ -1876,21 +1876,25 @@ typedef struct
   guint8   TBF_EST;
 } PU_AckNack_GPRS_AdditionsR99_t;
 
+/* Table 11.2.28.1: PACKET UPLINK ACK/NACK information elements */
+typedef struct
+{
+    guint8 Error;
+    /* Fixed Allocation Parameters was removed from specs.
+     * TODO: implement for old versions of spec.
+     */
+} Fixed_Allocation_Parameters_t;
+
 typedef struct
 {
   guint8                  CHANNEL_CODING_COMMAND;
   Ack_Nack_Description_t Ack_Nack_Description;
 
-  guint8 UnionType;
-  union
-  {
-    guint8 FixedAllocationDummy;
-    guint8 Error;
-  } u;
+  gboolean                        Exist_Fixed_Allocation_Parameters;
+  Fixed_Allocation_Parameters_t   Fixed_Allocation_Parameters;
 
   gboolean                        Exist_AdditionsR99;
   PU_AckNack_GPRS_AdditionsR99_t AdditionsR99;
-
 
   Common_Uplink_Ack_Nack_Data_t Common_Uplink_Ack_Nack_Data;
 } PU_AckNack_GPRS_t;
