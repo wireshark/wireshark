@@ -3143,12 +3143,12 @@ dissect_e212_mcc_mnc_in_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     mnc   = 10 * mnc1 + mnc2;
 
     /* Try to match the MCC and 2 digits MNC with an entry in our list of operators */
-    if (!try_val_to_str_ext(mcc * 100 + mnc, &mcc_mnc_2digits_codes_ext)) {
+    if (!try_val_to_str_ext(mcc * 100 + mnc, &mcc_mnc_2digits_codes_ext) && mnc3 != 0xf) {
         mnc = 10 * mnc + mnc3;
         long_mnc = TRUE;
     }
 
-    item = proto_tree_add_uint(tree, hf_E212_mcc , tvb, start_offset, 2, mcc );
+    item = proto_tree_add_uint(tree, hf_E212_mcc , tvb, start_offset, 2, mcc);
     if (((mcc1 > 9) || (mcc2 > 9) || (mcc3 > 9)) & (mcc_mnc != 0xffffff))
         expert_add_info(pinfo, item, &ei_E212_mcc_non_decimal);
 
@@ -3235,7 +3235,7 @@ dissect_e212_mcc_mnc_high_nibble(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     mnc   = 10 * mnc1 + mnc2;
 
     /* Try to match the MCC and 2 digits MNC with an entry in our list of operators */
-    if (!try_val_to_str_ext(mcc * 100 + mnc, &mcc_mnc_2digits_codes_ext)) {
+    if (!try_val_to_str_ext(mcc * 100 + mnc, &mcc_mnc_2digits_codes_ext) && mnc3 != 0xf) {
         mnc = 10 * mnc + mnc3;
         long_mnc = TRUE;
     }
@@ -3309,8 +3309,10 @@ is_imsi_string_valid(const gchar *imsi_str)
     /* According to TS 23.003 2.2 and 2.3, the number of digits in IMSI shall not exceed 15.
      * Even if in the reality imsis are always 14 or 15 digits long, the standard doesn't say
      * anything about minimum length, except for the fact that they shall have a valid MCC
-     * (3 digits long), a valid MNC (2 or 3 digits long) and a MSIN (at least 1 digit)*/
-    if (len < 6 || len > 15 || strchr(imsi_str, '?')) {
+     * (3 digits long), a valid MNC (2 or 3 digits long) and a MSIN (at least 1 digit).
+     * As the dissector actually only decodes the MCC and MNC, allow to decode a
+       short IMSI (without MSIN) as used by MAP messages */
+    if (len < 5 || len > 15 || strchr(imsi_str, '?')) {
         return FALSE;
     }
     return TRUE;
