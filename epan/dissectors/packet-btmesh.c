@@ -3557,7 +3557,7 @@ compute_ascii_key(guchar **ascii_key, const gchar *key)
                  * number of characters even.
                  */
                 key_len = (raw_key_len - 2) / 2 + 1;
-                *ascii_key = (gchar *)g_malloc((key_len + 1) * sizeof(gchar));
+                *ascii_key = (guchar *)g_malloc((key_len + 1) * sizeof(gchar));
                 hex_digit = g_ascii_xdigit_value(key[i]);
                 i++;
                 if (hex_digit == -1)
@@ -3576,7 +3576,7 @@ compute_ascii_key(guchar **ascii_key, const gchar *key)
                  * pair of hex digits as a single byte value.
                  */
                 key_len = (raw_key_len - 2) / 2;
-                *ascii_key = (gchar *)g_malloc((key_len + 1) * sizeof(gchar));
+                *ascii_key = (guchar *)g_malloc((key_len + 1) * sizeof(gchar));
             }
 
             while (i < (raw_key_len - 1))
@@ -3612,7 +3612,7 @@ compute_ascii_key(guchar **ascii_key, const gchar *key)
         else
         {
             key_len = raw_key_len;
-            *ascii_key = g_strdup(key);
+            *ascii_key = (guchar*)g_strdup(key);
         }
     }
     return key_len;

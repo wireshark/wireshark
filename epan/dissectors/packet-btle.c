@@ -696,8 +696,8 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         }
     }
 
-    src_bd_addr = (gchar *) wmem_alloc(pinfo->pool, 6);
-    dst_bd_addr = (gchar *) wmem_alloc(pinfo->pool, 6);
+    src_bd_addr = (guint8 *) wmem_alloc(pinfo->pool, 6);
+    dst_bd_addr = (guint8 *) wmem_alloc(pinfo->pool, 6);
 
     if (btle_context && btle_context->crc_checked_at_capture) {
         crc_status = btle_context->crc_valid_at_capture ? CRC_CORRECT : CRC_INCORRECT;
