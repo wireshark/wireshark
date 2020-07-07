@@ -1297,8 +1297,8 @@ proto_register_nis(void)
 	};
 
 	static const true_false_string tfs_callback_status = {
-		"unknown",
-		"unknown"
+		"True (unknown)",
+		"False (unknown)"
 	};
 
 
