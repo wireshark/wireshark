@@ -2049,48 +2049,48 @@ static int hf_printer_attributes_raw_only = -1;
 static int hf_printer_attributes_published = -1;
 
 static const true_false_string tfs_printer_attributes_queued = {
-	"Printer starts printing after last page spooled",
-	"Printer starts printing while spooling"
+	"The printer starts printing after last page spooled",
+	"The printer starts printing while spooling"
 };
 
 static const true_false_string tfs_printer_attributes_direct = {
-	"Jobs sent directly to printer",
-	"Jobs are spooled to printer before printing"
+	"Jobs are sent directly to the printer",
+	"Jobs are spooled to the printer before printing"
 };
 
 static const true_false_string tfs_printer_attributes_default = {
-	"Printer is the default printer",
-	"Printer is not the default printer"
+	"The printer is the default printer",
+	"The printer is not the default printer"
 };
 
 static const true_false_string tfs_printer_attributes_shared = {
-	"Printer is shared",
-	"Printer is not shared"
+	"The printer is shared",
+	"The printer is not shared"
 };
 
 static const true_false_string tfs_printer_attributes_network = {
-	"Printer is a network printer connection",
-	"Printer is not a network printer connection"
+	"The printer is a network printer connection",
+	"The printer is not a network printer connection"
 };
 
 static const true_false_string tfs_printer_attributes_hidden = {
-	"True (Reserved)",
-	"False (Reserved)"
+	"The printer is hidden from some users on the network",
+	"The printer is not hidden from some users on the network"
 };
 
 static const true_false_string tfs_printer_attributes_local = {
-	"Printer is a local printer",
-	"Printer is not a local printer"
+	"The printer is a local printer",
+	"The printer is not a local printer"
 };
 
 static const true_false_string tfs_printer_attributes_enable_devq = {
-	"Call DevQueryPrint",
-	"Do not call DevQueryPrint"
+	"The queue on the printer is enabled if available",
+	"The queue on the printer is not enabled",
 };
 
 static const true_false_string tfs_printer_attributes_keep_printed_jobs = {
 	"Jobs are kept after they are printed",
-	"Jobs are deleted after printing"
+	"Jobs are deleted after they are printed"
 };
 
 static const true_false_string tfs_printer_attributes_do_complete_first = {
@@ -2114,8 +2114,8 @@ static const true_false_string tfs_printer_attributes_raw_only = {
 };
 
 static const true_false_string tfs_printer_attributes_published = {
-	"Printer is published in the directory",
-	"Printer is not published in the directory"
+	"The printer is published in the directory",
+	"The printer is not published in the directory"
 };
 
 static int
