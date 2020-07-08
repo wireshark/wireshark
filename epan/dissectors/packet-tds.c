@@ -2091,7 +2091,7 @@ handle_tds_sql_money(tvbuff_t *tvb, guint offset, proto_tree *sub_tree, tds_conv
 
 static void
 dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto_tree *tree, int hf, tds_conv_info_t *tds_info,
-                         guint8 data_type, guint8 scale, gboolean plp, gint fieldnum, const guint8 *name)
+                         guint8 data_type, guint8 scale, gboolean plp, gint fieldnum, const char *name)
 {
     guint length, textptrlen;
     proto_tree *sub_tree = NULL;
@@ -2680,18 +2680,22 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
         }
         case TDS_DATA_TYPE_CHAR:            /* Char (TDS 4/5) */
         case TDS_DATA_TYPE_VARCHAR:         /* VarChar (TDS 4/5) */
+        {
+            gint len;
             proto_tree_add_item_ret_length(sub_tree, hf_tds_type_varbyte_data_uint_string,
-                tvb, *offset, 1, tds_get_char_encoding(tds_info), &length);
-            *offset += length;
+                tvb, *offset, 1, tds_get_char_encoding(tds_info), &len);
+            *offset += len;
             break;
-
+        }
         case TDS_DATA_TYPE_BINARY:          /* Binary (TDS 4/5) */
         case TDS_DATA_TYPE_VARBINARY:       /* VarBinary (TDS 4/5) */
+        {
+            gint len;
             proto_tree_add_item_ret_length(sub_tree, hf_tds_type_varbyte_data_uint_bytes,
-                tvb, *offset, 1, ENC_NA, &length);
-            *offset += length;
+                tvb, *offset, 1, ENC_NA, &len);
+            *offset += len;
             break;
-
+        }
         /* USHORTLEN_TYPE - types prefixed with 2-byte length */
         case TDS_DATA_TYPE_BIGVARBIN:       /* VarBinary */
         case TDS_DATA_TYPE_BIGBINARY:       /* Binary */
@@ -2701,9 +2705,10 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
         case TDS_DATA_TYPE_NCHAR:           /* NChar */
             /* Special case where MS and Sybase independently assigned a data type of 0xaf. */
             if ((data_type == SYBLONGCHAR) && TDS_PROTO_LESS_THAN_TDS7(tds_info)) {
+                gint len;
                 proto_tree_add_item_ret_length(sub_tree, hf_tds_type_varbyte_data_uint_string, tvb, *offset, 4,
-                    tds_get_char_encoding(tds_info)|tds_get_int4_encoding(tds_info), &length);
-                *offset += length;
+                    tds_get_char_encoding(tds_info)|tds_get_int4_encoding(tds_info), &len);
+                *offset += len;
                 break;
             }
             length = tvb_get_letohs(tvb, *offset);
@@ -2747,11 +2752,13 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
         /* SYBLONGCHAR would be similar, but there is an ambiguity with TDS 7.x.
          * It is handled under TDS_DATA_TYPE_BIGCHAR above. */
         case TDS_DATA_TYPE_LONGBINARY:      /* Long Binary (TDS 5.0) */
+        {
+            gint len;
             proto_tree_add_item_ret_length(sub_tree, hf_tds_type_varbyte_data_uint_bytes, tvb, *offset, 4,
-                                         tds_get_int4_encoding(tds_info), &length);
-            *offset += length;
+                tds_get_int4_encoding(tds_info), &len);
+            *offset += len;
             break;
-
+        }
         /* LONGLEN_TYPE - types prefixed with 4-byte length using a text pointer*/
         case TDS_DATA_TYPE_NTEXT:           /* NText */
         case TDS_DATA_TYPE_TEXT:            /* Text */
