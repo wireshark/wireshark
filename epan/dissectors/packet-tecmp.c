@@ -23,6 +23,7 @@
 #include <epan/etypes.h>
 #include <epan/expert.h>
 #include <epan/uat.h>
+#include <epan/proto_data.h>
 
 void proto_register_tecmp(void);
 void proto_reg_handoff_tecmp(void);
@@ -32,6 +33,7 @@ void proto_reg_handoff_tecmp_payload(void);
 static int proto_tecmp = -1;
 static int proto_tecmp_payload = -1;
 static dissector_handle_t eth_handle;
+static int proto_vlan;
 
 /* Header fields */
 /* TECMP */
@@ -1069,6 +1071,8 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 break;
 
             case TECMP_DATA_TYPE_ETH:
+                /* resetting VLAN count since this is another embedded Ethernet packet. */
+                p_set_proto_depth(pinfo, proto_vlan, 0);
                 call_dissector(eth_handle, sub_tvb, pinfo, tecmp_tree);
                 break;
 
@@ -1451,6 +1455,7 @@ proto_register_tecmp_payload(void) {
 void
 proto_reg_handoff_tecmp_payload(void) {
     eth_handle = find_dissector("eth_maybefcs");
+    proto_vlan = proto_get_id_by_filter_name("vlan");
 }
 
 void
