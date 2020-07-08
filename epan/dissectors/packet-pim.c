@@ -2071,7 +2071,7 @@ proto_register_pim(void)
                 NULL, HFILL }
             },
             { &hf_pim_source_ja_value,
-              { "Value", "pim.source_ja.length",
+              { "Value", "pim.source_ja.value",
                 FT_BYTES, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }
             },
