@@ -3299,6 +3299,7 @@ parse_report_descriptor(report_descriptor_t *rdesc)
     guint8 prefix;
     guint32 defined = 0, usage = 0, usage_min = 0, usage_max = 0;
     wmem_allocator_t *scope = wmem_file_scope();
+    gboolean first_item = TRUE;
 
     memset(&field, 0, sizeof(field));
     field.usages = wmem_array_new(scope, sizeof(guint32));
@@ -3331,6 +3332,7 @@ parse_report_descriptor(report_descriptor_t *rdesc)
                         wmem_array_append_one(rdesc->fields_in, field);
 
                         field.usages = wmem_array_new(scope, sizeof(guint32));
+                        first_item = FALSE;
 
                         /* only keep the global items */
                         defined &= HID_GLOBAL_MASK;
@@ -3391,7 +3393,11 @@ parse_report_descriptor(report_descriptor_t *rdesc)
                         break;
 
                     case USBHID_GLOBALITEM_TAG_REPORT_ID:
+                        if (!first_item && !rdesc->uses_report_id)
+                            goto err;
+
                         rdesc->uses_report_id = TRUE;
+
                         field.report_id = hid_unpack_value(data, i, size);
                         defined |= HID_REPORT_ID;
                         break;
