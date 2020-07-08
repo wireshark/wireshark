@@ -997,7 +997,7 @@ void proto_register_nano(void)
             NULL, HFILL }
         },
         { &hf_nano_bulk_pull_blocks_mode,
-          { "Mode", "nano.bulk_pull_blocks.max_hash",
+          { "Mode", "nano.bulk_pull_blocks.mode",
             FT_UINT8, BASE_DEC_HEX, VALS(nano_bulk_pull_blocks_mode_strings), 0x00,
             NULL, HFILL }
         },
