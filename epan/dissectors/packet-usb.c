@@ -372,6 +372,7 @@ static expert_field ei_usb_desc_length_invalid = EI_INIT;
 static expert_field ei_usb_invalid_setup = EI_INIT;
 static expert_field ei_usb_ss_ep_companion_before_ep = EI_INIT;
 static expert_field ei_usb_usbpcap_unknown_urb = EI_INIT;
+static expert_field ei_usb_bad_length = EI_INIT;
 
 static expert_field ei_usbport_invalid_path_depth = EI_INIT;
 
@@ -4239,24 +4240,30 @@ static usb_trans_info_t
 
 /* dissect a group of isochronous packets inside an usb packet in
    usbpcap format */
+#define MAX_ISO_PACKETS 100000 // Arbitrary
 static gint
 dissect_usbpcap_iso_packets(packet_info *pinfo _U_, proto_tree *urb_tree, guint8 urb_type,
         tvbuff_t *tvb, gint offset, guint32 win32_data_len, usb_conv_info_t *usb_conv_info)
 {
     guint32     i;
     guint32     num_packets;
-    guint32     data_start_offset;
-    proto_item *urb_tree_ti;
+    int         data_start_offset;
+    proto_item *num_packets_ti, *urb_tree_ti;
 
     proto_tree_add_item(urb_tree, hf_usb_win32_iso_start_frame, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
 
     num_packets = tvb_get_letohl(tvb, offset);
-    proto_tree_add_item(urb_tree, hf_usb_win32_iso_num_packets, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    num_packets_ti = proto_tree_add_item(urb_tree, hf_usb_win32_iso_num_packets, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
 
     proto_tree_add_item(urb_tree, hf_usb_win32_iso_error_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
+
+    if (num_packets > MAX_ISO_PACKETS) {
+        expert_add_info_format(pinfo, num_packets_ti, &ei_usb_bad_length, "Too many isochronous transfer packets (%u)", num_packets);
+        return tvb_captured_length(tvb);
+    }
 
     data_start_offset = offset + 12 * num_packets;
     urb_tree_ti = proto_tree_get_parent(urb_tree);
@@ -6721,7 +6728,8 @@ proto_register_usb(void)
         { &ei_usb_desc_length_invalid, { "usb.desc_length.invalid", PI_MALFORMED, PI_ERROR, "Invalid descriptor length", EXPFILL }},
         { &ei_usb_invalid_setup, { "usb.setup.invalid", PI_MALFORMED, PI_ERROR, "Only control URBs may contain a setup packet", EXPFILL }},
         { &ei_usb_ss_ep_companion_before_ep, { "usb.bmAttributes.invalid_order", PI_MALFORMED, PI_ERROR, "SuperSpeed Endpoint Companion must come after Endpoint Descriptor", EXPFILL }},
-        { &ei_usb_usbpcap_unknown_urb, { "usb.usbpcap.unknown_urb", PI_MALFORMED, PI_ERROR, "USBPcap did not recognize URB Function code (report to desowin.org/USBPcap)", EXPFILL }}
+        { &ei_usb_usbpcap_unknown_urb, { "usb.usbpcap.unknown_urb", PI_MALFORMED, PI_ERROR, "USBPcap did not recognize URB Function code (report to desowin.org/USBPcap)", EXPFILL }},
+        { &ei_usb_bad_length, { "usb.bad_length", PI_MALFORMED, PI_ERROR, "Invalid length", EXPFILL }},
     };
     static ei_register_info ei_usbport[] = {
         { &ei_usbport_invalid_path_depth, { "usbport.path_depth.invalid", PI_PROTOCOL, PI_WARN, "Invalid path depth", EXPFILL }},
