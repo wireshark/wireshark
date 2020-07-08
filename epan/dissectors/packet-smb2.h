@@ -208,7 +208,7 @@ typedef struct _smb2_info_t {
 typedef struct _smb2_transform_info_t {
 	guint8  nonce[16];
 	guint32 size;
-	guint16 alg;
+	guint16 flags;
 	guint64 sesid;		/* *host* byte order - not necessarily little-endian! */
 	smb2_conv_info_t *conv;
 	smb2_sesid_info_t *session;

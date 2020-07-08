@@ -542,7 +542,8 @@ static int hf_smb2_transform_signature = -1;
 static int hf_smb2_transform_nonce = -1;
 static int hf_smb2_transform_msg_size = -1;
 static int hf_smb2_transform_reserved = -1;
-static int hf_smb2_transform_enc_alg = -1;
+static int hf_smb2_transform_flags = -1;
+static int hf_smb2_transform_flags_encrypted = -1;
 static int hf_smb2_transform_encrypted_data = -1;
 static int hf_smb2_protocol_id = -1;
 static int hf_smb2_comp_transform_orig_size = -1;
@@ -698,6 +699,7 @@ static gint ett_smb2_error_redir_context = -1;
 static gint ett_smb2_error_redir_ip_list = -1;
 static gint ett_smb2_read_flags = -1;
 static gint ett_smb2_signature = -1;
+static gint ett_smb2_transform_flags = -1;
 
 static expert_field ei_smb2_invalid_length = EI_INIT;
 static expert_field ei_smb2_bad_response = EI_INIT;
@@ -919,6 +921,12 @@ static const value_string smb2_cipher_types[] = {
 	{ SMB2_CIPHER_AES_128_CCM, "AES-128-CCM" },
 	{ SMB2_CIPHER_AES_128_GCM, "AES-128-GCM" },
 	{ 0, NULL }
+};
+
+#define SMB2_TRANSFORM_FLAGS_ENCRYPTED        0x0001
+static int * const smb2_transform_flags[] = {
+	&hf_smb2_transform_flags_encrypted,
+	NULL,
 };
 
 #define SMB2_COMP_ALG_NONE        0x0000
@@ -10042,9 +10050,11 @@ dissect_smb2_transform_header(packet_info *pinfo, proto_tree *tree,
 	proto_tree_add_item(tree, hf_smb2_transform_reserved, tvb, offset, 2, ENC_NA);
 	offset += 2;
 
-	/* enc algorithm */
-	proto_tree_add_item(tree, hf_smb2_transform_enc_alg, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-	sti->alg = tvb_get_letohs(tvb, offset);
+	/* flags */
+	proto_tree_add_bitmask(tree, tvb, offset, hf_smb2_transform_flags,
+			       ett_smb2_transform_flags,
+			       smb2_transform_flags, ENC_LITTLE_ENDIAN);
+	sti->flags = tvb_get_letohs(tvb, offset);
 	offset += 2;
 
 	/* session ID */
@@ -10059,7 +10069,9 @@ dissect_smb2_transform_header(packet_info *pinfo, proto_tree *tree,
 	smb2_add_session_info(sesid_tree, sesid_item, tvb, sesid_offset, sti->session);
 
 #if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
-	plain_data = decrypt_smb_payload(pinfo, tvb, offset, offset_aad, sti);
+	if (sti->flags & SMB2_TRANSFORM_FLAGS_ENCRYPTED) {
+		plain_data = decrypt_smb_payload(pinfo, tvb, offset, offset_aad, sti);
+	}
 #else
 	(void) offset_aad;
 #endif
@@ -12888,9 +12900,16 @@ proto_register_smb2(void)
 			NULL, 0, NULL, HFILL }
 		},
 
-		{ &hf_smb2_transform_enc_alg,
-			{ "Encryption ALG", "smb2.header.transform.encryption_alg", FT_UINT16, BASE_HEX,
-			  VALS(smb2_cipher_types), 0, NULL, HFILL }
+		/* SMB2 header flags  */
+		{ &hf_smb2_transform_flags,
+			{ "Flags", "smb2.header.transform.flags", FT_UINT16, BASE_HEX,
+			NULL, 0, "SMB2 transform flags", HFILL }
+		},
+
+		{ &hf_smb2_transform_flags_encrypted,
+			{ "Encrypted", "smb2.header.transform.flags.encrypted", FT_BOOLEAN, 16,
+			NULL, SMB2_TRANSFORM_FLAGS_ENCRYPTED,
+			"Whether the payload is encrypted", HFILL }
 		},
 
 		{ &hf_smb2_transform_encrypted_data,
@@ -13206,6 +13225,7 @@ proto_register_smb2(void)
 		&ett_smb2_error_redir_ip_list,
 		&ett_smb2_read_flags,
 		&ett_smb2_signature,
+		&ett_smb2_transform_flags,
 	};
 
 	static ei_register_info ei[] = {
