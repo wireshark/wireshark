@@ -1952,6 +1952,7 @@ const value_string quic_transport_parameter_id[] = {
     { SSL_HND_QUIC_TP_RETRY_SOURCE_CONNECTION_ID, "retry_source_connection_id" },
     { SSL_HND_QUIC_TP_MAX_DATAGRAM_FRAME_SIZE, "max_datagram_frame_size" },
     { SSL_HND_QUIC_TP_LOSS_BITS, "loss_bits" },
+    { SSL_HND_QUIC_TP_GREASE_QUIC_BIT, "grease_quic_bit" },
     { SSL_HND_QUIC_TP_ENABLE_TIME_STAMP, "enable_time_stamp" },
     { SSL_HND_QUIC_TP_MIN_ACK_DELAY, "min_ack_delay" },
     { 0, NULL }
