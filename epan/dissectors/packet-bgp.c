@@ -2610,22 +2610,22 @@ typedef struct _path_attr_data {
 static void
 save_path_attr_encaps_tunnel_type(packet_info *pinfo, guint32 encaps_tunnel_type) {
     path_attr_data *data =
-        (path_attr_data*)p_get_proto_data(pinfo->pool, pinfo, proto_bgp, PATH_ATTR_DATA_KEY);
+        (path_attr_data*)p_get_proto_data(wmem_file_scope(), pinfo, proto_bgp, PATH_ATTR_DATA_KEY);
     if (!data) {
-        data = wmem_new0(pinfo->pool, path_attr_data);
+        data = wmem_new0(wmem_file_scope(), path_attr_data);
         data->encaps_tunnel_type = 0;
         data->encaps_community_present = FALSE;
     }
     data->encaps_community_present = TRUE;
     data->encaps_tunnel_type = encaps_tunnel_type;
-    p_add_proto_data(pinfo->pool, pinfo, proto_bgp, PATH_ATTR_DATA_KEY, data);
+    p_add_proto_data(wmem_file_scope(), pinfo, proto_bgp, PATH_ATTR_DATA_KEY, data);
     return;
 }
 
 static path_attr_data*
 load_path_attr_data(packet_info *pinfo) {
     path_attr_data *data =
-        (path_attr_data*)p_get_proto_data(pinfo->pool, pinfo, proto_bgp, PATH_ATTR_DATA_KEY);
+        (path_attr_data*)p_get_proto_data(wmem_file_scope(), pinfo, proto_bgp, PATH_ATTR_DATA_KEY);
     return data;
 }
 
