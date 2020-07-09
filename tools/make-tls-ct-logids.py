@@ -21,13 +21,17 @@ CT_JSON_URL = 'https://www.gstatic.com/ct/log_list/v2/all_logs_list.json'
 # File to be patched
 SOURCE_FILE = "epan/dissectors/packet-tls-utils.c"
 
+# Maximum elements per line in the value array. 11 is chosen because it results
+# in output consistent with clang-format.
+BYTES_PER_LINE = 11
+
 
 def escape_c(s):
     return s.replace('\\', '\\\\').replace('"', '\\"')
 
 
 def byteshex(b):
-    return "".join("\\x%02x" % b for b in bytearray(b))
+    return " ".join("0x%02x," % b for b in bytearray(b))
 
 
 def process_json(obj, lastmod):
@@ -39,10 +43,12 @@ def process_json(obj, lastmod):
         desc = entry["description"]
         pubkey_der = b64decode(entry["key"])
         key_id = sha256(pubkey_der).digest()
-        lines += '    { '
-        lines += '"%s"\n' % byteshex(key_id[:16])
-        lines += '      "%s", %d,\n' % (byteshex(key_id[16:]), len(key_id))
-        lines += '      "%s" },\n' % escape_c(desc)
+        lines += '    { (const guint8[]){\n'
+        for offset in range(0, len(key_id), BYTES_PER_LINE):
+            lines += '          %s\n' % \
+                byteshex(key_id[offset:offset+BYTES_PER_LINE])
+        lines += '      },\n'
+        lines += '      %d, "%s" },\n' % (len(key_id), escape_c(desc))
     lines += "    { NULL, 0, NULL }\n"
     lines += "};\n"
     return lines
