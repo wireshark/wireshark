@@ -36,6 +36,12 @@
  *                       - ObjectMappings now used for dissecting PDOs
  *                       - XDD/EDS files can be read for name/type information
  *
+ * Copyright (c) 2020: B&R INDUSTRIAL AUTOMATION GmbH
+ *                     http://www.br-automation.com
+ *
+ *                     - Christian Krump <christian.krump[AT]br-automation.com>
+ *                       - extended decoding of ring redundancy flags in the SOA frame
+ *
  * A dissector for:
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -1302,6 +1308,12 @@ static value_string_ext epl_sdo_asnd_commands_short_ext = VALUE_STRING_EXT_INIT(
 static const gchar* addr_str_cn  = " (Controlled Node)";
 static const gchar* addr_str_res = " (reserved)";
 
+/* true/false strings for representing the ring redundancy flags */
+static const true_false_string epl_soa_rrflags_mnred = { "active", "not active" };
+static const true_false_string epl_soa_rrflags_cblred = { "active", "not active" };
+static const true_false_string epl_soa_rrflags_ringred = { "active", "not active" };
+static const true_false_string epl_soa_rrflags_ringstat = { "Ring Broken", "Ring Closed" };
+
 struct object_mapping {
 	struct {
 		guint16 idx;
@@ -1429,6 +1441,11 @@ static gint hf_epl_soa_er        = -1;
 static gint hf_epl_soa_svid      = -1;
 static gint hf_epl_soa_svtg      = -1;
 static gint hf_epl_soa_eplv      = -1;
+static gint hf_epl_soa_rrflags          = -1;
+static gint hf_epl_soa_rrflags_mnred    = -1;
+static gint hf_epl_soa_rrflags_cblred   = -1;
+static gint hf_epl_soa_rrflags_ringred  = -1;
+static gint hf_epl_soa_rrflags_ringstat = -1;
 
 /*SyncRequest*/
 static gint hf_epl_soa_sync      = -1;
@@ -2935,10 +2952,16 @@ dissect_epl_soa(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint of
 	proto_tree_add_item(epl_tree, hf_epl_soa_eplv, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
 
+	/* decode redundancy flags */
+	proto_tree_add_item(epl_tree, hf_epl_soa_rrflags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(epl_tree, hf_epl_soa_rrflags_ringstat, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(epl_tree, hf_epl_soa_rrflags_ringred, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(epl_tree, hf_epl_soa_rrflags_cblred, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(epl_tree, hf_epl_soa_rrflags_mnred, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	offset += 1;
+
 	if (svid == EPL_SOA_SYNCREQUEST)
 	{
-		/* reserved */
-		offset +=1;
 		/* SyncControl bit0-7 */
 		psf_item = proto_tree_add_item(epl_tree, hf_epl_soa_sync, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		proto_item_append_text(psf_item, " (Bits 0..7)");
@@ -5283,6 +5306,26 @@ proto_register_epl(void)
 		{ &hf_epl_soa_eplv,
 			{ "EPLVersion", "epl.soa.eplv",
 				FT_UINT8, BASE_CUSTOM, CF_FUNC(elp_version), 0x00, NULL, HFILL }
+		},
+		{ &hf_epl_soa_rrflags,
+			{ "RedundancyFlags", "epl.soa.rrFlags",
+				FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
+		},
+		{ &hf_epl_soa_rrflags_mnred,
+			{ "MR - MN Redundancy", "epl.soa.rrFlags.mnred",
+				FT_BOOLEAN, 8, TFS(&epl_soa_rrflags_mnred), 0x01, NULL, HFILL }
+		},
+		{ &hf_epl_soa_rrflags_cblred,
+			{ "CR - Cable Redundancy", "epl.soa.rrFlags.cblred",
+				FT_BOOLEAN, 8, TFS(&epl_soa_rrflags_cblred), 0x02, NULL, HFILL }
+		},
+		{ &hf_epl_soa_rrflags_ringred,
+			{ "RR - Ring Redundancy", "epl.soa.rrFlags.ringred",
+				FT_BOOLEAN, 8, TFS(&epl_soa_rrflags_ringred), 0x04, NULL, HFILL }
+		},
+		{ &hf_epl_soa_rrflags_ringstat,
+			{ "RR - Ring Status", "epl.soa.rrFlags.ringstat",
+				FT_BOOLEAN, 8, TFS(&epl_soa_rrflags_ringstat), 0x08, NULL, HFILL }
 		},
 		{ &hf_epl_soa_sync,
 			{ "SyncControl", "epl.soa.sync",
