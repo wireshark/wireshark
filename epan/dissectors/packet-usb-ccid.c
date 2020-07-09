@@ -93,6 +93,14 @@ static int hf_ccid_bmSlotICCState_slot2Current = -1;
 static int hf_ccid_bmSlotICCState_slot2Changed = -1;
 static int hf_ccid_bmSlotICCState_slot3Current = -1;
 static int hf_ccid_bmSlotICCState_slot3Changed = -1;
+static int hf_ccid_bmSlotICCState_slot4Current = -1;
+static int hf_ccid_bmSlotICCState_slot4Changed = -1;
+static int hf_ccid_bmSlotICCState_slot5Current = -1;
+static int hf_ccid_bmSlotICCState_slot5Changed = -1;
+static int hf_ccid_bmSlotICCState_slot6Current = -1;
+static int hf_ccid_bmSlotICCState_slot6Changed = -1;
+static int hf_ccid_bmSlotICCState_slot7Current = -1;
+static int hf_ccid_bmSlotICCState_slot7Changed = -1;
 static int hf_ccid_bHardwareErrorCode = -1;
 
 static dissector_handle_t usb_ccid_handle;
@@ -135,7 +143,7 @@ static int * const bPINSupport_fields[] = {
     NULL
 };
 
-static int * const bmSlotICCState_fields[] = {
+static int * const bmSlotICCStateb0_fields[] = {
     &hf_ccid_bmSlotICCState_slot0Current,
     &hf_ccid_bmSlotICCState_slot0Changed,
     &hf_ccid_bmSlotICCState_slot1Current,
@@ -144,6 +152,18 @@ static int * const bmSlotICCState_fields[] = {
     &hf_ccid_bmSlotICCState_slot2Changed,
     &hf_ccid_bmSlotICCState_slot3Current,
     &hf_ccid_bmSlotICCState_slot3Changed,
+    NULL
+};
+
+static int * const bmSlotICCStateb1_fields[] = {
+    &hf_ccid_bmSlotICCState_slot4Current,
+    &hf_ccid_bmSlotICCState_slot4Changed,
+    &hf_ccid_bmSlotICCState_slot5Current,
+    &hf_ccid_bmSlotICCState_slot5Changed,
+    &hf_ccid_bmSlotICCState_slot6Current,
+    &hf_ccid_bmSlotICCState_slot6Changed,
+    &hf_ccid_bmSlotICCState_slot7Current,
+    &hf_ccid_bmSlotICCState_slot7Changed,
     NULL
 };
 
@@ -452,6 +472,7 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     guint32     payload_len;
     tvbuff_t   *next_tvb;
     usb_conv_info_t  *usb_conv_info;
+    int len_remaining;
 
     /* Reject the packet if data is NULL */
     if (data == NULL)
@@ -595,7 +616,13 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     /*Interupt IN*/
     case RDR_PC_NOTIF_SLOT_CHNG:
         proto_tree_add_bitmask(ccid_tree, tvb, 1,
-            hf_ccid_bmSlotICCState, ett_ccid_slot_change, bmSlotICCState_fields,
+            hf_ccid_bmSlotICCState, ett_ccid_slot_change, bmSlotICCStateb0_fields,
+            ENC_LITTLE_ENDIAN);
+        len_remaining = tvb_reported_length_remaining (tvb, 2);
+        if (len_remaining <= 0)
+            break;
+        proto_tree_add_bitmask(ccid_tree, tvb, 2,
+            hf_ccid_bmSlotICCState, ett_ccid_slot_change, bmSlotICCStateb1_fields,
             ENC_LITTLE_ENDIAN);
         break;
 
@@ -839,6 +866,30 @@ proto_register_ccid(void)
         { &hf_ccid_bmSlotICCState_slot3Changed,
          { "Slot 3 Status changed", "usbccid.hf_ccid_bmSlotICCState.slot3Changed",
              FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80, NULL, HFILL } },
+        { &hf_ccid_bmSlotICCState_slot4Current,
+         { "Slot 4 Current Status", "usbccid.hf_ccid_bmSlotICCState.slot4Current",
+          FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x01, NULL, HFILL } },
+        { &hf_ccid_bmSlotICCState_slot4Changed,
+         { "Slot 4 Status changed", "usbccid.hf_ccid_bmSlotICCState.slot4Changed",
+          FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x02, NULL, HFILL } },
+        { &hf_ccid_bmSlotICCState_slot5Current,
+         { "Slot 5 Current Status", "usbccid.hf_ccid_bmSlotICCState.slot5Current",
+          FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x04, NULL, HFILL } },
+        { &hf_ccid_bmSlotICCState_slot5Changed,
+         { "Slot 5 Status changed", "usbccid.hf_ccid_bmSlotICCState.slot5Changed",
+          FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x08, NULL, HFILL } },
+        { &hf_ccid_bmSlotICCState_slot6Current,
+         { "Slot 6 Current Status", "usbccid.hf_ccid_bmSlotICCState.slot6Current",
+          FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x10, NULL, HFILL } },
+        { &hf_ccid_bmSlotICCState_slot6Changed,
+         { "Slot 6 Status changed", "usbccid.hf_ccid_bmSlotICCState.slot6Changed",
+          FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x20, NULL, HFILL } },
+        { &hf_ccid_bmSlotICCState_slot7Current,
+         { "Slot 7 Current Status", "usbccid.hf_ccid_bmSlotICCState.slot7Current",
+          FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x40, NULL, HFILL } },
+        { &hf_ccid_bmSlotICCState_slot7Changed,
+         { "Slot 7 Status changed", "usbccid.hf_ccid_bmSlotICCState.slot7Changed",
+          FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80, NULL, HFILL } },
         { &hf_ccid_bHardwareErrorCode,
          { "Hardware Error Code", "usbccid.hf_ccid_bHardwareErrorCode",
              FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
