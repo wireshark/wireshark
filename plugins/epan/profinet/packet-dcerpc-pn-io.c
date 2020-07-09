@@ -276,7 +276,9 @@ static int hf_pn_io_control_command_prmbegin = -1;
 static int hf_pn_io_control_command_reserved_7_15 = -1;
 static int hf_pn_io_control_block_properties = -1;
 static int hf_pn_io_control_block_properties_applready = -1;
-static int hf_pn_io_control_block_properties_applready0 = -1;
+static int hf_pn_io_control_block_properties_applready_bit0 = -1;
+static int hf_pn_io_control_block_properties_applready_bit1 = -1;
+static int hf_pn_io_control_block_properties_applready_otherbits = -1;
 
 /* static int hf_pn_io_AlarmSequenceNumber = -1; */
 static int hf_pn_io_control_command_reserved = -1;
@@ -2230,12 +2232,16 @@ static const value_string pn_io_control_properties_prmbegin_vals[] = {
     { 0x0001, "The IO controller starts the transmisson of the stored start-up parameter" },
     { 0, NULL }
 };
-static const value_string pn_io_control_properties_application_ready_vals[] = {
+static const value_string pn_io_control_properties_application_ready_bit0_vals[] = {
     { 0x0000, "Wait for explicit ControlCommand.ReadyForCompanion" },
     { 0x0001, "Implicit ControlCommand.ReadyForCompanion" },
     { 0, NULL }
 };
-
+static const value_string pn_io_control_properties_application_ready_bit1_vals[] = {
+    { 0x0000, "Wait for explicit ControlCommand.ReadyForRT_CLASS_3" },
+    { 0x0001, "Implicit ControlCommand.ReadyForRT_CLASS_3" },
+    { 0, NULL }
+};
 static const value_string pn_io_fs_hello_mode_vals[] = {
     { 0x0000, "OFF" },
     { 0x0001, "Send req on LinkUp" },
@@ -4628,8 +4634,9 @@ dissect_ControlConnect_block(tvbuff_t *tvb, int offset,
         /* ApplicationReady: special decode */
         sub_item = proto_tree_add_item(tree, hf_pn_io_control_block_properties_applready, tvb, offset, 2, ENC_BIG_ENDIAN);
         sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_control_block_properties);
-        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
-                            hf_pn_io_control_block_properties_applready0, &u16Properties);
+        dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep, hf_pn_io_control_block_properties_applready_bit0, &u16Properties);
+        dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep, hf_pn_io_control_block_properties_applready_bit1, &u16Properties);
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep, hf_pn_io_control_block_properties_applready_otherbits, &u16Properties);
     } else {
         offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
                             hf_pn_io_control_block_properties, &u16Properties);
@@ -12252,10 +12259,20 @@ proto_register_pn_io (void)
         FT_UINT16, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     },
-    { &hf_pn_io_control_block_properties_applready0,
-      { "ApplicationReady", "pn_io.control_block_properties.appl_ready0",
-        FT_UINT16, BASE_HEX, VALS(pn_io_control_properties_application_ready_vals), 0x0001,
+    { &hf_pn_io_control_block_properties_applready_bit0,
+      { "ApplicationReady.Bit0", "pn_io.control_block_properties.appl_ready_bit0",
+        FT_UINT16, BASE_HEX, VALS(pn_io_control_properties_application_ready_bit0_vals), 0x0001,
         NULL, HFILL }
+    },
+    { &hf_pn_io_control_block_properties_applready_bit1,
+      { "ApplicationReady.Bit1", "pn_io.control_block_properties.appl_ready_bit1",
+      FT_UINT16, BASE_HEX, VALS(pn_io_control_properties_application_ready_bit1_vals), 0x0002,
+    NULL, HFILL }
+    },
+    { &hf_pn_io_control_block_properties_applready_otherbits,
+      { "ApplicationReady.Bit2-15(reserved)", "pn_io.control_block_properties.appl_ready_otherbits",
+      FT_UINT16, BASE_HEX, NULL, 0xFFFC,
+    NULL, HFILL }
     },
     { &hf_pn_io_SubmoduleListEntries,
       { "NumberOfEntries", "pn_io.SubmoduleListEntries",
