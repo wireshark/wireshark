@@ -484,6 +484,8 @@ static int hf_rtcp_ssrc_media_source = -1;
 static int hf_rtcp_ntp = -1;
 static int hf_rtcp_ntp_msw = -1;
 static int hf_rtcp_ntp_lsw = -1;
+static int hf_rtcp_timebase_indicator = -1;
+static int hf_rtcp_identity = -1;
 static int hf_rtcp_stream_id = -1;
 static int hf_rtcp_as_timestamp = -1;
 static int hf_rtcp_rtp_timestamp = -1;
@@ -3469,12 +3471,13 @@ dissect_rtcp_avb( tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree 
     proto_tree_add_item( tree, hf_rtcp_name_ascii, tvb, offset, 4, ENC_ASCII|ENC_NA );
     offset += 4;
 
-/*    32 bit wide
-gmTimeBaseIndicator | gmIdentity - low 16 bit
-gmIdentity - mid 32 bit
-gmIdentity - high 32 bit
-*/
-    offset += 3 * 4;
+    /* TimeBase Indicator */
+    proto_tree_add_item( tree, hf_rtcp_timebase_indicator, tvb, offset, 2, ENC_BIG_ENDIAN );
+    offset += 2;
+
+    /* Identity */
+    proto_tree_add_item( tree, hf_rtcp_identity, tvb, offset, 10, ENC_NA );
+    offset += 10;
 
     /* Stream id, 64 bits */
     proto_tree_add_item( tree, hf_rtcp_stream_id, tvb, offset, 8, ENC_BIG_ENDIAN );
@@ -4559,6 +4562,30 @@ proto_register_rtcp(void)
                 "rtcp.timestamp.ntp",
                 FT_ABSOLUTE_TIME,
                 ABSOLUTE_TIME_UTC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_timebase_indicator,
+            {
+                "Timebase Indicator",
+                "rtcp.timebase_indicator",
+                FT_UINT16,
+                BASE_DEC_HEX,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_identity,
+            {
+                "Identity",
+                "rtcp.identity",
+                FT_BYTES,
+                BASE_NONE,
                 NULL,
                 0x0,
                 NULL, HFILL
