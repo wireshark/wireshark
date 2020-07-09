@@ -1367,15 +1367,17 @@ dissect_stun_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 }
 
 static gboolean
-dissect_stun_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_stun_heur_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    if (dissect_stun_message(tvb, pinfo, tree, TRUE, TRUE) == 0) {
-        /*
-         * It wasn't a valid STUN message, and wasn't
-         * dissected as such.
-         */
+    if (dissect_stun_message(tvb, pinfo, tree, TRUE, FALSE) == 0)
         return FALSE;
-    }
+    return TRUE;
+}
+static gboolean
+dissect_stun_heur_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    if (dissect_stun_message(tvb, pinfo, tree, TRUE, TRUE) == 0)
+        return FALSE;
     return TRUE;
 }
 
@@ -1719,7 +1721,7 @@ proto_register_stun(void)
 
     register_dissector("stun-tcp", dissect_stun_tcp, proto_stun);
     register_dissector("stun-udp", dissect_stun_udp, proto_stun);
-    register_dissector("stun-heur", dissect_stun_heur, proto_stun);
+    register_dissector("stun-heur", dissect_stun_heur_udp, proto_stun);
 }
 
 void
@@ -1738,7 +1740,8 @@ proto_reg_handoff_stun(void)
     dissector_add_string("tls.alpn", "stun.nat-discovery", stun_tcp_handle);
     dissector_add_string("dtls.alpn", "stun.nat-discovery", stun_udp_handle);
 
-    heur_dissector_add("udp", dissect_stun_heur, "STUN over UDP", "stun_udp", proto_stun, HEURISTIC_ENABLE);
+    heur_dissector_add("udp", dissect_stun_heur_udp, "STUN over UDP", "stun_udp", proto_stun, HEURISTIC_ENABLE);
+    heur_dissector_add("tcp", dissect_stun_heur_tcp, "STUN over TCP", "stun_tcp", proto_stun, HEURISTIC_ENABLE);
 
     data_handle = find_dissector("data");
 }
