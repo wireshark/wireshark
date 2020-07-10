@@ -9,6 +9,9 @@ import os
 import re
 import requests
 import shutil
+import subprocess
+import argparse
+import signal
 
 # This utility scans the dissector code for URLs, then attempts to
 # fetch the links.  The results are shown in stdout, but also, at
@@ -19,12 +22,23 @@ import shutil
 
 
 # TODO:
-# - allow single dissector name to be given as a command-line arg.
 # - option to write back to dissector file when there is a failure?
 # - make requests in parallel (run takes around 35 minutes)?
 # - optionally parse previous successes.txt and avoid fetching them again?
 # - make sure URLs are really within comments in code?
 # - use urllib.parse or similar to better check URLs?
+# - improve regex to allow '+' in URL (like confluence uses)
+
+# Try to exit soon after Ctrl-C is pressed.
+should_exit = False
+
+
+def signal_handler(sig, frame):
+    global should_exit
+    should_exit = True
+    print('You pressed Ctrl+C - exiting')
+
+signal.signal(signal.SIGINT, signal_handler)
 
 
 class FailedLookup:
@@ -45,16 +59,6 @@ class FailedLookup:
 cached_lookups = {}
 
 
-# These are strings typically seen after redirecting to a page that won't have
-# What we are looking for. Usually get a 404 for these anyway.
-# TODO: likely more of these...
-apology_strings = ["sorry, we cannot find the page",
-                   "this page could not be found",
-                   "the page you're looking for can't be found",
-                   "the content you are looking for cannot be found...",
-                   "the resource you are looking for has been removed"]
-
-
 class Link(object):
 
     def __init__(self, file, line_number, url):
@@ -67,25 +71,30 @@ class Link(object):
         self.result_from_cache = False
 
     def __str__(self):
-        s = (('SUCCESS  ' if self.success else 'FAILED  ') + self.file + ':' + str(self.line_number) +
-             '   ' + self.url + "   status-code=" + str(self.r.status_code) +
-             ' content-type="' + (self.r.headers['content-type'] if ('content-type' in self.r.headers) else 'NONE') + '"')
+        epan_idx = self.file.find('epan')
+        if epan_idx == -1:
+            filename = self.file
+        else:
+            filename = self.file[epan_idx:]
+        s = ('SUCCESS  ' if self.success else 'FAILED  ') + \
+            filename + ':' + str(self.line_number) + '   ' + self.url
+        if True:  # self.r:
+            if self.r.status_code:
+                s += "   status-code=" + str(self.r.status_code)
+                if 'content-type' in self.r.headers:
+                    s += (' content-type="' +
+                          self.r.headers['content-type'] + '"')
+            else:
+                s += '    <No response Received>'
         return s
-
-    def looksLikeApology(self):
-        content = str(self.r.content)
-        # N.B. invariably comes back as just one line...
-        if any(needle in content for needle in apology_strings):
-            print('Found apology!')
-            return True
-        return False
 
     def validate(self, session):
         # Fetch, but first look in cache
         global cached_lookups
         self.tested = True
         if self.url in cached_lookups:
-            print('[Using cached result for', self.url, ']')
+            if args.verbose:
+                print('[Using cached result for', self.url, ']')
             self.r = cached_lookups[self.url]
             self.result_from_cache = True
         else:
@@ -97,7 +106,8 @@ class Link(object):
                 # Cache this result.
                 cached_lookups[self.url] = self.r
             except (ValueError, ConnectionError, Exception):
-                print(self.url, ': failed to make request')
+                if args.verbose:
+                    print(self.url, ': failed to make request')
                 self.success = False
                 # Add bad result to crashed_lookups.
                 cached_lookups[self.url] = FailedLookup()
@@ -109,49 +119,100 @@ class Link(object):
             self.success = False
             return
 
-        # Look for 'not really found' type strings in r.content
-        if self.looksLikeApology():
-            print('Got body, but it looks like content has moved?')
-            self.success = False
-            return
-
         # Assume its Ok.
         self.success = True
 
+
+links = []
+
+
+def findLinksInFile(filename):
+    with open(filename, 'r') as f:
+        for line_number, line in enumerate(f, start=1):
+            # TODO: not matching
+            # https://cwiki.apache.org/confluence/display/KAFKA/A+Guide+To+The+Kafka+Protocol
+            urls = re.findall(
+                r'https?://(?:[a-zA-Z0-9./_?&=-]+|%[0-9a-fA-F]{2})+', line)
+
+            for url in urls:
+                # Lop off any trailing chars that are not part of it
+                url = url.rstrip(").',")
+
+                # A url must have a period somewhere
+                if '.' not in url:
+                    continue
+                if args.verbose:
+                    print('Found URL:', url)
+                global links
+                links.append(Link(filename, line_number, url))
+
+
 # Scan the given folder for links to test.
-
-
-def findLinks(folder):
-    links = []
-
-    # Look at files in sorted order, to  give some idea of how far through it
+def findLinksInFolder(folder):
+    # Look at files in sorted order, to give some idea of how far through it
     # is.
     for filename in sorted(os.listdir(folder)):
         if filename.endswith('.c'):
-            with open(os.path.join(folder, filename), 'r') as f:
-                for line_number, line in enumerate(f, start=1):
-                    urls = re.findall(
-                        r'https?://(?:[a-zA-Z0-9./_?&=-]+|%[0-9a-fA-F]{2})+', line)
-
-                    for url in urls:
-                        # Lop off any trailing chars that are not part of it
-                        url = url.rstrip(").',")
-
-                        # A url must have a period somewhere
-                        if '.' not in url:
-                            continue
-
-                        print('Found URL:', url)
-                        links.append(Link(filename, line_number, url))
-    print('Found', len(links), 'links')
-    return links
+            global links
+            findLinksInFile(os.path.join(folder, filename))
 
 
 #################################################################
 # Main logic.
 
-# Find links from dissector folder.
-links = findLinks(os.path.join(os.path.dirname(__file__), '..', 'epan', 'dissectors'))
+# command-line args.  Controls which dissector files should be scanned.
+# If no args given, will just scan epan/dissectors folder.
+parser = argparse.ArgumentParser(description='Check URL links in dissectors')
+parser.add_argument('--file', action='store', default='',
+                    help='specify individual dissector file to test')
+parser.add_argument('--commits', action='store',
+                    help='last N commits to check')
+parser.add_argument('--open', action='store_true',
+                    help='check open files')
+parser.add_argument('--verbose', action='store_true',
+                    help='when enabled, show more output')
+
+args = parser.parse_args()
+
+
+
+def isDissectorFile(filename):
+    p = re.compile('epan/dissectors/packet-.*\.c')
+    return p.match(filename)
+
+# Get files from wherever command-line args indicate.
+if args.file:
+    # Fetch links from single file.
+    findLinksInFile(args.file)
+elif args.commits:
+    # Get files affected by specified number of commits.
+    command = ['git', 'diff', '--name-only', 'HEAD~' + args.commits]
+    files = [f.decode('utf-8')
+             for f in subprocess.check_output(command).splitlines()]
+    # Fetch links from files (dissectors files only)
+    for f in files:
+        if isDissectorFile(f):
+            findLinksInFile(f)
+elif args.open:
+    # Unstaged changes.
+    command = ['git', 'diff', '--name-only']
+    files = [f.decode('utf-8')
+             for f in subprocess.check_output(command).splitlines()]
+    # Staged changes.
+    command = ['git', 'diff', '--staged', '--name-only']
+    files_staged = [f.decode('utf-8')
+                    for f in subprocess.check_output(command).splitlines()]
+    for f in files:
+        if isDissectorFile(f):
+            findLinksInFile(f)
+    for f in files_staged:
+        if not f in files:
+            if isDissectorFile(f):
+                findLinksInFile(f)
+else:
+    # Find links from dissector folder.
+    findLinksInFolder(os.path.join(os.path.dirname(
+        __file__), '..', 'epan', 'dissectors'))
 
 
 # Prepare one session for all requests. For args, see
@@ -163,12 +224,14 @@ session.headers.update({'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) Apple
                         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'})
 
 # Try out the links.
-limit = 5000        # Control for debug
 for checks, link in enumerate(links):
+    if should_exit:
+        # i.e. if Ctrl-C has been pressed.
+        exit(0)
     link.validate(session)
-    print(link)
-    if checks > limit:
-        break
+    if args.verbose or not link.success:
+        print(link)
+
 
 # Write failures to a file.  Back up any previous first though.
 if os.path.exists('failures.txt'):
@@ -184,16 +247,18 @@ with open('successes.txt', 'w') as f_s:
             f_s.write(str(l) + '\n')
 
 
-# Show overall stats.
+# Count and show overall stats.
 passed, failed, cached = 0, 0, 0
 for l in links:
-    if l.tested and not l.result_from_cache:
-        if l.success:
-            passed += 1
-        else:
-            failed += 1
-    if l.result_from_cache:
+    if not l.result_from_cache:
+        if l.tested:
+            if l.success:
+                passed += 1
+            else:
+                failed += 1
+    else:
         cached += 1
+
 print('--------------------------------------------------------------------------------------------------')
-print(len(links), 'links checked: , ', passed, 'passed,',
-      failed, 'failed', cached, 'results from cache')
+print(len(links), 'links checked: ', passed, 'passed,',
+      failed, 'failed (', cached, 'results from cache)')
