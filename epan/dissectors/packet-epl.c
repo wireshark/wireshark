@@ -1308,12 +1308,6 @@ static value_string_ext epl_sdo_asnd_commands_short_ext = VALUE_STRING_EXT_INIT(
 static const gchar* addr_str_cn  = " (Controlled Node)";
 static const gchar* addr_str_res = " (reserved)";
 
-/* true/false strings for representing the ring redundancy flags */
-static const true_false_string epl_soa_rrflags_mnred = { "active", "not active" };
-static const true_false_string epl_soa_rrflags_cblred = { "active", "not active" };
-static const true_false_string epl_soa_rrflags_ringred = { "active", "not active" };
-static const true_false_string epl_soa_rrflags_ringstat = { "Ring Broken", "Ring Closed" };
-
 struct object_mapping {
 	struct {
 		guint16 idx;
@@ -5313,19 +5307,19 @@ proto_register_epl(void)
 		},
 		{ &hf_epl_soa_rrflags_mnred,
 			{ "MR - MN Redundancy", "epl.soa.rrFlags.mnred",
-				FT_BOOLEAN, 8, TFS(&epl_soa_rrflags_mnred), 0x01, NULL, HFILL }
+				FT_BOOLEAN, 8, TFS(&tfs_active_inactive), 0x01, NULL, HFILL }
 		},
 		{ &hf_epl_soa_rrflags_cblred,
 			{ "CR - Cable Redundancy", "epl.soa.rrFlags.cblred",
-				FT_BOOLEAN, 8, TFS(&epl_soa_rrflags_cblred), 0x02, NULL, HFILL }
+				FT_BOOLEAN, 8, TFS(&tfs_active_inactive), 0x02, NULL, HFILL }
 		},
 		{ &hf_epl_soa_rrflags_ringred,
 			{ "RR - Ring Redundancy", "epl.soa.rrFlags.ringred",
-				FT_BOOLEAN, 8, TFS(&epl_soa_rrflags_ringred), 0x04, NULL, HFILL }
+				FT_BOOLEAN, 8, TFS(&tfs_active_inactive), 0x04, NULL, HFILL }
 		},
 		{ &hf_epl_soa_rrflags_ringstat,
 			{ "RR - Ring Status", "epl.soa.rrFlags.ringstat",
-				FT_BOOLEAN, 8, TFS(&epl_soa_rrflags_ringstat), 0x08, NULL, HFILL }
+				FT_BOOLEAN, 8, TFS(&tfs_open_closed), 0x08, NULL, HFILL }
 		},
 		{ &hf_epl_soa_sync,
 			{ "SyncControl", "epl.soa.sync",
