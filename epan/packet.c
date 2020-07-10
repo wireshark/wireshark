@@ -2839,10 +2839,9 @@ dissector_try_heuristic(heur_dissector_list_t sub_dissectors, tvbuff_t *tvb,
 
 			/* Bubble the matched entry to the top for faster search next time. */
 			if (prev_entry != NULL) {
-				prev_entry = g_slist_remove_link(prev_entry, entry);
+				sub_dissectors->dissectors = g_slist_remove_link(sub_dissectors->dissectors, entry);
 				sub_dissectors->dissectors = g_slist_concat(entry, sub_dissectors->dissectors);
 			}
-
 			status = TRUE;
 			break;
 		}
