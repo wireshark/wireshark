@@ -88,11 +88,6 @@ DIAG_ON(frame-larger-than=)
 #include <QTreeWidget>
 #include <QUrl>
 
-#if defined(QT_MACEXTRAS_LIB) && QT_VERSION < QT_VERSION_CHECK(5, 2, 1)
-#include <QtMacExtras/QMacNativeToolBar>
-#endif
-
-
 //menu_recent_file_write_all
 
 // If we ever add support for multiple windows this will need to be replaced.
@@ -436,10 +431,6 @@ MainWindow::MainWindow(QWidget *parent) :
 #endif
 
 #if defined(Q_OS_MAC)
-#if defined(QT_MACEXTRAS_LIB) && QT_VERSION < QT_VERSION_CHECK(5, 2, 1)
-    QMacNativeToolBar *ntb = QtMacExtras::setNativeToolBar(main_ui_->mainToolBar);
-    ntb->setIconSize(QSize(24, 24));
-#endif // QT_MACEXTRAS_LIB
 
     main_ui_->goToPacketLabel->setAttribute(Qt::WA_MacSmallSize, true);
     main_ui_->goToLineEdit->setAttribute(Qt::WA_MacSmallSize, true);
