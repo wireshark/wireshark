@@ -1377,6 +1377,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         case FT_ACK_FREQUENCY:{
             gint32 length;
 
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", ACK_FREQ");
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_af_sequence_number, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &length);
             offset += (guint32)length;
 
@@ -1390,6 +1391,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         case FT_TIME_STAMP:{
             gint32 length;
 
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", TS");
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_ts, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &length);
             offset += (guint32)length;
 
