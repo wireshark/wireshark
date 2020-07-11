@@ -812,8 +812,8 @@ quic_connection_find(packet_info *pinfo, guint8 long_packet_type,
         // For short packets, first try to find a match based on the address.
         conn = quic_connection_find_dcid(pinfo, NULL, from_server);
         if (conn) {
-            if ((*from_server && !quic_cids_has_match(&conn->server_cids, dcid)) ||
-                (!*from_server && !quic_cids_has_match(&conn->client_cids, dcid))) {
+            if ((*from_server && !quic_cids_has_match(&conn->client_cids, dcid)) ||
+                (!*from_server && !quic_cids_has_match(&conn->server_cids, dcid))) {
                 // Connection does not match packet.
                 conn = NULL;
             }
