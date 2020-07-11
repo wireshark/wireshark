@@ -11966,17 +11966,17 @@ proto_register_pfcp(void)
             NULL, HFILL }
         },
         { &hf_pfcp_packet_delay_thresholds_downlink,
-        { "Downlink packet delay treshold (milliseconds)", "pfcp.packet_delay_thresholds.downlink",
+        { "Downlink packet delay threshold (milliseconds)", "pfcp.packet_delay_thresholds.downlink",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_pfcp_packet_delay_thresholds_uplink,
-        { "Downlink packet delay treshold (milliseconds)", "pfcp.packet_delay_thresholds.uplink",
+        { "Downlink packet delay threshold (milliseconds)", "pfcp.packet_delay_thresholds.uplink",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_pfcp_packet_delay_thresholds_roundtrip,
-        { "Round trip packet delay treshold (milliseconds)", "pfcp.packet_delay_thresholds.roundtrip",
+        { "Round trip packet delay threshold (milliseconds)", "pfcp.packet_delay_thresholds.roundtrip",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
