@@ -148,7 +148,6 @@ struct usb_hid_global_state {
 
 static wmem_tree_t *report_descriptors = NULL;
 
-#define HID_FIELD_SET(field, val) ((field).defined |= val)
 
 /* local items */
 #define HID_USAGE_MIN       (1 << 0)
@@ -160,7 +159,7 @@ static wmem_tree_t *report_descriptors = NULL;
 #define HID_REPORT_SIZE     (1 << 4)
 #define HID_LOGICAL_MIN     (1 << 5)
 #define HID_LOGICAL_MAX     (1 << 6)
-#define HID_USAGE_PAGE      (1 << 7) /* non optional - defined for use in parse_report_descriptor */
+#define HID_USAGE_PAGE      (1 << 7)
 
 /* main items */
 #define HID_INPUT           (1 << 8)
@@ -168,12 +167,18 @@ static wmem_tree_t *report_descriptors = NULL;
 #define HID_FEATURE         (1 << 10)
 
 /* masks */
+
 #define HID_GLOBAL_MASK     (HID_REPORT_ID | \
                              HID_REPORT_COUNT | \
                              HID_REPORT_SIZE | \
                              HID_LOGICAL_MIN | \
                              HID_LOGICAL_MAX | \
                              HID_USAGE_PAGE)
+
+#define HID_REQUIRED_MASK   (HID_REPORT_COUNT | \
+                             HID_REPORT_SIZE | \
+                             HID_LOGICAL_MIN | \
+                             HID_LOGICAL_MAX)
 
 
 #define HID_MAIN_CONSTANT       (1 << 0) /* data / constant                 */
@@ -186,28 +191,23 @@ static wmem_tree_t *report_descriptors = NULL;
 #define HID_MAIN_BUFFERED_BYTES (1 << 8) /* bit field / buferred bytes      */
 
 
+#define HID_USAGE_UNSET         0
+#define HID_USAGE_SINGLE        1
+#define HID_USAGE_RANGE         2
+
+
 typedef struct _hid_field hid_field_t;
 
 struct _hid_field {
-    guint32 usage_page;
-    guint32 usage;
+    guint32         usage_page;
+    wmem_array_t   *usages;
 
-    /* the following items are optional */
-
-    /* supersedes usage if set */
-    guint32 usage_min;
-    guint32 usage_max;
-
-    guint32 report_id;
-    guint32 report_count;
-    guint32 report_size;
-    gint32 logical_min;
-    gint32 logical_max;
-    guint32 input;
-    guint32 output;
-    guint32 feature;
-
-    guint32 defined; /* bitmap of the defined items */
+    guint32         report_id;  /* optional */
+    guint32         report_count;
+    guint32         report_size;
+    gint32          logical_min;
+    gint32          logical_max;
+    guint32         properties;
 
     hid_field_t *next;
 };
@@ -222,7 +222,9 @@ struct _report_descriptor {
     guint8                 *desc_body;
 
     gboolean                uses_report_id;
-    wmem_array_t           *fields;
+    wmem_array_t           *fields_in;
+    wmem_array_t           *fields_out;
+    /* TODO: features */
 
     report_descriptor_t    *next;
 };
@@ -3295,10 +3297,13 @@ parse_report_descriptor(report_descriptor_t *rdesc)
     guint8 *data = rdesc->desc_body;
     unsigned int tag, type, size;
     guint8 prefix;
+    guint32 defined = 0, usage = 0, usage_min = 0, usage_max = 0;
     wmem_allocator_t *scope = wmem_file_scope();
 
     memset(&field, 0, sizeof(field));
-    rdesc->fields = wmem_array_new(scope, sizeof(hid_field_t));
+    field.usages = wmem_array_new(scope, sizeof(guint32));
+    rdesc->fields_in = wmem_array_new(scope, sizeof(hid_field_t));
+    rdesc->fields_out = wmem_array_new(scope, sizeof(hid_field_t));
 
     int i = 0;
     while (i < rdesc->desc_length)
@@ -3317,21 +3322,45 @@ parse_report_descriptor(report_descriptor_t *rdesc)
                 switch (tag)
                 {
                     case USBHID_MAINITEM_TAG_INPUT:
-                        field.input = hid_unpack_value(data, i, size);
-                        HID_FIELD_SET(field, HID_INPUT);
+                        field.properties = hid_unpack_value(data, i, size);
+
+                        if ((defined & HID_REQUIRED_MASK) != HID_REQUIRED_MASK)
+                            goto err;
+
+                        /* new field */
+                        wmem_array_append_one(rdesc->fields_in, field);
+
+                        field.usages = wmem_array_new(scope, sizeof(guint32));
+
+                        /* only keep the global items */
+                        defined &= HID_GLOBAL_MASK;
                         break;
 
                     case USBHID_MAINITEM_TAG_OUTPUT:
-                        field.output = hid_unpack_value(data, i, size);
-                        HID_FIELD_SET(field, HID_OUTPUT);
+                        field.properties = hid_unpack_value(data, i, size);
+
+                        if ((defined & HID_REQUIRED_MASK) != HID_REQUIRED_MASK)
+                            goto err;
+
+                        wmem_array_append_one(rdesc->fields_out, field);
+
+                        defined &= HID_GLOBAL_MASK;
                         break;
 
                     case USBHID_MAINITEM_TAG_FEATURE:
-                        field.feature = hid_unpack_value(data, i, size);
-                        HID_FIELD_SET(field, HID_FEATURE);
+                        /*
+                        field.properties = hid_unpack_value(data, i, size);
+                        TODO
+                        */
                         break;
 
-                    default: /* we don't care about collections starting/ending */
+                    case USBHID_MAINITEM_TAG_COLLECTION:
+                        /* clear usages */
+                        wmem_free(scope, field.usages);
+                        field.usages = wmem_array_new(scope, sizeof(guint32));
+                        break;
+
+                    default:
                         break;
                 }
                 break;
@@ -3341,35 +3370,35 @@ parse_report_descriptor(report_descriptor_t *rdesc)
                 {
                     case USBHID_GLOBALITEM_TAG_USAGE_PAGE:
                         field.usage_page = hid_unpack_value(data, i, size);
-                        HID_FIELD_SET(field, HID_USAGE_PAGE);
+                        defined |= HID_USAGE_PAGE;
                         break;
 
                     case USBHID_GLOBALITEM_TAG_LOG_MIN:
                         if (hid_unpack_signed(data, i, size, &field.logical_min))
                             goto err;
-                        HID_FIELD_SET(field, HID_LOGICAL_MIN);
+                        defined |= HID_LOGICAL_MIN;
                         break;
 
                     case USBHID_GLOBALITEM_TAG_LOG_MAX:
                         if (hid_unpack_signed(data, i, size, &field.logical_max))
                             goto err;
-                        HID_FIELD_SET(field, HID_LOGICAL_MAX);
+                        defined |= HID_LOGICAL_MAX;
                         break;
 
                     case USBHID_GLOBALITEM_TAG_REPORT_SIZE:
                         field.report_size = hid_unpack_value(data, i, size);
-                        HID_FIELD_SET(field, HID_REPORT_SIZE);
+                        defined |= HID_REPORT_SIZE;
                         break;
 
                     case USBHID_GLOBALITEM_TAG_REPORT_ID:
                         rdesc->uses_report_id = TRUE;
                         field.report_id = hid_unpack_value(data, i, size);
-                        HID_FIELD_SET(field, HID_REPORT_ID);
+                        defined |= HID_REPORT_ID;
                         break;
 
                     case USBHID_GLOBALITEM_TAG_REPORT_COUNT:
                         field.report_count = hid_unpack_value(data, i, size);
-                        HID_FIELD_SET(field, HID_REPORT_COUNT);
+                        defined |= HID_REPORT_COUNT;
                         break;
 
                     case USBHID_GLOBALITEM_TAG_PUSH:
@@ -3386,25 +3415,30 @@ parse_report_descriptor(report_descriptor_t *rdesc)
                 switch (tag)
                 {
                     case USBHID_LOCALITEM_TAG_USAGE:
-                        /* invalid - every item must have a usage page */
-                        if (!(field.defined & HID_USAGE_PAGE))
+                        if (!(defined & HID_USAGE_PAGE))
                             return FALSE;
 
-                        /* new field */
-                        wmem_array_append_one(rdesc->fields, field);
+                        usage = hid_unpack_value(data, i, size);
 
-                        /* only keep the global items */
-                        field.defined &= HID_GLOBAL_MASK;
+                        wmem_array_append_one(field.usages, usage);
                         break;
 
                     case USBHID_LOCALITEM_TAG_USAGE_MIN:
-                        field.usage_min = hid_unpack_value(data, i, size);
-                        HID_FIELD_SET(field, HID_USAGE_MIN);
+                        usage_min = hid_unpack_value(data, i, size);
+                        defined |= HID_USAGE_MIN;
                         break;
 
                     case USBHID_LOCALITEM_TAG_USAGE_MAX:
-                        field.usage_max = hid_unpack_value(data, i, size);
-                        HID_FIELD_SET(field, HID_USAGE_MAX);
+                        if (!(defined & HID_USAGE_MIN))
+                            return FALSE;
+
+                        usage_max = hid_unpack_value(data, i, size);
+
+                        wmem_array_grow(field.usages, usage_max - usage_min);
+                        for (guint32 j = usage_min; j < usage_max; j++)
+                            wmem_array_append_one(field.usages, j);
+
+                        defined ^= HID_USAGE_MIN;
                         break;
 
                     default: /* TODO */
@@ -3422,7 +3456,14 @@ parse_report_descriptor(report_descriptor_t *rdesc)
     return TRUE;
 
 err:
-    wmem_free(scope, rdesc->fields);
+    for (unsigned int j = 0; j < wmem_array_get_count(rdesc->fields_in); j++)
+        wmem_free(scope, ((hid_field_t*) wmem_array_index(rdesc->fields_in, j))->usages);
+
+    for (unsigned int j = 0; j < wmem_array_get_count(rdesc->fields_out); j++)
+        wmem_free(scope, ((hid_field_t*) wmem_array_index(rdesc->fields_out, j))->usages);
+
+    wmem_free(scope, rdesc->fields_in);
+    wmem_free(scope, rdesc->fields_out);
     return FALSE;
 }
 
