@@ -7294,7 +7294,7 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
     }
 
     while (offset < next_offset) {
-        guint32 parameter_type;
+        guint64 parameter_type;     /* 62-bit space */
         guint32 parameter_length;
         proto_tree *parameter_tree;
         guint32 parameter_end_offset;
@@ -7305,12 +7305,11 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
                                                 NULL, "Parameter");
         /* TransportParameter ID and Length. */
         if (use_varint_encoding) {
-            guint64 parameter_type64, parameter_length64;
+            guint64 parameter_length64;
             guint32 type_len = 0;
 
             proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_type,
-                                           tvb, offset, -1, ENC_VARINT_QUIC, &parameter_type64, &type_len);
-            parameter_type = (guint32)parameter_type64;
+                                           tvb, offset, -1, ENC_VARINT_QUIC, &parameter_type, &type_len);
             offset += type_len;
 
             proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_len,
@@ -7338,8 +7337,14 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
         /* GREASE? https://tools.ietf.org/html/draft-ietf-quic-transport-27#section-18.1 */
         if (((parameter_type - 27) % 31) == 0) {
             proto_item_append_text(parameter_tree, ": GREASE");
+        } else if (parameter_type > G_MAXUINT) {
+            /* There are currently no known TP larger than 32 bits, therefore
+             * quic_transport_parameter_id assumes that. If larger (up to 62
+             * bits) TPs are available, then it needs to be revisited.
+             */
+            proto_item_append_text(parameter_tree, ": Unknown 0x%08" G_GINT64_MODIFIER "x", parameter_type);
         } else {
-            proto_item_append_text(parameter_tree, ": %s", val_to_str(parameter_type, quic_transport_parameter_id, "Unknown"));
+            proto_item_append_text(parameter_tree, ": %s", val_to_str((guint32)parameter_type, quic_transport_parameter_id, "Unknown 0x%04x"));
         }
 
         proto_item_append_text(parameter_tree, " (len=%u)", parameter_length);
