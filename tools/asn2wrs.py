@@ -3511,6 +3511,7 @@ class Constraint (Node):
         if self.IsSize():
             if self.type == 'Size':
                 (minv, maxv, ext) = self.subtype.GetValue(ectx)
+                ext = ext or (hasattr(self, 'ext') and self.ext)
             elif self.type == 'Intersection':
                 if self.subtype[0].IsSize() and not self.subtype[1].IsSize():
                     (minv, maxv, ext) = self.subtype[0].GetSize(ectx)
