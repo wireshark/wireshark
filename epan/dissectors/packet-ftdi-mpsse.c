@@ -374,6 +374,27 @@ static void record_command_data(command_data_t **cmd_data, packet_info *pinfo, f
     *cmd_data = data;
 }
 
+static void expect_response(command_data_t **cmd_data, packet_info *pinfo, proto_tree *tree,
+                            ftdi_mpsse_info_t *mpsse_info, guint8 cmd, guint16 response_length)
+{
+    if (pinfo->fd->visited)
+    {
+        DISSECTOR_ASSERT(*cmd_data);
+        DISSECTOR_ASSERT((*cmd_data)->cmd == cmd);
+        DISSECTOR_ASSERT((*cmd_data)->response_length == response_length);
+        if ((*cmd_data)->is_response_set)
+        {
+            proto_tree* response_in = proto_tree_add_uint(tree, hf_mpsse_response_in, NULL, 0, 0, (*cmd_data)->response_in_packet);
+            proto_item_set_generated(response_in);
+        }
+        *cmd_data = (*cmd_data)->next;
+    }
+    else
+    {
+        record_command_data(cmd_data, pinfo, mpsse_info, cmd, response_length);
+    }
+}
+
 static gchar* freq_to_str(gfloat freq)
 {
     if (freq < 1e3)
@@ -428,16 +449,13 @@ dissect_data_shifting_command_parameters(guint8 cmd, tvbuff_t *tvb, packet_info 
         }
     }
 
-    if (!pinfo->fd->visited)
+    if (mpsse_info->mcu_mode)
     {
-        if (mpsse_info->mcu_mode)
-        {
-            /* MCU mode seems to consume data shifting payloads but do not actually return any response data */
-        }
-        else if (IS_DATA_SHIFTING_READING_TDO(cmd))
-        {
-            record_command_data(cmd_data, pinfo, mpsse_info, cmd, IS_DATA_SHIFTING_BYTE_MODE(cmd) ? length + 1 : 1);
-        }
+        /* MCU mode seems to consume data shifting payloads but do not actually return any response data */
+    }
+    else if (IS_DATA_SHIFTING_READING_TDO(cmd))
+    {
+        expect_response(cmd_data, pinfo, tree, mpsse_info, cmd, IS_DATA_SHIFTING_BYTE_MODE(cmd) ? length + 1 : 1);
     }
 
     return offset - offset_start;
@@ -536,12 +554,9 @@ dissect_cpumode_parameters(guint8 cmd, tvbuff_t *tvb, packet_info *pinfo, proto_
         offset += 1;
     }
 
-    if (!pinfo->fd->visited)
+    if ((cmd == CMD_CPUMODE_READ_SHORT_ADDR) || (cmd == CMD_CPUMODE_READ_EXT_ADDR))
     {
-        if ((cmd == CMD_CPUMODE_READ_SHORT_ADDR) || (cmd == CMD_CPUMODE_READ_EXT_ADDR))
-        {
-            record_command_data(cmd_data, pinfo, mpsse_info, cmd, 1);
-        }
+        expect_response(cmd_data, pinfo, tree, mpsse_info, cmd, 1);
     }
 
     return offset - offset_start;
@@ -666,10 +681,7 @@ dissect_non_data_shifting_command_parameters(guint8 cmd, tvbuff_t *tvb, packet_i
         return dissect_set_data_bits_parameters(cmd, tvb, pinfo, tree, offset, high_byte_signal_names, pin_prefix, num_pins);
     case CMD_READ_DATA_BITS_LOW_BYTE:
     case CMD_READ_DATA_BITS_HIGH_BYTE:
-        if (!pinfo->fd->visited)
-        {
-            record_command_data(cmd_data, pinfo, mpsse_info, cmd, 1);
-        }
+        expect_response(cmd_data, pinfo, tree, mpsse_info, cmd, 1);
         return 0;
     case CMD_CPUMODE_READ_SHORT_ADDR:
     case CMD_CPUMODE_READ_EXT_ADDR:
@@ -802,10 +814,6 @@ dissect_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset
     if (!cmd_str)
     {
         cmd_str = "Bad Command";
-        if (!pinfo->fd->visited)
-        {
-            record_command_data(cmd_data, pinfo, mpsse_info, cmd, 2);
-        }
     }
 
     cmd_with_parameters = proto_tree_add_bytes_format(tree, hf_mpsse_command_with_parameters, tvb, offset, 1 + parameters_length, NULL, "%s", cmd_str);
@@ -833,11 +841,10 @@ dissect_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset
             offset += parameters_length;
         }
     }
-
-    if (*cmd_data && (*cmd_data)->is_response_set)
+    else
     {
-        proto_tree *response_in = proto_tree_add_uint(cmd_tree, hf_mpsse_response_in, tvb, offset_start, 0, (*cmd_data)->response_in_packet);
-        proto_item_set_generated(response_in);
+        /* Expect Bad Command response */
+        expect_response(cmd_data, pinfo, cmd_tree, mpsse_info, cmd, 2);
     }
 
     return offset - offset_start;
@@ -915,7 +922,8 @@ dissect_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offse
     rsp_data = proto_tree_add_bytes_format(tree, hf_mpsse_response, tvb, offset, cmd_data->response_length, NULL, "%s", cmd_str);
     rsp_tree = proto_item_add_subtree(rsp_data, ett_mpsse_response_data);
 
-    command_in = proto_tree_add_uint(rsp_tree, hf_mpsse_command_in, tvb, offset, 0, cmd_data->command_in_packet);
+    command_in = proto_tree_add_uint_format(rsp_tree, hf_mpsse_command_in, tvb, offset, 0, cmd_data->command_in_packet,
+                                            "Command 0x%02x in: %" G_GUINT32_FORMAT, cmd_data->cmd, cmd_data->command_in_packet);
     proto_item_set_generated(command_in);
 
     offset += dissect_response_data(tvb, pinfo, rsp_tree, offset, cmd_data);
