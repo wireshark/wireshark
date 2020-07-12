@@ -76,7 +76,29 @@ static expert_field ei_reassembly_unavailable = EI_INIT;
 
 static dissector_handle_t ftdi_mpsse_handle;
 
-static wmem_tree_t *command_info = NULL;
+/* Commands expecting response add command_data_t entry to a list. There is one list per MPSSE instance.
+ * The list is created by when first command appears on MPSSE instance. Pointer to the list is then inserted
+ * into rx_command_info tree, with the last key element being packet number. This is the only time when TX
+ * packet (for given instance) inserts data to rx_command_info.
+ *
+ * When RX packet is dissected, it obtains the pointer to a list (if there isn't any then the capture is
+ * incomplete/malformed and ei_response_without_command is presented to the user). The RX dissection code
+ * matches commands with responses and updates the response_in_packet and is_response_set flag. When next
+ * RX packet is being dissected, it skips all the command_data_t entries that have is_response_set flag set.
+ * To reduce the effective list length that needs to be traversed, a pointer to the first element that does
+ * not have is_response_set flag set, is added to rx_command_info with the current packet number in the key.
+ *
+ * After first pass, RX packets always obtain relevant command_data_t entry without traversing the list.
+ * TX packet dissection would have to to traverse the list from the pointer obtained from rx_command_info.
+ * In normal conditions the number of entries to skip is low. However, when the capture file has either:
+ *   * A lot of TX packets with commands expecting response but no RX packets, or
+ *   * Bad Command in TX packet that does not have matching Bad Command response in RX data.
+ * Then the traversal time in TX packet dissection becomes significant. To bring performance to acceptable
+ * levels, tx_command_info tree is being used. It contains pointers to the same list as rx_command_info but
+ * allows TX dissection to obtain the relevant command_data_t entry without traversing the list.
+ */
+static wmem_tree_t *rx_command_info = NULL;
+static wmem_tree_t *tx_command_info = NULL;
 
 typedef struct _command_data command_data_t;
 
@@ -304,7 +326,7 @@ static gboolean is_same_mpsse_instance(ftdi_mpsse_info_t *info1, ftdi_mpsse_info
 }
 
 static command_data_t *
-get_recorded_command_data(packet_info *pinfo, ftdi_mpsse_info_t *mpsse_info)
+get_recorded_command_data(wmem_tree_t *command_tree, packet_info *pinfo, ftdi_mpsse_info_t *mpsse_info)
 {
     guint32         k_bus_id = mpsse_info->bus_id;
     guint32         k_device_address = mpsse_info->device_address;
@@ -322,7 +344,7 @@ get_recorded_command_data(packet_info *pinfo, ftdi_mpsse_info_t *mpsse_info)
     };
 
     command_data_t *data = NULL;
-    data = (command_data_t *)wmem_tree_lookup32_array_le(command_info, key);
+    data = (command_data_t *)wmem_tree_lookup32_array_le(command_tree, key);
     if (data && is_same_mpsse_instance(mpsse_info, &data->mpsse_info))
     {
         return data;
@@ -331,7 +353,8 @@ get_recorded_command_data(packet_info *pinfo, ftdi_mpsse_info_t *mpsse_info)
     return NULL;
 }
 
-static void insert_command_data_pointer(packet_info *pinfo, ftdi_mpsse_info_t *mpsse_info, command_data_t *data)
+static void
+insert_command_data_pointer(wmem_tree_t *command_tree, packet_info *pinfo, ftdi_mpsse_info_t *mpsse_info, command_data_t *data)
 {
     guint32         k_bus_id = mpsse_info->bus_id;
     guint32         k_device_address = mpsse_info->device_address;
@@ -348,10 +371,11 @@ static void insert_command_data_pointer(packet_info *pinfo, ftdi_mpsse_info_t *m
         {0, NULL}
     };
 
-    wmem_tree_insert32_array(command_info, key, data);
+    wmem_tree_insert32_array(command_tree, key, data);
 }
 
-static void record_command_data(command_data_t **cmd_data, packet_info *pinfo, ftdi_mpsse_info_t *mpsse_info, guint8 cmd, guint16 response_length)
+static void
+record_command_data(command_data_t **cmd_data, packet_info *pinfo, ftdi_mpsse_info_t *mpsse_info, guint8 cmd, guint16 response_length)
 {
     command_data_t *data = wmem_new(wmem_file_scope(), command_data_t);
     memcpy(&data->mpsse_info, mpsse_info, sizeof(ftdi_mpsse_info_t));
@@ -366,10 +390,15 @@ static void record_command_data(command_data_t **cmd_data, packet_info *pinfo, f
     {
         DISSECTOR_ASSERT((*cmd_data)->next == NULL);
         (*cmd_data)->next = data;
+        if ((*cmd_data)->command_in_packet != pinfo->num)
+        {
+            insert_command_data_pointer(tx_command_info, pinfo, mpsse_info, data);
+        }
     }
     else
     {
-        insert_command_data_pointer(pinfo, mpsse_info, data);
+        insert_command_data_pointer(rx_command_info, pinfo, mpsse_info, data);
+        insert_command_data_pointer(tx_command_info, pinfo, mpsse_info, data);
     }
     *cmd_data = data;
 }
@@ -384,8 +413,9 @@ static void expect_response(command_data_t **cmd_data, packet_info *pinfo, proto
         DISSECTOR_ASSERT((*cmd_data)->response_length == response_length);
         if ((*cmd_data)->is_response_set)
         {
-            proto_tree* response_in = proto_tree_add_uint(tree, hf_mpsse_response_in, NULL, 0, 0, (*cmd_data)->response_in_packet);
+            proto_tree *response_in = proto_tree_add_uint(tree, hf_mpsse_response_in, NULL, 0, 0, (*cmd_data)->response_in_packet);
             proto_item_set_generated(response_in);
+            DISSECTOR_ASSERT((*cmd_data)->command_in_packet == pinfo->num);
         }
         *cmd_data = (*cmd_data)->next;
     }
@@ -855,8 +885,13 @@ dissect_response_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint 
 {
     gint         offset_start = offset;
 
-    if (!cmd_data->is_response_set)
+    if (pinfo->fd->visited)
     {
+        DISSECTOR_ASSERT(cmd_data->is_response_set && cmd_data->response_in_packet == pinfo->num);
+    }
+    else
+    {
+        DISSECTOR_ASSERT(!cmd_data->is_response_set);
         cmd_data->response_in_packet = pinfo->num;
         cmd_data->is_response_set = TRUE;
     }
@@ -939,7 +974,6 @@ dissect_ftdi_mpsse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     gint               offset = 0;
     proto_item        *main_item;
     proto_tree        *main_tree;
-    command_data_t    *head;
 
     if (!mpsse_info)
     {
@@ -951,21 +985,11 @@ dissect_ftdi_mpsse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FTDI MPSSE");
 
-    head = get_recorded_command_data(pinfo, mpsse_info);
-
     if (pinfo->p2p_dir == P2P_DIR_SENT)
     {
-        command_data_t *iter = head;
+        command_data_t *iter = get_recorded_command_data(tx_command_info, pinfo, mpsse_info);
 
-        if (pinfo->fd->visited)
-        {
-            /* Advance iterator to element matching first command from current packet */
-            while (iter && (iter->command_in_packet < pinfo->num))
-            {
-                iter = iter->next;
-            }
-        }
-        else
+        if (!pinfo->fd->visited)
         {
             /* Not visited yet - advance iterator to last element */
             while (iter && iter->next)
@@ -981,6 +1005,7 @@ dissect_ftdi_mpsse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     }
     else if (pinfo->p2p_dir == P2P_DIR_RECV)
     {
+        command_data_t *head = get_recorded_command_data(rx_command_info, pinfo, mpsse_info);
         command_data_t *iter = head;
 
         if (!pinfo->fd->visited)
@@ -992,7 +1017,7 @@ dissect_ftdi_mpsse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
             if (iter != head)
             {
-                insert_command_data_pointer(pinfo, mpsse_info, iter);
+                insert_command_data_pointer(rx_command_info, pinfo, mpsse_info, iter);
             }
         }
 
@@ -1262,7 +1287,8 @@ proto_register_ftdi_mpsse(void)
         &ett_mpsse_direction,
     };
 
-    command_info = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+    rx_command_info = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+    tx_command_info = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
     proto_ftdi_mpsse = proto_register_protocol("FTDI Multi-Protocol Synchronous Serial Engine", "FTDI MPSSE", "ftdi-mpsse");
     proto_register_field_array(proto_ftdi_mpsse, hf, array_length(hf));
