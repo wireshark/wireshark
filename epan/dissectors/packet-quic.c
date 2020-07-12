@@ -743,7 +743,11 @@ quic_connection_find_dcid(packet_info *pinfo, const quic_cid_t *dcid, gboolean *
     quic_info_data_t *conn = NULL;
     gboolean check_ports = FALSE;
 
-    if (dcid && dcid->len > 0 && quic_cids_is_known_length(dcid)) {
+    if (dcid && dcid->len > 0) {
+        // Optimization: avoid lookup for invalid CIDs.
+        if (!quic_cids_is_known_length(dcid)) {
+            return NULL;
+        }
         conn = (quic_info_data_t *) wmem_map_lookup(quic_client_connections, dcid);
         if (conn) {
             // DCID recognized by client, so it was from server.
