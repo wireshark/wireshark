@@ -157,6 +157,7 @@ struct _desegment_data {
     guint32           device_address;
     FTDI_INTERFACE    interface;
     guint8            bitmode;
+    gint              p2p_dir;
     /* First frame where the segmented data starts (reassembly key) */
     guint32           first_frame;
     guint32           last_frame;
@@ -166,6 +167,15 @@ struct _desegment_data {
      */
     desegment_data_t *previous;
 };
+
+typedef struct _ftdi_fragment_key {
+    guint32           bus_id;
+    guint32           device_address;
+    FTDI_INTERFACE    interface;
+    guint8            bitmode;
+    gint              p2p_dir;
+    guint32           id;
+} ftdi_fragment_key_t;
 
 #define REQUEST_RESET           0x00
 #define REQUEST_MODEM_CTRL      0x01
@@ -778,12 +788,12 @@ record_desegment_data(packet_info *pinfo, usb_conv_info_t *usb_conv_info,
     guint32         k_bus_id = usb_conv_info->bus_id;
     guint32         k_device_address = usb_conv_info->device_address;
     guint32         k_interface = (guint32)interface;
-    guint32         k_direction = (guint32)usb_conv_info->direction;
+    guint32         k_p2p_dir = (guint32)pinfo->p2p_dir;
     wmem_tree_key_t key[] = {
         {1, &k_bus_id},
         {1, &k_device_address},
         {1, &k_interface},
-        {1, &k_direction},
+        {1, &k_p2p_dir},
         {1, &pinfo->num},
         {0, NULL}
     };
@@ -794,6 +804,7 @@ record_desegment_data(packet_info *pinfo, usb_conv_info_t *usb_conv_info,
     desegment_data->device_address = usb_conv_info->device_address;
     desegment_data->interface = interface;
     desegment_data->bitmode = bitmode;
+    desegment_data->p2p_dir = pinfo->p2p_dir;
     desegment_data->first_frame = pinfo->num;
     /* Last frame is currently unknown */
     desegment_data->last_frame = 0;
@@ -811,12 +822,12 @@ get_recorded_desegment_data(packet_info *pinfo, usb_conv_info_t *usb_conv_info,
     guint32         k_bus_id = usb_conv_info->bus_id;
     guint32         k_device_address = usb_conv_info->device_address;
     guint32         k_interface = (guint32)interface;
-    guint32         k_direction = (guint32)usb_conv_info->direction;
+    guint32         k_p2p_dir = (guint32)pinfo->p2p_dir;
     wmem_tree_key_t key[] = {
         {1, &k_bus_id},
         {1, &k_device_address},
         {1, &k_interface},
-        {1, &k_direction},
+        {1, &k_p2p_dir},
         {1, &pinfo->num},
         {0, NULL}
     };
@@ -824,7 +835,8 @@ get_recorded_desegment_data(packet_info *pinfo, usb_conv_info_t *usb_conv_info,
     desegment_data_t *desegment_data = NULL;
     desegment_data = (desegment_data_t*)wmem_tree_lookup32_array_le(desegment_info, key);
     if (desegment_data && desegment_data->bus_id == k_bus_id && desegment_data->device_address == k_device_address &&
-        desegment_data->interface == interface && desegment_data->bitmode == bitmode)
+        desegment_data->interface == interface && desegment_data->bitmode == bitmode &&
+        desegment_data->p2p_dir == pinfo->p2p_dir)
     {
         /* Return desegment data only if it is relevant to current packet */
         if ((desegment_data->last_frame == 0) || (desegment_data->last_frame >= pinfo->num))
@@ -835,6 +847,56 @@ get_recorded_desegment_data(packet_info *pinfo, usb_conv_info_t *usb_conv_info,
 
     return NULL;
 }
+
+static guint ftdi_fragment_key_hash(gconstpointer k)
+{
+    const ftdi_fragment_key_t *key = (const ftdi_fragment_key_t *)k;
+    return key->id;
+}
+
+static gint ftdi_fragment_key_equal(gconstpointer k1, gconstpointer k2)
+{
+    const ftdi_fragment_key_t *key1 = (const ftdi_fragment_key_t *)k1;
+    const ftdi_fragment_key_t *key2 = (const ftdi_fragment_key_t *)k2;
+
+    /* id is most likely to differ and thus should be checked first */
+    return (key1->id == key2->id) &&
+           (key1->bus_id == key2->bus_id) &&
+           (key1->device_address == key2->device_address) &&
+           (key1->interface == key2->interface) &&
+           (key1->bitmode == key2->bitmode) &&
+           (key1->p2p_dir == key2->p2p_dir);
+}
+
+static gpointer ftdi_fragment_key(const packet_info *pinfo _U_, const guint32 id, const void *data)
+{
+    desegment_data_t *desegment_data = (desegment_data_t *)data;
+    ftdi_fragment_key_t *key = g_slice_new(ftdi_fragment_key_t);
+
+    key->bus_id = desegment_data->bus_id;
+    key->device_address = desegment_data->device_address;
+    key->interface = desegment_data->interface;
+    key->bitmode = desegment_data->bitmode;
+    key->p2p_dir = desegment_data->p2p_dir;
+    key->id = id;
+
+    return (gpointer)key;
+}
+
+static void ftdi_fragment_free_key(gpointer ptr)
+{
+    ftdi_fragment_key_t *key = (ftdi_fragment_key_t *)ptr;
+    g_slice_free(ftdi_fragment_key_t, key);
+}
+
+static const reassembly_table_functions ftdi_reassembly_table_functions = {
+    .hash_func = ftdi_fragment_key_hash,
+    .equal_func = ftdi_fragment_key_equal,
+    .temporary_key_func = ftdi_fragment_key,
+    .persistent_key_func = ftdi_fragment_key,
+    .free_temporary_key_func = ftdi_fragment_free_key,
+    .free_persistent_key_func = ftdi_fragment_free_key,
+};
 
 static void
 dissect_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, usb_conv_info_t *usb_conv_info,
@@ -905,7 +967,7 @@ dissect_serial_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
             {
                 /* Combine data reassembled so far with current tvb and check if this is last fragment or not */
                 fragment_item *item;
-                fd_head = fragment_get(&ftdi_reassembly_table, pinfo, desegment_data->first_frame, NULL);
+                fd_head = fragment_get(&ftdi_reassembly_table, pinfo, desegment_data->first_frame, desegment_data);
                 DISSECTOR_ASSERT(fd_head && !(fd_head->flags & FD_DEFRAGMENTED) && fd_head->next);
                 payload_tvb = tvb_new_composite();
                 for (item = fd_head->next; item; item = item->next)
@@ -972,8 +1034,8 @@ dissect_serial_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
                 if (desegment_data)
                 {
                     /* Current tvb is really the last fragment */
-                    fragment_add_check(&ftdi_reassembly_table, tvb, 0, pinfo,
-                                       desegment_data->first_frame, NULL, reassembled_bytes, bytes, FALSE);
+                    fragment_add_check(&ftdi_reassembly_table, tvb, 0, pinfo, desegment_data->first_frame,
+                                       desegment_data, reassembled_bytes, bytes, FALSE);
                     desegment_data->last_frame = pinfo->num;
                 }
             }
@@ -988,13 +1050,13 @@ dissect_serial_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
                     desegment_data = record_desegment_data(pinfo, usb_conv_info, interface, bitmode);
                     desegment_data->first_frame_offset = pinfo->desegment_offset;
                     fragment_add_check(&ftdi_reassembly_table, tvb, pinfo->desegment_offset, pinfo,
-                                       desegment_data->first_frame, NULL, 0, fragment_length, TRUE);
+                                       desegment_data->first_frame, desegment_data, 0, fragment_length, TRUE);
                 }
                 else if (pinfo->desegment_offset == 0)
                 {
                     /* Continue reassembling */
-                    fragment_add_check(&ftdi_reassembly_table, tvb, 0, pinfo,
-                                       desegment_data->first_frame, NULL, reassembled_bytes, bytes, TRUE);
+                    fragment_add_check(&ftdi_reassembly_table, tvb, 0, pinfo, desegment_data->first_frame,
+                                       desegment_data, reassembled_bytes, bytes, TRUE);
                 }
                 else
                 {
@@ -1005,8 +1067,8 @@ dissect_serial_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
                     /* This packet contains both an end from a previous reassembly and start of a new one */
                     DISSECTOR_ASSERT((guint32)pinfo->desegment_offset > reassembled_bytes);
                     previous_bytes = pinfo->desegment_offset - reassembled_bytes;
-                    fragment_add_check(&ftdi_reassembly_table, tvb, 0, pinfo,
-                                       desegment_data->first_frame, NULL, reassembled_bytes, previous_bytes, FALSE);
+                    fragment_add_check(&ftdi_reassembly_table, tvb, 0, pinfo, desegment_data->first_frame,
+                                       desegment_data, reassembled_bytes, previous_bytes, FALSE);
                     desegment_data->last_frame = pinfo->num;
 
                     previous_desegment_data = desegment_data;
@@ -1014,8 +1076,8 @@ dissect_serial_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
                     desegment_data = record_desegment_data(pinfo, usb_conv_info, interface, bitmode);
                     desegment_data->first_frame_offset = previous_bytes;
                     desegment_data->previous = previous_desegment_data;
-                    fragment_add_check(&ftdi_reassembly_table, tvb, previous_bytes, pinfo,
-                                       desegment_data->first_frame, NULL, 0, fragment_length, TRUE);
+                    fragment_add_check(&ftdi_reassembly_table, tvb, previous_bytes, pinfo, desegment_data->first_frame,
+                                       desegment_data, 0, fragment_length, TRUE);
                 }
             }
 
@@ -1227,7 +1289,7 @@ dissect_ftdi_ft(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         }
 
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "FTDI FT");
-        if (usb_conv_info->direction == P2P_DIR_RECV)
+        if (pinfo->p2p_dir == P2P_DIR_RECV)
         {
             gint total_rx_len = 0;
             gint rx_len;
@@ -1661,7 +1723,7 @@ proto_register_ftdi_ft(void)
     expert_module = expert_register_protocol(proto_ftdi_ft);
     expert_register_field_array(expert_module, ei, array_length(ei));
 
-    reassembly_table_register(&ftdi_reassembly_table, &addresses_ports_reassembly_table_functions);
+    reassembly_table_register(&ftdi_reassembly_table, &ftdi_reassembly_table_functions);
 }
 
 void
