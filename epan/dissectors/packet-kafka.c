@@ -1416,8 +1416,6 @@ decompress_snappy(tvbuff_t *tvb, packet_info *pinfo, int offset, guint32 length,
         /* xerial framing format */
         guint32 chunk_size, pos = 16;
 
-        composite_tvb = tvb_new_composite();
-
         while (pos < length) {
             if (pos > length-4) {
                 // XXX - this is presumably an error, as the chunk size
@@ -1448,15 +1446,14 @@ decompress_snappy(tvbuff_t *tvb, packet_info *pinfo, int offset, guint32 length,
             if (rc != SNAPPY_OK) {
                 goto end;
             }
+
+            if (!composite_tvb) {
+                composite_tvb = tvb_new_composite();
+            }
             tvb_composite_append(composite_tvb,
                       tvb_new_child_real_data(tvb, decompressed_buffer, (guint)uncompressed_size, (gint)uncompressed_size));
             pos += chunk_size;
         }
-
-        tvb_composite_finalize(composite_tvb);
-        *decompressed_tvb = composite_tvb;
-        *decompressed_offset = 0;
-        composite_tvb = NULL;
 
     } else {
 
@@ -1479,8 +1476,12 @@ decompress_snappy(tvbuff_t *tvb, packet_info *pinfo, int offset, guint32 length,
     }
     ret = 1;
 end:
-    if (composite_tvb != NULL) {
-        tvb_free_chain(composite_tvb);
+    if (composite_tvb) {
+        tvb_composite_finalize(composite_tvb);
+        if (ret == 1) {
+            *decompressed_tvb = composite_tvb;
+            *decompressed_offset = 0;
+        }
     }
     if (ret == 0) {
         col_append_str(pinfo->cinfo, COL_INFO, " [snappy decompression failed]");
