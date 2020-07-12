@@ -95,7 +95,8 @@ static int hf_timeqal_lsdir		= -1;
 static int hf_timeqal_lsocc		= -1;
 static int hf_timeqal_lspend		= -1;
 static int hf_timeqal_timequalindic	= -1;
-static int hf_fracsec			= -1;
+static int hf_fracsec_raw		= -1;
+static int hf_fracsec_ms		= -1;
 static int hf_cont_idx			= -1;
 static int hf_conf_timebase		= -1;
 static int hf_conf_numpmu		= -1;
@@ -886,13 +887,16 @@ static gint dissect_header(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
 	proto_tree_add_item(temp_tree, hf_timeqal_timequalindic, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
+	// Add RAW FRACSEC
+	proto_tree_add_item(tree, hf_fracsec_raw,  tvb, offset, 3, ENC_BIG_ENDIAN);
+
+	// If exist configuration frame, add fracsec in milliseconds
 	if (conf){
 		guint32 fracsec_raw = tvb_get_guint24(tvb, offset, ENC_BIG_ENDIAN);
 		float	fracsec_ms = 1000.0f*fracsec_raw/conf->time_base;
-		proto_tree_add_uint_format(tree, hf_fracsec, tvb, offset, 3, fracsec_raw, "Fraction of second: %.6g ms, raw: %u", fracsec_ms, fracsec_raw);
+		proto_tree_add_float(tree, hf_fracsec_ms, tvb, offset, 3, fracsec_ms);
 	} else
 	{
-		proto_tree_add_item(tree, hf_fracsec,  tvb, offset, 3, ENC_BIG_ENDIAN);
 	}
 	/*offset += 3;*/
 
@@ -1629,8 +1633,8 @@ static int dissect_config_3_frame(tvbuff_t *tvb, proto_item *config_item)
 
 		/* PMU_LAT */
 		if ((isinf(pmu_lat) == 1) || (isinf(pmu_lat) == -1)) {
-			proto_tree_add_string(wgs84_tree, hf_conf_pmu_lat_unknown, tvb, offset,
-					      4, unspecified_location);
+			proto_tree_add_float_format_value(wgs84_tree, hf_conf_pmu_lat_unknown, tvb, offset,
+					      4, INFINITY, "%s", unspecified_location);
 		}
 		else {
 			proto_tree_add_item(wgs84_tree, hf_conf_pmu_lat, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -1639,8 +1643,8 @@ static int dissect_config_3_frame(tvbuff_t *tvb, proto_item *config_item)
 
 		/* PMU_LON */
 		if ((isinf(pmu_long) == 1) || (isinf(pmu_long) == -1)) {
-			proto_tree_add_string(wgs84_tree, hf_conf_pmu_lon_unknown, tvb, offset,
-					      4, unspecified_location);
+			proto_tree_add_float_format_value(wgs84_tree, hf_conf_pmu_lon_unknown, tvb, offset,
+					      4, INFINITY, "%s", unspecified_location);
 		}
 		else {
 			proto_tree_add_item(wgs84_tree, hf_conf_pmu_lon, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -1649,8 +1653,8 @@ static int dissect_config_3_frame(tvbuff_t *tvb, proto_item *config_item)
 
 		/* PMU_ELEV */
 		if ((isinf(pmu_elev) == 1) || (isinf(pmu_elev) == -1)) {
-			proto_tree_add_string(wgs84_tree, hf_conf_pmu_elev_unknown, tvb, offset,
-					      4, unspecified_location);
+			proto_tree_add_float_format_value(wgs84_tree, hf_conf_pmu_elev_unknown, tvb, offset,
+					      4, INFINITY, "%s", unspecified_location);
 		}
 		else {
 			proto_tree_add_item(wgs84_tree, hf_conf_pmu_elev, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -2019,8 +2023,8 @@ void proto_register_synphasor(void)
 			  VALS(versionnames), 0x000F, NULL, HFILL }},
 
 		{ &hf_frsize,
-		{ "Framesize", "synphasor.frsize", FT_UINT16, BASE_DEC,
-		  NULL, 0x0, NULL, HFILL }},
+		{ "Framesize", "synphasor.frsize", FT_UINT16, BASE_DEC | BASE_UNIT_STRING,
+		  &units_byte_bytes, 0x0, NULL, HFILL }},
 
 		{ &hf_station_name_len,
 		{ "Station name length", "synphasor.station_name_len", FT_UINT8,
@@ -2064,9 +2068,13 @@ void proto_register_synphasor(void)
 		  VALS(timequalcodes), 0x0F, NULL, HFILL }},
 
 		/* Fraction of second */
-		{ &hf_fracsec,
-		{ "Fraction of second (raw)", "synphasor.fracsec", FT_UINT24, BASE_DEC,
+		{ &hf_fracsec_raw,
+		{ "Fraction of second (raw)", "synphasor.fracsec_raw", FT_UINT24, BASE_DEC,
 		  NULL, 0x0, NULL, HFILL }},
+
+		{ &hf_fracsec_ms,
+		{ "Fraction of second", "synphasor.fracsec_ms", FT_FLOAT, BASE_NONE | BASE_UNIT_STRING,
+		  &units_millisecond_milliseconds, 0x0, NULL, HFILL }},
 
 	/* Data types for configuration frames */
 		{ &hf_cont_idx,
@@ -2103,60 +2111,60 @@ void proto_register_synphasor(void)
 		  BASE_DEC | BASE_UNIT_STRING, &units_byte_bytes, 0x0, NULL, HFILL }},
 
 		{ &hf_conf_chnam,
-		{ "Channel name", "synphasor.conf.chnam_len", FT_STRING, BASE_NONE,
+		{ "Channel name", "synphasor.conf.chnam", FT_STRING, BASE_NONE,
 		  NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_conf_phasor_mod_b15,
-		{ "Modification", "synphasor.conf.phasor_flags", FT_BOOLEAN, 16,
+		{ "Modification", "synphasor.conf.phasor_mod.type_not_def", FT_BOOLEAN, 16,
 		  TFS(&conf_phasor_mod_b15), 0x8000, NULL, HFILL }},
 
 		{ &hf_conf_phasor_mod_b10,
-		{ "Modification", "synphasor.conf.phasor_flags", FT_BOOLEAN, 16,
+		{ "Modification", "synphasor.conf.phasor_mod.pseudo_phasor", FT_BOOLEAN, 16,
 		  TFS(&conf_phasor_mod_b10), 0x0400, NULL, HFILL }},
 
 		{ &hf_conf_phasor_mod_b09,
-		{ "Modification", "synphasor.conf.phasor_flags", FT_BOOLEAN, 16,
+		{ "Modification", "synphasor.conf.phasor_mod.phase_rotation", FT_BOOLEAN, 16,
 		  TFS(&conf_phasor_mod_b09), 0x0200, NULL, HFILL }},
 
 		{ &hf_conf_phasor_mod_b08,
-		{ "Modification", "synphasor.conf.phasor_flags", FT_BOOLEAN, 16,
+		{ "Modification", "synphasor.conf.phasor_mod.phase_calibration", FT_BOOLEAN, 16,
 		  TFS(&conf_phasor_mod_b08), 0x0100, NULL, HFILL }},
 
 		{ &hf_conf_phasor_mod_b07,
-		{ "Modification", "synphasor.conf.phasor_flags", FT_BOOLEAN, 16,
+		{ "Modification", "synphasor.conf.phasor_mod.mag_calibration", FT_BOOLEAN, 16,
 		  TFS(&conf_phasor_mod_b07), 0x0080, NULL, HFILL }},
 
 		{ &hf_conf_phasor_mod_b06,
-		{ "Modification", "synphasor.conf.phasor_flags", FT_BOOLEAN, 16,
+		{ "Modification", "synphasor.conf.phasor_mod.filtered", FT_BOOLEAN, 16,
 		  TFS(&conf_phasor_mod_b06), 0x0040, NULL, HFILL }},
 
 		{ &hf_conf_phasor_mod_b05,
-		{ "Modification", "synphasor.conf.phasor_flags", FT_BOOLEAN, 16,
+		{ "Modification", "synphasor.conf.phasor_mod.downsampled", FT_BOOLEAN, 16,
 		  TFS(&conf_phasor_mod_b05), 0x0020, NULL, HFILL }},
 
 		{ &hf_conf_phasor_mod_b04,
-		{ "Modification", "synphasor.conf.phasor_flags", FT_BOOLEAN, 16,
+		{ "Modification", "synphasor.conf.phasor_mod.downsampled_fir", FT_BOOLEAN, 16,
 		  TFS(&conf_phasor_mod_b04), 0x0010, NULL, HFILL }},
 
 		{ &hf_conf_phasor_mod_b03,
-		{ "Modification", "synphasor.conf.phasor_flags", FT_BOOLEAN, 16,
+		{ "Modification", "synphasor.conf.phasor_mod.downsampled_reselect", FT_BOOLEAN, 16,
 		  TFS(&conf_phasor_mod_b03), 0x0008, NULL, HFILL }},
 
 		{ &hf_conf_phasor_mod_b02,
-		{ "Modification", "synphasor.conf.phasor_flags", FT_BOOLEAN, 16,
+		{ "Modification", "synphasor.conf.phasor_mod.upsampled_extrapolation", FT_BOOLEAN, 16,
 		  TFS(&conf_phasor_mod_b02), 0x0004, NULL, HFILL }},
 
 		{ &hf_conf_phasor_mod_b01,
-		{ "Modification", "synphasor.conf.phasor_flags", FT_BOOLEAN, 16,
+		{ "Modification", "synphasor.conf.phasor_mod.upsampled_interpolation", FT_BOOLEAN, 16,
 		  TFS(&conf_phasor_mod_b01), 0x0002, NULL, HFILL }},
 
 		{ &hf_conf_phasor_type_b03,
-		{ "Phasor Type", "synphasor.conf.phasor_flags", FT_BOOLEAN, 8,
-		  TFS(&conf_phasor_type_b03), 0x0008, NULL, HFILL }},
+		{ "Phasor Type", "synphasor.conf.phasor_type", FT_BOOLEAN, 8,
+		  TFS(&conf_phasor_type_b03), 0x8, NULL, HFILL }},
 
 		{ &hf_conf_phasor_type_b02to00,
-		{ "Phasor Type", "synphasor.conf.phasor_flags", FT_UINT16, BASE_HEX,
-		  VALS(conf_phasor_type_b02to00), 0x0007, NULL, HFILL }},
+		{ "Phasor Type", "synphasor.conf.phasor_component", FT_UINT8, BASE_HEX,
+		  VALS(conf_phasor_type_b02to00), 0x7, NULL, HFILL }},
 
 		{ &hf_conf_phasor_user_data,
 		{ "Binary format", "synphasor.conf.phasor_user_flags", FT_BOOLEAN, 8,
@@ -2191,15 +2199,15 @@ void proto_register_synphasor(void)
 		  BASE_NONE | BASE_UNIT_STRING, &units_meter_meters, 0x0, NULL, HFILL }},
 
 		{ &hf_conf_pmu_lat_unknown,
-		{ "PMU Latitude", "synphasor.conf.pmu_latitude", FT_STRING, BASE_NONE,
+		{ "PMU Latitude", "synphasor.conf.pmu_latitude", FT_FLOAT, BASE_NONE,
 		  NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_conf_pmu_lon_unknown,
-		{ "PMU Longitude", "synphasor.conf.pmu_longitude", FT_STRING, BASE_NONE,
+		{ "PMU Longitude", "synphasor.conf.pmu_longitude", FT_FLOAT, BASE_NONE,
 		  NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_conf_pmu_elev_unknown,
-		{ "PMU Elevation", "synphasor.conf.pmu_elevation", FT_STRING, BASE_NONE,
+		{ "PMU Elevation", "synphasor.conf.pmu_elevation", FT_FLOAT, BASE_NONE,
 		  NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_conf_svc_class,
