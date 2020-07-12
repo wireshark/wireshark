@@ -77,6 +77,8 @@ static dissector_handle_t oscore_handle;
 /*
  * Transaction Type
  */
+#define TT_CON 0 // Confirmable
+#define TT_NON 1 // Non-Confirmable
 static const value_string vals_ttype[] = {
 	{ 0, "Confirmable" },
 	{ 1, "Non-Confirmable" },
@@ -1066,7 +1068,7 @@ dissect_coap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	proto_item       *pi;
 	proto_tree       *coap_tree;
 	gint              length_size = 0;
-	guint8            ttype;
+	guint8            ttype = G_MAXUINT8;
 	guint32           token_len;
 	guint8            code;
 	guint8            code_class;
@@ -1333,7 +1335,7 @@ dissect_coap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 						tvb, 0, 0, coap_req_rsp->rsp_frame);
 				proto_item_set_generated(it);
 			}
-			if (coap_req_rsp->req_frame != pinfo->num) {
+			if ((ttype == TT_CON || ttype == TT_NON) && (coap_req_rsp->req_frame != pinfo->num)) {
 				col_append_str(pinfo->cinfo, COL_INFO, " [Retransmission]");
 				proto_item *it = proto_tree_add_uint(coap_tree, hf_coap_request_resend_in,
 				                                     tvb, 0, 0, coap_req_rsp->req_frame);
@@ -1354,7 +1356,7 @@ dissect_coap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 				it = proto_tree_add_time(coap_tree, hf_coap_response_time, tvb, 0, 0, &ns);
 				proto_item_set_generated(it);
 			}
-			if (coap_req_rsp->rsp_frame != pinfo->num) {
+			if ((ttype == TT_CON || ttype == TT_NON) && (coap_req_rsp->rsp_frame != pinfo->num)) {
 				col_append_str(pinfo->cinfo, COL_INFO, " [Retransmission]");
 				proto_item *it = proto_tree_add_uint(coap_tree, hf_coap_response_resend_in,
 				                                     tvb, 0, 0, coap_req_rsp->rsp_frame);
