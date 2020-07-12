@@ -157,9 +157,9 @@ void MainWindow::layoutPanes()
     proto_tree_->setVisible(ms_children.contains(proto_tree_) && recent.tree_view_show);
     byte_view_tab_->setVisible(ms_children.contains(byte_view_tab_) && recent.byte_view_show);
 
-    // Show the master splitter here to prevent pending resize events changing packet list columns
-    // when the master splitter is set as current widget for the first time.
-    master_split_.show();
+    // Show the packet list here to prevent pending resize events changing columns
+    // when the packet list is set as current widget for the first time.
+    packet_list_->show();
 
     packet_list_->thaw(true);
     cur_layout_ = new_layout;
