@@ -926,6 +926,9 @@ dissect_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offse
     cmd_str = get_command_string(cmd_data->cmd, &cmd_data->mpsse_info);
     if (!cmd_str)
     {
+        gboolean found = FALSE;
+        gboolean request_reassembly = FALSE;
+
         DISSECTOR_ASSERT(cmd_data->response_length == 2);
         cmd_str = "Bad Command";
 
@@ -936,15 +939,35 @@ dissect_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offse
             {
                 if (tvb_get_guint8(tvb, offset + 1) == cmd_data->cmd)
                 {
+                    found = TRUE;
                     break;
                 }
             }
             offset++;
         }
 
+        if (!found)
+        {
+            if (tvb_get_guint8(tvb, offset) == BAD_COMMAND_SYNC_CODE)
+            {
+                /* Request reassembly only if there is chance it will help */
+                request_reassembly = TRUE;
+            }
+            else
+            {
+                offset++;
+            }
+        }
+
         if (offset != offset_start)
         {
             proto_tree_add_expert(tree, pinfo, &ei_skipped_response_data, tvb, offset_start, offset - offset_start);
+        }
+
+        if (!found)
+        {
+            *need_reassembly = request_reassembly;
+            return offset - offset_start;
         }
     }
 
