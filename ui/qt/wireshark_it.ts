@@ -3079,7 +3079,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>UTF-16</source>
-        <translation>UTF-16</translation>
+        <translation type="vanished">UTF-16</translation>
     </message>
     <message>
         <source>YAML</source>
@@ -12228,7 +12228,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>ISO 8859-1</source>
-        <translation>ISO 8859-1</translation>
+        <translation type="vanished">ISO 8859-1</translation>
     </message>
     <message>
         <source>Raw</source>
@@ -12237,10 +12237,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>UTF-8</source>
         <translation>UTF-8</translation>
-    </message>
-    <message>
-        <source>UTF-16</source>
-        <translation>UTF-16</translation>
     </message>
     <message>
         <source>YAML</source>

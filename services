@@ -4986,6 +4986,7 @@ PS-Capture-Pro	7216/tcp	# PaperStream Capture Professional
 ramp		7227/tcp/udp	# Registry A & M Protocol
 citrixupp	7228/tcp	# Citrix Universal Printing Port
 citrixuppg	7229/tcp	# Citrix UPP Gateway
+asa-gateways	7234/tcp	# Traffic forwarding for Okta cloud infra
 aspcoordination	7235/udp	# ASP Coordination Protocol
 display		7236/tcp	# Wi-Fi Alliance Wi-Fi Display Protocol
 pads		7237/tcp	# PADS (Public Area Display System) Server

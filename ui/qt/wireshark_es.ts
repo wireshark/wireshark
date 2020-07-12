@@ -3040,7 +3040,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>UTF-16</source>
-        <translation>UTF-16</translation>
+        <translation type="vanished">UTF-16</translation>
     </message>
     <message>
         <source>YAML</source>
@@ -12068,7 +12068,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>ISO 8859-1</source>
-        <translation>ISO 8859-1</translation>
+        <translation type="vanished">ISO 8859-1</translation>
     </message>
     <message>
         <source>Raw</source>
@@ -12077,10 +12077,6 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <message>
         <source>UTF-8</source>
         <translation>UTF-8</translation>
-    </message>
-    <message>
-        <source>UTF-16</source>
-        <translation>UTF-16</translation>
     </message>
     <message>
         <source>YAML</source>

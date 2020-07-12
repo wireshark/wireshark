@@ -3064,7 +3064,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>UTF-16</source>
-        <translation>UTF-16</translation>
+        <translation type="vanished">UTF-16</translation>
     </message>
     <message>
         <source>YAML</source>
@@ -12186,7 +12186,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>ISO 8859-1</source>
-        <translation>ISO 8859-1</translation>
+        <translation type="vanished">ISO 8859-1</translation>
     </message>
     <message>
         <source>Raw</source>
@@ -12195,10 +12195,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>UTF-8</source>
         <translation>UTF-8</translation>
-    </message>
-    <message>
-        <source>UTF-16</source>
-        <translation>UTF-16</translation>
     </message>
     <message>
         <source>YAML</source>

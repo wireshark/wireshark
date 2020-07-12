@@ -5,7 +5,7 @@
 # The format used here is: <NUMERICAL_ID><SPACE><NAME>
 # Where SPACE can be any sequence of spaces and tabs.
 #
-# (last updated 2020-07-03)
+# (last updated 2020-07-12)
 
 0	Reserved
 1	NxNetworks
@@ -13265,7 +13265,7 @@
 13397	DemandTec Inc.
 13398	SicherByte GmbH Dr. Ralf Schwedler
 13399	Dune Semiconductor
-13400	Emerson Network Power Co.,Ltd.
+13400	Vertiv Tech Co.,Ltd.	# formerly 'Emerson Network Power Co.,Ltd.'
 13401	ETE Software
 13402	Exent Technologies Ltd.
 13403	Foton-2000 Kft.
@@ -14685,7 +14685,7 @@
 14820	net outremer caledonie
 14821	Stibo
 14822	FaJo.de
-14823	Aruba Networks Inc
+14823	Aruba, a Hewlett Packard Enterprise company
 14824	Centaur Technology Inc
 14825	Aldata Solutions S.A.
 14826	Adage Networks
@@ -26839,7 +26839,7 @@
 26995	Public Joint-Stock Company  "Baltiyskiy Bank"
 26996	Qmax Communications
 26997	Studer Professional Audio GmbH
-26998	AudioSoft Ltd.
+26998	Ultra Electronics	# formerly 'AudioSoft Ltd.'
 26999	Grace Community Church of Howard County, Inc.
 27000	Magistrat Linz, AT
 27001	optionsXpress, Inc.
@@ -31216,7 +31216,7 @@
 31378	Vervis COMINT Services GmbH
 31379	inform solutions GmbH
 31380	Citec
-31381	TI-WMC
+31381	FIGO	# formerly 'TI-WMC'
 31382	EDEKA Handelsgesellschaft Suedwest mbH
 31383	east taiya wireless telecommunication Inc.
 31384	Port25 Solutions, Inc.
@@ -34657,7 +34657,7 @@
 34825	Pareto Networks Inc.
 34826	Tayana Software Solutions Pvt Ltd
 34827	RT-RK
-34828	Pannon GSM Távközlési Zrt.
+34828	Telenor Magyarország Zrt.	# formerly 'Pannon GSM Távközlési Zrt.'
 34829	GraphLogic Inc
 34830	Forers, s. r. o.
 34831	The Freecycle Network
@@ -55834,3 +55834,25 @@
 56029	ALS Automated Lab Solutions GmbH
 56030	Skylite AB
 56031	CL SKOG AB
+56032	ZAE Bayern
+56033	Die Autobahn GmbH des Bundes
+56034	ALS Laboratory Group
+56035	GALDERMA S.A.
+56036	Gentlent, Inc.
+56037	Argo AI
+56038	Nroad
+56039	Bold City Tech
+56040	Sosaley technologies private limited
+56041	CALINDA SOFTWARE
+56042	PAJURO
+56043	Argo AI
+56044	Sansay Corporation
+56045	Postee
+56046	Zbensoft Software
+56047	Lucid Motors
+56048	ElastiFlow Inc.
+56049	HED2
+56050	KASLAB
+56051	Skyservice Business Aviation Inc.
+56052	Growatt New Energy Technology Co.,LTD
+56053	slowpoke.cloud
