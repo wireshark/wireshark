@@ -755,7 +755,7 @@ TrafficConditionSubCauseCode
 # RCUnit subtypes bodies implemented manually as asn2wrs is not able to handle subtype constraint
 #
 
-#.FN_BODY SPE/unit
+#.FN_BODY InternationalSign-speedLimits/unit
   offset = dissect_per_constrained_integer(%(TVB)s, %(OFFSET)s, %(ACTX)s, %(TREE)s, %(HF_INDEX)s,
                                            0U, 1U, %(VAL_PTR)s, FALSE);
 #.END
