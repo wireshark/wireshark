@@ -22,6 +22,7 @@
 #include <errno.h>
 
 #include <wsutil/ws_printf.h>
+#include <wsutil/strtoi.h>
 
 #include "wtap-int.h"
 #include "file_wrappers.h"
@@ -2370,8 +2371,10 @@ pcapng_read_systemd_journal_export_block(wtap *wth, FILE_T fh, pcapng_block_head
     }
 
     errno = 0;
-    rt_ts = strtoul(ts_pos+rt_ts_len, NULL, 10);
-    if (errno) {
+    const char *ts_end;
+    gboolean ok = ws_strtou64(ts_pos+rt_ts_len, &ts_end, &rt_ts);
+
+    if (!ok) {
         *err = WTAP_ERR_BAD_FILE;
         *err_info = g_strdup_printf("%s: invalid timestamp", G_STRFUNC);
         return FALSE;
@@ -2383,7 +2386,7 @@ pcapng_read_systemd_journal_export_block(wtap *wth, FILE_T fh, pcapng_block_head
     wblock->rec->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
     wblock->rec->tsprec = WTAP_TSPREC_USEC;
 
-    wblock->rec->ts.secs = (time_t) rt_ts / 1000000;
+    wblock->rec->ts.secs = (time_t) (rt_ts / 1000000);
     wblock->rec->ts.nsecs = (rt_ts % 1000000) * 1000;
 
     /*

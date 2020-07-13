@@ -30,6 +30,8 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 
+#include <wsutil/strtoi.h>
+
 #include "packet-syslog.h"
 
 #define PNAME  "systemd Journal Entry"
@@ -157,6 +159,7 @@ static int hf_sj_unhandled_field_type = -1;
 
 static expert_field ei_unhandled_field_type = EI_INIT;
 static expert_field ei_nonbinary_field = EI_INIT;
+static expert_field ei_undecoded_field = EI_INIT;
 
 #define MAX_DATA_SIZE 262144 // WTAP_MAX_PACKET_SIZE_STANDARD. Increase if needed.
 
@@ -287,12 +290,17 @@ static void init_jf_to_hf_map(void) {
 
 static void
 dissect_sjle_time_usecs(proto_tree *tree, int hf_idx, tvbuff_t *tvb, int offset, int len) {
-    unsigned long rt_ts = strtoul(tvb_format_text(tvb, offset, len), NULL, 10);
-    // XXX Check errno?
-    nstime_t ts;
-    ts.secs = (time_t) rt_ts / 1000000;
-    ts.nsecs = (rt_ts % 1000000) * 1000;
-    proto_tree_add_time(tree, hf_idx, tvb, offset, len, &ts);
+    guint64 rt_ts = 0;
+    char *time_str = tvb_format_text(tvb, offset, len);
+    gboolean ok = ws_strtou64(time_str, NULL, &rt_ts);
+    if (ok) {
+        nstime_t ts;
+        ts.secs = (time_t) (rt_ts / 1000000);
+        ts.nsecs = (rt_ts % 1000000) * 1000;
+        proto_tree_add_time(tree, hf_idx, tvb, offset, len, &ts);
+    } else {
+        proto_tree_add_expert_format(tree, NULL, &ei_undecoded_field, tvb, offset, len, "Invalid time value %s", time_str);
+    }
 }
 
 static void
@@ -851,6 +859,10 @@ proto_register_systemd_journal(void)
         { &ei_nonbinary_field,
           { "systemd_journal.nonbinary_field", PI_UNDECODED, PI_WARN,
             "Field shouldn't be binary", EXPFILL }
+        },
+        { &ei_undecoded_field,
+          { "systemd_journal.undecoded_field", PI_UNDECODED, PI_WARN,
+            "Unable to decode field", EXPFILL }
         }
     };
 
