@@ -448,6 +448,16 @@ static int hf_dns_winsr_name_result_domain = -1;
 
 static int hf_dns_data = -1;
 
+static int hf_dns_dso = -1;
+static int hf_dns_dso_tlv = -1;
+static int hf_dns_dso_tlv_type = -1;
+static int hf_dns_dso_tlv_length = -1;
+static int hf_dns_dso_tlv_data = -1;
+static int hf_dns_dso_tlv_keepalive_inactivity = -1;
+static int hf_dns_dso_tlv_keepalive_interval = -1;
+static int hf_dns_dso_tlv_retrydelay_retrydelay = -1;
+static int hf_dns_dso_tlv_encpad_padding = -1;
+
 static gint ett_dns = -1;
 static gint ett_dns_qd = -1;
 static gint ett_dns_rr = -1;
@@ -462,6 +472,8 @@ static gint ett_dns_mac = -1;
 static gint ett_caa_flags = -1;
 static gint ett_caa_data = -1;
 static gint ett_dns_csdync_flags = -1;
+static gint ett_dns_dso = -1;
+static gint ett_dns_dso_tlv = -1;
 
 static expert_field ei_dns_opt_bad_length = EI_INIT;
 static expert_field ei_dns_depr_opc = EI_INIT;
@@ -731,14 +743,16 @@ static const true_false_string tfs_dns_rr_z_do = {
 #define OPCODE_STATUS   2         /* server status request */
 #define OPCODE_NOTIFY   4         /* zone change notification */
 #define OPCODE_UPDATE   5         /* dynamic update */
+#define OPCODE_DSO      6         /* DNS stateful operations */
 
 static const value_string opcode_vals[] = {
-  { OPCODE_QUERY,  "Standard query"           },
-  { OPCODE_IQUERY, "Inverse query"            },
-  { OPCODE_STATUS, "Server status request"    },
-  { OPCODE_NOTIFY, "Zone change notification" },
-  { OPCODE_UPDATE, "Dynamic update"           },
-  { 0,              NULL                      } };
+  { OPCODE_QUERY,  "Standard query"                },
+  { OPCODE_IQUERY, "Inverse query"                 },
+  { OPCODE_STATUS, "Server status request"         },
+  { OPCODE_NOTIFY, "Zone change notification"      },
+  { OPCODE_UPDATE, "Dynamic update"                },
+  { OPCODE_DSO,    "DNS Stateful operations (DSO)" },
+  { 0,              NULL                           } };
 
 /* Reply codes */
 #define RCODE_NOERROR    0
@@ -752,6 +766,7 @@ static const value_string opcode_vals[] = {
 #define RCODE_NXRRSET    8
 #define RCODE_NOTAUTH    9
 #define RCODE_NOTZONE   10
+#define RCODE_DSOTYPENI 11
 
 #define RCODE_BAD       16
 #define RCODE_BADKEY    17
@@ -763,18 +778,19 @@ static const value_string opcode_vals[] = {
 #define RCODE_BADCOOKIE 23
 
 static const value_string rcode_vals[] = {
-  { RCODE_NOERROR,    "No error"             },
-  { RCODE_FORMERR,    "Format error"         },
-  { RCODE_SERVFAIL,   "Server failure"       },
-  { RCODE_NXDOMAIN,   "No such name"         },
-  { RCODE_NOTIMPL,    "Not implemented"      },
-  { RCODE_REFUSED,    "Refused"              },
-  { RCODE_YXDOMAIN,   "Name exists"          },
-  { RCODE_YXRRSET,    "RRset exists"         },
-  { RCODE_NXRRSET,    "RRset does not exist" },
-  { RCODE_NOTAUTH,    "Not authoritative"    },
-  { RCODE_NOTZONE,    "Name out of zone"     },
-  /* 11-15          Unassigned */
+  { RCODE_NOERROR,    "No error"                 },
+  { RCODE_FORMERR,    "Format error"             },
+  { RCODE_SERVFAIL,   "Server failure"           },
+  { RCODE_NXDOMAIN,   "No such name"             },
+  { RCODE_NOTIMPL,    "Not implemented"          },
+  { RCODE_REFUSED,    "Refused"                  },
+  { RCODE_YXDOMAIN,   "Name exists"              },
+  { RCODE_YXRRSET,    "RRset exists"             },
+  { RCODE_NXRRSET,    "RRset does not exist"     },
+  { RCODE_NOTAUTH,    "Not authoritative"        },
+  { RCODE_NOTZONE,    "Name out of zone"         },
+  { RCODE_DSOTYPENI,  "DSO-Type not implemented" },
+  /* 12-15            Unassigned */
   { RCODE_BAD,        "Bad OPT Version or TSIG Signature Failure" },
   { RCODE_BADKEY,     "Key not recognized" },
   { RCODE_BADTIME,    "Signature out of time window" },
@@ -1166,6 +1182,33 @@ const value_string dns_classes[] = {
   {C_ANY,  "ANY"},
   {0,NULL}
 };
+
+/* DSO Type Opcodes RFC8490 */
+#define DSO_TYPE_RES          0x0000         /* RFC8490 */
+#define DSO_TYPE_KEEPALIVE    0x0001         /* RFC8490 */
+#define DSO_TYPE_RETRYDELAY   0x0002         /* RFC8490 */
+#define DSO_TYPE_ENCPAD       0x0003         /* RFC8490 */
+#define DSO_TYPE_SUBSCRIBE    0x0040         /* RF8765 */
+#define DSO_TYPE_PUSH         0x0041         /* RF8765 */
+#define DSO_TYPE_UNSUBSCRIBE  0x0042         /* RF8765 */
+#define DSO_TYPE_RECONFIRM    0x0043         /* RF8765 */
+
+static const range_string dns_dso_type_rvals[] = {
+  { DSO_TYPE_RES,         DSO_TYPE_RES,         "Reserved" },
+  { DSO_TYPE_KEEPALIVE,   DSO_TYPE_KEEPALIVE,   "Keep Alive" },
+  { DSO_TYPE_RETRYDELAY,  DSO_TYPE_RETRYDELAY,  "Retry Delay" },
+  { DSO_TYPE_ENCPAD,      DSO_TYPE_ENCPAD,      "Encryption Padding" },
+  { 0x0004,               0x003F,               "Unassigned, reserved for DSO session-management TLVs" },
+  { DSO_TYPE_SUBSCRIBE,   DSO_TYPE_SUBSCRIBE,   "Subscribe" },
+  { DSO_TYPE_PUSH,        DSO_TYPE_PUSH,        "Push" },
+  { DSO_TYPE_UNSUBSCRIBE, DSO_TYPE_UNSUBSCRIBE, "Unsubscribe" },
+  { DSO_TYPE_RECONFIRM,   DSO_TYPE_RECONFIRM,   "Reconfirm" },
+  { 0x0044,               0xF7FF,               "Unassigned" },
+  { 0xF800,               0xFBFF,               "Reserved for Experimental/Local Use" },
+  { 0xFC00,               0xFFFF,               "Reserved for future expansion" },
+  { 0, 0, NULL }
+};
+
 
 static int * const dns_csync_flags[] = {
     &hf_dns_csync_flags_immediate,
@@ -3716,6 +3759,63 @@ dissect_answer_records(tvbuff_t *tvb, int cur_off, int dns_data_offset,
   return cur_off - start_off;
 }
 
+static int
+dissect_dso_data(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *dns_tree)
+{
+  proto_tree *dso_tree;
+  proto_tree *dso_tlv_tree;
+  proto_item *dso_ti;
+  proto_item *dso_tlv_ti;
+  guint16    dso_tlv_length;
+  guint32    dso_tlv_type;
+  int        start_offset;
+
+  start_offset = offset;
+  dso_ti = proto_tree_add_item(dns_tree, hf_dns_dso, tvb, offset, -1, ENC_NA);
+  dso_tree = proto_item_add_subtree(dso_ti, ett_dns_dso);
+
+  while(tvb_reported_length_remaining(tvb, offset) >= 4) {
+    dso_tlv_length = tvb_get_ntohs(tvb, offset + 2);
+    dso_tlv_ti = proto_tree_add_item(dso_tree, hf_dns_dso_tlv, tvb, offset, dso_tlv_length + 4, ENC_NA);
+    dso_tlv_tree = proto_item_add_subtree(dso_tlv_ti, ett_dns_dso_tlv);
+
+    proto_tree_add_item_ret_uint(dso_tlv_tree, hf_dns_dso_tlv_type, tvb, offset, 2, ENC_BIG_ENDIAN, &dso_tlv_type);
+    offset += 2;
+    proto_item_append_text(dso_tlv_ti, ": %s", rval_to_str(dso_tlv_type, dns_dso_type_rvals, "Unknown Type"));
+
+    proto_tree_add_item(dso_tlv_tree, hf_dns_dso_tlv_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    switch(dso_tlv_type) {
+      case DSO_TYPE_KEEPALIVE:
+        proto_tree_add_item(dso_tlv_tree, hf_dns_dso_tlv_keepalive_inactivity, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(dso_tlv_tree, hf_dns_dso_tlv_keepalive_interval, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+        break;
+      case DSO_TYPE_RETRYDELAY:
+        proto_tree_add_item(dso_tlv_tree, hf_dns_dso_tlv_retrydelay_retrydelay, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+        break;
+      case DSO_TYPE_ENCPAD:
+        if (dso_tlv_length > 0) {
+          proto_tree_add_item(dso_tlv_tree, hf_dns_dso_tlv_encpad_padding, tvb, offset, dso_tlv_length, ENC_NA);
+          offset += dso_tlv_length;
+        }
+        break;
+      default:
+        if (dso_tlv_length > 0) {
+          proto_tree_add_item(dso_tlv_tree, hf_dns_dso_tlv_data, tvb, offset, dso_tlv_length, ENC_NA);
+          offset += dso_tlv_length;
+        }
+        break;
+    }
+  }
+
+  proto_item_set_len(dso_ti, offset - start_offset);
+  return offset - start_offset;
+}
+
 static void
 dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     enum DnsTransport transport, gboolean is_mdns, gboolean is_llmnr)
@@ -3983,6 +4083,12 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       offset + DNS_ADD, 2, add);
 
   cur_off = offset + DNS_HDRLEN;
+
+  if (opcode == OPCODE_DSO && quest == 0 && ans == 0 && auth == 0 && add == 0) {
+    /* DSO messages differs somewhat from the traditional DNS message format.
+       the four count fields (QDCOUNT, ANCOUNT, NSCOUNT, ARCOUNT) are set to zero */
+      cur_off += dissect_dso_data(tvb, cur_off, pinfo, dns_tree);
+  }
 
   if (quest > 0) {
     /* If this is a response, don't add information about the queries
@@ -5790,6 +5896,43 @@ proto_register_dns(void)
       { "Data", "dns.data",
         FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
+
+    { &hf_dns_dso,
+      { "DNS Stateful Operation", "dns.dso",
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_dns_dso_tlv,
+      { "DSO TLV", "dns.dso.tlv",
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_dns_dso_tlv_type,
+      { "Type", "dns.dso.tlv.type",
+        FT_UINT16, BASE_DEC | BASE_RANGE_STRING, RVALS(dns_dso_type_rvals), 0x0,
+        NULL, HFILL }},
+    { &hf_dns_dso_tlv_length,
+      { "Length", "dns.dso.tlv.length",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_dns_dso_tlv_data,
+      { "Data", "dns.dso.tlv.data",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_dns_dso_tlv_keepalive_inactivity,
+      { "Inactivity Timeout", "dns.dso.tlv.keepalive.inactivity",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "Inactivity Timeout (ms)", HFILL }},
+    { &hf_dns_dso_tlv_keepalive_interval,
+      { "Keepalive Interval", "dns.dso.tlv.keepalive.interval",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "Keepalive Interval (ms)", HFILL }},
+    { &hf_dns_dso_tlv_retrydelay_retrydelay,
+      { "Retry Delay", "dns.dso.tlv.retrydelay.retrydelay",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "Retry Delay (ms)", HFILL }},
+    { &hf_dns_dso_tlv_encpad_padding,
+      { "Padding", "dns.dso.tlv.encpad.padding",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
   };
 
   static ei_register_info ei[] = {
@@ -5818,6 +5961,8 @@ proto_register_dns(void)
     &ett_caa_flags,
     &ett_caa_data,
     &ett_dns_csdync_flags,
+    &ett_dns_dso,
+    &ett_dns_dso_tlv,
   };
 
   module_t *dns_module;
