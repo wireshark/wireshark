@@ -2156,8 +2156,8 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
 #ifdef HAVE_LIBGCRYPT_AEAD
     const gboolean from_server = dgram_info->from_server;
     quic_cipher *cipher = NULL;
-#endif
     proto_item *ti;
+#endif
 
     quic_extract_header(tvb, &long_packet_type, &version, &dcid, &scid);
 #ifdef HAVE_LIBGCRYPT_AEAD
@@ -2275,7 +2275,11 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
     col_append_fstr(pinfo->cinfo, COL_INFO, ", PKN: %" G_GINT64_MODIFIER "u", quic_packet->packet_number);
 
     /* Payload */
+#ifdef HAVE_LIBGCRYPT_AEAD
     ti = proto_tree_add_item(quic_tree, hf_quic_payload, tvb, offset, -1, ENC_NA);
+#else
+    proto_tree_add_item(quic_tree, hf_quic_payload, tvb, offset, -1, ENC_NA);
+#endif
 
 #ifdef HAVE_LIBGCRYPT_AEAD
     if (conn) {
@@ -2299,9 +2303,9 @@ dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
     guint offset = 0;
     quic_cid_t dcid = {.len=0};
     guint8  first_byte = 0;
-    proto_item *ti;
     gboolean    key_phase = FALSE;
 #ifdef HAVE_LIBGCRYPT_AEAD
+    proto_item *ti;
     quic_cipher *cipher = NULL;
 #endif
     quic_info_data_t *conn = dgram_info->conn;
@@ -2365,7 +2369,11 @@ dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
     proto_item_append_text(pi, " PKN=%" G_GINT64_MODIFIER "u", quic_packet->packet_number);
 
     /* Protected Payload */
+#ifdef HAVE_LIBGCRYPT_AEAD
     ti = proto_tree_add_item(hdr_tree, hf_quic_protected_payload, tvb, offset, -1, ENC_NA);
+#else
+    proto_tree_add_item(hdr_tree, hf_quic_protected_payload, tvb, offset, -1, ENC_NA);
+#endif
 
 #ifdef HAVE_LIBGCRYPT_AEAD
     if (conn) {
