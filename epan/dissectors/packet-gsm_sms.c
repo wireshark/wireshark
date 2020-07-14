@@ -379,6 +379,9 @@ sm_fragment_hash(gconstpointer k)
     const sm_fragment_key* key = (const sm_fragment_key*) k;
     guint hash_val;
 
+    if (!key || !key->addr_info)
+       return 0;
+
     hash_val = (wmem_str_hash(key->addr_info) ^ key->id) + key->p2p_dir;
 
     return hash_val;
@@ -389,6 +392,9 @@ sm_fragment_equal(gconstpointer k1, gconstpointer k2)
 {
     const sm_fragment_key* key1 = (const sm_fragment_key*) k1;
     const sm_fragment_key* key2 = (const sm_fragment_key*) k2;
+
+    if (!key1 || !key2)
+        return FALSE;
 
     return (key1->id == key2->id) &&
            (key1->p2p_dir == key2->p2p_dir) &&
@@ -402,8 +408,12 @@ sm_fragment_temporary_key(const packet_info *pinfo,
                           const guint32 id, const void *data)
 {
     const gchar* addr = (const char*)data;
-    sm_fragment_key *key = g_slice_new(sm_fragment_key);
+    sm_fragment_key *key;
 
+    if (addr == NULL || pinfo->src.data == NULL || pinfo->dst.data == NULL)
+        return NULL;
+
+    key = g_slice_new(sm_fragment_key);
     key->addr_info = addr;
     key->p2p_dir = pinfo->p2p_dir;
     copy_address_shallow(&key->src, &pinfo->src);
@@ -419,6 +429,9 @@ sm_fragment_persistent_key(const packet_info *pinfo,
 {
     const gchar* addr = (const char*)data;
     sm_fragment_key *key = g_slice_new(sm_fragment_key);
+
+    if (addr == NULL || pinfo->src.data == NULL || pinfo->dst.data == NULL)
+        return NULL;
 
     key->addr_info = wmem_strdup(NULL, addr);
     key->p2p_dir = pinfo->p2p_dir;
