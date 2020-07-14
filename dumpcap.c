@@ -4578,10 +4578,6 @@ main(int argc, char *argv[])
 
     /* Load wpcap if possible. Do this before collecting the run-time version information */
     load_wpcap();
-
-    /* ... and also load the packet.dll from wpcap */
-    /* XXX - currently not required, may change later. */
-    /*wpcap_packet_load();*/
 #endif
 
     /* Initialize the version information. */

@@ -101,7 +101,6 @@
 
 #ifdef _WIN32
 #  include "caputils/capture-wpcap.h"
-#  include "caputils/capture_wpcap_packet.h"
 #  include <wsutil/file_util.h>
 #endif /* _WIN32 */
 
@@ -470,9 +469,6 @@ int main(int argc, char *qt_argv[])
     ws_init_dll_search_path();
     /* Load wpcap if possible. Do this before collecting the run-time version information */
     load_wpcap();
-
-    /* ... and also load the packet.dll from wpcap */
-    wpcap_packet_load();
 
 #ifdef HAVE_AIRPCAP
     /* Load the airpcap.dll.  This must also be done before collecting
