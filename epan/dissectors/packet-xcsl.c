@@ -109,7 +109,7 @@ static gboolean get_next_item(tvbuff_t *tvb, gint offset, gint maxlen, guint8 *s
         if (ch == ';' || ch == '\r' || ch == '\n')
             break;
         /* Array protect */
-        if (idx==MAXLEN) {
+        if (idx == MAXLEN - 1) {
             *next_offset = offset + idx;
             *len = idx;
             return FALSE;
