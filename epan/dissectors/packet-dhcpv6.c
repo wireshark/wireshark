@@ -2729,7 +2729,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
     case OPTION_F_DNS_HOST_NAME:
         {
         const gchar *dns_name;
-        guint dns_name_len;
+        gint dns_name_len;
 
         get_dns_name(tvb, off, optlen, off, &dns_name, &dns_name_len);
         proto_tree_add_string(subtree, hf_option_failover_dns_hostname, tvb, off, optlen, format_text(wmem_packet_scope(), dns_name, dns_name_len));
@@ -2738,7 +2738,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
     case OPTION_F_DNS_ZONE_NAME:
         {
         const gchar *dns_name;
-        guint dns_name_len;
+        gint dns_name_len;
 
         get_dns_name(tvb, off, optlen, off, &dns_name, &dns_name_len);
         proto_tree_add_string(subtree, hf_option_failover_dns_zonename, tvb, off, optlen, format_text(wmem_packet_scope(), dns_name, dns_name_len));

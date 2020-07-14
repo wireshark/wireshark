@@ -2455,7 +2455,7 @@ dissect_dhcpopt_client_full_domain_name(tvbuff_t *tvb, packet_info *pinfo, proto
 	guint8 fqdn_flags;
 	int offset = 0, length = tvb_reported_length(tvb);
 	const guchar	*dns_name;
-	guint		dns_name_len;
+	gint		dns_name_len;
 
 	if (length < 3) {
 		expert_add_info_format(pinfo, tree, &ei_dhcp_bad_length, "length isn't >= 3");
@@ -2781,7 +2781,7 @@ dissect_dhcpopt_dhcp_domain_search(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 	int length = tvb_reported_length(tvb);
 	gchar		*name_out;
 	const guchar	*dns_name;
-	guint		dns_name_len;
+	gint		dns_name_len;
 
 	/* Encoding Long Options in the Dynamic Host Configuration Protocol (DHCPv4) (RFC 3396) */
 	/* Domain Names - Implementation And Specification (RFC 1035) */
@@ -2837,7 +2837,7 @@ dissect_dhcpopt_sip_servers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
 	int length = tvb_reported_length(tvb);
 	const guchar	*dns_name;
-	guint		dns_name_len;
+	gint		dns_name_len;
 	gchar		*name_out;
 
 	/* Encoding Long Options in the Dynamic Host Configuration Protocol (DHCPv4) (RFC 3396) */
@@ -3092,7 +3092,7 @@ dissect_dhcpopt_rdnss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
 {
 	int offset = 0;
 	const guchar *dns_name;
-	guint dns_name_len;
+	gint dns_name_len;
 
 	if (tvb_reported_length(tvb) < 10) {
 		expert_add_info_format(pinfo, tree, &ei_dhcp_bad_length, "length must be >= 10");
@@ -6697,7 +6697,7 @@ dissect_packetcable_ietf_ccc(packet_info *pinfo, proto_item *v_ti, proto_tree *v
 	proto_item   *vti;
 	int	      max_timer_val = 255;
 	const guchar *dns_name;
-	guint	     dns_name_len;
+	gint	     dns_name_len;
 
 	subopt = tvb_get_guint8(tvb, suboptoff);
 	suboptoff++;

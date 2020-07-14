@@ -81,7 +81,7 @@ void proto_reg_handoff_dns(void);
 struct DnsTap {
     guint packet_qr;
     guint packet_qtype;
-    guint packet_qclass;
+    gint packet_qclass;
     guint packet_rcode;
     guint packet_opcode;
     guint payload_size;
@@ -1177,10 +1177,10 @@ static int * const dns_csync_flags[] = {
  * of labels
  */
 static guint
-qname_labels_count(const guchar* name, guint name_len)
+qname_labels_count(const guchar* name, gint name_len)
 {
     guint labels = 0;
-    unsigned i;
+    gint i;
 
     if (name_len > 1) {
         /* it was not a Zero-length name */
@@ -1200,7 +1200,7 @@ qname_labels_count(const guchar* name, guint name_len)
  */
 static int
 expand_dns_name(tvbuff_t *tvb, int offset, int max_len, int dns_data_offset,
-    const gchar **name, guint* name_len)
+    const gchar **name, gint* name_len)
 {
   int     start_offset    = offset;
   gchar  *np;
@@ -1383,7 +1383,7 @@ expand_dns_name(tvbuff_t *tvb, int offset, int max_len, int dns_data_offset,
    can contain null bytes, is written in name and its length in name_len. */
 int
 get_dns_name(tvbuff_t *tvb, int offset, int max_len, int dns_data_offset,
-    const gchar **name, guint* name_len)
+    const gchar **name, gint* name_len)
 {
   int len;
 
@@ -1392,7 +1392,7 @@ get_dns_name(tvbuff_t *tvb, int offset, int max_len, int dns_data_offset,
   /* Zero-length name means "root server" */
   if (**name == '\0' && len <= MIN_DNAME_LEN) {
     *name="<Root>";
-    *name_len = (guint)strlen(*name);
+    *name_len = (gint)strlen(*name);
     return len;
   }
 
@@ -1557,7 +1557,7 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
 
 static void
 add_rr_to_tree(proto_tree  *rr_tree, tvbuff_t *tvb, int offset,
-  const guchar *name, int namelen, int type,
+  const gchar *name, int namelen, int type,
   packet_info *pinfo, gboolean is_mdns)
 {
   guint32     ttl_value;
@@ -2163,10 +2163,10 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
       cpu_offset = cur_offset;
       cpu_len = tvb_get_guint8(tvb, cpu_offset);
-      cpu = tvb_get_string_enc(wmem_packet_scope(), tvb, cpu_offset + 1, cpu_len, ENC_ASCII|ENC_NA);
+      cpu = (const char* )tvb_get_string_enc(wmem_packet_scope(), tvb, cpu_offset + 1, cpu_len, ENC_ASCII|ENC_NA);
       os_offset = cpu_offset + 1 + cpu_len;
       os_len = tvb_get_guint8(tvb, os_offset);
-      os = tvb_get_string_enc(wmem_packet_scope(), tvb, os_offset + 1, os_len, ENC_ASCII|ENC_NA);
+      os = (const char*)tvb_get_string_enc(wmem_packet_scope(), tvb, os_offset + 1, os_len, ENC_ASCII|ENC_NA);
       col_append_fstr(pinfo->cinfo, COL_INFO, " %.*s %.*s", cpu_len, cpu, os_len, os);
       proto_item_append_text(trr, ", CPU %.*s, OS %.*s", cpu_len, cpu, os_len, os);
 
@@ -2402,7 +2402,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
     case T_PX: /* Pointer to X.400/RFC822 mapping info (26)*/
     {
-      guint           px_map822_len, px_mapx400_len;
+      gint           px_map822_len, px_mapx400_len;
       const gchar *px_map822_dnsname, *px_mapx400_dnsname;
 
       col_append_fstr(pinfo->cinfo, COL_INFO, " %s", name);
@@ -3538,12 +3538,12 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       cur_offset++;
 
       tag_len = tvb_get_guint8(tvb, cur_offset);
-      tag = tvb_get_string_enc(wmem_packet_scope(), tvb, cur_offset + 1, tag_len, ENC_ASCII|ENC_NA);
+      tag = (const char*)tvb_get_string_enc(wmem_packet_scope(), tvb, cur_offset + 1, tag_len, ENC_ASCII|ENC_NA);
 
       value_len = data_len - (tag_len + 2);
       value = tvb_get_string_enc(wmem_packet_scope(), tvb, cur_offset + 1 + tag_len, value_len, ENC_ASCII|ENC_NA);
 
-      value = format_text(wmem_packet_scope(), (const guchar*)value, value_len);
+      value = format_text(wmem_packet_scope(), value, value_len);
 
       if (strncmp(tag, "issue", tag_len) == 0) {
         cur_hf = hf_dns_caa_issue;
@@ -3735,7 +3735,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   wmem_tree_key_t    key[3];
   struct DnsTap     *dns_stats;
   guint              qtype = 0;
-  guint              qclass = 0;
+  gint               qclass = 0;
   gboolean           retransmission = FALSE;
   const gchar      *name;
   int                name_len;
