@@ -1382,27 +1382,27 @@ static gint hf_s7comm_ob_inf_len = -1;
 static gint hf_s7comm_ob_alarm_type = -1;
 static gint hf_s7comm_ob_alarm_slot = -1;
 static gint hf_s7comm_ob_alarm_spec = -1;
-static guint hf_s7comm_ob_error_info = -1;
-static guint hf_s7comm_ob_err_ev_class = -1;
-static guint hf_s7comm_ob_err_ev_num = -1;
-static guint hf_s7comm_ob_err_ob_priority = -1;
-static guint hf_s7comm_ob_err_ob_num = -1;
-static guint hf_s7comm_ob_rack_cpu = -1;
-static guint hf_s7comm_ob_8x_fault_flags = -1;
-static guint hf_s7comm_ob_mdl_type_b = -1;
-static guint hf_s7comm_ob_mdl_type_w = -1;
-static guint hf_s7comm_ob_rack_num = -1;
-static guint hf_s7comm_ob_racks_flt = -1;
-static guint hf_s7comm_ob_strtup = -1;
-static guint hf_s7comm_ob_stop = -1;
-static guint hf_s7comm_ob_strt_info = -1;
-static guint hf_s7comm_ob_sw_flt = -1;
-static guint hf_s7comm_ob_blk_type = -1;
-static guint hf_s7comm_ob_flt_reg = -1;
-static guint hf_s7comm_ob_flt_blk_num = -1;
-static guint hf_s7comm_ob_prg_addr = -1;
-static guint hf_s7comm_ob_mem_area = -1;
-static guint hf_s7comm_ob_mem_addr = -1;
+static gint hf_s7comm_ob_error_info = -1;
+static gint hf_s7comm_ob_err_ev_class = -1;
+static gint hf_s7comm_ob_err_ev_num = -1;
+static gint hf_s7comm_ob_err_ob_priority = -1;
+static gint hf_s7comm_ob_err_ob_num = -1;
+static gint hf_s7comm_ob_rack_cpu = -1;
+static gint hf_s7comm_ob_8x_fault_flags = -1;
+static gint hf_s7comm_ob_mdl_type_b = -1;
+static gint hf_s7comm_ob_mdl_type_w = -1;
+static gint hf_s7comm_ob_rack_num = -1;
+static gint hf_s7comm_ob_racks_flt = -1;
+static gint hf_s7comm_ob_strtup = -1;
+static gint hf_s7comm_ob_stop = -1;
+static gint hf_s7comm_ob_strt_info = -1;
+static gint hf_s7comm_ob_sw_flt = -1;
+static gint hf_s7comm_ob_blk_type = -1;
+static gint hf_s7comm_ob_flt_reg = -1;
+static gint hf_s7comm_ob_flt_blk_num = -1;
+static gint hf_s7comm_ob_prg_addr = -1;
+static gint hf_s7comm_ob_mem_area = -1;
+static gint hf_s7comm_ob_mem_addr = -1;
 
 static gint hf_s7comm_diagdata_req_block_type = -1;
 static gint hf_s7comm_diagdata_req_block_num = -1;
@@ -3231,7 +3231,7 @@ s7comm_decode_pi_service(tvbuff_t *tvb,
     offset += len;
 
     /* get the index position in pi_service_names, and add infotext with description to the item */
-    pi_servicename_descr = try_str_to_str_idx(servicename, pi_service_names, &pi_servicename_idx);
+    pi_servicename_descr = try_str_to_str_idx((const gchar*)servicename, pi_service_names, &pi_servicename_idx);
     if (pi_servicename_idx < 0) {
         pi_servicename_idx = S7COMM_PI_UNKNOWN;
         pi_servicename_descr = "Unknown PI Service";
@@ -3259,7 +3259,7 @@ s7comm_decode_pi_service(tvbuff_t *tvb,
                 paramoffset += 2;
                 proto_tree_add_item_ret_string(file_tree, hf_s7comm_data_blockcontrol_block_num, tvb, paramoffset, 5, ENC_ASCII|ENC_NA, wmem_packet_scope(), &str);
                 paramoffset += 5;
-                num_valid = ws_strtoi32(str, NULL, &num);
+                num_valid = ws_strtoi32((const char*)str, NULL, &num);
                 proto_item_append_text(file_tree, " [%s ",
                     val_to_str(blocktype, blocktype_names, "Unknown Block type: 0x%04x"));
                 col_append_str(pinfo->cinfo, COL_INFO,
@@ -3621,7 +3621,7 @@ s7comm_decode_plc_controls_filename(tvbuff_t *tvb,
             offset += 2;
             proto_tree_add_item_ret_string(file_tree, hf_s7comm_data_blockcontrol_block_num, tvb, offset, 5, ENC_ASCII|ENC_NA, wmem_packet_scope(), &str);
             offset += 5;
-            num_valid = ws_strtoi32(str, NULL, &num);
+            num_valid = ws_strtoi32((const gchar*)str, NULL, &num);
             proto_item_append_text(file_tree, " [%s",
                 val_to_str(blocktype, blocktype_names, "Unknown Block type: 0x%04x"));
             col_append_fstr(pinfo->cinfo, COL_INFO, " -> Block:[%s",
@@ -5959,7 +5959,7 @@ s7comm_decode_ud_block_subfunc(tvbuff_t *tvb,
                     proto_item_append_text(itemadd, " (%s)", val_to_str(blocktype16, blocktype_names, "Unknown Block type: 0x%04x"));
                     offset += 2;
                     proto_tree_add_item_ret_string(data_tree, hf_s7comm_ud_blockinfo_block_num_ascii, tvb, offset, 5, ENC_ASCII|ENC_NA, wmem_packet_scope(), &pBlocknumber);
-                    num_valid = ws_strtoi32(pBlocknumber, NULL, &num);
+                    num_valid = ws_strtoi32((const gchar*)pBlocknumber, NULL, &num);
                     proto_item_append_text(data_tree, " [%s ",
                         val_to_str(blocktype16, blocktype_names, "Unknown Block type: 0x%04x"));
                     col_append_fstr(pinfo->cinfo, COL_INFO, " -> Block:[%s ",
