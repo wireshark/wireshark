@@ -1303,11 +1303,11 @@ dissect_ftdi_ft(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 offset += dissect_modem_status_bytes(tvb, pinfo, offset, main_tree, &rx_len);
                 total_rx_len += rx_len;
 
-                proto_tree_add_item(main_tree, rx_hf, tvb, offset, rx_len, ENC_NA);
                 if (rx_len > 0)
                 {
                     tvbuff_t *rx_tvb_fragment = tvb_new_subset_length(tvb, offset, rx_len);
                     tvb_composite_append(rx_tvb, rx_tvb_fragment);
+                    proto_tree_add_item(main_tree, rx_hf, tvb, offset, rx_len, ENC_NA);
                     offset += rx_len;
                 }
             }
