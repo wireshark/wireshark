@@ -62,6 +62,13 @@ static int hf_radiotap_channel_flags_half = -1;
 static int hf_radiotap_channel_flags_quarter = -1;
 static int hf_radiotap_rxflags = -1;
 static int hf_radiotap_rxflags_badplcp = -1;
+static int hf_radiotap_txflags = -1;
+static int hf_radiotap_txflags_fail = -1;
+static int hf_radiotap_txflags_cts = -1;
+static int hf_radiotap_txflags_rts = -1;
+static int hf_radiotap_txflags_noack = -1;
+static int hf_radiotap_txflags_noseqno = -1;
+static int hf_radiotap_txflags_order = -1;
 static int hf_radiotap_xchannel_channel = -1;
 static int hf_radiotap_xchannel_frequency = -1;
 static int hf_radiotap_xchannel_flags = -1;
@@ -180,6 +187,7 @@ static int hf_radiotap_present_db_antsignal = -1;
 static int hf_radiotap_present_db_antnoise = -1;
 static int hf_radiotap_present_hdrfcs = -1;
 static int hf_radiotap_present_rxflags = -1;
+static int hf_radiotap_present_txflags = -1;
 static int hf_radiotap_present_xchannel = -1;
 static int hf_radiotap_present_mcs = -1;
 static int hf_radiotap_present_ampdu = -1;
@@ -361,6 +369,7 @@ static gint ett_radiotap_present = -1;
 static gint ett_radiotap_present_word = -1;
 static gint ett_radiotap_flags = -1;
 static gint ett_radiotap_rxflags = -1;
+static gint ett_radiotap_txflags = -1;
 static gint ett_radiotap_channel_flags = -1;
 static gint ett_radiotap_xchannel_flags = -1;
 static gint ett_radiotap_vendor = -1;
@@ -1944,6 +1953,26 @@ dissect_radiotap_rx_flags(tvbuff_t *tvb, packet_info *pinfo _U_,
 	}
 }
 
+
+static void
+dissect_radiotap_tx_flags(tvbuff_t *tvb, packet_info *pinfo _U_,
+	proto_tree *tree, int offset)
+{
+	static int * const txflags[] = {
+		&hf_radiotap_txflags_fail,
+		&hf_radiotap_txflags_cts,
+		&hf_radiotap_txflags_rts,
+		&hf_radiotap_txflags_noack,
+		&hf_radiotap_txflags_noseqno,
+		&hf_radiotap_txflags_order,
+		NULL
+	};
+
+	proto_tree_add_bitmask(tree, tvb, offset,
+			hf_radiotap_txflags, ett_radiotap_txflags,
+			txflags, ENC_LITTLE_ENDIAN);
+}
+
 static void
 dissect_radiotap_xchannel(tvbuff_t *tvb, packet_info *pinfo _U_,
 	proto_tree *tree, int offset, guint8 rflags, gboolean have_rflags,
@@ -2347,6 +2376,9 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 						    tvb, offset + 4, 4, ENC_LITTLE_ENDIAN);
 			}
 			proto_tree_add_item(present_word_tree,
+					    hf_radiotap_present_txflags, tvb,
+					    offset + 4, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(present_word_tree,
 					    hf_radiotap_present_xchannel, tvb,
 					    offset + 4, 4, ENC_LITTLE_ENDIAN);
 
@@ -2536,6 +2568,11 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 			dissect_radiotap_rx_flags(tvb, pinfo, item_tree,
 						offset, &hdr_fcs_ti,
 						&hdr_fcs_offset, &sent_fcs);
+			break;
+
+		case IEEE80211_RADIOTAP_TX_FLAGS:
+			dissect_radiotap_tx_flags(tvb, pinfo, item_tree,
+						offset);
 			break;
 
 		case IEEE80211_RADIOTAP_XCHANNEL:
@@ -3197,6 +3234,11 @@ void proto_register_radiotap(void)
 		  FT_BOOLEAN, 32, TFS(&tfs_present_absent), RADIOTAP_MASK(RX_FLAGS),
 		  "Specifies if the RX flags field is present", HFILL}},
 
+		{&hf_radiotap_present_txflags,
+		 {"TX flags", "radiotap.present.txflags",
+		  FT_BOOLEAN, 32, TFS(&tfs_present_absent), RADIOTAP_MASK(TX_FLAGS),
+		  "Specifies if the TX flags field is present", HFILL}},
+
 		{&hf_radiotap_present_hdrfcs,
 		 {"FCS in header", "radiotap.present.fcs",
 		  FT_BOOLEAN, 32, TFS(&tfs_present_absent), RADIOTAP_MASK(RX_FLAGS),
@@ -3413,6 +3455,41 @@ void proto_register_radiotap(void)
 		 {"Bad PLCP", "radiotap.rxflags.badplcp",
 		  FT_BOOLEAN, 24, NULL, IEEE80211_RADIOTAP_F_RX_BADPLCP,
 		  "Frame with bad PLCP", HFILL}},
+
+		{&hf_radiotap_txflags,
+		 {"TX flags", "radiotap.txflags",
+		  FT_UINT16, BASE_HEX, NULL, 0x0,
+		  NULL, HFILL}},
+
+		{&hf_radiotap_txflags_fail,
+		 {"Fail", "radiotap.rxflags.fail",
+		  FT_BOOLEAN, 24, NULL, IEEE80211_RADIOTAP_F_TX_FAIL,
+		  "Transmission failed due to excessive retries", HFILL}},
+
+		{&hf_radiotap_txflags_cts,
+		 {"CTS", "radiotap.rxflags.cts",
+		  FT_BOOLEAN, 24, NULL, IEEE80211_RADIOTAP_F_TX_CTS,
+		  "Transmission used CTS-to-self protection", HFILL}},
+
+		{&hf_radiotap_txflags_rts,
+		 {"RTS/CTS", "radiotap.rxflags.rts",
+		  FT_BOOLEAN, 24, NULL, IEEE80211_RADIOTAP_F_TX_RTS,
+		  "Transmission used RTS/CTS handshake", HFILL}},
+
+		{&hf_radiotap_txflags_noack,
+		 {"No ACK", "radiotap.rxflags.noack",
+		  FT_BOOLEAN, 24, NULL, IEEE80211_RADIOTAP_F_TX_NOACK,
+		  "Transmission shall not expect an ACK frame", HFILL}},
+
+		{&hf_radiotap_txflags_noseqno,
+		 {"Has Seqnum", "radiotap.rxflags.noseqno",
+		  FT_BOOLEAN, 24, NULL, IEEE80211_RADIOTAP_F_TX_NOSEQNO,
+		  "Frame includes a pre-configured sequence number", HFILL}},
+
+		{&hf_radiotap_txflags_order,
+		 {"Order", "radiotap.rxflags.order",
+		  FT_BOOLEAN, 24, NULL, IEEE80211_RADIOTAP_F_TX_ORDER,
+		  "Frame must not be reordered relative to others with this flag", HFILL}},
 
 		{&hf_radiotap_xchannel_channel,
 		 {"Channel number", "radiotap.xchannel.channel",
@@ -4716,6 +4793,7 @@ void proto_register_radiotap(void)
 		&ett_radiotap_present_word,
 		&ett_radiotap_flags,
 		&ett_radiotap_rxflags,
+		&ett_radiotap_txflags,
 		&ett_radiotap_channel_flags,
 		&ett_radiotap_xchannel_flags,
 		&ett_radiotap_vendor,

@@ -281,7 +281,12 @@ struct ieee80211_radiotap_tlv {
 						 * retries */
 #define IEEE80211_RADIOTAP_F_TX_CTS	0x0002	/* used cts 'protection' */
 #define IEEE80211_RADIOTAP_F_TX_RTS	0x0004	/* used rts/cts handshake */
-
+#define IEEE80211_RADIOTAP_F_TX_NOACK	0x0008	/* don't expect ACK */
+#define IEEE80211_RADIOTAP_F_TX_NOSEQNO	0x0010	/* don't overwrite sequence
+						 * number */
+#define IEEE80211_RADIOTAP_F_TX_ORDER	0x0020	/* don't reorder injected
+						 * frames relative to other
+						 * frames with this flag */
 
 /* For IEEE80211_RADIOTAP_MCS */
 #define IEEE80211_RADIOTAP_MCS_HAVE_BW		0x01
