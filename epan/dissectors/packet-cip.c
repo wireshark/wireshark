@@ -2395,7 +2395,7 @@ static const value_string cip_vendor_vals[] = {
    {  884,   "Harms+Wende GmbH & Co KG" },
    {  885,   "SAE-STAHL GmbH" },
    {  886,   "Microwave Data Systems" },
-   {  887,   "Bernecker + Rainer Industrie-Elektronik GmbH" },
+   {  887,   "B&R Industrial Automation GmbH" },
    {  888,   "Hiprom Technologies" },
    {  889,   "Reserved" },
    {  890,   "Nitta Corporation" },
