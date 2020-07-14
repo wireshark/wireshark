@@ -8326,6 +8326,9 @@ ieee1905_fragment_hash(gconstpointer k)
     guint8 hash_buf[13];
     const ieee1905_fragment_key *key = (const ieee1905_fragment_key *)k;
 
+    if (!key || !key->src.data || !key->dst.data)
+        return 0;
+
     memcpy(hash_buf, key->src.data, 6);
     memcpy(&hash_buf[6], key->dst.data, 6);
     hash_buf[12] = key->frag_id;
@@ -8341,6 +8344,9 @@ ieee1905_fragment_equal(gconstpointer k1, gconstpointer k2)
     const ieee1905_fragment_key *key2 =
                         (const ieee1905_fragment_key *)k2;
 
+    if (!key1 || !key2)
+        return FALSE;
+
     return (key1->frag_id == key2->frag_id &&
             addresses_equal(&key1->src, &key2->src) &&
             addresses_equal(&key1->src, &key2->src));
@@ -8350,6 +8356,10 @@ static gpointer
 ieee1905_fragment_temporary_key(const packet_info *pinfo, const guint32 id,
                                 const void *data _U_)
 {
+    if (pinfo->src.data == NULL || pinfo->dst.data == NULL) {
+        return NULL;
+    }
+
     ieee1905_fragment_key *key = g_slice_new(ieee1905_fragment_key);
 
     key->frag_id = id & 0xFF;
@@ -8363,6 +8373,10 @@ static gpointer
 ieee1905_fragment_persistent_key(const packet_info *pinfo, const guint id,
                                  const void *data _U_)
 {
+    if (pinfo->src.data == NULL || pinfo->dst.data == NULL) {
+        return NULL;
+    }
+
     ieee1905_fragment_key *key = g_slice_new(ieee1905_fragment_key);
 
     key->frag_id = id & 0xFF;
