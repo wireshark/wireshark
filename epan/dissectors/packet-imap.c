@@ -220,7 +220,7 @@ dissect_imap_fetch(tvbuff_t *tvb, packet_info *pinfo,
         {
           //Have a size field, convert it to an integer to see how long the contents are
           guint32 size = 0;
-          guint8* size_str = tvb_get_string_enc(wmem_packet_scope(), tvb, size_start + 1, size_end - size_start - 1, ENC_ASCII);
+          const gchar* size_str = (const gchar *)tvb_get_string_enc(wmem_packet_scope(), tvb, size_start + 1, size_end - size_start - 1, ENC_ASCII);
           if (ws_strtou32(size_str, NULL, &size))
           {
             int remaining = tvb_reported_length_remaining(tvb, size_end + size);
@@ -293,8 +293,8 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   gint            next_offset;
   int             linelen, tokenlen, uidlen, uid_tokenlen, folderlen, folder_tokenlen;
   int             next_token, uid_next_token, folder_next_token;
-  guchar          *tokenbuf = NULL;
-  guchar          *command_token;
+  const char     *tokenbuf = NULL;
+  const char     *command_token;
   int             commandlen;
   gboolean        first_line = TRUE;
   imap_request_key_t request_key;
@@ -471,7 +471,7 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
        */
       tokenlen = tvb_get_token_len(tvb, offset, linelen, &next_token, FALSE);
       if (tokenlen != 0) {
-        guint8* tag = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen, ENC_ASCII);
+        const char* tag = (const char*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen, ENC_ASCII);
         request_key.tag = wmem_ascii_strdown(wmem_packet_scope(), tag, strlen(tag));
 
         proto_tree_add_string(reqresp_tree, (is_request) ? hf_imap_request_tag : hf_imap_response_tag, tvb, offset, tokenlen, tag);
@@ -489,7 +489,7 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
       tokenlen = tvb_get_token_len(tvb, offset, linelen, &next_token, FALSE);
       if (tokenlen != 0) {
 
-        tokenbuf = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen, ENC_ASCII);
+        tokenbuf = (const char*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen, ENC_ASCII);
         tokenbuf = wmem_ascii_strdown(wmem_packet_scope(), tokenbuf, tokenlen);
 
         if (is_request && !tvb_strncaseeql(tvb, offset, "UID", tokenlen)) {
@@ -510,7 +510,7 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
              * Save command string to do specialized processing.
              */
             commandlen = uid_tokenlen;
-            command_token = tvb_get_string_enc(wmem_packet_scope(), tvb, next_token, commandlen, ENC_ASCII);
+            command_token = (const char*)tvb_get_string_enc(wmem_packet_scope(), tvb, next_token, commandlen, ENC_ASCII);
             command_token = wmem_ascii_strdown(wmem_packet_scope(), command_token, commandlen);
 
             folderlen = linelen - (uid_next_token - offset);
@@ -530,7 +530,7 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
              * Save command string to do specialized processing.
              */
             commandlen = tokenlen;
-            command_token = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, commandlen, ENC_ASCII);
+            command_token = (const char*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, commandlen, ENC_ASCII);
             command_token = wmem_ascii_strdown(wmem_packet_scope(), command_token, commandlen);
 
             folderlen = linelen - (next_token - offset);
@@ -579,13 +579,13 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
             int username_offset = next_token;
             int username_next_token;
             int username_tokenlen = tvb_get_token_len(tvb, next_token, usernamelen, &username_next_token, FALSE);
-            guint8* username = tvb_get_string_enc(wmem_packet_scope(), tvb, username_offset + 1, username_tokenlen - 2, ENC_ASCII | ENC_NA);
+            char *username = (char*)tvb_get_string_enc(wmem_packet_scope(), tvb, username_offset + 1, username_tokenlen - 2, ENC_ASCII | ENC_NA);
             proto_tree_add_string(reqresp_tree, hf_imap_request_username, tvb, username_offset, username_tokenlen, username);
 
             int passwordlen = linelen - (username_next_token - offset);
             int password_offset = username_next_token;
             int password_tokenlen = tvb_get_token_len(tvb, username_next_token, passwordlen, NULL, FALSE);
-            guint8* password = tvb_get_string_enc(wmem_packet_scope(), tvb, password_offset + 1, password_tokenlen - 2, ENC_ASCII | ENC_NA);
+            const char* password = tvb_get_string_enc(wmem_packet_scope(), tvb, password_offset + 1, password_tokenlen - 2, ENC_ASCII | ENC_NA);
             proto_tree_add_string(reqresp_tree, hf_imap_request_password, tvb, password_offset, password_tokenlen, password);
 
             tap_credential_t* auth = wmem_new0(wmem_packet_scope(), tap_credential_t);
