@@ -200,6 +200,28 @@ column_prefs_add_custom(gint fmt, const gchar *title, const gchar *custom_fields
     return colnr;
 }
 
+gint
+column_prefs_has_custom(const gchar *custom_field)
+{
+    GList *clp;
+    fmt_data *cfmt;
+    gint colnr = -1;
+
+    for (gint i = 0; i < prefs.num_cols; i++) {
+        clp = g_list_nth(prefs.col_list, i);
+        if (clp == NULL) /* Sanity check, invalid column requested */
+            continue;
+
+        cfmt = (fmt_data *) clp->data;
+        if (cfmt->fmt == COL_CUSTOM && strcmp(custom_field, cfmt->custom_fields) == 0) {
+            colnr = i;
+            break;
+        }
+    }
+
+    return colnr;
+}
+
 void
 column_prefs_remove_link(GList *col_link)
 {

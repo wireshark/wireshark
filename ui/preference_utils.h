@@ -71,6 +71,14 @@ gint column_prefs_add_custom(gint fmt, const gchar *title,
                              const gchar *custom_field,
                              gint position);
 
+/** Check if a custom column exists.
+ *
+ * @param custom_field column custom field
+ *
+ * @return The index of the column if existing, -1 if not existing
+ */
+gint column_prefs_has_custom(const gchar *custom_field);
+
 /** Remove a column.
  *
  * @param col_link Column list entry

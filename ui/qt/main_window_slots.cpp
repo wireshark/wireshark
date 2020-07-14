@@ -2765,8 +2765,25 @@ void MainWindow::on_actionAnalyzeDisplayFilterMacros_triggered()
 void MainWindow::on_actionAnalyzeCreateAColumn_triggered()
 {
     if (capture_file_.capFile() != 0 && capture_file_.capFile()->finfo_selected != 0) {
-        insertColumn(QString(capture_file_.capFile()->finfo_selected->hfinfo->name),
-                     QString(capture_file_.capFile()->finfo_selected->hfinfo->abbrev));
+        header_field_info *hfinfo = capture_file_.capFile()->finfo_selected->hfinfo;
+        int col = column_prefs_has_custom(hfinfo->abbrev);
+        if (col == -1) {
+            insertColumn(hfinfo->name, hfinfo->abbrev);
+        } else {
+            QString status;
+            if (QString(hfinfo->name) == get_column_title(col)) {
+                status = tr("The \"%1\" column already exists.").arg(hfinfo->name);
+            } else {
+                status = tr("The \"%1\" column already exists as \"%2\".").arg(hfinfo->name).arg(get_column_title(col));
+            }
+            wsApp->pushStatus(WiresharkApplication::TemporaryStatus, status);
+
+            if (!get_column_visible(col)) {
+                packet_list_->setColumnHidden(col, false);
+                set_column_visible(col, TRUE);
+                prefs_main_write();
+            }
+        }
     }
 }
 
