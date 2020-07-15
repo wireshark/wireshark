@@ -1906,6 +1906,10 @@ dissect_pfcp_pfd_contents(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
         ett_pfcp_measurement_method_flags, pfcp_pfd_contents_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT, &flags);
     offset += 1;
 
+    // Octet 6 Spare Octet
+    proto_tree_add_item(tree, hf_pfcp_spare_oct, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
     /* Bit 1 - FD (Flow Description): If this bit is set to "1", then the Length of Flow Description
      * and the Flow Description fields shall be present
      */
