@@ -74,7 +74,8 @@ void extcap_base_register_interface_ext(extcap_parameters * extcap,
     extcap->interfaces = g_list_append(extcap->interfaces, (gpointer) iface);
 }
 
-void extcap_base_set_util_info(extcap_parameters * extcap, const char * exename, const char * major, const char * minor, const char * release, const char * helppage)
+void extcap_base_set_util_info(extcap_parameters * extcap, const char * exename, const char * major,
+    const char * minor, const char * release, const char * helppage)
 {
     extcap->exename = g_path_get_basename(exename);
 
@@ -82,12 +83,16 @@ void extcap_base_set_util_info(extcap_parameters * extcap, const char * exename,
     if (!minor)
         g_assert(!release);
 
-    extcap->version = g_strdup_printf("%s%s%s%s%s",
+    gchar * basename = g_path_get_basename(exename);
+
+    extcap->version = g_strdup_printf("%s version %s%s%s%s%s",
+        basename,
         major,
         minor ? "." : "",
         minor ? minor : "",
         release ? "." : "",
         release ? release : "");
+    g_free(basename);
     extcap->helppage = g_strdup(helppage);
 }
 
