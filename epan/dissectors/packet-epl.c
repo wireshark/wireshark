@@ -36,11 +36,12 @@
  *                       - ObjectMappings now used for dissecting PDOs
  *                       - XDD/EDS files can be read for name/type information
  *
- * Copyright (c) 2020: B&R INDUSTRIAL AUTOMATION GmbH
+ * Copyright (c) 2020: B&R Industrial Automation GmbH
  *                     http://www.br-automation.com
  *
  *                     - Christian Krump <christian.krump[AT]br-automation.com>
  *                       - extended decoding of ring redundancy flags in the SOA frame
+ *                       - put a boolean hotfield to all available EPL message types
  *
  * A dissector for:
  * Wireshark - Network traffic analyzer
@@ -1404,13 +1405,22 @@ static gint hf_epl_dest          = -1;
 static gint hf_epl_src           = -1;
 static gint hf_epl_payload_real  = -1;
 
+/* available epl message types */
 static gint hf_epl_soc           = -1;
+static gint hf_epl_preq          = -1;
+static gint hf_epl_pres          = -1;
+static gint hf_epl_soa           = -1;
+static gint hf_epl_asnd          = -1;
+static gint hf_epl_amni          = -1;
+static gint hf_epl_ainv          = -1;
+
+static gint hf_epl_soc_flags     = -1;
 static gint hf_epl_soc_mc        = -1;
 static gint hf_epl_soc_ps        = -1;
 static gint hf_epl_soc_nettime   = -1;
 static gint hf_epl_soc_relativetime = -1;
 
-static gint hf_epl_preq          = -1;
+static gint hf_epl_preq_flags    = -1;
 static gint hf_epl_preq_ms       = -1;
 static gint hf_epl_preq_ea       = -1;
 static gint hf_epl_preq_rd       = -1;
@@ -1419,7 +1429,7 @@ static gint hf_epl_preq_size     = -1;
 
 static gint hf_epl_pres_stat_ms  = -1;
 static gint hf_epl_pres_stat_cs  = -1;
-static gint hf_epl_pres          = -1;
+static gint hf_epl_pres_flags    = -1;
 static gint hf_epl_pres_ms       = -1;
 static gint hf_epl_pres_en       = -1;
 static gint hf_epl_pres_rd       = -1;
@@ -2478,6 +2488,7 @@ dissect_eplpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean udp
 	gint offset = 0, size = 0;
 	heur_dtbl_entry_t *hdtbl_entry;
 	struct epl_convo *convo;
+	proto_item *msg_typ_hidden = NULL;
 
 	if (tvb_reported_length(tvb) < 3)
 	{
@@ -2576,6 +2587,39 @@ dissect_eplpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean udp
 		/* create display subtree for the protocol */
 		ti = proto_tree_add_item(tree, proto_epl, tvb, 0, -1, ENC_NA);
 		epl_tree = proto_item_add_subtree(ti, ett_epl);
+
+		/* create a hidden field for filtering all EPL message types with simple syntax (epl.soc, epl.soa,...) */
+		switch(epl_mtyp)
+		{
+			case EPL_SOC:
+				msg_typ_hidden = proto_tree_add_boolean(epl_tree, hf_epl_soc, tvb, offset, 1, epl_mtyp);
+				break;
+
+			case EPL_PREQ:
+				msg_typ_hidden = proto_tree_add_boolean(epl_tree, hf_epl_preq, tvb, offset, 1, epl_mtyp);
+				break;
+
+			case EPL_PRES:
+				msg_typ_hidden = proto_tree_add_boolean(epl_tree, hf_epl_pres, tvb, offset, 1, epl_mtyp);
+				break;
+
+			case EPL_SOA:
+				msg_typ_hidden = proto_tree_add_boolean(epl_tree, hf_epl_soa, tvb, offset, 1, epl_mtyp);
+				break;
+
+			case EPL_ASND:
+				msg_typ_hidden = proto_tree_add_boolean(epl_tree, hf_epl_asnd, tvb, offset, 1, epl_mtyp);
+				break;
+
+			case EPL_AMNI:
+				msg_typ_hidden = proto_tree_add_boolean(epl_tree, hf_epl_amni, tvb, offset, 1, epl_mtyp);
+				break;
+
+			case EPL_AINV:
+				msg_typ_hidden = proto_tree_add_boolean(epl_tree, hf_epl_ainv, tvb, offset, 1, epl_mtyp);
+				break;
+		}
+		proto_item_set_hidden(msg_typ_hidden);
 
 		proto_tree_add_item(epl_tree,
 			hf_epl_mtyp, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -2767,7 +2811,7 @@ dissect_epl_soc(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint of
 	offset += 1;
 
 	flags = tvb_get_guint8(tvb, offset);
-	proto_tree_add_bitmask(epl_tree, tvb, offset, hf_epl_soc, ett_epl_soc, soc_flags, ENC_NA);
+	proto_tree_add_bitmask(epl_tree, tvb, offset, hf_epl_soc_flags, ett_epl_soc, soc_flags, ENC_NA);
 
 	offset += 2;
 
@@ -2804,7 +2848,7 @@ dissect_epl_preq(struct epl_convo *convo, proto_tree *epl_tree, tvbuff_t *tvb, p
 	offset += 1;
 
 	flags = tvb_get_guint8(tvb, offset);
-	proto_tree_add_bitmask(epl_tree, tvb, offset, hf_epl_preq, ett_epl_preq, req_flags, ENC_NA);
+	proto_tree_add_bitmask(epl_tree, tvb, offset, hf_epl_preq_flags, ett_epl_preq, req_flags, ENC_NA);
 	offset += 2;
 
 	pdoversion = tvb_get_guint8(tvb, offset);
@@ -2851,7 +2895,7 @@ dissect_epl_pres(struct epl_convo *convo, proto_tree *epl_tree, tvbuff_t *tvb, p
 	offset += 1;
 
 	flags = tvb_get_guint8(tvb, offset);
-	proto_tree_add_bitmask(epl_tree, tvb, offset, hf_epl_pres, ett_epl_pres, res_flags, ENC_NA);
+	proto_tree_add_bitmask(epl_tree, tvb, offset, hf_epl_pres_flags, ett_epl_pres, res_flags, ENC_NA);
 	offset += 1;
 
 	flags2 = tvb_get_guint8(tvb, offset);
@@ -5182,9 +5226,39 @@ proto_register_epl(void)
 				FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
 		},
 
-		/* SoC data fields*/
+		/* hotfields for all available EPL message types (depends on EPL MessageType) */
 		{ &hf_epl_soc,
-			{ "Flags", "epl.soc",
+			{ "SoC", "epl.soc",
+				FT_BOOLEAN, BASE_DEC, NULL, 0x00, NULL, HFILL }
+		},
+		{ &hf_epl_preq,
+			{ "PReq", "epl.preq",
+				FT_BOOLEAN, BASE_DEC, NULL, 0x00, NULL, HFILL }
+		},
+		{ &hf_epl_pres,
+			{ "PRes", "epl.pres",
+				FT_BOOLEAN, BASE_DEC, NULL, 0x00, NULL, HFILL }
+		},
+		{ &hf_epl_soa,
+			{ "SoA", "epl.soa",
+				FT_BOOLEAN, BASE_DEC, NULL, 0x00, NULL, HFILL }
+		},
+		{ &hf_epl_asnd,
+			{ "ASnd", "epl.asnd",
+				FT_BOOLEAN, BASE_DEC, NULL, 0x00, NULL, HFILL }
+		},
+		{ &hf_epl_amni,
+			{ "AMNI", "epl.amni",
+				FT_BOOLEAN, BASE_DEC, NULL, 0x00, NULL, HFILL }
+		},
+		{ &hf_epl_ainv,
+			{ "AInv", "epl.ainv",
+				FT_BOOLEAN, BASE_DEC, NULL, 0x00, NULL, HFILL }
+		},
+
+		/* SoC data fields*/
+		{ &hf_epl_soc_flags,
+			{ "Flags", "epl.soc.flags",
 				FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_epl_soc_mc,
@@ -5205,8 +5279,8 @@ proto_register_epl(void)
 		},
 
 		/* PReq data fields*/
-		{ &hf_epl_preq,
-			{ "Flags", "epl.preq",
+		{ &hf_epl_preq_flags,
+			{ "Flags", "epl.preq.flags",
 				FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_epl_preq_ms,
@@ -5239,8 +5313,8 @@ proto_register_epl(void)
 			{ "NMTStatus", "epl.pres.stat",
 				FT_UINT8, BASE_HEX, VALS(epl_nmt_cs_vals), 0x00, NULL, HFILL }
 		},
-		{ &hf_epl_pres,
-			{ "Flags", "epl.pres",
+		{ &hf_epl_pres_flags,
+			{ "Flags", "epl.pres.flags",
 				FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_epl_pres_ms,
