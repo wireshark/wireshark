@@ -2777,9 +2777,9 @@ static void
 dissect_pfcp_pfd_contents(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
 {
     int offset = 0;
-    int offset_addition = 0;
+    int dissected_len = 0;
     guint64 flags;
-    guint32 len, len_addition;
+    guint32 len;
     proto_tree *afd_tree, *aurl_tree, *adnp_tree;
 
     static const int * pfcp_pfd_contents_flags[] = {
@@ -2796,6 +2796,10 @@ dissect_pfcp_pfd_contents(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
     /* Octet 5  ADNP   AURL   AFD   DNP   CP   DN   URL   FD */
     proto_tree_add_bitmask_with_flags_ret_uint64(tree, tvb, offset, hf_pfcp_pfd_contents_flags,
         ett_pfcp_measurement_method_flags, pfcp_pfd_contents_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT, &flags);
+    offset += 1;
+
+    // Octet 6 Spare Octet
+    proto_tree_add_item(tree, hf_pfcp_spare_oct, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
     /* Bit 1 - FD (Flow Description): If this bit is set to "1", then the Length of Flow Description
@@ -2882,18 +2886,20 @@ dissect_pfcp_pfd_contents(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
         offset += 2;
 
         /* (y+2) to z   Additional Flow Description */
-        offset_addition = 0;
+        dissected_len = 0;
         afd_tree = proto_item_add_subtree(item, ett_pfcp_adf);
-        while (offset_addition < (int)len) {
+        while (dissected_len < (int)len) {
+            guint32 flow_desc_len;
             /* (y+2) to (y+3)   Length of Flow Description */
-            proto_tree_add_item_ret_uint(afd_tree, hf_pfcp_flow_desc_len, tvb, offset, 2, ENC_BIG_ENDIAN, &len_addition);
-            offset_addition += 2;
+            proto_tree_add_item_ret_uint(afd_tree, hf_pfcp_flow_desc_len, tvb, offset, 2, ENC_BIG_ENDIAN, &flow_desc_len);
+            offset += 2;
+            dissected_len += 2;
 
             /* (y+4) to i   Flow Description */
-            proto_tree_add_item(afd_tree, hf_pfcp_flow_desc, tvb, offset, len_addition, ENC_ASCII|ENC_NA);
-            offset_addition += len_addition;
+            proto_tree_add_item(afd_tree, hf_pfcp_flow_desc, tvb, offset+2, flow_desc_len, ENC_ASCII|ENC_NA);
+            offset += flow_desc_len;
+            dissected_len += flow_desc_len;
         }
-        offset += offset_addition;
     }
 
     /* Bit 7 - AURL (Additional URL): If this bit is set to "1",
@@ -2906,18 +2912,20 @@ dissect_pfcp_pfd_contents(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
         offset += 2;
 
         /* (a+2) to b   Additional URL */
-        offset_addition = 0;
+        dissected_len = 0;
         aurl_tree = proto_item_add_subtree(item, ett_pfcp_aurl);
-        while (offset_addition < (int)len) {
+        while (dissected_len < (int)len) {
+            guint32 url_len;
             /* (a+2) to (a+3)   Length of URL */
-            proto_tree_add_item_ret_uint(aurl_tree, hf_pfcp_url_len, tvb, offset, 2, ENC_BIG_ENDIAN, &len_addition);
-            offset_addition += 2;
+            proto_tree_add_item_ret_uint(aurl_tree, hf_pfcp_url_len, tvb, offset, 2, ENC_BIG_ENDIAN, &url_len);
+            dissected_len += 2;
+            offset += 2;
 
             /* (a+4) to o   URL */
-            proto_tree_add_item(aurl_tree, hf_pfcp_url, tvb, offset, len_addition, ENC_ASCII|ENC_NA);
-            offset_addition += len_addition;
+            proto_tree_add_item(aurl_tree, hf_pfcp_url, tvb, offset, url_len, ENC_ASCII|ENC_NA);
+            dissected_len += url_len;
+            offset += url_len;
         }
-        offset += offset_addition;
     }
 
     /* Bit 8 - ADNP (Additional Domain Name and Domain Name Protocol): If this bit is set to "1",
@@ -2930,27 +2938,30 @@ dissect_pfcp_pfd_contents(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
         offset += 2;
 
         /* (c+2) to d   Additional Domain Name and Domain Name Protocol */
-        offset_addition = 0;
+        dissected_len = 0;
         adnp_tree = proto_item_add_subtree(item, ett_pfcp_adnp);
-        while (offset_addition < (int)len) {
-
+        while (dissected_len < (int)len) {
+            guint32 domain_name_len, domain_name_prot_len;
             /* (c+2) to (c+3)   Length of Domain Name */
-            proto_tree_add_item_ret_uint(adnp_tree, hf_pfcp_dn_len, tvb, offset, 2, ENC_BIG_ENDIAN, &len_addition);
-            offset_addition += 2;
+            proto_tree_add_item_ret_uint(adnp_tree, hf_pfcp_dn_len, tvb, offset, 2, ENC_BIG_ENDIAN, &domain_name_len);
+            dissected_len += 2;
+            offset += 2;
 
             /* (c+4) to pd   Domain Name */
-            proto_tree_add_item(adnp_tree, hf_pfcp_dn, tvb, offset, len_addition, ENC_ASCII|ENC_NA);
-            offset_addition += len_addition;
+            proto_tree_add_item(adnp_tree, hf_pfcp_dn, tvb, offset, domain_name_len, ENC_ASCII|ENC_NA);
+            dissected_len += domain_name_len;
+            offset += domain_name_len;
 
             /* (pe) to (pe+1)   Length of Domain Name Protocol */
-            proto_tree_add_item_ret_uint(adnp_tree, hf_pfcp_dnp_len, tvb, offset, 2, ENC_BIG_ENDIAN, &len_addition);
-            offset_addition += 2;
+            proto_tree_add_item_ret_uint(adnp_tree, hf_pfcp_dnp_len, tvb, offset, 2, ENC_BIG_ENDIAN, &domain_name_prot_len);
+            dissected_len += 2;
+            offset += 2;
 
             /* (pe+2) to ph   Domain Name Protocol */
-            proto_tree_add_item(adnp_tree, hf_pfcp_dnp, tvb, offset, len_addition, ENC_ASCII|ENC_NA);
-            offset_addition += len_addition;
+            proto_tree_add_item(adnp_tree, hf_pfcp_dnp, tvb, offset, domain_name_prot_len, ENC_ASCII|ENC_NA);
+            dissected_len += domain_name_prot_len;
+            offset += domain_name_prot_len;
         }
-        offset += offset_addition;
     }
 
     if (offset < length) {
