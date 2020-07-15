@@ -60,6 +60,7 @@
 
 /* Define if LIBSSH support is enabled */
 #cmakedefine HAVE_LIBSSH 1
+#cmakedefine LIBSSH_VERSION_STRING "@LIBSSH_VERSION_STRING@"
 
 /* Define if you have the 'dlget' function. */
 #cmakedefine HAVE_DLGET 1

@@ -96,6 +96,13 @@ void extcap_base_set_util_info(extcap_parameters * extcap, const char * exename,
     extcap->helppage = g_strdup(helppage);
 }
 
+void extcap_base_add_library_info(extcap_parameters * extcap, const char * libname, const char * libversion)
+{
+    gchar * old_version = extcap->version;
+    extcap->version = g_strdup_printf("%s\nCompiled with %s version %s", old_version, libname, libversion);
+    g_free(old_version);
+}
+
 static void extcap_custom_log(const gchar *log_domain,
              GLogLevelFlags log_level,
              const gchar *message,

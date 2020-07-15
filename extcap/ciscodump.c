@@ -551,6 +551,7 @@ int main(int argc, char *argv[])
 	help_url = data_file_url("ciscodump.html");
 	extcap_base_set_util_info(extcap_conf, argv[0], CISCODUMP_VERSION_MAJOR, CISCODUMP_VERSION_MINOR,
 		CISCODUMP_VERSION_RELEASE, help_url);
+	extcap_base_add_library_info(extcap_conf, "libssh", LIBSSH_VERSION_STRING);
 	g_free(help_url);
 	extcap_base_register_interface(extcap_conf, CISCODUMP_EXTCAP_INTERFACE, "Cisco remote capture", 147, "Remote capture dependent DLT");
 
