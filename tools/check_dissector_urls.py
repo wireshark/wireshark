@@ -124,6 +124,7 @@ class Link(object):
 
 
 links = []
+files = []
 
 
 def findLinksInFile(filename):
@@ -190,29 +191,41 @@ elif args.commits:
     files = [f.decode('utf-8')
              for f in subprocess.check_output(command).splitlines()]
     # Fetch links from files (dissectors files only)
+    files = list(filter(lambda f : isDissectorFile(f), files))
     for f in files:
-        if isDissectorFile(f):
-            findLinksInFile(f)
+        findLinksInFile(f)
 elif args.open:
     # Unstaged changes.
     command = ['git', 'diff', '--name-only']
     files = [f.decode('utf-8')
              for f in subprocess.check_output(command).splitlines()]
+    files = list(filter(lambda f : isDissectorFile(f), files))
     # Staged changes.
     command = ['git', 'diff', '--staged', '--name-only']
     files_staged = [f.decode('utf-8')
                     for f in subprocess.check_output(command).splitlines()]
+    files_staged = list(filter(lambda f : isDissectorFile(f), files_staged))
     for f in files:
-        if isDissectorFile(f):
-            findLinksInFile(f)
+        findLinksInFile(f)
     for f in files_staged:
         if not f in files:
-            if isDissectorFile(f):
-                findLinksInFile(f)
+            findLinksInFile(f)
+            files.append(f)
 else:
     # Find links from dissector folder.
     findLinksInFolder(os.path.join(os.path.dirname(
         __file__), '..', 'epan', 'dissectors'))
+
+
+# If scanning a subset of files, list them here.
+print('Examining:')
+if args.file or args.commits or args.open:
+    if files:
+        print(' '.join(files), '\n')
+    else:
+        print('No files to check.\n')
+else:
+    print('All dissector modules\n')
 
 
 # Prepare one session for all requests. For args, see

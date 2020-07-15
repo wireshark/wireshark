@@ -128,6 +128,10 @@ fi
 # runs and we aren't left with broken HTML.
 trap : INT
 
+echo "Examining:"
+echo $TARGET
+echo
+
 # shellcheck disable=SC2086
 $CPPCHECK --force --enable=style $QUIET    \
     $SUPPRESSIONS $INCLUDES \
