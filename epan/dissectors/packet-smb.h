@@ -328,8 +328,6 @@ extern int dissect_ipc_state(tvbuff_t *tvb, proto_tree *parent_tree,
 
 extern gboolean smb_dcerpc_reassembly;
 
-extern int dissect_file_ext_attr(tvbuff_t *tvb, proto_tree *parent_tree, int offset);
-
 extern const value_string create_disposition_vals[];
 
 extern int dissect_nt_create_options(tvbuff_t *tvb, proto_tree *parent_tree, int offset);
