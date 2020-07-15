@@ -978,7 +978,6 @@ dissect_serial_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
                 }
                 tvb_composite_append(payload_tvb, tvb);
                 tvb_composite_finalize(payload_tvb);
-                add_new_data_source(pinfo, payload_tvb, "Reassembled");
             }
             else
             {
