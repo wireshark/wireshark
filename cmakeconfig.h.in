@@ -62,6 +62,9 @@
 #cmakedefine HAVE_LIBSSH 1
 #cmakedefine LIBSSH_VERSION_STRING "@LIBSSH_VERSION_STRING@"
 
+/* Define to 1 if you have the `ssh_version' function. */
+#cmakedefine HAVE_SSH_VERSION 1
+
 /* Define if you have the 'dlget' function. */
 #cmakedefine HAVE_DLGET 1
 

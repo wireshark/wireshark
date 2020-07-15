@@ -87,7 +87,7 @@ typedef struct _extcap_parameters
 void extcap_base_register_interface(extcap_parameters * extcap, const char * interface, const char * ifdescription, uint16_t dlt, const char * dltdescription );
 void extcap_base_register_interface_ext(extcap_parameters * extcap, const char * interface, const char * ifdescription, uint16_t dlt, const char * dltname, const char * dltdescription );
 void extcap_base_set_util_info(extcap_parameters * extcap, const char * exename, const char * major, const char * minor, const char * release, const char * helppage);
-void extcap_base_add_library_info(extcap_parameters * extcap, const char * libname, const char * libversion);
+void extcap_base_add_info(extcap_parameters * extcap, const char *fmt, ...);
 uint8_t extcap_base_parse_options(extcap_parameters * extcap, int result, char * optargument);
 uint8_t extcap_base_handle_interface(extcap_parameters * extcap);
 void extcap_base_cleanup(extcap_parameters ** extcap);
