@@ -2692,7 +2692,6 @@ static void cf_opa_mad_computed_pct10(gchar *buf, guint16 value)
 
 /* Dissector Declarations */
 static dissector_handle_t opa_mad_handle;
-static dissector_handle_t eth_handle;
 static dissector_table_t ethertype_dissector_table;
 
 static reassembly_table opa_mad_rmpp_reassembly_table;
@@ -13681,7 +13680,6 @@ void proto_register_opa_mad(void)
 
 void proto_reg_handoff_opa_mad(void)
 {
-    eth_handle                      = find_dissector("eth");
     ethertype_dissector_table       = find_dissector_table("ethertype");
 }
 
