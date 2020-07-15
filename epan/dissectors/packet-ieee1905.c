@@ -2971,10 +2971,10 @@ dissect_ap_capability(tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree *tree, guint offset)
 {
     static int * const capabilities[] = {
-      &hf_ieee1905_unassoc_sta_metrics_oper_flag,
-      &hf_ieee1905_unassoc_sta_metrics_non_oper_flag,
-      &hf_ieee1905_agent_init_steering,
-      NULL,
+        &hf_ieee1905_unassoc_sta_metrics_oper_flag,
+        &hf_ieee1905_unassoc_sta_metrics_non_oper_flag,
+        &hf_ieee1905_agent_init_steering,
+        NULL,
     };
 
     proto_tree_add_bitmask(tree, tvb, offset,
@@ -3075,12 +3075,12 @@ dissect_ap_ht_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree *tree, guint offset)
 {
     static int * const capabilities[] = {
-      &hf_ieee1905_max_supported_tx_streams,
-      &hf_ieee1905_max_supported_rx_streams,
-      &hf_ieee1905_short_gi_20mhz_flag,
-      &hf_ieee1905_short_gi_40mhz_flag,
-      &hf_ieee1905_ht_support_40mhz_flag,
-      NULL,
+        &hf_ieee1905_max_supported_tx_streams,
+        &hf_ieee1905_max_supported_rx_streams,
+        &hf_ieee1905_short_gi_20mhz_flag,
+        &hf_ieee1905_short_gi_40mhz_flag,
+        &hf_ieee1905_ht_support_40mhz_flag,
+        NULL,
     };
 
     proto_tree_add_item(tree, hf_ieee1905_ap_ht_capabilities_radio_id,
@@ -3102,15 +3102,15 @@ dissect_ap_vht_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree *tree, guint offset)
 {
     static int * const capabilities[] = {
-      &hf_ieee1905_vht_max_supported_tx_streams,
-      &hf_ieee1905_vht_max_supported_rx_streams,
-      &hf_ieee1905_short_gi_80mhz_flag,
-      &hf_ieee1905_short_gi_160mhz_flag,
-      &hf_ieee1905_vht_support_80plus_mhz_flag,
-      &hf_ieee1905_vht_support_160_mhz_flag,
-      &hf_ieee1905_su_beamformer_capable_flag,
-      &hf_ieee1905_mu_beamformer_capable_flag,
-      NULL,
+        &hf_ieee1905_vht_max_supported_tx_streams,
+        &hf_ieee1905_vht_max_supported_rx_streams,
+        &hf_ieee1905_short_gi_80mhz_flag,
+        &hf_ieee1905_short_gi_160mhz_flag,
+        &hf_ieee1905_vht_support_80plus_mhz_flag,
+        &hf_ieee1905_vht_support_160_mhz_flag,
+        &hf_ieee1905_su_beamformer_capable_flag,
+        &hf_ieee1905_mu_beamformer_capable_flag,
+        NULL,
     };
 
     proto_tree_add_item(tree, hf_ieee1905_ap_vht_capabilities_radio_id,
@@ -3136,106 +3136,106 @@ dissect_ap_vht_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_,
  * Dissect an AP HE Capabilities TLV
  */
 static int * const he_capabilities[] = {
-  &hf_ieee1905_he_max_supported_tx_streams,
-  &hf_ieee1905_he_max_supported_rx_streams,
-  &hf_ieee1905_he_support_80plus_mhz_flag,
-  &hf_ieee1905_he_support_160mhz_flag,
-  &hf_ieee1905_he_su_beamformer_capable_flag,
-  &hf_ieee1905_he_mu_beamformer_capable_flag,
-  &hf_ieee1905_ul_mu_mimo_capable_flag,
-  &hf_ieee1905_ul_mu_mimo_ofdma_capable_flag,
-  &hf_ieee1905_dl_mu_mimo_ofdma_capable_flag,
-  &hf_ieee1905_ul_ofdma_capable,
-  &hf_ieee1905_dl_ofdma_capable,
-  NULL,
+    &hf_ieee1905_he_max_supported_tx_streams,
+    &hf_ieee1905_he_max_supported_rx_streams,
+    &hf_ieee1905_he_support_80plus_mhz_flag,
+    &hf_ieee1905_he_support_160mhz_flag,
+    &hf_ieee1905_he_su_beamformer_capable_flag,
+    &hf_ieee1905_he_mu_beamformer_capable_flag,
+    &hf_ieee1905_ul_mu_mimo_capable_flag,
+    &hf_ieee1905_ul_mu_mimo_ofdma_capable_flag,
+    &hf_ieee1905_dl_mu_mimo_ofdma_capable_flag,
+    &hf_ieee1905_ul_ofdma_capable,
+    &hf_ieee1905_dl_ofdma_capable,
+    NULL,
 };
 
 static const value_string max_he_mcs_1_ss_vals[] = {
-  { 0, "Support for HE-MCS 0-7 for 1 Spatial Stream" },
-  { 1, "Support for HE-MCS 0-9 for 1 Spatial Stream" },
-  { 2, "Support for HE-MCS 0-11 for 1 Spatial Stream" },
-  { 3, "1 Spatial Stream not supported" },
-  { 0, NULL }
+    { 0, "Support for HE-MCS 0-7 for 1 Spatial Stream" },
+    { 1, "Support for HE-MCS 0-9 for 1 Spatial Stream" },
+    { 2, "Support for HE-MCS 0-11 for 1 Spatial Stream" },
+    { 3, "1 Spatial Stream not supported" },
+    { 0, NULL }
 };
 
 static const value_string max_he_mcs_2_ss_vals[] = {
-  { 0, "Support for HE-MCS 0-7 for 2 Spatial Streams" },
-  { 1, "Support for HE-MCS 0-9 for 2 Spatial Streams" },
-  { 2, "Support for HE-MCS 0-11 for 2 Spatial Streams" },
-  { 3, "2 Spatial Streams not supported" },
-  { 0, NULL }
+    { 0, "Support for HE-MCS 0-7 for 2 Spatial Streams" },
+    { 1, "Support for HE-MCS 0-9 for 2 Spatial Streams" },
+    { 2, "Support for HE-MCS 0-11 for 2 Spatial Streams" },
+    { 3, "2 Spatial Streams not supported" },
+    { 0, NULL }
 };
 
 static const value_string max_he_mcs_3_ss_vals[] = {
-  { 0, "Support for HE-MCS 0-7 for 3 Spatial Streams" },
-  { 1, "Support for HE-MCS 0-9 for 3 Spatial Streams" },
-  { 2, "Support for HE-MCS 0-11 for 3 Spatial Streams" },
-  { 3, "3 Spatial Streams not supported" },
-  { 0, NULL }
+    { 0, "Support for HE-MCS 0-7 for 3 Spatial Streams" },
+    { 1, "Support for HE-MCS 0-9 for 3 Spatial Streams" },
+    { 2, "Support for HE-MCS 0-11 for 3 Spatial Streams" },
+    { 3, "3 Spatial Streams not supported" },
+    { 0, NULL }
 };
 
 static const value_string max_he_mcs_4_ss_vals[] = {
-  { 0, "Support for HE-MCS 0-7 for 4 Spatial Streams" },
-  { 1, "Support for HE-MCS 0-9 for 4 Spatial Streams" },
-  { 2, "Support for HE-MCS 0-11 for 4 Spatial Streams" },
-  { 3, "4 Spatial Streams not supported" },
-  { 0, NULL }
+    { 0, "Support for HE-MCS 0-7 for 4 Spatial Streams" },
+    { 1, "Support for HE-MCS 0-9 for 4 Spatial Streams" },
+    { 2, "Support for HE-MCS 0-11 for 4 Spatial Streams" },
+    { 3, "4 Spatial Streams not supported" },
+    { 0, NULL }
 };
 
 static const value_string max_he_mcs_5_ss_vals[] = {
-  { 0, "Support for HE-MCS 0-7 for 5 Spatial Streams" },
-  { 1, "Support for HE-MCS 0-9 for 5 Spatial Streams" },
-  { 2, "Support for HE-MCS 0-11 for 5 Spatial Streams" },
-  { 3, "5 Spatial Streams not supported" },
-  { 0, NULL }
+    { 0, "Support for HE-MCS 0-7 for 5 Spatial Streams" },
+    { 1, "Support for HE-MCS 0-9 for 5 Spatial Streams" },
+    { 2, "Support for HE-MCS 0-11 for 5 Spatial Streams" },
+    { 3, "5 Spatial Streams not supported" },
+    { 0, NULL }
 };
 
 static const value_string max_he_mcs_6_ss_vals[] = {
-  { 0, "Support for HE-MCS 0-7 for 6 Spatial Streams" },
-  { 1, "Support for HE-MCS 0-9 for 6 Spatial Streams" },
-  { 2, "Support for HE-MCS 0-11 for 6 Spatial Streams" },
-  { 3, "6 Spatial Streams not supported" },
-  { 0, NULL }
+    { 0, "Support for HE-MCS 0-7 for 6 Spatial Streams" },
+    { 1, "Support for HE-MCS 0-9 for 6 Spatial Streams" },
+    { 2, "Support for HE-MCS 0-11 for 6 Spatial Streams" },
+    { 3, "6 Spatial Streams not supported" },
+    { 0, NULL }
 };
 
 static const value_string max_he_mcs_7_ss_vals[] = {
-  { 0, "Support for HE-MCS 0-7 for 7 Spatial Streams" },
-  { 1, "Support for HE-MCS 0-9 for 7 Spatial Streams" },
-  { 2, "Support for HE-MCS 0-11 for 7 Spatial Streams" },
-  { 3, "7 Spatial Streams not supported" },
-  { 0, NULL }
+    { 0, "Support for HE-MCS 0-7 for 7 Spatial Streams" },
+    { 1, "Support for HE-MCS 0-9 for 7 Spatial Streams" },
+    { 2, "Support for HE-MCS 0-11 for 7 Spatial Streams" },
+    { 3, "7 Spatial Streams not supported" },
+    { 0, NULL }
 };
 
 static const value_string max_he_mcs_8_ss_vals[] = {
-  { 0, "Support for HE-MCS 0-7 for 8 Spatial Streams" },
-  { 1, "Support for HE-MCS 0-9 for 8 Spatial Streams" },
-  { 2, "Support for HE-MCS 0-11 for 8 Spatial Streams" },
-  { 3, "8 Spatial Streams not supported" },
-  { 0, NULL }
+    { 0, "Support for HE-MCS 0-7 for 8 Spatial Streams" },
+    { 1, "Support for HE-MCS 0-9 for 8 Spatial Streams" },
+    { 2, "Support for HE-MCS 0-11 for 8 Spatial Streams" },
+    { 3, "8 Spatial Streams not supported" },
+    { 0, NULL }
 };
 
 static int * const rx_he_mcs_map_headers[] = {
-  &hf_ieee1905_ap_he_rx_mcs_map_1ss,
-  &hf_ieee1905_ap_he_rx_mcs_map_2ss,
-  &hf_ieee1905_ap_he_rx_mcs_map_3ss,
-  &hf_ieee1905_ap_he_rx_mcs_map_4ss,
-  &hf_ieee1905_ap_he_rx_mcs_map_5ss,
-  &hf_ieee1905_ap_he_rx_mcs_map_6ss,
-  &hf_ieee1905_ap_he_rx_mcs_map_7ss,
-  &hf_ieee1905_ap_he_rx_mcs_map_8ss,
-  NULL
+    &hf_ieee1905_ap_he_rx_mcs_map_1ss,
+    &hf_ieee1905_ap_he_rx_mcs_map_2ss,
+    &hf_ieee1905_ap_he_rx_mcs_map_3ss,
+    &hf_ieee1905_ap_he_rx_mcs_map_4ss,
+    &hf_ieee1905_ap_he_rx_mcs_map_5ss,
+    &hf_ieee1905_ap_he_rx_mcs_map_6ss,
+    &hf_ieee1905_ap_he_rx_mcs_map_7ss,
+    &hf_ieee1905_ap_he_rx_mcs_map_8ss,
+    NULL
 };
 
 static int * const tx_he_mcs_map_headers[] = {
-  &hf_ieee1905_ap_he_tx_mcs_map_1ss,
-  &hf_ieee1905_ap_he_tx_mcs_map_2ss,
-  &hf_ieee1905_ap_he_tx_mcs_map_3ss,
-  &hf_ieee1905_ap_he_tx_mcs_map_4ss,
-  &hf_ieee1905_ap_he_tx_mcs_map_5ss,
-  &hf_ieee1905_ap_he_tx_mcs_map_6ss,
-  &hf_ieee1905_ap_he_tx_mcs_map_7ss,
-  &hf_ieee1905_ap_he_tx_mcs_map_8ss,
-  NULL
+    &hf_ieee1905_ap_he_tx_mcs_map_1ss,
+    &hf_ieee1905_ap_he_tx_mcs_map_2ss,
+    &hf_ieee1905_ap_he_tx_mcs_map_3ss,
+    &hf_ieee1905_ap_he_tx_mcs_map_4ss,
+    &hf_ieee1905_ap_he_tx_mcs_map_5ss,
+    &hf_ieee1905_ap_he_tx_mcs_map_6ss,
+    &hf_ieee1905_ap_he_tx_mcs_map_7ss,
+    &hf_ieee1905_ap_he_tx_mcs_map_8ss,
+    NULL
 };
 
 static int
@@ -3434,26 +3434,26 @@ dissect_steering_policy(tvbuff_t *tvb, packet_info *pinfo _U_,
 static void
 rcpi_threshold_custom(gchar *result, guint8 rcpi_threshold)
 {
-  if (rcpi_threshold == 0) {
-    g_snprintf(result, ITEM_LABEL_LENGTH, "Do not report STA Metrics based on RCPI threshold");
-  } else if (rcpi_threshold > 0 && rcpi_threshold < 220) {
-    g_snprintf(result, ITEM_LABEL_LENGTH, "RCPI Threshold = %.1fdBm",
-               (float)rcpi_threshold/2 - 110);
-  } else if (rcpi_threshold == 220) {
-    g_snprintf(result, ITEM_LABEL_LENGTH, "RCPI Threshold >= 0dBm");
-  } else {
-    g_snprintf(result, ITEM_LABEL_LENGTH, "Reserved");
-  }
+    if (rcpi_threshold == 0) {
+        g_snprintf(result, ITEM_LABEL_LENGTH, "Do not report STA Metrics based on RCPI threshold");
+    } else if (rcpi_threshold > 0 && rcpi_threshold < 220) {
+        g_snprintf(result, ITEM_LABEL_LENGTH, "RCPI Threshold = %.1fdBm",
+                 (float)rcpi_threshold/2 - 110);
+    } else if (rcpi_threshold == 220) {
+        g_snprintf(result, ITEM_LABEL_LENGTH, "RCPI Threshold >= 0dBm");
+    } else {
+        g_snprintf(result, ITEM_LABEL_LENGTH, "Reserved");
+    }
 }
 
 static void
 rcpi_hysteresis_custom(gchar *result, guint8 rcpi_hysteresis)
 {
-  if (rcpi_hysteresis == 0) {
-    g_snprintf(result, ITEM_LABEL_LENGTH, "Use Agent's implementation-specific default RCPI Hysteresis margin");
-  } else {
-    g_snprintf(result, ITEM_LABEL_LENGTH, "%udB", rcpi_hysteresis);
-  }
+    if (rcpi_hysteresis == 0) {
+        g_snprintf(result, ITEM_LABEL_LENGTH, "Use Agent's implementation-specific default RCPI Hysteresis margin");
+    } else {
+        g_snprintf(result, ITEM_LABEL_LENGTH, "%udB", rcpi_hysteresis);
+    }
 }
 
 /*
@@ -3543,9 +3543,9 @@ dissect_channel_preference(tvbuff_t *tvb, packet_info *pinfo _U_,
     proto_item *pi = NULL;
     guint saved_offset = 0;
     static int * const preference[] = {
-      &hf_ieee1905_channel_pref_preference,
-      &hf_ieee1905_channel_pref_reason,
-      NULL,
+        &hf_ieee1905_channel_pref_preference,
+        &hf_ieee1905_channel_pref_reason,
+        NULL,
     };
 
     if (len < 6) {
@@ -3904,11 +3904,11 @@ dissect_unassociated_sta_link_metric_response(tvbuff_t *tvb, packet_info *pinfo 
  * Dissect a Steering request TLV
  */
 static int * const steering_flags[] = {
-  &hf_ieee1905_steering_request_mode_flag,
-  &hf_ieee1905_btm_disassoc_imminent_flag,
-  &hf_ieee1905_btm_abridged_flag,
-  &hf_ieee1905_steering_req_reserved,
-  NULL,
+    &hf_ieee1905_steering_request_mode_flag,
+    &hf_ieee1905_btm_disassoc_imminent_flag,
+    &hf_ieee1905_btm_abridged_flag,
+    &hf_ieee1905_steering_req_reserved,
+    NULL,
 };
 
 static int
@@ -4384,8 +4384,8 @@ dissect_client_association_event(tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree *tree, guint offset)
 {
     static int * const association_flags[] = {
-      &hf_ieee1905_association_flag,
-      NULL,
+        &hf_ieee1905_association_flag,
+        NULL,
     };
 
     proto_tree_add_item(tree, hf_ieee1905_association_client_mac_addr,
@@ -4583,7 +4583,7 @@ dissect_associated_sta_link_metrics(tvbuff_t *tvb, packet_info *pinfo _U_,
     proto_item_set_len(pi, offset - start_offset);
 
     if (len > 0) {
-      offset += len;
+        offset += len;
     }
 
     return offset;
@@ -4638,7 +4638,7 @@ dissect_associated_wf6_sta_status_report(tvbuff_t *tvb, packet_info *pinfo _U_,
     proto_item_set_len(pi, offset - start_offset);
 
     if (len > 0) {
-      offset += len;
+        offset += len;
     }
 
     return offset;
@@ -4978,14 +4978,14 @@ dissect_error_code(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
  * Dissect a Channel Scan Reporting Policy TLV
  */
 static int * const  channel_scan_rep_policy_headers[] = {
-  &hf_ieee1905_channel_scan_pol_report,
-  &hf_ieee1905_channel_scan_pol_reserved,
-  NULL
+    &hf_ieee1905_channel_scan_pol_report,
+    &hf_ieee1905_channel_scan_pol_reserved,
+    NULL
 };
 
 static const true_false_string report_independent_scans_tfs = {
-  "Report Independent Channel Scans",
-  "Do not report Independent Channel Scans unless requested"
+    "Report Independent Channel Scans",
+    "Do not report Independent Channel Scans unless requested"
 };
 
 static int
@@ -5005,23 +5005,23 @@ dissect_channel_scan_reporting_policy(tvbuff_t *tvb, packet_info *pinfo _U_,
  * Dissect a Channel Scan Capabilities TLV
  */
 static int * const channel_scan_capa_flags_headers[] = {
-  &hf_ieee1905_channel_scan_capa_flags_on_boot_only,
-  &hf_ieee1905_channel_scan_capa_flags_scan_impact,
-  &hf_ieee1905_channel_scan_capa_flags_reserved,
-  NULL
+    &hf_ieee1905_channel_scan_capa_flags_on_boot_only,
+    &hf_ieee1905_channel_scan_capa_flags_scan_impact,
+    &hf_ieee1905_channel_scan_capa_flags_reserved,
+    NULL
 };
 
 static const true_false_string channel_scan_capa_flags_on_boot_only_tfs = {
-  "Agent can only perform scan on boot",
-  "Agent can perform requested scans"
+    "Agent can only perform scan on boot",
+    "Agent can perform requested scans"
 };
 
 static const value_string channel_scan_capa_flags_impact_vals[] = {
-  { 0, "No impact" },
-  { 1, "Reduced number of spacial streams" },
-  { 2, "Time slicing impairment" },
-  { 3, "Radio unavailable for >= 2 seconds" },
-  { 0, NULL }
+    { 0, "No impact" },
+    { 1, "Reduced number of spacial streams" },
+    { 2, "Time slicing impairment" },
+    { 3, "Radio unavailable for >= 2 seconds" },
+    { 0, NULL }
 };
 
 static int
@@ -5141,14 +5141,14 @@ dissect_channel_scan_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_,
  * Dissect a Channel Scan Request TLV
  */
 static int * const channel_scan_request_flags_headers[] = {
-  &hf_ieee1905_channel_scan_request_flags_fresh_scan,
-  &hf_ieee1905_channel_scan_request_flags_reserved,
-  NULL
+    &hf_ieee1905_channel_scan_request_flags_fresh_scan,
+    &hf_ieee1905_channel_scan_request_flags_reserved,
+    NULL
 };
 
 static const true_false_string perform_fresh_scan_tfs = {
-  "Perform a fresh scan",
-  "Return results from previous scan"
+    "Perform a fresh scan",
+    "Return results from previous scan"
 };
 
 static int
@@ -5264,32 +5264,32 @@ dissect_channel_scan_request(tvbuff_t *tvb, packet_info *pinfo _U_,
  * Dissect a Channel Scan Result TLV
  */
 static const range_string channel_scan_result_status_rvals[] = {
-  { 0, 0, "Success" },
-  { 1, 1, "Scan not supported on this operating class/channel on this radio" },
-  { 2, 2, "Request too soon after last scan" },
-  { 3, 3, "Radio too busy to perform scan" },
-  { 4, 4, "Scan not completed" },
-  { 5, 5, "Scan aborted" },
-  { 6, 6, "Fresh scan not supported. Radio only supports on-boot scans" },
-  { 7, 255, "Reserved" },
-  { 0, 0, NULL }
+    { 0, 0, "Success" },
+    { 1, 1, "Scan not supported on this operating class/channel on this radio" },
+    { 2, 2, "Request too soon after last scan" },
+    { 3, 3, "Radio too busy to perform scan" },
+    { 4, 4, "Scan not completed" },
+    { 5, 5, "Scan aborted" },
+    { 6, 6, "Fresh scan not supported. Radio only supports on-boot scans" },
+    { 7, 255, "Reserved" },
+    { 0, 0, NULL }
 };
 
 static int * const channel_scan_result_neigh_flags[] = {
-  &hf_ieee1905_channel_scan_result_load_element_present,
-  &hf_ieee1905_channel_scan_result_neigh_reserved,
-  NULL
+    &hf_ieee1905_channel_scan_result_load_element_present,
+    &hf_ieee1905_channel_scan_result_neigh_reserved,
+    NULL
 };
 
 static int * const channel_scan_result_flags[] = {
-  &hf_ieee1905_channel_scan_result_scan_type,
-  &hf_ieee1905_channel_scan_result_scan_flags_reserved,
-  NULL
+    &hf_ieee1905_channel_scan_result_scan_type,
+    &hf_ieee1905_channel_scan_result_scan_flags_reserved,
+    NULL
 };
 
 static const true_false_string channel_scan_result_type_tfs = {
-  "Scan was an Active scan",
-  "Scan was a Passive scan"
+    "Scan was an Active scan",
+    "Scan was a Passive scan"
 };
 
 static int
@@ -5454,21 +5454,21 @@ dissect_timestamp(tvbuff_t *tvb, packet_info *pinfo _U_,
  * Dissect a 1905 Layer Security Capability TLV
  */
 static const range_string onboarding_protocol_supported_rvals[] = {
-  { 0, 0,   "1905 Device Provisioning Protocol" },
-  { 1, 255, "Reserved" },
-  { 0, 0,   NULL }
+    { 0, 0,   "1905 Device Provisioning Protocol" },
+    { 1, 255, "Reserved" },
+    { 0, 0,   NULL }
 };
 
 static const range_string message_integrity_algorithms_sup_rvals[] = {
-  { 0, 0,   "HMAC-SHAR256" },
-  { 1, 255, "Reserved" },
-  { 0, 0,   NULL }
+    { 0, 0,   "HMAC-SHAR256" },
+    { 1, 255, "Reserved" },
+    { 0, 0,   NULL }
 };
 
 static const range_string message_encryption_algorithms_sup_rvals[] = {
-  { 0, 0,   "AES-SIV" },
-  { 1, 255, "Reserved" },
-  { 0, 0,   NULL }
+    { 0, 0,   "AES-SIV" },
+    { 1, 255, "Reserved" },
+    { 0, 0,   NULL }
 };
 
 static int
@@ -5494,46 +5494,46 @@ dissect_1905_layer_security_capability(tvbuff_t *tvb, packet_info *pinfo _U_,
  * Dissect an AP Wi-Fi 6 Capabilities TLV
  */
 static int * const ap_wf6_role_flags[] = {
-  &hf_ieee1905_ap_wf6_capa_agents_role,
-  &hf_ieee1905_ap_wf6_capa_he_160_support,
-  &hf_ieee1905_ap_wf6_capa_he_80p80_support,
-  &hf_ieee1905_ap_wf6_capa_reserved,
-  NULL
+    &hf_ieee1905_ap_wf6_capa_agents_role,
+    &hf_ieee1905_ap_wf6_capa_he_160_support,
+    &hf_ieee1905_ap_wf6_capa_he_80p80_support,
+    &hf_ieee1905_ap_wf6_capa_reserved,
+    NULL
 };
 
 static int * const ap_wf6_supported_flags[] = {
-  &hf_ieee1905_ap_wf6_su_beamformer,
-  &hf_ieee1905_ap_wf6_su_beamformee,
-  &hf_ieee1905_ap_wf6_mu_beamformer_status,
-  &hf_ieee1905_ap_wf6_beamformee_sts_le_80mhz,
-  &hf_ieee1905_ap_wf6_beamformee_sts_gt_80mhz,
-  &hf_ieee1905_ap_wf6_ul_mu_mimo,
-  &hf_ieee1905_ap_wf6_ul_ofdma,
-  &hf_ieee1905_ap_wf6_dl_ofdma,
-  NULL
+    &hf_ieee1905_ap_wf6_su_beamformer,
+    &hf_ieee1905_ap_wf6_su_beamformee,
+    &hf_ieee1905_ap_wf6_mu_beamformer_status,
+    &hf_ieee1905_ap_wf6_beamformee_sts_le_80mhz,
+    &hf_ieee1905_ap_wf6_beamformee_sts_gt_80mhz,
+    &hf_ieee1905_ap_wf6_ul_mu_mimo,
+    &hf_ieee1905_ap_wf6_ul_ofdma,
+    &hf_ieee1905_ap_wf6_dl_ofdma,
+    NULL
 };
 
 static int * const ap_wf6_mimo_flags[] = {
-  &hf_ieee1905_ap_wf6_max_ap_dl_mu_mimo_tx,
-  &hf_ieee1905_ap_wf6_max_ap_ul_mu_mimi_rx,
-  NULL
+    &hf_ieee1905_ap_wf6_max_ap_dl_mu_mimo_tx,
+    &hf_ieee1905_ap_wf6_max_ap_ul_mu_mimi_rx,
+    NULL
 };
 
 static int * const ap_wf6_gen_flags[] = {
-  &hf_ieee1905_ap_wf6_gen_rts,
-  &hf_ieee1905_ap_wf6_gen_mu_rts,
-  &hf_ieee1905_ap_wf6_gen_multi_bssid,
-  &hf_ieee1905_ap_wf6_gen_mu_edca,
-  &hf_ieee1905_ap_wf6_gen_twt_requester,
-  &hf_ieee1905_ap_wf6_gen_twt_responder,
-  &hf_ieee1905_ap_wf6_gen_reserved,
-  NULL
+    &hf_ieee1905_ap_wf6_gen_rts,
+    &hf_ieee1905_ap_wf6_gen_mu_rts,
+    &hf_ieee1905_ap_wf6_gen_multi_bssid,
+    &hf_ieee1905_ap_wf6_gen_mu_edca,
+    &hf_ieee1905_ap_wf6_gen_twt_requester,
+    &hf_ieee1905_ap_wf6_gen_twt_responder,
+    &hf_ieee1905_ap_wf6_gen_reserved,
+    NULL
 };
 
 static const value_string ap_wf6_agent_role_vals[] = {
-  { 0, "Wi-Fi 6 support info for the AP role" },
-  { 1, "Wi-Fi 6 sypport info for the non-AP STA role" },
-  { 0, NULL }
+    { 0, "Wi-Fi 6 support info for the AP role" },
+    { 1, "Wi-Fi 6 sypport info for the non-AP STA role" },
+    { 0, NULL }
 };
 
 static int
@@ -5677,19 +5677,19 @@ dissect_agent_list(tvbuff_t *tvb, packet_info *pinfo _U_,
 }
 
 static const value_string loop_prev_mech_vals[] = {
-  { 0, "No Multi-AP loop prevention mechanism" },
-  { 1, "Multi-AP L2 Multicast Loop Detection message-based" },
-  { 2, "Reserved" },
-  { 3, "Reserved" },
-  { 0, NULL }
+    { 0, "No Multi-AP loop prevention mechanism" },
+    { 1, "Multi-AP L2 Multicast Loop Detection message-based" },
+    { 2, "Reserved" },
+    { 3, "Reserved" },
+    { 0, NULL }
 };
 
 static const value_string pref_backhaul_intf_vals[] = {
-  { 0, "Multi-AP Logical Ethernet Interface" },
-  { 1, "Wi-Fi bSTA" },
-  { 2, "Reserved" },
-  { 3, "Reserved" },
-  { 0, NULL }
+    { 0, "Multi-AP Logical Ethernet Interface" },
+    { 1, "Wi-Fi bSTA" },
+    { 2, "Reserved" },
+    { 3, "Reserved" },
+    { 0, NULL }
 };
 
 static int * const loop_prevention_mech_headers[] = {
@@ -5727,9 +5727,9 @@ dissect_loop_detection_sequence_number(tvbuff_t *tvb, packet_info *pinfo _U_,
  * Dissect a Group Integrity Key TLV
  */
 static const range_string group_integrity_key_mic_alg_rvals[] = {
-  { 0, 0,   "HMAC-SHA256" },
-  { 1, 255, "Reserved" },
-  { 0, 0,   NULL }
+    { 0, 0,   "HMAC-SHA256" },
+    { 1, 255, "Reserved" },
+    { 0, 0,   NULL }
 };
 
 static int
@@ -5844,30 +5844,30 @@ dissect_encrypted(tvbuff_t *tvb, packet_info *pinfo _U_,
  * Dissect a CAC Request TLV
  */
 static int * const cac_request_method_flags[] = {
-  &hf_ieee1905_cac_request_method,
-  &hf_ieee1905_cac_request_completion_action,
-  &hf_ieee1905_cac_request_completion_unsuccess,
-  &hf_ieee1905_cac_request_reserved,
-  NULL
+    &hf_ieee1905_cac_request_method,
+    &hf_ieee1905_cac_request_completion_action,
+    &hf_ieee1905_cac_request_completion_unsuccess,
+    &hf_ieee1905_cac_request_reserved,
+    NULL
 };
 
 static const value_string cac_request_method_vals[] = {
-  { 0, "Continuous CAC" },
-  { 1, "Continuous with dedicated radio" },
-  { 2, "MIMO dimension reduced" },
-  { 3, "Time sliced CAC" },
-  { 4, "Reserved" },
-  { 5, "Reserved" },
-  { 6, "Reserved" },
-  { 7, "Reserved" },
-  { 0, NULL }
+    { 0, "Continuous CAC" },
+    { 1, "Continuous with dedicated radio" },
+    { 2, "MIMO dimension reduced" },
+    { 3, "Time sliced CAC" },
+    { 4, "Reserved" },
+    { 5, "Reserved" },
+    { 6, "Reserved" },
+    { 7, "Reserved" },
+    { 0, NULL }
 };
 
 static const range_string cac_completion_action_vals[] = {
-  { 0, 0,   "Remain on channel and continue to monitor for radar" },
-  { 1, 1,   "Return to previous state" },
-  { 2, 255, "Reserved" },
-  { 0, 0,   NULL }
+    { 0, 0,   "Remain on channel and continue to monitor for radar" },
+    { 1, 1,   "Return to previous state" },
+    { 2, 255, "Reserved" },
+    { 0, 0,   NULL }
 };
 
 static int
@@ -5975,14 +5975,14 @@ dissect_cac_termination(tvbuff_t *tvb, packet_info *pinfo _U_,
  * Dissect a CAC Completion Report TLV
  */
 static const range_string cac_completion_status_rvals[] = {
-  { 0, 0,   "Successful" },
-  { 1, 1,   "Radar detected" },
-  { 2, 2,   "CAC not supportted as requested" },
-  { 3, 3,   "Radio too busy to peform CAC" },
-  { 4, 4,   "Request was considered non conformant to regulations in country of operation" },
-  { 5, 5,   "Other error" },
-  { 6, 255, "Reserved" },
-  { 0, 0, NULL },
+    { 0, 0,   "Successful" },
+    { 1, 1,   "Radar detected" },
+    { 2, 2,   "CAC not supportted as requested" },
+    { 3, 3,   "Radio too busy to peform CAC" },
+    { 4, 4,   "Request was considered non conformant to regulations in country of operation" },
+    { 5, 5,   "Other error" },
+    { 6, 255, "Reserved" },
+    { 0, 0, NULL },
 };
 
 static int
@@ -6384,12 +6384,12 @@ dissect_cac_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_,
  */
 
 static const range_string multi_ap_version_rvals[] = {
-  { 0, 0,   "Reserved" },
-  { 1, 1,   "Multi-AP Profile 1" },
-  { 2, 2,   "Multi-AP Profile 2" },
-  { 3, 3,   "Multi-AP Profile 3" },
-  { 4, 255, "Reserved" },
-  { 0, 0, NULL }
+    { 0, 0,   "Reserved" },
+    { 1, 1,   "Multi-AP Profile 1" },
+    { 2, 2,   "Multi-AP Profile 2" },
+    { 3, 3,   "Multi-AP Profile 3" },
+    { 4, 255, "Reserved" },
+    { 0, 0, NULL }
 };
 
 static int
@@ -6407,19 +6407,19 @@ dissect_multi_ap_version(tvbuff_t *tvb, packet_info *pinfo _U_,
  * Dissect an R2 AP Capabilities TLV
  */
 static const value_string byte_counter_units_vals[] = {
-  { 0, "bytes" },
-  { 1, "kibibytes (KiB)" },
-  { 2, "mebibytes (MiB)" },
-  { 3, "reserved" },
-  { 0, NULL }
+    { 0, "bytes" },
+    { 1, "kibibytes (KiB)" },
+    { 2, "mebibytes (MiB)" },
+    { 3, "reserved" },
+    { 0, NULL }
 };
 
 static int* const r2_ap_capa_flags[] = {
-  &hf_ieee1905_byte_counter_units,
-  &hf_ieee1905_basic_service_prio_flag,
-  &hf_ieee1905_enhanced_service_prio_flag,
-  &hf_ieee1905_r2_ap_capa_flags_reserved,
-  NULL
+    &hf_ieee1905_byte_counter_units,
+    &hf_ieee1905_basic_service_prio_flag,
+    &hf_ieee1905_enhanced_service_prio_flag,
+    &hf_ieee1905_r2_ap_capa_flags_reserved,
+    NULL
 };
 
 static int
@@ -6451,9 +6451,9 @@ dissect_r2_ap_capability(tvbuff_t *tvb, packet_info *pinfo _U_,
  * Dissect a Service Prioritization Rule TLV
  */
 static int * const default_802_1q_settings_flags[] = {
-  &hf_ieee1905_default_802_1q_settings_default_pcp,
-  &hf_ieee1905_default_802_1q_settings_reserved,
-  NULL
+    &hf_ieee1905_default_802_1q_settings_default_pcp,
+    &hf_ieee1905_default_802_1q_settings_reserved,
+    NULL
 };
 
 static int
@@ -6846,18 +6846,18 @@ dissect_dscp_mapping_table(tvbuff_t *tvb, packet_info *pinfo _U_,
  * Dissect an R2 Error Code TLV
  */
 static const range_string r2_error_code_rvals[] = {
-  { 0, 0,   "Reserved" },
-  { 1, 1,   "Service Prioritization Rule not found" },
-  { 2, 2,   "Number of Service Prioritization Rules reaced the max supported" },
-  { 3, 3,   "Default PCP or VLAN ID not provided" },
-  { 4, 4,   "Reserved" },
-  { 5, 5,   "Number of unique VID exceeds maximum supported" },
-  { 6, 6,   "Reserved" },
-  { 7, 7,   "Traffic Separation one combined fronthaul and Profile-1 backhaul unsupported" },
-  { 8, 8,   "Traffic Separation on combined Profile-1 backhaul and Profile-2 backhaul unsupported" },
-  { 9, 9,   "Service Prioritization Rule not supported" },
-  { 10, 255, "Reserved" },
-  { 0, 0,   NULL }
+    { 0, 0,   "Reserved" },
+    { 1, 1,   "Service Prioritization Rule not found" },
+    { 2, 2,   "Number of Service Prioritization Rules reaced the max supported" },
+    { 3, 3,   "Default PCP or VLAN ID not provided" },
+    { 4, 4,   "Reserved" },
+    { 5, 5,   "Number of unique VID exceeds maximum supported" },
+    { 6, 6,   "Reserved" },
+    { 7, 7,   "Traffic Separation one combined fronthaul and Profile-1 backhaul unsupported" },
+    { 8, 8,   "Traffic Separation on combined Profile-1 backhaul and Profile-2 backhaul unsupported" },
+    { 9, 9,   "Service Prioritization Rule not supported" },
+    { 10, 255, "Reserved" },
+    { 0, 0,   NULL }
 };
 
 static int
@@ -6884,10 +6884,10 @@ dissect_r2_error_code(tvbuff_t *tvb, packet_info *pinfo _U_,
  */
 
 static int * const ap_radio_advanced_capa_flags[] = {
-  &hf_ieee1905_ap_radio_advance_capa_backhaul_bss_traffic_sep,
-  &hf_ieee1905_ap_radio_advance_capa_combined_r1_r2_backhaul,
-  &hf_ieee1905_ap_radio_advance_capa_reserved,
-  NULL
+    &hf_ieee1905_ap_radio_advance_capa_backhaul_bss_traffic_sep,
+    &hf_ieee1905_ap_radio_advance_capa_combined_r1_r2_backhaul,
+    &hf_ieee1905_ap_radio_advance_capa_reserved,
+    NULL
 };
 
 static int
@@ -6911,10 +6911,10 @@ dissect_ap_radio_advanced_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_,
  * Dissect an Association Status Notification TLV:
  */
 static const range_string assoc_status_notif_status_rvals[] = {
-  { 0, 0,   "No more associations allowed" },
-  { 1, 1,   "Associations allowed" },
-  { 2, 255, "Reserved" },
-  { 0, 0, NULL }
+    { 0, 0,   "No more associations allowed" },
+    { 1, 1,   "Associations allowed" },
+    { 2, 255, "Reserved" },
+    { 0, 0, NULL }
 };
 
 static int
@@ -6977,14 +6977,14 @@ dissect_source_info(tvbuff_t *tvb, packet_info *pinfo _U_,
  * Dissect a Tunneled Message Type TLV:
  */
 static const range_string tunneled_message_type_rvals[] = {
-  { 0, 0,   "Association Request" },
-  { 1, 1,   "Re-Association Request" },
-  { 2, 2,   "BTM Query" },
-  { 3, 3,   "WNM Request" },
-  { 4, 4,   "ANQP Request for Neighbor Report" },
-  { 5, 5,   "DPP Message" },
-  { 6, 255, "Reserved" },
-  { 0, 0, NULL }
+    { 0, 0,   "Association Request" },
+    { 1, 1,   "Re-Association Request" },
+    { 2, 2,   "BTM Query" },
+    { 3, 3,   "WNM Request" },
+    { 4, 4,   "ANQP Request for Neighbor Report" },
+    { 5, 5,   "DPP Message" },
+    { 6, 255, "Reserved" },
+    { 0, 0, NULL }
 };
 
 static int
@@ -7020,11 +7020,11 @@ dissect_tunneled(tvbuff_t *tvb, packet_info *pinfo _U_,
  * Dissect an R2 Steering Request TLV:
  */
 static int * const r2_steering_flags[] = {
-  &hf_ieee1905_r2_steering_request_mode_flag,
-  &hf_ieee1905_r2_btm_disassoc_imminent_flag,
-  &hf_ieee1905_r2_btm_abridged_flag,
-  &hf_ieee1905_r2_steering_req_reserved,
-  NULL,
+    &hf_ieee1905_r2_steering_request_mode_flag,
+    &hf_ieee1905_r2_btm_disassoc_imminent_flag,
+    &hf_ieee1905_r2_btm_abridged_flag,
+    &hf_ieee1905_r2_steering_req_reserved,
+    NULL,
 };
 
 static int
@@ -7381,8 +7381,8 @@ guint
 add_ff_action(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset);
 
 static const true_false_string tfs_dpp_frame_indicator = {
-  "GAS frame",
-  "DPP public action frame"
+    "GAS frame",
+    "DPP public action frame"
 };
 
 static int * const ieee1905_encap_dpp_flags[] = {
@@ -7531,8 +7531,8 @@ static int * const dpp_chirp_headers[] = {
 };
 
 static const true_false_string tfs_chirp_hash_validity_bit = {
-  "Establish DPP authentication state pertaining to this hash value",
-  "Purge any DPP authentication state pertaining to this hash value"
+    "Establish DPP authentication state pertaining to this hash value",
+    "Purge any DPP authentication state pertaining to this hash value"
 };
 
 static int
@@ -8263,33 +8263,33 @@ dissect_ieee1905_tlvs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint offset = 0;
 
     while (!eom_seen) {
-      guint8 tlv_type;
-      guint16 tlv_len;
-      proto_item *tlv_tree;
+        guint8 tlv_type;
+        guint16 tlv_len;
+        proto_item *tlv_tree;
 
-      tlv_type = tvb_get_guint8(tvb, offset);
-      eom_seen = (tlv_type == EOM_TLV);
-      /*
-       * We can only deal with the reported length remaining ATM so take the
-       * min of the TLV len and the reported len.
-       */
-      tlv_len = min(tvb_get_ntohs(tvb, offset + 1),
+        tlv_type = tvb_get_guint8(tvb, offset);
+        eom_seen = (tlv_type == EOM_TLV);
+        /*
+        * We can only deal with the reported length remaining ATM so take the
+        * min of the TLV len and the reported len.
+        */
+        tlv_len = min(tvb_get_ntohs(tvb, offset + 1),
                     tvb_reported_length_remaining(tvb, offset));
 
-      tlv_tree = proto_tree_add_subtree(tree, tvb, offset, tlv_len,
-                                        ett_tlv, NULL, val_to_str_ext(tlv_type,
+        tlv_tree = proto_tree_add_subtree(tree, tvb, offset, tlv_len,
+                                          ett_tlv, NULL, val_to_str_ext(tlv_type,
                                                 &ieee1905_tlv_types_vals_ext,
                                                 "Unknown: %02x"));
 
-      proto_tree_add_item(tlv_tree, hf_ieee1905_tlv_types, tvb, offset, 1, ENC_NA);
-      offset++;
+        proto_tree_add_item(tlv_tree, hf_ieee1905_tlv_types, tvb, offset, 1, ENC_NA);
+        offset++;
 
-      proto_tree_add_bitmask(tlv_tree, tvb, offset, hf_ieee1905_tlv_len,
+        proto_tree_add_bitmask(tlv_tree, tvb, offset, hf_ieee1905_tlv_len,
                              ett_ieee1905_tlv_len, tlv_len_headers, ENC_NA);
-      offset += 2;
+        offset += 2;
 
-      if (tlv_len)
-        offset = dissect_ieee1905_tlv_data(tvb, pinfo, tlv_tree, offset, tlv_type, tlv_len);
+        if (tlv_len)
+            offset = dissect_ieee1905_tlv_data(tvb, pinfo, tlv_tree, offset, tlv_type, tlv_len);
     }
     return offset;
 }
@@ -8326,8 +8326,9 @@ ieee1905_fragment_hash(gconstpointer k)
     guint8 hash_buf[13];
     const ieee1905_fragment_key *key = (const ieee1905_fragment_key *)k;
 
-    if (!key || !key->src.data || !key->dst.data)
+    if (!key || !key->src.data || !key->dst.data) {
         return 0;
+    }
 
     memcpy(hash_buf, key->src.data, 6);
     memcpy(&hash_buf[6], key->dst.data, 6);
@@ -8344,8 +8345,9 @@ ieee1905_fragment_equal(gconstpointer k1, gconstpointer k2)
     const ieee1905_fragment_key *key2 =
                         (const ieee1905_fragment_key *)k2;
 
-    if (!key1 || !key2)
+    if (!key1 || !key2) {
         return FALSE;
+    }
 
     return (key1->frag_id == key2->frag_id &&
             addresses_equal(&key1->src, &key2->src) &&
@@ -8428,9 +8430,9 @@ dissect_ieee1905(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint16    message_type;
     guint      offset = 0, next_offset = 0;
     static int * const flag_headers[] = {
-      &hf_ieee1905_last_fragment,
-      &hf_ieee1905_relay_indicator,
-      NULL
+        &hf_ieee1905_last_fragment,
+        &hf_ieee1905_relay_indicator,
+        NULL
     };
     guint16 msg_id = tvb_get_ntohs(tvb, 4);
     guint8 frag_id = tvb_get_guint8(tvb, 6);
@@ -8476,47 +8478,47 @@ dissect_ieee1905(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      * dissect it.
      */
     if ((flags & LAST_IEEE1905_FRAGMENT) && frag_id == 0) {
-      next_tvb = tvb_new_subset_remaining(tvb, offset);
-      next_offset = dissect_ieee1905_tlvs(next_tvb, pinfo, ieee1905_tree);
-    } else {
-      gboolean save_fragmented = pinfo->fragmented;
-      pinfo->fragmented = TRUE;
-      fragment_head *frag_head = NULL;
-      guint remaining_length = tvb_reported_length_remaining(tvb, offset);
-
-      pinfo->fragmented = save_fragmented;
-      frag_head = fragment_add_seq_check(&g_ieee1905_reassembly_table, tvb,
-                                         offset, pinfo,
-                                         msg_id, NULL, frag_id,
-                                         remaining_length,
-                                         (flags & LAST_IEEE1905_FRAGMENT) == 0);
-
-      next_tvb = process_reassembled_data(tvb, offset, pinfo,
-                                          "Reassembled Message",
-                                          frag_head,
-                                          &ieee1905_fragment_items,
-                                          NULL, ieee1905_tree);
-
-      if (next_tvb) { /* Reassembled */
+        next_tvb = tvb_new_subset_remaining(tvb, offset);
         next_offset = dissect_ieee1905_tlvs(next_tvb, pinfo, ieee1905_tree);
-      } else {
-        col_append_fstr(pinfo->cinfo, COL_INFO,
-                        " (Message ID: %u, Fragment ID: %u)", msg_id, frag_id);
-        next_tvb = NULL;
-        proto_tree_add_item(ieee1905_tree, hf_ieee1905_fragment_data, tvb,
-                            offset,
-                            tvb_reported_length_remaining(tvb, offset) - 1,
-                            ENC_NA);
-      }
+    } else {
+        gboolean save_fragmented = pinfo->fragmented;
+        pinfo->fragmented = TRUE;
+        fragment_head *frag_head = NULL;
+        guint remaining_length = tvb_reported_length_remaining(tvb, offset);
+
+        pinfo->fragmented = save_fragmented;
+        frag_head = fragment_add_seq_check(&g_ieee1905_reassembly_table, tvb,
+                                           offset, pinfo,
+                                           msg_id, NULL, frag_id,
+                                           remaining_length,
+                                           (flags & LAST_IEEE1905_FRAGMENT) == 0);
+
+        next_tvb = process_reassembled_data(tvb, offset, pinfo,
+                                            "Reassembled Message",
+                                            frag_head,
+                                            &ieee1905_fragment_items,
+                                            NULL, ieee1905_tree);
+
+        if (next_tvb) { /* Reassembled */
+            next_offset = dissect_ieee1905_tlvs(next_tvb, pinfo, ieee1905_tree);
+        } else {
+            col_append_fstr(pinfo->cinfo, COL_INFO,
+                            " (Message ID: %u, Fragment ID: %u)", msg_id, frag_id);
+            next_tvb = NULL;
+            proto_tree_add_item(ieee1905_tree, hf_ieee1905_fragment_data, tvb,
+                                offset,
+                                tvb_reported_length_remaining(tvb, offset) - 1,
+                                ENC_NA);
+        }
     }
 
     if (next_tvb && tvb_reported_length_remaining(next_tvb, next_offset)) {
-      proto_item *pi = NULL;
+        proto_item *pi = NULL;
 
-      /* THis shouldn't happen ... */
-      pi = proto_tree_add_item(ieee1905_tree, hf_ieee1905_data, tvb,
-                               next_offset, -1, ENC_NA);
-      expert_add_info(pinfo, pi, &ei_ieee1905_extraneous_data_after_eom);
+        /* THis shouldn't happen ... */
+        pi = proto_tree_add_item(ieee1905_tree, hf_ieee1905_data, tvb,
+                                 next_offset, -1, ENC_NA);
+        expert_add_info(pinfo, pi, &ei_ieee1905_extraneous_data_after_eom);
     }
 
     return tvb_captured_length(tvb);
@@ -11461,21 +11463,21 @@ proto_register_ieee1905(void)
     };
 
     static ei_register_info ei[] = {
-      { &ei_ieee1905_malformed_tlv,
-        { "ieee1905.tlv.too_short", PI_PROTOCOL, PI_WARN,
-          "TLV is too short", EXPFILL }},
+        { &ei_ieee1905_malformed_tlv,
+          { "ieee1905.tlv.too_short", PI_PROTOCOL, PI_WARN,
+            "TLV is too short", EXPFILL }},
 
-      { &ei_ieee1905_extraneous_data_after_eom,
-        { "ieee1905.tlv.extraneous_data", PI_PROTOCOL, PI_WARN,
-          "Extraneous data after EOM TLV", EXPFILL }},
+        { &ei_ieee1905_extraneous_data_after_eom,
+          { "ieee1905.tlv.extraneous_data", PI_PROTOCOL, PI_WARN,
+            "Extraneous data after EOM TLV", EXPFILL }},
 
-      { &ei_ieee1905_extraneous_tlv_data,
-        { "ieee1905.tlv.extra_data", PI_PROTOCOL, PI_WARN,
-           "TLV has extra data or an incorrect length", EXPFILL }},
+        { &ei_ieee1905_extraneous_tlv_data,
+          { "ieee1905.tlv.extra_data", PI_PROTOCOL, PI_WARN,
+             "TLV has extra data or an incorrect length", EXPFILL }},
 
-      { &ei_ieee1905_deprecated_tlv,
-        { "ieee1905.tlv.deprecated_tvl", PI_PROTOCOL, PI_WARN,
-          "TLV is deprecated", EXPFILL }},
+        { &ei_ieee1905_deprecated_tlv,
+          { "ieee1905.tlv.deprecated_tvl", PI_PROTOCOL, PI_WARN,
+            "TLV is deprecated", EXPFILL }},
     };
 
     expert_module_t *expert_ieee1905 = NULL;
