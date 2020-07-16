@@ -74,18 +74,6 @@ else ()
       string(REGEX MATCH "[0-9]+" LIBSSH_VERSION_PATCH ${LIBSSH_VERSION_PATCH})
       set(LIBSSH_VERSION ${LIBSSH_VERSION_MAJOR}.${LIBSSH_VERSION_MINOR}.${LIBSSH_VERSION_PATCH})
     endif()
-
-    #
-    # Check whether we have ssh_version(), which would let us
-    # determine the version of libssh at run time.
-    #
-    cmake_push_check_state()
-    set(CMAKE_REQUIRED_INCLUDES ${LIBSSH_INCLUDE_DIRS})
-    set(CMAKE_REQUIRED_LIBRARIES ${LIBSSH_LIBRARIES})
-
-    check_symbol_exists("ssh_version" libssh/libssh.h HAVE_SSH_VERSION)
-
-    cmake_pop_check_state()
   endif()
 
   # handle the QUIETLY and REQUIRED arguments and set LIBSSH_FOUND to TRUE if

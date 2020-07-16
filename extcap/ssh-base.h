@@ -15,25 +15,6 @@
 
 #include <libssh/libssh.h>
 
-/*
- * Sigh.
- *
- * libssh 1.0 and 2.0 define LIBSSH_VERSION as a string.
- *
- * libssh 3.0 and later define it as three numbers with periods
- * between them, so that you have to do SSH_STRINGIFY(LIBSSH_VERSION)
- * to get the SSH version as a string.
- *
- * Fortunately, "needs SSH_STRINGIFY()" is true iff SSH_STRINGIFY is
- * defined, so we can define LIBSSH_VERSION_STRING differently,
- * depending on whether SSH_STRINGIFY is defined.
- */
-#ifdef SSH_STRINGIFY
-#define LIBSSH_VERSION_STRING	SSH_STRINGIFY(LIBSSH_VERSION)
-#else
-#define LIBSSH_VERSION_STRING	LIBSSH_VERSION
-#endif
-
 #include <glib.h>
 
 #ifndef STDERR_FILENO
