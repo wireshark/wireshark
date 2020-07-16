@@ -336,6 +336,7 @@ static dissector_table_t rtps_type_name_table;
 #define PID_SAMPLE_SIGNATURE                    (0x8019)/* inline QoS */
 #define PID_EXTENDED                            (0x3f01)
 #define PID_LIST_END                            (0x3f02)
+#define PID_UNICAST_LOCATOR_EX                  (0x8007)
 
 #define PID_IDENTITY_TOKEN                      (0x1001)
 #define PID_PERMISSIONS_TOKEN                   (0x1002)
@@ -539,7 +540,8 @@ static dissector_table_t rtps_type_name_table;
 #define ENCAPSULATION_D_CDR2_LE         (0x0009)
 #define ENCAPSULATION_PL_CDR2_BE        (0x000a)
 #define ENCAPSULATION_PL_CDR2_LE        (0x000b)
-
+#define ENCAPSULATION_SHMEM_REF_PLAIN        (0xC000)
+#define ENCAPSULATION_SHMEM_REF_FLAT_DATA    (0xC001)
 
 /* Parameter Liveliness */
 #define LIVELINESS_AUTOMATIC            (0)
@@ -658,8 +660,10 @@ static int hf_rtps_dissection_string                             = -1;
 /* Utilities to add elements to the protocol tree for packet-rtps.h and packet-rtps2.h */
 extern guint16 rtps_util_add_protocol_version(proto_tree *tree, tvbuff_t* tvb, gint offset);
 extern guint16 rtps_util_add_vendor_id(proto_tree *tree, tvbuff_t * tvb, gint offset);
-extern void rtps_util_add_locator_t(proto_tree *tree, packet_info *pinfo, tvbuff_t * tvb, gint offset,
+extern gint rtps_util_add_locator_t(proto_tree *tree, packet_info *pinfo, tvbuff_t * tvb, gint offset,
                              const guint encoding, const char * label);
+extern gint rtps_util_add_locator_ex_t(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, gint offset,
+                             const guint encoding, int param_length);
 extern int rtps_util_add_locator_list(proto_tree *tree, packet_info *pinfo, tvbuff_t * tvb,
                                 gint offset, const guint8* label, const guint encoding);
 extern int rtps_util_add_multichannel_locator_list(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
@@ -691,6 +695,8 @@ extern gint rtps_util_add_seq_string(proto_tree *tree, tvbuff_t* tvb, gint offse
                               int hf_string, const char *label);
 extern gint rtps_util_add_seq_octets(proto_tree *tree, packet_info *pinfo, tvbuff_t* tvb,
                               gint offset, const guint encoding, int param_length, int hf_id);
+extern gint rtps_util_add_seq_short(proto_tree *tree, tvbuff_t *tvb, gint offset, int hf_item,
+                              const guint encoding, int param_length _U_, const char *label);
 extern gint rtps_util_add_seq_ulong(proto_tree *tree, tvbuff_t * tvb, gint offset, int hf_item,
                         const guint encoding, int param_length, const char *label);
 

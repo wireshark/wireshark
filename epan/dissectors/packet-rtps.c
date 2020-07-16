@@ -993,6 +993,7 @@ static const value_string parameter_id_rti_vals[] = {
   { PID_VENDOR_BUILTIN_ENDPOINT_SET,    "PID_VENDOR_BUILTIN_ENDPOINT_SET" },
   { PID_ENDPOINT_SECURITY_ATTRIBUTES,   "PID_ENDPOINT_SECURITY_ATTRIBUTES" },
   { PID_TYPE_OBJECT_LB,                 "PID_TYPE_OBJECT_LB" },
+  { PID_UNICAST_LOCATOR_EX,             "PID_UNICAST_LOCATOR_EX"},
   { 0, NULL }
 };
 static const value_string parameter_id_toc_vals[] = {
@@ -1087,6 +1088,8 @@ static const value_string encapsulation_id_vals[] = {
   { ENCAPSULATION_D_CDR2_LE,            "D_CDR2_LE" },
   { ENCAPSULATION_PL_CDR2_BE,           "PL_CDR2_BE" },
   { ENCAPSULATION_PL_CDR2_LE,           "PL_CDR2_LE" },
+  { ENCAPSULATION_SHMEM_REF_PLAIN,      "SHMEM_REF_PLAIN" },
+  { ENCAPSULATION_SHMEM_REF_FLAT_DATA,  "SHMEM_REF_PLAIN" },
   { 0, NULL }
 };
 
@@ -2020,15 +2023,16 @@ guint16 rtps_util_add_vendor_id(proto_tree *tree,
  *    octet[16] address;
  * } Locator_t;
  */
-void rtps_util_add_locator_t(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, gint offset,
+gint rtps_util_add_locator_t(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, gint offset,
                              const guint encoding, const char *label) {
 
   proto_tree *ti;
   proto_tree *locator_tree;
   guint32 kind;
   gint32 port;
+  const gint parameter_size = 24;
 
-  locator_tree = proto_tree_add_subtree(tree, tvb, offset, 24, ett_rtps_locator,
+  locator_tree = proto_tree_add_subtree(tree, tvb, offset, parameter_size, ett_rtps_locator,
           NULL, label);
 
   proto_tree_add_item_ret_uint(locator_tree, hf_rtps_locator_kind, tvb, offset, 4, encoding, &kind);
@@ -2102,7 +2106,18 @@ void rtps_util_add_locator_t(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb
     default:
       break;
   }
+  return offset + parameter_size;
+}
 
+gint rtps_util_add_locator_ex_t(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, gint offset,
+  const guint encoding, int param_length) {
+  gint locator_offset = 0;
+
+  locator_offset = rtps_util_add_locator_t(tree, pinfo, tvb,
+    offset, encoding, "locator");
+  offset += rtps_util_add_seq_short(tree, tvb, locator_offset, hf_rtps_encapsulation_id,
+    encoding, param_length - (locator_offset - offset), "encapsulations");
+  return offset;
 }
 
 /* ------------------------------------------------------------------------- */
@@ -2865,6 +2880,35 @@ gint rtps_util_add_seq_ulong(proto_tree *tree, tvbuff_t *tvb, gint offset, int h
 
   return offset;
 }
+
+/* ------------------------------------------------------------------------- */
+/* Insert in the protocol tree the next bytes interpreted as Sequence of
+ * unsigned shorts.
+ * The formatted buffer is: val1, val2, val3, ...
+ * Returns the new updated offset
+ */
+gint rtps_util_add_seq_short(proto_tree *tree, tvbuff_t *tvb, gint offset, int hf_item,
+  const guint encoding, int param_length _U_, const char *label) {
+  guint32 num_elem;
+  guint32 i;
+  proto_tree *string_tree;
+
+  num_elem = tvb_get_guint32(tvb, offset, encoding);
+  offset += 4;
+
+  /* Create the string node with an empty string, the replace it later */
+  string_tree = proto_tree_add_subtree_format(tree, tvb, offset, num_elem * 4,
+    ett_rtps_seq_ulong, NULL, "%s (%d elements)", label, num_elem);
+
+  for (i = 0; i < num_elem; ++i) {
+    proto_tree_add_item(string_tree, hf_item, tvb, offset, 2, encoding);
+    offset += 2;
+  }
+
+  return offset;
+}
+
+
 
 
 /* ------------------------------------------------------------------------- */
@@ -5391,6 +5435,33 @@ static gboolean dissect_parameter_sequence_rti_dds(proto_tree *rtps_parameter_tr
       } /* End of for each channel */
       break;
     }/* End of case PID_LOCATOR_FILTER_LIST */
+
+    /* 0...2...........7...............15.............23...............31
+     * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     * | PID_UNICAST_LOCATOR_EX        |            0x8007             |
+     * +---------------+---------------+---------------+---------------+
+     * |    long              kind                                     |
+     * +---------------+---------------+---------------+---------------+
+     * |    long              port                                     |
+     * +---------------+---------------+---------------+---------------+
+     * | ipv6addr[0]   | ipv6addr[1]   | ipv6addr[2]   | ipv6addr[3]   |
+     * +---------------+---------------+---------------+---------------+
+     * | ipv6addr[4]   | ipv6addr[5]   | ipv6addr[6]   | ipv6addr[7]   |
+     * +---------------+---------------+---------------+---------------+
+     * | ipv6addr[8]   | ipv6addr[9]   | ipv6addr[10]  | ipv6addr[11]  |
+     * +---------------+---------------+---------------+---------------+
+     * | ipv6addr[12]  | ipv6addr[13]  | ipv6addr[14]  | ipv6addr[15]  |
+     * +---------------+---------------+---------------+---------------+
+     * |                   Locator Sequence Length                     |
+     * +---------------+---------------+---------------+---------------+
+     * |           Locator 1           |             Locator 2         |
+     * +---------------+---------------+---------------+---------------+
+     */
+    case PID_UNICAST_LOCATOR_EX: {
+      ENSURE_LENGTH(28);
+      rtps_util_add_locator_ex_t(rtps_parameter_tree, pinfo, tvb, offset, encoding, param_length);
+      break;
+    }
 
     default: {
       return FALSE;
