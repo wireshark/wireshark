@@ -373,8 +373,7 @@ int main(int argc, char *argv[])
 	extcap_base_set_util_info(extcap_conf, argv[0], SSHDUMP_VERSION_MAJOR, SSHDUMP_VERSION_MINOR,
 		SSHDUMP_VERSION_RELEASE, help_url);
 	g_free(help_url);
-	extcap_base_set_compiled_with(extcap_conf, "libssh version %s", SSH_STRINGIFY(LIBSSH_VERSION));
-	extcap_base_set_running_with(extcap_conf, "libssh version %s", ssh_version(0));
+	add_libssh_info(extcap_conf);
 	extcap_base_register_interface(extcap_conf, SSH_EXTCAP_INTERFACE, "SSH remote capture", 147, "Remote capture dependent DLT");
 
 	help_header = g_strdup_printf(

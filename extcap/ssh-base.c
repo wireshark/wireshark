@@ -25,6 +25,12 @@ static void extcap_log(int priority _U_, const char *function, const char *buffe
 	g_debug("[%s] %s", function, buffer);
 }
 
+void add_libssh_info(extcap_parameters * extcap_conf)
+{
+	extcap_base_set_compiled_with(extcap_conf, "libssh version %s", SSH_STRINGIFY(LIBSSH_VERSION));
+	extcap_base_set_running_with(extcap_conf, "libssh version %s", ssh_version(0));
+}
+
 ssh_session create_ssh_connection(const ssh_params_t* ssh_params, char** err_info)
 {
 	ssh_session sshs;
