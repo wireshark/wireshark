@@ -83,16 +83,13 @@ void extcap_base_set_util_info(extcap_parameters * extcap, const char * exename,
     if (!minor)
         g_assert(!release);
 
-    gchar * basename = g_path_get_basename(exename);
-
     extcap->version = g_strdup_printf("%s version %s%s%s%s%s",
-        basename,
+        extcap->exename,
         major,
         minor ? "." : "",
         minor ? minor : "",
         release ? "." : "",
         release ? release : "");
-    g_free(basename);
     extcap->helppage = g_strdup(helppage);
 }
 
