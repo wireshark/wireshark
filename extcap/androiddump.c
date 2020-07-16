@@ -2583,7 +2583,7 @@ int main(int argc, char *argv[]) {
         switch (result) {
 
         case OPT_VERSION:
-            printf("%s\n", extcap_conf->version);
+            extcap_version_print(extcap_conf);
             ret = EXIT_CODE_SUCCESS;
             goto end;
         case OPT_HELP:

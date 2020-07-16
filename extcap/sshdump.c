@@ -373,11 +373,11 @@ int main(int argc, char *argv[])
 	extcap_base_set_util_info(extcap_conf, argv[0], SSHDUMP_VERSION_MAJOR, SSHDUMP_VERSION_MINOR,
 		SSHDUMP_VERSION_RELEASE, help_url);
 	g_free(help_url);
-	extcap_base_add_info(extcap_conf, "Compiled with libssh version %s", LIBSSH_VERSION_STRING);
+	extcap_base_set_compiled_with(extcap_conf, "libssh version %s", LIBSSH_VERSION_STRING);
 #ifdef HAVE_SSH_VERSION
-	extcap_base_add_info(extcap_conf, "Running with libssh version %s", ssh_version(0));
+	extcap_base_set_running_with(extcap_conf, "libssh version %s", ssh_version(0));
 #else
-	extcap_base_add_info(extcap_conf, "Running with libssh (unknown version)");
+	extcap_base_set_running_with(extcap_conf, "libssh (unknown version)");
 #endif
 	extcap_base_register_interface(extcap_conf, SSH_EXTCAP_INTERFACE, "SSH remote capture", 147, "Remote capture dependent DLT");
 
@@ -426,7 +426,7 @@ int main(int argc, char *argv[])
 			goto end;
 
 		case OPT_VERSION:
-			printf("%s\n", extcap_conf->version);
+			extcap_version_print(extcap_conf);
 			ret = EXIT_SUCCESS;
 			goto end;
 

@@ -83,8 +83,7 @@ void extcap_base_set_util_info(extcap_parameters * extcap, const char * exename,
     if (!minor)
         g_assert(!release);
 
-    extcap->version = g_strdup_printf("%s version %s%s%s%s%s",
-        extcap->exename,
+    extcap->version = g_strdup_printf("%s%s%s%s%s",
         major,
         minor ? "." : "",
         minor ? minor : "",
@@ -93,18 +92,22 @@ void extcap_base_set_util_info(extcap_parameters * extcap, const char * exename,
     extcap->helppage = g_strdup(helppage);
 }
 
-void extcap_base_add_info(extcap_parameters * extcap, const char *fmt, ...)
+void extcap_base_set_compiled_with(extcap_parameters * extcap, const char *fmt, ...)
 {
-    gchar * old_version = extcap->version;
     va_list ap;
-    gchar * info;
 
     va_start(ap, fmt);
-    info = g_strdup_vprintf(fmt, ap);
+    extcap->compiled_with = g_strdup_vprintf(fmt, ap);
     va_end(ap);
-    extcap->version = g_strdup_printf("%s\n%s", old_version, info);
-    g_free(old_version);
-    g_free(info);
+}
+
+void extcap_base_set_running_with(extcap_parameters * extcap, const char *fmt, ...)
+{
+    va_list ap;
+
+    va_start(ap, fmt);
+    extcap->running_with = g_strdup_vprintf(fmt, ap);
+    va_end(ap);
 }
 
 static void extcap_custom_log(const gchar *log_domain,
@@ -266,6 +269,8 @@ void extcap_base_cleanup(extcap_parameters ** extcap)
     g_free((*extcap)->fifo);
     g_free((*extcap)->interface);
     g_free((*extcap)->version);
+    g_free((*extcap)->compiled_with);
+    g_free((*extcap)->running_with);
     g_free((*extcap)->helppage);
     g_free((*extcap)->help_header);
     g_free((*extcap)->ws_version);
@@ -278,6 +283,15 @@ static void extcap_print_option(gpointer option, gpointer user_data _U_)
 {
     extcap_option_t* o = (extcap_option_t*)option;
     printf("\t%s: %s\n", o->optname, o->optdesc);
+}
+
+void extcap_version_print(extcap_parameters * extcap)
+{
+    printf("%s version %s\n", extcap->exename, extcap->version);
+    if (extcap->compiled_with != NULL)
+        printf("Compiled with %s\n", extcap->compiled_with);
+    if (extcap->running_with != NULL)
+        printf("Running with %s\n", extcap->running_with);
 }
 
 void extcap_help_print(extcap_parameters * extcap)
