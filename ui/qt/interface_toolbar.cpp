@@ -238,14 +238,14 @@ QWidget *InterfaceToolbar::createSelector(iface_toolbar_control *control)
         QString display = QString().fromUtf8((gchar *)val->display);
         QByteArray interface_value;
 
-        interface_value.append(value);
+        interface_value.append(value.toUtf8());
         if (display.isEmpty())
         {
             display = value;
         }
         else
         {
-            interface_value.append('\0' + display);
+            interface_value.append(QString('\0' + display).toUtf8());
         }
         combobox->addItem(display, value);
         if (val->is_default)
