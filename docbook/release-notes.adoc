@@ -41,6 +41,7 @@ since version 3.2.0:
   which is keyed with the full names of fields, for further parsing fields of BYETS or STRING type.
 * Wireshark is able to decode, play and save iLBC payload on platforms where iLBC library (https://github.com/TimothyGu/libilbc) is available.
 * Decode As entries can now be copied from other profiles using a button in the dialog.
+* sshdump can now be copied in multiple instances. Each instance will show up a different interface and will have its own profile.
 
 // === Removed Features and Support
 

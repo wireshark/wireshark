@@ -230,6 +230,11 @@ To use different capture binaries:
 
 NOTE: To stop capturing CTRL+C/kill/terminate application.
 
+The sshdump binary can be renamed to support multiple isntances. For instance if we want sshdump
+to show up twice in wireshark (for instance to handle multiple profiles), we can copy sshdump to
+sshdump-host1 and sshdump-host2. Each binary will show up an interface name same as the executable
+name. Those executables not being "sshdump" will show up as "custom version" in the interface description.
+
 =head1 SEE ALSO
 
 wireshark(1), tshark(1), dumpcap(1), extcap(4), tcpdump(1)
