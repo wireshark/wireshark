@@ -2173,6 +2173,7 @@ proto_reg_handoff_dtls(void)
 
   if (initialized == FALSE) {
     heur_dissector_add("udp", dissect_dtls_heur, "DTLS over UDP", "dtls_udp", proto_dtls, HEURISTIC_ENABLE);
+    heur_dissector_add("stun", dissect_dtls_heur, "DTLS over STUN", "dtls_stun", proto_dtls, HEURISTIC_DISABLE);
     dissector_add_uint("sctp.ppi", DIAMETER_DTLS_PROTOCOL_ID, dtls_handle);
   }
 
