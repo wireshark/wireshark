@@ -922,7 +922,16 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                 case 2:
                     if (att_length < 20)
                         break;
+                    addr_str = tvb_ip6_to_str(tvb, offset + 4);
                     proto_tree_add_item(att_tree, hf_stun_att_ipv6, tvb, offset+4, 16, ENC_NA);
+                    proto_item_append_text(att_tree, ": %s:%d", addr_str, att_port);
+                    col_append_fstr(
+                        pinfo->cinfo, COL_INFO,
+                        " %s: %s:%d",
+                        attribute_name_str,
+                        addr_str,
+                        att_port
+                        );
                     break;
                 }
                 break;
@@ -1089,7 +1098,10 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                         break;
                     proto_tree_add_item(att_tree, hf_stun_att_xor_ipv6, tvb, offset+4, 16, ENC_NA);
                     {
+                        const gchar *ipstr;
+                        address addr;
                         guint32 IPv6[4];
+                        guint16 port;
                         tvb_get_ipv6(tvb, offset+4, (ws_in6_addr *)IPv6);
                         IPv6[0] = IPv6[0] ^ g_htonl(magic_cookie_first_word);
                         IPv6[1] = IPv6[1] ^ g_htonl(transaction_id[0]);
@@ -1098,6 +1110,18 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                         ti = proto_tree_add_ipv6(att_tree, hf_stun_att_ipv6, tvb, offset+4, 16,
                                                  (const ws_in6_addr *)IPv6);
                         proto_item_set_generated(ti);
+
+                        set_address(&addr, AT_IPv6, 16, &IPv6);
+                        ipstr = address_to_str(wmem_packet_scope(), &addr);
+                        port = tvb_get_ntohs(tvb, offset+2) ^ (magic_cookie_first_word >> 16);
+                        proto_item_append_text(att_tree, ": %s:%d", ipstr, port);
+                        col_append_fstr(
+                            pinfo->cinfo, COL_INFO,
+                            " %s: %s:%d",
+                            attribute_name_str,
+                            ipstr,
+                            port
+                            );
                     }
 
                     break;
