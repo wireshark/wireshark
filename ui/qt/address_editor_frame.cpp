@@ -169,7 +169,7 @@ void AddressEditorFrame::on_buttonBox_accepted()
     QString addr = ui->addressComboBox->currentText();
     QString name = ui->nameLineEdit->text();
     if (!cf_add_ip_name_from_string(cap_file_, addr.toUtf8().constData(), name.toUtf8().constData())) {
-        QString error_msg = tr("Can't assign %1 to %2").arg(name).arg(addr);
+        QString error_msg = tr("Can't assign %1 to %2.").arg(name).arg(addr);
         wsApp->pushStatus(WiresharkApplication::TemporaryStatus, error_msg);
         ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
         return;

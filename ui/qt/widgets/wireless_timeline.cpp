@@ -48,8 +48,6 @@
 #include "packet_list.h"
 #include <ui/qt/models/packet_list_model.h>
 
-#include "ui/main_statusbar.h"
-
 /* we start rendering this number of microseconds left of the left edge - to ensure
  * NAV lines are drawn correctly, and that small errors in time order don't prevent some
  * frames from being rendered.
@@ -259,11 +257,13 @@ void WirelessTimeline::captureFileReadFinished()
     for (guint32 n = 1; n < cfile.count; n++) {
         struct wlan_radio *w = get_wlan_radio(n);
         if (w->start_tsf == 0 || w->end_tsf == 0) {
-            statusbar_push_temporary_msg("Packet number %u does not include TSF timestamp, not showing timeline.", n);
+            QString err = tr("Packet number %1 does not include TSF timestamp, not showing timeline.").arg(n);
+            wsApp->pushStatus(WiresharkApplication::TemporaryStatus, err);
             return;
         }
         if (w->ifs < -RENDER_EARLY) {
-            statusbar_push_temporary_msg("Packet number %u has large negative jump in TSF, not showing timeline. Perhaps TSF reference point is set wrong?", n);
+            QString err = tr("Packet number %u has large negative jump in TSF, not showing timeline. Perhaps TSF reference point is set wrong?").arg(n);
+            wsApp->pushStatus(WiresharkApplication::TemporaryStatus, err);
             return;
         }
     }

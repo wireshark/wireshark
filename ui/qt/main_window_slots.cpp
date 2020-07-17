@@ -663,7 +663,7 @@ void MainWindow::captureEventHandler(CaptureEvent ev)
         switch (ev.eventType()) {
         case CaptureEvent::Started:
             wsApp->popStatus(WiresharkApplication::FileStatus);
-            wsApp->pushStatus(WiresharkApplication::FileStatus, tr("Merging files"), QString());
+            wsApp->pushStatus(WiresharkApplication::FileStatus, tr("Merging files."), QString());
             break;
         case CaptureEvent::Finished:
             wsApp->popStatus(WiresharkApplication::FileStatus);
@@ -832,7 +832,7 @@ void MainWindow::startCapture() {
 
     /* did the user ever select a capture interface before? */
     if (global_capture_opts.num_selected == 0) {
-        QString msg = QString(tr("No interface selected"));
+        QString msg = QString(tr("No interface selected."));
         wsApp->pushStatus(WiresharkApplication::TemporaryStatus, msg);
         main_ui_->actionCaptureStart->setChecked(false);
         return;
@@ -842,7 +842,7 @@ void MainWindow::startCapture() {
     // toolbar buttons and menu items. This may not be the
     // case, e.g. with QtMacExtras.
     if (!capture_filter_valid_) {
-        QString msg = QString(tr("Invalid capture filter"));
+        QString msg = QString(tr("Invalid capture filter."));
         wsApp->pushStatus(WiresharkApplication::TemporaryStatus, msg);
         main_ui_->actionCaptureStart->setChecked(false);
         return;
@@ -2724,9 +2724,7 @@ void MainWindow::matchFieldFilter(FilterAction::Action action, FilterAction::Act
     }
 
     if (field_filter.isEmpty()) {
-        QString err = tr("No filter available. Try another ");
-        err.append(packet_list_->contextMenuActive() ? "column" : "item");
-        err.append(".");
+        QString err = tr("No filter available. Try another %1.").arg(packet_list_->contextMenuActive() ? tr("column") : tr("item"));
         wsApp->pushStatus(WiresharkApplication::TemporaryStatus, err);
         return;
     }
@@ -3704,7 +3702,7 @@ void MainWindow::on_actionCaptureStart_triggered()
 
 #ifdef HAVE_LIBPCAP
     if (global_capture_opts.num_selected == 0) {
-        QString err_msg = tr("No Interface Selected");
+        QString err_msg = tr("No Interface Selected.");
         wsApp->pushStatus(WiresharkApplication::TemporaryStatus, err_msg);
         main_ui_->actionCaptureStart->setChecked(false);
         return;
