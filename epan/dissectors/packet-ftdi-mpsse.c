@@ -38,7 +38,9 @@ static gint hf_mpsse_response_in = -1;
 static gint hf_mpsse_length_uint8 = -1;
 static gint hf_mpsse_length_uint16 = -1;
 static gint hf_mpsse_bytes_out = -1;
+static gint hf_mpsse_bytes_in = -1;
 static gint hf_mpsse_bits_out = -1;
+static gint hf_mpsse_bits_in = -1;
 static gint hf_mpsse_value = -1;
 static gint hf_mpsse_value_b0 = -1;
 static gint hf_mpsse_value_b1 = -1;
@@ -898,8 +900,23 @@ dissect_response_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint 
 
     if (is_valid_command(cmd_data->cmd, &cmd_data->mpsse_info))
     {
-        proto_tree_add_expert(tree, pinfo, &ei_undecoded, tvb, offset, cmd_data->response_length);
-        offset += cmd_data->response_length;
+        if (IS_DATA_SHIFTING_COMMAND_BIT_ACTIVE(cmd_data->cmd))
+        {
+            if (IS_DATA_SHIFTING_BYTE_MODE(cmd_data->cmd))
+            {
+                proto_tree_add_item(tree, hf_mpsse_bytes_in, tvb, offset, cmd_data->response_length, ENC_NA);
+            }
+            else
+            {
+                proto_tree_add_item(tree, hf_mpsse_bits_in, tvb, offset, cmd_data->response_length, ENC_LITTLE_ENDIAN);
+            }
+            offset += cmd_data->response_length;
+        }
+        else
+        {
+            proto_tree_add_expert(tree, pinfo, &ei_undecoded, tvb, offset, cmd_data->response_length);
+            offset += cmd_data->response_length;
+        }
     }
     else
     {
@@ -1173,12 +1190,22 @@ proto_register_ftdi_mpsse(void)
             NULL, HFILL }
         },
         { &hf_mpsse_bytes_out,
-          { "Bytes", "ftdi-mpsse.bytes_out",
+          { "Bytes out", "ftdi-mpsse.bytes_out",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_mpsse_bytes_in,
+          { "Bytes in", "ftdi-mpsse.bytes_in",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_mpsse_bits_out,
-          { "Bits", "ftdi-mpsse.bits_out",
+          { "Bits out", "ftdi-mpsse.bits_out",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_mpsse_bits_in,
+          { "Bits in", "ftdi-mpsse.bits_in",
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
