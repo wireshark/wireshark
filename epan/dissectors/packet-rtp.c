@@ -1184,7 +1184,7 @@ rtp_add_address(packet_info *pinfo, const port_type ptype, address *addr, int po
 }
 
 static gboolean
-dissect_rtp_heur_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data, gboolean check_destport)
+dissect_rtp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     guint8       octet1;
     unsigned int version;
@@ -1226,11 +1226,6 @@ dissect_rtp_heur_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         return FALSE;
     }
 
-    /* Was it sent to an even-numbered port? */
-    if (check_destport && ((pinfo->destport % 2) != 0)) {
-        return FALSE;
-    }
-
     /* Create a conversation in case none exists so as to allow reassembly code to work */
     if (!find_conversation(pinfo->num, &pinfo->net_dst, &pinfo->net_src, conversation_pt_to_endpoint_type(pinfo->ptype),
                            pinfo->destport, pinfo->srcport, NO_ADDR2)) {
@@ -1256,18 +1251,6 @@ dissect_rtp_heur_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     }
     dissect_rtp( tvb, pinfo, tree, data );
     return TRUE;
-}
-
-static gboolean
-dissect_rtp_heur_udp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data )
-{
-    return dissect_rtp_heur_common(tvb, pinfo, tree, data, TRUE);
-}
-
-static gboolean
-dissect_rtp_heur_app( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data )
-{
-    return dissect_rtp_heur_common(tvb, pinfo, tree, data, FALSE);
 }
 
 /*
@@ -3256,9 +3239,9 @@ proto_reg_handoff_rtp(void)
         dissector_add_for_decode_as("udp.port", rtp_handle);
         dissector_add_for_decode_as("tcp.port", rtp_rfc4571_handle);
         dissector_add_string("rtp_dyn_payload_type", "red", rtp_rfc2198_handle);
-        heur_dissector_add( "udp", dissect_rtp_heur_udp,  "RTP over UDP", "rtp_udp", proto_rtp, HEURISTIC_DISABLE);
-        heur_dissector_add("stun", dissect_rtp_heur_app, "RTP over TURN", "rtp_stun", proto_rtp, HEURISTIC_DISABLE);
-        heur_dissector_add("rtsp", dissect_rtp_heur_app, "RTP over RTSP", "rtp_rtsp", proto_rtp, HEURISTIC_DISABLE);
+        heur_dissector_add( "udp", dissect_rtp_heur,  "RTP over UDP", "rtp_udp", proto_rtp, HEURISTIC_DISABLE);
+        heur_dissector_add("stun", dissect_rtp_heur, "RTP over TURN", "rtp_stun", proto_rtp, HEURISTIC_DISABLE);
+        heur_dissector_add("rtsp", dissect_rtp_heur, "RTP over RTSP", "rtp_rtsp", proto_rtp, HEURISTIC_DISABLE);
 
         dissector_add_for_decode_as("flip.payload", rtp_handle );
 
