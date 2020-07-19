@@ -623,8 +623,32 @@ dissect_clock_parameters(guint8 cmd _U_, tvbuff_t *tvb, packet_info *pinfo _U_, 
     return offset - offset_start;
 }
 
-static const char *get_data_bit_pin_prefix(gboolean is_high_byte, ftdi_mpsse_info_t *mpsse_info, guint *out_num_pins)
+static const char *
+get_data_bit_pin_prefix(gboolean is_high_byte, ftdi_mpsse_info_t *mpsse_info, guint *out_num_pins, const char *(**out_names)[8])
 {
+    static const char *low_byte_signal_names[8] = {
+        "TCK/SK",
+        "TDI/DO",
+        "TDO/DI",
+        "TMS/CS",
+        "GPIOL0",
+        "GPIOL1",
+        "GPIOL2",
+        "GPIOL3",
+    };
+    static const char *high_byte_signal_names[8] = {
+        "GPIOH0",
+        "GPIOH1",
+        "GPIOH2",
+        "GPIOH3",
+        "GPIOH4",
+        "GPIOH5",
+        "GPIOH6",
+        "GPIOH7",
+    };
+
+    *out_names = (is_high_byte) ? &high_byte_signal_names : &low_byte_signal_names;
+
     /* Based on table from FTDI AN_108 chapter 2.1 Data bit Definition */
     switch (mpsse_info->chip)
     {
@@ -677,40 +701,20 @@ static gint
 dissect_non_data_shifting_command_parameters(guint8 cmd, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset,
                                              ftdi_mpsse_info_t *mpsse_info, command_data_t **cmd_data)
 {
-    static const char *low_byte_signal_names[8] = {
-        "TCK/SK",
-        "TDI/DO",
-        "TDO/DI",
-        "TMS/CS",
-        "GPIOL0",
-        "GPIOL1",
-        "GPIOL2",
-        "GPIOL3",
-    };
-    static const char *high_byte_signal_names[8] = {
-        "GPIOH0",
-        "GPIOH1",
-        "GPIOH2",
-        "GPIOH3",
-        "GPIOH4",
-        "GPIOH5",
-        "GPIOH6",
-        "GPIOH7",
-    };
-
-    const char *pin_prefix = NULL;
-    guint       num_pins   = 0;
+    const char *pin_prefix         = NULL;
+    guint       num_pins           = 0;
+    const char *(*signal_names)[8] = NULL;
 
     DISSECTOR_ASSERT(!is_data_shifting_command(cmd) && is_valid_command(cmd, mpsse_info));
 
     switch (cmd)
     {
     case CMD_SET_DATA_BITS_LOW_BYTE:
-        pin_prefix = get_data_bit_pin_prefix(FALSE, mpsse_info, &num_pins);
-        return dissect_set_data_bits_parameters(cmd, tvb, pinfo, tree, offset, low_byte_signal_names, pin_prefix, num_pins);
+        pin_prefix = get_data_bit_pin_prefix(FALSE, mpsse_info, &num_pins, &signal_names);
+        return dissect_set_data_bits_parameters(cmd, tvb, pinfo, tree, offset, *signal_names, pin_prefix, num_pins);
     case CMD_SET_DATA_BITS_HIGH_BYTE:
-        pin_prefix = get_data_bit_pin_prefix(TRUE, mpsse_info, &num_pins);
-        return dissect_set_data_bits_parameters(cmd, tvb, pinfo, tree, offset, high_byte_signal_names, pin_prefix, num_pins);
+        pin_prefix = get_data_bit_pin_prefix(TRUE, mpsse_info, &num_pins, &signal_names);
+        return dissect_set_data_bits_parameters(cmd, tvb, pinfo, tree, offset, *signal_names, pin_prefix, num_pins);
     case CMD_READ_DATA_BITS_LOW_BYTE:
     case CMD_READ_DATA_BITS_HIGH_BYTE:
         expect_response(cmd_data, pinfo, tree, mpsse_info, cmd, 1);
@@ -882,6 +886,65 @@ dissect_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset
     return offset - offset_start;
 }
 
+
+static gint
+dissect_read_data_bits_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset,
+                                const char *signal_names[8], const char *pin_prefix, guint num_pins)
+{
+    static const gint *value_bits_hf[] = {
+        &hf_mpsse_value_b0,
+        &hf_mpsse_value_b1,
+        &hf_mpsse_value_b2,
+        &hf_mpsse_value_b3,
+        &hf_mpsse_value_b4,
+        &hf_mpsse_value_b5,
+        &hf_mpsse_value_b6,
+        &hf_mpsse_value_b7,
+    };
+    guint32 value;
+    proto_item *item;
+    proto_item *value_item;
+    proto_tree *value_tree;
+    guint bit;
+
+    value_item = proto_tree_add_item_ret_uint(tree, hf_mpsse_value, tvb, offset, 1, ENC_LITTLE_ENDIAN, &value);
+    value_tree = proto_item_add_subtree(value_item, ett_mpsse_value);
+    for (bit = 0; bit < 8; bit++)
+    {
+        const char *state;
+        state = ((1 << bit) & value) ? "High" : "Low";
+        item = proto_tree_add_uint_format_value(value_tree, *value_bits_hf[bit], tvb, offset, 1, value, "%s", signal_names[bit]);
+        if (pin_prefix && (bit < num_pins))
+        {
+            proto_item_append_text(item, " [%s%d]", pin_prefix, bit);
+        }
+        proto_item_append_text(item, " %s", state);
+    }
+
+    return 1;
+}
+
+static gint
+dissect_non_data_shifting_command_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, command_data_t *cmd_data)
+{
+    const char *pin_prefix         = NULL;
+    guint       num_pins           = 0;
+    const char *(*signal_names)[8] = NULL;
+
+    DISSECTOR_ASSERT(!is_data_shifting_command(cmd_data->cmd) && is_valid_command(cmd_data->cmd, &cmd_data->mpsse_info));
+
+    switch (cmd_data->cmd)
+    {
+    case CMD_READ_DATA_BITS_LOW_BYTE:
+        pin_prefix = get_data_bit_pin_prefix(FALSE, &cmd_data->mpsse_info, &num_pins, &signal_names);
+        return dissect_read_data_bits_response(tvb, pinfo, tree, offset, *signal_names, pin_prefix, num_pins);
+    case CMD_READ_DATA_BITS_HIGH_BYTE:
+        pin_prefix = get_data_bit_pin_prefix(TRUE, &cmd_data->mpsse_info, &num_pins, &signal_names);
+        return dissect_read_data_bits_response(tvb, pinfo, tree, offset, *signal_names, pin_prefix, num_pins);
+    default:
+        return 0;
+    }
+}
 static gint
 dissect_response_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, command_data_t *cmd_data)
 {
@@ -914,8 +977,17 @@ dissect_response_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint 
         }
         else
         {
-            proto_tree_add_expert(tree, pinfo, &ei_undecoded, tvb, offset, cmd_data->response_length);
-            offset += cmd_data->response_length;
+            gint dissected;
+
+            dissected = dissect_non_data_shifting_command_response(tvb, pinfo, tree, offset, cmd_data);
+            offset += dissected;
+
+            DISSECTOR_ASSERT(dissected <= cmd_data->response_length);
+            if (cmd_data->response_length > dissected)
+            {
+                proto_tree_add_expert(tree, pinfo, &ei_undecoded, tvb, offset, cmd_data->response_length - dissected);
+                offset += (cmd_data->response_length - dissected);
+            }
         }
     }
     else
