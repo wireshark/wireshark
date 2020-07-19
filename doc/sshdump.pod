@@ -59,13 +59,25 @@ interface.
 
 The feature is functionally equivalent to run commands like
 
-$ ssh remoteuser@remotehost -p 22222 'tcpdump -U -i IFACE -w -' > FILE &
-$ wireshark FILE
+    $ ssh remoteuser@remotehost -p 22222 'tcpdump -U -i IFACE -w -' > FILE &
+    $ wireshark FILE
 
-$ ssh remoteuser@remotehost '/sbin/dumpcap -i IFACE -P -w - -f "not port 22"' > FILE &
-$ wireshark FILE
+    $ ssh remoteuser@remotehost '/sbin/dumpcap -i IFACE -P -w - -f "not port 22"' > FILE &
+    $ wireshark FILE
 
-$ ssh somehost dumpcap -P -w - -f udp | tshark -i -
+    $ ssh somehost dumpcap -P -w - -f udp | tshark -i -
+
+Typically sshdump is not invoked directly. Instead it can be configured through
+the Wireshark graphical user interface or its command line. The following will
+start Wireshark and start capturing from host B<remotehost>:
+
+    $ wireshark '-oextcap.sshdump.remotehost:"remotehost"' -i sshdump -k
+
+To explicitly control the remote capture command:
+
+    $ wireshark '-oextcap.sshdump.remotehost:"remotehost"' \
+                '-oextcap.sshdump.remotecapturecommand:"tcpdump -i eth0 -Uw- not port 22"' \
+                -i sshdump -k
 
 Supported interfaces:
 
@@ -143,12 +155,18 @@ A custom remote capture command that produces the remote stream that is shown in
 The command must be able to produce a PCAP stream written to STDOUT. See below for more
 examples.
 
-When specified, this command will be used as is, no interface, port or filter
-options will be added.
+If using tcpdump, use the B<-w-> option to ensure that packets are written to
+standard output (stdout). Include the B<-U> option to write packets as soon as
+they are received.
+
+When specified, this command will be used as is, options such as the capture
+filter (B<--extcap-capture-filter>) will not be appended.
 
 =item --extcap-capture-filter=E<lt>capture filterE<gt>
 
-The capture filter
+The capture filter. It corresponds to the value provided via the B<tshark -f>
+option, and the Capture Filter field next to the interfaces list in the
+Wireshark interface.
 
 =back
 
@@ -230,7 +248,7 @@ To use different capture binaries:
 
 NOTE: To stop capturing CTRL+C/kill/terminate application.
 
-The sshdump binary can be renamed to support multiple isntances. For instance if we want sshdump
+The sshdump binary can be renamed to support multiple instances. For instance if we want sshdump
 to show up twice in wireshark (for instance to handle multiple profiles), we can copy sshdump to
 sshdump-host1 and sshdump-host2. Each binary will show up an interface name same as the executable
 name. Those executables not being "sshdump" will show up as "custom version" in the interface description.
