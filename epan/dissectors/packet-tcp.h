@@ -456,6 +456,13 @@ struct tcp_analysis {
 	 * can exist without any meta
 	 */
 	struct mptcp_analysis* mptcp_analysis;
+
+	/* Track the TCP conversation completeness, as the capture might
+	 * contain all parts of a TCP flow (establishment, data, clearing) or
+	 * just some parts if we jumped on the bandwagon of an already established
+	 * connection or left before it was terminated explicitly
+	 */
+	guint8          conversation_completeness;
 };
 
 /* Structure that keeps per packet data. First used to be able

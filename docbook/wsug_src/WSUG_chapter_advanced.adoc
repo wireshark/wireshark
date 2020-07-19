@@ -608,6 +608,28 @@ Set when the all of the following are true:
 
 Supersedes “TCP Dup ACK”.
 
+// TCP_A_CONVERSATION_COMPLETENESS
+[discrete]
+==== TCP Conversation Completeness
+
+TCP conversations are said to be complete when they have both opening and closing
+handshakes, independently of any data transfer. However we might be interested in
+identifying complete conversations with some data sent, and we are using the
+following bit values to build a filter value on the tcp.completeness field :
+
+* 1 : SYN
+* 2 : SYN-ACK
+* 4 : ACK
+* 8 : DATA
+* 16 : FIN
+* 32 : RST
+
+For example, a conversation containing only a three-way handshake will be found
+with the filter 'tcp.completeness==7' (1+2+4) while a complete conversation with
+data transfer will be found with a longer filter as closing a connection can be
+associated with FIN or RST packets, or even both :
+'tcp.completeness==31 or tcp.completeness==47 tcp.completeness==63' 
+
 [[ChAdvTimestamps]]
 
 === Time Stamps

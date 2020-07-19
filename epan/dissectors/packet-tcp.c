@@ -140,6 +140,7 @@ static int hf_tcp_srcport = -1;
 static int hf_tcp_dstport = -1;
 static int hf_tcp_port = -1;
 static int hf_tcp_stream = -1;
+static int hf_tcp_completeness = -1;
 static int hf_tcp_seq = -1;
 static int hf_tcp_seq_abs = -1;
 static int hf_tcp_nxtseq = -1;
@@ -509,6 +510,16 @@ static gboolean tcp_display_process_info = FALSE;
 #define TCPOPT_MPTCP_MP_PRIO       0x5    /* Multipath TCP Change Subflow Priority */
 #define TCPOPT_MPTCP_MP_FAIL       0x6    /* Multipath TCP Fallback */
 #define TCPOPT_MPTCP_MP_FASTCLOSE  0x7    /* Multipath TCP Fast Close */
+
+/*
+ *     Conversation Completeness values
+ */
+#define TCP_COMPLETENESS_SYNSENT    0x01  /* TCP SYN SENT */
+#define TCP_COMPLETENESS_SYNACK     0x02  /* TCP SYN ACK  */
+#define TCP_COMPLETENESS_ACK        0x04  /* TCP ACK      */
+#define TCP_COMPLETENESS_DATA       0x08  /* TCP data     */
+#define TCP_COMPLETENESS_FIN        0x10  /* TCP FIN      */
+#define TCP_COMPLETENESS_RST        0x20  /* TCP RST      */
 
 static const true_false_string tcp_option_user_to_granularity = {
   "Minutes", "Seconds"
@@ -1331,6 +1342,71 @@ handle_export_pdu_conversation(packet_info *pinfo, tvbuff_t *tvb, int src_port, 
                 tap_queue_packet(exported_pdu_tap, pinfo, exp_pdu_data);
             }
         }
+    }
+}
+
+/*
+ * display the TCP Conversation Completeness
+ * we of course pay much attention on complete conversations but also incomplete ones which
+ * have a regular start, as in practice we are often looking for such thing
+ */
+void conversation_completeness_fill (gchar *buf, guint32 value)
+{
+    switch(value) {
+        case TCP_COMPLETENESS_SYNSENT:
+            g_snprintf(buf, ITEM_LABEL_LENGTH, "Incomplete, SYN_SENT (%u)", value);
+            break;
+        case (TCP_COMPLETENESS_SYNSENT|
+              TCP_COMPLETENESS_SYNACK):
+            g_snprintf(buf, ITEM_LABEL_LENGTH, "Incomplete, CLIENT_ESTABLISHED (%u)", value);
+            break;
+        case (TCP_COMPLETENESS_SYNSENT|
+              TCP_COMPLETENESS_SYNACK|
+              TCP_COMPLETENESS_ACK):
+            g_snprintf(buf, ITEM_LABEL_LENGTH, "Incomplete, ESTABLISHED (%u)", value);
+            break;
+        case (TCP_COMPLETENESS_SYNSENT|
+              TCP_COMPLETENESS_SYNACK|
+              TCP_COMPLETENESS_ACK|
+              TCP_COMPLETENESS_DATA):
+            g_snprintf(buf, ITEM_LABEL_LENGTH, "Incomplete, DATA (%u)", value);
+            break;
+        case (TCP_COMPLETENESS_SYNSENT|
+              TCP_COMPLETENESS_SYNACK|
+              TCP_COMPLETENESS_ACK|
+              TCP_COMPLETENESS_DATA|
+              TCP_COMPLETENESS_FIN):
+        case (TCP_COMPLETENESS_SYNSENT|
+              TCP_COMPLETENESS_SYNACK|
+              TCP_COMPLETENESS_ACK|
+              TCP_COMPLETENESS_DATA|
+              TCP_COMPLETENESS_RST):
+        case (TCP_COMPLETENESS_SYNSENT|
+              TCP_COMPLETENESS_SYNACK|
+              TCP_COMPLETENESS_ACK|
+              TCP_COMPLETENESS_DATA|
+              TCP_COMPLETENESS_FIN|
+              TCP_COMPLETENESS_RST):
+            g_snprintf(buf, ITEM_LABEL_LENGTH, "Complete, WITH_DATA (%u)", value);
+            break;
+        case (TCP_COMPLETENESS_SYNSENT|
+              TCP_COMPLETENESS_SYNACK|
+              TCP_COMPLETENESS_ACK|
+              TCP_COMPLETENESS_FIN):
+        case (TCP_COMPLETENESS_SYNSENT|
+              TCP_COMPLETENESS_SYNACK|
+              TCP_COMPLETENESS_ACK|
+              TCP_COMPLETENESS_RST):
+        case (TCP_COMPLETENESS_SYNSENT|
+              TCP_COMPLETENESS_SYNACK|
+              TCP_COMPLETENESS_ACK|
+              TCP_COMPLETENESS_FIN|
+              TCP_COMPLETENESS_RST):
+            g_snprintf(buf, ITEM_LABEL_LENGTH, "Complete, NO_DATA (%u)", value);
+            break;
+        default:
+            g_snprintf(buf, ITEM_LABEL_LENGTH, "Incomplete (%u)", value);
+            break;
     }
 }
 
@@ -6185,6 +6261,8 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     proto_item *item;
     proto_tree *checksum_tree;
     gboolean    icmp_ip = FALSE;
+    guint8     conversation_completeness = 0;
+    gboolean   conversation_is_new = FALSE;
 
     tcph = wmem_new0(wmem_packet_scope(), struct tcpheader);
     tcph->th_sport = tvb_get_ntohs(tvb, offset);
@@ -6271,6 +6349,8 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         conv = conversation_new(pinfo->num, &pinfo->src,
                      &pinfo->dst, ENDPOINT_TCP,
                      pinfo->srcport, pinfo->destport, 0);
+        /* we need to know when a conversation is new then we initialize the completeness correctly */
+        conversation_is_new = TRUE;
     }
     tcpd=get_tcp_conversation_data(conv,pinfo);
 
@@ -6292,6 +6372,9 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
             conv=conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, ENDPOINT_TCP, pinfo->srcport, pinfo->destport, 0);
             tcpd=get_tcp_conversation_data(conv,pinfo);
+
+            /* As above, a new conversation starting with a SYN implies conversation completeness value 1 */
+            tcpd->conversation_completeness = 1;
         }
         if(!tcpd->ta)
             tcp_analyze_get_acked_struct(pinfo->num, tcph->th_seq, tcph->th_ack, TRUE, tcpd);
@@ -6328,6 +6411,10 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
     if (tcpd) {
         item = proto_tree_add_uint(tcp_tree, hf_tcp_stream, tvb, offset, 0, tcpd->stream);
+        proto_item_set_generated(item);
+
+        /* Display the completeness of this TCP conversation */
+        item = proto_tree_add_uint(tcp_tree, hf_tcp_completeness, NULL, 0, 0, tcpd->conversation_completeness);
         proto_item_set_generated(item);
 
         /* Copy the stream index into the header as well to make it available
@@ -6455,6 +6542,47 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         }
         return offset+12;
     }
+
+    /* initialize or move forward the conversation completeness */
+    if(tcpd) {
+      if(conversation_is_new) { /* pure SYN must be sought in new conversations only */
+        if((tcph->th_flags&(TH_SYN|TH_ACK))==TH_SYN) {
+          conversation_completeness |= TCP_COMPLETENESS_SYNSENT;
+          if(tcph->th_seglen > 0) { /* TCP Fast Open */
+            conversation_completeness |= TCP_COMPLETENESS_DATA;
+          }
+        }
+      }
+      else {
+          conversation_completeness  = tcpd->conversation_completeness ;
+
+          /* SYN-ACK */
+          if((tcph->th_flags&(TH_SYN|TH_ACK))==(TH_SYN|TH_ACK)) {
+              conversation_completeness |= TCP_COMPLETENESS_SYNACK;
+          }
+
+          /* ACKs */
+          if((tcph->th_flags&(TH_SYN|TH_ACK))==(TH_ACK)) {
+              if(tcph->th_seglen>0) { /* transporting some data */
+                  conversation_completeness |= TCP_COMPLETENESS_DATA;
+              }
+              else { /* pure ACK */
+                  conversation_completeness |= TCP_COMPLETENESS_ACK;
+              }
+          }
+
+          /* FIN-ACK */
+          if((tcph->th_flags&(TH_FIN|TH_ACK))==(TH_FIN|TH_ACK)) {
+              conversation_completeness |= TCP_COMPLETENESS_FIN;
+          }
+
+          /* RST */
+          if(tcph->th_flags&(TH_RST)) {
+              conversation_completeness |= TCP_COMPLETENESS_RST;
+          }
+      }
+    }
+    tcpd->conversation_completeness = conversation_completeness;
 
     if (tcp_summary_in_tree) {
         if(tcph->th_flags&TH_ACK) {
@@ -7016,6 +7144,11 @@ proto_register_tcp(void)
         { &hf_tcp_stream,
         { "Stream index",       "tcp.stream", FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
+
+        { &hf_tcp_completeness,
+        { "Conversation completeness",       "tcp.completeness", FT_UINT8,
+            BASE_CUSTOM, CF_FUNC(conversation_completeness_fill), 0x0,
+            "The completeness of the conversation capture", HFILL }},
 
         { &hf_tcp_seq,
         { "Sequence Number",        "tcp.seq", FT_UINT32, BASE_DEC, NULL, 0x0,
