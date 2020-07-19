@@ -3969,7 +3969,7 @@ static void rtps_util_add_type_library(proto_tree *tree, packet_info * pinfo,
         tvbuff_t * tvb, gint offset, const guint encoding, guint32 size);
 
 static void rtps_util_add_type_element_module(proto_tree *tree, packet_info * pinfo,
-        tvbuff_t * tvb, gint offset, const guint encoding, dissection_info * info _U_) {
+        tvbuff_t * tvb, gint offset, const guint encoding) {
   guint32 long_number;
   gchar * name = NULL;
   long_number = tvb_get_guint32(tvb, offset, encoding);
@@ -4021,7 +4021,9 @@ static gint rtps_util_add_type_library_element(proto_tree *tree, packet_info * p
       rtps_util_add_type_element_struct(element_tree, tvb, offset, encoding, info);
       break;
     case RTI_CDR_TYPE_OBJECT_TYPE_KIND_MODULE:
-      rtps_util_add_type_element_module(element_tree, pinfo, tvb, offset, encoding, info);
+      /* This does *not* fill in the info structure, so do *not* add it. */
+      add_info = FALSE;
+      rtps_util_add_type_element_module(element_tree, pinfo, tvb, offset, encoding);
       break;
     default:
       /* We have *not* filled in the info structure, so do *not* add it. */
