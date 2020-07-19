@@ -17,7 +17,7 @@ ENDIF (WINSPARKLE_INCLUDE_DIRS)
 INCLUDE(FindWSWinLibs)
 FindWSWinLibs("WinSparkle.*" "WINSPARKLE_HINTS")
 
-# The 64-bit wpcap.lib is under /x64/Release
+# The 64-bit WinSparkle.lib is under /x64/Release
 set ( _RELEASE_SUBDIR "Release" )
 if( WIN32 AND "${WIRESHARK_TARGET_PLATFORM}" STREQUAL "win64" )
   set ( _RELEASE_SUBDIR "x64/Release" )
