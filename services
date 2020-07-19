@@ -4817,6 +4817,7 @@ apc-6548	6548/tcp/udp	# APC 6548
 apc-6549	6549/tcp/udp	# APC 6549
 fg-sysupdate	6550/tcp/udp
 sum		6551/tcp/udp	# Software Update Manager
+checkmk-agent	6556/tcp	# Checkmk Monitoring Agent
 xdsxdm		6558/tcp/udp
 sane-port	6566/tcp/udp	# SANE Control Port
 canit-store	6568/tcp	# CanIt Storage Manager
@@ -6079,6 +6080,7 @@ febooti-aw	36524/tcp	# Febooti Automation Workshop
 observium-agent	36602/tcp	# Observium statistics collection agent
 mapx		36700/tcp	# MapX communication
 kastenxpipe	36865/tcp/udp	# KastenX Pipe
+3gpp-w1ap	37472/sctp	# W1 signalling transport
 neckar		37475/tcp/udp	# science + computing's Venus Administration Port
 gdrive-sync	37483/tcp	# Google Drive Sync
 eftp		37601/tcp	# Epipole File Transfer Protocol
