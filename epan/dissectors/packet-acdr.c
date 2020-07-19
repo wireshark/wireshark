@@ -256,6 +256,7 @@ static const value_string hf_acdr_ext_tls_application_vals[] = {
     {6, "TCP"   },
     {7, "TELNET"},
     {8, "FTP"   },
+    {9, "TPNCP" },
     {0, NULL    },
 };
 

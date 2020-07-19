@@ -899,6 +899,7 @@ proto_reg_handoff_tpncp(void)
         dissector_add_uint("acdr.media_type", ACDR_Event, create_dissector_handle(dissect_acdr_event, -1));
         dissector_add_uint("acdr.media_type", ACDR_TPNCP,
                            create_dissector_handle(dissect_acdr_tpncp_by_tracepoint, -1));
+        dissector_add_uint("acdr.tls_application", TLS_APP_TPNCP, tpncp_udp_handle);
         initialized = TRUE;
     }
     /*  If we weren't able to load the database (and thus the hf_ entries)
