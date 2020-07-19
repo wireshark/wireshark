@@ -137,7 +137,11 @@
     </message>
     <message>
         <source>Can&apos;t assign %1 to %2</source>
-        <translation>Невозможно присвоить %1 для %2</translation>
+        <translation type="vanished">Невозможно присвоить %1 для %2</translation>
+    </message>
+    <message>
+        <source>Can&apos;t assign %1 to %2.</source>
+        <translation type="unfinished">Невозможно присвоить %1 для %2. {1 ?}</translation>
     </message>
 </context>
 <context>
@@ -7909,6 +7913,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>перед открытием другого файла</translation>
     </message>
     <message>
+        <source>Merging files.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>%1: %2</source>
         <translation>%1: %2</translation>
     </message>
@@ -7918,11 +7926,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>No interface selected</source>
-        <translation>Нет выбранного интерфейса</translation>
+        <translation type="vanished">Нет выбранного интерфейса</translation>
     </message>
     <message>
         <source>Invalid capture filter</source>
-        <translation>Неправильный фильтр захвата </translation>
+        <translation type="vanished">Неправильный фильтр захвата </translation>
     </message>
     <message>
         <source>Clear Menu</source>
@@ -7959,7 +7967,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Merging files</source>
-        <translation>Объединение файлов</translation>
+        <translation type="vanished">Объединение файлов</translation>
     </message>
     <message>
         <source>Couldn&apos;t copy text. Try another item.</source>
@@ -7979,7 +7987,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>No filter available. Try another </source>
-        <translation>Нет доступного фильтра. Попробуйте другой </translation>
+        <translation type="vanished">Нет доступного фильтра. Попробуйте другой </translation>
     </message>
     <message>
         <source>Error compiling filter for this conversation.</source>
@@ -7991,7 +7999,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>No Interface Selected</source>
-        <translation>Нет Выбранного Интерфейса</translation>
+        <translation type="vanished">Нет Выбранного Интерфейса</translation>
+    </message>
+    <message>
+        <source>No interface selected.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Invalid capture filter.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source> before starting a new capture</source>
@@ -8012,6 +8028,30 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>TLS Session Keys (*.keys *.txt);;All Files (</source>
         <translation>Ключи Сессии TLS (*.keys *.txt);;Все Файлы (</translation>
+    </message>
+    <message>
+        <source>No filter available. Try another %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>column</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>item</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The &quot;%1&quot; column already exists.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The &quot;%1&quot; column already exists as &quot;%2&quot;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No Interface Selected.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source> before restarting the capture</source>
@@ -13636,6 +13676,17 @@ a:hover {
     <message>
         <source>Unable to set FCS validation behavior.</source>
         <translation>Невозможно установить режим проверки достоверности FCS.</translation>
+    </message>
+</context>
+<context>
+    <name>WirelessTimeline</name>
+    <message>
+        <source>Packet number %1 does not include TSF timestamp, not showing timeline.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Packet number %u has large negative jump in TSF, not showing timeline. Perhaps TSF reference point is set wrong?</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

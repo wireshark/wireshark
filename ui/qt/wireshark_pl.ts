@@ -137,7 +137,11 @@
     </message>
     <message>
         <source>Can&apos;t assign %1 to %2</source>
-        <translation>Nie można przypisać %1 do %2</translation>
+        <translation type="vanished">Nie można przypisać %1 do %2</translation>
+    </message>
+    <message>
+        <source>Can&apos;t assign %1 to %2.</source>
+        <translation type="unfinished">Nie można przypisać %1 do %2. {1 ?}</translation>
     </message>
 </context>
 <context>
@@ -7899,6 +7903,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>przed otwarciem nowego pliku</translation>
     </message>
     <message>
+        <source>Merging files.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>%1: %2</source>
         <translation>%1: %2</translation>
     </message>
@@ -7908,11 +7916,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>No interface selected</source>
-        <translation>Nie wybrano interfejsu</translation>
+        <translation type="vanished">Nie wybrano interfejsu</translation>
     </message>
     <message>
         <source>Invalid capture filter</source>
-        <translation>Niepoprawny filtr przechwytywania</translation>
+        <translation type="vanished">Niepoprawny filtr przechwytywania</translation>
     </message>
     <message>
         <source>Clear Menu</source>
@@ -7948,10 +7956,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Surowe dane (*.bin *.dat *.raw);;Dowolny plik (</translation>
     </message>
     <message>
-        <source>Merging files</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Couldn&apos;t copy text. Try another item.</source>
         <translation>Nie można skopiować tekstu. Spróbuj inną pozycję.</translation>
     </message>
@@ -7969,7 +7973,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>No filter available. Try another </source>
-        <translation>Brak dostępnych filtrów. Spróbuj ponownie</translation>
+        <translation type="vanished">Brak dostępnych filtrów. Spróbuj ponownie</translation>
     </message>
     <message>
         <source>Error compiling filter for this conversation.</source>
@@ -7981,7 +7985,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>No Interface Selected</source>
-        <translation>Nie wybrano interfejsu</translation>
+        <translation type="vanished">Nie wybrano interfejsu</translation>
+    </message>
+    <message>
+        <source>No interface selected.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Invalid capture filter.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source> before starting a new capture</source>
@@ -8001,6 +8013,30 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>TLS Session Keys (*.keys *.txt);;All Files (</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No filter available. Try another %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>column</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>item</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The &quot;%1&quot; column already exists.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The &quot;%1&quot; column already exists as &quot;%2&quot;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No Interface Selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -13582,6 +13618,17 @@ a:hover {
     <message>
         <source>Unable to set FCS validation behavior.</source>
         <translation>Nie można ustawić zachowania walidacji FCS.</translation>
+    </message>
+</context>
+<context>
+    <name>WirelessTimeline</name>
+    <message>
+        <source>Packet number %1 does not include TSF timestamp, not showing timeline.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Packet number %u has large negative jump in TSF, not showing timeline. Perhaps TSF reference point is set wrong?</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

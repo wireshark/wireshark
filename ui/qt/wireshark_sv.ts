@@ -136,7 +136,11 @@
     </message>
     <message>
         <source>Can&apos;t assign %1 to %2</source>
-        <translation>Kan inte tilldela %1 till %2</translation>
+        <translation type="vanished">Kan inte tilldela %1 till %2</translation>
+    </message>
+    <message>
+        <source>Can&apos;t assign %1 to %2.</source>
+        <translation type="unfinished">Kan inte tilldela %1 till %2. {1 ?}</translation>
     </message>
 </context>
 <context>
@@ -7890,6 +7894,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation> före en annan fil öppnas</translation>
     </message>
     <message>
+        <source>Merging files.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>%1: %2</source>
         <translation>%1: %2</translation>
     </message>
@@ -7899,11 +7907,11 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>No interface selected</source>
-        <translation>Inget gränssnitt valt</translation>
+        <translation type="vanished">Inget gränssnitt valt</translation>
     </message>
     <message>
         <source>Invalid capture filter</source>
-        <translation>Felaktigt fångstfilter</translation>
+        <translation type="vanished">Felaktigt fångstfilter</translation>
     </message>
     <message>
         <source>Clear Menu</source>
@@ -7939,7 +7947,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Merging files</source>
-        <translation>Slår samman filer</translation>
+        <translation type="vanished">Slår samman filer</translation>
     </message>
     <message>
         <source>Couldn&apos;t copy text. Try another item.</source>
@@ -7959,7 +7967,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>No filter available. Try another </source>
-        <translation>Inget filter tillgängligt.  Försök med ett annat</translation>
+        <translation type="vanished">Inget filter tillgängligt.  Försök med ett annat</translation>
     </message>
     <message>
         <source>Error compiling filter for this conversation.</source>
@@ -7971,7 +7979,15 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>No Interface Selected</source>
-        <translation>Inget gränssnitt valt</translation>
+        <translation type="vanished">Inget gränssnitt valt</translation>
+    </message>
+    <message>
+        <source>No interface selected.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Invalid capture filter.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source> before starting a new capture</source>
@@ -7991,6 +8007,30 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>TLS Session Keys (*.keys *.txt);;All Files (</source>
         <translation>TLS-sessionsnycklar (*.keys *.txt);;Alla filer (</translation>
+    </message>
+    <message>
+        <source>No filter available. Try another %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>column</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>item</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The &quot;%1&quot; column already exists.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The &quot;%1&quot; column already exists as &quot;%2&quot;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No Interface Selected.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source> before restarting the capture</source>
@@ -13604,6 +13644,17 @@ a:hover {
     <message>
         <source>Unable to set FCS validation behavior.</source>
         <translation>Kan inte sätta FCS-valideringsbeteende.</translation>
+    </message>
+</context>
+<context>
+    <name>WirelessTimeline</name>
+    <message>
+        <source>Packet number %1 does not include TSF timestamp, not showing timeline.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Packet number %u has large negative jump in TSF, not showing timeline. Perhaps TSF reference point is set wrong?</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

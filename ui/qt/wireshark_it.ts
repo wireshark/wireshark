@@ -136,7 +136,11 @@
     </message>
     <message>
         <source>Can&apos;t assign %1 to %2</source>
-        <translation>Impossibile assegnare %1 a %2</translation>
+        <translation type="vanished">Impossibile assegnare %1 a %2</translation>
+    </message>
+    <message>
+        <source>Can&apos;t assign %1 to %2.</source>
+        <translation type="unfinished">Impossibile assegnare %1 a %2. {1 ?}</translation>
     </message>
 </context>
 <context>
@@ -7890,6 +7894,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>errore durante l&apos;apertura di un altro file</translation>
     </message>
     <message>
+        <source>Merging files.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>%1: %2</source>
         <translation>%1: %2</translation>
     </message>
@@ -7899,11 +7907,11 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>No interface selected</source>
-        <translation>Nessuna interfaccia selezionata</translation>
+        <translation type="vanished">Nessuna interfaccia selezionata</translation>
     </message>
     <message>
         <source>Invalid capture filter</source>
-        <translation>Filtro di cattura invalido</translation>
+        <translation type="vanished">Filtro di cattura invalido</translation>
     </message>
     <message>
         <source>Clear Menu</source>
@@ -7939,7 +7947,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Merging files</source>
-        <translation>Unisci i file</translation>
+        <translation type="vanished">Unisci i file</translation>
     </message>
     <message>
         <source>Couldn&apos;t copy text. Try another item.</source>
@@ -7959,7 +7967,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>No filter available. Try another </source>
-        <translation>Nessun filtro disponibile. Provane un altro </translation>
+        <translation type="vanished">Nessun filtro disponibile. Provane un altro </translation>
     </message>
     <message>
         <source>Error compiling filter for this conversation.</source>
@@ -7971,7 +7979,15 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>No Interface Selected</source>
-        <translation>Nessuna interfaccia selezionata</translation>
+        <translation type="vanished">Nessuna interfaccia selezionata</translation>
+    </message>
+    <message>
+        <source>No interface selected.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Invalid capture filter.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source> before starting a new capture</source>
@@ -7991,6 +8007,30 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>TLS Session Keys (*.keys *.txt);;All Files (</source>
         <translation>Chiavi di sessione SSL (*.keys *.txt);;Tutti i file (</translation>
+    </message>
+    <message>
+        <source>No filter available. Try another %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>column</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>item</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The &quot;%1&quot; column already exists.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The &quot;%1&quot; column already exists as &quot;%2&quot;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No Interface Selected.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source> before restarting the capture</source>
@@ -13599,6 +13639,17 @@ a:hover {
     <message>
         <source>Unable to set FCS validation behavior.</source>
         <translation>Impossibile impostare il comportamento di convalida FCS.</translation>
+    </message>
+</context>
+<context>
+    <name>WirelessTimeline</name>
+    <message>
+        <source>Packet number %1 does not include TSF timestamp, not showing timeline.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Packet number %u has large negative jump in TSF, not showing timeline. Perhaps TSF reference point is set wrong?</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
