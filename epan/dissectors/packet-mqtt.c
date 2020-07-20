@@ -96,6 +96,13 @@ static const value_string mqtt_protocol_version_vals[] = {
   { 0,                     NULL }
 };
 
+static const enum_val_t mqtt_protocol_version_enumvals[] = {
+    { "v31",   "MQTT v3.1",    MQTT_PROTO_V31 },
+    { "v311",  "MQTT v3.1.1",  MQTT_PROTO_V311 },
+    { "v50",   "MQTT v5.0",    MQTT_PROTO_V50 },
+    { NULL,    NULL,           0 }
+};
+
 static const value_string mqtt_msgtype_vals[] = {
   { MQTT_RESERVED,          "Reserved" },
   { MQTT_CONNECT,           "Connect Command" },
@@ -494,6 +501,7 @@ static const value_string mqtt_reason_code_auth_vals[] = {
 
 static mqtt_message_decode_t *mqtt_message_decodes;
 static guint num_mqtt_message_decodes;
+static gint default_protocol_version = MQTT_PROTO_V311;
 
 static dissector_handle_t mqtt_handle;
 
@@ -979,6 +987,7 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   if (mqtt == NULL)
   {
     mqtt = wmem_new0(wmem_file_scope(), mqtt_conv_t);
+    mqtt->runtime_proto_version = default_protocol_version;
     conversation_add_proto_data(conv, proto_mqtt, mqtt);
     mqtt->topic_alias_map = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
   }
@@ -1796,6 +1805,11 @@ void proto_register_mqtt(void)
                                 "Message Decoding",
                                 "A table that enumerates custom message decodes to be used for a certain topic",
                                 message_uat);
+
+  prefs_register_enum_preference(mqtt_module, "default_version",
+                                 "Default Version",
+                                 "Select the MQTT version to use as protocol version if the CONNECT packet is not captured",
+                                 &default_protocol_version, mqtt_protocol_version_enumvals, FALSE);
 
   prefs_register_bool_preference(mqtt_module, "show_msg_as_text",
                                  "Show Message as text",
