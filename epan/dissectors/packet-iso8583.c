@@ -79,7 +79,7 @@ static struct iso_type iso_1987[128] = {
   { ISO_TN, 6, 0 }, /*Bit 12*/
   { ISO_TN, 4, 0 }, /*Bit 13*/
   { ISO_TN, 4, 0 }, /*Bit 14*/
-  { ISO_TN, 6, 0 }, /*Bit 15*/
+  { ISO_TN, 4, 0 }, /*Bit 15*/
   { ISO_TN, 4, 0 }, /*Bit 16*/
   { ISO_TN, 4, 0 }, /*Bit 17*/
   { ISO_TN, 4, 0 }, /*Bit 18*/
@@ -212,7 +212,7 @@ static struct iso_type  iso_1993[128] = {
   { ISO_TN, 12, 0 }, /*Bit 12*/
   { ISO_TN, 4, 0 }, /*Bit 13*/
   { ISO_TN, 4, 0 }, /*Bit 14*/
-  { ISO_TN, 6, 0 }, /*Bit 15*/
+  { ISO_TN, 4, 0 }, /*Bit 15*/
   { ISO_TN, 4, 0 }, /*Bit 16*/
   { ISO_TN, 4, 0 }, /*Bit 17*/
   { ISO_TN, 4, 0 }, /*Bit 18*/
