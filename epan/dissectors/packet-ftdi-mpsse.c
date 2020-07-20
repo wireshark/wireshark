@@ -951,6 +951,13 @@ dissect_read_data_bits_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 }
 
 static gint
+dissect_cpumode_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
+{
+    proto_tree_add_item(tree, hf_mpsse_cpumode_data, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    return 1;
+}
+
+static gint
 dissect_non_data_shifting_command_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, command_data_t *cmd_data)
 {
     const char *pin_prefix         = NULL;
@@ -967,6 +974,9 @@ dissect_non_data_shifting_command_response(tvbuff_t *tvb, packet_info *pinfo, pr
     case CMD_READ_DATA_BITS_HIGH_BYTE:
         pin_prefix = get_data_bit_pin_prefix(TRUE, &cmd_data->mpsse_info, &num_pins, &signal_names);
         return dissect_read_data_bits_response(tvb, pinfo, tree, offset, *signal_names, pin_prefix, num_pins);
+    case CMD_CPUMODE_READ_SHORT_ADDR:
+    case CMD_CPUMODE_READ_EXT_ADDR:
+        return dissect_cpumode_response(tvb, pinfo, tree, offset);
     default:
         return 0;
     }
