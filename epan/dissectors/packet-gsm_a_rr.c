@@ -4039,10 +4039,14 @@ de_rr_ia_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, gu
                 if (0 == gsm_rr_csn_flag(tvb, subtree, bit_offset++, hf_gsm_a_rr_downlink_uplink))
                 {
                     bit_offset += de_rr_ia_rest_oct_egprs_packet_uplink_assignment(tvb, subtree, bit_offset, bit_len);
+                    if (bit_offset == bit_len) /* This IE may be the last one */
+                        return tvb_len - offset;
                 }
                 else
                 {
                     bit_offset += de_rr_ia_rest_oct_multiple_blocks_packet_downlink_assignment(tvb, subtree, bit_offset);
+                    if (bit_offset == bit_len) /* This IE may be the last one */
+                        return tvb_len - offset;
                 }
             }
             else
@@ -4103,15 +4107,21 @@ de_rr_ia_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, gu
                 {
                       /* 00  < Packet Uplink Assignment > */
                     bit_offset += de_rr_ia_rest_oct_packet_uplink_assignment(tvb, subtree, bit_offset, bit_len);
+                    if (bit_offset == bit_len) /* This IE may be the last one */
+                        return tvb_len - offset;
                 }
                 else  /*  01     < Packet Downlink Assignment >  */
                 {
                     bit_offset += de_rr_ia_rest_oct_packet_downlink_assignment(tvb, subtree, bit_offset, bit_len);
+                    if (bit_offset == bit_len) /* This IE may be the last one */
+                        return tvb_len - offset;
                 }
             }
             else  /*  1       < Second Part Packet Assignment >   */
             {
                 bit_offset += de_rr_ia_rest_oct_second_part_packet_assignment(tvb, subtree, bit_offset, bit_len);
+                if (bit_offset == bit_len) /* This IE may be the last one */
+                    return tvb_len - offset;
             }
             if (gsm_rr_csn_HL_flag(tvb, subtree, 0, bit_offset++, hf_gsm_a_rr_additions_in_rel_10))
             {
