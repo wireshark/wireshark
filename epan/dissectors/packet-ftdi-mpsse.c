@@ -119,17 +119,21 @@ struct _command_data {
 
 void proto_register_ftdi_mpsse(void);
 
-#define BAD_COMMAND_SYNC_CODE         0xFA
+#define BAD_COMMAND_SYNC_CODE                      0xFA
 
-#define CMD_SET_DATA_BITS_LOW_BYTE    0x80
-#define CMD_READ_DATA_BITS_LOW_BYTE   0x81
-#define CMD_SET_DATA_BITS_HIGH_BYTE   0x82
-#define CMD_READ_DATA_BITS_HIGH_BYTE  0x83
-#define CMD_CLOCK_SET_DIVISOR         0x86
-#define CMD_CPUMODE_READ_SHORT_ADDR   0x90
-#define CMD_CPUMODE_READ_EXT_ADDR     0x91
-#define CMD_CPUMODE_WRITE_SHORT_ADDR  0x92
-#define CMD_CPUMODE_WRITE_EXT_ADDR    0x93
+#define CMD_SET_DATA_BITS_LOW_BYTE                 0x80
+#define CMD_READ_DATA_BITS_LOW_BYTE                0x81
+#define CMD_SET_DATA_BITS_HIGH_BYTE                0x82
+#define CMD_READ_DATA_BITS_HIGH_BYTE               0x83
+#define CMD_CLOCK_SET_DIVISOR                      0x86
+#define CMD_CLOCK_N_BITS                           0x8E
+#define CMD_CLOCK_N_TIMES_8_BITS                   0x8F
+#define CMD_CPUMODE_READ_SHORT_ADDR                0x90
+#define CMD_CPUMODE_READ_EXT_ADDR                  0x91
+#define CMD_CPUMODE_WRITE_SHORT_ADDR               0x92
+#define CMD_CPUMODE_WRITE_EXT_ADDR                 0x93
+#define CMD_CLOCK_N_TIMES_8_BITS_OR_UNTIL_L1_HIGH  0x9C
+#define CMD_CLOCK_N_TIMES_8_BITS_OR_UNTIL_L1_LOW   0x9D
 
 static const value_string command_vals[] = {
     {0x10, "Clock Data Bytes Out on + ve clock edge MSB first(no read) [Use if CLK starts at '1']"},
@@ -196,14 +200,14 @@ static const value_string h_only_command_vals[] = {
     {0x8B, "Enable Clk Divide by 5"},
     {0x8C, "Enable 3 Phase Data Clocking"},
     {0x8D, "Disable 3 Phase Data Clocking"},
-    {0x8E, "Clock For n bits with no data transfer"},
-    {0x8F, "Clock For n x 8 bits with no data transfer"},
+    {CMD_CLOCK_N_BITS, "Clock For n bits with no data transfer"},
+    {CMD_CLOCK_N_TIMES_8_BITS, "Clock For n x 8 bits with no data transfer"},
     {0x94, "Clk continuously and Wait On I/O High"},
     {0x95, "Clk continuously and Wait On I/O Low"},
     {0x96, "Turn On Adaptive clocking"},
     {0x97, "Turn Off Adaptive clocking"},
-    {0x9C, "Clock For n x 8 bits with no data transfer or Until GPIOL1 is High"},
-    {0x9D, "Clock For n x 8 bits with no data transfer or Until GPIOL1 is Low"},
+    {CMD_CLOCK_N_TIMES_8_BITS_OR_UNTIL_L1_HIGH, "Clock For n x 8 bits with no data transfer or Until GPIOL1 is High"},
+    {CMD_CLOCK_N_TIMES_8_BITS_OR_UNTIL_L1_LOW, "Clock For n x 8 bits with no data transfer or Until GPIOL1 is Low"},
     {0, NULL}
 };
 static value_string_ext h_only_command_vals_ext = VALUE_STRING_EXT_INIT(h_only_command_vals);
@@ -623,6 +627,22 @@ dissect_clock_parameters(guint8 cmd _U_, tvbuff_t *tvb, packet_info *pinfo _U_, 
     return offset - offset_start;
 }
 
+static gint
+dissect_clock_n_bits_parameters(guint8 cmd _U_, tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset, ftdi_mpsse_info_t *mpsse_info _U_)
+{
+    guint32 length = tvb_get_guint8(tvb, offset);
+    proto_tree_add_uint_format(tree, hf_mpsse_length_uint8, tvb, offset, 1, length, "Length: %d clock%s", length + 1, plurality(length + 1, "", "s"));
+    return 1;
+}
+
+static gint
+dissect_clock_n_times_8_bits_parameters(guint8 cmd _U_, tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset, ftdi_mpsse_info_t *mpsse_info _U_)
+{
+    guint32 length = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+    proto_tree_add_uint_format(tree, hf_mpsse_length_uint16, tvb, offset, 2, length, "Length: %d clocks", (length + 1) * 8);
+    return 2;
+}
+
 static const char *
 get_data_bit_pin_prefix(gboolean is_high_byte, ftdi_mpsse_info_t *mpsse_info, guint *out_num_pins, const char *(**out_names)[8])
 {
@@ -726,6 +746,12 @@ dissect_non_data_shifting_command_parameters(guint8 cmd, tvbuff_t *tvb, packet_i
         return dissect_cpumode_parameters(cmd, tvb, pinfo, tree, offset, mpsse_info, cmd_data);
     case CMD_CLOCK_SET_DIVISOR:
         return dissect_clock_parameters(cmd, tvb, pinfo, tree, offset, mpsse_info);
+    case CMD_CLOCK_N_BITS:
+        return dissect_clock_n_bits_parameters(cmd, tvb, pinfo, tree, offset, mpsse_info);
+    case CMD_CLOCK_N_TIMES_8_BITS:
+    case CMD_CLOCK_N_TIMES_8_BITS_OR_UNTIL_L1_HIGH:
+    case CMD_CLOCK_N_TIMES_8_BITS_OR_UNTIL_L1_LOW:
+        return dissect_clock_n_times_8_bits_parameters(cmd, tvb, pinfo, tree, offset, mpsse_info);
     default:
         return 0;
     }
