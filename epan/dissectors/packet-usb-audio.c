@@ -128,6 +128,24 @@ static int hf_ac_if_fu_controls_d7 = -1;
 static int hf_ac_if_fu_controls_d8 = -1;
 static int hf_ac_if_fu_controls_d9 = -1;
 static int hf_ac_if_fu_controls_rsv = -1;
+static int hf_ac_if_fu_controls_v2 = -1;
+static int hf_ac_if_fu_control_v2 = -1;
+static int hf_ac_if_fu_controls_v2_d0 = -1;
+static int hf_ac_if_fu_controls_v2_d1 = -1;
+static int hf_ac_if_fu_controls_v2_d2 = -1;
+static int hf_ac_if_fu_controls_v2_d3 = -1;
+static int hf_ac_if_fu_controls_v2_d4 = -1;
+static int hf_ac_if_fu_controls_v2_d5 = -1;
+static int hf_ac_if_fu_controls_v2_d6 = -1;
+static int hf_ac_if_fu_controls_v2_d7 = -1;
+static int hf_ac_if_fu_controls_v2_d8 = -1;
+static int hf_ac_if_fu_controls_v2_d9 = -1;
+static int hf_ac_if_fu_controls_v2_d10 = -1;
+static int hf_ac_if_fu_controls_v2_d11 = -1;
+static int hf_ac_if_fu_controls_v2_d12 = -1;
+static int hf_ac_if_fu_controls_v2_d13 = -1;
+static int hf_ac_if_fu_controls_v2_d14 = -1;
+static int hf_ac_if_fu_controls_v2_rsv = -1;
 static int hf_ac_if_fu_ifeature = -1;
 static int hf_ac_if_su_unitid = -1;
 static int hf_ac_if_su_nrinpins = -1;
@@ -317,6 +335,8 @@ static gint ett_ac_if_hdr_controls = -1;
 static gint ett_ac_if_fu_controls = -1;
 static gint ett_ac_if_fu_controls0 = -1;
 static gint ett_ac_if_fu_controls1 = -1;
+static gint ett_ac_if_fu_controls_v2 = -1;
+static gint ett_ac_if_fu_control_v2 = -1;
 static gint ett_ac_if_su_sourceids = -1;
 static gint ett_ac_if_su_controls = -1;
 static gint ett_ac_if_input_wchannelconfig = -1;
@@ -1091,7 +1111,8 @@ static gint
 dissect_ac_if_feature_unit(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
         proto_tree *tree, usb_conv_info_t *usb_conv_info _U_, guint8 desc_len)
 {
-    gint     offset_start;
+    audio_conv_info_t *audio_conv_info;
+    gint offset_start;
     gint i;
     gint ch;
     guint8 controlsize;
@@ -1115,6 +1136,34 @@ dissect_ac_if_feature_unit(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
         &hf_ac_if_fu_controls_rsv,
         NULL };
 
+    static int * const v2_fu_controls[] = {
+        &hf_ac_if_fu_controls_v2_d0,
+        &hf_ac_if_fu_controls_v2_d1,
+        &hf_ac_if_fu_controls_v2_d2,
+        &hf_ac_if_fu_controls_v2_d3,
+        &hf_ac_if_fu_controls_v2_d4,
+        &hf_ac_if_fu_controls_v2_d5,
+        &hf_ac_if_fu_controls_v2_d6,
+        &hf_ac_if_fu_controls_v2_d7,
+        &hf_ac_if_fu_controls_v2_d8,
+        &hf_ac_if_fu_controls_v2_d9,
+        &hf_ac_if_fu_controls_v2_d10,
+        &hf_ac_if_fu_controls_v2_d11,
+        &hf_ac_if_fu_controls_v2_d12,
+        &hf_ac_if_fu_controls_v2_d13,
+        &hf_ac_if_fu_controls_v2_d14,
+        &hf_ac_if_fu_controls_v2_rsv,
+        NULL };
+
+    /* the caller has already checked that usb_conv_info!=NULL */
+    audio_conv_info = (audio_conv_info_t *)usb_conv_info->class_data;
+    if (!audio_conv_info)
+        return 0;
+
+    /* do not try to dissect unknown versions */
+    if (!((audio_conv_info->audio_ver_major==1) || (audio_conv_info->audio_ver_major==2)))
+        return 0;
+
     offset_start = offset;
 
     proto_tree_add_item(tree, hf_ac_if_fu_unitid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -1123,31 +1172,53 @@ dissect_ac_if_feature_unit(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
     proto_tree_add_item(tree, hf_ac_if_fu_sourceid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
 
-    proto_tree_add_item(tree, hf_ac_if_fu_controlsize, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    controlsize = tvb_get_guint8(tvb, offset);
-    offset += 1;
+    if (audio_conv_info->audio_ver_major==1) {
+        proto_tree_add_item(tree, hf_ac_if_fu_controlsize, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        controlsize = tvb_get_guint8(tvb, offset);
+        offset += 1;
 
-    /* Descriptor size is 7+(ch+1)*n where n is controlsize, calculate and validate ch */
-    ch = (controlsize > 0) ? (((desc_len - 7) / (controlsize)) - 1) : 0;
-    if (((7 + ((ch + 1) * controlsize)) != desc_len) || (ch < 0) || (controlsize == 0)){
-        /* Report malformed packet, do not attempt further dissection */
-        proto_tree_add_expert(tree, pinfo, &ei_usb_audio_invalid_feature_unit_length, tvb, offset, desc_len-offset);
-        offset += desc_len-offset;
-        return offset-offset_start;
-    }
-
-    ti = proto_tree_add_item(tree, hf_ac_if_fu_controls, tvb, offset, controlsize * (ch + 1), ENC_NA);
-    bitmap_tree = proto_item_add_subtree(ti, ett_ac_if_fu_controls);
-
-    /* bmaControls has 1 master channel 0 controls, and variable number of logical channel controls */
-    for (i = 0; i < (ch + 1); i++) {
-        ti = proto_tree_add_bitmask(bitmap_tree, tvb, offset, hf_ac_if_fu_control, ett_ac_if_fu_controls0, fu_controls0, ENC_LITTLE_ENDIAN);
-        proto_item_prepend_text(ti, "%s channel %d ", (i == 0) ? "Master" : "Logical", i);
-        if (controlsize > 1) {
-            ti = proto_tree_add_bitmask(bitmap_tree, tvb, offset + 1, hf_ac_if_fu_control, ett_ac_if_fu_controls1, fu_controls1, ENC_LITTLE_ENDIAN);
-            proto_item_prepend_text(ti, "%s channel %d", (i == 0) ? "Master" : "Logical", i);
+        /* Descriptor size is 7+(ch+1)*n where n is controlsize, calculate and validate ch */
+        ch = (controlsize > 0) ? (((desc_len - 7) / (controlsize)) - 1) : 0;
+        if (((7 + ((ch + 1) * controlsize)) != desc_len) || (ch < 0) || (controlsize == 0)){
+            /* Report malformed packet, do not attempt further dissection */
+            proto_tree_add_expert(tree, pinfo, &ei_usb_audio_invalid_feature_unit_length, tvb, offset, desc_len-offset);
+            offset += desc_len-offset;
+            return offset-offset_start;
         }
-        offset += controlsize;
+
+        ti = proto_tree_add_item(tree, hf_ac_if_fu_controls, tvb, offset, controlsize * (ch + 1), ENC_NA);
+        bitmap_tree = proto_item_add_subtree(ti, ett_ac_if_fu_controls);
+
+        /* bmaControls has 1 master channel 0 controls, and variable number of logical channel controls */
+        for (i = 0; i < (ch + 1); i++) {
+            ti = proto_tree_add_bitmask(bitmap_tree, tvb, offset, hf_ac_if_fu_control, ett_ac_if_fu_controls0, fu_controls0, ENC_LITTLE_ENDIAN);
+            proto_item_prepend_text(ti, "%s channel %d ", (i == 0) ? "Master" : "Logical", i);
+            if (controlsize > 1) {
+                ti = proto_tree_add_bitmask(bitmap_tree, tvb, offset + 1, hf_ac_if_fu_control, ett_ac_if_fu_controls1, fu_controls1, ENC_LITTLE_ENDIAN);
+                proto_item_prepend_text(ti, "%s channel %d", (i == 0) ? "Master" : "Logical", i);
+            }
+            offset += controlsize;
+        }
+
+    } else if (audio_conv_info->audio_ver_major==2) {
+        /* Descriptor size is 6+(ch+1)*4, calculate and validate ch */
+        ch = (desc_len - 6) / 4 - 1;
+        if (((6 + (ch + 1) * 4) != desc_len) || (ch < 0)) {
+            /* Report malformed packet, do not attempt further dissection */
+            proto_tree_add_expert(tree, pinfo, &ei_usb_audio_invalid_feature_unit_length, tvb, offset, desc_len-offset);
+            offset += desc_len-offset;
+            return offset-offset_start;
+        }
+
+        ti = proto_tree_add_item(tree, hf_ac_if_fu_controls_v2, tvb, offset, 4 * (ch + 1), ENC_NA);
+        bitmap_tree = proto_item_add_subtree(ti, ett_ac_if_fu_controls_v2);
+
+        for (i = 0; i < (ch + 1); i++) {
+            ti = proto_tree_add_bitmask(bitmap_tree, tvb, offset, hf_ac_if_fu_control_v2, ett_ac_if_fu_control_v2, v2_fu_controls, ENC_LITTLE_ENDIAN);
+            proto_item_prepend_text(ti, "%s channel %d ", (i == 0) ? "Master" : "Logical", i);
+            offset += 4;
+        }
+
     }
 
     proto_tree_add_item(tree, hf_ac_if_fu_ifeature, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -2376,6 +2447,60 @@ proto_register_usb_audio(void)
         { &hf_ac_if_fu_controls_rsv,
             { "Reserved", "usbaudio.ac_if_fu.bmaControls.rsv",
               FT_UINT8, BASE_HEX, NULL, 0xFC, "Must be zero", HFILL }},
+        { &hf_ac_if_fu_controls_v2,
+            { "Controls", "usbaudio.ac_if_fu.bmaControls",
+              FT_BYTES, BASE_NONE, NULL, 0x00, "bmaControls", HFILL }},
+        { &hf_ac_if_fu_control_v2,
+            { "Control", "usbaudio.ac_if_fu.bmaControl",
+              FT_UINT32, BASE_HEX, NULL, 0x00000000, "bmaControls", HFILL }},
+        { &hf_ac_if_fu_controls_v2_d0,
+            { "Mute", "usbaudio.ac_if_fu.bmaControls.d0", FT_UINT32,
+              BASE_HEX|BASE_EXT_STRING, &controls_capabilities_vals_ext, (3u << 0), NULL, HFILL }},
+        { &hf_ac_if_fu_controls_v2_d1,
+            { "Volume", "usbaudio.ac_if_fu.bmaControls.d1", FT_UINT32,
+              BASE_HEX|BASE_EXT_STRING, &controls_capabilities_vals_ext, (3u << 2), NULL, HFILL }},
+        { &hf_ac_if_fu_controls_v2_d2,
+            { "Bass", "usbaudio.ac_if_fu.bmaControls.d2", FT_UINT32,
+              BASE_HEX|BASE_EXT_STRING, &controls_capabilities_vals_ext, (3u << 4), NULL, HFILL }},
+        { &hf_ac_if_fu_controls_v2_d3,
+            { "Mid", "usbaudio.ac_if_fu.bmaControls.d3", FT_UINT32,
+              BASE_HEX|BASE_EXT_STRING, &controls_capabilities_vals_ext, (3u << 6), NULL, HFILL }},
+        { &hf_ac_if_fu_controls_v2_d4,
+            { "Treble", "usbaudio.ac_if_fu.bmaControls.d4", FT_UINT32,
+              BASE_HEX|BASE_EXT_STRING, &controls_capabilities_vals_ext, (3u << 8), NULL, HFILL }},
+        { &hf_ac_if_fu_controls_v2_d5,
+            { "Graphic Equalizer", "usbaudio.ac_if_fu.bmaControls.d5", FT_UINT32,
+              BASE_HEX|BASE_EXT_STRING, &controls_capabilities_vals_ext, (3u << 10), NULL, HFILL }},
+        { &hf_ac_if_fu_controls_v2_d6,
+            { "Automatic Gain", "usbaudio.ac_if_fu.bmaControls.d6", FT_UINT32,
+              BASE_HEX|BASE_EXT_STRING, &controls_capabilities_vals_ext, (3u << 12), NULL, HFILL }},
+        { &hf_ac_if_fu_controls_v2_d7,
+            { "Delay", "usbaudio.ac_if_fu.bmaControls.d7", FT_UINT32,
+              BASE_HEX|BASE_EXT_STRING, &controls_capabilities_vals_ext, (3u << 14), NULL, HFILL }},
+        { &hf_ac_if_fu_controls_v2_d8,
+            { "Bass Boost", "usbaudio.ac_if_fu.bmaControls.d8", FT_UINT32,
+              BASE_HEX|BASE_EXT_STRING, &controls_capabilities_vals_ext, (3u << 16), NULL, HFILL }},
+        { &hf_ac_if_fu_controls_v2_d9,
+            { "Loudness", "usbaudio.ac_if_fu.bmaControls.d9", FT_UINT32,
+              BASE_HEX|BASE_EXT_STRING, &controls_capabilities_vals_ext, (3u << 18), NULL, HFILL }},
+        { &hf_ac_if_fu_controls_v2_d10,
+            { "Input Gain", "usbaudio.ac_if_fu.bmaControls.d0", FT_UINT32,
+              BASE_HEX|BASE_EXT_STRING, &controls_capabilities_vals_ext, (3u << 20), NULL, HFILL }},
+        { &hf_ac_if_fu_controls_v2_d11,
+            { "Input Gain Pad", "usbaudio.ac_if_fu.bmaControls.d1", FT_UINT32,
+              BASE_HEX|BASE_EXT_STRING, &controls_capabilities_vals_ext, (3u << 22), NULL, HFILL }},
+        { &hf_ac_if_fu_controls_v2_d12,
+            { "Phase Inverter", "usbaudio.ac_if_fu.bmaControls.d2", FT_UINT32,
+              BASE_HEX|BASE_EXT_STRING, &controls_capabilities_vals_ext, (3u << 24), NULL, HFILL }},
+        { &hf_ac_if_fu_controls_v2_d13,
+            { "Underflow", "usbaudio.ac_if_fu.bmaControls.d3", FT_UINT32,
+              BASE_HEX|BASE_EXT_STRING, &controls_capabilities_vals_ext, (3u << 26), NULL, HFILL }},
+        { &hf_ac_if_fu_controls_v2_d14,
+            { "Overflow", "usbaudio.ac_if_fu.bmaControls.d4", FT_UINT32,
+              BASE_HEX|BASE_EXT_STRING, &controls_capabilities_vals_ext, (3u << 28), NULL, HFILL }},
+        { &hf_ac_if_fu_controls_v2_rsv,
+            { "Reserved", "usbaudio.ac_if_fu.bmaControls.rsv", FT_UINT32,
+              BASE_HEX, NULL, (3u << 30), "Must be zero", HFILL }},
         { &hf_ac_if_fu_ifeature,
             { "Feature", "usbaudio.ac_if_fu.iFeature",
               FT_UINT8, BASE_DEC, NULL, 0x00, "iFeature", HFILL }},
@@ -2968,6 +3093,8 @@ proto_register_usb_audio(void)
         &ett_ac_if_fu_controls,
         &ett_ac_if_fu_controls0,
         &ett_ac_if_fu_controls1,
+        &ett_ac_if_fu_controls_v2,
+        &ett_ac_if_fu_control_v2,
         &ett_ac_if_su_sourceids,
         &ett_ac_if_su_controls,
         &ett_ac_if_input_wchannelconfig,
