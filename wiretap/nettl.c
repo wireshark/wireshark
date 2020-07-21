@@ -61,8 +61,9 @@ struct nettlrec_hdr {
     guint32     sec;
     guint32     usec;
     guint32     pid;
-    guint8      xxc[10];
-    guint16     uid;
+    guint8      xxc[8];
+    guint32     uid;
+    /* Other stuff might be here, but isn't always here */
 };
 
 /*
@@ -554,7 +555,7 @@ nettl_read_rec(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
     pseudo_header->nettl.devid    = pntoh32(&rec_hdr.devid);
     pseudo_header->nettl.kind     = pntoh32(&rec_hdr.kind);
     pseudo_header->nettl.pid      = pntoh32(&rec_hdr.pid);
-    pseudo_header->nettl.uid      = pntoh16(&rec_hdr.uid);
+    pseudo_header->nettl.uid      = pntoh32(&rec_hdr.uid);
 
     if (rec->rec_header.packet_header.caplen > WTAP_MAX_PACKET_SIZE_STANDARD) {
         /*
