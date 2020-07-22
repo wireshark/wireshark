@@ -97,6 +97,7 @@ static const value_string mqtt_protocol_version_vals[] = {
 };
 
 static const enum_val_t mqtt_protocol_version_enumvals[] = {
+    { "none",  "None",         0 },
     { "v31",   "MQTT v3.1",    MQTT_PROTO_V31 },
     { "v311",  "MQTT v3.1.1",  MQTT_PROTO_V311 },
     { "v50",   "MQTT v5.0",    MQTT_PROTO_V50 },
@@ -501,7 +502,7 @@ static const value_string mqtt_reason_code_auth_vals[] = {
 
 static mqtt_message_decode_t *mqtt_message_decodes;
 static guint num_mqtt_message_decodes;
-static gint default_protocol_version = MQTT_PROTO_V311;
+static gint default_protocol_version;
 
 static dissector_handle_t mqtt_handle;
 
@@ -601,6 +602,7 @@ static gint ett_mqtt_subscription_flags = -1;
 
 /* Initialize the expert fields */
 static expert_field ei_illegal_length = EI_INIT;
+static expert_field ei_unknown_version = EI_INIT;
 static expert_field ei_unknown_topic_alias = EI_INIT;
 
 /* Reassemble SMPP TCP segments */
@@ -909,6 +911,7 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   guint8  mqtt_msg_type;
   proto_item *ti;
   const guint8 *topic_str = "";
+  proto_item *mqtt_ti;
   proto_tree *mqtt_tree;
   guint64     mqtt_con_flags;
   guint64     msg_len      = 0;
@@ -979,8 +982,8 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", val_to_str_ext(mqtt_msg_type, &mqtt_msgtype_vals_ext, "Unknown (0x%02x)"));
 
   /* Add the MQTT branch to the main tree */
-  ti = proto_tree_add_item(tree, proto_mqtt, tvb, 0, -1, ENC_NA);
-  mqtt_tree = proto_item_add_subtree(ti, ett_mqtt_hdr);
+  mqtt_ti = proto_tree_add_item(tree, proto_mqtt, tvb, 0, -1, ENC_NA);
+  mqtt_tree = proto_item_add_subtree(mqtt_ti, ett_mqtt_hdr);
 
   conv = find_or_create_conversation(pinfo);
   mqtt = (mqtt_conv_t *)conversation_get_proto_data(conv, proto_mqtt);
@@ -999,6 +1002,11 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
   /* Add the type to the MQTT tree item */
   proto_item_append_text(mqtt_tree, ", %s", val_to_str_ext(mqtt_msg_type, &mqtt_msgtype_vals_ext, "Unknown (0x%02x)"));
+
+  if ((mqtt_msg_type != MQTT_CONNECT) && (mqtt->runtime_proto_version == 0))
+  {
+    expert_add_info(pinfo, mqtt_ti, &ei_unknown_version);
+  }
 
   if (mqtt_msg_type == MQTT_PUBLISH)
   {
@@ -1756,6 +1764,8 @@ void proto_register_mqtt(void)
   static ei_register_info ei[] = {
     { &ei_illegal_length,
       { "mqtt.illegal_topic_length", PI_PROTOCOL, PI_WARN, "Length cannot be 0", EXPFILL } },
+    { &ei_unknown_version,
+      { "mqtt.unknown_version", PI_PROTOCOL, PI_NOTE, "Unknown version (missing the CONNECT packet?)", EXPFILL } },
     { &ei_unknown_topic_alias,
       { "mqtt.unknown_topic_alias", PI_PROTOCOL, PI_NOTE, "Unknown topic alias", EXPFILL } }
   };
