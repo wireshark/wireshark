@@ -12,7 +12,7 @@ typedef struct {
     char *bpf;
     char *dfilter;
     char **fields;
-    size_t num_of_fields;
+    unsigned int num_of_fields;
 } benchmark_case;
 
 typedef struct {
@@ -51,7 +51,7 @@ int load_cap(char *file, packet **packets, char errbuff[PCAP_ERRBUF_SIZE]) {
     return p_count;
 }
 
-void benchmark(packet packets[], int packet_len, char *bpf, char *display_filter, char *fields[], int fields_len,
+void benchmark(packet packets[], int packet_len, char *bpf, char *display_filter, char *fields[], unsigned int fields_len,
         int encapsulation_type) {
     char *err_msg;
     int filter_id = marine_add_filter(bpf, display_filter, fields, fields_len, encapsulation_type, &err_msg);

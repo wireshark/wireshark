@@ -23,6 +23,14 @@ After the compilation you'll receive libmarine.so which you can then load using 
 ## Usage
 The usage is described in C, however it can be applied to any language that will load libmarine.so and call its functions.
 
+0. Possible errors for initializing Marine (calling init_marine()):
+
+    | Value         | Condition     |
+    | ------------- |:-------------:|
+    | -1    | Internal Error      			   |
+    | -2    | Marine was already initialized               |
+
+
 1. 
     Add a filter (or many as you'd like). A filter contains a BPF, a display filter and output fields.
     Every parameter is optional. If it's passed as NULL, it won't be applied to the packet.

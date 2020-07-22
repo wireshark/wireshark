@@ -1,9 +1,14 @@
+#if __APPLE__
+    #include "macos_ether.h"
+#else
+    #include <netinet/ether.h>
+#endif
+
 #include "marine.h"
 #include "marine_dev.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <netinet/ether.h>
 #include <netinet/ip.h>
 
 #define PACKET_LEN 800U

@@ -88,6 +88,8 @@ static gboolean epan_auto_reset = TRUE;
 
 const unsigned int ETHERNET_ENCAP = 1;
 const unsigned int WIFI_ENCAP = 23;
+WS_DLL_PUBLIC_DEF const int MARINE_ALREADY_INITIALIZED_ERROR_CODE = -2;
+WS_DLL_PUBLIC_DEF const int MARINE_INIT_INTERNAL_ERROR_CODE = -1;
 
 /*
  * The way the packet decode is to be written.
@@ -132,6 +134,7 @@ typedef struct {
 static GHashTable *packet_filters;
 static int *packet_filter_keys[4096];
 static gboolean prefs_loaded = FALSE;
+static gboolean can_init_marine = TRUE;
 
 
 static void reset_epan_mem(capture_file *cf, epan_dissect_t *edt, gboolean tree, gboolean visual);
@@ -526,8 +529,8 @@ WS_DLL_PUBLIC int validate_display_filter(char *dfilter) {
     return TRUE;
 }
 
-int parse_output_fields(output_fields_t *output_fields, char **fields, int fields_len, char **err_msg) {
-    for (int i = 0; i < fields_len; i++) {
+int parse_output_fields(output_fields_t *output_fields, char **fields, unsigned int fields_len, char **err_msg) {
+    for (unsigned int i = 0; i < fields_len; i++) {
         output_fields_add(output_fields, fields[i]);
     }
 
@@ -561,7 +564,7 @@ int parse_output_fields(output_fields_t *output_fields, char **fields, int field
     return 0;
 }
 
-WS_DLL_PUBLIC int validate_fields(char **fields, size_t fields_len) {
+WS_DLL_PUBLIC int validate_fields(char **fields, unsigned int fields_len) {
     output_fields_t *output_fields = output_fields_new();
 
     if (parse_output_fields(output_fields, fields, fields_len, NULL) != 0) {
@@ -572,7 +575,7 @@ WS_DLL_PUBLIC int validate_fields(char **fields, size_t fields_len) {
     return TRUE;
 }
 
-WS_DLL_PUBLIC int marine_add_filter(char *bpf, char *dfilter, char **fields, size_t fields_len, int wtap_encap, char **err_msg) {
+WS_DLL_PUBLIC int marine_add_filter(char *bpf, char *dfilter, char **fields, unsigned int fields_len, int wtap_encap, char **err_msg) {
     // TODO make the error codes consts
     struct bpf_program fcode;
     dfilter_t *dfcode = NULL;
@@ -719,7 +722,7 @@ marine_cf_open(capture_file *cf) {
     cf->epan = marine_epan_new(cf);
 }
 
-WS_DLL_PUBLIC int init_marine(void) {
+int _init_marine(void) {
     // TODO: look at epan_auto_reset
     e_prefs *prefs_p;
 
@@ -738,7 +741,7 @@ WS_DLL_PUBLIC int init_marine(void) {
 
     /* Register all dissectors */
     if (!epan_init(NULL, NULL, TRUE)) {
-        return 1;
+        return MARINE_INIT_INTERNAL_ERROR_CODE;
     }
 
     /* we register the plugin taps before the other taps because
@@ -770,7 +773,7 @@ WS_DLL_PUBLIC int init_marine(void) {
     start_exportobjects();
 
     if (!setup_enabled_and_disabled_protocols()) {
-        return 2;
+        return MARINE_INIT_INTERNAL_ERROR_CODE;
     }
 
     /* Build the column format array */
@@ -781,6 +784,14 @@ WS_DLL_PUBLIC int init_marine(void) {
     packet_filters = g_hash_table_new(g_int_hash, g_int_equal);
     disable_name_resolution();
     return 0;
+}
+
+WS_DLL_PUBLIC int init_marine(void) {
+    if (!can_init_marine) {
+        return MARINE_ALREADY_INITIALIZED_ERROR_CODE;
+    }
+    can_init_marine = FALSE;
+    return _init_marine();
 }
 
 WS_DLL_PUBLIC void destroy_marine(void) {
