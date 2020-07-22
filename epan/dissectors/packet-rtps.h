@@ -34,6 +34,8 @@
  *
  *   NDDS and RTPS information: http://www.rti.com/resources.html
  *
+ * Vendor ID listing can be found at:
+ *   https://www.dds-foundation.org/dds-rtps-vendor-and-product-ids/
  */
 
 #ifndef _TYPEDEFS_DEFINES_RTPS_H
@@ -286,31 +288,31 @@ typedef struct _rtps_dissector_data {
 #define PID_PARTICIPANT_SECURITY_INFO           (0x1005)
 #define PID_TYPE_OBJECT_LB                      (0x8021)
 
-/* Vendor-specific: PT */
-#define PID_PRISMTECH_WRITER_INFO               (0x8001)
-#define PID_PRISMTECH_READER_DATA_LIFECYCLE     (0x8002)
-#define PID_PRISMTECH_WRITER_DATA_LIFECYCLE     (0x8003)
-#define PID_PRISMTECH_ENDPOINT_GUID             (0x8004)
-#define PID_PRISMTECH_SYNCHRONOUS_ENDPOINT      (0x8005)
-#define PID_PRISMTECH_RELAXED_QOS_MATCHING      (0x8006)
-#define PID_PRISMTECH_PARTICIPANT_VERSION_INFO  (0x8007)
-#define PID_PRISMTECH_NODE_NAME                 (0x8008)
-#define PID_PRISMTECH_EXEC_NAME                 (0x8009)
-#define PID_PRISMTECH_PROCESS_ID                (0x800a)
-#define PID_PRISMTECH_SERVICE_TYPE              (0x800b)
-#define PID_PRISMTECH_ENTITY_FACTORY            (0x800c)
-#define PID_PRISMTECH_WATCHDOG_SCHEDULING       (0x800d)
-#define PID_PRISMTECH_LISTENER_SCHEDULING       (0x800e)
-#define PID_PRISMTECH_SUBSCRIPTION_KEYS         (0x800f)
-#define PID_PRISMTECH_READER_LIFESPAN           (0x8010)
-#define PID_PRISMTECH_SHARE                     (0x8011)
-#define PID_PRISMTECH_TYPE_DESCRIPTION          (0x8012)
-#define PID_PRISMTECH_LAN_ID                    (0x8013)
-#define PID_PRISMTECH_ENDPOINT_GID              (0x8014)
-#define PID_PRISMTECH_GROUP_GID                 (0x8015)
-#define PID_PRISMTECH_EOTINFO                   (0x8016)
-#define PID_PRISMTECH_PART_CERT_NAME            (0x8017)
-#define PID_PRISMTECH_LAN_CERT_NAME             (0x8018)
+/* Vendor-specific: ADLink */
+#define PID_ADLINK_WRITER_INFO                  (0x8001)
+#define PID_ADLINK_READER_DATA_LIFECYCLE        (0x8002)
+#define PID_ADLINK_WRITER_DATA_LIFECYCLE        (0x8003)
+#define PID_ADLINK_ENDPOINT_GUID                (0x8004)
+#define PID_ADLINK_SYNCHRONOUS_ENDPOINT         (0x8005)
+#define PID_ADLINK_RELAXED_QOS_MATCHING         (0x8006)
+#define PID_ADLINK_PARTICIPANT_VERSION_INFO     (0x8007)
+#define PID_ADLINK_NODE_NAME                    (0x8008)
+#define PID_ADLINK_EXEC_NAME                    (0x8009)
+#define PID_ADLINK_PROCESS_ID                   (0x800a)
+#define PID_ADLINK_SERVICE_TYPE                 (0x800b)
+#define PID_ADLINK_ENTITY_FACTORY               (0x800c)
+#define PID_ADLINK_WATCHDOG_SCHEDULING          (0x800d)
+#define PID_ADLINK_LISTENER_SCHEDULING          (0x800e)
+#define PID_ADLINK_SUBSCRIPTION_KEYS            (0x800f)
+#define PID_ADLINK_READER_LIFESPAN              (0x8010)
+#define PID_ADLINK_SHARE                        (0x8011)
+#define PID_ADLINK_TYPE_DESCRIPTION             (0x8012)
+#define PID_ADLINK_LAN_ID                       (0x8013)
+#define PID_ADLINK_ENDPOINT_GID                 (0x8014)
+#define PID_ADLINK_GROUP_GID                    (0x8015)
+#define PID_ADLINK_EOTINFO                      (0x8016)
+#define PID_ADLINK_PART_CERT_NAME               (0x8017)
+#define PID_ADLINK_LAN_CERT_NAME                (0x8018)
 
 /* appId.appKind possible values */
 #define APPKIND_UNKNOWN                         (0x00)
@@ -436,19 +438,19 @@ typedef struct _rtps_dissector_data {
 #define PORT_INVALID                    (0)
 #define PORT_INVALID_STRING             "PORT_INVALID"
 
-/* Protocol Vendor Information (guint16) */
+/* Protocol Vendor Information (guint16) as per July 2020 */
 #define RTPS_VENDOR_UNKNOWN              (0x0000)
 #define RTPS_VENDOR_UNKNOWN_STRING       "VENDOR_ID_UNKNOWN (0x0000)"
 #define RTPS_VENDOR_RTI_DDS              (0x0101)
 #define RTPS_VENDOR_RTI_DDS_STRING       "Real-Time Innovations, Inc. - Connext DDS"
-#define RTPS_VENDOR_PT_DDS               (0x0102)
-#define RTPS_VENDOR_PT_DDS_STRING        "PrismTech Inc. - OpenSplice DDS"
+#define RTPS_VENDOR_ADL_DDS              (0x0102)
+#define RTPS_VENDOR_ADL_DDS_STRING       "ADLink Ltd. - OpenSplice DDS"
 #define RTPS_VENDOR_OCI                  (0x0103)
-#define RTPS_VENDOR_OCI_STRING           "Object Computing Incorporated, Inc. (OCI) - OpenDDS"
+#define RTPS_VENDOR_OCI_STRING           "Object Computing, Inc. (OCI) - OpenDDS"
 #define RTPS_VENDOR_MILSOFT              (0x0104)
 #define RTPS_VENDOR_MILSOFT_STRING       "MilSoft"
-#define RTPS_VENDOR_GALLIUM              (0x0105)
-#define RTPS_VENDOR_GALLIUM_STRING       "Gallium Visual Systems Inc. - InterCOM DDS"
+#define RTPS_VENDOR_KONGSBERG            (0x0105)
+#define RTPS_VENDOR_KONGSBERG_STRING     "Kongsberg - InterCOM DDS"
 #define RTPS_VENDOR_TOC                  (0x0106)
 #define RTPS_VENDOR_TOC_STRING           "TwinOaks Computing, Inc. - CoreDX DDS"
 #define RTPS_VENDOR_LAKOTA_TSI           (0x0107)
@@ -456,19 +458,23 @@ typedef struct _rtps_dissector_data {
 #define RTPS_VENDOR_ICOUP                (0x0108)
 #define RTPS_VENDOR_ICOUP_STRING         "ICOUP Consulting"
 #define RTPS_VENDOR_ETRI                 (0x0109)
-#define RTPS_VENDOR_ETRI_STRING          "ETRI Electronics and Telecommunication Research Institute"
+#define RTPS_VENDOR_ETRI_STRING          "Electronics and Telecommunication Research Institute (ETRI) - Diamond DDS"
 #define RTPS_VENDOR_RTI_DDS_MICRO        (0x010A)
 #define RTPS_VENDOR_RTI_DDS_MICRO_STRING "Real-Time Innovations, Inc. (RTI) - Connext DDS Micro"
-#define RTPS_VENDOR_PT_MOBILE            (0x010B)
-#define RTPS_VENDOR_PT_MOBILE_STRING     "PrismTech - OpenSplice Mobile"
-#define RTPS_VENDOR_PT_GATEWAY           (0x010C)
-#define RTPS_VENDOR_PT_GATEWAY_STRING    "PrismTech - OpenSplice Gateway"
-#define RTPS_VENDOR_PT_LITE              (0x010D)
-#define RTPS_VENDOR_PT_LITE_STRING       "PrismTech - OpenSplice Lite"
+#define RTPS_VENDOR_ADL_CAFE             (0x010B)
+#define RTPS_VENDOR_ADL_CAFE_STRING      "ADLink Ltd. - Vortex Cafe"
+#define RTPS_VENDOR_PT                   (0x010C)
+#define RTPS_VENDOR_PT_STRING            "PrismTech"
+#define RTPS_VENDOR_ADL_LITE             (0x010D)
+#define RTPS_VENDOR_ADL_LITE_STRING      "ADLink Ltd. - Vortex Lite"
 #define RTPS_VENDOR_TECHNICOLOR          (0x010E)
 #define RTPS_VENDOR_TECHNICOLOR_STRING   "Technicolor Inc. - Qeo"
 #define RTPS_VENDOR_EPROSIMA             (0x010F)
 #define RTPS_VENDOR_EPROSIMA_STRING      "eProsima - Fast-RTPS"
+#define RTPS_VENDOR_ECLIPSE              (0x0110)
+#define RTPS_VENDOR_ECLIPSE_STRING       "Eclipse Foundation - Cyclone DDS"
+#define RTPS_VENDOR_GURUM                (0x0111)
+#define RTPS_VENDOR_GURUM_STRING         "GurumNetworks Ltd. - GurumDDS"
 
 /* Data encapsulation */
 #define ENCAPSULATION_CDR_BE            (0x0000)
