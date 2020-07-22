@@ -278,7 +278,9 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
             pui8      = pui8DATA(data, pDescr->offset);
             *pui8     = ui8 + (guint8)pDescr->descr.value;
 
-            proto_tree_add_bits_item(tree, *(pDescr->hf_ptr), tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
+            proto_tree_add_uint_bits_format_value(tree, *(pDescr->hf_ptr), tvb, bit_offset, no_of_bits,
+                                                  *pui8, "%u (Raw %u + Offset %u)", *pui8, ui8,
+                                                  (guint8) pDescr->descr.value);
           }
           else if (no_of_bits <= 16)
           {
@@ -286,7 +288,9 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
             pui16       = pui16DATA(data, pDescr->offset);
             *pui16      = ui16 + (guint16)pDescr->descr.value;
 
-            proto_tree_add_bits_item(tree, *(pDescr->hf_ptr), tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
+            proto_tree_add_uint_bits_format_value(tree, *(pDescr->hf_ptr), tvb, bit_offset, no_of_bits,
+                                                  *pui16, "%u (Raw %u + Offset %u)", *pui16, ui16,
+                                                  (guint16) pDescr->descr.value);
           }
           else if (no_of_bits <= 32)
           {
@@ -294,7 +298,9 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
             pui32       = pui32DATA(data, pDescr->offset);
             *pui32      = ui32 + (guint16)pDescr->descr.value;
 
-            proto_tree_add_bits_item(tree, *(pDescr->hf_ptr), tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
+            proto_tree_add_uint_bits_format_value(tree, *(pDescr->hf_ptr), tvb, bit_offset, no_of_bits,
+                                                  *pui32, "%u (Raw %u + Offset %u)", *pui32, ui32,
+                                                  (guint16) pDescr->descr.value);
           }
           else
           {
