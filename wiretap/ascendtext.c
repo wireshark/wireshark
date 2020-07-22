@@ -32,7 +32,14 @@
 
    Please see ascend.y for examples.
 
-   Detailed documentation on TAOS products is at http://support.lucent.com.
+   Detailed documentation on TAOS products was at http://support.lucent.com;
+   that no longer works, and appears not to be available on the Wayback
+   Machine.
+
+   Some online manuals include:
+
+   MAX Administration Guide:
+       https://downloads.avaya.com/elmodocs2/definity/def_r10_new/max/0678_002.pdf
 
    Support for other commands will be added on an ongoing basis. */
 
