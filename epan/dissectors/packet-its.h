@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-its.h                                                               */
-/* asn2wrs.py -o its -c ./its.cnf -s ./packet-its-template -D . -O ../.. ITS-Container.asn ITS-ContainerV1.asn ISO_TS_14816.asn ISO_TS_24534-3.asn ISO_TS_17419.asn ISO_TS_14906_Application.asn ISO_TS_19091.asn ISO19321IVIv2.asn ETSI_TS_103301.asn CAMv1.asn CAM.asn DENMv1.asn DENM.asn TIS_TPG_Transactions_Descriptions.asn EVCSN-PDU-Descriptions.asn EV-RSR-PDU-Descriptions.asn */
+/* asn2wrs.py -o its -c ./its.cnf -s ./packet-its-template -D . -O ../.. ITS-Container.asn ITS-ContainerV1.asn ISO_TS_14816.asn ISO_TS_24534-3.asn ISO_TS_17419.asn ISO_TS_14906_Application.asn ISO_TS_19091.asn GDD.asn ISO19321IVIv2.asn ETSI_TS_103301.asn CAMv1.asn CAM.asn DENMv1.asn DENM.asn TIS_TPG_Transactions_Descriptions.asn EVCSN-PDU-Descriptions.asn EV-RSR-PDU-Descriptions.asn */
 
 /* Input file: packet-its-template.h */
 
@@ -50,6 +50,9 @@
 
 
 /* --- Module REGION --- --- ---                                              */
+
+
+/* --- Module GDD --- --- ---                                                 */
 
 
 /* --- Module IVI --- --- ---                                                 */
@@ -183,6 +186,9 @@ typedef enum _RegionId_enum {
 
 
 /* --- Module REGION --- --- ---                                              */
+
+
+/* --- Module GDD --- --- ---                                                 */
 
 
 /* --- Module IVI --- --- ---                                                 */

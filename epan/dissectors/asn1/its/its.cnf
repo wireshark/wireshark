@@ -31,9 +31,9 @@ StatusResponseCode
 CurrentVehicleConfiguration
 TpgLocation
 CS5
-IVI
 DSRCmsgID
 #.NO_EMIT
+Code-Units WITHOUT_VALS
 
 #.MODULE
 CAMv1-PDU-Descriptions					camv1
@@ -55,7 +55,8 @@ ElectronicRegistrationIdentificationVehicleDataModule	erivdm
 CITSapplMgmtIDs						csmid
 EfcDsrcApplication					dsrc_app
 IVI							ivi
-DSRC							dsrc
+GDD							gdd
+DSRC						dsrc
 RTCMEM-PDU-Descriptions   rtcmem
 #.END
 
@@ -765,7 +766,7 @@ TrafficConditionSubCauseCode
                                            10U, 12U, %(VAL_PTR)s, FALSE);
 #.END
 
-#.FN_BODY DistanceOrDuration/unit
+#.FN_BODY DistOrDuration-Units
   offset = dissect_per_constrained_integer(%(TVB)s, %(OFFSET)s, %(ACTX)s, %(TREE)s, %(HF_INDEX)s,
                                            2U, 9U, %(VAL_PTR)s, FALSE);
 #.END

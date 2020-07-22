@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-its.c                                                               */
-/* asn2wrs.py -o its -c ./its.cnf -s ./packet-its-template -D . -O ../.. ITS-Container.asn ITS-ContainerV1.asn ISO_TS_14816.asn ISO_TS_24534-3.asn ISO_TS_17419.asn ISO_TS_14906_Application.asn ISO_TS_19091.asn ISO19321IVIv2.asn ETSI_TS_103301.asn CAMv1.asn CAM.asn DENMv1.asn DENM.asn TIS_TPG_Transactions_Descriptions.asn EVCSN-PDU-Descriptions.asn EV-RSR-PDU-Descriptions.asn */
+/* asn2wrs.py -o its -c ./its.cnf -s ./packet-its-template -D . -O ../.. ITS-Container.asn ITS-ContainerV1.asn ISO_TS_14816.asn ISO_TS_24534-3.asn ISO_TS_17419.asn ISO_TS_14906_Application.asn ISO_TS_19091.asn GDD.asn ISO19321IVIv2.asn ETSI_TS_103301.asn CAMv1.asn CAM.asn DENMv1.asn DENM.asn TIS_TPG_Transactions_Descriptions.asn EVCSN-PDU-Descriptions.asn EV-RSR-PDU-Descriptions.asn */
 
 /* Input file: packet-its-template.c */
 
@@ -1034,6 +1034,97 @@ static int hf_AddGrpC_nodeZ = -1;                 /* DeltaAltitude */
 static int hf_AddGrpC_signalGroupID = -1;         /* SignalGroupID */
 static int hf_AddGrpC_SignalHeadLocationList_item = -1;  /* SignalHeadLocation */
 
+/* --- Module GDD --- --- ---                                                 */
+
+static int hf_gdd_pictogramCode = -1;             /* Pictogram */
+static int hf_gdd_attributes = -1;                /* GddAttributes */
+static int hf_gdd_countryCode = -1;               /* Pictogram_countryCode */
+static int hf_gdd_serviceCategoryCode = -1;       /* Pictogram_serviceCategory */
+static int hf_gdd_pictogramCategoryCode = -1;     /* Pictogram_category */
+static int hf_gdd_trafficSignPictogram = -1;      /* Pictogram_trafficSign */
+static int hf_gdd_publicFacilitiesPictogram = -1;  /* Pictogram_publicFacilitySign */
+static int hf_gdd_ambientOrRoadConditionPictogram = -1;  /* Pictogram_conditionsSign */
+static int hf_gdd_nature = -1;                    /* Pictogram_nature */
+static int hf_gdd_serialNumber = -1;              /* Pictogram_serialNumber */
+static int hf_gdd_GddAttributes_item = -1;        /* GddAttributes_item */
+static int hf_gdd_dtm = -1;                       /* InternationalSign_applicablePeriod */
+static int hf_gdd_edt = -1;                       /* InternationalSign_exemptedApplicablePeriod */
+static int hf_gdd_dfl = -1;                       /* InternationalSign_directionalFlowOfLane */
+static int hf_gdd_ved = -1;                       /* InternationalSign_applicableVehicleDimensions */
+static int hf_gdd_spe = -1;                       /* InternationalSign_speedLimits */
+static int hf_gdd_roi = -1;                       /* InternationalSign_rateOfIncline */
+static int hf_gdd_dbv = -1;                       /* InternationalSign_distanceBetweenVehicles */
+static int hf_gdd_ddd = -1;                       /* InternationalSign_destinationInformation */
+static int hf_gdd_set = -1;                       /* InternationalSign_section */
+static int hf_gdd_nol = -1;                       /* InternationalSign_numberOfLane */
+static int hf_gdd_year = -1;                      /* T_year */
+static int hf_gdd_yearRangeStartYear = -1;        /* Year */
+static int hf_gdd_yearRangeEndYear = -1;          /* Year */
+static int hf_gdd_month_day = -1;                 /* T_month_day */
+static int hf_gdd_dateRangeStartMonthDate = -1;   /* MonthDay */
+static int hf_gdd_dateRangeEndMonthDate = -1;     /* MonthDay */
+static int hf_gdd_repeatingPeriodDayTypes = -1;   /* RPDT */
+static int hf_gdd_hourMinutes = -1;               /* T_hourMinutes */
+static int hf_gdd_timeRangeStartTime = -1;        /* HoursMinutes */
+static int hf_gdd_timeRangeEndTime = -1;          /* HoursMinutes */
+static int hf_gdd_dateRangeOfWeek = -1;           /* DayOfWeek */
+static int hf_gdd_durationHourminute = -1;        /* HoursMinutes */
+static int hf_gdd_month = -1;                     /* MonthDay_month */
+static int hf_gdd_day = -1;                       /* MonthDay_day */
+static int hf_gdd_hours = -1;                     /* HoursMinutes_hours */
+static int hf_gdd_mins = -1;                      /* HoursMinutes_mins */
+static int hf_gdd_startingPointLength = -1;       /* Distance */
+static int hf_gdd_continuityLength = -1;          /* Distance */
+static int hf_gdd_vehicleHeight = -1;             /* Distance */
+static int hf_gdd_vehicleWidth = -1;              /* Distance */
+static int hf_gdd_vehicleLength = -1;             /* Distance */
+static int hf_gdd_vehicleWeight = -1;             /* Weight */
+static int hf_gdd_dValue = -1;                    /* INTEGER_1_16384 */
+static int hf_gdd_unit = -1;                      /* T_unit */
+static int hf_gdd_wValue = -1;                    /* INTEGER_1_16384 */
+static int hf_gdd_unit_01 = -1;                   /* T_unit_01 */
+static int hf_gdd_speedLimitMax = -1;             /* INTEGER_0_250 */
+static int hf_gdd_speedLimitMin = -1;             /* INTEGER_0_250 */
+static int hf_gdd_unit_02 = -1;                   /* T_unit_02 */
+static int hf_gdd_junctionDirection = -1;         /* DistinInfo_junctionDirection */
+static int hf_gdd_roundaboutCwDirection = -1;     /* DistinInfo_roundaboutCwDirection */
+static int hf_gdd_roundaboutCcwDirection = -1;    /* DistinInfo_roundaboutCcwDirection */
+static int hf_gdd_ioList = -1;                    /* SEQUENCE_SIZE_1_8__OF_DestinationInformationIO */
+static int hf_gdd_ioList_item = -1;               /* DestinationInformationIO */
+static int hf_gdd_arrowDirection = -1;            /* IO_arrowDirection */
+static int hf_gdd_destPlace = -1;                 /* SEQUENCE_SIZE_1_4__OF_DestinationPlace */
+static int hf_gdd_destPlace_item = -1;            /* DestinationPlace */
+static int hf_gdd_destRoad = -1;                  /* SEQUENCE_SIZE_1_4__OF_DestinationRoad */
+static int hf_gdd_destRoad_item = -1;             /* DestinationRoad */
+static int hf_gdd_roadNumberIdentifier = -1;      /* IO_roadNumberIdentifier */
+static int hf_gdd_streetName = -1;                /* IO_streetName */
+static int hf_gdd_streetNameText = -1;            /* IO_streetNameText */
+static int hf_gdd_distanceToDivergingPoint = -1;  /* DistanceOrDuration */
+static int hf_gdd_distanceToDestinationPlace = -1;  /* DistanceOrDuration */
+static int hf_gdd_destType = -1;                  /* DestinationType */
+static int hf_gdd_destRSCode = -1;                /* GddStructure */
+static int hf_gdd_destBlob = -1;                  /* DestPlace_destBlob */
+static int hf_gdd_placeNameIdentification = -1;   /* DestPlace_placeNameIdentification */
+static int hf_gdd_placeNameText = -1;             /* DestPlace_placeNameText */
+static int hf_gdd_derType = -1;                   /* DestinationRoadType */
+static int hf_gdd_roadNumberIdentifier_01 = -1;   /* DestRoad_roadNumberIdentifier */
+static int hf_gdd_roadNumberText = -1;            /* DestRoad_roadNumberText */
+static int hf_gdd_dodValue = -1;                  /* DistOrDuration_value */
+static int hf_gdd_unit_03 = -1;                   /* DistOrDuration_Units */
+/* named bits */
+static int hf_gdd_RPDT_national_holiday = -1;
+static int hf_gdd_RPDT_even_days = -1;
+static int hf_gdd_RPDT_odd_days = -1;
+static int hf_gdd_RPDT_market_day = -1;
+static int hf_gdd_DayOfWeek_unused = -1;
+static int hf_gdd_DayOfWeek_monday = -1;
+static int hf_gdd_DayOfWeek_tuesday = -1;
+static int hf_gdd_DayOfWeek_wednesday = -1;
+static int hf_gdd_DayOfWeek_thursday = -1;
+static int hf_gdd_DayOfWeek_friday = -1;
+static int hf_gdd_DayOfWeek_saturday = -1;
+static int hf_gdd_DayOfWeek_sunday = -1;
+
 /* --- Module IVI --- --- ---                                                 */
 
 static int hf_ivi_ivi_IviStructure_PDU = -1;      /* IviStructure */
@@ -1255,71 +1346,6 @@ static int hf_ivi_soundLevel = -1;                /* SoundLevel */
 static int hf_ivi_segment = -1;                   /* Segment */
 static int hf_ivi_area = -1;                      /* PolygonalLine */
 static int hf_ivi_computedSegment = -1;           /* ComputedSegment */
-static int hf_ivi_dValue = -1;                    /* INTEGER_1_16384 */
-static int hf_ivi_unit_01 = -1;                   /* T_unit */
-static int hf_ivi_dodValue = -1;                  /* INTEGER_1_16384 */
-static int hf_ivi_unit_02 = -1;                   /* T_unit_01 */
-static int hf_ivi_wValue = -1;                    /* INTEGER_1_16384 */
-static int hf_ivi_unit_03 = -1;                   /* T_unit_02 */
-static int hf_ivi_year = -1;                      /* T_year */
-static int hf_ivi_syr = -1;                       /* INTEGER_2000_2127_ */
-static int hf_ivi_eyr = -1;                       /* INTEGER_2000_2127_ */
-static int hf_ivi_month_day = -1;                 /* T_month_day */
-static int hf_ivi_smd = -1;                       /* MonthDay */
-static int hf_ivi_emd = -1;                       /* MonthDay */
-static int hf_ivi_pmd = -1;                       /* PMD */
-static int hf_ivi_hourMinutes = -1;               /* T_hourMinutes */
-static int hf_ivi_shm = -1;                       /* HoursMinutes */
-static int hf_ivi_ehm = -1;                       /* HoursMinutes */
-static int hf_ivi_dayOfWeek = -1;                 /* DayOfWeek */
-static int hf_ivi_period = -1;                    /* HoursMinutes */
-static int hf_ivi_month = -1;                     /* INTEGER_1_12 */
-static int hf_ivi_day = -1;                       /* INTEGER_1_31 */
-static int hf_ivi_hours = -1;                     /* INTEGER_0_23 */
-static int hf_ivi_mins = -1;                      /* INTEGER_0_59 */
-static int hf_ivi_hei = -1;                       /* Distance */
-static int hf_ivi_wid = -1;                       /* Distance */
-static int hf_ivi_vln = -1;                       /* Distance */
-static int hf_ivi_wei = -1;                       /* Weight */
-static int hf_ivi_spm = -1;                       /* INTEGER_0_250 */
-static int hf_ivi_mns = -1;                       /* INTEGER_0_250 */
-static int hf_ivi_unit_04 = -1;                   /* T_unit_03 */
-static int hf_ivi_dcj = -1;                       /* INTEGER_1_128 */
-static int hf_ivi_dcr = -1;                       /* INTEGER_1_128 */
-static int hf_ivi_tpl = -1;                       /* INTEGER_1_128 */
-static int hf_ivi_ioList = -1;                    /* SEQUENCE_SIZE_1_8__OF_DDD_IO */
-static int hf_ivi_ioList_item = -1;               /* DDD_IO */
-static int hf_ivi_drn = -1;                       /* INTEGER_0_7 */
-static int hf_ivi_dp = -1;                        /* SEQUENCE_SIZE_1_4__OF_DestinationPlace */
-static int hf_ivi_dp_item = -1;                   /* DestinationPlace */
-static int hf_ivi_dr = -1;                        /* SEQUENCE_SIZE_1_4__OF_DestinationRoad */
-static int hf_ivi_dr_item = -1;                   /* DestinationRoad */
-static int hf_ivi_rne = -1;                       /* INTEGER_1_999 */
-static int hf_ivi_stnId = -1;                     /* INTEGER_1_999 */
-static int hf_ivi_stnText = -1;                   /* UTF8String */
-static int hf_ivi_dcp = -1;                       /* DistanceOrDuration */
-static int hf_ivi_ddp = -1;                       /* DistanceOrDuration */
-static int hf_ivi_depType = -1;                   /* DDD_DEP */
-static int hf_ivi_depRSCode = -1;                 /* ISO14823Code */
-static int hf_ivi_depBlob = -1;                   /* OCTET_STRING */
-static int hf_ivi_plnId = -1;                     /* INTEGER_1_999 */
-static int hf_ivi_plnText = -1;                   /* UTF8String */
-static int hf_ivi_derType = -1;                   /* DDD_DER */
-static int hf_ivi_ronId = -1;                     /* INTEGER_1_999 */
-static int hf_ivi_ronText = -1;                   /* UTF8String */
-/* named bits */
-static int hf_ivi_PMD_national_holiday = -1;
-static int hf_ivi_PMD_even_days = -1;
-static int hf_ivi_PMD_odd_days = -1;
-static int hf_ivi_PMD_market_day = -1;
-static int hf_ivi_DayOfWeek_unused = -1;
-static int hf_ivi_DayOfWeek_monday = -1;
-static int hf_ivi_DayOfWeek_tuesday = -1;
-static int hf_ivi_DayOfWeek_wednesday = -1;
-static int hf_ivi_DayOfWeek_thursday = -1;
-static int hf_ivi_DayOfWeek_friday = -1;
-static int hf_ivi_DayOfWeek_saturday = -1;
-static int hf_ivi_DayOfWeek_sunday = -1;
 static int dummy_hf_ivi_eag_field = -1; /* never registered */
 
 /* --- Module CAMv1-PDU-Descriptions --- --- ---                              */
@@ -2042,6 +2068,36 @@ static gint ett_AddGrpC_SignalHeadLocationList = -1;
 /* --- Module REGION --- --- ---                                              */
 
 
+/* --- Module GDD --- --- ---                                                 */
+
+static gint ett_gdd_GddStructure = -1;
+static gint ett_gdd_Pictogram = -1;
+static gint ett_gdd_Pictogram_serviceCategory = -1;
+static gint ett_gdd_Pictogram_category = -1;
+static gint ett_gdd_GddAttributes = -1;
+static gint ett_gdd_GddAttributes_item = -1;
+static gint ett_gdd_InternationalSign_applicablePeriod = -1;
+static gint ett_gdd_T_year = -1;
+static gint ett_gdd_T_month_day = -1;
+static gint ett_gdd_T_hourMinutes = -1;
+static gint ett_gdd_MonthDay = -1;
+static gint ett_gdd_HoursMinutes = -1;
+static gint ett_gdd_RPDT = -1;
+static gint ett_gdd_DayOfWeek = -1;
+static gint ett_gdd_InternationalSign_section = -1;
+static gint ett_gdd_InternationalSign_applicableVehicleDimensions = -1;
+static gint ett_gdd_Distance = -1;
+static gint ett_gdd_Weight = -1;
+static gint ett_gdd_InternationalSign_speedLimits = -1;
+static gint ett_gdd_InternationalSign_destinationInformation = -1;
+static gint ett_gdd_SEQUENCE_SIZE_1_8__OF_DestinationInformationIO = -1;
+static gint ett_gdd_DestinationInformationIO = -1;
+static gint ett_gdd_SEQUENCE_SIZE_1_4__OF_DestinationPlace = -1;
+static gint ett_gdd_SEQUENCE_SIZE_1_4__OF_DestinationRoad = -1;
+static gint ett_gdd_DestinationPlace = -1;
+static gint ett_gdd_DestinationRoad = -1;
+static gint ett_gdd_DistanceOrDuration = -1;
+
 /* --- Module IVI --- --- ---                                                 */
 
 static gint ett_ivi_IviStructure = -1;
@@ -2123,26 +2179,6 @@ static gint ett_ivi_VehicleCharacteristicsFixValues = -1;
 static gint ett_ivi_VehicleCharacteristicsRanges = -1;
 static gint ett_ivi_T_limits = -1;
 static gint ett_ivi_Zone = -1;
-static gint ett_ivi_Distance = -1;
-static gint ett_ivi_DistanceOrDuration = -1;
-static gint ett_ivi_Weight = -1;
-static gint ett_ivi_InternationalSign_applicablePeriod = -1;
-static gint ett_ivi_T_year = -1;
-static gint ett_ivi_T_month_day = -1;
-static gint ett_ivi_T_hourMinutes = -1;
-static gint ett_ivi_MonthDay = -1;
-static gint ett_ivi_PMD = -1;
-static gint ett_ivi_HoursMinutes = -1;
-static gint ett_ivi_DayOfWeek = -1;
-static gint ett_ivi_InternationalSign_applicableVehicleDimensions = -1;
-static gint ett_ivi_InternationalSign_speedLimits = -1;
-static gint ett_ivi_InternationalSign_destinationInformation = -1;
-static gint ett_ivi_SEQUENCE_SIZE_1_8__OF_DDD_IO = -1;
-static gint ett_ivi_DDD_IO = -1;
-static gint ett_ivi_SEQUENCE_SIZE_1_4__OF_DestinationPlace = -1;
-static gint ett_ivi_SEQUENCE_SIZE_1_4__OF_DestinationRoad = -1;
-static gint ett_ivi_DestinationPlace = -1;
-static gint ett_ivi_DestinationRoad = -1;
 
 /* --- Module SPATEM-PDU-Descriptions --- --- ---                             */
 
@@ -2400,7 +2436,7 @@ static const per_sequence_t its_ItsPduHeader_sequence[] = {
 
 static int
 dissect_its_ItsPduHeader(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 645 "./asn1/its/its.cnf"
+#line 646 "./asn1/its/its.cnf"
   guint8 version = tvb_get_guint8(tvb, 0);
   int test_offset = offset;
   if ((test_offset = dissector_try_uint(its_version_subdissector_table, version, tvb, actx->pinfo, tree))) {
@@ -2794,7 +2830,7 @@ dissect_its_CauseCodeType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static int
 dissect_its_SubCauseCodeType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 749 "./asn1/its/its.cnf"
+#line 750 "./asn1/its/its.cnf"
   // Overwrite hf_index
   hf_index = *find_subcause_from_cause((CauseCodeType_enum) ((its_private_data_t*)actx->private_data)->cause_code);
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
@@ -7234,14 +7270,14 @@ static const per_sequence_t dsrc_Position3D_sequence[] = {
 
 static int
 dissect_dsrc_Position3D(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 550 "./asn1/its/its.cnf"
+#line 551 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_Position3D;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_Position3D, dsrc_Position3D_sequence);
 
-#line 554 "./asn1/its/its.cnf"
+#line 555 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -7586,14 +7622,14 @@ static const per_sequence_t dsrc_LaneAttributes_sequence[] = {
 
 static int
 dissect_dsrc_LaneAttributes(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 496 "./asn1/its/its.cnf"
+#line 497 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_LaneAttributes;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_LaneAttributes, dsrc_LaneAttributes_sequence);
 
-#line 500 "./asn1/its/its.cnf"
+#line 501 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -7816,7 +7852,7 @@ static const per_choice_t dsrc_NodeOffsetPointXY_choice[] = {
 
 static int
 dissect_dsrc_NodeOffsetPointXY(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 541 "./asn1/its/its.cnf"
+#line 542 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_NodeOffsetPointXY;
 
@@ -7824,7 +7860,7 @@ dissect_dsrc_NodeOffsetPointXY(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
                                  ett_dsrc_NodeOffsetPointXY, dsrc_NodeOffsetPointXY_choice,
                                  NULL);
 
-#line 545 "./asn1/its/its.cnf"
+#line 546 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -8005,7 +8041,7 @@ static const per_choice_t dsrc_LaneDataAttribute_choice[] = {
 
 static int
 dissect_dsrc_LaneDataAttribute(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 505 "./asn1/its/its.cnf"
+#line 506 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_LaneDataAttribute;
 
@@ -8013,7 +8049,7 @@ dissect_dsrc_LaneDataAttribute(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
                                  ett_dsrc_LaneDataAttribute, dsrc_LaneDataAttribute_choice,
                                  NULL);
 
-#line 509 "./asn1/its/its.cnf"
+#line 510 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -8061,14 +8097,14 @@ static const per_sequence_t dsrc_NodeAttributeSetXY_sequence[] = {
 
 static int
 dissect_dsrc_NodeAttributeSetXY(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 532 "./asn1/its/its.cnf"
+#line 533 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_NodeAttributeSetXY;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_NodeAttributeSetXY, dsrc_NodeAttributeSetXY_sequence);
 
-#line 536 "./asn1/its/its.cnf"
+#line 537 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -8215,14 +8251,14 @@ static const per_sequence_t dsrc_ComputedLane_sequence[] = {
 
 static int
 dissect_dsrc_ComputedLane(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 451 "./asn1/its/its.cnf"
+#line 452 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_ComputedLane;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_ComputedLane, dsrc_ComputedLane_sequence);
 
-#line 455 "./asn1/its/its.cnf"
+#line 456 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -8372,14 +8408,14 @@ static const per_sequence_t dsrc_GenericLane_sequence[] = {
 
 static int
 dissect_dsrc_GenericLane(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 469 "./asn1/its/its.cnf"
+#line 470 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_GenericLane;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_GenericLane, dsrc_GenericLane_sequence);
 
-#line 473 "./asn1/its/its.cnf"
+#line 474 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -8407,14 +8443,14 @@ static const per_sequence_t dsrc_SignalControlZone_sequence[] = {
 
 static int
 dissect_dsrc_SignalControlZone(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 631 "./asn1/its/its.cnf"
+#line 632 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_SignalControlZone;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_SignalControlZone, dsrc_SignalControlZone_sequence);
 
-#line 635 "./asn1/its/its.cnf"
+#line 636 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -8464,14 +8500,14 @@ static const per_sequence_t dsrc_IntersectionGeometry_sequence[] = {
 
 static int
 dissect_dsrc_IntersectionGeometry(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 478 "./asn1/its/its.cnf"
+#line 479 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_IntersectionGeometry;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_IntersectionGeometry, dsrc_IntersectionGeometry_sequence);
 
-#line 482 "./asn1/its/its.cnf"
+#line 483 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -8559,14 +8595,14 @@ static const per_sequence_t dsrc_RoadSegment_sequence[] = {
 
 static int
 dissect_dsrc_RoadSegment(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 586 "./asn1/its/its.cnf"
+#line 587 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_RoadSegment;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_RoadSegment, dsrc_RoadSegment_sequence);
 
-#line 590 "./asn1/its/its.cnf"
+#line 591 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -8670,7 +8706,7 @@ static const per_choice_t dsrc_RestrictionUserType_choice[] = {
 
 static int
 dissect_dsrc_RestrictionUserType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 577 "./asn1/its/its.cnf"
+#line 578 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_RestrictionUserType;
 
@@ -8678,7 +8714,7 @@ dissect_dsrc_RestrictionUserType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
                                  ett_dsrc_RestrictionUserType, dsrc_RestrictionUserType_choice,
                                  NULL);
 
-#line 581 "./asn1/its/its.cnf"
+#line 582 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -8757,7 +8793,7 @@ static const per_sequence_t dsrc_MapData_sequence[] = {
 
 static int
 dissect_dsrc_MapData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 361 "./asn1/its/its.cnf"
+#line 362 "./asn1/its/its.cnf"
   its_private_data_t *regext = wmem_new0(wmem_packet_scope(), its_private_data_t);
   actx->private_data = (void*)regext;
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "MAPEM");
@@ -9315,7 +9351,7 @@ static const per_sequence_t dsrc_RTCMcorrections_sequence[] = {
 
 static int
 dissect_dsrc_RTCMcorrections(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 378 "./asn1/its/its.cnf"
+#line 379 "./asn1/its/its.cnf"
   its_private_data_t *regext = wmem_new0(wmem_packet_scope(), its_private_data_t);
   actx->private_data = (void*)regext;
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "RTCMEM");
@@ -9497,14 +9533,14 @@ static const per_sequence_t dsrc_AdvisorySpeed_sequence[] = {
 
 static int
 dissect_dsrc_AdvisorySpeed(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 442 "./asn1/its/its.cnf"
+#line 443 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_AdvisorySpeed;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_AdvisorySpeed, dsrc_AdvisorySpeed_sequence);
 
-#line 446 "./asn1/its/its.cnf"
+#line 447 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -9549,14 +9585,14 @@ static const per_sequence_t dsrc_MovementEvent_sequence[] = {
 
 static int
 dissect_dsrc_MovementEvent(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 514 "./asn1/its/its.cnf"
+#line 515 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_MovementEvent;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_MovementEvent, dsrc_MovementEvent_sequence);
 
-#line 518 "./asn1/its/its.cnf"
+#line 519 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -9621,14 +9657,14 @@ static const per_sequence_t dsrc_ConnectionManeuverAssist_sequence[] = {
 
 static int
 dissect_dsrc_ConnectionManeuverAssist(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 460 "./asn1/its/its.cnf"
+#line 461 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_ConnectionManeuverAssist;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_ConnectionManeuverAssist, dsrc_ConnectionManeuverAssist_sequence);
 
-#line 464 "./asn1/its/its.cnf"
+#line 465 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -9674,14 +9710,14 @@ static const per_sequence_t dsrc_MovementState_sequence[] = {
 
 static int
 dissect_dsrc_MovementState(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 523 "./asn1/its/its.cnf"
+#line 524 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_MovementState;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_MovementState, dsrc_MovementState_sequence);
 
-#line 527 "./asn1/its/its.cnf"
+#line 528 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -9732,14 +9768,14 @@ static const per_sequence_t dsrc_IntersectionState_sequence[] = {
 
 static int
 dissect_dsrc_IntersectionState(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 487 "./asn1/its/its.cnf"
+#line 488 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_IntersectionState;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_IntersectionState, dsrc_IntersectionState_sequence);
 
-#line 491 "./asn1/its/its.cnf"
+#line 492 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -9784,7 +9820,7 @@ static const per_sequence_t dsrc_SPAT_sequence[] = {
 
 static int
 dissect_dsrc_SPAT(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 369 "./asn1/its/its.cnf"
+#line 370 "./asn1/its/its.cnf"
   its_private_data_t *regext = wmem_new0(wmem_packet_scope(), its_private_data_t);
   actx->private_data = (void*)regext;
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "SPATEM");
@@ -9876,14 +9912,14 @@ static const per_sequence_t dsrc_SignalRequest_sequence[] = {
 
 static int
 dissect_dsrc_SignalRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 604 "./asn1/its/its.cnf"
+#line 605 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_SignalRequest;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_SignalRequest, dsrc_SignalRequest_sequence);
 
-#line 608 "./asn1/its/its.cnf"
+#line 609 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -9915,14 +9951,14 @@ static const per_sequence_t dsrc_SignalRequestPackage_sequence[] = {
 
 static int
 dissect_dsrc_SignalRequestPackage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 595 "./asn1/its/its.cnf"
+#line 596 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_SignalRequestPackage;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_SignalRequestPackage, dsrc_SignalRequestPackage_sequence);
 
-#line 599 "./asn1/its/its.cnf"
+#line 600 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -10114,14 +10150,14 @@ static const per_sequence_t dsrc_RequestorType_sequence[] = {
 
 static int
 dissect_dsrc_RequestorType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 568 "./asn1/its/its.cnf"
+#line 569 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_RequestorType;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_RequestorType, dsrc_RequestorType_sequence);
 
-#line 572 "./asn1/its/its.cnf"
+#line 573 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -10224,14 +10260,14 @@ static const per_sequence_t dsrc_RequestorDescription_sequence[] = {
 
 static int
 dissect_dsrc_RequestorDescription(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 559 "./asn1/its/its.cnf"
+#line 560 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_RequestorDescription;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_RequestorDescription, dsrc_RequestorDescription_sequence);
 
-#line 563 "./asn1/its/its.cnf"
+#line 564 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -10264,7 +10300,7 @@ static const per_sequence_t dsrc_SignalRequestMessage_sequence[] = {
 
 static int
 dissect_dsrc_SignalRequestMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 353 "./asn1/its/its.cnf"
+#line 354 "./asn1/its/its.cnf"
   its_private_data_t *regext = wmem_new0(wmem_packet_scope(), its_private_data_t);
   actx->private_data = (void*)regext;
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "SREM");
@@ -10346,14 +10382,14 @@ static const per_sequence_t dsrc_SignalStatusPackage_sequence[] = {
 
 static int
 dissect_dsrc_SignalStatusPackage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 613 "./asn1/its/its.cnf"
+#line 614 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_SignalStatusPackage;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_SignalStatusPackage, dsrc_SignalStatusPackage_sequence);
 
-#line 617 "./asn1/its/its.cnf"
+#line 618 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -10398,14 +10434,14 @@ static const per_sequence_t dsrc_SignalStatus_sequence[] = {
 
 static int
 dissect_dsrc_SignalStatus(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 622 "./asn1/its/its.cnf"
+#line 623 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_SignalStatus;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_SignalStatus, dsrc_SignalStatus_sequence);
 
-#line 626 "./asn1/its/its.cnf"
+#line 627 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -10451,7 +10487,7 @@ static const per_sequence_t dsrc_SignalStatusMessage_sequence[] = {
 
 static int
 dissect_dsrc_SignalStatusMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 345 "./asn1/its/its.cnf"
+#line 346 "./asn1/its/its.cnf"
   its_private_data_t *regext = wmem_new0(wmem_packet_scope(), its_private_data_t);
   actx->private_data = (void*)regext;
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "SSEM");
@@ -10598,7 +10634,7 @@ static const per_sequence_t AddGrpC_ConnectionManeuverAssist_addGrpC_sequence[] 
 
 static int
 dissect_AddGrpC_ConnectionManeuverAssist_addGrpC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 387 "./asn1/its/its.cnf"
+#line 388 "./asn1/its/its.cnf"
   actx->private_data = wmem_new0(wmem_packet_scope(), its_private_data_t);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -10616,7 +10652,7 @@ static const per_sequence_t AddGrpC_ConnectionTrajectory_addGrpC_sequence[] = {
 
 static int
 dissect_AddGrpC_ConnectionTrajectory_addGrpC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 392 "./asn1/its/its.cnf"
+#line 393 "./asn1/its/its.cnf"
   actx->private_data = wmem_new0(wmem_packet_scope(), its_private_data_t);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -10663,7 +10699,7 @@ static const per_sequence_t AddGrpC_IntersectionState_addGrpC_sequence[] = {
 
 static int
 dissect_AddGrpC_IntersectionState_addGrpC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 402 "./asn1/its/its.cnf"
+#line 403 "./asn1/its/its.cnf"
   actx->private_data = wmem_new0(wmem_packet_scope(), its_private_data_t);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -10681,7 +10717,7 @@ static const per_sequence_t AddGrpC_LaneAttributes_addGrpC_sequence[] = {
 
 static int
 dissect_AddGrpC_LaneAttributes_addGrpC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 427 "./asn1/its/its.cnf"
+#line 428 "./asn1/its/its.cnf"
   actx->private_data = wmem_new0(wmem_packet_scope(), its_private_data_t);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -10728,7 +10764,7 @@ static const per_sequence_t AddGrpC_MapData_addGrpC_sequence[] = {
 
 static int
 dissect_AddGrpC_MapData_addGrpC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 407 "./asn1/its/its.cnf"
+#line 408 "./asn1/its/its.cnf"
   actx->private_data = wmem_new0(wmem_packet_scope(), its_private_data_t);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -10772,7 +10808,7 @@ static const per_sequence_t AddGrpC_MovementEvent_addGrpC_sequence[] = {
 
 static int
 dissect_AddGrpC_MovementEvent_addGrpC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 432 "./asn1/its/its.cnf"
+#line 433 "./asn1/its/its.cnf"
   actx->private_data = wmem_new0(wmem_packet_scope(), its_private_data_t);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -10850,7 +10886,7 @@ static const per_sequence_t AddGrpC_NodeAttributeSet_addGrpC_sequence[] = {
 
 static int
 dissect_AddGrpC_NodeAttributeSet_addGrpC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 397 "./asn1/its/its.cnf"
+#line 398 "./asn1/its/its.cnf"
   actx->private_data = wmem_new0(wmem_packet_scope(), its_private_data_t);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -10867,7 +10903,7 @@ static const per_sequence_t AddGrpC_Position3D_addGrpC_sequence[] = {
 
 static int
 dissect_AddGrpC_Position3D_addGrpC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 412 "./asn1/its/its.cnf"
+#line 413 "./asn1/its/its.cnf"
   actx->private_data = wmem_new0(wmem_packet_scope(), its_private_data_t);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -10905,7 +10941,7 @@ static const per_sequence_t AddGrpC_RestrictionUserType_addGrpC_sequence[] = {
 
 static int
 dissect_AddGrpC_RestrictionUserType_addGrpC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 417 "./asn1/its/its.cnf"
+#line 418 "./asn1/its/its.cnf"
   actx->private_data = wmem_new0(wmem_packet_scope(), its_private_data_t);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -10941,7 +10977,7 @@ static const per_sequence_t AddGrpC_RequestorDescription_addGrpC_sequence[] = {
 
 static int
 dissect_AddGrpC_RequestorDescription_addGrpC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 437 "./asn1/its/its.cnf"
+#line 438 "./asn1/its/its.cnf"
   actx->private_data = wmem_new0(wmem_packet_scope(), its_private_data_t);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -10979,7 +11015,7 @@ static const per_sequence_t AddGrpC_SignalStatusPackage_addGrpC_sequence[] = {
 
 static int
 dissect_AddGrpC_SignalStatusPackage_addGrpC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 422 "./asn1/its/its.cnf"
+#line 423 "./asn1/its/its.cnf"
   actx->private_data = wmem_new0(wmem_packet_scope(), its_private_data_t);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -11083,13 +11119,946 @@ static int dissect_AddGrpC_SignalStatusPackage_addGrpC_PDU(tvbuff_t *tvb _U_, pa
 /* --- Module REGION --- --- ---                                              */
 
 
-/* --- Module IVI --- --- ---                                                 */
+/* --- Module GDD --- --- ---                                                 */
 
 /*--- Cyclic dependencies ---*/
 
-/* ISO14823Code -> ISO14823Attributes -> ISO14823Attribute -> InternationalSign-destinationInformation -> InternationalSign-destinationInformation/ioList -> DDD-IO -> DDD-IO/dp -> DestinationPlace -> ISO14823Code */
-static int dissect_ivi_ISO14823Code(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+/* GddStructure -> GddAttributes -> GddAttributes/_item -> InternationalSign-destinationInformation -> InternationalSign-destinationInformation/ioList -> DestinationInformationIO -> DestinationInformationIO/destPlace -> DestinationPlace -> GddStructure */
+static int dissect_gdd_GddStructure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
+
+
+
+static int
+dissect_gdd_Pictogram_countryCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       2, 2, FALSE, NULL);
+
+  return offset;
+}
+
+
+static const value_string gdd_Pictogram_trafficSign_vals[] = {
+  {  11, "dangerWarning" },
+  {  12, "regulatory" },
+  {  13, "informative" },
+  { 0, NULL }
+};
+
+static guint32 gdd_Pictogram_trafficSign_value_map[3+0] = {11, 12, 13};
+
+static int
+dissect_gdd_Pictogram_trafficSign(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     3, NULL, TRUE, 0, gdd_Pictogram_trafficSign_value_map);
+
+  return offset;
+}
+
+
+static const value_string gdd_Pictogram_publicFacilitySign_vals[] = {
+  {  21, "publicFacilities" },
+  { 0, NULL }
+};
+
+static guint32 gdd_Pictogram_publicFacilitySign_value_map[1+0] = {21};
+
+static int
+dissect_gdd_Pictogram_publicFacilitySign(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, TRUE, 0, gdd_Pictogram_publicFacilitySign_value_map);
+
+  return offset;
+}
+
+
+static const value_string gdd_Pictogram_conditionsSign_vals[] = {
+  {  31, "ambientCondition" },
+  {  32, "roadCondition" },
+  { 0, NULL }
+};
+
+static guint32 gdd_Pictogram_conditionsSign_value_map[2+0] = {31, 32};
+
+static int
+dissect_gdd_Pictogram_conditionsSign(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     2, NULL, TRUE, 0, gdd_Pictogram_conditionsSign_value_map);
+
+  return offset;
+}
+
+
+static const value_string gdd_Pictogram_serviceCategory_vals[] = {
+  {   0, "trafficSignPictogram" },
+  {   1, "publicFacilitiesPictogram" },
+  {   2, "ambientOrRoadConditionPictogram" },
+  { 0, NULL }
+};
+
+static const per_choice_t gdd_Pictogram_serviceCategory_choice[] = {
+  {   0, &hf_gdd_trafficSignPictogram, ASN1_NO_EXTENSIONS     , dissect_gdd_Pictogram_trafficSign },
+  {   1, &hf_gdd_publicFacilitiesPictogram, ASN1_NO_EXTENSIONS     , dissect_gdd_Pictogram_publicFacilitySign },
+  {   2, &hf_gdd_ambientOrRoadConditionPictogram, ASN1_NO_EXTENSIONS     , dissect_gdd_Pictogram_conditionsSign },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_gdd_Pictogram_serviceCategory(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_gdd_Pictogram_serviceCategory, gdd_Pictogram_serviceCategory_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gdd_Pictogram_nature(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            1U, 9U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gdd_Pictogram_serialNumber(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 99U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t gdd_Pictogram_category_sequence[] = {
+  { &hf_gdd_nature          , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_gdd_Pictogram_nature },
+  { &hf_gdd_serialNumber    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_gdd_Pictogram_serialNumber },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_gdd_Pictogram_category(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_gdd_Pictogram_category, gdd_Pictogram_category_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t gdd_Pictogram_sequence[] = {
+  { &hf_gdd_countryCode     , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_gdd_Pictogram_countryCode },
+  { &hf_gdd_serviceCategoryCode, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_gdd_Pictogram_serviceCategory },
+  { &hf_gdd_pictogramCategoryCode, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_gdd_Pictogram_category },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_gdd_Pictogram(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_gdd_Pictogram, gdd_Pictogram_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gdd_Year(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            2000U, 2127U, NULL, TRUE);
+
+  return offset;
+}
+
+
+static const per_sequence_t gdd_T_year_sequence[] = {
+  { &hf_gdd_yearRangeStartYear, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_gdd_Year },
+  { &hf_gdd_yearRangeEndYear, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_gdd_Year },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_gdd_T_year(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_gdd_T_year, gdd_T_year_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gdd_MonthDay_month(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            1U, 12U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gdd_MonthDay_day(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            1U, 31U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t gdd_MonthDay_sequence[] = {
+  { &hf_gdd_month           , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_gdd_MonthDay_month },
+  { &hf_gdd_day             , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_gdd_MonthDay_day },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_gdd_MonthDay(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_gdd_MonthDay, gdd_MonthDay_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t gdd_T_month_day_sequence[] = {
+  { &hf_gdd_dateRangeStartMonthDate, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_gdd_MonthDay },
+  { &hf_gdd_dateRangeEndMonthDate, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_gdd_MonthDay },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_gdd_T_month_day(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_gdd_T_month_day, gdd_T_month_day_sequence);
+
+  return offset;
+}
+
+
+static int * const gdd_RPDT_bits[] = {
+  &hf_gdd_RPDT_national_holiday,
+  &hf_gdd_RPDT_even_days,
+  &hf_gdd_RPDT_odd_days,
+  &hf_gdd_RPDT_market_day,
+  NULL
+};
+
+static int
+dissect_gdd_RPDT(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+                                     4, 4, FALSE, gdd_RPDT_bits, 4, NULL, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gdd_HoursMinutes_hours(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 23U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gdd_HoursMinutes_mins(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 59U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t gdd_HoursMinutes_sequence[] = {
+  { &hf_gdd_hours           , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_gdd_HoursMinutes_hours },
+  { &hf_gdd_mins            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_gdd_HoursMinutes_mins },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_gdd_HoursMinutes(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_gdd_HoursMinutes, gdd_HoursMinutes_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t gdd_T_hourMinutes_sequence[] = {
+  { &hf_gdd_timeRangeStartTime, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_gdd_HoursMinutes },
+  { &hf_gdd_timeRangeEndTime, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_gdd_HoursMinutes },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_gdd_T_hourMinutes(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_gdd_T_hourMinutes, gdd_T_hourMinutes_sequence);
+
+  return offset;
+}
+
+
+static int * const gdd_DayOfWeek_bits[] = {
+  &hf_gdd_DayOfWeek_unused,
+  &hf_gdd_DayOfWeek_monday,
+  &hf_gdd_DayOfWeek_tuesday,
+  &hf_gdd_DayOfWeek_wednesday,
+  &hf_gdd_DayOfWeek_thursday,
+  &hf_gdd_DayOfWeek_friday,
+  &hf_gdd_DayOfWeek_saturday,
+  &hf_gdd_DayOfWeek_sunday,
+  NULL
+};
+
+static int
+dissect_gdd_DayOfWeek(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+                                     8, 8, FALSE, gdd_DayOfWeek_bits, 8, NULL, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t gdd_InternationalSign_applicablePeriod_sequence[] = {
+  { &hf_gdd_year            , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_gdd_T_year },
+  { &hf_gdd_month_day       , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_gdd_T_month_day },
+  { &hf_gdd_repeatingPeriodDayTypes, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_gdd_RPDT },
+  { &hf_gdd_hourMinutes     , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_gdd_T_hourMinutes },
+  { &hf_gdd_dateRangeOfWeek , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_gdd_DayOfWeek },
+  { &hf_gdd_durationHourminute, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_gdd_HoursMinutes },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_gdd_InternationalSign_applicablePeriod(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_gdd_InternationalSign_applicablePeriod, gdd_InternationalSign_applicablePeriod_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gdd_InternationalSign_exemptedApplicablePeriod(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_gdd_InternationalSign_applicablePeriod(tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+static const value_string gdd_InternationalSign_directionalFlowOfLane_vals[] = {
+  {   2, "sLT" },
+  {   1, "sDL" },
+  {   3, "sRT" },
+  {   4, "lTO" },
+  {   5, "rTO" },
+  {   6, "cLL" },
+  {   7, "cRI" },
+  {   8, "oVL" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_gdd_InternationalSign_directionalFlowOfLane(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            1U, 8U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gdd_INTEGER_1_16384(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            1U, 16384U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const value_string gdd_Code_Units_vals[] = {
+  {   0, "kmperh" },
+  {   1, "milesperh" },
+  {   2, "kilometre" },
+  {   3, "metre" },
+  {   4, "decimetre" },
+  {   5, "centimetre" },
+  {   6, "mile" },
+  {   7, "yard" },
+  {   8, "foot" },
+  {   9, "minutesOfTime" },
+  {  10, "tonnes" },
+  {  11, "hundredkg" },
+  {  12, "pound" },
+  {  13, "rateOfIncline" },
+  {  14, "durationinminutes" },
+  { 0, NULL }
+};
+
+
+
+static int
+dissect_gdd_T_unit(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 775 "./asn1/its/its.cnf"
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                           2U, 8U, NULL, FALSE);
+
+
+  return offset;
+}
+
+
+static const per_sequence_t gdd_Distance_sequence[] = {
+  { &hf_gdd_dValue          , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_gdd_INTEGER_1_16384 },
+  { &hf_gdd_unit            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_gdd_T_unit },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_gdd_Distance(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_gdd_Distance, gdd_Distance_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gdd_T_unit_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 765 "./asn1/its/its.cnf"
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                           10U, 12U, NULL, FALSE);
+
+
+  return offset;
+}
+
+
+static const per_sequence_t gdd_Weight_sequence[] = {
+  { &hf_gdd_wValue          , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_gdd_INTEGER_1_16384 },
+  { &hf_gdd_unit_01         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_gdd_T_unit_01 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_gdd_Weight(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_gdd_Weight, gdd_Weight_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t gdd_InternationalSign_applicableVehicleDimensions_sequence[] = {
+  { &hf_gdd_vehicleHeight   , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_gdd_Distance },
+  { &hf_gdd_vehicleWidth    , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_gdd_Distance },
+  { &hf_gdd_vehicleLength   , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_gdd_Distance },
+  { &hf_gdd_vehicleWeight   , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_gdd_Weight },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_gdd_InternationalSign_applicableVehicleDimensions(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_gdd_InternationalSign_applicableVehicleDimensions, gdd_InternationalSign_applicableVehicleDimensions_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gdd_INTEGER_0_250(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 250U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gdd_T_unit_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 760 "./asn1/its/its.cnf"
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                           0U, 1U, NULL, FALSE);
+
+
+  return offset;
+}
+
+
+static const per_sequence_t gdd_InternationalSign_speedLimits_sequence[] = {
+  { &hf_gdd_speedLimitMax   , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_gdd_INTEGER_0_250 },
+  { &hf_gdd_speedLimitMin   , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_gdd_INTEGER_0_250 },
+  { &hf_gdd_unit_02         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_gdd_T_unit_02 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_gdd_InternationalSign_speedLimits(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_gdd_InternationalSign_speedLimits, gdd_InternationalSign_speedLimits_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gdd_InternationalSign_rateOfIncline(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            1U, 32U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gdd_InternationalSign_distanceBetweenVehicles(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_gdd_Distance(tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gdd_DistinInfo_junctionDirection(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            1U, 128U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gdd_DistinInfo_roundaboutCwDirection(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            1U, 128U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gdd_DistinInfo_roundaboutCcwDirection(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            1U, 128U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gdd_IO_arrowDirection(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 7U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const value_string gdd_DestinationType_vals[] = {
+  {   0, "none" },
+  {   1, "importantArea" },
+  {   2, "principalArea" },
+  {   3, "generalArea" },
+  {   4, "wellKnownPoint" },
+  {   5, "country" },
+  {   6, "city" },
+  {   7, "street" },
+  {   8, "industrialArea" },
+  {   9, "historicArea" },
+  {  10, "touristicArea" },
+  {  11, "culturalArea" },
+  {  12, "touristicRoute" },
+  {  13, "recommendedRoute" },
+  {  14, "touristicAttraction" },
+  {  15, "geographicArea" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_gdd_DestinationType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 15U, NULL, TRUE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gdd_DestPlace_destBlob(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, FALSE, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gdd_DestPlace_placeNameIdentification(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            1U, 999U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gdd_DestPlace_placeNameText(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_UTF8String(tvb, offset, actx, tree, hf_index,
+                                          NO_BOUND, NO_BOUND, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t gdd_DestinationPlace_sequence[] = {
+  { &hf_gdd_destType        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_gdd_DestinationType },
+  { &hf_gdd_destRSCode      , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_gdd_GddStructure },
+  { &hf_gdd_destBlob        , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_gdd_DestPlace_destBlob },
+  { &hf_gdd_placeNameIdentification, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_gdd_DestPlace_placeNameIdentification },
+  { &hf_gdd_placeNameText   , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_gdd_DestPlace_placeNameText },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_gdd_DestinationPlace(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_gdd_DestinationPlace, gdd_DestinationPlace_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t gdd_SEQUENCE_SIZE_1_4__OF_DestinationPlace_sequence_of[1] = {
+  { &hf_gdd_destPlace_item  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_gdd_DestinationPlace },
+};
+
+static int
+dissect_gdd_SEQUENCE_SIZE_1_4__OF_DestinationPlace(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_gdd_SEQUENCE_SIZE_1_4__OF_DestinationPlace, gdd_SEQUENCE_SIZE_1_4__OF_DestinationPlace_sequence_of,
+                                                  1, 4, TRUE);
+
+  return offset;
+}
+
+
+static const value_string gdd_DestinationRoadType_vals[] = {
+  {   0, "none" },
+  {   1, "nationalHighway" },
+  {   2, "localHighway" },
+  {   3, "tollExpresswayMotorway" },
+  {   4, "internationalHighway" },
+  {   5, "highway" },
+  {   6, "expressway" },
+  {   7, "nationalRoad" },
+  {   8, "regionalProvincialRoad" },
+  {   9, "localRoad" },
+  {  10, "motorwayJunction" },
+  {  11, "diversion" },
+  {  12, "rfu1" },
+  {  13, "rfu2" },
+  {  14, "rfu3" },
+  {  15, "rfu4" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_gdd_DestinationRoadType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 15U, NULL, TRUE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gdd_DestRoad_roadNumberIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            1U, 999U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gdd_DestRoad_roadNumberText(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_UTF8String(tvb, offset, actx, tree, hf_index,
+                                          NO_BOUND, NO_BOUND, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t gdd_DestinationRoad_sequence[] = {
+  { &hf_gdd_derType         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_gdd_DestinationRoadType },
+  { &hf_gdd_roadNumberIdentifier_01, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_gdd_DestRoad_roadNumberIdentifier },
+  { &hf_gdd_roadNumberText  , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_gdd_DestRoad_roadNumberText },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_gdd_DestinationRoad(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_gdd_DestinationRoad, gdd_DestinationRoad_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t gdd_SEQUENCE_SIZE_1_4__OF_DestinationRoad_sequence_of[1] = {
+  { &hf_gdd_destRoad_item   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_gdd_DestinationRoad },
+};
+
+static int
+dissect_gdd_SEQUENCE_SIZE_1_4__OF_DestinationRoad(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_gdd_SEQUENCE_SIZE_1_4__OF_DestinationRoad, gdd_SEQUENCE_SIZE_1_4__OF_DestinationRoad_sequence_of,
+                                                  1, 4, TRUE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gdd_IO_roadNumberIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            1U, 999U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gdd_IO_streetName(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            1U, 999U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gdd_IO_streetNameText(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_UTF8String(tvb, offset, actx, tree, hf_index,
+                                          NO_BOUND, NO_BOUND, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gdd_DistOrDuration_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            1U, 16384U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gdd_DistOrDuration_Units(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 770 "./asn1/its/its.cnf"
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                           2U, 9U, NULL, FALSE);
+
+
+  return offset;
+}
+
+
+static const per_sequence_t gdd_DistanceOrDuration_sequence[] = {
+  { &hf_gdd_dodValue        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_gdd_DistOrDuration_value },
+  { &hf_gdd_unit_03         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_gdd_DistOrDuration_Units },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_gdd_DistanceOrDuration(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_gdd_DistanceOrDuration, gdd_DistanceOrDuration_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t gdd_DestinationInformationIO_sequence[] = {
+  { &hf_gdd_arrowDirection  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_gdd_IO_arrowDirection },
+  { &hf_gdd_destPlace       , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_gdd_SEQUENCE_SIZE_1_4__OF_DestinationPlace },
+  { &hf_gdd_destRoad        , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_gdd_SEQUENCE_SIZE_1_4__OF_DestinationRoad },
+  { &hf_gdd_roadNumberIdentifier, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_gdd_IO_roadNumberIdentifier },
+  { &hf_gdd_streetName      , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_gdd_IO_streetName },
+  { &hf_gdd_streetNameText  , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_gdd_IO_streetNameText },
+  { &hf_gdd_distanceToDivergingPoint, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_gdd_DistanceOrDuration },
+  { &hf_gdd_distanceToDestinationPlace, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_gdd_DistanceOrDuration },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_gdd_DestinationInformationIO(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_gdd_DestinationInformationIO, gdd_DestinationInformationIO_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t gdd_SEQUENCE_SIZE_1_8__OF_DestinationInformationIO_sequence_of[1] = {
+  { &hf_gdd_ioList_item     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_gdd_DestinationInformationIO },
+};
+
+static int
+dissect_gdd_SEQUENCE_SIZE_1_8__OF_DestinationInformationIO(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_gdd_SEQUENCE_SIZE_1_8__OF_DestinationInformationIO, gdd_SEQUENCE_SIZE_1_8__OF_DestinationInformationIO_sequence_of,
+                                                  1, 8, TRUE);
+
+  return offset;
+}
+
+
+static const per_sequence_t gdd_InternationalSign_destinationInformation_sequence[] = {
+  { &hf_gdd_junctionDirection, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_gdd_DistinInfo_junctionDirection },
+  { &hf_gdd_roundaboutCwDirection, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_gdd_DistinInfo_roundaboutCwDirection },
+  { &hf_gdd_roundaboutCcwDirection, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_gdd_DistinInfo_roundaboutCcwDirection },
+  { &hf_gdd_ioList          , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_gdd_SEQUENCE_SIZE_1_8__OF_DestinationInformationIO },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_gdd_InternationalSign_destinationInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_gdd_InternationalSign_destinationInformation, gdd_InternationalSign_destinationInformation_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t gdd_InternationalSign_section_sequence[] = {
+  { &hf_gdd_startingPointLength, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_gdd_Distance },
+  { &hf_gdd_continuityLength, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_gdd_Distance },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_gdd_InternationalSign_section(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_gdd_InternationalSign_section, gdd_InternationalSign_section_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gdd_InternationalSign_numberOfLane(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 99U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const value_string gdd_GddAttributes_item_vals[] = {
+  {   0, "dtm" },
+  {   1, "edt" },
+  {   2, "dfl" },
+  {   3, "ved" },
+  {   4, "spe" },
+  {   5, "roi" },
+  {   6, "dbv" },
+  {   7, "ddd" },
+  {   8, "set" },
+  {   9, "nol" },
+  { 0, NULL }
+};
+
+static const per_choice_t gdd_GddAttributes_item_choice[] = {
+  {   0, &hf_gdd_dtm             , ASN1_NO_EXTENSIONS     , dissect_gdd_InternationalSign_applicablePeriod },
+  {   1, &hf_gdd_edt             , ASN1_NO_EXTENSIONS     , dissect_gdd_InternationalSign_exemptedApplicablePeriod },
+  {   2, &hf_gdd_dfl             , ASN1_NO_EXTENSIONS     , dissect_gdd_InternationalSign_directionalFlowOfLane },
+  {   3, &hf_gdd_ved             , ASN1_NO_EXTENSIONS     , dissect_gdd_InternationalSign_applicableVehicleDimensions },
+  {   4, &hf_gdd_spe             , ASN1_NO_EXTENSIONS     , dissect_gdd_InternationalSign_speedLimits },
+  {   5, &hf_gdd_roi             , ASN1_NO_EXTENSIONS     , dissect_gdd_InternationalSign_rateOfIncline },
+  {   6, &hf_gdd_dbv             , ASN1_NO_EXTENSIONS     , dissect_gdd_InternationalSign_distanceBetweenVehicles },
+  {   7, &hf_gdd_ddd             , ASN1_NO_EXTENSIONS     , dissect_gdd_InternationalSign_destinationInformation },
+  {   8, &hf_gdd_set             , ASN1_NO_EXTENSIONS     , dissect_gdd_InternationalSign_section },
+  {   9, &hf_gdd_nol             , ASN1_NO_EXTENSIONS     , dissect_gdd_InternationalSign_numberOfLane },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_gdd_GddAttributes_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_gdd_GddAttributes_item, gdd_GddAttributes_item_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t gdd_GddAttributes_sequence_of[1] = {
+  { &hf_gdd_GddAttributes_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_gdd_GddAttributes_item },
+};
+
+static int
+dissect_gdd_GddAttributes(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_gdd_GddAttributes, gdd_GddAttributes_sequence_of,
+                                                  1, 8, TRUE);
+
+  return offset;
+}
+
+
+static const per_sequence_t gdd_GddStructure_sequence[] = {
+  { &hf_gdd_pictogramCode   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_gdd_Pictogram },
+  { &hf_gdd_attributes      , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_gdd_GddAttributes },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_gdd_GddStructure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_gdd_GddStructure, gdd_GddStructure_sequence);
+
+  return offset;
+}
+
+
+/* --- Module IVI --- --- ---                                                 */
 
 
 
@@ -11996,190 +12965,8 @@ dissect_ivi_VcOption(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 }
 
 
-
-static int
-dissect_ivi_INTEGER_2000_2127_(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            2000U, 2127U, NULL, TRUE);
-
-  return offset;
-}
-
-
-static const per_sequence_t ivi_T_year_sequence[] = {
-  { &hf_ivi_syr             , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ivi_INTEGER_2000_2127_ },
-  { &hf_ivi_eyr             , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ivi_INTEGER_2000_2127_ },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_ivi_T_year(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_ivi_T_year, ivi_T_year_sequence);
-
-  return offset;
-}
-
-
-
-static int
-dissect_ivi_INTEGER_1_12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, 12U, NULL, FALSE);
-
-  return offset;
-}
-
-
-
-static int
-dissect_ivi_INTEGER_1_31(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, 31U, NULL, FALSE);
-
-  return offset;
-}
-
-
-static const per_sequence_t ivi_MonthDay_sequence[] = {
-  { &hf_ivi_month           , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ivi_INTEGER_1_12 },
-  { &hf_ivi_day             , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ivi_INTEGER_1_31 },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_ivi_MonthDay(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_ivi_MonthDay, ivi_MonthDay_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t ivi_T_month_day_sequence[] = {
-  { &hf_ivi_smd             , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ivi_MonthDay },
-  { &hf_ivi_emd             , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ivi_MonthDay },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_ivi_T_month_day(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_ivi_T_month_day, ivi_T_month_day_sequence);
-
-  return offset;
-}
-
-
-static int * const ivi_PMD_bits[] = {
-  &hf_ivi_PMD_national_holiday,
-  &hf_ivi_PMD_even_days,
-  &hf_ivi_PMD_odd_days,
-  &hf_ivi_PMD_market_day,
-  NULL
-};
-
-static int
-dissect_ivi_PMD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     4, 4, FALSE, ivi_PMD_bits, 4, NULL, NULL);
-
-  return offset;
-}
-
-
-
-static int
-dissect_ivi_INTEGER_0_23(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 23U, NULL, FALSE);
-
-  return offset;
-}
-
-
-
-static int
-dissect_ivi_INTEGER_0_59(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 59U, NULL, FALSE);
-
-  return offset;
-}
-
-
-static const per_sequence_t ivi_HoursMinutes_sequence[] = {
-  { &hf_ivi_hours           , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ivi_INTEGER_0_23 },
-  { &hf_ivi_mins            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ivi_INTEGER_0_59 },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_ivi_HoursMinutes(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_ivi_HoursMinutes, ivi_HoursMinutes_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t ivi_T_hourMinutes_sequence[] = {
-  { &hf_ivi_shm             , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ivi_HoursMinutes },
-  { &hf_ivi_ehm             , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ivi_HoursMinutes },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_ivi_T_hourMinutes(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_ivi_T_hourMinutes, ivi_T_hourMinutes_sequence);
-
-  return offset;
-}
-
-
-static int * const ivi_DayOfWeek_bits[] = {
-  &hf_ivi_DayOfWeek_unused,
-  &hf_ivi_DayOfWeek_monday,
-  &hf_ivi_DayOfWeek_tuesday,
-  &hf_ivi_DayOfWeek_wednesday,
-  &hf_ivi_DayOfWeek_thursday,
-  &hf_ivi_DayOfWeek_friday,
-  &hf_ivi_DayOfWeek_saturday,
-  &hf_ivi_DayOfWeek_sunday,
-  NULL
-};
-
-static int
-dissect_ivi_DayOfWeek(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     8, 8, FALSE, ivi_DayOfWeek_bits, 8, NULL, NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t ivi_InternationalSign_applicablePeriod_sequence[] = {
-  { &hf_ivi_year            , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_ivi_T_year },
-  { &hf_ivi_month_day       , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_ivi_T_month_day },
-  { &hf_ivi_pmd             , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_ivi_PMD },
-  { &hf_ivi_hourMinutes     , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_ivi_T_hourMinutes },
-  { &hf_ivi_dayOfWeek       , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_ivi_DayOfWeek },
-  { &hf_ivi_period          , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_ivi_HoursMinutes },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_ivi_InternationalSign_applicablePeriod(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_ivi_InternationalSign_applicablePeriod, ivi_InternationalSign_applicablePeriod_sequence);
-
-  return offset;
-}
-
-
 static const per_sequence_t ivi_ValidityPeriods_sequence_of[1] = {
-  { &hf_ivi_ValidityPeriods_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ivi_InternationalSign_applicablePeriod },
+  { &hf_ivi_ValidityPeriods_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_gdd_InternationalSign_applicablePeriod },
 };
 
 static int
@@ -12382,416 +13169,6 @@ dissect_ivi_T_icPictogramCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 }
 
 
-
-static int
-dissect_ivi_InternationalSign_exemptedApplicablePeriod(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ivi_InternationalSign_applicablePeriod(tvb, offset, actx, tree, hf_index);
-
-  return offset;
-}
-
-
-static const value_string ivi_InternationalSign_directionalFlowOfLane_vals[] = {
-  {   1, "sDL" },
-  {   2, "sLT" },
-  {   3, "sRT" },
-  {   4, "lTO" },
-  {   5, "rTO" },
-  {   6, "cLL" },
-  {   7, "cRI" },
-  {   8, "oVL" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_ivi_InternationalSign_directionalFlowOfLane(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, 8U, NULL, FALSE);
-
-  return offset;
-}
-
-
-
-static int
-dissect_ivi_INTEGER_1_16384(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, 16384U, NULL, FALSE);
-
-  return offset;
-}
-
-
-
-static int
-dissect_ivi_T_unit(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 774 "./asn1/its/its.cnf"
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                           2U, 8U, NULL, FALSE);
-
-
-  return offset;
-}
-
-
-static const per_sequence_t ivi_Distance_sequence[] = {
-  { &hf_ivi_dValue          , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ivi_INTEGER_1_16384 },
-  { &hf_ivi_unit_01         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ivi_T_unit },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_ivi_Distance(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_ivi_Distance, ivi_Distance_sequence);
-
-  return offset;
-}
-
-
-
-static int
-dissect_ivi_T_unit_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 764 "./asn1/its/its.cnf"
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                           10U, 12U, NULL, FALSE);
-
-
-  return offset;
-}
-
-
-static const per_sequence_t ivi_Weight_sequence[] = {
-  { &hf_ivi_wValue          , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ivi_INTEGER_1_16384 },
-  { &hf_ivi_unit_03         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ivi_T_unit_02 },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_ivi_Weight(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_ivi_Weight, ivi_Weight_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t ivi_InternationalSign_applicableVehicleDimensions_sequence[] = {
-  { &hf_ivi_hei             , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_ivi_Distance },
-  { &hf_ivi_wid             , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_ivi_Distance },
-  { &hf_ivi_vln             , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_ivi_Distance },
-  { &hf_ivi_wei             , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_ivi_Weight },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_ivi_InternationalSign_applicableVehicleDimensions(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_ivi_InternationalSign_applicableVehicleDimensions, ivi_InternationalSign_applicableVehicleDimensions_sequence);
-
-  return offset;
-}
-
-
-
-static int
-dissect_ivi_INTEGER_0_250(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 250U, NULL, FALSE);
-
-  return offset;
-}
-
-
-
-static int
-dissect_ivi_T_unit_03(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 759 "./asn1/its/its.cnf"
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                           0U, 1U, NULL, FALSE);
-
-
-  return offset;
-}
-
-
-static const per_sequence_t ivi_InternationalSign_speedLimits_sequence[] = {
-  { &hf_ivi_spm             , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_ivi_INTEGER_0_250 },
-  { &hf_ivi_mns             , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_ivi_INTEGER_0_250 },
-  { &hf_ivi_unit_04         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ivi_T_unit_03 },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_ivi_InternationalSign_speedLimits(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_ivi_InternationalSign_speedLimits, ivi_InternationalSign_speedLimits_sequence);
-
-  return offset;
-}
-
-
-
-static int
-dissect_ivi_InternationalSign_rateOfIncline(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, 32U, NULL, FALSE);
-
-  return offset;
-}
-
-
-
-static int
-dissect_ivi_InternationalSign_distanceBetweenVehicles(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ivi_Distance(tvb, offset, actx, tree, hf_index);
-
-  return offset;
-}
-
-
-
-static int
-dissect_ivi_INTEGER_1_128(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, 128U, NULL, FALSE);
-
-  return offset;
-}
-
-
-static const value_string ivi_DDD_DEP_vals[] = {
-  {   0, "none" },
-  {   1, "importantArea" },
-  {   2, "principalArea" },
-  {   3, "generalArea" },
-  {   4, "wellKnownPoint" },
-  {   5, "country" },
-  {   6, "city" },
-  {   7, "street" },
-  {   8, "industrialArea" },
-  {   9, "historicArea" },
-  {  10, "touristicArea" },
-  {  11, "culturalArea" },
-  {  12, "touristicRoute" },
-  {  13, "recommendedRoute" },
-  {  14, "touristicAttraction" },
-  {  15, "geographicArea" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_ivi_DDD_DEP(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 15U, NULL, TRUE);
-
-  return offset;
-}
-
-
-
-static int
-dissect_ivi_OCTET_STRING(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, NULL);
-
-  return offset;
-}
-
-
-
-static int
-dissect_ivi_INTEGER_1_999(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, 999U, NULL, FALSE);
-
-  return offset;
-}
-
-
-
-static int
-dissect_ivi_UTF8String(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_UTF8String(tvb, offset, actx, tree, hf_index,
-                                          NO_BOUND, NO_BOUND, FALSE);
-
-  return offset;
-}
-
-
-static const per_sequence_t ivi_DestinationPlace_sequence[] = {
-  { &hf_ivi_depType         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ivi_DDD_DEP },
-  { &hf_ivi_depRSCode       , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_ivi_ISO14823Code },
-  { &hf_ivi_depBlob         , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_ivi_OCTET_STRING },
-  { &hf_ivi_plnId           , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_ivi_INTEGER_1_999 },
-  { &hf_ivi_plnText         , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_ivi_UTF8String },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_ivi_DestinationPlace(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_ivi_DestinationPlace, ivi_DestinationPlace_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t ivi_SEQUENCE_SIZE_1_4__OF_DestinationPlace_sequence_of[1] = {
-  { &hf_ivi_dp_item         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ivi_DestinationPlace },
-};
-
-static int
-dissect_ivi_SEQUENCE_SIZE_1_4__OF_DestinationPlace(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
-                                                  ett_ivi_SEQUENCE_SIZE_1_4__OF_DestinationPlace, ivi_SEQUENCE_SIZE_1_4__OF_DestinationPlace_sequence_of,
-                                                  1, 4, TRUE);
-
-  return offset;
-}
-
-
-static const value_string ivi_DDD_DER_vals[] = {
-  {   0, "none" },
-  {   1, "nationalHighway" },
-  {   2, "localHighway" },
-  {   3, "tollExpresswayMotorway" },
-  {   4, "internationalHighway" },
-  {   5, "highway" },
-  {   6, "expressway" },
-  {   7, "nationalRoad" },
-  {   8, "regionalProvincialRoad" },
-  {   9, "localRoad" },
-  {  10, "motorwayJunction" },
-  {  11, "diversion" },
-  {  12, "rfu1" },
-  {  13, "rfu2" },
-  {  14, "rfu3" },
-  {  15, "rfu4" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_ivi_DDD_DER(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 15U, NULL, TRUE);
-
-  return offset;
-}
-
-
-static const per_sequence_t ivi_DestinationRoad_sequence[] = {
-  { &hf_ivi_derType         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ivi_DDD_DER },
-  { &hf_ivi_ronId           , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_ivi_INTEGER_1_999 },
-  { &hf_ivi_ronText         , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_ivi_UTF8String },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_ivi_DestinationRoad(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_ivi_DestinationRoad, ivi_DestinationRoad_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t ivi_SEQUENCE_SIZE_1_4__OF_DestinationRoad_sequence_of[1] = {
-  { &hf_ivi_dr_item         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ivi_DestinationRoad },
-};
-
-static int
-dissect_ivi_SEQUENCE_SIZE_1_4__OF_DestinationRoad(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
-                                                  ett_ivi_SEQUENCE_SIZE_1_4__OF_DestinationRoad, ivi_SEQUENCE_SIZE_1_4__OF_DestinationRoad_sequence_of,
-                                                  1, 4, TRUE);
-
-  return offset;
-}
-
-
-
-static int
-dissect_ivi_T_unit_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 769 "./asn1/its/its.cnf"
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                           2U, 9U, NULL, FALSE);
-
-
-  return offset;
-}
-
-
-static const per_sequence_t ivi_DistanceOrDuration_sequence[] = {
-  { &hf_ivi_dodValue        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ivi_INTEGER_1_16384 },
-  { &hf_ivi_unit_02         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ivi_T_unit_01 },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_ivi_DistanceOrDuration(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_ivi_DistanceOrDuration, ivi_DistanceOrDuration_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t ivi_DDD_IO_sequence[] = {
-  { &hf_ivi_drn             , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ivi_INTEGER_0_7 },
-  { &hf_ivi_dp              , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_ivi_SEQUENCE_SIZE_1_4__OF_DestinationPlace },
-  { &hf_ivi_dr              , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_ivi_SEQUENCE_SIZE_1_4__OF_DestinationRoad },
-  { &hf_ivi_rne             , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_ivi_INTEGER_1_999 },
-  { &hf_ivi_stnId           , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_ivi_INTEGER_1_999 },
-  { &hf_ivi_stnText         , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_ivi_UTF8String },
-  { &hf_ivi_dcp             , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_ivi_DistanceOrDuration },
-  { &hf_ivi_ddp             , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_ivi_DistanceOrDuration },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_ivi_DDD_IO(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_ivi_DDD_IO, ivi_DDD_IO_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t ivi_SEQUENCE_SIZE_1_8__OF_DDD_IO_sequence_of[1] = {
-  { &hf_ivi_ioList_item     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ivi_DDD_IO },
-};
-
-static int
-dissect_ivi_SEQUENCE_SIZE_1_8__OF_DDD_IO(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
-                                                  ett_ivi_SEQUENCE_SIZE_1_8__OF_DDD_IO, ivi_SEQUENCE_SIZE_1_8__OF_DDD_IO_sequence_of,
-                                                  1, 8, TRUE);
-
-  return offset;
-}
-
-
-static const per_sequence_t ivi_InternationalSign_destinationInformation_sequence[] = {
-  { &hf_ivi_dcj             , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_ivi_INTEGER_1_128 },
-  { &hf_ivi_dcr             , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_ivi_INTEGER_1_128 },
-  { &hf_ivi_tpl             , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_ivi_INTEGER_1_128 },
-  { &hf_ivi_ioList          , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ivi_SEQUENCE_SIZE_1_8__OF_DDD_IO },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_ivi_InternationalSign_destinationInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_ivi_InternationalSign_destinationInformation, ivi_InternationalSign_destinationInformation_sequence);
-
-  return offset;
-}
-
-
 static const value_string ivi_ISO14823Attribute_vals[] = {
   {   0, "dtm" },
   {   1, "edt" },
@@ -12805,14 +13182,14 @@ static const value_string ivi_ISO14823Attribute_vals[] = {
 };
 
 static const per_choice_t ivi_ISO14823Attribute_choice[] = {
-  {   0, &hf_ivi_dtm             , ASN1_NO_EXTENSIONS     , dissect_ivi_InternationalSign_applicablePeriod },
-  {   1, &hf_ivi_edt             , ASN1_NO_EXTENSIONS     , dissect_ivi_InternationalSign_exemptedApplicablePeriod },
-  {   2, &hf_ivi_dfl             , ASN1_NO_EXTENSIONS     , dissect_ivi_InternationalSign_directionalFlowOfLane },
-  {   3, &hf_ivi_ved             , ASN1_NO_EXTENSIONS     , dissect_ivi_InternationalSign_applicableVehicleDimensions },
-  {   4, &hf_ivi_spe             , ASN1_NO_EXTENSIONS     , dissect_ivi_InternationalSign_speedLimits },
-  {   5, &hf_ivi_roi             , ASN1_NO_EXTENSIONS     , dissect_ivi_InternationalSign_rateOfIncline },
-  {   6, &hf_ivi_dbv             , ASN1_NO_EXTENSIONS     , dissect_ivi_InternationalSign_distanceBetweenVehicles },
-  {   7, &hf_ivi_ddd             , ASN1_NO_EXTENSIONS     , dissect_ivi_InternationalSign_destinationInformation },
+  {   0, &hf_ivi_dtm             , ASN1_NO_EXTENSIONS     , dissect_gdd_InternationalSign_applicablePeriod },
+  {   1, &hf_ivi_edt             , ASN1_NO_EXTENSIONS     , dissect_gdd_InternationalSign_exemptedApplicablePeriod },
+  {   2, &hf_ivi_dfl             , ASN1_NO_EXTENSIONS     , dissect_gdd_InternationalSign_directionalFlowOfLane },
+  {   3, &hf_ivi_ved             , ASN1_NO_EXTENSIONS     , dissect_gdd_InternationalSign_applicableVehicleDimensions },
+  {   4, &hf_ivi_spe             , ASN1_NO_EXTENSIONS     , dissect_gdd_InternationalSign_speedLimits },
+  {   5, &hf_ivi_roi             , ASN1_NO_EXTENSIONS     , dissect_gdd_InternationalSign_rateOfIncline },
+  {   6, &hf_ivi_dbv             , ASN1_NO_EXTENSIONS     , dissect_gdd_InternationalSign_distanceBetweenVehicles },
+  {   7, &hf_ivi_ddd             , ASN1_NO_EXTENSIONS     , dissect_gdd_InternationalSign_destinationInformation },
   { 0, NULL, 0, NULL }
 };
 
@@ -12934,6 +13311,16 @@ static int
 dissect_ivi_BIT_STRING_SIZE_10(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
                                      10, 10, FALSE, NULL, 0, NULL, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ivi_UTF8String(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_UTF8String(tvb, offset, actx, tree, hf_index,
+                                          NO_BOUND, NO_BOUND, FALSE);
 
   return offset;
 }
@@ -13321,7 +13708,7 @@ dissect_ivi_LaneInformation_eag_1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 static const per_sequence_t ivi_LaneInformation_sequence[] = {
   { &hf_ivi_laneNumber      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_its_LanePosition },
   { &hf_ivi_direction       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ivi_Direction },
-  { &hf_ivi_liValidity      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ivi_InternationalSign_applicablePeriod },
+  { &hf_ivi_liValidity      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_gdd_InternationalSign_applicablePeriod },
   { &hf_ivi_laneType        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ivi_LaneType },
   { &hf_ivi_laneTypeQualifier, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ivi_CompleteVehicleCharacteristics },
   { &hf_ivi_laneStatus      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ivi_LaneStatus },
@@ -13428,6 +13815,16 @@ dissect_ivi_TextLines(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 static int
 dissect_ivi_T_TcPartText(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ivi_TextLines(tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ivi_OCTET_STRING(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, FALSE, NULL);
 
   return offset;
 }
@@ -13935,7 +14332,7 @@ static const per_sequence_t ivi_IviStructure_sequence[] = {
 
 static int
 dissect_ivi_IviStructure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 339 "./asn1/its/its.cnf"
+#line 340 "./asn1/its/its.cnf"
   actx->private_data = (void*)wmem_new0(wmem_packet_scope(), its_private_data_t);
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "IVIM");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "IVIM");
@@ -14274,7 +14671,7 @@ static const per_sequence_t camv1_CoopAwarenessV1_sequence[] = {
 
 static int
 dissect_camv1_CoopAwarenessV1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 303 "./asn1/its/its.cnf"
+#line 304 "./asn1/its/its.cnf"
   actx->private_data = (void*)wmem_new0(wmem_packet_scope(), its_private_data_t);
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "CAMv1");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "CAMv1");
@@ -14595,7 +14992,7 @@ static const per_sequence_t cam_CoopAwareness_sequence[] = {
 
 static int
 dissect_cam_CoopAwareness(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 297 "./asn1/its/its.cnf"
+#line 298 "./asn1/its/its.cnf"
   actx->private_data = (void*)wmem_new0(wmem_packet_scope(), its_private_data_t);
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "CAM");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "CAM");
@@ -14803,7 +15200,7 @@ static const per_sequence_t denmv1_DecentralizedEnvironmentalNotificationMessage
 
 static int
 dissect_denmv1_DecentralizedEnvironmentalNotificationMessageV1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 315 "./asn1/its/its.cnf"
+#line 316 "./asn1/its/its.cnf"
   actx->private_data = (void*)wmem_new0(wmem_packet_scope(), its_private_data_t);
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "DENMv1");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "DENMv1");
@@ -15011,7 +15408,7 @@ static const per_sequence_t denm_DecentralizedEnvironmentalNotificationMessage_s
 
 static int
 dissect_denm_DecentralizedEnvironmentalNotificationMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 309 "./asn1/its/its.cnf"
+#line 310 "./asn1/its/its.cnf"
   actx->private_data = (void*)wmem_new0(wmem_packet_scope(), its_private_data_t);
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "DENM");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "DENM");
@@ -16115,7 +16512,7 @@ static const per_choice_t tistpg_TisTpgTransaction_choice[] = {
 
 static int
 dissect_tistpg_TisTpgTransaction(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 333 "./asn1/its/its.cnf"
+#line 334 "./asn1/its/its.cnf"
   actx->private_data = (void*)wmem_new0(wmem_packet_scope(), its_private_data_t);
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "TISTPG");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "TISTPG");
@@ -16248,7 +16645,7 @@ dissect_evcsn_ChargingSpotType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_evcsn_TypeOfReceptacle(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 682 "./asn1/its/its.cnf"
+#line 683 "./asn1/its/its.cnf"
   tvbuff_t *parameter_tvb = NULL;
   int len;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
@@ -16422,7 +16819,7 @@ static const per_sequence_t evcsn_EVChargingSpotNotificationPOIMessage_sequence[
 
 static int
 dissect_evcsn_EVChargingSpotNotificationPOIMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 321 "./asn1/its/its.cnf"
+#line 322 "./asn1/its/its.cnf"
   actx->private_data = (void*)wmem_new0(wmem_packet_scope(), its_private_data_t);
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "EVCSN");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "EVCSN");
@@ -16926,7 +17323,7 @@ static const per_choice_t evrsr_EV_RSR_MessageBody_choice[] = {
 
 static int
 dissect_evrsr_EV_RSR_MessageBody(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 327 "./asn1/its/its.cnf"
+#line 328 "./asn1/its/its.cnf"
   actx->private_data = (void*)wmem_new0(wmem_packet_scope(), its_private_data_t);
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "EV-RSR");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "EV-RSR");
@@ -19908,6 +20305,357 @@ void proto_register_its(void)
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
 
+/* --- Module GDD --- --- ---                                                 */
+
+    { &hf_gdd_pictogramCode,
+      { "pictogramCode", "gdd.pictogramCode_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "Pictogram", HFILL }},
+    { &hf_gdd_attributes,
+      { "attributes", "gdd.attributes",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "GddAttributes", HFILL }},
+    { &hf_gdd_countryCode,
+      { "countryCode", "gdd.countryCode",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "Pictogram_countryCode", HFILL }},
+    { &hf_gdd_serviceCategoryCode,
+      { "serviceCategoryCode", "gdd.serviceCategoryCode",
+        FT_UINT32, BASE_DEC, VALS(gdd_Pictogram_serviceCategory_vals), 0,
+        "Pictogram_serviceCategory", HFILL }},
+    { &hf_gdd_pictogramCategoryCode,
+      { "pictogramCategoryCode", "gdd.pictogramCategoryCode_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "Pictogram_category", HFILL }},
+    { &hf_gdd_trafficSignPictogram,
+      { "trafficSignPictogram", "gdd.trafficSignPictogram",
+        FT_UINT32, BASE_DEC, VALS(gdd_Pictogram_trafficSign_vals), 0,
+        "Pictogram_trafficSign", HFILL }},
+    { &hf_gdd_publicFacilitiesPictogram,
+      { "publicFacilitiesPictogram", "gdd.publicFacilitiesPictogram",
+        FT_UINT32, BASE_DEC, VALS(gdd_Pictogram_publicFacilitySign_vals), 0,
+        "Pictogram_publicFacilitySign", HFILL }},
+    { &hf_gdd_ambientOrRoadConditionPictogram,
+      { "ambientOrRoadConditionPictogram", "gdd.ambientOrRoadConditionPictogram",
+        FT_UINT32, BASE_DEC, VALS(gdd_Pictogram_conditionsSign_vals), 0,
+        "Pictogram_conditionsSign", HFILL }},
+    { &hf_gdd_nature,
+      { "nature", "gdd.nature",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "Pictogram_nature", HFILL }},
+    { &hf_gdd_serialNumber,
+      { "serialNumber", "gdd.serialNumber",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "Pictogram_serialNumber", HFILL }},
+    { &hf_gdd_GddAttributes_item,
+      { "GddAttributes item", "gdd.GddAttributes_item",
+        FT_UINT32, BASE_DEC, VALS(gdd_GddAttributes_item_vals), 0,
+        NULL, HFILL }},
+    { &hf_gdd_dtm,
+      { "dtm", "gdd.dtm_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "InternationalSign_applicablePeriod", HFILL }},
+    { &hf_gdd_edt,
+      { "edt", "gdd.edt_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "InternationalSign_exemptedApplicablePeriod", HFILL }},
+    { &hf_gdd_dfl,
+      { "dfl", "gdd.dfl",
+        FT_UINT32, BASE_DEC, VALS(gdd_InternationalSign_directionalFlowOfLane_vals), 0,
+        "InternationalSign_directionalFlowOfLane", HFILL }},
+    { &hf_gdd_ved,
+      { "ved", "gdd.ved_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "InternationalSign_applicableVehicleDimensions", HFILL }},
+    { &hf_gdd_spe,
+      { "spe", "gdd.spe_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "InternationalSign_speedLimits", HFILL }},
+    { &hf_gdd_roi,
+      { "roi", "gdd.roi",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "InternationalSign_rateOfIncline", HFILL }},
+    { &hf_gdd_dbv,
+      { "dbv", "gdd.dbv_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "InternationalSign_distanceBetweenVehicles", HFILL }},
+    { &hf_gdd_ddd,
+      { "ddd", "gdd.ddd_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "InternationalSign_destinationInformation", HFILL }},
+    { &hf_gdd_set,
+      { "set", "gdd.set_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "InternationalSign_section", HFILL }},
+    { &hf_gdd_nol,
+      { "nol", "gdd.nol",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "InternationalSign_numberOfLane", HFILL }},
+    { &hf_gdd_year,
+      { "year", "gdd.year_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gdd_yearRangeStartYear,
+      { "yearRangeStartYear", "gdd.yearRangeStartYear",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "Year", HFILL }},
+    { &hf_gdd_yearRangeEndYear,
+      { "yearRangeEndYear", "gdd.yearRangeEndYear",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "Year", HFILL }},
+    { &hf_gdd_month_day,
+      { "month-day", "gdd.month_day_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gdd_dateRangeStartMonthDate,
+      { "dateRangeStartMonthDate", "gdd.dateRangeStartMonthDate_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "MonthDay", HFILL }},
+    { &hf_gdd_dateRangeEndMonthDate,
+      { "dateRangeEndMonthDate", "gdd.dateRangeEndMonthDate_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "MonthDay", HFILL }},
+    { &hf_gdd_repeatingPeriodDayTypes,
+      { "repeatingPeriodDayTypes", "gdd.repeatingPeriodDayTypes",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "RPDT", HFILL }},
+    { &hf_gdd_hourMinutes,
+      { "hourMinutes", "gdd.hourMinutes_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gdd_timeRangeStartTime,
+      { "timeRangeStartTime", "gdd.timeRangeStartTime_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "HoursMinutes", HFILL }},
+    { &hf_gdd_timeRangeEndTime,
+      { "timeRangeEndTime", "gdd.timeRangeEndTime_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "HoursMinutes", HFILL }},
+    { &hf_gdd_dateRangeOfWeek,
+      { "dateRangeOfWeek", "gdd.dateRangeOfWeek",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "DayOfWeek", HFILL }},
+    { &hf_gdd_durationHourminute,
+      { "durationHourminute", "gdd.durationHourminute_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "HoursMinutes", HFILL }},
+    { &hf_gdd_month,
+      { "month", "gdd.month",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "MonthDay_month", HFILL }},
+    { &hf_gdd_day,
+      { "day", "gdd.day",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "MonthDay_day", HFILL }},
+    { &hf_gdd_hours,
+      { "hours", "gdd.hours",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "HoursMinutes_hours", HFILL }},
+    { &hf_gdd_mins,
+      { "mins", "gdd.mins",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "HoursMinutes_mins", HFILL }},
+    { &hf_gdd_startingPointLength,
+      { "startingPointLength", "gdd.startingPointLength_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "Distance", HFILL }},
+    { &hf_gdd_continuityLength,
+      { "continuityLength", "gdd.continuityLength_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "Distance", HFILL }},
+    { &hf_gdd_vehicleHeight,
+      { "vehicleHeight", "gdd.vehicleHeight_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "Distance", HFILL }},
+    { &hf_gdd_vehicleWidth,
+      { "vehicleWidth", "gdd.vehicleWidth_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "Distance", HFILL }},
+    { &hf_gdd_vehicleLength,
+      { "vehicleLength", "gdd.vehicleLength_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "Distance", HFILL }},
+    { &hf_gdd_vehicleWeight,
+      { "vehicleWeight", "gdd.vehicleWeight_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "Weight", HFILL }},
+    { &hf_gdd_dValue,
+      { "value", "gdd.value",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_1_16384", HFILL }},
+    { &hf_gdd_unit,
+      { "unit", "gdd.unit",
+        FT_UINT32, BASE_DEC, VALS(gdd_Code_Units_vals), 0,
+        NULL, HFILL }},
+    { &hf_gdd_wValue,
+      { "value", "gdd.value",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_1_16384", HFILL }},
+    { &hf_gdd_unit_01,
+      { "unit", "gdd.unit",
+        FT_UINT32, BASE_DEC, VALS(gdd_Code_Units_vals), 0,
+        "T_unit_01", HFILL }},
+    { &hf_gdd_speedLimitMax,
+      { "speedLimitMax", "gdd.speedLimitMax",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_250", HFILL }},
+    { &hf_gdd_speedLimitMin,
+      { "speedLimitMin", "gdd.speedLimitMin",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_250", HFILL }},
+    { &hf_gdd_unit_02,
+      { "unit", "gdd.unit",
+        FT_UINT32, BASE_DEC, VALS(gdd_Code_Units_vals), 0,
+        "T_unit_02", HFILL }},
+    { &hf_gdd_junctionDirection,
+      { "junctionDirection", "gdd.junctionDirection",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "DistinInfo_junctionDirection", HFILL }},
+    { &hf_gdd_roundaboutCwDirection,
+      { "roundaboutCwDirection", "gdd.roundaboutCwDirection",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "DistinInfo_roundaboutCwDirection", HFILL }},
+    { &hf_gdd_roundaboutCcwDirection,
+      { "roundaboutCcwDirection", "gdd.roundaboutCcwDirection",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "DistinInfo_roundaboutCcwDirection", HFILL }},
+    { &hf_gdd_ioList,
+      { "ioList", "gdd.ioList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SEQUENCE_SIZE_1_8__OF_DestinationInformationIO", HFILL }},
+    { &hf_gdd_ioList_item,
+      { "DestinationInformationIO", "gdd.DestinationInformationIO_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gdd_arrowDirection,
+      { "arrowDirection", "gdd.arrowDirection",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "IO_arrowDirection", HFILL }},
+    { &hf_gdd_destPlace,
+      { "destPlace", "gdd.destPlace",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SEQUENCE_SIZE_1_4__OF_DestinationPlace", HFILL }},
+    { &hf_gdd_destPlace_item,
+      { "DestinationPlace", "gdd.DestinationPlace_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gdd_destRoad,
+      { "destRoad", "gdd.destRoad",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SEQUENCE_SIZE_1_4__OF_DestinationRoad", HFILL }},
+    { &hf_gdd_destRoad_item,
+      { "DestinationRoad", "gdd.DestinationRoad_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gdd_roadNumberIdentifier,
+      { "roadNumberIdentifier", "gdd.roadNumberIdentifier",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "IO_roadNumberIdentifier", HFILL }},
+    { &hf_gdd_streetName,
+      { "streetName", "gdd.streetName",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "IO_streetName", HFILL }},
+    { &hf_gdd_streetNameText,
+      { "streetNameText", "gdd.streetNameText",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "IO_streetNameText", HFILL }},
+    { &hf_gdd_distanceToDivergingPoint,
+      { "distanceToDivergingPoint", "gdd.distanceToDivergingPoint_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "DistanceOrDuration", HFILL }},
+    { &hf_gdd_distanceToDestinationPlace,
+      { "distanceToDestinationPlace", "gdd.distanceToDestinationPlace_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "DistanceOrDuration", HFILL }},
+    { &hf_gdd_destType,
+      { "destType", "gdd.destType",
+        FT_UINT32, BASE_DEC, VALS(gdd_DestinationType_vals), 0,
+        "DestinationType", HFILL }},
+    { &hf_gdd_destRSCode,
+      { "destRSCode", "gdd.destRSCode_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "GddStructure", HFILL }},
+    { &hf_gdd_destBlob,
+      { "destBlob", "gdd.destBlob",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "DestPlace_destBlob", HFILL }},
+    { &hf_gdd_placeNameIdentification,
+      { "placeNameIdentification", "gdd.placeNameIdentification",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "DestPlace_placeNameIdentification", HFILL }},
+    { &hf_gdd_placeNameText,
+      { "placeNameText", "gdd.placeNameText",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "DestPlace_placeNameText", HFILL }},
+    { &hf_gdd_derType,
+      { "derType", "gdd.derType",
+        FT_UINT32, BASE_DEC, VALS(gdd_DestinationRoadType_vals), 0,
+        "DestinationRoadType", HFILL }},
+    { &hf_gdd_roadNumberIdentifier_01,
+      { "roadNumberIdentifier", "gdd.roadNumberIdentifier",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "DestRoad_roadNumberIdentifier", HFILL }},
+    { &hf_gdd_roadNumberText,
+      { "roadNumberText", "gdd.roadNumberText",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "DestRoad_roadNumberText", HFILL }},
+    { &hf_gdd_dodValue,
+      { "value", "gdd.value",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "DistOrDuration_value", HFILL }},
+    { &hf_gdd_unit_03,
+      { "unit", "gdd.unit",
+        FT_UINT32, BASE_DEC, VALS(gdd_Code_Units_vals), 0,
+        "DistOrDuration_Units", HFILL }},
+    { &hf_gdd_RPDT_national_holiday,
+      { "national-holiday", "gdd.RPDT.national.holiday",
+        FT_BOOLEAN, 8, NULL, 0x80,
+        NULL, HFILL }},
+    { &hf_gdd_RPDT_even_days,
+      { "even-days", "gdd.RPDT.even.days",
+        FT_BOOLEAN, 8, NULL, 0x40,
+        NULL, HFILL }},
+    { &hf_gdd_RPDT_odd_days,
+      { "odd-days", "gdd.RPDT.odd.days",
+        FT_BOOLEAN, 8, NULL, 0x20,
+        NULL, HFILL }},
+    { &hf_gdd_RPDT_market_day,
+      { "market-day", "gdd.RPDT.market.day",
+        FT_BOOLEAN, 8, NULL, 0x10,
+        NULL, HFILL }},
+    { &hf_gdd_DayOfWeek_unused,
+      { "unused", "gdd.DayOfWeek.unused",
+        FT_BOOLEAN, 8, NULL, 0x80,
+        NULL, HFILL }},
+    { &hf_gdd_DayOfWeek_monday,
+      { "monday", "gdd.DayOfWeek.monday",
+        FT_BOOLEAN, 8, NULL, 0x40,
+        NULL, HFILL }},
+    { &hf_gdd_DayOfWeek_tuesday,
+      { "tuesday", "gdd.DayOfWeek.tuesday",
+        FT_BOOLEAN, 8, NULL, 0x20,
+        NULL, HFILL }},
+    { &hf_gdd_DayOfWeek_wednesday,
+      { "wednesday", "gdd.DayOfWeek.wednesday",
+        FT_BOOLEAN, 8, NULL, 0x10,
+        NULL, HFILL }},
+    { &hf_gdd_DayOfWeek_thursday,
+      { "thursday", "gdd.DayOfWeek.thursday",
+        FT_BOOLEAN, 8, NULL, 0x08,
+        NULL, HFILL }},
+    { &hf_gdd_DayOfWeek_friday,
+      { "friday", "gdd.DayOfWeek.friday",
+        FT_BOOLEAN, 8, NULL, 0x04,
+        NULL, HFILL }},
+    { &hf_gdd_DayOfWeek_saturday,
+      { "saturday", "gdd.DayOfWeek.saturday",
+        FT_BOOLEAN, 8, NULL, 0x02,
+        NULL, HFILL }},
+    { &hf_gdd_DayOfWeek_sunday,
+      { "sunday", "gdd.DayOfWeek.sunday",
+        FT_BOOLEAN, 8, NULL, 0x01,
+        NULL, HFILL }},
+
 /* --- Module IVI --- --- ---                                                 */
 
     { &hf_ivi_ivi_IviStructure_PDU,
@@ -20412,7 +21160,7 @@ void proto_register_its(void)
         "InternationalSign_exemptedApplicablePeriod", HFILL }},
     { &hf_ivi_dfl,
       { "dfl", "ivi.dfl",
-        FT_UINT32, BASE_DEC, VALS(ivi_InternationalSign_directionalFlowOfLane_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(gdd_InternationalSign_directionalFlowOfLane_vals), 0,
         "InternationalSign_directionalFlowOfLane", HFILL }},
     { &hf_ivi_ved,
       { "ved", "ivi.ved_element",
@@ -20785,262 +21533,6 @@ void proto_register_its(void)
     { &hf_ivi_computedSegment,
       { "computedSegment", "ivi.computedSegment_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_ivi_dValue,
-      { "value", "ivi.value",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_1_16384", HFILL }},
-    { &hf_ivi_unit_01,
-      { "unit", "ivi.unit",
-        FT_UINT32, BASE_DEC, VALS(ivi_RSCUnit_vals), 0,
-        NULL, HFILL }},
-    { &hf_ivi_dodValue,
-      { "value", "ivi.value",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_1_16384", HFILL }},
-    { &hf_ivi_unit_02,
-      { "unit", "ivi.unit",
-        FT_UINT32, BASE_DEC, VALS(ivi_RSCUnit_vals), 0,
-        "T_unit_01", HFILL }},
-    { &hf_ivi_wValue,
-      { "value", "ivi.value",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_1_16384", HFILL }},
-    { &hf_ivi_unit_03,
-      { "unit", "ivi.unit",
-        FT_UINT32, BASE_DEC, VALS(ivi_RSCUnit_vals), 0,
-        "T_unit_02", HFILL }},
-    { &hf_ivi_year,
-      { "year", "ivi.year_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_ivi_syr,
-      { "syr", "ivi.syr",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_2000_2127_", HFILL }},
-    { &hf_ivi_eyr,
-      { "eyr", "ivi.eyr",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_2000_2127_", HFILL }},
-    { &hf_ivi_month_day,
-      { "month-day", "ivi.month_day_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_ivi_smd,
-      { "smd", "ivi.smd_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "MonthDay", HFILL }},
-    { &hf_ivi_emd,
-      { "emd", "ivi.emd_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "MonthDay", HFILL }},
-    { &hf_ivi_pmd,
-      { "pmd", "ivi.pmd",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_ivi_hourMinutes,
-      { "hourMinutes", "ivi.hourMinutes_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_ivi_shm,
-      { "shm", "ivi.shm_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "HoursMinutes", HFILL }},
-    { &hf_ivi_ehm,
-      { "ehm", "ivi.ehm_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "HoursMinutes", HFILL }},
-    { &hf_ivi_dayOfWeek,
-      { "dayOfWeek", "ivi.dayOfWeek",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_ivi_period,
-      { "period", "ivi.period_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "HoursMinutes", HFILL }},
-    { &hf_ivi_month,
-      { "month", "ivi.month",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_1_12", HFILL }},
-    { &hf_ivi_day,
-      { "day", "ivi.day",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_1_31", HFILL }},
-    { &hf_ivi_hours,
-      { "hours", "ivi.hours",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_23", HFILL }},
-    { &hf_ivi_mins,
-      { "mins", "ivi.mins",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_59", HFILL }},
-    { &hf_ivi_hei,
-      { "hei", "ivi.hei_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "Distance", HFILL }},
-    { &hf_ivi_wid,
-      { "wid", "ivi.wid_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "Distance", HFILL }},
-    { &hf_ivi_vln,
-      { "vln", "ivi.vln_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "Distance", HFILL }},
-    { &hf_ivi_wei,
-      { "wei", "ivi.wei_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "Weight", HFILL }},
-    { &hf_ivi_spm,
-      { "spm", "ivi.spm",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_250", HFILL }},
-    { &hf_ivi_mns,
-      { "mns", "ivi.mns",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_250", HFILL }},
-    { &hf_ivi_unit_04,
-      { "unit", "ivi.unit",
-        FT_UINT32, BASE_DEC, VALS(ivi_RSCUnit_vals), 0,
-        "T_unit_03", HFILL }},
-    { &hf_ivi_dcj,
-      { "dcj", "ivi.dcj",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_1_128", HFILL }},
-    { &hf_ivi_dcr,
-      { "dcr", "ivi.dcr",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_1_128", HFILL }},
-    { &hf_ivi_tpl,
-      { "tpl", "ivi.tpl",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_1_128", HFILL }},
-    { &hf_ivi_ioList,
-      { "ioList", "ivi.ioList",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "SEQUENCE_SIZE_1_8__OF_DDD_IO", HFILL }},
-    { &hf_ivi_ioList_item,
-      { "DDD-IO", "ivi.DDD_IO_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_ivi_drn,
-      { "drn", "ivi.drn",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_7", HFILL }},
-    { &hf_ivi_dp,
-      { "dp", "ivi.dp",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "SEQUENCE_SIZE_1_4__OF_DestinationPlace", HFILL }},
-    { &hf_ivi_dp_item,
-      { "DestinationPlace", "ivi.DestinationPlace_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_ivi_dr,
-      { "dr", "ivi.dr",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "SEQUENCE_SIZE_1_4__OF_DestinationRoad", HFILL }},
-    { &hf_ivi_dr_item,
-      { "DestinationRoad", "ivi.DestinationRoad_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_ivi_rne,
-      { "rne", "ivi.rne",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_1_999", HFILL }},
-    { &hf_ivi_stnId,
-      { "stnId", "ivi.stnId",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_1_999", HFILL }},
-    { &hf_ivi_stnText,
-      { "stnText", "ivi.stnText",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "UTF8String", HFILL }},
-    { &hf_ivi_dcp,
-      { "dcp", "ivi.dcp_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "DistanceOrDuration", HFILL }},
-    { &hf_ivi_ddp,
-      { "ddp", "ivi.ddp_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "DistanceOrDuration", HFILL }},
-    { &hf_ivi_depType,
-      { "depType", "ivi.depType",
-        FT_UINT32, BASE_DEC, VALS(ivi_DDD_DEP_vals), 0,
-        "DDD_DEP", HFILL }},
-    { &hf_ivi_depRSCode,
-      { "depRSCode", "ivi.depRSCode_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "ISO14823Code", HFILL }},
-    { &hf_ivi_depBlob,
-      { "depBlob", "ivi.depBlob",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING", HFILL }},
-    { &hf_ivi_plnId,
-      { "plnId", "ivi.plnId",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_1_999", HFILL }},
-    { &hf_ivi_plnText,
-      { "plnText", "ivi.plnText",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "UTF8String", HFILL }},
-    { &hf_ivi_derType,
-      { "derType", "ivi.derType",
-        FT_UINT32, BASE_DEC, VALS(ivi_DDD_DER_vals), 0,
-        "DDD_DER", HFILL }},
-    { &hf_ivi_ronId,
-      { "ronId", "ivi.ronId",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_1_999", HFILL }},
-    { &hf_ivi_ronText,
-      { "ronText", "ivi.ronText",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "UTF8String", HFILL }},
-    { &hf_ivi_PMD_national_holiday,
-      { "national-holiday", "ivi.PMD.national.holiday",
-        FT_BOOLEAN, 8, NULL, 0x80,
-        NULL, HFILL }},
-    { &hf_ivi_PMD_even_days,
-      { "even-days", "ivi.PMD.even.days",
-        FT_BOOLEAN, 8, NULL, 0x40,
-        NULL, HFILL }},
-    { &hf_ivi_PMD_odd_days,
-      { "odd-days", "ivi.PMD.odd.days",
-        FT_BOOLEAN, 8, NULL, 0x20,
-        NULL, HFILL }},
-    { &hf_ivi_PMD_market_day,
-      { "market-day", "ivi.PMD.market.day",
-        FT_BOOLEAN, 8, NULL, 0x10,
-        NULL, HFILL }},
-    { &hf_ivi_DayOfWeek_unused,
-      { "unused", "ivi.DayOfWeek.unused",
-        FT_BOOLEAN, 8, NULL, 0x80,
-        NULL, HFILL }},
-    { &hf_ivi_DayOfWeek_monday,
-      { "monday", "ivi.DayOfWeek.monday",
-        FT_BOOLEAN, 8, NULL, 0x40,
-        NULL, HFILL }},
-    { &hf_ivi_DayOfWeek_tuesday,
-      { "tuesday", "ivi.DayOfWeek.tuesday",
-        FT_BOOLEAN, 8, NULL, 0x20,
-        NULL, HFILL }},
-    { &hf_ivi_DayOfWeek_wednesday,
-      { "wednesday", "ivi.DayOfWeek.wednesday",
-        FT_BOOLEAN, 8, NULL, 0x10,
-        NULL, HFILL }},
-    { &hf_ivi_DayOfWeek_thursday,
-      { "thursday", "ivi.DayOfWeek.thursday",
-        FT_BOOLEAN, 8, NULL, 0x08,
-        NULL, HFILL }},
-    { &hf_ivi_DayOfWeek_friday,
-      { "friday", "ivi.DayOfWeek.friday",
-        FT_BOOLEAN, 8, NULL, 0x04,
-        NULL, HFILL }},
-    { &hf_ivi_DayOfWeek_saturday,
-      { "saturday", "ivi.DayOfWeek.saturday",
-        FT_BOOLEAN, 8, NULL, 0x02,
-        NULL, HFILL }},
-    { &hf_ivi_DayOfWeek_sunday,
-      { "sunday", "ivi.DayOfWeek.sunday",
-        FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
 
 /* --- Module CAMv1-PDU-Descriptions --- --- ---                              */
@@ -23142,6 +23634,36 @@ void proto_register_its(void)
 /* --- Module REGION --- --- ---                                              */
 
 
+/* --- Module GDD --- --- ---                                                 */
+
+    &ett_gdd_GddStructure,
+    &ett_gdd_Pictogram,
+    &ett_gdd_Pictogram_serviceCategory,
+    &ett_gdd_Pictogram_category,
+    &ett_gdd_GddAttributes,
+    &ett_gdd_GddAttributes_item,
+    &ett_gdd_InternationalSign_applicablePeriod,
+    &ett_gdd_T_year,
+    &ett_gdd_T_month_day,
+    &ett_gdd_T_hourMinutes,
+    &ett_gdd_MonthDay,
+    &ett_gdd_HoursMinutes,
+    &ett_gdd_RPDT,
+    &ett_gdd_DayOfWeek,
+    &ett_gdd_InternationalSign_section,
+    &ett_gdd_InternationalSign_applicableVehicleDimensions,
+    &ett_gdd_Distance,
+    &ett_gdd_Weight,
+    &ett_gdd_InternationalSign_speedLimits,
+    &ett_gdd_InternationalSign_destinationInformation,
+    &ett_gdd_SEQUENCE_SIZE_1_8__OF_DestinationInformationIO,
+    &ett_gdd_DestinationInformationIO,
+    &ett_gdd_SEQUENCE_SIZE_1_4__OF_DestinationPlace,
+    &ett_gdd_SEQUENCE_SIZE_1_4__OF_DestinationRoad,
+    &ett_gdd_DestinationPlace,
+    &ett_gdd_DestinationRoad,
+    &ett_gdd_DistanceOrDuration,
+
 /* --- Module IVI --- --- ---                                                 */
 
     &ett_ivi_IviStructure,
@@ -23223,26 +23745,6 @@ void proto_register_its(void)
     &ett_ivi_VehicleCharacteristicsRanges,
     &ett_ivi_T_limits,
     &ett_ivi_Zone,
-    &ett_ivi_Distance,
-    &ett_ivi_DistanceOrDuration,
-    &ett_ivi_Weight,
-    &ett_ivi_InternationalSign_applicablePeriod,
-    &ett_ivi_T_year,
-    &ett_ivi_T_month_day,
-    &ett_ivi_T_hourMinutes,
-    &ett_ivi_MonthDay,
-    &ett_ivi_PMD,
-    &ett_ivi_HoursMinutes,
-    &ett_ivi_DayOfWeek,
-    &ett_ivi_InternationalSign_applicableVehicleDimensions,
-    &ett_ivi_InternationalSign_speedLimits,
-    &ett_ivi_InternationalSign_destinationInformation,
-    &ett_ivi_SEQUENCE_SIZE_1_8__OF_DDD_IO,
-    &ett_ivi_DDD_IO,
-    &ett_ivi_SEQUENCE_SIZE_1_4__OF_DestinationPlace,
-    &ett_ivi_SEQUENCE_SIZE_1_4__OF_DestinationRoad,
-    &ett_ivi_DestinationPlace,
-    &ett_ivi_DestinationRoad,
 
 /* --- Module SPATEM-PDU-Descriptions --- --- ---                             */
 

@@ -1,0 +1,302 @@
+-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-- ISO TR 14823-2
+--
+-- Taken from ISO/TR 14823-2:2019(E) preview
+-- https://www.sis.se/api/document/preview/80015457/
+--
+-- Changes to original version:
+--  - add this header
+--  - reformat
+--  - rename InternationalSign-distinationInformation -> InternationalSign-destinationInformation
+--  - rename DistinationInformationIO -> DestinationInformationIO
+-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+GDD {iso (1) standard (0) gdd(14823) version1 (0)}
+
+DEFINITIONS AUTOMATIC TAGS ::=
+
+BEGIN
+GddStructure ::= SEQUENCE {
+  pictogramCode Pictogram,  
+  attributes    GddAttributes OPTIONAL
+}
+
+Pictogram ::= SEQUENCE {
+  countryCode           Pictogram-countryCode OPTIONAL,
+  serviceCategoryCode   Pictogram-serviceCategory,
+  pictogramCategoryCode Pictogram-category
+}
+
+Pictogram-countryCode ::= OCTET STRING (SIZE (2))
+
+Pictogram-serviceCategory ::= CHOICE {
+  trafficSignPictogram            Pictogram-trafficSign,
+  publicFacilitiesPictogram       Pictogram-publicFacilitySign,
+  ambientOrRoadConditionPictogram Pictogram-conditionsSign
+}
+
+Pictogram-category ::= SEQUENCE {
+  nature       Pictogram-nature,  
+  serialNumber Pictogram-serialNumber
+}
+
+Pictogram-trafficSign ::= ENUMERATED {
+  dangerWarning (11),
+  regulatory (12),
+  informative (13),
+  ...
+}
+
+Pictogram-publicFacilitySign ::= ENUMERATED {
+  publicFacilities (21),
+  ...
+}
+
+Pictogram-conditionsSign ::= ENUMERATED {
+  ambientCondition (31), 
+  roadCondition (32),
+  ...
+}
+
+Pictogram-nature ::= INTEGER (1..9)
+
+Pictogram-serialNumber ::= INTEGER (0..99)
+
+GddAttributes ::= SEQUENCE (SIZE (1..8), ...) OF CHOICE {
+  dtm InternationalSign-applicablePeriod,
+  edt InternationalSign-exemptedApplicablePeriod,
+  dfl InternationalSign-directionalFlowOfLane,
+  ved InternationalSign-applicableVehicleDimensions,
+  spe InternationalSign-speedLimits,
+  roi InternationalSign-rateOfIncline,
+  dbv InternationalSign-distanceBetweenVehicles,
+  ddd InternationalSign-destinationInformation, 
+  set InternationalSign-section,
+  nol InternationalSign-numberOfLane
+}
+
+InternationalSign-applicablePeriod ::= SEQUENCE {
+  year SEQUENCE {
+    yearRangeStartYear Year,
+	yearRangeEndYear Year
+  } OPTIONAL,
+  month-day SEQUENCE {
+    dateRangeStartMonthDate MonthDay,
+	dateRangeEndMonthDate MonthDay
+  } OPTIONAL,
+  repeatingPeriodDayTypes RPDT OPTIONAL,
+  hourMinutes SEQUENCE {
+    timeRangeStartTime HoursMinutes,
+	timeRangeEndTime HoursMinutes
+  } OPTIONAL,
+  dateRangeOfWeek DayOfWeek OPTIONAL,
+  durationHourminute HoursMinutes OPTIONAL
+}
+
+MonthDay ::= SEQUENCE {
+  month MonthDay-month,
+  day   MonthDay-day
+}
+
+HoursMinutes ::= SEQUENCE {
+  hours HoursMinutes-hours,
+  mins  HoursMinutes-mins
+}
+
+Year ::= INTEGER (2000..2127,...)
+
+MonthDay-month ::= INTEGER (1..12)
+
+MonthDay-day ::= INTEGER (1..31)
+
+HoursMinutes-hours ::= INTEGER (0..23)
+
+HoursMinutes-mins ::= INTEGER (0..59)
+
+RPDT ::= BIT STRING {
+  national-holiday (0),
+  even-days (1),
+  odd-days (2),
+  market-day (3)
+} (SIZE (4))
+
+DayOfWeek ::= BIT STRING {
+  unused (0),
+  monday (1),
+  tuesday (2),
+  wednesday (3),
+  thursday (4),
+  friday (5),
+  saturday (6),
+  sunday (7)
+} (SIZE (8))
+
+InternationalSign-exemptedApplicablePeriod ::= InternationalSign-applicablePeriod
+
+InternationalSign-section ::= SEQUENCE {
+  startingPointLength Distance OPTIONAL,
+  continuityLength    Distance OPTIONAL
+}
+
+InternationalSign-numberOfLane ::= INTEGER (0..99)
+
+InternationalSign-directionalFlowOfLane ::= INTEGER {
+  sLT(2),
+  sDL(1),
+  sRT(3),
+  lTO(4),
+  rTO(5),
+  cLL(6),
+  cRI(7),
+  oVL(8)
+} (1..8)
+
+InternationalSign-applicableVehicleDimensions ::= SEQUENCE {
+  vehicleHeight Distance OPTIONAL,
+  vehicleWidth  Distance OPTIONAL,
+  vehicleLength Distance OPTIONAL,
+  vehicleWeight Weight OPTIONAL
+}
+
+Distance ::= SEQUENCE {
+  value INTEGER (1..16384),
+  unit  Code-Units (2..4|6..8)
+}
+
+Weight ::= SEQUENCE {
+  value INTEGER (1..16384),
+  unit  Code-Units (10..12)
+}
+
+Code-Units ::= INTEGER {
+  kmperh (0),
+  milesperh (1),
+  kilometre (2),
+  metre (3),
+  decimetre (4),
+  centimetre (5),
+  mile (6),
+  yard (7),
+  foot (8),
+  minutesOfTime (9),
+  tonnes (10),
+  hundredkg (11),
+  pound (12),
+  rateOfIncline (13),
+  durationinminutes (14)
+} (0..15)
+
+InternationalSign-speedLimits ::= SEQUENCE {
+  speedLimitMax INTEGER(0..250) OPTIONAL,
+  speedLimitMin INTEGER(0..250) OPTIONAL,
+  unit          Code-Units (0..1)
+}
+
+InternationalSign-rateOfIncline ::= INTEGER (1..32)
+
+InternationalSign-distanceBetweenVehicles ::= Distance
+
+InternationalSign-destinationInformation ::= SEQUENCE {
+  junctionDirection      DistinInfo-junctionDirection OPTIONAL,
+  roundaboutCwDirection  DistinInfo-roundaboutCwDirection OPTIONAL,
+  roundaboutCcwDirection DistinInfo-roundaboutCcwDirection OPTIONAL,
+  ioList                 SEQUENCE (SIZE (1..8,...)) OF DestinationInformationIO
+}
+
+DestinationInformationIO ::= SEQUENCE {
+  arrowDirection             IO-arrowDirection,
+  destPlace                  SEQUENCE (SIZE (1..4,...)) OF DestinationPlace OPTIONAL,
+  destRoad                   SEQUENCE (SIZE (1..4,...)) OF DestinationRoad OPTIONAL,
+  roadNumberIdentifier       IO-roadNumberIdentifier OPTIONAL,
+  streetName                 IO-streetName OPTIONAL,
+  streetNameText             IO-streetNameText OPTIONAL,
+  distanceToDivergingPoint   DistanceOrDuration OPTIONAL,
+  distanceToDestinationPlace DistanceOrDuration OPTIONAL   
+}
+
+DestinationPlace ::= SEQUENCE {
+  destType                DestinationType,
+  destRSCode              GddStructure (WITH COMPONENTS {..., attributes ABSENT}) OPTIONAL,
+  destBlob                DestPlace-destBlob OPTIONAL,
+  placeNameIdentification DestPlace-placeNameIdentification OPTIONAL,
+  placeNameText           DestPlace-placeNameText OPTIONAL
+}
+
+DestinationRoad ::= SEQUENCE {
+  derType              DestinationRoadType,
+  roadNumberIdentifier DestRoad-roadNumberIdentifier OPTIONAL,
+  roadNumberText       DestRoad-roadNumberText OPTIONAL
+}
+
+DistanceOrDuration ::= SEQUENCE {
+  value DistOrDuration-value,
+  unit  DistOrDuration-Units
+}
+
+DistinInfo-junctionDirection ::= INTEGER (1..128)
+
+DistinInfo-roundaboutCwDirection ::= INTEGER (1..128)
+
+DistinInfo-roundaboutCcwDirection ::= INTEGER (1..128)
+
+IO-arrowDirection ::= INTEGER (0..7)
+
+IO-roadNumberIdentifier ::= INTEGER (1..999)
+
+IO-streetName ::= INTEGER (1..999)
+
+IO-streetNameText ::= UTF8String
+
+DestPlace-destBlob ::= OCTET STRING 
+
+DestPlace-placeNameIdentification ::= INTEGER (1..999)
+
+DestPlace-placeNameText ::= UTF8String
+
+DestRoad-roadNumberIdentifier ::= INTEGER (1..999)
+
+DestRoad-roadNumberText ::= UTF8String
+
+DistOrDuration-value::= INTEGER (1..16384)
+
+DistOrDuration-Units ::= Code-Units (2..9)
+
+DestinationRoadType ::= INTEGER {
+  none                   (0),
+  nationalHighway        (1),
+  localHighway           (2),
+  tollExpresswayMotorway (3),
+  internationalHighway   (4),
+  highway                (5),
+  expressway             (6),
+  nationalRoad           (7),
+  regionalProvincialRoad (8),
+  localRoad              (9),
+  motorwayJunction       (10),
+  diversion              (11),
+  rfu1                   (12),
+  rfu2                   (13),
+  rfu3                   (14),
+  rfu4                   (15)
+} (0..15, ...)
+
+DestinationType ::= INTEGER {
+  none                (0),
+  importantArea       (1),
+  principalArea       (2),
+  generalArea         (3),
+  wellKnownPoint      (4),
+  country             (5),
+  city                (6),
+  street              (7),
+  industrialArea      (8),
+  historicArea        (9),
+  touristicArea       (10),
+  culturalArea        (11),
+  touristicRoute      (12),
+  recommendedRoute    (13),
+  touristicAttraction (14),
+  geographicArea      (15)
+} (0..15, ...)
+
+END
