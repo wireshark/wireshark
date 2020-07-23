@@ -43,11 +43,6 @@ about_cb(ext_menubar_gui_type gui_type _U_, gpointer gui_data _U_, gpointer user
 void
 proto_register_pluginifdemo(void)
 {
-    static hf_register_info hf[] = {
-    };
-
-    static gint *ett[] = {
-    };
 
 #if 0
     module_t *pluginif_module = NULL;
@@ -55,9 +50,6 @@ proto_register_pluginifdemo(void)
     ext_menu_t * ext_menu = NULL;
 
     proto_pluginifdemo = proto_register_protocol("Plugin IF Demo Protocol", "Pluginifdemo", "pluginifdemo");
-
-    proto_register_field_array(proto_pluginifdemo, hf, array_length(hf));
-    proto_register_subtree_array(ett, array_length(ett));
 
     ext_menu = ext_menubar_register_menu ( proto_pluginifdemo, "Plugin IF Demonstration", TRUE );
     ext_menubar_set_parentmenu (ext_menu, "Tools");

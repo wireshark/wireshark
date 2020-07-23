@@ -21,7 +21,7 @@
 
 #include "ws_symbol_export.h"
 
-class WS_DLL_PUBLIC_DEF GuiHandler : public QObject
+class GuiHandler : public QObject
 {
     Q_OBJECT
 

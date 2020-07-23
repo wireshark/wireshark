@@ -39,8 +39,7 @@ void pluginifdemo_ui_main(ext_menubar_gui_type gui_type, gpointer gui_data)
     GString *error_string = register_tap_listener("frame", NULL, NULL, 0, reset_dialog, NULL, NULL, NULL);
 
     if (error_string != NULL) {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                "%s", error_string->str);
+		fprintf(stderr, "%s ", error_string->str);
         g_string_free(error_string, TRUE);
     }
     GuiHandler::getInstance()->showMainDialog(gui_type, gui_data);
