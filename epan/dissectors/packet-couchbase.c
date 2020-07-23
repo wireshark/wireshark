@@ -2951,7 +2951,7 @@ proto_register_couchbase(void)
     { &hf_flex_keylength, { "Key Length", "couchbase.key.length", FT_UINT8, BASE_DEC, NULL, 0x0, "Length in bytes of the text key that follows the command extras", HFILL } },
     { &hf_flex_extras_length, { "Flexible Framing Extras Length", "couchbase.flex_extras", FT_UINT8, BASE_DEC, NULL, 0x0, "Length in bytes of the flexible framing extras that follows the response header", HFILL } },
     { &hf_flex_extras, {"Flexible Framing Extras", "couchbase.flex_frame_extras", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-    { &hf_flex_extras_n, {"Flexible Framing Extras", "couchbase.flex_frame_extras", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+    { &hf_flex_extras_n, {"Flexible Framing Extras", "couchbase.flex_frame_extras.string", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
     { &hf_flex_frame_id_byte0, {"Flexible Frame Byte0", "couchbase.flex_frame.byte0", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 
