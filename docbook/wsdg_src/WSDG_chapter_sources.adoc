@@ -488,6 +488,15 @@ Additional traps can be set on GLib by setting the `G_DEBUG` environment variabl
 $ G_DEBUG=fatal_criticals gdb wireshark
 ----
 
+If you're encountering memory safety bugs, you might want to build with
+https://en.wikipedia.org/wiki/AddressSanitizer[Address Sanitizer] so that
+Wireshark will immediately alert you to any detected issues.
+
+[source,sh]
+----
+$ cmake .. -G Ninja -DENABLE_ASAN=1
+----
+
 See https://developer.gnome.org/glib/stable/glib-running.html[]
 
 [[ChSrcWin32Debug]]
