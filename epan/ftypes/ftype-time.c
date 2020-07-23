@@ -339,12 +339,12 @@ value_get(fvalue_t *fv)
 }
 
 static int
-absolute_val_repr_len(fvalue_t *fv, ftrepr_t rtype, int field_display _U_)
+absolute_val_repr_len(fvalue_t *fv, ftrepr_t rtype, int field_display)
 {
 	gchar *rep;
 	int ret;
 
-	rep = abs_time_to_str(NULL, &fv->value.time, ABSOLUTE_TIME_LOCAL,
+	rep = abs_time_to_str(NULL, &fv->value.time, (absolute_time_display_e)field_display,
 		rtype == FTREPR_DISPLAY);
 
 	ret = (int)strlen(rep) + ((rtype == FTREPR_DFILTER) ? 2 : 0);	/* 2 for opening and closing quotes */
@@ -355,9 +355,9 @@ absolute_val_repr_len(fvalue_t *fv, ftrepr_t rtype, int field_display _U_)
 }
 
 static void
-absolute_val_to_repr(fvalue_t *fv, ftrepr_t rtype, int field_display _U_, char *buf, unsigned int size)
+absolute_val_to_repr(fvalue_t *fv, ftrepr_t rtype, int field_display, char *buf, unsigned int size)
 {
-	gchar *rep = abs_time_to_str(NULL, &fv->value.time, ABSOLUTE_TIME_LOCAL,
+	gchar *rep = abs_time_to_str(NULL, &fv->value.time, (absolute_time_display_e)field_display,
 		rtype == FTREPR_DISPLAY);
 	if (rtype == FTREPR_DFILTER) {
 		*buf++ = '\"';
