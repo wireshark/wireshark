@@ -54,6 +54,7 @@
 #include <epan/to_str.h>
 #include <epan/uat.h>
 #include <epan/proto_data.h>
+#include <epan/etypes.h>
 
 #include "packet-ppp.h"
 #include "packet-radius.h"
@@ -9741,23 +9742,33 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                 next_tvb = tvb_new_subset_remaining(tvb, offset);
                 call_dissector(ipv6_handle, next_tvb, pinfo, tree);
             } else {
+                if (tvb_reported_length_remaining(tvb, offset)>14) {
+                    guint16 eth_type;
+                    eth_type = tvb_get_ntohs(tvb, offset+12);
+                    if (eth_type == ETHERTYPE_ARP || eth_type == ETHERTYPE_IPv6 || eth_type == ETHERTYPE_IP) {
+                        /* guess this is an ethernet PDU based on the eth type field */
+                        next_tvb = tvb_new_subset_remaining(tvb, offset);
+                        call_dissector(eth_handle, next_tvb, pinfo, tree);
+                    }
+                } else {
 #if 0
-                /* This turns out not to be true, remove the code and try to improve it if we get bug reports */
-                /* this seems to be a PPP packet */
+                    /* This turns out not to be true, remove the code and try to improve it if we get bug reports */
+                    /* this seems to be a PPP packet */
 
-                if (sub_proto == 0xff) {
-                    guint8           control_field;
-                    /* this might be an address field, even it shouldn't be here */
-                    control_field = tvb_get_guint8(tvb, offset + 1);
-                    if (control_field == 0x03)
-                        /* now we are pretty sure that address and control field are mistakenly inserted -> ignore it for PPP dissection */
-                        acfield_len = 2;
-                }
+                    if (sub_proto == 0xff) {
+                        guint8           control_field;
+                        /* this might be an address field, even it shouldn't be here */
+                        control_field = tvb_get_guint8(tvb, offset + 1);
+                        if (control_field == 0x03)
+                            /* now we are pretty sure that address and control field are mistakenly inserted -> ignore it for PPP dissection */
+                            acfield_len = 2;
+                    }
 
-                next_tvb = tvb_new_subset_remaining(tvb, offset + acfield_len);
-                call_dissector(ppp_handle, next_tvb, pinfo, tree);
+                    next_tvb = tvb_new_subset_remaining(tvb, offset + acfield_len);
+                    call_dissector(ppp_handle, next_tvb, pinfo, tree);
 #endif
-                proto_tree_add_item(tree, hf_gtp_tpdu_data, tvb, offset, -1, ENC_NA);
+                    proto_tree_add_item(tree, hf_gtp_tpdu_data, tvb, offset, -1, ENC_NA);
+                }
             }
             col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "GTP <");
             col_append_str(pinfo->cinfo, COL_PROTOCOL, ">");
