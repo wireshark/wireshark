@@ -195,12 +195,18 @@ static gint ett_camssp_flags = -1;
 static dissector_table_t its_version_subdissector_table;
 static dissector_table_t its_msgid_subdissector_table;
 static dissector_table_t regionid_subdissector_table;
+static dissector_table_t cam_pt_activation_table;
 
 typedef struct its_private_data {
     enum regext_type_enum type;
     guint32 region_id;
     guint32 cause_code;
 } its_private_data_t;
+
+typedef struct its_pt_activation_data {
+    guint32 type;
+    tvbuff_t *data;
+} its_pt_activation_data_t;
 
 // Specidic dissector for content of open type for regional extensions
 static int dissect_regextval_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -1776,7 +1782,7 @@ static int hf_evrsr_SupportedPaymentTypes_contract = -1;
 static int hf_evrsr_SupportedPaymentTypes_externalIdentification = -1;
 
 /*--- End of included file: packet-its-hf.c ---*/
-#line 278 "./asn1/its/packet-its-template.c"
+#line 284 "./asn1/its/packet-its-template.c"
 
 // CauseCode/SubCauseCode management
 static int hf_its_trafficConditionSubCauseCode = -1;
@@ -2331,7 +2337,7 @@ static gint ett_evrsr_RechargingType = -1;
 static gint ett_evrsr_SupportedPaymentTypes = -1;
 
 /*--- End of included file: packet-its-ett.c ---*/
-#line 308 "./asn1/its/packet-its-template.c"
+#line 314 "./asn1/its/packet-its-template.c"
 
 // Deal with cause/subcause code management
 struct { CauseCodeType_enum cause; int* hf; } cause_to_subcause[] = {
@@ -2735,7 +2741,7 @@ static const value_string its_PtActivationType_vals[] = {
 static int
 dissect_its_PtActivationType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 255U, NULL, FALSE);
+                                                            0U, 255U, &((its_pt_activation_data_t*)actx->private_data)->type, FALSE);
 
   return offset;
 }
@@ -2745,7 +2751,7 @@ dissect_its_PtActivationType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 static int
 dissect_its_PtActivationData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       1, 20, FALSE, NULL);
+                                       1, 20, FALSE, &((its_pt_activation_data_t*)actx->private_data)->data);
 
   return offset;
 }
@@ -2759,8 +2765,19 @@ static const per_sequence_t its_PtActivation_sequence[] = {
 
 static int
 dissect_its_PtActivation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 782 "./asn1/its/its.cnf"
+  void *priv_data = actx->private_data;
+  its_pt_activation_data_t *pta;
+
+  pta = wmem_new0(wmem_packet_scope(), its_pt_activation_data_t);
+  actx->private_data = pta;
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_its_PtActivation, its_PtActivation_sequence);
+
+#line 788 "./asn1/its/its.cnf"
+  dissector_try_uint_new(cam_pt_activation_table, pta->type, pta->data, actx->pinfo, tree, TRUE, NULL);
+  actx->private_data = priv_data;
 
   return offset;
 }
@@ -4920,7 +4937,7 @@ static const value_string itsv1_PtActivationType_vals[] = {
 static int
 dissect_itsv1_PtActivationType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 255U, NULL, FALSE);
+                                                            0U, 255U, &((its_pt_activation_data_t*)actx->private_data)->type, FALSE);
 
   return offset;
 }
@@ -4930,7 +4947,7 @@ dissect_itsv1_PtActivationType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 static int
 dissect_itsv1_PtActivationData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       1, 20, FALSE, NULL);
+                                       1, 20, FALSE, &((its_pt_activation_data_t*)actx->private_data)->data);
 
   return offset;
 }
@@ -4944,8 +4961,19 @@ static const per_sequence_t itsv1_PtActivation_sequence[] = {
 
 static int
 dissect_itsv1_PtActivation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 782 "./asn1/its/its.cnf"
+  void *priv_data = actx->private_data;
+  its_pt_activation_data_t *pta;
+
+  pta = wmem_new0(wmem_packet_scope(), its_pt_activation_data_t);
+  actx->private_data = pta;
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_itsv1_PtActivation, itsv1_PtActivation_sequence);
+
+#line 788 "./asn1/its/its.cnf"
+  dissector_try_uint_new(cam_pt_activation_table, pta->type, pta->data, actx->pinfo, tree, TRUE, NULL);
+  actx->private_data = priv_data;
 
   return offset;
 }
@@ -17348,7 +17376,7 @@ static int dissect_evrsr_EV_RSR_MessageBody_PDU(tvbuff_t *tvb _U_, packet_info *
 
 
 /*--- End of included file: packet-its-fn.c ---*/
-#line 350 "./asn1/its/packet-its-template.c"
+#line 356 "./asn1/its/packet-its-template.c"
 
 static int
 dissect_its_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
@@ -23169,7 +23197,7 @@ void proto_register_its(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-its-hfarr.c ---*/
-#line 386 "./asn1/its/packet-its-template.c"
+#line 392 "./asn1/its/packet-its-template.c"
 
     { &hf_its_roadworksSubCauseCode,
       { "roadworksSubCauseCode", "its.subCauseCode",
@@ -23897,7 +23925,7 @@ void proto_register_its(void)
     &ett_evrsr_SupportedPaymentTypes,
 
 /*--- End of included file: packet-its-ettarr.c ---*/
-#line 589 "./asn1/its/packet-its-template.c"
+#line 595 "./asn1/its/packet-its-template.c"
     };
 
     static ei_register_info ei[] = {
@@ -23922,6 +23950,7 @@ void proto_register_its(void)
     its_version_subdissector_table = register_dissector_table("its.version", "ITS version", proto_its, FT_UINT8, BASE_DEC);
     its_msgid_subdissector_table = register_dissector_table("its.msg_id", "ITS message id", proto_its, FT_UINT32, BASE_DEC);
     regionid_subdissector_table = register_dissector_table("dsrc.regionid", "DSRC RegionId", proto_its, FT_UINT32, BASE_DEC);
+    cam_pt_activation_table = register_dissector_table("cam.ptat", "CAM PtActivationType", proto_its, FT_UINT32, BASE_DEC);
 
     proto_its_denm = proto_register_protocol_in_name_only("ITS message - DENM", "DENM", "its.message.denm", proto_its, FT_BYTES);
     proto_its_denmv1 = proto_register_protocol_in_name_only("ITS message - DENMv1", "DENMv1", "its.message.denmv1", proto_its, FT_BYTES);

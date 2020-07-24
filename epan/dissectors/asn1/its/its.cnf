@@ -775,3 +775,21 @@ TrafficConditionSubCauseCode
   offset = dissect_per_constrained_integer(%(TVB)s, %(OFFSET)s, %(ACTX)s, %(TREE)s, %(HF_INDEX)s,
                                            2U, 8U, %(VAL_PTR)s, FALSE);
 #.END
+
+#=== PtActivation =======================================================
+
+#.FN_HDR PtActivation
+  void *priv_data = actx->private_data;
+  its_pt_activation_data_t *pta;
+
+  pta = wmem_new0(wmem_packet_scope(), its_pt_activation_data_t);
+  actx->private_data = pta;
+#.FN_FTR
+  dissector_try_uint_new(cam_pt_activation_table, pta->type, pta->data, actx->pinfo, tree, TRUE, NULL);
+  actx->private_data = priv_data;
+#.END
+
+#.FN_PARS 
+PtActivationType VAL_PTR = &((its_pt_activation_data_t*)actx->private_data)->type
+PtActivationData VAL_PTR = &((its_pt_activation_data_t*)actx->private_data)->data
+#.END
