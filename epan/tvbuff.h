@@ -408,6 +408,10 @@ WS_DLL_PUBLIC void tvb_get_letohguid(tvbuff_t *tvb, const gint offset,
 WS_DLL_PUBLIC void tvb_get_guid(tvbuff_t *tvb, const gint offset,
     e_guid_t *guid, const guint encoding);
 
+/* Fetches a byte array given a bit offset in a tvb */
+WS_DLL_PUBLIC guint8* tvb_get_bits_array(wmem_allocator_t *scope, tvbuff_t *tvb,
+    const gint offset, size_t length, size_t *data_length);
+
 /* Fetch a specified number of bits from bit offset in a tvb.  All of these
  * functions are equivalent, except for the type of the return value.  Note
  * that the parameter encoding (where supplied) is meaningless and ignored */

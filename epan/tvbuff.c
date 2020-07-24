@@ -1955,6 +1955,19 @@ static const guint8 bit_mask8[] = {
 	0xff
 };
 
+
+/* Get a variable ammount of bits
+ *
+ * Return a byte array with bit limited data. The data is aligned to the right.
+ */
+guint8 *
+tvb_get_bits_array(wmem_allocator_t *scope, tvbuff_t *tvb, const gint bit_offset, size_t no_of_bits, size_t *data_length)
+{
+	tvbuff_t *sub_tvb = tvb_new_octet_aligned(tvb, bit_offset, (gint32) no_of_bits);
+	*data_length = tvb_reported_length(sub_tvb);
+	return (guint8*)tvb_memdup(scope, sub_tvb, 0, *data_length);
+}
+
 /* Get 1 - 8 bits */
 guint8
 tvb_get_bits8(tvbuff_t *tvb, guint bit_offset, const gint no_of_bits)
