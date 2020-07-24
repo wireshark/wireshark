@@ -192,7 +192,6 @@ extcap_free_if_configuration(GList *list, gboolean free_args);
  * Initializes the extcap interface list if that hasn't already been done.
  * @param ifname Interface to check.
  * @param is_required Required configuration flag.
- * @return
  */
 gboolean
 extcap_has_configuration(const char * ifname, gboolean is_required);
