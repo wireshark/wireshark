@@ -8316,6 +8316,7 @@ static const fragment_items ieee1905_fragment_items = {
 typedef struct {
     address src;
     address dst;
+    guint32 vlan_id; /* Take the VLAN ID into account */
     guint8 frag_id;
 } ieee1905_fragment_key;
 
@@ -8323,7 +8324,7 @@ static guint
 ieee1905_fragment_hash(gconstpointer k)
 {
     guint hash_val;
-    guint8 hash_buf[13];
+    guint8 hash_buf[17];
     const ieee1905_fragment_key *key = (const ieee1905_fragment_key *)k;
 
     if (!key || !key->src.data || !key->dst.data) {
@@ -8333,7 +8334,8 @@ ieee1905_fragment_hash(gconstpointer k)
     memcpy(hash_buf, key->src.data, 6);
     memcpy(&hash_buf[6], key->dst.data, 6);
     hash_buf[12] = key->frag_id;
-    hash_val = wmem_strong_hash((const guint8 *)hash_buf, 13);
+    memcpy(&hash_buf[13], &key->vlan_id, 4);
+    hash_val = wmem_strong_hash((const guint8 *)hash_buf, 17);
     return hash_val;
 }
 
@@ -8350,6 +8352,7 @@ ieee1905_fragment_equal(gconstpointer k1, gconstpointer k2)
     }
 
     return (key1->frag_id == key2->frag_id &&
+            key1->vlan_id == key2->vlan_id &&
             addresses_equal(&key1->src, &key2->src) &&
             addresses_equal(&key1->src, &key2->src));
 }
@@ -8358,15 +8361,18 @@ static gpointer
 ieee1905_fragment_temporary_key(const packet_info *pinfo, const guint32 id,
                                 const void *data _U_)
 {
+    ieee1905_fragment_key *key;
+
     if (pinfo->src.data == NULL || pinfo->dst.data == NULL) {
         return NULL;
     }
 
-    ieee1905_fragment_key *key = g_slice_new(ieee1905_fragment_key);
+    key = g_slice_new(ieee1905_fragment_key);
 
     key->frag_id = id & 0xFF;
     copy_address_shallow(&key->src, &pinfo->src);
     copy_address_shallow(&key->dst, &pinfo->dst);
+    key->vlan_id = pinfo->vlan_id;
 
     return (gpointer)key;
 }
@@ -8384,6 +8390,7 @@ ieee1905_fragment_persistent_key(const packet_info *pinfo, const guint id,
     key->frag_id = id & 0xFF;
     copy_address(&key->src, &pinfo->src);
     copy_address(&key->dst, &pinfo->dst);
+    key->vlan_id = pinfo->vlan_id;
 
     return (gpointer)key;
 }
@@ -8503,7 +8510,8 @@ dissect_ieee1905(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             next_offset = dissect_ieee1905_tlvs(next_tvb, pinfo, ieee1905_tree);
         } else {
             col_append_fstr(pinfo->cinfo, COL_INFO,
-                            " (Message ID: %u, Fragment ID: %u)", msg_id, frag_id);
+                            " (Message ID: %u, Fragment ID: %u, VLAN ID: %u)",
+                            msg_id, frag_id, pinfo->vlan_id);
             next_tvb = NULL;
             proto_tree_add_item(ieee1905_tree, hf_ieee1905_fragment_data, tvb,
                                 offset,
