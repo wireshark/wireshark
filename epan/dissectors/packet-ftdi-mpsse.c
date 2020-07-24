@@ -107,6 +107,8 @@ typedef struct _command_data command_data_t;
 struct _command_data {
     ftdi_mpsse_info_t  mpsse_info;
 
+    /* TRUE if complete command parameters were not dissected yet */
+    gboolean           preliminary;
     /* TRUE if response_in_packet has been set (response packet is known) */
     gboolean           is_response_set;
     guint8             cmd;
@@ -270,6 +272,18 @@ static gboolean is_data_shifting_command(guint8 cmd)
     }
 }
 
+static gboolean is_data_shifting_command_returning_response(guint8 cmd, ftdi_mpsse_info_t *mpsse_info)
+{
+    DISSECTOR_ASSERT(is_data_shifting_command(cmd));
+    if (mpsse_info->mcu_mode)
+    {
+        /* MCU mode seems to consume data shifting payloads but do not actually return any response data */
+        return FALSE;
+    }
+
+    return IS_DATA_SHIFTING_READING_TDO(cmd) ? TRUE : FALSE;
+}
+
 /* Returns human-readable command description string or NULL on BadCommand */
 static const char *
 get_command_string(guint8 cmd, ftdi_mpsse_info_t *mpsse_info)
@@ -381,10 +395,25 @@ insert_command_data_pointer(wmem_tree_t *command_tree, packet_info *pinfo, ftdi_
 }
 
 static void
-record_command_data(command_data_t **cmd_data, packet_info *pinfo, ftdi_mpsse_info_t *mpsse_info, guint8 cmd, guint16 response_length)
+record_command_data(command_data_t **cmd_data, packet_info *pinfo, ftdi_mpsse_info_t *mpsse_info, guint8 cmd,
+                    gint32 response_length, gboolean preliminary)
 {
-    command_data_t *data = wmem_new(wmem_file_scope(), command_data_t);
+    command_data_t *data = *cmd_data;
+
+    DISSECTOR_ASSERT(response_length > 0);
+
+    if (data && data->preliminary)
+    {
+        DISSECTOR_ASSERT(data->cmd == cmd);
+        DISSECTOR_ASSERT(data->response_length == response_length);
+        data->command_in_packet = pinfo->num;
+        data->preliminary = preliminary;
+        return;
+    }
+
+    data = wmem_new(wmem_file_scope(), command_data_t);
     memcpy(&data->mpsse_info, mpsse_info, sizeof(ftdi_mpsse_info_t));
+    data->preliminary = preliminary;
     data->is_response_set = FALSE;
     data->cmd = cmd;
     data->response_length = response_length;
@@ -427,7 +456,7 @@ static void expect_response(command_data_t **cmd_data, packet_info *pinfo, proto
     }
     else
     {
-        record_command_data(cmd_data, pinfo, mpsse_info, cmd, response_length);
+        record_command_data(cmd_data, pinfo, mpsse_info, cmd, response_length, FALSE);
     }
 }
 
@@ -452,7 +481,7 @@ dissect_data_shifting_command_parameters(guint8 cmd, tvbuff_t *tvb, packet_info 
                                          ftdi_mpsse_info_t *mpsse_info, command_data_t **cmd_data)
 {
     gint         offset_start = offset;
-    guint32      length;
+    gint32       length;
 
     DISSECTOR_ASSERT(is_data_shifting_command(cmd));
 
@@ -485,11 +514,7 @@ dissect_data_shifting_command_parameters(guint8 cmd, tvbuff_t *tvb, packet_info 
         }
     }
 
-    if (mpsse_info->mcu_mode)
-    {
-        /* MCU mode seems to consume data shifting payloads but do not actually return any response data */
-    }
-    else if (IS_DATA_SHIFTING_READING_TDO(cmd))
+    if (is_data_shifting_command_returning_response(cmd, mpsse_info))
     {
         expect_response(cmd_data, pinfo, tree, mpsse_info, cmd, IS_DATA_SHIFTING_BYTE_MODE(cmd) ? length + 1 : 1);
     }
@@ -757,7 +782,8 @@ dissect_non_data_shifting_command_parameters(guint8 cmd, tvbuff_t *tvb, packet_i
     }
 }
 
-static gint estimated_command_parameters_length(guint8 cmd, tvbuff_t *tvb, gint offset, ftdi_mpsse_info_t *mpsse_info)
+static gint estimated_command_parameters_length(guint8 cmd, tvbuff_t *tvb, packet_info *pinfo, gint offset,
+                                                ftdi_mpsse_info_t *mpsse_info, command_data_t **cmd_data)
 {
     gint parameters_length = 0;
 
@@ -768,6 +794,7 @@ static gint estimated_command_parameters_length(guint8 cmd, tvbuff_t *tvb, gint 
 
     if (is_data_shifting_command(cmd))
     {
+        gint32 data_length = 0;
         if (IS_DATA_SHIFTING_BYTE_MODE(cmd))
         {
             parameters_length = 2;
@@ -775,7 +802,8 @@ static gint estimated_command_parameters_length(guint8 cmd, tvbuff_t *tvb, gint 
             {
                 if (tvb_reported_length_remaining(tvb, offset) >= 2)
                 {
-                    parameters_length += tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN) + 1;
+                    data_length = (gint32)tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN) + 1;
+                    parameters_length += data_length;
                 }
                 /* else length is not available already so the caller will know that reassembly is needed */
             }
@@ -783,10 +811,24 @@ static gint estimated_command_parameters_length(guint8 cmd, tvbuff_t *tvb, gint 
         else /* bit mode */
         {
             parameters_length = (IS_DATA_SHIFTING_WRITING_TDI(cmd) || IS_DATA_SHIFTING_WRITING_TMS(cmd)) ? 2 : 1;
+            data_length = 1;
             if (IS_DATA_SHIFTING_WRITING_TMS(cmd) && IS_DATA_SHIFTING_READING_TDO(cmd) && IS_DATA_SHIFTING_MSB_FIRST(cmd))
             {
                 /* These undocumented commands do not seem to consume the data byte, only the length */
                 parameters_length = 1;
+            }
+        }
+
+        if (!pinfo->fd->visited)
+        {
+            if (is_data_shifting_command_returning_response(cmd, mpsse_info) && data_length)
+            {
+                /* Record preliminary command info so the response handler can find the matching command
+                 * if host starts reading data before all output is sent. If this command requires reassembly
+                 * the command_in_packet member will continue updating until the reassembly is complete.
+                 * The preliminary flag will be reset when expect_response() executes.
+                 */
+                record_command_data(cmd_data, pinfo, mpsse_info, cmd, data_length, TRUE);
             }
         }
     }
@@ -866,7 +908,7 @@ dissect_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset
 
     cmd = tvb_get_guint8(tvb, offset);
     cmd_str = get_command_string(cmd, mpsse_info);
-    parameters_length = estimated_command_parameters_length(cmd, tvb, offset + 1, mpsse_info);
+    parameters_length = estimated_command_parameters_length(cmd, tvb, pinfo, offset + 1, mpsse_info, cmd_data);
     if (tvb_reported_length_remaining(tvb, offset + 1) < parameters_length)
     {
         *need_reassembly = TRUE;
@@ -1142,6 +1184,7 @@ dissect_ftdi_mpsse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
             /* Not visited yet - advance iterator to last element */
             while (iter && iter->next)
             {
+                DISSECTOR_ASSERT(!iter->preliminary);
                 iter = iter->next;
             }
         }
