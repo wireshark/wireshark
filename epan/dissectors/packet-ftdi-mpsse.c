@@ -70,6 +70,7 @@ static gint ett_mpsse_command_with_parameters = -1;
 static gint ett_mpsse_response_data = -1;
 static gint ett_mpsse_value = -1;
 static gint ett_mpsse_direction = -1;
+static gint ett_mpsse_skipped_response_data = -1;
 
 static expert_field ei_undecoded = EI_INIT;
 static expert_field ei_response_without_command = EI_INIT;
@@ -1128,7 +1129,22 @@ dissect_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offse
 
         if (offset != offset_start)
         {
-            proto_tree_add_expert(tree, pinfo, &ei_skipped_response_data, tvb, offset_start, offset - offset_start);
+            proto_item *item;
+            proto_tree *expert_tree;
+
+            item = proto_tree_add_expert(tree, pinfo, &ei_skipped_response_data, tvb, offset_start, offset - offset_start);
+            expert_tree = proto_item_add_subtree(item, ett_mpsse_skipped_response_data);
+
+            command_in = proto_tree_add_uint_format(expert_tree, hf_mpsse_command_in, NULL, 0, 0, cmd_data->command_in_packet,
+                                                    "Bad Command 0x%02x in: %" G_GUINT32_FORMAT, cmd_data->cmd, cmd_data->command_in_packet);
+            proto_item_set_generated(command_in);
+            if (cmd_data->is_response_set)
+            {
+                proto_item *response_in;
+
+                response_in = proto_tree_add_uint(expert_tree, hf_mpsse_response_in, NULL, 0, 0, cmd_data->response_in_packet);
+                proto_item_set_generated(response_in);
+            }
         }
 
         if (!found)
@@ -1147,7 +1163,7 @@ dissect_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offse
     rsp_data = proto_tree_add_bytes_format(tree, hf_mpsse_response, tvb, offset, cmd_data->response_length, NULL, "%s", cmd_str);
     rsp_tree = proto_item_add_subtree(rsp_data, ett_mpsse_response_data);
 
-    command_in = proto_tree_add_uint_format(rsp_tree, hf_mpsse_command_in, tvb, offset, 0, cmd_data->command_in_packet,
+    command_in = proto_tree_add_uint_format(rsp_tree, hf_mpsse_command_in, NULL, 0, 0, cmd_data->command_in_packet,
                                             "Command 0x%02x in: %" G_GUINT32_FORMAT, cmd_data->cmd, cmd_data->command_in_packet);
     proto_item_set_generated(command_in);
 
@@ -1486,6 +1502,7 @@ proto_register_ftdi_mpsse(void)
         &ett_mpsse_response_data,
         &ett_mpsse_value,
         &ett_mpsse_direction,
+        &ett_mpsse_skipped_response_data,
     };
 
     rx_command_info = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
