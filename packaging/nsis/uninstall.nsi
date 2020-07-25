@@ -13,7 +13,6 @@ ${UnStrRep}
 
 SetCompress off
 OutFile "${STAGING_DIR}\uninstall_installer.exe"
-RequestExecutionLevel user
 
 InstType "un.Default (keep Personal Settings and WinPcap)"
 InstType "un.All (remove all)"

@@ -194,7 +194,7 @@ macro( ADD_NSIS_UNINSTALLER_TARGET )
 				${_nsis_source_dir}/common.nsh
 			COMMAND ${MAKENSIS_EXECUTABLE} ${NSIS_DEFINES}
 				uninstall.nsi
-			COMMAND ${DATAFILE_DIR}/uninstall_installer.exe
+			COMMAND ${POWERSHELL_COMMAND} "${_nsis_source_dir}/makeUninstall.ps1" ${DATAFILE_DIR}/uninstall_installer.exe
 			COMMAND ${CMAKE_COMMAND} -E remove ${DATAFILE_DIR}/uninstall_installer.exe
 			WORKING_DIRECTORY ${_nsis_source_dir}
 		)
