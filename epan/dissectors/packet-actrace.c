@@ -54,7 +54,7 @@ static int hf_actrace_cas_connection_id = -1;
 
 
 
-static dissector_handle_t lapd_handle;
+static dissector_handle_t lapd_phdr_handle;
 
 #define ACTRACE_CAS_SOURCE_DSP		0
 #define ACTRACE_CAS_SOURCE_USER		1
@@ -634,19 +634,25 @@ static void dissect_actrace_isdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	gint32    value, trunk;
 	tvbuff_t *next_tvb;
 	int       offset = 0;
+	struct isdn_phdr isdn;
 
-	len = tvb_get_ntohs(tvb, 44);
+	offset += 4;
 
 	value = tvb_get_ntohl(tvb, offset+4);
-	proto_tree_add_int(actrace_tree, hf_actrace_isdn_direction, tvb, offset+4, 4, value);
+	proto_tree_add_int(actrace_tree, hf_actrace_isdn_direction, tvb, offset, 4, value);
+	offset += 4;
+	/* PSTN = Network */
+	isdn.uton = (value==BLADE_TO_PSTN);
+	isdn.channel = 0; /* D channel */
 
-	offset += 8;
 	trunk = tvb_get_ntohs(tvb, offset);
 	proto_tree_add_int(actrace_tree, hf_actrace_isdn_trunk, tvb, offset, 2, trunk);
+	offset += 4;
 
-	offset = 44;
+	offset += 32;
+
+	len = tvb_get_ntohs(tvb, offset);
 	proto_tree_add_int(actrace_tree, hf_actrace_isdn_length, tvb, offset, 2, len);
-
 
 	/* if it is a q931 packet (we don't want LAPD packets for Voip Graph) add tap info */
 	if (len > 4) {
@@ -664,7 +670,7 @@ static void dissect_actrace_isdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	/* Dissect lapd payload */
 	offset += 2 ;
 	next_tvb = tvb_new_subset_length(tvb, offset, len);
-	call_dissector(lapd_handle, next_tvb, pinfo, tree);
+	call_dissector_with_data(lapd_phdr_handle, next_tvb, pinfo, tree, &isdn);
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "AC_ISDN");
 	col_prepend_fstr(pinfo->cinfo, COL_INFO, "Trunk:%d  Blade %s PSTN "
@@ -788,8 +794,8 @@ void proto_reg_handoff_actrace(void)
 {
 	dissector_handle_t actrace_handle;
 
-	/* Get a handle for the lapd dissector. */
-	lapd_handle = find_dissector_add_dependency("lapd", proto_actrace);
+	/* Get a handle for the LAPD-with-pseudoheader dissector. */
+	lapd_phdr_handle = find_dissector_add_dependency("lapd-phdr", proto_actrace);
 
 	actrace_handle = create_dissector_handle(dissect_actrace, proto_actrace);
 	dissector_add_uint_with_preference("udp.port", UDP_PORT_ACTRACE, actrace_handle);

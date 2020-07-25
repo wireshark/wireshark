@@ -2573,8 +2573,14 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
             protocol_handle = find_dissector("eth_withoutfcs");
             break;
         case WTAP_ENCAP_ISDN:
-            protocol_handle = find_dissector("lapd");
-            pinfo->p2p_dir = pinfo->pseudo_header->isdn.uton;
+            /*
+             * XXX - if the file can handle B-channel traffic as well
+             * as D-channel traffic, have the libwiretap code fill
+             * in the channel, and call the ISDN dissector rather
+             * than the LAPD-with-pseudoheader dissector.
+             */
+            protocol_handle = find_dissector("lapd-phdr");
+            protocol_data = &pinfo->pseudo_header->dct2000.inner_pseudo_header.isdn;
             break;
         case WTAP_ENCAP_ATM_PDUS_UNTRUNCATED:
             protocol_handle = find_dissector("atm_untruncated");
