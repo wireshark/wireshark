@@ -79,10 +79,9 @@ static expert_field ei_reassembly_unavailable = EI_INIT;
 
 static dissector_handle_t ftdi_mpsse_handle;
 
-/* Commands expecting response add command_data_t entry to a list. There is one list per MPSSE instance.
- * The list is created by when first command appears on MPSSE instance. Pointer to the list is then inserted
- * into rx_command_info tree, with the last key element being packet number. This is the only time when TX
- * packet (for given instance) inserts data to rx_command_info.
+/* Commands expecting response add command_data_t entry to a list. The list is created when first command
+ * appears on MPSSE instance TX or when previously created list has matched responses to all entries.
+ * When a new list is created, head pointer is inserted into both tx_command_info and rx_command_info tree.
  *
  * When RX packet is dissected, it obtains the pointer to a list (if there isn't any then the capture is
  * incomplete/malformed and ei_response_without_command is presented to the user). The RX dissection code
@@ -92,11 +91,12 @@ static dissector_handle_t ftdi_mpsse_handle;
  * not have is_response_set flag set, is added to rx_command_info with the current packet number in the key.
  *
  * After first pass, RX packets always obtain relevant command_data_t entry without traversing the list.
- * TX packet dissection would have to to traverse the list from the pointer obtained from rx_command_info.
- * In normal conditions the number of entries to skip is low. However, when the capture file has either:
+ * If there wasn't a separate tree TX packets (tx_command_info), TX packet dissection would have to to
+ * traverse the list from the pointer obtained from rx_command_info. In normal conditions the number of
+ * entries to skip in such case is low. However, when the capture file has either:
  *   * A lot of TX packets with commands expecting response but no RX packets, or
- *   * Bad Command in TX packet that does not have matching Bad Command response in RX data.
- * Then the traversal time in TX packet dissection becomes significant. To bring performance to acceptable
+ *   * Bad Command in TX packet that does not have matching Bad Command response in RX data
+ * then the traversal time in TX packet dissection becomes significant. To bring performance to acceptable
  * levels, tx_command_info tree is being used. It contains pointers to the same list as rx_command_info but
  * allows TX dissection to obtain the relevant command_data_t entry without traversing the list.
  */
@@ -422,7 +422,7 @@ record_command_data(command_data_t **cmd_data, packet_info *pinfo, ftdi_mpsse_in
     data->response_in_packet = 0;
     data->next = NULL;
 
-    if (*cmd_data)
+    if (*cmd_data && (!(*cmd_data)->is_response_set))
     {
         DISSECTOR_ASSERT((*cmd_data)->next == NULL);
         (*cmd_data)->next = data;
