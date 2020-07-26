@@ -1356,344 +1356,344 @@ proto_register_ftdi_ft(void)
 
     static hf_register_info hf[] = {
         { &hf_setup_brequest,
-          { "Request", "ftdift.bRequest",
+          { "Request", "ftdi-ft.bRequest",
             FT_UINT8, BASE_DEC | BASE_EXT_STRING, &request_vals_ext, 0x0,
             NULL, HFILL }
         },
         { &hf_setup_lvalue,
-          { "lValue", "ftdift.lValue",
+          { "lValue", "ftdi-ft.lValue",
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_setup_lvalue_purge,
-          { "lValue", "ftdift.lValue",
+          { "lValue", "ftdi-ft.lValue",
             FT_UINT8, BASE_HEX, VALS(reset_purge_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_setup_lvalue_dtr,
-          { "DTR Active", "ftdift.lValue.b0",
+          { "DTR Active", "ftdi-ft.lValue.b0",
             FT_BOOLEAN, 8, NULL, (1 << 0),
             NULL, HFILL }
         },
         { &hf_setup_lvalue_rts,
-          { "RTS Active", "ftdift.lValue.b1",
+          { "RTS Active", "ftdi-ft.lValue.b1",
             FT_BOOLEAN, 8, NULL, (1 << 1),
             NULL, HFILL }
         },
         { &hf_setup_lvalue_xon_char,
-          { "XON Char", "ftdift.lValue",
+          { "XON Char", "ftdi-ft.lValue",
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_setup_lvalue_baud_low,
-          { "Baud low", "ftdift.lValue",
+          { "Baud low", "ftdi-ft.lValue",
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_setup_lvalue_data_size,
-          { "Data Size", "ftdift.lValue",
+          { "Data Size", "ftdi-ft.lValue",
             FT_UINT8, BASE_HEX, VALS(data_size_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_setup_lvalue_event_char,
-          { "Event Char", "ftdift.lValue",
+          { "Event Char", "ftdi-ft.lValue",
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_setup_lvalue_error_char,
-          { "Parity Error Char", "ftdift.lValue",
+          { "Parity Error Char", "ftdi-ft.lValue",
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_setup_lvalue_latency_time,
-          { "Latency Time", "ftdift.lValue",
+          { "Latency Time", "ftdi-ft.lValue",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             "Latency time in milliseconds", HFILL }
         },
         { &hf_setup_lvalue_bitmask,
-          { "Bit Mask", "ftdift.lValue",
+          { "Bit Mask", "ftdi-ft.lValue",
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_setup_hvalue,
-          { "hValue", "ftdift.hValue",
+          { "hValue", "ftdi-ft.hValue",
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_setup_hvalue_dtr,
-          { "en DTR for writing", "ftdift.hValue.b0",
+          { "en DTR for writing", "ftdi-ft.hValue.b0",
             FT_BOOLEAN, 8, NULL, (1 << 0),
             NULL, HFILL }
         },
         { &hf_setup_hvalue_rts,
-          { "en RTS for writing", "ftdift.hValue.b1",
+          { "en RTS for writing", "ftdi-ft.hValue.b1",
             FT_BOOLEAN, 8, NULL, (1 << 1),
             NULL, HFILL }
         },
         { &hf_setup_hvalue_xoff_char,
-          { "XOFF Char", "ftdift.hValue",
+          { "XOFF Char", "ftdi-ft.hValue",
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_setup_hvalue_baud_mid,
-          { "Baud mid", "ftdift.hValue",
+          { "Baud mid", "ftdi-ft.hValue",
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_setup_hvalue_parity,
-          { "Parity", "ftdift.hValue.parity",
+          { "Parity", "ftdi-ft.hValue.parity",
             FT_UINT8, BASE_HEX, VALS(parity_vals), (0x7 << 0),
             NULL, HFILL }
         },
         { &hf_setup_hvalue_stop_bits,
-          { "Stop Bits", "ftdift.hValue.b4",
+          { "Stop Bits", "ftdi-ft.hValue.b4",
             FT_UINT8, BASE_HEX, VALS(stop_bits_vals), (1 << 4),
             NULL, HFILL }
         },
         { &hf_setup_hvalue_break_bit,
-          { "Break Bit", "ftdift.hValue.b6",
+          { "Break Bit", "ftdi-ft.hValue.b6",
             FT_UINT8, BASE_HEX, VALS(break_bit_vals), (1 << 6),
             NULL, HFILL }
         },
         { &hf_setup_hvalue_trigger,
-          { "hValue", "ftdift.hValue",
+          { "hValue", "ftdi-ft.hValue",
             FT_UINT8, BASE_HEX, VALS(event_char_trigger_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_setup_hvalue_error_replacement,
-          { "hValue", "ftdift.hValue",
+          { "hValue", "ftdi-ft.hValue",
             FT_UINT8, BASE_HEX, VALS(error_replacement_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_setup_hvalue_bitmode,
-          { "Bit Mode", "ftdift.hValue",
+          { "Bit Mode", "ftdi-ft.hValue",
             FT_UINT8, BASE_HEX, VALS(bitmode_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_setup_lindex,
-          { "lIndex", "ftdift.lIndex",
+          { "lIndex", "ftdi-ft.lIndex",
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_setup_lindex_port_ab,
-          { "lIndex", "ftdift.lIndex",
+          { "lIndex", "ftdi-ft.lIndex",
             FT_UINT8, BASE_HEX, VALS(index_port_ab_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_setup_lindex_port_abcd,
-          { "lIndex", "ftdift.lIndex",
+          { "lIndex", "ftdi-ft.lIndex",
             FT_UINT8, BASE_HEX, VALS(index_port_abcd_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_setup_lindex_baud_high,
-          { "Baud High", "ftdift.lIndex.b0",
+          { "Baud High", "ftdi-ft.lIndex.b0",
             FT_UINT8, BASE_HEX, NULL, (1 << 0),
             NULL, HFILL }
         },
         { &hf_setup_hindex,
-          { "hIndex", "ftdift.hIndex",
+          { "hIndex", "ftdi-ft.hIndex",
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_setup_hindex_rts_cts,
-          { "RTS/CTS Flow Control", "ftdift.hIndex.b0",
+          { "RTS/CTS Flow Control", "ftdi-ft.hIndex.b0",
             FT_BOOLEAN, 8, NULL, (1 << 0),
             NULL, HFILL }
         },
         { &hf_setup_hindex_dtr_dsr,
-          { "DTR/DSR Flow Control", "ftdift.hIndex.b1",
+          { "DTR/DSR Flow Control", "ftdi-ft.hIndex.b1",
             FT_BOOLEAN, 8, NULL, (1 << 1),
             NULL, HFILL }
         },
         { &hf_setup_hindex_xon_xoff,
-          { "XON/XOFF Flow Control", "ftdift.hIndex.b2",
+          { "XON/XOFF Flow Control", "ftdi-ft.hIndex.b2",
             FT_BOOLEAN, 8, NULL, (1 << 2),
             NULL, HFILL }
         },
         { &hf_setup_hindex_baud_high,
-          { "Baud High", "ftdift.hIndex.b0",
+          { "Baud High", "ftdi-ft.hIndex.b0",
             FT_UINT8, BASE_HEX, NULL, (1 << 0),
             NULL, HFILL }
         },
         { &hf_setup_hindex_baud_clock_divide,
-          { "Baud Clock Divide off", "ftdift.hIndex.b1",
+          { "Baud Clock Divide off", "ftdi-ft.hIndex.b1",
             FT_BOOLEAN, 8, NULL, (1 << 1),
             "When active 120 MHz is max frequency instead of 48 MHz", HFILL }
         },
         { &hf_setup_wlength,
-          { "wLength", "ftdift.wLength",
+          { "wLength", "ftdi-ft.wLength",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_response_lat_timer,
-          { "Latency Time", "ftdift.latency_time",
+          { "Latency Time", "ftdi-ft.latency_time",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             "Latency time in milliseconds", HFILL }
         },
         { &hf_modem_status,
-          { "Modem Status", "ftdift.modem_status",
+          { "Modem Status", "ftdi-ft.modem_status",
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_modem_status_fs_max_packet,
-          { "Full Speed 64 byte MAX packet", "ftdift.modem_status.b0",
+          { "Full Speed 64 byte MAX packet", "ftdi-ft.modem_status.b0",
             FT_BOOLEAN, 8, NULL, (1 << 0),
             NULL, HFILL }
         },
         { &hf_modem_status_hs_max_packet,
-          { "High Speed 512 byte MAX packet", "ftdift.modem_status.b1",
+          { "High Speed 512 byte MAX packet", "ftdi-ft.modem_status.b1",
             FT_BOOLEAN, 8, NULL, (1 << 1),
             NULL, HFILL }
         },
         { &hf_modem_status_cts,
-          { "CTS", "ftdift.modem_status.b4",
+          { "CTS", "ftdi-ft.modem_status.b4",
             FT_BOOLEAN, 8, NULL, (1 << 4),
             NULL, HFILL }
         },
         { &hf_modem_status_dsr,
-          { "DSR", "ftdift.modem_status.b5",
+          { "DSR", "ftdi-ft.modem_status.b5",
             FT_BOOLEAN, 8, NULL, (1 << 5),
             NULL, HFILL }
         },
         { &hf_modem_status_ri,
-          { "RI", "ftdift.modem_status.b6",
+          { "RI", "ftdi-ft.modem_status.b6",
             FT_BOOLEAN, 8, NULL, (1 << 6),
             NULL, HFILL }
         },
         { &hf_modem_status_dcd,
-          { "DCD", "ftdift.modem_status.b7",
+          { "DCD", "ftdi-ft.modem_status.b7",
             FT_BOOLEAN, 8, NULL, (1 << 7),
             NULL, HFILL }
         },
         { &hf_line_status,
-          { "Line Status", "ftdift.line_status",
+          { "Line Status", "ftdi-ft.line_status",
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_line_status_receive_overflow,
-          { "Receive Overflow Error", "ftdift.line_status.b1",
+          { "Receive Overflow Error", "ftdi-ft.line_status.b1",
             FT_BOOLEAN, 8, NULL, (1 << 1),
             NULL, HFILL }
         },
         { &hf_line_status_parity_error,
-          { "Parity Error", "ftdift.line_status.b2",
+          { "Parity Error", "ftdi-ft.line_status.b2",
             FT_BOOLEAN, 8, NULL, (1 << 2),
             NULL, HFILL }
         },
         { &hf_line_status_framing_error,
-          { "Framing Error", "ftdift.line_status.b3",
+          { "Framing Error", "ftdi-ft.line_status.b3",
             FT_BOOLEAN, 8, NULL, (1 << 3),
             NULL, HFILL }
         },
         { &hf_line_status_break_received,
-          { "Break Received", "ftdift.line_status.b4",
+          { "Break Received", "ftdi-ft.line_status.b4",
             FT_BOOLEAN, 8, NULL, (1 << 4),
             NULL, HFILL }
         },
         { &hf_line_status_tx_holding_reg_empty,
-          { "Transmitter Holding Register Empty", "ftdift.line_status.b5",
+          { "Transmitter Holding Register Empty", "ftdi-ft.line_status.b5",
             FT_BOOLEAN, 8, NULL, (1 << 5),
             NULL, HFILL }
         },
         { &hf_line_status_tx_empty,
-          { "Transmitter Empty", "ftdift.line_status.b6",
+          { "Transmitter Empty", "ftdi-ft.line_status.b6",
             FT_BOOLEAN, 8, NULL, (1 << 6),
             NULL, HFILL }
         },
         { &hf_if_a_rx_payload,
-          { "A RX payload", "ftdift.if_a_rx_payload",
+          { "A RX payload", "ftdi-ft.if_a_rx_payload",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             "Data received on interface A", HFILL }
         },
         { &hf_if_a_tx_payload,
-          { "A TX payload", "ftdift.if_a_tx_payload",
+          { "A TX payload", "ftdi-ft.if_a_tx_payload",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             "Data to transmit on interface A", HFILL }
         },
         { &hf_if_b_rx_payload,
-          { "B RX payload", "ftdift.if_b_rx_payload",
+          { "B RX payload", "ftdi-ft.if_b_rx_payload",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             "Data received on interface B", HFILL }
         },
         { &hf_if_b_tx_payload,
-          { "B TX payload", "ftdift.if_b_tx_payload",
+          { "B TX payload", "ftdi-ft.if_b_tx_payload",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             "Data to transmit on interface B", HFILL }
         },
         { &hf_if_c_rx_payload,
-          { "C RX payload", "ftdift.if_c_rx_payload",
+          { "C RX payload", "ftdi-ft.if_c_rx_payload",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             "Data received on interface C", HFILL }
         },
         { &hf_if_c_tx_payload,
-          { "C TX payload", "ftdift.if_c_tx_payload",
+          { "C TX payload", "ftdi-ft.if_c_tx_payload",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             "Data to transmit on interface C", HFILL }
         },
         { &hf_if_d_rx_payload,
-          { "D RX payload", "ftdift.if_d_rx_payload",
+          { "D RX payload", "ftdi-ft.if_d_rx_payload",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             "Data received on interface D", HFILL }
         },
         { &hf_if_d_tx_payload,
-          { "D TX payload", "ftdift.if_d_tx_payload",
+          { "D TX payload", "ftdi-ft.if_d_tx_payload",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             "Data to transmit on interface D", HFILL }
         },
         { &hf_ftdi_fragments,
-          { "Payload fragments", "ftdift.fragments",
+          { "Payload fragments", "ftdi-ft.fragments",
             FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_ftdi_fragment,
-          { "Payload fragment", "ftdift.fragment",
+          { "Payload fragment", "ftdi-ft.fragment",
             FT_FRAMENUM, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_ftdi_fragment_overlap,
-          { "Payload fragment overlap", "ftdift.fragment.overlap",
+          { "Payload fragment overlap", "ftdi-ft.fragment.overlap",
             FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_ftdi_fragment_overlap_conflicts,
-          { "Payload fragment overlapping with conflicting data", "ftdift.fragment.overlap.conflicts",
+          { "Payload fragment overlapping with conflicting data", "ftdi-ft.fragment.overlap.conflicts",
             FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_ftdi_fragment_multiple_tails,
-          { "Payload has multiple tails", "ftdift.fragment.multiple_tails",
+          { "Payload has multiple tails", "ftdi-ft.fragment.multiple_tails",
             FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             NULL, HFILL}
         },
         { &hf_ftdi_fragment_too_long_fragment,
-          { "Payload fragment too long", "ftdift.fragment.too_long_fragment",
+          { "Payload fragment too long", "ftdi-ft.fragment.too_long_fragment",
             FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_ftdi_fragment_error,
-          { "Payload defragmentation error", "ftdift.fragment.error",
+          { "Payload defragmentation error", "ftdi-ft.fragment.error",
             FT_FRAMENUM, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_ftdi_fragment_count,
-          { "Payload fragment count", "ftdift.fragment.count",
+          { "Payload fragment count", "ftdi-ft.fragment.count",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_ftdi_reassembled_in,
-          { "Payload reassembled in", "ftdift.reassembled.in",
+          { "Payload reassembled in", "ftdi-ft.reassembled.in",
             FT_FRAMENUM, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_ftdi_reassembled_length,
-          { "Payload reassembled length", "ftdift.reassembled.length",
+          { "Payload reassembled length", "ftdi-ft.reassembled.length",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
     };
 
     static ei_register_info ei[] = {
-        { &ei_undecoded, { "ftdift.undecoded", PI_UNDECODED, PI_WARN, "Not dissected yet (report to wireshark.org)", EXPFILL }},
+        { &ei_undecoded, { "ftdi-ft.undecoded", PI_UNDECODED, PI_WARN, "Not dissected yet (report to wireshark.org)", EXPFILL }},
     };
 
     static gint *ett[] = {
@@ -1714,10 +1714,10 @@ proto_register_ftdi_ft(void)
     bitmode_info = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     desegment_info = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
-    proto_ftdi_ft = proto_register_protocol("FTDI FT USB", "FTDI FT", "ftdift");
+    proto_ftdi_ft = proto_register_protocol("FTDI FT USB", "FTDI FT", "ftdi-ft");
     proto_register_field_array(proto_ftdi_ft, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-    ftdi_ft_handle = register_dissector("ftdift", dissect_ftdi_ft, proto_ftdi_ft);
+    ftdi_ft_handle = register_dissector("ftdi-ft", dissect_ftdi_ft, proto_ftdi_ft);
 
     expert_module = expert_register_protocol(proto_ftdi_ft);
     expert_register_field_array(expert_module, ei, array_length(ei));
