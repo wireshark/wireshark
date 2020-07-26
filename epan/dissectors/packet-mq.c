@@ -3393,13 +3393,12 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                                                 proto_tree_add_item(mq_tree, hf_mq_head_flags, tvb, offset + 28, 4, p_mq_parm->mq_int_enc);
                                                 iPos = offset + 32;
-                                                iEnd = offset + iLen - 32;
+                                                iEnd = offset + iLen;
                                                 if (iVer > 1)
                                                 {
                                                     iCCSID = (int)tvb_get_guint32(tvb, iPos, p_mq_parm->mq_int_enc);
                                                     proto_tree_add_item(mq_tree, hf_mq_rfh_ccsid, tvb, iPos, 4, p_mq_parm->mq_int_enc);
                                                     iPos += 4;
-                                                    iEnd -= 4;
                                                 }
                                                 else
                                                     iCCSID = iTmp;
