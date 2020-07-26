@@ -135,12 +135,9 @@
         <translation>Nome:</translation>
     </message>
     <message>
-        <source>Can&apos;t assign %1 to %2</source>
-        <translation type="vanished">Impossibile assegnare %1 a %2</translation>
-    </message>
-    <message>
         <source>Can&apos;t assign %1 to %2.</source>
-        <translation type="unfinished">Impossibile assegnare %1 a %2. {1 ?}</translation>
+        <oldsource>Can&apos;t assign %1 to %2</oldsource>
+        <translation type="unfinished">Impossibile assegnare %1 a %2</translation>
     </message>
 </context>
 <context>
@@ -3080,10 +3077,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>UTF-8</source>
         <translation>UTF-8</translation>
-    </message>
-    <message>
-        <source>UTF-16</source>
-        <translation type="vanished">UTF-16</translation>
     </message>
     <message>
         <source>YAML</source>
@@ -7894,10 +7887,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>errore durante l&apos;apertura di un altro file</translation>
     </message>
     <message>
-        <source>Merging files.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>%1: %2</source>
         <translation>%1: %2</translation>
     </message>
@@ -7906,12 +7895,14 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Salvataggio di %1</translation>
     </message>
     <message>
-        <source>No interface selected</source>
-        <translation type="vanished">Nessuna interfaccia selezionata</translation>
+        <source>No interface selected.</source>
+        <oldsource>No interface selected</oldsource>
+        <translation type="unfinished">Nessuna interfaccia selezionata</translation>
     </message>
     <message>
-        <source>Invalid capture filter</source>
-        <translation type="vanished">Filtro di cattura invalido</translation>
+        <source>Invalid capture filter.</source>
+        <oldsource>Invalid capture filter</oldsource>
+        <translation type="unfinished">Filtro di cattura invalido</translation>
     </message>
     <message>
         <source>Clear Menu</source>
@@ -7946,8 +7937,9 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Dati grezzi (*.bin *.dat *.raw);;Tutti i file (</translation>
     </message>
     <message>
-        <source>Merging files</source>
-        <translation type="vanished">Unisci i file</translation>
+        <source>Merging files.</source>
+        <oldsource>Merging files</oldsource>
+        <translation type="unfinished">Unisci i file</translation>
     </message>
     <message>
         <source>Couldn&apos;t copy text. Try another item.</source>
@@ -7966,8 +7958,25 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation> prima di ricaricare il file</translation>
     </message>
     <message>
-        <source>No filter available. Try another </source>
-        <translation type="vanished">Nessun filtro disponibile. Provane un altro </translation>
+        <source>No filter available. Try another %1.</source>
+        <oldsource>No filter available. Try another </oldsource>
+        <translation type="unfinished">Nessun filtro disponibile. Provane un altro </translation>
+    </message>
+    <message>
+        <source>column</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>item</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The &quot;%1&quot; column already exists.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The &quot;%1&quot; column already exists as &quot;%2&quot;.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Error compiling filter for this conversation.</source>
@@ -7980,14 +7989,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>No Interface Selected</source>
         <translation type="vanished">Nessuna interfaccia selezionata</translation>
-    </message>
-    <message>
-        <source>No interface selected.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Invalid capture filter.</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source> before starting a new capture</source>
@@ -8007,26 +8008,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>TLS Session Keys (*.keys *.txt);;All Files (</source>
         <translation>Chiavi di sessione SSL (*.keys *.txt);;Tutti i file (</translation>
-    </message>
-    <message>
-        <source>No filter available. Try another %1.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>column</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>item</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The &quot;%1&quot; column already exists.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The &quot;%1&quot; column already exists as &quot;%2&quot;.</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>No Interface Selected.</source>
@@ -8536,7 +8517,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <name>PacketList</name>
     <message>
         <source>Protocol Preferences</source>
-        <translation type="unfinished">Preferenze di protocollo</translation>
+        <translation>Preferenze di protocollo</translation>
     </message>
     <message>
         <source>Summary as Text</source>
@@ -8741,7 +8722,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Browse…</source>
-        <translation type="unfinished">Sfoglia...</translation>
+        <translation>Sfoglia...</translation>
     </message>
     <message>
         <source>Open %1 preferences</source>
@@ -12265,10 +12246,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Image</source>
         <translation>Immagine</translation>
-    </message>
-    <message>
-        <source>ISO 8859-1</source>
-        <translation type="vanished">ISO 8859-1</translation>
     </message>
     <message>
         <source>Raw</source>

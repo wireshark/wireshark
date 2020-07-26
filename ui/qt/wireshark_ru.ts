@@ -136,12 +136,9 @@
         <translation>Имя:</translation>
     </message>
     <message>
-        <source>Can&apos;t assign %1 to %2</source>
-        <translation type="vanished">Невозможно присвоить %1 для %2</translation>
-    </message>
-    <message>
         <source>Can&apos;t assign %1 to %2.</source>
-        <translation type="unfinished">Невозможно присвоить %1 для %2. {1 ?}</translation>
+        <oldsource>Can&apos;t assign %1 to %2</oldsource>
+        <translation type="unfinished">Невозможно присвоить %1 для %2</translation>
     </message>
 </context>
 <context>
@@ -3090,10 +3087,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>UTF-8</source>
         <translation>UTF-8</translation>
-    </message>
-    <message>
-        <source>UTF-16</source>
-        <translation type="vanished">UTF-16</translation>
     </message>
     <message>
         <source>YAML</source>
@@ -7913,10 +7906,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>перед открытием другого файла</translation>
     </message>
     <message>
-        <source>Merging files.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>%1: %2</source>
         <translation>%1: %2</translation>
     </message>
@@ -7925,12 +7914,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Сохранение %1</translation>
     </message>
     <message>
-        <source>No interface selected</source>
-        <translation type="vanished">Нет выбранного интерфейса</translation>
+        <source>No interface selected.</source>
+        <oldsource>No interface selected</oldsource>
+        <translation type="unfinished">Нет выбранного интерфейса</translation>
     </message>
     <message>
-        <source>Invalid capture filter</source>
-        <translation type="vanished">Неправильный фильтр захвата </translation>
+        <source>Invalid capture filter.</source>
+        <oldsource>Invalid capture filter</oldsource>
+        <translation type="unfinished">Неправильный фильтр захвата </translation>
     </message>
     <message>
         <source>Clear Menu</source>
@@ -7966,8 +7957,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Данные Raw (*.bin *.dat *.raw);;Все Файлы (</translation>
     </message>
     <message>
-        <source>Merging files</source>
-        <translation type="vanished">Объединение файлов</translation>
+        <source>Merging files.</source>
+        <oldsource>Merging files</oldsource>
+        <translation type="unfinished">Объединение файлов</translation>
     </message>
     <message>
         <source>Couldn&apos;t copy text. Try another item.</source>
@@ -7986,8 +7978,25 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>перед повторной загрузкой файла</translation>
     </message>
     <message>
-        <source>No filter available. Try another </source>
-        <translation type="vanished">Нет доступного фильтра. Попробуйте другой </translation>
+        <source>No filter available. Try another %1.</source>
+        <oldsource>No filter available. Try another </oldsource>
+        <translation type="unfinished">Нет доступного фильтра. Попробуйте другой </translation>
+    </message>
+    <message>
+        <source>column</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>item</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The &quot;%1&quot; column already exists.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The &quot;%1&quot; column already exists as &quot;%2&quot;.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Error compiling filter for this conversation.</source>
@@ -8000,14 +8009,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>No Interface Selected</source>
         <translation type="vanished">Нет Выбранного Интерфейса</translation>
-    </message>
-    <message>
-        <source>No interface selected.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Invalid capture filter.</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source> before starting a new capture</source>
@@ -8028,26 +8029,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>TLS Session Keys (*.keys *.txt);;All Files (</source>
         <translation>Ключи Сессии TLS (*.keys *.txt);;Все Файлы (</translation>
-    </message>
-    <message>
-        <source>No filter available. Try another %1.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>column</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>item</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The &quot;%1&quot; column already exists.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The &quot;%1&quot; column already exists as &quot;%2&quot;.</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>No Interface Selected.</source>
@@ -8557,7 +8538,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>PacketList</name>
     <message>
         <source>Protocol Preferences</source>
-        <translation type="unfinished">Параметры Протокола</translation>
+        <translation>Настройки Протокола</translation>
     </message>
     <message>
         <source>Summary as Text</source>
@@ -8762,7 +8743,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Browse…</source>
-        <translation type="unfinished">Открыть...</translation>
+        <translation>Открыть…</translation>
     </message>
     <message>
         <source>Open %1 preferences</source>
@@ -12295,10 +12276,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Image</source>
         <translation>Изображение</translation>
-    </message>
-    <message>
-        <source>ISO 8859-1</source>
-        <translation type="vanished">ISO 8859-1</translation>
     </message>
     <message>
         <source>Raw</source>

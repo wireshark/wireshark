@@ -136,6 +136,7 @@
     </message>
     <message>
         <source>Can&apos;t assign %1 to %2.</source>
+        <oldsource>Can&apos;t assign %1 to %2</oldsource>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3037,10 +3038,6 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <message>
         <source>UTF-8</source>
         <translation>UTF-8</translation>
-    </message>
-    <message>
-        <source>UTF-16</source>
-        <translation type="vanished">UTF-16</translation>
     </message>
     <message>
         <source>YAML</source>
@@ -7797,15 +7794,21 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Merging files.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>%1: %2</source>
         <translation>%1: %2</translation>
     </message>
     <message>
         <source>Saving %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No interface selected.</source>
+        <oldsource>No interface selected</oldsource>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Invalid capture filter.</source>
+        <oldsource>Invalid capture filter</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7833,6 +7836,11 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Merging files.</source>
+        <oldsource>Merging files</oldsource>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Couldn&apos;t copy text. Try another item.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7849,19 +7857,32 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>No filter available. Try another %1.</source>
+        <oldsource>No filter available. Try another </oldsource>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>column</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>item</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The &quot;%1&quot; column already exists.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The &quot;%1&quot; column already exists as &quot;%2&quot;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Error compiling filter for this conversation.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>No previous/next packet in conversation.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No interface selected.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Invalid capture filter.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7881,26 +7902,6 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>TLS Session Keys (*.keys *.txt);;All Files (</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No filter available. Try another %1.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>column</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>item</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The &quot;%1&quot; column already exists.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The &quot;%1&quot; column already exists as &quot;%2&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -12081,10 +12082,6 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <message>
         <source>Image</source>
         <translation>Imagen</translation>
-    </message>
-    <message>
-        <source>ISO 8859-1</source>
-        <translation type="vanished">ISO 8859-1</translation>
     </message>
     <message>
         <source>Raw</source>

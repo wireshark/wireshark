@@ -134,12 +134,9 @@
         <translation>名称:</translation>
     </message>
     <message>
-        <source>Can&apos;t assign %1 to %2</source>
-        <translation type="vanished">不能分配 %1 到 %2</translation>
-    </message>
-    <message>
         <source>Can&apos;t assign %1 to %2.</source>
-        <translation type="unfinished">不能分配 %1 到 %2. {1 ?}</translation>
+        <oldsource>Can&apos;t assign %1 to %2</oldsource>
+        <translation type="unfinished">不能分配 %1 到 %2</translation>
     </message>
 </context>
 <context>
@@ -3065,10 +3062,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>UTF-8</source>
         <translation>UTF-8</translation>
-    </message>
-    <message>
-        <source>UTF-16</source>
-        <translation type="vanished">UTF-16</translation>
     </message>
     <message>
         <source>YAML</source>
@@ -7870,10 +7863,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>打开另一个文件前</translation>
     </message>
     <message>
-        <source>Merging files.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>%1: %2</source>
         <translation>%1: %2</translation>
     </message>
@@ -7882,12 +7871,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>正在保存 %1</translation>
     </message>
     <message>
-        <source>No interface selected</source>
-        <translation type="vanished">未选中接口</translation>
+        <source>No interface selected.</source>
+        <oldsource>No interface selected</oldsource>
+        <translation type="unfinished">未选中接口</translation>
     </message>
     <message>
-        <source>Invalid capture filter</source>
-        <translation type="vanished">无效捕获过滤器</translation>
+        <source>Invalid capture filter.</source>
+        <oldsource>Invalid capture filter</oldsource>
+        <translation type="unfinished">无效捕获过滤器</translation>
     </message>
     <message>
         <source>Clear Menu</source>
@@ -7921,8 +7912,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>原始数据 (*.bin *.dat *.raw);;所有文件 (</translation>
     </message>
     <message>
-        <source>Merging files</source>
-        <translation type="vanished">合并文件</translation>
+        <source>Merging files.</source>
+        <oldsource>Merging files</oldsource>
+        <translation type="unfinished">合并文件</translation>
     </message>
     <message>
         <source>Couldn&apos;t copy text. Try another item.</source>
@@ -7941,8 +7933,25 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>重新载入文件前</translation>
     </message>
     <message>
-        <source>No filter available. Try another </source>
-        <translation type="vanished">无过滤器可用。请尝试其他 </translation>
+        <source>No filter available. Try another %1.</source>
+        <oldsource>No filter available. Try another </oldsource>
+        <translation type="unfinished">无过滤器可用。请尝试其他 </translation>
+    </message>
+    <message>
+        <source>column</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>item</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The &quot;%1&quot; column already exists.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The &quot;%1&quot; column already exists as &quot;%2&quot;.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Error compiling filter for this conversation.</source>
@@ -7955,14 +7964,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>No Interface Selected</source>
         <translation type="vanished">未选中接口</translation>
-    </message>
-    <message>
-        <source>No interface selected.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Invalid capture filter.</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source> before starting a new capture</source>
@@ -7981,26 +7982,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>TLS Session Keys (*.keys *.txt);;All Files (</source>
         <translation>TLS 会话密钥 (*.keys *.txt);;所有文件(</translation>
-    </message>
-    <message>
-        <source>No filter available. Try another %1.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>column</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>item</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The &quot;%1&quot; column already exists.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The &quot;%1&quot; column already exists as &quot;%2&quot;.</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>No Interface Selected.</source>
@@ -12223,10 +12204,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Image</source>
         <translation>图像</translation>
-    </message>
-    <message>
-        <source>ISO 8859-1</source>
-        <translation type="vanished">ISO 8859-1</translation>
     </message>
     <message>
         <source>Raw</source>
