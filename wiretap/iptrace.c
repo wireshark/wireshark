@@ -283,11 +283,15 @@ iptrace_read_rec_1_0(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
 	}
 
 	rec->rec_type = REC_TYPE_PACKET;
-	rec->presence_flags = WTAP_HAS_TS | WTAP_HAS_INTERFACE_ID;
+	rec->presence_flags = WTAP_HAS_TS | WTAP_HAS_INTERFACE_ID | WTAP_HAS_PACK_FLAGS;
 	rec->rec_header.packet_header.len = packet_size;
 	rec->rec_header.packet_header.caplen = packet_size;
 	rec->ts.secs = pntoh32(&header[IPTRACE_1_0_TV_SEC_OFFSET]);
 	rec->ts.nsecs = 0;
+	rec->rec_header.packet_header.pack_flags =
+	    pkt_info[IPTRACE_1_0_TX_FLAGS_OFFSET] ?
+	      (PACK_FLAGS_DIRECTION_OUTBOUND << PACK_FLAGS_DIRECTION_SHIFT) :
+	      (PACK_FLAGS_DIRECTION_INBOUND << PACK_FLAGS_DIRECTION_SHIFT);
 
 	/* Fill in the pseudo-header. */
 	fill_in_pseudo_header(rec->rec_header.packet_header.pkt_encap,
@@ -550,11 +554,15 @@ iptrace_read_rec_2_0(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
 	}
 
 	rec->rec_type = REC_TYPE_PACKET;
-	rec->presence_flags = WTAP_HAS_TS | WTAP_HAS_INTERFACE_ID;
+	rec->presence_flags = WTAP_HAS_TS | WTAP_HAS_INTERFACE_ID | WTAP_HAS_PACK_FLAGS;
 	rec->rec_header.packet_header.len = packet_size;
 	rec->rec_header.packet_header.caplen = packet_size;
 	rec->ts.secs = pntoh32(&pkt_info[IPTRACE_2_0_TV_SEC_OFFSET]);
 	rec->ts.nsecs = pntoh32(&pkt_info[IPTRACE_2_0_TV_NSEC_OFFSET]);
+	rec->rec_header.packet_header.pack_flags =
+	    pkt_info[IPTRACE_2_0_TX_FLAGS_OFFSET] ?
+	      (PACK_FLAGS_DIRECTION_OUTBOUND << PACK_FLAGS_DIRECTION_SHIFT) :
+	      (PACK_FLAGS_DIRECTION_INBOUND << PACK_FLAGS_DIRECTION_SHIFT);
 
 	/* Fill in the pseudo-header. */
 	fill_in_pseudo_header(rec->rec_header.packet_header.pkt_encap,
