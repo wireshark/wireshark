@@ -2562,7 +2562,10 @@ dissect_usb_endpoint_descriptor(packet_info *pinfo, proto_tree *parent_tree,
     proto_tree_add_item(tree, hf_usb_bInterval, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
 
-    if (usb_conv_info && (usb_conv_info->interfaceClass == IF_CLASS_AUDIO)) {
+    /* bRefresh and bSynchAddress are present only in the Audio 1.0
+     * Endpoint Descriptors, so observe the descriptor size  */
+    if (usb_conv_info && (usb_conv_info->interfaceClass == IF_CLASS_AUDIO)
+            && (len >= 9)) {
         proto_tree_add_item(tree, hf_usb_audio_bRefresh, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset += 1;
 
