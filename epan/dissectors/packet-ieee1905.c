@@ -1627,25 +1627,24 @@ dissect_media_type(tvbuff_t *tvb, packet_info *pinfo _U_,
  */
 static int
 dissect_local_interface_list(tvbuff_t *tvb, packet_info *pinfo _U_,
-        proto_tree *tree, guint offset, guint16 len)
+        proto_tree *tree, guint offset, guint8 count)
 {
-    guint count = 0;
+    guint index = 0;
     guint media_type_offset = 0;
     proto_item *pi = NULL;
     proto_tree *dev_tree = NULL;
 
-    while (len > 0) {
+    while (count > 0) {
         guint8 spec_info_len = 0;
 
         dev_tree = proto_tree_add_subtree_format(tree, tvb, offset, 8,
                                 ett_device_information_tree,
                                 &pi, "Local interface %u device info",
-                                count);
+                                index);
 
         proto_tree_add_item(dev_tree, hf_ieee1905_mac_address_type, tvb,
                             offset, 6, ENC_NA);
         offset += 6;
-        len -= 6;
 
         media_type_offset = offset;
 
@@ -1666,9 +1665,8 @@ dissect_local_interface_list(tvbuff_t *tvb, packet_info *pinfo _U_,
 
         proto_item_set_len(pi, 6 + (offset - media_type_offset));
 
-        len -= (offset - media_type_offset);
-
-        count++;
+        count--;
+        index++;
     }
 
     return offset;
@@ -1679,8 +1677,9 @@ dissect_local_interface_list(tvbuff_t *tvb, packet_info *pinfo _U_,
  */
 static int
 dissect_device_bridging_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_,
-        proto_tree *tree, guint offset, guint16 len)
+        proto_tree *tree, guint offset, guint16 len _U_)
 {
+    guint8 count = tvb_get_guint8(tvb, offset);
     guint8 tuple_no = 0;
     guint8 mac_addresses = 0;
     guint start = 0;
@@ -1696,9 +1695,8 @@ dissect_device_bridging_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_,
 
     start = offset; /* Starts at the count! */
     offset++;
-    len--;
 
-    while (len > 0) {
+    while (count > 0) {
         guint bl_start = offset;
         mac_addresses = tvb_get_guint8(tvb, offset);
 
@@ -1712,19 +1710,18 @@ dissect_device_bridging_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_,
 
         offset++;
         tuple_no++;
-        len--;
 
         while (mac_addresses) {
            proto_tree_add_item(bridging_list,
                                hf_ieee1905_bridging_mac_address, tvb,
                                offset, 6, ENC_NA);
-           len -= 6;
            offset += 6;
            mac_addresses--;
 
         }
 
         proto_item_set_len(mpi, offset - bl_start);
+        count--;
     }
 
     proto_item_set_len(tpi, offset - start);
@@ -1742,18 +1739,17 @@ dissect_non_1905_neighbor_device_list(tvbuff_t *tvb, packet_info *pinfo _U_,
     proto_item *pi = NULL;
     guint start;
 
-    proto_tree_add_item(tree, hf_ieee1905_local_interface_mac, tvb,
-                        offset, 6, ENC_NA);
-
-    len -= 6;
-    offset += 6;
-
     start = offset;
     neighbor_list = proto_tree_add_subtree(tree, tvb, offset, -1,
                                 ett_non_1905_neighbor_list,
                                 &pi, "Non IEEE1905 neighbor devices");
 
-    while (len > 6) {
+    while (len >= 12) {
+        proto_tree_add_item(neighbor_list, hf_ieee1905_local_interface_mac, tvb,
+                        offset, 6, ENC_NA);
+
+        len -= 6;
+        offset += 6;
 
         proto_tree_add_item(neighbor_list, hf_ieee1905_non_1905_neighbor_mac,
                         tvb, offset, 6, ENC_NA);
@@ -4779,27 +4775,31 @@ dissect_unassociated_sta_link_metrics_query(tvbuff_t *tvb,
  */
 static int
 dissect_device_information_type(tvbuff_t *tvb, packet_info *pinfo _U_,
-        proto_tree *tree, guint offset, guint16 len)
+        proto_tree *tree, guint offset, guint16 len _U_)
 {
     proto_item *pi = NULL;
     proto_tree *sub_tree = NULL;
+    guint8 count;
+    guint start_offset;
 
     proto_tree_add_item(tree, hf_ieee1905_al_mac_address_type, tvb,
                         offset, 6, ENC_NA);
     offset += 6;
 
+    count = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_ieee1905_local_interface_count, tvb,
                         offset, 1, ENC_NA);
     offset++;
+    start_offset = offset;
 
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, -1,
                             ett_device_information_list,
                             &pi, "Local interface list");
 
     offset = dissect_local_interface_list(tvb, pinfo, sub_tree,
-                            offset, len - (6 + 1));
+                            offset, count);
 
-    proto_item_set_len(pi, offset - (6 + 1));
+    proto_item_set_len(pi, offset - start_offset);
 
     return offset;
 }
@@ -8276,7 +8276,7 @@ dissect_ieee1905_tlvs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         tlv_len = min(tvb_get_ntohs(tvb, offset + 1),
                     tvb_reported_length_remaining(tvb, offset));
 
-        tlv_tree = proto_tree_add_subtree(tree, tvb, offset, tlv_len,
+        tlv_tree = proto_tree_add_subtree(tree, tvb, offset, tlv_len + 3,
                                           ett_tlv, NULL, val_to_str_ext(tlv_type,
                                                 &ieee1905_tlv_types_vals_ext,
                                                 "Unknown: %02x"));
@@ -8524,7 +8524,7 @@ dissect_ieee1905(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_item *pi = NULL;
 
         /* THis shouldn't happen ... */
-        pi = proto_tree_add_item(ieee1905_tree, hf_ieee1905_data, tvb,
+        pi = proto_tree_add_item(ieee1905_tree, hf_ieee1905_data, next_tvb,
                                  next_offset, -1, ENC_NA);
         expert_add_info(pinfo, pi, &ei_ieee1905_extraneous_data_after_eom);
     }
