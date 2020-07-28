@@ -2,6 +2,7 @@
  * Technically Enhanced Capture Module Protocol (TECMP) dissector.
  * By <lars.voelker@technica-engineering.de>
  * Copyright 2019-2020 Dr. Lars Voelker
+ * Copyright 2020      Ayoub Kaanich
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -723,14 +724,16 @@ dissect_tecmp_status_bus_vendor_data(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 
         if (bytes_remaining >= 1) {
             proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_link_status, tvb, offset, 1, ENC_NA);
+            offset += 1;
         }
         if (bytes_remaining >= 2) {
             proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_link_quality, tvb, offset, 1,
                                 ENC_NA);
+            offset += 1;
         }
         if (bytes_remaining >= 4) {
             ti = proto_tree_add_item_ret_uint(tree, hf_tecmp_payload_status_bus_vendor_technica_linkup_time, tvb,
-                                              offset, 1, ENC_NA, &tmp);
+                                              offset, 2, ENC_NA, &tmp);
             if (tmp==0) {
                 proto_item_append_text(ti, " %s", "(no linkup detected yet)");
             } else if (tmp == 0xffff) {
