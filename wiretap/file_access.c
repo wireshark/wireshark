@@ -2328,7 +2328,37 @@ wtap_dump_init_dumper(int file_type_subtype, wtap_compression_type compression_t
 		descr = wtap_block_create(WTAP_BLOCK_IF_DESCR);
 		descr_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(descr);
 		descr_mand->wtap_encap = params->encap;
-		descr_mand->time_units_per_second = 1000000; /* default microsecond resolution */
+		descr_mand->tsprecision = params->tsprec;
+		switch (params->tsprec) {
+
+		case WTAP_TSPREC_SEC:
+			descr_mand->time_units_per_second = 1;
+			break;
+
+		case WTAP_TSPREC_DSEC:
+			descr_mand->time_units_per_second = 10;
+			break;
+
+		case WTAP_TSPREC_CSEC:
+			descr_mand->time_units_per_second = 100;
+			break;
+
+		case WTAP_TSPREC_MSEC:
+			descr_mand->time_units_per_second = 1000;
+			break;
+
+		case WTAP_TSPREC_USEC:
+			descr_mand->time_units_per_second = 1000000;
+			break;
+
+		case WTAP_TSPREC_NSEC:
+			descr_mand->time_units_per_second = 1000000000;
+			break;
+
+		default:
+			descr_mand->time_units_per_second = 1000000; /* default microsecond resolution */
+			break;
+		}
 		snaplen = params->snaplen;
 		if (snaplen == 0) {
 			/*

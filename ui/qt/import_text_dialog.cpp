@@ -124,6 +124,7 @@ void ImportTextDialog::convertTextFile() {
     wtap_dump_params_init(&params, NULL);
     params.encap = import_info_.encapsulation;
     params.snaplen = import_info_.max_frame_length;
+    params.tsprec = WTAP_TSPREC_USEC; /* XXX - support other precisions? */
     /* Use a random name for the temporary import buffer */
     import_info_.wdh = wtap_dump_open_tempfile(&tmpname, "import", WTAP_FILE_TYPE_SUBTYPE_PCAPNG, WTAP_UNCOMPRESSED, &params, &err);
     capfile_name_.append(tmpname ? tmpname : "temporary file");

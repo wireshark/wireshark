@@ -420,6 +420,7 @@ wtap_dump_params_init(wtap_dump_params *params, wtap *wth)
 
 	params->encap = wtap_file_encap(wth);
 	params->snaplen = wtap_snapshot_length(wth);
+	params->tsprec = wtap_file_tsprec(wth);
 	params->shb_hdrs = wtap_file_get_shb_for_new_file(wth);
 	params->idb_inf = wtap_file_get_idb_info(wth);
 	params->nrb_hdrs = wtap_file_get_nrb_for_new_file(wth);

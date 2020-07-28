@@ -1565,6 +1565,7 @@ typedef struct addrinfo_lists {
 typedef struct wtap_dump_params {
     int         encap;                      /**< Per-file packet encapsulation, or WTAP_ENCAP_PER_PACKET */
     int         snaplen;                    /**< Per-file snapshot length (what if it's per-interface?) */
+    int         tsprec;                     /**< Per-file time stamp precision */
     GArray     *shb_hdrs;                   /**< The section header block(s) information, or NULL. */
     wtapng_iface_descriptions_t *idb_inf;   /**< The interface description information, or NULL. */
     GArray     *nrb_hdrs;                   /**< The name resolution blocks(s) comment/custom_opts information, or NULL. */
