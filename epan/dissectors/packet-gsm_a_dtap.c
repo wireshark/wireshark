@@ -8228,7 +8228,7 @@ proto_register_gsm_a_dtap(void)
         },
         { &hf_gsm_a_dtap_test_loop,
           { "Test Loop", "gsm_a.dtap.test_loop",
-            FT_UINT8, BASE_DEC, NULL, 0x3f,
+            FT_UINT8, BASE_DEC, NULL, 0x3e,
             NULL, HFILL }
         },
         { &hf_gsm_a_dtap_subchannel,
