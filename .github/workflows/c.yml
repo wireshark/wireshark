@@ -1,0 +1,62 @@
+name: C/C++ CI
+
+on:
+  push:
+    branches: [ marine ]
+  pull_request:
+    branches: [ marine ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: 'Install deps'
+      run: sudo apt update && sudo apt install -y build-essential cmake ninja-build libpcap-dev libglib2.0-dev libgcrypt20-dev libc-ares-dev bison flex liblz4-dev libsmi2-dev libgnutls28-dev libminizip-dev libbrotli-dev libsnappy-dev libzstd-dev libnghttp2-dev lua5.1 luajit libspandsp-dev libxml2-dev liblua5.1-dev libluajit-5.1 libkrb5-dev python3-pip python3-setuptools
+
+    - name: 'Build info'
+      run: gcc --version
+
+    - name: 'cmake'
+      run: mkdir -p build && cd build && cmake -GNinja ..
+
+    - name: 'Build marine'
+      run: ninja -C build marine
+
+    - name: stress
+      run: ninja -C build marine_stress && ./build/run/marine_stress | tee stress.log
+
+    - uses: actions/upload-artifact@v2
+      with:
+        path: stress.log
+
+    - name: 'Build benchmark'
+      run: ninja -C build marine_benchmark
+
+    - name: 'Cache benchmark caps'
+      uses: actions/cache@v2
+      id: cache-caps
+      with:
+        path: '*_benchmark.cap'
+        key: ${{ hashFiles('cap_maker.py') }}
+
+    - name: 'Generate benchmark caps'
+      if: steps.cache-caps.outputs.cache-hit != 'true'
+      run: pip3 install pypacker && python3 cap_maker.py
+
+    - name: 'Benchmark ethernet'
+      run: ./build/run/marine_benchmark ethernet_benchmark.cap 1 | tee ethernet_benchmark.log
+
+    - uses: actions/upload-artifact@v2
+      with:
+        path: ethernet_benchmark.log
+
+    - name: 'Benchmark wifi'
+      run: ./build/run/marine_benchmark radiotap_benchmark.cap 23 | tee wifi_benchmark.log
+
+    - uses: actions/upload-artifact@v2
+      with:
+        path: wifi_benchmark.log

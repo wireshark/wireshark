@@ -878,6 +878,7 @@ void _clear_conv_table(wmem_map_t *table) {
 }
 
 #if MARINE_DEBUG
+
 void _clear_and_report(const char * name, void (*clear_func)(wmem_map_t *), wmem_map_t* map) {
     guint size = wmem_map_size(map);
     clear_func(map);
@@ -886,11 +887,15 @@ void _clear_and_report(const char * name, void (*clear_func)(wmem_map_t *), wmem
         printf("%s: %d -> %d\n", name, size, new_size);
     }
 }
+
 #define clear_addr_resolv_map(map) _clear_and_report(#map, _clear_addr_resolv_map, map)
 #define clear_conv_table(map) _clear_and_report(#map, _clear_conv_table, map)
+
 #else
+
 #define clear_addr_resolv_map(map) _clear_addr_resolv_map(map)
 #define clear_conv_table(map) _clear_conv_table(map)
+
 #endif
 
 static void reset_epan_mem(capture_file *cf, epan_dissect_t *edt, gboolean tree, gboolean visual) {
