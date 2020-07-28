@@ -1,0 +1,59 @@
+// dot -Tsvg -o docbook/wsdg_graphics/git-triangular-workflow.svg docbook/wsdg_graphics/git-triangular-workflow.gv
+
+digraph G {
+    // XXX Integrate ws.css. Match it manually for now.
+    graph [
+        fontname = "Georgia",
+        fontsize = 12
+    ];
+
+    node [
+        fontname = "Georgia",
+        fontsize = 12,
+        shape=box,
+        style=rounded
+    ];
+
+    edge [
+        fontname = "Georgia",
+        fontsize = 12
+    ];
+
+    rankdir = TB;
+    ranksep = 1.0;
+    nodesep = 1.0;
+    // margin = "0.5,0.5";
+
+    main_repo [
+        label=<Main Repository<br/><font point-size="9">gitlab.com/wireshark/wireshark</font>>
+    ]
+
+    your_fork [
+        label=<Your Fork<br/><font point-size="9">gitlab.com/you/wireshark</font>>
+    ]
+
+    your_repo [
+        label=<Your Local Repository<br/><font point-size="9">Somewhere on your machine</font>>
+    ]
+
+    { rank = same; main_repo; your_fork; }
+
+    // :nw adds needed space
+    main_repo -> your_fork:nw [
+        label = "Fork (once)",
+        style = dashed
+    ]
+
+    main_repo -> your_repo [
+        label = "Pull"
+    ]
+
+    your_repo -> your_fork [
+        label = "Push"
+    ]
+
+    your_fork -> main_repo [
+        label = "Merge Request"
+    ]
+
+}

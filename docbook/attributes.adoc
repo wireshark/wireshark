@@ -20,18 +20,19 @@
 :wireshark-code-review-url: https://code.wireshark.org/review
 :wireshark-qa-url: https://ask.wireshark.org/
 :wireshark-wiki-url: https://wiki.wireshark.org/
+:wireshark-gitlab-project-url: https://gitlab.com/wireshark/wireshark
 
 // Wireshark secondary URLs (pages)
 :wireshark-authors-url: {wireshark-main-url}about.html#authors
 :wireshark-buildbot-url: https://buildbot.wireshark.org/wireshark-master/waterfall
-:wireshark-code-browse-url: {wireshark-code-review-url}/gitweb?p=wireshark.git
+:wireshark-code-browse-url: https://gitlab.com/wireshark/wireshark/tree/master
+:wireshark-merge-request-url: https://gitlab.com/wireshark/wireshark/merge_requests
 :wireshark-developers-guide-url: {wireshark-main-url}docs/wsdg_html_chunked/
 :wireshark-display-filter-reference-url: {wireshark-main-url}docs/dfref/
 :wireshark-download-url: {wireshark-main-url}download.html
 :wireshark-faq-url: {wireshark-main-url}faq.html
-:wireshark-git-anonhttp-url: \https://code.wireshark.org/review/wireshark
-:wireshark-git-http-url: \https://your.username@code.wireshark.org/review/wireshark
-:wireshark-git-ssh-url: ssh://your.username@code.wireshark.org:29418/wireshark
+:wireshark-git-anonhttp-url: https://gitlab.com/wireshark/wireshark.git
+:wireshark-git-ssh-url: \git@gitlab.com:wireshark/wireshark.git
 :wireshark-mailing-lists-url: {wireshark-main-url}lists/
 :wireshark-man-page-url: {wireshark-main-url}docs/man-pages/
 :wireshark-snapshots-url: {wireshark-main-url}download/automated/src/
@@ -57,6 +58,7 @@
 :ntp-main-url: http://www.ntp.org/
 
 :gplv2-url: https://www.gnu.org/licenses/gpl-2.0.html
+:spdx-license-url: https://spdx.org/licenses/
 
 // Email addresses
 :at-separator: &#91;AT&#93;

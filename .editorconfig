@@ -44,6 +44,12 @@ indent_size = 2
 indent_style = space
 indent_size = 2
 
+# GraphViz. The examples at https://gitlab.com/graphviz/graphviz/-/blob/master/graphs
+# seem to be all over the place, so just go with 4 spaces for now.
+[*.gv]
+indent_style = space
+indent_size = 4
+
 # C/C++
 [*.{c,cpp,h}]
 indent_style = space

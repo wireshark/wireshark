@@ -257,6 +257,9 @@ set(WSDG_FILES
 )
 
 set(WSDG_GRAPHICS
+	wsdg_graphics/git-triangular-workflow.gv
+	wsdg_graphics/git-triangular-workflow.svg
+	wsdg_graphics/ws-capture-sync.png
 	wsdg_graphics/ws-capture-sync.dia
 	wsdg_graphics/ws-capture-sync.png
 	wsdg_graphics/ws-capture_internals.dia

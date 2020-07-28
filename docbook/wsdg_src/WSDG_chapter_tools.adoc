@@ -979,8 +979,7 @@ tree.
 It most cases you may not need the patch tool installed. Git and Gerrit should
 handle patches for you.
 
-You will find more instructions in <<ChSrcPatchApply>>on how to use the patch
-tool.
+// You will find more instructions in <<ChSrcPatchApply>>on how to use the patch tool.
 
 [[ChToolsUnixPatch]]
 
