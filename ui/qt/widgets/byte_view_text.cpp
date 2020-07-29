@@ -7,6 +7,9 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+// Some code based on QHexView by Evan Teran
+// https://github.com/eteran/qhexview/
+
 #include "byte_view_text.h"
 
 #include <epan/charsets.h>
