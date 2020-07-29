@@ -2533,11 +2533,12 @@ static const value_string gtpv2_pdn_type_vals[] = {
     {2, "IPv6"},
     {3, "IPv4/IPv6"},
     {4, "Non-IP"},
+    {5, "Ethernet"},
     {0, NULL}
 };
 
 static void
-dissect_gtpv2_paa(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
+dissect_gtpv2_paa(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
 {
     int    offset = 0;
     guint8 pdn_type;
@@ -2549,6 +2550,11 @@ dissect_gtpv2_paa(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
     {
     case 1:
         /* IPv4 */
+        if (length != 5) {
+            proto_tree_add_expert_format(tree, pinfo, &ei_gtpv2_ie_len_invalid, tvb, 0, length,
+                                         "Wrong length indicated. Expected 5, got %u", length);
+            return;
+        }
         proto_tree_add_item(tree, hf_gtpv2_pdn_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
         proto_item_append_text(item, "IPv4 %s", tvb_ip_to_str(tvb, offset));
         break;
@@ -2559,6 +2565,11 @@ dissect_gtpv2_paa(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
          * Bit 8 of octet 7 represents the most significant bit of the IPv6 Prefix
          * and Interface Identifier and bit 1 of octet 22 the least significant bit.
          */
+        if (length != 18) {
+            proto_tree_add_expert_format(tree, pinfo, &ei_gtpv2_ie_len_invalid, tvb, 0, length,
+                                         "Wrong length indicated. Expected 18, got %u", length);
+            return;
+        }
         proto_tree_add_item(tree, hf_gtpv2_pdn_ipv6_len, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
         proto_tree_add_item(tree, hf_gtpv2_pdn_ipv6, tvb, offset, 16, ENC_NA);
@@ -2574,6 +2585,11 @@ dissect_gtpv2_paa(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
          * the most significant bit of the IPv4 address and bit 1 of octet 26 the least
          * significant bit.
          */
+        if (length != 22) {
+            proto_tree_add_expert_format(tree, pinfo, &ei_gtpv2_ie_len_invalid, tvb, 0, length,
+                                         "Wrong length indicated. Expected 22, got %u", length);
+            return;
+        }
         proto_tree_add_item(tree, hf_gtpv2_pdn_ipv6_len, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
         proto_tree_add_item(tree, hf_gtpv2_pdn_ipv6, tvb, offset, 16, ENC_NA);
@@ -2582,6 +2598,15 @@ dissect_gtpv2_paa(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
         proto_tree_add_item(tree, hf_gtpv2_pdn_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
         proto_item_append_text(item, "IPv4 %s", tvb_ip_to_str(tvb, offset));
         break;
+    case 4: /* Non IP */
+    case 5: /* Ethernet */
+        /* If PDN type value indicates Non-IP or Ethernet, octets from 6 to 'n+4'
+           shall not be present. */
+        if (length != 1) {
+            proto_tree_add_expert_format(tree, pinfo, &ei_gtpv2_ie_len_invalid, tvb, 0, length,
+                                         "Wrong length indicated. Expected 1, got %u", length);
+            return;
+        }
     default:
         break;
     }
