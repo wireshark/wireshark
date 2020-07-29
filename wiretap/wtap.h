@@ -1941,6 +1941,20 @@ WS_DLL_PUBLIC
 void wtap_write_shb_comment(wtap *wth, gchar *comment);
 
 /**
+ * @brief Generate an IDB, given a wiretap handle for the file,
+ *      using the file's encapsulation type, snapshot length,
+ *      and time stamp resolution, and add it to the interface
+ *      data for a file.
+ * @note This requires that the encapsulation type and time stamp
+ *      resolution not be per-packet; it will terminate the process
+ *      if either of them are.
+ *
+ * @param wth The wiretap handle for the file.
+ */
+WS_DLL_PUBLIC
+void wtap_add_generated_idb(wtap *wth);
+
+/**
  * @brief Gets existing interface descriptions.
  * @details Returns a new struct containing a pointer to the existing
  *          description, without creating new descriptions internally.

@@ -162,6 +162,97 @@ wtap_add_idb(wtap *wth, wtap_block_t idb)
 }
 
 void
+wtap_add_generated_idb(wtap *wth)
+{
+	wtap_block_t idb;
+	wtapng_if_descr_mandatory_t *if_descr_mand;
+	int snaplen;
+
+	g_assert(wth->file_encap != WTAP_ENCAP_UNKNOWN &&
+	    wth->file_encap != WTAP_ENCAP_PER_PACKET);
+	g_assert(wth->file_tsprec != WTAP_TSPREC_UNKNOWN &&
+	    wth->file_tsprec != WTAP_TSPREC_PER_PACKET);
+
+	idb = wtap_block_create(WTAP_BLOCK_IF_DESCR);
+
+	if_descr_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(idb);
+	if_descr_mand->wtap_encap = wth->file_encap;
+	if_descr_mand->tsprecision = wth->file_tsprec;
+	switch (wth->file_tsprec) {
+
+	case WTAP_TSPREC_SEC:
+		if_descr_mand->time_units_per_second = 1;
+		wtap_block_add_uint8_option(idb, OPT_IDB_TSRESOL, 0);
+		break;
+
+	case WTAP_TSPREC_DSEC:
+		if_descr_mand->time_units_per_second = 10;
+		wtap_block_add_uint8_option(idb, OPT_IDB_TSRESOL, 1);
+		break;
+
+	case WTAP_TSPREC_CSEC:
+		if_descr_mand->time_units_per_second = 100;
+		wtap_block_add_uint8_option(idb, OPT_IDB_TSRESOL, 2);
+		break;
+
+	case WTAP_TSPREC_MSEC:
+		if_descr_mand->time_units_per_second = 1000;
+		wtap_block_add_uint8_option(idb, OPT_IDB_TSRESOL, 3);
+		break;
+
+	case WTAP_TSPREC_USEC:
+		if_descr_mand->time_units_per_second = 1000000;
+		/* This is the default, so no need to add an option */
+		break;
+
+	case WTAP_TSPREC_NSEC:
+		if_descr_mand->time_units_per_second = 1000000000;
+		wtap_block_add_uint8_option(idb, OPT_IDB_TSRESOL, 9);
+		break;
+
+	case WTAP_TSPREC_PER_PACKET:
+	case WTAP_TSPREC_UNKNOWN:
+	default:
+		/*
+		 * Don't do this.
+		 */
+		g_assert_not_reached();
+		break;
+	}
+	snaplen = wth->snapshot_length;
+	if (snaplen == 0) {
+		/*
+		 * No snapshot length was specified.  Pick an
+		 * appropriate snapshot length for this
+		 * link-layer type.
+		 *
+		 * We use WTAP_MAX_PACKET_SIZE_STANDARD for everything except
+		 * D-Bus, which has a maximum packet size of 128MB,
+		 * and EBHSCR, which has a maximum packet size of 8MB,
+		 * which is more than we want to put into files
+		 * with other link-layer header types, as that
+		 * might cause some software reading those files
+		 * to allocate an unnecessarily huge chunk of
+		 * memory for a packet buffer.
+		 */
+		if (wth->file_encap == WTAP_ENCAP_DBUS)
+			snaplen = 128*1024*1024;
+		else if (wth->file_encap == WTAP_ENCAP_EBHSCR)
+			snaplen = 8*1024*1024;
+		else
+			snaplen = WTAP_MAX_PACKET_SIZE_STANDARD;
+	}
+	if_descr_mand->snap_len = snaplen;
+	if_descr_mand->num_stat_entries = 0;          /* Number of ISBs */
+	if_descr_mand->interface_statistics = NULL;
+
+	/*
+	 * Add this IDB.
+	 */
+	wtap_add_idb(wth, idb);
+}
+
+void
 wtap_free_idb_info(wtapng_iface_descriptions_t *idb_info)
 {
 	if (idb_info == NULL)
