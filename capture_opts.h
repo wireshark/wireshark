@@ -310,6 +310,9 @@ typedef struct capture_options_tag {
 
     gchar             *capture_comment;       /** capture comment to write to the
                                                   output file */
+    gboolean           print_file_names;      /**< TRUE if printing names of completed
+                                                   files as we close them */
+    gchar             *print_name_to;         /**< output file name */
 
     /* internally used (don't touch from outside) */
     gboolean           output_to_pipe;        /**< save_file is a pipe (named or stdout) */

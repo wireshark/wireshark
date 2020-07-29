@@ -420,6 +420,8 @@ print_usage(FILE *output)
     fprintf(output, "                            packets:NUM - ringbuffer: replace after NUM packets\n");
     fprintf(output, "                           interval:NUM - switch to next file when the time is\n");
     fprintf(output, "                                          an exact multiple of NUM secs\n");
+    fprintf(output, "                          printname:FILE - print filename to FILE when written\n");
+    fprintf(output, "                                           (can use 'stdout' or 'stderr')\n");
     fprintf(output, "  -n                       use pcapng format instead of pcap (default)\n");
     fprintf(output, "  -P                       use libpcap format instead of pcapng\n");
     fprintf(output, "  --capture-comment <comment>\n");
@@ -3399,6 +3401,16 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
                 if (*save_file_fd != -1) {
                     g_free(capfile_name);
                     capfile_name = NULL;
+                }
+                if (capture_opts->print_file_names) {
+                    if (!ringbuf_set_print_name(capture_opts->print_name_to, NULL)) {
+                        g_snprintf(errmsg, errmsg_len, "Could not write filenames to %s: %s.\n",
+                                   capture_opts->print_name_to,
+                                   g_strerror(errno));
+                        g_free(capfile_name);
+                        ringbuf_error_cleanup();
+                        return FALSE;
+                    }
                 }
             } else {
                 /* Try to open/create the specified file for use as a capture buffer. */

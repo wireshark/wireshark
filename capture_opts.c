@@ -116,6 +116,8 @@ capture_opts_init(capture_options *capture_opts)
 
     capture_opts->output_to_pipe                  = FALSE;
     capture_opts->capture_child                   = FALSE;
+    capture_opts->print_file_names                = FALSE;
+    capture_opts->print_name_to                   = NULL;
 }
 
 void
@@ -248,6 +250,7 @@ capture_opts_log(const char *log_domain, GLogLevelFlags log_level, capture_optio
     g_log(log_domain, log_level, "FileInterval    (%u) : %u", capture_opts->has_file_interval, capture_opts->file_interval);
     g_log(log_domain, log_level, "FilePackets     (%u) : %u", capture_opts->has_file_packets, capture_opts->file_packets);
     g_log(log_domain, log_level, "RingNumFiles    (%u) : %u", capture_opts->has_ring_num_files, capture_opts->ring_num_files);
+    g_log(log_domain, log_level, "RingPrintFiles  (%u) : %s", capture_opts->print_file_names, (capture_opts->print_file_names ? capture_opts->print_name_to : ""));
 
     g_log(log_domain, log_level, "AutostopFiles   (%u) : %u", capture_opts->has_autostop_files, capture_opts->autostop_files);
     g_log(log_domain, log_level, "AutostopPackets (%u) : %u", capture_opts->has_autostop_packets, capture_opts->autostop_packets);
@@ -411,6 +414,9 @@ get_ring_arguments(capture_options *capture_opts, const char *arg)
     } else if (strcmp(arg,"packets") == 0) {
         capture_opts->has_file_packets = TRUE;
         capture_opts->file_packets = get_positive_int(p, "ring buffer packet count");
+    } else if (strcmp(arg,"printname") == 0) {
+        capture_opts->print_file_names = TRUE;
+        capture_opts->print_name_to = g_strdup(p);
     }
 
     *colonp = ':';    /* put the colon back */

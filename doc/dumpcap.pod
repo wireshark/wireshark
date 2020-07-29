@@ -129,6 +129,10 @@ every hour on the hour.
 B<packets>:I<value> switch to the next file after it contains I<value>
 packets.
 
+B<printname>:I<filename> print the name of the most recently written file
+to I<filename> after the file is closed. I<filename> can be C<stdout> or C<->
+for standard output, or C<stderr> for standard error.
+
 Example: B<-b filesize:1000 -b files:5> results in a ring buffer of five files
 of size one megabyte each.
 
