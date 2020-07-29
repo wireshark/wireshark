@@ -106,6 +106,14 @@ wtap_open_return_val hcidump_open(wtap *wth, int *err, gchar **err_info)
 	wth->subtype_seek_read = hcidump_seek_read;
 	wth->file_tsprec = WTAP_TSPREC_USEC;
 
+	/*
+	 * Add an IDB; we don't know how many interfaces were
+	 * involved, so we just say one interface, about which
+	 * we only know the link-layer type, snapshot length,
+	 * and time stamp resolution.
+	 */
+	wtap_add_generated_idb(wth);
+
 	return WTAP_OPEN_MINE;
 }
 

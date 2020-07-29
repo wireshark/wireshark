@@ -271,6 +271,14 @@ ipfix_open(wtap *wth, int *err, gchar **err_info)
     wth->subtype_seek_read = ipfix_seek_read;
     wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_IPFIX;
 
+    /*
+     * Add an IDB; we don't know how many interfaces were
+     * involved, so we just say one interface, about which
+     * we only know the link-layer type, snapshot length,
+     * and time stamp resolution.
+     */
+    wtap_add_generated_idb(wth);
+
     return WTAP_OPEN_MINE;
 }
 

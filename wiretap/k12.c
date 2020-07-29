@@ -1089,6 +1089,14 @@ wtap_open_return_val k12_open(wtap *wth, int *err, gchar **err_info) {
     wth->priv = (void *)file_data;
     wth->file_tsprec = WTAP_TSPREC_NSEC;
 
+    /*
+     * Add an IDB; we don't know how many interfaces were
+     * involved, so we just say one interface, about which
+     * we only know the link-layer type, snapshot length,
+     * and time stamp resolution.
+     */
+    wtap_add_generated_idb(wth);
+
     return WTAP_OPEN_MINE;
 }
 

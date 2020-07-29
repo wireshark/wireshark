@@ -97,6 +97,15 @@ wtap_open_return_val systemd_journal_open(wtap *wth, int *err _U_, gchar **err_i
     wth->subtype_seek_read = systemd_journal_seek_read;
     wth->file_encap = WTAP_ENCAP_SYSTEMD_JOURNAL;
     wth->file_tsprec = WTAP_TSPREC_USEC;
+
+    /*
+     * Add an IDB; we don't know how many interfaces were
+     * involved, so we just say one interface, about which
+     * we only know the link-layer type, snapshot length,
+     * and time stamp resolution.
+     */
+    wtap_add_generated_idb(wth);
+
     return WTAP_OPEN_MINE;
 }
 

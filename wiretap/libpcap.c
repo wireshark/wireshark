@@ -353,6 +353,15 @@ wtap_open_return_val libpcap_open(wtap *wth, int *err, gchar **err_info)
 		 */
 		wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_PCAP_AIX;
 		wth->file_tsprec = WTAP_TSPREC_NSEC;
+
+		/*
+		 * Add an IDB; we don't know how many interfaces were
+		 * involved, so we just say one interface, about which
+		 * we only know the link-layer type, snapshot length,
+		 * and time stamp resolution.
+		 */
+		wtap_add_generated_idb(wth);
+
 		return WTAP_OPEN_MINE;
 	}
 
@@ -528,9 +537,6 @@ done:
 	 * the link-layer type, snapshot length, and time stamp
 	 * resolution.
 	 *
-	 * This allows nanosecond pcap files to be correctly
-	 * converted to pcapng files.
-	 *
 	 * XXX - this will be a bit weird if you're trying to convert
 	 * a LINKTYPE_ERF pcap file to a pcapng file; it'll have a
 	 * placeholder interface added here, *plus* interfaces
@@ -539,9 +545,6 @@ done:
 	 * for capturing, and the DAG capture code will use it, so that
 	 * if you're capturing on more than one interface, they'll all
 	 * get regular IDBs, with no need for the placeholder.
-	 *
-	 * XXX - yes, adding at least one IDB should be done for *all*
-	 * file types.
 	 */
 	wtap_add_generated_idb(wth);
 

@@ -238,6 +238,15 @@ wtap_open_return_val mplog_open(wtap *wth, int *err, gchar **err_info)
         return WTAP_OPEN_ERROR;
 
     *err = 0;
+
+    /*
+     * Add an IDB; we don't know how many interfaces were
+     * involved, so we just say one interface, about which
+     * we only know the link-layer type, snapshot length,
+     * and time stamp resolution.
+     */
+    wtap_add_generated_idb(wth);
+
     return WTAP_OPEN_MINE;
 }
 
