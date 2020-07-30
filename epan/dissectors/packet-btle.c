@@ -102,6 +102,7 @@ static int hf_extended_advertising_sync_info_crc_init = -1;
 static int hf_extended_advertising_sync_info_event_counter = -1;
 static int hf_extended_advertising_tx_power = -1;
 static int hf_extended_advertising_header_acad = -1;
+static int hf_extended_advertising_had_fragment = -1;
 static int hf_data_header = -1;
 static int hf_data_header_length = -1;
 static int hf_data_header_rfu = -1;
@@ -191,7 +192,16 @@ static int hf_btle_l2cap_msg_fragment_error = -1;
 static int hf_btle_l2cap_msg_fragment_count = -1;
 static int hf_btle_l2cap_msg_reassembled_in = -1;
 static int hf_btle_l2cap_msg_reassembled_length = -1;
-
+static int hf_btle_ea_host_advertising_data_fragments = -1;
+static int hf_btle_ea_host_advertising_data_fragment = -1;
+static int hf_btle_ea_host_advertising_data_fragment_overlap = -1;
+static int hf_btle_ea_host_advertising_data_fragment_overlap_conflicts = -1;
+static int hf_btle_ea_host_advertising_data_fragment_multiple_tails = -1;
+static int hf_btle_ea_host_advertising_data_fragment_too_long_fragment = -1;
+static int hf_btle_ea_host_advertising_data_fragment_error = -1;
+static int hf_btle_ea_host_advertising_data_fragment_count = -1;
+static int hf_btle_ea_host_advertising_data_reassembled_in = -1;
+static int hf_btle_ea_host_advertising_data_reassembled_length = -1;
 
 static gint ett_btle = -1;
 static gint ett_advertising_header = -1;
@@ -207,6 +217,8 @@ static gint ett_channel_map = -1;
 static gint ett_scan_response_data = -1;
 static gint ett_btle_l2cap_msg_fragment = -1;
 static gint ett_btle_l2cap_msg_fragments = -1;
+static gint ett_btle_ea_host_advertising_data_fragment = -1;
+static gint ett_btle_ea_host_advertising_data_fragments = -1;
 static gint ett_extended_advertising_header = -1;
 static gint ett_extended_advertising_flags = -1;
 static gint ett_extended_advertising_cte_info = -1;
@@ -297,6 +309,7 @@ static dissector_handle_t btcommon_le_channel_map_handle;
 static dissector_handle_t btl2cap_handle;
 
 static wmem_tree_t *connection_info_tree;
+static wmem_tree_t *adi_to_first_frame_tree;
 static guint32 l2cap_index;
 
 /* Reassembly */
@@ -324,6 +337,37 @@ static const fragment_items btle_l2cap_msg_frag_items = {
     /* Tag */
     "BTLE L2CAP fragments"
 };
+
+/* Extended Advertising Host Advertising Data Reassembly */
+static reassembly_table btle_ea_host_advertising_data_reassembly_table;
+
+static const fragment_items btle_ea_host_advertising_data_frag_items = {
+    /* Fragment subtrees */
+    &ett_btle_ea_host_advertising_data_fragment,
+    &ett_btle_ea_host_advertising_data_fragments,
+    /* Fragment fields */
+    &hf_btle_ea_host_advertising_data_fragments,
+    &hf_btle_ea_host_advertising_data_fragment,
+    &hf_btle_ea_host_advertising_data_fragment_overlap,
+    &hf_btle_ea_host_advertising_data_fragment_overlap_conflicts,
+    &hf_btle_ea_host_advertising_data_fragment_multiple_tails,
+    &hf_btle_ea_host_advertising_data_fragment_too_long_fragment,
+    &hf_btle_ea_host_advertising_data_fragment_error,
+    &hf_btle_ea_host_advertising_data_fragment_count,
+    /* Reassembled in field */
+    &hf_btle_ea_host_advertising_data_reassembled_in,
+    /* Reassembled length field */
+    &hf_btle_ea_host_advertising_data_reassembled_length,
+    /* Reassembled data field */
+    NULL,
+    /* Tag */
+    "BTLE EA HAD fragments"
+};
+
+typedef struct _ae_had_info_t {
+    guint  fragment_counter;
+    guint32 first_frame_num;
+} ae_had_info_t;
 
 /* Store information about a connection direction */
 typedef struct _direction_info_t {
@@ -657,7 +701,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     static const guint8    broadcast_addr[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
     connection_info_t     *connection_info = NULL;
     wmem_tree_t           *wmem_tree;
-    wmem_tree_key_t        key[5];
+    wmem_tree_key_t        key[5], ae_had_key[4];
     guint32                interface_id;
     guint32                adapter_id;
     guint32                connection_access_address;
@@ -1066,11 +1110,14 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             guint8 tmp, ext_header_len, flags, acad_len;
             proto_item  *ext_header_item, *ext_flags_item;
             proto_tree  *ext_header_tree, *ext_flags_tree;
+            guint32 adi;
+            gboolean adi_present = FALSE;
+            gboolean aux_pointer_present = FALSE;
 
             tmp = tvb_get_guint8(tvb, offset);
             ext_header_len = acad_len = tmp & 0x3F;
 
-            ext_header_item = proto_tree_add_item(btle_tree, hf_extended_advertising_header, tvb, offset, ext_header_len, ENC_NA);
+            ext_header_item = proto_tree_add_item(btle_tree, hf_extended_advertising_header, tvb, offset, ext_header_len + 1, ENC_NA);
             ext_header_tree = proto_item_add_subtree(ext_header_item, ett_extended_advertising_header);
 
             proto_tree_add_item(ext_header_tree, hf_extended_advertising_header_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -1134,12 +1181,13 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
             if (flags & 0x08) {
                 /* AdvDataInfo */
-                sub_item = proto_tree_add_item(ext_header_tree, hf_extended_advertising_data_info, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                sub_item = proto_tree_add_item_ret_uint(ext_header_tree, hf_extended_advertising_data_info, tvb, offset, 2, ENC_LITTLE_ENDIAN, &adi);
                 sub_tree = proto_item_add_subtree(sub_item, ett_extended_advertising_data_info);
 
                 proto_tree_add_item(sub_tree, hf_extended_advertising_data_info_did, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                 proto_tree_add_item(sub_tree, hf_extended_advertising_data_info_sid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                 offset += 2;
+                adi_present = TRUE;
 
                 acad_len -= 2;
             }
@@ -1148,7 +1196,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 guint32 aux_offset;
 
                 /* Aux Pointer */
-                sub_item = proto_tree_add_item(ext_header_tree, hf_extended_advertising_aux_ptr, tvb, offset, 1, ENC_NA);
+                sub_item = proto_tree_add_item(ext_header_tree, hf_extended_advertising_aux_ptr, tvb, offset, 3, ENC_NA);
                 sub_tree = proto_item_add_subtree(sub_item, ett_extended_advertising_aux_pointer);
 
                 proto_tree_add_item(sub_tree, hf_extended_advertising_aux_ptr_channel, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -1161,6 +1209,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 proto_tree_add_item(sub_tree, hf_extended_advertising_aux_ptr_aux_phy, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                 proto_item_append_text(item, " (%u usec)", aux_offset * ((tmp & 0x80) != 0 ? 300 : 30));
                 offset += 2;
+                aux_pointer_present = TRUE;
 
                 acad_len -= 3;
             }
@@ -1233,25 +1282,135 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
                 offset += acad_len;
             }
-
             if (tvb_reported_length_remaining(tvb, offset) > 3) {
-                /* Host Advertising Data */
-                bluetooth_eir_ad_data_t *ad_data = wmem_new0(wmem_packet_scope(), bluetooth_eir_ad_data_t);
-                ad_data->interface_id = interface_id;
-                ad_data->adapter_id = adapter_id;
-                next_tvb = tvb_new_subset_length(tvb, offset, tvb_reported_length_remaining(tvb, offset) - 3);
+                gboolean ad_processed = FALSE;
+                if (btle_context && pdu_type == 0x07 && btle_context->aux_pdu_type_valid) {
+                    gboolean ad_reassembled = FALSE;
+                    ae_had_info_t *ae_had_info = NULL;
 
-                if (btle_context && btle_context->aux_pdu_type_valid && btle_context->aux_pdu_type == 3) {
-                    /* AUX_SCAN_RSP */
-                    sub_item = proto_tree_add_item(btle_tree, hf_scan_response_data, tvb, offset, tvb_reported_length_remaining(tvb, offset) - 3, ENC_NA);
-                    sub_tree = proto_item_add_subtree(sub_item, ett_scan_response_data);
+                    switch (btle_context->aux_pdu_type) {
+                        case 0x00:  /* AUX_ADV_IND */
+                        case 0x02:  /* AUX_SYNC_IND */
+                        case 0x03:  /* AUX_SCAN_RSP */
+                            if (aux_pointer_present) {
+                                /* Begining of new sequence of fragments */
+                                if (!pinfo->fd->visited && adi_present) {
+                                    ae_had_info = wmem_new0(wmem_file_scope(), ae_had_info_t);
+                                    ae_had_info->first_frame_num=pinfo->num;
 
-                    call_dissector_with_data(btcommon_ad_handle, next_tvb, pinfo, sub_tree, ad_data);
-                } else {
-                    call_dissector_with_data(btcommon_ad_handle, next_tvb, pinfo, btle_tree, ad_data);
+                                    ae_had_key[0].length = 1;
+                                    ae_had_key[0].key = &interface_id;
+                                    ae_had_key[1].length = 1;
+                                    ae_had_key[1].key = &adapter_id;
+                                    ae_had_key[2].length = 1;
+                                    ae_had_key[2].key = &adi;
+                                    ae_had_key[3].length = 0;
+                                    ae_had_key[3].key = NULL;
+
+                                    wmem_tree_insert32_array(adi_to_first_frame_tree, ae_had_key, ae_had_info);
+
+                                    fragment_add_seq(&btle_ea_host_advertising_data_reassembly_table,
+                                        tvb, offset, pinfo,
+                                        ae_had_info->first_frame_num, NULL,
+                                        ae_had_info->fragment_counter,
+                                        tvb_captured_length_remaining(tvb, offset) - 3,
+                                        !ad_reassembled, 0);
+
+                                    ae_had_info->fragment_counter++;
+                                }
+                                ad_processed = TRUE;
+                            }
+                            break;
+                        case 0x01:  /* AUX_CHAIN_IND */
+                            if (!aux_pointer_present) {
+                                /* Final fragment */
+                                ad_reassembled = TRUE;
+                            }
+                            if (!pinfo->fd->visited && adi_present) {
+
+                                ae_had_key[0].length = 1;
+                                ae_had_key[0].key = &interface_id;
+                                ae_had_key[1].length = 1;
+                                ae_had_key[1].key = &adapter_id;
+                                ae_had_key[2].length = 1;
+                                ae_had_key[2].key = &adi;
+                                ae_had_key[3].length = 0;
+                                ae_had_key[3].key = NULL;
+
+                                ae_had_info = (ae_had_info_t *) wmem_tree_lookup32_array(adi_to_first_frame_tree, ae_had_key);
+
+                                if (ae_had_info != NULL) {
+                                    fragment_add_seq(&btle_ea_host_advertising_data_reassembly_table,
+                                        tvb, offset, pinfo,
+                                        ae_had_info->first_frame_num, NULL,
+                                        ae_had_info->fragment_counter,
+                                        tvb_captured_length_remaining(tvb, offset) - 3,
+                                        !ad_reassembled, 0);
+
+                                    ae_had_info->fragment_counter++;
+                                    if (ad_reassembled == TRUE) {
+                                        p_add_proto_data(wmem_file_scope(), pinfo, proto_btle, (guint32)(pinfo->curr_layer_num) << 8, ae_had_info);
+                                    }
+                                }
+                            }
+                            ad_processed = TRUE;
+                            break;
+                        default:
+                            /* This field is 2 bits long, no special action needed */
+                            break;
+                    }
+                    if (ad_processed) {
+                        if (pinfo->fd->visited) {
+                            /* Host Advertising Data fragment */
+                            proto_tree_add_item(btle_tree, hf_extended_advertising_had_fragment, tvb, offset, tvb_captured_length_remaining(tvb, offset) - 3, ENC_NA);
+                            if (ad_reassembled) {
+                                fragment_head *fd_head = NULL;
+                                tvbuff_t *assembled_tvb = NULL;
+
+                                ae_had_info = (ae_had_info_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_btle, (guint32)(pinfo->curr_layer_num) << 8);
+                                if (ae_had_info != NULL) {
+                                    col_append_str(pinfo->cinfo, COL_INFO, " (EA HAD Reassembled)");
+
+                                    fd_head = fragment_get(&btle_ea_host_advertising_data_reassembly_table, pinfo, ae_had_info->first_frame_num, NULL);
+                                    assembled_tvb = process_reassembled_data(
+                                        tvb, offset, pinfo,
+                                        "Reassembled Host Advertising Data", fd_head,
+                                        &btle_ea_host_advertising_data_frag_items,
+                                        NULL, btle_tree);
+                                    bluetooth_eir_ad_data_t *ad_data = wmem_new0(wmem_packet_scope(), bluetooth_eir_ad_data_t);
+                                    ad_data->interface_id = interface_id;
+                                    ad_data->adapter_id = adapter_id;
+                                    call_dissector_with_data(btcommon_ad_handle, assembled_tvb, pinfo, btle_tree, ad_data);
+                                }
+                            }
+                            else {
+                                col_append_str(pinfo->cinfo, COL_INFO, " (EA HAD Fragment)");
+                            }
+                            offset += tvb_captured_length_remaining(tvb, offset) - 3;
+                        }
+                    }
                 }
 
-                offset += tvb_reported_length_remaining(tvb, offset) - 3;
+                if (tvb_reported_length_remaining(tvb, offset) > 3) {
+                    /* Host Advertising Data */
+                    bluetooth_eir_ad_data_t *ad_data = wmem_new0(wmem_packet_scope(), bluetooth_eir_ad_data_t);
+                    ad_data->interface_id = interface_id;
+                    ad_data->adapter_id = adapter_id;
+                    next_tvb = tvb_new_subset_length(tvb, offset, tvb_reported_length_remaining(tvb, offset) - 3);
+
+                    if (btle_context && btle_context->aux_pdu_type_valid && btle_context->aux_pdu_type == 3) {
+                        /* AUX_SCAN_RSP */
+                        sub_item = proto_tree_add_item(btle_tree, hf_scan_response_data, tvb, offset, tvb_reported_length_remaining(tvb, offset) - 3, ENC_NA);
+                        sub_tree = proto_item_add_subtree(sub_item, ett_scan_response_data);
+
+                        call_dissector_with_data(btcommon_ad_handle, next_tvb, pinfo, sub_tree, ad_data);
+                    }
+                    else {
+                        call_dissector_with_data(btcommon_ad_handle, next_tvb, pinfo, btle_tree, ad_data);
+                    }
+
+                    offset += tvb_reported_length_remaining(tvb, offset) - 3;
+                }
             }
             break;
         }
@@ -2117,9 +2276,13 @@ proto_register_btle(void)
             FT_UINT16, BASE_DEC, VALS(le_phys), 0xE000,
             NULL, HFILL }
         },
-
         { &hf_extended_advertising_sync_info,
             { "Advertiser Sync Info",            "btle.extended_advertising.sync_info",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_extended_advertising_had_fragment,
+            { "Host Advertising Data Fragment",  "btle.extended_advertising.had_fragment",
             FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
@@ -2633,7 +2796,56 @@ proto_register_btle(void)
             FT_UINT32, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
-
+        { &hf_btle_ea_host_advertising_data_fragments,
+        { "EA HAD fragments", "btle.ea.host_advertising_data.fragments",
+            FT_NONE, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_btle_ea_host_advertising_data_fragment,
+        { "EA HAD fragment", "btle.ea.host_advertising_data.fragment",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_btle_ea_host_advertising_data_fragment_overlap,
+        { "EA HAD fragment overlap", "btle.ea.host_advertising_data.fragment.overlap",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btle_ea_host_advertising_data_fragment_overlap_conflicts,
+        { "EA HAD fragment overlapping with conflicting data", "btle.ea.host_advertising_data.fragment.overlap.conflicts",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btle_ea_host_advertising_data_fragment_multiple_tails,
+        { "EA HAD has multiple tail fragments", "btle.ea.host_advertising_data.fragment.multiple_tails",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btle_ea_host_advertising_data_fragment_too_long_fragment,
+        { "EA HAD fragment too long", "btle.ea.host_advertising_data.fragment.too_long_fragment",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btle_ea_host_advertising_data_fragment_error,
+        { "EA HAD defragmentation error", "btle.ea.host_advertising_data.fragment.error",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_btle_ea_host_advertising_data_fragment_count,
+        { "EA HAD fragment count", "btle.ea.host_advertising_data.fragment.count",
+            FT_UINT32, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_btle_ea_host_advertising_data_reassembled_in,
+        { "Reassembled in", "btle.ea.host_advertising_data.reassembled.in",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_btle_ea_host_advertising_data_reassembled_length,
+        { "Reassembled EA HAD length", "btle.ea.host_advertising_data.reassembled.length",
+            FT_UINT32, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
     };
 
     static ei_register_info ei[] = {
@@ -2676,10 +2888,13 @@ proto_register_btle(void)
         &ett_channel_map,
         &ett_scan_response_data,
         &ett_btle_l2cap_msg_fragment,
-        &ett_btle_l2cap_msg_fragments
+        &ett_btle_l2cap_msg_fragments,
+        &ett_btle_ea_host_advertising_data_fragment,
+        &ett_btle_ea_host_advertising_data_fragments
     };
 
     connection_info_tree = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+    adi_to_first_frame_tree = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
     proto_btle = proto_register_protocol("Bluetooth Low Energy Link Layer",
             "BT LE LL", "btle");
@@ -2702,6 +2917,9 @@ proto_register_btle(void)
                                    &btle_detect_retransmit);
 
     reassembly_table_register(&btle_l2cap_msg_reassembly_table,
+        &addresses_reassembly_table_functions);
+
+    reassembly_table_register(&btle_ea_host_advertising_data_reassembly_table,
         &addresses_reassembly_table_functions);
 
     register_init_routine(btle_init);
