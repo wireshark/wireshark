@@ -67,7 +67,7 @@ wmem_array_new(wmem_allocator_t *allocator, const gsize elem_size)
     return array;
 }
 
-static void
+void
 wmem_array_grow(wmem_array_t *array, const guint to_add)
 {
     guint new_alloc_count, new_count;

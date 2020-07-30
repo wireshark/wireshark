@@ -1984,6 +1984,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  wmem_array_bzero@Base 2.1.0
  wmem_array_get_count@Base 1.12.0~rc1
  wmem_array_get_raw@Base 1.12.0~rc1
+ wmem_array_grow@Base 3.3.0
  wmem_array_index@Base 1.12.0~rc1
  wmem_array_new@Base 1.12.0~rc1
  wmem_array_set_null_terminator@Base 2.1.0
