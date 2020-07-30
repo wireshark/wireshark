@@ -16,9 +16,11 @@
  *
  * See also
  *
- *	http://community.roxen.com/developers/idocs/drafts/draft-ietf-dhc-failover-10.html
+ *	https://tools.ietf.org/html/draft-ietf-dhc-failover-10
  *
  * upon which the handling of the message-digest option is based.
+ *
+ * Updated to https://tools.ietf.org/html/draft-ietf-dhc-failover-12, July 2020
  */
 
 #include "config.h"
@@ -32,7 +34,7 @@
 #include "packet-arp.h"
 #include "packet-tcp.h"
 
-#define TCP_PORT_DHCPFO 519 /* Not IANA registered */
+#define TCP_PORT_DHCPFO 647 /* Not IANA registered */
 
 void proto_register_dhcpfo(void);
 void proto_reg_handoff_dhcpfo(void);
@@ -55,18 +57,18 @@ static int hf_dhcpfo_option_length = -1;
 static int hf_dhcpfo_binding_status = -1;
 static int hf_dhcpfo_server_state = -1;
 static int hf_dhcpfo_assigned_ip_address = -1;
-static int hf_dhcpfo_sending_server_ip_address = -1;
+static int hf_dhcpfo_delayed_service_parameter = -1;
 static int hf_dhcpfo_addresses_transferred = -1;
 static int hf_dhcpfo_client_identifier = -1;
 static int hf_dhcpfo_client_hw_type = -1;
 static int hf_dhcpfo_client_hardware_address = -1;
 static int hf_dhcpfo_ftddns = -1;
 static int hf_dhcpfo_reject_reason = -1;
+static int hf_dhcpfo_relationship_name = -1;
 static int hf_dhcpfo_message = -1;
 static int hf_dhcpfo_mclt = -1;
 static int hf_dhcpfo_vendor_class = -1;
 static int hf_dhcpfo_lease_expiration_time = -1;
-static int hf_dhcpfo_grace_expiration_time = -1;
 static int hf_dhcpfo_potential_expiration_time = -1;
 static int hf_dhcpfo_client_last_transaction_time = -1;
 static int hf_dhcpfo_start_time_of_state = -1;
@@ -75,15 +77,22 @@ static int hf_dhcpfo_max_unacked_bndupd = -1;
 static int hf_dhcpfo_protocol_version = -1;
 static int hf_dhcpfo_receive_timer = -1;
 static int hf_dhcpfo_message_digest = -1;
+static int hf_dhcpfo_ipflags = -1;
+static int hf_dhcpfo_ipflags_reserved = -1;
+static int hf_dhcpfo_ipflags_bootp = -1;
+static int hf_dhcpfo_ipflags_mbz = -1;
 static int hf_dhcpfo_hash_bucket_assignment = -1;
 static int hf_dhcpfo_message_digest_type = -1;
 static int hf_dhcpfo_tls_request = -1;
+static int hf_dhcpfo_tls_reply = -1;
 static int hf_dhcpfo_serverflag = -1;
+static int hf_dhcpfo_options = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_dhcpfo = -1;
 static gint ett_fo_payload = -1;
 static gint ett_fo_option = -1;
+static gint ett_fo_payload_data = -1;
 
 static expert_field ei_dhcpfo_bad_length = EI_INIT;
 static expert_field ei_dhcpfo_message_digest_type_not_allowed = EI_INIT;
@@ -93,224 +102,150 @@ static expert_field ei_dhcpfo_message_digest_type_not_allowed = EI_INIT;
 #define DHCPFO_FL_HDR_LEN	12
 
 /* message-types of failover */
-enum {
-	DHCP_FO_RESERVED,
-	DHCP_FO_POOLREQ,
-	DHCP_FO_POOLRESP,
-	DHCP_FO_BNDUPD,
-	DHCP_FO_BNDACK,
-	DHCP_FO_CONNECT,
-	DHCP_FO_CONNECTACK,
-	DHCP_FO_UPDREQ,
-	DHCP_FO_UPDDONE,
-	DHCP_FO_UPDREQALL,
-	DHCP_FO_STATE,
-	DHCP_FO_CONTACT,
-	DHCP_FO_DISCONNECT
-};
 
 static const value_string failover_vals[] =
 {
-	{DHCP_FO_RESERVED,	"Reserved"},
-	{DHCP_FO_POOLREQ,	"Pool request"},
-	{DHCP_FO_POOLRESP,	"Pool response"},
-	{DHCP_FO_BNDUPD,	"Binding update"},
-	{DHCP_FO_BNDACK,	"Binding acknowledge"},
-	{DHCP_FO_CONNECT,	"Connect"},
-	{DHCP_FO_CONNECTACK,	"Connect acknowledge"},
-	{DHCP_FO_UPDREQ,	"Update request all"},
-	{DHCP_FO_UPDDONE,	"Update done"},
-	{DHCP_FO_UPDREQALL,	"Update request"},
-	{DHCP_FO_STATE,		"State"},
-	{DHCP_FO_CONTACT,	"Contact"},
-	{DHCP_FO_DISCONNECT,	"Disconnect"},
+	{1,	"Pool request"},
+	{2,	"Pool response"},
+	{3,	"Binding update"},
+	{4,	"Binding acknowledge"},
+	{5,	"Connect"},
+	{6,	"Connect acknowledge"},
+	{7,	"Update request"},
+	{8,	"Update done"},
+	{9,	"Update request all"},
+	{10,	"State"},
+	{11,	"Contact"},
+	{12,	"Disconnect"},
 	{0, NULL}
 };
 
 /*options of payload-data*/
-enum {
-	DHCP_FO_PD_UNKNOWN_PACKET0,
-	DHCP_FO_PD_BINDING_STATUS,
-	DHCP_FO_PD_ASSIGNED_IP_ADDRESS,
-	DHCP_FO_PD_SENDING_SERVER_IP_ADDRESS,
-	DHCP_FO_PD_ADDRESSES_TRANSFERRED,
-	DHCP_FO_PD_CLIENT_IDENTIFIER,
-	DHCP_FO_PD_CLIENT_HARDWARE_ADDRESS,
-	DHCP_FO_PD_FTDDNS,
-	DHCP_FO_PD_REJECT_REASON,
-	DHCP_FO_PD_MESSAGE,
-	DHCP_FO_PD_MCLT,
-	DHCP_FO_PD_VENDOR_CLASS,
-	DHCP_FO_PD_UNKNOWN_PACKET12,
-	DHCP_FO_PD_LEASE_EXPIRATION_TIME,
-	DHCP_FO_PD_POTENTIAL_EXPIRATION_TIME,
-	DHCP_FO_PD_GRACE_EXPIRATION_TIME,
-	DHCP_FO_PD_CLIENT_LAST_TRANSACTION_TIME,
-	DHCP_FO_PD_START_TIME_OF_STATE,
-	DHCP_FO_PD_SERVERSTATE,
-	DHCP_FO_PD_SERVERFLAG,
-	DHCP_FO_PD_VENDOR_OPTION,
-	DHCP_FO_PD_MAX_UNACKED_BNDUPD,
-	DHCP_FO_PD_UNKNOWN_PACKET22,
-	DHCP_FO_PD_RECEIVE_TIMER,
-	DHCP_FO_PD_HASH_BUCKET_ASSIGNMENT,
-	DHCP_FO_PD_MESSAGE_DIGEST,
-	DHCP_FO_PD_PROTOCOL_VERSION,
-	DHCP_FO_PD_TLS_REQUEST,
-	DHCP_FO_PD_TLS_REPLY,
-	DHCP_FO_PD_REQUEST_OPTION,
-	DHCP_FO_PD_REPLY_OPTION
-};
+#define DHCP_FO_PD_ADDRESSES_TRANSFERRED         1
+#define DHCP_FO_PD_ASSIGNED_IP_ADDRESS           2
+#define DHCP_FO_PD_BINDING_STATUS                3
+#define DHCP_FO_PD_CLIENT_IDENTIFIER             4
+#define DHCP_FO_PD_CLIENT_HARDWARE_ADDRESS       5
+#define DHCP_FO_PD_CLIENT_LAST_TRANSACTION_TIME  6
+#define DHCP_FO_PD_REPLY_OPTION                  7
+#define DHCP_FO_PD_REQUEST_OPTION                8
+#define DHCP_FO_PD_FTDDNS                        9
+#define DHCP_FO_PD_DELAYED_SERVICE_PARAMETER    10
+#define DHCP_FO_PD_HASH_BUCKET_ASSIGNMENT       11
+#define DHCP_FO_PD_IP_FLAGS                     12
+#define DHCP_FO_PD_LEASE_EXPIRATION_TIME        13
+#define DHCP_FO_PD_MAX_UNACKED_BNDUPD           14
+#define DHCP_FO_PD_MCLT                         15
+#define DHCP_FO_PD_MESSAGE                      16
+#define DHCP_FO_PD_MESSAGE_DIGEST               17
+#define DHCP_FO_PD_POTENTIAL_EXPIRATION_TIME    18
+#define DHCP_FO_PD_RECEIVE_TIMER                19
+#define DHCP_FO_PD_PROTOCOL_VERSION             20
+#define DHCP_FO_PD_REJECT_REASON                21
+#define DHCP_FO_PD_RELATIONSHIP_NAME            22
+#define DHCP_FO_PD_SERVERFLAG                   23
+#define DHCP_FO_PD_SERVERSTATE                  24
+#define DHCP_FO_PD_START_TIME_OF_STATE          25
+#define DHCP_FO_PD_TLS_REPLY                    26
+#define DHCP_FO_PD_TLS_REQUEST                  27
+#define DHCP_FO_PD_VENDOR_CLASS                 28
+#define DHCP_FO_PD_VENDOR_OPTION                29
+
 
 static const value_string option_code_vals[] =
 {
-	{DHCP_FO_PD_UNKNOWN_PACKET0,			"Unknown Packet"},
-	{DHCP_FO_PD_BINDING_STATUS,			"binding-status"},
-	{DHCP_FO_PD_ASSIGNED_IP_ADDRESS,		"assigned-IP-address"},
-	{DHCP_FO_PD_SENDING_SERVER_IP_ADDRESS,		"sending-server-IP-address"},
 	{DHCP_FO_PD_ADDRESSES_TRANSFERRED,		"addresses-transferred"},
+	{DHCP_FO_PD_ASSIGNED_IP_ADDRESS,		"assigned-IP-address"},
+	{DHCP_FO_PD_BINDING_STATUS,			"binding-status"},
 	{DHCP_FO_PD_CLIENT_IDENTIFIER,			"client-identifier"},
 	{DHCP_FO_PD_CLIENT_HARDWARE_ADDRESS,		"client-hardware-address"},
-	{DHCP_FO_PD_FTDDNS,				"FTDDNS"},
-	{DHCP_FO_PD_REJECT_REASON,			"reject-reason"},
-	{DHCP_FO_PD_MESSAGE,				"message"},
-	{DHCP_FO_PD_MCLT,				"MCLT"},
-	{DHCP_FO_PD_VENDOR_CLASS,			"vendor-class"},
-	{DHCP_FO_PD_UNKNOWN_PACKET12,			"Unknown Packet"},
-	{DHCP_FO_PD_LEASE_EXPIRATION_TIME,		"lease-expiration-time"},
-	{DHCP_FO_PD_POTENTIAL_EXPIRATION_TIME,		"potential-expiration-time"},
-	{DHCP_FO_PD_GRACE_EXPIRATION_TIME,		"grace-expiration-time"},
 	{DHCP_FO_PD_CLIENT_LAST_TRANSACTION_TIME,	"client-last-transaction-time"},
-	{DHCP_FO_PD_START_TIME_OF_STATE,		"start-time-of-state"},
-	{DHCP_FO_PD_SERVERSTATE,			"server-state"},
-	{DHCP_FO_PD_SERVERFLAG,				"server-flag"},
-	{DHCP_FO_PD_VENDOR_OPTION,			"vendor-option"},
-	{DHCP_FO_PD_MAX_UNACKED_BNDUPD,			"max-unacked-BNDUPD"},
-	{DHCP_FO_PD_UNKNOWN_PACKET22,			"Unknown Packet"},
-	{DHCP_FO_PD_RECEIVE_TIMER,			"receive-timer"},
-	{DHCP_FO_PD_HASH_BUCKET_ASSIGNMENT,		"hash-bucket-assignment"},
-	{DHCP_FO_PD_MESSAGE_DIGEST,			"message-digest"},
-	{DHCP_FO_PD_PROTOCOL_VERSION,			"protocol-version"},
-	{DHCP_FO_PD_TLS_REQUEST,			"TLS-request"},
-	{DHCP_FO_PD_TLS_REPLY,				"TLS-reply"},
-	{DHCP_FO_PD_REQUEST_OPTION,			"request-option"},
 	{DHCP_FO_PD_REPLY_OPTION,			"reply-option"},
+	{DHCP_FO_PD_REQUEST_OPTION,			"request-option"},
+	{DHCP_FO_PD_FTDDNS,				"FTDDNS"},
+	{DHCP_FO_PD_DELAYED_SERVICE_PARAMETER,		"delayed-service-parameter"},
+	{DHCP_FO_PD_HASH_BUCKET_ASSIGNMENT,		"hash-bucket-assignment"},
+	{DHCP_FO_PD_IP_FLAGS,				"IP-flags"},
+	{DHCP_FO_PD_LEASE_EXPIRATION_TIME,		"lease-expiration-time"},
+	{DHCP_FO_PD_MAX_UNACKED_BNDUPD,			"max-unacked-BNDUPD"},
+	{DHCP_FO_PD_MCLT,				"MCLT"},
+	{DHCP_FO_PD_MESSAGE,				"message"},
+	{DHCP_FO_PD_MESSAGE_DIGEST,			"message-digest"},
+	{DHCP_FO_PD_POTENTIAL_EXPIRATION_TIME,		"potential-expiration-time"},
+	{DHCP_FO_PD_RECEIVE_TIMER,			"receive-timer"},
+	{DHCP_FO_PD_PROTOCOL_VERSION,			"protocol-version"},
+	{DHCP_FO_PD_REJECT_REASON,			"reject-reason"},
+	{DHCP_FO_PD_RELATIONSHIP_NAME,			"relationship-name"},
+	{DHCP_FO_PD_SERVERFLAG,				"server-flag"},
+	{DHCP_FO_PD_SERVERSTATE,			"server-state"},
+	{DHCP_FO_PD_START_TIME_OF_STATE,		"start-time-of-state"},
+	{DHCP_FO_PD_TLS_REPLY,				"TLS-reply"},
+	{DHCP_FO_PD_TLS_REQUEST,			"TLS-request"},
+	{DHCP_FO_PD_VENDOR_CLASS,			"vendor-class"},
+	{DHCP_FO_PD_VENDOR_OPTION,			"vendor-option"},
 	{0, NULL}
 
 };
 
 /* Binding-status */
-enum {
-	DHCP_FO_BS_UNKNOWN_PACKET,
-	DHCP_FO_BS_FREE,
-	DHCP_FO_BS_ACTIVE,
-	DHCP_FO_BS_EXPIRED,
-	DHCP_FO_BS_RELEASED,
-	DHCP_FO_BS_ABANDONED,
-	DHCP_FO_BS_RESET,
-	DHCP_FO_BS_BACKUP
-};
 
 static const value_string binding_status_vals[] =
 {
-	{DHCP_FO_BS_UNKNOWN_PACKET,	"Unknown Packet"},
-	{DHCP_FO_BS_FREE,		"FREE"},
-	{DHCP_FO_BS_ACTIVE,		"ACTIVE"},
-	{DHCP_FO_BS_EXPIRED,		"EXPIRED"},
-	{DHCP_FO_BS_RELEASED,		"RELEASED"},
-	{DHCP_FO_BS_ABANDONED,		"ABANDONED"},
-	{DHCP_FO_BS_RESET,		"RESET"},
-	{DHCP_FO_BS_BACKUP,		"BACKUP"},
+	{1,	"FREE"},
+	{2,	"ACTIVE"},
+	{3,	"EXPIRED"},
+	{4,	"RELEASED"},
+	{5,	"ABANDONED"},
+	{6,	"RESET"},
+	{7,	"BACKUP"},
 	{0, NULL}
 
 };
 
 /* Server-status */
-enum {
-	DHCP_FO_SS_UNKNOWN_PACKET,
-	DHCP_FO_SS_PARTNER_DOWN,
-	DHCP_FO_SS_NORMAL,
-	DHCP_FO_SS_COMMUNICATION_INTERRUPTED,
-	DHCP_FO_SS_RESOLUTION_INTERRUPTED,
-	DHCP_FO_SS_POTENTIAL_CONFLICT,
-	DHCP_FO_SS_RECOVER,
-	DHCP_FO_SS_RECOVER_DONE,
-	DHCP_FO_SS_SHUTDOWN,
-	DHCP_FO_SS_PAUSED,
-	DHCP_FO_SS_STARTUP,
-	DHCP_FO_SS_RECOVER_WAIT
-};
-
 
 static const value_string server_state_vals[] =
 {
-	{DHCP_FO_SS_UNKNOWN_PACKET,		"Unknown Packet"},
-	{DHCP_FO_SS_PARTNER_DOWN,		"partner down"},
-	{DHCP_FO_SS_NORMAL,			"normal"},
-	{DHCP_FO_SS_COMMUNICATION_INTERRUPTED,	"communication interrupted"},
-	{DHCP_FO_SS_RESOLUTION_INTERRUPTED,	"resolution interrupted"},
-	{DHCP_FO_SS_POTENTIAL_CONFLICT,		"potential conflict"},
-	{DHCP_FO_SS_RECOVER,			"recover"},
-	{DHCP_FO_SS_RECOVER_DONE,		"recover done"},
-	{DHCP_FO_SS_SHUTDOWN,			"shutdown"},
-	{DHCP_FO_SS_PAUSED,			"paused"},
-	{DHCP_FO_SS_STARTUP,			"startup"},
-	{DHCP_FO_SS_RECOVER_WAIT,		"recover wait"},
+	{1,	"startup"},
+	{2,	"normal"},
+	{3,	"communication interrupted"},
+	{4,	"partner down"},
+	{5,	"potential conflict"},
+	{6,	"recover"},
+	{7,	"paused"},
+	{8,	"shutdown"},
+	{9,	"recover done"},
+	{10,	"resolution interrupted"},
+	{11,	"conflict done"},
 	{0, NULL}
 };
 
 /* reject reasons */
-
-
-enum {
-	DHCP_FO_RR_0,
-	DHCP_FO_RR_1,
-	DHCP_FO_RR_2,
-	DHCP_FO_RR_3,
-	DHCP_FO_RR_4,
-	DHCP_FO_RR_5,
-	DHCP_FO_RR_6,
-	DHCP_FO_RR_7,
-	DHCP_FO_RR_8,
-	DHCP_FO_RR_9,
-	DHCP_FO_RR_10,
-	DHCP_FO_RR_11,
-	DHCP_FO_RR_12,
-	DHCP_FO_RR_13,
-	DHCP_FO_RR_14,
-	DHCP_FO_RR_15,
-	DHCP_FO_RR_16,
-	DHCP_FO_RR_17,
-	DHCP_FO_RR_18,
-	DHCP_FO_RR_19,
-	DHCP_FO_RR_254 = 254
-
-};
-
-
 static const value_string reject_reason_vals[] =
 {
-	{DHCP_FO_RR_0,	"Reserved"},
-	{DHCP_FO_RR_1,	"Illegal IP address (not part of any address pool)"},
-	{DHCP_FO_RR_2,	"Fatal conflict exists: address in use by other client"},
-	{DHCP_FO_RR_3,	"Missing binding information"},
-	{DHCP_FO_RR_4,	"Connection rejected, time mismatch too great"},
-	{DHCP_FO_RR_5,	"Connection rejected, invalid MCLT"},
-	{DHCP_FO_RR_6,	"Connection rejected, unknown reason"},
-	{DHCP_FO_RR_7,	"Connection rejected, duplicate connection"},
-	{DHCP_FO_RR_8,	"Connection rejected, invalid failover partner"},
-	{DHCP_FO_RR_9,	"TLS not supported"},
-	{DHCP_FO_RR_10,	"TLS supported but not configured"},
-	{DHCP_FO_RR_11,	"TLS required but not supported by partner"},
-	{DHCP_FO_RR_12,	"Message digest not supported"},
-	{DHCP_FO_RR_13,	"Message digest not configured"},
-	{DHCP_FO_RR_14,	"Protocol version mismatch"},
-	{DHCP_FO_RR_15,	"Missing binding information"},
-	{DHCP_FO_RR_16,	"Outdated binding information"},
-	{DHCP_FO_RR_17,	"Less critical binding information"},
-	{DHCP_FO_RR_18,	"No traffic within sufficient time"},
-	{DHCP_FO_RR_19,	"Hash bucket assignment conflict"},
-	{DHCP_FO_RR_254, "Unknown: Error occurred but does not match any reason"},
+	{0,   "Reserved"},
+	{1,   "Illegal IP address (not part of any address pool)"},
+	{2,   "Fatal conflict exists: address in use by other client"},
+	{3,   "Missing binding information"},
+	{4,   "Connection rejected, time mismatch too great"},
+	{5,   "Connection rejected, invalid MCLT"},
+	{6,   "Connection rejected, unknown reason"},
+	{7,   "Connection rejected, duplicate connection"},
+	{8,   "Connection rejected, invalid failover partner"},
+	{9,   "TLS not supported"},
+	{10,  "TLS supported but not configured"},
+	{11,  "TLS required but not supported by partner"},
+	{12,  "Message digest not supported"},
+	{13,  "Message digest not configured"},
+	{14,  "Protocol version mismatch"},
+	{15,  "Outdated binding information"},
+	{16,  "Less critical binding information"},
+	{17,  "No traffic within sufficient time"},
+	{18,  "Hash bucket assignment conflict"},
+	{19,  "IP not reserved on this server"},
+	{20,  "Message digest failed to compare"},
+	{21,  "Missing message digest."},
+	{254, "Unknown: Error occurred but does not match any reason"},
 	{0, NULL}
 };
 
@@ -319,6 +254,13 @@ static const value_string tls_request_vals[] =
 	{0, "No TLS operation"},
 	{1, "TLS operation desired but not required"},
 	{2, "TLS operation is required"},
+	{0, NULL}
+};
+
+static const value_string tls_reply_vals[] =
+{
+	{0, "No TLS operation"},
+	{1, "TLS operation is required"},
 	{0, NULL}
 };
 
@@ -351,12 +293,13 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 	int offset = 0;
 	proto_item *ti, *pi, *oi;
 	proto_tree *dhcpfo_tree = NULL, *payload_tree, *option_tree;
-	guint16 length, tls_request;
+	guint8 tls_request, tls_reply;
+	guint16 length;
 	guint type, serverflag;
 	int poffset;
 	guint32 xid;
 	nstime_t timex;
-	guint32 lease_expiration_time, grace_expiration_time,
+	guint32 lease_expiration_time,
 			potential_expiration_time, client_last_transaction_time,
 			start_time_of_state;
 	gboolean bogus_poffset;
@@ -364,7 +307,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 	guint8 htype, reject_reason, message_digest_type, binding_status;
 	const guint8 *vendor_class_str;
 	const gchar *htype_str;
-	gchar *lease_expiration_time_str, *grace_expiration_time_str, *potential_expiration_time_str,
+	gchar *lease_expiration_time_str, *potential_expiration_time_str,
 		  *client_last_transaction_time_str, *start_time_of_state_str;
 	guint32 mclt;
 	guint8 server_state;
@@ -522,17 +465,17 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 			    option_length, ENC_BIG_ENDIAN);
 			break;
 
-		case DHCP_FO_PD_SENDING_SERVER_IP_ADDRESS:
-			if (option_length != 4) {
-				expert_add_info_format(pinfo, oi, &ei_dhcpfo_bad_length, "sending server ip address is not 4 bytes long");
+		case DHCP_FO_PD_DELAYED_SERVICE_PARAMETER:
+			if (option_length != 1) {
+				expert_add_info_format(pinfo, oi, &ei_dhcpfo_bad_length, "delayed service parameter is not 1 bytes long");
 				break;
 			}
 
-			proto_item_append_text(oi, ", %s ", tvb_ip_to_str(tvb, offset));
+			proto_item_append_text(oi, ", %d ", tvb_get_guint8(tvb, offset));
 
 			proto_tree_add_item(option_tree,
-			    hf_dhcpfo_sending_server_ip_address, tvb,
-			    offset, option_length, ENC_BIG_ENDIAN);
+			    hf_dhcpfo_delayed_service_parameter, tvb,
+			    offset, option_length, ENC_NA);
 			break;
 
 		case DHCP_FO_PD_ADDRESSES_TRANSFERRED:
@@ -603,6 +546,11 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 			    option_length, reject_reason);
 			break;
 
+		case DHCP_FO_PD_RELATIONSHIP_NAME:
+			proto_tree_add_item(option_tree, hf_dhcpfo_relationship_name, tvb,
+			    offset, option_length, ENC_ASCII|ENC_NA);
+			break;
+
 		case DHCP_FO_PD_MESSAGE:
 			proto_tree_add_item(option_tree, hf_dhcpfo_message, tvb,
 			    offset, option_length, ENC_ASCII|ENC_NA);
@@ -668,28 +616,6 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 			    potential_expiration_time,
 			    "%s",
 			    potential_expiration_time_str);
-			break;
-
-		case DHCP_FO_PD_GRACE_EXPIRATION_TIME:
-			if (option_length != 4) {
-				expert_add_info_format(pinfo, oi, &ei_dhcpfo_bad_length, "Grace expiration time is not 4 bytes long");
-				break;
-			}
-			grace_expiration_time =
-			    tvb_get_ntohl(tvb, offset);
-
-			grace_expiration_time_str =
-			    abs_time_secs_to_str(wmem_packet_scope(), grace_expiration_time, ABSOLUTE_TIME_LOCAL, TRUE);
-
-			proto_item_append_text(oi, ", %s",
-			    grace_expiration_time_str);
-
-			proto_tree_add_uint_format_value(option_tree,
-			    hf_dhcpfo_grace_expiration_time, tvb,
-			    offset, option_length,
-			    grace_expiration_time,
-			    "%s",
-			    grace_expiration_time_str);
 			break;
 
 		case DHCP_FO_PD_CLIENT_LAST_TRANSACTION_TIME:
@@ -802,6 +728,22 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 			    offset, option_length, ENC_NA);
 			break;
 
+		case DHCP_FO_PD_IP_FLAGS: {
+			static int * const ipflags[] = {
+				&hf_dhcpfo_ipflags_reserved,
+				&hf_dhcpfo_ipflags_bootp,
+				&hf_dhcpfo_ipflags_mbz,
+				NULL
+			};
+			if (option_length != 2) {
+				expert_add_info_format(pinfo, oi, &ei_dhcpfo_bad_length, "IP flags is not 2 bytes long");
+				break;
+			}
+			proto_tree_add_bitmask(option_tree, tvb, offset, hf_dhcpfo_ipflags,
+			    ett_fo_payload_data, ipflags, ENC_BIG_ENDIAN);
+			break;
+			}
+
 		case DHCP_FO_PD_MESSAGE_DIGEST:
 			if (option_length < 2) {
 				expert_add_info_format(pinfo, oi, &ei_dhcpfo_bad_length, "Message digest is too short");
@@ -833,20 +775,28 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 			break;
 
 		case DHCP_FO_PD_TLS_REQUEST:
-			if (option_length != 2) {
-				expert_add_info_format(pinfo, oi, &ei_dhcpfo_bad_length, "TLS request is not 2 bytes long");
+			if (option_length != 1) {
+				expert_add_info_format(pinfo, oi, &ei_dhcpfo_bad_length, "TLS request is not 1 bytes long");
 				break;
 			}
-			tls_request = tvb_get_ntohs(tvb, offset);
+			tls_request = tvb_get_guint8(tvb, offset);
 			proto_item_append_text(oi, ", %s", val_to_str(tls_request, tls_request_vals, "Unknown (%u)"));
-			proto_tree_add_item(option_tree, hf_dhcpfo_tls_request, tvb, offset, option_length, ENC_BIG_ENDIAN);
+			proto_tree_add_item(option_tree, hf_dhcpfo_tls_request, tvb, offset, 1, ENC_BIG_ENDIAN);
 			break;
 
 		case DHCP_FO_PD_TLS_REPLY:
+			if (option_length != 1) {
+				expert_add_info_format(pinfo, oi, &ei_dhcpfo_bad_length, "TLS reply is not 1 bytes long");
+				break;
+			}
+			tls_reply = tvb_get_guint8(tvb, offset);
+			proto_item_append_text(oi, ", %s", val_to_str(tls_reply, tls_reply_vals, "Unknown (%u)"));
+			proto_tree_add_item(option_tree, hf_dhcpfo_tls_reply, tvb, offset, 1, ENC_BIG_ENDIAN);
 			break;
+
 		case DHCP_FO_PD_REQUEST_OPTION:
-			break;
 		case DHCP_FO_PD_REPLY_OPTION:
+			proto_tree_add_item(option_tree, hf_dhcpfo_options, tvb, offset, option_length, ENC_NA);
 			break;
 		default:
 			break;
@@ -953,9 +903,9 @@ proto_register_dhcpfo(void)
 			NULL, HFILL }
 		},
 
-		{&hf_dhcpfo_sending_server_ip_address,
-			{"sending server ip-address", "dhcpfo.sendingserveripaddress",
-			FT_IPv4, BASE_NONE, NULL, 0x0,
+		{&hf_dhcpfo_delayed_service_parameter,
+			{"delayed service parameter", "dhcpfo.delayedserviceparameter",
+			FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
 
@@ -996,12 +946,17 @@ proto_register_dhcpfo(void)
 			NULL, HFILL }
 		},
 
+		{&hf_dhcpfo_relationship_name,
+			{"Relationship name", "dhcpfo.relationshipname",
+			FT_STRING, BASE_NONE, NULL, 0,
+			NULL, HFILL }
+		},
+
 		{&hf_dhcpfo_message,
 			{"Message", "dhcpfo.message",
 			FT_STRING, BASE_NONE, NULL, 0,
 			NULL, HFILL }
 		},
-
 
 		{&hf_dhcpfo_mclt,
 			{"MCLT", "dhcpfo.mclt",
@@ -1017,12 +972,6 @@ proto_register_dhcpfo(void)
 
 		{&hf_dhcpfo_lease_expiration_time,
 			{"Lease expiration time", "dhcpfo.leaseexpirationtime",
-			FT_UINT32, BASE_DEC, NULL, 0,
-			NULL, HFILL }
-		},
-
-		{&hf_dhcpfo_grace_expiration_time,
-			{"Grace expiration time", "dhcpfo.graceexpirationtime",
 			FT_UINT32, BASE_DEC, NULL, 0,
 			NULL, HFILL }
 		},
@@ -1081,6 +1030,27 @@ proto_register_dhcpfo(void)
 			NULL, HFILL }
 		},
 
+		{&hf_dhcpfo_ipflags,
+			{"IP Flags", "dhcpfo.ipflags",
+			FT_UINT16, BASE_HEX, NULL, 0,
+			NULL, HFILL }
+		},
+		{&hf_dhcpfo_ipflags_reserved,
+			{"Reserved", "dhcpfo.ipflags.reserved",
+			FT_BOOLEAN, 8, NULL, 0x80,
+			NULL, HFILL }
+		},
+		{&hf_dhcpfo_ipflags_bootp,
+			{"BOOTP", "dhcpfo.ipflags.bootp",
+			FT_BOOLEAN, 8, NULL, 0x40,
+			NULL, HFILL }
+		},
+		{&hf_dhcpfo_ipflags_mbz,
+			{"MBZ", "dhcpfo.ipflags.mbz",
+			FT_UINT8, BASE_HEX, NULL, 0x3F,
+			NULL, HFILL }
+		},
+
 		{&hf_dhcpfo_message_digest_type,
 			{"Message digest type", "dhcpfo.message_digest_type",
 			FT_UINT8, BASE_DEC, VALS(message_digest_type_vals), 0,
@@ -1089,7 +1059,13 @@ proto_register_dhcpfo(void)
 
 		{&hf_dhcpfo_tls_request,
 			{"TLS Request", "dhcpfo.tls_request",
-			FT_UINT16, BASE_DEC, VALS(tls_request_vals), 0,
+			FT_UINT8, BASE_DEC, VALS(tls_request_vals), 0,
+			NULL, HFILL }
+		},
+
+		{&hf_dhcpfo_tls_reply,
+			{"TLS Reply", "dhcpfo.tls_reply",
+			FT_UINT8, BASE_DEC, VALS(tls_reply_vals), 0,
 			NULL, HFILL }
 		},
 
@@ -1098,6 +1074,13 @@ proto_register_dhcpfo(void)
 			FT_UINT8, BASE_DEC, VALS(serverflag_vals), 0,
 			NULL, HFILL }
 		},
+
+		{&hf_dhcpfo_options,
+			{"Options", "dhcpfo.options",
+			FT_BYTES, BASE_NONE, NULL, 0,
+			NULL, HFILL }
+		},
+
 	};
 
 /* Setup protocol subtree array */
@@ -1105,6 +1088,7 @@ proto_register_dhcpfo(void)
 		&ett_dhcpfo,
 		&ett_fo_payload,
 		&ett_fo_option,
+		&ett_fo_payload_data,
 	};
 
 	static ei_register_info ei[] = {
