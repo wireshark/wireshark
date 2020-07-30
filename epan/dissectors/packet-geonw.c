@@ -1325,6 +1325,7 @@ dissect_sec_publickey(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tre
         case ecies_nistp256:
             // SymAlgo + EccPoint
             proto_tree_add_item(part_tree, hf_sgeonw_symmetric_algorithm, tvb, *offset, 1, ENC_BIG_ENDIAN);
+            *offset += 1;
             dissect_sec_eccpoint(tvb, offset, pinfo, part_tree, (PublicKeyAlgorithm) tmp_val);
             break;
         default:
