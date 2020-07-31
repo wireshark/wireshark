@@ -277,6 +277,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-bthci_acl.h
 	packet-bthci_cmd.h
 	packet-bthci_evt.h
+	packet-bthci_iso.h
 	packet-bthci_sco.h
 	packet-btl2cap.h
 	packet-btle.h
@@ -761,6 +762,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-bthci_acl.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-bthci_cmd.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-bthci_evt.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-bthci_iso.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-bthci_sco.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-bthci_vendor.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-bthcrp.c

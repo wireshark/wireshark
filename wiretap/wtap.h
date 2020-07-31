@@ -1114,6 +1114,7 @@ struct bthci_phdr {
 #define BTHCI_CHANNEL_ACL      2
 #define BTHCI_CHANNEL_SCO      3
 #define BTHCI_CHANNEL_EVENT    4
+#define BTHCI_CHANNEL_ISO      5
 
 /* pseudo header for WTAP_ENCAP_BLUETOOTH_LINUX_MONITOR */
 struct btmon_phdr {

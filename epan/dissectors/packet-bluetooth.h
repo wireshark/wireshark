@@ -28,6 +28,7 @@ extern "C" {
 #define HCI_H4_TYPE_ACL   0x02
 #define HCI_H4_TYPE_SCO   0x03
 #define HCI_H4_TYPE_EVT   0x04
+#define HCI_H4_TYPE_ISO   0x05
 
 #define HCI_OGF_LINK_CONTROL           0x01
 #define HCI_OGF_LINK_POLICY            0x02

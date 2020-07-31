@@ -35,6 +35,7 @@ static const value_string hci_h4_type_vals[] = {
     {HCI_H4_TYPE_ACL, "ACL Data"},
     {HCI_H4_TYPE_SCO, "SCO Data"},
     {HCI_H4_TYPE_EVT, "HCI Event"},
+    {HCI_H4_TYPE_ISO, "ISO Data"},
     {0, NULL }
 };
 static const value_string hci_h4_direction_vals[] = {
