@@ -2368,23 +2368,21 @@ dissect_lcp_auth_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     proto_item *tf;
     guint32 id_len;
     int offset = 0;
-    int length = tvb_reported_length(tvb);
+    int length;
 
     if (!dissect_lcp_var_opt(tvb, pinfo, tree, proto_lcp_option_auth, ett_lcp_auth_opt, 3,
                              &field_tree, &tf))
         return tvb_captured_length(tvb);
 
-    proto_tree_add_item_ret_uint(field_tree, hf_lcp_opt_id, tvb, offset + 2, 1, ENC_BIG_ENDIAN, &id_len);
+    offset += 2;
+    proto_tree_add_item_ret_length(field_tree, hf_lcp_opt_id, tvb, offset, 1, ENC_BIG_ENDIAN, &id_len);
 
-    if (length > 3) {
-        length -= 3;
-        offset += 3;
-        if ((int)id_len < length) {
-            length -= id_len;
-            offset += id_len;
-            proto_tree_add_item(field_tree, hf_lcp_opt_data, tvb, offset,
-                length, ENC_NA);
-        }
+    length = tvb_reported_length_remaining(tvb, offset);
+    if ((int)id_len < length) {
+        length -= id_len;
+        offset += id_len;
+        proto_tree_add_item(field_tree, hf_lcp_opt_data, tvb, offset,
+            length, ENC_NA);
     }
     return tvb_captured_length(tvb);
 }

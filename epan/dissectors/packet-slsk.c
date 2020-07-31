@@ -1048,8 +1048,8 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
                 proto_tree_add_item(slsk_compr_packet_tree, hf_slsk_token, uncompr_tvb, uncompr_tvb_offset, 4, ENC_LITTLE_ENDIAN);
                 uncompr_tvb_offset += 4;
-                proto_tree_add_item_ret_uint(slsk_compr_packet_tree, hf_slsk_directory_name, uncompr_tvb, uncompr_tvb_offset, 4, ENC_ASCII|ENC_LITTLE_ENDIAN, &len);
-                uncompr_tvb_offset += 4+len;
+                proto_tree_add_item_ret_length(slsk_compr_packet_tree, hf_slsk_directory_name, uncompr_tvb, uncompr_tvb_offset, 4, ENC_ASCII|ENC_LITTLE_ENDIAN, &len);
+                uncompr_tvb_offset += len;
 
                 proto_tree_add_item_ret_int(slsk_compr_packet_tree, hf_slsk_num_directories, uncompr_tvb, uncompr_tvb_offset, 4, ENC_LITTLE_ENDIAN, &j);
                 uncompr_tvb_offset += 4;
