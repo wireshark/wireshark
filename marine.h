@@ -21,7 +21,7 @@ void destroy_marine(void);
 
 extern const unsigned int ETHERNET_ENCAP;
 extern const unsigned int WIFI_ENCAP;
-const int MARINE_ALREADY_INITIALIZED_ERROR_CODE;
-const int MARINE_INIT_INTERNAL_ERROR_CODE;
+extern const int MARINE_ALREADY_INITIALIZED_ERROR_CODE;
+extern const int MARINE_INIT_INTERNAL_ERROR_CODE;
 
 #endif //WIRESHARK_MARINE_H
