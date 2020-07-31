@@ -5441,6 +5441,7 @@ is_dcerpc(tvbuff_t *tvb, int offset, packet_info *pinfo _U_)
     guint8 rpc_ver;
     guint8 rpc_ver_minor;
     guint8 ptype;
+    guint8 drep[4];
 
     if (!tvb_bytes_exist(tvb, offset, sizeof(e_dce_cn_common_hdr_t)))
         return FALSE;   /* not enough information to check */
@@ -5453,6 +5454,15 @@ is_dcerpc(tvbuff_t *tvb, int offset, packet_info *pinfo _U_)
         return FALSE;
     ptype = tvb_get_guint8(tvb, offset++);
     if (ptype > PDU_RTS)
+        return FALSE;
+    /* Skip flags, nothing good to check */
+    offset++;
+
+    tvb_memcpy(tvb, (guint8 *)drep, offset, sizeof (drep));
+    offset += (int)sizeof (drep);
+    if (drep[0]&0xee)
+        return FALSE;
+    if (drep[1] > DCE_RPC_DREP_FP_IBM)
         return FALSE;
 
     return TRUE;
@@ -6414,9 +6424,9 @@ dissect_dcerpc_dg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     if (hdr.rpc_ver != 4)
         return FALSE;
 
-    /* Type must be <= 19 or it's not DCE/RPC */
+    /* Type must be <= PDU_CANCEL_ACK or it's not connectionless DCE/RPC */
     hdr.ptype = tvb_get_guint8(tvb, offset++);
-    if (hdr.ptype > 19)
+    if (hdr.ptype > PDU_CANCEL_ACK)
         return FALSE;
 
     /* flags1 has bit 1 and 8 as reserved for implementations, with no
@@ -6433,12 +6443,16 @@ dissect_dcerpc_dg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     if (hdr.flags2&0xfc)
         return FALSE;
 
+    tvb_memcpy(tvb, (guint8 *)hdr.drep, offset, sizeof (hdr.drep));
+    offset += (int)sizeof (hdr.drep);
+    if (hdr.drep[0]&0xee)
+        return FALSE;
+    if (hdr.drep[1] > DCE_RPC_DREP_FP_IBM)
+        return FALSE;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "DCERPC");
     col_add_str(pinfo->cinfo, COL_INFO, pckt_vals[hdr.ptype].strptr);
 
-    tvb_memcpy(tvb, (guint8 *)hdr.drep, offset, sizeof (hdr.drep));
-    offset += (int)sizeof (hdr.drep);
     hdr.serial_hi = tvb_get_guint8(tvb, offset++);
     dcerpc_tvb_get_uuid(tvb, offset, hdr.drep, &hdr.obj_id);
     offset += 16;
