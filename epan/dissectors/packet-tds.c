@@ -4631,9 +4631,9 @@ dissect_tds_col_name_token(proto_tree *tree, tvbuff_t *tvb, guint offset, tds_co
                            struct _netlib_data *nl_data)
 {
     guint next, cur, col=0;
-    gint len;
+    guint32 len;
 
-    proto_tree_add_item_ret_int(tree, hf_tds_colname_length, tvb, offset, 2,
+    proto_tree_add_item_ret_uint(tree, hf_tds_colname_length, tvb, offset, 2,
                                  tds_get_int2_encoding(tds_info), &len);
     cur = offset + 2;
     next = cur + len;
@@ -5099,12 +5099,12 @@ dissect_tds_control_token(proto_tree *tree, tvbuff_t *tvb, guint offset, tds_con
                           struct _netlib_data *nl_data)
 {
     guint next, cur, col=0;
-    gint len;
+    guint32 len;
     cur = offset;
 
     /* TODO: fill in nl_data as necessary. */
 
-    proto_tree_add_item_ret_int(tree, hf_tds_control_length, tvb, cur, 2,
+    proto_tree_add_item_ret_uint(tree, hf_tds_control_length, tvb, cur, 2,
                                  tds_get_int2_encoding(tds_info), &len);
     cur += 2;
 
