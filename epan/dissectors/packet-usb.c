@@ -4491,7 +4491,7 @@ dissect_usbip_iso_transfer(packet_info *pinfo _U_, proto_tree *urb_tree,
         if (iso_len > 0)
             proto_item_append_text(iso_desc_ti, " (%u bytes)", iso_len);
 
-        proto_tree_add_uint(iso_desc_tree, hf_usb_iso_status, tvb, desc_offset, 4, iso_status);
+        proto_tree_add_int(iso_desc_tree, hf_usb_iso_status, tvb, desc_offset, 4, iso_status);
         desc_offset += 4;
 
         /* Show the ISO data if we captured them and either the status
