@@ -1766,8 +1766,10 @@ proto_reg_handoff_stun(void)
 
     heur_dissector_add("udp", dissect_stun_heur_udp, "STUN over UDP", "stun_udp", proto_stun, HEURISTIC_ENABLE);
     heur_dissector_add("tcp", dissect_stun_heur_tcp, "STUN over TCP", "stun_tcp", proto_stun, HEURISTIC_ENABLE);
-    /* STUN messages may be encapsulated in Send Indication or Channel Data message as DATA payload */
+    /* STUN messages may be encapsulated in Send Indication or Channel Data message as DATA payload
+     * (in TURN and CLASSICSTUN, both)  */
     heur_dissector_add("stun", dissect_stun_heur_udp, "STUN over TURN", "stun_turn", proto_stun, HEURISTIC_DISABLE);
+    heur_dissector_add("classicstun", dissect_stun_heur_udp, "STUN over CLASSICSTUN", "stun_classicstun", proto_stun, HEURISTIC_DISABLE);
 
     data_handle = find_dissector("data");
 }
