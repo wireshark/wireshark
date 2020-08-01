@@ -787,12 +787,12 @@ dissect_usb_midi_event(tvbuff_t *tvb, packet_info *pinfo,
         if (event_size > 0)
         {
             /* TODO: Create MIDI dissector and pass the event data to it */
-            const gchar *event_data = tvb_get_ptr(tvb, offset+1, event_size);
+            const guint8 *event_data = tvb_get_ptr(tvb, offset+1, event_size);
             proto_tree_add_bytes(tree, hf_midi_event, tvb, offset+1, event_size, event_data);
         }
         if (padding_size > 0)
         {
-            const gchar *padding = tvb_get_ptr(tvb, offset+1+event_size, padding_size);
+            const guint8 *padding = tvb_get_ptr(tvb, offset+1+event_size, padding_size);
             proto_tree_add_bytes(tree, hf_midi_padding, tvb, offset+1+event_size, padding_size, padding);
         }
     }
