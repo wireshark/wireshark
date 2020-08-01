@@ -4473,7 +4473,7 @@ dissect_usbip_iso_transfer(packet_info *pinfo _U_, proto_tree *urb_tree,
     for (i = 0; i<iso_numdesc; i++) {
         proto_item   *iso_desc_ti;
         proto_tree   *iso_desc_tree;
-        guint32       iso_status;
+        gint         iso_status;
 
         iso_status = tvb_get_ntohl(tvb, desc_offset + 12);
         iso_desc_ti = proto_tree_add_protocol_format(urb_tree, proto_usb, tvb, desc_offset,
