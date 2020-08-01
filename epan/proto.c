@@ -3156,7 +3156,7 @@ ptvcursor_add_ret_int(ptvcursor_t *ptvc, int hfindex, gint length,
 	case FT_INT32:
 		break;
 	default:
-		REPORT_DISSECTOR_BUG("field %s is not of type FT_CHAR, FT_UINT8, FT_UINT16, FT_UINT24, or FT_UINT32",
+		REPORT_DISSECTOR_BUG("field %s is not of type FT_INT8, FT_INT16, FT_INT24, or FT_INT32",
 		    hfinfo->abbrev);
 	}
 
