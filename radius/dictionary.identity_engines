@@ -1,0 +1,16 @@
+# -*- text -*-
+# Copyright (C) 2018 The FreeRADIUS Server project and contributors
+#
+#       Avaya Identity Engines (IDE)
+#
+
+VENDOR		IDE			25065
+
+BEGIN-VENDOR    IDE
+
+ATTRIBUTE	Idengines-Embedded-User-ID		1	integer
+ATTRIBUTE	Idengines-Provisioning-Group    	2	string
+ATTRIBUTE	Idengines-Provisioning-Domain		3	string
+ATTRIBUTE	Idengines-User-Role			4	integer
+
+END-VENDOR	IDE
