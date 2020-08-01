@@ -2049,7 +2049,7 @@ ssl_common_dissect_t name = {   \
         NULL, HFILL }                                                   \
     },                                                                  \
     { & name .hf.hs_ext_quictp_parameter_len_old,                       \
-      { "Length", prefix ".quic.parameter.length",                      \
+      { "Length", prefix ".quic.parameter.lengt.old",                   \
         FT_UINT16, BASE_DEC, NULL, 0x00,                                \
         NULL, HFILL }                                                   \
     },                                                                  \
