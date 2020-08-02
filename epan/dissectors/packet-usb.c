@@ -5990,23 +5990,23 @@ proto_register_usb(void)
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
-        { &hf_usb_iso_numdesc,                    /* host endian byte order */
+        { &hf_usb_iso_numdesc,
           { "Number of ISO descriptors", "usb.iso.numdesc",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         /* fields of struct mon_bin_isodesc from linux/drivers/usb/mon/mon_bin.c */
-        { &hf_usb_iso_status,                     /* host endian byte order */
+        { &hf_usb_iso_status,
           { "Status", "usb.iso.iso_status",
             FT_INT32, BASE_DEC|BASE_EXT_STRING, &linux_negative_errno_vals_ext, 0x0,
             "ISO descriptor status", HFILL }},
 
-        { &hf_usb_iso_off,                        /* host endian byte order */
+        { &hf_usb_iso_off,
           { "Offset [bytes]", "usb.iso.iso_off",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             "ISO data offset in bytes starting from the end of the last ISO descriptor", HFILL }},
 
-        { &hf_usb_iso_len,                        /* host endian byte order */
+        { &hf_usb_iso_len,
           { "Length [bytes]", "usb.iso.iso_len",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             "ISO data length in bytes", HFILL }},
