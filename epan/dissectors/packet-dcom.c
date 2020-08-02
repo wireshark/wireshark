@@ -1938,13 +1938,13 @@ dissect_dcom_STDOBJREF(tvbuff_t *tvb, gint offset, packet_info *pinfo,
  */
 
 int
-dcom_register_rountine(dcom_dissect_fn_t routine, e_guid_t* uuid)
+dcom_register_routine(dcom_dissect_fn_t routine, e_guid_t* uuid)
 {
 	dcom_marshaler_t *marshaler;
 
 
 	/* check if exists already */
-	if (dcom_get_rountine_by_uuid(uuid))
+	if (dcom_get_routine_by_uuid(uuid))
 		return -1;
 
 	marshaler = wmem_new(wmem_file_scope(), dcom_marshaler_t);
@@ -1965,7 +1965,7 @@ dcom_register_rountine(dcom_dissect_fn_t routine, e_guid_t* uuid)
 
 
 dcom_dissect_fn_t
-dcom_get_rountine_by_uuid(const e_guid_t* uuid)
+dcom_get_routine_by_uuid(const e_guid_t* uuid)
 {
 	dcom_marshaler_t *marsh;
 	GList *marshalers;
@@ -2015,7 +2015,7 @@ dissect_dcom_CUSTOBJREF(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		    hf_dcom_objref_size, &u32Size);
 
 	/* the following data depends on the iid, get the routine by iid */
-	routine = dcom_get_rountine_by_uuid(iid);
+	routine = dcom_get_routine_by_uuid(iid);
 	if (routine){
 		offset = routine(tvb, offset, pinfo, sub_tree, di, drep, 0);
 	}

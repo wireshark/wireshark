@@ -341,7 +341,7 @@ dissect_dcom_ActivationProperty(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     dcom_dissect_fn_t routine = NULL;
 
     /* the following data depends on the clsid, get the routine by clsid */
-    routine = dcom_get_rountine_by_uuid(clsid);
+    routine = dcom_get_routine_by_uuid(clsid);
     if (routine){
         offset = routine(tvb, offset, pinfo, tree, di, drep, size);
     }
@@ -1099,17 +1099,17 @@ dissect_dcom_ScmReplyInfo(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 static void
 sysact_register_routines(void)
 {
-    dcom_register_rountine(dissect_dcom_ActivationProperties, &iid_ActivationPropertiesIn);
-    dcom_register_rountine(dissect_dcom_ActivationProperties, &iid_ActivationPropertiesOut);
-    dcom_register_rountine(dissect_dcom_SpecialSystemProperties, &clsid_SpecialSystemProperties);
-    dcom_register_rountine(dissect_dcom_InstantiationInfo, &clsid_InstantiationInfo);
-    dcom_register_rountine(dissect_dcom_ActivationContextInfo, &clsid_ActivationContextInfo);
-    dcom_register_rountine(dissect_dcom_ContextMarshaler, &clsid_ContextMarshaler);
-    dcom_register_rountine(dissect_dcom_SecurtiyInfo, &clsid_SecurityInfo);
-    dcom_register_rountine(dissect_dcom_LocationInfo, &clsid_ServerLocationInfo);
-    dcom_register_rountine(dissect_dcom_ScmRqstInfo, &clsid_ScmRequestInfo);
-    dcom_register_rountine(dissect_dcom_PropsOutInfo, &clsid_PropsOutInfo);
-    dcom_register_rountine(dissect_dcom_ScmReplyInfo, &clsid_ScmReplyInfo);
+    dcom_register_routine(dissect_dcom_ActivationProperties, &iid_ActivationPropertiesIn);
+    dcom_register_routine(dissect_dcom_ActivationProperties, &iid_ActivationPropertiesOut);
+    dcom_register_routine(dissect_dcom_SpecialSystemProperties, &clsid_SpecialSystemProperties);
+    dcom_register_routine(dissect_dcom_InstantiationInfo, &clsid_InstantiationInfo);
+    dcom_register_routine(dissect_dcom_ActivationContextInfo, &clsid_ActivationContextInfo);
+    dcom_register_routine(dissect_dcom_ContextMarshaler, &clsid_ContextMarshaler);
+    dcom_register_routine(dissect_dcom_SecurtiyInfo, &clsid_SecurityInfo);
+    dcom_register_routine(dissect_dcom_LocationInfo, &clsid_ServerLocationInfo);
+    dcom_register_routine(dissect_dcom_ScmRqstInfo, &clsid_ScmRequestInfo);
+    dcom_register_routine(dissect_dcom_PropsOutInfo, &clsid_PropsOutInfo);
+    dcom_register_routine(dissect_dcom_ScmReplyInfo, &clsid_ScmReplyInfo);
 
     return;
 }
