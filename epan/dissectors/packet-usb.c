@@ -3903,6 +3903,7 @@ dissect_linux_usb_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     guint8  transfer_type_and_direction;
     guint8  urb_type;
     guint8  flag[2];
+    guint32 bus_id;
 
     *urb_id = tvb_get_guint64(tvb, 0, ENC_HOST_ENDIAN);
     proto_tree_add_uint64(tree, hf_usb_urb_id, tvb, 0, 8, *urb_id);
@@ -3931,8 +3932,8 @@ dissect_linux_usb_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     proto_tree_add_item(tree, hf_usb_device_address, tvb, 11, 1, ENC_LITTLE_ENDIAN);
     usb_conv_info->device_address = (guint16)tvb_get_guint8(tvb, 11);
 
-    proto_tree_add_item(tree, hf_usb_bus_id, tvb, 12, 2, ENC_HOST_ENDIAN);
-    tvb_memcpy(tvb, &usb_conv_info->bus_id, 12, 2);
+    proto_tree_add_item_ret_uint(tree, hf_usb_bus_id, tvb, 12, 2, ENC_HOST_ENDIAN, &bus_id);
+    usb_conv_info->bus_id = (guint16) bus_id;
 
     /* Right after the pseudo header we always have
      * sizeof(struct usb_device_setup_hdr) bytes. The content of these
@@ -4358,7 +4359,6 @@ dissect_linux_usb_iso_transfer(packet_info *pinfo _U_, proto_tree *urb_tree,
 {
     guint32     iso_numdesc = 0;
     proto_item *tii;
-    guint32     val32;
     guint32     i;
     guint       data_base;
     guint32     iso_status;
@@ -4380,17 +4380,10 @@ dissect_linux_usb_iso_transfer(packet_info *pinfo _U_, proto_tree *urb_tree,
     /* iso urbs on linux can't possibly contain a setup packet
        see mon_bin_event() in the linux kernel */
 
-    /* Process ISO related fields (usbmon_packet.iso). The fields are
-     * in host endian byte order so use tvb_memcopy() and
-     * proto_tree_add_uint() pair.
-     */
-
-    tvb_memcpy(tvb, (guint8 *)&val32, offset, 4);
-    proto_tree_add_uint(urb_tree, hf_usb_iso_error_count, tvb, offset, 4, val32);
+    proto_tree_add_item(urb_tree, hf_usb_iso_error_count, tvb, offset, 4, ENC_HOST_ENDIAN);
     offset += 4;
 
-    tvb_memcpy(tvb, (guint8 *)&iso_numdesc, offset, 4);
-    proto_tree_add_uint(urb_tree, hf_usb_iso_numdesc, tvb, offset, 4, iso_numdesc);
+    proto_tree_add_item_ret_uint(urb_tree, hf_usb_iso_numdesc, tvb, offset, 4, ENC_HOST_ENDIAN, &iso_numdesc);
     offset += 4;
 
     if (header_type == USB_HEADER_LINUX_64_BYTES) {
@@ -4401,26 +4394,21 @@ dissect_linux_usb_iso_transfer(packet_info *pinfo _U_, proto_tree *urb_tree,
     for (i = 0; i<iso_numdesc; i++) {
         proto_item   *iso_desc_ti;
         proto_tree   *iso_desc_tree;
-        guint32       iso_pad;
-
-        /* Fetch ISO descriptor fields stored in host endian byte order. */
-        tvb_memcpy(tvb, (guint8 *)&iso_status, offset, 4);
-        tvb_memcpy(tvb, (guint8 *)&iso_off, offset+4,  4);
-        tvb_memcpy(tvb, (guint8 *)&iso_len, offset+8,  4);
 
         iso_desc_ti = proto_tree_add_protocol_format(urb_tree, proto_usb, tvb, offset,
-                16, "USB isodesc %u [%s]", i, val_to_str_ext(iso_status, &linux_negative_errno_vals_ext, "Error %d"));
-        if (iso_len > 0)
-            proto_item_append_text(iso_desc_ti, " (%u bytes)", iso_len);
+                16, "USB isodesc %u", i);
         iso_desc_tree = proto_item_add_subtree(iso_desc_ti, ett_usb_isodesc);
 
-        proto_tree_add_int(iso_desc_tree, hf_usb_iso_status, tvb, offset, 4, iso_status);
+        proto_tree_add_item_ret_int(iso_desc_tree, hf_usb_iso_status, tvb, offset, 4, ENC_HOST_ENDIAN, &iso_status);
+        proto_item_append_text(iso_desc_ti, " [%s]", val_to_str_ext(iso_status, &linux_negative_errno_vals_ext, "Error %d"));
         offset += 4;
 
-        proto_tree_add_uint(iso_desc_tree, hf_usb_iso_off, tvb, offset, 4, iso_off);
+        proto_tree_add_item_ret_uint(iso_desc_tree, hf_usb_iso_off, tvb, offset, 4, ENC_HOST_ENDIAN, &iso_off);
         offset += 4;
 
-        proto_tree_add_uint(iso_desc_tree, hf_usb_iso_len, tvb, offset, 4, iso_len);
+        proto_tree_add_item_ret_uint(iso_desc_tree, hf_usb_iso_len, tvb, offset, 4, ENC_HOST_ENDIAN, &iso_len);
+        if (iso_len != 0)
+            proto_item_append_text(iso_desc_ti, " (%u bytes)", iso_len);
         offset += 4;
 
         /* Show the ISO data if we captured them and either the status
@@ -4434,8 +4422,7 @@ dissect_linux_usb_iso_transfer(packet_info *pinfo _U_, proto_tree *urb_tree,
             proto_tree_set_appendix(iso_desc_tree, tvb, (gint)(data_base+iso_off), (gint)iso_len);
         }
 
-        tvb_memcpy(tvb, (guint8 *)&iso_pad, offset, 4);
-        proto_tree_add_uint(iso_desc_tree, hf_usb_iso_pad, tvb, offset, 4, iso_pad);
+        proto_tree_add_item(iso_desc_tree, hf_usb_iso_pad, tvb, offset, 4, ENC_HOST_ENDIAN);
         offset += 4;
     }
 
@@ -4473,11 +4460,10 @@ dissect_usbip_iso_transfer(packet_info *pinfo _U_, proto_tree *urb_tree,
     for (i = 0; i<iso_numdesc; i++) {
         proto_item   *iso_desc_ti;
         proto_tree   *iso_desc_tree;
-        gint         iso_status;
+        gint32        iso_status;
 
-        iso_status = tvb_get_ntohl(tvb, desc_offset + 12);
         iso_desc_ti = proto_tree_add_protocol_format(urb_tree, proto_usb, tvb, desc_offset,
-                16, "USB isodesc %u [%s]", i, val_to_str_ext(iso_status, &linux_negative_errno_vals_ext, "Error %d"));
+                16, "USB isodesc %u", i);
         iso_desc_tree = proto_item_add_subtree(iso_desc_ti, ett_usb_isodesc);
 
         proto_tree_add_item_ret_uint(iso_desc_tree, hf_usb_iso_off, tvb, desc_offset, 4, ENC_BIG_ENDIAN, &iso_off);
@@ -4488,11 +4474,13 @@ dissect_usbip_iso_transfer(packet_info *pinfo _U_, proto_tree *urb_tree,
 
         proto_tree_add_item_ret_uint(iso_desc_tree, hf_usb_iso_actual_len, tvb, desc_offset, 4, ENC_BIG_ENDIAN, &iso_len);
         desc_offset += 4;
+
+        proto_tree_add_item_ret_int(iso_desc_tree, hf_usb_iso_status, tvb, desc_offset, 4, ENC_BIG_ENDIAN, &iso_status);
+        proto_item_append_text(iso_desc_ti, " [%s]", val_to_str_ext(iso_status, &linux_negative_errno_vals_ext, "Error %d"));
+        desc_offset += 4;
+
         if (iso_len > 0)
             proto_item_append_text(iso_desc_ti, " (%u bytes)", iso_len);
-
-        proto_tree_add_int(iso_desc_tree, hf_usb_iso_status, tvb, desc_offset, 4, iso_status);
-        desc_offset += 4;
 
         /* Show the ISO data if we captured them and either the status
            is OK or the packet is sent from host to device.
