@@ -53,6 +53,11 @@ static gboolean systemd_journal_read_export_entry(FILE_T fh, wtap_rec *rec,
 #define MAX_EXPORT_ENTRY_LENGTH WTAP_MAX_PACKET_SIZE_STANDARD
 #define MAX_EXPORT_ENTRY_LINES 100
 
+// Strictly speaking, we only need __REALTIME_TIMESTAMP= since we use
+// that to set the packet timestamp. According to
+// https://www.freedesktop.org/software/systemd/man/systemd.journal-fields.html
+// __CURSOR= and __MONOTONIC_TIMESTAMP= should be present as well, so
+// check for them order to improve our heuristics.
 #define FLD__CURSOR "__CURSOR="
 #define FLD__REALTIME_TIMESTAMP "__REALTIME_TIMESTAMP="
 #define FLD__MONOTONIC_TIMESTAMP "__MONOTONIC_TIMESTAMP="

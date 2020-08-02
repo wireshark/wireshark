@@ -134,12 +134,12 @@ typedef struct pcapng_name_resolution_block_s {
 #define MIN_SYSDIG_EVENT_SIZE    ((guint32)(MIN_BLOCK_SIZE + SYSDIG_EVENT_HEADER_SIZE))
 
 /*
- * We require __CURSOR + __REALTIME_TIMESTAMP + __MONOTONIC_TIMESTAMP in
- * systemd journal export entries, which is 200 bytes or so (203 on a test
- * system here).
+ * We require __REALTIME_TIMESTAMP in the Journal Export Format reader in
+ * order to set each packet timestamp. Require it here as well, although
+ * it's not strictly necessary.
  */
 #define SDJ__REALTIME_TIMESTAMP "__REALTIME_TIMESTAMP="
-#define MIN_SYSTEMD_JOURNAL_EXPORT_ENTRY_SIZE    200
+#define MIN_SYSTEMD_JOURNAL_EXPORT_ENTRY_SIZE    23 // "__REALTIME_TIMESTAMP=0\n"
 #define MIN_SYSTEMD_JOURNAL_EXPORT_BLOCK_SIZE    ((guint32)(MIN_SYSTEMD_JOURNAL_EXPORT_ENTRY_SIZE + MIN_BLOCK_SIZE))
 
 /* pcapng: common option header file encoding for every option type */
