@@ -2199,6 +2199,14 @@ static void dcom_cleanup(void) {
 		g_list_free(dcom_interfaces);
 		dcom_interfaces = NULL;
 	}
+
+	/*  The data in dcom_marshalers is wmem_file_scoped so there's no need to free
+	 *  the data pointers.
+	 */
+	if (dcom_marshalers != NULL) {
+		g_list_free(dcom_marshalers);
+		dcom_marshalers = NULL;
+	}
 }
 
 void
