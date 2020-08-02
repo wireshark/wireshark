@@ -115,11 +115,7 @@ dissect_enc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     /*
      * It was written by a host with the *opposite* byte order.
      */
-#if G_BYTE_ORDER == G_LITTLE_ENDIAN
-    writer_encoding = ENC_BIG_ENDIAN;
-#else
-    writer_encoding = ENC_LITTLE_ENDIAN;
-#endif
+    writer_encoding = ENC_ANTI_HOST_ENDIAN;
   }
   ench.spi = tvb_get_ntohl(tvb, 4);
 

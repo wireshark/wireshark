@@ -340,9 +340,11 @@ void proto_report_dissector_bug(const char *format, ...)
 #define ENC_LITTLE_ENDIAN   0x80000000
 
 #if G_BYTE_ORDER == G_LITTLE_ENDIAN
-    #define ENC_HOST_ENDIAN ENC_LITTLE_ENDIAN
+    #define ENC_HOST_ENDIAN      ENC_LITTLE_ENDIAN
+    #define ENC_ANTI_HOST_ENDIAN ENC_BIG_ENDIAN
 #else
-    #define ENC_HOST_ENDIAN ENC_BIG_ENDIAN
+    #define ENC_HOST_ENDIAN      ENC_BIG_ENDIAN
+    #define ENC_ANTI_HOST_ENDIAN ENC_LITTLE_ENDIAN
 #endif
 
 /*

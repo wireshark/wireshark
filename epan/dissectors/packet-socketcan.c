@@ -338,12 +338,6 @@ dissect_socketcan_bigendian(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	    byte_swap ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
 }
 
-#if G_BYTE_ORDER == G_LITTLE_ENDIAN
-    #define ENC_ANTI_HOST_ENDIAN ENC_BIG_ENDIAN
-#else
-    #define ENC_ANTI_HOST_ENDIAN ENC_LITTLE_ENDIAN
-#endif
-
 static int
 dissect_socketcan_hostendian(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     void* data _U_)
