@@ -136,8 +136,7 @@
     </message>
     <message>
         <source>Can&apos;t assign %1 to %2.</source>
-        <oldsource>Can&apos;t assign %1 to %2</oldsource>
-        <translation type="unfinished">Kan inte tilldela %1 till %2</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -7887,22 +7886,16 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation> före en annan fil öppnas</translation>
     </message>
     <message>
+        <source>Merging files.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>%1: %2</source>
         <translation>%1: %2</translation>
     </message>
     <message>
         <source>Saving %1</source>
         <translation>Sparar %1</translation>
-    </message>
-    <message>
-        <source>No interface selected.</source>
-        <oldsource>No interface selected</oldsource>
-        <translation type="unfinished">Inget gränssnitt valt</translation>
-    </message>
-    <message>
-        <source>Invalid capture filter.</source>
-        <oldsource>Invalid capture filter</oldsource>
-        <translation type="unfinished">Felaktigt fångstfilter</translation>
     </message>
     <message>
         <source>Clear Menu</source>
@@ -7937,11 +7930,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Rå data (*.bin *.dat *.raw);;Alla filer (</translation>
     </message>
     <message>
-        <source>Merging files.</source>
-        <oldsource>Merging files</oldsource>
-        <translation type="unfinished">Slår samman filer</translation>
-    </message>
-    <message>
         <source>Couldn&apos;t copy text. Try another item.</source>
         <translation>Kunde inte kopiera texten.  Försök med ett annat objekt.</translation>
     </message>
@@ -7958,27 +7946,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation> före filen läses om</translation>
     </message>
     <message>
-        <source>No filter available. Try another %1.</source>
-        <oldsource>No filter available. Try another </oldsource>
-        <translation type="unfinished">Inget filter tillgängligt.  Försök med ett annat</translation>
-    </message>
-    <message>
-        <source>column</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>item</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The &quot;%1&quot; column already exists.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The &quot;%1&quot; column already exists as &quot;%2&quot;.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Error compiling filter for this conversation.</source>
         <translation>Fel vid kompilering av filter för denna konversation.</translation>
     </message>
@@ -7987,8 +7954,12 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Inget föregående/nästa paket i konversationen.</translation>
     </message>
     <message>
-        <source>No Interface Selected</source>
-        <translation type="vanished">Inget gränssnitt valt</translation>
+        <source>No interface selected.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Invalid capture filter.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source> before starting a new capture</source>
@@ -8008,6 +7979,26 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>TLS Session Keys (*.keys *.txt);;All Files (</source>
         <translation>TLS-sessionsnycklar (*.keys *.txt);;Alla filer (</translation>
+    </message>
+    <message>
+        <source>No filter available. Try another %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>column</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>item</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The &quot;%1&quot; column already exists.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The &quot;%1&quot; column already exists as &quot;%2&quot;.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>No Interface Selected.</source>

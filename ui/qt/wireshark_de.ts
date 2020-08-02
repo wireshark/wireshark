@@ -136,8 +136,7 @@
     </message>
     <message>
         <source>Can&apos;t assign %1 to %2.</source>
-        <oldsource>Can&apos;t assign %1 to %2</oldsource>
-        <translation type="unfinished">Kann %1 nicht an %2 zuweisen</translation>
+        <translation>Kann %1 nicht an %2 zuweisen</translation>
     </message>
 </context>
 <context>
@@ -7887,22 +7886,16 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation> vor dem Öffnen einer anderen Datei</translation>
     </message>
     <message>
+        <source>Merging files.</source>
+        <translation>Dateien zusammenfügen</translation>
+    </message>
+    <message>
         <source>%1: %2</source>
         <translation>%1: %2</translation>
     </message>
     <message>
         <source>Saving %1</source>
         <translation>Speichere %1</translation>
-    </message>
-    <message>
-        <source>No interface selected.</source>
-        <oldsource>No interface selected</oldsource>
-        <translation type="unfinished">Keine Schnittstelle ausgewählt</translation>
-    </message>
-    <message>
-        <source>Invalid capture filter.</source>
-        <oldsource>Invalid capture filter</oldsource>
-        <translation type="unfinished">Ungültiger Mitschnittfilter</translation>
     </message>
     <message>
         <source>Clear Menu</source>
@@ -7937,11 +7930,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Rohdaten (*.bin *.dat *.raw);; Alle Dateien (</translation>
     </message>
     <message>
-        <source>Merging files.</source>
-        <oldsource>Merging files</oldsource>
-        <translation type="unfinished">Dateien zusammenfügen</translation>
-    </message>
-    <message>
         <source>Couldn&apos;t copy text. Try another item.</source>
         <translation>Text konnte nicht kopiert werden. Probieren sie einen anderen Eintrag.</translation>
     </message>
@@ -7958,27 +7946,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation> vor dem Neuladen der Datei</translation>
     </message>
     <message>
-        <source>No filter available. Try another %1.</source>
-        <oldsource>No filter available. Try another </oldsource>
-        <translation type="unfinished">Kein Filter verfügbar. Probieren Sie einen anderen.</translation>
-    </message>
-    <message>
-        <source>column</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>item</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The &quot;%1&quot; column already exists.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The &quot;%1&quot; column already exists as &quot;%2&quot;.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Error compiling filter for this conversation.</source>
         <translation>Fehler beim Erstellen eines Filters für diese Verbindung.</translation>
     </message>
@@ -7987,8 +7954,12 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Kein vorheriges/nächstes Paket in dieser Verbindung.</translation>
     </message>
     <message>
-        <source>No Interface Selected</source>
-        <translation type="vanished">Keine Schnittstelle ausgewählt</translation>
+        <source>No interface selected.</source>
+        <translation>Keine Schnittstelle ausgewählt</translation>
+    </message>
+    <message>
+        <source>Invalid capture filter.</source>
+        <translation>Ungültiger Mitschnittfilter</translation>
     </message>
     <message>
         <source> before starting a new capture</source>
@@ -8010,8 +7981,28 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>TLS Sitzungsschlüssel (*.keys *.txt);; Alle Dateien (</translation>
     </message>
     <message>
+        <source>No filter available. Try another %1.</source>
+        <translation>Kein Filter verfügbar. Probieren Sie einen anderen %1.</translation>
+    </message>
+    <message>
+        <source>column</source>
+        <translation>Spalte</translation>
+    </message>
+    <message>
+        <source>item</source>
+        <translation>Element</translation>
+    </message>
+    <message>
+        <source>The &quot;%1&quot; column already exists.</source>
+        <translation>Die Spalte &quot;%1&quot; existiert bereits.</translation>
+    </message>
+    <message>
+        <source>The &quot;%1&quot; column already exists as &quot;%2&quot;.</source>
+        <translation>Die Spalte &quot;%1&quot; existiert bereits als &quot;%2&quot;.</translation>
+    </message>
+    <message>
         <source>No Interface Selected.</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Schnittstelle ausgewählt.</translation>
     </message>
     <message>
         <source> before restarting the capture</source>
@@ -13627,11 +13618,11 @@ text-decoration: underline;
     <name>WirelessTimeline</name>
     <message>
         <source>Packet number %1 does not include TSF timestamp, not showing timeline.</source>
-        <translation type="unfinished"></translation>
+        <translation>Paketnummer %1 enthält keinen TSF Zeitstempel. Zeitschiene wird nicht angezeigt.</translation>
     </message>
     <message>
         <source>Packet number %u has large negative jump in TSF, not showing timeline. Perhaps TSF reference point is set wrong?</source>
-        <translation type="unfinished"></translation>
+        <translation>Paketnummer %u hat einen großen, negativen Sprung bei TSF. Zeitschiene wird nicht angezeigt. Eventuell wurde der TSF Referenzpunkt falsch gesetzt.</translation>
     </message>
 </context>
 <context>

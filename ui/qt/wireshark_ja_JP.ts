@@ -135,8 +135,7 @@
     </message>
     <message>
         <source>Can&apos;t assign %1 to %2.</source>
-        <oldsource>Can&apos;t assign %1 to %2</oldsource>
-        <translation type="unfinished">%1 を %2 に割り当てることができません</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -7871,22 +7870,16 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>別のファイルを開く前に</translation>
     </message>
     <message>
+        <source>Merging files.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>%1: %2</source>
         <translation>%1: %2</translation>
     </message>
     <message>
         <source>Saving %1</source>
         <translation>保存中 %1</translation>
-    </message>
-    <message>
-        <source>No interface selected.</source>
-        <oldsource>No interface selected</oldsource>
-        <translation type="unfinished">インターフェースが選択されていません</translation>
-    </message>
-    <message>
-        <source>Invalid capture filter.</source>
-        <oldsource>Invalid capture filter</oldsource>
-        <translation type="unfinished">無効なキャプチャフィルタ</translation>
     </message>
     <message>
         <source>Clear Menu</source>
@@ -7920,11 +7913,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Raw(無加工)データ形式 (*.bin *.dat *.raw);;すべてのファイル(</translation>
     </message>
     <message>
-        <source>Merging files.</source>
-        <oldsource>Merging files</oldsource>
-        <translation type="unfinished">ファイルを結合</translation>
-    </message>
-    <message>
         <source>Couldn&apos;t copy text. Try another item.</source>
         <translation>テキストをコピーできません 別の項目を試してみてください</translation>
     </message>
@@ -7941,27 +7929,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>ファイルを再読み込みする前に</translation>
     </message>
     <message>
-        <source>No filter available. Try another %1.</source>
-        <oldsource>No filter available. Try another </oldsource>
-        <translation type="unfinished">フィルタが利用できません 別のものを試してください</translation>
-    </message>
-    <message>
-        <source>column</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>item</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The &quot;%1&quot; column already exists.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The &quot;%1&quot; column already exists as &quot;%2&quot;.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Error compiling filter for this conversation.</source>
         <translation>この対話の間のフィルタ翻訳エラー</translation>
     </message>
@@ -7970,8 +7937,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>対話の前/次のパケットがありません</translation>
     </message>
     <message>
-        <source>No Interface Selected</source>
-        <translation type="vanished">インターフェースが選択されていません</translation>
+        <source>No interface selected.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Invalid capture filter.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source> before starting a new capture</source>
@@ -7990,6 +7961,26 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>TLS Session Keys (*.keys *.txt);;All Files (</source>
         <translation>TLSセッション鍵 (*.keys *.txt);;すべてのファイル (</translation>
+    </message>
+    <message>
+        <source>No filter available. Try another %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>column</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>item</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The &quot;%1&quot; column already exists.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The &quot;%1&quot; column already exists as &quot;%2&quot;.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>No Interface Selected.</source>

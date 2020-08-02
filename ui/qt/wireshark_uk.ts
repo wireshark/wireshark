@@ -137,7 +137,6 @@
     </message>
     <message>
         <source>Can&apos;t assign %1 to %2.</source>
-        <oldsource>Can&apos;t assign %1 to %2</oldsource>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -7823,22 +7822,16 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Merging files.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>%1: %2</source>
         <translation>%1: %2</translation>
     </message>
     <message>
         <source>Saving %1</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No interface selected.</source>
-        <oldsource>No interface selected</oldsource>
-        <translation type="unfinished">Не вибрано інтерфейс</translation>
-    </message>
-    <message>
-        <source>Invalid capture filter.</source>
-        <oldsource>Invalid capture filter</oldsource>
-        <translation type="unfinished">Неправильний фільтр захоплення</translation>
     </message>
     <message>
         <source>Clear Menu</source>
@@ -7865,11 +7858,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Merging files.</source>
-        <oldsource>Merging files</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Couldn&apos;t copy text. Try another item.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7886,32 +7874,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>No filter available. Try another %1.</source>
-        <oldsource>No filter available. Try another </oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>column</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>item</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The &quot;%1&quot; column already exists.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The &quot;%1&quot; column already exists as &quot;%2&quot;.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Error compiling filter for this conversation.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>No previous/next packet in conversation.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No interface selected.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Invalid capture filter.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7932,6 +7907,26 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>TLS Session Keys (*.keys *.txt);;All Files (</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No filter available. Try another %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>column</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>item</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The &quot;%1&quot; column already exists.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The &quot;%1&quot; column already exists as &quot;%2&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
