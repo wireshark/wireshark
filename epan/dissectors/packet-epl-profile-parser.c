@@ -25,6 +25,7 @@
 #include <epan/range.h>
 
 #include <string.h>
+#include <stdlib.h>
 
 #include <wsutil/strtoi.h>
 #include <wsutil/str_util.h>
