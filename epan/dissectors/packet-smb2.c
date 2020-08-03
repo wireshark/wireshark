@@ -423,12 +423,15 @@ static int hf_smb2_share_flags_force_levelii_oplock = -1;
 static int hf_smb2_share_flags_enable_hash_v1 = -1;
 static int hf_smb2_share_flags_enable_hash_v2 = -1;
 static int hf_smb2_share_flags_encrypt_data = -1;
+static int hf_smb2_share_flags_identity_remoting = -1;
 static int hf_smb2_share_caching = -1;
 static int hf_smb2_share_caps = -1;
 static int hf_smb2_share_caps_dfs = -1;
 static int hf_smb2_share_caps_continuous_availability = -1;
 static int hf_smb2_share_caps_scaleout = -1;
 static int hf_smb2_share_caps_cluster = -1;
+static int hf_smb2_share_caps_assymetric = -1;
+static int hf_smb2_share_caps_redirect_to_owner = -1;
 static int hf_smb2_create_flags = -1;
 static int hf_smb2_lock_count = -1;
 static int hf_smb2_min_count = -1;
@@ -606,6 +609,10 @@ static int hf_smb2_fscc_file_attr_system = -1;
 static int hf_smb2_fscc_file_attr_temporary = -1;
 static int hf_smb2_fscc_file_attr_integrity_stream = -1;
 static int hf_smb2_fscc_file_attr_no_scrub_data = -1;
+static int hf_smb2_tree_connect_flags = -1;
+static int hf_smb2_tc_cluster_reconnect = -1;
+static int hf_smb2_tc_redirect_to_owner = -1;
+static int hf_smb2_tc_extension_present = -1;
 
 static gint ett_smb2 = -1;
 static gint ett_smb2_olb = -1;
@@ -702,6 +709,7 @@ static gint ett_smb2_lock_info = -1;
 static gint ett_smb2_lock_flags = -1;
 static gint ett_smb2_buffercode = -1;
 static gint ett_smb2_ioctl_network_interface_capabilities = -1;
+static gint ett_smb2_tree_connect_flags = -1;
 static gint ett_qfr_entry = -1;
 static gint ett_smb2_pipe_fragment = -1;
 static gint ett_smb2_pipe_fragments = -1;
@@ -1964,6 +1972,21 @@ static const true_false_string tfs_smb2_ioctl_network_interface_capability_rss =
 static const true_false_string tfs_smb2_ioctl_network_interface_capability_rdma = {
 	"This interface supports RDMA",
 	"This interface does not support RDMA"
+};
+
+static const true_false_string tfs_tc_cluster_reconnect = {
+	"CLUSTER RECONNECT is set",
+	"Cluster reconnect is NOT set"
+};
+
+static const true_false_string tfs_tc_redirect_to_owner = {
+	"REDIRECT_TO_OWNER is set",
+	"Redirect to owner is NOT set"
+};
+
+static const true_false_string tfs_tc_extension_present = {
+	"EXTENSION PRESENT is set",
+	"Extension present is NOT set"
 };
 
 static const value_string file_region_usage_vals[] = {
@@ -3390,6 +3413,7 @@ static const value_string share_cache_vals[] = {
 #define SHARE_FLAGS_enable_hash_v1		0x00002000
 #define SHARE_FLAGS_enable_hash_v2		0x00004000
 #define SHARE_FLAGS_encryption_required		0x00008000
+#define SHARE_FLAGS_identity_remoting		0x00040000
 
 static int
 dissect_smb2_share_flags(proto_tree *tree, tvbuff_t *tvb, int offset)
@@ -3405,6 +3429,7 @@ dissect_smb2_share_flags(proto_tree *tree, tvbuff_t *tvb, int offset)
 		&hf_smb2_share_flags_enable_hash_v1,
 		&hf_smb2_share_flags_enable_hash_v2,
 		&hf_smb2_share_flags_encrypt_data,
+		&hf_smb2_share_flags_identity_remoting,
 		NULL
 	};
 	proto_item *item;
@@ -3426,6 +3451,8 @@ dissect_smb2_share_flags(proto_tree *tree, tvbuff_t *tvb, int offset)
 #define SHARE_CAPS_CONTINUOUS_AVAILABILITY	0x00000010
 #define SHARE_CAPS_SCALEOUT			0x00000020
 #define SHARE_CAPS_CLUSTER			0x00000040
+#define SHARE_CAPS_ASSYMETRIC			0x00000080
+#define SHARE_CAPS_REDIRECT_TO_OWNER		0x00000100
 
 static int
 dissect_smb2_share_caps(proto_tree *tree, tvbuff_t *tvb, int offset)
@@ -3435,6 +3462,8 @@ dissect_smb2_share_caps(proto_tree *tree, tvbuff_t *tvb, int offset)
 		&hf_smb2_share_caps_continuous_availability,
 		&hf_smb2_share_caps_scaleout,
 		&hf_smb2_share_caps_cluster,
+		&hf_smb2_share_caps_assymetric,
+		&hf_smb2_share_caps_redirect_to_owner,
 		NULL
 	};
 
@@ -3942,12 +3971,29 @@ dissect_smb2_tree_connect_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 {
 	offset_length_buffer_t olb;
 	const guint8 *buf;
+	guint16       flags;
+	proto_item *item;
+	static int * const connect_flags[] = {
+		&hf_smb2_tc_cluster_reconnect,
+		&hf_smb2_tc_redirect_to_owner,
+		&hf_smb2_tc_extension_present,
+		NULL
+	};
 
 	/* buffer code */
 	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 
-	/* reserved */
-	proto_tree_add_item(tree, hf_smb2_reserved, tvb, offset, 2, ENC_NA);
+	/* flags */
+	item = proto_tree_get_parent(tree);
+	flags = tvb_get_letohs(tvb, offset);
+	proto_tree_add_bitmask(tree, tvb, offset, hf_smb2_tree_connect_flags, ett_smb2_tree_connect_flags, connect_flags, ENC_LITTLE_ENDIAN);
+
+	if (flags != 0) {
+		proto_item_append_text(item, "%s%s%s",
+			       (flags & 0x0001)?", CLUSTER_RECONNECT":"",
+			       (flags & 0x0002)?", REDIRECT_TO_OWNER":"",
+			       (flags & 0x0004)?", EXTENSION_PRESENT":"");
+	}
 	offset += 2;
 
 	/* tree  offset/length */
@@ -12106,6 +12152,26 @@ proto_register_smb2(void)
 			NULL, 0, "Time stamp of previous version", HFILL }
 		},
 
+		{ &hf_smb2_tree_connect_flags,
+			{ "Flags", "smb2.tc.flags", FT_UINT16, BASE_HEX,
+			NULL, 0, "Tree Connect flags", HFILL }
+		},
+
+		{ &hf_smb2_tc_cluster_reconnect,
+			{ "Cluster Reconnect", "smb2.tc.cluster_reconnect", FT_BOOLEAN, 16,
+			TFS(&tfs_tc_cluster_reconnect), 0x0001, "If this is a Cluster Reconnect", HFILL }
+		},
+
+		{ &hf_smb2_tc_redirect_to_owner,
+			{ "Redirect To Owner", "smb2.tc.redirect_to_owner", FT_BOOLEAN, 16,
+			TFS(&tfs_tc_redirect_to_owner), 0x0002, "Set if the client can handle Share Redirects", HFILL }
+		},
+
+		{ &hf_smb2_tc_extension_present,
+			{ "Extension Present", "smb2.tc.extension_present", FT_BOOLEAN, 16,
+			TFS(&tfs_tc_extension_present), 0x0004, "Set if an extension structure is present", HFILL }
+		},
+
 		{ &hf_smb2_compression_format,
 			{ "Compression Format", "smb2.compression_format", FT_UINT16, BASE_DEC,
 			VALS(compression_format_vals), 0, NULL, HFILL }
@@ -12405,6 +12471,11 @@ proto_register_smb2(void)
 			NULL, SHARE_FLAGS_encryption_required, "The share require data encryption", HFILL }
 		},
 
+		{ &hf_smb2_share_flags_identity_remoting,
+			{ "Identity Remoting", "smb2.share_flags.identity_remoting", FT_BOOLEAN, 32,
+			NULL, SHARE_FLAGS_identity_remoting, "The specified share supports Identity Remoting", HFILL }
+		},
+
 		{ &hf_smb2_share_caching,
 			{ "Caching policy", "smb2.share.caching", FT_UINT32, BASE_HEX,
 			VALS(share_cache_vals), 0, NULL, HFILL }
@@ -12433,6 +12504,16 @@ proto_register_smb2(void)
 		{ &hf_smb2_share_caps_cluster,
 			{ "CLUSTER", "smb2.share_caps.cluster", FT_BOOLEAN, 32,
 			NULL, SHARE_CAPS_CLUSTER, "The specified share is a cluster share", HFILL }
+		},
+
+		{ &hf_smb2_share_caps_assymetric,
+			{ "ASSYMETRIC", "smb2.share_caps.assymetric", FT_BOOLEAN, 32,
+			NULL, SHARE_CAPS_ASSYMETRIC, "The specified share allows dynamic changes in ownership of the share", HFILL }
+		},
+
+		{ &hf_smb2_share_caps_redirect_to_owner,
+			{ "REDIRECT_TO_OWNER", "smb2.share_caps.redirect_to_owner", FT_BOOLEAN, 32,
+			NULL, SHARE_CAPS_REDIRECT_TO_OWNER, "The specified share supports synchronous share level redirection", HFILL }
 		},
 
 		{ &hf_smb2_ioctl_flags,
@@ -13366,6 +13447,7 @@ proto_register_smb2(void)
 		&ett_smb2_integrity_flags,
 		&ett_smb2_buffercode,
 		&ett_smb2_ioctl_network_interface_capabilities,
+		&ett_smb2_tree_connect_flags,
 		&ett_qfr_entry,
 		&ett_smb2_pipe_fragment,
 		&ett_smb2_pipe_fragments,
