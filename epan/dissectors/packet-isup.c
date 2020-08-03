@@ -10447,9 +10447,12 @@ dissect_application_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
       version = ws_find_media_type_parameter(wmem_packet_scope(), message_info->media_str, "version");
       base = ws_find_media_type_parameter(wmem_packet_scope(), message_info->media_str, "base");
       if ((version && g_ascii_strncasecmp(version, "ansi", 4) == 0) ||
-          (base && g_ascii_strncasecmp(base, "ansi", 4) == 0)) {
+          (base && g_ascii_strncasecmp(base, "ansi", 4) == 0) ||
+          (version && g_ascii_strncasecmp(version, "gr", 2) == 0) ||
+          (base && g_ascii_strncasecmp(base, "gr", 2) == 0)) {
         /*
-         * "version" or "base" parameter begins with "ansi", so it's ANSI.
+         * "version" or "base" parameter begins with "ansi" or "gr", so it's
+         * ANSI or Bellcore.
          */
         isup_standard = ANSI_STANDARD;
         col_append_str(pinfo->cinfo, COL_PROTOCOL, "/ISUP(ANSI)");
