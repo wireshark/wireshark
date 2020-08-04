@@ -61,6 +61,7 @@
  * RFC 7618: Dynamic Allocation of Shared IPv4 Addresses
  * RFC 7710: Captive-Portal Identification Using DHCP or Router Advertisements (RAs)
  * RFC 7839: Access-Network-Identifier Option in DHCP
+ * RFC 8357: Generalized UDP Source Port for DHCP Relay
  * draft-ietf-dhc-fqdn-option-07.txt
  * TFTP Server Address Option for DHCPv4 [draft-raj-dhc-tftp-addr-option-06.txt: https://tools.ietf.org/html/draft-raj-dhc-tftp-addr-option-06]
  * BOOTP and DHCP Parameters
@@ -419,6 +420,7 @@ static int hf_dhcp_option_slp_service_scope_string = -1;		/* 79 */
 static int hf_dhcp_option82_suboption = -1;				/* 82 suboption */
 static int hf_dhcp_option82_value = -1;					/* 82 suboption value */
 static int hf_dhcp_option82_value_8 = -1;				/* 82 suboption value */
+static int hf_dhcp_option82_value_16 = -1;				/* 82 suboption value */
 static int hf_dhcp_option82_value_32 = -1;				/* 82 suboption value */
 static int hf_dhcp_option82_value_ip_address = -1;			/* 82 suboption value */
 static int hf_dhcp_option82_value_stringz = -1;				/* 82 suboption value */
@@ -452,6 +454,7 @@ static int hf_dhcp_option82_option_ani_ap_name = -1;			/* 82:15 */
 static int hf_dhcp_option82_option_ani_ap_bssid = -1;			/* 82:16 */
 static int hf_dhcp_option82_option_ani_operator_id = -1;		/* 82:17 */
 static int hf_dhcp_option82_option_ani_operator_realm = -1;		/* 82:18 */
+static int hf_dhcp_option82_option_source_port = -1;			/* 82:19 */
 static int hf_dhcp_option82_link_selection_cisco = -1;			/* 82:150 */
 static int hf_dhcp_option82_vrf_name_vpn_id = -1;			/* 82:151 */
 									/* 82:151 suboptions */
@@ -3322,6 +3325,7 @@ static const value_string option82_suboption_vals[] = {
 	{ 16, "Access Point BSSID" },
 	{ 17, "Access Network Operator ID" },
 	{ 18, "Access Network Operator Realm" },
+	{ 19, "Source Port" },
 	{ 150, "Link selection (Cisco proprietary)" },
 	{ 151, "VRF name/VPN ID" },
 	{ 152, "Server ID Override (Cisco proprietary)" },
@@ -3347,7 +3351,7 @@ dhcp_dhcp_decode_agent_info(packet_info *pinfo, proto_item *v_ti, proto_tree *v_
 		&hf_dhcp_option82_value_stringz,
 		NULL,
 		&hf_dhcp_option82_value_8,
-		NULL,
+		&hf_dhcp_option82_value_16,
 		NULL,
 		&hf_dhcp_option82_value_32,
 		NULL,
@@ -3378,6 +3382,7 @@ dhcp_dhcp_decode_agent_info(packet_info *pinfo, proto_item *v_ti, proto_tree *v_
 		{16, {"Access Point BSSID", special, &hf_dhcp_option82_option_ani_ap_bssid}}, /* [RFC7839] */
 		{17, {"Access Network Operator ID", bytes, &hf_dhcp_option82_option_ani_operator_id}}, /* [RFC7839] */
 		{18, {"Access Network Operator Realm", string, &hf_dhcp_option82_option_ani_operator_realm}}, /* [RFC7839] */
+		{19, {"Source Port", val_u_short, &hf_dhcp_option82_option_source_port}}, /* [RFC8357] */
 		{150, {"Link selection (Cisco proprietary)", ipv4, &hf_dhcp_option82_link_selection_cisco}}, /* [RFC3527] */
 		{151, {"VRF name/VPN ID", special, &hf_dhcp_option82_vrf_name_vpn_id}}, /* [RFC2685] */
 		{152, {"Server ID Override (Cisco proprietary)", ipv4, &hf_dhcp_option82_server_id_override_cisco}} /* [RFC 5107] */
@@ -8928,6 +8933,11 @@ proto_register_dhcp(void)
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
 		    "Option 82: Suboption 8-bit value", HFILL }},
 
+		{ &hf_dhcp_option82_value_16,
+		  { "Value", "dhcp.option.agent_information_option.value.uint",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    "Option 162: Suboption 16-bit value", HFILL }},
+
 		{ &hf_dhcp_option82_value_32,
 		  { "Value", "dhcp.option.agent_information_option.value.uint",
 		    FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -9082,6 +9092,11 @@ proto_register_dhcp(void)
 		  { "Access Network Operator Realm", "dhcp.option.agent_information_option.ani_operator_realm",
 		    FT_STRING, BASE_NONE, NULL, 0x00,
 		    "Option 82:18 Access Network Operator Realm", HFILL }},
+
+		{ &hf_dhcp_option82_option_source_port,
+		  { "Source Port", "dhcp.option.agent_information_option.source_port",
+		    FT_UINT16, BASE_DEC, NULL, 0x00,
+		    "Option 82:19 Source Port", HFILL }},
 
 		{ &hf_dhcp_option82_link_selection_cisco,
 		  { "Link selection (Cisco proprietary)", "dhcp.option.agent_information_option.link_selection_cisco",
