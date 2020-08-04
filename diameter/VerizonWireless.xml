@@ -18,6 +18,48 @@
     <type type-name="OctetString"/>
   </avp>
 
+  <avp name="LI-Indicator-Gx" code="6092" vendor-id="VerizonWireless" >
+    <grouped>
+      <gavp name="Random-Vector"/>
+      <gavp name="Interception-Action"/>
+      <gavp name="LI-Correlation-ID"/>
+      <gavp name="LI-TargetMFAddress"/>
+      <gavp name="Charging-Rule-Name"/>
+    </grouped>
+  </avp>
+
+  <avp name="Random-Vector" code="6093" vendor-id="VerizonWireless" >
+    <type type-name="OctetString"/>
+  </avp>
+
+  <avp name="Interception-Action" code="6094" vendor-id="VerizonWireless" >
+    <type type-name="OctetString"/>
+  </avp>
+
+  <avp name="LI-Correlation-ID" code="6095" vendor-id="VerizonWireless" >
+    <type type-name="OctetString"/>
+  </avp>
+
+  <avp name="LI-TargetMFAddress" code="6096" vendor-id="VerizonWireless" >
+    <grouped>
+      <gavp name="LI-TargetID"/>
+      <gavp name="MF-Address"/>
+      <gavp name="MF-Port"/>
+    </grouped>
+  </avp>
+
+  <avp name="LI-TargetID" code="6097" vendor-id="VerizonWireless" >
+    <type type-name="OctetString"/>
+  </avp>
+
+    <avp name="MF-Address" code="6098" vendor-id="VerizonWireless" >
+    <type type-name="OctetString"/>
+  </avp>
+
+    <avp name="MF-Port" code="6099" vendor-id="VerizonWireless" >
+    <type type-name="OctetString"/>
+  </avp>
+
   <avp name="Self-Activation-Status" code="6115" vendor-id="VerizonWireless" >
     <type type-name="Enumerated"/>
     <enum name="Continue" code="0"/>
