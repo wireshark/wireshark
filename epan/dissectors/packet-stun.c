@@ -557,12 +557,14 @@ static const value_string federation_vals[] = {
     {0x00, NULL}
 };
 
+#if 0
 static const value_string password_algorithm_vals[] = {
     {0x0000, "Reserved"},
     {0x0001, "MD5"},
     {0x0002, "SHA-256"},
     {0x0000, NULL}
 };
+#endif
 
 static guint
 get_stun_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
