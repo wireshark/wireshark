@@ -41,6 +41,14 @@
  * MS-ICE2BWN: Interactive Connectivity Establishment (ICE) 2.0 Bandwidth Management Extensions https://docs.microsoft.com/en-us/openspecs/office_protocols/ms-ice2bwm
  */
 
+/* TODO
+ * Add protocol version auto detection
+ * Add information about different versions to table as we find it
+ * Add/Implement missing attributes
+ * Add/Implement missing message classes/methods
+ * Add missing error codes
+ */
+
 #include "config.h"
 
 #include <epan/packet.h>
@@ -49,6 +57,47 @@
 
 void proto_register_stun(void);
 void proto_reg_handoff_stun(void);
+
+/* Dissection relevant differences between STUN/TURN specification documents
+ *
+ *  Aspect   | MS-TURN 15.1       | RFC 3489           |RFC 5389            |
+ * ==========================================================================
+ *  Message  | 0b00+14-bit        | 16-bit             | 0b00+14-bit, type= |
+ *  Type     | No class or method | No class or method | class+method       |
+ * --------------------------------------------------------------------------
+ *  Transac- | 128 bits, seen     | 128 bits           | 32 bit Magic +     |
+ *  tion ID  | with MAGIC as well |                    | 96 bit Trans ID    |
+ * --------------------------------------------------------------------------
+ *  Padding  | No Attribute Pad   | No Attribute Pad   | Pad to 32 bits     |
+ *           |                    |                    | Att. Len excl. Pad |
+ *           |                    |                    | Msg. Len incl. Pad |
+ *           |                    |                    |  -> MLen & 3 == 0  |
+ * --------------------------------------------------------------------------
+ *  Username | Opaque             | Opaque             | UTF-8 String       |
+ * --------------------------------------------------------------------------
+ *  Password | Opaque             | Deprecated         | Deprecated         |
+ * --------------------------------------------------------------------------
+ *  NONCE &  | 0x0014             | 0x0015             | 0x0015             |
+ *  REALM    | 0x0015             | 0x0014             | 0x0014             |
+ * --------------------------------------------------------------------------
+ */
+
+enum {
+        /* NET_VER_AUTO, */
+        NET_VER_MS_TURN,
+        NET_VER_3489,
+        NET_VER_5389
+};
+
+static gint stun_network_version = NET_VER_5389;
+
+static const enum_val_t stun_network_version_vals[] = {
+        /* { "Auto", "Auto",     NET_VER_AUTO}, */
+        { "MS-TURN",  "MS-TURN", NET_VER_MS_TURN },
+        { "RFC3489 and earlier", "RFC3489 and earlier",     NET_VER_3489},
+        { "RFC5389 and later",  "RFC5389 and later", NET_VER_5389 },
+        { NULL, NULL, 0 }
+};
 
 /* heuristic subdissectors */
 static heur_dissector_list_t heur_subdissector_list;
@@ -88,6 +137,7 @@ static int hf_stun_att_ipv4 = -1;
 static int hf_stun_att_ipv6 = -1;
 static int hf_stun_att_port = -1;
 static int hf_stun_att_username = -1;
+static int hf_stun_att_username_opaque = -1;
 static int hf_stun_att_password = -1;
 static int hf_stun_att_padding = -1;
 static int hf_stun_att_hmac = -1;
@@ -481,33 +531,41 @@ static const value_string attributes_family[] = {
     {0x0002, "IPv6"},
     {0x00, NULL}
 };
-/* https://www.iana.org/assignments/stun-parameters/stun-parameters.xhtml#stun-parameters-6 (2015-06-12)*/
+/* https://www.iana.org/assignments/stun-parameters/stun-parameters.xhtml#stun-parameters-6 (2020-08-05)*/
 
 static const value_string error_code[] = {
     {274, "Disable Candidate"},               /* MS-ICE2BWN */
     {275, "Disable Candidate Pair"},          /* MS-ICE2BWN */
-    {300, "Try Alternate"},                   /* rfc3489bis-15 */
-    {400, "Bad Request"},                     /* rfc3489bis-15 */
-    {401, "Unauthorized"},                    /* rfc3489bis-15 */
-    {403, "Forbidden"},                       /* rfc5766 */
-    {420, "Unknown Attribute"},               /* rfc3489bis-15 */
-    {437, "Allocation Mismatch"},             /* turn-07 */
-    {438, "Stale Nonce"},                     /* rfc3489bis-15 */
-    {439, "Wrong Credentials"},               /* turn-07 - collision 38=>39 */
-    {440, "Address Family not Supported"},    /* turn-ipv6-04 */
-    {441, "Wrong Credentials"},               /* rfc5766 */
-    {442, "Unsupported Transport Protocol"},  /* turn-07 */
-    {443, "Peer Address Family Mismatch"},    /* rfc6156 */
-    {446, "Connection Already Exists"},       /* rfc6062 */
-    {447, "Connection Timeout or Failure"},   /* rfc6062 */
-    {481, "Connection does not exist"},       /* nat-behavior-discovery-03 */
-    {486, "Allocation Quota Reached"},        /* turn-07 */
-    {487, "Role Conflict"},                   /* rfc5245 */
-    {500, "Server Error"},                    /* rfc3489bis-15 */
-    {503, "Service Unavailable"},             /* nat-behavior-discovery-03 */
-    {507, "Insufficient Bandwidth Capacity"}, /* turn-07 */
-    {508, "Insufficient Port Capacity"},      /* turn-07 */
-    {600, "Global Failure"},
+    {300, "Try Alternate"},                   /* RFC8489 */
+    {400, "Bad Request"},                     /* RFC8489 */
+    {401, "Unauthenticated"},                 /* RFC8489, RFC3489+MS-TURN: Unauthorized */
+    {403, "Forbidden"},                       /* RFC8656 */
+    {405, "Mobility Forbidden"},              /* RFC8016 */
+    {420, "Unknown Attribute"},               /* RFC8489 */
+    {430, "Stale Credentials (legacy)"},      /* RFC3489 */
+    {431, "Integrity Check Failure (legacy)"}, /* RFC3489 */
+    {432, "Missing Username (legacy)"},       /* RFC3489 */
+    {433, "Use TLS (legacy)"},                /* RFC3489 */
+    {434, "Missing Realm (legacy)"},          /* MS-TURN */
+    {435, "Missing Nonce (legacy)"},          /* MS-TURN */
+    {436, "Unknown User (legacy)"},           /* MS-TURN */
+    {437, "Allocation Mismatch"},             /* RFC8656 */
+    {438, "Stale Nonce"},                     /* RFC8489 */
+    {439, "Wrong Credentials (legacy)"},      /* turn-07 */
+    {440, "Address Family not Supported"},    /* RFC8656 */
+    {441, "Wrong Credentials"},               /* RFC8656 */
+    {442, "Unsupported Transport Protocol"},  /* RFC8656 */
+    {443, "Peer Address Family Mismatch"},    /* RFC8656 */
+    {446, "Connection Already Exists"},       /* RFC6062 */
+    {447, "Connection Timeout or Failure"},   /* RFC6062 */
+    {481, "Connection does not exist (legacy)"}, /* nat-behavior-discovery-03 */
+    {486, "Allocation Quota Reached"},        /* RFC8656 */
+    {487, "Role Conflict"},                   /* RFC8445 */
+    {500, "Server Error"},                    /* RFC8489 */
+    {503, "Service Unavailable (legacy)"},    /* nat-behavior-discovery-03 */
+    {507, "Insufficient Bandwidth Capacity (legacy)"}, /* turn-07 */
+    {508, "Insufficient Port Capacity"},      /* RFC8656 */
+    {600, "Global Failure"},                  /* RFC8656 */
     {0x00, NULL}
 };
 static value_string_ext error_code_ext = VALUE_STRING_EXT_INIT(error_code);
@@ -654,8 +712,8 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
     guint16     msg_type_class;
     const char *msg_class_str;
     const char *msg_method_str;
-    guint16     att_type;
-    guint16     att_length, clear_port;
+    guint16     att_type, att_type_display;
+    guint16     att_length, att_length_pad, clear_port;
     guint32     clear_ip;
     guint       i;
     guint       offset;
@@ -922,12 +980,20 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
         att_all_tree = proto_item_add_subtree(ti, ett_stun_att_all);
 
         while (offset < (STUN_HDR_LEN + msg_length)) {
-            att_type = tvb_get_ntohs(tvb, offset);     /* Type field in attribute header */
-            att_length = tvb_get_ntohs(tvb, offset+2); /* Length field in attribute header */
-            attribute_name_str = val_to_str_ext_const(att_type, &attributes_ext, "Unknown");
+            att_type = tvb_get_ntohs(tvb, offset);     /* Attribute type field in attribute header */
+            att_length = tvb_get_ntohs(tvb, offset+2); /* Attribute length field in attribute header */
+            if (stun_network_version >= NET_VER_5389)
+                att_length_pad = (att_length + 3) & ~3; /* Attribute length including padding */
+            else
+                att_length_pad = att_length;
+            att_type_display = att_type;
+            /* Early drafts and MS-TURN use swapped numbers to later versions */
+            if ((stun_network_version < NET_VER_3489) && (att_type == 0x0014 || att_type == 0x0015))
+                att_type_display ^= 1;
+            attribute_name_str = val_to_str_ext_const(att_type_display, &attributes_ext, "Unknown");
             if(att_all_tree){
                 ti = proto_tree_add_uint_format(att_all_tree, hf_stun_attr,
-                                                tvb, offset, ATTR_HDR_LEN+att_length,
+                                                tvb, offset, ATTR_HDR_LEN+att_length_pad,
                                                 att_type, "%s", attribute_name_str);
                 att_tree = proto_item_add_subtree(ti, ett_stun_att);
                 ti = proto_tree_add_uint(att_tree, hf_stun_att_type, tvb,
@@ -936,12 +1002,12 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                 proto_tree_add_uint(att_type_tree, hf_stun_att_type_comprehension, tvb, offset, 2, att_type);
                 proto_tree_add_uint(att_type_tree, hf_stun_att_type_assignment, tvb, offset, 2, att_type);
 
-                if ((offset+ATTR_HDR_LEN+att_length) > (STUN_HDR_LEN+msg_length+tcp_framing_offset)) {
+                if ((offset+ATTR_HDR_LEN+att_length_pad) > (STUN_HDR_LEN+msg_length+tcp_framing_offset)) {
                     proto_tree_add_uint_format_value(att_tree,
                                                      hf_stun_att_length, tvb, offset+2, 2,
-                                                     att_length,
+                                                     att_length_pad,
                                                      "%u (bogus, goes past the end of the message)",
-                                                     att_length);
+                                                     att_length_pad);
                     break;
                 }
             }
@@ -951,7 +1017,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                                 offset, 2, att_length);
             offset += 2;
 
-            switch (att_type) {
+            switch (att_type_display) {
 
                 /* Deprecated STUN RFC3489 attributes */
             case RESPONSE_ADDRESS:
@@ -989,11 +1055,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                 /* Deprecated STUN RFC3489 attributes */
             case PASSWORD:
                 {
-                const guint8* dep_password;
-                proto_tree_add_item_ret_string(att_tree, hf_stun_att_password, tvb, offset, att_length, ENC_UTF_8|ENC_NA, wmem_packet_scope(), &dep_password);
-                proto_item_append_text(att_tree, " (Deprecated): %s", dep_password);
-                if (att_length % 4 != 0)
-                    proto_tree_add_uint(att_tree, hf_stun_att_padding, tvb, offset+att_length, 4-(att_length % 4), 4-(att_length % 4));
+                proto_tree_add_item(att_tree, hf_stun_att_password, tvb, offset, att_length, ENC_NA);
                 }
                 break;
 
@@ -1059,17 +1121,15 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
 
             case USERNAME:
             {
-                const guint8 *user_name_str;
+                if (stun_network_version >  NET_VER_3489) {
+                    const guint8 *user_name_str;
 
-                proto_tree_add_item_ret_string(att_tree, hf_stun_att_username, tvb, offset, att_length, ENC_UTF_8|ENC_NA, wmem_packet_scope(), &user_name_str);
-                proto_item_append_text(att_tree, ": %s", user_name_str);
-                col_append_fstr(
-                    pinfo->cinfo, COL_INFO,
-                    " user: %s",
-                    user_name_str);
-
-                if (att_length % 4 != 0)
-                    proto_tree_add_uint(att_tree, hf_stun_att_padding, tvb, offset+att_length, 4-(att_length % 4), 4-(att_length % 4));
+                    proto_tree_add_item_ret_string(att_tree, hf_stun_att_username, tvb, offset, att_length, ENC_UTF_8|ENC_NA, wmem_packet_scope(), &user_name_str);
+                    proto_item_append_text(att_tree, ": %s", user_name_str);
+                    col_append_fstr( pinfo->cinfo, COL_INFO, " user: %s", user_name_str);
+                } else {
+                    proto_tree_add_item(att_tree, hf_stun_att_username_opaque, tvb, offset, att_length, ENC_NA);
+                }
                 break;
             }
             case MESSAGE_INTEGRITY:
@@ -1113,16 +1173,11 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                 proto_item_append_text(att_tree, ": %s", error_reas_str);
                 col_append_fstr(pinfo->cinfo, COL_INFO, " %s", error_reas_str);
                 }
-
-                if (att_length % 4 != 0)
-                    proto_tree_add_uint(att_tree, hf_stun_att_padding, tvb, offset+att_length, 4-(att_length % 4), 4-(att_length % 4));
                 break;
 
             case UNKNOWN_ATTRIBUTES:
                 for (i = 0; i < att_length; i += 2)
                     proto_tree_add_item(att_tree, hf_stun_att_unknown, tvb, offset+i, 2, ENC_BIG_ENDIAN);
-                if (att_length % 4 != 0)
-                    proto_tree_add_uint(att_tree, hf_stun_att_padding, tvb, offset+att_length, 4-(att_length % 4), 4-(att_length % 4));
                 break;
 
             case REALM:
@@ -1131,8 +1186,6 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                 proto_tree_add_item_ret_string(att_tree, hf_stun_att_realm, tvb, offset, att_length, ENC_UTF_8|ENC_NA, wmem_packet_scope(), &realm_str);
                 proto_item_append_text(att_tree, ": %s", realm_str);
                 col_append_fstr(pinfo->cinfo, COL_INFO, " realm: %s", realm_str);
-                if (att_length % 4 != 0)
-                    proto_tree_add_uint(att_tree, hf_stun_att_padding, tvb, offset+att_length, 4-(att_length % 4), 4-(att_length % 4));
                 break;
             }
             case NONCE:
@@ -1141,8 +1194,6 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                 proto_tree_add_item_ret_string(att_tree, hf_stun_att_nonce, tvb, offset, att_length, ENC_UTF_8|ENC_NA, wmem_packet_scope(), &nonce_str);
                 proto_item_append_text(att_tree, ": %s", nonce_str);
                 col_append_str(pinfo->cinfo, COL_INFO, " with nonce");
-                if (att_length % 4 != 0)
-                    proto_tree_add_uint(att_tree, hf_stun_att_padding, tvb, offset+att_length, 4-(att_length % 4), 4-(att_length % 4));
                 break;
             }
 
@@ -1281,8 +1332,6 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
 
             case SOFTWARE:
                 proto_tree_add_item(att_tree, hf_stun_att_software, tvb, offset, att_length, ENC_UTF_8|ENC_NA);
-                if (att_length % 4 != 0)
-                    proto_tree_add_uint(att_tree, hf_stun_att_padding, tvb, offset+att_length, 4-(att_length % 4), 4-(att_length % 4));
                 break;
 
             case CACHE_TIMEOUT:
@@ -1308,11 +1357,6 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                 if (att_length > 0) {
                     tvbuff_t *next_tvb;
                     proto_tree_add_item(att_tree, hf_stun_att_value, tvb, offset, att_length, ENC_NA);
-                    if (att_length % 4 != 0) {
-                        guint pad;
-                        pad = 4-(att_length % 4);
-                        proto_tree_add_uint(att_tree, hf_stun_att_padding, tvb, offset+att_length, pad, pad);
-                    }
 
                     next_tvb = tvb_new_subset_length(tvb, offset, att_length);
 
@@ -1449,12 +1493,12 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
             default:
                 if (att_length > 0)
                     proto_tree_add_item(att_tree, hf_stun_att_value, tvb, offset, att_length, ENC_NA);
-                if (att_length % 4 != 0)
-                    proto_tree_add_uint(att_tree, hf_stun_att_padding, tvb,
-                                        offset+att_length, 4-(att_length % 4), 4-(att_length % 4));
                 break;
             }
-            offset += (att_length+3) & ~0x3;
+
+            if ((stun_network_version >= NET_VER_5389) && (att_length < att_length_pad))
+                proto_tree_add_uint(att_tree, hf_stun_att_padding, tvb, offset+att_length, att_length_pad-att_length, att_length_pad-att_length);
+            offset += att_length_pad;
         }
     }
 
@@ -1623,8 +1667,12 @@ proto_register_stun(void)
           { "Username", "stun.att.username", FT_STRING,
             BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
+        { &hf_stun_att_username_opaque,
+          { "Username", "stun.att.username", FT_BYTES,
+            BASE_NONE, NULL, 0x0, NULL, HFILL }
+        },
         { &hf_stun_att_password,
-          { "Password", "stun.att.password", FT_STRING,
+          { "Password", "stun.att.password", FT_BYTES,
             BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
         { &hf_stun_att_padding,
@@ -1697,7 +1745,7 @@ proto_register_stun(void)
         },
         { &hf_stun_att_lifetime,
           { "Lifetime", "stun.att.lifetime", FT_UINT32,
-            BASE_DEC, NULL, 0x0, "Session time remaining (seconds)", HFILL}
+            BASE_DEC, NULL, 0x0, "Session idle time remaining (seconds)", HFILL}
          },
         { &hf_stun_att_change_ip,
           { "Change IP","stun.att.change-ip", FT_BOOLEAN,
@@ -1847,6 +1895,8 @@ proto_register_stun(void)
         &ett_stun_att_type,
     };
 
+    module_t *stun_module;
+
     /* Register the protocol name and description */
     proto_stun = proto_register_protocol("Session Traversal Utilities for NAT", "STUN", "stun");
 
@@ -1860,6 +1910,15 @@ proto_register_stun(void)
     register_dissector("stun-tcp", dissect_stun_tcp, proto_stun);
     register_dissector("stun-udp", dissect_stun_udp, proto_stun);
     register_dissector("stun-heur", dissect_stun_heur_udp, proto_stun);
+
+    /* Register preferences */
+    stun_module = prefs_register_protocol(proto_stun, NULL);
+    prefs_register_enum_preference(stun_module,
+        "stunversion", "Stun Version", "Stun Version on the Network",
+                                       &stun_network_version,
+                                       stun_network_version_vals,
+                                       FALSE);
+
 }
 
 void
