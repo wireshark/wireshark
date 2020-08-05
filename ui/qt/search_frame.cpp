@@ -274,9 +274,6 @@ void SearchFrame::updateWidgets()
         return;
     }
 
-    // Enable completion only for display filter search.
-    sf_ui_->searchLineEdit->allowCompletion(search_type == df_search_);
-
     if (sf_ui_->searchLineEdit->text().isEmpty() || sf_ui_->searchLineEdit->syntaxState() == SyntaxLineEdit::Invalid) {
         sf_ui_->findButton->setEnabled(false);
     } else {
@@ -343,7 +340,16 @@ void SearchFrame::on_searchTypeComboBox_currentIndexChanged(int idx)
         break;
     }
 
-    wsApp->popStatus(WiresharkApplication::FilterSyntax);
+    // Enable completion only for display filter search.
+    sf_ui_->searchLineEdit->allowCompletion(idx == df_search_);
+
+    if (idx == df_search_) {
+        sf_ui_->searchLineEdit->checkFilter();
+    } else {
+        sf_ui_->searchLineEdit->setToolTip(QString());
+        wsApp->popStatus(WiresharkApplication::FilterSyntax);
+    }
+
     updateWidgets();
 }
 

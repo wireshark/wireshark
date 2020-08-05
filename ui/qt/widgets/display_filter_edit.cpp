@@ -341,8 +341,8 @@ void DisplayFilterEdit::checkFilter(const QString& filter_text)
     }
 
     emit popFilterSyntaxStatus();
-    setToolTip(QString());
-    checkDisplayFilter(filter_text);
+    if (!checkDisplayFilter(filter_text))
+        return;
 
     switch (syntaxState()) {
     case Deprecated:
@@ -359,6 +359,7 @@ void DisplayFilterEdit::checkFilter(const QString& filter_text)
         break;
     }
     default:
+        setToolTip(QString());
         break;
     }
 

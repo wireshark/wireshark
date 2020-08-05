@@ -155,15 +155,15 @@ void SyntaxLineEdit::insertFilter(const QString &filter)
     insert(padded_filter);
 }
 
-void SyntaxLineEdit::checkDisplayFilter(QString filter)
+bool SyntaxLineEdit::checkDisplayFilter(QString filter)
 {
     if (!completion_enabled_) {
-        return;
+        return false;
     }
 
     if (filter.isEmpty()) {
         setSyntaxState(SyntaxLineEdit::Empty);
-        return;
+        return true;
     }
 
     dfilter_t *dfp = NULL;
@@ -200,6 +200,8 @@ void SyntaxLineEdit::checkDisplayFilter(QString filter)
         g_free(err_msg);
     }
     dfilter_free(dfp);
+
+    return true;
 }
 
 void SyntaxLineEdit::checkFieldName(QString field)
