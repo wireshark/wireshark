@@ -338,6 +338,7 @@ void SearchFrame::on_searchTypeComboBox_currentIndexChanged(int idx)
         break;
     }
 
+    wsApp->popStatus(WiresharkApplication::FilterSyntax);
     updateWidgets();
 }
 
@@ -502,6 +503,7 @@ void SearchFrame::on_findButton_clicked()
 
 void SearchFrame::on_cancelButton_clicked()
 {
+    wsApp->popStatus(WiresharkApplication::FilterSyntax);
     animatedHide();
 }
 
