@@ -7479,7 +7479,8 @@ dissect_pfcp_nf_instance_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     offset += 2;
 
     /* Octet 5 to 20    NF Instance ID */
-    proto_tree_add_item_ret_uint(tree, hf_pfcp_nf_instance_id, tvb, offset, 1, ENC_BIG_ENDIAN, &id_length);
+    proto_tree_add_item(tree, hf_pfcp_nf_instance_id, tvb, offset, id_length, ENC_NA);
+    offset += id_length;
 
     if (offset < length) {
         proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, length);
