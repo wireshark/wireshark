@@ -161,8 +161,8 @@ static int                    verbose                   = 0;  /* Not so verbose 
 static struct time_adjustment time_adj                  = {NSTIME_INIT_ZERO, 0}; /* no adjustment */
 static nstime_t               relative_time_window      = NSTIME_INIT_ZERO; /* de-dup time window */
 static double                 err_prob                  = -1.0;
-static time_t                 starttime                 = 0;
-static time_t                 stoptime                  = 0;
+static nstime_t               starttime                 = NSTIME_INIT_ZERO;
+static nstime_t               stoptime                  = NSTIME_INIT_ZERO;
 static gboolean               check_startstop           = FALSE;
 static gboolean               rem_vlan                  = FALSE;
 static gboolean               dup_detect                = FALSE;
@@ -755,9 +755,9 @@ print_usage(FILE *output)
     fprintf(output, "Packet selection:\n");
     fprintf(output, "  -r                     keep the selected packets; default is to delete them.\n");
     fprintf(output, "  -A <start time>        only output packets whose timestamp is after (or equal\n");
-    fprintf(output, "                         to) the given time (format as YYYY-MM-DD hh:mm:ss).\n");
+    fprintf(output, "                         to) the given time (format as YYYY-MM-DD hh:mm:ss[.nnnnnnnnn]).\n");
     fprintf(output, "  -B <stop time>         only output packets whose timestamp is before the\n");
-    fprintf(output, "                         given time (format as YYYY-MM-DD hh:mm:ss).\n");
+    fprintf(output, "                         given time (format as YYYY-MM-DD hh:mm:ss[.nnnnnnnnn]).\n");
     fprintf(output, "\n");
     fprintf(output, "Duplicate packet removal:\n");
     fprintf(output, "  --novlan               remove vlan info from packets before checking for duplicates.\n");
@@ -1184,41 +1184,66 @@ main(int argc, char *argv[])
         }
 
         case 'A':
-        {
-            struct tm starttm;
-
-            memset(&starttm,0,sizeof(struct tm));
-
-            if (!strptime(optarg,"%Y-%m-%d %T", &starttm)) {
-                fprintf(stderr, "editcap: \"%s\" isn't a valid time format\n\n",
-                        optarg);
-                ret = INVALID_OPTION;
-                goto clean_exit;
-            }
-
-            check_startstop = TRUE;
-            starttm.tm_isdst = -1;
-
-            starttime = mktime(&starttm);
-            break;
-        }
-
         case 'B':
         {
-            struct tm stoptm;
+#define NSEC_MAXLEN 9
+            struct tm st_tm;
+            int nsec = 0;
+            char *och;
 
-            memset(&stoptm,0,sizeof(struct tm));
+            memset(&st_tm,0,sizeof(struct tm));
 
-            if (!strptime(optarg,"%Y-%m-%d %T", &stoptm)) {
-                fprintf(stderr, "editcap: \"%s\" isn't a valid time format\n\n",
-                        optarg);
-                ret = INVALID_OPTION;
-                goto clean_exit;
+            if (!(och=strptime(optarg,"%Y-%m-%d %T", &st_tm))) {
+                goto invalid_time;
             }
+
+            /* Sub-second support: see if the time is followed by a '.' */
+            if (och != NULL && *och != '\0') {
+                char *c;
+                char subsec[NSEC_MAXLEN+1] = "";
+                int nchars;
+
+                if (*och != '.') {
+                    goto invalid_time;
+                }
+                och++;
+                c = subsec;
+
+                /* Ensure that only 1-9 digits follow the '.' */
+                for (nchars = 0; *och != '\0' && nchars < NSEC_MAXLEN; nchars++) {
+                    if (!g_ascii_isdigit(*och)) {
+                        goto invalid_time;
+                    }
+                    *c++ = *och++;
+                }
+                if (*och != '\0') {
+                    goto invalid_time;
+                }
+                /* Right-pad what we do have, so eg. 5 = 500,000,000 ns */
+                for (; nchars < NSEC_MAXLEN; nchars++) {
+                    *c++ = '0';
+                }
+                *c = '\0';
+                nsec = strtol(subsec, NULL, 10);
+            }
+
             check_startstop = TRUE;
-            stoptm.tm_isdst = -1;
-            stoptime = mktime(&stoptm);
+            st_tm.tm_isdst = -1;
+
+            if (opt == 'A') {
+                starttime.secs = mktime(&st_tm);
+                starttime.nsecs = nsec;
+            } else {
+                stoptime.secs = mktime(&st_tm);
+                stoptime.nsecs = nsec;
+            }
             break;
+
+invalid_time:
+            fprintf(stderr, "editcap: \"%s\" isn't a valid time format\n\n",
+                    optarg);
+            ret = INVALID_OPTION;
+            goto clean_exit;
         }
 
         case 'c':
@@ -1433,7 +1458,7 @@ main(int argc, char *argv[])
         srand(seed);
     }
 
-    if (starttime > stoptime) {
+    if (nstime_cmp(&starttime, &stoptime) > 0) {
         fprintf(stderr, "editcap: start time is after the stop time\n");
         ret = INVALID_OPTION;
         goto clean_exit;
@@ -1677,12 +1702,13 @@ main(int argc, char *argv[])
              * If the packet has no time stamp, the answer is "no".
              */
             if (rec->presence_flags & WTAP_HAS_TS) {
-                if (starttime && stoptime) {
-                    ts_okay = (rec->ts.secs >= starttime) && (rec->ts.secs < stoptime);
-                } else if (starttime) {
-                    ts_okay = rec->ts.secs >= starttime;
-                } else if (stoptime) {
-                    ts_okay = rec->ts.secs < stoptime;
+                if (!nstime_is_zero(&starttime) && !nstime_is_zero(&stoptime)) {
+                    ts_okay = nstime_cmp(&rec->ts, &starttime) >= 0 &&
+                              nstime_cmp(&rec->ts, &stoptime) < 0;
+                } else if (!nstime_is_zero(&starttime)) {
+                    ts_okay = nstime_cmp(&rec->ts, &starttime) >= 0;
+                } else if (!nstime_is_zero(&stoptime)) {
+                    ts_okay = nstime_cmp(&rec->ts, &stoptime) < 0;
                 }
             }
         } else {

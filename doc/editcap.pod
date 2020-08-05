@@ -96,12 +96,14 @@ strings that include spaces.
 =item -A  E<lt>start timeE<gt>
 
 Saves only the packets whose timestamp is on or after start time.
-The time is given in the following format YYYY-MM-DD HH:MM:SS
+The time is given in the following format YYYY-MM-DD HH:MM:SS[.nnnnnnnnn]
+(the decimal and fractional seconds are optional).
 
 =item -B  E<lt>stop timeE<gt>
 
 Saves only the packets whose timestamp is before stop time.
-The time is given in the following format YYYY-MM-DD HH:MM:SS
+The time is given in the following format YYYY-MM-DD HH:MM:SS[.nnnnnnnnn]
+(the decimal and fractional seconds are optional).
 
 =item -c  E<lt>packets per fileE<gt>
 
