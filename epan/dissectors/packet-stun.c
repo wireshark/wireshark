@@ -52,6 +52,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/to_str.h>
 #include "packet-tcp.h"
 
@@ -60,26 +61,33 @@ void proto_reg_handoff_stun(void);
 
 /* Dissection relevant differences between STUN/TURN specification documents
  *
- *  Aspect   | MS-TURN 15.1       | RFC 3489           |RFC 5389            |
- * ==========================================================================
- *  Message  | 0b00+14-bit        | 16-bit             | 0b00+14-bit, type= |
- *  Type     | No class or method | No class or method | class+method       |
- * --------------------------------------------------------------------------
- *  Transac- | 128 bits, seen     | 128 bits           | 32 bit Magic +     |
- *  tion ID  | with MAGIC as well |                    | 96 bit Trans ID    |
- * --------------------------------------------------------------------------
- *  Padding  | No Attribute Pad   | No Attribute Pad   | Pad to 32 bits     |
- *           |                    |                    | Att. Len excl. Pad |
- *           |                    |                    | Msg. Len incl. Pad |
- *           |                    |                    |  -> MLen & 3 == 0  |
- * --------------------------------------------------------------------------
- *  Username | Opaque             | Opaque             | UTF-8 String       |
- * --------------------------------------------------------------------------
- *  Password | Opaque             | Deprecated         | Deprecated         |
- * --------------------------------------------------------------------------
- *  NONCE &  | 0x0014             | 0x0015             | 0x0015             |
- *  REALM    | 0x0015             | 0x0014             | 0x0014             |
- * --------------------------------------------------------------------------
+ *  Aspect   | MS-TURN 15.1       | RFC 3489           | RFC 5389           | RFC 8489 (*1)      |
+ * ===============================================================================================
+ *  Message  | 0b00+14-bit        | 16-bit             | 0b00+14-bit, type= |                    |
+ *  Type     | No class or method | No class or method | class+method       |                    |
+ * -----------------------------------------------------------------------------------------------
+ *  Transac- | 128 bits, seen     | 128 bits           | 32 bit Magic +     |                    |
+ *  tion ID  | with MAGIC as well |                    | 96 bit Trans ID    |                    |
+ * -----------------------------------------------------------------------------------------------
+ *  Padding  | No Attribute Pad   | No Attribute Pad   | Pad to 32 bits     |                    |
+ *           |                    |                    | Att. Len excl. Pad |                    |
+ *           |                    |                    | Msg. Len incl. Pad |                    |
+ *           |                    |                    |  -> MLen & 3 == 0  |                    |
+ *           |                    |                    | Pad value: any     | Pad value: MBZ     |
+ * -----------------------------------------------------------------------------------------------
+ *  (XOR-)   | Write: Any value   | Write: Any value   | Write: MBZ         |                    |
+ *  MAP-ADDR | Read : Ignored     | Read : Ignored     | Read : Ignored     |                    |
+ *  1st byte |                    |                    |                    |                    |
+ * -----------------------------------------------------------------------------------------------
+ *  Username | Opaque             | Opaque             | UTF-8 String       |                    |
+ * -----------------------------------------------------------------------------------------------
+ *  Password | Opaque             | Deprecated         | Deprecated         |                    |
+ * -----------------------------------------------------------------------------------------------
+ *  NONCE &  | 0x0014             | 0x0015             | 0x0015             |                    |
+ *  REALM    | 0x0015             | 0x0014             | 0x0014             |                    |
+ * -----------------------------------------------------------------------------------------------
+ *
+ * *1: Only where different from RFC 5389
  */
 
 enum {
@@ -160,6 +168,9 @@ static int hf_stun_att_change_ip = -1;
 static int hf_stun_att_change_port = -1;
 static int hf_stun_att_cache_timeout = -1;
 static int hf_stun_att_token = -1;
+static int hf_stun_att_pw_alg = -1;
+static int hf_stun_att_pw_alg_param_len = -1;
+static int hf_stun_att_pw_alg_param_data = -1;
 static int hf_stun_att_reserve_next = -1;
 static int hf_stun_att_reserved = -1;
 static int hf_stun_att_value = -1;
@@ -191,6 +202,11 @@ static int hf_stun_att_sip_call_id = -1;
 static int hf_stun_att_lp_peer_location = -1;
 static int hf_stun_att_lp_self_location = -1;
 static int hf_stun_att_lp_federation = -1;
+
+/* Expert items */
+static expert_field ei_stun_short_packet = EI_INIT;
+static expert_field ei_stun_long_attribute = EI_INIT;
+
 /* Structure containing transaction specific information */
 typedef struct _stun_transaction_t {
     guint32 req_frame;
@@ -518,14 +534,6 @@ static const value_string attributes_reserve_next[] = {
     {0x00, NULL}
 };
 
-#if 0
-static const value_string attributes_properties_p[] = {
-    {0, "All allocation"},
-    {1, "Preserving allocation"},
-    {0x00, NULL}
-};
-#endif
-
 static const value_string attributes_family[] = {
     {0x0001, "IPv4"},
     {0x0002, "IPv6"},
@@ -615,14 +623,12 @@ static const value_string federation_vals[] = {
     {0x00, NULL}
 };
 
-#if 0
 static const value_string password_algorithm_vals[] = {
     {0x0000, "Reserved"},
     {0x0001, "MD5"},
     {0x0002, "SHA-256"},
     {0x0000, NULL}
 };
-#endif
 
 static guint
 get_stun_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
@@ -1196,7 +1202,43 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                 col_append_str(pinfo->cinfo, COL_INFO, " with nonce");
                 break;
             }
+            case PASSWORD_ALGORITHM:
+            case PASSWORD_ALGORITHMS:
+            {
+                gint alg, alg_param_len, alg_param_len_pad;
+                gint remaining = att_length;
+                while (remaining > 0) {
+                   guint loopoffset = offset + att_length - remaining;
+                   if (remaining < 4) {
+                       proto_tree_add_expert_format(att_tree, pinfo, &ei_stun_short_packet, tvb,
+                           loopoffset, remaining, "Too few bytes left for TLV header (%d < 4)", remaining);
+                       break;
+                   }
+                   proto_tree_add_item_ret_int(att_tree, hf_stun_att_pw_alg, tvb, loopoffset, 2, ENC_BIG_ENDIAN, &alg);
+                   proto_tree_add_item_ret_int(att_tree, hf_stun_att_pw_alg_param_len, tvb, loopoffset+2, 2, ENC_BIG_ENDIAN, &alg_param_len);
+                   if (alg_param_len > 0) {
+                       if (alg_param_len+4 >= remaining)
+                           proto_tree_add_item(att_tree, hf_stun_att_pw_alg_param_data, tvb, loopoffset+4, alg_param_len, ENC_NA);
+                       else {
+                           proto_tree_add_expert_format(att_tree, pinfo, &ei_stun_short_packet, tvb,
+                                loopoffset, remaining, "Too few bytes left for parameter data (%d < %d)", remaining-4, alg_param_len);
+                           break;
+                       }
+                   }
+                   /* Hopefully, in case MS-TURN ever gets PASSWORD-ALGORITHM(S) support they will add it with padding */
+                   alg_param_len_pad = (alg_param_len + 3) & ~3;
 
+                   if (alg_param_len < alg_param_len_pad)
+                       proto_tree_add_uint(att_tree, hf_stun_att_padding, tvb, loopoffset+alg_param_len, alg_param_len_pad-alg_param_len, alg_param_len_pad-alg_param_len);
+                   remaining -= (alg_param_len_pad + 4);
+                   if ((att_type_display == PASSWORD_ALGORITHM) && (remaining > 0)) {
+                       proto_tree_add_expert_format(att_tree, pinfo, &ei_stun_long_attribute, tvb,
+                           loopoffset, remaining, " (PASSWORD-ALGORITHM)");
+                       /* Continue anyway */
+                   }
+                }
+                break;
+            }
             case XOR_MAPPED_ADDRESS:
             case XOR_PEER_ADDRESS:
             case XOR_RELAYED_ADDRESS:
@@ -1755,6 +1797,18 @@ proto_register_stun(void)
           { "Change Port","stun.att.change-port", FT_BOOLEAN,
             16, TFS(&tfs_set_notset), 0x0002, NULL, HFILL}
         },
+        { &hf_stun_att_pw_alg,
+          { "Password Algorithm", "stun.att.pw_alg", FT_UINT16,
+            BASE_DEC, VALS(password_algorithm_vals), 0x0, NULL, HFILL }
+        },
+        { &hf_stun_att_pw_alg_param_len,
+          { "Password Algorithm Length", "stun.att.pw_alg_len", FT_UINT16,
+            BASE_DEC, NULL, 0x0, NULL, HFILL }
+        },
+        { &hf_stun_att_pw_alg_param_data,
+          { "Password Algorithm Data", "stun.att.pw_alg_data", FT_BYTES,
+            BASE_NONE, NULL, 0x0, NULL, HFILL }
+        },
         { &hf_stun_att_reserve_next,
           { "Reserve next","stun.att.even-port.reserve-next", FT_UINT8,
             BASE_DEC, VALS(attributes_reserve_next), 0x80, NULL, HFILL}
@@ -1895,7 +1949,16 @@ proto_register_stun(void)
         &ett_stun_att_type,
     };
 
+    static ei_register_info ei[] = {
+        { &ei_stun_short_packet,
+        { "stun.short_packet", PI_MALFORMED, PI_ERROR, "Packet is too short", EXPFILL }},
+
+        { &ei_stun_long_attribute,
+        { "stun.long_attribute", PI_MALFORMED, PI_WARN, "Attribute has trailing data", EXPFILL }},
+    };
+
     module_t *stun_module;
+    expert_module_t* expert_stun;
 
     /* Register the protocol name and description */
     proto_stun = proto_register_protocol("Session Traversal Utilities for NAT", "STUN", "stun");
@@ -1919,6 +1982,8 @@ proto_register_stun(void)
                                        stun_network_version_vals,
                                        FALSE);
 
+    expert_stun = expert_register_protocol(proto_stun);
+    expert_register_field_array(expert_stun, ei, array_length(ei));
 }
 
 void
