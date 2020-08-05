@@ -1063,6 +1063,7 @@ static dissector_handle_t bthci_cmd_handle;
 static dissector_handle_t btmesh_handle;
 static dissector_handle_t btmesh_pbadv_handle;
 static dissector_handle_t btmesh_beacon_handle;
+static dissector_handle_t gaen_handle;
 
 static dissector_table_t  bluetooth_eir_ad_manufacturer_company_id;
 static dissector_table_t  bluetooth_eir_ad_tds_organization_id;
@@ -8997,7 +8998,16 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
             offset += 2;
 
             if (length - 2 > 0) {
-                proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_service_data, tvb, offset, length - 2, ENC_NA);
+                uuid = get_uuid(tvb, offset-2, 2);
+                /* XXX A dissector table should be used here if we get many of these*/
+                if (uuid.bt_uuid == 0xFD6F) /* GAEN Identifier */
+                {
+                    call_dissector(gaen_handle, tvb, pinfo, entry_tree);
+                }
+                else
+                {
+                    proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_service_data, tvb, offset, length - 2, ENC_NA);
+                }
                 offset += length - 2;
             }
             break;
@@ -10512,7 +10522,11 @@ proto_reg_handoff_btcommon(void)
     btmesh_handle = find_dissector("btmesh.msg");
     btmesh_pbadv_handle = find_dissector("btmesh.pbadv");
     btmesh_beacon_handle = find_dissector("btmesh.beacon");
+    gaen_handle = find_dissector("bluetooth.gaen");
 }
+
+
+
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *

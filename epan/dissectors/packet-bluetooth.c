@@ -663,6 +663,7 @@ const value_string bluetooth_uuid_vals[] = {
     { 0x2B37,   "Registered User Characteristic" },
     { 0x2B3A,   "Server Supported Features" },
     /*  16-bit UUID for Members - https://www.bluetooth.com/specifications/assigned-numbers/16-bit-uuids-for-members */
+    { 0xFD6F,   "Google/Apple Exposure Notification Service" },
     { 0xFD71,   "GN Hearing A/S" },
     { 0xFD72,   "Logitech International SA" },
     { 0xFD73,   "BRControls Products BV" },
@@ -4168,6 +4169,82 @@ void
 proto_reg_handoff_btad_alt_beacon(void)
 {
     dissector_add_for_decode_as("btcommon.eir_ad.manufacturer_company_id", btad_alt_beacon);
+}
+
+static int proto_btad_gaen = -1;
+
+static int hf_btad_gaen_rpi128 = -1;
+static int hf_btad_gaen_aemd32 = -1;
+
+static gint ett_btad_gaen = -1;
+
+static dissector_handle_t btad_gaen;
+
+void proto_register_btad_gaen(void);
+void proto_reg_handoff_btad_gaen(void);
+
+static gint
+dissect_btad_gaen(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_tree       *main_tree;
+    proto_item       *main_item;
+    gint             offset = 0;
+
+    /* The "Service Data" blob of data has the following format for GAEN:
+    1 byte: length (0x17)
+    1 byte: Type (0x16)
+    2 bytes: Identifier (should be 0xFD6F again)
+    16 bytes: Rolling Proximity Identifier
+    4 bytes: Associated Encrypted Metadata (Encrypted in AES-CTR mode)
+    1 byte: Version
+    1 byte: Power level
+    2 bytes: Reserved for future use.
+
+    We want to skip everything before the last 20 bytes, because it'll be handled by other parts of the BTLE dissector. */
+    offset = tvb_captured_length(tvb) - 20;
+
+    main_item = proto_tree_add_item(tree, proto_btad_gaen, tvb, offset, -1, ENC_NA);
+    main_tree = proto_item_add_subtree(main_item, ett_btad_gaen);
+
+    proto_tree_add_item(main_tree, hf_btad_gaen_rpi128, tvb, offset, 16, ENC_NA);
+    offset += 16;
+
+    proto_tree_add_item(main_tree, hf_btad_gaen_aemd32, tvb, offset, 4, ENC_NA);
+    offset += 4;
+
+    return offset;
+}
+
+void
+proto_register_btad_gaen(void)
+{
+    static hf_register_info hf[] = {
+        { &hf_btad_gaen_rpi128,
+    { "Rolling Proximity Identifier",    "bluetooth.gaen.rpi",
+    FT_BYTES, BASE_NONE, NULL, 0x0,
+    NULL, HFILL }
+        },
+    { &hf_btad_gaen_aemd32,
+    { "Associated Encrypted Metadata",   "bluetooth.gaen.aemd",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    }
+    };
+
+    static gint *ett[] = {
+        &ett_btad_gaen,
+    };
+
+    proto_btad_gaen = proto_register_protocol("Google/Apple Exposure Notification", "Google/Apple Exposure Notification", "bluetooth.gaen");
+    proto_register_field_array(proto_btad_gaen, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
+    btad_gaen = register_dissector("bluetooth.gaen", dissect_btad_gaen, proto_btad_gaen);
+}
+
+void
+proto_reg_handoff_btad_gaen(void)
+{
+    dissector_add_for_decode_as("btcommon.eir_ad.manufacturer_company_id", btad_gaen);
 }
 
 /*
