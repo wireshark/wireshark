@@ -1629,7 +1629,7 @@ static int
 dissect_local_interface_list(tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree *tree, guint offset, guint8 count)
 {
-    guint index = 0;
+    guint lil_index = 0;
     guint media_type_offset = 0;
     proto_item *pi = NULL;
     proto_tree *dev_tree = NULL;
@@ -1640,7 +1640,7 @@ dissect_local_interface_list(tvbuff_t *tvb, packet_info *pinfo _U_,
         dev_tree = proto_tree_add_subtree_format(tree, tvb, offset, 8,
                                 ett_device_information_tree,
                                 &pi, "Local interface %u device info",
-                                index);
+                                lil_index);
 
         proto_tree_add_item(dev_tree, hf_ieee1905_mac_address_type, tvb,
                             offset, 6, ENC_NA);
@@ -1666,7 +1666,7 @@ dissect_local_interface_list(tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_item_set_len(pi, 6 + (offset - media_type_offset));
 
         count--;
-        index++;
+        lil_index++;
     }
 
     return offset;
