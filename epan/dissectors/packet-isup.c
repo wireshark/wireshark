@@ -7670,11 +7670,11 @@ dissect_japan_isup_charge_area_info(tvbuff_t *parameter_tvb, packet_info *pinfo,
     octet = tvb_get_guint8(parameter_tvb, offset);
     proto_tree_add_uint(digits_tree, hf_japan_isup_charging_info_nc_odd_digits, parameter_tvb, 0, 1, octet);
     proto_tree_add_uint(digits_tree, hf_japan_isup_charging_info_nc_even_digits, parameter_tvb, 0, 1, octet);
-    octet++;
+    offset++;
     octet = tvb_get_guint8(parameter_tvb, offset);
     proto_tree_add_uint(digits_tree, hf_japan_isup_charging_info_nc_odd_digits, parameter_tvb, 0, 1, octet);
     proto_tree_add_uint(digits_tree, hf_japan_isup_charging_info_nc_even_digits, parameter_tvb, 0, 1, octet);
-    octet++;
+    offset++;
 
     /* Now loop through MA/CA digits.*/
     length = tvb_reported_length_remaining(parameter_tvb, offset);
