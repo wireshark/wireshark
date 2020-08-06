@@ -1257,7 +1257,7 @@ main(int argc, char *argv[])
                     *c++ = '0';
                 }
                 *c = '\0';
-                if (!ws_strtou32(subsec, NULL, &nsec) || nsec >= 1000000000) {
+                if (!ws_strtou32(subsec, NULL, &nsec) || nsec >= NANOSECS_PER_SEC) {
                     goto invalid_time;
                 }
             }
