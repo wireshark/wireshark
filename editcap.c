@@ -1188,7 +1188,7 @@ main(int argc, char *argv[])
         {
 #define NSEC_MAXLEN 9
             struct tm st_tm;
-            int nsec = 0;
+            guint32 nsec = 0;
             char *och;
 
             memset(&st_tm,0,sizeof(struct tm));
@@ -1224,12 +1224,23 @@ main(int argc, char *argv[])
                     *c++ = '0';
                 }
                 *c = '\0';
-                nsec = strtol(subsec, NULL, 10);
+                if (!ws_strtou32(subsec, NULL, &nsec) || nsec >= 1000000000) {
+                    goto invalid_time;
+                }
             }
 
             check_startstop = TRUE;
             st_tm.tm_isdst = -1;
 
+            /*
+             * XXX - this will normalize invalid dates rather than
+             * returning an error, so you could specify, for example,
+             * 2020-10-40 (to quote the macOS and probably *BSD manual
+             * page for ctime()/localtime()/mktime()/etc., "October 40
+             * is changed into November 9").
+             *
+             * Is that a bug or a feature?
+             */
             if (opt == 'A') {
                 starttime.secs = mktime(&st_tm);
                 starttime.nsecs = nsec;
