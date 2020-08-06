@@ -11601,12 +11601,12 @@ proto_register_ansi_a(void)
         },
         { &hf_ansi_a_lai_mcc,
             { "Mobile Country Code (MCC)", "ansi_a_bsmap.lai.mcc",
-            FT_UINT8, BASE_DEC, NULL, 0,
+            FT_STRING, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
         { &hf_ansi_a_lai_mnc,
             { "Mobile Network Code (MNC)", "ansi_a_bsmap.lai.mnc",
-            FT_UINT8, BASE_DEC, NULL, 0,
+            FT_STRING, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
         { &hf_ansi_a_lai_lac,

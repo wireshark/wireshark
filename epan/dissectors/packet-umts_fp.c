@@ -6938,7 +6938,7 @@ void proto_register_fp(void)
             },
             { &hf_fp_tpc_po,
               { "TPC Power Offset",
-                "fp.tpc-po", FT_UINT8, BASE_DEC, NULL, 0x1f,
+                "fp.tpc-po", FT_FLOAT, BASE_NONE, NULL, 0x0,
                 NULL, HFILL
               }
             },

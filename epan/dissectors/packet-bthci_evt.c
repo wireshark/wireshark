@@ -4709,7 +4709,7 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
                 proto_tree  *codec_tree;
                 proto_item  *codec_item;
 
-                codec_item = proto_tree_add_none_format(sub_tree, hf_bthci_evt_vendor_codecs_item, tvb, offset, 4, "Item %u", i_count + 1);
+                codec_item = proto_tree_add_string_format(sub_tree, hf_bthci_evt_vendor_codecs_item, tvb, offset, 4, "", "Item %u", i_count + 1);
                 codec_tree = proto_item_add_subtree(codec_item, ett_codecs);
 
                 proto_tree_add_item(codec_tree, hf_bthci_evt_comp_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -9027,7 +9027,7 @@ proto_register_bthci_evt(void)
         },
         { &hf_bthci_evt_vendor_codecs_item,
           { "Item", "bthci_evt.vendor_codecs.item",
-            FT_UINT32, BASE_HEX, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_evt_codec_id,
