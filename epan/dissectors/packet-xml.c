@@ -230,6 +230,9 @@ dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     static GPtrArray *stack;
     xml_frame_t      *current_frame;
     const char       *colinfo_str;
+    tvbuff_t         *decoded;
+    guint16           try_bom;
+    int               start_offset   = 0;
 
     if (stack != NULL)
         g_ptr_array_free(stack, TRUE);
@@ -244,9 +247,36 @@ dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     insert_xml_frame(NULL, current_frame);
     g_ptr_array_add(stack, current_frame);
 
-    tt = tvbparse_init(tvb, 0, -1, stack, want_ignore);
+    /* Detect and act on possible byte-order mark (BOM) */
+    try_bom = tvb_get_ntohs(tvb, start_offset);
+    if (try_bom == 0xFEFF) {
+        /* UTF-16BE */
+        const guint8 *data_str = tvb_get_string_enc(pinfo->pool, tvb, 0, tvb_captured_length(tvb), ENC_UTF_16|ENC_BIG_ENDIAN);
+        size_t l = strlen(data_str);
+        decoded = tvb_new_child_real_data(tvb, data_str, (guint)l, (gint)l);
+        add_new_data_source(pinfo, decoded, "Decoded UTF-16BE text");
+    }
+    else if(try_bom == 0xFFFE) {
+        /* UTF-16LE (or possibly UTF-32LE, but Wireshark doesn't support UTF-32) */
+        const guint8 *data_str = tvb_get_string_enc(pinfo->pool, tvb, 0, tvb_captured_length(tvb), ENC_UTF_16|ENC_LITTLE_ENDIAN);
+        size_t l = strlen(data_str);
+        decoded = tvb_new_child_real_data(tvb, data_str, (guint)l, (gint)l);
+        add_new_data_source(pinfo, decoded, "Decoded UTF-16LE text");
+    }
+    /* Could also test if try_bom is 0xnn00 or 0x00nn to guess endianness if we wanted */
+    else if(tvb_get_ntoh24(tvb, start_offset) == 0xEFBBBF) {
+        /* UTF-8 BOM; just skip over it */
+        decoded = tvb;
+        start_offset += 3;
+    }
+    else {
+        /* Assume it's UTF-8 */
+        decoded = tvb;
+    }
+
+    tt = tvbparse_init(decoded, start_offset, -1, stack, want_ignore);
     current_frame->start_offset = 0;
-    current_frame->length = tvb_captured_length(tvb);
+    current_frame->length = tvb_captured_length(decoded) - start_offset;
 
     root_ns = NULL;
 
@@ -267,7 +297,7 @@ dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
     current_frame->ns = root_ns;
 
-    current_frame->item = proto_tree_add_item(tree, current_frame->ns->hf_tag, tvb, 0, -1, ENC_UTF_8|ENC_NA);
+    current_frame->item = proto_tree_add_item(tree, current_frame->ns->hf_tag, decoded, start_offset, -1, ENC_UTF_8|ENC_NA);
     current_frame->tree = proto_item_add_subtree(current_frame->item, current_frame->ns->ett);
     current_frame->last_item = current_frame->item;
 
@@ -285,9 +315,24 @@ static gboolean dissect_xml_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         dissect_xml(tvb, pinfo, tree, data);
         return TRUE;
     } else if (pref_heuristic_unicode) {
+        const guint8 *data_str;
+        tvbuff_t     *unicode_tvb;
+        guint16       try_bom;
         /* XXX - UCS-2, or UTF-16? */
-        const guint8 *data_str    = tvb_get_string_enc(pinfo->pool, tvb, 0, tvb_captured_length(tvb), ENC_UCS_2|ENC_LITTLE_ENDIAN);
-        tvbuff_t     *unicode_tvb = tvb_new_child_real_data(tvb, data_str, tvb_captured_length(tvb)/2, tvb_captured_length(tvb)/2);
+        gint          enc = ENC_UCS_2|ENC_LITTLE_ENDIAN;
+        size_t        l;
+
+        try_bom = tvb_get_ntohs(tvb, 0);
+        if (try_bom == 0xFEFF) {
+            enc = ENC_UTF_16|ENC_BIG_ENDIAN;
+        }
+        else if(try_bom == 0xFFFE) {
+            enc = ENC_UTF_16|ENC_LITTLE_ENDIAN;
+        }
+
+        data_str    = tvb_get_string_enc(pinfo->pool, tvb, 0, tvb_captured_length(tvb), enc);
+        l           = strlen(data_str);
+        unicode_tvb = tvb_new_child_real_data(tvb, data_str, (guint)l, (gint)l);
         if (tvbparse_peek(tvbparse_init(unicode_tvb, 0, -1, NULL, want_ignore), want_heur)) {
             add_new_data_source(pinfo, unicode_tvb, "UTF8");
             dissect_xml(unicode_tvb, pinfo, tree, data);
