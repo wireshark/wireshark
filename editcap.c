@@ -150,6 +150,7 @@ typedef struct _chop_t {
 
 /* Table of user comments */
 GTree *frames_user_comments = NULL;
+GPtrArray *capture_comments = NULL;
 
 #define MAX_SELECTIONS 512
 static struct select_item     selectfrm[MAX_SELECTIONS];
@@ -171,6 +172,7 @@ static gboolean               dup_detect                = FALSE;
 static gboolean               dup_detect_by_time        = FALSE;
 static gboolean               skip_radiotap             = FALSE;
 static gboolean               discard_all_secrets       = FALSE;
+static gboolean               discard_cap_comments      = FALSE;
 
 static int                    do_strict_time_adjustment = FALSE;
 static struct time_adjustment strict_time_adj           = {NSTIME_INIT_ZERO, 0}; /* strict time adjustment */
@@ -839,6 +841,13 @@ print_usage(FILE *output)
     fprintf(output, "                         when writing the output file.  Does not discard\n");
     fprintf(output, "                         secrets added by \"--inject-secrets\" in the same\n");
     fprintf(output, "                         command line.\n");
+    fprintf(output, "  --capture-comment <comment>\n");
+    fprintf(output, "                         Add a capture file comment, if supported.\n");
+    fprintf(output, "  --discard-capture-comment\n");
+    fprintf(output, "                         Discard capture file comments from the input file\n");
+    fprintf(output, "                         when writing the output file.  Does not discard\n");
+    fprintf(output, "                         comments added by \"--capture-comment\" in the same\n");
+    fprintf(output, "                         command line.\n");
     fprintf(output, "\n");
     fprintf(output, "Miscellaneous:\n");
     fprintf(output, "  -h                     display this help and exit.\n");
@@ -1017,6 +1026,8 @@ main(int argc, char *argv[])
 #define LONGOPT_SEED                 LONGOPT_BASE_APPLICATION+3
 #define LONGOPT_INJECT_SECRETS       LONGOPT_BASE_APPLICATION+4
 #define LONGOPT_DISCARD_ALL_SECRETS  LONGOPT_BASE_APPLICATION+5
+#define LONGOPT_CAPTURE_COMMENT      LONGOPT_BASE_APPLICATION+6
+#define LONGOPT_DISCARD_CAPTURE_COMMENT LONGOPT_BASE_APPLICATION+7
 
     static const struct option long_options[] = {
         {"novlan", no_argument, NULL, LONGOPT_NO_VLAN},
@@ -1026,6 +1037,8 @@ main(int argc, char *argv[])
         {"discard-all-secrets", no_argument, NULL, LONGOPT_DISCARD_ALL_SECRETS},
         {"help", no_argument, NULL, 'h'},
         {"version", no_argument, NULL, 'V'},
+        {"capture-comment", required_argument, NULL, LONGOPT_CAPTURE_COMMENT},
+        {"discard-capture-comment", no_argument, NULL, LONGOPT_DISCARD_CAPTURE_COMMENT},
         {0, 0, 0, 0 }
     };
 
@@ -1160,6 +1173,24 @@ main(int argc, char *argv[])
         case LONGOPT_DISCARD_ALL_SECRETS:
         {
             discard_all_secrets = TRUE;
+            break;
+        }
+
+        case LONGOPT_CAPTURE_COMMENT:
+        {
+            /* pcapng supports multiple comments, so support them here too.
+             * Wireshark only sees the first capture comment though.
+             */
+            if (!capture_comments) {
+                capture_comments = g_ptr_array_new_with_free_func(g_free);
+            }
+            g_ptr_array_add(capture_comments, g_strdup(optarg));
+            break;
+        }
+
+        case LONGOPT_DISCARD_CAPTURE_COMMENT:
+        {
+            discard_cap_comments = TRUE;
             break;
         }
 
@@ -1524,6 +1555,31 @@ invalid_time:
      */
     if (discard_all_secrets) {
         wtap_dump_params_discard_decryption_secrets(&params);
+    }
+
+    /*
+     * Discard capture file comments.
+     */
+    if (discard_cap_comments) {
+        for (guint b = 0; b < params.shb_hdrs->len; b++) {
+            wtap_block_t shb = g_array_index(params.shb_hdrs, wtap_block_t, b);
+            while (WTAP_OPTTYPE_SUCCESS == wtap_block_remove_nth_option_instance(shb, OPT_COMMENT, 0)) {
+                continue;
+            }
+        }
+    }
+
+    /*
+     * Add new capture file comments.
+     */
+    if (capture_comments != NULL) {
+        for (guint b = 0; b < params.shb_hdrs->len; b++) {
+            wtap_block_t shb = g_array_index(params.shb_hdrs, wtap_block_t, b);
+            for (guint c = 0; c < capture_comments->len; c++) {
+                char *comment = (char *)g_ptr_array_index(capture_comments, c);
+                wtap_block_add_string_option(shb, OPT_COMMENT, comment, strlen(comment));
+            }
+        }
     }
 
     if (dsb_filenames) {
@@ -2143,6 +2199,10 @@ clean_exit:
         wtap_close(wth);
     wtap_cleanup();
     free_progdirs();
+    if (capture_comments != NULL) {
+        g_ptr_array_free(capture_comments, TRUE);
+        capture_comments = NULL;
+    }
     return ret;
 }
 
