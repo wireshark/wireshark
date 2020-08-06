@@ -1304,7 +1304,8 @@ dcm_export_create_object(packet_info *pinfo, dcm_state_assoc_t *assoc, dcm_state
 
     pctx=dcm_state_pctx_get(assoc, pdv_curr->pctx_id, FALSE);
 
-    if (strlen(assoc->ae_calling)>0 && strlen(assoc->ae_called)>0 ) {
+    if (assoc->ae_calling != NULL && strlen(assoc->ae_calling)>0 &&
+        assoc->ae_called != NULL &&  strlen(assoc->ae_called)>0) {
         hostname = wmem_strdup_printf(wmem_packet_scope(), "%s <-> %s", assoc->ae_calling, assoc->ae_called);
     }
     else {
