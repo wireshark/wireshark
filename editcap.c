@@ -1255,7 +1255,7 @@ main(int argc, char *argv[])
             break;
 
 invalid_time:
-            fprintf(stderr, "editcap: \"%s\" isn't a valid time format\n\n",
+            fprintf(stderr, "editcap: \"%s\" isn't a valid date and time\n\n",
                     optarg);
             ret = INVALID_OPTION;
             goto clean_exit;
