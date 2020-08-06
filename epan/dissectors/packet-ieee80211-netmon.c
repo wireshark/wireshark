@@ -339,7 +339,7 @@ proto_register_netmon_802_11(void)
                           BASE_HEX, NULL, OP_MODE_AP, NULL, HFILL } },
     { &hf_netmon_802_11_op_mode_sta_ext, { "Extensible station mode", "netmon_802_11.op_mode.sta_ext", FT_UINT32,
                           BASE_HEX, NULL, OP_MODE_STA_EXT, NULL, HFILL } },
-    { &hf_netmon_802_11_op_mode_mon, { "Monitor mode", "netmon_802_11.op_mode.on", FT_UINT32,
+    { &hf_netmon_802_11_op_mode_mon, { "Monitor mode", "netmon_802_11.op_mode.mon", FT_UINT32,
                           BASE_HEX, NULL, OP_MODE_MON, NULL, HFILL } },
 #if 0
     { &hf_netmon_802_11_flags, { "Flags", "netmon_802_11.flags", FT_UINT32,
