@@ -1469,7 +1469,8 @@ invalid_time:
         srand(seed);
     }
 
-    if (nstime_cmp(&starttime, &stoptime) > 0) {
+    if (!nstime_is_zero(&starttime) && !nstime_is_zero(&stoptime) &&
+        nstime_cmp(&starttime, &stoptime) > 0) {
         fprintf(stderr, "editcap: start time is after the stop time\n");
         ret = INVALID_OPTION;
         goto clean_exit;
