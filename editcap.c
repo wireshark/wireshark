@@ -162,7 +162,9 @@ static struct time_adjustment time_adj                  = {NSTIME_INIT_ZERO, 0};
 static nstime_t               relative_time_window      = NSTIME_INIT_ZERO; /* de-dup time window */
 static double                 err_prob                  = -1.0;
 static nstime_t               starttime                 = NSTIME_INIT_ZERO;
+static gboolean               have_starttime            = FALSE;
 static nstime_t               stoptime                  = NSTIME_INIT_ZERO;
+static gboolean               have_stoptime             = FALSE;
 static gboolean               check_startstop           = FALSE;
 static gboolean               rem_vlan                  = FALSE;
 static gboolean               dup_detect                = FALSE;
@@ -1244,9 +1246,11 @@ main(int argc, char *argv[])
             if (opt == 'A') {
                 starttime.secs = mktime(&st_tm);
                 starttime.nsecs = nsec;
+                have_starttime = TRUE;
             } else {
                 stoptime.secs = mktime(&st_tm);
                 stoptime.nsecs = nsec;
+                have_stoptime = TRUE;
             }
             break;
 
@@ -1469,7 +1473,7 @@ invalid_time:
         srand(seed);
     }
 
-    if (!nstime_is_zero(&starttime) && !nstime_is_zero(&stoptime) &&
+    if (have_starttime && have_stoptime &&
         nstime_cmp(&starttime, &stoptime) > 0) {
         fprintf(stderr, "editcap: start time is after the stop time\n");
         ret = INVALID_OPTION;
@@ -1714,12 +1718,12 @@ invalid_time:
              * If the packet has no time stamp, the answer is "no".
              */
             if (rec->presence_flags & WTAP_HAS_TS) {
-                if (!nstime_is_zero(&starttime) && !nstime_is_zero(&stoptime)) {
+                if (have_starttime && have_stoptime) {
                     ts_okay = nstime_cmp(&rec->ts, &starttime) >= 0 &&
                               nstime_cmp(&rec->ts, &stoptime) < 0;
-                } else if (!nstime_is_zero(&starttime)) {
+                } else if (have_starttime) {
                     ts_okay = nstime_cmp(&rec->ts, &starttime) >= 0;
-                } else if (!nstime_is_zero(&stoptime)) {
+                } else if (have_stoptime) {
                     ts_okay = nstime_cmp(&rec->ts, &stoptime) < 0;
                 }
             }
