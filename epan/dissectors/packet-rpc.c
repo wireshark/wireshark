@@ -1585,14 +1585,23 @@ dissect_rpc_authgss_integ_data(tvbuff_t *tvb, packet_info *pinfo,
 	dissector_handle_t dissect_function,
 	const char *progname, rpc_call_info_value *rpc_call)
 {
+	gint reported_length, captured_length;
 	guint32 length, rounded_length, seq;
 
 	proto_tree *gtree;
 
+	reported_length = tvb_reported_length_remaining(tvb, offset);
+	captured_length = tvb_captured_length_remaining(tvb, offset);
 	length = tvb_get_ntohl(tvb, offset);
 	rounded_length = rpc_roundup(length);
 	seq = tvb_get_ntohl(tvb, offset+4);
 
+	if (captured_length < reported_length) {
+		/* Set rounded length so it does not croak while setting up the
+		 * GSS Data subtree when the packet has been truncated so at
+		 * least the rest of the packet could be partially dissected */
+		rounded_length = captured_length - 4;
+	}
 	gtree = proto_tree_add_subtree(tree, tvb, offset,
 				    4+rounded_length, ett_rpc_gss_data, NULL, "GSS Data");
 	proto_tree_add_uint(gtree, hf_rpc_authgss_data_length,
