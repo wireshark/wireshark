@@ -1032,10 +1032,6 @@ static const enum_val_t dhcp_uuid_endian_vals[] = {
 #define F_ISNS_SRV_SEC_BITMAP_TUNNEL_MODE	0x0040
 #define F_ISNS_SRV_SEC_BITMAP_RESERVED		0xFF80
 
-static const true_false_string tfs_fqdn_s = {
-	"Server",
-	"Client"
-};
 
 static const true_false_string tfs_fqdn_o = {
 	"Override",
@@ -7425,7 +7421,7 @@ proto_register_dhcp(void)
 
 		{ &hf_dhcp_fqdn_s,
 		  { "Server", "dhcp.fqdn.s",
-		    FT_BOOLEAN, 8, TFS(&tfs_fqdn_s), F_FQDN_S,
+			FT_BOOLEAN, 8, TFS(&tfs_server_client), F_FQDN_S,
 		    "If true, server should do DDNS update", HFILL }},
 
 		{ &hf_dhcp_fqdn_o,

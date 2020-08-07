@@ -567,10 +567,6 @@ static gint ett_docsis_ucd_reassembled = -1;
 static expert_field ei_docsis_tlv_tlvlen_bad = EI_INIT;
 static expert_field ei_docsis_tlv_tlvval_bad = EI_INIT;
 
-static const true_false_string on_off_tfs = {
-  "On",
-  "Off"
-};
 
 static const value_string on_off_vals[] = {
   {0, "Off"},
@@ -601,11 +597,6 @@ static const value_string docs_ver_vals[] = {
   {3, "v3.0"},
   {4, "v3.1"},
   {0, NULL},
-};
-
-static const true_false_string activation_tfs = {
-  "Active",
-  "Inactive"
 };
 
 static const value_string dsc_act_vals[] = {
@@ -5586,7 +5577,7 @@ proto_register_docsis_tlv (void)
     },
     {&hf_docsis_tlv_net_access,
      {"3 Network Access", "docsis_tlv.netaccess",
-      FT_BOOLEAN, BASE_NONE, TFS (&on_off_tfs), 0x0,
+      FT_BOOLEAN, BASE_NONE, TFS (&tfs_on_off), 0x0,
       "Network Access TLV", HFILL}
     },
 #if 0
@@ -5645,7 +5636,7 @@ proto_register_docsis_tlv (void)
 #endif
     {&hf_docsis_tlv_mcap_concat,
      {".1 Concatenation Support", "docsis_tlv.mcap.concat",
-      FT_BOOLEAN, BASE_NONE, TFS (&on_off_tfs), 0x0,
+      FT_BOOLEAN, BASE_NONE, TFS (&tfs_on_off), 0x0,
       "Concatenation Support", HFILL}
     },
     {&hf_docsis_tlv_mcap_docs_ver,
@@ -5655,22 +5646,22 @@ proto_register_docsis_tlv (void)
     },
     {&hf_docsis_tlv_mcap_frag,
      {".3 Fragmentation Support", "docsis_tlv.mcap.frag",
-      FT_BOOLEAN, BASE_NONE, TFS (&on_off_tfs), 0x0,
+      FT_BOOLEAN, BASE_NONE, TFS (&tfs_on_off), 0x0,
       "Fragmentation Support", HFILL}
     },
     {&hf_docsis_tlv_mcap_phs,
      {".4 PHS Support", "docsis_tlv.mcap.phs",
-      FT_BOOLEAN, BASE_NONE, TFS (&on_off_tfs), 0x0,
+      FT_BOOLEAN, BASE_NONE, TFS (&tfs_on_off), 0x0,
       "PHS Support", HFILL}
     },
     {&hf_docsis_tlv_mcap_igmp,
      {".5 IGMP Support", "docsis_tlv.mcap.igmp",
-      FT_BOOLEAN, BASE_NONE, TFS (&on_off_tfs), 0x0,
+      FT_BOOLEAN, BASE_NONE, TFS (&tfs_on_off), 0x0,
       "IGMP Support", HFILL}
     },
     {&hf_docsis_tlv_mcap_privacy,
      {".6 Privacy Support", "docsis_tlv.mcap.privacy",
-      FT_BOOLEAN, BASE_NONE, TFS (&on_off_tfs), 0x0,
+      FT_BOOLEAN, BASE_NONE, TFS (&tfs_on_off), 0x0,
       "Privacy Support", HFILL}
     },
     {&hf_docsis_tlv_mcap_down_said,
@@ -5705,7 +5696,7 @@ proto_register_docsis_tlv (void)
     },
     {&hf_docsis_tlv_mcap_dcc,
      {".12 DCC Support", "docsis_tlv.mcap.dcc",
-      FT_BOOLEAN, BASE_NONE, TFS (&on_off_tfs), 0x0,
+      FT_BOOLEAN, BASE_NONE, TFS (&tfs_on_off), 0x0,
       "DCC Support", HFILL}
     },
     {&hf_docsis_tlv_mcap_ip_filters,
@@ -5720,7 +5711,7 @@ proto_register_docsis_tlv (void)
     },
     {&hf_docsis_tlv_mcap_exp_unicast_sid,
      {".15 Expanded Unicast SID Space","docsis_tlv.mcap.exucsid",
-      FT_BOOLEAN, BASE_NONE, TFS (&on_off_tfs), 0x0,
+      FT_BOOLEAN, BASE_NONE, TFS (&tfs_on_off), 0x0,
       "Expanded Unicast SID Space", HFILL}
     },
     {&hf_docsis_tlv_mcap_rnghoff_cm,
@@ -5806,12 +5797,12 @@ proto_register_docsis_tlv (void)
     },
     {&hf_docsis_tlv_mcap_sac,
      {".22 Selectable Active Code Mode 2 Support","docsis_tlv.mcap.sac",
-      FT_BOOLEAN, BASE_NONE, TFS (&on_off_tfs), 0x0,
+      FT_BOOLEAN, BASE_NONE, TFS (&tfs_on_off), 0x0,
       "Selectable Active Code Mode 2 Support", HFILL}
     },
     {&hf_docsis_tlv_mcap_code_hop_mode2,
      {".23 Code Hopping Mode 2 Support","docsis_tlv.mcap.codehopm2",
-      FT_BOOLEAN, BASE_NONE, TFS (&on_off_tfs), 0x0,
+      FT_BOOLEAN, BASE_NONE, TFS (&tfs_on_off), 0x0,
       "Code Hopping Mode 2 Support", HFILL}
     },
     {&hf_docsis_tlv_mcap_mtc,
@@ -5893,7 +5884,7 @@ proto_register_docsis_tlv (void)
     },
     {&hf_docsis_tlv_mcap_map_ucd,
      {".37 MAP and UCD Receipt Support","docsis_tlv.mcap.mapucd",
-      FT_BOOLEAN, BASE_NONE, TFS (&on_off_tfs), 0x0,
+      FT_BOOLEAN, BASE_NONE, TFS (&tfs_on_off), 0x0,
       "MAP and UCD Receipt Support", HFILL}
     },
     {&hf_docsis_tlv_mcap_udc,
@@ -5903,7 +5894,7 @@ proto_register_docsis_tlv (void)
     },
     {&hf_docsis_tlv_mcap_ipv6,
      {".39 IPv6 Support","docsis_tlv.mcap.ipv6",
-      FT_BOOLEAN, BASE_NONE, TFS (&on_off_tfs), 0x0,
+      FT_BOOLEAN, BASE_NONE, TFS (&tfs_on_off), 0x0,
       "IPv6 Support", HFILL}
     },
     {&hf_docsis_tlv_mcap_ext_us_trans_power,
@@ -6413,7 +6404,7 @@ proto_register_docsis_tlv (void)
     },
     {&hf_docsis_tlv_clsfr_act_state,
      {".6 Activation State", "docsis_tlv.clsfr.actstate",
-      FT_BOOLEAN, BASE_NONE, TFS (&activation_tfs), 0x0,
+      FT_BOOLEAN, BASE_NONE, TFS (&tfs_active_inactive), 0x0,
       "Classifier Activation State", HFILL}
     },
     {&hf_docsis_tlv_clsfr_dsc_act,

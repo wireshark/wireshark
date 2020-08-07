@@ -43,9 +43,6 @@ static dissector_handle_t data_handle;
 static dissector_table_t subdissector_table;
 static dissector_handle_t interlink_handle;
 
-static const true_false_string flags_set_notset = {
-	"Set", "Not set"
-};
 
 static const value_string names_cmd[] = {
 	{ 1, "Data" },
@@ -177,10 +174,10 @@ proto_register_interlink(void)
 			BASE_HEX, NULL, 0, NULL, HFILL }},
 		{ &hf_interlink_flags_req_ack, {
 			"REQ_ACK", "interlink.flags.req_ack", FT_BOOLEAN,
-			16, TFS(&flags_set_notset), 0x01, NULL, HFILL }},
+			16, TFS(&tfs_set_notset), 0x01, NULL, HFILL }},
 		{ &hf_interlink_flags_inc_ack_port, {
 			"INC_ACK_PORT", "interlink.flags.inc_ack_port", FT_BOOLEAN,
-			16, TFS(&flags_set_notset), 0x02, NULL, HFILL }},
+			16, TFS(&tfs_set_notset), 0x02, NULL, HFILL }},
 		{ &hf_interlink_block_type, {
 			"Type", "interlink.type", FT_UINT8,
 			BASE_DEC, NULL, 0, NULL, HFILL }},

@@ -2461,17 +2461,12 @@ static const value_string rba_subband_direction_vals [] = {
   {0, NULL}
 };
 
-/* Windows does not allow data copy between dlls */
-static const true_false_string mdd_tfs_on_off = { "On", "Off" };
-static const true_false_string mdd_tfs_en_dis = { "Enabled", "Disabled" };
 
 static const true_false_string tfs_ucd_change_ind_vals = {"Changes", "No changes"};
 
 static const true_false_string tfs_allow_inhibit = { "Inhibit Initial Ranging", "Ranging Allowed" };
 const true_false_string type35ucd_tfs_present_not_present = { "UCD35 is present for this UCID",
                                                               "UCD35 is not present for this UCID" };
-
-static const true_false_string req_not_req_tfs = {"Requested", "Not Requested"};
 
 static const true_false_string sid_field_bit15_tfs = {
   "The commanded power level P1.6r_n is higher than the value corresponding to the top of the DRW.",
@@ -9469,7 +9464,7 @@ proto_register_docsis_mgmt (void)
     },
     {&hf_docsis_mdd_extended_upstream_transmit_power_support,
      { "Extended Upstream Transmit Power Support", "docsis_mdd.extended_upstream_transmit_power_support",
-       FT_BOOLEAN, BASE_NONE, TFS(&mdd_tfs_on_off), 0x0,
+       FT_BOOLEAN, BASE_NONE, TFS(&tfs_on_off), 0x0,
        "Mdd Extended Upstream Transmit Power Support", HFILL}
     },
     {&hf_docsis_mdd_cmts_major_docsis_version,
@@ -9494,62 +9489,62 @@ proto_register_docsis_mgmt (void)
     },
     {&hf_docsis_mdd_cm_status_event_d31_ofdm_prof_fail,
      { "Downstream OFDM Profile Failure", "docsis_mdd.cm_status_event_d31_ofdm_prof_fail",
-       FT_BOOLEAN, 32, TFS(&mdd_tfs_en_dis), 0x01,
+       FT_BOOLEAN, 32, TFS(&tfs_enabled_disabled), 0x01,
        NULL, HFILL}
     },
     {&hf_docsis_mdd_cm_status_event_d31_prim_down_chan_change,
      { "Primary Downstream Channel Change", "docsis_mdd.cm_status_event_d31_prim_down_chan_change",
-       FT_BOOLEAN, 32, TFS(&mdd_tfs_en_dis), 0x02,
+       FT_BOOLEAN, 32, TFS(&tfs_enabled_disabled), 0x02,
        NULL, HFILL}
     },
     {&hf_docsis_mdd_cm_status_event_d31_dpd_mismatch,
      { "DPD Mismatch", "docsis_mdd.cm_status_event_d31_dpd_mismatch",
-       FT_BOOLEAN, 32, TFS(&mdd_tfs_en_dis), 0x04,
+       FT_BOOLEAN, 32, TFS(&tfs_enabled_disabled), 0x04,
        NULL, HFILL}
     },
     {&hf_docsis_mdd_cm_status_event_d31_deprecated,
      { "Deprecated", "docsis_mdd.cm_status_event_d31_deprecated",
-       FT_BOOLEAN, 32, TFS(&mdd_tfs_en_dis), 0x08,
+       FT_BOOLEAN, 32, TFS(&tfs_enabled_disabled), 0x08,
        NULL, HFILL}
     },
     {&hf_docsis_mdd_cm_status_event_d31_ncp_prof_fail,
      { "NCP Profile Failure", "docsis_mdd.cm_status_event_d31_ncp_prof_fail",
-       FT_BOOLEAN, 32, TFS(&mdd_tfs_en_dis), 0x10,
+       FT_BOOLEAN, 32, TFS(&tfs_enabled_disabled), 0x10,
        NULL, HFILL}
     },
     {&hf_docsis_mdd_cm_status_event_d31_loss_fec_plc,
      { "Loss of FEC lock on PLC", "docsis_mdd.cm_status_event_d31_loss_fec_plc",
-       FT_BOOLEAN, 32, TFS(&mdd_tfs_en_dis), 0x20,
+       FT_BOOLEAN, 32, TFS(&tfs_enabled_disabled), 0x20,
        NULL, HFILL}
     },
     {&hf_docsis_mdd_cm_status_event_d31_ncp_prof_recover,
      { "NCP Profile Recovery", "docsis_mdd.cm_status_event_d31_ncp_prof_recover",
-       FT_BOOLEAN, 32, TFS(&mdd_tfs_en_dis), 0x40,
+       FT_BOOLEAN, 32, TFS(&tfs_enabled_disabled), 0x40,
        NULL, HFILL}
     },
     {&hf_docsis_mdd_cm_status_event_d31_fec_recover_on_plc,
      { "FEC Recovery on PLC", "docsis_mdd.cm_status_event_d31_fec_recover_on_plc",
-       FT_BOOLEAN, 32, TFS(&mdd_tfs_en_dis), 0x80,
+       FT_BOOLEAN, 32, TFS(&tfs_enabled_disabled), 0x80,
        NULL, HFILL}
     },
     {&hf_docsis_mdd_cm_status_event_d31_fec_recover_on_ofdm_prof,
      { "FEC Recovery on OFDM Profile", "docsis_mdd.cm_status_event_d31_fec_recover_on_ofdm_prof",
-       FT_BOOLEAN, 32, TFS(&mdd_tfs_en_dis), 0x0100,
+       FT_BOOLEAN, 32, TFS(&tfs_enabled_disabled), 0x0100,
        NULL, HFILL}
     },
     {&hf_docsis_mdd_cm_status_event_d31_ofdma_prof_fail,
      { "OFDMA Profile Failure", "docsis_mdd.cm_status_event_d31_ofdma_prof_fail",
-       FT_BOOLEAN, 32, TFS(&mdd_tfs_en_dis), 0x0200,
+       FT_BOOLEAN, 32, TFS(&tfs_enabled_disabled), 0x0200,
        NULL, HFILL}
     },
     {&hf_docsis_mdd_cm_status_event_d31_map_stor_overflow_ind,
      { "MAP Storage Overflow Indicator", "docsis_mdd.cm_status_event_d31_map_stor_overflow_ind",
-       FT_BOOLEAN, 32, TFS(&mdd_tfs_en_dis), 0x0400,
+       FT_BOOLEAN, 32, TFS(&tfs_enabled_disabled), 0x0400,
        NULL, HFILL}
     },
     {&hf_docsis_mdd_cm_status_event_d31_ofdm_map_stor_almost_full_ind,
      { "MAP Storage Almost Full Indicator", "docsis_mdd.cm_status_event_d31_ofdm_map_stor_almost_full_ind",
-       FT_BOOLEAN, 32, TFS(&mdd_tfs_en_dis), 0x0800,
+       FT_BOOLEAN, 32, TFS(&tfs_enabled_disabled), 0x0800,
        NULL, HFILL}
     },
     {&hf_docsis_mdd_cm_status_event_d31_reserved,
@@ -10112,28 +10107,28 @@ proto_register_docsis_mgmt (void)
      {"Length", "docsis_optreq.length",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
     },
     {&hf_docsis_optreq_reqstat_rxmer_stat_subc,
-     {"RxMER Statistics per subcarrier", "docsis_optreq.reqstat.rxmer_stat_per_subcarrier", FT_BOOLEAN, 32, TFS(&req_not_req_tfs), 0x1, NULL, HFILL}
+     {"RxMER Statistics per subcarrier", "docsis_optreq.reqstat.rxmer_stat_per_subcarrier", FT_BOOLEAN, 32, TFS(&tfs_requested_not_requested), 0x1, NULL, HFILL}
     },
     {&hf_docsis_optreq_reqstat_rxmer_subc_threshold_comp,
-     {"RxMER per Subcarrier Threshold Comparison for Candidate Profile", "docsis_optreq.reqstat.rxmer_per_subcarrrier_thresh_comp", FT_BOOLEAN, 32, TFS(&req_not_req_tfs), 0x2, NULL, HFILL}
+     {"RxMER per Subcarrier Threshold Comparison for Candidate Profile", "docsis_optreq.reqstat.rxmer_per_subcarrrier_thresh_comp", FT_BOOLEAN, 32, TFS(&tfs_requested_not_requested), 0x2, NULL, HFILL}
     },
     {&hf_docsis_optreq_reqstat_snr_marg_cand_prof,
-     {"SNR Margin for Candidate Profile", "docsis_optreq.reqstat.snr_marg_cand_prof", FT_BOOLEAN, 32, TFS(&req_not_req_tfs), 0x4, NULL, HFILL}
+     {"SNR Margin for Candidate Profile", "docsis_optreq.reqstat.snr_marg_cand_prof", FT_BOOLEAN, 32, TFS(&tfs_requested_not_requested), 0x4, NULL, HFILL}
     },
     {&hf_docsis_optreq_reqstat_codew_stat_cand_prof,
-     {"Codeword Statistics for Candidate Profile", "docsis_optreq.reqstat.codew_stat_cand_prof", FT_BOOLEAN, 32, TFS(&req_not_req_tfs), 0x8, NULL, HFILL}
+     {"Codeword Statistics for Candidate Profile", "docsis_optreq.reqstat.codew_stat_cand_prof", FT_BOOLEAN, 32, TFS(&tfs_requested_not_requested), 0x8, NULL, HFILL}
     },
     {&hf_docsis_optreq_reqstat_codew_thresh_comp_cand_prof,
-     {"Codeword Threshold Comparison for Candidate Profile", "docsis_optreq.reqstat.codew_thresh_comp_cand_prof", FT_BOOLEAN, 32, TFS(&req_not_req_tfs), 0x10, NULL, HFILL}
+     {"Codeword Threshold Comparison for Candidate Profile", "docsis_optreq.reqstat.codew_thresh_comp_cand_prof", FT_BOOLEAN, 32, TFS(&tfs_requested_not_requested), 0x10, NULL, HFILL}
     },
     {&hf_docsis_optreq_reqstat_ncp_field_stat,
-     {"NCP Field Statistics", "docsis_optreq.reqstat.ncp_field_stats", FT_BOOLEAN, 32, TFS(&req_not_req_tfs), 0x20, NULL, HFILL}
+     {"NCP Field Statistics", "docsis_optreq.reqstat.ncp_field_stats", FT_BOOLEAN, 32, TFS(&tfs_requested_not_requested), 0x20, NULL, HFILL}
     },
     {&hf_docsis_optreq_reqstat_ncp_crc_thresh_comp,
-     {"NCP CRC Threshold Comparison", "docsis_optreq.reqstat.ncp_crc_thresh_comp", FT_BOOLEAN, 32, TFS(&req_not_req_tfs), 0x40, NULL, HFILL}
+     {"NCP CRC Threshold Comparison", "docsis_optreq.reqstat.ncp_crc_thresh_comp", FT_BOOLEAN, 32, TFS(&tfs_requested_not_requested), 0x40, NULL, HFILL}
     },
     {&hf_docsis_optreq_reqstat_reserved,
-     {"Reserved", "docsis_optreq.reqstat.reserved", FT_BOOLEAN, 32, TFS(&req_not_req_tfs), 0x80, NULL, HFILL}
+     {"Reserved", "docsis_optreq.reqstat.reserved", FT_BOOLEAN, 32, TFS(&tfs_requested_not_requested), 0x80, NULL, HFILL}
     },
     {&hf_docsis_optreq_tlv_xrmer_thresh_data,
      {"TLV Data", "docsis_optreq.rxmer_thresh_params.tlv_data", FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0, NULL, HFILL}

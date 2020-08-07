@@ -1798,16 +1798,6 @@ static const value_string iptos_vals[] = {
   { 0,                 NULL }
 };
 
-static const true_false_string tos_set_low = {
-  "Low",
-  "Normal"
-};
-
-static const true_false_string tos_set_high = {
-  "High",
-  "Normal"
-};
-
 static const true_false_string flags_sf_set_evil = {
   "Evil",
   "Not evil"
@@ -2476,19 +2466,19 @@ proto_register_ip(void)
 
     { &hf_ip_tos_delay,
       { "Delay", "ip.tos.delay", FT_BOOLEAN, 8,
-        TFS(&tos_set_low), IPTOS_LOWDELAY, NULL, HFILL }},
+        TFS(&tfs_low_normal), IPTOS_LOWDELAY, NULL, HFILL }},
 
     { &hf_ip_tos_throughput,
       { "Throughput", "ip.tos.throughput", FT_BOOLEAN, 8,
-        TFS(&tos_set_high), IPTOS_THROUGHPUT, NULL, HFILL }},
+        TFS(&tfs_high_normal), IPTOS_THROUGHPUT, NULL, HFILL }},
 
     { &hf_ip_tos_reliability,
       { "Reliability", "ip.tos.reliability", FT_BOOLEAN, 8,
-        TFS(&tos_set_high), IPTOS_RELIABILITY, NULL, HFILL }},
+        TFS(&tfs_high_normal), IPTOS_RELIABILITY, NULL, HFILL }},
 
     { &hf_ip_tos_cost,
       { "Cost", "ip.tos.cost", FT_BOOLEAN, 8,
-        TFS(&tos_set_low), IPTOS_LOWCOST, NULL, HFILL }},
+        TFS(&tfs_low_normal), IPTOS_LOWCOST, NULL, HFILL }},
 
     { &hf_ip_len,
       { "Total Length", "ip.len", FT_UINT16, BASE_DEC,

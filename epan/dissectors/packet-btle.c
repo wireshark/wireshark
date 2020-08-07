@@ -562,11 +562,6 @@ static const true_false_string tfs_offset_adjust = {
     "No adjust"
 };
 
-static const true_false_string tfs_present_bit = {
-    "Present",
-    "Not Present"
-};
-
 static const true_false_string tfs_ch_sel = {
     "#2",
     "#1"
@@ -2173,42 +2168,42 @@ proto_register_btle(void)
         },
         { &hf_extended_advertising_flags_adva,
             { "Advertiser Address",              "btle.extended_advertising_header.flags.advertiser_address",
-            FT_BOOLEAN, 8, TFS(&tfs_present_bit), 0x01,
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x01,
             NULL, HFILL }
         },
         { &hf_extended_advertising_flags_targeta,
             { "Target Address",                  "btle.extended_advertising_header.flags.target_address",
-            FT_BOOLEAN, 8, TFS(&tfs_present_bit), 0x02,
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x02,
             NULL, HFILL }
         },
         { &hf_extended_advertising_flags_cteinfo,
             { "CTE Info",                        "btle.extended_advertising_header.flags.cte_info",
-            FT_BOOLEAN, 8, TFS(&tfs_present_bit), 0x04,
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x04,
             NULL, HFILL }
         },
         { &hf_extended_advertising_flags_advdatainfo,
             { "Advertiser Data Info",            "btle.extended_advertising_header.advertiser_data_info",
-            FT_BOOLEAN, 8, TFS(&tfs_present_bit), 0x08,
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x08,
             NULL, HFILL }
         },
         { &hf_extended_advertising_flags_aux_ptr,
             { "Aux pointer",                     "btle.extended_advertising_header.flags.aux_pointer",
-            FT_BOOLEAN, 8, TFS(&tfs_present_bit), 0x10,
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x10,
             NULL, HFILL }
         },
         { &hf_extended_advertising_flags_sync_info,
             { "Sync Info",                       "btle.extended_advertising_header.flags.sync_info",
-            FT_BOOLEAN, 8, TFS(&tfs_present_bit), 0x20,
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x20,
             NULL, HFILL }
         },
         { &hf_extended_advertising_flags_tx_power,
             { "TX Power",                        "btle.extended_advertising_header.flags.tx_power",
-            FT_BOOLEAN, 8, TFS(&tfs_present_bit), 0x40,
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x40,
             NULL, HFILL }
         },
         { &hf_extended_advertising_flags_reserved,
             { "Reserved",                        "btle.extended_advertising_header.flags.reserved",
-            FT_BOOLEAN, 8, TFS(&tfs_present_bit), 0x80,
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x80,
             NULL, HFILL }
         },
         { &hf_extended_advertising_cte_info,

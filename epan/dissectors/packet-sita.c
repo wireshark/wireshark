@@ -212,7 +212,6 @@ static const true_false_string tfs_sita_violation   = { "Violation",    ""      
 static const true_false_string tfs_sita_received    = { "Received",     ""              };
 static const true_false_string tfs_sita_lost        = { "Lost",         ""              };
 static const true_false_string tfs_sita_exceeded    = { "Exceeded",     ""              };
-static const true_false_string tfs_sita_on_off      = { "On",           "Off"           };
 
 static const value_string tfs_sita_proto[] = {
     { SITA_PROTO_UNUSED,        "Unused"                },
@@ -341,27 +340,27 @@ proto_register_sita(void)
 
         { &hf_dsr,
           { "DSR", "sita.signals.dsr",
-            FT_BOOLEAN, 8, TFS(&tfs_sita_on_off), SITA_SIG_DSR,
+            FT_BOOLEAN, 8, TFS(&tfs_on_off), SITA_SIG_DSR,
             "TRUE if Data Set Ready", HFILL }
         },
         { &hf_dtr,
           { "DTR", "sita.signals.dtr",
-            FT_BOOLEAN, 8, TFS(&tfs_sita_on_off), SITA_SIG_DTR,
+            FT_BOOLEAN, 8, TFS(&tfs_on_off), SITA_SIG_DTR,
             "TRUE if Data Terminal Ready", HFILL }
         },
         { &hf_cts,
           { "CTS", "sita.signals.cts",
-            FT_BOOLEAN, 8, TFS(&tfs_sita_on_off), SITA_SIG_CTS,
+            FT_BOOLEAN, 8, TFS(&tfs_on_off), SITA_SIG_CTS,
             "TRUE if Clear To Send", HFILL }
         },
         { &hf_rts,
           { "RTS", "sita.signals.rts",
-            FT_BOOLEAN, 8, TFS(&tfs_sita_on_off), SITA_SIG_RTS,
+            FT_BOOLEAN, 8, TFS(&tfs_on_off), SITA_SIG_RTS,
             "TRUE if Request To Send", HFILL }
         },
         { &hf_dcd,
           { "DCD", "sita.signals.dcd",
-            FT_BOOLEAN, 8, TFS(&tfs_sita_on_off), SITA_SIG_DCD,
+            FT_BOOLEAN, 8, TFS(&tfs_on_off), SITA_SIG_DCD,
             "TRUE if Data Carrier Detect", HFILL }
         },
         { &hf_signals,

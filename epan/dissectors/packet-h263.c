@@ -108,10 +108,6 @@ static const value_string h263_ufep_vals[] =
 	{ 0,		NULL },
 };
 
-static const true_false_string on_off_flg = {
-	"On",
-	"Off"
-};
 static const true_false_string picture_coding_type_flg = {
 	"INTER (P-picture)",
 	"INTRA (I-picture)"
@@ -129,10 +125,6 @@ static const true_false_string PB_frames_mode_flg = {
 	"Normal I- or P-picture"
 };
 
-static const true_false_string cpm_flg = {
-	"On",
-	"Off"
-};
 
 static const true_false_string custom_pcf_flg = {
 	"Custom PCF",
@@ -741,7 +733,7 @@ proto_register_h263_data(void)
 				"h263.split_screen_indicator",
 				FT_BOOLEAN,
 				BASE_NONE,
-				TFS(&on_off_flg),
+				TFS(&tfs_on_off),
 				0x0,
 				"Split screen indicator", HFILL
 			}
@@ -753,7 +745,7 @@ proto_register_h263_data(void)
 				"h263.document_camera_indicator",
 				FT_BOOLEAN,
 				BASE_NONE,
-				TFS(&on_off_flg),
+				TFS(&tfs_on_off),
 				0x0,
 				"Document camera indicator", HFILL
 			}
@@ -765,7 +757,7 @@ proto_register_h263_data(void)
 				"h263.split_screen_indicator",
 				FT_BOOLEAN,
 				BASE_NONE,
-				TFS(&on_off_flg),
+				TFS(&tfs_on_off),
 				0x0,
 				"Full Picture Freeze Release", HFILL
 			}
@@ -837,7 +829,7 @@ proto_register_h263_data(void)
 				"h263.opt_unres_motion_vector_mode",
 				FT_BOOLEAN,
 				BASE_NONE,
-				TFS(&on_off_flg),
+				TFS(&tfs_on_off),
 				0x0,
 				"Optional Unrestricted Motion Vector mode", HFILL
 			}
@@ -849,7 +841,7 @@ proto_register_h263_data(void)
 				"h263.syntax_based_arithmetic_coding_mode",
 				FT_BOOLEAN,
 				BASE_NONE,
-				TFS(&on_off_flg),
+				TFS(&tfs_on_off),
 				0x0,
 				"Optional Syntax-based Arithmetic Coding mode", HFILL
 			}
@@ -861,7 +853,7 @@ proto_register_h263_data(void)
 				"h263.optional_advanced_prediction_mode",
 				FT_BOOLEAN,
 				BASE_NONE,
-				TFS(&on_off_flg),
+				TFS(&tfs_on_off),
 				0x0,
 				"Optional Advanced Prediction mode", HFILL
 			}
@@ -909,7 +901,7 @@ proto_register_h263_data(void)
 				"h263.cpm",
 				FT_BOOLEAN,
 				BASE_NONE,
-				TFS(&cpm_flg),
+				TFS(&tfs_on_off),
 				0x0,
 				"Continuous Presence Multipoint and Video Multiplex (CPM)", HFILL
 			}

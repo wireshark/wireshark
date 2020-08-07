@@ -593,10 +593,6 @@ static const true_false_string mac_lte_ph_value_vals = {
     "Based on real transmission"
 };
 
-static const true_false_string mac_lte_scell_status_vals = {
-    "Activated",
-    "Deactivated"
-};
 
 #define EXT_LOGICAL_CHANNEL_ID_LCID            0x10
 #define ACTIVATION_DEACTIVATION_CSI_RS_LCID    0x15
@@ -9238,43 +9234,43 @@ void proto_register_mac_lte(void)
         { &hf_mac_lte_control_activation_deactivation_c7,
             { "SCell Index 7 Status",
               "mac-lte.control.activation-deactivation.c7", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x80, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x80, NULL, HFILL
             }
         },
         { &hf_mac_lte_control_activation_deactivation_c6,
             { "SCell Index 6 Status",
               "mac-lte.control.activation-deactivation.c6", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x40, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x40, NULL, HFILL
             }
         },
         { &hf_mac_lte_control_activation_deactivation_c5,
             { "SCell Index 5 Status",
               "mac-lte.control.activation-deactivation.c5", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x20, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x20, NULL, HFILL
             }
         },
         { &hf_mac_lte_control_activation_deactivation_c4,
             { "SCell Index 4 Status",
               "mac-lte.control.activation-deactivation.c4", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x10, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x10, NULL, HFILL
             }
         },
         { &hf_mac_lte_control_activation_deactivation_c3,
             { "SCell Index 3 Status",
               "mac-lte.control.activation-deactivation.c3", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x08, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x08, NULL, HFILL
             }
         },
         { &hf_mac_lte_control_activation_deactivation_c2,
             { "SCell Index 2 Status",
               "mac-lte.control.activation-deactivation.c2", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x04, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x04, NULL, HFILL
             }
         },
         { &hf_mac_lte_control_activation_deactivation_c1,
             { "SCell Index 1 Status",
               "mac-lte.control.activation-deactivation.c1", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x02, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x02, NULL, HFILL
             }
         },
         { &hf_mac_lte_control_activation_deactivation_reserved,
@@ -9286,145 +9282,145 @@ void proto_register_mac_lte(void)
         { &hf_mac_lte_control_activation_deactivation_c15,
             { "SCell Index 15 Status",
               "mac-lte.control.activation-deactivation.c15", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x80, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x80, NULL, HFILL
             }
         },
         { &hf_mac_lte_control_activation_deactivation_c14,
             { "SCell Index 14 Status",
               "mac-lte.control.activation-deactivation.c14", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x40, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x40, NULL, HFILL
             }
         },
         { &hf_mac_lte_control_activation_deactivation_c13,
             { "SCell Index 13 Status",
               "mac-lte.control.activation-deactivation.c13", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x20, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x20, NULL, HFILL
             }
         },
         { &hf_mac_lte_control_activation_deactivation_c12,
             { "SCell Index 12 Status",
               "mac-lte.control.activation-deactivation.c12", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x10, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x10, NULL, HFILL
             }
         },
         { &hf_mac_lte_control_activation_deactivation_c11,
             { "SCell Index 11 Status",
               "mac-lte.control.activation-deactivation.c11", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x08, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x08, NULL, HFILL
             }
         },
         { &hf_mac_lte_control_activation_deactivation_c10,
             { "SCell Index 10 Status",
               "mac-lte.control.activation-deactivation.c10", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x04, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x04, NULL, HFILL
             }
         },
         { &hf_mac_lte_control_activation_deactivation_c9,
             { "SCell Index 9 Status",
               "mac-lte.control.activation-deactivation.c9", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x02, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x02, NULL, HFILL
             }
         },
         { &hf_mac_lte_control_activation_deactivation_c8,
             { "SCell Index 8 Status",
               "mac-lte.control.activation-deactivation.c8", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x01, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x01, NULL, HFILL
             }
         },
         { &hf_mac_lte_control_activation_deactivation_c23,
             { "SCell Index 23 Status",
               "mac-lte.control.activation-deactivation.c23", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x80, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x80, NULL, HFILL
             }
         },
         { &hf_mac_lte_control_activation_deactivation_c22,
             { "SCell Index 22 Status",
               "mac-lte.control.activation-deactivation.c22", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x40, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x40, NULL, HFILL
             }
         },
         { &hf_mac_lte_control_activation_deactivation_c21,
             { "SCell Index 21 Status",
               "mac-lte.control.activation-deactivation.c21", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x20, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x20, NULL, HFILL
             }
         },
         { &hf_mac_lte_control_activation_deactivation_c20,
             { "SCell Index 20 Status",
               "mac-lte.control.activation-deactivation.c20", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x10, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x10, NULL, HFILL
             }
         },
         { &hf_mac_lte_control_activation_deactivation_c19,
             { "SCell Index 19 Status",
               "mac-lte.control.activation-deactivation.c19", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x08, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x08, NULL, HFILL
             }
         },
         { &hf_mac_lte_control_activation_deactivation_c18,
             { "SCell Index 18 Status",
               "mac-lte.control.activation-deactivation.c18", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x04, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x04, NULL, HFILL
             }
         },
         { &hf_mac_lte_control_activation_deactivation_c17,
             { "SCell Index 17 Status",
               "mac-lte.control.activation-deactivation.c17", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x02, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x02, NULL, HFILL
             }
         },
         { &hf_mac_lte_control_activation_deactivation_c16,
             { "SCell Index 16 Status",
               "mac-lte.control.activation-deactivation.c16", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x01, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x01, NULL, HFILL
             }
         },
         { &hf_mac_lte_control_activation_deactivation_c31,
             { "SCell Index 31 Status",
               "mac-lte.control.activation-deactivation.c31", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x80, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x80, NULL, HFILL
             }
         },
         { &hf_mac_lte_control_activation_deactivation_c30,
             { "SCell Index 30 Status",
               "mac-lte.control.activation-deactivation.c30", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x40, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x40, NULL, HFILL
             }
         },
         { &hf_mac_lte_control_activation_deactivation_c29,
             { "SCell Index 29 Status",
               "mac-lte.control.activation-deactivation.c29", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x20, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x20, NULL, HFILL
             }
         },
         { &hf_mac_lte_control_activation_deactivation_c28,
             { "SCell Index 28 Status",
               "mac-lte.control.activation-deactivation.c28", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x10, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x10, NULL, HFILL
             }
         },
         { &hf_mac_lte_control_activation_deactivation_c27,
             { "SCell Index 27 Status",
               "mac-lte.control.activation-deactivation.c27", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x08, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x08, NULL, HFILL
             }
         },
         { &hf_mac_lte_control_activation_deactivation_c26,
             { "SCell Index 26 Status",
               "mac-lte.control.activation-deactivation.c26", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x04, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x04, NULL, HFILL
             }
         },
         { &hf_mac_lte_control_activation_deactivation_c25,
             { "SCell Index 25 Status",
               "mac-lte.control.activation-deactivation.c25", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x02, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x02, NULL, HFILL
             }
         },
         { &hf_mac_lte_control_activation_deactivation_c24,
             { "SCell Index 24 Status",
               "mac-lte.control.activation-deactivation.c24", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x01, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x01, NULL, HFILL
             }
         },
 

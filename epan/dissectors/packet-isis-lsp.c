@@ -4260,9 +4260,6 @@ dissect_isis_l2_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
  * if it's *clear*, the metric is supported, and if it's *set*, the
  * metric is not supported.
  */
-static const true_false_string tfs_metric_supported_not_supported = {
-	"No", "Yes"
-};
 
 void
 proto_register_isis_lsp(void)
@@ -5733,7 +5730,7 @@ proto_register_isis_lsp(void)
         },
         { &hf_isis_lsp_default_support,
           { "Default metric supported", "isis.lsp.default_support",
-            FT_BOOLEAN, 8, TFS(&tfs_metric_supported_not_supported), 0x80,
+            FT_BOOLEAN, 8, TFS(&tfs_no_yes), 0x80,
             NULL, HFILL }
         },
         { &hf_isis_lsp_delay,
@@ -5743,7 +5740,7 @@ proto_register_isis_lsp(void)
         },
         { &hf_isis_lsp_delay_support,
           { "Delay metric supported", "isis.lsp.delay_support",
-            FT_BOOLEAN, 8, TFS(&tfs_metric_supported_not_supported), 0x80,
+            FT_BOOLEAN, 8, TFS(&tfs_no_yes), 0x80,
             NULL, HFILL }
         },
         { &hf_isis_lsp_expense,
@@ -5753,7 +5750,7 @@ proto_register_isis_lsp(void)
         },
         { &hf_isis_lsp_expense_support,
           { "Expense metric supported", "isis.lsp.expense_support",
-            FT_BOOLEAN, 8, TFS(&tfs_metric_supported_not_supported), 0x80,
+            FT_BOOLEAN, 8, TFS(&tfs_no_yes), 0x80,
             NULL, HFILL }
         },
         { &hf_isis_lsp_error,
@@ -5763,7 +5760,7 @@ proto_register_isis_lsp(void)
         },
         { &hf_isis_lsp_error_support,
           { "Error metric supported", "isis.lsp.error_support",
-            FT_BOOLEAN, 8, TFS(&tfs_metric_supported_not_supported), 0x80,
+            FT_BOOLEAN, 8, TFS(&tfs_no_yes), 0x80,
             NULL, HFILL }
         },
 

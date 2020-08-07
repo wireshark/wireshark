@@ -2878,12 +2878,6 @@ static const true_false_string tfs_rmtauthretry_flags =
   "Deny"
 };
 
-static const true_false_string tfs_mortisepins_flags =
-{
-  "High",
-  "Low"
-};
-
 static const true_false_string tfs_errornoerror_flags =
 {
   "Error",
@@ -8177,22 +8171,22 @@ void proto_register_r3 (void)
 
       { &hf_r3_mortisepins_s1,
         { "Mortise Pin S1", "r3.mortisepins.s1",
-          FT_BOOLEAN, 8, TFS (&tfs_mortisepins_flags), 0x00000001,
+          FT_BOOLEAN, 8, TFS (&tfs_high_low), 0x00000001,
           NULL, HFILL }
       },
       { &hf_r3_mortisepins_s2,
         { "Mortise Pin S2", "r3.mortisepins.s2",
-          FT_BOOLEAN, 8, TFS (&tfs_mortisepins_flags), 0x00000002,
+          FT_BOOLEAN, 8, TFS (&tfs_high_low), 0x00000002,
           NULL, HFILL }
       },
       { &hf_r3_mortisepins_s3,
         { "Mortise Pin S3", "r3.mortisepins.s3",
-          FT_BOOLEAN, 8, TFS (&tfs_mortisepins_flags), 0x00000004,
+          FT_BOOLEAN, 8, TFS (&tfs_high_low), 0x00000004,
           NULL, HFILL }
       },
       { &hf_r3_mortisepins_s4,
         { "Mortise Pin S4", "r3.mortisepins.s4",
-          FT_BOOLEAN, 8, TFS (&tfs_mortisepins_flags), 0x00000008,
+          FT_BOOLEAN, 8, TFS (&tfs_high_low), 0x00000008,
           NULL, HFILL }
       },
 

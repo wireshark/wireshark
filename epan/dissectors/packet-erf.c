@@ -645,14 +645,10 @@ static const header_field_info erf_tunneling_modes[] = {
   { "MPLS over VLAN", "mpls_vlan", FT_BOOLEAN, 32, NULL, 0x20, NULL, HFILL }
 };
 
-static const true_false_string erf_link_status_tfs = {
-  "Up",
-  "Down"
-};
 
 /* Used as templates for ERF_META_TAG_if_link_status */
 static const header_field_info erf_link_status[] = {
-  { "Link", "link", FT_BOOLEAN, 32, TFS(&erf_link_status_tfs), 0x1, NULL, HFILL }
+  { "Link", "link", FT_BOOLEAN, 32, TFS(&tfs_up_down), 0x1, NULL, HFILL }
 };
 
 /* Used as templates for ERF_META_TAG_ptp_time_properties */

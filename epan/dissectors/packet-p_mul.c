@@ -252,9 +252,6 @@ static const enum_val_t decode_options[] = {
   { NULL,   NULL,                   0           }
 };
 
-static const true_false_string no_yes = {
-  "No", "Yes"
-};
 
 static const gchar *get_type (guint8 value)
 {
@@ -1316,10 +1313,10 @@ void proto_register_p_mul (void)
         NULL, 0x0, NULL, HFILL } },
     { &hf_map_first,
       { "First", "p_mul.first", FT_BOOLEAN, 8,
-        TFS (&no_yes), 0x80, NULL, HFILL } },
+        TFS (&tfs_no_yes), 0x80, NULL, HFILL } },
     { &hf_map_last,
       { "Last", "p_mul.last", FT_BOOLEAN, 8,
-        TFS (&no_yes), 0x40, NULL, HFILL } },
+        TFS (&tfs_no_yes), 0x40, NULL, HFILL } },
     { &hf_map_unused,
       { "MAP unused", "p_mul.unused", FT_UINT8, BASE_DEC,
         NULL, 0xC0, NULL, HFILL } },

@@ -1464,10 +1464,7 @@ dissect_rsl_ie_ms_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
     return offset;
 }
 
-static const true_false_string rsl_ms_fpc_epc_mode_vals = {
-  "In use",
-  "Not in use"
-};
+
 /*
  * 9.3.13 MS Power
  */
@@ -4625,7 +4622,7 @@ void proto_register_rsl(void)
         },
         { &hf_rsl_l1inf_fpc,
           { "FPC/EPC",           "gsm_abis_rsl.ms_fpc",
-            FT_BOOLEAN, 8, TFS(&rsl_ms_fpc_epc_mode_vals), 0x04,
+            FT_BOOLEAN, 8, TFS(&tfs_inuse_not_inuse), 0x04,
             NULL, HFILL }
         },
         { &hf_rsl_ms_power_lev,
@@ -4635,7 +4632,7 @@ void proto_register_rsl(void)
         },
         { &hf_rsl_ms_fpc,
           { "FPC/EPC",           "gsm_abis_rsl.ms_fpc",
-            FT_BOOLEAN, 8, TFS(&rsl_ms_fpc_epc_mode_vals), 0x20,
+            FT_BOOLEAN, 8, TFS(&tfs_inuse_not_inuse), 0x20,
             NULL, HFILL }
         },
         { &hf_rsl_act_timing_adv,

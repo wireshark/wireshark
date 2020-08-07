@@ -529,9 +529,6 @@ static const value_string file_integrity_vals[] = {
 	{ 0,   NULL }
 };
 
-#if 0
-static const true_false_string tfs_not_expected_expected = { "Odd", "Even" };
-#endif
 
 /* The following hf_* variables are used to hold the Wireshark IDs of
 * our header fields; they are filled out when we call
