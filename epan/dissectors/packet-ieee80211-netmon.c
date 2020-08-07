@@ -81,6 +81,7 @@ dissect_netmon_802_11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
   guint8      version;
   guint16     length;
   guint32     phy_type;
+  guint32     monitor_mode;
   guint32     flags;
   guint32     channel;
   gint        calc_channel;
@@ -140,8 +141,26 @@ dissect_netmon_802_11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
                       4, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(opmode_tree, hf_netmon_802_11_op_mode_sta_ext, tvb,
                       offset, 4, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(opmode_tree, hf_netmon_802_11_op_mode_mon, tvb, offset,
-                      4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item_ret_uint(opmode_tree, hf_netmon_802_11_op_mode_mon, tvb, offset,
+                               4, ENC_LITTLE_ENDIAN, &monitor_mode);
+  if (!monitor_mode) {
+    /*
+     * If a NetMon capture is not done in monitor mode, we may see frames
+     * with the Protect bit set (because they were encrypted on the air)
+     * but that aren't encrypted (because they've been decrypted before
+     * being written to the file).  This wasn't done in monitor mode, as
+     * the "monitor mode" flag wasn't set, so supporess treating the
+     * Protect flag as an indication that the frame was encrypted.
+     */
+    phdr->decrypted = TRUE;
+
+    /*
+     * Furthermore, we may see frames with the A-MSDU Present flag set
+     * in the QoS Control field but that have a regular frame, nto a
+     * sequence of A-MSDUs, in the payload.
+     */
+    phdr->no_a_msdus = TRUE;
+  }
   offset += 4;
 
   /*

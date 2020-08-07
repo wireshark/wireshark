@@ -25723,7 +25723,7 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
       guint32 src_offset, dst_offset, da_offset, sa_offset, ta_offset = 10, bssid_offset;
       addr_type = FCF_ADDR_SELECTOR(fcf);
       if ((option_flags & IEEE80211_COMMON_OPT_NORMAL_QOS) && DATA_FRAME_IS_QOS(frame_type_subtype)) {
-        if (!DATA_FRAME_IS_NULL(frame_type_subtype)) {
+        if (!phdr->no_a_msdus && !DATA_FRAME_IS_NULL(frame_type_subtype)) {
           is_amsdu = QOS_AMSDU_PRESENT(qos_control);
         }
       }
@@ -26045,7 +26045,8 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
 
         if (!DATA_FRAME_IS_NULL(frame_type_subtype)) {
           proto_tree_add_item(qos_tree, hf_ieee80211_qos_amsdu_present, tvb, qosoff, 2, ENC_LITTLE_ENDIAN);
-          is_amsdu = QOS_AMSDU_PRESENT(qos_control);
+          if (!phdr->no_a_msdus)
+            is_amsdu = QOS_AMSDU_PRESENT(qos_control);
         }
 
         if (meshctl_len) {

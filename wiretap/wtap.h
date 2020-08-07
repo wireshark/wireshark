@@ -834,8 +834,9 @@ union ieee_802_11_phy_info {
 
 struct ieee_802_11_phdr {
     gint     fcs_len;          /* Number of bytes of FCS - -1 means "unknown" */
-    gboolean decrypted;        /* TRUE if frame is decrypted even if "protected" bit is set */
-    gboolean datapad;          /* TRUE if frame has padding between 802.11 header and payload */
+    guint    decrypted:1;      /* TRUE if frame is decrypted even if "protected" bit is set */
+    guint    datapad:1;        /* TRUE if frame has padding between 802.11 header and payload */
+    guint    no_a_msdus:1;     /* TRUE if we should ignore the A-MSDU bit */
     guint    phy;              /* PHY type */
     union ieee_802_11_phy_info phy_info;
 

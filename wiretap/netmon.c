@@ -1000,6 +1000,12 @@ netmon_set_pseudo_header_info(wtap_rec *rec, Buffer *buf)
 		 *  seen where both Management and Control frames
 		 *  do not have an FCS).
 		 * An "FCS length" of -2 means "NetMon weirdness".
+		 *
+		 * The metadata header also has a bit indicating whether
+		 * the adapter was in monitor mode or not; if it isn't,
+		 * we set "decrypted" to TRUE, as, for those frames, the
+		 * Protected bit is preserved in received frames, but
+		 * the frame is decrypted.
 		 */
 		memset(&rec->rec_header.packet_header.pseudo_header.ieee_802_11, 0, sizeof(rec->rec_header.packet_header.pseudo_header.ieee_802_11));
 		rec->rec_header.packet_header.pseudo_header.ieee_802_11.fcs_len = -2;
