@@ -248,7 +248,7 @@ export_pdu_create_tags(packet_info *pinfo, const char* proto_name, guint16 tag_t
 	DISSECTOR_ASSERT(proto_name != NULL);
 	DISSECTOR_ASSERT((tag_type == EXP_PDU_TAG_PROTO_NAME) || (tag_type == EXP_PDU_TAG_HEUR_PROTO_NAME) || (tag_type == EXP_PDU_TAG_DISSECTOR_TABLE_NAME));
 
-	exp_pdu_data = (exp_pdu_data_t *)wmem_alloc(wmem_packet_scope(), sizeof(exp_pdu_data_t));
+	exp_pdu_data = wmem_new(wmem_packet_scope(), exp_pdu_data_t);
 
 	/* Start by computing size of protocol name as a tag */
 	proto_str_len = (int)strlen(proto_name);

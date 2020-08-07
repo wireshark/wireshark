@@ -194,7 +194,7 @@ dissect_unistim(tvbuff_t *tvb,packet_info *pinfo,proto_tree *tree,void *data _U_
    proto_tree_add_item(rudpm_tree,hf_unistim_seq_nu,tvb,offset,4,ENC_BIG_ENDIAN);
 
    /* Allocate new mem for queueing */
-   uinfo = (unistim_info_t *)wmem_alloc(wmem_packet_scope(), sizeof(unistim_info_t));
+   uinfo = wmem_new(wmem_packet_scope(), unistim_info_t);
 
    /* Clear tap struct */
    uinfo->rudp_type = 0;
