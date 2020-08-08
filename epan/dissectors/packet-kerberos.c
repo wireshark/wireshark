@@ -7016,7 +7016,7 @@ dissect_kerberos_EncryptedChallenge(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 
 /*--- End of included file: packet-kerberos-fn.c ---*/
-#line 3822 "./asn1/kerberos/packet-kerberos-template.c"
+#line 3815 "./asn1/kerberos/packet-kerberos-template.c"
 
 #ifdef HAVE_KERBEROS
 static const ber_sequence_t PA_ENC_TS_ENC_sequence[] = {
@@ -8636,7 +8636,7 @@ void proto_register_kerberos(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-kerberos-hfarr.c ---*/
-#line 4593 "./asn1/kerberos/packet-kerberos-template.c"
+#line 4586 "./asn1/kerberos/packet-kerberos-template.c"
 	};
 
 	/* List of subtrees */
@@ -8740,7 +8740,7 @@ void proto_register_kerberos(void) {
     &ett_kerberos_EncryptedChallenge,
 
 /*--- End of included file: packet-kerberos-ettarr.c ---*/
-#line 4620 "./asn1/kerberos/packet-kerberos-template.c"
+#line 4613 "./asn1/kerberos/packet-kerberos-template.c"
 	};
 
 	static ei_register_info ei[] = {

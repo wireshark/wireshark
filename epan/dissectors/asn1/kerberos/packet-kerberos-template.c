@@ -3196,10 +3196,6 @@ static int * const hf_krb_pa_supported_enctypes_fields[] = {
 	NULL,
 };
 
-static const true_false_string supported_tfs = {
-	"Supported", "Not supported"
-};
-
 static int
 dissect_kerberos_PA_SUPPORTED_ENCTYPES(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 				       int offset _U_, asn1_ctx_t *actx _U_,
@@ -3220,9 +3216,6 @@ static int * const hf_krb_ad_ap_options_fields[] = {
 	NULL,
 };
 
-static const true_false_string set_tfs = {
-	"Set", "Not set"
-};
 
 static int
 dissect_kerberos_AD_AP_OPTIONS(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
@@ -4456,37 +4449,37 @@ void proto_register_kerberos(void) {
 	    FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
 	{ &hf_krb_pa_supported_enctypes_des_cbc_crc,
 	  { "des-cbc-crc", "kerberos.supported_entypes.des-cbc-crc",
-	    FT_BOOLEAN, 32, TFS(&supported_tfs), 0x00000001, NULL, HFILL }},
+		FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x00000001, NULL, HFILL }},
 	{ &hf_krb_pa_supported_enctypes_des_cbc_md5,
 	  { "des-cbc-md5", "kerberos.supported_entypes.des-cbc-md5",
-	    FT_BOOLEAN, 32, TFS(&supported_tfs), 0x00000002, NULL, HFILL }},
+		FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x00000002, NULL, HFILL }},
 	{ &hf_krb_pa_supported_enctypes_rc4_hmac,
 	  { "rc4-hmac", "kerberos.supported_entypes.rc4-hmac",
-	    FT_BOOLEAN, 32, TFS(&supported_tfs), 0x00000004, NULL, HFILL }},
+		FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x00000004, NULL, HFILL }},
 	{ &hf_krb_pa_supported_enctypes_aes128_cts_hmac_sha1_96,
 	  { "aes128-cts-hmac-sha1-96", "kerberos.supported_entypes.aes128-cts-hmac-sha1-96",
-	    FT_BOOLEAN, 32, TFS(&supported_tfs), 0x00000008, NULL, HFILL }},
+		FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x00000008, NULL, HFILL }},
 	{ &hf_krb_pa_supported_enctypes_aes256_cts_hmac_sha1_96,
 	  { "aes256-cts-hmac-sha1-96", "kerberos.supported_entypes.aes256-cts-hmac-sha1-96",
-	    FT_BOOLEAN, 32, TFS(&supported_tfs), 0x00000010, NULL, HFILL }},
+		FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x00000010, NULL, HFILL }},
 	{ &hf_krb_pa_supported_enctypes_fast_supported,
 	  { "fast-supported", "kerberos.supported_entypes.fast-supported",
-	    FT_BOOLEAN, 32, TFS(&supported_tfs), 0x00010000, NULL, HFILL }},
+		FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x00010000, NULL, HFILL }},
 	{ &hf_krb_pa_supported_enctypes_compound_identity_supported,
 	  { "compound-identity-supported", "kerberos.supported_entypes.compound-identity-supported",
-	    FT_BOOLEAN, 32, TFS(&supported_tfs), 0x00020000, NULL, HFILL }},
+		FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x00020000, NULL, HFILL }},
 	{ &hf_krb_pa_supported_enctypes_claims_supported,
 	  { "claims-supported", "kerberos.supported_entypes.claims-supported",
-	    FT_BOOLEAN, 32, TFS(&supported_tfs), 0x00040000, NULL, HFILL }},
+		FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x00040000, NULL, HFILL }},
 	{ &hf_krb_pa_supported_enctypes_resource_sid_compression_disabled,
 	  { "resource-sid-compression-disabled", "kerberos.supported_entypes.resource-sid-compression-disabled",
-	    FT_BOOLEAN, 32, TFS(&supported_tfs), 0x00080000, NULL, HFILL }},
+		FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x00080000, NULL, HFILL }},
 	{ &hf_krb_ad_ap_options,
 	  { "AD-AP-Options", "kerberos.ad_ap_options",
 	    FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
 	{ &hf_krb_ad_ap_options_cbt,
 	  { "ChannelBindings", "kerberos.ad_ap_options.cbt",
-	    FT_BOOLEAN, 32, TFS(&set_tfs), 0x00004000, NULL, HFILL }},
+		FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00004000, NULL, HFILL }},
 	{ &hf_krb_ad_target_principal,
 	  { "Target Principal", "kerberos.ad_target_principal",
 	    FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
