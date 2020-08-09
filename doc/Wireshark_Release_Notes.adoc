@@ -225,6 +225,7 @@ SBAS L5 messages
 Universal Measurement and Calibration Protocol (XCP)
 vSomeIP Internal Protocol (vSomeIP)
 VLP-16 Data and Position messaging
+Navitrol messaging
 --
 
 === Updated Protocol Support

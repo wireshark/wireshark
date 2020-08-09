@@ -1592,6 +1592,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-nasdaq-itch.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-nasdaq-soup.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-nat-pmp.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-navitrol.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-nb_rtpmux.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-nbd.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-nbifom.c
