@@ -135,7 +135,7 @@
     </message>
     <message>
         <source>Can&apos;t assign %1 to %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 を %2 に割り当てることができません</translation>
     </message>
 </context>
 <context>
@@ -7871,7 +7871,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Merging files.</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイルを結合</translation>
     </message>
     <message>
         <source>%1: %2</source>
@@ -7938,11 +7938,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>No interface selected.</source>
-        <translation type="unfinished"></translation>
+        <translation>インターフェースが選択されていません</translation>
     </message>
     <message>
         <source>Invalid capture filter.</source>
-        <translation type="unfinished"></translation>
+        <translation>無効なキャプチャフィルタ</translation>
     </message>
     <message>
         <source> before starting a new capture</source>
@@ -7964,27 +7964,27 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>No filter available. Try another %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>フィルタが利用できません 別の %1 を利用してください</translation>
     </message>
     <message>
         <source>column</source>
-        <translation type="unfinished"></translation>
+        <translation>列</translation>
     </message>
     <message>
         <source>item</source>
-        <translation type="unfinished"></translation>
+        <translation>項目</translation>
     </message>
     <message>
         <source>The &quot;%1&quot; column already exists.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; 列は既に存在します</translation>
     </message>
     <message>
         <source>The &quot;%1&quot; column already exists as &quot;%2&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; 列は &quot;%2&quot; として既に存在します</translation>
     </message>
     <message>
         <source>No Interface Selected.</source>
-        <translation type="unfinished"></translation>
+        <translation>インターフェースが選択されていません</translation>
     </message>
     <message>
         <source> before restarting the capture</source>
@@ -13589,11 +13589,11 @@ a:hover {
     <name>WirelessTimeline</name>
     <message>
         <source>Packet number %1 does not include TSF timestamp, not showing timeline.</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット番号 %1 にはTSF タイムスタンプが含まれないため、タイムラインを表示しません</translation>
     </message>
     <message>
         <source>Packet number %u has large negative jump in TSF, not showing timeline. Perhaps TSF reference point is set wrong?</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット番号 %u のTSFには大きな負数ジャンプがあり、タイムラインに表示できません。おそらく、TSF参照点の設定が誤っているかもしれません。</translation>
     </message>
 </context>
 <context>

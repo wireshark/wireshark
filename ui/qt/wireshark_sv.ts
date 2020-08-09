@@ -136,7 +136,7 @@
     </message>
     <message>
         <source>Can&apos;t assign %1 to %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kan inte tilldela %1 till %2.</translation>
     </message>
 </context>
 <context>
@@ -323,11 +323,11 @@
     </message>
     <message>
         <source>LE ISO MTU</source>
-        <translation type="unfinished"></translation>
+        <translation>LE ISO MTU</translation>
     </message>
     <message>
         <source>LE ISO Total Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>LE ISO totalt antal paket</translation>
     </message>
     <message>
         <source>Inquiry Mode</source>
@@ -993,7 +993,7 @@
     </message>
     <message>
         <source>Section %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Avsnitt %1</translation>
     </message>
     <message>
         <source>Capture</source>
@@ -1093,7 +1093,7 @@
     </message>
     <message>
         <source>Section Comment</source>
-        <translation type="unfinished"></translation>
+        <translation>Avsnittskommentar</translation>
     </message>
     <message>
         <source>Packet Comments</source>
@@ -2304,7 +2304,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Address</source>
-        <translation type="unfinished">Adress</translation>
+        <translation>Adress</translation>
     </message>
     <message>
         <source>All entries</source>
@@ -2312,7 +2312,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Hosts</source>
-        <translation type="unfinished">Värdar</translation>
+        <translation>Värdar</translation>
     </message>
     <message>
         <source>Ethernet Addresses</source>
@@ -2587,7 +2587,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <name>ExtcapArgumentFileSelection</name>
     <message>
         <source>Clear</source>
-        <translation type="unfinished"></translation>
+        <translation>Töm</translation>
     </message>
     <message>
         <source>All Files (</source>
@@ -2599,7 +2599,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Select File</source>
-        <translation type="unfinished"></translation>
+        <translation>Välj fil</translation>
     </message>
 </context>
 <context>
@@ -3810,11 +3810,11 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>All Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Alla paket</translation>
     </message>
     <message>
         <source>TCP Errors</source>
-        <translation type="unfinished"></translation>
+        <translation>TCP-fel</translation>
     </message>
     <message>
         <source>Hover over the graph for details.</source>
@@ -4117,7 +4117,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Analyzing IAX2</source>
-        <translation type="unfinished"></translation>
+        <translation>Analyserar IAX2</translation>
     </message>
     <message>
         <source>Save forward stream CSV</source>
@@ -4428,23 +4428,23 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>&lt;p&gt;Local interfaces are unavailable because no packet capture driver is installed.&lt;/p&gt;&lt;p&gt;You can fix this by installing &lt;a href=&quot;https://nmap.org/npcap/&quot;&gt;Npcap&lt;/a&gt; or &lt;a href=&quot;https://www.winpcap.org/install/default.htm&quot;&gt;WinPcap&lt;/a&gt;.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Lokala gränssnitt är otillgängliga för att ingen paketfångsdrivrutin är installerad.&lt;/p&gt;&lt;p&gt;Du kan fixa detta genom att installera &lt;a href=&quot;https://nmap.org/npcap/&quot;&gt;Npcap&lt;/a&gt; eller &lt;a href=&quot;https://www.winpcap.org/install/default.htm&quot;&gt;WinPcap&lt;/a&gt;.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;Local interfaces are unavailable because the packet capture driver isn&apos;t loaded.&lt;/p&gt;&lt;p&gt;You can fix this by running &lt;pre&gt;net start npcap&lt;/pre&gt; if you have Npcap installed or &lt;pre&gt;net start npf&lt;/pre&gt; if you have WinPcap installed. Both commands must be run as Administrator.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Lokala gränssnitt är otillgängliga för att paketfångstdrivrutinen inte är inläst.&lt;/p&gt;&lt;p&gt;Du kan fixa detta genom att köra &lt;pre&gt;net start npcap&lt;/pre&gt; om du har Npcap installerat eller &lt;pre&gt;net start npf&lt;/pre&gt; om du har WinPcap installerat. Båda kommandona måste köras som administratör.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;You don&apos;t have permission to capture on local interfaces.&lt;/p&gt;&lt;p&gt;You can fix this by &lt;a href=&quot;file://%1&quot;&gt;installing ChmodBPF&lt;/a&gt;.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Du har inte rättigheter att fånga från lokala gränssnitt.&lt;/p&gt;&lt;p&gt;Du kan fixa detta genom att &lt;a href=&quot;file://%1&quot;&gt;installera ChmodBPF&lt;/a&gt;.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>You don&apos;t have permission to capture on local interfaces.</source>
-        <translation type="unfinished"></translation>
+        <translation>Du har inte rättigheter att fånga från lokala gränssnitt.</translation>
     </message>
     <message>
         <source>No interfaces found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Inga gränssnitt hittades.</translation>
     </message>
     <message>
         <source>Interfaces not loaded (due to preference). Go to Capture </source>
@@ -4500,11 +4500,11 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>No interfaces found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Inga gränssnitt hittades.</translation>
     </message>
     <message>
         <source>This version of Wireshark was built without packet capture support.</source>
-        <translation type="unfinished"></translation>
+        <translation>Denna version av Wireshark byggdes utan stöd för paketfångst.</translation>
     </message>
     <message>
         <source>Local Pipe Path</source>
@@ -5423,7 +5423,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Show column definition in column context menu</source>
-        <translation type="unfinished"></translation>
+        <translation>Visa kolumndefinitioner i kolumnkontextmenyn</translation>
     </message>
     <message>
         <source>Status Bar settings:</source>
@@ -6994,7 +6994,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>&amp;I/O Graphs</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;I/O-grafer</translation>
     </message>
     <message>
         <source>&amp;Conversations</source>
@@ -7202,11 +7202,11 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>U&amp;nignore All Displayed</source>
-        <translation type="unfinished"></translation>
+        <translation>Avig&amp;norera alla visade</translation>
     </message>
     <message>
         <source>Unignore all displayed packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Avignorera alla visade paket</translation>
     </message>
     <message>
         <source>Time Shift…</source>
@@ -7887,7 +7887,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Merging files.</source>
-        <translation type="unfinished"></translation>
+        <translation>Slår samman filer.</translation>
     </message>
     <message>
         <source>%1: %2</source>
@@ -7955,11 +7955,11 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>No interface selected.</source>
-        <translation type="unfinished"></translation>
+        <translation>Inget gränssnitt valt.</translation>
     </message>
     <message>
         <source>Invalid capture filter.</source>
-        <translation type="unfinished"></translation>
+        <translation>Felaktigt fångstfilter.</translation>
     </message>
     <message>
         <source> before starting a new capture</source>
@@ -7982,27 +7982,27 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>No filter available. Try another %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Inget filter tillgängligt.  Försök med ett annat %1.</translation>
     </message>
     <message>
         <source>column</source>
-        <translation type="unfinished"></translation>
+        <translation>kolumn</translation>
     </message>
     <message>
         <source>item</source>
-        <translation type="unfinished"></translation>
+        <translation>post</translation>
     </message>
     <message>
         <source>The &quot;%1&quot; column already exists.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kolumnen ”%1” finns redan.</translation>
     </message>
     <message>
         <source>The &quot;%1&quot; column already exists as &quot;%2&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kolumnen ”%1” finns redan som ”%2”.</translation>
     </message>
     <message>
         <source>No Interface Selected.</source>
-        <translation type="unfinished"></translation>
+        <translation>Inget gränssnitt valt.</translation>
     </message>
     <message>
         <source> before restarting the capture</source>
@@ -8098,19 +8098,19 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Window title</source>
-        <translation type="unfinished"></translation>
+        <translation>Fönstertitel</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Custom window title to be appended to the existing title&lt;br/&gt;%F = file path of the capture file&lt;br/&gt;%P = profile name&lt;br/&gt;%S = a conditional separator (&amp;quot; - &amp;quot;) that only shows when surrounded by variables with values or static text&lt;br/&gt;%V = version info&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Anpassad fönstertitel att läggas till efter den befintliga titeln&lt;br/&gt;%F = filsökväg till fångstfilen&lt;br/&gt;%P = profilnamn&lt;br/&gt;%S = en villkorlig separator (&amp;quot; - &amp;quot;) som bara visas när den omges av variabler med värden eller statisk text&lt;br/&gt;%V = versionsinformation&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Prepend window title</source>
-        <translation type="unfinished"></translation>
+        <translation>Lägg till före fönstertiteln</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Custom window title to be prepended to the existing title&lt;br/&gt;%F = file path of the capture file&lt;br/&gt;%P = profile name&lt;br/&gt;%S = a conditional separator (&amp;quot; - &amp;quot;) that only shows when surrounded by variables with values or static text&lt;br/&gt;%V = version info&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Anpassad fönstertitel att läggas till före den befintliga titeln&lt;br/&gt;%F = filsökväg till fångstfilen&lt;br/&gt;%P = profilnamn&lt;br/&gt;%S = en villkorlig separator (&amp;quot; - &amp;quot;) som bara visas när den omges av variabler med värden eller statisk text&lt;br/&gt;%V = versionsinformation&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Language: </source>
@@ -8508,7 +8508,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <name>PacketList</name>
     <message>
         <source>Protocol Preferences</source>
-        <translation type="unfinished">Protokollinställningar</translation>
+        <translation>Protokollinställningar</translation>
     </message>
     <message>
         <source>Summary as Text</source>
@@ -8713,7 +8713,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Browse…</source>
-        <translation type="unfinished"></translation>
+        <translation>Bläddra…</translation>
     </message>
     <message>
         <source>Open %1 preferences</source>
@@ -9103,7 +9103,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>TextLabel</source>
-        <translation type="unfinished">TextEtikett</translation>
+        <translation>TextEtikett</translation>
     </message>
 </context>
 <context>
@@ -9575,31 +9575,31 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>LCID 32</source>
-        <translation type="unfinished">LCID 32</translation>
+        <translation>LCID 32</translation>
     </message>
     <message>
         <source>LCID 33</source>
-        <translation type="unfinished">LCID 33</translation>
+        <translation>LCID 33</translation>
     </message>
     <message>
         <source>LCID 34</source>
-        <translation type="unfinished">LCID 34</translation>
+        <translation>LCID 34</translation>
     </message>
     <message>
         <source>LCID 35</source>
-        <translation type="unfinished">LCID 35</translation>
+        <translation>LCID 35</translation>
     </message>
     <message>
         <source>LCID 36</source>
-        <translation type="unfinished">LCID 36</translation>
+        <translation>LCID 36</translation>
     </message>
     <message>
         <source>LCID 37</source>
-        <translation type="unfinished">LCID 37</translation>
+        <translation>LCID 37</translation>
     </message>
     <message>
         <source>LCID 38</source>
-        <translation type="unfinished">LCID 38</translation>
+        <translation>LCID 38</translation>
     </message>
     <message>
         <source>TM</source>
@@ -10362,7 +10362,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Analyzing RTP</source>
-        <translation type="unfinished"></translation>
+        <translation>Analyserar RTP</translation>
     </message>
     <message>
         <source>Information</source>
@@ -10520,7 +10520,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Play</source>
-        <translation type="unfinished"></translation>
+        <translation>Spela</translation>
     </message>
     <message>
         <source>Source Address</source>
@@ -10799,15 +10799,15 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Double click to change audio routing</source>
-        <translation type="unfinished"></translation>
+        <translation>Dubbelklicka för att ändra audioruttläggning</translation>
     </message>
     <message>
         <source>Start: %1. Double click to set start of playback.</source>
-        <translation type="unfinished"></translation>
+        <translation>Start: %1.  Dubbelklicka för att ange start av uppspelning.</translation>
     </message>
     <message>
         <source>Start: %1, cursor: %2. Press &quot;G&quot; to go to packet %3. Double click to set start of playback.</source>
-        <translation type="unfinished"></translation>
+        <translation>Start: %1, markör: %2.  Tryck ”G” för att gå till paket %3.  Dubbelklicka för att ange start av uppspelning.</translation>
     </message>
     <message>
         <source>Unknown</source>
@@ -11796,7 +11796,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Searching for %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Sök efter %1</translation>
     </message>
     <message>
         <source>No packet contained those bytes.</source>
@@ -12402,11 +12402,11 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <name>SyntaxLineEdit</name>
     <message>
         <source>&quot;%1&quot; is deprecated in favour of &quot;%2&quot;. See the User&apos;s Guide.</source>
-        <translation type="unfinished"></translation>
+        <translation>”%1” bör undvikas till förmån för ”%2”.  Se användarmanualen.</translation>
     </message>
     <message>
         <source>&quot;%1&quot; may have unexpected results. See the User&apos;s Guide.</source>
-        <translation type="unfinished"></translation>
+        <translation>”%1” kan ha oväntad effekt.  Se användarmanualen.</translation>
     </message>
 </context>
 <context>
@@ -13618,11 +13618,11 @@ a:hover {
     <name>WirelessTimeline</name>
     <message>
         <source>Packet number %1 does not include TSF timestamp, not showing timeline.</source>
-        <translation type="unfinished"></translation>
+        <translation>Paket nummer %1 inkluderar inte en TSF-tidsstämpel, visar inte tidsskalan.</translation>
     </message>
     <message>
         <source>Packet number %u has large negative jump in TSF, not showing timeline. Perhaps TSF reference point is set wrong?</source>
-        <translation type="unfinished"></translation>
+        <translation>Paket nummer %u har stora negativa hopp i TSF, visar inte tidsskalan.  Kanske TSF-referenspunkten är felaktigt satt?</translation>
     </message>
 </context>
 <context>

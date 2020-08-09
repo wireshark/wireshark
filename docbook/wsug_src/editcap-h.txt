@@ -1,4 +1,4 @@
-Editcap (Wireshark) 3.3.0 (v3.3.0rc0-15-g451a241e50bd)
+Editcap (Wireshark) 3.3.0 (v3.3.0rc0-1794-gc7728244bb50)
 Edit and/or translate the format of capture files.
 See https://www.wireshark.org for more information.
 
@@ -10,9 +10,9 @@ A single packet or a range of packets can be selected.
 Packet selection:
   -r                     keep the selected packets; default is to delete them.
   -A <start time>        only output packets whose timestamp is after (or equal
-                         to) the given time (format as YYYY-MM-DD hh:mm:ss).
+                         to) the given time (format as YYYY-MM-DD hh:mm:ss[.nnnnnnnnn]).
   -B <stop time>         only output packets whose timestamp is before the
-                         given time (format as YYYY-MM-DD hh:mm:ss).
+                         given time (format as YYYY-MM-DD hh:mm:ss[.nnnnnnnnn]).
 
 Duplicate packet removal:
   --novlan               remove vlan info from packets before checking for duplicates.
@@ -91,6 +91,13 @@ Output File(s):
   --discard-all-secrets  Discard all decryption secrets from the input file
                          when writing the output file.  Does not discard
                          secrets added by "--inject-secrets" in the same
+                         command line.
+  --capture-comment <comment>
+                         Add a capture file comment, if supported.
+  --discard-capture-comment
+                         Discard capture file comments from the input file
+                         when writing the output file.  Does not discard
+                         comments added by "--capture-comment" in the same
                          command line.
 
 Miscellaneous:
