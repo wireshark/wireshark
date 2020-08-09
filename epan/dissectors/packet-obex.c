@@ -2722,7 +2722,7 @@ proto_register_obex(void)
         },
         { &hf_session_parameter,
           { "Session Parameter", "obex.session",
-            FT_UINT8, BASE_HEX, NULL, 0x00,
+            FT_NONE, BASE_NONE, NULL, 0x00,
             NULL, HFILL}
         },
         { &hf_session_parameter_data,
@@ -2767,7 +2767,7 @@ proto_register_obex(void)
         },
         { &hf_authentication_parameter,
           { "Authentication Parameter", "obex.authentication",
-            FT_UINT8, BASE_HEX, NULL, 0x00,
+            FT_NONE, BASE_NONE, NULL, 0x00,
             NULL, HFILL}
         },
         { &hf_authentication_parameter_data,
