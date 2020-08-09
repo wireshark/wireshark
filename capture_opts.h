@@ -21,6 +21,7 @@
 #include <sys/types.h>     /* for gid_t */
 
 #include <caputils/capture_ifinfo.h>
+#include "ringbuffer.h"
 
 #ifdef _WIN32
 #include <windows.h>
@@ -45,6 +46,7 @@ extern "C" {
 #define LONGOPT_NUM_CAP_COMMENT   LONGOPT_BASE_CAPTURE+1
 #define LONGOPT_LIST_TSTAMP_TYPES LONGOPT_BASE_CAPTURE+2
 #define LONGOPT_SET_TSTAMP_TYPE   LONGOPT_BASE_CAPTURE+3
+#define LONGOPT_COMPRESS_TYPE     LONGOPT_BASE_CAPTURE+4
 
 /*
  * Options for capturing common to all capturing programs.
@@ -85,7 +87,8 @@ extern "C" {
     {"snapshot-length",       required_argument, NULL, 's'}, \
     {"linktype",              required_argument, NULL, 'y'}, \
     {"list-time-stamp-types", no_argument,       NULL, LONGOPT_LIST_TSTAMP_TYPES}, \
-    {"time-stamp-type",       required_argument, NULL, LONGOPT_SET_TSTAMP_TYPE},
+    {"time-stamp-type",       required_argument, NULL, LONGOPT_SET_TSTAMP_TYPE}, \
+    {"compress-type",         required_argument, NULL, LONGOPT_COMPRESS_TYPE},
 
 
 #define OPTSTRING_CAPTURE_COMMON \
@@ -317,6 +320,7 @@ typedef struct capture_options_tag {
     /* internally used (don't touch from outside) */
     gboolean           output_to_pipe;        /**< save_file is a pipe (named or stdout) */
     gboolean           capture_child;         /**< hidden option: Wireshark child mode */
+    gchar             *compress_type;         /**< compress type */
 } capture_options;
 
 /* initialize the capture_options with some reasonable values */

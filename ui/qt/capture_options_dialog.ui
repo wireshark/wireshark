@@ -6,15 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>950</width>
-    <height>440</height>
+    <width>1198</width>
+    <height>988</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_12">
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="inputTab">
       <attribute name="title">
@@ -277,11 +277,11 @@
           </item>
           <item row="1" column="0">
            <widget class="QCheckBox" name="PktCheckBox">
-            <property name="text">
-             <string>after</string>
-            </property>
             <property name="toolTip">
              <string>Switch to the next file after the specified number of packets have been captured.</string>
+            </property>
+            <property name="text">
+             <string>after</string>
             </property>
            </widget>
           </item>
@@ -310,11 +310,11 @@
           </item>
           <item row="2" column="0">
            <widget class="QCheckBox" name="MBCheckBox">
-            <property name="text">
-             <string>after</string>
-            </property>
             <property name="toolTip">
              <string>Switch to the next file after the file size exceeds the specified file size.</string>
+            </property>
+            <property name="text">
+             <string>after</string>
             </property>
            </widget>
           </item>
@@ -364,11 +364,11 @@
           </item>
           <item row="3" column="0">
            <widget class="QCheckBox" name="SecsCheckBox">
-            <property name="text">
-             <string>after</string>
-            </property>
             <property name="toolTip">
              <string>Switch to the next file when the time capturing to the current file exceeds the specified time.</string>
+            </property>
+            <property name="text">
+             <string>after</string>
             </property>
            </widget>
           </item>
@@ -418,12 +418,12 @@
           </item>
           <item row="4" column="0">
            <widget class="QCheckBox" name="IntervalSecsCheckBox">
-            <property name="text">
-             <string>when time is a multiple of</string>
-            </property>
             <property name="toolTip">
              <string>Switch to the next file when the (wall clock) time is an even multiple of the specified interval.
 For example, use 1 hour to have a new file created every hour on the hour.</string>
+            </property>
+            <property name="text">
+             <string>when time is a multiple of</string>
             </property>
            </widget>
           </item>
@@ -456,6 +456,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</stri
              <string>Switch to the next file when the (wall clock) time is an even multiple of the specified interval.
 For example, use 1 hour to have a new file created every hour on the hour.</string>
             </property>
+            <property name="currentIndex">
+             <number>2</number>
+            </property>
             <item>
              <property name="text">
               <string>seconds</string>
@@ -471,9 +474,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</stri
               <string>hours</string>
              </property>
             </item>
-            <property name="currentIndex">
-             <number>2</number>
-            </property>
            </widget>
           </item>
          </layout>
@@ -530,6 +530,35 @@ For example, use 1 hour to have a new file created every hour on the hour.</stri
         </layout>
        </item>
        <item>
+        <widget class="QGroupBox" name="gbCompression">
+         <property name="title">
+          <string>compression</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_5">
+          <item>
+           <widget class="QRadioButton" name="rbCompressionNone">
+            <property name="text">
+             <string>None</string>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">buttonGroup</string>
+            </attribute>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="rbCompressionGzip">
+            <property name="text">
+             <string>gzip</string>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">buttonGroup</string>
+            </attribute>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
         <spacer name="verticalSpacer_2">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -545,6 +574,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</stri
       </layout>
       <zorder>gbNewFileAuto</zorder>
       <zorder>gbCaptureToFile</zorder>
+      <zorder>gbCompression</zorder>
      </widget>
      <widget class="QWidget" name="optionsTab">
       <attribute name="title">
@@ -902,4 +932,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</stri
  </customwidgets>
  <resources/>
  <connections/>
+ <buttongroups>
+  <buttongroup name="buttonGroup"/>
+ </buttongroups>
 </ui>

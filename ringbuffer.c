@@ -36,19 +36,34 @@
 #include <string.h>
 #include <time.h>
 #include <errno.h>
+#include <stdlib.h>
+#include <glib.h>
 
 #include "wspcap.h"
 
 #include <glib.h>
 
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+
+#ifdef _WIN32
+#include <wsutil/win32-utils.h>
+#endif
+
 #include "ringbuffer.h"
 #include <wsutil/file_util.h>
 
+#ifdef HAVE_ZLIB
+#include <zlib.h>
+#endif
 
 /* Ringbuffer file structure */
 typedef struct _rb_file {
   gchar         *name;
 } rb_file;
+
+#define MAX_FILENAME_QUEUE  100
 
 /** Ringbuffer data structure */
 typedef struct _ringbuf_data {
@@ -64,10 +79,125 @@ typedef struct _ringbuf_data {
   char         *io_buffer;              /**< The IO buffer used to write to the file */
   gboolean      group_read_access;   /**< TRUE if files need to be opened with group read access */
   FILE         *name_h;              /**< write names of completed files to this handle */
+  gchar        *compress_type;       /**< compress type */
+
+  GMutex        mutex;               /**< mutex for oldnames */
+  gchar        *oldnames[MAX_FILENAME_QUEUE];       /**< filename list of pending to be deleted */
 } ringbuf_data;
 
 static ringbuf_data rb_data;
 
+/*
+ * delete pending uncompressed pcap files.
+ */
+static void CleanupOldCap(gchar* name)
+{
+  ws_statb64 statb;
+  size_t i;
+
+  g_mutex_lock(&rb_data.mutex);
+
+  /* Delete pending delete file */
+  for (i = 0; i < sizeof(rb_data.oldnames) / sizeof(rb_data.oldnames[0]); i++) {
+    if (rb_data.oldnames[i] != NULL) {
+      ws_unlink(rb_data.oldnames[i]);
+      if (ws_stat64(rb_data.oldnames[i], &statb) != 0) {
+        g_free(rb_data.oldnames[i]);
+        rb_data.oldnames[i] = NULL;
+      }
+    }
+  }
+
+  if (name) {
+    /* push the current file to pending list if it failed to delete */
+    if (ws_stat64(name, &statb) == 0) {
+      for (i = 0; i < sizeof(rb_data.oldnames) / sizeof(rb_data.oldnames[0]); i++) {
+        if (rb_data.oldnames[i] == NULL) {
+          rb_data.oldnames[i] = g_strdup(name);
+          break;
+        }
+      }
+    }
+  }
+
+  g_mutex_unlock(&rb_data.mutex);
+}
+
+/*
+ * compress capture file
+ */
+static int ringbuf_exec_compress(gchar* name)
+{
+  guint8  *buffer = NULL;
+  gchar* outgz = NULL;
+  int  fd = -1;
+  ssize_t nread;
+  gboolean delete_org_file = TRUE;
+  gzFile fi = NULL;
+
+  fd = ws_open(name, O_RDONLY | O_BINARY, 0000);
+  if (fd < 0) {
+    return -1;
+  }
+
+  outgz = g_strdup_printf("%s.gz", name);
+  fi = gzopen(outgz, "wb");
+  g_free(outgz);
+  if (fi == NULL) {
+    ws_close(fd);
+    return -1;
+  }
+
+#define FS_READ_SIZE 65536
+  buffer = (guint8*)g_malloc(FS_READ_SIZE);
+  if (buffer == NULL) {
+    ws_close(fd);
+    return -1;
+  }
+
+  while ((nread = ws_read(fd, buffer, FS_READ_SIZE)) > 0) {
+    int n = gzwrite(fi, buffer, (unsigned int)nread);
+    if (n <= 0) {
+      /* mark compression as failed */
+      delete_org_file = FALSE;
+      break;
+    }
+  }
+  if (nread < 0) {
+    /* mark compression as failed */
+    delete_org_file = FALSE;
+  }
+  ws_close(fd);
+  gzclose(fi);
+  g_free(buffer);
+
+  /* delete the original file only if compression succeeds */
+  if (delete_org_file) {
+    ws_unlink(name);
+    CleanupOldCap(name);
+  }
+  g_free(name);
+  return 0;
+}
+
+/*
+ * thread to compress capture file
+ */
+static void* exec_compress_thread(void* arg)
+{
+  ringbuf_exec_compress((gchar*)arg);
+  return NULL;
+}
+
+/*
+ * start a thread to compress capture file
+ */
+static int ringbuf_start_compress_file(rb_file* rfile)
+{
+  gchar* name = g_strdup(rfile->name);
+  g_thread_new("exec_compress", &exec_compress_thread, name);
+  return 0;
+}
 
 /*
  * create the next filename and open a new binary file with that name
@@ -83,6 +213,9 @@ static int ringbuf_open_file(rb_file *rfile, int *err)
     if (rb_data.unlimited == FALSE) {
       /* remove old file (if any, so ignore error) */
       ws_unlink(rfile->name);
+    }
+    else if (rb_data.compress_type != NULL && strcmp(rb_data.compress_type, "gzip") == 0) {
+      ringbuf_start_compress_file(rfile);
     }
     g_free(rfile->name);
   }
@@ -121,7 +254,7 @@ static int ringbuf_open_file(rb_file *rfile, int *err)
  * Initialize the ringbuffer data structures
  */
 int
-ringbuf_init(const char *capfile_name, guint num_files, gboolean group_read_access)
+ringbuf_init(const char *capfile_name, guint num_files, gboolean group_read_access, gchar *compress_type)
 {
   unsigned int i;
   char        *pfx, *last_pathsep;
@@ -137,6 +270,8 @@ ringbuf_init(const char *capfile_name, guint num_files, gboolean group_read_acce
   rb_data.io_buffer = NULL;
   rb_data.group_read_access = group_read_access;
   rb_data.name_h = NULL;
+  rb_data.compress_type = compress_type;
+  g_mutex_init(&rb_data.mutex);
 
   /* just to be sure ... */
   if (num_files <= RINGBUFFER_MAX_NUM_FILES) {
@@ -397,6 +532,8 @@ ringbuf_free(void)
     g_free(rb_data.fsuffix);
     rb_data.fsuffix = NULL;
   }
+
+  CleanupOldCap(NULL);
 }
 
 /*

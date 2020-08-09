@@ -206,6 +206,8 @@ CaptureOptionsDialog::CaptureOptionsDialog(QWidget *parent) :
 
     ui->filenameLineEdit->setPlaceholderText(tr("Leave blank to use a temporary file"));
 
+    ui->rbCompressionNone->setChecked(true);
+
     // Changes in interface selections or capture filters should be propagated
     // to the main welcome screen where they will be applied to the global
     // capture options.
@@ -1089,6 +1091,17 @@ bool CaptureOptionsDialog::saveOptionsToPreferences()
 #endif
         }
     }
+
+    g_free(global_capture_opts.compress_type);
+
+    if (ui->rbCompressionNone->isChecked() )  {
+        global_capture_opts.compress_type = NULL;
+    } else if (ui->rbCompressionGzip->isChecked() )  {
+        global_capture_opts.compress_type = qstring_strdup("gzip");
+    }  else {
+        global_capture_opts.compress_type = NULL;
+    }
+
     prefs_main_write();
     return true;
 }

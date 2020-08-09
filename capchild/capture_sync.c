@@ -440,6 +440,10 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, inf
     for (i = 0; i < argc; i++) {
         g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "argv[%d]: %s", i, argv[i]);
     }
+    if (capture_opts->compress_type) {
+        argv = sync_pipe_add_arg(argv, &argc, "--compress-type");
+        argv = sync_pipe_add_arg(argv, &argc, capture_opts->compress_type);
+    }
 
 #ifdef _WIN32
     /* init SECURITY_ATTRIBUTES */

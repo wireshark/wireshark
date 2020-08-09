@@ -118,6 +118,7 @@ capture_opts_init(capture_options *capture_opts)
     capture_opts->capture_child                   = FALSE;
     capture_opts->print_file_names                = FALSE;
     capture_opts->print_name_to                   = NULL;
+    capture_opts->compress_type                   = NULL;
 }
 
 void
@@ -977,6 +978,21 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
                 return 1;
             }
         }
+        break;
+    case LONGOPT_COMPRESS_TYPE:  /* compress type */
+        if (capture_opts->compress_type) {
+            cmdarg_err("--compress-type can be set only once");
+            return 1;
+        }
+        if (strcmp(optarg_str_p, "none") == 0) {
+            ;
+        } else if (strcmp(optarg_str_p, "gzip") == 0) {
+            ;
+        } else {
+            cmdarg_err("parameter of --compress-type can be 'none' or 'gzip'");
+            return 1;
+        }
+        capture_opts->compress_type = g_strdup(optarg_str_p);
         break;
     default:
         /* the caller is responsible to send us only the right opt's */
