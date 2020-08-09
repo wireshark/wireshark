@@ -5,7 +5,7 @@
 # The format used here is: <NUMERICAL_ID><SPACE><NAME>
 # Where SPACE can be any sequence of spaces and tabs.
 #
-# (last updated 2020-07-31)
+# (last updated 2020-08-09)
 
 0	Reserved
 1	NxNetworks
@@ -3703,7 +3703,7 @@
 3701	TurboNet Communications
 3702	Printrak International Inc.
 3703	CyberFax Inc.
-3704	AMD
+3704	Advanced Micro Devices, Inc
 3705	ICET SpA
 3706	ADiTel Telekommunikation Network GmbH
 3707	ADiT Holding GmbH
@@ -21782,7 +21782,7 @@
 21936	Senforce Technologies, Inc.
 21937	Ezrez Software, Inc.
 21938	Radio Muzyka Fakty, Sp. z o.o.
-21939	ABB Power Grids Germany AG – Grid Automation
+21939	Hitachi ABB Power Grids – Grid Automation
 21940	Enatel Ltd
 21941	Data Return, LLC
 21942	Rubicon Software Ltd
@@ -29150,7 +29150,7 @@
 29309	IBM Mittelstand Systeme
 29310	William Petersen Elektronik A/S
 29311	Itay Be'erli
-29312	Bernecker+Rainer Industrie-Elektronik Ges.m.b.H.
+29312	B&R Industrial Automation GmbH
 29313	GloboTech GmbH
 29314	WDV GmbH
 29315	VAUDE Sport GmbH & Co. KG
@@ -40583,7 +40583,7 @@
 40756	K.W.Doggett Fine Paper
 40757	MOSCOW COMMERCIAL BANK MOSCOMPRIVATBANK ZAO
 40758	Eltek Polska
-40759	EGRIMA BuisnessCenter
+40759	DKV MOBILITY SERVICES BUSINESS CENTER GmbH + Co. KG	# formerly 'EGRIMA BuisnessCenter'
 40760	TOMRA Systems ASA
 40761	Mideye AB
 40762	Hitec Electric b.v.
@@ -41126,7 +41126,7 @@
 41302	Unified Technology Ltd
 41303	Six Degrees Managed Data Ltd
 41304	QiNet SRL
-41305	Schoch-IT UG
+41305	Gehirn-Mag.Net	# formerly 'Schoch-IT UG'
 41306	Columbus College of Art & Design
 41307	LDS Technology Group
 41308	ALCO  Aircraft
@@ -55950,3 +55950,36 @@
 56145	hezhong
 56146	FireStone
 56147	Foxtons Ltd
+56148	Chengdu Spaceon Electronics Co.,Ltd.
+56149	Arcturus Technologies
+56150	Bekomold GmbH
+56151	TES s.r.o.
+56152	UTIMCO
+56153	Powertec Solutions International
+56154	KEYXENTIC INC.
+56155	Quantum Labs
+56156	Banma Network Technology Co,Ltd
+56157	Axion Biosystems, Inc
+56158	ComPsych Corporation
+56159	Mibes IT
+56160	Lorier Internet
+56161	UST Technologies
+56162	Sinelec
+56163	Star Kay White, Inc.
+56164	Arctic Paper Grycksbo AB
+56165	Access Health Services, LLC
+56166	深圳凌特华盛科技有限公司(Shenzhen Smartbyte Technology Co., Ltd.)
+56167	Calibre UK Ltd.
+56168	dotup IT solutions
+56169	Open Products, Networks & Software (OPNS)
+56170	Secure Nordic Payments
+56171	Samm Technology Communications Industry and Trade Inc.
+56172	Stadt Lauf
+56173	A.J. Steenkist
+56174	Geminare Inc.
+56175	AirPro Technology India Pvt Ltd
+56176	Safeweb Seguranca da Informacao Ltda
+56177	ThinkAnalytics
+56178	It-Management
+56179	COMKOM
+56180	Quantum Prime
