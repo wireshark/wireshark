@@ -93,7 +93,7 @@ static void
 dissect_nsh_md_type_2(tvbuff_t *tvb, proto_tree *nsh_tree, int offset, int nsh_bytes_len)
 {
 
-	int type2_metadata_len = 0;
+	guint32 type2_metadata_len = 0;
 	int pad_len;
 
 	while (offset < nsh_bytes_len) {
@@ -105,8 +105,7 @@ dissect_nsh_md_type_2(tvbuff_t *tvb, proto_tree *nsh_tree, int offset, int nsh_b
 		proto_tree_add_item(nsh_tree, hf_nsh_metadata_unassignedbit, tvb, offset + 3, 1, ENC_BIG_ENDIAN);
 
 		/* Bits 25-31 represent variable length metadata byte count */
-		proto_tree_add_item(nsh_tree, hf_nsh_metadata_length, tvb, offset + 3, 1, ENC_BIG_ENDIAN);
-		type2_metadata_len = tvb_get_bits8(tvb, ((offset + 3)*8) + 1, 7);
+		proto_tree_add_item_ret_uint(nsh_tree, hf_nsh_metadata_length, tvb, offset + 3, 1, ENC_BIG_ENDIAN, &type2_metadata_len);
 
 		if (type2_metadata_len > 0)
 			proto_tree_add_item(nsh_tree, hf_nsh_metadata, tvb, offset + 4, type2_metadata_len, ENC_NA);
@@ -325,7 +324,7 @@ proto_register_nsh(void)
 
 		{ &hf_nsh_metadata_length,
 		{ "Length", "nsh.metadatalen",
-		FT_UINT8, BASE_HEX, NULL, 0xEF,
+		FT_UINT8, BASE_HEX, NULL, 0x7F,
 		"Length of the variable metadata in bytes", HFILL }
 		},
 
