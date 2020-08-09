@@ -626,7 +626,11 @@ void randpkt_loop(randpkt_example* example, guint64 produce_count, guint64 packe
 		}
 		if (packet_delay_ms) {
 			g_usleep(1000 * (gulong)packet_delay_ms);
-			wtap_dump_flush(example->dump);
+			if (!wtap_dump_flush(example->dump, &err)) {
+				cfile_write_failure_message("randpkt", NULL,
+				    example->filename, err, NULL, 0,
+				    WTAP_FILE_TYPE_SUBTYPE_PCAP);
+			}
 		}
 	}
 

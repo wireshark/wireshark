@@ -2172,7 +2172,7 @@ WS_DLL_PUBLIC
 gboolean wtap_dump(wtap_dumper *, const wtap_rec *, const guint8 *,
      int *err, gchar **err_info);
 WS_DLL_PUBLIC
-void wtap_dump_flush(wtap_dumper *);
+gboolean wtap_dump_flush(wtap_dumper *, int *);
 WS_DLL_PUBLIC
 gint64 wtap_get_bytes_dumped(wtap_dumper *);
 WS_DLL_PUBLIC

@@ -298,10 +298,14 @@ WSLUA_METHOD Dumper_flush(lua_State* L) {
      Writes all unsaved data of a dumper to the disk.
      */
     Dumper d = checkDumper(L,1);
+    int err;
 
     if (!d) return 0;
 
-    wtap_dump_flush(d);
+    if (!wtap_dump_flush(d, &err)) {
+        luaL_error(L,"error while dumping: %s",
+                   wtap_strerror(err));
+    }
 
     return 0;
 }

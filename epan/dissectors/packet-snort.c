@@ -1192,7 +1192,10 @@ snort_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
                 current_session.working = FALSE;
                 return 0;
             }
-            wtap_dump_flush(current_session.pdh);
+            if (!wtap_dump_flush(current_session.pdh, &write_err)) {
+                current_session.working = FALSE;
+                return 0;
+            }
 
             /* Give the io channel a chance to deliver alerts.
                TODO: g_main_context_iteration(NULL, FALSE); causes crashes sometimes when Qt events get to execute.. */

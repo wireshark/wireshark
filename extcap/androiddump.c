@@ -460,7 +460,10 @@ static struct extcap_dumper extcap_dumper_open(char *fifo, int encap) {
         exit(EXIT_CODE_CANNOT_SAVE_WIRETAP_DUMP);
     }
     extcap_dumper.encap = encap;
-    wtap_dump_flush(extcap_dumper.dumper.wtap);
+    if (!wtap_dump_flush(extcap_dumper.dumper.wtap, &err)) {
+        cfile_dump_open_failure_message("androiddump", fifo, err, WTAP_FILE_TYPE_SUBTYPE_PCAP_NSEC);
+        exit(EXIT_CODE_CANNOT_SAVE_WIRETAP_DUMP);
+    }
 #endif
 
     return extcap_dumper;
@@ -521,7 +524,11 @@ static gboolean extcap_dumper_dump(struct extcap_dumper extcap_dumper,
         return FALSE;
     }
 
-    wtap_dump_flush(extcap_dumper.dumper.wtap);
+    if (!wtap_dump_flush(extcap_dumper.dumper.wtap, &err)) {
+        cfile_write_failure_message("androiddump", NULL, fifo, err, NULL,
+                                    0, WTAP_FILE_TYPE_SUBTYPE_PCAP_NSEC);
+        return FALSE;
+    }
 #endif
 
     return TRUE;

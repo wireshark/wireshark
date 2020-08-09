@@ -2668,17 +2668,24 @@ wtap_dump(wtap_dumper *wdh, const wtap_rec *rec,
 	return (wdh->subtype_write)(wdh, rec, pd, err, err_info);
 }
 
-void
-wtap_dump_flush(wtap_dumper *wdh)
+gboolean
+wtap_dump_flush(wtap_dumper *wdh, int *err)
 {
 #ifdef HAVE_ZLIB
 	if (wdh->compression_type == WTAP_GZIP_COMPRESSED) {
-		gzwfile_flush((GZWFILE_T)wdh->fh);
+		if (gzwfile_flush((GZWFILE_T)wdh->fh) == -1) {
+			*err = gzwfile_geterr((GZWFILE_T)wdh->fh);
+			return FALSE;
+		}
 	} else
 #endif
 	{
-		fflush((FILE *)wdh->fh);
+		if (fflush((FILE *)wdh->fh) == EOF) {
+			*err = errno;
+			return FALSE;
+		}
 	}
+	return TRUE;
 }
 
 gboolean
