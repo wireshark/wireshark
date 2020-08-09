@@ -230,6 +230,7 @@ Universal Measurement and Calibration Protocol (XCP)
 vSomeIP Internal Protocol (vSomeIP)
 VLP-16 Data and Position messaging
 Navitrol messaging
+SICK CoLA Ascii and CoLA Binary protocols
 --
 
 === Updated Protocol Support
