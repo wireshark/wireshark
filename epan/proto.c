@@ -2931,10 +2931,10 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 
 			break;
 		default:
-			g_error("new_fi->hfinfo->type %d (%s) not handled\n",
-					new_fi->hfinfo->type,
-					ftype_name(new_fi->hfinfo->type));
-			DISSECTOR_ASSERT_NOT_REACHED();
+			REPORT_DISSECTOR_BUG("field %s is of unknown type %d (%s)",
+					     new_fi->hfinfo->abbrev,
+					     new_fi->hfinfo->type,
+					     ftype_name(new_fi->hfinfo->type));
 			break;
 	}
 	FI_SET_FLAG(new_fi, (encoding & ENC_LITTLE_ENDIAN) ? FI_LITTLE_ENDIAN : FI_BIG_ENDIAN);
@@ -2967,8 +2967,12 @@ proto_tree_add_item_ret_int(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	case FT_INT24:
 	case FT_INT32:
 		break;
+	case FT_INT64:
+		REPORT_DISSECTOR_BUG("64-bit signed integer field %s used with proto_tree_add_item_ret_int()",
+		    hfinfo->abbrev);
 	default:
-		DISSECTOR_ASSERT_NOT_REACHED();
+		REPORT_DISSECTOR_BUG("Non-signed-integer field %s used with proto_tree_add_item_ret_int()",
+		    hfinfo->abbrev);
 	}
 
 	/* length validation for native number encoding caught by get_uint_value() */
@@ -6044,10 +6048,10 @@ get_full_length(header_field_info *hfinfo, tvbuff_t *tvb, const gint start,
 		break;
 
 	default:
-		g_error("hfinfo->type %d (%s) not handled\n",
-				hfinfo->type,
-				ftype_name(hfinfo->type));
-		DISSECTOR_ASSERT_NOT_REACHED();
+		REPORT_DISSECTOR_BUG("field %s has type %d (%s) not handled in gset_full_length()",
+				     hfinfo->abbrev,
+				     hfinfo->type,
+				     ftype_name(hfinfo->type));
 		break;
 	}
 	return item_length;
@@ -9070,9 +9074,10 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			break;
 
 		default:
-			g_error("hfinfo->type %d (%s) not handled\n",
-				hfinfo->type, ftype_name(hfinfo->type));
-			DISSECTOR_ASSERT_NOT_REACHED();
+			REPORT_DISSECTOR_BUG("field %s has type %d (%s) not handled in proto_item_fill_label()",
+					     hfinfo->abbrev,
+					     hfinfo->type,
+					     ftype_name(hfinfo->type));
 			break;
 	}
 }
@@ -11363,7 +11368,10 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 			break;
 
 		default:
-			DISSECTOR_ASSERT_NOT_REACHED();
+			REPORT_DISSECTOR_BUG("field %s has type %d (%s) not handled in proto_item_add_bitmask_tree()",
+					     hf->abbrev,
+					     hf->type,
+					     ftype_name(hf->type));
 			break;
 		}
 		if (flags & BMT_NO_APPEND) {
@@ -11580,7 +11588,10 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 			}
 			break;
 		default:
-			DISSECTOR_ASSERT_NOT_REACHED();
+			REPORT_DISSECTOR_BUG("field %s has type %d (%s) not handled in proto_item_add_bitmask_tree()",
+					     hf->abbrev,
+					     hf->type,
+					     ftype_name(hf->type));
 			break;
 		}
 
@@ -11909,7 +11920,10 @@ _proto_tree_add_bits_ret_val(proto_tree *tree, const int hfindex, tvbuff_t *tvb,
 				     hf_field->abbrev, hf_field->name);
 	}
 
-	DISSECTOR_ASSERT(no_of_bits >  0);
+	if (no_of_bits == 0) {
+		REPORT_DISSECTOR_BUG("field %s passed to proto_tree_add_bits_ret_val() has a bit width of 0",
+				     hf_field->abbrev);
+	}
 
 	/* Byte align offset */
 	offset = bit_offset>>3;
@@ -11923,7 +11937,8 @@ _proto_tree_add_bits_ret_val(proto_tree *tree, const int hfindex, tvbuff_t *tvb,
 	if (no_of_bits < 65) {
 		value = tvb_get_bits64(tvb, bit_offset, no_of_bits, encoding);
 	} else {
-		DISSECTOR_ASSERT_NOT_REACHED();
+		REPORT_DISSECTOR_BUG("field %s passed to proto_tree_add_bits_ret_val() has a bit width of %u > 65",
+				     hf_field->abbrev, no_of_bits);
 		return NULL;
 	}
 
@@ -12003,7 +12018,10 @@ _proto_tree_add_bits_ret_val(proto_tree *tree, const int hfindex, tvbuff_t *tvb,
 		break;
 
 	default:
-		DISSECTOR_ASSERT_NOT_REACHED();
+		REPORT_DISSECTOR_BUG("field %s has type %d (%s) not handled in proto_tree_add_bits_ret_val()",
+				     hf_field->abbrev,
+				     hf_field->type,
+				     ftype_name(hf_field->type));
 		return NULL;
 		break;
 	}
@@ -12184,7 +12202,10 @@ proto_tree_add_split_bits_item_ret_val(proto_tree *tree, const int hfindex, tvbu
 		break;
 
 	default:
-		DISSECTOR_ASSERT_NOT_REACHED();
+		REPORT_DISSECTOR_BUG("field %s has type %d (%s) not handled in proto_tree_add_split_bits_item_ret_val()",
+				     hf_field->abbrev,
+				     hf_field->type,
+				     ftype_name(hf_field->type));
 		return NULL;
 		break;
 	}
@@ -12251,7 +12272,10 @@ _proto_tree_add_bits_format_value(proto_tree *tree, const int hfindex,
 				     hf_field->abbrev, hf_field->name);
 	}
 
-	DISSECTOR_ASSERT(no_of_bits > 0);
+	if (no_of_bits == 0) {
+		REPORT_DISSECTOR_BUG("field %s passed to proto_tree_add_bits_format_value() has a bit width of 0",
+				     hf_field->abbrev);
+	}
 
 	/* Byte align offset */
 	offset = bit_offset>>3;
@@ -12268,7 +12292,8 @@ _proto_tree_add_bits_format_value(proto_tree *tree, const int hfindex,
 	if (no_of_bits < 65) {
 		value = tvb_get_bits64(tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
 	} else {
-		DISSECTOR_ASSERT_NOT_REACHED();
+		REPORT_DISSECTOR_BUG("field %s passed to proto_tree_add_bits_format_value() has a bit width of %u > 65",
+				     hf_field->abbrev, no_of_bits);
 		return NULL;
 	}
 
@@ -12329,7 +12354,10 @@ _proto_tree_add_bits_format_value(proto_tree *tree, const int hfindex,
 		break;
 
 	default:
-		DISSECTOR_ASSERT_NOT_REACHED();
+		REPORT_DISSECTOR_BUG("field %s has type %d (%s) not handled in proto_tree_add_bits_format_value()",
+				     hf_field->abbrev,
+				     hf_field->type,
+				     ftype_name(hf_field->type));
 		return NULL;
 		break;
 	}
@@ -12379,7 +12407,8 @@ proto_tree_add_uint_bits_format_value(proto_tree *tree, const int hfindex,
 			break;
 
 		default:
-			DISSECTOR_ASSERT_NOT_REACHED();
+			REPORT_DISSECTOR_BUG("field %s is not of type FT_UINT8, FT_UINT16, FT_UINT24, or FT_UINT32",
+			    hf_field->abbrev);
 			return NULL;
 			break;
 	}
@@ -12411,7 +12440,8 @@ proto_tree_add_uint64_bits_format_value(proto_tree *tree, const int hfindex,
 			break;
 
 		default:
-			DISSECTOR_ASSERT_NOT_REACHED();
+			REPORT_DISSECTOR_BUG("field %s is not of type FT_UINT40, FT_UINT48, FT_UINT56, or FT_UINT64",
+			    hf_field->abbrev);
 			return NULL;
 			break;
 	}
@@ -12464,7 +12494,8 @@ proto_tree_add_int_bits_format_value(proto_tree *tree, const int hfindex,
 			break;
 
 		default:
-			DISSECTOR_ASSERT_NOT_REACHED();
+			REPORT_DISSECTOR_BUG("field %s is not of type FT_INT8, FT_INT16, FT_INT24, or FT_INT32",
+			    hf_field->abbrev);
 			return NULL;
 			break;
 	}
@@ -12496,7 +12527,8 @@ proto_tree_add_int64_bits_format_value(proto_tree *tree, const int hfindex,
 			break;
 
 		default:
-			DISSECTOR_ASSERT_NOT_REACHED();
+			REPORT_DISSECTOR_BUG("field %s is not of type FT_INT40, FT_INT48, FT_INT56, or FT_INT64",
+			    hf_field->abbrev);
 			return NULL;
 			break;
 	}
@@ -12649,7 +12681,8 @@ proto_tree_add_checksum(proto_tree *tree, tvbuff_t *tvb, const guint offset,
 		len = 4;
 		break;
 	default:
-		DISSECTOR_ASSERT_NOT_REACHED();
+		REPORT_DISSECTOR_BUG("field %s is not of type FT_UINT8, FT_UINT16, FT_UINT24, or FT_UINT32",
+		    hfinfo->abbrev);
 	}
 
 	if (flags & PROTO_CHECKSUM_NOT_PRESENT) {
