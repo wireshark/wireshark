@@ -172,8 +172,8 @@ static const true_false_string pd_bit = {
 	"OK"
 };
 static const true_false_string e_bit = {
-	" encrypted frame",
-	" non encrypted frame"
+	"encrypted frame",
+	"non encrypted frame"
 };
 static const true_false_string pm_bit = {
 	"FCS covers the frame header and information fields",

@@ -16,7 +16,6 @@ import signal
 # TODO:
 # - check how many of the definitions in epan/tfs.c are used in other dissectors
 # - see if there are other values that should be in epan/tfs.c and shared
-# - look for leading/trailing whitespace in true/flase strings?
 
 
 # Try to exit soon after Ctrl-C is pressed.
@@ -30,10 +29,17 @@ def signal_handler(sig, frame):
 signal.signal(signal.SIGINT, signal_handler)
 
 class TFS:
-    def __init__(self, file, val1, val2):
+    def __init__(self, file, name, val1, val2):
         self.file = file
+        self.name = name
         self.val1 = val1
         self.val2 = val2
+
+        # Do some extra checks on values.
+        if val1.startswith(' ') or val1.endswith(' '):
+            print('N.B.: file=' + self.file + ' ' + self.name + ' - false val begins or ends with space \"' + self.val1 + '\"')
+        if val2.startswith(' ') or val2.endswith(' '):
+            print('N.B.: file=' + self.file + ' ' + self.name + ' - true val begins or ends with space \"' + self.val2 + '\"')
 
     def __str__(self):
         return '{' + self.val1 + ',' + self.val2 + '}'
@@ -62,7 +68,7 @@ def find_items(filename):
             val1 = m.group(2)
             val2 = m.group(3)
             # Store this entry.
-            items[name] = TFS(filename, val1, val2)
+            items[name] = TFS(filename, name, val1, val2)
 
     return items
 

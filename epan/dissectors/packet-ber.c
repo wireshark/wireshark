@@ -275,7 +275,7 @@ static const true_false_string ber_real_binary_vals = {
 
 static const true_false_string ber_real_decimal_vals = {
     "SpecialRealValue",
-    "Decimal encoding "
+    "Decimal encoding"
 };
 #endif
 

@@ -36,7 +36,7 @@ static const value_string mcast_sap_ver[] = {
 
 static const true_false_string mcast_sap_address_type = {"IPv6", "IPv4"};
 static const true_false_string mcast_sap_message_type = { "Deletion", "Announcement"};
-static const true_false_string mcast_sap_crypt_type = { "Payload encrypted", "Payload not encrypted "};
+static const true_false_string mcast_sap_crypt_type = { "Payload encrypted", "Payload not encrypted"};
 static const true_false_string mcast_sap_comp_type = { "Payload compressed", "Payload not compressed"};
 
 static const value_string mcast_sap_auth_ver[] = {

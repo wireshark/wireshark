@@ -2000,7 +2000,7 @@ be_int_band(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 off
  */
 
 static const true_false_string bssmap_lsa_only_value = {
-   "Access to the LSAs that are defined ",
+   "Access to the LSAs that are defined",
    "Allowing emergency call"
 };
 
