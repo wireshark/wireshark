@@ -77,12 +77,123 @@ class APICheck:
                     issues_found += 1
 
 
+##################################################################################################
+# This is a set of items (by filter name) where we know that the bitmask is non-contiguous,
+# but is still believed to be correct.
+known_non_contiguous_fields = { 'wlan.fixed.capabilities.cfpoll.sta',
+                                'wlan.wfa.ie.wme.qos_info.sta.reserved',
+                                'btrfcomm.frame_type',   # https://os.itec.kit.edu/downloads/sa_2006_roehricht-martin_flow-control-in-bluez.pdf
+                                'capwap.control.message_element.ac_descriptor.dtls_policy.r', # RFC 5415
+                                'couchbase.extras.subdoc.flags.reserved',
+                                'wlan.fixed.capabilities.cfpoll.ap',   # These are 3 separate bits...
+                                'wlan.wfa.ie.wme.tspec.ts_info.reserved', # matches other fields in same sequence
+                                'zbee_zcl_se.pp.attr.payment_control_configuration.reserved', # matches other fields in same sequence
+                                'zbee_zcl_se.pp.snapshot_payload_cause.reserved'  # matches other fields in same sequence
+                              }
+##################################################################################################
+
+
+field_widths = {
+    'FT_BOOLEAN' : 64,   # Width depends upon 'display' field, not checked.
+    'FT_UINT8'   : 8,
+    'FT_INT8'    : 8,
+    'FT_UINT16'  : 16,
+    'FT_INT16'   : 16,
+    'FT_UINT24'  : 24,
+    'FT_INT24'   : 24,
+    'FT_UINT32'  : 32,
+    'FT_INT32'   : 32,
+    'FT_UINT40'  : 40,
+    'FT_INT40'   : 40,
+    'FT_UINT64'  : 64,
+    'FT_INT64'   : 64
+}
+
+
 # The relevant parts of an hf item.  Used as value in dict where hf variable name is key.
 class Item:
-    def __init__(self, name, item_type):
-        self.name = name
+    def __init__(self, filename, filter, label, item_type, mask=None, check_mask=False, check_label=False):
+        self.filename = filename
+        self.filter = filter
+        self.label = label
+
+        # Optionally check label.
+        if check_label:
+            if label.startswith(' ') or label.endswith(' '):
+                print('Warning:  ' + filename + 'filter=' + filter +  ' \"' + label + '\" begins or ends with a space')
+
         self.item_type = item_type
 
+        # Optionally check that mask bits are contiguous
+        if check_mask:
+            if not mask in { 'NULL', '0x0', '0'}:
+                self.check_contiguous_bits(mask)
+
+
+    # Return true if bit position n is set in value.
+    def check_bit(self, value, n):
+        return (value & (0x1 << n)) != 0
+
+    # Output a warning if non-contigous bits are found in the the mask (guint64).
+    # Note that this legimately happens in several dissectors where multiple reserved/unassigned
+    # bits are conflated into one field.
+    # TODO: there is probably a cool/efficient way to check this?
+    def check_contiguous_bits(self, mask):
+        try:
+            # Read according to the appropriate base.
+            if mask.startswith('0x'):
+                value = int(mask, 16)
+            elif mask.startswith('0'):
+                value = int(mask, 8)
+            else:
+                value = int(mask, 10)
+
+            # Walk past any l.s. 0 bits
+            n = 0
+            while not self.check_bit(value, n) and n <= 63:
+                n += 1
+            if n==63:
+                return
+
+            mask_start = n
+            # Walk through any bits that are set
+            while self.check_bit(value, n) and n <= 63:
+                n += 1
+            n += 1
+
+            if n >= 63:
+                return
+
+            # Look up the field width
+            field_width = 0
+            if not self.item_type in field_widths:
+                print('unexpected item_type is ', self.item_type)
+                field_width = 64
+            else:
+                field_width = field_widths[self.item_type]
+
+
+            # Its a problem is the mask_width is > field_width - some of the bits won't get looked at!?
+            mask_width = n-1-mask_start
+            if mask_width > field_width:
+                print('Error: ', self.filename, 'filter=', self.filter, self.item_type, 'so field_width=', field_width,
+                      'but mask is', mask, 'which is', mask_width, 'bits wide!')
+                global issues_found
+                issues_found += 1
+
+            # Now, any more zero set bits are an error!
+            if self.filter in known_non_contiguous_fields:
+                # Don't report if we know this one is Ok.
+                return
+            while n <= 63:
+                if self.check_bit(value, n):
+                    print('Warning: ', self.filename, 'filter=', self.filter, ' - mask with non-contiguous bits', mask)
+                    return
+                n += 1
+
+        except:
+            # Sometimes, macro is used for item type so catch and keep going.
+            pass
 
 
 # These are APIs in proto.c that check a set of types at runtime and can print '.. is not of type ..' to the console
@@ -134,19 +245,18 @@ def removeComments(code_string):
     return code_string
 
 # Look for hf items in a dissector file.
-def find_items(filename):
+def find_items(filename, check_mask=False, check_label=False):
     items = {}
     with open(filename, 'r') as f:
         contents = f.read()
         # Remove comments so as not to trip up RE.
         contents = removeComments(contents)
-        matches = re.finditer(r'.*\{\s*\&(hf_.*),\s*{\s*\".+\",\s*\"([a-zA-Z0-9_\-\.]+)\",\s*([A-Z0-9_]*)', contents)
+        matches = re.finditer(r'.*\{\s*\&(hf_.*),\s*{\s*\"(.+)\",\s*\"([a-zA-Z0-9_\-\.]+)\",\s*([A-Z0-9_]*),\s*.*,\s*([A-Z0-9x]*)\s*,', contents)
         for m in matches:
             # Store this item.
             hf = m.group(1)
-            name = m.group(2)
-            item_type = m.group(3)
-            items[hf] = Item(name=name, item_type=item_type)
+            items[hf] = Item(filename, filter=m.group(3), label=m.group(2), item_type=m.group(4), mask=m.group(5),
+                             check_mask=check_mask, check_label=check_label)
     return items
 
 
@@ -169,9 +279,9 @@ def findDissectorFilesInFolder(folder):
 
 
 # Check the given dissector file.
-def checkFile(filename):
+def checkFile(filename, check_mask=False, check_label=False):
     # Find important parts of items.
-    items = find_items(filename)
+    items = find_items(filename, check_mask, check_label)
 
     # Check each API
     for c in apiChecks:
@@ -191,6 +301,11 @@ parser.add_argument('--commits', action='store',
                     help='last N commits to check')
 parser.add_argument('--open', action='store_true',
                     help='check open files')
+parser.add_argument('--mask', action='store_true',
+                   help='when set, check mask field too')
+parser.add_argument('--label', action='store_true',
+                   help='when set, check label field too')
+
 
 args = parser.parse_args()
 
@@ -248,7 +363,7 @@ else:
 for f in files:
     if should_exit:
         exit(1)
-    checkFile(f)
+    checkFile(f, check_mask=args.mask, check_label=args.label)
 
 # Show summary.
 print(issues_found, 'issues found')
