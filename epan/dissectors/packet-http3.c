@@ -94,6 +94,7 @@ typedef struct _http3_stream_info {
     guint64 broken_from_offset;     /**< Unrecognized stream starting at offset (if non-zero). */
 } http3_stream_info;
 
+#ifdef HAVE_LIBGCRYPT_AEAD
 /**
  * Whether this is a reserved code point for Stream Type, Frame Type, Error
  * Code, etc.
@@ -103,6 +104,7 @@ http3_is_reserved_code(guint64 stream_type)
 {
     return (stream_type - 0x21) % 0x1f == 0;
 }
+#endif
 
 static gboolean
 try_get_quic_varint(tvbuff_t *tvb, int offset, guint64 *value, int *lenvar)
