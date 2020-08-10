@@ -1606,6 +1606,10 @@ ssh_keylog_compute_hash(tvbuff_t *tvb, int offset,
 
     ssh_keylog_read_file();
 
+    if (global_data->kex_e == NULL) {
+        return;
+    }
+
     length = tvb_get_ntohl(tvb, offset);
     kex_f.length = length;
     kex_f.data = (gchar *)tvb_memdup(wmem_packet_scope(), tvb, offset + 4, length);
