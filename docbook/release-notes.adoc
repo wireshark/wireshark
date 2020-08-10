@@ -73,6 +73,7 @@ Technically Enhanced Capture Module Protocol (TECMP)
 Fortinet Single Sign-on (FSSO)
 Lithionics Battery Management
 FTDI Multi-Protocol Synchronous Serial Engine (FTDI MPSSE)
+Arinc 615A (A615A)
 =======
 --
 

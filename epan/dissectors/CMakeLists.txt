@@ -689,6 +689,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-applemidi.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-aprs.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-arcnet.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-arinc615a.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-armagetronad.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-arp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-artemis.c
