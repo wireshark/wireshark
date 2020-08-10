@@ -35,6 +35,7 @@ static int hf_http3_frame_type = -1;
 static int hf_http3_frame_length = -1;
 static int hf_http3_frame_payload = -1;
 static expert_field ei_http3_unknown_stream_type = EI_INIT;
+static expert_field ei_http3_data_not_decoded = EI_INIT;
 
 /* Initialize the subtree pointers */
 static gint ett_http3 = -1;
@@ -159,6 +160,7 @@ http3_check_frame_size(tvbuff_t *tvb, packet_info *pinfo, int offset)
     return FALSE;
 }
 
+#ifdef HAVE_LIBGCRYPT_AEAD
 static int
 dissect_http3_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
@@ -250,6 +252,7 @@ dissect_http3_uni_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 
     return offset;
 }
+#endif /* HAVE_LIBGCRYPT_AEAD */
 
 static int
 dissect_http3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
@@ -258,7 +261,9 @@ dissect_http3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     proto_item *ti;
     proto_tree *http3_tree;
     int offset = 0;
+#ifdef HAVE_LIBGCRYPT_AEAD
     http3_stream_info *h3_stream;
+#endif /* HAVE_LIBGCRYPT_AEAD */
 
     if (!stream_info) {
         return 0;
@@ -289,6 +294,7 @@ dissect_http3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     ti = proto_tree_add_item(tree, proto_http3, tvb, 0, -1, ENC_NA);
     http3_tree = proto_item_add_subtree(ti, ett_http3);
 
+#ifdef HAVE_LIBGCRYPT_AEAD
     h3_stream = (http3_stream_info *)quic_stream_get_proto_data(pinfo, stream_info);
     if (!h3_stream) {
         h3_stream = wmem_new0(wmem_file_scope(), http3_stream_info);
@@ -324,6 +330,10 @@ dissect_http3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         }
         offset = dissect_http3_frame(tvb, pinfo, http3_tree, offset);
     }
+#else
+    proto_tree_add_expert_format(http3_tree, pinfo, &ei_http3_data_not_decoded, tvb, offset, 0,
+                                 "Data not decoded, missing LIBGCRYPT AEAD support");
+#endif
 
     return tvb_captured_length(tvb);
 }
@@ -369,6 +379,10 @@ proto_register_http3(void)
         { &ei_http3_unknown_stream_type,
           { "http3.unknown_stream_type", PI_UNDECODED, PI_WARN,
             "An unknown stream type was encountered", EXPFILL }
+        },
+        { &ei_http3_data_not_decoded,
+          { "http3.data_not_decoded", PI_UNDECODED, PI_WARN,
+            "Data not decoded", EXPFILL }
         },
     };
 

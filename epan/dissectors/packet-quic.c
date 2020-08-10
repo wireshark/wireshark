@@ -1396,7 +1396,6 @@ dissect_quic_stream_payload(tvbuff_t *tvb, int offset, int length, packet_info *
     pinfo->can_desegment = 2;
     desegment_quic_stream(tvb, offset, length, pinfo, tree, quic_info, stream_info, stream);
 }
-#endif /* HAVE_LIBGCRYPT_AEAD */
 /* QUIC Streams tracking and reassembly. }}} */
 
 void
@@ -1412,7 +1411,6 @@ void *quic_stream_get_proto_data(packet_info *pinfo, quic_stream_info *stream_in
     return stream->subdissector_private;
 }
 
-#ifdef HAVE_LIBGCRYPT_AEAD
 static int
 dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset, quic_info_data_t *quic_info, gboolean from_server)
 {
