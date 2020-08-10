@@ -1151,6 +1151,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  proto_item_get_parent_nth@Base 1.9.1
  proto_item_get_subtree@Base 1.9.1
  proto_item_prepend_text@Base 1.9.1
+ proto_item_set_bits_offset_len@Base 3.3.0
  proto_item_set_end@Base 1.9.1
  proto_item_set_len@Base 1.9.1
  proto_item_set_text@Base 1.9.1

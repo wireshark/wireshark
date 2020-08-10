@@ -1110,9 +1110,9 @@ WS_DLL_PUBLIC int proto_item_get_len(const proto_item *pi);
 /** Set the bit offset and length for the specified proto_item.
  * @param ti The item to set.
  * @param bits_offset The number of bits from the beginning of the field.
- * @param bits_offset The new length in bits.
+ * @param bits_len The new length in bits.
  */
-void proto_item_set_bits_offset_len(proto_item *ti, int bits_offset, int bits_len);
+WS_DLL_PUBLIC void proto_item_set_bits_offset_len(proto_item *ti, int bits_offset, int bits_len);
 
 /** Get display representation of a proto_item.
  * Can be used, for example, to append that to the parent item of
