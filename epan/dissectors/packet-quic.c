@@ -57,15 +57,6 @@
 #include <epan/follow.h>
 #include <epan/addr_resolv.h>
 
-#if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
-/* Whether to provide support for authentication in addition to decryption. */
-#define HAVE_LIBGCRYPT_AEAD
-#endif
-#if GCRYPT_VERSION_NUMBER >= 0x010700 /* 1.7.0 */
-/* Whether ChaCh20 PNE can be supported. */
-#define HAVE_LIBGCRYPT_CHACHA20
-#endif
-
 /* Prototypes */
 void proto_reg_handoff_quic(void);
 void proto_register_quic(void);

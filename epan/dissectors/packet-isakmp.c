@@ -54,9 +54,6 @@
 #include <epan/proto_data.h>
 #include <epan/strutil.h>
 #include <epan/uat.h>
-#if GCRYPT_VERSION_NUMBER >= 0x010600
-#define HAVE_LIBGCRYPT_AEAD 1
-#endif
 
 void proto_register_isakmp(void);
 void proto_reg_handoff_isakmp(void);

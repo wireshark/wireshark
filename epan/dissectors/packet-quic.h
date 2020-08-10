@@ -16,6 +16,8 @@ extern "C" {
 
 #include "ws_symbol_export.h"
 
+#include <wsutil/wsgcrypt.h>	/* needed to define HAVE_LIBGCRYPT_AEAD */
+
 /**
  * Metadata for a STREAM frame.
  * https://tools.ietf.org/html/draft-ietf-quic-transport-23#section-19.8

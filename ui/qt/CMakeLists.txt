@@ -9,6 +9,10 @@
 
 ADD_CUSTOM_CMAKE_INCLUDE()
 
+include_directories(
+		${GCRYPT_INCLUDE_DIRS}
+)
+
 set(WIRESHARK_WIDGET_HEADERS
 	widgets/additional_toolbar.h
 	widgets/apply_line_edit.h
