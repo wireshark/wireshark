@@ -1853,52 +1853,52 @@ proto_register_ssh(void)
 
         { &hf_ssh_kex_algorithms,
           { "kex_algorithms string",         "ssh.kex_algorithms",
-            FT_STRINGZ, BASE_NONE, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_server_host_key_algorithms,
           { "server_host_key_algorithms string",         "ssh.server_host_key_algorithms",
-            FT_STRINGZ, BASE_NONE, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_encryption_algorithms_client_to_server,
           { "encryption_algorithms_client_to_server string",         "ssh.encryption_algorithms_client_to_server",
-            FT_STRINGZ, BASE_NONE, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_encryption_algorithms_server_to_client,
           { "encryption_algorithms_server_to_client string",         "ssh.encryption_algorithms_server_to_client",
-            FT_STRINGZ, BASE_NONE, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_mac_algorithms_client_to_server,
           { "mac_algorithms_client_to_server string",         "ssh.mac_algorithms_client_to_server",
-            FT_STRINGZ, BASE_NONE, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_mac_algorithms_server_to_client,
           { "mac_algorithms_server_to_client string",         "ssh.mac_algorithms_server_to_client",
-            FT_STRINGZ, BASE_NONE, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_compression_algorithms_client_to_server,
           { "compression_algorithms_client_to_server string",         "ssh.compression_algorithms_client_to_server",
-            FT_STRINGZ, BASE_NONE, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_compression_algorithms_server_to_client,
           { "compression_algorithms_server_to_client string",         "ssh.compression_algorithms_server_to_client",
-            FT_STRINGZ, BASE_NONE, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_languages_client_to_server,
           { "languages_client_to_server string",         "ssh.languages_client_to_server",
-            FT_STRINGZ, BASE_NONE, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_languages_server_to_client,
           { "languages_server_to_client string",         "ssh.languages_server_to_client",
-            FT_STRINGZ, BASE_NONE, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_kex_algorithms_length,
