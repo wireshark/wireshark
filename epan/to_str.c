@@ -477,14 +477,13 @@ abs_time_to_str(wmem_allocator_t *scope, const nstime_t *abs_time, const absolut
 				}
 				break;
 			case ABSOLUTE_TIME_NTP_UTC:
+				/* FALLTHROUGH */
+			case ABSOLUTE_TIME_UTC:
+			case ABSOLUTE_TIME_LOCAL:
 				if ((abs_time->secs == 0) && (abs_time->nsecs == 0)) {
 					buf = wmem_strdup(scope, "NULL");
 					break;
 				}
-				/* FALLTHROUGH */
-
-			case ABSOLUTE_TIME_UTC:
-			case ABSOLUTE_TIME_LOCAL:
 				if (show_zone) {
 					buf = wmem_strdup_printf(scope,
 							"%s %2d, %d %02d:%02d:%02d.%09ld %s",
