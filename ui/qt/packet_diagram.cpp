@@ -33,7 +33,12 @@
 #include <QSvgGenerator>
 #endif
 
+// Item offsets and lengths
+//#define DEBUG_PACKET_DIAGRAM 1
+
+#ifdef DEBUG_PACKET_DIAGRAM
 #include <QDebug>
+#endif
 
 // "rems" are root em widths, aka the regular font height, similar to rems in CSS.
 class DiagramLayout {
@@ -533,7 +538,9 @@ void PacketDiagram::addDiagram(proto_node *tl_node)
         int length = FI_GET_BITS_SIZE(fi) ? FI_GET_BITS_SIZE(fi) : fi->length * 8;
 
         if (start_bit <= last_start_bit || length <= 0) {
+#ifdef DEBUG_PACKET_DIAGRAM
             qDebug() << "Skipping pass 1" << fi->hfinfo->abbrev << start_bit << last_start_bit << length;
+#endif
             continue;
         }
         last_start_bit = start_bit;
@@ -550,9 +557,13 @@ void PacketDiagram::addDiagram(proto_node *tl_node)
             WireItem *next_item = &wire_items[idx + 1];
             if (wire_item->start_bit + wire_item->length > next_item->start_bit) {
                 wire_item->length = next_item->start_bit - wire_item->start_bit;
+#ifdef DEBUG_PACKET_DIAGRAM
                 qDebug() << "Resized pass 2" << fi->hfinfo->abbrev << wire_item->start_bit << wire_item->length << next_item->start_bit;
+#endif
                 if (wire_item->length <= 0) {
+#ifdef DEBUG_PACKET_DIAGRAM
                     qDebug() << "Skipping pass 2" << fi->hfinfo->abbrev << wire_item->start_bit << wire_item->length;
+#endif
                     continue;
                 }
             }
