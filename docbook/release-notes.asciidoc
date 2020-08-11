@@ -32,7 +32,21 @@ The following bugs have been fixed:
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
 //* Wireshark convinced you to switch seats on the plane while neglecting to tell you that its seat was noticeably moist.
-// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.6.19rc0..| grep ' Bug:' | awk '{print $2}' | sort -n -u ` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
+// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.6.20rc0..| grep ' Bug:' | awk '{print $2}' | sort -n -u ` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
+
+* Dissector for ASTERIX Category 001 / 210 does not recognize bit 1 as extension. wsbuglink:16662[].
+
+* Short IMSIs (5 digits) lead to wrong decoding+warning. wsbuglink:16676[].
+
+* Decoding of PFCP IE 'PFD Contents' results in &quot;malformed packet&quot;. wsbuglink:16704[].
+
+* RFH2 Header with 32 or less bytes of NameValue will not parse out that info. wsbuglink:16733[].
+
+* CDP: Port ID TLV followed by Type 1009 TLV triggers [Malformed Packet]. wsbuglink:16742[].
+
+* tshark crashed when processing opcda. wsbuglink:16746[].
+
+* tshark with --export-dicom gives “Segmentation fault (core dumped)”. wsbuglink:16748[].
 
 === New and Updated Features
 
@@ -51,6 +65,24 @@ There are no new protocols in this release.
 // Add one protocol per line between the -- delimiters.
 [commaize]
 --
+ASTERIX
+BSSAP
+CDP
+DCERPC SPOOLSS
+DCOM
+DVB-S2
+E.212
+GSM RR
+GSM SMS
+IEEE 802.11
+MQ
+Nano
+NIS+
+PFCP
+RTPS
+TDS
+TN3270
+TN5250
 --
 
 === New and Updated Capture File Support
