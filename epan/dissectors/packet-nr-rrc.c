@@ -19660,7 +19660,11 @@ dissect_nr_rrc_T_capabilityRequestFilter(tvbuff_t *tvb _U_, int offset _U_, asn1
     subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_capabilityRequestFilter);
     switch(nr_priv->rat_type){
     case RAT_Type_nr:
+    case RAT_Type_eutra_nr:
       dissect_nr_rrc_UE_CapabilityRequestFilterNR_PDU(cap_req_filter_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case RAT_Type_eutra:
+      dissect_lte_rrc_UECapabilityEnquiry_PDU(cap_req_filter_tvb, actx->pinfo, subtree, NULL);
       break;
     default:
       break;

@@ -53,6 +53,7 @@ RLF-Report-v9e0_PDU
 RRCConnectionReconfigurationComplete_PDU
 SCG-Config-r12_PDU
 SCG-ConfigInfo-r12_PDU
+UECapabilityEnquiry_PDU
 UEPagingCoverageInformation_PDU
 UEPagingCoverageInformation-NB_PDU
 UERadioPagingInformation_PDU
@@ -74,6 +75,7 @@ RRCConnectionReconfiguration @rrc_conn_reconf
 RRCConnectionReconfigurationComplete @rrc_conn_reconf_compl
 SCG-Config-r12
 SCG-ConfigInfo-r12
+UECapabilityEnquiry
 UEPagingCoverageInformation           @ue_paging_coverage_info
 UEPagingCoverageInformation-NB        @ue_paging_coverage_info.nb
 UERadioAccessCapabilityInformation    @ue_radio_access_cap_info
