@@ -188,7 +188,6 @@ static int hf_radiotap_rfinfo_contextpa = -1;
 static int hf_radiotap_rfinfo_contextpA_snr_noise_valid = -1;
 static int hf_radiotap_rfinfo_contextpA_pfe_valid = -1;
 static int hf_radiotap_rfinfo_contextpA_pfe_is_cck = -1;
-/* static int hf_radiotap_rfinfo_contextp_agc = -1; */
 static int hf_radiotap_rfinfo_contextpA_agc_idle2iqrdy_no_gain_change = -1;
 static int hf_radiotap_rfinfo_contextpA_agc_high_pwr_terminated = -1;
 static int hf_radiotap_rfinfo_contextpA_agc_high_pwr_terminator = -1;
@@ -3258,11 +3257,6 @@ void proto_register_ixveriwave(void)
     { &hf_radiotap_rfinfo_contextpA_pfe_is_cck,
         { "PFE_is_CCK", "ixveriwave.contextpA.pfe_is_cck",
         FT_BOOLEAN, 16, NULL, 0x0004, NULL, HFILL } },
-#if 0
-    { &hf_radiotap_rfinfo_contextp_agc,
-        { "AGC", "ixveriwave.contextp.agc",
-        FT_BOOLEAN, 16, NULL, 0x0038, "Automatic Gain Control", HFILL } },
-#endif
     { &hf_radiotap_rfinfo_contextpA_agc_idle2iqrdy_no_gain_change,
         { "AGC 3", "ixveriwave.contextpA.agc_idle2iqrdy_no_gain_change",
         FT_BOOLEAN, 16, NULL, 0x0008, "Automatic Gain Control-[3] agc_idle2iqrdy_no_gain_change", HFILL } },

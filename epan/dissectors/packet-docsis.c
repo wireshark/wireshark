@@ -985,7 +985,7 @@ proto_register_docsis (void)
     },
     {&hf_docsis_reserved,
      {"Reserved", "docsis.ehdr.rsvd",
-      FT_UINT8, BASE_HEX, NULL, 0x3FFF,
+      FT_UINT8, BASE_HEX, NULL, 0x0,
       "Reserved Byte", HFILL}
     },
     {&hf_docsis_mini_slots,
