@@ -15,9 +15,9 @@ It is used for troubleshooting, analysis, development and education.
 
 === Bug Fixes
 
-The following vulnerabilities have been fixed:
+// The following vulnerabilities have been fixed:
 
-// * wssalink:2020-10[]
+// * wssalink:2020-11[]
 // Foo dissector {crash,infinite loop}.
 // wsbuglink:xxxx[].
 // cveidlink:2020-xxxx[].
@@ -33,22 +33,6 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 //* Wireshark slowly leaked water under the kitchen sink over the course of several months, causing a big mess.
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v3.0.14rc0..| grep ' Bug:' | awk '{print $2}' | sort -n -u ` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
-
-* Dissector for ASTERIX Category 001 / 210 does not recognize bit 1 as extension. wsbuglink:16662[].
-
-* &quot;invalid timestamp&quot; for Systemd Journal Export Block. wsbuglink:16664[].
-
-* Short IMSIs (5 digits) lead to wrong decoding+warning. wsbuglink:16676[].
-
-* Decoding of PFCP IE 'PFD Contents' results in &quot;malformed packet&quot;. wsbuglink:16704[].
-
-* RFH2 Header with 32 or less bytes of NameValue will not parse out that info. wsbuglink:16733[].
-
-* CDP: Port ID TLV followed by Type 1009 TLV triggers [Malformed Packet]. wsbuglink:16742[].
-
-* tshark crashed when processing opcda. wsbuglink:16746[].
-
-* tshark with --export-dicom gives “Segmentation fault (core dumped)”. wsbuglink:16748[].
 
 === New and Updated Features
 
@@ -71,26 +55,6 @@ There are no new protocols in this release.
 // Add one protocol per line between the -- delimiters.
 [commaize]
 --
-ASTERIX
-BSSAP
-CDP
-DCERPC SPOOLSS
-DCOM
-DVB-S2
-E.212
-GBCS
-GSM RR
-GSM SMS
-IEEE 802.11
-MQ
-Nano
-NIS+
-PFCP
-RTPS
-systemd Journal
-TDS
-TN3270
-TN5250
 --
 
 === New and Updated Capture File Support
@@ -103,11 +67,10 @@ There is no new or updated capture file support in this release.
 
 === New and Updated Capture Interfaces support
 
-// There is no new or updated capture file support in this release.
-[commaize]
---
-pcapng
---
+There is no new or updated capture file support in this release.
+// [commaize]
+// --
+// --
 
 // === Major API Changes
 
