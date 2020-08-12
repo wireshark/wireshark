@@ -147,25 +147,27 @@ sub read_repo_info {
 	#Git can give us:
 	#
 	# A big ugly hash: git rev-parse HEAD
-	# 1ddc83849075addb0cac69a6fe3782f4325337b9
+	# efd7cb38e67cbfd3333a8c2fd4bc47aaec4ba83c
 	#
 	# A small ugly hash: git rev-parse --short HEAD
-	# 1ddc838
+	# efd7cb38e6
 	#
 	# The upstream branch path: git rev-parse --abbrev-ref --symbolic-full-name @{upstream}
 	# origin/master
 	#
 	# A version description: git describe --tags --dirty
-	# wireshark-1.8.12-15-g1ddc838
+	# v3.3.0rc0-1829-gefd7cb38e6
 	#
 	# Number of commits in this branch: git rev-list --count HEAD
-	# 48879
+	# 78451
 	#
-	# Number of commits since 1.8.0: git rev-list --count 5e212d72ce098a7fec4332cbe6c22fcda796a018..HEAD
-	# 320
+	# Number of commits since v3.3.0rc0: git rev-list --count beb1fee6586725bd37651b8a73a1ef51888e99be..HEAD
+	# 1829
+	#   Where git show-ref --tags -d | grep v3.3.0 | grep '{}'
+	#   beb1fee6586725bd37651b8a73a1ef51888e99be refs/tags/v3.3.0rc0^{}
 	#
-	# Refs: git ls-remote code.wireshark.org:wireshark
-	# ea19c7f952ce9fc53fe4c223f1d9d6797346258b (r48972, changed version to 1.11.0)
+	# Refs: git ls-remote code.wireshark.org:wireshark | head -n1
+	# efd7cb38e67cbfd3333a8c2fd4bc47aaec4ba83c	HEAD
 
 	if ($git_archive_commit) {
 		$do_hack = 0;
