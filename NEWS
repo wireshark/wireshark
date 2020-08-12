@@ -11,6 +11,26 @@ Wireshark 2.6.19 Release Notes
 
    The following bugs have been fixed:
 
+     • Dissector for ASTERIX Category 001 / 210 does not recognize bit 1
+       as extension. Bug 16662[1].
+
+     • Short IMSIs (5 digits) lead to wrong decoding+warning. Bug
+       16676[2].
+
+     • Decoding of PFCP IE PFD Contents results in "malformed packet".
+       Bug 16704[3].
+
+     • RFH2 Header with 32 or less bytes of NameValue will not parse out
+       that info. Bug 16733[4].
+
+     • CDP: Port ID TLV followed by Type 1009 TLV triggers [Malformed
+       Packet]. Bug 16742[5].
+
+     • tshark crashed when processing opcda. Bug 16746[6].
+
+     • tshark with --export-dicom gives “Segmentation fault (core
+       dumped)”. Bug 16748[7].
+
   New and Updated Features
 
    There are no new features in this release.
@@ -20,6 +40,9 @@ Wireshark 2.6.19 Release Notes
    There are no new protocols in this release.
 
   Updated Protocol Support
+
+   ASTERIX, BSSAP, CDP, DCERPC SPOOLSS, DCOM, DVB-S2, E.212, GSM RR, GSM
+   SMS, IEEE 802.11, MQ, Nano, NIS+, PFCP, RTPS, TDS, TN3270, and TN5250
 
   New and Updated Capture File Support
 
@@ -39,7 +62,7 @@ Wireshark 2.6.19 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[1] on the Wireshark web site.
+   be found on the download page[8] on the Wireshark web site.
 
  File Locations
 
@@ -50,43 +73,50 @@ Wireshark 2.6.19 Release Notes
 
  Known Problems
 
-  The BER dissector might infinitely loop. Bug 1516[2].
+  The BER dissector might infinitely loop. Bug 1516[9].
 
   Capture filters aren’t applied when capturing from named pipes. Bug
-  1814[3].
+  1814[10].
 
   Filtering tshark captures with read filters (-R) no longer works. Bug
-  2234[4].
+  2234[11].
 
-  Application crash when changing real-time option. Bug 4035[5].
+  Application crash when changing real-time option. Bug 4035[12].
 
   Wireshark and TShark will display incorrect delta times in some cases.
-  Bug 4985[6].
+  Bug 4985[13].
 
   Wireshark should let you work with multiple capture files. Bug
-  10488[7].
+  10488[14].
 
  Getting Help
 
-  Community support is available on Wireshark’s Q&A site[8] and on the
+  Community support is available on Wireshark’s Q&A site[15] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[9].
+  for all of Wireshark’s mailing lists can be found on the web site[16].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[10].
+  A complete FAQ is available on the Wireshark web site[17].
 
-  Last updated 2020-08-09 08:46:39 UTC
+  Last updated 2020-08-12 17:11:27 UTC
 
  References
 
-   1. https://www.wireshark.org/download.html#thirdparty
-   2. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1516
-   3. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1814
-   4. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2234
-   5. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4035
-   6. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4985
-   7. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10488
-   8. https://ask.wireshark.org/
-   9. https://www.wireshark.org/lists/
-  10. https://www.wireshark.org/faq.html
+   1. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16662
+   2. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16676
+   3. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16704
+   4. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16733
+   5. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16742
+   6. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16746
+   7. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16748
+   8. https://www.wireshark.org/download.html#thirdparty
+   9. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1516
+  10. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1814
+  11. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2234
+  12. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4035
+  13. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4985
+  14. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10488
+  15. https://ask.wireshark.org/
+  16. https://www.wireshark.org/lists/
+  17. https://www.wireshark.org/faq.html
