@@ -48,6 +48,9 @@
     </screenshots>
     <update_contact>wireshark-dev_at_wireshark.org</update_contact>
     <releases>
+        <release version="3.2.6" date="2020-08-12">
+            <url>https://www.wireshark.org/docs/relnotes/wireshark-3.2.6.html</url>
+        </release>
         <release version="3.2.5" date="2020-07-01">
             <url>https://www.wireshark.org/docs/relnotes/wireshark-3.2.5.html</url>
         </release>

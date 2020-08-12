@@ -14,11 +14,11 @@ It is used for troubleshooting, analysis, development and education.
 
 == What’s New
 
-// The Windows installers now ship with Npcap 0.9994.
-// They previously shipped with Npcap 0.9991.
+// The Windows installers now ship with Npcap 0.999X.
+// They previously shipped with Npcap 0.9994.
 
-// The Windows installers now ship with USBPcap 1.5.4.0.
-// They previously shipped with USBPcap 1.5.3.0.
+// The Windows installers now ship with USBPcap 1.5.X.0.
+// They previously shipped with USBPcap 1.5.4.0.
 
 === Bug Fixes
 
@@ -27,7 +27,7 @@ The following vulnerabilities have been fixed:
 * wssalink:2020-10[]
 Kafka dissector crash.
 wsbuglink:16672[].
-// cveidlink:2020-xxxx[].
+cveidlink:2020-17498[].
 // Fixed in master: 79576219c9, 32a804dea2, dc7f935330
 // Fixed in master-3.2: 76afda963d, fa44fec9d3, ced45c9398
 // Fixed in master-3.0: n/a
@@ -117,11 +117,13 @@ TN5250
 
 === New and Updated Capture File Support
 
-There is no new or updated capture file support in this release.
+// There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-// [commaize]
-// --
-// --
+[commaize]
+--
+PacketLogger
+pcapng
+--
 
 // === New and Updated Capture Interfaces support
 
