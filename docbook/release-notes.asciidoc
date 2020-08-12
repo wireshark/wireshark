@@ -103,10 +103,11 @@ There is no new or updated capture file support in this release.
 
 === New and Updated Capture Interfaces support
 
-There is no new or updated capture file support in this release.
-// [commaize]
-// --
-// --
+// There is no new or updated capture file support in this release.
+[commaize]
+--
+pcapng
+--
 
 // === Major API Changes
 

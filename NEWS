@@ -13,6 +13,29 @@ Wireshark 3.0.13 Release Notes
 
    The following bugs have been fixed:
 
+     • Dissector for ASTERIX Category 001 / 210 does not recognize bit 1
+       as extension. Bug 16662[1].
+
+     • "invalid timestamp" for Systemd Journal Export Block. Bug
+       16664[2].
+
+     • Short IMSIs (5 digits) lead to wrong decoding+warning. Bug
+       16676[3].
+
+     • Decoding of PFCP IE 'PFD Contents' results in "malformed packet".
+       Bug 16704[4].
+
+     • RFH2 Header with 32 or less bytes of NameValue will not parse out
+       that info. Bug 16733[5].
+
+     • CDP: Port ID TLV followed by Type 1009 TLV triggers [Malformed
+       Packet]. Bug 16742[6].
+
+     • tshark crashed when processing opcda. Bug 16746[7].
+
+     • tshark with --export-dicom gives “Segmentation fault (core
+       dumped)”. Bug 16748[8].
+
   New and Updated Features
 
    There are no new features in this release.
@@ -23,13 +46,17 @@ Wireshark 3.0.13 Release Notes
 
   Updated Protocol Support
 
+   ASTERIX, BSSAP, CDP, DCERPC SPOOLSS, DCOM, DVB-S2, E.212, GBCS, GSM
+   RR, GSM SMS, IEEE 802.11, MQ, Nano, NIS+, PFCP, RTPS, systemd
+   Journal, TDS, TN3270, and TN5250
+
   New and Updated Capture File Support
 
    There is no new or updated capture file support in this release.
 
   New and Updated Capture Interfaces support
 
-   There is no new or updated capture file support in this release.
+   pcapng
 
  Getting Wireshark
 
@@ -41,7 +68,7 @@ Wireshark 3.0.13 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[1] on the Wireshark web site.
+   be found on the download page[9] on the Wireshark web site.
 
  File Locations
 
@@ -55,22 +82,30 @@ Wireshark 3.0.13 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[2] and on the
+  Community support is available on Wireshark’s Q&A site[10] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[3].
+  for all of Wireshark’s mailing lists can be found on the web site[11].
 
-  Bugs and feature requests can be reported on the bug tracker[4].
+  Bugs and feature requests can be reported on the bug tracker[12].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[5].
+  A complete FAQ is available on the Wireshark web site[13].
 
-  Last updated 2020-08-09 08:33:35 UTC
+  Last updated 2020-08-12 17:42:23 UTC
 
  References
 
-   1. https://www.wireshark.org/download.html#thirdparty
-   2. https://ask.wireshark.org/
-   3. https://www.wireshark.org/lists/
-   4. https://bugs.wireshark.org/
-   5. https://www.wireshark.org/faq.html
+   1. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16662
+   2. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16664
+   3. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16676
+   4. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16704
+   5. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16733
+   6. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16742
+   7. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16746
+   8. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16748
+   9. https://www.wireshark.org/download.html#thirdparty
+  10. https://ask.wireshark.org/
+  11. https://www.wireshark.org/lists/
+  12. https://bugs.wireshark.org/
+  13. https://www.wireshark.org/faq.html

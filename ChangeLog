@@ -1,0 +1,663 @@
+commit a0a1c8424c
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Aug 11 16:17:00 2020 -0700
+
+    Prep for 3.0.13.
+    
+    Change-Id: I1bfe0642bf00c32917559155dfd729aa0c275e54
+    Reviewed-on: https://code.wireshark.org/review/38133
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 9aaf08c426
+Author: Guy Harris <gharris@sonic.net>
+Date:   Tue Aug 11 19:37:59 2020 +0000
+
+    Revert "dicom: when exporting objects, don't assume we have the AE titles."
+    
+    This reverts commit d24bc59565ddc40da0b963cec9e03402893af738.
+    
+    Reason for revert: This doesn't apply in the 3.0 branch, as change 33955 isn't in that branch, so the AE titles are arrays, not pointers.
+    
+    Change-Id: I68998f2ac8f370cbf0bc99a6d64a6eecd9163f9e
+    Reviewed-on: https://code.wireshark.org/review/38126
+    Reviewed-by: Guy Harris <gharris@sonic.net>
+
+commit ac42eae09a
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Aug 9 08:44:35 2020 +0000
+
+    [Automatic update for 2020-08-09]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: Iee86dd8b4283993525cd8ce6ddf873f84a8b00e9
+    Reviewed-on: https://code.wireshark.org/review/38093
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit d24bc59565
+Author: Guy Harris <gharris@sonic.net>
+Date:   Thu Aug 6 13:18:31 2020 -0700
+
+    dicom: when exporting objects, don't assume we have the AE titles.
+    
+    In dcm_export_create_object(), don't assume that assoc->ae_calling and
+    assoc->ae_called are non-null; if we don't have an A-ASSOCIATE request
+    earlier in the capture, which we are not guaranteed to have, the called
+    and called AE titles won't be set.
+    
+    Bug: 16748
+    Change-Id: I7d6d22d1c23e28b1f0967a803d0d89609a421712
+    Reviewed-on: https://code.wireshark.org/review/38077
+    Petri-Dish: Guy Harris <gharris@sonic.net>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Guy Harris <gharris@sonic.net>
+    (cherry picked from commit 9015824c0ea3ee9ff265ae0db488bd3472d1875c)
+    Reviewed-on: https://code.wireshark.org/review/38079
+
+commit dbe0e6a7c5
+Author: Guy Harris <gharris@sonic.net>
+Date:   Thu Aug 6 03:52:56 2020 -0700
+
+    ieee80211-netmon: fix a typo.
+    
+    The "monitor mode" flag was called "netmon_802_11.op_mode.on", not
+    "netmon_802_11.op_mode.mon".  Fix that.
+    
+    Change-Id: I4a712c1d5fa7c7e43335d83c0f40ace4358a881c
+    Reviewed-on: https://code.wireshark.org/review/38069
+    Petri-Dish: Guy Harris <gharris@sonic.net>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Guy Harris <gharris@sonic.net>
+    (cherry picked from commit 245b6387f0724ba95d12856c54799b78836f1169)
+    Reviewed-on: https://code.wireshark.org/review/38071
+
+commit 6c26681784
+Author: liningjie <1350445139@qq.com>
+Date:   Sun Aug 2 13:28:43 2020 -0700
+
+    dcom: free data_marshalers and set it to null when we change capture files.
+    
+    Bug: 16746
+    Change-Id: I5893979ff90f061c773a5dfcfa1ceb7ee71901ba
+    Reviewed-on: https://code.wireshark.org/review/38030
+    Petri-Dish: Guy Harris <gharris@sonic.net>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Guy Harris <gharris@sonic.net>
+    (cherry picked from commit 48fdd082377d5f9465130938a997446f775bcaab)
+    Reviewed-on: https://code.wireshark.org/review/38032
+
+commit 7605718c26
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Wed Jul 29 14:44:55 2020 +0200
+
+    CDP: Improve CDP port ID TLV hack heuristic
+    
+    The heuristic used for dissection of the port ID TLV breaks in the face
+    of subsequent TLVs with tags starting with 0x10xx. This change fixes the
+    heuristic to allow these new TLVs to follow the port ID TLV without
+    triggering the workaround for buggy CDP senders.
+    
+    Bug: 16742
+    Change-Id: I40c7ce790263c6de9b59ce543485cf3827f77fe7
+    Reviewed-on: https://code.wireshark.org/review/37985
+    Reviewed-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Petri-Dish: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    (cherry picked from commit 28bec58f0557f949647537d04a9dcb9dab5e5f80)
+    Reviewed-on: https://code.wireshark.org/review/37987
+    Petri-Dish: Alexis La Goutte <alexis.lagoutte@gmail.com>
+
+commit e37cc3a3c5
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Aug 2 08:45:33 2020 +0000
+
+    [Automatic update for 2020-08-02]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: I7bddf38f3e0d9495ae8f93d6f5ffa54910edaf98
+    Reviewed-on: https://code.wireshark.org/review/38026
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit e8e439e5b7
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sat Aug 3 19:26:02 2019 -0700
+
+    Use ENC_NA, not ENC_BIG_ENDIAN, for a sequence of bytes.
+    
+    Change-Id: I90023c940b7a6a89f57c9394b5b21596f560c6e2
+    Reviewed-on: https://code.wireshark.org/review/34176
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit e206eb29925f7366bcd61bbfe9016b639957ea58)
+    Reviewed-on: https://code.wireshark.org/review/37991
+    Reviewed-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Petri-Dish: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+
+commit 97c3ed7878
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Sun Jul 26 11:17:38 2020 +0200
+
+    MQ: Fix short NameValue presentation
+    
+    Patch from Robert Grange
+    
+    Bug: 16733
+    Change-Id: I7a11e060bb89aa1279a212f9dd958931c1031846
+    Reviewed-on: https://code.wireshark.org/review/37967
+    Reviewed-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Petri-Dish: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit dba5465f1173bcb5992854e74b610aaef14a4989)
+    Reviewed-on: https://code.wireshark.org/review/37969
+
+commit 0bcb8d9d45
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jul 26 08:44:16 2020 +0000
+
+    [Automatic update for 2020-07-26]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: I342434344cced7728f45911b216e4a9d3e9bca86
+    Reviewed-on: https://code.wireshark.org/review/37964
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 4c2a490974
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Jul 13 12:20:58 2020 -0700
+
+    Systemd journal: Fix timestamp conversions.
+    
+    Use ws_strtou64 to convert __REALTIME_TIMESTAMP= and other timestamps,
+    which should work across platforms.
+    
+    Bug: 16664
+    Change-Id: I371f2b60e1957e57dbbdbbc3ded5ad49e8eb79d1
+    Reviewed-on: https://code.wireshark.org/review/37849
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    Petri-Dish: Gerald Combs <gerald@wireshark.org>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 4a4c8bdfeafba4833bdcb99fc1617e19fc65e950)
+    Reviewed-on: https://code.wireshark.org/review/37957
+    Reviewed-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Petri-Dish: Jaap Keuter <jaap.keuter@xs4all.nl>
+
+commit 88253e18be
+Author: Graham Bloice <graham.bloice@trihedral.com>
+Date:   Sat Jul 25 14:46:42 2020 +0100
+
+    NSIS uninstaller: ensure the uninstaller runs with elevated privileges
+    
+    The uninstaller should run with elevated privileges to allow deletion
+    of files from protected directories.
+    
+    Modifying the uninstall script to require elevation then causes the
+    uninstaller_installer that creates the uninstaller to also require
+    elevation which happens at build time so defeat that
+    by setting the env var __COMPAT_LAYER to "RunAsInvoker" before calling
+    the uninstaller_installer.
+    
+    Achieving this from CMake requires a script to call to set the env var
+    and then calling the executable.
+    
+    Change-Id: I056931bc4f9b41877b8f31d765d49fee11b54e39
+    Reviewed-on: https://code.wireshark.org/review/37955
+    Petri-Dish: Graham Bloice <graham.bloice@trihedral.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Graham Bloice <graham.bloice@trihedral.com>
+    (cherry picked from commit ac2883f5e8e0a461ba06733294738358eb527b8c)
+    Reviewed-on: https://code.wireshark.org/review/37960
+
+commit 5ab856fd5e
+Author: Thomas Wiens <th.wiens@gmx.de>
+Date:   Thu Jul 23 22:28:52 2020 +0200
+
+    ftype-time: Use time zone from hfinfo->display
+    
+    Change-Id: Ib062a812d21b9e2e800bec78417194313fd3b8b4
+    Reviewed-on: https://code.wireshark.org/review/37938
+    Petri-Dish: Guy Harris <gharris@sonic.net>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Guy Harris <gharris@sonic.net>
+    (cherry picked from commit babbe57a1ad7d18c0e52b80041fde6c3adddd759)
+    Reviewed-on: https://code.wireshark.org/review/37940
+
+commit 909e16d87b
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Wed Jul 22 20:34:09 2020 +0200
+
+    RTPS: Update vendor IDs
+    
+    backport Ia8460d65b34aa89fbc6e6b06624c7821fad5ab9a
+    
+    Change-Id: Ie7cafa099c5cf67402111a471ac9df817509e3b6
+    Reviewed-on: https://code.wireshark.org/review/37930
+    Reviewed-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Petri-Dish: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+
+commit 201a53c493
+Author: Adam Mitz <mitza@objectcomputing.com>
+Date:   Fri May 1 17:37:14 2020 -0500
+
+    RTPS: Updated built-in entity names and values to match spec
+    
+    Change-Id: Ibe8115b068236e52e26a2c178a1ae724c1112663
+    Reviewed-on: https://code.wireshark.org/review/37016
+    Petri-Dish: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    (cherry picked from commit a367b0c55d723365d2b293cf78298b31af2ebe4d)
+    Reviewed-on: https://code.wireshark.org/review/37919
+    Reviewed-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Petri-Dish: Jaap Keuter <jaap.keuter@xs4all.nl>
+
+commit 5ceb1771f2
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jul 19 12:42:34 2020 -0700
+
+    FindWinSparkle.cmake: Fix a comment.
+    
+    Change-Id: If31ec4f771a8576b91005852d7443248b4be08f5
+    Reviewed-on: https://code.wireshark.org/review/37906
+    Reviewed-by: Guy Harris <gharris@sonic.net>
+    (cherry picked from commit c0bb2c4e5bb85f173ac68567585bf9abc808ea1e)
+    Reviewed-on: https://code.wireshark.org/review/37908
+
+commit 2ab6d03f81
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jul 19 08:39:10 2020 +0000
+
+    [Automatic update for 2020-07-19]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: I1e3506af3d7803b8593c3354ba89cb83861a1d0d
+    Reviewed-on: https://code.wireshark.org/review/37894
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 927490c8d8
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Wed Jul 15 19:25:47 2020 +0200
+
+    PFCP: Fix encoding of PFD Contents IE
+    
+    * Add missing Spare octet between Flags and next field.
+    
+    Backport of change I68df17005e22f2d0b53072d52c6296724bc0c86a
+    
+    Bug: 16704
+    Change-Id: I7c35593e4961e4d73180960e77cb6132a3b1172e
+    Reviewed-on: https://code.wireshark.org/review/37872
+    Reviewed-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Petri-Dish: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+
+commit 8893160202
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jul 12 08:45:17 2020 +0000
+
+    [Automatic update for 2020-07-12]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: I45cb26fc452e28f50da64e77410ec4044d89278b
+    Reviewed-on: https://code.wireshark.org/review/37834
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit acc2f56f66
+Author: Guy Harris <gharris@sonic.net>
+Date:   Wed Jul 8 14:30:25 2020 -0700
+
+    spoolss: pick up what some printer attributes mean from Microsoft documentation.
+    
+    The page at
+    
+    https://docs.microsoft.com/en-us/windows/win32/cimwin32prov/win32-printer
+    
+    lists a number of printer attributes that correspond to the attributes
+    listed here.
+    
+    Describe what the hidden attribute means, more clearly describe whta the
+    enable-devq attribute means, and clean up other descriptions to make
+    them more stylistically consistent.
+    
+    Change-Id: I4830df6dc610bce6b7603750d5c4aa73685f6c28
+    Reviewed-on: https://code.wireshark.org/review/37806
+    Reviewed-by: Guy Harris <gharris@sonic.net>
+    (cherry picked from commit 4cf092382d6ab3a01c6cb132ae1ec211f7c1fc7c)
+    Reviewed-on: https://code.wireshark.org/review/37808
+
+commit 7e13a3dda2
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Wed Jul 8 21:58:55 2020 +0200
+
+    Nano: Fix field abbrev
+    
+    Found by conflict check
+    
+    Change-Id: Ifdb0a2e5debab8ce8ed13127ea986d15a45e700b
+    Reviewed-on: https://code.wireshark.org/review/37792
+    Reviewed-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Petri-Dish: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Guy Harris <gharris@sonic.net>
+    (cherry picked from commit 158c414fe4740fc6decd42ac44e329e225d690f9)
+    Reviewed-on: https://code.wireshark.org/review/37803
+    (cherry picked from commit 4cc0384ac4c6665e3d744ab88383ead8afc55669)
+    Reviewed-on: https://code.wireshark.org/review/37804
+
+commit 4674c009b5
+Author: Guy Harris <gharris@sonic.net>
+Date:   Mon Jul 6 22:16:21 2020 -0700
+
+    tn3270: improve on some of IBM's painful prose.
+    
+    The "true" string in a struct true_false_string is used only if the bit
+    is set to 1, so "if set to logic 1" is redundant.  Just have the strings
+    say, respectively, what significance the bit being on ("set to logic 1")
+    has and what signficance the bit being off ("set to logic 0") has.
+    
+    Use active voice.
+    
+    Change-Id: If1fe7b35a0c85dcdb40ac348ca23a0ac5e3dc1da
+    Reviewed-on: https://code.wireshark.org/review/37753
+    Reviewed-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Reviewed-by: Guy Harris <gharris@sonic.net>
+    (cherry picked from commit 6f52f969d823037aa4f24fdcedf4d9fbce22d17b)
+    Reviewed-on: https://code.wireshark.org/review/37801
+
+commit 251f5ebc40
+Author: Guy Harris <gharris@sonic.net>
+Date:   Wed Jul 8 12:51:25 2020 -0700
+
+    NIS+: give the meanings of the NIS_CALLBACK return value.
+    
+    From reading GNU libc's .x file for NIS+ (which has an Oracle America
+    copyright, suggesting that it was originally a file from Sun, and thus
+    likely to be the official NIS+ rpcgen file), and from reading the way
+    the GNU libc code treats the return value of the return value of an
+    NIS_CALLBACK RPC, it appears to be a Boolean where "true" means that the
+    callback in question is still running and "false" means it's not
+    running.
+    
+    Label the results as such.
+    
+    (I should probably really check the Illumos source to see if it includes
+    the NIS+ client and server and, if so, read that, so see what Sun's code
+    did.)
+    
+    Change-Id: I4eb430dfca3d1162972a2a750effc31f626f20bf
+    Reviewed-on: https://code.wireshark.org/review/37791
+    Reviewed-by: Guy Harris <gharris@sonic.net>
+    (cherry picked from commit fb37407d273c7bd20f95a4aca84a0c5e403b422c)
+    Reviewed-on: https://code.wireshark.org/review/37798
+
+commit 93d2e67e0c
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Tue Jul 7 16:45:15 2020 +0200
+
+    NIS+: Make true_false string differentiating
+    
+    Found by conflict check
+    
+    Change-Id: I51ba81592aa0779f45f26fc4a89215051245c328
+    Reviewed-on: https://code.wireshark.org/review/37772
+    Reviewed-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Petri-Dish: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit e566c615f066b200365440216ebfaa055508e8f5)
+    Reviewed-on: https://code.wireshark.org/review/37795
+    Reviewed-by: Guy Harris <gharris@sonic.net>
+
+commit 070758576e
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Mon Jul 6 18:12:18 2020 +0200
+
+    TDS: Fix field abbrev for RPC name
+    
+    Found by conflict check
+    
+    Change-Id: Id37c53cbfb9df796c609e602c6edc0f0940bf80c
+    Reviewed-on: https://code.wireshark.org/review/37745
+    Reviewed-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Petri-Dish: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 45378647d7216b4d1a8202e09119ed4022e964f7)
+    Reviewed-on: https://code.wireshark.org/review/37764
+
+commit e578b07738
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Mon Jul 6 15:27:44 2020 +0200
+
+    SPOOLSS: make reserved field value presentation meaningful
+    
+    Detected by conflict check
+    
+    Change-Id: Ie534564085884afd6f7c9329b6ee637440533f29
+    Reviewed-on: https://code.wireshark.org/review/37738
+    Reviewed-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Petri-Dish: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 3bdf65770637e920aeac4bd4ea4e57728795f698)
+    Reviewed-on: https://code.wireshark.org/review/37761
+
+commit 5540ed0ac1
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Mon Jul 6 18:21:18 2020 +0200
+
+    TN5250: Fix two true_false strings so they are differentiating
+    
+    Found by conflict check
+    
+    Change-Id: Ic0348945b8519bc434bc5a10b5ed5951a7cdcb21
+    Reviewed-on: https://code.wireshark.org/review/37746
+    Reviewed-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Petri-Dish: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 620b8b3c71152c7b83799fc23896fed586fdcc04)
+    Reviewed-on: https://code.wireshark.org/review/37758
+
+commit 880ae8e98c
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Mon Jul 6 18:58:52 2020 +0200
+
+    BSSAP: Fix field abbrev for IMEISV IE
+    
+    Found by conflict check
+    
+    Change-Id: Id14d12543902d75ae54b5b3944a44b63321dc479
+    Reviewed-on: https://code.wireshark.org/review/37747
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Petri-Dish: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit c45aba408d226c8bba210a1191254264976a5dfc)
+    Reviewed-on: https://code.wireshark.org/review/37755
+    Reviewed-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+
+commit 2afe550676
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Tue Jul 7 19:48:46 2020 +0200
+
+    E212: allow to decode 5 digits long short IMSI used in MAP messages
+    
+    Bug: 16676
+    Change-Id: I8ba5bce3ec3a63f3c95ebb58ffdbe54d3546a96a
+    Reviewed-on: https://code.wireshark.org/review/37775
+    Reviewed-by: Pascal Quantin <pascal@wireshark.org>
+    Petri-Dish: Pascal Quantin <pascal@wireshark.org>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    Reviewed-on: https://code.wireshark.org/review/37783
+
+commit 63cd26dad3
+Author: Martin Mathieson <martin.mathieson@keysight.com>
+Date:   Mon Jul 6 11:35:50 2020 +0100
+
+    GSM-SMS: Fix max of a range value.
+    
+    value_range_string error:  Reason (gsm_sms.dis.field_st_reason) entry for "Values specific to each SC" - max(15 0xf) is less than min(16 0x10)
+    
+    Change-Id: Iaa1ceee018d873b13ddc8eac9bc530ee2b37ad6e
+    Reviewed-on: https://code.wireshark.org/review/37727
+    Petri-Dish: Martin Mathieson <martin.r.mathieson@googlemail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Martin Mathieson <martin.r.mathieson@googlemail.com>
+    (cherry picked from commit d13098e235c21c003b2ec3097c3e06d1f9c0843d)
+    Reviewed-on: https://code.wireshark.org/review/37735
+    Reviewed-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+
+commit 1977f465ad
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Mon Jul 6 10:46:56 2020 +0200
+
+    GBCS: fix field abbreviation for firmware hash
+    
+    Found by conflict check.
+    
+    Change-Id: I95d05852ad3c8cd415e3235d3137ee3c85438817
+    Reviewed-on: https://code.wireshark.org/review/37725
+    Reviewed-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Petri-Dish: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Reviewed-by: Kenneth Soerensen <knnthsrnsn@gmail.com>
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit df5cc85a79d2870baf37a1e47616afba0123fd6f)
+    Reviewed-on: https://code.wireshark.org/review/37732
+
+commit 3fa7481424
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sun Jul 5 13:36:57 2020 -0700
+
+    DVB-S2-BB: update list of standards.
+    
+    We refer to part 1 of ETSI TS 102 606, i.e. to ETSI TS 102 606-1.  Add
+    other parts if appropriate.
+    
+    That ultimately ends up pointing to RFC 4326, which, in turn, mentions
+    two IANA registries.
+    
+    Change-Id: Ief3ff36bd4c92ab6b94f07f0a6b6a3aeacb2fa12
+    Reviewed-on: https://code.wireshark.org/review/37716
+    Reviewed-by: Guy Harris <gharris@sonic.net>
+    (cherry picked from commit c3802e5af1f3817e64a90c0477aeca6f4f01fd9f)
+    Reviewed-on: https://code.wireshark.org/review/37718
+
+commit 0e083c19ad
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sun Jul 5 12:58:18 2020 -0700
+
+    DVB-S2-BB: update a URL.
+    
+    The URL no longer works; use the Wayback Machine.
+    
+    Change-Id: I80223dc675d0f578dd4f1d58848bc0eea17426c8
+    Reviewed-on: https://code.wireshark.org/review/37712
+    Reviewed-by: Guy Harris <gharris@sonic.net>
+    (cherry picked from commit f63916425d4df6eb81ebb2aa859c3fe403a91642)
+    Reviewed-on: https://code.wireshark.org/review/37714
+
+commit 6b4f241619
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jul 5 08:42:35 2020 +0000
+
+    [Automatic update for 2020-07-05]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: I20b63725fe6f06135c31de5a1d0e7ab78df927b6
+    Reviewed-on: https://code.wireshark.org/review/37705
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit befac622e4
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Wed Jul 1 22:35:42 2020 +0200
+
+    Qt: Update ByteView recent settings on all tabs
+    
+    The ByteView recent settings are common for all tabs. Ensure all
+    tabs are updated when display format or character encoding is changed.
+    
+    This fixes an issue where the row_width is wrong and the menu action
+    checkmarks are out of sync after switching ByteView tab.
+    
+    Change-Id: Ied25ac41467143f37327ccadcb821262eb86ef0a
+    Reviewed-on: https://code.wireshark.org/review/37655
+    Petri-Dish: Stig Bjørlykke <stig@bjorlykke.org>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Stig Bjørlykke <stig@bjorlykke.org>
+    (cherry picked from commit b8a330d2d5e8f903b9d7da8ffa79efb4e15b526f)
+    Reviewed-on: https://code.wireshark.org/review/37680
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+
+commit 70ed4f3bc5
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Thu Jul 2 12:32:58 2020 +0200
+
+    Qt: Remove ellipsis from "Disable protocol" menu item
+    
+    The protocol preferences menu item for disabling the protocol does
+    not bring up a new dialog, so remove the ellipsis.
+    
+    Change-Id: I210bd6d5f76ce240f1d2a2d1a852e176a48ea1f0
+    Reviewed-on: https://code.wireshark.org/review/37667
+    Petri-Dish: Stig Bjørlykke <stig@bjorlykke.org>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit dd247d821e8468c3059bee54272c6b2f08a9fea2)
+    Reviewed-on: https://code.wireshark.org/review/37671
+    Reviewed-by: Stig Bjørlykke <stig@bjorlykke.org>
+
+commit d21b97f28f
+Author: Vadim Yanitskiy <vyanitskiy@sysmocom.de>
+Date:   Thu Jul 2 04:05:04 2020 +0700
+
+    GSM/RR: fix wrong field name in SI2quater dissector
+    
+    Change-Id: I99e3c86268b0e800a468eca47298db488933ef9a
+    Signed-off-by: Vadim Yanitskiy <vyanitskiy@sysmocom.de>
+    Reviewed-on: https://code.wireshark.org/review/37657
+    Reviewed-by: Pascal Quantin <pascal@wireshark.org>
+    Petri-Dish: Pascal Quantin <pascal@wireshark.org>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    Reviewed-on: https://code.wireshark.org/review/37663
+
+commit 64565633cb
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Wed Jul 1 11:05:19 2020 +0200
+
+    ASTERIX: CAT001/210 has an extension indicator, it's not fixed
+    
+    Bug: 16662
+    Change-Id: Ia0599ed7f5cab8efa4d644738ff5e4d2703d597b
+    Reviewed-on: https://code.wireshark.org/review/37635
+    Reviewed-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Petri-Dish: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Tested-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    (cherry picked from commit 65a70ffd8279c07a2e8cda05620b5e5f61dfa723)
+    Reviewed-on: https://code.wireshark.org/review/37650
+    Petri-Dish: Anders Broman <a.broman58@gmail.com>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+
+commit ef2b88c505
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Jul 1 14:18:13 2020 -0700
+
+    3.0.12 → 3.0.13.
+    
+    Change-Id: I813164cc961a64e4e4bd97f1da675787262bc453
+    Reviewed-on: https://code.wireshark.org/review/37659
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>

@@ -47,6 +47,9 @@
 	<screenshot>https://www.wireshark.org/~morriss/Screenshot-Wireshark2.0-Stevens-graph.png</screenshot>
     </screenshots>
     <releases>
+        <release version="3.0.13" date="2020-08-12">
+            <url>https://www.wireshark.org/docs/relnotes/wireshark-3.0.13.html</url>
+        </release>
         <release version="3.0.12" date="2020-07-01">
             <url>https://www.wireshark.org/docs/relnotes/wireshark-3.0.12.html</url>
         </release>
