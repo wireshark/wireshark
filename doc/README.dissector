@@ -903,6 +903,19 @@ The type of value this field holds. The current field types are:
                 However if the length given in the call
                 is -1, then the length used is that
                 returned by calling tvb_strsize().
+                This should only be used if the string,
+                in the packet, is always terminated with
+                a NULL character, either because the length
+                isn't otherwise specified or because a
+                character count *and* a NULL terminator are
+                both used.
+    FT_STRINGZPAD   A NULL-padded string of characters.
+                The length is given in the proto_tree_add_item()
+                call, but may be larger than the length of
+                the string, with extra bytes being NULL padding.
+                This is typically used for fixed-length fields
+                that contain a string value that might be shorter
+                than the fixed length.
     FT_UINT_STRING  A counted string of characters, consisting
                 of a count (represented as an integral value,
                 of width given in the proto_tree_add_item()
