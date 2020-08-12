@@ -384,7 +384,7 @@ dissect_aasp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         aasp_tree = proto_item_add_subtree(ti, ett_aasp);
 
         /* separation of command; jump "a=" */
-        if(tvb_memeql(tvb, 0, "a=", 2) == 0)
+        if(tvb_memeql(tvb, 0, (const guint8*)"a=", 2) == 0)
         {
             prev = 2;
             for(i=2; i<n;)

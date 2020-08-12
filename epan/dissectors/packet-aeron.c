@@ -1951,7 +1951,7 @@ static void aeron_msg_fragment_add(aeron_msg_t * msg, aeron_msg_fragment_t * fra
     msg->next_expected_term_offset += fragment->frame_length;
     if ((fragment->flags & DATA_FLAGS_END) == DATA_FLAGS_END)
     {
-        gchar * buf;
+        guint8 * buf;
         wmem_list_frame_t * lf;
         size_t ofs = 0;
         size_t accum_len = 0;
@@ -1961,7 +1961,7 @@ static void aeron_msg_fragment_add(aeron_msg_t * msg, aeron_msg_fragment_t * fra
 
         msg->complete = TRUE;
         msg->end_frame = fragment->frame;
-        buf = (gchar *) wmem_alloc(wmem_file_scope(), (size_t) msg->length);
+        buf = (guint8 *) wmem_alloc(wmem_file_scope(), (size_t) msg->length);
         lf = wmem_list_head(msg->fragment);
         while (lf != NULL)
         {

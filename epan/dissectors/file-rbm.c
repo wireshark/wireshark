@@ -134,7 +134,7 @@ void get_rbm_integer(tvbuff_t* tvb, guint offset, gint32* value, gint* len)
 	}
 }
 
-static void dissect_rbm_integer(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint* offset, gchar** value_str)
+static void dissect_rbm_integer(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint* offset, gchar** value_str)
 {
 	gint32 value = 0;
 	gint len = 0;
@@ -146,7 +146,7 @@ static void dissect_rbm_integer(tvbuff_t* tvb, packet_info* pinfo, proto_tree* t
 		*value_str = wmem_strdup_printf(wmem_packet_scope(), "%d", value);
 }
 
-static void dissect_rbm_basic(tvbuff_t* tvb _U_, packet_info* pinfo, proto_tree* tree _U_, guint* offset _U_, const guint8 subtype,
+static void dissect_rbm_basic(tvbuff_t* tvb _U_, packet_info* pinfo, proto_tree* tree _U_, gint* offset _U_, const guint8 subtype,
 	gchar** type, gchar** value_str)
 {
 	switch (subtype) {
@@ -167,25 +167,25 @@ static void dissect_rbm_basic(tvbuff_t* tvb _U_, packet_info* pinfo, proto_tree*
 	rbm_set_info(pinfo, *type);
 }
 
-static void dissect_rbm_string_data_trailer(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint* offset, const gchar* label,
+static void dissect_rbm_string_data_trailer(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint* offset, const gchar* label,
 	const gchar* prefix, const gchar* trailer, gchar** value_str)
 {
 	gint32 value = 0;
 	gint len = 0;
-	guint8* s;
+	const char* s;
 
 	rbm_set_info(pinfo, label);
 
 	get_rbm_integer(tvb, *offset, &value, &len);
 	proto_tree_add_int_format_value(tree, hf_rbm_length, tvb, *offset, len, value, "%d", value);
 	*offset += len;
-	s = tvb_get_string_enc(wmem_packet_scope(), tvb, *offset, value, ENC_NA);
+	s = (const char*)tvb_get_string_enc(wmem_packet_scope(), tvb, *offset, value, ENC_NA);
 	proto_tree_add_string_format_value(tree, hf_rbm_string, tvb, *offset, value, s, "%s%s%s", prefix, s, trailer);
 	*offset += value;
 	*value_str = wmem_strdup_printf(wmem_packet_scope(), "%s%s%s", prefix, s, trailer);
 }
 
-static void dissect_rbm_string_data(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint* offset, const gchar* label,
+static void dissect_rbm_string_data(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint* offset, const gchar* label,
 	const gchar* prefix, gchar** value_str)
 {
 	dissect_rbm_string_data_trailer(tvb, pinfo, tree, offset, label, prefix, "", value_str);
@@ -284,14 +284,14 @@ static void dissect_rbm_double(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tr
 	gint32 value = 0;
 	gdouble valued;
 	gint len = 0;
-	guint8* s;
+	const char* s;
 
 	rbm_set_info(pinfo, "Double");
 
 	get_rbm_integer(tvb, *offset, &value, &len);
 	proto_tree_add_int_format_value(tree, hf_rbm_length, tvb, *offset, len, value, "%d", value);
 	*offset += len;
-	s = tvb_get_string_enc(wmem_packet_scope(), tvb, *offset, value, ENC_NA);
+	s = (const char*)tvb_get_string_enc(wmem_packet_scope(), tvb, *offset, value, ENC_NA);
 	valued = g_ascii_strtod(s, NULL);
 	proto_tree_add_double(tree, hf_rbm_double, tvb, *offset, value, valued);
 	*offset += value;

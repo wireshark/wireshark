@@ -2250,7 +2250,7 @@ loop_record(tvbuff_t *tvb, proto_tree *ptree, gint offset,
 			}
 			if (name) {
 				tree = proto_tree_add_subtree(ptree, tvb, offset, size,
-										ett_afp_enumerate_line, NULL, name);
+										ett_afp_enumerate_line, NULL, (const char*)name);
 			}
 			else {
 				tree = proto_tree_add_subtree_format(ptree, tvb, offset, size,

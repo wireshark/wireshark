@@ -3173,7 +3173,7 @@ is_acn_or_rdmnet_over_udp(tvbuff_t *tvb, guint32 *protocol_id)
     return FALSE;
 
   /* Check the bytes in octets 4 - 16 */
-  if (tvb_memeql(tvb, 4, acn_packet_id, sizeof(acn_packet_id)-1) != 0)
+  if (tvb_memeql(tvb, 4, (const guint8*)acn_packet_id, sizeof(acn_packet_id)-1) != 0)
     return FALSE;
 
   offset = 16;
@@ -3206,7 +3206,7 @@ is_rdmnet_over_tcp(tvbuff_t *tvb)
   }
 
   /* Check the bytes in octets 0 - 12 */
-  if (tvb_memeql(tvb, 0, acn_packet_id, sizeof(acn_packet_id)-1) != 0) {
+  if (tvb_memeql(tvb, 0, (const guint8*)acn_packet_id, sizeof(acn_packet_id)-1) != 0) {
     return FALSE;
   }
 
