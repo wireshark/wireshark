@@ -22,16 +22,16 @@ It is used for troubleshooting, analysis, development and education.
 
 === Bug Fixes
 
-The following vulnerabilities have been fixed:
+// The following vulnerabilities have been fixed:
 
-* wssalink:2020-10[]
-Kafka dissector crash.
-wsbuglink:16672[].
-cveidlink:2020-17498[].
-// Fixed in master: 79576219c9, 32a804dea2, dc7f935330
-// Fixed in master-3.2: 76afda963d, fa44fec9d3, ced45c9398
-// Fixed in master-3.0: n/a
-// Fixed in master-2.6: n/a
+// * wssalink:2020-11[]
+// Foo dissector {crash,infinite loop}.
+// wsbuglink:xxxx[].
+// cveidlink:2020-xxxx[].
+// Fixed in master: xxxx
+// Fixed in master-3.2: xxxx
+// Fixed in master-3.0: xxxx
+// Fixed in master-2.6: xxxx
 
 The following bugs have been fixed:
 
@@ -40,29 +40,6 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 //* Wireshark is solely responsible for the decline of shopping malls in your area.
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v3.2.7rc0..| grep ' Bug:' | awk '{print $2}' | sort -n -u ` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
-
-* Kafka dissector fails parsing FETCH responses. wsbuglink:16623[].
-
-* Dissector for ASTERIX Category 001 / 210 does not recognize bit 1 as extension. wsbuglink:16662[].
-
-* &quot;invalid timestamp&quot; for Systemd Journal Export Block. wsbuglink:16664[].
-
-* Decoding Extended Emergency number list IE length. wsbuglink:16668[].
-
-* Some macOS Bluetooth PacketLogger capture files aren't recognized as PacketLogger files (regression, bisected). wsbuglink:16670[].
-
-* Short IMSIs (5 digits) lead to wrong decoding+warning. wsbuglink:16676[].
-
-* Decoding of PFCP IE 'PFD Contents' results in &quot;malformed packet&quot;. wsbuglink:16704[].
-
-* RFH2 Header with 32 or less bytes of NameValue will not parse out that info. wsbuglink:16733[].
-
-* CDP: Port ID TLV followed by Type 1009 TLV triggers [Malformed Packet]. wsbuglink:16742[].
-
-* tshark crashed when processing opcda. wsbuglink:16746[].
-
-* tshark with --export-dicom gives “Segmentation fault (core dumped)”. wsbuglink:16748[].
-
 
 === New and Updated Features
 
@@ -87,43 +64,15 @@ There are no new protocols in this release.
 // Add one protocol per line between the -- delimiters.
 [commaize]
 --
-ASTERIX
-BSSAP
-CDP
-CoAP
-DCERPC SPOOLSS
-IEEE 802.11
-DCOM
-DICOM
-DVB-S2
-E.212
-GBCS
-GSM RR
-GSM SMS
-Kafka
-MQ
-Nano
-NAS 5GS
-NIS+
-NR RRC
-PacketLogger
-PFCP
-RTPS
-systemd Journal
-TDS
-TN3270
-TN5250
 --
 
 === New and Updated Capture File Support
 
-// There is no new or updated capture file support in this release.
+There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-[commaize]
---
-PacketLogger
-pcapng
---
+// [commaize]
+// --
+// --
 
 // === New and Updated Capture Interfaces support
 
