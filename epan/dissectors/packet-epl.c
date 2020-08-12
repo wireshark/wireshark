@@ -42,6 +42,7 @@
  *                     - Christian Krump <christian.krump[AT]br-automation.com>
  *                       - extended decoding of ring redundancy flags in the SOA frame
  *                       - put a boolean hotfield to all available EPL message types
+ *                       - modified timestamp format of errorcodelist entries
  *
  * A dissector for:
  * Wireshark - Network traffic analyzer
@@ -3592,7 +3593,7 @@ dissect_epl_asnd_sres(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, g
 		proto_tree_add_item(epl_el_entry_tree, hf_epl_asnd_statusresponse_el_entry_code, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 
-		proto_tree_add_item(epl_el_entry_tree, hf_epl_asnd_statusresponse_el_entry_time, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(epl_el_entry_tree, hf_epl_asnd_statusresponse_el_entry_time, tvb, offset, 8, ENC_TIME_SECS_NSECS|ENC_LITTLE_ENDIAN);
 		offset += 8;
 
 		proto_tree_add_item(epl_el_entry_tree, hf_epl_asnd_statusresponse_el_entry_add, tvb, offset, 8, ENC_LITTLE_ENDIAN);
@@ -5827,7 +5828,7 @@ proto_register_epl(void)
 		},
 		{ &hf_epl_asnd_statusresponse_el_entry_time,
 			{ "Time Stamp", "epl.asnd.sres.el.entry.time",
-				FT_UINT64, BASE_DEC, NULL, 0x00, NULL, HFILL }
+				FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x00, NULL, HFILL }
 		},
 		{ &hf_epl_asnd_statusresponse_el_entry_add,
 			{ "Additional Information", "epl.asnd.sres.el.entry.add",
