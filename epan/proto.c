@@ -1736,8 +1736,6 @@ get_stringz_value(wmem_allocator_t *scope, proto_tree *tree, tvbuff_t *tvb,
 	if (length == -1) {
 		/* This can throw an exception */
 		value = tvb_get_stringz_enc(scope, tvb, start, &length, encoding);
-	} else if (length == 0) {
-		value = "[Empty]";
 	} else {
 		/* In this case, length signifies the length of the string.
 		 *
