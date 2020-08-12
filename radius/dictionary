@@ -187,6 +187,7 @@ $INCLUDE dictionary.digium
 $INCLUDE dictionary.dragonwave
 $INCLUDE dictionary.efficientip
 $INCLUDE dictionary.eltex
+$INCLUDE dictionary.enterasys
 $INCLUDE dictionary.epygi
 $INCLUDE dictionary.equallogic
 $INCLUDE dictionary.ericsson
@@ -204,6 +205,7 @@ $INCLUDE dictionary.gemtek
 $INCLUDE dictionary.h3c
 $INCLUDE dictionary.hp
 $INCLUDE dictionary.huawei
+$INCLUDE dictionary.identity_engines
 $INCLUDE dictionary.iea
 $INCLUDE dictionary.infonet
 $INCLUDE dictionary.issanni
