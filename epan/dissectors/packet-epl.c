@@ -46,6 +46,7 @@
  *                       - append summary info with additional flag information
  *                       - usage of segment size during sdo (write by index) payload decoding process
  *                       - set mapping-sections of sdo objects one level lower
+ *                       - dissect some additional (cable redundancy specific) flags
  *
  * A dissector for:
  * Wireshark - Network traffic analyzer
@@ -173,17 +174,22 @@ static const value_string mtyp_vals[] = {
 /* flags/masks */
 #define EPL_SOC_MC_MASK              0x80
 #define EPL_SOC_PS_MASK              0x40
+#define EPL_SOC_AN_MASK              0x08
 #define EPL_PDO_RD_MASK              0x01
 #define EPL_PDO_EA_MASK              0x04
 #define EPL_PDO_EN_MASK              0x10
 #define EPL_PDO_RS_MASK              0x07
 #define EPL_PDO_PR_MASK              0x38
+#define EPL_PDO_SLS_MASK             0x40
+#define EPL_PDO_FLS_MASK             0x80
 #define EPL_SOA_EA_MASK              0x04
 #define EPL_SOA_ER_MASK              0x02
 #define EPL_ASND_EN_MASK             0x10
 #define EPL_ASND_EC_MASK             0x08
 #define EPL_ASND_RS_MASK             0x07
 #define EPL_ASND_PR_MASK             0x38
+#define EPL_ASND_SLS_MASK            0x40
+#define EPL_ASND_FLS_MASK            0x80
 
 /* RequestedServiceID s for EPL message type "SoA" */
 #define EPL_SOA_NOSERVICE               0
@@ -1429,6 +1435,7 @@ static gint hf_epl_ainv          = -1;
 static gint hf_epl_soc_flags     = -1;
 static gint hf_epl_soc_mc        = -1;
 static gint hf_epl_soc_ps        = -1;
+static gint hf_epl_soc_dna_an    = -1;
 static gint hf_epl_soc_nettime   = -1;
 static gint hf_epl_soc_relativetime = -1;
 
@@ -1436,6 +1443,8 @@ static gint hf_epl_preq_flags    = -1;
 static gint hf_epl_preq_ms       = -1;
 static gint hf_epl_preq_ea       = -1;
 static gint hf_epl_preq_rd       = -1;
+static gint hf_epl_preq_sls      = -1;
+static gint hf_epl_preq_fls      = -1;
 static gint hf_epl_preq_pdov     = -1;
 static gint hf_epl_preq_size     = -1;
 
@@ -1447,6 +1456,8 @@ static gint hf_epl_pres_en       = -1;
 static gint hf_epl_pres_rd       = -1;
 static gint hf_epl_pres_pr       = -1;
 static gint hf_epl_pres_rs       = -1;
+static gint hf_epl_pres_sls      = -1;
+static gint hf_epl_pres_fls      = -1;
 static gint hf_epl_pres_pdov     = -1;
 static gint hf_epl_pres_size     = -1;
 
@@ -1502,6 +1513,8 @@ static gint hf_epl_asnd_identresponse_en             = -1;
 static gint hf_epl_asnd_identresponse_ec             = -1;
 static gint hf_epl_asnd_identresponse_pr             = -1;
 static gint hf_epl_asnd_identresponse_rs             = -1;
+static gint hf_epl_asnd_identresponse_sls            = -1;
+static gint hf_epl_asnd_identresponse_fls            = -1;
 static gint hf_epl_asnd_identresponse_stat_ms        = -1;
 static gint hf_epl_asnd_identresponse_stat_cs        = -1;
 static gint hf_epl_asnd_identresponse_ever           = -1;
@@ -1554,6 +1567,8 @@ static gint hf_epl_asnd_statusresponse_en            = -1;
 static gint hf_epl_asnd_statusresponse_ec            = -1;
 static gint hf_epl_asnd_statusresponse_pr            = -1;
 static gint hf_epl_asnd_statusresponse_rs            = -1;
+static gint hf_epl_asnd_statusresponse_sls           = -1;
+static gint hf_epl_asnd_statusresponse_fls           = -1;
 static gint hf_epl_asnd_statusresponse_stat_ms       = -1;
 static gint hf_epl_asnd_statusresponse_stat_cs       = -1;
 /* static gint hf_epl_asnd_statusresponse_seb           = -1; */
@@ -2817,6 +2832,7 @@ dissect_epl_soc(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint of
 	static int * const soc_flags[] = {
 		&hf_epl_soc_mc,
 		&hf_epl_soc_ps,
+		&hf_epl_soc_dna_an,
 		NULL
 	};
 
@@ -2861,7 +2877,12 @@ dissect_epl_preq(struct epl_convo *convo, proto_tree *epl_tree, tvbuff_t *tvb, p
 
 	flags = tvb_get_guint8(tvb, offset);
 	proto_tree_add_bitmask(epl_tree, tvb, offset, hf_epl_preq_flags, ett_epl_preq, req_flags, ENC_NA);
-	offset += 2;
+	offset += 1;
+
+	/* dissect 2nd flag field */
+	proto_tree_add_item(epl_tree, hf_epl_preq_fls, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(epl_tree, hf_epl_preq_sls, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	offset += 1;
 
 	pdoversion = tvb_get_guint8(tvb, offset);
 	proto_tree_add_item(epl_tree, hf_epl_preq_pdov, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -2911,6 +2932,9 @@ dissect_epl_pres(struct epl_convo *convo, proto_tree *epl_tree, tvbuff_t *tvb, p
 	offset += 1;
 
 	flags2 = tvb_get_guint8(tvb, offset);
+
+	proto_tree_add_item(epl_tree, hf_epl_pres_fls, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(epl_tree, hf_epl_pres_sls, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(epl_tree, hf_epl_pres_pr, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(epl_tree, hf_epl_pres_rs, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
@@ -3352,6 +3376,8 @@ dissect_epl_asnd_ires(struct epl_convo *convo, proto_tree *epl_tree, tvbuff_t *t
 	proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_ec, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
 
+	proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_fls, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_sls, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_pr, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_rs, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
@@ -3555,6 +3581,8 @@ dissect_epl_asnd_sres(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, g
 	proto_tree_add_item(epl_tree, hf_epl_asnd_statusresponse_ec, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
 
+	proto_tree_add_item(epl_tree, hf_epl_asnd_statusresponse_fls, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(epl_tree, hf_epl_asnd_statusresponse_sls, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(epl_tree, hf_epl_asnd_statusresponse_pr, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(epl_tree, hf_epl_asnd_statusresponse_rs, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
@@ -5307,6 +5335,10 @@ proto_register_epl(void)
 			{ "PS (Prescaled Slot)", "epl.soc.ps",
 				FT_BOOLEAN, 8, NULL, EPL_SOC_PS_MASK, NULL, HFILL }
 		},
+		{ &hf_epl_soc_dna_an,
+			{ "AN (Global)", "epl.soc.an",
+				FT_BOOLEAN, 8, NULL, EPL_SOC_AN_MASK, NULL, HFILL }
+		},
 		{ &hf_epl_soc_nettime,
 			{ "NetTime", "epl.soc.nettime",
 				FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0, NULL, HFILL }
@@ -5332,6 +5364,14 @@ proto_register_epl(void)
 		{ &hf_epl_preq_rd,
 			{ "RD (Ready)", "epl.preq.rd",
 				FT_BOOLEAN, 8, NULL, EPL_PDO_RD_MASK, NULL, HFILL }
+		},
+		{ &hf_epl_preq_sls,
+			{ "SLS (Second Link Status)", "epl.preq.sls",
+				FT_BOOLEAN, 8, NULL, EPL_PDO_SLS_MASK, NULL, HFILL }
+		},
+		{ &hf_epl_preq_fls,
+			{ "FLS (First Link Status)", "epl.preq.fls",
+				FT_BOOLEAN, 8, NULL, EPL_PDO_FLS_MASK, NULL, HFILL }
 		},
 		{ &hf_epl_preq_pdov,
 			{ "PDOVersion", "epl.preq.pdov",
@@ -5374,6 +5414,14 @@ proto_register_epl(void)
 		{ &hf_epl_pres_rs,
 			{ "RS (RequestToSend)", "epl.pres.rs",
 				FT_UINT8, BASE_DEC, NULL, EPL_PDO_RS_MASK, NULL, HFILL }
+		},
+		{ &hf_epl_pres_sls,
+			{ "SLS (Second Link Status)", "epl.pres.sls",
+				FT_BOOLEAN, 8, NULL, EPL_PDO_SLS_MASK, NULL, HFILL }
+		},
+		{ &hf_epl_pres_fls,
+			{ "FLS (First Link Status)", "epl.pres.fls",
+				FT_BOOLEAN, 8, NULL, EPL_PDO_FLS_MASK, NULL, HFILL }
 		},
 		{ &hf_epl_pres_pdov,
 			{ "PDOVersion", "epl.pres.pdov",
@@ -5534,6 +5582,14 @@ proto_register_epl(void)
 		{ &hf_epl_asnd_identresponse_rs,
 			{ "RS (RequestToSend)", "epl.asnd.ires.rs",
 				FT_UINT8, BASE_DEC, NULL, EPL_ASND_RS_MASK, NULL, HFILL }
+		},
+		{ &hf_epl_asnd_identresponse_sls,
+			{ "SLS (Second Link Status)", "epl.asnd.ires.sls",
+				FT_BOOLEAN, 8, NULL, EPL_ASND_SLS_MASK, NULL, HFILL }
+		},
+		{ &hf_epl_asnd_identresponse_fls,
+			{ "FLS (First Link Status)", "epl.asnd.ires.fls",
+				FT_BOOLEAN, 8, NULL, EPL_ASND_FLS_MASK, NULL, HFILL }
 		},
 		{ &hf_epl_asnd_identresponse_stat_ms,
 			{ "NMTStatus", "epl.asnd.ires.state",
@@ -5740,6 +5796,14 @@ proto_register_epl(void)
 		{ &hf_epl_asnd_statusresponse_rs,
 			{ "RS (RequestToSend)", "epl.asnd.sres.rs",
 				FT_UINT8, BASE_DEC, NULL, EPL_ASND_RS_MASK, NULL, HFILL }
+		},
+		{ &hf_epl_asnd_statusresponse_sls,
+			{ "SLS (Second Link Status)", "epl.asnd.sres.sls",
+				FT_BOOLEAN, 8, NULL, EPL_ASND_SLS_MASK, NULL, HFILL }
+		},
+		{ &hf_epl_asnd_statusresponse_fls,
+			{ "FLS (First Link Status)", "epl.asnd.sres.fls",
+				FT_BOOLEAN, 8, NULL, EPL_ASND_FLS_MASK, NULL, HFILL }
 		},
 		{ &hf_epl_asnd_statusresponse_stat_ms,
 			{ "NMTStatus", "epl.asnd.sres.stat",
