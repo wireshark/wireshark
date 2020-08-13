@@ -5255,9 +5255,9 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
                 offset+=2;
                 proto_tree_add_item(sub_tree, hf_bthci_cmd_max_sdu_s_to_m, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                 offset+=2;
-                proto_tree_add_item(sub_tree, hf_bthci_cmd_max_pdu_m_to_s, tvb, offset, 2, ENC_NA);
+                proto_tree_add_item(sub_tree, hf_bthci_cmd_max_pdu_m_to_s, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                 offset+=2;
-                proto_tree_add_item(sub_tree, hf_bthci_cmd_max_pdu_s_to_m, tvb, offset, 2, ENC_NA);
+                proto_tree_add_item(sub_tree, hf_bthci_cmd_max_pdu_s_to_m, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                 offset+=2;
                 proto_tree_add_bitmask(sub_tree, tvb, offset, hf_bthci_cmd_phy_m_to_s, ett_phy_param, hfx_btcmd_le_phys, ENC_NA);
                 offset++;
@@ -5346,7 +5346,7 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
             offset++;
             proto_tree_add_item(tree, hf_bthci_cmd_max_sdu, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset+=2;
-            proto_tree_add_item(tree, hf_bthci_cmd_max_pdu, tvb, offset, 2, ENC_NA);
+            proto_tree_add_item(tree, hf_bthci_cmd_max_pdu, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset+=2;
             proto_tree_add_bitmask(tree, tvb, offset, hf_bthci_cmd_phy, ett_phy_param, hfx_btcmd_le_phys, ENC_NA);
             offset++;

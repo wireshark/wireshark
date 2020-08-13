@@ -550,6 +550,7 @@ static int hf_bthci_evt_current_path_loss = -1;
 static int hf_bthci_evt_zone_entered = -1;
 static int hf_bthci_evt_power_report_reason = -1;
 static int hf_bthci_evt_power_level_delta = -1;
+static int hf_bthci_evt_sdu_interval = -1;
 static int hf_bthci_evt_max_sdu = -1;
 static int hf_bthci_evt_framing = -1;
 static int hf_bthci_evt_peer_clock_accuracy = -1;
@@ -3143,8 +3144,6 @@ dissect_bthci_evt_le_meta(tvbuff_t *tvb, int offset, packet_info *pinfo,
             offset += 1;
             proto_tree_add_item(tree, hf_bthci_evt_big_transport_latency, tvb, offset, 3, ENC_LITTLE_ENDIAN);
             offset += 3;
-            proto_tree_add_item(tree, hf_bthci_evt_phy, tvb, offset, 1, ENC_NA);
-            offset += 1;
             proto_tree_add_item(tree, hf_bthci_evt_nse, tvb, offset, 1, ENC_NA);
             offset += 1;
             proto_tree_add_item(tree, hf_bthci_evt_bn, tvb, offset, 1, ENC_NA);
@@ -3162,7 +3161,7 @@ dissect_bthci_evt_le_meta(tvbuff_t *tvb, int offset, packet_info *pinfo,
             num_bis = tvb_get_guint8(tvb, offset);
             offset += 1;
             while (num_bis) {
-                proto_tree_add_item(tree, hf_bthci_evt_bis_handle, tvb, offset, 2, ENC_NA);
+                proto_tree_add_item(tree, hf_bthci_evt_bis_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                 offset += 2;
                 num_bis -= 1;
             }
@@ -3227,8 +3226,10 @@ dissect_bthci_evt_le_meta(tvbuff_t *tvb, int offset, packet_info *pinfo,
             offset += 1;
             proto_tree_add_item(tree, hf_bthci_evt_max_pdu, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
-            proto_tree_add_item(tree, hf_bthci_evt_max_sdu, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_bthci_evt_sdu_interval, tvb, offset, 3, ENC_LITTLE_ENDIAN);
             offset += 3;
+            proto_tree_add_item(tree, hf_bthci_evt_max_sdu, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
             proto_tree_add_item(tree, hf_bthci_evt_phy, tvb, offset, 1, ENC_NA);
             offset += 1;
             proto_tree_add_item(tree, hf_bthci_evt_framing, tvb, offset, 1, ENC_NA);
@@ -9678,6 +9679,11 @@ proto_register_bthci_evt(void)
         { &hf_bthci_evt_power_level_delta,
           { "Transmit Power Delta", "bthci_evt.power_level_delta",
             FT_INT8, BASE_DEC|BASE_UNIT_STRING, &units_decibels, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_sdu_interval,
+          { "SDU Interval",   "bthci_evt.sdu_interval",
+            FT_UINT24, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_evt_max_sdu,
