@@ -720,8 +720,8 @@ dissect_eap_identity_wlan(tvbuff_t *tvb, packet_info* pinfo, proto_tree* tree, i
 
   proto_tree_add_uint(eap_identity_tree, hf_eap_identity_mcc,
     tvb, offset + (guint)(strlen(tokens[0]) + strlen("@wlan.") +
-    strlen(tokens[2]) + 1 + strlen("mcc")),
-    (guint)(strlen(tokens[3]) - strlen("mcc")), mcc);
+    strlen(realm_tokens[1]) + 1 + strlen("mcc")),
+    (guint)(strlen(realm_tokens[2]) - strlen("mcc")), mcc);
 end:
   g_strfreev(tokens);
 
