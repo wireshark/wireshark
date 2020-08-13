@@ -43,6 +43,7 @@
  *                       - extended decoding of ring redundancy flags in the SOA frame
  *                       - put a boolean hotfield to all available EPL message types
  *                       - modified timestamp format of errorcodelist entries
+ *                       - append summary info with additional flag information
  *
  * A dissector for:
  * Wireshark - Network traffic analyzer
@@ -167,12 +168,20 @@ static const value_string mtyp_vals[] = {
 	{0,NULL}
 };
 
+/* flags/masks */
 #define EPL_SOC_MC_MASK              0x80
 #define EPL_SOC_PS_MASK              0x40
 #define EPL_PDO_RD_MASK              0x01
-
+#define EPL_PDO_EA_MASK              0x04
+#define EPL_PDO_EN_MASK              0x10
 #define EPL_PDO_RS_MASK              0x07
 #define EPL_PDO_PR_MASK              0x38
+#define EPL_SOA_EA_MASK              0x04
+#define EPL_SOA_ER_MASK              0x02
+#define EPL_ASND_EN_MASK             0x10
+#define EPL_ASND_EC_MASK             0x08
+#define EPL_ASND_RS_MASK             0x07
+#define EPL_ASND_PR_MASK             0x38
 
 /* RequestedServiceID s for EPL message type "SoA" */
 #define EPL_SOA_NOSERVICE               0
@@ -2860,8 +2869,8 @@ dissect_epl_preq(struct epl_convo *convo, proto_tree *epl_tree, tvbuff_t *tvb, p
 	len = tvb_get_letohs(tvb, offset);
 	proto_tree_add_uint(epl_tree, hf_epl_preq_size, tvb, offset, 2, len);
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, "[%4d]  F:RD=%d  V:%d.%d", len,
-			(EPL_PDO_RD_MASK & flags), hi_nibble(pdoversion), lo_nibble(pdoversion));
+	col_append_fstr(pinfo->cinfo, COL_INFO, "[%4d]  F:RD=%d,EA=%d  V:%d.%d", len,
+			(EPL_PDO_RD_MASK & flags), (EPL_PDO_EA_MASK & flags), hi_nibble(pdoversion), lo_nibble(pdoversion));
 
 	offset += 2;
 	offset = dissect_epl_pdo(convo, epl_tree, tvb, pinfo, offset, len, EPL_PREQ );
@@ -2914,8 +2923,8 @@ dissect_epl_pres(struct epl_convo *convo, proto_tree *epl_tree, tvbuff_t *tvb, p
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, "[%4d]", len);
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, "  F:RD=%d,RS=%d,PR=%d  V=%d.%d",
-			(EPL_PDO_RD_MASK & flags), (EPL_PDO_RS_MASK & flags2), (EPL_PDO_PR_MASK & flags2) >> 3,
+	col_append_fstr(pinfo->cinfo, COL_INFO, "  F:RD=%d,EN=%d,RS=%d,PR=%d  V=%d.%d",
+			(EPL_PDO_RD_MASK & flags), (EPL_PDO_EN_MASK & flags), (EPL_PDO_RS_MASK & flags2), (EPL_PDO_PR_MASK & flags2) >> 3,
 			hi_nibble(pdoversion), lo_nibble(pdoversion));
 
 	if (pinfo->srcport != EPL_MN_NODEID)   /* check if the sender is CN or MN */
@@ -2941,7 +2950,7 @@ static gint
 dissect_epl_soa(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset)
 {
 	guint8 svid, target;
-	guint8 state;
+	guint8 state, flags;
 	proto_item *psf_item = NULL;
 	proto_tree *psf_tree  = NULL;
 
@@ -2957,6 +2966,7 @@ dissect_epl_soa(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint of
 
 	offset += 1;
 
+	flags = tvb_get_guint8(tvb, offset);
 	svid = tvb_get_guint8(tvb, offset + 2);
 	if (svid == EPL_SOA_IDENTREQUEST)
 	{
@@ -2976,6 +2986,10 @@ dissect_epl_soa(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint of
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, "(%s)->%3d",
 					rval_to_str(svid, soa_svid_id_vals, "Unknown"), target);
+
+	/* append info entry with flag information */
+	col_append_fstr(pinfo->cinfo, COL_INFO, "  F:EA=%d,ER=%d  ",
+		(EPL_SOA_EA_MASK & flags), (EPL_SOA_ER_MASK & flags));
 
 	if (pinfo->srcport != EPL_MN_NODEID)   /* check if CN or MN */
 	{
@@ -3062,6 +3076,7 @@ static gint
 dissect_epl_asnd(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset)
 {
 	guint8  svid;
+	guint8 flags, flags2;
 	gint size, reported_len;
 	tvbuff_t *next_tvb;
 	proto_item *item;
@@ -3074,8 +3089,19 @@ dissect_epl_asnd(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint o
 
 	offset += 1;
 
+	flags = tvb_get_guint8(tvb, offset);
+	flags2 = tvb_get_guint8(tvb, offset + 1);
+
 	col_append_fstr(pinfo->cinfo, COL_INFO, "(%s) ",
 			rval_to_str(svid, asnd_svid_id_vals, "Unknown"));
+
+	/* append info entry with flag information for sres/ires frames */
+	if ((svid == EPL_ASND_IDENTRESPONSE) || (svid == EPL_ASND_STATUSRESPONSE))
+	{
+		col_append_fstr(pinfo->cinfo, COL_INFO, "  F:EC=%d,EN=%d,RS=%d,PR=%d  ",
+			(EPL_ASND_EC_MASK & flags), (EPL_ASND_EN_MASK & flags), (EPL_ASND_RS_MASK & flags2), (EPL_ASND_PR_MASK & flags2) >> 3);
+
+	}
 
 	switch (svid)
 	{
@@ -5290,7 +5316,7 @@ proto_register_epl(void)
 		},
 		{ &hf_epl_preq_ea,
 			{ "EA (Exception Acknowledge)", "epl.preq.ea",
-				FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL }
+				FT_BOOLEAN, 8, NULL, EPL_PDO_EA_MASK, NULL, HFILL }
 		},
 		{ &hf_epl_preq_rd,
 			{ "RD (Ready)", "epl.preq.rd",
@@ -5324,7 +5350,7 @@ proto_register_epl(void)
 		},
 		{ &hf_epl_pres_en,
 			{ "EN (Exception New)", "epl.pres.en",
-				FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL }
+				FT_BOOLEAN, 8, NULL, EPL_PDO_EN_MASK, NULL, HFILL }
 		},
 		{ &hf_epl_pres_rd,
 			{ "RD (Ready)", "epl.pres.rd",
@@ -5336,7 +5362,7 @@ proto_register_epl(void)
 		},
 		{ &hf_epl_pres_rs,
 			{ "RS (RequestToSend)", "epl.pres.rs",
-				FT_UINT8, BASE_DEC, NULL, 0x07, NULL, HFILL }
+				FT_UINT8, BASE_DEC, NULL, EPL_PDO_RS_MASK, NULL, HFILL }
 		},
 		{ &hf_epl_pres_pdov,
 			{ "PDOVersion", "epl.pres.pdov",
@@ -5358,11 +5384,11 @@ proto_register_epl(void)
 		},
 		{ &hf_epl_soa_ea,
 			{ "EA (Exception Acknowledge)", "epl.soa.ea",
-				FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL }
+				FT_BOOLEAN, 8, NULL, EPL_SOA_EA_MASK, NULL, HFILL }
 		},
 		{ &hf_epl_soa_er,
 			{ "ER (Exception Reset)", "epl.soa.er",
-				FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL }
+				FT_BOOLEAN, 8, NULL, EPL_SOA_ER_MASK, NULL, HFILL }
 		},
 		{ &hf_epl_soa_svid,
 			{ "RequestedServiceID", "epl.soa.svid",
@@ -5484,11 +5510,11 @@ proto_register_epl(void)
 		/* ASnd-->IdentResponse */
 		{ &hf_epl_asnd_identresponse_en,
 			{ "EN (Exception New)", "epl.asnd.ires.en",
-				FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL }
+				FT_BOOLEAN, 8, NULL, EPL_ASND_EN_MASK, NULL, HFILL }
 		},
 		{ &hf_epl_asnd_identresponse_ec,
 			{ "EC (Exception Clear)", "epl.asnd.ires.ec",
-				FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL }
+				FT_BOOLEAN, 8, NULL, EPL_ASND_EC_MASK, NULL, HFILL }
 		},
 		{ &hf_epl_asnd_identresponse_pr,
 			{ "PR (Priority)", "epl.asnd.ires.pr",
@@ -5496,7 +5522,7 @@ proto_register_epl(void)
 		},
 		{ &hf_epl_asnd_identresponse_rs,
 			{ "RS (RequestToSend)", "epl.asnd.ires.rs",
-				FT_UINT8, BASE_DEC, NULL, 0x07, NULL, HFILL }
+				FT_UINT8, BASE_DEC, NULL, EPL_ASND_RS_MASK, NULL, HFILL }
 		},
 		{ &hf_epl_asnd_identresponse_stat_ms,
 			{ "NMTStatus", "epl.asnd.ires.state",
@@ -5690,11 +5716,11 @@ proto_register_epl(void)
 		/* ASnd-->StatusResponse */
 		{ &hf_epl_asnd_statusresponse_en,
 			{ "EN (Exception New)", "epl.asnd.sres.en",
-				FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL }
+				FT_BOOLEAN, 8, NULL, EPL_ASND_EN_MASK, NULL, HFILL }
 		},
 		{ &hf_epl_asnd_statusresponse_ec,
 			{ "EC (Exception Clear)", "epl.asnd.sres.ec",
-				FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL }
+				FT_BOOLEAN, 8, NULL, EPL_ASND_EC_MASK, NULL, HFILL }
 		},
 		{ &hf_epl_asnd_statusresponse_pr,
 			{ "PR (Priority)", "epl.asnd.sres.pr",
@@ -5702,7 +5728,7 @@ proto_register_epl(void)
 		},
 		{ &hf_epl_asnd_statusresponse_rs,
 			{ "RS (RequestToSend)", "epl.asnd.sres.rs",
-				FT_UINT8, BASE_DEC, NULL, 0x07, NULL, HFILL }
+				FT_UINT8, BASE_DEC, NULL, EPL_ASND_RS_MASK, NULL, HFILL }
 		},
 		{ &hf_epl_asnd_statusresponse_stat_ms,
 			{ "NMTStatus", "epl.asnd.sres.stat",
