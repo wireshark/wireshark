@@ -1205,8 +1205,8 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
             case PASSWORD_ALGORITHM:
             case PASSWORD_ALGORITHMS:
             {
-                gint alg, alg_param_len, alg_param_len_pad;
-                gint remaining = att_length;
+                guint alg, alg_param_len, alg_param_len_pad;
+                guint remaining = att_length;
                 while (remaining > 0) {
                    guint loopoffset = offset + att_length - remaining;
                    if (remaining < 4) {
@@ -1214,14 +1214,14 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                            loopoffset, remaining, "Too few bytes left for TLV header (%d < 4)", remaining);
                        break;
                    }
-                   proto_tree_add_item_ret_int(att_tree, hf_stun_att_pw_alg, tvb, loopoffset, 2, ENC_BIG_ENDIAN, &alg);
-                   proto_tree_add_item_ret_int(att_tree, hf_stun_att_pw_alg_param_len, tvb, loopoffset+2, 2, ENC_BIG_ENDIAN, &alg_param_len);
+                   proto_tree_add_item_ret_uint(att_tree, hf_stun_att_pw_alg, tvb, loopoffset, 2, ENC_BIG_ENDIAN, &alg);
+                   proto_tree_add_item_ret_uint(att_tree, hf_stun_att_pw_alg_param_len, tvb, loopoffset+2, 2, ENC_BIG_ENDIAN, &alg_param_len);
                    if (alg_param_len > 0) {
                        if (alg_param_len+4 >= remaining)
                            proto_tree_add_item(att_tree, hf_stun_att_pw_alg_param_data, tvb, loopoffset+4, alg_param_len, ENC_NA);
                        else {
                            proto_tree_add_expert_format(att_tree, pinfo, &ei_stun_short_packet, tvb,
-                                loopoffset, remaining, "Too few bytes left for parameter data (%d < %d)", remaining-4, alg_param_len);
+                                loopoffset, remaining, "Too few bytes left for parameter data (%u < %u)", remaining-4, alg_param_len);
                            break;
                        }
                    }
