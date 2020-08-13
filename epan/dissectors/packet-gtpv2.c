@@ -3374,12 +3374,12 @@ dissect_gtpv2_s103pdf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto
     switch (m) {
     case 4:
         /* IPv4 */
-        proto_tree_add_item(tree, hf_gtpv2_hsgw_addr_ipv4, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_gtpv2_hsgw_addr_ipv4, tvb, offset, m, ENC_BIG_ENDIAN);
         offset += 4;
         break;
     case 16:
         /* IPv6 */
-        proto_tree_add_item(tree, hf_gtpv2_hsgw_addr_ipv6, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_gtpv2_hsgw_addr_ipv6, tvb, offset, m, ENC_NA);
         offset += 16;
         break;
     default:
@@ -3429,12 +3429,12 @@ dissect_gtpv2_s1udf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
     switch (m) {
     case 4:
         /* IPv4 */
-        proto_tree_add_item(tree, hf_gtpv2_sgw_addr_ipv4, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_gtpv2_sgw_addr_ipv4, tvb, offset, m, ENC_BIG_ENDIAN);
         offset += 4;
         break;
     case 16:
         /* IPv6 */
-        proto_tree_add_item(tree, hf_gtpv2_sgw_addr_ipv6, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_gtpv2_sgw_addr_ipv6, tvb, offset, m, ENC_NA);
         offset += 16;
         break;
     default:
