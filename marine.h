@@ -24,4 +24,9 @@ extern const unsigned int WIFI_ENCAP;
 extern const int MARINE_ALREADY_INITIALIZED_ERROR_CODE;
 extern const int MARINE_INIT_INTERNAL_ERROR_CODE;
 
+
+extern const int BAD_BPF_ERROR_CODE;
+extern const int BAD_DISPLAY_FILTER_ERROR_CODE;
+extern const int INVALID_FIELD_ERROR_CODE;
+
 #endif //WIRESHARK_MARINE_H

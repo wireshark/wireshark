@@ -91,6 +91,10 @@ const unsigned int WIFI_ENCAP = 23;
 WS_DLL_PUBLIC_DEF const int MARINE_ALREADY_INITIALIZED_ERROR_CODE = -2;
 WS_DLL_PUBLIC_DEF const int MARINE_INIT_INTERNAL_ERROR_CODE = -1;
 
+WS_DLL_PUBLIC_DEF const int BAD_BPF_ERROR_CODE = -1;
+WS_DLL_PUBLIC_DEF const int BAD_DISPLAY_FILTER_ERROR_CODE = -2;
+WS_DLL_PUBLIC_DEF const int INVALID_FIELD_ERROR_CODE = -3;
+
 /*
  * The way the packet decode is to be written.
  */
@@ -586,13 +590,13 @@ WS_DLL_PUBLIC int marine_add_filter(char *bpf, char *dfilter, char **fields, uns
         has_bpf = TRUE;
         if (compile_bpf(bpf, &fcode, wtap_encap) != 0) {
             *err_msg = g_strdup("Failed compiling the BPF");
-            return -1;
+            return BAD_BPF_ERROR_CODE;
         }
     }
 
     if (dfilter != NULL) {
         if (!dfilter_compile(dfilter, &dfcode, err_msg)) {
-            return -2;
+            return BAD_DISPLAY_FILTER_ERROR_CODE;
         }
     }
 
@@ -602,7 +606,7 @@ WS_DLL_PUBLIC int marine_add_filter(char *bpf, char *dfilter, char **fields, uns
         packet_output_fields->quote = '"';
 
         if (parse_output_fields(packet_output_fields, fields, fields_len, err_msg) != 0) {
-            return -3;
+            return INVALID_FIELD_ERROR_CODE;
         }
     }
 
