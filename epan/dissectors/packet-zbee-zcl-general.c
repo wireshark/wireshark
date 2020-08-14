@@ -5913,7 +5913,7 @@ proto_register_zbee_zcl_rssi_location(void)
 
         { &hf_zbee_zcl_rssi_location_header_res,
             { "Reserved", "zbee_zcl_general.rssi_location.reserved", FT_BOOLEAN, 8, NULL,
-            0xD0, NULL, HFILL } },
+            0xE0, NULL, HFILL } },
 
         { &hf_zbee_zcl_rssi_location_number_responses,
             { "Number Responses", "zbee_zcl_general.rssi_location.number_responses", FT_UINT8, BASE_HEX, NULL,

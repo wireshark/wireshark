@@ -5371,7 +5371,7 @@ proto_register_icmpv6(void)
           { "Other configuration", "icmpv6.mip6.flag.o", FT_BOOLEAN, 16, TFS(&tfs_set_notset), FLAGS_EO_O,
             "When set, it indicates that other configuration information is available via DHCPv6", HFILL }},
         { &hf_icmpv6_mip6_flag_rsv,
-          { "Reserved", "icmpv6.mip6.flag.rsv", FT_UINT16, BASE_DEC, NULL, 0x2FFF,
+          { "Reserved", "icmpv6.mip6.flag.rsv", FT_UINT16, BASE_DEC, NULL, 0x3FFF,
             "Must be Zero", HFILL }},
 
         /* RFC3810: Multicast Listener Discovery Version 2 (MLDv2) for IPv6 */
