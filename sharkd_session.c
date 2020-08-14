@@ -4274,7 +4274,7 @@ sharkd_session_main(void)
 		int ret;
 
 		ret = json_parse(buf, NULL, 0);
-		if (ret < 0)
+		if (ret <= 0)
 		{
 			fprintf(stderr, "invalid JSON -> closing\n");
 			return 1;
@@ -4292,7 +4292,7 @@ sharkd_session_main(void)
 		memset(tokens, 0, ret * sizeof(jsmntok_t));
 
 		ret = json_parse(buf, tokens, ret);
-		if (ret < 0)
+		if (ret <= 0)
 		{
 			fprintf(stderr, "invalid JSON(2) -> closing\n");
 			return 2;

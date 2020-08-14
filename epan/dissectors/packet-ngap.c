@@ -14602,10 +14602,10 @@ dissect_ngap_media_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
   json_data = tvb_get_string_enc(wmem_packet_scope(), json_tvb, 0, tvb_reported_length(json_tvb), ENC_UTF_8|ENC_NA);
   ret = json_parse(json_data, NULL, 0);
-  if (ret < 0)
+  if (ret <= 0)
     return 0;
   tokens = wmem_alloc_array(wmem_packet_scope(), jsmntok_t, ret);
-  if (json_parse(json_data, tokens, ret) < 0)
+  if (json_parse(json_data, tokens, ret) <= 0)
     return 0;
   cur_tok = json_get_object(json_data, tokens, "n2InfoContainer");
   if (!cur_tok) {
