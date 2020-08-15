@@ -63,6 +63,24 @@ static gint hf_mpsse_cpumode_address_short = -1;
 static gint hf_mpsse_cpumode_address_extended = -1;
 static gint hf_mpsse_cpumode_data = -1;
 static gint hf_mpsse_clk_divisor = -1;
+static gint hf_mpsse_open_drain_enable_low = -1;
+static gint hf_mpsse_open_drain_enable_low_b0 = -1;
+static gint hf_mpsse_open_drain_enable_low_b1 = -1;
+static gint hf_mpsse_open_drain_enable_low_b2 = -1;
+static gint hf_mpsse_open_drain_enable_low_b3 = -1;
+static gint hf_mpsse_open_drain_enable_low_b4 = -1;
+static gint hf_mpsse_open_drain_enable_low_b5 = -1;
+static gint hf_mpsse_open_drain_enable_low_b6 = -1;
+static gint hf_mpsse_open_drain_enable_low_b7 = -1;
+static gint hf_mpsse_open_drain_enable_high = -1;
+static gint hf_mpsse_open_drain_enable_high_b0 = -1;
+static gint hf_mpsse_open_drain_enable_high_b1 = -1;
+static gint hf_mpsse_open_drain_enable_high_b2 = -1;
+static gint hf_mpsse_open_drain_enable_high_b3 = -1;
+static gint hf_mpsse_open_drain_enable_high_b4 = -1;
+static gint hf_mpsse_open_drain_enable_high_b5 = -1;
+static gint hf_mpsse_open_drain_enable_high_b6 = -1;
+static gint hf_mpsse_open_drain_enable_high_b7 = -1;
 
 static gint ett_ftdi_mpsse = -1;
 static gint ett_mpsse_command = -1;
@@ -70,6 +88,7 @@ static gint ett_mpsse_command_with_parameters = -1;
 static gint ett_mpsse_response_data = -1;
 static gint ett_mpsse_value = -1;
 static gint ett_mpsse_direction = -1;
+static gint ett_mpsse_open_drain_enable = -1;
 static gint ett_mpsse_skipped_response_data = -1;
 
 static expert_field ei_undecoded = EI_INIT;
@@ -137,6 +156,7 @@ void proto_register_ftdi_mpsse(void);
 #define CMD_CPUMODE_WRITE_EXT_ADDR                 0x93
 #define CMD_CLOCK_N_TIMES_8_BITS_OR_UNTIL_L1_HIGH  0x9C
 #define CMD_CLOCK_N_TIMES_8_BITS_OR_UNTIL_L1_LOW   0x9D
+#define CMD_IO_OPEN_DRAIN_ENABLE                   0x9E
 
 static const value_string command_vals[] = {
     {0x10, "Clock Data Bytes Out on + ve clock edge MSB first(no read) [Use if CLK starts at '1']"},
@@ -216,7 +236,7 @@ static const value_string h_only_command_vals[] = {
 static value_string_ext h_only_command_vals_ext = VALUE_STRING_EXT_INIT(h_only_command_vals);
 
 static const value_string ft232h_only_command_vals[] = {
-    {0x9E, "Set I/O to only drive on a '0' and tristate on a '1'"},
+    {CMD_IO_OPEN_DRAIN_ENABLE, "Set I/O to only drive on a '0' and tristate on a '1'"},
     {0, NULL}
 };
 
@@ -744,6 +764,72 @@ get_data_bit_pin_prefix(gboolean is_high_byte, ftdi_mpsse_info_t *mpsse_info, gu
 }
 
 static gint
+dissect_io_open_drain_enable_parameters(guint8 cmd _U_, tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset, ftdi_mpsse_info_t *mpsse_info _U_)
+{
+    static const gint *low_byte_bits_hf[] = {
+        &hf_mpsse_open_drain_enable_low_b0,
+        &hf_mpsse_open_drain_enable_low_b1,
+        &hf_mpsse_open_drain_enable_low_b2,
+        &hf_mpsse_open_drain_enable_low_b3,
+        &hf_mpsse_open_drain_enable_low_b4,
+        &hf_mpsse_open_drain_enable_low_b5,
+        &hf_mpsse_open_drain_enable_low_b6,
+        &hf_mpsse_open_drain_enable_low_b7,
+    };
+    static const gint *high_byte_bits_hf[] = {
+        &hf_mpsse_open_drain_enable_high_b0,
+        &hf_mpsse_open_drain_enable_high_b1,
+        &hf_mpsse_open_drain_enable_high_b2,
+        &hf_mpsse_open_drain_enable_high_b3,
+        &hf_mpsse_open_drain_enable_high_b4,
+        &hf_mpsse_open_drain_enable_high_b5,
+        &hf_mpsse_open_drain_enable_high_b6,
+        &hf_mpsse_open_drain_enable_high_b7,
+    };
+    gint        offset_start = offset;
+    const char *pin_prefix = NULL;
+    guint       num_pins = 0;
+    const char *(*signal_names)[8] = NULL;
+    guint32     value;
+    proto_item *item;
+    proto_item *byte_item;
+    proto_tree *byte_tree;
+    guint       bit;
+
+    pin_prefix = get_data_bit_pin_prefix(FALSE, mpsse_info, &num_pins, &signal_names);
+    byte_item = proto_tree_add_item_ret_uint(tree, hf_mpsse_open_drain_enable_low, tvb, offset, 1, ENC_LITTLE_ENDIAN, &value);
+    byte_tree = proto_item_add_subtree(byte_item, ett_mpsse_open_drain_enable);
+    for (bit = 0; bit < 8; bit++)
+    {
+        const char *output_type = ((1 << bit) & value) ? "Open-Drain" : "Push-Pull";
+        item = proto_tree_add_uint_format_value(byte_tree, *low_byte_bits_hf[bit], tvb, offset, 1, value, "%s", (*signal_names)[bit]);
+        if (pin_prefix && (bit < num_pins))
+        {
+            proto_item_append_text(item, " [%s%d]", pin_prefix, bit);
+        }
+        proto_item_append_text(item, " %s", output_type);
+    }
+    offset++;
+
+    pin_prefix = get_data_bit_pin_prefix(TRUE, mpsse_info, &num_pins, &signal_names);
+    byte_item = proto_tree_add_item_ret_uint(tree, hf_mpsse_open_drain_enable_high, tvb, offset, 1, ENC_LITTLE_ENDIAN, &value);
+    byte_tree = proto_item_add_subtree(byte_item, ett_mpsse_open_drain_enable);
+    for (bit = 0; bit < 8; bit++)
+    {
+        const char *output_type = ((1 << bit) & value) ? "Open-Drain" : "Push-Pull";
+        item = proto_tree_add_uint_format_value(byte_tree, *high_byte_bits_hf[bit], tvb, offset, 1, value, "%s", (*signal_names)[bit]);
+        if (pin_prefix && (bit < num_pins))
+        {
+            proto_item_append_text(item, " [%s%d]", pin_prefix, bit);
+        }
+        proto_item_append_text(item, " %s", output_type);
+    }
+    offset++;
+
+    return offset - offset_start;
+}
+
+static gint
 dissect_non_data_shifting_command_parameters(guint8 cmd, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset,
                                              ftdi_mpsse_info_t *mpsse_info, command_data_t **cmd_data)
 {
@@ -778,6 +864,8 @@ dissect_non_data_shifting_command_parameters(guint8 cmd, tvbuff_t *tvb, packet_i
     case CMD_CLOCK_N_TIMES_8_BITS_OR_UNTIL_L1_HIGH:
     case CMD_CLOCK_N_TIMES_8_BITS_OR_UNTIL_L1_LOW:
         return dissect_clock_n_times_8_bits_parameters(cmd, tvb, pinfo, tree, offset, mpsse_info);
+    case CMD_IO_OPEN_DRAIN_ENABLE:
+        return dissect_io_open_drain_enable_parameters(cmd, tvb, pinfo, tree, offset, mpsse_info);
     default:
         return 0;
     }
@@ -1486,6 +1574,96 @@ proto_register_ftdi_mpsse(void)
             FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_mpsse_open_drain_enable_low,
+          { "Low Byte", "ftdi-mpsse.open_drain_enable_low",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_mpsse_open_drain_enable_low_b0,
+          { "Bit 0", "ftdi-mpsse.open_drain_enable_low.b0",
+            FT_UINT8, BASE_DEC, NULL, (1 << 0),
+            NULL, HFILL }
+        },
+        { &hf_mpsse_open_drain_enable_low_b1,
+          { "Bit 1", "ftdi-mpsse.open_drain_enable_low.b1",
+            FT_UINT8, BASE_DEC, NULL, (1 << 1),
+            NULL, HFILL }
+        },
+        { &hf_mpsse_open_drain_enable_low_b2,
+          { "Bit 2", "ftdi-mpsse.open_drain_enable_low.b2",
+            FT_UINT8, BASE_DEC, NULL, (1 << 2),
+            NULL, HFILL }
+        },
+        { &hf_mpsse_open_drain_enable_low_b3,
+          { "Bit 3", "ftdi-mpsse.open_drain_enable_low.b3",
+            FT_UINT8, BASE_DEC, NULL, (1 << 3),
+            NULL, HFILL }
+        },
+        { &hf_mpsse_open_drain_enable_low_b4,
+          { "Bit 4", "ftdi-mpsse.open_drain_enable_low.b4",
+            FT_UINT8, BASE_DEC, NULL, (1 << 4),
+            NULL, HFILL }
+        },
+        { &hf_mpsse_open_drain_enable_low_b5,
+          { "Bit 5", "ftdi-mpsse.open_drain_enable_low.b5",
+            FT_UINT8, BASE_DEC, NULL, (1 << 5),
+            NULL, HFILL }
+        },
+        { &hf_mpsse_open_drain_enable_low_b6,
+          { "Bit 6", "ftdi-mpsse.open_drain_enable_low.b6",
+            FT_UINT8, BASE_DEC, NULL, (1 << 6),
+            NULL, HFILL }
+        },
+        { &hf_mpsse_open_drain_enable_low_b7,
+          { "Bit 7", "ftdi-mpsse.open_drain_enable_low.b7",
+            FT_UINT8, BASE_DEC, NULL, (1 << 7),
+            NULL, HFILL }
+        },
+        { &hf_mpsse_open_drain_enable_high,
+          { "High Byte", "ftdi-mpsse.open_drain_enable_high",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_mpsse_open_drain_enable_high_b0,
+          { "Bit 0", "ftdi-mpsse.open_drain_enable_high.b0",
+            FT_UINT8, BASE_DEC, NULL, (1 << 0),
+            NULL, HFILL }
+        },
+        { &hf_mpsse_open_drain_enable_high_b1,
+          { "Bit 1", "ftdi-mpsse.open_drain_enable_high.b1",
+            FT_UINT8, BASE_DEC, NULL, (1 << 1),
+            NULL, HFILL }
+        },
+        { &hf_mpsse_open_drain_enable_high_b2,
+          { "Bit 2", "ftdi-mpsse.open_drain_enable_high.b2",
+            FT_UINT8, BASE_DEC, NULL, (1 << 2),
+            NULL, HFILL }
+        },
+        { &hf_mpsse_open_drain_enable_high_b3,
+          { "Bit 3", "ftdi-mpsse.open_drain_enable_high.b3",
+            FT_UINT8, BASE_DEC, NULL, (1 << 3),
+            NULL, HFILL }
+        },
+        { &hf_mpsse_open_drain_enable_high_b4,
+          { "Bit 4", "ftdi-mpsse.open_drain_enable_high.b4",
+            FT_UINT8, BASE_DEC, NULL, (1 << 4),
+            NULL, HFILL }
+        },
+        { &hf_mpsse_open_drain_enable_high_b5,
+          { "Bit 5", "ftdi-mpsse.open_drain_enable_high.b5",
+            FT_UINT8, BASE_DEC, NULL, (1 << 5),
+            NULL, HFILL }
+        },
+        { &hf_mpsse_open_drain_enable_high_b6,
+          { "Bit 6", "ftdi-mpsse.open_drain_enable_high.b6",
+            FT_UINT8, BASE_DEC, NULL, (1 << 6),
+            NULL, HFILL }
+        },
+        { &hf_mpsse_open_drain_enable_high_b7,
+          { "Bit 7", "ftdi-mpsse.open_drain_enable_high.b7",
+            FT_UINT8, BASE_DEC, NULL, (1 << 7),
+            NULL, HFILL }
+        },
     };
 
     static ei_register_info ei[] = {
@@ -1502,6 +1680,7 @@ proto_register_ftdi_mpsse(void)
         &ett_mpsse_response_data,
         &ett_mpsse_value,
         &ett_mpsse_direction,
+        &ett_mpsse_open_drain_enable,
         &ett_mpsse_skipped_response_data,
     };
 
