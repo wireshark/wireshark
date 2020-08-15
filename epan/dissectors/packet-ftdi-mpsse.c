@@ -489,7 +489,7 @@ static gchar* freq_to_str(gfloat freq)
     }
     else if (freq < 1e6)
     {
-        return g_strdup_printf("%.12g KHz", freq / 1e3);
+        return g_strdup_printf("%.12g kHz", freq / 1e3);
     }
     else
     {
