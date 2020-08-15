@@ -3390,7 +3390,7 @@ dissect_dcm_tag_open(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 /*
 Decode the tag section inside a PDV. This can be a single combined dataset
 or DICOM natively split PDVs. Therefore it needs to resume previously opened tags.
-For data PDVs, only process tags when tree is set.
+For data PDVs, only process tags when tree is set or listening to export objects tap.
 For command PDVs, process all tags.
 On export copy the content to the export buffer.
 */
@@ -3407,29 +3407,12 @@ dissect_dcm_pdv_body(
 {
     const gchar *tag_value = NULL;
     gboolean dummy = FALSE;
+    guint32 startpos = offset;
     guint32 endpos = 0;
 
     endpos = offset + pdv_body_len;
 
-    if (have_tap_listener(dicom_eo_tap)) {
-
-        if (pdv->data_len == 0) {
-            /* Copy pure DICOM data to buffer, without PDV flags
-               Packet scope for the memory allocation is too small, since we may have PDV in different tvb.
-               Therefore check if this was already done.
-            */
-            pdv->data = wmem_alloc0(wmem_file_scope(), pdv_body_len);
-            pdv->data_len = pdv_body_len;
-            tvb_memcpy(tvb, pdv->data, offset, pdv_body_len);
-        }
-
-        if ((pdv_body_len > 0) && (pdv->is_last_fragment)) {
-            /* At the last segment, merge all related previous PDVs and copy to export buffer */
-            dcm_export_create_object(pinfo, assoc, pdv);
-        }
-    }
-
-    if (pdv->is_command || tree) {
+    if (pdv->is_command || tree || have_tap_listener(dicom_eo_tap)) {
         /* Performance optimization starts here. Don't put any COL_INFO related stuff in here */
 
         if (pdv->syntax == DCM_UNK) {
@@ -3494,6 +3477,23 @@ dissect_dcm_pdv_body(
                     *pdv_description = wmem_strdup_printf(wmem_packet_scope(), "%s (%s)", *pdv_description, pdv->status);
                 }
             }
+        }
+    }
+
+    if (have_tap_listener(dicom_eo_tap)) {
+
+        if (pdv->data_len == 0) {
+            /* Copy pure DICOM data to buffer, without PDV flags
+               Packet scope for the memory allocation is too small, since we may have PDV in different tvb.
+               Therefore check if this was already done.
+            */
+            pdv->data = wmem_alloc0(wmem_file_scope(), pdv_body_len);
+            pdv->data_len = pdv_body_len;
+            tvb_memcpy(tvb, pdv->data, startpos, pdv_body_len);
+        }
+        if ((pdv_body_len > 0) && (pdv->is_last_fragment)) {
+            /* At the last segment, merge all related previous PDVs and copy to export buffer */
+            dcm_export_create_object(pinfo, assoc, pdv);
         }
     }
 
