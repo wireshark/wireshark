@@ -2507,7 +2507,7 @@ proto_tree_add_debug_text(tree, "SEQUENCE dissect_ber_sequence(%s) subdissector 
 int
 dissect_ber_set(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence_t *set, gint hf_id, gint ett_id) {
     gint8       classx;
-    gboolean    pcx, ind = 0, ind_field, imp_tag = FALSE;
+    gboolean    pcx, ind = 0, ind_field, imp_tag;
     gint32      tagx;
     int         identifier_offset;
     int         identifier_len;
@@ -2600,7 +2600,7 @@ proto_tree_add_debug_text(tree, "SET dissect_ber_set(%s) entered\n", name);
 
     /* record the mandatory elements of the set so we can check we found everything at the end
        we can only record 32 elements for now ... */
-    for (set_idx = 0; (cset = &set[set_idx])->func && (set_idx < MAX_SET_ELEMENTS); set_idx++) {
+    for (set_idx = 0; (set_idx < MAX_SET_ELEMENTS) && (cset = &set[set_idx])->func; set_idx++) {
 
         if (!(cset->flags & BER_FLAGS_OPTIONAL))
             mandatory_fields |= 1 << set_idx;
@@ -2756,7 +2756,7 @@ proto_tree_add_debug_text(tree, "SET dissect_ber_set(%s) calling subdissector\n"
 
         /* OK - we didn't find some of the elements we expected */
 
-        for (set_idx = 0;  (cset = &set[set_idx])->func && (set_idx < MAX_SET_ELEMENTS); set_idx++) {
+        for (set_idx = 0; (set_idx < MAX_SET_ELEMENTS) && (cset = &set[set_idx])->func; set_idx++) {
             if (mandatory_fields & (1U << set_idx)) {
                 /* here is something we should have seen - but didn't! */
                 proto_tree_add_expert_format(
@@ -4057,9 +4057,8 @@ dissect_ber_constrained_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, proto
                 guint8 *bitstring = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, offset, len);
                 const int named_bits_bytelen = (num_named_bits + 7) / 8;
                 if (show_internal_ber_fields) {
-                    guint zero_bits_omitted = 0;
                     if (len < named_bits_bytelen) {
-                        zero_bits_omitted = num_named_bits - ((len * 8) - pad);
+                        guint zero_bits_omitted = num_named_bits - ((len * 8) - pad);
                         proto_item_append_text(item, " [%u zero bits not encoded, but displayed]", zero_bits_omitted);
                     }
                 }
