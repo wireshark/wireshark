@@ -30,6 +30,7 @@
 #include <epan/address.h>
 #include <epan/reassemble.h>
 #include "packet-wps.h"
+#include "packet-wifi-dpp.h"
 
 static dissector_handle_t eapol_handle;
 
@@ -7373,10 +7374,6 @@ dissect_akm_suite_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_,
 /*
  * Dissect a 1905 Encap DPP TLV:
  */
-int
-dissect_wifi_dpp_public_action(tvbuff_t *tvb, packet_info *pinfo,
-                               proto_tree *tree, void *data _U_);
-
 guint
 add_ff_action(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset);
 
