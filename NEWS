@@ -1,4 +1,4 @@
-Wireshark 3.2.6 Release Notes
+Wireshark 3.2.7 Release Notes
 
  What is Wireshark?
 
@@ -9,42 +9,7 @@ Wireshark 3.2.6 Release Notes
 
   Bug Fixes
 
-   The following vulnerabilities have been fixed:
-
-     • wnpa-sec-2020-10[1] Kafka dissector crash. Bug 16672[2].
-       CVE-2020-17498[3].
-
    The following bugs have been fixed:
-
-     • Kafka dissector fails parsing FETCH responses. Bug 16623[4].
-
-     • Dissector for ASTERIX Category 001 / 210 does not recognize bit 1
-       as extension. Bug 16662[5].
-
-     • "invalid timestamp" for Systemd Journal Export Block. Bug
-       16664[6].
-
-     • Decoding Extended Emergency number list IE length. Bug 16668[7].
-
-     • Some macOS Bluetooth PacketLogger capture files aren’t recognized
-       as PacketLogger files (regression, bisected). Bug 16670[8].
-
-     • Short IMSIs (5 digits) lead to wrong decoding+warning. Bug
-       16676[9].
-
-     • Decoding of PFCP IE 'PFD Contents' results in "malformed packet".
-       Bug 16704[10].
-
-     • RFH2 Header with 32 or less bytes of NameValue will not parse out
-       that info. Bug 16733[11].
-
-     • CDP: Port ID TLV followed by Type 1009 TLV triggers [Malformed
-       Packet]. Bug 16742[12].
-
-     • tshark crashed when processing opcda. Bug 16746[13].
-
-     • tshark with --export-dicom gives “Segmentation fault (core
-       dumped)”. Bug 16748[14].
 
   New and Updated Features
 
@@ -56,14 +21,9 @@ Wireshark 3.2.6 Release Notes
 
   Updated Protocol Support
 
-   ASTERIX, BSSAP, CDP, CoAP, DCERPC SPOOLSS, DCOM, DICOM, DVB-S2,
-   E.212, GBCS, GSM RR, GSM SMS, IEEE 802.11, Kafka, MQ, Nano, NAS 5GS,
-   NIS+, NR RRC, PacketLogger, PFCP, RTPS, systemd Journal, TDS, TN3270,
-   and TN5250
-
   New and Updated Capture File Support
 
-   PacketLogger and pcapng
+   There is no new or updated capture file support in this release.
 
  Getting Wireshark
 
@@ -75,7 +35,7 @@ Wireshark 3.2.6 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[15] on the Wireshark web site.
+   be found on the download page[1] on the Wireshark web site.
 
  File Locations
 
@@ -89,36 +49,22 @@ Wireshark 3.2.6 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[16] and on the
+  Community support is available on Wireshark’s Q&A site[2] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[17].
+  for all of Wireshark’s mailing lists can be found on the web site[3].
 
-  Bugs and feature requests can be reported on the bug tracker[18].
+  Bugs and feature requests can be reported on the bug tracker[4].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[19].
+  A complete FAQ is available on the Wireshark web site[5].
 
-  Last updated 2020-08-12 17:33:26 UTC
+  Last updated 2020-08-16 08:18:42 UTC
 
  References
 
-   1. https://www.wireshark.org/security/wnpa-sec-2020-10
-   2. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16672
-   3. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-17498
-   4. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16623
-   5. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16662
-   6. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16664
-   7. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16668
-   8. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16670
-   9. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16676
-  10. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16704
-  11. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16733
-  12. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16742
-  13. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16746
-  14. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16748
-  15. https://www.wireshark.org/download.html#thirdparty
-  16. https://ask.wireshark.org/
-  17. https://www.wireshark.org/lists/
-  18. https://bugs.wireshark.org/
-  19. https://www.wireshark.org/faq.html
+   1. https://www.wireshark.org/download.html#thirdparty
+   2. https://ask.wireshark.org/
+   3. https://www.wireshark.org/lists/
+   4. https://bugs.wireshark.org/
+   5. https://www.wireshark.org/faq.html

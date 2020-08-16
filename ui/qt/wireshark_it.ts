@@ -5357,7 +5357,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Packet Details</source>
-        <translation>Dettagli pacchetto</translation>
+        <translation>Dettagli del pacchetto</translation>
     </message>
     <message>
         <source>Packet Bytes</source>
@@ -7432,7 +7432,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Packet &amp;Details</source>
-        <translation>&amp;Dettagli pacchetto</translation>
+        <translation>&amp;Dettagli del pacchetto</translation>
     </message>
     <message>
         <source>Show or hide the packet details</source>
@@ -11585,7 +11585,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Packet details</source>
-        <translation>Dettagli pacchetto</translation>
+        <translation>Dettagli del pacchetto</translation>
     </message>
     <message>
         <source>Packet bytes</source>
