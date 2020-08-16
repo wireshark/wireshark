@@ -1303,11 +1303,6 @@ dissect_bssap_service_area_id(tvbuff_t *tvb, proto_tree *tree, int offset)
 
 /* 18.4.22 SGSN number */
 
-static const true_false_string bssap_extension_value = {
-  "No Extension",
-  "Extension"
-};
-
 static int
 dissect_bssap_sgsn_number(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
@@ -2160,7 +2155,7 @@ proto_register_bssap(void)
 
         { &hf_bssap_extension,
           { "Extension", "bssap.extension",
-            FT_BOOLEAN, 8, TFS(&bssap_extension_value), 0x80,
+            FT_BOOLEAN, 8, TFS(&tfs_no_extension_extension), 0x80,
             NULL, HFILL }},
 
         { &hf_bssap_type_of_number,

@@ -1124,7 +1124,6 @@ static const value_string q2931_rejection_reason_vals[] = {
 	{ 0x00, NULL }
 };
 
-static const true_false_string tfs_user_provider             = { "User", "Provider" };
 static const true_false_string tfs_abnormal_normal           = { "Abnormal", "Normal" };
 
 static void

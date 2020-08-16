@@ -105,6 +105,8 @@ const true_false_string tfs_changed_not_changed = { "Changed", "Not Changed" };
 const true_false_string tfs_needed_not_needed = { "Needed", "Not Needed" };
 const true_false_string tfs_selected_not_selected = { "Selected", "Not Selected" };
 const true_false_string tfs_add_drop = { "Add", "Drop" };
+const true_false_string tfs_no_extension_extension = { "No Extension", "Extension" };
+const true_false_string tfs_user_provider = { "User", "Provider" };
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html

@@ -1620,6 +1620,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tfs_low_normal@Base 2.5.1
  tfs_more_nomore@Base 1.9.1
  tfs_needed_not_needed@Base 2.9.1
+ tfs_no_extension_extension@Base 3.3.0
  tfs_no_yes@Base 1.9.1
  tfs_not_allowed_allowed@Base 1.9.1
  tfs_not_supported_supported@Base 2.9.1
@@ -1654,6 +1655,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tfs_up_down@Base 2.5.0
  tfs_uplink_downlink@Base 2.5.0
  tfs_used_notused@Base 1.9.1
+ tfs_user_provider@Base 3.3.0
  tfs_valid_invalid@Base 1.9.1
  tfs_valid_not_valid@Base 1.12.0~rc1
  tfs_yes_no@Base 1.9.1

@@ -895,12 +895,6 @@ const value_string  camelSRTtype_naming[]= {
   { 0,NULL}
 };
 
-#if 0
-static const true_false_string camel_extension_value = {
-  "No Extension",
-  "Extension"
-};
-#endif
 #define EUROPEAN_DATE 1
 #define AMERICAN_DATE 2
 #define CAMEL_DATE_AND_TIME_LEN 20 /* 2*5 + 4 + 5 + 1 (HH:MM:SS;mm/dd/yyyy) */
@@ -1190,7 +1184,7 @@ static const value_string camel_ectTreatmentIndicator_values[] = {
 #define noInvokeId                     NULL
 
 /*--- End of included file: packet-camel-val.h ---*/
-#line 309 "./asn1/camel/packet-camel-template.c"
+#line 303 "./asn1/camel/packet-camel-template.c"
 
 
 /*--- Included file: packet-camel-table.c ---*/
@@ -1280,7 +1274,7 @@ static const value_string camel_err_code_string_vals[] = {
 
 
 /*--- End of included file: packet-camel-table.c ---*/
-#line 311 "./asn1/camel/packet-camel-template.c"
+#line 305 "./asn1/camel/packet-camel-template.c"
 
 /*
  * DEBUG fonctions
@@ -7233,7 +7227,7 @@ static int dissect_CAP_U_ABORT_REASON_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
 
 
 /*--- End of included file: packet-camel-fn.c ---*/
-#line 412 "./asn1/camel/packet-camel-template.c"
+#line 406 "./asn1/camel/packet-camel-template.c"
 
 
 /*--- Included file: packet-camel-table2.c ---*/
@@ -7440,7 +7434,7 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,a
 
 
 /*--- End of included file: packet-camel-table2.c ---*/
-#line 414 "./asn1/camel/packet-camel-template.c"
+#line 408 "./asn1/camel/packet-camel-template.c"
 
 /*
  * Functions needed for Hash-Table
@@ -8313,7 +8307,7 @@ void proto_reg_handoff_camel(void) {
 
 
 /*--- End of included file: packet-camel-dis-tab.c ---*/
-#line 1279 "./asn1/camel/packet-camel-template.c"
+#line 1273 "./asn1/camel/packet-camel-template.c"
   } else {
     range_foreach(ssn_range, range_delete_callback, NULL);
     wmem_free(wmem_epan_scope(), ssn_range);
@@ -10435,7 +10429,7 @@ void proto_register_camel(void) {
         "InvokeId_present", HFILL }},
 
 /*--- End of included file: packet-camel-hfarr.c ---*/
-#line 1452 "./asn1/camel/packet-camel-template.c"
+#line 1446 "./asn1/camel/packet-camel-template.c"
   };
 
   /* List of subtrees */
@@ -10663,7 +10657,7 @@ void proto_register_camel(void) {
     &ett_camel_InvokeId,
 
 /*--- End of included file: packet-camel-ettarr.c ---*/
-#line 1479 "./asn1/camel/packet-camel-template.c"
+#line 1473 "./asn1/camel/packet-camel-template.c"
   };
 
   static ei_register_info ei[] = {

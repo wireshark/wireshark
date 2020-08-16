@@ -1062,10 +1062,7 @@ static const value_string gsm_map_err_code_string_vals[] = {
 };
 #endif
 
-static const true_false_string gsm_map_extension_value = {
-  "No Extension",
-  "Extension"
-};
+
 static const value_string gsm_map_nature_of_number_values[] = {
   { 0x00, "unknown" },
   { 0x01, "International Number" },
@@ -3004,7 +3001,7 @@ void proto_register_gsm_map(void) {
           NULL, HFILL }},
       { &hf_gsm_map_extension,
         { "Extension", "gsm_map.extension",
-          FT_BOOLEAN, 8, TFS(&gsm_map_extension_value), 0x80,
+          FT_BOOLEAN, 8, TFS(&tfs_no_extension_extension), 0x80,
           NULL, HFILL }},
       { &hf_gsm_map_nature_of_number,
         { "Nature of number", "gsm_map.nature_of_number",

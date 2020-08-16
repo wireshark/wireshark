@@ -29,6 +29,19 @@ def signal_handler(sig, frame):
 
 signal.signal(signal.SIGINT, signal_handler)
 
+
+# Keep track of custom entries that might appear in multiple dissectors,
+# so we can consider adding them to tfs.c
+custom_tfs_entries = {}
+def AddCustomEntry(val1, val2, file):
+    global custom_tfs_entries
+    if (val1, val2) in custom_tfs_entries:
+        custom_tfs_entries[(val1, val2)].append(file)
+    else:
+        custom_tfs_entries[(val1, val2)] = [file]
+
+
+
 class TFS:
     def __init__(self, file, name, val1, val2):
         self.file = file
@@ -43,7 +56,7 @@ class TFS:
             print('N.B.: file=' + self.file + ' ' + self.name + ' - true val begins or ends with space \"' + self.val2 + '\"')
 
     def __str__(self):
-        return '{' + self.val1 + ',' + self.val2 + '}'
+        return '{' + '"' + self.val1 + '", "' + self.val2 + '"}'
 
 
 def removeComments(code_string):
@@ -53,7 +66,7 @@ def removeComments(code_string):
 
 
 # Look for hf items in a dissector file.
-def find_items(filename):
+def findItems(filename):
     items = {}
 
     with open(filename, 'r') as f:
@@ -94,18 +107,24 @@ def findDissectorFilesInFolder(folder):
 issues_found = 0
 
 # Check the given dissector file.
-def checkFile(filename, tfs_items):
+def checkFile(filename, tfs_items, look_for_common=False):
     global issues_found
 
     # Find items.
-    items = find_items(filename)
+    items = findItems(filename)
 
     # See if any of these items already existed in tfs.c
     for i in items:
         for t in tfs_items:
+            found = False
             if tfs_items[t].val1 == items[i].val1 and tfs_items[t].val2 == items[i].val2:
                 print(filename, i, "- could have used", t, 'from tfs.c instead: ', tfs_items[t])
                 issues_found += 1
+                found = True
+                break
+        if not found:
+            if look_for_common:
+                AddCustomEntry(items[i].val1, items[i].val2, filename)
 
 
 #################################################################
@@ -120,6 +139,9 @@ parser.add_argument('--commits', action='store',
                     help='last N commits to check')
 parser.add_argument('--open', action='store_true',
                     help='check open files')
+parser.add_argument('--common', action='store_true',
+                    help='check for potential new entries for tfs.c')
+
 
 args = parser.parse_args()
 
@@ -174,13 +196,22 @@ else:
 
 
 # Get standard/ shared ones.
-tfs_entries = find_items(os.path.join('epan', 'tfs.c'))
+tfs_entries = findItems(os.path.join('epan', 'tfs.c'))
 
 # Now check the files to see if they could have used shared ones instead.
 for f in files:
     if should_exit:
         exit(1)
-    checkFile(f, tfs_entries)
+    checkFile(f, tfs_entries, look_for_common=args.common)
+
 
 # Show summary.
 print(issues_found, 'issues found')
+
+if args.common:
+    # Looking for items that could potentially be moved to tfs.c
+    for c in custom_tfs_entries:
+        # Only want to see items that have 3 or more occurrences.
+        # Even then, probably only want to consider ones that sound generic.
+        if len(custom_tfs_entries[c]) > 2:
+            print(c, 'appears', len(custom_tfs_entries[c]), 'times, in: ', custom_tfs_entries[c])

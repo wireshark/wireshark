@@ -900,7 +900,6 @@ static const value_string q933_rejection_reason_vals[] = {
 	{ 0x00, NULL }
 };
 
-static const true_false_string tfs_user_provider = { "User", "Provider" };
 
 static void
 dissect_q933_cause_ie(tvbuff_t *tvb, int offset, int len,

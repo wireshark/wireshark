@@ -195,12 +195,6 @@ const value_string  camelSRTtype_naming[]= {
   { 0,NULL}
 };
 
-#if 0
-static const true_false_string camel_extension_value = {
-  "No Extension",
-  "Extension"
-};
-#endif
 #define EUROPEAN_DATE 1
 #define AMERICAN_DATE 2
 #define CAMEL_DATE_AND_TIME_LEN 20 /* 2*5 + 4 + 5 + 1 (HH:MM:SS;mm/dd/yyyy) */
