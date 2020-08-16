@@ -3179,7 +3179,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Show data as</source>
         <oldsource>Show and save data as</oldsource>
-        <translation>としてデータを表示する</translation>
+        <translation type="unfinished">としてデータを表示して保存する</translation>
     </message>
     <message>
         <source>Stream</source>
@@ -5384,6 +5384,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>パケットバイト列</translation>
     </message>
     <message>
+        <source>Packet Diagram</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>None</source>
         <translation>なし</translation>
     </message>
@@ -7005,6 +7009,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>外観のレイアウトをデフォルトのサイズにリセットします</translation>
     </message>
     <message>
+        <source>Packet &amp;Diagram</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show or hide the packet diagram</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Show each conversation hash table</source>
         <translation>各々の会話ハッシュ表を表示します</translation>
     </message>
@@ -8397,6 +8409,45 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
 </context>
 <context>
+    <name>PacketDiagram</name>
+    <message>
+        <source>Packet diagram</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Field Values</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Diagram As</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy as Raster Image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Portable Network Graphics (*.png)</source>
+        <translation type="unfinished">PNG形式 (*.png)</translation>
+    </message>
+    <message>
+        <source>Windows Bitmap (*.bmp)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
+        <translation type="unfinished">JPEG形式 (*.jpeg *.jpg)</translation>
+    </message>
+    <message>
+        <source>Scalable Vector Graphics (*.svg)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Graph As</source>
+        <translation type="unfinished">としてグラフを保存</translation>
+    </message>
+</context>
+<context>
     <name>PacketDialog</name>
     <message>
         <source>Dialog</source>
@@ -9676,6 +9727,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Default value is empty</source>
         <translation>デフォルト値は空です</translation>
+    </message>
+    <message>
+        <source>Gap in dissection</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

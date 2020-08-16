@@ -3207,7 +3207,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Show data as</source>
         <oldsource>Show and save data as</oldsource>
-        <translation>Pokaż dane jako</translation>
+        <translation type="unfinished">Pokaż i zapisz dane jako</translation>
     </message>
     <message>
         <source>Stream</source>
@@ -5409,6 +5409,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Bajty pakietu</translation>
     </message>
     <message>
+        <source>Packet Diagram</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>None</source>
         <translation>Brak</translation>
     </message>
@@ -7030,6 +7034,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Packet &amp;Diagram</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show or hide the packet diagram</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Show each conversation hash table</source>
         <translation>Pokaż tablice mieszające konwersacji</translation>
     </message>
@@ -8426,6 +8438,45 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
 </context>
 <context>
+    <name>PacketDiagram</name>
+    <message>
+        <source>Packet diagram</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Field Values</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Diagram As</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy as Raster Image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Portable Network Graphics (*.png)</source>
+        <translation type="unfinished">Obraz PNG (*.png)</translation>
+    </message>
+    <message>
+        <source>Windows Bitmap (*.bmp)</source>
+        <translation type="unfinished">Bitmapa Windows (*.bmp)</translation>
+    </message>
+    <message>
+        <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
+        <translation type="unfinished">Obraz JPEG (*.jpeg *.jpg)</translation>
+    </message>
+    <message>
+        <source>Scalable Vector Graphics (*.svg)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Graph As</source>
+        <translation type="unfinished">Zapisz wykres jako</translation>
+    </message>
+</context>
+<context>
     <name>PacketDialog</name>
     <message>
         <source>Dialog</source>
@@ -9708,6 +9759,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Default value is empty</source>
         <translation>Domyślna wartość jest pusta</translation>
+    </message>
+    <message>
+        <source>Gap in dissection</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

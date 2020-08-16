@@ -3195,7 +3195,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Show data as</source>
         <oldsource>Show and save data as</oldsource>
-        <translation>Visa data som</translation>
+        <translation type="unfinished">Visa och spara data som</translation>
     </message>
     <message>
         <source>Stream</source>
@@ -5402,6 +5402,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Paketbyte</translation>
     </message>
     <message>
+        <source>Packet Diagram</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>None</source>
         <translation>Inga</translation>
     </message>
@@ -7021,6 +7025,14 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Återställ utseendelayouten till sin standardstorlek</translation>
     </message>
     <message>
+        <source>Packet &amp;Diagram</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show or hide the packet diagram</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Show each conversation hash table</source>
         <translation>Visa varje konversations hashtabell</translation>
     </message>
@@ -8415,6 +8427,45 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
 </context>
 <context>
+    <name>PacketDiagram</name>
+    <message>
+        <source>Packet diagram</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Field Values</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Diagram As</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy as Raster Image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Portable Network Graphics (*.png)</source>
+        <translation type="unfinished">Portable Network Graphics (*.png)</translation>
+    </message>
+    <message>
+        <source>Windows Bitmap (*.bmp)</source>
+        <translation type="unfinished">Windows Bitmap (*.bmp)</translation>
+    </message>
+    <message>
+        <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
+        <translation type="unfinished">JPEG File Interchange Format (*.jpeg *.jpg)</translation>
+    </message>
+    <message>
+        <source>Scalable Vector Graphics (*.svg)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Graph As</source>
+        <translation type="unfinished">Spara grafen som</translation>
+    </message>
+</context>
+<context>
     <name>PacketDialog</name>
     <message>
         <source>Dialog</source>
@@ -9700,6 +9751,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Default value is empty</source>
         <translation>Standardvärdet är tomt</translation>
+    </message>
+    <message>
+        <source>Gap in dissection</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

@@ -137,7 +137,7 @@
     </message>
     <message>
         <source>Can&apos;t assign %1 to %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Нельзя назначить %1 на %2.</translation>
     </message>
 </context>
 <context>
@@ -3210,7 +3210,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Show data as</source>
         <oldsource>Show and save data as</oldsource>
-        <translation>Показать данные как</translation>
+        <translation type="unfinished">Показать и сохранить данные как</translation>
     </message>
     <message>
         <source>Stream</source>
@@ -5419,6 +5419,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Байты Пакета</translation>
     </message>
     <message>
+        <source>Packet Diagram</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>None</source>
         <translation>Никакой</translation>
     </message>
@@ -7040,6 +7044,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Сбросить внешний вид разметки до размера по умолчанию</translation>
     </message>
     <message>
+        <source>Packet &amp;Diagram</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show or hide the packet diagram</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Show each conversation hash table</source>
         <translation>Показать каждую хэш-таблицу диалога</translation>
     </message>
@@ -7906,7 +7918,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Merging files.</source>
-        <translation type="unfinished"></translation>
+        <translation>Объединение файлов.</translation>
     </message>
     <message>
         <source>%1: %2</source>
@@ -7975,11 +7987,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>No interface selected.</source>
-        <translation type="unfinished"></translation>
+        <translation>Нет выделенных интерфейсов.</translation>
     </message>
     <message>
         <source>Invalid capture filter.</source>
-        <translation type="unfinished"></translation>
+        <translation>Неправильный фильтр захвата.</translation>
     </message>
     <message>
         <source> before starting a new capture</source>
@@ -8003,27 +8015,27 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>No filter available. Try another %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Нет доступных фильтров. Попробуйте %1.</translation>
     </message>
     <message>
         <source>column</source>
-        <translation type="unfinished"></translation>
+        <translation>столбец</translation>
     </message>
     <message>
         <source>item</source>
-        <translation type="unfinished"></translation>
+        <translation>объект</translation>
     </message>
     <message>
         <source>The &quot;%1&quot; column already exists.</source>
-        <translation type="unfinished"></translation>
+        <translation>Столбец &quot;%1&quot; уже существует.</translation>
     </message>
     <message>
         <source>The &quot;%1&quot; column already exists as &quot;%2&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Столбец &quot;%1&quot; уже существует как &quot;%2&quot;.</translation>
     </message>
     <message>
         <source>No Interface Selected.</source>
-        <translation type="unfinished"></translation>
+        <translation>Нет Выделенных Интерфейсов</translation>
     </message>
     <message>
         <source> before restarting the capture</source>
@@ -8433,6 +8445,45 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Packet %1 Comment</source>
         <translation>Пакет %1 Комментарий</translation>
+    </message>
+</context>
+<context>
+    <name>PacketDiagram</name>
+    <message>
+        <source>Packet diagram</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Field Values</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Diagram As</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy as Raster Image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Portable Network Graphics (*.png)</source>
+        <translation type="unfinished">Portable Network Graphics (*.png)</translation>
+    </message>
+    <message>
+        <source>Windows Bitmap (*.bmp)</source>
+        <translation type="unfinished">Windows Bitmap (*.bmp)</translation>
+    </message>
+    <message>
+        <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
+        <translation type="unfinished">JPEG File Interchange Format (*.jpeg *.jpg)</translation>
+    </message>
+    <message>
+        <source>Scalable Vector Graphics (*.svg)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Graph As</source>
+        <translation type="unfinished">Сохранить График Как</translation>
     </message>
 </context>
 <context>
@@ -9727,6 +9778,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Default value is empty</source>
         <translation>Величина по умолчанию отсутствует</translation>
+    </message>
+    <message>
+        <source>Gap in dissection</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -13650,11 +13705,11 @@ a:hover {
     <name>WirelessTimeline</name>
     <message>
         <source>Packet number %1 does not include TSF timestamp, not showing timeline.</source>
-        <translation type="unfinished"></translation>
+        <translation>Пакет номер %1 не включает TSF отметок времени, таймлайн не будет отображён.</translation>
     </message>
     <message>
         <source>Packet number %u has large negative jump in TSF, not showing timeline. Perhaps TSF reference point is set wrong?</source>
-        <translation type="unfinished"></translation>
+        <translation>Пакет номер %u имеет отрицательный прыжок в TSF, таймлайн не будет отображён. Возможно референс TSF задан неверно?</translation>
     </message>
 </context>
 <context>

@@ -3195,7 +3195,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Show data as</source>
         <oldsource>Show and save data as</oldsource>
-        <translation>Daten anzeigen als</translation>
+        <translation type="unfinished">Daten anzeigen und speichern als</translation>
     </message>
     <message>
         <source>Stream</source>
@@ -5402,6 +5402,10 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Paket Bytes</translation>
     </message>
     <message>
+        <source>Packet Diagram</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>None</source>
         <translation>Kein</translation>
     </message>
@@ -7021,6 +7025,14 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Anzeige auf Ausgangsgröße zurücksetzen</translation>
     </message>
     <message>
+        <source>Packet &amp;Diagram</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show or hide the packet diagram</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Show each conversation hash table</source>
         <translation>Jede Verbindungshashtabelle zeigen</translation>
     </message>
@@ -8415,6 +8427,45 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
 </context>
 <context>
+    <name>PacketDiagram</name>
+    <message>
+        <source>Packet diagram</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Field Values</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Diagram As</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy as Raster Image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Portable Network Graphics (*.png)</source>
+        <translation type="unfinished">Portable Network Graphics (*.png)</translation>
+    </message>
+    <message>
+        <source>Windows Bitmap (*.bmp)</source>
+        <translation type="unfinished">Windows Bitmap (*.bmp)</translation>
+    </message>
+    <message>
+        <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
+        <translation type="unfinished">JPEG File Interchange Format (*.jpeg *.jpg)</translation>
+    </message>
+    <message>
+        <source>Scalable Vector Graphics (*.svg)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Graph As</source>
+        <translation type="unfinished">Graph speichern als</translation>
+    </message>
+</context>
+<context>
     <name>PacketDialog</name>
     <message>
         <source>Dialog</source>
@@ -9700,6 +9751,10 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Default value is empty</source>
         <translation>Standardwert ist leer</translation>
+    </message>
+    <message>
+        <source>Gap in dissection</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

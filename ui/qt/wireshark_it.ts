@@ -3195,7 +3195,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Show data as</source>
         <oldsource>Show and save data as</oldsource>
-        <translation>Mostra i dati come</translation>
+        <translation type="unfinished">Mostra e salva i dati come</translation>
     </message>
     <message>
         <source>Stream</source>
@@ -5395,11 +5395,15 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Packet Details</source>
-        <translation>Dettagli pacchetto</translation>
+        <translation>Dettagli del pacchetto</translation>
     </message>
     <message>
         <source>Packet Bytes</source>
         <translation>Byte pacchetto</translation>
+    </message>
+    <message>
+        <source>Packet Diagram</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>None</source>
@@ -7021,6 +7025,14 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Ripristina la disposizione dell&apos;aspetto alla dimensione predefinita</translation>
     </message>
     <message>
+        <source>Packet &amp;Diagram</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show or hide the packet diagram</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Show each conversation hash table</source>
         <translation>Mostri ogni tabella degli hash di conversazione</translation>
     </message>
@@ -7470,7 +7482,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Packet &amp;Details</source>
-        <translation>&amp;Dettagli pacchetto</translation>
+        <translation>&amp;Dettagli del pacchetto</translation>
     </message>
     <message>
         <source>Show or hide the packet details</source>
@@ -8412,6 +8424,45 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Packet %1 Comment</source>
         <translation>Commento del pacchetto %1</translation>
+    </message>
+</context>
+<context>
+    <name>PacketDiagram</name>
+    <message>
+        <source>Packet diagram</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Field Values</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Diagram As</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy as Raster Image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Portable Network Graphics (*.png)</source>
+        <translation type="unfinished">Portable Network Graphics (*.png)</translation>
+    </message>
+    <message>
+        <source>Windows Bitmap (*.bmp)</source>
+        <translation type="unfinished">Windows Bitmap (*.bmp)</translation>
+    </message>
+    <message>
+        <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
+        <translation type="unfinished">JPEG File Interchange Format (*.jpeg *.jpg)</translation>
+    </message>
+    <message>
+        <source>Scalable Vector Graphics (*.svg)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Graph As</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -9700,6 +9751,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Default value is empty</source>
         <translation>Il valore predefinito è vuoto</translation>
+    </message>
+    <message>
+        <source>Gap in dissection</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -11711,7 +11766,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Packet details</source>
-        <translation>Dettagli pacchetto</translation>
+        <translation>Dettagli del pacchetto</translation>
     </message>
     <message>
         <source>Packet bytes</source>
