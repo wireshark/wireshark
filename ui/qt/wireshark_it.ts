@@ -4854,7 +4854,7 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     </message>
     <message>
         <source>Packet Details</source>
-        <translation>Dettagli pacchetto</translation>
+        <translation>Dettagli del pacchetto</translation>
     </message>
     <message>
         <source>Packet Bytes</source>
@@ -7140,7 +7140,7 @@ a:hover {
     </message>
     <message>
         <source>Packet &amp;Details</source>
-        <translation>&amp;Dettagli pacchetto</translation>
+        <translation>&amp;Dettagli del pacchetto</translation>
     </message>
     <message>
         <source>Show or hide the packet details</source>
@@ -8397,7 +8397,7 @@ a:hover {
     <name>ProtoTree</name>
     <message>
         <source>Packet details</source>
-        <translation>Dettagli pacchetto</translation>
+        <translation>Dettagli del pacchetto</translation>
     </message>
     <message>
         <source>Colorize with Filter</source>
@@ -10815,7 +10815,7 @@ a:hover {
     </message>
     <message>
         <source>Packet details</source>
-        <translation>Dettagli pacchetto</translation>
+        <translation>Dettagli del pacchetto</translation>
     </message>
     <message>
         <source>Packet bytes</source>

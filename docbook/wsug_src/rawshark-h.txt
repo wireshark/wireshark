@@ -1,4 +1,4 @@
-Rawshark (Wireshark) 2.6.19 (v2.6.19rc0-2-gea57dd2f)
+Rawshark (Wireshark) 2.6.20 (v2.6.20rc0-1-g502b65cb)
 Dump and analyze network traffic.
 See https://www.wireshark.org for more information.
 
