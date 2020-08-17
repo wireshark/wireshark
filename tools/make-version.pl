@@ -166,7 +166,7 @@ sub read_repo_info {
 	#   Where git show-ref --tags -d | grep v3.3.0 | grep '{}'
 	#   beb1fee6586725bd37651b8a73a1ef51888e99be refs/tags/v3.3.0rc0^{}
 	#
-	# Refs: git ls-remote code.wireshark.org:wireshark | head -n1
+	# Refs: git ls-remote https://gitlab.com/wireshark/wireshark.git | head -n1
 	# efd7cb38e67cbfd3333a8c2fd4bc47aaec4ba83c	HEAD
 
 	if ($git_archive_commit) {

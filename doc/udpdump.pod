@@ -29,7 +29,7 @@ any source (like Aruba routers) and exports them in PCAP format. This provides t
 functionalities: the first one is to have a listener that prevents the localhost to send back an ICMP
 port-unreachable packet. The second one is to strip out the lower layers (layer 2, IP, UDP) that are useless
 (are used just as export vector). The format of the exported datagrams are EXPORTED_PDU, as specified in
-https://code.wireshark.org/review/gitweb?p=wireshark.git;a=blob;f=epan/exported_pdu.h;hb=refs/heads/master
+https://gitlab.com/wireshark/wireshark/-/raw/master/epan/exported_pdu.h
 
 =head1 OPTIONS
 
