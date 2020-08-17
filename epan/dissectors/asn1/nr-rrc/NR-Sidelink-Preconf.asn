@@ -1,0 +1,69 @@
+-- 3GPP TS 38.331 V16.1.0 (2020-07)
+
+NR-Sidelink-Preconf DEFINITIONS AUTOMATIC TAGS ::=
+
+BEGIN
+
+IMPORTS
+SL-CBR-CommonTxConfigList-r16,
+SL-FreqConfigCommon-r16,
+SL-RadioBearerConfig-r16,
+SL-RLC-BearerConfig-r16,
+SL-EUTRA-AnchorCarrierFreqList-r16,
+SL-NR-AnchorCarrierFreqList-r16,
+SL-MeasConfigCommon-r16,
+SL-UE-SelectedConfig-r16,
+TDD-UL-DL-ConfigCommon,
+maxNrofFreqSL-r16,
+maxNrofSLRB-r16,
+maxSL-LCID-r16
+FROM NR-RRC-Definitions;
+
+-- TAG-NR-SIDELINK-PRECONF-DEFINITIONS-STOP
+-- TAG-SL-PRECONFIGURATIONNR-START
+
+SL-PreconfigurationNR-r16 ::=             SEQUENCE {
+    sidelinkPreconfigNR-r16                   SidelinkPreconfigNR-r16,
+    ...
+}
+
+SidelinkPreconfigNR-r16 ::=                 SEQUENCE {
+    sl-PreconfigFreqInfoList-r16                SEQUENCE (SIZE (1..maxNrofFreqSL-r16)) OF SL-FreqConfigCommon-r16     OPTIONAL,
+    sl-PreconfigNR-AnchorCarrierFreqList-r16    SL-NR-AnchorCarrierFreqList-r16                                       OPTIONAL,
+    sl-PreconfigEUTRA-AnchorCarrierFreqList-r16 SL-EUTRA-AnchorCarrierFreqList-r16                                    OPTIONAL,
+    sl-RadioBearerPreConfigList-r16             SEQUENCE (SIZE (1..maxNrofSLRB-r16)) OF SL-RadioBearerConfig-r16      OPTIONAL,
+    sl-RLC-BearerPreConfigList-r16              SEQUENCE (SIZE (1..maxSL-LCID-r16)) OF SL-RLC-BearerConfig-r16        OPTIONAL,
+    sl-MeasPreConfig-r16                        SL-MeasConfigCommon-r16                                               OPTIONAL,
+    sl-OffsetDFN-r16                            INTEGER (1..1000)                                                     OPTIONAL,
+    t400-r16                                    ENUMERATED{ms100, ms200, ms300, ms400, ms600, ms1000, ms1500, ms2000} OPTIONAL,
+    sl-MaxNumConsecutiveDTX-r16                 ENUMERATED {n1, n2, n3, n4, n6, n8, n16, n32}	                      OPTIONAL,
+    sl-SSB-PriorityNR-r16                       INTEGER (1..8)                                                        OPTIONAL,
+    sl-PreconfigGeneral-r16                     SL-PreconfigGeneral-r16                                               OPTIONAL,
+    sl-UE-SelectedPreConfig-r16                 SL-UE-SelectedConfig-r16                                              OPTIONAL,
+    sl-CSI-Acquisition-r16                      ENUMERATED {enabled}                                                  OPTIONAL,
+    sl-RoHC-Profiles-r16                        SL-RoHC-Profiles-r16                                                  OPTIONAL,
+    sl-MaxCID-r16                               INTEGER (1..16383)                                                    DEFAULT 15,
+    ...
+}
+
+SL-PreconfigGeneral-r16 ::=                 SEQUENCE {
+    sl-TDD-Configuration-r16                    TDD-UL-DL-ConfigCommon                                                OPTIONAL,
+    reservedBits-r16                            BIT STRING (SIZE (2))                                                 OPTIONAL,
+    ...
+}
+
+SL-RoHC-Profiles-r16 ::=              SEQUENCE {
+    profile0x0001-r16                     BOOLEAN,
+    profile0x0002-r16                     BOOLEAN,
+    profile0x0003-r16                     BOOLEAN,
+    profile0x0004-r16                     BOOLEAN,
+    profile0x0006-r16                     BOOLEAN,
+    profile0x0101-r16                     BOOLEAN,
+    profile0x0102-r16                     BOOLEAN,
+    profile0x0103-r16                     BOOLEAN,
+    profile0x0104-r16                     BOOLEAN
+}
+
+-- TAG-SL-PRECONFIGURATIONNR-STOP
+
+END

@@ -1,0 +1,273 @@
+-- 3GPP TS 38.331 V16.1.0 (2020-07)
+
+PC5-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
+
+BEGIN
+
+IMPORTS
+    SetupRelease,
+    RRC-TransactionIdentifier,
+    SN-FieldLengthAM,
+    SN-FieldLengthUM,
+    LogicalChannelIdentity,
+    maxNrofSLRB-r16,
+    maxNrofSL-QFIs-r16,
+    maxNrofSL-QFIsPerDest-r16,
+    RSRP-Range,
+    SL-MeasConfig-r16,
+    SL-MeasId-r16,
+    FreqBandList,
+    SupportedBandCombinationListSidelink-r16
+
+FROM NR-RRC-Definitions;
+
+-- TAG-PC5-RRC-DEFINITIONS-STOP
+-- TAG-SBCCH-SL-BCH-MESSAGE-START
+
+SBCCH-SL-BCH-Message ::= SEQUENCE {
+    message                  SBCCH-SL-BCH-MessageType
+}
+
+SBCCH-SL-BCH-MessageType::=     CHOICE {
+    c1                              CHOICE {
+        masterInformationBlockSidelink              MasterInformationBlockSidelink,
+        spare1 NULL
+    },
+    messageClassExtension   SEQUENCE {}
+}
+
+-- TAG-SBCCH-SL-BCH-MESSAGE-STOP
+-- TAG-SCCH-MESSAGE-START
+
+SCCH-Message ::=             SEQUENCE {
+    message                         SCCH-MessageType
+}
+
+SCCH-MessageType ::=         CHOICE {
+    c1                              CHOICE {
+        measurementReportSidelink                MeasurementReportSidelink,
+        rrcReconfigurationSidelink               RRCReconfigurationSidelink,
+        rrcReconfigurationCompleteSidelink       RRCReconfigurationCompleteSidelink,
+        rrcReconfigurationFailureSidelink        RRCReconfigurationFailureSidelink,
+        ueCapabilityEnquirySidelink              UECapabilityEnquirySidelink,
+        ueCapabilityInformationSidelink          UECapabilityInformationSidelink,
+        spare2 NULL, spare1 NULL
+    },
+    messageClassExtension           SEQUENCE {}
+}
+
+-- TAG-SCCH-MESSAGE-STOP
+-- TAG-MASTERINFORMATIONBLOCKSIDELINK-START
+
+MasterInformationBlockSidelink ::=           SEQUENCE {
+    sl-TDD-Config-r16                            BIT STRING (SIZE (12)),
+    inCoverage-r16                               BOOLEAN,
+    directFrameNumber-r16                        BIT STRING (SIZE (10)),
+    slotIndex-r16                                BIT STRING (SIZE (7)),
+    reservedBits-r16                             BIT STRING (SIZE (2))
+}
+
+-- TAG-MASTERINFORMATIONBLOCKSIDELINK-STOP
+-- TAG-MEASUREMENTREPORTSIDELINK-START
+
+MeasurementReportSidelink ::=                   SEQUENCE {
+    criticalExtensions                              CHOICE {
+        measurementReportSidelink-r16                   MeasurementReportSidelink-IEs-r16,
+        criticalExtensionsFuture                        SEQUENCE {}
+    }
+}
+
+MeasurementReportSidelink-IEs-r16 ::=           SEQUENCE {
+    sl-measResults-r16                              SL-MeasResults-r16,
+    lateNonCriticalExtension                        OCTET STRING                                                            OPTIONAL,
+    nonCriticalExtension                            SEQUENCE{}                                                              OPTIONAL
+}
+
+SL-MeasResults-r16 ::=                          SEQUENCE {
+    sl-MeasId-r16                                   SL-MeasId-r16,
+    sl-MeasResult-r16                               SL-MeasResult-r16,
+    ...
+}
+
+SL-MeasResult-r16 ::=                           SEQUENCE {
+    sl-ResultDMRS-r16                               SL-MeasQuantityResult-r16                                               OPTIONAL,
+    ...
+}
+
+SL-MeasQuantityResult-r16 ::=                   SEQUENCE {
+    sl-RSRP-r16                                     RSRP-Range                                                              OPTIONAL,
+    ...
+}
+
+-- TAG-MEASUREMENTREPORTSIDELINK-STOP
+-- TAG-RRCRECONFIGURATIONSIDELINK-START
+
+RRCReconfigurationSidelink ::=          SEQUENCE {
+    rrc-TransactionIdentifier-r16           RRC-TransactionIdentifier,
+    criticalExtensions                      CHOICE {
+        rrcReconfigurationSidelink-r16          RRCReconfigurationSidelink-IEs-r16,
+        criticalExtensionsFuture                SEQUENCE {}
+    }
+}
+
+RRCReconfigurationSidelink-IEs-r16 ::=  SEQUENCE {
+    slrb-ConfigToAddModList-r16             SEQUENCE (SIZE (1..maxNrofSLRB-r16)) OF SLRB-Config-r16             OPTIONAL, -- Need N
+    slrb-ConfigToReleaseList-r16            SEQUENCE (SIZE (1..maxNrofSLRB-r16)) OF SLRB-PC5-ConfigIndex-r16    OPTIONAL, -- Need N
+    sl-MeasConfig-r16                       CHOICE {release NULL, setup SL-MeasConfig-r16}                                    OPTIONAL, -- Need M
+    sl-CSI-RS-Config-r16                    CHOICE {release NULL, setup SL-CSI-RS-Config-r16}                                 OPTIONAL, -- Need M
+    sl-ResetConfig-r16                      ENUMERATED {true}                                                   OPTIONAL, -- Need N
+    sl-LatencyBoundCSI-Report-r16           INTEGER (3..160)                                                    OPTIONAL, -- Need M
+    lateNonCriticalExtension                OCTET STRING                                                        OPTIONAL,
+    nonCriticalExtension                    SEQUENCE {}                                                         OPTIONAL
+}
+
+SLRB-Config-r16::=                      SEQUENCE {
+    slrb-PC5-ConfigIndex-r16                SLRB-PC5-ConfigIndex-r16,
+    sl-SDAP-ConfigPC5-r16                   SL-SDAP-ConfigPC5-r16                                               OPTIONAL, -- Need M
+    sl-PDCP-ConfigPC5-r16                   SL-PDCP-ConfigPC5-r16                                               OPTIONAL, -- Need M
+    sl-RLC-ConfigPC5-r16                    SL-RLC-ConfigPC5-r16                                                OPTIONAL, -- Need M
+    sl-MAC-LogicalChannelConfigPC5-r16      SL-LogicalChannelConfigPC5-r16                                      OPTIONAL, -- Need M
+    ...
+}
+
+SLRB-PC5-ConfigIndex-r16 ::=            INTEGER (1..maxNrofSLRB-r16)
+
+SL-SDAP-ConfigPC5-r16 ::=               SEQUENCE {
+    sl-MappedQoS-FlowsToAddList-r16         SEQUENCE (SIZE (1.. maxNrofSL-QFIsPerDest-r16)) OF SL-PFI-r16       OPTIONAL, -- Need N
+    sl-MappedQoS-FlowsToReleaseList-r16     SEQUENCE (SIZE (1.. maxNrofSL-QFIsPerDest-r16)) OF SL-PFI-r16       OPTIONAL, -- Need N
+    ...
+}
+
+SL-PDCP-ConfigPC5-r16 ::=               SEQUENCE {
+    sl-PDCP-SN-Size-r16                     ENUMERATED {len12bits, len18bits}                                   OPTIONAL, -- Need M
+    sl-OutOfOrderDelivery                   ENUMERATED { true }                                                 OPTIONAL,  -- Need R
+    ...
+}
+
+SL-RLC-ConfigPC5-r16 ::=                CHOICE {
+    sl-AM-RLC-r16                           SEQUENCE {
+        sl-SN-FieldLengthAM-r16                 SN-FieldLengthAM                                                OPTIONAL, -- Need M
+    ...
+    },
+    sl-UM-Bi-Directional-RLC-r16            SEQUENCE {
+        sl-SN-FieldLengthUM-r16                 SN-FieldLengthUM                                                OPTIONAL, -- Need M
+    ...
+    },
+    sl-UM-Uni-Directional-RLC-r16           SEQUENCE {
+        sl-SN-FieldLengthUM-r16                 SN-FieldLengthUM                                                OPTIONAL, -- Need M
+    ...
+    }
+}
+
+SL-LogicalChannelConfigPC5-r16 ::=      SEQUENCE {
+    sl-LogicalChannelIdentity-r16           LogicalChannelIdentity,
+    ...
+}
+
+SL-PFI-r16 ::=                          INTEGER (1..64)
+
+SL-CSI-RS-Config-r16 ::=                SEQUENCE {
+    sl-CSI-RS-FreqAllocation-r16            CHOICE {
+        sl-OneAntennaPort-r16                   BIT STRING (SIZE (12)),
+        sl-TwoAntennaPort-r16                   BIT STRING (SIZE (6))
+    }                                                                                                           OPTIONAL, -- Need M
+    sl-CSI-RS-FirstSymbol-r16               INTEGER (3..12)                                                     OPTIONAL, -- Need M
+    ...
+}
+
+-- TAG-RRCRECONFIGURATIONSIDELINK-STOP
+-- TAG-RRCRECONFIGURATIONCOMPLETESIDELINK-START
+
+RRCReconfigurationCompleteSidelink ::=         SEQUENCE {
+    rrc-TransactionIdentifier-r16                  RRC-TransactionIdentifier,
+    criticalExtensions                             CHOICE {
+        rrcReconfigurationCompleteSidelink-r16         RRCReconfigurationCompleteSidelink-IEs-r16,
+        criticalExtensionsFuture                       SEQUENCE {}
+    }
+}
+
+RRCReconfigurationCompleteSidelink-IEs-r16 ::= SEQUENCE {
+    lateNonCriticalExtension                       OCTET STRING                                                       OPTIONAL,
+    nonCriticalExtension                           SEQUENCE {}                                                        OPTIONAL
+}
+
+-- TAG-RRCRECONFIGURATIONCOMPLETESIDELINK-STOP
+-- TAG-RRCRECONFIGURATIONFAILURESIDELINK-START
+
+RRCReconfigurationFailureSidelink ::=         SEQUENCE {
+    rrc-TransactionIdentifier-r16                 RRC-TransactionIdentifier,
+    criticalExtensions                            CHOICE {
+        rrcReconfigurationFailureSidelink-r16         RRCReconfigurationFailureSidelink-IEs-r16,
+        criticalExtensionsFuture                      SEQUENCE {}
+    }
+}
+
+RRCReconfigurationFailureSidelink-IEs-r16 ::= SEQUENCE {
+    lateNonCriticalExtension                      OCTET STRING                                                         OPTIONAL,
+    nonCriticalExtension                          SEQUENCE {}                                                          OPTIONAL
+}
+
+-- TAG-RRCRECONFIGURATIONFAILURESIDELINK-STOP
+-- TAG-UECAPABILITYENQUIRYSIDELINK-START
+
+UECapabilityEnquirySidelink ::=         SEQUENCE {
+    rrc-TransactionIdentifier-r16           RRC-TransactionIdentifier,
+    criticalExtensions                      CHOICE {
+        ueCapabilityEnquirySidelink-r16         UECapabilityEnquirySidelink-IEs-r16,
+        criticalExtensionsFuture                SEQUENCE {}
+    }
+}
+
+UECapabilityEnquirySidelink-IEs-r16 ::= SEQUENCE {
+    ueCapabilityRequestFilterSidelink-r16   UE-CapabilityRequestFilterSidelink-r16                                  OPTIONAL, -- Need N
+    ue-CapabilityInformationSidelink-r16     OCTET STRING                                                           OPTIONAL,
+    lateNonCriticalExtension                OCTET STRING                                                            OPTIONAL,
+    nonCriticalExtension                    SEQUENCE{}                                                              OPTIONAL
+}
+
+-- TAG-UECAPABILITYENQUIRYSIDELINK-STOP
+-- TAG-UECAPABILITYINFORMATIONSIDELINK-START
+
+UECapabilityInformationSidelink ::=         SEQUENCE {
+    rrc-TransactionIdentifier-r16               RRC-TransactionIdentifier,
+    criticalExtensions                          CHOICE {
+        ueCapabilityInformationSidelink-r16         UECapabilityInformationSidelink-IEs-r16,
+        criticalExtensionsFuture                    SEQUENCE {}
+    }
+}
+
+UECapabilityInformationSidelink-IEs-r16 ::= SEQUENCE {
+    accessStratumReleaseSidelink-r16            AccessStratumReleaseSidelink-r16,
+    pdcp-ParametersSidelink-r16                 PDCP-ParametersSidelink-r16                                             OPTIONAL,
+-- WS modification: rename to avoid conflict with NR-RRC-DEfintions.asn
+    rlc-ParametersSidelink-r16                  PC5-RLC-ParametersSidelink-r16                                              OPTIONAL,
+    supportedBandCombinationListSidelink-r16    SupportedBandCombinationListSidelink-r16                                OPTIONAL,
+    lateNonCriticalExtension                    OCTET STRING                                                            OPTIONAL,
+    nonCriticalExtension                        SEQUENCE{}                                                              OPTIONAL
+}
+
+AccessStratumReleaseSidelink-r16 ::= ENUMERATED { rel16, spare7, spare6, spare5, spare4, spare3, spare2, spare1, ... }
+
+PDCP-ParametersSidelink-r16 ::= SEQUENCE {
+    outOfOrderDeliverySidelink-r16              ENUMERATED {supported}      OPTIONAL,
+    ...
+}
+
+-- WS modification: rename to avoid conflict with NR-RRC-DEfintions.asn
+PC5-RLC-ParametersSidelink-r16 ::= SEQUENCE {
+    am-WithLongSN-Sidelink-r16                  ENUMERATED {supported}      OPTIONAL,
+    um-WithLongSN-Sidelink-r16                  ENUMERATED {supported}      OPTIONAL,
+    ...
+}
+
+-- TAG-UECAPABILITYINFORMATIONSIDELINK-STOP
+-- TAG-UE-CAPABILITYREQUESTFILTERSIDELINK-START
+
+UE-CapabilityRequestFilterSidelink-r16 ::=      SEQUENCE {
+    frequencyBandListFilterSidelink-r16             FreqBandList                 OPTIONAL,   -- Need N
+    nonCriticalExtension                            SEQUENCE {}                  OPTIONAL
+}
+
+-- TAG-UE-CAPABILITYREQUESTFILTERSIDELINK-STOP
+
+END

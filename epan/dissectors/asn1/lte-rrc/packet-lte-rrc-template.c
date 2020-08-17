@@ -316,6 +316,12 @@ static gint ett_lte_rrc_nas_Container_r15 = -1;
 static gint ett_lte_rrc_sourceRB_ConfigIntra5GC_r15 = -1;
 static gint ett_lte_rrc_selectedbandCombinationInfoEN_DC_v1540 = -1;
 static gint ett_lte_rrc_requestedCapabilityCommon_r15 = -1;
+static gint ett_lte_rrc_sidelinkUEInformationNR_r16 = -1;
+static gint ett_lte_rrc_ueAssistanceInformationNR_r16 = -1;
+static gint ett_lte_rrc_cbr_ResultsNR_r16 = -1;
+static gint ett_lte_rrc_sl_ParameterNR_r16 = -1;
+static gint ett_lte_rrc_v2x_SupportedBandCombinationListNR_r16 = -1;
+static gint ett_lte_rrc_v2x_BandParametersNR_r16 = -1;
 
 static expert_field ei_lte_rrc_number_pages_le15 = EI_INIT;
 static expert_field ei_lte_rrc_si_info_value_changed = EI_INIT;
@@ -4371,7 +4377,13 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_nas_Container_r15,
     &ett_lte_rrc_sourceRB_ConfigIntra5GC_r15,
     &ett_lte_rrc_selectedbandCombinationInfoEN_DC_v1540,
-    &ett_lte_rrc_requestedCapabilityCommon_r15
+    &ett_lte_rrc_requestedCapabilityCommon_r15,
+    &ett_lte_rrc_sidelinkUEInformationNR_r16,
+    &ett_lte_rrc_ueAssistanceInformationNR_r16,
+    &ett_lte_rrc_cbr_ResultsNR_r16,
+    &ett_lte_rrc_sl_ParameterNR_r16,
+    &ett_lte_rrc_v2x_SupportedBandCombinationListNR_r16,
+    &ett_lte_rrc_v2x_BandParametersNR_r16
   };
 
   static ei_register_info ei[] = {

@@ -1,32 +1,109 @@
--- 3GPP TS 38.331 V15.9.0 (2020-03)
+-- 3GPP TS 38.331 V16.1.0 (2020-07)
 
 NR-UE-Variables DEFINITIONS AUTOMATIC TAGS ::=
 
 BEGIN
 
 IMPORTS
+    ARFCN-ValueNR,
     CellIdentity,
     EUTRA-PhysCellId,
     MeasId,
     MeasIdToAddModList,
+    MeasIdleCarrierEUTRA-r16,
+    MeasIdleCarrierNR-r16,
+    MeasResultIdleEUTRA-r16,
+    MeasResultIdleNR-r16,
     MeasObjectToAddModList,
     PhysCellId,
     RNTI-Value,
     ReportConfigToAddModList,
     RSRP-Range,
+    SL-MeasId-r16,
+    SL-MeasIdList-r16,
+    SL-MeasObjectList-r16,
+    SL-ReportConfigList-r16,
+    SL-QuantityConfig-r16,
+    Tx-PoolMeasList-r16,
     QuantityConfig,
     maxNrofCellMeas,
-    maxNrofMeasId
+    maxNrofMeasId,
+    maxFreqIdle-r16,
+    PhysCellIdUTRA-FDD-r16,
+    ValidityAreaList-r16,
+    CondReconfigToAddModList-r16,
+    ConnEstFailReport-r16,
+    LoggingDuration-r16,
+    LoggingInterval-r16,
+    LogMeasInfoList-r16,
+    LogMeasInfo-r16,
+    RA-Report-r16,
+    RLF-Report-r16,
+    TraceReference-r16,
+    WLAN-Identifiers-r16,
+    WLAN-NameList-r16,
+    BT-NameList-r16,
+    PLMN-Identity,
+    maxPLMN,
+    RA-ReportList-r16,
+    VisitedCellInfoList-r16,
+    AbsoluteTimeInfo-r16,
+    LoggedEventTriggerConfig-r16,
+    LoggedPeriodicalReportConfig-r16,
+    Sensor-NameList-r16,
+    PLMN-IdentityList2-r16,
+    AreaConfiguration-r16,
+    maxNrofSL-MeasId-r16,
+    maxNrofFreqSL-r16,
+    maxNrofCLI-RSSI-Resources-r16,
+    maxNrofCLI-SRS-Resources-r16,
+    RSSI-ResourceId-r16,
+    SRS-ResourceId
 FROM NR-RRC-Definitions;
 
 -- NR-UE-VARIABLES-STOP
--- TAG-VARPENDINGRNA-UPDATE-START
+-- TAG-VARCONDITIONALRECONFIG-START
 
-VarPendingRNA-Update ::=                    SEQUENCE {
-    pendingRNA-Update                           BOOLEAN                             OPTIONAL
+VarConditionalReconfig ::=     SEQUENCE {
+    condReconfigList               CondReconfigToAddModList-r16        OPTIONAL
 }
 
--- TAG-VARPENDINGRNA-UPDATE-STOP
+
+-- TAG-VARCONDITIONALRECONFIG-STOP
+-- TAG-VARCONNESTFAILREPORT-START
+
+VarConnEstFailReport-r16 ::= SEQUENCE {
+    connEstFailReport-r16        ConnEstFailReport-r16,
+    plmn-Identity-r16            PLMN-Identity
+}
+
+-- TAG-VARCONNESTFAILREPORT-STOP
+-- TAG-VARLOGMEASCONFIG-START
+
+VarLogMeasConfig-r16-IEs ::= SEQUENCE {
+    areaConfiguration-r16        AreaConfiguration-r16        OPTIONAL,
+    bt-NameList-r16              BT-NameList-r16              OPTIONAL,
+    wlan-NameList-r16            WLAN-NameList-r16            OPTIONAL,
+    sensor-NameList-r16          Sensor-NameList-r16          OPTIONAL,
+    loggingDuration-r16          LoggingDuration-r16,
+    reportType                   CHOICE {
+        periodical                   LoggedPeriodicalReportConfig-r16,
+        eventTriggered               LoggedEventTriggerConfig-r16
+    }
+}
+-- TAG-VARLOGMEASCONFIG-STOP
+-- TAG-VARLOGMEAREPORT-START
+
+VarLogMeasReport-r16 ::=     SEQUENCE {
+    absoluteTimeStamp-r16        AbsoluteTimeInfo-r16,
+    traceReference-r16           TraceReference-r16,
+    traceRecordingSessionRef-r16 OCTET STRING (SIZE (2)),
+    tce-Id-r16                   OCTET STRING (SIZE (1)),
+    logMeasInfoList-r16          LogMeasInfoList-r16,
+    plmn-IdentityList-r16        PLMN-IdentityList2-r16
+}
+
+-- TAG-VARLOGMEAREPORT-STOP
 -- TAG-VARMEASCONFIG-START
 
 VarMeasConfig ::=                   SEQUENCE {
@@ -47,6 +124,38 @@ VarMeasConfig ::=                   SEQUENCE {
 }
 
 -- TAG-VARMEASCONFIG-STOP
+-- TAG-VARMEASCONFIGSL-START
+
+VarMeasConfigSL-r16 ::=                        SEQUENCE {
+    -- NR sidelink measurement identities
+    sl-MeasIdList-r16                              SL-MeasIdList-r16                          OPTIONAL,
+    -- NR sidelink measurement objects
+    sl-MeasObjectList-r16                          SL-MeasObjectList-r16                      OPTIONAL,
+    -- NR sidelink reporting configurations
+    sl-reportConfigList-r16                        SL-ReportConfigList-r16                    OPTIONAL,
+    -- Other parameters
+    sl-QuantityConfig-r16                          SL-QuantityConfig-r16                      OPTIONAL
+}
+
+-- TAG-VARMEASCONFIGSL-STOP
+-- TAG-VARMEASIDLECONFIG-START
+
+VarMeasIdleConfig-r16 ::=     SEQUENCE {
+    measIdleCarrierListNR-r16     SEQUENCE (SIZE (1..maxFreqIdle-r16)) OF MeasIdleCarrierNR-r16                  OPTIONAL,
+    measIdleCarrierListEUTRA-r16  SEQUENCE (SIZE (1..maxFreqIdle-r16)) OF MeasIdleCarrierEUTRA-r16               OPTIONAL,
+    measIdleDuration-r16          ENUMERATED {sec10, sec30, sec60, sec120, sec180, sec240, sec300, spare},
+    validityAreaList-r16          ValidityAreaList-r16                                                          OPTIONAL
+}
+
+-- TAG-VARMEASIDLECONFIG-STOP
+-- TAG-VARMEASIDLEREPORT-START
+
+VarMeasIdleReport-r16 ::=    SEQUENCE {
+    measReportIdleNR-r16         MeasResultIdleNR-r16                     OPTIONAL,
+    measReportIdleEUTRA-r16      MeasResultIdleEUTRA-r16                  OPTIONAL
+}
+
+-- TAG-VARMEASIDLEREPORT-STOP
 -- TAG-VARMEASREPORTLIST-START
 
 VarMeasReportList ::=               SEQUENCE (SIZE (1..maxNrofMeasId)) OF VarMeasReport
@@ -55,16 +164,61 @@ VarMeasReport ::=                   SEQUENCE {
     -- List of measurement that have been triggered
     measId                              MeasId,
     cellsTriggeredList                  CellsTriggeredList              OPTIONAL,
-    numberOfReportsSent                 INTEGER
+    numberOfReportsSent                 INTEGER,
+    cli-TriggeredList-r16               CLI-TriggeredList-r16           OPTIONAL,
+    tx-PoolMeasToAddModListNR-r16       Tx-PoolMeasList-r16           OPTIONAL
 }
 
 CellsTriggeredList ::=              SEQUENCE (SIZE (1..maxNrofCellMeas)) OF CHOICE {
     physCellId                          PhysCellId,
-    physCellIdEUTRA                     EUTRA-PhysCellId
+    physCellIdEUTRA                     EUTRA-PhysCellId,
+    physCellIdUTRA-FDD-r16              PhysCellIdUTRA-FDD-r16
     }
 
+CLI-TriggeredList-r16 ::=           CHOICE {
+    srs-RSRP-TriggeredList-r16          SRS-RSRP-TriggeredList-r16,
+    cli-RSSI-TriggeredList-r16          CLI-RSSI-TriggeredList-r16
+    }
+
+SRS-RSRP-TriggeredList-r16 ::=      SEQUENCE (SIZE (1.. maxNrofCLI-SRS-Resources-r16)) OF SRS-ResourceId
+
+CLI-RSSI-TriggeredList-r16 ::=      SEQUENCE (SIZE (1.. maxNrofCLI-RSSI-Resources-r16)) OF RSSI-ResourceId-r16
 
 -- TAG-VARMEASREPORTLIST-STOP
+-- TAG-VARMEASREPORTLISTSL-START
+
+VarMeasReportListSL-r16 ::=               SEQUENCE (SIZE (1..maxNrofSL-MeasId-r16)) OF VarMeasReportSL-r16
+
+VarMeasReportSL-r16 ::=                   SEQUENCE {
+    -- List of NR sidelink measurement that have been triggered
+    sl-MeasId-r16                             SL-MeasId-r16,
+    sl-FrequencyTriggeredList-r16             SEQUENCE (SIZE (1..maxNrofFreqSL-r16)) OF ARFCN-ValueNR              OPTIONAL,
+    sl-NumberOfReportsSent-r16                INTEGER
+}
+
+-- TAG-VARMEASREPORTLISTSL-STOP
+-- TAG-VARMOBILITYHISTORYREPORT-START
+
+VarMobilityHistoryReport-r16 ::= VisitedCellInfoList-r16
+
+-- TAG-VARMOBILITYHISTORYREPORT-STOP
+-- TAG-VARPENDINGRNA-UPDATE-START
+
+VarPendingRNA-Update ::=                    SEQUENCE {
+    pendingRNA-Update                   BOOLEAN                             OPTIONAL
+}
+
+-- TAG-VARPENDINGRNA-UPDATE-STOP
+-- TAG-VARRA-REPORT-START
+
+VarRA-Report-r16 ::=      SEQUENCE {
+    ra-ReportList-r16         RA-ReportList-r16,
+    plmn-IdentityList-r16     PLMN-IdentityList-r16
+}
+
+PLMN-IdentityList-r16 ::= SEQUENCE (SIZE (1..maxPLMN)) OF PLMN-Identity
+
+-- TAG-VARRA-REPORT-STOP
 -- TAG-VARRESUMEMAC-INPUT-START
 
 VarResumeMAC-Input  ::=     SEQUENCE {
@@ -75,6 +229,14 @@ VarResumeMAC-Input  ::=     SEQUENCE {
 }
 
 -- TAG-VARRESUMEMAC-INPUT-STOP
+-- TAG-VARRLF-REPORT-START
+
+VarRLF-Report-r16 ::=    SEQUENCE {
+    rlf-Report-r16           RLF-Report-r16,
+    plmn-IdentityList-r16    PLMN-IdentityList-r16
+}
+
+-- TAG-VARRLF-REPORT-STOP
 -- TAG-VARSHORTMAC-INPUT-START
 
 VarShortMAC-Input   ::=                 SEQUENCE {

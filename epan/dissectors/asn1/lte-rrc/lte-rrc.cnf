@@ -12,6 +12,7 @@ PROTO_ROOT_NAME    proto_lte_rrc
 AUL-Config-r15/setup/aul-RetransmissionTimer-r15
 BandclassCDMA2000
 CarrierFreq-NB-r13/carrierFreqOffset-r13
+CarrierFreqNBIOT-r16/carrierFreqOffset-r16
 DelayBudgetReport-r14/type1
 DelayBudgetReport-r14/type2
 DRX-Config/setup/drx-InactivityTimer
@@ -27,6 +28,8 @@ PollByte-r14
 PosSIB-Type-r15/posSibType-r15
 #PosSystemInformation-r15-IEs/posSIB-TypeAndInfo-r15
 PowerRampingParameters-NB-v1450/powerRampingParametersCE1-r14/preambleInitialReceivedTargetPowerCE1-r14
+PUR-ConfigRequest-NB-r16/pur-SetupRequest/requestedTBS-r16
+PURConfigurationRequest-r16-IEs/pur-ConfigRequest-r16/pur-SetupRequest/requestedTBS-r16
 Q-OffsetRange
 RRM-Config/ue-InactiveTime
 RRM-Config-NB/ue-InactiveTime
@@ -53,11 +56,20 @@ RLF-Report-v9e0_PDU
 RRCConnectionReconfigurationComplete_PDU
 SCG-Config-r12_PDU
 SCG-ConfigInfo-r12_PDU
+SidelinkUEInformation-r12_PDU
+SL-Parameters-v1430_PDU
+SL-Parameters-v1530_PDU
+SL-Parameters-v1540_PDU
+UEAssistanceInformation-r11_PDU
 UECapabilityEnquiry_PDU
 UEPagingCoverageInformation_PDU
 UEPagingCoverageInformation-NB_PDU
 UERadioPagingInformation_PDU
 UE-EUTRA-Capability_PDU
+V2X-BandParameters-r14_PDU
+V2X-BandParameters-v1530_PDU
+V2X-SupportedBandCombination-r14_PDU
+V2X-SupportedBandCombination-v1530_PDU
 VisitedCellInfo-r12_PDU
 VisitedCellInfoList-r12_PDU
 #.END
@@ -75,6 +87,11 @@ RRCConnectionReconfiguration @rrc_conn_reconf
 RRCConnectionReconfigurationComplete @rrc_conn_reconf_compl
 SCG-Config-r12
 SCG-ConfigInfo-r12
+SidelinkUEInformation-r12
+SL-Parameters-v1430
+SL-Parameters-v1530
+SL-Parameters-v1540
+UEAssistanceInformation-r11
 UECapabilityEnquiry
 UEPagingCoverageInformation           @ue_paging_coverage_info
 UEPagingCoverageInformation-NB        @ue_paging_coverage_info.nb
@@ -82,6 +99,10 @@ UERadioAccessCapabilityInformation    @ue_radio_access_cap_info
 UERadioAccessCapabilityInformation-NB @ue_radio_access_cap_info.nb
 UERadioPagingInformation              @ue_radio_paging_info
 UERadioPagingInformation-NB           @ue_radio_paging_info.nb
+V2X-BandParameters-r14
+V2X-BandParameters-v1530
+V2X-SupportedBandCombination-r14
+V2X-SupportedBandCombination-v1530
 VisitedCellInfo-r12
 VisitedCellInfoList-r12
 BCCH-BCH-Message             @bcch.bch
@@ -478,7 +499,7 @@ if(ue_cap_tvb){
 #.TYPE_ATTR
 RF-Parameters-v1570/dl-1024QAM-TotalWeightedLayers-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lte_rrc_dl_1024QAM_TotalWeightedLayers_r15_fmt)
 
-  #.TYPE_RENAME
+#.TYPE_RENAME
 IRAT-ParametersWLAN-r13/supportedBandListWLAN-r13 SupportedBandListWLAN_r13
 
 #.TYPE_ATTR
@@ -1430,6 +1451,17 @@ MeasResultUTRA/measResult/utra-EcN0 DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lt
 
 #.TYPE_ATTR
 MeasResultUTRA/measResult/utra-RSCP DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_utra_RSCP_vals_ext
+
+#.FN_BODY MeasResultCBR-NR-r16/cbr-ResultsNR-r16 VAL_PTR = &cbr_results_nr_tvb
+  tvbuff_t *cbr_results_nr_tvb = NULL;
+
+%(DEFAULT_BODY)s
+
+  if (cbr_results_nr_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_cbr_ResultsNR_r16);
+    dissect_nr_rrc_SL_CBR_r16_PDU(cbr_results_nr_tvb, actx->pinfo, subtree, NULL);
+  }
 
 #.TYPE_ATTR
 ReportConfigEUTRA/triggerType/event/eventId/eventA3/a3-Offset DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_a3_a6_c2_Offset_vals_ext
@@ -2780,6 +2812,39 @@ P0-SL-r12 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
     dissect_nr_rrc_UL_DCCH_Message_PDU(nr_ul_dcch_tvb, actx->pinfo, subtree, NULL);
   }
 
+#.FN_BODY SL-ParametersNR-r16/sl-ParameterNR-r16 VAL_PTR = &sl_params_nr_tvb
+  tvbuff_t *sl_params_nr_tvb = NULL;
+
+%(DEFAULT_BODY)s
+
+  if (sl_params_nr_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_sl_ParameterNR_r16);
+    dissect_nr_rrc_SidelinkParametersNR_r16_PDU(sl_params_nr_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY SL-ParametersNR-r16/v2x-SupportedBandCombinationListNR-r16 VAL_PTR = &v2x_supp_band_comb_list_nr_tvb
+  tvbuff_t *v2x_supp_band_comb_list_nr_tvb = NULL;
+
+%(DEFAULT_BODY)s
+
+  if (v2x_supp_band_comb_list_nr_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_v2x_SupportedBandCombinationListNR_r16);
+    dissect_nr_rrc_SupportedBandCombinationListSidelink_r16_PDU(v2x_supp_band_comb_list_nr_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY V2X-BandCombinationParametersEUTRA-NR-r16/nr/v2x-BandParametersNR-r16 VAL_PTR = &v2x_band_params_nr_tvb
+  tvbuff_t *v2x_band_params_nr_tvb = NULL;
+
+%(DEFAULT_BODY)s
+
+  if (v2x_band_params_nr_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_v2x_BandParametersNR_r16);
+    dissect_nr_rrc_BandParametersSidelink_r16_PDU(v2x_band_params_nr_tvb, actx->pinfo, subtree, NULL);
+  }
+
 #
 # EUTRA-InterNodeDefinitions
 #
@@ -2848,6 +2913,28 @@ P0-SL-r12 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
     proto_tree *subtree;
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_selectedbandCombinationInfoEN_DC_v1540);
     dissect_nr_rrc_BandCombinationInfoSN_PDU(band_comb_info_sn_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY AS-Context-v1610/sidelinkUEInformationNR-r16 VAL_PTR = &sidelink_ue_info_nr_tvb
+  tvbuff_t *sidelink_ue_info_nr_tvb = NULL;
+
+%(DEFAULT_BODY)s
+
+  if (sidelink_ue_info_nr_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_sidelinkUEInformationNR_r16);
+    dissect_nr_rrc_SidelinkUEInformationNR_r16_PDU(sidelink_ue_info_nr_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY AS-Context-v1610/ueAssistanceInformationNR-r16 VAL_PTR = &ue_assist_info_nr_tvb
+  tvbuff_t *ue_assist_info_nr_tvb = NULL;
+
+%(DEFAULT_BODY)s
+
+  if (ue_assist_info_nr_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_ueAssistanceInformationNR_r16);
+    dissect_nr_rrc_UEAssistanceInformation_PDU(ue_assist_info_nr_tvb, actx->pinfo, subtree, NULL);
   }
 
 #
