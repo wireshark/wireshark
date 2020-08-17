@@ -59,7 +59,7 @@ int main(void) {
     report_current_mem();
     printf("Adding filter\n");
     int filter_id = marine_add_filter("ether[0] & 1 == 0", "frame[0] & 2",
-                                      fields, 3, ETHERNET_ENCAP, &err_msg);
+                                      fields, NULL, 3, ETHERNET_ENCAP, &err_msg);
     if (filter_id < 0) {
         fprintf(stderr, "Could not add filter: %s\n", err_msg);
         marine_free_err_msg(err_msg);
