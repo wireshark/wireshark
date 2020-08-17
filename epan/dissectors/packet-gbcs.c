@@ -743,6 +743,11 @@ static int dissect_gbcs_gbz(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         case GBCS_GBZ_ALERT_BILLING_DATA_LOG_UPDATED:
             dissect_gbcs_gbz_component(tvb, pinfo, gbz_tree, &offset, 0);
             break;
+        case GBCS_GBZ_ALERT_USER_INTERFACE_COMMAND_INPUT_AND_SUCCESSFULLY_AC:
+        case GBCS_GBZ_ALERT_USER_INTERFACE_COMMAND_INPUT_BUT_NOT_SUCCESSFULL:
+            proto_tree_add_item(gbz_tree, hf_gbcs_gbz_user_interface_command, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+            break;
         case GBCS_GBZ_ALERT_SMART_METER_INTEGRITY_ISSUE_WARNING:
             proto_tree_add_item(gbz_tree, hf_gbcs_gbz_integrity_issue_warning, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
