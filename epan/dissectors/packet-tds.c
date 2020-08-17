@@ -4105,7 +4105,10 @@ dissect_tds7_prelogin_packet(tvbuff_t *tvb, proto_tree *tree, tds_conv_info_t *t
         offset += 1;
 
         if(token == TDS7_PRELOGIN_OPTION_TERMINATOR)
+        {
+            proto_item_append_text(option_item, ": Terminator");
             break;
+        }
 
         tokenoffset = tvb_get_ntohs(tvb, offset);
         proto_tree_add_item(option_tree, hf_tds_prelogin_option_offset, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -4115,58 +4118,56 @@ dissect_tds7_prelogin_packet(tvbuff_t *tvb, proto_tree *tree, tds_conv_info_t *t
         proto_tree_add_item(option_tree, hf_tds_prelogin_option_length, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
-        if(tokenlen != 0)
+        switch(token)
         {
-            switch(token)
-            {
-                case TDS7_PRELOGIN_OPTION_VERSION: {
-                    guint32 version;
-                    proto_item_append_text(option_item, ": Version");
-                    proto_tree_add_item_ret_uint(option_tree, hf_tds_prelogin_option_version,
-                                                 tvb, tokenoffset, 4, ENC_BIG_ENDIAN,
-                                                 &version);
-                    proto_tree_add_item(option_tree, hf_tds_prelogin_option_subbuild, tvb, tokenoffset + 4, 2, ENC_LITTLE_ENDIAN);
-                    /* This gives us a better idea of what protocol we'll see. */
-                    if (is_response) {
-                        set_tds_version(tds_info, version);
-                    }
-                    break;
+            case TDS7_PRELOGIN_OPTION_VERSION: {
+                guint32 version;
+                proto_item_append_text(option_item, ": Version");
+                proto_tree_add_item_ret_uint(option_tree, hf_tds_prelogin_option_version,
+                                                tvb, tokenoffset, 4, ENC_BIG_ENDIAN,
+                                                &version);
+                proto_tree_add_item(option_tree, hf_tds_prelogin_option_subbuild, tvb, tokenoffset + 4, 2, ENC_LITTLE_ENDIAN);
+                /* This gives us a better idea of what protocol we'll see. */
+                if (is_response) {
+                    set_tds_version(tds_info, version);
                 }
-                case TDS7_PRELOGIN_OPTION_ENCRYPTION: {
-                    proto_item_append_text(option_item, ": Encryption");
-                    proto_tree_add_item(option_tree, hf_tds_prelogin_option_encryption, tvb, tokenoffset, 1, ENC_NA);
-                    break;
-                }
-                case TDS7_PRELOGIN_OPTION_INSTOPT: {
-                    proto_item_append_text(option_item, ": InstOpt");
-                    proto_tree_add_item(option_tree, hf_tds_prelogin_option_instopt, tvb, tokenoffset, tokenlen, ENC_ASCII | ENC_NA);
-                    break;
-                }
-                case TDS7_PRELOGIN_OPTION_THREADID: {
-                    proto_item_append_text(option_item, ": ThreadID");
-                    proto_tree_add_item(option_tree, hf_tds_prelogin_option_threadid, tvb, tokenoffset, 4, ENC_BIG_ENDIAN);
-                    break;
-                }
-                case TDS7_PRELOGIN_OPTION_MARS: {
-                    proto_item_append_text(option_item, ": MARS");
-                    proto_tree_add_item(option_tree, hf_tds_prelogin_option_mars, tvb, tokenoffset, 1, ENC_NA);
-                    break;
-                }
-                case TDS7_PRELOGIN_OPTION_TRACEID: {
-                    proto_item_append_text(option_item, ": TraceID");
-                    proto_tree_add_item(option_tree, hf_tds_prelogin_option_traceid, tvb, tokenoffset, tokenlen, ENC_NA);
-                    break;
-                }
-                case TDS7_PRELOGIN_OPTION_FEDAUTHREQUIRED: {
-                    proto_item_append_text(option_item, ": FedAuthRequired");
-                    proto_tree_add_item(option_tree, hf_tds_prelogin_option_fedauthrequired, tvb, tokenoffset, 1, ENC_NA);
-                    break;
-                }
-                case TDS7_PRELOGIN_OPTION_NONCEOPT: {
-                    proto_item_append_text(option_item, ": NonceOpt");
-                    proto_tree_add_item(option_tree, hf_tds_prelogin_option_nonceopt, tvb, tokenoffset, tokenlen, ENC_NA);
-                    break;
-                }
+                break;
+            }
+            case TDS7_PRELOGIN_OPTION_ENCRYPTION: {
+                proto_item_append_text(option_item, ": Encryption");
+                proto_tree_add_item(option_tree, hf_tds_prelogin_option_encryption, tvb, tokenoffset, tokenlen, ENC_NA);
+                break;
+            }
+            case TDS7_PRELOGIN_OPTION_INSTOPT: {
+                proto_item_append_text(option_item, ": InstOpt");
+                proto_tree_add_item(option_tree, hf_tds_prelogin_option_instopt, tvb, tokenoffset, tokenlen, ENC_ASCII | ENC_NA);
+                break;
+            }
+            case TDS7_PRELOGIN_OPTION_THREADID: {
+                proto_item_append_text(option_item, ": ThreadID");
+                if (tokenlen > 0)
+                    proto_tree_add_item(option_tree, hf_tds_prelogin_option_threadid, tvb, tokenoffset, tokenlen, ENC_BIG_ENDIAN);
+                break;
+            }
+            case TDS7_PRELOGIN_OPTION_MARS: {
+                proto_item_append_text(option_item, ": MARS");
+                proto_tree_add_item(option_tree, hf_tds_prelogin_option_mars, tvb, tokenoffset, tokenlen, ENC_NA);
+                break;
+            }
+            case TDS7_PRELOGIN_OPTION_TRACEID: {
+                proto_item_append_text(option_item, ": TraceID");
+                proto_tree_add_item(option_tree, hf_tds_prelogin_option_traceid, tvb, tokenoffset, tokenlen, ENC_NA);
+                break;
+            }
+            case TDS7_PRELOGIN_OPTION_FEDAUTHREQUIRED: {
+                proto_item_append_text(option_item, ": FedAuthRequired");
+                proto_tree_add_item(option_tree, hf_tds_prelogin_option_fedauthrequired, tvb, tokenoffset, tokenlen, ENC_NA);
+                break;
+            }
+            case TDS7_PRELOGIN_OPTION_NONCEOPT: {
+                proto_item_append_text(option_item, ": NonceOpt");
+                proto_tree_add_item(option_tree, hf_tds_prelogin_option_nonceopt, tvb, tokenoffset, tokenlen, ENC_NA);
+                break;
             }
         }
     }
