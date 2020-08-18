@@ -157,10 +157,10 @@ dissect_logcat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
     /* New line characters convert to spaces to ensure column Info display one line */
     if (pref_one_line_info_column) {
-    while ((c = g_utf8_strchr(log, string_length, '\n')))
-        *c = ' ';
-    while ((c = g_utf8_strchr(log, string_length, '\r')))
-        *c = ' ';
+        while ((c = g_utf8_strchr(log, string_length, '\n')))
+            *c = ' ';
+        while ((c = g_utf8_strchr(log, string_length, '\r')))
+            *c = ' ';
     }
 
     subitem = proto_tree_add_item(maintree, hf_logcat_log, tvb, offset, string_length, ENC_UTF_8 | ENC_NA);
