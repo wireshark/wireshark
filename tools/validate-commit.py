@@ -130,27 +130,22 @@ Please rewrite your commit message to our standards, matching this format:
     Use paragraphs to improve readability. Limit each line to 80 characters.
 
 ''')
-    fd, filename = tempfile.mkstemp()
-    try:
-        os.close(fd)
-        with open(filename, 'w') as f:
-            f.write(body)
-
-        hook_script = os.path.join(tools_dir(), 'commit-msg')
-        cmd = ['sh', hook_script, filename]
-        subprocess.check_output(cmd, universal_newlines=True)
-
-        with open(filename, 'r') as f:
-            newbody = f.read()
-    except OSError as ex:
-        print('Warning: unable to invoke commit-msg hook: %s' % (ex,))
-        return is_good
-    except subprocess.CalledProcessError as ex:
-        print('Bad commit message (reported by tools/commit-msg):')
-        print(ex.output.strip())
+    if any(line.startswith('Bug:') or line.startswith('Ping-Bug:') for line in old_lines):
+        sys.stderr.write('''
+To close an issue, use "Closes #1234" or "Fixes #1234" instead of "Bug: 1234".
+To reference an issue, use "related to #1234" instead of "Ping-Bug: 1234". See
+https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically
+for details.
+''')
         return False
-    finally:
-        os.unlink(filename)
+
+    try:
+        cmd = ['git', 'stripspace']
+        gs_proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, universal_newlines=True)
+        newbody, _ = gs_proc.communicate(body)
+    except OSError as ex:
+        print('Warning: unable to invoke git stripspace: %s' % (ex,))
+        return is_good
     if newbody != body:
         new_lines = newbody.splitlines(True)
         diff = difflib.unified_diff(old_lines, new_lines,
