@@ -8,6 +8,8 @@
 # The custom Ubuntu image pre-installs dependencies and compilers to speed up the build:
 # https://hub.docker.com/r/wireshark/wireshark-ubuntu-dev
 # https://github.com/wireshark/wireshark-ubuntu-dev-docker
+# XXX - We might be able to speed things up using ccache:
+# https://gould.cx/ted/blog/2017/06/10/ccache-for-Gitlab-CI/
 .build-ubuntu: &build-ubuntu
   <<: *build
   image: wireshark/wireshark-ubuntu-dev
@@ -37,7 +39,7 @@
     expire_in: 3 days
 
 # Rely on fedora:latest and debian-stable jobs for testing a recent GCC version.
-clang-10:
+clang-10: &clang-10
   <<: *build-ubuntu
   variables:
     CC: clang-10
@@ -133,3 +135,93 @@ test:debian-stable:
     GIT_STRATEGY: none
   dependencies:
     - build:debian-stable
+
+# https://docs.gitlab.com/ee/user/gitlab_com/index.html#linux-shared-runners
+merge-request:ubuntu-dpkg:
+  <<: *build-ubuntu
+  tags:
+    - docker
+  only:
+   - merge_requests
+  script:
+    - apt-get install -y devscripts
+    # build-ubuntu puts us in `build`.
+    - cd ..
+    # From the Buildbot Petri Dish. We might want to spread these across different builders.
+    - bash ./tools/pre-commit 'HEAD^1'
+    - sh -c '[ ! -e tools/validate-commit.py ] || tools/validate-commit.py'
+    - dpkg-buildpackage -us -uc -rfakeroot -jauto -Zgzip -zfast
+    - lintian --suppress-tags library-not-linked-against-libc --display-experimental --display-info --pedantic --profile debian
+
+merge-request:ubuntu-gcc-ctest:
+  <<: *build-ubuntu
+  tags:
+    - docker
+  only:
+   - merge_requests
+  script:
+    # build-ubuntu puts us in `build`.
+    - perl ../tools/make-version.pl --set-release || ../perl make-version.pl --set-release
+    - CC=gcc CXX=g++ cmake -DENABLE_EXTRA_COMPILER_WARNINGS=on -DCMAKE_EXPORT_COMPILE_COMMANDS=on -G Ninja ..
+    - ninja
+    - ninja test-programs
+    - chown -R user .
+    - su user -c "ctest --parallel 3 --force-new-ctest-process --verbose"
+
+merge-request:ubuntu-clang-other-tests:
+  extends: clang-10
+  tags:
+    - docker
+  only:
+   - merge_requests
+  script:
+    - apt-get install -y cppcheck
+    # build-ubuntu puts us in `build`.
+    - cd ..
+    - python3 tools/checklicenses.py
+    - ./tools/cppcheck/cppcheck.sh -l 1
+    - cd build
+    - cmake -DENABLE_EXTRA_COMPILER_WARNINGS=on -DENABLE_CHECKHF_CONFLICT=on -DCMAKE_EXPORT_COMPILE_COMMANDS=on -G Ninja ..
+    - ninja
+    - ./run/tshark -v
+    - sh -c '[ ! -e ../tools/validate-clang-check.py ] || ../tools/validate-clang-check.py'
+    - ninja checkAPI
+
+# https://docs.gitlab.com/ee/user/gitlab_com/index.html#windows-shared-runners-beta
+# Disabled for now due to
+# https://gitlab.com/gitlab-org/gitlab-runner/-/issues/26788
+.merge-request:windows:
+  tags:
+    - wireshark-windows-dev
+  stage: build
+  only:
+   - merge_requests
+  before_script:
+    # XXX Find a better location.
+    - mkdir c:\Development
+    - $env:WIRESHARK_BASE_DIR = "C:\Development"
+    - $env:Configuration = "RelWithDebInfo"
+    # This takes a while. Should we create our own Docker image?
+    #- choco install -y winflexbison3 cmake strawberryperl python3
+    # asciidoctorj xsltproc docbook-bundle?
+    - $env:Path += ";C:\Program Files\CMake\bin"
+    - $env:Path += ";C:\Strawberry\c\bin;C:\Strawberry\perl\site\bin;C:\Strawberry\perl\bin"
+    - $env:Path += ";C:\qt\5.12.8\msvc2017_64\bin"
+    # https://help.appveyor.com/discussions/questions/18777-how-to-use-vcvars64bat-from-powershell
+    - cmd.exe /c "call `"C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat`" && set > %temp%\vcvars.txt"
+    - Get-Content "$env:temp\vcvars.txt" | Foreach-Object { if ($_ -match "^(.*?)=(.*)$") { Set-Content "env:\$($matches[1])" $matches[2] } }
+    # Testing / debugging only.
+    - dir c:\
+    - dir c:\qt
+    - $env:path.split(";")
+    - cmd.exe /c "set"
+    - Get-Location
+  script:
+    # From the Buildbot Petri Dish. We might want to spread these across different bulders.
+    - perl tools/make-version.pl --set-release
+    - mkdir build
+    - cd build
+    - cmake -G "Visual Studio 16 2019" -A x64 ..
+    - msbuild "/consoleloggerparameters:PerformanceSummary;NoSummary" /maxcpucount Wireshark.sln
+    - msbuild "/consoleloggerparameters:PerformanceSummary;NoSummary" test-programs.vcxproj
+    - ctest -C RelWithDebInfo --parallel 3 --force-new-ctest-process --verbose
