@@ -39,6 +39,11 @@ indent_size = 2
 indent_style = space
 indent_size = 2
 
+# YAML
+[*.{yml}]
+indent_style = space
+indent_size = 2
+
 # C/C++
 [*.{c,cpp,h}]
 indent_style = space
