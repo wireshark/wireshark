@@ -33,6 +33,7 @@ static int hf_fsso_domain = -1;
 static int hf_fsso_user = -1;
 static int hf_fsso_host = -1;
 static int hf_fsso_version = -1;
+static int hf_fsso_tsagent_number_port_range = -1;
 static int hf_fsso_tsagent_port_range_min = -1;
 static int hf_fsso_tsagent_port_range_max = -1;
 static int hf_fsso_unknown = -1;
@@ -105,21 +106,32 @@ dissect_fortinet_sso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
         offset += (string_length);
     }
 
-     if(tvb_reported_length_remaining(tvb, offset)){
+     if(tvb_reported_length_remaining(tvb, offset)) {
+        guint32 number_port_range;
+
         proto_tree_add_item(fsso_tree, hf_fsso_unknown, tvb, offset, 15, ENC_NA);
         offset += 15;
 
         proto_tree_add_item(fsso_tree, hf_fsso_unknown, tvb, offset, 5, ENC_NA);
         offset += 5;
 
-        proto_tree_add_item(fsso_tree, hf_fsso_unknown, tvb, offset, 8, ENC_NA);
-        offset += 8;
+        proto_tree_add_item(fsso_tree, hf_fsso_unknown, tvb, offset, 6, ENC_NA);
+        offset += 6;
 
-        proto_tree_add_item(fsso_tree, hf_fsso_tsagent_port_range_min, tvb, offset, 2, ENC_BIG_ENDIAN);
+        /* Port Range assigned to user for TS Agent (RDP/Citrix) */
+        proto_tree_add_item_ret_uint(fsso_tree, hf_fsso_tsagent_number_port_range, tvb, offset, 2, ENC_BIG_ENDIAN, &number_port_range);
         offset += 2;
 
-        proto_tree_add_item(fsso_tree, hf_fsso_tsagent_port_range_max, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
+        while (number_port_range) {
+
+            proto_tree_add_item(fsso_tree, hf_fsso_tsagent_port_range_min, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(fsso_tree, hf_fsso_tsagent_port_range_max, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+
+            number_port_range --;
+        }
     }
 
     return offset;
@@ -190,6 +202,10 @@ proto_register_fortinet_sso(void)
 
         { &hf_fsso_version,
         { "Version", "fortinet_sso.version", FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL}},
+
+        { &hf_fsso_tsagent_number_port_range,
+        { "Number of Port Range", "fortinet_sso.tsagent.port_range.number", FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL}},
 
         { &hf_fsso_tsagent_port_range_min,
