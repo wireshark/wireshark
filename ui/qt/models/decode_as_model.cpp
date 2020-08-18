@@ -810,6 +810,7 @@ void DecodeAsModel::applyChanges()
             }
         }
     }
+    prefs_apply_all();
 }
 
 /* * Editor modelines
