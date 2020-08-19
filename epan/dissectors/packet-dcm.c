@@ -597,6 +597,8 @@ typedef struct dcm_state_pdv {
 
     dcm_open_tag_t  open_tag;   /* Container to store information about a fragmented tag */
 
+    guint8 reassembly_id;
+
 } dcm_state_pdv_t;
 
 /*
@@ -617,6 +619,7 @@ typedef struct dcm_state_pctx {
 #define DCM_ELE  0x03           /* explicit, little endian */
 #define DCM_UNK  0xf0
 
+    guint8 reassembly_count;
     dcm_state_pdv_t     *first_pdv,  *last_pdv;         /* List of PDV objects */
 
 } dcm_state_pctx_t;
@@ -2479,6 +2482,13 @@ dissect_dcm_pdv_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         (*pdv)->syntax = DCM_UNK;
     }
 
+    if (!PINFO_FD_VISITED(pinfo)) {
+        (*pdv)->reassembly_id = pctx->reassembly_count;
+        if ((*pdv)->is_last_fragment) {
+            pctx->reassembly_count++;
+        }
+    }
+
     if (flags == 0 || flags == 2) {
         /* Data PDV */
         pdv_first_data = dcm_state_pdv_get_obj_start(*pdv);
@@ -3535,13 +3545,17 @@ dissect_dcm_pdv_fragmented(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         /* Try to create somewhat unique ID.
            Include the conversation index, to separate TCP session
+           Include bits from the reassembly number in the current Presentation
+           Context (that we track ourselves) in order to distinguish between
+           PDV fragments from the same frame but different reassemblies.
         */
         DISSECTOR_ASSERT(conv);
 
         /* The following expression seems to executed late in VS2017 in 'RelWithDebInf'.
            Therefore it may appear as 0 at first
         */
-        reassembly_id = (((conv->conv_index) & 0x00FFFFFF) << 8) + (guint32)(pdv->pctx_id);
+        reassembly_id = (((conv->conv_index) & 0x000FFFFF) << 12) +
+                        ((guint32)(pdv->pctx_id) << 4) + ((guint32)(pdv->reassembly_id & 0xF));
 
         /* This one will chain the packets until 'is_last_fragment' */
         head = fragment_add_seq_next(
