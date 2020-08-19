@@ -37,6 +37,7 @@ static int hf_fsso_tsagent_number_port_range = -1;
 static int hf_fsso_tsagent_port_range_min = -1;
 static int hf_fsso_tsagent_port_range_max = -1;
 static int hf_fsso_unknown = -1;
+static int hf_fsso_unknown_ipv4 = -1;
 
 static dissector_handle_t fortinet_sso_handle;
 
@@ -107,30 +108,49 @@ dissect_fortinet_sso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     }
 
      if(tvb_reported_length_remaining(tvb, offset)) {
+        guint16 value;
         guint32 number_port_range;
+        value = tvb_get_ntohs(tvb, offset);
 
-        proto_tree_add_item(fsso_tree, hf_fsso_unknown, tvb, offset, 15, ENC_NA);
-        offset += 15;
-
-        proto_tree_add_item(fsso_tree, hf_fsso_unknown, tvb, offset, 5, ENC_NA);
-        offset += 5;
-
-        proto_tree_add_item(fsso_tree, hf_fsso_unknown, tvb, offset, 6, ENC_NA);
-        offset += 6;
-
-        /* Port Range assigned to user for TS Agent (RDP/Citrix) */
-        proto_tree_add_item_ret_uint(fsso_tree, hf_fsso_tsagent_number_port_range, tvb, offset, 2, ENC_BIG_ENDIAN, &number_port_range);
-        offset += 2;
-
-        while (number_port_range) {
-
-            proto_tree_add_item(fsso_tree, hf_fsso_tsagent_port_range_min, tvb, offset, 2, ENC_BIG_ENDIAN);
+        if(value == 0x2002) { /* Not a TS Agent additionnal Data */
+            proto_tree_add_item(fsso_tree, hf_fsso_unknown, tvb, offset, 2, ENC_NA);
             offset += 2;
 
-            proto_tree_add_item(fsso_tree, hf_fsso_tsagent_port_range_max, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(fsso_tree, hf_fsso_unknown_ipv4, tvb, offset, 4, ENC_NA);
+            offset += 4;
+
+            proto_tree_add_item(fsso_tree, hf_fsso_unknown, tvb, offset, 6, ENC_NA);
+            offset += 6;
+
+            proto_tree_add_item(fsso_tree, hf_fsso_unknown_ipv4, tvb, offset, 4, ENC_NA);
+            offset += 4;
+
+            proto_tree_add_item(fsso_tree, hf_fsso_unknown, tvb, offset, 1, ENC_NA);
+            offset += 1;
+        } else {
+            proto_tree_add_item(fsso_tree, hf_fsso_unknown, tvb, offset, 15, ENC_NA);
+            offset += 15;
+
+            proto_tree_add_item(fsso_tree, hf_fsso_unknown, tvb, offset, 5, ENC_NA);
+            offset += 5;
+
+            proto_tree_add_item(fsso_tree, hf_fsso_unknown, tvb, offset, 6, ENC_NA);
+            offset += 6;
+
+            /* Port Range assigned to user for TS Agent (RDP/Citrix) */
+            proto_tree_add_item_ret_uint(fsso_tree, hf_fsso_tsagent_number_port_range, tvb, offset, 2, ENC_BIG_ENDIAN, &number_port_range);
             offset += 2;
 
-            number_port_range --;
+            while (number_port_range) {
+
+                proto_tree_add_item(fsso_tree, hf_fsso_tsagent_port_range_min, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+
+                proto_tree_add_item(fsso_tree, hf_fsso_tsagent_port_range_max, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+
+                number_port_range --;
+            }
         }
     }
 
@@ -218,6 +238,10 @@ proto_register_fortinet_sso(void)
 
         { &hf_fsso_unknown,
         { "Unknown", "fortinet_sso.unknown", FT_BYTES, BASE_NONE, NULL, 0x0,
+        "Unknown Data...", HFILL}},
+
+        { &hf_fsso_unknown_ipv4,
+        { "Unknown IPv4", "fortinet_sso.unknown.ipv4", FT_IPv4, BASE_NONE, NULL, 0x0,
         "Unknown Data...", HFILL}},
 
     };
