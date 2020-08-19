@@ -44,6 +44,8 @@
  *                       - put a boolean hotfield to all available EPL message types
  *                       - modified timestamp format of errorcodelist entries
  *                       - append summary info with additional flag information
+ *                       - usage of segment size during sdo (write by index) payload decoding process
+ *                       - set mapping-sections of sdo objects one level lower
  *
  * A dissector for:
  * Wireshark - Network traffic analyzer
@@ -3959,7 +3961,7 @@ dissect_epl_sdo_command(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo,
 static gint
 dissect_epl_sdo_command_write_by_index(struct epl_convo *convo, proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset, guint8 segmented, gboolean response, guint16 segment_size)
 {
-	gint size, payload_length = 0;
+	gint size, payload_length, rem_size = 0;
 	guint16 idx = 0x00, sod_index = 0xFF, error = 0xFF, sub_val = 0x00;
 	gboolean nosub = FALSE;
 	guint8 subindex = 0x00;
@@ -4179,8 +4181,17 @@ dissect_epl_sdo_command_write_by_index(struct epl_convo *convo, proto_tree *epl_
 				ct = 0;
 			}
 		}
-		size = tvb_reported_length_remaining(tvb, offset);
 
+		/* determine remaining SDO payload size (depends on segment size of current command) */
+		size = tvb_reported_length_remaining(tvb, offset);
+		if(size > (segment_size - 4))
+		{
+			rem_size = (segment_size - 4);
+		}
+		else
+		{
+			rem_size = size;
+		}
 
 		/* if the frame is a PDO Mapping and the subindex is bigger than 0x00 */
 		if((idx == EPL_SOD_PDO_TX_MAPP && subindex > 0x00) || (idx == EPL_SOD_PDO_RX_MAPP && subindex > 0x00))
@@ -4200,7 +4211,7 @@ dissect_epl_sdo_command_write_by_index(struct epl_convo *convo, proto_tree *epl_
 			else if (obj)
 				type = obj->info.type;
 
-			offset = dissect_epl_payload(epl_tree, tvb, pinfo, offset, size, type, EPL_ASND);
+			offset = dissect_epl_payload(epl_tree, tvb, pinfo, offset, rem_size, type, EPL_ASND);
 		}
 	}
 	else
@@ -4518,7 +4529,7 @@ dissect_epl_sdo_command_write_multiple_by_index(struct epl_convo *convo, proto_t
 				wmem_array_t *mappings = NULL;
 				if (use_sdo_mappings)
 					mappings = idx == EPL_SOD_PDO_TX_MAPP ? convo->TPDO : convo->RPDO;
-				dissect_object_mapping(convo->profile, mappings, epl_tree, tvb, pinfo->num, dataoffset, idx, subindex);
+				dissect_object_mapping(convo->profile, mappings, psf_od_tree, tvb, pinfo->num, dataoffset, idx, subindex);
 			}
 			else /* dissect the payload */
 			{
