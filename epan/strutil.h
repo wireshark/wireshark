@@ -47,18 +47,61 @@ WS_DLL_PUBLIC
 int        get_token_len(const guchar *linep, const guchar *lineend,
     const guchar **next_token);
 
-/** Given a string, generate a string from it that shows non-printable
- *  characters as C-style escapes, and return a pointer to it.
+/** Given a wmem scope, a not-necessarily-null-terminated string,
+ *  expected to be in UTF-8 but possibly containing invalid sequences
+ *  (as it may have come from packet data), and the length of the string,
+ *  generate a valid UTF-8 string from it, allocated in the specified
+ *  wmem scope, that:
+ *
+ *   shows printable Unicode characters as themselves;
+ *
+ *   shows non-printable ASCII characters as C-style escapes (octal
+ *   if not one of the standard ones such as LF -> '\n');
+ *
+ *   shows non-printable Unicode-but-not-ASCII characters as
+ *   their universal character names;
+ *
+ *   shows illegal UTF-8 sequences as a sequence of bytes represented
+ *   as C-style hex escapes;
+ *
+ *  and return a pointer to it.
  *
  * @param allocator The wmem scope
- * @param line A pointer to the input string
+ * @param string A pointer to the input string
  * @param len The length of the input string
  * @return A pointer to the formatted string
  *
  * @see tvb_format_text()
  */
 WS_DLL_PUBLIC
-gchar*     format_text(wmem_allocator_t* allocator, const guchar *line, size_t len);
+gchar*     format_text(wmem_allocator_t* allocator, const guchar *string, size_t len);
+
+/** Given a wmem scope and a null-terminated string, expected to be in
+ *  UTF-8 but possibly containing invalid sequences (as it may have come
+ *  from packet data), and the length of the string, generate a valid
+ *  UTF-8 string from it, allocated in the specified wmem scope, that:
+ *
+ *   shows printable Unicode characters as themselves;
+ *
+ *   shows non-printable ASCII characters as C-style escapes (octal
+ *   if not one of the standard ones such as LF -> '\n');
+ *
+ *   shows non-printable Unicode-but-not-ASCII characters as
+ *   their universal character names;
+ *
+ *   shows illegal UTF-8 sequences as a sequence of bytes represented
+ *   as C-style hex escapes;
+ *
+ *  and return a pointer to it.
+ *
+ * @param allocator The wmem scope
+ * @param string A pointer to the input string
+ * @return A pointer to the formatted string
+ *
+ * @see tvb_format_text()
+ */
+WS_DLL_PUBLIC
+gchar*     format_text_string(wmem_allocator_t* allocator, const guchar *string);
 
 /**
  * Given a string, generate a string from it that shows non-printable
