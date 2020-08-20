@@ -1974,21 +1974,6 @@ static const true_false_string tfs_smb2_ioctl_network_interface_capability_rdma 
 	"This interface does not support RDMA"
 };
 
-static const true_false_string tfs_tc_cluster_reconnect = {
-	"CLUSTER RECONNECT is set",
-	"Cluster reconnect is NOT set"
-};
-
-static const true_false_string tfs_tc_redirect_to_owner = {
-	"REDIRECT_TO_OWNER is set",
-	"Redirect to owner is NOT set"
-};
-
-static const true_false_string tfs_tc_extension_present = {
-	"EXTENSION PRESENT is set",
-	"Extension present is NOT set"
-};
-
 static const value_string file_region_usage_vals[] = {
 	{ 0x00000001, "FILE_REGION_USAGE_VALID_CACHED_DATA" },
 	{ 0, NULL }
@@ -12159,17 +12144,17 @@ proto_register_smb2(void)
 
 		{ &hf_smb2_tc_cluster_reconnect,
 			{ "Cluster Reconnect", "smb2.tc.cluster_reconnect", FT_BOOLEAN, 16,
-			TFS(&tfs_tc_cluster_reconnect), 0x0001, "If this is a Cluster Reconnect", HFILL }
+			TFS(&tfs_set_notset), 0x0001, "If this is a Cluster Reconnect", HFILL }
 		},
 
 		{ &hf_smb2_tc_redirect_to_owner,
 			{ "Redirect To Owner", "smb2.tc.redirect_to_owner", FT_BOOLEAN, 16,
-			TFS(&tfs_tc_redirect_to_owner), 0x0002, "Set if the client can handle Share Redirects", HFILL }
+			TFS(&tfs_set_notset), 0x0002, "Set if the client can handle Share Redirects", HFILL }
 		},
 
 		{ &hf_smb2_tc_extension_present,
 			{ "Extension Present", "smb2.tc.extension_present", FT_BOOLEAN, 16,
-			TFS(&tfs_tc_extension_present), 0x0004, "Set if an extension structure is present", HFILL }
+			TFS(&tfs_set_notset), 0x0004, "Set if an extension structure is present", HFILL }
 		},
 
 		{ &hf_smb2_compression_format,
