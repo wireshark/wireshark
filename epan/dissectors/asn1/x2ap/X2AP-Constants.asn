@@ -1,4 +1,4 @@
--- 3GPP TS 36.423 V15.9.0 (2020-03)
+-- 3GPP TS 36.423 V16.2.0 (2020-07)
 -- 9.3.7	Constant definitions
 -- **************************************************************
 --
@@ -74,6 +74,14 @@ id-gNBStatusIndication											ProcedureCode ::= 45
 id-deactivateTrace												ProcedureCode ::= 46
 id-traceStart													ProcedureCode ::= 47
 id-endcConfigurationTransfer										ProcedureCode ::= 48
+id-handoverSuccess												ProcedureCode ::= 49
+id-conditionalHandoverCancel										ProcedureCode ::= 50
+id-earlyStatusTransfer										ProcedureCode ::= 51
+id-cellTrafficTrace 												ProcedureCode ::= 52
+id-endcresourceStatusReporting									ProcedureCode ::= 53
+id-endcresourceStatusReportingInitiation						ProcedureCode ::= 54
+id-f1CTrafficTransfer											ProcedureCode ::= 55
+
 -- **************************************************************
 --
 -- Lists
@@ -127,8 +135,15 @@ maxnoofNrCellBands							INTEGER ::= 32
 maxnoofBluetoothName						INTEGER ::= 4
 maxnoofWLANName								INTEGER ::= 4
 maxnoofextBPLMNs							INTEGER ::= 12
-maxnoofextBPLMNsminus1						INTEGER ::= 11
-maxnoofBPLMNsminus1							INTEGER ::= 11
+maxnoofTLAs									INTEGER ::= 16
+maxnoofGTPTLAs								INTEGER ::= 16
+maxnoofTNLAssociations						INTEGER ::= 32
+maxnoofCellsinCHO							INTEGER ::= 16
+maxnoofPC5QoSFlows 							INTEGER ::= 2048
+maxnoofSSBAreas								INTEGER ::= 64
+maxnoofNRSCSs								INTEGER ::= 5
+maxnoofPhysicalResourceBlocks				INTEGER ::= 275
+maxnoofNRPhysicalResourceBlocks				INTEGER ::= 275
 
 -- **************************************************************
 --
@@ -480,27 +495,65 @@ id-BPLMN-ID-Info-EUTRA														ProtocolIE-ID ::= 336
 id-BPLMN-ID-Info-NR															ProtocolIE-ID ::= 337
 id-NBIoT-UL-DL-AlignmentOffset												ProtocolIE-ID ::= 338
 id-ERABs-transferred-to-MeNB												ProtocolIE-ID ::= 339
---WS extension
-id-Unknown-340																ProtocolIE-ID ::= 340
-id-Unknown-341																ProtocolIE-ID ::= 341
-id-Unknown-342																ProtocolIE-ID ::= 342
-id-Unknown-343																ProtocolIE-ID ::= 343
-id-Unknown-344																ProtocolIE-ID ::= 344
-id-Unknown-345																ProtocolIE-ID ::= 345
-id-Unknown-346																ProtocolIE-ID ::= 346
-id-Unknown-347																ProtocolIE-ID ::= 347
-id-Unknown-348																ProtocolIE-ID ::= 348
-id-Unknown-349																ProtocolIE-ID ::= 349
-id-Unknown-350																ProtocolIE-ID ::= 350
-id-Unknown-351																ProtocolIE-ID ::= 351
-id-Unknown-352																ProtocolIE-ID ::= 352
-id-Unknown-353																ProtocolIE-ID ::= 353
-id-Unknown-354																ProtocolIE-ID ::= 354
-id-Unknown-355																ProtocolIE-ID ::= 355
-id-Unknown-356																ProtocolIE-ID ::= 356
-id-Unknown-357																ProtocolIE-ID ::= 357
-id-Unknown-358																ProtocolIE-ID ::= 358
-id-Unknown-359																ProtocolIE-ID ::= 359
+id-AdditionalRRMPriorityIndex												ProtocolIE-ID ::= 340
+id-LowerLayerPresenceStatusChange											ProtocolIE-ID ::= 341
+id-FastMCGRecovery-SN-to-MN													ProtocolIE-ID ::= 342
+id-RequestedFastMCGRecoveryViaSRB3											ProtocolIE-ID ::= 343
+id-AvailableFastMCGRecoveryViaSRB3											ProtocolIE-ID ::= 344
+id-RequestedFastMCGRecoveryViaSRB3Release									ProtocolIE-ID ::= 345
+id-ReleaseFastMCGRecoveryViaSRB3									ProtocolIE-ID ::= 346
+id-FastMCGRecovery-MN-to-SN													ProtocolIE-ID ::= 347
+id-PartialListIndicator														ProtocolIE-ID ::= 348
+id-MaximumCellListSize														ProtocolIE-ID ::= 349
+id-MessageOversizeNotification												ProtocolIE-ID ::= 350
+id-CellandCapacityAssistInfo												ProtocolIE-ID ::= 351
+id-TNLConfigurationInfo														ProtocolIE-ID ::= 352
+id-TNLA-To-Add-List															ProtocolIE-ID ::= 353
+id-TNLA-To-Update-List														ProtocolIE-ID ::= 354
+id-TNLA-To-Remove-List														ProtocolIE-ID ::= 355
+id-TNLA-Setup-List															ProtocolIE-ID ::= 356
+id-TNLA-Failed-To-Setup-List													ProtocolIE-ID ::= 357
+id-UnlicensedSpectrumRestriction												ProtocolIE-ID ::= 358
+id-UEContextReferenceatSourceNGRAN											ProtocolIE-ID ::= 359
 id-EPCHandoverRestrictionListContainer										ProtocolIE-ID ::= 360
+id-CHOinformation-REQ													ProtocolIE-ID ::= 361
+id-CHOinformation-ACK													ProtocolIE-ID ::= 362
+id-DAPSRequestInfo															ProtocolIE-ID ::= 363
+id-RequestedTargetCellID													ProtocolIE-ID ::= 364
+id-CandidateCellsToBeCancelledList											ProtocolIE-ID ::= 365
+id-DAPSResponseInfo															ProtocolIE-ID ::= 366
+id-ProcedureStage															ProtocolIE-ID ::= 367
+id-CHO-DC-Indicator															ProtocolIE-ID ::= 368
+id-Ethernet-Type															ProtocolIE-ID ::= 369
+id-NRV2XServicesAuthorized												ProtocolIE-ID ::= 370
+id-NRUESidelinkAggregateMaximumBitRate										ProtocolIE-ID ::= 371
+id-PC5QoSParameters															ProtocolIE-ID ::= 372
+id-NPRACHConfiguration														ProtocolIE-ID ::= 373
+id-NBIoT-RLF-Report-Container												ProtocolIE-ID ::= 374
+id-MDTConfigurationNR														ProtocolIE-ID ::= 375
+id-PrivacyIndicator															ProtocolIE-ID ::= 376
+id-TraceCollectionEntityIPAddress											ProtocolIE-ID ::= 377
+id-UERadioCapabilityID														ProtocolIE-ID ::= 378
+id-SNtriggered																ProtocolIE-ID ::= 379
+id-CSI-RSTransmissionIndication												ProtocolIE-ID ::= 380
+id-DLCarrierList															ProtocolIE-ID ::= 381
+id-TargetCellInNGRAN														ProtocolIE-ID ::= 382
+id-eNB-Measurement-ID-ENDC													ProtocolIE-ID ::= 383
+id-engNB-Measurement-ID-ENDC												ProtocolIE-ID ::= 384
+id-TDDULDLConfigurationCommonNR												ProtocolIE-ID ::= 385
+id-CarrierList																ProtocolIE-ID ::= 386
+id-ULCarrierList															ProtocolIE-ID ::= 387
+id-FrequencyShift7p5khz														ProtocolIE-ID ::= 388
+id-SSB-PositionsInBurst														ProtocolIE-ID ::= 389
+id-NRCellPRACHConfig														ProtocolIE-ID ::= 390
+id-CellToReport-ENDC														ProtocolIE-ID ::= 391
+id-CellToReport-ENDC-Item													ProtocolIE-ID ::= 392
+id-CellMeasurementResult-ENDC												ProtocolIE-ID ::= 393
+id-CellMeasurementResult-ENDC-Item											ProtocolIE-ID ::= 394
+id-IABNodeIndication														ProtocolIE-ID ::= 395
+id-QoS-Mapping-Information													ProtocolIE-ID ::= 396
+id-F1CTrafficContainer														ProtocolIE-ID ::= 397
+id-IABInformation															ProtocolIE-ID ::= 398
+
 
 END

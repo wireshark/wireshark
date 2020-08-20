@@ -12,7 +12,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * Ref:
- * 3GPP TS 36.423 V15.9.0 (2020-03)
+ * 3GPP TS 36.423 V16.2.0 (2020-07)
  */
 
 #include "config.h"
@@ -115,6 +115,14 @@ static int hf_x2ap_NRintegrityProtectionAlgorithms_NIA1 = -1;
 static int hf_x2ap_NRintegrityProtectionAlgorithms_NIA2 = -1;
 static int hf_x2ap_NRintegrityProtectionAlgorithms_NIA3 = -1;
 static int hf_x2ap_NRintegrityProtectionAlgorithms_Reserved = -1;
+static int hf_x2ap_ReportCharacteristics_ENDC_PRBPeriodic = -1;
+static int hf_x2ap_ReportCharacteristics_ENDC_TNLCapacityIndPeriodic = -1;
+static int hf_x2ap_ReportCharacteristics_ENDC_CompositeAvailableCapacityPeriodic = -1;
+static int hf_x2ap_ReportCharacteristics_ENDC_NumberOfActiveUEs = -1;
+static int hf_x2ap_ReportCharacteristics_ENDC_Reserved = -1;
+static int hf_x2ap_Registration_Request_ENDC_PDU = -1;
+static int hf_x2ap_ReportingPeriodicity_ENDC_PDU = -1;
+static int hf_x2ap_ReportCharacteristics_ENDC_PDU = -1;
 #include "packet-x2ap-hf.c"
 
 /* Initialize the subtree pointers */
@@ -149,12 +157,33 @@ static int ett_x2ap_LastVisitedNGRANCellInformation = -1;
 static int ett_x2ap_LastVisitedUTRANCellInformation = -1;
 static int ett_x2ap_EndcSONConfigurationTransfer = -1;
 static int ett_x2ap_EPCHandoverRestrictionListContainer = -1;
+static int ett_x2ap_NBIoT_RLF_Report_Container = -1;
+static int ett_x2ap_anchorCarrier_NPRACHConfig = -1;
+static int ett_x2ap_anchorCarrier_EDT_NPRACHConfig = -1;
+static int ett_x2ap_anchorCarrier_Format2_NPRACHConfig = -1;
+static int ett_x2ap_anchorCarrier_Format2_EDT_NPRACHConfig = -1;
+static int ett_x2ap_non_anchorCarrier_NPRACHConfig = -1;
+static int ett_x2ap_non_anchorCarrier_Format2_NPRACHConfig = -1;
+static int ett_x2ap_anchorCarrier_NPRACHConfigTDD = -1;
+static int ett_x2ap_non_anchorCarrier_NPRACHConfigTDD = -1;
+static int ett_x2ap_Non_anchorCarrierFrequency = -1;
+static int ett_x2ap_ReportCharacteristics_ENDC = -1;
+static int ett_x2ap_TargetCellInNGRAN = -1;
+static int ett_x2ap_TDDULDLConfigurationCommonNR = -1;
 #include "packet-x2ap-ett.c"
+
+/* Forward declarations */
+static int dissect_x2ap_Registration_Request_ENDC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+static int dissect_x2ap_ReportCharacteristics_ENDC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+static int dissect_x2ap_ReportingPeriodicity_ENDC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 typedef enum {
   RRC_CONTAINER_TYPE_UNKNOWN,
   RRC_CONTAINER_TYPE_PDCP_C_PDU,
-  RRC_CONTAINER_TYPE_NR_UE_MEAS_REPORT
+  RRC_CONTAINER_TYPE_NR_UE_MEAS_REPORT,
+  RRC_CONTAINER_TYPE_FAST_MCG_RECOVERY_SgNB_TO_MeNB,
+  RRC_CONTAINER_TYPE_FAST_MCG_RECOVERY_MeNB_TO_SgNB,
+  RRC_CONTAINER_TYPE_IAB_INFO
 } rrc_container_type_e;
 
 enum{
@@ -574,6 +603,38 @@ void proto_register_x2ap(void) {
       { "Reserved", "x2ap.NRintegrityProtectionAlgorithms.Reserved",
         FT_UINT16, BASE_HEX, NULL, 0x1fff,
         NULL, HFILL }},
+    { &hf_x2ap_ReportCharacteristics_ENDC_PRBPeriodic,
+      { "PRBPeriodic", "x2ap.ReportCharacteristics_ENDC.PRBPeriodic",
+        FT_BOOLEAN, 32, TFS(&tfs_requested_not_requested), 0x80000000,
+        NULL, HFILL }},
+    { &hf_x2ap_ReportCharacteristics_ENDC_TNLCapacityIndPeriodic,
+      { "TNLCapacityIndPeriodic", "x2ap.ReportCharacteristics_ENDC.TNLCapacityIndPeriodic",
+        FT_BOOLEAN, 32, TFS(&tfs_requested_not_requested), 0x40000000,
+        NULL, HFILL }},
+    { &hf_x2ap_ReportCharacteristics_ENDC_CompositeAvailableCapacityPeriodic,
+      { "CompositeAvailableCapacityPeriodic", "x2ap.ReportCharacteristics_ENDC.CompositeAvailableCapacityPeriodic",
+        FT_BOOLEAN, 32, TFS(&tfs_requested_not_requested), 0x20000000,
+        NULL, HFILL }},
+    { &hf_x2ap_ReportCharacteristics_ENDC_NumberOfActiveUEs,
+      { "NumberOfActiveUEs", "x2ap.ReportCharacteristics_ENDC.NumberOfActiveUEs",
+        FT_BOOLEAN, 32, TFS(&tfs_requested_not_requested), 0x10000000,
+        NULL, HFILL }},
+    { &hf_x2ap_ReportCharacteristics_ENDC_Reserved,
+      { "Reserved", "x2ap.ReportCharacteristics_ENDC.Reserved",
+        FT_UINT32, BASE_HEX, NULL, 0x0fffffff,
+        NULL, HFILL }},
+    { &hf_x2ap_Registration_Request_ENDC_PDU,
+      { "Registration-Request-ENDC", "x2ap.Registration_Request_ENDC",
+        FT_UINT32, BASE_DEC, VALS(x2ap_Registration_Request_ENDC_vals), 0,
+        NULL, HFILL }},
+    { &hf_x2ap_ReportingPeriodicity_ENDC_PDU,
+      { "ReportingPeriodicity-ENDC", "x2ap.ReportingPeriodicity_ENDC",
+        FT_UINT32, BASE_DEC, VALS(x2ap_ReportingPeriodicity_ENDC_vals), 0,
+        NULL, HFILL }},
+    { &hf_x2ap_ReportCharacteristics_ENDC_PDU,
+      { "ReportCharacteristics-ENDC", "x2ap.ReportCharacteristics_ENDC",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
 #include "packet-x2ap-hfarr.c"
   };
 
@@ -610,6 +671,19 @@ void proto_register_x2ap(void) {
     &ett_x2ap_LastVisitedUTRANCellInformation,
     &ett_x2ap_EndcSONConfigurationTransfer,
     &ett_x2ap_EPCHandoverRestrictionListContainer,
+    &ett_x2ap_NBIoT_RLF_Report_Container,
+    &ett_x2ap_anchorCarrier_NPRACHConfig,
+    &ett_x2ap_anchorCarrier_EDT_NPRACHConfig,
+    &ett_x2ap_anchorCarrier_Format2_NPRACHConfig,
+    &ett_x2ap_anchorCarrier_Format2_EDT_NPRACHConfig,
+    &ett_x2ap_non_anchorCarrier_NPRACHConfig,
+    &ett_x2ap_non_anchorCarrier_Format2_NPRACHConfig,
+    &ett_x2ap_anchorCarrier_NPRACHConfigTDD,
+    &ett_x2ap_non_anchorCarrier_NPRACHConfigTDD,
+    &ett_x2ap_Non_anchorCarrierFrequency,
+    &ett_x2ap_ReportCharacteristics_ENDC,
+    &ett_x2ap_TargetCellInNGRAN,
+    &ett_x2ap_TDDULDLConfigurationCommonNR,
 #include "packet-x2ap-ettarr.c"
   };
 

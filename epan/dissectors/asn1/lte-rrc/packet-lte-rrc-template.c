@@ -375,7 +375,6 @@ static const fragment_items lte_rrc_sib12_frag_items = {
 };
 
 /* Forward declarations */
-static int dissect_DL_DCCH_Message_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 static int dissect_UECapabilityInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 static int dissect_RRCConnectionReconfiguration_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 
@@ -3225,7 +3224,7 @@ dissect_lte_rrc_DL_DCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
   ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, ENC_NA);
   lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
-  dissect_DL_DCCH_Message_PDU(tvb, pinfo, lte_rrc_tree, NULL);
+  dissect_lte_rrc_DL_DCCH_Message_PDU(tvb, pinfo, lte_rrc_tree, NULL);
   return tvb_captured_length(tvb);
 }
 
@@ -3255,7 +3254,7 @@ dissect_lte_rrc_UL_DCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
   ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, ENC_NA);
   lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
-  dissect_UL_DCCH_Message_PDU(tvb, pinfo, lte_rrc_tree, NULL);
+  dissect_lte_rrc_UL_DCCH_Message_PDU(tvb, pinfo, lte_rrc_tree, NULL);
   return tvb_captured_length(tvb);
 }
 

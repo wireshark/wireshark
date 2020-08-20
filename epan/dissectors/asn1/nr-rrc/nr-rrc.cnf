@@ -92,6 +92,7 @@ SidelinkParametersNR-r16_PDU
 SidelinkUEInformationNR-r16_PDU
 SL-CBR-r16_PDU
 SupportedBandCombinationListSidelink-r16_PDU
+TDD-UL-DL-ConfigCommon_PDU
 UE-CapabilityRAT-ContainerList_PDU
 UE-CapabilityRequestFilterCommon_PDU
 UE-CapabilityRequestFilterNR_PDU
@@ -147,6 +148,7 @@ SIB6
 SIB7
 SIB8
 SIB9
+TDD-UL-DL-ConfigCommon
 UE-CapabilityRAT-ContainerList
 UE-CapabilityRequestFilterCommon
 UE-CapabilityRequestFilterNR

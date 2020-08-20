@@ -16,6 +16,7 @@ ProtocolIE-ID
 #.EXPORTS
 LastVisitedNGRANCellInformation_PDU
 MobilityRestrictionList_PDU
+NGRAN-CGI_PDU
 SourceNGRANNode-ToTargetNGRANNode-TransparentContainer_PDU
 TargetNGRANNode-ToSourceNGRANNode-TransparentContainer_PDU
 
@@ -27,6 +28,7 @@ HandoverResourceAllocationUnsuccessfulTransfer
 LastVisitedNGRANCellInformation
 MobilityRestrictionList
 NGAP-PDU
+NGRAN-CGI
 PathSwitchRequestAcknowledgeTransfer
 PathSwitchRequestSetupFailedTransfer
 PDUSessionResourceModifyUnsuccessfulTransfer

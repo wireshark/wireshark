@@ -46,6 +46,8 @@ WLAN-backhaulRate-r12
 
 #.EXPORTS
 CellsToAddModListNR-r15_PDU
+DL-CarrierConfigCommon-NB-r14_PDU
+DL-DCCH-Message_PDU
 HandoverCommand_PDU
 HandoverPreparationInformation_PDU
 HandoverPreparationInformation-NB_PDU
@@ -53,6 +55,10 @@ MeasResultSCG-FailureMRDC-r15_PDU
 MeasResultList3EUTRA-r15_PDU
 MeasurementReport_PDU
 MTC-SSB-NR-r15_PDU
+NPRACH-ParametersList-NB-r13_PDU
+NPRACH-ParametersList-NB-r14_PDU
+NPRACH-ParametersListFmt2-NB-r15_PDU
+NPRACH-ParametersListTDD-NB-r15_PDU
 QuantityConfigNR-r15_PDU
 RLF-Report-NB-r16_PDU
 RLF-Report-r9_PDU
@@ -73,6 +79,10 @@ UEPagingCoverageInformation_PDU
 UEPagingCoverageInformation-NB_PDU
 UERadioPagingInformation_PDU
 UE-EUTRA-Capability_PDU
+UL-ConfigCommonList-NB-r14_PDU
+UL-ConfigCommonList-NB-v1530_PDU
+UL-ConfigCommonListTDD-NB-r15_PDU
+UL-DCCH-Message_PDU
 V2X-BandParameters-r14_PDU
 V2X-BandParameters-v1530_PDU
 V2X-SupportedBandCombination-r14_PDU
@@ -83,6 +93,7 @@ VisitedCellInfoList-r12_PDU
 
 #.PDU
 CellsToAddModListNR-r15
+DL-CarrierConfigCommon-NB-r14
 HandoverCommand
 HandoverPreparationInformation
 HandoverPreparationInformation-NB
@@ -90,6 +101,10 @@ MTC-SSB-NR-r15
 MeasResultSCG-FailureMRDC-r15
 MeasResultList3EUTRA-r15
 MeasurementReport
+NPRACH-ParametersList-NB-r13
+NPRACH-ParametersList-NB-r14
+NPRACH-ParametersListFmt2-NB-r15
+NPRACH-ParametersListTDD-NB-r15
 QuantityConfigNR-r15
 RLF-Report-NB-r16
 RLF-Report-r9
@@ -113,6 +128,9 @@ UERadioAccessCapabilityInformation    @ue_radio_access_cap_info
 UERadioAccessCapabilityInformation-NB @ue_radio_access_cap_info.nb
 UERadioPagingInformation              @ue_radio_paging_info
 UERadioPagingInformation-NB           @ue_radio_paging_info.nb
+UL-ConfigCommonList-NB-r14
+UL-ConfigCommonList-NB-v1530
+UL-ConfigCommonListTDD-NB-r15
 V2X-BandParameters-r14
 V2X-BandParameters-v1530
 V2X-SupportedBandCombination-r14

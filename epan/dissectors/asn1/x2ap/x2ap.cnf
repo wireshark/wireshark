@@ -224,6 +224,15 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
   subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_UE_RLF_Report_Container_for_extended_bands);
   dissect_lte_rrc_RLF_Report_v9e0_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
 
+#.FN_BODY NBIoT-RLF-Report-Container VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb;
+  proto_tree *subtree;
+%(DEFAULT_BODY)s
+  if (!parameter_tvb)
+    return offset;
+  subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_NBIoT_RLF_Report_Container);
+  dissect_lte_rrc_RLF_Report_NB_r16_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+
 #.FN_BODY MeNBtoSeNBContainer VAL_PTR = &parameter_tvb
  tvbuff_t *parameter_tvb;
  proto_tree *subtree = NULL;
@@ -278,6 +287,19 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
 
   x2ap_data->rrc_container_type = RRC_CONTAINER_TYPE_NR_UE_MEAS_REPORT;
 
+#.FN_HDR FastMCGRecovery
+  struct x2ap_private_data *x2ap_data = x2ap_get_private_data(actx->pinfo);
+
+  if (x2ap_data->protocol_ie_id == id_FastMCGRecovery_SN_to_MN)
+    x2ap_data->rrc_container_type = RRC_CONTAINER_TYPE_FAST_MCG_RECOVERY_SgNB_TO_MeNB;
+  else if (x2ap_data->protocol_ie_id == id_FastMCGRecovery_MN_to_SN)
+    x2ap_data->rrc_container_type = RRC_CONTAINER_TYPE_FAST_MCG_RECOVERY_MeNB_TO_SgNB;
+
+#.FN_HDR IABInformation
+  struct x2ap_private_data *x2ap_data = x2ap_get_private_data(actx->pinfo);
+
+  x2ap_data->rrc_container_type = RRC_CONTAINER_TYPE_IAB_INFO;
+
 #.FN_BODY RRCContainer VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb;
   proto_tree *subtree = NULL;
@@ -285,10 +307,24 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
 %(DEFAULT_BODY)s
   if (!parameter_tvb)
     return offset;
-  if (x2ap_data->rrc_container_type == RRC_CONTAINER_TYPE_NR_UE_MEAS_REPORT) {
-    subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_RRCContainer);
-    dissect_nr_rrc_UL_DCCH_Message_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  switch (x2ap_data->rrc_container_type) {
+    case RRC_CONTAINER_TYPE_NR_UE_MEAS_REPORT:
+    case RRC_CONTAINER_TYPE_IAB_INFO:
+      subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_RRCContainer);
+      dissect_nr_rrc_UL_DCCH_Message_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case RRC_CONTAINER_TYPE_FAST_MCG_RECOVERY_SgNB_TO_MeNB:
+      subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_RRCContainer);
+      dissect_lte_rrc_UL_DCCH_Message_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case RRC_CONTAINER_TYPE_FAST_MCG_RECOVERY_MeNB_TO_SgNB:
+      subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_RRCContainer);
+      dissect_lte_rrc_DL_DCCH_Message_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+      break;
+    default:
+      break;
   }
+  x2ap_data->rrc_container_type = RRC_CONTAINER_TYPE_UNKNOWN;
 
 #.FN_BODY EUTRANTraceID VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb;
@@ -677,6 +713,136 @@ ScheduledCommunicationTime/timeofDayEnd DISPLAY=BASE_DEC|BASE_UNIT_STRING STRING
     dissect_s1ap_HandoverRestrictionList_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
   }
 
+#.FN_BODY NPRACHConfiguration-FDD/anchorCarrier-NPRACHConfig VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+  proto_tree *subtree;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_anchorCarrier_NPRACHConfig);
+    dissect_lte_rrc_NPRACH_ParametersList_NB_r13_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY NPRACHConfiguration-FDD/anchorCarrier-EDT-NPRACHConfig VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+  proto_tree *subtree;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_anchorCarrier_EDT_NPRACHConfig);
+    dissect_lte_rrc_NPRACH_ParametersList_NB_r14_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY NPRACHConfiguration-FDD/anchorCarrier-Format2-NPRACHConfig VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+  proto_tree *subtree;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_anchorCarrier_Format2_NPRACHConfig);
+    dissect_lte_rrc_NPRACH_ParametersListFmt2_NB_r15_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY NPRACHConfiguration-FDD/anchorCarrier-Format2-EDT-NPRACHConfig VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+  proto_tree *subtree;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_anchorCarrier_Format2_EDT_NPRACHConfig);
+    dissect_lte_rrc_NPRACH_ParametersListFmt2_NB_r15_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY NPRACHConfiguration-FDD/non-anchorCarrier-NPRACHConfig VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+  proto_tree *subtree;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_non_anchorCarrier_NPRACHConfig);
+    dissect_lte_rrc_UL_ConfigCommonList_NB_r14_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY NPRACHConfiguration-FDD/non-anchorCarrier-Format2-NPRACHConfig VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+  proto_tree *subtree;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_non_anchorCarrier_Format2_NPRACHConfig);
+    dissect_lte_rrc_UL_ConfigCommonList_NB_v1530_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY NPRACHConfiguration-TDD/anchorCarrier-NPRACHConfigTDD VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+  proto_tree *subtree;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_anchorCarrier_NPRACHConfigTDD);
+    dissect_lte_rrc_NPRACH_ParametersListTDD_NB_r15_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY NPRACHConfiguration-TDD/non-anchorCarrier-NPRACHConfigTDD VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+  proto_tree *subtree;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_non_anchorCarrier_NPRACHConfigTDD);
+    dissect_lte_rrc_UL_ConfigCommonListTDD_NB_r15_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY Non-anchorCarrierFrequency VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+  proto_tree *subtree;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_Non_anchorCarrierFrequency);
+    dissect_lte_rrc_DL_CarrierConfigCommon_NB_r14_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY ReportCharacteristics-ENDC VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if(parameter_tvb){
+    static int * const fields[] = {
+      &hf_x2ap_ReportCharacteristics_ENDC_PRBPeriodic,
+      &hf_x2ap_ReportCharacteristics_ENDC_TNLCapacityIndPeriodic,
+      &hf_x2ap_ReportCharacteristics_ENDC_CompositeAvailableCapacityPeriodic,
+      &hf_x2ap_ReportCharacteristics_ENDC_NumberOfActiveUEs,
+      &hf_x2ap_ReportCharacteristics_ENDC_Reserved,
+      NULL
+    };
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_ReportCharacteristics_ENDC);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 4, fields, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY TargetCellInNGRAN VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+  proto_tree *subtree;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_TargetCellInNGRAN);
+    dissect_ngap_NGRAN_CGI_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY TDDULDLConfigurationCommonNR VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+  proto_tree *subtree;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_TDDULDLConfigurationCommonNR);
+    dissect_nr_rrc_TDD_UL_DL_ConfigCommon_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_HDR Registration-Request
+  struct x2ap_private_data *x2ap_data = x2ap_get_private_data(actx->pinfo);
+  if (x2ap_data->procedure_code == id_endcresourceStatusReportingInitiation)
+    return dissect_x2ap_Registration_Request_ENDC(tvb, offset, actx, tree, hf_x2ap_Registration_Request_ENDC_PDU);
+
+#.FN_HDR ReportingPeriodicity
+  struct x2ap_private_data *x2ap_data = x2ap_get_private_data(actx->pinfo);
+  if (x2ap_data->procedure_code == id_endcresourceStatusReportingInitiation)
+    return dissect_x2ap_ReportingPeriodicity_ENDC(tvb, offset, actx, tree, hf_x2ap_ReportingPeriodicity_ENDC_PDU);
+
+#.FN_HDR ReportCharacteristics
+  struct x2ap_private_data *x2ap_data = x2ap_get_private_data(actx->pinfo);
+  if (x2ap_data->procedure_code == id_endcresourceStatusReportingInitiation)
+    return dissect_x2ap_ReportCharacteristics_ENDC(tvb, offset, actx, tree, hf_x2ap_ReportCharacteristics_ENDC_PDU);
+
 #.END
 
 #.FN_HDR HandoverRequest
@@ -867,6 +1033,24 @@ ScheduledCommunicationTime/timeofDayEnd DISPLAY=BASE_DEC|BASE_UNIT_STRING STRING
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "DeactivateTrace");
 #.FN_HDR TraceStart
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "TraceStart");
+#.FN_HDR HandoverSuccess
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "HandoverSuccess");
+#.FN_HDR EarlyStatusTransfer
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "EarlyStatusTransfer");
+#.FN_HDR ConditionalHandoverCancel
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ConditionalHandoverCancel");
+#.FN_HDR ENDCResourceStatusRequest
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ENDCResourceStatusRequest");
+#.FN_HDR ENDCResourceStatusResponse
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ENDCResourceStatusResponse");
+#.FN_HDR ENDCResourceStatusFailure
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ENDCResourceStatusFailure");
+#.FN_HDR ENDCResourceStatusUpdate
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ENDCResourceStatusUpdate");
+#.FN_HDR CellTrafficTrace
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "CellTrafficTrace");
+#.FN_HDR F1CTrafficTransfer
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "F1CTrafficTransfer");
 
 #.ASSIGN_VALUE_TO_TYPE  # X2AP does not have constants assigned to types, they are pure INTEGER
 # ProcedureCode
@@ -920,6 +1104,14 @@ id-gNBStatusIndication						ProcedureCode
 id-deactivateTrace						ProcedureCode
 id-traceStart							ProcedureCode
 id-endcConfigurationTransfer					ProcedureCode
+id-handoverSuccess						ProcedureCode
+id-conditionalHandoverCancel					ProcedureCode
+id-earlyStatusTransfer						ProcedureCode
+id-cellTrafficTrace 						ProcedureCode
+id-endcresourceStatusReporting					ProcedureCode
+id-endcresourceStatusReportingInitiation			ProcedureCode
+id-f1CTrafficTransfer						ProcedureCode
+
 
 # ProtocolIE-ID
 
@@ -1253,7 +1445,65 @@ id-BPLMN-ID-Info-EUTRA						ProtocolIE-ID
 id-BPLMN-ID-Info-NR						ProtocolIE-ID
 id-NBIoT-UL-DL-AlignmentOffset					ProtocolIE-ID
 id-ERABs-transferred-to-MeNB					ProtocolIE-ID
+id-AdditionalRRMPriorityIndex					ProtocolIE-ID
+id-LowerLayerPresenceStatusChange				ProtocolIE-ID
+id-FastMCGRecovery-SN-to-MN					ProtocolIE-ID
+id-RequestedFastMCGRecoveryViaSRB3				ProtocolIE-ID
+id-AvailableFastMCGRecoveryViaSRB3				ProtocolIE-ID
+id-RequestedFastMCGRecoveryViaSRB3Release			ProtocolIE-ID
+id-ReleaseFastMCGRecoveryViaSRB3				ProtocolIE-ID
+id-FastMCGRecovery-MN-to-SN					ProtocolIE-ID
+id-PartialListIndicator						ProtocolIE-ID
+id-MaximumCellListSize						ProtocolIE-ID
+id-MessageOversizeNotification					ProtocolIE-ID
+id-CellandCapacityAssistInfo					ProtocolIE-ID
+id-TNLConfigurationInfo						ProtocolIE-ID
+id-TNLA-To-Add-List						ProtocolIE-ID
+id-TNLA-To-Update-List						ProtocolIE-ID
+id-TNLA-To-Remove-List						ProtocolIE-ID
+id-TNLA-Setup-List						ProtocolIE-ID
+id-TNLA-Failed-To-Setup-List					ProtocolIE-ID
+id-UnlicensedSpectrumRestriction				ProtocolIE-ID
+id-UEContextReferenceatSourceNGRAN				ProtocolIE-ID
 id-EPCHandoverRestrictionListContainer				ProtocolIE-ID
+id-CHOinformation-REQ						ProtocolIE-ID
+id-CHOinformation-ACK						ProtocolIE-ID
+id-DAPSRequestInfo						ProtocolIE-ID
+id-RequestedTargetCellID					ProtocolIE-ID
+id-CandidateCellsToBeCancelledList				ProtocolIE-ID
+id-DAPSResponseInfo						ProtocolIE-ID
+id-ProcedureStage						ProtocolIE-ID
+id-CHO-DC-Indicator						ProtocolIE-ID
+id-Ethernet-Type						ProtocolIE-ID
+id-NRV2XServicesAuthorized					ProtocolIE-ID
+id-NRUESidelinkAggregateMaximumBitRate				ProtocolIE-ID
+id-PC5QoSParameters						ProtocolIE-ID
+id-NPRACHConfiguration						ProtocolIE-ID
+id-NBIoT-RLF-Report-Container					ProtocolIE-ID
+id-MDTConfigurationNR						ProtocolIE-ID
+id-PrivacyIndicator						ProtocolIE-ID
+id-TraceCollectionEntityIPAddress				ProtocolIE-ID
+id-UERadioCapabilityID						ProtocolIE-ID
+id-SNtriggered							ProtocolIE-ID
+id-CSI-RSTransmissionIndication					ProtocolIE-ID
+id-DLCarrierList						ProtocolIE-ID
+id-TargetCellInNGRAN						ProtocolIE-ID
+id-eNB-Measurement-ID-ENDC					ProtocolIE-ID
+id-engNB-Measurement-ID-ENDC					ProtocolIE-ID
+id-TDDULDLConfigurationCommonNR					ProtocolIE-ID
+id-CarrierList							ProtocolIE-ID
+id-ULCarrierList						ProtocolIE-ID
+id-FrequencyShift7p5khz						ProtocolIE-ID
+id-SSB-PositionsInBurst						ProtocolIE-ID
+id-NRCellPRACHConfig						ProtocolIE-ID
+id-CellToReport-ENDC						ProtocolIE-ID
+id-CellToReport-ENDC-Item					ProtocolIE-ID
+id-CellMeasurementResult-ENDC					ProtocolIE-ID
+id-CellMeasurementResult-ENDC-Item				ProtocolIE-ID
+id-IABNodeIndication						ProtocolIE-ID
+id-QoS-Mapping-Information					ProtocolIE-ID
+id-F1CTrafficContainer						ProtocolIE-ID
+id-IABInformation						ProtocolIE-ID
 
 #.REGISTER
 
@@ -1490,6 +1740,47 @@ LocationInformationSgNB						N x2ap.ies id-LocationInformationSgNB
 EUTRANTraceID							N x2ap.ies id-EUTRANTraceID
 InterfaceInstanceIndication					N x2ap.ies id-InterfaceInstanceIndication
 E-RAB-List							N x2ap.ies id-ERABs-transferred-to-MeNB
+AdditionalRRMPriorityIndex					N x2ap.ies id-AdditionalRRMPriorityIndex
+FastMCGRecovery							N x2ap.ies id-FastMCGRecovery-SN-to-MN
+RequestedFastMCGRecoveryViaSRB3					N x2ap.ies id-RequestedFastMCGRecoveryViaSRB3
+AvailableFastMCGRecoveryViaSRB3					N x2ap.ies id-AvailableFastMCGRecoveryViaSRB3
+RequestedFastMCGRecoveryViaSRB3Release				N x2ap.ies id-RequestedFastMCGRecoveryViaSRB3Release
+ReleaseFastMCGRecoveryViaSRB3					N x2ap.ies id-ReleaseFastMCGRecoveryViaSRB3
+FastMCGRecovery							N x2ap.ies id-FastMCGRecovery-MN-to-SN
+PartialListIndicator						N x2ap.ies id-PartialListIndicator
+# id-MaximumCellListSize
+MessageOversizeNotification					N x2ap.ies id-MessageOversizeNotification
+CellandCapacityAssistInfo					N x2ap.ies id-CellandCapacityAssistInfo
+TNLConfigurationInfo						N x2ap.ies id-TNLConfigurationInfo
+TNLA-To-Add-List						N x2ap.ies id-TNLA-To-Add-List
+TNLA-To-Update-List						N x2ap.ies id-TNLA-To-Update-List
+TNLA-To-Remove-List						N x2ap.ies id-TNLA-To-Remove-List
+TNLA-Setup-List							N x2ap.ies id-TNLA-Setup-List
+TNLA-Failed-To-Setup-List					N x2ap.ies id-TNLA-Failed-To-Setup-List
+RAN-UE-NGAP-ID							N x2ap.ies id-UEContextReferenceatSourceNGRAN
+CHOinformation-REQ						N x2ap.ies id-CHOinformation-REQ
+CHOinformation-ACK						N x2ap.ies id-CHOinformation-ACK
+ECGI								N x2ap.ies id-RequestedTargetCellID
+CandidateCellsToBeCancelledList					N x2ap.ies id-CandidateCellsToBeCancelledList
+ProcedureStageChoice						N x2ap.ies id-ProcedureStage
+CHO-DC-Indicator						N x2ap.ies id-CHO-DC-Indicator
+NRV2XServicesAuthorized						N x2ap.ies id-NRV2XServicesAuthorized
+PC5QoSParameters						N x2ap.ies id-PC5QoSParameters
+NBIoT-RLF-Report-Container					N x2ap.ies id-NBIoT-RLF-Report-Container
+PrivacyIndicator						N x2ap.ies id-PrivacyIndicator
+TransportLayerAddress						N x2ap.ies id-TraceCollectionEntityIPAddress
+UERadioCapabilityID						N x2ap.ies id-UERadioCapabilityID
+SNtriggered							N x2ap.ies id-SNtriggered
+TargetCellInNGRAN						N x2ap.ies id-TargetCellInNGRAN
+Measurement-ID-ENDC						N x2ap.ies id-eNB-Measurement-ID-ENDC
+Measurement-ID-ENDC						N x2ap.ies id-engNB-Measurement-ID-ENDC
+CellToReport-ENDC-List						N x2ap.ies id-CellToReport-ENDC
+CellToReport-ENDC-Item						N x2ap.ies id-CellToReport-ENDC-Item
+CellMeasurementResult-ENDC-List					N x2ap.ies id-CellMeasurementResult-ENDC
+CellMeasurementResult-ENDC-Item					N x2ap.ies id-CellMeasurementResult-ENDC-Item
+IABNodeIndication						N x2ap.ies id-IABNodeIndication
+F1CTrafficContainer						N x2ap.ies id-F1CTrafficContainer
+IABInformation							N x2ap.ies id-IABInformation
 
 #X2AP-PROTOCOL-EXTENSION
 Number-of-Antennaports						N x2ap.extension id-Number-of-Antennaports
@@ -1589,6 +1880,25 @@ BPLMN-ID-Info-EUTRA						N x2ap.extension id-BPLMN-ID-Info-EUTRA
 BPLMN-ID-Info-NR						N x2ap.extension id-BPLMN-ID-Info-NR
 NBIoT-UL-DL-AlignmentOffset					N x2ap.extension id-NBIoT-UL-DL-AlignmentOffset
 EPCHandoverRestrictionListContainer				N x2ap.extension id-EPCHandoverRestrictionListContainer
+AdditionalRRMPriorityIndex					N x2ap.extension id-AdditionalRRMPriorityIndex
+LowerLayerPresenceStatusChange					N x2ap.extension id-LowerLayerPresenceStatusChange
+UnlicensedSpectrumRestriction					N x2ap.extension id-UnlicensedSpectrumRestriction
+DAPSRequestInfo							N x2ap.extension id-DAPSRequestInfo
+DAPSResponseInfo						N x2ap.extension id-DAPSResponseInfo
+Ethernet-Type							N x2ap.extension id-Ethernet-Type
+NRUESidelinkAggregateMaximumBitRate				N x2ap.extension id-NRUESidelinkAggregateMaximumBitRate
+NPRACHConfiguration						N x2ap.extension id-NPRACHConfiguration
+MDT-ConfigurationNR						N x2ap.extension id-MDTConfigurationNR
+UERadioCapabilityID						N x2ap.extension id-UERadioCapabilityID
+CSI-RSTransmissionIndication					N x2ap.extension id-CSI-RSTransmissionIndication
+NRCarrierList							N x2ap.extension id-DLCarrierList
+TDDULDLConfigurationCommonNR					N x2ap.extension id-TDDULDLConfigurationCommonNR
+NRCarrierList							N x2ap.extension id-CarrierList
+NRCarrierList							N x2ap.extension id-ULCarrierList
+FrequencyShift7p5khz						N x2ap.extension id-FrequencyShift7p5khz
+SSB-PositionsInBurst						N x2ap.extension id-SSB-PositionsInBurst
+NRCellPRACHConfig						N x2ap.extension id-NRCellPRACHConfig
+QoS-Mapping-Information						N x2ap.extension id-QoS-Mapping-Information
 
 # X2AP-PDU-Descriptions.asn  Interface Elementary Procedures
 #X2AP-ELEMENTARY-PROCEDURE
@@ -1734,4 +2044,20 @@ ENDCConfigurationTransfer			N x2ap.proc.imsg id-endcConfigurationTransfer
 DeactivateTrace					N x2ap.proc.imsg id-deactivateTrace
 
 TraceStart					N x2ap.proc.imsg id-traceStart
+
+HandoverSuccess					N x2ap.proc.imsg id-handoverSuccess
+
+EarlyStatusTransfer				N x2ap.proc.imsg id-earlyStatusTransfer
+
+ConditionalHandoverCancel			N x2ap.proc.imsg id-conditionalHandoverCancel
+
+ENDCResourceStatusRequest			N x2ap.proc.imsg id-endcresourceStatusReportingInitiation
+ENDCResourceStatusResponse			N x2ap.proc.sout id-endcresourceStatusReportingInitiation
+ENDCResourceStatusFailure			N x2ap.proc.uout id-endcresourceStatusReportingInitiation
+
+ENDCResourceStatusUpdate			N x2ap.proc.imsg id-endcresourceStatusReporting
+
+CellTrafficTrace				N x2ap.proc.imsg id-cellTrafficTrace
+
+F1CTrafficTransfer				N x2ap.proc.imsg id-f1CTrafficTransfer
 #.END
