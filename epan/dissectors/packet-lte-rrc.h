@@ -37,8 +37,14 @@ int dissect_lte_rrc_UEAssistanceInformation_r11_PDU(tvbuff_t *tvb _U_, packet_in
 int dissect_lte_rrc_UECapabilityEnquiry_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 int dissect_lte_rrc_RLF_Report_r9_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 int dissect_lte_rrc_RLF_Report_v9e0_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
+int dissect_lte_rrc_ThresholdListNR_r15_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
+int dissect_lte_rrc_CellsToAddModListNR_r15_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 int dissect_lte_rrc_MeasResultSCG_FailureMRDC_r15_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 int dissect_lte_rrc_MeasResultList3EUTRA_r15_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
+int dissect_lte_rrc_MTC_SSB_NR_r15_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
+int dissect_lte_rrc_QuantityConfigNR_r15_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
+int dissect_lte_rrc_SS_RSSI_Measurement_r15_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
+int dissect_lte_rrc_SSB_ToMeasure_r15_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 int dissect_lte_rrc_UE_EUTRA_Capability_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 int dissect_lte_rrc_V2X_BandParameters_r14_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 int dissect_lte_rrc_V2X_BandParameters_v1530_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
@@ -51,6 +57,7 @@ int dissect_lte_rrc_VisitedCellInfoList_r12_PDU(tvbuff_t *tvb _U_, packet_info *
 int dissect_lte_rrc_VisitedCellInfo_r12_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 int dissect_lte_rrc_HandoverPreparationInformation_NB_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 int dissect_lte_rrc_UEPagingCoverageInformation_NB_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
+int dissect_lte_rrc_RLF_Report_NB_r16_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 
 /*--- End of included file: packet-lte-rrc-exp.h ---*/
 #line 17 "./asn1/lte-rrc/packet-lte-rrc-template.h"

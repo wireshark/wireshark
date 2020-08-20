@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V15.8.0 (2019-12)
+-- 3GPP TS 36.413 V16.2.0 (2020-07)
 -- 9.3.6	Constant Definitions
 -- **************************************************************
 --
@@ -96,6 +96,10 @@ id-UEInformationTransfer					ProcedureCode ::= 59
 id-eNBCPRelocationIndication				ProcedureCode ::= 60
 id-MMECPRelocationIndication				ProcedureCode ::= 61
 id-SecondaryRATDataUsageReport				ProcedureCode ::= 62
+id-UERadioCapabilityIDMapping				ProcedureCode ::= 63
+id-HandoverSuccess							ProcedureCode ::= 64
+id-eNBEarlyStatusTransfer					ProcedureCode ::= 65
+id-MMEEarlyStatusTransfer					ProcedureCode ::= 66
 
 -- **************************************************************
 --
@@ -155,7 +159,10 @@ maxnoofPLMNforQMC						INTEGER ::= 16
 maxnoofBluetoothName					INTEGER ::= 4
 maxnoofWLANName							INTEGER ::= 4
 maxnoofConnectedengNBs					INTEGER ::= 256
-
+maxnoofPC5QoSFlows 						INTEGER ::= 2048
+maxnooffrequencies						INTEGER ::= 64
+maxNARFCN								INTEGER ::= 32
+maxRS-IndexCellQual						INTEGER ::= 16
 
 
 -- **************************************************************
@@ -477,5 +484,31 @@ id-EN-DCSONConfigurationTransfer-MCT				ProtocolIE-ID ::= 295
 id-IMSvoiceEPSfallbackfrom5G						ProtocolIE-ID ::= 296
 id-TimeSinceSecondaryNodeRelease					ProtocolIE-ID ::= 297
 id-RequestTypeAdditionalInfo						ProtocolIE-ID ::= 298
+id-AdditionalRRMPriorityIndex						ProtocolIE-ID ::= 299
+id-ContextatSource									ProtocolIE-ID ::= 300
+id-IAB-Authorized									ProtocolIE-ID ::= 301
+id-IAB-Node-Indication								ProtocolIE-ID ::= 302
+id-IAB-Supported									ProtocolIE-ID ::= 303
+id-DataSize											ProtocolIE-ID ::= 304
+id-Ethernet-Type									ProtocolIE-ID ::= 305
+id-NRV2XServicesAuthorized							ProtocolIE-ID ::= 306
+id-NRUESidelinkAggregateMaximumBitrate				ProtocolIE-ID ::= 307
+id-PC5QoSParameters									ProtocolIE-ID ::= 308
+id-IntersystemSONConfigurationTransferMCT			ProtocolIE-ID ::= 309
+id-IntersystemSONConfigurationTransferECT			ProtocolIE-ID ::= 310
+id-IntersystemMeasurementConfiguration				ProtocolIE-ID ::= 311
+id-SourceNodeID										ProtocolIE-ID ::= 312
+id-NB-IoT-RLF-Report-Container						ProtocolIE-ID ::= 313
+id-UERadioCapabilityID								ProtocolIE-ID ::= 314
+id-UERadioCapability-NR-Format						ProtocolIE-ID ::= 315
+id-MDTConfigurationNR								ProtocolIE-ID ::= 316
+id-DAPSRequestInfo									ProtocolIE-ID ::= 317
+id-DAPSResponseInfoList								ProtocolIE-ID ::= 318
+id-DAPSResponseInfoItem								ProtocolIE-ID ::= 319
+id-NotifySourceeNB									ProtocolIE-ID ::= 320
+id-eNB-EarlyStatusTransfer-TransparentContainer		ProtocolIE-ID ::= 321
+id-Bearers-SubjectToEarlyStatusTransfer-Item		ProtocolIE-ID ::= 322
+id-WUS-Assistance-Information						ProtocolIE-ID ::= 323
+id-NB-IoT-PagingDRX									ProtocolIE-ID ::= 324
 
 END

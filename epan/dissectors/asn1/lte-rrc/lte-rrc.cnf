@@ -45,12 +45,16 @@ T-StatusProhibit
 WLAN-backhaulRate-r12
 
 #.EXPORTS
+CellsToAddModListNR-r15_PDU
 HandoverCommand_PDU
 HandoverPreparationInformation_PDU
 HandoverPreparationInformation-NB_PDU
 MeasResultSCG-FailureMRDC-r15_PDU
 MeasResultList3EUTRA-r15_PDU
 MeasurementReport_PDU
+MTC-SSB-NR-r15_PDU
+QuantityConfigNR-r15_PDU
+RLF-Report-NB-r16_PDU
 RLF-Report-r9_PDU
 RLF-Report-v9e0_PDU
 RRCConnectionReconfigurationComplete_PDU
@@ -60,6 +64,9 @@ SidelinkUEInformation-r12_PDU
 SL-Parameters-v1430_PDU
 SL-Parameters-v1530_PDU
 SL-Parameters-v1540_PDU
+SS-RSSI-Measurement-r15_PDU
+SSB-ToMeasure-r15_PDU
+ThresholdListNR-r15_PDU
 UEAssistanceInformation-r11_PDU
 UECapabilityEnquiry_PDU
 UEPagingCoverageInformation_PDU
@@ -75,12 +82,16 @@ VisitedCellInfoList-r12_PDU
 #.END
 
 #.PDU
+CellsToAddModListNR-r15
 HandoverCommand
 HandoverPreparationInformation
 HandoverPreparationInformation-NB
+MTC-SSB-NR-r15
 MeasResultSCG-FailureMRDC-r15
 MeasResultList3EUTRA-r15
 MeasurementReport
+QuantityConfigNR-r15
+RLF-Report-NB-r16
 RLF-Report-r9
 RLF-Report-v9e0
 RRCConnectionReconfiguration @rrc_conn_reconf
@@ -91,6 +102,9 @@ SidelinkUEInformation-r12
 SL-Parameters-v1430
 SL-Parameters-v1530
 SL-Parameters-v1540
+SS-RSSI-Measurement-r15
+SSB-ToMeasure-r15
+ThresholdListNR-r15
 UEAssistanceInformation-r11
 UECapabilityEnquiry
 UEPagingCoverageInformation           @ue_paging_coverage_info
