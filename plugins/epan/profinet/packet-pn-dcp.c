@@ -761,10 +761,13 @@ dissect_PNDCP_Suboption_DHCP(tvbuff_t *tvb, int offset, packet_info *pinfo,
     guint16  block_qualifier = 0;
     gboolean have_block_info      = FALSE;
     gboolean have_block_qualifier = FALSE;
+    int      expected_offset;
 
 
     offset = dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_dhcp, &suboption);
     offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_block_length, &block_length);
+
+    expected_offset = offset + block_length;
 
     /* BlockInfo? */
     if ( ((service_id == PNDCP_SERVICE_ID_IDENTIFY) &&  is_response) ||
@@ -799,6 +802,10 @@ dissect_PNDCP_Suboption_DHCP(tvbuff_t *tvb, int offset, packet_info *pinfo,
         break;
     default:
         offset = dissect_pn_undecoded(tvb, offset, pinfo, tree, block_length);
+    }
+
+    if (expected_offset > offset) {
+        offset = dissect_pn_user_data(tvb, offset, pinfo, tree, expected_offset - offset, "Undefined");
     }
 
     return offset;
