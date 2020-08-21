@@ -575,6 +575,40 @@ extern void plugin_if_get_ws_info(ws_info_t **ws_info_ptr)
     *ws_info_ptr = &ws_info;
 }
 
+extern void* plugin_if_get_frame_data(plugin_if_frame_data_cb extract_cb, void* user_data) {
+    GHashTable* dataSet = NULL;
+    void* ret_value = NULL;
+
+    dataSet = g_hash_table_new(g_str_hash, g_str_equal);
+
+    g_hash_table_insert(dataSet, g_strdup("extract_cb"), extract_cb);
+    g_hash_table_insert(dataSet, g_strdup("user_data"), user_data);
+    g_hash_table_insert(dataSet, g_strdup("ret_value_ptr"), &ret_value);
+
+    plugin_if_call_gui_cb(PLUGIN_IF_GET_FRAME_DATA, dataSet);
+
+    g_hash_table_destroy(dataSet);
+
+    return ret_value;
+}
+
+extern void* plugin_if_get_capture_file(plugin_if_capture_file_cb extract_cb, void* user_data) {
+    GHashTable* dataSet = NULL;
+    void* ret_value = NULL;
+
+    dataSet = g_hash_table_new(g_str_hash, g_str_equal);
+
+    g_hash_table_insert(dataSet, g_strdup("extract_cb"), extract_cb);
+    g_hash_table_insert(dataSet, g_strdup("user_data"), user_data);
+    g_hash_table_insert(dataSet, g_strdup("ret_value_ptr"), &ret_value);
+
+    plugin_if_call_gui_cb(PLUGIN_IF_GET_CAPTURE_FILE, dataSet);
+
+    g_hash_table_destroy(dataSet);
+
+    return ret_value;
+}
+
 extern void plugin_if_register_gui_cb(plugin_if_callback_t actionType, plugin_if_gui_cb callback)
 {
     plugin_if_init_hashtable();

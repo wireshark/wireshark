@@ -85,6 +85,14 @@ proto_register_pluginifdemo(void)
     pluginifdemo_toolbar_register(tb);
 }
 
+void* get_frame_data_cb(frame_data* fdata, void* user_data _U_) {
+    return GUINT_TO_POINTER(fdata->num);
+}
+
+void* get_capture_file_cb(capture_file* cf, void* user_data _U_) {
+    return cf->filename;
+}
+
 void toolbar_cb(gpointer toolbar_item, gpointer item_data, gpointer user_data _U_)
 {
     if ( ! toolbar_item )
@@ -93,8 +101,19 @@ void toolbar_cb(gpointer toolbar_item, gpointer item_data, gpointer user_data _U
     gchar * message = 0;
     ext_toolbar_t * entry = (ext_toolbar_t *)toolbar_item;
 
-    if ( entry->item_type == EXT_TOOLBAR_BUTTON )
-        pluginifdemo_toolbar_log ( "Button pressed at toolbar" );
+    if (entry->item_type == EXT_TOOLBAR_BUTTON) {
+        pluginifdemo_toolbar_log("Button pressed at toolbar");
+        guint32 fnum = GPOINTER_TO_UINT(plugin_if_get_frame_data(get_frame_data_cb, NULL));
+        if (fnum) {
+            message = g_strdup_printf("Current frame is: %u", fnum);
+            pluginifdemo_toolbar_log(message);
+        }
+        const gchar* fnm = (const gchar*)plugin_if_get_capture_file(get_capture_file_cb, NULL);
+        if (fnm) {
+            message = g_strdup_printf("Capture file name is: %s", fnm);
+            pluginifdemo_toolbar_log(message);
+        }
+    }
     else if ( entry->item_type == EXT_TOOLBAR_BOOLEAN )
     {
         gboolean data = *((gboolean *)item_data);

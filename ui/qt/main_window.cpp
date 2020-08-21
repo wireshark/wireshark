@@ -228,6 +228,50 @@ static void plugin_if_mainwindow_get_ws_info(GHashTable * data_set)
 
 #endif /* HAVE_LIBPCAP */
 
+static void plugin_if_mainwindow_get_frame_data(GHashTable* data_set)
+{
+    if (!gbl_cur_main_window_ || !data_set)
+        return;
+
+    plugin_if_frame_data_cb extract_cb;
+    void* user_data;
+    void** ret_value_ptr;
+
+    if (g_hash_table_lookup_extended(data_set, "extract_cb", NULL, (void**)&extract_cb) &&
+        g_hash_table_lookup_extended(data_set, "user_data", NULL, (void**)&user_data) &&
+        g_hash_table_lookup_extended(data_set, "ret_value_ptr", NULL, (void**)&ret_value_ptr))
+    {
+        QList<int> rows = gbl_cur_main_window_->selectedRows();
+        if (rows.count() > 0) {
+            frame_data* fdata = gbl_cur_main_window_->frameDataForRow(rows.at(0));
+            if (fdata) {
+                *ret_value_ptr = extract_cb(fdata, user_data);
+            }
+        }
+    }
+}
+
+static void plugin_if_mainwindow_get_capture_file(GHashTable* data_set)
+{
+    if (!gbl_cur_main_window_ || !data_set)
+        return;
+
+    plugin_if_capture_file_cb extract_cb;
+    void* user_data;
+    void** ret_value_ptr;
+
+    if (g_hash_table_lookup_extended(data_set, "extract_cb", NULL, (void**)&extract_cb) &&
+        g_hash_table_lookup_extended(data_set, "user_data", NULL, (void**)&user_data) &&
+        g_hash_table_lookup_extended(data_set, "ret_value_ptr", NULL, (void**)&ret_value_ptr))
+    {
+        CaptureFile* cfWrap = gbl_cur_main_window_->captureFile();
+        capture_file* cf = cfWrap->capFile();
+        if (cf) {
+            *ret_value_ptr = extract_cb(cf, user_data);
+        }
+    }
+}
+
 static void plugin_if_mainwindow_update_toolbars(GHashTable * data_set)
 {
     if (!gbl_cur_main_window_ || !data_set)
@@ -642,6 +686,8 @@ MainWindow::MainWindow(QWidget *parent) :
 #ifdef HAVE_LIBPCAP
     plugin_if_register_gui_cb(PLUGIN_IF_GET_WS_INFO, plugin_if_mainwindow_get_ws_info);
 #endif
+    plugin_if_register_gui_cb(PLUGIN_IF_GET_FRAME_DATA, plugin_if_mainwindow_get_frame_data);
+    plugin_if_register_gui_cb(PLUGIN_IF_GET_CAPTURE_FILE, plugin_if_mainwindow_get_capture_file);
     plugin_if_register_gui_cb(PLUGIN_IF_REMOVE_TOOLBAR, plugin_if_mainwindow_update_toolbars);
 
     /* Register Interface Toolbar callbacks */
