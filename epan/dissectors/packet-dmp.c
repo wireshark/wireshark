@@ -14,6 +14,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * Ref:  http://jcs.dtic.mil/j6/cceb/acps/acp123/
+ *       https://web.archive.org/web/20100326015412/http://jcs.dtic.mil/j6/cceb/acps/acp123/ACP123A.pdf
  */
 
 /*
