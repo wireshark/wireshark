@@ -613,6 +613,7 @@ static int hf_smb2_tree_connect_flags = -1;
 static int hf_smb2_tc_cluster_reconnect = -1;
 static int hf_smb2_tc_redirect_to_owner = -1;
 static int hf_smb2_tc_extension_present = -1;
+static int hf_smb2_tc_reserved = -1;
 
 static gint ett_smb2 = -1;
 static gint ett_smb2_olb = -1;
@@ -3962,6 +3963,7 @@ dissect_smb2_tree_connect_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 		&hf_smb2_tc_cluster_reconnect,
 		&hf_smb2_tc_redirect_to_owner,
 		&hf_smb2_tc_extension_present,
+		&hf_smb2_tc_reserved,
 		NULL
 	};
 
@@ -12155,6 +12157,11 @@ proto_register_smb2(void)
 		{ &hf_smb2_tc_extension_present,
 			{ "Extension Present", "smb2.tc.extension_present", FT_BOOLEAN, 16,
 			TFS(&tfs_set_notset), 0x0004, "Set if an extension structure is present", HFILL }
+		},
+
+		{ &hf_smb2_tc_reserved,
+			{ "Reserved", "smb2.tc.reserved", FT_UINT16, BASE_HEX,
+			NULL, 0xFFF8, "Must be zero", HFILL }
 		},
 
 		{ &hf_smb2_compression_format,
