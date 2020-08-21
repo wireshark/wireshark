@@ -94,7 +94,7 @@ dissect_icall(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *dat
 
 	/* Read header */
 	header_offset = tvb_find_guint8(tvb, current_offset, -1, INDIGOCARE_ICALL_STX);
-	ws_strtoi32(tvb_get_string_enc(wmem_packet_scope(), tvb, current_offset, header_offset - current_offset, ENC_NA), NULL, &header);
+	ws_strtoi32(tvb_get_string_enc(wmem_packet_scope(), tvb, current_offset, header_offset - current_offset, ENC_ASCII|ENC_NA), NULL, &header);
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s:", val_to_str(header, icall_headertypenames, "Unknown (%d)"));
 	switch(header) {
 		case INDIGOCARE_ICALL_CALL:
@@ -113,12 +113,12 @@ dissect_icall(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *dat
 	while (tvb_get_guint8(tvb, current_offset) != INDIGOCARE_ICALL_ETX) {
 		identifier_start = current_offset;
 		identifier_offset = tvb_find_guint8(tvb, current_offset, -1, INDIGOCARE_ICALL_US);
-		ws_strtoi32(tvb_get_string_enc(wmem_packet_scope(), tvb, current_offset, identifier_offset - current_offset, ENC_NA), NULL, &record_identifier);
+		ws_strtoi32(tvb_get_string_enc(wmem_packet_scope(), tvb, current_offset, identifier_offset - current_offset, ENC_ASCII|ENC_NA), NULL, &record_identifier);
 		current_offset = identifier_offset + 1;
 
 		data_start = current_offset;
 		data_offset = tvb_find_guint8(tvb, data_start, -1, INDIGOCARE_ICALL_RS);
-		record_data = tvb_get_string_enc(wmem_packet_scope(), tvb, current_offset, data_offset - data_start, ENC_NA);
+		record_data = tvb_get_string_enc(wmem_packet_scope(), tvb, current_offset, data_offset - data_start, ENC_ASCII|ENC_NA);
 
 		current_offset = data_offset + 1;
 
