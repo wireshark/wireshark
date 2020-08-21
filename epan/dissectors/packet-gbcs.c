@@ -418,6 +418,7 @@ dlms_date_time(tvbuff_t *tvb, guint offset, nstime_t *date_time)
     XXX(GBCS_GBZ_ALERT_TILT_TAMPER,                                     0x81C3, "Tilt Tamper") \
     XXX(GBCS_GBZ_ALERT_UTRN_MANUAL_ENTRY_SUSPENDED,                     0x81C4, "UTRN Manual Entry Suspended") \
     XXX(GBCS_GBZ_ALERT_UTRN_REJECTED_AS_LOCKED_OUT,                     0x81C5, "UTRN rejected as locked out") \
+    XXX(GBCS_GBZ_ALERT_CLOCK_NOT_ADJUSTED_OUTSIDE_TOLERANCE,            0x81C6, "Clock not adjusted (outside tolerance)") \
     XXX(GBCS_GBZ_ALERT_ACTIVE_POWER_IMPORT_ABOVE_LOAD_LIMIT_THRESHOLD,  0x8F01, "Active Power Import above Load Limit Threshold") \
     XXX(GBCS_GBZ_ALERT_BILLING_DATA_LOG_UPDATED,                        0x8F0A, "Billing Data Log Updated") \
     XXX(GBCS_GBZ_ALERT_CLOCK_NOT_ADJUSTED_ADJUSTMENT_GREATER_THAN_10_SE,0x8F0C, "Clock not adjusted (adjustment greater than 10 seconds)") \
