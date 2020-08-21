@@ -141,6 +141,10 @@ wmem_strbuf_append(wmem_strbuf_t *strbuf, const gchar *str)
 
     wmem_strbuf_grow(strbuf, append_len);
 
+    /*
+     * XXX - hasn't wmem_strbuf_grow() ensure there's enough room for
+     * all of str?
+     */
     g_strlcpy(&strbuf->str[strbuf->len], str, WMEM_STRBUF_RAW_ROOM(strbuf));
 
     strbuf->len = MIN(strbuf->len + append_len, strbuf->alloc_len - 1);
@@ -216,7 +220,7 @@ wmem_strbuf_append_c(wmem_strbuf_t *strbuf, const gchar c)
 {
     wmem_strbuf_grow(strbuf, 1);
 
-    /* one for the char, one for the null-terminator */
+    /* XXX - hasn't wmem_strbuf_grow() ensure this to be true? */
     if (WMEM_STRBUF_ROOM(strbuf) >= 1) {
         strbuf->str[strbuf->len] = c;
         strbuf->len++;
@@ -234,6 +238,7 @@ wmem_strbuf_append_unichar(wmem_strbuf_t *strbuf, const gunichar c)
 
     wmem_strbuf_grow(strbuf, charlen);
 
+    /* XXX - hasn't wmem_strbuf_grow() ensure this to be true? */
     if (WMEM_STRBUF_ROOM(strbuf) >= charlen) {
         memcpy(&strbuf->str[strbuf->len], buf, charlen);
         strbuf->len += charlen;
