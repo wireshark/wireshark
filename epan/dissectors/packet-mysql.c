@@ -16,6 +16,7 @@
  *
  * the protocol spec at
  *  https://dev.mysql.com/doc/internals/en/client-server-protocol.html
+ *  https://dev.mysql.com/doc/dev/mysql-server/latest/PAGE_PROTOCOL.html
  * and MySQL source code
  */
 
@@ -40,6 +41,7 @@ void proto_reg_handoff_mysql(void);
 
 /* client/server capabilities
  * Source: http://dev.mysql.com/doc/internals/en/capability-flags.html
+ * Source: https://dev.mysql.com/doc/dev/mysql-server/latest/group__group__cs__capabilities__flags.html
  * Source: mysql_com.h
  */
 #define MYSQL_CAPS_LP 0x0001 /* CLIENT_LONG_PASSWORD */
@@ -1618,6 +1620,7 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset,
 /*
  * Decode the header of a compressed packet
  * https://dev.mysql.com/doc/internals/en/compressed-packet-header.html
+ * https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_basic_compression_packet.html
  */
 static int
 mysql_dissect_compressed_header(tvbuff_t *tvb, int offset, proto_tree *mysql_tree)
