@@ -15,6 +15,8 @@
  *
  *    https://publications.opengroup.org/c706
  *    https://pubs.opengroup.org/onlinepubs/009629399/
+ *    https://pubs.opengroup.org/onlinepubs/009629399/toc.htm
+ *    https://pubs.opengroup.org/onlinepubs/009629399/toc.pdf
  *
  * Microsoft extensions can be found at:
  *
