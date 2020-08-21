@@ -58,14 +58,15 @@
  * http://www.freetds.org/tds.html
  *
  * Some more information can be found in
- * https://wayback.archive.org/web/20140611233513/http://www.sybase.com/content/1013412/tds34.pdf
- * https://wayback.archive.org/web/20140611233501/http://www.sybase.com/content/1040983/Sybase-tds38-102306.pdf
+ * https://web.archive.org/web/20140611233513/http://www.sybase.com/content/1013412/tds34.pdf
+ * https://web.archive.org/web/20140611233501/http://www.sybase.com/content/1040983/Sybase-tds38-102306.pdf
  * Microsoft's [MS-TDS] protocol specification
- *     https://web.archive.org/web/20171009015211/https://winprotocoldoc.blob.core.windows.net/productionwindowsarchives/MS-TDS/[MS-TDS].pdf
+ *     https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-tds/
  * Microsoft's TDS 4.2 [MS-SSTDS] protocol specification
- *     https://web.archive.org/web/20171009170518/https://sqlprotocoldoc.blob.core.windows.net/productionsqlarchives/MS-SSTDS/[MS-SSTDS].pdf
+ *     https://docs.microsoft.com/en-us/openspecs/sql_server_protocols/ms-sstds/
  *
- * This document is no longer available here:
+ * This document is no longer available here, and does not appear to
+ *   have been archived by the Wayback Machine:
  * http://download.nai.com/products/media/sniffer/support/sdos/sybase.pdf
  *
  * Much of this code was originally developed for the FreeTDS project.
