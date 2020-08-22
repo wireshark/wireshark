@@ -2455,14 +2455,11 @@ test_length(header_field_info *hfinfo, tvbuff_t *tvb,
 }
 
 static void
-detect_trailing_stray_characters(enum ftenum type, guint encoding, const char *string, gint length, proto_item *pi)
+detect_trailing_stray_characters(guint encoding, const char *string, gint length, proto_item *pi)
 {
 	gboolean found_stray_character = FALSE;
 
 	if (!string)
-		return;
-
-	if (type != FT_STRING && type != FT_STRINGZ && type != FT_STRINGZPAD)
 		return;
 
 	switch (encoding & ENC_CHARENCODING_MASK) {
@@ -2943,7 +2940,15 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 	 *      to know which item caused exception? */
 	pi = proto_tree_add_node(tree, new_fi);
 
-	detect_trailing_stray_characters(new_fi->hfinfo->type, encoding, stringval, length, pi);
+	switch (new_fi->hfinfo->type) {
+
+	case FT_STRING:
+		detect_trailing_stray_characters(encoding, stringval, length, pi);
+		break;
+
+	default:
+		break;
+	}
 
 	return pi;
 }
@@ -3579,7 +3584,20 @@ proto_tree_add_item_ret_string_and_length(proto_tree *tree, int hfindex,
 
 	pi = proto_tree_add_node(tree, new_fi);
 
-	detect_trailing_stray_characters(hfinfo->type, encoding, value, length, pi);
+	switch (hfinfo->type) {
+
+	case FT_STRINGZ:
+	case FT_STRINGZPAD:
+	case FT_UINT_STRING:
+		break;
+
+	case FT_STRING:
+		detect_trailing_stray_characters(encoding, value, length, pi);
+		break;
+
+	default:
+		g_assert_not_reached();
+	}
 
 	return pi;
 }
@@ -3676,11 +3694,13 @@ proto_tree_add_item_ret_display_string_and_length(proto_tree *tree, int hfindex,
 
 	switch (hfinfo->type) {
 
-	case FT_STRING:
 	case FT_STRINGZ:
-	case FT_UINT_STRING:
 	case FT_STRINGZPAD:
-		detect_trailing_stray_characters(hfinfo->type, encoding, value, length, pi);
+	case FT_UINT_STRING:
+		break;
+
+	case FT_STRING:
+		detect_trailing_stray_characters(encoding, value, length, pi);
 		break;
 
 	case FT_BYTES:
