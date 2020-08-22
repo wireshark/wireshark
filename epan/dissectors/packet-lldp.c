@@ -15,6 +15,12 @@
  * August 2016
  * Added Avaya IP Phone OUI, Uli Heilmeier <uh@heilmeier.eu>
  *
+ * IEEE 802.1AB
+ *
+ * IEEE 802.1Q for the 802.1 Organizationally Specific TLVs.
+ *
+ * TIA-1057 for TIA Organizationally Specific TLVs.
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -2275,7 +2281,31 @@ dissect_ieee_802_1_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 
 		if (tempByte > 0)
 		{
-			proto_tree_add_item(tree, hf_ieee_802_1_proto_id, tvb, offset, tempByte, ENC_ASCII|ENC_NA);
+			/*
+			 * Section D.2.4.3 "protocol identity" of IEEE
+			 * 802.1Q-2018 says:
+			 *
+			 *   The protocol identity field shall contain
+			 *   the first n octets of the protocol after
+			 *   the layer 2 addresses (i.e., for example,
+			 *   starting with the EtherType field) that the
+			 *   sender would like to advertise.
+			 *
+			 * What comes "after the layer 2 addresses"
+			 * depends on the network type.  For Ethernet,
+			 * it's a type/length field, with, if it's a
+			 * length field, an 802.2 LLC header, with,
+			 * if that header specifies SNAP, a SNAP header
+			 * following it.  For other network types, it's
+			 * just going to be an 802.2 LLC header (presumably,
+			 * if the layer 2 addresses aren't immediately
+			 * before the 802.2 header, this doesn't include
+			 * the fields between the last layer 2 address
+			 * and the 802.2 header).
+			 *
+			 * We currently just show it as a blob of bytes.
+			 */
+			proto_tree_add_item(tree, hf_ieee_802_1_proto_id, tvb, offset, tempByte, ENC_NA);
 
 			offset += tempByte;
 		}
@@ -4944,7 +4974,7 @@ proto_register_lldp(void)
 			NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_ieee_802_1_proto_id,
-			{ "Protocol Identity", "lldp.ieee.802_1.proto.id", FT_STRINGZ, BASE_NONE,
+			{ "Protocol Identity", "lldp.ieee.802_1.proto.id", FT_BYTES, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_ieee_802_1_aggregation_status,
