@@ -52,14 +52,15 @@ Wireshark 3.3.0 Release Notes
 
   New Protocol Support
 
-   =======, Asphodel Protocol, AudioCodes Debug Recording (ACDR), Cisco
-   MisCabling Protocol (MCP), Dynamic Link Exchange Protocol (DLEP),
-   Fortinet Single Sign-on (FSSO), Java Debug Wire Protocol (JDWP), LBM
-   Stateful Resolution Service (LBMSRS), Lithionics Battery Management,
-   OBSAI UDP-based Communication Protocol (UDPCP), ScyllaDB RPC,
-   Technically Enhanced Capture Module Protocol (TECMP), Tunnel
-   Extensible Authentication Protocol (TEAP), and USB Printer
-   (USBPRINTER)
+   =======, Arinc 615A (A615A), Asphodel Protocol, AudioCodes Debug
+   Recording (ACDR), Cisco MisCabling Protocol (MCP), Dynamic Link
+   Exchange Protocol (DLEP), Fortinet Single Sign-on (FSSO), FTDI
+   Multi-Protocol Synchronous Serial Engine (FTDI MPSSE), Java Debug
+   Wire Protocol (JDWP), LBM Stateful Resolution Service (LBMSRS),
+   Lithionics Battery Management, OBSAI UDP-based Communication Protocol
+   (UDPCP), ScyllaDB RPC, Technically Enhanced Capture Module Protocol
+   (TECMP), Tunnel Extensible Authentication Protocol (TEAP), and USB
+   Printer (USBPRINTER)
 
   Updated Protocol Support
 
@@ -101,7 +102,7 @@ Wireshark 3.3.0 Release Notes
 
   A complete FAQ is available on the Wireshark web site[6].
 
-  Last updated 2020-08-16 08:05:02 UTC
+  Last updated 2020-08-23 08:05:19 UTC
 
  References
 

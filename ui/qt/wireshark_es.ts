@@ -3156,7 +3156,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <message>
         <source>Show data as</source>
         <oldsource>Show and save data as</oldsource>
-        <translation type="unfinished">Mostrar y guardar datos como</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Stream</source>

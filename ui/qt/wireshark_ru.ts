@@ -3210,7 +3210,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Show data as</source>
         <oldsource>Show and save data as</oldsource>
-        <translation type="unfinished">Показать и сохранить данные как</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Stream</source>

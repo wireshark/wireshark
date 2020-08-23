@@ -3195,7 +3195,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Show data as</source>
         <oldsource>Show and save data as</oldsource>
-        <translation type="unfinished">Visa och spara data som</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Stream</source>
