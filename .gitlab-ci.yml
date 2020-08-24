@@ -225,17 +225,22 @@ merge-req:ubuntu-clang-other-tests:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
   script:
-    - apt-get install -y cppcheck clang-tools
+    - apt-get install -y cppcheck clang-tools python-pygments
     # build-ubuntu puts us in `build`.
     - cd ..
     - python3 tools/checklicenses.py
-    - ./tools/cppcheck/cppcheck.sh -l 1
+    - ./tools/cppcheck/cppcheck.sh -l 1 -x | tee cppcheck_report.xml
+    - if [[ -s "cppcheck_report.xml" ]]; then cppcheck-htmlreport --file cppcheck_report.xml  --report-dir . ; fi
     - cd build
     - cmake -DENABLE_EXTRA_COMPILER_WARNINGS=on -DENABLE_CHECKHF_CONFLICT=on -DCMAKE_EXPORT_COMPILE_COMMANDS=on -DENABLE_CCACHE=ON -G Ninja ..
     - ninja
     - ./run/tshark -v
     - sh -c '[ ! -e ../tools/validate-clang-check.sh ] || ../tools/validate-clang-check.sh'
     - ninja checkAPI
+  artifacts:
+    paths:
+      - cppcheck_report.xml
+      - cppcheck_report.html  
 
 # XXX This is still beta:
 # https://docs.gitlab.com/ee/user/gitlab_com/index.html#windows-shared-runners-beta
