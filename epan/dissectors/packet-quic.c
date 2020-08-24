@@ -184,6 +184,7 @@ static dissector_handle_t tls13_handshake_handle;
 
 static dissector_table_t quic_proto_dissector_table;
 
+#ifdef HAVE_LIBGCRYPT_AEAD
 /* Fields for showing reassembly results for fragments of QUIC stream data. */
 static const fragment_items quic_stream_fragment_items = {
     &ett_quic_fragment,
@@ -201,6 +202,7 @@ static const fragment_items quic_stream_fragment_items = {
     &hf_quic_reassembled_data,
     "Fragments"
 };
+#endif /* HAVE_LIBGCRYPT_AEAD */
 
 /*
  * PROTECTED PAYLOAD DECRYPTION (done in first pass)
