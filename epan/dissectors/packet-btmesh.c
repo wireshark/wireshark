@@ -1122,6 +1122,44 @@ static int * const config_heartbeat_publication_status_features_headers[] = {
     NULL
 };
 
+static const fragment_items btmesh_segmented_access_frag_items = {
+    &ett_btmesh_segmented_access_fragments,
+    &ett_btmesh_segmented_access_fragment,
+
+    &hf_btmesh_segmented_access_fragments,
+    &hf_btmesh_segmented_access_fragment,
+    &hf_btmesh_segmented_access_fragment_overlap,
+    &hf_btmesh_segmented_access_fragment_overlap_conflict,
+    &hf_btmesh_segmented_access_fragment_multiple_tails,
+    &hf_btmesh_segmented_access_fragment_too_long_fragment,
+    &hf_btmesh_segmented_access_fragment_error,
+    &hf_btmesh_segmented_access_fragment_count,
+    NULL,
+    &hf_btmesh_segmented_access_reassembled_length,
+    /* Reassembled data field */
+    NULL,
+    "fragments"
+};
+
+static const fragment_items btmesh_segmented_control_frag_items = {
+    &ett_btmesh_segmented_control_fragments,
+    &ett_btmesh_segmented_control_fragment,
+
+    &hf_btmesh_segmented_control_fragments,
+    &hf_btmesh_segmented_control_fragment,
+    &hf_btmesh_segmented_control_fragment_overlap,
+    &hf_btmesh_segmented_control_fragment_overlap_conflict,
+    &hf_btmesh_segmented_control_fragment_multiple_tails,
+    &hf_btmesh_segmented_control_fragment_too_long_fragment,
+    &hf_btmesh_segmented_control_fragment_error,
+    &hf_btmesh_segmented_control_fragment_count,
+    NULL,
+    &hf_btmesh_segmented_control_reassembled_length,
+    /* Reassembled data field */
+    NULL,
+    "fragments"
+};
+
 #endif
 
 static const value_string btmesh_status_code_vals[] = {
@@ -1210,44 +1248,6 @@ static const value_string btmesh_model_vals[] = {
 /* Upper Transport Message reassembly */
 
 static reassembly_table upper_transport_reassembly_table;
-
-static const fragment_items btmesh_segmented_access_frag_items = {
-    &ett_btmesh_segmented_access_fragments,
-    &ett_btmesh_segmented_access_fragment,
-
-    &hf_btmesh_segmented_access_fragments,
-    &hf_btmesh_segmented_access_fragment,
-    &hf_btmesh_segmented_access_fragment_overlap,
-    &hf_btmesh_segmented_access_fragment_overlap_conflict,
-    &hf_btmesh_segmented_access_fragment_multiple_tails,
-    &hf_btmesh_segmented_access_fragment_too_long_fragment,
-    &hf_btmesh_segmented_access_fragment_error,
-    &hf_btmesh_segmented_access_fragment_count,
-    NULL,
-    &hf_btmesh_segmented_access_reassembled_length,
-    /* Reassembled data field */
-    NULL,
-    "fragments"
-};
-
-static const fragment_items btmesh_segmented_control_frag_items = {
-    &ett_btmesh_segmented_control_fragments,
-    &ett_btmesh_segmented_control_fragment,
-
-    &hf_btmesh_segmented_control_fragments,
-    &hf_btmesh_segmented_control_fragment,
-    &hf_btmesh_segmented_control_fragment_overlap,
-    &hf_btmesh_segmented_control_fragment_overlap_conflict,
-    &hf_btmesh_segmented_control_fragment_multiple_tails,
-    &hf_btmesh_segmented_control_fragment_too_long_fragment,
-    &hf_btmesh_segmented_control_fragment_error,
-    &hf_btmesh_segmented_control_fragment_count,
-    NULL,
-    &hf_btmesh_segmented_control_reassembled_length,
-    /* Reassembled data field */
-    NULL,
-    "fragments"
-};
 
 typedef struct _upper_transport_fragment_key {
     guint16 src;
