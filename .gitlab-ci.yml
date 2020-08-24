@@ -1,15 +1,9 @@
 .ubuntu: &ubuntu
-  image: crondaemon/wireshark
+  image: wireshark/wireshark-ubuntu-dev
   retry: 1
   before_script:
-    - rm -rf /etc/apt/sources.list.d/*
-    - echo "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial main" >  /etc/apt/sources.list.d/clang.list
-    - echo "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-6.0 main" > /etc/apt/sources.list.d/clang6.list
-    - echo "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-7 main" > /etc/apt/sources.list.d/clang7.list
-    - apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 15CF4D18AF4F7421
-    - echo "deb http://ppa.launchpad.net/ubuntu-toolchain-r/test/ubuntu xenial main" > /etc/apt/sources.list.d/gcc.list
-    - apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 1E9377A2BA9EF27F
     - apt-get update -qq
+    - ./tools/debian-setup.sh --install-optional -y
     - mkdir build
     - cd build
 .rpm: &rpm
@@ -17,12 +11,6 @@
     paths:
       - build/packaging/rpm/RPMS
     expire_in: 3 days
-gcc-4:
-  <<: *ubuntu
-  script:
-    - ../tools/debian-setup.sh --install-optional ninja-build gcc-4.9 g++-4.9 -y
-    - cmake -GNinja -DCMAKE_C_COMPILER=gcc-4.9 -DCMAKE_CXX_COMPILER=g++-4.9 ..
-    - ninja
 gcc-5:
   <<: *ubuntu
   script:
@@ -52,30 +40,6 @@ gcc-8-nopcap:
   script:
     - ../tools/debian-setup.sh --install-optional ninja-build  gcc-8 g++-8 -y
     - cmake -GNinja -DENABLE_PCAP=OFF -DCMAKE_C_COMPILER=gcc-8 -DCMAKE_CXX_COMPILER=g++-8 ..
-    - ninja
-clang-3.5:
-  <<: *ubuntu
-  script:
-    - ../tools/debian-setup.sh --install-optional ninja-build  clang-3.5 -y
-    - cmake -GNinja -DCMAKE_C_COMPILER=clang-3.5 -DCMAKE_CXX_COMPILER=clang++-3.5 ..
-    - ninja
-clang-3.6:
-  <<: *ubuntu
-  script:
-    - ../tools/debian-setup.sh --install-optional ninja-build clang-3.6 -y
-    - cmake -GNinja -DCMAKE_C_COMPILER=clang-3.6 -DCMAKE_CXX_COMPILER=clang++-3.6 ..
-    - ninja
-clang-3.7:
-  <<: *ubuntu
-  script:
-    - ../tools/debian-setup.sh --install-optional ninja-build  clang-3.7 -y
-    - cmake -GNinja -DCMAKE_C_COMPILER=clang-3.7 -DCMAKE_CXX_COMPILER=clang++-3.7 ..
-    - ninja
-clang-3.8:
-  <<: *ubuntu
-  script:
-    - ../tools/debian-setup.sh --install-optional ninja-build  clang-3.8 -y
-    - cmake -GNinja -DCMAKE_C_COMPILER=clang-3.8 -DCMAKE_CXX_COMPILER=clang++-3.8 ..
     - ninja
 clang-3.9:
   <<: *ubuntu
