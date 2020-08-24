@@ -930,13 +930,13 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto
             break;
         case TLV_FEC_STACK_SR_IGP_IPv6:
             proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_igp_ipv6,
-                                tvb, offset + 4, 32, ENC_NA);
+                                tvb, offset + 4, 16, ENC_NA);
             proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_igp_mask,
-                                tvb, offset + 36, 1, ENC_BIG_ENDIAN);
+                                tvb, offset + 20, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_igp_protocol,
-                                tvb, offset + 37, 1, ENC_BIG_ENDIAN);
+                                tvb, offset + 21, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_igp_reserved,
-                                tvb, offset + 38, 2, ENC_NA);
+                                tvb, offset + 22, 2, ENC_NA);
             break;
         case TLV_FEC_STACK_SR_IGP_ADJ:
             adj_offset = offset +4;
