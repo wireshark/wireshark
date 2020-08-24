@@ -184,7 +184,7 @@ merge-request:ubuntu-clang-other-tests:
     - cmake -DENABLE_EXTRA_COMPILER_WARNINGS=on -DENABLE_CHECKHF_CONFLICT=on -DCMAKE_EXPORT_COMPILE_COMMANDS=on -G Ninja ..
     - ninja
     - ./run/tshark -v
-    - sh -c '[ ! -e ../tools/validate-clang-check.py ] || ../tools/validate-clang-check.py'
+    - sh -c '[ ! -e ../tools/validate-clang-check.sh ] || ../tools/validate-clang-check.sh'
     - ninja checkAPI
 
 # https://docs.gitlab.com/ee/user/gitlab_com/index.html#windows-shared-runners-beta
