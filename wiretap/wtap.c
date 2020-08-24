@@ -1086,6 +1086,9 @@ static struct encap_type_info encap_table_base[] = {
 
 	/* WTAP_ENCAP_SLL2 */
 	{ "linux-sll2", "Linux cooked-mode capture v2" },
+
+	/* WTAP_ENCAP_ZWAVE_SERIAL */
+	{ "zwave-serial", "Z-Wave Serial API packets" },
 };
 
 WS_DLL_LOCAL

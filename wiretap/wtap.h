@@ -291,6 +291,7 @@ extern "C" {
 #define WTAP_ENCAP_USB_2_0                      208
 #define WTAP_ENCAP_MP4                          209
 #define WTAP_ENCAP_SLL2                         210
+#define WTAP_ENCAP_ZWAVE_SERIAL                 211
 
 /* After adding new item here, please also add new item to encap_table_base array */
 
