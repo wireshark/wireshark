@@ -602,12 +602,12 @@ extern "C" {
 #define ETHERTYPE_QINQ_OLD		0x9100	/* QinQ: old non-standard 802.1ad */
 #endif
 
-#ifndef ETHERTYPE_TECMP
-#define ETHERTYPE_TECMP			0x99FE	/* Technically Enhanced Capture Module Protocol (TECMP) */
-#endif
-
 #ifndef ETHERTYPE_EERO
 #define ETHERTYPE_EERO			0x9104	/* EERO: broadcast packets sent by EERO MESH AP's (not officially registered) */
+#endif
+
+#ifndef ETHERTYPE_TECMP
+#define ETHERTYPE_TECMP			0x99FE	/* Technically Enhanced Capture Module Protocol (TECMP) */
 #endif
 
 #ifndef ETHERTYPE_6LOWPAN
@@ -618,8 +618,8 @@ extern "C" {
 #define ETHERTYPE_ECPRI			0xAEFE /* Ethernet type of eCPRI */
 #endif
 
-#ifndef ETHERTYPE_LLT
-#define ETHERTYPE_LLT			0xCAFE	/* Veritas Low Latency Transport (not officially registered) */
+#ifndef ETHERTYPE_CABLELABS
+#define ETHERTYPE_CABLELABS		0xB4E3 /* Ethernet type for CableLabs layer-3 protocol */
 #endif
 
 #ifndef ETHERTYPE_XIP
@@ -630,20 +630,24 @@ extern "C" {
 #define ETHERTYPE_NWP			0xC0DF	/* Neighborhood Watch Protocol (not officially registered) */
 #endif
 
-#ifndef ETHERTYPE_TDMOE
-#define ETHERTYPE_TDMOE			0xD00D	/* Digium TDMoE packets (not officially registered) */
+#ifndef ETHERTYPE_LLT
+#define ETHERTYPE_LLT			0xCAFE	/* Veritas Low Latency Transport (not officially registered) */
 #endif
 
-#ifndef ETHERTYPE_FCFT
-#define ETHERTYPE_FCFT			0xFCFC	/* used to transport FC frames+MDS hdr internal to Cisco's MDS switch */
+#ifndef ETHERTYPE_TDMOE
+#define ETHERTYPE_TDMOE			0xD00D	/* Digium TDMoE packets (not officially registered) */
 #endif
 
 #ifndef ETHERTYPE_AVSP
 #define ETHERTYPE_AVSP			0xD28B /* Ethernet type for Arista vendor specific packet frames */
 #endif
 
-#ifndef ETHERTYPE_CABLELABS
-#define ETHERTYPE_CABLELABS		0xB4E3 /* Ethernet type for CableLabs layer-3 protocol */
+#ifndef ETHERTYPE_FCFT
+#define ETHERTYPE_FCFT			0xFCFC	/* used to transport FC frames+MDS hdr internal to Cisco's MDS switch */
+#endif
+
+#ifndef ETHERTYPE_ACIGLEAN
+#define ETHERTYPE_ACIGLEAN		0xFFF2	/* Used to transport Cisco ACI internal frames for ARP gleaning (not registered) */
 #endif
 
 WS_DLL_PUBLIC const value_string etype_vals[];

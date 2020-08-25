@@ -390,23 +390,24 @@ static int hf_cisco_upoe_pse_spare_pair_oper = -1;
 static int hf_cisco_aci_portstate = -1;
 static int hf_cisco_aci_noderole = -1;
 static int hf_cisco_aci_nodeid = -1;
-static int hf_cisco_aci_unknowncc = -1;
-static int hf_cisco_aci_pod = -1;
+static int hf_cisco_aci_spinelevel = -1;
+static int hf_cisco_aci_podid = -1;
 static int hf_cisco_aci_fabricname = -1;
 static int hf_cisco_aci_apiclist = -1;
 static int hf_cisco_aci_apicid = -1;
 static int hf_cisco_aci_apicipv4 = -1;
 static int hf_cisco_aci_apicuuid = -1;
 static int hf_cisco_aci_nodeip = -1;
-static int hf_cisco_aci_unknownd1 = -1;
+static int hf_cisco_aci_portrole = -1;
 static int hf_cisco_aci_version = -1;
 static int hf_cisco_aci_fabricvlan = -1;
 static int hf_cisco_aci_serialno = -1;
 static int hf_cisco_aci_model = -1;
 static int hf_cisco_aci_nodename = -1;
 static int hf_cisco_aci_portmode = -1;
-static int hf_cisco_aci_unknownd9 = -1;
+static int hf_cisco_aci_authcookie = -1;
 static int hf_cisco_aci_apicmode = -1;
+static int hf_cisco_aci_fabricid = -1;
 static int hf_hytec_tlv_subtype = -1;
 static int hf_hytec_group = -1;
 static int hf_hytec_identifier = -1;
@@ -780,21 +781,21 @@ static const value_string cisco_subtypes[] = {
 	{ 0xc9, "ACI Port State" },
 	{ 0xca, "ACI Node Role" },
 	{ 0xcb, "ACI Node ID" },
-	{ 0xcc, "ACI Unknown-CC" },
+	{ 0xcc, "ACI Spine Level" },
 	{ 0xcd, "ACI Pod ID" },
 	{ 0xce, "ACI Fabric Name" },
 	{ 0xcf, "ACI Appliance Vector" },
 	{ 0xd0, "ACI Node IP" },
-	{ 0xd1, "ACI Unknown-D1" },
+	{ 0xd1, "ACI Port Role" },
 	{ 0xd2, "ACI Firmware Version" },
 	{ 0xd3, "ACI Infra VLAN" },
 	{ 0xd4, "ACI Serial Number" },
 	{ 0xd6, "ACI Model" },
 	{ 0xd7, "ACI Node Name" },
 	{ 0xd8, "ACI Port Mode" },
-	{ 0xd9, "ACI Unknown D9" },
+	{ 0xd9, "ACI Authentication Cookie" },
 	{ 0xda, "ACI APIC-Mode" },
-	{ 0xdb, "ACI Unknown-DB" },
+	{ 0xdb, "ACI Fabric ID" },
 	{ 0, NULL }
 };
 
@@ -806,13 +807,24 @@ static const value_string cisco_portstate_vals[] = {
 	{ 0, NULL }
 };
 
+static const value_string cisco_portrole_vals[] = {
+	{ 1,	"Active" },
+	{ 2,	"Backup" },
+	{ 0, NULL }
+};
+static const value_string cisco_portmode_vals[] = {
+	{ 0,	"Normal" },
+	{ 1,	"Recovery Mode" },
+	{ 0, NULL }
+};
+
 /* Guessing here, the output of apic show commands only has leaf and spine, and
    those values are leaf=2, spine=3 (off by 1) */
 static const value_string cisco_noderole_vals[] = {
 	{ 0,	"APIC" },
 	{ 1,	"Leaf" },
 	{ 2,	"Spine" },
-	{ 3,	"Unknown" },
+	{ 3,	"vLeaf" },
 	{ 0, NULL }
 };
 
@@ -3639,43 +3651,43 @@ dissect_cisco_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		length--;
 		break;
 	/* ACI */
-	case 0xc9:
+	case 0xc9: // 201 port-state, uint8
 		tf = proto_tree_add_item(tree, hf_cisco_aci_portstate, tvb, offset, length, ENC_NA);
 		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(wmem_packet_scope(), tf));
-		offset += length;
-		length -= length;
+		offset++;
+		length--;
 		break;
-	case 0xca:
+	case 0xca: // 202 node-role, uint8
 		tf = proto_tree_add_item(tree, hf_cisco_aci_noderole, tvb, offset, length, ENC_NA);
 		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(wmem_packet_scope(), tf));
-		offset += length;
-		length -= length;
+		offset++;
+		length--;
 		break;
-	case 0xcb:
-		tf = proto_tree_add_item(tree, hf_cisco_aci_nodeid, tvb, offset, length, ENC_NA);
+	case 0xcb: // 203 node-id, uint32
+		tf = proto_tree_add_item(tree, hf_cisco_aci_nodeid, tvb, offset, length, ENC_BIG_ENDIAN);
 		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(wmem_packet_scope(), tf));
 		offset += 4;
 		length -= 4;
 		break;
-	case 0xcc:
-		tf = proto_tree_add_item(tree, hf_cisco_aci_unknowncc, tvb, offset, length, ENC_NA);
+	case 0xcc: // 204 spine-level, uint8
+		tf = proto_tree_add_item(tree, hf_cisco_aci_spinelevel, tvb, offset, length, ENC_NA);
 		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(wmem_packet_scope(), tf));
-		offset += length;
-		length -= length;
+		offset++;
+		length--;
 		break;
-	case 0xcd:
-		tf = proto_tree_add_item(tree, hf_cisco_aci_pod, tvb, offset, 2, ENC_NA);
+	case 0xcd: // 205 pod-id, uint16
+		tf = proto_tree_add_item(tree, hf_cisco_aci_podid, tvb, offset, 2, ENC_BIG_ENDIAN);
 		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(wmem_packet_scope(), tf));
 		offset += 2;
 		length -= 2;
 		break;
-	case 0xce:
+	case 0xce: // 206 fabric-name, string
 		tf = proto_tree_add_item(tree, hf_cisco_aci_fabricname, tvb, offset, length, ENC_ASCII|ENC_NA);
 		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(wmem_packet_scope(), tf));
 		offset += length;
 		length -= length;
 		break;
-	case 0xcf:
+	case 0xcf: // 207 av (id, ip, uuid) (uint8, ipv4, string)
 		proto_tree_add_item(tree, hf_cisco_aci_apiclist, tvb, offset, length, ENC_NA);
 		while (length > 0) {
 			tf = proto_tree_add_item(tree, hf_cisco_aci_apicid, tvb, offset, 1, ENC_NA);
@@ -3690,65 +3702,75 @@ dissect_cisco_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 			length -= 36;
 		}
 		break;
-	case 0xd0:
+	case 0xd0: // 208 node-ip, ipv4
 		tf = proto_tree_add_item(tree, hf_cisco_aci_nodeip, tvb, offset, length, ENC_NA);
 		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(wmem_packet_scope(), tf));
 		offset += 4;
 		length -= 4;
 		break;
-	case 0xd1:
-		tf = proto_tree_add_item(tree, hf_cisco_aci_unknownd1, tvb, offset, length, ENC_NA);
+	case 0xd1: // 209 port-role, uint8
+		tf = proto_tree_add_item(tree, hf_cisco_aci_portrole, tvb, offset, length, ENC_NA);
 		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(wmem_packet_scope(), tf));
-		offset += length;
-		length -= length;
+		offset++;
+		length--;
 		break;
-	case 0xd2:
+	case 0xd2: // 210 fw-ver, string
 		tf = proto_tree_add_item(tree, hf_cisco_aci_version, tvb, offset, length, ENC_ASCII|ENC_NA);
 		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(wmem_packet_scope(), tf));
 		offset += length;
 		length -= length;
 		break;
-	case 0xd3:
-		tf = proto_tree_add_item(tree, hf_cisco_aci_fabricvlan, tvb, offset, 2, ENC_NA);
+	case 0xd3: // 211 infra-vlan, uint16
+		tf = proto_tree_add_item(tree, hf_cisco_aci_fabricvlan, tvb, offset, 2, ENC_BIG_ENDIAN);
 		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(wmem_packet_scope(), tf));
 		offset += 2;
 		length -= 2;
 		break;
-	case 0xd4:
+	case 0xd4: // 212 serial-number, string
 		tf = proto_tree_add_item(tree, hf_cisco_aci_serialno, tvb, offset, length, ENC_ASCII|ENC_NA);
 		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(wmem_packet_scope(), tf));
 		offset += length;
 		length -= length;
 		break;
-	case 0xd6:
+#if 0
+	case 0xd5: // 213 unused
+		break;
+#endif
+	case 0xd6: // 214 model, string
 		tf = proto_tree_add_item(tree, hf_cisco_aci_model, tvb, offset, length, ENC_ASCII|ENC_NA);
 		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(wmem_packet_scope(), tf));
 		offset += length;
 		length -= length;
 		break;
-	case 0xd7:
+	case 0xd7: // 215 name, string
 		tf = proto_tree_add_item(tree, hf_cisco_aci_nodename, tvb, offset, length, ENC_ASCII|ENC_NA);
 		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(wmem_packet_scope(), tf));
 		offset += length;
 		length -= length;
 		break;
-	case 0xd8:
-		tf = proto_tree_add_item(tree, hf_cisco_aci_portmode, tvb, offset, length, ENC_NA);
+	case 0xd8: // 216 port-mode, uint16
+		tf = proto_tree_add_item(tree, hf_cisco_aci_portmode, tvb, offset, length, ENC_BIG_ENDIAN);
+		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(wmem_packet_scope(), tf));
+		offset += 2;
+		length -= 2;
+		break;
+	case 0xd9: // 217 authenticate-cookie, bytes
+		tf = proto_tree_add_item(tree, hf_cisco_aci_authcookie, tvb, offset, length, ENC_NA);
 		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(wmem_packet_scope(), tf));
 		offset += length;
 		length -= length;
 		break;
-	case 0xd9:
-		tf = proto_tree_add_item(tree, hf_cisco_aci_unknownd9, tvb, offset, length, ENC_NA);
-		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(wmem_packet_scope(), tf));
-		offset += length;
-		length -= length;
-		break;
-	case 0xda:
+	case 0xda: // 218 standby-apic, uint8
 		tf = proto_tree_add_item(tree, hf_cisco_aci_apicmode, tvb, offset, length, ENC_NA);
 		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(wmem_packet_scope(), tf));
-		offset += length;
-		length -= length;
+		offset++;
+		length--;
+		break;
+	case 0xdb: // 219 fabric-id, uint16
+		tf = proto_tree_add_item(tree, hf_cisco_aci_fabricid, tvb, offset, length, ENC_BIG_ENDIAN);
+		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(wmem_packet_scope(), tf));
+		offset += 2;
+		length -= 2;
 		break;
 	default:
 		if (length > 0) {
@@ -5810,6 +5832,7 @@ proto_register_lldp(void)
 			{ "GreenPeriodBegin.Offset",	"lldp.profinet.green_period_begin_offset", FT_UINT32, BASE_DEC,
 			NULL, 0x7FFFFFFF, "Unrestricted period, offset to cycle begin in nanoseconds", HFILL }
 		},
+	/* Cisco generic */
 		{ &hf_cisco_subtype,
 			{ "Cisco Subtype",	"lldp.cisco.subtype", FT_UINT8, BASE_HEX,
 			VALS(cisco_subtypes), 0x0, NULL, HFILL }
@@ -5834,6 +5857,7 @@ proto_register_lldp(void)
 			{ "PSE Spare Pair PoE", "lldp.cisco.upoe.pse_altb_oper", FT_BOOLEAN, 8,
 			TFS(&tfs_enabled_disabled), 0x08, "PSE ALT-B Pair Operational State", HFILL }
 		},
+	/* Cisco ACI */
 		{ &hf_cisco_aci_portstate,
 			{ "Port State", "lldp.cisco.portstate", FT_UINT8, BASE_NONE,
 			VALS(cisco_portstate_vals), 0x0, NULL, HFILL }
@@ -5846,12 +5870,12 @@ proto_register_lldp(void)
 			{ "Node ID", "lldp.cisco.nodeid", FT_UINT32, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }
 		},
-		{ &hf_cisco_aci_unknowncc,
-			{ "Unknown 0xCC", "lldp.cisco.unknowncc", FT_BYTES, BASE_NONE,
+		{ &hf_cisco_aci_spinelevel,
+			{ "Spine Level", "lldp.cisco.spinelevel", FT_UINT8, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }
 		},
-		{ &hf_cisco_aci_pod,
-			{ "Pod", "lldp.cisco.pod", FT_UINT16, BASE_DEC,
+		{ &hf_cisco_aci_podid,
+			{ "Pod ID", "lldp.cisco.podid", FT_UINT16, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_cisco_aci_fabricname,
@@ -5878,9 +5902,9 @@ proto_register_lldp(void)
 			{ "Node IP", "lldp.cisco.nodeip", FT_IPv4, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }
 		},
-		{ &hf_cisco_aci_unknownd1,
-			{ "Unknown 0xD1", "lldp.cisco.unknownd1", FT_BYTES, BASE_NONE,
-			NULL, 0x0, NULL, HFILL }
+		{ &hf_cisco_aci_portrole,
+			{ "Port Role", "lldp.cisco.portrole", FT_UINT8, BASE_NONE,
+			VALS(cisco_portrole_vals), 0x0, NULL, HFILL }
 		},
 		{ &hf_cisco_aci_version,
 			{ "Version", "lldp.cisco.version", FT_STRING, BASE_NONE,
@@ -5903,17 +5927,22 @@ proto_register_lldp(void)
 			NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_cisco_aci_portmode,
-			{ "Port Mode", "lldp.cisco.portmode", FT_BYTES, BASE_NONE,
-			NULL, 0x0, NULL, HFILL }
+			{ "Port Mode", "lldp.cisco.portmode", FT_UINT8, BASE_NONE,
+			VALS(cisco_portmode_vals), 0x0, NULL, HFILL }
 		},
-		{ &hf_cisco_aci_unknownd9,
-			{ "Unknown 0xD9", "lldp.cisco.unknownd9", FT_BYTES, BASE_NONE,
+		{ &hf_cisco_aci_authcookie,
+			{ "Authentication Cookie", "lldp.cisco.authcookie", FT_BYTES, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_cisco_aci_apicmode,
-			{ "APIC Mode", "lldp.cisco.apicmode", FT_UINT8, BASE_NONE,
+			{ "APIC Mode", "lldp.cisco.apicmode", FT_UINT8, BASE_DEC,
 			VALS(cisco_apicmode_vals), 0x0, NULL, HFILL }
 		},
+		{ &hf_cisco_aci_fabricid,
+			{ "Fabric ID", "lldp.cisco.fabricd", FT_UINT16, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }
+		},
+	/* Hytec */
 		{ &hf_hytec_tlv_subtype,
 			{ "Hytec Subtype",	"lldp.hytec.tlv_subtype", FT_UINT8, BASE_DEC,
 			VALS(hytec_subtypes), 0x0, NULL, HFILL }

@@ -4712,19 +4712,33 @@ dissect_apple_bsdp_vendor_info_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 /* Cisco Vendor Specific Information */
 
+/*
+        {  1, "1" },            * D,R: 03 *
+        {  2, "2" },            * D,R: 01 *
+        {  3, "3" },            * D,R: 00 01 # O,A: 00 02 *
+        {  4, "Node ID" },      * O,A: 00 00 00 ca *
+        {  5, "5" },            * O,A: 01 *
+        {  6, "6" },            * D,R: 01 # O,A: 01 *
+        {  7, "Model" },        * D,R: N9K-C9336PQ *
+        {  8, "APIC UUID" },    * O,A: 09bced36-69f1-11e6-96ce-8baf09371338 *
+        {  9, "Fabricname" },   * O,A: ams-fab1 *
+        { 10, "10" },           * D,R: 00 00 00 01 *
+        { 11, "SerialNo" },     * D,R: SAL1926J4QW *
+        { 12, "Client Int" },   * D,O: eth1/20.20 # R,A: eth1/20.20 *
+*/
 static const value_string option43_cisco_suboption_vals[] = {
-	{  1, "Unk-1" },	/* Number */
-	{  2, "Unk-2" },	/* Number */
-	{  3, "Unk-3" },	/* Number */
-	{  4, "Node ID" },	/* Number */
-	{  5, "Unk-5" },	/* Number */
-	{  6, "Unk-6" },	/* Number */
-	{  7, "Model" },	/* String */
-	{  8, "APIC UUID" },	/* String */
-	{  9, "Fabricname" },	/* String */
-	{ 10, "Unk-10" },	/* Number */
-	{ 11, "SerialNo" },	/* String */
-	{ 12, "Client Int" },	/* String */
+	{  1, "Unk-1 (Node role?)" },		/* uint8 */
+	{  2, "Unk-2 (Spine level?)" },		/* uint8 */
+	{  3, "Unk-3 (Pod ID?)" },		/* uint16 */
+	{  4, "Node ID" },			/* uint32 */
+	{  5, "Unk-5" },			/* uint8 */
+	{  6, "Unk-6" },			/* uint8 */
+	{  7, "Model" },			/* String */
+	{  8, "APIC UUID" },			/* String */
+	{  9, "Fabricname" },			/* String */
+	{ 10, "Unk-10" },			/* uint32 */
+	{ 11, "SerialNo" },			/* String */
+	{ 12, "Interfacename" },		/* String */
 
 	{ 0, NULL}
 };
