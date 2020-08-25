@@ -23969,7 +23969,7 @@ static const true_false_string notification_value  = {
 */
 static const true_false_string redirecting_presentation_value  = {
   "Presentation",
-  "No presentationn"
+  "No presentation"
 };
 /*
 -- bit 6: notification to calling party
