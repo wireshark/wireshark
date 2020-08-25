@@ -616,12 +616,10 @@ Wireshark provides a custom pre-commit hook which does additional Wireshark-spec
 If you want to install it, copy the pre-commit file from the tools directory (`cp ./tools/pre-commit .git/hooks/`) and make sure it is executable or it will not be run.
 
 If the pre-commit hook is preventing you from committing what you believe is a valid change, you can run `git commit --no-verify` to skip running the hooks.
-Warning: using --no-verify avoids the commit-msg hook, and thus will not automatically add the required Change-ID to your commit.
-In case you are not updating an existing patch you may generate a Change-ID by running `git review -i` (or `git commit --amend` if don't use git review).
+Warning: using --no-verify avoids the commit-msg hook, and thus if you have setup this hook it will not run.
 
 Additionally, if your system supports symbolic links, as all UNIX-like platforms do, you can use them instead of copying files.
-`Running ln -s ./tools/pre-commit .git/hooks` creates a symbolic link that will make the hook to be up-to-date with the current master.
-The same can be done for commit-msg script.
+Running `ln -s ./tools/pre-commit .git/hooks` creates a symbolic link that will make the hook to be up-to-date with the current master.
 
 .Choose a compatible license.
 Wireshark is released under the {spdx-license-url}GPL-2.0-or-later.html[GPL version 2 or later], and it is strongly recommended that incoming code use that license.
