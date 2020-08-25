@@ -170,7 +170,7 @@ How to Report a Bug
 -------------------
 
 Wireshark is under constant development, so it is possible that you will
-encounter a bug while using it. Please report bugs at https://bugs.wireshark.org.
+encounter a bug while using it. Please report bugs at https://gitlab.com/wireshark/wireshark/-/issues.
 Be sure you enter into the bug:
 
 1. The complete build information from the "About Wireshark"
