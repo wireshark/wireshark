@@ -28,6 +28,7 @@ Global-ENB-ID
 HandoverRestrictionList_PDU
 LastVisitedEUTRANCellInformation_PDU
 LastVisitedGERANCellInformation_PDU
+MDTMode_PDU
 SourceeNB-ToTargeteNB-TransparentContainer_PDU
 SONtransferApplicationIdentity_PDU
 SONtransferRequestContainer_PDU
@@ -45,6 +46,7 @@ EUTRAN-CGI
 HandoverRestrictionList
 LastVisitedEUTRANCellInformation
 LastVisitedGERANCellInformation
+MDTMode
 S1AP-PDU
 SourceeNB-ToTargeteNB-TransparentContainer
 SONtransferApplicationIdentity
@@ -1428,6 +1430,24 @@ ScheduledCommunicationTime/timeofDayEnd DISPLAY=BASE_DEC|BASE_UNIT_STRING STRING
 
 #.TYPE_ATTR
 TrafficLoadReductionIndication DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_percent
+
+#.FN_BODY MDT-ConfigurationNR VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+  proto_tree *subtree;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_MDT_ConfigurationNR);
+    dissect_ngap_MDT_Configuration_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY IntersystemSONConfigurationTransfer VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+  proto_tree *subtree;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_IntersystemSONConfigurationTransfer);
+    dissect_ngap_SONConfigurationTransfer_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
 
 #.ASSIGN_VALUE_TO_TYPE  # S1AP does not have constants assigned to types, they are pure INTEGER
 # ProcedureCode

@@ -77,6 +77,7 @@ P-Max_PDU
 PH-TypeListMCG_PDU
 PH-TypeListSCG_PDU
 RadioBearerConfig_PDU
+ReferenceTime-r16_PDU
 RRCReconfiguration_PDU
 RRCReconfigurationComplete_PDU
 SIB1_PDU
@@ -102,6 +103,7 @@ UEAssistanceInformation_PDU
 UERadioPagingInformation_PDU
 UL-DCCH-Message_PDU
 UplinkTxDirectCurrentList_PDU
+VisitedCellInfoList-r16_PDU
 
 #.PDU
 BandCombinationIndex
@@ -131,6 +133,7 @@ PCCH-Message                       @pcch
 PH-TypeListMCG
 PH-TypeListSCG
 RadioBearerConfig
+ReferenceTime-r16
 RRCReconfiguration                 @rrc_reconf
 RRCReconfigurationComplete
 SBCCH-SL-BCH-Message               @sbcch.sl.bch
@@ -162,6 +165,7 @@ UL-CCCH-Message                    @ul.ccch
 UL-CCCH1-Message                   @ul.ccch1
 UL-DCCH-Message                    @ul.dcch
 UplinkTxDirectCurrentList
+VisitedCellInfoList-r16
 #.END
 
 #.OMIT_ASSIGNMENT

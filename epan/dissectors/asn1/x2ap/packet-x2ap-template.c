@@ -170,6 +170,7 @@ static int ett_x2ap_Non_anchorCarrierFrequency = -1;
 static int ett_x2ap_ReportCharacteristics_ENDC = -1;
 static int ett_x2ap_TargetCellInNGRAN = -1;
 static int ett_x2ap_TDDULDLConfigurationCommonNR = -1;
+static int ett_x2ap_MDT_ConfigurationNR = -1;
 #include "packet-x2ap-ett.c"
 
 /* Forward declarations */
@@ -684,6 +685,7 @@ void proto_register_x2ap(void) {
     &ett_x2ap_ReportCharacteristics_ENDC,
     &ett_x2ap_TargetCellInNGRAN,
     &ett_x2ap_TDDULDLConfigurationCommonNR,
+    &ett_x2ap_MDT_ConfigurationNR,
 #include "packet-x2ap-ettarr.c"
   };
 

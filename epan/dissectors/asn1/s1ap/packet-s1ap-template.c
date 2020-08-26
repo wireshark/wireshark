@@ -158,6 +158,8 @@ static int ett_s1ap_sSRSSIMeasurement = -1;
 static int ett_s1ap_quantityConfigNR_R15 = -1;
 static int ett_s1ap_blackCellsToAddModList = -1;
 static int ett_s1ap_NB_IoT_RLF_Report_Container = -1;
+static int ett_s1ap_MDT_ConfigurationNR = -1;
+static int ett_s1ap_IntersystemSONConfigurationTransfer = -1;
 #include "packet-s1ap-ett.c"
 
 static expert_field ei_s1ap_number_pages_le15 = EI_INIT;
@@ -760,6 +762,8 @@ void proto_register_s1ap(void) {
     &ett_s1ap_quantityConfigNR_R15,
     &ett_s1ap_blackCellsToAddModList,
     &ett_s1ap_NB_IoT_RLF_Report_Container,
+    &ett_s1ap_MDT_ConfigurationNR,
+    &ett_s1ap_IntersystemSONConfigurationTransfer,
 #include "packet-s1ap-ettarr.c"
   };
 

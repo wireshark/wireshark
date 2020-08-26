@@ -1,4 +1,4 @@
--- 3GPP TS 38.413 V15.6.0 (2019-12)
+-- 3GPP TS 38.413 V16.2.0 (2020-07)
 -- 9.4.3	Elementary Procedure Definitions
 -- **************************************************************
 --
@@ -29,12 +29,15 @@ FROM NGAP-CommonDataTypes
 	AMFConfigurationUpdate,
 	AMFConfigurationUpdateAcknowledge,
 	AMFConfigurationUpdateFailure,
+	AMFCPRelocationIndication,
 	AMFStatusIndication,
 	CellTrafficTrace,
+	ConnectionEstablishmentIndication,
 	DeactivateTrace,
 	DownlinkNASTransport,
 	DownlinkNonUEAssociatedNRPPaTransport,
 	DownlinkRANConfigurationTransfer,
+	DownlinkRANEarlyStatusTransfer,
 	DownlinkRANStatusTransfer,
 	DownlinkUEAssociatedNRPPaTransport,
 	ErrorIndication,
@@ -47,6 +50,7 @@ FROM NGAP-CommonDataTypes
 	HandoverRequest,
 	HandoverRequestAcknowledge,
 	HandoverRequired,
+	HandoverSuccess,
 	InitialContextSetupFailure,
 	InitialContextSetupRequest,
 	InitialContextSetupResponse,
@@ -83,7 +87,9 @@ FROM NGAP-CommonDataTypes
 	RANConfigurationUpdate,
 	RANConfigurationUpdateAcknowledge,
 	RANConfigurationUpdateFailure,
+	RANCPRelocationIndication,
 	RerouteNASRequest,
+	RetrieveUEInformation,
 	RRCInactiveTransitionReport,
 	SecondaryRATDataUsageReport,
 	TraceFailureIndication,
@@ -94,26 +100,42 @@ FROM NGAP-CommonDataTypes
 	UEContextReleaseCommand,
 	UEContextReleaseComplete,
 	UEContextReleaseRequest,
+	UEContextResumeRequest,
+	UEContextResumeResponse,
+	UEContextResumeFailure,
+	UEContextSuspendRequest,
+	UEContextSuspendResponse,
+	UEContextSuspendFailure,
+	UEInformationTransfer,
 	UERadioCapabilityCheckRequest,
 	UERadioCapabilityCheckResponse,
+	UERadioCapabilityIDMappingRequest,
+	UERadioCapabilityIDMappingResponse,
 	UERadioCapabilityInfoIndication,
 	UETNLABindingReleaseRequest,
 	UplinkNASTransport,
 	UplinkNonUEAssociatedNRPPaTransport,
 	UplinkRANConfigurationTransfer,
+	UplinkRANEarlyStatusTransfer,
 	UplinkRANStatusTransfer,
 	UplinkUEAssociatedNRPPaTransport,
 	WriteReplaceWarningRequest,
-	WriteReplaceWarningResponse
+	WriteReplaceWarningResponse,
+	UplinkRIMInformationTransfer,
+	DownlinkRIMInformationTransfer
+
 FROM NGAP-PDU-Contents
 
 	id-AMFConfigurationUpdate,
+	id-AMFCPRelocationIndication,
 	id-AMFStatusIndication,
 	id-CellTrafficTrace,
+	id-ConnectionEstablishmentIndication,
 	id-DeactivateTrace,
 	id-DownlinkNASTransport,
 	id-DownlinkNonUEAssociatedNRPPaTransport,
 	id-DownlinkRANConfigurationTransfer,
+	id-DownlinkRANEarlyStatusTransfer,
 	id-DownlinkRANStatusTransfer,
 	id-DownlinkUEAssociatedNRPPaTransport,
 	id-ErrorIndication,
@@ -121,6 +143,7 @@ FROM NGAP-PDU-Contents
 	id-HandoverNotification,
 	id-HandoverPreparation,
 	id-HandoverResourceAllocation,
+	id-HandoverSuccess,
 	id-InitialContextSetup,
 	id-InitialUEMessage,
 	id-LocationReport,
@@ -143,7 +166,9 @@ FROM NGAP-PDU-Contents
 	id-PWSFailureIndication,
 	id-PWSRestartIndication,
 	id-RANConfigurationUpdate,
+	id-RANCPRelocationIndication,
 	id-RerouteNASRequest,
+	id-RetrieveUEInformation,
 	id-RRCInactiveTransitionReport,
 	id-SecondaryRATDataUsageReport,
 	id-TraceFailureIndication,
@@ -151,15 +176,23 @@ FROM NGAP-PDU-Contents
 	id-UEContextModification,
 	id-UEContextRelease,
 	id-UEContextReleaseRequest,
+	id-UEContextResume,
+	id-UEContextSuspend,
+	id-UEInformationTransfer,
 	id-UERadioCapabilityCheck,
+	id-UERadioCapabilityIDMapping,
 	id-UERadioCapabilityInfoIndication,
 	id-UETNLABindingRelease,
 	id-UplinkNASTransport,
 	id-UplinkNonUEAssociatedNRPPaTransport,
 	id-UplinkRANConfigurationTransfer,
+	id-UplinkRANEarlyStatusTransfer,
 	id-UplinkRANStatusTransfer,
 	id-UplinkUEAssociatedNRPPaTransport,
-	id-WriteReplaceWarning
+	id-WriteReplaceWarning,
+	id-UplinkRIMInformationTransfer,
+	id-DownlinkRIMInformationTransfer
+
 FROM NGAP-Constants;
 
 -- **************************************************************
@@ -244,21 +277,28 @@ NGAP-ELEMENTARY-PROCEDURES-CLASS-1 NGAP-ELEMENTARY-PROCEDURE ::= {
 	rANConfigurationUpdate			|
 	uEContextModification			|
 	uEContextRelease				|
+	uEContextResume								|
+	uEContextSuspend							|
 	uERadioCapabilityCheck			|
+	uERadioCapabilityIDMapping		|
 	writeReplaceWarning
 }
 
 NGAP-ELEMENTARY-PROCEDURES-CLASS-2 NGAP-ELEMENTARY-PROCEDURE ::= {	
+	aMFCPRelocationIndication		|
 	aMFStatusIndication				|
 	cellTrafficTrace				|
+	connectionEstablishmentIndication	|
 	deactivateTrace					|
 	downlinkNASTransport			|
 	downlinkNonUEAssociatedNRPPaTransport	|
 	downlinkRANConfigurationTransfer	|
+	downlinkRANEarlyStatusTransfer	|
 	downlinkRANStatusTransfer		|
 	downlinkUEAssociatedNRPPaTransport	|
 	errorIndication					|
 	handoverNotification			|
+	handoverSuccess								|
 	initialUEMessage				|
 	locationReport					|
 	locationReportingControl		|
@@ -271,19 +311,25 @@ NGAP-ELEMENTARY-PROCEDURES-CLASS-2 NGAP-ELEMENTARY-PROCEDURE ::= {
 	privateMessage					|
 	pWSFailureIndication						|
 	pWSRestartIndication			|
+	rANCPRelocationIndication		|
 	rerouteNASRequest				|
+	retrieveUEInformation						|
 	rRCInactiveTransitionReport					|
 	secondaryRATDataUsageReport		|
 	traceFailureIndication			|
 	traceStart						|
 	uEContextReleaseRequest			|
+	uEInformationTransfer						|
 	uERadioCapabilityInfoIndication	|
 	uETNLABindingRelease			|
 	uplinkNASTransport				|
 	uplinkNonUEAssociatedNRPPaTransport	|
 	uplinkRANConfigurationTransfer	|
+	uplinkRANEarlyStatusTransfer					|
 	uplinkRANStatusTransfer			|
-	uplinkUEAssociatedNRPPaTransport
+	uplinkUEAssociatedNRPPaTransport			|
+	uplinkRIMInformationTransfer				|
+	downlinkRIMInformationTransfer
 }
 
 -- **************************************************************
@@ -300,6 +346,12 @@ aMFConfigurationUpdate NGAP-ELEMENTARY-PROCEDURE ::= {
 	CRITICALITY				reject
 }
 
+aMFCPRelocationIndication NGAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		AMFCPRelocationIndication
+	PROCEDURE CODE			id-AMFCPRelocationIndication
+	CRITICALITY				reject
+}
+
 aMFStatusIndication NGAP-ELEMENTARY-PROCEDURE ::={
 	INITIATING MESSAGE		AMFStatusIndication
 	PROCEDURE CODE			id-AMFStatusIndication
@@ -310,6 +362,12 @@ cellTrafficTrace NGAP-ELEMENTARY-PROCEDURE ::={
 	INITIATING MESSAGE		CellTrafficTrace
 	PROCEDURE CODE			id-CellTrafficTrace
 	CRITICALITY				ignore
+}
+
+connectionEstablishmentIndication NGAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		ConnectionEstablishmentIndication
+	PROCEDURE CODE			id-ConnectionEstablishmentIndication
+	CRITICALITY				reject
 }
 
 deactivateTrace NGAP-ELEMENTARY-PROCEDURE ::= {
@@ -333,6 +391,12 @@ downlinkNonUEAssociatedNRPPaTransport NGAP-ELEMENTARY-PROCEDURE ::= {
 downlinkRANConfigurationTransfer NGAP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		DownlinkRANConfigurationTransfer
 	PROCEDURE CODE			id-DownlinkRANConfigurationTransfer
+	CRITICALITY				ignore
+}
+
+downlinkRANEarlyStatusTransfer NGAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		DownlinkRANEarlyStatusTransfer
+	PROCEDURE CODE			id-DownlinkRANEarlyStatusTransfer
 	CRITICALITY				ignore
 }
 
@@ -381,6 +445,12 @@ handoverResourceAllocation NGAP-ELEMENTARY-PROCEDURE ::= {
 	UNSUCCESSFUL OUTCOME	HandoverFailure
 	PROCEDURE CODE			id-HandoverResourceAllocation
 	CRITICALITY				reject
+}
+
+handoverSuccess NGAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		HandoverSuccess
+	PROCEDURE CODE			id-HandoverSuccess
+	CRITICALITY				ignore
 }
 
 initialContextSetup NGAP-ELEMENTARY-PROCEDURE ::= {
@@ -529,9 +599,22 @@ rANConfigurationUpdate NGAP-ELEMENTARY-PROCEDURE ::= {
 	CRITICALITY				reject
 }
 
+rANCPRelocationIndication NGAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		RANCPRelocationIndication
+	PROCEDURE CODE			id-RANCPRelocationIndication
+	CRITICALITY				reject
+}
+
 rerouteNASRequest NGAP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		RerouteNASRequest
 	PROCEDURE CODE			id-RerouteNASRequest
+	CRITICALITY				reject
+}
+
+
+retrieveUEInformation NGAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		RetrieveUEInformation
+	PROCEDURE CODE			id-RetrieveUEInformation
 	CRITICALITY				reject
 }
 
@@ -580,10 +663,39 @@ uEContextReleaseRequest NGAP-ELEMENTARY-PROCEDURE ::= {
 	CRITICALITY				ignore
 }
 
+uEContextResume NGAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		UEContextResumeRequest
+	SUCCESSFUL OUTCOME		UEContextResumeResponse
+	UNSUCCESSFUL OUTCOME	UEContextResumeFailure
+	PROCEDURE CODE			id-UEContextResume
+	CRITICALITY				reject
+}
+
+uEContextSuspend NGAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		UEContextSuspendRequest
+	SUCCESSFUL OUTCOME		UEContextSuspendResponse
+	UNSUCCESSFUL OUTCOME	UEContextSuspendFailure
+	PROCEDURE CODE			id-UEContextSuspend
+	CRITICALITY				reject
+}
+
+uEInformationTransfer NGAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		UEInformationTransfer
+	PROCEDURE CODE			id-UEInformationTransfer
+	CRITICALITY				reject
+}
+
 uERadioCapabilityCheck NGAP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		UERadioCapabilityCheckRequest
 	SUCCESSFUL OUTCOME		UERadioCapabilityCheckResponse
 	PROCEDURE CODE			id-UERadioCapabilityCheck
+	CRITICALITY				reject
+}
+
+uERadioCapabilityIDMapping NGAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		UERadioCapabilityIDMappingRequest
+	SUCCESSFUL OUTCOME		UERadioCapabilityIDMappingResponse
+	PROCEDURE CODE			id-UERadioCapabilityIDMapping
 	CRITICALITY				reject
 }
 
@@ -617,6 +729,12 @@ uplinkRANConfigurationTransfer NGAP-ELEMENTARY-PROCEDURE ::= {
 	CRITICALITY				ignore
 }
 
+uplinkRANEarlyStatusTransfer NGAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		UplinkRANEarlyStatusTransfer
+	PROCEDURE CODE			id-UplinkRANEarlyStatusTransfer
+	CRITICALITY				reject
+}
+
 uplinkRANStatusTransfer NGAP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		UplinkRANStatusTransfer
 	PROCEDURE CODE			id-UplinkRANStatusTransfer
@@ -634,6 +752,18 @@ writeReplaceWarning NGAP-ELEMENTARY-PROCEDURE ::= {
 	SUCCESSFUL OUTCOME		WriteReplaceWarningResponse
 	PROCEDURE CODE			id-WriteReplaceWarning
 	CRITICALITY				reject
+}
+
+uplinkRIMInformationTransfer NGAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		UplinkRIMInformationTransfer
+	PROCEDURE CODE			id-UplinkRIMInformationTransfer
+	CRITICALITY				ignore
+}
+
+downlinkRIMInformationTransfer NGAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		DownlinkRIMInformationTransfer
+	PROCEDURE CODE			id-DownlinkRIMInformationTransfer
+	CRITICALITY				ignore
 }
 
 END
