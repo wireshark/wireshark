@@ -38,7 +38,7 @@
 
 typedef struct cip_safety_info {
    enum enip_connid_type conn_type;
-   enip_conn_val_t* eip_conn_info;
+   cip_conn_info_t* eip_conn_info;
    gboolean compute_crc;
 } cip_safety_info_t;
 

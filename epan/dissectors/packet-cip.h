@@ -414,7 +414,7 @@ typedef struct cip_simple_request_info {
 
    // First Connection Point
    guint32 iConnPointA;
-   // Last Connection Point
+   // Last Connection Point. The 2nd (last) Connection Point defines the Motion I/O Format.
    guint32 iConnPoint;
 } cip_simple_request_info_t;
 
@@ -496,17 +496,28 @@ typedef struct cip_safety_epath_info {
    cip_connection_triad_t target_triad;
 } cip_safety_epath_info_t;
 
+// Information for a given CIP Connection, for both directions (O->T and T->O)
 typedef struct cip_conn_info {
+   // Forward Open Data
    cip_connection_triad_t  triad;
-   guint32                 forward_open_frame;
-   cip_connID_info_t       O2T;
-   cip_connID_info_t       T2O;
    guint8                  TransportClass_trigger;
    cip_safety_epath_info_t safety;
    guint32                 ClassID;
    guint32                 ConnPoint;
    guint32                 FwdOpenPathLenBytes;
-   void                    *pFwdOpenPathData;
+   void*                   pFwdOpenPathData;
+
+   // Information about specific packet numbers.
+   guint32 open_req_frame;
+   guint32 open_reply_frame;
+   guint32 close_frame;
+
+   // Information about each direction of the overall connection.
+   cip_connID_info_t O2T;
+   cip_connID_info_t T2O;
+
+   // Unique ID generated that links together the CIP Connections.
+   guint32 connid;
 } cip_conn_info_t;
 
 typedef struct cip_req_info {

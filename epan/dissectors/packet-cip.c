@@ -6394,7 +6394,7 @@ static void dissect_connection_triad(tvbuff_t *tvb, int offset, proto_tree *tree
 // Mark this message as belonging to a specific CIP connection index.
 static void mark_cip_connection(packet_info* pinfo, tvbuff_t* tvb, proto_tree* tree)
 {
-    enip_conn_val_t* conn_val = (enip_conn_val_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_CONNECTION_INFO);
+    cip_conn_info_t* conn_val = (cip_conn_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_CONNECTION_INFO);
     if (conn_val)
     {
         proto_item* pi = proto_tree_add_uint(tree, hf_cip_connection, tvb, 0, 0, conn_val->connid);
@@ -6505,7 +6505,7 @@ dissect_cip_cm_fwd_open_req(cip_req_info_t *preq_info, proto_tree *cmd_tree, tvb
          preq_info->connInfo = wmem_new0(wmem_file_scope(), cip_conn_info_t);
 
          preq_info->connInfo->triad = conn_triad;
-         preq_info->connInfo->forward_open_frame = pinfo->num;
+         preq_info->connInfo->open_req_frame = pinfo->num;
 
          preq_info->connInfo->O2T = O2T_info;
          preq_info->connInfo->T2O = T2O_info;
@@ -6513,7 +6513,6 @@ dissect_cip_cm_fwd_open_req(cip_req_info_t *preq_info, proto_tree *cmd_tree, tvb
          preq_info->connInfo->TransportClass_trigger = TransportClass_trigger;
          preq_info->connInfo->safety = safety_fwdopen;
          preq_info->connInfo->ClassID = connection_path.iClass;
-         // The 2nd Connection Point defines the Motion I/O Format.
          preq_info->connInfo->ConnPoint = connection_path.iConnPoint;
 
          preq_info->connInfo->FwdOpenPathLenBytes = conn_path_size;
