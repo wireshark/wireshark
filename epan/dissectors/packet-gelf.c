@@ -22,7 +22,7 @@
 /* not sure if this really used
 seen this here: https://github.com/lusis/gelfd/blob/229cf5f1f913a35db648b195300d1aaae841d522/lib/gelfd.rb#L7 */
 #define HEADER_UNCOMPRESSED 0x1f3c
-#define HEADER_UNCOMPRESSED_PLAIN 0x7b22 // {", json payload without real header
+#define HEADER_UNCOMPRESSED_PLAIN 0x7b22 // json payload without real header
 
 /* minimal size of json message with only required fields */
 #define MIN_PLAIN_MSG 48

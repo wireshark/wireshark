@@ -1060,7 +1060,7 @@ static const value_string oml_fom_attr_vals_bs11[] = {
 	{ NM_ATT_BS11_LMT_USER_NAME,	"SIE LMT User Account Name" },
 	{ NM_ATT_BS11_L1_CONTROL_TS,	"SIE L1 Control TS" },
 	{ NM_ATT_BS11_RADIO_MEAS_GRAN,	"SIE Radio Measurement Granularity" },
-	{ NM_ATT_BS11_RADIO_MEAS_REP,	"SIE Rdadio Measurement Report" },
+	{ NM_ATT_BS11_RADIO_MEAS_REP,	"SIE Radio Measurement Report" },
 	{ NM_ATT_BS11_SH_LAPD_INT_TIMER,"SIE LAPD Internal Timer" },
 	{ NM_ATT_BS11_BTS_STATE,	"SIE BTS State" },
 	{ NM_ATT_BS11_E1_STATE,		"SIE E1 State" },
@@ -1091,7 +1091,7 @@ static const value_string oml_fom_attr_vals_bs11[] = {
 /* proprietary ip.access attributes, not in the standard */
 static const value_string oml_fom_attr_vals_ipa[] = {
 	{ NM_ATT_IPACC_DST_IP,		"IPA Destination IP Address" },
-	{ NM_ATT_IPACC_DST_IP_PORT,	"IPA Destionation IP Port" },
+	{ NM_ATT_IPACC_DST_IP_PORT,	"IPA Destination IP Port" },
 	{ NM_ATT_IPACC_SSRC,		"IPA RTP SSRC" },
 	{ NM_ATT_IPACC_RTP_PAYLD_TYPE,	"IPA RTP Payload Type" },
 	{ NM_ATT_IPACC_BASEB_ID,	"IPA Baseband Identifier" },
@@ -1294,7 +1294,7 @@ static const value_string oml_nack_cause[] = {
 	{ NM_NACK_PHYSCFG_NOTRESTORE,	"Phys config cannot be restored" },
 	{ NM_NACK_TEST_NOSUCH,		"No such Test" },
 	{ NM_NACK_TEST_NOSTOP,		"Test cannot be stopped" },
-	{ NM_NACK_MSGINCONSIST_PHYSCFG,	"Message inconsisten with physical config" },
+	{ NM_NACK_MSGINCONSIST_PHYSCFG,	"Message inconsistent with physical config" },
 	{ NM_NACK_FILE_INCOMPLETE,	"Complete file not received" },
 	{ NM_NACK_FILE_NOTAVAIL,	"File not available at destination" },
 	{ NM_NACK_FILE_NOTACTIVATE,	"File cannot be activated" },
@@ -2103,7 +2103,7 @@ proto_register_abis_oml(void)
 			{ "Primary OML TCP Port",
 					"gsm_abis_oml.fom.attr.ipa.prim_oml_port",
 			  FT_UINT16, BASE_DEC, NULL, 0,
-			  "TCP Port of the BSC for the primarly OML link",
+			  "TCP Port of the BSC for the primary OML link",
 			  HFILL }
 		},
 		{ &hf_attr_ipa_location_name,

@@ -725,7 +725,7 @@ static const value_string Page_Req_Service_Option_Types[] = {
     {39, "GSM Circuit Data" },
     {40, "GSM Packet Data" },
     {41, "GSM Short Message Service" },
-    //42 - 53 None Reserved for MC-MAP standard service options" },
+    //42 - 53 None Reserved for MC-MAP standard service options
     {54, "Markov Service Option (MSO)" },
     {55, "Loopback Service Option (LSO)" },
     {56, "Selectable Mode Vocoder" },

@@ -11995,7 +11995,7 @@ proto_register_zbee_zcl_pwr_prof(void)
             "Identifier of the specific energy phase.", HFILL } },
 
         { &hf_zbee_zcl_pwr_prof_expect_duration,
-            { "Expected Duration", "zbee_zcl_general.pwrprof.expecduration", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_zcl_time_in_minutes), 0x0,
+            { "Expected Duration", "zbee_zcl_general.pwrprof.expectduration", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_zcl_time_in_minutes), 0x0,
             "The estimated duration of the specific phase.", HFILL } },
 
         { &hf_zbee_zcl_pwr_prof_num_of_trans_phases,
@@ -15084,7 +15084,7 @@ proto_register_zbee_zcl_gp(void)
           { "Commissioning window", "zbee_zcl_general.gp.proxy_comm_mode.comm_window", FT_UINT16, BASE_DEC,
             NULL, 0x0, "Commissioning window in seconds", HFILL }},
         { &hf_zbee_zcl_gp_channel,
-          { "Channel", "zbee_zcl_general.gp.proxy_comm_mode.cnannel", FT_UINT8, BASE_DEC,
+          { "Channel", "zbee_zcl_general.gp.proxy_comm_mode.channel", FT_UINT8, BASE_DEC,
             NULL, 0x0, "Identifier of the channel the devices SHOULD switch to on reception", HFILL }},
         { &hf_zbee_gp_cmd_pcm_opt_action,
           { "Action", "zbee_zcl_general.gp.proxy_comm_mode.opt.action", FT_UINT8, BASE_DEC,
@@ -15460,7 +15460,7 @@ proto_register_zbee_zcl_gp(void)
           { "ApplicationID", "zbee_zcl_general.gp.sink_tbl.entry.opt.app_id", FT_UINT16, BASE_HEX,
             NULL, ZBEE_ZCL_GP_SINK_TBL_OPT_APP_ID, NULL, HFILL }},
         { &hf_zbee_gp_sink_tbl_entry_options_comm_mode,
-          { "Communicaton Mode", "zbee_zcl_general.gp.sink_tbl.entry.opt.comm_mode", FT_UINT16, BASE_HEX,
+          { "Communication Mode", "zbee_zcl_general.gp.sink_tbl.entry.opt.comm_mode", FT_UINT16, BASE_HEX,
             VALS(zbee_zcl_gp_communication_modes), ZBEE_ZCL_GP_SINK_TBL_OPT_COMMUNICATION_MODE, NULL, HFILL }},
         { &hf_zbee_gp_sink_tbl_entry_options_seq_num_cap,
           { "Sequence number capabilities", "zbee_zcl_general.gp.sink_tbl.entry.opt.seq_num_cap", FT_BOOLEAN, 16,

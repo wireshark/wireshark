@@ -951,7 +951,7 @@ typedef enum
     DIS_EMISSION_FUNCTION_IMAGING                       = 11,
     DIS_EMISSION_FUNCTION_MOTION_DETECTION              = 12,
     DIS_EMISSION_FUNCTION_NAVIGATION                    = 13,
-    DIS_EMISSION_FUNCTION_WEATHER_METEROLOGICAL         = 14,
+    DIS_EMISSION_FUNCTION_WEATHER_METEOROLOGICAL        = 14,
     DIS_EMISSION_FUNCTION_INSTRUMENTATION               = 15,
     DIS_EMISSION_FUNCTION_IDENTIFICATION_CLASSIFICATION_INCLUDING_IFF = 16,
     DIS_EMISSION_FUNCTION_AAA_FIRE_CONTROL              = 17,
@@ -1042,7 +1042,7 @@ static const value_string DIS_PDU_EmissionFunction_Strings[] =
     {DIS_EMISSION_FUNCTION_IMAGING,                  "Imaging" },
     {DIS_EMISSION_FUNCTION_MOTION_DETECTION,         "Motion Detection" },
     {DIS_EMISSION_FUNCTION_NAVIGATION,               "Navigation" },
-    {DIS_EMISSION_FUNCTION_WEATHER_METEROLOGICAL,    "Weather / Meterological"},
+    {DIS_EMISSION_FUNCTION_WEATHER_METEOROLOGICAL,   "Weather / Meteorological"},
     {DIS_EMISSION_FUNCTION_INSTRUMENTATION,          "Instrumentation" },
     {DIS_EMISSION_FUNCTION_IDENTIFICATION_CLASSIFICATION_INCLUDING_IFF,
                             "Identification/Classification (including IFF)" },
@@ -4525,7 +4525,7 @@ static int hf_dis_em_beam_parameter_index = -1;
 static int hf_dis_em_fund_frequency = -1;
 static int hf_dis_em_fund_frequency_range = -1;
 static int hf_dis_em_fund_effective_radiated_power = -1;
-static int hf_dis_em_fund_pulse_repition_freq = -1;
+static int hf_dis_em_fund_pulse_repetition_freq = -1;
 static int hf_dis_em_fund_pulse_width = -1;
 static int hf_dis_em_fund_beam_azimuth_center = -1;
 static int hf_dis_em_fund_beam_azimuth_sweep = -1;
@@ -6326,7 +6326,7 @@ static int dissect_DIS_PARSER_ELECTROMAGNETIC_EMISSION_PDU(tvbuff_t *tvb, packet
             offset += 4;
             proto_tree_add_item(fundamental_tree, hf_dis_em_fund_effective_radiated_power, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
-            proto_tree_add_item(fundamental_tree, hf_dis_em_fund_pulse_repition_freq, tvb, offset, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(fundamental_tree, hf_dis_em_fund_pulse_repetition_freq, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
             proto_tree_add_item(fundamental_tree, hf_dis_em_fund_pulse_width, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
@@ -9888,8 +9888,8 @@ void proto_register_dis(void)
                 FT_FLOAT, BASE_NONE, NULL, 0x0,
                 NULL, HFILL}
             },
-            { &hf_dis_em_fund_pulse_repition_freq,
-              { "Pulse Repetition Frequency", "dis.em.fund.pulse_repition_freq",
+            { &hf_dis_em_fund_pulse_repetition_freq,
+              { "Pulse Repetition Frequency", "dis.em.fund.pulse_repetition_freq",
                 FT_FLOAT, BASE_NONE, NULL, 0x0,
                 NULL, HFILL}
             },

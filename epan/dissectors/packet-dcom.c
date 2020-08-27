@@ -194,7 +194,7 @@ static int hf_dcom_vt_bstr = -1;
 static int hf_dcom_vt_byref = -1;
 static int hf_dcom_vt_dispatch = -1;
 
-static expert_field ei_dcom_dissetion_incomplete = EI_INIT;
+static expert_field ei_dcom_dissection_incomplete = EI_INIT;
 static expert_field ei_dcom_no_spec = EI_INIT;
 static expert_field ei_dcom_hresult_expert = EI_INIT;
 static expert_field ei_dcom_dualstringarray_mult_ip = EI_INIT;
@@ -935,7 +935,7 @@ dissect_dcom_tobedone_data(tvbuff_t *tvb, int offset,
 
 	item = proto_tree_add_item(tree, hf_dcom_tobedone, tvb, offset, length, ENC_NA);
 	proto_item_set_generated(item);
-	expert_add_info(pinfo, item, &ei_dcom_dissetion_incomplete);
+	expert_add_info(pinfo, item, &ei_dcom_dissection_incomplete);
 
 	offset += length;
 
@@ -2460,7 +2460,7 @@ proto_register_dcom (void)
 	};
 
 	static ei_register_info ei[] = {
-		{ &ei_dcom_dissetion_incomplete, { "dcom.dissetion_incomplete", PI_UNDECODED, PI_WARN, "Dissection incomplete", EXPFILL }},
+		{ &ei_dcom_dissection_incomplete, { "dcom.dissection_incomplete", PI_UNDECODED, PI_WARN, "Dissection incomplete", EXPFILL }},
 		{ &ei_dcom_no_spec, { "dcom.no_spec", PI_UNDECODED, PI_NOTE, "No specification available, dissection not possible", EXPFILL }},
 		{ &ei_dcom_hresult_expert, { "dcom.hresult.expert", PI_RESPONSE_CODE, PI_NOTE, "Hresult", EXPFILL }},
 		{ &ei_dcom_dualstringarray_mult_ip, { "dcom.dualstringarray.mult_ip", PI_UNDECODED, PI_NOTE, "DUALSTRINGARRAY Multiple IP", EXPFILL }},

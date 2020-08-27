@@ -733,7 +733,7 @@ static int hf_rdmnet_ept_vector = -1;
 static int hf_rdmnet_ept_destination_cid = -1;
 static int hf_rdmnet_ept_data_pdu_length = -1;
 static int hf_rdmnet_ept_data_vector = -1;
-static int hf_rdmnet_ept_data_vector_manfacturer_id = -1;
+static int hf_rdmnet_ept_data_vector_manufacturer_id = -1;
 static int hf_rdmnet_ept_data_vector_protocol_id = -1;
 static int hf_rdmnet_ept_data_opaque_data = -1;
 static int hf_rdmnet_ept_status_pdu_length = -1;
@@ -751,7 +751,7 @@ static const value_string acn_protocol_id_vals[] = {
   { ACN_PROTOCOL_ID_RPT,    "RDM Packet Transport Protocol" },
   { ACN_PROTOCOL_ID_BROKER, "Broker Protocol" },
   { ACN_PROTOCOL_ID_LLRP,   "Low Level Recovery Protocol" },
-  { ACN_PROTOCOL_ID_EPT,    "Etensible Packet Transport Protocol" },
+  { ACN_PROTOCOL_ID_EPT,    "Extensible Packet Transport Protocol" },
   { 0,       NULL },
 };
 
@@ -1029,7 +1029,7 @@ static const value_string acn_blob_dimmer_rack_status_properties2_field_name[] =
   { 9, "Space" },
   { 10, "UDN" },
   { 11, "Reserved" },
-  { 12, "CPU Tempeture" },
+  { 12, "CPU Temperature" },
   { 13, "Time of Last Reboot" },
   { 14, "Time Now" },
   { 15, "Rack Phasing" },
@@ -1504,7 +1504,7 @@ static const value_string acn_blob_dimmer_rack_status_properties1_field_name[] =
   { 9, "Space" },
   { 10, "UDN" },
   { 11, "Reserved" },
-  { 12, "CPU Tempeture" },
+  { 12, "CPU Temperature" },
   { 13, "Time of Last Reboot" },
   { 14, "Time Now" },
   { 15, "Rack Phasing" },
@@ -6822,7 +6822,7 @@ dissect_ept_data(tvbuff_t *tvb, proto_tree *tree, int offset, acn_pdu_offsets *l
   /* esta manufacturer id + protocol id (4 bytes) */
   ti2 = proto_tree_add_item(pdu_tree, hf_rdmnet_ept_data_vector, tvb, data_offset, 4, ENC_BIG_ENDIAN);
   pdu_tree2 = proto_item_add_subtree(ti2, ett_rdmnet_ept_data_vector_pdu);
-  proto_tree_add_item(pdu_tree2, hf_rdmnet_ept_data_vector_manfacturer_id, tvb, 0, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(pdu_tree2, hf_rdmnet_ept_data_vector_manufacturer_id, tvb, 0, 2, ENC_BIG_ENDIAN);
   proto_tree_add_item(pdu_tree2, hf_rdmnet_ept_data_vector_protocol_id, tvb, 2, 2, ENC_BIG_ENDIAN);
   data_offset += 4;
 
@@ -8458,11 +8458,11 @@ proto_register_acn(void)
         FT_UINT32, BASE_HEX, NULL, 0x0,
         "Data vector", HFILL }
     },
-    /* EPT Data Vector Manfacturer ID */
-    { &hf_rdmnet_ept_data_vector_manfacturer_id,
-      { "Manfac. ID", "rdmnet.ept.data.vector.manfacturer_id",
+    /* EPT Data Vector Manufacturer ID */
+    { &hf_rdmnet_ept_data_vector_manufacturer_id,
+      { "Manufac. ID", "rdmnet.ept.data.vector.manufacturer_id",
         FT_UINT16, BASE_HEX, NULL, 0x0,
-        "Manfacturer id", HFILL }
+        "Manufacturer id", HFILL }
     },
     /* EPT Data Vector Protocol ID */
     { &hf_rdmnet_ept_data_vector_protocol_id,

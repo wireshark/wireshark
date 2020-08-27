@@ -1182,7 +1182,7 @@ static const value_string homeplug_av_mmtype_general_vals[] = {
     /* Station - Station */
     { HOMEPLUG_AV_MMTYPE_GENERAL_CM_UNASSOCIATED_STA_IND           , "CM_UNASSOCIATED_STA.IND" },
     { HOMEPLUG_AV_MMTYPE_GENERAL_CM_ENCRYPTED_PAYLOAD_IND          , "CM_ENCRYPTED_PAYLOAD.IND (Encrypted Payload Indicate)" },
-    { HOMEPLUG_AV_MMTYPE_GENERAL_CM_ENCRYPTED_PAYLOAD_RSP          , "CM_ENCRYPTED_PAYLOAD.RSP (Encrypted Payload Respons)" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CM_ENCRYPTED_PAYLOAD_RSP          , "CM_ENCRYPTED_PAYLOAD.RSP (Encrypted Payload Response)" },
     { HOMEPLUG_AV_MMTYPE_GENERAL_CM_SET_KEY_REQ                    , "CM_SET_KEY.REQ (Set Key Request)" },
     { HOMEPLUG_AV_MMTYPE_GENERAL_CM_SET_KEY_CNF                    , "CM_SET_KEY.CNF (Set Key Confirmation)" },
     { HOMEPLUG_AV_MMTYPE_GENERAL_CM_GET_KEY_REQ                    , "CM_GET_KEY.REQ (Get Key Request)" },
@@ -1294,7 +1294,7 @@ static const value_string homeplug_av_mmtype_qualcomm_vals[] = {
     { HOMEPLUG_AV_MMTYPE_QUALCOMM_SET_SDRAM_REQ,     "SET_SDRAM.REQ (Set SDRAM Configuration Request)" },
     { HOMEPLUG_AV_MMTYPE_QUALCOMM_SET_SDRAM_CNF,     "SET_SDRAM.CNF (Set SDRAM Configuration Confirmation)" },
     { HOMEPLUG_AV_MMTYPE_QUALCOMM_HOST_ACTION_IND,   "HOST_ACTION.IND (Embedded Host Action Required Indication)" },
-    { HOMEPLUG_AV_MMTYPE_QUALCOMM_HOST_ACTION_RSP,   "HOST_ACTION.RSP (Embedded Host Action Required Respons)" },
+    { HOMEPLUG_AV_MMTYPE_QUALCOMM_HOST_ACTION_RSP,   "HOST_ACTION.RSP (Embedded Host Action Required Response)" },
     { HOMEPLUG_AV_MMTYPE_QUALCOMM_OP_ATTR_REQ,       "OP_ATTR.REQ (Get Device Attributes Request)" },
     { HOMEPLUG_AV_MMTYPE_QUALCOMM_OP_ATTR_CNF,       "OP_ATTR.CNF (Get Device Attributes Confirmation)" },
     { HOMEPLUG_AV_MMTYPE_QUALCOMM_GET_ENET_PHY_REQ,  "GET_ENET_PHY.REQ (Get Ethernet PHY Settings Request)" },
@@ -1486,7 +1486,7 @@ static value_string_ext homeplug_av_peks_vals_ext = VALUE_STRING_EXT_INIT(homepl
 static const value_string homeplug_av_bcn_cco_cap_vals[] = {
     { 0x0, "CSMA-only (no QoS/TDMA)" },
     { 0x1, "Uncoordinated mode QoS/TDMA" },
-    { 0x2, "Coordianted mode QoS/TDMA" },
+    { 0x2, "Coordinated mode QoS/TDMA" },
     { 0x3, "Reserved" },
     { 0, NULL }
 };
@@ -2063,8 +2063,8 @@ static const value_string homeplug_av_coupling_vals[] = {
 
 static const value_string homeplug_av_cc_assoc_result_vals[] = {
     { 0x00, "Success" },
-    { 0x01, "Failure due to temporary resourse exhaustion, try again later" },
-    { 0x02, "Failure due to permanent resourse exhaustion" },
+    { 0x01, "Failure due to temporary resource exhaustion, try again later" },
+    { 0x02, "Failure due to permanent resource exhaustion" },
     { 0x03, "Failure" },
     { 0, NULL }
 };
@@ -2095,8 +2095,8 @@ static const value_string homeplug_av_gp_cm_slac_parm_sectype_vals[] = {
 };
 
 static const value_string homeplug_av_gp_cm_slac_parm_resptype_vals[] = {
-    { 0x00, "Not Transmited to other GP STA's HLE" },
-    { 0x01, "Transmited to another GP STA's HLE" },
+    { 0x00, "Not Transmitted to other GP STA's HLE" },
+    { 0x01, "Transmitted to another GP STA's HLE" },
     { 0, NULL }
 };
 
@@ -2133,7 +2133,7 @@ static const value_string homeplug_av_gp_cm_slac_user_data_broadcast_vals[] = {
 #define HOMEPLUG_AV_GP_CM_SLAC_USER_DATA_TLV_TYPE_VENDOR_RESERVED 0x1F
 
 static const value_string homeplug_av_gp_cm_slac_user_data_tlv_types_vals[] = {
-    { HOMEPLUG_AV_GP_CM_SLAC_USER_DATA_TLV_TYPE_VENDOR_RESERVED, "Vender Reserved" },
+    { HOMEPLUG_AV_GP_CM_SLAC_USER_DATA_TLV_TYPE_VENDOR_RESERVED, "Vendor Reserved" },
     { 0, NULL }
 };
 
@@ -6423,7 +6423,7 @@ proto_register_homeplug_av(void)
             FT_UINT8, BASE_DEC, VALS(homeplug_av_bcn_cco_cap_vals), HOMEPLUG_AV_CCO_CAP_MASK, NULL, HFILL }
         },
         { &hf_homeplug_av_bcn_rsf,
-          { "Resuable SNID?", "homeplug_av.bcn.rsf",
+          { "Reusable SNID?", "homeplug_av.bcn.rsf",
             FT_BOOLEAN, 8, NULL, HOMEPLUG_AV_RSF_MASK, NULL, HFILL }
         },
         { &hf_homeplug_av_bcn_plevel,
@@ -6622,7 +6622,7 @@ proto_register_homeplug_av(void)
             FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL }
         },
         { &hf_homeplug_av_brg_infos_cnf_btei,
-          { "Bridge Terminal Equipement Identifier", "homeplug_av.brg_infos_cnf.btei",
+          { "Bridge Terminal Equipment Identifier", "homeplug_av.brg_infos_cnf.btei",
             FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
         },
         { &hf_homeplug_av_brg_infos_cnf_num_stas,
@@ -7090,7 +7090,7 @@ proto_register_homeplug_av(void)
             FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
         },
         { &hf_homeplug_av_nw_info_tei,
-          { "Terminal Equipement Identifier", "homeplug_av.nw_info.tei",
+          { "Terminal Equipment Identifier", "homeplug_av.nw_info.tei",
             FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
         },
         { &hf_homeplug_av_nw_info_sta_role,
@@ -7102,7 +7102,7 @@ proto_register_homeplug_av(void)
             FT_ETHER, BASE_NONE, NULL, 0x00, NULL, HFILL }
         },
         { &hf_homeplug_av_nw_info_cco_tei,
-          { "CCo Terminal Equipement Identifier", "homeplug_av.nw_info_cnf.cco_tei",
+          { "CCo Terminal Equipment Identifier", "homeplug_av.nw_info_cnf.cco_tei",
             FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
         },
         { &hf_homeplug_av_nw_info_num_stas,
@@ -7127,7 +7127,7 @@ proto_register_homeplug_av(void)
             FT_ETHER, BASE_NONE, NULL, 0x00, NULL, HFILL }
         },
         { &hf_homeplug_av_nw_info_sta_tei,
-          { "Station Terminal Equipement Identifier", "homeplug_av.nw_info_cnf.sta_indo.tei",
+          { "Station Terminal Equipment Identifier", "homeplug_av.nw_info_cnf.sta_indo.tei",
             FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
         },
         { &hf_homeplug_av_nw_info_sta_bda,

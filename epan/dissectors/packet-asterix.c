@@ -6597,7 +6597,7 @@ static const value_string valstr_021_210_LTT[] = {
 };
 static const value_string valstr_021_210_DTI[] = {
     { 0, "Unknown" },
-    { 1, "Aircraft equiped with CDTI" },
+    { 1, "Aircraft equipped with CDTI" },
     { 0, NULL }
 };
 static const value_string valstr_021_210_MDS[] = {
@@ -12622,7 +12622,7 @@ void proto_register_asterix (void)
         { &hf_011_290_02_SSR, { "SSR [s]", "asterix.011_290_02_SSR", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_011_290_03, { "#3: Mode 3/A Age", "asterix.011_290_03", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_011_290_03_MDA, { "MDA [s]", "asterix.011_290_03_MDA", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-        { &hf_011_290_04, { "#4: Meausered Flight Level Age", "asterix.011_290_04", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_011_290_04, { "#4: Measured Flight Level Age", "asterix.011_290_04", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_011_290_04_MFL, { "MFL [s]", "asterix.011_290_04_MFL", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_011_290_05, { "#5: Mode S Age", "asterix.011_290_05", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_011_290_05_MDS, { "MDS [s]", "asterix.011_290_05_MDS", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },

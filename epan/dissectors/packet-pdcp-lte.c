@@ -2815,7 +2815,7 @@ void proto_register_pdcp(void)
 
         { &hf_pdcp_lte_security,
             { "Security Config",
-              "pdcp-lte.security-cofig", FT_STRING, BASE_NONE, 0, 0x0,
+              "pdcp-lte.security-config", FT_STRING, BASE_NONE, 0, 0x0,
               NULL, HFILL
             }
         },

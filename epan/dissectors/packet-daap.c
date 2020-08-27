@@ -724,7 +724,7 @@ proto_register_daap(void)
            FT_UINT64, BASE_HEX, NULL, 0, NULL, HFILL }
       },
       { &hf_daap_status,
-        { "Staus", "daap.status",
+        { "Status", "daap.status",
            FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }
       },
       { &hf_daap_rev,

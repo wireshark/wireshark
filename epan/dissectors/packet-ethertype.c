@@ -102,7 +102,7 @@ const value_string etype_vals[] = {
 	{ ETHERTYPE_PA_HBBACKUP,          "PA HB Backup" },
 	{ ETHERTYPE_AVBTP,                "IEEE 1722 Audio Video Bridging Transport Protocol" },
 	{ ETHERTYPE_ROHC,                 "Robust Header Compression(RoHC)" },
-	{ ETHERTYPE_TRILL,                "TRansparent Interconnection of Lots of Links" },
+	{ ETHERTYPE_TRILL,                "Transparent Interconnection of Lots of Links" },
 	{ ETHERTYPE_L2ISIS,               "Intermediate System to Intermediate System" },
 	{ ETHERTYPE_MAC_CONTROL,          "MAC Control" },
 	{ ETHERTYPE_SLOW_PROTOCOLS,       "Slow Protocols" },

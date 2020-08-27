@@ -2550,7 +2550,7 @@ dissect_quic_retry_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
     }
 
     retry_token_len = tvb_reported_length_remaining(tvb, offset);
-    // Remove length of Retry Integrity Tag"
+    // Remove length of Retry Integrity Tag
     if (!is_quic_draft_max(version, 24) && retry_token_len >= 16) {
         retry_token_len -= 16;
     }

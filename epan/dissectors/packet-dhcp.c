@@ -9246,7 +9246,7 @@ proto_register_dhcp(void)
 		    NULL, HFILL }},
 
 		{ &hf_dhcp_option_isns_server_security_bitmap_aggressive_mode,
-		  { "Aggresive Mode", "dhcp.option.isns.server_security_bitmap.aggressive_mode",
+		  { "Aggressive Mode", "dhcp.option.isns.server_security_bitmap.aggressive_mode",
 		    FT_BOOLEAN, 16, TFS(&tfs_enabled_disabled), F_ISNS_SRV_SEC_BITMAP_AGGRESSIVE,
 		    NULL, HFILL }},
 

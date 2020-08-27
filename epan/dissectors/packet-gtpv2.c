@@ -8783,7 +8783,7 @@ void proto_register_gtpv2(void)
            NULL, HFILL}
         },
         { &hf_gtpv2_msg_length,
-          {"Message Length", "gtpv2.msg_lengt",
+          {"Message Length", "gtpv2.msg_length",
            FT_UINT16, BASE_DEC, NULL, 0x0,
            NULL, HFILL}
         },

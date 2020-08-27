@@ -958,7 +958,7 @@ static const value_string dnp3_al_obj_vals[] = {
   { AL_OBJ_DA_OS_DS,       "Device Attributes - Number of outstation-defined data sets (Obj:00, Var:215)" },
   { AL_OBJ_DA_BO_REQ,      "Device Attributes - Max number of binary outputs per request (Obj:00, Var:216)" },
   { AL_OBJ_DA_LOC_TA,      "Device Attributes - Local timing accuracy (Obj:00, Var:217)" },
-  { AL_OBJ_DA_DUR_TA,      "Device Attributes - Duration of timing accuraccy (Obj:00, Var:218)" },
+  { AL_OBJ_DA_DUR_TA,      "Device Attributes - Duration of timing accuracy (Obj:00, Var:218)" },
   { AL_OBJ_DA_AO_EVT,      "Device Attributes - Support for analog output events (Obj:00, Var:219)" },
   { AL_OBJ_DA_MAX_AO,      "Device Attributes - Max analog output index (Obj:00, Var:220)" },
   { AL_OBJ_DA_NUM_AO,      "Device Attributes - Number of analog outputs (Obj:00, Var:221)" },

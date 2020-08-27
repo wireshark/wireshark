@@ -1655,7 +1655,7 @@ proto_register_gsm_sim(void)
 		{ &hf_tp_cb_data_dld,
 			{ "CB Data Download", "gsm_sim.tp.cb_data_dld",
 			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
-			  "TP Cell Broadcast Data Downolad", HFILL }
+			  "TP Cell Broadcast Data Download", HFILL }
 		},
 		{ &hf_tp_menu_sel,
 			{ "Menu Selection", "gsm_sim.tp.menu_sel",

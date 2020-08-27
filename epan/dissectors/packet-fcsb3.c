@@ -894,7 +894,7 @@ proto_register_fcsbccs (void)
             NULL, HFILL}},
 
         { &hf_sbccs_dib_lrjcode,
-          { "LRJ Reaspn Code", "fcsb3.lrjcode",
+          { "LRJ Reason Code", "fcsb3.lrjcode",
             FT_UINT8, BASE_HEX, VALS (fc_sbccs_dib_lrj_errcode_val), 0x7F,
             NULL, HFILL}},
 

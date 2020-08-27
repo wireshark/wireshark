@@ -149,7 +149,7 @@ static const value_string om2k_msgcode_vals[] = {
 	{ 0x001a, "CON Configuration Result" },
 	{ 0x001c, "Connect Command" },
 	{ 0x001e, "Connect Complete" },
-	{ 0x001f, "Connect Rejecte" },
+	{ 0x001f, "Connect Reject" },
 	{ 0x0028, "Disable Request" },
 	{ 0x002a, "Disable Request Accept" },
 	{ 0x002b, "Disable Request Reject" },
@@ -619,7 +619,7 @@ static const value_string om2k_res_code_vals[] = {
 	{ 0x06, "Protocol error" },
 	{ 0x07, "MO not connected" },
 	{ 0x08, "Parameter error" },
-	{ 0x09, "Operational functio not supported" },
+	{ 0x09, "Operational function not supported" },
 	{ 0x0a, "Local Access state LOCALLY DISCONNECTED" },
 	{ 0, NULL }
 };
@@ -641,10 +641,10 @@ dissect_tss_mo_state(tvbuff_t *tvb, gint offset, proto_tree *tree)
 	for (i = 0; i < 8; i+= 2) {
 		tmp = tvb_get_guint8(tvb, offset);
 		proto_tree_add_uint_format(tree, hf_om2k_tsn_state, tvb, offset, 1, tmp & 0xf,
-					   "Timslot %u MO State: %s", i,
+					   "Timeslot %u MO State: %s", i,
 					   val_to_str(tmp & 0xf, om2k_mo_state_vals, "unknown (%02d)"));
 		proto_tree_add_uint_format(tree, hf_om2k_tsn_state, tvb, offset, 1, tmp >> 4,
-					   "Timslot %u MO State: %s", i+1,
+					   "Timeslot %u MO State: %s", i+1,
 					   val_to_str(tmp >> 4, om2k_mo_state_vals, "unknown (%02d)"));
 		offset++;
 	}
@@ -1356,7 +1356,7 @@ proto_register_abis_om2000(void)
 		{ &hf_om2k_maio,
 		  { "MAIO", "gsm_abis_om2000.maio",
 		    FT_UINT8, BASE_DEC, NULL, 0,
-		    "Mobile Allication Index Offset", HFILL }
+		    "Mobile Allocation Index Offset", HFILL }
 		},
 		{ &hf_om2k_bsic,
 		  { "BSIC", "gsm_abis_om2000.bsic",

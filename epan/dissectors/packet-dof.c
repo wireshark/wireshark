@@ -4793,13 +4793,13 @@ static void validate_c4(packet_info *pinfo, proto_item *pi, guint32 val, gint le
     if (len > 1 && val < 0x80)
     {
         /* SPEC Type.3.1 Violation. */
-        expert_add_info_format(pinfo, pi, &ei_c2_c3_c4_format, "DOF Violation: Type.3.1: Compressed 32-bit Compression Manditory.");
+        expert_add_info_format(pinfo, pi, &ei_c2_c3_c4_format, "DOF Violation: Type.3.1: Compressed 32-bit Compression Mandatory.");
     }
 
     if (len > 2 && val < 0x4000)
     {
         /* SPEC Type.3.1 Violation. */
-        expert_add_info_format(pinfo, pi, &ei_c2_c3_c4_format, "DOF Violation: Type.3.1: Compressed 32-bit Compression Manditory.");
+        expert_add_info_format(pinfo, pi, &ei_c2_c3_c4_format, "DOF Violation: Type.3.1: Compressed 32-bit Compression Mandatory.");
     }
 }
 
@@ -4855,13 +4855,13 @@ static void validate_c3(packet_info *pinfo, proto_item *pi, guint32 val, gint le
     if (len > 1 && val < 0x80)
     {
         /* SPEC Type.2.1 Violation. */
-        expert_add_info_format(pinfo, pi, &ei_c2_c3_c4_format, "DOF Violation: Type.2.1: Compressed 24-bit Compression Manditory." );
+        expert_add_info_format(pinfo, pi, &ei_c2_c3_c4_format, "DOF Violation: Type.2.1: Compressed 24-bit Compression Mandatory." );
     }
 
     if (len > 2 && val < 0x4000)
     {
         /* SPEC Type.2.1 Violation. */
-        expert_add_info_format(pinfo, pi, &ei_c2_c3_c4_format, "DOF Violation: Type.2.1: Compressed 24-bit Compression Manditory.");
+        expert_add_info_format(pinfo, pi, &ei_c2_c3_c4_format, "DOF Violation: Type.2.1: Compressed 24-bit Compression Mandatory.");
     }
 }
 
@@ -4905,7 +4905,7 @@ static void validate_c2(packet_info *pinfo, proto_item *pi, guint16 val, gint le
     if (len > 1 && val < 0x80)
     {
         /* SPEC Type.1.1 Violation. */
-        expert_add_info_format(pinfo, pi, &ei_c2_c3_c4_format, "DOF Violation: Type.1.1: Compressed 16-bit Compression Manditory." );
+        expert_add_info_format(pinfo, pi, &ei_c2_c3_c4_format, "DOF Violation: Type.1.1: Compressed 16-bit Compression Mandatory." );
     }
 }
 

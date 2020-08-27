@@ -476,7 +476,7 @@ static expert_field ei_gtp_guaranteed_bit_rate_value = EI_INIT;
 static expert_field ei_gtp_max_bit_rate_value = EI_INIT;
 static expert_field ei_gtp_ext_geo_loc_type = EI_INIT;
 static expert_field ei_gtp_iei = EI_INIT;
-static expert_field ei_gtp_unknown_extention_header = EI_INIT;
+static expert_field ei_gtp_unknown_extension_header = EI_INIT;
 static expert_field ei_gtp_unknown_pdu_type = EI_INIT;
 
 /* --- PDCP DECODE ADDITIONS --- */
@@ -8975,7 +8975,7 @@ static int
 decode_gtp_unknown(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_)
 {
 
-    proto_tree_add_expert(tree, pinfo, &ei_gtp_unknown_extention_header, tvb, offset, 1);
+    proto_tree_add_expert(tree, pinfo, &ei_gtp_unknown_extension_header, tvb, offset, 1);
 
     return tvb_reported_length_remaining(tvb, offset);
 }
@@ -11361,7 +11361,7 @@ proto_register_gtp(void)
         { &ei_gtp_max_bit_rate_value, { "gtp.max_bit_rate_value", PI_PROTOCOL, PI_NOTE, "Use the value indicated by the Maximum bit rate", EXPFILL }},
         { &ei_gtp_ext_geo_loc_type, { "gtp.ext_geo_loc_type.unknown", PI_PROTOCOL, PI_WARN, "Unknown Location type data", EXPFILL }},
         { &ei_gtp_iei, { "gtp.iei.unknown", PI_PROTOCOL, PI_WARN, "Unknown IEI - Later spec than TS 29.060 9.4.0 used?", EXPFILL }},
-        { &ei_gtp_unknown_extention_header, { "gtp.unknown_extention_header", PI_PROTOCOL, PI_WARN, "Unknown extension header", EXPFILL }},
+        { &ei_gtp_unknown_extension_header, { "gtp.unknown_extension_header", PI_PROTOCOL, PI_WARN, "Unknown extension header", EXPFILL }},
         { &ei_gtp_unknown_pdu_type, { "gtp.unknown_pdu_type", PI_PROTOCOL, PI_WARN, "Unknown PDU type", EXPFILL }},
     };
 

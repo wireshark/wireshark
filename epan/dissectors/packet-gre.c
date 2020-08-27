@@ -64,14 +64,14 @@ static int hf_gre_routing_sre_offset = -1;
 static int hf_gre_routing_information = -1;
 
 /* Ref 3GPP2 A.S0012-C v2.0 and A.S0008-A v1.0 */
-static int hf_gre_3ggp2_attrib = -1;
-static int hf_gre_3ggp2_attrib_id = -1;
-static int hf_gre_3ggp2_attrib_length = -1;
-static int hf_gre_3ggp2_sdi = -1;
-static int hf_gre_3ggp2_fci = -1;
-static int hf_gre_3ggp2_di = -1;
-static int hf_gre_3ggp2_flow_disc = -1;
-static int hf_gre_3ggp2_seg = -1;
+static int hf_gre_3gpp2_attrib = -1;
+static int hf_gre_3gpp2_attrib_id = -1;
+static int hf_gre_3gpp2_attrib_length = -1;
+static int hf_gre_3gpp2_sdi = -1;
+static int hf_gre_3gpp2_fci = -1;
+static int hf_gre_3gpp2_di = -1;
+static int hf_gre_3gpp2_flow_disc = -1;
+static int hf_gre_3gpp2_seg = -1;
 
 static int hf_gre_wccp_redirect_header = -1;
 static int hf_gre_wccp_dynamic_service = -1;
@@ -152,7 +152,7 @@ const value_string gre_typevals[] = {
 #define ID_3GPP2_FLOW_DISCRIMINATOR 3
 #define ID_3GPP2_SEG 4
 
-static const value_string gre_3ggp2_seg_vals[] = {
+static const value_string gre_3gpp2_seg_vals[] = {
     { 0x00, "Packet Started" },
     { 0x01, "Packet continued" },
     { 0x02, "Packet Ended" },
@@ -161,7 +161,7 @@ static const value_string gre_3ggp2_seg_vals[] = {
 /* 3GPP2 A.S0012-C v2.0
  * 2.6.1 GRE Attributes
  */
-static const value_string gre_3ggp2_attrib_id_vals[] = {
+static const value_string gre_3gpp2_attrib_id_vals[] = {
     { 0x01, "1x SDB/HRPD DOS Indicator" },
     { 0x02, "Flow Control Indication" },
     /* A.S0008-A v1.0 */
@@ -170,17 +170,17 @@ static const value_string gre_3ggp2_attrib_id_vals[] = {
     { 0,    NULL }
 };
 
-static const true_false_string gre_3ggp2_sdi_val = {
+static const true_false_string gre_3gpp2_sdi_val = {
     "Packet suitable for 1x SDB or HRPD DOS transmission",
     "Reserved"
 };
 
-static const true_false_string gre_3ggp2_fci_val = {
+static const true_false_string gre_3gpp2_fci_val = {
     "XOFF",
     "XON"
 };
 
-static const true_false_string gre_3ggp2_di_val = {
+static const true_false_string gre_3gpp2_di_val = {
     "INDEFINITE:",
     "TEMPORARY"
 };
@@ -210,7 +210,7 @@ dissect_gre_3gpp2_attribs(tvbuff_t *tvb, int offset, proto_tree *tree)
     guint8      value;
     int         start_offset = offset;
 
-    proto_item *ti = proto_tree_add_item(tree, hf_gre_3ggp2_attrib, tvb, offset, 0, ENC_NA);
+    proto_item *ti = proto_tree_add_item(tree, hf_gre_3gpp2_attrib, tvb, offset, 0, ENC_NA);
     proto_tree *atree = proto_item_add_subtree(ti, ett_3gpp2_attribs);
 
     while(last_attrib != TRUE)
@@ -219,10 +219,10 @@ dissect_gre_3gpp2_attribs(tvbuff_t *tvb, int offset, proto_tree *tree)
         guint8 attrib_length = tvb_get_guint8(tvb, offset + 1);
 
         attr_tree = proto_tree_add_subtree(atree, tvb, offset, attrib_length + 1 + 1, ett_3gpp2_attr, &attr_item,
-                                        val_to_str((attrib_id&0x7f), gre_3ggp2_attrib_id_vals, "%u (Unknown)"));
+                                        val_to_str((attrib_id&0x7f), gre_3gpp2_attrib_id_vals, "%u (Unknown)"));
 
-        proto_tree_add_item(attr_tree, hf_gre_3ggp2_attrib_id, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(attr_tree, hf_gre_3ggp2_attrib_length, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(attr_tree, hf_gre_3gpp2_attrib_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(attr_tree, hf_gre_3gpp2_attrib_length, tvb, offset+1, 1, ENC_BIG_ENDIAN);
 
         offset += 2;
         last_attrib = (attrib_id & 0x80)?TRUE:FALSE;
@@ -233,14 +233,14 @@ dissect_gre_3gpp2_attribs(tvbuff_t *tvb, int offset, proto_tree *tree)
         case ID_3GPP2_FLOW_DISCRIMINATOR:
         {
             value = tvb_get_guint8(tvb,offset);
-            proto_tree_add_item(attr_tree, hf_gre_3ggp2_flow_disc, tvb, offset, attrib_length, ENC_NA);
+            proto_tree_add_item(attr_tree, hf_gre_3gpp2_flow_disc, tvb, offset, attrib_length, ENC_NA);
             proto_item_append_text(attr_item," - 0x%x",value);
         }
         break;
         case ID_3GPP2_SDI_FLAG:
         {
             value = tvb_get_guint8(tvb,offset);
-            proto_tree_add_item(attr_tree, hf_gre_3ggp2_sdi, tvb, offset, attrib_length, ENC_BIG_ENDIAN);
+            proto_tree_add_item(attr_tree, hf_gre_3gpp2_sdi, tvb, offset, attrib_length, ENC_BIG_ENDIAN);
             proto_item_append_text(attr_item," - %s",
                                    (value & 0x80) ? "Packet suitable for 1x SDB or HRPD DOS transmission" : "Reserved");
 
@@ -249,17 +249,17 @@ dissect_gre_3gpp2_attribs(tvbuff_t *tvb, int offset, proto_tree *tree)
         case ID_3GPP2_SEG:
         {
             value = tvb_get_guint8(tvb,offset) >>6;
-            proto_tree_add_item(attr_tree, hf_gre_3ggp2_seg, tvb, offset, attrib_length, ENC_BIG_ENDIAN);
-            proto_item_append_text(attr_item," - %s",val_to_str(value, gre_3ggp2_seg_vals, "0x%02X - Unknown"));
+            proto_tree_add_item(attr_tree, hf_gre_3gpp2_seg, tvb, offset, attrib_length, ENC_BIG_ENDIAN);
+            proto_item_append_text(attr_item," - %s",val_to_str(value, gre_3gpp2_seg_vals, "0x%02X - Unknown"));
         }
         break;
         case ID_3GPP2_FLOW_CTRL:
         {
             value = tvb_get_guint8(tvb,offset);
-            proto_tree_add_item(attr_tree, hf_gre_3ggp2_fci, tvb, offset, attrib_length, ENC_BIG_ENDIAN);
+            proto_tree_add_item(attr_tree, hf_gre_3gpp2_fci, tvb, offset, attrib_length, ENC_BIG_ENDIAN);
             proto_item_append_text(attr_item," - %s",
                                    (value & 0x80) ? "XON" : "XOFF");
-            proto_tree_add_item(attr_tree, hf_gre_3ggp2_di, tvb, offset, attrib_length, ENC_BIG_ENDIAN);
+            proto_tree_add_item(attr_tree, hf_gre_3gpp2_di, tvb, offset, attrib_length, ENC_BIG_ENDIAN);
             proto_item_append_text(attr_item,"/%s",
                                    (value & 0x40) ? "INDEFINITE" : "TEMPORARY");
         }
@@ -624,44 +624,44 @@ proto_register_gre(void)
             FT_BYTES, BASE_NONE, NULL, 0x0,
             "The Routing Information field contains data which may be used in routing this packet", HFILL }
         },
-        { &hf_gre_3ggp2_attrib,
-          { "3GGP2 Attributes", "gre.ggp2_attrib",
+        { &hf_gre_3gpp2_attrib,
+          { "3GPP2 Attributes", "gre.3gpp2_attrib",
             FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_gre_3ggp2_attrib_id,
-          { "Type", "gre.ggp2_attrib_id",
-            FT_UINT8, BASE_HEX, VALS(gre_3ggp2_attrib_id_vals), 0x7f,
+        { &hf_gre_3gpp2_attrib_id,
+          { "Type", "gre.3gpp2_attrib_id",
+            FT_UINT8, BASE_HEX, VALS(gre_3gpp2_attrib_id_vals), 0x7f,
             NULL, HFILL }
         },
-        { &hf_gre_3ggp2_attrib_length,
-          { "Length", "gre.ggp2_attrib_length",
+        { &hf_gre_3gpp2_attrib_length,
+          { "Length", "gre.3gpp2_attrib_length",
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_gre_3ggp2_sdi,
-          { "SDI/DOS", "gre.3ggp2_sdi",
-            FT_BOOLEAN, 16, TFS(&gre_3ggp2_sdi_val), 0x8000,
+        { &hf_gre_3gpp2_sdi,
+          { "SDI/DOS", "gre.3gpp2_sdi",
+            FT_BOOLEAN, 16, TFS(&gre_3gpp2_sdi_val), 0x8000,
             "Short Data Indicator(SDI)/Data Over Signaling (DOS)", HFILL }
         },
-        { &hf_gre_3ggp2_fci,
-          { "Flow Control Indicator", "gre.3ggp2_fci",
-            FT_BOOLEAN, 16, TFS(&gre_3ggp2_fci_val), 0x8000,
+        { &hf_gre_3gpp2_fci,
+          { "Flow Control Indicator", "gre.3gpp2_fci",
+            FT_BOOLEAN, 16, TFS(&gre_3gpp2_fci_val), 0x8000,
             NULL, HFILL }
         },
-        { &hf_gre_3ggp2_di,
-          { "Duration Indicator", "gre.3ggp2_di",
-            FT_BOOLEAN, 16, TFS(&gre_3ggp2_di_val), 0x4000,
+        { &hf_gre_3gpp2_di,
+          { "Duration Indicator", "gre.3gpp2_di",
+            FT_BOOLEAN, 16, TFS(&gre_3gpp2_di_val), 0x4000,
             NULL, HFILL }
         },
-        { &hf_gre_3ggp2_flow_disc,
+        { &hf_gre_3gpp2_flow_disc,
           { "Flow ID", "gre.ggp2_flow_disc",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_gre_3ggp2_seg,
-          { "Type", "gre.ggp2_3ggp2_seg",
-            FT_UINT16, BASE_HEX, VALS(gre_3ggp2_seg_vals), 0xc000,
+        { &hf_gre_3gpp2_seg,
+          { "Type", "gre.ggp2_3gpp2_seg",
+            FT_UINT16, BASE_HEX, VALS(gre_3gpp2_seg_vals), 0xc000,
             NULL, HFILL }
         },
 

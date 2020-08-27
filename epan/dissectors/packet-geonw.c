@@ -296,8 +296,8 @@ static const value_string ch_header_type_names[] = {
     { HTST_GBC_CIRCLE, "Geo-scoped Broadcast Circular area" },
     { HTST_GBC_RECT, "Geo-scoped Broadcast Rectangular area" },
     { HTST_GBC_ELLIPSE, "Geo-scoped Broadcast Ellipsoidal area" },
-    { HTST_TSB_SINGLE, "Topologucally-scoped broadcast Single-hop broadcast (SHB)" },
-    { HTST_TSB_MULT, "Topologucally-scoped broadcast Multi-hop broadcast (TSB)" },
+    { HTST_TSB_SINGLE, "Topologically-scoped broadcast Single-hop broadcast (SHB)" },
+    { HTST_TSB_MULT, "Topologically-scoped broadcast Multi-hop broadcast (TSB)" },
     { HTST_LS_REQUEST, "Location Service Request" },
     { HTST_LS_REPLY, "Location Service Reply" },
     { 0x00, NULL}

@@ -1709,7 +1709,7 @@ proto_register_aprs( void )
 			NULL, HFILL }
 		},
 		{ &hf_aprs_mic_e_long_h,
-			{ "Longitude hundreths of minutes",	"aprs.mic_e.long_h",
+			{ "Longitude hundredths of minutes",	"aprs.mic_e.long_h",
 			FT_UINT8, BASE_HEX, NULL, 0x0,
 			NULL, HFILL }
 		},

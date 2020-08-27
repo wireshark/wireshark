@@ -310,14 +310,14 @@ dlms_date_time(tvbuff_t *tvb, guint offset, nstime_t *date_time)
 #define GBCS_GBZ_EXTENDED_HEADER_CONTROL_ENCRYPTED_COMPONENT            0x02
 
 #define gbcs_gbz_alert_code_names_VALUE_STRING_LIST(XXX) \
-    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_ABOVE_AVERAGE_RMS_OVER_VOL_1,0x8002, "Average RMS Voltage above Average RMS Over Voltage Threshold (current value above threshold; previous value below threhsold)") \
-    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_ABOVE_AVERAGE_RMS_OVER_VOL_2,0x8003, "Average RMS Voltage above Average RMS Over Voltage Threshold  on Phase 1 (current value above threshold; previous value below threhsold)") \
-    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_ABOVE_AVERAGE_RMS_OVER_VOL_3,0x8004, "Average RMS Voltage above Average RMS Over Voltage Threshold  on Phase 2 (current value above threshold; previous value below threhsold)") \
-    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_ABOVE_AVERAGE_RMS_OVER_VOL_4,0x8005, "Average RMS Voltage above Average RMS Over Voltage Threshold  on Phase 3 (current value above threshold; previous value below threhsold)") \
-    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_BELOW_AVERAGE_RMS_UNDER_VO_1,0x8006, "Average RMS Voltage below Average RMS Under Voltage Threshold (current value below threshold; previous value above threhsold)") \
-    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_BELOW_AVERAGE_RMS_UNDER_VO_2,0x8007, "Average RMS Voltage below Average RMS Under Voltage Threshold on Phase 1 (current value below threshold; previous value above threhsold)") \
-    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_BELOW_AVERAGE_RMS_UNDER_VO_3,0x8008, "Average RMS Voltage below Average RMS Under Voltage Threshold on Phase 2 (current value below threshold; previous value above threhsold)") \
-    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_BELOW_AVERAGE_RMS_UNDER_VO_4,0x8009, "Average RMS Voltage below Average RMS Under Voltage Threshold on Phase 3 (current value below threshold; previous value above threhsold)") \
+    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_ABOVE_AVERAGE_RMS_OVER_VOL_1,0x8002, "Average RMS Voltage above Average RMS Over Voltage Threshold (current value above threshold; previous value below threshold)") \
+    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_ABOVE_AVERAGE_RMS_OVER_VOL_2,0x8003, "Average RMS Voltage above Average RMS Over Voltage Threshold  on Phase 1 (current value above threshold; previous value below threshold)") \
+    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_ABOVE_AVERAGE_RMS_OVER_VOL_3,0x8004, "Average RMS Voltage above Average RMS Over Voltage Threshold  on Phase 2 (current value above threshold; previous value below threshold)") \
+    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_ABOVE_AVERAGE_RMS_OVER_VOL_4,0x8005, "Average RMS Voltage above Average RMS Over Voltage Threshold  on Phase 3 (current value above threshold; previous value below threshold)") \
+    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_BELOW_AVERAGE_RMS_UNDER_VO_1,0x8006, "Average RMS Voltage below Average RMS Under Voltage Threshold (current value below threshold; previous value above threshold)") \
+    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_BELOW_AVERAGE_RMS_UNDER_VO_2,0x8007, "Average RMS Voltage below Average RMS Under Voltage Threshold on Phase 1 (current value below threshold; previous value above threshold)") \
+    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_BELOW_AVERAGE_RMS_UNDER_VO_3,0x8008, "Average RMS Voltage below Average RMS Under Voltage Threshold on Phase 2 (current value below threshold; previous value above threshold)") \
+    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_BELOW_AVERAGE_RMS_UNDER_VO_4,0x8009, "Average RMS Voltage below Average RMS Under Voltage Threshold on Phase 3 (current value below threshold; previous value above threshold)") \
     XXX(GBCS_GBZ_ALERT_OVER_CURRENT,                                    0x8010, "Over Current") \
     XXX(GBCS_GBZ_ALERT_OVER_CURRENT_L1,                                 0x8011, "Over Current L1") \
     XXX(GBCS_GBZ_ALERT_OVER_CURRENT_L3,                                 0x8013, "Over Current L3") \
@@ -341,14 +341,14 @@ dlms_date_time(tvbuff_t *tvb, guint offset, nstime_t *date_time)
     XXX(GBCS_GBZ_ALERT_RMS_VOLTAGE_BELOW_VOLTAGE_SAG_THRESHOLD_ON_PHA_2,0x802E, "RMS Voltage below Voltage Sag Threshold on Phase 2 (voltage falls below for longer than the configurable period)") \
     XXX(GBCS_GBZ_ALERT_RMS_VOLTAGE_BELOW_VOLTAGE_SAG_THRESHOLD_ON_PHA_3,0x802F, "RMS Voltage below Voltage Sag Threshold on Phase 3 (voltage falls below for longer than the configurable period)") \
     XXX(GBCS_GBZ_ALERT_GPF_DEVICE_LOG_CHANGED,                          0x8071, "GPF Device Log Changed") \
-    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_BELOW_AVERAGE_RMS_OVER_VOL_1,0x8085, "Average RMS Voltage below Average RMS Over Voltage Threshold (current value below threshold; previous value above threhsold)") \
-    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_BELOW_AVERAGE_RMS_OVER_VOL_2,0x8086, "Average RMS Voltage below Average RMS Over Voltage Threshold on Phase 1 (current value below threshold; previous value above threhsold)") \
-    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_BELOW_AVERAGE_RMS_OVER_VOL_3,0x8087, "Average RMS Voltage below Average RMS Over Voltage Threshold on Phase 2 (current value below threshold; previous value above threhsold)") \
-    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_BELOW_AVERAGE_RMS_OVER_VOL_4,0x8088, "Average RMS Voltage below Average RMS Over Voltage Threshold on Phase 3 (current value below threshold; previous value above threhsold)") \
-    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_ABOVE_AVERAGE_RMS_UNDER_VO_1,0x8089, "Average RMS Voltage above Average RMS Under Voltage Threshold (current value above threshold; previous value below threhsold)") \
-    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_ABOVE_AVERAGE_RMS_UNDER_VO_2,0x808A, "Average RMS Voltage above Average RMS Under Voltage Threshold on Phase 1 (current value above threshold; previous value below threhsold)") \
-    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_ABOVE_AVERAGE_RMS_UNDER_VO_3,0x808B, "Average RMS Voltage above Average RMS Under Voltage Threshold on Phase 2 (current value above threshold; previous value below threhsold)") \
-    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_ABOVE_AVERAGE_RMS_UNDER_VO_4,0x808C, "Average RMS Voltage above Average RMS Under Voltage Threshold on Phase 3 (current value above threshold; previous value below threhsold)") \
+    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_BELOW_AVERAGE_RMS_OVER_VOL_1,0x8085, "Average RMS Voltage below Average RMS Over Voltage Threshold (current value below threshold; previous value above threshold)") \
+    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_BELOW_AVERAGE_RMS_OVER_VOL_2,0x8086, "Average RMS Voltage below Average RMS Over Voltage Threshold on Phase 1 (current value below threshold; previous value above threshold)") \
+    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_BELOW_AVERAGE_RMS_OVER_VOL_3,0x8087, "Average RMS Voltage below Average RMS Over Voltage Threshold on Phase 2 (current value below threshold; previous value above threshold)") \
+    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_BELOW_AVERAGE_RMS_OVER_VOL_4,0x8088, "Average RMS Voltage below Average RMS Over Voltage Threshold on Phase 3 (current value below threshold; previous value above threshold)") \
+    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_ABOVE_AVERAGE_RMS_UNDER_VO_1,0x8089, "Average RMS Voltage above Average RMS Under Voltage Threshold (current value above threshold; previous value below threshold)") \
+    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_ABOVE_AVERAGE_RMS_UNDER_VO_2,0x808A, "Average RMS Voltage above Average RMS Under Voltage Threshold on Phase 1 (current value above threshold; previous value below threshold)") \
+    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_ABOVE_AVERAGE_RMS_UNDER_VO_3,0x808B, "Average RMS Voltage above Average RMS Under Voltage Threshold on Phase 2 (current value above threshold; previous value below threshold)") \
+    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_ABOVE_AVERAGE_RMS_UNDER_VO_4,0x808C, "Average RMS Voltage above Average RMS Under Voltage Threshold on Phase 3 (current value above threshold; previous value below threshold)") \
     XXX(GBCS_GBZ_ALERT_RMS_VOLTAGE_ABOVE_EXTREME_OVER_VOLTAGE_THRESHO_5,0x808D, "RMS Voltage above Extreme Over Voltage Threshold (voltage returns below for longer than the configurable period)") \
     XXX(GBCS_GBZ_ALERT_RMS_VOLTAGE_ABOVE_EXTREME_OVER_VOLTAGE_THRESHO_6,0x808E, "RMS Voltage above Extreme Over Voltage Threshold on Phase 1 (voltage returns below for longer than the configurable period)") \
     XXX(GBCS_GBZ_ALERT_RMS_VOLTAGE_ABOVE_EXTREME_OVER_VOLTAGE_THRESHO_7,0x808F, "RMS Voltage above Extreme Over Voltage Threshold on Phase 2 (voltage returns below for longer than the configurable period)") \

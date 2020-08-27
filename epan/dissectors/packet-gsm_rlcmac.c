@@ -12540,7 +12540,7 @@ proto_register_gsm_rlcmac(void)
       }
     },
     { &hf_fddarget_cell_t_bandwith_fdd,
-      { "BANDWITH_FDD",        "gsm_rlcmac.ul.epdan_bandwith_fdd",
+      { "BANDWIDTH_FDD",        "gsm_rlcmac.ul.epdan_bandwidth_fdd",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }
@@ -14567,7 +14567,7 @@ proto_register_gsm_rlcmac(void)
       }
     },
     { &hf_fdd_target_cell_notif_bandwith_fdd,
-      { "BANDWITH_FDD",        "gsm_rlcmac.dl.fdd_target_cell_notif_bandwith_fdd",
+      { "BANDWIDTH_FDD",        "gsm_rlcmac.dl.fdd_target_cell_notif_bandwidth_fdd",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }
@@ -15364,7 +15364,7 @@ proto_register_gsm_rlcmac(void)
     },
 #if 0
     { &hf_packet_non_gprs_cell_opt_ext_len,
-      { "Extention_Length",        "gsm_rlcmac.dl.non_gprs_cell_opt_extention_length",
+      { "Extension_Length",        "gsm_rlcmac.dl.non_gprs_cell_opt_extension_length",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }
@@ -15996,13 +15996,13 @@ proto_register_gsm_rlcmac(void)
       }
     },
     { &hf_fdd_target_cell_bandwith_fdd_exist,
-      { "Exist_Bandwith_FDD", "gsm_rlcmac.fdd_target_cell.bandwith_fdd_exist",
+      { "Exist_Bandwidth_FDD", "gsm_rlcmac.fdd_target_cell.bandwidth_fdd_exist",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }
     },
     { &hf_tdd_target_cell_bandwith_tdd_exist,
-      { "Exist_Bandwith_TDD", "gsm_rlcmac.tdd_target_cell.bandwith_tdd_exist",
+      { "Exist_Bandwidth_TDD", "gsm_rlcmac.tdd_target_cell.bandwidth_tdd_exist",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }
@@ -16044,7 +16044,7 @@ proto_register_gsm_rlcmac(void)
       }
     },
     { &hf_pccf_additionsr5_g_rnti_extention_exist,
-      { "Exist_G_RNTI_extention", "gsm_rlcmac.pccf_additionsr5.g_rnti_extention_exist",
+      { "Exist_G_RNTI_extension", "gsm_rlcmac.pccf_additionsr5.g_rnti_extension_exist",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }
@@ -17226,7 +17226,7 @@ proto_register_gsm_rlcmac(void)
       }
     },
     { &hf_target_cell_3g_additionsr5_g_rnti_extention_exist,
-      { "Exist_G_RNTI_Extention", "gsm_rlcmac.target_cell_3g_additionsr5.g_rnti_extention_exist",
+      { "Exist_G_RNTI_Extension", "gsm_rlcmac.target_cell_3g_additionsr5.g_rnti_extension_exist",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }
@@ -17418,13 +17418,13 @@ proto_register_gsm_rlcmac(void)
       }
     },
     { &hf_fdd_target_cell_notif_bandwith_fdd_exist,
-      { "Exist_Bandwith_FDD", "gsm_rlcmac.fdd_target_cell_notif.bandwith_fdd_exist",
+      { "Exist_Bandwidth_FDD", "gsm_rlcmac.fdd_target_cell_notif.bandwidth_fdd_exist",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }
     },
     { &hf_tdd_target_cell_notif_bandwith_tdd_exist,
-      { "Exist_Bandwith_TDD", "gsm_rlcmac.tdd_target_cell_notif.bandwith_tdd_exist",
+      { "Exist_Bandwidth_TDD", "gsm_rlcmac.tdd_target_cell_notif.bandwidth_tdd_exist",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }

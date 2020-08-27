@@ -233,7 +233,7 @@ static const value_string comp_tlv_tag_vals[] = {
 	{ 0x51, "Item text attribute list" },
 	{ 0x52, "3GPP PDP Context Activation parameter" },
 	{ 0x53, "Contactless state request" },
-	{ 0x54, "Conactless functionality state" },
+	{ 0x54, "Contactless functionality state" },
 	{ 0x55, "3GPP CSG cell selection status" },
 	{ 0x56, "3GPP CSG ID" },
 	{ 0x57, "3GPP HNB name" },
@@ -2114,7 +2114,7 @@ proto_register_card_app_toolkit(void)
 		&ett_elem,
 	};
 
-	proto_cat = proto_register_protocol("Card Application Tookit ETSI TS 102.223", "ETSI CAT",
+	proto_cat = proto_register_protocol("Card Application Toolkit ETSI TS 102.223", "ETSI CAT",
 						 "etsi_cat");
 
 	proto_register_field_array(proto_cat, hf, array_length(hf));

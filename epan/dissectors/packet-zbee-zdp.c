@@ -1497,7 +1497,7 @@ void proto_register_zbee_zdp(void)
             NULL, HFILL }},
 
         { &hf_zbee_zdp_server_stk_compl_rev,
-          { "Stack Compliance Revision",   "zbee_zdp.server.stack_compiance_revision", FT_UINT16, BASE_DEC, NULL, ZBEE_ZDP_NODE_SERVER_STACK_COMPL_REV,
+          { "Stack Compliance Revision",   "zbee_zdp.server.stack_compliance_revision", FT_UINT16, BASE_DEC, NULL, ZBEE_ZDP_NODE_SERVER_STACK_COMPL_REV,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_node_type,
@@ -1561,7 +1561,7 @@ void proto_register_zbee_zdp(void)
             NULL, HFILL }},
 
         { &hf_zbee_zdp_power_avail_dispose,
-        { "Available Disposeable Battery",  "zbee_zdp.power.avail.disp", FT_BOOLEAN, 16, NULL, ZBEE_ZDP_POWER_AVAIL_DISPOSEABLE,
+        { "Available Disposable Battery",  "zbee_zdp.power.avail.disp", FT_BOOLEAN, 16, NULL, ZBEE_ZDP_POWER_AVAIL_DISPOSABLE,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_power_source_ac,
@@ -1573,7 +1573,7 @@ void proto_register_zbee_zdp(void)
             NULL, HFILL }},
 
         { &hf_zbee_zdp_power_source_dispose,
-        { "Using Disposeable Battery",  "zbee_zdp.power.source.ac", FT_BOOLEAN, 16, NULL, ZBEE_ZDP_POWER_SOURCE_DISPOSEABLE,
+        { "Using Disposable Battery",  "zbee_zdp.power.source.ac", FT_BOOLEAN, 16, NULL, ZBEE_ZDP_POWER_SOURCE_DISPOSABLE,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_power_level,

@@ -822,7 +822,7 @@ proto_register_forces(void)
                                    10, &forces_alternate_sctp_high_prio_channel_port);
 
     prefs_register_uint_preference(forces_module, "sctp_med_prio_port",
-                                   "SCTP Meidium Priority channel port",
+                                   "SCTP Medium Priority channel port",
                                    "Decode packets on this sctp port as ForCES",
                                    10, &forces_alternate_sctp_med_prio_channel_port);
 
