@@ -26,6 +26,7 @@
  * https://docs.microsoft.com/en-us/windows-hardware/drivers/network/mb-sar-platform-support
  *
  * https://docs.microsoft.com/en-us/windows-hardware/drivers/network/mb-low-level-uicc-access
+ * https://docs.microsoft.com/en-us/windows-hardware/drivers/network/mb-uicc-application-and-file-system-access
  */
 
 #include "config.h"
@@ -719,6 +720,69 @@ static int hf_mbim_ms_slot_info_slot_index = -1;
 static int hf_mbim_ms_slot_info_state = -1;
 static int hf_mbim_ms_atr_info_atr_offset = -1;
 static int hf_mbim_ms_atr_info_atr_size = -1;
+static int hf_mbim_ms_app_info_app_type = -1;
+static int hf_mbim_ms_app_info_app_id_size = -1;
+static int hf_mbim_ms_app_info_app_id = -1;
+static int hf_mbim_ms_app_info_app_name_length = -1;
+static int hf_mbim_ms_app_info_app_name = -1;
+static int hf_mbim_ms_app_info_num_pins = -1;
+static int hf_mbim_ms_app_info_pin_ref = -1;
+static int hf_mbim_ms_app_list_version = -1;
+static int hf_mbim_ms_app_list_app_count = -1;
+static int hf_mbim_ms_app_list_active_app_index = -1;
+static int hf_mbim_ms_app_list_app_list_offset = -1;
+static int hf_mbim_ms_app_list_app_list_size = -1;
+static int hf_mbim_ms_file_path_version = -1;
+static int hf_mbim_ms_file_path_app_id_offset = -1;
+static int hf_mbim_ms_file_path_app_id_size = -1;
+static int hf_mbim_ms_file_path_file_path_offset = -1;
+static int hf_mbim_ms_file_path_file_path_size = -1;
+static int hf_mbim_ms_file_path_app_id = -1;
+static int hf_mbim_ms_file_path_file_path = -1;
+static int hf_mbim_ms_file_status_version = -1;
+static int hf_mbim_ms_file_status_status_word_1 = -1;
+static int hf_mbim_ms_file_status_status_word_2 = -1;
+static int hf_mbim_ms_file_status_file_accessibility = -1;
+static int hf_mbim_ms_file_status_file_type = -1;
+static int hf_mbim_ms_file_status_file_structure = -1;
+static int hf_mbim_ms_file_status_item_count = -1;
+static int hf_mbim_ms_file_status_size = -1;
+static int hf_mbim_ms_file_status_file_lock_status = -1;
+static int hf_mbim_ms_response_version = -1;
+static int hf_mbim_ms_response_status_word_1 = -1;
+static int hf_mbim_ms_response_status_word_2 = -1;
+static int hf_mbim_ms_response_response_data_offset = -1;
+static int hf_mbim_ms_response_response_data_size = -1;
+static int hf_mbim_ms_response_response_data = -1;
+static int hf_mbim_ms_access_binary_version = -1;
+static int hf_mbim_ms_access_binary_app_id_offset = -1;
+static int hf_mbim_ms_access_binary_app_id_size = -1;
+static int hf_mbim_ms_access_binary_file_path_offset = -1;
+static int hf_mbim_ms_access_binary_file_path_size = -1;
+static int hf_mbim_ms_access_binary_file_offset = -1;
+static int hf_mbim_ms_access_binary_number_of_bytes = -1;
+static int hf_mbim_ms_access_binary_local_pin_offset = -1;
+static int hf_mbim_ms_access_binary_local_pin_size = -1;
+static int hf_mbim_ms_access_binary_binary_data_offset = -1;
+static int hf_mbim_ms_access_binary_binary_data_size = -1;
+static int hf_mbim_ms_access_binary_app_id = -1;
+static int hf_mbim_ms_access_binary_file_path = -1;
+static int hf_mbim_ms_access_binary_local_pin = -1;
+static int hf_mbim_ms_access_binary_binary_data = -1;
+static int hf_mbim_ms_access_record_version = -1;
+static int hf_mbim_ms_access_record_app_id_offset = -1;
+static int hf_mbim_ms_access_record_app_id_size = -1;
+static int hf_mbim_ms_access_record_file_path_offset = -1;
+static int hf_mbim_ms_access_record_file_path_size = -1;
+static int hf_mbim_ms_access_record_record_number = -1;
+static int hf_mbim_ms_access_record_local_pin_offset = -1;
+static int hf_mbim_ms_access_record_local_pin_size = -1;
+static int hf_mbim_ms_access_record_record_data_offset = -1;
+static int hf_mbim_ms_access_record_record_data_size = -1;
+static int hf_mbim_ms_access_record_app_id = -1;
+static int hf_mbim_ms_access_record_file_path = -1;
+static int hf_mbim_ms_access_record_local_pin = -1;
+static int hf_mbim_ms_access_record_record_data = -1;
 static int hf_mbim_fragmented_payload = -1;
 static int hf_mbim_request_in = -1;
 static int hf_mbim_response_in = -1;
@@ -1330,6 +1394,10 @@ static const value_string mbim_uuid_ms_sarcontrol_cid_vals[] = {
 #define MBIM_CID_MS_UICC_APDU                4
 #define MBIM_CID_MS_UICC_TERMINAL_CAPABILITY 5
 #define MBIM_CID_MS_UICC_RESET               6
+#define MBIM_CID_MS_UICC_APP_LIST            7
+#define MBIM_CID_MS_UICC_FILE_STATUS         8
+#define MBIM_CID_MS_UICC_ACCESS_BINARY       9
+#define MBIM_CID_MS_UICC_ACCESS_RECORD      10
 
 static const value_string mbim_uuid_ms_uicc_low_level_cid_vals[] = {
     { MBIM_CID_MS_UICC_ATR, "MS_UICC_ATR" },
@@ -1338,6 +1406,10 @@ static const value_string mbim_uuid_ms_uicc_low_level_cid_vals[] = {
     { MBIM_CID_MS_UICC_APDU, "MS_UICC_APDU" },
     { MBIM_CID_MS_UICC_TERMINAL_CAPABILITY, "MS_UICC_TERMINAL_CAPABILITY" },
     { MBIM_CID_MS_UICC_RESET, "MS_UICC_RESET" },
+    { MBIM_CID_MS_UICC_APP_LIST, "MS_UICC_APP_LIST" },
+    { MBIM_CID_MS_UICC_FILE_STATUS, "MS_UICC_FILE_STATUS" },
+    { MBIM_CID_MS_UICC_ACCESS_BINARY, "MS_UICC_ACCESS_BINARY" },
+    { MBIM_CID_MS_UICC_ACCESS_RECORD, "MS_UICC_ACCESS_RECORD" },
     { 0, NULL}
 };
 
@@ -1484,6 +1556,8 @@ static const value_string mbim_pin_type_vals[] = {
     { 15, "Network Subset PUK"},
     { 16, "Service Provider PUK"},
     { 17, "Corporate PUK"},
+    { 18, "Corporate NEV"},
+    { 19, "Corporate ADM"},
     { 0, NULL}
 };
 
@@ -2415,6 +2489,41 @@ static const value_string mbim_ms_uiccslot_state_vals[] = {
     { 6, "Error"},
     { 7, "ActiveEsim"},
     { 8, "ActiveEsimNoProfiles"},
+    { 0, NULL}
+};
+
+static const value_string mbim_ms_uicc_app_type_vals[] = {
+    { 0, "Unknown"},
+    { 1, "Mf"},
+    { 2, "SIM"},
+    { 3, "RUIM"},
+    { 4, "USIM"},
+    { 5, "CSIM"},
+    { 6, "ISIM"},
+    { 0, NULL}
+};
+
+static const value_string mbim_uicc_file_accessibility_vals[] = {
+    { 0, "Unknown"},
+    { 1, "NotShareable"},
+    { 2, "Shareable"},
+    { 0, NULL}
+};
+
+static const value_string mbim_uicc_file_type_vals[] = {
+    { 0, "Unknown"},
+    { 1, "WorkingEf"},
+    { 2, "InternalEf"},
+    { 3, "DfOrAdf"},
+    { 0, NULL}
+};
+
+static const value_string mbim_uicc_file_structure_vals[] = {
+    { 0, "Unknown"},
+    { 1, "Transparent"},
+    { 2, "Cyclic"},
+    { 3, "Linear"},
+    { 4, "BerTLV"},
     { 0, NULL}
 };
 
@@ -4972,6 +5081,221 @@ mbim_dissect_ms_atr_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
     }
 }
 
+static void
+mbim_dissect_ms_app_info_elements(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, gint offset, guint32 app_count)
+{
+    guint32 app_name_length, i;
+    gint app_id_size, num_pins;
+    proto_tree* subtree;
+    const gint app_info_size = 296;
+
+    for (i = 0; i < app_count; i++) {
+        subtree = proto_tree_add_subtree_format(tree, tvb, offset, app_info_size, ett_mbim_pair_list, NULL, "App Info #%u", i + 1);
+        proto_tree_add_item(subtree, hf_mbim_ms_app_info_app_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item_ret_uint(subtree, hf_mbim_ms_app_info_app_id_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &app_id_size);
+        offset += 4;
+        proto_tree_add_item(subtree, hf_mbim_ms_app_info_app_id, tvb, offset, app_id_size, ENC_NA);
+        offset += 16;
+        proto_tree_add_item_ret_uint(subtree, hf_mbim_ms_app_info_app_name_length, tvb, offset, 4, ENC_LITTLE_ENDIAN, &app_name_length);
+        offset += 4;
+        proto_tree_add_item(subtree, hf_mbim_ms_app_info_app_name, tvb, offset, app_name_length, ENC_UTF_8);
+        offset += 256;
+        proto_tree_add_item_ret_uint(subtree, hf_mbim_ms_app_info_num_pins, tvb, offset, 4, ENC_LITTLE_ENDIAN, &num_pins);
+        offset += 4;
+        if (num_pins) {
+            proto_tree_add_item(subtree, hf_mbim_ms_app_info_pin_ref, tvb, offset, num_pins, ENC_NA);
+        }
+    }
+}
+
+static void
+mbim_dissect_ms_app_list(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, gint offset)
+{
+    gint base_offset;
+    guint32 app_count, app_list_offset;
+
+    base_offset = offset;
+    proto_tree_add_item(tree, hf_mbim_ms_app_list_version, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_ms_app_list_app_count, tvb, offset, 4, ENC_LITTLE_ENDIAN, &app_count);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_ms_app_list_active_app_index, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_ms_app_list_app_list_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &app_list_offset);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_ms_app_list_app_list_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    if (app_count && app_list_offset) {
+        offset = base_offset + app_list_offset;
+        mbim_dissect_ms_app_info_elements(tvb, pinfo, tree, offset, app_count);
+    }
+}
+
+static void
+mbim_dissect_ms_file_path(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, gint offset)
+{
+    gint base_offset;
+    guint32 app_id_offset, app_id_size, file_path_offset, file_path_size;
+
+    base_offset = offset;
+    proto_tree_add_item(tree, hf_mbim_ms_file_path_version, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_ms_file_path_app_id_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &app_id_offset);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_ms_file_path_app_id_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &app_id_size);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_ms_file_path_file_path_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &file_path_offset);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_ms_file_path_file_path_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &file_path_size);
+    if (app_id_offset && app_id_size) {
+        proto_tree_add_item(tree, hf_mbim_ms_file_path_app_id, tvb, base_offset + app_id_offset,
+            app_id_size, ENC_NA);
+    }
+    if (file_path_offset && file_path_size) {
+        proto_tree_add_item(tree, hf_mbim_ms_file_path_file_path, tvb, base_offset + file_path_offset,
+            file_path_size, ENC_NA);
+    }
+}
+
+static void
+mbim_dissect_ms_file_status(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, gint offset)
+{
+    guint32 i;
+
+    proto_tree_add_item(tree, hf_mbim_ms_file_status_version, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_ms_file_status_status_word_1, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_ms_file_status_status_word_2, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_ms_file_status_file_accessibility, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_ms_file_status_file_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_ms_file_status_file_structure, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_ms_file_status_item_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_ms_file_status_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    for (i = 0; i < 4; i++) {
+        offset += 4;
+        proto_tree_add_item(tree, hf_mbim_ms_file_status_file_lock_status, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    }
+}
+
+static void
+mbim_dissect_ms_response(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, gint offset)
+{
+    gint base_offset;
+    guint32 response_data_offset, response_data_size;
+
+    base_offset = offset;
+    proto_tree_add_item(tree, hf_mbim_ms_response_version, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_ms_response_status_word_1, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_ms_response_status_word_2, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_ms_response_response_data_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &response_data_offset);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_ms_response_response_data_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &response_data_size);
+    if (response_data_offset && response_data_size) {
+        proto_tree_add_item(tree, hf_mbim_ms_response_response_data, tvb, base_offset + response_data_offset,
+            response_data_size, ENC_NA);
+    }
+}
+
+static void
+mbim_dissect_ms_access_binary(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, gint offset)
+{
+    gint base_offset;
+    guint32 app_id_offset, app_id_size, file_path_offset, file_path_size, local_pin_offset, local_pin_size, binary_data_offset, binary_data_size;
+
+    base_offset = offset;
+    proto_tree_add_item(tree, hf_mbim_ms_access_binary_version, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_ms_access_binary_app_id_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &app_id_offset);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_ms_access_binary_app_id_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &app_id_size);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_ms_access_binary_file_path_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &file_path_offset);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_ms_access_binary_file_path_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &file_path_size);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_ms_access_binary_file_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_ms_access_binary_number_of_bytes, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_ms_access_binary_local_pin_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &local_pin_offset);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_ms_access_binary_local_pin_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &local_pin_size);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_ms_access_binary_binary_data_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &binary_data_offset);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_ms_access_binary_binary_data_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &binary_data_size);
+    if (app_id_offset && app_id_size) {
+        proto_tree_add_item(tree, hf_mbim_ms_access_binary_app_id, tvb, base_offset + app_id_offset,
+            app_id_size, ENC_NA);
+    }
+    if (file_path_offset && file_path_size) {
+        proto_tree_add_item(tree, hf_mbim_ms_access_binary_file_path, tvb, base_offset + file_path_offset,
+            file_path_size, ENC_NA);
+    }
+    if (local_pin_offset && local_pin_size) {
+        proto_tree_add_item(tree, hf_mbim_ms_access_binary_local_pin, tvb, base_offset + local_pin_offset,
+            local_pin_size, ENC_UTF_8 | ENC_NA);
+    }
+    if (binary_data_offset && binary_data_size) {
+        proto_tree_add_item(tree, hf_mbim_ms_access_binary_binary_data, tvb, base_offset + binary_data_offset,
+            binary_data_size, ENC_NA);
+    }
+}
+
+static void
+mbim_dissect_ms_access_record(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, gint offset)
+{
+    gint base_offset;
+    guint32 app_id_offset, app_id_size, file_path_offset, file_path_size, local_pin_offset, local_pin_size, record_data_offset, record_data_size;
+
+    base_offset = offset;
+    proto_tree_add_item(tree, hf_mbim_ms_access_record_version, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_ms_access_record_app_id_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &app_id_offset);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_ms_access_record_app_id_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &app_id_size);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_ms_access_record_file_path_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &file_path_offset);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_ms_access_record_file_path_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &file_path_size);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_ms_access_record_record_number, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_ms_access_record_local_pin_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &local_pin_offset);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_ms_access_record_local_pin_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &local_pin_size);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_ms_access_record_record_data_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &record_data_offset);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_ms_access_record_record_data_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &record_data_size);
+    if (app_id_offset && app_id_size) {
+        proto_tree_add_item(tree, hf_mbim_ms_access_record_app_id, tvb, base_offset + app_id_offset,
+            app_id_size, ENC_NA);
+    }
+    if (file_path_offset && file_path_size) {
+        proto_tree_add_item(tree, hf_mbim_ms_access_record_file_path, tvb, base_offset + file_path_offset,
+            file_path_size, ENC_NA);
+    }
+    if (local_pin_offset && local_pin_size) {
+        proto_tree_add_item(tree, hf_mbim_ms_access_record_local_pin, tvb, base_offset + local_pin_offset,
+            local_pin_size, ENC_LITTLE_ENDIAN | ENC_UTF_8);
+    }
+    if (record_data_offset && record_data_size) {
+        proto_tree_add_item(tree, hf_mbim_ms_access_record_record_data, tvb, base_offset + record_data_offset,
+            record_data_size, ENC_NA);
+    }
+}
+
 static int
 dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
@@ -5849,6 +6173,28 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                                     proto_tree_add_item(subtree, hf_mbim_info_buffer, frag_tvb, offset, info_buff_len, ENC_NA);
                                 }
                                 break;
+                            case MBIM_CID_MS_UICC_APP_LIST:
+                                if (cmd_type == MBIM_COMMAND_SET) {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
+                                } else if (info_buff_len) {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_info_buffer, frag_tvb, offset, info_buff_len);
+                                }
+                                break;
+                            case MBIM_CID_MS_UICC_ACCESS_BINARY:
+                                mbim_dissect_ms_access_binary(frag_tvb, pinfo, subtree, offset);
+                                break;
+                            case MBIM_CID_MS_UICC_ACCESS_RECORD:
+                                mbim_dissect_ms_access_record(frag_tvb, pinfo, subtree, offset);
+                                break;
+                            case MBIM_CID_MS_UICC_FILE_STATUS:
+                                if (cmd_type == MBIM_COMMAND_SET) {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
+                                } else if (info_buff_len) {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_info_buffer, frag_tvb, offset, info_buff_len);
+                                } else {
+                                    mbim_dissect_ms_file_path(frag_tvb, pinfo, subtree, offset);
+                                }
+                                break;
                             default:
                                 proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
                                 break;
@@ -6711,6 +7057,34 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                             case MBIM_CID_MS_UICC_TERMINAL_CAPABILITY:
                             case MBIM_CID_MS_UICC_RESET:
                                 proto_tree_add_item(subtree, hf_mbim_info_buffer, frag_tvb, offset, info_buff_len, ENC_NA);
+                                break;
+                            case MBIM_CID_MS_UICC_APP_LIST:
+                                if (msg_type == MBIM_COMMAND_DONE) {
+                                    if (mbim_info && (mbim_info->cmd_type == MBIM_COMMAND_SET)) {
+                                        proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
+                                    } else {
+                                        mbim_dissect_ms_app_list(frag_tvb, pinfo, subtree, offset);
+                                    }
+                                } else {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
+                                }
+                                break;
+                            case MBIM_CID_MS_UICC_ACCESS_BINARY:
+                                mbim_dissect_ms_response(frag_tvb, pinfo, subtree, offset);
+                                break;
+                            case MBIM_CID_MS_UICC_ACCESS_RECORD:
+                                mbim_dissect_ms_response(frag_tvb, pinfo, subtree, offset);
+                                break;
+                            case MBIM_CID_MS_UICC_FILE_STATUS:
+                                if (msg_type == MBIM_COMMAND_DONE) {
+                                    if (mbim_info && (mbim_info->cmd_type == MBIM_COMMAND_SET)) {
+                                        proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
+                                    } else {
+                                        mbim_dissect_ms_file_status(frag_tvb, pinfo, subtree, offset);
+                                    }
+                                } else {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
+                                }
                                 break;
                             default:
                                 proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
@@ -10491,6 +10865,321 @@ proto_register_mbim(void)
         { &hf_mbim_ms_atr_info_atr_size,
             { "ATR Size", "mbim.control.ms_atr_info.atr_size",
                FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_app_info_app_type,
+            { "App Type", "mbim.control.ms_app_info.app_type",
+               FT_UINT32, BASE_DEC, VALS(mbim_ms_uicc_app_type_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_app_info_app_id_size,
+            { "App ID Size", "mbim.control.ms_app_info.app_id_size",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_app_info_app_id,
+            { "App ID", "mbim.control.ms_app_info.app_id",
+               FT_BYTES, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_app_info_app_name_length,
+            { "App Name Length", "mbim.control.ms_app_info.app_name_length",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_app_info_app_name,
+            { "App Name", "mbim.control.ms_app_info.app_name",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_app_info_num_pins,
+            { "Num Pins", "mbim.control.ms_app_info.num_pins",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_app_info_pin_ref,
+            { "Pin Ref", "mbim.control.ms_app_info.pin_ref",
+               FT_BYTES, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_app_list_version,
+            { "Version", "mbim.control.ms_app_list.version",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_app_list_app_count,
+            { "App Count", "mbim.control.ms_app_list.app_count",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_app_list_active_app_index,
+            { "Active App Index", "mbim.control.ms_app_list.active_app_index",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_app_list_app_list_offset,
+            { "App List Offset", "mbim.control.ms_app_list.app_list_offset",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_app_list_app_list_size,
+            { "App List Size", "mbim.control.ms_app_list.app_list_size",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_file_path_version,
+            { "Version", "mbim.control.ms_file_path.version",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_file_path_app_id_offset,
+            { "App ID Offset", "mbim.control.ms_file_path.app_id_offset",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_file_path_app_id_size,
+            { "App ID Size", "mbim.control.ms_file_path.app_id_size",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_file_path_file_path_offset,
+            { "File Path Offset", "mbim.control.ms_file_path.file_path_offset",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_file_path_file_path_size,
+            { "File Path Size", "mbim.control.ms_file_path.file_path_size",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_file_path_app_id,
+            { "App ID", "mbim.control.ms_file_path.app_id",
+               FT_BYTES, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_file_path_file_path,
+            { "File Path", "mbim.control.ms_file_path.file_path",
+               FT_BYTES, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_file_status_version,
+            { "Version", "mbim.control.ms_file_status.version",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_file_status_status_word_1,
+            { "Status Word 1", "mbim.control.ms_file_status.status_word_1",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_file_status_status_word_2,
+            { "Status Word 2", "mbim.control.ms_file_status.status_word_2",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_file_status_file_accessibility,
+            { "File Accessibility", "mbim.control.ms_file_status.file_accessibility",
+               FT_UINT32, BASE_DEC, VALS(mbim_uicc_file_accessibility_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_file_status_file_type,
+            { "File Type", "mbim.control.ms_file_status.file_type",
+               FT_UINT32, BASE_DEC, VALS(mbim_uicc_file_type_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_file_status_file_structure,
+            { "File Structure", "mbim.control.ms_file_status.file_structure",
+               FT_UINT32, BASE_DEC, VALS(mbim_uicc_file_structure_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_file_status_item_count,
+            { "Item Count", "mbim.control.ms_file_status.item_count",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_file_status_size,
+            { "Size", "mbim.control.ms_file_status.size",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_file_status_file_lock_status,
+            { "File Lock Status", "mbim.control.ms_file_status.file_lock_status",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_response_version,
+            { "Version", "mbim.control.ms_response.version",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_response_status_word_1,
+            { "Status Word 1", "mbim.control.ms_response.status_word_1",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_response_status_word_2,
+            { "Status Word 2", "mbim.control.ms_response.status_word_2",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_response_response_data_offset,
+            { "Data Offset", "mbim.control.ms_response.response_data_offset",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_response_response_data_size,
+            { "Data Size", "mbim.control.ms_response.response_data_size",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_response_response_data,
+            { "Response Data", "mbim.control.ms_response.response_data",
+               FT_BYTES, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_access_binary_version,
+            { "Version", "mbim.control.ms_access_binary.version",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_access_binary_app_id_offset,
+            { "App ID Offset", "mbim.control.ms_access_binary.app_id_offset",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_access_binary_app_id_size,
+            { "App ID Size", "mbim.control.ms_access_binary.app_id_size",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_access_binary_file_path_offset,
+            { "File Path Offset", "mbim.control.ms_access_binary.file_path_offset",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_access_binary_file_path_size,
+            { "File Path Size", "mbim.control.ms_access_binary.file_path_size",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_access_binary_file_offset,
+            { "File Offset", "mbim.control.ms_access_binary.file_offset",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_access_binary_number_of_bytes,
+            { "Number of Bytes", "mbim.control.ms_access_binary.number_of_bytes",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_access_binary_local_pin_offset,
+            { "Local Pin Offset", "mbim.control.ms_access_binary.local_pin_offset",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_access_binary_local_pin_size,
+            { "Local Pin Size", "mbim.control.ms_access_binary.local_pin_size",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_access_binary_binary_data_offset,
+            { "Binary Data Offset", "mbim.control.ms_access_binary.binary_data_offset",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_access_binary_binary_data_size,
+            { "Binary Data Size", "mbim.control.ms_access_binary.binary_data_size",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_access_binary_app_id,
+            { "App ID", "mbim.control.ms_access_binary.app_id",
+               FT_BYTES, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_access_binary_file_path,
+            { "File Path", "mbim.control.ms_access_binary.file_path",
+               FT_BYTES, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_access_binary_local_pin,
+            { "Local Pin", "mbim.control.ms_access_binary.local_pin",
+               FT_STRING, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_access_binary_binary_data,
+            { "Binary Data", "mbim.control.ms_access_binary.binary_data",
+               FT_BYTES, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_access_record_version,
+            { "Version", "mbim.control.ms_access_record.version",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_access_record_app_id_offset,
+            { "App ID Offset", "mbim.control.ms_access_record.app_id_offset",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_access_record_app_id_size,
+            { "App ID Size", "mbim.control.ms_access_record.app_id_size",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_access_record_file_path_offset,
+            { "File Path Offset", "mbim.control.ms_access_record.file_path_offset",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_access_record_file_path_size,
+            { "File Path Size", "mbim.control.ms_access_record.file_path_size",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_access_record_record_number,
+            { "Record Number", "mbim.control.ms_access_record.record_number",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_access_record_local_pin_offset,
+            { "Local Pin Offset", "mbim.control.ms_access_record.local_pin_offset",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_access_record_local_pin_size,
+            { "Local Pin Size", "mbim.control.ms_access_record.local_pin_size",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_access_record_record_data_offset,
+            { "Record Data Offset", "mbim.control.ms_access_record.record_data_offset",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_access_record_record_data_size,
+            { "Record Data Size", "mbim.control.ms_access_record.record_data_size",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_access_record_app_id,
+            { "App ID", "mbim.control.ms_access_record.app_id",
+               FT_BYTES, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_access_record_file_path,
+            { "File Path", "mbim.control.ms_access_record.file_path",
+               FT_BYTES, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_access_record_local_pin,
+            { "Local Pin", "mbim.control.ms_access_record.local_pin",
+               FT_STRING, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_access_record_record_data,
+            { "Record_Data", "mbim.control.ms_access_record.record_data",
+               FT_BYTES, BASE_NONE, NULL, 0,
               NULL, HFILL }
         },
         { &hf_mbim_fragmented_payload,
