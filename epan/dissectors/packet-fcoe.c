@@ -130,6 +130,10 @@ dissect_fcoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         ver = "pre-T11 ";
         if (version != 0)
             ver = wmem_strdup_printf(wmem_packet_scope(), ver, "pre-T11 ver %d ", version);
+        /* Old format has a length field, so we can help the Ethernet dissector
+         * guess about the FCS; note this format does not pad after the EOF,
+         * so the trailer is only 5 octets, not 8. */
+        set_actual_length(tvb, header_len+frame_len+5);
     } else {
         frame_len = tvb_reported_length_remaining(tvb, 0) -
           FCOE_HEADER_LEN - FCOE_TRAILER_LEN;
