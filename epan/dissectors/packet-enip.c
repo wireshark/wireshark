@@ -1110,8 +1110,57 @@ static enip_conv_info_t* create_connection_id_list(conversation_t* conversation)
    return enip_info;
 }
 
-static void
-enip_open_cip_connection( packet_info *pinfo, cip_conn_info_t* connInfo)
+enip_conv_info_t* get_conversation_info_one_direction(packet_info* pinfo, address* src_address, address* dst_address, cip_connID_info_t* connid_info)
+{
+   /* default some information if not included */
+   if ((connid_info->port == 0) || (connid_info->type == CONN_TYPE_MULTICAST))
+   {
+      connid_info->port = ENIP_IO_PORT;
+   }
+
+   ws_in6_addr ipv6_zero = {0};
+   if ((connid_info->ipaddress.type == AT_NONE) ||
+       ((connid_info->ipaddress.type == AT_IPv4) && ((*(const guint32*)connid_info->ipaddress.data)) == 0) ||
+       ((connid_info->ipaddress.type == AT_IPv6) && (memcmp(connid_info->ipaddress.data, &ipv6_zero, sizeof(ipv6_zero)) == 0)) ||
+       (connid_info->type != CONN_TYPE_MULTICAST))
+   {
+      copy_address_wmem(wmem_file_scope(), &connid_info->ipaddress, dst_address);
+   }
+
+   address dest_address;
+   if (connid_info->ipaddress.type == AT_IPv6)
+   {
+      dest_address.type = AT_IPv6;
+      dest_address.len = 16;
+   }
+   else
+   {
+      dest_address.type = AT_IPv4;
+      dest_address.len = 4;
+   }
+   dest_address.data = connid_info->ipaddress.data;
+
+   // Similar logic to find_or_create_conversation(), but since I/O traffic
+   //    is on UDP, the pinfo parameter doesn't have the correct information.
+   conversation_t* conversation = find_conversation(pinfo->num, src_address, &dest_address,
+      ENDPOINT_UDP, connid_info->port, 0, NO_PORT_B);
+   if (conversation == NULL)
+   {
+      conversation = conversation_new(pinfo->num, src_address, &dest_address,
+         ENDPOINT_UDP, connid_info->port, 0, NO_PORT2);
+   }
+
+   enip_conv_info_t* enip_info = (enip_conv_info_t*)conversation_get_proto_data(conversation, proto_enip);
+   if (enip_info == NULL)
+   {
+      enip_info = create_connection_id_list(conversation);
+   }
+
+   return enip_info;
+}
+
+// connInfo - Connection Information that is known so far (from the Forward Open Request).
+static void enip_open_cip_connection( packet_info *pinfo, cip_conn_info_t* connInfo)
 {
    if (pinfo->fd->visited)
       return;
@@ -1155,73 +1204,13 @@ enip_open_cip_connection( packet_info *pinfo, cip_conn_info_t* connInfo)
       if (((connInfo->TransportClass_trigger & CI_TRANSPORT_CLASS_MASK) == 0) ||
           ((connInfo->TransportClass_trigger & CI_TRANSPORT_CLASS_MASK) == 1))
       {
-         ws_in6_addr ipv6_zero = {0};
-
-         /* default some information if not included */
-         if ((connInfo->O2T.port == 0) || (connInfo->O2T.type == CONN_TYPE_MULTICAST))
-            connInfo->O2T.port = ENIP_IO_PORT;
-         if ((connInfo->O2T.ipaddress.type == AT_NONE) ||
-             ((connInfo->O2T.ipaddress.type == AT_IPv4) && ((*(const guint32*)connInfo->O2T.ipaddress.data)) == 0) ||
-             ((connInfo->O2T.ipaddress.type == AT_IPv6) && (memcmp(connInfo->O2T.ipaddress.data, &ipv6_zero, sizeof(ipv6_zero)) == 0)) ||
-             (connInfo->O2T.type != CONN_TYPE_MULTICAST))
-            copy_address_wmem(wmem_file_scope(), &connInfo->O2T.ipaddress, &pinfo->src);
-
-         if ((connInfo->T2O.port == 0) || (connInfo->T2O.type == CONN_TYPE_MULTICAST))
-            connInfo->T2O.port = ENIP_IO_PORT;
-         if ((connInfo->T2O.ipaddress.type == AT_NONE) ||
-             ((connInfo->T2O.ipaddress.type == AT_IPv4) && ((*(const guint32*)connInfo->T2O.ipaddress.data)) == 0) ||
-             ((connInfo->T2O.ipaddress.type == AT_IPv6) && (memcmp(connInfo->T2O.ipaddress.data, &ipv6_zero, sizeof(ipv6_zero)) == 0)) ||
-             (connInfo->T2O.type != CONN_TYPE_MULTICAST))
-            copy_address_wmem(wmem_file_scope(), &connInfo->T2O.ipaddress, &pinfo->dst);
-
-         address dest_address;
-         if (connInfo->O2T.ipaddress.type == AT_IPv6)
-         {
-             dest_address.type = AT_IPv6;
-             dest_address.len  = 16;
-         }
-         else
-         {
-             dest_address.type = AT_IPv4;
-             dest_address.len  = 4;
-         }
-         dest_address.data = connInfo->O2T.ipaddress.data;
-
          /* check for O->T conversation */
-         /* similar logic to find_or_create_conversation(), but since I/O traffic
-            is on UDP, the pinfo parameter doesn't have the correct information */
-         conversation_t* conversation;
-         if ((conversation = find_conversation(pinfo->num, &pinfo->dst, &dest_address,
-                                              ENDPOINT_UDP, connInfo->O2T.port, 0, NO_PORT_B)) == NULL)
-         {
-            conversation = conversation_new(pinfo->num, &pinfo->dst, &dest_address,
-                                            ENDPOINT_UDP, connInfo->O2T.port, 0, NO_PORT2);
-         }
-
-         enip_conv_info_t* enip_info = (enip_conv_info_t *)conversation_get_proto_data(conversation, proto_enip);
-         if (enip_info == NULL)
-         {
-            enip_info = create_connection_id_list(conversation);
-         }
-         wmem_tree_insert32(enip_info->O2TConnIDs, connInfo->O2T.connID, (void *)conn_val);
+         enip_conv_info_t* enip_info = get_conversation_info_one_direction(pinfo, &pinfo->dst, &pinfo->src, &(connInfo->O2T));
+         wmem_tree_insert32(enip_info->O2TConnIDs, connInfo->O2T.connID, (void*)conn_val);
 
          /* Check if separate T->O conversation is necessary.  If either side is multicast
             or ports aren't equal, a separate conversation must be generated */
-         dest_address.data = connInfo->T2O.ipaddress.data;
-         conversation_t* conversationTO;
-         if ((conversationTO = find_conversation(pinfo->num, &pinfo->src, &dest_address,
-                                                ENDPOINT_UDP, connInfo->T2O.port, 0, NO_PORT_B)) == NULL)
-         {
-             conversationTO = conversation_new(pinfo->num, &pinfo->src,
-                                               &dest_address, ENDPOINT_UDP,
-                                               connInfo->T2O.port, 0, NO_PORT2);
-         }
-
-         enip_info = (enip_conv_info_t *)conversation_get_proto_data(conversationTO, proto_enip);
-         if (enip_info == NULL)
-         {
-            enip_info = create_connection_id_list(conversationTO);
-         }
+         enip_info = get_conversation_info_one_direction(pinfo, &pinfo->src, &pinfo->dst, &(connInfo->T2O));
          wmem_tree_insert32(enip_info->T2OConnIDs, connInfo->T2O.connID, (void *)conn_val);
       }
       else
@@ -1366,7 +1355,13 @@ enip_get_io_connid(packet_info *pinfo, guint32 connid, enum enip_connid_type* pc
       return NULL;
 
    if (enip_info->O2TConnIDs != NULL)
+   {
       conn_val = (enip_conn_val_t *)wmem_tree_lookup32( enip_info->O2TConnIDs, connid );
+      if (conn_val)
+      {
+         *pconnid_type = ECIDT_O2T;
+      }
+   }
 
    if ( conn_val == NULL )
    {
@@ -1375,10 +1370,6 @@ enip_get_io_connid(packet_info *pinfo, guint32 connid, enum enip_connid_type* pc
          if ((conn_val = (enip_conn_val_t *)wmem_tree_lookup32( enip_info->T2OConnIDs, connid)) != NULL)
             *pconnid_type = ECIDT_T2O;
       }
-   }
-   else
-   {
-      *pconnid_type = ECIDT_O2T;
    }
 
    if ((conn_val == NULL) || ( conn_val->open_reply_frame > pinfo->num ))

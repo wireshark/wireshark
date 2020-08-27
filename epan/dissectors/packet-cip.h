@@ -469,11 +469,12 @@ typedef struct attribute_info {
    attribute_dissector_func *pdissect;
 } attribute_info_t;
 
+// This describes a one-way connection. Each CIP Connection includes 2 of these.
 typedef struct cip_connID_info {
    guint32 connID;
    address ipaddress;
    guint16 port;
-   guint8  type;
+   guint32 type;
 
    // Actual Packet Interval in microseconds.
    guint32 api;
