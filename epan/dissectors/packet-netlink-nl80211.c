@@ -3498,27 +3498,27 @@ static header_field_info hfi_nl80211_bss_select_attr NETLINK_NL80211_HFI_INIT =
       VALS_EXT_PTR(&ws_nl80211_bss_select_attr_vals_ext), 0x00, NULL, HFILL };
 
 static header_field_info hfi_nl80211_nan_function_type NETLINK_NL80211_HFI_INIT =
-    { "Attribute Type", "nl80211.an_function_type", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
+    { "Attribute Type", "nl80211.nan_function_type", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_nan_function_type_vals_ext), 0x00, NULL, HFILL };
 
 static header_field_info hfi_nl80211_nan_publish_type NETLINK_NL80211_HFI_INIT =
-    { "Attribute Type", "nl80211.an_publish_type", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
+    { "Attribute Type", "nl80211.nan_publish_type", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_nan_publish_type_vals_ext), 0x00, NULL, HFILL };
 
 static header_field_info hfi_nl80211_nan_func_term_reason NETLINK_NL80211_HFI_INIT =
-    { "Attribute Type", "nl80211.an_func_term_reason", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
+    { "Attribute Type", "nl80211.nan_func_term_reason", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_nan_func_term_reason_vals_ext), 0x00, NULL, HFILL };
 
 static header_field_info hfi_nl80211_nan_func_attributes NETLINK_NL80211_HFI_INIT =
-    { "Attribute Type", "nl80211.an_func_attributes", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
+    { "Attribute Type", "nl80211.nan_func_attributes", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_nan_func_attributes_vals_ext), 0x00, NULL, HFILL };
 
 static header_field_info hfi_nl80211_nan_srf_attributes NETLINK_NL80211_HFI_INIT =
-    { "Attribute Type", "nl80211.an_srf_attributes", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
+    { "Attribute Type", "nl80211.nan_srf_attributes", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_nan_srf_attributes_vals_ext), 0x00, NULL, HFILL };
 
 static header_field_info hfi_nl80211_nan_match_attributes NETLINK_NL80211_HFI_INIT =
-    { "Attribute Type", "nl80211.an_match_attributes", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
+    { "Attribute Type", "nl80211.nan_match_attributes", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_nan_match_attributes_vals_ext), 0x00, NULL, HFILL };
 
 static header_field_info hfi_nl80211_external_auth_action NETLINK_NL80211_HFI_INIT =
