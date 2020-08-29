@@ -4818,7 +4818,7 @@ proto_register_mip6(void)
     },
 
     { &hf_pmip6_lra_u,
-      { "unsolicited", "mip6.lri.unsolicated",
+      { "unsolicited", "mip6.lri.unsolicited",
         FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80,
         "When set to 1, the LRA message is sent unsolicited", HFILL }
     },

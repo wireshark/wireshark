@@ -3701,7 +3701,7 @@ static void dissect_knxip_data( guint8 header_length, guint8 protocol_version _U
       if( tree )
       {
         proto_item* unknown_item = knxip_tree_add_unknown_data( kip_tree, tvb, offset, remaining_len );
-        expert_add_info_format( pinfo, unknown_item, KIP_ERROR, "Unexpexted trailing data" );
+        expert_add_info_format( pinfo, unknown_item, KIP_ERROR, "Unexpected trailing data" );
       }
 
       ok = 0;

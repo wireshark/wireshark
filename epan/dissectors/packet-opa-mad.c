@@ -2663,8 +2663,8 @@ static void cf_opa_mad_swcongestionsetting_controlmap(gchar *buf, guint32 value)
         len = g_snprintf(buf, ITEM_LABEL_LENGTH, "Victim");
     if (value & 0x2) /* Credit */
         len += g_snprintf(&buf[len], ITEM_LABEL_LENGTH - len, "%sCredit", (len ? ", " : ""));
-    if (value & 0x4) /* Thresold & PacketSize */
-        len += g_snprintf(&buf[len], ITEM_LABEL_LENGTH - len, "%sThresold & PacketSize", (len ? ", " : ""));
+    if (value & 0x4) /* Threshold & PacketSize */
+        len += g_snprintf(&buf[len], ITEM_LABEL_LENGTH - len, "%sThreshold & PacketSize", (len ? ", " : ""));
     if (value & 0x8) /* CS_threshold & CS_ReturnDelay */
         len += g_snprintf(&buf[len], ITEM_LABEL_LENGTH - len, "%sCS_threshold & CS_ReturnDelay", (len ? ", " : ""));
     if (value & 0x10) /* Marking Rate */

@@ -3704,7 +3704,7 @@ proto_register_obex(void)
         },
         { &hf_profile,
           { "Profile", "obex.profile", FT_UINT32, BASE_DEC | BASE_EXT_STRING, &profile_vals_ext, 0x0,
-            "Blutooth Profile used in this OBEX session", HFILL }
+            "Bluetooth Profile used in this OBEX session", HFILL }
         },
         { &hf_type,
           { "Type", "obex.type", FT_STRINGZ, STR_ASCII, NULL, 0x0,

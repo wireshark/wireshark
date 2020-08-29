@@ -6016,7 +6016,7 @@ void proto_register_ieee802154(void)
 
         { &hf_ieee802154_tsch_timeslot_length,
           { "Timeslot Length",              "wpan.tsch.timeslot.length", FT_UINT24, BASE_DEC, NULL, 0x0,
-            "Total length of the timeslot, including any unsused time after frame transmission", HFILL }},
+            "Total length of the timeslot, including any unused time after frame transmission", HFILL }},
 
         { &hf_ieee802154_tsch_channel_hopping,
         { "Channel Hopping IE",             "wpan.channel_hopping", FT_NONE, BASE_NONE, NULL, 0x0,

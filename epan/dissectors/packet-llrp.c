@@ -3814,7 +3814,7 @@ proto_register_llrp(void)
           NULL, HFILL }},
 
         { &hf_llrp_soft_ver,
-        { "Softwave version", "llrp.param.soft_ver", FT_UINT_STRING, BASE_NONE, NULL, 0,
+        { "Software version", "llrp.param.soft_ver", FT_UINT_STRING, BASE_NONE, NULL, 0,
           NULL, HFILL }},
 
         { &hf_llrp_firm_ver,

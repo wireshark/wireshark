@@ -3050,7 +3050,7 @@ static int hf_japan_isup_dcr = -1;
 static int hf_japan_isup_ecr = -1;
 static int hf_japan_isup_ncr = -1;
 static int hf_japan_isup_scr = -1;
-static int hf_japan_isup_collecting_metod = -1;
+static int hf_japan_isup_collecting_method = -1;
 static int hf_japan_isup_tariff_rate_pres = -1;
 
 static int hf_japan_isup_charge_area_nat_of_info_value = -1;
@@ -7741,7 +7741,7 @@ static const value_string japan_isup_charging_party_type_values[] = {
   { 0,   NULL}
 };
 
-static const value_string japan_isup_collecting_metod_values[] = {
+static const value_string japan_isup_collecting_method_values[] = {
   { 0,   "Subscriber will be claimed" },
   { 0,   NULL}
 };
@@ -7779,7 +7779,7 @@ dissect_japan_chg_inf_type_acr(tvbuff_t *parameter_tvb, proto_tree *parameter_tr
         /* Tariff collecting method and charging party type */
         proto_tree_add_item(parameter_tree, hf_isup_extension_ind, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(parameter_tree, hf_japan_isup_charging_party_type, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(parameter_tree, hf_japan_isup_collecting_metod, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(parameter_tree, hf_japan_isup_collecting_method, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
       }
     }
@@ -11981,9 +11981,9 @@ proto_register_isup(void)
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
-    { &hf_japan_isup_collecting_metod,
-      { "Charging party type", "isup.japan.collecting_metod",
-        FT_UINT8, BASE_DEC, VALS(japan_isup_collecting_metod_values), 0x0f,
+    { &hf_japan_isup_collecting_method,
+      { "Charging party type", "isup.japan.collecting_method",
+        FT_UINT8, BASE_DEC, VALS(japan_isup_collecting_method_values), 0x0f,
         NULL, HFILL }},
 
     { &hf_japan_isup_tariff_rate_pres,

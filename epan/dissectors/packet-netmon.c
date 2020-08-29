@@ -2544,7 +2544,7 @@ void proto_register_netmon(void)
 			FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_netmon_system_config_tcb_table_partitions,
-			{ "Tcb table paritions", "netmon_system_config.tcb_table_partitions",
+			{ "Tcb table partitions", "netmon_system_config.tcb_table_partitions",
 			FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_netmon_system_config_max_hash_table_size,

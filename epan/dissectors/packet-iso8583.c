@@ -1014,7 +1014,7 @@ proto_register_iso8583(void)
     { &hf_iso8583_mti,
       { "MTI", "iso8583.mti",
         FT_STRING, STR_ASCII, NULL , 0,
-        "Message Type Idicator (MTI)", HFILL }
+        "Message Type Indicator (MTI)", HFILL }
     },
     { &hf_iso8583_bitmap1,
       { "Bitmap 1", "iso8583.map1",

@@ -4784,22 +4784,22 @@ proto_register_pcep(void)
         { &hf_pcep_subobj_sr_sid_label,
           { "SID/Label", "pcep.subobj.sr.sid.label",
             FT_UINT32, BASE_DEC, NULL, 0xfffff000,
-            "SID represent MPLS Lable stack: Lable", HFILL }
+            "SID represent MPLS Label stack: Lable", HFILL }
         },
         { &hf_pcep_subobj_sr_sid_tc,
           {"SID/TC", "pcep.subobj.sr.sid.tc",
             FT_UINT32, BASE_DEC, NULL, 0x00000E00,
-            "SID represent MPLS Lable stack: Traffic Class field", HFILL }
+            "SID represent MPLS Label stack: Traffic Class field", HFILL }
         },
         { &hf_pcep_subobj_sr_sid_s,
           {"SID/S", "pcep.subobj.sr.sid.s",
             FT_UINT32, BASE_DEC, NULL, 0x00000100,
-            "SID represent MPLS Lable stack: Bottom of Stack", HFILL }
+            "SID represent MPLS Label stack: Bottom of Stack", HFILL }
         },
         { &hf_pcep_subobj_sr_sid_ttl,
           {"SID/TTL", "pcep.subobj.sr.sid.ttl",
             FT_UINT32, BASE_DEC, NULL, 0x0000000FF,
-            "SID represent MPLS Lable stack: Time to Live", HFILL }
+            "SID represent MPLS Label stack: Time to Live", HFILL }
         },
         { &hf_pcep_subobj_sr_nai_ipv4_node,
           { "NAI (IPv4 Node ID)", "pcep.subobj.sr.nai.ipv4node",

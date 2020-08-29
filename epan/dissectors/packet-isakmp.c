@@ -1411,7 +1411,7 @@ static const range_string notifmsg_v2_type[] = {
   { 0,0,        NULL },
 };
 
-/* 3GPP private error and status types in Notyfy messages
+/* 3GPP private error and status types in Notify messages
  * 3GPP TS 24.302 V16.0.0 (2019-03)
  * 3GPP TS 24.502 V15.3.0 (2019-03)
  * Note currently all private data types wil be decoded as 3GPP if that's not good enough a preference must be used
@@ -7860,7 +7860,7 @@ proto_register_isakmp(void)
         FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
     { &hf_isakmp_notify_data_3gpp_backoff_timer_len,
-      { "Length", "isakmp.notyfy.priv.3gpp.backoff_timer_len",
+      { "Length", "isakmp.notify.priv.3gpp.backoff_timer_len",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
 

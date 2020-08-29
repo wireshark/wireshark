@@ -838,7 +838,7 @@ static const value_string link_param_fdd_vals[] = {
 static const value_string link_param_802_11_vals[] = {
 {0, "RSSI"},
 {1, "No QoS resource Available"},
-{2, "Multiast packet loss rate"},
+{2, "Multicast packet loss rate"},
 {0, NULL}
 };
 

@@ -3287,7 +3287,7 @@ void proto_register_radiotap(void)
 		{&hf_radiotap_present_l_sig,
 		 {"L-SIG", "radiotap.present.l_sig",
 		  FT_BOOLEAN, 32, TFS(&tfs_present_absent), RADIOTAP_MASK(L_SIG),
-		  "Specifies whther or not the L-SIG field is present", HFILL}},
+		  "Specifies whether or not the L-SIG field is present", HFILL}},
 
 		{&hf_radiotap_present_tlv,
 		 {"TLVs", "radiotap.present.tlv",
@@ -4478,7 +4478,7 @@ void proto_register_radiotap(void)
 		  NULL, HFILL}},
 
 		{&hf_radiotap_midamble_periodicity,
-		 {"midamble periodicty", "radiotap.he.data_6.midamble_periodicity",
+		 {"midamble periodicity", "radiotap.he.data_6.midamble_periodicity",
 		  FT_UINT16, BASE_HEX, VALS(he_midamble_periodicity_vals),
 		  IEEE80211_RADIOTAP_HE_MIDAMBLE_PERIODICITY, NULL, HFILL}},
 

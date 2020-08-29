@@ -5978,8 +5978,8 @@ dissect_cac_termination(tvbuff_t *tvb, packet_info *pinfo _U_,
 static const range_string cac_completion_status_rvals[] = {
     { 0, 0,   "Successful" },
     { 1, 1,   "Radar detected" },
-    { 2, 2,   "CAC not supportted as requested" },
-    { 3, 3,   "Radio too busy to peform CAC" },
+    { 2, 2,   "CAC not supported as requested" },
+    { 3, 3,   "Radio too busy to perform CAC" },
     { 4, 4,   "Request was considered non conformant to regulations in country of operation" },
     { 5, 5,   "Other error" },
     { 6, 255, "Reserved" },
@@ -6849,7 +6849,7 @@ dissect_dscp_mapping_table(tvbuff_t *tvb, packet_info *pinfo _U_,
 static const range_string r2_error_code_rvals[] = {
     { 0, 0,   "Reserved" },
     { 1, 1,   "Service Prioritization Rule not found" },
-    { 2, 2,   "Number of Service Prioritization Rules reaced the max supported" },
+    { 2, 2,   "Number of Service Prioritization Rules reached the max supported" },
     { 3, 3,   "Default PCP or VLAN ID not provided" },
     { 4, 4,   "Reserved" },
     { 5, 5,   "Number of unique VID exceeds maximum supported" },
@@ -7068,7 +7068,7 @@ dissect_r2_steering_request(tvbuff_t *tvb, packet_info *pinfo _U_,
 
         amb_list = proto_tree_add_subtree(tree, tvb, offset, 6 * sta_list_count,
                                 ett_r2_steering_sta_list, NULL,
-                                "AMB cabable STA list");
+                                "AMB capable STA list");
         while (sta_list_count > 0) {
             proto_tree_add_item(amb_list, hf_ieee1905_r2_steering_sta_mac, tvb,
                                 offset, 6, ENC_NA);
@@ -8880,7 +8880,7 @@ proto_register_ieee1905(void)
             FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 
         { &hf_ieee1905_l2_neighbor_intf_count,
-          { "L2 neighbor interfae count", "ieee1905.l2_neighbor.intf_count",
+          { "L2 neighbor interface count", "ieee1905.l2_neighbor.intf_count",
             FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 
         { &hf_ieee1905_l2_local_intf_mac_addr,

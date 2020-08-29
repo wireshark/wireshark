@@ -4366,7 +4366,7 @@ static const value_string lbmc_umq_idx_cmd_response_error_code[] =
     { UMQUEUE_RCV_IDX_CMD_EAUTHFAIL, "Authorization failure" },
     { LBM_UMQ_ULB_RCV_IDX_CMD_EIDXNOTASSIGNED, "Index not assigned" },
     { LBM_UMQ_ULB_RCV_IDX_CMD_EIDXINELIGIBLE, "Receiver ineligible for index" },
-    { LBM_UMQ_ULB_RCV_IDX_CMD_EIDXINUSE, "Indes already assigned or unavailable" },
+    { LBM_UMQ_ULB_RCV_IDX_CMD_EIDXINUSE, "Index already assigned or unavailable" },
     { LBM_UMQ_ULB_RCV_IDX_CMD_EIDXALREADYASSIGNED, "Index already assigned to this receiver" },
     { 0x0, NULL }
 };

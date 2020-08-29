@@ -3430,17 +3430,17 @@ proto_register_mpeg_descriptor(void)
         } },
 
         { &hf_mpeg_descr_avc_vid_constraint_set0_flag, {
-            "Constraint Set0 Flag", "mpeg_descr.avc_vid.contraint_set0",
+            "Constraint Set0 Flag", "mpeg_descr.avc_vid.constraint_set0",
             FT_UINT8, BASE_DEC, NULL, MPEG_DESCR_AVC_VID_CONSTRAINT_SET0_FLAG_MASK, NULL, HFILL
         } },
 
         { &hf_mpeg_descr_avc_vid_constraint_set1_flag, {
-            "Constraint Set1 Flag", "mpeg_descr.avc_vid.contraint_set1",
+            "Constraint Set1 Flag", "mpeg_descr.avc_vid.constraint_set1",
             FT_UINT8, BASE_DEC, NULL, MPEG_DESCR_AVC_VID_CONSTRAINT_SET1_FLAG_MASK, NULL, HFILL
         } },
 
         { &hf_mpeg_descr_avc_vid_constraint_set2_flag, {
-            "Constraint Set2 Flag", "mpeg_descr.avc_vid.contraint_set2",
+            "Constraint Set2 Flag", "mpeg_descr.avc_vid.constraint_set2",
             FT_UINT8, BASE_DEC, NULL, MPEG_DESCR_AVC_VID_CONSTRAINT_SET2_FLAG_MASK, NULL, HFILL
         } },
 
@@ -4454,12 +4454,12 @@ proto_register_mpeg_descriptor(void)
         } },
 
         { &hf_mpeg_descr_logon_initialize_capacity_type_flag_reserved, {
-            "Capacity Type Flag Reserved", "mpeg_descr.logon_init.capactity_type_flag_reserved",
+            "Capacity Type Flag Reserved", "mpeg_descr.logon_init.capacity_type_flag_reserved",
             FT_UINT8, BASE_DEC, NULL, MPEG_DESCR_LOGON_INITIALIZE_CAPACITY_TYPE_FLAG_RESERVED_MASK, NULL, HFILL
         } },
 
         { &hf_mpeg_descr_logon_initialize_capacity_type_flag, {
-            "Capacity Type Flag", "mpeg_descr.logon_init.capactity_type_flag",
+            "Capacity Type Flag", "mpeg_descr.logon_init.capacity_type_flag",
             FT_UINT8, BASE_DEC, NULL, MPEG_DESCR_LOGON_INITIALIZE_CAPACITY_TYPE_FLAG_MASK, NULL, HFILL
         } },
 

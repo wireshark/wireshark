@@ -1854,7 +1854,7 @@ proto_register_lat(void)
 		  8, NULL, 0x02, NULL, HFILL}},
 
 	    { &hf_lat_obj_node_name,
-		{ "Destinaton node name", "lat.obj_node.name", FT_UINT_STRING,
+		{ "Destination node name", "lat.obj_node.name", FT_UINT_STRING,
 		  BASE_NONE, NULL, 0x0,
 		  NULL, HFILL}},
 

@@ -546,7 +546,7 @@ static int hf_radiotap_vw_errors_rx_bad_flow_payload_checksum = -1;
 static int hf_radiotap_vw_errors_rx_illegal_vht_sig_value = -1;
 static int hf_radiotap_vw_errors_rx_ip_checksum_error = -1;
 static int hf_radiotap_vw_errors_rx_l4_checksum_error = -1;
-static int hf_radiotap_vw_errors_rx_l1_unsupported_faature = -1;
+static int hf_radiotap_vw_errors_rx_l1_unsupported_feature = -1;
 static int hf_radiotap_vw_errors_rx_l1_packet_termination = -1;
 static int hf_radiotap_vw_errors_rx_internal_error_bit15 = -1;
 static int hf_radiotap_vw_errors_rx_wep_mic_miscompare = -1;
@@ -2890,7 +2890,7 @@ wlantap_dissect_octo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             &hf_radiotap_vw_errors_rx_illegal_vht_sig_value,
             &hf_radiotap_vw_errors_rx_ip_checksum_error,
             &hf_radiotap_vw_errors_rx_l4_checksum_error,
-            &hf_radiotap_vw_errors_rx_l1_unsupported_faature,
+            &hf_radiotap_vw_errors_rx_l1_unsupported_feature,
             &hf_radiotap_vw_errors_rx_l1_packet_termination,
             &hf_radiotap_vw_errors_rx_internal_error_bit15,
             &hf_radiotap_vw_errors_rx_wep_mic_miscompare,
@@ -4149,8 +4149,8 @@ framing signal deasserted.  this is caused by software setting the drain all reg
     { &hf_radiotap_vw_errors_rx_l4_checksum_error,
         { "L4 (TCP/ICMP/IGMP/UDP) checksum error", "ixveriwave.errors.l4_checksum_error",
         FT_BOOLEAN, 32, NULL, 0x00000800, NULL, HFILL } },
-    { &hf_radiotap_vw_errors_rx_l1_unsupported_faature,
-        { "Layer 1 Unsupported Feature", "ixveriwave.errors.l1_unsupported_faature",
+    { &hf_radiotap_vw_errors_rx_l1_unsupported_feature,
+        { "Layer 1 Unsupported Feature", "ixveriwave.errors.l1_unsupported_feature",
         FT_BOOLEAN, 32, NULL, 0x00001000, NULL, HFILL } },
     { &hf_radiotap_vw_errors_rx_l1_packet_termination,
         { "Layer 1 Packet Termination", "ixveriwave.errors.l1_packet_termination",

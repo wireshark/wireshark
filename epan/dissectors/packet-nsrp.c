@@ -112,7 +112,7 @@ static const value_string nsrp_msgtype_vals[] = {
 };
 
 static const value_string nsrp_flag_vals[] = {
-    { 0x80,     "ENCRPT MESSAGE" },
+    { 0x80,     "ENCRYPT MESSAGE" },
     { 0x40,     "CLOSE SESSION" },
     { 0x20,     "CHANG SESSION" },
     { 0x10,     "CREATE SP SESSION" },

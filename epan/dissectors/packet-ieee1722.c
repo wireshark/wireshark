@@ -2006,7 +2006,7 @@ static int dissect_1722_ntscf (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     };
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "NTSCF");
-    col_set_str(pinfo->cinfo, COL_INFO, "AVTP Non-Time-Syncronous Control Format");
+    col_set_str(pinfo->cinfo, COL_INFO, "AVTP Non-Time-Synchronous Control Format");
 
     ti_ntscf = proto_tree_add_item(tree, proto_1722_ntscf, tvb, 0, -1, ENC_NA);
     tree_ntscf = proto_item_add_subtree(ti_ntscf, ett_1722_ntscf);
@@ -2134,7 +2134,7 @@ static int dissect_1722_tscf (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     gint        captured_payload_length;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "TSCF");
-    col_set_str(pinfo->cinfo, COL_INFO, "AVTP Time-Syncronous Control Format");
+    col_set_str(pinfo->cinfo, COL_INFO, "AVTP Time-Synchronous Control Format");
 
     ti_tscf = proto_tree_add_item(tree, proto_1722_tscf, tvb, 0, -1, ENC_NA);
     tree_tscf = proto_item_add_subtree(ti_tscf, ett_1722_tscf);

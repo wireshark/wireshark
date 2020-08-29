@@ -172,7 +172,7 @@ static const value_string vals_mm_header_names[] = {
         { MM_CONTENT_HDR,               "Content" },
         { MM_START_HDR,                 "X-Mms-Start" },
         { MM_ADDITIONAL_HDR,            "Additional-headers" },
-        { MM_DISTRIBUION_IND_HDR,       "X-Mms-Distribution-Indcator" },
+        { MM_DISTRIBUION_IND_HDR,       "X-Mms-Distribution-Indicator" },
         { MM_ELEMENT_DESCR_HDR,         "X-Mms-Element-Descriptor" },
         { MM_LIMIT_HDR,                 "X-Mms-Limit" },
 

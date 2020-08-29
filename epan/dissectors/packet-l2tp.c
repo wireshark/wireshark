@@ -765,7 +765,7 @@ static const value_string ericsson_avp_type_vals[] = {
     { ERICSSON_ABIS_LOWER_MODE,       "Abis Lower Mode" },
     { ERICSSON_TEI_TO_SC_MAP,         "TEI to SC Map" },
     { ERICSSON_CHAN_STATUS_LIST,      "Channel Status List" },
-    { ERICSSON_EXT_PROTO_VERSION,     "Extended Protoocl Version" },
+    { ERICSSON_EXT_PROTO_VERSION,     "Extended Protocol Version" },
     { ERICSSON_CHAN_STATUS_LIST2,     "Channel Status List 2" },
     { 0,                              NULL }
 };
@@ -3462,20 +3462,20 @@ proto_register_l2tp(void)
             "Minimum Data Rate Downstream Low-Power in bits per seconds", HFILL }},
 
         { &hf_l2tp_broadband_maximum_interleaving_delay_up,
-          { "Maximum Interleaving Dalay Upstream", "l2tp.broadband.maximum_interleaving_delay_up", FT_UINT32, BASE_DEC, NULL, 0x0,
-            "Maximum Interleaving Dalay Upstream in ms", HFILL }},
+          { "Maximum Interleaving Delay Upstream", "l2tp.broadband.maximum_interleaving_delay_up", FT_UINT32, BASE_DEC, NULL, 0x0,
+            "Maximum Interleaving Delay Upstream in ms", HFILL }},
 
         { &hf_l2tp_broadband_actual_interleaving_delay_up,
-          { "Actual Interleaving Dalay Upstream", "l2tp.broadband.actual_interleaving_delay_up", FT_UINT32, BASE_DEC, NULL, 0x0,
-            "Actual Interleaving Dalay Upstream in ms", HFILL }},
+          { "Actual Interleaving Delay Upstream", "l2tp.broadband.actual_interleaving_delay_up", FT_UINT32, BASE_DEC, NULL, 0x0,
+            "Actual Interleaving Delay Upstream in ms", HFILL }},
 
         { &hf_l2tp_broadband_maximum_interleaving_delay_down,
-          { "Maximum Interleaving Dalay Downstream", "l2tp.broadband.maximum_interleaving_delay_down", FT_UINT32, BASE_DEC, NULL, 0x0,
-            "Maximum Interleaving Dalay Downstream in ms", HFILL }},
+          { "Maximum Interleaving Delay Downstream", "l2tp.broadband.maximum_interleaving_delay_down", FT_UINT32, BASE_DEC, NULL, 0x0,
+            "Maximum Interleaving Delay Downstream in ms", HFILL }},
 
         { &hf_l2tp_broadband_actual_interleaving_delay_down,
-          { "Actual Interleaving Dalay Downstream", "l2tp.broadband.actual_interleaving_delay_down", FT_UINT32, BASE_DEC, NULL, 0x0,
-            "Actual Interleaving Dalay Downstream in ms", HFILL }},
+          { "Actual Interleaving Delay Downstream", "l2tp.broadband.actual_interleaving_delay_down", FT_UINT32, BASE_DEC, NULL, 0x0,
+            "Actual Interleaving Delay Downstream in ms", HFILL }},
 
         { &hf_l2tp_broadband_access_loop_encapsulation,
           { "Access Loop Encapsulation", "l2tp.broadband.access_loop_encapsulation", FT_NONE, BASE_NONE, NULL, 0x0,

@@ -1105,7 +1105,7 @@ dissect_mtp2_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
           /* issue frame reset */
           issue_frame_reset_info(tree, new_tvb);
           /* prepare col_info string */
-          col_info_str = "[Frame Reset in reassebmly]";
+          col_info_str = "[Frame Reset in reassembly]";
         } else {
           /* append the reassembled packet to the head of the packet list */
           wmem_list_prepend(result->found_packets, prepare_data_for_found_packet(new_tvb,result->mtp2_remain_data.before_fh_unalignment_offset));

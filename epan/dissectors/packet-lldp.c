@@ -1068,7 +1068,7 @@ static const value_string operational_mau_type_values[] = {
 #define HYTEC_MD__LINELOSS					4
 
 #define HYTEC_MD__TX_CURRENT_OUTPUT_POWER_STR	"Tx current output power"
-#define HYTEC_MD__RX_CURRENT_INPUT_POWER_STR	"Rx current intput power"
+#define HYTEC_MD__RX_CURRENT_INPUT_POWER_STR	"Rx current input power"
 #define HYTEC_MD__RX_INPUT_SNR_STR				"Rx input SNR"
 #define HYTEC_MD__LINELOSS_STR					"Lineloss"
 

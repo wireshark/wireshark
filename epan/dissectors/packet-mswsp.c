@@ -6584,7 +6584,7 @@ proto_register_mswsp(void)
 		{
 			&hf_mswsp_cscort_individual,
 			{
-				"inidvidual", "mswsp.csort.individual",
+				"individual", "mswsp.csort.individual",
 				FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL
 			}
 		},
@@ -6605,14 +6605,14 @@ proto_register_mswsp(void)
 		{
 			&hf_mswsp_ctablecolumn_aggused,
 			{
-				"AggreagateUsed", "mswsp.ctablecolumn.aggused",
+				"AggregateUsed", "mswsp.ctablecolumn.aggused",
 				FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL
 			}
 		},
 		{
 			&hf_mswsp_ctablecolumn_aggtype,
 			{
-				"AggreagateType", "mswsp.ctablecolumn.aggtype",
+				"AggregateType", "mswsp.ctablecolumn.aggtype",
 				FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
 			}
 		},

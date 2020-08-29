@@ -1840,7 +1840,7 @@ static const value_string v10_template_types_niagara_networks[] = {
     { 102, "SslServerVersionText" },
     { 103, "SslServerCipher" },
     { 104, "SslServerCipherText" },
-    { 105, "SslConnectionEncriptionType" },
+    { 105, "SslConnectionEncryptionType" },
     { 106, "SslServerCompressionMethod" },
     { 107, "SslServerSessionId" },
     { 108, "SslCertificateIssuer" },
@@ -3484,7 +3484,7 @@ static int      hf_pie_niagara_networks_sslserverversion                        
 static int      hf_pie_niagara_networks_sslserverversiontext                        = -1;
 static int      hf_pie_niagara_networks_sslservercipher                             = -1;
 static int      hf_pie_niagara_networks_sslserverciphertext                         = -1;
-static int      hf_pie_niagara_networks_sslconnectionencriptiontype                 = -1;
+static int      hf_pie_niagara_networks_sslconnectionencryptiontype                 = -1;
 static int      hf_pie_niagara_networks_sslservercompressionmethod                  = -1;
 static int      hf_pie_niagara_networks_sslserversessionid                          = -1;
 static int      hf_pie_niagara_networks_sslcertificateissuer                        = -1;
@@ -11059,7 +11059,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
 
         case ((VENDOR_NIAGARA_NETWORKS << 16) | 105):
-            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_sslconnectionencriptiontype,
+            ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_sslconnectionencryptiontype,
                                      tvb, offset, length, ENC_UTF_8|ENC_NA);
             break;
 
@@ -18633,8 +18633,8 @@ proto_register_netflow(void)
           NULL, HFILL}
         },
         /* Niagara Networks, 47729 / 105 */
-        {&hf_pie_niagara_networks_sslconnectionencriptiontype,
-         {"SslConnectionEncriptionType", "cflow.pie.niagaranetworks.sslconnectionencriptiontype",
+        {&hf_pie_niagara_networks_sslconnectionencryptiontype,
+         {"SslConnectionEncryptionType", "cflow.pie.niagaranetworks.sslconnectionencryptiontype",
           FT_STRING, STR_UNICODE, NULL, 0X0,
           NULL, HFILL}
         },
