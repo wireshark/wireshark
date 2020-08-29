@@ -680,6 +680,9 @@ void proto_reg_handoff_its(void)
         }
     }
 
+    // Enable decode as for its pdu's send via udp
+    dissector_add_for_decode_as("udp.port", its_handle_);
+
     dissector_add_uint("its.msg_id", (ITS_DENM_PROT_VER << 16) + ITS_DENM,          create_dissector_handle( dissect_denm_DecentralizedEnvironmentalNotificationMessage_PDU, proto_its_denm ));
     dissector_add_uint("its.msg_id", (ITS_DENM_PROT_VERv1 << 16) + ITS_DENM,        create_dissector_handle( dissect_denmv1_DecentralizedEnvironmentalNotificationMessageV1_PDU, proto_its_denmv1 ));
     dissector_add_uint("its.msg_id", (ITS_CAM_PROT_VER << 16) + ITS_CAM,            create_dissector_handle( dissect_cam_CoopAwareness_PDU, proto_its_cam ));
