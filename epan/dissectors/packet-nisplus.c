@@ -866,7 +866,7 @@ static const value_string nis_error[] = {
 #define NIS_NOSUCHNAME		20
 	{	NIS_NOSUCHNAME,		"Name unknown"	},
 #define NIS_NOTUNIQUE		21
-	{	NIS_NOTUNIQUE,		"Value is not uniques (entry)"	},
+	{	NIS_NOTUNIQUE,		"Value is not unique (entry)"	},
 #define NIS_IBMODERROR		22
 	{	NIS_IBMODERROR,		"Inf. Base. Modify error."	},
 #define NIS_NOSUCHTABLE		23

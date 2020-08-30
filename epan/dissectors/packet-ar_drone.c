@@ -694,19 +694,19 @@ proto_register_ar_drone(void)
         { "Animation Sequence Number", "ar_drone.anim.seq",
         FT_STRING, BASE_NONE,
         NULL, 0x0,
-        "Movment(Animation) Sequence #", HFILL }
+        "Movement(Animation) Sequence #", HFILL }
     },
     { &hf_ANIM_anim,
         { "Selected Animation Number", "ar_drone.anim.num",
         FT_STRING, BASE_NONE,
         NULL, 0x0,
-        "Movment(Animation) to Play", HFILL }
+        "Movement(Animation) to Play", HFILL }
     },
     { &hf_ANIM_sec,
         { "Animation Duration (seconds)", "ar_drone.anim.sec",
         FT_STRING, BASE_NONE,
         NULL, 0x0,
-        "Movment(Animation) Time in Seconds", HFILL }
+        "Movement(Animation) Time in Seconds", HFILL }
     },
     { &hf_CTRL_seq,
         { "Sequence Number", "ar_drone.ctrl.seq",

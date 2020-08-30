@@ -1207,7 +1207,7 @@ static const value_string devmode_papersize_vals[] =
 	{ DEVMODE_PAPERSIZE_JENVKAKU2, "Japanese Envelope (Kaku #2)" },
 	{ DEVMODE_PAPERSIZE_JENVKAKU3, "Japanese Envelope (Kaku #3)" },
 	{ DEVMODE_PAPERSIZE_JENVCHOU3, "Japanese Envelope (Chou #3)" },
-	{ DEVMODE_PAPERSIZE_JENVCHOU4, "Japaneve Envelope (Chou #4)" },
+	{ DEVMODE_PAPERSIZE_JENVCHOU4, "Japanese Envelope (Chou #4)" },
 	{ DEVMODE_PAPERSIZE_LETTERROT, "Letter (Rotated)" },
 	{ DEVMODE_PAPERSIZE_A3ROT, "A3 (Rotated)" },
 	{ DEVMODE_PAPERSIZE_A4ROT, "A4 (Rotated)" },

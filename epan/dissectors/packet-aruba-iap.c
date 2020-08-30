@@ -134,7 +134,7 @@ proto_register_aruba_iap(void)
     static hf_register_info hf[] = {
         { &hf_iap_magic,
         { "Magic", "aruba_iap.magic", FT_UINT16, BASE_HEX, NULL,0x0,
-        "Magic Number of IAP trafic (Always 0x8ffd)", HFILL}},
+        "Magic Number of IAP traffic (Always 0x8ffd)", HFILL}},
 
         { &hf_iap_version,
         { "Version", "aruba_iap.version", FT_UINT8, BASE_DEC, NULL, 0x0,

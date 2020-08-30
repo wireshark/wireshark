@@ -204,7 +204,7 @@ static int hf_netlogon_auditing_mode = -1;
 static int hf_netlogon_max_audit_event_count = -1;
 static int hf_netlogon_event_audit_option = -1;
 static int hf_netlogon_unknown_string = -1;
-static int hf_netlogon_trust_extention = -1;
+static int hf_netlogon_trust_extension = -1;
 static int hf_netlogon_trust_max = -1;
 static int hf_netlogon_trust_offset = -1;
 static int hf_netlogon_trust_len = -1;
@@ -5895,7 +5895,7 @@ netlogon_dissect_ONE_DOMAIN_INFO(tvbuff_t *tvb, int offset,
 
     /* It is structed as a string but it's not ... it's 4 ulong */
     offset = dissect_ndr_ulongs_as_counted_string(tvb, offset, pinfo, tree, di, drep,
-                                                  hf_netlogon_trust_extention);
+                                                  hf_netlogon_trust_extension);
 
     offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, di, drep,
                                         hf_netlogon_dummy_string2, 0);
@@ -6829,7 +6829,7 @@ netlogon_dissect_netrserverauthenticate023_reply(tvbuff_t *tvb, int offset,
                         /* Open the cipher */
                         err = gcry_cipher_open(&cipher_hd, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CFB8, 0);
                         if (err != 0) {
-                            g_warning("GCRY: chiper open %s/%s\n", gcry_strsource(err), gcry_strerror(err));
+                            g_warning("GCRY: cipher open %s/%s\n", gcry_strsource(err), gcry_strerror(err));
                             break;
                         }
 
@@ -7888,7 +7888,7 @@ static guint64 uncrypt_sequence_aes(guint8* session_key,guint64 checksum,guint64
     /* Open the cipher */
     err = gcry_cipher_open(&cipher_hd, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CFB8, 0);
     if (err != 0) {
-        g_warning("GCRY: chiper open %s/%s\n", gcry_strsource(err), gcry_strerror(err));
+        g_warning("GCRY: cipher open %s/%s\n", gcry_strsource(err), gcry_strerror(err));
         return 0;
     }
 
@@ -7985,7 +7985,7 @@ static gcry_error_t prepare_decryption_cipher_aes(netlogon_auth_vars *vars,
     /* Open the cipher */
     err = gcry_cipher_open(&cipher_hd, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CFB8, 0);
     if (err != 0) {
-        g_warning("GCRY: chiper open %s/%s\n", gcry_strsource(err), gcry_strerror(err));
+        g_warning("GCRY: cipher open %s/%s\n", gcry_strsource(err), gcry_strerror(err));
         return 0;
     }
 
@@ -8034,7 +8034,7 @@ static gcry_error_t prepare_decryption_cipher_strong(netlogon_auth_vars *vars,
     /* Open the cipher */
     err = gcry_cipher_open(&cipher_hd, GCRY_CIPHER_ARCFOUR, GCRY_CIPHER_MODE_STREAM, 0);
     if (err != 0) {
-        g_warning("GCRY: chiper open %s/%s\n", gcry_strsource(err), gcry_strerror(err));
+        g_warning("GCRY: cipher open %s/%s\n", gcry_strsource(err), gcry_strerror(err));
         return err;
     }
 
@@ -8401,20 +8401,20 @@ proto_register_dcerpc_netlogon(void)
           { "Dummy String", "netlogon.dummy_string", FT_STRING, BASE_NONE,
             NULL, 0, "Dummy String. Used is reserved for next evolutions.", HFILL }},
 
-        { &hf_netlogon_trust_extention,
-          { "Trust extension", "netlogon.trust.extention", FT_STRING, BASE_NONE,
+        { &hf_netlogon_trust_extension,
+          { "Trust extension", "netlogon.trust.extension", FT_STRING, BASE_NONE,
             NULL, 0, "Trusts extension.", HFILL }},
 
         { &hf_netlogon_trust_offset,
-          { "Offset", "netlogon.trust.extention_offset", FT_UINT32, BASE_DEC,
+          { "Offset", "netlogon.trust.extension_offset", FT_UINT32, BASE_DEC,
             NULL, 0, "Trusts extension.", HFILL }},
 
         { &hf_netlogon_trust_len,
-          { "Length", "netlogon.trust.extention_length", FT_UINT32, BASE_DEC,
+          { "Length", "netlogon.trust.extension_length", FT_UINT32, BASE_DEC,
             NULL, 0, NULL, HFILL }},
 
         { &hf_netlogon_trust_max,
-          { "Max Count", "netlogon.trust.extention.maxcount", FT_UINT32, BASE_DEC,
+          { "Max Count", "netlogon.trust.extension.maxcount", FT_UINT32, BASE_DEC,
             NULL, 0, NULL, HFILL }},
 
         { &hf_netlogon_dummy_string2,

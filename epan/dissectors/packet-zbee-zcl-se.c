@@ -12793,7 +12793,7 @@ VALUE_STRING_ARRAY(zbee_zcl_device_management_attr_server_names);
     XXX(ZBEE_ZCL_ATTR_ID_DEVICE_MANAGEMENT_CLNT_FLOW_SENSOR_AIR_DETECT,                 0x0236, "Flow Sensor Air Detect" ) \
     XXX(ZBEE_ZCL_ATTR_ID_DEVICE_MANAGEMENT_CLNT_PIPE_EMPTY,                             0x0237, "Pipe Empty" ) \
     XXX(ZBEE_ZCL_ATTR_ID_DEVICE_MANAGEMENT_CLNT_INLET_TEMPERATURE_SENSOR_FAULT,         0x0250, "Inlet Temperature Sensor Fault" ) \
-    XXX(ZBEE_ZCL_ATTR_ID_DEVICE_MANAGEMENT_CLNT_OUTLET_TEMPERATURE_SENDOR_FAULT,        0x0251, "Outlet Temperature Sendor Fault" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_DEVICE_MANAGEMENT_CLNT_OUTLET_TEMPERATURE_SENSOR_FAULT,        0x0251, "Outlet Temperature Sensor Fault" ) \
     XXX(ZBEE_ZCL_ATTR_ID_DEVICE_MANAGEMENT_CLNT_REVERSE_FLOW,                           0x0260, "Reverse Flow" ) \
     XXX(ZBEE_ZCL_ATTR_ID_DEVICE_MANAGEMENT_CLNT_TILT_TAMPER,                            0x0261, "Tilt Tamper" ) \
     XXX(ZBEE_ZCL_ATTR_ID_DEVICE_MANAGEMENT_CLNT_BATTERY_COVER_REMOVED,                  0x0262, "Battery Cover Removed" ) \

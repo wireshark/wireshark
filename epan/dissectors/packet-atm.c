@@ -2036,7 +2036,7 @@ proto_register_atm(void)
 
   atm_module = prefs_register_protocol ( proto_atm, NULL );
   prefs_register_bool_preference(atm_module, "dissect_lane_as_sscop", "Dissect LANE as SSCOP",
-                                 "Autodection between LANE and SSCOP is hard. As default LANE is preferred",
+                                 "Autodetection between LANE and SSCOP is hard. As default LANE is preferred",
                                  &dissect_lanesscop);
   prefs_register_obsolete_preference(atm_module, "unknown_aal2_type");
 

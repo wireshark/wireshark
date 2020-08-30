@@ -4555,7 +4555,7 @@ proto_register_ospf(void)
          { "Options", "ospf.v3.lls.state.options", FT_UINT8,  BASE_HEX,
            NULL, 0x0, NULL, HFILL }},
         {&hf_ospf_v3_lls_state_options_r,
-         { "(R) Resuest", "ospf.v3.lls.state.options.r", FT_BOOLEAN, 8,
+         { "(R) Request", "ospf.v3.lls.state.options.r", FT_BOOLEAN, 8,
            TFS(&tfs_set_notset), OSPF_V3_LLS_STATE_OPTIONS_R, NULL, HFILL }},
         {&hf_ospf_v3_lls_state_options_a,
          { "(A) Answer", "ospf.v3.lls.state.options.a", FT_BOOLEAN, 8,

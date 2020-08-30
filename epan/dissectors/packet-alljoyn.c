@@ -2614,7 +2614,7 @@ proto_register_AllJoyn(void)
           NULL, HFILL}
         },
         {&hf_alljoyn_ns_isat_transport_mask_wwan,
-         {"Wirelesss WAN Transport", "alljoyn.isat.TransportMask.WWAN",
+         {"Wireless WAN Transport", "alljoyn.isat.TransportMask.WWAN",
           FT_BOOLEAN, 16, NULL, TRANSPORT_WWAN,
           NULL, HFILL}
         },
@@ -2666,7 +2666,7 @@ proto_register_AllJoyn(void)
           NULL, HFILL}
         },
         {&hf_alljoyn_mess_header_endian,
-         {"Endianness", "alljoyn.mess_header.endianess",
+         {"Endianness", "alljoyn.mess_header.endianness",
           FT_CHAR, BASE_HEX, VALS(endian_encoding_vals), 0x0,
           NULL, HFILL}
         },

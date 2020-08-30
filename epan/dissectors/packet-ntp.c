@@ -2961,7 +2961,7 @@ proto_register_ntp(void)
 			"Count", "ntp.priv.mode7.count", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntppriv_mode7_hpoll, {
-			"Host polling intervall", "ntp.priv.mode7.hpoll", FT_INT8, BASE_DEC,
+			"Host polling interval", "ntp.priv.mode7.hpoll", FT_INT8, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntppriv_mode7_reach, {
 			"Reach", "ntp.priv.mode7.reach", FT_UINT8, BASE_DEC,
@@ -3138,7 +3138,7 @@ proto_register_ntp(void)
 			"Processed", "ntp.priv.mode7.processed", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntppriv_mode7_badauth, {
-			"Bad authentiation", "ntp.priv.mode7.badauth", FT_UINT32, BASE_DEC,
+			"Bad authentication", "ntp.priv.mode7.badauth", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntppriv_mode7_bogusorg, {
 			"Bogus origin", "ntp.priv.mode7.bogusorg", FT_UINT32, BASE_DEC,
@@ -3213,7 +3213,7 @@ proto_register_ntp(void)
 			"Requests", "ntp.priv.mode7.requests", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntppriv_mode7_badpkts, {
-			"Bad pakets", "ntp.priv.mode7.bad_pakets", FT_UINT32, BASE_DEC,
+			"Bad packets", "ntp.priv.mode7.bad_packets", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntppriv_mode7_responses, {
 			"Responses", "ntp.priv.mode7.responses", FT_UINT32, BASE_DEC,
@@ -3225,7 +3225,7 @@ proto_register_ntp(void)
 			"Errors", "ntp.priv.mode7.errors", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntppriv_mode7_tooshort, {
-			"Too short pakets", "ntp.priv.mode7.too_short", FT_UINT32, BASE_DEC,
+			"Too short packets", "ntp.priv.mode7.too_short", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntppriv_mode7_inputresp, {
 			"Responses on input", "ntp.priv.mode7.input_responses", FT_UINT32, BASE_DEC,
@@ -3237,10 +3237,10 @@ proto_register_ntp(void)
 			"Errors on input", "ntp.priv.mode7.input_errors", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntppriv_mode7_badoffset, {
-			"Non zero offset pakets", "ntp.priv.mode7.bad_offset", FT_UINT32, BASE_DEC,
+			"Non zero offset packets", "ntp.priv.mode7.bad_offset", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntppriv_mode7_badversion, {
-			"Unknown version pakets", "ntp.priv.mode7.bad_version", FT_UINT32, BASE_DEC,
+			"Unknown version packets", "ntp.priv.mode7.bad_version", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntppriv_mode7_datatooshort, {
 			"Data too short", "ntp.priv.mode7.data_too_short", FT_UINT32, BASE_DEC,
@@ -3411,16 +3411,16 @@ proto_register_ntp(void)
 			"Low water", "ntp.priv.mode7.lowwater", FT_UINT16, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntppriv_mode7_dropped, {
-			"Dropped pakets", "ntp.priv.mode7.dropped", FT_UINT32, BASE_DEC,
+			"Dropped packets", "ntp.priv.mode7.dropped", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntppriv_mode7_ignored, {
-			"Ignored pakets", "ntp.priv.mode7.ignored", FT_UINT32, BASE_DEC,
+			"Ignored packets", "ntp.priv.mode7.ignored", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntppriv_mode7_received, {
-			"Received pakets", "ntp.priv.mode7.received", FT_UINT32, BASE_DEC,
+			"Received packets", "ntp.priv.mode7.received", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntppriv_mode7_notsent, {
-			"Not sent pakets", "ntp.priv.mode7.notsent", FT_UINT32, BASE_DEC,
+			"Not sent packets", "ntp.priv.mode7.notsent", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntppriv_mode7_interrupts, {
 			"Interrupts", "ntp.priv.mode7.interrupts", FT_UINT32, BASE_DEC,
@@ -3474,7 +3474,7 @@ proto_register_ntp(void)
 			"Address family", "ntp.priv.mode7.family", FT_UINT16, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntppriv_mode7_ignore_pkt, {
-			"Ignore pakets", "ntp.priv.mode7.ignore_pkts", FT_UINT8, BASE_DEC,
+			"Ignore packets", "ntp.priv.mode7.ignore_pkts", FT_UINT8, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntppriv_mode7_action, {
 			"Action", "ntp.priv.mode7.action", FT_UINT8, BASE_DEC,

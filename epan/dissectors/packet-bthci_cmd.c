@@ -1959,17 +1959,17 @@ const value_string bthci_cmd_oob_data_present_vals[] = {
 
 static const value_string bthci_cmd_auth_req_vals[] = {
     {0x00, "MITM Protection Not Required - No Bonding. Numeric Comparison, Automatic Accept Allowed, No Secure Connection" },
-    {0x01, "MITM Protection Required - No Bonding. Use IO Capabilty To Determine Procedure, No Secure Connection" },
+    {0x01, "MITM Protection Required - No Bonding. Use IO Capability To Determine Procedure, No Secure Connection" },
     {0x02, "MITM Protection Not Required - Dedicated Bonding. Numeric Comparison, Automatic Accept Allowed, No Secure Connection" },
-    {0x03, "MITM Protection Required - Dedicated Bonding. Use IO Capabilty To Determine Procedure, No Secure Connection" },
+    {0x03, "MITM Protection Required - Dedicated Bonding. Use IO Capability To Determine Procedure, No Secure Connection" },
     {0x04, "MITM Protection Not Required - General Bonding. Numeric Comparison, Automatic Accept Allowed, No Secure Connection" },
-    {0x05, "MITM Protection Required - General Bonding. Use IO Capabilty To Determine Procedure, No Secure Connection" },
+    {0x05, "MITM Protection Required - General Bonding. Use IO Capability To Determine Procedure, No Secure Connection" },
     {0x08, "MITM Protection Not Required - No Bonding. Numeric Comparison, Automatic Accept Allowed, Secure Connection" },
-    {0x09, "MITM Protection Required - No Bonding. Use IO Capabilty To Determine Procedure, Secure Connection" },
+    {0x09, "MITM Protection Required - No Bonding. Use IO Capability To Determine Procedure, Secure Connection" },
     {0x0A, "MITM Protection Not Required - Dedicated Bonding. Numeric Comparison, Automatic Accept Allowed,  Secure Connection" },
-    {0x0B, "MITM Protection Required - Dedicated Bonding. Use IO Capabilty To Determine Procedure, Secure Connection " },
+    {0x0B, "MITM Protection Required - Dedicated Bonding. Use IO Capability To Determine Procedure, Secure Connection " },
     {0x0C, "MITM Protection Not Required - General Bonding. Numeric Comparison, Automatic Accept Allowed, Secure Connection" },
-    {0x0D, "MITM Protection Required - General Bonding. Use IO Capabilty To Determine Procedure, Secure Connection" },
+    {0x0D, "MITM Protection Required - General Bonding. Use IO Capability To Determine Procedure, Secure Connection" },
     {   0, NULL }
 };
 value_string_ext bthci_cmd_auth_req_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_auth_req_vals);

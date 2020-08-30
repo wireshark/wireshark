@@ -5622,7 +5622,7 @@ static int hf_dhcp_pkt_mdc_mib_cl_signaling = -1;
 static int hf_dhcp_pkt_mdc_mib_cl_management_event = -1;
 static int hf_dhcp_pkt_mdc_mib_cl_mta_extension = -1;
 static int hf_dhcp_pkt_mdc_mib_cl_mta_signaling_extension = -1;
-static int hf_dhcp_pkt_mdc_mib_cl_mta_mem_extention = -1;
+static int hf_dhcp_pkt_mdc_mib_cl_mta_mem_extension = -1;
 static int hf_dhcp_pkt_mdc_mib_cl_reserved = -1;
 
 #define PKT_MDC_MIB_IETF 0x3031
@@ -5637,7 +5637,7 @@ static int hf_dhcp_pkt_mdc_mib_euro_signaling = -1;
 static int hf_dhcp_pkt_mdc_mib_euro_management_event = -1;
 static int hf_dhcp_pkt_mdc_mib_euro_mta_extension = -1;
 static int hf_dhcp_pkt_mdc_mib_euro_mta_signaling_extension = -1;
-static int hf_dhcp_pkt_mdc_mib_euro_mta_mem_extention = -1;
+static int hf_dhcp_pkt_mdc_mib_euro_mta_mem_extension = -1;
 static int hf_dhcp_pkt_mdc_mib_euro_reserved = -1;
 
 
@@ -5827,7 +5827,7 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, packet_info *pinfo, tvbuff_t *tv
 							&hf_dhcp_pkt_mdc_mib_cl_management_event,
 							&hf_dhcp_pkt_mdc_mib_cl_mta_extension,
 							&hf_dhcp_pkt_mdc_mib_cl_mta_signaling_extension,
-							&hf_dhcp_pkt_mdc_mib_cl_mta_mem_extention,
+							&hf_dhcp_pkt_mdc_mib_cl_mta_mem_extension,
 							&hf_dhcp_pkt_mdc_mib_cl_reserved,
 							NULL
 						};
@@ -5856,7 +5856,7 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, packet_info *pinfo, tvbuff_t *tv
 							&hf_dhcp_pkt_mdc_mib_euro_management_event,
 							&hf_dhcp_pkt_mdc_mib_euro_mta_extension,
 							&hf_dhcp_pkt_mdc_mib_euro_mta_signaling_extension,
-							&hf_dhcp_pkt_mdc_mib_euro_mta_mem_extention,
+							&hf_dhcp_pkt_mdc_mib_euro_mta_mem_extension,
 							&hf_dhcp_pkt_mdc_mib_euro_reserved,
 							NULL
 						};
@@ -7519,8 +7519,8 @@ proto_register_dhcp(void)
 		    FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x10,
 		    NULL, HFILL }},
 
-		{ &hf_dhcp_pkt_mdc_mib_cl_mta_mem_extention,
-		  { "PacketCable 1.5 MEM Extension MIB", "dhcp.vendor.pktc.mdc_cl.mib.mem_extention",
+		{ &hf_dhcp_pkt_mdc_mib_cl_mta_mem_extension,
+		  { "PacketCable 1.5 MEM Extension MIB", "dhcp.vendor.pktc.mdc_cl.mib.mem_extension",
 		    FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x20,
 		    NULL, HFILL }},
 
@@ -7574,8 +7574,8 @@ proto_register_dhcp(void)
 		    FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x10,
 		    NULL, HFILL }},
 
-		{ &hf_dhcp_pkt_mdc_mib_euro_mta_mem_extention,
-		  { "PacketCable 1.5 MEM Extension MIB", "dhcp.vendor.pktc.mdc_euro.mib.mem_extention",
+		{ &hf_dhcp_pkt_mdc_mib_euro_mta_mem_extension,
+		  { "PacketCable 1.5 MEM Extension MIB", "dhcp.vendor.pktc.mdc_euro.mib.mem_extension",
 		    FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x20,
 		    NULL, HFILL }},
 

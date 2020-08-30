@@ -512,7 +512,7 @@ static int hf_bthci_evt_cis_count = -1;
 static int hf_bthci_evt_cis_handle = -1;
 static int hf_bthci_evt_cis_bis_handle = -1;
 static int hf_bthci_evt_big_handle = -1;
-static int hf_bthci_evt_recived_packet_counter = -1;
+static int hf_bthci_evt_received_packet_counter = -1;
 static int hf_bthci_evt_missed_packet_counter = -1;
 static int hf_bthci_evt_failed_packet_counter = -1;
 static int hf_bthci_evt_pkt_count_tx_unacked = -1;
@@ -5511,7 +5511,7 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
             offset += 1;
             proto_tree_add_item(tree, hf_bthci_evt_cis_bis_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
-            proto_tree_add_item(tree, hf_bthci_evt_recived_packet_counter, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_bthci_evt_received_packet_counter, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
             proto_tree_add_item(tree, hf_bthci_evt_missed_packet_counter, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
@@ -9382,7 +9382,7 @@ proto_register_bthci_evt(void)
             NULL, HFILL }
         },
         { &hf_bthci_evt_supported_switching_sample_rates,
-          { "Supported Swithcing Sampling Rates", "bthci_evt.supported_switching_sample_rates",
+          { "Supported Switching Sampling Rates", "bthci_evt.supported_switching_sample_rates",
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
@@ -9471,8 +9471,8 @@ proto_register_bthci_evt(void)
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_bthci_evt_recived_packet_counter,
-          { "Received Packet Counter",     "bthci_evt.recived_packet_counter",
+        { &hf_bthci_evt_received_packet_counter,
+          { "Received Packet Counter",     "bthci_evt.received_packet_counter",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },

@@ -147,7 +147,7 @@ static int hf_control_timeout = -1;
 static int hf_control_instant = -1;
 static int hf_control_interval_min = -1;
 static int hf_control_interval_max = -1;
-static int hf_control_preffered_periodicity = -1;
+static int hf_control_preferred_periodicity = -1;
 static int hf_control_reference_connection_event_count = -1;
 static int hf_control_offset_0 = -1;
 static int hf_control_offset_1 = -1;
@@ -1851,7 +1851,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 proto_tree_add_item(btle_tree, hf_control_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                 offset += 2;
 
-                proto_tree_add_item(btle_tree, hf_control_preffered_periodicity, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(btle_tree, hf_control_preferred_periodicity, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 offset += 1;
 
                 proto_tree_add_item(btle_tree, hf_control_reference_connection_event_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -2072,7 +2072,7 @@ proto_register_btle(void)
             NULL, HFILL }
         },
         { &hf_initiator_addresss,
-            { "Initator Address",                "btle.initiator_address",
+            { "Initiator Address",               "btle.initiator_address",
             FT_ETHER, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
@@ -2551,8 +2551,8 @@ proto_register_btle(void)
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_control_preffered_periodicity,
-            { "Preffered Periodicity",           "btle.control.preffered_periodicity",
+        { &hf_control_preferred_periodicity,
+            { "Preferred Periodicity",           "btle.control.preferred_periodicity",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },

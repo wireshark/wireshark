@@ -216,7 +216,7 @@ static const value_string aps_request_state_values[] = {
 	{ 1, "Do not revert" },
 	{ 2, "Reverse request" },
 	{ 3, "Unknown"},
-	{ 4, "Exersise" },
+	{ 4, "Exercise" },
 	{ 5, "Wait to restore" },
 	{ 6, "Depreciated" },
 	{ 7, "Manual switch" },

@@ -4229,7 +4229,7 @@ proto_register_capwap_control(void)
               NULL, HFILL }
         },
         { &hf_capwap_msg_element_type_ieee80211_add_wlan_capability_a,
-            { "Channek Agility", "capwap.control.message_element.ieee80211_add_wlan.capability.a",
+            { "Channel Agility", "capwap.control.message_element.ieee80211_add_wlan.capability.a",
               FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0100,
               NULL, HFILL }
         },
@@ -4651,7 +4651,7 @@ proto_register_capwap_control(void)
               NULL, HFILL }
         },
         { &hf_capwap_msg_element_type_ieee80211_station_capabilities_a,
-            { "Channek Agility", "capwap.control.message_element.ieee80211_station.capabilities.a",
+            { "Channel Agility", "capwap.control.message_element.ieee80211_station.capabilities.a",
               FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0100,
               NULL, HFILL }
         },
@@ -4831,7 +4831,7 @@ proto_register_capwap_control(void)
               NULL, HFILL }
         },
         { &hf_capwap_msg_element_type_ieee80211_update_wlan_capability_a,
-            { "Channek Agility", "capwap.control.message_element.ieee80211_update_wlan.capability.a",
+            { "Channel Agility", "capwap.control.message_element.ieee80211_update_wlan.capability.a",
               FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0100,
               NULL, HFILL }
         },

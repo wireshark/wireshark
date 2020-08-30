@@ -1752,10 +1752,10 @@ static const at_cmd_t at_cmds[] = {
     { "+BSIR",      "Bluetooth Setting of In-band Ring Tone",   check_bsir, dissect_bsir_parameter },
     { "+VGS",       "Gain of Speaker",                          check_vgs,  dissect_vgs_parameter  },
     { "+VGM",       "Gain of Microphone",                       check_vgm,  dissect_vgm_parameter  },
-    { "+NREC",      "Noise Reduction and Echo Canceling",       check_nrec, dissect_nrec_parameter },
+    { "+NREC",      "Noise Reduction and Echo Cancelling",      check_nrec, dissect_nrec_parameter },
     { "+BRSF",      "Bluetooth Retrieve Supported Features",    check_brsf, dissect_brsf_parameter },
     { "+BVRA",      "Bluetooth Voice Recognition Activation",   check_bvra, dissect_bvra_parameter },
-    { "+BLDN",      "Bluetooth Last Dialed Number",             check_bldn, dissect_no_parameter   },
+    { "+BLDN",      "Bluetooth Last Dialled Number",            check_bldn, dissect_no_parameter   },
     { "+BINP",      "Bluetooth Input",                          check_binp, dissect_binp_parameter },
     { "+BIA",       "Bluetooth Indicators Activation",          check_bia,  dissect_bia_parameter  },
     /* Inherited from normal AT Commands */

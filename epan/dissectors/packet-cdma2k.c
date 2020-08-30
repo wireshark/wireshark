@@ -881,7 +881,7 @@ static const value_string Retry_Types[] = {
     { 0, "Clear All" },
     { 1, "Origination" },
     { 2, "Resource Request" },
-    { 3, "Supplemenal Channel Req" },
+    { 3, "Supplemental Channel Req" },
     { 4, "Short Data Burst" },
     { 5, "Orig & Short Data Burst" },
     { 6, "Reserved" },

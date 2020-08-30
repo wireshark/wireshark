@@ -7434,7 +7434,7 @@ proto_register_openflow_v4(void)
         },
         { &ei_openflow_v4_multipart_request_undecoded,
             { "openflow_v4.multipart_request.undecoded", PI_UNDECODED, PI_NOTE,
-              "Unknown multipart reqeuest body.", EXPFILL }
+              "Unknown multipart request body.", EXPFILL }
         },
         { &ei_openflow_v4_multipart_reply_undecoded,
             { "openflow_v4.multipart_reply.undecoded", PI_UNDECODED, PI_NOTE,

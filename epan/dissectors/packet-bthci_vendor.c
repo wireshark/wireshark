@@ -160,7 +160,7 @@ static dissector_handle_t btcommon_ad_handle;
     { (base) | 0x0113,  "Write ConnectionLess Broadcast Stream Data" }, \
     { (base) | 0x0114,  "ConnectionLess Broadcast Stream Flush" }, \
     { (base) | 0x0153,  "LE Get Vendor Capabilities" }, \
-    { (base) | 0x0154,  "LE Multi Adveritising" }, \
+    { (base) | 0x0154,  "LE Multi Advertising" }, \
     { (base) | 0x0156,  "LE Batch Scan" }, \
     { (base) | 0x0157,  "LE Advertising Filter" }, \
     { (base) | 0x0158,  "LE Tracking Advertising" }, \
@@ -1582,8 +1582,8 @@ static int hf_intel_firmware_build_version_yy = -1;
 static int hf_intel_firmware_patch = -1;
 static int hf_intel_identifier = -1;
 static int hf_intel_secure_send_type = -1;
-static int hf_intel_manufaturer_mode = -1;
-static int hf_intel_manufaturer_reset = -1;
+static int hf_intel_manufacturer_mode = -1;
+static int hf_intel_manufacturer_reset = -1;
 static int hf_intel_transmit_traces = -1;
 static int hf_intel_transmit_arq = -1;
 static int hf_intel_receive_traces = -1;
@@ -1828,13 +1828,13 @@ static const value_string intel_secure_send_type_vals[] = {
     { 0, NULL }
 };
 
-static const value_string intel_manufaturer_mode_vals[] = {
+static const value_string intel_manufacturer_mode_vals[] = {
     { 0x00,  "Disabled" },
     { 0x01,  "Enabled" },
     { 0, NULL }
 };
 
-static const value_string intel_manufaturer_reset_vals[] = {
+static const value_string intel_manufacturer_reset_vals[] = {
     { 0x00,  "No Reset" },
     { 0x01,  "Reset and Deactivate Patches" },
     { 0x02,  "Reset and Activate Patches" },
@@ -1998,10 +1998,10 @@ dissect_bthci_vendor_intel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
             break;
         case 0x0011: /* Manufacturer Mode */
-            proto_tree_add_item(main_tree, hf_intel_manufaturer_mode, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(main_tree, hf_intel_manufacturer_mode, tvb, offset, 1, ENC_NA);
             offset += 1;
 
-            proto_tree_add_item(main_tree, hf_intel_manufaturer_reset, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(main_tree, hf_intel_manufacturer_reset, tvb, offset, 1, ENC_NA);
             offset += 1;
 
             break;
@@ -2738,14 +2738,14 @@ proto_register_bthci_vendor_intel(void)
             FT_UINT8, BASE_HEX, VALS(intel_secure_send_type_vals), 0x0,
             NULL, HFILL }
         },
-        { &hf_intel_manufaturer_mode,
-          { "Manufaturer Mode",                            "bthci_vendor.intel.manufaturer.mode",
-            FT_UINT8, BASE_HEX, VALS(intel_manufaturer_mode_vals), 0x0,
+        { &hf_intel_manufacturer_mode,
+          { "Manufacturer Mode",                            "bthci_vendor.intel.manufacturer.mode",
+            FT_UINT8, BASE_HEX, VALS(intel_manufacturer_mode_vals), 0x0,
             NULL, HFILL }
         },
-        { &hf_intel_manufaturer_reset,
-          { "Manufaturer Reset",                           "bthci_vendor.intel.manufaturer.reset",
-            FT_UINT8, BASE_HEX, VALS(intel_manufaturer_reset_vals), 0x0,
+        { &hf_intel_manufacturer_reset,
+          { "Manufacturer Reset",                           "bthci_vendor.intel.manufacturer.reset",
+            FT_UINT8, BASE_HEX, VALS(intel_manufacturer_reset_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_intel_transmit_traces,
