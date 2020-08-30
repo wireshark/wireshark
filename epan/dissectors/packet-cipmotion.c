@@ -2170,7 +2170,8 @@ dissect_cipmotion(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* dat
 
 static int dissect_cipmotion3(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
 {
-   cip_conn_info_t conn_info = {0};
+   cip_conn_info_t conn_info;
+   memset(&conn_info, 0, sizeof(conn_info));
    conn_info.ConnPoint = 3;
 
    cip_io_data_input io_data_input;

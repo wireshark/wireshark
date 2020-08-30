@@ -1962,7 +1962,8 @@ dissect_cipsafety(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 static int dissect_cipsafety_base_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
    cip_safety_info_t safety_info;
-   cip_conn_info_t eip_conn_info = {0};
+   cip_conn_info_t eip_conn_info;
+   memset(&eip_conn_info, 0, sizeof(eip_conn_info));
    safety_info.eip_conn_info = &eip_conn_info;
    safety_info.compute_crc = FALSE;
 
@@ -1977,7 +1978,8 @@ static int dissect_cipsafety_base_data(tvbuff_t *tvb, packet_info *pinfo, proto_
 static int dissect_cipsafety_extended_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
    cip_safety_info_t safety_info;
-   cip_conn_info_t eip_conn_info = {0};
+   cip_conn_info_t eip_conn_info;
+   memset(&eip_conn_info, 0, sizeof(eip_conn_info));
    safety_info.eip_conn_info = &eip_conn_info;
    safety_info.compute_crc = FALSE;
 
@@ -1992,7 +1994,8 @@ static int dissect_cipsafety_extended_data(tvbuff_t *tvb, packet_info *pinfo, pr
 static int dissect_cipsafety_base_time_coord(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
    cip_safety_info_t safety_info;
-   cip_conn_info_t eip_conn_info = {0};
+   cip_conn_info_t eip_conn_info;
+   memset(&eip_conn_info, 0, sizeof(eip_conn_info));
    safety_info.eip_conn_info = &eip_conn_info;
    safety_info.compute_crc = FALSE;
 
@@ -2007,7 +2010,8 @@ static int dissect_cipsafety_base_time_coord(tvbuff_t *tvb, packet_info *pinfo, 
 static int dissect_cipsafety_extended_time_coord(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
    cip_safety_info_t safety_info;
-   cip_conn_info_t eip_conn_info = {0};
+   cip_conn_info_t eip_conn_info;
+   memset(&eip_conn_info, 0, sizeof(eip_conn_info));
    safety_info.eip_conn_info = &eip_conn_info;
    safety_info.compute_crc = FALSE;
 
