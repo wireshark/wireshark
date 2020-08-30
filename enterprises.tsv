@@ -5,7 +5,7 @@
 # The format used here is: <NUMERICAL_ID><SPACE><NAME>
 # Where SPACE can be any sequence of spaces and tabs.
 #
-# (last updated 2020-08-21)
+# (last updated 2020-08-29)
 
 0	Reserved
 1	NxNetworks
@@ -13782,7 +13782,7 @@
 13917	Hostcentric
 13918	Inkasbank
 13919	Instinct Internet Solutions
-13920	Magic Hosting
+13920	Net6	# formerly 'Magic Hosting'
 13921	NEBS
 13922	nologin
 13923	Peter Verhas
@@ -16224,7 +16224,7 @@
 16362	Waters Network Systems
 16363	SCHOLZ & VOLKMER Intermediales Design, GmbH
 16364	SMARTDATA
-16365	Dion Transaction Solutions GmbH
+16365	valantic Transaction Solutions GmbH	# formerly 'Dion Transaction Solutions GmbH'
 16366	INFORMA DEL PERU, INFORMACION ECONOMICA SA
 16367	saarstahl
 16368	Sysapex Communications Inc.
@@ -21221,7 +21221,7 @@
 21375	Interactive Vision Mind Beacon sp. z o.o.
 21376	Gruppenkasper
 21377	Zhongyuan Institute of Technology
-21378	Honda of America Mfg., Inc.
+21378	American Honda Motor Co., Inc.
 21379	Shenzhen aike Co.,Ltd.
 21380	Guangzhou aike Co.,Ltd.
 21381	Viessmann Werke GmbH & Co KG
@@ -34202,7 +34202,7 @@
 34368	General Dynamics Mediaware
 34369	NanoSoft AG
 34370	Papier- und Kartonfabrik Varel GmbH & Co KG
-34371	A1 Systems Ltd.
+34371	A1 Systems, LLC
 34372	Tubedale Limited
 34373	ESCAUX
 34374	Paki Shells Internet Services
@@ -49044,7 +49044,7 @@
 49226	Patriot's, LLC
 49227	GGR Bryansk
 49228	The unbelievable Machine Company GmbH
-49229	Siljan Skog AB
+49229	Bergkvist Siljan Skog AB	# formerly 'Siljan Skog AB'
 49230	Enginuity Communications, Inc.
 49231	Guest-tek Interactive Entertainment Ltd
 49232	ChemAxon Kft
@@ -56057,3 +56057,24 @@
 56252	Vimexx B.V.
 56253	Corellium LLC
 56254	Forte-CT
+56255	Changsha LANLI Technology Co., Ltd.
+56256	Max Planck Computing and Data Facility
+56257	LOGICALIS SPAIN
+56258	ASRC Federal Holding Company, LLC
+56259	E-Gear, LLC
+56260	MUFG Bank (Europe) N.V.
+56261	UCLA Center for Computer Vision and Imaging Biomarkers
+56262	Santa Lucía S.A.
+56263	Sonic Healthcare Germany GmbH & Co. KG
+56264	Shenzhen Acorid Communication Technology Co., Ltd（www.acorid.com）
+56265	Woven Solutions Ltd
+56266	Ogjos
+56267	AMC World Technologies GmbH
+56268	publica.re
+56269	SRK Electronics Pty Ltd
+56270	NSGUARD TECHNOLOGY INC.
+56271	Sanoma Manu Oy
+56272	ROYAL MOSLEM IMPERIAL
+56273	Machines talk
+56274	PR Oncology, LLC
+56275	RA-MICRO Hamburg GmbH
