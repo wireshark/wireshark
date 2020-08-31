@@ -30,7 +30,6 @@ EXTRA_DIST = \
 	checkhf.pl					\
 	checklicenses.py				\
 	colorfilters2js.pl				\
-	commit-msg					\
 	compare-abis.sh					\
 	checkAPIs.pl					\
 	convert-proto-tree-new.awk			\
