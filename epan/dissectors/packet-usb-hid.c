@@ -3443,6 +3443,9 @@ parse_report_descriptor(report_descriptor_t *rdesc)
                             return FALSE;
 
                         usage_max = hid_unpack_value(data, i, size);
+                        if (usage_min >= usage_max) {
+                            goto err;
+                        }
 
                         wmem_array_grow(field.usages, usage_max - usage_min);
                         for (guint32 j = usage_min; j < usage_max; j++)
