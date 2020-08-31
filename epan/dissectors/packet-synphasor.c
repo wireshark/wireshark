@@ -382,7 +382,7 @@ static const value_string conf_phasor_type[] = {
 };
 
 static const true_false_string conf_phasor_type_b03 = {
-	"Currrent",
+	"Current",
 	"Voltage"
 };
 

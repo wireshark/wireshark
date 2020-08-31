@@ -71,7 +71,7 @@ static int hf_ccid_dwFeatures_nadValNot0accept = -1;
 static int hf_ccid_dwFeatures_autoIfsd = -1;
 static int hf_ccid_dwFeatures_levelExchangeTDPU = -1;
 static int hf_ccid_dwFeatures_levelExchangeShortAPDU = -1;
-static int hf_ccid_dwFeatures_levelExchangeShortExtentedAPDU = -1;
+static int hf_ccid_dwFeatures_levelExchangeShortExtendedAPDU = -1;
 static int hf_ccid_dwFeatures_UsbWakeUp = -1;
 static int hf_ccid_dwMaxCCIDMessageLength = -1;
 static int hf_ccid_bClassGetResponse = -1;
@@ -132,7 +132,7 @@ static int * const bFeatures_fields[] = {
     &hf_ccid_dwFeatures_autoIfsd,
     &hf_ccid_dwFeatures_levelExchangeTDPU,
     &hf_ccid_dwFeatures_levelExchangeShortAPDU,
-    &hf_ccid_dwFeatures_levelExchangeShortExtentedAPDU,
+    &hf_ccid_dwFeatures_levelExchangeShortExtendedAPDU,
     &hf_ccid_dwFeatures_UsbWakeUp,
     NULL
 };
@@ -798,9 +798,9 @@ proto_register_ccid(void)
          { "Short APDU level exchange",
              "usbccid.dwFeatures.levelExchangeShortAPDU", FT_BOOLEAN, 32,
              TFS(&tfs_supported_not_supported), 0x020000, NULL, HFILL }},
-        {&hf_ccid_dwFeatures_levelExchangeShortExtentedAPDU,
+        {&hf_ccid_dwFeatures_levelExchangeShortExtendedAPDU,
          { "Short and Extended APDU level exchange",
-             "usbccid.dwFeatures.levelExchangeShortExtentedAPDU", FT_BOOLEAN, 32,
+             "usbccid.dwFeatures.levelExchangeShortExtendedAPDU", FT_BOOLEAN, 32,
              TFS(&tfs_supported_not_supported), 0x040000, NULL, HFILL }},
         {&hf_ccid_dwFeatures_UsbWakeUp,
          { "USB Wake up signaling supported on card insertion and removal",

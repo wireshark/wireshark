@@ -108,7 +108,7 @@ static const value_string message_id[] = {
   { 0x0021, "MulticastMediaReceptionAck" },
   { 0x0022, "OpenReceiveChannelAck" },
   { 0x0023, "ConnectionStatisticsRes" },
-  { 0x0024, "OffHookWithCalingPartyNumber" },
+  { 0x0024, "OffHookWithCallingPartyNumber" },
   { 0x0025, "SoftKeySetReq" },
   { 0x0026, "SoftKeyEvent" },
   { 0x0027, "UnregisterReq" },
@@ -2135,7 +2135,6 @@ static int hf_skinny_stimulusInstance = -1;
 static int hf_skinny_stimulusStatus = -1;
 static int hf_skinny_streamPassThroughId = -1;
 static int hf_skinny_subAppID = -1;
-static int hf_skinny_subcriptionFeatureID = -1;
 static int hf_skinny_subscriptionFeatureID = -1;
 static int hf_skinny_subscriptionID = -1;
 static int hf_skinny_systemTime = -1;
@@ -2835,7 +2834,7 @@ handle_ConnectionStatisticsResMessage(ptvcursor_t *cursor, packet_info * pinfo _
 }
 
 /*
- * Message:   OffHookWithCalingPartyNumberMessage
+ * Message:   OffHookWithCallingPartyNumberMessage
  * Opcode:    0x0024
  * Type:      CallControl
  * Direction: dev2pbx
@@ -2843,7 +2842,7 @@ handle_ConnectionStatisticsResMessage(ptvcursor_t *cursor, packet_info * pinfo _
  * MsgType:   event
  */
 static void
-handle_OffHookWithCalingPartyNumberMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)
+handle_OffHookWithCallingPartyNumberMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)
 {
   guint32 hdr_version = tvb_get_letohl(ptvcursor_tvbuff(cursor), 4);
   guint32 VariableDirnumSize = (hdr_version >= V18_MSG_TYPE) ? 25 : 24;
@@ -4322,7 +4321,7 @@ handle_SubscriptionStatReqMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, 
   guint32 transactionId = 0;
   transactionId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_transactionId, 4, ENC_LITTLE_ENDIAN);
-  ptvcursor_add(cursor, hf_skinny_subcriptionFeatureID, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_subscriptionFeatureID, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_timer, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_subscriptionID, 64, ENC_ASCII|ENC_NA);
   skinny_reqrep_add_request(cursor, pinfo, skinny_conv, 0x0048 ^ transactionId);
@@ -7844,7 +7843,7 @@ static const skinny_opcode_map_t skinny_opcode_map[] = {
   {0x0021, handle_MulticastMediaReceptionAckMessage       , SKINNY_MSGTYPE_RESPONSE , "MulticastMediaReceptionAckMessage"},
   {0x0022, handle_OpenReceiveChannelAckMessage            , SKINNY_MSGTYPE_RESPONSE , "OpenReceiveChannelAckMessage"},
   {0x0023, handle_ConnectionStatisticsResMessage          , SKINNY_MSGTYPE_RESPONSE , "ConnectionStatisticsResMessage"},
-  {0x0024, handle_OffHookWithCalingPartyNumberMessage     , SKINNY_MSGTYPE_EVENT    , "OffHookWithCalingPartyNumberMessage"},
+  {0x0024, handle_OffHookWithCallingPartyNumberMessage     , SKINNY_MSGTYPE_EVENT    , "OffHookWithCallingPartyNumberMessage"},
   {0x0025, NULL                                           , SKINNY_MSGTYPE_REQUEST  , "SoftKeySetReqMessage"},
   {0x0026, handle_SoftKeyEventMessage                     , SKINNY_MSGTYPE_EVENT    , "SoftKeyEventMessage"},
   {0x0027, handle_UnregisterReqMessage                    , SKINNY_MSGTYPE_REQUEST  , "UnregisterReqMessage"},
@@ -8347,7 +8346,7 @@ proto_register_skinny(void)
         NULL, HFILL }},
     { &hf_skinny_OrigDialed,
       {
-        "Originaly Dialed", "skinny.OrigDialed", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0001,
+        "Originally Dialed", "skinny.OrigDialed", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0001,
         NULL, HFILL }},
     { &hf_skinny_PhoneFeatures_Abbreviated_Dial,
       {
@@ -9924,10 +9923,6 @@ proto_register_skinny(void)
     {&hf_skinny_subAppID,
       {
         "subAppID", "skinny.subAppID", FT_STRING, BASE_NONE, NULL, 0x0,
-        NULL, HFILL }},
-    {&hf_skinny_subcriptionFeatureID,
-      {
-        "subcriptionFeatureID", "skinny.subcriptionFeatureID", FT_UINT32, BASE_HEX | BASE_EXT_STRING, &SubscriptionFeatureID_ext, 0x0,
         NULL, HFILL }},
     {&hf_skinny_subscriptionFeatureID,
       {

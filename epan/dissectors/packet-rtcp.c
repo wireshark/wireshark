@@ -2661,7 +2661,7 @@ dissect_rtcp_app_mcpt(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
         if (packet_len >= 4) {
             guint32 dword = tvb_get_ntohl(tvb, offset);
             if (dword == 0) {
-                /* Extra 4 zero bytres */
+                /* Extra 4 zero bytes */
                 proto_tree_add_expert(sub_tree, pinfo, &ei_rtcp_appl_extra_bytes, tvb, offset, 4);
                 packet_len -= 4;
                 offset += 4;
@@ -7683,7 +7683,7 @@ proto_register_rtcp(void)
         { &ei_rtcp_rtpfb_transportcc_bad, { "rtcp.rtpfb.transportcc_bad", PI_MALFORMED, PI_WARN, "Too many packet chunks (more than packet status count)", EXPFILL }},
         { &ei_rtcp_mcptt_unknown_fld, { "rtcp.mcptt.unknown_fld", PI_PROTOCOL, PI_WARN, "Unknown field", EXPFILL }},
         { &ei_rtcp_mcptt_location_type, { "rtcp.mcptt.location_type_uk", PI_PROTOCOL, PI_WARN, "Unknown location type", EXPFILL }},
-        { &ei_rtcp_appl_extra_bytes, { "rtcp.appl.extra_bytres", PI_PROTOCOL, PI_ERROR, "Extra bytes detected", EXPFILL }},
+        { &ei_rtcp_appl_extra_bytes, { "rtcp.appl.extra_bytes", PI_PROTOCOL, PI_ERROR, "Extra bytes detected", EXPFILL }},
         { &ei_rtcp_appl_not_ascii, { "rtcp.appl.not_ascii", PI_PROTOCOL, PI_ERROR, "Application name is not a string", EXPFILL }},
         { &ei_rtcp_appl_non_conformant, { "rtcp.appl.non_conformant", PI_PROTOCOL, PI_ERROR, "Data not according to standards", EXPFILL }},
     };

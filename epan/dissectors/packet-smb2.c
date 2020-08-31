@@ -12745,7 +12745,7 @@ proto_register_smb2(void)
 		},
 
 		{ &hf_smb2_error_redir_res_name,
-			{ "Resourse Name", "smb2.error.share_redirect.res_name", FT_STRING, STR_UNICODE,
+			{ "Resource Name", "smb2.error.share_redirect.res_name", FT_STRING, STR_UNICODE,
 			NULL, 0, NULL, HFILL }
 		},
 
@@ -12816,7 +12816,7 @@ proto_register_smb2(void)
 
 		{ &hf_smb2_svhdx_open_device_context_has_initiator_id,
 			{ "HasInitiatorId", "smb2.svhdx_open_device_context.initiator_has_id", FT_BOOLEAN, 8,
-			TFS(&tfs_smb2_svhdx_has_initiator_id), 0, "Whether the host has an intiator", HFILL }
+			TFS(&tfs_smb2_svhdx_has_initiator_id), 0, "Whether the host has an initiator", HFILL }
 		},
 
 		{ &hf_smb2_svhdx_open_device_context_reserved,

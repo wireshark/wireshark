@@ -2127,7 +2127,7 @@ proto_register_ubertooth(void)
             NULL, HFILL }
         },
         { &hf_chip_status_reserved,
-            { "Reserved",                        "ubertooth.status.resered",
+            { "Reserved",                        "ubertooth.status.reserved",
             FT_BOOLEAN, 8, NULL, 0xE0,
             NULL, HFILL }
         },
@@ -2668,7 +2668,7 @@ proto_register_ubertooth(void)
             NULL, HFILL }
         },
         { &hf_cc2400_freqest_rx_freq_offset,
-            { "Rx Frequence Offset",                       "ubertooth.register.value.freqest.rx_freq_offset",
+            { "Rx Frequency Offset",                       "ubertooth.register.value.freqest.rx_freq_offset",
             FT_INT16, BASE_DEC, NULL, 0xFF00,
             NULL, HFILL }
         },

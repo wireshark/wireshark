@@ -1132,7 +1132,7 @@ proto_register_rtpproxy(void)
         {
             &hf_rtpproxy_command_parameter_proto,
             {
-                "RTP tramsission protocol",
+                "RTP transmsission protocol",
                 "rtpproxy.command_parameter_proto",
                 FT_CHAR,
                 BASE_HEX,

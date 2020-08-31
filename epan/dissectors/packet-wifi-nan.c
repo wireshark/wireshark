@@ -3429,7 +3429,7 @@ proto_register_nan(void)
         { &hf_nan_attr_ndp_ctrl_sepcific_info_pres,
              {
              "NDP Specific Info Present",
-             "nan.ndp.ctrl.specfic_info_pres",
+             "nan.ndp.ctrl.specific_info_pres",
              FT_BOOLEAN, 8, NULL, 0x20, NULL, HFILL
              }
         },
@@ -4024,14 +4024,14 @@ proto_register_nan(void)
         { &hf_nan_attr_security_context_identifier_len,
             {
             "Security Context Identifier Length",
-            "nan.security_context.identifer_len",
+            "nan.security_context.identifier_len",
             FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_security_context_identifier_type,
             {
             "Security Context Identifier Type",
-            "nan.security_context.identifer_type",
+            "nan.security_context.identifier_type",
             FT_UINT8, BASE_DEC | BASE_RANGE_STRING, RVALS(security_context_iden_type), 0x0, NULL, HFILL
             }
         },

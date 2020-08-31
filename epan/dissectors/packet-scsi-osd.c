@@ -3760,7 +3760,7 @@ proto_register_scsi_osd(void)
           {"Audit", "scsi_osd.audit", FT_BYTES, BASE_NONE,
            NULL, 0, NULL, HFILL}},
         { &hf_scsi_osd_capability_discriminator,
-          {"Capability Discriminator", "scsi_osd.capability_descriminator", FT_BYTES, BASE_NONE,
+          {"Capability Discriminator", "scsi_osd.capability_discriminator", FT_BYTES, BASE_NONE,
            NULL, 0, NULL, HFILL}},
         { &hf_scsi_osd_object_created_time,
           {"Object Created Time", "scsi_osd.object_created_time", FT_BYTES, BASE_NONE,

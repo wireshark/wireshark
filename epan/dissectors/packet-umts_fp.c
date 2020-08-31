@@ -7048,7 +7048,7 @@ void proto_register_fp(void)
         { &ei_fp_pch_lost_relevant_pi_frame, { "fp.pch_lost_relevant_pi_frame", PI_SEQUENCE, PI_WARN, "Previous PCH frame containing PI bitmap not captured (common at capture start)", EXPFILL }},
         { &ei_fp_hsdsch_entity_not_specified, { "fp.hsdsch_entity_not_specified", PI_MALFORMED, PI_ERROR, "HSDSCH Entity not specified", EXPFILL }},
         { &ei_fp_hsdsch_common_experimental_support, { "fp.hsdsch_common.experimental_support", PI_DEBUG, PI_WARN, "HSDSCH COMMON - Experimental support!", EXPFILL }},
-        { &ei_fp_hsdsch_common_t3_not_implemented, { "fp.hsdsch_common_t3.not_implemented", PI_DEBUG, PI_ERROR, "HSDSCH COMMON T3 - Not implemeneted!", EXPFILL }},
+        { &ei_fp_hsdsch_common_t3_not_implemented, { "fp.hsdsch_common_t3.not_implemented", PI_DEBUG, PI_ERROR, "HSDSCH COMMON T3 - Not implemented!", EXPFILL }},
         { &ei_fp_channel_type_unknown, { "fp.channel_type.unknown", PI_MALFORMED, PI_ERROR, "Unknown channel type", EXPFILL }},
         { &ei_fp_no_per_frame_info, { "fp.no_per_frame_info", PI_UNDECODED, PI_ERROR, "Can't dissect FP frame because no per-frame info was attached!", EXPFILL }},
         { &ei_fp_no_per_conv_channel_info, { "fp.no_per_conv_channel_info", PI_UNDECODED, PI_ERROR, "Can't dissect this FP stream because no per-conversation channel info was attached!", EXPFILL }},

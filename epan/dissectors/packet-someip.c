@@ -2990,7 +2990,7 @@ proto_register_someip(void) {
         UAT_FLD_DEC(someip_parameter_arrays, lower_limit,           "Lower Limit",              "Dimension (32bit dec)"),
         UAT_FLD_DEC(someip_parameter_arrays, upper_limit,           "Upper Limit",              "Dimension (32bit dec)"),
         UAT_FLD_DEC(someip_parameter_arrays, length_of_length,      "Length of Length Field",   "Version of the SOME/IP Service (8bit dec)"),
-        UAT_FLD_DEC(someip_parameter_arrays, pad_to,                "Pad to",                   "Padding pads to reach allignment (8bit dec)"),
+        UAT_FLD_DEC(someip_parameter_arrays, pad_to,                "Pad to",                   "Padding pads to reach alignment (8bit dec)"),
         UAT_END_FIELDS
     };
 
@@ -2998,7 +2998,7 @@ proto_register_someip(void) {
         UAT_FLD_HEX(someip_parameter_structs, id,                   "ID",                       "ID of SOME/IP struct (32bit hex without leading 0x)"),
         UAT_FLD_CSTRING(someip_parameter_structs, struct_name,      "Struct Name",              "Name of struct"),
         UAT_FLD_DEC(someip_parameter_structs, length_of_length,     "Length of Length Field",   "Length of the strcuts length field  (8bit dec)"),
-        UAT_FLD_DEC(someip_parameter_structs, pad_to,               "Pad to",                   "Padding pads to reach allignment (8bit dec)"),
+        UAT_FLD_DEC(someip_parameter_structs, pad_to,               "Pad to",                   "Padding pads to reach alignment (8bit dec)"),
 
         UAT_FLD_DEC(someip_parameter_structs, num_of_items,         "Number of Items",          "Number of Items (16bit dec)"),
 
@@ -3014,7 +3014,7 @@ proto_register_someip(void) {
         UAT_FLD_CSTRING(someip_parameter_unions, name,              "Union Name",               "Name of union"),
         UAT_FLD_DEC(someip_parameter_unions, length_of_length,      "Length of Length Field",   "Length of the unions length field (uint8 dec)"),
         UAT_FLD_DEC(someip_parameter_unions, length_of_type,        "Length of Type Field",     "Length of the unions type field (8bit dec)"),
-        UAT_FLD_DEC(someip_parameter_unions, pad_to,                "Pad to",                   "Padding pads to reach allignment (8bit dec)"),
+        UAT_FLD_DEC(someip_parameter_unions, pad_to,                "Pad to",                   "Padding pads to reach alignment (8bit dec)"),
 
         UAT_FLD_DEC(someip_parameter_unions, num_of_items,          "Number of Items",          "Number of Items (32bit dec)"),
 
@@ -3055,7 +3055,7 @@ proto_register_someip(void) {
         UAT_FLD_DEC(someip_parameter_strings, max_length,           "Max. Length",          "Maximum length/Length (uint32 dec)"),
         UAT_FLD_DEC(someip_parameter_strings, length_of_length,     "Length of Len Field",  "Length of the length field (uint8 dec)"),
         UAT_FLD_DEC(someip_parameter_strings, big_endian,           "Big Endian",           "Encoded Big Endian 0=no 1=yes"),
-        UAT_FLD_DEC(someip_parameter_strings, pad_to,               "Pad to"            ,   "Padding pads to reach allignment (8bit dec)"),
+        UAT_FLD_DEC(someip_parameter_strings, pad_to,               "Pad to"            ,   "Padding pads to reach alignment (8bit dec)"),
         UAT_END_FIELDS
     };
 

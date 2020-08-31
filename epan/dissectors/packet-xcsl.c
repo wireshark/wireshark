@@ -39,7 +39,7 @@ static header_field_info hfi_xcsl_protocol_version XCSL_HFI_INIT =
           };
 
 static header_field_info hfi_xcsl_transaction_id XCSL_HFI_INIT =
-          { "Transaction ID", "xcsl.transacion_id",
+          { "Transaction ID", "xcsl.transaction_id",
             FT_STRING, BASE_NONE,NULL,0x0,
             NULL, HFILL
           };

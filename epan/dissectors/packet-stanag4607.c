@@ -233,12 +233,12 @@ static const value_string stanag4607_radar_mode_vals[] = {
 
 static const value_string stanag4607_terrain_vals[] = {
 	{   0, "None Specified" },
-	{   1, "DTED0 (Digital Terrain Eelevation Data, Level 0)" },
-	{   2, "DTED1 (Digital Terrain Eelevation Data, Level 1)" },
-	{   3, "DTED2 (Digital Terrain Eelevation Data, Level 2)" },
-	{   4, "DTED3 (Digital Terrain Eelevation Data, Level 3)" },
-	{   5, "DTED4 (Digital Terrain Eelevation Data, Level 4)" },
-	{   6, "DTED5 (Digital Terrain Eelevation Data, Level 5)" },
+	{   1, "DTED0 (Digital Terrain Elevation Data, Level 0)" },
+	{   2, "DTED1 (Digital Terrain Elevation Data, Level 1)" },
+	{   3, "DTED2 (Digital Terrain Elevation Data, Level 2)" },
+	{   4, "DTED3 (Digital Terrain Elevation Data, Level 3)" },
+	{   5, "DTED4 (Digital Terrain Elevation Data, Level 4)" },
+	{   6, "DTED5 (Digital Terrain Elevation Data, Level 5)" },
 	{   7, "SRTM1 (Shuttle Radar Topography Mission, Level 1)" },
 	{   8, "SRTM2 (Shuttle Radar Topography Mission, Level 2)" },
 	{   9, "DGM50 M745 (Digitales Gelandemodell 1:50 000)" },

@@ -76,7 +76,7 @@ const value_string rtsp_status_code_vals[] = {
     { 414, "Request-URI Too Long"},
     { 415, "Unsupported Media Type"},
     { 451, "Invalid Parameter"},
-    { 452, "Illegal Conferenec Identifier"},
+    { 452, "Illegal Conference Identifier"},
     { 453, "Not Enough Bandwidth"},
     { 454, "Session Not Found"},
     { 455, "Method Not Valid In This State"},

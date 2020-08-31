@@ -499,8 +499,8 @@ static const value_string wassp_mu_header_types[] =
 	{ WASSP_MU_MIRRORN, "MU Mirror N"},
 	{ WASSP_MU_NETFLOW, "MU Netflow"},
 	{ WASSP_MU_Radius_Update, "MU Radius Update"},
-	{ WASSP_AP2AC_MU_Inform_Req, "AccessPiont To Controller MU Info Request"},
-	{ WASSP_AP2AC_MU_Inform_Rsp, "AccessPiont To Controller MU Info Response"},
+	{ WASSP_AP2AC_MU_Inform_Req, "AccessPoint To Controller MU Info Request"},
+	{ WASSP_AP2AC_MU_Inform_Rsp, "AccessPoint To Controller MU Info Response"},
 	{ WASSP_MU_Eap_Last, "MU Extensible Authentication Protocol Last"},
 	{ WASSP_MU_PMIRROR, "MU P Mirror"},
 	{ WASSP_MU_UNUSED_18, "MU Unused 18"},
@@ -981,7 +981,7 @@ static const value_string wassp_tlv_types[] =
 	{ EID_RU_SCAN_TIMES, "AccessPoint Scan Times"},
 	{ EID_RU_SCAN_DELAY, "AccessPoint Scan Delay"},
 	{ EID_RU_SCAN_REQ_ID, "AccessPoint Scan Request ID"},
-	{ EID_STATIC_CONFIG, "Static Configuation"},
+	{ EID_STATIC_CONFIG, "Static Configuration"},
 	{ EID_LOCAL_BRIDGING, "Local Bridging"},
 	{ EID_STATIC_BP_IPADDR, "Static AccessPoint IP Address"},
 	{ EID_STATIC_BP_NETMASK, "Static AccessPoint NetMask"},
@@ -1080,7 +1080,7 @@ static const value_string wassp_tlv_types[] =
 	{ EID_SIAPP_PACKET_RETRIES, "SIAPP Packet Retries"},
 	{ EID_SIAPP_ASSOC_IN_WLAN, "SIAPP MU Association With In Same WLAN"},
 	{ EID_SIAPP_ASSOC_IN_CLUSTER, "SIAPP MU Association With In Same Cluster"},
-	{ EID_SIAPP_REASSOC_IN_CLUSTER, "SIAPP MU Ressociation With In Same Cluster"},
+	{ EID_SIAPP_REASSOC_IN_CLUSTER, "SIAPP MU Reassociation With In Same Cluster"},
 	{ EID_SIAPP_THIN_BLOCK, "SIAPP Thin Access Points Block"},
 	{ EID_SIAPP_NEWAP_BSSID, "SIAPP New Access Points BSSID"},
 	{ EID_SIAPP_OLDAP_BSSID, "SIAPP Old Access Points BSSID"},
@@ -1126,7 +1126,7 @@ static const value_string wassp_tlv_types[] =
 	{ EID_MU_LOGIN_LAT_PORT, "MU Login authentication state(0 = Non-auth, 1 = Auth)"},
 	{ EID_MU_IDLE_TIMEOUT, "MU Session Idle Timeout"},
 	{ EID_MU_ACCT_INTERIM_INTERVAL, "Client Acct-Interim-Interval(RADIUS)"},
-	{ EID_MU_IP_ADDR, "MU IP Addresss"},
+	{ EID_MU_IP_ADDR, "MU IP Address"},
 	{ EID_MU_TERMINATE_ACTION, "MU Terminate Action"},
 	{ EID_SITE_NAME, "Site Name"},
 	{ EID_PEER_SITE_IP, "Peer Site IP Address"},
@@ -1254,7 +1254,7 @@ static const value_string wassp_tlv_types[] =
 	{ EID_MU_RFS_NAME, "MU RFS Name"},
 	{ EID_MU_FLAGS, "MU Flags"},
 	{ EID_MU_ASSOC_TIME, "MU Associated Time"},
-	{ EID_MU_ACTIVE_TIME, "MU Actived Time"},
+	{ EID_MU_ACTIVE_TIME, "MU Active Time"},
 	{ EID_REPORT_REQ, "Report Request"},
 	{ EID_MU_URL, "MU Capive Portal Url"},
 	{ EID_MU_SESSION_LIFETIME, "MU Session Life Time"},
@@ -1541,7 +1541,7 @@ const TLV_PARSER_ENTRY tlvMainTable[]  =
 	{ EID_MU_LOGIN_LAT_PORT, "MU Login authentication state(0 = Non-auth, 1 = Auth)", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_MU_IDLE_TIMEOUT, "MU Session Idle Timeout", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_MU_ACCT_INTERIM_INTERVAL, "Client Acct-Interim-Interval(RADIUS)", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
-	{ EID_MU_IP_ADDR, "MU IP Addresss", TLV_TYPE_IP_ADDR, 0, 0, 0, 0, 0, 0, 0, 0},
+	{ EID_MU_IP_ADDR, "MU IP Address", TLV_TYPE_IP_ADDR, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_MU_TERMINATE_ACTION, "MU Terminate Action", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_SITE_NAME, "Site Name", TLV_TYPE_STRING, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_PEER_SITE_IP, "Peer Site IP Address", TLV_TYPE_IP_ADDR, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -1933,9 +1933,9 @@ typedef enum
 	EID_IOT_BLE_SCAN_INTERVAL,
 	EID_IOT_BLE_SCAN_WINDOW,
 	EID_IOT_BLE_SCAN_MIN_RSSI,
-	EID_LSENSE_SERVER,
-	EID_LSENSE_MIN_RSSI,
-	EID_LSENSE_REP_FREQ,
+	EID_LISENSE_SERVER,
+	EID_LISENSE_MIN_RSSI,
+	EID_LISENSE_REP_FREQ,
 	EID_DPI_SIG_HASH,
 	EID_ANT_MODELS_IOT,
 	EID_FABRICATTACH_ARRAY,
@@ -2004,7 +2004,7 @@ const TLV_PARSER_ENTRY tlvGlobalConfigTable[]  =
 	{ EID_MCAST_SLP_RETRY_DELAY, "Delay Between Multicast SLP Retries", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_DISC_RETRY_COUNT, "Retry Count for Discovery", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_DISC_RETRY_DELAY, "Delay Between Discovery Retries", TLV_TYPE_OCTETS, 0, 0, 0, 0, 0, 0, 0, 0},
-	{ EID_LOGGING_ALARM_SEV, "Miminum Severity of Event to Report", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
+	{ EID_LOGGING_ALARM_SEV, "Minumum Severity of Event to Report", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_BLACKLIST_ADD, "Add Clients to MAC Access List", TLV_TYPE_OCTETS, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_FAILOVER_AC_IP_ADDR, "Array of Controllers IP Addresses for Legacy Failover", TLV_TYPE_OCTETS, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_STATIC_AC_IP_ADDR, "Array of Static Controller IP Addresses", TLV_TYPE_OCTETS, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -2013,7 +2013,7 @@ const TLV_PARSER_ENTRY tlvGlobalConfigTable[]  =
 	{ EID_STATIC_AP_IP_NETMASK, "Uplink Netmask", TLV_TYPE_IP_ADDR, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_STATIC_AP_DEFAULT_GW, "Uplink Default Gateway", TLV_TYPE_IP_ADDR, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_BLACKLIST_DEL, "Remove Clients from MAC Access List", TLV_TYPE_OCTETS, 0, 0, 0, 0, 0, 0, 0, 0},
-	{ EID_MACADDR_REQ, "Request to Send Radio BSSIDs in Config Acknowle", TLV_TYPE_BOOL, 0, 0, 0, 0, 0, 0, 0, 0},
+	{ EID_MACADDR_REQ, "Request to Send Radio BSSIDs in Config Acknowledge", TLV_TYPE_BOOL, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_AVAILABILITY_MODE, "Availability Mode", TLV_TYPE_INT, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_AP_PERSISTENCE, "Keep Client Sessions When Connection to Controller Times Out", TLV_TYPE_INT, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_FOREIGN_AP, "Home AP = 0, Foreign AP = 1", TLV_TYPE_INT, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -2117,9 +2117,9 @@ const TLV_PARSER_ENTRY tlvGlobalConfigTable[]  =
 	{ EID_IOT_BLE_SCAN_INTERVAL, "IOT BLE Scan Interval In Milliseconds", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_IOT_BLE_SCAN_WINDOW, "IOT BLE Scan Window In Milliseconds", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_IOT_BLE_SCAN_MIN_RSSI, "IOT BLE Scan Min RSSI", TLV_TYPE_INT, 0, 0, 0, 0, 0, 0, 0, 0},
-	{ EID_LSENSE_SERVER, "Lsense Server", TLV_TYPE_STRING, 0, 0, 0, 0, 0, 0, 0, 0},
-	{ EID_LSENSE_MIN_RSSI, "Lsense Min RSSI", TLV_TYPE_INT, 0, 0, 0, 0, 0, 0, 0, 0},
-	{ EID_LSENSE_REP_FREQ, "Lsense Report Frequency", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
+	{ EID_LISENSE_SERVER, "Lisense Server", TLV_TYPE_STRING, 0, 0, 0, 0, 0, 0, 0, 0},
+	{ EID_LISENSE_MIN_RSSI, "Lisense Min RSSI", TLV_TYPE_INT, 0, 0, 0, 0, 0, 0, 0, 0},
+	{ EID_LISENSE_REP_FREQ, "Lisense Report Frequency", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_DPI_SIG_HASH, "Deep Packet Inspection Signature Hash", TLV_TYPE_STRING, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_ANT_MODELS_IOT, "Antanna Type for IOT Radio", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_FABRICATTACH_ARRAY, "Array Of FabricAttach ID", TLV_TYPE_OCTETS, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -2195,7 +2195,7 @@ typedef enum
 	EID_DOT11_MultipleRetryCount,                       // 7
 	EID_DOT11_RTSFailureCount,                          // 8
 	EID_DOT11_RTSSuccessCount,                          // 9
-	EID_DOT11_ReceivedFragementCount,                   // 10
+	EID_DOT11_ReceivedFragmentCount,                   // 10
 	EID_DOT11_RetryCount,                               // 11
 	EID_DOT11_TransmittedFragmentCount,                 // 12
 	EID_DOT11_TransmittedFrameCount,                    // 13
@@ -2376,7 +2376,7 @@ const TLV_PARSER_ENTRY tlvBeastConfigTable[] =
 	{ EID_DOT11_MultipleRetryCount, "802.11 Multiple Retry Count", TLV_TYPE_INT, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_DOT11_RTSFailureCount, "802.11 RTS Failure Count", TLV_TYPE_INT, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_DOT11_RTSSuccessCount, "802.11 RTS Success Count", TLV_TYPE_INT, 0, 0, 0, 0, 0, 0, 0, 0},
-	{ EID_DOT11_ReceivedFragementCount, "802.11 Received Fragement Count", TLV_TYPE_INT, 0, 0, 0, 0, 0, 0, 0, 0},
+	{ EID_DOT11_ReceivedFragmentCount, "802.11 Received Fragment Count", TLV_TYPE_INT, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_DOT11_RetryCount, "802.11 Retry Count", TLV_TYPE_INT, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_DOT11_TransmittedFragmentCount, "802.11 Transmitted Fragment Count", TLV_TYPE_INT, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_DOT11_TransmittedFrameCount, "802.11 Transmitted Frame Count", TLV_TYPE_INT, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -2983,7 +2983,7 @@ const TLV_PARSER_ENTRY tlvVnsConfigTable[]  =
 	{ EID_V_APP_IDENTIFICATION_ENABLED, "Enable/Disable Application Identification", TLV_TYPE_BOOL, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_V_PRIVACY, "Privacy", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_V_11U_OSEN, "Enable OSU Server-Only Authenticated L2 Encryption Network", TLV_TYPE_BOOL, 0, 0, 0, 0, 0, 0, 0, 0},
-	{ EID_V_QOS_IN_USE, "Bitmask Used to Select DHCP Values for QoS Maping", TLV_TYPE_OCTETS, 0, 0, 0, 0, 0, 0, 0, 0},
+	{ EID_V_QOS_IN_USE, "Bitmask Used to Select DHCP Values for QoS Mapping", TLV_TYPE_OCTETS, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_V_CP_CONFIG_BLOCK, "CP Configuration Block", TLV_TYPE_BLOCK_TLV, TAB_V_CP_CONFIG_BLOCK, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_V_CP_IDENTITY, "User Identity", TLV_TYPE_STRING, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_V_CP_PASSPHRASE, "Shared Secret in Encryption Form", TLV_TYPE_STRING, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -3415,7 +3415,7 @@ const TLV_PARSER_ENTRY tlvSiteConfigTable[]  =
 	{ EID_SITE_LOCATION_BASED_LOOKUP_BLOCK, "Location Based Lookup Block", TLV_TYPE_OCTETS, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_SITE_RADIUS_SERVER_BLOCK, "Radius Server Block", TLV_TYPE_OCTETS, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_NAC_KRB_KDCS, "List of Kerberos KDC FQDN", TLV_TYPE_STRING, 0, 0, 0, 0, 0, 0, 0, 0},
-	{ EID_NAC_LDAP_SERVER_INDEX, "LDAP Server for MU Autherization", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
+	{ EID_NAC_LDAP_SERVER_INDEX, "LDAP Server for MU Authorization", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_NAC_SERVER_CONFIG_ARRAY, "Array of NAC Authentication Server Configurations", TLV_TYPE_BLOCK_TLV, TAB_NAC_SERVER_CONFIG_ARRAY, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_NAC_SERVER_CONFIG_BLOCK, "NAC Authentication Server Block", TLV_TYPE_BLOCK_TLV, TAB_NAC_SERVER_CONFIG_BLOCK, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_NAC_SERVER_FQDN, "Authentication Server FQDN", TLV_TYPE_STRING, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -3493,10 +3493,10 @@ typedef enum
 
 const TLV_PARSER_ENTRY tlvCosConfigTable[]  =
 {
-	{ EID_COS_UNUSED0, "COS Unsed 0", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
+	{ EID_COS_UNUSED0, "COS Unused 0", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_COS_KEY, "COS Key", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_COS_DEFINITION, "Binary Encoded COS Definition", TLV_TYPE_OCTETS, 0, 0, 0, 0, 0, 0, 0, 0},
-	{ EID_COS_IN_RATE_LIMIT, "Intput Rate Limit in Kbps", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
+	{ EID_COS_IN_RATE_LIMIT, "Input Rate Limit in Kbps", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_COS_OUT_RATE_LIMIT, "Output Rate Limit in Kbps", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0}
 
 };
@@ -3550,7 +3550,7 @@ const TLV_PARSER_ENTRY tlv11U_ANQP_blockTable[]  =
 	{ EID_11U_DOMAIN_NAME, "11U Domain Name", TLV_TYPE_STRING, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_11U_EAP_AUTH_PARAM, "11U EAP Authentication Parameter", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_11U_EAP_AUTH_PARAM_ARRAY, "11U EAP Authentication Parameter Array", TLV_TYPE_BLOCK_TLV, TAB_11U_ANQP_BLOCK, 0, 0, 0, 0, 0, 0, 0},
-	{ EID_11U_EAP_AUTH_PARAM_STRUCT, "11U EAP Authentication Parameter Strcut", TLV_TYPE_BLOCK_TLV, TAB_11U_ANQP_BLOCK, 0, 0, 0, 0, 0, 0, 0},
+	{ EID_11U_EAP_AUTH_PARAM_STRUCT, "11U EAP Authentication Parameter Struct", TLV_TYPE_BLOCK_TLV, TAB_11U_ANQP_BLOCK, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_11U_EAP_AUTH_TYPE, "11U EAP Authentication Type", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_11U_EAP_METHOD, "11U EAP Authentication Method", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_11U_EAP_METHODS_ARRAY, "11U EAP Authentication Methods Array", TLV_TYPE_BLOCK_TLV, TAB_11U_ANQP_BLOCK, 0, 0, 0, 0, 0, 0, 0},
@@ -3658,8 +3658,8 @@ const TLV_PARSER_ENTRY tlvHS2_blockTable[]  =
 	{ EID_HS2_OSU_SP_NAI, "HS2 OSU SP NAI", TLV_TYPE_STRING, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_HS2_OSU_SP_SERVER_URI, "HS2 OSU SP Server Uri", TLV_TYPE_STRING, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_HS2_OSU_SSID, "HS2 OSU SSID", TLV_TYPE_STRING, 0, 0, 0, 0, 0, 0, 0, 0},
-	{ EID_HS2_RELEASE, "HS2 Relase", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
-	{ EID_HS2_WAN_METRICS_STRUCT, "HS2 WAN meathod Struct", TLV_TYPE_BLOCK_TLV, TAB_HS2_BLOCK, 0, 0, 0, 0, 0, 0, 0},
+	{ EID_HS2_RELEASE, "HS2 Release", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
+	{ EID_HS2_WAN_METRICS_STRUCT, "HS2 WAN method Struct", TLV_TYPE_BLOCK_TLV, TAB_HS2_BLOCK, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_HS2_UPLINK_LOAD, "HS2 Uplink Load", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_HS2_UPLINK_SPEED, "HS2 Uplink Speed", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_HS2_WIDTH, "HS2 Width", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -3811,7 +3811,7 @@ static const value_string wassp_eid_status_types[] =
 	{ UPGRADE_STATUS_FAIL, "failure" },
 	{ UPGRADE_STATUS_INPROGRESS, "download in progress" },
 	{ UPGRADE_STATUS_DOWNLOAD_FAIL, "image download failed" },
-	{ UPGRADE_STATUS_WRITE_FAIL, "writing image to falsh failed" },
+	{ UPGRADE_STATUS_WRITE_FAIL, "writing image to flash failed" },
 	{ UPGRADE_STATUS_CORRUPTED_FILE, "main image file is corrupted/unusable" },
 	{ UPGRADE_STATUS_REBOOTING, "AP is rebooting" },
 	{ UPGRADE_STATUS_INVALID_FILE, "bad header in downloaded image" },
@@ -5906,7 +5906,7 @@ static int dissect_wassp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 
 	  RU discover header format:
 		Byte 1    Byte 2   Byte 3 and Byte 4    Byte 5 and Byte 6    Byte 7 and Byte 8   Byte 7 and Byte 8      Byte 9 to Byte 12 if mac, else Byte 9 to Byte 10 for operation
-	  | Version | Type   |   Random Number   | Length of Payload    |  Check Sum       | Conteoller Operation |  Mac or Operation
+	  | Version | Type   |   Random Number   | Length of Payload    |  Check Sum       | Controller Operation |  Mac or Operation
 
 	************************************************************************************************************************************************************/
 
@@ -6234,14 +6234,14 @@ void proto_register_wassp(void)
 			&hf_ru_ac_op,
 			{
 				"Controller Operation", "wassp.ru_ac_op", FT_UINT16, BASE_DEC, NULL,
-				0x00, "Conteoller operation", HFILL
+				0x00, NULL, HFILL
 			}
 		},
 		{
 			&hf_ru_ac_mode,
 			{
 				"Controller Operation Mode", "wassp.ru_ac_mode", FT_UINT16, BASE_DEC, NULL,
-				0x00, "Conteoller operation mode", HFILL
+				0x00, NULL, HFILL
 			}
 		},
 		{
@@ -6369,7 +6369,7 @@ void proto_register_wassp(void)
 			&hf_wassp_mu_action,
 			{
 				"Action", "wassp.data.mu_action",  FT_UINT16, BASE_HEX, VALS(mu_action_field_strings),
-				0xf000, "Notify what knind of action", HFILL
+				0xf000, "Notify what kind of action", HFILL
 			}
 		},
 

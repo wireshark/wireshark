@@ -1280,7 +1280,7 @@ proto_register_socks( void){
             }
         },
         { &hf_socks_subnegotiation_version,
-            { "Subnegotiation Version", "socks.subnegotation_version", FT_UINT8, BASE_DEC, NULL,
+            { "Subnegotiation Version", "socks.subnegotiation_version", FT_UINT8, BASE_DEC, NULL,
                 0x0, NULL, HFILL
             }
         },

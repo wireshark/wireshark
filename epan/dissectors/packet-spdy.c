@@ -1816,7 +1816,7 @@ void proto_register_spdy(void)
     { &hf_spdy_slot,
       { "Slot",       "spdy.slot",
           FT_UINT16, BASE_DEC, NULL, 0x00FF,
-          "Specifying the index in the server's CREDENTIAL vector of the client certificate to be used for this reques", HFILL
+          "Specifying the index in the server's CREDENTIAL vector of the client certificate to be used for this request", HFILL
       }
     },
     { &hf_spdy_num_headers,

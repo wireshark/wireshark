@@ -659,7 +659,7 @@ proto_register_rtls(void)
             "Average calculation duration", HFILL }
         },
         { &hf_rtls_ser_num_packets,
-          { "Num Packets", "rtls.ser.num_packes",
+          { "Num Packets", "rtls.ser.num_packets",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             "Number of packets used in average RSSI calculation", HFILL }
         },
@@ -710,7 +710,7 @@ proto_register_rtls(void)
             "Average calculation duration", HFILL }
         },
         { &hf_rtls_aer_num_packets,
-          { "Num Packets", "rtls.aer.num_packes",
+          { "Num Packets", "rtls.aer.num_packets",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             "Number of packets used in average RSSI calculation", HFILL }
         },

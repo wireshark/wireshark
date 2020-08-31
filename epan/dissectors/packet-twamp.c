@@ -724,7 +724,7 @@ void proto_register_twamp(void)
         },
         {&hf_twamp_control_accept,
             {"Accept", "twamp.control.accept", FT_UINT8, BASE_DEC, VALS(twamp_control_accept_vals), 0x0,
-                "Message acceptence by the other side", HFILL}
+                "Message acceptance by the other side", HFILL}
         },
         {&hf_twamp_control_sender_port,
             {"Sender Port", "twamp.control.sender_port", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}

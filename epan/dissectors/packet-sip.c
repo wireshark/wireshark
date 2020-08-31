@@ -519,7 +519,7 @@ static const sip_header_t sip_headers[] = {
     { "Refer-To",                       "r"  },  /*  82 RFC3515  */
 #define POS_REFER_TO                    82
     { "Referred-By",                    "b"  },  /*  83 RFC3892  */
-#define POS_REFERED_BY                  83
+#define POS_REFERRED_BY                 83
     { "Reject-Contact",                 "j"  },  /*  84 RFC3841  */
 #define POS_REJECT_CONTACT              84
     { "Replaces",                       NULL },  /*  85 RFC3891  */
@@ -6789,10 +6789,10 @@ void proto_register_sip(void)
             FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3515: Refer-To Header", HFILL }
         },
-        { &hf_header_array[POS_REFERED_BY],
-          { "Refered By",      "sip.Refered-by",
+        { &hf_header_array[POS_REFERRED_BY],
+          { "Referred By",      "sip.Referred-by",
             FT_STRING, BASE_NONE,NULL,0x0,
-            "RFC 3892: Refered-by Header", HFILL }
+            "RFC 3892: Referred-by Header", HFILL }
         },
         { &hf_header_array[POS_REJECT_CONTACT],
           { "Reject-Contact",         "sip.Reject-Contact",
@@ -7512,7 +7512,7 @@ void proto_register_sip(void)
 
     prefs_register_bool_preference(sip_module, "hide_generatd_call_id",
         "Hide the generated Call Id",
-        "Whether the generated call id should be hiddden(not displayed) in the tree or not.",
+        "Whether the generated call id should be hidden(not displayed) in the tree or not.",
         &sip_hide_generatd_call_ids);
 
     /* UAT */

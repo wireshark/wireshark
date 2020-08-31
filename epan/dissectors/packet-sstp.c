@@ -470,7 +470,7 @@ proto_register_sstp(void)
     },
     /* Encapsulated Protocol (2 Bytes) */
     { &hf_sstp_ecapsulated_protocol,
-      { "Encapsulated Procotol", "sstp.encapsulatedprotocol",
+      { "Encapsulated Protocol", "sstp.encapsulatedprotocol",
       FT_UINT16, BASE_HEX,
       VALS(encapsulated_protocols), 0x0,
       NULL, HFILL }

@@ -518,7 +518,7 @@ void proto_register_uasip(void)
     expert_register_field_array(expert_uasip, ei, array_length(ei));
 
     uasip_module = prefs_register_protocol(proto_uasip, proto_reg_handoff_uasip);
-    prefs_register_obsolete_preference(uasip_module, "aplication_octet_stream");
+    prefs_register_obsolete_preference(uasip_module, "application_octet_stream");
     prefs_register_bool_preference(uasip_module, "noesip", "Try to decode SIP NOE", "NOE SIP Protocol", &noesip_enabled);
     prefs_register_string_preference(uasip_module, "proxy_ipaddr", "Proxy IP Address",
                                      "IPv4 address of the proxy (Invalid values will be ignored)",

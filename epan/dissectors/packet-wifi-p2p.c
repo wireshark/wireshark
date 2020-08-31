@@ -1738,7 +1738,7 @@ proto_register_p2p(void)
       { "Advertisement ID", "wifi_p2p.advertised_service.advertisement_id",
         FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
     { &hf_p2p_attr_advertised_service_config_methods,
-      { "Service Config Methods", "wifi_p2p.avertised_service.config_methods",
+      { "Service Config Methods", "wifi_p2p.advertised_service.config_methods",
         FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
     { &hf_p2p_attr_advertised_service_service_name_length,
       { "Service Name Length", "wifi_p2p.advertised_service.service_name_length",

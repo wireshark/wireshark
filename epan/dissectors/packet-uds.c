@@ -752,7 +752,7 @@ proto_register_uds(void)
             {
                     &hf_uds_dsc_parameter_record,
                     {
-                            "Parameter Record", "uds.dsc.paramter_record",
+                            "Parameter Record", "uds.dsc.parameter_record",
                             FT_BYTES, BASE_NONE,
                             NULL, 0x0,
                             NULL, HFILL

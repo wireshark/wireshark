@@ -755,7 +755,7 @@ static const value_string sample_size_vals[] = {
 /* MPS, Manual PLMN Selection indicator (octet 3) */
 static const value_string mps_vals[] = {
 	{ 0,		"The MS is in Automatic PLMN selection mode."},
-	{ 1,		"The MS is in Manual PLMN selection mode and request the listof PLMN identities that may provide UMAN service in the current location."},
+	{ 1,		"The MS is in Manual PLMN selection mode and request the list of PLMN identities that may provide UMAN service in the current location."},
 	{ 2,		"The MS is in Manual PLMN selection mode and tries to register; no PLMN list is needed."},
 	{ 0,	NULL }
 };

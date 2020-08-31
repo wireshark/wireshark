@@ -183,7 +183,7 @@ dissect_synergy_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
             proto_tree_add_string_format_value(synergy_tree,hf_synergy_packet_type,tvb,offset+4,4,buffer,"Reset Options (%s)",buffer);
             proto_tree_add_item(synergy_tree,hf_synergy_crop,tvb,offset+8,-1,ENC_NA);
         } else if(strncmp(buffer,"CIAK",4)==0) {
-            proto_tree_add_string_format_value(synergy_tree,hf_synergy_packet_type,tvb,offset+4,4,buffer,"Resolution Chagne Acknowledgment (%s)",buffer);
+            proto_tree_add_string_format_value(synergy_tree,hf_synergy_packet_type,tvb,offset+4,4,buffer,"Resolution Change Acknowledgment (%s)",buffer);
             proto_tree_add_item(synergy_tree,hf_synergy_ciak,tvb,offset+8,-1,ENC_NA);
         } else if(strncmp(buffer,"DKDN",4)==0) {
             proto_tree_add_string_format_value(synergy_tree,hf_synergy_packet_type,tvb,offset+4,4,buffer,"Key Pressed (%s)",buffer);

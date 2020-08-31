@@ -485,7 +485,7 @@ static const value_string ms_ep_subtype_vals[] = {
 
 /* Table A-7: Audio Function Category Codes */
 static const value_string audio_function_categories_vals[] = {
-    {0x00, "Undefinied"},
+    {0x00, "Undefined"},
     {0x01, "Desktop speaker"},
     {0x02, "Home theater"},
     {0x03, "Microphone"},
@@ -590,7 +590,7 @@ static const value_string terminal_types_vals[] = {
     {0x0604, "Legacy audio connector"},
     {0x0605, "S/PDIF interface"},
     {0x0606, "1394 DA stream"},
-    {0x0607, "1394 DV stream soudtrack"},
+    {0x0607, "1394 DV stream soundtrack"},
     /* Embedded Function Terminal Types */
     {0x0700, "Embedded Undefined"},
     {0x0701, "Level Calibration Noise Source"},
