@@ -642,7 +642,7 @@ proto_register_dpnet(void)
             NULL, HFILL }
         },
         { &hf_dpnet_data_cframe_timestamp,
-            { "Timestmap", "dpnet.cframe.timestamp",
+            { "Timestamp", "dpnet.cframe.timestamp",
             FT_UINT32, BASE_DEC,
             NULL, 0,
             NULL, HFILL }

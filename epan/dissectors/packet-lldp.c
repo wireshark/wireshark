@@ -4782,7 +4782,7 @@ proto_register_lldp(void)
 			VALS(dcbx_protocol_types), 0x0, "Unknown", HFILL }
 		},
 		{ &hf_dcbx_control_sequence,
-			{ "Sequence No", "lldp.dcbx.contol.seq", FT_UINT32, BASE_DEC,
+			{ "Sequence No", "lldp.dcbx.control.seq", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }
 		},
 		{ &hf_dcbx_control_ack,

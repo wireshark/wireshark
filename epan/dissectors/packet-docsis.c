@@ -523,7 +523,7 @@ dissect_encrypted_frame (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 //  tvbuff_t          *next_tvb;
 
   /* According to CM-SP-SEC-v3.1, PDU regions of the following
-   * frames must be encryped when security is enabled:
+   * frames must be encrypted when security is enabled:
    * - Variable-length PDU MAC Frames;
    * - Fragmentation MAC Frames;
    * - Registration Request (REG-REQ-MP) MAC Management Message Frames;
@@ -1166,7 +1166,7 @@ proto_register_docsis (void)
     { &hf_docsis_encrypted_payload,
       { "Encrypted Payload", "docsis.encrypted_payload",
         FT_BYTES, BASE_NONE, NULL, 0x0,
-        "Encryped data", HFILL }
+        "Encrypted data", HFILL }
     }
   };
 

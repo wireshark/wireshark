@@ -161,7 +161,7 @@ proto_register_isis(void)
 {
   static hf_register_info hf[] = {
     { &hf_isis_irpd,
-      { "Intradomain Routeing Protocol Discriminator",    "isis.irpd",
+      { "Intradomain Routing Protocol Discriminator",    "isis.irpd",
         FT_UINT8, BASE_HEX, VALS(nlpid_vals), 0x0, NULL, HFILL }},
 
     { &hf_isis_header_length,

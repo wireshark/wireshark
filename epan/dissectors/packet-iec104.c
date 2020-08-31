@@ -1892,7 +1892,7 @@ proto_register_iec60870_asdu(void)
 
 		{ &hf_causetx,
 		  { "CauseTx", "iec60870_asdu.causetx", FT_UINT8, BASE_DEC, VALS(causetx_types), F_CAUSE,
-		    "Cause of Transmision", HFILL }},
+		    "Cause of Transmission", HFILL }},
 
 		{ &hf_nega,
 		  { "Negative", "iec60870_asdu.nega", FT_BOOLEAN, 8, NULL, F_NEGA,

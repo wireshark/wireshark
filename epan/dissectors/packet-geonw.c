@@ -3530,7 +3530,7 @@ proto_register_geonw(void)
         { &hf_sgeonw_conf, { "Confidence", "geonw.sec.confidence", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_sgeonw_time32, { "Time32", "geonw.sec.time32", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_sgeonw_lat, { "Latitude", "geonw.sec.lat", FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_sgeonw_lon, { "Longiture", "geonw.sec.lon", FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_sgeonw_lon, { "Longitude", "geonw.sec.lon", FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_sgeonw_elev, { "Elevation", "geonw.sec.elev", FT_INT16, BASE_CUSTOM, CF_FUNC(display_elevation), 0x0, NULL, HFILL }},
         { &hf_sgeonw_hashedid3, { "Hashed ID 3", "geonw.sec.hashedid3", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_sgeonw_duration_unit, { "Unit", "geonw.sec.duration.unit", FT_UINT16, BASE_DEC, VALS(sgeonw_duration_unit_names), 0xe000, NULL, HFILL }},

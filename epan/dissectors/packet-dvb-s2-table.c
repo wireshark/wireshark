@@ -4258,7 +4258,7 @@ void proto_register_dvb_s2_table(void)
                 NULL, HFILL}
         },
         {&hf_dvb_s2_table_desc_lowest_assign_id, {
-                "Descriptor lowest_assignmant_id", "dvb-s2_table.desc.lowest_assign_id",
+                "Descriptor lowest_assignment_id", "dvb-s2_table.desc.lowest_assign_id",
                 FT_UINT24, BASE_HEX, NULL, 0x0,
                 NULL, HFILL}
         },

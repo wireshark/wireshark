@@ -6371,7 +6371,7 @@ proto_register_epl(void)
 		"If you are capturing in networks with multiplexed or slow nodes, this can be useful", &show_soc_flags);
 
 	prefs_register_bool_preference(epl_module, "show_duplicated_command_layer", "Show command-layer in duplicated frames",
-		"For analysis purposes one might want to show the command layer even if the dissectore assumes a duplicated frame", &show_cmd_layer_for_duplicated);
+		"For analysis purposes one might want to show the command layer even if the dissector assumes a duplicated frame", &show_cmd_layer_for_duplicated);
 
 	prefs_register_bool_preference(epl_module, "show_pdo_meta_info", "Show life times and origin PDO Tx/Rx params for PDO entries",
 		"For analysis purposes one might want to see how long the current mapping has been active for and what OD write caused it", &show_pdo_meta_info);

@@ -956,7 +956,7 @@ static const value_string tlv_status_data[] = {
     { 0x00000005, "Bad Message Length"                     },
     { 0x00000006, "Unknown TLV"                            },
     { 0x00000007, "Bad TLV Length"                         },
-    { 0x00000008, "Malformted TLV Value"                   },
+    { 0x00000008, "Malformed TLV Value"                    },
     { 0x00000009, "Hold Timer Expired"                     },
     { 0x0000000A, "Shutdown"                               },
     { 0x0000000B, "Loop Detected"                          },

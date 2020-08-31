@@ -5606,8 +5606,8 @@ static int hf_ieee80211_tag_tspec_tsconst_start_time = -1;
 static int hf_ieee80211_tag_tspec_tsconst_duration = -1;
 static int hf_ieee80211_tag_tspec_tsconst_period = -1;
 static int hf_ieee80211_tag_tspec_tsconst_interferer_mac = -1;
-static int hf_ieee80211_tag_channel_measurement_feedback_realtive_I = -1;
-static int hf_ieee80211_tag_channel_measurement_feedback_realtive_Q = -1;
+static int hf_ieee80211_tag_channel_measurement_feedback_relative_I = -1;
+static int hf_ieee80211_tag_channel_measurement_feedback_relative_Q = -1;
 static int hf_ieee80211_tag_channel_measurement_feedback_tap_delay = -1;
 static int hf_ieee80211_tag_channel_measurement_feedback_sector_id = -1;
 static int hf_ieee80211_tag_channel_measurement_feedback_antenna_id = -1;
@@ -23492,9 +23492,9 @@ ieee80211_tag_channel_measurement_fb(tvbuff_t *tvb, packet_info *pinfo, proto_tr
   while(num_measurement > 0) {
     proto_tree_add_item(tree, hf_ieee80211_ff_snr, tvb, offset, 1, ENC_NA);
     offset += 1;
-    proto_tree_add_item(tree, hf_ieee80211_tag_channel_measurement_feedback_realtive_I, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_ieee80211_tag_channel_measurement_feedback_relative_I, tvb, offset, 1, ENC_NA);
     offset += 1;
-    proto_tree_add_item(tree, hf_ieee80211_tag_channel_measurement_feedback_realtive_Q, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_ieee80211_tag_channel_measurement_feedback_relative_Q, tvb, offset, 1, ENC_NA);
     offset += 1;
     proto_tree_add_item(tree, hf_ieee80211_tag_channel_measurement_feedback_tap_delay, tvb, offset, 1, ENC_NA);
     offset += 1;
@@ -29879,13 +29879,13 @@ proto_register_ieee80211(void)
        FT_ETHER, BASE_NONE, NULL, 0,
        NULL, HFILL }},
 
-    {&hf_ieee80211_tag_channel_measurement_feedback_realtive_I,
-      {"Channel Measurement Feedback Relative I", "wlan.ch_meas_fb.realtive_I",
+    {&hf_ieee80211_tag_channel_measurement_feedback_relative_I,
+      {"Channel Measurement Feedback Relative I", "wlan.ch_meas_fb.relative_I",
        FT_UINT8, BASE_DEC, NULL, 0,
        NULL, HFILL }},
 
-    {&hf_ieee80211_tag_channel_measurement_feedback_realtive_Q,
-      {"Channel Measurement Feedback Relative Q", "wlan.ch_meas_fb.realtive_Q",
+    {&hf_ieee80211_tag_channel_measurement_feedback_relative_Q,
+      {"Channel Measurement Feedback Relative Q", "wlan.ch_meas_fb.relative_Q",
        FT_UINT8, BASE_DEC, NULL, 0,
        NULL, HFILL }},
 
@@ -36719,7 +36719,7 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_he_qtp_request_dialog_token,
      {"Dialog Token", "wlan.ext_tag.quiet_time_period.request.dialog_token",
       FT_UINT16, BASE_DEC, NULL, 0,
-      "Quite Time Periords Response suptype to which request subtype corresponds",
+      "Quiet Time Periods Response suptype to which request subtype corresponds",
       HFILL } },
 
     {&hf_ieee80211_he_qtp_request_quiet_period_offset,
@@ -37251,7 +37251,7 @@ proto_register_ieee80211(void)
       FT_BOOLEAN, 16, TFS(&tfs_enabled_disabled), 0x200, NULL, HFILL }},
 
     {&hf_ieee80211_osen_rsn_cap_flags,
-     {"RSN Capability Flags", "wlan.osen.rsn.cabailities.flags",
+     {"RSN Capability Flags", "wlan.osen.rsn.capabilities.flags",
       FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&hf_ieee80211_osen_rsn_spp_a_msdu_capable,

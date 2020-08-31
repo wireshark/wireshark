@@ -967,7 +967,7 @@ proto_register_lnet(void)
           { "Payload", "lnet.payload", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
         { &hf_dst_wmd_interface,
-          { "DST MD index interface", "lnet.msg_dst_inteface_cookie", FT_UINT64, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
+          { "DST MD index interface", "lnet.msg_dst_interface_cookie", FT_UINT64, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_dst_wmd_object,
           { "DST MD index object", "lnet.msg_dst_object_cookie", FT_UINT64, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_match_bits,

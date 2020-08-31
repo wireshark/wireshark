@@ -390,7 +390,7 @@ static header_field_info hfi_fcdns_req_ip FCDNS_HFI_INIT =
            NULL, HFILL};
 
 static header_field_info hfi_fcdns_rjtdetail FCDNS_HFI_INIT =
-          {"Reason Code Explanantion", "fcdns.rply.reasondet", FT_UINT8,
+          {"Reason Code Explanation", "fcdns.rply.reasondet", FT_UINT8,
            BASE_HEX, VALS (fc_dns_rjt_det_code_val), 0x0, NULL, HFILL};
 
 static header_field_info hfi_fcdns_zone_mbrtype FCDNS_HFI_INIT =

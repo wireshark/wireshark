@@ -1505,7 +1505,7 @@ proto_register_hartip(void)
         "Pass Through Preambles", HFILL }
     },
     { &hf_hartip_pt_delimiter,
-      { "Delimter",           "hart_ip.pt.delimter",
+      { "Delimiter",           "hart_ip.pt.delimiter",
         FT_UINT8, BASE_HEX, NULL, 0x0,
         "Pass Through Delimiter", HFILL }
     },
@@ -2021,7 +2021,7 @@ proto_register_hartip(void)
 
     /* command 16 and 19 */
     { &hf_hartip_pt_rsp_final_assembly_number,
-      { "Final Assembly Number",                       "hart_ip.pt.rsp.final_assembly_numbe",
+      { "Final Assembly Number",                       "hart_ip.pt.rsp.final_assembly_number",
         FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },

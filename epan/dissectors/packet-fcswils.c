@@ -2200,7 +2200,7 @@ proto_register_fcswils(void)
            NULL, HFILL}},
 
         { &hf_swils_rjtdet,
-          {"Reason Code Explanantion", "swils.rjt.reasonexpl",
+          {"Reason Code Explanation", "swils.rjt.reasonexpl",
            FT_UINT8, BASE_HEX, VALS(fc_swils_deterr_val), 0x0,
            NULL, HFILL}},
 

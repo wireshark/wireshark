@@ -239,7 +239,7 @@ static const value_string SUBM_Attributes[] = {
     { 0x0014, "Attribute (GUIDInfo)"},
     { 0x0015, "Attribute (PortInfo)"},
     { 0x0016, "Attribute (P_KeyTable)"},
-    { 0x0017, "Attribute (SLtoVLMapptingTable)"},
+    { 0x0017, "Attribute (SLtoVLMappingTable)"},
     { 0x0018, "Attribute (VLArbitrationTable)"},
     { 0x0019, "Attribute (LinearForwardingTable)"},
     { 0x001A, "Attribute (RandomForwardingTable)"},

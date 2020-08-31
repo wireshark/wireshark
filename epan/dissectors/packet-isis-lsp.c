@@ -5564,7 +5564,7 @@ proto_register_isis_lsp(void)
               NULL, HFILL }
         },
         { &hf_isis_lsp_srv6_loc_alg,
-            { "Algorithm", "isis.lsp.srv6_locator.algorighm",
+            { "Algorithm", "isis.lsp.srv6_locator.algorithm",
               FT_UINT8, BASE_DEC, VALS(isis_igp_alg_vals), 0x0,
               NULL, HFILL }
         },

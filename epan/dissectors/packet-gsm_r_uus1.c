@@ -429,7 +429,7 @@ de_gsm_r_uus1_elda(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
 
     curr_offset += 3;
 
-    /* Longtitude */
+    /* Longitude */
     long_item = proto_tree_add_item(sub_tree, hf_gsm_r_uus1_elda_long, tvb, curr_offset, 4, ENC_NA);
     long_tree = proto_item_add_subtree(long_item, ett_gsm_r_uus1_elda_long);
 
@@ -448,7 +448,7 @@ de_gsm_r_uus1_elda(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
     proto_tree_add_uint_format_value(long_tree, hf_gsm_r_uus1_elda_long_sec, tvb, curr_offset, 4, val, "%.2f", (float)(long_sec_val)/100);
     proto_tree_add_boolean(long_tree, hf_gsm_r_uus1_elda_long_hem, tvb, curr_offset, 4, val);
 
-    proto_item_set_text(long_item, "Longtitude: %d %d\'%.2f\"%s", long_deg_val, long_min_val, (float)(long_sec_val)/100,
+    proto_item_set_text(long_item, "Longitude: %d %d\'%.2f\"%s", long_deg_val, long_min_val, (float)(long_sec_val)/100,
         long_hem_val ? "W" : "E");
 
     curr_offset += 3;
@@ -742,7 +742,7 @@ proto_register_gsm_r_uus1(void)
             NULL, HFILL }
         },
         { &hf_gsm_r_uus1_elda_lat,
-          { "Lattitude", "gsm-r-uus1.elda.lat",
+          { "Latitude", "gsm-r-uus1.elda.lat",
             FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
@@ -767,7 +767,7 @@ proto_register_gsm_r_uus1(void)
             NULL, HFILL }
         },
         { &hf_gsm_r_uus1_elda_long,
-          { "Lattitude", "gsm-r-uus1.elda.long",
+          { "Latitude", "gsm-r-uus1.elda.long",
             FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },

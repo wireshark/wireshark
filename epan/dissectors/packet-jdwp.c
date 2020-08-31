@@ -235,7 +235,7 @@ static const value_string commandset_threadreference[] = {
   {11, "Interrupt"},
   {12, "SuspendCount"},
   {13, "OwnedMonitorsStackDepthInfo"},
-  {14, "ForceEearlyReturn"},
+  {14, "ForceEarlyReturn"},
   {0, NULL}
 };
 

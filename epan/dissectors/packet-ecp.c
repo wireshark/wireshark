@@ -123,7 +123,7 @@ static const value_string vdp_tlv_type_vals[] = {
 	{ VDP_TLV_ASSOC,		"Associate" },
 	{ VDP_TLV_DEASSOC,		"DeAssociate" },
 	{ VDP_TLV_MGRID,		"VSI Manager ID" },
-	{ VDP_TLV_ORG,			"Orgnaizationally defined TLV" },
+	{ VDP_TLV_ORG,			"Organizationally defined TLV" },
 	{ 0x0,				NULL }
 };
 

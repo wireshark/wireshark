@@ -3039,11 +3039,11 @@ proto_register_bundle(void)
           FT_BOOLEAN, 8, NULL, BLOCK_CONTROL_REPLICATE, NULL, HFILL}
         },
         {&hf_block_control_transmit_status,
-         {"Transmit Status if Block Can't be Processeed", "bundle.block.control.status",
+         {"Transmit Status if Block Can't be Processed", "bundle.block.control.status",
           FT_BOOLEAN, 8, NULL, BLOCK_CONTROL_TRANSMIT_STATUS, NULL, HFILL}
         },
         {&hf_block_control_delete_bundle,
-         {"Delete Bundle if Block Can't be Processeed", "bundle.block.control.delete",
+         {"Delete Bundle if Block Can't be Processed", "bundle.block.control.delete",
           FT_BOOLEAN, 8, NULL, BLOCK_CONTROL_DELETE_BUNDLE, NULL, HFILL}
         },
         {&hf_block_control_last_block,
@@ -3123,7 +3123,7 @@ proto_register_bundle(void)
           FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
         {&hf_bundle_block_previous_hop_scheme,
-         {"Previous Hop Secheme", "bundle.block.previous_hop_scheme",
+         {"Previous Hop Scheme", "bundle.block.previous_hop_scheme",
           FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         {&hf_bundle_block_previous_hop_eid,

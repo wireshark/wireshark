@@ -7806,7 +7806,7 @@ proto_register_isakmp(void)
          FT_UINT16, BASE_DEC, NULL, 0x0,
          NULL, HFILL }},
     { &hf_isakmp_kd_payload,
-      { "Key Download Paket", "isakmp.kd.payload",
+      { "Key Download Payload", "isakmp.kd.payload",
         FT_NONE, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
     { &hf_isakmp_kdp_type,
