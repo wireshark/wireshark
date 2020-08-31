@@ -3435,7 +3435,7 @@ proto_register_ntp(void)
 			"Overflows", "ntp.priv.mode7.overflows", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntppriv_mode7_xmtcalls, {
-			"Trasmitted calls", "ntp.priv.mode7.xmtcalls", FT_UINT32, BASE_DEC,
+			"Transmitted calls", "ntp.priv.mode7.xmtcalls", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntppriv_mode7_rflags, {
 			"Rflags", "ntp.priv.mode7.rflags", FT_UINT16, BASE_DEC,

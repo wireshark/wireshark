@@ -6451,7 +6451,7 @@ proto_register_mswsp(void)
 		{
 			&hf_mswsp_bool_options_async,
 			{
-				"eAsynchronous", "mswsp.CPMCreateQuery.RowSetProperties.uBooleanOptions.eAsyncronous",
+				"eAsynchronous", "mswsp.CPMCreateQuery.RowSetProperties.uBooleanOptions.eAsynchronous",
 				FT_BOOLEAN, 32, NULL, eAsynchronous, "The client will not wait for execution completion", HFILL
 			}
 		},

@@ -8017,7 +8017,7 @@ proto_register_lustre(void)
         { &hf_lustre_ldlm_intent_opc_open,
           { "open", "lustre.ldlm_intent.opc_open", FT_BOOLEAN, 32, TFS(&lnet_flags_set_truth), IT_OPEN,  NULL, HFILL } },
         { &hf_lustre_ldlm_intent_opc_creat,
-          { "creat", "lustre.ldlm_intent.opc_creat", FT_BOOLEAN, 32, TFS(&lnet_flags_set_truth), IT_CREAT  ,  NULL, HFILL } },
+          { "create", "lustre.ldlm_intent.opc_create", FT_BOOLEAN, 32, TFS(&lnet_flags_set_truth), IT_CREAT  ,  NULL, HFILL } },
         { &hf_lustre_ldlm_intent_opc_readdir,
           { "readdir", "lustre.ldlm_intent.opc_readdir", FT_BOOLEAN, 32, TFS(&lnet_flags_set_truth), IT_READDIR  ,  NULL, HFILL } },
         { &hf_lustre_ldlm_intent_opc_getattr,

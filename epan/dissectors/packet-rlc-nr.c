@@ -1674,7 +1674,7 @@ void proto_register_rlc_nr(void)
     prefs_register_bool_preference(rlc_nr_module, "reassemble_um_frames",
         "Try to reassemble UM frames",
         "N.B. This should be considered experimental/incomplete, in that it doesn't try to discard reassembled state "
-        "when reestablishmenment happens, or in certain packet-loss cases",
+        "when reestablishment happens, or in certain packet-loss cases",
         &global_rlc_nr_reassemble_um_pdus);
 
     ue_parameters_tree = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());

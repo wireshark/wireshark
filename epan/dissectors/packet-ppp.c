@@ -6578,7 +6578,7 @@ proto_register_mp(void)
         10, &mp_max_fragments);
     prefs_register_uint_preference(mp_module, "fragment_aging",
         "Max unreassembled fragment age",
-        "Age off unreassmbled fragments after this many packets",
+        "Age off unreassembled fragments after this many packets",
         10, &mp_fragment_aging);
 }
 

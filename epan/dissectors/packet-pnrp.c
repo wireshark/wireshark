@@ -1348,7 +1348,7 @@ void proto_register_pnrp(void)
             { "Hashed Nonce", "pnrp.segment.hashednonce", FT_BYTES, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }},
         { &hf_pnrp_message_idArray_NumEntries,
-            { "Number of Entries", "pnrp.segment.idArray.NumEnries", FT_UINT16, BASE_DEC, NULL, 0x0,
+            { "Number of Entries", "pnrp.segment.idArray.NumEntries", FT_UINT16, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }},
         { &hf_pnrp_message_idArray_Length,
             { "Length of Array", "pnrp.segment.idArray.Length", FT_UINT16, BASE_DEC, NULL, 0x0,

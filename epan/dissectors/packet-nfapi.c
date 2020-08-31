@@ -1864,7 +1864,7 @@ static void dissect_pnf_phy_rel12_instance_value(ptvcursor_t * ptvc, packet_info
 	item = ptvcursor_add_ret_uint(ptvc, hi_nfapi_alternative_tbs_indices, 2, ENC_BIG_ENDIAN, &test_value);
 	if (test_value > 1)
 	{
-		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid alternative tbs indicies supported value [0..1]");
+		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid alternative tbs indices supported value [0..1]");
 	}
 }
 

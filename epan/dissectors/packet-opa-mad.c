@@ -10459,7 +10459,7 @@ void proto_register_opa_mad(void)
                 FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
         },
         { &hf_opa_BufferControlTable_TxDedicatedLimit, {
-                "Tx Dedictated Limit", "opa.buffercontroltable.txdedicatedlimit",
+                "Tx Dedicated Limit", "opa.buffercontroltable.txdedicatedlimit",
                 FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
         },
         { &hf_opa_BufferControlTable_TxSharedLimit, {
@@ -13421,7 +13421,7 @@ void proto_register_opa_mad(void)
                 FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }
         },
         { &hf_opa_VFInfoRecord_reserved7, {
-                "Rezerved (24 Bytes)", "opa.vfinforecord.reserved7",
+                "Reserved (24 Bytes)", "opa.vfinforecord.reserved7",
                 FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
         /* QuarantinedNodeRecord */

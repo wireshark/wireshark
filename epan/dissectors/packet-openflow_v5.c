@@ -9636,7 +9636,7 @@ proto_register_openflow_v5(void)
         },
         { &ei_openflow_v5_multipart_request_undecoded,
             { "openflow_v5.multipart_request.undecoded", PI_UNDECODED, PI_NOTE,
-              "Unknown multipart reqeuest body.", EXPFILL }
+              "Unknown multipart request body.", EXPFILL }
         },
         { &ei_openflow_v5_queue_stats_prop_undecoded,
             { "openflow_v5.queue_stats_prop.undecoded", PI_UNDECODED, PI_NOTE,

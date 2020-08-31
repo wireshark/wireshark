@@ -1728,7 +1728,7 @@ static const value_string v10_template_types_gigamon[] = {
     { 104, "SslCertificateSubject" },
     { 105, "SslCertificateValidNotBefore" },
     { 106, "SslCertificateValidNotAfter" },
-    { 107, "SslCetificateSerialNumber" },
+    { 107, "SslCertificateSerialNumber" },
     { 108, "SslCertificateSignatureAlgorithm" },
     { 109, "SslCertificateSubjectPubAlgorithm" },
     { 110, "SslCertificateSubjectPubKeySize" },
@@ -3394,7 +3394,7 @@ static int      hf_pie_gigamon_sslcertificateissuer              = -1;
 static int      hf_pie_gigamon_sslcertificatesubject             = -1;
 static int      hf_pie_gigamon_sslcertificatevalidnotbefore      = -1;
 static int      hf_pie_gigamon_sslcertificatevalidnotafter       = -1;
-static int      hf_pie_gigamon_sslcetificateserialnumber         = -1;
+static int      hf_pie_gigamon_sslcertificateserialnumber         = -1;
 static int      hf_pie_gigamon_sslcertificatesignaturealgorithm  = -1;
 static int      hf_pie_gigamon_sslcertificatesubjectpubalgorithm = -1;
 static int      hf_pie_gigamon_sslcertificatesubjectpubkeysize   = -1;
@@ -10663,7 +10663,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
 
         case ((VENDOR_GIGAMON << 16) | 107):
-            ti = proto_tree_add_item(pdutree, hf_pie_gigamon_sslcetificateserialnumber,
+            ti = proto_tree_add_item(pdutree, hf_pie_gigamon_sslcertificateserialnumber,
                                      tvb, offset, length, ENC_NA);
             break;
 
@@ -17252,7 +17252,7 @@ proto_register_netflow(void)
         {&hf_pie_ixia_l7_application_id,
          {"L7 Application ID", "cflow.pie.ixia.l7-application-id",
           FT_UINT32, BASE_DEC, NULL, 0x0,
-          "Application Identication number. Dynamically detected, so unique to each exporter", HFILL}
+          "Application Identification number. Dynamically detected, so unique to each exporter", HFILL}
         },
         /* ixia, 3054 / 111 */
         {&hf_pie_ixia_l7_application_name,
@@ -18350,8 +18350,8 @@ proto_register_netflow(void)
           NULL, HFILL}
         },
         /* gigamon, 26866 / 107 */
-        {&hf_pie_gigamon_sslcetificateserialnumber,
-         {"SslCetificateSerialNumber", "cflow.pie.gigamon.sslcetificateserialnumber",
+        {&hf_pie_gigamon_sslcertificateserialnumber,
+         {"SslCertificateSerialNumber", "cflow.pie.gigamon.sslcertificateserialnumber",
           FT_BYTES, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },

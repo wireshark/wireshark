@@ -2142,7 +2142,7 @@ static const value_string rsl_cause_value_vals[] = {
     {  0x24,    "ACCH overload" },
     {  0x25,    "processor overload" },
     /* 0x26: "reserved for international use" */
-    {  0x27,    "BTS not equiped" },
+    {  0x27,    "BTS not equipped" },
     {  0x28,    "remote transcoder issue" },
     /* 0x29..0x2b: "reserved for international use" */
     /* 0x2c..0x2e: "reserved for national use" */

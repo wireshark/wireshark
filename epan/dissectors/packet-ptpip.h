@@ -113,7 +113,7 @@ typedef enum {
     PTP_OC_CANON_TerminateDirectTransfer             = 0x9023,
     PTP_OC_CANON_SendObjectInfoByPath                = 0x9024,
     PTP_OC_CANON_SendObjectByPath                    = 0x9025,
-    PTP_OC_CANON_InitiateDirectTansferEx             = 0x9026,
+    PTP_OC_CANON_InitiateDirectTransferEx            = 0x9026,
     PTP_OC_CANON_GetAncillaryObjectHandles           = 0x9027,
     PTP_OC_CANON_GetTreeInfo                         = 0x9028,
     PTP_OC_CANON_GetTreeSize                         = 0x9029,

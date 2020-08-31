@@ -103,8 +103,8 @@ static int hf_pfcp_f_teid_ipv6 = -1;
 static int hf_pfcp_network_instance = -1;
 static int hf_pfcp_pdn_type = -1;
 static int hf_pfcp_failed_rule_id_type = -1;
-static int hf_pfcp_time_qouta_mechanism_bti_type = -1;
-static int hf_pfcp_time_qouta_mechanism_bti = -1;
+static int hf_pfcp_time_quota_mechanism_bti_type = -1;
+static int hf_pfcp_time_quota_mechanism_bti = -1;
 static int hf_pfcp_multiplier_value_digits = -1;
 static int hf_pfcp_multiplier_exponent = -1;
 static int hf_pfcp_aggregated_urr_id_ie_urr_id = -1;
@@ -4947,29 +4947,29 @@ dissect_pfcp_failed_rule_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 /*
  * 8.2.81    Time Quota Mechanism
  */
-static const value_string pfcp_time_qouta_mechanism_bti_type_vals[] = {
+static const value_string pfcp_time_quota_mechanism_bti_type_vals[] = {
     { 0, "CTP" },
     { 1, "DTP" },
     { 0, NULL }
 };
 
 static void
-dissect_pfcp_time_qouta_mechanism(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+dissect_pfcp_time_quota_mechanism(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
 {
     int offset = 0;
     guint32 bti_type;
 
     /* Octet 5  BIT Type */
-    proto_tree_add_item_ret_uint(tree, hf_pfcp_time_qouta_mechanism_bti_type, tvb, offset, 1, ENC_BIG_ENDIAN, &bti_type);
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_time_quota_mechanism_bti_type, tvb, offset, 1, ENC_BIG_ENDIAN, &bti_type);
     offset++;
 
-    proto_item_append_text(item, "%s", val_to_str_const(bti_type, pfcp_time_qouta_mechanism_bti_type_vals, "Unknown"));
+    proto_item_append_text(item, "%s", val_to_str_const(bti_type, pfcp_time_quota_mechanism_bti_type_vals, "Unknown"));
 
     /* Base Time Interval
     * The Base Time Interval, shall be encoded as an Unsigned32
     * as specified in subclause 7.2.29 of 3GPP TS 32.299
     */
-    proto_tree_add_item(tree, hf_pfcp_time_qouta_mechanism_bti, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_pfcp_time_quota_mechanism_bti, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     if (offset < length) {
@@ -7610,7 +7610,7 @@ static const pfcp_ie_t pfcp_ies[] = {
 /*    112 */    { dissect_pfcp_graceful_release_period },                       /* Graceful Release Period                         Extendable / Subclause 8.2.78 */
 /*    113 */    { dissect_pfcp_pdn_type },                                      /* PDN Type                                        Fixed Length / Subclause 8.2.79 */
 /*    114 */    { dissect_pfcp_failed_rule_id },                                /* Failed Rule ID                                  Extendable / Subclause 8.2.80 */
-/*    115 */    { dissect_pfcp_time_qouta_mechanism },                          /* Time Quota Mechanism                            Extendable / Subclause 8.2.81 */
+/*    115 */    { dissect_pfcp_time_quota_mechanism },                          /* Time Quota Mechanism                            Extendable / Subclause 8.2.81 */
 /*    116 */    { dissect_pfcp_user_plane_ip_resource_infomation },             /* User Plane IP Resource Information              Extendable / Subclause 8.2.82 */
 /*    117 */    { dissect_pfcp_user_plane_inactivity_timer },                   /* User Plane Inactivity Timer                     Extendable / Subclause 8.2.83 */
 /*    118 */    { dissect_pfcp_aggregated_urrs },                               /* Aggregated URRs                                 Extendable / Table 7.5.2.4-2 */
@@ -9163,13 +9163,13 @@ proto_register_pfcp(void)
             FT_UINT8, BASE_DEC, VALS(pfcp_failed_rule_id_type_vals), 0x7,
             NULL, HFILL }
         },
-        { &hf_pfcp_time_qouta_mechanism_bti_type,
-        { "Base Time Interval Type", "pfcp.time_qouta_mechanism_bti_type",
-            FT_UINT8, BASE_DEC, VALS(pfcp_time_qouta_mechanism_bti_type_vals), 0x3,
+        { &hf_pfcp_time_quota_mechanism_bti_type,
+        { "Base Time Interval Type", "pfcp.time_quota_mechanism_bti_type",
+            FT_UINT8, BASE_DEC, VALS(pfcp_time_quota_mechanism_bti_type_vals), 0x3,
             NULL, HFILL }
         },
-        { &hf_pfcp_time_qouta_mechanism_bti,
-        { "Base Time Interval", "pfcp.time_qouta_mechanism_bti",
+        { &hf_pfcp_time_quota_mechanism_bti,
+        { "Base Time Interval", "pfcp.time_quota_mechanism_bti",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
