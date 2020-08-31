@@ -56,6 +56,7 @@ void proto_reg_handoff_nat_pmp(void);
 #define OPT_FILTER              3
 #define OPT_DESCRIPTION         128
 #define OPT_PREFIX64            129
+#define OPT_PORT_SET            130
 
 static int proto_nat_pmp = -1;
 static int proto_pcp = -1;
@@ -123,6 +124,11 @@ static int hf_option_p64_suffix = -1;
 static int hf_option_p64_ipv4_prefix_count = -1;
 static int hf_option_p64_ipv4_prefix_length = -1;
 static int hf_option_p64_ipv4_address = -1;
+static int hf_option_portset_size = -1;
+static int hf_option_portset_first_suggested_port = -1;
+static int hf_option_portset_first_assigned_port = -1;
+static int hf_option_portset_reserved = -1;
+static int hf_option_portset_parity = -1;
 static int hf_option_padding = -1;
 
 static gint ett_pcp = -1;
@@ -196,6 +202,14 @@ static const value_string pcp_option_vals[] = {
   { OPT_FILTER,         "Filter" },
   { OPT_DESCRIPTION,    "Description" },
   { OPT_PREFIX64,       "Prefix64" },
+  { OPT_PORT_SET,       "Port Set" },
+  { 0, NULL }
+};
+
+static const value_string pcp_protocol_vals[] = {
+  {0, "All Protocols"},
+  {6, "TCP"},
+  {17, "UDP"},
   { 0, NULL }
 };
 
@@ -359,6 +373,11 @@ dissect_portcontrol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
     opcode_tree = proto_tree_add_subtree(pcp_tree, tvb, offset, 0, ett_opcode, &opcode_ti, op_str);
   }
 
+  guint32 protocol = 0;
+  guint32 internal_port = 0;
+  guint32 external_port = 0;
+  guint32 port_set_size = 0;
+
   switch(ropcode) {
 
   case ANNOUNCE_REQUEST:
@@ -367,33 +386,33 @@ dissect_portcontrol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
     break;
   case MAP_REQUEST:
   case MAP_RESPONSE:
-    if(version > 1)
     {
-      proto_tree_add_item(opcode_tree, hf_map_nonce, tvb, offset, 12, ENC_NA);
-      offset+=12;
-    }
+      if(version > 1) {
+        proto_tree_add_item(opcode_tree, hf_map_nonce, tvb, offset, 12, ENC_NA);
+        offset+=12;
+      }
 
-    proto_tree_add_item(opcode_tree, hf_map_protocol, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset++;
-    proto_tree_add_item(opcode_tree, hf_map_reserved1, tvb, offset, 3, ENC_BIG_ENDIAN);
-    offset+=3;
-    proto_tree_add_item(opcode_tree, hf_map_internal_port, tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset+=2;
-    if(ropcode == MAP_REQUEST)
-    {
-      proto_tree_add_item(opcode_tree, hf_map_req_sug_external_port, tvb, offset, 2, ENC_BIG_ENDIAN);
-      offset+=2;
-      proto_tree_add_item(opcode_tree, hf_map_req_sug_ext_ip, tvb, offset, 16, ENC_NA);
-      offset+=16;
+      proto_tree_add_item_ret_uint(opcode_tree, hf_map_protocol, tvb, offset, 1, ENC_BIG_ENDIAN, &protocol);
+      offset++;
+      proto_tree_add_item(opcode_tree, hf_map_reserved1, tvb, offset, 3, ENC_BIG_ENDIAN);
+      offset += 3;
+      proto_tree_add_item_ret_uint(opcode_tree, hf_map_internal_port, tvb, offset, 2, ENC_BIG_ENDIAN, &internal_port);
+      offset += 2;
+
+      if (ropcode == MAP_REQUEST) {
+        proto_tree_add_item_ret_uint(opcode_tree, hf_map_req_sug_external_port, tvb, offset, 2, ENC_BIG_ENDIAN, &external_port);
+        offset += 2;
+        proto_tree_add_item(opcode_tree, hf_map_req_sug_ext_ip, tvb, offset, 16, ENC_NA);
+        offset += 16;
+      } else {
+        proto_tree_add_item_ret_uint(opcode_tree, hf_map_rsp_assigned_external_port, tvb, offset, 2, ENC_BIG_ENDIAN, &external_port);
+        offset += 2;
+        proto_tree_add_item(opcode_tree, hf_map_rsp_assigned_ext_ip, tvb, offset, 16, ENC_NA);
+        offset += 16;
+      }
+
+      break;
     }
-    else
-    {
-      proto_tree_add_item(opcode_tree, hf_map_rsp_assigned_external_port, tvb, offset, 2, ENC_BIG_ENDIAN);
-      offset+=2;
-      proto_tree_add_item(opcode_tree, hf_map_rsp_assigned_ext_ip, tvb, offset, 16, ENC_NA);
-      offset+=16;
-    }
-    break;
   case PEER_REQUEST:
   case PEER_RESPONSE:
     if(version > 1)
@@ -556,6 +575,17 @@ dissect_portcontrol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
           }
           break;
 
+        case OPT_PORT_SET:
+          proto_tree_add_item_ret_uint(option_sub_tree, hf_option_portset_size, tvb, offset, 2, ENC_BIG_ENDIAN, &port_set_size);
+          if (!is_response) {
+            proto_tree_add_item_ret_uint(option_sub_tree, hf_option_portset_first_suggested_port, tvb, offset + 2, 2, ENC_BIG_ENDIAN, &external_port);
+          } else {
+            proto_tree_add_item_ret_uint(option_sub_tree, hf_option_portset_first_assigned_port, tvb, offset + 2, 2, ENC_BIG_ENDIAN, &external_port);
+          }
+          proto_tree_add_item(option_sub_tree, hf_option_portset_reserved, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
+          proto_tree_add_item(option_sub_tree, hf_option_portset_parity, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
+          break;
+
         default:
           /* Unknown option */
           expert_add_info_format(pinfo, option_ti, &ei_pcp_option_unknown, "Unknown option: %d", option);
@@ -576,6 +606,31 @@ dissect_portcontrol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
   }
 
   proto_item_set_len(opcode_ti, offset-start_opcode_offset);
+
+  gboolean is_map_opcode = (ropcode == MAP_REQUEST || ropcode == MAP_RESPONSE);
+  if (is_map_opcode && port_set_size != 0) {
+    col_add_fstr(
+      pinfo->cinfo,
+      COL_INFO,
+      "%s: %d-%d -> %d-%d [%s]",
+      op_str,
+      internal_port,
+      internal_port + port_set_size,
+      external_port,
+      external_port + port_set_size,
+      val_to_str(protocol, pcp_protocol_vals, "Unknown Protocol %d")
+    );
+  } else if (is_map_opcode) {
+    col_add_fstr(
+      pinfo->cinfo,
+      COL_INFO,
+      "%s: %d -> %d [%s]",
+      op_str,
+      internal_port,
+      external_port,
+      val_to_str(protocol, pcp_protocol_vals, "Unknown Protocol %d")
+    );
+  }
 
   return (offset-start_offset);
 }
@@ -781,6 +836,21 @@ void proto_register_nat_pmp(void)
     { &hf_option_p64_ipv4_address,
       { "IPv4 Address", "portcontrol.option.p64.ipv4_address", FT_IPv4, BASE_NONE,
         NULL, 0x0, NULL, HFILL } },
+    { &hf_option_portset_size,
+      { "Port Set Size", "portcontrol.option.portset.size", FT_UINT16, BASE_DEC,
+        NULL, 0x0, NULL, HFILL } },
+    { &hf_option_portset_first_suggested_port,
+      { "Suggested First Port", "portcontrol.option.portset.req_sug_first_external_port", FT_UINT16, BASE_DEC,
+        NULL, 0x0, NULL, HFILL } },
+    { &hf_option_portset_first_assigned_port,
+      { "Assigned First Port", "portcontrol.option.portset.rsp_assigned_first_external_port", FT_UINT16, BASE_DEC,
+        NULL, 0x0, NULL, HFILL } },
+    { &hf_option_portset_reserved,
+      { "Reserved", "portcontrol.option.portset.reserved", FT_UINT8, BASE_HEX,
+        NULL, 0xFE, NULL, HFILL } },
+    { &hf_option_portset_parity,
+      { "Parity Requested", "portcontrol.option.portset.parity", FT_BOOLEAN, 8,
+        NULL, 0x01, NULL, HFILL } },
     { &hf_option_padding,
       { "Padding", "portcontrol.option.padding", FT_BYTES, BASE_NONE,
         NULL, 0x0, NULL, HFILL } },
