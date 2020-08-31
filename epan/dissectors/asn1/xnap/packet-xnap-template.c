@@ -10,7 +10,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * Ref:
- * 3GPP TS 38.423 V15.7.0 (2020-03)
+ * 3GPP TS 38.423 V16.2.0 (2020-07)
  */
 
 #include "config.h"
@@ -49,8 +49,22 @@
 static int proto_xnap = -1;
 static int hf_xnap_transportLayerAddressIPv4 = -1;
 static int hf_xnap_transportLayerAddressIPv6 = -1;
-static int hf_xnap_ng_ran_TraceID_TraceID = -1;
-static int hf_xnap_ng_ran_TraceID_TraceRecordingSessionReference = -1;
+static int hf_xnap_NG_RANTraceID_TraceID = -1;
+static int hf_xnap_NG_RANTraceID_TraceRecordingSessionReference = -1;
+static int hf_xnap_ExtendedRATRestrictionInformation_e_UTRA = -1;
+static int hf_xnap_ExtendedRATRestrictionInformation_nR = -1;
+static int hf_xnap_ExtendedRATRestrictionInformation_nR_unlicensed = -1;
+static int hf_xnap_ExtendedRATRestrictionInformation_reserved = -1;
+static int hf_xnap_MDT_Location_Info_GNSS = -1;
+static int hf_xnap_MDT_Location_Info_reserved = -1;
+static int hf_xnap_MeasurementsToActivate_M1 = -1;
+static int hf_xnap_MeasurementsToActivate_M2 = -1;
+static int hf_xnap_MeasurementsToActivate_M3 = -1;
+static int hf_xnap_MeasurementsToActivate_M4 = -1;
+static int hf_xnap_MeasurementsToActivate_M5 = -1;
+static int hf_xnap_MeasurementsToActivate_LoggingM1FromEventTriggered = -1;
+static int hf_xnap_MeasurementsToActivate_M6 = -1;
+static int hf_xnap_MeasurementsToActivate_M7 = -1;
 #include "packet-xnap-hf.c"
 
 /* Initialize the subtree pointers */
@@ -60,7 +74,7 @@ static gint ett_nxap_container = -1;
 static gint ett_xnap_PLMN_Identity = -1;
 static gint ett_xnap_measurementTimingConfiguration = -1;
 static gint ett_xnap_TransportLayerAddress = -1;
-static gint ett_xnap_ng_ran_TraceID = -1;
+static gint ett_xnap_NG_RANTraceID = -1;
 static gint ett_xnap_LastVisitedEUTRANCellInformation = -1;
 static gint ett_xnap_LastVisitedNGRANCellInformation = -1;
 static gint ett_xnap_LastVisitedUTRANCellInformation = -1;
@@ -68,6 +82,18 @@ static gint ett_xnap_LastVisitedGERANCellInformation = -1;
 static gint ett_xnap_UERadioCapabilityForPagingOfNR = -1;
 static gint ett_xnap_UERadioCapabilityForPagingOfEUTRA = -1;
 static gint ett_xnap_FiveGCMobilityRestrictionListContainer = -1;
+static gint ett_xnap_primaryRATRestriction = -1;
+static gint ett_xnap_secondaryRATRestriction = -1;
+static gint ett_xnap_ImmediateMDT_EUTRA = -1;
+static gint ett_xnap_MDT_Location_Info = -1;
+static gint ett_xnap_MeasurementsToActivate = -1;
+static gint ett_xnap_NRMobilityHistoryReport = -1;
+static gint ett_xnap_RACHReportContainer = -1;
+static gint ett_xnap_TargetCellinEUTRAN = -1;
+static gint ett_xnap_TDDULDLConfigurationCommonNR = -1;
+static gint ett_xnap_UERLFReportContainerLTE = -1;
+static gint ett_xnap_UERLFReportContainerNR = -1;
+static gint ett_xnap_burstArrivalTime = -1;
 #include "packet-xnap-ett.c"
 
 enum {
@@ -83,9 +109,21 @@ static const enum_val_t xnap_target_ng_ran_container_vals[] = {
   {NULL, NULL, -1}
 };
 
+enum {
+  XNAP_LTE_RRC_CONTEXT_LTE,
+  XNAP_LTE_RRC_CONTEXT_NBIOT
+};
+
+static const enum_val_t xnap_lte_rrc_context_vals[] = {
+  {"lte", "LTE", XNAP_LTE_RRC_CONTEXT_LTE},
+  {"nb-iot","NB-IoT", XNAP_LTE_RRC_CONTEXT_NBIOT},
+  {NULL, NULL, -1}
+};
+
 /* Global variables */
 static guint xnap_sctp_port = SCTP_PORT_XnAP;
 static gint xnap_dissect_target_ng_ran_container_as = XNAP_NG_RAN_CONTAINER_AUTOMATIC;
+static gint xnap_dissect_lte_rrc_context_as = XNAP_LTE_RRC_CONTEXT_LTE;
 
 /* Dissector tables */
 static dissector_table_t xnap_ies_dissector_table;
@@ -116,6 +154,41 @@ xnap_PacketDelayBudget_fmt(gchar *s, guint32 v)
 {
   g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fms (%u)", (float)v/2, v);
 }
+
+static void
+xnap_ExtendedPacketDelayBudget_fmt(gchar *s, guint32 v)
+{
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%.2fms (%u)", (float)v/100, v);
+}
+
+static void
+xnap_handoverTriggerChange_fmt(gchar *s, guint32 v)
+{
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB (%d)", ((float)v)/2, (gint32)v);
+}
+
+static void
+xnap_Threshold_RSRP_fmt(gchar *s, guint32 v)
+{
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%ddBm (%u)", (gint32)v-156, v);
+}
+
+static void
+xnap_Threshold_RSRQ_fmt(gchar *s, guint32 v)
+{
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB (%u)", ((float)v/2)-43, v);
+}
+
+static void
+xnap_Threshold_SINR_fmt(gchar *s, guint32 v)
+{
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB (%u)", ((float)v/2)-23, v);
+}
+
+static const true_false_string xnap_tfs_activate_do_not_activate = {
+  "Activate",
+  "Do not activate"
+};
 
 typedef enum {
   INITIATING_MESSAGE,
@@ -248,13 +321,69 @@ void proto_register_xnap(void) {
       { "TransportLayerAddress (IPv6)", "xnap.TransportLayerAddressIPv6",
         FT_IPv6, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_xnap_ng_ran_TraceID_TraceID,
-      { "TraceID", "xnap.ng_ran_TraceID.TraceID",
+    { &hf_xnap_NG_RANTraceID_TraceID,
+      { "TraceID", "xnap.NG_RANTraceID.TraceID",
         FT_UINT24, BASE_HEX, NULL, 0,
         NULL, HFILL }},
-    { &hf_xnap_ng_ran_TraceID_TraceRecordingSessionReference,
-      { "TraceRecordingSessionReference", "xnap.ng_ran_TraceID.TraceRecordingSessionReference",
+    { &hf_xnap_NG_RANTraceID_TraceRecordingSessionReference,
+      { "TraceRecordingSessionReference", "xnap.NG_RANTraceID.TraceRecordingSessionReference",
         FT_UINT16, BASE_HEX, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_ExtendedRATRestrictionInformation_e_UTRA,
+      { "e-UTRA", "xnap.ExtendedRATRestrictionInformation.e_UTRA",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x80,
+        NULL, HFILL }},
+    { &hf_xnap_ExtendedRATRestrictionInformation_nR,
+      { "nR", "xnap.ExtendedRATRestrictionInformation.nR",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x40,
+        NULL, HFILL }},
+    { &hf_xnap_ExtendedRATRestrictionInformation_nR_unlicensed,
+      { "nR-unlicensed", "xnap.ExtendedRATRestrictionInformation.nR_unlicensed",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x20,
+        NULL, HFILL }},
+    { &hf_xnap_ExtendedRATRestrictionInformation_reserved,
+      { "reserved", "xnap.ExtendedRATRestrictionInformation.reserved",
+        FT_UINT8, BASE_HEX, NULL, 0x1f,
+        NULL, HFILL }},
+    { &hf_xnap_MDT_Location_Info_GNSS,
+      { "GNSS", "xnap.MDT_Location_Info.GNSS",
+        FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x80,
+        NULL, HFILL }},
+    { &hf_xnap_MDT_Location_Info_reserved,
+      { "Reserved", "xnap.MDT_Location_Info.reserved",
+        FT_UINT8, BASE_HEX, NULL, 0x7f,
+        NULL, HFILL }},
+    { &hf_xnap_MeasurementsToActivate_M1,
+      { "M1", "xnap.MeasurementsToActivate.M1",
+        FT_BOOLEAN, 8, TFS(&xnap_tfs_activate_do_not_activate), 0x80,
+        NULL, HFILL }},
+    { &hf_xnap_MeasurementsToActivate_M2,
+      { "M2", "xnap.MeasurementsToActivate.M2",
+        FT_BOOLEAN, 8, TFS(&xnap_tfs_activate_do_not_activate), 0x40,
+        NULL, HFILL }},
+    { &hf_xnap_MeasurementsToActivate_M3,
+      { "M3", "xnap.MeasurementsToActivate.M3",
+        FT_BOOLEAN, 8, TFS(&xnap_tfs_activate_do_not_activate), 0x20,
+        NULL, HFILL }},
+    { &hf_xnap_MeasurementsToActivate_M4,
+      { "M4", "xnap.MeasurementsToActivate.M4",
+        FT_BOOLEAN, 8, TFS(&xnap_tfs_activate_do_not_activate), 0x10,
+        NULL, HFILL }},
+    { &hf_xnap_MeasurementsToActivate_M5,
+      { "M5", "xnap.MeasurementsToActivate.M5",
+        FT_BOOLEAN, 8, TFS(&xnap_tfs_activate_do_not_activate), 0x08,
+        NULL, HFILL }},
+    { &hf_xnap_MeasurementsToActivate_LoggingM1FromEventTriggered,
+      { "LoggingOfM1FromEventTriggeredMeasurementReports", "xnap.MeasurementsToActivate.LoggingM1FromEventTriggered",
+        FT_BOOLEAN, 8, TFS(&xnap_tfs_activate_do_not_activate), 0x04,
+        NULL, HFILL }},
+    { &hf_xnap_MeasurementsToActivate_M6,
+      { "M6", "xnap.MeasurementsToActivate.M6",
+        FT_BOOLEAN, 8, TFS(&xnap_tfs_activate_do_not_activate), 0x02,
+        NULL, HFILL }},
+    { &hf_xnap_MeasurementsToActivate_M7,
+      { "M7", "xnap.MeasurementsToActivate.M7",
+        FT_BOOLEAN, 8, TFS(&xnap_tfs_activate_do_not_activate), 0x01,
         NULL, HFILL }},
 #include "packet-xnap-hfarr.c"
   };
@@ -267,7 +396,7 @@ void proto_register_xnap(void) {
     &ett_xnap_PLMN_Identity,
     &ett_xnap_measurementTimingConfiguration,
     &ett_xnap_TransportLayerAddress,
-    &ett_xnap_ng_ran_TraceID,
+    &ett_xnap_NG_RANTraceID,
     &ett_xnap_LastVisitedEUTRANCellInformation,
     &ett_xnap_LastVisitedNGRANCellInformation,
     &ett_xnap_LastVisitedUTRANCellInformation,
@@ -275,6 +404,18 @@ void proto_register_xnap(void) {
     &ett_xnap_UERadioCapabilityForPagingOfNR,
     &ett_xnap_UERadioCapabilityForPagingOfEUTRA,
     &ett_xnap_FiveGCMobilityRestrictionListContainer,
+    &ett_xnap_primaryRATRestriction,
+    &ett_xnap_secondaryRATRestriction,
+    &ett_xnap_ImmediateMDT_EUTRA,
+    &ett_xnap_MDT_Location_Info,
+    &ett_xnap_MeasurementsToActivate,
+    &ett_xnap_NRMobilityHistoryReport,
+    &ett_xnap_RACHReportContainer,
+    &ett_xnap_TargetCellinEUTRAN,
+    &ett_xnap_TDDULDLConfigurationCommonNR,
+    &ett_xnap_UERLFReportContainerLTE,
+    &ett_xnap_UERLFReportContainerNR,
+    &ett_xnap_burstArrivalTime,
 #include "packet-xnap-ettarr.c"
   };
 
@@ -303,6 +444,9 @@ void proto_register_xnap(void) {
                                  "Select whether target NG-RAN container should be decoded automatically"
                                  " (based on Xn Setup procedure) or manually",
                                  &xnap_dissect_target_ng_ran_container_as, xnap_target_ng_ran_container_vals, FALSE);
+  prefs_register_enum_preference(xnap_module, "dissect_lte_rrc_context_as", "Dissect LTE RRC Context as",
+                                 "Select whether LTE RRC Context should be dissected as legacy LTE or NB-IOT",
+                                 &xnap_dissect_lte_rrc_context_as, xnap_lte_rrc_context_vals, FALSE);
 }
 
 

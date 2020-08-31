@@ -26,6 +26,7 @@ EUTRAN-CGI_PDU
 Global-ENB-ID_PDU
 Global-ENB-ID
 HandoverRestrictionList_PDU
+ImmediateMDT_PDU
 LastVisitedEUTRANCellInformation_PDU
 LastVisitedGERANCellInformation_PDU
 MDTMode_PDU
@@ -44,6 +45,7 @@ EN-DCSONConfigurationTransfer
 ENB-StatusTransfer-TransparentContainer
 EUTRAN-CGI
 HandoverRestrictionList
+ImmediateMDT
 LastVisitedEUTRANCellInformation
 LastVisitedGERANCellInformation
 MDTMode

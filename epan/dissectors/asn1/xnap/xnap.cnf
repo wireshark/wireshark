@@ -41,12 +41,15 @@ PrivateIE-Field/value privateIE_Field_value
 
 #.OMIT_ASSIGNMENT
 DataForwardingAccepted
+InterfacesToTrace
 Presence
 ProtocolIE-FieldPair
 ProtocolIE-ContainerList
 ProtocolIE-ContainerPair
 ProtocolIE-ContainerPairList
+NRFrequencyInfoforMDT
 ReferenceID
+ServingSNPNID
 #.END
 
 #.FN_BODY ProtocolIE-ID VAL_PTR = &xnap_data->protocol_ie_id
@@ -116,7 +119,11 @@ ProtocolExtensionID TYPE = FT_UINT8 DISPLAY = BASE_DEC|BASE_EXT_STRING STRINGS =
     } else if ((xnap_dissect_target_ng_ran_container_as == XNAP_NG_RAN_CONTAINER_AUTOMATIC &&
                 target_ranmode_id == GlobalNG_RANNode_ID_ng_eNB) ||
                (xnap_dissect_target_ng_ran_container_as == XNAP_NG_RAN_CONTAINER_NG_ENB)) {
-      dissect_lte_rrc_HandoverPreparationInformation_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+      if (xnap_dissect_lte_rrc_context_as == XNAP_LTE_RRC_CONTEXT_NBIOT) {
+        dissect_lte_rrc_HandoverPreparationInformation_NB_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+      } else {
+        dissect_lte_rrc_HandoverPreparationInformation_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+      }
     }
   }
 
@@ -350,16 +357,16 @@ MaximumDataBurstVolume DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_byte_byt
      proto_tree_add_item(subtree, hf_xnap_transportLayerAddressIPv6, parameter_tvb, 4, 16, ENC_NA);
   }
 
-#.FN_BODY TraceActivation/ng-ran-TraceID VAL_PTR = &parameter_tvb
+#.FN_BODY NG-RANTraceID VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb;
   proto_tree *subtree = NULL;
 %(DEFAULT_BODY)s
   if (!parameter_tvb)
     return offset;
-  subtree = proto_item_add_subtree(actx->created_item, ett_xnap_ng_ran_TraceID);
+  subtree = proto_item_add_subtree(actx->created_item, ett_xnap_NG_RANTraceID);
   dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, E212_NONE, FALSE);
-  proto_tree_add_item(subtree, hf_xnap_ng_ran_TraceID_TraceID, parameter_tvb, 3, 3, ENC_BIG_ENDIAN);
-  proto_tree_add_item(subtree, hf_xnap_ng_ran_TraceID_TraceRecordingSessionReference, parameter_tvb, 6, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(subtree, hf_xnap_NG_RANTraceID_TraceID, parameter_tvb, 3, 3, ENC_BIG_ENDIAN);
+  proto_tree_add_item(subtree, hf_xnap_NG_RANTraceID_TraceRecordingSessionReference, parameter_tvb, 6, 2, ENC_BIG_ENDIAN);
 
 #.FN_BODY LastVisitedNGRANCellInformation VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb = NULL;
@@ -455,6 +462,175 @@ VolumeTimedReport-Item/usageCountDL DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&u
   if (parameter_tvb) {
     proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_FiveGCMobilityRestrictionListContainer);
     dissect_ngap_MobilityRestrictionList_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.TYPE_ATTR
+BluetoothName TYPE=FT_STRING DISPLAY = STR_UNICODE
+#.FN_BODY BluetoothName VAL_PTR = &parameter_tvb HF_INDEX = -1
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, -1, ENC_UTF_8|ENC_NA);
+
+#.FN_BODY ExtendedRATRestrictionInformation/primaryRATRestriction VAL_PTR=&parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    static int * const fields[] = {
+      &hf_xnap_ExtendedRATRestrictionInformation_e_UTRA,
+      &hf_xnap_ExtendedRATRestrictionInformation_nR,
+      &hf_xnap_ExtendedRATRestrictionInformation_nR_unlicensed,
+      &hf_xnap_ExtendedRATRestrictionInformation_reserved,
+      NULL
+    };
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_primaryRATRestriction);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 1, fields, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY ExtendedRATRestrictionInformation/secondaryRATRestriction VAL_PTR=&parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    static int * const fields[] = {
+      &hf_xnap_ExtendedRATRestrictionInformation_e_UTRA,
+      &hf_xnap_ExtendedRATRestrictionInformation_nR,
+      &hf_xnap_ExtendedRATRestrictionInformation_nR_unlicensed,
+      &hf_xnap_ExtendedRATRestrictionInformation_reserved,
+      NULL
+    };
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_secondaryRATRestriction);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 1, fields, ENC_BIG_ENDIAN);
+  }
+
+#.TYPE_ATTR
+ExtendedPacketDelayBudget DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(xnap_ExtendedPacketDelayBudget_fmt)
+
+#.FN_BODY ImmediateMDT-EUTRA VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+  proto_tree *subtree;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_xnap_ImmediateMDT_EUTRA);
+    dissect_s1ap_ImmediateMDT_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.TYPE_ATTR
+M7period DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_minutes
+
+#.FN_BODY MDT-Location-Info VAL_PTR=&parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    static int * const fields[] = {
+      &hf_xnap_MDT_Location_Info_GNSS,
+      &hf_xnap_MDT_Location_Info_reserved,
+      NULL
+    };
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_MDT_Location_Info);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 1, fields, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY MeasurementsToActivate VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if(parameter_tvb){
+    static int * const fields[] = {
+      &hf_xnap_MeasurementsToActivate_M1,
+      &hf_xnap_MeasurementsToActivate_M2,
+      &hf_xnap_MeasurementsToActivate_M3,
+      &hf_xnap_MeasurementsToActivate_M4,
+      &hf_xnap_MeasurementsToActivate_M5,
+      &hf_xnap_MeasurementsToActivate_LoggingM1FromEventTriggered,
+      &hf_xnap_MeasurementsToActivate_M6,
+      &hf_xnap_MeasurementsToActivate_M7,
+      NULL
+    };
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_MeasurementsToActivate);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 1, fields, ENC_BIG_ENDIAN);
+  }
+
+#.TYPE_ATTR
+MobilityParametersModificationRange/handoverTriggerChangeLowerLimit DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(xnap_handoverTriggerChange_fmt)
+
+#.TYPE_ATTR
+MobilityParametersModificationRange/handoverTriggerChangeUpperLimit DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(xnap_handoverTriggerChange_fmt)
+
+#.TYPE_ATTR
+MobilityParametersModificationRange/handoverTriggerChange DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(xnap_handoverTriggerChange_fmt)
+
+#.FN_BODY NRMobilityHistoryReport VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_NRMobilityHistoryReport);
+    dissect_nr_rrc_VisitedCellInfoList_r16_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.TYPE_ATTR
+OfferedCapacity DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_kbps
+
+#.FN_BODY RACHReportContainer VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_RACHReportContainer);
+    dissect_nr_rrc_RA_ReportList_r16_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY TargetCellinEUTRAN VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_TargetCellinEUTRAN);
+    dissect_s1ap_EUTRAN_CGI_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY TDDULDLConfigurationCommonNR VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+  proto_tree *subtree;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_xnap_TDDULDLConfigurationCommonNR);
+    dissect_nr_rrc_TDD_UL_DL_ConfigCommon_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.TYPE_ATTR
+Threshold-RSRP DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(xnap_Threshold_RSRP_fmt)
+
+#.TYPE_ATTR
+Threshold-RSRQ DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(xnap_Threshold_RSRQ_fmt)
+
+#.TYPE_ATTR
+Threshold-SINR DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(xnap_Threshold_SINR_fmt)
+
+#.FN_BODY UERLFReportContainerLTE VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_UERLFReportContainerLTE);
+    dissect_lte_rrc_RLF_Report_r9_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY UERLFReportContainerNR VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_UERLFReportContainerNR);
+    dissect_nr_rrc_nr_RLF_Report_r16_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.TYPE_ATTR
+WLANName TYPE=FT_STRING DISPLAY = STR_UNICODE
+#.FN_BODY WLANName VAL_PTR = &parameter_tvb HF_INDEX = -1
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, -1, ENC_UTF_8|ENC_NA);
+
+#.FN_BODY TSCAssistanceInformation/burstArrivalTime VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_burstArrivalTime);
+    dissect_nr_rrc_ReferenceTime_r16_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
   }
 
 #.END
@@ -563,6 +739,36 @@ VolumeTimedReport-Item/usageCountDL DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&u
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PrivateMessage");
 #.FN_HDR SecondaryRATDataUsageReport
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SecondaryRATDataUsageReport");
+#.FN_HDR DeactivateTrace
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "DeactivateTrace");
+#.FN_HDR TraceStart
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "TraceStart");
+#.FN_HDR HandoverSuccess
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "HandoverSuccess");
+#.FN_HDR ConditionalHandoverCancel
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ConditionalHandoverCancel");
+#.FN_HDR EarlyStatusTransfer
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "EarlyStatusTransfer");
+#.FN_HDR FailureIndication
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "FailureIndication");
+#.FN_HDR HandoverReport
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "HandoverReport");
+#.FN_HDR ResourceStatusRequest
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ResourceStatusRequest");
+#.FN_HDR ResourceStatusResponse
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ResourceStatusResponse");
+#.FN_HDR ResourceStatusFailure
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ResourceStatusFailure");
+#.FN_HDR ResourceStatusUpdate
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ResourceStatusUpdate");
+#.FN_HDR MobilityChangeRequest
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MobilityChangeRequest");
+#.FN_HDR MobilityChangeAcknowledge
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MobilityChangeAcknowledge");
+#.FN_HDR MobilityChangeFailure
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MobilityChangeFailure");
+#.FN_HDR AccessAndMobilityIndication
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "AccessAndMobilityIndication");
 
 #.ASSIGN_VALUE_TO_TYPE  # XnAP does not have constants assigned to types, they are pure INTEGER
 # ProcedureCode
@@ -593,6 +799,17 @@ id-notificationControl                                  ProcedureCode
 id-activityNotification                                 ProcedureCode
 id-e-UTRA-NR-CellResourceCoordination                   ProcedureCode
 id-secondaryRATDataUsageReport                          ProcedureCode
+id-deactivateTrace                                      ProcedureCode
+id-traceStart                                           ProcedureCode
+id-handoverSuccess                                      ProcedureCode
+id-conditionalHandoverCancel                            ProcedureCode
+id-earlyStatusTransfer                                  ProcedureCode
+id-failureIndication                                    ProcedureCode
+id-handoverReport                                       ProcedureCode
+id-resourceStatusReportingInitiation                    ProcedureCode
+id-resourceStatusReporting                              ProcedureCode
+id-mobilitySettingsChange                               ProcedureCode
+id-accessAndMobilityIndication                          ProcedureCode
 
 # ProtocolIE-ID
 id-ActivatedServedCells                       ProtocolIE-ID
@@ -734,7 +951,100 @@ id-CNTypeRestrictionsForServing               ProtocolIE-ID
 id-DRBs-transferred-to-MN                     ProtocolIE-ID
 id-ULForwardingProposal                       ProtocolIE-ID
 id-EndpointIPAddressAndPort                   ProtocolIE-ID
+id-IntendedTDD-DL-ULConfiguration-NR          ProtocolIE-ID
+id-TNLConfigurationInfo                       ProtocolIE-ID
+id-PartialListIndicator-NR                    ProtocolIE-ID
+id-MessageOversizeNotification                ProtocolIE-ID
+id-CellAndCapacityAssistanceInfo-NR           ProtocolIE-ID
+id-NG-RANTraceID                              ProtocolIE-ID
+id-NonGBRResources-Offered                    ProtocolIE-ID
+id-FastMCGRecoveryRRCTransfer-SN-to-MN        ProtocolIE-ID
+id-RequestedFastMCGRecoveryViaSRB3            ProtocolIE-ID
+id-AvailableFastMCGRecoveryViaSRB3            ProtocolIE-ID
+id-RequestedFastMCGRecoveryViaSRB3Release     ProtocolIE-ID
+id-ReleaseFastMCGRecoveryViaSRB3              ProtocolIE-ID
+id-FastMCGRecoveryRRCTransfer-MN-to-SN        ProtocolIE-ID
+id-ExtendedRATRestrictionInformation          ProtocolIE-ID
+id-QoSMonitoringRequest                       ProtocolIE-ID
 id-FiveGCMobilityRestrictionListContainer     ProtocolIE-ID
+id-PartialListIndicator-EUTRA                 ProtocolIE-ID
+id-CellAndCapacityAssistanceInfo-EUTRA        ProtocolIE-ID
+id-CHOinformation-Req                         ProtocolIE-ID
+id-CHOinformation-Ack                         ProtocolIE-ID
+id-targetCellsToCancel                        ProtocolIE-ID
+id-requestedTargetCellGlobalID                ProtocolIE-ID
+id-procedureStage                             ProtocolIE-ID
+id-DAPSRequestInfo                            ProtocolIE-ID
+id-DAPSResponseInfo-List                      ProtocolIE-ID
+id-CHO-MRDC-Indicator                         ProtocolIE-ID
+id-OffsetOfNbiotChannelNumberToDL-EARFCN      ProtocolIE-ID
+id-OffsetOfNbiotChannelNumberToUL-EARFCN      ProtocolIE-ID
+id-NBIoT-UL-DL-AlignmentOffset                ProtocolIE-ID
+id-LTEV2XServicesAuthorized                   ProtocolIE-ID
+id-NRV2XServicesAuthorized                    ProtocolIE-ID
+id-LTEUESidelinkAggregateMaximumBitRate       ProtocolIE-ID
+id-NRUESidelinkAggregateMaximumBitRate        ProtocolIE-ID
+id-PC5QoSParameters                           ProtocolIE-ID
+id-AlternativeQoSParaSetList                  ProtocolIE-ID
+id-CurrentQoSParaSetIndex                     ProtocolIE-ID
+id-MobilityInformation                        ProtocolIE-ID
+id-InitiatingCondition-FailureIndication      ProtocolIE-ID
+id-UEHistoryInformationFromTheUE              ProtocolIE-ID
+id-HandoverReportType                         ProtocolIE-ID
+id-HandoverCause                              ProtocolIE-ID
+id-SourceCellCGI                              ProtocolIE-ID
+id-TargetCellCGI                              ProtocolIE-ID
+id-ReEstablishmentCellCGI                     ProtocolIE-ID
+id-TargetCellinEUTRAN                         ProtocolIE-ID
+id-SourceCellCRNTI                            ProtocolIE-ID
+id-UERLFReportContainer                       ProtocolIE-ID
+id-NGRAN-Node1-Measurement-ID                 ProtocolIE-ID
+id-NGRAN-Node2-Measurement-ID                 ProtocolIE-ID
+id-RegistrationRequest                        ProtocolIE-ID
+id-ReportCharacteristics                      ProtocolIE-ID
+id-CellToReport                               ProtocolIE-ID
+id-ReportingPeriodicity                       ProtocolIE-ID
+id-CellMeasurementResult                      ProtocolIE-ID
+id-NG-RANnode1CellID                          ProtocolIE-ID
+id-NG-RANnode2CellID                          ProtocolIE-ID
+id-NG-RANnode1MobilityParameters              ProtocolIE-ID
+id-NG-RANnode2ProposedMobilityParameters      ProtocolIE-ID
+id-MobilityParametersModificationRange        ProtocolIE-ID
+id-TDDULDLConfigurationCommonNR               ProtocolIE-ID
+id-CarrierList                                ProtocolIE-ID
+id-ULCarrierList                              ProtocolIE-ID
+id-FrequencyShift7p5khz                       ProtocolIE-ID
+id-SSB-PositionsInBurst                       ProtocolIE-ID
+id-NRCellPRACHConfig                          ProtocolIE-ID
+id-RACHReportInformation                      ProtocolIE-ID
+id-IABNodeIndication                          ProtocolIE-ID
+id-Redundant-UL-NG-U-TNLatUPF                 ProtocolIE-ID
+id-CNPacketDelayBudgetDownlink                ProtocolIE-ID
+id-CNPacketDelayBudgetUplink                  ProtocolIE-ID
+id-Additional-Redundant-UL-NG-U-TNLatUPF-List ProtocolIE-ID
+id-RedundantCommonNetworkInstance             ProtocolIE-ID
+id-TSCTrafficCharacteristics                  ProtocolIE-ID
+id-RedundantQoSFlowIndicator                  ProtocolIE-ID
+id-Redundant-DL-NG-U-TNLatNG-RAN              ProtocolIE-ID
+id-ExtendedPacketDelayBudget                  ProtocolIE-ID
+id-Additional-PDCP-Duplication-TNL-List       ProtocolIE-ID
+id-RedundantPDUSessionInformation             ProtocolIE-ID
+id-UsedRSNInformation                         ProtocolIE-ID
+id-RLCDuplicationInformation                  ProtocolIE-ID
+id-NPN-Broadcast-Information                  ProtocolIE-ID
+id-NPNPagingAssistanceInformation             ProtocolIE-ID
+id-NPNMobilityInformation                     ProtocolIE-ID
+id-NPN-Support                                ProtocolIE-ID
+id-MDT-Configuration                          ProtocolIE-ID
+id-MDTPLMNList                                ProtocolIE-ID
+id-TraceCollectionEntityURI                   ProtocolIE-ID
+id-UERadioCapabilityID                        ProtocolIE-ID
+id-CSI-RSTransmissionIndication               ProtocolIE-ID
+id-SNTriggered                                ProtocolIE-ID
+id-DLCarrierList                              ProtocolIE-ID
+id-ExtendedTAISliceSupportList                ProtocolIE-ID
+id-cellAssistanceInfo-EUTRA                   ProtocolIE-ID
+
 #.REGISTER
 
 #XNAP-PROTOCOL-IES
@@ -859,6 +1169,58 @@ InterfaceInstanceIndication                       N xnap.ies id-InterfaceInstanc
 S-NG-RANnode-Addition-Trigger-Ind                 N xnap.ies id-S-NG-RANnode-Addition-Trigger-Ind
 DRB-List                                          N xnap.ies id-DRBs-transferred-to-MN
 EndpointIPAddressAndPort                          N xnap.ies id-EndpointIPAddressAndPort
+TNLConfigurationInfo                              N xnap.ies id-TNLConfigurationInfo
+PartialListIndicator                              N xnap.ies id-PartialListIndicator-NR
+MessageOversizeNotification                       N xnap.ies id-MessageOversizeNotification
+CellAndCapacityAssistanceInfo-NR                  N xnap.ies id-CellAndCapacityAssistanceInfo-NR
+NG-RANTraceID                                     N xnap.ies id-NG-RANTraceID
+FastMCGRecoveryRRCTransfer                        N xnap.ies id-FastMCGRecoveryRRCTransfer-SN-to-MN
+RequestedFastMCGRecoveryViaSRB3                   N xnap.ies id-RequestedFastMCGRecoveryViaSRB3
+AvailableFastMCGRecoveryViaSRB3                   N xnap.ies id-AvailableFastMCGRecoveryViaSRB3
+RequestedFastMCGRecoveryViaSRB3Release            N xnap.ies id-RequestedFastMCGRecoveryViaSRB3Release
+ReleaseFastMCGRecoveryViaSRB3                     N xnap.ies id-ReleaseFastMCGRecoveryViaSRB3
+FastMCGRecoveryRRCTransfer                        N xnap.ies id-FastMCGRecoveryRRCTransfer-MN-to-SN
+PartialListIndicator                              N xnap.ies id-PartialListIndicator-EUTRA
+CellAndCapacityAssistanceInfo-EUTRA               N xnap.ies id-CellAndCapacityAssistanceInfo-EUTRA
+CHOinformation-Req                                N xnap.ies id-CHOinformation-Req
+CHOinformation-Ack                                N xnap.ies id-CHOinformation-Ack
+TargetCellList                                    N xnap.ies id-targetCellsToCancel
+Target-CGI                                        N xnap.ies id-requestedTargetCellGlobalID
+ProcedureStageChoice                              N xnap.ies id-procedureStage
+DAPSResponseInfo-List                             N xnap.ies id-DAPSResponseInfo-List
+CHO-MRDC-Indicator                                N xnap.ies id-CHO-MRDC-Indicator
+LTEV2XServicesAuthorized                          N xnap.ies id-LTEV2XServicesAuthorized
+NRV2XServicesAuthorized                           N xnap.ies id-NRV2XServicesAuthorized
+PC5QoSParameters                                  N xnap.ies id-PC5QoSParameters
+MobilityInformation                               N xnap.ies id-MobilityInformation
+InitiatingCondition-FailureIndication             N xnap.ies id-InitiatingCondition-FailureIndication
+UEHistoryInformationFromTheUE                     N xnap.ies id-UEHistoryInformationFromTheUE
+HandoverReportType                                N xnap.ies id-HandoverReportType
+Cause                                             N xnap.ies id-HandoverCause
+GlobalNG-RANCell-ID                               N xnap.ies id-SourceCellCGI
+GlobalNG-RANCell-ID                               N xnap.ies id-TargetCellCGI
+GlobalNG-RANCell-ID                               N xnap.ies id-ReEstablishmentCellCGI
+TargetCellinEUTRAN                                N xnap.ies id-TargetCellinEUTRAN
+C-RNTI                                            N xnap.ies id-SourceCellCRNTI
+UERLFReportContainer                              N xnap.ies id-UERLFReportContainer
+Measurement-ID                                    N xnap.ies id-NGRAN-Node1-Measurement-ID
+Measurement-ID                                    N xnap.ies id-NGRAN-Node2-Measurement-ID
+RegistrationRequest                               N xnap.ies id-RegistrationRequest
+ReportCharacteristics                             N xnap.ies id-ReportCharacteristics
+CellToReport                                      N xnap.ies id-CellToReport
+ReportingPeriodicity                              N xnap.ies id-ReportingPeriodicity
+CellMeasurementResult                             N xnap.ies id-CellMeasurementResult
+GlobalNG-RANCell-ID                               N xnap.ies id-NG-RANnode1CellID
+GlobalNG-RANCell-ID                               N xnap.ies id-NG-RANnode2CellID
+MobilityParametersInformation                     N xnap.ies id-NG-RANnode1MobilityParameters
+MobilityParametersInformation                     N xnap.ies id-NG-RANnode2ProposedMobilityParameters
+MobilityParametersModificationRange               N xnap.ies id-MobilityParametersModificationRange
+RACHReportInformation                             N xnap.ies id-RACHReportInformation
+IABNodeIndication                                 N xnap.ies id-IABNodeIndication
+MDTPLMNList                                       N xnap.ies id-MDTPLMNList
+UERadioCapabilityID                               N xnap.ies id-UERadioCapabilityID
+SNTriggered                                       N xnap.ies id-SNTriggered
+CellAssistanceInfo-EUTRA                          N xnap.ies id-cellAssistanceInfo-EUTRA
 
 #XNAP-PROTOCOL-EXTENSION
 Additional-UL-NG-U-TNLatUPF-List                  N xnap.extension id-Additional-UL-NG-U-TNLatUPF-List
@@ -880,6 +1242,49 @@ CNTypeRestrictionsForEquivalent                   N xnap.extension id-CNTypeRest
 CNTypeRestrictionsForServing                      N xnap.extension id-CNTypeRestrictionsForServing
 ULForwardingProposal                              N xnap.extension id-ULForwardingProposal
 FiveGCMobilityRestrictionListContainer            N xnap.extension id-FiveGCMobilityRestrictionListContainer
+IntendedTDD-DL-ULConfiguration-NR                 N xnap.extension id-IntendedTDD-DL-ULConfiguration-NR
+PartialListIndicator                              N xnap.extension id-PartialListIndicator-NR
+CellAndCapacityAssistanceInfo-NR                  N xnap.extension id-CellAndCapacityAssistanceInfo-NR
+NonGBRResources-Offered                           N xnap.extension id-NonGBRResources-Offered
+ExtendedRATRestrictionInformation                 N xnap.extension id-ExtendedRATRestrictionInformation
+QosMonitoringRequest                              N xnap.extension id-QoSMonitoringRequest
+DAPSRequestInfo                                   N xnap.extension id-DAPSRequestInfo
+OffsetOfNbiotChannelNumberToEARFCN                N xnap.extension id-OffsetOfNbiotChannelNumberToDL-EARFCN
+OffsetOfNbiotChannelNumberToEARFCN                N xnap.extension id-OffsetOfNbiotChannelNumberToUL-EARFCN
+NBIoT-UL-DL-AlignmentOffset                       N xnap.extension id-NBIoT-UL-DL-AlignmentOffset
+LTEUESidelinkAggregateMaximumBitRate              N xnap.extension id-LTEUESidelinkAggregateMaximumBitRate
+NRUESidelinkAggregateMaximumBitRate               N xnap.extension id-NRUESidelinkAggregateMaximumBitRate
+AlternativeQoSParaSetList                         N xnap.extension id-AlternativeQoSParaSetList
+QoSParaSetNotifyIndex                             N xnap.extension id-CurrentQoSParaSetIndex
+TDDULDLConfigurationCommonNR                      N xnap.extension id-TDDULDLConfigurationCommonNR
+NRCarrierList                                     N xnap.extension id-CarrierList
+NRCarrierList                                     N xnap.extension id-ULCarrierList
+FrequencyShift7p5khz                              N xnap.extension id-FrequencyShift7p5khz
+SSB-PositionsInBurst                              N xnap.extension id-SSB-PositionsInBurst
+NRCellPRACHConfig                                 N xnap.extension id-NRCellPRACHConfig
+UPTransportLayerInformation                       N xnap.extension id-Redundant-UL-NG-U-TNLatUPF
+ExtendedPacketDelayBudget                         N xnap.extension id-CNPacketDelayBudgetDownlink
+ExtendedPacketDelayBudget                         N xnap.extension id-CNPacketDelayBudgetUplink
+Additional-UL-NG-U-TNLatUPF-List                  N xnap.extension id-Additional-Redundant-UL-NG-U-TNLatUPF-List
+PDUSessionCommonNetworkInstance                   N xnap.extension id-RedundantCommonNetworkInstance
+TSCTrafficCharacteristics                         N xnap.extension id-TSCTrafficCharacteristics
+RedundantQoSFlowIndicator                         N xnap.extension id-RedundantQoSFlowIndicator
+UPTransportLayerInformation                       N xnap.extension id-Redundant-DL-NG-U-TNLatNG-RAN
+ExtendedPacketDelayBudget                         N xnap.extension id-ExtendedPacketDelayBudget
+Additional-PDCP-Duplication-TNL-List              N xnap.extension id-Additional-PDCP-Duplication-TNL-List
+RedundantPDUSessionInformation                    N xnap.extension id-RedundantPDUSessionInformation
+RedundantPDUSessionInformation                    N xnap.extension id-UsedRSNInformation
+RLCDuplicationInformation                         N xnap.extension id-RLCDuplicationInformation
+NPN-Broadcast-Information                         N xnap.extension id-NPN-Broadcast-Information
+NPNPagingAssistanceInformation                    N xnap.extension id-NPNPagingAssistanceInformation
+NPNMobilityInformation                            N xnap.extension id-NPNMobilityInformation
+NPN-Support                                       N xnap.extension id-NPN-Support
+MDT-Configuration                                 N xnap.extension id-MDT-Configuration
+MDTPLMNList                                       N xnap.extension id-MDTPLMNList
+URIaddress                                        N xnap.extension id-TraceCollectionEntityURI
+UERadioCapabilityID                               N xnap.extension id-UERadioCapabilityID
+CSI-RSTransmissionIndication                      N xnap.extension id-CSI-RSTransmissionIndication
+ExtendedSliceSupportList                          N xnap.extension id-ExtendedTAISliceSupportList
 
 #XNAP-ELEMENTARY-PROCEDURE
 HandoverRequest                            N xnap.proc.imsg id-handoverPreparation
@@ -960,4 +1365,30 @@ ActivityNotification                       N xnap.proc.imsg id-activityNotificat
 PrivateMessage                             N xnap.proc.imsg id-privateMessage
 
 SecondaryRATDataUsageReport                N xnap.proc.imsg id-secondaryRATDataUsageReport
+
+DeactivateTrace                            N xnap.proc.imsg id-deactivateTrace
+
+TraceStart                                 N xnap.proc.imsg id-traceStart
+
+HandoverSuccess                            N xnap.proc.imsg id-handoverSuccess
+
+ConditionalHandoverCancel                  N xnap.proc.imsg id-conditionalHandoverCancel
+
+EarlyStatusTransfer                        N xnap.proc.imsg id-earlyStatusTransfer
+
+FailureIndication                          N xnap.proc.imsg id-failureIndication
+
+HandoverReport                             N xnap.proc.imsg id-handoverReport
+
+ResourceStatusRequest                      N xnap.proc.imsg id-resourceStatusReportingInitiation
+ResourceStatusResponse                     N xnap.proc.sout id-resourceStatusReportingInitiation
+ResourceStatusFailure                      N xnap.proc.uout id-resourceStatusReportingInitiation
+
+ResourceStatusUpdate                       N xnap.proc.imsg id-resourceStatusReporting
+
+MobilityChangeRequest                      N xnap.proc.imsg id-mobilitySettingsChange
+MobilityChangeAcknowledge                  N xnap.proc.sout id-mobilitySettingsChange
+MobilityChangeFailure                      N xnap.proc.uout id-mobilitySettingsChange
+
+AccessAndMobilityIndication                N xnap.proc.imsg id-accessAndMobilityIndication
 #.END

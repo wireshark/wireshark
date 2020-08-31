@@ -76,6 +76,7 @@ MIB_PDU
 P-Max_PDU
 PH-TypeListMCG_PDU
 PH-TypeListSCG_PDU
+RA-ReportList-r16_PDU
 RadioBearerConfig_PDU
 ReferenceTime-r16_PDU
 RRCReconfiguration_PDU
@@ -132,6 +133,7 @@ P-Max
 PCCH-Message                       @pcch
 PH-TypeListMCG
 PH-TypeListSCG
+RA-ReportList-r16
 RadioBearerConfig
 ReferenceTime-r16
 RRCReconfiguration                 @rrc_reconf
