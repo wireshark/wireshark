@@ -94,7 +94,7 @@ dissect_cl3_v1(
 
 /* called for each incomming framing matching the CL3 ethertype: */
 static int
-dissect_cl3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data _U_) {
+dissect_cl3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
 
   proto_item   *ti;
   proto_tree   *cl3_tree;
