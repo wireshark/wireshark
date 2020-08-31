@@ -87,13 +87,14 @@ ADDITIONAL_LIST="libnl-3-dev \
 
 DEBDEPS_LIST="debhelper \
 	dh-python \
+	docbook-xml \
+	docbook-xsl \
+	libxml2-utils \
+	lintian \
+	lsb-release \
 	po-debconf \
 	python3-ply \
-	docbook-xsl \
-	docbook-xml \
-	libxml2-utils \
-	quilt \
-	lsb-release"
+	quilt"
 
 TESTDEPS_LIST=
 

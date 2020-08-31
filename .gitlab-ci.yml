@@ -142,9 +142,9 @@ merge-request:ubuntu-dpkg:
   tags:
     - docker
   only:
-   - merge_requests
+    - merge_requests
   script:
-    - apt-get install -y devscripts
+    - apt-get install -y lintian
     # build-ubuntu puts us in `build`.
     - cd ..
     # From the Buildbot Petri Dish. We might want to spread these across different builders.
