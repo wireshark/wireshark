@@ -21765,7 +21765,7 @@ void proto_register_ngap(void) {
         NULL, HFILL }},
     { &hf_ngap_MDT_Location_Information_reserved,
       { "Reserved", "ngap.MDT_Location_Information.reserved",
-        FT_BOOLEAN, 8, NULL, 0x7f,
+        FT_UINT8, BASE_HEX, NULL, 0x7f,
         NULL, HFILL }},
 
 /*--- Included file: packet-ngap-hfarr.c ---*/
