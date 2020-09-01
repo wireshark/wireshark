@@ -3344,7 +3344,11 @@ parse_report_descriptor(report_descriptor_t *rdesc)
                         if ((defined & HID_REQUIRED_MASK) != HID_REQUIRED_MASK)
                             goto err;
 
+                        /* new field */
                         wmem_array_append_one(rdesc->fields_out, field);
+
+                        field.usages = wmem_array_new(scope, sizeof(guint32));
+                        first_item = FALSE;
 
                         defined &= HID_GLOBAL_MASK;
                         break;
