@@ -22,32 +22,37 @@
 
 #define VERSION_MAGIC 131   /* 130 in erlang 4.2 */
 
-#define SMALL_INTEGER_EXT 'a'
-#define INTEGER_EXT       'b'
-#define FLOAT_EXT         'c'
-#define ATOM_EXT          'd'
-#define SMALL_ATOM_EXT    's'
-#define REFERENCE_EXT     'e'
-#define NEW_REFERENCE_EXT 'r'
-#define PORT_EXT          'f'
-#define NEW_FLOAT_EXT     'F'
-#define PID_EXT           'g'
-#define SMALL_TUPLE_EXT   'h'
-#define LARGE_TUPLE_EXT   'i'
-#define NIL_EXT           'j'
-#define STRING_EXT        'k'
-#define LIST_EXT          'l'
-#define BINARY_EXT        'm'
-#define BIT_BINARY_EXT    'M'
-#define SMALL_BIG_EXT     'n'
-#define LARGE_BIG_EXT     'o'
-#define NEW_FUN_EXT       'p'
-#define EXPORT_EXT        'q'
-#define FUN_EXT           'u'
+#define SMALL_INTEGER_EXT   'a'
+#define INTEGER_EXT         'b'
+#define FLOAT_EXT           'c'
+#define ATOM_EXT            'd'
+#define ATOM_UTF8_EXT       'v'
+#define SMALL_ATOM_EXT      's'
+#define SMALL_ATOM_UTF8_EXT 'w'
+#define REFERENCE_EXT       'e'
+#define NEW_REFERENCE_EXT   'r'
+#define NEWER_REFERENCE_EXT 'Z'
+#define PORT_EXT            'f'
+#define NEW_PORT_EXT        'Y'
+#define NEW_FLOAT_EXT       'F'
+#define PID_EXT             'g'
+#define NEW_PID_EXT         'X'
+#define SMALL_TUPLE_EXT     'h'
+#define LARGE_TUPLE_EXT     'i'
+#define NIL_EXT             'j'
+#define STRING_EXT          'k'
+#define LIST_EXT            'l'
+#define BINARY_EXT          'm'
+#define BIT_BINARY_EXT      'M'
+#define SMALL_BIG_EXT       'n'
+#define LARGE_BIG_EXT       'o'
+#define NEW_FUN_EXT         'p'
+#define EXPORT_EXT          'q'
+#define FUN_EXT             'u'
 
-#define DIST_HEADER       'D'
-#define ATOM_CACHE_REF    'R'
-#define COMPRESSED        'P'
+#define DIST_HEADER         'D'
+#define ATOM_CACHE_REF      'R'
+#define COMPRESSED          'P'
 
 #define PNAME  "Erlang Distribution Protocol"
 #define PSNAME "ErlDP"
@@ -57,31 +62,36 @@ void proto_register_erldp(void);
 void proto_reg_handoff_erldp(void);
 
 static const value_string etf_tag_vals[] = {
-  { SMALL_INTEGER_EXT , "SMALL_INTEGER_EXT" },
-  { INTEGER_EXT       , "INTEGER_EXT" },
-  { FLOAT_EXT         , "FLOAT_EXT" },
-  { ATOM_EXT          , "ATOM_EXT" },
-  { SMALL_ATOM_EXT    , "SMALL_ATOM_EXT" },
-  { REFERENCE_EXT     , "REFERENCE_EXT" },
-  { NEW_REFERENCE_EXT , "NEW_REFERENCE_EXT" },
-  { PORT_EXT          , "PORT_EXT" },
-  { NEW_FLOAT_EXT     , "NEW_FLOAT_EXT" },
-  { PID_EXT           , "PID_EXT" },
-  { SMALL_TUPLE_EXT   , "SMALL_TUPLE_EXT" },
-  { LARGE_TUPLE_EXT   , "LARGE_TUPLE_EXT" },
-  { NIL_EXT           , "NIL_EXT" },
-  { STRING_EXT        , "STRING_EXT" },
-  { LIST_EXT          , "LIST_EXT" },
-  { BINARY_EXT        , "BINARY_EXT" },
-  { BIT_BINARY_EXT    , "BIT_BINARY_EXT" },
-  { SMALL_BIG_EXT     , "SMALL_BIG_EXT" },
-  { LARGE_BIG_EXT     , "LARGE_BIG_EXT" },
-  { NEW_FUN_EXT       , "NEW_FUN_EXT" },
-  { EXPORT_EXT        , "EXPORT_EXT" },
-  { FUN_EXT           , "FUN_EXT" },
-  { DIST_HEADER       , "DIST_HEADER" },
-  { ATOM_CACHE_REF    , "ATOM_CACHE_REF" },
-  { COMPRESSED        , "COMPRESSED" },
+  { SMALL_INTEGER_EXT   , "SMALL_INTEGER_EXT" },
+  { INTEGER_EXT         , "INTEGER_EXT" },
+  { FLOAT_EXT           , "FLOAT_EXT" },
+  { ATOM_EXT            , "ATOM_EXT" },
+  { ATOM_UTF8_EXT       , "ATOM_UTF8_EXT" },
+  { SMALL_ATOM_EXT      , "SMALL_ATOM_EXT" },
+  { SMALL_ATOM_UTF8_EXT , "SMALL_ATOM_UTF8_EXT" },
+  { REFERENCE_EXT       , "REFERENCE_EXT" },
+  { NEW_REFERENCE_EXT   , "NEW_REFERENCE_EXT" },
+  { NEWER_REFERENCE_EXT , "NEWER_REFERENCE_EXT" },
+  { PORT_EXT            , "PORT_EXT" },
+  { NEW_PORT_EXT        , "NEW_PORT_EXT" },
+  { NEW_FLOAT_EXT       , "NEW_FLOAT_EXT" },
+  { PID_EXT             , "PID_EXT" },
+  { NEW_PID_EXT         , "NEW_PID_EXT" },
+  { SMALL_TUPLE_EXT     , "SMALL_TUPLE_EXT" },
+  { LARGE_TUPLE_EXT     , "LARGE_TUPLE_EXT" },
+  { NIL_EXT             , "NIL_EXT" },
+  { STRING_EXT          , "STRING_EXT" },
+  { LIST_EXT            , "LIST_EXT" },
+  { BINARY_EXT          , "BINARY_EXT" },
+  { BIT_BINARY_EXT      , "BIT_BINARY_EXT" },
+  { SMALL_BIG_EXT       , "SMALL_BIG_EXT" },
+  { LARGE_BIG_EXT       , "LARGE_BIG_EXT" },
+  { NEW_FUN_EXT         , "NEW_FUN_EXT" },
+  { EXPORT_EXT          , "EXPORT_EXT" },
+  { FUN_EXT             , "FUN_EXT" },
+  { DIST_HEADER         , "DIST_HEADER" },
+  { ATOM_CACHE_REF      , "ATOM_CACHE_REF" },
+  { COMPRESSED          , "COMPRESSED" },
   {  0, NULL }
 };
 
@@ -101,6 +111,17 @@ static const value_string erldp_ctlmsg_vals[] = {
   { 19, "MONITOR_P" },
   { 20, "DEMONITOR_P" },
   { 21, "MONITOR_P_EXIT" },
+  { 22, "SEND_SENDER" },
+  { 23, "SEND_SENDER_TT" },
+  { 24, "PAYLOAD_EXIT" },
+  { 25, "PAYLOAD_EXIT_TT" },
+  { 26, "PAYLOAD_EXIT2" },
+  { 27, "PAYLOAD_EXIT2_TT" },
+  { 28, "PAYLOAD_MONITOR_P_EXIT" },
+  { 29, "SPAWN_REQUEST" },
+  { 30, "SPAWN_REQUEST_TT" },
+  { 31, "SPAWN_REPLY" },
+  { 32, "SPAWN_REPLY_TT" },
   {  0, NULL }
 };
 
@@ -113,8 +134,10 @@ static int hf_erldp_tag = -1;
 static int hf_erldp_type = -1;
 static int hf_erldp_version = -1;
 static int hf_erldp_flags = -1;
+static int hf_erldp_creation = -1;
 static int hf_erldp_challenge = -1;
 static int hf_erldp_digest = -1;
+static int hf_erldp_nlen = -1;
 static int hf_erldp_name = -1;
 static int hf_erldp_status = -1;
 static int hf_erldp_num_atom_cache_refs = -1;
@@ -126,6 +149,8 @@ static int hf_erldp_atom_text = -1;
 static int hf_erldp_atom_cache_ref = -1;
 static int hf_erldp_small_int_ext = -1;
 static int hf_erldp_int_ext = -1;
+static int hf_erldp_port_ext_id = -1;
+static int hf_erldp_port_ext_creation = -1;
 static int hf_erldp_pid_ext_id = -1;
 static int hf_erldp_pid_ext_serial = -1;
 static int hf_erldp_pid_ext_creation = -1;
@@ -227,7 +252,7 @@ static gint dissect_etf_dist_header(packet_info *pinfo _U_, tvbuff_t *tvb, gint 
   return offset;
 }
 
-static gint dissect_etf_tuple_content(gboolean large, packet_info *pinfo, tvbuff_t *tvb, gint offset, proto_tree *tree, gchar **value_str _U_) {
+static gint dissect_etf_tuple_content(gboolean large, packet_info *pinfo, tvbuff_t *tvb, gint offset, proto_tree *tree, const gchar **value_str _U_) {
   guint32 arity, i;
 
   if (large) {
@@ -246,9 +271,10 @@ static gint dissect_etf_tuple_content(gboolean large, packet_info *pinfo, tvbuff
   return offset;
 }
 
-static gint dissect_etf_type_content(guint8 tag, packet_info *pinfo, tvbuff_t *tvb, gint offset, proto_tree *tree, gchar **value_str) {
+static gint dissect_etf_type_content(guint8 tag, packet_info *pinfo, tvbuff_t *tvb, gint offset, proto_tree *tree, const gchar **value_str) {
   gint32 len, int_val, i;
   guint32 id;
+  const guint8 *str_val;
 
   switch (tag) {
     case DIST_HEADER:
@@ -279,6 +305,42 @@ static gint dissect_etf_type_content(guint8 tag, packet_info *pinfo, tvbuff_t *t
         *value_str = wmem_strdup_printf(wmem_packet_scope(), "%d", int_val);
       break;
 
+    case ATOM_UTF8_EXT:
+      len = tvb_get_ntohl(tvb, offset);
+      proto_tree_add_item(tree, hf_erldp_atom_length2, tvb, offset, 2, ENC_BIG_ENDIAN);
+      offset += 2;
+      proto_tree_add_item_ret_string(tree, hf_erldp_atom_text, tvb, offset, len, ENC_NA|ENC_UTF_8, wmem_packet_scope(), &str_val);
+      offset += len;
+      if (value_str)
+        *value_str = str_val;
+      break;
+
+    case SMALL_ATOM_UTF8_EXT:
+      len = tvb_get_guint8(tvb, offset);
+      proto_tree_add_item(tree, hf_erldp_atom_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+      offset++;
+      proto_tree_add_item_ret_string(tree, hf_erldp_atom_text, tvb, offset, len, ENC_NA|ENC_UTF_8, wmem_packet_scope(), &str_val);
+      offset += len;
+      if (value_str)
+        *value_str = str_val;
+      break;
+
+    case PORT_EXT:
+      offset = dissect_etf_type("Node", pinfo, tvb, offset, tree);
+      proto_tree_add_item(tree, hf_erldp_port_ext_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+      offset += 4;
+      proto_tree_add_item(tree, hf_erldp_port_ext_creation, tvb, offset, 1, ENC_BIG_ENDIAN);
+      offset++;
+      break;
+
+    case NEW_PORT_EXT:
+      offset = dissect_etf_type("Node", pinfo, tvb, offset, tree);
+      proto_tree_add_item(tree, hf_erldp_port_ext_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+      offset += 4;
+      proto_tree_add_item(tree, hf_erldp_port_ext_creation, tvb, offset, 4, ENC_BIG_ENDIAN);
+      offset += 4;
+      break;
+
     case PID_EXT:
       offset = dissect_etf_type("Node", pinfo, tvb, offset, tree);
       proto_tree_add_item(tree, hf_erldp_pid_ext_id, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -287,6 +349,16 @@ static gint dissect_etf_type_content(guint8 tag, packet_info *pinfo, tvbuff_t *t
       offset += 4;
       proto_tree_add_item(tree, hf_erldp_pid_ext_creation, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset++;
+      break;
+
+    case NEW_PID_EXT:
+      offset = dissect_etf_type("Node", pinfo, tvb, offset, tree);
+      proto_tree_add_item(tree, hf_erldp_pid_ext_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+      offset += 4;
+      proto_tree_add_item(tree, hf_erldp_pid_ext_serial, tvb, offset, 4, ENC_BIG_ENDIAN);
+      offset += 4;
+      proto_tree_add_item(tree, hf_erldp_pid_ext_creation, tvb, offset, 4, ENC_BIG_ENDIAN);
+      offset += 4;
       break;
 
     case SMALL_TUPLE_EXT:
@@ -317,6 +389,21 @@ static gint dissect_etf_type_content(guint8 tag, packet_info *pinfo, tvbuff_t *t
       offset = dissect_etf_type("Node", pinfo, tvb, offset, tree);
       proto_tree_add_item(tree, hf_erldp_new_ref_ext_creation, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset++;
+      for (i=0; i<len; i++) {
+        id = tvb_get_ntohl(tvb, offset);
+        proto_tree_add_uint_format(tree, hf_erldp_new_ref_ext_id, tvb, offset, 4,
+                            id, "ID[%d]: 0x%08X", i, id);
+        offset += 4;
+      }
+      break;
+
+    case NEWER_REFERENCE_EXT:
+      len = tvb_get_ntohs(tvb, offset);
+      proto_tree_add_item(tree, hf_erldp_new_ref_ext_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+      offset += 2;
+      offset = dissect_etf_type("Node", pinfo, tvb, offset, tree);
+      proto_tree_add_item(tree, hf_erldp_new_ref_ext_creation, tvb, offset, 4, ENC_BIG_ENDIAN);
+      offset += 4;
       for (i=0; i<len; i++) {
         id = tvb_get_ntohl(tvb, offset);
         proto_tree_add_uint_format(tree, hf_erldp_new_ref_ext_id, tvb, offset, 4,
@@ -364,7 +451,7 @@ static gint dissect_etf_type(const gchar *label, packet_info *pinfo, tvbuff_t *t
   guint8 tag;
   proto_item *ti;
   proto_tree *etf_tree;
-  gchar *value_str = NULL;
+  const gchar *value_str = NULL;
 
   etf_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_etf, &ti, (label) ? label : "External Term Format");
 
@@ -387,7 +474,7 @@ static gint dissect_etf_type(const gchar *label, packet_info *pinfo, tvbuff_t *t
 static gboolean is_handshake(tvbuff_t *tvb, int offset) {
   guint32 len = tvb_get_ntohs(tvb, offset);
   guint8 tag = tvb_get_guint8(tvb, offset + 2);
-  return ((len > 0) && strchr("nras", tag) && (len == (guint32)tvb_captured_length_remaining(tvb, offset + 2)));
+  return ((len > 0) && strchr("nNras", tag) && (len == (guint32)tvb_captured_length_remaining(tvb, offset + 2)));
 }
 
 /*--- dissect_erldp_handshake -------------------------------------------------*/
@@ -420,6 +507,27 @@ static void dissect_erldp_handshake(tvbuff_t *tvb, packet_info *pinfo, proto_tre
         offset += 4;
       }
       str_len = tvb_captured_length_remaining(tvb, offset);
+      proto_tree_add_item_ret_string(tree, hf_erldp_name, tvb, offset, str_len, ENC_ASCII|ENC_NA, wmem_packet_scope(), &str);
+      col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s", (is_challenge) ? "SEND_CHALLENGE" : "SEND_NAME", str);
+      break;
+
+    case 'N':
+      proto_tree_add_item(tree, hf_erldp_flags, tvb, offset, 8, ENC_BIG_ENDIAN);
+      offset += 8;
+      if (tvb_bytes_exist(tvb, offset + 6, 4)) {
+        if (!tvb_ascii_isprint(tvb, offset + 6, 4)) {
+          is_challenge = TRUE;
+        }
+      }
+      if (is_challenge) {
+        proto_tree_add_item(tree, hf_erldp_challenge, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+      }
+      proto_tree_add_item(tree, hf_erldp_creation, tvb, offset, 4, ENC_BIG_ENDIAN);
+      offset += 4;
+      proto_tree_add_item(tree, hf_erldp_nlen, tvb, offset, 2, ENC_BIG_ENDIAN);
+      str_len = tvb_get_ntohs(tvb, offset);
+      offset += 2;
       proto_tree_add_item_ret_string(tree, hf_erldp_name, tvb, offset, str_len, ENC_ASCII|ENC_NA, wmem_packet_scope(), &str);
       col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s", (is_challenge) ? "SEND_CHALLENGE" : "SEND_NAME", str);
       break;
@@ -548,13 +656,19 @@ void proto_register_erldp(void) {
                         FT_UINT16, BASE_DEC, VALS(epmd_version_vals), 0x0,
                         NULL, HFILL}},
     { &hf_erldp_flags,  { "Flags", "erldp.flags",
-                        FT_UINT32, BASE_HEX, NULL, 0x0,
+                        FT_UINT64, BASE_HEX, NULL, 0x0,
+                        NULL, HFILL}},
+    { &hf_erldp_creation, { "Creation", "erldp.creation",
+                        FT_UINT32, BASE_DEC, NULL, 0x0,
                         NULL, HFILL}},
     { &hf_erldp_challenge, { "Challenge", "erldp.challenge",
                         FT_UINT32, BASE_HEX, NULL, 0x0,
                         NULL, HFILL}},
     { &hf_erldp_digest, { "Digest", "erldp.digest",
                         FT_BYTES, BASE_NONE, NULL, 0x0,
+                        NULL, HFILL}},
+    { &hf_erldp_nlen, { "Name Length", "erldp.nlen",
+                        FT_UINT16, BASE_DEC, NULL, 0x0,
                         NULL, HFILL}},
     { &hf_erldp_name, { "Name", "erldp.name",
                         FT_STRING, BASE_NONE, NULL, 0x0,
@@ -589,6 +703,12 @@ void proto_register_erldp(void) {
     { &hf_erldp_int_ext, { "Int", "erldp.int_ext",
                         FT_INT32, BASE_DEC, NULL, 0x0,
                         NULL, HFILL}},
+    { &hf_erldp_port_ext_id, { "ID", "erldp.port_ext.id",
+                        FT_UINT32, BASE_HEX, NULL, 0x0,
+                        NULL, HFILL}},
+    { &hf_erldp_port_ext_creation, { "Creation", "erldp.port_ext.creation",
+                        FT_UINT32, BASE_DEC, NULL, 0x0,
+                        NULL, HFILL}},
     { &hf_erldp_pid_ext_id, { "ID", "erldp.pid_ext.id",
                         FT_UINT32, BASE_HEX, NULL, 0x0,
                         NULL, HFILL}},
@@ -596,7 +716,7 @@ void proto_register_erldp(void) {
                         FT_UINT32, BASE_DEC, NULL, 0x0,
                         NULL, HFILL}},
     { &hf_erldp_pid_ext_creation, { "Creation", "erldp.pid_ext.creation",
-                        FT_UINT8, BASE_DEC, NULL, 0x0,
+                        FT_UINT32, BASE_DEC, NULL, 0x0,
                         NULL, HFILL}},
     { &hf_erldp_list_ext_len, { "Len", "erldp.list_ext.len",
                         FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -605,7 +725,7 @@ void proto_register_erldp(void) {
                         FT_UINT16, BASE_DEC, NULL, 0x0,
                         NULL, HFILL}},
     { &hf_erldp_new_ref_ext_creation, { "Creation", "erldp.new_ref_ext.creation",
-                        FT_UINT8, BASE_DEC, NULL, 0x0,
+                        FT_UINT32, BASE_DEC, NULL, 0x0,
                         NULL, HFILL}},
     { &hf_erldp_new_ref_ext_id, { "ID", "erldp.new_ref_ext.id",
                         FT_UINT32, BASE_HEX, NULL, 0x0,
