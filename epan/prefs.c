@@ -3144,20 +3144,20 @@ prefs_register_modules(void)
     /* User Interface : Colors */
     gui_color_module = prefs_register_subtree(gui_module, "Colors", "Colors", NULL);
 
-    prefs_register_color_preference(gui_color_module, "active_frame.fg", "Foregound color for an active selected item",
-        "Foregound color for an active selected item", &prefs.gui_active_fg);
+    prefs_register_color_preference(gui_color_module, "active_frame.fg", "Foreground color for an active selected item",
+        "Foreground color for an active selected item", &prefs.gui_active_fg);
 
-    prefs_register_color_preference(gui_color_module, "active_frame.bg", "Backgound color for an active selected item",
-        "Backgound color for an active selected item", &prefs.gui_active_bg);
+    prefs_register_color_preference(gui_color_module, "active_frame.bg", "Background color for an active selected item",
+        "Background color for an active selected item", &prefs.gui_active_bg);
 
     prefs_register_enum_preference(gui_color_module, "active_frame.style", "Color style for an active selected item",
         "Color style for an active selected item", &prefs.gui_active_style, gui_selection_style, FALSE);
 
-    prefs_register_color_preference(gui_color_module, "inactive_frame.fg", "Foregound color for an inactive selected item",
-        "Foregound color for an inactive selected item", &prefs.gui_inactive_fg);
+    prefs_register_color_preference(gui_color_module, "inactive_frame.fg", "Foreground color for an inactive selected item",
+        "Foreground color for an inactive selected item", &prefs.gui_inactive_fg);
 
-    prefs_register_color_preference(gui_color_module, "inactive_frame.bg", "Backgound color for an inactive selected item",
-        "Backgound color for an inactive selected item", &prefs.gui_inactive_bg);
+    prefs_register_color_preference(gui_color_module, "inactive_frame.bg", "Background color for an inactive selected item",
+        "Background color for an inactive selected item", &prefs.gui_inactive_bg);
 
     prefs_register_enum_preference(gui_color_module, "inactive_frame.style", "Color style for an inactive selected item",
         "Color style for an inactive selected item", &prefs.gui_inactive_style, gui_selection_style, FALSE);
@@ -3430,7 +3430,7 @@ prefs_register_modules(void)
 
     register_string_like_preference(gui_module, "interfaces_hidden_types", "Hide interface types in list",
         "Hide the given interface types in the startup list.\n"
-        "A commma-separated string of interface type values (e.g. 5,9).\n"
+        "A comma-separated string of interface type values (e.g. 5,9).\n"
          "0 = Wired,\n"
          "1 = AirPCAP,\n"
          "2 = Pipe,\n"
@@ -3591,7 +3591,7 @@ prefs_register_modules(void)
 
     prefs_register_bool_preference(stats_module, "st_enable_burstinfo",
             "Enable the calculation of burst information",
-            "If enabled burst rates will be calcuted for statistics that use the stats_tree system. "
+            "If enabled burst rates will be calculated for statistics that use the stats_tree system. "
             "Burst rates are calculated over a much shorter time interval than the rate column.",
             &prefs.st_enable_burstinfo);
 
