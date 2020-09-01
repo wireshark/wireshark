@@ -6451,7 +6451,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                 PROTO_ITEM_SET_GENERATED(item);
                 /* XXX - What should this special status be? */
                 item = proto_tree_add_uint(checksum_tree, hf_tcp_checksum_status, tvb,
-                                              offset + 16, 0, 4);
+                                              offset + 16, 0, PROTO_CHECKSUM_E_BAD);
                 PROTO_ITEM_SET_GENERATED(item);
                 expert_add_info(pinfo, item, &ei_tcp_checksum_ffff);
 
