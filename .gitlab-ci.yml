@@ -14,6 +14,12 @@
   <<: *build
   image: wireshark/wireshark-ubuntu-dev
   retry: 1
+  # https://gould.cx/ted/blog/2017/06/10/ccache-for-Gitlab-CI/
+  cache:
+    # XXX Use ${CI_JOB_NAME}-${CI_MERGE_REQUEST_TARGET_BRANCH_NAME} instead?
+    key: ${CI_JOB_NAME}-master
+    paths:
+      - ccache/
   before_script:
     - apt-get update -qq
     - ./tools/debian-setup.sh --install-optional --install-test-deps -y
@@ -21,6 +27,12 @@
     - locale-gen en_US.UTF-8
     - export LANG=en_US.UTF-8
     - export PYTEST_ADDOPTS=--skip-missing-programs=dumpcap,rawshark
+    - mkdir -p ccache
+    - apt-get install -y ccache
+    - export CCACHE_BASEDIR=${PWD}
+    - export CCACHE_DIR=${PWD}/ccache
+    - ccache --show-stats
+    - export DEB_BUILD_OPTIONS=nocheck
     - mkdir build
     - cd build
   script:
@@ -150,7 +162,7 @@ merge-request:ubuntu-dpkg:
     # From the Buildbot Petri Dish. We might want to spread these across different builders.
     - bash ./tools/pre-commit 'HEAD^1'
     - sh -c '[ ! -e tools/validate-commit.py ] || tools/validate-commit.py'
-    - dpkg-buildpackage -us -uc -rfakeroot -jauto -Zgzip -zfast
+    - DH_QUIET=1 CC=/usr/lib/ccache/gcc CXX=/usr/lib/ccache/g++ dpkg-buildpackage -us -uc -rfakeroot -jauto -Zgzip -zfast
     - lintian --suppress-tags library-not-linked-against-libc --display-experimental --display-info --pedantic --profile debian
 
 merge-request:ubuntu-gcc-ctest:
@@ -162,7 +174,7 @@ merge-request:ubuntu-gcc-ctest:
   script:
     # build-ubuntu puts us in `build`.
     - perl ../tools/make-version.pl --set-release || ../perl make-version.pl --set-release
-    - CC=gcc CXX=g++ cmake -DENABLE_EXTRA_COMPILER_WARNINGS=on -DCMAKE_EXPORT_COMPILE_COMMANDS=on -G Ninja ..
+    - CC=gcc CXX=g++ cmake -DENABLE_EXTRA_COMPILER_WARNINGS=on -DCMAKE_EXPORT_COMPILE_COMMANDS=on -DENABLE_CCACHE=ON -G Ninja ..
     - ninja
     - ninja test-programs
     - chown -R user .
@@ -173,7 +185,7 @@ merge-request:ubuntu-clang-other-tests:
   tags:
     - docker
   only:
-   - merge_requests
+    - merge_requests
   script:
     - apt-get install -y cppcheck clang-tools
     # build-ubuntu puts us in `build`.
@@ -181,7 +193,7 @@ merge-request:ubuntu-clang-other-tests:
     - python3 tools/checklicenses.py
     - ./tools/cppcheck/cppcheck.sh -l 1
     - cd build
-    - cmake -DENABLE_EXTRA_COMPILER_WARNINGS=on -DENABLE_CHECKHF_CONFLICT=on -DCMAKE_EXPORT_COMPILE_COMMANDS=on -G Ninja ..
+    - cmake -DENABLE_EXTRA_COMPILER_WARNINGS=on -DENABLE_CHECKHF_CONFLICT=on -DCMAKE_EXPORT_COMPILE_COMMANDS=on -DENABLE_CCACHE=ON -G Ninja ..
     - ninja
     - ./run/tshark -v
     - sh -c '[ ! -e ../tools/validate-clang-check.sh ] || ../tools/validate-clang-check.sh'
