@@ -394,7 +394,7 @@ get_zonename(struct tm *tmp)
 	 * Setting those other code pages can cause problems, especially
 	 * on pre-Windows 10 or older Windows 10 releases.)
 	 */
-	return ws_tzname[tmp->tm_isdst];
+	return _tzname[tmp->tm_isdst];
 #else
 	/*
 	 * UN*X.
