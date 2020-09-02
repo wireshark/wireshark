@@ -114,7 +114,7 @@ const value_string g_statusCodes[] = {
     {0x804F0000, "BadServerUriInvalid"},
     {0x80500000, "BadServerNameMissing"},
     {0x80510000, "BadDiscoveryUrlMissing"},
-    {0x80520000, "BadSempahoreFileMissing"},
+    {0x80520000, "BadSemaphoreFileMissing"},
     {0x80530000, "BadRequestTypeInvalid"},
     {0x80540000, "BadSecurityModeRejected"},
     {0x80550000, "BadSecurityPolicyRejected"},

@@ -1190,7 +1190,7 @@ proto_register_transum(void)
         { &hf_tsum_clip_filter,
         { "Trace clip filter", "transum.clip_filter",
         FT_STRING, BASE_NONE, NULL, 0x0,
-        "Filter expression to select the APDU Reqest-Response pair", HFILL }
+        "Filter expression to select the APDU Request-Response pair", HFILL }
         },
 
         { &hf_tsum_calculation,

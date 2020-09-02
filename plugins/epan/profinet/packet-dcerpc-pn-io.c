@@ -110,7 +110,7 @@ static int hf_pn_io_ar_data = -1;
 static int hf_pn_io_ar_properties = -1;
 static int hf_pn_io_ar_properties_state = -1;
 static int hf_pn_io_ar_properties_supervisor_takeover_allowed = -1;
-static int hf_pn_io_ar_properties_parametrization_server = -1;
+static int hf_pn_io_ar_properties_parameterization_server = -1;
 /* removed within 2.3
 static int hf_pn_io_ar_properties_data_rate = -1;
 */
@@ -1176,7 +1176,7 @@ static const value_string pn_io_arproperties_supervisor_takeover_allowed[] = {
     { 0, NULL }
 };
 
-static const value_string pn_io_arproperties_parametrization_server[] = {
+static const value_string pn_io_arproperties_parameterization_server[] = {
     { 0x00000000, "External PrmServer" },
     { 0x00000001, "CM Initiator" },
     { 0, NULL }
@@ -1636,7 +1636,7 @@ static const value_string pn_io_index[] = {
     { 0xF841, "PDRealData" },
     { 0xF842, "PDExpectedData" },
     /*0xF843 - 0xF84F reserved */
-    { 0xF850, "AutoConfigurarion" },
+    { 0xF850, "AutoConfiguration" },
     { 0xF870, "PE_EntityFilterData" },
     { 0xF871, "PE_EntityStatusData" },
     { 0xF880, "AssetManagementData" },
@@ -1676,7 +1676,7 @@ static const value_string pn_io_channel_error_type[] = {
     { 0x0008, "lower limit value exceeded" },
     { 0x0009, "Error" },
     /*0x000A - 0x000F reserved */
-    { 0x0010, "parametrization fault" },
+    { 0x0010, "parameterization fault" },
     { 0x0011, "power supply fault" },
     { 0x0012, "fuse blown / open" },
     { 0x0013, "Manufacturer specific" },
@@ -2229,7 +2229,7 @@ static const value_string pn_io_control_properties_vals[] = {
 
 static const value_string pn_io_control_properties_prmbegin_vals[] = {
     { 0x0000, "No PrmBegin" },
-    { 0x0001, "The IO controller starts the transmisson of the stored start-up parameter" },
+    { 0x0001, "The IO controller starts the transmission of the stored start-up parameter" },
     { 0, NULL }
 };
 static const value_string pn_io_control_properties_application_ready_bit0_vals[] = {
@@ -7030,7 +7030,7 @@ dissect_ARProperties(tvbuff_t *tvb, int offset,
                         hf_pn_io_ar_properties_data_rate, &u32ARProperties);
 */
     dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep,
-                        hf_pn_io_ar_properties_parametrization_server, &u32ARProperties);
+                        hf_pn_io_ar_properties_parameterization_server, &u32ARProperties);
     dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep,
                         hf_pn_io_ar_properties_supervisor_takeover_allowed, &u32ARProperties);
     offset = dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep,
@@ -11599,9 +11599,9 @@ proto_register_pn_io (void)
         FT_UINT32, BASE_HEX, VALS(pn_io_arproperties_supervisor_takeover_allowed), 0x00000008,
         NULL, HFILL }
     },
-    { &hf_pn_io_ar_properties_parametrization_server,
-      { "ParametrizationServer", "pn_io.ar_properties.parametrization_server",
-        FT_UINT32, BASE_HEX, VALS(pn_io_arproperties_parametrization_server), 0x00000010,
+    { &hf_pn_io_ar_properties_parameterization_server,
+      { "ParameterizationServer", "pn_io.ar_properties.parameterization_server",
+        FT_UINT32, BASE_HEX, VALS(pn_io_arproperties_parameterization_server), 0x00000010,
         NULL, HFILL }
     },
     { &hf_pn_io_artype_req,
@@ -14378,7 +14378,7 @@ proto_register_pn_io (void)
         { &ei_pn_io_block_version, { "pn_io.block_version.not_implemented", PI_UNDECODED, PI_WARN, "Block version not implemented yet!", EXPFILL }},
         { &ei_pn_io_ar_info_not_found, { "pn_io.ar_info_not_found", PI_UNDECODED, PI_NOTE, "IODWriteReq: AR information not found!", EXPFILL }},
         { &ei_pn_io_block_length, { "pn_io.block_length.invalid", PI_UNDECODED, PI_WARN, "Block length invalid!", EXPFILL }},
-        { &ei_pn_io_unsupported, { "pn_io.profidrive.parameter.format.invalid", PI_UNDECODED, PI_WARN, "Unknown Fomatvalue", EXPFILL }},
+        { &ei_pn_io_unsupported, { "pn_io.profidrive.parameter.format.invalid", PI_UNDECODED, PI_WARN, "Unknown Formatvalue", EXPFILL }},
         { &ei_pn_io_mrp_instances, { "pn_io.mrp_Number_MrpInstances.invalid", PI_UNDECODED, PI_WARN, "Number of MrpInstances invalid", EXPFILL }},
         { &ei_pn_io_frame_id, { "pn_io.frame_id.changed", PI_UNDECODED, PI_WARN, "FrameID changed", EXPFILL }},
         { &ei_pn_io_iocr_type, { "pn_io.iocr_type.unknown", PI_UNDECODED, PI_WARN, "IOCRType undecoded!", EXPFILL }},

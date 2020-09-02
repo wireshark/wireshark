@@ -1466,12 +1466,12 @@ proto_register_pn_dcp (void)
              NULL, HFILL }},
 
         { &hf_pn_dcp_suboption_ip_ip,
-          { "IPaddress", "pn_dcp.subobtion_ip_ip",
+          { "IPaddress", "pn_dcp.suboption_ip_ip",
             FT_IPv4, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_pn_dcp_suboption_ip_subnetmask,
-          { "Subnetmask", "pn_dcp.subobtion_ip_subnetmask",
+          { "Subnetmask", "pn_dcp.suboption_ip_subnetmask",
             FT_IPv4, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
