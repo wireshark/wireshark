@@ -4510,7 +4510,7 @@ static void rtps_util_store_type_mapping(packet_info *pinfo _U_, tvbuff_t *tvb, 
           type_mapping_object->guid.instance_id = tvb_get_ntohl(tvb, offset+8);
           type_mapping_object->guid.entity_id = tvb_get_ntohl(tvb, offset+12);
           type_mapping_object->guid.fields_present |=
-                  GUID_HAS_HOST_ID|GUID_HAS_HOST_ID|GUID_HAS_INSTANCE_ID|GUID_HAS_ENTITY_ID;
+                  GUID_HAS_HOST_ID|GUID_HAS_APP_ID|GUID_HAS_INSTANCE_ID|GUID_HAS_ENTITY_ID;
           type_mapping_object->fields_visited =
                   type_mapping_object->fields_visited | TOPIC_INFO_ADD_GUID;
           break;
