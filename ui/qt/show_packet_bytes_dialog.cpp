@@ -450,7 +450,8 @@ void ShowPacketBytesDialog::sanitizeBuffer(QByteArray &ba, bool keep_CR)
         if (ba[i] == '\0' || g_ascii_isspace(ba[i])) {
             ba[i] = ' ';
         } else if (!g_ascii_isprint(ba[i])) {
-            ba[i] = '.';
+            ba.replace(i, 1, UTF8_MIDDLE_DOT);
+            i += sizeof(UTF8_MIDDLE_DOT) - 2;
         }
     }
 }
@@ -459,7 +460,8 @@ void ShowPacketBytesDialog::symbolizeBuffer(QByteArray &ba)
 {
     for (int i = 0; i < ba.length(); i++) {
         if ((ba[i] < '\0' || ba[i] >= ' ') && ba[i] != (char)0x7f && !g_ascii_isprint(ba[i])) {
-            ba[i] = '.';
+            ba.replace(i, 1, UTF8_MIDDLE_DOT);
+            i += sizeof(UTF8_MIDDLE_DOT) - 2;
         }
     }
 
@@ -688,10 +690,12 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
 
             // Dump bytes as text
             for (i = 0; i < 16 && pos + i < len; i++) {
-                if (g_ascii_isprint(field_bytes_[pos + i]))
+                if (g_ascii_isprint(field_bytes_[pos + i])) {
                     *cur++ = field_bytes_[pos + i];
-                else
-                    *cur++ = '.';
+                } else {
+                    memcpy(cur, UTF8_MIDDLE_DOT, sizeof(UTF8_MIDDLE_DOT) - 1);
+                    cur += sizeof(UTF8_MIDDLE_DOT) - 1;
+                }
                 if (i == 7)
                     *cur++ = ' ';
             }
