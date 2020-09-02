@@ -374,34 +374,26 @@ static const gchar *
 get_zonename(struct tm *tmp)
 {
 #if defined(_WIN32)
-	/* Windows C Runtime:                                                 */
-	/*   _tzname is encoded using the "system default ansi code page"     */
-	/*     ("which is not necessarily the same as the C library locale"). */
-	/*     So: _tzname must be converted to UTF8 before use.              */
-	/*   Alternative: use Windows GetTimeZoneInformation() to get the     */
-	/*     timezone name in UTF16 and convert same to UTF8.               */
-	/*   XXX: the result is that the timezone name will be based upon the */
-	/*    system code page (iow: the charset of the system).              */
-	/*    Since Wireshark is not internationalized, it would seem more    */
-	/*    correct to show the timezone name in English, no matter what    */
-	/*    the system code page, but I don't how to do that (or if it's    */
-	/*    really even possible).                                          */
-	/*    In any case converting to UTF8 presumably at least keeps GTK    */
-	/*    happy. (A bug was reported wherein Wireshark crashed in GDK     */
-	/*    on a "Japanese version of Windows XP" when trying to copy       */
-	/*    the date/time string (containing a copy of _tz_name) to the     */
-	/*    clipboard).                                                     */
-	static char *ws_tzname[2] = {NULL, NULL};
-
-	/* The g_malloc'd value returned from g_locale_to_utf8() is   */
-	/*  cached for all further use so there's no need to ever     */
-	/*  g_free() that value.                                      */
-	if (ws_tzname[tmp->tm_isdst] == NULL) {
-		ws_tzname[tmp->tm_isdst] = g_locale_to_utf8(_tzname[tmp->tm_isdst], -1, NULL, NULL, NULL);
-		if (ws_tzname[tmp->tm_isdst] == NULL) {
-			ws_tzname[tmp->tm_isdst] = "???";
-		}
-	}
+	/*
+	 * The strings in _tzname[] are encoded using the code page
+	 * for the current C-language locale.
+	 *
+	 * On Windows, all Wireshark programs set that code page
+	 * to the UTF-8 code page by calling
+	 *
+	 *	  setlocale(LC_ALL, ".UTF-8");
+	 *
+	 * so the strings in _tzname[] are UTF-8 strings, and we can
+	 * just return them.
+	 *
+	 * (Note: the above does *not* mean we've set any code pages
+	 * *other* than the one used by the Visual Studio C runtime
+	 * to UTF-8, so don't assume, for example, that the "ANSI"
+	 * versions of Windows APIs will take UTF-8 strings, or that
+	 * non-UTF-16 output to the console will be treated as UTF-8.
+	 * Setting those other code pages can cause problems, especially
+	 * on pre-Windows 10 or older Windows 10 releases.)
+	 */
 	return ws_tzname[tmp->tm_isdst];
 #else
 	/*
