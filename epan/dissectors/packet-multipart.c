@@ -339,14 +339,13 @@ get_multipart_info(packet_info *pinfo, http_message_info_t *message_info)
     parameters = unfold_and_compact_mime_header(message_info->media_str, &dummy);
 
     start_boundary = ws_find_media_type_parameter(wmem_packet_scope(), parameters, "boundary");
-
-    if(!start_boundary) {
+    if (!start_boundary) {
         return NULL;
     }
-    if(strncmp(type, "multipart/encrypted", sizeof("multipart/encrypted")-1) == 0) {
+
+    if (strncmp(type, "multipart/encrypted", sizeof("multipart/encrypted") - 1) == 0) {
         start_protocol = ws_find_media_type_parameter(wmem_packet_scope(), parameters, "protocol");
-        if(!start_protocol) {
-            g_free(start_boundary);
+        if (!start_protocol) {
             return NULL;
         }
     }
