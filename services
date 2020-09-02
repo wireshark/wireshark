@@ -3890,6 +3890,7 @@ dsmipv6		4191/udp	# Dual Stack MIPv6 NAT Traversal
 azeti		4192/tcp	# Azeti Agent Service
 azeti-bd	4192/udp	# azeti blinddate
 pvxplusio	4193/tcp	# PxPlus remote file srvr
+aws-wsp		4195/tcp/udp/sctp/dccp	# AWS protocol for cloud remoting solution
 hctl		4197/tcp/udp	# Harman HControl Protocol
 eims-admin	4199/tcp/udp	# EIMS ADMIN
 corelccam	4300/tcp/udp	# Corel CCam
@@ -4022,6 +4023,7 @@ prchat-user	4455/tcp/udp	# PR Chat User
 prchat-server	4456/tcp/udp	# PR Chat Server
 prRegister	4457/tcp/udp	# PR Register
 mcp		4458/tcp/udp	# Matrix Configuration Protocol
+ntske		4460/tcp	# Network Time Security Key Establishment
 hpssmgmt	4484/tcp/udp	# hpssmgmt service
 assyst-dr	4485/tcp	# Assyst Data Repository Service
 icms		4486/tcp/udp	# Integrated Client Message Service
@@ -4072,6 +4074,7 @@ mtsserver	4602/tcp	# EAX MTS Server
 menandmice-upg	4603/tcp	# Men & Mice Upgrade Agent
 irp		4604/tcp	# Identity Registration Protocol
 sixchat		4605/tcp	# Direct End to End Secure Chat Protocol
+sixid		4606/tcp	# Secure ID to IP registration and lookup
 ventoso		4621/udp	# Bidirectional single port remote radio VOIP and Control stream
 dots-signal	4646/tcp/udp	# Distributed Denial-of-Service Open Threat Signaling (DOTS) Signal Channel
 playsta2-app	4658/tcp/udp	# PlayStation2 App Port
@@ -4814,6 +4817,7 @@ apc-6548	6548/tcp/udp	# APC 6548
 apc-6549	6549/tcp/udp	# APC 6549
 fg-sysupdate	6550/tcp/udp
 sum		6551/tcp/udp	# Software Update Manager
+checkmk-agent	6556/tcp	# Checkmk Monitoring Agent
 xdsxdm		6558/tcp/udp
 sane-port	6566/tcp/udp	# SANE Control Port
 canit-store	6568/tcp	# CanIt Storage Manager
@@ -4983,6 +4987,7 @@ PS-Capture-Pro	7216/tcp	# PaperStream Capture Professional
 ramp		7227/tcp/udp	# Registry A & M Protocol
 citrixupp	7228/tcp	# Citrix Universal Printing Port
 citrixuppg	7229/tcp	# Citrix UPP Gateway
+asa-gateways	7234/tcp	# Traffic forwarding for Okta cloud infra
 aspcoordination	7235/udp	# ASP Coordination Protocol
 display		7236/tcp	# Wi-Fi Alliance Wi-Fi Display Protocol
 pads		7237/tcp	# PADS (Public Area Display System) Server
@@ -5809,6 +5814,7 @@ iclid		18242/tcp	# Checkpoint router monitoring
 clusterxl	18243/tcp	# Checkpoint router state backup
 gv-pf		18262/tcp/udp	# GV NetConfig Service
 ac-cluster	18463/tcp/udp	# AC Cluster
+heythings	18516/udp	# HeyThings Device communicate service
 rds-ib		18634/tcp/udp	# Reliable Datagram Service
 rds-ip		18635/tcp/udp	# Reliable Datagram Service over IP
 vdmmesh		18668/tcp	# Manufacturing Execution Systems Mesh Communication
@@ -5980,6 +5986,7 @@ a27-ran-ran	28119/udp	# A27 cdma2000 RAN Management
 voxelstorm	28200/tcp/udp	# VoxelStorm game server
 siemensgsm	28240/tcp/udp	# Siemens GSM
 bosswave	28589/tcp	# Building operating system services wide area verified exchange
+saltd-licensing	29000/tcp	# Siemens Licensing Server
 sgsap		29118/sctp	# SGsAP in 3GPP
 otmp		29167/tcp/udp	# ObTools Message Protocol
 sbcap		29168/sctp	# SBcAP in 3GPP
@@ -6037,6 +6044,7 @@ speedtrace-disc	33334/udp	# SpeedTrace TraceAgent Discovery
 traceroute	33434/tcp/udp	# traceroute use
 mtrace		33435/udp	# IP Multicast Traceroute
 snip-slave	33656/tcp/udp	# SNIP Slave
+digilent-adept	33890/tcp	# Adept IP protocol
 turbonote-2	34249/tcp/udp	# TurboNote Relay Server Default Port
 p-net-local	34378/tcp/udp	# P-Net on IP local
 p-net-remote	34379/tcp/udp	# P-Net on IP remote
@@ -6072,6 +6080,7 @@ febooti-aw	36524/tcp	# Febooti Automation Workshop
 observium-agent	36602/tcp	# Observium statistics collection agent
 mapx		36700/tcp	# MapX communication
 kastenxpipe	36865/tcp/udp	# KastenX Pipe
+3gpp-w1ap	37472/sctp	# W1 signalling transport
 neckar		37475/tcp/udp	# science + computing's Venus Administration Port
 gdrive-sync	37483/tcp	# Google Drive Sync
 eftp		37601/tcp	# Epipole File Transfer Protocol

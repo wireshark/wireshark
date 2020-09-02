@@ -238,7 +238,7 @@ raknet_get_session_state(packet_info *pinfo) {
     state = (raknet_session_state_t*)conversation_get_proto_data(conversation, proto_raknet);
 
     if (state == NULL) {
-        state = (raknet_session_state_t*)wmem_alloc(wmem_file_scope(), sizeof(raknet_session_state_t));
+        state = wmem_new(wmem_file_scope(), raknet_session_state_t);
         state->use_encryption = FALSE;
         state->subdissector = NULL;
         conversation_add_proto_data(conversation, proto_raknet, state);
@@ -925,7 +925,7 @@ raknet_dissect_common_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rak
     dissector_handle_t next_dissector;
     gint dissected;
     heur_dtbl_entry_t *hdtbl_entry;
-    const int* flag_flds[] = {
+    static int * const flag_flds[] = {
         &hf_raknet_message_reliability,
         &hf_raknet_message_has_split_packet,
         NULL
@@ -1264,7 +1264,7 @@ raknet_dissect_connected_message(tvbuff_t *tvb, packet_info *pinfo,
         return tvb_captured_length(tvb);
     }
     else if (msg_type & (1 << 6)) { /* isACK */
-        const int *ack_flds[] = {
+        static int * const ack_flds[] = {
             &hf_raknet_packet_is_for_connected,
             &hf_raknet_packet_is_ACK,
             &hf_raknet_packet_has_B_and_AS,
@@ -1295,7 +1295,7 @@ raknet_dissect_connected_message(tvbuff_t *tvb, packet_info *pinfo,
         }
     }
     else if (msg_type & (1 << 5)) { /* isNAK */
-        const int* nak_flds[] = {
+        static int * const nak_flds[] = {
             &hf_raknet_packet_is_for_connected,
             &hf_raknet_packet_is_ACK,
             &hf_raknet_packet_is_NAK,
@@ -1327,7 +1327,7 @@ raknet_dissect_connected_message(tvbuff_t *tvb, packet_info *pinfo,
          */
         guint32 packet_number;
         gboolean has_multiple_messages = FALSE;
-        const int* common_flds[] = {
+        static int * const common_flds[] = {
             &hf_raknet_packet_is_for_connected,
             &hf_raknet_packet_is_ACK,
             &hf_raknet_packet_is_NAK,

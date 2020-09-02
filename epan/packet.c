@@ -520,6 +520,12 @@ dissect_record(epan_dissect_t *edt, int file_type_subtype,
 	edt->pi.cinfo = cinfo;
 	edt->pi.presence_flags = 0;
 	edt->pi.num = fd->num;
+	/*
+	 * XXX - this doesn't check the wtap_rec because, for
+	 * some capture files, time stamps are supplied only
+	 * when reading sequentially, so we keep the time stamp
+	 * in the frame_data structure.
+	 */
 	if (fd->has_ts) {
 		edt->pi.presence_flags |= PINFO_HAS_TS;
 		edt->pi.abs_ts = fd->abs_ts;
@@ -2746,6 +2752,7 @@ dissector_try_heuristic(heur_dissector_list_t sub_dissectors, tvbuff_t *tvb,
 	const char        *saved_curr_proto;
 	const char        *saved_heur_list_name;
 	GSList            *entry;
+	GSList            *prev_entry = NULL;
 	guint16            saved_can_desegment;
 	guint              saved_layers_len = 0;
 	heur_dtbl_entry_t *hdtbl_entry;
@@ -2829,9 +2836,16 @@ dissector_try_heuristic(heur_dissector_list_t sub_dissectors, tvbuff_t *tvb,
 		}
 		if (len) {
 			*heur_dtbl_entry = hdtbl_entry;
+
+			/* Bubble the matched entry to the top for faster search next time. */
+			if (prev_entry != NULL) {
+				sub_dissectors->dissectors = g_slist_remove_link(sub_dissectors->dissectors, entry);
+				sub_dissectors->dissectors = g_slist_concat(entry, sub_dissectors->dissectors);
+			}
 			status = TRUE;
 			break;
 		}
+		prev_entry = entry;
 	}
 
 	pinfo->current_proto = saved_curr_proto;

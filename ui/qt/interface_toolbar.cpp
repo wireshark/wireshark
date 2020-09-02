@@ -14,7 +14,7 @@
 #include "interface_toolbar.h"
 #include <ui/qt/widgets/interface_toolbar_lineedit.h>
 #include "simple_dialog.h"
-#include "ui/main_statusbar.h"
+#include "wireshark_application.h"
 #include <ui_interface_toolbar.h>
 
 #include "capture_opts.h"
@@ -238,14 +238,14 @@ QWidget *InterfaceToolbar::createSelector(iface_toolbar_control *control)
         QString display = QString().fromUtf8((gchar *)val->display);
         QByteArray interface_value;
 
-        interface_value.append(value);
+        interface_value.append(value.toUtf8());
         if (display.isEmpty())
         {
             display = value;
         }
         else
         {
-            interface_value.append('\0' + display);
+            interface_value.append(QString('\0' + display).toUtf8());
         }
         combobox->addItem(display, value);
         if (val->is_default)
@@ -555,7 +555,7 @@ void InterfaceToolbar::controlReceived(QString ifname, int num, int command, QBy
             break;
 
         case commandStatusMessage:
-            statusbar_push_temporary_msg("%s", payload.data());
+            wsApp->pushStatus(WiresharkApplication::TemporaryStatus, payload);
             break;
 
         case commandInformationMessage:

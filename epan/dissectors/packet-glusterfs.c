@@ -12,7 +12,6 @@
  * References to source files point in general to the glusterfs sources.
  * There is currently no RFC or other document where the protocol is
  * completely described. The glusterfs sources can be found at:
- * - http://git.gluster.com/?p=glusterfs.git
  * - https://github.com/gluster/glusterfs
  *
  * The coding-style is roughly the same as the one use in the Linux kernel,
@@ -239,7 +238,7 @@ static int
 glusterfs_rpc_dissect_mode(proto_tree *tree, tvbuff_t *tvb, int hfindex,
 								int offset)
 {
-	static const int *mode_bits[] = {
+	static int * const mode_bits[] = {
 		&hf_glusterfs_mode_suid,
 		&hf_glusterfs_mode_sgid,
 		&hf_glusterfs_mode_svtx,
@@ -401,7 +400,7 @@ glusterfs_rpc_dissect_flags(proto_tree *tree, tvbuff_t *tvb, int offset)
 	proto_item *flag_tree;
 	header_field_info *rdonly_hf, *accmode_hf;
 
-	static const int *flag_bits[] = {
+	static int * const flag_bits[] = {
 		&hf_glusterfs_flags_wronly,
 		&hf_glusterfs_flags_rdwr,
 		&hf_glusterfs_flags_creat,
@@ -450,7 +449,7 @@ glusterfs_rpc_dissect_flags(proto_tree *tree, tvbuff_t *tvb, int offset)
 static int
 glusterfs_rpc_dissect_statfs(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	static const int *flag_bits[] = {
+	static int * const flag_bits[] = {
 		&hf_glusterfs_mnt_flag_rdonly,
 		&hf_glusterfs_mnt_flag_nosuid,
 		&hf_glusterfs_mnt_flag_nodev,
@@ -1137,7 +1136,7 @@ glusterfs_gfs3_op_setattr_reply(tvbuff_t *tvb, packet_info *pinfo,
 static int
 glusterfs_rpc_dissect_setattr(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	static const int *flag_bits[] = {
+	static int * const flag_bits[] = {
 		&hf_glusterfs_setattr_set_mode,
 		&hf_glusterfs_setattr_set_uid,
 		&hf_glusterfs_setattr_set_gid,
@@ -1594,7 +1593,7 @@ static int
 glusterfs_gfs3_3_op_fsync_call(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
-	static const int *flag_bits[] = {
+	static int * const flag_bits[] = {
 		&hf_glusterfs_fsync_flag_datasync,
 		&hf_glusterfs_fsync_flag_unknown,
 		NULL
@@ -2550,7 +2549,7 @@ static int
 glusterfs_gfs4_0_op_fsync_call(tvbuff_t *tvb,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
-	static const int *flag_bits[] = {
+	static int * const flag_bits[] = {
 		&hf_glusterfs_fsync_flag_datasync,
 		&hf_glusterfs_fsync_flag_unknown,
 		NULL

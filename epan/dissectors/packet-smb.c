@@ -1888,7 +1888,7 @@ typedef struct _smb_uid_t {
 static void
 smb_file_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 mask)
 {
-	static const int * mask_flags[] = {
+	static int * const mask_flags[] = {
 		&hf_smb_file_access_mask_write_attribute,
 		&hf_smb_file_access_mask_read_attribute,
 		&hf_smb_file_access_mask_execute,
@@ -1918,7 +1918,7 @@ struct access_mask_info smb_file_access_mask_info = {
 static void
 smb_dir_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 mask)
 {
-	static const int * mask_flags[] = {
+	static int * const mask_flags[] = {
 		&hf_smb_dir_access_mask_write_attribute,
 		&hf_smb_dir_access_mask_read_attribute,
 		&hf_smb_dir_access_mask_delete_child,
@@ -2323,7 +2323,7 @@ static const true_false_string tfs_da_writetru = {
 static int
 dissect_access(tvbuff_t *tvb, proto_tree *parent_tree, int offset, int hf_access)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_smb_access_writetru,
 		&hf_smb_access_caching,
 		&hf_smb_access_locality,
@@ -2423,7 +2423,7 @@ static const true_false_string tfs_file_attribute_encrypted = {
 static int
 dissect_file_attributes(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_smb_file_attr_archive_16bit,
 		&hf_smb_file_attr_directory_16bit,
 		&hf_smb_file_attr_volume_16bit,
@@ -2457,7 +2457,7 @@ dissect_file_ext_attr_bits(tvbuff_t *tvb, proto_tree *parent_tree, int offset,
 	 * Does the Win32 API documentation, or the NT Native API book,
 	 * suggest anything?
 	 */
-	static const int * mask_fields[] = {
+	static int * const mask_fields[] = {
 		&hf_smb_file_eattr_read_only,
 		&hf_smb_file_eattr_hidden,
 		&hf_smb_file_eattr_system,
@@ -2502,7 +2502,7 @@ dissect_file_ext_attr(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 static int
 dissect_dir_info_file_attributes(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_smb_file_attr_read_only_8bit,
 		&hf_smb_file_attr_hidden_8bit,
 		&hf_smb_file_attr_system_8bit,
@@ -2550,7 +2550,7 @@ static const true_false_string tfs_search_attribute_archive = {
 static int
 dissect_search_attributes(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_smb_search_attribute_read_only,
 		&hf_smb_search_attribute_hidden,
 		&hf_smb_search_attribute_system,
@@ -2576,7 +2576,7 @@ dissect_search_attributes(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 static int
 dissect_extended_file_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_smb_file_attr_read_only_16bit,
 		&hf_smb_file_attr_hidden_16bit,
 		&hf_smb_file_attr_system_16bit,
@@ -2704,7 +2704,7 @@ dissect_negprot_capabilities(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
 	guint32     mask;
 
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_smb_server_cap_raw_mode,
 		&hf_smb_server_cap_mpx_mode,
 		&hf_smb_server_cap_unicode,
@@ -2747,7 +2747,7 @@ static const true_false_string tfs_rm_write = {
 static int
 dissect_negprot_rawmode(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_smb_rm_read,
 		&hf_smb_rm_write,
 		NULL
@@ -2784,12 +2784,12 @@ static const true_false_string tfs_sm_sig_required = {
 static int
 dissect_negprot_security_mode(tvbuff_t *tvb, proto_tree *parent_tree, int offset, int wc)
 {
-	static const int * flags13[] = {
+	static int * const flags13[] = {
 		&hf_smb_sm_mode16,
 		&hf_smb_sm_password16,
 		NULL
 	};
-	static const int * flags17[] = {
+	static int * const flags17[] = {
 		&hf_smb_sm_mode,
 		&hf_smb_sm_password,
 		&hf_smb_sm_signatures,
@@ -3318,7 +3318,7 @@ dissect_old_dir_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 	COUNT_BYTES(dn_len);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", Directory: %s",
-		    format_text(wmem_packet_scope(), dn, strlen(dn)));
+		    format_text(wmem_packet_scope(), (const guchar *)dn, strlen(dn)));
 
 	END_OF_SMB
 
@@ -3457,7 +3457,7 @@ dissect_tree_connect_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	COUNT_BYTES(an_len);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
-		    format_text(wmem_packet_scope(), an, strlen(an)));
+		    format_text(wmem_packet_scope(), (const guchar*)an, strlen(an)));
 
 	/* buffer format */
 	CHECK_BYTE_COUNT(1);
@@ -3630,7 +3630,7 @@ static const value_string of_open[] = {
 static int
 dissect_open_function(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_smb_open_function_create,
 		&hf_smb_open_function_open,
 		NULL
@@ -3658,7 +3658,7 @@ static const true_false_string tfs_mf_verify = {
 static int
 dissect_move_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_smb_move_flags_verify,
 		&hf_smb_move_flags_dir,
 		&hf_smb_move_flags_file,
@@ -3686,7 +3686,7 @@ static const true_false_string tfs_cf_ea_action = {
 static int
 dissect_copy_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_smb_copy_flags_ea_action,
 		&hf_smb_copy_flags_tree_copy,
 		&hf_smb_copy_flags_verify,
@@ -3739,11 +3739,11 @@ dissect_move_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 	if (fn == NULL)
 		goto endofcommand;
 	proto_tree_add_string_format(tree, hf_smb_file_name, tvb, offset,
-		fn_len,	fn, "Old File Name: %s", format_text(wmem_packet_scope(), fn, strlen(fn)));
+		fn_len,	fn, "Old File Name: %s", format_text(wmem_packet_scope(), (const guchar*)fn, strlen(fn)));
 	COUNT_BYTES(fn_len);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", Old Name: %s",
-		    format_text(wmem_packet_scope(), fn, strlen(fn)));
+		    format_text(wmem_packet_scope(), (const guchar*)fn, strlen(fn)));
 
 	/* buffer format */
 	CHECK_BYTE_COUNT(1);
@@ -3756,11 +3756,11 @@ dissect_move_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 	if (fn == NULL)
 		goto endofcommand;
 	proto_tree_add_string_format(tree, hf_smb_file_name, tvb, offset,
-		fn_len,	fn, "New File Name: %s", format_text(wmem_packet_scope(), fn, strlen(fn)));
+		fn_len,	fn, "New File Name: %s", format_text(wmem_packet_scope(), (const guchar*)fn, strlen(fn)));
 	COUNT_BYTES(fn_len);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", New Name: %s",
-		    format_text(wmem_packet_scope(), fn, strlen(fn)));
+		    format_text(wmem_packet_scope(), (const guchar*)fn, strlen(fn)));
 
 	END_OF_SMB
 
@@ -3803,11 +3803,11 @@ dissect_copy_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 	if (fn == NULL)
 		goto endofcommand;
 	proto_tree_add_string_format(tree, hf_smb_file_name, tvb, offset,
-		fn_len, fn, "Source File Name: %s", format_text(wmem_packet_scope(), fn, strlen(fn)));
+		fn_len, fn, "Source File Name: %s", format_text(wmem_packet_scope(), (const guchar*)fn, strlen(fn)));
 	COUNT_BYTES(fn_len);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", Source Name: %s",
-		    format_text(wmem_packet_scope(), fn, strlen(fn)));
+		    format_text(wmem_packet_scope(), (const guchar*)fn, strlen(fn)));
 
 	/* buffer format */
 	CHECK_BYTE_COUNT(1);
@@ -3821,10 +3821,10 @@ dissect_copy_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 		goto endofcommand;
 	proto_tree_add_string_format(tree, hf_smb_file_name, tvb, offset,
 		fn_len, fn, "Destination File Name: %s",
-		format_text(wmem_packet_scope(), fn, strlen(fn)));
+		format_text(wmem_packet_scope(), (const guchar*)fn, strlen(fn)));
 	COUNT_BYTES(fn_len);
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, ", Destination Name: %s", format_text(wmem_packet_scope(), fn, strlen(fn)));
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", Destination Name: %s", format_text(wmem_packet_scope(), (const guchar*)fn, strlen(fn)));
 
 	END_OF_SMB
 
@@ -3915,7 +3915,7 @@ dissect_open_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	}
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
-		    format_text(wmem_packet_scope(), fn, strlen(fn)));
+		    format_text(wmem_packet_scope(), (const guchar*)fn, strlen(fn)));
 
 	END_OF_SMB
 
@@ -3941,7 +3941,7 @@ dissect_nt_create_bits(tvbuff_t *tvb, proto_tree *parent_tree, int offset,
 	 * in the response. However, Windows does not do that. Or at least
 	 * Win2K doesn't.
 	 */
-	static const int * fields[] = {
+	static int * const fields[] = {
 		&hf_smb_nt_create_bits_oplock,
 		&hf_smb_nt_create_bits_boplock,
 		&hf_smb_nt_create_bits_dir,
@@ -3974,7 +3974,7 @@ dissect_smb_access_mask_bits(tvbuff_t *tvb, proto_tree *parent_tree,
 	 * and others come from the section on ZwOpenFile in "Windows(R)
 	 * NT(R)/2000 Native API Reference".
 	 */
-	static const int * fields[] = {
+	static int * const fields[] = {
 		&hf_smb_nt_access_mask_read,
 		&hf_smb_nt_access_mask_write,
 		&hf_smb_nt_access_mask_append,
@@ -4029,7 +4029,7 @@ dissect_nt_share_access_bits(tvbuff_t *tvb, proto_tree *parent_tree,
     int offset, int len, guint32 mask)
 {
 	proto_item *item;
-	static const int * fields[] = {
+	static int * const fields[] = {
 		&hf_smb_nt_share_access_read,
 		&hf_smb_nt_share_access_write,
 		&hf_smb_nt_share_access_delete,
@@ -4069,7 +4069,7 @@ dissect_nt_create_options_bits(tvbuff_t *tvb, proto_tree *parent_tree,
 	 *
 	 *	http://www.samba.org/samba/ftp/specs/smb-nt01.doc
 	 */
-	static const int * fields[] = {
+	static int * const fields[] = {
 		&hf_smb_nt_create_options_directory_file,
 		&hf_smb_nt_create_options_write_through,
 		&hf_smb_nt_create_options_sequential_only,
@@ -4478,7 +4478,7 @@ dissect_create_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
-		    format_text(wmem_packet_scope(), fn, strlen(fn)));
+		    format_text(wmem_packet_scope(), (const guchar*)fn, strlen(fn)));
 
 	END_OF_SMB
 
@@ -4546,7 +4546,7 @@ dissect_delete_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	COUNT_BYTES(fn_len);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
-		    format_text(wmem_packet_scope(), fn, strlen(fn)));
+		    format_text(wmem_packet_scope(), (const guchar*)fn, strlen(fn)));
 
 	END_OF_SMB
 
@@ -4587,7 +4587,7 @@ dissect_rename_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	COUNT_BYTES(fn_len);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", Old Name: %s",
-		    format_text(wmem_packet_scope(), fn, strlen(fn)));
+		    format_text(wmem_packet_scope(), (const guchar*)fn, strlen(fn)));
 
 	/* buffer format */
 	CHECK_BYTE_COUNT(1);
@@ -4605,13 +4605,13 @@ dissect_rename_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	COUNT_BYTES(fn_len);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", New Name: %s",
-		    format_text(wmem_packet_scope(), fn, strlen(fn)));
+		    format_text(wmem_packet_scope(), (const guchar*)fn, strlen(fn)));
 
 	END_OF_SMB
 
 	/* save the offset/len for this transaction */
 	if (si->sip && !pinfo->fd->visited) {
-		rni = (smb_rename_saved_info_t *)wmem_alloc(wmem_file_scope(), sizeof(smb_rename_saved_info_t));
+		rni = wmem_new(wmem_file_scope(), smb_rename_saved_info_t);
 		rni->old_name = wmem_strdup(wmem_file_scope(), old_name);
 		rni->new_name = wmem_strdup(wmem_file_scope(), new_name);
 
@@ -4660,7 +4660,7 @@ dissect_nt_rename_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	COUNT_BYTES(fn_len);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", Old Name: %s",
-		    format_text(wmem_packet_scope(), fn, strlen(fn)));
+		    format_text(wmem_packet_scope(), (const guchar*)fn, strlen(fn)));
 
 	/* buffer format */
 	CHECK_BYTE_COUNT(1);
@@ -4677,7 +4677,7 @@ dissect_nt_rename_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	COUNT_BYTES(fn_len);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", New Name: %s",
-		    format_text(wmem_packet_scope(), fn, strlen(fn)));
+		    format_text(wmem_packet_scope(), (const guchar*)fn, strlen(fn)));
 
 	END_OF_SMB
 
@@ -4714,7 +4714,7 @@ dissect_query_information_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	COUNT_BYTES(fn_len);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
-		    format_text(wmem_packet_scope(), fn, strlen(fn)));
+		    format_text(wmem_packet_scope(), (const guchar*)fn, strlen(fn)));
 
 	END_OF_SMB
 
@@ -4789,7 +4789,7 @@ dissect_set_information_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	COUNT_BYTES(fn_len);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
-		    format_text(wmem_packet_scope(), fn, strlen(fn)));
+		    format_text(wmem_packet_scope(), (const guchar*)fn, strlen(fn)));
 
 	END_OF_SMB
 
@@ -5075,7 +5075,7 @@ dissect_write_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 	/* save the offset/len for this transaction */
 	if (si->sip && !pinfo->fd->visited) {
-		rwi	    = (rw_info_t *)wmem_alloc(wmem_file_scope(), sizeof(rw_info_t));
+		rwi	    = wmem_new(wmem_file_scope(), rw_info_t);
 		rwi->offset = ofs;
 		rwi->len    = cnt;
 		rwi->fid    = fid;
@@ -5239,7 +5239,7 @@ dissect_create_temporary_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	COUNT_BYTES(fn_len);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
-		    format_text(wmem_packet_scope(), fn, strlen(fn)));
+		    format_text(wmem_packet_scope(), (const guchar*)fn, strlen(fn)));
 
 	END_OF_SMB
 
@@ -6069,7 +6069,7 @@ dissect_search_find_request(tvbuff_t *tvb, packet_info *pinfo,
 	COUNT_BYTES(fn_len);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", File: %s",
-		    format_text(wmem_packet_scope(), fn, strlen(fn)));
+		    format_text(wmem_packet_scope(), (const guchar*)fn, strlen(fn)));
 
 	/* buffer format */
 	CHECK_BYTE_COUNT(1);
@@ -6249,7 +6249,7 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	proto_tree *tr         = NULL;
 	int         old_offset = offset;
 	smb_locking_saved_info_t *ld = NULL;
-	static const int * locks[] = {
+	static int * const locks[] = {
 		&hf_smb_lock_type_large,
 		&hf_smb_lock_type_cancel,
 		&hf_smb_lock_type_change,
@@ -6316,7 +6316,7 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 	/* store the locking data for the response */
 	if ((!pinfo->fd->visited) && si->sip) {
-		ld = (smb_locking_saved_info_t *)wmem_alloc(wmem_file_scope(), sizeof(smb_locking_saved_info_t));
+		ld = wmem_new(wmem_file_scope(), smb_locking_saved_info_t);
 		ld->type	 = lt;
 		ld->oplock_level = ol;
 		ld->num_lock	 = num_lock;
@@ -6373,7 +6373,7 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 				/* remember the unlock for the reply */
 				if (ld) {
 					smb_lock_info_t *li;
-					li = (smb_lock_info_t *)wmem_alloc(wmem_file_scope(), sizeof(smb_lock_info_t));
+					li = wmem_new(wmem_file_scope(), smb_lock_info_t);
 					li->next = ld->unlocks;
 					ld->unlocks = li;
 					li->pid = lock_pid;
@@ -6450,7 +6450,7 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 				/* remember the lock for the reply */
 				if (ld) {
 					smb_lock_info_t *li;
-					li = (smb_lock_info_t *)wmem_alloc(wmem_file_scope(), sizeof(smb_lock_info_t));
+					li = wmem_new(wmem_file_scope(), smb_lock_info_t);
 					li->next = ld->locks;
 					ld->locks = li;
 					li->pid = lock_pid;
@@ -6522,7 +6522,7 @@ dissect_locking_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 			proto_tree *ltr;
 			smb_lock_info_t *li;
 			if (tree) {
-				litem = proto_tree_add_item(tree, hf_smb_lock_type, tvb, 0, 0, ENC_NA);
+				litem = proto_tree_add_uint(tree, hf_smb_lock_type, tvb, 0, 0, ld->type);
 				proto_item_set_generated(litem);
 				ltree = proto_item_add_subtree(litem, ett_smb_lock_type);
 
@@ -6607,7 +6607,7 @@ static const true_false_string tfs_oa_lock = {
 static int
 dissect_open_action(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_smb_open_action_lock,
 		&hf_smb_open_action_open,
 		NULL
@@ -6768,7 +6768,7 @@ dissect_open_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	}
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
-		    format_text(wmem_packet_scope(), fn, strlen(fn)));
+		    format_text(wmem_packet_scope(), (const guchar*)fn, strlen(fn)));
 
 	END_OF_SMB
 
@@ -6805,12 +6805,12 @@ static const value_string ipc_state_read_mode_vals[] = {
 int
 dissect_ipc_state(tvbuff_t *tvb, proto_tree *parent_tree, int offset, gboolean setstate_flag)
 {
-	static const int * setstate_flags[] = {
+	static int * const setstate_flags[] = {
 		&hf_smb_ipc_state_nonblocking,
 		&hf_smb_ipc_state_read_mode,
 		NULL
 	};
-	static const int * not_setstate_flags[] = {
+	static int * const not_setstate_flags[] = {
 		&hf_smb_ipc_state_nonblocking,
 		&hf_smb_ipc_state_endpoint,
 		&hf_smb_ipc_state_pipe_type,
@@ -7079,7 +7079,7 @@ dissect_read_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
 	/* save the offset/len for this transaction */
 	if (si->sip && !pinfo->fd->visited) {
-		rwi = (rw_info_t *)wmem_alloc(wmem_file_scope(), sizeof(rw_info_t));
+		rwi = wmem_new(wmem_file_scope(), rw_info_t);
 		rwi->offset = ofs;
 		rwi->len = maxcnt;
 		rwi->fid = fid;
@@ -7346,7 +7346,7 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 	/* save the offset/len for this transaction */
 	if (si->sip && !pinfo->fd->visited) {
-		rwi	    = (rw_info_t *)wmem_alloc(wmem_file_scope(), sizeof(rw_info_t));
+		rwi	    = wmem_new(wmem_file_scope(), rw_info_t);
 		rwi->offset = ofs;
 		rwi->len    = datalen;
 		rwi->fid    = fid;
@@ -7518,7 +7518,7 @@ static const true_false_string tfs_setup_action_guest = {
 static int
 dissect_setup_action(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_smb_setup_action_guest,
 		NULL
 	};
@@ -7718,7 +7718,7 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 					if (ntlmssph && (ntlmssph->type == 3)) {
 						smb_uid_t *smb_uid;
 
-						smb_uid = (smb_uid_t *)wmem_alloc(wmem_file_scope(), sizeof(smb_uid_t));
+						smb_uid = wmem_new(wmem_file_scope(), smb_uid_t);
 						smb_uid->logged_in  = -1;
 						smb_uid->logged_out = -1;
 						smb_uid->domain  = wmem_strdup(wmem_file_scope(), ntlmssph->domain_name);
@@ -7863,8 +7863,8 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		else
 			col_append_fstr(pinfo->cinfo, COL_INFO,
 					"%s\\%s",
-					format_text(wmem_packet_scope(), dn, strlen(dn)),
-					format_text(wmem_packet_scope(), an, strlen(an)));
+					format_text(wmem_packet_scope(), (const guchar*)dn, strlen(dn)),
+					format_text(wmem_packet_scope(), (const guchar*)an, strlen(an)));
 
 		/* OS */
 		an = get_unicode_or_ascii_string(tvb, &offset,
@@ -8111,7 +8111,7 @@ static const true_false_string tfs_connect_support_extended_signature = {
 static int
 dissect_connect_support_bits(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_smb_connect_support_search,
 		&hf_smb_connect_support_in_dfs,
 		&hf_smb_connect_support_csc_mask_vals,
@@ -8144,7 +8144,7 @@ static const true_false_string tfs_extended_response = {
 static int
 dissect_connect_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_smb_connect_flags_dtid,
 		&hf_smb_connect_flags_ext_sig,
 		&hf_smb_connect_flags_ext_resp,
@@ -8222,7 +8222,7 @@ dissect_tree_connect_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	}
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
-		    format_text(wmem_packet_scope(), an, strlen(an)));
+		    format_text(wmem_packet_scope(), (const guchar*)an, strlen(an)));
 
 	/*
 	 * NOTE: the Service string is always ASCII, even if the
@@ -8721,7 +8721,7 @@ static const value_string is_directory_vals[] = {
 static int
 dissect_nt_security_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_smb_nt_security_flags_context_tracking,
 		&hf_smb_nt_security_flags_effective_only,
 		NULL
@@ -8834,7 +8834,7 @@ static const true_false_string tfs_nt_create_options_open_for_free_space_query =
 int
 dissect_nt_notify_completion_filter(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_smb_nt_notify_file_name,
 		&hf_smb_nt_notify_dir_name,
 		&hf_smb_nt_notify_attributes,
@@ -8859,7 +8859,7 @@ dissect_nt_notify_completion_filter(tvbuff_t *tvb, proto_tree *parent_tree, int 
 static int
 dissect_nt_ioctl_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_smb_nt_ioctl_flags_root_handle,
 		NULL
 	};
@@ -8902,7 +8902,7 @@ static const true_false_string tfs_nt_qsd_sacl = {
 int
 dissect_security_information_mask(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_smb_nt_qsd_owner,
 		&hf_smb_nt_qsd_group,
 		&hf_smb_nt_qsd_dacl,
@@ -10705,7 +10705,7 @@ dissect_nt_create_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	}
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
-		    format_text(wmem_packet_scope(), fn, strlen(fn)));
+		    format_text(wmem_packet_scope(), (const guchar*)fn, strlen(fn)));
 
 	END_OF_SMB
 
@@ -11301,7 +11301,7 @@ dissect_ff2_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, in
 {
 	guint16               mask;
 	smb_transact2_info_t *t2i;
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_smb_ff2_backup,
 		&hf_smb_ff2_continue,
 		&hf_smb_ff2_resume,
@@ -11332,7 +11332,7 @@ dissect_ff2_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, in
 static int
 dissect_sfi_ioflag(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_smb_sfi_writetru,
 		&hf_smb_sfi_caching,
 		NULL
@@ -11366,7 +11366,7 @@ dissect_get_dfs_request_data(tvbuff_t *tvb, packet_info *pinfo,
 	COUNT_BYTES_TRANS(fn_len);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", File: %s",
-		    format_text(wmem_packet_scope(), fn, strlen(fn)));
+		    format_text(wmem_packet_scope(), (const guchar*)fn, strlen(fn)));
 
 	*bcp = bc;
 	return offset;
@@ -11446,7 +11446,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		COUNT_BYTES_TRANS(fn_len);
 
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
-			    format_text(wmem_packet_scope(), fn, strlen(fn)));
+			    format_text(wmem_packet_scope(), (const guchar*)fn, strlen(fn)));
 		break;
 	case 0x0001:	/*TRANS2_FIND_FIRST2*/
 		/* Search Attributes */
@@ -11488,7 +11488,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		COUNT_BYTES_TRANS(fn_len);
 
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Pattern: %s",
-			    format_text(wmem_packet_scope(), fn, strlen(fn)));
+			    format_text(wmem_packet_scope(), (const guchar*)fn, strlen(fn)));
 
 		break;
 	case 0x0002:	/*TRANS2_FIND_NEXT2*/
@@ -11528,7 +11528,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		COUNT_BYTES_TRANS(fn_len);
 
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Continue: %s",
-			    format_text(wmem_packet_scope(), fn, strlen(fn)));
+			    format_text(wmem_packet_scope(), (const guchar*)fn, strlen(fn)));
 
 		break;
 	case 0x0003:	/*TRANS2_QUERY_FS_INFORMATION*/
@@ -11590,7 +11590,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		}
 
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
-			    format_text(wmem_packet_scope(), fn, strlen(fn)));
+			    format_text(wmem_packet_scope(), (const guchar*)fn, strlen(fn)));
 
 		break;
 	case 0x0006:	/*TRANS2_SET_PATH_INFORMATION*/
@@ -11615,7 +11615,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		COUNT_BYTES_TRANS(fn_len);
 
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
-			    format_text(wmem_packet_scope(), fn, strlen(fn)));
+			    format_text(wmem_packet_scope(), (const guchar*)fn, strlen(fn)));
 
 		break;
 	case 0x0007: {	/*TRANS2_QUERY_FILE_INFORMATION*/
@@ -11741,7 +11741,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		COUNT_BYTES_TRANS(fn_len);
 
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
-			    format_text(wmem_packet_scope(), fn, strlen(fn)));
+			    format_text(wmem_packet_scope(), (const guchar*)fn, strlen(fn)));
 
 		break;
 	case 0x000c:	/*TRANS2_FIND_NOTIFY_NEXT*/
@@ -11771,7 +11771,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		COUNT_BYTES_TRANS(fn_len);
 
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Dir: %s",
-			    format_text(wmem_packet_scope(), fn, strlen(fn)));
+			    format_text(wmem_packet_scope(), (const guchar*)fn, strlen(fn)));
 		break;
 	case 0x000e:	/*TRANS2_SESSION_SETUP*/
 		/* XXX unknown structure*/
@@ -11788,7 +11788,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		COUNT_BYTES_TRANS(fn_len);
 
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", File: %s",
-			    format_text(wmem_packet_scope(), fn, strlen(fn)));
+			    format_text(wmem_packet_scope(), (const guchar*)fn, strlen(fn)));
 		break;
 	}
 
@@ -11808,7 +11808,7 @@ static guint16
 dissect_transaction_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
 	guint16     mask;
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_smb_transaction_flags_owt,
 		&hf_smb_transaction_flags_dtid,
 		NULL
@@ -11824,7 +11824,7 @@ dissect_transaction_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 static int
 dissect_get_dfs_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_smb_get_dfs_server_hold_storage,
 		&hf_smb_get_dfs_fielding,
 		NULL
@@ -11839,7 +11839,7 @@ dissect_get_dfs_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 static int
 dissect_dfs_referral_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_smb_dfs_referral_flags_name_list_referral,
 		&hf_smb_dfs_referral_flags_target_set_boundary,
 		NULL
@@ -12852,7 +12852,7 @@ dissect_qfi_SMB_FILE_STREAM_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 			fn);
 		COUNT_BYTES_SUBR(fn_len);
 
-		proto_item_append_text(item, ": %s", format_text(wmem_packet_scope(), fn, strlen(fn)));
+		proto_item_append_text(item, ": %s", format_text(wmem_packet_scope(), (const guchar*)fn, strlen(fn)));
 		proto_item_set_len(item, offset-old_offset);
 
 		if (neo == 0)
@@ -13040,7 +13040,7 @@ dissect_qspi_unix_acl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 		  int offset, guint16 *bcp, gboolean *trunc)
 {
 	guint16 num_file_aces;
-	static const int *perm_fields[] = {
+	static int * const perm_fields[] = {
 		&hf_smb_posix_ace_perm_read,
 		&hf_smb_posix_ace_perm_write,
 		&hf_smb_posix_ace_perm_execute,
@@ -13241,7 +13241,7 @@ static const true_false_string tfs_i2f_hidden = {
 static int
 dissect_unix_info2_file_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset, int hf)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_smb_unix_info2_file_flags_secure_delete,
 		&hf_smb_unix_info2_file_flags_enable_undelete,
 		&hf_smb_unix_info2_file_flags_synchronous,
@@ -13810,7 +13810,7 @@ static const true_false_string tfs_quota_flags_enabled = {
 static void
 dissect_quota_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
-	static const int *mask[] = {
+	static int * const mask[] = {
 		&hf_smb_quota_flags_deny_disk,
 		&hf_smb_quota_flags_log_warning,
 		&hf_smb_quota_flags_log_limit,
@@ -14316,7 +14316,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 						 * smb_transact2_info_t
 						 * structure.
 						 */
-						t2i = (smb_transact2_info_t *)wmem_alloc(wmem_file_scope(), sizeof(smb_transact2_info_t));
+						t2i = wmem_new(wmem_file_scope(), smb_transact2_info_t);
 						t2i->subcmd = subcmd;
 						t2i->info_level = -1;
 						t2i->resume_keys = FALSE;
@@ -14465,7 +14465,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					 * Allocate a new smb_transact_info_t
 					 * structure.
 					 */
-					tri = (smb_transact_info_t *)wmem_alloc(wmem_file_scope(), sizeof(smb_transact_info_t));
+					tri = wmem_new(wmem_file_scope(), smb_transact_info_t);
 					tri->subcmd = -1;
 					tri->trans_subcmd = -1;
 					tri->function = -1;
@@ -14651,7 +14651,7 @@ dissect_4_3_4_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
 		    format_text(wmem_packet_scope(), fn, strlen(fn)));
 
-	proto_item_append_text(item, " File: %s", format_text(wmem_packet_scope(), fn, strlen(fn)));
+	proto_item_append_text(item, " File: %s", format_text(wmem_packet_scope(), (const guchar*)fn, strlen(fn)));
 	proto_item_set_len(item, offset-old_offset);
 
 	*trunc = FALSE;
@@ -14756,9 +14756,9 @@ dissect_4_3_4_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	COUNT_BYTES_SUBR(fn_len);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-		    format_text(wmem_packet_scope(), fn, strlen(fn)));
+		    format_text(wmem_packet_scope(), (const guchar*)fn, strlen(fn)));
 
-	proto_item_append_text(item, " File: %s", format_text(wmem_packet_scope(), fn, strlen(fn)));
+	proto_item_append_text(item, " File: %s", format_text(wmem_packet_scope(), (const guchar*)fn, strlen(fn)));
 
 	/*
 	 * To quote the footnote for FileName in Section 2.2.8.1.2:
@@ -14886,9 +14886,9 @@ dissect_4_3_4_3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	COUNT_BYTES_SUBR(fn_len);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-		    format_text(wmem_packet_scope(), fn, strlen(fn)));
+		    format_text(wmem_packet_scope(), (const guchar*)fn, strlen(fn)));
 
-	proto_item_append_text(item, " File: %s", format_text(wmem_packet_scope(), fn, strlen(fn)));
+	proto_item_append_text(item, " File: %s", format_text(wmem_packet_scope(), (const guchar*)fn, strlen(fn)));
 	proto_item_set_len(item, offset-old_offset);
 
 	return offset;
@@ -14971,7 +14971,7 @@ dissect_4_3_4_4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	COUNT_BYTES_SUBR(fn_len);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-		    format_text(wmem_packet_scope(), fn, strlen(fn)));
+		    format_text(wmem_packet_scope(), (const guchar*)fn, strlen(fn)));
 
 	/* skip to next structure */
 	if (neo) {
@@ -14988,7 +14988,7 @@ dissect_4_3_4_4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 		}
 	}
 
-	proto_item_append_text(item, " File: %s", format_text(wmem_packet_scope(), fn, strlen(fn)));
+	proto_item_append_text(item, " File: %s", format_text(wmem_packet_scope(), (const guchar*)fn, strlen(fn)));
 	proto_item_set_len(item, offset-old_offset);
 
 	*trunc = FALSE;
@@ -15078,7 +15078,7 @@ dissect_4_3_4_5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	COUNT_BYTES_SUBR(fn_len);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-		    format_text(wmem_packet_scope(), fn, strlen(fn)));
+		    format_text(wmem_packet_scope(), (const guchar*)fn, strlen(fn)));
 
 	/* skip to next structure */
 	if (neo) {
@@ -15095,7 +15095,7 @@ dissect_4_3_4_5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 		}
 	}
 
-	proto_item_append_text(item, " File: %s", format_text(wmem_packet_scope(), fn, strlen(fn)));
+	proto_item_append_text(item, " File: %s", format_text(wmem_packet_scope(), (const guchar*)fn, strlen(fn)));
 	proto_item_set_len(item, offset-old_offset);
 
 	*trunc = FALSE;
@@ -15211,7 +15211,7 @@ dissect_4_3_4_6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	COUNT_BYTES_SUBR(fn_len);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-		    format_text(wmem_packet_scope(), fn, strlen(fn)));
+		    format_text(wmem_packet_scope(), (const guchar*)fn, strlen(fn)));
 
 	/* skip to next structure */
 	if (neo) {
@@ -15228,7 +15228,7 @@ dissect_4_3_4_6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 		}
 	}
 
-	proto_item_append_text(item, " File: %s", format_text(wmem_packet_scope(), fn, strlen(fn)));
+	proto_item_append_text(item, " File: %s", format_text(wmem_packet_scope(), (const guchar*)fn, strlen(fn)));
 	proto_item_set_len(item, offset-old_offset);
 
 	*trunc = FALSE;
@@ -15333,7 +15333,7 @@ dissect_4_3_4_6full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	COUNT_BYTES_SUBR(fn_len);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-		    format_text(wmem_packet_scope(), fn, strlen(fn)));
+		    format_text(wmem_packet_scope(), (const guchar*)fn, strlen(fn)));
 
 	/* skip to next structure */
 	if (neo) {
@@ -15350,7 +15350,7 @@ dissect_4_3_4_6full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 		}
 	}
 
-	proto_item_append_text(item, " File: %s", format_text(wmem_packet_scope(), fn, strlen(fn)));
+	proto_item_append_text(item, " File: %s", format_text(wmem_packet_scope(), (const guchar*)fn, strlen(fn)));
 	proto_item_set_len(item, offset-old_offset);
 
 	*trunc = FALSE;
@@ -15476,7 +15476,7 @@ dissect_4_3_4_6_id_both(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 	COUNT_BYTES_SUBR(fn_len);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-		    format_text(wmem_packet_scope(), fn, strlen(fn)));
+		    format_text(wmem_packet_scope(), (const guchar*)fn, strlen(fn)));
 
 	/* skip to next structure */
 	if (neo) {
@@ -15493,7 +15493,7 @@ dissect_4_3_4_6_id_both(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 		}
 	}
 
-	proto_item_append_text(item, " File: %s", format_text(wmem_packet_scope(), fn, strlen(fn)));
+	proto_item_append_text(item, " File: %s", format_text(wmem_packet_scope(), (const guchar*)fn, strlen(fn)));
 	proto_item_set_len(item, offset-old_offset);
 
 	*trunc = FALSE;
@@ -15557,7 +15557,7 @@ dissect_4_3_4_7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	COUNT_BYTES_SUBR(fn_len);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-		    format_text(wmem_packet_scope(), fn, strlen(fn)));
+		    format_text(wmem_packet_scope(), (const guchar*)fn, strlen(fn)));
 
 	/* skip to next structure */
 	if (neo) {
@@ -15574,7 +15574,7 @@ dissect_4_3_4_7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 		}
 	}
 
-	proto_item_append_text(item, " File: %s", format_text(wmem_packet_scope(), fn, strlen(fn)));
+	proto_item_append_text(item, " File: %s", format_text(wmem_packet_scope(), (const guchar*)fn, strlen(fn)));
 	proto_item_set_len(item, offset-old_offset);
 
 	*trunc = FALSE;
@@ -15764,7 +15764,7 @@ dissect_ff2_response_data(tvbuff_t * tvb, packet_info * pinfo,
 static int
 dissect_fs_attributes(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		/* case sensitive search */
 		&hf_smb_fs_attr_css,
 		/* case preserved names */
@@ -15820,7 +15820,7 @@ dissect_fs_attributes(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 static int
 dissect_device_characteristics(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
-	static const int * mask[] = {
+	static int * const mask[] = {
 		&hf_smb_device_char_removable,
 		&hf_smb_device_char_read_only,
 		&hf_smb_device_char_floppy,
@@ -15857,7 +15857,7 @@ static const true_false_string tfs_smb_mac_getset_comments = {
 
 static const true_false_string tfs_smb_mac_desktopdb_calls = {
 	"Macintosh Get & Set Desktop Database Info Supported",
-	"Macintosh Get & Set Desktop Database Info Supported"
+	"Macintosh Get & Set Desktop Database Info Not Supported"
 };
 
 static const true_false_string tfs_smb_mac_unique_ids = {
@@ -16279,7 +16279,7 @@ dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 	}
 
 	case 0x301: { 	/* MAC_QUERY_FS_INFO */
-		static const int * support_flags[] = {
+		static int * const support_flags[] = {
 			&hf_smb_mac_sup_access_ctrl,
 			&hf_smb_mac_sup_getset_comments,
 			&hf_smb_mac_sup_desktopdb_calls,
@@ -17843,7 +17843,7 @@ static const true_false_string tfs_smb_flags_response = {
 static int
 dissect_smb_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_smb_flags_response,
 		&hf_smb_flags_notify,
 		&hf_smb_flags_oplock,
@@ -17913,7 +17913,7 @@ static const true_false_string tfs_smb_flags2_string = {
 static int
 dissect_smb_flags2(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_smb_flags2_string,
 		&hf_smb_flags2_nt_error,
 		&hf_smb_flags2_roe,
@@ -18081,7 +18081,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 			*/
 			sip = (smb_saved_info_t *)g_hash_table_lookup(si->ct->unmatched, GUINT_TO_POINTER(pid_mid));
 			if (sip != NULL) {
-				new_key = (smb_saved_info_key_t *)wmem_alloc(wmem_file_scope(), sizeof(smb_saved_info_key_t));
+				new_key = wmem_new(wmem_file_scope(), smb_saved_info_key_t);
 				new_key->frame = pinfo->num;
 				new_key->pid_mid = pid_mid;
 				g_hash_table_insert(si->ct->matched, new_key,
@@ -18208,7 +18208,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 						   or it's a continuation of
 						   a response we've seen. */
 						sip->frame_res = pinfo->num;
-						new_key = (smb_saved_info_key_t *)wmem_alloc(wmem_file_scope(), sizeof(smb_saved_info_key_t));
+						new_key = wmem_new(wmem_file_scope(), smb_saved_info_key_t);
 						new_key->frame = sip->frame_res;
 						new_key->pid_mid = pid_mid;
 						g_hash_table_insert(si->ct->matched, new_key, sip);
@@ -18243,7 +18243,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 				}
 			}
 			if (si->request) {
-				sip = (smb_saved_info_t *)wmem_alloc(wmem_file_scope(), sizeof(smb_saved_info_t));
+				sip = wmem_new(wmem_file_scope(), smb_saved_info_t);
 				sip->frame_req = pinfo->num;
 				sip->frame_res = 0;
 				sip->req_time = pinfo->abs_ts;
@@ -18258,7 +18258,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 				sip->fid = 0;
 				sip->fid_seen_in_request = 0;
 				g_hash_table_insert(si->ct->unmatched, GUINT_TO_POINTER(pid_mid), sip);
-				new_key = (smb_saved_info_key_t *)wmem_alloc(wmem_file_scope(), sizeof(smb_saved_info_key_t));
+				new_key = wmem_new(wmem_file_scope(), smb_saved_info_key_t);
 				new_key->frame = sip->frame_req;
 				new_key->pid_mid = pid_mid;
 				g_hash_table_insert(si->ct->matched, new_key, sip);

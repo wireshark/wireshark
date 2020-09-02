@@ -135,7 +135,7 @@ void proto_reg_handoff_xmcp(void);
 #define XMCP_TYPE_CLASS         0x0110
 #define XMCP_TYPE_METHOD        0x3eef
 
-static const int *xmcp_type_fields[] = {
+static int * const xmcp_type_fields[] = {
   &hf_xmcp_type_reserved,
   &hf_xmcp_type_method,
   &hf_xmcp_type_class,

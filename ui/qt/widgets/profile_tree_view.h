@@ -44,6 +44,7 @@ class ProfileTreeView : public QTreeView
     Q_OBJECT
 public:
     ProfileTreeView(QWidget *parent = nullptr);
+    ~ProfileTreeView();
 
     void selectRow(int row);
     bool activeEdit();

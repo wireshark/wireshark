@@ -506,7 +506,7 @@ dissect_scte35_splice_insert(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     proto_item *ti;
     proto_tree *si_tree, *st_tree;
 
-    static const int *new_event_fields[] = {
+    static int * const new_event_fields[] = {
         &hf_out_of_network_indicator,
         &hf_program_splice_flag,
         &hf_duration_flag,
@@ -736,7 +736,7 @@ dissect_scte35_splice_schedule(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     proto_item *ti;
     proto_tree *ss_tree, *sp_tree, *component_tree;
 
-    static const int *splice_event_flags[] = {
+    static int * const splice_event_flags[] = {
         &hf_splice_out_of_network,
         &hf_splice_program_splice_flag,
         &hf_splice_duration_flag,
@@ -1190,7 +1190,7 @@ dissect_scte35_splice_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     gint offset = 0, descriptor_offset = 0;
     tvbuff_t *command_tvb;
 
-    const gint *section_flags[] = {
+    static int * const section_flags[] = {
         &hf_section_syntax_indicator,
         &hf_private_indicator,
         &hf_reserved,
@@ -1198,7 +1198,7 @@ dissect_scte35_splice_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         NULL
     };
 
-    const gint *encrypt_flags[] = {
+    static int * const encrypt_flags[] = {
         &hf_encrypted_packet,
         &hf_encryption_algorithm,
         &hf_pts_adjustment,

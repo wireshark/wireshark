@@ -102,7 +102,7 @@ static int hf_mvrp_vector_header = -1;
 static int hf_mvrp_leave_all_event = -1;
 static int hf_mvrp_number_of_values = -1;
 static gint ett_vector_header = -1;
-static const int *vector_header_fields[] = {
+static int * const vector_header_fields[] = {
     &hf_mvrp_leave_all_event,
     &hf_mvrp_number_of_values,
     NULL

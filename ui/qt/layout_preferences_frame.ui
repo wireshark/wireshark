@@ -213,6 +213,16 @@
         </widget>
        </item>
        <item>
+        <widget class="QRadioButton" name="pane1PacketDiagramRadioButton">
+         <property name="text">
+          <string>Packet Diagram</string>
+         </property>
+         <attribute name="buttonGroup">
+          <string notr="true">pane1ButtonGroup</string>
+         </attribute>
+        </widget>
+       </item>
+       <item>
         <widget class="QRadioButton" name="pane1NoneRadioButton">
          <property name="text">
           <string>None</string>
@@ -264,6 +274,16 @@
         </widget>
        </item>
        <item>
+        <widget class="QRadioButton" name="pane2PacketDiagramRadioButton">
+         <property name="text">
+          <string>Packet Diagram</string>
+         </property>
+         <attribute name="buttonGroup">
+          <string notr="true">pane2ButtonGroup</string>
+         </attribute>
+        </widget>
+       </item>
+       <item>
         <widget class="QRadioButton" name="pane2NoneRadioButton">
          <property name="text">
           <string>None</string>
@@ -308,6 +328,16 @@
         <widget class="QRadioButton" name="pane3PacketBytesRadioButton">
          <property name="text">
           <string>Packet Bytes</string>
+         </property>
+         <attribute name="buttonGroup">
+          <string notr="true">pane3ButtonGroup</string>
+         </attribute>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="pane3PacketDiagramRadioButton">
+         <property name="text">
+          <string>Packet Diagram</string>
          </property>
          <attribute name="buttonGroup">
           <string notr="true">pane3ButtonGroup</string>

@@ -25,8 +25,8 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * References:
- * IKEv2 http://www.ietf.org/rfc/rfc4306.txt?number=4306
- * IKEv2bis http://www.ietf.org/rfc/rfc5996.txt?number=5996
+ * IKEv2 https://tools.ietf.org/html/rfc4306
+ * IKEv2bis https://tools.ietf.org/html/rfc5996
  *
  * http://www.iana.org/assignments/isakmp-registry (last updated 2011-11-07)
  * http://www.iana.org/assignments/ipsec-registry (last updated 2011-03-14)
@@ -54,9 +54,6 @@
 #include <epan/proto_data.h>
 #include <epan/strutil.h>
 #include <epan/uat.h>
-#if GCRYPT_VERSION_NUMBER >= 0x010600
-#define HAVE_LIBGCRYPT_AEAD 1
-#endif
 
 void proto_register_isakmp(void);
 void proto_reg_handoff_isakmp(void);
@@ -242,6 +239,8 @@ static int hf_isakmp_notify_data_3gpp_emergency_call_numbers_flag_b2_ambulance =
 static int hf_isakmp_notify_data_3gpp_emergency_call_numbers_flag_b3_fire_brigade = -1;
 static int hf_isakmp_notify_data_3gpp_emergency_call_numbers_flag_b4_marine_guard = -1;
 static int hf_isakmp_notify_data_3gpp_emergency_call_numbers_flag_b5_mountain_rescue = -1;
+
+static int hf_iskamp_notify_data_3gpp_emergency_call_number = -1;
 
 static attribute_common_fields hf_isakmp_tek_key_attr = { -1, -1, -1, -1, -1 };
 
@@ -1342,7 +1341,6 @@ static const range_string notifmsg_v2_type[] = {
   { 14,14,      "NO_PROPOSAL_CHOSEN" },
   { 15,16,      "RESERVED" },
   { 17,17,      "INVALID_KE_PAYLOAD" },
-  { 15,16,      "RESERVED" },
   { 24,24,      "AUTHENTICATION_FAILED" },
   { 25,33,      "RESERVED" },
   { 34,34,      "SINGLE_PAIR_REQUIRED" },
@@ -1413,7 +1411,7 @@ static const range_string notifmsg_v2_type[] = {
   { 0,0,        NULL },
 };
 
-/* 3GPP private error and status types in Notyfy messages
+/* 3GPP private error and status types in Notify messages
  * 3GPP TS 24.302 V16.0.0 (2019-03)
  * 3GPP TS 24.502 V15.3.0 (2019-03)
  * Note currently all private data types wil be decoded as 3GPP if that's not good enough a preference must be used
@@ -1732,10 +1730,7 @@ static const true_false_string flag_v = {
   "A higher version enabled",
   "No higher version"
 };
-static const true_false_string flag_r = {
-  "Response",
-  "Request"
-};
+
 
 /* ROHC Attribute Type RFC5857 */
 
@@ -3396,9 +3391,9 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         proto_tree_add_item(ftree, hf_isakmp_flag_r, tvb, offset, 1, ENC_BIG_ENDIAN);
 
         proto_item_append_text(fti, " (%s, %s, %s)",
-                               (flags & I_FLAG) ? flag_i.true_string : flag_i.false_string,
-                               (flags & V_FLAG) ? flag_v.true_string : flag_v.false_string,
-                               (flags & R_FLAG) ? flag_r.true_string : flag_r.false_string);
+                               tfs_get_string(flags & I_FLAG, &flag_i),
+                               tfs_get_string(flags & V_FLAG, &flag_v),
+                               tfs_get_string(flags & R_FLAG, &tfs_response_request));
       }
       offset += 1;
     }
@@ -3411,8 +3406,8 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     if (isakmp_version == 2) {
       col_append_fstr(pinfo->cinfo, COL_INFO, " MID=%02u %s %s",
                       hdr.message_id,
-                      (flags & I_FLAG) ? flag_i.true_string : flag_i.false_string,
-                      (flags & R_FLAG) ? flag_r.true_string : flag_r.false_string);
+                      tfs_get_string(flags & I_FLAG, &flag_i),
+                      tfs_get_string(flags & R_FLAG, &tfs_response_request));
     }
 
     if (hdr.length < ISAKMP_HDR_SIZE) {
@@ -3751,9 +3746,9 @@ dissect_rohc_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 
 /* Dissect life duration, which is variable-length.  Note that this function
  * handles both/either the security association life duration as defined in
- * section 4.5 of RFC2407 (http://tools.ietf.org/html/rfc2407), as well as the
+ * section 4.5 of RFC2407 (https://tools.ietf.org/html/rfc2407), as well as the
  * life duration according to the attribute classes table in Appendix A of
- * RFC2409: http://tools.ietf.org/html/rfc2409#page-33 */
+ * RFC2409: https://tools.ietf.org/html/rfc2409#page-33 */
 static void
 dissect_life_duration(tvbuff_t *tvb, proto_tree *tree, proto_item *ti, int hf_uint32, int hf_uint64, int hf_bytes, int offset, guint len)
 {
@@ -4962,18 +4957,14 @@ dissect_notif(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_t
             }
 
             /* Payload Octet 8-n - Identity value */
-            const gchar *imei_str;
-            const gchar *imeisv_str;
             switch (octet) {
                 case 1:
                     /* IMEI */
-                    imei_str = tvb_bcd_dig_to_wmem_packet_str(tvb, offset, length, NULL, FALSE);
-                    proto_tree_add_string(tree, hf_isakmp_notify_data_3gpp_device_identity_imei, tvb, offset, length, imei_str);
+                    proto_tree_add_item(tree, hf_isakmp_notify_data_3gpp_device_identity_imei, tvb, offset, length, ENC_BCD_DIGITS_0_9);
                     break;
                 case 2:
                     /* IMEISV */
-                    imeisv_str = tvb_bcd_dig_to_wmem_packet_str(tvb, offset, length, NULL, FALSE);
-                    proto_tree_add_string(tree, hf_isakmp_notify_data_3gpp_device_identity_imeisv, tvb, offset, length, imeisv_str);
+                    proto_tree_add_item(tree, hf_isakmp_notify_data_3gpp_device_identity_imeisv, tvb, offset, length, ENC_BCD_DIGITS_0_9);
                     break;
                 default:
                     proto_tree_add_expert(tree, pinfo, &ei_isakmp_notify_data_3gpp_unknown_device_identity, tvb, offset, length);
@@ -4988,32 +4979,22 @@ dissect_notif(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_t
         {
           /* As specified in 3GPP TS 23.302 (Section 8.1.2.3) and TS 24.008 (Section 10.5.3.13) */
           proto_tree *em_call_num_tree;
-          proto_item *em_call_num_item;
 
           /* Main Payload Subtree */
-          em_call_num_item = proto_tree_add_item(tree,hf_text_only,tvb,offset,length,ENC_BIG_ENDIAN);
-          proto_item_set_text(em_call_num_item, "Emergency Call Numbers");
-          em_call_num_tree = proto_item_add_subtree(em_call_num_item, ett_isakmp_notify_data_3gpp_emergency_call_numbers_main);
+          em_call_num_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_isakmp_notify_data_3gpp_emergency_call_numbers_main, NULL, "Emergency Call Numbers");
 
           /* Payload Octet 5 - Length of IE Contents */
           proto_tree_add_item(em_call_num_tree, hf_isakmp_notify_data_3gpp_emergency_call_numbers_len, tvb, offset, 1, ENC_BIG_ENDIAN);
           offset += 1;
 
           /* Subtree for actual values */
-          proto_item *current_emergency_call_number_header;
           proto_tree *current_emergency_call_number_tree;
-
-          proto_item *current_emergency_call_number_item;
 
           while(offset<offset_end){
             guint8 current_em_num_len = tvb_get_guint8(tvb,offset)+1; //Total length including octets 3 and 4 for proper highlighting
 
-            /* Header to main payload subtree */
-            current_emergency_call_number_header = proto_tree_add_item(em_call_num_tree,hf_text_only,tvb,offset,current_em_num_len,ENC_BIG_ENDIAN);
-            proto_item_set_text(current_emergency_call_number_header, "Emergency Number");
-
             /* Subtree for elements*/
-            current_emergency_call_number_tree = proto_item_add_subtree(current_emergency_call_number_header, ett_isakmp_notify_data_3gpp_emergency_call_numbers_element);
+            current_emergency_call_number_tree = proto_tree_add_subtree(em_call_num_tree, tvb, offset, current_em_num_len, ett_isakmp_notify_data_3gpp_emergency_call_numbers_element, NULL, "Emergency Number");
 
             /*IE Octet 3 Number of octets used to encode the Emergency Service Category Value and the Number digits. */
             proto_tree_add_item(current_emergency_call_number_tree, hf_isakmp_notify_data_3gpp_emergency_call_numbers_element_len,tvb,offset,1,ENC_BIG_ENDIAN);
@@ -5023,7 +5004,7 @@ dissect_notif(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_t
              * Bits 1 to 5 are coded as bits 1 to 5 of octet 3 of the Service Category
              * information element as specified in subclause 10.5.4.33. (TS 24.008)
              */
-            static const int * isakmp_notify_data_3gpp_emergency_call_numbers_flags[] = {
+            static int * const isakmp_notify_data_3gpp_emergency_call_numbers_flags[] = {
               &hf_isakmp_notify_data_3gpp_emergency_call_numbers_spare,
               &hf_isakmp_notify_data_3gpp_emergency_call_numbers_flag_b5_mountain_rescue,
               &hf_isakmp_notify_data_3gpp_emergency_call_numbers_flag_b4_marine_guard,
@@ -5037,25 +5018,8 @@ dissect_notif(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_t
             offset += 1;
 
             /*IE Octet 5 to j | Digit_N+1 | Digit_N | */
-            current_emergency_call_number_item = proto_tree_add_item(current_emergency_call_number_tree, hf_text_only,tvb,offset,current_em_num_len,ENC_BIG_ENDIAN);
-            proto_item_set_text(current_emergency_call_number_item, "Emergency Number: ");
-            int current_element_offset = 0;
             current_em_num_len -= 2; //Not counting octets 3 and 4
-            //appending digits
-            while(current_element_offset<current_em_num_len){
-              //Digit 1
-              proto_item_append_text(current_emergency_call_number_item, "%d",
-                  tvb_get_guint8(tvb, offset+current_element_offset)&0x0F
-                  );
-              //Digit2
-              //(1111 XXXX indicates odd number of digits and bits 5 to 8 are spare)
-              if( (tvb_get_guint8(tvb, offset+current_element_offset)&0xF0) != 0xF0)
-                proto_item_append_text(current_emergency_call_number_item, "%d",
-                    (tvb_get_guint8(tvb, offset+current_element_offset)&0xF0)>>4
-                    );
-
-              current_element_offset += 1;
-            }
+            proto_tree_add_item(current_emergency_call_number_tree, hf_iskamp_notify_data_3gpp_emergency_call_number, tvb, offset, current_em_num_len, ENC_BCD_DIGITS_0_9);
             offset += current_em_num_len; //moving to the next number in the list
           }
         }
@@ -6566,7 +6530,7 @@ proto_register_isakmp(void)
         "Version Bit", HFILL }},
     { &hf_isakmp_flag_r,
       { "Response", "isakmp.flag_r",
-        FT_BOOLEAN, 8, TFS(&flag_r), R_FLAG,
+        FT_BOOLEAN, 8, TFS(&tfs_response_request), R_FLAG,
         "Response Bit", HFILL }},
     { &hf_isakmp_messageid,
       { "Message ID", "isakmp.messageid",
@@ -7842,7 +7806,7 @@ proto_register_isakmp(void)
          FT_UINT16, BASE_DEC, NULL, 0x0,
          NULL, HFILL }},
     { &hf_isakmp_kd_payload,
-      { "Key Download Paket", "isakmp.kd.payload",
+      { "Key Download Payload", "isakmp.kd.payload",
         FT_NONE, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
     { &hf_isakmp_kdp_type,
@@ -7896,7 +7860,7 @@ proto_register_isakmp(void)
         FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
     { &hf_isakmp_notify_data_3gpp_backoff_timer_len,
-      { "Length", "isakmp.notyfy.priv.3gpp.backoff_timer_len",
+      { "Length", "isakmp.notify.priv.3gpp.backoff_timer_len",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
 
@@ -7955,7 +7919,10 @@ proto_register_isakmp(void)
       { "Mountain Rescue", "isakmp.notify.priv.3gpp.emergency_call_numbers_flag_b5_mountain_rescue",
         FT_UINT8, BASE_DEC, NULL, 0x10,
         NULL, HFILL }},
-
+    { &hf_iskamp_notify_data_3gpp_emergency_call_number,
+      { "Emergency Number", "isakmp.notify.priv.3gpp.emergency_call_number",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }}
   };
 
 

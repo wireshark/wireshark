@@ -351,7 +351,7 @@ dissect_lwapp(tvbuff_t *tvb, packet_info *pinfo,
     tvbuff_t    *next_client;
     guint8       dest_mac[6];
     guint8       have_destmac=0;
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_lwapp_flags_type,
         &hf_lwapp_flags_fragment,
         &hf_lwapp_flags_fragment_type,

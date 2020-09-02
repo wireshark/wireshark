@@ -54,7 +54,7 @@ void proto_reg_handoff_megaco(void);
 #define PORT_MEGACO_TXT 2944
 #define PORT_MEGACO_BIN 2945
 
-static pref_t *sip_hide_generatd_call_ids;
+static pref_t *sip_hide_generated_call_ids;
 
 
 /* Define the megaco proto */
@@ -3033,10 +3033,10 @@ dissect_megaco_LocalRemotedescriptor(tvbuff_t *tvb, proto_tree *megaco_mediadesc
     if ((context != 0) && (context < 0xfffffffe)) {
         setup_info.hf_id = hf_megaco_Context;
         setup_info.hf_type = SDP_TRACE_ID_HF_TYPE_GUINT32;
-        if (!sip_hide_generatd_call_ids) {
+        if (!sip_hide_generated_call_ids) {
             setup_info.add_hidden = FALSE;
         } else {
-            setup_info.add_hidden = prefs_get_bool_value(sip_hide_generatd_call_ids, pref_current);
+            setup_info.add_hidden = prefs_get_bool_value(sip_hide_generated_call_ids, pref_current);
         }
         setup_info.trace_id.num = context;
         message_info.data = &setup_info;
@@ -3934,7 +3934,7 @@ proto_reg_handoff_megaco(void)
 
     exported_pdu_tap = find_tap_id(EXPORT_PDU_TAP_NAME_LAYER_7);
 
-    sip_hide_generatd_call_ids = prefs_find_preference(prefs_find_module("sip"), "hide_generatd_call_id");
+    sip_hide_generated_call_ids = prefs_find_preference(prefs_find_module("sip"), "hide_generated_call_id");
 
 }
 

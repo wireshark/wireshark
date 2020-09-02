@@ -352,8 +352,6 @@ const range_string zbee_aps_apid_names[] = {
     { ZBEE_PROFILE_MFR_SPEC_ORG_MIN,    ZBEE_PROFILE_MFR_SPEC_ORG_MAX,
             "Unallocated Manufacturer-Specific" },
 
-    { ZBEE_PROFILE_IEEE_1451_5,     ZBEE_PROFILE_IEEE_1451_5,       "IEEE_1451_5" },
-
     /* Manufacturer Allocations */
     { ZBEE_PROFILE_CIRRONET_0_MIN,  ZBEE_PROFILE_CIRRONET_0_MAX,    ZBEE_MFG_CIRRONET },
     { ZBEE_PROFILE_CHIPCON_MIN,     ZBEE_PROFILE_CHIPCON_MAX,       ZBEE_MFG_CHIPCON },
@@ -778,7 +776,7 @@ dissect_zbee_aps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     guint8                                      fcf;
     guint8                                      offset = 0;
 
-    static const int   * frag_ack_flags[] = {
+    static int * const frag_ack_flags[] = {
         &hf_zbee_aps_block_ack1,
         &hf_zbee_aps_block_ack2,
         &hf_zbee_aps_block_ack3,

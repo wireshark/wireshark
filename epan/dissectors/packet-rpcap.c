@@ -30,26 +30,26 @@
 #define PSNAME "RPCAP"
 #define PFNAME "rpcap"
 
-#define RPCAP_MSG_ERROR               1
-#define RPCAP_MSG_FINDALLIF_REQ       2
-#define RPCAP_MSG_OPEN_REQ            3
-#define RPCAP_MSG_STARTCAP_REQ        4
-#define RPCAP_MSG_UPDATEFILTER_REQ    5
-#define RPCAP_MSG_CLOSE               6
-#define RPCAP_MSG_PACKET              7
-#define RPCAP_MSG_AUTH_REQ            8
-#define RPCAP_MSG_STATS_REQ           9
-#define RPCAP_MSG_ENDCAP_REQ          10
-#define RPCAP_MSG_SETSAMPLING_REQ     11
+#define RPCAP_MSG_ERROR               0x01
+#define RPCAP_MSG_FINDALLIF_REQ       0x02
+#define RPCAP_MSG_OPEN_REQ            0x03
+#define RPCAP_MSG_STARTCAP_REQ        0x04
+#define RPCAP_MSG_UPDATEFILTER_REQ    0x05
+#define RPCAP_MSG_CLOSE               0x06
+#define RPCAP_MSG_PACKET              0x07
+#define RPCAP_MSG_AUTH_REQ            0x08
+#define RPCAP_MSG_STATS_REQ           0x09
+#define RPCAP_MSG_ENDCAP_REQ          0x0A
+#define RPCAP_MSG_SETSAMPLING_REQ     0x0B
 
-#define RPCAP_MSG_FINDALLIF_REPLY     (128+RPCAP_MSG_FINDALLIF_REQ)
-#define RPCAP_MSG_OPEN_REPLY          (128+RPCAP_MSG_OPEN_REQ)
-#define RPCAP_MSG_STARTCAP_REPLY      (128+RPCAP_MSG_STARTCAP_REQ)
-#define RPCAP_MSG_UPDATEFILTER_REPLY  (128+RPCAP_MSG_UPDATEFILTER_REQ)
-#define RPCAP_MSG_AUTH_REPLY          (128+RPCAP_MSG_AUTH_REQ)
-#define RPCAP_MSG_STATS_REPLY         (128+RPCAP_MSG_STATS_REQ)
-#define RPCAP_MSG_ENDCAP_REPLY        (128+RPCAP_MSG_ENDCAP_REQ)
-#define RPCAP_MSG_SETSAMPLING_REPLY   (128+RPCAP_MSG_SETSAMPLING_REQ)
+#define RPCAP_MSG_FINDALLIF_REPLY     (0x80+RPCAP_MSG_FINDALLIF_REQ)
+#define RPCAP_MSG_OPEN_REPLY          (0x80+RPCAP_MSG_OPEN_REQ)
+#define RPCAP_MSG_STARTCAP_REPLY      (0x80+RPCAP_MSG_STARTCAP_REQ)
+#define RPCAP_MSG_UPDATEFILTER_REPLY  (0x80+RPCAP_MSG_UPDATEFILTER_REQ)
+#define RPCAP_MSG_AUTH_REPLY          (0x80+RPCAP_MSG_AUTH_REQ)
+#define RPCAP_MSG_STATS_REPLY         (0x80+RPCAP_MSG_STATS_REQ)
+#define RPCAP_MSG_ENDCAP_REPLY        (0x80+RPCAP_MSG_ENDCAP_REQ)
+#define RPCAP_MSG_SETSAMPLING_REPLY   (0x80+RPCAP_MSG_SETSAMPLING_REQ)
 
 #define RPCAP_ERR_NETW            1
 #define RPCAP_ERR_INITTIMEOUT     2
@@ -942,9 +942,9 @@ dissect_rpcap (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree, void* da
   offset++;
 
   col_append_str (pinfo->cinfo, COL_INFO,
-                     val_to_str (msg_type, message_type, "Unknown: %d"));
+                     val_to_str (msg_type, message_type, "Unknown: 0x%02x"));
 
-  proto_item_append_text (ti, ", %s", val_to_str (msg_type, message_type, "Unknown: %d"));
+  proto_item_append_text (ti, ", %s", val_to_str (msg_type, message_type, "Unknown: 0x%02x"));
 
   msg_value = tvb_get_ntohs (tvb, offset);
   if (msg_type == RPCAP_MSG_ERROR) {
@@ -1178,7 +1178,7 @@ proto_register_rpcap (void)
       { "Version", "rpcap.version", FT_UINT8, BASE_DEC,
         NULL, 0x0, NULL, HFILL } },
     { &hf_type,
-      { "Message type", "rpcap.type", FT_UINT8, BASE_DEC,
+      { "Message type", "rpcap.type", FT_UINT8, BASE_HEX,
         VALS(message_type), 0x0, NULL, HFILL } },
     { &hf_value,
       { "Message value", "rpcap.value", FT_UINT16, BASE_DEC,

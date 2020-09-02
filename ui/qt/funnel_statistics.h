@@ -25,6 +25,7 @@ class FunnelStatistics : public QObject
     Q_OBJECT
 public:
     explicit FunnelStatistics(QObject *parent, CaptureFile &cf);
+    ~FunnelStatistics();
     void retapPackets();
     struct progdlg *progressDialogNew(const gchar *task_title, const gchar *item_title, gboolean terminate_is_stop, gboolean *stop_flag);
     const char *displayFilter();
@@ -46,6 +47,8 @@ public slots:
 private:
     static const QString action_name_;
     struct _funnel_ops_t *funnel_ops_;
+    struct _funnel_ops_id_t *funnel_ops_id_;
+
     CaptureFile &capture_file_;
     QByteArray display_filter_;
     QString prepared_filter_;

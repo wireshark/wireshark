@@ -591,7 +591,7 @@ proto_register_fmp_notify(void)
 	};
 
 	proto_fmp_notify =
-		proto_register_protocol("File Mapping Protocol Nofity",
+		proto_register_protocol("File Mapping Protocol Notify",
 					"FMP/NOTIFY", "fmp_notify");
 	proto_register_field_array(proto_fmp_notify, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));

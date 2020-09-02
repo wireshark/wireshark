@@ -5835,7 +5835,7 @@ dissect_openflow_message_v5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         dissect_openflow_switch_features_v5(tvb, pinfo, tree, offset, length);
         break;
     case OFPT_GET_CONFIG_REQUEST:
-        /* mesage has no body */
+        /* message has no body */
         break;
     case OFPT_GET_CONFIG_REPLY:
     case OFPT_SET_CONFIG:
@@ -9636,7 +9636,7 @@ proto_register_openflow_v5(void)
         },
         { &ei_openflow_v5_multipart_request_undecoded,
             { "openflow_v5.multipart_request.undecoded", PI_UNDECODED, PI_NOTE,
-              "Unknown multipart reqeuest body.", EXPFILL }
+              "Unknown multipart request body.", EXPFILL }
         },
         { &ei_openflow_v5_queue_stats_prop_undecoded,
             { "openflow_v5.queue_stats_prop.undecoded", PI_UNDECODED, PI_NOTE,

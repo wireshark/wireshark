@@ -224,7 +224,7 @@ dissect_acp133_Community(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 }
 
 
-static const int * OnSupported_bits[] = {
+static int * const OnSupported_bits[] = {
   &hf_acp133_OnSupported_acp127_nn,
   &hf_acp133_OnSupported_acp127_pn,
   &hf_acp133_OnSupported_acp127_tn,

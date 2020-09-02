@@ -1679,7 +1679,7 @@ dissect_t124_DataPriority(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 }
 
 
-static const int * Segmentation_bits[] = {
+static int * const Segmentation_bits[] = {
   &hf_t124_Segmentation_begin,
   &hf_t124_Segmentation_end,
   NULL

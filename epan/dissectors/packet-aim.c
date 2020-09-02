@@ -727,7 +727,7 @@ dissect_aim_snac(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
 	if( aim_tree && subtype != NULL )
 	{
-		static const int * fnac_flags[] = {
+		static int * const fnac_flags[] = {
 			&hf_aim_fnac_flag_next_is_related,
 			&hf_aim_fnac_flag_contains_version,
 			NULL
@@ -1111,7 +1111,7 @@ static int
 dissect_aim_userclass(tvbuff_t *tvb, int offset, int len, proto_item *ti, guint32 value)
 {
 	proto_tree *entry;
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_aim_userclass_unconfirmed,
 		&hf_aim_userclass_administrator,
 		&hf_aim_userclass_aol,
@@ -2347,7 +2347,7 @@ static int dissect_aim_generic_migration_req(tvbuff_t *tvb, packet_info *pinfo, 
 
 static int dissect_aim_generic_setprivflags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gen_tree)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_generic_allow_idle_see,
 		&hf_generic_allow_member_see,
 		NULL
@@ -2472,7 +2472,7 @@ static const value_string aim_icq_data_types[] = {
 };
 
 
-static int dissect_aim_tlv_value_icq(proto_item *ti, guint16 subtype, tvbuff_t *tvb, packet_info *pinfo _U_);
+static int dissect_aim_tlv_value_icq(proto_item *ti, guint16 subtype, tvbuff_t *tvb, packet_info *pinfo);
 
 #define TLV_ICQ_META_DATA 			  0x0001
 
@@ -3164,7 +3164,7 @@ dissect_aim_rendezvous_extended_message(tvbuff_t *tvb, proto_tree *msg_tree)
 {
 	int offset = 0;
 	guint32 text_length;
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_aim_rendezvous_extended_data_message_flags_normal,
 		&hf_aim_rendezvous_extended_data_message_flags_auto,
 		&hf_aim_rendezvous_extended_data_message_flags_multi,

@@ -1629,6 +1629,7 @@ void proto_reg_handoff_h223(void)
     dissector_add_for_decode_as_with_preference("tcp.port", create_dissector_handle( dissect_h223, proto_h223));
     dissector_add_for_decode_as_with_preference("tcp.port", h223_bitswapped);
     dissector_add_string("rtp_dyn_payload_type","CLEARMODE", h223_bitswapped);
+    dissector_add_for_decode_as("rtp.pt", h223_bitswapped);
     dissector_add_uint("iax2.dataformat", AST_DATAFORMAT_H223_H245, create_dissector_handle(dissect_h223_bitswapped_circuit_data, proto_h223_bitswapped));
 }
 

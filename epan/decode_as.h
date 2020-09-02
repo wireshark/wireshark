@@ -48,24 +48,38 @@ typedef gboolean (*decode_as_reset_func)(const gchar *name, gconstpointer patter
 /** callback function definition: Apply value to dissector table */
 typedef gboolean (*decode_as_change_func)(const gchar *name, gconstpointer pattern, gconstpointer handle, const gchar *list_name);
 
+/**
+Contains all of the function pointers (typically just 1) that
+provide the text explaining the name and use of the value field that will
+be passed to the dissector table to change the dissection output.
+*/
 typedef struct decode_as_value_s {
-    build_label_func label_func;
-    guint num_values;
-    build_valid_func* build_values;
+    build_label_func label_func;            /**< function pointer to the function used to create the label*/
+    guint num_values;                       /**< Number of values */
+    build_valid_func* build_values;         /**< Function used to build the value to go into the table. Retreive from current frame */
 } decode_as_value_t;
 
+/**
+Pulls everything together including the dissector (protocol) name, the
+"layer type" of the dissector, the dissector table name, the function pointer
+values as well as handlers for populating, applying and reseting the changes
+to the dissector table through Decode As GUI functionality. For dissector
+tables that are an integer or string type, the provided "default" handling
+functions should suffice.
+
+*/
 typedef struct decode_as_s {
-    const char *name;
-    const gchar *table_name;
-    guint num_items;
-    guint default_index_value;
-    decode_as_value_t* values;
-    const char* pre_value_str;
-    const char* post_value_str;
-    decode_as_populate_list_func populate_list;
-    decode_as_reset_func reset_value;
-    decode_as_change_func change_value;
-    decode_as_free_func free_func;
+    const char *name;                               /**< Protocol name */
+    const gchar *table_name;                        /**< Disector table name */
+    guint num_items;                                /**< Number of index in the decode_as_value_t struct */
+    guint default_index_value;                      /**< Which display function to use first, set to zero if only one function*/
+    decode_as_value_t* values;                      /**< The array of function pointers, see decode_as_value_t */
+    const char* pre_value_str;                      /**< String to prepend the value, NULL if none */
+    const char* post_value_str;                     /**< String to append the value, NULL if none */
+    decode_as_populate_list_func populate_list;     /**< function pointer to the function used to populate the list, NULL if none */
+    decode_as_reset_func reset_value;               /**< function pointer to the function used resetting the value, NULL if none */
+    decode_as_change_func change_value;             /**< function pointer to the function used resetting the value, NULL if none */
+    decode_as_free_func free_func;                  /**< function pointer to the function used freeing the entry, NULL if none */
 
 } decode_as_t;
 
@@ -118,6 +132,10 @@ WS_DLL_PUBLIC int save_decode_as_entries(gchar** err);
 /** Clear all "decode as" settings.
  */
 WS_DLL_PUBLIC void decode_clear_all(void);
+
+/** Frees memory used by "decode as" routines. Called at program shutdown.
+ */
+WS_DLL_PUBLIC void decode_cleanup(void);
 
 /** This routine creates one entry in the list of protocol dissector
  * that need to be reset. It is called by the g_hash_table_foreach

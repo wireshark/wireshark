@@ -21,7 +21,7 @@
 
 /*
 */
-#include "wiretap/erf.h"
+#include "wiretap/erf_record.h"
 
 void proto_register_erf(void);
 void proto_reg_handoff_erf(void);
@@ -645,14 +645,10 @@ static const header_field_info erf_tunneling_modes[] = {
   { "MPLS over VLAN", "mpls_vlan", FT_BOOLEAN, 32, NULL, 0x20, NULL, HFILL }
 };
 
-static const true_false_string erf_link_status_tfs = {
-  "Up",
-  "Down"
-};
 
 /* Used as templates for ERF_META_TAG_if_link_status */
 static const header_field_info erf_link_status[] = {
-  { "Link", "link", FT_BOOLEAN, 32, TFS(&erf_link_status_tfs), 0x1, NULL, HFILL }
+  { "Link", "link", FT_BOOLEAN, 32, TFS(&tfs_up_down), 0x1, NULL, HFILL }
 };
 
 /* Used as templates for ERF_META_TAG_ptp_time_properties */
@@ -1752,7 +1748,7 @@ dissect_host_id_ex_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 static void
 dissect_anchor_id_ex_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int idx)
 {
-  static const int *anchor_flags[] =
+  static int * const anchor_flags[] =
   {
     &hf_erf_ehdr_anchor_id_definition,
     &hf_erf_ehdr_anchor_id_reserved,
@@ -2413,12 +2409,11 @@ static proto_item*
 dissect_meta_tag_bitfield(proto_item *section_tree, tvbuff_t *tvb, int offset, erf_meta_tag_info_t *tag_info, proto_item **out_tag_tree)
 {
   proto_item *tag_pi        = NULL;
-  const int* hf_flags[ERF_HF_VALUES_PER_TAG];
+  int* hf_flags[ERF_HF_VALUES_PER_TAG];
   int i;
 
   DISSECTOR_ASSERT(tag_info->extra);
 
-  /* This is allowed as the array itself is not constant (not const int* const) */
   for (i = 0; tag_info->extra->hf_values[i] != -1; i++) {
     hf_flags[i] = &tag_info->extra->hf_values[i];
   }

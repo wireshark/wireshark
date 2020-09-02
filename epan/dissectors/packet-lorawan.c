@@ -489,13 +489,13 @@ dissect_lorawan_mac_commands(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	guint8 command;
 	gint32 current_offset = 0;
 
-	static const int * link_adr_ans_flags[] = {
+	static int * const link_adr_ans_flags[] = {
 		&hf_lorawan_mac_command_up_link_adr_ans_txpower_type,
 		&hf_lorawan_mac_command_up_link_adr_ans_datarate_type,
 		&hf_lorawan_mac_command_up_link_adr_ans_channel_mask_type,
 		NULL
 	};
-	static const int * link_adr_req_channel_flags[] = {
+	static int * const link_adr_req_channel_flags[] = {
 		&hf_lorawan_mac_command_down_link_adr_req_channel1_type,
 		&hf_lorawan_mac_command_down_link_adr_req_channel2_type,
 		&hf_lorawan_mac_command_down_link_adr_req_channel3_type,
@@ -514,13 +514,13 @@ dissect_lorawan_mac_commands(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 		&hf_lorawan_mac_command_down_link_adr_req_channel16_type,
 		NULL
 	};
-	static const int * rx_setup_ans_flags[] = {
+	static int * const rx_setup_ans_flags[] = {
 		&hf_lorawan_mac_command_up_rx_setup_ans_rx1droffset_type,
 		&hf_lorawan_mac_command_up_rx_setup_ans_rx2datarate_type,
 		&hf_lorawan_mac_command_up_rx_setup_ans_frequency_type,
 		NULL
 	};
-	static const int * new_channel_ans_flags[] = {
+	static int * const new_channel_ans_flags[] = {
 		&hf_lorawan_mac_command_up_new_channel_ans_datarate_type,
 		&hf_lorawan_mac_command_up_new_channel_ans_frequency_type,
 		NULL
@@ -654,7 +654,7 @@ dissect_lorawan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *d
 	gboolean uplink = TRUE;
 	device_encryption_keys_t *encryption_keys = NULL;
 
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_lorawan_frame_header_frame_control_adr_type,
 		&hf_lorawan_frame_header_frame_control_adrackreq_type,
 		&hf_lorawan_frame_header_frame_control_ack_type,

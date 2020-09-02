@@ -1,8 +1,8 @@
 /* packet-sua.c
  * Routines for SS7 SCCP-User Adaptation Layer (SUA) dissection
  * It is hopefully (needs testing) compliant to
- * http://www.ietf.org/internet-drafts/draft-ietf-sigtran-sua-08.txt
- * http://www.ietf.org/rfc/rfc3868.txt
+ * https://tools.ietf.org/html/draft-ietf-sigtran-sua-08
+ * https://tools.ietf.org/html/rfc3868
  *
  * Copyright 2002, 2003, 2004 Michael Tuexen <tuexen [AT] fh-muenster.de>
  *
@@ -1105,7 +1105,7 @@ static const value_string interworking_values[] = {
 static void
 dissect_asp_capabilities_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
 {
-  static const int * capabilities[] = {
+  static int * const capabilities[] = {
     &hf_sua_asp_capabilities_reserved_bits,
     &hf_sua_asp_capabilities_a_bit,
     &hf_sua_asp_capabilities_b_bit,
@@ -1277,7 +1277,7 @@ static const true_false_string return_on_error_bit_value = {
 static void
 dissect_protocol_class_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  static const int * capabilities[] = {
+  static int * const capabilities[] = {
     &hf_sua_return_on_error_bit,
     &hf_sua_protocol_class,
     NULL
@@ -1314,7 +1314,7 @@ static const true_false_string first_bit_value = {
 static void
 dissect_segmentation_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
 {
-  static const int * first_remaining[] = {
+  static int * const first_remaining[] = {
     &hf_sua_first_bit,
     &hf_sua_number_of_remaining_segments,
     NULL

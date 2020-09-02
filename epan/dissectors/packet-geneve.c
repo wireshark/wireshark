@@ -1,6 +1,6 @@
 /* packet-geneve.c
  * Routines for Geneve - Generic Network Virtualization Encapsulation
- * http://tools.ietf.org/html/draft-ietf-nvo3-geneve
+ * https://tools.ietf.org/html/draft-ietf-nvo3-geneve
  *
  * Copyright (c) 2014 VMware, Inc. All Rights Reserved.
  * Author: Jesse Gross <jesse@nicira.com>
@@ -190,7 +190,7 @@ dissect_geneve(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     guint8 flags;
     guint16 proto_type;
     int opts_len;
-    static const int * flag_fields[] = {
+    static int * const flag_fields[] = {
         &hf_geneve_flag_oam,
         &hf_geneve_flag_critical,
         &hf_geneve_flag_reserved,

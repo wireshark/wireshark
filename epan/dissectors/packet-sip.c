@@ -77,6 +77,7 @@ static gint hf_sip_raw_line               = -1;
 static gint hf_sip_msg_hdr                = -1;
 static gint hf_sip_Method                 = -1;
 static gint hf_Request_Line               = -1;
+static gint hf_sip_ruri_display           = -1;
 static gint hf_sip_ruri                   = -1;
 static gint hf_sip_ruri_user              = -1;
 static gint hf_sip_ruri_host              = -1;
@@ -85,12 +86,14 @@ static gint hf_sip_ruri_param             = -1;
 static gint hf_sip_Status_Code            = -1;
 static gint hf_sip_Status_Line            = -1;
 static gint hf_sip_display                = -1;
+static gint hf_sip_to_display             = -1;
 static gint hf_sip_to_addr                = -1;
 static gint hf_sip_to_user                = -1;
 static gint hf_sip_to_host                = -1;
 static gint hf_sip_to_port                = -1;
 static gint hf_sip_to_param               = -1;
 static gint hf_sip_to_tag                 = -1;
+static gint hf_sip_from_display           = -1;
 static gint hf_sip_from_addr              = -1;
 static gint hf_sip_from_user              = -1;
 static gint hf_sip_from_host              = -1;
@@ -98,21 +101,25 @@ static gint hf_sip_from_port              = -1;
 static gint hf_sip_from_param             = -1;
 static gint hf_sip_from_tag               = -1;
 static gint hf_sip_tag                    = -1;
+static gint hf_sip_pai_display            = -1;
 static gint hf_sip_pai_addr               = -1;
 static gint hf_sip_pai_user               = -1;
 static gint hf_sip_pai_host               = -1;
 static gint hf_sip_pai_port               = -1;
 static gint hf_sip_pai_param              = -1;
+static gint hf_sip_pmiss_display          = -1;
 static gint hf_sip_pmiss_addr             = -1;
 static gint hf_sip_pmiss_user             = -1;
 static gint hf_sip_pmiss_host             = -1;
 static gint hf_sip_pmiss_port             = -1;
 static gint hf_sip_pmiss_param            = -1;
+static gint hf_sip_ppi_display            = -1;
 static gint hf_sip_ppi_addr               = -1;
 static gint hf_sip_ppi_user               = -1;
 static gint hf_sip_ppi_host               = -1;
 static gint hf_sip_ppi_port               = -1;
 static gint hf_sip_ppi_param              = -1;
+static gint hf_sip_tc_display             = -1;
 static gint hf_sip_tc_addr                = -1;
 static gint hf_sip_tc_user                = -1;
 static gint hf_sip_tc_host                = -1;
@@ -125,26 +132,31 @@ static gint hf_sip_original_frame         = -1;
 static gint hf_sip_matching_request_frame = -1;
 static gint hf_sip_response_time          = -1;
 static gint hf_sip_release_time           = -1;
+static gint hf_sip_curi_display           = -1;
 static gint hf_sip_curi                   = -1;
 static gint hf_sip_curi_user              = -1;
 static gint hf_sip_curi_host              = -1;
 static gint hf_sip_curi_port              = -1;
 static gint hf_sip_curi_param             = -1;
+static gint hf_sip_route_display          = -1;
 static gint hf_sip_route                  = -1;
 static gint hf_sip_route_user             = -1;
 static gint hf_sip_route_host             = -1;
 static gint hf_sip_route_port             = -1;
 static gint hf_sip_route_param            = -1;
+static gint hf_sip_record_route_display   = -1;
 static gint hf_sip_record_route           = -1;
 static gint hf_sip_record_route_user      = -1;
 static gint hf_sip_record_route_host      = -1;
 static gint hf_sip_record_route_port      = -1;
 static gint hf_sip_record_route_param     = -1;
+static gint hf_sip_service_route_display  = -1;
 static gint hf_sip_service_route          = -1;
 static gint hf_sip_service_route_user     = -1;
 static gint hf_sip_service_route_host     = -1;
 static gint hf_sip_service_route_port     = -1;
 static gint hf_sip_service_route_param    = -1;
+static gint hf_sip_path_display           = -1;
 static gint hf_sip_path                   = -1;
 static gint hf_sip_path_user              = -1;
 static gint hf_sip_path_host              = -1;
@@ -287,7 +299,7 @@ static ws_mempbrk_pattern pbrk_addr_end;
 static ws_mempbrk_pattern pbrk_via_param_end;
 
 
-/* PUBLISH method added as per http://www.ietf.org/internet-drafts/draft-ietf-sip-publish-01.txt */
+/* PUBLISH method added as per https://tools.ietf.org/html/draft-ietf-sip-publish-01 */
 static const char *sip_methods[] = {
 #define SIP_METHOD_INVALID  0
         "<Invalid method>",      /* Pad so that the real methods start at index 1 */
@@ -328,9 +340,9 @@ static const char *sip_methods[] = {
 };
 
 /* from RFC 3261
- * Updated with info from http://www.iana.org/assignments/sip-parameters
+ * Updated with info from https://www.iana.org/assignments/sip-parameters
  * (last updated 2009-11-11)
- * Updated with: http://www.ietf.org/internet-drafts/draft-ietf-sip-resource-priority-05.txt
+ * Updated with: https://tools.ietf.org/html/draft-ietf-sip-resource-priority-05
  */
 typedef struct {
         const char *name;
@@ -744,6 +756,7 @@ static header_parameter_t via_parameters_hf_array[] =
 
 
 typedef struct {
+    gint *hf_sip_display;
     gint *hf_sip_addr;
     gint *hf_sip_user;
     gint *hf_sip_host;
@@ -753,6 +766,7 @@ typedef struct {
 } hf_sip_uri_t;
 
 static hf_sip_uri_t sip_pai_uri = {
+    &hf_sip_pai_display,
     &hf_sip_pai_addr,
     &hf_sip_pai_user,
     &hf_sip_pai_host,
@@ -762,6 +776,7 @@ static hf_sip_uri_t sip_pai_uri = {
 };
 
 static hf_sip_uri_t sip_ppi_uri = {
+    &hf_sip_ppi_display,
     &hf_sip_ppi_addr,
     &hf_sip_ppi_user,
     &hf_sip_ppi_host,
@@ -771,6 +786,7 @@ static hf_sip_uri_t sip_ppi_uri = {
 };
 
 static hf_sip_uri_t sip_pmiss_uri = {
+    &hf_sip_pmiss_display,
     &hf_sip_pmiss_addr,
     &hf_sip_pmiss_user,
     &hf_sip_pmiss_host,
@@ -779,8 +795,8 @@ static hf_sip_uri_t sip_pmiss_uri = {
     &ett_sip_pmiss_uri
 };
 
-
 static hf_sip_uri_t sip_tc_uri = {
+    &hf_sip_tc_display,
     &hf_sip_tc_addr,
     &hf_sip_tc_user,
     &hf_sip_tc_host,
@@ -790,6 +806,7 @@ static hf_sip_uri_t sip_tc_uri = {
 };
 
 static hf_sip_uri_t sip_to_uri = {
+    &hf_sip_to_display,
     &hf_sip_to_addr,
     &hf_sip_to_user,
     &hf_sip_to_host,
@@ -799,6 +816,7 @@ static hf_sip_uri_t sip_to_uri = {
 };
 
 static hf_sip_uri_t sip_from_uri = {
+    &hf_sip_from_display,
     &hf_sip_from_addr,
     &hf_sip_from_user,
     &hf_sip_from_host,
@@ -808,6 +826,7 @@ static hf_sip_uri_t sip_from_uri = {
 };
 
 static hf_sip_uri_t sip_req_uri = {
+    &hf_sip_ruri_display,
     &hf_sip_ruri,
     &hf_sip_ruri_user,
     &hf_sip_ruri_host,
@@ -817,6 +836,7 @@ static hf_sip_uri_t sip_req_uri = {
 };
 
 static hf_sip_uri_t sip_contact_uri = {
+    &hf_sip_curi_display,
     &hf_sip_curi,
     &hf_sip_curi_user,
     &hf_sip_curi_host,
@@ -826,6 +846,7 @@ static hf_sip_uri_t sip_contact_uri = {
 };
 
 static hf_sip_uri_t sip_route_uri = {
+    &hf_sip_route_display,
     &hf_sip_route,
     &hf_sip_route_user,
     &hf_sip_route_host,
@@ -835,6 +856,7 @@ static hf_sip_uri_t sip_route_uri = {
 };
 
 static hf_sip_uri_t sip_record_route_uri = {
+    &hf_sip_record_route_display,
     &hf_sip_record_route,
     &hf_sip_record_route_user,
     &hf_sip_record_route_host,
@@ -844,6 +866,7 @@ static hf_sip_uri_t sip_record_route_uri = {
 };
 
 static hf_sip_uri_t sip_service_route_uri = {
+    &hf_sip_service_route_display,
     &hf_sip_service_route,
     &hf_sip_service_route_user,
     &hf_sip_service_route_host,
@@ -853,6 +876,7 @@ static hf_sip_uri_t sip_service_route_uri = {
 };
 
 static hf_sip_uri_t sip_path_uri = {
+    &hf_sip_path_display,
     &hf_sip_path,
     &hf_sip_path_user,
     &hf_sip_path_host,
@@ -1872,8 +1896,11 @@ display_sip_uri (tvbuff_t *tvb, proto_tree *sip_element_tree, packet_info *pinfo
     tvbuff_t *next_tvb;
 
     if(uri_offsets->display_name_end != uri_offsets->display_name_start) {
-        proto_tree_add_item(sip_element_tree, hf_sip_display, tvb, uri_offsets->display_name_start,
+        proto_tree_add_item(sip_element_tree, *(uri->hf_sip_display), tvb, uri_offsets->display_name_start,
                             uri_offsets->display_name_end - uri_offsets->display_name_start + 1, ENC_UTF_8|ENC_NA);
+        ti = proto_tree_add_item(sip_element_tree, hf_sip_display, tvb, uri_offsets->display_name_start,
+                                 uri_offsets->display_name_end - uri_offsets->display_name_start + 1, ENC_UTF_8|ENC_NA);
+        proto_item_set_hidden(ti);
     }
 
     ti = proto_tree_add_item(sip_element_tree, *(uri->hf_sip_addr),
@@ -5960,6 +5987,11 @@ void proto_register_sip(void)
             FT_STRING, BASE_NONE,NULL,0x0,
             "SIP Request-Line", HFILL }
         },
+        { &hf_sip_ruri_display,
+          { "Request-URI display info",        "sip.r-uri.display.info",
+            FT_STRING, BASE_NONE,NULL,0x0,
+            "RFC 3261: SIP R-URI Display Info", HFILL }
+        },
         { &hf_sip_ruri,
           { "Request-URI",        "sip.r-uri",
             FT_STRING, BASE_NONE,NULL,0x0,
@@ -6000,6 +6032,11 @@ void proto_register_sip(void)
             FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: Display info", HFILL }
         },
+        { &hf_sip_to_display,
+          { "SIP to display info",       "sip.to.display.info",
+            FT_STRING, BASE_NONE,NULL,0x0,
+            "RFC 3261: To Display info", HFILL }
+        },
         { &hf_sip_to_addr,
           { "SIP to address",         "sip.to.addr",
             FT_STRING, BASE_NONE,NULL,0x0,
@@ -6029,6 +6066,11 @@ void proto_register_sip(void)
           { "SIP to tag",          "sip.to.tag",
             FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: to tag", HFILL }
+        },
+        { &hf_sip_from_display,
+          { "SIP from display info",       "sip.from.display.info",
+            FT_STRING, BASE_NONE,NULL,0x0,
+            "RFC 3261: From Display info", HFILL }
         },
         { &hf_sip_from_addr,
           { "SIP from address",        "sip.from.addr",
@@ -6060,7 +6102,11 @@ void proto_register_sip(void)
             FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: from tag", HFILL }
         },
-/* etxrab */
+        { &hf_sip_curi_display,
+          { "SIP C-URI display info",       "sip.contact.display.info",
+            FT_STRING, BASE_NONE,NULL,0x0,
+            "RFC 3261: SIP C-URI Display info", HFILL }
+        },
         { &hf_sip_curi,
           { "Contact URI",        "sip.contact.uri",
             FT_STRING, BASE_NONE,NULL,0x0,
@@ -6086,7 +6132,10 @@ void proto_register_sip(void)
             FT_STRING, BASE_NONE,NULL,0x0,
             NULL, HFILL }
         },
-/* etxjowa */
+        { &hf_sip_route_display,
+          { "Route display info",       "sip.Route.display.info",
+            FT_STRING, BASE_NONE,NULL,0x0,NULL,HFILL }
+        },
         { &hf_sip_route,
           { "Route URI",         "sip.Route.uri",
             FT_STRING, BASE_NONE,NULL,0x0,NULL,HFILL }
@@ -6105,6 +6154,10 @@ void proto_register_sip(void)
         },
         { &hf_sip_route_param,
           { "Route URI parameter",   "sip.Route.param",
+            FT_STRING, BASE_NONE,NULL,0x0,NULL,HFILL }
+        },
+        { &hf_sip_record_route_display,
+          { "Record-Route display info",       "sip.Record-Route.display.info",
             FT_STRING, BASE_NONE,NULL,0x0,NULL,HFILL }
         },
         { &hf_sip_record_route,
@@ -6127,6 +6180,10 @@ void proto_register_sip(void)
           { "Record-Route URI parameter",   "sip.Record-Route.param",
             FT_STRING, BASE_NONE,NULL,0x0,NULL,HFILL }
         },
+        { &hf_sip_service_route_display,
+          { "Service-Route display info",       "sip.Service-Route.display.info",
+            FT_STRING, BASE_NONE,NULL,0x0,NULL,HFILL }
+        },
         { &hf_sip_service_route,
           { "Service-Route URI",         "sip.Service-Route.uri",
             FT_STRING, BASE_NONE,NULL,0x0,NULL,HFILL }
@@ -6145,6 +6202,10 @@ void proto_register_sip(void)
         },
         { &hf_sip_service_route_param,
           { "Service-Route URI parameter",   "sip.Service-Route.param",
+            FT_STRING, BASE_NONE,NULL,0x0,NULL,HFILL }
+        },
+        { &hf_sip_path_display,
+          { "Path URI",       "sip.Path.display.info",
             FT_STRING, BASE_NONE,NULL,0x0,NULL,HFILL }
         },
         { &hf_sip_path,
@@ -6167,7 +6228,6 @@ void proto_register_sip(void)
           { "Path URI parameter",   "sip.Path.param",
             FT_STRING, BASE_NONE,NULL,0x0,NULL,HFILL }
         },
-/* etxjowa end */
         { &hf_sip_contact_param,
           { "Contact parameter",       "sip.contact.parameter",
             FT_STRING, BASE_NONE,NULL,0x0,
@@ -6177,6 +6237,11 @@ void proto_register_sip(void)
           { "SIP tag",         "sip.tag",
             FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: tag", HFILL }
+        },
+        { &hf_sip_pai_display,
+          { "SIP PAI display info",       "sip.pai.display.info",
+            FT_STRING, BASE_NONE,NULL,0x0,
+            "RFC 3325: P-Asserted-Identity Display info", HFILL }
         },
         { &hf_sip_pai_addr,
           { "SIP PAI Address",         "sip.pai.addr",
@@ -6203,6 +6268,11 @@ void proto_register_sip(void)
             FT_STRING, BASE_NONE,NULL,0x0,
             NULL, HFILL }
         },
+        { &hf_sip_pmiss_display,
+          { "SIP PMISS display info",       "sip.pmiss.display.info",
+            FT_STRING, BASE_NONE,NULL,0x0,
+            "RFC 3325: Permission Missing Display info", HFILL }
+        },
         { &hf_sip_pmiss_addr,
           { "SIP PMISS Address",       "sip.pmiss.addr",
             FT_STRING, BASE_NONE,NULL,0x0,
@@ -6228,7 +6298,11 @@ void proto_register_sip(void)
             FT_STRING, BASE_NONE,NULL,0x0,
             NULL, HFILL }
         },
-
+        { &hf_sip_ppi_display,
+          { "SIP PPI display info",       "sip.ppi.display.info",
+            FT_STRING, BASE_NONE,NULL,0x0,
+            "RFC 3325: P-Preferred-Identity Display info", HFILL }
+        },
         { &hf_sip_ppi_addr,
           { "SIP PPI Address",         "sip.ppi.addr",
             FT_STRING, BASE_NONE,NULL,0x0,
@@ -6253,6 +6327,11 @@ void proto_register_sip(void)
           { "SIP PPI URI parameter",       "sip.ppi.param",
             FT_STRING, BASE_NONE,NULL,0x0,
             NULL, HFILL }
+        },
+        { &hf_sip_tc_display,
+          { "SIP TC display info",       "sip.tc.display.info",
+            FT_STRING, BASE_NONE,NULL,0x0,
+            "RFC 3325: Trigger Consent Display info", HFILL }
         },
         { &hf_sip_tc_addr,
           { "SIP TC Address",      "sip.tc.addr",

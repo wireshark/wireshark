@@ -21,6 +21,7 @@
 #include <wsutil/report_message.h>
 
 #include "packet-snort-config.h"
+#include "ws_attributes.h"
 
 /* Forward declaration */
 static void parse_config_file(SnortConfig_t *snort_config, FILE *config_file_fd, const char *filename, const char *dirname, int recursion_level);
@@ -462,8 +463,15 @@ char *expand_reference(SnortConfig_t *snort_config, char *reference)
         prefix_replacement = (char*)g_hash_table_lookup(snort_config->references_prefixes, prefix);
 
         /* Append prefix and remainder, and return!!!! */
-        g_snprintf(expanded_reference, 512, "%s%s", prefix_replacement, reference+length+1);
-        return expanded_reference;
+        if (prefix_replacement) {
+            g_snprintf(expanded_reference, 512, "%s%s", prefix_replacement, reference+length+1);
+            return expanded_reference;
+        }
+        else {
+            /* Just return the original reference */
+            return reference;
+        }
+
     }
     return "ERROR: Reference didn't contain prefix and ','!";
 }

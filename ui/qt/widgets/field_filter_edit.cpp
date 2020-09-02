@@ -94,7 +94,8 @@ bool FieldFilterEdit::checkFilter()
 void FieldFilterEdit::checkFilter(const QString& filter_text)
 {
     popFilterSyntaxStatus();
-    checkDisplayFilter(filter_text);
+    if (!checkDisplayFilter(filter_text))
+        return;
 
     switch (syntaxState()) {
     case Deprecated:

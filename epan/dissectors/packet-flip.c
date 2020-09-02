@@ -152,8 +152,7 @@ dissect_flip_chksum_hdr(tvbuff_t    *tvb,
         col_add_fstr(pinfo->cinfo, COL_INFO,
                      "Checksum 0x%04x [%s] (computed 0x%04x)",
                      chksum_hdr_chksum,
-                     ((chksum_hdr_chksum == computed_chksum) ?
-                      "Correct" : "Incorrect"),
+                     "Incorrect",
                      computed_chksum);
     }
 

@@ -470,7 +470,7 @@ void RtpStreamDialog::on_actionCopyAsCsv_triggered()
                 rdsl << v.toString();
             }
         }
-        stream << rdsl.join(",") << endl;
+        stream << rdsl.join(",") << '\n';
     }
     wsApp->clipboard()->setText(stream.readAll());
 }
@@ -479,11 +479,11 @@ void RtpStreamDialog::on_actionCopyAsYaml_triggered()
 {
     QString yaml;
     QTextStream stream(&yaml, QIODevice::Text);
-    stream << "---" << endl;
+    stream << "---" << '\n';
     for (int row = -1; row < ui->streamTreeWidget->topLevelItemCount(); row ++) {
-        stream << "-" << endl;
+        stream << "-" << '\n';
         foreach (QVariant v, streamRowData(row)) {
-            stream << " - " << v.toString() << endl;
+            stream << " - " << v.toString() << '\n';
         }
     }
     wsApp->clipboard()->setText(stream.readAll());

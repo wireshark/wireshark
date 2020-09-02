@@ -292,7 +292,7 @@ dissect_zbee_zdp_req_mgmt_leave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 {
     guint   offset = 0;
     guint64 ext_addr;
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_zbee_zdp_leave_children,
         &hf_zbee_zdp_leave_rejoin,
         NULL

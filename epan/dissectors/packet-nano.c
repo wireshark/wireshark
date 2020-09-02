@@ -355,7 +355,7 @@ static int dissect_nano_header(tvbuff_t *tvb, proto_tree *nano_tree, int offset,
 {
     proto_tree *header_tree;
     char *nano_magic_number;
-    static const int *nano_extensions[] = {
+    static int * const nano_extensions[] = {
         &hf_nano_extensions_block_type,
         NULL
     };
@@ -997,7 +997,7 @@ void proto_register_nano(void)
             NULL, HFILL }
         },
         { &hf_nano_bulk_pull_blocks_mode,
-          { "Mode", "nano.bulk_pull_blocks.max_hash",
+          { "Mode", "nano.bulk_pull_blocks.mode",
             FT_UINT8, BASE_DEC_HEX, VALS(nano_bulk_pull_blocks_mode_strings), 0x00,
             NULL, HFILL }
         },

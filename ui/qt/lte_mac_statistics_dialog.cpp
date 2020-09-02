@@ -89,7 +89,7 @@ public:
         rnti_(rnti)
     {
         // Init values held for all lcids to 0.
-        for (int n=0; n < 11; n++) {
+        for (int n=0; n < MAC_LTE_DATA_LCID_COUNT_MAX; n++) {
             lcids[n] = 0;
         }
 
@@ -124,7 +124,7 @@ public:
         // Show current value of counter for each LCID.
         // N.B. fields that are set as % using percent_bar_delegate.h
         // for UE headings don't display here...
-        for (int n=0; n < 11; n++) {
+        for (int n=0; n < MAC_LTE_DATA_LCID_COUNT_MAX; n++) {
             setText(col_type_+n, QString::number((uint)lcids[n]));
         }
     }
@@ -176,7 +176,7 @@ public:
 private:
     unsigned ueid_;
     unsigned rnti_;
-    int lcids[11];
+    int lcids[MAC_LTE_DATA_LCID_COUNT_MAX]; /* 0 to 10 and 32 to 38 */
 };
 
 
@@ -251,7 +251,7 @@ public:
 
             // N.B. Not going to support predefined data in Qt version..
             if (!mlt_info->isPredefinedData) {
-                for (int n=0; n < 11; n++) {
+                for (int n=0; n < MAC_LTE_DATA_LCID_COUNT_MAX; n++) {
                     // Update UL child items
                     ul_frames_item_->updateLCID(n, mlt_info->sdus_for_lcid[n]);
                     ul_bytes_item_->updateLCID(n, mlt_info->bytes_for_lcid[n]);
@@ -295,7 +295,7 @@ public:
 
             // N.B. Not going to support predefined data in Qt version..
             if (!mlt_info->isPredefinedData) {
-                for (int n=0; n < 11; n++) {
+                for (int n=0; n < MAC_LTE_DATA_LCID_COUNT_MAX; n++) {
                     // Update DL child items
                     dl_frames_item_->updateLCID(n, mlt_info->sdus_for_lcid[n]);
                     dl_bytes_item_->updateLCID(n, mlt_info->bytes_for_lcid[n]);
@@ -472,16 +472,18 @@ static const QStringList mac_whole_ue_row_labels = QStringList()
         << QObject::tr("UL Padding %") << QObject::tr("UL Re TX")
         << QObject::tr("DL Frames") << QObject::tr("DL Bytes") << QObject::tr("DL MB/s")
         << QObject::tr("DL Padding %") << QObject::tr("DL CRC Failed")
-        << QObject::tr("DL ReTX");
+        << QObject::tr("DL ReTX")
+        // 'Blank out' Channel-level fields
+        << QObject::tr("") << QObject::tr("") << QObject::tr("") << QObject::tr("") << QObject::tr("");
 
 static const QStringList mac_channel_counts_labels = QStringList()
         << QObject::tr("") << QObject::tr("CCCH")
         << QObject::tr("LCID 1") << QObject::tr("LCID 2") << QObject::tr("LCID 3")
         << QObject::tr("LCID 4") << QObject::tr("LCID 5") << QObject::tr("LCID 6")
         << QObject::tr("LCID 7") << QObject::tr("LCID 8") << QObject::tr("LCID 9")
-        << QObject::tr("LCID 10")
-        // 'Blank out' UE-level fields
-        << QObject::tr("") << QObject::tr("");
+        << QObject::tr("LCID 10") << QObject::tr("LCID 32") << QObject::tr("LCID 33")
+        << QObject::tr("LCID 34") << QObject::tr("LCID 35") << QObject::tr("LCID 36")
+        << QObject::tr("LCID 37") << QObject::tr("LCID 38");
 
 
 
@@ -536,8 +538,10 @@ LteMacStatisticsDialog::LteMacStatisticsDialog(QWidget &parent, CaptureFile &cf,
     // Will set whole-UE headings originally.
     updateHeaderLabels();
 
-    statsTreeWidget()->setItemDelegateForColumn(col_ul_padding_percent_, new PercentBarDelegate());
-    statsTreeWidget()->setItemDelegateForColumn(col_dl_padding_percent_, new PercentBarDelegate());
+    ul_delegate_ = new PercentBarDelegate();
+    statsTreeWidget()->setItemDelegateForColumn(col_ul_padding_percent_, ul_delegate_);
+    dl_delegate_ = new PercentBarDelegate();
+    statsTreeWidget()->setItemDelegateForColumn(col_dl_padding_percent_, dl_delegate_);
 
     statsTreeWidget()->sortByColumn(col_rnti_, Qt::AscendingOrder);
 
@@ -608,6 +612,8 @@ LteMacStatisticsDialog::LteMacStatisticsDialog(QWidget &parent, CaptureFile &cf,
 // Destructor.
 LteMacStatisticsDialog::~LteMacStatisticsDialog()
 {
+    delete ul_delegate_;
+    delete dl_delegate_;
 }
 
 // Update system/common counters, and redraw if changed.

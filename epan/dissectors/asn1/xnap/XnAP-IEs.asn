@@ -1,4 +1,4 @@
--- 3GPP TS 38.423 V15.6.0 (2019-12)
+-- 3GPP TS 38.423 V15.7.0 (2020-03)
 -- 9.3.5	Information Element definitions
 -- **************************************************************
 --
@@ -22,6 +22,7 @@ IMPORTS
 	id-Additional-UL-NG-U-TNLatUPF-List,
 	id-DefaultDRB-Allowed,
 	id-EndpointIPAddressAndPort,
+	id-FiveGCMobilityRestrictionListContainer,
 	id-SecondarydataForwardingInfoFromTarget-List,
 	id-LastE-UTRANPLMNIdentity,
 	id-MaxIPrate-DL,
@@ -797,6 +798,9 @@ SourceOfUEActivityBehaviourInformation ::= ENUMERATED {
 
 
 -- F
+
+FiveGCMobilityRestrictionListContainer ::= OCTET STRING
+-- This octets of the OCTET STRING contain the Mobility Restriction List IE as specified in TS 38.413 [5]. --
 
 FiveQI ::= INTEGER (0..255, ...)
 
@@ -3379,6 +3383,7 @@ UEContextInfoRetrUECtxtResp ::= SEQUENCE {
 }
 
 UEContextInfoRetrUECtxtResp-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+	{ ID id-FiveGCMobilityRestrictionListContainer CRITICALITY ignore	EXTENSION FiveGCMobilityRestrictionListContainer		PRESENCE optional },
 	...
 }
 

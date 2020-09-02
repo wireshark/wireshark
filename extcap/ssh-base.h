@@ -17,6 +17,8 @@
 
 #include <glib.h>
 
+#include <extcap/extcap-base.h>
+
 #ifndef STDERR_FILENO
 #define STDERR_FILENO 2
 #endif
@@ -47,6 +49,9 @@ typedef struct _ssh_params {
 	gchar* proxycommand;
 	gboolean debug;
 } ssh_params_t;
+
+/* Add libssh version information to an extcap_parameters structure */
+void add_libssh_info(extcap_parameters * extcap_conf);
 
 /* Create a ssh connection using all the possible authentication menthods */
 ssh_session create_ssh_connection(const ssh_params_t* ssh_params, char** err_info);

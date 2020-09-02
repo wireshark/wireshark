@@ -1876,8 +1876,8 @@ de_bssgp_ran_information_app_cont_unit(tvbuff_t *tvb, proto_tree *tree, packet_i
                  * System Information message contains the Message type octet followed by all the IEs composing the message
                  * payload. Each message is 21 octets long.
                  */
-                void            (*msg_fcn_p)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len);
-                gint            ett_tree;
+                void            (*msg_fcn_p)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len) = NULL;
+                gint            ett_tree = -1;
                 int             hf_idx;
                 const gchar     *msg_str;
                 proto_item      *si_item, *si_item2;
@@ -2677,7 +2677,7 @@ de_bssgp_list_of_setup_pfcs(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 /*
  * 11.3.84  Extended Feature Bitmap
  */
-static const int *bssgp_ext_feature_bitmap_fields[] = {
+static int * const bssgp_ext_feature_bitmap_fields[] = {
     &hf_bssgp_eDRX,
     &hf_bssgp_dcn,
     &hf_bssgp_ec_gsm_iot,
@@ -3436,7 +3436,7 @@ static guint16
 de_bssgp_pri_class_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
-    const int* bssgp_prio_class_flags[] = {
+    static int* const bssgp_prio_class_flags[] = {
         &hf_bssgp_prio_class_flag_b0,
         NULL
     };

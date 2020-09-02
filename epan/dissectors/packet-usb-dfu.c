@@ -338,13 +338,11 @@ dissect_usb_dfu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     command_tree = proto_item_add_subtree(command_item, ett_command);
     proto_item_set_generated(command_item);
 
-    if (command_data) {
-        command_item = proto_tree_add_uint(main_tree, hf_setup_interface, tvb, offset, 0, command_data->interface);
-        proto_item_set_generated(command_item);
+    command_item = proto_tree_add_uint(main_tree, hf_setup_interface, tvb, offset, 0, command_data->interface);
+    proto_item_set_generated(command_item);
 
-        command_item = proto_tree_add_uint(main_tree, hf_command_in_frame, tvb, offset, 0, command_data->command_frame_number);
-        proto_item_set_generated(command_item);
-    }
+    command_item = proto_tree_add_uint(main_tree, hf_command_in_frame, tvb, offset, 0, command_data->command_frame_number);
+    proto_item_set_generated(command_item);
 
     switch (command_response) {
     case 0x02: /* Upload */

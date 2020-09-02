@@ -11,19 +11,8 @@
 #ifndef PACKET_KNXIP_H
 #define PACKET_KNXIP_H
 
-#include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include <glib.h>
 #include <epan/expert.h>
-#include <epan/packet.h>
-#include <epan/proto.h>
-#include <epan/ipproto.h>
-#include <epan/prefs.h>
-#include <epan/tvbuff.h>
-
 #include "packet-knxip_decrypt.h"
 
 #define KIP_ERROR     &ei_knxip_error

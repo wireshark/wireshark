@@ -208,7 +208,7 @@ dissect_schedule_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree
                     if (octet1 == 0)
                     {
                         proto_tree_add_uint_format_value(sched_subtree, hf_gsm_cbch_slot, tvb, offset++, 1, new_slots[i],
-                                            "%d, Repeat of non-existant slot %d",
+                                            "%d, Repeat of non-existent slot %d",
                                             new_slots[i], octet1);
                     }
                     else if (octet1 < new_slots[i])

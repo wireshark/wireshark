@@ -178,8 +178,6 @@
 #include <config.h>
 
 #include <ctype.h>
-#include <stdio.h>
-#include <glib.h>
 
 #include <wsutil/wsgcrypt.h>
 #if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
@@ -937,7 +935,7 @@ static int hf_2009_9_dnp_1_dstport = -1;
 
 static int ett_2009_9_dnp_1_flags = -1;
 
-static const int *bitmask_2009_9_dnp_1_flags[] = {
+static int * const bitmask_2009_9_dnp_1_flags[] = {
     &hf_2009_9_dnp_1_flag_length,
     &hf_2009_9_dnp_1_flag_srcport,
     &hf_2009_9_dnp_1_flag_dstport,
@@ -1211,7 +1209,7 @@ static int ett_oap_1_cmdcontrol_flags = -1;
 static int ett_oap_1_cmdcontrol_ack = -1;
 static int ett_oap_1_alias = -1;
 
-static const int *bitmask_oap_1_cmdcontrol_flags[] = {
+static int * const bitmask_oap_1_cmdcontrol_flags[] = {
     &hf_oap_1_cmdcontrol_cache_flag,
     &hf_oap_1_cmdcontrol_verbosity_flag,
     &hf_oap_1_cmdcontrol_noexecute_flag,
@@ -1551,7 +1549,7 @@ static void oap_1_define_alias(dof_api_data *api_data, guint32 alias, oap_1_bind
     */
     if (!g_hash_table_lookup(oap_1_alias_to_binding, &key))
     {
-        oap_1_alias_key *alias_ptr = (oap_1_alias_key *)wmem_alloc0(wmem_file_scope(), sizeof(oap_1_alias_key));
+        oap_1_alias_key *alias_ptr = wmem_new0(wmem_file_scope(), oap_1_alias_key);
         memcpy(alias_ptr, &key, sizeof(oap_1_alias_key));
         g_hash_table_insert(oap_1_alias_to_binding, alias_ptr, binding);
     }
@@ -4795,13 +4793,13 @@ static void validate_c4(packet_info *pinfo, proto_item *pi, guint32 val, gint le
     if (len > 1 && val < 0x80)
     {
         /* SPEC Type.3.1 Violation. */
-        expert_add_info_format(pinfo, pi, &ei_c2_c3_c4_format, "DOF Violation: Type.3.1: Compressed 32-bit Compression Manditory.");
+        expert_add_info_format(pinfo, pi, &ei_c2_c3_c4_format, "DOF Violation: Type.3.1: Compressed 32-bit Compression Mandatory.");
     }
 
     if (len > 2 && val < 0x4000)
     {
         /* SPEC Type.3.1 Violation. */
-        expert_add_info_format(pinfo, pi, &ei_c2_c3_c4_format, "DOF Violation: Type.3.1: Compressed 32-bit Compression Manditory.");
+        expert_add_info_format(pinfo, pi, &ei_c2_c3_c4_format, "DOF Violation: Type.3.1: Compressed 32-bit Compression Mandatory.");
     }
 }
 
@@ -4857,13 +4855,13 @@ static void validate_c3(packet_info *pinfo, proto_item *pi, guint32 val, gint le
     if (len > 1 && val < 0x80)
     {
         /* SPEC Type.2.1 Violation. */
-        expert_add_info_format(pinfo, pi, &ei_c2_c3_c4_format, "DOF Violation: Type.2.1: Compressed 24-bit Compression Manditory." );
+        expert_add_info_format(pinfo, pi, &ei_c2_c3_c4_format, "DOF Violation: Type.2.1: Compressed 24-bit Compression Mandatory." );
     }
 
     if (len > 2 && val < 0x4000)
     {
         /* SPEC Type.2.1 Violation. */
-        expert_add_info_format(pinfo, pi, &ei_c2_c3_c4_format, "DOF Violation: Type.2.1: Compressed 24-bit Compression Manditory.");
+        expert_add_info_format(pinfo, pi, &ei_c2_c3_c4_format, "DOF Violation: Type.2.1: Compressed 24-bit Compression Mandatory.");
     }
 }
 
@@ -4907,7 +4905,7 @@ static void validate_c2(packet_info *pinfo, proto_item *pi, guint16 val, gint le
     if (len > 1 && val < 0x80)
     {
         /* SPEC Type.1.1 Violation. */
-        expert_add_info_format(pinfo, pi, &ei_c2_c3_c4_format, "DOF Violation: Type.1.1: Compressed 16-bit Compression Manditory." );
+        expert_add_info_format(pinfo, pi, &ei_c2_c3_c4_format, "DOF Violation: Type.1.1: Compressed 16-bit Compression Mandatory." );
     }
 }
 
@@ -5860,7 +5858,7 @@ static void remember_offset(packet_info *pinfo, tcp_session_data *session, tcp_p
         *seqptr = sequence;
         if (id == NULL)
         {
-            *last = (tcp_ignore_data *)wmem_alloc0(wmem_file_scope(), sizeof(tcp_ignore_data));
+            *last = wmem_new0(wmem_file_scope(), tcp_ignore_data);
             id = *last;
             id->ignore = ignore;
             id->sequence = tcpinfo->seq;
@@ -5917,12 +5915,6 @@ static int dissect_dof_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     if (session == NULL)
     {
         session = create_tcp_session_data(pinfo, conversation);
-        if (!session)
-        {
-            fprintf(stderr, "! session");
-            return 0;
-        }
-
         conversation_add_proto_data(conversation, proto_2008_1_dof_tcp, session);
     }
 
@@ -5932,13 +5924,7 @@ static int dissect_dof_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     packet = (tcp_packet_data *)p_get_proto_data(wmem_file_scope(), pinfo, proto_2008_1_dof_tcp, 0);
     if (packet == NULL)
     {
-        packet = (tcp_packet_data *)wmem_alloc0(wmem_file_scope(), sizeof(tcp_packet_data));
-        if (!packet)
-        {
-            fprintf(stderr, "! packet");
-            return 0;
-        }
-
+        packet = wmem_new0(wmem_file_scope(), tcp_packet_data);
         p_add_proto_data(wmem_file_scope(), pinfo, proto_2008_1_dof_tcp, 0, packet);
     }
 
@@ -6016,7 +6002,7 @@ static int dissect_dof_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                 if (packet->dof_packets == NULL)
                 {
                     ref_is_new = TRUE;
-                    ref = (tcp_dof_packet_ref *)wmem_alloc0(wmem_file_scope(), sizeof(tcp_dof_packet_ref));
+                    ref = wmem_new0(wmem_file_scope(), tcp_dof_packet_ref);
                     ref->transport_packet.sender_id = assign_addr_port_id(&pinfo->src, pinfo->srcport);
                     ref->transport_packet.receiver_id = assign_addr_port_id(&pinfo->dst, pinfo->destport);
                     packet->dof_packets = ref;
@@ -6040,12 +6026,6 @@ static int dissect_dof_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                         /* This is the default state, NULL and 0. */
                         ref_is_new = TRUE;
                         ref = wmem_new0(wmem_file_scope(), tcp_dof_packet_ref);
-                        if (!ref)
-                        {
-                            fprintf(stderr, "! ref");
-                            return offset;
-                        }
-
                         ref->transport_packet.sender_id = last->transport_packet.sender_id;
                         ref->transport_packet.receiver_id = last->transport_packet.receiver_id;
                         ref->start_offset = raw_offset;
@@ -6166,25 +6146,13 @@ static int dissect_tunnel_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     if (session == NULL)
     {
         session = create_tcp_session_data(pinfo, conversation);
-        if (!session)
-        {
-            fprintf(stderr, "! session");
-            return 0;
-        }
-
         conversation_add_proto_data(conversation, proto_2012_1_tunnel, session);
     }
 
     packet = (tcp_packet_data *)p_get_proto_data(wmem_file_scope(), pinfo, proto_2012_1_tunnel, 0);
     if (packet == NULL)
     {
-        packet = (tcp_packet_data *)wmem_alloc0(wmem_file_scope(), sizeof(tcp_packet_data));
-        if (!packet)
-        {
-            fprintf(stderr, "! packet");
-            return 0;
-        }
-
+        packet = wmem_new0(wmem_file_scope(), tcp_packet_data);
         p_add_proto_data(wmem_file_scope(), pinfo, proto_2012_1_tunnel, 0, packet);
     }
 
@@ -6239,7 +6207,7 @@ static int dissect_tunnel_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                 if (packet->dof_packets == NULL)
                 {
                     ref_is_new = TRUE;
-                    ref = (tcp_dof_packet_ref *)wmem_alloc0(wmem_file_scope(), sizeof(tcp_dof_packet_ref));
+                    ref = wmem_new0(wmem_file_scope(), tcp_dof_packet_ref);
                     ref->transport_packet.sender_id = assign_addr_port_id(&pinfo->src, pinfo->srcport);
                     ref->transport_packet.receiver_id = assign_addr_port_id(&pinfo->dst, pinfo->destport);
                     packet->dof_packets = ref;
@@ -6262,13 +6230,7 @@ static int dissect_tunnel_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
                         /* This is the default state, NULL and 0. */
                         ref_is_new = TRUE;
-                        ref = (tcp_dof_packet_ref *)wmem_alloc0(wmem_file_scope(), sizeof(tcp_dof_packet_ref));
-                        if (!ref)
-                        {
-                            fprintf(stderr, "! ref");
-                            return offset;
-                        }
-
+                        ref = wmem_new0(wmem_file_scope(), tcp_dof_packet_ref);
                         ref->transport_packet.sender_id = last->transport_packet.sender_id;
                         ref->transport_packet.receiver_id = last->transport_packet.receiver_id;
                         ref->start_offset = raw_offset;
@@ -6569,7 +6531,7 @@ static int dissect_dnp_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
             api_data->session = dof_ns_session_retrieve(api_data->transport_session->transport_session_id, client, server);
             if (api_data->session == NULL)
             {
-                dof_session_data *sdata = (dof_session_data *)wmem_alloc0(wmem_file_scope(), sizeof(dof_session_data));
+                dof_session_data *sdata = wmem_new0(wmem_file_scope(), dof_session_data);
                 dof_ns_session_define(api_data->transport_session->transport_session_id, client, server, sdata);
                 sdata->session_id = globals.next_session++;
                 sdata->dof_id = dnp_version;
@@ -7485,7 +7447,6 @@ static int dissect_ccm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     secmode_api_data = (dof_secmode_api_data *)data;
     if (secmode_api_data == NULL)
     {
-        fprintf(stderr, "secmode_api_data == NULL");
         return 0;
     }
 
@@ -7507,7 +7468,7 @@ static int dissect_ccm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         if (!ccm_data)
         {
             /* We need to parse the initialization data. */
-            ccm_data = (ccm_session_data *)wmem_alloc0(wmem_file_scope(), sizeof(ccm_session_data));
+            ccm_data = wmem_new0(wmem_file_scope(), ccm_session_data);
             if (!ccm_data)
                 return 0;
             wmem_register_callback(wmem_file_scope(), dof_sessions_destroy_cb, ccm_data);
@@ -7744,7 +7705,7 @@ static int dissect_ccm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         pdata = (ccm_packet_data *)dof_packet->security_packet;
         if (!pdata)
         {
-            pdata = (ccm_packet_data *)wmem_alloc0(wmem_file_scope(), sizeof(ccm_packet_data));
+            pdata = wmem_new0(wmem_file_scope(), ccm_packet_data);
             if (pdata)
             {
                 dof_packet->security_packet = pdata;
@@ -8163,14 +8124,12 @@ static int dissect_oap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
     if (api_data == NULL)
     {
-        fprintf(stderr, "api_data == NULL");
         return 0;
     }
 
     packet_data = api_data->packet;
     if (packet_data == NULL)
     {
-        fprintf(stderr, "packet_data == NULL");
         return 0;
     }
 
@@ -8199,7 +8158,7 @@ static int dissect_oap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     oap_packet = (oap_1_packet_data *)dof_packet_get_proto_data(packet_data, proto_oap_1);
     if (!oap_packet)
     {
-        oap_packet = (oap_1_packet_data *)wmem_alloc0(wmem_file_scope(), sizeof(oap_1_packet_data));
+        oap_packet = wmem_new0(wmem_file_scope(), oap_1_packet_data);
         dof_packet_add_proto_data(packet_data, proto_oap_1, oap_packet);
     }
 
@@ -8550,7 +8509,7 @@ static int dissect_oap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         if (alias_length && !packet_data->processed)
         {
             guint32 alias;
-            oap_1_binding *binding = (oap_1_binding *)wmem_alloc0(wmem_file_scope(), sizeof(oap_1_binding));
+            oap_1_binding *binding = wmem_new0(wmem_file_scope(), oap_1_binding);
             int i;
 
             alias = 0;
@@ -8864,7 +8823,7 @@ static int dissect_sgmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                     tvb_memcpy(identity, identity_buf, 0, identity_length);
 
                     {
-                        sgmp_data = (sgmp_packet_data *)wmem_alloc0(wmem_file_scope(), sizeof(sgmp_packet_data));
+                        sgmp_data = wmem_new0(wmem_file_scope(), sgmp_packet_data);
                         dof_packet_add_proto_data(packet_data, proto_sgmp, sgmp_data);
 
                         sgmp_data->domain_length = domain_length;
@@ -9331,10 +9290,10 @@ static int dissect_tep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         rekey_data = (tep_rekey_data *)packet->opid_data;
         if (!rekey_data)
         {
-            packet->opid_data = rekey_data = (tep_rekey_data *)wmem_alloc0(wmem_file_scope(), sizeof(tep_rekey_data));
+            packet->opid_data = rekey_data = wmem_new0(wmem_file_scope(), tep_rekey_data);
         }
 
-        rekey_data->key_data = (dof_session_key_exchange_data *)wmem_alloc0(wmem_file_scope(), sizeof(dof_session_key_exchange_data));
+        rekey_data->key_data = wmem_new0(wmem_file_scope(), dof_session_key_exchange_data);
         rekey_data->is_rekey = TRUE;
 
         /* The K bit must be set, so there is a domain ONLY IF NOT SECURED. */
@@ -9379,7 +9338,7 @@ static int dissect_tep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                 /* TODO: Output error. */
                 return 0;
             }
-            packet->opid_data = rekey_data = (tep_rekey_data *)wmem_alloc0(wmem_file_scope(), sizeof(tep_rekey_data));
+            packet->opid_data = rekey_data = wmem_new0(wmem_file_scope(), tep_rekey_data);
             rekey_data->domain_length = api_data->secure_session->domain_length;
             rekey_data->domain = api_data->secure_session->domain;
         }
@@ -9606,11 +9565,11 @@ static int dissect_tep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
                 if (!dof_secure_session)
                 {
-                    dof_session = (dof_session_data *)wmem_alloc0(wmem_file_scope(), sizeof(dof_session_data));
+                    dof_session = wmem_new0(wmem_file_scope(), dof_session_data);
                     dof_session->session_id = globals.next_session++;
                     dof_session->dof_id = api_data->session->dof_id;
 
-                    dof_secure_session = (dof_secure_session_data *)wmem_alloc0(wmem_file_scope(), sizeof(dof_secure_session_data));
+                    dof_secure_session = wmem_new0(wmem_file_scope(), dof_secure_session_data);
                     dof_secure_session->ssid = ssid;
                     dof_secure_session->domain_length = rekey_data->domain_length;
                     dof_secure_session->domain = rekey_data->domain;
@@ -9879,7 +9838,7 @@ static int dissect_trp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                     if (identity_length == gidentity->identity_length &&
                         memcmp(identity_buf, gidentity->identity, identity_length) == 0)
                     {
-                        trp_pkt_data = (trp_packet_data *)wmem_alloc0(wmem_file_scope(), sizeof(trp_packet_data));
+                        trp_pkt_data = wmem_new0(wmem_file_scope(), trp_packet_data);
                         dof_packet_add_proto_data(packet_data, proto_trp, trp_pkt_data);
 
                         trp_pkt_data->domain_length = domain_length;
@@ -10191,7 +10150,7 @@ static int dissect_trp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                     if (identity_length == gidentity->identity_length &&
                         memcmp(identity_buf, gidentity->identity, identity_length) == 0)
                     {
-                        trp_pkt_data = (trp_packet_data *)wmem_alloc0(wmem_file_scope(), sizeof(trp_packet_data));
+                        trp_pkt_data = wmem_new0(wmem_file_scope(), trp_packet_data);
                         dof_packet_add_proto_data(packet_data, proto_trp, trp_pkt_data);
 
                         trp_pkt_data->domain_length = domain_length;
@@ -10284,7 +10243,7 @@ static int dissect_trp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                     if (identity_length == gidentity->identity_length &&
                         memcmp(identity_buf, gidentity->identity, identity_length) == 0)
                     {
-                        trp_pk_data = (trp_packet_data *)wmem_alloc0(wmem_file_scope(), sizeof(trp_packet_data));
+                        trp_pk_data = wmem_new0(wmem_file_scope(), trp_packet_data);
                         dof_packet_add_proto_data(packet_data, proto_trp, trp_pk_data);
 
                         trp_pk_data->domain_length = domain_length;

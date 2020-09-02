@@ -32,7 +32,6 @@
 #define	DOT11DECRYPT_RET_SUCCESS_HANDSHAKE  	 -1
 
 #define	DOT11DECRYPT_MAX_KEYS_NR	        	 64
-#define	DOT11DECRYPT_MAX_SEC_ASSOCIATIONS_NR	256
 
 /*	Decryption algorithms fields size definition (bytes)		*/
 #define	DOT11DECRYPT_WPA_NONCE_LEN		         32
@@ -107,11 +106,6 @@ typedef struct _DOT11DECRYPT_SEC_ASSOCIATION {
      */
     struct _DOT11DECRYPT_SEC_ASSOCIATION* next;
 
-	/**
-	 * This flag define whether this item is used or not. Accepted
-     * values are TRUE and FALSE
-	 */
-	UINT8 used;
 	DOT11DECRYPT_SEC_ASSOCIATION_ID saId;
 	DOT11DECRYPT_KEY_ITEM *key;
 	UINT8 handshake;
@@ -119,7 +113,6 @@ typedef struct _DOT11DECRYPT_SEC_ASSOCIATION {
 
 	struct {
 		UINT8 key_ver;		/* Key descriptor version	*/
-		UINT64 pn;		/* only used with CCMP AES -if needed replay check- */
 		UCHAR nonce[DOT11DECRYPT_WPA_NONCE_LEN];
 		/* used to derive PTK, ANonce stored, SNonce taken	*/
 		/* the 2nd packet of the 4W handshake			*/
@@ -134,16 +127,11 @@ typedef struct _DOT11DECRYPT_SEC_ASSOCIATION {
 } DOT11DECRYPT_SEC_ASSOCIATION, *PDOT11DECRYPT_SEC_ASSOCIATION;
 
 typedef struct _DOT11DECRYPT_CONTEXT {
-	DOT11DECRYPT_SEC_ASSOCIATION sa[DOT11DECRYPT_MAX_SEC_ASSOCIATIONS_NR];
-	INT sa_index;
+	GHashTable *sa_hash;
 	DOT11DECRYPT_KEY_ITEM keys[DOT11DECRYPT_MAX_KEYS_NR];
 	size_t keys_nr;
-
-        CHAR pkt_ssid[DOT11DECRYPT_WPA_SSID_MAX_LEN];
-        size_t pkt_ssid_len;
-
-	INT index;
-	INT first_free_index;
+	CHAR pkt_ssid[DOT11DECRYPT_WPA_SSID_MAX_LEN];
+	size_t pkt_ssid_len;
 } DOT11DECRYPT_CONTEXT, *PDOT11DECRYPT_CONTEXT;
 
 typedef enum _DOT11DECRYPT_HS_MSG_TYPE {
@@ -271,14 +259,6 @@ Dot11DecryptDecryptKeyData(PDOT11DECRYPT_CONTEXT ctx,
  * @param tot_len [IN] Total length of the EAPOL frame
  * @param bssid [IN] bssid of AP
  * @param sta [IN] sta MAC address
- * @param decrypt_data [OUT] Pointer to a buffer that will contain
- *   the decrypted EAPOL keydata if it was encrypted. Must have room for at
- *   least DOT11DECRYPT_EAPOL_MAX_LEN bytes.
- * @param decrypt_len [OUT] Length of decrypted EAPOL key data. 0 if keydata
- *   was not encrypted.
- * @param key [OUT] Pointer to a preallocated key structure containing
- *   the key used during the decryption process (if done). If this parameter
- *   is set to NULL, the key will be not returned.
  * @return
  * - DOT11DECRYPT_RET_REQ_DATA: Required data is not available and the
  *   processing must be interrupted
@@ -363,26 +343,6 @@ Dot11DecryptGetGTK(const PDOT11DECRYPT_KEY_ITEM key, const guint8 **gtk);
  */
 extern INT Dot11DecryptSetKeys(
 	PDOT11DECRYPT_CONTEXT ctx,
-	DOT11DECRYPT_KEY_ITEM keys[],
-	const size_t keys_nr)
-	;
-
-/**
- * It gets the keys collection fom the specified context.
- * @param ctx [IN] pointer to the current context
- * @param keys [IN] a preallocated array of keys to be returned
- * @param keys_nr [IN] the number of keys to return (the key array must
- * be able to contain at least keys_nr keys)
- * @return The number of keys returned
- * @note
- * Any key could be modified, as stated in the DOT11DECRYPT_KEY_ITEM description.
- * @note
- * This function is not thread-safe when used in parallel with context
- * management functions and the packet process function on the same
- * context.
- */
-INT Dot11DecryptGetKeys(
-	const PDOT11DECRYPT_CONTEXT ctx,
 	DOT11DECRYPT_KEY_ITEM keys[],
 	const size_t keys_nr)
 	;

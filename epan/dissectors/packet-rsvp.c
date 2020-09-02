@@ -4778,7 +4778,7 @@ dissect_rsvp_label(proto_tree *ti, proto_tree *rsvp_object_tree,
         if(unassigned_upstream_label == 0xffffffff){ /* Unassigned upstream label, see RFC 8359 */
             proto_item_append_text(ti, ":  Unassigned upstream label ( 0x%x )",unassigned_upstream_label);
         }
-        else if(unassigned_upstream_label != 0xffffffff){
+        else {
             proto_tree_add_item(rsvp_object_tree, hf_rsvp_ctype_label, tvb, offset+3, 1, ENC_BIG_ENDIAN);
             if (rsvp_generalized_label_option == 1) { /* FF: no generalized label interpretation */
                 proto_item_set_text(ti, "%s: Generalized: ", name);
@@ -5613,7 +5613,7 @@ dissect_rsvp_admin_status(proto_tree *ti, proto_tree *rsvp_object_tree,
 {
     int         offset2 = offset + 4;
     guint32     status;
-    static const int * status_flags[] = {
+    static int * const status_flags[] = {
         &hf_rsvp_filter[RSVPF_ADMIN_STATUS_REFLECT],
         &hf_rsvp_filter[RSVPF_ADMIN_STATUS_HANDOVER],
         &hf_rsvp_filter[RSVPF_ADMIN_STATUS_LOCKOUT],
@@ -5667,7 +5667,7 @@ dissect_rsvp_lsp_attributes(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp
     guint32     attributes;
     guint16     tlv_type, tlv_len;
     proto_tree *ti2, *rsvp_lsp_attr_subtree;
-    static const int * rsvp_lsp_attr_flags[] = {
+    static int * const rsvp_lsp_attr_flags[] = {
         &hf_rsvp_lsp_attr_e2e,
         &hf_rsvp_lsp_attr_boundary,
         &hf_rsvp_lsp_attr_segment,
@@ -7813,6 +7813,33 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
            truncated, so we can checksum it. */
         SET_CKSUM_VEC_TVB(cksum_vec[0], tvb, 0, msg_length);
         computed_cksum = in_cksum(&cksum_vec[0], 1);
+        /*
+         * in_cksum() should never return 0xFFFF here, because, to quote
+         * RFC 1624 section 3 "Discussion":
+         *
+         *     In one's complement, there are two representations of
+         *     zero: the all zero and the all one bit values, often
+         *     referred to as +0 and -0.  One's complement addition
+         *     of non-zero inputs can produce -0 as a result, but
+         *     never +0.  Since there is guaranteed to be at least
+         *     one non-zero field in the IP header, and the checksum
+         *     field in the protocol header is the complement of the
+         *     sum, the checksum field can never contain ~(+0), which
+         *     is -0 (0xFFFF).  It can, however, contain ~(-0), which
+         *     is +0 (0x0000).
+         *
+         * RFC 1624 is discussing the checksum of the *IPv4* header,
+         * where the "version" field is 4, ensuring that, in a valid
+         * IPv4 header, there is at least one non-zero field, but it
+         * also applies to an RSVP packet, because header includes a
+         * version field with the value 1, so at least one field in
+         * the checksummed data is non-zero.
+         *
+         * in_cksum() returns the negation of the one's-complement
+         * sum of all the data handed to it, and that data won't be
+         * all zero, so the sum won't be 0 (+0), and thus the negation
+         * won't be -0, i.e. won't be 0xFFFF.
+         */
         if (computed_cksum == 0) {
             proto_item_append_text(cksum_item, " [correct]");
         } else if (cksum == 0 && have_integrity_object) {

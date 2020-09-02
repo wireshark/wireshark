@@ -52,6 +52,8 @@ else ()
   )
 
   if(LIBSSH_INCLUDE_DIR AND LIBSSH_LIBRARY)
+    include(CheckSymbolExists)
+
     set(LIBSSH_INCLUDE_DIRS
       ${LIBSSH_INCLUDE_DIR}
     )

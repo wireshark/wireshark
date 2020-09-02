@@ -17,6 +17,8 @@
 void proto_register_macsec(void);
 void proto_reg_handoff_macsec(void);
 
+static dissector_handle_t ethertype_handle;
+
 /* TCI/AN field masks */
 #define TCI_MASK     0xFC
 #define TCI_V_MASK   0x80
@@ -41,6 +43,7 @@ static int hf_macsec_SL                    = -1;
 static int hf_macsec_PN                    = -1;
 static int hf_macsec_SCI_system_identifier = -1;
 static int hf_macsec_SCI_port_identifier   = -1;
+static int hf_macsec_etype                 = -1;
 static int hf_macsec_ICV                   = -1;
 
 /* Initialize the subtree pointers */
@@ -54,7 +57,7 @@ static int dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     guint8      tci_an_field;
 
     proto_item *macsec_item;
-    proto_tree *macsec_tree;
+    proto_tree *macsec_tree = NULL;
 
     tvbuff_t *next_tvb;
 
@@ -82,17 +85,21 @@ static int dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     data_length = tvb_captured_length(tvb) - sectag_length - icv_length;
     icv_offset  = data_length + data_offset;
 
-    next_tvb = tvb_new_subset_length(tvb, data_offset, data_length);
-
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MACSEC");
     col_set_str(pinfo->cinfo, COL_INFO, "MACsec frame");
 
     if (tree) {
-        macsec_item = proto_tree_add_item(tree,
+        if (((tci_an_field & TCI_E_MASK) == TCI_E_MASK) || ((tci_an_field & TCI_C_MASK) == TCI_C_MASK)) {
+            macsec_item = proto_tree_add_item(tree,
                 proto_macsec, tvb, 0, sectag_length, ENC_NA);
+        } else {
+            /* Add the EtherType too since this is authentication only. */
+            macsec_item = proto_tree_add_item(tree,
+                proto_macsec, tvb, 0, sectag_length + 2, ENC_NA);
+        }
         macsec_tree = proto_item_add_subtree(macsec_item, ett_macsec);
 
-        static const int * flags[] = {
+        static int * const flags[] = {
             &hf_macsec_TCI_V,
             &hf_macsec_TCI_ES,
             &hf_macsec_TCI_SC,
@@ -116,11 +123,28 @@ static int dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
                     12, 2, ENC_BIG_ENDIAN);
         }
 
-        proto_tree_add_item(macsec_tree, hf_macsec_ICV, tvb, icv_offset,
-                icv_length, ENC_NA);
+        if (((tci_an_field & TCI_E_MASK) == TCI_E_MASK) || ((tci_an_field & TCI_C_MASK) == TCI_C_MASK)) {
+            proto_tree_add_item(macsec_tree, hf_macsec_ICV, tvb, icv_offset, icv_length, ENC_NA);
+        } else {
+            proto_tree_add_item(macsec_tree, hf_macsec_etype, tvb, data_offset, 2, ENC_BIG_ENDIAN);
+        }
     }
 
-    call_data_dissector(next_tvb, pinfo, tree);
+    /* if encrypted or changed, we can only display data */
+    if (((tci_an_field & TCI_E_MASK) == TCI_E_MASK) || ((tci_an_field & TCI_C_MASK) == TCI_C_MASK)) {
+        next_tvb = tvb_new_subset_length(tvb, data_offset, data_length);
+        call_data_dissector(next_tvb, pinfo, tree);
+    } else {
+        ethertype_data_t ethertype_data;
+
+        ethertype_data.etype = tvb_get_ntohs(tvb, data_offset);
+        ethertype_data.payload_offset = data_offset + 2;
+        ethertype_data.fh_tree = macsec_tree;
+        ethertype_data.trailer_id = hf_macsec_ICV;
+        ethertype_data.fcs_len = 0;
+
+        call_dissector_with_data(ethertype_handle, tvb, pinfo, tree, &ethertype_data);
+    }
 
     return tvb_captured_length(tvb);
 }
@@ -177,6 +201,10 @@ proto_register_macsec(void)
             { "Port Identifier", "macsec.SCI.port_identifier", FT_UINT16, BASE_DEC,
               NULL, 0, NULL, HFILL }
         },
+        { &hf_macsec_etype,
+            { "Ethertype", "macsec.etype", FT_UINT16, BASE_HEX,
+              NULL, 0, NULL, HFILL }
+        },
         { &hf_macsec_ICV,
             { "ICV", "macsec.ICV", FT_BYTES, BASE_NONE,
               NULL, 0, NULL, HFILL }
@@ -203,6 +231,8 @@ proto_reg_handoff_macsec(void)
     dissector_handle_t macsec_handle;
     macsec_handle = create_dissector_handle(dissect_macsec, proto_macsec);
     dissector_add_uint("ethertype", ETHERTYPE_MACSEC, macsec_handle);
+
+    ethertype_handle = find_dissector("ethertype");
 }
 
 /*

@@ -260,7 +260,7 @@ static void finish_process_pkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 static gint
 dissect_osmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    static const gint *ft_ctr_fields[] = {
+    static int * const ft_ctr_fields[] = {
         &hf_osmux_rtp_m,
         &hf_osmux_ft,
         &hf_osmux_ctr,
@@ -268,7 +268,7 @@ dissect_osmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
         &hf_osmux_amr_q,
         NULL
     };
-    static const gint *amr_ft_cmr_fields[] = {
+    static int * const amr_ft_cmr_fields[] = {
         &hf_osmux_amr_ft,
         &hf_osmux_amr_cmr,
         NULL

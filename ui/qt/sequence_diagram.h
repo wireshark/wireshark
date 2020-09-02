@@ -33,7 +33,7 @@ public:
   struct _seq_analysis_item *value;
 };
 
-typedef QMap<double, WSCPSeqData> WSCPSeqDataMap;
+typedef QMultiMap<double, WSCPSeqData> WSCPSeqDataMap;
 
 class SequenceDiagram : public QCPAbstractPlottable
 {

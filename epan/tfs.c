@@ -13,6 +13,12 @@
 
 #include "tfs.h"
 
+/** Returns the string representing the true or false value. */
+const char *tfs_get_string(gboolean value, const true_false_string *tfs)
+{
+    return value ? tfs->true_string : tfs->false_string;
+}
+
 /*
  * A default set of true/false strings that dissectors can use for
  * FT_BOOLEAN header fields.
@@ -98,3 +104,19 @@ const true_false_string tfs_external_internal = { "External", "Internal" };
 const true_false_string tfs_changed_not_changed = { "Changed", "Not Changed" };
 const true_false_string tfs_needed_not_needed = { "Needed", "Not Needed" };
 const true_false_string tfs_selected_not_selected = { "Selected", "Not Selected" };
+const true_false_string tfs_add_drop = { "Add", "Drop" };
+const true_false_string tfs_no_extension_extension = { "No Extension", "Extension" };
+const true_false_string tfs_user_provider = { "User", "Provider" };
+
+/*
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

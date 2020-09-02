@@ -463,7 +463,7 @@ dissect_netmon_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 	tvbuff_t *provider_id_tvb;
 	guid_key provider_guid;
 	struct netmon_provider_id_data provider_id_data;
-	static const int * event_flags[] = {
+	static int * const event_flags[] = {
 		&hf_netmon_event_flags_extended_info,
 		&hf_netmon_event_flags_private_session,
 		&hf_netmon_event_flags_string_only,
@@ -474,7 +474,7 @@ dissect_netmon_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 		&hf_netmon_event_flags_classic_header,
 		NULL
 	};
-	static const int * event_property[] = {
+	static int * const event_property[] = {
 		&hf_netmon_event_event_property_xml,
 		&hf_netmon_event_event_property_forwarded_xml,
 		&hf_netmon_event_event_property_legacy_eventlog,
@@ -2544,7 +2544,7 @@ void proto_register_netmon(void)
 			FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_netmon_system_config_tcb_table_partitions,
-			{ "Tcb table paritions", "netmon_system_config.tcb_table_partitions",
+			{ "Tcb table partitions", "netmon_system_config.tcb_table_partitions",
 			FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_netmon_system_config_max_hash_table_size,

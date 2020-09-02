@@ -1,7 +1,7 @@
 /* packet-cbor.c
  * Routines for Concise Binary Object Representation (CBOR) (RFC 7049) dissection
  * References:
- *     RFC 7049: http://tools.ietf.org/html/rfc7049
+ *     RFC 7049: https://tools.ietf.org/html/rfc7049
  *
  * Copyright 2015, Hauke Mehrtens <hauke@hauke-m.de>
  *

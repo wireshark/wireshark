@@ -35,7 +35,7 @@ find_library(MINIZIP_LIBRARY
 )
 
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(MINIZIP
+find_package_handle_standard_args(Minizip
   REQUIRED_VARS   MINIZIP_LIBRARY MINIZIP_INCLUDE_DIR
   VERSION_VAR     MINIZIP_VERSION)
 

@@ -257,7 +257,7 @@ static expert_field ei_fcels_dst_unknown = EI_INIT;
 static expert_field ei_fcels_no_record_of_els_req = EI_INIT;
 static expert_field ei_fcels_no_record_of_exchange = EI_INIT;
 
-static const int *hf_fcels_estat_fields[] = {
+static int * const hf_fcels_estat_fields[] = {
     &hf_fcels_estat_resp,
     &hf_fcels_estat_seq_init,
     &hf_fcels_estat_compl,
@@ -654,7 +654,7 @@ static const true_false_string tfs_fc_fcels_cmn_payload = {
 static void
 dissect_cmnsvc (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 flags, guint8 opcode)
 {
-    static const int * common_flags[] = {
+    static int * const common_flags[] = {
         &hf_fcels_cmn_cios,
         &hf_fcels_cmn_rro,
         &hf_fcels_cmn_vvv,
@@ -668,7 +668,7 @@ dissect_cmnsvc (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 flag
         NULL
     };
 
-    static const int * pflags[] = {
+    static int * const pflags[] = {
         &hf_fcels_cmn_cios,
         &hf_fcels_cmn_rro,
         &hf_fcels_cmn_vvv,
@@ -709,13 +709,13 @@ static const true_false_string tfs_fc_fcels_cls_nzctl = {
 static void
 dissect_clssvc_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 flags, guint8 opcode)
 {
-    static const int * common_flags[] = {
+    static int * const common_flags[] = {
         &hf_fcels_cls_cns,
         &hf_fcels_cls_prio,
         NULL
     };
 
-    static const int * pflags[] = {
+    static int * const pflags[] = {
         &hf_fcels_cls_cns,
         &hf_fcels_cls_sdr,
         &hf_fcels_cls_prio,
@@ -764,7 +764,7 @@ static const true_false_string tfs_fc_fcels_fcpflags_wrxr = {
 static void
 dissect_fcp_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint32 flags, guint8 isreq)
 {
-    static const int * req_flags[] = {
+    static int * const req_flags[] = {
         &hf_fcels_fcpflags_trireq,
         &hf_fcels_fcpflags_retry,
         &hf_fcels_fcpflags_ccomp,
@@ -776,7 +776,7 @@ dissect_fcp_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint32 f
         NULL
     };
 
-    static const int * rep_flags[] = {
+    static int * const rep_flags[] = {
         &hf_fcels_fcpflags_trirep,
         &hf_fcels_fcpflags_retry,
         &hf_fcels_fcpflags_ccomp,
@@ -802,7 +802,7 @@ static void
 dissect_speed_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint32 flags, int port)
 {
     proto_item *item;
-    static const int * speed_flags[] = {
+    static int * const speed_flags[] = {
         &hf_fcels_speedflags_1gb,
         &hf_fcels_speedflags_2gb,
         &hf_fcels_speedflags_4gb,
@@ -831,7 +831,7 @@ static const true_false_string tfs_fc_fcels_prliloflags_eip = {
 static void
 dissect_prlilo_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, int flags, guint8 opcode)
 {
-    static const int * tprlo_flags[] = {
+    static int * const tprlo_flags[] = {
         &hf_fcels_tprloflags_opav,
         &hf_fcels_tprloflags_rpav,
         &hf_fcels_tprloflags_npv,
@@ -839,14 +839,14 @@ dissect_prlilo_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, int fl
         NULL
     };
 
-    static const int * prli_flags[] = {
+    static int * const prli_flags[] = {
         &hf_fcels_prliloflags_opav,
         &hf_fcels_tprloflags_rpav,
         &hf_fcels_prliloflags_ipe,
         NULL
     };
 
-    static const int * not_prli_flags[] = {
+    static int * const not_prli_flags[] = {
         &hf_fcels_prliloflags_opav,
         &hf_fcels_tprloflags_rpav,
         &hf_fcels_prliloflags_eip,
@@ -882,7 +882,7 @@ static const true_false_string tfs_fc_fcels_initctl_ackgaa = {
 static void
 dissect_initctl_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 flags, guint8 opcode)
 {
-    static const int * plogi_flags[] = {
+    static int * const plogi_flags[] = {
         &hf_fcels_initctl_initial_pa,
         &hf_fcels_initctl_ack0,
         &hf_fcels_initctl_ackgaa,
@@ -890,7 +890,7 @@ dissect_initctl_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint
         NULL
     };
 
-    static const int * not_plogi_flags[] = {
+    static int * const not_plogi_flags[] = {
         &hf_fcels_initctl_sync,
         NULL
     };
@@ -922,7 +922,7 @@ static const value_string rcptctl_category_vals[] = {
 static void
 dissect_rcptctl_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 flags, guint8 opcode)
 {
-    static const int * plogi_flags[] = {
+    static int * const plogi_flags[] = {
         &hf_fcels_rcptctl_ack0,
         &hf_fcels_rcptctl_interlock,
         &hf_fcels_rcptctl_policy,
@@ -931,7 +931,7 @@ dissect_rcptctl_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint
         NULL
     };
 
-    static const int * not_plogi_flags[] = {
+    static int * const not_plogi_flags[] = {
         &hf_fcels_rcptctl_sync,
         NULL
     };

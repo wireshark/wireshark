@@ -1,5 +1,3 @@
-// WSDG Chapter Sources
-
 [[ChapterSources]]
 
 == Work with the Wireshark sources
@@ -25,178 +23,108 @@ such as where to find specific functionality. This is done in
 
 === The Wireshark Git repository
 
-https://git-scm.com/[Git] is used to keep track of the changes made to the
-Wireshark source code. The code is stored inside Wireshark project’s Git
-repository located at a server at the wireshark.org domain.
-
-Changes to the official repository are managed using the
-https://www.gerritcodereview.com/[Gerrit] code review system. Gerrit
-makes it easy to test and discuss changes before they are
-pushed to the main repository. For an overview of Gerrit see the
-https://code.wireshark.org/review/Documentation/intro-quick.html[Quick
-Introduction].
+https://git-scm.com/[Git] is used to keep track of the changes made to the Wireshark source code.
+The official repository is hosted at {wireshark-gitlab-project-url}[GitLab], and incoming changes are evaluated and reviewed there.
+For more information on GitLab see https://docs.gitlab.com/ce/gitlab-basics/[their documentation].
 
 .Why Git?
 
-Git is a fast, flexible way of managing source code. It allows large
-scale distributed development and ensures data integrity.
+Git is a fast, flexible way of managing source code.
+It allows large scale distributed development and ensures data integrity.
 
-.Why Gerrit?
+.Why GitLab?
 
-Gerrit makes it easy to contribute. You can sign in with any OpenID
-provider and push your changes. It’s usable from both the web and
-command line and is integrated with many popular tools.
+GitLab makes it easy to contribute.
+You can make changes locally and push them to your own work area at gitlab.com, or if your change is minor you can make changes entirely within your web browser.
 
-.Git is our *third* revision control system
-[NOTE]
-====
-Wireshark originally used https://www.nongnu.org/cvs/[Concurrent Versions System]
-(CVS) and migrated to https://subversion.apache.org/[Subversion] in July 2004.
-The Subversion repository was subsequently migrated to Git in January 2014.
-====
+.Historical trivia: GitLab is the *fourth* iteration of our source code repository and code review system.
 
-Using Wireshark’s Git repository you can:
+Wireshark originally used https://www.nongnu.org/cvs/[Concurrent Versions System] (CVS) and migrated to https://subversion.apache.org/[Subversion] in July 2004.
+We migrated from Subversion to Git and https://www.gerritcodereview.com/[Gerrit] in January 2014, and from Gerrit to GitLab in August 2020.
 
-* Keep your private sources up to date with very little effort
-* Get a mail notification when the official source code changes
-* Get the source files from any previous release (or any other point in time)
-* Have a quick look at the sources using a web interface
-* See which person changed a specific piece of code
-* and much more
+Using Wireshark’s GitLab project you can:
+
+* Keep your private sources up to date with very little effort.
+* Receive notifications about code reviews and issues.
+* Get the source files from any previous release (or any other point in time).
+* Browse and search the source code using a web interface.
+* See which person changed a specific piece of code.
 
 [[ChSrcWebInterface]]
-
-==== The web interface to the Git repository
-
-If you need a quick look at the Wireshark source code you can
-browse the most recent file versions in the master branch using Gitweb:
-
-https://code.wireshark.org/review/gitweb?p=wireshark.git;a=tree
-
-You can also view commit logs, branches, tags, and past revisions:
-
-https://code.wireshark.org/review/gitweb?p=wireshark.git
 
 ==== Git Naming Conventions
 
 Like most revision control systems, Git uses
-https://en.wikipedia.org/wiki/Branching_%28revision_control%29[branching] to
-manage different copies of the source code and allow parallel development.
+https://en.wikipedia.org/wiki/Branching_%28revision_control%29[branching]
+to manage different copies of the source code and allow parallel development.
 Wireshark uses the following branch naming conventions:
 
-* _master_: Main feature development and odd-numbered “development” releases.
-* _master-x.y_: Stable release maintenance. For example, master-3.0 is used
-  to manage the 3.0.x official releases.
+.master.
+Main feature development and odd-numbered development releases.
 
-Tags for major releases and release candidates consist of a “v” followed
-by a version number such as “v3.0.1” or “v3.0.3rc0”. Major releases
-additionally have a tag prefixed with “wireshark-” followed by a version
-number, such as “wireshark-3.0.0”.
+.master-x.y.
+Stable release maintenance. For example, master-3.2 is used to manage the 3.2.x official releases.
+
+Tags for major releases and release candidates consist of a “v” followed by a version number such as “v3.2.1” or “v3.2.3rc0”.
+Major releases additionally have a tag prefixed with “wireshark-” followed by a version number, such as “wireshark-3.2.0”.
+
+[[ChSrcSVNWeb]]
+// Retain ChSrcSVNWeb for backward compatibility
+[[ChSrcGitWeb]]
+=== Browsing And Searching The Source Code
+
+If you need a quick look at the Wireshark source code you can browse the repository files in GitLab at
+
+{wireshark-code-browse-url}
+
+You can view commit logs, branches, and tags, find files and search the repository contents.
+You can also download individual files.
 
 [[ChSrcObtain]]
+=== Obtaining The Wireshark Sources
 
-=== Obtain the Wireshark sources
-
-There are several ways to obtain the sources from Wireshark’s Git
-repository.
-
-[TIP]
-.Check out from the master branch using Git.
-====
-Using Git is much easier than synchronizing your source tree by hand using any
-of the snapshot methods mentioned below. Git merges changes into your
-personal source tree in a very comfortable and quick way. So you can update your
-source tree several times a day without much effort.
-====
-
-[NOTE]
-.Keep your sources up to date
-====
-The following ways to retrieve the Wireshark sources are sorted in
-decreasing source timeliness.  If you plan to commit changes you've
-made to the sources, it’s a good idea to keep your private source
-tree as current as possible.
-====
-
-The age mentioned in the following sections indicates the age of the
-most recent change in that set of the sources.
+There are two primary ways to obtain Wireshark’s source code: Git and compressed .tar archives.
+Each is described in more detail below.
+We recommend using Git for day to day development, particularly if you wish to contribute changes back to the project.
+The age mentioned in the following sections indicates the age of the most recent change in that set of the sources.
 
 [[ChSrcAnon]]
 // Retain ChSrcAnon for backward compatibility
 [[ChSrcGit]]
+==== Git Over SSH Or HTTPS
 
-==== Git over SSH or HTTPS
+This method is strongly recommended for day to day development.
 
-Recommended for development purposes.
+You can use a Git client to download the source code from Wireshark’s code review system.
+Anyone can clone from the anonymous HTTP git URL:
 
-Age: a few minutes.
+{wireshark-git-anonhttp-url}
 
-You can use a Git client to download the source code from Wireshark’s code
-review system. Anyone can clone from the anonymous git URL:
+If you have a GitLab account you can also clone using SSH:
 
-* {wireshark-git-anonhttp-url}
+{wireshark-git-ssh-url}
 
-If you create a Gerrit account you can clone from an authenticated URL:
+If wish to make changes to Wireshark you must create a GitLab account, create a fork of the official Wireshark repository, update your fork, and create a merge request.
+See <<ChSrcContribute>> for details.
 
-* {wireshark-git-ssh-url}
-* {wireshark-git-http-url}
+The following example shows how to get up and running on the command line.
+See <<ChToolsGit>> for information on installing and configuring graphical Git clients.
 
-SSH lets you use Gerrit on the
-https://code.wireshark.org/review/Documentation/cmd-index.html#_server[command line].
-HTTP lets you access the repository in environments that block the Gerrit SSH
-port (29418). At the time of this writing (early 2014) we recommend that
-you use the SSH interface. However, this may change as more tools take
-advantage of Gerrit’s HTTP REST API.
-
-The following example shows how to get up and running on the command
-line. See <<ChToolsGit>> for information on installing and configuring
-graphical Git and Gerrit clients.
-
-. Sign in to {wireshark-code-review-url} using OpenID (click Register or Sign
-In in the upper right corner of the web page). Follow the login instructions.
-
-. In the upper right corner of the web page, click on your account name and
-select _Settings_.
-
-. Under _Profile_ set a username. This will be the username that
-you use for SSH access. For the steps below we'll assume that your
-username is `henry.perry`.
-
-. Select _SSH Public Keys_ and add one or more keys. You will typically
-upload a key for each computer that you use.
-
-. Install git-review. This is an installable package
-in many Linux distributions. You can also install it as a
-https://pypi.python.org/pypi/git-review[Python package]. (This step
-isn't strictly necessary but it makes working with Gerrit much easier.)
-To install it from Chocolatey run
+. Now on to the command line.
+First, make sure `git` works:
 +
 --
-----
-# If you have not already, install Python 3 first and then *restart* the shell.
-PS$> choco install -y python3
-PS$> choco install -y git-review -source python
-# Make sure that "git-review" is present in our path (edit the version as needed).
-PS$>$userpath = [Environment]::GetEnvironmentVariable("Path", [EnvironmentVariableTarget]::User)
-PS$>$userpath += ";C:\Python37\Scripts"
-PS$>[Environment]::SetEnvironmentVariable("Path", $userpath, [EnvironmentVariableTarget]::User)
-PS$>RefreshEnv
-----
---
-
-. Now on to the command line. First, make sure `git` works:
-+
---
+[source,sh]
 ----
 $ git --version
 ----
 --
 
-. If this is your first time using Git, make sure your username and
-email address are configured. This is particularly important if you
-plan on uploading changes.
+. If this is your first time using Git, make sure your username and email address are configured.
+This is particularly important if you  plan on uploading changes:
 +
 --
+[source,sh]
 ----
 $ git config --global user.name "Henry Perry"
 $ git config --global user.email henry.perry@example.com
@@ -206,99 +134,38 @@ $ git config --global user.email henry.perry@example.com
 . Next, clone the Wireshark repository:
 +
 --
+[source,sh]
 ----
-$ git clone ssh://henry.perry@code.wireshark.org:29418/wireshark
+# If you have a GitLab account, you can use the SSH URL:
+$ git clone -o upstream git@gitlab.com:wireshark/wireshark.git
+# If you don't you can use the HTTPS URL:
+$ git clone -o upstream https://gitlab.com/wireshark/wireshark.git
 ----
-The clone only has to be done once. This will copy all the sources
-(including directories) from the server to your machine and check out
-the latest version. This may take some time depending on the speed of your
-internet connection.
+The clone only has to be done once.
+This will copy all the sources (including directories) from the server to your machine and check out the latest version.
+The `-o upstream` flag uses the origin name “upstream” for the repository instead of the default “origin” as described in the https://docs.gitlab.com/ee/user/project/repository/forking_workflow.html[GitLab documentation].
+Cloning may take some time depending on the speed of your internet connection.
 --
-
-. Then set up the git pre-commit hook and the push address:
-+
---
-----
-$ cd wireshark
-$ cp tools/pre-commit .git/hooks/
-$ git config --add remote.origin.push HEAD:refs/for/master
-----
-This will run a few basic checks on commit to make sure that the code
-does not contain trivial errors. It will also warn if it is out of sync
-with its master copy in the tools/ directory.
-The change in the push address is necessary: We have an asymmetric
-process for pulling and pushing because of gerrit.
---
-
-. Initialize git-review.
-+
---
-----
-$ git review -s
-----
-This prepares your local repository for use with Gerrit, including
-installing the `commit-msg` hook script.
---
-
-[[ChSrcSVNWeb]]
-// Retain ChSrcSVNWeb for backward compatibility
-[[ChSrcGitWeb]]
-
-==== Git web interface
-
-Recommended for informational purposes only, as only individual files can
-be downloaded.
-
-Age: a few minutes (same as anonymous Git access).
-
-The entire source tree of the Git repository is available via a web
-interface at {wireshark-code-browse-url}. You can view each revision of
-a particular file, as well as diffs between different revisions. You can
-also download individual files but not entire directories.
-
 
 [[ChSrcBuildbot]]
+==== Development Snapshots
 
-==== Buildbot Snapshots
+This method is useful for one-off builds or if Git is inaccessible (e.g. because of a restrictive firewall).
 
-Recommended for development purposes, if direct Git access isn't
-possible (e.g. because of a restrictive firewall).
-
-Age: some number of minutes (a bit older than the Git access).
-
-The Buildbot server will automatically start to generate a snapshot of
-Wireshark’s source tree after a source code change is committed. These
-snapshots can be found at {wireshark-snapshots-url}.
-
-If Git access isn't possible, e.g. if the connection to the server
-isn't possible because of a corporate firewall, the sources can be
-obtained by downloading the Buildbot snapshots. However, if you are
-going to maintain your sources in parallel to the "official" sources
-for some time, it’s recommended to use the anonymous (or authenticated)
-Git access if possible (believe it, it will save you a lot of time).
+The Buildbot server automatically generates development packages, including source packages.
+They can be found at {wireshark-snapshots-url}.
+Packages are available for recent commits in the master branch and each release branch.
 
 [[ChSrcReleased]]
+==== Official Source Releases
 
-==== Released sources
-
-Recommended for building pristine packages.
-
-Age: from days to weeks.
+This method is recommended for building downstream release packages.
 
 The official source releases can be found at {wireshark-download-url}.
-You should use these sources if you want to build Wireshark on your
-platform for with minimal or no changes, such Linux distribution
-packages.
-
-The differences between the released sources and the sources in the
-Git repository will keep on growing until the next release is made.
-(At the release time, the released and latest Git repository
-versions are identical again :-).
+You should use these sources if you want to build Wireshark on your platform based on an official release with minimal or no changes, such as Linux distribution packages.
 
 [[ChSrcUpdating]]
-
-
-=== Update the Wireshark sources
+=== Update Your Wireshark Sources
 
 After you've obtained the Wireshark sources for the first time,
 you might want to keep them in sync with the sources at the upstream
@@ -319,54 +186,15 @@ sure the builds are in good shape.
 
 ==== Update Using Git
 
-After you clone Wireshark’s Git repository you can update
-by running
+From time to time you will likely want to synchronize your master branch with the upstream repository.
+You can do so by running:
 
 [source,sh]
 ----
-$ git status
-$ git pull
+$ git pull --rebase upstream master
 ----
 
-Depending on your preferences and work habits you might want to run
-`git pull --rebase` or `git checkout -b my-topic-branch origin/master`
-instead.
-
-Fetching should only take a few seconds, even on a slow internet
-connection. It will update your local repository history with changes
-from the official repository. If you and someone else have changed
-the same file since the last update, Git will try to merge the changes
-into your private file (this works remarkably well).
-
-[[ChSrcZipUpdate]]
-
-
-==== Update Using Source Archives
-
-There are several ways to download the Wireshark source code (as
-described in <<ChSrcObtain>>), but bringing the changes from the
-official sources into your personal source tree is identical.
-
-First of all, you will download the new `.tar.xz` file of the official
-sources the way you did it the first time.
-
-If you haven't changed anything in the sources, you could simply throw
-away your old sources and reinstall everything just like the first time.
-But be sure, that you really haven't changed anything. It might be a good
-idea to simply rename the "old" dir to have it around, just in case you
-remember later that you really did change something before.
-
-If you have changed your source tree, you have to merge the official
-changes since the last update into your source tree. You will install
-the content of the `.tar.xz` file into a new directory and use a good
-merge tool (e.g. http://winmerge.sourceforge.net/[]for Windows) to bring
-your personal source tree in sync with the official sources again.
-
-This method can be problematic and can be much more difficult and
-error-prone than using Git.
-
 [[ChSrcBuildFirstTime]]
-
 === Build Wireshark
 
 The sources contain several documentation files. It’s a good idea to read these
@@ -410,7 +238,7 @@ $ cmake -LH ../wireshark
 
 to see what options you have.
 
-==== Windows native
+==== Windows Native
 
 Follow the build procedure in <<ChWin32Build>> to build Wireshark.
 
@@ -418,9 +246,7 @@ After the build process has successfully finished, you should find a
 `Wireshark.exe` and some other files in the `run\RelWithDebInfo` directory.
 
 [[ChSrcRunFirstTime]]
-
-
-=== Run generated Wireshark
+=== Run Your Version Of Wireshark
 
 
 [TIP]
@@ -433,48 +259,37 @@ installed version first.
 ====
 
 [[ChSrcRunFirstTimeUnix]]
+==== Unix-Like Platforms
 
-==== Unix-like platforms
-
-After a successful build you can run Wireshark right from the build
-directory. Still the program would need to know that it’s being run from
-the build directory and not from its install location. This has an impact
-on the directories where the program can find the other parts and
-relevant data files.
-
-
-In order to run the Wireshark from the build directory set the environment
-variable `WIRESHARK_RUN_FROM_BUILD_DIRECTORY` and run
-Wireshark. If your platform is properly setup, your build directory and
-current working directory are not in your PATH, so the
-command line to launch Wireshark would be:
+After a successful build you can run Wireshark right from the `run` directory.
+There's no need to install it first.
 
 [source,sh]
 ----
-$ WIRESHARK_RUN_FROM_BUILD_DIRECTORY=1 ./run/wireshark
+$ ./run/wireshark
 ----
 
-There’s no need to run Wireshark as root user, you just won't be able to
-capture. When you opt to run Wireshark this way, your terminal output can
-be informative when things don't work as expected.
-
+There’s no need to run Wireshark as root user, but depending on your platform you might not be able to capture.
+Running Wireshark this way can be helpful since debugging output will be displayed in your terminal.
+You can also change Wireshark’s behavior by setting various environment variables.
+See the {wireshark-man-page-url}wireshark.html#ENVIRONMENT-VARIABLES[ENVIRONMENT VARIABLES] section of the Wireshark man page for more details.
 
 [[ChSrcRunFirstTimeWin32]]
+==== Windows Native
 
+By default the CMake-generated Visual {cpp} project places all of the files necessary to run Wireshark in the subdirectory `run\RelWithDebInfo`.
+As with the Unix-like build desribed above, you can run Wireshark from the build directory without installing it first.
 
-==== Windows native
+[source,cmd]
+----
+> .\run\RelWithDebInfo\Wireshark
+----
 
-During the build all relevant program files are collected in a
-subdirectory `run\RelWithDebInfo`. You can run the program from there by
-launching the Wireshark.exe executable.
 
 [[ChSrcDebug]]
-
-=== Debug Your Generated Wireshark
+=== Debug Your Version Of Wireshark
 
 [[ChSrcUnixDebug]]
-
-
 ==== Unix-Like Platforms
 
 You can debug using command-line debuggers such as gdb, dbx, or lldb.
@@ -488,20 +303,25 @@ Additional traps can be set on GLib by setting the `G_DEBUG` environment variabl
 $ G_DEBUG=fatal_criticals gdb wireshark
 ----
 
+If you're encountering memory safety bugs, you might want to build with
+https://en.wikipedia.org/wiki/AddressSanitizer[Address Sanitizer] so that
+Wireshark will immediately alert you to any detected issues.
+
+[source,sh]
+----
+$ cmake .. -G Ninja -DENABLE_ASAN=1
+----
+
 See https://developer.gnome.org/glib/stable/glib-running.html[]
 
 [[ChSrcWin32Debug]]
-
-
-==== Windows native
+==== Windows Native
 
 You can debug using the Visual Studio Debugger or WinDbg.  See the section
 on using the <<ChToolsDebugger, Debugger Tools>>.
 
 [[ChSrcChange]]
-
-
-=== Make changes to the Wireshark sources
+=== Make Changes To The Wireshark Sources
 
 As the Wireshark developers are working on many different platforms, a lot of
 editors are used to develop Wireshark (emacs, vi, Microsoft Visual Studio
@@ -537,370 +357,294 @@ hard to see).
 // XXX - Add a section on branching.
 
 [[ChSrcContribute]]
+=== Contribute Your Changes
 
+If you have finished changing the Wireshark sources to suit your needs, you might want to contribute your changes back to the Wireshark community.
+You gain the following benefits by contributing your improvements:
 
-=== Contribute your changes
+.It’s the right thing to do.
+Other people who find your contributions useful will appreciate them, and you will know that you have helped people in the same way that the developers of Wireshark have helped you.
 
-If you have finished changing the Wireshark sources to suit your needs, you
-might want to contribute your changes back to the Wireshark community. You gain
-the following benefits by contributing your improvements:
+.You get free enhancements.
+By making your code public, other developers have a chance to make improvements, as there’s always room for improvements.
+In addition someone may implement advanced features on top of your code, which can be useful for yourself too.
 
-* _It’s the right thing to do._ Other people who find your contributions useful
-  will appreciate them, and you will know that you have helped people in the
-  same way that the developers of Wireshark have helped you.
+You save time and effort.
+The maintainers and developers of Wireshark will maintain your code as well, updating it when API changes or other changes are made, and generally keeping it in tune with what is happening with Wireshark.
+So if Wireshark is updated (which is done often), you can get a new Wireshark version from the website and your changes will already be included without any effort for you.
 
-* _You get free enhancements._ By making your code public, other developers have
-  a chance to make improvements, as there’s always room for improvements. In
-  addition someone may implement advanced features on top of your code, which
-  can be useful for yourself too.
+There’s no direct way to push changes to the {wireshark-gitlab-project-url}[main repository].
+Only a few people are authorised to actually make changes to the source code (check-in changed files).
+If you want to submit your changes, you should upload them to the code review system at {wireshark-code-review-url}.
+This requires you to set up git as described at <<ChSrcGit>>.
 
-* _You save time and effort._ The maintainers and developers of Wireshark will
-  maintain your code as well, updating it when API changes or other changes are
-  made, and generally keeping it in tune with what is happening with Wireshark.
-  So if Wireshark is updated (which is done often), you can get a new Wireshark
-  version from the website and your changes will already be included without any
-  effort for you.
+[[ChSrcCreatingMergeRequests]]
+==== Creating Merge Requests
 
-There’s no direct way to push changes to the Git repository. Only a few people
-are authorised to actually make changes to the source code (check-in changed
-files). If you want to submit your changes, you should upload them to the code
-review system at {wireshark-code-review-url}. This requires you to set up git
-as described at <<ChSrcGit>>.
+// To do:
+// - Note that you can mirror your fork: https://about.gitlab.com/blog/2016/12/01/how-to-keep-your-fork-up-to-date-with-its-origin/
+// - Mention CLI utilities.
 
-[[ChSrcDiffWhat]]
+GitLab uses a https://docs.gitlab.com/ee/user/project/repository/forking_workflow.html[forking workflow], which looks like this:
 
-// ==== What is a diff file (a patch)?
-//
-// A https://en.wikipedia.org/wiki/Diff[diff file]is a plain text file containing the differences between a pair of files
-// (or a multiple of such file pairs).
-//
-// .A diff file is often also called a patch.
-// [TIP]
-// ====
-// No matter what the name it can be used to patch an existing source file or tree with changes
-// from somewhere else.
-// ====
-//
-// The Wireshark community is using patches to transfer source code changes
-// between the authors.
-//
-// A patch is both readable by humans and (as it is specially formatted) by
-// some dedicated tools.
-//
-// Here is a small example of a patch for _file.h_that
-// makes the second argument in cf_continue_tail()volatile.  It was created using _svn diff _,
-// described below:
-//
-// [source,Diff]
-// ----
-// Index: file.h
-// ===================================================================
-// --- file.h      (revision 21134)
-// +++ file.h      (revision 22401)
-// @@ -142,7 +142,7 @@
-//   * @param err the error code, if an error had occurred
-//   * @return one of cf_read_status_t
-//   */
-// -cf_read_status_t cf_continue_tail(capture_file *cf, int to_read, int *err);
-// +cf_read_status_t cf_continue_tail(capture_file *cf, volatile int to_read, int *err);
-//
-//  /**
-//   * Finish reading from "end" of a capture file.
-// ----
-//
-// The plus sign at the start of a line indicates an added line, a minus
-// sign indicates a deleted line compared to the original sources.
-//
-// We prefer to use so called "unified" diff files in Wireshark development,
-// three unchanged lines before and after the actual changed parts are
-// included. This makes it much easier for a merge/patch tool to find
-// the right place(s) to change in the existing sources.
+.GitLab Workflow
+image::wsdg_graphics/git-triangular-workflow.svg[]
 
-[[ChSrcGeneratePatch]]
+In the diagram above, your fork can created by pressing the “Fork” button at {wireshark-gitlab-project-url}.
+Your local repository can be created as described in <<ChSrcGit>>.
+You only need to do this once.
+You should pull from the main repository on a regular basis in order to ensure that your sources are current.
+You should push any time you want to make a merge request or otherwise make your code public.
+The “Pull”, “Push”, and “Merge Request” parts of the workflow are important, so let’s look at them in more detail.
 
-// ==== Generate a patch
-//
-// There are several ways to generate patches. The preferred way is to
-// generate them from an updated Subversion tree, since it avoids
-// unnecessary integration work.
+First, you need to set up your environment.
+For the steps below we’ll pretend that your username is “henry.perry”.
 
-[[ChSrcSVNDiff]]
+. Sign in to {wireshark-gitlab-project-url} by clicking “Sign in / Register” in the upper right corner of the web page and following the login instructions.
 
-//
-// ===== Using the svn command-line client
-//
-// ----
-// $ svn diff [changed_files] > svn.diff
-// ----
-//
-// Use the command line svn client to generate a patch in the required format
-// from the changes you've made to your working copy. If you leave out the
-// name of the changed file the svn client searches for all changes in the
-// working copy and usually produces a patch containing more than just the
-// change you want to send. Therefore you should always check the produced
-// patch file.
-//
-// If you've added a new file, e.g.
-// _packet-myprotocol.c_, you can use `svn add` to add it to your local tree before generating the patch.
-// Similarly, you can use `svn rm` for files that should be removed.
+. https://docs.gitlab.com/ce/ssh/[Add an SSH key to your account] as described in the GitLab documentation.
 
-[[ChSrcSVNGUIDiff]]
+. Make sure you have a clone of the main repository as described in <<ChSrcGit>>.
 
-// ===== Using the diff feature of the GUI Subversion clients
-//
-// Most (if not all) of the GUI Subversion clients (RapidSVN, TortoiseSVN, ...)
-// have a built-in "diff" feature.
-//
-// If you use TortoiseSVN:
-//
-// TortoiseSVN (to be precise Subversion) keeps track of the files you have
-// changed in the directories it controls, and will generate for you a
-// unified diff file compiling the differences. To do so - after updating
-// your sources from the SVN repository if needed - just right-click on the
-// highest level directory and choose "TortoiseSVN" -> "Create patch...".
-// You will be asked for a name and then the diff file will be created. The
-// names of the files in the patch will be relative to the directory you have
-// right-clicked on, so it will need to be applied on that level too.
-//
-// When you create the diff file, it will include any difference TortoiseSVN
-// finds in files in and under the directory you have right-clicked on, and
-// nothing else. This means that changes you might have made for your
-// specific configuration - like modifying _config.nmake_ so that it uses
-// your lib directory - will also be included, and you will need to remove
-// these lines from the diff file. It also means that only changes will be
-// recorded, i.e. if you have created new files -- say, a new
-// _packet-xxx.c_ for a
-// new protocol dissector -- it will not be included in the diff, you need to
-// add it separately. And, of course, if you have been working separately in
-// two different patches, the .diff file will include both topics, which is
-// probably not a good idea.
+. Create your own personal fork of the Wireshark project by https://docs.gitlab.com/ee/user/project/repository/forking_workflow.html[pressing the “Fork” button] at {wireshark-gitlab-project-url}.
 
-[[ChSrcDiff]]
+. Add a remote for your personal repository.
+The main repository remote is named “upstream”, so we'll name this one “downstream”.
++
+--
+[source,sh]
+----
+$ git remote add downstream git@gitlab.com:henry.perry/wireshark.git
+----
+--
 
-// ===== Using the diff tool
-//
-// A diff file is generated, by comparing two files or directories between
-// your own working copy and the "official" source tree. So to be able to
-// do a diff, you should
-// have two source trees on your computer, one with your working copy
-// (containing your changes), and one with the "official" source tree
-// (hopefully the latest SVN files) from {wireshark-main-url}.
-//
-// If you have only changed a single file, you could type something like
-// this:
-//
-// ----
-// $ diff -r -u --strip-trailing-cr svn-file.c work-file.c > foo.diff
-// ----
-//
-// To get a diff file for your complete directory (including
-// subdirectories), you could type something like this:
-//
-// ----
-// $ diff -N -r -u --strip-trailing-cr ./svn-dir ./working-dir > foo.diff
-// ----
-//
-// It’s a good idea to run `make distclean` before the
-// actual diff call, as this will remove a lot
-// of temporary files which might be otherwise included in the diff. After
-// doing the diff, you should edit the _foo.diff_ file and remove unnecessary
-// things, like your private changes to the
-// _config.nmake_ file.
-//
-//
-// .Some useful diff options
-// [options="header"]
-// |===============
-// |Option|Purpose
-// |-N|Add new files when used in conjunction with -r.
-// |-r|Recursively compare any subdirectories found.
-// |-u|Output unified context.
-// |--strip-trailing-cr|Strip trailing carriage return on input. This is useful for Win32
-//
-// |-x PAT|Exclude files that match PAT.
-//       This could be something like -x *.obj to exclude all win32 object files.
-// |===============
-//
-//
-// The diff tool has a lot options; they can be listed with:
-//
-// ----
-// diff --help
-// ----
+. Double-check your remotes:
++
+--
+[source,sh]
+----
+$ git remote -v
+$ downstream	git@gitlab.com:henry.perry/wireshark.git (fetch)
+$ downstream	git@gitlab.com:henry.perry/wireshark.git (push)
+$ upstream	git@gitlab.com:wireshark/wireshark.git (fetch)
+$ upstream	git@gitlab.com:wireshark/wireshark.git (push)
+----
+--
+
+Before you begin it’s a good idea to synchronize your local repository with the main repository.
+This is the *Pull* part of the workflow.
+You should do this periodically in order to stay up to date and avoid merge conflicts later on.
+
+. Fetch and optionally apply the latest changes.
++
+--
+[source,sh]
+----
+# Fetch changes from upstream and apply them to the current branch...
+$ git pull --rebase upstream master
+# ...or fetch changes and leave the current branch alone
+$ git fetch upstream
+----
+--
+
+Now you’re ready to create a merge request (the *Push* and *Merge Request* parts of the workflow above).
+
+. First, create a branch for your change:
++
+--
+[source,sh]
+----
+$ git checkout -b my-glorious-new-feature upstream/master
+----
+--
+
+. Write some code!
+See <<ChSrcGoodPatch>> and <<ChSrcCodeRequirements>> for details.
+
+. Commit your changes.
+See <<ChSrcGoodCommitMessage>> for details.
++
+--
+[source,sh]
+----
+$ git commit -a
+----
+--
+
+. Push your changes to your personal repository.
++
+--
+[source,sh]
+----
+$ git push downstream HEAD
+----
+--
+
+. Go to {wireshark-merge-request-url}.
+You should see a https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html#create-merge-request-button[“Create merge request”] button.
+Press it.
+
+// XXX Add command line instructions for one or more of the following:
+// https://github.com/zaquestion/lab - Go (single binary).
+// https://invent.kde.org/sdk/git-lab - Developed by the KDE team.
+// https://github.com/vishwanatharondekar/gitlab-cli - Might work well for people who don't mind using NPM.
+
+[[ChSrcUpdatingMergeRequests]]
+==== Updating Merge Requests
+
+At this point various automated tests will be run and someone will review your change.
+If you need to make changes you can do so by force-pushing it to the same branch in your personal repository.
+
+. Push your changes to your personal repository.
++
+--
+[source,sh]
+----
+# First, make sure you're on the right branch.
+$ git status
+On branch my-glorious-new-feature
+----
+--
+
+. Update your code.
+
+. Push your changes to your personal repository.
++
+--
+[source,sh]
+----
+# Modify the current commit and force-push...
+$ git commit --amend ...
+$ git push downstream +HEAD
+# ...or keep the current commit as-is add another commit on top of it
+$ git commit ...
+$ git push downstream HEAD
+----
+The `+` sign is shorthand for forcing the push (`-f`).
+--
 
 [[ChSrcGoodPatch]]
-
 ==== Some Tips For A Good Patch
 
 Some tips that will make the merging of your changes into Git much more likely
 (and you want exactly that, don't you?):
 
-* _Use the latest Git sources._ It’s a good idea to work with the same
-  sources that are used by the other developers. This usually makes it much
-  easier to apply your patch. For information about the different ways to get
-  the sources, see <<ChSrcObtain>>.
+.Use the latest Git sources.
+It’s a good idea to work with the same sources that are used by the other developers.
+This usually makes it much easier to apply your patch.
+For information about the different ways to get the sources, see <<ChSrcObtain>>.
 
-* _Update your sources just before making a patch._ For the same reasons as the
-  previous point.
+.Update your sources just before making a patch.
+For the same reasons as the previous point.
 
-* _Inspect your patch carefully._ Run `git diff` and make sure you aren't
-  adding, removing, or omitting anything you shouldn't.
+.Inspect your patch carefully.
+Run `git diff` or `git show` as appropriate and make sure you aren't adding, removing, or omitting anything you shouldn't.
 
-// * _Do a "make clean" before generating the patch._ This removes a lot of
-//   unneeded intermediate files (like object files) which can confuse the diff
-//   tool generating a lot of unneeded stuff which you have to remove by hand from
-//   the patch again.
+.Give your branch a brief but descriptive name.
+Short, specific names such as _snowcone-machine-protocol_ are preferred.
 
-// XXX - What *are* good topic names?
-* _Find a good descriptive topic name for your patch._ Short, specific
-  names are preferred. _snowcone-machine-protocol_ is good, your name or
-  your company name isn't.
+.Don't put unrelated things into one large change.
+Merge requests should be limited in scope.
+For example, updates to the Snowcone Machine Protocol dissector and the Coloring Rules dialog box should be in separate merge requests.
 
-* _Don't put unrelated things into one large patch._ A few smaller patches are
-  usually easier to apply (but also don't put every changed line into a separate
-  patch).
+In general, making it easier to understand and apply your patch by one of the maintainers will make it much more likely (and faster) that it will actually be applied.
 
-In general, making it easier to understand and apply your patch by one of the
-maintainers will make it much more likely (and faster) that it will actually be
-applied.
-
-.Please remember
-[NOTE]
-====
-Wireshark is a volunteer effort. You aren't paying to have your code reviewed
-and integrated.
-====
+.Thank you in advance for your patience.
+Wireshark is a volunteer effort.
+As a result, we can’t guarantee a quick turnaround time.
 
 [[ChSrcGoodCommitMessage]]
-
 ==== Writing a Good Commit Message
 
-When running git commit, you will be prompted to describe the change. Here are
-some guidelines on how to make that message actually useful to other people (and
-to scripts that may try to parse it):
+When running `git commit`, you will be prompted to describe your change.
+Here are some guidelines on how to make that message more useful to other people (and to scripts that may try to parse it):
 
-* _Provide a very brief description (under 60 characters) of the change in the first line._
-If the change is specific to a single protocol, start this line with the abbreviated name
-of the protocol and a colon. If the change is not complete yet prefix the line with [WIP]
-to inform this change not to be submitted yet. This can later be removed.
+.Provide a brief description (under 60 characters or so) of the change in the first line.
+If the change is specific to a single protocol, start this line with the abbreviated name of the protocol and a colon.
+If the change is not yet complete prefix the line with “WIP:” to inform this change not to be submitted yet.
+This be removed when the change is ready to be merged.
 
-* _Insert a single blank line after the first line._
+.Insert a single blank line after the first line.
+This is required by various formatting tools and helpful to humans.
 
-* _Provide a detailed description of the change in the following lines_, breaking paragraphs
-where needed. Limit each line to 80 characters. You can also add metadata at the bottom of
-the commit message which will be used by Gerrit for searching and triggering Bugzilla
-integration. Each line of the footer is of the form Label: value. There can be no extra
-line-breaks between footer lines.
+.Provide a detailed description of the change in the lines that follow.
+Break paragraphs where needed.
+Limit each line to 80 characters.
 
-Wireshark currently supports the following metadata tags:
-
-.Commit message tags
-[options="header"]
-|===
-|Tag|Meaning
-|`Change-id`|A unique hash describing the change, which is generated automatically by
-the git commit-msg hook which you installed during setup. This should not be changed,
-even when rebasing or amending a commit following code review. If you pass --no-verify
-to git commit you will have to add this line yourself.
-|`Bug`|Make Gerrit automatically add a comment and close the given bug number when the
-commit is merged. For use when the change does fully fix the issue.
-|`Ping-Bug`|Make Gerrit just add a comment to the referenced bug. For use when the change
-is related but does not fully fix the issue.
-|===
-
-[NOTE]
-====
-The `Bug` and `Ping-Bug` tags are particularly useful if a capture file has been provided
-via a Bugzilla entry in parallel with the change. All non-trivial fixes to dissectors
-should try to do this.
-====
+You can also reference and close issues in a commit message by prefixing the issue number with a https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically[number sign].
+For example, “closes #5” will close issue number 5.
 
 Putting all that together, we get the following example:
 
 [source]
 ----
-MIPv6: fix dissection of Service Selection Identifier
+MIPv6: Fix dissection of Service Selection Identifier
 
-APN field is not encoded as a dotted string so the first character is not a length
-
-Bug: 10323
-Change-Id: Ia62137c785d505e9d0f1536a333b421a85480741
+APN field is not encoded as a dotted string so the first character is not a
+length. Closes #10323.
 ----
 
 [[ChSrcCodeRequirements]]
 
 ==== Code Requirements
 
-The core maintainers have done a lot of work fixing bugs and making code
-compile on the various platforms Wireshark supports.
+To ensure Wireshark’s code quality and to reduce friction in the code review process, there are some things you should consider before submitting a patch:
 
-To ensure Wireshark’s source code quality, and to reduce the workload of the
-core maintainers, there are some things you should think about _before_
-submitting a patch.
+.Follow the Wireshark source code style guide.
+Wireshark runs on many platforms, and can be compiled with a number of different compilers.
+It’s easy to write code that compiles on your machine, but doesn’t compile elsewhere.
+The guidelines at <<ChCodeStyle>> describe the techniques and APIs that you can use to write high-quality, portable, and maintainable code in our environment.
 
-.Pay attention to the coding guidelines
-[WARNING]
-====
-Ignoring the code requirements will make it very likely that your patch will
-be rejected.
-====
+.Submit dissectors as built-in whenever possible.
+Developing a new dissector as a plugin can make compiling and testing quicker, but it’s usually best to convert it to built-in before submitting for review.
+This reduces the number of files that must be installed with Wireshark and ensures your dissector will be available on all platforms.
 
-* _Follow the Wireshark source code style guide._ Just because something
-  compiles on your platform, that doesn't mean it'll compile on all of the other
-  platforms for which Wireshark is built. Wireshark runs on many platforms, and
-  can be compiled with a number of different compilers. See <<ChCodeStyle>>for
-  details.
+Dissectors vary, so this is not a hard-and-fast rule.
+Most dissectors are single C modules that can easily be put into “the big pile.”
+Some (most notably ASN.1 dissectors) are generated using templates and configuration files.
+Others are split across multiple source files and are often more suitable to be placed in a separate plugin directory.
 
-* _Submit dissectors as built-in whenever possible._ Developing a new dissector
-as a plugin is a good idea because compiling and testing is quicker, but it’s
-best to convert dissectors to the built-in style before submitting for check in.
-This reduces the number of files that must be installed with Wireshark and
-ensures your dissector will be available on all platforms.
-+
-This is no hard-and-fast rule though. Many dissectors are straightforward so they
-can easily be put into "the big pile", while some are ASN.1 based which takes a
-different approach, and some multiple source file dissectors are more suitable to
-be placed separately as plugins.
+.Ensure that the Wireshark Git Pre-Commit Hook is in the repository.
+In your local repository directory, there will be a __.git/hooks/__ directory, with sample git hooks for running automatic actions before and after git commands.
+You can also optionally install other hooks that you find useful.
 
-* _Ensure Wireshark Git Pre-Commit Hook is in the repository._  In your local
-repository directory, there will be a .git/hooks/ directory, with sample git hooks
-for running automatic actions before and after git commands. You can also
-optionally install other hooks that you find useful.
-+
-In particular, the pre-commit hook will run every time you commit a change and can
-be used to automatically check for various errors in your code. The sample git
-pre-commit hook simply detects whitespace errors such as mixed tabs and spaces;
-to install it just remove the .sample suffice from the existing pre-commit.sample file.
-+
-Wireshark provides a custom pre-commit hook which does additional Wireshark-specific API
-and formatting checks, but it might return false positives. If you want to install it,
-copy the pre-commit file from the tools directory (cp ./tools/pre-commit .git/hooks/)
-and make sure it is executable or it will not be run.
-+
-If the pre-commit hook is preventing you from committing what you believe is a valid
-change, you can run git commit --no-verify to skip running the hooks. Warning: using
---no-verify avoids the commit-msg hook, and thus will not automatically add the required
-Change-ID to your commit. In case you are not updating an existing patch you may generate
-a Change-ID by running git review -i (or git commit --amend if don't use git review).
-+
+In particular, the _pre-commit_ hook will run every time you commit a change and can be used to automatically check for various errors in your code.
+The sample git pre-commit hook simply detects whitespace errors such as mixed tabs and spaces.
+To install it just remove the .sample suffix from the existing _pre-commit.sample_ file.
 
-Additionally, if your system supports symbolic links, as all UNIX-like
-platforms do, you can use them instead of copying files.  Running ln -s
-./tools/pre-commit .git/hooks creates a symbolic link that will make the
-hook to be up-to-date with the current master.  The same can be done for
-commit-msg script.
+Wireshark provides a custom pre-commit hook which does additional Wireshark-specific API and formatting checks, but it might return false positives.
+If you want to install it, copy the pre-commit file from the tools directory (`cp ./tools/pre-commit .git/hooks/`) and make sure it is executable or it will not be run.
 
+If the pre-commit hook is preventing you from committing what you believe is a valid change, you can run `git commit --no-verify` to skip running the hooks.
+Warning: using --no-verify avoids the commit-msg hook, and thus if you have setup this hook it will not run.
 
-* _Fuzz test your changes!_ Fuzz testing is a very
-effective way to automatically find a lot of dissector related bugs.
-You'll take a capture file containing packets affecting your dissector
-and the fuzz test will randomly change bytes in this file, so that unusual
-code paths in your dissector are checked. There are tools available to
-automatically do this on any number of input files, see:
-{wireshark-wiki-url}FuzzTesting for details.
+Additionally, if your system supports symbolic links, as all UNIX-like platforms do, you can use them instead of copying files.
+Running `ln -s ./tools/pre-commit .git/hooks` creates a symbolic link that will make the hook to be up-to-date with the current master.
+
+.Choose a compatible license.
+Wireshark is released under the {spdx-license-url}GPL-2.0-or-later.html[GPL version 2 or later], and it is strongly recommended that incoming code use that license.
+If that is not possible, it *must* use a compatible license.
+The following licenses are currently allowed:
+
+* BSD {spdx-license-url}BSD-1-Clause.html[1], {spdx-license-url}BSD-2-Clause.html[2], {spdx-license-url}BSD-3-Clause.html[3] clause
+* {spdx-license-url}GPL-3.0-or-later.html[GPL version 3 or later] *with* the https://www.gnu.org/software/bison/manual/html_node/Conditions.html[Bison parser exception]
+* {spdx-license-url}ISC.html[ISC]
+* {spdx-license-url}LGPL-2.0-or-later.html[LGPL v2 or later], including {spdx-license-url}LGPL-2.1-or-later.html[v2.1]
+* {spdx-license-url}MIT.html[MIT] / {spdx-license-url}X11.html[X11]
+* {wikipedia-main-url}Public_domain[Public domain]
+* {spdx-license-url}Zlib.html[zlib/libpng]
+
+Notable incompatible licenses include {spdx-license-url}Apache-2.0.html[Apache 2.0], {spdx-license-url}GPL-3.0-or-later.html[GPL 3.0], and {spdx-license-url}LGPL-3.0-or-later.html[LGPL 3.0].
+
+.Fuzz test your changes.
+Fuzz testing is a very effective way of finding dissector related bugs.
+In our case fuzzing involves making random changes to capture files and feeding them to TShark in order to try to make it crash or hang.
+There are tools available to automatically do this on any number of input files.
+See {wireshark-wiki-url}FuzzTesting for details.
 
 [[ChSrcUpload]]
 
+////
 ==== Uploading your changes
 
 When you're satisfied with your changes (and obtained any necessary
@@ -926,7 +670,7 @@ If you have `git-review` installed you can upload the change with a lot less typ
 [source,sh]
 ----
 # Note: The "-f" flag deletes your current branch.
-$ git review -f
+git review -f
 ----
 
 You can push using any Git client. Many clients have support for Gerrit, either
@@ -957,21 +701,21 @@ You might get one of the following responses to your patch request:
 If you're concerned, feel free to add a comment to the patch or send an email
 to the developer’s list asking for status. But please be patient: most if not
 all of us do this in our spare time.
+////
 
 [[ChSrcBackport]]
+==== Backporting A Change
 
-==== Backporting a change
+:example-branch: master-3.2
+When a bug is fixed in the master branch it’s sometimes desirable or necessary to backport the fix to a release branch.
+You can do this in Git by cherry-picking the change from one branch to another.
+Suppose you want to backport change 1ab2c3d4 from the master branch to {example-branch}.
+You can do so as follows:
 
-When a bug is fixed in the master branch it might be desirable or
-necessary to backport the fix to a stable branch. You can do this
-in Git by cherry-picking the change from one branch to another.
-Suppose you want to backport change 1ab2c3d4 from the master branch to
-master-1.10. Using "pure Git" commands you would do the following:
-
-[source,sh]
+[source,sh,subs="attributes+"]
 ----
 # Create a new topic branch for the backport.
-$ git checkout -b backport-g1ab2c3d4 origin/master-1.10
+$ git checkout -b backport-g1ab2c3d4 upstream/{example-branch}
 
 # Cherry-pick the change. Include a "cherry picked from..." line.
 $ git cherry-pick -x 1ab2c3d4
@@ -979,25 +723,24 @@ $ git cherry-pick -x 1ab2c3d4
 # If there are conflicts, fix them.
 
 # Compile and test the change.
-$ make
+$ ninja
 $ ...
 
 # OPTIONAL: Add entries to docbook/release-notes.adoc.
-$ $EDITOR docbook/release-notes.adoc
+$EDITOR docbook/release-notes.adoc
 
-# If you made any changes, update your commit:
-$ git commit --amend -a
+# If you made any changes, update your commit.
+git commit --amend -a
 
-# Upload the change to Gerrit
-$ git push ssh://my.username@code.wireshark.org:29418/wireshark HEAD:refs/for/master-1.10/backport-g1ab2c3d4
+# Push the change to your working repository.
+git push downstream HEAD
 ----
 
-If you want to cherry-pick a Gerrit change ID (e.g. I5e6f7890) you can use
-`git review -X I5e6f7890` instead of `git cherry-pick` and `git review`
-instead of `git push` as described in the previous chapter.
+You can also cherry-pick changes in the https://docs.gitlab.com/ee/user/project/merge_requests/cherry_pick_changes.html[GitLab web UI].
 
+////
+// XXX Is this relevant any more?
 [[ChSrcPatchApply]]
-
 === Apply a patch from someone else
 
 Sometimes you need to apply a patch to your private source tree. Maybe
@@ -1013,8 +756,6 @@ of the patch and your source files match.
 ====
 
 [[ChSrcPatchUse]]
-
-
 ==== Using patch
 
 Given the file _new.diff_ containing a unified diff,
@@ -1062,6 +803,7 @@ the _epan/dissectors_ directory -- you’d run it in that subdirectory.
 It is preferred that people *not* submit patches like
 that, especially if they're only patching files that exist in multiple
 directories such as _CMakeLists.txt_.
+////
 
 [[ChSrcBinary]]
 
@@ -1189,7 +931,7 @@ releases.
 
 [source, sh]
 ----
-$ tools/make-version.pl --set-release --untagged-version-extra=-{vcsinfo}-FooCorp --tagged-version-extra=-FooCorp
+tools/make-version.pl --set-release --untagged-version-extra=-{vcsinfo}-FooCorp --tagged-version-extra=-FooCorp
 ----
 
 See `tools/make-version.pl` for details.
@@ -1215,7 +957,7 @@ In the wireshark directory, type:
 
 [source,sh]
 ----
-$ dpkg-buildpackage -b -us -uc -jauto
+dpkg-buildpackage -b -us -uc -jauto
 ----
 
 to build the Debian Package.
@@ -1238,7 +980,7 @@ SPEC file contains CMake flags and other settings for the RPM build
 environment. Many of these come from the parent CMake environment.
 Notable ones are:
 
-* _\_prefix_ is set to _CMAKE_INSTALL_PREFIX_. By default this is
+* _prefix_ is set to _CMAKE_INSTALL_PREFIX_. By default this is
   _/usr/local_. Pass `-DCMAKE_INSTALL_PREFIX=/usr` to create a package
   that installs into _/usr_.
 
@@ -1253,9 +995,9 @@ In your build directory, type:
 
 [source,sh]
 ----
-$ ninja rpm-package
+ninja rpm-package
 # ...or, if you're using GNU make...
-$ make rpm-package
+make rpm-package
 ----
 
 to build the binary and source RPMs. When it is finished there will be a
@@ -1292,9 +1034,9 @@ In your build directory, type:
 
 [source,sh]
 ----
-$ ninja dmg_package
+ninja dmg_package
 # ...or, if you're using GNU make...
-$ make dmg_package
+make dmg_package
 ----
 
 to build the macOS Package.

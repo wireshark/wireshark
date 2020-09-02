@@ -1291,7 +1291,7 @@ decode_flow_meas_value(gchar *s, guint16 value)
 static void
 decode_flow_meas_min_value(gchar *s, guint16 value)
 {
-    if ( (value > ZBEE_ZCL_ATTR_ID_FLOW_MEAS_MIN_LO_VALUE) ||
+    if ( /*(value < ZBEE_ZCL_ATTR_ID_FLOW_MEAS_MIN_LO_VALUE) ||*/
          (value > ZBEE_ZCL_ATTR_ID_FLOW_MEAS_MIN_HI_VALUE) )
         g_snprintf(s, ITEM_LABEL_LENGTH, "Out of range");
     else
@@ -1776,7 +1776,7 @@ dissect_zbee_zcl_occ_sen(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *
 static void
 dissect_zcl_occ_sen_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
 {
-    static const int *occupancy[] = {
+    static int * const occupancy[] = {
         &hf_zbee_zcl_occ_sen_occupancy_occupied,
         NULL
     };

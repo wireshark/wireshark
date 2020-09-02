@@ -3726,6 +3726,10 @@ Huang Qiangxiong        <qiangxiong.huang[AT]qq.com> {
 	HTTP2 dissector: add streaming mode reassembly and dissecting DATA according to content-type features.
 }
 
+Jeffrey Nichols		<jsnichols[AT]suprocktech.com> {
+	Asphodel dissector
+}
+
 and by:
 
 Georgi Guninski		<guninski[AT]guninski.com>
@@ -3978,6 +3982,7 @@ Chidambaram Arunachalam	<carunach[AT]cisco.com>
 João Valverde		<joao.valverde[AT]tecnico.ulisboa.pt>
 Benoît Canet		<benoit[AT]scylladb.com>
 Håkon Øye Amundsen      <haakon.amundsen[AT]nordicsemi.no>
+Jeffrey Wildman		<jeffrey.wildman@ll.mit.edu>
 
 = Acknowledgements =
 

@@ -85,6 +85,7 @@ class FilterDialog;
 class FunnelStatistics;
 class WelcomePage;
 class PacketCommentDialog;
+class PacketDiagram;
 class PacketList;
 class ProtoTree;
 #if defined(HAVE_LIBNL) && defined(HAVE_NL80211)
@@ -183,6 +184,7 @@ private:
     DisplayFilterCombo *df_combo_box_;
     CaptureFile capture_file_;
     QFont mono_font_;
+    QMap<QString, QTextCodec *> text_codec_map_;
 #if defined(HAVE_LIBNL) && defined(HAVE_NL80211)
     WirelessFrame *wireless_frame_;
 #endif
@@ -190,7 +192,8 @@ private:
     // probably be full-on values instead of pointers.
     PacketList *packet_list_;
     ProtoTree *proto_tree_;
-    ByteViewTab * byte_view_tab_;
+    ByteViewTab *byte_view_tab_;
+    PacketDiagram *packet_diagram_;
     QWidget *previous_focus_;
     FileSetDialog *file_set_dialog_;
     QWidget empty_pane_;
@@ -202,7 +205,6 @@ private:
     QPointer<QWidget> freeze_focus_;
     QMap<QAction *, ts_type> td_actions;
     QMap<QAction *, ts_precision> tp_actions;
-    FilterExpressionToolBar *filter_expression_toolbar_;
     bool was_maximized_;
 
     /* the following values are maintained so that the capture file name and status
@@ -257,6 +259,8 @@ private:
 #endif // Q_OS_WIN
     bool testCaptureFileClose(QString before_what, FileCloseContext context = Default);
     void captureStop();
+
+    void findTextCodecs();
 
     void initMainToolbarIcons();
     void initShowHideMainWidgets();

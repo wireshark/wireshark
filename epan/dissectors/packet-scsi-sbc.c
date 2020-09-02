@@ -180,7 +180,7 @@ dissect_sbc_formatunit (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                          guint offset, gboolean isreq, gboolean iscdb,
                          guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    static const int *fuflags_fields[] = {
+    static int * const fuflags_fields[] = {
         &hf_scsi_sbc_fuflags_fmtpinfo,
         &hf_scsi_sbc_fuflags_rto_req,
         &hf_scsi_sbc_fuflags_longlist,
@@ -248,7 +248,7 @@ dissect_sbc_prefetch10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
-    static const int *prefetch_fields[] = {
+    static int * const prefetch_fields[] = {
         &hf_scsi_sbc_prefetch_immed,
         NULL
     };
@@ -276,7 +276,7 @@ dissect_sbc_synchronizecache10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
         guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
-    static const int *sync_fields[] = {
+    static int * const sync_fields[] = {
         &hf_scsi_sbc_synccache_sync_nv,
         &hf_scsi_sbc_synccache_immed,
         NULL
@@ -305,7 +305,7 @@ dissect_sbc_synchronizecache16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
         guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
-    static const int *sync_fields[] = {
+    static int * const sync_fields[] = {
         &hf_scsi_sbc_synccache_sync_nv,
         &hf_scsi_sbc_synccache_immed,
         NULL
@@ -334,7 +334,7 @@ dissect_sbc_prefetch16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
-    static const int *prefetch_fields[] = {
+    static int * const prefetch_fields[] = {
         &hf_scsi_sbc_prefetch_immed,
         NULL
     };
@@ -362,7 +362,7 @@ dissect_sbc_read10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
-    static const int *rdwr10_fields[] = {
+    static int * const rdwr10_fields[] = {
         &hf_scsi_sbc_rdprotect,
         &hf_scsi_sbc_dpo,
         &hf_scsi_sbc_fua,
@@ -393,7 +393,7 @@ dissect_sbc_xdread10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
-    static const int *xdread10_fields[] = {
+    static int * const xdread10_fields[] = {
         &hf_scsi_sbc_xorpinfo,
         NULL
     };
@@ -421,7 +421,7 @@ dissect_sbc_xdwrite10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
-    static const int *xdwrite10_fields[] = {
+    static int * const xdwrite10_fields[] = {
         &hf_scsi_sbc_wrprotect,
         &hf_scsi_sbc_dpo,
         &hf_scsi_sbc_fua,
@@ -453,7 +453,7 @@ dissect_sbc_xdwriteread10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
         guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
-    static const int *xdwriteread10_fields[] = {
+    static int * const xdwriteread10_fields[] = {
         &hf_scsi_sbc_wrprotect,
         &hf_scsi_sbc_dpo,
         &hf_scsi_sbc_fua,
@@ -486,7 +486,7 @@ dissect_sbc_xpwrite10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
-    static const int *xpwrite10_fields[] = {
+    static int * const xpwrite10_fields[] = {
         &hf_scsi_sbc_dpo,
         &hf_scsi_sbc_fua,
         &hf_scsi_sbc_fua_nv,
@@ -517,7 +517,7 @@ dissect_sbc_write10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
-    static const int *rdwr10_fields[] = {
+    static int * const rdwr10_fields[] = {
         &hf_scsi_sbc_wrprotect,
         &hf_scsi_sbc_dpo,
         &hf_scsi_sbc_fua,
@@ -547,7 +547,7 @@ dissect_sbc_read12 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         guint offset, gboolean isreq, gboolean iscdb,
         guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    static const int *rdwr12_fields[] = {
+    static int * const rdwr12_fields[] = {
         &hf_scsi_sbc_rdprotect,
         &hf_scsi_sbc_dpo,
         &hf_scsi_sbc_fua,
@@ -577,7 +577,7 @@ dissect_sbc_write12 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         guint offset, gboolean isreq, gboolean iscdb,
         guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    static const int *rdwr12_fields[] = {
+    static int * const rdwr12_fields[] = {
         &hf_scsi_sbc_wrprotect,
         &hf_scsi_sbc_dpo,
         &hf_scsi_sbc_fua,
@@ -607,7 +607,7 @@ dissect_sbc_read16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                      guint offset, gboolean isreq, gboolean iscdb,
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    static const int *rdwr16_fields[] = {
+    static int * const rdwr16_fields[] = {
         &hf_scsi_sbc_rdprotect,
         &hf_scsi_sbc_dpo,
         &hf_scsi_sbc_fua,
@@ -636,7 +636,7 @@ dissect_sbc_write16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                      guint offset, gboolean isreq, gboolean iscdb,
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    static const int *rdwr16_fields[] = {
+    static int * const rdwr16_fields[] = {
         &hf_scsi_sbc_wrprotect,
         &hf_scsi_sbc_dpo,
         &hf_scsi_sbc_fua,
@@ -666,7 +666,7 @@ dissect_sbc_writeatomic16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
                            guint offset, gboolean isreq, gboolean iscdb,
                            guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    static const int *rdwr16_fields[] = {
+    static int * const rdwr16_fields[] = {
         &hf_scsi_sbc_wrprotect,
         &hf_scsi_sbc_dpo,
         &hf_scsi_sbc_fua,
@@ -695,7 +695,7 @@ dissect_sbc_orwrite (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                      guint offset, gboolean isreq, gboolean iscdb,
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    static const int *rdwr16_fields[] = {
+    static int * const rdwr16_fields[] = {
         &hf_scsi_sbc_wrprotect,
         &hf_scsi_sbc_dpo,
         &hf_scsi_sbc_fua,
@@ -725,7 +725,7 @@ dissect_sbc_comparenwrite (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
                      guint offset, gboolean isreq, gboolean iscdb,
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    static const int *rdwr16_fields[] = {
+    static int * const rdwr16_fields[] = {
         &hf_scsi_sbc_wrprotect,
         &hf_scsi_sbc_dpo,
         &hf_scsi_sbc_fua,
@@ -785,11 +785,11 @@ dissect_sbc_startstopunit (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
                             guint offset, gboolean isreq _U_, gboolean iscdb,
                             guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    static const int *ssu_fields[] = {
+    static int * const ssu_fields[] = {
         &hf_scsi_sbc_ssu_immed,
         NULL
     };
-    static const int *pwr_fields[] = {
+    static int * const pwr_fields[] = {
         &hf_scsi_sbc_ssu_pwr_cond,
         &hf_scsi_sbc_ssu_loej,
         &hf_scsi_sbc_ssu_start,
@@ -815,7 +815,7 @@ dissect_sbc_verify10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                        guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
-    static const int *verify10_fields[] = {
+    static int * const verify10_fields[] = {
         &hf_scsi_sbc_vrprotect,
         &hf_scsi_sbc_dpo,
         &hf_scsi_sbc_bytchk,
@@ -845,7 +845,7 @@ dissect_sbc_verify12 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                        guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
-    static const int *verify12_fields[] = {
+    static int * const verify12_fields[] = {
         &hf_scsi_sbc_vrprotect,
         &hf_scsi_sbc_dpo,
         &hf_scsi_sbc_bytchk,
@@ -875,7 +875,7 @@ dissect_sbc_verify16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                        guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
-    static const int *verify16_fields[] = {
+    static int * const verify16_fields[] = {
         &hf_scsi_sbc_vrprotect,
         &hf_scsi_sbc_dpo,
         &hf_scsi_sbc_bytchk,
@@ -907,7 +907,7 @@ dissect_sbc_wrverify10 (tvbuff_t *tvb, packet_info *pinfo _U_,
                          scsi_task_data_t *cdata _U_)
 
 {
-    static const int *wrverify10_fields[] = {
+    static int * const wrverify10_fields[] = {
         &hf_scsi_sbc_wrprotect,
         &hf_scsi_sbc_dpo,
         &hf_scsi_sbc_bytchk,
@@ -937,7 +937,7 @@ dissect_sbc_wrverify12 (tvbuff_t *tvb, packet_info *pinfo _U_,
                          gboolean iscdb, guint payload_len _U_,
                          scsi_task_data_t *cdata _U_)
 {
-    static const int *wrverify12_fields[] = {
+    static int * const wrverify12_fields[] = {
         &hf_scsi_sbc_wrprotect,
         &hf_scsi_sbc_dpo,
         &hf_scsi_sbc_bytchk,
@@ -967,7 +967,7 @@ dissect_sbc_wrverify16 (tvbuff_t *tvb, packet_info *pinfo _U_,
                          gboolean iscdb, guint payload_len _U_,
                          scsi_task_data_t *cdata _U_)
 {
-    static const int *wrverify16_fields[] = {
+    static int * const wrverify16_fields[] = {
         &hf_scsi_sbc_wrprotect,
         &hf_scsi_sbc_dpo,
         &hf_scsi_sbc_bytchk,
@@ -1026,7 +1026,7 @@ dissect_sbc_readdefectdata10 (tvbuff_t *tvb, packet_info *pinfo _U_,
                             gboolean iscdb,
                             guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    static const int *defect_fields[] = {
+    static int * const defect_fields[] = {
         &hf_scsi_sbc_defect_list_format,
         &hf_scsi_sbc_req_plist,
         &hf_scsi_sbc_req_glist,
@@ -1053,7 +1053,7 @@ dissect_sbc_readlong10 (tvbuff_t *tvb, packet_info *pinfo _U_,
                             gboolean iscdb,
                             guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    static const int *corrct_fields[] = {
+    static int * const corrct_fields[] = {
         &hf_scsi_sbc_corrct,
         NULL
     };
@@ -1094,7 +1094,7 @@ dissect_sbc_writesame10 (tvbuff_t *tvb, packet_info *pinfo _U_,
                             gboolean iscdb,
                             guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    static const int *writesame10_fields[] = {
+    static int * const writesame10_fields[] = {
         &hf_scsi_sbc_wrprotect,
         &hf_scsi_sbc_anchor,
         &hf_scsi_sbc_unmap,
@@ -1123,7 +1123,7 @@ dissect_sbc_writesame16 (tvbuff_t *tvb, packet_info *pinfo _U_,
                             gboolean iscdb,
                             guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    static const int *writesame16_fields[] = {
+    static int * const writesame16_fields[] = {
         &hf_scsi_sbc_wrprotect,
         &hf_scsi_sbc_anchor,
         &hf_scsi_sbc_unmap,
@@ -1152,7 +1152,7 @@ dissect_sbc_unmap (tvbuff_t *tvb, packet_info *pinfo _U_,
                             gboolean iscdb,
                             guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    static const int *unmap_fields[] = {
+    static int * const unmap_fields[] = {
         &hf_scsi_sbc_unmap_anchor,
         NULL
     };
@@ -1212,13 +1212,13 @@ dissect_sbc_sanitize (tvbuff_t *tvb, packet_info *pinfo _U_,
                       gboolean iscdb,
                       guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    static const int *sanitize_fields[] = {
+    static int * const sanitize_fields[] = {
         &hf_scsi_sbc_sanitize_immed,
         &hf_scsi_sbc_sanitize_ause,
         &hf_scsi_sbc_sanitize_sa,
         NULL
     };
-    static const int *sanitize_overwrite_fields[] = {
+    static int * const sanitize_overwrite_fields[] = {
         &hf_scsi_sbc_sanitize_invert,
         &hf_scsi_sbc_sanitize_test,
         &hf_scsi_sbc_sanitize_owcount,
@@ -1266,7 +1266,7 @@ dissect_sbc_readdefectdata12 (tvbuff_t *tvb, packet_info *pinfo _U_,
                             gboolean iscdb,
                             guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    static const int *defect_fields[] = {
+    static int * const defect_fields[] = {
         &hf_scsi_sbc_defect_list_format,
         &hf_scsi_sbc_req_plist,
         &hf_scsi_sbc_req_glist,
@@ -1293,7 +1293,7 @@ dissect_sbc_reassignblocks (tvbuff_t *tvb, packet_info *pinfo _U_,
                            gboolean iscdb,
                            guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    static const int *reassign_fields[] = {
+    static int * const reassign_fields[] = {
         &hf_scsi_sbc_reassignblocks_longlba,
         &hf_scsi_sbc_reassignblocks_longlist,
         NULL

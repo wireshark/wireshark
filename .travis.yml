@@ -2,25 +2,10 @@ language: minimal
 dist: bionic
 matrix:
   include:
-    - name: OSX (xcode10.3 clang-10.0.1) with PCAP
+    - name: OSX (xcode11.3 clang-11.0.0)
       os: osx
-      osx_image: xcode10.3
-      compiler: clang
-      env: PCAP=ON
-    - name: OSX (xcode10.3 clang-10.0.1) without PCAP
-      os: osx
-      osx_image: xcode10.3
-      compiler: clang
-      env: PCAP=OFF
-    - name: OSX (xcode11.2 clang-11.0.0) with PCAP
-      os: osx
-      osx_image: xcode11.2
-      env: PCAP=ON
-    - name: OSX (xcode11.2 clang-11.0.0) without PCAP
-      os: osx
-      osx_image: xcode11.2
-      env: PCAP=OFF
-    - name: Linux amd64 (gcc-9) with PCAP
+      osx_image: xcode11.3
+    - name: Linux amd64 (gcc-9)
       os: linux
       addons:
         apt:
@@ -32,160 +17,70 @@ matrix:
       env:
         - CXX=g++-9
         - CC=gcc-9
-        - PCAP=ON
-    - name: Linux amd64 (gcc-8) with PCAP
-      os: linux
-      addons:
-        apt:
-          update: true
-          sources:
-            - ubuntu-toolchain-r-test
-          packages: g++-8
-      env:
-        - CXX=g++-8
-        - CC=gcc-8
-        - PCAP=ON
-    - name: Linux arm64 (gcc-8) with PCAP
+    - name: Linux arm64 (gcc-8)
       os: linux
       arch: arm64
       addons:
         apt:
-          update: true
-          sources:
-            - ubuntu-toolchain-r-test
           packages: g++-8
       env:
         - CXX=g++-8
         - CC=gcc-8
-        - PCAP=ON
-    - name: Linux s390x (gcc-7) with PCAP
+    - name: Linux s390x (gcc-7)
       os: linux
       arch: s390x
-      env:
-        - PCAP=ON
-    - name: Linux ppc64le (gcc-7) with PCAP
+    - name: Linux ppc64le (gcc-7)
       os: linux
       arch: ppc64le
-      env:
-        - PCAP=ON
-    - name: Linux amd64 (gcc-8) without PCAP
-      os: linux
-      addons:
-        apt:
-          update: true
-          sources:
-            - ubuntu-toolchain-r-test
-          packages: g++-8
-      env:
-        - CXX=g++-8
-        - CC=gcc-8
-        - PCAP=OFF
-    - name: Linux amd64 (clang) with PCAP
+    - name: Linux amd64 (clang)
       os: linux
       env:
         - CXX=clang++
         - CC=clang
-        - PCAP=ON
-    - name: Linux arm64 (clang) with PCAP
+    - name: Linux arm64 (clang)
       os: linux
       arch: arm64
       env:
         - CXX=clang++
         - CC=clang
-        - PCAP=ON
-    - name: Linux s390x (clang) with PCAP
+    - name: Linux s390x (clang)
       os: linux
       arch: s390x
       env:
         - CXX=clang++
         - CC=clang
-        - PCAP=ON
-    - name: Linux ppc64le (clang) with PCAP
+    - name: Linux ppc64le (clang)
       os: linux
       arch: ppc64le
       env:
         - CXX=clang++
         - CC=clang
-        - PCAP=ON
-    - name: Linux amd64 (clang) without PCAP
-      os: linux
-      env:
-        - CXX=clang++
-        - CC=clang
-        - PCAP=OFF
-    - name: Windows (VS2017 x64)
-      # Set a supported language, otherwise the Windows worker will not start.
-      language: shell
-      os: windows
-      env:
-        - PLATFORM: x64
-        - WIRESHARK_BASE_DIR: C:/wireshark-libs
-        - QT5_BASE_DIR: C:/Qt/5.12.3/msvc2017_64
-      cache:
-        directories:
-          - travis-cache
-    - name: Windows (VS2017 Win32)
-      # Set a supported language, otherwise the Windows worker will not start.
-      language: shell
-      os: windows
-      env:
-        - PLATFORM: Win32
-        - WIRESHARK_BASE_DIR: C:/wireshark-libs
-        - QT5_BASE_DIR: C:/Qt/5.12.3/msvc2017
-      cache:
-        directories:
-          - travis-cache
-  # Windows builds are experimental in Travis and are unreliable, do not force it.
   allow_failures:
-    - os: windows
+    # Those builds frequently fail due to builds longer than maximum allowed.
+    # Let them fail quietly.
+    arch: ppc64le
 before_install:
   - echo $TRAVIS_OS_NAME
   # macos
   - if [ "$TRAVIS_OS_NAME" == "osx" ]; then ./tools/macos-setup-brew.sh; fi
   - if [ "$TRAVIS_OS_NAME" == "osx" ]; then brew install softhsm; fi
   - if [ "$TRAVIS_OS_NAME" == "osx" ]; then sed s/access_bpf/staff/ packaging/macosx/ChmodBPF/ChmodBPF | sudo bash; fi
+  # Required to fix an issue on macOS 10.14. Remove it as soon as Travis moves to 10.15.
+  - if [ "$TRAVIS_OS_NAME" == "osx" ]; then sudo xcode-select --switch /Library/Developer/CommandLineTools; fi
   # linux
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo ./tools/debian-setup.sh --install-optional --install-test-deps -q; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get install -y python3-pip; fi
-  # windows
-  - if [ "$TRAVIS_OS_NAME" == "windows" ]; then tools/travis-cache-windows.sh restore; fi
-  - if [ "$TRAVIS_OS_NAME" == "windows" ]; then cinst -y --no-progress python3 winflexbison strawberryperl; fi
-  - |
-    if [ "$TRAVIS_OS_NAME" == "windows" ]; then
-      # Ensure Python and the Scripts folder is available in PATH.
-      # refreshenv does not seem to work in bash, so reload it manually.
-      # Entries in the Machine PATH might contain trailing slashes, drop those.
-      # Apply Process paths before Machine to ensure /bin appears before others (otherwise casher will break and stall).
-      export PATH="$(powershell -Command '("Process", "Machine" | % {
-        [Environment]::GetEnvironmentVariable("PATH", $_) -Split ";" -Replace "\\$", ""
-      } | Select -Unique | % { cygpath $_ }) -Join ":"')"
-      echo "PATH=$PATH"
-      # Workaround to avoid using perl from git-bash $PATH which lacks modules such as Pod::Usage
-      export CMAKE_PROGRAM_PATH=C:/Strawberry/perl/bin
-    fi
-  - if [ "$TRAVIS_OS_NAME" == "windows" ]; then tools/travis-install-qt-windows.sh; fi
   # all platforms
   - pip3 install pytest pytest-xdist
 before_script:
   - mkdir build
   - cd build
-  - if [ "$TRAVIS_OS_NAME" != "windows" ]; then cmake -GNinja -DENABLE_PCAP=${PCAP} ..; fi
-  - if [ "$TRAVIS_OS_NAME" == "windows" ]; then cmake -A $PLATFORM ..; fi
+  - cmake -GNinja ..
 script:
-  # Enable parallelism for msbuild too (since CMake 3.12; ninja does not need it)
-  - export CMAKE_BUILD_PARALLEL_LEVEL=
-  - if [ "$TRAVIS_OS_NAME" == "windows" ]; then cmake() { ../tools/filter-msbuild.py cmake "$@"; }; fi
-  # Invoke ninja (Linux/macOS, --config is ignored) or msbuild (Windows)
-  - cmake --build . --config RelWithDebInfo
-  - cmake --build . --config RelWithDebInfo --target test-programs
-  - if [ "$PCAP" = "OFF" ]; then export PYTEST_ADDOPTS=--skip-missing-programs=dumpcap,rawshark; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" -a "$PCAP" = "ON" ]; then sudo setcap cap_net_raw,cap_net_admin+eip run/dumpcap; fi
+  - ninja || travis_assert
+  - ninja test-programs
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo setcap cap_net_raw,cap_net_admin+eip run/dumpcap; fi
   - pytest
-  - cd ..
-before_cache:
-  - if [ "$TRAVIS_OS_NAME" == "windows" ]; then tools/travis-cache-windows.sh save; fi
 after_script:
-  - cd build
   - if [ -f run/tshark ]; then run/tshark --version; fi
-  - if [ -f run/RelWithDebInfo/tshark.exe ]; then run/RelWithDebInfo/tshark.exe --version; fi
   - ../test/travis-upload-artifacts.sh

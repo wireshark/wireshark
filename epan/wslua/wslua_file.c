@@ -20,7 +20,7 @@
 
 #define MAX_LINE_LENGTH            65536
 
-/* WSLUA_MODULE File Custom file format reading/writing
+/* WSLUA_MODULE File Custom File Format Reading And Writing
 
    The classes/functions defined in this section allow you to create your own
    custom Lua-based "capture" file reader, or writer, or both.

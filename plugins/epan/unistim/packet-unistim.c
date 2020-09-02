@@ -80,10 +80,6 @@ static int hf_unistim_cmd_add = -1;
 static int hf_unistim_len =-1;
 static int hf_terminal_id=-1;
 static int hf_basic_bit_field=-1;
-static const true_false_string basic_bit_yn={
-   "For Following Byte",
-   "For Following Byte"
-};
 
 static int hf_basic_switch_cmd=-1;
 static int hf_basic_phone_cmd=-1;
@@ -198,7 +194,7 @@ dissect_unistim(tvbuff_t *tvb,packet_info *pinfo,proto_tree *tree,void *data _U_
    proto_tree_add_item(rudpm_tree,hf_unistim_seq_nu,tvb,offset,4,ENC_BIG_ENDIAN);
 
    /* Allocate new mem for queueing */
-   uinfo = (unistim_info_t *)wmem_alloc(wmem_packet_scope(), sizeof(unistim_info_t));
+   uinfo = wmem_new(wmem_packet_scope(), unistim_info_t);
 
    /* Clear tap struct */
    uinfo->rudp_type = 0;
@@ -981,269 +977,93 @@ dissect_display_switch(proto_tree *msg_tree,
          proto_tree_add_item(msg_tree,hf_display_use_date_format,tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;msg_len-=1;
          break;
-      case 0x18:
-   /*address|no control|no tag|no*/
-         proto_tree_add_item(msg_tree,hf_generic_string,tvb,offset,msg_len,ENC_ASCII|ENC_NA);
-         offset+=msg_len;
-         break;
-      case 0x19:
-   /*address|yes control|no tag|no*/
-         address_tree=proto_tree_add_subtree(msg_tree,tvb,offset,0,ett_unistim,NULL,"Address");
-         address_byte=tvb_get_guint8(tvb,offset);
-         proto_tree_add_item(address_tree,hf_basic_bit_field,
-                             tvb,offset,1,ENC_BIG_ENDIAN);
-         proto_tree_add_item(address_tree,hf_display_write_address_numeric,
-                             tvb,offset,1,ENC_BIG_ENDIAN);
-         proto_tree_add_item(address_tree,hf_display_write_address_context,
-                             tvb,offset,1,ENC_BIG_ENDIAN);
-         proto_tree_add_item(address_tree,hf_display_write_address_line,
-                             tvb,offset,1,ENC_BIG_ENDIAN);
-         proto_tree_add_item(address_tree,hf_display_write_address_soft_key,
-                             tvb,offset,1,ENC_BIG_ENDIAN);
-         proto_tree_add_item(address_tree,hf_display_write_address_soft_label,
-                             tvb,offset,1,ENC_BIG_ENDIAN);
+   /*Address, control, tag: treat as bitmask to reduce code duplication*/
+      case 0x18: /*address|no  control|no  tag|no*/
+      case 0x19: /*address|yes control|no  tag|no*/
+      case 0x1A: /*address|no  control|yes tag|no*/
+      case 0x1B: /*address|yes control|yes tag|no*/
+      case 0x1C: /*address|no  control|no  tag|yes*/
+      case 0x1D: /*address|yes control|no  tag|yes*/
+      case 0x1E: /*address|no  control|yes tag|yes*/
+      case 0x1F: /*address|yes control|yes tag|yes*/
+#define F_ADDR 1
+#define F_CTRL 2
+#define F_TAG 4
+         if((display_cmd&F_ADDR)==F_ADDR){
+            address_tree=proto_tree_add_subtree(msg_tree,tvb,offset,0,ett_unistim,NULL,"Address Data");
+            address_byte=tvb_get_guint8(tvb,offset);
+            proto_tree_add_item(address_tree,hf_basic_bit_field,
+                                tvb,offset,1,ENC_BIG_ENDIAN);
+            proto_tree_add_item(address_tree,hf_display_write_address_numeric,
+                                tvb,offset,1,ENC_BIG_ENDIAN);
+            proto_tree_add_item(address_tree,hf_display_write_address_context,
+                                tvb,offset,1,ENC_BIG_ENDIAN);
+            proto_tree_add_item(address_tree,hf_display_write_address_line,
+                                tvb,offset,1,ENC_BIG_ENDIAN);
+            proto_tree_add_item(address_tree,hf_display_write_address_soft_key,
+                                tvb,offset,1,ENC_BIG_ENDIAN);
+            proto_tree_add_item(address_tree,hf_display_write_address_soft_label,
+                                tvb,offset,1,ENC_BIG_ENDIAN);
 
-         if((address_byte&DISPLAY_WRITE_ADDRESS_SOFT_KEY_FLAG)==
-                          DISPLAY_WRITE_ADDRESS_SOFT_KEY_FLAG){
-            proto_tree_add_item(address_tree,
-                                hf_display_write_address_softkey_id,
-                                tvb,offset,1,ENC_BIG_ENDIAN);
-         }
-         offset+=1;msg_len-=1;
-         if((address_byte&DISPLAY_WRITE_ADDRESS_SOFT_LABEL_FLAG)==
-             DISPLAY_WRITE_ADDRESS_SOFT_LABEL_FLAG){
-            proto_tree_add_item(address_tree,hf_basic_bit_field,tvb,offset,1,ENC_BIG_ENDIAN);
-            proto_tree_add_item(address_tree,
-                                hf_display_write_address_char_pos,
-                                tvb,offset,1,ENC_BIG_ENDIAN);
-            if((address_byte&DISPLAY_WRITE_ADDRESS_LINE_FLAG)!=
-                             DISPLAY_WRITE_ADDRESS_LINE_FLAG){
+            if((address_byte&DISPLAY_WRITE_ADDRESS_SOFT_KEY_FLAG)==
+                             DISPLAY_WRITE_ADDRESS_SOFT_KEY_FLAG){
+               proto_tree_add_item(address_tree,
+                                   hf_display_write_address_softkey_id,
+                                   tvb,offset,1,ENC_BIG_ENDIAN);
+            }
+            offset+=1;msg_len-=1;
+            if((address_byte&DISPLAY_WRITE_ADDRESS_SOFT_LABEL_FLAG)==
+                DISPLAY_WRITE_ADDRESS_SOFT_LABEL_FLAG){
+               proto_tree_add_item(address_tree,hf_basic_bit_field,tvb,offset,1,ENC_BIG_ENDIAN);
+               proto_tree_add_item(address_tree,
+                                   hf_display_write_address_char_pos,
+                                   tvb,offset,1,ENC_BIG_ENDIAN);
+               if((address_byte&DISPLAY_WRITE_ADDRESS_LINE_FLAG)!=
+                                DISPLAY_WRITE_ADDRESS_LINE_FLAG){
+                  offset+=1;msg_len-=1;
+               }
+            }
+            if((address_byte&DISPLAY_WRITE_ADDRESS_LINE_FLAG)==
+                DISPLAY_WRITE_ADDRESS_LINE_FLAG){
+               proto_tree_add_item(address_tree,
+                                   hf_display_write_address_char_pos,
+                                   tvb,offset,1,ENC_BIG_ENDIAN);
+               proto_tree_add_item(address_tree,
+                                   hf_display_write_address_line_number,
+                                   tvb,offset,1,ENC_BIG_ENDIAN);
                offset+=1;msg_len-=1;
             }
          }
-         if((address_byte&DISPLAY_WRITE_ADDRESS_LINE_FLAG)==
-             DISPLAY_WRITE_ADDRESS_LINE_FLAG){
-            proto_tree_add_item(address_tree,
-                                hf_display_write_address_line_number,
+         if((display_cmd&F_CTRL)==F_CTRL){
+            proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,ENC_BIG_ENDIAN);
+            proto_tree_add_item(msg_tree,hf_display_write_cursor_move,
+                                tvb,offset,1,ENC_BIG_ENDIAN);
+            proto_tree_add_item(msg_tree,hf_display_write_clear_left,
+                                tvb,offset,1,ENC_BIG_ENDIAN);
+            proto_tree_add_item(msg_tree,hf_display_write_clear_right,
+                                tvb,offset,1,ENC_BIG_ENDIAN);
+            proto_tree_add_item(msg_tree,hf_display_write_shift_left,
+                                tvb,offset,1,ENC_BIG_ENDIAN);
+            proto_tree_add_item(msg_tree,hf_display_write_shift_right,
+                                tvb,offset,1,ENC_BIG_ENDIAN);
+            proto_tree_add_item(msg_tree,hf_display_write_highlight,
                                 tvb,offset,1,ENC_BIG_ENDIAN);
             offset+=1;msg_len-=1;
          }
+         if((display_cmd&F_TAG)==F_TAG){
+            proto_tree_add_item(msg_tree,hf_display_write_tag,tvb,offset,1,ENC_BIG_ENDIAN);
+            offset+=1;msg_len-=1;
+         }
+         /* whatever's left is the message */
          if(msg_len>0){
             /* I'm guessing this will work flakily at best */
             proto_tree_add_item_ret_string(msg_tree,hf_generic_string,tvb,offset,msg_len, ENC_ASCII|ENC_NA, wmem_packet_scope(), &uinfo->string_data);
+            offset+=msg_len;
          }
-
-         offset+=msg_len;
          break;
-      case 0x1a:
-   /*address|no control|yes tag|no*/
-         proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,ENC_BIG_ENDIAN);
-         proto_tree_add_item(msg_tree,hf_display_write_cursor_move,
-                             tvb,offset,1,ENC_BIG_ENDIAN);
-         proto_tree_add_item(msg_tree,hf_display_write_clear_left,
-                             tvb,offset,1,ENC_BIG_ENDIAN);
-         proto_tree_add_item(msg_tree,hf_display_write_clear_right,
-                             tvb,offset,1,ENC_BIG_ENDIAN);
-         proto_tree_add_item(msg_tree,hf_display_write_shift_left,
-                             tvb,offset,1,ENC_BIG_ENDIAN);
-         proto_tree_add_item(msg_tree,hf_display_write_shift_right,
-                             tvb,offset,1,ENC_BIG_ENDIAN);
-         proto_tree_add_item(msg_tree,hf_display_write_highlight,
-                             tvb,offset,1,ENC_BIG_ENDIAN);
-         offset+=1;msg_len-=1;
-         proto_tree_add_item(msg_tree,hf_generic_string,tvb,offset,msg_len,ENC_ASCII|ENC_NA);
-         offset+=msg_len;
-         proto_tree_add_item(msg_tree,hf_generic_string,
-                             tvb,offset,msg_len,ENC_ASCII|ENC_NA);
-         offset+=msg_len;
-         break;
-      case 0x1b:
-   /*address|yes control|yes tag|no*/
-         address_tree=proto_tree_add_subtree(msg_tree,tvb,offset,0,ett_unistim,NULL,"Address Data");
-         address_byte=tvb_get_guint8(tvb,offset);
-         proto_tree_add_item(address_tree,hf_basic_bit_field,tvb,offset,1,ENC_BIG_ENDIAN);
-         proto_tree_add_item(address_tree,
-                             hf_display_write_address_numeric,
-                             tvb,offset,1,ENC_BIG_ENDIAN);
-         proto_tree_add_item(address_tree,
-                             hf_display_write_address_context,
-                             tvb,offset,1,ENC_BIG_ENDIAN);
-         proto_tree_add_item(address_tree,
-                             hf_display_write_address_line,
-                             tvb,offset,1,ENC_BIG_ENDIAN);
-         proto_tree_add_item(address_tree,
-                             hf_display_write_address_soft_key,
-                             tvb,offset,1,ENC_BIG_ENDIAN);
-         proto_tree_add_item(address_tree,
-                             hf_display_write_address_soft_label,
-                             tvb,offset,1,ENC_BIG_ENDIAN);
-         if((address_byte&DISPLAY_WRITE_ADDRESS_SOFT_KEY_FLAG)==
-                          DISPLAY_WRITE_ADDRESS_SOFT_KEY_FLAG){
-            proto_tree_add_item(address_tree,hf_display_write_address_softkey_id,
-                                tvb,offset,1,ENC_BIG_ENDIAN);
-            offset+=1; msg_len-=1;
-         }
-         if((address_byte&DISPLAY_WRITE_ADDRESS_SOFT_LABEL_FLAG)==
-                          DISPLAY_WRITE_ADDRESS_SOFT_LABEL_FLAG){
-            proto_tree_add_item(address_tree,
-                                hf_display_write_address_char_pos,
-                                tvb,offset,1,ENC_BIG_ENDIAN);
-            if((address_byte&DISPLAY_WRITE_ADDRESS_LINE_FLAG)!=
-                             DISPLAY_WRITE_ADDRESS_LINE_FLAG){
-               offset+=1;msg_len-=1;
-            }
-         }
-         if((address_byte&DISPLAY_WRITE_ADDRESS_LINE_FLAG)==
-                          DISPLAY_WRITE_ADDRESS_LINE_FLAG){
-            proto_tree_add_item(address_tree,
-                                hf_display_write_address_line_number,
-                                tvb,offset,1,ENC_BIG_ENDIAN);
-            offset+=1;msg_len-=1;
-         }
-         proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,ENC_BIG_ENDIAN);
-         proto_tree_add_item(msg_tree,hf_display_write_cursor_move,
-                             tvb,offset,1,ENC_BIG_ENDIAN);
-         proto_tree_add_item(msg_tree,hf_display_write_clear_left,
-                             tvb,offset,1,ENC_BIG_ENDIAN);
-         proto_tree_add_item(msg_tree,hf_display_write_clear_right,
-                             tvb,offset,1,ENC_BIG_ENDIAN);
-         proto_tree_add_item(msg_tree,hf_display_write_shift_left,
-                             tvb,offset,1,ENC_BIG_ENDIAN);
-         proto_tree_add_item(msg_tree,hf_display_write_shift_right,
-                             tvb,offset,1,ENC_BIG_ENDIAN);
-         proto_tree_add_item(msg_tree,hf_display_write_highlight,
-                             tvb,offset,1,ENC_BIG_ENDIAN);
-         offset+=1;msg_len-=1;
-         proto_tree_add_item(msg_tree,hf_generic_string,tvb,offset,msg_len,ENC_ASCII|ENC_NA);
-         offset+=msg_len;
-         break;
-      case 0x1c:
-   /*address|no control|no tag|yes*/
-         proto_tree_add_item(msg_tree,hf_display_write_tag,tvb,offset,1,ENC_BIG_ENDIAN);
-         offset+=1;msg_len-=1;
-         proto_tree_add_item(msg_tree,hf_generic_string,tvb,offset,msg_len,ENC_ASCII|ENC_NA);
-         offset+=msg_len;
-         break;
-      case 0x1d:
-   /*address|yes control|no tag|yes*/
-         address_tree=proto_tree_add_subtree(msg_tree,tvb,offset,0,ett_unistim,NULL,"Address Data");
-         address_byte=tvb_get_guint8(tvb,offset);
-         proto_tree_add_item(address_tree,hf_basic_bit_field,tvb,offset,1,ENC_BIG_ENDIAN);
-         proto_tree_add_item(address_tree,hf_display_write_address_numeric,tvb,
-                             offset,1,ENC_BIG_ENDIAN);
-         proto_tree_add_item(address_tree,hf_display_write_address_context,
-                             tvb,offset,1,ENC_BIG_ENDIAN);
-         proto_tree_add_item(address_tree,hf_display_write_address_line,
-                             tvb,offset,1,ENC_BIG_ENDIAN);
-         proto_tree_add_item(address_tree,hf_display_write_address_soft_key,
-                             tvb,offset,1,ENC_BIG_ENDIAN);
-         proto_tree_add_item(address_tree,hf_display_write_address_soft_label,
-                             tvb,offset,1,ENC_BIG_ENDIAN);
-         if((address_byte&DISPLAY_WRITE_ADDRESS_SOFT_KEY_FLAG)==
-             DISPLAY_WRITE_ADDRESS_SOFT_KEY_FLAG)
-            proto_tree_add_item(address_tree,
-                                hf_display_write_address_softkey_id,
-                                tvb,offset,1,ENC_BIG_ENDIAN);
-         offset+=1; msg_len-=1;
-         if((address_byte&DISPLAY_WRITE_ADDRESS_SOFT_LABEL_FLAG)==
-             DISPLAY_WRITE_ADDRESS_SOFT_LABEL_FLAG){
-            proto_tree_add_item(address_tree,
-                                hf_display_write_address_char_pos,
-                                tvb,offset,1,ENC_BIG_ENDIAN);
-            if((address_byte&DISPLAY_WRITE_ADDRESS_LINE_FLAG)!=
-                DISPLAY_WRITE_ADDRESS_LINE_FLAG){
-               offset+=1;msg_len-=1;
-            }
-         }
-         if((address_byte&DISPLAY_WRITE_ADDRESS_LINE_FLAG)==
-             DISPLAY_WRITE_ADDRESS_LINE_FLAG){
-            proto_tree_add_item(address_tree,hf_display_write_address_line_number,
-                                tvb,offset,1,ENC_BIG_ENDIAN);
-            offset+=1;msg_len-=1;
-         }
-         proto_tree_add_item(msg_tree,hf_generic_string,tvb,offset,msg_len,ENC_ASCII|ENC_NA);
-         offset+=msg_len;
-         break;
-      case 0x1e:
-   /*address|no control|yes tag|yes*/
-         proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,ENC_BIG_ENDIAN);
-         proto_tree_add_item(msg_tree,hf_display_write_cursor_move,
-                             tvb,offset,1,ENC_BIG_ENDIAN);
-         proto_tree_add_item(msg_tree,hf_display_write_clear_left,
-                             tvb,offset,1,ENC_BIG_ENDIAN);
-         proto_tree_add_item(msg_tree,hf_display_write_clear_right,
-                             tvb,offset,1,ENC_BIG_ENDIAN);
-         proto_tree_add_item(msg_tree,hf_display_write_shift_left,
-                             tvb,offset,1,ENC_BIG_ENDIAN);
-         proto_tree_add_item(msg_tree,hf_display_write_shift_right,
-                             tvb,offset,1,ENC_BIG_ENDIAN);
-         proto_tree_add_item(msg_tree,hf_display_write_highlight,
-                             tvb,offset,1,ENC_BIG_ENDIAN);
-         offset+=1;msg_len-=1;
-
-         proto_tree_add_item(msg_tree,hf_generic_data,tvb,offset,msg_len,ENC_NA);
-         offset+=msg_len;
-         proto_tree_add_item(msg_tree,hf_display_write_tag,tvb,offset,1,ENC_BIG_ENDIAN);
-         offset+=1;msg_len-=1;
-         proto_tree_add_item(msg_tree,hf_generic_string,tvb,offset,msg_len,ENC_ASCII|ENC_NA);
-         offset+=msg_len;
-         break;
-      case 0x1f:
-   /*address|yes control|yes tag|yes*/
-         address_tree=proto_tree_add_subtree(msg_tree,tvb,offset,0,ett_unistim,NULL,"Address");
-         address_byte=tvb_get_guint8(tvb,offset);
-         proto_tree_add_item(address_tree,hf_basic_bit_field,tvb,offset,1,ENC_BIG_ENDIAN);
-         proto_tree_add_item(address_tree,hf_display_write_address_numeric,
-                             tvb,offset,1,ENC_BIG_ENDIAN);
-         proto_tree_add_item(address_tree,hf_display_write_address_context,
-                             tvb,offset,1,ENC_BIG_ENDIAN);
-         proto_tree_add_item(address_tree,hf_display_write_address_line,
-                             tvb,offset,1,ENC_BIG_ENDIAN);
-         proto_tree_add_item(address_tree,hf_display_write_address_soft_key,
-                             tvb,offset,1,ENC_BIG_ENDIAN);
-         proto_tree_add_item(address_tree,hf_display_write_address_soft_label,
-                             tvb,offset,1,ENC_BIG_ENDIAN);
-         if((address_byte&DISPLAY_WRITE_ADDRESS_SOFT_KEY_FLAG)==
-                          DISPLAY_WRITE_ADDRESS_SOFT_KEY_FLAG)
-            proto_tree_add_item(address_tree,hf_display_write_address_softkey_id,
-                                tvb,offset,1,ENC_BIG_ENDIAN);
-         offset+=1; msg_len-=1;
-         proto_tree_add_item(msg_tree,hf_generic_string,
-                             tvb,offset,msg_len,ENC_ASCII|ENC_NA);
-         offset+=msg_len;
-         if((address_byte&DISPLAY_WRITE_ADDRESS_SOFT_LABEL_FLAG)==
-                          DISPLAY_WRITE_ADDRESS_SOFT_LABEL_FLAG){
-            proto_tree_add_item(address_tree,hf_display_write_address_char_pos,
-                                tvb,offset,1,ENC_BIG_ENDIAN);
-            offset+=1;msg_len-=1;
-         }
-         if((address_byte&DISPLAY_WRITE_ADDRESS_LINE_FLAG)==
-                          DISPLAY_WRITE_ADDRESS_LINE_FLAG){
-            proto_tree_add_item(address_tree,
-                                hf_display_write_address_line_number,
-                                tvb,offset,1,ENC_BIG_ENDIAN);
-            offset+=1;msg_len-=1;
-         }
-         proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,ENC_BIG_ENDIAN);
-         proto_tree_add_item(msg_tree,hf_display_write_cursor_move,
-                             tvb,offset,1,ENC_BIG_ENDIAN);
-         proto_tree_add_item(msg_tree,hf_display_write_clear_left,
-                             tvb,offset,1,ENC_BIG_ENDIAN);
-         proto_tree_add_item(msg_tree,hf_display_write_clear_right,
-                             tvb,offset,1,ENC_BIG_ENDIAN);
-         proto_tree_add_item(msg_tree,hf_display_write_shift_left,
-                             tvb,offset,1,ENC_BIG_ENDIAN);
-         proto_tree_add_item(msg_tree,hf_display_write_shift_right,
-                             tvb,offset,1,ENC_BIG_ENDIAN);
-         proto_tree_add_item(msg_tree,hf_display_write_highlight,
-                             tvb,offset,1,ENC_BIG_ENDIAN);
-         offset+=1;msg_len-=1;
-         proto_tree_add_item(msg_tree,hf_display_write_tag,
-                             tvb,offset,1,ENC_BIG_ENDIAN);
-         offset+=1;msg_len-=1;
-         proto_tree_add_item(msg_tree,hf_generic_string,tvb,offset,msg_len,ENC_ASCII|ENC_NA);
-         offset+=msg_len;
-         break;
+#undef F_ADDR
+#undef F_CTRL
+#undef F_TAG
       case 0x20:
    /*Context Info Bar Format*/
          while(msg_len>0){
@@ -2718,7 +2538,7 @@ proto_register_unistim(void){
       },
       { &hf_basic_bit_field,
         {"FLAGS","unistim.bit.fields",FT_BOOLEAN,
-         8,TFS(&basic_bit_yn),0xff,NULL,HFILL}
+         8,NULL,0xff,NULL,HFILL}
       },
       { &hf_basic_switch_cmd ,
         {"Basic Cmd (switch)","unistim.basic.switch",FT_UINT8,

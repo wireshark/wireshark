@@ -183,7 +183,7 @@ static int hf_pdu_flags_ddgst = -1;
 static int hf_pdu_flags_data_last = -1;
 static int hf_pdu_flags_data_success = -1;
 
-static const int *nvme_tcp_pdu_flags[] = {
+static int * const nvme_tcp_pdu_flags[] = {
     &hf_pdu_flags_hdgst,
     &hf_pdu_flags_ddgst,
     &hf_pdu_flags_data_last,
@@ -1361,7 +1361,7 @@ void proto_register_nvme_tcp(void) {
            { "PDU header digest", "nvme-tcp.c2htermreq.phd",
              FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL } },
        { &hf_nvme_tcp_c2htermreq_upfo,
-           { "Unsupported pararmeter field offset", "nvme-tcp.c2htermreq.upfo",
+           { "Unsupported parameter field offset", "nvme-tcp.c2htermreq.upfo",
              FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL } },
        { &hf_nvme_tcp_c2htermreq_reserved,
            { "Reserved", "nvme-tcp.c2htermreq.reserved",
@@ -1383,7 +1383,7 @@ void proto_register_nvme_tcp(void) {
            { "PDU header digest", "nvme-tcp.h2ctermreq.phd",
              FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL } },
        { &hf_nvme_tcp_h2ctermreq_upfo,
-           { "Unsupported pararmeter field offset", "nvme-tcp.h2ctermreq.upfo",
+           { "Unsupported parameter field offset", "nvme-tcp.h2ctermreq.upfo",
              FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL } },
        { &hf_nvme_tcp_h2ctermreq_reserved,
            { "Reserved", "nvme-tcp.h2ctermreq.reserved",

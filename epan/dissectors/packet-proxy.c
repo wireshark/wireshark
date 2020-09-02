@@ -113,6 +113,7 @@ static const value_string proxy2_family_vals[] = {
 #define PP2_SUBTYPE_SSL_SIG_ALG 0x24
 #define PP2_SUBTYPE_SSL_KEY_ALG 0x25
 #define PP2_TYPE_NETNS          0x30
+#define PP2_TYPE_AWS            0xEA
 
 static const value_string proxy2_tlv_vals[] = {
     { 0x00, "UNSPEC" },
@@ -127,6 +128,7 @@ static const value_string proxy2_tlv_vals[] = {
     { PP2_SUBTYPE_SSL_SIG_ALG, "SSL SIG ALG" },
     { PP2_SUBTYPE_SSL_KEY_ALG, "SSL KEY ALG" },
     { PP2_TYPE_NETNS, "NETNS" },
+    { PP2_TYPE_AWS, "AWS" },
     { 0, NULL }
 };
 

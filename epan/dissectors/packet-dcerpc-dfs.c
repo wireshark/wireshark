@@ -660,7 +660,7 @@ int
 netdfs_dissect_bitmap_dfs_VolumeState(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item *item;
-	static const int * netdfs_dfs_VolumeState_fields[] = {
+	static int * const netdfs_dfs_VolumeState_fields[] = {
 		&hf_netdfs_dfs_VolumeState_DFS_VOLUME_STATE_OK,
 		&hf_netdfs_dfs_VolumeState_DFS_VOLUME_STATE_INCONSISTENT,
 		&hf_netdfs_dfs_VolumeState_DFS_VOLUME_STATE_OFFLINE,
@@ -796,7 +796,7 @@ int
 netdfs_dissect_bitmap_dfs_StorageState(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item *item;
-	static const int * netdfs_dfs_StorageState_fields[] = {
+	static int * const netdfs_dfs_StorageState_fields[] = {
 		&hf_netdfs_dfs_StorageState_DFS_STORAGE_STATE_OFFLINE,
 		&hf_netdfs_dfs_StorageState_DFS_STORAGE_STATE_ONLINE,
 		&hf_netdfs_dfs_StorageState_DFS_STORAGE_STATE_ACTIVE,
@@ -1190,7 +1190,7 @@ int
 netdfs_dissect_bitmap_dfs_PropertyFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item *item;
-	static const int * netdfs_dfs_PropertyFlags_fields[] = {
+	static int * const netdfs_dfs_PropertyFlags_fields[] = {
 		&hf_netdfs_dfs_PropertyFlags_DFS_PROPERTY_FLAG_INSITE_REFERRALS,
 		&hf_netdfs_dfs_PropertyFlags_DFS_PROPERTY_FLAG_ROOT_SCALABILITY,
 		&hf_netdfs_dfs_PropertyFlags_DFS_PROPERTY_FLAG_SITE_COSTING,

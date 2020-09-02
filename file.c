@@ -378,6 +378,11 @@ cf_close(capture_file *cf)
   /* Clean up the record metadata. */
   wtap_rec_cleanup(&cf->rec);
 
+  /* Clear the packet list. */
+  packet_list_freeze();
+  packet_list_clear();
+  packet_list_thaw();
+
   /* Free up the packet buffer. */
   ws_buffer_free(&cf->buf);
 
@@ -406,11 +411,6 @@ cf_close(capture_file *cf)
     g_array_free(cf->linktypes, TRUE);
     cf->linktypes = NULL;
   }
-
-  /* Clear the packet list. */
-  packet_list_freeze();
-  packet_list_clear();
-  packet_list_thaw();
 
   cf->f_datalen = 0;
   nstime_set_zero(&cf->elapsed_time);
@@ -585,12 +585,8 @@ cf_read(capture_file *cf, gboolean reloading)
         /* Create the progress bar if necessary. */
         if (progress_is_slow(progbar, prog_timer, size, file_pos)) {
           progbar_val = calc_progbar_val(cf, size, file_pos, status_str, sizeof(status_str));
-          if (reloading)
-            progbar = delayed_create_progress_dlg(cf->window, "Reloading", name_ptr,
-                TRUE, &cf->stop_flag, progbar_val);
-          else
-            progbar = delayed_create_progress_dlg(cf->window, "Loading", name_ptr,
-                TRUE, &cf->stop_flag, progbar_val);
+          progbar = delayed_create_progress_dlg(cf->window, NULL, NULL, TRUE,
+                                                &cf->stop_flag, progbar_val);
         }
 
         /*
@@ -716,7 +712,7 @@ cf_read(capture_file *cf, gboolean reloading)
   if (cf->redissection_queued != RESCAN_NONE) {
     /* Redissection was queued up. Clear the request and perform it now. */
     gboolean redissect = cf->redissection_queued == RESCAN_REDISSECT;
-    rescan_packets(cf, "Reprocessing", "all packets", redissect);
+    rescan_packets(cf, NULL, NULL, redissect);
   }
 
   if (cf->stop_flag) {
@@ -1319,7 +1315,7 @@ merge_callback(merge_event event, int num _U_,
            large file, we might take considerably longer than that standard
            time in order to get to the next progress bar step). */
         if (cb_data->progbar == NULL) {
-          cb_data->progbar = delayed_create_progress_dlg(cb_data->pd_window, "Merging", "files",
+          cb_data->progbar = delayed_create_progress_dlg(cb_data->pd_window, NULL, NULL,
             FALSE, &cb_data->stop_flag, 0.0f);
         }
 
@@ -1509,7 +1505,7 @@ cf_filter_packets(capture_file *cf, gchar *dftext, gboolean force)
       cf->redissection_queued = RESCAN_SCAN;
     } else if (cf->state != FILE_CLOSED) {
       if (dftext == NULL) {
-        rescan_packets(cf, "Resetting", "Filter", FALSE);
+        rescan_packets(cf, "Resetting", "filter", FALSE);
       } else {
         rescan_packets(cf, "Filtering", dftext, FALSE);
       }
@@ -3588,7 +3584,6 @@ find_packet(capture_file *cf, ws_match_function match_function,
   gboolean     succeeded;
   float        progbar_val;
   gchar        status_str[100];
-  const char  *title;
   match_result result;
 
   wtap_rec_init(&rec);
@@ -3613,7 +3608,6 @@ find_packet(capture_file *cf, ws_match_function match_function,
 
   cf->stop_flag = FALSE;
 
-  title = cf->sfilter?cf->sfilter:"";
   for (;;) {
     /* Create the progress bar if necessary.
        We check on every iteration of the loop, so that it takes no
@@ -3621,7 +3615,7 @@ find_packet(capture_file *cf, ws_match_function match_function,
          large file, we might take considerably longer than that standard
        time in order to get to the next progress bar step). */
     if (progbar == NULL)
-       progbar = delayed_create_progress_dlg(cf->window, "Searching", title,
+       progbar = delayed_create_progress_dlg(cf->window, NULL, NULL,
          FALSE, &cf->stop_flag, progbar_val);
 
     /*
@@ -3937,26 +3931,6 @@ cf_unignore_frame(capture_file *cf, frame_data *frame)
 }
 
 /*
- * Read the section comment.
- */
-const gchar *
-cf_read_section_comment(capture_file *cf)
-{
-  wtap_block_t shb_inf;
-  char *shb_comment;
-
-  /* Get the SHB. */
-  /* XXX - support multiple SHBs */
-  shb_inf = wtap_file_get_shb(cf->provider.wth);
-
-  /* Get the first comment from the SHB. */
-  /* XXX - support multiple comments */
-  if (wtap_block_get_nth_string_option_value(shb_inf, OPT_COMMENT, 0, &shb_comment) != WTAP_OPTTYPE_SUCCESS)
-    return NULL;
-  return shb_comment;
-}
-
-/*
  * Modify the section comment.
  */
 void
@@ -3965,9 +3939,9 @@ cf_update_section_comment(capture_file *cf, gchar *comment)
   wtap_block_t shb_inf;
   gchar *shb_comment;
 
-  /* Get the SHB. */
+  /* Get the first SHB. */
   /* XXX - support multiple SHBs */
-  shb_inf = wtap_file_get_shb(cf->provider.wth);
+  shb_inf = wtap_file_get_shb(cf->provider.wth, 0);
 
   /* Get the first comment from the SHB. */
   /* XXX - support multiple comments */
@@ -4060,8 +4034,27 @@ cf_comment_types(capture_file *cf)
 {
   guint32 comment_types = 0;
 
-  if (cf_read_section_comment(cf) != NULL)
-    comment_types |= WTAP_COMMENT_PER_SECTION;
+  /*
+   * Does this file have any sections with at least one comment?
+   */
+  for (guint section_number = 0;
+      section_number < wtap_file_get_num_shbs(cf->provider.wth);
+      section_number++) {
+      wtap_block_t shb_inf;
+      char *shb_comment;
+
+    shb_inf = wtap_file_get_shb(cf->provider.wth, section_number);
+
+    /* Try to get the first comment from that SHB. */
+    if (wtap_block_get_nth_string_option_value(shb_inf, OPT_COMMENT, 0,
+                                               &shb_comment) == WTAP_OPTTYPE_SUCCESS) {
+      /* We succeeded, so this file has at least one section comment. */
+      comment_types |= WTAP_COMMENT_PER_SECTION;
+
+      /* We don't need to search any more. */
+      break;
+    }
+  }
   if (cf->packet_comment_count != 0)
     comment_types |= WTAP_COMMENT_PER_PACKET;
   return comment_types;
@@ -4325,7 +4318,7 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile)
       /* Create the progress bar if necessary. */
       if (progress_is_slow(progbar, prog_timer, size, cf->f_datalen)) {
         progbar_val = calc_progbar_val(cf, size, cf->f_datalen, status_str, sizeof(status_str));
-        progbar = delayed_create_progress_dlg(cf->window, "Rescanning", name_ptr,
+        progbar = delayed_create_progress_dlg(cf->window, NULL, NULL,
                                               TRUE, &cf->stop_flag, progbar_val);
       }
 

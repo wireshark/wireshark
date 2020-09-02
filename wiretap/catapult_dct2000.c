@@ -198,8 +198,7 @@ catapult_dct2000_open(wtap *wth, int *err, gchar **err_info)
     /* Need entry in file_externals table                                */
 
     /* Allocate a new file_externals structure for this file */
-    file_externals = g_new(dct2000_file_externals_t,1);
-    memset((void*)file_externals, '\0', sizeof(dct2000_file_externals_t));
+    file_externals = g_new0(dct2000_file_externals_t, 1);
 
     /* Copy this first line into buffer so could write out later */
     g_strlcpy(file_externals->firstline, linebuff, firstline_length+1);
@@ -263,6 +262,15 @@ catapult_dct2000_open(wtap *wth, int *err, gchar **err_info)
     wth->priv = (void*)file_externals;
 
     *err = errno;
+
+    /*
+     * Add an IDB; we don't know how many interfaces were
+     * involved, so we just say one interface, about which
+     * we only know the link-layer type, snapshot length,
+     * and time stamp resolution.
+     */
+    wtap_add_generated_idb(wth);
+
     return WTAP_OPEN_MINE;
 }
 

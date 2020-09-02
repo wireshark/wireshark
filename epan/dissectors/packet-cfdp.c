@@ -19,7 +19,7 @@
 #include "config.h"
 #include <epan/packet.h>
 #include <epan/expert.h>
-
+#include "packet-dtn.h"
 
 /* The CFDP standard can be found here:
  * http://public.ccsds.org/publications/archive/727x0b4.pdf
@@ -457,7 +457,7 @@ static const value_string cfdp_directive_codes[] = {
     { 0, NULL }
 };
 
-static const int *cfdp_flags[] = {
+static int * const cfdp_flags[] = {
   &hf_cfdp_version,
   &hf_cfdp_pdu_type,
   &hf_cfdp_direction,
@@ -467,7 +467,7 @@ static const int *cfdp_flags[] = {
   NULL
 };
 
-static const int *cfdp_byte2[] = {
+static int * const cfdp_byte2[] = {
     &hf_cfdp_res2,
     &hf_cfdp_entid_length,
     &hf_cfdp_res3,
@@ -475,25 +475,25 @@ static const int *cfdp_byte2[] = {
     NULL
 };
 
-static const int *cfdp_proxy_fault_hdl_overr[] = {
+static int * const cfdp_proxy_fault_hdl_overr[] = {
     &hf_cfdp_condition_code,
     &hf_cfdp_handler_code,
     NULL
 };
 
-static const int *cfdp_proxy_trans_mode [] = {
+static int * const cfdp_proxy_trans_mode [] = {
     &hf_cfdp_spare_seven_2,
     &hf_cfdp_trans_mode,
     NULL
 };
 
-static const int *cfdp_proxy_segment_control_byte [] = {
+static int * const cfdp_proxy_segment_control_byte [] = {
     &hf_cfdp_spare_seven_2,
     &hf_cfdp_proxy_segment_control,
     NULL
 };
 
-static const int *cfdp_proxy_put_resp [] = {
+static int * const cfdp_proxy_put_resp [] = {
     &hf_cfdp_condition_code,
     &hf_cfdp_spare_one,
     &hf_cfdp_condition_code,
@@ -502,7 +502,7 @@ static const int *cfdp_proxy_put_resp [] = {
     NULL
 };
 
-static const int *cfdp_orig_trans_id[] = {
+static int * const cfdp_orig_trans_id[] = {
     &hf_cfdp_res2,
     &hf_cfdp_entid_length,
     &hf_cfdp_res3,
@@ -510,7 +510,7 @@ static const int *cfdp_orig_trans_id[] = {
     NULL
 };
 
-static const int *cfdp_remote_stat_rep_req[] = {
+static int * const cfdp_remote_stat_rep_req[] = {
     &hf_cfdp_res2,
     &hf_cfdp_entid_length,
     &hf_cfdp_res3,
@@ -518,7 +518,7 @@ static const int *cfdp_remote_stat_rep_req[] = {
     NULL
 };
 
-static const int *cfdp_remote_stat_rep_resp[] = {
+static int * const cfdp_remote_stat_rep_resp[] = {
     &hf_cfdp_trans_stat,
     &hf_cfdp_spare_five,
     &hf_cfdp_rep_resp_code,
@@ -529,7 +529,7 @@ static const int *cfdp_remote_stat_rep_resp[] = {
     NULL
 };
 
-static const int *cfdp_finish_pdu_flags [] = {
+static int * const cfdp_finish_pdu_flags [] = {
     &hf_cfdp_condition_code,
     &hf_cfdp_end_system_stat,
     &hf_cfdp_delivery_code,
@@ -537,7 +537,7 @@ static const int *cfdp_finish_pdu_flags [] = {
     NULL
 };
 
-static const int *cfdp_remote_suspend_resume_req [] = {
+static int * const cfdp_remote_suspend_resume_req [] = {
     &hf_cfdp_spare_one_2,
     &hf_cfdp_entid_length,
     &hf_cfdp_spare_one,
@@ -546,7 +546,7 @@ static const int *cfdp_remote_suspend_resume_req [] = {
 };
 
 
-static const int *cfdp_remote_suspend_resume_resp [] = {
+static int * const cfdp_remote_suspend_resume_resp [] = {
     &hf_cfdp_suspension_ind,
     &hf_cfdp_trans_stat_2,
     &hf_cfdp_spare_five,

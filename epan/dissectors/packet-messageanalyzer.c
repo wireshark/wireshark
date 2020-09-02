@@ -848,7 +848,7 @@ dissect_etw_ndis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 	guint i, length;
 	tvbuff_t *next_tvb;
 
-	static const int *keyword_fields[] = {
+	static int * const keyword_fields[] = {
 		&hf_etw_ndis_keyword_ethernet8023,
 		&hf_etw_ndis_keyword_reserved1,
 		&hf_etw_ndis_keyword_wireless_wan,

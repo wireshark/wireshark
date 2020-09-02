@@ -15,6 +15,10 @@ ProtocolIE-ID
 
 #.EXPORTS
 LastVisitedNGRANCellInformation_PDU
+MDT-Configuration_PDU
+MobilityRestrictionList_PDU
+NGRAN-CGI_PDU
+SONConfigurationTransfer_PDU
 SourceNGRANNode-ToTargetNGRANNode-TransparentContainer_PDU
 TargetNGRANNode-ToSourceNGRANNode-TransparentContainer_PDU
 
@@ -24,7 +28,10 @@ HandoverPreparationUnsuccessfulTransfer
 HandoverRequestAcknowledgeTransfer
 HandoverResourceAllocationUnsuccessfulTransfer
 LastVisitedNGRANCellInformation
+MDT-Configuration
+MobilityRestrictionList
 NGAP-PDU
+NGRAN-CGI
 PathSwitchRequestAcknowledgeTransfer
 PathSwitchRequestSetupFailedTransfer
 PDUSessionResourceModifyUnsuccessfulTransfer
@@ -32,7 +39,9 @@ PDUSessionResourceReleaseCommandTransfer
 PDUSessionResourceSetupRequestTransfer
 PDUSessionResourceSetupResponseTransfer
 PDUSessionResourceSetupUnsuccessfulTransfer
+SONConfigurationTransfer
 SourceNGRANNode-ToTargetNGRANNode-TransparentContainer
+TargetNGRANNode-ToSourceNGRANNode-FailureTransparentContainer
 TargetNGRANNode-ToSourceNGRANNode-TransparentContainer
 
 #.MAKE_ENUM
@@ -40,19 +49,18 @@ GlobalRANNodeID
 HandoverType
 ProcedureCode
 ProtocolIE-ID
+RAT-Information
 
 #.NO_EMIT
 
 #.OMIT_ASSIGNMENT
 # Get rid of unused code warnings
+AlternativeQoSParaSetNotifyIndex
 ProtocolIE-FieldPair
 ProtocolIE-ContainerList
 ProtocolIE-ContainerPair
 ProtocolIE-ContainerPairList
 Presence
-ReferenceID
-QosFlowSetupResponseListSURes
-QosFlowSetupResponseItemSURes
 #.END
 
 
@@ -197,28 +205,30 @@ ProtocolIE-Field/value ie_field_value
 # %(DEFAULT_BODY)s
 #  }
 
-
+#.FN_BODY RAN-UE-NGAP-ID VAL_PTR = &ran_ue_ngap_id
+  guint32 ran_ue_ngap_id;
+  struct ngap_private_data *ngap_data = ngap_get_private_data(actx->pinfo);
+%(DEFAULT_BODY)s
+  ngap_data->ran_ue_ngap_id = ran_ue_ngap_id;
 
 #.FN_BODY NAS-PDU VAL_PTR = &parameter_tvb
 
-tvbuff_t *parameter_tvb=NULL;
+  tvbuff_t *parameter_tvb=NULL;
+  guint tvb_len;
 
 %(DEFAULT_BODY)s
 
-  if (tvb_reported_length(parameter_tvb) > 0) {
+  tvb_len = tvb_reported_length(parameter_tvb);
+  if (tvb_len > 0) {
     struct ngap_private_data *ngap_data = ngap_get_private_data(actx->pinfo);
     if (ngap_data->protocol_ie_id == id_NASC) {
-      GlobalRANNodeID_enum source_ranmode_id, target_ranmode_id;
-      source_ranmode_id = ngap_get_ranmode_id(&actx->pinfo->src, actx->pinfo->srcport, actx->pinfo);
-      target_ranmode_id = ngap_get_ranmode_id(&actx->pinfo->dst, actx->pinfo->destport, actx->pinfo);
       proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_ngap_NASC);
-      if (source_ranmode_id == globalGNB_ID && target_ranmode_id == globalGNB_ID) {
-        de_nas_5gs_intra_n1_mode_nas_transparent_cont(parameter_tvb, subtree, actx->pinfo);
-      } else if (target_ranmode_id == globalGNB_ID) {
+      /* use an heuristic based on the payload length to identify the Intra N1 mode
+         NAS transparent container or the S1 mode to N1 mode NAS transparent container */
+      if (tvb_len == 8)
         de_nas_5gs_s1_mode_to_n1_mode_nas_transparent_cont(parameter_tvb, subtree, actx->pinfo);
-      } else if (target_ranmode_id == globalNgENB_ID) {
-        de_nas_5gs_n1_mode_to_s1_mode_nas_transparent_cont(parameter_tvb, subtree, actx->pinfo);
-      }
+      else
+        de_nas_5gs_intra_n1_mode_nas_transparent_cont(parameter_tvb, subtree, actx->pinfo);
     } else {
       if (nas_5gs_handle) {
         proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_ngap_NAS_PDU);
@@ -271,6 +281,9 @@ tvbuff_t *parameter_tvb=NULL;
     case fivegs_to_eps:
       dissect_s1ap_SourceeNB_ToTargeteNB_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
       break;
+    case fivegs_to_utran:
+      dissect_rrc_ToTargetRNC_Container_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+      break;
     default:
       break;
     }
@@ -288,13 +301,45 @@ tvbuff_t *parameter_tvb=NULL;
     /* Don't want elements inside container to write to info column */
     col_set_writable(actx->pinfo->cinfo, COL_INFO, FALSE);
     subtree = proto_item_add_subtree(actx->created_item, ett_ngap_TargetToSource_TransparentContainer);
+    if (ngap_data->procedure_code == id_HandoverPreparation) {
+      switch(ngap_data->handover_type_value) {
+      case intra5gs:
+      case eps_to_5gs:
+        dissect_ngap_TargetNGRANNode_ToSourceNGRANNode_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+        break;
+      case fivegs_to_eps:
+        dissect_s1ap_TargeteNB_ToSourceeNB_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+        break;
+      case fivegs_to_utran:
+        dissect_rrc_TargetRNC_ToSourceRNC_Container_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+        break;
+      default:
+        break;
+      }
+    } else {
+      if (ngap_dissect_target_ng_ran_container_as == NGAP_NG_RAN_CONTAINER_GNB) {
+        dissect_ngap_TargetNGRANNode_ToSourceNGRANNode_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+      } else if (ngap_dissect_target_ng_ran_container_as == NGAP_NG_RAN_CONTAINER_NG_ENB) {
+        dissect_s1ap_TargeteNB_ToSourceeNB_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+      }
+    }
+    /* Enable writing of the column again */
+    col_set_writable(actx->pinfo->cinfo, COL_INFO, TRUE);
+  }
+
+#.FN_BODY TargettoSource-Failure-TransparentContainer VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb;
+  proto_tree *subtree;
+%(DEFAULT_BODY)s
+  if (ngap_dissect_container && parameter_tvb &&
+      tvb_reported_length(parameter_tvb) > 0) {
+    struct ngap_private_data *ngap_data = ngap_get_private_data(actx->pinfo);
+    /* Don't want elements inside container to write to info column */
+    col_set_writable(actx->pinfo->cinfo, COL_INFO, FALSE);
+    subtree = proto_item_add_subtree(actx->created_item, ett_ngap_TargettoSource_Failure_TransparentContainer);
     switch(ngap_data->handover_type_value) {
     case intra5gs:
-    case eps_to_5gs:
-      dissect_ngap_TargetNGRANNode_ToSourceNGRANNode_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
-      break;
-    case fivegs_to_eps:
-      dissect_s1ap_TargeteNB_ToSourceeNB_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+      dissect_TargetNGRANNode_ToSourceNGRANNode_FailureTransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
       break;
     default:
       break;
@@ -342,26 +387,90 @@ EPS-TAC TYPE = FT_UINT16 DISPLAY = BASE_DEC_HEX
     actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
   }
 
+#.FN_BODY TAI
+  struct ngap_private_data *ngap_data = ngap_get_private_data(actx->pinfo);
+
+  ngap_data->tai = wmem_new0(wmem_packet_scope(), struct ngap_tai);
+%(DEFAULT_BODY)s
+  if (!PINFO_FD_VISITED(actx->pinfo) && ngap_data->ngap_conv &&
+      (ngap_data->message_type == INITIATING_MESSAGE) &&
+      (ngap_data->procedure_code == id_InitialUEMessage)) {
+    guint64 key = (ngap_data->tai->plmn << 24) | ngap_data->tai->tac;
+
+    if (wmem_map_lookup(ngap_data->ngap_conv->nbiot_ta, &key)) {
+      wmem_tree_key_t tree_key[3];
+      guint32 *id = wmem_new(wmem_file_scope(), guint32);
+
+      *id = ngap_data->ran_ue_ngap_id;
+      tree_key[0].length = 1;
+      tree_key[0].key = id;
+      tree_key[1].length = 1;
+      tree_key[1].key = &actx->pinfo->num;
+      tree_key[2].length = 0;
+      tree_key[2].key = NULL;
+      wmem_tree_insert32_array(ngap_data->ngap_conv->nbiot_ran_ue_ngap_id, tree_key, id);
+    }
+  }
+
 #.TYPE_ATTR
 TAC TYPE = FT_UINT24 DISPLAY = BASE_DEC_HEX
 #.FN_BODY TAC VAL_PTR = &parameter_tvb HF_INDEX = -1
   tvbuff_t *parameter_tvb = NULL;
+  struct ngap_private_data *ngap_data = ngap_get_private_data(actx->pinfo);
 %(DEFAULT_BODY)s
   if (parameter_tvb) {
     actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 3, ENC_BIG_ENDIAN);
+    if (ngap_data->supported_ta) {
+      ngap_data->supported_ta->tac = tvb_get_ntoh24(parameter_tvb, 0);
+    } else if (ngap_data->tai) {
+      ngap_data->tai->tac = tvb_get_ntoh24(parameter_tvb, 0);
+    }
   }
 
 #.FN_BODY PLMNIdentity  VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb = NULL;
   proto_tree *subtree;
-
+  struct ngap_private_data *ngap_data = ngap_get_private_data(actx->pinfo);
 %(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_ngap_PLMNIdentity);
+    dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, E212_NONE, FALSE);
+    if (ngap_data->supported_ta) {
+      guint32 plmn = tvb_get_ntoh24(parameter_tvb, 0);
+      wmem_array_append_one(ngap_data->supported_ta->plmn, plmn);
+    } else if (ngap_data->tai) {
+      ngap_data->tai->plmn = tvb_get_ntoh24(parameter_tvb, 0);
+    }
+  }
 
-  if (!parameter_tvb)
-    return offset;
+#.FN_HDR SupportedTAItem
+  struct ngap_private_data *ngap_data = ngap_get_private_data(actx->pinfo);
 
-  subtree = proto_item_add_subtree(actx->created_item, ett_ngap_PLMNIdentity);
-  dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, E212_NONE, FALSE);
+  if (!PINFO_FD_VISITED(actx->pinfo) &&
+      (ngap_data->message_type == INITIATING_MESSAGE) &&
+      ((ngap_data->procedure_code == id_NGSetup) ||
+       (ngap_data->procedure_code == id_RANConfigurationUpdate))) {
+    ngap_data->supported_ta = wmem_new0(wmem_packet_scope(), struct ngap_supported_ta);
+    ngap_data->supported_ta->plmn = wmem_array_new(wmem_packet_scope(), sizeof(guint32));
+  }
+
+#.FN_FTR SupportedTAItem
+  ngap_data->supported_ta = NULL;
+
+#.FN_BODY RAT-Information VAL_PTR = &rat_info
+  guint32 rat_info = 0xffffffff;
+  struct ngap_private_data *ngap_data = ngap_get_private_data(actx->pinfo);
+%(DEFAULT_BODY)s
+  if (ngap_data->ngap_conv && ngap_data->supported_ta && (rat_info == nb_IoT)) {
+    guint64 *key;
+    guint i;
+
+    for (i = 0; i < wmem_array_get_count(ngap_data->supported_ta->plmn); i++) {
+      key = wmem_new(wmem_file_scope(), guint64);
+      *key = ((*(guint32*)wmem_array_index(ngap_data->supported_ta->plmn, i)) << 24) | ngap_data->supported_ta->tac;
+      wmem_map_insert(ngap_data->ngap_conv->nbiot_ta, key, GUINT_TO_POINTER(1));
+    }
+  }
 
 #.FN_BODY TransportLayerAddress VAL_PTR = &parameter_tvb LEN_PTR = &len
   tvbuff_t *parameter_tvb = NULL;
@@ -446,7 +555,7 @@ MaximumDataBurstVolume DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_byte_byt
   tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
   if (parameter_tvb) {
-    const gint *fields[] = {
+    static int * const fields[] = {
       &hf_ngap_InterfacesToTrace_NG_C,
       &hf_ngap_InterfacesToTrace_Xn_C,
       &hf_ngap_InterfacesToTrace_Uu,
@@ -531,6 +640,17 @@ PortNumber TYPE = FT_UINT16 DISPLAY = BASE_DEC
     }
   }
 
+#.FN_BODY UERadioCapabilityForPagingOfNB-IoT VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+
+%(DEFAULT_BODY)s
+  if (parameter_tvb && lte_rrc_ue_radio_paging_info_nb_handle) {
+    proto_tree *subtree;
+
+    subtree = proto_item_add_subtree(actx->created_item, ett_ngap_UERadioCapabilityForPagingOfNB_IoT);
+    call_dissector(lte_rrc_ue_radio_paging_info_nb_handle, parameter_tvb, actx->pinfo, subtree);
+  }
+
 #.FN_BODY UERadioCapabilityForPagingOfNR VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb = NULL;
 
@@ -558,13 +678,23 @@ RecommendedCellItem/timeStayedInCell DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&
 
 #.FN_BODY UERadioCapability VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb = NULL;
+  struct ngap_private_data *ngap_data = ngap_get_private_data(actx->pinfo);
 
 %(DEFAULT_BODY)s
-  if (parameter_tvb && nr_rrc_ue_radio_access_cap_info_handle) {
-    proto_tree *subtree;
+  if (parameter_tvb) {
+    if (ngap_data->procedure_code == id_UERadioCapability_EUTRA_Format) {
+      if (lte_rrc_ue_radio_access_cap_info_handle) {
+        proto_tree *subtree;
 
-    subtree = proto_item_add_subtree(actx->created_item, ett_ngap_UERadioCapability);
-    call_dissector(nr_rrc_ue_radio_access_cap_info_handle, parameter_tvb, actx->pinfo, subtree);
+        subtree = proto_item_add_subtree(actx->created_item, ett_ngap_UERadioCapability);
+        call_dissector(lte_rrc_ue_radio_access_cap_info_handle, parameter_tvb, actx->pinfo, subtree);
+      }
+    } else if (nr_rrc_ue_radio_access_cap_info_handle) {
+      proto_tree *subtree;
+
+      subtree = proto_item_add_subtree(actx->created_item, ett_ngap_UERadioCapability);
+      call_dissector(nr_rrc_ue_radio_access_cap_info_handle, parameter_tvb, actx->pinfo, subtree);
+    }
   }
 
 #.FN_BODY TimeStamp VAL_PTR = &timestamp_tvb
@@ -580,9 +710,10 @@ RecommendedCellItem/timeStayedInCell DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&
   tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
   if (parameter_tvb) {
-    const gint *fields[] = {
+    static int * const fields[] = {
       &hf_ngap_RATRestrictionInformation_e_UTRA,
       &hf_ngap_RATRestrictionInformation_nR,
+      &hf_ngap_RATRestrictionInformation_nR_unlicensed,
       &hf_ngap_RATRestrictionInformation_reserved,
       NULL
     };
@@ -594,7 +725,7 @@ RecommendedCellItem/timeStayedInCell DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&
   tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
   if (parameter_tvb) {
-    const gint *fields[] = {
+    static int * const fields[] = {
       &hf_ngap_NrencyptionAlgorithms_nea1,
       &hf_ngap_NrencyptionAlgorithms_nea2,
       &hf_ngap_NrencyptionAlgorithms_nea3,
@@ -609,7 +740,7 @@ RecommendedCellItem/timeStayedInCell DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&
   tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
   if (parameter_tvb) {
-    const gint *fields[] = {
+    static int * const fields[] = {
       &hf_ngap_NrintegrityProtectionAlgorithms_nia1,
       &hf_ngap_NrintegrityProtectionAlgorithms_nia2,
       &hf_ngap_NrintegrityProtectionAlgorithms_nia3,
@@ -624,7 +755,7 @@ RecommendedCellItem/timeStayedInCell DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&
   tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
   if (parameter_tvb) {
-    const gint *fields[] = {
+    static int * const fields[] = {
       &hf_ngap_EUTRAencryptionAlgorithms_eea1,
       &hf_ngap_EUTRAencryptionAlgorithms_eea2,
       &hf_ngap_EUTRAencryptionAlgorithms_eea3,
@@ -639,7 +770,7 @@ RecommendedCellItem/timeStayedInCell DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&
   tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
   if (parameter_tvb) {
-    const gint *fields[] = {
+    static int * const fields[] = {
       &hf_ngap_EUTRAintegrityProtectionAlgorithms_eia1,
       &hf_ngap_EUTRAintegrityProtectionAlgorithms_eia2,
       &hf_ngap_EUTRAintegrityProtectionAlgorithms_eia3,
@@ -759,6 +890,177 @@ VolumeTimedReport-Item/usageCountUL DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&u
 #.TYPE_ATTR
 VolumeTimedReport-Item/usageCountDL DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_octet_octets
 
+#.TYPE_ATTR
+BluetoothName TYPE=FT_STRING DISPLAY = STR_UNICODE
+#.FN_BODY BluetoothName VAL_PTR = &parameter_tvb HF_INDEX = -1
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, -1, ENC_UTF_8|ENC_NA);
+#.END
+
+#.FN_BODY BurstArrivalTime VAL_PTR = &burst_arrival_time_tvb
+  tvbuff_t *burst_arrival_time_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (burst_arrival_time_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_ngap_BurstArrivalTime);
+    dissect_nr_rrc_ReferenceTime_r16_PDU(burst_arrival_time_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY CoverageEnhancementLevel VAL_PTR = &cov_enh_level_tvb
+  tvbuff_t *cov_enh_level_tvb;
+  proto_tree *subtree;
+%(DEFAULT_BODY)s
+  if (cov_enh_level_tvb && ngap_dissect_container) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_ngap_CoverageEnhancementLevel);
+    if ((ngap_is_nbiot_ue(actx->pinfo) && (ngap_dissect_lte_container_as == NGAP_LTE_CONTAINER_AUTOMATIC)) ||
+        (ngap_dissect_lte_container_as == NGAP_LTE_CONTAINER_NBIOT)) {
+      TRY {
+        dissect_lte_rrc_UEPagingCoverageInformation_NB_PDU(cov_enh_level_tvb, actx->pinfo, subtree, NULL);
+      }
+      CATCH_BOUNDS_ERRORS {
+        show_exception(cov_enh_level_tvb, actx->pinfo, subtree, EXCEPT_CODE, GET_MESSAGE);
+      }
+      ENDTRY;
+    } else {
+      TRY {
+        dissect_lte_rrc_UEPagingCoverageInformation_PDU(cov_enh_level_tvb, actx->pinfo, subtree, NULL);
+      }
+      CATCH_BOUNDS_ERRORS {
+        show_exception(cov_enh_level_tvb, actx->pinfo, subtree, EXCEPT_CODE, GET_MESSAGE);
+      }
+      ENDTRY;
+    }
+  }
+
+#.TYPE_ATTR
+Extended-ConnectedTime DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+
+#.TYPE_ATTR
+ExtendedPacketDelayBudget DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ngap_ExtendedPacketDelayBudget_fmt)
+
+#.FN_BODY ExtendedRATRestrictionInformation/primaryRATRestriction VAL_PTR=&parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    static int * const fields[] = {
+      &hf_ngap_RATRestrictionInformation_e_UTRA,
+      &hf_ngap_RATRestrictionInformation_nR,
+      &hf_ngap_RATRestrictionInformation_nR_unlicensed,
+      &hf_ngap_RATRestrictionInformation_reserved,
+      NULL
+    };
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_ngap_RATRestrictionInformation);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 1, fields, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY ExtendedRATRestrictionInformation/secondaryRATRestriction VAL_PTR=&parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    static int * const fields[] = {
+      &hf_ngap_RATRestrictionInformation_e_UTRA,
+      &hf_ngap_RATRestrictionInformation_nR,
+      &hf_ngap_RATRestrictionInformation_nR_unlicensed,
+      &hf_ngap_RATRestrictionInformation_reserved,
+      NULL
+    };
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_ngap_RATRestrictionInformation);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 1, fields, ENC_BIG_ENDIAN);
+  }
+
+#.TYPE_ATTR
+LAC TYPE = FT_UINT16 DISPLAY = BASE_DEC_HEX
+#.FN_BODY LAC VAL_PTR = &parameter_tvb HF_INDEX = -1
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY MDTModeEutra VAL_PTR = &mdt_mode_eutra_tvb
+  tvbuff_t *mdt_mode_eutra_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (mdt_mode_eutra_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_ngap_MDTModeEutra);
+    dissect_s1ap_MDTMode_PDU(mdt_mode_eutra_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY MeasurementsToActivate VAL_PTR=&parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    static int * const fields[] = {
+      &hf_ngap_MeasurementsToActivate_M1,
+      &hf_ngap_MeasurementsToActivate_M2,
+      &hf_ngap_MeasurementsToActivate_M4,
+      &hf_ngap_MeasurementsToActivate_M5,
+      &hf_ngap_MeasurementsToActivate_M6,
+      &hf_ngap_MeasurementsToActivate_M7,
+      &hf_ngap_MeasurementsToActivate_M1_from_event,
+      &hf_ngap_MeasurementsToActivate_reserved,
+      NULL
+    };
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_ngap_MeasurementsToActivate);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 1, fields, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY MDT-Location-Information VAL_PTR=&parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    static int * const fields[] = {
+      &hf_ngap_MDT_Location_Information_GNSS,
+      &hf_ngap_MDT_Location_Information_reserved,
+      NULL
+    };
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_ngap_MDT_Location_Information);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 1, fields, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY NRMobilityHistoryReport VAL_PTR = &nr_mob_hist_report_tvb
+  tvbuff_t *nr_mob_hist_report_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (nr_mob_hist_report_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_ngap_NRMobilityHistoryReport);
+    dissect_nr_rrc_VisitedCellInfoList_r16_PDU(nr_mob_hist_report_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY LTEUERLFReportContainer VAL_PTR = &lte_ue_rlf_report_tvb
+  tvbuff_t *lte_ue_rlf_report_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (lte_ue_rlf_report_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_ngap_LTEUERLFReportContainer);
+    dissect_lte_rrc_RLF_Report_r9_PDU(lte_ue_rlf_report_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY NRUERLFReportContainer VAL_PTR = &nr_ue_rlc_report_tvb
+  tvbuff_t *nr_ue_rlc_report_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (nr_ue_rlc_report_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_ngap_NRUERLFReportContainer);
+    dissect_nr_rrc_nr_RLF_Report_r16_PDU(nr_ue_rlc_report_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.TYPE_ATTR
+Periodicity DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_microseconds
+
+#.TYPE_ATTR
+Threshold-RSRP DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ngap_Threshold_RSRP_fmt)
+
+#.TYPE_ATTR
+Threshold-RSRQ DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ngap_Threshold_RSRQ_fmt)
+
+#.TYPE_ATTR
+Threshold-SINR DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ngap_Threshold_SINR_fmt)
+
+#.TYPE_ATTR
+WLANName TYPE=FT_STRING DISPLAY = STR_UNICODE
+#.FN_BODY WLANName VAL_PTR = &parameter_tvb HF_INDEX = -1
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, -1, ENC_UTF_8|ENC_NA);
+#.END
+
 #.ASSIGN_VALUE_TO_TYPE  # NGAP does not have constants assigned to types, they are pure INTEGER
 # ProcedureCode
 
@@ -815,181 +1117,292 @@ id-UplinkRANStatusTransfer               ProcedureCode
 id-UplinkUEAssociatedNRPPaTransport      ProcedureCode
 id-WriteReplaceWarning                   ProcedureCode
 id-SecondaryRATDataUsageReport           ProcedureCode
+id-UplinkRIMInformationTransfer          ProcedureCode
+id-DownlinkRIMInformationTransfer        ProcedureCode
+id-RetrieveUEInformation                 ProcedureCode
+id-UEInformationTransfer                 ProcedureCode
+id-RANCPRelocationIndication             ProcedureCode
+id-UEContextResume                       ProcedureCode
+id-UEContextSuspend                      ProcedureCode
+id-UERadioCapabilityIDMapping            ProcedureCode
+id-HandoverSuccess                       ProcedureCode
+id-UplinkRANEarlyStatusTransfer          ProcedureCode
+id-DownlinkRANEarlyStatusTransfer        ProcedureCode
+id-AMFCPRelocationIndication             ProcedureCode
+id-ConnectionEstablishmentIndication     ProcedureCode
 
 # ProtocolIE-ID
-id-AllowedNSSAI                                 ProtocolIE-ID
-id-AMFName                                      ProtocolIE-ID
-id-AMFOverloadResponse                          ProtocolIE-ID
-id-AMFSetID                                     ProtocolIE-ID
-id-AMF-TNLAssociationFailedToSetupList          ProtocolIE-ID
-id-AMF-TNLAssociationSetupList                  ProtocolIE-ID
-id-AMF-TNLAssociationToAddList                  ProtocolIE-ID
-id-AMF-TNLAssociationToRemoveList               ProtocolIE-ID
-id-AMF-TNLAssociationToUpdateList               ProtocolIE-ID
-id-AMFTrafficLoadReductionIndication            ProtocolIE-ID
-id-AMF-UE-NGAP-ID                               ProtocolIE-ID
-id-AssistanceDataForPaging                      ProtocolIE-ID
-id-BroadcastCancelledAreaList                   ProtocolIE-ID
-id-BroadcastCompletedAreaList                   ProtocolIE-ID
-id-CancelAllWarningMessages                     ProtocolIE-ID
-id-Cause                                        ProtocolIE-ID
-id-CellIDListForRestart                         ProtocolIE-ID
-id-ConcurrentWarningMessageInd                  ProtocolIE-ID
-id-CoreNetworkAssistanceInformationForInactive  ProtocolIE-ID
-id-CriticalityDiagnostics                       ProtocolIE-ID
-id-DataCodingScheme                             ProtocolIE-ID
-id-DefaultPagingDRX                             ProtocolIE-ID
-id-DirectForwardingPathAvailability             ProtocolIE-ID
-id-EmergencyAreaIDListForRestart                ProtocolIE-ID
-id-EmergencyFallbackIndicator                   ProtocolIE-ID
-id-EUTRA-CGI                                    ProtocolIE-ID
-id-FiveG-S-TMSI                                 ProtocolIE-ID
-id-GlobalRANNodeID                              ProtocolIE-ID
-id-GUAMI                                        ProtocolIE-ID
-id-HandoverType                                 ProtocolIE-ID
-id-IMSVoiceSupportIndicator                     ProtocolIE-ID
-id-IndexToRFSP                                  ProtocolIE-ID
-id-InfoOnRecommendedCellsAndRANNodesForPaging   ProtocolIE-ID
-id-LocationReportingRequestType                 ProtocolIE-ID
-id-MaskedIMEISV                                 ProtocolIE-ID
-id-MessageIdentifier                            ProtocolIE-ID
-id-MobilityRestrictionList                      ProtocolIE-ID
-id-NASC                                         ProtocolIE-ID
-id-NAS-PDU                                      ProtocolIE-ID
-id-NASSecurityParametersFromNGRAN               ProtocolIE-ID
-id-NewAMF-UE-NGAP-ID                            ProtocolIE-ID
-id-NewSecurityContextInd                        ProtocolIE-ID
-id-NGAP-Message                                 ProtocolIE-ID
-id-NGRAN-CGI                                    ProtocolIE-ID
-id-NGRANTraceID                                 ProtocolIE-ID
-id-NR-CGI                                       ProtocolIE-ID
-id-NRPPa-PDU                                    ProtocolIE-ID
-id-NumberOfBroadcastsRequested                  ProtocolIE-ID
-id-OldAMF                                       ProtocolIE-ID
-id-OverloadStartNSSAIList                       ProtocolIE-ID
-id-PagingDRX                                    ProtocolIE-ID
-id-PagingOrigin                                 ProtocolIE-ID
-id-PagingPriority                               ProtocolIE-ID
-id-PDUSessionResourceAdmittedList               ProtocolIE-ID
-id-PDUSessionResourceFailedToModifyListModRes   ProtocolIE-ID
-id-PDUSessionResourceFailedToSetupListCxtRes    ProtocolIE-ID
-id-PDUSessionResourceFailedToSetupListHOAck     ProtocolIE-ID
-id-PDUSessionResourceFailedToSetupListPSReq     ProtocolIE-ID
-id-PDUSessionResourceFailedToSetupListSURes     ProtocolIE-ID
-id-PDUSessionResourceHandoverList               ProtocolIE-ID
-id-PDUSessionResourceListCxtRelCpl              ProtocolIE-ID
-id-PDUSessionResourceListHORqd                  ProtocolIE-ID
-id-PDUSessionResourceModifyListModCfm           ProtocolIE-ID
-id-PDUSessionResourceModifyListModInd           ProtocolIE-ID
-id-PDUSessionResourceModifyListModReq           ProtocolIE-ID
-id-PDUSessionResourceModifyListModRes           ProtocolIE-ID
-id-PDUSessionResourceNotifyList                 ProtocolIE-ID
-id-PDUSessionResourceReleasedListNot            ProtocolIE-ID
-id-PDUSessionResourceReleasedListPSAck          ProtocolIE-ID
-id-PDUSessionResourceReleasedListPSFail         ProtocolIE-ID
-id-PDUSessionResourceReleasedListRelRes         ProtocolIE-ID
-id-PDUSessionResourceSetupListCxtReq            ProtocolIE-ID
-id-PDUSessionResourceSetupListCxtRes            ProtocolIE-ID
-id-PDUSessionResourceSetupListHOReq             ProtocolIE-ID
-id-PDUSessionResourceSetupListSUReq             ProtocolIE-ID
-id-PDUSessionResourceSetupListSURes             ProtocolIE-ID
-id-PDUSessionResourceToBeSwitchedDLList	        ProtocolIE-ID
-id-PDUSessionResourceSwitchedList               ProtocolIE-ID
-id-PDUSessionResourceToReleaseListHOCmd         ProtocolIE-ID
-id-PDUSessionResourceToReleaseListRelCmd        ProtocolIE-ID
-id-PLMNSupportList                              ProtocolIE-ID
-id-PWSFailedCellIDList                          ProtocolIE-ID
-id-RANNodeName                                  ProtocolIE-ID
-id-RANPagingPriority                            ProtocolIE-ID
-id-RANStatusTransfer-TransparentContainer       ProtocolIE-ID
-id-RAN-UE-NGAP-ID                               ProtocolIE-ID
-id-RelativeAMFCapacity                          ProtocolIE-ID
-id-RepetitionPeriod                             ProtocolIE-ID
-id-ResetType                                    ProtocolIE-ID
-id-RoutingID                                    ProtocolIE-ID
-id-RRCEstablishmentCause                        ProtocolIE-ID
-id-RRCInactiveTransitionReportRequest           ProtocolIE-ID
-id-RRCState                                     ProtocolIE-ID
-id-SecurityContext                              ProtocolIE-ID
-id-SecurityKey                                  ProtocolIE-ID
-id-SerialNumber                                 ProtocolIE-ID
-id-ServedGUAMIList                              ProtocolIE-ID
-id-SliceSupportList                             ProtocolIE-ID
-id-SONConfigurationTransferDL                   ProtocolIE-ID
-id-SONConfigurationTransferUL                   ProtocolIE-ID
-id-SourceAMF-UE-NGAP-ID                         ProtocolIE-ID
-id-SourceToTarget-TransparentContainer          ProtocolIE-ID
-id-SupportedTAList                              ProtocolIE-ID
-id-TAIListForPaging                             ProtocolIE-ID
-id-TAIListForRestart                            ProtocolIE-ID
-id-TargetID                                     ProtocolIE-ID
-id-TargetToSource-TransparentContainer          ProtocolIE-ID
-id-TimeToWait                                   ProtocolIE-ID
-id-TraceActivation                              ProtocolIE-ID
-id-TraceCollectionEntityIPAddress               ProtocolIE-ID
-id-UEAggregateMaximumBitRate                    ProtocolIE-ID
-id-UE-associatedLogicalNG-connectionList        ProtocolIE-ID
-id-UEContextRequest                             ProtocolIE-ID
-id-UE-NGAP-IDs                                  ProtocolIE-ID
-id-UEPagingIdentity                             ProtocolIE-ID
-id-UEPresenceInAreaOfInterestList               ProtocolIE-ID
-id-UERadioCapability                            ProtocolIE-ID
-id-UERadioCapabilityForPaging                   ProtocolIE-ID
-id-UESecurityCapabilities                       ProtocolIE-ID
-id-UnavailableGUAMIList                         ProtocolIE-ID
-id-UserLocationInformation                      ProtocolIE-ID
-id-WarningAreaList                              ProtocolIE-ID
-id-WarningMessageContents                       ProtocolIE-ID
-id-WarningSecurityInfo                          ProtocolIE-ID
-id-WarningType                                  ProtocolIE-ID
-id-AdditionalUL-NGU-UP-TNLInformation           ProtocolIE-ID
-id-DataForwardingNotPossible                    ProtocolIE-ID
-id-DL-NGU-UP-TNLInformation                     ProtocolIE-ID
-id-NetworkInstance                              ProtocolIE-ID
-id-PDUSessionAggregateMaximumBitRate            ProtocolIE-ID
-id-PDUSessionResourceFailedToModifyListModCfm   ProtocolIE-ID
-id-PDUSessionResourceFailedToSetupListCxtFail   ProtocolIE-ID
-id-PDUSessionResourceListCxtRelReq              ProtocolIE-ID
-id-PDUSessionType                               ProtocolIE-ID
-id-QosFlowAddOrModifyRequestList                ProtocolIE-ID
-id-QosFlowSetupRequestList                      ProtocolIE-ID
-id-QosFlowToReleaseList                         ProtocolIE-ID
-id-SecurityIndication                           ProtocolIE-ID
-id-UL-NGU-UP-TNLInformation                     ProtocolIE-ID
-id-UL-NGU-UP-TNLModifyList                      ProtocolIE-ID
-id-WarningAreaCoordinates                       ProtocolIE-ID
-id-PDUSessionResourceSecondaryRATUsageList      ProtocolIE-ID
-id-HandoverFlag                                 ProtocolIE-ID
-id-SecondaryRATUsageInformation                 ProtocolIE-ID
-id-PDUSessionResourceReleaseResponseTransfer    ProtocolIE-ID
-id-RedirectionVoiceFallback                     ProtocolIE-ID
-id-UERetentionInformation                       ProtocolIE-ID
-id-S-NSSAI                                      ProtocolIE-ID
-id-PSCellInformation                            ProtocolIE-ID
-id-LastEUTRAN-PLMNIdentity                      ProtocolIE-ID
-id-MaximumIntegrityProtectedDataRate-DL         ProtocolIE-ID
-id-AdditionalDLForwardingUPTNLInformation       ProtocolIE-ID
-id-AdditionalDLUPTNLInformationForHOList        ProtocolIE-ID
-id-AdditionalNGU-UP-TNLInformation              ProtocolIE-ID
-id-AdditionalDLQosFlowPerTNLInformation         ProtocolIE-ID
-id-SecurityResult                               ProtocolIE-ID
-id-ENDC-SONConfigurationTransferDL              ProtocolIE-ID
-id-ENDC-SONConfigurationTransferUL              ProtocolIE-ID
-id-OldAssociatedQosFlowList-ULendmarkerexpected ProtocolIE-ID
-id-CNTypeRestrictionsForEquivalent              ProtocolIE-ID
-id-CNTypeRestrictionsForServing                 ProtocolIE-ID
-id-NewGUAMI                                     ProtocolIE-ID
-id-ULForwarding                                 ProtocolIE-ID
-id-ULForwardingUP-TNLInformation                ProtocolIE-ID
-id-CNAssistedRANTuning                          ProtocolIE-ID
-id-CommonNetworkInstance                        ProtocolIE-ID
-id-NGRAN-TNLAssociationToRemoveList             ProtocolIE-ID
-id-TNLAssociationTransportLayerAddressNGRAN     ProtocolIE-ID
-id-EndpointIPAddressAndPort                     ProtocolIE-ID
-id-LocationReportingAdditionalInfo              ProtocolIE-ID
-id-SourceToTarget-AMFInformationReroute         ProtocolIE-ID
-id-AdditionalULForwardingUPTNLInformation       ProtocolIE-ID
-id-SCTP-TLAs                                    ProtocolIE-ID
+id-AllowedNSSAI                                  ProtocolIE-ID
+id-AMFName                                       ProtocolIE-ID
+id-AMFOverloadResponse                           ProtocolIE-ID
+id-AMFSetID                                      ProtocolIE-ID
+id-AMF-TNLAssociationFailedToSetupList           ProtocolIE-ID
+id-AMF-TNLAssociationSetupList                   ProtocolIE-ID
+id-AMF-TNLAssociationToAddList                   ProtocolIE-ID
+id-AMF-TNLAssociationToRemoveList                ProtocolIE-ID
+id-AMF-TNLAssociationToUpdateList                ProtocolIE-ID
+id-AMFTrafficLoadReductionIndication             ProtocolIE-ID
+id-AMF-UE-NGAP-ID                                ProtocolIE-ID
+id-AssistanceDataForPaging                       ProtocolIE-ID
+id-BroadcastCancelledAreaList                    ProtocolIE-ID
+id-BroadcastCompletedAreaList                    ProtocolIE-ID
+id-CancelAllWarningMessages                      ProtocolIE-ID
+id-Cause                                         ProtocolIE-ID
+id-CellIDListForRestart                          ProtocolIE-ID
+id-ConcurrentWarningMessageInd                   ProtocolIE-ID
+id-CoreNetworkAssistanceInformationForInactive   ProtocolIE-ID
+id-CriticalityDiagnostics                        ProtocolIE-ID
+id-DataCodingScheme                              ProtocolIE-ID
+id-DefaultPagingDRX                              ProtocolIE-ID
+id-DirectForwardingPathAvailability              ProtocolIE-ID
+id-EmergencyAreaIDListForRestart                 ProtocolIE-ID
+id-EmergencyFallbackIndicator                    ProtocolIE-ID
+id-EUTRA-CGI                                     ProtocolIE-ID
+id-FiveG-S-TMSI                                  ProtocolIE-ID
+id-GlobalRANNodeID                               ProtocolIE-ID
+id-GUAMI                                         ProtocolIE-ID
+id-HandoverType                                  ProtocolIE-ID
+id-IMSVoiceSupportIndicator                      ProtocolIE-ID
+id-IndexToRFSP                                   ProtocolIE-ID
+id-InfoOnRecommendedCellsAndRANNodesForPaging    ProtocolIE-ID
+id-LocationReportingRequestType                  ProtocolIE-ID
+id-MaskedIMEISV                                  ProtocolIE-ID
+id-MessageIdentifier                             ProtocolIE-ID
+id-MobilityRestrictionList                       ProtocolIE-ID
+id-NASC                                          ProtocolIE-ID
+id-NAS-PDU                                       ProtocolIE-ID
+id-NASSecurityParametersFromNGRAN                ProtocolIE-ID
+id-NewAMF-UE-NGAP-ID                             ProtocolIE-ID
+id-NewSecurityContextInd                         ProtocolIE-ID
+id-NGAP-Message                                  ProtocolIE-ID
+id-NGRAN-CGI                                     ProtocolIE-ID
+id-NGRANTraceID                                  ProtocolIE-ID
+id-NR-CGI                                        ProtocolIE-ID
+id-NRPPa-PDU                                     ProtocolIE-ID
+id-NumberOfBroadcastsRequested                   ProtocolIE-ID
+id-OldAMF                                        ProtocolIE-ID
+id-OverloadStartNSSAIList                        ProtocolIE-ID
+id-PagingDRX                                     ProtocolIE-ID
+id-PagingOrigin                                  ProtocolIE-ID
+id-PagingPriority                                ProtocolIE-ID
+id-PDUSessionResourceAdmittedList                ProtocolIE-ID
+id-PDUSessionResourceFailedToModifyListModRes    ProtocolIE-ID
+id-PDUSessionResourceFailedToSetupListCxtRes     ProtocolIE-ID
+id-PDUSessionResourceFailedToSetupListHOAck      ProtocolIE-ID
+id-PDUSessionResourceFailedToSetupListPSReq      ProtocolIE-ID
+id-PDUSessionResourceFailedToSetupListSURes      ProtocolIE-ID
+id-PDUSessionResourceHandoverList                ProtocolIE-ID
+id-PDUSessionResourceListCxtRelCpl               ProtocolIE-ID
+id-PDUSessionResourceListHORqd                   ProtocolIE-ID
+id-PDUSessionResourceModifyListModCfm            ProtocolIE-ID
+id-PDUSessionResourceModifyListModInd            ProtocolIE-ID
+id-PDUSessionResourceModifyListModReq            ProtocolIE-ID
+id-PDUSessionResourceModifyListModRes            ProtocolIE-ID
+id-PDUSessionResourceNotifyList                  ProtocolIE-ID
+id-PDUSessionResourceReleasedListNot             ProtocolIE-ID
+id-PDUSessionResourceReleasedListPSAck           ProtocolIE-ID
+id-PDUSessionResourceReleasedListPSFail          ProtocolIE-ID
+id-PDUSessionResourceReleasedListRelRes          ProtocolIE-ID
+id-PDUSessionResourceSetupListCxtReq             ProtocolIE-ID
+id-PDUSessionResourceSetupListCxtRes             ProtocolIE-ID
+id-PDUSessionResourceSetupListHOReq              ProtocolIE-ID
+id-PDUSessionResourceSetupListSUReq              ProtocolIE-ID
+id-PDUSessionResourceSetupListSURes              ProtocolIE-ID
+id-PDUSessionResourceToBeSwitchedDLList	         ProtocolIE-ID
+id-PDUSessionResourceSwitchedList                ProtocolIE-ID
+id-PDUSessionResourceToReleaseListHOCmd          ProtocolIE-ID
+id-PDUSessionResourceToReleaseListRelCmd         ProtocolIE-ID
+id-PLMNSupportList                               ProtocolIE-ID
+id-PWSFailedCellIDList                           ProtocolIE-ID
+id-RANNodeName                                   ProtocolIE-ID
+id-RANPagingPriority                             ProtocolIE-ID
+id-RANStatusTransfer-TransparentContainer        ProtocolIE-ID
+id-RAN-UE-NGAP-ID                                ProtocolIE-ID
+id-RelativeAMFCapacity                           ProtocolIE-ID
+id-RepetitionPeriod                              ProtocolIE-ID
+id-ResetType                                     ProtocolIE-ID
+id-RoutingID                                     ProtocolIE-ID
+id-RRCEstablishmentCause                         ProtocolIE-ID
+id-RRCInactiveTransitionReportRequest            ProtocolIE-ID
+id-RRCState                                      ProtocolIE-ID
+id-SecurityContext                               ProtocolIE-ID
+id-SecurityKey                                   ProtocolIE-ID
+id-SerialNumber                                  ProtocolIE-ID
+id-ServedGUAMIList                               ProtocolIE-ID
+id-SliceSupportList                              ProtocolIE-ID
+id-SONConfigurationTransferDL                    ProtocolIE-ID
+id-SONConfigurationTransferUL                    ProtocolIE-ID
+id-SourceAMF-UE-NGAP-ID                          ProtocolIE-ID
+id-SourceToTarget-TransparentContainer           ProtocolIE-ID
+id-SupportedTAList                               ProtocolIE-ID
+id-TAIListForPaging                              ProtocolIE-ID
+id-TAIListForRestart                             ProtocolIE-ID
+id-TargetID                                      ProtocolIE-ID
+id-TargetToSource-TransparentContainer           ProtocolIE-ID
+id-TimeToWait                                    ProtocolIE-ID
+id-TraceActivation                               ProtocolIE-ID
+id-TraceCollectionEntityIPAddress                ProtocolIE-ID
+id-UEAggregateMaximumBitRate                     ProtocolIE-ID
+id-UE-associatedLogicalNG-connectionList         ProtocolIE-ID
+id-UEContextRequest                              ProtocolIE-ID
+id-UE-NGAP-IDs                                   ProtocolIE-ID
+id-UEPagingIdentity                              ProtocolIE-ID
+id-UEPresenceInAreaOfInterestList                ProtocolIE-ID
+id-UERadioCapability                             ProtocolIE-ID
+id-UERadioCapabilityForPaging                    ProtocolIE-ID
+id-UESecurityCapabilities                        ProtocolIE-ID
+id-UnavailableGUAMIList                          ProtocolIE-ID
+id-UserLocationInformation                       ProtocolIE-ID
+id-WarningAreaList                               ProtocolIE-ID
+id-WarningMessageContents                        ProtocolIE-ID
+id-WarningSecurityInfo                           ProtocolIE-ID
+id-WarningType                                   ProtocolIE-ID
+id-AdditionalUL-NGU-UP-TNLInformation            ProtocolIE-ID
+id-DataForwardingNotPossible                     ProtocolIE-ID
+id-DL-NGU-UP-TNLInformation                      ProtocolIE-ID
+id-NetworkInstance                               ProtocolIE-ID
+id-PDUSessionAggregateMaximumBitRate             ProtocolIE-ID
+id-PDUSessionResourceFailedToModifyListModCfm    ProtocolIE-ID
+id-PDUSessionResourceFailedToSetupListCxtFail    ProtocolIE-ID
+id-PDUSessionResourceListCxtRelReq               ProtocolIE-ID
+id-PDUSessionType                                ProtocolIE-ID
+id-QosFlowAddOrModifyRequestList                 ProtocolIE-ID
+id-QosFlowSetupRequestList                       ProtocolIE-ID
+id-QosFlowToReleaseList                          ProtocolIE-ID
+id-SecurityIndication                            ProtocolIE-ID
+id-UL-NGU-UP-TNLInformation                      ProtocolIE-ID
+id-UL-NGU-UP-TNLModifyList                       ProtocolIE-ID
+id-WarningAreaCoordinates                        ProtocolIE-ID
+id-PDUSessionResourceSecondaryRATUsageList       ProtocolIE-ID
+id-HandoverFlag                                  ProtocolIE-ID
+id-SecondaryRATUsageInformation                  ProtocolIE-ID
+id-PDUSessionResourceReleaseResponseTransfer     ProtocolIE-ID
+id-RedirectionVoiceFallback                      ProtocolIE-ID
+id-UERetentionInformation                        ProtocolIE-ID
+id-S-NSSAI                                       ProtocolIE-ID
+id-PSCellInformation                             ProtocolIE-ID
+id-LastEUTRAN-PLMNIdentity                       ProtocolIE-ID
+id-MaximumIntegrityProtectedDataRate-DL          ProtocolIE-ID
+id-AdditionalDLForwardingUPTNLInformation        ProtocolIE-ID
+id-AdditionalDLUPTNLInformationForHOList         ProtocolIE-ID
+id-AdditionalNGU-UP-TNLInformation               ProtocolIE-ID
+id-AdditionalDLQosFlowPerTNLInformation          ProtocolIE-ID
+id-SecurityResult                                ProtocolIE-ID
+id-ENDC-SONConfigurationTransferDL               ProtocolIE-ID
+id-ENDC-SONConfigurationTransferUL               ProtocolIE-ID
+id-OldAssociatedQosFlowList-ULendmarkerexpected  ProtocolIE-ID
+id-CNTypeRestrictionsForEquivalent               ProtocolIE-ID
+id-CNTypeRestrictionsForServing                  ProtocolIE-ID
+id-NewGUAMI                                      ProtocolIE-ID
+id-ULForwarding                                  ProtocolIE-ID
+id-ULForwardingUP-TNLInformation                 ProtocolIE-ID
+id-CNAssistedRANTuning                           ProtocolIE-ID
+id-CommonNetworkInstance                         ProtocolIE-ID
+id-NGRAN-TNLAssociationToRemoveList              ProtocolIE-ID
+id-TNLAssociationTransportLayerAddressNGRAN      ProtocolIE-ID
+id-EndpointIPAddressAndPort                      ProtocolIE-ID
+id-LocationReportingAdditionalInfo               ProtocolIE-ID
+id-SourceToTarget-AMFInformationReroute          ProtocolIE-ID
+id-AdditionalULForwardingUPTNLInformation        ProtocolIE-ID
+id-SCTP-TLAs                                     ProtocolIE-ID
+id-DataForwardingResponseERABList                ProtocolIE-ID
+id-RIMInformationTransfer                        ProtocolIE-ID
+id-GUAMIType                                     ProtocolIE-ID
+id-SRVCCOperationPossible                        ProtocolIE-ID
+id-TargetRNC-ID                                  ProtocolIE-ID
+id-RAT-Information                               ProtocolIE-ID
+id-ExtendedRATRestrictionInformation             ProtocolIE-ID
+id-QosMonitoringRequest                          ProtocolIE-ID
+id-SgNB-UE-X2AP-ID                               ProtocolIE-ID
+id-AdditionalRedundantDL-NGU-UP-TNLInformation   ProtocolIE-ID
+id-AdditionalRedundantDLQosFlowPerTNLInformation ProtocolIE-ID
+id-AdditionalRedundantNGU-UP-TNLInformation      ProtocolIE-ID
+id-AdditionalRedundantUL-NGU-UP-TNLInformation   ProtocolIE-ID
+id-CNPacketDelayBudgetDL                         ProtocolIE-ID
+id-CNPacketDelayBudgetUL                         ProtocolIE-ID
+id-ExtendedPacketDelayBudget                     ProtocolIE-ID
+id-RedundantCommonNetworkInstance                ProtocolIE-ID
+id-RedundantDL-NGU-TNLInformationReused          ProtocolIE-ID
+id-RedundantDL-NGU-UP-TNLInformation             ProtocolIE-ID
+id-RedundantDLQosFlowPerTNLInformation           ProtocolIE-ID
+id-RedundantQosFlowIndicator                     ProtocolIE-ID
+id-RedundantUL-NGU-UP-TNLInformation             ProtocolIE-ID
+id-TSCTrafficCharacteristics                     ProtocolIE-ID
+id-RedundantPDUSessionInformation                ProtocolIE-ID
+id-UsedRSNInformation                            ProtocolIE-ID
+id-IAB-Authorized                                ProtocolIE-ID
+id-IAB-Supported                                 ProtocolIE-ID
+id-IABNodeIndication                             ProtocolIE-ID
+id-NB-IoT-PagingDRX                              ProtocolIE-ID
+id-NB-IoT-Paging-eDRXInfo                        ProtocolIE-ID
+id-NB-IoT-DefaultPagingDRX                       ProtocolIE-ID
+id-Enhanced-CoverageRestriction                  ProtocolIE-ID
+id-Extended-ConnectedTime                        ProtocolIE-ID
+id-PagingAssisDataforCEcapabUE                   ProtocolIE-ID
+id-WUS-Assistance-Information                    ProtocolIE-ID
+id-UE-DifferentiationInfo                        ProtocolIE-ID
+id-NB-IoT-UEPriority                             ProtocolIE-ID
+id-UL-CP-SecurityInformation                     ProtocolIE-ID
+id-DL-CP-SecurityInformation                     ProtocolIE-ID
+id-TAI                                           ProtocolIE-ID
+id-UERadioCapabilityForPagingOfNB-IoT            ProtocolIE-ID
+id-LTEV2XServicesAuthorized                      ProtocolIE-ID
+id-NRV2XServicesAuthorized                       ProtocolIE-ID
+id-LTEUESidelinkAggregateMaximumBitrate          ProtocolIE-ID
+id-NRUESidelinkAggregateMaximumBitrate           ProtocolIE-ID
+id-PC5QoSParameters                              ProtocolIE-ID
+id-AlternativeQoSParaSetList                     ProtocolIE-ID
+id-CurrentQoSParaSetIndex                        ProtocolIE-ID
+id-CEmodeBrestricted                             ProtocolIE-ID
+id-PagingeDRXInformation                         ProtocolIE-ID
+id-CEmodeBSupport-Indicator                      ProtocolIE-ID
+id-LTEM-Indication                               ProtocolIE-ID
+id-EndIndication                                 ProtocolIE-ID
+id-EDT-Session                                   ProtocolIE-ID
+id-UECapabilityInfoRequest                       ProtocolIE-ID
+id-PDUSessionResourceFailedToResumeListRESReq    ProtocolIE-ID
+id-PDUSessionResourceFailedToResumeListRESRes    ProtocolIE-ID
+id-PDUSessionResourceSuspendListSUSReq           ProtocolIE-ID
+id-PDUSessionResourceResumeListRESReq            ProtocolIE-ID
+id-PDUSessionResourceResumeListRESRes            ProtocolIE-ID
+id-UE-UP-CIoT-Support                            ProtocolIE-ID
+id-Suspend-Request-Indication                    ProtocolIE-ID
+id-Suspend-Response-Indication                   ProtocolIE-ID
+id-RRC-Resume-Cause                              ProtocolIE-ID
+id-RGLevelWirelineAccessCharacteristics          ProtocolIE-ID
+id-W-AGFIdentityInformation                      ProtocolIE-ID
+id-GlobalTNGF-ID                                 ProtocolIE-ID
+id-GlobalTWIF-ID                                 ProtocolIE-ID
+id-GlobalW-AGF-ID                                ProtocolIE-ID
+id-UserLocationInformationW-AGF                  ProtocolIE-ID
+id-UserLocationInformationTNGF                   ProtocolIE-ID
+id-AuthenticatedIndication                       ProtocolIE-ID
+id-TNGFIdentityInformation                       ProtocolIE-ID
+id-TWIFIdentityInformation                       ProtocolIE-ID
+id-UserLocationInformationTWIF                   ProtocolIE-ID
+id-SelectedPLMNIdentity                          ProtocolIE-ID
+id-IntersystemSONConfigurationTransferDL         ProtocolIE-ID
+id-IntersystemSONConfigurationTransferUL         ProtocolIE-ID
+id-SONInformationReport                          ProtocolIE-ID
+id-UEHistoryInformationFromTheUE                 ProtocolIE-ID
+id-ManagementBasedMDTPLMNList                    ProtocolIE-ID
+id-MDTConfiguration                              ProtocolIE-ID
+id-PrivacyIndicator                              ProtocolIE-ID
+id-TraceCollectionEntityURI                      ProtocolIE-ID
+id-NPN-Support                                   ProtocolIE-ID
+id-NPN-AccessInformation                         ProtocolIE-ID
+id-NPN-PagingAssistanceInformation               ProtocolIE-ID
+id-NPN-MobilityInformation                       ProtocolIE-ID
+id-TargettoSource-Failure-TransparentContainer   ProtocolIE-ID
+id-NID                                           ProtocolIE-ID
+id-UERadioCapabilityID                           ProtocolIE-ID
+id-UERadioCapability-EUTRA-Format                ProtocolIE-ID
+id-DAPSRequestInfo                               ProtocolIE-ID
+id-DAPSResponseInfoList                          ProtocolIE-ID
+id-EarlyStatusTransfer-TransparentContainer      ProtocolIE-ID
+id-NotifySourceNGRANNode                         ProtocolIE-ID
+id-ExtendedSliceSupportList                      ProtocolIE-ID
+id-ExtendedTAISliceSupportList                   ProtocolIE-ID
 #.END
 
 
@@ -1150,6 +1563,73 @@ CommonNetworkInstance                       N ngap.ies id-CommonNetworkInstance
 NGRAN-TNLAssociationToRemoveList            N ngap.ies id-NGRAN-TNLAssociationToRemoveList
 EndpointIPAddressAndPort                    N ngap.ies id-EndpointIPAddressAndPort
 SourceToTarget-AMFInformationReroute        N ngap.ies id-SourceToTarget-AMFInformationReroute
+RIMInformationTransfer                      N ngap.ies id-RIMInformationTransfer
+SRVCCOperationPossible                      N ngap.ies id-SRVCCOperationPossible
+TargetRNC-ID                                N ngap.ies id-TargetRNC-ID
+UPTransportLayerInformationList             N ngap.ies id-AdditionalRedundantUL-NGU-UP-TNLInformation
+CommonNetworkInstance                       N ngap.ies id-RedundantCommonNetworkInstance
+UPTransportLayerInformation                 N ngap.ies id-RedundantUL-NGU-UP-TNLInformation
+RedundantPDUSessionInformation              N ngap.ies id-RedundantPDUSessionInformation
+IAB-Authorized                              N ngap.ies id-IAB-Authorized
+IAB-Supported                               N ngap.ies id-IAB-Supported
+IABNodeIndication                           N ngap.ies id-IABNodeIndication
+NB-IoT-PagingDRX                            N ngap.ies id-NB-IoT-PagingDRX
+NB-IoT-Paging-eDRXInfo                      N ngap.ies id-NB-IoT-Paging-eDRXInfo
+NB-IoT-DefaultPagingDRX                     N ngap.ies id-NB-IoT-DefaultPagingDRX
+Enhanced-CoverageRestriction                N ngap.ies id-Enhanced-CoverageRestriction
+Extended-ConnectedTime                      N ngap.ies id-Extended-ConnectedTime
+PagingAssisDataforCEcapabUE                 N ngap.ies id-PagingAssisDataforCEcapabUE
+WUS-Assistance-Information                  N ngap.ies id-WUS-Assistance-Information
+UE-DifferentiationInfo                      N ngap.ies id-UE-DifferentiationInfo
+NB-IoT-UEPriority                           N ngap.ies id-NB-IoT-UEPriority
+UL-CP-SecurityInformation                   N ngap.ies id-UL-CP-SecurityInformation
+DL-CP-SecurityInformation                   N ngap.ies id-DL-CP-SecurityInformation
+TAI                                         N ngap.ies id-TAI
+LTEV2XServicesAuthorized                    N ngap.ies id-LTEV2XServicesAuthorized
+NRV2XServicesAuthorized                     N ngap.ies id-NRV2XServicesAuthorized
+LTEUESidelinkAggregateMaximumBitrate        N ngap.ies id-LTEUESidelinkAggregateMaximumBitrate
+NRUESidelinkAggregateMaximumBitrate         N ngap.ies id-NRUESidelinkAggregateMaximumBitrate
+PC5QoSParameters                            N ngap.ies id-PC5QoSParameters
+CEmodeBrestricted                           N ngap.ies id-CEmodeBrestricted
+PagingeDRXInformation                       N ngap.ies id-PagingeDRXInformation
+CEmodeBSupport-Indicator                    N ngap.ies id-CEmodeBSupport-Indicator
+LTEM-Indication                             N ngap.ies id-LTEM-Indication
+EndIndication                               N ngap.ies id-EndIndication
+EDT-Session                                 N ngap.ies id-EDT-Session
+UECapabilityInfoRequest                     N ngap.ies id-UECapabilityInfoRequest
+PDUSessionResourceFailedToResumeListRESReq  N ngap.ies id-PDUSessionResourceFailedToResumeListRESReq
+PDUSessionResourceFailedToResumeListRESRes  N ngap.ies id-PDUSessionResourceFailedToResumeListRESRes
+PDUSessionResourceSuspendListSUSReq         N ngap.ies id-PDUSessionResourceSuspendListSUSReq
+PDUSessionResourceResumeListRESReq          N ngap.ies id-PDUSessionResourceResumeListRESReq
+PDUSessionResourceResumeListRESRes          N ngap.ies id-PDUSessionResourceResumeListRESRes
+UE-UP-CIoT-Support                          N ngap.ies id-UE-UP-CIoT-Support
+Suspend-Request-Indication                  N ngap.ies id-Suspend-Request-Indication
+Suspend-Response-Indication                 N ngap.ies id-Suspend-Response-Indication
+RRCEstablishmentCause                       N ngap.ies id-RRC-Resume-Cause
+RGLevelWirelineAccessCharacteristics        N ngap.ies id-RGLevelWirelineAccessCharacteristics
+W-AGFIdentityInformation                    N ngap.ies id-W-AGFIdentityInformation
+GlobalTNGF-ID                               N ngap.ies id-GlobalTNGF-ID
+GlobalTWIF-ID                               N ngap.ies id-GlobalTWIF-ID
+GlobalW-AGF-ID                              N ngap.ies id-GlobalW-AGF-ID
+UserLocationInformationW-AGF                N ngap.ies id-UserLocationInformationW-AGF
+UserLocationInformationTNGF                 N ngap.ies id-UserLocationInformationTNGF
+AuthenticatedIndication                     N ngap.ies id-AuthenticatedIndication
+TNGFIdentityInformation                     N ngap.ies id-TNGFIdentityInformation
+TWIFIdentityInformation                     N ngap.ies id-TWIFIdentityInformation
+UserLocationInformationTWIF                 N ngap.ies id-UserLocationInformationTWIF
+PLMNIdentity                                N ngap.ies id-SelectedPLMNIdentity
+IntersystemSONConfigurationTransfer         N ngap.ies id-IntersystemSONConfigurationTransferDL
+IntersystemSONConfigurationTransfer         N ngap.ies id-IntersystemSONConfigurationTransferUL
+SONInformationReport                        N ngap.ies id-SONInformationReport
+MDTPLMNList                                 N ngap.ies id-ManagementBasedMDTPLMNList
+PrivacyIndicator                            N ngap.ies id-PrivacyIndicator
+URI-address                                 N ngap.ies id-TraceCollectionEntityURI
+NPN-AccessInformation                       N ngap.ies id-NPN-AccessInformation
+TargettoSource-Failure-TransparentContainer N ngap.ies id-TargettoSource-Failure-TransparentContainer
+UERadioCapabilityID                         N ngap.ies id-UERadioCapabilityID
+UERadioCapability                           N ngap.ies id-UERadioCapability-EUTRA-Format
+EarlyStatusTransfer-TransparentContainer    N ngap.ies id-EarlyStatusTransfer-TransparentContainer
+NotifySourceNGRANNode                       N ngap.ies id-NotifySourceNGRANNode
 
 #NGAP-PROTOCOL-EXTENSION
 
@@ -1172,6 +1652,41 @@ CPTransportLayerInformation                            N ngap.extension id-TNLAs
 LocationReportingAdditionalInfo                        N ngap.extension id-LocationReportingAdditionalInfo
 UPTransportLayerInformationList                        N ngap.extension id-AdditionalULForwardingUPTNLInformation
 SCTP-TLAs                                              N ngap.extension id-SCTP-TLAs
+DataForwardingResponseERABList                         N ngap.extension id-DataForwardingResponseERABList
+GUAMIType                                              N ngap.extension id-GUAMIType
+RAT-Information                                        N ngap.extension id-RAT-Information
+ExtendedRATRestrictionInformation                      N ngap.extension id-ExtendedRATRestrictionInformation
+QosMonitoringRequest                                   N ngap.extension id-QosMonitoringRequest
+SgNB-UE-X2AP-ID                                        N ngap.extension id-SgNB-UE-X2AP-ID
+UPTransportLayerInformation                            N ngap.extension id-AdditionalRedundantDL-NGU-UP-TNLInformation
+QosFlowPerTNLInformationList                           N ngap.extension id-AdditionalRedundantDLQosFlowPerTNLInformation
+UPTransportLayerInformationPairList                    N ngap.extension id-AdditionalRedundantNGU-UP-TNLInformation
+ExtendedPacketDelayBudget                              N ngap.extension id-CNPacketDelayBudgetDL
+ExtendedPacketDelayBudget                              N ngap.extension id-CNPacketDelayBudgetUL
+ExtendedPacketDelayBudget                              N ngap.extension id-ExtendedPacketDelayBudget
+DL-NGU-TNLInformationReused                            N ngap.extension id-RedundantDL-NGU-TNLInformationReused
+UPTransportLayerInformation                            N ngap.extension id-RedundantDL-NGU-UP-TNLInformation
+QosFlowPerTNLInformation                               N ngap.extension id-RedundantDLQosFlowPerTNLInformation
+RedundantQosFlowIndicator                              N ngap.extension id-RedundantQosFlowIndicator
+UPTransportLayerInformation                            N ngap.extension id-RedundantUL-NGU-UP-TNLInformation
+TSCTrafficCharacteristics                              N ngap.extension id-TSCTrafficCharacteristics
+RedundantPDUSessionInformation                         N ngap.extension id-UsedRSNInformation
+PagingAssisDataforCEcapabUE                            N ngap.extension id-PagingAssisDataforCEcapabUE
+UERadioCapabilityForPagingOfNB-IoT                     N ngap.extension id-UERadioCapabilityForPagingOfNB-IoT
+AlternativeQoSParaSetList                              N ngap.extension id-AlternativeQoSParaSetList
+AlternativeQoSParaSetIndex                             N ngap.extension id-CurrentQoSParaSetIndex
+PagingeDRXInformation                                  N ngap.extension id-PagingeDRXInformation
+UEHistoryInformationFromTheUE                          N ngap.extension id-UEHistoryInformationFromTheUE
+MDT-Configuration                                      N ngap.extension id-MDTConfiguration
+URI-address                                            N ngap.extension id-TraceCollectionEntityURI
+NPN-Support                                            N ngap.extension id-NPN-Support
+NPN-PagingAssistanceInformation                        N ngap.extension id-NPN-PagingAssistanceInformation
+NPN-MobilityInformation                                N ngap.extension id-NPN-MobilityInformation
+NID                                                    N ngap.extension id-NID
+DAPSRequestInfo                                        N ngap.extension id-DAPSRequestInfo
+DAPSResponseInfoList                                   N ngap.extension id-DAPSResponseInfoList
+ExtendedSliceSupportList                               N ngap.extension id-ExtendedSliceSupportList
+ExtendedSliceSupportList                               N ngap.extension id-ExtendedTAISliceSupportList
 
 #NGAP-ELEMENTARY-PROCEDURE
 
@@ -1179,9 +1694,13 @@ AMFConfigurationUpdate                  N ngap.proc.imsg id-AMFConfigurationUpda
 AMFConfigurationUpdateAcknowledge       N ngap.proc.sout id-AMFConfigurationUpdate
 AMFConfigurationUpdateFailure           N ngap.proc.uout id-AMFConfigurationUpdate
 
+AMFCPRelocationIndication               N ngap.proc.imsg id-AMFCPRelocationIndication
+
 AMFStatusIndication                     N ngap.proc.imsg id-AMFStatusIndication
 
 CellTrafficTrace                        N ngap.proc.imsg id-CellTrafficTrace
+
+ConnectionEstablishmentIndication       N ngap.proc.imsg id-ConnectionEstablishmentIndication
 
 DeactivateTrace                         N ngap.proc.imsg id-DeactivateTrace
 
@@ -1190,6 +1709,8 @@ DownlinkNASTransport                    N ngap.proc.imsg id-DownlinkNASTransport
 DownlinkNonUEAssociatedNRPPaTransport   N ngap.proc.imsg id-DownlinkNonUEAssociatedNRPPaTransport
 
 DownlinkRANConfigurationTransfer        N ngap.proc.imsg id-DownlinkRANConfigurationTransfer
+
+DownlinkRANEarlyStatusTransfer          N ngap.proc.imsg id-DownlinkRANEarlyStatusTransfer
 
 DownlinkRANStatusTransfer               N ngap.proc.imsg id-DownlinkRANStatusTransfer
 
@@ -1209,6 +1730,8 @@ HandoverPreparationFailure              N ngap.proc.uout id-HandoverPreparation
 HandoverRequest                         N ngap.proc.imsg id-HandoverResourceAllocation
 HandoverRequestAcknowledge              N ngap.proc.sout id-HandoverResourceAllocation
 HandoverFailure                         N ngap.proc.uout id-HandoverResourceAllocation
+
+HandoverSuccess                         N ngap.proc.imsg id-HandoverSuccess
 
 InitialContextSetupRequest              N ngap.proc.imsg id-InitialContextSetup
 InitialContextSetupResponse             N ngap.proc.sout id-InitialContextSetup
@@ -1268,7 +1791,11 @@ RANConfigurationUpdate                  N ngap.proc.imsg id-RANConfigurationUpda
 RANConfigurationUpdateAcknowledge       N ngap.proc.sout id-RANConfigurationUpdate
 RANConfigurationUpdateFailure           N ngap.proc.uout id-RANConfigurationUpdate
 
+RANCPRelocationIndication               N ngap.proc.imsg id-RANCPRelocationIndication
+
 RerouteNASRequest                       N ngap.proc.imsg id-RerouteNASRequest
+
+RetrieveUEInformation                   N ngap.proc.imsg id-RetrieveUEInformation
 
 RRCInactiveTransitionReport             N ngap.proc.imsg id-RRCInactiveTransitionReport
 
@@ -1287,11 +1814,23 @@ UEContextReleaseComplete                N ngap.proc.sout id-UEContextRelease
 
 UEContextReleaseRequest                 N ngap.proc.imsg id-UEContextReleaseRequest
 
+UEContextResumeRequest                  N ngap.proc.imsg id-UEContextResume
+UEContextResumeResponse                 N ngap.proc.sout id-UEContextResume
+UEContextResumeFailure                  N ngap.proc.uout id-UEContextResume
+
+UEContextSuspendRequest                 N ngap.proc.imsg id-UEContextSuspend
+UEContextSuspendResponse                N ngap.proc.sout id-UEContextSuspend
+UEContextSuspendFailure                 N ngap.proc.uout id-UEContextSuspend
+
+UEInformationTransfer                   N ngap.proc.imsg id-UEInformationTransfer
+
 UERadioCapabilityCheckRequest           N ngap.proc.imsg id-UERadioCapabilityCheck
 UERadioCapabilityCheckResponse          N ngap.proc.sout id-UERadioCapabilityCheck
 
-UERadioCapabilityInfoIndication         N ngap.proc.imsg id-UERadioCapabilityInfoIndication
+UERadioCapabilityIDMappingRequest       N ngap.proc.imsg id-UERadioCapabilityIDMapping
+UERadioCapabilityIDMappingResponse      N ngap.proc.sout id-UERadioCapabilityIDMapping
 
+UERadioCapabilityInfoIndication         N ngap.proc.imsg id-UERadioCapabilityInfoIndication
 
 UETNLABindingReleaseRequest             N ngap.proc.imsg id-UETNLABindingRelease
 
@@ -1301,12 +1840,18 @@ UplinkNonUEAssociatedNRPPaTransport     N ngap.proc.imsg id-UplinkNonUEAssociate
 
 UplinkRANConfigurationTransfer          N ngap.proc.imsg id-UplinkRANConfigurationTransfer
 
+UplinkRANEarlyStatusTransfer            N ngap.proc.imsg id-UplinkRANEarlyStatusTransfer
+
 UplinkRANStatusTransfer                 N ngap.proc.imsg id-UplinkRANStatusTransfer
 
 UplinkUEAssociatedNRPPaTransport        N ngap.proc.imsg id-UplinkUEAssociatedNRPPaTransport
 
 WriteReplaceWarningRequest              N ngap.proc.imsg id-WriteReplaceWarning
 WriteReplaceWarningResponse             N ngap.proc.sout id-WriteReplaceWarning
+
+UplinkRIMInformationTransfer            N ngap.proc.imsg id-UplinkRIMInformationTransfer
+
+DownlinkRIMInformationTransfer          N ngap.proc.imsg id-DownlinkRIMInformationTransfer
 
 PDUSessionResourceSetupRequestTransfer         S ngap.n2_ie_type "PDU_RES_SETUP_REQ"
 PDUSessionResourceSetupResponseTransfer        S ngap.n2_ie_type "PDU_RES_SETUP_RSP"
@@ -1345,11 +1890,17 @@ UERadioCapability                              S ngap.n2_ie_type "UE_RADIO_CAPAB
 #.FN_HDR AMFConfigurationUpdateFailure
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "AMFConfigurationUpdateFailure");
 
+#.FN_HDR AMFCPRelocationIndication
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "AMFCPRelocationIndication");
+
 #.FN_HDR AMFStatusIndication
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "AMFStatusIndication");
 
 #.FN_HDR CellTrafficTrace
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "CellTrafficTrace");
+
+#.FN_HDR ConnectionEstablishmentIndication
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ConnectionEstablishmentIndication");
 
 #.FN_HDR DeactivateTrace
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "DeactivateTrace");
@@ -1362,6 +1913,9 @@ UERadioCapability                              S ngap.n2_ie_type "UE_RADIO_CAPAB
 
 #.FN_HDR DownlinkRANConfigurationTransfer
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "DownlinkRANConfigurationTransfer");
+
+#.FN_HDR DownlinkRANEarlyStatusTransfer
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "DownlinkRANEarlyStatusTransfer");
 
 #.FN_HDR DownlinkRANStatusTransfer
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "DownlinkRANStatusTransfer");
@@ -1398,6 +1952,9 @@ UERadioCapability                              S ngap.n2_ie_type "UE_RADIO_CAPAB
 
 #.FN_HDR HandoverFailure
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "HandoverFailure");
+
+#.FN_HDR HandoverSuccess
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "HandoverSuccess");
 
 #.FN_HDR InitialContextSetupRequest
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "InitialContextSetupRequest");
@@ -1507,8 +2064,14 @@ UERadioCapability                              S ngap.n2_ie_type "UE_RADIO_CAPAB
 #.FN_HDR RANConfigurationUpdateFailure
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RANConfigurationUpdateFailure");
 
+#.FN_HDR RANCPRelocationIndication
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RANCPRelocationIndication");
+
 #.FN_HDR RerouteNASRequest
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RerouteNASRequest");
+
+#.FN_HDR RetrieveUEInformation
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RetrieveUEInformation");
 
 #.FN_HDR RRCInactiveTransitionReport
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCInactiveTransitionReport");
@@ -1540,17 +2103,44 @@ UERadioCapability                              S ngap.n2_ie_type "UE_RADIO_CAPAB
 #.FN_HDR UEContextReleaseRequest
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextReleaseRequest");
 
+#.FN_HDR UEContextResumeRequest
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextResumeRequest");
+
+#.FN_HDR UEContextResumeResponse
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextResumeResponse");
+
+#.FN_HDR UEContextResumeFailure
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextResumeFailure");
+
+#.FN_HDR UEContextSuspendRequest
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextSuspendRequest");
+
+#.FN_HDR UEContextSuspendResponse
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextSuspendResponse");
+
+#.FN_HDR UEContextSuspendFailure
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextSuspendFailure");
+
+#.FN_HDR UEInformationTransfer
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEInformationTransfer");
+
 #.FN_HDR UERadioCapabilityCheckRequest
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UERadioCapabilityCheckRequest");
 
 #.FN_HDR UERadioCapabilityCheckResponse
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UERadioCapabilityCheckResponse");
 
-#.FN_HDR UETNLABindingReleaseRequest
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UETNLABindingReleaseRequest");
+#.FN_HDR UERadioCapabilityIDMappingRequest
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UERadioCapabilityIDMappingRequest");
+
+#.FN_HDR UERadioCapabilityIDMappingResponse
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UERadioCapabilityIDMappingResponse");
 
 #.FN_HDR UERadioCapabilityInfoIndication
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UERadioCapabilityInfoIndication");
+
+#.FN_HDR UETNLABindingReleaseRequest
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UETNLABindingReleaseRequest");
 
 #.FN_HDR UplinkNASTransport
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UplinkNASTransport");
@@ -1560,6 +2150,9 @@ UERadioCapability                              S ngap.n2_ie_type "UE_RADIO_CAPAB
 
 #.FN_HDR UplinkRANConfigurationTransfer
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UplinkRANConfigurationTransfer");
+
+#.FN_HDR UplinkRANEarlyStatusTransfer
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UplinkRANEarlyStatusTransfer");
 
 #.FN_HDR UplinkRANStatusTransfer
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UplinkRANStatusTransfer");
@@ -1573,6 +2166,11 @@ UERadioCapability                              S ngap.n2_ie_type "UE_RADIO_CAPAB
 #.FN_HDR WriteReplaceWarningResponse
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "WriteReplaceWarningResponse");
 
+#.FN_HDR UplinkRIMInformationTransfer
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UplinkRIMInformationTransfer");
+
+#.FN_HDR DownlinkRIMInformationTransfer
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "DownlinkRIMInformationTransfer");
 
 #
 # Editor modelines  -  https://www.wireshark.org/tools/modelines.html

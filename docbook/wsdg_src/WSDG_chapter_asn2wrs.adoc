@@ -1,0 +1,1260 @@
+[[CreatingAsn1Dissectors]]
+
+== Creating ASN.1 Dissectors
+
+The `asn2wrs` compiler can be used to create a dissector from an ASN.1 specification of a protocol.
+It is a work in progress but has been used to create a number of dissectors.
+
+It supports:
+
+* ITU-T Recommendation https://www.itu.int/rec/T-REC-X.680/en[X.680]
+(07/2002), Information technology - Abstract Syntax Notation One
+(ASN.1): Specification of basic notation
+* ITU-T Recommendation https://www.itu.int/rec/T-REC-X.681/en[X.681]
+(07/2002), Information technology - Abstract Syntax Notation One
+(ASN.1): Information object specification
+* ITU-T Recommendation https://www.itu.int/rec/T-REC-X.682/en[X.682]
+(07/2002), Information technology - Abstract Syntax Notation One
+(ASN.1): Constraint specification
+* ITU-T Recommendation https://www.itu.int/rec/T-REC-X.683/en[X.683]
+(07/2002), Information technology - Abstract Syntax Notation One
+(ASN.1): Parameterization of ASN.1 specifications
+
+// Limitations: Add text here
+
+It has inbuilt support for:
+
+* ITU-T Recommendation https://www.itu.int/rec/T-REC-X.880/en[X.880]
+(07/1994), Information technology - Remote Operations: Concepts, model
+and notation
+
+[[AboutASN1]]
+
+=== About ASN.1
+
+The most useful first step in writing an ASN.1-based dissector is to
+learn about ASN.1. There are a number of free resources available to
+help with this. One collection of such resources is maintained on
+https://www.itu.int/en/ITU-T/asn1/Pages/asn1_project.aspx[the ASN.1 Consortium's web site].
+
+[[Asn1DissectorRequirements]]
+=== ASN.1 Dissector Requirements
+
+The compiler needs 4 input files: an ASN.1 description of a protocol, a .cnf file, and two template files.
+The ASN.1 specification may have to be edited to work, however work is in progress to at least read all ASN1 specifications.
+Changing the ASN1 file is being depreciated as this creates problems when updating protocols.
+The H.248 Binary encoding dissector is a good example of a dissector with relatively small changes.
+
+A complete <<SimpleASN1BasedDissector,simple ASN1 UDP-based dissector>> is also available.
+
+[[BuildingAnASN1BasedPlugin]]
+==== Building An ASN.1-Based Plugin
+
+The usual way to build an ASN.1-based dissector is to put it into the
+_epan/dissectors/asn1_ subtree. This works well and is somewhat simpler than building as a
+plugin, but there are two reasons one might want to build as a plugin:
+
+* To speed development, since only the plugin needs to be recompiled.
+* To allow flexibility in deploying an updated plugin, since only the
+plugin needs to be distributed.
+
+Reasons one might _not_ want to build as a plugin:
+
+* The code is somewhat more complex.
+* The CMakeFile is quite a bit more complex.
+* Building under the asn1 subtree keeps all such dissectors together.
+
+If you still think you'd like to build your module as a plugin, see https://wiki.wireshark.org/ASN1_plugin[Building ASN1 Plugins].
+
+[[UnderstandingErrorMessages]]
+=== Understanding Error Messages
+
+When running asn2wrs, you could get the following errors:
+
+* A LexToken error (`__main__.ParseError: LexToken(DOT,'.',71)`)
+means that something is not understood in the ASN1 file, line 71,
+around the dot (.) - can be the dot itself.
+
+* A ParseError (`__main__.ParseError: LexToken(SEMICOLON,';',88)`) means that the ';' (SEMICOLON) is not understood. Maybe removing it will work?
+
+[[HandMassagingTheASN1File]]
+=== Hand-Massaging The ASN.1 File
+
+If a portion of your ASN.1 file is unsupported you can modify it by hand as needed.
+However, the preferred way to resolve the issue is to report it on the link:{wireshark-mailing-lists-url}wireshark-dev[wireshark-dev] mailng list or in the issue tracker so that asn2wrs can be improved.
+
+[[CommandLineSyntax]]
+=== Command Line Syntax
+
+----
+ASN.1 to Wireshark dissector compiler
+
+  asn2wrs [-h|?] [-d dbg] [-b] [-p proto] [-c cnf_file] [-e] input_file(s) ...
+    -h|?          : Usage
+    -b            : BER (default is PER)
+    -u            : Unaligned (default is aligned)
+    -p proto      : Protocol name (implies -S). Default is module-name
+                    from input_file (renamed by #.MODULE if present)
+    -o name       : Output files name core (default is <proto>)
+    -O dir        : Output directory for dissector
+    -c cnf_file   : Conformance file
+    -I path       : Path for conformance file includes
+    -e            : Create conformance file for exported types
+    -E            : Just create conformance file for exported types
+    -S            : Single output for multiple modules
+    -s template   : Single file output (template is input file
+                    without .c/.h extension)
+    -k            : Keep intermediate files though single file output is used
+    -L            : Suppress #line directive from .cnf file
+    -D dir        : Directory for input_file(s) (default: '.')
+    -C            : Add check for SIZE constraints
+    -r prefix     : Remove the prefix from type names
+
+    input_file(s) : Input ASN.1 file(s)
+
+    -d dbg        : Debug output, dbg = [l][y][p][s][a][t][c][m][o]
+                    l - lex
+                    y - yacc
+                    p - parsing
+                    s - internal ASN.1 structure
+                    a - list of assignments
+                    t - tables
+                    c - conformance values
+                    m - list of compiled modules with dependency
+                    o - list of output files
+----
+
+[[GeneratedFiles]]
+=== Generated Files
+
+Asn2wrs creates the following intermediate files:
+
+* packet-proto-ett.c
+* packet-proto-ettarr.c
+* packet-proto-fn.c
+* packet-proto-hf.c
+* packet-proto-hfarr.c
+* packet-proto-val.h
+* packet-proto-exp.h
+* packet-proto-table.c
+* packet-proto-syn-reg.c
+
+These files should be included in the template file as described in the <<ConformanceFiles,conformance file examples>>.
+Some are optional.
+
+[[ASN1StepByStepInstructions]]
+=== Step By Step Instructions
+
+. Create a directory for your protocol in the _epan/dissectors/asn1_ directory and put
+your ASN.1 file there.
+. Copy _CMakeLists.txt_ from another ASN.1 dissector and edit it to suit your needs.
+. Create a .cnf file either by copying an existing one and editing it or
+using the empty example above.
+. Create template files either by copying suitable existing ones and
+editing them or use the examples above, putting your protocol name in the
+appropriate places.
+. Add your dissector to _epan/dissectors/asn1/CMakeLists.txt_
+. Test generating your dissector by building the _generate_dissector-*proto*_ target.
+. Depending on the outcome you may have to edit your .cnf file, ASN.1 file
+etc...
+. Build Wireshark.
+
+[[HintsForUsingAsn2wrs]]
+=== Hints For Using Asn2wrs
+
+Asn2wrs does not support all of ASN.1 yet.
+This means you might need to modify the ASN.1 definition before it will compile.
+This page lists some tips and tricks that might make your life easier.
+
+[[COMPONENTS_OF]]
+[discrete]
+==== COMPONENTS OF
+
+Asn2wrs does not support the COMPONENTS OF directive.
+This means that you will have to modify the asn definition to manually
+remove all COMPONENTS OF directives. Fortunately this is pretty easy.
+COMPONENTS OF is a directive in ASN.1 which include
+all specified fields in the referenced SEQUENCE by those fields as if
+they had been explicitly specified.
+
+[[ASN1ComponentsOfExample]]
+[discrete]
+==== Example
+
+Assume you have some definition that looks like this:
+
+----
+Foo ::= SEQUENCE {
+    field_1 INTEGER,
+    field_2 INTEGER
+}
+
+Bar ::= SEQUENCE {
+    COMPONENTS OF Foo,
+    field_3 INTEGER
+}
+----
+
+Since Asn2wrs can not handle COMPONENTS OF you will have to modify the ASN.1 file so that instead Bar
+will look like this :
+
+----
+Bar ::= SEQUENCE {
+    field_1 INTEGER,
+    field_2 INTEGER,
+    field_3 INTEGER
+}
+----
+
+That was pretty easy wasn't it?
+
+[[SemicolonCharacters]]
+[discrete]
+==== Semicolon Characters
+
+In some ASN1 you may have semicolon characters like this:
+
+----
+PBAddressString ::= SEQUENCE {
+    extension INTEGER(1), natureOfAddressIndicator INTEGER, numberingPlanInd INTEGER, digits OCTET STRING (SIZE(0..19))
+};
+----
+
+You will have to remove the last semicolon character.
+
+[[ASN1Parameters]]
+[discrete]
+==== Parameters
+
+Parameters will have to be replaced too.
+Something like this:
+
+----
+AChBillingChargingCharacteristics
+    {PARAMETERS-BOUND : bound} ::= OCTET STRING (SIZE (minAChBillingChargingLength ..
+maxAChBillingChargingLength))
+----
+
+Will have to be replaced with the real values of the parameters:
+
+----
+AChBillingChargingCharacteristics ::= OCTET STRING (SIZE (5 .. 177))
+----
+
+[[ASN1ANYAndParameterizedTypes]]
+==== ANY And Parameterized Types
+
+Asn2wrs can handle the type ANY but not parameterized types.
+Fortunately this is easy to work around with small changes to the ASN file and some conformance file magic.
+Assuming you have a construct that looks something like this:
+
+----
+AlgorithmIdentifier ::= SEQUENCE {
+    algorithm ALGORITHM.&id({SupportedAlgorithms}),
+    parameters ALGORITHM.&Type({SupportedAlgorithms}{@algorithm}) OPTIONAL
+}
+----
+
+Which is essentially a structure that takes two fields, one field being an object identifier and the second field that can be just about anything, depending on what object identifier was used.
+Here we just have to rewrite this SEQUENCE slightly so that it looks like this:
+
+----
+AlgorithmIdentifier ::= SEQUENCE {
+    algorithm OBJECT IDENTIFIER,
+    parameters ANY OPTIONAL
+}
+----
+
+The only thing remaining now is to add the actual code to manage the dissection of this structure.
+We do this by using the <<ASN1CnfDirectiveFN_BODY,\#.FN_BODY conformance file directive>>, which will replace the function body of a dissector with the contents that you specify in the conformance file.
+For this one we need a string where we store the OID from AlgorithmIdentifier/algorithm so that we can pick it up and act on later from inside the dissector for AlgorithmIdentifier/parameters.
+So we have to add something like this:
+
+[source,c]
+----
+static char algorithm_id[64]; /* 64 chars should be enough? */
+----
+
+to the template file.
+Then we add the following to the conformance file:
+
+----
+#.FN_BODY AlgorithmIdentifier/algorithmId
+
+offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
+    hf_x509af_algorithm_id, algorithm_id);
+
+#.FN_BODY AlgorithmIdentifier/parameters
+
+offset=call_ber_oid_callback(algorithm_id, tvb, offset, pinfo, tree);
+----
+
+This example comes from the X509AF dissector. Please see the code there
+for more examples on how to do this.
+
+[[TaggedAssignments]]
+==== Tagged Assignments
+
+There is currently a bug in Asn2wrs that makes it
+generate incorrect code for the case when tagged assignments are used.
+The bug is two-fold, first the generated code "forgets" to strip of the
+actual tag and length, second it fails to specify 'implicit_tag'
+properly.
+
+A tagged assignment is something that looks like this example from the
+FTAM asn specification:
+
+----
+Degree-Of-Overlap ::=
+[APPLICATION 30] IMPLICIT INTEGER {
+    normal(0), consecutive(1), concurrent(2)
+}
+----
+
+I.e. an assignment that also specifies a tag value.
+
+Until Asn2wrs is enhanced to handle these constructs you MUST add a workaround for it to the conformance file:
+
+----
+#.FN_BODY Degree-Of-Overlap
+
+gint8 class;
+gboolean pc, ind_field;
+gint32 tag;
+gint32 len1;
+
+/*
+ * XXX asn2wrs can not yet handle tagged assignment yes so this
+ * is some conformance file magic to work around that bug
+ */
+
+offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+offset = dissect_ber_integer(TRUE, pinfo, tree, tvb, offset, hf_index, NULL);
+----
+
+This tells Asn2wrs to not
+autogenerate any code at all for the Degree-Of-Overlap object instead it
+should use the code specified here. Note that we
+do have to specify the implicit_tag value explicitely and we can NOT use
+the parameter passed to the function from the caller (also due to the
+bug in Asn2wrs) this is the TRUE parameter in the call to
+dissect_ber_integer(). We specify TRUE here since
+the definition of Degree-Of-Overlap was using IMPLICIT tags and would
+have specified FALSE if it was not.
+
+The code above can be easily cut-n-pasted into the conformance file with
+the exception of the last line that actually calls the next dissector
+helper (...dissect_ber_integer... in this case).
+The easiest way to find out exactly what this
+final line should look like in the conformance file; just generate the
+dissector first without this workaround and look at what call was
+generated. Then put that line in the conformance directive and replace
+`implicit_tag` with either TRUE or FALSE depending on whether IMPLICIT
+is used or not.
+
+[[UntaggedCHOICEs]]
+==== Untagged CHOICEs
+
+Asn2wrs cannot handle untagged CHOICEs within either a SET or a SEQUENCE. For example:
+
+----
+MessageTransferEnvelope ::= SET {
+  ...
+  content-type    ContentType,
+  ...
+}
+
+ContentType ::= CHOICE {
+  built-in        BuiltInContentType,
+  extended        ExtendedContentType
+}
+
+BuiltInContentType ::= [APPLICATION 6]  INTEGER {
+  unidentified(0), external(1), interpersonal-messaging-1984(2), interpersonal-messaging-1988(22),
+  edi-messaging(35), voice-messaging(40)}
+
+ExtendedContentType ::= OBJECT IDENTIFIER
+----
+
+The Asn2wrs SET/SEQUENCE parsing only looks one level
+deep into the dissection tree and does not have access to class/tags of
+the elements in the CHOICE.
+
+As with COMPONENTS OF, the solution is to expand the CHOICE in-line
+within the SET or SEQUENCE, but *make sure* that each element of the
+CHOICE is marked as OPTIONAL. For example,
+
+----
+MessageTransferEnvelope ::= SET {
+  ...
+  built-in  BuiltInContentType OPTIONAL,
+  extended  ExtendedContentType OPTIONAL
+  ...
+}
+----
+
+This isn't an entirely correct ASN.1 defintion, but should allow
+successful parsing.
+
+[[ImportedModuleNameConflicts]]
+==== Imported Module Name Conflicts
+
+When importing a module using <<ASN1CnfDirectiveINCLUDE,++#++.INCLUDE>> in the conformance file, this
+may introduce a definition from the module which contradicts the
+definition used in the current ASN.1 file. For example, the X.509
+Authentication Framework defines Time as
+
+----
+Time ::= CHOICE {utcTime          UTCTime,
+                 generalizedTime  GeneralizedTime
+}
+----
+
+whereas X.411 defines Time as
+
+----
+Time ::= UTCTime
+----
+
+This can lead to failure to decode the ASN.1 as, in the example,
+Asn2wrs will be passed the wrong attributes when trying
+to decode an X.411 time. In order to solve this
+problem, (if you don't want to globally change the conflicting name
+within the ASN.1 module), then you must add an appropriate #.TYPE_ATTR
+into the conformance file *before* the <<ASN1CnfDirectiveINCLUDE,++#++.INCLUDE>> line. For example
+
+----
+#.TYPE_ATTR
+Time TYPE = FT_STRING  DISPLAY = BASE_NONE  STRING = NULL BITMASK = 0
+----
+
+[[SimpleASN1BasedDissector]]
+=== Simple ASN.1-Based Dissector
+
+// https://wiki.wireshark.org/ASN1_sample?action=AttachFile&do=view&target=foo.tar.gz[foo.tar.gz]
+// all seven files as gzipped foo directory (suitable for unzipping in
+// wireshark/asn1 directory)
+
+The following snippets show the different files that make up a dissector for a “FOO” protocol dissector.
+
+.README.txt
+----
+
+        FOO protocol dissector
+        ----------------------
+
+This trivial dissector is an example for the strugling dissector developer (me included)
+of how to create a dissector for a protocol that is encapsulated in UDP packets
+for a specific port, and the packet data is ASN1 PER encoded.
+
+The thing that took me a while to figure out was that in order to see my packet
+dissected on the detail pane, I had to:
+1. Tell the compiler which block in the ASN1 definition is a PDU definition by adding
+   FOO-MESSAGE under the #.PDU directive in the foo.cnf file
+2. Add a call to dissect_FOO_MESSAGE_PDU() function in the dissect_foo() function in the
+   packet-foo-template.c file.
+
+To build and test it:
+1. in foo directory, run make
+2. run make copy_files
+3. add packet-foo.c and packet-foo.h to epan/dissectors/Makefile.common
+4. run top level make
+
+CAVEAT: Makefile.nmake was not tested .
+
+You can take it from here :-)
+
+        --00--
+----
+
+.foo.asn
+----
+-- FOO PROTOCOL
+--
+
+FOO-PROTOCOL DEFINITIONS AUTOMATIC TAGS ::=
+BEGIN
+
+-- General definitions
+
+MessageId       ::= INTEGER (0..65535)
+FlowId          ::= INTEGER (0..65535)
+
+MessageData     ::= SEQUENCE {
+    name        OCTET STRING(SIZE(10)),
+    value       OCTET STRING(SIZE(10))
+}
+
+FOO-MESSAGE ::= SEQUENCE {
+    messageId           MessageId,
+    flowId              FlowId,
+    messageData        MessageData
+}
+
+END
+----
+
+.foo.cnf
+----
+# foo.cnf
+# FOO conformation file
+
+# $Id$
+
+#.MODULE_IMPORT
+
+#.EXPORTS
+
+#.PDU
+FOO-MESSAGE
+
+#.NO_EMIT
+
+#.TYPE_RENAME
+
+#.FIELD_RENAME
+
+#.END
+----
+
+.packet-foo-template.h
+[source,c]
+----
+/* packet-foo.h
+ * Routines for foo packet dissection
+ *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
+
+#ifndef PACKET_FOO_H
+#define PACKET_FOO_H
+
+#endif  /* PACKET_FOO_H */
+----
+
+.packet-foo-template.c
+[source,c]
+----
+/* packet-foo.c
+ * Routines for FOO packet dissection
+ *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
+
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
+
+#include <glib.h>
+#include <epan/packet.h>
+#include <epan/conversation.h>
+
+#include <stdio.h>
+#include <string.h>
+
+#include "packet-per.h"
+#include "packet-foo.h"
+
+#define PNAME  "FOO Protocol"
+#define PSNAME "FOO"
+#define PFNAME "foo"
+#define FOO_PORT 5001    /* UDP port */
+static dissector_handle_t foo_handle=NULL;
+
+void proto_reg_handoff_foo(void);
+void proto_register_foo(void);
+
+/* Initialize the protocol and registered fields */
+static int proto_foo = -1;
+static int global_foo_port = FOO_PORT;
+
+#include "packet-foo-hf.c"
+
+/* Initialize the subtree pointers */
+static int ett_foo = -1;
+
+#include "packet-foo-ett.c"
+
+#include "packet-foo-fn.c"
+
+static void
+dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+        proto_item      *foo_item = NULL;
+        proto_tree      *foo_tree = NULL;
+        int                     offset = 0;
+
+        /* make entry in the Protocol column on summary display */
+        if (check_col(pinfo->cinfo, COL_PROTOCOL))
+                col_set_str(pinfo->cinfo, COL_PROTOCOL, PNAME);
+
+    /* create the foo protocol tree */
+    if (tree) {
+        foo_item = proto_tree_add_item(tree, proto_foo, tvb, 0, -1, FALSE);
+        foo_tree = proto_item_add_subtree(foo_item, ett_foo);
+
+        dissect_FOO_MESSAGE_PDU(tvb, pinfo, foo_tree);
+    }
+}
+/*--- proto_register_foo -------------------------------------------*/
+void proto_register_foo(void) {
+
+  /* List of fields */
+  static hf_register_info hf[] = {
+
+#include "packet-foo-hfarr.c"
+  };
+
+  /* List of subtrees */
+  static gint *ett[] = {
+                  &ett_foo,
+#include "packet-foo-ettarr.c"
+  };
+
+  /* Register protocol */
+  proto_foo = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  /* Register fields and subtrees */
+  proto_register_field_array(proto_foo, hf, array_length(hf));
+  proto_register_subtree_array(ett, array_length(ett));
+
+
+
+}
+
+/*--- proto_reg_handoff_foo ---------------------------------------*/
+void
+proto_reg_handoff_foo(void)
+{
+    static gboolean inited = FALSE;
+
+    if( !inited ) {
+
+        foo_handle = create_dissector_handle(dissect_foo,
+                                                     proto_foo);
+        dissector_add("udp.port", global_foo_port, foo_handle);
+
+        inited = TRUE;
+    }
+
+}
+----
+
+.CMakeLists.txt
+----
+set( PROTOCOL_NAME foo )
+
+set( PROTO_OPT )
+
+set( EXT_ASN_FILE_LIST
+)
+
+set( ASN_FILE_LIST
+	Foo.asn
+)
+
+set( EXTRA_DIST
+	${ASN_FILE_LIST}
+	packet-${PROTOCOL_NAME}-template.c
+	${PROTOCOL_NAME}.cnf
+)
+
+set( SRC_FILES
+	${EXTRA_DIST}
+	${EXT_ASN_FILE_LIST}
+)
+
+set( A2W_FLAGS  )
+
+ASN2WRS()
+----
+
+[[ConformanceFiles]]
+=== Conformance (.cnf) Files
+
+The .cnf file tells the compiler what to do with certain things, such as skipping auto generation for some ASN.1 entries.
+They can contain the following directives:
+
+#.OPT::
+Compiler options.
+
+#.MODULE and <<ASN1CnfDirectiveMODULE_IMPORT,++#++.MODULE_IMPORT>>::
+Assign Wireshark protocol name to ASN.1 module name.
+
+<<ASN1CnfDirectiveINCLUDE,++#++.INCLUDE>>::
+Include another conformance file.
+
+<<ASN1CnfDirectiveEXPORTS,++#++.EXPORTS>>::
+Export type or information object class.
+
+<<ASN1CnfDirectivePDU,++#++.PDU>>, <<ASN1CnfDirectivePDU_NEW,++#++.PDU_NEW>>, <<ASN1CnfDirectiveREGISTER,++#++.REGISTER>>, <<ASN1CnfDirectiveREGISTER_NEW,++#++.REGISTER_NEW>>, and #.SYNTAX::
+Create PDU functions and register them optionally to dissector table.
+
+
+#.CLASS::
+Declare or define information object class.
+
+#.ASSIGNED_OBJECT_IDENTIFIER::
+Declare assigned object identifier.
+
+#.TABLE_HDR, #.TABLE_BODY, and #.TABLE_FTR::
+User tables.
+
+#.OMIT_ASSIGNMENT, #.NO_OMIT_ASSGN, #.OMIT_ALL_ASSIGNMENTS, #.OMIT_ASSIGNMENTS_EXCEPT, #.OMIT_ALL_TYPE_ASSIGNMENTS, #.OMIT_TYPE_ASSIGNMENTS_EXCEPT, #.OMIT_ALL_VALUE_ASSIGNMENTS, and #.OMIT_VALUE_ASSIGNMENTS_EXCEPT::
+Ignore assignments from ASN.1 source.
+
+<<ASN1CnfDirectiveNO_EMIT,++#++.NO_EMIT>> and <<ASN1CnfDirectiveUSER_DEFINED,++#++.USER_DEFINED>>::
+See linked text for info.
+
+#.VIRTUAL_ASSGN, #.SET_TYPE, #.MAKE_ENUM, #.MAKE_DEFINES, and #.ASSIGN_VALUE_TO_TYPE::
+Unknown.
+
+#.TYPE_RENAME, #.FIELD_RENAME, and #.TF_RENAME::
+Type/field renaming
+
+#.IMPORT_TAG, #.TYPE_ATTR, #.FIELD_ATTR::
+Type attributes
+
+
+#.FN_HDR, <<ASN1CnfDirectiveFN_BODY,++#++.FN_BODY>>, #.FN_FTR, and #.FN_PARS::
+Type function modification
+
+<<ASN1CnfDirectiveEND,++#++.END>>::
+End of directive
+
+#.END_OF_CNF::
+End of conformance file
+
+[[ExampleCnfFile]]
+==== Example .cnf File
+
+----
+#.MODULE IMPORT
+InformationFramework x509if
+
+#.INCLUDE ../x509if/x509if_exp.cnf
+
+#.EXPORTS +
+ObjectName
+
+#.PDU
+ObjectName
+
+#.REGISTER
+Certificate B "2.5.4.36" "id-at-userCertificate"
+
+#.SYNTAX
+ObjectName [FriendlyName]
+
+#.NO_EMIT ONLY_VALS
+# this can be used with: [WITH_VALS|WITHOUT_VALS|ONLY_VALS]
+# using NO_EMIT NO_VALS means it won't generate value_string array for it
+Type1
+
+#.USER DEFINED
+Type1 [WITH_VALS|WITHOUT_VALS|ONLY_VALS]
+
+#.TYPE_RENAME
+
+#.FIELD_RENAME
+
+#.TYPE_ATTR Ss-Code TYPE = FT_UINT16 DISPLAY = BASE_HEX STRINGS = VALS(ssCode_vals)
+
+# This entry will change the hf definition from the auto-generated one for Ss-Code ::= OCTET STRING(SIZE(1))
+
+    { &hf_gsm_map_ss_Code,
+        { "ss-Code", "gsm_map.ss_Code",
+            FT_BYTES, BASE_HEX, NULL, 0, "", HFILL }},
+
+# to:
+
+    { &hf_gsm_map_ss_Code,
+        { "ss-Code", "gsm_map.ss_Code",
+            FT_UINT16, BASE_HEX, VALS(ssCode_vals), 0, "", HFILL }},
+----
+
+In the proto_abbr-template.c file the corresponding value string must be
+inserted. As an example the following would be included in
+proto_abbr-template.c to define ssCode_vals:
+
+----
+static const value_string ssCode_vals[] = {
+   { 0, "ssCodeString 1" },     /* The string for value 0 */
+   { 1, "String 2" },           /* String for value 1 */
+   { 5, "String for value 5" }, /* Value String 5 */
+   { 0, NULL }                  /* Null terminated array */
+}
+----
+
+Note that the NULL value must be the final entry and that the index values need not be consecutive.
+
+Foo is expressed in different ways depending on where you want to insert your code and the ASN.1 code in question.
+
+* Foo
+* Foo/foo
+* Foo/_item/foo
+
+For Tagged type use:
+
+----
+Foo/_untag
+
+#.FN_HDR Foo
+/* This is code to be inserted into the dissector for Foo BEFORE the BER/PER helper is called. */
+tvbuff_t *out_tvb;
+fragment_data *fd_head;
+tvbuff_t *next_tvb = NULL;
+
+#.FN_BODY Foo
+/* This here is code to replace the actual call to the helper completely. */
+offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index, &out_tvb);
+
+/* Putting %(DEFAULT_BODY)s inside #.FN_BODY will insert the original code there. */
+
+#.FN_FTR Foo
+/* This is code to be inserted into the dissector for Foo AFTER the ber/per helper has returned called. */
+if (foo_reassemble) {
+...
+}
+
+#.FN_PARS
+
+#.END
+----
+
+[[ExamplePacketProtocolTemplateHFile]]
+==== Example packet-protocol-template.h File
+
+Example template.h file.
+Replace all PROTOCOL/protocol references with the name of your protocol.
+
+[source,c]
+----
+/* packet-protocol.h
+ * Routines for Protocol packet dissection
+ *
+ * $Id$
+ *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
+
+#ifndef PACKET_PROTOCOL_H
+#define PACKET_PROTOCOL_H
+
+#include "packet-protocol-exp.h"
+
+#endif  /* PACKET_PROTOCOL_H */
+----
+
+[[ExamplePacketProtocolTemplateCFile]]
+==== Example packet-protocol-template.c File
+
+Example template.c file.
+Replace all PROTOCOL/protocol references with the name of your protocol.
+
+[source,c]
+----
+/* packet-protocol.c
+ * Routines for PROTOCOL packet dissection
+ *
+ * $Id$
+ *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
+
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
+
+#include <glib.h>
+#include <epan/packet.h>
+#include <epan/conversation.h>
+
+#include <stdio.h>
+#include <string.h>
+
+#include "packet-ber.h"
+#include "packet-protocol.h"
+
+#define PNAME  "This Is The Protocol Name"
+#define PSNAME "PROTOCOL"
+#define PFNAME "protocol"
+
+/* Initialize the protocol and registered fields */
+int proto_protocol = -1;
+#include "packet-protocol-hf.c"
+
+/* Initialize the subtree pointers */
+#include "packet-protocol-ett.c"
+
+#include "packet-protocol-fn.c"
+
+/*--- proto_register_protocol ----------------------------------------------*/
+void proto_register_protocol(void) {
+
+  /* List of fields */
+  static hf_register_info hf[] = {
+#include "packet-protocol-hfarr.c"
+  };
+
+  /* List of subtrees */
+  static gint *ett[] = {
+#include "packet-protocol-ettarr.c"
+  };
+
+  /* Register protocol */
+  proto_protocol = proto_register_protocol(PNAME, PSNAME, PFNAME);
+
+  /* Register fields and subtrees */
+  proto_register_field_array(proto_protocol, hf, array_length(hf));
+  proto_register_subtree_array(ett, array_length(ett));
+
+}
+
+/*--- proto_reg_handoff_protocol -------------------------------------------*/
+void proto_reg_handoff_protocol(void) {
+#include "packet-protocol-dis-tab.c"
+}
+----
+
+[[ASN1ConformanceFileDirectiveReference]]
+=== Conformance File Directive Reference
+
+The following directives can be used in conformance (.cnf) files:
+
+[[ASN1CnfDirectiveEND]]
+==== #.END
+
+Some of the other directives in the Asn2wrs conformance file consists of multiple lines.
+The #.END directive is used to terminate such a directive.
+All other “#.” directives (except #.INCLUDE) automatically act as an implicit #.END directive which is why you will not see many #.END directives in the conformance files for the dissectors shipped with Wireshark.
+
+[[ASN1CnfDirectiveEXPORTS]]
+==== #.EXPORTS
+
+This directive in the Asn2wrs conformation file is used to export functions for type decoding from the dissector.
+
+[[ASN1CnfDirectiveEXPORTSSyntax]]
+===== Syntax
+
+----
+#.EXPORTS
+
+TypeName [WITH_VALS|WITHOUT_VALS|ONLY_VALS] [WS_VAR] [NO_PROT_PREFIX]
+...
+#.END
+----
+
+Options:
+
+* WITH_VALS (default): Exports dissection function and value string table if present.
+* WITHOUT_VALS: Exports only the dissection function.
+* ONLY_VALS: Exports only the value string table.
+* WS_VAR and WS_VAR_IMPORT: Used for value string table so as it can be exported from libwireshark.dll.
+* NO_PROT_PREFIX: - value string table name does not have protocol prefix
+
+[[ASN1CnfDirectiveEXPORTSExample]]
+===== Example
+
+----
+#.EXPORTS
+NonStandardParameter
+RasMessage                      WITH_VALS WS_VAR
+H323-UU-PDU/h323-message-body   ONLY_VALS WS_VAR
+#.END
+----
+
+[[ASN1CnfDirectiveFN_BODY]]
+==== #.FN_BODY
+
+Sometimes, like when we have ANY types, we might want to replace
+whatever function body that Asn2wrs generates with code
+of our own. This is what this directive allows us to do.
+
+[[ASN1CnfDirectiveFN_BODYExample]]
+===== Example: ANY
+
+Asn2wrs can handle the type ANY but we have to help it by adding some small changes to the conformance file.
+Assuming you have a construct that looks something like this:
+
+----
+AlgorithmIdentifier ::= SEQUENCE {
+    algorithm OBJECT IDENTIFIER,
+    parameters ANY OPTIONAL
+}
+----
+
+To handle this we need to specify our own function bodies to both the
+algorithm and the parameters fields, which we do using the #.FN_BODY
+directive.
+
+This particular example also requires us to keep some state between the
+two field dissectors, namely the OBJECT IDENTIFIER from algorithm which
+specifis what the content of parameters is. For
+this one we need a string where we store the oid from
+AlgorithmIdentifier/algorithm so that we can pick it up and act on
+later from inside the dissector for AlgorithmIdentifier/parameters.
+So we have to add:
+
+----
+static char algorithm_id[64]; /* 64 chars should be enough? */
+----
+
+to the template file as a placeholder to remember which OID we picked
+up. Then we add to the conformance file:
+
+----
+#.FN_BODY AlgorithmIdentifier/algorithmId
+    offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
+        hf_x509af_algorithm_id, algorithm_id);
+
+#.FN_BODY AlgorithmIdentifier/parameters
+    offset=call_ber_oid_callback(algorithm_id, tvb, offset, pinfo, tree);
+----
+
+The dissector body we specified for AlgorithmIdentifier/algorithmId
+here stores the retreived OID inside the variable algorithm_id we
+specified. +
+When we later come to the dissector for
+AlgorithmIdentifier/parameters we pick this OID up from the static
+variable and just pass it on to the ber/oid dissector helper. +
+ +
+
+This example comes from the X509AF dissector. Please see the code there
+for more examples on how to do this.
+
+
+
+[[ASN1CnfDirectiveMODULE_IMPORTAndINCLUDE]]
+==== #.MODULE_IMPORT And #.INCLUDE
+
+These directive in the Asn2wrs conformation file are used to manage references to external type definitions, i.e. IMPORTS.
+The examples below are all from the X.509 Authentication Framework (x509af) dissector source code in Wireshark.
+
+[[ASN1CnfDirectiveMODULE_IMPORTAndINCLUDEExample]]
+===== Example ASN
+
+This is an example from the X509AF dissector which amongst other things
+imports definitions from X.509 InformationFramework:
+
+----
+IMPORTS
+    Name, ATTRIBUTE, AttributeType, MATCHING-RULE, Attribute
+    FROM InformationFramework informationFramework
+----
+
+Which tells the Asn2wrs compiler that the types 'Name',
+'ATTRIBUTE', 'AttributeType', 'MATCHING-RULE' and 'Attribute' are
+declared inside the external InformationFramework ASN module and
+that they are referenced from this module.
+In order for Asn2wrs to generate correct code for the
+dissection it is neccesary to give it some help by telling what kind of
+types these are, i.e. are they INTEGERs or SEQUENCEs or something
+else.
+
+In order to be able to access these functions from this module it is
+important that these types have been declared as #.EXPORTS in the X509
+InformationFramework dissector so that they are exported and that we
+can link to them.
+
+[[ASN1CnfDirectiveMODULE_IMPORT]]
+==== #.MODULE_IMPORT
+
+First we need to tell Asn2wrs which protocol name
+Wireshark uses for the functions in this external import, so that
+Asn2wrs can generate suitable function call signatures to
+these external functions. +
+We do this by adding a directive to the conformation file :
+
+----
+#.MODULE_IMPORT
+InformationFramework x509if
+----
+
+Where InformationFramework is the ASN name for the module used in
+the asn IMPORTS declaration and that x509if is the name we use inside
+Wireshark for this protocol. +
+This tells Asn2wrs that the function name to call to
+dissect Name would be dissect_x509if_Name(...). Without this knowledge
+Asn2wrs would not know which function name to generate. +
+
+[[ASN1CnfDirectiveINCLUDE]]
+==== #.INCLUDE
+
+Second, in order for Asn2wrs to generate correct code it
+also needs to know the BER type and class of these types that are
+imported, since that would affect how they are to be encoded on the
+wire. +
+This information about what kind of BER attributes these imported types
+have are done using the #.INCLUDE directive in the conformance file:
+
+----
+#.INCLUDE ../x509if/x509if_exp.cnf
+----
+
+See #.EXPORTS for a description and examples of these types of include
+files.
+
+[[ASN1CnfDirectiveNO_EMIT]]
+==== [[ASN1CnfDirectiveUSER_DEFINED]]#.NO_EMIT And #.USER_DEFINED
+
+These two directives in the conformance file for Asn2wrs
+can be used to suppress generation of dissectors
+and/or value_strings and similar for a protocol. This is useful when
+there are types in the asn definition that either Asn2wrs
+can not handle or if we want to handle the dissection ourself inside the
+template file to do additional state keeping or things that
+Asn2wrs does not know how to manage.
+
+These two directives are very similar. The only
+difference between is that #.NO_EMIT will suppress emitting the
+dissector for that function and also any value_strings while
+#.USER_DEFINED will emit declarations instead of definitions.
+
+I.e. #.USER_DEFINED will emit declarations such
+as
+`extern const value_string Type_vals[];`
+and
+`[static] int dissect_Proto_Type(...);`
+
+Use #.NO_EMIT if you dont need to call this function at all from anywhere (except from the template itself) and use #.USER_DEFINED is better if you implement the function inside the template but still want to allow it to be called from other places.
+// (need much better explanation here)
+
+[[ASN1CnfDirectiveNO_EMITSyntax]]
+===== Syntax
+
+----
+#.USER_DEFINED
+TypeName [WITH_VALS|WITHOUT_VALS|ONLY_VALS]
+...
+#.END
+----
+
+----
+#.NO_EMIT
+TypeName [WITH_VALS|WITHOUT_VALS|ONLY_VALS]
+...
+#.END
+----
+
+Options:
+
+* WITH_VALS (default): Both dissection function and value string table are user defined and not emitted.
+* WITHOUT_VALS: Only dissection function is user defined and not emitted.
+* ONLY_VALS: Only value string table is user defined and not emitted.
+
+[[ASN1CnfDirectivePDU]]
+==== [[ASN1CnfDirectivePDU_NEW]]#.PDU and #.PDU_NEW
+
+This directive in the Asn2wrs conformation file will
+generate a wrapper function around an object dissector.
+This is useful if there is an object inside the
+ASN.1 definition that we really want to register as a protocol dissector
+or if we want it to have a well known signature.
+
+[[ASN1CnfDirectivePDUFunctionNames]]
+===== Function Names
+
+The wrapper functions that are created will all be named and have the
+following signature:
+
+----
+static void dissect_ProtocolName_ObjectName(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+----
+
+Notice that this is exactly the same signature as `dissector_t` which is used by all dissector entry points.
+
+[[ASN1CnfDirectivePDUUsage]]
+===== Usage
+
+To get Asn2wrs to generate such wrapper functions you
+just have to list all objects one by one on the lines following the
+#.PDU declaration.
+
+[[ASN1CnfDirectivePDUExample]]
+===== Example
+
+----
+#.PDU
+SomeObject
+----
+
+This will result in Asn2wrs creating this wrapper function in the packet-foo.c dissector file:
+
+[source,c]
+----
+static void dissect_SomeObject_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+    dissect_foo_SomeObject(FALSE, ...
+}
+----
+
+This function can then later be called or referenced from the template file or even exported.
+
+[[ASN1CnfDirectiveREGISTER]]
+==== [[ASN1CnfDirectiveREGISTER_NEW]]#.REGISTER and #.REGISTER_NEW
+
+This directive in the Asn2wrs conformation file can be used to register a dissector for an object to an OID.
+This is very useful for X.509 and similar protocols where structures and objects are frequently associated with an OID.
+In particular, some of the structures here encode an OID in a field and then the content in a different field later, and how that field is to be dissected depends on the previously seen OID.
+
+One such example can be seen in the ASN.1 description for X.509/AuthenticationFramework which has a structure defined such as
+
+----
+AlgorithmIdentifier ::= SEQUENCE {
+    algorithm   ALGORITHM.&id({SupportedAlgorithms}),
+    parameters  ALGORITHM.&Type({SupportedAlgorithms}{@algorithm}) OPTIONAL
+}
+----
+
+Which means that the parameters field in this structure, what this field contains and how it is to be dissected depends entirely upon what OID is stored inside algorithm.
+A whole bunch of protocols use similar types of constructs.
+While dissection of this particular structure itself currently has to be hand implemented inside the template (see x509af for examples of how this very structure is handled there).
+The #.REGISTER option in the conformance file will at least make it easy and painless to attach the actual OID to dissector mappings.
+
+[[ASN1CnfDirectiveREGISTERUsage]]
+===== Usage
+
+To get Asn2wrs to generate such automatic registration of
+OID to dissector mappings just use the #.REGISTER directive in the
+conformation file.
+
+[[ASN1CnfDirectiveREGISTERExample]]
+===== Example
+
+----
+#.REGISTER
+Certificate  B  "2.5.4.36" "id-at-userCertificate"
+----
+
+Which will generate the extra code to make sure that anytime Wireshark needs to dissect the blob associated to the OID "2.5.4.36" it now knows that that is done by calling the subroutine to dissect a Certificate in the current protocol file.
+The "id-at-userCertificate" is just a free form text string to make Wireshark print a nice name together with the OID when it presents it in the decode pane. While this can be just about anything you want I would STRONGLY use the name used to this object/oid in the actual ASN.1 definition file.
+
+[[ASN1CnfDirectiveREGISTERIncludeFile]]
+===== Include File
+
+During the compilation phase Asn2wrs will put all the extra registration code for this in the include file
+packet-protocol-dis-tab.c.
+Make sure that you include this file from the template file or the registration to an OID will never occur. `#include "packet-protocol-dis-tab.c"` should be included from the proto_reg_handoff_protocol function in the template file.
+
+[[ASN1CnfDirectiveREGISTERSeeAlso]]
+===== See Also
+
+The various dissectors we have for X.509 such as the X.509AF which contains several examples of how to use this option.
+That dissector can also serve as an example on how one would handle structures of the type AlgorithmIdentifier above.
+Asn2wrs can NOT handle these types of structures so we need to implement them by hand inside the template.

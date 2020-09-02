@@ -39,6 +39,8 @@ static int proto_cipmotion3 = -1;
 static int hf_cip_format                    = -1;
 static int hf_cip_revision                  = -1;
 static int hf_cip_class1_seqnum             = -1;
+static int hf_configuration_block_format_rev = -1;
+static int hf_configuration_block_drive_power_struct_id = -1;
 static int hf_cip_updateid                  = -1;
 static int hf_cip_instance_cnt              = -1;
 static int hf_cip_last_update               = -1;
@@ -67,6 +69,12 @@ static int hf_cip_motor_cntrl               = -1;
 static int hf_cip_feedback                  = -1;
 static int hf_cip_feedback_mode             = -1;
 static int hf_cip_feedback_data_type        = -1;
+
+static int hf_connection_configuration_bits = -1;
+static int hf_connection_configuration_bits_power = -1;
+static int hf_connection_configuration_bits_safety_bit_valid = -1;
+static int hf_connection_configuration_bits_allow_network_safety = -1;
+
 static int hf_cip_axis_control              = -1;
 static int hf_cip_control_status            = -1;
 static int hf_cip_control_status_complete   = -1;
@@ -271,6 +279,7 @@ static gint ett_time_data_set       = -1;
 static gint ett_inst_data_header    = -1;
 static gint ett_cyclic_data_block   = -1;
 static gint ett_feedback_mode       = -1;
+static gint ett_connection_configuration_bits = -1;
 static gint ett_control_mode        = -1;
 static gint ett_feedback_config     = -1;
 static gint ett_command_data_set    = -1;
@@ -290,6 +299,7 @@ static gint ett_set_cyclic_list     = -1;
 static gint ett_group_sync          = -1;
 static gint ett_axis_status_set     = -1;
 static gint ett_command_control     = -1;
+static gint ett_configuration_block = -1;
 
 static expert_field ei_format_rev_conn_pt = EI_INIT;
 
@@ -496,7 +506,7 @@ static const value_string cip_sc_vals[] = {
 static int dissect_axis_status(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
    int offset, int total_len _U_)
 {
-   static const int* bits[] = {
+   static int* const bits[] = {
       &hf_cip_axis_sts_local_ctrl,
       &hf_cip_axis_sts_alarm,
       &hf_cip_axis_sts_dc_bus,
@@ -533,7 +543,7 @@ static int dissect_axis_status(packet_info *pinfo _U_, proto_tree *tree, proto_i
 static int dissect_axis_status2(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
    int offset, int total_len _U_)
 {
-   static const int* bits[] = {
+   static int* const bits[] = {
       &hf_cip_axis_sts2_motor,
       &hf_cip_axis_sts2_regenerate,
       &hf_cip_axis_sts2_ride_thru,
@@ -569,7 +579,7 @@ static int dissect_axis_status2(packet_info *pinfo _U_, proto_tree *tree, proto_
 static int dissect_event_checking_control(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
    int offset, int total_len _U_)
 {
-   static const int* bits[] = {
+   static int* const bits[] = {
       &hf_cip_evnt_ctrl_reg1_pos,
       &hf_cip_evnt_ctrl_reg1_neg,
       &hf_cip_evnt_ctrl_reg2_pos,
@@ -600,7 +610,7 @@ static int dissect_event_checking_control(packet_info *pinfo _U_, proto_tree *tr
 static int dissect_event_checking_status(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
    int offset, int total_len _U_)
 {
-   static const int* bits[] = {
+   static int* const bits[] = {
       &hf_cip_evnt_sts_reg1_pos,
       &hf_cip_evnt_sts_reg1_neg,
       &hf_cip_evnt_sts_reg2_pos,
@@ -631,7 +641,7 @@ static int dissect_event_checking_status(packet_info *pinfo _U_, proto_tree *tre
 static int dissect_actual_data_set_bits(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
    int offset, int total_len _U_)
 {
-   static const int* bits[] = {
+   static int* const bits[] = {
       &hf_cip_act_data_pos,
       &hf_cip_act_data_vel,
       &hf_cip_act_data_acc,
@@ -646,7 +656,7 @@ static int dissect_actual_data_set_bits(packet_info *pinfo _U_, proto_tree *tree
 static int dissect_command_data_set_bits(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
    int offset, int total_len _U_)
 {
-   static const int* bits[] = {
+   static int* const bits[] = {
       &hf_cip_cmd_data_pos_cmd,
       &hf_cip_cmd_data_vel_cmd,
       &hf_cip_cmd_data_acc_cmd,
@@ -662,7 +672,7 @@ static int dissect_command_data_set_bits(packet_info *pinfo _U_, proto_tree *tre
 static int dissect_command_control(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
    int offset, int total_len _U_)
 {
-   static const int* bits[] = {
+   static int* const bits[] = {
       &hf_cip_intrp,
       &hf_cip_position_data_type,
       NULL
@@ -676,7 +686,7 @@ static int dissect_command_control(packet_info *pinfo _U_, proto_tree *tree, pro
 static int dissect_status_data_set_bits(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
    int offset, int total_len _U_)
 {
-   static const int* bits[] = {
+   static int* const bits[] = {
       &hf_cip_sts_flt,
       &hf_cip_sts_alrm,
       &hf_cip_sts_sts,
@@ -693,7 +703,7 @@ static int dissect_status_data_set_bits(packet_info *pinfo _U_, proto_tree *tree
 static int dissect_node_control(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
    int offset, int total_len _U_)
 {
-   static const int* bits[] = {
+   static int* const bits[] = {
       &hf_cip_node_control_remote,
       &hf_cip_node_control_sync,
       &hf_cip_node_data_valid,
@@ -709,7 +719,7 @@ static int dissect_node_control(packet_info *pinfo _U_, proto_tree *tree, proto_
 static int dissect_node_status(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
    int offset, int total_len _U_)
 {
-   static const int* bits[] = {
+   static int* const bits[] = {
       &hf_cip_node_control_remote,
       &hf_cip_node_control_sync,
       &hf_cip_node_data_valid,
@@ -725,7 +735,7 @@ static int dissect_node_status(packet_info *pinfo _U_, proto_tree *tree, proto_i
 static int dissect_time_data_set(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
    int offset, int total_len _U_)
 {
-   static const int* bits[] = {
+   static int* const bits[] = {
       &hf_cip_time_data_stamp,
       &hf_cip_time_data_offset,
       &hf_cip_time_data_diag,
@@ -741,7 +751,7 @@ static int dissect_time_data_set(packet_info *pinfo _U_, proto_tree *tree, proto
 static int dissect_control_status(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
    int offset, int total_len _U_)
 {
-   static const int* bits[] = {
+   static int* const bits[] = {
       &hf_cip_control_status_complete,
       &hf_cip_control_status_bus_up,
       &hf_cip_control_status_bus_unload,
@@ -757,7 +767,7 @@ static int dissect_control_status(packet_info *pinfo _U_, proto_tree *tree, prot
 static int dissect_feedback_mode(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
    int offset, int total_len _U_)
 {
-   static const int* bits[] = {
+   static int* const bits[] = {
       &hf_cip_feedback_mode,
       &hf_cip_feedback_data_type,
       NULL
@@ -768,10 +778,27 @@ static int dissect_feedback_mode(packet_info *pinfo _U_, proto_tree *tree, proto
    return 1;
 }
 
+static int dissect_connection_configuration_bits(packet_info* pinfo _U_, proto_tree* tree, proto_item* item _U_, tvbuff_t* tvb,
+   int offset, int total_len _U_)
+{
+   static int* const bits[] = {
+      &hf_connection_configuration_bits_power,
+      &hf_connection_configuration_bits_safety_bit_valid,
+      &hf_connection_configuration_bits_allow_network_safety,
+      NULL
+   };
+
+   proto_tree_add_bitmask(tree, tvb, offset, hf_connection_configuration_bits, ett_connection_configuration_bits, bits, ENC_LITTLE_ENDIAN);
+
+   return 1;
+}
+
 attribute_info_t cip_motion_attribute_vals[] = {
    { CI_CLS_MOTION, CIP_ATTR_CLASS, 14, -1, "Node Control", cip_dissector_func, NULL, dissect_node_control },
    { CI_CLS_MOTION, CIP_ATTR_CLASS, 15, -1, "Node Status", cip_dissector_func, NULL, dissect_node_status },
    { CI_CLS_MOTION, CIP_ATTR_CLASS, 31, -1, "Time Data Set", cip_dissector_func, NULL, dissect_time_data_set },
+   { CI_CLS_MOTION, CIP_ATTR_CLASS, 34, -1, "Drive Power Structure Class ID", cip_udint, &hf_configuration_block_drive_power_struct_id, NULL },
+   { CI_CLS_MOTION, CIP_ATTR_CLASS, 36, -1, "Connection Configuration Bits", cip_dissector_func, NULL, dissect_connection_configuration_bits },
    { CI_CLS_MOTION, CIP_ATTR_INSTANCE, 40, -1, "Control Mode", cip_usint, &hf_cip_motor_cntrl, NULL },
    { CI_CLS_MOTION, CIP_ATTR_INSTANCE, 42, -1, "Feedback Mode", cip_dissector_func, NULL, dissect_feedback_mode },
    { CI_CLS_MOTION, CIP_ATTR_INSTANCE, 60, -1, "Event Checking Control", cip_dissector_func, NULL, dissect_event_checking_control },
@@ -2143,13 +2170,35 @@ dissect_cipmotion(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* dat
 
 static int dissect_cipmotion3(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
 {
-   enip_conn_val_t conn_info = {0};
+   cip_conn_info_t conn_info;
+   memset(&conn_info, 0, sizeof(conn_info));
    conn_info.ConnPoint = 3;
 
    cip_io_data_input io_data_input;
    io_data_input.conn_info = &conn_info;
 
    return dissect_cipmotion(tvb, pinfo, tree, &io_data_input);
+}
+
+int dissect_motion_configuration_block(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, proto_item* item, int offset)
+{
+   proto_item* config_item;
+   proto_tree* config_tree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_configuration_block, &config_item, "Motion Configuration Block");
+
+   proto_tree_add_item(config_tree, hf_configuration_block_format_rev, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+   int parsed_len = 1;
+
+   parsed_len += dissect_connection_configuration_bits(pinfo, config_tree, item, tvb, offset + parsed_len, 1);
+
+   // 2 reserved bytes
+   parsed_len += 2;
+
+   proto_tree_add_item(config_tree, hf_configuration_block_drive_power_struct_id, tvb, offset + parsed_len, 4, ENC_LITTLE_ENDIAN);
+   parsed_len += 4;
+
+   proto_item_set_len(config_item, parsed_len);
+
+   return parsed_len;
 }
 
 /*
@@ -2189,6 +2238,19 @@ proto_register_cipmotion(void)
           FT_UINT16, BASE_DEC, NULL, 0,
           NULL, HFILL }
       },
+
+      { &hf_configuration_block_format_rev,
+        { "Format Revision", "cipm.config.format_rev",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          NULL, HFILL }
+      },
+
+      { &hf_configuration_block_drive_power_struct_id,
+        { "Drive Power Structure Class ID", "cipm.config.drive_class_id",
+          FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }
+      },
+
       { &hf_cip_updateid,
         { "Update Id", "cipm.updateid",
           FT_UINT8, BASE_DEC, NULL, 0,
@@ -2316,6 +2378,7 @@ proto_register_cipmotion(void)
           FT_UINT8, BASE_DEC, VALS(cip_motor_control_vals), 0,
           "Cyclic Data Block: Motor Control Mode", HFILL }
       },
+
       { &hf_cip_feedback,
         { "Feedback Information", "cipm.feedback",
           FT_UINT8, BASE_HEX, NULL, 0,
@@ -2331,6 +2394,25 @@ proto_register_cipmotion(void)
           FT_UINT8, BASE_DEC, VALS(cip_feedback_type_vals), FEEDBACK_DATA_TYPE_BITS,
           NULL, HFILL }
       },
+
+      { &hf_connection_configuration_bits,
+        { "Connection Configuration Bits", "cipm.ccb",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          NULL, HFILL }
+      },
+      { &hf_connection_configuration_bits_power,
+        { "Verify Power Ratings", "cipm.ccb.verify_power_ratings",
+          FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x01,
+          NULL, HFILL } },
+      { &hf_connection_configuration_bits_safety_bit_valid,
+        { "Networked Safety Bit Valid", "cipm.ccb.networked_safety_bit_valid",
+          FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x02,
+          NULL, HFILL } },
+      { &hf_connection_configuration_bits_allow_network_safety,
+        { "Allow Networked Safety", "cipm.ccb.allow_networked_safety",
+          FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x04,
+          NULL, HFILL } },
+
       { &hf_cip_axis_control,
         { "Axis Control", "cipm.axisctrl",
           FT_UINT8, BASE_DEC, VALS(cip_axis_control_vals), 0,
@@ -3303,6 +3385,7 @@ proto_register_cipmotion(void)
       &ett_inst_data_header,
       &ett_cyclic_data_block,
       &ett_feedback_mode,
+      &ett_connection_configuration_bits,
       &ett_control_mode,
       &ett_feedback_config,
       &ett_command_data_set,
@@ -3321,7 +3404,8 @@ proto_register_cipmotion(void)
       &ett_set_cyclic_list,
       &ett_group_sync,
       &ett_axis_status_set,
-      &ett_command_control
+      &ett_command_control,
+      &ett_configuration_block
    };
 
    static ei_register_info ei[] = {

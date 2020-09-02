@@ -157,6 +157,7 @@ struct option {
 #define IDB_TSRESOL       9
 #define IDB_FILTER       11
 #define IDB_OS           12
+#define IDB_HARDWARE     15
 #define ISB_STARTTIME     2
 #define ISB_ENDTIME       3
 #define ISB_IFRECV        4
@@ -370,16 +371,17 @@ pcapng_write_section_header_block(FILE* pfile,
 
 gboolean
 pcapng_write_interface_description_block(FILE* pfile,
-                                         const char *comment, /* OPT_COMMENT        1 */
-                                         const char *name,    /* IDB_NAME           2 */
-                                         const char *descr,   /* IDB_DESCRIPTION    3 */
-                                         const char *filter,  /* IDB_FILTER        11 */
-                                         const char *os,      /* IDB_OS            12 */
+                                         const char *comment,  /* OPT_COMMENT        1 */
+                                         const char *name,     /* IDB_NAME           2 */
+                                         const char *descr,    /* IDB_DESCRIPTION    3 */
+                                         const char *filter,   /* IDB_FILTER        11 */
+                                         const char *os,       /* IDB_OS            12 */
+                                         const char *hardware, /* IDB_HARDWARE      15 */
                                          int link_type,
                                          int snap_len,
                                          guint64 *bytes_written,
-                                         guint64 if_speed,    /* IDB_IF_SPEED       8 */
-                                         guint8 tsresol,      /* IDB_TSRESOL        9 */
+                                         guint64 if_speed,     /* IDB_IF_SPEED       8 */
+                                         guint8 tsresol,       /* IDB_TSRESOL        9 */
                                          int *err)
 {
         struct idb idb;
@@ -420,6 +422,9 @@ pcapng_write_interface_description_block(FILE* pfile,
 
         /* 12 - IDB_OS */
         options_length += pcapng_count_string_option(os);
+
+        /* 15 - IDB_HARDWARE */
+        options_length += pcapng_count_string_option(hardware);
 
         /* If we have options add size of end-of-options */
         if (options_length != 0) {
@@ -501,6 +506,11 @@ pcapng_write_interface_description_block(FILE* pfile,
 
         /* 12 - IDB_OS - write os string if applicable */
         if (!pcapng_write_string_option(pfile, IDB_OS, os,
+                                        bytes_written, err))
+                return FALSE;
+
+        /* 15 - IDB_HARDWARE - write hardware string if applicable */
+        if (!pcapng_write_string_option(pfile, IDB_HARDWARE, hardware,
                                         bytes_written, err))
                 return FALSE;
 

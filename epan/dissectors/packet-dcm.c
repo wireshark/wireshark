@@ -597,6 +597,8 @@ typedef struct dcm_state_pdv {
 
     dcm_open_tag_t  open_tag;   /* Container to store information about a fragmented tag */
 
+    guint8 reassembly_id;
+
 } dcm_state_pdv_t;
 
 /*
@@ -617,6 +619,7 @@ typedef struct dcm_state_pctx {
 #define DCM_ELE  0x03           /* explicit, little endian */
 #define DCM_UNK  0xf0
 
+    guint8 reassembly_count;
     dcm_state_pdv_t     *first_pdv,  *last_pdv;         /* List of PDV objects */
 
 } dcm_state_pctx_t;
@@ -809,7 +812,7 @@ dcm_state_assoc_new(dcm_state_t *dcm_data, guint32 packet_no)
 
     dcm_state_assoc_t *assoc;
 
-    assoc = (dcm_state_assoc_t *) wmem_alloc0(wmem_file_scope(), sizeof(dcm_state_assoc_t));
+    assoc = wmem_new0(wmem_file_scope(), dcm_state_assoc_t);
     assoc->packet_no = packet_no;           /* Identifier */
 
     /* add to the end of the list */
@@ -861,7 +864,7 @@ dcm_state_pctx_new(dcm_state_assoc_t *assoc, guint8 pctx_id)
 
     dcm_state_pctx_t *pctx;
 
-    pctx = (dcm_state_pctx_t *)wmem_alloc0(wmem_file_scope(), sizeof(dcm_state_pctx_t));
+    pctx = wmem_new0(wmem_file_scope(), dcm_state_pctx_t);
     pctx->id = pctx_id;
     pctx->syntax = DCM_UNK;
 
@@ -910,7 +913,7 @@ dcm_state_pdv_new(dcm_state_pctx_t *pctx, guint32 packet_no, guint32 offset)
 {
     dcm_state_pdv_t *pdv;
 
-    pdv = (dcm_state_pdv_t *) wmem_alloc0(wmem_file_scope(), sizeof(dcm_state_pdv_t));
+    pdv = wmem_new0(wmem_file_scope(), dcm_state_pdv_t);
     pdv->syntax = DCM_UNK;
     pdv->is_last_fragment = TRUE;       /* Continuation PDVs are more tricky */
     pdv->packet_no = packet_no;
@@ -1304,7 +1307,8 @@ dcm_export_create_object(packet_info *pinfo, dcm_state_assoc_t *assoc, dcm_state
 
     pctx=dcm_state_pctx_get(assoc, pdv_curr->pctx_id, FALSE);
 
-    if (strlen(assoc->ae_calling)>0 && strlen(assoc->ae_called)>0 ) {
+    if (assoc->ae_calling != NULL && strlen(assoc->ae_calling)>0 &&
+        assoc->ae_called != NULL &&  strlen(assoc->ae_called)>0) {
         hostname = wmem_strdup_printf(wmem_packet_scope(), "%s <-> %s", assoc->ae_calling, assoc->ae_called);
     }
     else {
@@ -1375,7 +1379,7 @@ dcm_export_create_object(packet_info *pinfo, dcm_state_assoc_t *assoc, dcm_state
         memmove(pdv_combined_curr, pdv->data, pdv->data_len);       /* this is a copy not a move */
 
         /* Add to list */
-        eo_info = (dicom_eo_t *)wmem_alloc0(wmem_file_scope(), sizeof(dicom_eo_t));
+        eo_info = wmem_new0(wmem_file_scope(), dicom_eo_t);
         eo_info->hostname = g_strdup(hostname);
         eo_info->filename = g_strdup(filename);
         eo_info->content_type = g_strdup(pdv->desc);
@@ -2478,6 +2482,13 @@ dissect_dcm_pdv_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         (*pdv)->syntax = DCM_UNK;
     }
 
+    if (!PINFO_FD_VISITED(pinfo)) {
+        (*pdv)->reassembly_id = pctx->reassembly_count;
+        if ((*pdv)->is_last_fragment) {
+            pctx->reassembly_count++;
+        }
+    }
+
     if (flags == 0 || flags == 2) {
         /* Data PDV */
         pdv_first_data = dcm_state_pdv_get_obj_start(*pdv);
@@ -3389,7 +3400,7 @@ dissect_dcm_tag_open(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 /*
 Decode the tag section inside a PDV. This can be a single combined dataset
 or DICOM natively split PDVs. Therefore it needs to resume previously opened tags.
-For data PDVs, only process tags when tree is set.
+For data PDVs, only process tags when tree is set or listening to export objects tap.
 For command PDVs, process all tags.
 On export copy the content to the export buffer.
 */
@@ -3406,29 +3417,12 @@ dissect_dcm_pdv_body(
 {
     const gchar *tag_value = NULL;
     gboolean dummy = FALSE;
+    guint32 startpos = offset;
     guint32 endpos = 0;
 
     endpos = offset + pdv_body_len;
 
-    if (have_tap_listener(dicom_eo_tap)) {
-
-        if (pdv->data_len == 0) {
-            /* Copy pure DICOM data to buffer, without PDV flags
-               Packet scope for the memory allocation is too small, since we may have PDV in different tvb.
-               Therefore check if this was already done.
-            */
-            pdv->data = wmem_alloc0(wmem_file_scope(), pdv_body_len);
-            pdv->data_len = pdv_body_len;
-            tvb_memcpy(tvb, pdv->data, offset, pdv_body_len);
-        }
-
-        if ((pdv_body_len > 0) && (pdv->is_last_fragment)) {
-            /* At the last segment, merge all related previous PDVs and copy to export buffer */
-            dcm_export_create_object(pinfo, assoc, pdv);
-        }
-    }
-
-    if (pdv->is_command || tree) {
+    if (pdv->is_command || tree || have_tap_listener(dicom_eo_tap)) {
         /* Performance optimization starts here. Don't put any COL_INFO related stuff in here */
 
         if (pdv->syntax == DCM_UNK) {
@@ -3496,6 +3490,23 @@ dissect_dcm_pdv_body(
         }
     }
 
+    if (have_tap_listener(dicom_eo_tap)) {
+
+        if (pdv->data_len == 0) {
+            /* Copy pure DICOM data to buffer, without PDV flags
+               Packet scope for the memory allocation is too small, since we may have PDV in different tvb.
+               Therefore check if this was already done.
+            */
+            pdv->data = wmem_alloc0(wmem_file_scope(), pdv_body_len);
+            pdv->data_len = pdv_body_len;
+            tvb_memcpy(tvb, pdv->data, startpos, pdv_body_len);
+        }
+        if ((pdv_body_len > 0) && (pdv->is_last_fragment)) {
+            /* At the last segment, merge all related previous PDVs and copy to export buffer */
+            dcm_export_create_object(pinfo, assoc, pdv);
+        }
+    }
+
     return endpos;
 }
 
@@ -3534,13 +3545,17 @@ dissect_dcm_pdv_fragmented(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         /* Try to create somewhat unique ID.
            Include the conversation index, to separate TCP session
+           Include bits from the reassembly number in the current Presentation
+           Context (that we track ourselves) in order to distinguish between
+           PDV fragments from the same frame but different reassemblies.
         */
         DISSECTOR_ASSERT(conv);
 
         /* The following expression seems to executed late in VS2017 in 'RelWithDebInf'.
            Therefore it may appear as 0 at first
         */
-        reassembly_id = (((conv->conv_index) & 0x00FFFFFF) << 8) + (guint32)(pdv->pctx_id);
+        reassembly_id = (((conv->conv_index) & 0x000FFFFF) << 12) +
+                        ((guint32)(pdv->pctx_id) << 4) + ((guint32)(pdv->reassembly_id & 0xF));
 
         /* This one will chain the packets until 'is_last_fragment' */
         head = fragment_add_seq_next(

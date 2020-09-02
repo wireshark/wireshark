@@ -101,8 +101,9 @@ gboolean win32_merge_file (HWND h_wnd, const wchar_t *title, GString *file_name,
  * @param h_wnd HWND of the parent window.
  * @param cf capture_file Structure for the capture to be saved
  * @param export_type The export type.
+ * @param range a possible range
  */
-void win32_export_file (HWND h_wnd, const wchar_t *title, capture_file *cf, export_type_e export_type);
+void win32_export_file (HWND h_wnd, const wchar_t *title, capture_file *cf, export_type_e export_type, const gchar *range);
 
 /* Open dialog defines */
 /* #define EWFD_FILTER_BTN    1000 */

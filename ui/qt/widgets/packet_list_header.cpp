@@ -36,7 +36,7 @@ PacketListHeader::PacketListHeader(Qt::Orientation orientation, capture_file * c
 {
     setAcceptDrops(true);
     setSectionsMovable(true);
-    setStretchLastSection(false);
+    setStretchLastSection(true);
     setDefaultAlignment(Qt::AlignLeft|Qt::AlignVCenter);
 }
 

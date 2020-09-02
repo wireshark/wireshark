@@ -158,7 +158,7 @@ static gint hf_gsm_sms_vp_validity_period_format = -1;
 static gint hf_gsm_sms_vp_validity_period = -1;
 static gint hf_gsm_sms_dis_field_definition = -1;
 static gint hf_gsm_sms_dis_field_st_error = -1;
-static gint hf_gsm_sms_dis_field_st_reason = -1;
+static gint hf_gsm_sms_dis_field_st_reason[4] = { -1, -1, -1, -1 };
 static gint hf_gsm_sms_tp_user_data_length = -1;
 static gint hf_gsm_sms_tp_command_type = -1;
 static gint hf_gsm_sms_tp_message_number = -1;
@@ -379,6 +379,9 @@ sm_fragment_hash(gconstpointer k)
     const sm_fragment_key* key = (const sm_fragment_key*) k;
     guint hash_val;
 
+    if (!key || !key->addr_info)
+       return 0;
+
     hash_val = (wmem_str_hash(key->addr_info) ^ key->id) + key->p2p_dir;
 
     return hash_val;
@@ -389,6 +392,9 @@ sm_fragment_equal(gconstpointer k1, gconstpointer k2)
 {
     const sm_fragment_key* key1 = (const sm_fragment_key*) k1;
     const sm_fragment_key* key2 = (const sm_fragment_key*) k2;
+
+    if (!key1 || !key2)
+        return FALSE;
 
     return (key1->id == key2->id) &&
            (key1->p2p_dir == key2->p2p_dir) &&
@@ -402,8 +408,12 @@ sm_fragment_temporary_key(const packet_info *pinfo,
                           const guint32 id, const void *data)
 {
     const gchar* addr = (const char*)data;
-    sm_fragment_key *key = g_slice_new(sm_fragment_key);
+    sm_fragment_key *key;
 
+    if (addr == NULL || pinfo->src.data == NULL || pinfo->dst.data == NULL)
+        return NULL;
+
+    key = g_slice_new(sm_fragment_key);
     key->addr_info = addr;
     key->p2p_dir = pinfo->p2p_dir;
     copy_address_shallow(&key->src, &pinfo->src);
@@ -419,6 +429,9 @@ sm_fragment_persistent_key(const packet_info *pinfo,
 {
     const gchar* addr = (const char*)data;
     sm_fragment_key *key = g_slice_new(sm_fragment_key);
+
+    if (addr == NULL || pinfo->src.data == NULL || pinfo->dst.data == NULL)
+        return NULL;
 
     key->addr_info = wmem_strdup(NULL, addr);
     key->p2p_dir = pinfo->p2p_dir;
@@ -1212,49 +1225,61 @@ dis_field_dt(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint32 *offse
 /* 9.2.3.14 */
 /* use dis_field_addr() */
 
-/* 9.2.3.15 */
-static const range_string dis_field_st_error_rvals[] = {
-    { 0x00, 0x1F,  "Short message transaction completed" },
-    { 0x20, 0x3F,  "Temporary error, SC still trying to transfer SM" },
-    { 0x40, 0x5F,  "Permanent error, SC is not making any more transfer attempts" },
-    { 0x60, 0x7F,  "Temporary error, SC is not making any more transfer attempts" },
-    { 0x00, 0x00,  NULL },
+/* 9.2.3.15 TP-Status (TP-ST) */
+static const value_string dis_field_st_error_vals[] = {
+    { 0x00,  "No error, short message transaction completed" },
+    { 0x01,  "Temporary error, SC still trying to transfer SM" },
+    { 0x02,  "Permanent error, SC is not making any more transfer attempts" },
+    { 0x03,  "Temporary error, SC is not making any more transfer attempts" },
+    { 0x00,  NULL },
 };
 
-static const range_string dis_field_st_reason_rvals[] = {
+static const range_string dis_field_st_error00_reason_rvals[] = {
     { 0x00, 0x00,  "Short message received by the SME" },
     { 0x01, 0x01,  "Short message forwarded by the SC to the SME but the SC is unable to confirm delivery" },
     { 0x02, 0x02,  "Short message replaced by the SC Reserved values" },
     { 0x03, 0x0F,  "Reserved" },
     { 0x10, 0x1F,  "Values specific to each SC" },
-    { 0x20, 0x20,  "Congestion" },
-    { 0x21, 0x21,  "SME busy" },
-    { 0x22, 0x22,  "No response from SME" },
-    { 0x23, 0x23,  "Service rejected" },
-    { 0x24, 0x24,  "Quality of service not available" },
-    { 0x25, 0x25,  "Error in SME" },
-    { 0x26, 0x2F,  "Reserved" },
-    { 0x30, 0x3F,  "Values specific to each SC" },
-    { 0x40, 0x40,  "Remote procedure error" },
-    { 0x41, 0x41,  "Incompatible destination" },
-    { 0x42, 0x42,  "Connection rejected by SME" },
-    { 0x43, 0x43,  "Not obtainable" },
-    { 0x44, 0x44,  "Quality of service not available" },
-    { 0x45, 0x45,  "No interworking available" },
-    { 0x46, 0x46,  "SM Validity Period Expired" },
-    { 0x47, 0x47,  "SM Deleted by originating SME" },
-    { 0x48, 0x48,  "SM Deleted by SC Administration" },
-    { 0x49, 0x49,  "SM does not exist (The SM may have previously existed in the SC but the SC no longer has knowledge of it or the SM may never have previously existed in the SC)" },
-    { 0x4A, 0x4F,  "Reserved" },
-    { 0x50, 0x5F,  "Values specific to each SC" },
-    { 0x60, 0x60,  "Congestion" },
-    { 0x61, 0x61,  "SME busy" },
-    { 0x62, 0x62,  "No response from SME" },
-    { 0x63, 0x63,  "Service rejected" },
-    { 0x64, 0x64,  "Quality of service not available" },
-    { 0x65, 0x65,  "Error in SME" },
-    { 0x66, 0x6F,  "Reserved" },
-    { 0x70, 0x7F,  "Values specific to each SC" },
+    { 0x00, 0x00,  NULL },
+};
+
+static const range_string dis_field_st_error01_reason_rvals[] = {
+    { 0x00, 0x00,  "Congestion" },
+    { 0x01, 0x01,  "SME busy" },
+    { 0x02, 0x02,  "No response from SME" },
+    { 0x03, 0x03,  "Service rejected" },
+    { 0x04, 0x04,  "Quality of service not available" },
+    { 0x05, 0x05,  "Error in SME" },
+    { 0x06, 0x0F,  "Reserved" },
+    { 0x10, 0x1F,  "Values specific to each SC" },
+    { 0x00, 0x00,  NULL },
+};
+
+static const range_string dis_field_st_error10_reason_rvals[] = {
+    { 0x00, 0x00,  "Remote procedure error" },
+    { 0x01, 0x01,  "Incompatible destination" },
+    { 0x02, 0x02,  "Connection rejected by SME" },
+    { 0x03, 0x03,  "Not obtainable" },
+    { 0x04, 0x04,  "Quality of service not available" },
+    { 0x05, 0x05,  "No interworking available" },
+    { 0x06, 0x06,  "SM Validity Period Expired" },
+    { 0x07, 0x07,  "SM Deleted by originating SME" },
+    { 0x08, 0x08,  "SM Deleted by SC Administration" },
+    { 0x09, 0x09,  "SM does not exist (The SM may have previously existed in the SC but the SC no longer has knowledge of it or the SM may never have previously existed in the SC)" },
+    { 0x0A, 0x0F,  "Reserved" },
+    { 0x10, 0x1f,  "Values specific to each SC" },
+    { 0x00, 0x00,  NULL },
+};
+
+static const range_string dis_field_st_error11_reason_rvals[] = {
+    { 0x00, 0x00,  "Congestion" },
+    { 0x01, 0x01,  "SME busy" },
+    { 0x02, 0x02,  "No response from SME" },
+    { 0x03, 0x03,  "Service rejected" },
+    { 0x04, 0x04,  "Quality of service not available" },
+    { 0x05, 0x05,  "Error in SME" },
+    { 0x06, 0x0F,  "Reserved" },
+    { 0x10, 0x1F,  "Values specific to each SC" },
     { 0x00, 0x00,  NULL },
 };
 
@@ -1264,13 +1289,19 @@ static void
 dis_field_st(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 {
     proto_tree         *subtree;
+    guint32             error;
 
     subtree = proto_tree_add_subtree(tree, tvb,
             offset, 1, ett_st, NULL, "TP-Status");
 
     proto_tree_add_item(subtree, hf_gsm_sms_dis_field_definition, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(subtree, hf_gsm_sms_dis_field_st_error, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_gsm_sms_dis_field_st_reason, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(subtree, hf_gsm_sms_dis_field_st_error,
+                                 tvb, offset, 1, ENC_BIG_ENDIAN, &error);
+
+    /* Shall not happen as we use mask 0x60 (2 bits high) to get the value */
+    DISSECTOR_ASSERT(error < array_length(hf_gsm_sms_dis_field_st_reason));
+    proto_tree_add_item(subtree, hf_gsm_sms_dis_field_st_reason[error],
+                        tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 /* 9.2.3.16 */
@@ -1318,14 +1349,12 @@ static const range_string tp_command_type_rvals[] = {
 
 static const range_string gsm_sms_tp_failure_cause_values[] = {
   { 0x00, 0x7F,  "Reserved" },
-  { 0x80, 0x8F,  "TP-PID errors" },
+        /* 80 - 8F TP-PID errors */
   { 0x80, 0x80,  "Telematic interworking not supported" },
   { 0x81, 0x81,  "Short message Type 0 not supported" },
   { 0x82, 0x82,  "Cannot replace short message" },
   { 0x83, 0x8E,  "Reserved" },
   { 0x8F, 0x8F,  "Unspecified TP-PID error" },
-  { 0x83, 0x8E,  "Reserved" },
-
         /* 90 - 9F TP-DCS errors */
   { 0x90, 0x90,  "Data coding scheme (alphabet) not supported" },
   { 0x91, 0x91,  "Message class not supported" },
@@ -1489,7 +1518,7 @@ static const true_false_string tfs_status_report_active = { "A Status Report gen
 static void
 dis_iei_scp(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint32 offset, guint8 length, gsm_sms_udh_fields_t *p_udh_fields _U_)
 {
-    static const int * status_flags[] = {
+    static int * const status_flags[] = {
         &hf_gsm_sms_status_report_short_msg,
         &hf_gsm_sms_status_report_permanent_error,
         &hf_gsm_sms_status_report_temp_error_no_attempt,
@@ -1591,7 +1620,7 @@ dis_iei_tf(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint32 offset, 
 {
     proto_tree* subtree_colour;
 
-    static const int * format_flags[] = {
+    static int * const format_flags[] = {
         &hf_gsm_sms_formatting_mode_alignment,
         &hf_gsm_sms_formatting_mode_font_size,
         &hf_gsm_sms_formatting_mode_style_bold,
@@ -2251,7 +2280,7 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
 static void
 dis_field_pi(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 {
-    static const int * pi_flags[] = {
+    static int * const pi_flags[] = {
         &hf_gsm_sms_tp_extension,
         &hf_gsm_sms_tp_reserved,
         &hf_gsm_sms_tp_udl_present,
@@ -2667,9 +2696,13 @@ dis_msg_status_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
     {
         return;
     }
-    pi = tvb_get_guint8(tvb, offset);
 
+    /* Read Parameter Indicator byte */
+    pi = tvb_get_guint8(tvb, offset);
     dis_field_pi(tvb, tree, offset);
+    offset++;
+
+    /* TODO: (9.2.3.27) If a Reserved bit is set to "1" then the receiving entity shall ignore the setting */
 
     if (pi & 0x01)
     {
@@ -2680,10 +2713,9 @@ dis_msg_status_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
             return;
         }
 
-        offset++;
         oct = tvb_get_guint8(tvb, offset);
-
         dis_field_pid(tvb, tree, offset, oct);
+        offset++;
     }
 
     if (pi & 0x02)
@@ -2695,10 +2727,9 @@ dis_msg_status_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
             return;
         }
 
-        offset++;
         oct = tvb_get_guint8(tvb, offset);
-
         dis_field_dcs(tvb, tree, offset, oct, &seven_bit, &eight_bit, &ucs2, &compressed);
+        offset++;
     }
 
     if (pi & 0x04)
@@ -2710,17 +2741,15 @@ dis_msg_status_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
             return;
         }
 
-        offset++;
         oct = tvb_get_guint8(tvb, offset);
         udl = oct;
 
         DIS_FIELD_UDL(tree, offset);
+        offset++;
     }
 
     if (udl > 0)
     {
-        offset++;
-
         dis_field_ud(tvb, pinfo, tree, offset, length - (offset - saved_offset), udhi, udl,
             seven_bit, eight_bit, ucs2, compressed, data);
     }
@@ -3239,12 +3268,27 @@ proto_register_gsm_sms(void)
             },
             { &hf_gsm_sms_dis_field_st_error,
               { "Error", "gsm_sms.dis_field.st_error",
-                FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(dis_field_st_error_rvals), 0x7F,
+                FT_UINT8, BASE_DEC, VALS(dis_field_st_error_vals), 0x60,
                 NULL, HFILL }
             },
-            { &hf_gsm_sms_dis_field_st_reason,
+            { &hf_gsm_sms_dis_field_st_reason[0],
               { "Reason", "gsm_sms.dis.field_st_reason",
-                FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(dis_field_st_reason_rvals), 0x7F,
+                FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(dis_field_st_error00_reason_rvals), 0x1F,
+                NULL, HFILL }
+            },
+            { &hf_gsm_sms_dis_field_st_reason[1],
+              { "Reason", "gsm_sms.dis.field_st_reason",
+                FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(dis_field_st_error01_reason_rvals), 0x1F,
+                NULL, HFILL }
+            },
+            { &hf_gsm_sms_dis_field_st_reason[2],
+              { "Reason", "gsm_sms.dis.field_st_reason",
+                FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(dis_field_st_error10_reason_rvals), 0x1F,
+                NULL, HFILL }
+            },
+            { &hf_gsm_sms_dis_field_st_reason[3],
+              { "Reason", "gsm_sms.dis.field_st_reason",
+                FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(dis_field_st_error11_reason_rvals), 0x1F,
                 NULL, HFILL }
             },
             { &hf_gsm_sms_tp_user_data_length,

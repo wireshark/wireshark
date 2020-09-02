@@ -2014,73 +2014,70 @@ static void dissect_eventdata_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb,
 		/* fill in Info column in Wireshark GUI */
 		col_append_fstr(pinfo->cinfo, COL_INFO, "[ID: 0x%04X]", eventid);
 
-		if (gvcp_telegram_tree != NULL)
+		/* If extended ID, then we have event_size here (2.1) */
+		if (extendedblockids)
 		{
-			/* If extended ID, then we have event_size here (2.1) */
-			if (extendedblockids)
-			{
-				proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_eventcmd_extid_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-				data_length = tvb_get_ntohs(tvb, offset); // We get the data length here
-			}
+			proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_eventcmd_extid_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+			data_length = tvb_get_ntohs(tvb, offset); // We get the data length here
+		}
 
-			/* skip reserved field */
+		/* skip reserved field */
+		offset += 2;
+
+		/* Use range to determine type of event */
+		if ((eventid >= 0x0000) && (eventid <= 0x8000))
+		{
+			/* Standard ID */
+			proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_eventcmd_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+		}
+		else if ((eventid >= 0x8001) && (eventid <= 0x8FFF))
+		{
+			/* Error */
+			proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_eventcmd_error_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+		}
+		else if ((eventid >= 0x9000) && (eventid <= 0xFFFF))
+		{
+			/* Device specific */
+			proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_eventcmd_device_specific_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+		}
+		offset += 2;
+
+		/* Stream channel (possibly) associated with event */
+		proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_eventcmd_stream_channel_index, tvb, offset, 2, ENC_BIG_ENDIAN);
+		offset += 2;
+
+		if (extendedblockids == 0)
+		{
+			/* Block id (16 bit) associated with event */
+			proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_eventcmd_block_id, tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset += 2;
-
-			/* Use range to determine type of event */
-			if ((eventid >= 0x0000) && (eventid <= 0x8000))
-			{
-				/* Standard ID */
-				proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_eventcmd_id, tvb, offset, 2, ENC_BIG_ENDIAN);
-			}
-			else if ((eventid >= 0x8001) && (eventid <= 0x8FFF))
-			{
-				/* Error */
-				proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_eventcmd_error_id, tvb, offset, 2, ENC_BIG_ENDIAN);
-			}
-			else if ((eventid >= 0x9000) && (eventid <= 0xFFFF))
-			{
-				/* Device specific */
-				proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_eventcmd_device_specific_id, tvb, offset, 2, ENC_BIG_ENDIAN);
-			}
+		}
+		else
+		{
 			offset += 2;
-
-			/* Stream channel (possibly) associated with event */
-			proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_eventcmd_stream_channel_index, tvb, offset, 2, ENC_BIG_ENDIAN);
-			offset += 2;
-
-			if (extendedblockids == 0)
-			{
-				/* Block id (16 bit) associated with event */
-				proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_eventcmd_block_id, tvb, offset, 2, ENC_BIG_ENDIAN);
-				offset += 2;
-			}
-			else
-			{
-				offset += 2;
-				/* Block id (64 bit) only if reported by gvcp flag */
-				proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_eventcmd_block_id_64bit_v2_0, tvb, offset, 8, ENC_BIG_ENDIAN);
-				offset += 8;
-			}
-
-			/* Timestamp (64 bit) associated with event */
-			proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_eventcmd_timestamp, tvb, offset, 8, ENC_BIG_ENDIAN);
+			/* Block id (64 bit) only if reported by gvcp flag */
+			proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_eventcmd_block_id_64bit_v2_0, tvb, offset, 8, ENC_BIG_ENDIAN);
 			offset += 8;
+		}
 
-			if (extendedblockids)
-			{
-				if (data_length > 24)
-				{
-					/* Data */
-					proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_eventcmd_data, tvb, offset, data_length - 24, ENC_NA);
-					offset += data_length - 24;
-				}
-			}
-			else
+		/* Timestamp (64 bit) associated with event */
+		proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_eventcmd_timestamp, tvb, offset, 8, ENC_BIG_ENDIAN);
+		offset += 8;
+
+		if (extendedblockids)
+		{
+			if (data_length > 24)
 			{
 				/* Data */
-				proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_eventcmd_data, tvb, offset, -1, ENC_NA);
-				return;
+				proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_eventcmd_data, tvb, offset, data_length - 24, ENC_NA);
+				offset += data_length - 24;
 			}
+		}
+		else
+		{
+			/* Data */
+			proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_eventcmd_data, tvb, offset, -1, ENC_NA);
+			return;
 		}
 	}
 }
@@ -2587,7 +2584,7 @@ static int dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	if (!gvcp_info)
 	{
 		gint stream_channel_count = 0;
-		gvcp_info = (gvcp_conv_info_t*)wmem_alloc(wmem_file_scope(), sizeof(gvcp_conv_info_t));
+		gvcp_info = wmem_new(wmem_file_scope(), gvcp_conv_info_t);
 		gvcp_info->pdus = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
 		for (; stream_channel_count < GVCP_MAX_STREAM_CHANNEL_COUNT; stream_channel_count++)
 		{
@@ -2601,7 +2598,7 @@ static int dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 		if (key_code == 0x42)
 		{
 			/* This is a request */
-			gvcp_trans = (gvcp_transaction_t*)wmem_alloc(wmem_packet_scope(), sizeof(gvcp_transaction_t));
+			gvcp_trans = wmem_new(wmem_packet_scope(), gvcp_transaction_t);
 			gvcp_trans->req_frame = pinfo->num;
 			gvcp_trans->rep_frame = 0;
 			gvcp_trans->addr_list = 0;

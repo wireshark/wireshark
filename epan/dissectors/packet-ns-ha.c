@@ -97,7 +97,7 @@ static const value_string ns_ha_syncstate_vals[] = {
 #define NSAHA_STAY_PRIMARY		0x4000
 #define NSAHA_VERSION_MISMATCH	0x8000
 
-static const int * ha_flags[] = {
+static int * const ha_flags[] = {
 	&hf_nsha_flags_vm,
 	&hf_nsha_flags_sp,
 	&hf_nsha_flags_inc,

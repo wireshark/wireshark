@@ -46,9 +46,9 @@ endif()
 set (MMDBRESOLVE_EXE ${MAXMINDDB_FOUND})
 
 # Must match ${EXTRA_INSTALLER_DIR}/Npcap-X.Y.Z.exe
-set(NPCAP_PACKAGE_VERSION "0.9988")
+set(NPCAP_PACKAGE_VERSION "0.9997")
 
-set(USBPCAP_PACKAGE_VERSION "1.5.3.0")
+set(USBPCAP_PACKAGE_VERSION "1.5.4.0")
 
 set(PRODUCT_VERSION ${PROJECT_MAJOR_VERSION}.${PROJECT_MINOR_VERSION}.${PROJECT_PATCH_VERSION}.${PROJECT_BUILD_VERSION})
 
@@ -191,7 +191,7 @@ macro( ADD_NSIS_UNINSTALLER_TARGET )
 				${_nsis_source_dir}/common.nsh
 			COMMAND ${MAKENSIS_EXECUTABLE} ${NSIS_OPTIONS}
 				uninstall.nsi
-			COMMAND ${DATAFILE_DIR}/uninstall_installer.exe
+			COMMAND ${POWERSHELL_COMMAND} "${_nsis_source_dir}/makeUninstall.ps1" ${DATAFILE_DIR}/uninstall_installer.exe
 			COMMAND ${CMAKE_COMMAND} -E remove ${DATAFILE_DIR}/uninstall_installer.exe
 			WORKING_DIRECTORY ${_nsis_source_dir}
 		)

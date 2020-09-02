@@ -84,7 +84,7 @@
 #define ZBEE_ZCL_PUMP_CONFIG_CONTROL_ALARM_SENSOR_FAILURE                       0x0400    /* Sensor failure */
 #define ZBEE_ZCL_PUMP_CONFIG_CONTROL_ALARM_ELEC_NON_FATAL_FAILURE               0x0800    /* Electronic non-fatal failure */
 #define ZBEE_ZCL_PUMP_CONFIG_CONTROL_ALARM_ELEC_FATAL_FAILURE                   0x1000    /* Electronic fatal failure */
-#define ZBEE_ZCL_PUMP_CONFIG_CONTROL_ALARM_GENERAL_FAULT                        0x2000    /* Genral fault */
+#define ZBEE_ZCL_PUMP_CONFIG_CONTROL_ALARM_GENERAL_FAULT                        0x2000    /* General fault */
 
 /*************************/
 /* Function Declarations */
@@ -171,7 +171,7 @@ static const value_string zbee_zcl_pump_config_control_attr_names[] = {
 
 /*Operation Mode Values*/
 static const value_string zbee_zcl_pump_config_control_operation_mode_names[] = {
-    {0, "Noramal"},
+    {0, "Normal"},
     {1, "Minimum"},
     {2, "Maximum"},
     {3, "Local"},
@@ -185,7 +185,7 @@ static const value_string zbee_zcl_pump_config_control_control_mode_names[] = {
     {2, "proportional Pressure"},
     {3, "Constant Flow"},
     {4, "Reserved"},
-    {5, "Constat Temperature"},
+    {5, "Constant Temperature"},
     {6, "Reserved"},
     {7, "Automatic"},
     {0, NULL}
@@ -223,7 +223,7 @@ dissect_zbee_zcl_pump_config_control(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 void
 dissect_zcl_pump_config_control_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
 {
-    static const int * pump_status[] = {
+    static int * const pump_status[] = {
         &hf_zbee_zcl_pump_config_control_status_device_fault,
         &hf_zbee_zcl_pump_config_control_status_supply_fault,
         &hf_zbee_zcl_pump_config_control_status_speed_low,
@@ -236,7 +236,7 @@ dissect_zcl_pump_config_control_attr_data(proto_tree *tree, tvbuff_t *tvb, guint
         NULL
     };
 
-    static const int * alarm_mask[] = {
+    static int * const alarm_mask[] = {
         &hf_zbee_zcl_pump_config_control_alarm_volt_too_low,
         &hf_zbee_zcl_pump_config_control_alarm_volt_too_high,
         &hf_zbee_zcl_pump_config_control_alarm_pwr_missing_phase,
@@ -443,7 +443,7 @@ proto_register_zbee_zcl_pump_config_control(void)
             ZBEE_ZCL_PUMP_CONFIG_CONTROL_ALARM_ELEC_FATAL_FAILURE, NULL, HFILL } },
 
         { &hf_zbee_zcl_pump_config_control_alarm_gen_fault,
-            { "Genral fault", "zbee_zcl_hvac.pump_config_control.attr.alarm.gen_fault", FT_BOOLEAN, 8, TFS(&tfs_disabled_enabled),
+            { "General fault", "zbee_zcl_hvac.pump_config_control.attr.alarm.gen_fault", FT_BOOLEAN, 8, TFS(&tfs_disabled_enabled),
             ZBEE_ZCL_PUMP_CONFIG_CONTROL_ALARM_GENERAL_FAULT, NULL, HFILL } }
         /* end Alarm Mask fields */
     };

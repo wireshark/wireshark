@@ -1161,8 +1161,9 @@ const val64_string ieee1609dot2_Psid_vals[] = {
   { psid_traffic_light_manoeuver_service, "psid-traffic-light-manoeuver-service" },
   { psid_road_and_lane_topology_service, "psid-road-and-lane-topology-service" },
   { psid_infrastructure_to_vehicle_information_service, "psid-infrastructure-to-vehicle-information-service" },
-  { psid_traffic_light_control_service, "psid-traffic-light-control-service" },
+  { psid_traffic_light_control_requests_service, "psid-traffic-light-control-requests-service" },
   { psid_geonetworking_management_communications, "psid-geonetworking-management-communications" },
+  { psid_traffic_light_control_status_service, "psid-traffic-light-control-status-service" },
   { psid_certificate_revocation_list_application, "psid-certificate-revocation-list-application" },
   { psid_vehicle_initiated_distress_notivication, "psid-vehicle-initiated-distress-notivication" },
   { psid_fast_service_advertisement_protocol, "psid-fast-service-advertisement-protocol" },
@@ -1651,7 +1652,7 @@ dissect_ieee1609dot2_INTEGER(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 }
 
 
-static const int * EndEntityType_bits[] = {
+static int * const EndEntityType_bits[] = {
   &hf_ieee1609dot2_EndEntityType_app,
   &hf_ieee1609dot2_EndEntityType_enrol,
   NULL

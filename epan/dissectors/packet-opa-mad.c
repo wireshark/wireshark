@@ -1013,7 +1013,7 @@ static gint hf_opa_mad_status_NM_reserved1 = -1;
 static gint hf_opa_mad_status_NM_InvalidField = -1;
 static gint hf_opa_mad_status_NM_RedirectRqrd = -1;
 static gint hf_opa_mad_status_NM_Busy = -1;
-static const gint *_mad_status[] = {
+static int * const _mad_status[] = {
     &hf_opa_mad_status_NM_ClassSpecific,
     &hf_opa_mad_status_NM_reserved1,
     &hf_opa_mad_status_NM_InvalidField,
@@ -1047,32 +1047,32 @@ static gint hf_opa_attribute_modifier_P3 = -1;
 static gint hf_opa_attribute_modifier_S = -1;
 static gint hf_opa_attribute_modifier_S2 = -1;
 static gint hf_opa_attribute_modifier_Y = -1;
-static const gint *_attribute_modifier_Nps2AP[] = {
+static int * const _attribute_modifier_Nps2AP[] = {
     &hf_opa_attribute_modifier_NP,
     &hf_opa_attribute_modifier_S2,
     &hf_opa_attribute_modifier_A,
     &hf_opa_attribute_modifier_P,
     NULL
 };
-static const gint *_attribute_modifier_NpS2P[] = {
+static int * const _attribute_modifier_NpS2P[] = {
     &hf_opa_attribute_modifier_NP,
     &hf_opa_attribute_modifier_S2,
     &hf_opa_attribute_modifier_P,
     NULL
 };
-static const gint *_attribute_modifier_NpAP[] = {
+static int * const _attribute_modifier_NpAP[] = {
     &hf_opa_attribute_modifier_NP,
     &hf_opa_attribute_modifier_A,
     &hf_opa_attribute_modifier_P,
     NULL
 };
-static const gint *_attribute_modifier_NbP2B[] = {
+static int * const _attribute_modifier_NbP2B[] = {
     &hf_opa_attribute_modifier_NB,
     &hf_opa_attribute_modifier_P2,
     &hf_opa_attribute_modifier_B,
     NULL
 };
-static const gint *_attribute_modifier_NbA2B2IE[] = {
+static int * const _attribute_modifier_NbA2B2IE[] = {
     &hf_opa_attribute_modifier_NB,
     &hf_opa_attribute_modifier_A2,
     &hf_opa_attribute_modifier_B2,
@@ -1080,50 +1080,50 @@ static const gint *_attribute_modifier_NbA2B2IE[] = {
     &hf_opa_attribute_modifier_E,
     NULL
 };
-static const gint *_attribute_modifier_NpSAP[] = {
+static int * const _attribute_modifier_NpSAP[] = {
     &hf_opa_attribute_modifier_NP,
     &hf_opa_attribute_modifier_S,
     &hf_opa_attribute_modifier_A,
     &hf_opa_attribute_modifier_P,
     NULL
 };
-static const gint *_attribute_modifier_NbA3B3[] = {
+static int * const _attribute_modifier_NbA3B3[] = {
     &hf_opa_attribute_modifier_NB,
     &hf_opa_attribute_modifier_A3,
     &hf_opa_attribute_modifier_B3,
     NULL
 };
-static const gint *_attribute_modifier_NbP3A4B4[] = {
+static int * const _attribute_modifier_NbP3A4B4[] = {
     &hf_opa_attribute_modifier_NB,
     &hf_opa_attribute_modifier_P3,
     &hf_opa_attribute_modifier_A4,
     &hf_opa_attribute_modifier_B4,
     NULL
 };
-static const gint *_attribute_modifier_A5LP[] = {
+static int * const _attribute_modifier_A5LP[] = {
     &hf_opa_attribute_modifier_A5,
     &hf_opa_attribute_modifier_L,
     &hf_opa_attribute_modifier_P,
     NULL
 };
-static const gint *_attribute_modifier_NbYAP[] = {
+static int * const _attribute_modifier_NbYAP[] = {
     &hf_opa_attribute_modifier_NB,
     &hf_opa_attribute_modifier_Y,
     &hf_opa_attribute_modifier_A,
     &hf_opa_attribute_modifier_P,
     NULL
 };
-static const gint *_attribute_modifier_NpP[] = {
+static int * const _attribute_modifier_NpP[] = {
     &hf_opa_attribute_modifier_NP,
     &hf_opa_attribute_modifier_P,
     NULL
 };
-static const gint *_attribute_modifier_NbP[] = {
+static int * const _attribute_modifier_NbP[] = {
     &hf_opa_attribute_modifier_NB,
     &hf_opa_attribute_modifier_P,
     NULL
 };
-static const gint *_attribute_modifier_NbP3A6B5[] = {
+static int * const _attribute_modifier_NbP3A6B5[] = {
     &hf_opa_attribute_modifier_NB,
     &hf_opa_attribute_modifier_P3,
     &hf_opa_attribute_modifier_A6,
@@ -1221,7 +1221,7 @@ static gint hf_opa_Trap_DataValid_QP2 = -1;
 static gint hf_opa_Trap_DataValid_Gid1 = -1;
 static gint hf_opa_Trap_DataValid_Gid2 = -1;
 static gint hf_opa_Trap_DataValid_Reserved = -1;
-static const gint *_Trap_DataValid[] = {
+static int * const _Trap_DataValid[] = {
     &hf_opa_Trap_DataValid_Lid1,
     &hf_opa_Trap_DataValid_Lid2,
     &hf_opa_Trap_DataValid_PKey,
@@ -1321,7 +1321,7 @@ static gint hf_opa_SwitchInfo_AdaptiveRoutingFrequency = -1;
 static gint hf_opa_SwitchInfo_AdaptiveRoutingLostRoutesOnly = -1;
 static gint hf_opa_SwitchInfo_AdaptiveRoutingThreshold = -1;
 static gint hf_opa_SwitchInfo_reserved6 = -1;
-static const gint *_SwitchInfo_AdaptiveRouting[] = {
+static int * const _SwitchInfo_AdaptiveRouting[] = {
     &hf_opa_SwitchInfo_AdaptiveRoutingEnable,
     &hf_opa_SwitchInfo_AdaptiveRoutingPause,
     &hf_opa_SwitchInfo_AdaptiveRoutingAlgorithm,
@@ -1336,7 +1336,7 @@ static gint hf_opa_SwitchInfo_SwitchCapabilityMask_reserved = -1;
 static gint hf_opa_SwitchInfo_SwitchCapabilityMask_IsAddrRangeConfigSupported = -1;
 static gint hf_opa_SwitchInfo_SwitchCapabilityMask_reserved2 = -1;
 static gint hf_opa_SwitchInfo_SwitchCapabilityMask_IsAdaptiveRoutingSupported = -1;
-static const gint *_SwitchInfo_SwitchCapabilityMask[] = {
+static int * const _SwitchInfo_SwitchCapabilityMask[] = {
     &hf_opa_SwitchInfo_SwitchCapabilityMask_reserved,
     &hf_opa_SwitchInfo_SwitchCapabilityMask_IsAddrRangeConfigSupported,
     &hf_opa_SwitchInfo_SwitchCapabilityMask_reserved2,
@@ -1411,7 +1411,7 @@ static gint hf_opa_PortInfo_PortMode_IsVLMarkerEnabled = -1;
 static gint hf_opa_PortInfo_PortMode_reserved2 = -1;
 static gint hf_opa_PortInfo_PortMode_Is16BTrapQueryEnabled = -1;
 static gint hf_opa_PortInfo_PortMode_reserved3 = -1;
-static const gint *_PortInfo_PortMode[] = {
+static int * const _PortInfo_PortMode[] = {
     &hf_opa_PortInfo_PortMode_reserved,
     &hf_opa_PortInfo_PortMode_IsActiveOptimizeEnabled,
     &hf_opa_PortInfo_PortMode_IsPassThroughEnabled,
@@ -1460,7 +1460,7 @@ static gint hf_opa_PortInfo_PortErrorAction_PortRcvErrorPktLenTooShort = -1;
 static gint hf_opa_PortInfo_PortErrorAction_PortRcvErrorPktLenTooLong = -1;
 static gint hf_opa_PortInfo_PortErrorAction_PortRcvErrorBadPktLen = -1;
 static gint hf_opa_PortInfo_PortErrorAction_reserved4 = -1;
-static const gint *_PortInfo_PortErrorAction[] = {
+static int * const _PortInfo_PortErrorAction[] = {
     &hf_opa_PortInfo_PortErrorAction_ExcessiveBufferOverrun,
     &hf_opa_PortInfo_PortErrorAction_reserved,
     &hf_opa_PortInfo_PortErrorAction_FmConfigErrorExceedMulticastLimit,
@@ -1520,7 +1520,7 @@ static gint hf_opa_PortInfo_CapabilityMask_IsAutomaticMigrationSupported = -1;
 static gint hf_opa_PortInfo_CapabilityMask_reserved5 = -1;
 static gint hf_opa_PortInfo_CapabilityMask_IsSM = -1;
 static gint hf_opa_PortInfo_CapabilityMask_reserved6 = -1;
-static const gint *_PortInfo_CapabilityMask[] = {
+static int * const _PortInfo_CapabilityMask[] = {
     &hf_opa_PortInfo_CapabilityMask_reserved,
     &hf_opa_PortInfo_CapabilityMask_IsCapabilityMaskNoticeSupported,
     &hf_opa_PortInfo_CapabilityMask_reserved2,
@@ -1545,7 +1545,7 @@ static gint hf_opa_PortInfo_CapabilityMask3_IsSharedSpaceSupported = -1;
 static gint hf_opa_PortInfo_CapabilityMask3_reserved2 = -1;
 static gint hf_opa_PortInfo_CapabilityMask3_IsVLMarkerSupported = -1;
 static gint hf_opa_PortInfo_CapabilityMask3_IsVLrSupported = -1;
-static const gint *_PortInfo_CapabilityMask3[] = {
+static int * const _PortInfo_CapabilityMask3[] = {
     &hf_opa_PortInfo_CapabilityMask3_reserved,
     &hf_opa_PortInfo_CapabilityMask3_IsSnoopSupported,
     &hf_opa_PortInfo_CapabilityMask3_IsAsyncSCtoVLSupported,
@@ -1580,7 +1580,7 @@ static gint hf_opa_PortStates_PortUnsleepState = -1;
 static gint hf_opa_PortStates_DownDefaultState = -1;
 static gint hf_opa_PortStates_PortPhysicalState = -1;
 static gint hf_opa_PortStates_PortState = -1;
-static const gint *_PortStates[] = {
+static int * const _PortStates[] = {
     &hf_opa_PortStates_reserved,
     &hf_opa_PortStates_LEDEnabled,
     &hf_opa_PortStates_IsSMConfigurationStarted,
@@ -1941,7 +1941,7 @@ static gint hf_opa_ClearPortStatus_LinkDowned = -1;
 static gint hf_opa_ClearPortStatus_UncorrectableErrors = -1;
 static gint hf_opa_ClearPortStatus_reserved = -1;
 static gint hf_opa_ClearPortStatus_CounterSelectMask = -1;
-static const gint *_ClearPortStatus_CounterSelectMask[] = {
+static int * const _ClearPortStatus_CounterSelectMask[] = {
     &hf_opa_ClearPortStatus_PortXmitData,
     &hf_opa_ClearPortStatus_PortRcvData,
     &hf_opa_ClearPortStatus_PortXmitPkts,
@@ -2037,7 +2037,7 @@ static gint hf_opa_ErrorPortInfo_ErrorInfoSelectMask_PortRcvSwitchRelayErrorInfo
 static gint hf_opa_ErrorPortInfo_ErrorInfoSelectMask_UncorrectableErrorInfo = -1;
 static gint hf_opa_ErrorPortInfo_ErrorInfoSelectMask_FMConfigErrorInfo = -1;
 static gint hf_opa_ErrorPortInfo_ErrorInfoSelectMask_reserved = -1;
-static const gint *_ErrorPortInfo_ErrorInfoSelectMask[] = {
+static int * const _ErrorPortInfo_ErrorInfoSelectMask[] = {
     &hf_opa_ErrorPortInfo_ErrorInfoSelectMask_PortRcvErrorInfo,
     &hf_opa_ErrorPortInfo_ErrorInfoSelectMask_ExcessiveBufferOverrunInfo,
     &hf_opa_ErrorPortInfo_ErrorInfoSelectMask_PortXmitConstraintErrorInfo,
@@ -2195,7 +2195,7 @@ static gint hf_opa_ClearPortCounters_LinkDowned = -1;
 static gint hf_opa_ClearPortCounters_UncorrectableErrors = -1;
 static gint hf_opa_ClearPortCounters_reserved = -1;
 static gint hf_opa_ClearPortCounters_CounterSelectMask = -1;
-static const gint *_ClearPortCounters_CounterSelectMask[] = {
+static int * const _ClearPortCounters_CounterSelectMask[] = {
     &hf_opa_ClearPortCounters_PortXmitData,
     &hf_opa_ClearPortCounters_PortRcvData,
     &hf_opa_ClearPortCounters_PortXmitPkts,
@@ -2256,7 +2256,7 @@ static gint hf_opa_ClearAllPortCounters_LinkDowned = -1;
 static gint hf_opa_ClearAllPortCounters_UncorrectableErrors = -1;
 static gint hf_opa_ClearAllPortCounters_reserved = -1;
 static gint hf_opa_ClearAllPortCounters_CounterSelectMask = -1;
-static const gint *_ClearAllPortCounters_CounterSelectMask[] = {
+static int * const _ClearAllPortCounters_CounterSelectMask[] = {
     &hf_opa_ClearAllPortCounters_PortXmitData,
     &hf_opa_ClearAllPortCounters_PortRcvData,
     &hf_opa_ClearAllPortCounters_PortXmitPkts,
@@ -2440,7 +2440,7 @@ static gint hf_opa_ClearVFPortCounters_PortVFRcvBubble = -1;
 static gint hf_opa_ClearVFPortCounters_PortVFMarkFECN = -1;
 static gint hf_opa_ClearVFPortCounters_reserved = -1;
 static gint hf_opa_ClearVFPortCounters_CounterSelectMask = -1;
-static const gint *_ClearVFPortCounters_CounterSelectMask[] = {
+static int * const _ClearVFPortCounters_CounterSelectMask[] = {
     &hf_opa_ClearVFPortCounters_PortVFXmitData,
     &hf_opa_ClearVFPortCounters_PortVFRcvData,
     &hf_opa_ClearVFPortCounters_PortVFXmitPkts,
@@ -2663,8 +2663,8 @@ static void cf_opa_mad_swcongestionsetting_controlmap(gchar *buf, guint32 value)
         len = g_snprintf(buf, ITEM_LABEL_LENGTH, "Victim");
     if (value & 0x2) /* Credit */
         len += g_snprintf(&buf[len], ITEM_LABEL_LENGTH - len, "%sCredit", (len ? ", " : ""));
-    if (value & 0x4) /* Thresold & PacketSize */
-        len += g_snprintf(&buf[len], ITEM_LABEL_LENGTH - len, "%sThresold & PacketSize", (len ? ", " : ""));
+    if (value & 0x4) /* Threshold & PacketSize */
+        len += g_snprintf(&buf[len], ITEM_LABEL_LENGTH - len, "%sThreshold & PacketSize", (len ? ", " : ""));
     if (value & 0x8) /* CS_threshold & CS_ReturnDelay */
         len += g_snprintf(&buf[len], ITEM_LABEL_LENGTH - len, "%sCS_threshold & CS_ReturnDelay", (len ? ", " : ""));
     if (value & 0x10) /* Marking Rate */
@@ -2692,7 +2692,6 @@ static void cf_opa_mad_computed_pct10(gchar *buf, guint16 value)
 
 /* Dissector Declarations */
 static dissector_handle_t opa_mad_handle;
-static dissector_handle_t eth_handle;
 static dissector_table_t ethertype_dissector_table;
 
 static reassembly_table opa_mad_rmpp_reassembly_table;
@@ -4637,10 +4636,10 @@ static gint parse_HFICongestionControlTable(proto_tree *parentTree, tvbuff_t *tv
     return local_offset;
 }
 /* Call appropriate parsing function */
-static gboolean call_SUBM_Parser(proto_tree *parentTree, tvbuff_t *tvb, guint *offset, MAD_t *MAD, guint16 AttributeID)
+static gboolean call_SUBM_Parser(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD, guint16 AttributeID)
 {
     proto_tree *SUBM_Attribute_header_tree = parentTree;
-    guint local_offset = *offset;
+    gint local_offset = *offset;
 
     if (!tvb_bytes_exist(tvb, local_offset, 8))
         return TRUE;
@@ -4810,14 +4809,14 @@ static gboolean parse_SUBM_Attribute(proto_tree *parentTree, tvbuff_t *tvb, gint
 /* Parse the Method from the MAD Common Header. */
 static void label_SUBM_Method(proto_item *SubMItem, MAD_t *MAD, packet_info *pinfo)
 {
-    const guchar *label = val_to_str_const(MAD->Method, SUBM_Methods, "(Unknown SM Method!)");
+    const gchar *label = val_to_str_const(MAD->Method, SUBM_Methods, "(Unknown SM Method!)");
     proto_item_append_text(SubMItem, " %s", label);
     col_append_str(pinfo->cinfo, COL_INFO, label);
 }
 /* Parse the Attribute from the MAD Common Header */
 static void label_SUBM_Attribute(proto_item *SubMItem, MAD_t *MAD, packet_info *pinfo)
 {
-    const guchar *label = val_to_str_const(MAD->AttributeID, SUBM_Attributes, "Attribute (Unknown SM Attribute!)");
+    const gchar *label = val_to_str_const(MAD->AttributeID, SUBM_Attributes, "Attribute (Unknown SM Attribute!)");
     proto_item_append_text(SubMItem, "%s", &label[11]);
     col_append_str(pinfo->cinfo, COL_INFO, &label[11]);
 }
@@ -5792,7 +5791,7 @@ static void parse_RID(proto_tree *SA_header_tree, tvbuff_t *tvb, gint *offset, M
 static gboolean parse_SUBA_Attribute(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD, RMPP_t *RMPP, SA_HEADER_t *SA_HEADER)
 {
     proto_tree *SUBA_Attribute_header_tree = parentTree;
-    guint local_offset = *offset;
+    gint local_offset = *offset;
 
     if (RMPP->Type == RMPP_ACK || SA_HEADER->AttributeOffset == 0 || (RMPP->PayloadLength <= 20 && RMPP->Type == RMPP_DATA) ||
         (!pref_attempt_rmpp_defragment && RMPP->Type == RMPP_DATA && RMPP->SegmentNumber != 1))
@@ -5963,14 +5962,14 @@ static gboolean parse_SUBA_Attribute(proto_tree *parentTree, tvbuff_t *tvb, gint
 /* Parse the SA Method from the MAD Common Header. */
 static void label_SUBA_Method(proto_item *SubAItem, MAD_t *MAD, packet_info *pinfo)
 {
-    const guchar *label = val_to_str_const(MAD->Method, SUBA_Methods, "(Unknown SA Method!)");
+    const gchar *label = val_to_str_const(MAD->Method, SUBA_Methods, "(Unknown SA Method!)");
     proto_item_append_text(SubAItem, " %s", label);
     col_append_str(pinfo->cinfo, COL_INFO, label);
 }
 /* Parse the SA Attribute from the MAD Common Header */
 static void label_SUBA_Attribute(proto_item *SubAItem, MAD_t *MAD, packet_info *pinfo)
 {
-    const guchar *label = val_to_str_const(MAD->AttributeID, SUBA_Attributes, "Attribute (Unknown SA Attribute!)");
+    const gchar *label = val_to_str_const(MAD->AttributeID, SUBA_Attributes, "Attribute (Unknown SA Attribute!)");
     proto_item_append_text(SubAItem, "%s", &label[11]);
     col_append_str(pinfo->cinfo, COL_INFO, &label[11]);
 }
@@ -6017,7 +6016,7 @@ static void parse_SUBNADMN(proto_tree *parentTree, packet_info *pinfo, tvbuff_t 
     gint old_offset;
     guint r, records, length;
     proto_tree *SA_record_tree;
-    const guchar *label;
+    const gchar *label;
     gboolean parent_was_opa_fe = proto_is_frame_protocol(pinfo->layers, "opa.fe");
 
     if (!parse_MAD_Common(parentTree, pinfo, tvb, offset, &MAD)) {
@@ -6750,7 +6749,7 @@ static gboolean parse_PM_Attribute(proto_tree *parentTree, tvbuff_t *tvb, gint *
 /* Parse the Method from the MAD Common Header. */
 static void label_PM_Method(proto_item *PMItem, MAD_t *MAD, packet_info *pinfo)
 {
-    const guchar *label = val_to_str_const(MAD->Method, PM_Methods, "(Unknown Perf Method!)");
+    const gchar *label = val_to_str_const(MAD->Method, PM_Methods, "(Unknown Perf Method!)");
     proto_item_append_text(PMItem, " %s", label);
     col_append_str(pinfo->cinfo, COL_INFO, label);
 }
@@ -6758,7 +6757,7 @@ static void label_PM_Method(proto_item *PMItem, MAD_t *MAD, packet_info *pinfo)
 /* Parse the Attribute from the MAD Common Header */
 static void label_PM_Attribute(proto_item *PMItem, MAD_t *MAD, packet_info *pinfo)
 {
-    const guchar *label = val_to_str_const(MAD->AttributeID, PM_Attributes, "Attribute (Unknown Perf Attribute!)");
+    const gchar *label = val_to_str_const(MAD->AttributeID, PM_Attributes, "Attribute (Unknown Perf Attribute!)");
     proto_item_append_text(PMItem, "%s", &label[11]);
     col_append_str(pinfo->cinfo, COL_INFO, &label[11]);
 }
@@ -7545,7 +7544,6 @@ static gint parse_GetImageInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *offs
     proto_item *GetImageInfo_header_item;
     proto_tree *GetImageInfo_SM_tree;
     guint32 numSMs;
-    nstime_t ts;
 
     gint local_offset = *offset;
 
@@ -7557,9 +7555,8 @@ static gint parse_GetImageInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *offs
 
     local_offset = parse_Image(GetImageInfo_header_tree, tvb, &local_offset);
 
-    ts.secs = (time_t)tvb_get_guint64(tvb, local_offset, ENC_BIG_ENDIAN);
-    ts.nsecs = 0;
-    proto_tree_add_time(GetImageInfo_header_tree, hf_opa_GetImageInfo_sweepStart, tvb, local_offset, 8, &ts);
+    proto_tree_add_item(GetImageInfo_header_tree, hf_opa_GetImageInfo_sweepStart,
+            tvb, local_offset, 8, ENC_TIME_SECS|ENC_BIG_ENDIAN);
     local_offset += 8;
     proto_tree_add_item(GetImageInfo_header_tree, hf_opa_GetImageInfo_sweepDuration, tvb, local_offset, 4, ENC_BIG_ENDIAN);
     local_offset += 4;
@@ -8135,7 +8132,7 @@ static gboolean parse_PA_Attribute(proto_tree *parentTree, tvbuff_t *tvb, gint *
 /* Parse the Method from the MAD Common Header. */
 static void label_PA_Method(proto_item *PAItem, MAD_t *MAD, packet_info *pinfo)
 {
-    const guchar *label = val_to_str_const(MAD->Method, PA_Methods, "(Unknown Perf Method!)");
+    const gchar *label = val_to_str_const(MAD->Method, PA_Methods, "(Unknown Perf Method!)");
     proto_item_append_text(PAItem, " %s", label);
     col_append_str(pinfo->cinfo, COL_INFO, label);
 }
@@ -8143,7 +8140,7 @@ static void label_PA_Method(proto_item *PAItem, MAD_t *MAD, packet_info *pinfo)
 /* Parse the Attribute from the MAD Common Header */
 static void label_PA_Attribute(proto_item *PAItem, MAD_t *MAD, packet_info *pinfo)
 {
-    const guchar *label = val_to_str_const(MAD->AttributeID, PA_Attributes, "Attribute (Unknown Perf Attribute!)");
+    const gchar *label = val_to_str_const(MAD->AttributeID, PA_Attributes, "Attribute (Unknown Perf Attribute!)");
     proto_item_append_text(PAItem, "%s", &label[11]);
     col_append_str(pinfo->cinfo, COL_INFO, &label[11]);
 }
@@ -10462,7 +10459,7 @@ void proto_register_opa_mad(void)
                 FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
         },
         { &hf_opa_BufferControlTable_TxDedicatedLimit, {
-                "Tx Dedictated Limit", "opa.buffercontroltable.txdedicatedlimit",
+                "Tx Dedicated Limit", "opa.buffercontroltable.txdedicatedlimit",
                 FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
         },
         { &hf_opa_BufferControlTable_TxSharedLimit, {
@@ -13424,7 +13421,7 @@ void proto_register_opa_mad(void)
                 FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }
         },
         { &hf_opa_VFInfoRecord_reserved7, {
-                "Rezerved (24 Bytes)", "opa.vfinforecord.reserved7",
+                "Reserved (24 Bytes)", "opa.vfinforecord.reserved7",
                 FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
         /* QuarantinedNodeRecord */
@@ -13681,7 +13678,6 @@ void proto_register_opa_mad(void)
 
 void proto_reg_handoff_opa_mad(void)
 {
-    eth_handle                      = find_dissector("eth");
     ethertype_dissector_table       = find_dissector_table("ethertype");
 }
 

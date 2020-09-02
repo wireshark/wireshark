@@ -32,6 +32,7 @@ static int hf_pcnfsd_procedure_v2 = -1;
 static int hf_pcnfsd_auth_client = -1;
 static int hf_pcnfsd_auth_ident_obscure = -1;
 static int hf_pcnfsd_auth_ident_clear = -1;
+static int hf_pcnfsd_auth_password = -1;
 static int hf_pcnfsd_auth_password_obscure = -1;
 static int hf_pcnfsd_auth_password_clear = -1;
 static int hf_pcnfsd_comment = -1;
@@ -200,8 +201,9 @@ dissect_pcnfsd2_auth_call(tvbuff_t *tvb, packet_info *pinfo _U_,
 
     offset = newoffset;
 
-    password_tree = proto_tree_add_subtree(tree, tvb,
-                offset, -1, ett_pcnfsd_auth_password, NULL, "Authentication Password");
+    password_item = proto_tree_add_string_format(tree, hf_pcnfsd_auth_password,
+                                          tvb, 0, 0, "", "Authentication Password");
+    password_tree = proto_item_add_subtree(password_item, ett_pcnfsd_auth_password);
 
     newoffset = dissect_rpc_string(tvb, password_tree,
         hf_pcnfsd_auth_password_obscure, offset, &password);
@@ -353,6 +355,9 @@ proto_register_pcnfsd(void)
         { &hf_pcnfsd_auth_ident_clear, {
                 "Clear Ident", "pcnfsd.auth.ident.clear", FT_STRING, BASE_NONE,
                 NULL, 0, "Authentication Clear Ident", HFILL }},
+        { &hf_pcnfsd_auth_password, {
+                "Password", "pcnfsd.auth.password", FT_STRING, BASE_NONE,
+                NULL, 0, NULL, HFILL }},
         { &hf_pcnfsd_auth_password_obscure, {
                 "Obscure Password", "pcnfsd.auth.password.obscure", FT_STRING, BASE_NONE,
                 NULL, 0, "Authentication Obscure Password", HFILL }},

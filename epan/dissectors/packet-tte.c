@@ -5,7 +5,7 @@
  * Author: Benjamin Roch, benjamin.roch (AT) tttech.com
  *
  * TTTech Computertechnik AG, Austria.
- * http://www.tttech.com/solutions/ttethernet/
+ * https://www.tttech.com/technologies/time-triggered-ethernet/
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -117,9 +117,8 @@ dissect_tte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
     /* call std Ethernet dissector */
     ethertype_data.etype = tvb_get_ntohs(tvb, TTE_MAC_LENGTH * 2);
-    ethertype_data.offset_after_ethertype = 14;
+    ethertype_data.payload_offset = TTE_HEADER_LENGTH;
     ethertype_data.fh_tree = NULL;
-    ethertype_data.etype_id = hf_eth_type;
     ethertype_data.trailer_id = 0;
     ethertype_data.fcs_len = 0;
 

@@ -848,7 +848,7 @@ dissect_ilp_T_mdn(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto
     proto_tree *subtree;
 
     subtree = proto_item_add_subtree(actx->created_item, ett_ilp_setid);
-    proto_tree_add_string(subtree, hf_ilp_mobile_directory_number, mdn_tvb, 0, 8, tvb_bcd_dig_to_wmem_packet_str(mdn_tvb, 0, 8, NULL, FALSE));
+    proto_tree_add_item(subtree, hf_ilp_mobile_directory_number, mdn_tvb, 0, 8, ENC_BCD_DIGITS_0_9);
   }
 
 
@@ -1047,7 +1047,7 @@ dissect_ilp_GANSSPositioningMethodTypes(tvbuff_t *tvb _U_, int offset _U_, asn1_
 }
 
 
-static const int * GANSSSignals_bits[] = {
+static int * const GANSSSignals_bits[] = {
   &hf_ilp_GANSSSignals_signal1,
   &hf_ilp_GANSSSignals_signal2,
   &hf_ilp_GANSSSignals_signal3,
@@ -1114,7 +1114,7 @@ dissect_ilp_T_addPosID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 }
 
 
-static const int * T_addPosMode_bits[] = {
+static int * const T_addPosMode_bits[] = {
   &hf_ilp_T_addPosMode_standalone,
   &hf_ilp_T_addPosMode_setBased,
   &hf_ilp_T_addPosMode_setAssisted,

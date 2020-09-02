@@ -358,17 +358,17 @@ expression objects are automatically garbage collected.
 
 Since: 1.11.3
 
-[float]
+[discrete]
 ===== Arguments
 
 pattern:: A Perl-compatible regular expression pattern string
 
-[float]
+[discrete]
 ===== Returns
 
 The compiled regular expression (a userdata object)
 
-[float]
+[discrete]
 ===== Errors
 
 * A malformed pattern generates a Lua error
@@ -387,12 +387,12 @@ functions and methods for determining the reason of failure.
 
 Since: 1.11.3
 
-[float]
+[discrete]
 ===== Arguments
 
 table (optional):: A table for placing results into
 
-[float]
+[discrete]
 ===== Returns
 
 A table filled with the results.
@@ -409,12 +409,12 @@ table, otherwise a new table is created.
 
 Since: 1.11.3
 
-[float]
+[discrete]
 ===== Arguments
 
 table (optional):: A table for placing results into
 
-[float]
+[discrete]
 ===== Returns
 
 A table filled with the results.
@@ -430,12 +430,12 @@ table, otherwise a new table is created.
 
 Since: 1.11.3
 
-[float]
+[discrete]
 ===== Arguments
 
 table (optional):: A table for placing results into
 
-[float]
+[discrete]
 ===== Returns
 
 A table filled with the results.
@@ -450,7 +450,7 @@ each time this is called, unlike the class method _match_ function.
 
 Since: 1.11.3
 
-[float]
+[discrete]
 ===== Arguments
 
 subject:: Subject string to search
@@ -463,7 +463,7 @@ cf (optional):: compilation flags (bitwise OR)
 
 ef (optional):: match execution flags (bitwise OR)
 
-[float]
+[discrete]
 ===== Returns
 
 On success, returns all substring matches ("captures"), in the order they appear
@@ -481,7 +481,7 @@ time this is called, unlike the class method _find_ function.
 
 Since: 1.11.3
 
-[float]
+[discrete]
 ===== Arguments
 
 subject:: Subject string to search
@@ -494,7 +494,7 @@ cf (optional):: compilation flags (bitwise OR)
 
 ef (optional):: match execution flags (bitwise OR)
 
-[float]
+[discrete]
 ===== Returns
 
 On success, returns the start point of the match (a number), the end point of
@@ -514,7 +514,7 @@ previously compiled with GRegex.new().
 
 Since: 1.11.3
 
-[float]
+[discrete]
 ===== Arguments
 
 subject:: Subject string to search
@@ -527,7 +527,7 @@ cf (optional):: compilation flags (bitwise OR)
 
 ef (optional):: match execution flags (bitwise OR)
 
-[float]
+[discrete]
 ===== Returns
 
 The iterator function is called by Lua. On every iteration (that is, on every
@@ -548,7 +548,7 @@ Since: 1.11.3
 For details see:
 https://rrthomas.github.io/lrexlib/manual.html#gsub[]
 
-[float]
+[discrete]
 ===== Arguments
 
 subject:: Subject string to search
@@ -563,7 +563,7 @@ cf (optional):: Compilation flags (bitwise OR)
 
 ef (optional):: Match execution flags (bitwise OR)
 
-[float]
+[discrete]
 ===== Returns
 
 On success, returns the subject string with the substitutions made, the number
@@ -583,7 +583,7 @@ least one iteration pass, even if there are no matches in the subject.
 
 Since: 1.11.3
 
-[float]
+[discrete]
 ===== Arguments
 
 subject:: Subject string to search
@@ -594,7 +594,7 @@ cf (optional):: compilation flags (bitwise OR)
 
 ef (optional):: match execution flags (bitwise OR)
 
-[float]
+[discrete]
 ===== Returns
 
 The iterator function is called by Lua. On every iteration, it returns a subject
@@ -612,7 +612,7 @@ Returns a returns a string containing the version of the used library.
 
 Since: 1.11.3
 
-[float]
+[discrete]
 ===== Returns
 
 The version string
@@ -626,7 +626,7 @@ starting from offset init, subject to flags ef.
 
 Since: 1.11.3
 
-[float]
+[discrete]
 ===== Arguments
 
 subject:: Subject string to search
@@ -635,7 +635,7 @@ init (optional):: start offset in the subject (can be negative)
 
 ef (optional):: match execution flags (bitwise OR)
 
-[float]
+[discrete]
 ===== Returns
 
 On success, returns all substring matches (“captures”), in the order they appear
@@ -652,7 +652,7 @@ starting from offset init, subject to flags ef.
 
 Since: 1.11.3
 
-[float]
+[discrete]
 ===== Arguments
 
 subject:: Subject string to search
@@ -661,7 +661,7 @@ init (optional):: start offset in the subject (can be negative)
 
 ef (optional):: match execution flags (bitwise OR)
 
-[float]
+[discrete]
 ===== Returns
 
 On success, returns the start point of the match (a number), the end point of
@@ -678,7 +678,7 @@ subject, starting from offset init, subject to the execution match flags ef.
 
 Since: 1.11.3
 
-[float]
+[discrete]
 ===== Arguments
 
 subject:: Subject string to search
@@ -687,7 +687,7 @@ init (optional):: start offset in the subject (can be negative)
 
 ef (optional):: match execution flags (bitwise OR)
 
-[float]
+[discrete]
 ===== Returns
 
 On success, returns the start point of the first match (a number), the end point
@@ -707,7 +707,7 @@ string subj, using a DFA matching algorithm.
 
 Since: 1.11.3
 
-[float]
+[discrete]
 ===== Arguments
 
 subject:: Subject string to search
@@ -716,7 +716,7 @@ init (optional):: start offset in the subject (can be negative)
 
 ef (optional):: match execution flags (bitwise OR)
 
-[float]
+[discrete]
 ===== Returns
 
 On success, returns the start point of the matches found (a number), a table
@@ -734,7 +734,7 @@ Returns a string containing debug information about the GRegex object.
 
 Since: 1.11.3
 
-[float]
+[discrete]
 ===== Returns
 
 The debug string

@@ -71,7 +71,7 @@ static int dissect_cnip (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
    proto_tree *ti;
    proto_tree *cnip_tree;
 
-   static const gint *pf_fields[] = {
+   static int * const pf_fields[] = {
       &hf_cnip_pf_sec,
       &hf_cnip_pf_pcode,
       NULL

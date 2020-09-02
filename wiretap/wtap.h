@@ -290,6 +290,8 @@ extern "C" {
 #define WTAP_ENCAP_LOG_3GPP                     207
 #define WTAP_ENCAP_USB_2_0                      208
 #define WTAP_ENCAP_MP4                          209
+#define WTAP_ENCAP_SLL2                         210
+#define WTAP_ENCAP_ZWAVE_SERIAL                 211
 
 /* After adding new item here, please also add new item to encap_table_base array */
 
@@ -805,6 +807,21 @@ struct ieee_802_11ad {
     guint8   mcs;            /* MCS index */
 };
 
+/*
+ * 802.11ax (HE).
+ */
+struct ieee_802_11ax {
+    /* Which of this information is present? */
+    guint    has_mcs_index:1;
+    guint    has_bwru:1;
+    guint    has_gi:1;
+
+    guint8   nsts:4;         /* Number of Space-time Streams */
+    guint8   mcs:4;          /* MCS index */
+    guint8   bwru:4;         /* Bandwidth/RU allocation */
+    guint8   gi:2;           /* Guard Interval */
+};
+
 union ieee_802_11_phy_info {
     struct ieee_802_11_fhss info_11_fhss;
     struct ieee_802_11b info_11b;
@@ -813,12 +830,14 @@ union ieee_802_11_phy_info {
     struct ieee_802_11n info_11n;
     struct ieee_802_11ac info_11ac;
     struct ieee_802_11ad info_11ad;
+    struct ieee_802_11ax info_11ax;
 };
 
 struct ieee_802_11_phdr {
     gint     fcs_len;          /* Number of bytes of FCS - -1 means "unknown" */
-    gboolean decrypted;        /* TRUE if frame is decrypted even if "protected" bit is set */
-    gboolean datapad;          /* TRUE if frame has padding between 802.11 header and payload */
+    guint    decrypted:1;      /* TRUE if frame is decrypted even if "protected" bit is set */
+    guint    datapad:1;        /* TRUE if frame has padding between 802.11 header and payload */
+    guint    no_a_msdus:1;     /* TRUE if we should ignore the A-MSDU bit */
     guint    phy;              /* PHY type */
     union ieee_802_11_phy_info phy_info;
 
@@ -924,7 +943,7 @@ struct nettl_phdr {
     guint32 devid;
     guint32 kind;
     gint32  pid;
-    guint16 uid;
+    guint32 uid;
 };
 
 /* Packet "pseudo-header" for MTP2 files. */
@@ -1096,6 +1115,7 @@ struct bthci_phdr {
 #define BTHCI_CHANNEL_ACL      2
 #define BTHCI_CHANNEL_SCO      3
 #define BTHCI_CHANNEL_EVENT    4
+#define BTHCI_CHANNEL_ISO      5
 
 /* pseudo header for WTAP_ENCAP_BLUETOOTH_LINUX_MONITOR */
 struct btmon_phdr {
@@ -1287,6 +1307,8 @@ typedef struct {
     guint64   drop_count;       /* number of packets lost (by the interface and the
                                    operating system) between this packet and the preceding one. */
     guint32   pack_flags;       /* various flags, as per pcapng EPB */
+    guint32   interface_queue;  /* queue of the interface the packet was received on. */
+    guint64   packet_id;        /* unique packet identifier */
 
     union wtap_pseudo_header  pseudo_header;
 } wtap_packet_header;
@@ -1395,7 +1417,11 @@ typedef struct {
      */
     gchar     *opt_comment;     /* NULL if not available */
     gboolean  has_comment_changed; /* TRUE if the comment has been changed. Currently only valid while dumping. */
-
+    GPtrArray *packet_verdict;     /* packet verdicts. It would have made more
+                                      sense to put this in packet_header above
+                                      but due to the way the current code is
+                                      reusing the wtap_rec structure, it's
+                                      impossible to nicely clean it up. */
     /*
      * We use a Buffer so that we don't have to allocate and free
      * a buffer for the options for each record.
@@ -1431,6 +1457,9 @@ typedef struct {
 #define WTAP_HAS_COMMENTS      0x00000008  /**< comments */
 #define WTAP_HAS_DROP_COUNT    0x00000010  /**< drop count */
 #define WTAP_HAS_PACK_FLAGS    0x00000020  /**< packet flags */
+#define WTAP_HAS_PACKET_ID     0x00000040  /**< packet id */
+#define WTAP_HAS_INT_QUEUE     0x00000080  /**< interface queue */
+#define WTAP_HAS_VERDICT       0x00000100  /**< packet verdict */
 
 /**
  * Holds the required data from pcapng:s Section Header block(SHB).
@@ -1539,6 +1568,7 @@ typedef struct addrinfo_lists {
 typedef struct wtap_dump_params {
     int         encap;                      /**< Per-file packet encapsulation, or WTAP_ENCAP_PER_PACKET */
     int         snaplen;                    /**< Per-file snapshot length (what if it's per-interface?) */
+    int         tsprec;                     /**< Per-file time stamp precision */
     GArray     *shb_hdrs;                   /**< The section header block(s) information, or NULL. */
     wtapng_iface_descriptions_t *idb_inf;   /**< The interface description information, or NULL. */
     GArray     *nrb_hdrs;                   /**< The name resolution blocks(s) comment/custom_opts information, or NULL. */
@@ -1861,19 +1891,29 @@ WS_DLL_PUBLIC
 int wtap_file_tsprec(wtap *wth);
 
 /**
+ * @brief Gets number of section header blocks.
+ * @details Returns the number of existing SHBs.
+ *
+ * @param wth The wiretap session.
+ * @return The number of existing section headers.
+ */
+WS_DLL_PUBLIC
+guint wtap_file_get_num_shbs(wtap *wth);
+
+/**
  * @brief Gets existing section header block, not for new file.
- * @details Returns the pointer to the existing SHB, without creating a
+ * @details Returns the pointer to an existing SHB, without creating a
  *          new one. This should only be used for accessing info, not
  *          for creating a new file based on existing SHB info. Use
  *          wtap_file_get_shb_for_new_file() for that.
  *
  * @param wth The wiretap session.
- * @return The existing section header, which must NOT be g_free'd.
- *
- * XXX - need to be updated to handle multiple SHBs.
+ * @param shb_num The ordinal number (0-based) of the section header
+ * in the file
+ * @return The specified existing section header, which must NOT be g_free'd.
  */
 WS_DLL_PUBLIC
-wtap_block_t wtap_file_get_shb(wtap *wth);
+wtap_block_t wtap_file_get_shb(wtap *wth, guint shb_num);
 
 /**
  * @brief Gets new section header block for new file, based on existing info.
@@ -1903,6 +1943,20 @@ GArray* wtap_file_get_shb_for_new_file(wtap *wth);
  */
 WS_DLL_PUBLIC
 void wtap_write_shb_comment(wtap *wth, gchar *comment);
+
+/**
+ * @brief Generate an IDB, given a wiretap handle for the file,
+ *      using the file's encapsulation type, snapshot length,
+ *      and time stamp resolution, and add it to the interface
+ *      data for a file.
+ * @note This requires that the encapsulation type and time stamp
+ *      resolution not be per-packet; it will terminate the process
+ *      if either of them are.
+ *
+ * @param wth The wiretap handle for the file.
+ */
+WS_DLL_PUBLIC
+void wtap_add_generated_idb(wtap *wth);
 
 /**
  * @brief Gets existing interface descriptions.
@@ -2120,7 +2174,7 @@ WS_DLL_PUBLIC
 gboolean wtap_dump(wtap_dumper *, const wtap_rec *, const guint8 *,
      int *err, gchar **err_info);
 WS_DLL_PUBLIC
-void wtap_dump_flush(wtap_dumper *);
+gboolean wtap_dump_flush(wtap_dumper *, int *);
 WS_DLL_PUBLIC
 gint64 wtap_get_bytes_dumped(wtap_dumper *);
 WS_DLL_PUBLIC

@@ -230,7 +230,10 @@ QMenu * FilterAction::createFilterMenu(FilterAction::Action act, QString filter,
     QMenu * submenu = new QMenu(title, par);
     if (filter.length() > 0)
     {
-        QAction * comment = submenu->addAction(QString("%1: %2").arg(title).arg(filter));
+        int one_em = submenu->fontMetrics().height();
+        QString prep_text = QString("%1: %2").arg(title).arg(filter);
+        prep_text = submenu->fontMetrics().elidedText(prep_text, Qt::ElideRight, one_em * 40);
+        QAction * comment = submenu->addAction(prep_text);
         comment->setEnabled(false);
         submenu->addSeparator();
     }

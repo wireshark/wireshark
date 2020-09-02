@@ -1919,7 +1919,7 @@ dissect_fastmsg_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
     guint8        *tag_name_ptr;
     guint16       base_addr, num_addr, num_reg, addr1, addr2, crc16, crc16_calc, soe_num_blks;
     guint32       tod_ms, elmt_status32, elmt_ts_offset;
-    static const int * seq_fields[] = {
+    static int * const seq_fields[] = {
         &hf_selfm_fastmsg_seq_fir,
         &hf_selfm_fastmsg_seq_fin,
         &hf_selfm_fastmsg_seq_cnt,

@@ -1847,7 +1847,7 @@ proto_register_homeplug(void)
 
     { &hf_homeplug_hrsp_gfvr,
       { "Get Firmware Version", "homeplug.hrsp.gfvr",
-      FT_UINT8, BASE_DEC, NULL, 0x0, "Get Firmwave Version", HFILL }
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_hrsp_gnekr,

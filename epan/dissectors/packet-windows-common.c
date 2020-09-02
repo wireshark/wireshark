@@ -1712,7 +1712,7 @@ dissect_nt_access_mask(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	proto_tree *subtree, *generic_tree, *standard_tree, *specific_tree;
 	guint32 access;
 
-	static const int * generic_access_flags[] = {
+	static int * const generic_access_flags[] = {
 		&hf_access_generic_read,
 		&hf_access_generic_write,
 		&hf_access_generic_execute,
@@ -1722,7 +1722,7 @@ dissect_nt_access_mask(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		NULL
 	};
 
-	static const int * standard_access_flags[] = {
+	static int * const standard_access_flags[] = {
 		&hf_access_standard_synchronise,
 		&hf_access_standard_write_owner,
 		&hf_access_standard_write_dac,
@@ -1731,7 +1731,7 @@ dissect_nt_access_mask(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		NULL
 	};
 
-	static const int * access_specific_flags[] = {
+	static int * const access_specific_flags[] = {
 		&hf_access_specific_15,
 		&hf_access_specific_14,
 		&hf_access_specific_13,
@@ -1951,7 +1951,7 @@ dissect_nt_ace_object(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 	guint32 flags;
 	int old_offset=offset;
 	const char *sep = " ";
-	static const int * ace_flags[] = {
+	static int * const ace_flags[] = {
 		&hf_nt_ace_flags_object_type_present,
 		&hf_nt_ace_flags_inherited_object_type_present,
 		NULL
@@ -1993,7 +1993,7 @@ dissect_nt_v2_ace_flags(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 	proto_item *item = NULL;
 	guint8 mask;
 	const char *sep = " ";
-	static const int * ace_flags[] = {
+	static int * const ace_flags[] = {
 		&hf_nt_ace_flags_failed_access,
 		&hf_nt_ace_flags_successful_access,
 		&hf_nt_ace_flags_inherited_ace,
@@ -2286,7 +2286,7 @@ static const true_false_string tfs_sec_desc_type_self_relative = {
 static int
 dissect_nt_sec_desc_type(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_nt_sec_desc_type_self_relative,
 		&hf_nt_sec_desc_type_rm_control_valid,
 		&hf_nt_sec_desc_type_sacl_protected,
@@ -2318,7 +2318,7 @@ dissect_nt_security_information(tvbuff_t *tvb, int offset, proto_tree *parent_tr
 {
 	proto_item *item = NULL;
 	guint32 mask;
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_nt_security_information_sacl,
 		&hf_nt_security_information_dacl,
 		&hf_nt_security_information_group,

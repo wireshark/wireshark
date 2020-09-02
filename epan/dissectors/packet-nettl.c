@@ -296,7 +296,7 @@ proto_register_nettl(void)
             "HP-UX Process/thread id", HFILL}},
 
         { &hf_nettl_uid,
-          { "User ID (uid)", "nettl.uid", FT_UINT16, BASE_DEC, NULL, 0x0,
+          { "User ID (uid)", "nettl.uid", FT_UINT32, BASE_DEC, NULL, 0x0,
             "HP-UX User ID", HFILL}}
 
     };

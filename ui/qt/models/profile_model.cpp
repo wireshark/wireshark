@@ -354,6 +354,9 @@ bool ProfileModel::checkIfDeleted(const QModelIndex &index) const
                 deletedNames << profcurr->name;
         }
 
+        if (profcurr->is_global && deletedNames.contains(profcurr->name))
+            deletedNames.removeAll(profcurr->name);
+
         current = gxx_list_next(current);
     }
 
@@ -374,7 +377,7 @@ bool ProfileModel::checkInvalid(const QModelIndex &index) const
         return false;
 
     profile_def * pg = guard(ref);
-    if (pg && pg->status == PROF_STAT_CHANGED && g_strcmp0(pg->name, pg->reference) != 0)
+    if (pg && pg->status == PROF_STAT_CHANGED && g_strcmp0(pg->name, pg->reference) != 0 && ! prof->is_global)
         return true;
 
     return false;

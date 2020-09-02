@@ -294,7 +294,7 @@ static int hf_cp2179_timetag_event_second          = -1;
 
 static dissector_handle_t cp2179_handle;
 
-static const int *cp2179_simplestatus_bits[] = {
+static int * const cp2179_simplestatus_bits[] = {
   &hf_cp2179_simplestatusbit0,
   &hf_cp2179_simplestatusbit1,
   &hf_cp2179_simplestatusbit2,
@@ -314,7 +314,7 @@ static const int *cp2179_simplestatus_bits[] = {
   NULL
 };
 
-static const int *cp2179_2bitstatus_bits[] = {
+static int * const cp2179_2bitstatus_bits[] = {
   &hf_cp2179_2bitstatuschg0,
   &hf_cp2179_2bitstatuschg1,
   &hf_cp2179_2bitstatuschg2,

@@ -3050,7 +3050,7 @@ static int hf_japan_isup_dcr = -1;
 static int hf_japan_isup_ecr = -1;
 static int hf_japan_isup_ncr = -1;
 static int hf_japan_isup_scr = -1;
-static int hf_japan_isup_collecting_metod = -1;
+static int hf_japan_isup_collecting_method = -1;
 static int hf_japan_isup_tariff_rate_pres = -1;
 
 static int hf_japan_isup_charge_area_nat_of_info_value = -1;
@@ -3257,7 +3257,7 @@ static void
 dissect_isup_nature_of_connection_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint8 nature_of_connection_ind;
-  static const int * indicators[] = {
+  static int * const indicators[] = {
     &hf_isup_satellite_indicator,
     &hf_isup_continuity_check_indicator,
     &hf_isup_echo_control_device_indicator,
@@ -3277,7 +3277,7 @@ static void
 dissect_isup_forward_call_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint16 forward_call_ind = tvb_get_ntohs(parameter_tvb, 0);
-  static const int * indicators[] = {
+  static int * const indicators[] = {
     &hf_isup_forw_call_natnl_inatnl_call_indicator,
     &hf_isup_forw_call_end_to_end_method_indicator,
     &hf_isup_forw_call_interworking_indicator,
@@ -3452,13 +3452,13 @@ dissect_isup_called_party_number_parameter(tvbuff_t *parameter_tvb, packet_info 
   guint8       indicators1, indicators2;
   gint         offset = 0;
   gint         number_plan;
-  static const int *indicators1_flags[] = {
+  static int * const indicators1_flags[] = {
     &hf_isup_odd_even_indicator,
     &hf_isup_called_party_nature_of_address_indicator,
     NULL
   };
 
-  static const int *indicators2_flags[] = {
+  static int * const indicators2_flags[] = {
     &hf_isup_inn_indicator,
     &hf_isup_numbering_plan_indicator,
     NULL
@@ -3502,7 +3502,7 @@ dissect_isup_subsequent_number_parameter(tvbuff_t *parameter_tvb, packet_info *p
 static void
 dissect_isup_information_request_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  static const int * indicators[] = {
+  static int * const indicators[] = {
     &hf_isup_calling_party_address_request_indicator,
     &hf_isup_info_req_holding_indicator,
     &hf_isup_calling_partys_category_request_indicator,
@@ -3521,7 +3521,7 @@ dissect_isup_information_request_indicators_parameter(tvbuff_t *parameter_tvb, p
 static void
 dissect_isup_information_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  static const int * indicators[] = {
+  static int * const indicators[] = {
     &hf_isup_calling_party_address_response_indicator,
     &hf_isup_hold_provided_indicator,
     &hf_isup_calling_partys_category_response_indicator,
@@ -3553,7 +3553,7 @@ dissect_isup_continuity_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree
 static void
 dissect_isup_backward_call_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  static const int * indicators[] = {
+  static int * const indicators[] = {
     &hf_isup_backw_call_charge_ind,
     &hf_isup_backw_call_called_partys_status_ind,
     &hf_isup_backw_call_called_partys_category_ind,
@@ -3575,7 +3575,7 @@ dissect_isup_backward_call_indicators_parameter(tvbuff_t *parameter_tvb, proto_t
 static void
 dissect_ansi_isup_backward_call_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  static const int * indicators[] = {
+  static int * const indicators[] = {
     &hf_isup_backw_call_charge_ind,
     &hf_isup_backw_call_called_partys_status_ind,
     &hf_isup_backw_call_called_partys_category_ind,
@@ -3960,9 +3960,8 @@ static void
 dissect_ansi_isup_transit_network_selection_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo _U_, proto_tree *parameter_tree, proto_item *parameter_item _U_)
 {
   gint        offset = 0;
-  const char *digit_str;
 
-  static const int * indicators_fields[] = {
+  static int * const indicators_fields[] = {
     &hf_ansi_isup_spare_b7,
     &hf_isup_type_of_network_identification,
     &hf_ansi_isup_tns_nw_id_plan,
@@ -3972,8 +3971,7 @@ dissect_ansi_isup_transit_network_selection_parameter(tvbuff_t *parameter_tvb, p
   proto_tree_add_bitmask_list(parameter_tree, parameter_tvb, 0, 1, indicators_fields, ENC_NA);
   offset = 1;
 
-  digit_str = tvb_bcd_dig_to_wmem_packet_str(parameter_tvb, offset, 2, NULL, FALSE);
-  proto_tree_add_string(parameter_tree, hf_ansi_isup_nw_id, parameter_tvb, offset, 2, digit_str);
+  proto_tree_add_item(parameter_tree, hf_ansi_isup_nw_id, parameter_tvb, offset, 2, ENC_BCD_DIGITS_0_9);
   offset += 2;
   proto_tree_add_item(parameter_tree, hf_ansi_isup_circuit_code, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
 
@@ -4000,9 +3998,8 @@ static void
 dissect_ansi_isup_param_carrier_id(tvbuff_t *parameter_tvb, packet_info *pinfo _U_, proto_tree *parameter_tree, proto_item *parameter_item _U_)
 {
   int offset = 0;
-  const char *digit_str;
 
-  static const int * flags[] = {
+  static int * const flags[] = {
     &hf_ansi_isup_spare_b7,
     &hf_ansi_isup_type_of_nw_id,
     &hf_ansi_isup_nw_id_plan,
@@ -4012,8 +4009,7 @@ dissect_ansi_isup_param_carrier_id(tvbuff_t *parameter_tvb, packet_info *pinfo _
   proto_tree_add_bitmask_list(parameter_tree, parameter_tvb, offset, 1, flags, ENC_BIG_ENDIAN);
   offset++;
 
-  digit_str = tvb_bcd_dig_to_wmem_packet_str(parameter_tvb, offset, 2, NULL, FALSE);
-  proto_tree_add_string(parameter_tree, hf_ansi_isup_nw_id, parameter_tvb, offset, 2, digit_str);
+  proto_tree_add_item(parameter_tree, hf_ansi_isup_nw_id, parameter_tvb, offset, 2, ENC_BCD_DIGITS_0_9);
 
 }
 
@@ -4644,7 +4640,7 @@ static const value_string BAT_ASE_Report_Reason_vals[] = {
  */
 extern int dissect_codec_mode(proto_tree *tree, tvbuff_t *tvb, int offset, int len) {
   guint8 tempdata;
-  static const int * active_code_sets[] = {
+  static int * const active_code_sets[] = {
     &hf_active_code_set_12_2,
     &hf_active_code_set_10_2,
     &hf_active_code_set_7_95,
@@ -4656,7 +4652,7 @@ extern int dissect_codec_mode(proto_tree *tree, tvbuff_t *tvb, int offset, int l
     NULL
   };
 
-  static const int * supported_code_sets[] = {
+  static int * const supported_code_sets[] = {
     &hf_supported_code_set_12_2,
     &hf_supported_code_set_10_2,
     &hf_supported_code_set_7_95,
@@ -4746,7 +4742,7 @@ static int
 dissect_codec(tvbuff_t *parameter_tvb, proto_tree *bat_ase_element_tree, gint length_indicator, gint offset, gint identifier)
 {
 /* offset is at length indicator e.g 1 step past identifier */
-  static const int * compatibility_info[] = {
+  static int * const compatibility_info[] = {
     &hf_Instruction_ind_for_general_action,
     &hf_Send_notification_ind_for_general_action,
     &hf_Instruction_ind_for_pass_on_not_possible,
@@ -5091,21 +5087,21 @@ dissect_isup_application_transport_parameter(tvbuff_t *parameter_tvb, packet_inf
   tvbuff_t      *next_tvb = NULL;
   fragment_head *frag_msg = NULL;
 
-  static const int * apm_flags[] = {
+  static int * const apm_flags[] = {
     &hf_isup_extension_ind,
     &hf_isup_apm_si_ind,
     &hf_isup_apm_segmentation_ind,
     NULL
   };
 
-  static const int * app_trans_flags[] = {
+  static int * const app_trans_flags[] = {
     &hf_isup_extension_ind,
     &hf_isup_app_Send_notification_ind,
     &hf_isup_app_Release_call_ind,
     NULL
   };
 
-  static const int * app_field_flags[] = {
+  static int * const app_field_flags[] = {
     &hf_isup_extension_ind,
     &hf_isup_app_cont_ident,
     NULL
@@ -5262,7 +5258,7 @@ static void
 dissect_isup_optional_forward_call_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint8 ind;
-  static const int * indicators[] = {
+  static int * const indicators[] = {
     &hf_isup_cug_call_ind,
     &hf_isup_simple_segmentation_ind,
     &hf_isup_connected_line_identity_request_ind,
@@ -5285,12 +5281,12 @@ dissect_isup_calling_party_number_parameter(tvbuff_t *parameter_tvb, packet_info
   guint8       indicators1, indicators2;
   gint         offset = 0;
   gint         number_plan;
-  static const int * indicators1_fields[] = {
+  static int * const indicators1_fields[] = {
     &hf_isup_odd_even_indicator,
     &hf_isup_calling_party_nature_of_address_indicator,
     NULL
   };
-  static const int * indicators2_fields[] = {
+  static int * const indicators2_fields[] = {
     &hf_isup_ni_indicator,
     &hf_isup_numbering_plan_indicator,
     &hf_isup_address_presentation_restricted_indicator,
@@ -5319,12 +5315,12 @@ dissect_isup_original_called_number_parameter(tvbuff_t *parameter_tvb, packet_in
 {
   guint8      indicators1;
   gint        offset = 0;
-  static const int * indicators1_fields[] = {
+  static int * const indicators1_fields[] = {
     &hf_isup_odd_even_indicator,
     &hf_isup_calling_party_nature_of_address_indicator,
     NULL
   };
-  static const int * indicators2_fields[] = {
+  static int * const indicators2_fields[] = {
     &hf_isup_numbering_plan_indicator,
     &hf_isup_address_presentation_restricted_indicator,
     NULL
@@ -5350,12 +5346,12 @@ dissect_isup_redirecting_number_parameter(tvbuff_t *parameter_tvb, packet_info *
 {
   guint8      indicators1;
   gint        offset = 0;
-  static const int * indicators1_fields[] = {
+  static int * const indicators1_fields[] = {
     &hf_isup_odd_even_indicator,
     &hf_isup_calling_party_nature_of_address_indicator,
     NULL
   };
-  static const int * indicators2_fields[] = {
+  static int * const indicators2_fields[] = {
     &hf_isup_numbering_plan_indicator,
     &hf_isup_address_presentation_restricted_indicator,
     NULL
@@ -5380,12 +5376,12 @@ dissect_isup_redirection_number_parameter(tvbuff_t *parameter_tvb, packet_info *
 {
   guint8      indicators1;
   gint        offset = 0;
-  static const int * indicators1_fields[] = {
+  static int * const indicators1_fields[] = {
     &hf_isup_odd_even_indicator,
     &hf_isup_called_party_nature_of_address_indicator,
     NULL
   };
-  static const int * indicators2_fields[] = {
+  static int * const indicators2_fields[] = {
     &hf_isup_inn_indicator,
     &hf_isup_numbering_plan_indicator,
     NULL
@@ -5504,12 +5500,12 @@ dissect_isup_connected_number_parameter(tvbuff_t *parameter_tvb, packet_info *pi
 {
   guint8      indicators1;
   gint        offset = 0;
-  static const int * indicators1_fields[] = {
+  static int * const indicators1_fields[] = {
     &hf_isup_odd_even_indicator,
     &hf_isup_calling_party_nature_of_address_indicator,
     NULL
   };
-  static const int * indicators2_fields[] = {
+  static int * const indicators2_fields[] = {
     &hf_isup_numbering_plan_indicator,
     &hf_isup_address_presentation_restricted_indicator,
     &hf_isup_screening_indicator,
@@ -5535,7 +5531,7 @@ dissect_isup_transit_network_selection_parameter(tvbuff_t *parameter_tvb, packet
 {
   guint8      indicators1;
   gint        offset = 0;
-  static const int * indicators_fields[] = {
+  static int * const indicators_fields[] = {
     &hf_isup_odd_even_indicator,
     &hf_isup_type_of_network_identification,
     &hf_isup_network_identification_plan,
@@ -5581,7 +5577,7 @@ dissect_isup_automatic_congestion_level_parameter(tvbuff_t *parameter_tvb, proto
 static void
 dissect_isup_optional_backward_call_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  static const int * indicators[] = {
+  static int * const indicators[] = {
     &hf_isup_inband_information_ind,
     &hf_isup_call_diversion_may_occur_ind,
     &hf_isup_simple_segmentation_ind,
@@ -5626,14 +5622,14 @@ dissect_isup_user_to_user_indicators_parameter(tvbuff_t *parameter_tvb,
                                                proto_item *parameter_item)
 {
   guint8 indicators;
-  static const int * req_fields[] = {
+  static int * const req_fields[] = {
     &hf_isup_UUI_type,
     &hf_isup_UUI_req_service1,
     &hf_isup_UUI_req_service2,
     &hf_isup_UUI_req_service3,
     NULL
   };
-  static const int * res_fields[] = {
+  static int * const res_fields[] = {
     &hf_isup_UUI_type,
     &hf_isup_UUI_res_service1,
     &hf_isup_UUI_res_service2,
@@ -5923,7 +5919,7 @@ static const value_string IECD_req_ind_vals[] = {
 static void
 dissect_isup_echo_control_information_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 { guint8 indicator;
-  static const int * info[] = {
+  static int * const info[] = {
     &hf_isup_OECD_inf_ind,
     &hf_isup_IECD_inf_ind,
     &hf_isup_OECD_req_ind,
@@ -5950,7 +5946,7 @@ dissect_isup_message_compatibility_information_parameter(tvbuff_t *parameter_tvb
 {
   gint  offset = 0;
 
-  static const int * params[] = {
+  static int * const params[] = {
     &hf_isup_transit_at_intermediate_exchange_ind,
     &hf_isup_Release_call_ind,
     &hf_isup_Send_notification_ind,
@@ -6006,7 +6002,7 @@ dissect_isup_parameter_compatibility_information_parameter(tvbuff_t *parameter_t
   guint8 offset;
   guint8 instruction_indicators;
 
-  static const int * indicator_flags[] = {
+  static int * const indicator_flags[] = {
     &hf_isup_transit_at_intermediate_exchange_ind,
     &hf_isup_Release_call_ind,
     &hf_isup_Send_notification_ind,
@@ -6180,7 +6176,7 @@ dissect_isup_location_number_parameter(tvbuff_t *parameter_tvb, packet_info *pin
 {
   guint8      indicators1, indicators2;
   gint        offset = 0;
-  static const int * indicators1_fields[] = {
+  static int * const indicators1_fields[] = {
     &hf_isup_odd_even_indicator,
     &hf_isup_calling_party_nature_of_address_indicator,
     NULL
@@ -6417,12 +6413,12 @@ dissect_isup_called_in_number_parameter(tvbuff_t *parameter_tvb, packet_info *pi
 {
   guint8      indicators1;
   gint        offset = 0;
-  static const int * indicators1_fields[] = {
+  static int * const indicators1_fields[] = {
     &hf_isup_odd_even_indicator,
     &hf_isup_calling_party_nature_of_address_indicator,
     NULL
   };
-  static const int * indicators2_fields[] = {
+  static int * const indicators2_fields[] = {
     &hf_isup_numbering_plan_indicator,
     &hf_isup_address_presentation_restricted_indicator,
     NULL
@@ -6612,7 +6608,7 @@ dissect_isup_generic_number_parameter(tvbuff_t *parameter_tvb, packet_info *pinf
 {
   guint8      indicators1, indicators2;
   gint        offset = 0;
-  static const int * indicators1_fields[] = {
+  static int * const indicators1_fields[] = {
     &hf_isup_odd_even_indicator,
     &hf_isup_calling_party_nature_of_address_indicator,
     NULL
@@ -6671,7 +6667,7 @@ dissect_isup_generic_name_parameter(tvbuff_t *parameter_tvb, proto_tree *paramet
 {
   gint    gen_name_length;
   char   *gen_name = NULL;
-  static const int * indicators[] = {
+  static int * const indicators[] = {
     &hf_isup_generic_name_presentation,
     &hf_isup_generic_name_availability,
     &hf_isup_generic_name_type,
@@ -6708,7 +6704,7 @@ dissect_isup_charge_number_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo
 {
   guint8      indicators1;
   gint        offset = 0;
-  static const int * indicators1_fields[] = {
+  static int * const indicators1_fields[] = {
     &hf_isup_odd_even_indicator,
     &hf_isup_charge_number_nature_of_address_indicator,
     NULL
@@ -7247,7 +7243,7 @@ dissect_japan_isup_contractor_number(tvbuff_t *parameter_tvb, proto_tree *parame
 {
   int         offset = 0;
   int         parameter_length;
-  const char *digit_str;
+  char        *digit_str;
 
   parameter_length = tvb_reported_length_remaining(parameter_tvb, offset);
 
@@ -7258,8 +7254,7 @@ dissect_japan_isup_contractor_number(tvbuff_t *parameter_tvb, proto_tree *parame
   proto_tree_add_item(parameter_tree, hf_isup_numbering_plan_indicator, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
 
-  digit_str = tvb_bcd_dig_to_wmem_packet_str( parameter_tvb, offset, parameter_length-2, NULL, FALSE);
-  proto_tree_add_string(parameter_tree, hf_japan_isup_contractor_number,  parameter_tvb, offset, parameter_length-offset, digit_str);
+  proto_tree_add_item_ret_display_string(parameter_tree, hf_japan_isup_contractor_number,  parameter_tvb, offset, parameter_length-2, ENC_BCD_DIGITS_0_9, wmem_packet_scope(), &digit_str);
 
   proto_item_append_text(parameter_item, " %s", digit_str);
 
@@ -7530,8 +7525,9 @@ dissect_japan_isup_carrier_information(tvbuff_t *parameter_tvb, packet_info *pin
 
 static const range_string japan_isup_charge_delay_type_value[] = {
   {  0,    0,    "Spare" },
-  {  1,    0xfc, "Reserved for network specific use" },
+  {  1,    0x80, "Reserved for network specific use" },
   {  0x81, 0xfa, "Spare" },
+  {  0xfb, 0xfc, "Reserved" },
   {  0xfd, 0xfd, "Charge rate transfer" },
   {  0xfe, 0xfe, "Terminating charge area information" },
   {  0xff, 0xff, "Spare" },
@@ -7674,11 +7670,11 @@ dissect_japan_isup_charge_area_info(tvbuff_t *parameter_tvb, packet_info *pinfo,
     octet = tvb_get_guint8(parameter_tvb, offset);
     proto_tree_add_uint(digits_tree, hf_japan_isup_charging_info_nc_odd_digits, parameter_tvb, 0, 1, octet);
     proto_tree_add_uint(digits_tree, hf_japan_isup_charging_info_nc_even_digits, parameter_tvb, 0, 1, octet);
-    octet++;
+    offset++;
     octet = tvb_get_guint8(parameter_tvb, offset);
     proto_tree_add_uint(digits_tree, hf_japan_isup_charging_info_nc_odd_digits, parameter_tvb, 0, 1, octet);
     proto_tree_add_uint(digits_tree, hf_japan_isup_charging_info_nc_even_digits, parameter_tvb, 0, 1, octet);
-    octet++;
+    offset++;
 
     /* Now loop through MA/CA digits.*/
     length = tvb_reported_length_remaining(parameter_tvb, offset);
@@ -7745,7 +7741,7 @@ static const value_string japan_isup_charging_party_type_values[] = {
   { 0,   NULL}
 };
 
-static const value_string japan_isup_collecting_metod_values[] = {
+static const value_string japan_isup_collecting_method_values[] = {
   { 0,   "Subscriber will be claimed" },
   { 0,   NULL}
 };
@@ -7783,7 +7779,7 @@ dissect_japan_chg_inf_type_acr(tvbuff_t *parameter_tvb, proto_tree *parameter_tr
         /* Tariff collecting method and charging party type */
         proto_tree_add_item(parameter_tree, hf_isup_extension_ind, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(parameter_tree, hf_japan_isup_charging_party_type, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(parameter_tree, hf_japan_isup_collecting_metod, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(parameter_tree, hf_japan_isup_collecting_method, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
       }
     }
@@ -9648,7 +9644,7 @@ dissect_ansi_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree 
 
   offset +=  MESSAGE_TYPE_LENGTH;
 
-  tap_rec = (isup_tap_rec_t *)wmem_alloc(wmem_packet_scope(), sizeof(isup_tap_rec_t));
+  tap_rec = wmem_new(wmem_packet_scope(), isup_tap_rec_t);
   tap_rec->message_type   = message_type;
   tap_rec->calling_number = NULL;
   tap_rec->called_number  = NULL;
@@ -9949,7 +9945,7 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
 
   offset +=  MESSAGE_TYPE_LENGTH;
 
-  tap_rec = (isup_tap_rec_t *)wmem_alloc(wmem_packet_scope(), sizeof(isup_tap_rec_t));
+  tap_rec = wmem_new(wmem_packet_scope(), isup_tap_rec_t);
   tap_rec->message_type   = message_type;
   tap_rec->calling_number = NULL;
   tap_rec->called_number  = NULL;
@@ -10451,9 +10447,12 @@ dissect_application_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
       version = ws_find_media_type_parameter(wmem_packet_scope(), message_info->media_str, "version");
       base = ws_find_media_type_parameter(wmem_packet_scope(), message_info->media_str, "base");
       if ((version && g_ascii_strncasecmp(version, "ansi", 4) == 0) ||
-          (base && g_ascii_strncasecmp(base, "ansi", 4) == 0)) {
+          (base && g_ascii_strncasecmp(base, "ansi", 4) == 0) ||
+          (version && g_ascii_strncasecmp(version, "gr", 2) == 0) ||
+          (base && g_ascii_strncasecmp(base, "gr", 2) == 0)) {
         /*
-         * "version" or "base" parameter begins with "ansi", so it's ANSI.
+         * "version" or "base" parameter begins with "ansi" or "gr", so it's
+         * ANSI or Bellcore.
          */
         isup_standard = ANSI_STANDARD;
         col_append_str(pinfo->cinfo, COL_PROTOCOL, "/ISUP(ANSI)");
@@ -11982,9 +11981,9 @@ proto_register_isup(void)
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
-    { &hf_japan_isup_collecting_metod,
-      { "Charging party type", "isup.japan.collecting_metod",
-        FT_UINT8, BASE_DEC, VALS(japan_isup_collecting_metod_values), 0x0f,
+    { &hf_japan_isup_collecting_method,
+      { "Charging party type", "isup.japan.collecting_method",
+        FT_UINT8, BASE_DEC, VALS(japan_isup_collecting_method_values), 0x0f,
         NULL, HFILL }},
 
     { &hf_japan_isup_tariff_rate_pres,

@@ -9,8 +9,8 @@
 
 /*
  * Wireshark - Network traffic analyzer
- * By Gerald Combs
- * Copyright 1999 - 2012 Gerald Combs
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
  */
 
 /*
@@ -20,10 +20,7 @@
 
 #include "config.h"
 
-#include <gmodule.h>
-
 #include <string.h>
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/proto.h>
 #include <epan/dissectors/packet-giop.h>
@@ -2593,58 +2590,78 @@ static int hf_org_csapi_mmm_TpNewMessageArrivedInfo_Message_loop = -1;
 static int hf_org_csapi_mmm_TpNewMessageArrivedInfo_Message = -1;
 static int hf_org_csapi_mmm_TpNewMessageArrivedInfo_Headers_loop = -1;
         /* User exception filters */
-static int hf_org_csapi_mmm_P_MMM_MAX_MESSAGE_SIZE_EXCEEDED_ExtraInformation = -1;
-static int hf_org_csapi_mmm_P_MMM_INVALID_FOLDER_ID_ExtraInformation = -1;
-static int hf_org_csapi_mmm_P_MMM_INVALID_MESSAGE_ID_ExtraInformation = -1;
-static int hf_org_csapi_mmm_P_MMM_INVALID_PART_ID_ExtraInformation = -1;
-static int hf_org_csapi_mmm_P_MMM_DELIVERY_TYPE_ADDRESS_TYPE_MISMATCH_ExtraInformation = -1;
-static int hf_org_csapi_mmm_P_MMM_DELIVERY_TYPE_MESSAGE_TYPE_MISMATCH_ExtraInformation = -1;
-static int hf_org_csapi_mmm_P_MMM_INVALID_PROPERTY_ExtraInformation = -1;
-static int hf_org_csapi_mmm_P_MMM_INVALID_DELIVERY_TIME_ExtraInformation = -1;
-static int hf_org_csapi_mmm_P_MMM_INVALID_VALIDITY_TIME_ExtraInformation = -1;
-static int hf_org_csapi_mmm_P_MMM_MAX_SUBJECT_SIZE_EXCEEDED_ExtraInformation = -1;
-static int hf_org_csapi_mmm_P_MMM_INFORMATION_NOT_AVAILABLE_ExtraInformation = -1;
-static int hf_org_csapi_mmm_P_MMM_CANNOT_CANCEL_ExtraInformation = -1;
-static int hf_org_csapi_mmm_P_MMM_INVALID_HEADER_ExtraInformation = -1;
-static int hf_org_csapi_mmm_P_MMM_INVALID_AUTHENTICATION_INFORMATION_ExtraInformation = -1;
-static int hf_org_csapi_mmm_P_MMM_INVALID_MAILBOX_ExtraInformation = -1;
-static int hf_org_csapi_mmm_P_MMM_INVALID_DELIVERY_TYPE_ExtraInformation = -1;
-static int hf_org_csapi_pam_P_PAM_UNAVAILABLE_INTERFACE_ExtraInformation = -1;
-static int hf_org_csapi_pam_P_PAM_INVALID_CREDENTIAL_ExtraInformation = -1;
-static int hf_org_csapi_pam_P_PAM_UNKNOWN_TYPE_ExtraInformation = -1;
-static int hf_org_csapi_pam_P_PAM_UNKNOWN_MEMBER_ExtraInformation = -1;
-static int hf_org_csapi_pam_P_PAM_UNKNOWN_IDENTITY_ExtraInformation = -1;
-static int hf_org_csapi_pam_P_PAM_UNKNOWN_GROUP_ExtraInformation = -1;
-static int hf_org_csapi_pam_P_PAM_UNKNOWN_CAPABILITY_ExtraInformation = -1;
-static int hf_org_csapi_pam_P_PAM_UNKNOWN_ATTRIBUTES_ExtraInformation = -1;
-static int hf_org_csapi_pam_P_PAM_UNKNOWN_ATTRIBUTE_ExtraInformation = -1;
-static int hf_org_csapi_pam_P_PAM_UNKNOWN_ASSIGNMENT_ExtraInformation = -1;
-static int hf_org_csapi_pam_P_PAM_UNKNOWN_ALIAS_ExtraInformation = -1;
-static int hf_org_csapi_pam_P_PAM_UNKNOWN_AGENT_ExtraInformation = -1;
-static int hf_org_csapi_pam_P_PAM_UNASSIGNED_ALIAS_ExtraInformation = -1;
-static int hf_org_csapi_pam_P_PAM_TYPE_EXISTS_ExtraInformation = -1;
-static int hf_org_csapi_pam_P_PAM_TYPE_ASSOCIATED_ExtraInformation = -1;
-static int hf_org_csapi_pam_P_PAM_NOT_REGISTERED_ExtraInformation = -1;
-static int hf_org_csapi_pam_P_PAM_NOT_MEMBER_ExtraInformation = -1;
-static int hf_org_csapi_pam_P_PAM_NO_CAPABILITY_ExtraInformation = -1;
-static int hf_org_csapi_pam_P_PAM_MEMBER_EXISTS_ExtraInformation = -1;
-static int hf_org_csapi_pam_P_PAM_IS_CYCLIC_ExtraInformation = -1;
-static int hf_org_csapi_pam_P_PAM_IDENTITY_EXISTS_ExtraInformation = -1;
-static int hf_org_csapi_pam_P_PAM_DISASSOCIATED_TYPE_ExtraInformation = -1;
-static int hf_org_csapi_pam_P_PAM_ATTRIBUTE_EXISTS_ExtraInformation = -1;
-static int hf_org_csapi_pam_P_PAM_ALIAS_NOT_UNIQUE_ExtraInformation = -1;
-static int hf_org_csapi_pam_P_PAM_ALIAS_EXISTS_ExtraInformation = -1;
-static int hf_org_csapi_pam_P_PAM_AGENT_EXISTS_ExtraInformation = -1;
-static int hf_org_csapi_policy_P_ACCESS_VIOLATION_ExtraInformation = -1;
-static int hf_org_csapi_policy_P_SYNTAX_ERROR_ExtraInformation = -1;
-static int hf_org_csapi_policy_P_NAME_SPACE_ERROR_ExtraInformation = -1;
-static int hf_org_csapi_policy_P_NO_TRANSACTION_IN_PROCESS_ExtraInformation = -1;
-static int hf_org_csapi_policy_P_TRANSACTION_IN_PROCESS_ExtraInformation = -1;
-static int hf_org_csapi_cs_P_INVALID_USER_ExtraInformation = -1;
-static int hf_org_csapi_cs_P_INVALID_ACCOUNT_ExtraInformation = -1;
-static int hf_org_csapi_cs_P_INVALID_REQUEST_NUMBER_ExtraInformation = -1;
-static int hf_org_csapi_cs_P_INVALID_VOLUME_ExtraInformation = -1;
-static int hf_org_csapi_am_P_UNAUTHORIZED_APPLICATION_ExtraInformation = -1;
+static int hf_org_csapi_TpCommonExceptions_ExceptionType = -1;
+static int hf_org_csapi_TpCommonExceptions_ExtraInformation = -1;
+static int hf_org_csapi_P_INVALID_INTERFACE_TYPE_ExtraInformation = -1;
+static int hf_org_csapi_P_INVALID_SESSION_ID_ExtraInformation = -1;
+static int hf_org_csapi_fw_P_INVALID_DOMAIN_ID_ExtraInformation = -1;
+static int hf_org_csapi_fw_P_INVALID_AUTH_TYPE_ExtraInformation = -1;
+static int hf_org_csapi_P_INVALID_VERSION_ExtraInformation = -1;
+static int hf_org_csapi_fw_P_ACCESS_DENIED_ExtraInformation = -1;
+static int hf_org_csapi_fw_P_INVALID_ACCESS_TYPE_ExtraInformation = -1;
+static int hf_org_csapi_fw_P_INVALID_SIGNING_ALGORITHM_ExtraInformation = -1;
+static int hf_org_csapi_fw_P_INVALID_SIGNATURE_ExtraInformation = -1;
+static int hf_org_csapi_P_INVALID_INTERFACE_NAME_ExtraInformation = -1;
+static int hf_org_csapi_fw_P_INVALID_PROPERTY_ExtraInformation = -1;
+static int hf_org_csapi_fw_P_NO_ACCEPTABLE_SIGNING_ALGORITHM_ExtraInformation = -1;
+static int hf_org_csapi_fw_P_NO_ACCEPTABLE_ENCRYPTION_CAPABILITY_ExtraInformation = -1;
+static int hf_org_csapi_fw_P_NO_ACCEPTABLE_AUTHENTICATION_MECHANISM_ExtraInformation = -1;
+static int hf_org_csapi_P_INVALID_CRITERIA_ExtraInformation = -1;
+static int hf_org_csapi_P_INVALID_EVENT_TYPE_ExtraInformation = -1;
+static int hf_org_csapi_P_INVALID_ASSIGNMENT_ID_ExtraInformation = -1;
+static int hf_org_csapi_fw_P_INVALID_SERVICE_ID_ExtraInformation = -1;
+static int hf_org_csapi_fw_P_SERVICE_NOT_ENABLED_ExtraInformation = -1;
+static int hf_org_csapi_P_UNAUTHORISED_PARAMETER_VALUE_ExtraInformation = -1;
+static int hf_org_csapi_P_INVALID_TIME_AND_DATE_FORMAT_ExtraInformation = -1;
+static int hf_org_csapi_fw_P_INVALID_ACTIVITY_TEST_ID_ExtraInformation = -1;
+static int hf_org_csapi_fw_P_ILLEGAL_SERVICE_TYPE_ExtraInformation = -1;
+static int hf_org_csapi_fw_P_UNKNOWN_SERVICE_TYPE_ExtraInformation = -1;
+static int hf_org_csapi_fw_P_INVALID_AGREEMENT_TEXT_ExtraInformation = -1;
+static int hf_org_csapi_fw_P_INVALID_SERVICE_TOKEN_ExtraInformation = -1;
+static int hf_org_csapi_fw_P_SERVICE_ACCESS_DENIED_ExtraInformation = -1;
+static int hf_org_csapi_fw_P_INVALID_SERVICE_PROFILE_ID_ExtraInformation = -1;
+static int hf_org_csapi_fw_P_INVALID_SAG_ID_ExtraInformation = -1;
+static int hf_org_csapi_fw_P_INVALID_SAG_TO_SERVICE_PROFILE_ASSIGNMENT_ExtraInformation = -1;
+static int hf_org_csapi_fw_P_INVALID_SERVICE_CONTRACT_ID_ExtraInformation = -1;
+static int hf_org_csapi_fw_P_INVALID_CLIENT_APP_ID_ExtraInformation = -1;
+static int hf_org_csapi_fw_P_INVALID_ADDITION_TO_SAG_ExtraInformation = -1;
+static int hf_org_csapi_fw_P_PROPERTY_TYPE_MISMATCH_ExtraInformation = -1;
+static int hf_org_csapi_fw_P_DUPLICATE_PROPERTY_NAME_ExtraInformation = -1;
+static int hf_org_csapi_fw_P_MISSING_MANDATORY_PROPERTY_ExtraInformation = -1;
+static int hf_org_csapi_fw_P_SERVICE_TYPE_UNAVAILABLE_ExtraInformation = -1;
+static int hf_org_csapi_fw_P_ILLEGAL_SERVICE_ID_ExtraInformation = -1;
+static int hf_org_csapi_fw_P_UNKNOWN_SERVICE_ID_ExtraInformation = -1;
+static int hf_org_csapi_P_INVALID_ADDRESS_ExtraInformation = -1;
+static int hf_org_csapi_P_UNSUPPORTED_ADDRESS_PLAN_ExtraInformation = -1;
+static int hf_org_csapi_P_INVALID_NETWORK_STATE_ExtraInformation = -1;
+static int hf_org_csapi_P_INVALID_CURRENCY_ExtraInformation = -1;
+static int hf_org_csapi_P_INVALID_AMOUNT_ExtraInformation = -1;
+static int hf_org_csapi_P_INFORMATION_NOT_AVAILABLE_ExtraInformation = -1;
+static int hf_org_csapi_ui_P_ILLEGAL_ID_ExtraInformation = -1;
+static int hf_org_csapi_ui_P_ID_NOT_FOUND_ExtraInformation = -1;
+static int hf_org_csapi_ui_P_ILLEGAL_RANGE_ExtraInformation = -1;
+static int hf_org_csapi_ui_P_INVALID_COLLECTION_CRITERIA_ExtraInformation = -1;
+static int hf_org_csapi_P_APPLICATION_NOT_ACTIVATED_ExtraInformation = -1;
+static int hf_org_csapi_mm_P_REQUESTED_ACCURACY_CANNOT_BE_DELIVERED_ExtraInformation = -1;
+static int hf_org_csapi_mm_P_REQUESTED_RESPONSE_TIME_CANNOT_BE_DELIVERED_ExtraInformation = -1;
+static int hf_org_csapi_mm_P_INVALID_REPORTING_INTERVAL_ExtraInformation = -1;
+static int hf_org_csapi_mm_P_TRIGGER_CONDITIONS_NOT_SUBSCRIBED_ExtraInformation = -1;
+static int hf_org_csapi_P_UNKNOWN_SUBSCRIBER_ExtraInformation = -1;
+static int hf_org_csapi_termcap_P_INVALID_TERMINAL_ID_ExtraInformation = -1;
+static int hf_org_csapi_gms_P_GMS_INVALID_MAILBOX_ExtraInformation = -1;
+static int hf_org_csapi_gms_P_GMS_INVALID_AUTHENTICATION_INFORMATION_ExtraInformation = -1;
+static int hf_org_csapi_gms_P_GMS_LOCKING_LOCKED_MAILBOX_ExtraInformation = -1;
+static int hf_org_csapi_gms_P_GMS_UNLOCKING_UNLOCKED_MAILBOX_ExtraInformation = -1;
+static int hf_org_csapi_gms_P_GMS_CANNOT_UNLOCK_MAILBOX_ExtraInformation = -1;
+static int hf_org_csapi_gms_P_GMS_NUMBER_NOT_POSITIVE_ExtraInformation = -1;
+static int hf_org_csapi_gms_P_GMS_PROPERTY_NOT_SET_ExtraInformation = -1;
+static int hf_org_csapi_gms_P_GMS_MAILBOX_LOCKED_ExtraInformation = -1;
+static int hf_org_csapi_gms_P_GMS_FOLDER_IS_OPEN_ExtraInformation = -1;
+static int hf_org_csapi_gms_P_GMS_INVALID_FOLDER_ID_ExtraInformation = -1;
+static int hf_org_csapi_gms_P_GMS_INSUFFICIENT_PRIVILEGE_ExtraInformation = -1;
+static int hf_org_csapi_gms_P_GMS_MAILBOX_OPEN_ExtraInformation = -1;
+static int hf_org_csapi_gms_P_GMS_INVALID_MESSAGE_ID_ExtraInformation = -1;
+static int hf_org_csapi_gms_P_GMS_MESSAGE_NOT_REMOVED_ExtraInformation = -1;
 static int hf_org_csapi_cm_P_UNKNOWN_VPRP_ID_ExtraInformation = -1;
 static int hf_org_csapi_cm_P_UNKNOWN_SLA_ID_ExtraInformation = -1;
 static int hf_org_csapi_cm_P_UNKNOWN_STATUS_ExtraInformation = -1;
@@ -2652,6 +2669,7 @@ static int hf_org_csapi_cm_P_UNKNOWN_QOS_INFO_ExtraInformation = -1;
 static int hf_org_csapi_cm_P_UNKNOWN_VALIDITY_INFO_ExtraInformation = -1;
 static int hf_org_csapi_cm_P_UNKNOWN_PIPEQOSINFO_ExtraInformation = -1;
 static int hf_org_csapi_cm_P_UNKNOWN_DSCODEPOINT_ExtraInformation = -1;
+static int hf_org_csapi_cm_P_UNKNOWN_VPRP_ExtraInformation = -1;
 static int hf_org_csapi_cm_P_ILLEGAL_VPRPID_ExtraInformation = -1;
 static int hf_org_csapi_cm_P_ILLEGAL_REF_VALUE_ExtraInformation = -1;
 static int hf_org_csapi_cm_P_UNKNOWN_INTERFACE_ExtraInformation = -1;
@@ -2674,79 +2692,58 @@ static int hf_org_csapi_cm_P_UNKNOWN_SITE_LOCATION_ExtraInformation = -1;
 static int hf_org_csapi_cm_P_UNKNOWN_SITE_DESCRIPTION_ExtraInformation = -1;
 static int hf_org_csapi_cm_P_UNKNOWN_IPSUBNET_ExtraInformation = -1;
 static int hf_org_csapi_cm_P_UNKNOWN_SAP_ExtraInformation = -1;
-static int hf_org_csapi_cm_P_UNKNOWN_VPRP_ExtraInformation = -1;
-static int hf_org_csapi_gms_P_GMS_INVALID_FOLDER_ID_ExtraInformation = -1;
-static int hf_org_csapi_gms_P_GMS_INSUFFICIENT_PRIVILEGE_ExtraInformation = -1;
-static int hf_org_csapi_gms_P_GMS_INVALID_AUTHENTICATION_INFORMATION_ExtraInformation = -1;
-static int hf_org_csapi_gms_P_GMS_INVALID_MAILBOX_ExtraInformation = -1;
-static int hf_org_csapi_gms_P_GMS_INVALID_MESSAGE_ID_ExtraInformation = -1;
-static int hf_org_csapi_gms_P_GMS_LOCKING_LOCKED_MAILBOX_ExtraInformation = -1;
-static int hf_org_csapi_gms_P_GMS_MESSAGE_NOT_REMOVED_ExtraInformation = -1;
-static int hf_org_csapi_gms_P_GMS_NUMBER_NOT_POSITIVE_ExtraInformation = -1;
-static int hf_org_csapi_gms_P_GMS_UNLOCKING_UNLOCKED_MAILBOX_ExtraInformation = -1;
-static int hf_org_csapi_gms_P_GMS_MAILBOX_LOCKED_ExtraInformation = -1;
-static int hf_org_csapi_gms_P_GMS_CANNOT_UNLOCK_MAILBOX_ExtraInformation = -1;
-static int hf_org_csapi_gms_P_GMS_PROPERTY_NOT_SET_ExtraInformation = -1;
-static int hf_org_csapi_gms_P_GMS_FOLDER_IS_OPEN_ExtraInformation = -1;
-static int hf_org_csapi_gms_P_GMS_MAILBOX_OPEN_ExtraInformation = -1;
-static int hf_org_csapi_termcap_P_INVALID_TERMINAL_ID_ExtraInformation = -1;
-static int hf_org_csapi_mm_P_REQUESTED_ACCURACY_CANNOT_BE_DELIVERED_ExtraInformation = -1;
-static int hf_org_csapi_mm_P_REQUESTED_RESPONSE_TIME_CANNOT_BE_DELIVERED_ExtraInformation = -1;
-static int hf_org_csapi_mm_P_INVALID_REPORTING_INTERVAL_ExtraInformation = -1;
-static int hf_org_csapi_mm_P_TRIGGER_CONDITIONS_NOT_SUBSCRIBED_ExtraInformation = -1;
-static int hf_org_csapi_ui_P_ID_NOT_FOUND_ExtraInformation = -1;
-static int hf_org_csapi_ui_P_ILLEGAL_ID_ExtraInformation = -1;
-static int hf_org_csapi_ui_P_ILLEGAL_RANGE_ExtraInformation = -1;
-static int hf_org_csapi_ui_P_INVALID_COLLECTION_CRITERIA_ExtraInformation = -1;
-static int hf_org_csapi_fw_P_SERVICE_NOT_ENABLED_ExtraInformation = -1;
-static int hf_org_csapi_fw_P_NO_ACCEPTABLE_ENCRYPTION_CAPABILITY_ExtraInformation = -1;
-static int hf_org_csapi_fw_P_INVALID_AGREEMENT_TEXT_ExtraInformation = -1;
-static int hf_org_csapi_fw_P_INVALID_SERVICE_TOKEN_ExtraInformation = -1;
-static int hf_org_csapi_fw_P_INVALID_SIGNATURE_ExtraInformation = -1;
-static int hf_org_csapi_fw_P_INVALID_SIGNING_ALGORITHM_ExtraInformation = -1;
-static int hf_org_csapi_fw_P_INVALID_DOMAIN_ID_ExtraInformation = -1;
-static int hf_org_csapi_fw_P_INVALID_PROPERTY_ExtraInformation = -1;
-static int hf_org_csapi_fw_P_INVALID_ACCESS_TYPE_ExtraInformation = -1;
-static int hf_org_csapi_fw_P_ILLEGAL_SERVICE_TYPE_ExtraInformation = -1;
-static int hf_org_csapi_fw_P_UNKNOWN_SERVICE_TYPE_ExtraInformation = -1;
-static int hf_org_csapi_fw_P_MISSING_MANDATORY_PROPERTY_ExtraInformation = -1;
-static int hf_org_csapi_fw_P_DUPLICATE_PROPERTY_NAME_ExtraInformation = -1;
-static int hf_org_csapi_fw_P_PROPERTY_TYPE_MISMATCH_ExtraInformation = -1;
-static int hf_org_csapi_fw_P_INVALID_CLIENT_APP_ID_ExtraInformation = -1;
-static int hf_org_csapi_fw_P_INVALID_AUTH_TYPE_ExtraInformation = -1;
-static int hf_org_csapi_fw_P_INVALID_SAG_ID_ExtraInformation = -1;
-static int hf_org_csapi_fw_P_INVALID_SERVICE_PROFILE_ID_ExtraInformation = -1;
-static int hf_org_csapi_fw_P_INVALID_SERVICE_CONTRACT_ID_ExtraInformation = -1;
-static int hf_org_csapi_fw_P_INVALID_ACTIVITY_TEST_ID_ExtraInformation = -1;
-static int hf_org_csapi_fw_P_ILLEGAL_SERVICE_ID_ExtraInformation = -1;
-static int hf_org_csapi_fw_P_UNKNOWN_SERVICE_ID_ExtraInformation = -1;
-static int hf_org_csapi_fw_P_SERVICE_TYPE_UNAVAILABLE_ExtraInformation = -1;
-static int hf_org_csapi_fw_P_INVALID_ADDITION_TO_SAG_ExtraInformation = -1;
-static int hf_org_csapi_fw_P_INVALID_SAG_TO_SERVICE_PROFILE_ASSIGNMENT_ExtraInformation = -1;
-static int hf_org_csapi_fw_P_NO_ACCEPTABLE_AUTHENTICATION_MECHANISM_ExtraInformation = -1;
-static int hf_org_csapi_fw_P_NO_ACCEPTABLE_SIGNING_ALGORITHM_ExtraInformation = -1;
-static int hf_org_csapi_fw_P_INVALID_SERVICE_ID_ExtraInformation = -1;
-static int hf_org_csapi_fw_P_SERVICE_ACCESS_DENIED_ExtraInformation = -1;
-static int hf_org_csapi_fw_P_ACCESS_DENIED_ExtraInformation = -1;
-static int hf_org_csapi_P_UNAUTHORISED_PARAMETER_VALUE_ExtraInformation = -1;
-static int hf_org_csapi_P_INVALID_VERSION_ExtraInformation = -1;
-static int hf_org_csapi_P_INVALID_NETWORK_STATE_ExtraInformation = -1;
-static int hf_org_csapi_P_INVALID_ASSIGNMENT_ID_ExtraInformation = -1;
-static int hf_org_csapi_P_INVALID_TIME_AND_DATE_FORMAT_ExtraInformation = -1;
-static int hf_org_csapi_P_INVALID_EVENT_TYPE_ExtraInformation = -1;
-static int hf_org_csapi_P_INVALID_INTERFACE_NAME_ExtraInformation = -1;
-static int hf_org_csapi_P_INVALID_INTERFACE_TYPE_ExtraInformation = -1;
-static int hf_org_csapi_P_UNKNOWN_SUBSCRIBER_ExtraInformation = -1;
-static int hf_org_csapi_P_INFORMATION_NOT_AVAILABLE_ExtraInformation = -1;
-static int hf_org_csapi_P_INVALID_CRITERIA_ExtraInformation = -1;
-static int hf_org_csapi_P_INVALID_SESSION_ID_ExtraInformation = -1;
-static int hf_org_csapi_TpCommonExceptions_ExceptionType = -1;
-static int hf_org_csapi_TpCommonExceptions_ExtraInformation = -1;
-static int hf_org_csapi_P_INVALID_CURRENCY_ExtraInformation = -1;
-static int hf_org_csapi_P_INVALID_AMOUNT_ExtraInformation = -1;
-static int hf_org_csapi_P_APPLICATION_NOT_ACTIVATED_ExtraInformation = -1;
-static int hf_org_csapi_P_INVALID_ADDRESS_ExtraInformation = -1;
-static int hf_org_csapi_P_UNSUPPORTED_ADDRESS_PLAN_ExtraInformation = -1;
+static int hf_org_csapi_am_P_UNAUTHORIZED_APPLICATION_ExtraInformation = -1;
+static int hf_org_csapi_cs_P_INVALID_REQUEST_NUMBER_ExtraInformation = -1;
+static int hf_org_csapi_cs_P_INVALID_VOLUME_ExtraInformation = -1;
+static int hf_org_csapi_cs_P_INVALID_USER_ExtraInformation = -1;
+static int hf_org_csapi_cs_P_INVALID_ACCOUNT_ExtraInformation = -1;
+static int hf_org_csapi_policy_P_ACCESS_VIOLATION_ExtraInformation = -1;
+static int hf_org_csapi_policy_P_SYNTAX_ERROR_ExtraInformation = -1;
+static int hf_org_csapi_policy_P_NAME_SPACE_ERROR_ExtraInformation = -1;
+static int hf_org_csapi_policy_P_NO_TRANSACTION_IN_PROCESS_ExtraInformation = -1;
+static int hf_org_csapi_policy_P_TRANSACTION_IN_PROCESS_ExtraInformation = -1;
+static int hf_org_csapi_pam_P_PAM_IDENTITY_EXISTS_ExtraInformation = -1;
+static int hf_org_csapi_pam_P_PAM_UNKNOWN_TYPE_ExtraInformation = -1;
+static int hf_org_csapi_pam_P_PAM_INVALID_CREDENTIAL_ExtraInformation = -1;
+static int hf_org_csapi_pam_P_PAM_UNKNOWN_IDENTITY_ExtraInformation = -1;
+static int hf_org_csapi_pam_P_PAM_MEMBER_EXISTS_ExtraInformation = -1;
+static int hf_org_csapi_pam_P_PAM_UNKNOWN_GROUP_ExtraInformation = -1;
+static int hf_org_csapi_pam_P_PAM_UNKNOWN_MEMBER_ExtraInformation = -1;
+static int hf_org_csapi_pam_P_PAM_IS_CYCLIC_ExtraInformation = -1;
+static int hf_org_csapi_pam_P_PAM_NOT_MEMBER_ExtraInformation = -1;
+static int hf_org_csapi_pam_P_PAM_ALIAS_EXISTS_ExtraInformation = -1;
+static int hf_org_csapi_pam_P_PAM_ALIAS_NOT_UNIQUE_ExtraInformation = -1;
+static int hf_org_csapi_pam_P_PAM_UNASSIGNED_ALIAS_ExtraInformation = -1;
+static int hf_org_csapi_pam_P_PAM_UNKNOWN_ALIAS_ExtraInformation = -1;
+static int hf_org_csapi_pam_P_PAM_TYPE_ASSOCIATED_ExtraInformation = -1;
+static int hf_org_csapi_pam_P_PAM_DISASSOCIATED_TYPE_ExtraInformation = -1;
+static int hf_org_csapi_pam_P_PAM_UNKNOWN_ATTRIBUTE_ExtraInformation = -1;
+static int hf_org_csapi_pam_P_PAM_UNKNOWN_ATTRIBUTES_ExtraInformation = -1;
+static int hf_org_csapi_pam_P_PAM_AGENT_EXISTS_ExtraInformation = -1;
+static int hf_org_csapi_pam_P_PAM_UNKNOWN_AGENT_ExtraInformation = -1;
+static int hf_org_csapi_pam_P_PAM_NO_CAPABILITY_ExtraInformation = -1;
+static int hf_org_csapi_pam_P_PAM_UNKNOWN_ASSIGNMENT_ExtraInformation = -1;
+static int hf_org_csapi_pam_P_PAM_ATTRIBUTE_EXISTS_ExtraInformation = -1;
+static int hf_org_csapi_pam_P_PAM_TYPE_EXISTS_ExtraInformation = -1;
+static int hf_org_csapi_pam_P_PAM_UNKNOWN_CAPABILITY_ExtraInformation = -1;
+static int hf_org_csapi_pam_P_PAM_UNAVAILABLE_INTERFACE_ExtraInformation = -1;
+static int hf_org_csapi_pam_P_PAM_NOT_REGISTERED_ExtraInformation = -1;
+static int hf_org_csapi_mmm_P_MMM_INVALID_MAILBOX_ExtraInformation = -1;
+static int hf_org_csapi_mmm_P_MMM_INVALID_AUTHENTICATION_INFORMATION_ExtraInformation = -1;
+static int hf_org_csapi_mmm_P_MMM_INVALID_FOLDER_ID_ExtraInformation = -1;
+static int hf_org_csapi_mmm_P_MMM_MAX_MESSAGE_SIZE_EXCEEDED_ExtraInformation = -1;
+static int hf_org_csapi_mmm_P_MMM_INVALID_MESSAGE_ID_ExtraInformation = -1;
+static int hf_org_csapi_mmm_P_MMM_INVALID_PART_ID_ExtraInformation = -1;
+static int hf_org_csapi_mmm_P_MMM_INVALID_PROPERTY_ExtraInformation = -1;
+static int hf_org_csapi_mmm_P_MMM_INVALID_DELIVERY_TYPE_ExtraInformation = -1;
+static int hf_org_csapi_mmm_P_MMM_DELIVERY_TYPE_ADDRESS_TYPE_MISMATCH_ExtraInformation = -1;
+static int hf_org_csapi_mmm_P_MMM_DELIVERY_TYPE_MESSAGE_TYPE_MISMATCH_ExtraInformation = -1;
+static int hf_org_csapi_mmm_P_MMM_INVALID_DELIVERY_TIME_ExtraInformation = -1;
+static int hf_org_csapi_mmm_P_MMM_INVALID_VALIDITY_TIME_ExtraInformation = -1;
+static int hf_org_csapi_mmm_P_MMM_MAX_SUBJECT_SIZE_EXCEEDED_ExtraInformation = -1;
+static int hf_org_csapi_mmm_P_MMM_INVALID_HEADER_ExtraInformation = -1;
+static int hf_org_csapi_mmm_P_MMM_CANNOT_CANCEL_ExtraInformation = -1;
+static int hf_org_csapi_mmm_P_MMM_INFORMATION_NOT_AVAILABLE_ExtraInformation = -1;
         /* Union filters */
 static int hf_org_csapi_TpAoCOrder_TpAoCOrder = -1;
 static int hf_org_csapi_TpAoCOrder_NetworkCharge = -1;
@@ -5672,523 +5669,715 @@ static const value_string org_csapi_mmm_TpMessagingError[] = {
 /*  Begin Exception Helper Functions  */
 
 
-/* Exception = IDL:org/csapi/mmm/P_MMM_MAX_MESSAGE_SIZE_EXCEEDED:1.0 */
+/* Exception = IDL:org/csapi/TpCommonExceptions:1.0 */
 static void
-decode_ex_org_csapi_mmm_P_MMM_MAX_MESSAGE_SIZE_EXCEEDED(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_TpCommonExceptions(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_P_MMM_MAX_MESSAGE_SIZE_EXCEEDED_ExtraInformation);
+    proto_tree_add_int(tree, hf_org_csapi_TpCommonExceptions_ExceptionType, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_TpCommonExceptions_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/mmm/P_MMM_INVALID_FOLDER_ID:1.0 */
+/* Exception = IDL:org/csapi/P_INVALID_INTERFACE_TYPE:1.0 */
 static void
-decode_ex_org_csapi_mmm_P_MMM_INVALID_FOLDER_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_P_INVALID_INTERFACE_TYPE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_P_MMM_INVALID_FOLDER_ID_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_INVALID_INTERFACE_TYPE_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/mmm/P_MMM_INVALID_MESSAGE_ID:1.0 */
+/* Exception = IDL:org/csapi/P_INVALID_SESSION_ID:1.0 */
 static void
-decode_ex_org_csapi_mmm_P_MMM_INVALID_MESSAGE_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_P_INVALID_SESSION_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_P_MMM_INVALID_MESSAGE_ID_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_INVALID_SESSION_ID_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/mmm/P_MMM_INVALID_PART_ID:1.0 */
+/* Exception = IDL:org/csapi/fw/P_INVALID_DOMAIN_ID:1.0 */
 static void
-decode_ex_org_csapi_mmm_P_MMM_INVALID_PART_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_fw_P_INVALID_DOMAIN_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_P_MMM_INVALID_PART_ID_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_DOMAIN_ID_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/mmm/P_MMM_DELIVERY_TYPE_ADDRESS_TYPE_MISMATCH:1.0 */
+/* Exception = IDL:org/csapi/fw/P_INVALID_AUTH_TYPE:1.0 */
 static void
-decode_ex_org_csapi_mmm_P_MMM_DELIVERY_TYPE_ADDRESS_TYPE_MISMATCH(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_fw_P_INVALID_AUTH_TYPE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_P_MMM_DELIVERY_TYPE_ADDRESS_TYPE_MISMATCH_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_AUTH_TYPE_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/mmm/P_MMM_DELIVERY_TYPE_MESSAGE_TYPE_MISMATCH:1.0 */
+/* Exception = IDL:org/csapi/P_INVALID_VERSION:1.0 */
 static void
-decode_ex_org_csapi_mmm_P_MMM_DELIVERY_TYPE_MESSAGE_TYPE_MISMATCH(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_P_INVALID_VERSION(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_P_MMM_DELIVERY_TYPE_MESSAGE_TYPE_MISMATCH_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_INVALID_VERSION_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/mmm/P_MMM_INVALID_PROPERTY:1.0 */
+/* Exception = IDL:org/csapi/fw/P_ACCESS_DENIED:1.0 */
 static void
-decode_ex_org_csapi_mmm_P_MMM_INVALID_PROPERTY(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_fw_P_ACCESS_DENIED(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_P_MMM_INVALID_PROPERTY_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_ACCESS_DENIED_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/mmm/P_MMM_INVALID_DELIVERY_TIME:1.0 */
+/* Exception = IDL:org/csapi/fw/P_INVALID_ACCESS_TYPE:1.0 */
 static void
-decode_ex_org_csapi_mmm_P_MMM_INVALID_DELIVERY_TIME(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_fw_P_INVALID_ACCESS_TYPE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_P_MMM_INVALID_DELIVERY_TIME_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_ACCESS_TYPE_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/mmm/P_MMM_INVALID_VALIDITY_TIME:1.0 */
+/* Exception = IDL:org/csapi/fw/P_INVALID_SIGNING_ALGORITHM:1.0 */
 static void
-decode_ex_org_csapi_mmm_P_MMM_INVALID_VALIDITY_TIME(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_fw_P_INVALID_SIGNING_ALGORITHM(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_P_MMM_INVALID_VALIDITY_TIME_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_SIGNING_ALGORITHM_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/mmm/P_MMM_MAX_SUBJECT_SIZE_EXCEEDED:1.0 */
+/* Exception = IDL:org/csapi/fw/P_INVALID_SIGNATURE:1.0 */
 static void
-decode_ex_org_csapi_mmm_P_MMM_MAX_SUBJECT_SIZE_EXCEEDED(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_fw_P_INVALID_SIGNATURE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_P_MMM_MAX_SUBJECT_SIZE_EXCEEDED_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_SIGNATURE_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/mmm/P_MMM_INFORMATION_NOT_AVAILABLE:1.0 */
+/* Exception = IDL:org/csapi/P_INVALID_INTERFACE_NAME:1.0 */
 static void
-decode_ex_org_csapi_mmm_P_MMM_INFORMATION_NOT_AVAILABLE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_P_INVALID_INTERFACE_NAME(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_P_MMM_INFORMATION_NOT_AVAILABLE_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_INVALID_INTERFACE_NAME_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/mmm/P_MMM_CANNOT_CANCEL:1.0 */
+/* Exception = IDL:org/csapi/fw/P_INVALID_PROPERTY:1.0 */
 static void
-decode_ex_org_csapi_mmm_P_MMM_CANNOT_CANCEL(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_fw_P_INVALID_PROPERTY(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_P_MMM_CANNOT_CANCEL_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_PROPERTY_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/mmm/P_MMM_INVALID_HEADER:1.0 */
+/* Exception = IDL:org/csapi/fw/P_NO_ACCEPTABLE_SIGNING_ALGORITHM:1.0 */
 static void
-decode_ex_org_csapi_mmm_P_MMM_INVALID_HEADER(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_fw_P_NO_ACCEPTABLE_SIGNING_ALGORITHM(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_P_MMM_INVALID_HEADER_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_NO_ACCEPTABLE_SIGNING_ALGORITHM_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/mmm/P_MMM_INVALID_AUTHENTICATION_INFORMATION:1.0 */
+/* Exception = IDL:org/csapi/fw/P_NO_ACCEPTABLE_ENCRYPTION_CAPABILITY:1.0 */
 static void
-decode_ex_org_csapi_mmm_P_MMM_INVALID_AUTHENTICATION_INFORMATION(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_fw_P_NO_ACCEPTABLE_ENCRYPTION_CAPABILITY(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_P_MMM_INVALID_AUTHENTICATION_INFORMATION_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_NO_ACCEPTABLE_ENCRYPTION_CAPABILITY_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/mmm/P_MMM_INVALID_MAILBOX:1.0 */
+/* Exception = IDL:org/csapi/fw/P_NO_ACCEPTABLE_AUTHENTICATION_MECHANISM:1.0 */
 static void
-decode_ex_org_csapi_mmm_P_MMM_INVALID_MAILBOX(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_fw_P_NO_ACCEPTABLE_AUTHENTICATION_MECHANISM(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_P_MMM_INVALID_MAILBOX_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_NO_ACCEPTABLE_AUTHENTICATION_MECHANISM_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/mmm/P_MMM_INVALID_DELIVERY_TYPE:1.0 */
+/* Exception = IDL:org/csapi/P_INVALID_CRITERIA:1.0 */
 static void
-decode_ex_org_csapi_mmm_P_MMM_INVALID_DELIVERY_TYPE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_P_INVALID_CRITERIA(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_P_MMM_INVALID_DELIVERY_TYPE_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_INVALID_CRITERIA_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/pam/P_PAM_UNAVAILABLE_INTERFACE:1.0 */
+/* Exception = IDL:org/csapi/P_INVALID_EVENT_TYPE:1.0 */
 static void
-decode_ex_org_csapi_pam_P_PAM_UNAVAILABLE_INTERFACE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_P_INVALID_EVENT_TYPE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_P_PAM_UNAVAILABLE_INTERFACE_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_INVALID_EVENT_TYPE_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/pam/P_PAM_INVALID_CREDENTIAL:1.0 */
+/* Exception = IDL:org/csapi/P_INVALID_ASSIGNMENT_ID:1.0 */
 static void
-decode_ex_org_csapi_pam_P_PAM_INVALID_CREDENTIAL(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_P_INVALID_ASSIGNMENT_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_P_PAM_INVALID_CREDENTIAL_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_INVALID_ASSIGNMENT_ID_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/pam/P_PAM_UNKNOWN_TYPE:1.0 */
+/* Exception = IDL:org/csapi/fw/P_INVALID_SERVICE_ID:1.0 */
 static void
-decode_ex_org_csapi_pam_P_PAM_UNKNOWN_TYPE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_fw_P_INVALID_SERVICE_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_P_PAM_UNKNOWN_TYPE_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_SERVICE_ID_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/pam/P_PAM_UNKNOWN_MEMBER:1.0 */
+/* Exception = IDL:org/csapi/fw/P_SERVICE_NOT_ENABLED:1.0 */
 static void
-decode_ex_org_csapi_pam_P_PAM_UNKNOWN_MEMBER(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_fw_P_SERVICE_NOT_ENABLED(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_P_PAM_UNKNOWN_MEMBER_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_SERVICE_NOT_ENABLED_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/pam/P_PAM_UNKNOWN_IDENTITY:1.0 */
+/* Exception = IDL:org/csapi/P_UNAUTHORISED_PARAMETER_VALUE:1.0 */
 static void
-decode_ex_org_csapi_pam_P_PAM_UNKNOWN_IDENTITY(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_P_UNAUTHORISED_PARAMETER_VALUE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_P_PAM_UNKNOWN_IDENTITY_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_UNAUTHORISED_PARAMETER_VALUE_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/pam/P_PAM_UNKNOWN_GROUP:1.0 */
+/* Exception = IDL:org/csapi/P_INVALID_TIME_AND_DATE_FORMAT:1.0 */
 static void
-decode_ex_org_csapi_pam_P_PAM_UNKNOWN_GROUP(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_P_INVALID_TIME_AND_DATE_FORMAT(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_P_PAM_UNKNOWN_GROUP_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_INVALID_TIME_AND_DATE_FORMAT_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/pam/P_PAM_UNKNOWN_CAPABILITY:1.0 */
+/* Exception = IDL:org/csapi/fw/P_INVALID_ACTIVITY_TEST_ID:1.0 */
 static void
-decode_ex_org_csapi_pam_P_PAM_UNKNOWN_CAPABILITY(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_fw_P_INVALID_ACTIVITY_TEST_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_P_PAM_UNKNOWN_CAPABILITY_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_ACTIVITY_TEST_ID_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/pam/P_PAM_UNKNOWN_ATTRIBUTES:1.0 */
+/* Exception = IDL:org/csapi/fw/P_ILLEGAL_SERVICE_TYPE:1.0 */
 static void
-decode_ex_org_csapi_pam_P_PAM_UNKNOWN_ATTRIBUTES(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_fw_P_ILLEGAL_SERVICE_TYPE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_P_PAM_UNKNOWN_ATTRIBUTES_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_ILLEGAL_SERVICE_TYPE_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/pam/P_PAM_UNKNOWN_ATTRIBUTE:1.0 */
+/* Exception = IDL:org/csapi/fw/P_UNKNOWN_SERVICE_TYPE:1.0 */
 static void
-decode_ex_org_csapi_pam_P_PAM_UNKNOWN_ATTRIBUTE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_fw_P_UNKNOWN_SERVICE_TYPE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_P_PAM_UNKNOWN_ATTRIBUTE_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_UNKNOWN_SERVICE_TYPE_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/pam/P_PAM_UNKNOWN_ASSIGNMENT:1.0 */
+/* Exception = IDL:org/csapi/fw/P_INVALID_AGREEMENT_TEXT:1.0 */
 static void
-decode_ex_org_csapi_pam_P_PAM_UNKNOWN_ASSIGNMENT(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_fw_P_INVALID_AGREEMENT_TEXT(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_P_PAM_UNKNOWN_ASSIGNMENT_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_AGREEMENT_TEXT_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/pam/P_PAM_UNKNOWN_ALIAS:1.0 */
+/* Exception = IDL:org/csapi/fw/P_INVALID_SERVICE_TOKEN:1.0 */
 static void
-decode_ex_org_csapi_pam_P_PAM_UNKNOWN_ALIAS(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_fw_P_INVALID_SERVICE_TOKEN(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_P_PAM_UNKNOWN_ALIAS_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_SERVICE_TOKEN_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/pam/P_PAM_UNKNOWN_AGENT:1.0 */
+/* Exception = IDL:org/csapi/fw/P_SERVICE_ACCESS_DENIED:1.0 */
 static void
-decode_ex_org_csapi_pam_P_PAM_UNKNOWN_AGENT(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_fw_P_SERVICE_ACCESS_DENIED(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_P_PAM_UNKNOWN_AGENT_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_SERVICE_ACCESS_DENIED_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/pam/P_PAM_UNASSIGNED_ALIAS:1.0 */
+/* Exception = IDL:org/csapi/fw/P_INVALID_SERVICE_PROFILE_ID:1.0 */
 static void
-decode_ex_org_csapi_pam_P_PAM_UNASSIGNED_ALIAS(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_fw_P_INVALID_SERVICE_PROFILE_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_P_PAM_UNASSIGNED_ALIAS_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_SERVICE_PROFILE_ID_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/pam/P_PAM_TYPE_EXISTS:1.0 */
+/* Exception = IDL:org/csapi/fw/P_INVALID_SAG_ID:1.0 */
 static void
-decode_ex_org_csapi_pam_P_PAM_TYPE_EXISTS(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_fw_P_INVALID_SAG_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_P_PAM_TYPE_EXISTS_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_SAG_ID_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/pam/P_PAM_TYPE_ASSOCIATED:1.0 */
+/* Exception = IDL:org/csapi/fw/P_INVALID_SAG_TO_SERVICE_PROFILE_ASSIGNMENT:1.0 */
 static void
-decode_ex_org_csapi_pam_P_PAM_TYPE_ASSOCIATED(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_fw_P_INVALID_SAG_TO_SERVICE_PROFILE_ASSIGNMENT(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_P_PAM_TYPE_ASSOCIATED_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_SAG_TO_SERVICE_PROFILE_ASSIGNMENT_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/pam/P_PAM_NOT_REGISTERED:1.0 */
+/* Exception = IDL:org/csapi/fw/P_INVALID_SERVICE_CONTRACT_ID:1.0 */
 static void
-decode_ex_org_csapi_pam_P_PAM_NOT_REGISTERED(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_fw_P_INVALID_SERVICE_CONTRACT_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_P_PAM_NOT_REGISTERED_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_SERVICE_CONTRACT_ID_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/pam/P_PAM_NOT_MEMBER:1.0 */
+/* Exception = IDL:org/csapi/fw/P_INVALID_CLIENT_APP_ID:1.0 */
 static void
-decode_ex_org_csapi_pam_P_PAM_NOT_MEMBER(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_fw_P_INVALID_CLIENT_APP_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_P_PAM_NOT_MEMBER_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_CLIENT_APP_ID_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/pam/P_PAM_NO_CAPABILITY:1.0 */
+/* Exception = IDL:org/csapi/fw/P_INVALID_ADDITION_TO_SAG:1.0 */
 static void
-decode_ex_org_csapi_pam_P_PAM_NO_CAPABILITY(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_fw_P_INVALID_ADDITION_TO_SAG(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_P_PAM_NO_CAPABILITY_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_ADDITION_TO_SAG_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/pam/P_PAM_MEMBER_EXISTS:1.0 */
+/* Exception = IDL:org/csapi/fw/P_PROPERTY_TYPE_MISMATCH:1.0 */
 static void
-decode_ex_org_csapi_pam_P_PAM_MEMBER_EXISTS(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_fw_P_PROPERTY_TYPE_MISMATCH(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_P_PAM_MEMBER_EXISTS_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_PROPERTY_TYPE_MISMATCH_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/pam/P_PAM_IS_CYCLIC:1.0 */
+/* Exception = IDL:org/csapi/fw/P_DUPLICATE_PROPERTY_NAME:1.0 */
 static void
-decode_ex_org_csapi_pam_P_PAM_IS_CYCLIC(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_fw_P_DUPLICATE_PROPERTY_NAME(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_P_PAM_IS_CYCLIC_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_DUPLICATE_PROPERTY_NAME_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/pam/P_PAM_IDENTITY_EXISTS:1.0 */
+/* Exception = IDL:org/csapi/fw/P_MISSING_MANDATORY_PROPERTY:1.0 */
 static void
-decode_ex_org_csapi_pam_P_PAM_IDENTITY_EXISTS(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_fw_P_MISSING_MANDATORY_PROPERTY(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_P_PAM_IDENTITY_EXISTS_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_MISSING_MANDATORY_PROPERTY_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/pam/P_PAM_DISASSOCIATED_TYPE:1.0 */
+/* Exception = IDL:org/csapi/fw/P_SERVICE_TYPE_UNAVAILABLE:1.0 */
 static void
-decode_ex_org_csapi_pam_P_PAM_DISASSOCIATED_TYPE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_fw_P_SERVICE_TYPE_UNAVAILABLE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_P_PAM_DISASSOCIATED_TYPE_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_SERVICE_TYPE_UNAVAILABLE_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/pam/P_PAM_ATTRIBUTE_EXISTS:1.0 */
+/* Exception = IDL:org/csapi/fw/P_ILLEGAL_SERVICE_ID:1.0 */
 static void
-decode_ex_org_csapi_pam_P_PAM_ATTRIBUTE_EXISTS(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_fw_P_ILLEGAL_SERVICE_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_P_PAM_ATTRIBUTE_EXISTS_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_ILLEGAL_SERVICE_ID_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/pam/P_PAM_ALIAS_NOT_UNIQUE:1.0 */
+/* Exception = IDL:org/csapi/fw/P_UNKNOWN_SERVICE_ID:1.0 */
 static void
-decode_ex_org_csapi_pam_P_PAM_ALIAS_NOT_UNIQUE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_fw_P_UNKNOWN_SERVICE_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_P_PAM_ALIAS_NOT_UNIQUE_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_UNKNOWN_SERVICE_ID_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/pam/P_PAM_ALIAS_EXISTS:1.0 */
+/* Exception = IDL:org/csapi/P_INVALID_ADDRESS:1.0 */
 static void
-decode_ex_org_csapi_pam_P_PAM_ALIAS_EXISTS(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_P_INVALID_ADDRESS(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_P_PAM_ALIAS_EXISTS_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_INVALID_ADDRESS_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/pam/P_PAM_AGENT_EXISTS:1.0 */
+/* Exception = IDL:org/csapi/P_UNSUPPORTED_ADDRESS_PLAN:1.0 */
 static void
-decode_ex_org_csapi_pam_P_PAM_AGENT_EXISTS(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_P_UNSUPPORTED_ADDRESS_PLAN(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_P_PAM_AGENT_EXISTS_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_UNSUPPORTED_ADDRESS_PLAN_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/policy/P_ACCESS_VIOLATION:1.0 */
+/* Exception = IDL:org/csapi/P_INVALID_NETWORK_STATE:1.0 */
 static void
-decode_ex_org_csapi_policy_P_ACCESS_VIOLATION(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_P_INVALID_NETWORK_STATE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_policy_P_ACCESS_VIOLATION_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_INVALID_NETWORK_STATE_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/policy/P_SYNTAX_ERROR:1.0 */
+/* Exception = IDL:org/csapi/P_INVALID_CURRENCY:1.0 */
 static void
-decode_ex_org_csapi_policy_P_SYNTAX_ERROR(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_P_INVALID_CURRENCY(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_policy_P_SYNTAX_ERROR_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_INVALID_CURRENCY_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/policy/P_NAME_SPACE_ERROR:1.0 */
+/* Exception = IDL:org/csapi/P_INVALID_AMOUNT:1.0 */
 static void
-decode_ex_org_csapi_policy_P_NAME_SPACE_ERROR(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_P_INVALID_AMOUNT(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_policy_P_NAME_SPACE_ERROR_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_INVALID_AMOUNT_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/policy/P_NO_TRANSACTION_IN_PROCESS:1.0 */
+/* Exception = IDL:org/csapi/P_INFORMATION_NOT_AVAILABLE:1.0 */
 static void
-decode_ex_org_csapi_policy_P_NO_TRANSACTION_IN_PROCESS(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_P_INFORMATION_NOT_AVAILABLE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_policy_P_NO_TRANSACTION_IN_PROCESS_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_INFORMATION_NOT_AVAILABLE_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/policy/P_TRANSACTION_IN_PROCESS:1.0 */
+/* Exception = IDL:org/csapi/ui/P_ILLEGAL_ID:1.0 */
 static void
-decode_ex_org_csapi_policy_P_TRANSACTION_IN_PROCESS(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_ui_P_ILLEGAL_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_policy_P_TRANSACTION_IN_PROCESS_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_ui_P_ILLEGAL_ID_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/cs/P_INVALID_USER:1.0 */
+/* Exception = IDL:org/csapi/ui/P_ID_NOT_FOUND:1.0 */
 static void
-decode_ex_org_csapi_cs_P_INVALID_USER(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_ui_P_ID_NOT_FOUND(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cs_P_INVALID_USER_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_ui_P_ID_NOT_FOUND_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/cs/P_INVALID_ACCOUNT:1.0 */
+/* Exception = IDL:org/csapi/ui/P_ILLEGAL_RANGE:1.0 */
 static void
-decode_ex_org_csapi_cs_P_INVALID_ACCOUNT(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_ui_P_ILLEGAL_RANGE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cs_P_INVALID_ACCOUNT_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_ui_P_ILLEGAL_RANGE_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/cs/P_INVALID_REQUEST_NUMBER:1.0 */
+/* Exception = IDL:org/csapi/ui/P_INVALID_COLLECTION_CRITERIA:1.0 */
 static void
-decode_ex_org_csapi_cs_P_INVALID_REQUEST_NUMBER(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_ui_P_INVALID_COLLECTION_CRITERIA(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cs_P_INVALID_REQUEST_NUMBER_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_ui_P_INVALID_COLLECTION_CRITERIA_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/cs/P_INVALID_VOLUME:1.0 */
+/* Exception = IDL:org/csapi/P_APPLICATION_NOT_ACTIVATED:1.0 */
 static void
-decode_ex_org_csapi_cs_P_INVALID_VOLUME(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_P_APPLICATION_NOT_ACTIVATED(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cs_P_INVALID_VOLUME_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_APPLICATION_NOT_ACTIVATED_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/am/P_UNAUTHORIZED_APPLICATION:1.0 */
+/* Exception = IDL:org/csapi/mm/P_REQUESTED_ACCURACY_CANNOT_BE_DELIVERED:1.0 */
 static void
-decode_ex_org_csapi_am_P_UNAUTHORIZED_APPLICATION(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_mm_P_REQUESTED_ACCURACY_CANNOT_BE_DELIVERED(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_am_P_UNAUTHORIZED_APPLICATION_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mm_P_REQUESTED_ACCURACY_CANNOT_BE_DELIVERED_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/mm/P_REQUESTED_RESPONSE_TIME_CANNOT_BE_DELIVERED:1.0 */
+static void
+decode_ex_org_csapi_mm_P_REQUESTED_RESPONSE_TIME_CANNOT_BE_DELIVERED(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mm_P_REQUESTED_RESPONSE_TIME_CANNOT_BE_DELIVERED_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/mm/P_INVALID_REPORTING_INTERVAL:1.0 */
+static void
+decode_ex_org_csapi_mm_P_INVALID_REPORTING_INTERVAL(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mm_P_INVALID_REPORTING_INTERVAL_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/mm/P_TRIGGER_CONDITIONS_NOT_SUBSCRIBED:1.0 */
+static void
+decode_ex_org_csapi_mm_P_TRIGGER_CONDITIONS_NOT_SUBSCRIBED(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mm_P_TRIGGER_CONDITIONS_NOT_SUBSCRIBED_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/P_UNKNOWN_SUBSCRIBER:1.0 */
+static void
+decode_ex_org_csapi_P_UNKNOWN_SUBSCRIBER(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_UNKNOWN_SUBSCRIBER_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/termcap/P_INVALID_TERMINAL_ID:1.0 */
+static void
+decode_ex_org_csapi_termcap_P_INVALID_TERMINAL_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_termcap_P_INVALID_TERMINAL_ID_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/gms/P_GMS_INVALID_MAILBOX:1.0 */
+static void
+decode_ex_org_csapi_gms_P_GMS_INVALID_MAILBOX(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_P_GMS_INVALID_MAILBOX_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/gms/P_GMS_INVALID_AUTHENTICATION_INFORMATION:1.0 */
+static void
+decode_ex_org_csapi_gms_P_GMS_INVALID_AUTHENTICATION_INFORMATION(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_P_GMS_INVALID_AUTHENTICATION_INFORMATION_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/gms/P_GMS_LOCKING_LOCKED_MAILBOX:1.0 */
+static void
+decode_ex_org_csapi_gms_P_GMS_LOCKING_LOCKED_MAILBOX(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_P_GMS_LOCKING_LOCKED_MAILBOX_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/gms/P_GMS_UNLOCKING_UNLOCKED_MAILBOX:1.0 */
+static void
+decode_ex_org_csapi_gms_P_GMS_UNLOCKING_UNLOCKED_MAILBOX(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_P_GMS_UNLOCKING_UNLOCKED_MAILBOX_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/gms/P_GMS_CANNOT_UNLOCK_MAILBOX:1.0 */
+static void
+decode_ex_org_csapi_gms_P_GMS_CANNOT_UNLOCK_MAILBOX(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_P_GMS_CANNOT_UNLOCK_MAILBOX_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/gms/P_GMS_NUMBER_NOT_POSITIVE:1.0 */
+static void
+decode_ex_org_csapi_gms_P_GMS_NUMBER_NOT_POSITIVE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_P_GMS_NUMBER_NOT_POSITIVE_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/gms/P_GMS_PROPERTY_NOT_SET:1.0 */
+static void
+decode_ex_org_csapi_gms_P_GMS_PROPERTY_NOT_SET(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_P_GMS_PROPERTY_NOT_SET_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/gms/P_GMS_MAILBOX_LOCKED:1.0 */
+static void
+decode_ex_org_csapi_gms_P_GMS_MAILBOX_LOCKED(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_P_GMS_MAILBOX_LOCKED_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/gms/P_GMS_FOLDER_IS_OPEN:1.0 */
+static void
+decode_ex_org_csapi_gms_P_GMS_FOLDER_IS_OPEN(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_P_GMS_FOLDER_IS_OPEN_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/gms/P_GMS_INVALID_FOLDER_ID:1.0 */
+static void
+decode_ex_org_csapi_gms_P_GMS_INVALID_FOLDER_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_P_GMS_INVALID_FOLDER_ID_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/gms/P_GMS_INSUFFICIENT_PRIVILEGE:1.0 */
+static void
+decode_ex_org_csapi_gms_P_GMS_INSUFFICIENT_PRIVILEGE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_P_GMS_INSUFFICIENT_PRIVILEGE_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/gms/P_GMS_MAILBOX_OPEN:1.0 */
+static void
+decode_ex_org_csapi_gms_P_GMS_MAILBOX_OPEN(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_P_GMS_MAILBOX_OPEN_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/gms/P_GMS_INVALID_MESSAGE_ID:1.0 */
+static void
+decode_ex_org_csapi_gms_P_GMS_INVALID_MESSAGE_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_P_GMS_INVALID_MESSAGE_ID_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/gms/P_GMS_MESSAGE_NOT_REMOVED:1.0 */
+static void
+decode_ex_org_csapi_gms_P_GMS_MESSAGE_NOT_REMOVED(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_P_GMS_MESSAGE_NOT_REMOVED_ExtraInformation);
 
 }
 
@@ -6259,6 +6448,16 @@ decode_ex_org_csapi_cm_P_UNKNOWN_DSCODEPOINT(tvbuff_t *tvb _U_, packet_info *pin
     proto_item *item _U_;
 
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_UNKNOWN_DSCODEPOINT_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/cm/P_UNKNOWN_VPRP:1.0 */
+static void
+decode_ex_org_csapi_cm_P_UNKNOWN_VPRP(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_UNKNOWN_VPRP_ExtraInformation);
 
 }
 
@@ -6482,725 +6681,523 @@ decode_ex_org_csapi_cm_P_UNKNOWN_SAP(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 
 }
 
-/* Exception = IDL:org/csapi/cm/P_UNKNOWN_VPRP:1.0 */
+/* Exception = IDL:org/csapi/am/P_UNAUTHORIZED_APPLICATION:1.0 */
 static void
-decode_ex_org_csapi_cm_P_UNKNOWN_VPRP(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_am_P_UNAUTHORIZED_APPLICATION(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_UNKNOWN_VPRP_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_am_P_UNAUTHORIZED_APPLICATION_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/gms/P_GMS_INVALID_FOLDER_ID:1.0 */
+/* Exception = IDL:org/csapi/cs/P_INVALID_REQUEST_NUMBER:1.0 */
 static void
-decode_ex_org_csapi_gms_P_GMS_INVALID_FOLDER_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_cs_P_INVALID_REQUEST_NUMBER(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_P_GMS_INVALID_FOLDER_ID_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cs_P_INVALID_REQUEST_NUMBER_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/gms/P_GMS_INSUFFICIENT_PRIVILEGE:1.0 */
+/* Exception = IDL:org/csapi/cs/P_INVALID_VOLUME:1.0 */
 static void
-decode_ex_org_csapi_gms_P_GMS_INSUFFICIENT_PRIVILEGE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_cs_P_INVALID_VOLUME(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_P_GMS_INSUFFICIENT_PRIVILEGE_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cs_P_INVALID_VOLUME_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/gms/P_GMS_INVALID_AUTHENTICATION_INFORMATION:1.0 */
+/* Exception = IDL:org/csapi/cs/P_INVALID_USER:1.0 */
 static void
-decode_ex_org_csapi_gms_P_GMS_INVALID_AUTHENTICATION_INFORMATION(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_cs_P_INVALID_USER(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_P_GMS_INVALID_AUTHENTICATION_INFORMATION_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cs_P_INVALID_USER_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/gms/P_GMS_INVALID_MAILBOX:1.0 */
+/* Exception = IDL:org/csapi/cs/P_INVALID_ACCOUNT:1.0 */
 static void
-decode_ex_org_csapi_gms_P_GMS_INVALID_MAILBOX(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_cs_P_INVALID_ACCOUNT(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_P_GMS_INVALID_MAILBOX_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cs_P_INVALID_ACCOUNT_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/gms/P_GMS_INVALID_MESSAGE_ID:1.0 */
+/* Exception = IDL:org/csapi/policy/P_ACCESS_VIOLATION:1.0 */
 static void
-decode_ex_org_csapi_gms_P_GMS_INVALID_MESSAGE_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_policy_P_ACCESS_VIOLATION(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_P_GMS_INVALID_MESSAGE_ID_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_policy_P_ACCESS_VIOLATION_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/gms/P_GMS_LOCKING_LOCKED_MAILBOX:1.0 */
+/* Exception = IDL:org/csapi/policy/P_SYNTAX_ERROR:1.0 */
 static void
-decode_ex_org_csapi_gms_P_GMS_LOCKING_LOCKED_MAILBOX(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_policy_P_SYNTAX_ERROR(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_P_GMS_LOCKING_LOCKED_MAILBOX_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_policy_P_SYNTAX_ERROR_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/gms/P_GMS_MESSAGE_NOT_REMOVED:1.0 */
+/* Exception = IDL:org/csapi/policy/P_NAME_SPACE_ERROR:1.0 */
 static void
-decode_ex_org_csapi_gms_P_GMS_MESSAGE_NOT_REMOVED(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_policy_P_NAME_SPACE_ERROR(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_P_GMS_MESSAGE_NOT_REMOVED_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_policy_P_NAME_SPACE_ERROR_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/gms/P_GMS_NUMBER_NOT_POSITIVE:1.0 */
+/* Exception = IDL:org/csapi/policy/P_NO_TRANSACTION_IN_PROCESS:1.0 */
 static void
-decode_ex_org_csapi_gms_P_GMS_NUMBER_NOT_POSITIVE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_policy_P_NO_TRANSACTION_IN_PROCESS(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_P_GMS_NUMBER_NOT_POSITIVE_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_policy_P_NO_TRANSACTION_IN_PROCESS_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/gms/P_GMS_UNLOCKING_UNLOCKED_MAILBOX:1.0 */
+/* Exception = IDL:org/csapi/policy/P_TRANSACTION_IN_PROCESS:1.0 */
 static void
-decode_ex_org_csapi_gms_P_GMS_UNLOCKING_UNLOCKED_MAILBOX(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_policy_P_TRANSACTION_IN_PROCESS(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_P_GMS_UNLOCKING_UNLOCKED_MAILBOX_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_policy_P_TRANSACTION_IN_PROCESS_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/gms/P_GMS_MAILBOX_LOCKED:1.0 */
+/* Exception = IDL:org/csapi/pam/P_PAM_IDENTITY_EXISTS:1.0 */
 static void
-decode_ex_org_csapi_gms_P_GMS_MAILBOX_LOCKED(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_pam_P_PAM_IDENTITY_EXISTS(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_P_GMS_MAILBOX_LOCKED_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_P_PAM_IDENTITY_EXISTS_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/gms/P_GMS_CANNOT_UNLOCK_MAILBOX:1.0 */
+/* Exception = IDL:org/csapi/pam/P_PAM_UNKNOWN_TYPE:1.0 */
 static void
-decode_ex_org_csapi_gms_P_GMS_CANNOT_UNLOCK_MAILBOX(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_pam_P_PAM_UNKNOWN_TYPE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_P_GMS_CANNOT_UNLOCK_MAILBOX_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_P_PAM_UNKNOWN_TYPE_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/gms/P_GMS_PROPERTY_NOT_SET:1.0 */
+/* Exception = IDL:org/csapi/pam/P_PAM_INVALID_CREDENTIAL:1.0 */
 static void
-decode_ex_org_csapi_gms_P_GMS_PROPERTY_NOT_SET(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_pam_P_PAM_INVALID_CREDENTIAL(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_P_GMS_PROPERTY_NOT_SET_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_P_PAM_INVALID_CREDENTIAL_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/gms/P_GMS_FOLDER_IS_OPEN:1.0 */
+/* Exception = IDL:org/csapi/pam/P_PAM_UNKNOWN_IDENTITY:1.0 */
 static void
-decode_ex_org_csapi_gms_P_GMS_FOLDER_IS_OPEN(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_pam_P_PAM_UNKNOWN_IDENTITY(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_P_GMS_FOLDER_IS_OPEN_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_P_PAM_UNKNOWN_IDENTITY_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/gms/P_GMS_MAILBOX_OPEN:1.0 */
+/* Exception = IDL:org/csapi/pam/P_PAM_MEMBER_EXISTS:1.0 */
 static void
-decode_ex_org_csapi_gms_P_GMS_MAILBOX_OPEN(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_pam_P_PAM_MEMBER_EXISTS(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_P_GMS_MAILBOX_OPEN_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_P_PAM_MEMBER_EXISTS_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/termcap/P_INVALID_TERMINAL_ID:1.0 */
+/* Exception = IDL:org/csapi/pam/P_PAM_UNKNOWN_GROUP:1.0 */
 static void
-decode_ex_org_csapi_termcap_P_INVALID_TERMINAL_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_pam_P_PAM_UNKNOWN_GROUP(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_termcap_P_INVALID_TERMINAL_ID_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_P_PAM_UNKNOWN_GROUP_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/mm/P_REQUESTED_ACCURACY_CANNOT_BE_DELIVERED:1.0 */
+/* Exception = IDL:org/csapi/pam/P_PAM_UNKNOWN_MEMBER:1.0 */
 static void
-decode_ex_org_csapi_mm_P_REQUESTED_ACCURACY_CANNOT_BE_DELIVERED(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_pam_P_PAM_UNKNOWN_MEMBER(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mm_P_REQUESTED_ACCURACY_CANNOT_BE_DELIVERED_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_P_PAM_UNKNOWN_MEMBER_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/mm/P_REQUESTED_RESPONSE_TIME_CANNOT_BE_DELIVERED:1.0 */
+/* Exception = IDL:org/csapi/pam/P_PAM_IS_CYCLIC:1.0 */
 static void
-decode_ex_org_csapi_mm_P_REQUESTED_RESPONSE_TIME_CANNOT_BE_DELIVERED(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_pam_P_PAM_IS_CYCLIC(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mm_P_REQUESTED_RESPONSE_TIME_CANNOT_BE_DELIVERED_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_P_PAM_IS_CYCLIC_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/mm/P_INVALID_REPORTING_INTERVAL:1.0 */
+/* Exception = IDL:org/csapi/pam/P_PAM_NOT_MEMBER:1.0 */
 static void
-decode_ex_org_csapi_mm_P_INVALID_REPORTING_INTERVAL(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_pam_P_PAM_NOT_MEMBER(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mm_P_INVALID_REPORTING_INTERVAL_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_P_PAM_NOT_MEMBER_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/mm/P_TRIGGER_CONDITIONS_NOT_SUBSCRIBED:1.0 */
+/* Exception = IDL:org/csapi/pam/P_PAM_ALIAS_EXISTS:1.0 */
 static void
-decode_ex_org_csapi_mm_P_TRIGGER_CONDITIONS_NOT_SUBSCRIBED(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_pam_P_PAM_ALIAS_EXISTS(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mm_P_TRIGGER_CONDITIONS_NOT_SUBSCRIBED_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_P_PAM_ALIAS_EXISTS_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/ui/P_ID_NOT_FOUND:1.0 */
+/* Exception = IDL:org/csapi/pam/P_PAM_ALIAS_NOT_UNIQUE:1.0 */
 static void
-decode_ex_org_csapi_ui_P_ID_NOT_FOUND(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_pam_P_PAM_ALIAS_NOT_UNIQUE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_ui_P_ID_NOT_FOUND_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_P_PAM_ALIAS_NOT_UNIQUE_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/ui/P_ILLEGAL_ID:1.0 */
+/* Exception = IDL:org/csapi/pam/P_PAM_UNASSIGNED_ALIAS:1.0 */
 static void
-decode_ex_org_csapi_ui_P_ILLEGAL_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_pam_P_PAM_UNASSIGNED_ALIAS(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_ui_P_ILLEGAL_ID_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_P_PAM_UNASSIGNED_ALIAS_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/ui/P_ILLEGAL_RANGE:1.0 */
+/* Exception = IDL:org/csapi/pam/P_PAM_UNKNOWN_ALIAS:1.0 */
 static void
-decode_ex_org_csapi_ui_P_ILLEGAL_RANGE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_pam_P_PAM_UNKNOWN_ALIAS(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_ui_P_ILLEGAL_RANGE_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_P_PAM_UNKNOWN_ALIAS_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/ui/P_INVALID_COLLECTION_CRITERIA:1.0 */
+/* Exception = IDL:org/csapi/pam/P_PAM_TYPE_ASSOCIATED:1.0 */
 static void
-decode_ex_org_csapi_ui_P_INVALID_COLLECTION_CRITERIA(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_pam_P_PAM_TYPE_ASSOCIATED(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_ui_P_INVALID_COLLECTION_CRITERIA_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_P_PAM_TYPE_ASSOCIATED_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/fw/P_SERVICE_NOT_ENABLED:1.0 */
+/* Exception = IDL:org/csapi/pam/P_PAM_DISASSOCIATED_TYPE:1.0 */
 static void
-decode_ex_org_csapi_fw_P_SERVICE_NOT_ENABLED(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_pam_P_PAM_DISASSOCIATED_TYPE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_SERVICE_NOT_ENABLED_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_P_PAM_DISASSOCIATED_TYPE_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/fw/P_NO_ACCEPTABLE_ENCRYPTION_CAPABILITY:1.0 */
+/* Exception = IDL:org/csapi/pam/P_PAM_UNKNOWN_ATTRIBUTE:1.0 */
 static void
-decode_ex_org_csapi_fw_P_NO_ACCEPTABLE_ENCRYPTION_CAPABILITY(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_pam_P_PAM_UNKNOWN_ATTRIBUTE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_NO_ACCEPTABLE_ENCRYPTION_CAPABILITY_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_P_PAM_UNKNOWN_ATTRIBUTE_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/fw/P_INVALID_AGREEMENT_TEXT:1.0 */
+/* Exception = IDL:org/csapi/pam/P_PAM_UNKNOWN_ATTRIBUTES:1.0 */
 static void
-decode_ex_org_csapi_fw_P_INVALID_AGREEMENT_TEXT(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_pam_P_PAM_UNKNOWN_ATTRIBUTES(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_AGREEMENT_TEXT_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_P_PAM_UNKNOWN_ATTRIBUTES_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/fw/P_INVALID_SERVICE_TOKEN:1.0 */
+/* Exception = IDL:org/csapi/pam/P_PAM_AGENT_EXISTS:1.0 */
 static void
-decode_ex_org_csapi_fw_P_INVALID_SERVICE_TOKEN(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_pam_P_PAM_AGENT_EXISTS(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_SERVICE_TOKEN_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_P_PAM_AGENT_EXISTS_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/fw/P_INVALID_SIGNATURE:1.0 */
+/* Exception = IDL:org/csapi/pam/P_PAM_UNKNOWN_AGENT:1.0 */
 static void
-decode_ex_org_csapi_fw_P_INVALID_SIGNATURE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_pam_P_PAM_UNKNOWN_AGENT(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_SIGNATURE_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_P_PAM_UNKNOWN_AGENT_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/fw/P_INVALID_SIGNING_ALGORITHM:1.0 */
+/* Exception = IDL:org/csapi/pam/P_PAM_NO_CAPABILITY:1.0 */
 static void
-decode_ex_org_csapi_fw_P_INVALID_SIGNING_ALGORITHM(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_pam_P_PAM_NO_CAPABILITY(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_SIGNING_ALGORITHM_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_P_PAM_NO_CAPABILITY_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/fw/P_INVALID_DOMAIN_ID:1.0 */
+/* Exception = IDL:org/csapi/pam/P_PAM_UNKNOWN_ASSIGNMENT:1.0 */
 static void
-decode_ex_org_csapi_fw_P_INVALID_DOMAIN_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_pam_P_PAM_UNKNOWN_ASSIGNMENT(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_DOMAIN_ID_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_P_PAM_UNKNOWN_ASSIGNMENT_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/fw/P_INVALID_PROPERTY:1.0 */
+/* Exception = IDL:org/csapi/pam/P_PAM_ATTRIBUTE_EXISTS:1.0 */
 static void
-decode_ex_org_csapi_fw_P_INVALID_PROPERTY(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_pam_P_PAM_ATTRIBUTE_EXISTS(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_PROPERTY_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_P_PAM_ATTRIBUTE_EXISTS_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/fw/P_INVALID_ACCESS_TYPE:1.0 */
+/* Exception = IDL:org/csapi/pam/P_PAM_TYPE_EXISTS:1.0 */
 static void
-decode_ex_org_csapi_fw_P_INVALID_ACCESS_TYPE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_pam_P_PAM_TYPE_EXISTS(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_ACCESS_TYPE_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_P_PAM_TYPE_EXISTS_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/fw/P_ILLEGAL_SERVICE_TYPE:1.0 */
+/* Exception = IDL:org/csapi/pam/P_PAM_UNKNOWN_CAPABILITY:1.0 */
 static void
-decode_ex_org_csapi_fw_P_ILLEGAL_SERVICE_TYPE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_pam_P_PAM_UNKNOWN_CAPABILITY(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_ILLEGAL_SERVICE_TYPE_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_P_PAM_UNKNOWN_CAPABILITY_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/fw/P_UNKNOWN_SERVICE_TYPE:1.0 */
+/* Exception = IDL:org/csapi/pam/P_PAM_UNAVAILABLE_INTERFACE:1.0 */
 static void
-decode_ex_org_csapi_fw_P_UNKNOWN_SERVICE_TYPE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_pam_P_PAM_UNAVAILABLE_INTERFACE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_UNKNOWN_SERVICE_TYPE_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_P_PAM_UNAVAILABLE_INTERFACE_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/fw/P_MISSING_MANDATORY_PROPERTY:1.0 */
+/* Exception = IDL:org/csapi/pam/P_PAM_NOT_REGISTERED:1.0 */
 static void
-decode_ex_org_csapi_fw_P_MISSING_MANDATORY_PROPERTY(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_pam_P_PAM_NOT_REGISTERED(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_MISSING_MANDATORY_PROPERTY_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_P_PAM_NOT_REGISTERED_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/fw/P_DUPLICATE_PROPERTY_NAME:1.0 */
+/* Exception = IDL:org/csapi/mmm/P_MMM_INVALID_MAILBOX:1.0 */
 static void
-decode_ex_org_csapi_fw_P_DUPLICATE_PROPERTY_NAME(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_mmm_P_MMM_INVALID_MAILBOX(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_DUPLICATE_PROPERTY_NAME_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_P_MMM_INVALID_MAILBOX_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/fw/P_PROPERTY_TYPE_MISMATCH:1.0 */
+/* Exception = IDL:org/csapi/mmm/P_MMM_INVALID_AUTHENTICATION_INFORMATION:1.0 */
 static void
-decode_ex_org_csapi_fw_P_PROPERTY_TYPE_MISMATCH(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_mmm_P_MMM_INVALID_AUTHENTICATION_INFORMATION(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_PROPERTY_TYPE_MISMATCH_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_P_MMM_INVALID_AUTHENTICATION_INFORMATION_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/fw/P_INVALID_CLIENT_APP_ID:1.0 */
+/* Exception = IDL:org/csapi/mmm/P_MMM_INVALID_FOLDER_ID:1.0 */
 static void
-decode_ex_org_csapi_fw_P_INVALID_CLIENT_APP_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_mmm_P_MMM_INVALID_FOLDER_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_CLIENT_APP_ID_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_P_MMM_INVALID_FOLDER_ID_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/fw/P_INVALID_AUTH_TYPE:1.0 */
+/* Exception = IDL:org/csapi/mmm/P_MMM_MAX_MESSAGE_SIZE_EXCEEDED:1.0 */
 static void
-decode_ex_org_csapi_fw_P_INVALID_AUTH_TYPE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_mmm_P_MMM_MAX_MESSAGE_SIZE_EXCEEDED(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_AUTH_TYPE_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_P_MMM_MAX_MESSAGE_SIZE_EXCEEDED_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/fw/P_INVALID_SAG_ID:1.0 */
+/* Exception = IDL:org/csapi/mmm/P_MMM_INVALID_MESSAGE_ID:1.0 */
 static void
-decode_ex_org_csapi_fw_P_INVALID_SAG_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_mmm_P_MMM_INVALID_MESSAGE_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_SAG_ID_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_P_MMM_INVALID_MESSAGE_ID_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/fw/P_INVALID_SERVICE_PROFILE_ID:1.0 */
+/* Exception = IDL:org/csapi/mmm/P_MMM_INVALID_PART_ID:1.0 */
 static void
-decode_ex_org_csapi_fw_P_INVALID_SERVICE_PROFILE_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_mmm_P_MMM_INVALID_PART_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_SERVICE_PROFILE_ID_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_P_MMM_INVALID_PART_ID_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/fw/P_INVALID_SERVICE_CONTRACT_ID:1.0 */
+/* Exception = IDL:org/csapi/mmm/P_MMM_INVALID_PROPERTY:1.0 */
 static void
-decode_ex_org_csapi_fw_P_INVALID_SERVICE_CONTRACT_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_mmm_P_MMM_INVALID_PROPERTY(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_SERVICE_CONTRACT_ID_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_P_MMM_INVALID_PROPERTY_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/fw/P_INVALID_ACTIVITY_TEST_ID:1.0 */
+/* Exception = IDL:org/csapi/mmm/P_MMM_INVALID_DELIVERY_TYPE:1.0 */
 static void
-decode_ex_org_csapi_fw_P_INVALID_ACTIVITY_TEST_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_mmm_P_MMM_INVALID_DELIVERY_TYPE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_ACTIVITY_TEST_ID_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_P_MMM_INVALID_DELIVERY_TYPE_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/fw/P_ILLEGAL_SERVICE_ID:1.0 */
+/* Exception = IDL:org/csapi/mmm/P_MMM_DELIVERY_TYPE_ADDRESS_TYPE_MISMATCH:1.0 */
 static void
-decode_ex_org_csapi_fw_P_ILLEGAL_SERVICE_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_mmm_P_MMM_DELIVERY_TYPE_ADDRESS_TYPE_MISMATCH(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_ILLEGAL_SERVICE_ID_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_P_MMM_DELIVERY_TYPE_ADDRESS_TYPE_MISMATCH_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/fw/P_UNKNOWN_SERVICE_ID:1.0 */
+/* Exception = IDL:org/csapi/mmm/P_MMM_DELIVERY_TYPE_MESSAGE_TYPE_MISMATCH:1.0 */
 static void
-decode_ex_org_csapi_fw_P_UNKNOWN_SERVICE_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_mmm_P_MMM_DELIVERY_TYPE_MESSAGE_TYPE_MISMATCH(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_UNKNOWN_SERVICE_ID_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_P_MMM_DELIVERY_TYPE_MESSAGE_TYPE_MISMATCH_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/fw/P_SERVICE_TYPE_UNAVAILABLE:1.0 */
+/* Exception = IDL:org/csapi/mmm/P_MMM_INVALID_DELIVERY_TIME:1.0 */
 static void
-decode_ex_org_csapi_fw_P_SERVICE_TYPE_UNAVAILABLE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_mmm_P_MMM_INVALID_DELIVERY_TIME(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_SERVICE_TYPE_UNAVAILABLE_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_P_MMM_INVALID_DELIVERY_TIME_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/fw/P_INVALID_ADDITION_TO_SAG:1.0 */
+/* Exception = IDL:org/csapi/mmm/P_MMM_INVALID_VALIDITY_TIME:1.0 */
 static void
-decode_ex_org_csapi_fw_P_INVALID_ADDITION_TO_SAG(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_mmm_P_MMM_INVALID_VALIDITY_TIME(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_ADDITION_TO_SAG_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_P_MMM_INVALID_VALIDITY_TIME_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/fw/P_INVALID_SAG_TO_SERVICE_PROFILE_ASSIGNMENT:1.0 */
+/* Exception = IDL:org/csapi/mmm/P_MMM_MAX_SUBJECT_SIZE_EXCEEDED:1.0 */
 static void
-decode_ex_org_csapi_fw_P_INVALID_SAG_TO_SERVICE_PROFILE_ASSIGNMENT(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_mmm_P_MMM_MAX_SUBJECT_SIZE_EXCEEDED(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_SAG_TO_SERVICE_PROFILE_ASSIGNMENT_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_P_MMM_MAX_SUBJECT_SIZE_EXCEEDED_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/fw/P_NO_ACCEPTABLE_AUTHENTICATION_MECHANISM:1.0 */
+/* Exception = IDL:org/csapi/mmm/P_MMM_INVALID_HEADER:1.0 */
 static void
-decode_ex_org_csapi_fw_P_NO_ACCEPTABLE_AUTHENTICATION_MECHANISM(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_mmm_P_MMM_INVALID_HEADER(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_NO_ACCEPTABLE_AUTHENTICATION_MECHANISM_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_P_MMM_INVALID_HEADER_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/fw/P_NO_ACCEPTABLE_SIGNING_ALGORITHM:1.0 */
+/* Exception = IDL:org/csapi/mmm/P_MMM_CANNOT_CANCEL:1.0 */
 static void
-decode_ex_org_csapi_fw_P_NO_ACCEPTABLE_SIGNING_ALGORITHM(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_mmm_P_MMM_CANNOT_CANCEL(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_NO_ACCEPTABLE_SIGNING_ALGORITHM_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_P_MMM_CANNOT_CANCEL_ExtraInformation);
 
 }
 
-/* Exception = IDL:org/csapi/fw/P_INVALID_SERVICE_ID:1.0 */
+/* Exception = IDL:org/csapi/mmm/P_MMM_INFORMATION_NOT_AVAILABLE:1.0 */
 static void
-decode_ex_org_csapi_fw_P_INVALID_SERVICE_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_ex_org_csapi_mmm_P_MMM_INFORMATION_NOT_AVAILABLE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
     proto_item *item _U_;
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_SERVICE_ID_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/fw/P_SERVICE_ACCESS_DENIED:1.0 */
-static void
-decode_ex_org_csapi_fw_P_SERVICE_ACCESS_DENIED(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_SERVICE_ACCESS_DENIED_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/fw/P_ACCESS_DENIED:1.0 */
-static void
-decode_ex_org_csapi_fw_P_ACCESS_DENIED(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_ACCESS_DENIED_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/P_UNAUTHORISED_PARAMETER_VALUE:1.0 */
-static void
-decode_ex_org_csapi_P_UNAUTHORISED_PARAMETER_VALUE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_UNAUTHORISED_PARAMETER_VALUE_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/P_INVALID_VERSION:1.0 */
-static void
-decode_ex_org_csapi_P_INVALID_VERSION(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_INVALID_VERSION_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/P_INVALID_NETWORK_STATE:1.0 */
-static void
-decode_ex_org_csapi_P_INVALID_NETWORK_STATE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_INVALID_NETWORK_STATE_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/P_INVALID_ASSIGNMENT_ID:1.0 */
-static void
-decode_ex_org_csapi_P_INVALID_ASSIGNMENT_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_INVALID_ASSIGNMENT_ID_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/P_INVALID_TIME_AND_DATE_FORMAT:1.0 */
-static void
-decode_ex_org_csapi_P_INVALID_TIME_AND_DATE_FORMAT(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_INVALID_TIME_AND_DATE_FORMAT_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/P_INVALID_EVENT_TYPE:1.0 */
-static void
-decode_ex_org_csapi_P_INVALID_EVENT_TYPE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_INVALID_EVENT_TYPE_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/P_INVALID_INTERFACE_NAME:1.0 */
-static void
-decode_ex_org_csapi_P_INVALID_INTERFACE_NAME(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_INVALID_INTERFACE_NAME_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/P_INVALID_INTERFACE_TYPE:1.0 */
-static void
-decode_ex_org_csapi_P_INVALID_INTERFACE_TYPE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_INVALID_INTERFACE_TYPE_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/P_UNKNOWN_SUBSCRIBER:1.0 */
-static void
-decode_ex_org_csapi_P_UNKNOWN_SUBSCRIBER(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_UNKNOWN_SUBSCRIBER_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/P_INFORMATION_NOT_AVAILABLE:1.0 */
-static void
-decode_ex_org_csapi_P_INFORMATION_NOT_AVAILABLE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_INFORMATION_NOT_AVAILABLE_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/P_INVALID_CRITERIA:1.0 */
-static void
-decode_ex_org_csapi_P_INVALID_CRITERIA(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_INVALID_CRITERIA_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/P_INVALID_SESSION_ID:1.0 */
-static void
-decode_ex_org_csapi_P_INVALID_SESSION_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_INVALID_SESSION_ID_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/TpCommonExceptions:1.0 */
-static void
-decode_ex_org_csapi_TpCommonExceptions(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    proto_tree_add_int(tree, hf_org_csapi_TpCommonExceptions_ExceptionType, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_TpCommonExceptions_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/P_INVALID_CURRENCY:1.0 */
-static void
-decode_ex_org_csapi_P_INVALID_CURRENCY(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_INVALID_CURRENCY_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/P_INVALID_AMOUNT:1.0 */
-static void
-decode_ex_org_csapi_P_INVALID_AMOUNT(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_INVALID_AMOUNT_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/P_APPLICATION_NOT_ACTIVATED:1.0 */
-static void
-decode_ex_org_csapi_P_APPLICATION_NOT_ACTIVATED(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_APPLICATION_NOT_ACTIVATED_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/P_INVALID_ADDRESS:1.0 */
-static void
-decode_ex_org_csapi_P_INVALID_ADDRESS(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_INVALID_ADDRESS_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/P_UNSUPPORTED_ADDRESS_PLAN:1.0 */
-static void
-decode_ex_org_csapi_P_UNSUPPORTED_ADDRESS_PLAN(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_UNSUPPORTED_ADDRESS_PLAN_ExtraInformation);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_P_MMM_INFORMATION_NOT_AVAILABLE_ExtraInformation);
 
 }
 
@@ -7219,315 +7216,429 @@ decode_user_exception(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *ptr
     if (!header->exception_id)
         return FALSE;
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/mmm/P_MMM_MAX_MESSAGE_SIZE_EXCEEDED:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/TpCommonExceptions:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_mmm_P_MMM_MAX_MESSAGE_SIZE_EXCEEDED(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/mmm/P_MMM_MAX_MESSAGE_SIZE_EXCEEDED:1.0  */
+        decode_ex_org_csapi_TpCommonExceptions(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/TpCommonExceptions:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/mmm/P_MMM_INVALID_FOLDER_ID:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_INTERFACE_TYPE:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_mmm_P_MMM_INVALID_FOLDER_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/mmm/P_MMM_INVALID_FOLDER_ID:1.0  */
+        decode_ex_org_csapi_P_INVALID_INTERFACE_TYPE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_INTERFACE_TYPE:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/mmm/P_MMM_INVALID_MESSAGE_ID:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_SESSION_ID:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_mmm_P_MMM_INVALID_MESSAGE_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/mmm/P_MMM_INVALID_MESSAGE_ID:1.0  */
+        decode_ex_org_csapi_P_INVALID_SESSION_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_SESSION_ID:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/mmm/P_MMM_INVALID_PART_ID:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_DOMAIN_ID:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_mmm_P_MMM_INVALID_PART_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/mmm/P_MMM_INVALID_PART_ID:1.0  */
+        decode_ex_org_csapi_fw_P_INVALID_DOMAIN_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_DOMAIN_ID:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/mmm/P_MMM_DELIVERY_TYPE_ADDRESS_TYPE_MISMATCH:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_AUTH_TYPE:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_mmm_P_MMM_DELIVERY_TYPE_ADDRESS_TYPE_MISMATCH(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/mmm/P_MMM_DELIVERY_TYPE_ADDRESS_TYPE_MISMATCH:1.0  */
+        decode_ex_org_csapi_fw_P_INVALID_AUTH_TYPE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_AUTH_TYPE:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/mmm/P_MMM_DELIVERY_TYPE_MESSAGE_TYPE_MISMATCH:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_VERSION:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_mmm_P_MMM_DELIVERY_TYPE_MESSAGE_TYPE_MISMATCH(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/mmm/P_MMM_DELIVERY_TYPE_MESSAGE_TYPE_MISMATCH:1.0  */
+        decode_ex_org_csapi_P_INVALID_VERSION(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_VERSION:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/mmm/P_MMM_INVALID_PROPERTY:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_ACCESS_DENIED:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_mmm_P_MMM_INVALID_PROPERTY(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/mmm/P_MMM_INVALID_PROPERTY:1.0  */
+        decode_ex_org_csapi_fw_P_ACCESS_DENIED(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_ACCESS_DENIED:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/mmm/P_MMM_INVALID_DELIVERY_TIME:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_ACCESS_TYPE:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_mmm_P_MMM_INVALID_DELIVERY_TIME(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/mmm/P_MMM_INVALID_DELIVERY_TIME:1.0  */
+        decode_ex_org_csapi_fw_P_INVALID_ACCESS_TYPE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_ACCESS_TYPE:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/mmm/P_MMM_INVALID_VALIDITY_TIME:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_SIGNING_ALGORITHM:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_mmm_P_MMM_INVALID_VALIDITY_TIME(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/mmm/P_MMM_INVALID_VALIDITY_TIME:1.0  */
+        decode_ex_org_csapi_fw_P_INVALID_SIGNING_ALGORITHM(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_SIGNING_ALGORITHM:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/mmm/P_MMM_MAX_SUBJECT_SIZE_EXCEEDED:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_SIGNATURE:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_mmm_P_MMM_MAX_SUBJECT_SIZE_EXCEEDED(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/mmm/P_MMM_MAX_SUBJECT_SIZE_EXCEEDED:1.0  */
+        decode_ex_org_csapi_fw_P_INVALID_SIGNATURE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_SIGNATURE:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/mmm/P_MMM_INFORMATION_NOT_AVAILABLE:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_INTERFACE_NAME:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_mmm_P_MMM_INFORMATION_NOT_AVAILABLE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/mmm/P_MMM_INFORMATION_NOT_AVAILABLE:1.0  */
+        decode_ex_org_csapi_P_INVALID_INTERFACE_NAME(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_INTERFACE_NAME:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/mmm/P_MMM_CANNOT_CANCEL:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_PROPERTY:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_mmm_P_MMM_CANNOT_CANCEL(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/mmm/P_MMM_CANNOT_CANCEL:1.0  */
+        decode_ex_org_csapi_fw_P_INVALID_PROPERTY(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_PROPERTY:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/mmm/P_MMM_INVALID_HEADER:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_NO_ACCEPTABLE_SIGNING_ALGORITHM:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_mmm_P_MMM_INVALID_HEADER(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/mmm/P_MMM_INVALID_HEADER:1.0  */
+        decode_ex_org_csapi_fw_P_NO_ACCEPTABLE_SIGNING_ALGORITHM(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_NO_ACCEPTABLE_SIGNING_ALGORITHM:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/mmm/P_MMM_INVALID_AUTHENTICATION_INFORMATION:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_NO_ACCEPTABLE_ENCRYPTION_CAPABILITY:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_mmm_P_MMM_INVALID_AUTHENTICATION_INFORMATION(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/mmm/P_MMM_INVALID_AUTHENTICATION_INFORMATION:1.0  */
+        decode_ex_org_csapi_fw_P_NO_ACCEPTABLE_ENCRYPTION_CAPABILITY(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_NO_ACCEPTABLE_ENCRYPTION_CAPABILITY:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/mmm/P_MMM_INVALID_MAILBOX:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_NO_ACCEPTABLE_AUTHENTICATION_MECHANISM:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_mmm_P_MMM_INVALID_MAILBOX(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/mmm/P_MMM_INVALID_MAILBOX:1.0  */
+        decode_ex_org_csapi_fw_P_NO_ACCEPTABLE_AUTHENTICATION_MECHANISM(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_NO_ACCEPTABLE_AUTHENTICATION_MECHANISM:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/mmm/P_MMM_INVALID_DELIVERY_TYPE:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_CRITERIA:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_mmm_P_MMM_INVALID_DELIVERY_TYPE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/mmm/P_MMM_INVALID_DELIVERY_TYPE:1.0  */
+        decode_ex_org_csapi_P_INVALID_CRITERIA(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_CRITERIA:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/pam/P_PAM_UNAVAILABLE_INTERFACE:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_EVENT_TYPE:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_pam_P_PAM_UNAVAILABLE_INTERFACE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/pam/P_PAM_UNAVAILABLE_INTERFACE:1.0  */
+        decode_ex_org_csapi_P_INVALID_EVENT_TYPE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_EVENT_TYPE:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/pam/P_PAM_INVALID_CREDENTIAL:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_ASSIGNMENT_ID:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_pam_P_PAM_INVALID_CREDENTIAL(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/pam/P_PAM_INVALID_CREDENTIAL:1.0  */
+        decode_ex_org_csapi_P_INVALID_ASSIGNMENT_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_ASSIGNMENT_ID:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/pam/P_PAM_UNKNOWN_TYPE:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_SERVICE_ID:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_pam_P_PAM_UNKNOWN_TYPE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/pam/P_PAM_UNKNOWN_TYPE:1.0  */
+        decode_ex_org_csapi_fw_P_INVALID_SERVICE_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_SERVICE_ID:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/pam/P_PAM_UNKNOWN_MEMBER:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_SERVICE_NOT_ENABLED:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_pam_P_PAM_UNKNOWN_MEMBER(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/pam/P_PAM_UNKNOWN_MEMBER:1.0  */
+        decode_ex_org_csapi_fw_P_SERVICE_NOT_ENABLED(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_SERVICE_NOT_ENABLED:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/pam/P_PAM_UNKNOWN_IDENTITY:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/P_UNAUTHORISED_PARAMETER_VALUE:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_pam_P_PAM_UNKNOWN_IDENTITY(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/pam/P_PAM_UNKNOWN_IDENTITY:1.0  */
+        decode_ex_org_csapi_P_UNAUTHORISED_PARAMETER_VALUE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_UNAUTHORISED_PARAMETER_VALUE:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/pam/P_PAM_UNKNOWN_GROUP:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_TIME_AND_DATE_FORMAT:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_pam_P_PAM_UNKNOWN_GROUP(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/pam/P_PAM_UNKNOWN_GROUP:1.0  */
+        decode_ex_org_csapi_P_INVALID_TIME_AND_DATE_FORMAT(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_TIME_AND_DATE_FORMAT:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/pam/P_PAM_UNKNOWN_CAPABILITY:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_ACTIVITY_TEST_ID:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_pam_P_PAM_UNKNOWN_CAPABILITY(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/pam/P_PAM_UNKNOWN_CAPABILITY:1.0  */
+        decode_ex_org_csapi_fw_P_INVALID_ACTIVITY_TEST_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_ACTIVITY_TEST_ID:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/pam/P_PAM_UNKNOWN_ATTRIBUTES:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_ILLEGAL_SERVICE_TYPE:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_pam_P_PAM_UNKNOWN_ATTRIBUTES(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/pam/P_PAM_UNKNOWN_ATTRIBUTES:1.0  */
+        decode_ex_org_csapi_fw_P_ILLEGAL_SERVICE_TYPE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_ILLEGAL_SERVICE_TYPE:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/pam/P_PAM_UNKNOWN_ATTRIBUTE:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_UNKNOWN_SERVICE_TYPE:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_pam_P_PAM_UNKNOWN_ATTRIBUTE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/pam/P_PAM_UNKNOWN_ATTRIBUTE:1.0  */
+        decode_ex_org_csapi_fw_P_UNKNOWN_SERVICE_TYPE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_UNKNOWN_SERVICE_TYPE:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/pam/P_PAM_UNKNOWN_ASSIGNMENT:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_AGREEMENT_TEXT:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_pam_P_PAM_UNKNOWN_ASSIGNMENT(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/pam/P_PAM_UNKNOWN_ASSIGNMENT:1.0  */
+        decode_ex_org_csapi_fw_P_INVALID_AGREEMENT_TEXT(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_AGREEMENT_TEXT:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/pam/P_PAM_UNKNOWN_ALIAS:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_SERVICE_TOKEN:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_pam_P_PAM_UNKNOWN_ALIAS(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/pam/P_PAM_UNKNOWN_ALIAS:1.0  */
+        decode_ex_org_csapi_fw_P_INVALID_SERVICE_TOKEN(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_SERVICE_TOKEN:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/pam/P_PAM_UNKNOWN_AGENT:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_SERVICE_ACCESS_DENIED:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_pam_P_PAM_UNKNOWN_AGENT(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/pam/P_PAM_UNKNOWN_AGENT:1.0  */
+        decode_ex_org_csapi_fw_P_SERVICE_ACCESS_DENIED(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_SERVICE_ACCESS_DENIED:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/pam/P_PAM_UNASSIGNED_ALIAS:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_SERVICE_PROFILE_ID:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_pam_P_PAM_UNASSIGNED_ALIAS(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/pam/P_PAM_UNASSIGNED_ALIAS:1.0  */
+        decode_ex_org_csapi_fw_P_INVALID_SERVICE_PROFILE_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_SERVICE_PROFILE_ID:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/pam/P_PAM_TYPE_EXISTS:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_SAG_ID:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_pam_P_PAM_TYPE_EXISTS(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/pam/P_PAM_TYPE_EXISTS:1.0  */
+        decode_ex_org_csapi_fw_P_INVALID_SAG_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_SAG_ID:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/pam/P_PAM_TYPE_ASSOCIATED:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_SAG_TO_SERVICE_PROFILE_ASSIGNMENT:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_pam_P_PAM_TYPE_ASSOCIATED(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/pam/P_PAM_TYPE_ASSOCIATED:1.0  */
+        decode_ex_org_csapi_fw_P_INVALID_SAG_TO_SERVICE_PROFILE_ASSIGNMENT(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_SAG_TO_SERVICE_PROFILE_ASSIGNMENT:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/pam/P_PAM_NOT_REGISTERED:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_SERVICE_CONTRACT_ID:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_pam_P_PAM_NOT_REGISTERED(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/pam/P_PAM_NOT_REGISTERED:1.0  */
+        decode_ex_org_csapi_fw_P_INVALID_SERVICE_CONTRACT_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_SERVICE_CONTRACT_ID:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/pam/P_PAM_NOT_MEMBER:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_CLIENT_APP_ID:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_pam_P_PAM_NOT_MEMBER(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/pam/P_PAM_NOT_MEMBER:1.0  */
+        decode_ex_org_csapi_fw_P_INVALID_CLIENT_APP_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_CLIENT_APP_ID:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/pam/P_PAM_NO_CAPABILITY:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_ADDITION_TO_SAG:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_pam_P_PAM_NO_CAPABILITY(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/pam/P_PAM_NO_CAPABILITY:1.0  */
+        decode_ex_org_csapi_fw_P_INVALID_ADDITION_TO_SAG(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_ADDITION_TO_SAG:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/pam/P_PAM_MEMBER_EXISTS:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_PROPERTY_TYPE_MISMATCH:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_pam_P_PAM_MEMBER_EXISTS(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/pam/P_PAM_MEMBER_EXISTS:1.0  */
+        decode_ex_org_csapi_fw_P_PROPERTY_TYPE_MISMATCH(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_PROPERTY_TYPE_MISMATCH:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/pam/P_PAM_IS_CYCLIC:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_DUPLICATE_PROPERTY_NAME:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_pam_P_PAM_IS_CYCLIC(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/pam/P_PAM_IS_CYCLIC:1.0  */
+        decode_ex_org_csapi_fw_P_DUPLICATE_PROPERTY_NAME(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_DUPLICATE_PROPERTY_NAME:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/pam/P_PAM_IDENTITY_EXISTS:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_MISSING_MANDATORY_PROPERTY:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_pam_P_PAM_IDENTITY_EXISTS(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/pam/P_PAM_IDENTITY_EXISTS:1.0  */
+        decode_ex_org_csapi_fw_P_MISSING_MANDATORY_PROPERTY(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_MISSING_MANDATORY_PROPERTY:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/pam/P_PAM_DISASSOCIATED_TYPE:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_SERVICE_TYPE_UNAVAILABLE:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_pam_P_PAM_DISASSOCIATED_TYPE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/pam/P_PAM_DISASSOCIATED_TYPE:1.0  */
+        decode_ex_org_csapi_fw_P_SERVICE_TYPE_UNAVAILABLE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_SERVICE_TYPE_UNAVAILABLE:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/pam/P_PAM_ATTRIBUTE_EXISTS:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_ILLEGAL_SERVICE_ID:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_pam_P_PAM_ATTRIBUTE_EXISTS(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/pam/P_PAM_ATTRIBUTE_EXISTS:1.0  */
+        decode_ex_org_csapi_fw_P_ILLEGAL_SERVICE_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_ILLEGAL_SERVICE_ID:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/pam/P_PAM_ALIAS_NOT_UNIQUE:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_UNKNOWN_SERVICE_ID:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_pam_P_PAM_ALIAS_NOT_UNIQUE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/pam/P_PAM_ALIAS_NOT_UNIQUE:1.0  */
+        decode_ex_org_csapi_fw_P_UNKNOWN_SERVICE_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_UNKNOWN_SERVICE_ID:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/pam/P_PAM_ALIAS_EXISTS:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_ADDRESS:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_pam_P_PAM_ALIAS_EXISTS(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/pam/P_PAM_ALIAS_EXISTS:1.0  */
+        decode_ex_org_csapi_P_INVALID_ADDRESS(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_ADDRESS:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/pam/P_PAM_AGENT_EXISTS:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/P_UNSUPPORTED_ADDRESS_PLAN:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_pam_P_PAM_AGENT_EXISTS(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/pam/P_PAM_AGENT_EXISTS:1.0  */
+        decode_ex_org_csapi_P_UNSUPPORTED_ADDRESS_PLAN(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_UNSUPPORTED_ADDRESS_PLAN:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/policy/P_ACCESS_VIOLATION:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_NETWORK_STATE:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_policy_P_ACCESS_VIOLATION(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/policy/P_ACCESS_VIOLATION:1.0  */
+        decode_ex_org_csapi_P_INVALID_NETWORK_STATE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_NETWORK_STATE:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/policy/P_SYNTAX_ERROR:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_CURRENCY:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_policy_P_SYNTAX_ERROR(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/policy/P_SYNTAX_ERROR:1.0  */
+        decode_ex_org_csapi_P_INVALID_CURRENCY(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_CURRENCY:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/policy/P_NAME_SPACE_ERROR:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_AMOUNT:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_policy_P_NAME_SPACE_ERROR(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/policy/P_NAME_SPACE_ERROR:1.0  */
+        decode_ex_org_csapi_P_INVALID_AMOUNT(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_AMOUNT:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/policy/P_NO_TRANSACTION_IN_PROCESS:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/P_INFORMATION_NOT_AVAILABLE:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_policy_P_NO_TRANSACTION_IN_PROCESS(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/policy/P_NO_TRANSACTION_IN_PROCESS:1.0  */
+        decode_ex_org_csapi_P_INFORMATION_NOT_AVAILABLE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INFORMATION_NOT_AVAILABLE:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/policy/P_TRANSACTION_IN_PROCESS:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/ui/P_ILLEGAL_ID:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_policy_P_TRANSACTION_IN_PROCESS(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/policy/P_TRANSACTION_IN_PROCESS:1.0  */
+        decode_ex_org_csapi_ui_P_ILLEGAL_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/ui/P_ILLEGAL_ID:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/cs/P_INVALID_USER:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/ui/P_ID_NOT_FOUND:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_cs_P_INVALID_USER(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cs/P_INVALID_USER:1.0  */
+        decode_ex_org_csapi_ui_P_ID_NOT_FOUND(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/ui/P_ID_NOT_FOUND:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/cs/P_INVALID_ACCOUNT:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/ui/P_ILLEGAL_RANGE:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_cs_P_INVALID_ACCOUNT(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cs/P_INVALID_ACCOUNT:1.0  */
+        decode_ex_org_csapi_ui_P_ILLEGAL_RANGE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/ui/P_ILLEGAL_RANGE:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/cs/P_INVALID_REQUEST_NUMBER:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/ui/P_INVALID_COLLECTION_CRITERIA:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_cs_P_INVALID_REQUEST_NUMBER(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cs/P_INVALID_REQUEST_NUMBER:1.0  */
+        decode_ex_org_csapi_ui_P_INVALID_COLLECTION_CRITERIA(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/ui/P_INVALID_COLLECTION_CRITERIA:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/cs/P_INVALID_VOLUME:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/P_APPLICATION_NOT_ACTIVATED:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_cs_P_INVALID_VOLUME(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cs/P_INVALID_VOLUME:1.0  */
+        decode_ex_org_csapi_P_APPLICATION_NOT_ACTIVATED(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_APPLICATION_NOT_ACTIVATED:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/am/P_UNAUTHORIZED_APPLICATION:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/mm/P_REQUESTED_ACCURACY_CANNOT_BE_DELIVERED:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_am_P_UNAUTHORIZED_APPLICATION(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/am/P_UNAUTHORIZED_APPLICATION:1.0  */
+        decode_ex_org_csapi_mm_P_REQUESTED_ACCURACY_CANNOT_BE_DELIVERED(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/mm/P_REQUESTED_ACCURACY_CANNOT_BE_DELIVERED:1.0  */
+        return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/mm/P_REQUESTED_RESPONSE_TIME_CANNOT_BE_DELIVERED:1.0") == 0) {
+        tree = start_dissecting(tvb, pinfo, ptree, offset);
+        decode_ex_org_csapi_mm_P_REQUESTED_RESPONSE_TIME_CANNOT_BE_DELIVERED(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/mm/P_REQUESTED_RESPONSE_TIME_CANNOT_BE_DELIVERED:1.0  */
+        return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/mm/P_INVALID_REPORTING_INTERVAL:1.0") == 0) {
+        tree = start_dissecting(tvb, pinfo, ptree, offset);
+        decode_ex_org_csapi_mm_P_INVALID_REPORTING_INTERVAL(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/mm/P_INVALID_REPORTING_INTERVAL:1.0  */
+        return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/mm/P_TRIGGER_CONDITIONS_NOT_SUBSCRIBED:1.0") == 0) {
+        tree = start_dissecting(tvb, pinfo, ptree, offset);
+        decode_ex_org_csapi_mm_P_TRIGGER_CONDITIONS_NOT_SUBSCRIBED(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/mm/P_TRIGGER_CONDITIONS_NOT_SUBSCRIBED:1.0  */
+        return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/P_UNKNOWN_SUBSCRIBER:1.0") == 0) {
+        tree = start_dissecting(tvb, pinfo, ptree, offset);
+        decode_ex_org_csapi_P_UNKNOWN_SUBSCRIBER(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_UNKNOWN_SUBSCRIBER:1.0  */
+        return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/termcap/P_INVALID_TERMINAL_ID:1.0") == 0) {
+        tree = start_dissecting(tvb, pinfo, ptree, offset);
+        decode_ex_org_csapi_termcap_P_INVALID_TERMINAL_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/termcap/P_INVALID_TERMINAL_ID:1.0  */
+        return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/gms/P_GMS_INVALID_MAILBOX:1.0") == 0) {
+        tree = start_dissecting(tvb, pinfo, ptree, offset);
+        decode_ex_org_csapi_gms_P_GMS_INVALID_MAILBOX(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/gms/P_GMS_INVALID_MAILBOX:1.0  */
+        return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/gms/P_GMS_INVALID_AUTHENTICATION_INFORMATION:1.0") == 0) {
+        tree = start_dissecting(tvb, pinfo, ptree, offset);
+        decode_ex_org_csapi_gms_P_GMS_INVALID_AUTHENTICATION_INFORMATION(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/gms/P_GMS_INVALID_AUTHENTICATION_INFORMATION:1.0  */
+        return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/gms/P_GMS_LOCKING_LOCKED_MAILBOX:1.0") == 0) {
+        tree = start_dissecting(tvb, pinfo, ptree, offset);
+        decode_ex_org_csapi_gms_P_GMS_LOCKING_LOCKED_MAILBOX(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/gms/P_GMS_LOCKING_LOCKED_MAILBOX:1.0  */
+        return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/gms/P_GMS_UNLOCKING_UNLOCKED_MAILBOX:1.0") == 0) {
+        tree = start_dissecting(tvb, pinfo, ptree, offset);
+        decode_ex_org_csapi_gms_P_GMS_UNLOCKING_UNLOCKED_MAILBOX(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/gms/P_GMS_UNLOCKING_UNLOCKED_MAILBOX:1.0  */
+        return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/gms/P_GMS_CANNOT_UNLOCK_MAILBOX:1.0") == 0) {
+        tree = start_dissecting(tvb, pinfo, ptree, offset);
+        decode_ex_org_csapi_gms_P_GMS_CANNOT_UNLOCK_MAILBOX(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/gms/P_GMS_CANNOT_UNLOCK_MAILBOX:1.0  */
+        return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/gms/P_GMS_NUMBER_NOT_POSITIVE:1.0") == 0) {
+        tree = start_dissecting(tvb, pinfo, ptree, offset);
+        decode_ex_org_csapi_gms_P_GMS_NUMBER_NOT_POSITIVE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/gms/P_GMS_NUMBER_NOT_POSITIVE:1.0  */
+        return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/gms/P_GMS_PROPERTY_NOT_SET:1.0") == 0) {
+        tree = start_dissecting(tvb, pinfo, ptree, offset);
+        decode_ex_org_csapi_gms_P_GMS_PROPERTY_NOT_SET(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/gms/P_GMS_PROPERTY_NOT_SET:1.0  */
+        return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/gms/P_GMS_MAILBOX_LOCKED:1.0") == 0) {
+        tree = start_dissecting(tvb, pinfo, ptree, offset);
+        decode_ex_org_csapi_gms_P_GMS_MAILBOX_LOCKED(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/gms/P_GMS_MAILBOX_LOCKED:1.0  */
+        return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/gms/P_GMS_FOLDER_IS_OPEN:1.0") == 0) {
+        tree = start_dissecting(tvb, pinfo, ptree, offset);
+        decode_ex_org_csapi_gms_P_GMS_FOLDER_IS_OPEN(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/gms/P_GMS_FOLDER_IS_OPEN:1.0  */
+        return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/gms/P_GMS_INVALID_FOLDER_ID:1.0") == 0) {
+        tree = start_dissecting(tvb, pinfo, ptree, offset);
+        decode_ex_org_csapi_gms_P_GMS_INVALID_FOLDER_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/gms/P_GMS_INVALID_FOLDER_ID:1.0  */
+        return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/gms/P_GMS_INSUFFICIENT_PRIVILEGE:1.0") == 0) {
+        tree = start_dissecting(tvb, pinfo, ptree, offset);
+        decode_ex_org_csapi_gms_P_GMS_INSUFFICIENT_PRIVILEGE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/gms/P_GMS_INSUFFICIENT_PRIVILEGE:1.0  */
+        return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/gms/P_GMS_MAILBOX_OPEN:1.0") == 0) {
+        tree = start_dissecting(tvb, pinfo, ptree, offset);
+        decode_ex_org_csapi_gms_P_GMS_MAILBOX_OPEN(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/gms/P_GMS_MAILBOX_OPEN:1.0  */
+        return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/gms/P_GMS_INVALID_MESSAGE_ID:1.0") == 0) {
+        tree = start_dissecting(tvb, pinfo, ptree, offset);
+        decode_ex_org_csapi_gms_P_GMS_INVALID_MESSAGE_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/gms/P_GMS_INVALID_MESSAGE_ID:1.0  */
+        return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/gms/P_GMS_MESSAGE_NOT_REMOVED:1.0") == 0) {
+        tree = start_dissecting(tvb, pinfo, ptree, offset);
+        decode_ex_org_csapi_gms_P_GMS_MESSAGE_NOT_REMOVED(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/gms/P_GMS_MESSAGE_NOT_REMOVED:1.0  */
         return TRUE;
     }
 
@@ -7570,6 +7681,12 @@ decode_user_exception(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *ptr
     if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_UNKNOWN_DSCODEPOINT:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
         decode_ex_org_csapi_cm_P_UNKNOWN_DSCODEPOINT(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_UNKNOWN_DSCODEPOINT:1.0  */
+        return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_UNKNOWN_VPRP:1.0") == 0) {
+        tree = start_dissecting(tvb, pinfo, ptree, offset);
+        decode_ex_org_csapi_cm_P_UNKNOWN_VPRP(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_UNKNOWN_VPRP:1.0  */
         return TRUE;
     }
 
@@ -7705,435 +7822,315 @@ decode_user_exception(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *ptr
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_UNKNOWN_VPRP:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/am/P_UNAUTHORIZED_APPLICATION:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_cm_P_UNKNOWN_VPRP(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_UNKNOWN_VPRP:1.0  */
+        decode_ex_org_csapi_am_P_UNAUTHORIZED_APPLICATION(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/am/P_UNAUTHORIZED_APPLICATION:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/gms/P_GMS_INVALID_FOLDER_ID:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/cs/P_INVALID_REQUEST_NUMBER:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_gms_P_GMS_INVALID_FOLDER_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/gms/P_GMS_INVALID_FOLDER_ID:1.0  */
+        decode_ex_org_csapi_cs_P_INVALID_REQUEST_NUMBER(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cs/P_INVALID_REQUEST_NUMBER:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/gms/P_GMS_INSUFFICIENT_PRIVILEGE:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/cs/P_INVALID_VOLUME:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_gms_P_GMS_INSUFFICIENT_PRIVILEGE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/gms/P_GMS_INSUFFICIENT_PRIVILEGE:1.0  */
+        decode_ex_org_csapi_cs_P_INVALID_VOLUME(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cs/P_INVALID_VOLUME:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/gms/P_GMS_INVALID_AUTHENTICATION_INFORMATION:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/cs/P_INVALID_USER:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_gms_P_GMS_INVALID_AUTHENTICATION_INFORMATION(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/gms/P_GMS_INVALID_AUTHENTICATION_INFORMATION:1.0  */
+        decode_ex_org_csapi_cs_P_INVALID_USER(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cs/P_INVALID_USER:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/gms/P_GMS_INVALID_MAILBOX:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/cs/P_INVALID_ACCOUNT:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_gms_P_GMS_INVALID_MAILBOX(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/gms/P_GMS_INVALID_MAILBOX:1.0  */
+        decode_ex_org_csapi_cs_P_INVALID_ACCOUNT(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cs/P_INVALID_ACCOUNT:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/gms/P_GMS_INVALID_MESSAGE_ID:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/policy/P_ACCESS_VIOLATION:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_gms_P_GMS_INVALID_MESSAGE_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/gms/P_GMS_INVALID_MESSAGE_ID:1.0  */
+        decode_ex_org_csapi_policy_P_ACCESS_VIOLATION(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/policy/P_ACCESS_VIOLATION:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/gms/P_GMS_LOCKING_LOCKED_MAILBOX:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/policy/P_SYNTAX_ERROR:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_gms_P_GMS_LOCKING_LOCKED_MAILBOX(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/gms/P_GMS_LOCKING_LOCKED_MAILBOX:1.0  */
+        decode_ex_org_csapi_policy_P_SYNTAX_ERROR(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/policy/P_SYNTAX_ERROR:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/gms/P_GMS_MESSAGE_NOT_REMOVED:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/policy/P_NAME_SPACE_ERROR:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_gms_P_GMS_MESSAGE_NOT_REMOVED(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/gms/P_GMS_MESSAGE_NOT_REMOVED:1.0  */
+        decode_ex_org_csapi_policy_P_NAME_SPACE_ERROR(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/policy/P_NAME_SPACE_ERROR:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/gms/P_GMS_NUMBER_NOT_POSITIVE:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/policy/P_NO_TRANSACTION_IN_PROCESS:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_gms_P_GMS_NUMBER_NOT_POSITIVE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/gms/P_GMS_NUMBER_NOT_POSITIVE:1.0  */
+        decode_ex_org_csapi_policy_P_NO_TRANSACTION_IN_PROCESS(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/policy/P_NO_TRANSACTION_IN_PROCESS:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/gms/P_GMS_UNLOCKING_UNLOCKED_MAILBOX:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/policy/P_TRANSACTION_IN_PROCESS:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_gms_P_GMS_UNLOCKING_UNLOCKED_MAILBOX(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/gms/P_GMS_UNLOCKING_UNLOCKED_MAILBOX:1.0  */
+        decode_ex_org_csapi_policy_P_TRANSACTION_IN_PROCESS(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/policy/P_TRANSACTION_IN_PROCESS:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/gms/P_GMS_MAILBOX_LOCKED:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/pam/P_PAM_IDENTITY_EXISTS:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_gms_P_GMS_MAILBOX_LOCKED(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/gms/P_GMS_MAILBOX_LOCKED:1.0  */
+        decode_ex_org_csapi_pam_P_PAM_IDENTITY_EXISTS(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/pam/P_PAM_IDENTITY_EXISTS:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/gms/P_GMS_CANNOT_UNLOCK_MAILBOX:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/pam/P_PAM_UNKNOWN_TYPE:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_gms_P_GMS_CANNOT_UNLOCK_MAILBOX(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/gms/P_GMS_CANNOT_UNLOCK_MAILBOX:1.0  */
+        decode_ex_org_csapi_pam_P_PAM_UNKNOWN_TYPE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/pam/P_PAM_UNKNOWN_TYPE:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/gms/P_GMS_PROPERTY_NOT_SET:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/pam/P_PAM_INVALID_CREDENTIAL:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_gms_P_GMS_PROPERTY_NOT_SET(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/gms/P_GMS_PROPERTY_NOT_SET:1.0  */
+        decode_ex_org_csapi_pam_P_PAM_INVALID_CREDENTIAL(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/pam/P_PAM_INVALID_CREDENTIAL:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/gms/P_GMS_FOLDER_IS_OPEN:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/pam/P_PAM_UNKNOWN_IDENTITY:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_gms_P_GMS_FOLDER_IS_OPEN(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/gms/P_GMS_FOLDER_IS_OPEN:1.0  */
+        decode_ex_org_csapi_pam_P_PAM_UNKNOWN_IDENTITY(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/pam/P_PAM_UNKNOWN_IDENTITY:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/gms/P_GMS_MAILBOX_OPEN:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/pam/P_PAM_MEMBER_EXISTS:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_gms_P_GMS_MAILBOX_OPEN(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/gms/P_GMS_MAILBOX_OPEN:1.0  */
+        decode_ex_org_csapi_pam_P_PAM_MEMBER_EXISTS(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/pam/P_PAM_MEMBER_EXISTS:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/termcap/P_INVALID_TERMINAL_ID:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/pam/P_PAM_UNKNOWN_GROUP:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_termcap_P_INVALID_TERMINAL_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/termcap/P_INVALID_TERMINAL_ID:1.0  */
+        decode_ex_org_csapi_pam_P_PAM_UNKNOWN_GROUP(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/pam/P_PAM_UNKNOWN_GROUP:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/mm/P_REQUESTED_ACCURACY_CANNOT_BE_DELIVERED:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/pam/P_PAM_UNKNOWN_MEMBER:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_mm_P_REQUESTED_ACCURACY_CANNOT_BE_DELIVERED(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/mm/P_REQUESTED_ACCURACY_CANNOT_BE_DELIVERED:1.0  */
+        decode_ex_org_csapi_pam_P_PAM_UNKNOWN_MEMBER(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/pam/P_PAM_UNKNOWN_MEMBER:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/mm/P_REQUESTED_RESPONSE_TIME_CANNOT_BE_DELIVERED:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/pam/P_PAM_IS_CYCLIC:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_mm_P_REQUESTED_RESPONSE_TIME_CANNOT_BE_DELIVERED(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/mm/P_REQUESTED_RESPONSE_TIME_CANNOT_BE_DELIVERED:1.0  */
+        decode_ex_org_csapi_pam_P_PAM_IS_CYCLIC(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/pam/P_PAM_IS_CYCLIC:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/mm/P_INVALID_REPORTING_INTERVAL:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/pam/P_PAM_NOT_MEMBER:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_mm_P_INVALID_REPORTING_INTERVAL(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/mm/P_INVALID_REPORTING_INTERVAL:1.0  */
+        decode_ex_org_csapi_pam_P_PAM_NOT_MEMBER(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/pam/P_PAM_NOT_MEMBER:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/mm/P_TRIGGER_CONDITIONS_NOT_SUBSCRIBED:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/pam/P_PAM_ALIAS_EXISTS:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_mm_P_TRIGGER_CONDITIONS_NOT_SUBSCRIBED(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/mm/P_TRIGGER_CONDITIONS_NOT_SUBSCRIBED:1.0  */
+        decode_ex_org_csapi_pam_P_PAM_ALIAS_EXISTS(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/pam/P_PAM_ALIAS_EXISTS:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/ui/P_ID_NOT_FOUND:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/pam/P_PAM_ALIAS_NOT_UNIQUE:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_ui_P_ID_NOT_FOUND(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/ui/P_ID_NOT_FOUND:1.0  */
+        decode_ex_org_csapi_pam_P_PAM_ALIAS_NOT_UNIQUE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/pam/P_PAM_ALIAS_NOT_UNIQUE:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/ui/P_ILLEGAL_ID:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/pam/P_PAM_UNASSIGNED_ALIAS:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_ui_P_ILLEGAL_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/ui/P_ILLEGAL_ID:1.0  */
+        decode_ex_org_csapi_pam_P_PAM_UNASSIGNED_ALIAS(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/pam/P_PAM_UNASSIGNED_ALIAS:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/ui/P_ILLEGAL_RANGE:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/pam/P_PAM_UNKNOWN_ALIAS:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_ui_P_ILLEGAL_RANGE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/ui/P_ILLEGAL_RANGE:1.0  */
+        decode_ex_org_csapi_pam_P_PAM_UNKNOWN_ALIAS(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/pam/P_PAM_UNKNOWN_ALIAS:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/ui/P_INVALID_COLLECTION_CRITERIA:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/pam/P_PAM_TYPE_ASSOCIATED:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_ui_P_INVALID_COLLECTION_CRITERIA(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/ui/P_INVALID_COLLECTION_CRITERIA:1.0  */
+        decode_ex_org_csapi_pam_P_PAM_TYPE_ASSOCIATED(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/pam/P_PAM_TYPE_ASSOCIATED:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_SERVICE_NOT_ENABLED:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/pam/P_PAM_DISASSOCIATED_TYPE:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_fw_P_SERVICE_NOT_ENABLED(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_SERVICE_NOT_ENABLED:1.0  */
+        decode_ex_org_csapi_pam_P_PAM_DISASSOCIATED_TYPE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/pam/P_PAM_DISASSOCIATED_TYPE:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_NO_ACCEPTABLE_ENCRYPTION_CAPABILITY:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/pam/P_PAM_UNKNOWN_ATTRIBUTE:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_fw_P_NO_ACCEPTABLE_ENCRYPTION_CAPABILITY(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_NO_ACCEPTABLE_ENCRYPTION_CAPABILITY:1.0  */
+        decode_ex_org_csapi_pam_P_PAM_UNKNOWN_ATTRIBUTE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/pam/P_PAM_UNKNOWN_ATTRIBUTE:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_AGREEMENT_TEXT:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/pam/P_PAM_UNKNOWN_ATTRIBUTES:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_fw_P_INVALID_AGREEMENT_TEXT(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_AGREEMENT_TEXT:1.0  */
+        decode_ex_org_csapi_pam_P_PAM_UNKNOWN_ATTRIBUTES(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/pam/P_PAM_UNKNOWN_ATTRIBUTES:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_SERVICE_TOKEN:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/pam/P_PAM_AGENT_EXISTS:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_fw_P_INVALID_SERVICE_TOKEN(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_SERVICE_TOKEN:1.0  */
+        decode_ex_org_csapi_pam_P_PAM_AGENT_EXISTS(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/pam/P_PAM_AGENT_EXISTS:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_SIGNATURE:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/pam/P_PAM_UNKNOWN_AGENT:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_fw_P_INVALID_SIGNATURE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_SIGNATURE:1.0  */
+        decode_ex_org_csapi_pam_P_PAM_UNKNOWN_AGENT(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/pam/P_PAM_UNKNOWN_AGENT:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_SIGNING_ALGORITHM:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/pam/P_PAM_NO_CAPABILITY:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_fw_P_INVALID_SIGNING_ALGORITHM(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_SIGNING_ALGORITHM:1.0  */
+        decode_ex_org_csapi_pam_P_PAM_NO_CAPABILITY(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/pam/P_PAM_NO_CAPABILITY:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_DOMAIN_ID:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/pam/P_PAM_UNKNOWN_ASSIGNMENT:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_fw_P_INVALID_DOMAIN_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_DOMAIN_ID:1.0  */
+        decode_ex_org_csapi_pam_P_PAM_UNKNOWN_ASSIGNMENT(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/pam/P_PAM_UNKNOWN_ASSIGNMENT:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_PROPERTY:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/pam/P_PAM_ATTRIBUTE_EXISTS:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_fw_P_INVALID_PROPERTY(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_PROPERTY:1.0  */
+        decode_ex_org_csapi_pam_P_PAM_ATTRIBUTE_EXISTS(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/pam/P_PAM_ATTRIBUTE_EXISTS:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_ACCESS_TYPE:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/pam/P_PAM_TYPE_EXISTS:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_fw_P_INVALID_ACCESS_TYPE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_ACCESS_TYPE:1.0  */
+        decode_ex_org_csapi_pam_P_PAM_TYPE_EXISTS(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/pam/P_PAM_TYPE_EXISTS:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_ILLEGAL_SERVICE_TYPE:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/pam/P_PAM_UNKNOWN_CAPABILITY:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_fw_P_ILLEGAL_SERVICE_TYPE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_ILLEGAL_SERVICE_TYPE:1.0  */
+        decode_ex_org_csapi_pam_P_PAM_UNKNOWN_CAPABILITY(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/pam/P_PAM_UNKNOWN_CAPABILITY:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_UNKNOWN_SERVICE_TYPE:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/pam/P_PAM_UNAVAILABLE_INTERFACE:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_fw_P_UNKNOWN_SERVICE_TYPE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_UNKNOWN_SERVICE_TYPE:1.0  */
+        decode_ex_org_csapi_pam_P_PAM_UNAVAILABLE_INTERFACE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/pam/P_PAM_UNAVAILABLE_INTERFACE:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_MISSING_MANDATORY_PROPERTY:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/pam/P_PAM_NOT_REGISTERED:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_fw_P_MISSING_MANDATORY_PROPERTY(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_MISSING_MANDATORY_PROPERTY:1.0  */
+        decode_ex_org_csapi_pam_P_PAM_NOT_REGISTERED(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/pam/P_PAM_NOT_REGISTERED:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_DUPLICATE_PROPERTY_NAME:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/mmm/P_MMM_INVALID_MAILBOX:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_fw_P_DUPLICATE_PROPERTY_NAME(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_DUPLICATE_PROPERTY_NAME:1.0  */
+        decode_ex_org_csapi_mmm_P_MMM_INVALID_MAILBOX(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/mmm/P_MMM_INVALID_MAILBOX:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_PROPERTY_TYPE_MISMATCH:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/mmm/P_MMM_INVALID_AUTHENTICATION_INFORMATION:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_fw_P_PROPERTY_TYPE_MISMATCH(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_PROPERTY_TYPE_MISMATCH:1.0  */
+        decode_ex_org_csapi_mmm_P_MMM_INVALID_AUTHENTICATION_INFORMATION(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/mmm/P_MMM_INVALID_AUTHENTICATION_INFORMATION:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_CLIENT_APP_ID:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/mmm/P_MMM_INVALID_FOLDER_ID:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_fw_P_INVALID_CLIENT_APP_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_CLIENT_APP_ID:1.0  */
+        decode_ex_org_csapi_mmm_P_MMM_INVALID_FOLDER_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/mmm/P_MMM_INVALID_FOLDER_ID:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_AUTH_TYPE:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/mmm/P_MMM_MAX_MESSAGE_SIZE_EXCEEDED:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_fw_P_INVALID_AUTH_TYPE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_AUTH_TYPE:1.0  */
+        decode_ex_org_csapi_mmm_P_MMM_MAX_MESSAGE_SIZE_EXCEEDED(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/mmm/P_MMM_MAX_MESSAGE_SIZE_EXCEEDED:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_SAG_ID:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/mmm/P_MMM_INVALID_MESSAGE_ID:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_fw_P_INVALID_SAG_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_SAG_ID:1.0  */
+        decode_ex_org_csapi_mmm_P_MMM_INVALID_MESSAGE_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/mmm/P_MMM_INVALID_MESSAGE_ID:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_SERVICE_PROFILE_ID:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/mmm/P_MMM_INVALID_PART_ID:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_fw_P_INVALID_SERVICE_PROFILE_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_SERVICE_PROFILE_ID:1.0  */
+        decode_ex_org_csapi_mmm_P_MMM_INVALID_PART_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/mmm/P_MMM_INVALID_PART_ID:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_SERVICE_CONTRACT_ID:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/mmm/P_MMM_INVALID_PROPERTY:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_fw_P_INVALID_SERVICE_CONTRACT_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_SERVICE_CONTRACT_ID:1.0  */
+        decode_ex_org_csapi_mmm_P_MMM_INVALID_PROPERTY(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/mmm/P_MMM_INVALID_PROPERTY:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_ACTIVITY_TEST_ID:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/mmm/P_MMM_INVALID_DELIVERY_TYPE:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_fw_P_INVALID_ACTIVITY_TEST_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_ACTIVITY_TEST_ID:1.0  */
+        decode_ex_org_csapi_mmm_P_MMM_INVALID_DELIVERY_TYPE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/mmm/P_MMM_INVALID_DELIVERY_TYPE:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_ILLEGAL_SERVICE_ID:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/mmm/P_MMM_DELIVERY_TYPE_ADDRESS_TYPE_MISMATCH:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_fw_P_ILLEGAL_SERVICE_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_ILLEGAL_SERVICE_ID:1.0  */
+        decode_ex_org_csapi_mmm_P_MMM_DELIVERY_TYPE_ADDRESS_TYPE_MISMATCH(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/mmm/P_MMM_DELIVERY_TYPE_ADDRESS_TYPE_MISMATCH:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_UNKNOWN_SERVICE_ID:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/mmm/P_MMM_DELIVERY_TYPE_MESSAGE_TYPE_MISMATCH:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_fw_P_UNKNOWN_SERVICE_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_UNKNOWN_SERVICE_ID:1.0  */
+        decode_ex_org_csapi_mmm_P_MMM_DELIVERY_TYPE_MESSAGE_TYPE_MISMATCH(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/mmm/P_MMM_DELIVERY_TYPE_MESSAGE_TYPE_MISMATCH:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_SERVICE_TYPE_UNAVAILABLE:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/mmm/P_MMM_INVALID_DELIVERY_TIME:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_fw_P_SERVICE_TYPE_UNAVAILABLE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_SERVICE_TYPE_UNAVAILABLE:1.0  */
+        decode_ex_org_csapi_mmm_P_MMM_INVALID_DELIVERY_TIME(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/mmm/P_MMM_INVALID_DELIVERY_TIME:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_ADDITION_TO_SAG:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/mmm/P_MMM_INVALID_VALIDITY_TIME:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_fw_P_INVALID_ADDITION_TO_SAG(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_ADDITION_TO_SAG:1.0  */
+        decode_ex_org_csapi_mmm_P_MMM_INVALID_VALIDITY_TIME(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/mmm/P_MMM_INVALID_VALIDITY_TIME:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_SAG_TO_SERVICE_PROFILE_ASSIGNMENT:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/mmm/P_MMM_MAX_SUBJECT_SIZE_EXCEEDED:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_fw_P_INVALID_SAG_TO_SERVICE_PROFILE_ASSIGNMENT(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_SAG_TO_SERVICE_PROFILE_ASSIGNMENT:1.0  */
+        decode_ex_org_csapi_mmm_P_MMM_MAX_SUBJECT_SIZE_EXCEEDED(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/mmm/P_MMM_MAX_SUBJECT_SIZE_EXCEEDED:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_NO_ACCEPTABLE_AUTHENTICATION_MECHANISM:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/mmm/P_MMM_INVALID_HEADER:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_fw_P_NO_ACCEPTABLE_AUTHENTICATION_MECHANISM(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_NO_ACCEPTABLE_AUTHENTICATION_MECHANISM:1.0  */
+        decode_ex_org_csapi_mmm_P_MMM_INVALID_HEADER(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/mmm/P_MMM_INVALID_HEADER:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_NO_ACCEPTABLE_SIGNING_ALGORITHM:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/mmm/P_MMM_CANNOT_CANCEL:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_fw_P_NO_ACCEPTABLE_SIGNING_ALGORITHM(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_NO_ACCEPTABLE_SIGNING_ALGORITHM:1.0  */
+        decode_ex_org_csapi_mmm_P_MMM_CANNOT_CANCEL(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/mmm/P_MMM_CANNOT_CANCEL:1.0  */
         return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_SERVICE_ID:1.0") == 0) {
+    if (strcmp(header->exception_id, "IDL:org/csapi/mmm/P_MMM_INFORMATION_NOT_AVAILABLE:1.0") == 0) {
         tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_fw_P_INVALID_SERVICE_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_SERVICE_ID:1.0  */
-        return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_SERVICE_ACCESS_DENIED:1.0") == 0) {
-        tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_fw_P_SERVICE_ACCESS_DENIED(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_SERVICE_ACCESS_DENIED:1.0  */
-        return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_ACCESS_DENIED:1.0") == 0) {
-        tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_fw_P_ACCESS_DENIED(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_ACCESS_DENIED:1.0  */
-        return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/P_UNAUTHORISED_PARAMETER_VALUE:1.0") == 0) {
-        tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_P_UNAUTHORISED_PARAMETER_VALUE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_UNAUTHORISED_PARAMETER_VALUE:1.0  */
-        return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_VERSION:1.0") == 0) {
-        tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_P_INVALID_VERSION(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_VERSION:1.0  */
-        return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_NETWORK_STATE:1.0") == 0) {
-        tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_P_INVALID_NETWORK_STATE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_NETWORK_STATE:1.0  */
-        return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_ASSIGNMENT_ID:1.0") == 0) {
-        tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_P_INVALID_ASSIGNMENT_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_ASSIGNMENT_ID:1.0  */
-        return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_TIME_AND_DATE_FORMAT:1.0") == 0) {
-        tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_P_INVALID_TIME_AND_DATE_FORMAT(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_TIME_AND_DATE_FORMAT:1.0  */
-        return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_EVENT_TYPE:1.0") == 0) {
-        tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_P_INVALID_EVENT_TYPE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_EVENT_TYPE:1.0  */
-        return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_INTERFACE_NAME:1.0") == 0) {
-        tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_P_INVALID_INTERFACE_NAME(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_INTERFACE_NAME:1.0  */
-        return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_INTERFACE_TYPE:1.0") == 0) {
-        tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_P_INVALID_INTERFACE_TYPE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_INTERFACE_TYPE:1.0  */
-        return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/P_UNKNOWN_SUBSCRIBER:1.0") == 0) {
-        tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_P_UNKNOWN_SUBSCRIBER(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_UNKNOWN_SUBSCRIBER:1.0  */
-        return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/P_INFORMATION_NOT_AVAILABLE:1.0") == 0) {
-        tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_P_INFORMATION_NOT_AVAILABLE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INFORMATION_NOT_AVAILABLE:1.0  */
-        return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_CRITERIA:1.0") == 0) {
-        tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_P_INVALID_CRITERIA(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_CRITERIA:1.0  */
-        return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_SESSION_ID:1.0") == 0) {
-        tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_P_INVALID_SESSION_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_SESSION_ID:1.0  */
-        return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/TpCommonExceptions:1.0") == 0) {
-        tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_TpCommonExceptions(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/TpCommonExceptions:1.0  */
-        return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_CURRENCY:1.0") == 0) {
-        tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_P_INVALID_CURRENCY(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_CURRENCY:1.0  */
-        return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_AMOUNT:1.0") == 0) {
-        tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_P_INVALID_AMOUNT(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_AMOUNT:1.0  */
-        return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/P_APPLICATION_NOT_ACTIVATED:1.0") == 0) {
-        tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_P_APPLICATION_NOT_ACTIVATED(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_APPLICATION_NOT_ACTIVATED:1.0  */
-        return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_ADDRESS:1.0") == 0) {
-        tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_P_INVALID_ADDRESS(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_ADDRESS:1.0  */
-        return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/P_UNSUPPORTED_ADDRESS_PLAN:1.0") == 0) {
-        tree = start_dissecting(tvb, pinfo, ptree, offset);
-        decode_ex_org_csapi_P_UNSUPPORTED_ADDRESS_PLAN(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_UNSUPPORTED_ADDRESS_PLAN:1.0  */
+        decode_ex_org_csapi_mmm_P_MMM_INFORMATION_NOT_AVAILABLE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/mmm/P_MMM_INFORMATION_NOT_AVAILABLE:1.0  */
         return TRUE;
     }
 
@@ -64774,58 +64771,78 @@ void proto_register_giop_parlay(void)
         {&hf_org_csapi_mmm_TpNewMessageArrivedInfo_Message, {"TpNewMessageArrivedInfo_Message","giop-parlay.TpNewMessageArrivedInfo.Message",FT_UINT8,BASE_HEX,NULL,0x0,NULL,HFILL}},
         {&hf_org_csapi_mmm_TpNewMessageArrivedInfo_Headers_loop, {"Seq length of TpNewMessageArrivedInfo_Headers","giop-parlay.TpNewMessageArrivedInfo.Headers.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         /* User exception filters */
-        {&hf_org_csapi_mmm_P_MMM_MAX_MESSAGE_SIZE_EXCEEDED_ExtraInformation, {"P_MMM_MAX_MESSAGE_SIZE_EXCEEDED_ExtraInformation","giop-parlay.csapi.P_MMM_MAX_MESSAGE_SIZE_EXCEEDED_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_mmm_P_MMM_INVALID_FOLDER_ID_ExtraInformation, {"P_MMM_INVALID_FOLDER_ID_ExtraInformation","giop-parlay.csapi.P_MMM_INVALID_FOLDER_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_mmm_P_MMM_INVALID_MESSAGE_ID_ExtraInformation, {"P_MMM_INVALID_MESSAGE_ID_ExtraInformation","giop-parlay.csapi.P_MMM_INVALID_MESSAGE_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_mmm_P_MMM_INVALID_PART_ID_ExtraInformation, {"P_MMM_INVALID_PART_ID_ExtraInformation","giop-parlay.csapi.P_MMM_INVALID_PART_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_mmm_P_MMM_DELIVERY_TYPE_ADDRESS_TYPE_MISMATCH_ExtraInformation, {"P_MMM_DELIVERY_TYPE_ADDRESS_TYPE_MISMATCH_ExtraInformation","giop-parlay.csapi.P_MMM_DELIVERY_TYPE_ADDRESS_TYPE_MISMATCH_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_mmm_P_MMM_DELIVERY_TYPE_MESSAGE_TYPE_MISMATCH_ExtraInformation, {"P_MMM_DELIVERY_TYPE_MESSAGE_TYPE_MISMATCH_ExtraInformation","giop-parlay.csapi.P_MMM_DELIVERY_TYPE_MESSAGE_TYPE_MISMATCH_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_mmm_P_MMM_INVALID_PROPERTY_ExtraInformation, {"P_MMM_INVALID_PROPERTY_ExtraInformation","giop-parlay.csapi.P_MMM_INVALID_PROPERTY_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_mmm_P_MMM_INVALID_DELIVERY_TIME_ExtraInformation, {"P_MMM_INVALID_DELIVERY_TIME_ExtraInformation","giop-parlay.csapi.P_MMM_INVALID_DELIVERY_TIME_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_mmm_P_MMM_INVALID_VALIDITY_TIME_ExtraInformation, {"P_MMM_INVALID_VALIDITY_TIME_ExtraInformation","giop-parlay.csapi.P_MMM_INVALID_VALIDITY_TIME_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_mmm_P_MMM_MAX_SUBJECT_SIZE_EXCEEDED_ExtraInformation, {"P_MMM_MAX_SUBJECT_SIZE_EXCEEDED_ExtraInformation","giop-parlay.csapi.P_MMM_MAX_SUBJECT_SIZE_EXCEEDED_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_mmm_P_MMM_INFORMATION_NOT_AVAILABLE_ExtraInformation, {"P_MMM_INFORMATION_NOT_AVAILABLE_ExtraInformation","giop-parlay.csapi.P_MMM_INFORMATION_NOT_AVAILABLE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_mmm_P_MMM_CANNOT_CANCEL_ExtraInformation, {"P_MMM_CANNOT_CANCEL_ExtraInformation","giop-parlay.csapi.P_MMM_CANNOT_CANCEL_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_mmm_P_MMM_INVALID_HEADER_ExtraInformation, {"P_MMM_INVALID_HEADER_ExtraInformation","giop-parlay.csapi.P_MMM_INVALID_HEADER_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_mmm_P_MMM_INVALID_AUTHENTICATION_INFORMATION_ExtraInformation, {"P_MMM_INVALID_AUTHENTICATION_INFORMATION_ExtraInformation","giop-parlay.csapi.P_MMM_INVALID_AUTHENTICATION_INFORMATION_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_mmm_P_MMM_INVALID_MAILBOX_ExtraInformation, {"P_MMM_INVALID_MAILBOX_ExtraInformation","giop-parlay.csapi.P_MMM_INVALID_MAILBOX_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_mmm_P_MMM_INVALID_DELIVERY_TYPE_ExtraInformation, {"P_MMM_INVALID_DELIVERY_TYPE_ExtraInformation","giop-parlay.csapi.P_MMM_INVALID_DELIVERY_TYPE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_pam_P_PAM_UNAVAILABLE_INTERFACE_ExtraInformation, {"P_PAM_UNAVAILABLE_INTERFACE_ExtraInformation","giop-parlay.csapi.P_PAM_UNAVAILABLE_INTERFACE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_pam_P_PAM_INVALID_CREDENTIAL_ExtraInformation, {"P_PAM_INVALID_CREDENTIAL_ExtraInformation","giop-parlay.csapi.P_PAM_INVALID_CREDENTIAL_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_pam_P_PAM_UNKNOWN_TYPE_ExtraInformation, {"P_PAM_UNKNOWN_TYPE_ExtraInformation","giop-parlay.csapi.P_PAM_UNKNOWN_TYPE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_pam_P_PAM_UNKNOWN_MEMBER_ExtraInformation, {"P_PAM_UNKNOWN_MEMBER_ExtraInformation","giop-parlay.csapi.P_PAM_UNKNOWN_MEMBER_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_pam_P_PAM_UNKNOWN_IDENTITY_ExtraInformation, {"P_PAM_UNKNOWN_IDENTITY_ExtraInformation","giop-parlay.csapi.P_PAM_UNKNOWN_IDENTITY_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_pam_P_PAM_UNKNOWN_GROUP_ExtraInformation, {"P_PAM_UNKNOWN_GROUP_ExtraInformation","giop-parlay.csapi.P_PAM_UNKNOWN_GROUP_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_pam_P_PAM_UNKNOWN_CAPABILITY_ExtraInformation, {"P_PAM_UNKNOWN_CAPABILITY_ExtraInformation","giop-parlay.csapi.P_PAM_UNKNOWN_CAPABILITY_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_pam_P_PAM_UNKNOWN_ATTRIBUTES_ExtraInformation, {"P_PAM_UNKNOWN_ATTRIBUTES_ExtraInformation","giop-parlay.csapi.P_PAM_UNKNOWN_ATTRIBUTES_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_pam_P_PAM_UNKNOWN_ATTRIBUTE_ExtraInformation, {"P_PAM_UNKNOWN_ATTRIBUTE_ExtraInformation","giop-parlay.csapi.P_PAM_UNKNOWN_ATTRIBUTE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_pam_P_PAM_UNKNOWN_ASSIGNMENT_ExtraInformation, {"P_PAM_UNKNOWN_ASSIGNMENT_ExtraInformation","giop-parlay.csapi.P_PAM_UNKNOWN_ASSIGNMENT_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_pam_P_PAM_UNKNOWN_ALIAS_ExtraInformation, {"P_PAM_UNKNOWN_ALIAS_ExtraInformation","giop-parlay.csapi.P_PAM_UNKNOWN_ALIAS_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_pam_P_PAM_UNKNOWN_AGENT_ExtraInformation, {"P_PAM_UNKNOWN_AGENT_ExtraInformation","giop-parlay.csapi.P_PAM_UNKNOWN_AGENT_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_pam_P_PAM_UNASSIGNED_ALIAS_ExtraInformation, {"P_PAM_UNASSIGNED_ALIAS_ExtraInformation","giop-parlay.csapi.P_PAM_UNASSIGNED_ALIAS_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_pam_P_PAM_TYPE_EXISTS_ExtraInformation, {"P_PAM_TYPE_EXISTS_ExtraInformation","giop-parlay.csapi.P_PAM_TYPE_EXISTS_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_pam_P_PAM_TYPE_ASSOCIATED_ExtraInformation, {"P_PAM_TYPE_ASSOCIATED_ExtraInformation","giop-parlay.csapi.P_PAM_TYPE_ASSOCIATED_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_pam_P_PAM_NOT_REGISTERED_ExtraInformation, {"P_PAM_NOT_REGISTERED_ExtraInformation","giop-parlay.csapi.P_PAM_NOT_REGISTERED_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_pam_P_PAM_NOT_MEMBER_ExtraInformation, {"P_PAM_NOT_MEMBER_ExtraInformation","giop-parlay.csapi.P_PAM_NOT_MEMBER_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_pam_P_PAM_NO_CAPABILITY_ExtraInformation, {"P_PAM_NO_CAPABILITY_ExtraInformation","giop-parlay.csapi.P_PAM_NO_CAPABILITY_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_pam_P_PAM_MEMBER_EXISTS_ExtraInformation, {"P_PAM_MEMBER_EXISTS_ExtraInformation","giop-parlay.csapi.P_PAM_MEMBER_EXISTS_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_pam_P_PAM_IS_CYCLIC_ExtraInformation, {"P_PAM_IS_CYCLIC_ExtraInformation","giop-parlay.csapi.P_PAM_IS_CYCLIC_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_pam_P_PAM_IDENTITY_EXISTS_ExtraInformation, {"P_PAM_IDENTITY_EXISTS_ExtraInformation","giop-parlay.csapi.P_PAM_IDENTITY_EXISTS_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_pam_P_PAM_DISASSOCIATED_TYPE_ExtraInformation, {"P_PAM_DISASSOCIATED_TYPE_ExtraInformation","giop-parlay.csapi.P_PAM_DISASSOCIATED_TYPE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_pam_P_PAM_ATTRIBUTE_EXISTS_ExtraInformation, {"P_PAM_ATTRIBUTE_EXISTS_ExtraInformation","giop-parlay.csapi.P_PAM_ATTRIBUTE_EXISTS_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_pam_P_PAM_ALIAS_NOT_UNIQUE_ExtraInformation, {"P_PAM_ALIAS_NOT_UNIQUE_ExtraInformation","giop-parlay.csapi.P_PAM_ALIAS_NOT_UNIQUE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_pam_P_PAM_ALIAS_EXISTS_ExtraInformation, {"P_PAM_ALIAS_EXISTS_ExtraInformation","giop-parlay.csapi.P_PAM_ALIAS_EXISTS_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_pam_P_PAM_AGENT_EXISTS_ExtraInformation, {"P_PAM_AGENT_EXISTS_ExtraInformation","giop-parlay.csapi.P_PAM_AGENT_EXISTS_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_policy_P_ACCESS_VIOLATION_ExtraInformation, {"P_ACCESS_VIOLATION_ExtraInformation","giop-parlay.csapi.P_ACCESS_VIOLATION_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_policy_P_SYNTAX_ERROR_ExtraInformation, {"P_SYNTAX_ERROR_ExtraInformation","giop-parlay.csapi.P_SYNTAX_ERROR_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_policy_P_NAME_SPACE_ERROR_ExtraInformation, {"P_NAME_SPACE_ERROR_ExtraInformation","giop-parlay.csapi.P_NAME_SPACE_ERROR_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_policy_P_NO_TRANSACTION_IN_PROCESS_ExtraInformation, {"P_NO_TRANSACTION_IN_PROCESS_ExtraInformation","giop-parlay.csapi.P_NO_TRANSACTION_IN_PROCESS_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_policy_P_TRANSACTION_IN_PROCESS_ExtraInformation, {"P_TRANSACTION_IN_PROCESS_ExtraInformation","giop-parlay.csapi.P_TRANSACTION_IN_PROCESS_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_cs_P_INVALID_USER_ExtraInformation, {"P_INVALID_USER_ExtraInformation","giop-parlay.csapi.P_INVALID_USER_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_cs_P_INVALID_ACCOUNT_ExtraInformation, {"P_INVALID_ACCOUNT_ExtraInformation","giop-parlay.csapi.P_INVALID_ACCOUNT_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_cs_P_INVALID_REQUEST_NUMBER_ExtraInformation, {"P_INVALID_REQUEST_NUMBER_ExtraInformation","giop-parlay.csapi.P_INVALID_REQUEST_NUMBER_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_cs_P_INVALID_VOLUME_ExtraInformation, {"P_INVALID_VOLUME_ExtraInformation","giop-parlay.csapi.P_INVALID_VOLUME_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_am_P_UNAUTHORIZED_APPLICATION_ExtraInformation, {"P_UNAUTHORIZED_APPLICATION_ExtraInformation","giop-parlay.csapi.P_UNAUTHORIZED_APPLICATION_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_TpCommonExceptions_ExceptionType, {"TpCommonExceptions_ExceptionType","giop-parlay.csapi.TpCommonExceptions_ExceptionType",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_TpCommonExceptions_ExtraInformation, {"TpCommonExceptions_ExtraInformation","giop-parlay.csapi.TpCommonExceptions_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_P_INVALID_INTERFACE_TYPE_ExtraInformation, {"P_INVALID_INTERFACE_TYPE_ExtraInformation","giop-parlay.csapi.P_INVALID_INTERFACE_TYPE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_P_INVALID_SESSION_ID_ExtraInformation, {"P_INVALID_SESSION_ID_ExtraInformation","giop-parlay.csapi.P_INVALID_SESSION_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_fw_P_INVALID_DOMAIN_ID_ExtraInformation, {"P_INVALID_DOMAIN_ID_ExtraInformation","giop-parlay.csapi.P_INVALID_DOMAIN_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_fw_P_INVALID_AUTH_TYPE_ExtraInformation, {"P_INVALID_AUTH_TYPE_ExtraInformation","giop-parlay.csapi.P_INVALID_AUTH_TYPE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_P_INVALID_VERSION_ExtraInformation, {"P_INVALID_VERSION_ExtraInformation","giop-parlay.csapi.P_INVALID_VERSION_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_fw_P_ACCESS_DENIED_ExtraInformation, {"P_ACCESS_DENIED_ExtraInformation","giop-parlay.csapi.P_ACCESS_DENIED_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_fw_P_INVALID_ACCESS_TYPE_ExtraInformation, {"P_INVALID_ACCESS_TYPE_ExtraInformation","giop-parlay.csapi.P_INVALID_ACCESS_TYPE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_fw_P_INVALID_SIGNING_ALGORITHM_ExtraInformation, {"P_INVALID_SIGNING_ALGORITHM_ExtraInformation","giop-parlay.csapi.P_INVALID_SIGNING_ALGORITHM_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_fw_P_INVALID_SIGNATURE_ExtraInformation, {"P_INVALID_SIGNATURE_ExtraInformation","giop-parlay.csapi.P_INVALID_SIGNATURE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_P_INVALID_INTERFACE_NAME_ExtraInformation, {"P_INVALID_INTERFACE_NAME_ExtraInformation","giop-parlay.csapi.P_INVALID_INTERFACE_NAME_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_fw_P_INVALID_PROPERTY_ExtraInformation, {"P_INVALID_PROPERTY_ExtraInformation","giop-parlay.csapi.P_INVALID_PROPERTY_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_fw_P_NO_ACCEPTABLE_SIGNING_ALGORITHM_ExtraInformation, {"P_NO_ACCEPTABLE_SIGNING_ALGORITHM_ExtraInformation","giop-parlay.csapi.P_NO_ACCEPTABLE_SIGNING_ALGORITHM_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_fw_P_NO_ACCEPTABLE_ENCRYPTION_CAPABILITY_ExtraInformation, {"P_NO_ACCEPTABLE_ENCRYPTION_CAPABILITY_ExtraInformation","giop-parlay.csapi.P_NO_ACCEPTABLE_ENCRYPTION_CAPABILITY_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_fw_P_NO_ACCEPTABLE_AUTHENTICATION_MECHANISM_ExtraInformation, {"P_NO_ACCEPTABLE_AUTHENTICATION_MECHANISM_ExtraInformation","giop-parlay.csapi.P_NO_ACCEPTABLE_AUTHENTICATION_MECHANISM_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_P_INVALID_CRITERIA_ExtraInformation, {"P_INVALID_CRITERIA_ExtraInformation","giop-parlay.csapi.P_INVALID_CRITERIA_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_P_INVALID_EVENT_TYPE_ExtraInformation, {"P_INVALID_EVENT_TYPE_ExtraInformation","giop-parlay.csapi.P_INVALID_EVENT_TYPE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_P_INVALID_ASSIGNMENT_ID_ExtraInformation, {"P_INVALID_ASSIGNMENT_ID_ExtraInformation","giop-parlay.csapi.P_INVALID_ASSIGNMENT_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_fw_P_INVALID_SERVICE_ID_ExtraInformation, {"P_INVALID_SERVICE_ID_ExtraInformation","giop-parlay.csapi.P_INVALID_SERVICE_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_fw_P_SERVICE_NOT_ENABLED_ExtraInformation, {"P_SERVICE_NOT_ENABLED_ExtraInformation","giop-parlay.csapi.P_SERVICE_NOT_ENABLED_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_P_UNAUTHORISED_PARAMETER_VALUE_ExtraInformation, {"P_UNAUTHORISED_PARAMETER_VALUE_ExtraInformation","giop-parlay.csapi.P_UNAUTHORISED_PARAMETER_VALUE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_P_INVALID_TIME_AND_DATE_FORMAT_ExtraInformation, {"P_INVALID_TIME_AND_DATE_FORMAT_ExtraInformation","giop-parlay.csapi.P_INVALID_TIME_AND_DATE_FORMAT_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_fw_P_INVALID_ACTIVITY_TEST_ID_ExtraInformation, {"P_INVALID_ACTIVITY_TEST_ID_ExtraInformation","giop-parlay.csapi.P_INVALID_ACTIVITY_TEST_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_fw_P_ILLEGAL_SERVICE_TYPE_ExtraInformation, {"P_ILLEGAL_SERVICE_TYPE_ExtraInformation","giop-parlay.csapi.P_ILLEGAL_SERVICE_TYPE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_fw_P_UNKNOWN_SERVICE_TYPE_ExtraInformation, {"P_UNKNOWN_SERVICE_TYPE_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_SERVICE_TYPE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_fw_P_INVALID_AGREEMENT_TEXT_ExtraInformation, {"P_INVALID_AGREEMENT_TEXT_ExtraInformation","giop-parlay.csapi.P_INVALID_AGREEMENT_TEXT_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_fw_P_INVALID_SERVICE_TOKEN_ExtraInformation, {"P_INVALID_SERVICE_TOKEN_ExtraInformation","giop-parlay.csapi.P_INVALID_SERVICE_TOKEN_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_fw_P_SERVICE_ACCESS_DENIED_ExtraInformation, {"P_SERVICE_ACCESS_DENIED_ExtraInformation","giop-parlay.csapi.P_SERVICE_ACCESS_DENIED_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_fw_P_INVALID_SERVICE_PROFILE_ID_ExtraInformation, {"P_INVALID_SERVICE_PROFILE_ID_ExtraInformation","giop-parlay.csapi.P_INVALID_SERVICE_PROFILE_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_fw_P_INVALID_SAG_ID_ExtraInformation, {"P_INVALID_SAG_ID_ExtraInformation","giop-parlay.csapi.P_INVALID_SAG_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_fw_P_INVALID_SAG_TO_SERVICE_PROFILE_ASSIGNMENT_ExtraInformation, {"P_INVALID_SAG_TO_SERVICE_PROFILE_ASSIGNMENT_ExtraInformation","giop-parlay.csapi.P_INVALID_SAG_TO_SERVICE_PROFILE_ASSIGNMENT_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_fw_P_INVALID_SERVICE_CONTRACT_ID_ExtraInformation, {"P_INVALID_SERVICE_CONTRACT_ID_ExtraInformation","giop-parlay.csapi.P_INVALID_SERVICE_CONTRACT_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_fw_P_INVALID_CLIENT_APP_ID_ExtraInformation, {"P_INVALID_CLIENT_APP_ID_ExtraInformation","giop-parlay.csapi.P_INVALID_CLIENT_APP_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_fw_P_INVALID_ADDITION_TO_SAG_ExtraInformation, {"P_INVALID_ADDITION_TO_SAG_ExtraInformation","giop-parlay.csapi.P_INVALID_ADDITION_TO_SAG_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_fw_P_PROPERTY_TYPE_MISMATCH_ExtraInformation, {"P_PROPERTY_TYPE_MISMATCH_ExtraInformation","giop-parlay.csapi.P_PROPERTY_TYPE_MISMATCH_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_fw_P_DUPLICATE_PROPERTY_NAME_ExtraInformation, {"P_DUPLICATE_PROPERTY_NAME_ExtraInformation","giop-parlay.csapi.P_DUPLICATE_PROPERTY_NAME_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_fw_P_MISSING_MANDATORY_PROPERTY_ExtraInformation, {"P_MISSING_MANDATORY_PROPERTY_ExtraInformation","giop-parlay.csapi.P_MISSING_MANDATORY_PROPERTY_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_fw_P_SERVICE_TYPE_UNAVAILABLE_ExtraInformation, {"P_SERVICE_TYPE_UNAVAILABLE_ExtraInformation","giop-parlay.csapi.P_SERVICE_TYPE_UNAVAILABLE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_fw_P_ILLEGAL_SERVICE_ID_ExtraInformation, {"P_ILLEGAL_SERVICE_ID_ExtraInformation","giop-parlay.csapi.P_ILLEGAL_SERVICE_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_fw_P_UNKNOWN_SERVICE_ID_ExtraInformation, {"P_UNKNOWN_SERVICE_ID_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_SERVICE_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_P_INVALID_ADDRESS_ExtraInformation, {"P_INVALID_ADDRESS_ExtraInformation","giop-parlay.csapi.P_INVALID_ADDRESS_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_P_UNSUPPORTED_ADDRESS_PLAN_ExtraInformation, {"P_UNSUPPORTED_ADDRESS_PLAN_ExtraInformation","giop-parlay.csapi.P_UNSUPPORTED_ADDRESS_PLAN_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_P_INVALID_NETWORK_STATE_ExtraInformation, {"P_INVALID_NETWORK_STATE_ExtraInformation","giop-parlay.csapi.P_INVALID_NETWORK_STATE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_P_INVALID_CURRENCY_ExtraInformation, {"P_INVALID_CURRENCY_ExtraInformation","giop-parlay.csapi.P_INVALID_CURRENCY_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_P_INVALID_AMOUNT_ExtraInformation, {"P_INVALID_AMOUNT_ExtraInformation","giop-parlay.csapi.P_INVALID_AMOUNT_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_P_INFORMATION_NOT_AVAILABLE_ExtraInformation, {"P_INFORMATION_NOT_AVAILABLE_ExtraInformation","giop-parlay.csapi.P_INFORMATION_NOT_AVAILABLE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_ui_P_ILLEGAL_ID_ExtraInformation, {"P_ILLEGAL_ID_ExtraInformation","giop-parlay.csapi.P_ILLEGAL_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_ui_P_ID_NOT_FOUND_ExtraInformation, {"P_ID_NOT_FOUND_ExtraInformation","giop-parlay.csapi.P_ID_NOT_FOUND_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_ui_P_ILLEGAL_RANGE_ExtraInformation, {"P_ILLEGAL_RANGE_ExtraInformation","giop-parlay.csapi.P_ILLEGAL_RANGE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_ui_P_INVALID_COLLECTION_CRITERIA_ExtraInformation, {"P_INVALID_COLLECTION_CRITERIA_ExtraInformation","giop-parlay.csapi.P_INVALID_COLLECTION_CRITERIA_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_P_APPLICATION_NOT_ACTIVATED_ExtraInformation, {"P_APPLICATION_NOT_ACTIVATED_ExtraInformation","giop-parlay.csapi.P_APPLICATION_NOT_ACTIVATED_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_mm_P_REQUESTED_ACCURACY_CANNOT_BE_DELIVERED_ExtraInformation, {"P_REQUESTED_ACCURACY_CANNOT_BE_DELIVERED_ExtraInformation","giop-parlay.csapi.P_REQUESTED_ACCURACY_CANNOT_BE_DELIVERED_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_mm_P_REQUESTED_RESPONSE_TIME_CANNOT_BE_DELIVERED_ExtraInformation, {"P_REQUESTED_RESPONSE_TIME_CANNOT_BE_DELIVERED_ExtraInformation","giop-parlay.csapi.P_REQUESTED_RESPONSE_TIME_CANNOT_BE_DELIVERED_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_mm_P_INVALID_REPORTING_INTERVAL_ExtraInformation, {"P_INVALID_REPORTING_INTERVAL_ExtraInformation","giop-parlay.csapi.P_INVALID_REPORTING_INTERVAL_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_mm_P_TRIGGER_CONDITIONS_NOT_SUBSCRIBED_ExtraInformation, {"P_TRIGGER_CONDITIONS_NOT_SUBSCRIBED_ExtraInformation","giop-parlay.csapi.P_TRIGGER_CONDITIONS_NOT_SUBSCRIBED_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_P_UNKNOWN_SUBSCRIBER_ExtraInformation, {"P_UNKNOWN_SUBSCRIBER_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_SUBSCRIBER_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_termcap_P_INVALID_TERMINAL_ID_ExtraInformation, {"P_INVALID_TERMINAL_ID_ExtraInformation","giop-parlay.csapi.P_INVALID_TERMINAL_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_gms_P_GMS_INVALID_MAILBOX_ExtraInformation, {"P_GMS_INVALID_MAILBOX_ExtraInformation","giop-parlay.csapi.P_GMS_INVALID_MAILBOX_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_gms_P_GMS_INVALID_AUTHENTICATION_INFORMATION_ExtraInformation, {"P_GMS_INVALID_AUTHENTICATION_INFORMATION_ExtraInformation","giop-parlay.csapi.P_GMS_INVALID_AUTHENTICATION_INFORMATION_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_gms_P_GMS_LOCKING_LOCKED_MAILBOX_ExtraInformation, {"P_GMS_LOCKING_LOCKED_MAILBOX_ExtraInformation","giop-parlay.csapi.P_GMS_LOCKING_LOCKED_MAILBOX_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_gms_P_GMS_UNLOCKING_UNLOCKED_MAILBOX_ExtraInformation, {"P_GMS_UNLOCKING_UNLOCKED_MAILBOX_ExtraInformation","giop-parlay.csapi.P_GMS_UNLOCKING_UNLOCKED_MAILBOX_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_gms_P_GMS_CANNOT_UNLOCK_MAILBOX_ExtraInformation, {"P_GMS_CANNOT_UNLOCK_MAILBOX_ExtraInformation","giop-parlay.csapi.P_GMS_CANNOT_UNLOCK_MAILBOX_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_gms_P_GMS_NUMBER_NOT_POSITIVE_ExtraInformation, {"P_GMS_NUMBER_NOT_POSITIVE_ExtraInformation","giop-parlay.csapi.P_GMS_NUMBER_NOT_POSITIVE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_gms_P_GMS_PROPERTY_NOT_SET_ExtraInformation, {"P_GMS_PROPERTY_NOT_SET_ExtraInformation","giop-parlay.csapi.P_GMS_PROPERTY_NOT_SET_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_gms_P_GMS_MAILBOX_LOCKED_ExtraInformation, {"P_GMS_MAILBOX_LOCKED_ExtraInformation","giop-parlay.csapi.P_GMS_MAILBOX_LOCKED_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_gms_P_GMS_FOLDER_IS_OPEN_ExtraInformation, {"P_GMS_FOLDER_IS_OPEN_ExtraInformation","giop-parlay.csapi.P_GMS_FOLDER_IS_OPEN_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_gms_P_GMS_INVALID_FOLDER_ID_ExtraInformation, {"P_GMS_INVALID_FOLDER_ID_ExtraInformation","giop-parlay.csapi.P_GMS_INVALID_FOLDER_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_gms_P_GMS_INSUFFICIENT_PRIVILEGE_ExtraInformation, {"P_GMS_INSUFFICIENT_PRIVILEGE_ExtraInformation","giop-parlay.csapi.P_GMS_INSUFFICIENT_PRIVILEGE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_gms_P_GMS_MAILBOX_OPEN_ExtraInformation, {"P_GMS_MAILBOX_OPEN_ExtraInformation","giop-parlay.csapi.P_GMS_MAILBOX_OPEN_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_gms_P_GMS_INVALID_MESSAGE_ID_ExtraInformation, {"P_GMS_INVALID_MESSAGE_ID_ExtraInformation","giop-parlay.csapi.P_GMS_INVALID_MESSAGE_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_gms_P_GMS_MESSAGE_NOT_REMOVED_ExtraInformation, {"P_GMS_MESSAGE_NOT_REMOVED_ExtraInformation","giop-parlay.csapi.P_GMS_MESSAGE_NOT_REMOVED_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_org_csapi_cm_P_UNKNOWN_VPRP_ID_ExtraInformation, {"P_UNKNOWN_VPRP_ID_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_VPRP_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_org_csapi_cm_P_UNKNOWN_SLA_ID_ExtraInformation, {"P_UNKNOWN_SLA_ID_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_SLA_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_org_csapi_cm_P_UNKNOWN_STATUS_ExtraInformation, {"P_UNKNOWN_STATUS_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_STATUS_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
@@ -64833,6 +64850,7 @@ void proto_register_giop_parlay(void)
         {&hf_org_csapi_cm_P_UNKNOWN_VALIDITY_INFO_ExtraInformation, {"P_UNKNOWN_VALIDITY_INFO_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_VALIDITY_INFO_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_org_csapi_cm_P_UNKNOWN_PIPEQOSINFO_ExtraInformation, {"P_UNKNOWN_PIPEQOSINFO_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_PIPEQOSINFO_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_org_csapi_cm_P_UNKNOWN_DSCODEPOINT_ExtraInformation, {"P_UNKNOWN_DSCODEPOINT_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_DSCODEPOINT_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_cm_P_UNKNOWN_VPRP_ExtraInformation, {"P_UNKNOWN_VPRP_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_VPRP_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_org_csapi_cm_P_ILLEGAL_VPRPID_ExtraInformation, {"P_ILLEGAL_VPRPID_ExtraInformation","giop-parlay.csapi.P_ILLEGAL_VPRPID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_org_csapi_cm_P_ILLEGAL_REF_VALUE_ExtraInformation, {"P_ILLEGAL_REF_VALUE_ExtraInformation","giop-parlay.csapi.P_ILLEGAL_REF_VALUE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_org_csapi_cm_P_UNKNOWN_INTERFACE_ExtraInformation, {"P_UNKNOWN_INTERFACE_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_INTERFACE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
@@ -64855,79 +64873,58 @@ void proto_register_giop_parlay(void)
         {&hf_org_csapi_cm_P_UNKNOWN_SITE_DESCRIPTION_ExtraInformation, {"P_UNKNOWN_SITE_DESCRIPTION_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_SITE_DESCRIPTION_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_org_csapi_cm_P_UNKNOWN_IPSUBNET_ExtraInformation, {"P_UNKNOWN_IPSUBNET_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_IPSUBNET_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_org_csapi_cm_P_UNKNOWN_SAP_ExtraInformation, {"P_UNKNOWN_SAP_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_SAP_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_cm_P_UNKNOWN_VPRP_ExtraInformation, {"P_UNKNOWN_VPRP_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_VPRP_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_gms_P_GMS_INVALID_FOLDER_ID_ExtraInformation, {"P_GMS_INVALID_FOLDER_ID_ExtraInformation","giop-parlay.csapi.P_GMS_INVALID_FOLDER_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_gms_P_GMS_INSUFFICIENT_PRIVILEGE_ExtraInformation, {"P_GMS_INSUFFICIENT_PRIVILEGE_ExtraInformation","giop-parlay.csapi.P_GMS_INSUFFICIENT_PRIVILEGE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_gms_P_GMS_INVALID_AUTHENTICATION_INFORMATION_ExtraInformation, {"P_GMS_INVALID_AUTHENTICATION_INFORMATION_ExtraInformation","giop-parlay.csapi.P_GMS_INVALID_AUTHENTICATION_INFORMATION_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_gms_P_GMS_INVALID_MAILBOX_ExtraInformation, {"P_GMS_INVALID_MAILBOX_ExtraInformation","giop-parlay.csapi.P_GMS_INVALID_MAILBOX_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_gms_P_GMS_INVALID_MESSAGE_ID_ExtraInformation, {"P_GMS_INVALID_MESSAGE_ID_ExtraInformation","giop-parlay.csapi.P_GMS_INVALID_MESSAGE_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_gms_P_GMS_LOCKING_LOCKED_MAILBOX_ExtraInformation, {"P_GMS_LOCKING_LOCKED_MAILBOX_ExtraInformation","giop-parlay.csapi.P_GMS_LOCKING_LOCKED_MAILBOX_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_gms_P_GMS_MESSAGE_NOT_REMOVED_ExtraInformation, {"P_GMS_MESSAGE_NOT_REMOVED_ExtraInformation","giop-parlay.csapi.P_GMS_MESSAGE_NOT_REMOVED_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_gms_P_GMS_NUMBER_NOT_POSITIVE_ExtraInformation, {"P_GMS_NUMBER_NOT_POSITIVE_ExtraInformation","giop-parlay.csapi.P_GMS_NUMBER_NOT_POSITIVE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_gms_P_GMS_UNLOCKING_UNLOCKED_MAILBOX_ExtraInformation, {"P_GMS_UNLOCKING_UNLOCKED_MAILBOX_ExtraInformation","giop-parlay.csapi.P_GMS_UNLOCKING_UNLOCKED_MAILBOX_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_gms_P_GMS_MAILBOX_LOCKED_ExtraInformation, {"P_GMS_MAILBOX_LOCKED_ExtraInformation","giop-parlay.csapi.P_GMS_MAILBOX_LOCKED_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_gms_P_GMS_CANNOT_UNLOCK_MAILBOX_ExtraInformation, {"P_GMS_CANNOT_UNLOCK_MAILBOX_ExtraInformation","giop-parlay.csapi.P_GMS_CANNOT_UNLOCK_MAILBOX_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_gms_P_GMS_PROPERTY_NOT_SET_ExtraInformation, {"P_GMS_PROPERTY_NOT_SET_ExtraInformation","giop-parlay.csapi.P_GMS_PROPERTY_NOT_SET_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_gms_P_GMS_FOLDER_IS_OPEN_ExtraInformation, {"P_GMS_FOLDER_IS_OPEN_ExtraInformation","giop-parlay.csapi.P_GMS_FOLDER_IS_OPEN_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_gms_P_GMS_MAILBOX_OPEN_ExtraInformation, {"P_GMS_MAILBOX_OPEN_ExtraInformation","giop-parlay.csapi.P_GMS_MAILBOX_OPEN_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_termcap_P_INVALID_TERMINAL_ID_ExtraInformation, {"P_INVALID_TERMINAL_ID_ExtraInformation","giop-parlay.csapi.P_INVALID_TERMINAL_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_mm_P_REQUESTED_ACCURACY_CANNOT_BE_DELIVERED_ExtraInformation, {"P_REQUESTED_ACCURACY_CANNOT_BE_DELIVERED_ExtraInformation","giop-parlay.csapi.P_REQUESTED_ACCURACY_CANNOT_BE_DELIVERED_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_mm_P_REQUESTED_RESPONSE_TIME_CANNOT_BE_DELIVERED_ExtraInformation, {"P_REQUESTED_RESPONSE_TIME_CANNOT_BE_DELIVERED_ExtraInformation","giop-parlay.csapi.P_REQUESTED_RESPONSE_TIME_CANNOT_BE_DELIVERED_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_mm_P_INVALID_REPORTING_INTERVAL_ExtraInformation, {"P_INVALID_REPORTING_INTERVAL_ExtraInformation","giop-parlay.csapi.P_INVALID_REPORTING_INTERVAL_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_mm_P_TRIGGER_CONDITIONS_NOT_SUBSCRIBED_ExtraInformation, {"P_TRIGGER_CONDITIONS_NOT_SUBSCRIBED_ExtraInformation","giop-parlay.csapi.P_TRIGGER_CONDITIONS_NOT_SUBSCRIBED_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_ui_P_ID_NOT_FOUND_ExtraInformation, {"P_ID_NOT_FOUND_ExtraInformation","giop-parlay.csapi.P_ID_NOT_FOUND_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_ui_P_ILLEGAL_ID_ExtraInformation, {"P_ILLEGAL_ID_ExtraInformation","giop-parlay.csapi.P_ILLEGAL_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_ui_P_ILLEGAL_RANGE_ExtraInformation, {"P_ILLEGAL_RANGE_ExtraInformation","giop-parlay.csapi.P_ILLEGAL_RANGE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_ui_P_INVALID_COLLECTION_CRITERIA_ExtraInformation, {"P_INVALID_COLLECTION_CRITERIA_ExtraInformation","giop-parlay.csapi.P_INVALID_COLLECTION_CRITERIA_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_fw_P_SERVICE_NOT_ENABLED_ExtraInformation, {"P_SERVICE_NOT_ENABLED_ExtraInformation","giop-parlay.csapi.P_SERVICE_NOT_ENABLED_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_fw_P_NO_ACCEPTABLE_ENCRYPTION_CAPABILITY_ExtraInformation, {"P_NO_ACCEPTABLE_ENCRYPTION_CAPABILITY_ExtraInformation","giop-parlay.csapi.P_NO_ACCEPTABLE_ENCRYPTION_CAPABILITY_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_fw_P_INVALID_AGREEMENT_TEXT_ExtraInformation, {"P_INVALID_AGREEMENT_TEXT_ExtraInformation","giop-parlay.csapi.P_INVALID_AGREEMENT_TEXT_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_fw_P_INVALID_SERVICE_TOKEN_ExtraInformation, {"P_INVALID_SERVICE_TOKEN_ExtraInformation","giop-parlay.csapi.P_INVALID_SERVICE_TOKEN_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_fw_P_INVALID_SIGNATURE_ExtraInformation, {"P_INVALID_SIGNATURE_ExtraInformation","giop-parlay.csapi.P_INVALID_SIGNATURE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_fw_P_INVALID_SIGNING_ALGORITHM_ExtraInformation, {"P_INVALID_SIGNING_ALGORITHM_ExtraInformation","giop-parlay.csapi.P_INVALID_SIGNING_ALGORITHM_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_fw_P_INVALID_DOMAIN_ID_ExtraInformation, {"P_INVALID_DOMAIN_ID_ExtraInformation","giop-parlay.csapi.P_INVALID_DOMAIN_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_fw_P_INVALID_PROPERTY_ExtraInformation, {"P_INVALID_PROPERTY_ExtraInformation","giop-parlay.csapi.P_INVALID_PROPERTY_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_fw_P_INVALID_ACCESS_TYPE_ExtraInformation, {"P_INVALID_ACCESS_TYPE_ExtraInformation","giop-parlay.csapi.P_INVALID_ACCESS_TYPE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_fw_P_ILLEGAL_SERVICE_TYPE_ExtraInformation, {"P_ILLEGAL_SERVICE_TYPE_ExtraInformation","giop-parlay.csapi.P_ILLEGAL_SERVICE_TYPE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_fw_P_UNKNOWN_SERVICE_TYPE_ExtraInformation, {"P_UNKNOWN_SERVICE_TYPE_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_SERVICE_TYPE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_fw_P_MISSING_MANDATORY_PROPERTY_ExtraInformation, {"P_MISSING_MANDATORY_PROPERTY_ExtraInformation","giop-parlay.csapi.P_MISSING_MANDATORY_PROPERTY_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_fw_P_DUPLICATE_PROPERTY_NAME_ExtraInformation, {"P_DUPLICATE_PROPERTY_NAME_ExtraInformation","giop-parlay.csapi.P_DUPLICATE_PROPERTY_NAME_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_fw_P_PROPERTY_TYPE_MISMATCH_ExtraInformation, {"P_PROPERTY_TYPE_MISMATCH_ExtraInformation","giop-parlay.csapi.P_PROPERTY_TYPE_MISMATCH_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_fw_P_INVALID_CLIENT_APP_ID_ExtraInformation, {"P_INVALID_CLIENT_APP_ID_ExtraInformation","giop-parlay.csapi.P_INVALID_CLIENT_APP_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_fw_P_INVALID_AUTH_TYPE_ExtraInformation, {"P_INVALID_AUTH_TYPE_ExtraInformation","giop-parlay.csapi.P_INVALID_AUTH_TYPE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_fw_P_INVALID_SAG_ID_ExtraInformation, {"P_INVALID_SAG_ID_ExtraInformation","giop-parlay.csapi.P_INVALID_SAG_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_fw_P_INVALID_SERVICE_PROFILE_ID_ExtraInformation, {"P_INVALID_SERVICE_PROFILE_ID_ExtraInformation","giop-parlay.csapi.P_INVALID_SERVICE_PROFILE_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_fw_P_INVALID_SERVICE_CONTRACT_ID_ExtraInformation, {"P_INVALID_SERVICE_CONTRACT_ID_ExtraInformation","giop-parlay.csapi.P_INVALID_SERVICE_CONTRACT_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_fw_P_INVALID_ACTIVITY_TEST_ID_ExtraInformation, {"P_INVALID_ACTIVITY_TEST_ID_ExtraInformation","giop-parlay.csapi.P_INVALID_ACTIVITY_TEST_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_fw_P_ILLEGAL_SERVICE_ID_ExtraInformation, {"P_ILLEGAL_SERVICE_ID_ExtraInformation","giop-parlay.csapi.P_ILLEGAL_SERVICE_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_fw_P_UNKNOWN_SERVICE_ID_ExtraInformation, {"P_UNKNOWN_SERVICE_ID_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_SERVICE_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_fw_P_SERVICE_TYPE_UNAVAILABLE_ExtraInformation, {"P_SERVICE_TYPE_UNAVAILABLE_ExtraInformation","giop-parlay.csapi.P_SERVICE_TYPE_UNAVAILABLE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_fw_P_INVALID_ADDITION_TO_SAG_ExtraInformation, {"P_INVALID_ADDITION_TO_SAG_ExtraInformation","giop-parlay.csapi.P_INVALID_ADDITION_TO_SAG_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_fw_P_INVALID_SAG_TO_SERVICE_PROFILE_ASSIGNMENT_ExtraInformation, {"P_INVALID_SAG_TO_SERVICE_PROFILE_ASSIGNMENT_ExtraInformation","giop-parlay.csapi.P_INVALID_SAG_TO_SERVICE_PROFILE_ASSIGNMENT_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_fw_P_NO_ACCEPTABLE_AUTHENTICATION_MECHANISM_ExtraInformation, {"P_NO_ACCEPTABLE_AUTHENTICATION_MECHANISM_ExtraInformation","giop-parlay.csapi.P_NO_ACCEPTABLE_AUTHENTICATION_MECHANISM_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_fw_P_NO_ACCEPTABLE_SIGNING_ALGORITHM_ExtraInformation, {"P_NO_ACCEPTABLE_SIGNING_ALGORITHM_ExtraInformation","giop-parlay.csapi.P_NO_ACCEPTABLE_SIGNING_ALGORITHM_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_fw_P_INVALID_SERVICE_ID_ExtraInformation, {"P_INVALID_SERVICE_ID_ExtraInformation","giop-parlay.csapi.P_INVALID_SERVICE_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_fw_P_SERVICE_ACCESS_DENIED_ExtraInformation, {"P_SERVICE_ACCESS_DENIED_ExtraInformation","giop-parlay.csapi.P_SERVICE_ACCESS_DENIED_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_fw_P_ACCESS_DENIED_ExtraInformation, {"P_ACCESS_DENIED_ExtraInformation","giop-parlay.csapi.P_ACCESS_DENIED_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_P_UNAUTHORISED_PARAMETER_VALUE_ExtraInformation, {"P_UNAUTHORISED_PARAMETER_VALUE_ExtraInformation","giop-parlay.csapi.P_UNAUTHORISED_PARAMETER_VALUE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_P_INVALID_VERSION_ExtraInformation, {"P_INVALID_VERSION_ExtraInformation","giop-parlay.csapi.P_INVALID_VERSION_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_P_INVALID_NETWORK_STATE_ExtraInformation, {"P_INVALID_NETWORK_STATE_ExtraInformation","giop-parlay.csapi.P_INVALID_NETWORK_STATE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_P_INVALID_ASSIGNMENT_ID_ExtraInformation, {"P_INVALID_ASSIGNMENT_ID_ExtraInformation","giop-parlay.csapi.P_INVALID_ASSIGNMENT_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_P_INVALID_TIME_AND_DATE_FORMAT_ExtraInformation, {"P_INVALID_TIME_AND_DATE_FORMAT_ExtraInformation","giop-parlay.csapi.P_INVALID_TIME_AND_DATE_FORMAT_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_P_INVALID_EVENT_TYPE_ExtraInformation, {"P_INVALID_EVENT_TYPE_ExtraInformation","giop-parlay.csapi.P_INVALID_EVENT_TYPE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_P_INVALID_INTERFACE_NAME_ExtraInformation, {"P_INVALID_INTERFACE_NAME_ExtraInformation","giop-parlay.csapi.P_INVALID_INTERFACE_NAME_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_P_INVALID_INTERFACE_TYPE_ExtraInformation, {"P_INVALID_INTERFACE_TYPE_ExtraInformation","giop-parlay.csapi.P_INVALID_INTERFACE_TYPE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_P_UNKNOWN_SUBSCRIBER_ExtraInformation, {"P_UNKNOWN_SUBSCRIBER_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_SUBSCRIBER_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_P_INFORMATION_NOT_AVAILABLE_ExtraInformation, {"P_INFORMATION_NOT_AVAILABLE_ExtraInformation","giop-parlay.csapi.P_INFORMATION_NOT_AVAILABLE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_P_INVALID_CRITERIA_ExtraInformation, {"P_INVALID_CRITERIA_ExtraInformation","giop-parlay.csapi.P_INVALID_CRITERIA_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_P_INVALID_SESSION_ID_ExtraInformation, {"P_INVALID_SESSION_ID_ExtraInformation","giop-parlay.csapi.P_INVALID_SESSION_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_TpCommonExceptions_ExceptionType, {"TpCommonExceptions_ExceptionType","giop-parlay.csapi.TpCommonExceptions_ExceptionType",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_TpCommonExceptions_ExtraInformation, {"TpCommonExceptions_ExtraInformation","giop-parlay.csapi.TpCommonExceptions_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_P_INVALID_CURRENCY_ExtraInformation, {"P_INVALID_CURRENCY_ExtraInformation","giop-parlay.csapi.P_INVALID_CURRENCY_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_P_INVALID_AMOUNT_ExtraInformation, {"P_INVALID_AMOUNT_ExtraInformation","giop-parlay.csapi.P_INVALID_AMOUNT_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_P_APPLICATION_NOT_ACTIVATED_ExtraInformation, {"P_APPLICATION_NOT_ACTIVATED_ExtraInformation","giop-parlay.csapi.P_APPLICATION_NOT_ACTIVATED_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_P_INVALID_ADDRESS_ExtraInformation, {"P_INVALID_ADDRESS_ExtraInformation","giop-parlay.csapi.P_INVALID_ADDRESS_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_P_UNSUPPORTED_ADDRESS_PLAN_ExtraInformation, {"P_UNSUPPORTED_ADDRESS_PLAN_ExtraInformation","giop-parlay.csapi.P_UNSUPPORTED_ADDRESS_PLAN_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_am_P_UNAUTHORIZED_APPLICATION_ExtraInformation, {"P_UNAUTHORIZED_APPLICATION_ExtraInformation","giop-parlay.csapi.P_UNAUTHORIZED_APPLICATION_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_cs_P_INVALID_REQUEST_NUMBER_ExtraInformation, {"P_INVALID_REQUEST_NUMBER_ExtraInformation","giop-parlay.csapi.P_INVALID_REQUEST_NUMBER_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_cs_P_INVALID_VOLUME_ExtraInformation, {"P_INVALID_VOLUME_ExtraInformation","giop-parlay.csapi.P_INVALID_VOLUME_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_cs_P_INVALID_USER_ExtraInformation, {"P_INVALID_USER_ExtraInformation","giop-parlay.csapi.P_INVALID_USER_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_cs_P_INVALID_ACCOUNT_ExtraInformation, {"P_INVALID_ACCOUNT_ExtraInformation","giop-parlay.csapi.P_INVALID_ACCOUNT_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_policy_P_ACCESS_VIOLATION_ExtraInformation, {"P_ACCESS_VIOLATION_ExtraInformation","giop-parlay.csapi.P_ACCESS_VIOLATION_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_policy_P_SYNTAX_ERROR_ExtraInformation, {"P_SYNTAX_ERROR_ExtraInformation","giop-parlay.csapi.P_SYNTAX_ERROR_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_policy_P_NAME_SPACE_ERROR_ExtraInformation, {"P_NAME_SPACE_ERROR_ExtraInformation","giop-parlay.csapi.P_NAME_SPACE_ERROR_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_policy_P_NO_TRANSACTION_IN_PROCESS_ExtraInformation, {"P_NO_TRANSACTION_IN_PROCESS_ExtraInformation","giop-parlay.csapi.P_NO_TRANSACTION_IN_PROCESS_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_policy_P_TRANSACTION_IN_PROCESS_ExtraInformation, {"P_TRANSACTION_IN_PROCESS_ExtraInformation","giop-parlay.csapi.P_TRANSACTION_IN_PROCESS_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_pam_P_PAM_IDENTITY_EXISTS_ExtraInformation, {"P_PAM_IDENTITY_EXISTS_ExtraInformation","giop-parlay.csapi.P_PAM_IDENTITY_EXISTS_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_pam_P_PAM_UNKNOWN_TYPE_ExtraInformation, {"P_PAM_UNKNOWN_TYPE_ExtraInformation","giop-parlay.csapi.P_PAM_UNKNOWN_TYPE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_pam_P_PAM_INVALID_CREDENTIAL_ExtraInformation, {"P_PAM_INVALID_CREDENTIAL_ExtraInformation","giop-parlay.csapi.P_PAM_INVALID_CREDENTIAL_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_pam_P_PAM_UNKNOWN_IDENTITY_ExtraInformation, {"P_PAM_UNKNOWN_IDENTITY_ExtraInformation","giop-parlay.csapi.P_PAM_UNKNOWN_IDENTITY_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_pam_P_PAM_MEMBER_EXISTS_ExtraInformation, {"P_PAM_MEMBER_EXISTS_ExtraInformation","giop-parlay.csapi.P_PAM_MEMBER_EXISTS_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_pam_P_PAM_UNKNOWN_GROUP_ExtraInformation, {"P_PAM_UNKNOWN_GROUP_ExtraInformation","giop-parlay.csapi.P_PAM_UNKNOWN_GROUP_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_pam_P_PAM_UNKNOWN_MEMBER_ExtraInformation, {"P_PAM_UNKNOWN_MEMBER_ExtraInformation","giop-parlay.csapi.P_PAM_UNKNOWN_MEMBER_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_pam_P_PAM_IS_CYCLIC_ExtraInformation, {"P_PAM_IS_CYCLIC_ExtraInformation","giop-parlay.csapi.P_PAM_IS_CYCLIC_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_pam_P_PAM_NOT_MEMBER_ExtraInformation, {"P_PAM_NOT_MEMBER_ExtraInformation","giop-parlay.csapi.P_PAM_NOT_MEMBER_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_pam_P_PAM_ALIAS_EXISTS_ExtraInformation, {"P_PAM_ALIAS_EXISTS_ExtraInformation","giop-parlay.csapi.P_PAM_ALIAS_EXISTS_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_pam_P_PAM_ALIAS_NOT_UNIQUE_ExtraInformation, {"P_PAM_ALIAS_NOT_UNIQUE_ExtraInformation","giop-parlay.csapi.P_PAM_ALIAS_NOT_UNIQUE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_pam_P_PAM_UNASSIGNED_ALIAS_ExtraInformation, {"P_PAM_UNASSIGNED_ALIAS_ExtraInformation","giop-parlay.csapi.P_PAM_UNASSIGNED_ALIAS_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_pam_P_PAM_UNKNOWN_ALIAS_ExtraInformation, {"P_PAM_UNKNOWN_ALIAS_ExtraInformation","giop-parlay.csapi.P_PAM_UNKNOWN_ALIAS_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_pam_P_PAM_TYPE_ASSOCIATED_ExtraInformation, {"P_PAM_TYPE_ASSOCIATED_ExtraInformation","giop-parlay.csapi.P_PAM_TYPE_ASSOCIATED_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_pam_P_PAM_DISASSOCIATED_TYPE_ExtraInformation, {"P_PAM_DISASSOCIATED_TYPE_ExtraInformation","giop-parlay.csapi.P_PAM_DISASSOCIATED_TYPE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_pam_P_PAM_UNKNOWN_ATTRIBUTE_ExtraInformation, {"P_PAM_UNKNOWN_ATTRIBUTE_ExtraInformation","giop-parlay.csapi.P_PAM_UNKNOWN_ATTRIBUTE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_pam_P_PAM_UNKNOWN_ATTRIBUTES_ExtraInformation, {"P_PAM_UNKNOWN_ATTRIBUTES_ExtraInformation","giop-parlay.csapi.P_PAM_UNKNOWN_ATTRIBUTES_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_pam_P_PAM_AGENT_EXISTS_ExtraInformation, {"P_PAM_AGENT_EXISTS_ExtraInformation","giop-parlay.csapi.P_PAM_AGENT_EXISTS_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_pam_P_PAM_UNKNOWN_AGENT_ExtraInformation, {"P_PAM_UNKNOWN_AGENT_ExtraInformation","giop-parlay.csapi.P_PAM_UNKNOWN_AGENT_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_pam_P_PAM_NO_CAPABILITY_ExtraInformation, {"P_PAM_NO_CAPABILITY_ExtraInformation","giop-parlay.csapi.P_PAM_NO_CAPABILITY_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_pam_P_PAM_UNKNOWN_ASSIGNMENT_ExtraInformation, {"P_PAM_UNKNOWN_ASSIGNMENT_ExtraInformation","giop-parlay.csapi.P_PAM_UNKNOWN_ASSIGNMENT_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_pam_P_PAM_ATTRIBUTE_EXISTS_ExtraInformation, {"P_PAM_ATTRIBUTE_EXISTS_ExtraInformation","giop-parlay.csapi.P_PAM_ATTRIBUTE_EXISTS_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_pam_P_PAM_TYPE_EXISTS_ExtraInformation, {"P_PAM_TYPE_EXISTS_ExtraInformation","giop-parlay.csapi.P_PAM_TYPE_EXISTS_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_pam_P_PAM_UNKNOWN_CAPABILITY_ExtraInformation, {"P_PAM_UNKNOWN_CAPABILITY_ExtraInformation","giop-parlay.csapi.P_PAM_UNKNOWN_CAPABILITY_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_pam_P_PAM_UNAVAILABLE_INTERFACE_ExtraInformation, {"P_PAM_UNAVAILABLE_INTERFACE_ExtraInformation","giop-parlay.csapi.P_PAM_UNAVAILABLE_INTERFACE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_pam_P_PAM_NOT_REGISTERED_ExtraInformation, {"P_PAM_NOT_REGISTERED_ExtraInformation","giop-parlay.csapi.P_PAM_NOT_REGISTERED_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_mmm_P_MMM_INVALID_MAILBOX_ExtraInformation, {"P_MMM_INVALID_MAILBOX_ExtraInformation","giop-parlay.csapi.P_MMM_INVALID_MAILBOX_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_mmm_P_MMM_INVALID_AUTHENTICATION_INFORMATION_ExtraInformation, {"P_MMM_INVALID_AUTHENTICATION_INFORMATION_ExtraInformation","giop-parlay.csapi.P_MMM_INVALID_AUTHENTICATION_INFORMATION_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_mmm_P_MMM_INVALID_FOLDER_ID_ExtraInformation, {"P_MMM_INVALID_FOLDER_ID_ExtraInformation","giop-parlay.csapi.P_MMM_INVALID_FOLDER_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_mmm_P_MMM_MAX_MESSAGE_SIZE_EXCEEDED_ExtraInformation, {"P_MMM_MAX_MESSAGE_SIZE_EXCEEDED_ExtraInformation","giop-parlay.csapi.P_MMM_MAX_MESSAGE_SIZE_EXCEEDED_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_mmm_P_MMM_INVALID_MESSAGE_ID_ExtraInformation, {"P_MMM_INVALID_MESSAGE_ID_ExtraInformation","giop-parlay.csapi.P_MMM_INVALID_MESSAGE_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_mmm_P_MMM_INVALID_PART_ID_ExtraInformation, {"P_MMM_INVALID_PART_ID_ExtraInformation","giop-parlay.csapi.P_MMM_INVALID_PART_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_mmm_P_MMM_INVALID_PROPERTY_ExtraInformation, {"P_MMM_INVALID_PROPERTY_ExtraInformation","giop-parlay.csapi.P_MMM_INVALID_PROPERTY_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_mmm_P_MMM_INVALID_DELIVERY_TYPE_ExtraInformation, {"P_MMM_INVALID_DELIVERY_TYPE_ExtraInformation","giop-parlay.csapi.P_MMM_INVALID_DELIVERY_TYPE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_mmm_P_MMM_DELIVERY_TYPE_ADDRESS_TYPE_MISMATCH_ExtraInformation, {"P_MMM_DELIVERY_TYPE_ADDRESS_TYPE_MISMATCH_ExtraInformation","giop-parlay.csapi.P_MMM_DELIVERY_TYPE_ADDRESS_TYPE_MISMATCH_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_mmm_P_MMM_DELIVERY_TYPE_MESSAGE_TYPE_MISMATCH_ExtraInformation, {"P_MMM_DELIVERY_TYPE_MESSAGE_TYPE_MISMATCH_ExtraInformation","giop-parlay.csapi.P_MMM_DELIVERY_TYPE_MESSAGE_TYPE_MISMATCH_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_mmm_P_MMM_INVALID_DELIVERY_TIME_ExtraInformation, {"P_MMM_INVALID_DELIVERY_TIME_ExtraInformation","giop-parlay.csapi.P_MMM_INVALID_DELIVERY_TIME_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_mmm_P_MMM_INVALID_VALIDITY_TIME_ExtraInformation, {"P_MMM_INVALID_VALIDITY_TIME_ExtraInformation","giop-parlay.csapi.P_MMM_INVALID_VALIDITY_TIME_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_mmm_P_MMM_MAX_SUBJECT_SIZE_EXCEEDED_ExtraInformation, {"P_MMM_MAX_SUBJECT_SIZE_EXCEEDED_ExtraInformation","giop-parlay.csapi.P_MMM_MAX_SUBJECT_SIZE_EXCEEDED_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_mmm_P_MMM_INVALID_HEADER_ExtraInformation, {"P_MMM_INVALID_HEADER_ExtraInformation","giop-parlay.csapi.P_MMM_INVALID_HEADER_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_mmm_P_MMM_CANNOT_CANCEL_ExtraInformation, {"P_MMM_CANNOT_CANCEL_ExtraInformation","giop-parlay.csapi.P_MMM_CANNOT_CANCEL_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_mmm_P_MMM_INFORMATION_NOT_AVAILABLE_ExtraInformation, {"P_MMM_INFORMATION_NOT_AVAILABLE_ExtraInformation","giop-parlay.csapi.P_MMM_INFORMATION_NOT_AVAILABLE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         /* Union filters */
         {&hf_org_csapi_TpAoCOrder_TpAoCOrder, {"TpAoCOrder","giop-parlay.org.csapi.TpAoCOrder",FT_UINT32,BASE_DEC,VALS(org_csapi_TpCallAoCOrderCategory),0x0,NULL,HFILL}},
         {&hf_org_csapi_TpAoCOrder_NetworkCharge, {"TpAoCOrder_NetworkCharge","giop-parlay.org.csapi.TpAoCOrder.NetworkCharge",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
@@ -65659,7 +65656,7 @@ void proto_reg_handoff_giop_parlay(void)
 }
 
 /*
- * Editor modelines
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 4

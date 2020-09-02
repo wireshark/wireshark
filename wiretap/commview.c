@@ -391,7 +391,7 @@ static gboolean commview_dump(wtap_dumper *wdh,
 			      const wtap_rec *rec,
 			      const guint8 *pd, int *err, gchar **err_info _U_)
 {
-	commview_header_t cv_hdr;
+	commview_header_t cv_hdr = {0};
 	struct tm *tm;
 
 	/* We can only write packet records. */
@@ -407,8 +407,6 @@ static gboolean commview_dump(wtap_dumper *wdh,
 		*err = WTAP_ERR_PACKET_TOO_LARGE;
 		return FALSE;
 	}
-
-	memset(&cv_hdr, 0, sizeof(cv_hdr));
 
 	cv_hdr.data_len = GUINT16_TO_LE((guint16)rec->rec_header.packet_header.caplen);
 	cv_hdr.source_data_len = GUINT16_TO_LE((guint16)rec->rec_header.packet_header.caplen);

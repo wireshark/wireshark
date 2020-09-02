@@ -395,12 +395,12 @@ static gint * const ett_ipmi_vita[] = {
 	&ett_vita_persistent_control_caps
 };
 
-static const int * bits_vita_led_color[] = {
+static int * const bits_vita_led_color[] = {
 	&hf_vita_led_color,
 	NULL
 };
 
-static const int * bits_vita_fru_policy_bits[] = {
+static int * const bits_vita_fru_policy_bits[] = {
 	&hf_vita_fru_activation_locked,
 	&hf_vita_fru_deactivation_locked,
 	&hf_vita_fru_commanded_deactivation_ignored,
@@ -408,7 +408,7 @@ static const int * bits_vita_fru_policy_bits[] = {
 	NULL
 };
 
-static const int * bits_vita_persistent_control_state[] = {
+static int * const bits_vita_persistent_control_state[] = {
 	&hf_vita_persistent_control_cold,
 	&hf_vita_persistent_control_warm,
 	NULL
@@ -538,7 +538,7 @@ static hf_register_info hf_ipmi_vita[] = {
 		{ "Override State LED Function", "ipmi.vita.led.ovr.func",
 			FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(str_vita_led_func), 0, NULL, HFILL }},
 	{ &hf_vita_led_ovr_duration,
-		{ "Override State On-Duration", "ipmi.vita.led.ovr.diration",
+		{ "Override State On-Duration", "ipmi.vita.led.ovr.duration",
 			FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_vita_led_ovr_color,
 		{ "Override State Color", "ipmi.vita.led.ovr.color",
@@ -550,7 +550,7 @@ static hf_register_info hf_ipmi_vita[] = {
 		{ "Local Control LED Function", "ipmi.vita.led.loc.func",
 			FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(str_vita_led_func), 0, NULL, HFILL }},
 	{ &hf_vita_led_loc_duration,
-		{ "Local Control On-Duration", "ipmi.vita.led.loc.diration",
+		{ "Local Control On-Duration", "ipmi.vita.led.loc.duration",
 			FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_vita_led_loc_color,
 		{ "Local Control Color", "ipmi.vita.led.loc.color",
@@ -778,13 +778,13 @@ static hf_register_info hf_ipmi_vita[] = {
 static void
 cmd00_rs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const gint * bits_vita_ipmc[] = {
+	static int * const bits_vita_ipmc[] = {
 		&hf_vita_tier, &hf_vita_layer, NULL
 	};
-	static const gint * bits_vita_ipmb[] = {
+	static int * const bits_vita_ipmb[] = {
 		&hf_vita_ipmb_itfs, &hf_vita_ipmb_freq, NULL
 	};
-	static const gint * bits_vita_vso[] = {
+	static int * const bits_vita_vso[] = {
 		&hf_vita_vso_std, NULL
 	};
 
@@ -885,13 +885,13 @@ cmd06_rq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 cmd06_rs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const gint * bits_vita_led_caps[] = {
+	static int * const bits_vita_led_caps[] = {
 		&hf_vita_led_cap_white, &hf_vita_led_cap_orange,
 		&hf_vita_led_cap_amber, &hf_vita_led_cap_green,
 		&hf_vita_led_cap_red, &hf_vita_led_cap_blue,
 		NULL
 	};
-	static const int * bits_vita_led_flags[] = {
+	static int * const bits_vita_led_flags[] = {
 		&hf_vita_led_flag_pwr,
 		&hf_vita_led_flag_hw_restrict,
 		NULL
@@ -925,7 +925,7 @@ cmd07_rq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 cmd08_rs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const int * bits_vita_led_states[] = {
+	static int * const bits_vita_led_states[] = {
 		&hf_vita_led_state_local,
 		&hf_vita_led_state_override,
 		&hf_vita_led_state_lamp_test,
@@ -954,7 +954,7 @@ cmd08_rs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 cmd09_rq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const int * bits_vita_ipmb_state[] = {
+	static int * const bits_vita_ipmb_state[] = {
 		&hf_vita_ipmb_state,
 		&hf_vita_ipmb_link_id,
 		NULL
@@ -1011,7 +1011,7 @@ cmd0D_rs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 cmd14_rs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const int * bits_vita_fan_properties[] = {
+	static int * const bits_vita_fan_properties[] = {
 		&hf_vita_fan_prop_local_control,
 		NULL
 	};
@@ -1119,7 +1119,7 @@ cmd1D_rs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 cmd1E_rs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const int * bits_vita_fru_control_caps[] = {
+	static int * const bits_vita_fru_control_caps[] = {
 		&hf_vita_fru_control_cap_cold,
 		&hf_vita_fru_control_cap_warm,
 		&hf_vita_fru_control_cap_grace,
@@ -1184,7 +1184,7 @@ static void
 cmd21_rs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_item * item;
-	static const int * bits_vita_chassis_addr_type[] = {
+	static int * const bits_vita_chassis_addr_type[] = {
 		&hf_vita_chassis_addr_chmc,
 		&hf_vita_chassis_addr_format,
 		NULL
@@ -1238,7 +1238,7 @@ cmd42_rq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 cmd43_rs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const int * bits_vita_persistent_control_caps[] = {
+	static int * const bits_vita_persistent_control_caps[] = {
 		&hf_vita_persistent_control_cap_cold,
 		&hf_vita_persistent_control_cap_warm,
 		NULL

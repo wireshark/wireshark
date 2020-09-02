@@ -965,7 +965,7 @@ static const value_string omron_cyclic_trans_codes[] = {
     { 0x01, "Transmission" },
     { 0,    NULL } };
 
-static const int *omron_icf_fields[] = {
+static int * const omron_icf_fields[] = {
     &hf_omron_icf_gwb,
     &hf_omron_icf_dtb,
     &hf_omron_icf_rb0,
@@ -977,7 +977,7 @@ static const int *omron_icf_fields[] = {
     NULL
 };
 
-static const int *pc_status_fields[] = {
+static int * const pc_status_fields[] = {
     &hf_omron_pc_status_pdc,
     &hf_omron_pc_status_hi,
     &hf_omron_pc_status_r1,
@@ -986,7 +986,7 @@ static const int *pc_status_fields[] = {
     NULL
 };
 
-static const int *fatal_error_fields[] = {
+static int * const fatal_error_fields[] = {
     &hf_omron_fatal_fals_error,
     &hf_omron_fatal_sfc_error,
     &hf_omron_fatal_cycle_time_over,
@@ -1006,7 +1006,7 @@ static const int *fatal_error_fields[] = {
     NULL
 };
 
-static const int *non_fatal_error_fields[] = {
+static int * const non_fatal_error_fields[] = {
     &hf_omron_non_fatal_rv1,
     &hf_omron_non_fatal_rv2,
     &hf_omron_non_fatal_power_interruption,
@@ -1026,7 +1026,7 @@ static const int *non_fatal_error_fields[] = {
     NULL
 };
 
-static const int *message_fields[] = {
+static int * const message_fields[] = {
     &hf_omron_message_no_0,
     &hf_omron_message_no_1,
     &hf_omron_message_no_2,
@@ -1046,7 +1046,7 @@ static const int *message_fields[] = {
     NULL
 };
 
-static const int *message_yes_no_fields[] = {
+static int * const message_yes_no_fields[] = {
     &hf_omron_message_rv_1,
     &hf_omron_message_rv_2,
     &hf_omron_message_rv_3,
@@ -1057,7 +1057,7 @@ static const int *message_yes_no_fields[] = {
     NULL
 };
 
-static const int *data_type_fields[] = {
+static int * const data_type_fields[] = {
     &hf_omron_data_type_type,
     &hf_omron_data_type_rv,
     &hf_omron_data_type_protected,
@@ -1065,7 +1065,7 @@ static const int *data_type_fields[] = {
     NULL
 };
 
-static const int *cyclic_non_fatal_1_fields[] = {
+static int * const cyclic_non_fatal_1_fields[] = {
     &hf_omron_cyclic_1,
     &hf_omron_cyclic_2,
     &hf_omron_cyclic_3,
@@ -1076,7 +1076,7 @@ static const int *cyclic_non_fatal_1_fields[] = {
     NULL
 };
 
-static const int *cyclic_non_fatal_2_fields[] = {
+static int * const cyclic_non_fatal_2_fields[] = {
     &hf_omron_cyclic_8,
     &hf_omron_cyclic_9,
     &hf_omron_cyclic_10,
@@ -1088,7 +1088,7 @@ static const int *cyclic_non_fatal_2_fields[] = {
     NULL
 };
 
-static const int *cyclic_non_fatal_3_fields[] = {
+static int * const cyclic_non_fatal_3_fields[] = {
     &hf_omron_cyclic_16,
     &hf_omron_cyclic_17,
     &hf_omron_cyclic_18,
@@ -1100,7 +1100,7 @@ static const int *cyclic_non_fatal_3_fields[] = {
     NULL
 };
 
-static const int *cyclic_non_fatal_4_fields[] = {
+static int * const cyclic_non_fatal_4_fields[] = {
     &hf_omron_cyclic_24,
     &hf_omron_cyclic_25,
     &hf_omron_cyclic_26,
@@ -1112,7 +1112,7 @@ static const int *cyclic_non_fatal_4_fields[] = {
     NULL
 };
 
-static const int *cyclic_non_fatal_5_fields[] = {
+static int * const cyclic_non_fatal_5_fields[] = {
     &hf_omron_cyclic_32,
     &hf_omron_cyclic_33,
     &hf_omron_cyclic_34,
@@ -1124,7 +1124,7 @@ static const int *cyclic_non_fatal_5_fields[] = {
     NULL
 };
 
-static const int *cyclic_non_fatal_6_fields[] = {
+static int * const cyclic_non_fatal_6_fields[] = {
     &hf_omron_cyclic_40,
     &hf_omron_cyclic_41,
     &hf_omron_cyclic_42,
@@ -1136,7 +1136,7 @@ static const int *cyclic_non_fatal_6_fields[] = {
     NULL
 };
 
-static const int *cyclic_non_fatal_7_fields[] = {
+static int * const cyclic_non_fatal_7_fields[] = {
     &hf_omron_cyclic_48,
     &hf_omron_cyclic_49,
     &hf_omron_cyclic_50,
@@ -1148,7 +1148,7 @@ static const int *cyclic_non_fatal_7_fields[] = {
     NULL
 };
 
-static const int *cyclic_non_fatal_8_fields[] = {
+static int * const cyclic_non_fatal_8_fields[] = {
     &hf_omron_cyclic_56,
     &hf_omron_cyclic_57,
     &hf_omron_cyclic_58,

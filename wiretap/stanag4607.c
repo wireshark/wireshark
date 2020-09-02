@@ -193,6 +193,14 @@ wtap_open_return_val stanag4607_open(wtap *wth, int *err, gchar **err_info)
   wth->subtype_seek_read = stanag4607_seek_read;
   wth->file_tsprec = WTAP_TSPREC_MSEC;
 
+  /*
+   * Add an IDB; we don't know how many interfaces were
+   * involved, so we just say one interface, about which
+   * we only know the link-layer type, snapshot length,
+   * and time stamp resolution.
+   */
+  wtap_add_generated_idb(wth);
+
   return WTAP_OPEN_MINE;
 }
 

@@ -213,7 +213,7 @@ static int dissect_bat_batman_v5(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 	struct batman_packet_v5 *batman_packeth;
 	guint32 old_orig, orig;
 	gint i;
-	static const int * batman_flags[] = {
+	static int * const batman_flags[] = {
 		&hf_bat_batman_flags_unidirectional,
 		&hf_bat_batman_flags_directlink,
 		NULL

@@ -156,7 +156,7 @@ typedef struct duplicate_result_key {
 #define ARPOP_RREPLY   4       /* RARP reply.  */
 #endif
 
-/*Additional parameters as per http://www.iana.org/assignments/arp-parameters*/
+/* Additional parameters as per https://www.iana.org/assignments/arp-parameters */
 #ifndef ARPOP_DRARPREQUEST
 #define ARPOP_DRARPREQUEST 5   /* DRARP request.  */
 #endif
@@ -179,7 +179,7 @@ typedef struct duplicate_result_key {
 #define ATMARPOP_NAK   10      /* ATMARP NAK.  */
 #endif
 
-/*Additional parameters as per http://www.iana.org/assignments/arp-parameters*/
+/* Additional parameters as per https://www.iana.org/assignments/arp-parameters */
 #ifndef ARPOP_MARS_REQUEST
 #define ARPOP_MARS_REQUEST   11       /*MARS request message. */
 #endif
@@ -290,7 +290,7 @@ static const value_string op_vals[] = {
   {ARPOP_MARS_SJOIN,             "mars sjoin"             },
   {ARPOP_MARS_SLEAVE,            "mars sleave"            },
   {ARPOP_MARS_GROUPLIST_REQUEST, "mars grouplist request" },
-  {ARPOP_MARS_GROUPLIST_REPLY,   "mars gruoplist reply"   },
+  {ARPOP_MARS_GROUPLIST_REPLY,   "mars grouplist reply"   },
   {ARPOP_MARS_REDIRECT_MAP,      "mars redirect map"      },
   {ARPOP_MAPOS_UNARP,            "mapos unarp"            },
   {ARPOP_EXP1,                   "experimental 1"         },
@@ -323,7 +323,7 @@ static const value_string atmop_vals[] = {
   {ARPOP_MARS_SJOIN,             "mars sjoin"             },
   {ARPOP_MARS_SLEAVE,            "mars sleave"            },
   {ARPOP_MARS_GROUPLIST_REQUEST, "mars grouplist request" },
-  {ARPOP_MARS_GROUPLIST_REPLY,   "mars gruoplist reply"   },
+  {ARPOP_MARS_GROUPLIST_REPLY,   "mars grouplist reply"   },
   {ARPOP_MARS_REDIRECT_MAP,      "mars redirect map"      },
   {ARPOP_MAPOS_UNARP,            "mapos unarp"            },
   {ARPOP_EXP1,                   "experimental 1"         },
@@ -483,14 +483,64 @@ const value_string arp_hrd_vals[] = {
   {ARPHRD_TIA_102_PRJ_25_CAI, "TIA-102 Project 25 CAI"     },
   {ARPHRD_WIEGAND_INTERFACE,  "Wiegand Interface"          },
   {ARPHRD_PURE_IP,            "Pure IP"                    },
-  {ARPHDR_HW_EXP1,            "Experimental 1"             },
-  {ARPHDR_HFI,                "HFI"                        },
-  {ARPHDR_HW_EXP2,            "Experimental 2"             },
+  {ARPHRD_HW_EXP1,            "Experimental 1"             },
+  {ARPHRD_HFI,                "HFI"                        },
+  {ARPHRD_HW_EXP2,            "Experimental 2"             },
+  {ARPHRD_AETHERNET,          "AEthernet"                  },
   /* Virtual ARP types for non ARP hardware used in Linux cooked mode. */
+  {ARPHRD_RSRVD,              "Notional KISS type"         },
+  {ARPHRD_ADAPT,              "ADAPT"                      },
+  {ARPHRD_ROSE,               "ROSE"                       },
+  {ARPHRD_X25,                "CCITT X.25"                 },
+  {ARPHRD_HWX25,              "Boards with X.25 in firmware"},
+  {ARPHRD_CAN,                "Controller Area Network"    },
+  {ARPHRD_PPP,                "PPP"                        },
+  {ARPHRD_CISCO,              "Cisco HDLC"                 },
+  {ARPHRD_LAPB,               "LAPB"                       },
+  {ARPHRD_DDCMP,              "Digital's DDCMP protocol"   },
+  {ARPHRD_RAWHDLC,            "Raw HDLC"                   },
+  {ARPHRD_RAWIP,              "Raw IP"                     },
+
+  {ARPHRD_TUNNEL,             "IPIP tunnel"                },
+  {ARPHRD_TUNNEL6,            "IP6IP6 tunnel"              },
+  {ARPHRD_FRAD,               "Frame Relay Access Device"  },
+  {ARPHRD_SKIP,               "SKIP vif"                   },
   {ARPHRD_LOOPBACK,           "Loopback"                   },
+  {ARPHRD_FDDI,               "Fiber Distributed Data Interface"},
+  {ARPHRD_BIF,                "AP1000 BIF"                 },
+  {ARPHRD_SIT,                "sit0 device - IPv6-in-IPv4" },
+  {ARPHRD_IPDDP,              "IP over DDP tunneller"      },
   {ARPHRD_IPGRE,              "GRE over IP"                },
+  {ARPHRD_PIMREG,             "PIMSM register interface"   },
+  {ARPHRD_HIPPI,              "High Performance Parallel Interface"},
+  {ARPHRD_ASH,                "Nexus 64Mbps Ash"           },
+  {ARPHRD_ECONET,             "Acorn Econet"               },
+  {ARPHRD_IRDA,               "Linux-IrDA"                 },
+/* ARP works differently on different FC media .. so  */
+  {ARPHRD_FCPP,               "Point to point fibrechannel" },
+  {ARPHRD_FCAL,               "Fibrechannel arbitrated loop" },
+  {ARPHRD_FCPL,               "Fibrechannel public loop"   },
+  {ARPHRD_FCFABRIC, "Fibrechannel fabric"},
+	/* 787->799 reserved for fibrechannel media types */
+  {ARPHRD_IEEE802_TR,         "Magic type ident for TR"    },
+  {ARPHRD_IEEE80211,          "IEEE 802.11"                },
+  {ARPHRD_IEEE80211_PRISM,    "IEEE 802.11 + Prism2 header" },
+  {ARPHRD_IEEE80211_RADIOTAP, "IEEE 802.11 + radiotap header" },
+  {ARPHRD_IEEE802154,         "IEEE 802.15.4"              },
+  {ARPHRD_IEEE802154_MONITOR, "IEEE 802.15.4 network monitor" },
+
+  {ARPHRD_PHONET,             "PhoNet media type"          },
+  {ARPHRD_PHONET_PIPE,        "PhoNet pipe header"         },
+  {ARPHRD_CAIF,               "CAIF media type"            },
+  {ARPHRD_IP6GRE,             "GRE over IPv6"              },
   {ARPHRD_NETLINK,            "Netlink"                    },
-  {0, NULL                  } };
+  {ARPHRD_6LOWPAN,            "IPv6 over LoWPAN"           },
+  {ARPHRD_VSOCKMON,           "Vsock monitor header"       },
+
+  {ARPHRD_VOID,               "Void type, nothing is known" },
+  {ARPHRD_NONE,               "zero header length"         },
+  {0, NULL                                                 }
+};
 
 /* Offsets of fields within an ARP packet. */
 #define AR_HRD          0
@@ -1080,9 +1130,9 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     tl_tree = proto_tree_add_subtree_format(arp_tree, tvb, ATM_AR_SHTL, 1,
                              ett_atmarp_tl, NULL,
                              "Sender ATM number type/length: %s/%u",
-                             (ar_shtl & ATMARP_IS_E164 ?
-                              "E.164" :
-                              "ATM Forum NSAPA"),
+                             (ar_shtl & ATMARP_IS_E164) ?
+                                  "E.164" :
+                                  "ATM Forum NSAPA",
                              ar_shl);
     proto_tree_add_boolean(tl_tree, hf_atmarp_sht, tvb, ATM_AR_SHTL, 1, ar_shtl);
     proto_tree_add_uint(tl_tree, hf_atmarp_shl, tvb, ATM_AR_SHTL, 1, ar_shtl);
@@ -1090,9 +1140,9 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     tl_tree = proto_tree_add_subtree_format(arp_tree, tvb, ATM_AR_SSTL, 1,
                              ett_atmarp_tl, NULL,
                              "Sender ATM subaddress type/length: %s/%u",
-                             (ar_sstl & ATMARP_IS_E164 ?
-                              "E.164" :
-                              "ATM Forum NSAPA"),
+                             (ar_sstl & ATMARP_IS_E164) ?
+                                  "E.164" :
+                                  "ATM Forum NSAPA",
                              ar_ssl);
     proto_tree_add_boolean(tl_tree, hf_atmarp_sst, tvb, ATM_AR_SSTL, 1, ar_sstl);
     proto_tree_add_uint(tl_tree, hf_atmarp_ssl, tvb, ATM_AR_SSTL, 1, ar_sstl);
@@ -1105,9 +1155,9 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     tl_tree = proto_tree_add_subtree_format(arp_tree, tvb, ATM_AR_THTL, 1,
                              ett_atmarp_tl, NULL,
                              "Target ATM number type/length: %s/%u",
-                             (ar_thtl & ATMARP_IS_E164 ?
-                              "E.164" :
-                              "ATM Forum NSAPA"),
+                             (ar_thtl & ATMARP_IS_E164) ?
+                                  "E.164" :
+                                  "ATM Forum NSAPA",
                              ar_thl);
     proto_tree_add_boolean(tl_tree, hf_atmarp_tht, tvb, ATM_AR_THTL, 1, ar_thtl);
     proto_tree_add_uint(tl_tree, hf_atmarp_thl, tvb, ATM_AR_THTL, 1, ar_thtl);
@@ -1115,9 +1165,9 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     tl_tree = proto_tree_add_subtree_format(arp_tree, tvb, ATM_AR_TSTL, 1,
                              ett_atmarp_tl, NULL,
                              "Target ATM subaddress type/length: %s/%u",
-                             (ar_tstl & ATMARP_IS_E164 ?
-                              "E.164" :
-                              "ATM Forum NSAPA"),
+                             (ar_tstl & ATMARP_IS_E164) ?
+                                  "E.164" :
+                                  "ATM Forum NSAPA",
                              ar_tsl);
     proto_tree_add_boolean(tl_tree, hf_atmarp_tst, tvb, ATM_AR_TSTL, 1, ar_tstl);
     proto_tree_add_uint(tl_tree, hf_atmarp_tsl, tvb, ATM_AR_TSTL, 1, ar_tstl);

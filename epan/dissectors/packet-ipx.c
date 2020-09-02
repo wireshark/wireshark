@@ -589,7 +589,7 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	spx_msg_string = val_to_str_const((conn_ctrl & 0xf0), conn_vals, "Unknown" );
 	col_append_fstr(pinfo->cinfo, COL_INFO, " %s", spx_msg_string);
 	if (tree) {
-		const int * spx_flags[] = {
+		static int * const spx_flags[] = {
 			&hf_spx_connection_control_sys,
 			&hf_spx_connection_control_send_ack,
 			&hf_spx_connection_control_attn,
@@ -597,7 +597,7 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 			NULL
 		};
 
-		const int * spx_vii_flags[] = {
+		static int * const spx_vii_flags[] = {
 			&hf_spx_connection_control_sys,
 			&hf_spx_connection_control_send_ack,
 			&hf_spx_connection_control_attn,

@@ -3,8 +3,8 @@
  * Parser created by Henning Rogge <henning.rogge@fkie.fraunhofer.de> of Fraunhover
  * TLV values decoding by Francois Schneider <francois.schneider_@_airbus.com>
  *
- * http://tools.ietf.org/html/rfc5444
- * http://tools.ietf.org/html/rfc5498
+ * https://tools.ietf.org/html/rfc5444
+ * https://tools.ietf.org/html/rfc5498
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -283,7 +283,7 @@ static proto_item* dissect_pbb_tlvvalue(tvbuff_t *tvb, proto_tree *tlvTree, guin
   proto_tree *tlv_decoded_value_tree = NULL;
   proto_tree *tlv_decoded_value_item = NULL;
 
-  static const int *mprwillingness_values[] = {
+  static int * const mprwillingness_values[] = {
     &hf_packetbb_tlv_mprwillingness_flooding,
     &hf_packetbb_tlv_mprwillingness_routing,
     NULL
@@ -364,7 +364,7 @@ static int dissect_pbb_tlvblock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
   int tlvCount = 0;
 
-  static const int *flags[] = {
+  static int * const flags[] = {
     &hf_packetbb_tlv_flags_hastypext,
     &hf_packetbb_tlv_flags_hassingleindex,
     &hf_packetbb_tlv_flags_hasmultiindex,
@@ -542,7 +542,7 @@ static int dissect_pbb_addressblock(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
   int i = 0;
 
-  static const int *flags[] = {
+  static int * const flags[] = {
     &hf_packetbb_addr_flags_hashead,
     &hf_packetbb_addr_flags_hasfulltail,
     &hf_packetbb_addr_flags_haszerotail,
@@ -887,7 +887,7 @@ static int dissect_pbb_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
   guint8 packet_flags = tvb_get_guint8(tvb, 0);
 
-  static const int *flags[] = {
+  static int * const flags[] = {
     &hf_packetbb_header_flags_phasseqnum,
     &hf_packetbb_header_flags_phastlv,
     NULL

@@ -12,7 +12,7 @@
 
 #include "config.h"
 
-/* WSLUA_MODULE Dir Directory handling functions */
+/* WSLUA_MODULE Dir Directory Handling Functions */
 
 #include "wslua.h"
 #include <wsutil/file_util.h>
@@ -23,9 +23,9 @@ WSLUA_CONSTRUCTOR Dir_make(lua_State* L) {
     /* Creates a directory.
 
        The created directory is set for permission mode 0755 (octal), meaning it is
-       read+write+execute by owner, but only read+execute by group and others.
+       read+write+execute by owner, but only read+execute by group members and others.
 
-       IF the directory was created successfully, a boolean `true` is returned.
+       If the directory was created successfully, a boolean `true` is returned.
        If the directory cannot be made because it already exists, `false` is returned.
        If the directory cannot be made because an error occurred, `nil` is returned.
 
@@ -48,7 +48,7 @@ WSLUA_CONSTRUCTOR Dir_make(lua_State* L) {
         lua_pushboolean(L, 0);
     }
 
-    WSLUA_RETURN(1); /* Boolean `true` on success, `false` if already exists, `nil` on error. */
+    WSLUA_RETURN(1); /* Boolean `true` on success, `false` if the directory already exists, `nil` on error. */
 }
 
 WSLUA_CONSTRUCTOR Dir_exists(lua_State* L) {
@@ -75,7 +75,7 @@ WSLUA_CONSTRUCTOR Dir_exists(lua_State* L) {
         }
     }
 
-    WSLUA_RETURN(1); /* Boolean `true` if the directory exists, `false` if it's a file, `nil` on error/not-exist. */
+    WSLUA_RETURN(1); /* Boolean `true` if the directory exists, `false` if it's a file, `nil` on error or not-exist. */
 }
 
 WSLUA_CONSTRUCTOR Dir_remove(lua_State* L) {
@@ -170,11 +170,16 @@ WSLUA_CONSTRUCTOR Dir_remove_all(lua_State* L) {
 }
 
 WSLUA_CONSTRUCTOR Dir_open(lua_State* L) {
-    /* Opens a directory and returns a `Dir` object representing the files in the directory.
+    /* Opens a directory and returns a <<lua_class_Dir,`Dir`>> object representing the files in the directory.
+
+    ==== Example
 
     [source,lua]
     ----
-    for filename in Dir.open(path) do ... end
+    -- Print the contents of a directory
+    for filename in Dir.open('/path/to/dir') do
+            print(filename)
+    end
     ----
     */
 #define WSLUA_ARG_Dir_open_PATHNAME 1 /* The pathname of the directory. */
@@ -211,11 +216,23 @@ WSLUA_CONSTRUCTOR Dir_open(lua_State* L) {
     dir->ext = g_strdup(extension);
 
     pushDir(L,dir);
-    WSLUA_RETURN(1); /* the `Dir` object. */
+    WSLUA_RETURN(1); /* The <<lua_class_Dir,`Dir`>> object. */
 }
 
 WSLUA_METAMETHOD Dir__call(lua_State* L) {
-    /* At every invocation will return one file (nil when done). */
+    /*
+    Gets the next file or subdirectory within the directory, or `nil` when done.
+
+    ==== Example
+
+    [source,lua]
+    ----
+    -- Open a directory and print the name of the first file or subdirectory
+    local dir = Dir.open('/path/to/dir')
+    local first = dir()
+    print(tostring(file))
+    ----
+    */
 
     Dir dir = checkDir(L,1);
     const gchar* file;
@@ -255,7 +272,7 @@ WSLUA_METAMETHOD Dir__call(lua_State* L) {
 }
 
 WSLUA_METHOD Dir_close(lua_State* L) {
-    /* Closes the directory. */
+    /* Closes the directory. Called automatically during garbage collection of a <<lua_class_Dir,`Dir`>> object. */
     Dir dir = checkDir(L,1);
 
     if (dir->dir) {
@@ -267,7 +284,7 @@ WSLUA_METHOD Dir_close(lua_State* L) {
 }
 
 WSLUA_CONSTRUCTOR Dir_personal_config_path(lua_State* L) {
-    /* Gets the personal configuration directory path, with filename if supplied.
+    /* Gets the https://www.wireshark.org/docs/wsug_html_chunked/ChAppFilesConfigurationSection.html[personal configuration] directory path, with filename if supplied.
 
        @since 1.11.3
     */
@@ -281,7 +298,7 @@ WSLUA_CONSTRUCTOR Dir_personal_config_path(lua_State* L) {
 }
 
 WSLUA_CONSTRUCTOR Dir_global_config_path(lua_State* L) {
-    /* Gets the global configuration directory path, with filename if supplied.
+    /* Gets the https://www.wireshark.org/docs/wsug_html_chunked/ChAppFilesConfigurationSection.html[global configuration] directory path, with filename if supplied.
 
        @since 1.11.3
     */
@@ -292,7 +309,7 @@ WSLUA_CONSTRUCTOR Dir_global_config_path(lua_State* L) {
     filename = get_datafile_path(fname);
     lua_pushstring(L,filename);
     g_free(filename);
-    WSLUA_RETURN(1); /* The full pathname for a file in wireshark's configuration directory. */
+    WSLUA_RETURN(1); /* The full pathname for a file in Wireshark's configuration directory. */
 }
 
 WSLUA_CONSTRUCTOR Dir_personal_plugins_path(lua_State* L) {
@@ -301,7 +318,7 @@ WSLUA_CONSTRUCTOR Dir_personal_plugins_path(lua_State* L) {
        @since 1.11.3
     */
     lua_pushstring(L, get_plugins_pers_dir());
-    WSLUA_RETURN(1); /* The pathname for the personal plugins directory. */
+    WSLUA_RETURN(1); /* The pathname of the https://www.wireshark.org/docs/wsug_html_chunked/ChPluginFolders.html[personal plugins] directory. */
 }
 
 WSLUA_CONSTRUCTOR Dir_global_plugins_path(lua_State* L) {
@@ -310,7 +327,7 @@ WSLUA_CONSTRUCTOR Dir_global_plugins_path(lua_State* L) {
        @since 1.11.3
     */
     lua_pushstring(L, get_plugins_dir());
-    WSLUA_RETURN(1); /* The pathname for the global plugins directory. */
+    WSLUA_RETURN(1); /* The pathname of the https://www.wireshark.org/docs/wsug_html_chunked/ChPluginFolders.html[global plugins] directory. */
 }
 
 /* Gets registered as metamethod automatically by WSLUA_REGISTER_CLASS/META */

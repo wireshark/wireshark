@@ -157,7 +157,6 @@ commandline_print_usage(gboolean for_help_option) {
     fprintf(output, "  -J <jump filter>         jump to the first packet matching the (display)\n");
     fprintf(output, "                           filter\n");
     fprintf(output, "  -j                       search backwards for a matching packet after \"-J\"\n");
-    fprintf(output, "  -m <font>                set the font name used for most text\n");
     fprintf(output, "  -t a|ad|adoy|d|dd|e|r|u|ud|udoy\n");
     fprintf(output, "                           format of time stamps (def: r: rel. to first)\n");
     fprintf(output, "  -u s|hms                 output format of seconds (def: s: seconds)\n");

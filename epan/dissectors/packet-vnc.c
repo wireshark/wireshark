@@ -189,10 +189,6 @@ static const value_string vnc_server_message_types_vs[] = {
 	{ 0,  NULL									 }
 };
 
-static const true_false_string button_mask_tfs = {
-	"Pressed",
-	"Not pressed"
-};
 
 #define VNC_ENCODING_TYPE_DESKTOP_SIZE       0xFFFFFF21
 #define VNC_ENCODING_TYPE_LAST_RECT          0xFFFFFF20
@@ -829,7 +825,7 @@ static int hf_vnc_fence_block_before = -1;
 static int hf_vnc_fence_payload_length = -1;
 static int hf_vnc_fence_payload = -1;
 
-static const int *vnc_fence_flags[] = {
+static int * const vnc_fence_flags[] = {
 	&hf_vnc_fence_request,
 	&hf_vnc_fence_sync_next,
 	&hf_vnc_fence_block_after,
@@ -3873,42 +3869,42 @@ proto_register_vnc(void)
 		/* Client Pointer Event */
 		{ &hf_vnc_button_1_pos,
 		  { "Mouse button #1 position", "vnc.button_1_pos",
-		    FT_BOOLEAN, 8, TFS(&button_mask_tfs), 0x1,
+		    FT_BOOLEAN, 8, TFS(&tfs_pressed_not_pressed), 0x1,
 		    "Whether mouse button #1 is being pressed or not", HFILL }
 		},
 		{ &hf_vnc_button_2_pos,
 		  { "Mouse button #2 position", "vnc.button_2_pos",
-		    FT_BOOLEAN, 8, TFS(&button_mask_tfs), 0x2,
+		    FT_BOOLEAN, 8, TFS(&tfs_pressed_not_pressed), 0x2,
 		    "Whether mouse button #2 is being pressed or not", HFILL }
 		},
 		{ &hf_vnc_button_3_pos,
 		  { "Mouse button #3 position", "vnc.button_3_pos",
-		    FT_BOOLEAN, 8, TFS(&button_mask_tfs), 0x4,
+		    FT_BOOLEAN, 8, TFS(&tfs_pressed_not_pressed), 0x4,
 		    "Whether mouse button #3 is being pressed or not", HFILL }
 		},
 		{ &hf_vnc_button_4_pos,
 		  { "Mouse button #4 position", "vnc.button_4_pos",
-		    FT_BOOLEAN, 8, TFS(&button_mask_tfs), 0x8,
+		    FT_BOOLEAN, 8, TFS(&tfs_pressed_not_pressed), 0x8,
 		    "Whether mouse button #4 is being pressed or not", HFILL }
 		},
 		{ &hf_vnc_button_5_pos,
 		  { "Mouse button #5 position", "vnc.button_5_pos",
-		    FT_BOOLEAN, 8, TFS(&button_mask_tfs), 0x10,
+		    FT_BOOLEAN, 8, TFS(&tfs_pressed_not_pressed), 0x10,
 		    "Whether mouse button #5 is being pressed or not", HFILL }
 		},
 		{ &hf_vnc_button_6_pos,
 		  { "Mouse button #6 position", "vnc.button_6_pos",
-		    FT_BOOLEAN, 8, TFS(&button_mask_tfs), 0x20,
+		    FT_BOOLEAN, 8, TFS(&tfs_pressed_not_pressed), 0x20,
 		    "Whether mouse button #6 is being pressed or not", HFILL }
 		},
 		{ &hf_vnc_button_7_pos,
 		  { "Mouse button #7 position", "vnc.button_7_pos",
-		    FT_BOOLEAN, 8, TFS(&button_mask_tfs), 0x40,
+		    FT_BOOLEAN, 8, TFS(&tfs_pressed_not_pressed), 0x40,
 		    "Whether mouse button #7 is being pressed or not", HFILL }
 		},
 		{ &hf_vnc_button_8_pos,
 		  { "Mouse button #8 position", "vnc.button_8_pos",
-		    FT_BOOLEAN, 8, TFS(&button_mask_tfs), 0x80,
+		    FT_BOOLEAN, 8, TFS(&tfs_pressed_not_pressed), 0x80,
 		    "Whether mouse button #8 is being pressed or not", HFILL }
 		},
 		{ &hf_vnc_pointer_x_pos,

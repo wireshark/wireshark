@@ -83,7 +83,7 @@ static int hf_c1222_epsem_flags_ed_class = -1;
 static int hf_c1222_epsem_flags_security_modes = -1;
 static int hf_c1222_epsem_flags_response_control = -1;
 /* and the structure of the flag components */
-static const int *c1222_flags[] = {
+static int * const c1222_flags[] = {
   &hf_c1222_epsem_flags_reserved,
   &hf_c1222_epsem_flags_recovery,
   &hf_c1222_epsem_flags_proxy,

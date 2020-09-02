@@ -337,7 +337,7 @@ void ProtocolHierarchyDialog::on_actionCopyAsCsv_triggered()
                 separated_value << v.toString();
             }
         }
-        stream << separated_value.join(",") << endl;
+        stream << separated_value.join(",") << '\n';
 
         if (!first) ++iter;
         first = false;
@@ -352,13 +352,13 @@ void ProtocolHierarchyDialog::on_actionCopyAsYaml_triggered()
     QTreeWidgetItemIterator iter(ui->hierStatsTreeWidget);
     bool first = true;
 
-    stream << "---" << endl;
+    stream << "---" << '\n';
     while (*iter) {
         QTreeWidgetItem *item = first ? NULL : (*iter);
 
-        stream << "-" << endl;
+        stream << "-" << '\n';
         foreach (QVariant v, protoHierRowData(item)) {
-            stream << " - " << v.toString() << endl;
+            stream << " - " << v.toString() << '\n';
         }
         if (!first) ++iter;
         first = false;

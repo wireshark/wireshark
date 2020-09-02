@@ -103,7 +103,7 @@ dissect_sita(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     static const gchar *flags_str[]        = {"",              "",         "",             "",             "",             "",         "",     "No-buffers"    };
 
 
-    static const int * signal_flags[] = {
+    static int * const signal_flags[] = {
         &hf_dcd,
         &hf_rts,
         &hf_cts,
@@ -149,7 +149,7 @@ dissect_sita(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                                                 signal_flags, signals, BMT_NO_FALSE|BMT_NO_TFS);
 
         if ((flags & SITA_FRAME_DIR) == SITA_FRAME_DIR_RXED) {
-            static const int * errors1_flags[] = {
+            static int * const errors1_flags[] = {
                 &hf_shortframe,
                 &hf_longframe,
                 &hf_collision,
@@ -158,7 +158,7 @@ dissect_sita(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                 NULL
             };
 
-            static const int * errors2_flags[] = {
+            static int * const errors2_flags[] = {
                 &hf_break,
                 &hf_crc,
                 &hf_length,
@@ -180,7 +180,7 @@ dissect_sita(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                 ett_sita_errors2, NULL, "Receive Status: 0x%02x %s", errors2, errors2_string);
             proto_tree_add_bitmask_list_value(sita_errors2_tree, tvb, 0, 0, errors2_flags, errors2);
         } else {
-            static const int * errors2_flags[] = {
+            static int * const errors2_flags[] = {
                 &hf_rtxlimit,
                 &hf_uarterror,
                 &hf_lostcts,
@@ -212,7 +212,6 @@ static const true_false_string tfs_sita_violation   = { "Violation",    ""      
 static const true_false_string tfs_sita_received    = { "Received",     ""              };
 static const true_false_string tfs_sita_lost        = { "Lost",         ""              };
 static const true_false_string tfs_sita_exceeded    = { "Exceeded",     ""              };
-static const true_false_string tfs_sita_on_off      = { "On",           "Off"           };
 
 static const value_string tfs_sita_proto[] = {
     { SITA_PROTO_UNUSED,        "Unused"                },
@@ -341,27 +340,27 @@ proto_register_sita(void)
 
         { &hf_dsr,
           { "DSR", "sita.signals.dsr",
-            FT_BOOLEAN, 8, TFS(&tfs_sita_on_off), SITA_SIG_DSR,
+            FT_BOOLEAN, 8, TFS(&tfs_on_off), SITA_SIG_DSR,
             "TRUE if Data Set Ready", HFILL }
         },
         { &hf_dtr,
           { "DTR", "sita.signals.dtr",
-            FT_BOOLEAN, 8, TFS(&tfs_sita_on_off), SITA_SIG_DTR,
+            FT_BOOLEAN, 8, TFS(&tfs_on_off), SITA_SIG_DTR,
             "TRUE if Data Terminal Ready", HFILL }
         },
         { &hf_cts,
           { "CTS", "sita.signals.cts",
-            FT_BOOLEAN, 8, TFS(&tfs_sita_on_off), SITA_SIG_CTS,
+            FT_BOOLEAN, 8, TFS(&tfs_on_off), SITA_SIG_CTS,
             "TRUE if Clear To Send", HFILL }
         },
         { &hf_rts,
           { "RTS", "sita.signals.rts",
-            FT_BOOLEAN, 8, TFS(&tfs_sita_on_off), SITA_SIG_RTS,
+            FT_BOOLEAN, 8, TFS(&tfs_on_off), SITA_SIG_RTS,
             "TRUE if Request To Send", HFILL }
         },
         { &hf_dcd,
           { "DCD", "sita.signals.dcd",
-            FT_BOOLEAN, 8, TFS(&tfs_sita_on_off), SITA_SIG_DCD,
+            FT_BOOLEAN, 8, TFS(&tfs_on_off), SITA_SIG_DCD,
             "TRUE if Data Carrier Detect", HFILL }
         },
         { &hf_signals,

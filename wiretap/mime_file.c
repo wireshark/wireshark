@@ -65,6 +65,8 @@ static const guint8 elf_magic[]    = { 0x7F, 'E', 'L', 'F'};
 static const guint8 btsnoop_magic[]    = { 'b', 't', 's', 'n', 'o', 'o', 'p', 0};
 static const guint8 pcap_magic[]           = { 0xA1, 0xB2, 0xC3, 0xD4 };
 static const guint8 pcap_swapped_magic[]   = { 0xD4, 0xC3, 0xB2, 0xA1 };
+static const guint8 pcap_nsec_magic[]           = { 0xA1, 0xB2, 0x3C, 0x4D };
+static const guint8 pcap_nsec_swapped_magic[]   = { 0x4D, 0x3C, 0xB2, 0xA1 };
 static const guint8 pcapng_premagic[]      = { 0x0A, 0x0D, 0x0D, 0x0A };
 
 /* File does not start with it */
@@ -81,6 +83,8 @@ static const mime_files_t magic_files[] = {
 	{ btsnoop_magic, sizeof(btsnoop_magic) },
 	{ pcap_magic, sizeof(pcap_magic) },
 	{ pcap_swapped_magic, sizeof(pcap_swapped_magic) },
+	{ pcap_nsec_magic, sizeof(pcap_nsec_magic) },
+	{ pcap_nsec_swapped_magic, sizeof(pcap_nsec_swapped_magic) },
 	{ pcapng_premagic, sizeof(pcapng_premagic) }
 };
 

@@ -64,6 +64,8 @@ dissect_bthci_sco(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     guint32                   k_frame_number;
     guint32                   k_interface_id;
     guint32                   k_adapter_id;
+    guint32                   k_bd_addr_oui;
+    guint32                   k_bd_addr_id;
     remote_bdaddr_t          *remote_bdaddr;
     const gchar              *localhost_name;
     guint8                   *localhost_bdaddr;
@@ -142,8 +144,6 @@ dissect_bthci_sco(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     if (remote_bdaddr && remote_bdaddr->interface_id == bluetooth_data->interface_id &&
             remote_bdaddr->adapter_id == bluetooth_data->adapter_id &&
             remote_bdaddr->chandle == (flags & 0x0fff)) {
-        guint32         k_bd_addr_oui;
-        guint32         k_bd_addr_id;
         guint32         bd_addr_oui;
         guint32         bd_addr_id;
         device_name_t  *device_name;

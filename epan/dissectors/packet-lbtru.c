@@ -1100,12 +1100,12 @@ static int dissect_lbtru(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 {
     proto_tree * lbtru_tree = NULL;
     proto_item * lbtru_item = NULL;
-    static const int * flags_data[] =
+    static int * const flags_data[] =
     {
         &hf_lbtru_hdr_flags_rx,
         NULL
     };
-    static const int * flags_sm[] =
+    static int * const flags_sm[] =
     {
         &hf_lbtru_hdr_flags_syn,
         NULL
@@ -1329,12 +1329,12 @@ static int dissect_lbtru(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     {
         proto_item * hdr_length_item;
         proto_tree * opt_tree = NULL;
-        static const int * sid_flags[] =
+        static int * const sid_flags[] =
         {
             &hf_lbtru_opt_sid_flags_ignore,
             NULL
         };
-        static const int * cid_flags[] =
+        static int * const cid_flags[] =
         {
             &hf_lbtru_opt_cid_flags_ignore,
             NULL

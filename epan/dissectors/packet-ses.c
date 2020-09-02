@@ -377,14 +377,14 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 	gboolean has_user_information = TRUE;
 	guint16       flags;
 	asn1_ctx_t asn1_ctx;
-	static const int * item_option_flags[] = {
+	static int * const item_option_flags[] = {
 		&hf_release_token,
 		&hf_major_activity_token,
 		&hf_synchronize_minor_token,
 		&hf_data_token,
 		NULL
 	};
-	static const int * transport_option_flags[] = {
+	static int * const transport_option_flags[] = {
 		&hf_ses_transport_connection,
 		&hf_ses_transport_user_abort,
 		&hf_ses_transport_protocol_error,
@@ -392,11 +392,11 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 		&hf_ses_transport_implementation_restriction,
 		NULL
 	};
-	static const int * protocol_options_flags[] = {
+	static int * const protocol_options_flags[] = {
 		&hf_able_to_receive_extended_concatenated_SPDU,
 		NULL
 	};
-	static const int * req_options_flags[] = {
+	static int * const req_options_flags[] = {
 		&hf_session_exception_report,
 		&hf_data_separation_function_unit,
 		&hf_symmetric_synchronize_function_unit,
@@ -413,12 +413,12 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 		&hf_half_duplex_function_unit,
 		NULL
 	};
-	static const int * version_flags[] = {
+	static int * const version_flags[] = {
 		&hf_protocol_version_2,
 		&hf_protocol_version_1,
 		NULL
 	};
-	static const int * enclosure_flags[] = {
+	static int * const enclosure_flags[] = {
 		&hf_end_of_SSDU,
 		&hf_beginning_of_SSDU,
 		NULL

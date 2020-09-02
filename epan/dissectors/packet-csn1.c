@@ -39,7 +39,6 @@ static expert_field ei_csn1_stream_not_supported = EI_INIT;
 #define STANDARD_TAG 1
 #define REVERSED_TAG 0
 
-
 static const unsigned char ixBitsTab[] = {0, 1, 1, 2, 2, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 5};
 
 static gint proto_csn1 = -1;
@@ -160,9 +159,10 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
   guint32* pui32;
   guint8 Tag = STANDARD_TAG;
 
-  if (remaining_bits_len <= 0)
+  /* Negative number definitely indicates an error */
+  if (remaining_bits_len < 0)
   {
-    return 0;
+    return ProcessError(tree, ar->pinfo, tvb, bit_offset, CSN_ERROR_NEED_MORE_BITS_TO_UNPACK, &ei_csn1_more_bits_to_unpack, pDescr);
   }
 
   do
@@ -278,7 +278,9 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
             pui8      = pui8DATA(data, pDescr->offset);
             *pui8     = ui8 + (guint8)pDescr->descr.value;
 
-            proto_tree_add_bits_item(tree, *(pDescr->hf_ptr), tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
+            proto_tree_add_uint_bits_format_value(tree, *(pDescr->hf_ptr), tvb, bit_offset, no_of_bits,
+                                                  *pui8, "%u (Raw %u + Offset %u)", *pui8, ui8,
+                                                  (guint8) pDescr->descr.value);
           }
           else if (no_of_bits <= 16)
           {
@@ -286,7 +288,9 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
             pui16       = pui16DATA(data, pDescr->offset);
             *pui16      = ui16 + (guint16)pDescr->descr.value;
 
-            proto_tree_add_bits_item(tree, *(pDescr->hf_ptr), tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
+            proto_tree_add_uint_bits_format_value(tree, *(pDescr->hf_ptr), tvb, bit_offset, no_of_bits,
+                                                  *pui16, "%u (Raw %u + Offset %u)", *pui16, ui16,
+                                                  (guint16) pDescr->descr.value);
           }
           else if (no_of_bits <= 32)
           {
@@ -294,7 +298,9 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
             pui32       = pui32DATA(data, pDescr->offset);
             *pui32      = ui32 + (guint16)pDescr->descr.value;
 
-            proto_tree_add_bits_item(tree, *(pDescr->hf_ptr), tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
+            proto_tree_add_uint_bits_format_value(tree, *(pDescr->hf_ptr), tvb, bit_offset, no_of_bits,
+                                                  *pui32, "%u (Raw %u + Offset %u)", *pui32, ui32,
+                                                  (guint16) pDescr->descr.value);
           }
           else
           {
@@ -402,8 +408,9 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
           nCount = *pui16DATA(data, nCount);
         }
 
-        if (remaining_bits_len >= no_of_bits)
+        if (remaining_bits_len >= (no_of_bits * nCount))
         {
+          remaining_bits_len -= (no_of_bits * nCount);
           if (no_of_bits <= 8)
           {
             pui8 = pui8DATA(data, pDescr->offset);
@@ -411,7 +418,6 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
             {
               *pui8++ = tvb_get_bits8(tvb, bit_offset, no_of_bits);
               proto_tree_add_uint_bits_format_value(tree, *(pDescr->hf_ptr), tvb, bit_offset, no_of_bits, *pui8, " (Count %d)", i++);
-              remaining_bits_len -= no_of_bits;
               bit_offset += no_of_bits;
             } while (--nCount > 0);
           }
@@ -492,6 +498,10 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
 
         if (no_of_bits > 0)
         {
+          if (no_of_bits > remaining_bits_len)
+          {
+            return ProcessError(tree, ar->pinfo, tvb, bit_offset, CSN_ERROR_NEED_MORE_BITS_TO_UNPACK, &ei_csn1_more_bits_to_unpack, pDescr);
+          }
 
           if (no_of_bits <= 32)
           {
@@ -507,7 +517,6 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
           }
 
           remaining_bits_len -= no_of_bits;
-          DISSECTOR_ASSERT(remaining_bits_len >= 0);
           bit_offset += no_of_bits;
         }
         /* bitmap was successfully extracted or it was empty */
@@ -870,8 +879,9 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
               nCount = *pui16DATA(data, nCount);
             }
 
-            if (remaining_bits_len >= no_of_bits)
+            if (remaining_bits_len >= (no_of_bits * nCount))
             {
+              remaining_bits_len -= (no_of_bits * nCount);
               if (no_of_bits <= 8)
               {
                 pui8 = pui8DATA(data, pDescr->offset);
@@ -881,7 +891,6 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
                   *pui8 = tvb_get_bits8(tvb, bit_offset, no_of_bits);
                   proto_tree_add_uint_bits_format_value(tree, *(pDescr->hf_ptr), tvb, bit_offset, no_of_bits, *pui8, " (Count %d)", i++);
                   pui8++;
-                  remaining_bits_len -= no_of_bits;
                   bit_offset += no_of_bits;
                   nCount--;
                 }
@@ -894,7 +903,6 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
                 {
                   *pui16 = tvb_get_bits16(tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
                   proto_tree_add_uint_bits_format_value(tree, *(pDescr->hf_ptr), tvb, bit_offset, no_of_bits, *pui16, " (Count %d)", i++);
-                  remaining_bits_len -= no_of_bits;
                   bit_offset += no_of_bits;
                   nCount--;
                 }
@@ -1332,9 +1340,10 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
       case CSN_RECURSIVE_TARRAY:
       { /* Recursive way to specify an array of type: <lists> ::= { 1 <type> } ** 0 ;
          *  M_REC_TARRAY(_STRUCT, _MEMBER, _MEMBER_TYPE, _ElementCountField)
-         * {t, offsetof(_STRUCT, _ElementCountField), (void*)CSNDESCR_##_MEMBER_TYPE, offsetof(_STRUCT, _MEMBER), #_MEMBER, (StreamSerializeFcn_t)sizeof(_MEMBER_TYPE)}
+         * {t, offsetof(_STRUCT, _ElementCountField), (void*)CSNDESCR_##_MEMBER_TYPE, offsetof(_STRUCT, _MEMBER), #_MEMBER, (StreamSerializeFcn_t)sizeof(_MEMBER_TYPE), NULL, NULL, (void_fn_t)ElementsOf(((_STRUCT*)0)->_MEMBER)}
          */
         gint16 nSizeElement = (gint16)(gint32)pDescr->value;
+        guint32 nSizeArray = (guint32)((guintptr)pDescr->aux_fn);
         guint8  ElementCount = 0;
 
         while (existNextElement(tvb, bit_offset, Tag))
@@ -1345,6 +1354,12 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
           bit_offset++;
           remaining_bits_len--;
           ElementCount++;
+
+          if (ElementCount > nSizeArray)
+          {
+            /* error: too many elements in recursive array. Increase its size! */
+            return ProcessError(tree , ar->pinfo, tvb, bit_offset, CSN_ERROR_STREAM_NOT_SUPPORTED, &ei_csn1_stream_not_supported, pDescr);
+          }
 
           { /* unpack the following data structure */
             csnStream_t arT = *ar;
@@ -1400,9 +1415,10 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
       case CSN_RECURSIVE_TARRAY_1:
       { /* Recursive way to specify an array of type: <lists> ::= <type> { 1 <type> } ** 0 ;
          * M_REC_TARRAY(_STRUCT, _MEMBER, _MEMBER_TYPE, _ElementCountField)
-         * {t, offsetof(_STRUCT, _ElementCountField), (void*)CSNDESCR_##_MEMBER_TYPE, offsetof(_STRUCT, _MEMBER), #_MEMBER, (StreamSerializeFcn_t)sizeof(_MEMBER_TYPE)}
+         * {t, offsetof(_STRUCT, _ElementCountField), (void*)CSNDESCR_##_MEMBER_TYPE, offsetof(_STRUCT, _MEMBER), #_MEMBER, (StreamSerializeFcn_t)sizeof(_MEMBER_TYPE), NULL, NULL, (void_fn_t)ElementsOf(((_STRUCT*)0)->_MEMBER)}
          */
         gint16      nSizeElement = (gint16)(gint32)pDescr->value;
+        guint32     nSizeArray = (guint32)((guintptr)pDescr->aux_fn);
         guint8       ElementCount = 0;
         csnStream_t arT          = *ar;
         gboolean     EndOfList    = FALSE;
@@ -1413,6 +1429,12 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
         do
         { /* get data element */
           ElementCount++;
+
+        if (ElementCount >= nSizeArray)
+        {
+          /* error: too many elements in recursive array. Increase its size! */
+          return ProcessError(tree , ar->pinfo, tvb, bit_offset, CSN_ERROR_STREAM_NOT_SUPPORTED, &ei_csn1_stream_not_supported, pDescr);
+        }
 
           test_tree = proto_tree_add_subtree_format(tree, tvb, bit_offset>>3, 1, ett_csn1, &ti, "%s[%d]", pDescr->sz, ElementCount-1);
 

@@ -443,10 +443,12 @@ dissect_btbnep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                  */
                 ethertype_data_t ethertype_data;
 
+                proto_tree_add_uint(btbnep_tree, hf_btbnep_type, tvb,
+                                    offset - 2, 2, len_type);
+
                 ethertype_data.etype = len_type;
-                ethertype_data.offset_after_ethertype = offset;
+                ethertype_data.payload_offset = offset;
                 ethertype_data.fh_tree = btbnep_tree;
-                ethertype_data.etype_id = hf_btbnep_type;
                 ethertype_data.trailer_id = 0;
                 ethertype_data.fcs_len = 0;
 
@@ -496,7 +498,7 @@ proto_register_btbnep(void)
             NULL, HFILL }
         },
         { &hf_btbnep_unknown_control_type,
-            { "Unknown Control Type",              "btbnep.uknown_control_type",
+            { "Unknown Control Type",              "btbnep.unknown_control_type",
             FT_UINT8, BASE_HEX, VALS(control_type_vals), 0x00,
             NULL, HFILL }
         },

@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V15.8.0 (2019-12)
+-- 3GPP TS 36.413 V16.2.0 (2020-07)
 -- 9.3.2	Elementary Procedure Definitions
 -- **************************************************************
 --
@@ -117,7 +117,12 @@ FROM S1AP-CommonDataTypes
 	UEInformationTransfer,
 	ENBCPRelocationIndication,
 	MMECPRelocationIndication,
-	SecondaryRATDataUsageReport
+	SecondaryRATDataUsageReport,
+	UERadioCapabilityIDMappingRequest,
+	UERadioCapabilityIDMappingResponse,
+	HandoverSuccess,
+	ENBEarlyStatusTransfer,
+	MMEEarlyStatusTransfer
 
 
 FROM S1AP-PDU-Contents
@@ -184,7 +189,11 @@ FROM S1AP-PDU-Contents
 	id-UEInformationTransfer,
 	id-eNBCPRelocationIndication,
 	id-MMECPRelocationIndication,
-	id-SecondaryRATDataUsageReport
+	id-SecondaryRATDataUsageReport,
+	id-UERadioCapabilityIDMapping,
+	id-HandoverSuccess,
+	id-eNBEarlyStatusTransfer,
+	id-MMEEarlyStatusTransfer
 
 
 FROM S1AP-Constants;
@@ -277,7 +286,8 @@ S1AP-ELEMENTARY-PROCEDURES-CLASS-1 S1AP-ELEMENTARY-PROCEDURE ::= {
 	e-RABModificationIndication					|
 	uEContextModificationIndication				|
 	uEContextSuspend							|
-	uEContextResume
+	uEContextResume								|
+	uERadioCapabilityIDMapping
 }
 
 S1AP-ELEMENTARY-PROCEDURES-CLASS-2 S1AP-ELEMENTARY-PROCEDURE ::= {	
@@ -323,7 +333,10 @@ S1AP-ELEMENTARY-PROCEDURES-CLASS-2 S1AP-ELEMENTARY-PROCEDURE ::= {
 	uEInformationTransfer			|
 	eNBCPRelocationIndication					|
 	mMECPRelocationIndication		|
-	secondaryRATDataUsageReport
+	secondaryRATDataUsageReport					|
+	handoverSuccess								|
+	eNBEarlyStatusTransfer						|
+	mMEEarlyStatusTransfer
 }
 
 -- **************************************************************
@@ -738,5 +751,29 @@ secondaryRATDataUsageReport S1AP-ELEMENTARY-PROCEDURE ::= {
 	CRITICALITY			ignore
 }
 
+uERadioCapabilityIDMapping S1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		UERadioCapabilityIDMappingRequest
+	SUCCESSFUL OUTCOME		UERadioCapabilityIDMappingResponse
+	PROCEDURE CODE			id-UERadioCapabilityIDMapping
+	CRITICALITY				reject
+}
+
+handoverSuccess S1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		HandoverSuccess
+	PROCEDURE CODE			id-HandoverSuccess
+	CRITICALITY				ignore
+}
+
+eNBEarlyStatusTransfer S1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		ENBEarlyStatusTransfer
+	PROCEDURE CODE			id-eNBEarlyStatusTransfer
+	CRITICALITY				reject
+}
+
+mMEEarlyStatusTransfer S1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		MMEEarlyStatusTransfer
+	PROCEDURE CODE			id-MMEEarlyStatusTransfer
+	CRITICALITY				ignore
+}
 
 END

@@ -11,7 +11,6 @@
  */
 
 #include "config.h"
-#include <glib.h>
 #include <stdlib.h>
 #include <math.h>
 #include <epan/packet.h>
@@ -2010,7 +2009,7 @@ dissect_thread_nwd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
             case THREAD_NWD_TLV_6LOWPAN_ID:
                 {
-                    static const int * nwd_6lowpan_flags[] = {
+                    static int * const nwd_6lowpan_flags[] = {
                         &hf_thread_nwd_tlv_6lowpan_id_6co_flag_reserved,
                         &hf_thread_nwd_tlv_6lowpan_id_6co_flag_c,
                         &hf_thread_nwd_tlv_6lowpan_id_6co_flag_cid,

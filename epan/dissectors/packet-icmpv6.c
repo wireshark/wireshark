@@ -81,6 +81,7 @@ void proto_reg_handoff_icmpv6(void);
  * RFC 7400: 6LoWPAN-GHC: Generic Header Compression for IPv6 over Low-Power Wireless Personal Area Networks (6LoWPANs)
  * RFC 7731: MPL Control Message
  * RFC 8335: PROBE: A Utility for Probing Interfaces
+ * RFC 8781: Discovering PREF64 in Router Advertisements
  * http://www.iana.org/assignments/icmpv6-parameters (last updated 2016-02-24)
  */
 
@@ -238,6 +239,9 @@ static int hf_icmpv6_opt_6cio_unassigned2 = -1;
 
 static int hf_icmpv6_opt_captive_portal = -1;
 
+static int hf_icmpv6_opt_pref64_scaled_lifetime = -1;
+static int hf_icmpv6_opt_pref64_plc = -1;
+static int hf_icmpv6_opt_pref64_prefix = -1;
 /* RFC 2710: Multicast Listener Discovery for IPv6 */
 static int hf_icmpv6_mld_mrd = -1;
 static int hf_icmpv6_mld_multicast_address = -1;
@@ -937,6 +941,7 @@ static const true_false_string tfs_ni_flag_a = {
 #define ND_OPT_AUTH_BORDER_ROUTER       35
 #define ND_OPT_6CIO                     36
 #define ND_OPT_CAPPORT                  37
+#define ND_OPT_PREF64                   38
 
 static const value_string option_vals[] = {
 /*  1 */   { ND_OPT_SOURCE_LINKADDR,           "Source link-layer address" },
@@ -975,7 +980,8 @@ static const value_string option_vals[] = {
 /* 35 */   { ND_OPT_AUTH_BORDER_ROUTER,        "Authoritative Border Router" },            /* [RFC6775] */
 /* 36 */   { ND_OPT_6CIO,                      "6LoWPAN Capability Indication Option" },   /* [RFC7400] */
 /* 37 */   { ND_OPT_CAPPORT,                   "DHCP Captive-Portal" },                    /* [RFC7710] */
-/* 38-137  Unassigned */
+/* 38 */   { ND_OPT_PREF64,                    "PREF64 Option" },                          /* [RFC8781] */
+/* 39-137  Unassigned */
    { 138,                              "CARD Request" },                           /* [RFC4065] */
    { 139,                              "CARD Reply" },                             /* [RFC4065] */
 /* 140-252 Unassigned */
@@ -1334,6 +1340,21 @@ static const value_string ext_echo_reply_state_str[] = {
     { 4, "Delay"},
     { 5, "Probe"},
     { 6, "Failed"},
+    { 0, NULL}
+    };
+
+
+/* RFC 8781 */
+#define ND_OPT_PREF64_SL          0xFFF8
+#define ND_OPT_PREF64_PLC         0x0007
+
+static const value_string pref64_plc_str[] = {
+    { 0, "96 bits prefix length"},
+    { 1, "64 bits prefix length"},
+    { 2, "56 bits prefix length"},
+    { 3, "48 bits prefix length"},
+    { 4, "40 bits prefix length"},
+    { 5, "32 bits prefix length"},
     { 0, NULL}
     };
 
@@ -1727,7 +1748,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
             }
             case ND_OPT_PREFIX_INFORMATION: /* Prefix Information (3) */
             {
-                static const int * prefix_flag[] = {
+                static int * const prefix_flag[] = {
                     &hf_icmpv6_opt_prefix_flag_l,
                     &hf_icmpv6_opt_prefix_flag_a,
                     &hf_icmpv6_opt_prefix_flag_r,
@@ -2097,7 +2118,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
             }
             case ND_OPT_MAP: /* MAP Option (23) */
             {
-                static const int * map_flags[] = {
+                static int * const map_flags[] = {
                     &hf_icmpv6_opt_map_flag_r,
                     &hf_icmpv6_opt_map_flag_reserved,
                     NULL
@@ -2130,7 +2151,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 guint8 route_preference;
                 ws_in6_addr prefix;
                 address prefix_addr;
-                static const int * route_flags[] = {
+                static int * const route_flags[] = {
                     &hf_icmpv6_opt_route_info_flag_route_preference,
                     &hf_icmpv6_opt_route_info_flag_reserved,
                     NULL
@@ -2199,7 +2220,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
             }
             case ND_OPT_FLAGS_EXTENSION: /* RA Flags Extension Option (26) */
             {
-                static const int * extension_flags[] = {
+                static int * const extension_flags[] = {
                     &hf_icmpv6_opt_efo_m,
                     &hf_icmpv6_opt_efo_o,
                     &hf_icmpv6_opt_efo_h,
@@ -2408,7 +2429,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 guint8 context_len;
                 ws_in6_addr context_prefix;
                 address context_prefix_addr;
-                static const int * _6lowpan_context_flags[] = {
+                static int * const _6lowpan_context_flags[] = {
                     &hf_icmpv6_opt_6co_flag_c,
                     &hf_icmpv6_opt_6co_flag_cid,
                     &hf_icmpv6_opt_6co_flag_reserved,
@@ -2510,6 +2531,54 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 
             }
             break;
+            case ND_OPT_PREF64: /* PREF64 Option (38) */
+            {
+                ws_in6_addr prefix;
+                guint32 plc;
+
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_pref64_scaled_lifetime, tvb, opt_offset, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item_ret_uint(icmp6opt_tree, hf_icmpv6_opt_pref64_plc, tvb, opt_offset, 2, ENC_BIG_ENDIAN, &plc);
+                opt_offset += 2;
+
+                /* Prefix */
+                memset(&prefix.bytes, 0, sizeof(prefix));
+                switch(plc){
+                    case 0: /* 96 bits prefix length */
+                        tvb_memcpy(tvb, (guint8 *)&prefix.bytes, opt_offset, 12);
+                        proto_tree_add_ipv6(icmp6opt_tree, hf_icmpv6_opt_pref64_prefix, tvb, opt_offset, 12, &prefix);
+                        opt_offset += 12;
+                        break;
+                    case 1: /* 64 bits prefix length */
+                        tvb_memcpy(tvb, (guint8 *)&prefix.bytes, opt_offset, 8);
+                        proto_tree_add_ipv6(icmp6opt_tree, hf_icmpv6_opt_pref64_prefix, tvb, opt_offset, 8, &prefix);
+                        opt_offset += 8;
+                        break;
+                    case 2: /* 56 bits prefix length */
+                        tvb_memcpy(tvb, (guint8 *)&prefix.bytes, opt_offset, 7);
+                        proto_tree_add_ipv6(icmp6opt_tree, hf_icmpv6_opt_pref64_prefix, tvb, opt_offset, 7, &prefix);
+                        opt_offset += 7;
+                        break;
+                    case 3: /* 48 bits prefix length */
+                        tvb_memcpy(tvb, (guint8 *)&prefix.bytes, opt_offset, 6);
+                        proto_tree_add_ipv6(icmp6opt_tree, hf_icmpv6_opt_pref64_prefix, tvb, opt_offset, 6, &prefix);
+                        opt_offset += 6;
+                        break;
+                    case 4: /* 40 bits prefix length */
+                        tvb_memcpy(tvb, (guint8 *)&prefix.bytes, opt_offset, 5);
+                        proto_tree_add_ipv6(icmp6opt_tree, hf_icmpv6_opt_pref64_prefix, tvb, opt_offset, 5, &prefix);
+                        opt_offset += 5;
+                        break;
+                    case 5: /* 32 bits prefix length */
+                        tvb_memcpy(tvb, (guint8 *)&prefix.bytes, opt_offset, 4);
+                        proto_tree_add_ipv6(icmp6opt_tree, hf_icmpv6_opt_pref64_prefix, tvb, opt_offset, 4, &prefix);
+                        opt_offset += 4;
+                        break;
+                    default:
+                        expert_add_info(pinfo, ti_opt_len, &ei_icmpv6_invalid_option_length);
+                        break;
+                }
+            }
+            break;
             default :
                 expert_add_info_format(pinfo, ti, &ei_icmpv6_undecoded_option,
                                        "Dissector for ICMPv6 Option (%d)"
@@ -2592,7 +2661,7 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
                 gint metric_len;
 
                 while (opt_offset < offset + opt_len) {
-                    static const int * rpl_metric_flags[] = {
+                    static int * const rpl_metric_flags[] = {
                         &hf_icmpv6_rpl_opt_metric_reserved,
                         &hf_icmpv6_rpl_opt_metric_flag_p,
                         &hf_icmpv6_rpl_opt_metric_flag_c,
@@ -2625,7 +2694,7 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
                     switch(metric_constraint_type) {
                         case RPL_METRIC_NSA: /* Node State and Attribute Object */
                             {
-                            static const int * metric_nsa_flags[] = {
+                            static int * const metric_nsa_flags[] = {
                                 &hf_icmpv6_rpl_opt_metric_nsa_object_reserved,
                                 &hf_icmpv6_rpl_opt_metric_nsa_object_flags,
                                 &hf_icmpv6_rpl_opt_metric_nsa_object_flag_a,
@@ -2667,7 +2736,7 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
                             }
                         case RPL_METRIC_NE: /* Node Energy */
                             {
-                            static const int * metric_ne_flags[] = {
+                            static int * const metric_ne_flags[] = {
                                 &hf_icmpv6_rpl_opt_metric_ne_object_flags,
                                 &hf_icmpv6_rpl_opt_metric_ne_object_flag_i,
                                 &hf_icmpv6_rpl_opt_metric_ne_object_type,
@@ -2685,7 +2754,7 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
                             }
                         case RPL_METRIC_HP: /* Hop Count Object */
                             {
-                            static const int * metric_hp_flags[] = {
+                            static int * const metric_hp_flags[] = {
                                 &hf_icmpv6_rpl_opt_metric_hp_object_reserved,
                                 &hf_icmpv6_rpl_opt_metric_hp_object_flags,
                                 &hf_icmpv6_rpl_opt_metric_hp_object_hp,
@@ -2710,7 +2779,7 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
                             break;
                         case RPL_METRIC_LQL: /* Link Quality Level Object */
                             {
-                            static const int * metric_lql_flags[] = {
+                            static int * const metric_lql_flags[] = {
                                 &hf_icmpv6_rpl_opt_metric_lql_object_val,
                                 &hf_icmpv6_rpl_opt_metric_lql_object_counter,
                                 NULL
@@ -2762,7 +2831,7 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
                 guint8 prefix_len;
                 ws_in6_addr prefix;
                 address prefix_addr;
-                static const int * rpl_flags[] = {
+                static int * const rpl_flags[] = {
                     &hf_icmpv6_rpl_opt_route_pref,
                     &hf_icmpv6_rpl_opt_route_reserved,
                     NULL
@@ -2806,7 +2875,7 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
                 break;
             }
             case RPL_OPT_CONFIG: {
-                static const int * rpl_config_flags[] = {
+                static int * const rpl_config_flags[] = {
                     &hf_icmpv6_rpl_opt_config_reserved,
                     &hf_icmpv6_rpl_opt_config_auth,
                     &hf_icmpv6_rpl_opt_config_pcs,
@@ -2895,7 +2964,7 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
                 break;
             }
             case RPL_OPT_TRANSIT: {
-                static const int * rpl_transit_flags[] = {
+                static int * const rpl_transit_flags[] = {
                     &hf_icmpv6_rpl_opt_transit_flag_e,
                     &hf_icmpv6_rpl_opt_transit_flag_rsv,
                     NULL
@@ -2929,7 +2998,7 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
                 break;
             }
             case RPL_OPT_SOLICITED: {
-                static const int * rpl_solicited_flags[] = {
+                static int * const rpl_solicited_flags[] = {
                     &hf_icmpv6_rpl_opt_solicited_flag_v,
                     &hf_icmpv6_rpl_opt_solicited_flag_i,
                     &hf_icmpv6_rpl_opt_solicited_flag_d,
@@ -2959,7 +3028,7 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
             case RPL_OPT_PREFIX: {
                 /* Destination prefix option. */
                 guint32              prefix_len;
-                static const int * rpl_prefix_flags[] = {
+                static int * const rpl_prefix_flags[] = {
                     &hf_icmpv6_rpl_opt_prefix_flag_l,
                     &hf_icmpv6_rpl_opt_prefix_flag_a,
                     &hf_icmpv6_rpl_opt_prefix_flag_r,
@@ -3134,12 +3203,12 @@ dissect_rpl_control(tvbuff_t *tvb, int rpl_offset, packet_info *pinfo _U_, proto
     if(icmp6_code & ICMP6_RPL_SECURE)
     {
         guint8 kim, lvl;
-        static const int * rpl_secure_flags[] = {
+        static int * const rpl_secure_flags[] = {
             &hf_icmpv6_rpl_secure_flag_t,
             &hf_icmpv6_rpl_secure_flag_rsv,
             NULL
         };
-        static const int * rpl_secure_flags2[] = {
+        static int * const rpl_secure_flags2[] = {
             &hf_icmpv6_rpl_secure_kim,
             &hf_icmpv6_rpl_secure_lvl,
             &hf_icmpv6_rpl_secure_rsv,
@@ -3225,7 +3294,7 @@ dissect_rpl_control(tvbuff_t *tvb, int rpl_offset, packet_info *pinfo _U_, proto
         case ICMP6_RPL_DIO: /* DODAG Information Object (1) */
         case ICMP6_RPL_SDIO: /* Secure DODAG Information Object (129) */
         {
-            static const int * rpl_dio_flags[] = {
+            static int * const rpl_dio_flags[] = {
                 &hf_icmpv6_rpl_dio_flag_g,
                 &hf_icmpv6_rpl_dio_flag_0,
                 &hf_icmpv6_rpl_dio_flag_mop,
@@ -3274,7 +3343,7 @@ dissect_rpl_control(tvbuff_t *tvb, int rpl_offset, packet_info *pinfo _U_, proto
         case ICMP6_RPL_SDAO: /* Secure Destination Advertisement Object (130) */
         {
             guint8 flags;
-            static const int * rpl_dao_flags[] = {
+            static int * const rpl_dao_flags[] = {
                 &hf_icmpv6_rpl_dao_flag_k,
                 &hf_icmpv6_rpl_dao_flag_d,
                 &hf_icmpv6_rpl_dao_flag_rsv,
@@ -3313,7 +3382,7 @@ dissect_rpl_control(tvbuff_t *tvb, int rpl_offset, packet_info *pinfo _U_, proto
         case ICMP6_RPL_SDAOACK: /* Secure Destination Advertisement Object Acknowledgment (131) */
         {
             guint8 flags;
-            static const int * rpl_daoack_flags[] = {
+            static int * const rpl_daoack_flags[] = {
                 &hf_icmpv6_rpl_daoack_flag_d,
                 &hf_icmpv6_rpl_daoack_flag_rsv,
                 NULL
@@ -3350,7 +3419,7 @@ dissect_rpl_control(tvbuff_t *tvb, int rpl_offset, packet_info *pinfo _U_, proto
         }
        case ICMP6_RPL_CC:
        {
-            static const int * rpl_cc_flags[] = {
+            static int * const rpl_cc_flags[] = {
                 &hf_icmpv6_rpl_cc_flag_r,
                 &hf_icmpv6_rpl_cc_flag_rsv,
                 NULL
@@ -3384,7 +3453,7 @@ dissect_rpl_control(tvbuff_t *tvb, int rpl_offset, packet_info *pinfo _U_, proto
         case ICMP6_RPL_P2P_DRO: /* P2P Discovery Reply Object (0x4) */
         case ICMP6_RPL_P2P_SDRO: /* Secure P2P Discovery Reply Object (0x84) */
         {
-            static const int * rpl_p2p_dro_flags[] = {
+            static int * const rpl_p2p_dro_flags[] = {
                 &hf_icmpv6_rpl_p2p_dro_flag_stop,
                 &hf_icmpv6_rpl_p2p_dro_flag_ack,
                 &hf_icmpv6_rpl_p2p_dro_flag_seq,
@@ -3419,7 +3488,7 @@ dissect_rpl_control(tvbuff_t *tvb, int rpl_offset, packet_info *pinfo _U_, proto
         case ICMP6_RPL_P2P_DROACK:  /* P2P Discovery Reply Object Acknowledgement (0x5) */
         case ICMP6_RPL_P2P_SDROACK: /* Secure P2P Discovery Reply Object Acknowledgement (0x85) */
         {
-            static const int * rpl_p2p_droack_flags[] = {
+            static int * const rpl_p2p_droack_flags[] = {
                 &hf_icmpv6_rpl_p2p_droack_flag_seq,
                 &hf_icmpv6_rpl_p2p_droack_flag_reserved,
                 NULL
@@ -3457,7 +3526,7 @@ dissect_nodeinfo(tvbuff_t *tvb, int ni_offset, packet_info *pinfo _U_, proto_tre
 {
     guint16     qtype;
     guint       used_bytes;
-    static const int * ni_flags[] = {
+    static int * const ni_flags[] = {
         &hf_icmpv6_ni_flag_g,
         &hf_icmpv6_ni_flag_s,
         &hf_icmpv6_ni_flag_l,
@@ -3569,7 +3638,7 @@ dissect_rrenum(tvbuff_t *tvb, int rr_offset, packet_info *pinfo _U_, proto_tree 
 {
     proto_tree *mp_tree, *up_tree, *rm_tree;
     proto_item *ti,        *ti_mp,   *ti_up,   *ti_rm;
-    static const int * rr_flags[] = {
+    static int * const rr_flags[] = {
         &hf_icmpv6_rr_flag_t,
         &hf_icmpv6_rr_flag_r,
         &hf_icmpv6_rr_flag_a,
@@ -3657,19 +3726,19 @@ dissect_rrenum(tvbuff_t *tvb, int rr_offset, packet_info *pinfo _U_, proto_tree 
         while ((int)tvb_reported_length(tvb) > rr_offset) {
             /* Use-Prefix Part */
             guint8 uselen, keeplen;
-            static const int * mask_flags[] = {
+            static int * const mask_flags[] = {
                 &hf_icmpv6_rr_pco_up_flagmask_l,
                 &hf_icmpv6_rr_pco_up_flagmask_a,
                 &hf_icmpv6_rr_pco_up_flagmask_reserved,
                 NULL
             };
-            static const int * ra_flags[] = {
+            static int * const ra_flags[] = {
                 &hf_icmpv6_rr_pco_up_raflags_l,
                 &hf_icmpv6_rr_pco_up_raflags_a,
                 &hf_icmpv6_rr_pco_up_raflags_reserved,
                 NULL
             };
-            static const int * up_flags[] = {
+            static int * const up_flags[] = {
                 &hf_icmpv6_rr_pco_up_flag_v,
                 &hf_icmpv6_rr_pco_up_flag_p,
                 &hf_icmpv6_rr_pco_up_flag_reserved,
@@ -3721,7 +3790,7 @@ dissect_rrenum(tvbuff_t *tvb, int rr_offset, packet_info *pinfo _U_, proto_tree 
         while ((int)tvb_reported_length(tvb) > rr_offset) {
         guint8 matchlen;
         guint32 interfaceindex;
-        static const int * rm_flags[] = {
+        static int * const rm_flags[] = {
             &hf_icmpv6_rr_rm_flag_reserved,
             &hf_icmpv6_rr_rm_flag_b,
             &hf_icmpv6_rr_rm_flag_f,
@@ -4157,7 +4226,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 if ((icmp6_type == ICMP6_MEMBERSHIP_QUERY) && (length >= MLDV2_PACKET_MINLEN)) {
                     guint32 mrc;
                     guint16 qqi, i, nb_sources;
-                    static const int * mld_flags[] = {
+                    static int * const mld_flags[] = {
                         &hf_icmpv6_mld_flag_s,
                         &hf_icmpv6_mld_flag_qrv,
                         &hf_icmpv6_mld_flag_rsv,
@@ -4230,7 +4299,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             }
             case ICMP6_ND_ROUTER_ADVERT: /* Router Advertisement (134) */
             {
-                static const int * nd_ra_flags[] = {
+                static int * const nd_ra_flags[] = {
                     &hf_icmpv6_nd_ra_flag_m,
                     &hf_icmpv6_nd_ra_flag_o,
                     &hf_icmpv6_nd_ra_flag_h,
@@ -4284,7 +4353,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             {
                 guint32 na_flags;
                 wmem_strbuf_t *flags_strbuf = wmem_strbuf_new_label(wmem_packet_scope());
-                static const int * nd_na_flags[] = {
+                static int * const nd_na_flags[] = {
                     &hf_icmpv6_nd_na_flag_r,
                     &hf_icmpv6_nd_na_flag_s,
                     &hf_icmpv6_nd_na_flag_o,
@@ -4412,7 +4481,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             }
             case ICMP6_MIP6_MPA: /* Mobile Prefix Advertisement (147) */
             {
-                static const int * mip6_flags[] = {
+                static int * const mip6_flags[] = {
                     &hf_icmpv6_mip6_flag_m,
                     &hf_icmpv6_mip6_flag_o,
                     &hf_icmpv6_mip6_flag_rsv,
@@ -4496,7 +4565,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     break;
                     case FMIP6_SUBTYPE_HI:
                     {
-                        static const int * fmip6_hi_flags[] = {
+                        static int * const fmip6_hi_flags[] = {
                             &hf_icmpv6_fmip6_hi_flag_s,
                             &hf_icmpv6_fmip6_hi_flag_u,
                             &hf_icmpv6_fmip6_hi_flag_reserved,
@@ -5129,6 +5198,16 @@ proto_register_icmpv6(void)
            { "Captive Portal", "icmpv6.opt.captive_portal", FT_STRING, BASE_NONE, NULL, 0x00,
              "The contact URI for the captive portal that the user should connect to", HFILL }},
 
+        { &hf_icmpv6_opt_pref64_scaled_lifetime,
+          { "Scaled Lifetime", "icmpv6.opt.pref64.scaled_lifetime", FT_UINT16, BASE_DEC, NULL, ND_OPT_PREF64_SL,
+            "The maximum time in units of 8 seconds over which this NAT64 prefix MAY be used", HFILL }},
+        { &hf_icmpv6_opt_pref64_plc,
+          { "PLC (Prefix Length Code)", "icmpv6.opt.pref64.plc", FT_UINT16, BASE_HEX, VALS(pref64_plc_str), ND_OPT_PREF64_PLC,
+            "This field encodes the NAT64 Prefix Length", HFILL }},
+        { &hf_icmpv6_opt_pref64_prefix,
+          { "Prefix", "icmpv6.opt.pref64.prefix", FT_IPv6, BASE_NONE, NULL, 0x00,
+            "NAT64 Prefix", HFILL }},
+
         /* RFC2710:  Multicast Listener Discovery for IPv6 */
         { &hf_icmpv6_mld_mrd,
           { "Maximum Response Delay [ms]", "icmpv6.mld.maximum_response_delay", FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -5292,7 +5371,7 @@ proto_register_icmpv6(void)
           { "Other configuration", "icmpv6.mip6.flag.o", FT_BOOLEAN, 16, TFS(&tfs_set_notset), FLAGS_EO_O,
             "When set, it indicates that other configuration information is available via DHCPv6", HFILL }},
         { &hf_icmpv6_mip6_flag_rsv,
-          { "Reserved", "icmpv6.mip6.flag.rsv", FT_UINT16, BASE_DEC, NULL, 0x2FFF,
+          { "Reserved", "icmpv6.mip6.flag.rsv", FT_UINT16, BASE_DEC, NULL, 0x3FFF,
             "Must be Zero", HFILL }},
 
         /* RFC3810: Multicast Listener Discovery Version 2 (MLDv2) for IPv6 */

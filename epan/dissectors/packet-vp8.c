@@ -564,22 +564,10 @@ proto_register_vp8(void)
     prefs_register_range_preference(vp8_module, "dynamic.payload.type",
                             "vp8 dynamic payload types",
                             "Dynamic payload types which will be interpreted as vp8"
-                            "; Values must be in the range 96 - 127",
+                            "; Values must be in the range 1 - 127",
                             &temp_dynamic_payload_type_range, 127);
 
     vp8_handle = register_dissector("vp8", dissect_vp8, proto_vp8);
-}
-
-static void
-range_delete_vp8_rtp_pt_callback(guint32 rtp_pt, gpointer ptr _U_) {
-    if ((rtp_pt >= 96) && (rtp_pt <= 127))
-        dissector_delete_uint("rtp.pt", rtp_pt, vp8_handle);
-}
-
-static void
-range_add_vp8_rtp_pt_callback(guint32 rtp_pt, gpointer ptr _U_) {
-    if ((rtp_pt >= 96) && (rtp_pt <= 127))
-        dissector_add_uint("rtp.pt", rtp_pt, vp8_handle);
 }
 
 void
@@ -592,12 +580,13 @@ proto_reg_handoff_vp8(void)
         dissector_add_string("rtp_dyn_payload_type" , "VP8", vp8_handle);
         vp8_prefs_initialized = TRUE;
     } else {
-        range_foreach(dynamic_payload_type_range, range_delete_vp8_rtp_pt_callback, NULL);
+        dissector_delete_uint_range("rtp.pt", dynamic_payload_type_range, vp8_handle);
         wmem_free(wmem_epan_scope(), dynamic_payload_type_range);
     }
 
     dynamic_payload_type_range = range_copy(wmem_epan_scope(), temp_dynamic_payload_type_range);
-    range_foreach(dynamic_payload_type_range, range_add_vp8_rtp_pt_callback, NULL);
+    range_remove_value(wmem_epan_scope(), &dynamic_payload_type_range, 0);
+    dissector_add_uint_range("rtp.pt", dynamic_payload_type_range, vp8_handle);
 }
 
 /*

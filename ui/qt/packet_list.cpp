@@ -239,6 +239,8 @@ PacketList::PacketList(QWidget *parent) :
     setUniformRowHeights(true);
     setAccessibleName("Packet list");
 
+    proto_prefs_menus_.setTitle(tr("Protocol Preferences"));
+
     packet_list_header_ = new PacketListHeader(header()->orientation(), cap_file_);
     connect(packet_list_header_, &PacketListHeader::resetColumnWidth, this, &PacketList::setRecentColumnWidth);
     connect(packet_list_header_, &PacketListHeader::updatePackets, this, &PacketList::updatePackets);
@@ -279,11 +281,6 @@ PacketList::PacketList(QWidget *parent) :
             this, SLOT(sectionMoved(int,int,int)));
 
     connect(verticalScrollBar(), SIGNAL(actionTriggered(int)), this, SLOT(vScrollBarActionTriggered(int)));
-
-    connect(&proto_prefs_menu_, SIGNAL(showProtocolPreferences(QString)),
-            this, SIGNAL(showProtocolPreferences(QString)));
-    connect(&proto_prefs_menu_, SIGNAL(editProtocolPreference(preference*,pref_module*)),
-            this, SIGNAL(editProtocolPreference(preference*,pref_module*)));
 }
 
 void PacketList::colorsChanged()
@@ -591,29 +588,41 @@ void PacketList::selectionChanged (const QItemSelection & selected, const QItemS
 void PacketList::contextMenuEvent(QContextMenuEvent *event)
 {
     const char *module_name = NULL;
-    if (cap_file_ && cap_file_->edt && cap_file_->edt->tree) {
-        GPtrArray          *finfo_array = proto_all_finfos(cap_file_->edt->tree);
 
-        for (guint i = finfo_array->len - 1; i > 0 ; i --) {
+    proto_prefs_menus_.clear();
+
+    if (cap_file_ && cap_file_->edt && cap_file_->edt->tree) {
+        GPtrArray *finfo_array = proto_all_finfos(cap_file_->edt->tree);
+        QList<QString> added_proto_prefs;
+
+        for (guint i = 0; i < finfo_array->len; i++) {
             field_info *fi = (field_info *)g_ptr_array_index (finfo_array, i);
             header_field_info *hfinfo =  fi->hfinfo;
 
-            if (!g_str_has_prefix(hfinfo->abbrev, "text") &&
-                !g_str_has_prefix(hfinfo->abbrev, "_ws.expert") &&
-                !g_str_has_prefix(hfinfo->abbrev, "_ws.lua") &&
-                !g_str_has_prefix(hfinfo->abbrev, "_ws.malformed")) {
-
+            if (prefs_is_registered_protocol(hfinfo->abbrev)) {
                 if (hfinfo->parent == -1) {
                     module_name = hfinfo->abbrev;
                 } else {
                     module_name = proto_registrar_get_abbrev(hfinfo->parent);
                 }
-                break;
+
+                if (added_proto_prefs.contains(module_name)) {
+                    continue;
+                }
+
+                ProtocolPreferencesMenu *proto_prefs_menu = new ProtocolPreferencesMenu(hfinfo->name, module_name, &proto_prefs_menus_);
+
+                connect(proto_prefs_menu, SIGNAL(showProtocolPreferences(QString)),
+                        this, SIGNAL(showProtocolPreferences(QString)));
+                connect(proto_prefs_menu, SIGNAL(editProtocolPreference(preference*,pref_module*)),
+                        this, SIGNAL(editProtocolPreference(preference*,pref_module*)));
+
+                proto_prefs_menus_.addMenu(proto_prefs_menu);
+                added_proto_prefs << module_name;
             }
         }
         g_ptr_array_free(finfo_array, TRUE);
     }
-    proto_prefs_menu_.setModule(module_name);
 
     QModelIndex ctxIndex = indexAt(event->pos());
 
@@ -705,7 +714,7 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
     frameData->setParent(submenu);
 
     ctx_menu->addSeparator();
-    ctx_menu->addMenu(&proto_prefs_menu_);
+    ctx_menu->addMenu(&proto_prefs_menus_);
     action = ctx_menu->addAction(tr("Decode As" UTF8_HORIZONTAL_ELLIPSIS));
     action->setProperty("create_new", QVariant(true));
     connect(action, &QAction::triggered, this, &PacketList::ctxDecodeAsDialog);
@@ -1169,8 +1178,8 @@ void PacketList::captureFileReadFinished()
 
 void PacketList::freeze()
 {
-    setUpdatesEnabled(false);
     column_state_ = header()->saveState();
+    setHeaderHidden(true);
     if (currentIndex().isValid()) {
         frozen_row_ = currentIndex().row();
     } else {
@@ -1188,7 +1197,7 @@ void PacketList::freeze()
 
 void PacketList::thaw(bool restore_selection)
 {
-    setUpdatesEnabled(true);
+    setHeaderHidden(false);
     setModel(packet_list_model_);
 
     // Resetting the model resets our column widths so we restore them here.
@@ -1561,14 +1570,12 @@ void PacketList::markFrame()
 
     if (selectionModel() && selectionModel()->hasSelection())
     {
-        QList<int> rows;
         QModelIndexList selRows = selectionModel()->selectedRows(0);
         foreach (QModelIndex idx, selRows)
         {
             if (idx.isValid())
             {
                 frames << idx;
-                rows << idx.row();
             }
         }
     }
@@ -1597,13 +1604,11 @@ void PacketList::ignoreFrame()
 
     if (selectionModel() && selectionModel()->hasSelection())
     {
-        QList<int> rows;
         foreach (QModelIndex idx, selectionModel()->selectedRows(0))
         {
             if (idx.isValid())
             {
                 frames << idx;
-                rows << idx.row();
             }
         }
     }

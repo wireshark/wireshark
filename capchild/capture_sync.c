@@ -115,7 +115,10 @@ static void free_argv(char** argv, int argc)
 }
 
 void
-capture_session_init(capture_session *cap_session, capture_file *cf)
+capture_session_init(capture_session *cap_session, capture_file *cf,
+                     new_file_fn new_file, new_packets_fn new_packets,
+                     drops_fn drops, error_fn error,
+                     cfilter_error_fn cfilter_error, closed_fn closed)
 {
     cap_session->cf                              = cf;
     cap_session->fork_child                      = WS_INVALID_PID;   /* invalid process handle */
@@ -129,6 +132,13 @@ capture_session_init(capture_session *cap_session, capture_file *cf)
 #endif
     cap_session->count                           = 0;
     cap_session->session_will_restart            = FALSE;
+
+    cap_session->new_file                        = new_file;
+    cap_session->new_packets                     = new_packets;
+    cap_session->drops                           = drops;
+    cap_session->error                           = error;
+    cap_session->cfilter_error                   = cfilter_error;
+    cap_session->closed                          = closed;
 }
 
 /* Append an arg (realloc) to an argc/argv array */
@@ -1651,7 +1661,7 @@ sync_pipe_input_cb(gint source, gpointer user_data)
 #endif
         g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_pipe_input_cb: cleaning extcap pipe");
         extcap_if_cleanup(cap_session->capture_opts, &primary_msg);
-        capture_input_closed(cap_session, primary_msg);
+        cap_session->closed(cap_session, primary_msg);
         g_free(primary_msg);
         return FALSE;
     }
@@ -1659,7 +1669,7 @@ sync_pipe_input_cb(gint source, gpointer user_data)
     /* we got a valid message block from the child, process it */
     switch(indicator) {
     case SP_FILE:
-        if(!capture_input_new_file(cap_session, buffer)) {
+        if(!cap_session->new_file(cap_session, buffer)) {
             g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_pipe_input_cb: file failed, closing capture");
 
             /* We weren't able to open the new capture file; user has been
@@ -1679,7 +1689,7 @@ sync_pipe_input_cb(gint source, gpointer user_data)
                This can also happen if the user specified "-", meaning
                "standard output", as the capture file. */
             sync_pipe_stop(cap_session);
-            capture_input_closed(cap_session, NULL);
+            cap_session->closed(cap_session, NULL);
             return FALSE;
         }
         break;
@@ -1689,7 +1699,7 @@ sync_pipe_input_cb(gint source, gpointer user_data)
         }
         g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_pipe_input_cb: new packets %u", npackets);
         cap_session->count += npackets;
-        capture_input_new_packets(cap_session, npackets);
+        cap_session->new_packets(cap_session, npackets);
         break;
     case SP_ERROR_MSG:
         /* convert primary message */
@@ -1699,7 +1709,7 @@ sync_pipe_input_cb(gint source, gpointer user_data)
         pipe_convert_header((guchar*)primary_msg + primary_len, 4, &indicator, &secondary_len);
         secondary_msg = primary_msg + primary_len + 4;
         /* message output */
-        capture_input_error_message(cap_session, primary_msg, secondary_msg);
+        cap_session->error(cap_session, primary_msg, secondary_msg);
         /* the capture child will close the sync_pipe, nothing to do for now */
         /* (an error message doesn't mean we have to stop capturing) */
         break;
@@ -1712,7 +1722,7 @@ sync_pipe_input_cb(gint source, gpointer user_data)
             message = end + 1;
         }
 
-        capture_input_cfilter_error_message(cap_session, indx, message);
+        cap_session->cfilter_error(cap_session, indx, message);
         /* the capture child will close the sync_pipe, nothing to do for now */
         break;
         }
@@ -1725,7 +1735,7 @@ sync_pipe_input_cb(gint source, gpointer user_data)
             name = end + 1;
         }
 
-        capture_input_drops(cap_session, num, name);
+        cap_session->drops(cap_session, num, name);
         break;
         }
     default:

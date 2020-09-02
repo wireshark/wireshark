@@ -508,6 +508,20 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             }
     }
 
+    /* Find the end line to be able to process the headers
+     * Note that in case of [content-stuff] headers and [content-stuff] is separated by CRLF
+     */
+
+    offset = next_offset;
+    end_line_offset = find_end_line(tvb,offset);
+    if (end_line_offset < 0) {
+        pinfo->desegment_offset = 0;
+        pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
+        return tvb_reported_length_remaining(tvb, offset);
+    }
+    end_line_len =  tvb_find_line_end(tvb, end_line_offset, -1, &next_offset, FALSE);
+    message_end_offset = end_line_offset + end_line_len + 2;
+
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MSRP");
     if (is_msrp_response){
@@ -527,17 +541,6 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         col_append_fstr(pinfo->cinfo, COL_INFO, "Transaction ID: %s",
                 tvb_format_text(tvb, token_2_start, token_2_len));
     }
-
-    /* Find the end line to be able to process the headers
-     * Note that in case of [content-stuff] headers and [content-stuff] is separated by CRLF
-     */
-
-    offset = next_offset;
-    end_line_offset = find_end_line(tvb,offset);
-    /* TODO if -1 (No end line found, is returned do something) */
-    end_line_len =  tvb_find_line_end(tvb, end_line_offset, -1, &next_offset, FALSE);
-    message_end_offset = end_line_offset + end_line_len + 2;
-
 
     if (tree) {
         ti = proto_tree_add_item(tree, proto_msrp, tvb, 0, message_end_offset, ENC_NA);

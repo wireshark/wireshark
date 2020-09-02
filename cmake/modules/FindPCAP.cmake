@@ -1,5 +1,5 @@
 #
-# - Find pcap and winpcap
+# - Find libpcap
 # Find the native PCAP includes and library
 #
 #  PCAP_INCLUDE_DIRS - where to find pcap.h, etc.
@@ -7,13 +7,7 @@
 #  PCAP_FOUND        - True if pcap found.
 
 include(FindWSWinLibs)
-FindWSWinLibs("WpdPack" "PCAP_HINTS")
-
-# The 64-bit wpcap.lib is under /x64
-set(_PLATFORM_SUBDIR "")
-if(WIN32 AND WIRESHARK_TARGET_PLATFORM STREQUAL "win64")
-  set(_PLATFORM_SUBDIR "/x64")
-endif()
+FindWSWinLibs("libpcap-*" "PCAP_HINTS")
 
 #
 # First, try pkg-config on platforms other than Windows.
@@ -117,15 +111,22 @@ find_path(PCAP_INCLUDE_DIR
     "${PCAP_HINTS}/Include"
 )
 
-find_library(PCAP_LIBRARY
-  NAMES
-    pcap
-    wpcap
-  HINTS
-    ${PC_PCAP_LIBRARY_DIRS}
-    ${PCAP_CONFIG_LIBRARY_DIRS}
-    "${PCAP_HINTS}/Lib${_PLATFORM_SUBDIR}"
-)
+# On Windows we load wpcap.dll explicitly and probe its functions in
+# caputils\capture-wpcap.c. We don't want to link with pcap.lib since
+# that would bring in the non-capturing (null) pcap.dll from the vcpkg
+# library.
+if(WIN32)
+  set(_pkg_required_vars PCAP_INCLUDE_DIR)
+else()
+  find_library(PCAP_LIBRARY
+    NAMES
+      pcap
+    HINTS
+      ${PC_PCAP_LIBRARY_DIRS}
+      ${PCAP_CONFIG_LIBRARY_DIRS}
+  )
+  set(_pkg_required_vars PCAP_LIBRARY PCAP_INCLUDE_DIR)
+endif()
 
 if(UNIX AND CMAKE_FIND_LIBRARY_SUFFIXES STREQUAL ".a")
   # Try to find the static library (XXX - what about AIX?)
@@ -161,8 +162,8 @@ if(UNIX AND CMAKE_FIND_LIBRARY_SUFFIXES STREQUAL ".a")
 endif()
 
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(PCAP DEFAULT_MSG PCAP_LIBRARY PCAP_INCLUDE_DIR)
-mark_as_advanced(PCAP_LIBRARY PCAP_INCLUDE_DIR)
+find_package_handle_standard_args(PCAP DEFAULT_MSG ${_pkg_required_vars})
+mark_as_advanced(${_pkg_required_vars})
 
 if(PCAP_FOUND)
   set(PCAP_INCLUDE_DIRS ${PCAP_INCLUDE_DIR})
@@ -186,20 +187,6 @@ if(PCAP_FOUND)
 
   if(WIN32)
     #
-    # Make sure we have at least the WinPcap 3.1 SDK, because we
-    # we require at least libpcap 0.8's APIs.  3.1 is based on
-    # libpcap 0.9.2, but 3.0 is based on a pre-0.8 snapshot of
-    # libpcap.
-    #
-    # We check whether pcap_lib_version is defined in the pcap header,
-    # using it as a proxy for all the 0.8 API's.  if not, we fail.
-    #
-    check_symbol_exists( pcap_lib_version ${PCAP_INCLUDE_DIR}/pcap.h HAVE_PCAP_LIB_VERSION )
-    if( NOT HAVE_PCAP_LIB_VERSION )
-        message(FATAL_ERROR "You need WinPcap 3.1 or later, or Npcap")
-    endif( NOT HAVE_PCAP_LIB_VERSION )
-
-    #
     # Prepopulate some values. WinPcap 3.1 and later, and Npcap, have these
     # in their SDK, and compilation checks on Windows can be slow.  We check
     # whether they're present at run time, when we load wpcap.dll, and work
@@ -210,6 +197,8 @@ if(PCAP_FOUND)
     set(HAVE_PCAP_FREE_DATALINKS TRUE)
     set(HAVE_PCAP_OPEN TRUE)
     set(HAVE_PCAP_SETSAMPLING TRUE)
+    set(HAVE_PCAP_SET_TSTAMP_PRECISION TRUE)
+    set(HAVE_PCAP_SET_TSTAMP_TYPE TRUE)
   else(WIN32)
     #
     # Make sure we have at least libpcap 0.8, because we we require at
@@ -272,9 +261,16 @@ if(PCAP_FOUND)
 endif()
 
 if(PCAP_FOUND AND NOT TARGET pcap::pcap)
-  add_library(pcap::pcap UNKNOWN IMPORTED)
-  set_target_properties(pcap::pcap PROPERTIES
-    IMPORTED_LOCATION "${PCAP_LIBRARIES}"
-    INTERFACE_INCLUDE_DIRECTORIES "${PCAP_INCLUDE_DIRS}"
-  )
+  if(WIN32)
+    add_library(pcap::pcap INTERFACE IMPORTED)
+    set_target_properties(pcap::pcap PROPERTIES
+      INTERFACE_INCLUDE_DIRECTORIES "${PCAP_INCLUDE_DIRS}"
+    )
+  else()
+    add_library(pcap::pcap UNKNOWN IMPORTED)
+    set_target_properties(pcap::pcap PROPERTIES
+      IMPORTED_LOCATION "${PCAP_LIBRARIES}"
+      INTERFACE_INCLUDE_DIRECTORIES "${PCAP_INCLUDE_DIRS}"
+    )
+  endif()
 endif()

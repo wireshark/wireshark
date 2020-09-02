@@ -1669,7 +1669,7 @@ dissect_zpas_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 static gboolean
 dissect_zusim_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-        gint offset, gint role, guint16 type, guint8 *parameter_stream _U_,
+        gint offset, gint role, guint16 type, guint8 *parameter_stream,
         guint parameter_number, gint parameter_length, void **data _U_)
 {
     guint32      value;
@@ -1708,8 +1708,8 @@ static const at_cmd_t at_cmds[] = {
     { "+CHLD",      "Call Hold and Multiparty Handling",                       check_chld, dissect_chld_parameter },
     { "+CHUP",      "Call Hang-up",                                            check_chup, dissect_no_parameter   },
     { "+CIEV",      "Indicator Events Reporting",                              check_ciev, dissect_ciev_parameter },
-    { "+CIMI",      "Request International Mobile Subsciber Identity (IMSI)",  check_cimi, dissect_cimi_parameter },
-    { "^CIMI",      "Request International Mobile Subsciber Identity (IMSI)",  check_cimi, dissect_cimi_parameter },
+    { "+CIMI",      "Request International Mobile Subscriber Identity (IMSI)", check_cimi, dissect_cimi_parameter },
+    { "^CIMI",      "Request International Mobile Subscriber Identity (IMSI)", check_cimi, dissect_cimi_parameter },
     { "+CIND",      "Phone Indicators",                                        check_cind, dissect_cind_parameter },
     { "+CLAC",      "List All Available AT Commands",                          check_clac, dissect_no_parameter },
     { "+CLCC",      "Current Calls",                                           check_clcc, dissect_clcc_parameter },
@@ -2550,7 +2550,7 @@ proto_register_at_command(void)
            NULL, HFILL}
         },
         { &hf_ccwa_show_result_code,
-           { "Show Result Code Presentation Status",       "at.ccwa.presentaion_status",
+           { "Show Result Code Presentation Status",       "at.ccwa.presentation_status",
            FT_UINT32, BASE_DEC, VALS(ccwa_show_result_code_vals), 0,
            NULL, HFILL}
         },

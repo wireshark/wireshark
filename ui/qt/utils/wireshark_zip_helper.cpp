@@ -65,12 +65,26 @@ bool WiresharkZipHelper::unzip(QString zipFile, QString directory, bool (*fileCh
             QString fileInZip(filename_inzip);
             int fileSize = static_cast<int>(file_info.uncompressed_size);
 
-            /* Sanity check for the filen */
+            /* Sanity check for the file */
             if (fileInZip.length() == 0 || (fileCheck && ! fileCheck(fileInZip, fileSize)) )
                 continue;
 
             if (di.exists())
             {
+#ifdef _WIN32
+                /* This is an additional fix for bug 16608, in which exports did contain the full path they
+                 * where exported from, leading to imports not possible if the path does not exist on that
+                 * machine */
+
+                if (fileInZip.contains(":/") || fileInZip.contains(":\\"))
+                {
+                    QFileInfo fileName(fileInZip);
+                    QFileInfo path(fileName.dir(), "");
+                    QString newFile = path.baseName() + "/" + fileName.baseName();
+                    fileInZip = newFile;
+                }
+#endif
+
                 QString fullPath = di.path() + "/" + fileInZip;
                 QFileInfo fi(fullPath);
                 QString dirPath = fi.absolutePath();
@@ -150,7 +164,7 @@ bool WiresharkZipHelper::unzip(QString zipFile, QString directory, bool (*fileCh
 #define UINT32_MAX  (0xffffffff)
 #endif
 
-unsigned long qDateToDosDate(QDateTime time)
+static unsigned long qDateToDosDate(QDateTime time)
 {
     QDate ld = time.toLocalTime().date();
 
@@ -232,7 +246,8 @@ bool WiresharkZipHelper::zip(QString fileName, QStringList files, QString relati
     {
         QFileInfo sf(files.at(cnt));
         QString fileInZip = sf.absoluteFilePath();
-        fileInZip.replace(relativeTo, "");
+        QFileInfo relat(relativeTo);
+        fileInZip.replace(relat.absoluteFilePath(), "");
         /* Windows cannot open zip files, if the filenames starts with a separator */
         while (fileInZip.length() > 0 && fileInZip.startsWith("/"))
             fileInZip = fileInZip.right(fileInZip.length() - 1);

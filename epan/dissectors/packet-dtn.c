@@ -17,7 +17,7 @@
  *
  * Specification reference:
  * RFC 5050
- * http://tools.ietf.org/html/rfc5050
+ * https://tools.ietf.org/html/rfc5050
  */
 
 /*
@@ -46,9 +46,6 @@
 
 static int dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, packet_info *pinfo,
                                 int offset, int payload_length, gboolean* success);
-
-extern void
-dissect_cfdp_as_subtree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
 
 extern void
 dissect_amp_as_subtree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
@@ -350,10 +347,10 @@ static const value_string packet_type_vals[] = {
 
 /* Refuse-Bundle Reason-Code Flags as per RFC-7242: Section-5.4 */
 static const value_string refuse_bundle_reason_code[] = {
-    {((TCP_REFUSE_BUNDLE_REASON_UNKNOWN>>4)         & 0x0F), "Reason for refusal is unknown"},
-    {((TCP_REFUSE_BUNDLE_REASON_RX_COMPLETE>>4)     & 0x0F), "Complete Bundle Received"},
-    {((TCP_REFUSE_BUNDLE_REASON_RX_EXHAUSTED>>4)    & 0x0F), "Receiver's resources exhausted"},
-    {((TCP_REFUSE_BUNDLE_REASON_RX_RETRANSMIT>>4)   & 0x0F), "Receiver expects re-transmission of bundle"},
+    {TCP_REFUSE_BUNDLE_REASON_UNKNOWN,       "Reason for refusal is unknown"},
+    {TCP_REFUSE_BUNDLE_REASON_RX_COMPLETE,   "Complete Bundle Received"},
+    {TCP_REFUSE_BUNDLE_REASON_RX_EXHAUSTED,  "Receiver's resources exhausted"},
+    {TCP_REFUSE_BUNDLE_REASON_RX_RETRANSMIT, "Receiver expects re-transmission of bundle"},
     {0, NULL}
 };
 
@@ -928,7 +925,7 @@ dissect_version_5_and_6_primary_header(packet_info *pinfo,
     proto_item        *ti_cust_scheme_offset, *ti_cust_ssp_offset;
     proto_item        *ti_rprt_scheme_offset, *ti_rprt_ssp_offset;
     proto_tree        *gen_flag_tree, *srr_flag_tree, *proc_flag_tree, *cos_flag_tree;
-    static const int * pri_flags[] = {
+    static int * const pri_flags[] = {
         &hf_bundle_procflags_fragment,
         &hf_bundle_procflags_admin,
         &hf_bundle_procflags_dont_fragment,
@@ -938,7 +935,7 @@ dissect_version_5_and_6_primary_header(packet_info *pinfo,
         NULL
     };
 
-    static const int * srr_flags[] = {
+    static int * const srr_flags[] = {
         &hf_bundle_srrflags_report_receipt,
         &hf_bundle_srrflags_report_cust_accept,
         &hf_bundle_srrflags_report_forward,
@@ -1177,7 +1174,7 @@ dissect_payload_header(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
     /* This is really a SDNV but there are only 7 bits defined so leave it this way*/
 
     if (version == 4) {
-        static const gint *flags[] = {
+        static int * const flags[] = {
             &hf_bundle_payload_flags_replicate_hdr,
             &hf_bundle_payload_flags_xmit_report,
             &hf_bundle_payload_flags_discard_on_fail,
@@ -1866,7 +1863,7 @@ display_extension_block(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int
     case BUNDLE_BLOCK_TYPE_EXTENDED_COS:
     {
         int flags;
-        static const int * ecos_flags_fields[] = {
+        static int * const ecos_flags_fields[] = {
             &hf_ecos_flags_critical,
             &hf_ecos_flags_streaming,
             &hf_ecos_flags_flowlabel,
@@ -3042,11 +3039,11 @@ proto_register_bundle(void)
           FT_BOOLEAN, 8, NULL, BLOCK_CONTROL_REPLICATE, NULL, HFILL}
         },
         {&hf_block_control_transmit_status,
-         {"Transmit Status if Block Can't be Processeed", "bundle.block.control.status",
+         {"Transmit Status if Block Can't be Processed", "bundle.block.control.status",
           FT_BOOLEAN, 8, NULL, BLOCK_CONTROL_TRANSMIT_STATUS, NULL, HFILL}
         },
         {&hf_block_control_delete_bundle,
-         {"Delete Bundle if Block Can't be Processeed", "bundle.block.control.delete",
+         {"Delete Bundle if Block Can't be Processed", "bundle.block.control.delete",
           FT_BOOLEAN, 8, NULL, BLOCK_CONTROL_DELETE_BUNDLE, NULL, HFILL}
         },
         {&hf_block_control_last_block,
@@ -3126,7 +3123,7 @@ proto_register_bundle(void)
           FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
         {&hf_bundle_block_previous_hop_scheme,
-         {"Previous Hop Secheme", "bundle.block.previous_hop_scheme",
+         {"Previous Hop Scheme", "bundle.block.previous_hop_scheme",
           FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         {&hf_bundle_block_previous_hop_eid,
@@ -3202,7 +3199,7 @@ proto_register_bundle(void)
         },
         {&hf_dtn_refuse_bundle_reason_code,
          {"Reason-Code", "tcpcl.refuse.reason_code",
-          FT_UINT8, BASE_DEC, VALS(refuse_bundle_reason_code), 0xF0, NULL, HFILL}
+          FT_UINT8, BASE_DEC, VALS(refuse_bundle_reason_code), 0x0F, NULL, HFILL}
         },
         {&hf_tcp_convergence_data_procflags,
          {"TCP Convergence Data Flags", "tcpcl.data.proc.flag",

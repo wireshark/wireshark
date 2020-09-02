@@ -30,7 +30,7 @@ extern "C" {
  * @param pfx [in] A prefix for the temporary file.
  * @param sfx [in] A file extension for the temporary file. NULL can be passed
  *                 if no file extension is needed
- * @param sfx [out] Any error returned by g_file_open_tmp. May be NULL.
+ * @param err [out] Any error returned by g_file_open_tmp. May be NULL.
  * @return The file descriptor of the new tempfile, from mkstemps().
  */
 WS_DLL_PUBLIC int create_tempfile(gchar **namebuf, const char *pfx, const char *sfx, GError **err);

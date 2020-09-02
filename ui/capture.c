@@ -392,7 +392,7 @@ cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
 }
 
 /* capture child tells us we have a new (or the first) capture file */
-gboolean
+static gboolean
 capture_input_new_file(capture_session *cap_session, gchar *new_file)
 {
     capture_options *capture_opts = cap_session->capture_opts;
@@ -532,7 +532,7 @@ capture_info_new_packets(int to_read, wtap *wth, info_data_t* cap_info)
 }
 
 /* capture child tells us we have new packets to read */
-void
+static void
 capture_input_new_packets(capture_session *cap_session, int to_read)
 {
     capture_options *capture_opts = cap_session->capture_opts;
@@ -574,7 +574,7 @@ capture_input_new_packets(capture_session *cap_session, int to_read)
 
 /* Capture child told us how many dropped packets it counted.
  */
-void
+static void
 capture_input_drops(capture_session *cap_session, guint32 dropped, const char* interface_name)
 {
     if (interface_name != NULL) {
@@ -596,9 +596,9 @@ capture_input_drops(capture_session *cap_session, guint32 dropped, const char* i
    primary message and a secondary message, one right after the other.
    The secondary message might be a null string.
  */
-void
-capture_input_error_message(capture_session *cap_session, char *error_msg,
-                            char *secondary_error_msg)
+static void
+capture_input_error(capture_session *cap_session, char *error_msg,
+                    char *secondary_error_msg)
 {
     gchar *safe_error_msg;
     gchar *safe_secondary_error_msg;
@@ -630,9 +630,9 @@ capture_input_error_message(capture_session *cap_session, char *error_msg,
 /* Capture child told us that an error has occurred while parsing a
    capture filter when starting/running the capture.
  */
-void
-capture_input_cfilter_error_message(capture_session *cap_session, guint i,
-                                    const char *error_message)
+static void
+capture_input_cfilter_error(capture_session *cap_session, guint i,
+                            const char *error_message)
 {
     capture_options *capture_opts = cap_session->capture_opts;
     dfilter_t *rfcode = NULL;
@@ -682,7 +682,7 @@ capture_input_cfilter_error_message(capture_session *cap_session, guint i,
 }
 
 /* capture child closed its side of the pipe, do the required cleanup */
-void
+static void
 capture_input_closed(capture_session *cap_session, gchar *msg)
 {
     capture_options *capture_opts = cap_session->capture_opts;
@@ -940,6 +940,15 @@ capture_stat_stop(if_stat_cache_t *sc)
     g_free(sc);
 }
 
+/* Initialize a capture session for our callbacks. */
+void
+capture_input_init(capture_session *cap_session, capture_file *cf)
+{
+    capture_session_init(cap_session, cf,
+                         capture_input_new_file, capture_input_new_packets,
+                         capture_input_drops, capture_input_error,
+                         capture_input_cfilter_error, capture_input_closed);
+}
 #endif /* HAVE_LIBPCAP */
 
 /*

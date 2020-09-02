@@ -621,7 +621,7 @@ static const value_string svhdx_snapshot_stage_vals[] = {
 static int
 dissect_RSVD2_META_OPERATION_START(tvbuff_t *tvb, proto_tree *parent_tree, int offset, gint16 len, gboolean request)
 {
-    static const int * meta_operation_create_snapshot_flags[] = {
+    static int * const meta_operation_create_snapshot_flags[] = {
         &hf_svhdx_tunnel_create_snapshot_flag_enable_change_tracking,
         NULL
     };

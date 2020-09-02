@@ -446,6 +446,11 @@ struct tcp_analysis {
 	 */
 	guint16 server_port;
 
+	/* Set when the client sends a SYN with data and the cookie in the Fast Open
+	 * option.
+	 */
+	guint8  tfo_syn_data : 1;
+
 	/* allocated only when mptcp enabled
 	 * several tcp_analysis may refer to the same mptcp_analysis
 	 * can exist without any meta

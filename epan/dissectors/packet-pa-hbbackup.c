@@ -56,12 +56,12 @@ dissect_hbbak(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 	proto_tree_add_item(hbbak_tree, hf_hbbak_unknown1, tvb, offset, 6, ENC_NA);
 	offset += 6;
 	eth_type_outer = tvb_get_ntohs(tvb, offset);
-	// offset += 2;
+	proto_tree_add_uint(hbbak_tree, hf_hbbak_etype_outer, tvb,
+			    offset, 2, eth_type_outer);
 
 	ethertype_data.etype = eth_type_outer;
-	ethertype_data.offset_after_ethertype = HBBAK_SIZE;
+	ethertype_data.payload_offset = HBBAK_SIZE;
 	ethertype_data.fh_tree = hbbak_tree;
-	ethertype_data.etype_id = hf_hbbak_etype_outer;
 	ethertype_data.trailer_id = hf_hbbak_trailer;
 	ethertype_data.fcs_len = 0;
 

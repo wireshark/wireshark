@@ -220,7 +220,7 @@ timescaled_val_to_str(guint64 val)
 
 static gint
 dissect_mp4_full_box(tvbuff_t *tvb, gint offset, proto_tree *tree,
-        const int **flags_fields, guint8 *version, guint32 *flags)
+        int * const *flags_fields, guint8 *version, guint32 *flags)
 {
     if (version) {
         *version = tvb_get_guint8(tvb, offset);
@@ -344,7 +344,7 @@ dissect_mp4_tkhd_body(tvbuff_t *tvb, gint offset, gint len _U_,
     guint8   time_len;
     double   width, height;
     guint16  fract_dec;
-    static const int* flags[] = {
+    static int * const flags[] = {
         &hf_mp4_tkhd_flags_enabled,
         &hf_mp4_tkhd_flags_in_movie,
         &hf_mp4_tkhd_flags_in_preview,
@@ -463,7 +463,7 @@ dissect_mp4_stsz_body(tvbuff_t *tvb, gint offset, gint len _U_,
 
 
 static gint
-dissect_mp4_stsc_body(tvbuff_t *tvb, gint offset, gint len _U_,
+dissect_mp4_stsc_body(tvbuff_t *tvb, gint offset, gint len,
         packet_info *pinfo _U_, guint depth _U_, proto_tree *tree)
 {
     guint32  entry_count;
@@ -571,7 +571,7 @@ dissect_mp4_url_body(tvbuff_t *tvb, gint offset, gint len,
         packet_info *pinfo _U_, guint depth _U_, proto_tree *tree)
 {
     guint32  flags;
-    static const int* flags_fields[] = {
+    static int * const flags_fields[] = {
         &hf_mp4_url_flags_media_data_location,
         NULL
     };

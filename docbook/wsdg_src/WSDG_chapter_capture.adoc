@@ -270,7 +270,7 @@ BOOLEAN, BOOLFLAG:: This provides the possibility to set a true/false value. BOO
 arg {number=2}{call=--verify}{display=Verify}{tooltip=Verify package content}{type=boolflag}
 ----
 
- FILESELECT:: Let the user provide a filepath to the capture. If MUSTEXIST is being provided, the GUI checks if the file exists.
+FILESELECT:: Let the user provide a filepath. If MUSTEXIST=true is being provided, the GUI gives the user a dialog for selecting a file. When  MUSTEXIST=false is used, the GUI gives the user a file dialog for saving a file.
 +
 [source,python]
 ----

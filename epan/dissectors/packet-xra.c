@@ -708,7 +708,7 @@ dissect_timestamp_mb(tvbuff_t * tvb, proto_tree* tree) {
   proto_item* timestamp_it;
   proto_tree* timestamp_tree;
 
-  static const int * timestamp_parts[] = {
+  static int * const timestamp_parts[] = {
     &hf_plc_mb_ts_timestamp_epoch,
     &hf_plc_mb_ts_timestamp_d30timestamp,
     &hf_plc_mb_ts_timestamp_extra_204_8,

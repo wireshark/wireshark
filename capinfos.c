@@ -184,8 +184,8 @@ typedef struct _capture_info {
   wtap_compression_type compression_type;
   int                   file_encap;
   int                   file_tsprec;
+  wtap                 *wth;
   gint64                filesize;
-  wtap_block_t          shb;
   guint64               packet_bytes;
   gboolean              times_known;
   nstime_t              start_time;
@@ -300,7 +300,37 @@ order_string(order_t order)
 static gchar *
 absolute_time_string(nstime_t *timer, int tsprecision, capture_info *cf_info)
 {
-  static gchar  time_string_buf[4+1+2+1+2+1+2+1+2+1+2+1+9+1+1];
+  /*
+   *    https://web.archive.org/web/20120513133703/http://www.idrbt.ac.in/publications/workingpapers/Working%20Paper%20No.%209.pdf
+   *
+   * says:
+   *
+   *    A 64-bit Unix time would be safe for the indefinite future, as
+   *    this variable would not overflow until 2**63 or
+   *    9,223,372,036,854,775,808 (over nine quintillion) seconds
+   *    after the beginning of the Unix epoch - corresponding to
+   *    GMT 15:30:08, Sunday, 4th December, 292,277,026,596.
+   *
+   * So, if we're displaying the time as YYYY-MM-DD HH:MM:SS.SSSSSSSSS,
+   * we'll have the buffer be large enouth for a date of the format
+   * 292277026596-MM-DD HH:MM:SS.SSSSSSSSS, which is the biggest value
+   * you'll get with a 64-bit time_t and a nanosecond-resolution
+   * fraction-of-a-second.
+   *
+   * That's 12+1+2+1+2+1+2+1+2+2+2+1+9+1, including the terminating
+   * \0, or 39.
+   *
+   * If we're displaying the time as epoch time, and the time is
+   * unsigned, 2^64-1 is 18446744073709551615, so the buffer has
+   * to be big enough for 18446744073709551615.999999999.  That's
+   * 20+1+9+1, including the terminating '\0', or 31.  If it's
+   * signed, 2^63 is 9223372036854775808, so the buffer has to
+   * be big enough for -9223372036854775808.999999999, which is
+   * again 20+1+9+1, or 31.
+   *
+   * So we go with 39.
+   */
+  static gchar time_string_buf[39];
   struct tm *ti_tm;
 
   if (cf_info->times_known && cf_info->packet_count > 0) {
@@ -309,46 +339,46 @@ absolute_time_string(nstime_t *timer, int tsprecision, capture_info *cf_info)
 
       case WTAP_TSPREC_SEC:
         g_snprintf(time_string_buf, sizeof time_string_buf,
-                   "%lu",
-                   (unsigned long)timer->secs);
+                   "%"G_GINT64_MODIFIER"d",
+                   (gint64)timer->secs);
         break;
 
       case WTAP_TSPREC_DSEC:
         g_snprintf(time_string_buf, sizeof time_string_buf,
-                   "%lu%s%01d",
-                   (unsigned long)timer->secs,
+                   "%"G_GINT64_MODIFIER"d%s%01d",
+                   (gint64)timer->secs,
                    decimal_point,
                    timer->nsecs / 100000000);
         break;
 
       case WTAP_TSPREC_CSEC:
         g_snprintf(time_string_buf, sizeof time_string_buf,
-                   "%lu%s%02d",
-                   (unsigned long)timer->secs,
+                   "%"G_GINT64_MODIFIER"d%s%02d",
+                   (gint64)timer->secs,
                    decimal_point,
                    timer->nsecs / 10000000);
         break;
 
       case WTAP_TSPREC_MSEC:
         g_snprintf(time_string_buf, sizeof time_string_buf,
-                   "%lu%s%03d",
-                   (unsigned long)timer->secs,
+                   "%"G_GINT64_MODIFIER"d%s%03d",
+                   (gint64)timer->secs,
                    decimal_point,
                    timer->nsecs / 1000000);
         break;
 
       case WTAP_TSPREC_USEC:
         g_snprintf(time_string_buf, sizeof time_string_buf,
-                   "%lu%s%06d",
-                   (unsigned long)timer->secs,
+                   "%"G_GINT64_MODIFIER"d%s%06d",
+                   (gint64)timer->secs,
                    decimal_point,
                    timer->nsecs / 1000);
         break;
 
       case WTAP_TSPREC_NSEC:
         g_snprintf(time_string_buf, sizeof time_string_buf,
-                   "%lu%s%09d",
-                   (unsigned long)timer->secs,
+                   "%"G_GINT64_MODIFIER"d%s%09d",
+                   (gint64)timer->secs,
                    decimal_point,
                    timer->nsecs);
         break;
@@ -463,23 +493,32 @@ relative_time_string(nstime_t *timer, int tsprecision, capture_info *cf_info, gb
 {
   const gchar  *second = want_seconds ? " second" : "";
   const gchar  *plural = want_seconds ? "s" : "";
-  static gchar  time_string_buf[4+1+2+1+2+1+2+1+2+1+2+1+1];
+  /*
+   * If we're displaying the time as epoch time, and the time is
+   * unsigned, 2^64-1 is 18446744073709551615, so the buffer has
+   * to be big enough for "18446744073709551615.999999999 seconds".
+   * That's 20+1+9+1+7+1, including the terminating '\0', or 39.
+   * If it'ssigned, 2^63 is 9223372036854775808, so the buffer has to
+   * be big enough for "-9223372036854775808.999999999 seconds",
+   * which is again 20+1+9+1+7+1, or 39.
+   */
+  static gchar  time_string_buf[39];
 
   if (cf_info->times_known && cf_info->packet_count > 0) {
     switch (tsprecision) {
 
     case WTAP_TSPREC_SEC:
       g_snprintf(time_string_buf, sizeof time_string_buf,
-                 "%lu%s%s",
-                 (unsigned long)timer->secs,
+                 "%"G_GINT64_MODIFIER"d%s%s",
+                 (gint64)timer->secs,
                  second,
                  timer->secs == 1 ? "" : plural);
       break;
 
     case WTAP_TSPREC_DSEC:
       g_snprintf(time_string_buf, sizeof time_string_buf,
-                 "%lu%s%01d%s%s",
-                 (unsigned long)timer->secs,
+                 "%"G_GINT64_MODIFIER"d%s%01d%s%s",
+                 (gint64)timer->secs,
                  decimal_point,
                  timer->nsecs / 100000000,
                  second,
@@ -488,8 +527,8 @@ relative_time_string(nstime_t *timer, int tsprecision, capture_info *cf_info, gb
 
     case WTAP_TSPREC_CSEC:
       g_snprintf(time_string_buf, sizeof time_string_buf,
-                 "%lu%s%02d%s%s",
-                 (unsigned long)timer->secs,
+                 "%"G_GINT64_MODIFIER"d%s%02d%s%s",
+                 (gint64)timer->secs,
                  decimal_point,
                  timer->nsecs / 10000000,
                  second,
@@ -498,8 +537,8 @@ relative_time_string(nstime_t *timer, int tsprecision, capture_info *cf_info, gb
 
     case WTAP_TSPREC_MSEC:
       g_snprintf(time_string_buf, sizeof time_string_buf,
-                 "%lu%s%03d%s%s",
-                 (unsigned long)timer->secs,
+                 "%"G_GINT64_MODIFIER"d%s%03d%s%s",
+                 (gint64)timer->secs,
                  decimal_point,
                  timer->nsecs / 1000000,
                  second,
@@ -508,8 +547,8 @@ relative_time_string(nstime_t *timer, int tsprecision, capture_info *cf_info, gb
 
     case WTAP_TSPREC_USEC:
       g_snprintf(time_string_buf, sizeof time_string_buf,
-                 "%lu%s%06d%s%s",
-                 (unsigned long)timer->secs,
+                 "%"G_GINT64_MODIFIER"d%s%06d%s%s",
+                 (gint64)timer->secs,
                  decimal_point,
                  timer->nsecs / 1000,
                  second,
@@ -518,8 +557,8 @@ relative_time_string(nstime_t *timer, int tsprecision, capture_info *cf_info, gb
 
     case WTAP_TSPREC_NSEC:
       g_snprintf(time_string_buf, sizeof time_string_buf,
-                 "%lu%s%09d%s%s",
-                 (unsigned long)timer->secs,
+                 "%"G_GINT64_MODIFIER"d%s%09d%s%s",
+                 (gint64)timer->secs,
                  decimal_point,
                  timer->nsecs,
                  second,
@@ -705,38 +744,51 @@ print_stats(const gchar *filename, capture_info *cf_info)
   }
   if (cap_order)          printf     ("Strict time order:   %s\n", order_string(cf_info->order));
 
-  if (cf_info->shb != NULL) {
-    if (cap_file_more_info) {
-      char *str;
+  gboolean has_multiple_sections = (wtap_file_get_num_shbs(cf_info->wth) > 1);
 
-      if (wtap_block_get_string_option_value(cf_info->shb, OPT_SHB_HARDWARE, &str) == WTAP_OPTTYPE_SUCCESS)
-        show_option_string("Capture hardware:    ", str);
-      if (wtap_block_get_string_option_value(cf_info->shb, OPT_SHB_OS, &str) == WTAP_OPTTYPE_SUCCESS)
-        show_option_string("Capture oper-sys:    ", str);
-      if (wtap_block_get_string_option_value(cf_info->shb, OPT_SHB_USERAPPL, &str) == WTAP_OPTTYPE_SUCCESS)
-        show_option_string("Capture application: ", str);
-    }
-    if (cap_comment) {
-      unsigned int i;
-      char *str;
+  for (guint section_number = 0;
+       section_number < wtap_file_get_num_shbs(cf_info->wth);
+       section_number++) {
+    wtap_block_t shb;
 
-      for (i = 0; wtap_block_get_nth_string_option_value(cf_info->shb, OPT_COMMENT, i, &str) == WTAP_OPTTYPE_SUCCESS; i++) {
-        show_option_string("Capture comment:     ", str);
+    // If we have more than one section, add headers for each section.
+    if (has_multiple_sections)
+      printf("Section %u:\n\n", section_number);
+
+    shb = wtap_file_get_shb(cf_info->wth, section_number);
+    if (shb != NULL) {
+      if (cap_file_more_info) {
+        char *str;
+
+        if (wtap_block_get_string_option_value(shb, OPT_SHB_HARDWARE, &str) == WTAP_OPTTYPE_SUCCESS)
+          show_option_string("Capture hardware:    ", str);
+        if (wtap_block_get_string_option_value(shb, OPT_SHB_OS, &str) == WTAP_OPTTYPE_SUCCESS)
+          show_option_string("Capture oper-sys:    ", str);
+        if (wtap_block_get_string_option_value(shb, OPT_SHB_USERAPPL, &str) == WTAP_OPTTYPE_SUCCESS)
+          show_option_string("Capture application: ", str);
       }
-    }
+      if (cap_comment) {
+        unsigned int i;
+        char *str;
 
-    if (cap_file_idb && cf_info->num_interfaces != 0) {
-      guint i;
-      g_assert(cf_info->num_interfaces == cf_info->idb_info_strings->len);
-      printf     ("Number of interfaces in file: %u\n", cf_info->num_interfaces);
-      for (i = 0; i < cf_info->idb_info_strings->len; i++) {
-        gchar *s = g_array_index(cf_info->idb_info_strings, gchar*, i);
-        guint32 packet_count = 0;
-        if (i < cf_info->interface_packet_counts->len)
-          packet_count = g_array_index(cf_info->interface_packet_counts, guint32, i);
-        printf   ("Interface #%u info:\n", i);
-        printf   ("%s", s);
-        printf   ("                     Number of packets = %u\n", packet_count);
+        for (i = 0; wtap_block_get_nth_string_option_value(shb, OPT_COMMENT, i, &str) == WTAP_OPTTYPE_SUCCESS; i++) {
+          show_option_string("Capture comment:     ", str);
+        }
+      }
+
+      if (cap_file_idb && cf_info->num_interfaces != 0) {
+        guint i;
+        g_assert(cf_info->num_interfaces == cf_info->idb_info_strings->len);
+        printf     ("Number of interfaces in file: %u\n", cf_info->num_interfaces);
+        for (i = 0; i < cf_info->idb_info_strings->len; i++) {
+          gchar *s = g_array_index(cf_info->idb_info_strings, gchar*, i);
+          guint32 packet_count = 0;
+          if (i < cf_info->interface_packet_counts->len)
+            packet_count = g_array_index(cf_info->interface_packet_counts, guint32, i);
+          printf   ("Interface #%u info:\n", i);
+          printf   ("%s", s);
+          printf   ("                     Number of packets = %u\n", packet_count);
+        }
       }
     }
 
@@ -987,27 +1039,36 @@ print_stats_table(const gchar *filename, capture_info *cf_info)
     putquote();
   }
 
-  if (cf_info->shb != NULL) {
+  for (guint section_number = 0;
+       section_number < wtap_file_get_num_shbs(cf_info->wth);
+       section_number++) {
+    wtap_block_t shb;
+
+    // If we have more than one section, add headers for each section.
+    if (wtap_file_get_num_shbs(cf_info->wth) > 1)
+      printf("Section %u: \n", section_number);
+
+    shb = wtap_file_get_shb(cf_info->wth, section_number);
     if (cap_file_more_info) {
       char *str;
 
       putsep();
       putquote();
-      if (wtap_block_get_string_option_value(cf_info->shb, OPT_SHB_HARDWARE, &str) == WTAP_OPTTYPE_SUCCESS) {
+      if (wtap_block_get_string_option_value(shb, OPT_SHB_HARDWARE, &str) == WTAP_OPTTYPE_SUCCESS) {
         printf("%s", str);
       }
       putquote();
 
       putsep();
       putquote();
-      if (wtap_block_get_string_option_value(cf_info->shb, OPT_SHB_OS, &str) == WTAP_OPTTYPE_SUCCESS) {
+      if (wtap_block_get_string_option_value(shb, OPT_SHB_OS, &str) == WTAP_OPTTYPE_SUCCESS) {
         printf("%s", str);
       }
       putquote();
 
       putsep();
       putquote();
-      if (wtap_block_get_string_option_value(cf_info->shb, OPT_SHB_USERAPPL, &str) == WTAP_OPTTYPE_SUCCESS) {
+      if (wtap_block_get_string_option_value(shb, OPT_SHB_USERAPPL, &str) == WTAP_OPTTYPE_SUCCESS) {
         printf("%s", str);
       }
       putquote();
@@ -1029,7 +1090,11 @@ print_stats_table(const gchar *filename, capture_info *cf_info)
       char *opt_comment;
       gboolean have_cap = FALSE;
 
-      for (i = 0; wtap_block_get_nth_string_option_value(cf_info->shb, OPT_COMMENT, i, &opt_comment) == WTAP_OPTTYPE_SUCCESS; i++) {
+      // If we have more than one section, add headers for each section.
+      if (wtap_file_get_num_shbs(cf_info->wth) > 1)
+        printf("Section %u: \n", section_number);
+
+      for (i = 0; wtap_block_get_nth_string_option_value(shb, OPT_COMMENT, i, &opt_comment) == WTAP_OPTTYPE_SUCCESS; i++) {
         have_cap = TRUE;
         putsep();
         putquote();
@@ -1095,7 +1160,6 @@ static int
 process_cap_file(const char *filename, gboolean need_separator)
 {
   int                   status = 0;
-  wtap                 *wth;
   int                   err;
   gchar                *err_info;
   gint64                size;
@@ -1120,8 +1184,8 @@ process_cap_file(const char *filename, gboolean need_separator)
   guint                 i;
   wtapng_iface_descriptions_t *idb_info;
 
-  wth = wtap_open_offline(filename, WTAP_TYPE_AUTO, &err, &err_info, FALSE);
-  if (!wth) {
+  cf_info.wth = wtap_open_offline(filename, WTAP_TYPE_AUTO, &err, &err_info, FALSE);
+  if (!cf_info.wth) {
     cfile_open_failure_message("capinfos", filename, err, err_info);
     return 2;
   }
@@ -1137,11 +1201,9 @@ process_cap_file(const char *filename, gboolean need_separator)
   nstime_set_zero(&cur_time);
   nstime_set_zero(&prev_time);
 
-  cf_info.shb = wtap_file_get_shb(wth);
-
   cf_info.encap_counts = g_new0(int,WTAP_NUM_ENCAP_TYPES);
 
-  idb_info = wtap_file_get_idb_info(wth);
+  idb_info = wtap_file_get_idb_info(cf_info.wth);
 
   g_assert(idb_info->interface_data != NULL);
 
@@ -1155,9 +1217,9 @@ process_cap_file(const char *filename, gboolean need_separator)
 
   /* Register callbacks for new name<->address maps from the file and
      decryption secrets from the file. */
-  wtap_set_cb_new_ipv4(wth, count_ipv4_address);
-  wtap_set_cb_new_ipv6(wth, count_ipv6_address);
-  wtap_set_cb_new_secrets(wth, count_decryption_secret);
+  wtap_set_cb_new_ipv4(cf_info.wth, count_ipv4_address);
+  wtap_set_cb_new_ipv6(cf_info.wth, count_ipv6_address);
+  wtap_set_cb_new_secrets(cf_info.wth, count_decryption_secret);
 
   /* Zero out the counters for the callbacks. */
   num_ipv4_addresses = 0;
@@ -1167,7 +1229,7 @@ process_cap_file(const char *filename, gboolean need_separator)
   /* Tally up data that we need to parse through the file to find */
   wtap_rec_init(&rec);
   ws_buffer_init(&buf, 1514);
-  while (wtap_read(wth, &rec, &buf, &err, &err_info, &data_offset))  {
+  while (wtap_read(cf_info.wth, &rec, &buf, &err, &err_info, &data_offset))  {
     if (rec.presence_flags & WTAP_HAS_TS) {
       prev_time = cur_time;
       cur_time = rec.ts;
@@ -1228,7 +1290,7 @@ process_cap_file(const char *filename, gboolean need_separator)
            * grow the array to be big enough for the new number of
            * interfaces.
            */
-          idb_info = wtap_file_get_idb_info(wth);
+          idb_info = wtap_file_get_idb_info(cf_info.wth);
 
           cf_info.num_interfaces = idb_info->interface_data->len;
           g_array_set_size(cf_info.interface_packet_counts, cf_info.num_interfaces);
@@ -1264,7 +1326,7 @@ process_cap_file(const char *filename, gboolean need_separator)
    * We do this at the end, so we can get information for all IDBs in
    * the file, even those that come after packet records.
    */
-  idb_info = wtap_file_get_idb_info(wth);
+  idb_info = wtap_file_get_idb_info(cf_info.wth);
 
   cf_info.idb_info_strings = g_array_sized_new(FALSE, FALSE, sizeof(gchar*), cf_info.num_interfaces);
   cf_info.num_interfaces = idb_info->interface_data->len;
@@ -1289,35 +1351,35 @@ process_cap_file(const char *filename, gboolean need_separator)
           "  (will continue anyway, checksums might be incorrect)\n");
     } else {
         cleanup_capture_info(&cf_info);
-        wtap_close(wth);
+        wtap_close(cf_info.wth);
         return 2;
     }
   }
 
   /* File size */
-  size = wtap_file_size(wth, &err);
+  size = wtap_file_size(cf_info.wth, &err);
   if (size == -1) {
     fprintf(stderr,
         "capinfos: Can't get size of \"%s\": %s.\n",
         filename, g_strerror(err));
     cleanup_capture_info(&cf_info);
-    wtap_close(wth);
+    wtap_close(cf_info.wth);
     return 2;
   }
 
   cf_info.filesize = size;
 
   /* File Type */
-  cf_info.file_type = wtap_file_type_subtype(wth);
-  cf_info.compression_type = wtap_get_compression_type(wth);
+  cf_info.file_type = wtap_file_type_subtype(cf_info.wth);
+  cf_info.compression_type = wtap_get_compression_type(cf_info.wth);
 
   /* File Encapsulation */
-  cf_info.file_encap = wtap_file_encap(wth);
+  cf_info.file_encap = wtap_file_encap(cf_info.wth);
 
-  cf_info.file_tsprec = wtap_file_tsprec(wth);
+  cf_info.file_tsprec = wtap_file_tsprec(cf_info.wth);
 
   /* Packet size limit (snaplen) */
-  cf_info.snaplen = wtap_snapshot_length(wth);
+  cf_info.snaplen = wtap_snapshot_length(cf_info.wth);
   if (cf_info.snaplen > 0)
     cf_info.snap_set = TRUE;
   else
@@ -1367,7 +1429,7 @@ process_cap_file(const char *filename, gboolean need_separator)
   }
 
   cleanup_capture_info(&cf_info);
-  wtap_close(wth);
+  wtap_close(cf_info.wth);
 
   return status;
 }
@@ -1489,8 +1551,15 @@ main(int argc, char *argv[])
   gcry_md_hd_t hd = NULL;
   size_t hash_bytes;
 
-  /* Set the C-language locale to the native environment. */
+  /*
+   * Set the C-language locale to the native environment and set the
+   * code page to UTF-8 on Windows.
+   */
+#ifdef _WIN32
+  setlocale(LC_ALL, ".UTF-8");
+#else
   setlocale(LC_ALL, "");
+#endif
 
   cmdarg_err_init(failure_warning_message, failure_message_cont);
 

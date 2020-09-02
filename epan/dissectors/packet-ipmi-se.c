@@ -2026,7 +2026,7 @@ cfgparam_14(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *tree)
 static void
 cp15_add_group_and_member(proto_tree *tree, tvbuff_t *tvb, guint offs, guint num)
 {
-	static const int *byte2[] = { &hf_ipmi_se_cp15_member_check, &hf_ipmi_se_cp15_member_id, NULL };
+	static int * const byte2[] = { &hf_ipmi_se_cp15_member_check, &hf_ipmi_se_cp15_member_id, NULL };
 	const char *gdesc;
 	guint8 tmp;
 
@@ -2047,8 +2047,8 @@ cp15_add_group_and_member(proto_tree *tree, tvbuff_t *tvb, guint offs, guint num
 static void
 cfgparam_15(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *tree)
 {
-	static const int *byte2[] = { &hf_ipmi_se_cp15_force, &hf_ipmi_se_cp15_delayed, &hf_ipmi_se_cp15_channel, NULL };
-	static const int *byte11[] = { &hf_ipmi_se_cp15_retries, &hf_ipmi_se_cp15_operation, NULL };
+	static int * const byte2[] = { &hf_ipmi_se_cp15_force, &hf_ipmi_se_cp15_delayed, &hf_ipmi_se_cp15_channel, NULL };
+	static int * const byte11[] = { &hf_ipmi_se_cp15_retries, &hf_ipmi_se_cp15_operation, NULL };
 
 	proto_tree_add_item(tree, hf_ipmi_se_cp15_gctsel, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_bitmask_text(tree, tvb, 1, 1, NULL, NULL, ett_ipmi_se_cp15_byte2, byte2, ENC_LITTLE_ENDIAN, 0);
@@ -2173,7 +2173,7 @@ rq02(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rs10(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const int *byte2[] = { &hf_ipmi_se_10_action_oem_filter, &hf_ipmi_se_10_action_diag_intr,
+	static int * const byte2[] = { &hf_ipmi_se_10_action_oem_filter, &hf_ipmi_se_10_action_diag_intr,
 		&hf_ipmi_se_10_action_oem_action, &hf_ipmi_se_10_action_pwr_cycle, &hf_ipmi_se_10_action_reset,
 		&hf_ipmi_se_10_action_pwr_down, &hf_ipmi_se_10_action_alert, NULL };
 
@@ -2288,7 +2288,7 @@ rq13(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rs13(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	static const int *byte1[] = { &hf_ipmi_se_13_rev_present, &hf_ipmi_se_13_rev_compat, NULL };
+	static int * const byte1[] = { &hf_ipmi_se_13_rev_present, &hf_ipmi_se_13_rev_compat, NULL };
 	proto_item *ti;
 	tvbuff_t *sub;
 	guint32 pno;
@@ -2374,9 +2374,9 @@ static const value_string cc15[] = {
 static void
 rq16(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const gint *byte1[] = { &hf_ipmi_se_16_chan, NULL };
-	static const gint *byte2[] = { &hf_ipmi_se_16_op, &hf_ipmi_se_16_dst, NULL };
-	static const gint *byte3[] = { &hf_ipmi_se_16_send_string, &hf_ipmi_se_16_string_sel, NULL };
+	static int * const byte1[] = { &hf_ipmi_se_16_chan, NULL };
+	static int * const byte2[] = { &hf_ipmi_se_16_op, &hf_ipmi_se_16_dst, NULL };
+	static int * const byte3[] = { &hf_ipmi_se_16_send_string, &hf_ipmi_se_16_string_sel, NULL };
 	tvbuff_t *sub;
 
 	ipmi_set_data(pinfo, 0, (tvb_get_guint8(tvb, 1) & 0xc0) >> 6);
@@ -2443,7 +2443,7 @@ rq20(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rs20(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const int *byte2[] = { &hf_ipmi_se_20_rs_population, &hf_ipmi_se_20_rs_lun3,
+	static int * const byte2[] = { &hf_ipmi_se_20_rs_population, &hf_ipmi_se_20_rs_lun3,
 		&hf_ipmi_se_20_rs_lun2, &hf_ipmi_se_20_rs_lun1, &hf_ipmi_se_20_rs_lun0, NULL };
 	guint32 val;
 
@@ -2589,7 +2589,7 @@ rs25(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 add_thresholds(tvbuff_t *tvb, int offs, proto_tree *tree, const char *desc)
 {
-	static const int *threshold_mask[] = { &hf_ipmi_se_XX_m_unr, &hf_ipmi_se_XX_m_uc, &hf_ipmi_se_XX_m_unc,
+	static int * const threshold_mask[] = { &hf_ipmi_se_XX_m_unr, &hf_ipmi_se_XX_m_uc, &hf_ipmi_se_XX_m_unc,
 		&hf_ipmi_se_XX_m_lnr, &hf_ipmi_se_XX_m_lc, &hf_ipmi_se_XX_m_lnc, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, offs, 1, desc, "None",
@@ -2631,7 +2631,7 @@ static void
 add_events(tvbuff_t *tvb, int offs, proto_tree *tree, const struct true_false_string *tfs,
 		const char *desc)
 {
-	static const int *bsel[4][8] = {
+	static int * const bsel[4][8] = {
 		{ &hf_ipmi_se_XX_b1_0, &hf_ipmi_se_XX_b1_1, &hf_ipmi_se_XX_b1_2, &hf_ipmi_se_XX_b1_3,
 			&hf_ipmi_se_XX_b1_4, &hf_ipmi_se_XX_b1_5, &hf_ipmi_se_XX_b1_6, &hf_ipmi_se_XX_b1_7 },
 		{ &hf_ipmi_se_XX_b2_0, &hf_ipmi_se_XX_b2_1, &hf_ipmi_se_XX_b2_2, &hf_ipmi_se_XX_b2_3,
@@ -2641,7 +2641,7 @@ add_events(tvbuff_t *tvb, int offs, proto_tree *tree, const struct true_false_st
 		{ &hf_ipmi_se_XX_b4_0, &hf_ipmi_se_XX_b4_1, &hf_ipmi_se_XX_b4_2, &hf_ipmi_se_XX_b4_3,
 			&hf_ipmi_se_XX_b4_4, &hf_ipmi_se_XX_b4_5, &hf_ipmi_se_XX_b4_6, NULL }
 	};
-	static const int *tsel[] = { &ett_ipmi_se_XX_b1, &ett_ipmi_se_XX_b2, &ett_ipmi_se_XX_b3, &ett_ipmi_se_XX_b4 };
+	static int * const tsel[] = { &ett_ipmi_se_XX_b1, &ett_ipmi_se_XX_b2, &ett_ipmi_se_XX_b3, &ett_ipmi_se_XX_b4 };
 	proto_tree *s_tree;
 	int len = tvb_captured_length(tvb);
 	int i, j, val, msk;
@@ -2655,7 +2655,7 @@ add_events(tvbuff_t *tvb, int offs, proto_tree *tree, const struct true_false_st
 			}
 			msk = 1 << j;
 			proto_tree_add_boolean_format_value(s_tree, *bsel[i][j], tvb, offs, 1,
-					val & msk, "%s", (val & msk) ? tfs->true_string : tfs->false_string);
+					val & msk, "%s", tfs_get_string(val & msk, tfs));
 		}
 	}
 }
@@ -2666,7 +2666,7 @@ add_events(tvbuff_t *tvb, int offs, proto_tree *tree, const struct true_false_st
 static void
 rq28(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const int *byte2[] = { &hf_ipmi_se_28_fl_evm, &hf_ipmi_se_28_fl_scan, &hf_ipmi_se_28_fl_action, NULL };
+	static int * const byte2[] = { &hf_ipmi_se_28_fl_evm, &hf_ipmi_se_28_fl_scan, &hf_ipmi_se_28_fl_action, NULL };
 	static const struct true_false_string tfs_lect = { "Select", "Do not select" };
 
 	proto_tree_add_item(tree, hf_ipmi_se_28_sensor, tvb, 0, 1, ENC_LITTLE_ENDIAN);
@@ -2685,7 +2685,7 @@ rq29(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rs29(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const int *byte1[] = { &hf_ipmi_se_29_fl_evm, &hf_ipmi_se_29_fl_scan, NULL };
+	static int * const byte1[] = { &hf_ipmi_se_29_fl_evm, &hf_ipmi_se_29_fl_scan, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL, ett_ipmi_se_29_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 	add_events(tvb, 1, tree, &tfs_29_enabled, "Enabled events");
@@ -2714,7 +2714,7 @@ rq2b(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rs2b(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const int *byte1[] = { &hf_ipmi_se_2b_fl_evm, &hf_ipmi_se_2b_fl_scan, &hf_ipmi_se_2b_fl_unavail, NULL };
+	static int * const byte1[] = { &hf_ipmi_se_2b_fl_evm, &hf_ipmi_se_2b_fl_scan, &hf_ipmi_se_2b_fl_unavail, NULL };
 	static const struct true_false_string occur_tfs = { "Occurred", "Did not occur" };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL, ett_ipmi_se_2b_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
@@ -2733,14 +2733,14 @@ static void
 rs2d(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	/* Reuse flags from Event Status message */
-	static const int *byte2[] = { &hf_ipmi_se_2b_fl_evm, &hf_ipmi_se_2b_fl_scan, &hf_ipmi_se_2b_fl_unavail, NULL };
-	static const int *bsel[2][8] = {
+	static int * const byte2[] = { &hf_ipmi_se_2b_fl_evm, &hf_ipmi_se_2b_fl_scan, &hf_ipmi_se_2b_fl_unavail, NULL };
+	static int * const bsel[2][8] = {
 		{ &hf_ipmi_se_2d_b1_0, &hf_ipmi_se_2d_b1_1, &hf_ipmi_se_2d_b1_2, &hf_ipmi_se_2d_b1_3,
 			&hf_ipmi_se_2d_b1_4, &hf_ipmi_se_2d_b1_5, &hf_ipmi_se_2d_b1_6, &hf_ipmi_se_2d_b1_7 },
 		{ &hf_ipmi_se_2d_b2_0, &hf_ipmi_se_2d_b2_1, &hf_ipmi_se_2d_b2_2, &hf_ipmi_se_2d_b2_3,
 			&hf_ipmi_se_2d_b2_4, &hf_ipmi_se_2d_b2_5, &hf_ipmi_se_2d_b2_6, NULL }
 	};
-	static const int *tsel[2] = { &ett_ipmi_se_2d_b1, &ett_ipmi_se_2d_b2 };
+	static int * const tsel[2] = { &ett_ipmi_se_2d_b1, &ett_ipmi_se_2d_b2 };
 	proto_tree *s_tree;
 	int i, j, len;
 

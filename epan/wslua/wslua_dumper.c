@@ -16,7 +16,7 @@
 
 #include <epan/wmem/wmem.h>
 
-/* WSLUA_MODULE Dumper Saving capture files
+/* WSLUA_MODULE Dumper Saving Capture Files
 
    The classes/functions defined in this module are for using a `Dumper` object to
    make Wireshark save a capture file to disk. `Dumper` represents Wireshark's built-in
@@ -213,6 +213,16 @@ WSLUA_CONSTRUCTOR Dumper_new(lua_State* L) {
     if (! d ) {
         /* WSLUA_ERROR("Error while opening file for writing"); */
         switch (err) {
+        case WTAP_ERR_NOT_REGULAR_FILE:
+            luaL_error(L,"The file \"%s\" is a \"special file\" or socket or other non-regular file",
+                       filename);
+            break;
+
+        case WTAP_ERR_CANT_WRITE_TO_PIPE:
+            luaL_error(L,"The file \"%s\" is a pipe, and %s capture files can't be written to a pipe",
+                       filename, wtap_file_type_subtype_string(filetype));
+            break;
+
         case WTAP_ERR_UNWRITABLE_FILE_TYPE:
             luaL_error(L,"Files of file type %s cannot be written",
                        wtap_file_type_subtype_string(filetype));
@@ -224,8 +234,28 @@ WSLUA_CONSTRUCTOR Dumper_new(lua_State* L) {
                        wtap_encap_name(encap));
             break;
 
+        case WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED:
+            luaL_error(L,"Files of file type %s don't support per-packet encapsulation",
+                       wtap_file_type_subtype_string(filetype));
+            break;
+
+        case WTAP_ERR_CANT_OPEN:
+            luaL_error(L,"The file \"%s\" could not be created for some unknown reason",
+                       filename);
+            break;
+
+        case WTAP_ERR_SHORT_WRITE:
+            luaL_error(L,"A full header couldn't be written to the file \"%s\".",
+                       filename);
+            break;
+
+        case WTAP_ERR_COMPRESSION_NOT_SUPPORTED:
+            luaL_error(L,"Files of file type %s cannot be written as a compressed file",
+                       wtap_file_type_subtype_string(filetype));
+            break;
+
         default:
-            luaL_error(L,"error while opening `%s': %s",
+            luaL_error(L,"error while opening \"%s\": %s",
                        filename,
                        wtap_strerror(err));
             break;
@@ -268,10 +298,14 @@ WSLUA_METHOD Dumper_flush(lua_State* L) {
      Writes all unsaved data of a dumper to the disk.
      */
     Dumper d = checkDumper(L,1);
+    int err;
 
     if (!d) return 0;
 
-    wtap_dump_flush(d);
+    if (!wtap_dump_flush(d, &err)) {
+        luaL_error(L,"error while dumping: %s",
+                   wtap_strerror(err));
+    }
 
     return 0;
 }
@@ -376,6 +410,16 @@ WSLUA_METHOD Dumper_new_for_current(lua_State* L) {
 
     if (! d ) {
         switch (err) {
+        case WTAP_ERR_NOT_REGULAR_FILE:
+            luaL_error(L,"The file \"%s\" is a \"special file\" or socket or other non-regular file",
+                       filename);
+            break;
+
+        case WTAP_ERR_CANT_WRITE_TO_PIPE:
+            luaL_error(L,"The file \"%s\" is a pipe, and %s capture files can't be written to a pipe",
+                       filename, wtap_file_type_subtype_string(filetype));
+            break;
+
         case WTAP_ERR_UNWRITABLE_FILE_TYPE:
             luaL_error(L,"Files of file type %s cannot be written",
                        wtap_file_type_subtype_string(filetype));
@@ -387,8 +431,28 @@ WSLUA_METHOD Dumper_new_for_current(lua_State* L) {
                        wtap_encap_name(encap));
             break;
 
+        case WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED:
+            luaL_error(L,"Files of file type %s don't support per-packet encapsulation",
+                       wtap_file_type_subtype_string(filetype));
+            break;
+
+        case WTAP_ERR_CANT_OPEN:
+            luaL_error(L,"The file \"%s\" could not be created for some unknown reason",
+                       filename);
+            break;
+
+        case WTAP_ERR_SHORT_WRITE:
+            luaL_error(L,"A full header couldn't be written to the file \"%s\".",
+                       filename);
+            break;
+
+        case WTAP_ERR_COMPRESSION_NOT_SUPPORTED:
+            luaL_error(L,"Files of file type %s cannot be written as a compressed file",
+                       wtap_file_type_subtype_string(filetype));
+            break;
+
         default:
-            luaL_error(L,"error while opening `%s': %s",
+            luaL_error(L,"error while opening \"%s\": %s",
                        filename,
                        wtap_strerror(err));
             break;

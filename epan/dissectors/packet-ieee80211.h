@@ -285,20 +285,28 @@ typedef struct anqp_info_dissector_data {
   int idx;
 } anqp_info_dissector_data_t;
 
-/* WFA vendor specific subtypes */
+/* WFA vendor specific element subtypes */
 #define WFA_SUBTYPE_SUBSCRIPTION_REMEDIATION   0
 #define WFA_SUBTYPE_DEAUTHENTICATION_IMMINENT  1
 #define WFA_SUBTYPE_P2P                        9
 #define WFA_SUBTYPE_WIFI_DISPLAY               10
 #define WFA_SUBTYPE_HS20_INDICATION            16
-#define WFA_SUBTYPE_HS20_ANQP                  17
 #define WFA_SUBTYPE_OSEN                       18
 #define WFA_SUBTYPE_NAN_IE                     19
+#define WFA_SUBTYPE_MBO_OCE                    22
 #define WFA_SUBTYPE_WIFI_60G                   23
 #define WFA_SUBTYPE_NAN_ACTION                 24
 #define WFA_SUBTYPE_DPP                        26
 #define WFA_SUBTYPE_IEEE1905_MULTI_AP          27 /* ox1B */
 #define WFA_SUBTYPE_OWE_TRANSITION_MODE        28
+
+/* WFA vendor specific ANQP subtypes */
+#define WFA_ANQP_SUBTYPE_HS20                  17
+#define WFA_ANQP_SUBTYPE_MBO                   18
+
+/* WFA WNM notification request subtypes */
+#define WFA_WNM_SUBTYPE_NON_PREF_CHAN_REPORT   2
+#define WFA_WNM_SUBTYPE_CELL_DATA_CAPABILITIES 3
 
 /* Information Element tags */
 #define TAG_SSID                       0
@@ -502,6 +510,7 @@ typedef struct anqp_info_dissector_data {
 #define TAG_FILS_INDICATION          240  /* IEEE Std 802.11ai */
 #define TAG_DIFF_INITIAL_LINK_SETUP  241  /* IEEE Std 802.11ai */
 #define TAG_FRAGMENT                 242  /* IEEE Std 802.11ai */
+#define TAG_RSNX                     244
 #define TAG_ELEMENT_ID_EXTENSION     255  /* IEEE Std 802.11ai */
 
 extern const value_string ie_tag_num_vals[];

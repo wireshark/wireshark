@@ -123,7 +123,7 @@ dissect_PhsMeas1(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tv
 	guint32 qual;
 	guint32 i;
 
-	static const int *q_flags[] = {
+	static int * const q_flags[] = {
 		&hf_sv_phsmeas_q_validity,
 		&hf_sv_phsmeas_q_overflow,
 		&hf_sv_phsmeas_q_outofrange,

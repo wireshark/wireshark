@@ -14,6 +14,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * Ref:  http://jcs.dtic.mil/j6/cceb/acps/acp123/
+ *       https://web.archive.org/web/20100326015412/http://jcs.dtic.mil/j6/cceb/acps/acp123/ACP123A.pdf
  */
 
 /*
@@ -2806,7 +2807,7 @@ static gint dissect_dmp_envelope (tvbuff_t *tvb, packet_info *pinfo,
       tf = proto_tree_add_boolean_format (envelope_tree, hf_envelope_extensions,
                                           tvb, offset, 1, envelope,
                                           "Extensions: %s",
-                                          (envelope & 0x80) ? "Present" : "Absent");
+                                          tfs_get_string(envelope & 0x80, &tfs_present_absent));
       field_tree = proto_item_add_subtree (tf, ett_envelope_extensions);
       proto_tree_add_item (field_tree, hf_envelope_extensions, tvb, offset, 1, ENC_BIG_ENDIAN);
     }
@@ -2816,7 +2817,7 @@ static gint dissect_dmp_envelope (tvbuff_t *tvb, packet_info *pinfo,
     tf = proto_tree_add_boolean_format (envelope_tree,hf_envelope_rec_present,
                                         tvb, offset, 1, envelope,
                                         "Recipient Present: %s",
-                                        (envelope & 0x20) ? "Present" : "Absent");
+                                        tfs_get_string(envelope & 0x20, &tfs_present_absent));
     field_tree = proto_item_add_subtree (tf, ett_envelope_rec_present);
     proto_tree_add_item (field_tree, hf_envelope_rec_present, tvb, offset, 1, ENC_BIG_ENDIAN);
   }
@@ -2825,9 +2826,7 @@ static gint dissect_dmp_envelope (tvbuff_t *tvb, packet_info *pinfo,
   tf = proto_tree_add_boolean_format (envelope_tree, hf_envelope_addr_enc,
                                       tvb, offset, 1, envelope,
                                       "Address Encoding: %s",
-                                      (envelope & 0x10) ?
-                                      addr_enc.true_string :
-                                      addr_enc.false_string);
+                                      tfs_get_string(envelope & 0x10, &addr_enc));
   field_tree = proto_item_add_subtree (tf, ett_envelope_addr_enc);
   proto_tree_add_item (field_tree, hf_envelope_addr_enc, tvb, offset, 1, ENC_BIG_ENDIAN);
 
@@ -3173,9 +3172,8 @@ static gint dissect_dmp_report (tvbuff_t *tvb, packet_info *pinfo,
   /* Report Type */
   tf = proto_tree_add_boolean_format (report_tree, hf_report_type,
                                       tvb, offset, 1, report,
-                                      "Report Type: %s", rep_type ?
-                                      report_type.true_string :
-                                      report_type.false_string);
+                                      "Report Type: %s",
+                                      tfs_get_string(rep_type, &report_type));
   field_tree = proto_item_add_subtree (tf, ett_report_type);
   proto_tree_add_item (field_tree, hf_report_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 
@@ -3185,7 +3183,8 @@ static gint dissect_dmp_report (tvbuff_t *tvb, packet_info *pinfo,
     info_present = (report & 0x40);
     tf = proto_tree_add_boolean_format (report_tree,hf_report_info_present_dr,
                                         tvb, offset, 1, report,
-                                        "Info Present: %s", (report & 0x40) ? "Present" : "Absent");
+                                        "Info Present: %s",
+                                        tfs_get_string(report & 0x40, &tfs_present_absent));
     field_tree = proto_item_add_subtree (tf, ett_report_info_present_dr);
     proto_tree_add_item (field_tree, hf_report_info_present_dr, tvb, offset, 1, ENC_BIG_ENDIAN);
 
@@ -3194,9 +3193,7 @@ static gint dissect_dmp_report (tvbuff_t *tvb, packet_info *pinfo,
     tf = proto_tree_add_boolean_format (report_tree, hf_report_addr_enc_dr,
                                         tvb, offset, 1, report,
                                         "Address Encoding: %s",
-                                        (report & 0x20) ?
-                                        addr_enc.true_string :
-                                        addr_enc.false_string);
+                                        tfs_get_string(report & 0x20, &addr_enc));
     field_tree = proto_item_add_subtree (tf, ett_report_addr_enc_dr);
     proto_tree_add_item (field_tree, hf_report_addr_enc_dr, tvb, offset, 1, ENC_BIG_ENDIAN);
 
@@ -3235,9 +3232,7 @@ static gint dissect_dmp_report (tvbuff_t *tvb, packet_info *pinfo,
     tf = proto_tree_add_boolean_format (report_tree, hf_report_addr_enc_ndr,
                                         tvb, offset, 1, report,
                                         "Address Encoding: %s",
-                                        (report & 0x40) ?
-                                        addr_enc.true_string :
-                                        addr_enc.false_string);
+                                        tfs_get_string(report & 0x40, &addr_enc));
     field_tree = proto_item_add_subtree (tf, ett_report_addr_enc_ndr);
     proto_tree_add_item (field_tree, hf_report_addr_enc_ndr, tvb, offset, 1, ENC_BIG_ENDIAN);
 
@@ -3780,13 +3775,11 @@ static gint dissect_dmp_content (tvbuff_t *tvb, packet_info *pinfo,
       proto_item_append_text (tf, "Reserved (0x%2.2x)", dtg & 0x7F);
     } else if (secs == 0) {
       proto_item_append_text (tf, "0 minutes in the %s (%s)",
-                              (dtg & 0x80) ? dtg_sign.true_string :
-                              dtg_sign.false_string,
+                              tfs_get_string(dtg & 0x80, &dtg_sign),
                               abs_time_secs_to_str (wmem_packet_scope(), dmp.subm_time, ABSOLUTE_TIME_LOCAL, TRUE));
     } else {
       proto_item_append_text (tf, "%s in the %s (%s)", signed_time_secs_to_str(wmem_packet_scope(), secs),
-                              (dtg & 0x80) ? dtg_sign.true_string :
-                              dtg_sign.false_string, (dtg & 0x80) ?
+                              tfs_get_string(dtg & 0x80, &dtg_sign), (dtg & 0x80) ?
                               abs_time_secs_to_str (wmem_packet_scope(), dmp.subm_time + secs, ABSOLUTE_TIME_LOCAL, TRUE) :
                               abs_time_secs_to_str (wmem_packet_scope(), dmp.subm_time - secs, ABSOLUTE_TIME_LOCAL, TRUE));
     }

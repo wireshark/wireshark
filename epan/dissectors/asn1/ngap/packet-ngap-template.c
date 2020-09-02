@@ -8,7 +8,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 38.413 v15.6.0 (2019-12)
+ * References: 3GPP TS 38.413 v16.2.0 (2020-07)
  */
 
 #include "config.h"
@@ -31,6 +31,7 @@
 #include "packet-e212.h"
 #include "packet-s1ap.h"
 #include "packet-ranap.h"
+#include "packet-rrc.h"
 #include "packet-lte-rrc.h"
 #include "packet-nr-rrc.h"
 #include "packet-gsm_map.h"
@@ -56,6 +57,8 @@ static dissector_handle_t nas_5gs_handle;
 static dissector_handle_t nr_rrc_ue_radio_paging_info_handle;
 static dissector_handle_t nr_rrc_ue_radio_access_cap_info_handle;
 static dissector_handle_t lte_rrc_ue_radio_paging_info_handle;
+static dissector_handle_t lte_rrc_ue_radio_access_cap_info_handle;
+static dissector_handle_t lte_rrc_ue_radio_paging_info_nb_handle;
 static dissector_handle_t nrppa_handle;
 
 static int proto_json = -1;
@@ -78,6 +81,7 @@ static int hf_ngap_InterfacesToTrace_E1 = -1;
 static int hf_ngap_InterfacesToTrace_reserved = -1;
 static int hf_ngap_RATRestrictionInformation_e_UTRA = -1;
 static int hf_ngap_RATRestrictionInformation_nR = -1;
+static int hf_ngap_RATRestrictionInformation_nR_unlicensed = -1;
 static int hf_ngap_RATRestrictionInformation_reserved = -1;
 static int hf_ngap_NrencyptionAlgorithms_nea1 = -1;
 static int hf_ngap_NrencyptionAlgorithms_nea2 = -1;
@@ -95,6 +99,16 @@ static int hf_ngap_EUTRAintegrityProtectionAlgorithms_eia1 = -1;
 static int hf_ngap_EUTRAintegrityProtectionAlgorithms_eia2 = -1;
 static int hf_ngap_EUTRAintegrityProtectionAlgorithms_eia3 = -1;
 static int hf_ngap_EUTRAintegrityProtectionAlgorithms_reserved = -1;
+static int hf_ngap_MeasurementsToActivate_M1 = -1;
+static int hf_ngap_MeasurementsToActivate_M2 = -1;
+static int hf_ngap_MeasurementsToActivate_M4 = -1;
+static int hf_ngap_MeasurementsToActivate_M5 = -1;
+static int hf_ngap_MeasurementsToActivate_M6 = -1;
+static int hf_ngap_MeasurementsToActivate_M7 = -1;
+static int hf_ngap_MeasurementsToActivate_M1_from_event = -1;
+static int hf_ngap_MeasurementsToActivate_reserved = -1;
+static int hf_ngap_MDT_Location_Information_GNSS = -1;
+static int hf_ngap_MDT_Location_Information_reserved = -1;
 #include "packet-ngap-hf.c"
 
 /* Initialize the subtree pointers */
@@ -124,6 +138,16 @@ static gint ett_ngap_NASSecurityParametersFromNGRAN = -1;
 static gint ett_ngap_NASC = -1;
 static gint ett_ngap_NAS_PDU = -1;
 static gint ett_ngap_EN_DCSONConfigurationTransfer = -1;
+static gint ett_ngap_BurstArrivalTime = -1;
+static gint ett_ngap_CoverageEnhancementLevel = -1;
+static gint ett_ngap_MDTModeEutra = -1;
+static gint ett_ngap_MeasurementsToActivate = -1;
+static gint ett_ngap_MDT_Location_Information = -1;
+static gint ett_ngap_NRMobilityHistoryReport = -1;
+static gint ett_ngap_LTEUERLFReportContainer = -1;
+static gint ett_ngap_NRUERLFReportContainer = -1;
+static gint ett_ngap_TargettoSource_Failure_TransparentContainer = -1;
+static gint ett_ngap_UERadioCapabilityForPagingOfNB_IoT = -1;
 #include "packet-ngap-ett.c"
 
 static expert_field ei_ngap_number_pages_le15 = EI_INIT;
@@ -148,11 +172,23 @@ struct ngap_conv_info {
   address addr_b;
   guint32 port_b;
   GlobalRANNodeID_enum ranmode_id_b;
+  wmem_map_t *nbiot_ta;
+  wmem_tree_t *nbiot_ran_ue_ngap_id;
 };
 
 enum {
   SOURCE_TO_TARGET_TRANSPARENT_CONTAINER = 1,
   TARGET_TO_SOURCE_TRANSPARENT_CONTAINER
+};
+
+struct ngap_supported_ta {
+  guint32 tac;
+  wmem_array_t *plmn;
+};
+
+struct ngap_tai {
+  guint32 plmn;
+  guint32 tac;
 };
 
 struct ngap_private_data {
@@ -164,6 +200,9 @@ struct ngap_private_data {
   guint32 handover_type_value;
   guint8 data_coding_scheme;
   guint8 transparent_container_type;
+  struct ngap_supported_ta *supported_ta;
+  struct ngap_tai *tai;
+  guint32 ran_ue_ngap_id;
 };
 
 enum {
@@ -179,10 +218,24 @@ static const enum_val_t ngap_target_ng_ran_container_vals[] = {
   {NULL, NULL, -1}
 };
 
+enum {
+  NGAP_LTE_CONTAINER_AUTOMATIC,
+  NGAP_LTE_CONTAINER_LEGACY,
+  NGAP_LTE_CONTAINER_NBIOT
+};
+
+static const enum_val_t ngap_lte_container_vals[] = {
+  {"automatic", "Automatic", NGAP_LTE_CONTAINER_AUTOMATIC},
+  {"legacy", "Legacy LTE", NGAP_LTE_CONTAINER_LEGACY},
+  {"nb-iot","NB-IoT", NGAP_LTE_CONTAINER_NBIOT},
+  {NULL, NULL, -1}
+};
+
 /* Global variables */
 static guint gbl_ngapSctpPort = SCTP_PORT_NGAP;
 static gboolean ngap_dissect_container = TRUE;
 static gint ngap_dissect_target_ng_ran_container_as = NGAP_NG_RAN_CONTAINER_AUTOMATIC;
+static gint ngap_dissect_lte_container_as = NGAP_LTE_CONTAINER_AUTOMATIC;
 
 /* Dissector tables */
 static dissector_table_t ngap_ies_dissector_table;
@@ -226,6 +279,7 @@ static int dissect_PathSwitchRequestAcknowledgeTransfer_PDU(tvbuff_t *tvb _U_, p
 static int dissect_PathSwitchRequestTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 static int dissect_HandoverPreparationUnsuccessfulTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 static int dissect_PDUSessionResourceReleaseCommandTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
+static int dissect_TargetNGRANNode_ToSourceNGRANNode_FailureTransparentContainer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 
 const value_string ngap_serialNumber_gs_vals[] = {
   { 0, "Display mode iamfdiate, cell wide"},
@@ -322,6 +376,30 @@ ngap_PeriodicRegistrationUpdateTimer_fmt(gchar *s, guint32 v)
   }
 }
 
+static void
+ngap_ExtendedPacketDelayBudget_fmt(gchar *s, guint32 v)
+{
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%.2fms (%u)", (float)v/100, v);
+}
+
+static void
+ngap_Threshold_RSRP_fmt(gchar *s, guint32 v)
+{
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%ddBm (%u)", (gint32)v-156, v);
+}
+
+static void
+ngap_Threshold_RSRQ_fmt(gchar *s, guint32 v)
+{
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB (%u)", ((float)v/2)-43, v);
+}
+
+static void
+ngap_Threshold_SINR_fmt(gchar *s, guint32 v)
+{
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB (%u)", ((float)v/2)-23, v);
+}
+
 static struct ngap_private_data*
 ngap_get_private_data(packet_info *pinfo)
 {
@@ -348,6 +426,29 @@ ngap_get_ranmode_id(address *addr, guint32 port, packet_info *pinfo)
     }
   }
   return ranmode_id;
+}
+
+static gboolean
+ngap_is_nbiot_ue(packet_info *pinfo)
+{
+  struct ngap_private_data *ngap_data = ngap_get_private_data(pinfo);
+
+  if (ngap_data->ngap_conv) {
+    wmem_tree_key_t tree_key[3];
+    guint32 *id;
+
+    tree_key[0].length = 1;
+    tree_key[0].key = &ngap_data->ran_ue_ngap_id;
+    tree_key[1].length = 1;
+    tree_key[1].key = &pinfo->num;
+    tree_key[2].length = 0;
+    tree_key[2].key = NULL;
+    id = (guint32*)wmem_tree_lookup32_array_le(ngap_data->ngap_conv->nbiot_ran_ue_ngap_id, tree_key);
+    if (id && (*id == ngap_data->ran_ue_ngap_id)) {
+      return TRUE;
+    }
+  }
+  return FALSE;
 }
 
 #include "packet-ngap-fn.c"
@@ -447,6 +548,8 @@ dissect_ngap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     copy_address_wmem(wmem_file_scope(), &ngap_data->ngap_conv->addr_b, &pinfo->dst);
     ngap_data->ngap_conv->port_b = pinfo->destport;
     ngap_data->ngap_conv->ranmode_id_b = (GlobalRANNodeID_enum)-1;
+    ngap_data->ngap_conv->nbiot_ta = wmem_map_new(wmem_file_scope(), wmem_int64_hash, g_int64_equal);
+    ngap_data->ngap_conv->nbiot_ran_ue_ngap_id = wmem_tree_new(wmem_file_scope());
     conversation_add_proto_data(conversation, proto_ngap, ngap_data->ngap_conv);
   }
 
@@ -470,12 +573,16 @@ dissect_ngap_media_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
   json_data = tvb_get_string_enc(wmem_packet_scope(), json_tvb, 0, tvb_reported_length(json_tvb), ENC_UTF_8|ENC_NA);
   ret = json_parse(json_data, NULL, 0);
-  if (ret < 0)
+  if (ret <= 0)
     return 0;
   tokens = wmem_alloc_array(wmem_packet_scope(), jsmntok_t, ret);
-  if (json_parse(json_data, tokens, ret) < 0)
+  if (json_parse(json_data, tokens, ret) <= 0)
     return 0;
   cur_tok = json_get_object(json_data, tokens, "n2InfoContainer");
+  if (!cur_tok) {
+      /* look for n2Information too*/
+      cur_tok = json_get_object(json_data, tokens, "n2Information");
+  }
   if (cur_tok) {
     n2_info_class = json_get_string(json_data, cur_tok, "n2InformationClass");
     if (!n2_info_class)
@@ -516,19 +623,13 @@ dissect_ngap_media_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     } else if (!strcmp(n2_info_class, "PWS") ||
                !strcmp(n2_info_class, "PWS-BCAL") ||
                !strcmp(n2_info_class, "PWS-RF")) {
-      gdouble msg_type;
       cur_tok = json_get_object(json_data, cur_tok, "pwsInfo");
       if (!cur_tok)
         return 0;
       n2_info_content_tok = json_get_object(json_data, cur_tok, "pwsContainer");
       if (!n2_info_content_tok)
         return 0;
-      if (!json_get_double(json_data, n2_info_content_tok, "ngapMessageType", &msg_type))
-        return 0;
-      if (!strcmp(n2_info_class, "PWS-BCAL"))
-        subdissector = dissector_get_uint_handle(ngap_proc_sout_dissector_table, (guint32)msg_type);
-      else
-        subdissector = dissector_get_uint_handle(ngap_proc_imsg_dissector_table, (guint32)msg_type);
+      subdissector = ngap_handle;
     } else {
       return 0;
     }
@@ -558,7 +659,10 @@ dissect_ngap_media_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     col_append_sep_str(pinfo->cinfo, COL_PROTOCOL, "/", "NGAP");
     ngap_item = proto_tree_add_item(tree, proto_ngap, tvb, 0, -1, ENC_NA);
     ngap_tree = proto_item_add_subtree(ngap_item, ett_ngap);
+    gboolean save_writable = col_get_writable(pinfo->cinfo, COL_PROTOCOL);
+    col_set_writable(pinfo->cinfo, COL_PROTOCOL, FALSE);
     call_dissector_with_data(subdissector, tvb, pinfo, ngap_tree, NULL);
+    col_set_writable(pinfo->cinfo, COL_PROTOCOL, save_writable);
     return tvb_captured_length(tvb);
   } else {
     return 0;
@@ -577,6 +681,8 @@ proto_reg_handoff_ngap(void)
     nr_rrc_ue_radio_paging_info_handle = find_dissector_add_dependency("nr-rrc.ue_radio_paging_info", proto_ngap);
     nr_rrc_ue_radio_access_cap_info_handle = find_dissector_add_dependency("nr-rrc.ue_radio_access_cap_info", proto_ngap);
     lte_rrc_ue_radio_paging_info_handle = find_dissector_add_dependency("lte-rrc.ue_radio_paging_info", proto_ngap);
+    lte_rrc_ue_radio_access_cap_info_handle = find_dissector_add_dependency("lte-rrc.ue_radio_access_cap_info", proto_ngap);
+    lte_rrc_ue_radio_paging_info_nb_handle = find_dissector_add_dependency("lte-rrc.ue_radio_paging_info.nb", proto_ngap);
     dissector_add_for_decode_as("sctp.port", ngap_handle);
     dissector_add_uint("sctp.ppi", NGAP_PROTOCOL_ID,   ngap_handle);
     Initialized=TRUE;
@@ -660,9 +766,13 @@ void proto_register_ngap(void) {
       { "nR", "ngap.RATRestrictionInformation.nR",
         FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x40,
         NULL, HFILL }},
+    { &hf_ngap_RATRestrictionInformation_nR_unlicensed,
+      { "nR-unlicensed", "ngap.RATRestrictionInformation.nR_unlicensed",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x20,
+        NULL, HFILL }},
     { &hf_ngap_RATRestrictionInformation_reserved,
       { "reserved", "ngap.RATRestrictionInformation.reserved",
-        FT_UINT8, BASE_HEX, NULL, 0x3f,
+        FT_UINT8, BASE_HEX, NULL, 0x1f,
         NULL, HFILL }},
     { &hf_ngap_NrencyptionAlgorithms_nea1,
       { "128-NEA1", "ngap.NrencyptionAlgorithms.nea1",
@@ -728,6 +838,46 @@ void proto_register_ngap(void) {
       { "Reserved", "ngap.EUTRAintegrityProtectionAlgorithms.reserved",
         FT_UINT16, BASE_HEX, NULL, 0x1fff,
         NULL, HFILL }},
+    { &hf_ngap_MeasurementsToActivate_M1,
+      { "M1", "ngap.MeasurementsToActivate.M1",
+        FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x80,
+        NULL, HFILL }},
+    { &hf_ngap_MeasurementsToActivate_M2,
+      { "M2", "ngap.MeasurementsToActivate.M2",
+        FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x40,
+        NULL, HFILL }},
+    { &hf_ngap_MeasurementsToActivate_M4,
+      { "M4", "ngap.MeasurementsToActivate.M4",
+        FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x20,
+        NULL, HFILL }},
+    { &hf_ngap_MeasurementsToActivate_M5,
+      { "M5", "ngap.MeasurementsToActivate.M5",
+        FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x10,
+        NULL, HFILL }},
+    { &hf_ngap_MeasurementsToActivate_M6,
+      { "M6", "ngap.MeasurementsToActivate.M6",
+        FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x08,
+        NULL, HFILL }},
+    { &hf_ngap_MeasurementsToActivate_M7,
+      { "M7", "ngap.MeasurementsToActivate.M7",
+        FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x04,
+        NULL, HFILL }},
+    { &hf_ngap_MeasurementsToActivate_M1_from_event,
+      { "M1 from event", "ngap.MeasurementsToActivate.M1_from_event",
+        FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x02,
+        NULL, HFILL }},
+    { &hf_ngap_MeasurementsToActivate_reserved,
+      { "Reserved", "ngap.MeasurementsToActivate.reserved",
+        FT_BOOLEAN, 8, NULL, 0x01,
+        NULL, HFILL }},
+    { &hf_ngap_MDT_Location_Information_GNSS,
+      { "GNSS", "ngap.MDT_Location_Information.GNSS",
+        FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x80,
+        NULL, HFILL }},
+    { &hf_ngap_MDT_Location_Information_reserved,
+      { "Reserved", "ngap.MDT_Location_Information.reserved",
+        FT_BOOLEAN, 8, NULL, 0x7f,
+        NULL, HFILL }},
 #include "packet-ngap-hfarr.c"
   };
 
@@ -759,6 +909,16 @@ void proto_register_ngap(void) {
     &ett_ngap_NASC,
     &ett_ngap_NAS_PDU,
     &ett_ngap_EN_DCSONConfigurationTransfer,
+    &ett_ngap_BurstArrivalTime,
+    &ett_ngap_CoverageEnhancementLevel,
+    &ett_ngap_MDTModeEutra,
+    &ett_ngap_MeasurementsToActivate,
+    &ett_ngap_MDT_Location_Information,
+    &ett_ngap_NRMobilityHistoryReport,
+    &ett_ngap_LTEUERLFReportContainer,
+    &ett_ngap_NRUERLFReportContainer,
+    &ett_ngap_TargettoSource_Failure_TransparentContainer,
+    &ett_ngap_UERadioCapabilityForPagingOfNB_IoT,
 #include "packet-ngap-ettarr.c"
   };
 
@@ -808,6 +968,9 @@ void proto_register_ngap(void) {
                                  "Select whether target NG-RAN container should be decoded automatically"
                                  " (based on NG Setup procedure) or manually",
                                  &ngap_dissect_target_ng_ran_container_as, ngap_target_ng_ran_container_vals, FALSE);
+  prefs_register_enum_preference(ngap_module, "dissect_lte_container_as", "Dissect LTE container as",
+                                 "Select whether LTE container should be dissected as NB-IOT or legacy LTE",
+                                 &ngap_dissect_lte_container_as, ngap_lte_container_vals, FALSE);
 }
 
 /*

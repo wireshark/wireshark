@@ -697,10 +697,10 @@ proto_register_dsr(void)
                NULL, HFILL }
         },
         { &hf_dsr_opt_err_defaultflowunknown_dest,
-            {  "Original IP destination", "dsr.option.err.defaultflowunknow.dest",
+            {  "Original IP destination", "dsr.option.err.defaultflowunknown.dest",
                FT_IPv4, BASE_NONE,
                NULL, 0x00,
-               "Original IP destination address", HFILL }
+               NULL, HFILL }
         },
     };
 

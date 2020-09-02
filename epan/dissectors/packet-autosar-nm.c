@@ -369,7 +369,7 @@ dissect_autosar_nm(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void
   guint32 offset_ctrl_bit_vector = 1;
   guint32 offset_src_node_id = 0;
 
-  static const int * control_bits_legacy[] = {
+  static int * const control_bits_legacy[] = {
     &hf_autosar_nm_control_bit_vector_repeat_msg_req,
     &hf_autosar_nm_control_bit_vector_nm_coord_id,
     &hf_autosar_nm_control_bit_vector_nm_coord_sleep,
@@ -380,7 +380,7 @@ dissect_autosar_nm(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void
     NULL
   };
 
-  static const int * control_bits[] = {
+  static int * const control_bits[] = {
     &hf_autosar_nm_control_bit_vector_repeat_msg_req,
     &hf_autosar_nm_control_bit_vector_reserved1,
     &hf_autosar_nm_control_bit_vector_reserved2,

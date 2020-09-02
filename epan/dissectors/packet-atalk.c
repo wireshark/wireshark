@@ -1313,7 +1313,7 @@ dissect_ddp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
   guint       i;
   guint       count;
 
-  static const int * zip_flags[] = {
+  static int * const zip_flags[] = {
     &hf_zip_flags_zone_invalid,
     &hf_zip_flags_use_broadcast,
     &hf_zip_flags_only_one_zone,

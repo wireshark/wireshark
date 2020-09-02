@@ -583,15 +583,6 @@ dissect_bssap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
  * BSSAP+ Routines
  */
 
-#ifdef REMOVED
-static dgt_set_t Dgt_tbcd = {
-    {
-  /*  0   1   2   3   4   5   6   7   8   9   a   b   c   d   e */
-     '0','1','2','3','4','5','6','7','8','9','?','B','C','*','#','?'
-    }
-};
-#endif
-
 static gboolean
 check_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, guint8 expected_ie)
 {
@@ -895,7 +886,6 @@ dissect_bssap_imei(tvbuff_t *tvb, proto_tree *tree, int offset)
     proto_tree *ie_tree;
     guint8      ie_len;
     tvbuff_t   *ie_tvb;
-    const char *digit_str;
 
     ie_len  = tvb_get_guint8(tvb, offset+1);
     item    = proto_tree_add_item(tree, hf_bssap_imei_ie, tvb, offset, ie_len+2, ENC_NA);
@@ -909,8 +899,7 @@ dissect_bssap_imei(tvbuff_t *tvb, proto_tree *tree, int offset)
      * The IMEI consists of 15 digits (see 3GPP TS 23.003).
      */
     ie_tvb = tvb_new_subset_length(tvb, offset, ie_len);
-    digit_str = tvb_bcd_dig_to_wmem_packet_str(ie_tvb, 0, -1, NULL, FALSE);
-    proto_tree_add_string(ie_tree, hf_bssap_imei, ie_tvb, 0, -1, digit_str);
+    proto_tree_add_item(ie_tree, hf_bssap_imei, ie_tvb, 0, -1, ENC_BCD_DIGITS_0_9);
 
     return offset + ie_len;
 
@@ -928,7 +917,6 @@ dissect_bssap_imeisv(tvbuff_t *tvb, proto_tree *tree, int offset)
     proto_tree *ie_tree;
     guint8      ie_len;
     tvbuff_t   *ie_tvb;
-    const char *digit_str;
 
     ie_len  = tvb_get_guint8(tvb, offset+1);
     item    = proto_tree_add_item(tree, hf_bssap_imeisv_ie, tvb, offset, ie_len+2, ENC_NA);
@@ -942,8 +930,7 @@ dissect_bssap_imeisv(tvbuff_t *tvb, proto_tree *tree, int offset)
      *  The IMEISV consists of 16 digits (see 3GPP TS 23.003).
      */
     ie_tvb = tvb_new_subset_length(tvb, offset, ie_len);
-    digit_str = tvb_bcd_dig_to_wmem_packet_str(ie_tvb, 0, -1, NULL, FALSE);
-    proto_tree_add_string(ie_tree, hf_bssap_imeisv, ie_tvb, 0, -1, digit_str);
+    proto_tree_add_item(ie_tree, hf_bssap_imeisv, ie_tvb, 0, -1, ENC_BCD_DIGITS_0_9);
 
     return offset + ie_len;
 
@@ -1316,11 +1303,6 @@ dissect_bssap_service_area_id(tvbuff_t *tvb, proto_tree *tree, int offset)
 
 /* 18.4.22 SGSN number */
 
-static const true_false_string bssap_extension_value = {
-  "No Extension",
-  "Extension"
-};
-
 static int
 dissect_bssap_sgsn_number(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
@@ -1328,7 +1310,6 @@ dissect_bssap_sgsn_number(tvbuff_t *tvb, proto_tree *tree, int offset)
     proto_tree *ie_tree;
     guint8      ie_len;
     tvbuff_t   *number_tvb;
-    const char *digit_str;
 
     ie_len  = tvb_get_guint8(tvb, offset+1);
     item    = proto_tree_add_item(tree, hf_bssap_sgsn_nr_ie, tvb, offset, ie_len+2, ENC_NA);
@@ -1349,8 +1330,7 @@ dissect_bssap_sgsn_number(tvbuff_t *tvb, proto_tree *tree, int offset)
     proto_tree_add_item(ie_tree, hf_bssap_numbering_plan_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     number_tvb = tvb_new_subset_length(tvb, offset, ie_len-1);
-    digit_str = tvb_bcd_dig_to_wmem_packet_str(number_tvb, 0, -1, NULL, FALSE);
-    proto_tree_add_string(ie_tree, hf_bssap_sgsn_number, number_tvb, 0, -1, digit_str);
+    proto_tree_add_item(ie_tree, hf_bssap_sgsn_number, number_tvb, 0, -1, ENC_BCD_DIGITS_0_9);
 
 
     return offset + ie_len-1;
@@ -1479,7 +1459,6 @@ dissect_bssap_vlr_number(tvbuff_t *tvb, proto_tree *tree, int offset)
     proto_tree *ie_tree;
     guint8      ie_len;
     tvbuff_t   *number_tvb;
-    const char *digit_str;
 
     ie_len  = tvb_get_guint8(tvb, offset+1);
     item    = proto_tree_add_item(tree, hf_bssap_vlr_number_ie, tvb, offset, ie_len+2, ENC_NA);
@@ -1501,8 +1480,7 @@ dissect_bssap_vlr_number(tvbuff_t *tvb, proto_tree *tree, int offset)
     proto_tree_add_item(ie_tree, hf_bssap_numbering_plan_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     number_tvb = tvb_new_subset_length(tvb, offset, ie_len - 1);
-    digit_str = tvb_bcd_dig_to_wmem_packet_str(number_tvb, 0, -1, NULL, FALSE);
-    proto_tree_add_string(ie_tree, hf_bssap_sgsn_number, number_tvb, 0, -1, digit_str);
+    proto_tree_add_item(ie_tree, hf_bssap_sgsn_number, number_tvb, 0, -1, ENC_BCD_DIGITS_0_9);
 
     return offset + ie_len - 1;
 
@@ -2177,7 +2155,7 @@ proto_register_bssap(void)
 
         { &hf_bssap_extension,
           { "Extension", "bssap.extension",
-            FT_BOOLEAN, 8, TFS(&bssap_extension_value), 0x80,
+            FT_BOOLEAN, 8, TFS(&tfs_no_extension_extension), 0x80,
             NULL, HFILL }},
 
         { &hf_bssap_type_of_number,
@@ -2248,7 +2226,7 @@ proto_register_bssap(void)
             NULL, HFILL }},
 
         { &hf_bssap_imeisv_ie,
-          { "IMEISV IE", "bssap.imeisv",
+          { "IMEISV IE", "bssap.imeisv_ie",
             FT_NONE, BASE_NONE, NULL, 0,
             NULL, HFILL }},
 

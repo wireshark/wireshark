@@ -238,7 +238,7 @@ rq10(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rs10(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const int *flags[] = { &hf_ipmi_stor_10_access, NULL };
+	static int * const flags[] = { &hf_ipmi_stor_10_access, NULL };
 
 	proto_tree_add_item(tree, hf_ipmi_stor_10_size, tvb, 0, 2, ENC_LITTLE_ENDIAN);
 	proto_tree_add_bitmask_text(tree, tvb, 2, 1, NULL, NULL, ett_ipmi_stor_10_flags, flags, ENC_LITTLE_ENDIAN, 0);
@@ -293,7 +293,7 @@ static const value_string cc12[] = {
 static void
 rs20(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const int *ops[] = { &hf_ipmi_stor_20_op_overflow, &hf_ipmi_stor_20_op_update,
+	static int * const ops[] = { &hf_ipmi_stor_20_op_overflow, &hf_ipmi_stor_20_op_update,
 		&hf_ipmi_stor_20_op_delete, &hf_ipmi_stor_20_op_partial_add, &hf_ipmi_stor_20_op_reserve,
 		&hf_ipmi_stor_20_op_allocinfo, NULL };
 
@@ -366,7 +366,7 @@ rs24(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rq25(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const int *byte6[] = { &hf_ipmi_stor_25_inprogress, NULL };
+	static int * const byte6[] = { &hf_ipmi_stor_25_inprogress, NULL };
 
 	proto_tree_add_item(tree, hf_ipmi_stor_25_rsrv_id, tvb, 0, 2, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_stor_25_rec_id, tvb, 2, 2, ENC_LITTLE_ENDIAN);
@@ -415,7 +415,7 @@ rq27(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rs27(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const int *status[] = { &hf_ipmi_stor_27_status, NULL };
+	static int * const status[] = { &hf_ipmi_stor_27_status, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
 			ett_ipmi_stor_27_status, status, ENC_LITTLE_ENDIAN, 0);
@@ -442,7 +442,7 @@ rq29(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rq2c(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const int *byte1[] = { &hf_ipmi_stor_2c_init_agent, NULL };
+	static int * const byte1[] = { &hf_ipmi_stor_2c_init_agent, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
 			ett_ipmi_stor_2c_rq_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
@@ -451,7 +451,7 @@ rq2c(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rs2c(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const int *byte1[] = { &hf_ipmi_stor_2c_init_state, NULL };
+	static int * const byte1[] = { &hf_ipmi_stor_2c_init_state, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
 			ett_ipmi_stor_2c_rs_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
@@ -462,7 +462,7 @@ rs2c(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rs40(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const int *ops[] = { &hf_ipmi_stor_40_op_overflow, &hf_ipmi_stor_40_op_delete,
+	static int * const ops[] = { &hf_ipmi_stor_40_op_overflow, &hf_ipmi_stor_40_op_delete,
 		&hf_ipmi_stor_40_op_partial_add, &hf_ipmi_stor_40_op_reserve, &hf_ipmi_stor_40_op_allocinfo, NULL };
 
 	proto_tree_add_item(tree, hf_ipmi_stor_40_sel_version, tvb, 0, 1, ENC_LITTLE_ENDIAN);
@@ -556,7 +556,7 @@ static const value_string cc44[] = {
 static void
 rq45(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const int *byte6[] = { &hf_ipmi_stor_45_inprogress, NULL };
+	static int * const byte6[] = { &hf_ipmi_stor_45_inprogress, NULL };
 
 	proto_tree_add_item(tree, hf_ipmi_stor_45_rsrv_id, tvb, 0, 2, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_stor_45_rec_id, tvb, 2, 2, ENC_LITTLE_ENDIAN);
@@ -612,7 +612,7 @@ rq47(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rs47(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const int *status[] = { &hf_ipmi_stor_47_status, NULL };
+	static int * const status[] = { &hf_ipmi_stor_47_status, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
 			ett_ipmi_stor_47_status, status, ENC_LITTLE_ENDIAN, 0);
@@ -639,7 +639,7 @@ rq49(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rq5a(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const int *byte1[] = { &hf_ipmi_stor_5a_log_type, NULL };
+	static int * const byte1[] = { &hf_ipmi_stor_5a_log_type, NULL };
 
 	ipmi_set_data(pinfo, 0, tvb_get_guint8(tvb, 0) & 0x0f);
 	if (!tree) {
@@ -674,7 +674,7 @@ rs5a(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rq5b(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const int *byte1[] = { &hf_ipmi_stor_5b_log_type, NULL };
+	static int * const byte1[] = { &hf_ipmi_stor_5b_log_type, NULL };
 	guint8 v = tvb_get_guint8(tvb, 0);
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,

@@ -123,7 +123,7 @@ static const value_string pgsl_cs_vals[] = {
 static const value_string pgsl_ucm_vals[] = {
 	{ 1, "Normal Burst (GSMK CS1/CS2/CS3/CS4)" },
 	{ 2, "Normal Burst (CS1 or MCS1 to MCS9)" },
-	{ 3, "Access Burst (8 bit, Traning Sequence 0)" },
+	{ 3, "Access Burst (8 bit, Training Sequence 0)" },
 	{ 4, "Access Burst (8 bit or 11 bit, Training Sequence 0/1/2)" },
 	{ 0, NULL }
 };

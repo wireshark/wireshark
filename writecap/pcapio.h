@@ -68,6 +68,7 @@ pcapng_write_interface_description_block(FILE* pfile,
                                          const char *descr,    /* IDB_DESCRIPTION       3 */
                                          const char *filter,   /* IDB_FILTER           11 */
                                          const char *os,       /* IDB_OS               12 */
+                                         const char *hardware, /* IDB_HARDWARE         15 */
                                          int link_type,
                                          int snap_len,
                                          guint64 *bytes_written,

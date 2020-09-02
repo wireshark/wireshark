@@ -60,6 +60,8 @@
  * RFC 7291: DHCP Options for the Port Control Protocol (PCP)
  * RFC 7618: Dynamic Allocation of Shared IPv4 Addresses
  * RFC 7710: Captive-Portal Identification Using DHCP or Router Advertisements (RAs)
+ * RFC 7839: Access-Network-Identifier Option in DHCP
+ * RFC 8357: Generalized UDP Source Port for DHCP Relay
  * draft-ietf-dhc-fqdn-option-07.txt
  * TFTP Server Address Option for DHCPv4 [draft-raj-dhc-tftp-addr-option-06.txt: https://tools.ietf.org/html/draft-raj-dhc-tftp-addr-option-06]
  * BOOTP and DHCP Parameters
@@ -184,7 +186,7 @@ static int hf_dhcp_option_value_ip_address = -1;
 static int hf_dhcp_option_value_boolean = -1;
 static int hf_dhcp_suboption_length = -1;
 
-static int hf_dhcp_option_padding = -1;				/* 0 */
+static int hf_dhcp_option_padding = -1;					/* 0 */
 static int hf_dhcp_option_subnet_mask = -1;				/* 1 */
 static int hf_dhcp_option_time_offset = -1;				/* 2 */
 static int hf_dhcp_option_router = -1;					/* 3 */
@@ -198,7 +200,7 @@ static int hf_dhcp_option_impress_server = -1;				/* 10 */
 static int hf_dhcp_option_resource_location_server = -1;		/* 11 */
 static int hf_dhcp_option_hostname = -1;				/* 12 */
 static int hf_dhcp_option_boot_file_size = -1;				/* 13 */
-static int hf_dhcp_option_merit_dump_file = -1;			/* 14 */
+static int hf_dhcp_option_merit_dump_file = -1;				/* 14 */
 static int hf_dhcp_option_domain_name = -1;				/* 15 */
 static int hf_dhcp_option_swap_server = -1;				/* 16 */
 static int hf_dhcp_option_root_path = -1;				/* 17 */
@@ -216,24 +218,24 @@ static int hf_dhcp_option_all_subnets_are_local = -1;			/* 27 */
 static int hf_dhcp_option_broadcast_address = -1;			/* 28 */
 static int hf_dhcp_option_perform_mask_discovery = -1;			/* 29 */
 static int hf_dhcp_option_mask_supplier = -1;				/* 30 */
-static int hf_dhcp_option_perform_router_discover = -1;		/* 31 */
+static int hf_dhcp_option_perform_router_discover = -1;			/* 31 */
 static int hf_dhcp_option_router_solicitation_address = -1;		/* 32 */
-static int hf_dhcp_option_static_route_ip = -1;			/* 33 - Destination IP */
+static int hf_dhcp_option_static_route_ip = -1;				/* 33 - Destination IP */
 static int hf_dhcp_option_static_route_router = -1;			/* 33 - Router */
 static int hf_dhcp_option_trailer_encapsulation = -1;			/* 34 */
 static int hf_dhcp_option_arp_cache_timeout = -1;			/* 35 */
 static int hf_dhcp_option_ethernet_encapsulation = -1;			/* 36 */
-static int hf_dhcp_option_tcp_default_ttl = -1;			/* 37 */
+static int hf_dhcp_option_tcp_default_ttl = -1;				/* 37 */
 static int hf_dhcp_option_tcp_keepalive_interval = -1;			/* 38 */
 static int hf_dhcp_option_tcp_keepalive_garbage = -1;			/* 39 */
 static int hf_dhcp_option_nis_domain = -1;				/* 40 */
 static int hf_dhcp_option_nis_server = -1;				/* 41 */
 static int hf_dhcp_option_ntp_server = -1;				/* 42 */
 
-static int hf_dhcp_option43_value = -1;				/* 43 suboption value */
+static int hf_dhcp_option43_value = -1;					/* 43 suboption value */
 static int hf_dhcp_option43_value_8 = -1;				/* 43 suboption value */
 static int hf_dhcp_option43_value_32 = -1;				/* 43 suboption value */
-static int hf_dhcp_option43_value_stringz = -1;			/* 43 suboption value */
+static int hf_dhcp_option43_value_stringz = -1;				/* 43 suboption value */
 static int hf_dhcp_option43_value_ip_address = -1;			/* 43 suboption value */
 
 static int hf_dhcp_option43_pxeclient_suboption = -1;			/* 43 suboption */
@@ -242,7 +244,7 @@ static int hf_dhcp_option43_pxeclient_mtftp_ip = -1;			/* 43:1 PXE  */
 static int hf_dhcp_option43_pxeclient_mtftp_client_port = -1;		/* 43:2 PXE  */
 static int hf_dhcp_option43_pxeclient_mtftp_server_port = -1;		/* 43:3 PXE  */
 static int hf_dhcp_option43_pxeclient_mtftp_timeout = -1;		/* 43:4 PXE  */
-static int hf_dhcp_option43_pxeclient_mtftp_delay = -1;		/* 43:5 PXE  */
+static int hf_dhcp_option43_pxeclient_mtftp_delay = -1;			/* 43:5 PXE  */
 static int hf_dhcp_option43_pxeclient_discovery_control = -1;		/* 43:6 PXE  */
 static int hf_dhcp_option43_pxeclient_discovery_control_bc = -1;	/* 43:6 PXE  */
 static int hf_dhcp_option43_pxeclient_discovery_control_mc = -1;	/* 43:6 PXE  */
@@ -257,8 +259,8 @@ static int hf_dhcp_option43_pxeclient_boot_menu = -1;			/* 43:9 PXE  */
 static int hf_dhcp_option43_pxeclient_boot_menu_type = -1;		/* 43:9 PXE  */
 static int hf_dhcp_option43_pxeclient_boot_menu_length = -1;		/* 43:9 PXE  */
 static int hf_dhcp_option43_pxeclient_boot_menu_desc = -1;		/* 43:9 PXE  */
-static int hf_dhcp_option43_pxeclient_menu_prompt = -1;		/* 43:10 PXE  */
-static int hf_dhcp_option43_pxeclient_menu_prompt_timeout = -1;	/* 43:10 PXE  */
+static int hf_dhcp_option43_pxeclient_menu_prompt = -1;			/* 43:10 PXE  */
+static int hf_dhcp_option43_pxeclient_menu_prompt_timeout = -1;		/* 43:10 PXE  */
 static int hf_dhcp_option43_pxeclient_menu_prompt_prompt = -1;		/* 43:10 PXE  */
 static int hf_dhcp_option43_pxeclient_multicast_address_alloc = -1;	/* 43:11 PXE  */
 static int hf_dhcp_option43_pxeclient_credential_types = -1;		/* 43:12 PXE  */
@@ -271,21 +273,21 @@ static int hf_dhcp_option43_pxeclient_lcm_nic_option = -1;		/* 43:181 PXE  */
 static int hf_dhcp_option43_pxeclient_lcm_workgroup = -1;		/* 43:190 PXE  */
 static int hf_dhcp_option43_pxeclient_discovery = -1;			/* 43:191 PXE  */
 static int hf_dhcp_option43_pxeclient_configured = -1;			/* 43:192 PXE  */
-static int hf_dhcp_option43_pxeclient_lcm_version = -1;		/* 43:193 PXE  */
+static int hf_dhcp_option43_pxeclient_lcm_version = -1;			/* 43:193 PXE  */
 static int hf_dhcp_option43_pxeclient_lcm_serial = -1;			/* 43:194 PXE  */
-static int hf_dhcp_option43_pxeclient_end = -1;			/* 43:255 PXE */
+static int hf_dhcp_option43_pxeclient_end = -1;				/* 43:255 PXE */
 
 static int hf_dhcp_option43_cl_suboption = -1;				/* 43 suboption */
 static int hf_dhcp_option43_cl_padding = -1;				/* 43:0 CL  */
 static int hf_dhcp_option43_cl_suboption_request_list = -1;		/* 43:1 CL  */
 static int hf_dhcp_option43_cl_device_type = -1;			/* 43:2 CL  */
-static int hf_dhcp_option43_cl_esafe_type = -1;			/* 43:3 CL  */
+static int hf_dhcp_option43_cl_esafe_type = -1;				/* 43:3 CL  */
 static int hf_dhcp_option43_cl_serial_number = -1;			/* 43:4 CL  */
 static int hf_dhcp_option43_cl_hardware_version = -1;			/* 43:5 CL  */
 static int hf_dhcp_option43_cl_software_version = -1;			/* 43:6 CL  */
 static int hf_dhcp_option43_cl_boot_rom_version = -1;			/* 43:7 CL  */
 static int hf_dhcp_option43_cl_oui_bytes = -1;				/* 43:8 CL  */
-static int hf_dhcp_option43_cl_oui_string = -1;			/* 43:8 CL  */
+static int hf_dhcp_option43_cl_oui_string = -1;				/* 43:8 CL  */
 static int hf_dhcp_option43_cl_model_number = -1;			/* 43:9 CL  */
 static int hf_dhcp_option43_cl_vendor_name10 = -1;			/* 43:10 CL  */
 static int hf_dhcp_option43_cl_address_realm = -1;			/* 43:11 CL  */
@@ -302,6 +304,11 @@ static int hf_dhcp_option43_cl_device_id_ca = -1;			/* 43:53 CL  */
 static int hf_dhcp_option43_cl_device_id_x509 = -1;			/* 43:54 CL  */
 static int hf_dhcp_option43_cl_end = -1;				/* 43:255 CL */
 
+static int hf_dhcp_option43_aerohive_suboption = -1;			/* 43 suboption */
+static int hf_dhcp_option43_aerohive_unknown = -1;			/* 43:X AEROHIVE */
+static int hf_dhcp_option43_aerohive_xiqhostname = -1;			/* 43:225 AEROHIVE */
+static int hf_dhcp_option43_aerohive_xiqipaddress = -1;			/* 43:226 AEROHIVE */
+
 static int hf_dhcp_option43_bsdp_suboption = -1;			/* 43 suboption */
 static int hf_dhcp_option43_bsdp_message_type = -1;			/* 43:1 BSDP  */
 static int hf_dhcp_option43_bsdp_version = -1;				/* 43:2 BSDP  */
@@ -312,10 +319,10 @@ static int hf_dhcp_option43_bsdp_boot_image_list_path = -1;		/* 43:6 BSDP  */
 static int hf_dhcp_option43_bsdp_default_boot_image_id = -1;		/* 43:7 BSDP  */
 static int hf_dhcp_option43_bsdp_selected_boot_image_id = -1;		/* 43:8 BSDP  */
 static int hf_dhcp_option43_bsdp_boot_image_list = -1;			/* 43:9 BSDP  */
-static int hf_dhcp_option43_bsdp_netboot_firmware = -1;		/* 43:10 BSDP  */
+static int hf_dhcp_option43_bsdp_netboot_firmware = -1;			/* 43:10 BSDP  */
 static int hf_dhcp_option43_bsdp_attributes_filter_list = -1;		/* 43:11 BSDP  */
 static int hf_dhcp_option43_bsdp_message_size = -1;			/* 43:12 BSDP  */
-static int hf_dhcp_option43_bsdp_boot_image_index = -1;		/* 43 BSDP  */
+static int hf_dhcp_option43_bsdp_boot_image_index = -1;			/* 43 BSDP  */
 static int hf_dhcp_option43_bsdp_boot_image_attribute = -1;		/* 43 BSDP  */
 static int hf_dhcp_option43_bsdp_boot_image_attribute_install = -1;	/* 43 BSDP  */
 static int hf_dhcp_option43_bsdp_boot_image_attribute_kind = -1;	/* 43 BSDP  */
@@ -342,8 +349,8 @@ static int hf_dhcp_option43_cisco_clientint = -1;			/* 43:12 Cisco */
 static int hf_dhcp_option43_alcatel_suboption = -1;			/* 43 suboption */
 static int hf_dhcp_option43_alcatel_padding = -1;			/* 43:0 Alcatel	 */
 static int hf_dhcp_option43_alcatel_vlan_id = -1;			/* 43:58 Alcatel  */
-static int hf_dhcp_option43_alcatel_tftp1 = -1;			/* 43:64 Alcatel  */
-static int hf_dhcp_option43_alcatel_tftp2 = -1;			/* 43:65 Alcatel  */
+static int hf_dhcp_option43_alcatel_tftp1 = -1;				/* 43:64 Alcatel  */
+static int hf_dhcp_option43_alcatel_tftp2 = -1;				/* 43:65 Alcatel  */
 static int hf_dhcp_option43_alcatel_app_type = -1;			/* 43:66 Alcatel  */
 static int hf_dhcp_option43_alcatel_sip_url = -1;			/* 43:67 Alcatel  */
 static int hf_dhcp_option43_alcatel_end = -1;				/* 43:255 Alcatel */
@@ -359,27 +366,27 @@ static int hf_dhcp_option_netbios_over_tcpip_dd_name_server = -1;	/* 45 */
 static int hf_dhcp_option_netbios_over_tcpip_node_type = -1;		/* 46 */
 static int hf_dhcp_option_netbios_over_tcpip_scope = -1;		/* 47 */
 static int hf_dhcp_option_xwindows_system_font_server = -1;		/* 48 */
-static int hf_dhcp_option_xwindows_system_display_manager = -1;	/* 49 */
+static int hf_dhcp_option_xwindows_system_display_manager = -1;		/* 49 */
 static int hf_dhcp_option_requested_ip_address = -1;			/* 50 */
 static int hf_dhcp_option_ip_address_lease_time = -1;			/* 51 */
-static int hf_dhcp_option_option_overload = -1;			/* 52 */
+static int hf_dhcp_option_option_overload = -1;				/* 52 */
 static int hf_dhcp_option_dhcp = -1;					/* 53 */
 static int hf_dhcp_option_dhcp_server_id = -1;				/* 54 */
 static int hf_dhcp_option_parameter_request_list_item = -1;		/* 55 */
-static int hf_dhcp_option_message = -1;				/* 56 */
+static int hf_dhcp_option_message = -1;					/* 56 */
 static int hf_dhcp_option_dhcp_max_message_size = -1;			/* 57 */
 static int hf_dhcp_option_renewal_time_value = -1;			/* 58 */
 static int hf_dhcp_option_rebinding_time_value = -1;			/* 59 */
-static int hf_dhcp_option_vendor_class_id = -1;			/* 60 */
+static int hf_dhcp_option_vendor_class_id = -1;				/* 60 */
 static int hf_dhcp_option_vendor_class_data = -1;			/* 60 */
 
 static int hf_dhcp_option_novell_netware_ip_domain = -1;		/* 62 */
 
 static int hf_dhcp_option63_suboption = -1;				/* 63 suboption */
-static int hf_dhcp_option63_value = -1;				/* 63 suboption value */
+static int hf_dhcp_option63_value = -1;					/* 63 suboption value */
 static int hf_dhcp_option63_value_8 = -1;				/* 63 suboption value */
 static int hf_dhcp_option63_value_ip_address = -1;			/* 63 suboption value */
-static int hf_dhcp_option63_value_boolean = -1;			/* 63 suboption value */
+static int hf_dhcp_option63_value_boolean = -1;				/* 63 suboption value */
 static int hf_dhcp_option63_broadcast = -1;				/* 63:5 */
 static int hf_dhcp_option63_preferred_dss_server = -1;			/* 63:6 */
 static int hf_dhcp_option63_nearest_nwip_server = -1;			/* 63:7 */
@@ -388,8 +395,8 @@ static int hf_dhcp_option63_autoretry_delay = -1;			/* 63:9 */
 static int hf_dhcp_option63_support_netware_v1_1 = -1;			/* 63:10 */
 static int hf_dhcp_option63_primary_dss = -1;				/* 63:11 */
 
-static int hf_dhcp_option_nis_plus_domain = -1;			/* 64 */
-static int hf_dhcp_option_nis_plus_server = -1;			/* 65 */
+static int hf_dhcp_option_nis_plus_domain = -1;				/* 64 */
+static int hf_dhcp_option_nis_plus_server = -1;				/* 65 */
 static int hf_dhcp_option_tftp_server_name = -1;			/* 66 */
 static int hf_dhcp_option_bootfile_name = -1;				/* 67 */
 static int hf_dhcp_option_mobile_ip_home_agent = -1;			/* 68 */
@@ -407,22 +414,23 @@ static int hf_dhcp_option77_user_class_data = -1;			/* 77 data of User Class ins
 static int hf_dhcp_option77_user_class_text = -1;			/* 77 User class text */
 static int hf_dhcp_option_slp_directory_agent_value = -1;		/* 78 */
 static int hf_dhcp_option_slp_directory_agent_slpda_address = -1;	/* 78 */
-static int hf_dhcp_option_slp_service_scope_value = -1;		/* 79 */
+static int hf_dhcp_option_slp_service_scope_value = -1;			/* 79 */
 static int hf_dhcp_option_slp_service_scope_string = -1;		/* 79 */
 
 static int hf_dhcp_option82_suboption = -1;				/* 82 suboption */
-static int hf_dhcp_option82_value = -1;				/* 82 suboption value */
+static int hf_dhcp_option82_value = -1;					/* 82 suboption value */
 static int hf_dhcp_option82_value_8 = -1;				/* 82 suboption value */
+static int hf_dhcp_option82_value_16 = -1;				/* 82 suboption value */
 static int hf_dhcp_option82_value_32 = -1;				/* 82 suboption value */
 static int hf_dhcp_option82_value_ip_address = -1;			/* 82 suboption value */
-static int hf_dhcp_option82_value_stringz = -1;			/* 82 suboption value */
+static int hf_dhcp_option82_value_stringz = -1;				/* 82 suboption value */
 static int hf_dhcp_option82_padding = -1;				/* 82:0 */
 static int hf_dhcp_option82_agent_circuit_id = -1;			/* 82:1 */
 static int hf_dhcp_option82_agent_remote_id = -1;			/* 82:2 */
 static int hf_dhcp_option82_reserved = -1;				/* 82:3 */
 static int hf_dhcp_option82_docsis_device_class = -1;			/* 82:4 */
 static int hf_dhcp_option82_link_selection = -1;			/* 82:5 */
-static int hf_dhcp_option82_subscriber_id = -1;			/* 82:6 */
+static int hf_dhcp_option82_subscriber_id = -1;				/* 82:6 */
 static int hf_dhcp_option82_radius_attributes = -1;			/* 82:7 */
 static int hf_dhcp_option82_authentication = -1;			/* 82:8 */
 static int hf_dhcp_option82_vi = -1;					/* 82:9 */
@@ -435,9 +443,18 @@ static int hf_dhcp_option82_vi_cl_tag = -1;
 static int hf_dhcp_option82_vi_cl_tag_length = -1;
 static int hf_dhcp_option82_vi_cl_docsis_version = -1;
 									/* 82:9 suboptions end */
-static int hf_dhcp_option82_flags = -1;				/* 82:10 */
+static int hf_dhcp_option82_flags = -1;					/* 82:10 */
 static int hf_dhcp_option82_server_id_override = -1;			/* 82:11 */
 static int hf_dhcp_option82_relay_agent_id = -1;			/* 82:12 */
+static int hf_dhcp_option82_option_ani_att = -1;			/* 82:13 */
+static int hf_dhcp_option82_option_ani_att_res = -1;
+static int hf_dhcp_option82_option_ani_att_att = -1;
+static int hf_dhcp_option82_option_ani_network_name = -1;		/* 82:14 */
+static int hf_dhcp_option82_option_ani_ap_name = -1;			/* 82:15 */
+static int hf_dhcp_option82_option_ani_ap_bssid = -1;			/* 82:16 */
+static int hf_dhcp_option82_option_ani_operator_id = -1;		/* 82:17 */
+static int hf_dhcp_option82_option_ani_operator_realm = -1;		/* 82:18 */
+static int hf_dhcp_option82_option_source_port = -1;			/* 82:19 */
 static int hf_dhcp_option82_link_selection_cisco = -1;			/* 82:150 */
 static int hf_dhcp_option82_vrf_name_vpn_id = -1;			/* 82:151 */
 									/* 82:151 suboptions */
@@ -491,12 +508,12 @@ static int hf_dhcp_option_novell_ds_context = -1;			/* 87 */
 static int hf_dhcp_option_dhcp_authentication_protocol = -1;		/* 90 */
 static int hf_dhcp_option_dhcp_authentication_alg_delay = -1;		/* 90 */
 static int hf_dhcp_option_dhcp_authentication_algorithm = -1;		/* 90 */
-static int hf_dhcp_option_dhcp_authentication_rdm = -1;		/* 90 */
+static int hf_dhcp_option_dhcp_authentication_rdm = -1;			/* 90 */
 static int hf_dhcp_option_dhcp_authentication_rdm_replay_detection = -1;   /* 90 */
 static int hf_dhcp_option_dhcp_authentication_rdm_rdv = -1;		/* 90 */
 static int hf_dhcp_option_dhcp_authentication_secret_id = -1;		/* 90 */
 static int hf_dhcp_option_dhcp_authentication_hmac_md5_hash = -1;	/* 90 */
-static int hf_dhcp_option_dhcp_authentication_information = -1;	/* 90 */
+static int hf_dhcp_option_dhcp_authentication_information = -1;		/* 90 */
 static int hf_dhcp_option_client_last_transaction_time = -1;		/* 91 */
 static int hf_dhcp_option_associated_ip_option = -1;			/* 92 */
 static int hf_dhcp_option_client_system_architecture = -1;		/* 93 */
@@ -506,12 +523,12 @@ static int hf_dhcp_option_civic_location_what = -1;			/* 99 */
 static int hf_dhcp_option_civic_location_country = -1;			/* 99 */
 static int hf_dhcp_option_civic_location_ca_type = -1;			/* 99 */
 static int hf_dhcp_option_civic_location_ca_length = -1;		/* 99 */
-static int hf_dhcp_option_civic_location_ca_value = -1;		/* 99 */
+static int hf_dhcp_option_civic_location_ca_value = -1;			/* 99 */
 static int hf_dhcp_option_tz_pcode = -1;				/* 100 */
 static int hf_dhcp_option_tz_tcode = -1;				/* 101 */
 static int hf_dhcp_option_netinfo_parent_server_address = -1;		/* 112 */
 static int hf_dhcp_option_netinfo_parent_server_tag = -1;		/* 113 */
-static int hf_dhcp_option_dhcp_auto_configuration = -1;		/* 116 */
+static int hf_dhcp_option_dhcp_auto_configuration = -1;			/* 116 */
 static int hf_dhcp_option_dhcp_name_service_search_option = -1;		/* 117 */
 static int hf_dhcp_option_dhcp_dns_domain_search_list_rfc_3396_detected = -1;	/* 119 */
 static int hf_dhcp_option_dhcp_dns_domain_search_list_refer_last_option = -1;	/* 119 */
@@ -520,17 +537,17 @@ static int hf_dhcp_option_sip_server_rfc_3396_detected = -1;			/* 120 */
 static int hf_dhcp_option_sip_server_refer_last_option = -1;			/* 120 */
 static int hf_dhcp_option_sip_server_enc = -1;				/* 120 */
 static int hf_dhcp_option_sip_server_name = -1;				/* 120 */
-static int hf_dhcp_option_sip_server_address = -1;				/* 120 */
+static int hf_dhcp_option_sip_server_address = -1;			/* 120 */
 static int hf_dhcp_option_classless_static_route = -1;			/* 120 */
-static int hf_dhcp_option_rfc3825_error = -1;					/* 123 */
-static int hf_dhcp_option_rfc3825_latitude = -1;				/* 123 */
-static int hf_dhcp_option_rfc3825_longitude = -1;				/* 123 */
+static int hf_dhcp_option_rfc3825_error = -1;				/* 123 */
+static int hf_dhcp_option_rfc3825_latitude = -1;			/* 123 */
+static int hf_dhcp_option_rfc3825_longitude = -1;			/* 123 */
 static int hf_dhcp_option_rfc3825_latitude_res = -1;			/* 123 */
 static int hf_dhcp_option_rfc3825_longitude_res = -1;			/* 123 */
-static int hf_dhcp_option_rfc3825_altitude = -1;				/* 123 */
+static int hf_dhcp_option_rfc3825_altitude = -1;			/* 123 */
 static int hf_dhcp_option_rfc3825_altitide_res = -1;			/* 123 */
 static int hf_dhcp_option_rfc3825_altitude_type = -1;			/* 123 */
-static int hf_dhcp_option_rfc3825_map_datum = -1;				/* 123 */
+static int hf_dhcp_option_rfc3825_map_datum = -1;			/* 123 */
 static int hf_dhcp_option_cl_dss_id_option = -1;			/* 123 CL */
 static int hf_dhcp_option_cl_dss_id_len = -1;				/* 123 CL */
 static int hf_dhcp_option_cl_dss_id = -1;				/* 123 CL */
@@ -553,15 +570,15 @@ static int hf_dhcp_option125_tr111_device_product_class = -1;		/* 125:TR-111 3 *
 static int hf_dhcp_option125_tr111_gateway_manufacturer_oui = -1;	/* 125:TR-111 4 */
 static int hf_dhcp_option125_tr111_gateway_serial_number = -1;		/* 125:TR-111 5 */
 static int hf_dhcp_option125_tr111_gateway_product_class = -1;		/* 125:TR-111 6 */
-static int hf_dhcp_option125_cl_suboption = -1;			/* 125 suboption */
+static int hf_dhcp_option125_cl_suboption = -1;				/* 125 suboption */
 static int hf_dhcp_option125_cl_option_request = -1;			/* 125:CL 1 */
 static int hf_dhcp_option125_cl_tftp_server_addresses = -1;		/* 125:CL 2 */
 static int hf_dhcp_option125_cl_erouter_container_option = -1;		/* 125:CL 3 */
 static int hf_dhcp_option125_cl_mib_environment_indicator_option = -1; /* 125:CL 4 */
 static int hf_dhcp_option125_cl_modem_capabilities = -1;		/* 125:CL 5 */
 
-static int hf_dhcp_option_subnet_selection_option = -1;		/* 118 */
-static int hf_dhcp_option_lost_server_domain_name = -1;		/* 137 */
+static int hf_dhcp_option_subnet_selection_option = -1;			/* 118 */
+static int hf_dhcp_option_lost_server_domain_name = -1;			/* 137 */
 static int hf_dhcp_option_capwap_access_controller = -1;		/* 138 */
 static int hf_dhcp_option_andsf_server = -1;				/* 142 */
 static int hf_dhcp_option_forcerenew_nonce_algo = -1;			/* 145 */
@@ -579,15 +596,15 @@ static int hf_dhcp_option_bulk_lease_query_start = -1;			/* 154 */
 static int hf_dhcp_option_bulk_lease_query_end = -1;			/* 155 */
 static int hf_dhcp_option_bulk_lease_dhcp_state = -1;			/* 156 */
 static int hf_dhcp_option_bulk_lease_data_source = -1;			/* 157 */
-static int hf_dhcp_option_pcp_list_length = -1;			/* 158 */
+static int hf_dhcp_option_pcp_list_length = -1;				/* 158 */
 static int hf_dhcp_option_pcp_server = -1;				/* 158 */
 static int hf_dhcp_option_portparams_offset = -1;			/* 159 */
 static int hf_dhcp_option_portparams_psid_length = -1;			/* 159 */
-static int hf_dhcp_option_portparams_psid = -1;			/* 159 */
+static int hf_dhcp_option_portparams_psid = -1;				/* 159 */
 static int hf_dhcp_option_captive_portal = -1;				/* 160 */
 static int hf_dhcp_option_mudurl = -1;					/* 161 */
-static int hf_dhcp_option_pxe_config_file = -1;			/* 209 */
-static int hf_dhcp_option_pxe_path_prefix = -1;			/* 210 */
+static int hf_dhcp_option_pxe_config_file = -1;				/* 209 */
+static int hf_dhcp_option_pxe_path_prefix = -1;				/* 210 */
 static int hf_dhcp_option_6RD_ipv4_mask_len = -1;			/* 212 */
 static int hf_dhcp_option_6RD_prefix_len = -1;				/* 212 */
 static int hf_dhcp_option_6RD_prefix = -1;				/* 212 */
@@ -596,10 +613,10 @@ static int hf_dhcp_option242_avaya = -1;				/* 242 */
 static int hf_dhcp_option242_avaya_tlssrvr = -1;			/* 242 */
 static int hf_dhcp_option242_avaya_httpsrvr = -1;			/* 242 */
 static int hf_dhcp_option242_avaya_httpdir = -1;			/* 242 */
-static int hf_dhcp_option242_avaya_static = -1;			/* 242 */
+static int hf_dhcp_option242_avaya_static = -1;				/* 242 */
 static int hf_dhcp_option242_avaya_mcipadd = -1;			/* 242 */
 static int hf_dhcp_option242_avaya_dot1x = -1;				/* 242 */
-static int hf_dhcp_option242_avaya_icmpdu = -1;			/* 242 */
+static int hf_dhcp_option242_avaya_icmpdu = -1;				/* 242 */
 static int hf_dhcp_option242_avaya_icmpred = -1;			/* 242 */
 static int hf_dhcp_option242_avaya_l2q = -1;				/* 242 */
 static int hf_dhcp_option242_avaya_l2qvlan = -1;			/* 242 */
@@ -962,7 +979,7 @@ static const value_string o43pxeclient_boot_menu_types[] = {
 
 static gboolean novell_string = FALSE;
 
-static guint dhcp_uuid_endian = ENC_LITTLE_ENDIAN;
+static gint dhcp_uuid_endian = ENC_LITTLE_ENDIAN;
 
 static const enum_val_t dhcp_uuid_endian_vals[] = {
 	{ "Little Endian", "Little Endian",	ENC_LITTLE_ENDIAN},
@@ -1015,10 +1032,6 @@ static const enum_val_t dhcp_uuid_endian_vals[] = {
 #define F_ISNS_SRV_SEC_BITMAP_TUNNEL_MODE	0x0040
 #define F_ISNS_SRV_SEC_BITMAP_RESERVED		0xFF80
 
-static const true_false_string tfs_fqdn_s = {
-	"Server",
-	"Client"
-};
 
 static const true_false_string tfs_fqdn_o = {
 	"Override",
@@ -1108,6 +1121,8 @@ static const enum_val_t pkt_ccc_protocol_versions[] = {
 #define APPLE_BSDP_CLIENT "AAPLBSDPC/"
 
 #define CISCO_VCID "cisco"
+
+#define AEROHIVE_VCID "AEROHIVE"
 
 static gint pkt_ccc_protocol_version = PACKETCABLE_CCC_RFC_3495;
 static guint pkt_ccc_option = 122;
@@ -1479,7 +1494,7 @@ static struct opt_info default_dhcp_opt[DHCP_OPT_NUM] = {
 /* 117 */ { "Name Service Search",			special, NULL },
 /* 118 */ { "Subnet Selection Option",			ipv4_list, &hf_dhcp_option_subnet_selection_option },
 /* 119 */ { "Domain Search",				special, NULL },
-/* 120 */ { "SIP Servers",		special, NULL },
+/* 120 */ { "SIP Servers",				special, NULL },
 /* 121 */ { "Classless Static Route",			special, NULL},
 /* 122 */ { "CableLabs Client Configuration [TODO:RFC3495]",	opaque, NULL },
 /* 123 */ { "Coordinate-based Location Configuration",	special, NULL},
@@ -1611,7 +1626,7 @@ static struct opt_info default_dhcp_opt[DHCP_OPT_NUM] = {
 /* 249 */ { "Private/Classless Static Route (Microsoft)",	special, NULL},
 /* 250 */ { "Private",					opaque, NULL },
 /* 251 */ { "Private",					opaque, NULL },
-/* 252 */ { "Private/Proxy autodiscovery",			string, &hf_dhcp_option_private_proxy_autodiscovery },
+/* 252 */ { "Private/Proxy autodiscovery",		string, &hf_dhcp_option_private_proxy_autodiscovery },
 /* 253 */ { "Private",					opaque, NULL },
 /* 254 */ { "Private",					opaque, NULL },
 /* 255 */ { "End",					opaque, NULL }
@@ -2437,7 +2452,7 @@ dissect_dhcpopt_slp_service_scope(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 static int
 dissect_dhcpopt_client_full_domain_name(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	static const int * fqdn_hf_flags[] = {
+	static int * const fqdn_hf_flags[] = {
 		&hf_dhcp_fqdn_mbz,
 		&hf_dhcp_fqdn_n,
 		&hf_dhcp_fqdn_e,
@@ -2447,8 +2462,8 @@ dissect_dhcpopt_client_full_domain_name(tvbuff_t *tvb, packet_info *pinfo, proto
 	};
 	guint8 fqdn_flags;
 	int offset = 0, length = tvb_reported_length(tvb);
-	const gchar	*dns_name;
-	guint		dns_name_len;
+	const guchar	*dns_name;
+	gint		dns_name_len;
 
 	if (length < 3) {
 		expert_add_info_format(pinfo, tree, &ei_dhcp_bad_length, "length isn't >= 3");
@@ -2466,7 +2481,7 @@ dissect_dhcpopt_client_full_domain_name(tvbuff_t *tvb, packet_info *pinfo, proto
 
 	if (length > 3) {
 		if (fqdn_flags & F_FQDN_E) {
-			get_dns_name(tvb, offset+3, length-3, offset+3, &dns_name, &dns_name_len);
+			get_dns_name(tvb, offset+3, length-3, offset+3, (const char **)&dns_name, &dns_name_len);
 			proto_tree_add_string(tree, hf_dhcp_fqdn_name,
 				tvb, offset+3, length-3, format_text(wmem_packet_scope(), dns_name, dns_name_len));
 		} else {
@@ -2772,9 +2787,9 @@ static int
 dissect_dhcpopt_dhcp_domain_search(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	int length = tvb_reported_length(tvb);
-        gchar		*name_out;
-	const gchar	*dns_name;
-	guint		dns_name_len;
+	gchar		*name_out;
+	const guchar	*dns_name;
+	gint		dns_name_len;
 
 	/* Encoding Long Options in the Dynamic Host Configuration Protocol (DHCPv4) (RFC 3396) */
 	/* Domain Names - Implementation And Specification (RFC 1035) */
@@ -2808,8 +2823,8 @@ dissect_dhcpopt_dhcp_domain_search(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 		while (composite_offset < tvb_reported_length(rfc3396_dns_domain_search_list.tvb_composite)) {
 			/* use the get_dns_name method that manages all techniques of RFC 1035 (compression pointer and so on) */
 			consumedx = get_dns_name(rfc3396_dns_domain_search_list.tvb_composite, composite_offset,
-				tvb_reported_length(rfc3396_dns_domain_search_list.tvb_composite), 0, &dns_name, &dns_name_len);
-                        name_out = format_text(wmem_packet_scope(), dns_name, dns_name_len);
+				tvb_reported_length(rfc3396_dns_domain_search_list.tvb_composite), 0, (const gchar **)&dns_name, &dns_name_len);
+			name_out = format_text(wmem_packet_scope(), dns_name, dns_name_len);
 			if (rfc3396_dns_domain_search_list.total_number_of_block == 1) {
 				/* RFC 3396 is not used, so we can easily link the fqdn with v_tree. */
 				proto_tree_add_string(tree, hf_dhcp_option_dhcp_dns_domain_search_list_fqdn, tvb, composite_offset, consumedx, name_out);
@@ -2829,9 +2844,9 @@ static int
 dissect_dhcpopt_sip_servers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	int length = tvb_reported_length(tvb);
-	const gchar	*dns_name;
-	guint		dns_name_len;
-        gchar           *name_out;
+	const guchar	*dns_name;
+	gint		dns_name_len;
+	gchar		*name_out;
 
 	/* Encoding Long Options in the Dynamic Host Configuration Protocol (DHCPv4) (RFC 3396) */
 	/* Domain Names - Implementation And Specification (RFC 1035) */
@@ -2882,8 +2897,8 @@ dissect_dhcpopt_sip_servers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			while (composite_offset < tvb_reported_length(rfc3396_sip_server.tvb_composite)) {
 				/* use the get_dns_name method that manages all techniques of RFC 1035 (compression pointer and so on) */
 				consumedx = get_dns_name(rfc3396_sip_server.tvb_composite, composite_offset, tvb_reported_length(rfc3396_sip_server.tvb_composite),
-					1 /* ignore enc */, &dns_name, &dns_name_len);
-                                name_out = format_text(wmem_packet_scope(), dns_name, dns_name_len);
+					1 /* ignore enc */, (const gchar **)&dns_name, &dns_name_len);
+				name_out = format_text(wmem_packet_scope(), dns_name, dns_name_len);
 
 				if (rfc3396_sip_server.total_number_of_block == 1) {
 					/* RFC 3396 is not used, so we can easily link the fqdn with v_tree. */
@@ -3084,8 +3099,8 @@ static int
 dissect_dhcpopt_rdnss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	int offset = 0;
-	const gchar *dns_name;
-	guint dns_name_len;
+	const guchar *dns_name;
+	gint dns_name_len;
 
 	if (tvb_reported_length(tvb) < 10) {
 		expert_add_info_format(pinfo, tree, &ei_dhcp_bad_length, "length must be >= 10");
@@ -3099,7 +3114,7 @@ dissect_dhcpopt_rdnss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
 	proto_tree_add_item(tree, hf_dhcp_option_rdnss_sec_dns_server, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
-	get_dns_name(tvb, offset, tvb_reported_length_remaining(tvb,offset), offset, &dns_name, &dns_name_len);
+	get_dns_name(tvb, offset, tvb_reported_length_remaining(tvb,offset), offset, (const gchar **)&dns_name, &dns_name_len);
 	proto_tree_add_string(tree, hf_dhcp_option_rdnss_domain, tvb, offset,
 			tvb_reported_length_remaining(tvb,offset), format_text(wmem_packet_scope(), dns_name, dns_name_len));
 
@@ -3248,7 +3263,7 @@ dissect_dhcpopt_avaya_ip_telephone(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	int offset = 0;
 	proto_tree *o242avaya_v_tree;
 	proto_item *avaya_ti;
-	const guint8 *avaya_option = NULL;
+	const gchar *avaya_option = NULL;
 	wmem_strbuf_t *avaya_param_buf = NULL;
 
 	/* minimum length is 5 bytes */
@@ -3256,7 +3271,7 @@ dissect_dhcpopt_avaya_ip_telephone(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		expert_add_info_format(pinfo, tree, &ei_dhcp_bad_length, "Avaya IP Telephone option length isn't >= 5");
 		return 1;
 	}
-	avaya_ti = proto_tree_add_item_ret_string(tree, hf_dhcp_option242_avaya, tvb, offset, tvb_reported_length(tvb), ENC_ASCII|ENC_NA, wmem_packet_scope(), &avaya_option);
+	avaya_ti = proto_tree_add_item_ret_string(tree, hf_dhcp_option242_avaya, tvb, offset, tvb_reported_length(tvb), ENC_ASCII|ENC_NA, wmem_packet_scope(), (const guint8 **)&avaya_option);
 	o242avaya_v_tree = proto_item_add_subtree(avaya_ti, ett_dhcp_option242_suboption);
 	avaya_param_buf = wmem_strbuf_new(wmem_packet_scope(), "");
 	gchar **fields = wmem_strsplit(wmem_packet_scope(), avaya_option, ",", -1);
@@ -3300,6 +3315,13 @@ static const value_string option82_suboption_vals[] = {
 	{ 10, "Flags" },
 	{ 11, "Server ID Override" },
 	{ 12, "Relay Agent Identifier" },
+	{ 13, "Access Technology Type" },
+	{ 14, "Access Network Name" },
+	{ 15, "Access Point Name" },
+	{ 16, "Access Point BSSID" },
+	{ 17, "Access Network Operator ID" },
+	{ 18, "Access Network Operator Realm" },
+	{ 19, "Source Port" },
 	{ 150, "Link selection (Cisco proprietary)" },
 	{ 151, "VRF name/VPN ID" },
 	{ 152, "Server ID Override (Cisco proprietary)" },
@@ -3325,7 +3347,7 @@ dhcp_dhcp_decode_agent_info(packet_info *pinfo, proto_item *v_ti, proto_tree *v_
 		&hf_dhcp_option82_value_stringz,
 		NULL,
 		&hf_dhcp_option82_value_8,
-		NULL,
+		&hf_dhcp_option82_value_16,
 		NULL,
 		&hf_dhcp_option82_value_32,
 		NULL,
@@ -3350,6 +3372,13 @@ dhcp_dhcp_decode_agent_info(packet_info *pinfo, proto_item *v_ti, proto_tree *v_
 		{10, {"Flags", val_u_byte, &hf_dhcp_option82_flags}}, /* [RFC5010] */
 		{11, {"Server ID Override", ipv4, &hf_dhcp_option82_server_id_override}}, /* [RFC 5107] */
 		{12, {"Relay Agent Identifier", bytes, &hf_dhcp_option82_relay_agent_id}}, /* [RFC 6925] */
+		{13, {"Access Technology Type", bytes, &hf_dhcp_option82_option_ani_att}}, /* [RFC7839] */
+		{14, {"Access Network Name", string, &hf_dhcp_option82_option_ani_network_name}}, /* [RFC7839] */
+		{15, {"Access Point Name", string, &hf_dhcp_option82_option_ani_ap_name}}, /* [RFC7839] */
+		{16, {"Access Point BSSID", special, &hf_dhcp_option82_option_ani_ap_bssid}}, /* [RFC7839] */
+		{17, {"Access Network Operator ID", bytes, &hf_dhcp_option82_option_ani_operator_id}}, /* [RFC7839] */
+		{18, {"Access Network Operator Realm", string, &hf_dhcp_option82_option_ani_operator_realm}}, /* [RFC7839] */
+		{19, {"Source Port", val_u_short, &hf_dhcp_option82_option_source_port}}, /* [RFC8357] */
 		{150, {"Link selection (Cisco proprietary)", ipv4, &hf_dhcp_option82_link_selection_cisco}}, /* [RFC3527] */
 		{151, {"VRF name/VPN ID", special, &hf_dhcp_option82_vrf_name_vpn_id}}, /* [RFC2685] */
 		{152, {"Server ID Override (Cisco proprietary)", ipv4, &hf_dhcp_option82_server_id_override_cisco}} /* [RFC 5107] */
@@ -3448,6 +3477,15 @@ dhcp_dhcp_decode_agent_info(packet_info *pinfo, proto_item *v_ti, proto_tree *v_
 					}
 				}
 				break;
+			case 13: /* Access Technology Type */
+				if (subopt_len != 2) {
+					expert_add_info_format(pinfo, vti, &ei_dhcp_bad_length, "length isn't 2");
+					break;
+				}
+				proto_tree_add_item(o82_v_tree, hf_dhcp_option82_option_ani_att_res, tvb, suboptoff, 1, ENC_NA);
+				proto_tree_add_item(o82_v_tree, hf_dhcp_option82_option_ani_att_att, tvb, suboptoff+1, 1, ENC_NA);
+				break;
+			break;
 			case 151:
 				if (subopt_len == 1) {
 					proto_tree_add_item(o82_v_tree, hf_dhcp_option82_vrf_name_global, tvb, suboptoff, 1, ENC_NA);
@@ -3551,7 +3589,7 @@ dissect_vendor_pxeclient_suboption(packet_info *pinfo, proto_item *v_ti, proto_t
 		NULL
 	};
 
-	static const int * o43pxe_discovery_hf_flags[] = {
+	static int * const o43pxe_discovery_hf_flags[] = {
 		&hf_dhcp_option43_pxeclient_discovery_control_bc,
 		&hf_dhcp_option43_pxeclient_discovery_control_mc,
 		&hf_dhcp_option43_pxeclient_discovery_control_serverlist,
@@ -4105,7 +4143,7 @@ rfc3825_fixpoint_to_decimal(struct rfc3825_location_fixpoint_t *fixpoint, struct
 static int
 dissect_dhcpopt_isns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	static const int *isns_functions_hf_flags[] = {
+	static int * const isns_functions_hf_flags[] = {
 		&hf_dhcp_option_isns_functions_enabled,
 		&hf_dhcp_option_isns_functions_dd_authorization,
 		&hf_dhcp_option_isns_functions_sec_policy_distibution,
@@ -4113,7 +4151,7 @@ dissect_dhcpopt_isns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 		NULL
 	};
 
-	static const int *isns_dda_hf_flags[] = {
+	static int * const isns_dda_hf_flags[] = {
 		&hf_dhcp_option_isns_discovery_domain_access_enabled,
 		&hf_dhcp_option_isns_discovery_domain_access_control_node,
 		&hf_dhcp_option_isns_discovery_domain_access_iscsi_target,
@@ -4124,7 +4162,7 @@ dissect_dhcpopt_isns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 		NULL
 	};
 
-	static const int *isns_administrative_flags[] = {
+	static int * const isns_administrative_flags[] = {
 		&hf_dhcp_option_isns_administrative_flags_enabled,
 		&hf_dhcp_option_isns_administrative_flags_heartbeat,
 		&hf_dhcp_option_isns_administrative_flags_management_scns,
@@ -4133,7 +4171,7 @@ dissect_dhcpopt_isns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 		NULL
 	};
 
-	static const int *isns_server_security_flags[] = {
+	static int * const isns_server_security_flags[] = {
 		&hf_dhcp_option_isns_server_security_bitmap_enabled,
 		&hf_dhcp_option_isns_server_security_bitmap_ike_ipsec_enabled,
 		&hf_dhcp_option_isns_server_security_bitmap_main_mode,
@@ -4520,7 +4558,7 @@ static const value_string option43_bsdp_suboption_vals[] = {
 static void
 dissect_vendor_bsdp_boot_image(proto_tree *v_tree, tvbuff_t *tvb, int optoff)
 {
-	static const int * dhcp_o43_bsdp_attributes_flags[] = {
+	static int * const dhcp_o43_bsdp_attributes_flags[] = {
 		&hf_dhcp_option43_bsdp_boot_image_attribute_install,
 		&hf_dhcp_option43_bsdp_boot_image_attribute_kind,
 		&hf_dhcp_option43_bsdp_boot_image_attribute_reserved,
@@ -4534,7 +4572,7 @@ static int
 dissect_vendor_bsdp_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *v_tree,
 				   tvbuff_t *tvb, int optoff, int optend)
 {
-	int         suboptoff = optoff;
+	int	 suboptoff = optoff;
 	int	    attributes_off;
 	guint8      subopt, string_len;
 	guint8      subopt_len, attributes_len;
@@ -4694,7 +4732,7 @@ static int
 dissect_vendor_cisco_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *v_tree,
 				   tvbuff_t *tvb, int optoff, int optend)
 {
-	int         suboptoff = optoff;
+	int	    suboptoff = optoff;
 	guint8      subopt;
 	guint8      subopt_len;
 	guint       item_len;
@@ -4796,14 +4834,98 @@ dissect_cisco_vendor_info_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	return TRUE;
 }
 
+/* Aerohive (Extremenetworks) Vendor Specific Information */
+
+static const value_string option43_aerohive_suboption_vals[] = {
+	{  225, "XiqHostname" },	/* String */
+	{  226, "XiqIpAddress" },	/* Ipv4address */
+
+	{ 0, NULL}
+};
+
+static int
+dissect_vendor_aerohive_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *v_tree,
+				   tvbuff_t *tvb, int optoff, int optend)
+{
+	int	    suboptoff = optoff;
+	guint8      subopt;
+	guint8      subopt_len;
+	guint       item_len;
+	proto_tree *o43aerohive_v_tree;
+	proto_item *vti;
+
+	subopt = tvb_get_guint8(tvb, optoff);
+	suboptoff++;
+
+	if (suboptoff >= optend) {
+		expert_add_info_format(pinfo, v_ti, &ei_dhcp_missing_subopt_length,
+									"Suboption %d: No room left in option for suboption length", subopt);
+		return (optend);
+	} else {
+		subopt_len = tvb_get_guint8(tvb, suboptoff);
+		item_len = subopt_len + 2;
+	}
+
+	vti = proto_tree_add_uint_format_value(v_tree, hf_dhcp_option43_aerohive_suboption,
+				tvb, optoff, item_len, subopt, "(%d) %s",
+				subopt, val_to_str_const(subopt, option43_aerohive_suboption_vals, "Unknown"));
+
+	o43aerohive_v_tree = proto_item_add_subtree(vti, ett_dhcp_option43_suboption);
+	proto_tree_add_item(o43aerohive_v_tree, hf_dhcp_suboption_length, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
+	suboptoff++;
+
+	if (suboptoff+subopt_len > optend) {
+		expert_add_info_format(pinfo, vti, &ei_dhcp_missing_subopt_value,
+						"Suboption %d: Not sufficient room left in option for suboption value", subopt);
+		return (optend);
+	}
+
+	switch(subopt)
+	{
+		case 225:
+			proto_tree_add_item(o43aerohive_v_tree, hf_dhcp_option43_aerohive_xiqhostname, tvb, suboptoff, subopt_len, ENC_ASCII|ENC_NA);
+			break;
+		case 226:
+			proto_tree_add_item(o43aerohive_v_tree, hf_dhcp_option43_aerohive_xiqipaddress, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
+			break;
+		default:
+			proto_tree_add_item(o43aerohive_v_tree, hf_dhcp_option43_aerohive_unknown, tvb, suboptoff, subopt_len, ENC_NA);
+	}
+
+	optoff += item_len;
+	return optoff;
+}
+
+static gboolean
+dissect_aerohive_vendor_info_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+	int offset = 0;
+	dhcp_option_data_t *option_data = (dhcp_option_data_t*)data;
+	proto_tree* vendor_tree;
+
+	if ((option_data->vendor_class_id == NULL) ||
+		(strncmp((const gchar*)option_data->vendor_class_id, AEROHIVE_VCID, strlen(AEROHIVE_VCID)) != 0))
+		return FALSE;
+
+	/* Cisco ACI Fabric*/
+	proto_item_append_text(tree, " (Aerohive)");
+	vendor_tree = proto_item_add_subtree(tree, ett_dhcp_option);
+
+	while (tvb_reported_length_remaining(tvb, offset) > 0) {
+		offset = dissect_vendor_aerohive_suboption(pinfo, tree, vendor_tree,
+			tvb, offset, tvb_reported_length(tvb));
+	}
+
+	return TRUE;
+}
 
 static int
 dissect_vendor_generic_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *v_tree,
-				 tvbuff_t *tvb, int optoff, int optend)
+				 tvbuff_t *tvb, guint32 optoff, guint32 optend)
 {
-	int	    suboptoff = optoff;
+	guint32	    suboptoff = optoff;
 	guint8	    subopt;
-	int	    subopt_len;
+	guint32	    subopt_len;
 	proto_item *item;
 	proto_tree *sub_tree;
 
@@ -4838,10 +4960,10 @@ dissect_vendor_generic_suboption(packet_info *pinfo, proto_item *v_ti, proto_tre
 static int
 dissect_dhcpopt_vi_vendor_specific_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	int offset = 0;
-	int enterprise = 0;
-	int s_end = 0;
-	int option_data_len = 0;
+	guint32 offset = 0;
+	guint32 enterprise = 0;
+	guint32 s_end = 0;
+	guint32 option_data_len = 0;
 	proto_item *vti;
 	proto_tree *e_tree;
 
@@ -5234,7 +5356,7 @@ dissect_vendor_tr111_suboption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 			}
 			else if (o125_tr111_opt[subopt].ftype == oui) {
 				/* Get hex string.  Expecting 6 characters. */
-				gchar   *oui_string =  tvb_get_string_enc(wmem_packet_scope(), tvb, offset, subopt_len, ENC_ASCII);
+				const gchar   *oui_string =  (gchar *)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, subopt_len, ENC_ASCII);
 				/* Convert to OUI number.  Only 3 bytes so no data lost in downcast. */
 				guint32 oui_number = (guint32)strtol(oui_string, NULL, 16);
 				/* Add item using oui_vals */
@@ -5500,7 +5622,7 @@ static int hf_dhcp_pkt_mdc_mib_cl_signaling = -1;
 static int hf_dhcp_pkt_mdc_mib_cl_management_event = -1;
 static int hf_dhcp_pkt_mdc_mib_cl_mta_extension = -1;
 static int hf_dhcp_pkt_mdc_mib_cl_mta_signaling_extension = -1;
-static int hf_dhcp_pkt_mdc_mib_cl_mta_mem_extention = -1;
+static int hf_dhcp_pkt_mdc_mib_cl_mta_mem_extension = -1;
 static int hf_dhcp_pkt_mdc_mib_cl_reserved = -1;
 
 #define PKT_MDC_MIB_IETF 0x3031
@@ -5515,7 +5637,7 @@ static int hf_dhcp_pkt_mdc_mib_euro_signaling = -1;
 static int hf_dhcp_pkt_mdc_mib_euro_management_event = -1;
 static int hf_dhcp_pkt_mdc_mib_euro_mta_extension = -1;
 static int hf_dhcp_pkt_mdc_mib_euro_mta_signaling_extension = -1;
-static int hf_dhcp_pkt_mdc_mib_euro_mta_mem_extention = -1;
+static int hf_dhcp_pkt_mdc_mib_euro_mta_mem_extension = -1;
 static int hf_dhcp_pkt_mdc_mib_euro_reserved = -1;
 
 
@@ -5523,9 +5645,9 @@ static void
 dissect_packetcable_mta_cap(proto_tree *v_tree, packet_info *pinfo, tvbuff_t *tvb, int voff, int len)
 {
 	guint16	       raw_val;
-	guint32        flow_val	  = 0;
-	int	           off	  = PKT_MDC_TLV_OFF + voff;
-	int	           subopt_off, max_len;
+	guint32	flow_val	  = 0;
+	int		   off	  = PKT_MDC_TLV_OFF + voff;
+	int		   subopt_off, max_len;
 	guint	       tlv_len, i, mib_val;
 	guint8	       asc_val[3] = "  ", flow_val_str[5];
 	proto_item    *ti, *mib_ti;
@@ -5656,7 +5778,7 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, packet_info *pinfo, tvbuff_t *tv
 			}
 			subtree = proto_item_add_subtree(ti, ett_dhcp_option);
 			if (raw_val == PKT_MDC_PROV_FLOWS) {
-				static const int * flows[] = {
+				static int * const flows[] = {
 					&hf_dhcp_pkt_mdc_supp_flow_secure,
 					&hf_dhcp_pkt_mdc_supp_flow_hybrid,
 					&hf_dhcp_pkt_mdc_supp_flow_basic,
@@ -5699,13 +5821,13 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, packet_info *pinfo, tvbuff_t *tv
 					switch (raw_val) {
 
 					case PKT_MDC_MIB_CL: {
-						static const int * cl_flags[] = {
+						static int * const cl_flags[] = {
 							&hf_dhcp_pkt_mdc_mib_cl_mta,
 							&hf_dhcp_pkt_mdc_mib_cl_signaling,
 							&hf_dhcp_pkt_mdc_mib_cl_management_event,
 							&hf_dhcp_pkt_mdc_mib_cl_mta_extension,
 							&hf_dhcp_pkt_mdc_mib_cl_mta_signaling_extension,
-							&hf_dhcp_pkt_mdc_mib_cl_mta_mem_extention,
+							&hf_dhcp_pkt_mdc_mib_cl_mta_mem_extension,
 							&hf_dhcp_pkt_mdc_mib_cl_reserved,
 							NULL
 						};
@@ -5715,7 +5837,7 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, packet_info *pinfo, tvbuff_t *tv
 						break;
 
 					case PKT_MDC_MIB_IETF: {
-						static const int * ietf_flags[] = {
+						static int * const ietf_flags[] = {
 							&hf_dhcp_pkt_mdc_mib_ietf_mta,
 							&hf_dhcp_pkt_mdc_mib_ietf_signaling,
 							&hf_dhcp_pkt_mdc_mib_ietf_management_event,
@@ -5728,13 +5850,13 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, packet_info *pinfo, tvbuff_t *tv
 						break;
 
 					case PKT_MDC_MIB_EURO: {
-						static const int * euro_flags[] = {
+						static int * const euro_flags[] = {
 							&hf_dhcp_pkt_mdc_mib_euro_mta,
 							&hf_dhcp_pkt_mdc_mib_euro_signaling,
 							&hf_dhcp_pkt_mdc_mib_euro_management_event,
 							&hf_dhcp_pkt_mdc_mib_euro_mta_extension,
 							&hf_dhcp_pkt_mdc_mib_euro_mta_signaling_extension,
-							&hf_dhcp_pkt_mdc_mib_euro_mta_mem_extention,
+							&hf_dhcp_pkt_mdc_mib_euro_mta_mem_extension,
 							&hf_dhcp_pkt_mdc_mib_euro_reserved,
 							NULL
 						};
@@ -6295,7 +6417,7 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len, gboo
 		subtree = proto_item_add_subtree(ti, ett_dhcp_option);
 		if (tlv_type == DOCSIS_CM_CAP_RNGHLDOFF_SUP && tlv_len >= 4)
 		{
-			const int * flags[] = {
+			static int * const flags[] = {
 				&hf_dhcp_docsis_cm_cap_ranging_hold_off_cm,
 				&hf_dhcp_docsis_cm_cap_ranging_hold_off_eps,
 				&hf_dhcp_docsis_cm_cap_ranging_hold_off_emta,
@@ -6308,7 +6430,7 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len, gboo
 		}
 		if (tlv_type == DOCSIS_CM_CAP_USSYMRATE_SUP)
 		{
-			const int * flags[] = {
+			static int * const flags[] = {
 				&hf_dhcp_docsis_cm_cap_ussymrate_160,
 				&hf_dhcp_docsis_cm_cap_ussymrate_320,
 				&hf_dhcp_docsis_cm_cap_ussymrate_640,
@@ -6322,7 +6444,7 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len, gboo
 		}
 		if (tlv_type == DOCSIS_CM_CAP_Opt802MPLSSup && tlv_len >= 4)
 		{
-			const int * flags[] = {
+			static int * const flags[] = {
 				&hf_dhcp_docsis_cm_cap_mpls_stpid,
 				&hf_dhcp_docsis_cm_cap_mpls_svid,
 				&hf_dhcp_docsis_cm_cap_mpls_spcp,
@@ -6605,8 +6727,8 @@ dissect_packetcable_ietf_ccc(packet_info *pinfo, proto_item *v_ti, proto_tree *v
 	proto_tree   *pkt_s_tree;
 	proto_item   *vti;
 	int	      max_timer_val = 255;
-	const gchar  *dns_name;
-	guint         dns_name_len;
+	const guchar *dns_name;
+	gint	     dns_name_len;
 
 	subopt = tvb_get_guint8(tvb, suboptoff);
 	suboptoff++;
@@ -6649,7 +6771,7 @@ dissect_packetcable_ietf_ccc(packet_info *pinfo, proto_item *v_ti, proto_tree *v
 		switch (prov_type) {
 
 		case 0:
-			get_dns_name(tvb, suboptoff, subopt_len, suboptoff, &dns_name, &dns_name_len);
+			get_dns_name(tvb, suboptoff, subopt_len, suboptoff, (const char **)&dns_name, &dns_name_len);
 			proto_item_append_text(vti, "%s (%u byte%s)", format_text(wmem_packet_scope(), dns_name, dns_name_len),
 					       subopt_len - 1, plurality(subopt_len, "", "s") );
 			break;
@@ -6707,7 +6829,7 @@ dissect_packetcable_ietf_ccc(packet_info *pinfo, proto_item *v_ti, proto_tree *v
 		break;
 
 	case PKT_CCC_KRB_REALM: /* String values */
-		get_dns_name(tvb, suboptoff, subopt_len, suboptoff, &dns_name, &dns_name_len);
+		get_dns_name(tvb, suboptoff, subopt_len, suboptoff, (const gchar **)&dns_name, &dns_name_len);
 		proto_item_append_text(vti, "%s (%u byte%s)", format_text(wmem_packet_scope(), dns_name, dns_name_len),
 				       subopt_len, plurality(subopt_len, "", "s") );
 		suboptoff += subopt_len;
@@ -6816,7 +6938,7 @@ dissect_dhcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	guint16	      flags, secs;
 	int	      offset_delta;
 	guint8	      overload				     = 0; /* DHCP option overload */
-	static const int * dhcp_flags[] = {
+	static int * const dhcp_flags[] = {
 		&hf_dhcp_flags_broadcast,
 		&hf_dhcp_flags_reserved,
 		NULL
@@ -6832,7 +6954,7 @@ dissect_dhcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 		/* The "DHCP magic" is mandatory for proxyDHCP. Use it as a heuristic. */
 		if (!tvb_bytes_exist(tvb, VENDOR_INFO_OFFSET, 4) ||
 		    tvb_get_ntohl(tvb, VENDOR_INFO_OFFSET) != 0x63825363) {
-         /* Not a DHCP packet at all. */
+	 /* Not a DHCP packet at all. */
 			return 0;
 		}
 		isProxyDhcp = TRUE;
@@ -7299,7 +7421,7 @@ proto_register_dhcp(void)
 
 		{ &hf_dhcp_fqdn_s,
 		  { "Server", "dhcp.fqdn.s",
-		    FT_BOOLEAN, 8, TFS(&tfs_fqdn_s), F_FQDN_S,
+			FT_BOOLEAN, 8, TFS(&tfs_server_client), F_FQDN_S,
 		    "If true, server should do DDNS update", HFILL }},
 
 		{ &hf_dhcp_fqdn_o,
@@ -7397,8 +7519,8 @@ proto_register_dhcp(void)
 		    FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x10,
 		    NULL, HFILL }},
 
-		{ &hf_dhcp_pkt_mdc_mib_cl_mta_mem_extention,
-		  { "PacketCable 1.5 MEM Extension MIB", "dhcp.vendor.pktc.mdc_cl.mib.mem_extention",
+		{ &hf_dhcp_pkt_mdc_mib_cl_mta_mem_extension,
+		  { "PacketCable 1.5 MEM Extension MIB", "dhcp.vendor.pktc.mdc_cl.mib.mem_extension",
 		    FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x20,
 		    NULL, HFILL }},
 
@@ -7452,8 +7574,8 @@ proto_register_dhcp(void)
 		    FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x10,
 		    NULL, HFILL }},
 
-		{ &hf_dhcp_pkt_mdc_mib_euro_mta_mem_extention,
-		  { "PacketCable 1.5 MEM Extension MIB", "dhcp.vendor.pktc.mdc_euro.mib.mem_extention",
+		{ &hf_dhcp_pkt_mdc_mib_euro_mta_mem_extension,
+		  { "PacketCable 1.5 MEM Extension MIB", "dhcp.vendor.pktc.mdc_euro.mib.mem_extension",
 		    FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x20,
 		    NULL, HFILL }},
 
@@ -8205,6 +8327,28 @@ proto_register_dhcp(void)
 		    "Option 43:PXE Client 255 End", HFILL }},
 
 
+	       /* AEROHIVE (Extremenetworks) vendor suboptions */
+	       { &hf_dhcp_option43_aerohive_suboption,
+		 { "Option 43 Suboption", "dhcp.option.vendor.cisco.suboption",
+		   FT_UINT8, BASE_DEC, VALS(option43_aerohive_suboption_vals), 0x0,
+		   "Option 43:AEROHIVE Suboption", HFILL }},
+
+		{ &hf_dhcp_option43_aerohive_unknown,
+		  { "Unknown", "dhcp.option.vendor.aerohive.unknown",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
+
+	       { &hf_dhcp_option43_aerohive_xiqhostname,
+		 { "HM FQDN", "dhcp.option.vendor.aerohive.xiqhostname",
+		   FT_STRING, BASE_NONE, NULL, 0x0,
+		   "Hive Manager NG FQDN", HFILL }},
+
+	       { &hf_dhcp_option43_aerohive_xiqipaddress,
+		 { "HM IP", "dhcp.option.vendor.aerohive.xiqipaddress",
+		   FT_IPv4, BASE_NONE, NULL, 0x0,
+		   "Hive Manager NG IP address", HFILL }},
+
+
 		{ &hf_dhcp_option43_cl_suboption,
 		  { "Option 43 Suboption", "dhcp.option.vendor.cl.suboption",
 		    FT_UINT8, BASE_DEC, VALS(option43_cl_suboption_vals), 0x0,
@@ -8785,6 +8929,11 @@ proto_register_dhcp(void)
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
 		    "Option 82: Suboption 8-bit value", HFILL }},
 
+		{ &hf_dhcp_option82_value_16,
+		  { "Value", "dhcp.option.agent_information_option.value.uint",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    "Option 162: Suboption 16-bit value", HFILL }},
+
 		{ &hf_dhcp_option82_value_32,
 		  { "Value", "dhcp.option.agent_information_option.value.uint",
 		    FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -8899,6 +9048,51 @@ proto_register_dhcp(void)
 		  { "Relay Agent Identifier", "dhcp.option.agent_information_option.relay_agent_id",
 		    FT_BYTES, BASE_NONE, NULL, 0x00,
 		    "Option 82:12 Relay Agent Identifier", HFILL }},
+
+		{ &hf_dhcp_option82_option_ani_att,
+		  { "Access Technology Type", "dhcp.option.agent_information_option.ani_att",
+		    FT_UINT8, BASE_DEC, NULL, 0x00,
+		    "Option 82:13 Access Technology Type", HFILL }},
+
+		{ &hf_dhcp_option82_option_ani_att_res,
+		  { "Access Technology Type", "dhcp.option.agent_information_option.ani_att.res",
+		    FT_UINT8, BASE_DEC, NULL, 0x00,
+		    "Option 82:13 Access Technology Type Reserved", HFILL }},
+
+		{ &hf_dhcp_option82_option_ani_att_att,
+		  { "Access Technology Type", "dhcp.option.agent_information_option.ani_att.att",
+		    FT_UINT8, BASE_DEC, NULL, 0x00,
+		    "Option 82:13 Access Technology Type Value", HFILL }},
+
+		{ &hf_dhcp_option82_option_ani_network_name,
+		  { "Access Network Name", "dhcp.option.agent_information_option.ani_network_name",
+		    FT_STRING, BASE_NONE, NULL, 0x00,
+		    "Option 82:14 Access Network Name", HFILL }},
+
+		{ &hf_dhcp_option82_option_ani_ap_name,
+		  { "Access Point Name", "dhcp.option.agent_information_option.ani_ap_name",
+		    FT_STRING, BASE_NONE, NULL, 0x00,
+		    "Option 82:15 Access Point Name", HFILL }},
+
+		{ &hf_dhcp_option82_option_ani_ap_bssid,
+		  { "Access Point BSSID", "dhcp.option.agent_information_option.ani_ap_bssid",
+		    FT_ETHER, BASE_NONE, NULL, 0x0,
+		    "Option 82:16 Access Point BSSID", HFILL }},
+
+		{ &hf_dhcp_option82_option_ani_operator_id,
+		  { "Access Network Operator ID", "dhcp.option.agent_information_option.ani_operator_id",
+		    FT_BYTES, BASE_NONE, NULL, 0x00,
+		    "Option 82:17 Access Network Operator ID", HFILL }},
+
+		{ &hf_dhcp_option82_option_ani_operator_realm,
+		  { "Access Network Operator Realm", "dhcp.option.agent_information_option.ani_operator_realm",
+		    FT_STRING, BASE_NONE, NULL, 0x00,
+		    "Option 82:18 Access Network Operator Realm", HFILL }},
+
+		{ &hf_dhcp_option82_option_source_port,
+		  { "Source Port", "dhcp.option.agent_information_option.source_port",
+		    FT_UINT16, BASE_DEC, NULL, 0x00,
+		    "Option 82:19 Source Port", HFILL }},
 
 		{ &hf_dhcp_option82_link_selection_cisco,
 		  { "Link selection (Cisco proprietary)", "dhcp.option.agent_information_option.link_selection_cisco",
@@ -9052,7 +9246,7 @@ proto_register_dhcp(void)
 		    NULL, HFILL }},
 
 		{ &hf_dhcp_option_isns_server_security_bitmap_aggressive_mode,
-		  { "Aggresive Mode", "dhcp.option.isns.server_security_bitmap.aggressive_mode",
+		  { "Aggressive Mode", "dhcp.option.isns.server_security_bitmap.aggressive_mode",
 		    FT_BOOLEAN, 16, TFS(&tfs_enabled_disabled), F_ISNS_SRV_SEC_BITMAP_AGGRESSIVE,
 		    NULL, HFILL }},
 
@@ -10018,8 +10212,8 @@ proto_register_dhcp(void)
 			uat_dhcp_record_update_cb, /* update callback	     */
 			uat_dhcp_record_free_cb,   /* free callback	     */
 			NULL,			   /* post update callback   */
-			NULL,			   /* reset callback         */
-			dhcp_uat_flds);	           /* UAT field definitions  */
+			NULL,			   /* reset callback	 */
+			dhcp_uat_flds);		   /* UAT field definitions  */
 
 	prefs_register_uat_preference(dhcp_module,
 				      "custom_dhcp_table",
@@ -10104,6 +10298,7 @@ proto_reg_handoff_dhcp(void)
 	heur_dissector_add( "dhcp.vendor_info", dissect_aruba_ap_vendor_info_heur, ARUBA_AP, "aruba_ap_dhcp", proto_dhcp, HEURISTIC_ENABLE );
 	heur_dissector_add( "dhcp.vendor_info", dissect_aruba_instant_ap_vendor_info_heur, ARUBA_INSTANT_AP, "aruba_instant_ap_dhcp", proto_dhcp, HEURISTIC_ENABLE );
 	heur_dissector_add( "dhcp.vendor_info", dissect_apple_bsdp_vendor_info_heur, "Apple BSDP", "apple_bsdp_info_dhcp", proto_dhcp, HEURISTIC_ENABLE );
+	heur_dissector_add( "dhcp.vendor_info", dissect_aerohive_vendor_info_heur, "AEROHIVE", "aerohive_info_dhcp", proto_dhcp, HEURISTIC_ENABLE );
 	heur_dissector_add( "dhcp.vendor_info", dissect_cisco_vendor_info_heur, "Cisco", "cisco_info_dhcp", proto_dhcp, HEURISTIC_ENABLE );
 
 	/* Create dissection function handles for DHCP Enterprise dissection */

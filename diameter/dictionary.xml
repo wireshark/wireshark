@@ -3968,6 +3968,7 @@
 			<enum name="EUTRAN"		code="1004"/>
 			<enum name="EUTRAN-NB-IoT"	code="1005"/>
 			<enum name="NG-RAN"	code="1006"/>
+			<enum name="LTE-M"	code="1007"/>
 			<enum name="CDMA2000_1X"	code="2000"/>
 			<enum name="HRPD"		code="2001"/>
 			<enum name="UMB"		code="2002"/>

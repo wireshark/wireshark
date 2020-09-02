@@ -42,7 +42,7 @@ static int hf_in0 = -1;
 static int hf_in1 = -1;
 static int hf_in2 = -1;
 
-static const int *input_fields[] = {
+static int * const input_fields[] = {
     &hf_hpd,
     &hf_in0,
     &hf_in1,

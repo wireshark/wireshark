@@ -146,7 +146,7 @@ dissect_ns_cert_exts_CertRenewalUrl(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 }
 
 
-static const int * CertType_bits[] = {
+static int * const CertType_bits[] = {
   &hf_ns_cert_exts_CertType_ssl_client,
   &hf_ns_cert_exts_CertType_ssl_server,
   &hf_ns_cert_exts_CertType_smime,

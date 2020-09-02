@@ -358,7 +358,7 @@ dissect_pres_Mode_selector(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 }
 
 
-static const int * Protocol_version_bits[] = {
+static int * const Protocol_version_bits[] = {
   &hf_pres_Protocol_version_version_1,
   NULL
 };
@@ -518,7 +518,7 @@ dissect_pres_Default_context_name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 }
 
 
-static const int * Presentation_requirements_bits[] = {
+static int * const Presentation_requirements_bits[] = {
   &hf_pres_Presentation_requirements_context_management,
   &hf_pres_Presentation_requirements_restoration,
   NULL
@@ -534,7 +534,7 @@ dissect_pres_Presentation_requirements(gboolean implicit_tag _U_, tvbuff_t *tvb 
 }
 
 
-static const int * User_session_requirements_bits[] = {
+static int * const User_session_requirements_bits[] = {
   &hf_pres_User_session_requirements_half_duplex,
   &hf_pres_User_session_requirements_duplex,
   &hf_pres_User_session_requirements_expedited_data,
@@ -561,7 +561,7 @@ dissect_pres_User_session_requirements(gboolean implicit_tag _U_, tvbuff_t *tvb 
 }
 
 
-static const int * Protocol_options_bits[] = {
+static int * const Protocol_options_bits[] = {
   &hf_pres_Protocol_options_nominated_context,
   &hf_pres_Protocol_options_short_encoding,
   &hf_pres_Protocol_options_packed_encoding_rules,

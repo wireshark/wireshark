@@ -10,8 +10,10 @@
 #       -a      disable suppression list (see $CPPCHECK_DIR/suppressions)
 #       -c      colorize html output
 #       -h      html output (default is gcc)
+#       -x      xml output (default is gcc)
 #       -j n    threads (default: 4)
 #       -l n    check files from the last [n] commits
+#       -o      check modified files
 #       -v      quiet mode
 # If argument file is omitted then checking all files in the current directory.
 #
@@ -38,6 +40,8 @@ SUPPRESSIONS="--suppressions-list=$CPPCHECK_DIR/suppressions"
 INCLUDES="--includes-file=$CPPCHECK_DIR/includes"
 MODE="gcc"
 COLORIZE_HTML_MODE="no"
+OPEN_FILES="no"
+XML_ARG=""
 
 colorize_worker()
 {
@@ -54,13 +58,24 @@ colorize()
     [ -z "$1" ] && colorize_worker || colorize_worker <<< "$1"
 }
 
-while getopts "achj:l:v" OPTCHAR ; do
+exit_cleanup() {
+    if [ "$MODE" = "html" ]; then
+        echo "</table></body></html>"
+    fi
+    if [ -n "$1" ] ; then
+        exit "$1"
+    fi
+}
+
+while getopts "achxj:l:ov" OPTCHAR ; do
     case $OPTCHAR in
         a) SUPPRESSIONS=" " ;;
         c) COLORIZE_HTML_MODE="yes" ;;
         h) MODE="html" ;;
+        x) MODE="xml" ;;
         j) THREADS="$OPTARG" ;;
         l) LAST_COMMITS="$OPTARG" ;;
+        o) OPEN_FILES="yes" ;;
         v) QUIET=" " ;;
         *) printf "Unknown option %s" "$OPTCHAR"
     esac
@@ -81,6 +96,19 @@ fi
 
 if [ "$LAST_COMMITS" -gt 0 ] ; then
     TARGET=$( git diff --name-only HEAD~"$LAST_COMMITS".. | grep -E '\.(c|cpp)$' )
+    if [ -z "${TARGET//[[:space:]]/}" ] ; then
+        echo "No C or C++ files found in the last $LAST_COMMITS commit(s)."
+        exit_cleanup 0
+    fi
+fi
+
+if [ "$OPEN_FILES" = "yes" ] ; then
+    TARGET=$(git diff --name-only  | grep -E '\.(c|cpp)$' )
+    TARGET="$TARGET $(git diff --staged --name-only  | grep -E '\.(c|cpp)$' )"
+    if [ -z "${TARGET//[[:space:]]/}" ] ; then
+        echo "No C or C++ files are currently opened (modified or added for next commit)."
+        exit_cleanup 0
+    fi
 fi
 
 if [ $# -gt 0 ]; then
@@ -91,10 +119,18 @@ if [ -z "$TARGET" ] ; then
     TARGET=.
 fi
 
+if [ "$MODE" = "xml" ]; then
+    XML_ARG="--xml"
+fi
+
 # Use a little-documented feature of the shell to pass SIGINTs only to the
 # child process (cppcheck in this case). That way the final 'echo' still
 # runs and we aren't left with broken HTML.
 trap : INT
+
+echo "Examining:"
+echo $TARGET
+echo
 
 # shellcheck disable=SC2086
 $CPPCHECK --force --enable=style $QUIET    \
@@ -102,11 +138,9 @@ $CPPCHECK --force --enable=style $QUIET    \
     -i doc/ \
     -i epan/dissectors/asn1/ \
     --std=c99 --template=$TEMPLATE   \
-    -j $THREADS $TARGET 2>&1 | colorize
+    -j $THREADS $TARGET $XML_ARG 2>&1 | colorize
 
-if [ "$MODE" = "html" ]; then
-    echo "</table></body></html>"
-fi
+exit_cleanup
 
 #
 # Editor modelines  -  https://www.wireshark.org/tools/modelines.html

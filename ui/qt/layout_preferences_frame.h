@@ -54,14 +54,17 @@ private slots:
     void on_pane1PacketListRadioButton_toggled(bool checked);
     void on_pane1PacketDetailsRadioButton_toggled(bool checked);
     void on_pane1PacketBytesRadioButton_toggled(bool checked);
+    void on_pane1PacketDiagramRadioButton_toggled(bool checked);
     void on_pane1NoneRadioButton_toggled(bool checked);
     void on_pane2PacketListRadioButton_toggled(bool checked);
     void on_pane2PacketDetailsRadioButton_toggled(bool checked);
     void on_pane2PacketBytesRadioButton_toggled(bool checked);
+    void on_pane2PacketDiagramRadioButton_toggled(bool checked);
     void on_pane2NoneRadioButton_toggled(bool checked);
     void on_pane3PacketListRadioButton_toggled(bool checked);
     void on_pane3PacketDetailsRadioButton_toggled(bool checked);
     void on_pane3PacketBytesRadioButton_toggled(bool checked);
+    void on_pane3PacketDiagramRadioButton_toggled(bool checked);
     void on_pane3NoneRadioButton_toggled(bool checked);
     void on_restoreButtonBox_clicked(QAbstractButton *button);
     void on_packetListSeparatorCheckBox_toggled(bool checked);

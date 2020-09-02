@@ -1182,7 +1182,7 @@ static const value_string homeplug_av_mmtype_general_vals[] = {
     /* Station - Station */
     { HOMEPLUG_AV_MMTYPE_GENERAL_CM_UNASSOCIATED_STA_IND           , "CM_UNASSOCIATED_STA.IND" },
     { HOMEPLUG_AV_MMTYPE_GENERAL_CM_ENCRYPTED_PAYLOAD_IND          , "CM_ENCRYPTED_PAYLOAD.IND (Encrypted Payload Indicate)" },
-    { HOMEPLUG_AV_MMTYPE_GENERAL_CM_ENCRYPTED_PAYLOAD_RSP          , "CM_ENCRYPTED_PAYLOAD.RSP (Encrypted Payload Respons)" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CM_ENCRYPTED_PAYLOAD_RSP          , "CM_ENCRYPTED_PAYLOAD.RSP (Encrypted Payload Response)" },
     { HOMEPLUG_AV_MMTYPE_GENERAL_CM_SET_KEY_REQ                    , "CM_SET_KEY.REQ (Set Key Request)" },
     { HOMEPLUG_AV_MMTYPE_GENERAL_CM_SET_KEY_CNF                    , "CM_SET_KEY.CNF (Set Key Confirmation)" },
     { HOMEPLUG_AV_MMTYPE_GENERAL_CM_GET_KEY_REQ                    , "CM_GET_KEY.REQ (Get Key Request)" },
@@ -1294,7 +1294,7 @@ static const value_string homeplug_av_mmtype_qualcomm_vals[] = {
     { HOMEPLUG_AV_MMTYPE_QUALCOMM_SET_SDRAM_REQ,     "SET_SDRAM.REQ (Set SDRAM Configuration Request)" },
     { HOMEPLUG_AV_MMTYPE_QUALCOMM_SET_SDRAM_CNF,     "SET_SDRAM.CNF (Set SDRAM Configuration Confirmation)" },
     { HOMEPLUG_AV_MMTYPE_QUALCOMM_HOST_ACTION_IND,   "HOST_ACTION.IND (Embedded Host Action Required Indication)" },
-    { HOMEPLUG_AV_MMTYPE_QUALCOMM_HOST_ACTION_RSP,   "HOST_ACTION.RSP (Embedded Host Action Required Respons)" },
+    { HOMEPLUG_AV_MMTYPE_QUALCOMM_HOST_ACTION_RSP,   "HOST_ACTION.RSP (Embedded Host Action Required Response)" },
     { HOMEPLUG_AV_MMTYPE_QUALCOMM_OP_ATTR_REQ,       "OP_ATTR.REQ (Get Device Attributes Request)" },
     { HOMEPLUG_AV_MMTYPE_QUALCOMM_OP_ATTR_CNF,       "OP_ATTR.CNF (Get Device Attributes Confirmation)" },
     { HOMEPLUG_AV_MMTYPE_QUALCOMM_GET_ENET_PHY_REQ,  "GET_ENET_PHY.REQ (Get Ethernet PHY Settings Request)" },
@@ -1486,7 +1486,7 @@ static value_string_ext homeplug_av_peks_vals_ext = VALUE_STRING_EXT_INIT(homepl
 static const value_string homeplug_av_bcn_cco_cap_vals[] = {
     { 0x0, "CSMA-only (no QoS/TDMA)" },
     { 0x1, "Uncoordinated mode QoS/TDMA" },
-    { 0x2, "Coordianted mode QoS/TDMA" },
+    { 0x2, "Coordinated mode QoS/TDMA" },
     { 0x3, "Reserved" },
     { 0, NULL }
 };
@@ -1795,7 +1795,7 @@ static const value_string homeplug_av_fc_del_type_vals[] = {
 #define HOMEPLUG_AV_RSP_DATA_MASK  0x03
 #define HOMEPLUG_AV_RSP_MGMT_MASK  0x0C
 
-static const int *rsof_sack_fields[] = {
+static int * const rsof_sack_fields[] = {
     &hf_homeplug_av_cfs,
     &hf_homeplug_av_bdf,
     &hf_homeplug_av_svn,
@@ -2063,8 +2063,8 @@ static const value_string homeplug_av_coupling_vals[] = {
 
 static const value_string homeplug_av_cc_assoc_result_vals[] = {
     { 0x00, "Success" },
-    { 0x01, "Failure due to temporary resourse exhaustion, try again later" },
-    { 0x02, "Failure due to permanent resourse exhaustion" },
+    { 0x01, "Failure due to temporary resource exhaustion, try again later" },
+    { 0x02, "Failure due to permanent resource exhaustion" },
     { 0x03, "Failure" },
     { 0, NULL }
 };
@@ -2095,8 +2095,8 @@ static const value_string homeplug_av_gp_cm_slac_parm_sectype_vals[] = {
 };
 
 static const value_string homeplug_av_gp_cm_slac_parm_resptype_vals[] = {
-    { 0x00, "Not Transmited to other GP STA's HLE" },
-    { 0x01, "Transmited to another GP STA's HLE" },
+    { 0x00, "Not Transmitted to other GP STA's HLE" },
+    { 0x01, "Transmitted to another GP STA's HLE" },
     { 0, NULL }
 };
 
@@ -2133,7 +2133,7 @@ static const value_string homeplug_av_gp_cm_slac_user_data_broadcast_vals[] = {
 #define HOMEPLUG_AV_GP_CM_SLAC_USER_DATA_TLV_TYPE_VENDOR_RESERVED 0x1F
 
 static const value_string homeplug_av_gp_cm_slac_user_data_tlv_types_vals[] = {
-    { HOMEPLUG_AV_GP_CM_SLAC_USER_DATA_TLV_TYPE_VENDOR_RESERVED, "Vender Reserved" },
+    { HOMEPLUG_AV_GP_CM_SLAC_USER_DATA_TLV_TYPE_VENDOR_RESERVED, "Vendor Reserved" },
     { 0, NULL }
 };
 
@@ -2560,7 +2560,7 @@ dissect_homeplug_av_beacon_payload(ptvcursor_t *cursor)
         tree = ptvcursor_tree(cursor);
         tvb = ptvcursor_tvbuff(cursor);
 
-        static const int *bcn1_fields[] = {
+        static int * const bcn1_fields[] = {
             &hf_homeplug_av_bcn_nid,
             &hf_homeplug_av_bcn_hm,
             NULL
@@ -2571,7 +2571,7 @@ dissect_homeplug_av_beacon_payload(ptvcursor_t *cursor)
 
         ptvcursor_add(cursor, hf_homeplug_av_bcn_stei, 1, ENC_BIG_ENDIAN);
 
-        static const int *bcn2_fields[] = {
+        static int * const bcn2_fields[] = {
             &hf_homeplug_av_bcn_type,
             &hf_homeplug_av_bcn_ncnr,
             &hf_homeplug_av_bcn_npsm,
@@ -2584,7 +2584,7 @@ dissect_homeplug_av_beacon_payload(ptvcursor_t *cursor)
 
         ptvcursor_add(cursor, hf_homeplug_av_bcn_slot_use, 1, ENC_BIG_ENDIAN);
 
-        static const int *bcn3_fields[] = {
+        static int * const bcn3_fields[] = {
             &hf_homeplug_av_bcn_slot_id,
             &hf_homeplug_av_bcn_aclss,
             &hf_homeplug_av_bcn_hoip,
@@ -2595,7 +2595,7 @@ dissect_homeplug_av_beacon_payload(ptvcursor_t *cursor)
         proto_tree_add_bitmask_list(tree, tvb, ptvcursor_current_offset(cursor), 1, bcn3_fields, ENC_BIG_ENDIAN);
         ptvcursor_advance(cursor, 1);
 
-        static const int *bcn4_fields[] = {
+        static int * const bcn4_fields[] = {
             &hf_homeplug_av_bcn_nm,
             &hf_homeplug_av_bcn_cco_cap,
             &hf_homeplug_av_bcn_rsf,
@@ -2658,7 +2658,7 @@ dissect_homeplug_av_start_of_frame(ptvcursor_t *cursor)
         ptvcursor_add(cursor, hf_homeplug_av_dtei, 1, ENC_BIG_ENDIAN);
         ptvcursor_add(cursor, hf_homeplug_av_lid, 1, ENC_BIG_ENDIAN);
 
-        static const int *sof1_fields[] = {
+        static int * const sof1_fields[] = {
             &hf_homeplug_av_cfs,
             &hf_homeplug_av_bdf,
             &hf_homeplug_av_hp10df,
@@ -2673,7 +2673,7 @@ dissect_homeplug_av_start_of_frame(ptvcursor_t *cursor)
         ptvcursor_add(cursor, hf_homeplug_av_ppb, 1, ENC_BIG_ENDIAN);
         ptvcursor_add(cursor, hf_homeplug_av_sof_ble, 1, ENC_BIG_ENDIAN);
 
-        static const int *sof2_fields[] = {
+        static int * const sof2_fields[] = {
             &hf_homeplug_av_sof_pbsz,
             &hf_homeplug_av_sof_num_sym,
             &hf_homeplug_av_sof_tmi_av,
@@ -2683,7 +2683,7 @@ dissect_homeplug_av_start_of_frame(ptvcursor_t *cursor)
         proto_tree_add_bitmask_list(tree, tvb, ptvcursor_current_offset(cursor), 1, sof2_fields, ENC_BIG_ENDIAN);
         ptvcursor_advance(cursor, 1);
 
-        static const int *sof3_fields[] = {
+        static int * const sof3_fields[] = {
             &hf_homeplug_av_fl_av,
             &hf_homeplug_av_sof_mpdu_cnt,
             &hf_homeplug_av_sof_burst_cnt,
@@ -2693,7 +2693,7 @@ dissect_homeplug_av_start_of_frame(ptvcursor_t *cursor)
         proto_tree_add_bitmask_list(tree, tvb, ptvcursor_current_offset(cursor), 2, sof3_fields, ENC_LITTLE_ENDIAN);
         ptvcursor_advance(cursor, 2);
 
-        static const int *sof4_fields[] = {
+        static int * const sof4_fields[] = {
             &hf_homeplug_av_sof_bbf,
             &hf_homeplug_av_sof_mrtfl,
             &hf_homeplug_av_sof_dccpcf,
@@ -2705,7 +2705,7 @@ dissect_homeplug_av_start_of_frame(ptvcursor_t *cursor)
         proto_tree_add_bitmask_list(tree, tvb, ptvcursor_current_offset(cursor), 1, sof4_fields, ENC_BIG_ENDIAN);
         ptvcursor_advance(cursor, 1);
 
-        static const int *sof5_fields[] = {
+        static int * const sof5_fields[] = {
             &hf_homeplug_av_sof_rsr,
             &hf_homeplug_av_sof_clst,
             &hf_homeplug_av_sof_mfs_cmd_mgmt,
@@ -2716,7 +2716,7 @@ dissect_homeplug_av_start_of_frame(ptvcursor_t *cursor)
         proto_tree_add_bitmask_list(tree, tvb, ptvcursor_current_offset(cursor), 1, sof5_fields, ENC_BIG_ENDIAN);
         ptvcursor_advance(cursor, 1);
 
-        static const int *sof6_fields[] = {
+        static int * const sof6_fields[] = {
             &hf_homeplug_av_sof_mfs_rsp_mgmt,
             &hf_homeplug_av_sof_mfs_rsp_data,
             &hf_homeplug_av_sof_bm_sack,
@@ -2783,7 +2783,7 @@ dissect_homeplug_av_rtscts(ptvcursor_t *cursor)
         ptvcursor_add(cursor, hf_homeplug_av_dtei, 1, ENC_BIG_ENDIAN);
         ptvcursor_add(cursor, hf_homeplug_av_lid, 1, ENC_BIG_ENDIAN);
 
-        static const int *rtscts_fields[] = {
+        static int * const rtscts_fields[] = {
             &hf_homeplug_av_cfs,
             &hf_homeplug_av_bdf,
             &hf_homeplug_av_hp10df,
@@ -2827,7 +2827,7 @@ dissect_homeplug_av_sound(ptvcursor_t *cursor)
         ptvcursor_add(cursor, hf_homeplug_av_dtei, 1, ENC_BIG_ENDIAN);
         ptvcursor_add(cursor, hf_homeplug_av_lid, 1, ENC_BIG_ENDIAN);
 
-        static const int *sound1_fields[] = {
+        static int * const sound1_fields[] = {
             &hf_homeplug_av_cfs,
             &hf_homeplug_av_sound_pbsz,
             &hf_homeplug_av_sound_bdf,
@@ -2840,7 +2840,7 @@ dissect_homeplug_av_sound(ptvcursor_t *cursor)
         proto_tree_add_bitmask_list(tree, tvb, ptvcursor_current_offset(cursor), 1, sound1_fields, ENC_BIG_ENDIAN);
         ptvcursor_advance(cursor, 1);
 
-        static const int *sound2_fields[] = {
+        static int * const sound2_fields[] = {
             &hf_homeplug_av_fl_av,
             &hf_homeplug_av_sound_mpdu_cnt,
             NULL
@@ -2852,7 +2852,7 @@ dissect_homeplug_av_sound(ptvcursor_t *cursor)
         ptvcursor_add(cursor, hf_homeplug_av_ppb, 1, ENC_BIG_ENDIAN);
         ptvcursor_add(cursor, hf_homeplug_av_sound_src, 1, ENC_BIG_ENDIAN);
 
-        static const int *sound3_fields[] = {
+        static int * const sound3_fields[] = {
             &hf_homeplug_av_sound_add_req_tm,
             &hf_homeplug_av_sound_max_pb_sym,
             &hf_homeplug_av_sound_ecsf,
@@ -2863,7 +2863,7 @@ dissect_homeplug_av_sound(ptvcursor_t *cursor)
         proto_tree_add_bitmask_list(tree, tvb, ptvcursor_current_offset(cursor), 1, sound3_fields, ENC_BIG_ENDIAN);
         ptvcursor_advance(cursor, 1);
 
-        static const int *sound4_fields[] = {
+        static int * const sound4_fields[] = {
             &hf_homeplug_av_sound_ems,
             &hf_homeplug_av_sound_esgisf,
             &hf_homeplug_av_sound_elgisf,
@@ -2903,7 +2903,7 @@ dissect_homeplug_av_rsof(ptvcursor_t *cursor)
         ptvcursor_advance(cursor, 8); /* 1 byte for bitmask field, plus 7 bytes of variable data */
         /* TODO: fill in variable fields */
 
-        static const int *rsof2_fields[] = {
+        static int * const rsof2_fields[] = {
             &hf_homeplug_av_rsof_fl,
             &hf_homeplug_av_rsof_tmi,
             &hf_homeplug_av_rsof_pbsz,
@@ -2913,7 +2913,7 @@ dissect_homeplug_av_rsof(ptvcursor_t *cursor)
         proto_tree_add_bitmask_list(tree, tvb, ptvcursor_current_offset(cursor), 2, rsof2_fields, ENC_LITTLE_ENDIAN);
         ptvcursor_advance(cursor, 2);
 
-        static const int *rsof3_fields[] = {
+        static int * const rsof3_fields[] = {
             &hf_homeplug_av_rsof_num_sym,
             &hf_homeplug_av_rsof_mfs_cmd_mgmt,
             &hf_homeplug_av_rsof_mfs_cmd_data,
@@ -3901,7 +3901,7 @@ dissect_homeplug_av_sniffer_ind(ptvcursor_t *cursor)
 
             del_type &= bitmask;
 
-            static const int *frame_control_fields[] = {
+            static int * const frame_control_fields[] = {
                 &hf_homeplug_av_fc_del_type,
                 &hf_homeplug_av_fc_access,
                 &hf_homeplug_av_fc_snid,
@@ -6423,7 +6423,7 @@ proto_register_homeplug_av(void)
             FT_UINT8, BASE_DEC, VALS(homeplug_av_bcn_cco_cap_vals), HOMEPLUG_AV_CCO_CAP_MASK, NULL, HFILL }
         },
         { &hf_homeplug_av_bcn_rsf,
-          { "Resuable SNID?", "homeplug_av.bcn.rsf",
+          { "Reusable SNID?", "homeplug_av.bcn.rsf",
             FT_BOOLEAN, 8, NULL, HOMEPLUG_AV_RSF_MASK, NULL, HFILL }
         },
         { &hf_homeplug_av_bcn_plevel,
@@ -6622,7 +6622,7 @@ proto_register_homeplug_av(void)
             FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL }
         },
         { &hf_homeplug_av_brg_infos_cnf_btei,
-          { "Bridge Terminal Equipement Identifier", "homeplug_av.brg_infos_cnf.btei",
+          { "Bridge Terminal Equipment Identifier", "homeplug_av.brg_infos_cnf.btei",
             FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
         },
         { &hf_homeplug_av_brg_infos_cnf_num_stas,
@@ -7090,7 +7090,7 @@ proto_register_homeplug_av(void)
             FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
         },
         { &hf_homeplug_av_nw_info_tei,
-          { "Terminal Equipement Identifier", "homeplug_av.nw_info.tei",
+          { "Terminal Equipment Identifier", "homeplug_av.nw_info.tei",
             FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
         },
         { &hf_homeplug_av_nw_info_sta_role,
@@ -7102,7 +7102,7 @@ proto_register_homeplug_av(void)
             FT_ETHER, BASE_NONE, NULL, 0x00, NULL, HFILL }
         },
         { &hf_homeplug_av_nw_info_cco_tei,
-          { "CCo Terminal Equipement Identifier", "homeplug_av.nw_info_cnf.cco_tei",
+          { "CCo Terminal Equipment Identifier", "homeplug_av.nw_info_cnf.cco_tei",
             FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
         },
         { &hf_homeplug_av_nw_info_num_stas,
@@ -7127,7 +7127,7 @@ proto_register_homeplug_av(void)
             FT_ETHER, BASE_NONE, NULL, 0x00, NULL, HFILL }
         },
         { &hf_homeplug_av_nw_info_sta_tei,
-          { "Station Terminal Equipement Identifier", "homeplug_av.nw_info_cnf.sta_indo.tei",
+          { "Station Terminal Equipment Identifier", "homeplug_av.nw_info_cnf.sta_indo.tei",
             FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
         },
         { &hf_homeplug_av_nw_info_sta_bda,

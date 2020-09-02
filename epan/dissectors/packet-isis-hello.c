@@ -415,7 +415,7 @@ dissect_hello_mt_port_cap_vlans_appointed_clv(tvbuff_t *tvb, packet_info* pinfo 
 
 static void
 dissect_hello_mt_port_cap_clv(tvbuff_t *tvb, packet_info* pinfo,
-        proto_tree *tree, int offset, int id_length _U_, int length)
+        proto_tree *tree, int offset, isis_data_t *isis _U_, int length)
 {
     if (length >= 2) {
         /* mtid */
@@ -511,13 +511,13 @@ dissect_hello_mt_port_cap_clv(tvbuff_t *tvb, packet_info* pinfo,
 
 static void
 dissect_hello_restart_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
-        proto_tree *tree, int offset, int id_length, int length)
+        proto_tree *tree, int offset, isis_data_t *isis, int length)
 {
     int restart_options=0;
     proto_item *hold_time_item;
 
     if (length >= 1) {
-        static const int * flags[] = {
+        static int * const flags[] = {
             &hf_isis_hello_clv_restart_flags_sa,
             &hf_isis_hello_clv_restart_flags_ra,
             &hf_isis_hello_clv_restart_flags_rr,
@@ -540,8 +540,8 @@ dissect_hello_restart_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
     /* The Restarting Neighbor ID should only be present if the RA flag is
      * set.
      */
-    if (length >= 3 + id_length && ISIS_MASK_RESTART_RA(restart_options)) {
-        proto_tree_add_item( tree, hf_isis_hello_clv_restart_neighbor, tvb, offset+3, id_length, ENC_NA);
+    if (length >= 3 + isis->system_id_len && ISIS_MASK_RESTART_RA(restart_options)) {
+        proto_tree_add_item( tree, hf_isis_hello_clv_restart_neighbor, tvb, offset+3, isis->system_id_len, ENC_NA);
     }
 }
 
@@ -564,7 +564,7 @@ dissect_hello_restart_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
  */
 static void
 dissect_hello_nlpid_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
-    proto_tree *tree, int offset, int id_length _U_, int length)
+    proto_tree *tree, int offset, isis_data_t *isis _U_, int length)
 {
     isis_dissect_nlpid_clv(tvb, tree, hf_isis_hello_clv_nlpid, offset, length);
 }
@@ -589,7 +589,7 @@ dissect_hello_nlpid_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
 
 static void
 dissect_hello_mt_clv(tvbuff_t *tvb, packet_info* pinfo,
-    proto_tree *tree, int offset, int id_length _U_, int length)
+    proto_tree *tree, int offset, isis_data_t *isis _U_, int length)
 {
     isis_dissect_mt_clv(tvb, pinfo, tree, offset, length,
         hf_isis_hello_clv_mt, &ei_isis_hello_clv_mt);
@@ -614,7 +614,7 @@ dissect_hello_mt_clv(tvbuff_t *tvb, packet_info* pinfo,
  */
 static void
 dissect_hello_ip_int_addr_clv(tvbuff_t *tvb, packet_info* pinfo,
-    proto_tree *tree, int offset, int id_length _U_, int length)
+    proto_tree *tree, int offset, isis_data_t *isis _U_, int length)
 {
     isis_dissect_ip_int_clv(tree, pinfo, tvb, &ei_isis_hello_short_clv,
         offset, length, hf_isis_hello_clv_ipv4_int_addr );
@@ -639,7 +639,7 @@ dissect_hello_ip_int_addr_clv(tvbuff_t *tvb, packet_info* pinfo,
  */
 static void
 dissect_hello_ipv6_int_addr_clv(tvbuff_t *tvb, packet_info* pinfo,
-    proto_tree *tree, int offset, int id_length _U_, int length)
+    proto_tree *tree, int offset, isis_data_t *isis _U_, int length)
 {
     isis_dissect_ipv6_int_clv(tree, pinfo, tvb, &ei_isis_hello_short_clv,
         offset, length, hf_isis_hello_clv_ipv6_int_addr );
@@ -664,7 +664,7 @@ dissect_hello_ipv6_int_addr_clv(tvbuff_t *tvb, packet_info* pinfo,
  */
 static void
 dissect_hello_authentication_clv(tvbuff_t *tvb, packet_info* pinfo,
-    proto_tree *tree, int offset, int id_length _U_, int length)
+    proto_tree *tree, int offset, isis_data_t *isis _U_, int length)
 {
     isis_dissect_authentication_clv(tree, pinfo, tvb, hf_isis_hello_authentication, hf_isis_clv_key_id, &ei_isis_hello_authentication, offset, length);
 }
@@ -688,7 +688,7 @@ dissect_hello_authentication_clv(tvbuff_t *tvb, packet_info* pinfo,
  */
 static void
 dissect_hello_ip_authentication_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
-    proto_tree *tree, int offset, int id_length _U_, int length)
+    proto_tree *tree, int offset, isis_data_t *isis _U_, int length)
 {
     if ( length != 0 ) {
        proto_tree_add_item( tree, hf_isis_hello_clv_ip_authentication, tvb, offset, length, ENC_ASCII|ENC_NA);
@@ -700,7 +700,7 @@ dissect_hello_ip_authentication_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
  */
 static void
 dissect_hello_trill_neighbor_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
-        proto_tree *tree, int offset, int id_length _U_, int length) {
+        proto_tree *tree, int offset, isis_data_t *isis _U_, int length) {
 
     guint8 size = (tvb_get_guint8(tvb, offset)) & 0x1f;
 
@@ -739,11 +739,11 @@ dissect_hello_trill_neighbor_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
  */
 static void
 dissect_hello_reverse_metric_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
-        proto_tree *tree, int offset, int id_length _U_, int length _U_) {
+        proto_tree *tree, int offset, isis_data_t *isis _U_, int length _U_) {
 
     guint32 sub_length;
 
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_isis_hello_reverse_metric_flag_reserved,
         &hf_isis_hello_reverse_metric_flag_u,
         &hf_isis_hello_reverse_metric_flag_w,
@@ -779,7 +779,7 @@ dissect_hello_reverse_metric_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
  */
 static void
 dissect_hello_bfd_enabled_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
-        proto_tree *tree, int offset, int id_length _U_, int length) {
+        proto_tree *tree, int offset, isis_data_t *isis _U_, int length) {
 
     while (length >= 3) {
         /* mtid */
@@ -811,9 +811,9 @@ dissect_hello_bfd_enabled_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
 
 static void
 dissect_hello_checksum_clv(tvbuff_t *tvb, packet_info* pinfo,
-        proto_tree *tree, int offset, int id_length _U_, int length) {
+        proto_tree *tree, int offset, isis_data_t *isis, int length) {
 
-    guint16 pdu_length,checksum, cacl_checksum=0;
+    guint16 checksum, cacl_checksum=0;
 
     if ( length != 2 ) {
         proto_tree_add_expert_format(tree, pinfo, &ei_isis_hello_short_clv, tvb, offset, length,
@@ -823,17 +823,11 @@ dissect_hello_checksum_clv(tvbuff_t *tvb, packet_info* pinfo,
 
     checksum = tvb_get_ntohs(tvb, offset);
 
-    /* the check_and_get_checksum() function needs to know how big
-     * the packet is. we can either pass through the pdu-len through several layers
-     * of dissectors and wrappers or extract the PDU length field from the PDU specific header
-     * which is offseted 17 bytes in IIHs (relative to the beginning of the IS-IS packet) */
-    pdu_length = tvb_get_ntohs(tvb, 17);
-
     if (checksum == 0) {
         /* No checksum present */
         proto_tree_add_checksum(tree, tvb, offset, hf_isis_hello_checksum, hf_isis_hello_checksum_status, &ei_isis_hello_bad_checksum, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NOT_PRESENT);
     } else {
-        if (osi_check_and_get_checksum(tvb, 0, pdu_length, offset, &cacl_checksum)) {
+        if (osi_check_and_get_checksum(tvb, 0, isis->pdu_length, offset, &cacl_checksum)) {
             /* Successfully processed checksum, verify it */
             proto_tree_add_checksum(tree, tvb, offset, hf_isis_hello_checksum, hf_isis_hello_checksum_status, &ei_isis_hello_bad_checksum, pinfo, cacl_checksum, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
         } else {
@@ -864,7 +858,7 @@ dissect_hello_checksum_clv(tvbuff_t *tvb, packet_info* pinfo,
  */
 static void
 dissect_hello_area_address_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
-    proto_tree *tree, int offset, int id_length _U_, int length)
+    proto_tree *tree, int offset, isis_data_t *isis _U_, int length)
 {
     isis_dissect_area_address_clv(tree, pinfo, tvb, &ei_isis_hello_short_clv, hf_isis_hello_area_address, offset, length);
 }
@@ -888,7 +882,7 @@ dissect_hello_area_address_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
  */
 static void
 dissect_hello_instance_identifier_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
-    proto_tree *tree, int offset, int id_length _U_, int length)
+    proto_tree *tree, int offset, isis_data_t *isis _U_, int length)
 {
     isis_dissect_instance_identifier_clv(tree, pinfo, tvb, &ei_isis_hello_short_clv, hf_isis_hello_instance_identifier, hf_isis_hello_supported_itid, offset, length);
 }
@@ -902,7 +896,7 @@ static const value_string adj_state_vals[] = {
 
 static void
 dissect_hello_ptp_adj_clv(tvbuff_t *tvb, packet_info* pinfo,
-        proto_tree *tree, int offset, int id_length, int length)
+        proto_tree *tree, int offset, isis_data_t *isis, int length)
 {
     switch(length)
     {
@@ -916,13 +910,13 @@ dissect_hello_ptp_adj_clv(tvbuff_t *tvb, packet_info* pinfo,
     case 11:
         proto_tree_add_item(tree, hf_isis_hello_adjacency_state, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_isis_hello_extended_local_circuit_id, tvb, offset+1, 4, ENC_BIG_ENDIAN);
-        proto_tree_add_item(tree, hf_isis_hello_neighbor_systemid, tvb, offset+5, id_length, ENC_NA);
+        proto_tree_add_item(tree, hf_isis_hello_neighbor_systemid, tvb, offset+5, isis->system_id_len, ENC_NA);
     break;
     case 15:
         proto_tree_add_item(tree, hf_isis_hello_adjacency_state, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_isis_hello_extended_local_circuit_id, tvb, offset+1, 4, ENC_BIG_ENDIAN);
-        proto_tree_add_item(tree, hf_isis_hello_neighbor_systemid, tvb, offset+5, id_length, ENC_NA);
-        proto_tree_add_item(tree, hf_isis_hello_neighbor_extended_local_circuit_id, tvb, offset+5+id_length, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_isis_hello_neighbor_systemid, tvb, offset+5, isis->system_id_len, ENC_NA);
+        proto_tree_add_item(tree, hf_isis_hello_neighbor_extended_local_circuit_id, tvb, offset+5+isis->system_id_len, 4, ENC_BIG_ENDIAN);
     break;
     default:
         proto_tree_add_expert_format(tree, pinfo, &ei_isis_hello_short_clv, tvb, offset, -1,
@@ -949,7 +943,7 @@ dissect_hello_ptp_adj_clv(tvbuff_t *tvb, packet_info* pinfo,
  */
 static void
 dissect_hello_is_neighbors_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset,
-    int id_length _U_, int length)
+    isis_data_t *isis _U_, int length)
 {
     while ( length > 0 ) {
         if (length<6) {
@@ -986,7 +980,7 @@ dissect_hello_is_neighbors_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tr
  */
 static void
 dissect_hello_padding_clv(tvbuff_t *tvb _U_, packet_info* pinfo _U_, proto_tree *tree _U_, int offset _U_,
-    int id_length _U_, int length _U_)
+    isis_data_t *isis _U_, int length _U_)
 {
     /* nothing to do here! */
 }
@@ -1010,7 +1004,7 @@ dissect_hello_padding_clv(tvbuff_t *tvb _U_, packet_info* pinfo _U_, proto_tree 
  */
 static void
 dissect_hello_ipv6_glb_int_addr_clv(tvbuff_t *tvb, packet_info* pinfo,
-    proto_tree *tree, int offset, int id_length _U_, int length)
+    proto_tree *tree, int offset, isis_data_t *isis _U_, int length)
 {
     isis_dissect_ipv6_int_clv(tree, pinfo, tvb, &ei_isis_hello_short_clv,
         offset, length, hf_isis_hello_clv_ipv6_glb_int_addr );
@@ -1328,53 +1322,102 @@ static const isis_clv_handle_t clv_ptp_hello_opts[] = {
  */
 static void
 dissect_isis_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
-    const isis_clv_handle_t *opts, int header_length, int id_length)
+    const isis_clv_handle_t *opts, isis_data_t *isis)
 {
     proto_item    *ti;
     proto_tree    *hello_tree;
     guint16        pdu_length;
     gboolean       pdu_length_too_short = FALSE;
 
+    /*
+     * We are passed a tvbuff for the entire ISIS PDU, because some ISIS
+     * PDUs may contain a checksum CLV, and that's a checksum covering
+     * the entire PDU.  Skip the part of the header that's already been
+     * dissected.
+     */
+    offset += 8;
+
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISIS HELLO");
 
     ti = proto_tree_add_item(tree, proto_isis_hello, tvb, offset, -1, ENC_NA);
     hello_tree = proto_item_add_subtree(ti, ett_isis_hello);
 
+    if (isis->header_length < 8 + 1) {
+        /* Not large enough to include the part of the header that
+           we dissect here. */
+        expert_add_info(pinfo, isis->header_length_item, isis->ei_bad_header_length);
+        return;
+    }
     proto_tree_add_item(hello_tree, hf_isis_hello_circuit, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(hello_tree, hf_isis_hello_circuit_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    proto_tree_add_item(hello_tree, hf_isis_hello_source_id, tvb, offset, id_length, ENC_NA);
-    col_append_fstr(pinfo->cinfo, COL_INFO, ", System-ID: %s", tvb_print_system_id( tvb, offset, id_length ));
+    if (isis->header_length < 8 + 1 + isis->system_id_len) {
+        /* Not large enough to include the part of the header that
+           we dissect here. */
+        expert_add_info(pinfo, isis->header_length_item, isis->ei_bad_header_length);
+        return;
+    }
+    proto_tree_add_item(hello_tree, hf_isis_hello_source_id, tvb, offset, isis->system_id_len, ENC_NA);
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", System-ID: %s", tvb_print_system_id( tvb, offset, isis->system_id_len ));
+    offset += isis->system_id_len;
 
-    offset += id_length;
-
+    if (isis->header_length < 8 + 1 + isis->system_id_len + 2) {
+        /* Not large enough to include the part of the header that
+           we dissect here. */
+        expert_add_info(pinfo, isis->header_length_item, isis->ei_bad_header_length);
+        return;
+    }
     proto_tree_add_item(hello_tree, hf_isis_hello_holding_timer, tvb,
                         offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
+    if (isis->header_length < 8 + 1 + isis->system_id_len + 2 + 2) {
+        /* Not large enough to include the part of the header that
+           we dissect here. */
+        expert_add_info(pinfo, isis->header_length_item, isis->ei_bad_header_length);
+        return;
+    }
     pdu_length = tvb_get_ntohs(tvb, offset);
     ti = proto_tree_add_uint(hello_tree, hf_isis_hello_pdu_length, tvb,
                              offset, 2, pdu_length);
-    if (pdu_length < header_length) {
+    if (pdu_length < isis->header_length) {
         expert_add_info(pinfo, ti, &ei_isis_hello_short_pdu);
         pdu_length_too_short = TRUE;
-    } else if (pdu_length > tvb_reported_length(tvb) + header_length) {
+    } else if (pdu_length > tvb_reported_length(tvb) + isis->header_length) {
         expert_add_info(pinfo, ti, &ei_isis_hello_long_pdu);
     }
     offset += 2;
 
     if (opts == clv_ptp_hello_opts) {
+        if (isis->header_length < 8 + 1 + isis->system_id_len + 2 + 2 + 1) {
+            /* Not large enough to include the part of the header that
+               we dissect here. */
+            expert_add_info(pinfo, isis->header_length_item, isis->ei_bad_header_length);
+            return;
+        }
         proto_tree_add_item(hello_tree, hf_isis_hello_local_circuit_id, tvb,
                          offset, 1, ENC_BIG_ENDIAN );
         offset += 1;
     } else {
+        if (isis->header_length < 8 + 1 + isis->system_id_len + 2 + 2 + 1) {
+            /* Not large enough to include the part of the header that
+               we dissect here. */
+            expert_add_info(pinfo, isis->header_length_item, isis->ei_bad_header_length);
+            return;
+        }
         proto_tree_add_item(hello_tree, hf_isis_hello_priority, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(hello_tree, hf_isis_hello_priority_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
-        proto_tree_add_item(hello_tree, hf_isis_hello_lan_id, tvb, offset, id_length + 1, ENC_NA);
-        offset += id_length + 1;
+        if (isis->header_length < 8 + 1 + isis->system_id_len + 2 + 2 + 1 + isis->system_id_len + 1) {
+            /* Not large enough to include the part of the header that
+               we dissect here. */
+            expert_add_info(pinfo, isis->header_length_item, isis->ei_bad_header_length);
+            return;
+        }
+        proto_tree_add_item(hello_tree, hf_isis_hello_lan_id, tvb, offset, isis->system_id_len + 1, ENC_NA);
+        offset += isis->system_id_len + 1;
     }
 
     if (pdu_length_too_short) {
@@ -1384,10 +1427,11 @@ dissect_isis_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offs
      * Now, we need to decode our CLVs.  We need to pass in
      * our list of valid ones!
      */
+    isis->pdu_length = pdu_length;
     isis_dissect_clvs(tvb, pinfo, hello_tree, offset,
-            opts, &ei_isis_hello_short_clv, pdu_length - header_length,
-            id_length,
-            ett_isis_hello_clv_unknown, hf_isis_hello_clv_type, hf_isis_hello_clv_length, ei_isis_hello_clv_unknown);
+            opts, &ei_isis_hello_short_clv, isis, ett_isis_hello_clv_unknown,
+            hf_isis_hello_clv_type, hf_isis_hello_clv_length,
+            &ei_isis_hello_clv_unknown);
 }
 
 
@@ -1395,8 +1439,7 @@ static int
 dissect_isis_l1_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     isis_data_t* isis = (isis_data_t*)data;
-    dissect_isis_hello(tvb, pinfo, tree, 0,
-        clv_l1_hello_opts, isis->header_length, isis->system_id_len);
+    dissect_isis_hello(tvb, pinfo, tree, 0, clv_l1_hello_opts, isis);
     return tvb_captured_length(tvb);
 }
 
@@ -1404,8 +1447,7 @@ static int
 dissect_isis_l2_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     isis_data_t* isis = (isis_data_t*)data;
-    dissect_isis_hello(tvb, pinfo, tree, 0,
-        clv_l2_hello_opts, isis->header_length, isis->system_id_len);
+    dissect_isis_hello(tvb, pinfo, tree, 0, clv_l2_hello_opts, isis);
     return tvb_captured_length(tvb);
 }
 
@@ -1413,8 +1455,7 @@ static int
 dissect_isis_ptp_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     isis_data_t* isis = (isis_data_t*)data;
-    dissect_isis_hello(tvb, pinfo, tree, 0,
-        clv_ptp_hello_opts, isis->header_length, isis->system_id_len);
+    dissect_isis_hello(tvb, pinfo, tree, 0, clv_ptp_hello_opts, isis);
     return tvb_captured_length(tvb);
 }
 

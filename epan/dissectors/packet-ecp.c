@@ -123,7 +123,7 @@ static const value_string vdp_tlv_type_vals[] = {
 	{ VDP_TLV_ASSOC,		"Associate" },
 	{ VDP_TLV_DEASSOC,		"DeAssociate" },
 	{ VDP_TLV_MGRID,		"VSI Manager ID" },
-	{ VDP_TLV_ORG,			"Orgnaizationally defined TLV" },
+	{ VDP_TLV_ORG,			"Organizationally defined TLV" },
 	{ 0x0,				NULL }
 };
 
@@ -192,7 +192,7 @@ dissect_vdp_tlv_assoc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, p
 	/* Reason */
 	reason = tvb_get_guint8(tvb, offset);
 	if (reason & 0x40) {
-		static const int * response_flags[] = {
+		static int * const response_flags[] = {
 			&hf_vdp_tlv_assoc_flag_hard_error,
 			&hf_vdp_tlv_assoc_flag_keep,
 			&hf_vdp_tlv_assoc_flag_req_rsp,
@@ -202,7 +202,7 @@ dissect_vdp_tlv_assoc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, p
 		proto_tree_add_item(vdp_tlv_assoc_tree, hf_vdp_tlv_assoc_error, tvb, offset, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_bitmask(vdp_tlv_assoc_tree, tvb, offset, hf_vdp_tlv_assoc_response_flags, ett_vdp_assoc_flags, response_flags, ENC_BIG_ENDIAN);
 	} else {
-		static const int * request_flags[] = {
+		static int * const request_flags[] = {
 			&hf_vdp_tlv_assoc_flag_mbit,
 			&hf_vdp_tlv_assoc_flag_sbit,
 			&hf_vdp_tlv_assoc_flag_req_rsp,

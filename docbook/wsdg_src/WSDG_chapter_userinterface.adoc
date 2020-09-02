@@ -204,7 +204,7 @@ translation, do the following:
 - Add ui/qt/wireshark_XX.ts to `.tx/config`.
 - Translate with Qt Linguist: `linguist ui/qt/wireshark_XX.ts`.
 - Do a test build and make sure the generated _wireshark_XX.qm_ binary file is included.
-- Push your translation to Gerrit for review. See <<ChSrcContribute>> for details.
+- Push your translation to GitLab for review. See <<ChSrcContribute>> for details.
 
 Alternatively you can put your QM and flag files in the _languages_
 directory in the Wireshark user configuration directory

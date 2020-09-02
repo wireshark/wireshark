@@ -749,7 +749,7 @@ dissect_dap_FamilyGrouping(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 }
 
 
-static const int * ServiceControlOptions_bits[] = {
+static int * const ServiceControlOptions_bits[] = {
   &hf_dap_ServiceControlOptions_preferChaining,
   &hf_dap_ServiceControlOptions_chainingProhibited,
   &hf_dap_ServiceControlOptions_localScope,
@@ -2013,7 +2013,7 @@ dissect_dap_Credentials(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 }
 
 
-static const int * Versions_bits[] = {
+static int * const Versions_bits[] = {
   &hf_dap_Versions_v1,
   &hf_dap_Versions_v2,
   NULL
@@ -2302,7 +2302,7 @@ dissect_dap_T_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 }
 
 
-static const int * T_permission_bits[] = {
+static int * const T_permission_bits[] = {
   &hf_dap_T_permission_add,
   &hf_dap_T_permission_remove,
   &hf_dap_T_permission_rename,
@@ -2979,7 +2979,7 @@ dissect_dap_T_subset(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 }
 
 
-static const int * HierarchySelections_bits[] = {
+static int * const HierarchySelections_bits[] = {
   &hf_dap_HierarchySelections_self,
   &hf_dap_HierarchySelections_children,
   &hf_dap_HierarchySelections_parent,
@@ -3003,7 +3003,7 @@ dissect_dap_HierarchySelections(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 }
 
 
-static const int * SearchControlOptions_bits[] = {
+static int * const SearchControlOptions_bits[] = {
   &hf_dap_SearchControlOptions_searchAliases,
   &hf_dap_SearchControlOptions_matchedValuesOnly,
   &hf_dap_SearchControlOptions_checkOverspecified,

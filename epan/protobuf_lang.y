@@ -1,5 +1,9 @@
 /*
  * We want a reentrant parser.
+ * For now ignore the wdeprecated warning recommending
+ * %define api.pure
+ * https://code.wireshark.org/review/#/c/33771/
+ * "This doesn't work with Berkeley YACC, and I'd *really* prefer not to require Bison."
  */
 %pure-parser
 

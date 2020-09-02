@@ -141,7 +141,7 @@ static int
 dissect_account_control(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
 	/* display the Allowable Account control bits */
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_flags_autolock,
 		&hf_flags_expire,
 		&hf_flags_server_trust,

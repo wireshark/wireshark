@@ -2,8 +2,8 @@
  * Routines for DPNSS/DASS2-User Adaptation Layer dissection
  *
  * It is hopefully (needs testing) compliant to
- *   http://www.ietf.org/internet-drafts/draft-ietf-sigtran-dua-08.txt
- *   http://www.ietf.org/internet-drafts/draft-ietf-sigtran-rfc3057bis-02.txt
+ *   https://tools.ietf.org/html/draft-ietf-sigtran-dua-08
+ *   https://tools.ietf.org/html/draft-ietf-sigtran-rfc3057bis-02
  *
  * To do: - provide better handling of length parameters
  *

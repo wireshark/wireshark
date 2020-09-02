@@ -352,7 +352,7 @@ static void append_oid(packet_info *pinfo, const char *oid)
 /*--- Included file: packet-dop-fn.c ---*/
 #line 1 "./asn1/dop/packet-dop-fn.c"
 
-static const int * DSEType_bits[] = {
+static int * const DSEType_bits[] = {
   &hf_dop_DSEType_root,
   &hf_dop_DSEType_glue,
   &hf_dop_DSEType_cp,
@@ -1774,7 +1774,7 @@ dissect_dop_UserClasses(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 }
 
 
-static const int * GrantsAndDenials_bits[] = {
+static int * const GrantsAndDenials_bits[] = {
   &hf_dop_GrantsAndDenials_grantAdd,
   &hf_dop_GrantsAndDenials_denyAdd,
   &hf_dop_GrantsAndDenials_grantDiscloseOnError,

@@ -1276,7 +1276,6 @@ static const gchar *get_message_name(guint8 prot_discr, guint8 message_type) {
         return val_to_str_ext(message_type, &q931_message_type_vals_ext, "Unknown (0x%02X)");
 }
 
-static const true_false_string tfs_user_provider = { "User", "Provider" };
 static const true_false_string tfs_abnormal_normal = { "Abnormal", "Normal" };
 
 static void
@@ -1971,7 +1970,7 @@ static void
 dissect_q931_pl_binary_parameters_ie(tvbuff_t *tvb, int offset, int len,
     proto_tree *tree)
 {
-    const int * fields[] = {
+    static int * const fields[] = {
         &hf_q931_fast_select,
         &hf_q931_pl_request,
         &hf_q931_pl_binary_confirmation,

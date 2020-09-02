@@ -39,7 +39,8 @@ typedef enum {
     SSL_ID_ALERT                   = 0x15,
     SSL_ID_HANDSHAKE               = 0x16,
     SSL_ID_APP_DATA                = 0x17,
-    SSL_ID_HEARTBEAT               = 0x18
+    SSL_ID_HEARTBEAT               = 0x18,
+    SSL_ID_TLS12_CID               = 0x19
 } ContentType;
 
 typedef enum {
@@ -121,6 +122,7 @@ typedef enum {
 #define SSL_HND_HELLO_EXT_POST_HANDSHAKE_AUTH           49
 #define SSL_HND_HELLO_EXT_SIGNATURE_ALGORITHMS_CERT     50
 #define SSL_HND_HELLO_EXT_KEY_SHARE                     51
+#define SSL_HND_HELLO_EXT_CONNECTION_ID                 53
 #define SSL_HND_HELLO_EXT_GREASE_0A0A                   2570
 #define SSL_HND_HELLO_EXT_GREASE_1A1A                   6682
 #define SSL_HND_HELLO_EXT_GREASE_2A2A                   10794
@@ -151,10 +153,10 @@ typedef enum {
 #define SSL_HND_CERT_TYPE_RAW_PUBLIC_KEY     2
 
 /* https://github.com/quicwg/base-drafts/wiki/Temporary-IANA-Registry#quic-transport-parameters */
-#define SSL_HND_QUIC_TP_ORIGINAL_CONNECTION_ID              0x00
+#define SSL_HND_QUIC_TP_ORIGINAL_DESTINATION_CONNECTION_ID  0x00
 #define SSL_HND_QUIC_TP_MAX_IDLE_TIMEOUT                    0x01
 #define SSL_HND_QUIC_TP_STATELESS_RESET_TOKEN               0x02
-#define SSL_HND_QUIC_TP_MAX_PACKET_SIZE                     0x03
+#define SSL_HND_QUIC_TP_MAX_UDP_PAYLOAD_SIZE                0x03
 #define SSL_HND_QUIC_TP_INITIAL_MAX_DATA                    0x04
 #define SSL_HND_QUIC_TP_INITIAL_MAX_STREAM_DATA_BIDI_LOCAL  0x05
 #define SSL_HND_QUIC_TP_INITIAL_MAX_STREAM_DATA_BIDI_REMOTE 0x06
@@ -166,8 +168,11 @@ typedef enum {
 #define SSL_HND_QUIC_TP_DISABLE_ACTIVE_MIGRATION            0x0c
 #define SSL_HND_QUIC_TP_PREFERRED_ADDRESS                   0x0d
 #define SSL_HND_QUIC_TP_ACTIVE_CONNECTION_ID_LIMIT          0x0e
+#define SSL_HND_QUIC_TP_INITIAL_SOURCE_CONNECTION_ID        0x0f
+#define SSL_HND_QUIC_TP_RETRY_SOURCE_CONNECTION_ID          0x10
 #define SSL_HND_QUIC_TP_MAX_DATAGRAM_FRAME_SIZE             0x20 /* https://tools.ietf.org/html/draft-pauly-quic-datagram-05 */
 #define SSL_HND_QUIC_TP_LOSS_BITS                           0x1057 /* https://tools.ietf.org/html/draft-ferrieuxhamchaoui-quic-lossbits-03 */
+#define SSL_HND_QUIC_TP_GREASE_QUIC_BIT                     0x2ab2 /* https://tools.ietf.org/html/draft-thomson-quic-bit-grease-00 */
 #define SSL_HND_QUIC_TP_ENABLE_TIME_STAMP                   0x7157 /* https://tools.ietf.org/html/draft-huitema-quic-ts-02 */
 #define SSL_HND_QUIC_TP_MIN_ACK_DELAY                       0xde1a /* https://tools.ietf.org/html/draft-iyengar-quic-delayed-ack-00 */
 /*
@@ -428,6 +433,19 @@ typedef struct _SslSession {
     /* First pass only: track an in-progress handshake reassembly (>0) */
     guint32     client_hs_reassembly_id;
     guint32     server_hs_reassembly_id;
+
+    /* Connection ID extension
+
+    struct {
+        opaque cid<0..2^8-1>;
+    } ConnectionId;
+    */
+#define DTLS_MAX_CID_LENGTH 256
+
+    guint8 *client_cid;
+    guint8 *server_cid;
+    guint8  client_cid_len;
+    guint8  server_cid_len;
 } SslSession;
 
 /* RFC 5246, section 8.1 says that the master secret is always 48 bytes */
@@ -512,6 +530,22 @@ gboolean ssldecrypt_uat_fld_port_chk_cb(void*, const char*, unsigned, const void
 gboolean ssldecrypt_uat_fld_fileopen_chk_cb(void*, const char*, unsigned, const void*, const void*, char** err);
 gboolean ssldecrypt_uat_fld_password_chk_cb(void*, const char*, unsigned, const void*, const void*, char** err);
 gchar* ssl_association_info(const char* dissector_table_name, const char* table_protocol);
+
+/** Initialize the list of sessions with connection ID */
+void ssl_init_cid_list(void);
+
+/** Release resource allocated for the list of sessions with connection ID */
+void ssl_cleanup_cid_list(void);
+
+/** Add a session to the list of sessions using connection ID */
+void ssl_add_session_by_cid(SslDecryptSession *ssl);
+
+/**
+ * Return a session with a matching connection ID
+ * @param tvb a buffer containing a connection ID
+ * @param offset offset of the connection ID in tvb
+ */
+SslDecryptSession *ssl_get_session_by_cid(tvbuff_t *tvb, guint32 offset);
 
 /** Retrieve a SslSession, creating it if it did not already exist.
  * @param conversation The SSL conversation.
@@ -625,6 +659,8 @@ ssl_change_cipher(SslDecryptSession *ssl_session, gboolean server);
  @param ignore_mac_failed whether to ignore MAC or authenticity failures
  @param in a pointer to the ssl record to be decrypted
  @param inl the record length
+ @param cid a pointer to the connection ID to use in AEAD or NULL
+ @param cidl the connection ID length or 0 if cid is NULL
  @param comp_str a pointer to the store the compression data
  @param out_str a pointer to the store for the decrypted data
  @param outl the decrypted data len
@@ -632,7 +668,8 @@ ssl_change_cipher(SslDecryptSession *ssl_session, gboolean server);
 extern gint
 ssl_decrypt_record(SslDecryptSession *ssl, SslDecoder *decoder, guint8 ct, guint16 record_version,
         gboolean ignore_mac_failed,
-        const guchar *in, guint16 inl, StringInfo *comp_str, StringInfo *out_str, guint *outl);
+        const guchar *in, guint16 inl, const guchar *cid, guint8 cidl,
+        StringInfo *comp_str, StringInfo *out_str, guint *outl);
 
 /**
  * Given a cipher algorithm and its mode, a hash algorithm and the secret (with
@@ -799,6 +836,8 @@ typedef struct ssl_common_dissect {
         gint hs_ext_max_fragment_length;
         gint hs_ext_padding_data;
         gint hs_ext_type;
+        gint hs_ext_connection_id_length;
+        gint hs_ext_connection_id;
         gint hs_sig_hash_alg;
         gint hs_sig_hash_alg_len;
         gint hs_sig_hash_algs;
@@ -823,6 +862,18 @@ typedef struct ssl_common_dissect {
         gint hs_client_keyex_yc;
         gint hs_server_keyex_point;
         gint hs_client_keyex_point;
+        gint hs_server_keyex_xs_len;
+        gint hs_client_keyex_xc_len;
+        gint hs_server_keyex_xs;
+        gint hs_client_keyex_xc;
+        gint hs_server_keyex_vs_len;
+        gint hs_client_keyex_vc_len;
+        gint hs_server_keyex_vs;
+        gint hs_client_keyex_vc;
+        gint hs_server_keyex_rs_len;
+        gint hs_client_keyex_rc_len;
+        gint hs_server_keyex_rs;
+        gint hs_client_keyex_rc;
         gint hs_server_keyex_modulus;
         gint hs_server_keyex_exponent;
         gint hs_server_keyex_sig;
@@ -902,7 +953,7 @@ typedef struct ssl_common_dissect {
         gint hs_ext_quictp_parameter_len;
         gint hs_ext_quictp_parameter_len_old;
         gint hs_ext_quictp_parameter_value;
-        gint hs_ext_quictp_parameter_ocid;
+        gint hs_ext_quictp_parameter_original_destination_connection_id;
         gint hs_ext_quictp_parameter_max_idle_timeout;
         gint hs_ext_quictp_parameter_stateless_reset_token;
         gint hs_ext_quictp_parameter_initial_max_data;
@@ -913,7 +964,7 @@ typedef struct ssl_common_dissect {
         gint hs_ext_quictp_parameter_initial_max_streams_uni;
         gint hs_ext_quictp_parameter_ack_delay_exponent;
         gint hs_ext_quictp_parameter_max_ack_delay;
-        gint hs_ext_quictp_parameter_max_packet_size;
+        gint hs_ext_quictp_parameter_max_udp_payload_size;
         gint hs_ext_quictp_parameter_pa_ipv4address;
         gint hs_ext_quictp_parameter_pa_ipv6address;
         gint hs_ext_quictp_parameter_pa_ipv4port;
@@ -922,6 +973,8 @@ typedef struct ssl_common_dissect {
         gint hs_ext_quictp_parameter_pa_connectionid;
         gint hs_ext_quictp_parameter_pa_statelessresettoken;
         gint hs_ext_quictp_parameter_active_connection_id_limit;
+        gint hs_ext_quictp_parameter_initial_source_connection_id;
+        gint hs_ext_quictp_parameter_retry_source_connection_id;
         gint hs_ext_quictp_parameter_max_datagram_frame_size;
         gint hs_ext_quictp_parameter_loss_bits;
         gint hs_ext_quictp_parameter_min_ack_delay;
@@ -1142,6 +1195,7 @@ ssl_dissect_hnd_compress_certificate(ssl_common_dissect_t *hf, tvbuff_t *tvb, pr
 #define SSL_COMMON_LIST_T(name) \
 ssl_common_dissect_t name = {   \
     /* hf */ {                  \
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
@@ -1577,6 +1631,66 @@ ssl_common_dissect_t name = {   \
         FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
         "EC Diffie-Hellman client pubkey", HFILL }                      \
     },                                                                  \
+    { & name .hf.hs_server_keyex_xs_len,                                \
+      { "Pubkey Length", prefix ".handshake.xs_len",                    \
+        FT_UINT8, BASE_DEC, NULL, 0x0,                                  \
+        "Length of EC J-PAKE server public key", HFILL }                \
+    },                                                                  \
+    { & name .hf.hs_client_keyex_xc_len,                                \
+      { "Pubkey Length", prefix ".handshake.xc_len",                    \
+        FT_UINT8, BASE_DEC, NULL, 0x0,                                  \
+        "Length of EC J-PAKE client public key", HFILL }                \
+    },                                                                  \
+    { & name .hf.hs_server_keyex_xs,                                    \
+      { "Pubkey", prefix ".handshake.xs",                               \
+        FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
+        "EC J-PAKE server public key", HFILL }                          \
+    },                                                                  \
+    { & name .hf.hs_client_keyex_xc,                                    \
+      { "Pubkey", prefix ".handshake.xc",                               \
+        FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
+        "EC J-PAKE client public key", HFILL }                          \
+    },                                                                  \
+    { & name .hf.hs_server_keyex_vs_len,                                \
+      { "Ephemeral Pubkey Length", prefix ".handshake.vs_len",          \
+        FT_UINT8, BASE_DEC, NULL, 0x0,                                  \
+        "Length of EC J-PAKE server ephemeral public key", HFILL }      \
+    },                                                                  \
+    { & name .hf.hs_client_keyex_vc_len,                                \
+      { "Ephemeral Pubkey Length", prefix ".handshake.vc_len",          \
+        FT_UINT8, BASE_DEC, NULL, 0x0,                                  \
+        "Length of EC J-PAKE client ephemeral public key", HFILL }      \
+    },                                                                  \
+    { & name .hf.hs_server_keyex_vs,                                    \
+      { "Ephemeral Pubkey", prefix ".handshake.vs",                     \
+        FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
+        "EC J-PAKE server ephemeral public key", HFILL }                \
+    },                                                                  \
+    { & name .hf.hs_client_keyex_vc,                                    \
+      { "Ephemeral Pubkey", prefix ".handshake.vc",                     \
+        FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
+        "EC J-PAKE client ephemeral public key", HFILL }                \
+    },                                                                  \
+    { & name .hf.hs_server_keyex_rs_len,                                \
+      { "Schnorr signature Length", prefix ".handshake.rs_len",         \
+        FT_UINT8, BASE_DEC, NULL, 0x0,                                  \
+        "Length of EC J-PAKE server Schnorr signature", HFILL }         \
+    },                                                                  \
+    { & name .hf.hs_client_keyex_rc_len,                                \
+      { "Schnorr signature Length", prefix ".handshake.rc_len",         \
+        FT_UINT8, BASE_DEC, NULL, 0x0,                                  \
+        "Length of EC J-PAKE client Schnorr signature", HFILL }         \
+    },                                                                  \
+    { & name .hf.hs_server_keyex_rs,                                    \
+      { "Schnorr signature", prefix ".handshake.rs",                    \
+        FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
+        "EC J-PAKE server Schnorr signature", HFILL }                   \
+    },                                                                  \
+    { & name .hf.hs_client_keyex_rc,                                    \
+      { "Schnorr signature", prefix ".handshake.rc",                    \
+        FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
+        "EC J-PAKE client Schnorr signature", HFILL }                   \
+    },                                                                  \
     { & name .hf.hs_server_keyex_modulus,                               \
       { "Modulus", prefix ".handshake.modulus",                         \
         FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
@@ -1935,7 +2049,7 @@ ssl_common_dissect_t name = {   \
         NULL, HFILL }                                                   \
     },                                                                  \
     { & name .hf.hs_ext_quictp_parameter_len_old,                       \
-      { "Length", prefix ".quic.parameter.length",                      \
+      { "Length", prefix ".quic.parameter.lengt.old",                   \
         FT_UINT16, BASE_DEC, NULL, 0x00,                                \
         NULL, HFILL }                                                   \
     },                                                                  \
@@ -1944,10 +2058,10 @@ ssl_common_dissect_t name = {   \
         FT_BYTES, BASE_NONE, NULL, 0x00,                                \
         NULL, HFILL }                                                   \
     },                                                                  \
-    { & name .hf.hs_ext_quictp_parameter_ocid,                          \
-      { "original_connection_id", prefix ".quic.parameter.ocid",        \
+    { & name .hf.hs_ext_quictp_parameter_original_destination_connection_id, \
+      { "original_destination_connection_id", prefix ".quic.parameter.original_destination_connection_id", \
         FT_BYTES, BASE_NONE, NULL, 0x00,                                \
-        "The value of the Destination Connection ID field from the first Initial packet sent by the client", HFILL } \
+        "Destination Connection ID from the first Initial packet sent by the client", HFILL } \
     },                                                                  \
     { & name .hf.hs_ext_quictp_parameter_max_idle_timeout,              \
       { "max_idle_timeout", prefix ".quic.parameter.max_idle_timeout",  \
@@ -1959,10 +2073,10 @@ ssl_common_dissect_t name = {   \
         FT_BYTES, BASE_NONE, NULL, 0x00,                                \
         "Used in verifying a stateless reset", HFILL }                  \
     },                                                                  \
-    { & name .hf.hs_ext_quictp_parameter_max_packet_size,               \
-      { "max_packet_size", prefix ".quic.parameter.max_packet_size",    \
+    { & name .hf.hs_ext_quictp_parameter_max_udp_payload_size,          \
+      { "max_udp_payload_size", prefix ".quic.parameter.max_udp_payload_size", \
         FT_UINT64, BASE_DEC, NULL, 0x00,                                \
-        "Indicates that packets larger than this limit will be dropped", HFILL }    \
+        "Maximum UDP payload size that the endpoint is willing to receive", HFILL }    \
     },                                                                  \
     { & name .hf.hs_ext_quictp_parameter_initial_max_data,              \
       { "initial_max_data", prefix ".quic.parameter.initial_max_data",  \
@@ -2044,6 +2158,16 @@ ssl_common_dissect_t name = {   \
         FT_UINT64, BASE_DEC, NULL, 0x00,                                \
         NULL, HFILL }                                                   \
     },                                                                  \
+    { & name .hf.hs_ext_quictp_parameter_initial_source_connection_id,  \
+      { "Initial Source Connection ID", prefix ".quic.parameter.initial_source_connection_id", \
+        FT_BYTES, BASE_NONE, NULL, 0x00,                                \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_quictp_parameter_retry_source_connection_id,    \
+      { "Retry Source Connection ID", prefix ".quic.parameter.retry_source_connection_id", \
+        FT_BYTES, BASE_NONE, NULL, 0x00,                                \
+        NULL, HFILL }                                                   \
+    },                                                                  \
     { & name .hf.hs_ext_quictp_parameter_max_datagram_frame_size,       \
       { "max_datagram_frame_size", prefix ".quic.parameter.max_datagram_frame_size", \
         FT_UINT64, BASE_DEC, NULL, 0x00,                                \
@@ -2057,6 +2181,16 @@ ssl_common_dissect_t name = {   \
     { & name .hf.hs_ext_quictp_parameter_min_ack_delay,                 \
       { "min_ack_delay", prefix ".quic.parameter.min_ack_delay",        \
         FT_UINT64, BASE_DEC, NULL, 0x00,                                \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_connection_id_length,                           \
+      { "Connection ID length", prefix ".connection_id_length",         \
+        FT_UINT8, BASE_DEC, NULL, 0x00,                                 \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_connection_id,                                  \
+      { "Connection ID", prefix ".connection_id",                       \
+        FT_BYTES, BASE_NONE, NULL, 0x00,                                \
         NULL, HFILL }                                                   \
     },                                                                  \
     { & name .hf.esni_suite,                                            \

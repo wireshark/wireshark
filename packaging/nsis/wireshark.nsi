@@ -131,31 +131,6 @@ Page custom DisplayUSBPcapPage
 ; ============================================================================
 !include "Sections.nsh"
 
-; ========= Macro to unselect and disable a section =========
-
-!macro DisableSection SECTION
-
-  Push $0
-    SectionGetFlags "${SECTION}" $0
-    IntOp $0 $0 & ${SECTION_OFF}
-    IntOp $0 $0 | ${SF_RO}
-    SectionSetFlags "${SECTION}" $0
-  Pop $0
-
-!macroend
-
-; ========= Macro to enable (unreadonly) a section =========
-!define SECTION_ENABLE   0xFFFFFFEF
-!macro EnableSection SECTION
-
-  Push $0
-    SectionGetFlags "${SECTION}" $0
-    IntOp $0 $0 & ${SECTION_ENABLE}
-    SectionSetFlags "${SECTION}" $0
-  Pop $0
-
-!macroend
-
 ; ============================================================================
 ; Command Line
 ; ============================================================================
@@ -163,6 +138,54 @@ Page custom DisplayUSBPcapPage
 
 !insertmacro GetParameters
 !insertmacro GetOptions
+
+; ========= Install extcap binary and help file =========
+!macro InstallExtcap EXTCAP_NAME
+
+  SetOutPath $INSTDIR
+  File "${STAGING_DIR}\${EXTCAP_NAME}.html"
+  SetOutPath $INSTDIR\extcap
+  File "${STAGING_DIR}\extcap\${EXTCAP_NAME}.exe"
+
+!macroend
+
+; ========= Check if silent mode install of /EXTRACOMPONENTS =========
+!macro CheckExtrasFlag EXTRAS_NAME
+  !define EXTRAS_FLAG ${__LINE__}
+Section
+  IfSilent +1 skip_${EXTRAS_FLAG}
+  push $R0
+  push $R1
+  push $R2
+  ${GetParameters} $R0
+  ${GetOptions} $R0 "/EXTRACOMPONENTS=" $R1
+  IfErrors popreg_${EXTRAS_FLAG}
+  ${WordFind} $R1 "," "E+1" $R0
+
+; No delimiters found - check for single word match
+  ${If} $R0 = 1
+    StrCmp $R1 ${EXTRAS_NAME} install_${EXTRAS_FLAG} popreg_${EXTRAS_FLAG}
+  ${ENDIF}
+
+; Loop through all delimited words checking for match
+  IntOp $R2 0 + 1
+  ${While} $R0 != 2
+    StrCmp $R0 ${EXTRAS_NAME} install_${EXTRAS_FLAG} 0
+    IntOp $R2 $R2 + 1
+    ${WordFind} $R1 "," "E+$R2" $R0
+  ${EndWhile}
+  Goto popreg_${EXTRAS_FLAG}
+
+install_${EXTRAS_FLAG}:
+  !insertmacro InstallExtcap ${EXTRAS_NAME}
+popreg_${EXTRAS_FLAG}:
+  pop $R2
+  pop $R1
+  pop $R0
+skip_${EXTRAS_FLAG}:
+  !undef EXTRAS_FLAG
+SectionEnd
+!macroend
 
 ; ============================================================================
 ; Component page configuration
@@ -662,6 +685,7 @@ File "${STAGING_DIR}\radius\dictionary.dlink"
 File "${STAGING_DIR}\radius\dictionary.dragonwave"
 File "${STAGING_DIR}\radius\dictionary.efficientip"
 File "${STAGING_DIR}\radius\dictionary.eltex"
+File "${STAGING_DIR}\radius\dictionary.enterasys"
 File "${STAGING_DIR}\radius\dictionary.epygi"
 File "${STAGING_DIR}\radius\dictionary.equallogic"
 File "${STAGING_DIR}\radius\dictionary.ericsson"
@@ -683,6 +707,7 @@ File "${STAGING_DIR}\radius\dictionary.h3c"
 File "${STAGING_DIR}\radius\dictionary.hp"
 File "${STAGING_DIR}\radius\dictionary.huawei"
 File "${STAGING_DIR}\radius\dictionary.iana"
+File "${STAGING_DIR}\radius\dictionary.identity_engines"
 File "${STAGING_DIR}\radius\dictionary.iea"
 File "${STAGING_DIR}\radius\dictionary.infoblox"
 File "${STAGING_DIR}\radius\dictionary.infonet"
@@ -1130,39 +1155,31 @@ File "${STAGING_DIR}\mmdbresolve.exe"
 SectionEnd
 !endif
 
-Section /o "Androiddump" SecAndroiddumpinfos
+Section /o "Androiddump" SecAndroiddump
 ;-------------------------------------------
-SetOutPath $INSTDIR
-File "${STAGING_DIR}\androiddump.html"
-SetOutPath $INSTDIR\extcap
-File "${STAGING_DIR}\extcap\androiddump.exe"
+  !insertmacro InstallExtcap "androiddump"
 SectionEnd
+!insertmacro CheckExtrasFlag "androiddump"
 
-Section /o "Sshdump and Ciscodump" SecSshdumpinfos
+Section /o "Sshdump and Ciscodump" SecSshdump
 ;-------------------------------------------
-SetOutPath $INSTDIR
-File "${STAGING_DIR}\sshdump.html"
-File "${STAGING_DIR}\ciscodump.html"
-SetOutPath $INSTDIR\extcap
-File "${STAGING_DIR}\extcap\sshdump.exe"
-File "${STAGING_DIR}\extcap\ciscodump.exe"
+  !insertmacro InstallExtcap "sshdump"
+  !insertmacro InstallExtcap "ciscodump"
 SectionEnd
+!insertmacro CheckExtrasFlag "sshdump"
+!insertmacro CheckExtrasFlag "ciscodump"
 
-Section /o "UDPdump" SecUDPdumpinfos
+Section /o "UDPdump" SecUDPdump
 ;-------------------------------------------
-SetOutPath $INSTDIR
-File "${STAGING_DIR}\udpdump.html"
-SetOutPath $INSTDIR\extcap
-File "${STAGING_DIR}\extcap\udpdump.exe"
+  !insertmacro InstallExtcap "udpdump"
 SectionEnd
+!insertmacro CheckExtrasFlag "udpdump"
 
-Section /o "Randpktdump" SecRandpktdumpinfos
+Section /o "Randpktdump" SecRandpktdump
 ;-------------------------------------------
-SetOutPath $INSTDIR
-File "${STAGING_DIR}\randpktdump.html"
-SetOutPath $INSTDIR\extcap
-File "${STAGING_DIR}\extcap\randpktdump.exe"
+  !insertmacro InstallExtcap "randpktdump"
 SectionEnd
+!insertmacro CheckExtrasFlag "randpktdump"
 
 SectionGroupEnd ; "Tools"
 
@@ -1209,10 +1226,10 @@ SectionEnd
 !endif
 
   !insertmacro MUI_DESCRIPTION_TEXT ${SecToolsGroup} "Additional command line based tools."
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecAndroiddumpinfos} "Provide capture interfaces from Android devices"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecSshdumpinfos} "Provide remote capture through SSH"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecUDPdumpinfos} "Provide capture interface that gets UDP packets from network devices"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecRandpktdumpinfos} "Provide random packet generator"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecAndroiddump} "Provide capture interfaces from Android devices"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecSshdump} "Provide remote capture through SSH"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecUDPdump} "Provide capture interface that gets UDP packets from network devices"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecRandpktdump} "Provide random packet generator"
   !insertmacro MUI_DESCRIPTION_TEXT ${SecEditCap} "Copy packets to a new file, optionally trimmming packets, omitting them, or saving to a different format."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecText2Pcap} "Read an ASCII hex dump and write the data into a libpcap-style capture file."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecMergecap} "Combine multiple saved capture files into a single output file"

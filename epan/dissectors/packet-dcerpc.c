@@ -15,6 +15,8 @@
  *
  *    https://publications.opengroup.org/c706
  *    https://pubs.opengroup.org/onlinepubs/009629399/
+ *    https://pubs.opengroup.org/onlinepubs/009629399/toc.htm
+ *    https://pubs.opengroup.org/onlinepubs/009629399/toc.pdf
  *
  * Microsoft extensions can be found at:
  *
@@ -588,7 +590,7 @@ static int hf_dcerpc_sec_vt_bitmask_sign = -1;
 static int hf_dcerpc_sec_vt_pcontext_uuid = -1;
 static int hf_dcerpc_sec_vt_pcontext_ver = -1;
 
-static const int *sec_vt_command_fields[] = {
+static int * const sec_vt_command_fields[] = {
     &hf_dcerpc_sec_vt_command_cmd,
     &hf_dcerpc_sec_vt_command_end,
     &hf_dcerpc_sec_vt_command_must,
@@ -614,18 +616,18 @@ static int hf_dcerpc_cmd_client_ipv4 = -1;
 static int hf_dcerpc_cmd_client_ipv6 = -1;
 static int hf_dcerpc_authentication_verifier = -1;
 
-static const int *dcerpc_cn_bind_trans_btfn_fields[] = {
+static int * const dcerpc_cn_bind_trans_btfn_fields[] = {
         &hf_dcerpc_cn_bind_trans_btfn_01,
         &hf_dcerpc_cn_bind_trans_btfn_02,
         NULL
 };
 
-static const int *sec_vt_bitmask_fields[] = {
+static int * const sec_vt_bitmask_fields[] = {
     &hf_dcerpc_sec_vt_bitmask_sign,
     NULL
 };
 
-static const int *dcerpc_cn_fault_flags_fields[] = {
+static int * const dcerpc_cn_fault_flags_fields[] = {
         &hf_dcerpc_cn_fault_flags_extended_error_info,
         NULL
 };
@@ -4487,7 +4489,7 @@ dissect_dcerpc_cn_stub(tvbuff_t *tvb, int offset, packet_info *pinfo,
     fd_head = fragment_add_seq_next(&dcerpc_co_reassembly_table,
                                     decrypted_tvb, 0, pinfo, frame, NULL,
                                     tvb_reported_length(decrypted_tvb),
-                                    hdr->flags&PFC_LAST_FRAG ? FALSE : TRUE /* more_frags */);
+                                    !(hdr->flags & PFC_LAST_FRAG) /* more_frags */);
 
 end_cn_stub:
 
@@ -5132,7 +5134,7 @@ dissect_dcerpc_cn_rts(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     guint32    *cmd;
     guint32     i;
     const char *info_str        = NULL;
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_dcerpc_cn_rts_flags_ping,
         &hf_dcerpc_cn_rts_flags_other_cmd,
         &hf_dcerpc_cn_rts_flags_recycle_channel,
@@ -5441,6 +5443,7 @@ is_dcerpc(tvbuff_t *tvb, int offset, packet_info *pinfo _U_)
     guint8 rpc_ver;
     guint8 rpc_ver_minor;
     guint8 ptype;
+    guint8 drep[4];
 
     if (!tvb_bytes_exist(tvb, offset, sizeof(e_dce_cn_common_hdr_t)))
         return FALSE;   /* not enough information to check */
@@ -5453,6 +5456,15 @@ is_dcerpc(tvbuff_t *tvb, int offset, packet_info *pinfo _U_)
         return FALSE;
     ptype = tvb_get_guint8(tvb, offset++);
     if (ptype > PDU_RTS)
+        return FALSE;
+    /* Skip flags, nothing good to check */
+    offset++;
+
+    tvb_memcpy(tvb, (guint8 *)drep, offset, sizeof (drep));
+    offset += (int)sizeof (drep);
+    if (drep[0]&0xee)
+        return FALSE;
+    if (drep[1] > DCE_RPC_DREP_FP_IBM)
         return FALSE;
 
     return TRUE;
@@ -5476,7 +5488,7 @@ dissect_dcerpc_cn(tvbuff_t *tvb, int offset, packet_info *pinfo,
     dcerpc_auth_info       auth_info;
     tvbuff_t              *fragment_tvb;
     dcerpc_decode_as_data* decode_data = dcerpc_get_decode_data(pinfo);
-    static const int * hdr_flags[] = {
+    static int * const hdr_flags[] = {
         &hf_dcerpc_cn_flags_object,
         &hf_dcerpc_cn_flags_maybe,
         &hf_dcerpc_cn_flags_dne,
@@ -6218,7 +6230,7 @@ dissect_dcerpc_dg_rqst(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
         wmem_map_insert(dcerpc_dg_calls, call_key, call_value);
 
-        new_matched_key = (dcerpc_matched_key *)wmem_alloc(wmem_file_scope(), sizeof(dcerpc_matched_key));
+        new_matched_key = wmem_new(wmem_file_scope(), dcerpc_matched_key);
         new_matched_key->frame = pinfo->num;
         new_matched_key->call_id = hdr->seqnum;
         wmem_map_insert(dcerpc_matched, new_matched_key, call_value);
@@ -6376,7 +6388,7 @@ dissect_dcerpc_dg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     int                    auth_level;
     char                  *uuid_str;
     const char            *uuid_name      = NULL;
-    static const int * hdr_flags1[] = {
+    static int * const hdr_flags1[] = {
         &hf_dcerpc_dg_flags1_rsrvd_80,
         &hf_dcerpc_dg_flags1_broadcast,
         &hf_dcerpc_dg_flags1_idempotent,
@@ -6388,7 +6400,7 @@ dissect_dcerpc_dg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         NULL
     };
 
-    static const int * hdr_flags2[] = {
+    static int * const hdr_flags2[] = {
         &hf_dcerpc_dg_flags2_rsrvd_80,
         &hf_dcerpc_dg_flags2_rsrvd_40,
         &hf_dcerpc_dg_flags2_rsrvd_20,
@@ -6414,9 +6426,9 @@ dissect_dcerpc_dg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     if (hdr.rpc_ver != 4)
         return FALSE;
 
-    /* Type must be <= 19 or it's not DCE/RPC */
+    /* Type must be <= PDU_CANCEL_ACK or it's not connectionless DCE/RPC */
     hdr.ptype = tvb_get_guint8(tvb, offset++);
-    if (hdr.ptype > 19)
+    if (hdr.ptype > PDU_CANCEL_ACK)
         return FALSE;
 
     /* flags1 has bit 1 and 8 as reserved for implementations, with no
@@ -6433,12 +6445,16 @@ dissect_dcerpc_dg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     if (hdr.flags2&0xfc)
         return FALSE;
 
+    tvb_memcpy(tvb, (guint8 *)hdr.drep, offset, sizeof (hdr.drep));
+    offset += (int)sizeof (hdr.drep);
+    if (hdr.drep[0]&0xee)
+        return FALSE;
+    if (hdr.drep[1] > DCE_RPC_DREP_FP_IBM)
+        return FALSE;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "DCERPC");
     col_add_str(pinfo->cinfo, COL_INFO, pckt_vals[hdr.ptype].strptr);
 
-    tvb_memcpy(tvb, (guint8 *)hdr.drep, offset, sizeof (hdr.drep));
-    offset += (int)sizeof (hdr.drep);
     hdr.serial_hi = tvb_get_guint8(tvb, offset++);
     dcerpc_tvb_get_uuid(tvb, offset, hdr.drep, &hdr.obj_id);
     offset += 16;

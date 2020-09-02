@@ -1600,7 +1600,7 @@ tvb_get_letohieee_double(tvbuff_t *tvb, const int offset)
 static inline void
 validate_single_byte_ascii_encoding(const guint encoding)
 {
-	const guint enc = encoding & ~ENC_STR_MASK;
+	const guint enc = encoding & ~ENC_CHARENCODING_MASK;
 
 	switch (enc) {
 	    case ENC_UTF_16:
@@ -1954,6 +1954,19 @@ static const guint8 bit_mask8[] = {
 	0x7f,
 	0xff
 };
+
+
+/* Get a variable ammount of bits
+ *
+ * Return a byte array with bit limited data. The data is aligned to the right.
+ */
+guint8 *
+tvb_get_bits_array(wmem_allocator_t *scope, tvbuff_t *tvb, const gint bit_offset, size_t no_of_bits, size_t *data_length)
+{
+	tvbuff_t *sub_tvb = tvb_new_octet_aligned(tvb, bit_offset, (gint32) no_of_bits);
+	*data_length = tvb_reported_length(sub_tvb);
+	return (guint8*)tvb_memdup(scope, sub_tvb, 0, *data_length);
+}
 
 /* Get 1 - 8 bits */
 guint8
@@ -2739,6 +2752,30 @@ tvb_get_t61_string(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint len
 }
 
 /*
+ * Encoding tables for BCD strings.
+ */
+static const dgt_set_t Dgt0_9_bcd = {
+	{
+		/*  0   1   2   3   4   5   6   7   8   9   a   b   c   d   e  f */
+		   '0','1','2','3','4','5','6','7','8','9','?','?','?','?','?','?'
+	}
+};
+
+static const dgt_set_t Dgt_keypad_abc_tbcd = {
+	{
+		/*  0   1   2   3   4   5   6   7   8   9   a   b   c   d   e  f */
+		   '0','1','2','3','4','5','6','7','8','9','*','#','a','b','c','?'
+	}
+};
+
+static const dgt_set_t Dgt_ansi_tbcd = {
+	{
+		/*  0   1   2   3   4   5   6   7   8   9   a   b   c   d   e  f */
+		   '0','1','2','3','4','5','6','7','8','9','?','B','C','*','#','?'
+	}
+};
+
+/*
  * Given a tvbuff, an offset, a length, and an encoding, allocate a
  * buffer big enough to hold a non-null-terminated string of that length
  * at that offset, plus a trailing '\0', copy into the buffer the
@@ -2930,6 +2967,29 @@ tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 
 	case ENC_T61:
 		strptr = tvb_get_t61_string(scope, tvb, offset, length);
+		break;
+
+	case ENC_BCD_DIGITS_0_9:
+		/*
+		 * Packed BCD, with digits 0-9.
+		 */
+		strptr = tvb_get_bcd_string(scope, tvb, offset, length, &Dgt0_9_bcd, FALSE);
+		break;
+
+	case ENC_KEYPAD_ABC_TBCD:
+		/*
+		 * Keypad-with-a/b/c "telephony BCD" - packed BCD, with
+		 * digits 0-9 and symbols *, #, a, b, and c.
+		 */
+		strptr = tvb_get_bcd_string(scope, tvb, offset, length, &Dgt_keypad_abc_tbcd, FALSE);
+		break;
+
+	case ENC_KEYPAD_BC_TBCD:
+		/*
+		 * Keypad-with-B/C "telephony BCD" - packed BCD, with
+		 * digits 0-9 and symbols B, C, *, and #.
+		 */
+		strptr = tvb_get_bcd_string(scope, tvb, offset, length, &Dgt_ansi_tbcd, FALSE);
 		break;
 	}
 	return strptr;
@@ -3928,50 +3988,53 @@ tvb_bytes_to_str_punct(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset
 	return bytestring_to_str(scope, ensure_contiguous(tvb, offset, len), len, punct);
 }
 
-
 /*
- * Given a tvbuff, an offset into the tvbuff, and a length that starts
- * at that offset (which may be -1 for "all the way to the end of the
- * tvbuff"), fetch BCD encoded digits from a tvbuff starting from either
- * the low or high half byte, formating the digits according to an input digit set,
- * if NUll a default digit set of 0-9 returning "?" for overdecadic digits will be used.
- * A pointer to the packet scope allocated string will be returned.
- * Note a tvbuff content of 0xf is considered a 'filler' and will end the conversion.
+ * Given a wmem scope, a tvbuff, an offset, a length, an input digit
+ * set, and a boolean indicator, fetch BCD-encoded digits from a
+ * tvbuff starting from either the low or high half byte of the
+ * first byte depending on the boolean indicator (TRUE means "start
+ * with the high half byte, ignoring the low half byte", and FALSE
+ * means "start with the low half byte and proceed to the high half
+ * byte), formating the digits into characters according to the
+ * input digit set, and return a pointer to a UTF-8 string, allocated
+ * using the wmem scope.  A high-order nibble of 0xf is considered a
+ * 'filler' and will end the conversion.
  */
-static const dgt_set_t Dgt1_9_bcd = {
-	{
-		/*  0   1   2   3   4   5   6   7   8   9   a   b   c   d   e  f*/
-		'0','1','2','3','4','5','6','7','8','9','?','?','?','?','?','?'
-	}
-};
-const gchar *
-tvb_bcd_dig_to_wmem_packet_str(tvbuff_t *tvb, const gint offset, const gint len, const dgt_set_t *dgt, gboolean skip_first)
+gchar *
+tvb_get_bcd_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint len, const dgt_set_t *dgt, gboolean skip_first)
 {
-	int     length;
-	guint8  octet;
-	int     i        = 0;
-	char   *digit_str;
-	gint    t_offset = offset;
+	const guint8 *ptr;
+	int           i = 0;
+	char         *digit_str;
+	guint8        octet;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
-	if (!dgt)
-		dgt = &Dgt1_9_bcd;
-
 	if (len == -1) {
+		/*
+		 * Run to the end of the captured data.
+		 *
+		 * XXX - captured, or total?
+		 */
 		/*length = tvb_captured_length(tvb);*/
-		length = tvb->length;
-		if (length < offset) {
-			return "";
+		len = tvb->length;
+		if (len < offset) {
+			return (char *)"";
 		}
-	} else {
-		length = offset + len;
+		len -= offset;
 	}
-	digit_str = (char *)wmem_alloc(wmem_packet_scope(), (length - offset)*2+1);
 
-	while (t_offset < length) {
+	ptr = ensure_contiguous(tvb, offset, len);
 
-		octet = tvb_get_guint8(tvb,t_offset);
+	/*
+	 * XXX - map illegal digits (digits that map to 0) to REPLACEMENT
+	 * CHARACTER, and have all the tables in epan/tvbuff.c use 0 rather
+	 * than '?'?
+	 */
+	digit_str = (char *)wmem_alloc(scope, len*2 + 1);
+
+	while (len > 0) {
+		octet = *ptr;
 		if (!skip_first) {
 			digit_str[i] = dgt->out[octet & 0x0f];
 			i++;
@@ -3983,9 +4046,9 @@ tvb_bcd_dig_to_wmem_packet_str(tvbuff_t *tvb, const gint offset, const gint len,
 		 */
 		octet = octet >> 4;
 
-		if (t_offset == length - 1 && octet == 0x0f) {
+		if (len == 1 && octet == 0x0f) {
 			/*
-			 * This is the last octet, and the low-order
+			 * This is the last octet, and the high-order
 			 * nibble is 0xf, so we have an odd number of
 			 * digits, and this is a filler digit.  Ignore
 			 * it.
@@ -3995,12 +4058,21 @@ tvb_bcd_dig_to_wmem_packet_str(tvbuff_t *tvb, const gint offset, const gint len,
 
 		digit_str[i] = dgt->out[octet & 0x0f];
 		i++;
-		t_offset++;
 
+		ptr++;
+		len--;
 	}
-	digit_str[i]= '\0';
+	digit_str[i] = '\0';
 	return digit_str;
+}
 
+const gchar *
+tvb_bcd_dig_to_wmem_packet_str(tvbuff_t *tvb, const gint offset, const gint len, const dgt_set_t *dgt, gboolean skip_first)
+{
+	if (!dgt)
+		dgt = &Dgt0_9_bcd;
+
+	return tvb_get_bcd_string(wmem_packet_scope(), tvb, offset, len, dgt, skip_first);
 }
 
 /*

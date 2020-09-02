@@ -612,7 +612,7 @@ static int hf_bthci_cmd_authenticated_payload_timeout = -1;
 static int hf_bthci_cmd_extended_inquiry_length = -1;
 
 
-static const int *hfx_bthci_cmd_le_event_mask[] = {
+static int * const hfx_bthci_cmd_le_event_mask[] = {
     &hf_bthci_cmd_le_event_mask_le_reserved,
     &hf_bthci_cmd_le_event_mask_le_biginfo_advertising_report,
     &hf_bthci_cmd_le_event_mask_le_transmit_power_reporting,
@@ -651,7 +651,7 @@ static const int *hfx_bthci_cmd_le_event_mask[] = {
     NULL
 };
 
-static const int *hfx_bthci_cmd_adv_properties[] = {
+static int * const hfx_bthci_cmd_adv_properties[] = {
     &hf_bthci_cmd_advertising_properties_reserved,
     &hf_bthci_cmd_advertising_properties_incl_txpower,
     &hf_bthci_cmd_advertising_properties_anonymous_adv,
@@ -663,20 +663,20 @@ static const int *hfx_bthci_cmd_adv_properties[] = {
     NULL
 };
 
-static const int *hfx_bthci_cmd_periodic_adv_properties[] = {
+static int * const hfx_bthci_cmd_periodic_adv_properties[] = {
     &hf_bthci_cmd_periodic_advertising_properties_reserved,
     &hf_bthci_cmd_advertising_properties_incl_txpower,
     NULL
 };
 
-static const int *hfx_btcmd_all_phys[] = {
+static int * const hfx_btcmd_all_phys[] = {
     &hf_bthci_cmd_all_phys_reserved,
     &hf_bthci_cmd_all_phys_rx_pref,
     &hf_bthci_cmd_all_phys_tx_pref,
     NULL
 };
 
-static const int *hfx_btcmd_phys_pref[] = {
+static int * const hfx_btcmd_phys_pref[] = {
     &hf_bthci_cmd_phys_pref_reserved,
     &hf_bthci_cmd_phys_pref_le_coded,
     &hf_bthci_cmd_phys_pref_le_2m,
@@ -684,20 +684,20 @@ static const int *hfx_btcmd_phys_pref[] = {
     NULL
 };
 
-static const int *hfx_btcmd_phy_options[] = {
+static int * const hfx_btcmd_phy_options[] = {
     &hf_bthci_cmd_phy_options_reserved,
     &hf_bthci_cmd_phy_options_coding,
     NULL
 };
 
-static const int *hfx_btcmd_le_scan_phys[] = {
+static int * const hfx_btcmd_le_scan_phys[] = {
     &hf_bthci_cmd_le_scan_phys_reserved,
     &hf_bthci_cmd_le_scan_phys_le_coded,
     &hf_bthci_cmd_le_scan_phys_le_1m,
     NULL
 };
 
-static const int *hfx_btcmd_le_phys[] = {
+static int * const hfx_btcmd_le_phys[] = {
     &hf_bthci_cmd_le_phys_reserved,
     &hf_bthci_cmd_le_phys_le_coded,
     &hf_bthci_cmd_le_phys_le_2m,
@@ -705,7 +705,7 @@ static const int *hfx_btcmd_le_phys[] = {
     NULL
 };
 
-static const int *hfx_btcmd_sync_cte_type[] = {
+static int * const hfx_btcmd_sync_cte_type[] = {
     &hf_bthci_cmd_sync_cte_type_reserved,
     &hf_bthci_cmd_sync_cte_type_sync_only_with_cte,
     &hf_bthci_cmd_sync_cte_type_no_sync_aod_2us,
@@ -714,7 +714,7 @@ static const int *hfx_btcmd_sync_cte_type[] = {
     NULL
 };
 
-static const int *hfx_btcmd_cte_types[] = {
+static int * const hfx_btcmd_cte_types[] = {
     &hf_bthci_cmd_cte_types_reserved,
     &hf_bthci_cmd_cte_types_aod_2us,
     &hf_bthci_cmd_cte_types_aod_1us,
@@ -722,7 +722,7 @@ static const int *hfx_btcmd_cte_types[] = {
     NULL
 };
 
-static const int *hfx_bthci_cmd_sco_packet_type[] = {
+static int * const hfx_bthci_cmd_sco_packet_type[] = {
     &hf_bthci_cmd_sco_packet_type_reserved,
     &hf_bthci_cmd_sco_packet_type_3ev5,
     &hf_bthci_cmd_sco_packet_type_2ev5,
@@ -737,7 +737,7 @@ static const int *hfx_bthci_cmd_sco_packet_type[] = {
     NULL
 };
 
-static const int *hfx_bthci_cmd_packet_type[] = {
+static int * const hfx_bthci_cmd_packet_type[] = {
     &hf_bthci_cmd_packet_type_dh5,
     &hf_bthci_cmd_packet_type_dm5,
     &hf_bthci_cmd_packet_type_3dh5,
@@ -971,7 +971,7 @@ static gint hf_btcommon_eir_ad_mesh_msg = -1;
 static gint hf_btcommon_eir_ad_mesh_pbadv = -1;
 static gint hf_btcommon_eir_ad_mesh_beacon = -1;
 
-static const int *hfx_btcommon_eir_ad_ips_flags[] = {
+static int * const hfx_btcommon_eir_ad_ips_flags[] = {
     &hf_btcommon_eir_ad_ips_flags_reserved,
     &hf_btcommon_eir_ad_ips_flags_location_name,
     &hf_btcommon_eir_ad_ips_flags_uncertainty,
@@ -983,7 +983,7 @@ static const int *hfx_btcommon_eir_ad_ips_flags[] = {
     NULL
 };
 
-static const int *hfx_btcommon_eir_ad_ips_uncertainty[] = {
+static int * const hfx_btcommon_eir_ad_ips_uncertainty[] = {
     &hf_btcommon_eir_ad_ips_uncertainty_reserved,
     &hf_btcommon_eir_ad_ips_uncertainty_precision,
     &hf_btcommon_eir_ad_ips_uncertainty_update_time,
@@ -991,7 +991,7 @@ static const int *hfx_btcommon_eir_ad_ips_uncertainty[] = {
     NULL
 };
 
-static const int *hfx_btcommon_eir_ad_tds_flags[] = {
+static int * const hfx_btcommon_eir_ad_tds_flags[] = {
     &hf_btcommon_eir_ad_tds_flags_reserved,
     &hf_btcommon_eir_ad_tds_flags_transport_state,
     &hf_btcommon_eir_ad_tds_flags_transport_data_incomplete,
@@ -999,7 +999,7 @@ static const int *hfx_btcommon_eir_ad_tds_flags[] = {
     NULL
 };
 
-static const int *hfx_btcommon_eir_ad_le_features_0[] = {
+static int * const hfx_btcommon_eir_ad_le_features_0[] = {
     &hf_btcommon_eir_ad_le_features_encryption,
     &hf_btcommon_eir_ad_le_features_connection_parameters_request_procedure,
     &hf_btcommon_eir_ad_le_features_extended_reject_indication,
@@ -1011,7 +1011,7 @@ static const int *hfx_btcommon_eir_ad_le_features_0[] = {
     NULL
 };
 
-static const int *hfx_btcommon_eir_ad_le_features_1[] = {
+static int * const hfx_btcommon_eir_ad_le_features_1[] = {
     &hf_btcommon_eir_ad_le_features_2m_phy,
     &hf_btcommon_eir_ad_le_features_stable_modulation_index_tx,
     &hf_btcommon_eir_ad_le_features_stable_modulation_index_rx,
@@ -1023,18 +1023,18 @@ static const int *hfx_btcommon_eir_ad_le_features_1[] = {
     NULL
 };
 
-static const int *hfx_btcommon_eir_ad_le_features_2[] = {
+static int * const hfx_btcommon_eir_ad_le_features_2[] = {
     &hf_btcommon_eir_ad_le_features_minimum_number_of_used_channels_procedure,
     &hf_btcommon_eir_ad_le_features_reserved_1_7,
     NULL
 };
 
-static const int *hfx_btcommon_eir_ad_le_features_reserved[] = {
+static int * const hfx_btcommon_eir_ad_le_features_reserved[] = {
     &hf_btcommon_eir_ad_le_features_reserved,
     NULL
 };
 
-static const int **hfx_btcommon_eir_ad_le_features[] = {
+static int * const *hfx_btcommon_eir_ad_le_features[] = {
     hfx_btcommon_eir_ad_le_features_0,
     hfx_btcommon_eir_ad_le_features_1,
     hfx_btcommon_eir_ad_le_features_2,
@@ -1063,6 +1063,7 @@ static dissector_handle_t bthci_cmd_handle;
 static dissector_handle_t btmesh_handle;
 static dissector_handle_t btmesh_pbadv_handle;
 static dissector_handle_t btmesh_beacon_handle;
+static dissector_handle_t gaen_handle;
 
 static dissector_table_t  bluetooth_eir_ad_manufacturer_company_id;
 static dissector_table_t  bluetooth_eir_ad_tds_organization_id;
@@ -1958,17 +1959,17 @@ const value_string bthci_cmd_oob_data_present_vals[] = {
 
 static const value_string bthci_cmd_auth_req_vals[] = {
     {0x00, "MITM Protection Not Required - No Bonding. Numeric Comparison, Automatic Accept Allowed, No Secure Connection" },
-    {0x01, "MITM Protection Required - No Bonding. Use IO Capabilty To Determine Procedure, No Secure Connection" },
+    {0x01, "MITM Protection Required - No Bonding. Use IO Capability To Determine Procedure, No Secure Connection" },
     {0x02, "MITM Protection Not Required - Dedicated Bonding. Numeric Comparison, Automatic Accept Allowed, No Secure Connection" },
-    {0x03, "MITM Protection Required - Dedicated Bonding. Use IO Capabilty To Determine Procedure, No Secure Connection" },
+    {0x03, "MITM Protection Required - Dedicated Bonding. Use IO Capability To Determine Procedure, No Secure Connection" },
     {0x04, "MITM Protection Not Required - General Bonding. Numeric Comparison, Automatic Accept Allowed, No Secure Connection" },
-    {0x05, "MITM Protection Required - General Bonding. Use IO Capabilty To Determine Procedure, No Secure Connection" },
+    {0x05, "MITM Protection Required - General Bonding. Use IO Capability To Determine Procedure, No Secure Connection" },
     {0x08, "MITM Protection Not Required - No Bonding. Numeric Comparison, Automatic Accept Allowed, Secure Connection" },
-    {0x09, "MITM Protection Required - No Bonding. Use IO Capabilty To Determine Procedure, Secure Connection" },
+    {0x09, "MITM Protection Required - No Bonding. Use IO Capability To Determine Procedure, Secure Connection" },
     {0x0A, "MITM Protection Not Required - Dedicated Bonding. Numeric Comparison, Automatic Accept Allowed,  Secure Connection" },
-    {0x0B, "MITM Protection Required - Dedicated Bonding. Use IO Capabilty To Determine Procedure, Secure Connection " },
+    {0x0B, "MITM Protection Required - Dedicated Bonding. Use IO Capability To Determine Procedure, Secure Connection " },
     {0x0C, "MITM Protection Not Required - General Bonding. Numeric Comparison, Automatic Accept Allowed, Secure Connection" },
-    {0x0D, "MITM Protection Required - General Bonding. Use IO Capabilty To Determine Procedure, Secure Connection" },
+    {0x0D, "MITM Protection Required - General Bonding. Use IO Capability To Determine Procedure, Secure Connection" },
     {   0, NULL }
 };
 value_string_ext bthci_cmd_auth_req_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_auth_req_vals);
@@ -5254,9 +5255,9 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
                 offset+=2;
                 proto_tree_add_item(sub_tree, hf_bthci_cmd_max_sdu_s_to_m, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                 offset+=2;
-                proto_tree_add_item(sub_tree, hf_bthci_cmd_max_pdu_m_to_s, tvb, offset, 2, ENC_NA);
+                proto_tree_add_item(sub_tree, hf_bthci_cmd_max_pdu_m_to_s, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                 offset+=2;
-                proto_tree_add_item(sub_tree, hf_bthci_cmd_max_pdu_s_to_m, tvb, offset, 2, ENC_NA);
+                proto_tree_add_item(sub_tree, hf_bthci_cmd_max_pdu_s_to_m, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                 offset+=2;
                 proto_tree_add_bitmask(sub_tree, tvb, offset, hf_bthci_cmd_phy_m_to_s, ett_phy_param, hfx_btcmd_le_phys, ENC_NA);
                 offset++;
@@ -5345,7 +5346,7 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
             offset++;
             proto_tree_add_item(tree, hf_bthci_cmd_max_sdu, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset+=2;
-            proto_tree_add_item(tree, hf_bthci_cmd_max_pdu, tvb, offset, 2, ENC_NA);
+            proto_tree_add_item(tree, hf_bthci_cmd_max_pdu, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset+=2;
             proto_tree_add_bitmask(tree, tvb, offset, hf_bthci_cmd_phy, ett_phy_param, hfx_btcmd_le_phys, ENC_NA);
             offset++;
@@ -8794,7 +8795,7 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
     guint8       sub_length;
     guint8       type;
     guint8       flags;
-    guint8       data_size;
+    gint         data_size;
     gint64       end_offset;
     gboolean     has_bd_addr = FALSE;
     guint8       bd_addr[6];
@@ -8997,7 +8998,16 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
             offset += 2;
 
             if (length - 2 > 0) {
-                proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_service_data, tvb, offset, length - 2, ENC_NA);
+                uuid = get_uuid(tvb, offset-2, 2);
+                /* XXX A dissector table should be used here if we get many of these*/
+                if (uuid.bt_uuid == 0xFD6F) /* GAEN Identifier */
+                {
+                    call_dissector(gaen_handle, tvb, pinfo, entry_tree);
+                }
+                else
+                {
+                    proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_service_data, tvb, offset, length - 2, ENC_NA);
+                }
                 offset += length - 2;
             }
             break;
@@ -9178,9 +9188,7 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
 
             break;
         case 0x27: {/* LE Supported Features */
-            guint8  i = 0;
-
-            while (tvb_captured_length_remaining(tvb, offset) > 0 && i < 8) {
+            for (guint8 i=0; (tvb_captured_length_remaining(tvb, offset) > 0) && (i < 8); i++) {
                 proto_tree_add_bitmask(entry_tree, tvb, offset, hf_btcommon_eir_ad_le_features, ett_eir_ad_le_features, hfx_btcommon_eir_ad_le_features[i], ENC_NA);
                 offset += 1;
             }
@@ -9471,9 +9479,10 @@ dissect_btcommon_eir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 }
 
 static gint
-dissect_btcommon_le_channel_map(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+dissect_btcommon_le_channel_map(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
 {
     gint offset = 0;
+    gint *reserved_bits_offset = (gint *)data;
 
     proto_tree_add_item(tree, hf_btcommon_le_channel_map_0, tvb, offset, 1, ENC_NA);
     proto_tree_add_item(tree, hf_btcommon_le_channel_map_1, tvb, offset, 1, ENC_NA);
@@ -9520,9 +9529,15 @@ dissect_btcommon_le_channel_map(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     proto_tree_add_item(tree, hf_btcommon_le_channel_map_34, tvb, offset, 1, ENC_NA);
     proto_tree_add_item(tree, hf_btcommon_le_channel_map_35, tvb, offset, 1, ENC_NA);
     proto_tree_add_item(tree, hf_btcommon_le_channel_map_36, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_btcommon_le_channel_map_37, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_btcommon_le_channel_map_38, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_btcommon_le_channel_map_39, tvb, offset, 1, ENC_NA);
+
+    if (reserved_bits_offset) {
+        *reserved_bits_offset = offset;
+    } else {
+        proto_tree_add_item(tree, hf_btcommon_le_channel_map_37, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_btcommon_le_channel_map_38, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_btcommon_le_channel_map_39, tvb, offset, 1, ENC_NA);
+    }
+
     offset += 1;
 
     return offset;
@@ -10241,17 +10256,17 @@ proto_register_btcommon(void)
             NULL, HFILL }
         },
         { &hf_btcommon_le_channel_map_39,
-            { "RF Channel 39 (2480 MHz - Reserved for Advertising - 39)",         "btcommon.le_channel_map.39",
+            { "Reserved",                                            "btcommon.le_channel_map.39",
             FT_BOOLEAN, 8, NULL, 0x80,
             NULL, HFILL }
         },
         { &hf_btcommon_le_channel_map_38,
-            { "RF Channel 12 (2426 MHz - Reserved for Advertising - 38)",         "btcommon.le_channel_map.38",
+            { "Reserved",                                            "btcommon.le_channel_map.38",
             FT_BOOLEAN, 8, NULL, 0x40,
             NULL, HFILL }
         },
         { &hf_btcommon_le_channel_map_37,
-            { "RF Channel 0 (2402 MHz - Reserved for Advertising - 37)",          "btcommon.le_channel_map.37",
+            { "Reserved",                                            "btcommon.le_channel_map.37",
             FT_BOOLEAN, 8, NULL, 0x20,
             NULL, HFILL }
         },
@@ -10507,7 +10522,11 @@ proto_reg_handoff_btcommon(void)
     btmesh_handle = find_dissector("btmesh.msg");
     btmesh_pbadv_handle = find_dissector("btmesh.pbadv");
     btmesh_beacon_handle = find_dissector("btmesh.beacon");
+    gaen_handle = find_dissector("bluetooth.gaen");
 }
+
+
+
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *

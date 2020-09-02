@@ -903,6 +903,19 @@ The type of value this field holds. The current field types are:
                 However if the length given in the call
                 is -1, then the length used is that
                 returned by calling tvb_strsize().
+                This should only be used if the string,
+                in the packet, is always terminated with
+                a NULL character, either because the length
+                isn't otherwise specified or because a
+                character count *and* a NULL terminator are
+                both used.
+    FT_STRINGZPAD   A NULL-padded string of characters.
+                The length is given in the proto_tree_add_item()
+                call, but may be larger than the length of
+                the string, with extra bytes being NULL padding.
+                This is typically used for fixed-length fields
+                that contain a string value that might be shorter
+                than the fixed length.
     FT_UINT_STRING  A counted string of characters, consisting
                 of a count (represented as an integral value,
                 of width given in the proto_tree_add_item()
@@ -1173,7 +1186,10 @@ For fields of that type, you would declare an array of "range_string"s:
     };
 
 If INTVAL_MIN equals INTVAL_MAX for a given entry the range_string
-behavior collapses to the one of value_string.
+behavior collapses to the one of value_string. Note that each range_string
+within the array is tested in order, so any 'catch-all' entries need to come
+after specific individual entries.
+
 For FT_(U)INT* fields that need a 'range_string' struct, the 'strings' field
 would be set to 'RVALS(rvalstringname)'. Furthermore, 'display' field must be
 ORed with 'BASE_RANGE_STRING' (e.g. BASE_DEC|BASE_RANGE_STRING).
@@ -1716,6 +1732,9 @@ currently supported are:
         and thus no code points above 0xFFFF
     ENC_UCS_4 - UCS-4-encoded Unicode
     ENC_WINDOWS_1250 - Windows-1250 code page
+    ENC_WINDOWS_1251 - Windows-1251 code page
+    ENC_WINDOWS_1252 - Windows-1252 code page
+    ENC_ISO_646_BASIC - ISO 646 "basic code table"
     ENC_ISO_8859_1 - ISO 8859-1
     ENC_ISO_8859_2 - ISO 8859-2
     ENC_ISO_8859_3 - ISO 8859-3
@@ -1735,10 +1754,16 @@ currently supported are:
     ENC_3GPP_TS_23_038_7BITS - GSM 7 bits alphabet as described
         in 3GPP TS 23.038
     ENC_EBCDIC - EBCDIC
+    ENC_EBCDIC_CP037 - EBCDIC code page 037
     ENC_MAC_ROMAN - MAC ROMAN
-    ENC_CP437 - DOS CP437
+    ENC_CP437 - DOS code page 437
+    ENC_CP855 - DOS code page 855
+    ENC_CP866 - DOS code page 866
     ENC_ASCII_7BITS - 7 bits ASCII
     ENC_T61 - ITU T.61
+    ENC_BCD_DIGITS_0_9 - packed BCD (one digit per nibble), digits 0-9
+    ENC_KEYPAD_ABC_TBCD - keypad-with-a/b/c "telephony packed BCD" = 0-9, *, #, a, b, c
+    ENC_KEYPAD_BC_TBCD - keypad-with-B/C "telephony packed BCD" = 0-9, B, C, *, #
 
 Other encodings will be added in the future.
 
@@ -2182,7 +2207,7 @@ Example: (from the SCSI dissector)
     ...
     static gint ett_scsi_inq_peripheral = -1;
     ...
-    static const int *peripheral_fields[] = {
+    static int * const peripheral_fields[] = {
         &hf_scsi_inq_qualifier,
         &hf_scsi_inq_devtype,
         NULL
@@ -2542,6 +2567,9 @@ section of epan/dissectors/CMakeLists.txt
 
 1.10 Submitting code for your new dissector.
 
+  See <https://www.wireshark.org/docs/wsdg_html_chunked/ChSrcContribute.html>
+  and <https://gitlab.com/wireshark/wireshark/-/wikis/Development/SubmittingPatches>.
+
   - VERIFY that your dissector code does not use prohibited or deprecated APIs
     as follows:
     perl <wireshark_root>/tools/checkAPIs.pl <source-filename(s)>
@@ -2561,7 +2589,7 @@ section of epan/dissectors/CMakeLists.txt
 
   - TEST YOUR DISSECTOR BEFORE SUBMITTING IT.
     Use fuzz-test.sh and/or randpkt against your dissector. These are
-    described at <https://wiki.wireshark.org/FuzzTesting>.
+    described at <https://gitlab.com/wireshark/wireshark/-/wikis/FuzzTesting>.
 
   - Subscribe to <mailto:wireshark-dev[AT]wireshark.org> by sending an email to
     <mailto:wireshark-dev-request[AT]wireshark.org?body="help"> or visiting
@@ -2575,25 +2603,26 @@ section of epan/dissectors/CMakeLists.txt
     should be a summary of the changes followed by an empty line and a more
     verbose description.
 
-  - 'git push origin HEAD:refs/for/master' to push the changes to Gerrit. (If
-    you previously ran 'git config --add remote.origin.push HEAD:refs/for/master'
-    then only 'git push' is needed.)
+  - 'git push downstream HEAD' to push the changes to GitLab. (This assumes
+    that you have a remote named "downstream" that points to a fork of
+    https://gitlab.com/wireshark/wireshark.)
 
-  - Create a Wiki page on the protocol at <https://wiki.wireshark.org>.
+  - Create a Wiki page on the protocol at <https://gitlab.com/wireshark/editor-wiki>.
+    (You'll need to request access to https://gitlab.com/wireshark/wiki-editors.)
     A template is provided so it is easy to setup in a consistent style.
-      See: <https://wiki.wireshark.org/HowToEdit>
-      and  <https://wiki.wireshark.org/ProtocolReference>
+      See: <https://gitlab.com/wireshark/wireshark/-/wikis/HowToEdit>
+      and  <https://gitlab.com/wireshark/wireshark/-/wikis/ProtocolReference>
 
   - If possible, add sample capture files to the sample captures page at
-    <https://wiki.wireshark.org/SampleCaptures>. These files are used by
-    the automated build system for fuzz testing.
+    <https://gitlab.com/wireshark/wireshark/-/wikis/SampleCaptures>. These
+    files are used by the automated build system for fuzz testing.
 
   - If you don't think the wiki is the right place for your sample capture,
-    submit a bug report to the Wireshark bug database, found at
-    <https://bugs.wireshark.org>, qualified as an enhancement and attach your
-    sample capture there. Normally a new dissector won't be accepted without
-    a sample capture!  If you open a bug be sure to cross-link your Gerrit
-    change and bug.
+    submit a bug report to the Wireshark issue database, found at
+    <https://gitlab.com/wireshark/wireshark/-/issues>, qualified as an
+    enhancement and attach your sample capture there. Normally a new
+    dissector won't be accepted without a sample capture! If you open a
+    bug be sure to cross-link your GitLab merge request.
 
 2. Advanced dissector topics.
 

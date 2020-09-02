@@ -18,8 +18,10 @@ def PrintUsage():
            to the script file. This will be correct given the normal location
            of the script in "<root>/tools".
 
-  --ignore-suppressions  Ignores path-specific license whitelist. Useful when
-                         trying to remove a suppression/whitelist entry.
+  --ignore-suppressions  Ignores path-specific allowed license. Useful when
+                         trying to remove a suppression/allowed entry.
+
+  --list-allowed  Print a list of allowed licenses and exit.
 
   tocheck  Specifies the directory, relative to root, to check. This defaults
            to "." so it checks everything.
@@ -29,7 +31,7 @@ Examples:
   python checklicenses.py --root ~/chromium/src third_party""")
 
 
-WHITELISTED_LICENSES = [
+ALLOWED_LICENSES = [
     'BSD',
     'BSD (2 clause)',
     'BSD (2 clause) GPL (v2 or later)',
@@ -49,7 +51,7 @@ WHITELISTED_LICENSES = [
 ]
 
 
-PATH_SPECIFIC_WHITELISTED_LICENSES = {
+PATH_SPECIFIC_ALLOWED_LICENSES = {
     'caputils/airpcap.h': [
         'BSD-3-Clause',
     ],
@@ -143,16 +145,13 @@ PATH_SPECIFIC_WHITELISTED_LICENSES = {
     'tools/licensecheck.pl': [
         'GPL (v2)'
     ],
-    # Generated files for GTK pixbuf binary bundling
-    'ui/gtk/wireshark-gresources.h': [
-        'UNKNOWN',
-    ],
-    'ui/gtk/wireshark-gresources.c': [
-        'UNKNOWN',
-    ],
 }
 
 def check_licenses(options, args):
+  if options.list_allowed:
+    print('\n'.join(ALLOWED_LICENSES))
+    sys.exit(0)
+
   # Figure out which directory we have to check.
   if len(args) == 0:
     # No directory to check specified, use the repository root.
@@ -213,20 +212,20 @@ def check_licenses(options, args):
       continue
 
     # Support files which provide a choice between licenses.
-    if any(item in WHITELISTED_LICENSES for item in license.split(';')):
+    if any(item in ALLOWED_LICENSES for item in license.split(';')):
       continue
 
     if not options.ignore_suppressions:
       found_path_specific = False
-      for prefix in PATH_SPECIFIC_WHITELISTED_LICENSES:
+      for prefix in PATH_SPECIFIC_ALLOWED_LICENSES:
         if (filename.startswith(prefix) and
-            license in PATH_SPECIFIC_WHITELISTED_LICENSES[prefix]):
+            license in PATH_SPECIFIC_ALLOWED_LICENSES[prefix]):
           found_path_specific = True
           break
       if found_path_specific:
         continue
 
-    reason = "'%s' has non-whitelisted license '%s'" % (filename, license)
+    reason = "License '%s' for '%s' is not allowed." % (license, filename)
     success = False
     print(reason)
     exit_status = 1
@@ -250,10 +249,14 @@ def main():
                            'will normally be the repository root.')
   option_parser.add_option('-v', '--verbose', action='store_true',
                            default=False, help='Print debug logging')
+  option_parser.add_option('--list-allowed',
+                           action='store_true',
+                           default=False,
+                           help='Print a list of allowed licenses and exit.')
   option_parser.add_option('--ignore-suppressions',
                            action='store_true',
                            default=False,
-                           help='Ignore path-specific license whitelist.')
+                           help='Ignore path-specific allowed license.')
   options, args = option_parser.parse_args()
   return check_licenses(options, args)
 

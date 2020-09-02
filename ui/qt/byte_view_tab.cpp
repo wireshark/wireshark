@@ -114,6 +114,8 @@ void ByteViewTab::addTab(const char *name, tvbuff_t *tvb) {
 
         connect(byte_view_text, SIGNAL(byteHovered(int)), this, SLOT(byteViewTextHovered(int)));
         connect(byte_view_text, SIGNAL(byteSelected(int)), this, SLOT(byteViewTextMarked(int)));
+        connect(byte_view_text, SIGNAL(byteViewSettingsChanged()), this, SIGNAL(byteViewSettingsChanged()));
+        connect(this, SIGNAL(byteViewSettingsChanged()), byte_view_text, SLOT(updateByteViewSettings()));
     }
 
     int idx = QTabWidget::addTab(byte_view_text, name);
@@ -302,10 +304,14 @@ void ByteViewTab::selectedFieldChanged(FieldInformation *selected)
 
         setCurrentIndex(idx);
 
-        p_start = selected->parentField()->position().start;
-        p_length = selected->parentField()->position().length;
+        FieldInformation *parentField = selected->parentField();
+
+        p_start = parentField->position().start;
+        p_length = parentField->position().length;
         fa_start = selected->appendix().start;
         fa_length = selected->appendix().length;
+
+        delete parentField;
     }
 
     if (byte_view_text)

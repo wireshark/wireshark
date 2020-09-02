@@ -64,11 +64,7 @@ print_usage(FILE *output)
   fprintf(output, "                    default is to merge based on frame timestamps.\n");
   fprintf(output, "  -s <snaplen>      truncate packets to <snaplen> bytes of data.\n");
   fprintf(output, "  -w <outfile>|-    set the output filename to <outfile> or '-' for stdout.\n");
-#ifdef PCAP_NG_DEFAULT
   fprintf(output, "  -F <capture type> set the output file type; default is pcapng.\n");
-#else
-  fprintf(output, "  -F <capture type> set the output file type; default is pcap.\n");
-#endif
   fprintf(output, "                    an empty \"-F\" option will list the file types.\n");
   fprintf(output, "  -I <IDB merge mode> set the merge mode for Interface Description Blocks; default is 'all'.\n");
   fprintf(output, "                    an empty \"-I\" option will list the merge modes.\n");
@@ -240,11 +236,7 @@ main(int argc, char *argv[])
   gboolean            verbose            = FALSE;
   int                 in_file_count      = 0;
   guint32             snaplen            = 0;
-#ifdef PCAP_NG_DEFAULT
   int                 file_type          = WTAP_FILE_TYPE_SUBTYPE_PCAPNG; /* default to pcapng format */
-#else
-  int                 file_type          = WTAP_FILE_TYPE_SUBTYPE_PCAP; /* default to pcap format */
-#endif
   int                 err                = 0;
   gchar              *err_info           = NULL;
   int                 err_fileno;

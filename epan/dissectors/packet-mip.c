@@ -408,7 +408,7 @@ static const value_string mip_cvse_verizon_cvse_types[]= {
   {0, NULL}
 };
 
-/*http://www.3gpp2.org/public_html/X/VSA-VSE.cfm*/
+/* https://www.3gpp2.org/Public_html/X/VSA-VSE.cfm */
 #if 0
 static const value_string mip_cvse_3gpp2_cvse_types[]= {
   {257, "Accounting/Radius"},
@@ -603,7 +603,7 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree, packet_info
     case REV_SUPP_EXT:      /* RFC 3543 */
       {
       /* flags */
-      static const int * flags[] = {
+      static int * const flags[] = {
         &hf_mip_rext_i,
         &hf_mip_rext_reserved,
         NULL
@@ -630,7 +630,7 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree, packet_info
       break;
     case UDP_TUN_REQ_EXT:   /* RFC 3519 */
       {
-      static const int * flags[] = {
+      static int * const flags[] = {
         &hf_mip_utrqext_f,
         &hf_mip_utrqext_r,
         &hf_mip_utrqext_reserved2,
@@ -655,7 +655,7 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree, packet_info
       break;
     case UDP_TUN_REP_EXT:   /* RFC 3519 */
       {
-      static const int * flags[] = {
+      static int * const flags[] = {
         &hf_mip_utrpext_f,
         &hf_mip_utrpext_reserved,
         NULL
@@ -735,8 +735,8 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree, packet_info
         cvse_3gpp2_type = tvb_get_ntohs(tvb, cvse_local_offset);
         /* XXX: THE3GPP2 CVSE type is followed by a 2 byte length field ? - No ?*/
         /*  ... */
-        /* THE3GPP2 CVSE Value http://www.3gpp2.org/public_html/X/VSA-VSE.cfm X.S0011
-         * http://www.3gpp2.org/Public_html/specs/X.S0011-002-E_v1.0_091116.pdf Chapter 4.1.4 GRE CVSE
+        /* THE3GPP2 CVSE Value https://www.3gpp2.org/Public_html/X/VSA-VSE.cfm X.S0011
+         * https://www.3gpp2.org/Public_html/Specs/X.S0011-002-E_v1.0_091116.pdf Chapter 4.1.4 GRE CVSE
          */
        if(cvse_3gpp2_type == GRE_KEY_EXT){
            proto_tree_add_item(ext_tree, hf_mip_cvse_3gpp2_grekey, tvb, cvse_local_offset + 2, ext_len - 6, ENC_BIG_ENDIAN);
@@ -844,7 +844,7 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                tvb_ip_to_str(tvb, 12));
 
     if (tree) {
-      static const int * flags[] = {
+      static int * const flags[] = {
         &hf_mip_s,
         &hf_mip_b,
         &hf_mip_d,
@@ -966,7 +966,7 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                tvb_ip_to_str(tvb, 12));
 
     if (tree) {
-      static const int * mip_flags[] = {
+      static int * const mip_flags[] = {
         &hf_mip_rev_a,
         &hf_mip_rev_i,
         &hf_mip_rev_reserved2,
@@ -1012,7 +1012,7 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                tvb_ip_to_str(tvb, 4));
 
     if (tree) {
-      static const int * mip_flags[] = {
+      static int * const mip_flags[] = {
         &hf_mip_ack_i,
         &hf_mip_ack_reserved2,
         NULL

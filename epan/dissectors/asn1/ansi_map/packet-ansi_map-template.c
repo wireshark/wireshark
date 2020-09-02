@@ -544,13 +544,6 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
 static int dissect_returnData(proto_tree *tree, tvbuff_t *tvb, int offset,  asn1_ctx_t *actx);
 static int dissect_ansi_map_SystemMyTypeCode(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_);
 
-static dgt_set_t Dgt_tbcd = {
-    {
-  /*  0   1   2   3   4   5   6   7   8   9   a   b   c   d   e */
-     '0','1','2','3','4','5','6','7','8','9','?','B','C','*','#','?'
-    }
-};
-
 /* Type of Digits (octet 1, bits A-H) */
 static const value_string ansi_map_type_of_digits_vals[] = {
     {   0, "Not Used" },
@@ -616,7 +609,7 @@ static const value_string ansi_map_np_vals[]  = {
 
 static void
 dissect_ansi_map_min_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, asn1_ctx_t *actx _U_){
-    const char *digit_str;
+    char *digit_str;
     int   offset = 0;
 
     proto_tree *subtree;
@@ -624,8 +617,7 @@ dissect_ansi_map_min_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 
     subtree = proto_item_add_subtree(actx->created_item, ett_mintype);
 
-    digit_str = tvb_bcd_dig_to_wmem_packet_str(tvb, offset, tvb_reported_length_remaining(tvb,offset), NULL, FALSE);
-    proto_tree_add_string(subtree, hf_ansi_map_bcd_digits, tvb, offset, -1, digit_str);
+    proto_tree_add_item_ret_display_string(subtree, hf_ansi_map_bcd_digits, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_BCD_DIGITS_0_9, wmem_packet_scope(), &digit_str);
     proto_item_append_text(actx->created_item, " - %s", digit_str);
 }
 
@@ -635,7 +627,7 @@ dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     guint8 octet , octet_len;
     guint8 b1,b2,b3,b4;
     int    offset = 0;
-    const char *digit_str;
+    char  *digit_str;
 
     proto_tree *subtree;
 
@@ -669,8 +661,7 @@ dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             if(octet_len == 0)
                 return;
             offset++;
-            digit_str = tvb_bcd_dig_to_wmem_packet_str(tvb, offset, tvb_reported_length_remaining(tvb,offset), &Dgt_tbcd, FALSE);
-            proto_tree_add_string(subtree, hf_ansi_map_bcd_digits, tvb, offset, -1, digit_str);
+            proto_tree_add_item_ret_display_string(subtree, hf_ansi_map_bcd_digits, tvb, offset, -1, ENC_KEYPAD_BC_TBCD, wmem_packet_scope(), &digit_str);
             proto_item_append_text(actx->created_item, " - %s", digit_str);
             break;
         case 2:
@@ -711,8 +702,7 @@ dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         switch ((octet&0xf)){
         case 1:
             /* BCD Coding */
-            digit_str = tvb_bcd_dig_to_wmem_packet_str(tvb, offset, tvb_reported_length_remaining(tvb,offset), &Dgt_tbcd, FALSE);
-            proto_tree_add_string(subtree, hf_ansi_map_bcd_digits, tvb, offset, -1, digit_str);
+            proto_tree_add_item_ret_display_string(subtree, hf_ansi_map_bcd_digits, tvb, offset, -1, ENC_KEYPAD_BC_TBCD, wmem_packet_scope(), &digit_str);
             proto_item_append_text(actx->created_item, " - %s", digit_str);
             break;
         case 2:
@@ -1271,7 +1261,7 @@ static const true_false_string ansi_map_CDMACallMode_cls4_bool_val  = {
 };
 /* Call Mode (octet 1, bit H) */
 static const true_false_string ansi_map_CDMACallMode_cls5_bool_val  = {
-    "450 MHz channel (Band Class 5) not acceptable",
+    "450 MHz channel (Band Class 5) acceptable",
     "450 MHz channel (Band Class 5) not acceptable"
 };
 /* Call Mode (octet 2, bit A) */

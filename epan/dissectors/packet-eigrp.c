@@ -333,7 +333,7 @@ static gint hf_eigrp_flags_eot = -1;
 static gint hf_eigrp_flags_condrecv = -1;
 
 static gint ett_eigrp_flags = -1;
-static const int *eigrp_flag_fields[] = {
+static int * const eigrp_flag_fields[] = {
     &hf_eigrp_flags_init,
     &hf_eigrp_flags_condrecv,
     &hf_eigrp_flags_restart,
@@ -387,7 +387,7 @@ static gint hf_eigrp_stub_flags_redist = -1;
 static gint hf_eigrp_stub_flags_leakmap = -1;
 
 static gint ett_eigrp_stub_flags = -1;
-static const int *eigrp_stub_flag_fields[] = {
+static int * const eigrp_stub_flag_fields[] = {
     &hf_eigrp_stub_flags_connected,
     &hf_eigrp_stub_flags_static,
     &hf_eigrp_stub_flags_summary,
@@ -1095,17 +1095,14 @@ dissect_eigrp_ipv4_addrs (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
                          packet_info *pinfo, int offset, int unreachable)
 {
     guint8 length;
-    union {
-       guint8 addr_bytes[4];
-       guint32 addr;
-    } ip_addr;
+    ws_in4_addr ip_addr;
     int         addr_len;
     proto_item *ti_prefixlen, *ti_dst;
     int         first = TRUE;
 
     for (; tvb_reported_length_remaining(tvb, offset) > 0; offset += (1 + addr_len)) {
         length = tvb_get_guint8(tvb, offset);
-        addr_len = tvb_get_ipv4_addr_with_prefix_len(tvb, offset + 1, ip_addr.addr_bytes, length);
+        addr_len = tvb_get_ipv4_addr_with_prefix_len(tvb, offset + 1, &ip_addr, length);
 
         if (addr_len < 0) {
             /* Invalid prefix length, more than 32 bits */
@@ -1119,8 +1116,8 @@ dissect_eigrp_ipv4_addrs (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
             proto_tree_add_item(tree, hf_eigrp_ipv4_prefixlen, tvb, offset, 1,
                                 ENC_BIG_ENDIAN);
             offset += 1;
-            set_address(&addr, AT_IPv4, 4, ip_addr.addr_bytes);
-            ti_dst = proto_tree_add_ipv4(tree, hf_eigrp_ipv4_destination, tvb, offset, addr_len, ip_addr.addr);
+            set_address(&addr, AT_IPv4, 4, &ip_addr);
+            ti_dst = proto_tree_add_ipv4(tree, hf_eigrp_ipv4_destination, tvb, offset, addr_len, ip_addr);
 
             /* add it to the top level line */
             proto_item_append_text(ti,"  %c   %s/%u", first ? '=':',',

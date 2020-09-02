@@ -512,7 +512,7 @@ static int hf_bthci_evt_cis_count = -1;
 static int hf_bthci_evt_cis_handle = -1;
 static int hf_bthci_evt_cis_bis_handle = -1;
 static int hf_bthci_evt_big_handle = -1;
-static int hf_bthci_evt_recived_packet_counter = -1;
+static int hf_bthci_evt_received_packet_counter = -1;
 static int hf_bthci_evt_missed_packet_counter = -1;
 static int hf_bthci_evt_failed_packet_counter = -1;
 static int hf_bthci_evt_pkt_count_tx_unacked = -1;
@@ -550,6 +550,7 @@ static int hf_bthci_evt_current_path_loss = -1;
 static int hf_bthci_evt_zone_entered = -1;
 static int hf_bthci_evt_power_report_reason = -1;
 static int hf_bthci_evt_power_level_delta = -1;
+static int hf_bthci_evt_sdu_interval = -1;
 static int hf_bthci_evt_max_sdu = -1;
 static int hf_bthci_evt_framing = -1;
 static int hf_bthci_evt_peer_clock_accuracy = -1;
@@ -575,7 +576,7 @@ static int hf_packet_type_sco_hv2 = -1;
 static int hf_packet_type_sco_hv1 = -1;
 static int hf_packet_type_sco_reserved_4_0 = -1;
 
-static const int *hfx_bthci_evt_le_features[] = {
+static int * const hfx_bthci_evt_le_features[] = {
     &hf_bthci_evt_le_features_encryption,
     &hf_bthci_evt_le_features_connection_parameters_request_procedure,
     &hf_bthci_evt_le_features_extended_reject_indication,
@@ -616,7 +617,7 @@ static const int *hfx_bthci_evt_le_features[] = {
     NULL
 };
 
-static const int *hfx_packet_type_acl[] = {
+static int * const hfx_packet_type_acl[] = {
     &hf_packet_type_acl_dh5,
     &hf_packet_type_acl_dm5,
     &hf_packet_type_acl_3dh5,
@@ -634,7 +635,7 @@ static const int *hfx_packet_type_acl[] = {
     NULL
 };
 
-static const int *hfx_packet_type_sco[] = {
+static int * const hfx_packet_type_sco[] = {
     &hf_packet_type_sco_reserved_15_8,
     &hf_packet_type_sco_hv3,
     &hf_packet_type_sco_hv2,
@@ -666,7 +667,7 @@ static int hf_bthci_evt_ext_advts_event_type_legacy = -1;
 static int hf_bthci_evt_ext_advts_event_type_data_status = -1;
 static int hf_bthci_evt_ext_advts_event_type_reserved = -1;
 
-static const int *hfx_bthci_evt_le_ext_advts_evt_type[] = {
+static int * const hfx_bthci_evt_le_ext_advts_evt_type[] = {
     &hf_bthci_evt_ext_advts_event_type_connectable,
     &hf_bthci_evt_ext_advts_event_type_scannable,
     &hf_bthci_evt_ext_advts_event_type_directed,
@@ -683,7 +684,7 @@ static int hf_bthci_evt_supported_switching_sample_rates_1us_sampling_aod_rx = -
 static int hf_bthci_evt_supported_switching_sample_rates_1us_switching_and_sampling_aoa_rx = -1;
 static int hf_bthci_evt_supported_switching_sample_rates_reserved = -1;
 
-static const int *hfx_bthci_evt_supported_switching_sample_rates[] = {
+static int * const hfx_bthci_evt_supported_switching_sample_rates[] = {
     &hf_bthci_evt_supported_switching_sample_rates_1us_switching_aod_tx,
     &hf_bthci_evt_supported_switching_sample_rates_1us_sampling_aod_rx,
     &hf_bthci_evt_supported_switching_sample_rates_1us_switching_and_sampling_aoa_rx,
@@ -695,7 +696,7 @@ static int hf_bthci_evt_simple_pairing_options = -1;
 static int hf_bthci_evt_simple_pairing_options_remote_public_key_validation = -1;
 static int hf_bthci_evt_simple_pairing_options_reserved = -1;
 
-static const int *hfx_bthci_evt_simple_pairing_options[] = {
+static int * const hfx_bthci_evt_simple_pairing_options[] = {
     &hf_bthci_evt_simple_pairing_options_remote_public_key_validation,
     &hf_bthci_evt_simple_pairing_options_reserved,
     NULL
@@ -706,7 +707,7 @@ static int hf_bthci_evt_transmit_power_level_flags_minimum_power = -1;
 static int hf_bthci_evt_transmit_power_level_flags_maximum_power = -1;
 static int hf_bthci_evt_transmit_power_level_flags_reserved = -1;
 
-static const int *hfx_bthci_evt_transmit_power_level_flags[] = {
+static int * const hfx_bthci_evt_transmit_power_level_flags[] = {
     &hf_bthci_evt_transmit_power_level_flags_minimum_power,
     &hf_bthci_evt_transmit_power_level_flags_maximum_power,
     &hf_bthci_evt_transmit_power_level_flags_reserved,
@@ -3143,8 +3144,6 @@ dissect_bthci_evt_le_meta(tvbuff_t *tvb, int offset, packet_info *pinfo,
             offset += 1;
             proto_tree_add_item(tree, hf_bthci_evt_big_transport_latency, tvb, offset, 3, ENC_LITTLE_ENDIAN);
             offset += 3;
-            proto_tree_add_item(tree, hf_bthci_evt_phy, tvb, offset, 1, ENC_NA);
-            offset += 1;
             proto_tree_add_item(tree, hf_bthci_evt_nse, tvb, offset, 1, ENC_NA);
             offset += 1;
             proto_tree_add_item(tree, hf_bthci_evt_bn, tvb, offset, 1, ENC_NA);
@@ -3162,7 +3161,7 @@ dissect_bthci_evt_le_meta(tvbuff_t *tvb, int offset, packet_info *pinfo,
             num_bis = tvb_get_guint8(tvb, offset);
             offset += 1;
             while (num_bis) {
-                proto_tree_add_item(tree, hf_bthci_evt_bis_handle, tvb, offset, 2, ENC_NA);
+                proto_tree_add_item(tree, hf_bthci_evt_bis_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                 offset += 2;
                 num_bis -= 1;
             }
@@ -3227,8 +3226,10 @@ dissect_bthci_evt_le_meta(tvbuff_t *tvb, int offset, packet_info *pinfo,
             offset += 1;
             proto_tree_add_item(tree, hf_bthci_evt_max_pdu, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
-            proto_tree_add_item(tree, hf_bthci_evt_max_sdu, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_bthci_evt_sdu_interval, tvb, offset, 3, ENC_LITTLE_ENDIAN);
             offset += 3;
+            proto_tree_add_item(tree, hf_bthci_evt_max_sdu, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
             proto_tree_add_item(tree, hf_bthci_evt_phy, tvb, offset, 1, ENC_NA);
             offset += 1;
             proto_tree_add_item(tree, hf_bthci_evt_framing, tvb, offset, 1, ENC_NA);
@@ -4709,7 +4710,7 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
                 proto_tree  *codec_tree;
                 proto_item  *codec_item;
 
-                codec_item = proto_tree_add_none_format(sub_tree, hf_bthci_evt_vendor_codecs_item, tvb, offset, 4, "Item %u", i_count + 1);
+                codec_item = proto_tree_add_string_format(sub_tree, hf_bthci_evt_vendor_codecs_item, tvb, offset, 4, "", "Item %u", i_count + 1);
                 codec_tree = proto_item_add_subtree(codec_item, ett_codecs);
 
                 proto_tree_add_item(codec_tree, hf_bthci_evt_comp_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -5510,7 +5511,7 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
             offset += 1;
             proto_tree_add_item(tree, hf_bthci_evt_cis_bis_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
-            proto_tree_add_item(tree, hf_bthci_evt_recived_packet_counter, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_bthci_evt_received_packet_counter, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
             proto_tree_add_item(tree, hf_bthci_evt_missed_packet_counter, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
@@ -9027,7 +9028,7 @@ proto_register_bthci_evt(void)
         },
         { &hf_bthci_evt_vendor_codecs_item,
           { "Item", "bthci_evt.vendor_codecs.item",
-            FT_UINT32, BASE_HEX, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_evt_codec_id,
@@ -9381,7 +9382,7 @@ proto_register_bthci_evt(void)
             NULL, HFILL }
         },
         { &hf_bthci_evt_supported_switching_sample_rates,
-          { "Supported Swithcing Sampling Rates", "bthci_evt.supported_switching_sample_rates",
+          { "Supported Switching Sampling Rates", "bthci_evt.supported_switching_sample_rates",
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
@@ -9470,8 +9471,8 @@ proto_register_bthci_evt(void)
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_bthci_evt_recived_packet_counter,
-          { "Received Packet Counter",     "bthci_evt.recived_packet_counter",
+        { &hf_bthci_evt_received_packet_counter,
+          { "Received Packet Counter",     "bthci_evt.received_packet_counter",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
@@ -9678,6 +9679,11 @@ proto_register_bthci_evt(void)
         { &hf_bthci_evt_power_level_delta,
           { "Transmit Power Delta", "bthci_evt.power_level_delta",
             FT_INT8, BASE_DEC|BASE_UNIT_STRING, &units_decibels, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_sdu_interval,
+          { "SDU Interval",   "bthci_evt.sdu_interval",
+            FT_UINT24, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_evt_max_sdu,

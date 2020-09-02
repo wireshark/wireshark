@@ -51,12 +51,15 @@
 #include <caputils/iface_monitor.h>
 #endif
 
-#include "ui/capture.h"
 #include "ui/filter_files.h"
 #include "ui/capture_globals.h"
 #include "ui/software_update.h"
 #include "ui/last_open_dir.h"
 #include "ui/recent_utils.h"
+
+#ifdef HAVE_LIBPCAP
+#include "ui/capture.h"
+#endif
 
 #include "wsutil/utf8_entities.h"
 
@@ -880,7 +883,7 @@ void WiresharkApplication::removeDynamicMenuGroupItem(int group, QAction *sg_act
 
 void WiresharkApplication::clearDynamicMenuGroupItems()
 {
-    foreach (int group, dynamic_menu_groups_.uniqueKeys()) {
+    foreach (int group, dynamic_menu_groups_.keys()) {
         dynamic_menu_groups_[group].clear();
     }
 }
@@ -933,14 +936,14 @@ QList<QAction *> WiresharkApplication::removedMenuGroupItems(int group)
 
 void WiresharkApplication::clearAddedMenuGroupItems()
 {
-    foreach (int group, added_menu_groups_.uniqueKeys()) {
+    foreach (int group, added_menu_groups_.keys()) {
         added_menu_groups_[group].clear();
     }
 }
 
 void WiresharkApplication::clearRemovedMenuGroupItems()
 {
-    foreach (int group, removed_menu_groups_.uniqueKeys()) {
+    foreach (int group, removed_menu_groups_.keys()) {
         foreach (QAction *action, removed_menu_groups_[group]) {
             delete action;
         }
@@ -1185,13 +1188,17 @@ void WiresharkApplication::zoomTextFont(int zoomLevel)
 {
     // Scale by 10%, rounding to nearest half point, minimum 1 point.
     // XXX Small sizes repeat. It might just be easier to create a map of multipliers.
-    zoomed_font_ = mono_font_;
     qreal zoom_size = mono_font_.pointSize() * 2 * qPow(qreal(1.1), zoomLevel);
     zoom_size = qRound(zoom_size) / qreal(2.0);
     zoom_size = qMax(zoom_size, qreal(1.0));
-    zoomed_font_.setPointSizeF(zoom_size);
 
+    zoomed_font_ = mono_font_;
+    zoomed_font_.setPointSizeF(zoom_size);
     emit zoomMonospaceFont(zoomed_font_);
+
+    QFont zoomed_application_font = font();
+    zoomed_application_font.setPointSizeF(zoom_size);
+    emit zoomRegularFont(zoomed_application_font);
 }
 
 #if defined(HAVE_SOFTWARE_UPDATE) && defined(Q_OS_WIN)

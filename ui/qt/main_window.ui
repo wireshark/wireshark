@@ -362,6 +362,7 @@
     <addaction name="actionViewPacketList"/>
     <addaction name="actionViewPacketDetails"/>
     <addaction name="actionViewPacketBytes"/>
+    <addaction name="actionViewPacketDiagram"/>
     <addaction name="separator"/>
     <addaction name="menuTime_Display_Format"/>
     <addaction name="menuName_Resolution"/>
@@ -1503,10 +1504,10 @@
   </action>
   <action name="actionEditUnignoreAllDisplayed">
    <property name="text">
-    <string>Unignore All Displayed</string>
+    <string>U&amp;nignore All Displayed</string>
    </property>
    <property name="toolTip">
-    <string>U&amp;nignore all displayed packets</string>
+    <string>Unignore all displayed packets</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Alt+D</string>
@@ -1947,6 +1948,9 @@
    </property>
    <property name="toolTip">
     <string>Change the way packets are dissected</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Shift+U</string>
    </property>
   </action>
   <action name="actionAnalyzeReloadLuaPlugins">
@@ -2468,6 +2472,20 @@
    </property>
    <property name="toolTip">
     <string>Show or hide the packet bytes</string>
+   </property>
+  </action>
+  <action name="actionViewPacketDiagram">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Packet &amp;Diagram</string>
+   </property>
+   <property name="toolTip">
+    <string>Show or hide the packet diagram</string>
    </property>
   </action>
   <action name="actionViewInternalsConversationHashTables">

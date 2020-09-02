@@ -419,10 +419,10 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                             "Bogus 1-octet address field");
       offset++;
     } else {
-        static const int *first_address_bits[] = {&hf_fr_upper_dlci, &hf_fr_cr, &hf_fr_ea, NULL};
-        static const int *second_address_bits[] = {&hf_fr_second_dlci, &hf_fr_fecn,
+        static int * const first_address_bits[] = {&hf_fr_upper_dlci, &hf_fr_cr, &hf_fr_ea, NULL};
+        static int * const second_address_bits[] = {&hf_fr_second_dlci, &hf_fr_fecn,
                                         &hf_fr_becn, &hf_fr_de, &hf_fr_ea, NULL};
-        static const int *third_address_bits[] = {&hf_fr_third_dlci, &hf_fr_ea, NULL};
+        static int * const third_address_bits[] = {&hf_fr_third_dlci, &hf_fr_ea, NULL};
 
       /*
        * The first octet contains the upper 6 bits of the DLCI, as well
@@ -680,8 +680,18 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     break;
 
   case GPRS_NS:
-    next_tvb = tvb_new_subset_remaining(tvb, offset);
-    call_dissector(gprs_ns_handle, next_tvb, pinfo, tree);
+    if (addr == 0) {
+      fr_ctrl = tvb_get_guint8(tvb, offset);
+      control = dissect_xdlc_control(tvb, offset, pinfo, fr_tree,
+                                     hf_fr_control, ett_fr_control,
+                                     &fr_cf_items, &fr_cf_items_ext,
+                                     NULL, NULL, is_response, TRUE, TRUE);
+      offset += XDLC_CONTROL_LEN(control, TRUE);
+      dissect_fr_nlpid(tvb, offset, pinfo, tree, ti, fr_tree, fr_ctrl);
+    } else {
+      next_tvb = tvb_new_subset_remaining(tvb, offset);
+      call_dissector(gprs_ns_handle, next_tvb, pinfo, tree);
+    }
     break;
 
   case RAW_ETHER:

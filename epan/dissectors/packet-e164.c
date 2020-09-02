@@ -802,21 +802,22 @@ dissect_e164_msisdn(tvbuff_t *tvb, proto_tree *tree, int offset, int length, e16
 {
 	proto_item *pi;
 	proto_tree *subtree;
-	const gchar *msisdn_str;
+	guint       str_encoding;
+	char       *msisdn_str;
 
 	switch (encoding) {
 	case E164_ENC_UTF8:
-		msisdn_str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_UTF_8);
+		str_encoding = ENC_UTF_8;
 		break;
 	case E164_ENC_BCD:
-		msisdn_str = tvb_bcd_dig_to_wmem_packet_str(tvb, offset, length, NULL, FALSE);
+		str_encoding = ENC_BCD_DIGITS_0_9;
 		break;
 	case E164_ENC_BINARY:
 	default:
 		DISSECTOR_ASSERT_NOT_REACHED();
 	}
 
-	pi = proto_tree_add_string(tree, hf_E164_number, tvb, offset, length, msisdn_str);
+	pi = proto_tree_add_item_ret_display_string(tree, hf_E164_number, tvb, offset, length, str_encoding, wmem_packet_scope(), &msisdn_str);
 
 	subtree = proto_item_add_subtree(pi, ett_e164_msisdn);
 

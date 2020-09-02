@@ -7,7 +7,7 @@
  * In association with Global Star Solutions, ULC.
  *
  * Last Updated to:
- * http://www.3gpp2.org/Public_html/specs/C.S0016-C_v2.0_081031.pdf
+ * https://www.3gpp2.org/Public_html/Specs/C.S0016-C_v2.0_081031.pdf
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -958,8 +958,8 @@ for_param_block_val_spc(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, gui
 {
     EXACT_DATA_CHECK(len, 3);
 
-    proto_tree_add_string(tree, hf_ansi_683_service_programming_code,
-        tvb, offset, len, tvb_bcd_dig_to_wmem_packet_str(tvb, offset, 3, NULL, FALSE));
+    proto_tree_add_item(tree, hf_ansi_683_service_programming_code,
+        tvb, offset, len, ENC_BCD_DIGITS_0_9);
 }
 
 /*

@@ -80,8 +80,15 @@ main(int argc, char **argv)
 	if (!epan_init(NULL, NULL, FALSE))
 		return 2;
 
-	/* set the c-language locale to the native environment. */
+	/*
+	 * Set the C-language locale to the native environment and set the
+	 * code page to UTF-8 on Windows.
+	 */
+#ifdef _WIN32
+	setlocale(LC_ALL, ".UTF-8");
+#else
 	setlocale(LC_ALL, "");
+#endif
 
 	/* Load libwireshark settings from the current profile. */
 	epan_load_settings();

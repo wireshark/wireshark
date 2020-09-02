@@ -27,11 +27,13 @@
 
 #include <cli_main.h>
 
+static gchar* sshdump_extcap_interface;
+#define DEFAULT_SSHDUMP_EXTCAP_INTERFACE "sshdump"
+
 #define SSHDUMP_VERSION_MAJOR "1"
 #define SSHDUMP_VERSION_MINOR "0"
 #define SSHDUMP_VERSION_RELEASE "0"
 
-#define SSH_EXTCAP_INTERFACE "sshdump"
 #define SSH_READ_BLOCK_SIZE 256
 
 enum {
@@ -267,8 +269,8 @@ static int list_config(char *interface, unsigned int remote_port)
 		return EXIT_FAILURE;
 	}
 
-	if (g_strcmp0(interface, SSH_EXTCAP_INTERFACE)) {
-		g_warning("ERROR: interface must be %s", SSH_EXTCAP_INTERFACE);
+	if (g_strcmp0(interface, sshdump_extcap_interface)) {
+		g_warning("ERROR: interface must be %s", sshdump_extcap_interface);
 		return EXIT_FAILURE;
 	}
 
@@ -288,7 +290,7 @@ static int list_config(char *interface, unsigned int remote_port)
 		"or key files) are unavailable.}{group=Authentication}\n", inc++);
 	printf("arg {number=%u}{call=--sshkey}{display=Path to SSH private key}"
 		"{type=fileselect}{tooltip=The path on the local filesystem of the private ssh key}"
-		"{group=Authentication}\n", inc++);
+		"{mustexist=true}{group=Authentication}\n", inc++);
 	printf("arg {number=%u}{call=--sshkey-passphrase}{display=SSH key passphrase}"
 		"{type=password}{tooltip=Passphrase to unlock the SSH private key}{group=Authentication}\n",
 		inc++);
@@ -352,6 +354,9 @@ int main(int argc, char *argv[])
 	char* help_header = NULL;
 	gboolean use_sudo = FALSE;
 	gboolean noprom = FALSE;
+	gchar* interface_description = g_strdup("SSH remote capture");
+
+	sshdump_extcap_interface = g_path_get_basename(argv[0]);
 
 	/*
 	 * Get credential information for later use.
@@ -373,7 +378,14 @@ int main(int argc, char *argv[])
 	extcap_base_set_util_info(extcap_conf, argv[0], SSHDUMP_VERSION_MAJOR, SSHDUMP_VERSION_MINOR,
 		SSHDUMP_VERSION_RELEASE, help_url);
 	g_free(help_url);
-	extcap_base_register_interface(extcap_conf, SSH_EXTCAP_INTERFACE, "SSH remote capture", 147, "Remote capture dependent DLT");
+	add_libssh_info(extcap_conf);
+	if (g_strcmp0(sshdump_extcap_interface, DEFAULT_SSHDUMP_EXTCAP_INTERFACE)) {
+		gchar* temp = interface_description;
+		interface_description = g_strdup_printf("%s, custom version", interface_description);
+		g_free(temp);
+	}
+	extcap_base_register_interface(extcap_conf, sshdump_extcap_interface, interface_description, 147, "Remote capture dependent DLT");
+	g_free(interface_description);
 
 	help_header = g_strdup_printf(
 		" %s --extcap-interfaces\n"
@@ -381,8 +393,8 @@ int main(int argc, char *argv[])
 		" %s --extcap-interface=%s --extcap-config\n"
 		" %s --extcap-interface=%s --remote-host myhost --remote-port 22222 "
 		"--remote-username myuser --remote-interface eth2 --remote-capture-command 'tcpdump -U -i eth0 -w -' "
-		"--fifo=FILENAME --capture\n", argv[0], argv[0], SSH_EXTCAP_INTERFACE, argv[0],
-		SSH_EXTCAP_INTERFACE, argv[0], SSH_EXTCAP_INTERFACE);
+		"--fifo=FILENAME --capture\n", argv[0], argv[0], sshdump_extcap_interface, argv[0],
+		sshdump_extcap_interface, argv[0], sshdump_extcap_interface);
 	extcap_help_add_header(extcap_conf, help_header);
 	g_free(help_header);
 	extcap_help_add_option(extcap_conf, "--help", "print this help");
@@ -420,7 +432,7 @@ int main(int argc, char *argv[])
 			goto end;
 
 		case OPT_VERSION:
-			printf("%s\n", extcap_conf->version);
+			extcap_version_print(extcap_conf);
 			ret = EXIT_SUCCESS;
 			goto end;
 

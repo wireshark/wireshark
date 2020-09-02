@@ -113,7 +113,7 @@ dissect_ppi_antenna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     gchar *curr_str;
     int offset = 0;
 
-    static const int * ppi_antenna_present_flags[] = {
+    static int * const ppi_antenna_present_flags[] = {
         &hf_ppi_antenna_present_flags,
         &hf_ppi_antenna_present_gaindb,
         &hf_ppi_antenna_present_horizbw,
@@ -129,7 +129,7 @@ dissect_ppi_antenna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
         NULL
     };
 
-    static const int * ppi_antenna_ant_flags[] = {
+    static int * const ppi_antenna_ant_flags[] = {
         &hf_ppi_antennaflags_mimo,
         &hf_ppi_antennaflags_horizpol,
         &hf_ppi_antennaflags_vertpol,

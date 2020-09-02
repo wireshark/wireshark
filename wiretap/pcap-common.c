@@ -18,7 +18,7 @@
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include "atm.h"
-#include "erf.h"
+#include "erf_record.h"
 #include "pcap-encap.h"
 #include "pcap-common.h"
 
@@ -223,7 +223,7 @@ static const struct {
 	 * this number as well (why can't people stick to protocols when it
 	 * comes to allocating/using DLT types).
 	 */
-	{ 113,		WTAP_ENCAP_SLL },	/* Linux cooked capture */
+	{ 113,		WTAP_ENCAP_SLL },	/* Linux cooked capture v1 */
 
 	{ 114,		WTAP_ENCAP_LOCALTALK },	/* Localtalk */
 
@@ -464,6 +464,9 @@ static const struct {
 	/* DisplayPort AUX channel monitor */
 	{ 275,		WTAP_ENCAP_DPAUXMON },
 
+	/* Linux cooked capture v2 */
+	{ 276,		WTAP_ENCAP_SLL2 },
+
 	/* Elektrobit High Speed Capture and Replay */
 	{ 279,		WTAP_ENCAP_EBHSCR },
 
@@ -472,6 +475,9 @@ static const struct {
 
 	/* IEEE 802.15.4 TAP */
 	{ 283,		WTAP_ENCAP_IEEE802_15_4_TAP },
+
+	/* Z-Wave Serial API */
+	{ 287,		WTAP_ENCAP_ZWAVE_SERIAL },
 
 	/* USB 2.0/1.1/1.0 packets as transmitted over the cable */
 	{ 288,		WTAP_ENCAP_USB_2_0 },
@@ -1239,9 +1245,11 @@ static gboolean
 pcap_write_bt_pseudoheader(wtap_dumper *wdh,
     const union wtap_pseudo_header *pseudo_header, int *err)
 {
+	guint32 direction;
 	struct pcap_bt_phdr bt_hdr;
 
-	bt_hdr.direction = GUINT32_TO_BE(pseudo_header->p2p.sent ? LIBPCAP_BT_PHDR_SENT : LIBPCAP_BT_PHDR_RECV);
+	direction = pseudo_header->p2p.sent ? LIBPCAP_BT_PHDR_SENT : LIBPCAP_BT_PHDR_RECV;
+	bt_hdr.direction = GUINT32_TO_BE(direction);
 	if (!wtap_dump_file_write(wdh, &bt_hdr, sizeof bt_hdr, err))
 		return FALSE;
 	wdh->bytes_dumped += sizeof bt_hdr;

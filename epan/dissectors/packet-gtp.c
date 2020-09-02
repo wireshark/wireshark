@@ -54,6 +54,7 @@
 #include <epan/to_str.h>
 #include <epan/uat.h>
 #include <epan/proto_data.h>
+#include <epan/etypes.h>
 
 #include "packet-ppp.h"
 #include "packet-radius.h"
@@ -95,6 +96,7 @@ static dissector_handle_t gtp_handle, gtp_prime_handle;
 #define GTP_TPDU_AS_PDCP_LTE 1
 #define GTP_TPDU_AS_PDCP_NR 2
 #define GTP_TPDU_AS_SYNC 3
+#define GTP_TPDU_AS_ETHERNET 4
 
 static gboolean g_gtp_over_tcp = TRUE;
 gboolean g_gtp_session = FALSE;
@@ -215,6 +217,7 @@ static int hf_gtp_rai_rac = -1;
 static int hf_gtp_lac = -1;
 static int hf_gtp_tac = -1;
 static int hf_gtp_eci = -1;
+static int hf_gtp_ncgi_nrci = -1;
 static int hf_gtp_ranap_cause = -1;
 static int hf_gtp_recovery = -1;
 static int hf_gtp_reorder = -1;
@@ -473,7 +476,7 @@ static expert_field ei_gtp_guaranteed_bit_rate_value = EI_INIT;
 static expert_field ei_gtp_max_bit_rate_value = EI_INIT;
 static expert_field ei_gtp_ext_geo_loc_type = EI_INIT;
 static expert_field ei_gtp_iei = EI_INIT;
-static expert_field ei_gtp_unknown_extention_header = EI_INIT;
+static expert_field ei_gtp_unknown_extension_header = EI_INIT;
 static expert_field ei_gtp_unknown_pdu_type = EI_INIT;
 
 /* --- PDCP DECODE ADDITIONS --- */
@@ -839,6 +842,7 @@ static const enum_val_t gtp_decode_tpdu_as[] = {
     {"pdcp-lte", "PDCP-LTE",   GTP_TPDU_AS_PDCP_LTE },
     {"pdcp-nr", "PDCP-NR",   GTP_TPDU_AS_PDCP_NR },
     {"sync", "SYNC",   GTP_TPDU_AS_SYNC},
+    {"eth", "ETHERNET",   GTP_TPDU_AS_ETHERNET},
     {NULL, NULL, 0}
 };
 
@@ -2223,10 +2227,20 @@ static const value_string geographic_location_type[] = {
     {1, "Service Area Identity (SAI)"},
     {2, "Routing Area Identification (RAI)"},
 /* reserved for future used (3-->127) */
-    {128, "Tracking Area identity (TAI)"},                                              /* Radius */
-    {129, "E-UTRAN Cell Global Identification (ECGI)"},                                 /* Radius */
-    {130, "Tracking Area identity & E-UTRAN Cell Global Identification (TAI & ECGI)"},  /* Radius */
-/* reserved for future used (131-->255) */
+/* values below used by Radius */
+    {128, "TAI"},
+    {129, "ECGI"},
+    {130, "TAI & ECGI"},
+    {131, "eNodeB ID"},
+    {132, "TAI and eNodeB ID"},
+    {133, "extended eNodeB ID"},
+    {134, "TAI and extended eNodeB ID"},
+    {135, "NCGI"},
+    {136, "5GS TAI"},
+    {137, "5GS TAI and NCGI"},
+    {138, "NG-RAN Node ID"},
+    {139, "5GS TAI and NG-RAN Node ID"},
+/* reserved for future used (140-->255) */
     {0, NULL}
 };
 
@@ -2305,6 +2319,7 @@ gtpstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 }
 
 
+static dissector_handle_t eth_handle;
 static dissector_handle_t ip_handle;
 static dissector_handle_t ipv6_handle;
 static dissector_handle_t ppp_handle;
@@ -5186,7 +5201,7 @@ decode_qos_umts(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tr
 
     if ((type == 3) && (rel_ind == 8)) {
         /* Release 8 or higher P-GW QoS profile */
-        static const int * arp_flags[] = {
+        static int * const arp_flags[] = {
             &hf_gtp_qos_arp_pci,
             &hf_gtp_qos_arp_pl,
             &hf_gtp_qos_arp_pvi,
@@ -6649,6 +6664,26 @@ gchar *dissect_radius_user_loc(proto_tree * tree, tvbuff_t * tvb, packet_info* p
             offset+=3;
             proto_tree_add_item(tree, hf_gtp_eci, tvb, offset, 4, ENC_BIG_ENDIAN);
             break;
+        case 135:
+            /* NCGI */
+            {
+                proto_tree_add_item(tree, hf_gtp_ncgi_nrci, tvb, offset, 5, ENC_BIG_ENDIAN);
+            }
+            break;
+        case 136:
+            /* 5GS TAI */
+            {
+                dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, E212_TAI, TRUE);
+            }
+            break;
+        case 137:
+            /* 5GS TAI and NCGI */
+            {
+                dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, E212_TAI, TRUE);
+                offset += 3;
+                proto_tree_add_item(tree, hf_gtp_ncgi_nrci, tvb, offset, 5, ENC_BIG_ENDIAN);
+            }
+            break;
         default:
             expert_add_info(pinfo, ti, &ei_gtp_ext_geo_loc_type);
             break;
@@ -6806,7 +6841,7 @@ decode_gtp_imeisv(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tre
     proto_tree *ext_imeisv;
     proto_item *te;
     tvbuff_t   *next_tvb;
-    const char *digit_str;
+    char       *digit_str;
 
     length = tvb_get_ntohs(tvb, offset + 1);
     ext_imeisv = proto_tree_add_subtree(tree, tvb, offset, 3 + length, ett_gtp_ies[GTP_EXT_IMEISV], &te,
@@ -6823,8 +6858,7 @@ decode_gtp_imeisv(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tre
      * set to '1111'. Both IMEI and IMEISV are BCD encoded.
      */
     next_tvb = tvb_new_subset_length(tvb, offset, length);
-    digit_str = tvb_bcd_dig_to_wmem_packet_str(next_tvb, 0, -1, NULL, FALSE);
-    proto_tree_add_string(ext_imeisv, hf_gtp_ext_imeisv, next_tvb, 0, -1, digit_str);
+    proto_tree_add_item_ret_display_string(ext_imeisv, hf_gtp_ext_imeisv, next_tvb, 0, -1, ENC_BCD_DIGITS_0_9, wmem_packet_scope(), &digit_str);
     proto_item_append_text(te, ": %s", digit_str);
 
     return 3 + length;
@@ -8941,7 +8975,7 @@ static int
 decode_gtp_unknown(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_)
 {
 
-    proto_tree_add_expert(tree, pinfo, &ei_gtp_unknown_extention_header, tvb, offset, 1);
+    proto_tree_add_expert(tree, pinfo, &ei_gtp_unknown_extension_header, tvb, offset, 1);
 
     return tvb_reported_length_remaining(tvb, offset);
 }
@@ -9209,7 +9243,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
         /* No.  Attach that information to the conversation, and add
         * it to the list of information structures.
         */
-        gtp_info = (gtp_conv_info_t *)wmem_alloc(wmem_file_scope(), sizeof(gtp_conv_info_t));
+        gtp_info = wmem_new(wmem_file_scope(), gtp_conv_info_t);
         /*Request/response matching tables*/
         gtp_info->matched = g_hash_table_new(gtp_sn_hash, gtp_sn_equal_matched);
         gtp_info->unmatched = g_hash_table_new(gtp_sn_hash, gtp_sn_equal_unmatched);
@@ -9241,13 +9275,13 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     }
     if (tree) {
         if (gtp_prime) {
-            const int * gtp_prime_flags[] = {
+            static int * const gtp_prime_flags[] = {
                 &hf_gtp_prime_flags_ver,
                 &hf_gtp_flags_pt,
                 &hf_gtp_flags_spare1,
                 NULL
             };
-            const int * gtp_prime_v0_flags[] = {
+            static int * const gtp_prime_v0_flags[] = {
                 &hf_gtp_prime_flags_ver,
                 &hf_gtp_flags_pt,
                 &hf_gtp_flags_spare1,
@@ -9277,7 +9311,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                     ett_gtp_flags, gtp_prime_flags, gtp_hdr->flags, BMT_NO_APPEND);
             }
         } else {
-            const int * gtp_flags[] = {
+            static int * const gtp_flags[] = {
                 &hf_gtp_flags_ver,
                 &hf_gtp_flags_pt,
                 &hf_gtp_flags_spare2,
@@ -9286,7 +9320,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                 &hf_gtp_flags_pn,
                 NULL
             };
-            const int * gtp_v0_flags[] = {
+            static int * const gtp_v0_flags[] = {
                 &hf_gtp_flags_ver,
                 &hf_gtp_flags_pt,
                 &hf_gtp_flags_spare1,
@@ -9519,18 +9553,18 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                              * Container has a variable length and its content is
                              * specified in 3GPP TS 38.415 [31].
                              */
-                            static const int * flags1[] = {
+                            static int * const flags1[] = {
                                 &hf_gtp_ext_hdr_pdu_ses_cont_ppp,
                                 &hf_gtp_ext_hdr_pdu_ses_cont_rqi,
                                 &hf_gtp_ext_hdr_pdu_ses_cont_qos_flow_id,
                                 NULL
                             };
-                            static const int * flags2[] = {
+                            static int * const flags2[] = {
                                 &hf_gtp_ext_hdr_pdu_ses_cont_ppi,
                                 &hf_gtp_spare_b4b0,
                                 NULL
                             };
-                            static const int * flags3[] = {
+                            static int * const flags3[] = {
                                 &hf_gtp_spare_b7b6,
                                 &hf_gtp_ext_hdr_pdu_ses_cont_qos_flow_id,
                                 NULL
@@ -9708,23 +9742,33 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                 next_tvb = tvb_new_subset_remaining(tvb, offset);
                 call_dissector(ipv6_handle, next_tvb, pinfo, tree);
             } else {
+                if (tvb_reported_length_remaining(tvb, offset)>14) {
+                    guint16 eth_type;
+                    eth_type = tvb_get_ntohs(tvb, offset+12);
+                    if (eth_type == ETHERTYPE_ARP || eth_type == ETHERTYPE_IPv6 || eth_type == ETHERTYPE_IP) {
+                        /* guess this is an ethernet PDU based on the eth type field */
+                        next_tvb = tvb_new_subset_remaining(tvb, offset);
+                        call_dissector(eth_handle, next_tvb, pinfo, tree);
+                    }
+                } else {
 #if 0
-                /* This turns out not to be true, remove the code and try to improve it if we get bug reports */
-                /* this seems to be a PPP packet */
+                    /* This turns out not to be true, remove the code and try to improve it if we get bug reports */
+                    /* this seems to be a PPP packet */
 
-                if (sub_proto == 0xff) {
-                    guint8           control_field;
-                    /* this might be an address field, even it shouldn't be here */
-                    control_field = tvb_get_guint8(tvb, offset + 1);
-                    if (control_field == 0x03)
-                        /* now we are pretty sure that address and control field are mistakenly inserted -> ignore it for PPP dissection */
-                        acfield_len = 2;
-                }
+                    if (sub_proto == 0xff) {
+                        guint8           control_field;
+                        /* this might be an address field, even it shouldn't be here */
+                        control_field = tvb_get_guint8(tvb, offset + 1);
+                        if (control_field == 0x03)
+                            /* now we are pretty sure that address and control field are mistakenly inserted -> ignore it for PPP dissection */
+                            acfield_len = 2;
+                    }
 
-                next_tvb = tvb_new_subset_remaining(tvb, offset + acfield_len);
-                call_dissector(ppp_handle, next_tvb, pinfo, tree);
+                    next_tvb = tvb_new_subset_remaining(tvb, offset + acfield_len);
+                    call_dissector(ppp_handle, next_tvb, pinfo, tree);
 #endif
-                proto_tree_add_item(tree, hf_gtp_tpdu_data, tvb, offset, -1, ENC_NA);
+                    proto_tree_add_item(tree, hf_gtp_tpdu_data, tvb, offset, -1, ENC_NA);
+                }
             }
             col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "GTP <");
             col_append_str(pinfo->cinfo, COL_PROTOCOL, ">");
@@ -9857,6 +9901,12 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
         case GTP_TPDU_AS_SYNC:
             next_tvb = tvb_new_subset_remaining(tvb, offset + acfield_len);
             call_dissector(sync_handle, next_tvb, pinfo, tree);
+            col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "GTP <");
+            col_append_str(pinfo->cinfo, COL_PROTOCOL, ">");
+            break;
+        case GTP_TPDU_AS_ETHERNET:
+            next_tvb = tvb_new_subset_remaining(tvb, offset);
+            call_dissector(eth_handle, next_tvb, pinfo, tree);
             col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "GTP <");
             col_append_str(pinfo->cinfo, COL_PROTOCOL, ">");
             break;
@@ -10674,6 +10724,11 @@ proto_register_gtp(void)
            FT_UINT32, BASE_DEC, NULL, 0x0FFFFFFF,
            "E-UTRAN Cell Identifier", HFILL}
         },
+        {&hf_gtp_ncgi_nrci,
+         {"NR Cell Identifier", "gtp.ncgi_nrci",
+          FT_UINT40, BASE_HEX, NULL, 0xfffffffff0,
+          NULL, HFILL}
+        },
         {&hf_gtp_ranap_cause,
          { "RANAP cause", "gtp.ranap_cause",
            FT_UINT8, BASE_DEC|BASE_EXT_STRING, &ranap_cause_type_ext, 0,
@@ -11306,7 +11361,7 @@ proto_register_gtp(void)
         { &ei_gtp_max_bit_rate_value, { "gtp.max_bit_rate_value", PI_PROTOCOL, PI_NOTE, "Use the value indicated by the Maximum bit rate", EXPFILL }},
         { &ei_gtp_ext_geo_loc_type, { "gtp.ext_geo_loc_type.unknown", PI_PROTOCOL, PI_WARN, "Unknown Location type data", EXPFILL }},
         { &ei_gtp_iei, { "gtp.iei.unknown", PI_PROTOCOL, PI_WARN, "Unknown IEI - Later spec than TS 29.060 9.4.0 used?", EXPFILL }},
-        { &ei_gtp_unknown_extention_header, { "gtp.unknown_extention_header", PI_PROTOCOL, PI_WARN, "Unknown extension header", EXPFILL }},
+        { &ei_gtp_unknown_extension_header, { "gtp.unknown_extension_header", PI_PROTOCOL, PI_WARN, "Unknown extension header", EXPFILL }},
         { &ei_gtp_unknown_pdu_type, { "gtp.unknown_pdu_type", PI_PROTOCOL, PI_WARN, "Unknown PDU type", EXPFILL }},
     };
 
@@ -11508,6 +11563,7 @@ proto_reg_handoff_gtp(void)
 
 
 
+        eth_handle           = find_dissector_add_dependency("eth_withoutfcs", proto_gtp);
         ip_handle            = find_dissector_add_dependency("ip", proto_gtp);
         ipv6_handle          = find_dissector_add_dependency("ipv6", proto_gtp);
         ppp_handle           = find_dissector_add_dependency("ppp", proto_gtp);

@@ -50,13 +50,12 @@ typedef enum {
 /* Show Type */
 typedef enum {
     SHOW_ASCII,
+    SHOW_CARRAY,
     SHOW_EBCDIC,
     SHOW_HEXDUMP,
-    SHOW_CARRAY,
     SHOW_RAW,
-    SHOW_YAML,
-    SHOW_UTF8,
-    SHOW_UTF16
+    SHOW_CODEC, // Ordered to match UTF-8 combobox index
+    SHOW_YAML
 } show_type_t;
 
 

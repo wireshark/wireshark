@@ -169,23 +169,23 @@ dissect_socketcan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_item *ti;
 	guint8      frame_type;
 	struct can_info can_info;
-	const int **can_flags;
+	int        * const *can_flags;
 
-	static const int *can_std_flags[] = {
+	static int * const can_std_flags[] = {
 		&hf_can_infoent_std,
 		&hf_can_extflag,
 		&hf_can_rtrflag,
 		&hf_can_errflag,
 		NULL,
 	};
-	static const int *can_ext_flags[] = {
+	static int * const can_ext_flags[] = {
 		&hf_can_infoent_ext,
 		&hf_can_extflag,
 		&hf_can_rtrflag,
 		&hf_can_errflag,
 		NULL,
 	};
-	static const int *can_err_flags[] = {
+	static int * const can_err_flags[] = {
 		&hf_can_errflag,
 		&hf_can_err_tx_timeout,
 		&hf_can_err_lostarb,
@@ -239,7 +239,7 @@ dissect_socketcan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	if (frame_type == LINUX_CAN_ERR)
 	{
-		const int **flag;
+		int * const *flag;
 		const char *sepa = ": ";
 
 		col_set_str(pinfo->cinfo, COL_INFO, "ERR");
@@ -263,7 +263,7 @@ dissect_socketcan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			proto_tree_add_item(can_tree, hf_can_err_lostarb_bit_number, tvb, CAN_DATA_OFFSET+0, 1, ENC_NA);
 		if (can_info.id & CAN_ERR_CTRL)
 		{
-			static const int *can_err_ctrl_flags[] = {
+			static int * const can_err_ctrl_flags[] = {
 				&hf_can_err_ctrl_rx_overflow,
 				&hf_can_err_ctrl_tx_overflow,
 				&hf_can_err_ctrl_rx_warning,
@@ -278,7 +278,7 @@ dissect_socketcan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 		if (can_info.id & CAN_ERR_PROT)
 		{
-			static const int *can_err_prot_error_type_flags[] = {
+			static int * const can_err_prot_error_type_flags[] = {
 				&hf_can_err_prot_error_type_bit,
 				&hf_can_err_prot_error_type_form,
 				&hf_can_err_prot_error_type_stuff,
@@ -338,12 +338,6 @@ dissect_socketcan_bigendian(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	    byte_swap ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
 }
 
-#if G_BYTE_ORDER == G_LITTLE_ENDIAN
-    #define ENC_ANTI_HOST_ENDIAN ENC_BIG_ENDIAN
-#else
-    #define ENC_ANTI_HOST_ENDIAN ENC_LITTLE_ENDIAN
-#endif
-
 static int
 dissect_socketcan_hostendian(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     void* data _U_)
@@ -366,7 +360,7 @@ dissect_socketcanfd_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		&hf_can_extflag,
 		NULL,
 	};
-	static const int * canfd_flag_fields[] = {
+	static int * const canfd_flag_fields[] = {
 		&hf_canfd_brsflag,
 		&hf_canfd_esiflag,
 		NULL,
@@ -398,7 +392,7 @@ dissect_socketcanfd_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	ti = proto_tree_add_item(tree, proto_canfd, tvb, 0, -1, ENC_NA);
 	can_tree = proto_item_add_subtree(ti, ett_can_fd);
 
-	proto_tree_add_bitmask_list(can_tree, tvb, 0, 4, (const int**)can_flags_fd, encoding);
+	proto_tree_add_bitmask_list(can_tree, tvb, 0, 4, can_flags_fd, encoding);
 
 	proto_tree_add_item(can_tree, hf_can_len, tvb, CAN_LEN_OFFSET, 1, ENC_NA);
 	proto_tree_add_bitmask_list(can_tree, tvb, CANFD_FLAG_OFFSET, 1, canfd_flag_fields, ENC_NA);

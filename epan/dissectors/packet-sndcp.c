@@ -181,7 +181,7 @@ dissect_sndcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
   tvbuff_t      *next_tvb, *npdu_tvb;
   gint           len;
   gboolean       first, more_frags, unack;
-  static const int * addr_fields[] = {
+  static int * const addr_fields[] = {
     &hf_sndcp_x,
     &hf_sndcp_f,
     &hf_sndcp_t,

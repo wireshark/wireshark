@@ -234,7 +234,7 @@ static const value_string fc_sbccs_dib_lrj_errcode_val[] = {
 static void
 dissect_iui_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 flags)
 {
-    static const int * iui_flags[] = {
+    static int * const iui_flags[] = {
         &hf_sbccs_iui_as,
         &hf_sbccs_iui_es,
         &hf_sbccs_iui_val,
@@ -248,7 +248,7 @@ dissect_iui_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 f
 static void
 dissect_linkctlinfo (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 flags)
 {
-    static const int * linkctlinfo_flags[] = {
+    static int * const linkctlinfo_flags[] = {
         &hf_sbccs_dib_linkctlinfo_ctcconn,
         &hf_sbccs_dib_linkctlinfo_ecrcg,
         NULL
@@ -262,7 +262,7 @@ dissect_linkctlinfo (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16
 static void
 dissect_dh_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 flags)
 {
-    static const int * dh_flags[] = {
+    static int * const dh_flags[] = {
         &hf_sbccs_dhflags_end,
         &hf_sbccs_dhflags_chaining,
         &hf_sbccs_dhflags_earlyend,
@@ -278,7 +278,7 @@ dissect_dh_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 fl
 static void
 dissect_ccw_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint8 flags)
 {
-    static const int * ccw_flags[] = {
+    static int * const ccw_flags[] = {
         &hf_sbccs_dib_ccw_flags_cd,
         &hf_sbccs_dib_ccw_flags_cc,
         &hf_sbccs_dib_ccw_flags_sli,
@@ -294,7 +294,7 @@ dissect_ccw_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint8 fl
 static void
 dissect_cmd_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint8 flags)
 {
-    static const int * cmd_flags[] = {
+    static int * const cmd_flags[] = {
         &hf_sbccs_dib_cmdflags_du,
         &hf_sbccs_dib_cmdflags_coc,
         &hf_sbccs_dib_cmdflags_syr,
@@ -318,7 +318,7 @@ static const value_string status_ffc_val[] = {
 static void
 dissect_status_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint8 flags)
 {
-    static const int * status_flags[] = {
+    static int * const status_flags[] = {
         &hf_sbccs_dib_statusflags_ffc,
         &hf_sbccs_dib_statusflags_ci,
         &hf_sbccs_dib_statusflags_cr,
@@ -335,7 +335,7 @@ dissect_status_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint8
 static void
 dissect_status (packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint8 flags)
 {
-    static const int * status_flags[] = {
+    static int * const status_flags[] = {
         &hf_sbccs_dib_status_attention,
         &hf_sbccs_dib_status_modifier,
         &hf_sbccs_dib_status_cue,
@@ -385,7 +385,7 @@ dissect_status (packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int 
 static void
 dissect_sel_rst_param (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint32 flags)
 {
-    static const int * rst_param_flags[] = {
+    static int * const rst_param_flags[] = {
         &hf_sbccs_dib_ctlparam_rc,
         &hf_sbccs_dib_ctlparam_ru,
         &hf_sbccs_dib_ctlparam_ro,
@@ -894,7 +894,7 @@ proto_register_fcsbccs (void)
             NULL, HFILL}},
 
         { &hf_sbccs_dib_lrjcode,
-          { "LRJ Reaspn Code", "fcsb3.lrjcode",
+          { "LRJ Reason Code", "fcsb3.lrjcode",
             FT_UINT8, BASE_HEX, VALS (fc_sbccs_dib_lrj_errcode_val), 0x7F,
             NULL, HFILL}},
 

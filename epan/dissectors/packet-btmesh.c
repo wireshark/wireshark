@@ -1095,7 +1095,7 @@ static const value_string btmesh_fault_array_vals[] = {
 
 #if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
 
-static const int *config_composition_data_status_features_headers[] = {
+static int * const config_composition_data_status_features_headers[] = {
     &hf_btmesh_config_composition_data_status_features_relay,
     &hf_btmesh_config_composition_data_status_features_proxy,
     &hf_btmesh_config_composition_data_status_features_friend,
@@ -1104,7 +1104,7 @@ static const int *config_composition_data_status_features_headers[] = {
     NULL
 };
 
-static const int *config_heartbeat_publication_set_features_headers[] = {
+static int * const config_heartbeat_publication_set_features_headers[] = {
     &hf_btmesh_config_heartbeat_publication_set_features_relay,
     &hf_btmesh_config_heartbeat_publication_set_features_proxy,
     &hf_btmesh_config_heartbeat_publication_set_features_friend,
@@ -1113,13 +1113,51 @@ static const int *config_heartbeat_publication_set_features_headers[] = {
     NULL
 };
 
-static const int *config_heartbeat_publication_status_features_headers[] = {
+static int * const config_heartbeat_publication_status_features_headers[] = {
     &hf_btmesh_config_heartbeat_publication_status_features_relay,
     &hf_btmesh_config_heartbeat_publication_status_features_proxy,
     &hf_btmesh_config_heartbeat_publication_status_features_friend,
     &hf_btmesh_config_heartbeat_publication_status_features_low_power,
     &hf_btmesh_config_heartbeat_publication_status_features_rfu,
     NULL
+};
+
+static const fragment_items btmesh_segmented_access_frag_items = {
+    &ett_btmesh_segmented_access_fragments,
+    &ett_btmesh_segmented_access_fragment,
+
+    &hf_btmesh_segmented_access_fragments,
+    &hf_btmesh_segmented_access_fragment,
+    &hf_btmesh_segmented_access_fragment_overlap,
+    &hf_btmesh_segmented_access_fragment_overlap_conflict,
+    &hf_btmesh_segmented_access_fragment_multiple_tails,
+    &hf_btmesh_segmented_access_fragment_too_long_fragment,
+    &hf_btmesh_segmented_access_fragment_error,
+    &hf_btmesh_segmented_access_fragment_count,
+    NULL,
+    &hf_btmesh_segmented_access_reassembled_length,
+    /* Reassembled data field */
+    NULL,
+    "fragments"
+};
+
+static const fragment_items btmesh_segmented_control_frag_items = {
+    &ett_btmesh_segmented_control_fragments,
+    &ett_btmesh_segmented_control_fragment,
+
+    &hf_btmesh_segmented_control_fragments,
+    &hf_btmesh_segmented_control_fragment,
+    &hf_btmesh_segmented_control_fragment_overlap,
+    &hf_btmesh_segmented_control_fragment_overlap_conflict,
+    &hf_btmesh_segmented_control_fragment_multiple_tails,
+    &hf_btmesh_segmented_control_fragment_too_long_fragment,
+    &hf_btmesh_segmented_control_fragment_error,
+    &hf_btmesh_segmented_control_fragment_count,
+    NULL,
+    &hf_btmesh_segmented_control_reassembled_length,
+    /* Reassembled data field */
+    NULL,
+    "fragments"
 };
 
 #endif
@@ -1210,44 +1248,6 @@ static const value_string btmesh_model_vals[] = {
 /* Upper Transport Message reassembly */
 
 static reassembly_table upper_transport_reassembly_table;
-
-static const fragment_items btmesh_segmented_access_frag_items = {
-    &ett_btmesh_segmented_access_fragments,
-    &ett_btmesh_segmented_access_fragment,
-
-    &hf_btmesh_segmented_access_fragments,
-    &hf_btmesh_segmented_access_fragment,
-    &hf_btmesh_segmented_access_fragment_overlap,
-    &hf_btmesh_segmented_access_fragment_overlap_conflict,
-    &hf_btmesh_segmented_access_fragment_multiple_tails,
-    &hf_btmesh_segmented_access_fragment_too_long_fragment,
-    &hf_btmesh_segmented_access_fragment_error,
-    &hf_btmesh_segmented_access_fragment_count,
-    NULL,
-    &hf_btmesh_segmented_access_reassembled_length,
-    /* Reassembled data field */
-    NULL,
-    "fragments"
-};
-
-static const fragment_items btmesh_segmented_control_frag_items = {
-    &ett_btmesh_segmented_control_fragments,
-    &ett_btmesh_segmented_control_fragment,
-
-    &hf_btmesh_segmented_control_fragments,
-    &hf_btmesh_segmented_control_fragment,
-    &hf_btmesh_segmented_control_fragment_overlap,
-    &hf_btmesh_segmented_control_fragment_overlap_conflict,
-    &hf_btmesh_segmented_control_fragment_multiple_tails,
-    &hf_btmesh_segmented_control_fragment_too_long_fragment,
-    &hf_btmesh_segmented_control_fragment_error,
-    &hf_btmesh_segmented_control_fragment_count,
-    NULL,
-    &hf_btmesh_segmented_control_reassembled_length,
-    /* Reassembled data field */
-    NULL,
-    "fragments"
-};
 
 typedef struct _upper_transport_fragment_key {
     guint16 src;
@@ -3377,7 +3377,7 @@ dissect_btmesh_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     proto_tree_add_item(sub_tree, hf_btmesh_nid, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    dec_ctx = (network_decryption_ctx_t *)wmem_alloc(wmem_packet_scope(), sizeof(network_decryption_ctx_t));
+    dec_ctx = wmem_new(wmem_packet_scope(), network_decryption_ctx_t);
     dec_ctx->net_nonce_type = BTMESH_NONCE_TYPE_NETWORK;
 
     de_obf_tvb = btmesh_network_find_key_and_decrypt(tvb, pinfo, &decrypted_data, &enc_data_len, dec_ctx);
@@ -3557,7 +3557,7 @@ compute_ascii_key(guchar **ascii_key, const gchar *key)
                  * number of characters even.
                  */
                 key_len = (raw_key_len - 2) / 2 + 1;
-                *ascii_key = (gchar *)g_malloc((key_len + 1) * sizeof(gchar));
+                *ascii_key = (guchar *)g_malloc((key_len + 1) * sizeof(gchar));
                 hex_digit = g_ascii_xdigit_value(key[i]);
                 i++;
                 if (hex_digit == -1)
@@ -3576,7 +3576,7 @@ compute_ascii_key(guchar **ascii_key, const gchar *key)
                  * pair of hex digits as a single byte value.
                  */
                 key_len = (raw_key_len - 2) / 2;
-                *ascii_key = (gchar *)g_malloc((key_len + 1) * sizeof(gchar));
+                *ascii_key = (guchar *)g_malloc((key_len + 1) * sizeof(gchar));
             }
 
             while (i < (raw_key_len - 1))
@@ -3612,7 +3612,7 @@ compute_ascii_key(guchar **ascii_key, const gchar *key)
         else
         {
             key_len = raw_key_len;
-            *ascii_key = g_strdup(key);
+            *ascii_key = (guchar*)g_strdup(key);
         }
     }
     return key_len;
@@ -4216,7 +4216,7 @@ proto_register_btmesh(void)
                 "The total length of the reassembled payload", HFILL }
         },
         { &hf_btmesh_decrypted_access,
-            { "Decrypted Accesss", "btmesh.accesss.decrypted",
+            { "Decrypted Access", "btmesh.access.decrypted",
                 FT_BYTES, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }
         },

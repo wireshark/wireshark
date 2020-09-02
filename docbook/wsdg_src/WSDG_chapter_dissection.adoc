@@ -2,39 +2,38 @@
 
 [[ChapterDissection]]
 
-== Packet dissection
+== Packet Dissection
 
 [[ChDissectWorks]]
 
-=== How it works
+=== How packet dissection works
 
-Each dissector decodes its part of the protocol, and then hands off
+Each dissector decodes its part of the protocol and then hands off
 decoding to subsequent dissectors for an encapsulated protocol.
 
-Every dissection starts with the Frame dissector which dissects the packet
+Every dissection starts with the Frame dissector which dissects the
 details of the capture file itself (e.g. timestamps). From there it passes the
 data on to the lowest-level data dissector, e.g. the Ethernet dissector for
 the Ethernet header. The payload is then passed on to the next dissector (e.g.
-IP) and so on. At each stage, details of the packet will be decoded and
+IP) and so on. At each stage, details of the packet are decoded and
 displayed.
 
-Dissection can be implemented in two possible ways. One is to have a dissector
-module compiled into the main program, which means it’s always available.
-Another way is to make a plugin (a shared library or DLL) that registers itself
-to handle dissection.
+Dissectors can either be built-in to Wireshark or written as a self-registering
+plugin (a shared library or DLL).
+There is little difference in having your dissector as either a plugin
+or built-in.  You have limited function access through the ABI exposed
+by functions declared as WS_DLL_PUBLIC.
 
-There is little difference in having your dissector as either a plugin or
-built-in. On the Windows platform you have limited function access through the
-ABI exposed by functions declared as WS_DLL_PUBLIC.
-
-The big plus is that your rebuild cycle for a plugin is much shorter than for a
-built-in one. So starting with a plugin makes initial development simpler, while
+The big benefit of writing a dissector as a plugin is that rebuilding
+a plugin is much faster than rebuilding wireshark after editing a built-in
+dissector.
+As such, starting with a plugin often makes initial development quicker, while
 the finished code may make more sense as a built-in dissector.
 
 [NOTE]
 .Read README.dissector
 ====
-The file _doc/README.dissector_ contains detailed information about implementing
+The file _doc/README.dissector_ contains detailed information about writing
 a dissector. In many cases it is more up to date than this document.
 ====
 
@@ -45,9 +44,9 @@ a dissector. In many cases it is more up to date than this document.
 Let’s step through adding a basic dissector. We'll start with the made up "foo"
 protocol. It consists of the following basic items.
 
-* A packet type - 8 bits, possible values: 1 - initialisation, 2 - terminate, 3 - data.
+* A packet type - 8 bits. Possible values: 1 - initialisation, 2 - terminate, 3 - data.
 
-* A set of flags stored in 8 bits, 0x01 - start packet, 0x02 - end packet, 0x04 - priority packet.
+* A set of flags stored in 8 bits. 0x01 - start packet, 0x02 - end packet, 0x04 - priority packet.
 
 * A sequence number - 16 bits.
 
@@ -58,60 +57,67 @@ protocol. It consists of the following basic items.
 ==== Setting up the dissector
 
 The first decision you need to make is if this dissector will be a
-built-in dissector, included in the main program, or a plugin.
+built-in dissector and included in the main program, or a plugin.
 
-Plugins are the easiest to write initially, so let’s start with that.
-With a little care, the plugin can be made to run as a built-in
-easily too so we haven't lost anything.
+Plugins are easier to write initially, so let’s start with that.
+With a little care, the plugin can be converted into a built-in dissector.
 
 .Dissector Initialisation.
-====
+[source,c]
 ----
 #include "config.h"
-
 #include <epan/packet.h>
 
 #define FOO_PORT 1234
 
 static int proto_foo = -1;
 
-
 void
 proto_register_foo(void)
 {
     proto_foo = proto_register_protocol (
-        "FOO Protocol", /* name       */
-        "FOO",      /* short name */
-        "foo"       /* abbrev     */
+        "FOO Protocol", /* name        */
+        "FOO",          /* short name  */
+        "foo"           /* filter_name */
         );
 }
 ----
-====
 
 Let’s go through this a bit at a time. First we have some boilerplate
 include files. These will be pretty constant to start with.
 
-Next we have an int that is initialised to `-1` that records our protocol.
-This will get updated when we register this dissector with the main program.
-It’s good practice to make all variables and functions that aren't exported
-static to keep name space pollution down. Normally this isn't a problem unless your
-dissector gets so big it has to span multiple files.
-
 Then a `#define` for the UDP port that carries _foo_ traffic.
 
-Now that we have the basics in place to interact with the main program, we'll
-start with two protocol dissector setup functions.
+Next we have `proto_foo`, an int that stores our protocol handle and is
+initialised to `-1`.
+This handle will be set when the dissector is registered within the main program.
+It’s good practice to make all variables and functions that aren't exported
+static to minimize name space pollution. This normally isn't a problem unless your
+dissector gets so big that it spans multiple files.
 
-First we'll call `proto_register_protocol()` which registers the protocol. We
-can give it three names that will be used for display in various places. The
-full and short name are used in e.g. the "Preferences" and "Enabled protocols"
-dialogs as well as the generated field name list in the documentation. The
-abbreviation is used as the display filter name.
+Now that we have the basics in place to interact with the main program, we'll
+start with two protocol dissector setup functions: `proto_register_XXX` and
+`proto_reg_handoff_XXX`.
+
+Each protocol must have a register function with the form "proto_register_XXX".
+This function is used to register the protocol in Wireshark.
+The code to call the register routines is generated automatically and is
+called when Wireshark starts. In this example, the function is named
+`proto_register_foo`.
+
+`proto_register_foo` calls `proto_register_protocol()`, which takes a `name`,
+`short name`, and `filter_name`. The
+name and short name are used in the "Preferences" and "Enabled protocols"
+dialogs and the documentation's generated field name list. The
+`filter_name` is used as the display filter name. `proto_register_protocol()`
+returns a protocol handle, which can be used to refer to the protocol and
+obtain a handle to the protocol's dissector.
+
 
 Next we need a handoff routine.
 
 .Dissector Handoff.
-====
+[source,c]
 ----
 void
 proto_reg_handoff_foo(void)
@@ -122,50 +128,99 @@ proto_reg_handoff_foo(void)
     dissector_add_uint("udp.port", FOO_PORT, foo_handle);
 }
 ----
-====
 
-What’s happening here? We are initialising the dissector. First we create a
-dissector handle; It is associated with the foo protocol and with a routine to
-be called to do the actual dissecting. Then we associate the handle with a UDP
-port number so that the main program will know to call us when it gets UDP
-traffic on that port.
+A handoff routine associates a protocol handler with the protocol's
+traffic. It consists of two major steps: The first step is to create a
+dissector handle, which is a handle associated with the protocol and the
+function called to do the actual dissecting.
+The second step is to register the dissector handle so that traffic
+associated with the protocol calls the dissector.
 
-The standard Wireshark dissector convention is to put `proto_register_foo()` and
+In this example, `proto_reg_handoff_foo()` calls `create_dissector_handle()`
+to obtain a dissector handle for the foo protocol. It then uses
+`dissector_add_uint()` to associate traffic on UDP port FOO_PORT (1234)
+with the foo protocol, so that Wireshark will call `dissect_foo()` when
+it receives UDP traffic on port 1234.
+
+Wireshark's dissector convention is to put `proto_register_foo()` and
 `proto_reg_handoff_foo()` as the last two functions in the dissector source.
 
-Now at last we get to write some dissecting code. For the moment we'll
-leave it as a basic placeholder.
+The next step is to write the dissecting function, `dissect_foo()`.
+We'll start with a basic placeholder.
 
 .Dissection.
-====
+[source,c]
 ----
 static int
 dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data _U_)
 {
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FOO");
-    /* Clear out stuff in the info column */
+    /* Clear the info column */
     col_clear(pinfo->cinfo,COL_INFO);
 
     return tvb_captured_length(tvb);
 }
 ----
-====
 
-This function is called to dissect the packets presented to it. The packet data
-is held in a special buffer referenced here as tvb. We shall become fairly
-familiar with this as we get deeper into the details of the protocol. The packet
-info structure contains general data about the protocol, and we can update
+`dissect_foo()` is called to dissect the packets presented to it. The packet data
+is held in a special buffer referenced here as `tvb`. The packet_info structure
+contains general data about the protocol and we can update
 information here. The tree parameter is where the detail dissection takes place.
+Note that the `\_U_` following `tree` and `data` signals to the compiler that the
+parameters are unused, so that the compiler does not print a warning.
 
-For now we'll do the minimum we can get away with. In the first line we set the
-text of this to our protocol, so everyone can see it’s being recognised. The
+For now we'll do the minimum we can get away with. `col_set_str()` is used to set
+Wireshark's Protocol column to "FOO" so everyone can see it’s being
+recognised. The
 only other thing we do is to clear out any data in the INFO column if it’s being
 displayed.
 
-At this point we should have a basic dissector ready to compile and install.
-It doesn't do much at present, other than identify the protocol and label it.
+At this point we have a basic dissector ready to compile and install.
+The dissector doesn't do anything other than identify the protocol and label it.
+Here is the dissector's complete code:
 
-In order to compile this dissector and create a plugin a couple of support files
+.Complete _packet-foo.c_:.
+[source,c]
+----
+#include "config.h"
+#include <epan/packet.h>
+
+#define FOO_PORT 1234
+
+static int proto_foo = -1;
+
+static int
+dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data _U_)
+{
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "FOO");
+    /* Clear the info column */
+    col_clear(pinfo->cinfo,COL_INFO);
+
+    return tvb_captured_length(tvb);
+}
+
+void
+proto_register_foo(void)
+{
+    proto_foo = proto_register_protocol (
+        "FOO Protocol", /* name        */
+        "FOO",          /* short_name  */
+        "foo"           /* filter_name */
+        );
+}
+
+void
+proto_reg_handoff_foo(void)
+{
+    static dissector_handle_t foo_handle;
+
+    foo_handle = create_dissector_handle(dissect_foo, proto_foo);
+    dissector_add_uint("udp.port", FOO_PORT, foo_handle);
+}
+
+----
+
+To compile this dissector and create a plugin a few support files
 are required, besides the dissector source in _packet-foo.c_:
 
 * _CMakeLists.txt_ - Contains the CMake file and version info for this plugin.
@@ -187,7 +242,7 @@ binary into the plugin directory of your Wireshark installation and run that.
 
 [[ChDissectDetails]]
 
-==== Dissecting the details of the protocol
+==== Dissecting the protocol's details
 
 Now that we have our basic dissector up and running, let’s do something with it.
 The simplest thing to do to start with is to just label the payload.
@@ -197,12 +252,11 @@ The first thing we will do is to build a subtree to decode our results into.
 This helps to keep things looking nice in the detailed display.
 
 .Plugin Packet Dissection.
-====
+[source,c]
 ----
 static int
 dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FOO");
     /* Clear out stuff in the info column */
     col_clear(pinfo->cinfo,COL_INFO);
@@ -212,14 +266,13 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     return tvb_captured_length(tvb);
 }
 ----
-====
 
 What we're doing here is adding a subtree to the dissection.
 This subtree will hold all the details of this protocol and so not clutter
 up the display when not required.
 
 We are also marking the area of data that is being consumed by this
-protocol. In our case it’s all that has been passed to us, as we're assuming
+protocol. In this case it’s all of the passed data, as
 this protocol does not encapsulate another.
 Therefore, we add the new tree node with `proto_tree_add_item()`,
 adding it to the passed in tree, label it with the protocol, use the passed in
@@ -230,7 +283,7 @@ After this change, there should be a label in the detailed display for the proto
 and selecting this will highlight the remaining contents of the packet.
 
 Now let’s go to the next step and add some protocol dissection. For this step
-we'll need to construct a couple of tables that help with dissection. This needs
+we'll need to construct a few tables to help with dissection. This needs
 some additions to the `proto_register_foo()` function shown previously.
 
 Two statically allocated arrays are added at the beginning of
@@ -238,7 +291,7 @@ Two statically allocated arrays are added at the beginning of
 `proto_register_protocol()`.
 
 .Registering data structures.
-====
+[source,c]
 ----
 void
 proto_register_foo(void)
@@ -259,41 +312,38 @@ proto_register_foo(void)
 
     proto_foo = proto_register_protocol (
         "FOO Protocol", /* name       */
-        "FOO",      /* short name */
-        "foo"       /* abbrev     */
+        "FOO",          /* short_name */
+        "foo"           /* filter_name*/
         );
 
     proto_register_field_array(proto_foo, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 }
 ----
-====
 
 The variables `hf_foo_pdu_type` and `ett_foo` also need to be declared somewhere near the top of the file.
 
 .Dissector data structure globals.
-====
+[source,c]
 ----
 static int hf_foo_pdu_type = -1;
 
 static gint ett_foo = -1;
 ----
-====
 
-Now we can enhance the protocol display with some detail.
+Now we can enhance the protocol display with some packet detail.
 
 .Dissector starting to dissect the packets.
-====
+[source,c]
 ----
     proto_item *ti = proto_tree_add_item(tree, proto_foo, tvb, 0, -1, ENC_NA);
     proto_tree *foo_tree = proto_item_add_subtree(ti, ett_foo);
     proto_tree_add_item(foo_tree, hf_foo_pdu_type, tvb, 0, 1, ENC_BIG_ENDIAN);
 ----
-====
 
-Now the dissection is starting to look more interesting. We have picked apart
-our first bit of the protocol. One byte of data at the start of the packet
-that defines the packet type for foo protocol.
+As mentioned earlier, the foo protocol begins with an 8-bit `packet type`
+which can have three possible values: 1 - initialisation, 2 - terminate, 3 - data.
+Here's how we can add the packet details:
 
 The `proto_item_add_subtree()` call has added a child node
 to the protocol tree which is where we will do our detail dissection.
@@ -312,14 +362,25 @@ see in the next section, this particular protocol uses network order.
 If we look in detail at the `hf_foo_pdu_type` declaration in
 the static array we can see the details of the definition.
 
-* _hf_foo_pdu_type_ - The index for this node.
+----
+static hf_register_info hf[] = {
+    { &hf_foo_pdu_type,
+        { "FOO PDU Type", "foo.type",
+        FT_UINT8, BASE_DEC,
+        NULL, 0x0,
+        NULL, HFILL }
+    }
+};
+----
 
-* _FOO PDU Type_ - The label for this item.
+* _hf_foo_pdu_type_ - The node's index.
 
-* _foo.type_ - This is the filter string. It enables us to type constructs such
-as `foo.type=1` into the filter box.
+* _FOO PDU Type_ - The item's label.
 
-* _FT_UINT8_ - This specifies this item is an 8bit unsigned integer.
+* _foo.type_ - The item's abbreviated name, for use in the display filter
+(e.g., `foo.type=1`).
+
+* _FT_UINT8_ - The item's type: An 8bit unsigned integer.
 This tallies with our call above where we tell it to only look at one byte.
 
 * _BASE_DEC_ - For an integer type, this tells it to be printed as a decimal
@@ -334,7 +395,7 @@ Now let’s finish off dissecting the simple protocol. We need to add a few
 more variables to the hfarray, and a couple more procedure calls.
 
 .Wrapping up the packet dissection.
-====
+[source,c]
 ----
 ...
 static int hf_foo_flags = -1;
@@ -390,7 +451,6 @@ proto_register_foo(void) {
 }
 ...
 ----
-====
 
 This dissects all the bits of this simple hypothetical protocol. We've
 introduced a new variable offsetinto the mix to help keep track of where we are
@@ -406,7 +466,7 @@ extra things. First we add a simple table of type to name.
 
 
 .Naming the packet types.
-====
+[source,c]
 ----
 static const value_string packettypenames[] = {
     { 1, "Initialise" },
@@ -415,7 +475,6 @@ static const value_string packettypenames[] = {
     { 0, NULL }
 };
 ----
-====
 
 This is a handy data structure that can be used to look up a name for a value.
 There are routines to directly access this lookup table, but we don't need to
@@ -423,7 +482,7 @@ do that, as the support code already has that added in. We just have to give
 these details to the appropriate part of the data, using the `VALS` macro.
 
 .Adding Names to the protocol.
-====
+[source,c]
 ----
    { &hf_foo_pdu_type,
         { "FOO PDU Type", "foo.type",
@@ -432,13 +491,12 @@ these details to the appropriate part of the data, using the `VALS` macro.
         NULL, HFILL }
     }
 ----
-====
 
 This helps in deciphering the packets, and we can do a similar thing for the
 flags structure. For this we need to add some more data to the table though.
 
 .Adding Flags to the protocol.
-====
+[source,c]
 ----
 #define FOO_START_FLAG      0x01
 #define FOO_END_FLAG        0x02
@@ -453,10 +511,11 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     ...
         ...
-        static const int* bits[] = {
+        static int* const bits[] = {
             &hf_foo_startflag,
             &hf_foo_endflag,
-            &hf_foo_priorityflag
+            &hf_foo_priorityflag,
+            NULL
         };
 
         proto_tree_add_bitmask(foo_tree, tvb, offset, hf_foo_flags, ett_foo, bits, ENC_BIG_ENDIAN);
@@ -493,7 +552,6 @@ proto_register_foo(void) {
 }
 ...
 ----
-====
 
 Some things to note here. For the flags, as each bit is a different flag, we use
 the type `FT_BOOLEAN`, as the flag is either on or off. Second, we include the flag
@@ -514,7 +572,7 @@ protocol traces. Second, we can also display this information in the dissection
 window.
 
 .Enhancing the display.
-====
+[source,c]
 ----
 static int
 dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -538,7 +596,6 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     return tvb_captured_length(tvb);
 }
 ----
-====
 
 So here, after grabbing the value of the first 8 bits, we use it with one of the
 built-in utility routines `val_to_str()`, to lookup the value. If the value
@@ -567,7 +624,7 @@ such as packet reassembly. The following shows a technique to achieve this
 effect.
 
 .Decompressing data packets for dissection.
-====
+[source,c]
 ----
     guint8 flags = tvb_get_guint8(tvb, offset);
     offset ++;
@@ -587,7 +644,6 @@ effect.
     offset = 0;
     /* process next_tvb from here on */
 ----
-====
 
 The first steps here are to recognise the compression. In this case a flag byte
 alerts us to the fact the remainder of the packet is compressed. Next we
@@ -667,7 +723,7 @@ msg_pkt ::= SEQUENCE {
 ----
 
 .Reassembling fragments - Part 1
-====
+[source,c]
 ----
 #include <epan/reassemble.h>
    ...
@@ -687,7 +743,6 @@ if (flags & FL_FRAGMENT) { /* fragmented */
         tvb_captured_length_remaining(tvb, offset), /* fragment length - to the end */
         flags & FL_FRAG_LAST); /* More fragments? */
 ----
-====
 
 We start by saving the fragmented state of this packet, so we can restore it
 later. Next comes some protocol specific stuff, to dig the fragment data out of
@@ -718,7 +773,7 @@ amount of parameters:
   might be a flag as in this case, or there may be a counter in the protocol.
 
 .Reassembling fragments part 2
-====
+[source,c]
 ----
     new_tvb = process_reassembled_data(tvb, offset, pinfo,
         "Reassembled Message", frag_msg, &msg_frag_items,
@@ -745,7 +800,6 @@ else { /* Not fragmented */
 .....
 pinfo->fragmented = save_fragmented;
 ----
-====
 
 Having passed the fragment data to the reassembly handler, we can now check if
 we have the whole message. If there is enough information, this routine will
@@ -761,7 +815,7 @@ you wish.
 Now the mysterious data we passed into the `fragment_add_seq_check()`.
 
 .Reassembling fragments - Initialisation
-====
+[source,c]
 ----
 static reassembly_table reassembly_table;
 
@@ -772,7 +826,6 @@ proto_register_msg(void)
         &addresses_ports_reassembly_table_functions);
 }
 ----
-====
 
 First a `reassembly_table` structure is declared and initialised in the protocol
 initialisation routine. The second parameter specifies the functions that should
@@ -788,7 +841,7 @@ protocol may use. The hf variables need to be placed in the structure something
 like the following. Of course the names may need to be adjusted.
 
 .Reassembling fragments - Data
-====
+[source,c]
 ----
 ...
 static int hf_msg_fragments = -1;
@@ -869,7 +922,6 @@ static gint *ett[] =
 &ett_msg_fragments
 ...
 ----
-====
 
 These hf variables are used internally within the reassembly routines to make
 useful links, and to add data to the dissection. It produces links from one
@@ -899,7 +951,7 @@ This sounds complicated, but there is a simple solution.
 This function is implemented in _epan/dissectors/packet-tcp.h_.
 
 .Reassembling TCP fragments
-====
+[source,c]
 ----
 #include "config.h"
 
@@ -938,7 +990,6 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
 ...
 ----
-====
 
 As you can see this is really simple. Just call `tcp_dissect_pdus()` in your
 main dissection routine and move you message parsing code into another function.
@@ -975,7 +1026,7 @@ integer handle, and registered with the routine `register_tap()`. This takes a
 string name with which to find it again.
 
 .Initialising a tap
-====
+[source,c]
 ----
 #include <epan/packet.h>
 #include <epan/tap.h>
@@ -993,7 +1044,6 @@ void proto_register_foo(void)
        ...
     foo_tap = register_tap("foo");
 ----
-====
 
 Whilst you can program a tap without protocol specific data, it is generally not
 very useful. Therefore it’s a good idea to declare a structure that can be
@@ -1009,7 +1059,7 @@ specific structure and then calling `tap_queue_packet`, probably as the last par
 of the dissector.
 
 .Calling a protocol tap
-====
+[source,c]
 ----
 static int
 dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -1024,7 +1074,6 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     return tvb_captured_length(tvb);
 }
 ----
-====
 
 This now enables those interested parties to listen in on the details
 of this protocol conversation.
@@ -1045,7 +1094,7 @@ of step between two different plugins.
 Here is a mechanism to produce statistics from the above TAP interface.
 
 .Initialising a stats interface
-====
+[source,c]
 ----
 /* register all http trees */
 static void register_foo_stat_trees(void) {
@@ -1058,7 +1107,6 @@ WS_DLL_PUBLIC_DEF void plugin_register_tap_listener(void)
     register_foo_stat_trees();
 }
 ----
-====
 
 Working from the bottom up, first the plugin interface entry point is defined,
 `plugin_register_tap_listener()`. This simply calls the initialisation function
@@ -1084,7 +1132,7 @@ strings, an integer, and three callback functions.
 In this case we only need the first two functions, as there is nothing specific to clean up.
 
 .Initialising a stats session
-====
+[source,c]
 ----
 static const guint8* st_str_packets = "Total Packets";
 static const guint8* st_str_packet_types = "FOO Packet Types";
@@ -1097,7 +1145,6 @@ static void foo_stats_tree_init(stats_tree* st)
     st_node_packet_types = stats_tree_create_pivot(st, st_str_packet_types, st_node_packets);
 }
 ----
-====
 
 In this case we create a new tree node, to handle the total packets,
 and as a child of that we create a pivot table to handle the stats about
@@ -1105,7 +1152,7 @@ different packet types.
 
 
 .Generating the stats
-====
+[source,c]
 ----
 static int foo_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t* edt, const void* p)
 {
@@ -1116,7 +1163,6 @@ static int foo_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissec
     return 1;
 }
 ----
-====
 
 In this case the processing of the stats is quite simple. First we call the
 `tick_stat_node` for the `st_str_packets` packet node, to count packets. Then a

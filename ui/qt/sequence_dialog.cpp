@@ -347,14 +347,18 @@ void SequenceDialog::mouseMoved(QMouseEvent *event)
 
 void SequenceDialog::mouseWheeled(QWheelEvent *event)
 {
-    int scroll_delta = event->delta() * -1 / 15;
-    if (event->orientation() == Qt::Vertical) {
-        scroll_delta *= ui->verticalScrollBar->singleStep();
-        ui->verticalScrollBar->setValue(ui->verticalScrollBar->value() + scroll_delta);
-    } else {
-        scroll_delta *= ui->horizontalScrollBar->singleStep();
-        ui->horizontalScrollBar->setValue(ui->horizontalScrollBar->value() + scroll_delta);
+    int scroll_x = event->angleDelta().x() * -1 / 8;
+    scroll_x *= ui->horizontalScrollBar->singleStep();
+    if (scroll_x) {
+        ui->horizontalScrollBar->setValue(ui->horizontalScrollBar->value() + scroll_x);
     }
+
+    int scroll_y = event->angleDelta().ry() * -1 / 8;
+    scroll_y *= ui->verticalScrollBar->singleStep();
+    if (scroll_y) {
+        ui->verticalScrollBar->setValue(ui->verticalScrollBar->value() + scroll_y);
+    }
+
     event->accept();
 }
 

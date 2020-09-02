@@ -337,6 +337,7 @@
 #define CI_LOGICAL_SEG_E_KEY        0x00
 
 #define CI_E_KEY_FORMAT_VAL         0x04
+#define CI_E_SERIAL_NUMBER_KEY_FORMAT_VAL 0x05
 
 #define CI_DATA_SEG_TYPE_MASK       0x1F
 #define CI_DATA_SEG_SIMPLE          0x00
@@ -396,11 +397,24 @@
    { SC_REMOVE_MEMBER,        "Remove Member" }, \
    { SC_GROUP_SYNC,           "Group Sync" }, \
 
+#define SEGMENT_VALUE_NOT_SET ((guint32)-1)
 typedef struct cip_simple_request_info {
+   // First Class ID
+   guint32 iClassA;
+   // Last Class ID
    guint32 iClass;
+
+   // First Instance ID
+   guint32 iInstanceA;
+   // Last Instance ID
    guint32 iInstance;
+
    guint32 iAttribute;
    guint32 iMember;
+
+   // First Connection Point
+   guint32 iConnPointA;
+   // Last Connection Point. The 2nd (last) Connection Point defines the Motion I/O Format.
    guint32 iConnPoint;
 } cip_simple_request_info_t;
 
@@ -455,11 +469,12 @@ typedef struct attribute_info {
    attribute_dissector_func *pdissect;
 } attribute_info_t;
 
+// This describes a one-way connection. Each CIP Connection includes 2 of these.
 typedef struct cip_connID_info {
    guint32 connID;
    address ipaddress;
    guint16 port;
-   guint8  type;
+   guint32 type;
 
    // Actual Packet Interval in microseconds.
    guint32 api;
@@ -481,24 +496,41 @@ typedef struct cip_safety_epath_info {
    cip_connection_triad_t target_triad;
 } cip_safety_epath_info_t;
 
+// Information for a given CIP Connection, for both directions (O->T and T->O)
 typedef struct cip_conn_info {
+   // Forward Open Data
    cip_connection_triad_t  triad;
-   guint32                 forward_open_frame;
-   cip_connID_info_t       O2T;
-   cip_connID_info_t       T2O;
    guint8                  TransportClass_trigger;
    cip_safety_epath_info_t safety;
    guint32                 ClassID;
    guint32                 ConnPoint;
    guint32                 FwdOpenPathLenBytes;
-   void                    *pFwdOpenPathData;
+   void*                   pFwdOpenPathData;
+
+   // Information about specific packet numbers.
+   guint32 open_req_frame;
+   guint32 open_reply_frame;
+   guint32 close_frame;
+
+   // Information about each direction of the overall connection.
+   cip_connID_info_t O2T;
+   cip_connID_info_t T2O;
+
+   // Unique ID generated that links together the CIP Connections.
+   guint32 connid;
 } cip_conn_info_t;
 
 typedef struct cip_req_info {
    dissector_handle_t         dissector;
+
+   // This is the CIP Service Code. It does not include the Response bit.
    guint8                     bService;
    guint                      IOILen;
    void                      *pIOI;
+
+   guint                      RouteConnectionPathLen;
+   void                      *pRouteConnectionPath;
+
    void                      *pData;
    cip_simple_request_info_t *ciaData;
    cip_conn_info_t*           connInfo;
@@ -550,7 +582,8 @@ extern int  dissect_cip_set_attribute_list_rsp(tvbuff_t *tvb, packet_info *pinfo
    int offset, cip_simple_request_info_t* req_data);
 extern void dissect_deviceid(tvbuff_t *tvb, int offset, proto_tree *tree,
    int hf_vendor, int hf_devtype, int hf_prodcode,
-   int hf_compatibility, int hf_comp_bit, int hf_majrev, int hf_minrev);
+   int hf_compatibility, int hf_comp_bit, int hf_majrev, int hf_minrev,
+   gboolean generate);
 extern int  dissect_optional_attr_list(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
    int offset, int total_len);
 extern int  dissect_optional_service_list(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
@@ -561,6 +594,7 @@ extern int  dissect_padded_epath_len_uint(packet_info *pinfo, proto_tree *tree, 
    int offset, int total_len);
 
 extern void load_cip_request_data(packet_info *pinfo, cip_simple_request_info_t *req_data);
+extern void reset_cip_request_info(cip_simple_request_info_t* req_data);
 extern gboolean should_dissect_cip_response(tvbuff_t *tvb, int offset, guint8 gen_status);
 
 

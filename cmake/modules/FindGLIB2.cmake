@@ -99,7 +99,9 @@ elseif(GLIB2_INTERNAL_INCLUDE_DIR)
 	string(REGEX MATCH "[0-9]+" GLIB_MICRO_VERSION ${GLIB_MICRO_VERSION})
 	set(GLIB2_VERSION ${GLIB_MAJOR_VERSION}.${GLIB_MINOR_VERSION}.${GLIB_MICRO_VERSION})
 else()
-	set(GLIB2_VERSION "")
+	# When using VERSION_VAR it must be set to a valid value or undefined to
+	# mean "not found". It's not enough to use the empty string or any other CMake false boolean.
+	unset(GLIB2_VERSION)
 endif()
 
 include( FindPackageHandleStandardArgs )

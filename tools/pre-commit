@@ -29,7 +29,7 @@ case "$UNAME" in
         pyvar="pythonw.exe"
         ;;
     *)
-        pyvar="python"
+        pyvar="python3"
         ;;
 esac
 

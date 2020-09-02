@@ -80,7 +80,7 @@ static int failure = 0;
 
 #define DATA_LEN 256
 
-static char *data;
+static guint8 *data;
 static tvbuff_t *tvb;
 static packet_info pinfo;
 
@@ -116,9 +116,9 @@ print_fd(fragment_head *fd, gboolean is_head) {
     int i;
 
     g_assert(fd != NULL);
-    printf("        %08x %08x %3d %3d %3d", fd, fd->next, fd->frame, fd->offset, fd->len);
+    printf("        %p %p %3u %3u %3u", fd, fd->next, fd->frame, fd->offset, fd->len);
     if (is_head) {
-        printf(" %3d %3d", fd->datalen, fd->reassembled_in);
+        printf(" %3u %3u", fd->datalen, fd->reassembled_in);
     } else {
         printf( "        ");
     }
@@ -1546,7 +1546,7 @@ main(int argc _U_, char **argv _U_)
     };
 
     /* a tvbuff for testing with */
-    data = (char *)g_malloc(DATA_LEN);
+    data = (guint8 *)g_malloc(DATA_LEN);
     /* make sure it's full of stuff */
     for(i=0; i<DATA_LEN; i++) {
         data[i]=i & 0xFF;

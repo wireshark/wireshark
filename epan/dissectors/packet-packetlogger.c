@@ -43,6 +43,16 @@ static gint ett_syslog = -1;
 static dissector_handle_t packetlogger_handle;
 static dissector_table_t hci_h1_table;
 
+/*
+ * Packet types.
+ *
+ * NOTE: if you add a new type here, you MUST also add it to
+ * wiretap/packetlogger.c's list of packet types *AND* to the
+ * packet types it checks for in its "does this look like a
+ * Packetlogger file?" heuristics; otherwise, some valid
+ * Packetlogger files will not be recognize as Packetlogger
+ * files.
+ */
 #define PKT_HCI_COMMAND     0x00
 #define PKT_HCI_EVENT       0x01
 #define PKT_SENT_ACL_DATA   0x02

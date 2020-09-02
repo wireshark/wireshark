@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V15.8.0 (2019-12)
+-- 3GPP TS 36.331 V16.1.1 (2020-07)
 --
 EUTRA-UE-Variables DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -13,6 +13,7 @@ IMPORTS
 	CarrierFreqGERAN,
 	CellIdentity,
 	CellList-r15,
+	CondReconfigurationToAddModList-r16,
 	ConnEstFailReport-r11,
 	EUTRA-CarrierList-r15,
 	SpeedStateScaleFactors,
@@ -30,10 +31,13 @@ IMPORTS
 	MeasObjectToAddModList,
 	MeasObjectToAddModList-v9e0,
 	MeasObjectToAddModListExt-r13,
+	MeasResultListExtIdle-r16,
 	MeasResultListIdle-r15,
+	MeasResultListIdleNR-r16,
 	MeasScaleFactor-r12,
 	MobilityStateParameters,
 	NeighCellConfig,
+	NR-CarrierList-r16,
 	PhysCellId,
 	PhysCellIdCDMA2000,
 	PhysCellIdGERAN,
@@ -56,6 +60,7 @@ IMPORTS
 	PhysCellIdNR-r15,
 	RS-IndexNR-r15,
 	UL-DelayConfig-r13,
+	ValidityAreaList-r16,
 	WLAN-CarrierInfo-r13,
 	WLAN-Identifiers-r12,
 	WLAN-Id-List-r13,
@@ -65,6 +70,13 @@ IMPORTS
 	WLAN-SuspendConfig-r14
 
 FROM EUTRA-RRC-Definitions;
+
+
+VarConditionalReconfiguration ::= SEQUENCE {
+    -- Conditional reconfigurations list
+	condReconfigurationList-r16			CondReconfigurationToAddModList-r16
+	OPTIONAL
+}
 
 
 VarConnEstFailReport-r11 ::=		SEQUENCE {
@@ -159,9 +171,18 @@ VarMeasIdleConfig-r15 ::=	SEQUENCE {
 														sec180, sec240, sec300}
 }
 
+VarMeasIdleConfig-r16 ::=	SEQUENCE {
+	measIdleCarrierListNR-r16				NR-CarrierList-r16		OPTIONAL,
+	validityAreaList-r16					ValidityAreaList-r16	OPTIONAL
+}
+
 
 VarMeasIdleReport-r15 ::=	SEQUENCE {
 	measReportIdle-r15				MeasResultListIdle-r15
+}
+
+VarMeasIdleReport-r16 ::=	SEQUENCE {
+	measReportIdle-r16				MeasResultListExtIdle-r16					OPTIONAL,	measReportIdleNR-r16			MeasResultListIdleNR-r16						OPTIONAL
 }
 
 

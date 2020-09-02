@@ -35,6 +35,8 @@
 #include "pcap-encap.h"
 #include "pcapng.h"
 #include "erf.h"
+#include "erf_record.h"
+#include "erf-common.h"
 
 struct erf_anchor_mapping {
   guint64 host_id;
@@ -65,6 +67,8 @@ static void erf_close(wtap *wth);
 
 static int populate_summary_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo_header *pseudo_header, Buffer *buf, guint32 packet_size, GPtrArray *anchor_mappings_to_update);
 static int erf_update_anchors_from_header(erf_t *erf_priv, wtap_rec *rec, union wtap_pseudo_header *pseudo_header, guint64 host_id, GPtrArray *anchor_mappings_to_update);
+static int erf_get_source_from_header(union wtap_pseudo_header *pseudo_header, guint64 *host_id, guint8 *source_id);
+static int erf_populate_interface(erf_t* erf_priv, wtap *wth, union wtap_pseudo_header *pseudo_header, guint64 host_id, guint8 source_id, guint8 if_num);
 
 typedef struct {
   gboolean write_next_extra_meta;
@@ -82,7 +86,7 @@ typedef struct {
   GRand *rand;
 } erf_dump_t;
 
-erf_dump_t* erf_dump_priv_create(void);
+static erf_dump_t* erf_dump_priv_create(void);
 static void erf_dump_priv_free(erf_dump_t *dump_priv);
 static gboolean erf_dump_priv_compare_capture_comment(wtap_dumper *wdh, erf_dump_t *dump_priv,const union wtap_pseudo_header *pseudo_header, const guint8 *pd);
 static gboolean erf_comment_to_sections(wtap_dumper *wdh, guint16 section_type, guint16 section_id, gchar *comment, GPtrArray *sections);
@@ -1725,7 +1729,7 @@ static gboolean erf_write_meta_record(wtap_dumper *wdh, erf_dump_t *dump_priv, g
 
 }
 
-erf_dump_t *erf_dump_priv_create(void) {
+static erf_dump_t *erf_dump_priv_create(void) {
   erf_dump_t *dump_priv;
 
   dump_priv = (erf_dump_t*)g_malloc(sizeof(erf_dump_t));
@@ -1868,6 +1872,26 @@ static gboolean erf_dump(
     other_phdr.erf.phdr.wlen = (guint16)total_wlen;
 
     pseudo_header = &other_phdr;
+  } else if (rec->presence_flags & WTAP_HAS_TS) {
+    // Update timestamp if changed.
+    time_t secs;
+    int nsecs;
+    guint64 ts = pseudo_header->erf.phdr.ts;
+
+    secs = (long) (ts >> 32);
+    ts  = ((ts & 0xffffffff) * 1000 * 1000 * 1000);
+    ts += (ts & 0x80000000) << 1; /* rounding */
+    nsecs = ((int) (ts >> 32));
+    if (nsecs >= 1000000000) {
+      nsecs -= 1000000000;
+      secs += 1;
+    }
+
+    if (secs != rec->ts.secs || nsecs != rec->ts.nsecs) {
+      other_phdr = *pseudo_header;
+      other_phdr.erf.phdr.ts = ((guint64) rec->ts.secs << 32) + (((guint64) rec->ts.nsecs <<32) / 1000 / 1000 / 1000);
+      pseudo_header = &other_phdr;
+    }
   }
 
   /* We now have a (real or fake) ERF record */
@@ -2026,55 +2050,7 @@ int erf_dump_open(wtap_dumper *wdh, int *err _U_)
   return TRUE;
 }
 
-/*
- * TODO: Replace uses in pcapng and pcap with
- * erf_read_header() and/or erf_populate_interface_from_header() and delete.
- */
-int erf_populate_interfaces(wtap *wth)
-{
-  wtap_block_t int_data;
-  wtapng_if_descr_mandatory_t* int_data_mand;
-  int i;
-
-  if (!wth)
-    return -1;
-
-  /* Preemptively create interface entries for 4 interfaces, since this is the max number in ERF */
-  for (i=0; i<4; i++) {
-
-    int_data = wtap_block_create(WTAP_BLOCK_IF_DESCR);
-    int_data_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(int_data);
-
-    int_data_mand->wtap_encap = WTAP_ENCAP_ERF;
-    /* int_data.time_units_per_second = (1LL<<32);  ERF format resolution is 2^-32, capture resolution is unknown */
-    int_data_mand->time_units_per_second = 1000000000; /* XXX Since Wireshark only supports down to nanosecond resolution we have to dilute to this */
-    int_data_mand->snap_len = 65535; /* ERF max length */
-
-    /* XXX: if_IPv4addr opt 4  Interface network address and netmask.*/
-    /* XXX: if_IPv6addr opt 5  Interface network address and prefix length (stored in the last byte).*/
-    /* XXX: if_MACaddr  opt 6  Interface Hardware MAC address (48 bits).*/
-    /* XXX: if_EUIaddr  opt 7  Interface Hardware EUI address (64 bits)*/
-    /* XXX: if_speed    opt 8  Interface speed (in bits per second)*/
-    /* int_data.if_tsresol = 0xa0;  ERF format resolution is 2^-32 = 0xa0, capture resolution is unknown */
-    wtap_block_add_uint8_option(int_data, OPT_IDB_TSRESOL, 0x09); /* XXX Since Wireshark only supports down to nanosecond resolution we have to dilute to this */
-
-    /* XXX: if_tzone      10  Time zone for GMT support (TODO: specify better). */
-
-    /* XXX if_tsoffset; opt 14  A 64 bits integer value that specifies an offset (in seconds)...*/
-    /* Interface statistics */
-    int_data_mand->num_stat_entries = 0;
-    int_data_mand->interface_statistics = NULL;
-
-    wtap_block_add_string_option_format(int_data, OPT_IDB_NAME, "Port %c", 'A'+i);
-    wtap_block_add_string_option_format(int_data, OPT_IDB_DESCR, "ERF Interface Id %d (Port %c)", i, 'A'+i);
-
-    g_array_append_val(wth->interface_data, int_data);
-  }
-
-  return 0;
-}
-
-int erf_get_source_from_header(union wtap_pseudo_header *pseudo_header, guint64 *host_id, guint8 *source_id)
+static int erf_get_source_from_header(union wtap_pseudo_header *pseudo_header, guint64 *host_id, guint8 *source_id)
 {
   guint8   type;
   guint8   has_more;
@@ -2436,7 +2412,7 @@ static int erf_update_implicit_host_id(erf_t *erf_priv, wtap *wth, guint64 impli
   return 0;
 }
 
-int erf_populate_interface(erf_t *erf_priv, wtap *wth, union wtap_pseudo_header *pseudo_header, guint64 host_id, guint8 source_id, guint8 if_num)
+static int erf_populate_interface(erf_t *erf_priv, wtap *wth, union wtap_pseudo_header *pseudo_header, guint64 host_id, guint8 source_id, guint8 if_num)
 {
   wtap_block_t int_data;
   wtapng_if_descr_mandatory_t* int_data_mand;
@@ -2499,7 +2475,7 @@ int erf_populate_interface(erf_t *erf_priv, wtap *wth, union wtap_pseudo_header 
   erf_set_interface_descr(int_data, OPT_IDB_DESCR, host_id, source_id, if_num, NULL);
 
   if_map->interfaces[if_num].if_index = (int) wth->interface_data->len;
-  g_array_append_val(wth->interface_data, int_data);
+  wtap_add_idb(wth, int_data);
 
   return if_map->interfaces[if_num].if_index;
 }
@@ -2733,11 +2709,9 @@ static int populate_interface_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo
   int interface_index = -1;
   wtap_block_t int_data = NULL;
   wtapng_if_descr_mandatory_t* int_data_mand = NULL;
-  wtapng_if_descr_filter_t if_filter;
+  wtapng_if_descr_filter_t if_filter = {0};
   guint32 if_num = 0;
   struct erf_if_info* if_info = NULL;
-
-  memset(&if_filter, 0, sizeof(if_filter));
 
   if (!wth || !state || !pseudo_header || !state->if_map)
     return -1;
@@ -2926,14 +2900,12 @@ static int populate_stream_info(erf_t *erf_priv _U_, wtap *wth, union wtap_pseud
   int interface_index = -1;
   wtap_block_t int_data = NULL;
   wtapng_if_descr_mandatory_t* int_data_mand = NULL;
-  wtapng_if_descr_filter_t if_filter;
+  wtapng_if_descr_filter_t if_filter = {0};
   guint32 if_num = 0;
   gint32 stream_num = -1;
   guint8 *tag_ptr_tmp;
   guint32 remaining_len_tmp;
   struct erf_if_info* if_info = NULL;
-
-  memset(&if_filter, 0, sizeof(if_filter));
 
   if (!wth || !pseudo_header || !state || !state->if_map)
     return -1;
@@ -3124,7 +3096,7 @@ static int populate_anchor_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo_he
 /* Populates the capture and interface information for display on the Capture File Properties */
 static int populate_summary_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo_header *pseudo_header, Buffer *buf, guint32 packet_size, GPtrArray *anchor_mappings_to_update)
 {
-  struct erf_meta_read_state state;
+  struct erf_meta_read_state state = {0};
   struct erf_meta_read_state *state_post = NULL;
   guint64 host_id;
   guint8 source_id;
@@ -3136,8 +3108,6 @@ static int populate_summary_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo_h
 
   if (!erf_priv || !wth || !pseudo_header)
     return -1;
-
-  memset(&state, 0, sizeof(struct erf_meta_read_state));
 
   erf_get_source_from_header(pseudo_header, &host_id, &source_id);
 
@@ -3335,14 +3305,13 @@ static gboolean get_user_comment_string(wtap_dumper *wdh, gchar** user_comment_p
 }
 
 static gboolean erf_dump_priv_compare_capture_comment(wtap_dumper *wdh _U_, erf_dump_t *dump_priv, const union wtap_pseudo_header *pseudo_header, const guint8 *pd){
-  struct erf_meta_read_state state;
+  struct erf_meta_read_state state = {0};
   struct erf_meta_tag tag = {0, 0, NULL};
   guint32 tagtotallength;
   gboolean found_capture_section = FALSE;
   gboolean found_normal_section = FALSE;
   gchar* comment_ptr = NULL;
 
-  memset(&state, 0, sizeof(struct erf_meta_read_state));
   state.remaining_len = pseudo_header->erf.phdr.wlen;
   memcpy(&(state.tag_ptr), &pd, sizeof(pd));
 

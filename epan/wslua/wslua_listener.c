@@ -16,15 +16,14 @@
 
 #include "config.h"
 
-/* WSLUA_MODULE Listener Post-dissection packet analysis */
+/* WSLUA_MODULE Listener Post-Dissection Packet Analysis */
 
 #include "wslua.h"
 
 WSLUA_CLASS_DEFINE(Listener,FAIL_ON_NULL("Listener"));
 /*
     A `Listener` is called once for every packet that matches a certain filter or has a certain tap.
-    It can read the tree, the packet's `Tvb` buffer as well as the tapped data, but it cannot
-    add elements to the tree.
+    It can read the tree, the packet's <<lua_class_Tvb,`Tvb`>> buffer as well as the tapped data, but it cannot add elements to the tree.
  */
 
 static int tap_packet_cb_error_handler(lua_State* L) {
@@ -193,12 +192,18 @@ static void deregister_Listener (lua_State* L _U_, Listener tap) {
 }
 
 WSLUA_CONSTRUCTOR Listener_new(lua_State* L) {
-    /* Creates a new `Listener` listener object. */
-#define WSLUA_OPTARG_Listener_new_TAP 1 /* The name of this tap. */
-#define WSLUA_OPTARG_Listener_new_FILTER 2 /* A filter that when matches the `tap.packet` function gets
-                                              called (use nil to be called for every packet). */
-#define WSLUA_OPTARG_Listener_new_ALLFIELDS 3 /* Whether to generate all fields. (default=false)
-                                                 Note: This impacts performance. */
+    /* Creates a new `Listener` tap object. */
+#define WSLUA_OPTARG_Listener_new_TAP 1 /* The name of this tap. See <<lua_fn_Listener_list__,`Listener.list()`>> for a way to print valid listener names. */
+#define WSLUA_OPTARG_Listener_new_FILTER 2 /*
+    A display filter to apply to the tap.
+    The `tap.packet` function will be called for each matching packet.
+    The default is `nil`, which matches every packet.
+    Example: "m2tp".
+    */
+#define WSLUA_OPTARG_Listener_new_ALLFIELDS 3 /*
+    Whether to generate all fields.
+    The default is `false`.
+    Note: This impacts performance. */
 
     const gchar* tap_type = luaL_optstring(L,WSLUA_OPTARG_Listener_new_TAP,"frame");
     const gchar* filter = luaL_optstring(L,WSLUA_OPTARG_Listener_new_FILTER,NULL);
@@ -253,13 +258,23 @@ compare_dissector_key_name(gconstpointer dissector_a, gconstpointer dissector_b)
   return strcmp((const char*)dissector_a, (const char*)dissector_b);
 }
 
-WSLUA_CONSTRUCTOR Listener_list (lua_State *L) {
-    /* Gets a Lua array table of all registered `Listener` tap names.
+WSLUA_CONSTRUCTOR Listener_list (lua_State *L) { /*
+    Gets a Lua array table of all registered `Listener` tap names.
 
-       Note: This is an expensive operation, and should only be used for troubleshooting.
+    Note: This is an expensive operation, and should only be used for troubleshooting.
 
-       @since 1.11.3
-     */
+    @since 1.11.3
+
+    ===== Example
+
+    [source,lua]
+    ----
+    -- Print a list of tap listeners to stdout.
+    for _,tap_name in pairs(Listener.list()) do
+            print(tap_name)
+    end
+    ----
+    */
     GList* list = get_tap_names();
     GList* elist = NULL;
     int i = 1;

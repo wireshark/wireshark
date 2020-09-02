@@ -135,7 +135,7 @@ dissect_zbee_zcl_shade_configuration(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 void
 dissect_zcl_shade_configuration_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
 {
-    static const int * shade_config_status[] = {
+    static int * const shade_config_status[] = {
         &hf_zbee_zcl_shade_configuration_status_shade_operational,
         &hf_zbee_zcl_shade_configuration_status_shade_adjusting,
         &hf_zbee_zcl_shade_configuration_status_shade_direction,

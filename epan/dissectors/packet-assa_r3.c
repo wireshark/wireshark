@@ -2878,12 +2878,6 @@ static const true_false_string tfs_rmtauthretry_flags =
   "Deny"
 };
 
-static const true_false_string tfs_mortisepins_flags =
-{
-  "High",
-  "Low"
-};
-
 static const true_false_string tfs_errornoerror_flags =
 {
   "Error",
@@ -3011,7 +3005,7 @@ static const string_string r3_snmortisenames [] =
   { NULL, NULL }
 };
 
-static const int * r3_timezonearray[] = {
+static int * const r3_timezonearray[] = {
   &hf_r3_timezonearray0,
   &hf_r3_timezonearray1,
   &hf_r3_timezonearray2,
@@ -3047,7 +3041,7 @@ static const int * r3_timezonearray[] = {
   NULL
 };
 
-static const int * r3_definetimezone_daymap[] = {
+static int * const r3_definetimezone_daymap[] = {
   &hf_r3_definetimezone_daymap0,
   &hf_r3_definetimezone_daymap1,
   &hf_r3_definetimezone_daymap2,
@@ -3058,7 +3052,7 @@ static const int * r3_definetimezone_daymap[] = {
   NULL
 };
 
-static const int * r3_nvramclearoptions[] = {
+static int * const r3_nvramclearoptions[] = {
   &hf_r3_nvramclearoptions0,
   &hf_r3_nvramclearoptions1,
   &hf_r3_nvramclearoptions2,
@@ -4680,7 +4674,7 @@ dissect_r3_upstreammfgfield_peekpoke (tvbuff_t *tvb, guint32 start_offset, guint
 static void
 dissect_r3_upstreammfgfield_lockstate (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
-static const int * r3_lockstate_flags[] = {
+static int * const r3_lockstate_flags[] = {
   &hf_r3_lockstate_passage,
   &hf_r3_lockstate_panic,
   &hf_r3_lockstate_lockout,
@@ -5420,7 +5414,7 @@ dissect_r3_cmd_manageuser (tvbuff_t *tvb, guint32 start_offset, guint32 length _
         break;
 
       default :
-        proto_tree_add_string (mu_tree, hf_r3_upstreamfielderror, payload_tvb, offset, dataLength, "Unknown Field Type");
+        proto_tree_add_none_format (mu_tree, hf_r3_upstreamfielderror, payload_tvb, offset, dataLength, "Unknown Field Type");
         break;
     }
 
@@ -8177,22 +8171,22 @@ void proto_register_r3 (void)
 
       { &hf_r3_mortisepins_s1,
         { "Mortise Pin S1", "r3.mortisepins.s1",
-          FT_BOOLEAN, 8, TFS (&tfs_mortisepins_flags), 0x00000001,
+          FT_BOOLEAN, 8, TFS (&tfs_high_low), 0x00000001,
           NULL, HFILL }
       },
       { &hf_r3_mortisepins_s2,
         { "Mortise Pin S2", "r3.mortisepins.s2",
-          FT_BOOLEAN, 8, TFS (&tfs_mortisepins_flags), 0x00000002,
+          FT_BOOLEAN, 8, TFS (&tfs_high_low), 0x00000002,
           NULL, HFILL }
       },
       { &hf_r3_mortisepins_s3,
         { "Mortise Pin S3", "r3.mortisepins.s3",
-          FT_BOOLEAN, 8, TFS (&tfs_mortisepins_flags), 0x00000004,
+          FT_BOOLEAN, 8, TFS (&tfs_high_low), 0x00000004,
           NULL, HFILL }
       },
       { &hf_r3_mortisepins_s4,
         { "Mortise Pin S4", "r3.mortisepins.s4",
-          FT_BOOLEAN, 8, TFS (&tfs_mortisepins_flags), 0x00000008,
+          FT_BOOLEAN, 8, TFS (&tfs_high_low), 0x00000008,
           NULL, HFILL }
       },
 

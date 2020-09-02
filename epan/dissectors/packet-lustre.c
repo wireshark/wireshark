@@ -4349,7 +4349,7 @@ dissect_struct_llogd_body(tvbuff_t *tvb, int offset, proto_tree *parent_tree, gu
     proto_tree *tree;
     proto_item *item;
     int data_len;
-    static const int *flags[] = {
+    static int * const flags[] = {
         &hf_lustre_llog_hdr_flag_zap_when_empty,
         &hf_lustre_llog_hdr_flag_is_cat,
         &hf_lustre_llog_hdr_flag_is_plain,
@@ -4429,7 +4429,7 @@ dissect_struct_llog_log_hdr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
     proto_item *item;
     guint32 len, data_len, old_offset, i;
 
-    static const int *flags[] = {
+    static int * const flags[] = {
         &hf_lustre_llog_hdr_flag_zap_when_empty,
         &hf_lustre_llog_hdr_flag_is_cat,
         &hf_lustre_llog_hdr_flag_is_plain,
@@ -4584,7 +4584,7 @@ dissect_struct_ldlm_intent(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto
     //proto_tree *tree;
     guint32 data_len;
 
-    static const int *flags[] = {
+    static int * const flags[] = {
          &hf_lustre_ldlm_intent_opc_open,
          &hf_lustre_ldlm_intent_opc_creat,
          &hf_lustre_ldlm_intent_opc_readdir,
@@ -8017,7 +8017,7 @@ proto_register_lustre(void)
         { &hf_lustre_ldlm_intent_opc_open,
           { "open", "lustre.ldlm_intent.opc_open", FT_BOOLEAN, 32, TFS(&lnet_flags_set_truth), IT_OPEN,  NULL, HFILL } },
         { &hf_lustre_ldlm_intent_opc_creat,
-          { "creat", "lustre.ldlm_intent.opc_creat", FT_BOOLEAN, 32, TFS(&lnet_flags_set_truth), IT_CREAT  ,  NULL, HFILL } },
+          { "create", "lustre.ldlm_intent.opc_create", FT_BOOLEAN, 32, TFS(&lnet_flags_set_truth), IT_CREAT  ,  NULL, HFILL } },
         { &hf_lustre_ldlm_intent_opc_readdir,
           { "readdir", "lustre.ldlm_intent.opc_readdir", FT_BOOLEAN, 32, TFS(&lnet_flags_set_truth), IT_READDIR  ,  NULL, HFILL } },
         { &hf_lustre_ldlm_intent_opc_getattr,

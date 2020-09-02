@@ -310,14 +310,14 @@ dlms_date_time(tvbuff_t *tvb, guint offset, nstime_t *date_time)
 #define GBCS_GBZ_EXTENDED_HEADER_CONTROL_ENCRYPTED_COMPONENT            0x02
 
 #define gbcs_gbz_alert_code_names_VALUE_STRING_LIST(XXX) \
-    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_ABOVE_AVERAGE_RMS_OVER_VOL_1,0x8002, "Average RMS Voltage above Average RMS Over Voltage Threshold (current value above threshold; previous value below threhsold)") \
-    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_ABOVE_AVERAGE_RMS_OVER_VOL_2,0x8003, "Average RMS Voltage above Average RMS Over Voltage Threshold  on Phase 1 (current value above threshold; previous value below threhsold)") \
-    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_ABOVE_AVERAGE_RMS_OVER_VOL_3,0x8004, "Average RMS Voltage above Average RMS Over Voltage Threshold  on Phase 2 (current value above threshold; previous value below threhsold)") \
-    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_ABOVE_AVERAGE_RMS_OVER_VOL_4,0x8005, "Average RMS Voltage above Average RMS Over Voltage Threshold  on Phase 3 (current value above threshold; previous value below threhsold)") \
-    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_BELOW_AVERAGE_RMS_UNDER_VO_1,0x8006, "Average RMS Voltage below Average RMS Under Voltage Threshold (current value below threshold; previous value above threhsold)") \
-    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_BELOW_AVERAGE_RMS_UNDER_VO_2,0x8007, "Average RMS Voltage below Average RMS Under Voltage Threshold on Phase 1 (current value below threshold; previous value above threhsold)") \
-    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_BELOW_AVERAGE_RMS_UNDER_VO_3,0x8008, "Average RMS Voltage below Average RMS Under Voltage Threshold on Phase 2 (current value below threshold; previous value above threhsold)") \
-    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_BELOW_AVERAGE_RMS_UNDER_VO_4,0x8009, "Average RMS Voltage below Average RMS Under Voltage Threshold on Phase 3 (current value below threshold; previous value above threhsold)") \
+    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_ABOVE_AVERAGE_RMS_OVER_VOL_1,0x8002, "Average RMS Voltage above Average RMS Over Voltage Threshold (current value above threshold; previous value below threshold)") \
+    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_ABOVE_AVERAGE_RMS_OVER_VOL_2,0x8003, "Average RMS Voltage above Average RMS Over Voltage Threshold  on Phase 1 (current value above threshold; previous value below threshold)") \
+    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_ABOVE_AVERAGE_RMS_OVER_VOL_3,0x8004, "Average RMS Voltage above Average RMS Over Voltage Threshold  on Phase 2 (current value above threshold; previous value below threshold)") \
+    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_ABOVE_AVERAGE_RMS_OVER_VOL_4,0x8005, "Average RMS Voltage above Average RMS Over Voltage Threshold  on Phase 3 (current value above threshold; previous value below threshold)") \
+    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_BELOW_AVERAGE_RMS_UNDER_VO_1,0x8006, "Average RMS Voltage below Average RMS Under Voltage Threshold (current value below threshold; previous value above threshold)") \
+    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_BELOW_AVERAGE_RMS_UNDER_VO_2,0x8007, "Average RMS Voltage below Average RMS Under Voltage Threshold on Phase 1 (current value below threshold; previous value above threshold)") \
+    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_BELOW_AVERAGE_RMS_UNDER_VO_3,0x8008, "Average RMS Voltage below Average RMS Under Voltage Threshold on Phase 2 (current value below threshold; previous value above threshold)") \
+    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_BELOW_AVERAGE_RMS_UNDER_VO_4,0x8009, "Average RMS Voltage below Average RMS Under Voltage Threshold on Phase 3 (current value below threshold; previous value above threshold)") \
     XXX(GBCS_GBZ_ALERT_OVER_CURRENT,                                    0x8010, "Over Current") \
     XXX(GBCS_GBZ_ALERT_OVER_CURRENT_L1,                                 0x8011, "Over Current L1") \
     XXX(GBCS_GBZ_ALERT_OVER_CURRENT_L3,                                 0x8013, "Over Current L3") \
@@ -341,14 +341,14 @@ dlms_date_time(tvbuff_t *tvb, guint offset, nstime_t *date_time)
     XXX(GBCS_GBZ_ALERT_RMS_VOLTAGE_BELOW_VOLTAGE_SAG_THRESHOLD_ON_PHA_2,0x802E, "RMS Voltage below Voltage Sag Threshold on Phase 2 (voltage falls below for longer than the configurable period)") \
     XXX(GBCS_GBZ_ALERT_RMS_VOLTAGE_BELOW_VOLTAGE_SAG_THRESHOLD_ON_PHA_3,0x802F, "RMS Voltage below Voltage Sag Threshold on Phase 3 (voltage falls below for longer than the configurable period)") \
     XXX(GBCS_GBZ_ALERT_GPF_DEVICE_LOG_CHANGED,                          0x8071, "GPF Device Log Changed") \
-    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_BELOW_AVERAGE_RMS_OVER_VOL_1,0x8085, "Average RMS Voltage below Average RMS Over Voltage Threshold (current value below threshold; previous value above threhsold)") \
-    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_BELOW_AVERAGE_RMS_OVER_VOL_2,0x8086, "Average RMS Voltage below Average RMS Over Voltage Threshold on Phase 1 (current value below threshold; previous value above threhsold)") \
-    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_BELOW_AVERAGE_RMS_OVER_VOL_3,0x8087, "Average RMS Voltage below Average RMS Over Voltage Threshold on Phase 2 (current value below threshold; previous value above threhsold)") \
-    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_BELOW_AVERAGE_RMS_OVER_VOL_4,0x8088, "Average RMS Voltage below Average RMS Over Voltage Threshold on Phase 3 (current value below threshold; previous value above threhsold)") \
-    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_ABOVE_AVERAGE_RMS_UNDER_VO_1,0x8089, "Average RMS Voltage above Average RMS Under Voltage Threshold (current value above threshold; previous value below threhsold)") \
-    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_ABOVE_AVERAGE_RMS_UNDER_VO_2,0x808A, "Average RMS Voltage above Average RMS Under Voltage Threshold on Phase 1 (current value above threshold; previous value below threhsold)") \
-    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_ABOVE_AVERAGE_RMS_UNDER_VO_3,0x808B, "Average RMS Voltage above Average RMS Under Voltage Threshold on Phase 2 (current value above threshold; previous value below threhsold)") \
-    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_ABOVE_AVERAGE_RMS_UNDER_VO_4,0x808C, "Average RMS Voltage above Average RMS Under Voltage Threshold on Phase 3 (current value above threshold; previous value below threhsold)") \
+    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_BELOW_AVERAGE_RMS_OVER_VOL_1,0x8085, "Average RMS Voltage below Average RMS Over Voltage Threshold (current value below threshold; previous value above threshold)") \
+    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_BELOW_AVERAGE_RMS_OVER_VOL_2,0x8086, "Average RMS Voltage below Average RMS Over Voltage Threshold on Phase 1 (current value below threshold; previous value above threshold)") \
+    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_BELOW_AVERAGE_RMS_OVER_VOL_3,0x8087, "Average RMS Voltage below Average RMS Over Voltage Threshold on Phase 2 (current value below threshold; previous value above threshold)") \
+    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_BELOW_AVERAGE_RMS_OVER_VOL_4,0x8088, "Average RMS Voltage below Average RMS Over Voltage Threshold on Phase 3 (current value below threshold; previous value above threshold)") \
+    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_ABOVE_AVERAGE_RMS_UNDER_VO_1,0x8089, "Average RMS Voltage above Average RMS Under Voltage Threshold (current value above threshold; previous value below threshold)") \
+    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_ABOVE_AVERAGE_RMS_UNDER_VO_2,0x808A, "Average RMS Voltage above Average RMS Under Voltage Threshold on Phase 1 (current value above threshold; previous value below threshold)") \
+    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_ABOVE_AVERAGE_RMS_UNDER_VO_3,0x808B, "Average RMS Voltage above Average RMS Under Voltage Threshold on Phase 2 (current value above threshold; previous value below threshold)") \
+    XXX(GBCS_GBZ_ALERT_AVERAGE_RMS_VOLTAGE_ABOVE_AVERAGE_RMS_UNDER_VO_4,0x808C, "Average RMS Voltage above Average RMS Under Voltage Threshold on Phase 3 (current value above threshold; previous value below threshold)") \
     XXX(GBCS_GBZ_ALERT_RMS_VOLTAGE_ABOVE_EXTREME_OVER_VOLTAGE_THRESHO_5,0x808D, "RMS Voltage above Extreme Over Voltage Threshold (voltage returns below for longer than the configurable period)") \
     XXX(GBCS_GBZ_ALERT_RMS_VOLTAGE_ABOVE_EXTREME_OVER_VOLTAGE_THRESHO_6,0x808E, "RMS Voltage above Extreme Over Voltage Threshold on Phase 1 (voltage returns below for longer than the configurable period)") \
     XXX(GBCS_GBZ_ALERT_RMS_VOLTAGE_ABOVE_EXTREME_OVER_VOLTAGE_THRESHO_7,0x808F, "RMS Voltage above Extreme Over Voltage Threshold on Phase 2 (voltage returns below for longer than the configurable period)") \
@@ -418,6 +418,7 @@ dlms_date_time(tvbuff_t *tvb, guint offset, nstime_t *date_time)
     XXX(GBCS_GBZ_ALERT_TILT_TAMPER,                                     0x81C3, "Tilt Tamper") \
     XXX(GBCS_GBZ_ALERT_UTRN_MANUAL_ENTRY_SUSPENDED,                     0x81C4, "UTRN Manual Entry Suspended") \
     XXX(GBCS_GBZ_ALERT_UTRN_REJECTED_AS_LOCKED_OUT,                     0x81C5, "UTRN rejected as locked out") \
+    XXX(GBCS_GBZ_ALERT_CLOCK_NOT_ADJUSTED_OUTSIDE_TOLERANCE,            0x81C6, "Clock not adjusted (outside tolerance)") \
     XXX(GBCS_GBZ_ALERT_ACTIVE_POWER_IMPORT_ABOVE_LOAD_LIMIT_THRESHOLD,  0x8F01, "Active Power Import above Load Limit Threshold") \
     XXX(GBCS_GBZ_ALERT_BILLING_DATA_LOG_UPDATED,                        0x8F0A, "Billing Data Log Updated") \
     XXX(GBCS_GBZ_ALERT_CLOCK_NOT_ADJUSTED_ADJUSTMENT_GREATER_THAN_10_SE,0x8F0C, "Clock not adjusted (adjustment greater than 10 seconds)") \
@@ -743,6 +744,11 @@ static int dissect_gbcs_gbz(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         case GBCS_GBZ_ALERT_BILLING_DATA_LOG_UPDATED:
             dissect_gbcs_gbz_component(tvb, pinfo, gbz_tree, &offset, 0);
             break;
+        case GBCS_GBZ_ALERT_USER_INTERFACE_COMMAND_INPUT_AND_SUCCESSFULLY_AC:
+        case GBCS_GBZ_ALERT_USER_INTERFACE_COMMAND_INPUT_BUT_NOT_SUCCESSFULL:
+            proto_tree_add_item(gbz_tree, hf_gbcs_gbz_user_interface_command, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+            break;
         case GBCS_GBZ_ALERT_SMART_METER_INTEGRITY_ISSUE_WARNING:
             proto_tree_add_item(gbz_tree, hf_gbcs_gbz_integrity_issue_warning, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
@@ -798,7 +804,7 @@ void proto_register_gbcs_gbz(void)
              FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
         {&hf_gbcs_gbz_firmware_hash,
-            {"Calculated Manufacture Image Hash", "gbcs_gbz.timestamp",
+            {"Calculated Manufacture Image Hash", "gbcs_gbz.firmware_hash",
              FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         {&hf_gbcs_gbz_future_alert_start,
@@ -1409,7 +1415,7 @@ dissect_gbcs_message_gbt_header(tvbuff_t *tvb, proto_tree *tree, guint *offset,
     proto_tree_add_item(gbt_header_tree, hf_gbcs_message_gbt_header_general_block_transfer, tvb, *offset, 1, ENC_NA);
     *offset += 1;
 
-    static const int* block_control[] = {
+    static int* const block_control[] = {
             &hf_gbcs_message_gbt_header_block_control_last_block,
             &hf_gbcs_message_gbt_header_block_control_streaming,
             &hf_gbcs_message_gbt_header_block_control_window,

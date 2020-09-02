@@ -72,7 +72,7 @@ Qt::ItemFlags InfoProxyModel::flags(const QModelIndex &index) const
     if (index.row() < sourceModel()->rowCount())
         return sourceModel()->flags(mapToSource(index));
 
-    return 0;
+    return Qt::ItemFlags();
 }
 
 QModelIndex InfoProxyModel::index(int row, int column, const QModelIndex &parent) const

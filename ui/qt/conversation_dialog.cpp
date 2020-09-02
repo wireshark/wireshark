@@ -53,7 +53,8 @@
 
 static const QString table_name_ = QObject::tr("Conversation");
 ConversationDialog::ConversationDialog(QWidget &parent, CaptureFile &cf, int cli_proto_id, const char *filter) :
-    TrafficTableDialog(parent, cf, filter, table_name_)
+    TrafficTableDialog(parent, cf, filter, table_name_),
+    tcp_graph_requested_(false)
 {
     follow_bt_ = buttonBox()->addButton(tr("Follow Stream" UTF8_HORIZONTAL_ELLIPSIS), QDialogButtonBox::ActionRole);
     follow_bt_->setToolTip(tr("Follow a TCP or UDP stream."));
@@ -62,6 +63,9 @@ ConversationDialog::ConversationDialog(QWidget &parent, CaptureFile &cf, int cli
     graph_bt_ = buttonBox()->addButton(tr("Graph" UTF8_HORIZONTAL_ELLIPSIS), QDialogButtonBox::ActionRole);
     graph_bt_->setToolTip(tr("Graph a TCP conversation."));
     connect(graph_bt_, SIGNAL(clicked()), this, SLOT(graphTcp()));
+
+    connect(wsApp->mainWindow(), SIGNAL(displayFilterSuccess(bool)),
+            this, SLOT(displayFilterSuccess(bool)));
 
     absoluteTimeCheckBox()->show();
 
@@ -236,10 +240,10 @@ void ConversationDialog::graphTcp()
         return;
     }
 
-    // Apply the filter for this conversation.
+    tcp_graph_requested_ = true;
+    // Apply the filter for this conversation. When the filter is active, we
+    // can draw the TCP graph.
     emit filterAction(filter, FilterAction::ActionApply, FilterAction::ActionTypePlain);
-    // This action will now find a packet from the intended conversation/stream.
-    openTcpStreamGraph(GRAPH_TSEQ_TCPTRACE);
 }
 
 void ConversationDialog::currentTabChanged()
@@ -298,6 +302,18 @@ void ConversationDialog::on_displayFilterCheckBox_toggled(bool checked)
 void ConversationDialog::on_buttonBox_helpRequested()
 {
     wsApp->helpTopicAction(HELP_STATS_CONVERSATIONS_DIALOG);
+}
+
+void ConversationDialog::displayFilterSuccess(bool success)
+{
+    if (tcp_graph_requested_) {
+        if (success) {
+            // The display filter was applied successfully, i.e. the current
+            // packet is now part of our selected tcp conversation.
+            openTcpStreamGraph(GRAPH_TSEQ_TCPTRACE);
+        }
+        tcp_graph_requested_ = false;
+    }
 }
 
 void init_conversation_table(struct register_ct* ct, const char *filter)

@@ -1010,7 +1010,7 @@ decode_data(tvbuff_t *tvb, int offset, proto_tree *pt)
     nstime_t    timestamp;
     /*int       hdrbits;*/
 
-    static const int * data_mode_flags[] = {
+    static int * const data_mode_flags[] = {
         &hf_gryphon_data_mode_transmitted,
         &hf_gryphon_data_mode_receive,
         &hf_gryphon_data_mode_local,
@@ -1230,7 +1230,7 @@ cmd_ioctl_details(tvbuff_t *tvb, int offset, proto_tree *pt, guint32 ui_command,
     guint32 mtime;
     guint16 us_nsched;
     float value;
-    static const int * ldf_schedule_flags[] = {
+    static int * const ldf_schedule_flags[] = {
         &hf_gryphon_ldf_schedule_event,
         &hf_gryphon_ldf_schedule_sporadic,
         NULL
@@ -3132,7 +3132,7 @@ cmd_usdt_register_non_legacy(tvbuff_t *tvb, int offset, proto_tree *pt)
     proto_tree  *tree3;
     proto_tree  *tree4;
     proto_tree  *tree5;
-    static const int * transmit_options_flags[] = {
+    static int * const transmit_options_flags[] = {
         &hf_gryphon_usdt_transmit_options_flags_echo,
         &hf_gryphon_usdt_transmit_options_action,
         &hf_gryphon_usdt_transmit_options_done_event,
@@ -3140,14 +3140,14 @@ cmd_usdt_register_non_legacy(tvbuff_t *tvb, int offset, proto_tree *pt)
         &hf_gryphon_usdt_transmit_options_rx_nth_fc,
         NULL
     };
-    static const int * receive_options_flags[] = {
+    static int * const receive_options_flags[] = {
         &hf_gryphon_usdt_receive_options_action,
         &hf_gryphon_usdt_receive_options_firstframe_event,
         &hf_gryphon_usdt_receive_options_lastframe_event,
         &hf_gryphon_usdt_receive_options_tx_nth_fc,
         NULL
     };
-    static const int * length_options_flags[] = {
+    static int * const length_options_flags[] = {
         &hf_gryphon_usdt_length_control_j1939,
         NULL
     };
@@ -3481,20 +3481,20 @@ cmd_usdt(tvbuff_t *tvb, int offset, proto_tree *pt)
     proto_tree_add_item(pt, hf_gryphon_usdt_flags_register, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     if (flags & 1) {
-        static const int * action_flags[] = {
+        static int * const action_flags[] = {
             &hf_gryphon_usdt_action_flags_register,
             &hf_gryphon_usdt_action_flags_action,
             NULL
         };
 
-        static const int * transmit_option_flags[] = {
+        static int * const transmit_option_flags[] = {
             &hf_gryphon_usdt_transmit_options_flags_echo,
             &hf_gryphon_usdt_transmit_options_action,
             &hf_gryphon_usdt_transmit_options_send_done,
             NULL
         };
 
-        static const int * receive_option_flags[] = {
+        static int * const receive_option_flags[] = {
             &hf_gryphon_usdt_receive_options_action,
             &hf_gryphon_usdt_receive_options_firstframe,
             &hf_gryphon_usdt_receive_options_lastframe,
@@ -3567,7 +3567,7 @@ cmd_bits_in (tvbuff_t *tvb, int offset, proto_tree *pt)
     msglen = tvb_reported_length_remaining(tvb, offset);
     value = tvb_get_guint8(tvb, offset);
     if (value) {
-        static const int * digital_values[] = {
+        static int * const digital_values[] = {
             &hf_gryphon_bits_in_input1,
             &hf_gryphon_bits_in_input2,
             &hf_gryphon_bits_in_input3,
@@ -3592,7 +3592,7 @@ cmd_bits_out (tvbuff_t *tvb, int offset, proto_tree *pt)
     msglen = tvb_reported_length_remaining(tvb, offset);
     value = tvb_get_guint8(tvb, offset);
     if (value) {
-        static const int * digital_values[] = {
+        static int * const digital_values[] = {
             &hf_gryphon_bits_out_output1,
             &hf_gryphon_bits_out_output2,
             NULL
@@ -4242,7 +4242,7 @@ dissect_gryphon_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gbo
         col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(frmtyp, frame_type, "- Invalid -"));
 
     if (is_msgresp_add) {
-        static const int * wait_flags[] = {
+        static int * const wait_flags[] = {
             &hf_gryphon_wait_resp,
             &hf_gryphon_wait_prev_resp,
             NULL

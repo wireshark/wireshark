@@ -58,7 +58,6 @@ BASIC_LIST="cmake \
 
 ADDITIONAL_LIST="
 	git \
-	doxygen \
 	asciidoctor \
 	libssh-dev \
 	spandsp-dev \

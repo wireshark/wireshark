@@ -229,7 +229,7 @@ static expert_field ei_ajp13_content_length_invalid = EI_INIT;
  * an effort to improve performance. Why can't we just have one big
  * list?
  */
-static const int* rsp_headers[] = {
+static int * const rsp_headers[] = {
   &hf_ajp13_unknown_header,
   &hf_ajp13_content_type,
   &hf_ajp13_content_language,
@@ -244,7 +244,7 @@ static const int* rsp_headers[] = {
   &hf_ajp13_www_authenticate
 };
 
-static const int* req_headers[] = {
+static int * const req_headers[] = {
   &hf_ajp13_unknown_header,
   &hf_ajp13_accept,
   &hf_ajp13_accept_charset,
@@ -262,7 +262,7 @@ static const int* req_headers[] = {
   &hf_ajp13_user_agent
 };
 
-static const int* req_attributes[] = {
+static int * const req_attributes[] = {
   &hf_ajp13_unknown_attribute,
   &hf_ajp13_context,
   &hf_ajp13_servlet_path,

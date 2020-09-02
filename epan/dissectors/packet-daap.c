@@ -15,6 +15,7 @@
 #include <epan/exceptions.h>
 #include <wsutil/str_util.h>
 #include <epan/expert.h>
+#include <epan/proto_data.h>
 #include "packet-http.h"
 
 #define TCP_PORT_DAAP 3689
@@ -386,7 +387,7 @@ static gint ett_daap_sub = -1;
 static expert_field ei_daap_max_recursion_depth_reached = EI_INIT;
 
 /* Forward declarations */
-static void dissect_daap_one_tag(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int recursion_depth);
+static void dissect_daap_one_tag(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb);
 
 static int
 dissect_daap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
@@ -419,26 +420,29 @@ dissect_daap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
    ti = proto_tree_add_item(tree, proto_daap, tvb, 0, -1, ENC_NA);
    daap_tree = proto_item_add_subtree(ti, ett_daap);
-   dissect_daap_one_tag(daap_tree, pinfo, tvb, 0);
+   dissect_daap_one_tag(daap_tree, pinfo, tvb);
    return tvb_captured_length(tvb);
 }
 
 #define DAAP_MAX_RECURSION_DEPTH 100
 
 static void
-dissect_daap_one_tag(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int recursion_depth)
+dissect_daap_one_tag(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
 {
    guint       offset = 0;
    guint32     tagname, tagsize;
    proto_item *tag_ti;
    proto_tree *tag_tree;
    tvbuff_t   *new_tvb;
+   unsigned    recursion_depth = p_get_proto_depth(pinfo, proto_daap);
 
-   if (recursion_depth >= DAAP_MAX_RECURSION_DEPTH) {
+   if (++recursion_depth >= DAAP_MAX_RECURSION_DEPTH) {
       proto_tree_add_expert(tree, pinfo, &ei_daap_max_recursion_depth_reached,
                             tvb, 0, 0);
       return;
    }
+   p_set_proto_depth(pinfo, proto_daap, recursion_depth);
+
    while (offset < tvb_reported_length(tvb)) {
       tagname = tvb_get_ntohl(tvb, offset);
       tagsize = tvb_get_ntohl(tvb, offset+4);
@@ -489,7 +493,7 @@ dissect_daap_one_tag(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int re
          case dacp_cmst:
             /* Container tags */
             new_tvb  = tvb_new_subset_length(tvb, offset, (gint)tagsize);
-            dissect_daap_one_tag(tag_tree, pinfo, new_tvb, recursion_depth+1);
+            dissect_daap_one_tag(tag_tree, pinfo, new_tvb);
             break;
 
          case daap_minm:
@@ -720,7 +724,7 @@ proto_register_daap(void)
            FT_UINT64, BASE_HEX, NULL, 0, NULL, HFILL }
       },
       { &hf_daap_status,
-        { "Staus", "daap.status",
+        { "Status", "daap.status",
            FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }
       },
       { &hf_daap_rev,

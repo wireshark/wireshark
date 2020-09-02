@@ -91,7 +91,7 @@ static const range_string gfp_pli_rvals[] = {
     {0, 0, NULL}
 };
 
-static const int *gfp_type_data_fields[] = {
+static int * const gfp_type_data_fields[] = {
     &hf_gfp_pti,
     &hf_gfp_pfi,
     &hf_gfp_exi,
@@ -99,7 +99,7 @@ static const int *gfp_type_data_fields[] = {
     NULL
 };
 
-static const int *gfp_type_management_fields[] = {
+static int * const gfp_type_management_fields[] = {
     &hf_gfp_pti,
     &hf_gfp_pfi,
     &hf_gfp_exi,
@@ -134,9 +134,9 @@ static const range_string gfp_upi_data_rvals[] = {
     {9, 9, "Transparent DVB ASI"},
     {10, 10, "Frame-Mapped IEEE 802.17 Resilient Packet Ring"},
     {11, 11, "Frame-Mapped Fibre Channel FC-BBW"},
-    {12, 12, "Asycnchronous Transparent Fibre Channel"},
+    {12, 12, "Asynchronous Transparent Fibre Channel"},
     {13, 13, "Frame-Mapped MPLS"},
-    {14, 14, "Frame-Mapped MPLS (Multicast) [Deprecrated]"},
+    {14, 14, "Frame-Mapped MPLS (Multicast) [Deprecated]"},
     {15, 15, "Frame-Mapped OSI network layer protocols (IS-IS, ES-IS, CLNP)"},
     {16, 16, "Frame-Mapped IPv4"},
     {17, 17, "Frame-Mapped IPv6"},

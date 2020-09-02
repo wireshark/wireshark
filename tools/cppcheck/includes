@@ -1,5 +1,7 @@
 ./epan/
 ./epan/dissectors/
+./epan/wslua/
 ./tools/lemon/
 ./ui/
 ./wiretap/
+.

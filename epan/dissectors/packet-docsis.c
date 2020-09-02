@@ -228,12 +228,6 @@ static const true_false_string exthdr_tfs = {
   "Extended Header Absent"
 };
 
-/* Plugins can't use true_false_string and value_string const from /epan on Windows
-   Duplicated here because of that */
-static const true_false_string ena_dis_tfs = {
-  "Enabled",
-  "Disabled"
-};
 
 static const value_string local_proto_checksum_vals[] = {
   { PROTO_CHECKSUM_E_BAD,        "Bad"  },
@@ -529,7 +523,7 @@ dissect_encrypted_frame (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 //  tvbuff_t          *next_tvb;
 
   /* According to CM-SP-SEC-v3.1, PDU regions of the following
-   * frames must be encryped when security is enabled:
+   * frames must be encrypted when security is enabled:
    * - Variable-length PDU MAC Frames;
    * - Fragmentation MAC Frames;
    * - Registration Request (REG-REQ-MP) MAC Management Message Frames;
@@ -991,7 +985,7 @@ proto_register_docsis (void)
     },
     {&hf_docsis_reserved,
      {"Reserved", "docsis.ehdr.rsvd",
-      FT_UINT8, BASE_HEX, NULL, 0x3FFF,
+      FT_UINT8, BASE_HEX, NULL, 0x0,
       "Reserved Byte", HFILL}
     },
     {&hf_docsis_mini_slots,
@@ -1041,7 +1035,7 @@ proto_register_docsis (void)
     },
     {&hf_docsis_ehdr_bpup2_bpi_en,
      {"Encryption", "docsis.ehdr.bpup2_bpi_en",
-      FT_BOOLEAN, 8, TFS (&ena_dis_tfs), 0x80,
+      FT_BOOLEAN, 8, TFS (&tfs_enabled_disabled), 0x80,
       "BPI Enable", HFILL}
     },
     {&hf_docsis_ehdr_bpup2_toggle_bit,
@@ -1096,7 +1090,7 @@ proto_register_docsis (void)
     },
     { &hf_docsis_bpi_en,
      { "Encryption", "docsis.bpi_en",
-       FT_BOOLEAN, 8, TFS (&ena_dis_tfs), 0x80,
+       FT_BOOLEAN, 8, TFS (&tfs_enabled_disabled), 0x80,
        "BPI Enable", HFILL}
     },
     { &hf_docsis_toggle_bit,
@@ -1172,7 +1166,7 @@ proto_register_docsis (void)
     { &hf_docsis_encrypted_payload,
       { "Encrypted Payload", "docsis.encrypted_payload",
         FT_BYTES, BASE_NONE, NULL, 0x0,
-        "Encryped data", HFILL }
+        "Encrypted data", HFILL }
     }
   };
 

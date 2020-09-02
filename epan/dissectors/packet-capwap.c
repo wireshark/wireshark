@@ -598,7 +598,7 @@ static expert_field ei_capwap_fortinet_mac_len = EI_INIT;
 static expert_field ei_capwap_message_element_fortinet_type = EI_INIT;
 static expert_field ei_capwap_message_element_cisco_type = EI_INIT;
 
-static const int *ieee80211_ofdm_control_band_support_flags[] = {
+static int * const ieee80211_ofdm_control_band_support_flags[] = {
     &hf_capwap_msg_element_type_ieee80211_ofdm_control_band_support_bit0,
     &hf_capwap_msg_element_type_ieee80211_ofdm_control_band_support_bit1,
     &hf_capwap_msg_element_type_ieee80211_ofdm_control_band_support_bit2,
@@ -610,28 +610,28 @@ static const int *ieee80211_ofdm_control_band_support_flags[] = {
     NULL
 };
 
-static const int *ieee80211_ie_flags[] = {
+static int * const ieee80211_ie_flags[] = {
     &hf_capwap_msg_element_type_ieee80211_ie_flags_b,
     &hf_capwap_msg_element_type_ieee80211_ie_flags_p,
     &hf_capwap_msg_element_type_ieee80211_ie_flags_rsv,
     NULL
 };
 
-static const int *capwap_ac_descriptor_security_flags[] = {
+static int * const capwap_ac_descriptor_security_flags[] = {
     &hf_capwap_msg_element_type_ac_descriptor_security_r,
     &hf_capwap_msg_element_type_ac_descriptor_security_s,
     &hf_capwap_msg_element_type_ac_descriptor_security_x,
     NULL
 };
 
-static const int *capwap_ac_descriptor_dtls_flags[] = {
+static int * const capwap_ac_descriptor_dtls_flags[] = {
     &hf_capwap_msg_element_type_ac_descriptor_dtls_policy_r,
     &hf_capwap_msg_element_type_ac_descriptor_dtls_policy_d,
     &hf_capwap_msg_element_type_ac_descriptor_dtls_policy_c,
     NULL
 };
 
-static const int *capwap_wtp_frame_tunnel_mode_flags[] = {
+static int * const capwap_wtp_frame_tunnel_mode_flags[] = {
     &hf_capwap_msg_element_type_wtp_frame_tunnel_mode_n,
     &hf_capwap_msg_element_type_wtp_frame_tunnel_mode_e,
     &hf_capwap_msg_element_type_wtp_frame_tunnel_mode_l,
@@ -639,7 +639,7 @@ static const int *capwap_wtp_frame_tunnel_mode_flags[] = {
     NULL
 };
 
-static int const *ieee80211_add_wlan_capability_flags[] = {
+static int * const ieee80211_add_wlan_capability_flags[] = {
     &hf_capwap_msg_element_type_ieee80211_add_wlan_capability_e,
     &hf_capwap_msg_element_type_ieee80211_add_wlan_capability_i,
     &hf_capwap_msg_element_type_ieee80211_add_wlan_capability_c,
@@ -659,7 +659,7 @@ static int const *ieee80211_add_wlan_capability_flags[] = {
     NULL
 };
 
-static const int *ieee80211_station_capabilities_flags[] ={
+static int * const ieee80211_station_capabilities_flags[] ={
     &hf_capwap_msg_element_type_ieee80211_station_capabilities_e,
     &hf_capwap_msg_element_type_ieee80211_station_capabilities_i,
     &hf_capwap_msg_element_type_ieee80211_station_capabilities_c,
@@ -679,7 +679,7 @@ static const int *ieee80211_station_capabilities_flags[] ={
     NULL
 };
 
-static const int * ieee80211_update_wlan_capability_flags[] = {
+static int * const ieee80211_update_wlan_capability_flags[] = {
     &hf_capwap_msg_element_type_ieee80211_update_wlan_capability_e,
     &hf_capwap_msg_element_type_ieee80211_update_wlan_capability_i,
     &hf_capwap_msg_element_type_ieee80211_update_wlan_capability_c,
@@ -4229,7 +4229,7 @@ proto_register_capwap_control(void)
               NULL, HFILL }
         },
         { &hf_capwap_msg_element_type_ieee80211_add_wlan_capability_a,
-            { "Channek Agility", "capwap.control.message_element.ieee80211_add_wlan.capability.a",
+            { "Channel Agility", "capwap.control.message_element.ieee80211_add_wlan.capability.a",
               FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0100,
               NULL, HFILL }
         },
@@ -4651,7 +4651,7 @@ proto_register_capwap_control(void)
               NULL, HFILL }
         },
         { &hf_capwap_msg_element_type_ieee80211_station_capabilities_a,
-            { "Channek Agility", "capwap.control.message_element.ieee80211_station.capabilities.a",
+            { "Channel Agility", "capwap.control.message_element.ieee80211_station.capabilities.a",
               FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0100,
               NULL, HFILL }
         },
@@ -4831,7 +4831,7 @@ proto_register_capwap_control(void)
               NULL, HFILL }
         },
         { &hf_capwap_msg_element_type_ieee80211_update_wlan_capability_a,
-            { "Channek Agility", "capwap.control.message_element.ieee80211_update_wlan.capability.a",
+            { "Channel Agility", "capwap.control.message_element.ieee80211_update_wlan.capability.a",
               FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0100,
               NULL, HFILL }
         },

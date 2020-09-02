@@ -11,9 +11,9 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * Ref:
- * http://www.ietf.org/rfc/rfc3095.txt         RObust Header Compression (ROHC): Framework and four profiles: RTP, UDP, ESP, and uncompressed
- * http://datatracker.ietf.org/doc/rfc4815/    RObust Header Compression (ROHC): Corrections and Clarifications to RFC 3095
- * http://datatracker.ietf.org/doc/rfc5225/    RObust Header Compression Version 2 (ROHCv2): Profiles for RTP, UDP, IP, ESP and UDP-Lite
+ * https://www.ietf.org/rfc/rfc3095             RObust Header Compression (ROHC): Framework and four profiles: RTP, UDP, ESP, and uncompressed
+ * https://datatracker.ietf.org/doc/rfc4815/    RObust Header Compression (ROHC): Corrections and Clarifications to RFC 3095
+ * https://datatracker.ietf.org/doc/rfc5225/    RObust Header Compression Version 2 (ROHCv2): Profiles for RTP, UDP, IP, ESP and UDP-Lite
  */
 
 #include "config.h"
@@ -592,7 +592,7 @@ dissect_rohc_ext_format(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
              * |                                               |  if rtp = 1
              *  ..... ..... ..... ..... ..... ..... ..... .....
              */
-            static const int * ext3_flags[] = {
+            static int * const ext3_flags[] = {
                 &hf_rohc_ext3_s,
                 &hf_rohc_ext3_r_ts,
                 &hf_rohc_ext3_tsc,
@@ -609,7 +609,7 @@ dissect_rohc_ext_format(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
             offset++;
 
             if (ext3_flags_value & ROHC_RTP_EXT3_IP_MASK) {
-                static const int * inner_ip_flags[] = {
+                static int * const inner_ip_flags[] = {
                     &hf_rohc_ext3_inner_tos,
                     &hf_rohc_ext3_inner_ttl,
                     &hf_rohc_ext3_inner_df,
@@ -635,7 +635,7 @@ dissect_rohc_ext_format(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
                 offset++;
             }
             if (ext3_inner_ip_flags_value & ROHC_RTP_EXT3_INNER_IP2_MASK) {
-                static const int * outer_ip_flags[] = {
+                static int * const outer_ip_flags[] = {
                     &hf_rohc_ext3_outer_tos,
                     &hf_rohc_ext3_outer_ttl,
                     &hf_rohc_ext3_outer_df,
@@ -740,7 +740,7 @@ dissect_rohc_ext_format(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
             }
             if (ext3_flags_value & ROHC_RTP_EXT3_RTP_MASK) {
                 guint64 ext3_rtp_flags_value = 0;
-                static const int * rtp_flags[] = {
+                static int * const rtp_flags[] = {
                     &hf_rohc_ext3_mode,
                     &hf_rohc_ext3_r_pt,
                     &hf_rohc_ext3_m,

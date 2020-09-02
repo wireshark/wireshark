@@ -12,7 +12,6 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/packet.h>
@@ -1539,7 +1538,7 @@ static void dissect_isi_network_cell_info_ind(tvbuff_t *tvb, packet_info *pinfo,
 	int offset = 0x03;
 	guint8 pkgcount = tvb_get_guint8(tvb, 0x02);
 
-	static const int *gsm_band_fields[] = {
+	static int * const gsm_band_fields[] = {
 		&hf_isi_network_gsm_band_900,
 		&hf_isi_network_gsm_band_1800,
 		&hf_isi_network_gsm_band_1900,

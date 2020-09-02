@@ -15,8 +15,6 @@
 
 #include <config.h>
 
-#include <glib.h>
-
 #include <epan/expert.h>
 #include <epan/packet.h>
 #include <wsutil/base32.h>
@@ -190,37 +188,37 @@ proto_register_fc00(void)
         },
 
         { &hf_fc00_auth_challenge,
-          { "Auth Challenge", "fc00.auth_challange",
+          { "Auth Challenge", "fc00.auth_challenge",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
 
         { &hf_fc00_auth_type,
-          { "Auth Type", "fc00.auth_challange.type",
+          { "Auth Type", "fc00.auth_challenge.type",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
 
         { &hf_fc00_auth_hash_code,
-          { "Auth Hash Code", "fc00.auth_challange.hash_code",
+          { "Auth Hash Code", "fc00.auth_challenge.hash_code",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
 
         { &hf_fc00_auth_poly,
-          { "Poly1305 Authentication", "fc00.auth_challange.poly1305",
+          { "Poly1305 Authentication", "fc00.auth_challenge.poly1305",
             FT_UINT8, BASE_DEC, NULL, 0x80,
             NULL, HFILL }
         },
 
         { &hf_fc00_auth_derivations,
-          { "Auth Derivations", "fc00.auth_challange.derivations",
+          { "Auth Derivations", "fc00.auth_challenge.derivations",
             FT_UINT16, BASE_DEC, NULL, 0x7F,
             NULL, HFILL }
         },
 
         { &hf_fc00_auth_additional,
-          { "Auth Additional", "fc00.auth_challange.additional",
+          { "Auth Additional", "fc00.auth_challenge.additional",
             FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },

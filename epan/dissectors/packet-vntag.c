@@ -57,7 +57,7 @@ dissect_vntag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 	   https://d2zmdbbm9feqrf.cloudfront.net/2012/usa/pdf/BRKDCT-2340.pdf p.61
 	   http://www.definethecloud.net/access-layer-network-virtualization-vn-tag-and-vepa
 	 */
-	static const int * fields[] = {
+	static int * const fields[] = {
 		&hf_vntag_dir,
 		&hf_vntag_ptr,
 		&hf_vntag_dst,
@@ -101,10 +101,12 @@ dissect_vntag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
 		dissect_802_3(encap_proto, is_802_2, tvb, 6, pinfo, tree, vntag_tree, hf_vntag_len, hf_vntag_trailer, &ei_vntag_len, 0);
 	} else {
+		proto_tree_add_uint(vntag_tree, hf_vntag_etype, tvb, 4, 2,
+		    encap_proto);
+
 		ethertype_data.etype = encap_proto;
-		ethertype_data.offset_after_ethertype = 6;
+		ethertype_data.payload_offset = 6;
 		ethertype_data.fh_tree = vntag_tree;
-		ethertype_data.etype_id = hf_vntag_etype;
 		ethertype_data.trailer_id = hf_vntag_trailer;
 		ethertype_data.fcs_len = 0;
 

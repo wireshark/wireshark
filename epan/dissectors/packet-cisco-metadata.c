@@ -82,10 +82,11 @@ dissect_cmd_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
     } else {
 #endif
 
+    proto_tree_add_uint(cmd_tree, hf_eth_type, tvb, 6, 2, encap_proto);
+
     ethertype_data.etype = encap_proto;
-    ethertype_data.offset_after_ethertype = 8;
+    ethertype_data.payload_offset = 8;
     ethertype_data.fh_tree = cmd_tree;
-    ethertype_data.etype_id = hf_eth_type;
     ethertype_data.trailer_id = hf_cmd_trailer;
     ethertype_data.fcs_len = 0;
 

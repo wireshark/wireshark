@@ -1566,7 +1566,7 @@ static void
 dissect_ieee802154_fcf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ieee802154_packet *packet, guint *offset)
 {
     guint16     fcf;
-    static const int * ieee802154_fields[] = {
+    static int * const ieee802154_fields[] = {
         &hf_ieee802154_frame_type,
         &hf_ieee802154_security,
         &hf_ieee802154_pending,
@@ -1581,7 +1581,7 @@ dissect_ieee802154_fcf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ieee
         NULL
     };
 
-    static const int* ieee802154_mpf_short_fields[] = {
+    static int* const ieee802154_mpf_short_fields[] = {
         &hf_ieee802154_frame_type,
         &hf_ieee802154_mpf_long_frame_control,
         &hf_ieee802154_mpf_dst_addr_mode,
@@ -1589,7 +1589,7 @@ dissect_ieee802154_fcf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ieee
         NULL
     };
 
-    static const int* ieee802154_mpf_long_fields[] = {
+    static int* const ieee802154_mpf_long_fields[] = {
         &hf_ieee802154_frame_type,
         &hf_ieee802154_mpf_long_frame_control,
         &hf_ieee802154_mpf_dst_addr_mode,
@@ -1708,7 +1708,7 @@ void dissect_ieee802154_aux_sec_header_and_key(tvbuff_t *tvb, packet_info *pinfo
     proto_item *ti, *hidden_item;
     guint8     security_control;
     guint      aux_length = 1; /* Minimum length of the auxiliary header. */
-    static const int * security_fields[] = {
+    static int * const security_fields[] = {
             &hf_ieee802154_aux_sec_security_level,
             &hf_ieee802154_aux_sec_key_id_mode,
             &hf_ieee802154_aux_sec_frame_counter_suppression,
@@ -1891,7 +1891,7 @@ dissect_ieee802154_nonask_phy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
     if (tree) {
         guint loffset = offset;
-        static const int * phr_fields[] = {
+        static int * const phr_fields[] = {
                     &hf_ieee802154_nonask_phy_length,
                     NULL
                 };
@@ -3297,7 +3297,7 @@ dissect_ieee802154_tap_tlvs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 break;
             }
             default:
-                proto_tree_add_bytes_item(tlvtree, hf_ieee802154_tap_tlv_unknown, tvb, offset, length, ENC_NA, NULL, NULL, NULL);
+                proto_tree_add_item(tlvtree, hf_ieee802154_tap_tlv_unknown, tvb, offset, length, ENC_NA);
                 proto_item_append_text(proto_tree_get_parent(tlvtree), "Unknown TLV");
                 break;
         } /* switch (tlv_type) */
@@ -3359,7 +3359,7 @@ ieee802154_create_pie_tree(tvbuff_t *tvb, proto_tree *tree, int hf, gint ett)
     proto_item *subitem;
     proto_tree *subtree;
     header_field_info *hfinfo;
-    static const int * tlv_fields[] = {
+    static int * const tlv_fields[] = {
             &hf_ieee802154_payload_ie_type,
             &hf_ieee802154_payload_ie_id,
             &hf_ieee802154_payload_ie_length,
@@ -3397,7 +3397,7 @@ ieee802154_create_psie_tree(tvbuff_t *tvb, proto_tree *tree, int hf, gint ett)
     subitem  = proto_tree_add_item(tree, hf, tvb, 0, tvb_reported_length(tvb), ENC_NA);
     subtree = proto_item_add_subtree(subitem, ett);
     if (tvb_get_letohs(tvb, 0) & IEEE802154_PSIE_TYPE_MASK) {
-        static const int * fields_long[] = {
+        static int * const fields_long[] = {
             &hf_ieee802154_psie_type,
             &hf_ieee802154_psie_id_long,
             &hf_ieee802154_psie_length_long,
@@ -3406,7 +3406,7 @@ ieee802154_create_psie_tree(tvbuff_t *tvb, proto_tree *tree, int hf, gint ett)
         proto_tree_add_bitmask(subtree, tvb, 0, hf_ieee802154_psie, ett_ieee802154_psie, fields_long, ENC_LITTLE_ENDIAN);
     }
     else {
-        static const int * fields_short[] = {
+        static int * const fields_short[] = {
             &hf_ieee802154_psie_type,
             &hf_ieee802154_psie_id_short,
             &hf_ieee802154_psie_length_short,
@@ -3484,7 +3484,7 @@ dissect_802154_tsch_slotframe_link(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
         /* Create a tree for each link in the slotframe. */
         offset += 4;
         while (nb_links > 0) {
-            static const int * fields_options[] = {
+            static int * const fields_options[] = {
                 &hf_ieee802154_tsch_slotf_link_options_tx,
                 &hf_ieee802154_tsch_slotf_link_options_rx,
                 &hf_ieee802154_tsch_slotf_link_options_shared,
@@ -3581,7 +3581,7 @@ dissect_ietf_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ies_tree, voi
     proto_item *type_item = NULL;
     proto_item *code_item = NULL;
     const gchar *code_str = NULL;
-    static const int * cell_options[] = {
+    static int * const cell_options[] = {
         &hf_ieee802154_6top_cell_option_tx,
         &hf_ieee802154_6top_cell_option_rx,
         &hf_ieee802154_6top_cell_option_shared,
@@ -3780,7 +3780,7 @@ dissect_ietf_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ies_tree, voi
 void
 dissect_ieee802154_superframe(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint *offset)
 {
-    static const int * superframe[] = {
+    static int * const superframe[] = {
         &hf_ieee802154_beacon_order,
         &hf_ieee802154_superframe_order,
         &hf_ieee802154_cap,
@@ -3930,7 +3930,7 @@ ieee802154_create_hie_tree(tvbuff_t *tvb, proto_tree *tree, int hf, gint ett)
     proto_item *subitem;
     proto_tree *subtree;
     header_field_info *hfinfo;
-    static const int * tlv_fields[] = {
+    static int * const tlv_fields[] = {
             &hf_ieee802154_header_ie_type,
             &hf_ieee802154_header_ie_id,
             &hf_ieee802154_header_ie_length,
@@ -3980,7 +3980,7 @@ dissect_hie_csl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *d
 static int
 dissect_hie_time_correction(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ies_tree, void *data _U_)
 {
-    static const int * fields[] = {
+    static int * const fields[] = {
             &hf_ieee802154_hie_time_correction_value,
             &hf_ieee802154_nack,
             NULL
@@ -4107,7 +4107,7 @@ dissect_802154_eb_filter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
     proto_tree *subtree;
     guint offset = 0;
 
-    static const int * fields_eb_filter[] = {
+    static int * const fields_eb_filter[] = {
         &hf_ieee802154_psie_eb_filter_pjoin,
         &hf_ieee802154_psie_eb_filter_lqi,
         &hf_ieee802154_psie_eb_filter_percent,
@@ -4195,12 +4195,12 @@ dissect_pie_mlme(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ies_tree, void *
 static int
 dissect_mpx_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ies_tree, void *data _U_)
 {
-    static const int * fields[] = {
+    static int * const fields[] = {
             &hf_ieee802159_mpx_transaction_id,
             &hf_ieee802159_mpx_transfer_type,
             NULL
     };
-    static const int * fields_compressed_multiplex_id[] = {
+    static int * const fields_compressed_multiplex_id[] = {
             &hf_ieee802159_mpx_transaction_id_as_multiplex_id,
             &hf_ieee802159_mpx_transfer_type,
             NULL
@@ -4445,7 +4445,7 @@ dissect_ieee802154_assoc_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 {
     guint8 cap;
     proto_tree *subtree;
-    static const int * capability[] = {
+    static int * const capability[] = {
         &hf_ieee802154_cinfo_alt_coord,
         &hf_ieee802154_cinfo_device_type,
         &hf_ieee802154_cinfo_power_src,
@@ -4456,7 +4456,7 @@ dissect_ieee802154_assoc_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     };
 
     cap = tvb_get_guint8(tvb, 0);
-    col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", (cap & IEEE802154_CMD_CINFO_DEVICE_TYPE) ? tfs_cinfo_device_type.true_string : tfs_cinfo_device_type.false_string);
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", tfs_get_string(cap & IEEE802154_CMD_CINFO_DEVICE_TYPE, &tfs_cinfo_device_type));
 
     /* Create a subtree for this command frame. */
     subtree = proto_tree_add_subtree(tree, tvb, 0, 1, ett_ieee802154_cmd, NULL,
@@ -4682,7 +4682,7 @@ static void
 dissect_ieee802154_gtsreq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ieee802154_packet *packet)
 {
     proto_tree *subtree;
-    static const int * characteristics[] = {
+    static int * const characteristics[] = {
         &hf_ieee802154_gtsreq_len,
         &hf_ieee802154_gtsreq_dir,
         &hf_ieee802154_gtsreq_type,
@@ -6016,7 +6016,7 @@ void proto_register_ieee802154(void)
 
         { &hf_ieee802154_tsch_timeslot_length,
           { "Timeslot Length",              "wpan.tsch.timeslot.length", FT_UINT24, BASE_DEC, NULL, 0x0,
-            "Total length of the timeslot, including any unsused time after frame transmission", HFILL }},
+            "Total length of the timeslot, including any unused time after frame transmission", HFILL }},
 
         { &hf_ieee802154_tsch_channel_hopping,
         { "Channel Hopping IE",             "wpan.channel_hopping", FT_NONE, BASE_NONE, NULL, 0x0,

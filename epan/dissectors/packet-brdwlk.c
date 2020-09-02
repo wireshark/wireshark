@@ -129,7 +129,7 @@ static const true_false_string tfs_error_ctrl = {
 static void
 dissect_brdwlk_err(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 {
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_brdwlk_error_plp,
         &hf_brdwlk_error_ef,
         &hf_brdwlk_error_nd,

@@ -16,7 +16,7 @@
 
 #include "wslua.h"
 
-/* WSLUA_MODULE Gui GUI support */
+/* WSLUA_MODULE Gui GUI Support */
 
 static const funnel_ops_t* ops = NULL;
 
@@ -31,9 +31,9 @@ static int menu_cb_error_handler(lua_State* L) {
     return 0;
 }
 
-WSLUA_FUNCTION wslua_gui_enabled(lua_State* L) { /* Checks whether the GUI facility is enabled. */
+WSLUA_FUNCTION wslua_gui_enabled(lua_State* L) { /* Checks if we're running inside a GUI (i.e. Wireshark) or not. */
     lua_pushboolean(L,GPOINTER_TO_INT(ops && ops->add_button));
-    WSLUA_RETURN(1); /* A boolean: true if it is enabled, false if it isn't. */
+    WSLUA_RETURN(1); /* Boolean `true` if a GUI is available, `false` if it isn't. */
 }
 
 static void lua_menu_callback(gpointer data) {
@@ -61,24 +61,24 @@ static void lua_menu_callback(gpointer data) {
     return;
 }
 
-WSLUA_FUNCTION wslua_register_menu(lua_State* L) { /*  Register a menu item in one of the main menus. */
-#define WSLUA_ARG_register_menu_NAME 1 /* The name of the menu item. The submenus are to be separated by '`/`'s. (string) */
-#define WSLUA_ARG_register_menu_ACTION 2 /* The function to be called when the menu item is invoked. (function taking no arguments and returning nothing)  */
-#define WSLUA_OPTARG_register_menu_GROUP 3 /* The menu group into which the menu item is to be inserted. If omitted, defaults to MENU_STAT_GENERIC. One of:
-                                              * MENU_STAT_UNSORTED (Statistics),
-                                              * MENU_STAT_GENERIC (Statistics, first section),
-                                              * MENU_STAT_CONVERSATION (Statistics/Conversation List),
-                                              * MENU_STAT_ENDPOINT (Statistics/Endpoint List),
-                                              * MENU_STAT_RESPONSE (Statistics/Service Response Time),
-                                              * MENU_STAT_TELEPHONY (Telephony),
-                                              * MENU_STAT_TELEPHONY_ANSI (Telephony/ANSI),
-                                              * MENU_STAT_TELEPHONY_GSM (Telephony/GSM),
-                                              * MENU_STAT_TELEPHONY_LTE (Telephony/LTE),
-                                              * MENU_STAT_TELEPHONY_MTP3 (Telephony/MTP3),
-                                              * MENU_STAT_TELEPHONY_SCTP (Telephony/SCTP),
-                                              * MENU_ANALYZE (Analyze),
-                                              * MENU_ANALYZE_CONVERSATION (Analyze/Conversation Filter),
-                                              * MENU_TOOLS_UNSORTED (Tools). (number) */
+WSLUA_FUNCTION wslua_register_menu(lua_State* L) { /*  Register a menu item in one of the main menus. Requires a GUI. */
+#define WSLUA_ARG_register_menu_NAME 1 /* The name of the menu item. Use slashes to separate submenus. (e.g. menu:Lua Scripts[My Fancy Statistics]). (string) */
+#define WSLUA_ARG_register_menu_ACTION 2 /* The function to be called when the menu item is invoked. The function must take no arguments and return nothing. */
+#define WSLUA_OPTARG_register_menu_GROUP 3 /* Where to place the item in the menu hierarchy. If omitted, defaults to MENU_STAT_GENERIC. One of:
+                                              * MENU_STAT_UNSORTED: menu:Statistics[]
+                                              * MENU_STAT_GENERIC: menu:Statistics[], first section
+                                              * MENU_STAT_CONVERSATION: menu:Statistics[Conversation List]
+                                              * MENU_STAT_ENDPOINT: menu:Statistics[Endpoint List]
+                                              * MENU_STAT_RESPONSE: menu:Statistics[Service Response Time]
+                                              * MENU_STAT_TELEPHONY: menu:Telephony[]
+                                              * MENU_STAT_TELEPHONY_ANSI: menu:Telephony[ANSI]
+                                              * MENU_STAT_TELEPHONY_GSM: menu:Telephony[GSM]
+                                              * MENU_STAT_TELEPHONY_LTE: menu:Telephony[LTE]
+                                              * MENU_STAT_TELEPHONY_MTP3: menu:Telephony[MTP3]
+                                              * MENU_STAT_TELEPHONY_SCTP: menu:Telephony[SCTP]
+                                              * MENU_ANALYZE: menu:Analyze[]
+                                              * MENU_ANALYZE_CONVERSATION: menu:Analyze[Conversation Filter]
+                                              * MENU_TOOLS_UNSORTED: menu:Tools[] */
 
     const gchar* name = luaL_checkstring(L,WSLUA_ARG_register_menu_NAME);
     struct _lua_menu_data* md;
@@ -206,10 +206,38 @@ static void text_win_close_cb(void* data) {
 
 }
 
-WSLUA_FUNCTION wslua_new_dialog(lua_State* L) { /* Pops up a new dialog */
-#define WSLUA_ARG_new_dialog_TITLE 1 /* Title of the dialog's window. */
-#define WSLUA_ARG_new_dialog_ACTION 2 /* Action to be performed when OK'd. */
-/* WSLUA_MOREARGS new_dialog A series of strings to be used as labels of the dialog's fields. */
+WSLUA_FUNCTION wslua_new_dialog(lua_State* L) { /*
+    Displays a dialog, prompting for input. The dialog includes an btn:[OK] button and btn:[Cancel] button. Requires a GUI.
+
+    .An input dialog in action
+    image::wsdg_graphics/wslua-new-dialog.png[{small-screenshot-attrs}]
+
+    ===== Example
+
+    [source,lua]
+    ----
+    if not gui_enabled() then return end
+
+    -- Prompt for IP and port and then print them to stdout
+    local label_ip = "IP address"
+    local label_port = "Port"
+    local function print_ip(ip, port)
+            print(label_ip, ip)
+            print(label_port, port)
+    end
+    new_dialog("Enter IP address", print_ip, label_ip, label_port)
+
+    -- Prompt for 4 numbers and then print their product to stdout
+    new_dialog(
+            "Enter 4 numbers",
+            function (a, b, c, d) print(a * b * c * d) end,
+            "a", "b", "c", "d"
+            )
+    ----
+    */
+#define WSLUA_ARG_new_dialog_TITLE 1 /* The title of the dialog. */
+#define WSLUA_ARG_new_dialog_ACTION 2 /* Action to be performed when the user presses btn:[OK]. */
+/* WSLUA_MOREARGS new_dialog Strings to be used a labels of the dialog's fields. Each string creates a new labeled field. The first field is required. */
 
     const gchar* title;
     int top = lua_gettop(L);
@@ -273,13 +301,81 @@ WSLUA_FUNCTION wslua_new_dialog(lua_State* L) { /* Pops up a new dialog */
     WSLUA_RETURN(0);
 }
 
+WSLUA_CLASS_DEFINE(ProgDlg,FAIL_ON_NULL("ProgDlg"));
+/*
+    Creates and manages a modal progress bar.
+    This is intended to be used with
+    http://lua-users.org/wiki/CoroutinesTutorial[coroutines],
+    where a main UI thread controls the progress bar dialog while a background coroutine (worker thread) yields to the main thread between steps.
+    The main thread checks the status of the btn:[Cancel] button and if it's not set, returns control to the coroutine.
 
+    .A progress bar in action
+    image::wsdg_graphics/wslua-progdlg.png[{medium-screenshot-attrs}]
 
-WSLUA_CLASS_DEFINE(ProgDlg,FAIL_ON_NULL("ProgDlg")); /* Manages a progress bar dialog. */
+    The legacy (GTK+) user interface displayed this as a separate dialog, hence the “Dlg” suffix.
+    The Qt user interface shows a progress bar inside the main status bar.
+*/
 
-WSLUA_CONSTRUCTOR ProgDlg_new(lua_State* L) { /* Creates a new `ProgDlg` progress dialog. */
-#define WSLUA_OPTARG_ProgDlg_new_TITLE 2 /* Title of the new window, defaults to "Progress". */
-#define WSLUA_OPTARG_ProgDlg_new_TASK 3  /* Current task, defaults to "". */
+WSLUA_CONSTRUCTOR ProgDlg_new(lua_State* L) { /*
+    Creates and displays a new `ProgDlg` progress bar with a btn:[Cancel] button and optional title.
+    It is highly recommended that you wrap code that uses a `ProgDlg` instance because it does not automatically close itself upon encountering an error.
+    Requires a GUI.
+
+    ===== Example
+
+    [source,lua]
+    ----
+    if not gui_enabled() then return end
+
+    local p = ProgDlg.new("Constructing", "tacos")
+
+    -- We have to wrap the ProgDlg code in a pcall in case some unexpected
+    -- error occurs.
+    local ok, errmsg = pcall(function()
+            local co = coroutine.create(
+                    function()
+                            local limit = 100000
+                            for i=1,limit do
+                                    print("co", i)
+                                    coroutine.yield(i/limit, "step "..i.." of "..limit)
+                            end
+                    end
+            )
+
+            -- Whenever coroutine yields, check the status of the cancel button to determine
+            -- when to break. Wait up to 20 sec for coroutine to finish.
+            local start_time = os.time()
+            while coroutine.status(co) ~= 'dead' do
+                    local elapsed = os.time() - start_time
+
+                    -- Quit if cancel button pressed or 20 seconds elapsed
+                    if p:stopped() or elapsed > 20 then
+                            break
+                    end
+
+                    local res, val, val2 = coroutine.resume(co)
+                    if not res or res == false then
+                            if val then
+                                    debug(val)
+                            end
+                            print('coroutine error')
+                            break
+                    end
+
+                    -- show progress in progress dialog
+                    p:update(val, val2)
+            end
+    end)
+
+    p:close()
+
+    if not ok and errmsg then
+            report_failure(errmsg)
+    end
+    ----
+*/
+#define WSLUA_OPTARG_ProgDlg_new_TITLE 1 /* Title of the progress bar. Defaults to "Progress". */
+#define WSLUA_OPTARG_ProgDlg_new_TASK 2  /* Optional task name, which will be appended to the title. Defaults to the empty string (""). */
     ProgDlg pd = (ProgDlg)g_malloc(sizeof(struct _wslua_progdlg));
     pd->title = g_strdup(luaL_optstring(L,WSLUA_OPTARG_ProgDlg_new_TITLE,"Progress"));
     pd->task = g_strdup(luaL_optstring(L,WSLUA_OPTARG_ProgDlg_new_TASK,""));
@@ -298,9 +394,9 @@ WSLUA_CONSTRUCTOR ProgDlg_new(lua_State* L) { /* Creates a new `ProgDlg` progres
     WSLUA_RETURN(1); /* The newly created `ProgDlg` object. */
 }
 
-WSLUA_METHOD ProgDlg_update(lua_State* L) { /* Appends text. */
-#define WSLUA_ARG_ProgDlg_update_PROGRESS 2  /* Part done ( e.g. 0.75 ). */
-#define WSLUA_OPTARG_ProgDlg_update_TASK 3  /* Current task, defaults to "". */
+WSLUA_METHOD ProgDlg_update(lua_State* L) { /* Sets the progress dialog's progress bar position based on percentage done. */
+#define WSLUA_ARG_ProgDlg_update_PROGRESS 2  /* Progress value, e.g. 0.75. Value must be between 0.0 and 1.0 inclusive. */
+#define WSLUA_OPTARG_ProgDlg_update_TASK 3  /* Task name. Currently ignored. Defaults to empty string (""). */
     ProgDlg pd = checkProgDlg(L,1);
     double pr = lua_tonumber(L,WSLUA_ARG_ProgDlg_update_PROGRESS);
     const gchar* task = luaL_optstring(L,WSLUA_OPTARG_ProgDlg_update_TASK,"");
@@ -328,17 +424,17 @@ WSLUA_METHOD ProgDlg_update(lua_State* L) { /* Appends text. */
     return 0;
 }
 
-WSLUA_METHOD ProgDlg_stopped(lua_State* L) { /* Checks whether the user has pressed the stop button.  */
+WSLUA_METHOD ProgDlg_stopped(lua_State* L) { /* Checks whether the user has pressed the btn:[Cancel] button. */
     ProgDlg pd = checkProgDlg(L,1);
 
     lua_pushboolean(L,pd->stopped);
 
-    WSLUA_RETURN(1); /* true if the user has asked to stop the progress. */
+    WSLUA_RETURN(1); /* Boolean `true` if the user has asked to stop the operation, `false` otherwise. */
 }
 
 
 
-WSLUA_METHOD ProgDlg_close(lua_State* L) { /* Closes the progress dialog. */
+WSLUA_METHOD ProgDlg_close(lua_State* L) { /* Hides the progress bar. */
     ProgDlg pd = checkProgDlg(L,1);
 
     if (!ops->destroy_progress_window) {
@@ -404,14 +500,51 @@ int ProgDlg_register(lua_State* L) {
 
 
 
-WSLUA_CLASS_DEFINE(TextWindow,FAIL_ON_NULL_OR_EXPIRED("TextWindow")); /* Manages a text window. */
+WSLUA_CLASS_DEFINE(TextWindow,FAIL_ON_NULL_OR_EXPIRED("TextWindow")); /*
+
+    Creates and manages a text window.
+    The text can be read-only or editable, and buttons can be added below the text.
+
+    .A text window in action
+    image::wsdg_graphics/wslua-textwindow.png[{medium-screenshot-attrs}]
+*/
 
 /* XXX: button and close callback data is being leaked */
 /* XXX: lua callback function and TextWindow are not garbage collected because
    they stay in LUA_REGISTRYINDEX forever */
 
-WSLUA_CONSTRUCTOR TextWindow_new(lua_State* L) { /* Creates a new `TextWindow` text window. */
-#define WSLUA_OPTARG_TextWindow_new_TITLE 1 /* Title of the new window. */
+WSLUA_CONSTRUCTOR TextWindow_new(lua_State* L) { /*
+    Creates a new `TextWindow` text window and displays it.
+    Requires a GUI.
+
+    ===== Example
+
+    [source,lua]
+    ----
+    if not gui_enabled() then return end
+
+    -- create new text window and initialize its text
+    local win = TextWindow.new("Log")
+    win:set("Hello world!")
+
+    -- add buttons to clear text window and to enable editing
+    win:add_button("Clear", function() win:clear() end)
+    win:add_button("Enable edit", function() win:set_editable(true) end)
+
+    -- add button to change text to uppercase
+    win:add_button("Uppercase", function()
+            local text = win:get_text()
+            if text ~= "" then
+                    win:set(string.upper(text))
+            end
+    end)
+
+    -- print "closing" to stdout when the user closes the text windw
+    win:set_atclose(function() print("closing") end)
+    ----
+
+*/
+#define WSLUA_OPTARG_TextWindow_new_TITLE 1 /* Title of the new window. Optional. Defaults to "Untitled Window". */
 
     const gchar* title;
     TextWindow tw = NULL;
@@ -422,7 +555,7 @@ WSLUA_CONSTRUCTOR TextWindow_new(lua_State* L) { /* Creates a new `TextWindow` t
         return 0;
     }
 
-    title = luaL_optstring(L,WSLUA_OPTARG_TextWindow_new_TITLE,"Untitled Window");
+    title = luaL_optstring(L,WSLUA_OPTARG_TextWindow_new_TITLE, "Untitled Window");
     tw = (struct _wslua_tw *)g_malloc(sizeof(struct _wslua_tw));
     tw->expired = FALSE;
     tw->ws_tw = ops->new_text_window(title);
@@ -475,8 +608,8 @@ WSLUA_METHOD TextWindow_set_atclose(lua_State* L) { /* Set the function that wil
     WSLUA_RETURN(1); /* The `TextWindow` object. */
 }
 
-WSLUA_METHOD TextWindow_set(lua_State* L) { /* Sets the text. */
-#define WSLUA_ARG_TextWindow_set_TEXT 2 /* The text to be used. */
+WSLUA_METHOD TextWindow_set(lua_State* L) { /* Sets the text to be displayed. */
+#define WSLUA_ARG_TextWindow_set_TEXT 2 /* The text to be displayed. */
 
     TextWindow tw = checkTextWindow(L,1);
     const gchar* text = luaL_checkstring(L,WSLUA_ARG_TextWindow_set_TEXT);
@@ -492,8 +625,8 @@ WSLUA_METHOD TextWindow_set(lua_State* L) { /* Sets the text. */
     WSLUA_RETURN(1); /* The `TextWindow` object. */
 }
 
-WSLUA_METHOD TextWindow_append(lua_State* L) { /* Appends text */
-#define WSLUA_ARG_TextWindow_append_TEXT 2 /* The text to be appended */
+WSLUA_METHOD TextWindow_append(lua_State* L) { /* Appends text to the current window contents. */
+#define WSLUA_ARG_TextWindow_append_TEXT 2 /* The text to be appended. */
     TextWindow tw = checkTextWindow(L,1);
     const gchar* text = luaL_checkstring(L,WSLUA_ARG_TextWindow_append_TEXT);
 
@@ -508,8 +641,8 @@ WSLUA_METHOD TextWindow_append(lua_State* L) { /* Appends text */
     WSLUA_RETURN(1); /* The `TextWindow` object. */
 }
 
-WSLUA_METHOD TextWindow_prepend(lua_State* L) { /* Prepends text */
-#define WSLUA_ARG_TextWindow_prepend_TEXT 2 /* The text to be appended */
+WSLUA_METHOD TextWindow_prepend(lua_State* L) { /* Prepends text to the current window contents. */
+#define WSLUA_ARG_TextWindow_prepend_TEXT 2 /* The text to be prepended. */
     TextWindow tw = checkTextWindow(L,1);
     const gchar* text = luaL_checkstring(L,WSLUA_ARG_TextWindow_prepend_TEXT);
 
@@ -524,7 +657,7 @@ WSLUA_METHOD TextWindow_prepend(lua_State* L) { /* Prepends text */
     WSLUA_RETURN(1); /* The `TextWindow` object. */
 }
 
-WSLUA_METHOD TextWindow_clear(lua_State* L) { /* Erases all text in the window. */
+WSLUA_METHOD TextWindow_clear(lua_State* L) { /* Erases all of the text in the window. */
     TextWindow tw = checkTextWindow(L,1);
 
     if (!ops->clear_text) {
@@ -535,10 +668,10 @@ WSLUA_METHOD TextWindow_clear(lua_State* L) { /* Erases all text in the window. 
     ops->clear_text(tw->ws_tw);
 
     /* XXX: this is a bad way to do this - should copy the object on to the stack first */
-    WSLUA_RETURN(1); /* The TextWindow object. */
+    WSLUA_RETURN(1); /* The `TextWindow` object. */
 }
 
-WSLUA_METHOD TextWindow_get_text(lua_State* L) { /* Get the text of the window */
+WSLUA_METHOD TextWindow_get_text(lua_State* L) { /* Get the text of the window. */
     TextWindow tw = checkTextWindow(L,1);
     const gchar* text;
 
@@ -553,7 +686,7 @@ WSLUA_METHOD TextWindow_get_text(lua_State* L) { /* Get the text of the window *
     WSLUA_RETURN(1); /* The `TextWindow`'s text. */
 }
 
-WSLUA_METHOD TextWindow_close(lua_State* L) { /* Close the window */
+WSLUA_METHOD TextWindow_close(lua_State* L) { /* Close the window. */
     TextWindow tw = checkTextWindow(L,1);
 
     if (!ops->destroy_text_window) {
@@ -588,7 +721,7 @@ static int TextWindow__gc(lua_State* L) {
 }
 
 WSLUA_METHOD TextWindow_set_editable(lua_State* L) { /* Make this text window editable. */
-#define WSLUA_OPTARG_TextWindow_set_editable_EDITABLE 2 /* A boolean flag, defaults to true. */
+#define WSLUA_OPTARG_TextWindow_set_editable_EDITABLE 2 /* `true` to make the text editable, `false` otherwise. Defaults to `true`. */
 
     TextWindow tw = checkTextWindow(L,1);
     gboolean editable = wslua_optbool(L,WSLUA_OPTARG_TextWindow_set_editable_EDITABLE,TRUE);
@@ -637,9 +770,9 @@ static gboolean wslua_button_callback(funnel_text_window_t* ws_tw, void* data) {
 }
 
 WSLUA_METHOD TextWindow_add_button(lua_State* L) {
-    /* Adds a button to the text window. */
-#define WSLUA_ARG_TextWindow_add_button_LABEL 2 /* The label of the button */
-#define WSLUA_ARG_TextWindow_add_button_FUNCTION 3 /* The Lua function to be called when clicked */
+    /* Adds a button with an action handler to the text window. */
+#define WSLUA_ARG_TextWindow_add_button_LABEL 2 /* The button label. */
+#define WSLUA_ARG_TextWindow_add_button_FUNCTION 3 /* The Lua function to be called when the button is pressed. */
     TextWindow tw = checkTextWindow(L,1);
     const gchar* label = luaL_checkstring(L,WSLUA_ARG_TextWindow_add_button_LABEL);
 
@@ -709,7 +842,7 @@ int TextWindow_register(lua_State* L) {
 
 WSLUA_FUNCTION wslua_retap_packets(lua_State* L) {
     /*
-     Rescan all packets and just run taps - don't reconstruct the display.
+     Rescans all packets and runs each <<lua_class_Listener, tap listener>> without reconstructing the display.
      */
     if ( ops->retap_packets ) {
         ops->retap_packets(ops->ops_id);
@@ -721,7 +854,7 @@ WSLUA_FUNCTION wslua_retap_packets(lua_State* L) {
 }
 
 
-WSLUA_FUNCTION wslua_copy_to_clipboard(lua_State* L) { /* Copy a string into the clipboard. */
+WSLUA_FUNCTION wslua_copy_to_clipboard(lua_State* L) { /* Copy a string into the clipboard. Requires a GUI. */
 #define WSLUA_ARG_copy_to_clipboard_TEXT 1 /* The string to be copied into the clipboard. */
     const char* copied_str = luaL_checkstring(L,WSLUA_ARG_copy_to_clipboard_TEXT);
     GString* gstr;
@@ -739,9 +872,9 @@ WSLUA_FUNCTION wslua_copy_to_clipboard(lua_State* L) { /* Copy a string into the
     return 0;
 }
 
-WSLUA_FUNCTION wslua_open_capture_file(lua_State* L) { /* Open and display a capture file. */
+WSLUA_FUNCTION wslua_open_capture_file(lua_State* L) { /* Open and display a capture file. Requires a GUI. */
 #define WSLUA_ARG_open_capture_file_FILENAME 1 /* The name of the file to be opened. */
-#define WSLUA_ARG_open_capture_file_FILTER 2 /* A filter to be applied as the file gets opened. */
+#define WSLUA_ARG_open_capture_file_FILTER 2 /* The https://wiki.wireshark.org/DisplayFilters[display filter] to be applied once the file is opened. */
 
     const char* fname = luaL_checkstring(L,WSLUA_ARG_open_capture_file_FILENAME);
     const char* filter = luaL_optstring(L,WSLUA_ARG_open_capture_file_FILTER,NULL);
@@ -796,9 +929,86 @@ WSLUA_FUNCTION wslua_set_filter(lua_State* L) { /* Set the main filter text. */
     return 0;
 }
 
-WSLUA_FUNCTION wslua_set_color_filter_slot(lua_State* L) { /* Set packet-coloring rule for the current session. */
-#define WSLUA_ARG_set_color_filter_slot_ROW 1 /* The index of the desired color in the temporary coloring rules list. */
-#define WSLUA_ARG_set_color_filter_slot_TEXT  2 /* Display filter for selecting packets to be colorized. */
+WSLUA_FUNCTION wslua_get_color_filter_slot(lua_State* L) { /*
+    Gets the current https://wiki.wireshark.org/ColoringRules[packet coloring rule] (by index) for the
+    current session. Wireshark reserves 10 slots for these coloring rules. Requires a GUI.
+*/
+#define WSLUA_ARG_get_color_filter_slot_ROW 1 /*
+    The index (1-10) of the desired color filter value in the temporary coloring rules list.
+
+    .Default background colors
+    [cols="3",options="header"]
+    |===
+    |Index |RGB (hex) |Color
+    |1  |ffc0c0 |{set:cellbgcolor:#ffc0c0} pink 1
+    |2  |ffc0ff |{set:cellbgcolor:#ffc0ff} pink 2
+    |3  |e0c0e0 |{set:cellbgcolor:#e0c0e0} purple 1
+    |4  |c0c0ff |{set:cellbgcolor:#c0c0ff} purple 2
+    |5  |c0e0e0 |{set:cellbgcolor:#c0e0e0} green 1
+    |6  |c0ffff |{set:cellbgcolor:#c0ffff} green 2
+    |7  |c0ffc0 |{set:cellbgcolor:#c0ffc0} green 3
+    |8  |ffffc0 |{set:cellbgcolor:#ffffc0} yellow 1
+    |9  |e0e0c0 |{set:cellbgcolor:#e0e0c0} yellow 2
+    |10 |e0e0e0 |{set:cellbgcolor:#e0e0e0} gray
+    |===
+    */
+    guint8 row = (guint8)luaL_checkinteger(L, WSLUA_ARG_get_color_filter_slot_ROW);
+    gchar* filter_str = NULL;
+
+    if (!ops->get_color_filter_slot) {
+        WSLUA_ERROR(get_color_filter_slot, "GUI not available");
+        return 0;
+    }
+
+    filter_str = ops->get_color_filter_slot(row);
+    if (filter_str == NULL) {
+        lua_pushnil(L);
+    } else {
+        lua_pushstring(L, filter_str);
+        g_free(filter_str);
+    }
+
+    return 1;
+}
+
+WSLUA_FUNCTION wslua_set_color_filter_slot(lua_State* L) { /*
+    Sets a https://wiki.wireshark.org/ColoringRules[packet coloring rule] (by index) for the current session.
+    Wireshark reserves 10 slots for these coloring rules.
+    Requires a GUI.
+*/
+#define WSLUA_ARG_set_color_filter_slot_ROW 1 /*
+    The index (1-10) of the desired color in the temporary coloring rules list.
+    The default foreground is black and the default backgrounds are listed below.
+
+    // XXX We need get the colors working, e.g. by adding them to a stylesheet.
+    .Default background colors
+    [cols="3",options="header"]
+    |===
+    |Index |RGB (hex) |Color
+    |1  |ffc0c0 |{set:cellbgcolor:#ffc0c0} pink 1
+    |2  |ffc0ff |{set:cellbgcolor:#ffc0ff} pink 2
+    |3  |e0c0e0 |{set:cellbgcolor:#e0c0e0} purple 1
+    |4  |c0c0ff |{set:cellbgcolor:#c0c0ff} purple 2
+    |5  |c0e0e0 |{set:cellbgcolor:#c0e0e0} green 1
+    |6  |c0ffff |{set:cellbgcolor:#c0ffff} green 2
+    |7  |c0ffc0 |{set:cellbgcolor:#c0ffc0} green 3
+    |8  |ffffc0 |{set:cellbgcolor:#ffffc0} yellow 1
+    |9  |e0e0c0 |{set:cellbgcolor:#e0e0c0} yellow 2
+    |10 |e0e0e0 |{set:cellbgcolor:#e0e0e0} gray
+    |===
+
+    The color list can be set from the command line using two unofficial preferences: `gui.colorized_frame.bg` and `gui.colorized_frame.fg`, which require 10 hex RGB codes (6 hex digits each), e.g.
+    ----
+    wireshark -o gui.colorized_frame.bg:${RGB0},${RGB1},${RGB2},${RGB3},${RGB4},${RGB5},${RGB6},${RGB7},${RGB8},${RGB9}
+    ----
+
+    For example, this command yields the same results as the table above (and with all foregrounds set to black):
+    ----
+    wireshark -o gui.colorized_frame.bg:ffc0c0,ffc0ff,e0c0e0,c0c0ff,c0e0e0,c0ffff,c0ffc0,ffffc0,e0e0c0,e0e0e0 -o gui.colorized_frame.fg:000000,000000,000000,000000,000000,000000,000000,000000
+    ----
+    */
+#define WSLUA_ARG_set_color_filter_slot_TEXT  2 /* The https://wiki.wireshark.org/DisplayFilters[display filter] for selecting packets to be colorized
+. */
     guint8 row = (guint8)luaL_checkinteger(L,WSLUA_ARG_set_color_filter_slot_ROW);
     const gchar* filter_str = luaL_checkstring(L,WSLUA_ARG_set_color_filter_slot_TEXT);
 
@@ -812,7 +1022,16 @@ WSLUA_FUNCTION wslua_set_color_filter_slot(lua_State* L) { /* Set packet-colorin
     return 0;
 }
 
-WSLUA_FUNCTION wslua_apply_filter(lua_State* L) { /* Apply the filter in the main filter box. */
+WSLUA_FUNCTION wslua_apply_filter(lua_State* L) { /*
+    Apply the filter in the main filter box.
+    Requires a GUI.
+
+    [WARNING]
+    ====
+    Avoid calling this from within a dissector function or else an infinite loop can occur if it causes the dissector to be called again.
+    This function is best used in a button callback (from a dialog or text window) or menu callback.
+    ====
+    */
     if (!ops->apply_filter) {
         WSLUA_ERROR(apply_filter, "GUI not available");
         return 0;
@@ -824,7 +1043,7 @@ WSLUA_FUNCTION wslua_apply_filter(lua_State* L) { /* Apply the filter in the mai
 }
 
 
-WSLUA_FUNCTION wslua_reload(lua_State* L) { /* Reload the current capture file.  Obsolete, use reload_packets() */
+WSLUA_FUNCTION wslua_reload(lua_State* L) { /* Reload the current capture file.  Deprecated. Use reload_packets() instead. */
 
     if (!ops->reload_packets) {
         WSLUA_ERROR(reload, "GUI not available");
@@ -837,7 +1056,16 @@ WSLUA_FUNCTION wslua_reload(lua_State* L) { /* Reload the current capture file. 
 }
 
 
-WSLUA_FUNCTION wslua_reload_packets(lua_State* L) { /* Reload the current capture file. */
+WSLUA_FUNCTION wslua_reload_packets(lua_State* L) { /*
+    Reload the current capture file.
+    Requires a GUI.
+
+    [WARNING]
+    ====
+    Avoid calling this from within a dissector function or else an infinite loop can occur if it causes the dissector to be called again.
+    This function is best used in a button callback (from a dialog or text window) or menu callback.
+    ====
+    */
 
     if (!ops->reload_packets) {
         WSLUA_ERROR(reload, "GUI not available");
@@ -863,7 +1091,7 @@ WSLUA_FUNCTION wslua_reload_lua_plugins(lua_State* L) { /* Reload all Lua plugin
 }
 
 
-WSLUA_FUNCTION wslua_browser_open_url(lua_State* L) { /* Open an url in a browser. */
+WSLUA_FUNCTION wslua_browser_open_url(lua_State* L) { /* Opens an URL in a web browser. Requires a GUI. */
 #define WSLUA_ARG_browser_open_url_URL 1 /* The url. */
     const char* url = luaL_checkstring(L,WSLUA_ARG_browser_open_url_URL);
 
@@ -877,7 +1105,11 @@ WSLUA_FUNCTION wslua_browser_open_url(lua_State* L) { /* Open an url in a browse
     return 0;
 }
 
-WSLUA_FUNCTION wslua_browser_open_data_file(lua_State* L) { /* Open a file in a browser. */
+WSLUA_FUNCTION wslua_browser_open_data_file(lua_State* L) { /*
+    Open a file located in the data directory (specified in the Wireshark preferences) in the web browser.
+    If the file does not exist, the function silently ignores the request.
+    Requires a GUI.
+    */
 #define WSLUA_ARG_browser_open_data_file_FILENAME 1 /* The file name. */
     const char* file = luaL_checkstring(L,WSLUA_ARG_browser_open_data_file_FILENAME);
 

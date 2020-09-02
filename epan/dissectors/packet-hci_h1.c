@@ -30,6 +30,7 @@ static const value_string hci_h1_type_vals[] = {
     {BTHCI_CHANNEL_ACL,     "ACL Data"},
     {BTHCI_CHANNEL_SCO,     "SCO Data"},
     {BTHCI_CHANNEL_EVENT,   "HCI Event"},
+    {BTHCI_CHANNEL_ISO,     "ISO Data"},
     {0, NULL }
 };
 static const value_string hci_h1_direction_vals[] = {

@@ -25,11 +25,11 @@
     </message>
     <message>
         <source>Copy the version information to the clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Скопіювати інформацію про версію до буферу обміну</translation>
     </message>
     <message>
         <source>Copy To Clipboard</source>
-        <translation type="unfinished">Скопіювати До Буферу Обміну</translation>
+        <translation>Скопіювати До Буферу Обміну</translation>
     </message>
     <message>
         <source>Authors</source>
@@ -37,7 +37,7 @@
     </message>
     <message>
         <source>Search Authors</source>
-        <translation type="unfinished"></translation>
+        <translation>Пошук авторів</translation>
     </message>
     <message>
         <source>Folders</source>
@@ -45,7 +45,7 @@
     </message>
     <message>
         <source>Filter by path</source>
-        <translation type="unfinished"></translation>
+        <translation>Фільтр за шляхом</translation>
     </message>
     <message>
         <source>Plugins</source>
@@ -53,27 +53,27 @@
     </message>
     <message>
         <source>No plugins found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Плагіни не знайдено</translation>
     </message>
     <message>
         <source>Search Plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>Пошук Плагінів</translation>
     </message>
     <message>
         <source>Filter by type:</source>
-        <translation type="unfinished"></translation>
+        <translation>Фільтр за типом:</translation>
     </message>
     <message>
         <source>Keyboard Shortcuts</source>
-        <translation type="unfinished"></translation>
+        <translation>Комбінації Клавіш</translation>
     </message>
     <message>
         <source>Search Shortcuts</source>
-        <translation type="unfinished"></translation>
+        <translation>Шукати Комбінації Клавіш</translation>
     </message>
     <message>
         <source>Acknowledgments</source>
-        <translation type="unfinished"></translation>
+        <translation>Подяки</translation>
     </message>
     <message>
         <source>License</source>
@@ -81,38 +81,38 @@
     </message>
     <message>
         <source>The directory does not exist</source>
-        <translation type="unfinished"></translation>
+        <translation>Директорія не існує</translation>
     </message>
     <message>
         <source>Should the directory %1 be created?</source>
-        <translation type="unfinished"></translation>
+        <translation>Створити директорію %1?</translation>
     </message>
     <message>
         <source>The directory could not be created</source>
-        <translation type="unfinished"></translation>
+        <translation>Неможливо створити директорію</translation>
     </message>
     <message>
         <source>The directory %1 could not be created.</source>
-        <translation type="unfinished"></translation>
+        <translation>Неможливо створити директорію %1.</translation>
     </message>
     <message>
         <source>Show in Finder</source>
-        <translation type="unfinished"></translation>
+        <translation>Показати у Finder&apos;і</translation>
     </message>
     <message>
         <source>Show in Folder</source>
-        <translation type="unfinished"></translation>
+        <translation>Показати у Папці</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished">Скопіювати</translation>
+        <translation>Скопіювати</translation>
     </message>
     <message numerus="yes">
         <source>Copy Row(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Скопіювати Рядок</numerusform>
+            <numerusform>Скопіювати Рядки</numerusform>
+            <numerusform>Скопіювати Рядки</numerusform>
         </translation>
     </message>
 </context>
@@ -136,7 +136,7 @@
         <translation>Ім&apos;я:</translation>
     </message>
     <message>
-        <source>Can&apos;t assign %1 to %2</source>
+        <source>Can&apos;t assign %1 to %2.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -148,22 +148,22 @@
     </message>
     <message>
         <source>Status</source>
-        <translation type="unfinished">Статус</translation>
+        <translation>Статус</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Тип</translation>
     </message>
     <message>
         <source>Value</source>
-        <translation type="unfinished">Значення</translation>
+        <translation>Значення</translation>
     </message>
 </context>
 <context>
     <name>ApplyLineEdit</name>
     <message>
         <source>Apply changes</source>
-        <translation type="unfinished"></translation>
+        <translation>Застосувати зміни</translation>
     </message>
 </context>
 <context>
@@ -174,7 +174,7 @@
     </message>
     <message>
         <source>Email</source>
-        <translation type="unfinished"></translation>
+        <translation>Email</translation>
     </message>
 </context>
 <context>
@@ -973,6 +973,10 @@
         <translation>Витрачено</translation>
     </message>
     <message>
+        <source>Section %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Capture</source>
         <translation>Захоплення</translation>
     </message>
@@ -1069,7 +1073,7 @@
         <translation>біт/с (середнє значення)</translation>
     </message>
     <message>
-        <source>File Comment</source>
+        <source>Section Comment</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1689,7 +1693,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Тип</translation>
     </message>
     <message>
         <source>Fields</source>
@@ -1937,7 +1941,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Тип</translation>
     </message>
     <message>
         <source>Default</source>
@@ -2270,7 +2274,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>EthernetAddressModel</name>
     <message>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Тип</translation>
     </message>
     <message>
         <source>Name</source>
@@ -3055,10 +3059,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>UTF-8</translation>
     </message>
     <message>
-        <source>UTF-16</source>
-        <translation type="unfinished">UTF-16</translation>
-    </message>
-    <message>
         <source>YAML</source>
         <translation>YAML</translation>
     </message>
@@ -3179,8 +3179,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Show and save data as</source>
-        <oldsource>Show data as</oldsource>
+        <source>Show data as</source>
+        <oldsource>Show and save data as</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4073,6 +4073,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Analyzing IAX2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Save forward stream CSV</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4434,15 +4438,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>InterfaceToolbarLineEdit</name>
     <message>
         <source>Apply changes</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Застосувати зміни</translation>
     </message>
 </context>
 <context>
     <name>InterfaceTreeModel</name>
-    <message>
-        <source>No Interfaces found.</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>Show</source>
         <translation type="unfinished">Показати</translation>
@@ -4453,6 +4453,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Interface Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No interfaces found.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This version of Wireshark was built without packet capture support.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5351,6 +5359,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Packet Bytes</source>
         <translation>Байти Пакету</translation>
+    </message>
+    <message>
+        <source>Packet Diagram</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>None</source>
@@ -6259,7 +6271,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Export TLS Session Keys…</source>
-        <translation type="unfinished"></translation>
+        <translation>Експортувати Сеансові Ключі TLS...</translation>
     </message>
     <message>
         <source>List Files</source>
@@ -6307,23 +6319,23 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>As &amp;CSV…</source>
-        <translation type="unfinished"></translation>
+        <translation>Як &amp;CSV...</translation>
     </message>
     <message>
         <source>As &quot;C&quot; &amp;Arrays…</source>
-        <translation type="unfinished"></translation>
+        <translation>Як М&amp;асиви &quot;C&quot;...</translation>
     </message>
     <message>
         <source>As P&amp;SML XML…</source>
-        <translation type="unfinished"></translation>
+        <translation>Як P&amp;SML XML...</translation>
     </message>
     <message>
         <source>As P&amp;DML XML…</source>
-        <translation type="unfinished"></translation>
+        <translation>Як P&amp;DML XML...</translation>
     </message>
     <message>
         <source>As &amp;JSON…</source>
-        <translation type="unfinished"></translation>
+        <translation>Як &amp;JSON...</translation>
     </message>
     <message>
         <source>Description</source>
@@ -6347,7 +6359,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Packet:</source>
-        <translation type="unfinished"></translation>
+        <translation>Пакет:</translation>
     </message>
     <message>
         <source>Interface Toolbars</source>
@@ -6363,7 +6375,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Additional Toolbars</source>
-        <translation type="unfinished"></translation>
+        <translation>Додаткові Панелі</translation>
     </message>
     <message>
         <source>Conversation Filter</source>
@@ -6376,7 +6388,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>&amp;Tools</source>
         <oldsource>Tools</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Інструменти</translation>
     </message>
     <message>
         <source>Wireless Toolbar</source>
@@ -6547,10 +6559,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Ignore all displayed packets</source>
         <translation>Прибрати всі відображені пакети</translation>
-    </message>
-    <message>
-        <source>Unignore All Displayed</source>
-        <translation>Повернути Всі Відображені</translation>
     </message>
     <message>
         <source>Set/Unset Time Reference</source>
@@ -6925,6 +6933,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>&amp;I/O Graphs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&amp;Conversations</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6946,6 +6958,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Reset appearance layout to default size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Packet &amp;Diagram</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show or hide the packet diagram</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7129,6 +7149,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>U&amp;nignore All Displayed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unignore all displayed packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Time Shift…</source>
         <translation>Зсув Часу...</translation>
     </message>
@@ -7167,11 +7195,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Export PDUs to File…</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;I/O Graphs</source>
-        <oldsource>&amp;I/O Graph</oldsource>
-        <translation type="unfinished">Графік &amp;Вводу/Виводу</translation>
     </message>
     <message>
         <source>Create graphs based on display filter fields</source>
@@ -7536,10 +7559,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>U&amp;nignore all displayed packets</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>All VoIP Calls</source>
         <translation>Всі Виклики VoIP</translation>
     </message>
@@ -7815,20 +7834,16 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Merging files.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>%1: %2</source>
         <translation>%1: %2</translation>
     </message>
     <message>
         <source>Saving %1</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No interface selected</source>
-        <translation>Не вибрано інтерфейс</translation>
-    </message>
-    <message>
-        <source>Invalid capture filter</source>
-        <translation>Неправильний фільтр захоплення</translation>
     </message>
     <message>
         <source>Clear Menu</source>
@@ -7855,10 +7870,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Merging files</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Couldn&apos;t copy text. Try another item.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7875,10 +7886,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>No filter available. Try another </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Error compiling filter for this conversation.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7887,7 +7894,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>No Interface Selected</source>
+        <source>No interface selected.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Invalid capture filter.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7908,6 +7919,30 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>TLS Session Keys (*.keys *.txt);;All Files (</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No filter available. Try another %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>column</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>item</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The &quot;%1&quot; column already exists.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The &quot;%1&quot; column already exists as &quot;%2&quot;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No Interface Selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8321,6 +8356,45 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
 </context>
 <context>
+    <name>PacketDiagram</name>
+    <message>
+        <source>Packet diagram</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Field Values</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Diagram As</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy as Raster Image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Portable Network Graphics (*.png)</source>
+        <translation type="unfinished">Переносна Мережева Графіка (*.png)</translation>
+    </message>
+    <message>
+        <source>Windows Bitmap (*.bmp)</source>
+        <translation type="unfinished">Windows Bitmap (*.bmp)</translation>
+    </message>
+    <message>
+        <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
+        <translation type="unfinished">Формат Обміну Файлами JPEG (*.jpeg *.jpg)</translation>
+    </message>
+    <message>
+        <source>Scalable Vector Graphics (*.svg)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Graph As</source>
+        <translation type="unfinished">Зберегти Графік Як</translation>
+    </message>
+</context>
+<context>
     <name>PacketDialog</name>
     <message>
         <source>Dialog</source>
@@ -8412,6 +8486,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 </context>
 <context>
     <name>PacketList</name>
+    <message>
+        <source>Protocol Preferences</source>
+        <translation type="unfinished"></translation>
+    </message>
     <message>
         <source>Summary as Text</source>
         <translation type="unfinished"></translation>
@@ -8555,7 +8633,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Тип</translation>
     </message>
     <message>
         <source>Path</source>
@@ -8594,7 +8672,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Тип</translation>
     </message>
 </context>
 <context>
@@ -8610,6 +8688,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>a preference</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Browse…</source>
+        <translation type="unfinished">Перегляд...</translation>
     </message>
     <message>
         <source>Open %1 preferences</source>
@@ -8971,7 +9053,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Тип</translation>
     </message>
 </context>
 <context>
@@ -8994,6 +9076,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Frame</source>
         <translation type="unfinished">Кадр</translation>
+    </message>
+    <message>
+        <source>TextLabel</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -9373,7 +9459,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Тип</translation>
     </message>
     <message>
         <source>UEId</source>
@@ -9461,6 +9547,34 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>LCID 10</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LCID 32</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LCID 33</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LCID 34</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LCID 35</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LCID 36</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LCID 37</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LCID 38</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -9561,6 +9675,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Default value is empty</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Gap in dissection</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -9799,7 +9917,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Тип</translation>
     </message>
     <message>
         <source>Messages</source>
@@ -10218,6 +10336,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Raw (*.raw)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Analyzing RTP</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -11626,6 +11748,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Вказано некоректну область пошуку. Будь ласка, повідомте про це команду розробників.</translation>
     </message>
     <message>
+        <source>Searching for %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>No packet contained those bytes.</source>
         <translation>Жоден пакет не містить таких байтів.</translation>
     </message>
@@ -12046,20 +12172,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>ISO 8859-1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Raw</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>UTF-8</source>
         <translation type="unfinished">UTF-8</translation>
-    </message>
-    <message>
-        <source>UTF-16</source>
-        <translation type="unfinished">UTF-16</translation>
     </message>
     <message>
         <source>YAML</source>
@@ -12207,7 +12325,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Тип</translation>
     </message>
     <message>
         <source>Description</source>
@@ -12316,7 +12434,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Тип</translation>
     </message>
     <message>
         <source>MA Window (s)</source>
@@ -13244,11 +13362,11 @@ a:hover {
     </message>
     <message>
         <source>Show in Finder</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Показати у Finder&apos;і</translation>
     </message>
     <message>
         <source>Show in Folder</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Показати у Папці</translation>
     </message>
     <message>
         <source>All interfaces shown</source>
@@ -13359,6 +13477,17 @@ a:hover {
     </message>
     <message>
         <source>Unable to set FCS validation behavior.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>WirelessTimeline</name>
+    <message>
+        <source>Packet number %1 does not include TSF timestamp, not showing timeline.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Packet number %u has large negative jump in TSF, not showing timeline. Perhaps TSF reference point is set wrong?</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

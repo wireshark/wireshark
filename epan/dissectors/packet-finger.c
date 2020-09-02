@@ -1,5 +1,5 @@
 /* packet-finger.c
- * Routines for basic finger dissection (see http://tools.ietf.org/html/rfc742)
+ * Routines for basic finger dissection (see https://tools.ietf.org/html/rfc742)
  * Copyright 2013, Christopher Maynard <Christopher.Maynard@gtech.com>
  *
  * Wireshark - Network traffic analyzer

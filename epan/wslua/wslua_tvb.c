@@ -21,7 +21,7 @@
 #include <epan/wmem/wmem.h>
 
 
-/* WSLUA_MODULE Tvb Functions for handling packet data */
+/* WSLUA_MODULE Tvb Functions For Handling Packet Data */
 
 
 /*
@@ -48,16 +48,16 @@
  */
 
 WSLUA_CLASS_DEFINE(Tvb,FAIL_ON_NULL_OR_EXPIRED("Tvb"));
-/* A `Tvb` represents the packet's buffer. It is passed as an argument to listeners and dissectors,
-   and can be used to extract information (via `TvbRange`) from the packet's data.
+/* A <<lua_class_Tvb,`Tvb`>> represents the packet's buffer. It is passed as an argument to listeners and dissectors,
+   and can be used to extract information (via <<lua_class_TvbRange,`TvbRange`>>) from the packet's data.
 
-   To create a `TvbRange` the `Tvb` must be called with offset and length as optional arguments;
+   To create a <<lua_class_TvbRange,`TvbRange`>> the <<lua_class_Tvb,`Tvb`>> must be called with offset and length as optional arguments;
    the offset defaults to 0 and the length to `tvb:len()`.
 
    [WARNING]
    ====
    Tvbs are usable only by the current listener or dissector call and are destroyed
-   as soon as the listener/dissector returns, so references to them are unusable once the function
+   as soon as the listener or dissector returns, so references to them are unusable once the function
    has returned.
    ====
 */
@@ -106,8 +106,10 @@ Tvb* push_Tvb(lua_State* L, tvbuff_t* ws_tvb) {
 
 
 WSLUA_METAMETHOD Tvb__tostring(lua_State* L) {
-    /* Convert the bytes of a `Tvb` into a string, to be used for debugging purposes, as '...'
-       will be appended if the string is too long. */
+    /*
+    Convert the bytes of a <<lua_class_Tvb,`Tvb`>> into a string.
+    This is primarily useful for debugging purposes since the string will be truncated if it is too long.
+    */
     Tvb tvb = checkTvb(L,1);
     int len = tvb_captured_length(tvb->ws_tvb);
     char* str = tvb_bytes_to_str(NULL,tvb->ws_tvb,0,len);
@@ -130,39 +132,39 @@ static int Tvb__gc(lua_State* L) {
 }
 
 WSLUA_METHOD Tvb_reported_len(lua_State* L) {
-    /* Obtain the reported (not captured) length of a `Tvb`. */
+    /* Obtain the reported (not captured) length of a <<lua_class_Tvb,`Tvb`>>. */
     Tvb tvb = checkTvb(L,1);
 
     lua_pushnumber(L,tvb_reported_length(tvb->ws_tvb));
-    WSLUA_RETURN(1); /* The reported length of the `Tvb`. */
+    WSLUA_RETURN(1); /* The reported length of the <<lua_class_Tvb,`Tvb`>>. */
 }
 
 WSLUA_METHOD Tvb_len(lua_State* L) {
-    /* Obtain the actual (captured) length of a `Tvb`. */
+    /* Obtain the actual (captured) length of a <<lua_class_Tvb,`Tvb`>>. */
     Tvb tvb = checkTvb(L,1);
 
     lua_pushnumber(L,tvb_captured_length(tvb->ws_tvb));
-    WSLUA_RETURN(1); /* The captured length of the `Tvb`. */
+    WSLUA_RETURN(1); /* The captured length of the <<lua_class_Tvb,`Tvb`>>. */
 }
 
 WSLUA_METHOD Tvb_reported_length_remaining(lua_State* L) {
-    /* Obtain the reported (not captured) length of packet data to end of a `Tvb` or -1 if the
-       offset is beyond the end of the `Tvb`. */
+    /* Obtain the reported (not captured) length of packet data to end of a <<lua_class_Tvb,`Tvb`>> or -1 if the
+       offset is beyond the end of the <<lua_class_Tvb,`Tvb`>>. */
 #define Tvb_reported_length_remaining_OFFSET 2 /* offset */
     Tvb tvb = checkTvb(L,1);
     int offset = (int) luaL_optinteger(L, Tvb_reported_length_remaining_OFFSET, 0);
 
     lua_pushnumber(L,tvb_reported_length_remaining(tvb->ws_tvb, offset));
-    WSLUA_RETURN(1); /* The captured length of the `Tvb`. */
+    WSLUA_RETURN(1); /* The captured length of the <<lua_class_Tvb,`Tvb`>>. */
 }
 
 WSLUA_METHOD Tvb_bytes(lua_State* L) {
-    /* Obtain a `ByteArray` from a `Tvb`.
+    /* Obtain a <<lua_class_ByteArray,`ByteArray`>> from a <<lua_class_Tvb,`Tvb`>>.
 
        @since 1.99.8
      */
-#define WSLUA_OPTARG_Tvb_bytes_OFFSET 2 /* The offset (in octets) from the beginning of the `Tvb`. Defaults to 0. */
-#define WSLUA_OPTARG_Tvb_bytes_LENGTH 3 /* The length (in octets) of the range. Defaults to until the end of the `Tvb`. */
+#define WSLUA_OPTARG_Tvb_bytes_OFFSET 2 /* The offset (in octets) from the beginning of the <<lua_class_Tvb,`Tvb`>>. Defaults to 0. */
+#define WSLUA_OPTARG_Tvb_bytes_LENGTH 3 /* The length (in octets) of the range. Defaults to until the end of the <<lua_class_Tvb,`Tvb`>>. */
     Tvb tvb = checkTvb(L,1);
     GByteArray* ba;
     int offset = luaL_optint(L, WSLUA_OPTARG_Tvb_bytes_OFFSET, 0);
@@ -188,15 +190,15 @@ WSLUA_METHOD Tvb_bytes(lua_State* L) {
     g_byte_array_append(ba, tvb_get_ptr(tvb->ws_tvb, offset, len), len);
     pushByteArray(L,ba);
 
-    WSLUA_RETURN(1); /* The `ByteArray` object or nil. */
+    WSLUA_RETURN(1); /* The <<lua_class_ByteArray,`ByteArray`>> object or nil. */
 }
 
 WSLUA_METHOD Tvb_offset(lua_State* L) {
-    /* Returns the raw offset (from the beginning of the source `Tvb`) of a sub `Tvb`. */
+    /* Returns the raw offset (from the beginning of the source <<lua_class_Tvb,`Tvb`>>) of a sub <<lua_class_Tvb,`Tvb`>>. */
     Tvb tvb = checkTvb(L,1);
 
     lua_pushnumber(L,tvb_raw_offset(tvb->ws_tvb));
-    WSLUA_RETURN(1); /* The raw offset of the `Tvb`. */
+    WSLUA_RETURN(1); /* The raw offset of the <<lua_class_Tvb,`Tvb`>>. */
 }
 
 
@@ -209,9 +211,9 @@ WSLUA_METAMETHOD Tvb__call(lua_State* L) {
 
 
 WSLUA_METHOD Tvb_range(lua_State* L) {
-    /* Creates a `TvbRange` from this `Tvb`. */
-#define WSLUA_OPTARG_Tvb_range_OFFSET 2 /* The offset (in octets) from the beginning of the `Tvb`. Defaults to 0. */
-#define WSLUA_OPTARG_Tvb_range_LENGTH 3 /* The length (in octets) of the range. Defaults to until the end of the `Tvb`. */
+    /* Creates a <<lua_class_TvbRange,`TvbRange`>> from this <<lua_class_Tvb,`Tvb`>>. */
+#define WSLUA_OPTARG_Tvb_range_OFFSET 2 /* The offset (in octets) from the beginning of the <<lua_class_Tvb,`Tvb`>>. Defaults to 0. */
+#define WSLUA_OPTARG_Tvb_range_LENGTH 3 /* The length (in octets) of the range. Defaults to -1, which specifies the remaining bytes in the <<lua_class_Tvb,`Tvb`>>. */
 
     Tvb tvb = checkTvb(L,1);
     int offset = (int) luaL_optinteger(L,WSLUA_OPTARG_Tvb_range_OFFSET,0);
@@ -225,12 +227,12 @@ WSLUA_METHOD Tvb_range(lua_State* L) {
 }
 
 WSLUA_METHOD Tvb_raw(lua_State* L) {
-    /* Obtain a Lua string of the binary bytes in a `Tvb`.
+    /* Obtain a Lua string of the binary bytes in a <<lua_class_Tvb,`Tvb`>>.
 
        @since 1.11.3
      */
-#define WSLUA_OPTARG_Tvb_raw_OFFSET 2 /* The position of the first byte (default=0/first). */
-#define WSLUA_OPTARG_Tvb_raw_LENGTH 3 /* The length of the segment to get (default=all). */
+#define WSLUA_OPTARG_Tvb_raw_OFFSET 2 /* The position of the first byte. Default is 0, or the first byte. */
+#define WSLUA_OPTARG_Tvb_raw_LENGTH 3 /* The length of the segment to get. Default is -1, or the remaining bytes in the <<lua_class_Tvb,`Tvb`>>. */
     Tvb tvb = checkTvb(L,1);
     int offset = (int) luaL_optinteger(L,WSLUA_OPTARG_Tvb_raw_OFFSET,0);
     int len = (int) luaL_optinteger(L,WSLUA_OPTARG_Tvb_raw_LENGTH,-1);
@@ -259,11 +261,11 @@ WSLUA_METHOD Tvb_raw(lua_State* L) {
 
     lua_pushlstring(L, tvb_get_ptr(tvb->ws_tvb, offset, len), len);
 
-    WSLUA_RETURN(1); /* A Lua string of the binary bytes in the `Tvb`. */
+    WSLUA_RETURN(1); /* A Lua string of the binary bytes in the <<lua_class_Tvb,`Tvb`>>. */
 }
 
 WSLUA_METAMETHOD Tvb__eq(lua_State* L) {
-    /* Checks whether the two `Tvb` contents are equal.
+    /* Checks whether contents of two <<lua_class_Tvb,`Tvb`>>s are equal.
 
        @since 1.99.8
      */
@@ -322,13 +324,12 @@ int Tvb_register(lua_State* L) {
 
 
 WSLUA_CLASS_DEFINE(TvbRange,FAIL_ON_NULL("TvbRange"));
-/*
-  A `TvbRange` represents a usable range of a `Tvb` and is used to extract data from the `Tvb` that generated it.
+    /*
+    A <<lua_class_TvbRange,`TvbRange`>> represents a usable range of a <<lua_class_Tvb,`Tvb`>> and is used to extract data from the <<lua_class_Tvb,`Tvb`>> that generated it.
 
-  `TvbRange`s are created by calling a `Tvb` (e.g. 'tvb(offset,length)'). If the `TvbRange` span is outside the
-  `Tvb`'s range the creation will cause a runtime error.
- */
-
+    <<lua_class_TvbRange,`TvbRange`>>s are created by calling a <<lua_class_Tvb,`Tvb`>> (e.g. 'tvb(offset,length)').
+    If the <<lua_class_TvbRange,`TvbRange`>> span is outside the <<lua_class_Tvb,`Tvb`>>'s range the creation will cause a runtime error.
+    */
 
 static void free_TvbRange(TvbRange tvbr) {
     if (!(tvbr && tvbr->tvb)) return;
@@ -383,7 +384,7 @@ gboolean push_TvbRange(lua_State* L, tvbuff_t* ws_tvb, int offset, int len) {
 
 
 WSLUA_METHOD TvbRange_tvb(lua_State *L) {
-    /* Creates a (sub)`Tvb` from a `TvbRange`. */
+    /* Creates a  new <<lua_class_Tvb,`Tvb`>> from a <<lua_class_TvbRange,`TvbRange`>>. */
 
     TvbRange tvbr = checkTvbRange(L,1);
     Tvb tvb;
@@ -411,7 +412,7 @@ WSLUA_METHOD TvbRange_tvb(lua_State *L) {
  *  get a Blefuscuoan unsigned integer from a tvb
  */
 WSLUA_METHOD TvbRange_uint(lua_State* L) {
-    /* Get a Big Endian (network order) unsigned integer from a `TvbRange`.
+    /* Get a Big Endian (network order) unsigned integer from a <<lua_class_TvbRange,`TvbRange`>>.
        The range must be 1-4 octets long. */
     TvbRange tvbr = checkTvbRange(L,1);
     if (!(tvbr && tvbr->tvb)) return 0;
@@ -443,7 +444,7 @@ WSLUA_METHOD TvbRange_uint(lua_State* L) {
  *  get a Lilliputian unsigned integer from a tvb
  */
 WSLUA_METHOD TvbRange_le_uint(lua_State* L) {
-    /* Get a Little Endian unsigned integer from a `TvbRange`.
+    /* Get a Little Endian unsigned integer from a <<lua_class_TvbRange,`TvbRange`>>.
        The range must be 1-4 octets long. */
     TvbRange tvbr = checkTvbRange(L,1);
     if (!(tvbr && tvbr->tvb)) return 0;
@@ -476,7 +477,7 @@ WSLUA_METHOD TvbRange_le_uint(lua_State* L) {
  *  get a Blefuscuoan unsigned 64 bit integer from a tvb
  */
 WSLUA_METHOD TvbRange_uint64(lua_State* L) {
-    /* Get a Big Endian (network order) unsigned 64 bit integer from a `TvbRange`, as a `UInt64` object.
+    /* Get a Big Endian (network order) unsigned 64 bit integer from a <<lua_class_TvbRange,`TvbRange`>>, as a <<lua_class_UInt64,`UInt64`>> object.
        The range must be 1-8 octets long. */
     TvbRange tvbr = checkTvbRange(L,1);
     if (!(tvbr && tvbr->tvb)) return 0;
@@ -509,7 +510,7 @@ WSLUA_METHOD TvbRange_uint64(lua_State* L) {
             return 1;
         case 8:
             pushUInt64(L,tvb_get_ntoh64(tvbr->tvb->ws_tvb,tvbr->offset));
-            WSLUA_RETURN(1); /* The `UInt64` object. */
+            WSLUA_RETURN(1); /* The <<lua_class_UInt64,`UInt64`>> object. */
         default:
             luaL_error(L,"TvbRange:uint64() does not handle %d byte integers",tvbr->len);
             return 0;
@@ -520,7 +521,7 @@ WSLUA_METHOD TvbRange_uint64(lua_State* L) {
  *  get a Lilliputian unsigned 64 bit integer from a tvb
  */
 WSLUA_METHOD TvbRange_le_uint64(lua_State* L) {
-    /* Get a Little Endian unsigned 64 bit integer from a `TvbRange`, as a `UInt64` object.
+    /* Get a Little Endian unsigned 64 bit integer from a <<lua_class_TvbRange,`TvbRange`>>, as a <<lua_class_UInt64,`UInt64`>> object.
        The range must be 1-8 octets long. */
     TvbRange tvbr = checkTvbRange(L,1);
     if (!(tvbr && tvbr->tvb)) return 0;
@@ -553,7 +554,7 @@ WSLUA_METHOD TvbRange_le_uint64(lua_State* L) {
             return 1;
         case 8:
             pushUInt64(L,tvb_get_letoh64(tvbr->tvb->ws_tvb,tvbr->offset));
-            WSLUA_RETURN(1); /* The `UInt64` object. */
+            WSLUA_RETURN(1); /* The <<lua_class_UInt64,`UInt64`>> object. */
         default:
             luaL_error(L,"TvbRange:le_uint64() does not handle %d byte integers",tvbr->len);
             return 0;
@@ -564,7 +565,7 @@ WSLUA_METHOD TvbRange_le_uint64(lua_State* L) {
  *  get a Blefuscuoan signed integer from a tvb
  */
 WSLUA_METHOD TvbRange_int(lua_State* L) {
-    /* Get a Big Endian (network order) signed integer from a `TvbRange`.
+    /* Get a Big Endian (network order) signed integer from a <<lua_class_TvbRange,`TvbRange`>>.
        The range must be 1-4 octets long. */
     TvbRange tvbr = checkTvbRange(L,1);
     if (!(tvbr && tvbr->tvb)) return 0;
@@ -585,7 +586,7 @@ WSLUA_METHOD TvbRange_int(lua_State* L) {
             return 1;
         case 4:
             lua_pushnumber(L,tvb_get_ntohil(tvbr->tvb->ws_tvb,tvbr->offset));
-            WSLUA_RETURN(1); /* The signed integer value */
+            WSLUA_RETURN(1); /* The signed integer value. */
             /*
              * XXX:
              *    lua uses double so we have 52 bits to play with
@@ -603,7 +604,7 @@ WSLUA_METHOD TvbRange_int(lua_State* L) {
  *  get a Lilliputian signed integer from a tvb
  */
 WSLUA_METHOD TvbRange_le_int(lua_State* L) {
-    /* Get a Little Endian signed integer from a `TvbRange`.
+    /* Get a Little Endian signed integer from a <<lua_class_TvbRange,`TvbRange`>>.
        The range must be 1-4 octets long. */
     TvbRange tvbr = checkTvbRange(L,1);
     if (!(tvbr && tvbr->tvb)) return 0;
@@ -635,7 +636,7 @@ WSLUA_METHOD TvbRange_le_int(lua_State* L) {
  *  get a Blefuscuoan signed 64 bit integer from a tvb
  */
 WSLUA_METHOD TvbRange_int64(lua_State* L) {
-    /* Get a Big Endian (network order) signed 64 bit integer from a `TvbRange`, as an `Int64` object.
+    /* Get a Big Endian (network order) signed 64 bit integer from a <<lua_class_TvbRange,`TvbRange`>>, as an <<lua_class_Int64,`Int64`>> object.
        The range must be 1-8 octets long. */
     TvbRange tvbr = checkTvbRange(L,1);
     if (!(tvbr && tvbr->tvb)) return 0;
@@ -668,7 +669,7 @@ WSLUA_METHOD TvbRange_int64(lua_State* L) {
             return 1;
         case 8:
             pushInt64(L,tvb_get_ntohi64(tvbr->tvb->ws_tvb,tvbr->offset));
-            WSLUA_RETURN(1); /* The `Int64` object. */
+            WSLUA_RETURN(1); /* The <<lua_class_Int64,`Int64`>> object. */
         default:
             luaL_error(L,"TvbRange:int64() does not handle %d byte integers",tvbr->len);
             return 0;
@@ -679,7 +680,7 @@ WSLUA_METHOD TvbRange_int64(lua_State* L) {
  *  get a Lilliputian signed 64 bit integer from a tvb
  */
 WSLUA_METHOD TvbRange_le_int64(lua_State* L) {
-    /* Get a Little Endian signed 64 bit integer from a `TvbRange`, as an `Int64` object.
+    /* Get a Little Endian signed 64 bit integer from a <<lua_class_TvbRange,`TvbRange`>>, as an <<lua_class_Int64,`Int64`>> object.
        The range must be 1-8 octets long. */
     TvbRange tvbr = checkTvbRange(L,1);
     if (!(tvbr && tvbr->tvb)) return 0;
@@ -712,7 +713,7 @@ WSLUA_METHOD TvbRange_le_int64(lua_State* L) {
             return 1;
         case 8:
             pushInt64(L,tvb_get_letohi64(tvbr->tvb->ws_tvb,tvbr->offset));
-            WSLUA_RETURN(1); /* The `Int64` object. */
+            WSLUA_RETURN(1); /* The <<lua_class_Int64,`Int64`>> object. */
         default:
             luaL_error(L,"TvbRange:le_int64() does not handle %d byte integers",tvbr->len);
             return 0;
@@ -723,7 +724,7 @@ WSLUA_METHOD TvbRange_le_int64(lua_State* L) {
  *  get a Blefuscuoan float
  */
 WSLUA_METHOD TvbRange_float(lua_State* L) {
-    /* Get a Big Endian (network order) floating point number from a `TvbRange`.
+    /* Get a Big Endian (network order) floating point number from a <<lua_class_TvbRange,`TvbRange`>>.
        The range must be 4 or 8 octets long. */
     TvbRange tvbr = checkTvbRange(L,1);
     if (!(tvbr && tvbr->tvb)) return 0;
@@ -749,7 +750,7 @@ WSLUA_METHOD TvbRange_float(lua_State* L) {
  * get a Lilliputian float
  */
 WSLUA_METHOD TvbRange_le_float(lua_State* L) {
-    /* Get a Little Endian floating point number from a `TvbRange`.
+    /* Get a Little Endian floating point number from a <<lua_class_TvbRange,`TvbRange`>>.
        The range must be 4 or 8 octets long. */
     TvbRange tvbr = checkTvbRange(L,1);
     if (!(tvbr && tvbr->tvb)) return 0;
@@ -768,7 +769,7 @@ WSLUA_METHOD TvbRange_le_float(lua_State* L) {
 }
 
 WSLUA_METHOD TvbRange_ipv4(lua_State* L) {
-    /* Get an IPv4 Address from a `TvbRange`, as an `Address` object. */
+    /* Get an IPv4 Address from a <<lua_class_TvbRange,`TvbRange`>>, as an <<lua_class_Address,`Address`>> object. */
     TvbRange tvbr = checkTvbRange(L,1);
     Address addr;
 
@@ -787,11 +788,11 @@ WSLUA_METHOD TvbRange_ipv4(lua_State* L) {
     alloc_address_tvb(NULL,addr,AT_IPv4,sizeof(guint32),tvbr->tvb->ws_tvb,tvbr->offset);
     pushAddress(L,addr);
 
-    WSLUA_RETURN(1); /* The IPv4 `Address` object. */
+    WSLUA_RETURN(1); /* The IPv4 <<lua_class_Address,`Address`>> object. */
 }
 
 WSLUA_METHOD TvbRange_le_ipv4(lua_State* L) {
-    /* Get an Little Endian IPv4 Address from a `TvbRange`, as an `Address` object. */
+    /* Get an Little Endian IPv4 Address from a <<lua_class_TvbRange,`TvbRange`>>, as an <<lua_class_Address,`Address`>> object. */
     TvbRange tvbr = checkTvbRange(L,1);
     Address addr;
     guint32 ip_addr;
@@ -812,11 +813,11 @@ WSLUA_METHOD TvbRange_le_ipv4(lua_State* L) {
     alloc_address_wmem(NULL, addr, AT_IPv4, sizeof(ip_addr), &ip_addr);
     pushAddress(L,addr);
 
-    WSLUA_RETURN(1); /* The IPv4 `Address` object. */
+    WSLUA_RETURN(1); /* The IPv4 <<lua_class_Address,`Address`>> object. */
 }
 
 WSLUA_METHOD TvbRange_ipv6(lua_State* L) {
-    /* Get an IPv6 Address from a `TvbRange`, as an `Address` object. */
+    /* Get an IPv6 Address from a <<lua_class_TvbRange,`TvbRange`>>, as an <<lua_class_Address,`Address`>> object. */
     TvbRange tvbr = checkTvbRange(L,1);
     Address addr;
 
@@ -835,11 +836,11 @@ WSLUA_METHOD TvbRange_ipv6(lua_State* L) {
     alloc_address_tvb(NULL,addr,AT_IPv6,16,tvbr->tvb->ws_tvb,tvbr->offset);
     pushAddress(L,addr);
 
-    WSLUA_RETURN(1); /* The IPv6 `Address` object. */
+    WSLUA_RETURN(1); /* The IPv6 <<lua_class_Address,`Address`>> object. */
 }
 
 WSLUA_METHOD TvbRange_ether(lua_State* L) {
-    /* Get an Ethernet Address from a `TvbRange`, as an `Address` object. */
+    /* Get an Ethernet Address from a <<lua_class_TvbRange,`TvbRange`>>, as an <<lua_class_Address,`Address`>> object. */
     TvbRange tvbr = checkTvbRange(L,1);
     Address addr;
 
@@ -858,11 +859,11 @@ WSLUA_METHOD TvbRange_ether(lua_State* L) {
     alloc_address_tvb(NULL,addr,AT_ETHER,6,tvbr->tvb->ws_tvb,tvbr->offset);
     pushAddress(L,addr);
 
-    WSLUA_RETURN(1); /* The Ethernet `Address` object. */
+    WSLUA_RETURN(1); /* The Ethernet <<lua_class_Address,`Address`>> object. */
 }
 
 WSLUA_METHOD TvbRange_nstime(lua_State* L) {
-    /* Obtain a time_t structure from a `TvbRange`, as an `NSTime` object. */
+    /* Obtain a time_t structure from a <<lua_class_TvbRange,`TvbRange`>>, as an <<lua_class_NSTime,`NSTime`>> object. */
 #define WSLUA_OPTARG_TvbRange_nstime_ENCODING 2 /* An optional ENC_* encoding value to use */
     TvbRange tvbr = checkTvbRange(L,1);
     NSTime nstime;
@@ -912,11 +913,11 @@ WSLUA_METHOD TvbRange_nstime(lua_State* L) {
         }
     }
 
-    WSLUA_RETURN(2); /* The `NSTime` object and number of bytes used, or nil on failure. */
+    WSLUA_RETURN(2); /* The <<lua_class_NSTime,`NSTime`>> object and number of bytes used, or nil on failure. */
 }
 
 WSLUA_METHOD TvbRange_le_nstime(lua_State* L) {
-    /* Obtain a nstime from a `TvbRange`, as an `NSTime` object. */
+    /* Obtain a nstime from a <<lua_class_TvbRange,`TvbRange`>>, as an <<lua_class_NSTime,`NSTime`>> object. */
     TvbRange tvbr = checkTvbRange(L,1);
     NSTime nstime;
 
@@ -942,11 +943,11 @@ WSLUA_METHOD TvbRange_le_nstime(lua_State* L) {
 
     pushNSTime(L, nstime);
 
-    WSLUA_RETURN(1); /* The `NSTime` object. */
+    WSLUA_RETURN(1); /* The <<lua_class_NSTime,`NSTime`>> object. */
 }
 
 WSLUA_METHOD TvbRange_string(lua_State* L) {
-    /* Obtain a string from a `TvbRange`. */
+    /* Obtain a string from a <<lua_class_TvbRange,`TvbRange`>>. */
 #define WSLUA_OPTARG_TvbRange_string_ENCODING 2 /* The encoding to use. Defaults to ENC_ASCII. */
     TvbRange tvbr = checkTvbRange(L,1);
     guint encoding = (guint)luaL_optinteger(L,WSLUA_OPTARG_TvbRange_string_ENCODING, ENC_ASCII|ENC_NA);
@@ -959,11 +960,11 @@ WSLUA_METHOD TvbRange_string(lua_State* L) {
 
     lua_pushlstring(L, (gchar*)tvb_get_string_enc(wmem_packet_scope(),tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,encoding), tvbr->len);
 
-    WSLUA_RETURN(1); /* The string */
+    WSLUA_RETURN(1); /* A string containing all bytes in the <<lua_class_TvbRange,`TvbRange`>> including all zeroes (e.g., "a\000bc\000"). */
 }
 
 static int TvbRange_ustring_any(lua_State* L, gboolean little_endian) {
-    /* Obtain a UTF-16 encoded string from a `TvbRange`. */
+    /* Obtain a UTF-16 encoded string from a <<lua_class_TvbRange,`TvbRange`>>. */
     TvbRange tvbr = checkTvbRange(L,1);
     gchar * str;
 
@@ -980,17 +981,17 @@ static int TvbRange_ustring_any(lua_State* L, gboolean little_endian) {
 }
 
 WSLUA_METHOD TvbRange_ustring(lua_State* L) {
-    /* Obtain a Big Endian (network order) UTF-16 encoded string from a `TvbRange`. */
-    WSLUA_RETURN(TvbRange_ustring_any(L, FALSE)); /* The string. */
+    /* Obtain a Big Endian (network order) UTF-16 encoded string from a <<lua_class_TvbRange,`TvbRange`>>. */
+    WSLUA_RETURN(TvbRange_ustring_any(L, FALSE)); /* A string containing all bytes in the <<lua_class_TvbRange,`TvbRange`>> including all zeroes (e.g., "a\000bc\000"). */
 }
 
 WSLUA_METHOD TvbRange_le_ustring(lua_State* L) {
-    /* Obtain a Little Endian UTF-16 encoded string from a `TvbRange`. */
-    WSLUA_RETURN(TvbRange_ustring_any(L, TRUE)); /* The string. */
+    /* Obtain a Little Endian UTF-16 encoded string from a <<lua_class_TvbRange,`TvbRange`>>. */
+    WSLUA_RETURN(TvbRange_ustring_any(L, TRUE)); /* A string containing all bytes in the <<lua_class_TvbRange,`TvbRange`>> including all zeroes (e.g., "a\000bc\000"). */
 }
 
 WSLUA_METHOD TvbRange_stringz(lua_State* L) {
-    /* Obtain a zero terminated string from a `TvbRange`. */
+    /* Obtain a zero terminated string from a <<lua_class_TvbRange,`TvbRange`>>. */
 #define WSLUA_OPTARG_TvbRange_stringz_ENCODING 2 /* The encoding to use. Defaults to ENC_ASCII. */
     TvbRange tvbr = checkTvbRange(L,1);
     guint encoding = (guint)luaL_optinteger(L,WSLUA_OPTARG_TvbRange_stringz_ENCODING, ENC_ASCII|ENC_NA);
@@ -1029,15 +1030,16 @@ WSLUA_METHOD TvbRange_stringz(lua_State* L) {
 
     lua_pushstring(L, (gchar*)tvb_get_stringz_enc(wmem_packet_scope(),tvbr->tvb->ws_tvb,tvbr->offset,NULL,encoding));
 
-    WSLUA_RETURN(1); /* The zero terminated string. */
+    WSLUA_RETURN(1); /* The string containing all bytes in the <<lua_class_TvbRange,`TvbRange`>> up to the first terminating zero. */
 }
 
 WSLUA_METHOD TvbRange_strsize(lua_State* L) {
-        /* Find the size of a zero terminated string from a `TvbRange`.
-           The size of the string includes the terminating zero.
+    /*
+    Find the size of a zero terminated string from a <<lua_class_TvbRange,`TvbRange`>>.
+    The size of the string includes the terminating zero.
 
-           @since 1.11.3
-         */
+    @since 1.11.3
+    */
 #define WSLUA_OPTARG_TvbRange_strsize_ENCODING 2 /* The encoding to use. Defaults to ENC_ASCII. */
     TvbRange tvbr = checkTvbRange(L,1);
     guint encoding = (guint)luaL_optinteger(L,WSLUA_OPTARG_TvbRange_strsize_ENCODING, ENC_ASCII|ENC_NA);
@@ -1112,7 +1114,7 @@ static int TvbRange_ustringz_any(lua_State* L, gboolean little_endian) {
 }
 
 WSLUA_METHOD TvbRange_ustringz(lua_State* L) {
-    /* Obtain a Big Endian (network order) UTF-16 encoded zero terminated string from a `TvbRange`. */
+    /* Obtain a Big Endian (network order) UTF-16 encoded zero terminated string from a <<lua_class_TvbRange,`TvbRange`>>. */
     WSLUA_RETURN(TvbRange_ustringz_any(L, FALSE)); /* Two return values: the zero terminated string, and the length. */
 }
 
@@ -1122,11 +1124,11 @@ WSLUA_METHOD TvbRange_le_ustringz(lua_State* L) {
 }
 
 WSLUA_METHOD TvbRange_bytes(lua_State* L) {
-    /* Obtain a `ByteArray` from a `TvbRange`.
+    /* Obtain a <<lua_class_ByteArray,`ByteArray`>> from a <<lua_class_TvbRange,`TvbRange`>>.
 
        Starting in 1.11.4, this function also takes an optional `encoding` argument,
-       which can be set to `ENC_STR_HEX` to decode a hex-string from the `TvbRange`
-       into the returned `ByteArray`. The `encoding` can be bitwise-or'ed with one
+       which can be set to `ENC_STR_HEX` to decode a hex-string from the <<lua_class_TvbRange,`TvbRange`>>
+       into the returned <<lua_class_ByteArray,`ByteArray`>>. The `encoding` can be bitwise-or'ed with one
        or more separator encodings, such as `ENC_SEP_COLON`, to allow separators
        to occur between each pair of hex characters.
 
@@ -1179,13 +1181,13 @@ WSLUA_METHOD TvbRange_bytes(lua_State* L) {
         }
     }
 
-    WSLUA_RETURN(2); /* The `ByteArray` object or nil, and number of bytes consumed or nil. */
+    WSLUA_RETURN(2); /* The <<lua_class_ByteArray,`ByteArray`>> object or nil, and number of bytes consumed or nil. */
 }
 
 WSLUA_METHOD TvbRange_bitfield(lua_State* L) {
-    /* Get a bitfield from a `TvbRange`. */
-#define WSLUA_OPTARG_TvbRange_bitfield_POSITION 2 /* The bit offset from the beginning of the `TvbRange`. Defaults to 0. */
-#define WSLUA_OPTARG_TvbRange_bitfield_LENGTH 3 /* The length (in bits) of the field. Defaults to 1. */
+    /* Get a bitfield from a <<lua_class_TvbRange,`TvbRange`>>. */
+#define WSLUA_OPTARG_TvbRange_bitfield_POSITION 2 /* The bit offset (link:https://en.wikipedia.org/wiki/Bit_numbering#MSB_0_bit_numbering[MSB 0 bit numbering]) from the beginning of the <<lua_class_TvbRange,`TvbRange`>>. Defaults to 0. */
+#define WSLUA_OPTARG_TvbRange_bitfield_LENGTH 3 /* The length in bits of the field. Defaults to 1. */
 
     TvbRange tvbr = checkTvbRange(L,1);
     int pos = (int)luaL_optinteger(L,WSLUA_OPTARG_TvbRange_bitfield_POSITION,0);
@@ -1221,9 +1223,9 @@ WSLUA_METHOD TvbRange_bitfield(lua_State* L) {
 }
 
 WSLUA_METHOD TvbRange_range(lua_State* L) {
-    /* Creates a sub-`TvbRange` from this `TvbRange`. */
-#define WSLUA_OPTARG_TvbRange_range_OFFSET 2 /* The offset (in octets) from the beginning of the `TvbRange`. Defaults to 0. */
-#define WSLUA_OPTARG_TvbRange_range_LENGTH 3 /* The length (in octets) of the range. Defaults to until the end of the `TvbRange`. */
+    /* Creates a sub-<<lua_class_TvbRange,`TvbRange`>> from this <<lua_class_TvbRange,`TvbRange`>>. */
+#define WSLUA_OPTARG_TvbRange_range_OFFSET 2 /* The offset (in octets) from the beginning of the <<lua_class_TvbRange,`TvbRange`>>. Defaults to 0. */
+#define WSLUA_OPTARG_TvbRange_range_LENGTH 3 /* The length (in octets) of the range. Defaults to until the end of the <<lua_class_TvbRange,`TvbRange`>>. */
 
     TvbRange tvbr = checkTvbRange(L,1);
     int offset = (int)luaL_optinteger(L,WSLUA_OPTARG_TvbRange_range_OFFSET,0);
@@ -1244,14 +1246,14 @@ WSLUA_METHOD TvbRange_range(lua_State* L) {
     }
 
     if (push_TvbRange(L,tvbr->tvb->ws_tvb,tvbr->offset+offset,len)) {
-        WSLUA_RETURN(1); /* The TvbRange */
+        WSLUA_RETURN(1); /* The <<lua_class_TvbRange,`TvbRange`>>. */
     }
 
     return 0;
 }
 
 WSLUA_METHOD TvbRange_uncompress(lua_State* L) {
-    /* Obtain an uncompressed TvbRange from a TvbRange */
+    /* Obtain an uncompressed <<lua_class_TvbRange,`TvbRange`>> from a <<lua_class_TvbRange,`TvbRange`>> */
 #define WSLUA_ARG_TvbRange_uncompress_NAME 2 /* The name to be given to the new data-source. */
     TvbRange tvbr = checkTvbRange(L,1);
 #ifdef HAVE_ZLIB
@@ -1271,7 +1273,7 @@ WSLUA_METHOD TvbRange_uncompress(lua_State* L) {
     if (uncompr_tvb) {
        add_new_data_source (lua_pinfo, uncompr_tvb, name);
        if (push_TvbRange(L,uncompr_tvb,0,tvb_captured_length(uncompr_tvb))) {
-          WSLUA_RETURN(1); /* The TvbRange */
+          WSLUA_RETURN(1); /* The <<lua_class_TvbRange,`TvbRange`>>. */
        }
     }
 #else
@@ -1292,7 +1294,7 @@ static int TvbRange__gc(lua_State* L) {
 }
 
 WSLUA_METHOD TvbRange_len(lua_State* L) {
-    /* Obtain the length of a `TvbRange`. */
+    /* Obtain the length of a <<lua_class_TvbRange,`TvbRange`>>. */
     TvbRange tvbr = checkTvbRange(L,1);
 
     if (!(tvbr && tvbr->tvb)) return 0;
@@ -1305,7 +1307,7 @@ WSLUA_METHOD TvbRange_len(lua_State* L) {
 }
 
 WSLUA_METHOD TvbRange_offset(lua_State* L) {
-    /* Obtain the offset in a `TvbRange`. */
+    /* Obtain the offset in a <<lua_class_TvbRange,`TvbRange`>>. */
     TvbRange tvbr = checkTvbRange(L,1);
 
     if (!(tvbr && tvbr->tvb)) return 0;
@@ -1318,12 +1320,12 @@ WSLUA_METHOD TvbRange_offset(lua_State* L) {
 }
 
 WSLUA_METHOD TvbRange_raw(lua_State* L) {
-    /* Obtain a Lua string of the binary bytes in a `TvbRange`.
+    /* Obtain a Lua string of the binary bytes in a <<lua_class_TvbRange,`TvbRange`>>.
 
        @since 1.11.3
      */
-#define WSLUA_OPTARG_TvbRange_raw_OFFSET 2 /* The position of the first byte (default=0/first). */
-#define WSLUA_OPTARG_TvbRange_raw_LENGTH 3 /* The length of the segment to get (default=all). */
+#define WSLUA_OPTARG_TvbRange_raw_OFFSET 2 /* The position of the first byte. Default is 0, or first byte. */
+#define WSLUA_OPTARG_TvbRange_raw_LENGTH 3 /* The length of the segment to get. Default is -1, Default is -1, or the remaining bytes. */
     TvbRange tvbr = checkTvbRange(L,1);
     int offset = (int)luaL_optinteger(L,WSLUA_OPTARG_TvbRange_raw_OFFSET,0);
     int len = (int)luaL_optinteger(L,WSLUA_OPTARG_TvbRange_raw_LENGTH,-1);
@@ -1352,11 +1354,11 @@ WSLUA_METHOD TvbRange_raw(lua_State* L) {
 
     lua_pushlstring(L, tvb_get_ptr(tvbr->tvb->ws_tvb, offset, len), len);
 
-    WSLUA_RETURN(1); /* A Lua string of the binary bytes in the `TvbRange`. */
+    WSLUA_RETURN(1); /* A Lua string of the binary bytes in the <<lua_class_TvbRange,`TvbRange`>>. */
 }
 
 WSLUA_METAMETHOD TvbRange__eq(lua_State* L) {
-    /* Checks whether the two `TvbRange` contents are equal.
+    /* Checks whether the contents of two <<lua_class_TvbRange,`TvbRange`>>s are equal.
 
        @since 1.99.8
      */
@@ -1387,9 +1389,10 @@ WSLUA_METAMETHOD TvbRange__eq(lua_State* L) {
 }
 
 WSLUA_METAMETHOD TvbRange__tostring(lua_State* L) {
-    /* Converts the `TvbRange` into a string. Since the string gets truncated,
-       you should use this only for debugging purposes
-       or if what you want is to have a truncated string in the format 67:89:AB:... */
+    /*
+    Converts the <<lua_class_TvbRange,`TvbRange`>> into a string.
+    The string can be truncated, so this is primarily useful for debugging or in cases where truncation is preferred, e.g. "67:89:AB:...".
+    */
     TvbRange tvbr = checkTvbRange(L,1);
     char* str = NULL;
 
@@ -1399,12 +1402,15 @@ WSLUA_METAMETHOD TvbRange__tostring(lua_State* L) {
         return 0;
     }
 
-    str = tvb_bytes_to_str(NULL,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len);
+    if (tvbr->len == 0) {
+        lua_pushstring(L, "<EMPTY>");
+    } else {
+        str = tvb_bytes_to_str(NULL,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len);
+        lua_pushstring(L,str);
+        wmem_free(NULL, str);
+    }
 
-    lua_pushstring(L,str);
-    wmem_free(NULL, str);
-
-    WSLUA_RETURN(1); /* A Lua hex string of the first 24 binary bytes in the `TvbRange`. */
+    WSLUA_RETURN(1); /* A Lua hex string of the <<lua_class_TvbRange,`TvbRange`>> truncated to 24 bytes. */
 }
 
 WSLUA_METHODS TvbRange_methods[] = {

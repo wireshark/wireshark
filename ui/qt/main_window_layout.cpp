@@ -24,9 +24,10 @@
 #include <QAction>
 #include <QToolBar>
 
-#include <ui/qt/packet_list.h>
-#include <ui/qt/proto_tree.h>
 #include <ui/qt/byte_view_tab.h>
+#include <ui/qt/packet_list.h>
+#include <ui/qt/packet_diagram.h>
+#include <ui/qt/proto_tree.h>
 
 /*
  * The generated Ui_MainWindow::setupUi() can grow larger than our configured limit,
@@ -56,6 +57,8 @@ QWidget* MainWindow::getLayoutWidget(layout_pane_content_e type) {
             return proto_tree_;
         case layout_pane_content_pbytes:
             return byte_view_tab_;
+        case layout_pane_content_pdiagram:
+            return packet_diagram_;
         default:
             g_assert_not_reached();
             return NULL;
@@ -76,7 +79,8 @@ void MainWindow::layoutPanes()
                                                        << prefs.gui_layout_content_3
                                                        << recent.packet_list_show
                                                        << recent.tree_view_show
-                                                       << recent.byte_view_show;
+                                                       << recent.byte_view_show
+                                                       << recent.packet_diagram_show;
 
     if (cur_layout_ == new_layout) return;
 
@@ -84,10 +88,11 @@ void MainWindow::layoutPanes()
 
     // Reparent all widgets and add them back in the proper order below.
     // This hides each widget as well.
-    packet_list_->freeze(); // Clears tree and byte view tabs.
+    packet_list_->freeze(); // Clears tree, byte view tabs, and diagram.
     packet_list_->setParent(main_ui_->mainStack);
     proto_tree_->setParent(main_ui_->mainStack);
     byte_view_tab_->setParent(main_ui_->mainStack);
+    packet_diagram_->setParent(main_ui_->mainStack);
     empty_pane_.setParent(main_ui_->mainStack);
     extra_split_.setParent(main_ui_->mainStack);
 
@@ -156,6 +161,11 @@ void MainWindow::layoutPanes()
     packet_list_->setVisible(ms_children.contains(packet_list_) && recent.packet_list_show);
     proto_tree_->setVisible(ms_children.contains(proto_tree_) && recent.tree_view_show);
     byte_view_tab_->setVisible(ms_children.contains(byte_view_tab_) && recent.byte_view_show);
+    packet_diagram_->setVisible(ms_children.contains(packet_diagram_) && recent.packet_diagram_show);
+
+    // Show the packet list here to prevent pending resize events changing columns
+    // when the packet list is set as current widget for the first time.
+    packet_list_->show();
 
     packet_list_->thaw(true);
     cur_layout_ = new_layout;

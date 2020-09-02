@@ -221,7 +221,7 @@ static const true_false_string tfs_flags_full = {
 };
 
 
-static const int * desc_flags[] = {
+static int * const desc_flags[] = {
     &hf_dpnet_desc_client_server,
     &hf_dpnet_desc_migrate_host,
     &hf_dpnet_desc_nodpnsvr,
@@ -232,7 +232,7 @@ static const int * desc_flags[] = {
     NULL
 };
 
-static const int * command_flags[] = {
+static int * const command_flags[] = {
     &hf_dpnet_command_data,
     &hf_dpnet_command_reliable,
     &hf_dpnet_command_seq,
@@ -642,7 +642,7 @@ proto_register_dpnet(void)
             NULL, HFILL }
         },
         { &hf_dpnet_data_cframe_timestamp,
-            { "Timestmap", "dpnet.cframe.timestamp",
+            { "Timestamp", "dpnet.cframe.timestamp",
             FT_UINT32, BASE_DEC,
             NULL, 0,
             NULL, HFILL }

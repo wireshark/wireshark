@@ -654,7 +654,7 @@ static void OUT_CB_AFSFid(ptvcursor_t *cursor, const char* label)
 /* Output a StoreStatus */
 static void OUT_FS_AFSStoreStatus(ptvcursor_t *cursor, const char* label)
 {
-	static const int * status_mask_flags[] = {
+	static int * const status_mask_flags[] = {
 		&hf_afs_fs_status_mask_setmodtime,
 		&hf_afs_fs_status_mask_setowner,
 		&hf_afs_fs_status_mask_setgroup,
@@ -2361,7 +2361,7 @@ dissect_prot_request(ptvcursor_t *cursor, struct rxinfo *rxinfo _U_, int opcode)
 static void
 dissect_vldb_reply(ptvcursor_t *cursor, struct rxinfo *rxinfo, int opcode)
 {
-	static const int * vldb_flags[] = {
+	static int * const vldb_flags[] = {
 		&hf_afs_vldb_flags_rwexists,
 		&hf_afs_vldb_flags_roexists,
 		&hf_afs_vldb_flags_bkexists,
@@ -2716,13 +2716,7 @@ dissect_ubik_request(ptvcursor_t *cursor, struct rxinfo *rxinfo _U_, int opcode)
 static void
 dissect_backup_reply(ptvcursor_t *cursor, struct rxinfo *rxinfo, int opcode _U_)
 {
-	if ( rxinfo->type == RX_PACKET_TYPE_DATA )
-	{
-		switch ( opcode )
-		{
-		}
-	}
-	else if ( rxinfo->type == RX_PACKET_TYPE_ABORT )
+	if ( rxinfo->type == RX_PACKET_TYPE_ABORT )
 	{
 		ptvcursor_add(cursor, hf_afs_backup_errcode, 4, ENC_BIG_ENDIAN);
 	}
@@ -2732,23 +2726,13 @@ static void
 dissect_backup_request(ptvcursor_t *cursor, struct rxinfo *rxinfo _U_, int opcode _U_)
 {
 	ptvcursor_advance(cursor, 4); /* skip the opcode */
-
-	switch ( opcode )
-	{
-	}
 }
 
 
 static void
 dissect_butc_reply(ptvcursor_t *cursor, struct rxinfo *rxinfo, int opcode _U_)
 {
-	if ( rxinfo->type == RX_PACKET_TYPE_DATA )
-	{
-		switch ( opcode )
-		{
-		}
-	}
-	else if ( rxinfo->type == RX_PACKET_TYPE_ABORT )
+	if ( rxinfo->type == RX_PACKET_TYPE_ABORT )
 	{
 		ptvcursor_add(cursor, hf_afs_butc_errcode, 4, ENC_BIG_ENDIAN);
 	}
@@ -2758,10 +2742,6 @@ static void
 dissect_butc_request(ptvcursor_t *cursor, struct rxinfo *rxinfo _U_, int opcode _U_)
 {
 	ptvcursor_advance(cursor, 4); /* skip the opcode */
-
-	switch ( opcode )
-	{
-	}
 }
 /*
  * Dissection routines

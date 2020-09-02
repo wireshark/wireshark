@@ -121,7 +121,7 @@ static int hf_c1222_epsem_flags_ed_class = -1;
 static int hf_c1222_epsem_flags_security_modes = -1;
 static int hf_c1222_epsem_flags_response_control = -1;
 /* and the structure of the flag components */
-static const int *c1222_flags[] = {
+static int * const c1222_flags[] = {
   &hf_c1222_epsem_flags_reserved,
   &hf_c1222_epsem_flags_recovery,
   &hf_c1222_epsem_flags_proxy,
@@ -1368,15 +1368,15 @@ dissect_c1222_OCTET_STRING_SIZE_CONSTR002(gboolean implicit_tag _U_, tvbuff_t *t
 
 static const value_string c1222_Calling_authentication_value_c1221_U_vals[] = {
   {   0, "c1221-auth-identification" },
-  {   0, "c1221-auth-request" },
-  {   0, "c1221-auth-response" },
+  {   1, "c1221-auth-request" },
+  {   2, "c1221-auth-response" },
   { 0, NULL }
 };
 
 static const ber_choice_t Calling_authentication_value_c1221_U_choice[] = {
   {   0, &hf_c1222_c1221_auth_identification, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_c1222_OCTET_STRING_SIZE_CONSTR001 },
-  {   0, &hf_c1222_c1221_auth_request, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_c1222_OCTET_STRING_SIZE_1_255 },
-  {   0, &hf_c1222_c1221_auth_response, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_c1222_OCTET_STRING_SIZE_CONSTR002 },
+  {   1, &hf_c1222_c1221_auth_request, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_c1222_OCTET_STRING_SIZE_1_255 },
+  {   2, &hf_c1222_c1221_auth_response, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_c1222_OCTET_STRING_SIZE_CONSTR002 },
   { 0, NULL, 0, 0, 0, NULL }
 };
 

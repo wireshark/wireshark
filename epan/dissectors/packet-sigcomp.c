@@ -8,12 +8,12 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  * References:
- * http://www.ietf.org/rfc/rfc3320.txt?number=3320
- * http://www.ietf.org/rfc/rfc3321.txt?number=3321
- * http://www.ietf.org/rfc/rfc4077.txt?number=4077
+ * https://www.ietf.org/rfc/rfc3320
+ * https://www.ietf.org/rfc/rfc3321
+ * https://www.ietf.org/rfc/rfc4077
  * Useful links :
  * https://tools.ietf.org/html/draft-ietf-rohc-sigcomp-impl-guide-10
- * http://www.ietf.org/archive/id/draft-ietf-rohc-sigcomp-sip-01.txt
+ * https://tools.ietf.org/html/draft-ietf-rohc-sigcomp-sip-01
  */
 
 #include "config.h"
@@ -341,7 +341,7 @@ static proto_tree *top_tree;
  * Defenitions for:
  * The Session Initiation Protocol (SIP) and Session Description Protocol
  *    (SDP) Static Dictionary for Signaling Compression (SigComp)
- * http://www.ietf.org/rfc/rfc3485.txt?number=3485
+ * https://www.ietf.org/rfc/rfc3485
  */
 #define SIP_SDP_STATE_LENGTH 0x12e4
 
@@ -663,7 +663,7 @@ static const guint8 sip_sdp_static_dictionaty_for_sigcomp[0x12e4] =
 /*
  * Definitions for:
  * The Presence-Specific Static Dictionary for Signaling
- * http://www.ietf.org/rfc/rfc5112.txt?number=5112
+ * https://www.ietf.org/rfc/rfc5112
  */
 #define PRESENCE_STATE_LENGTH 0x0d93
 

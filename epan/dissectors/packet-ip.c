@@ -37,7 +37,7 @@
 #include <epan/decode_as.h>
 #include <epan/proto_data.h>
 
-#include <wiretap/erf.h>
+#include <wiretap/erf_record.h>
 #include <wsutil/str_util.h>
 
 #include "packet-ip.h"
@@ -799,7 +799,7 @@ static const true_false_string ip_opt_sec_prot_auth_fti_tfs = {
   "Final octet"
 };
 
-static const int *ip_opt_sec_prot_auth_fields_byte_1[] = {
+static int * const ip_opt_sec_prot_auth_fields_byte_1[] = {
   &hf_ip_opt_sec_prot_auth_genser,
   &hf_ip_opt_sec_prot_auth_siop_esi,
   &hf_ip_opt_sec_prot_auth_sci,
@@ -810,7 +810,7 @@ static const int *ip_opt_sec_prot_auth_fields_byte_1[] = {
   NULL
 };
 
-static const int *ip_opt_sec_prot_auth_fields_byte_n[] = {
+static int * const ip_opt_sec_prot_auth_fields_byte_n[] = {
   &hf_ip_opt_sec_prot_auth_unassigned2,
   &hf_ip_opt_sec_prot_auth_fti,
   NULL
@@ -907,7 +907,7 @@ dissect_ipopt_ext_security(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 /* The Commercial IP Security Option (CIPSO) is defined in IETF draft
  * draft-ietf-cipso-ipsecurity-01.txt and FIPS 188, a copy of both documents
  * can be found at the NetLabel project page, http://netlabel.sf.net or at
- * http://tools.ietf.org/html/draft-ietf-cipso-ipsecurity-01 */
+ * https://tools.ietf.org/html/draft-ietf-cipso-ipsecurity-01 */
 static const value_string cipso_tag_type_vals[] = {
    {0,   "Padding"},
    {1,   "Restrictive Category Bitmap"},
@@ -1553,7 +1553,8 @@ dissect_ip_options(tvbuff_t *tvb, int offset, guint length,
       if (opt == IPOPT_EOOL)
       {
         local_proto = proto_ip_option_eol;
-      } else if (opt == IPOPT_NOP) {
+      } else {
+        /* i.e. opt is IPOPT_NOP */
         local_proto = proto_ip_option_nop;
 
         if (opt_item && (nop_count == 0 || offset % 4)) {
@@ -1566,10 +1567,7 @@ dissect_ip_options(tvbuff_t *tvb, int offset, guint length,
         } else {
           nop_count = 0;
         }
-      } else {
-        g_assert_not_reached();
       }
-
 
       field_item = proto_tree_add_item(opt_tree, local_proto, tvb, offset, 1, ENC_NA);
       field_tree = proto_item_add_subtree(field_item, ett_ip_option_other);
@@ -1800,16 +1798,6 @@ static const value_string iptos_vals[] = {
   { 0,                 NULL }
 };
 
-static const true_false_string tos_set_low = {
-  "Low",
-  "Normal"
-};
-
-static const true_false_string tos_set_high = {
-  "High",
-  "Normal"
-};
-
 static const true_false_string flags_sf_set_evil = {
   "Evil",
   "Not evil"
@@ -1872,7 +1860,7 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
   ti = proto_tree_add_item(tree, proto_ip, tvb, offset, hlen, ENC_NA);
   ip_tree = proto_item_add_subtree(ti, ett_ip);
 
-  tf = proto_tree_add_item(ip_tree, hf_ip_version, tvb, offset, 1, ENC_NA);
+  tf = proto_tree_add_bits_item(ip_tree, hf_ip_version, tvb, 0, 4, ENC_NA);
   if (iph->ip_ver != 4) {
     col_add_fstr(pinfo->cinfo, COL_INFO,
                  "Bogus IPv4 version (%u, must be 4)", iph->ip_ver);
@@ -2009,32 +1997,32 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 
   if (ip_security_flag) {
     /* RFC 3514 - The Security Flag in the IPv4 Header (April Fool's joke) */
-    proto_item *sf;
-    const int *ip_flags_evil[] = {
+    static int * const ip_flags_evil[] = {
         &hf_ip_flags_sf,
         &hf_ip_flags_df,
         &hf_ip_flags_mf,
         NULL
     };
 
-    sf = proto_tree_add_bitmask_with_flags(ip_tree, tvb, offset + 6, hf_ip_flags,
+    tf = proto_tree_add_bitmask_with_flags(ip_tree, tvb, offset + 6, hf_ip_flags,
         ett_ip_flags, ip_flags_evil, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_TFS | BMT_NO_INT);
     if (iph->ip_off & IP_RF) {
-        expert_add_info(pinfo, sf, &ei_ip_evil_packet);
+        expert_add_info(pinfo, tf, &ei_ip_evil_packet);
     }
   } else {
-    const int *ip_flags[] = {
+    static int * const ip_flags[] = {
         &hf_ip_flags_rf,
         &hf_ip_flags_df,
         &hf_ip_flags_mf,
         NULL
     };
-    proto_tree_add_bitmask_with_flags(ip_tree, tvb, offset + 6, hf_ip_flags,
+    tf = proto_tree_add_bitmask_with_flags(ip_tree, tvb, offset + 6, hf_ip_flags,
         ett_ip_flags, ip_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_TFS | BMT_NO_INT);
   }
+  proto_item_set_bits_offset_len(tf, 0, 3);
 
-  proto_tree_add_uint(ip_tree, hf_ip_frag_offset, tvb, offset + 6, 2, (iph->ip_off & IP_OFFSET)*8);
-
+  tf = proto_tree_add_uint(ip_tree, hf_ip_frag_offset, tvb, offset + 6, 2, (iph->ip_off & IP_OFFSET)*8);
+  proto_item_set_bits_offset_len(tf, 3, 13);
 
   iph->ip_ttl = tvb_get_guint8(tvb, offset + 8);
   if (tree) {
@@ -2058,6 +2046,31 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
     ipsum = ip_checksum_tvb(tvb, offset, hlen);
     item = proto_tree_add_checksum(ip_tree, tvb, offset + 10, hf_ip_checksum, hf_ip_checksum_status, &ei_ip_checksum_bad, pinfo, ipsum,
                                 ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_IN_CKSUM);
+    /*
+     * ip_checksum_tvb() should never return 0xFFFF here, because, to
+     * quote RFC 1624 section 3 "Discussion":
+     *
+     *     In one's complement, there are two representations of
+     *     zero: the all zero and the all one bit values, often
+     *     referred to as +0 and -0.  One's complement addition
+     *     of non-zero inputs can produce -0 as a result, but
+     *     never +0.  Since there is guaranteed to be at least
+     *     one non-zero field in the IP header, and the checksum
+     *     field in the protocol header is the complement of the
+     *     sum, the checksum field can never contain ~(+0), which
+     *     is -0 (0xFFFF).  It can, however, contain ~(-0), which
+     *     is +0 (0x0000).
+     *
+     * ip_checksum_tvb() checksums the IPv4 header, where the "version"
+     * field is 4, ensuring that, in a valid IPv4 header, there is at
+     * least one non-zero field.  We've already verified that the
+     * version is 4.
+     *
+     * ip_checksum_tvb() returns the negation of the one's-complement
+     * sum of all the data handed to it, and that data won't be
+     * all zero, so the sum won't be 0 (+0), and thus the negation
+     * won't be -0, i.e. won't be 0xFFFF.
+     */
     if (ipsum == 0) {
       /* XXX - Keeping hf_ip_checksum_calculated field for now.  Doesn't fit into the
         proto_tree_add_checksum design, but IP is a popular enough dissector that somebody
@@ -2114,7 +2127,7 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
    * L3 IP destination address will be the last entry in the routing header
    * EXCEPT when the table is exhausted (pointer is greater than the length).
    * In this case, the final L3 IP destination address is the one in the L3
-   * header. (REF: http://tools.ietf.org/html/rfc791#section-3.1)
+   * header. (REF: https://tools.ietf.org/html/rfc791#section-3.1)
    */
   if (hlen > IPH_MIN_LEN) {
     /* There's more than just the fixed-length header.  See if we've got
@@ -2137,7 +2150,7 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
    *
    * Flag a low TTL if the packet is not destined for a multicast address
    * (e.g. 224.0.0.0/4) ... and the payload isn't protocol 103 (PIM).
-   * (see http://tools.ietf.org/html/rfc3973#section-4.7).
+   * (see https://tools.ietf.org/html/rfc3973#section-4.7).
    */
   if (in4_addr_is_local_network_control_block(dst32)) {
     if (iph->ip_proto == IP_PROTO_IGMP)
@@ -2321,7 +2334,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   col_clear(pinfo->cinfo, COL_INFO);
   col_add_fstr(pinfo->cinfo, COL_INFO, "Bogus IP version (%u)", version);
   ip_tree = proto_item_add_subtree(ti, ett_ip);
-  tf = proto_tree_add_item(ip_tree, hf_ip_version, tvb, 0, 1, ENC_NA);
+  tf = proto_tree_add_bits_item(ip_tree, hf_ip_version, tvb, 0, 4, ENC_NA);
   expert_add_info(pinfo, tf, &ei_ip_bogus_ip_version);
   return 1;
 }
@@ -2425,7 +2438,7 @@ proto_register_ip(void)
   static hf_register_info hf[] = {
     { &hf_ip_version,
       { "Version", "ip.version", FT_UINT8, BASE_DEC,
-        NULL, 0xF0, NULL, HFILL }},
+        NULL, 0x00, NULL, HFILL }},
 
     { &hf_ip_hdr_len,
       { "Header Length", "ip.hdr_len", FT_UINT8, BASE_DEC,
@@ -2453,19 +2466,19 @@ proto_register_ip(void)
 
     { &hf_ip_tos_delay,
       { "Delay", "ip.tos.delay", FT_BOOLEAN, 8,
-        TFS(&tos_set_low), IPTOS_LOWDELAY, NULL, HFILL }},
+        TFS(&tfs_low_normal), IPTOS_LOWDELAY, NULL, HFILL }},
 
     { &hf_ip_tos_throughput,
       { "Throughput", "ip.tos.throughput", FT_BOOLEAN, 8,
-        TFS(&tos_set_high), IPTOS_THROUGHPUT, NULL, HFILL }},
+        TFS(&tfs_high_normal), IPTOS_THROUGHPUT, NULL, HFILL }},
 
     { &hf_ip_tos_reliability,
       { "Reliability", "ip.tos.reliability", FT_BOOLEAN, 8,
-        TFS(&tos_set_high), IPTOS_RELIABILITY, NULL, HFILL }},
+        TFS(&tfs_high_normal), IPTOS_RELIABILITY, NULL, HFILL }},
 
     { &hf_ip_tos_cost,
       { "Cost", "ip.tos.cost", FT_BOOLEAN, 8,
-        TFS(&tos_set_low), IPTOS_LOWCOST, NULL, HFILL }},
+        TFS(&tfs_low_normal), IPTOS_LOWCOST, NULL, HFILL }},
 
     { &hf_ip_len,
       { "Total Length", "ip.len", FT_UINT16, BASE_DEC,

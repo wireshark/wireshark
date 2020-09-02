@@ -66,7 +66,7 @@ static const value_string subfct[] = {
     { 0, NULL }
 };
 
-static const int *ake_procedure_fields[] = { /* must be int, not gint */
+static int * const ake_procedure_fields[] = { /* must be int, not gint */
     &hf_dtcp_ip_ake_proc_full,
     &hf_dtcp_ip_ake_proc_ex_full,
     NULL

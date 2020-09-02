@@ -946,7 +946,6 @@ dissect_ain_AINDigits(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 #line 185 "./asn1/ain/ain.cnf"
   tvbuff_t *parameter_tvb;
   proto_tree *subtree;
-  const char *digit_str;
 
     offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -961,8 +960,7 @@ dissect_ain_AINDigits(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
   proto_tree_add_item(subtree, hf_ain_numbering_plan, parameter_tvb, 1, 1, ENC_BIG_ENDIAN);
 
-  digit_str = tvb_bcd_dig_to_wmem_packet_str(parameter_tvb, 2, tvb_reported_length_remaining(parameter_tvb,2), NULL, FALSE);
-  proto_tree_add_string(subtree, hf_ain_bcd_digits, parameter_tvb, 2, -1, digit_str);
+  proto_tree_add_item(subtree, hf_ain_bcd_digits, parameter_tvb, 2, tvb_reported_length_remaining(parameter_tvb, 2), ENC_BCD_DIGITS_0_9);
 
 
 
@@ -1548,10 +1546,9 @@ dissect_ain_CollectedAddressInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 static int
 dissect_ain_CarrierFormat(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 204 "./asn1/ain/ain.cnf"
+#line 202 "./asn1/ain/ain.cnf"
   tvbuff_t *parameter_tvb;
   proto_tree *subtree;
-  const char *digit_str;
 
     offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -1568,8 +1565,7 @@ dissect_ain_CarrierFormat(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
   proto_tree_add_item(subtree, hf_ain_nr_digits, parameter_tvb, 1, 1, ENC_BIG_ENDIAN);
 
   /* 2nd Digit 1st Digit .. */
-  digit_str = tvb_bcd_dig_to_wmem_packet_str(parameter_tvb, 2, tvb_reported_length_remaining(parameter_tvb,2), NULL, FALSE);
-  proto_tree_add_string(subtree, hf_ain_carrier_bcd_digits, parameter_tvb, 2, -1, digit_str);
+  proto_tree_add_item(subtree, hf_ain_carrier_bcd_digits, parameter_tvb, 2, tvb_reported_length_remaining(parameter_tvb, 2), ENC_BCD_DIGITS_0_9);
 
 
 
@@ -3214,10 +3210,9 @@ dissect_ain_SEQUENCE_SIZE_1_2_OF_AMALineNumber(gboolean implicit_tag _U_, tvbuff
 
 static int
 dissect_ain_AMAslpID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 225 "./asn1/ain/ain.cnf"
+#line 221 "./asn1/ain/ain.cnf"
   tvbuff_t *parameter_tvb;
   proto_tree *subtree;
-  const char *digit_str;
 
     offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -3228,8 +3223,7 @@ dissect_ain_AMAslpID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
   subtree = proto_item_add_subtree(actx->created_item, ett_ain_amaslpid);
 
-  digit_str = tvb_bcd_dig_to_wmem_packet_str(parameter_tvb, 0, tvb_reported_length_remaining(parameter_tvb,0), NULL, FALSE);
-  proto_tree_add_string(subtree, hf_ain_amaslpid, parameter_tvb, 0, -1, digit_str);
+  proto_tree_add_item(subtree, hf_ain_amaslpid, parameter_tvb, 0, tvb_reported_length_remaining(parameter_tvb, 0), ENC_BCD_DIGITS_0_9);
 
 
 
@@ -3421,7 +3415,7 @@ dissect_ain_GenericDigitsList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 }
 
 
-static const int * ApplyRestrictions_U_bits[] = {
+static int * const ApplyRestrictions_U_bits[] = {
   &hf_ain_ApplyRestrictions_U_code,
   &hf_ain_ApplyRestrictions_U_toll,
   NULL
@@ -5627,7 +5621,7 @@ dissect_ain_DelayInterval(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 }
 
 
-static const int * Empty_bits[] = {
+static int * const Empty_bits[] = {
   &hf_ain_Empty_entireList,
   &hf_ain_Empty_outgoingmemorySlot,
   &hf_ain_Empty_incomingmemorySlot,
@@ -5715,7 +5709,7 @@ dissect_ain_Service1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 }
 
 
-static const int * Request1_bits[] = {
+static int * const Request1_bits[] = {
   &hf_ain_Request1_activationStatus,
   NULL
 };
@@ -5760,7 +5754,7 @@ dissect_ain_Service2(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 }
 
 
-static const int * Request2_bits[] = {
+static int * const Request2_bits[] = {
   &hf_ain_Request2_activationStatus,
   &hf_ain_Request2_delayInterval,
   NULL
@@ -5807,7 +5801,7 @@ dissect_ain_Service3(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 }
 
 
-static const int * Request3_bits[] = {
+static int * const Request3_bits[] = {
   &hf_ain_Request3_activationStatus,
   &hf_ain_Request3_entireList,
   &hf_ain_Request3_listSize,
@@ -5856,7 +5850,7 @@ dissect_ain_Service4(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 }
 
 
-static const int * Request4_bits[] = {
+static int * const Request4_bits[] = {
   &hf_ain_Request4_activationStatus,
   &hf_ain_Request4_forwardingDn,
   NULL
@@ -5903,7 +5897,7 @@ dissect_ain_Service5(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 }
 
 
-static const int * Request5_bits[] = {
+static int * const Request5_bits[] = {
   &hf_ain_Request5_activationStatus,
   &hf_ain_Request5_forwardingDn,
   &hf_ain_Request5_entireList,
@@ -5951,7 +5945,7 @@ dissect_ain_Service6(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 }
 
 
-static const int * Request6_bits[] = {
+static int * const Request6_bits[] = {
   &hf_ain_Request6_delayInterval,
   NULL
 };
@@ -6011,7 +6005,7 @@ dissect_ain_RequestGroups(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 }
 
 
-static const int * RequestMemorySlot_bits[] = {
+static int * const RequestMemorySlot_bits[] = {
   &hf_ain_RequestMemorySlot_incoming,
   &hf_ain_RequestMemorySlot_outgoing,
   NULL
@@ -6071,7 +6065,7 @@ dissect_ain_QueryRequestArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 }
 
 
-static const int * EDPRequest_U_bits[] = {
+static int * const EDPRequest_U_bits[] = {
   &hf_ain_EDPRequest_U_oCalledPartyBusy,
   &hf_ain_EDPRequest_U_oNoAnswer,
   &hf_ain_EDPRequest_U_oTermSeized,
@@ -6116,7 +6110,7 @@ dissect_ain_EDPRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 }
 
 
-static const int * EDPNotification_U_bits[] = {
+static int * const EDPNotification_U_bits[] = {
   &hf_ain_EDPNotification_U_oCalledPartyBusy,
   &hf_ain_EDPNotification_U_oNoAnswer,
   &hf_ain_EDPNotification_U_oTermSeized,

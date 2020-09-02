@@ -198,7 +198,7 @@ dissect_smb_direct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	guint rlen = tvb_reported_length(tvb);
 	gint len = 0;
 	tvbuff_t *next_tvb = NULL;
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_smb_direct_flags_response_requested,
 		NULL
 	};

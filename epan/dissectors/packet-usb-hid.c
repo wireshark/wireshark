@@ -77,6 +77,7 @@ static gint ett_usb_hid_report = -1;
 static gint ett_usb_hid_item_header = -1;
 static gint ett_usb_hid_wValue = -1;
 static gint ett_usb_hid_descriptor = -1;
+static gint ett_usb_hid_data = -1;
 
 static int hf_usb_hid_request = -1;
 static int hf_usb_hid_value = -1;
@@ -145,6 +146,88 @@ struct usb_hid_global_state {
     unsigned int usage_page;
 };
 
+static wmem_tree_t *report_descriptors = NULL;
+
+
+/* local items */
+#define HID_USAGE_MIN       (1 << 0)
+#define HID_USAGE_MAX       (1 << 1)
+
+/* global items */
+#define HID_REPORT_ID       (1 << 2)
+#define HID_REPORT_COUNT    (1 << 3)
+#define HID_REPORT_SIZE     (1 << 4)
+#define HID_LOGICAL_MIN     (1 << 5)
+#define HID_LOGICAL_MAX     (1 << 6)
+#define HID_USAGE_PAGE      (1 << 7)
+
+/* main items */
+#define HID_INPUT           (1 << 8)
+#define HID_OUTPUT          (1 << 9)
+#define HID_FEATURE         (1 << 10)
+
+/* masks */
+
+#define HID_GLOBAL_MASK     (HID_REPORT_ID | \
+                             HID_REPORT_COUNT | \
+                             HID_REPORT_SIZE | \
+                             HID_LOGICAL_MIN | \
+                             HID_LOGICAL_MAX | \
+                             HID_USAGE_PAGE)
+
+#define HID_REQUIRED_MASK   (HID_REPORT_COUNT | \
+                             HID_REPORT_SIZE | \
+                             HID_LOGICAL_MIN | \
+                             HID_LOGICAL_MAX)
+
+
+#define HID_MAIN_CONSTANT       (1 << 0) /* data / constant                 */
+#define HID_MAIN_TYPE           (1 << 1) /* array / variable                */
+#define HID_MAIN_RELATIVE       (1 << 2) /* absolute / relative             */
+#define HID_MAIN_WRAP           (1 << 3) /* no wrap / wrap                  */
+#define HID_MAIN_NON_LINEAR     (1 << 4) /* linear / non linear             */
+#define HID_MAIN_NO_PREFERRED   (1 << 5) /* preferred state / no preferred  */
+#define HID_MAIN_NULL_STATE     (1 << 6) /* no null position / null state   */
+#define HID_MAIN_BUFFERED_BYTES (1 << 8) /* bit field / buferred bytes      */
+
+
+#define HID_USAGE_UNSET         0
+#define HID_USAGE_SINGLE        1
+#define HID_USAGE_RANGE         2
+
+
+typedef struct _hid_field hid_field_t;
+
+struct _hid_field {
+    guint32         usage_page;
+    wmem_array_t   *usages;
+
+    guint32         report_id;  /* optional */
+    guint32         report_count;
+    guint32         report_size;
+    gint32          logical_min;
+    gint32          logical_max;
+    guint32         properties;
+
+    hid_field_t *next;
+};
+
+
+typedef struct _report_descriptor report_descriptor_t;
+
+struct _report_descriptor {
+    usb_conv_info_t         usb_info;
+
+    int                     desc_length;
+    guint8                 *desc_body;
+
+    gboolean                uses_report_id;
+    wmem_array_t           *fields_in;
+    wmem_array_t           *fields_out;
+    /* TODO: features */
+
+    report_descriptor_t    *next;
+};
 
 /* HID class specific descriptor types */
 #define USB_DT_HID        0x21
@@ -226,7 +309,7 @@ static const value_string usb_hid_globalitem_bTag_vals[] = {
     {15, "[Reserved]"},
     {0, NULL}
 };
-#define USBHID_LOCALITEM_TAG_USAGE_PAGE     0
+#define USBHID_LOCALITEM_TAG_USAGE          0
 #define USBHID_LOCALITEM_TAG_USAGE_MIN      1
 #define USBHID_LOCALITEM_TAG_USAGE_MAX      2
 #define USBHID_LOCALITEM_TAG_DESIG_INDEX    3
@@ -238,7 +321,7 @@ static const value_string usb_hid_globalitem_bTag_vals[] = {
 #define USBHID_LOCALITEM_TAG_STRING_MAX     9
 #define USBHID_LOCALITEM_TAG_DELIMITER     10 /* Also listed as reserved in spec! */
 static const value_string usb_hid_localitem_bTag_vals[] = {
-    {USBHID_LOCALITEM_TAG_USAGE_PAGE,   "Usage"},
+    {USBHID_LOCALITEM_TAG_USAGE,        "Usage"},
     {USBHID_LOCALITEM_TAG_USAGE_MIN,    "Usage Minimum"},
     {USBHID_LOCALITEM_TAG_USAGE_MAX,    "Usage Maximum"},
     {USBHID_LOCALITEM_TAG_DESIG_INDEX,  "Designator Index"},
@@ -3180,6 +3263,266 @@ static const value_string keycode_vals[] = {
 };
 value_string_ext keycode_vals_ext = VALUE_STRING_EXT_INIT(keycode_vals);
 
+static guint32
+hid_unpack_value(guint8 *data, unsigned int index, unsigned int size)
+{
+    guint32 value = 0;
+
+    for(unsigned int i = 1; i <= size; i++)
+        value |= data[index + i] << (8 * (i - 1));
+
+    return value;
+}
+
+static gboolean
+hid_unpack_signed(guint8 *data, unsigned int index, unsigned int size, gint32 *value)
+{
+    if (size == 1)
+        *value = (gint8) hid_unpack_value(data, index, size);
+    else if (size == 2)
+        *value = (gint16) hid_unpack_value(data, index, size);
+    else if (size == 4)
+        *value = (gint32) hid_unpack_value(data, index, size);
+    else
+        return TRUE;
+
+    return FALSE;
+}
+
+
+static gboolean
+parse_report_descriptor(report_descriptor_t *rdesc)
+{
+    hid_field_t field;
+    guint8 *data = rdesc->desc_body;
+    unsigned int tag, type, size;
+    guint8 prefix;
+    guint32 defined = 0, usage = 0, usage_min = 0, usage_max = 0;
+    wmem_allocator_t *scope = wmem_file_scope();
+    gboolean first_item = TRUE;
+
+    memset(&field, 0, sizeof(field));
+    field.usages = wmem_array_new(scope, sizeof(guint32));
+    rdesc->fields_in = wmem_array_new(scope, sizeof(hid_field_t));
+    rdesc->fields_out = wmem_array_new(scope, sizeof(hid_field_t));
+
+    int i = 0;
+    while (i < rdesc->desc_length)
+    {
+        prefix = data[i];
+        tag = (prefix & 0b11110000) >> 4;
+        type = (prefix & 0b00001100) >> 2;
+        size = prefix & 0b00000011;
+
+        if (size == 3)  /* HID spec: 6.2.2.2 - Short Items */
+            size = 4;
+
+        switch (type)
+        {
+            case USBHID_ITEMTYPE_MAIN:
+                switch (tag)
+                {
+                    case USBHID_MAINITEM_TAG_INPUT:
+                        field.properties = hid_unpack_value(data, i, size);
+
+                        if ((defined & HID_REQUIRED_MASK) != HID_REQUIRED_MASK)
+                            goto err;
+
+                        /* new field */
+                        wmem_array_append_one(rdesc->fields_in, field);
+
+                        field.usages = wmem_array_new(scope, sizeof(guint32));
+                        first_item = FALSE;
+
+                        /* only keep the global items */
+                        defined &= HID_GLOBAL_MASK;
+                        break;
+
+                    case USBHID_MAINITEM_TAG_OUTPUT:
+                        field.properties = hid_unpack_value(data, i, size);
+
+                        if ((defined & HID_REQUIRED_MASK) != HID_REQUIRED_MASK)
+                            goto err;
+
+                        wmem_array_append_one(rdesc->fields_out, field);
+
+                        defined &= HID_GLOBAL_MASK;
+                        break;
+
+                    case USBHID_MAINITEM_TAG_FEATURE:
+                        /*
+                        field.properties = hid_unpack_value(data, i, size);
+                        TODO
+                        */
+                        break;
+
+                    case USBHID_MAINITEM_TAG_COLLECTION:
+                        /* clear usages */
+                        wmem_free(scope, field.usages);
+                        field.usages = wmem_array_new(scope, sizeof(guint32));
+                        break;
+
+                    default:
+                        break;
+                }
+                break;
+
+            case USBHID_ITEMTYPE_GLOBAL:
+                switch (tag)
+                {
+                    case USBHID_GLOBALITEM_TAG_USAGE_PAGE:
+                        field.usage_page = hid_unpack_value(data, i, size);
+                        defined |= HID_USAGE_PAGE;
+                        break;
+
+                    case USBHID_GLOBALITEM_TAG_LOG_MIN:
+                        if (hid_unpack_signed(data, i, size, &field.logical_min))
+                            goto err;
+                        defined |= HID_LOGICAL_MIN;
+                        break;
+
+                    case USBHID_GLOBALITEM_TAG_LOG_MAX:
+                        if (hid_unpack_signed(data, i, size, &field.logical_max))
+                            goto err;
+                        defined |= HID_LOGICAL_MAX;
+                        break;
+
+                    case USBHID_GLOBALITEM_TAG_REPORT_SIZE:
+                        field.report_size = hid_unpack_value(data, i, size);
+                        defined |= HID_REPORT_SIZE;
+                        break;
+
+                    case USBHID_GLOBALITEM_TAG_REPORT_ID:
+                        if (!first_item && !rdesc->uses_report_id)
+                            goto err;
+
+                        rdesc->uses_report_id = TRUE;
+
+                        field.report_id = hid_unpack_value(data, i, size);
+                        defined |= HID_REPORT_ID;
+                        break;
+
+                    case USBHID_GLOBALITEM_TAG_REPORT_COUNT:
+                        field.report_count = hid_unpack_value(data, i, size);
+                        defined |= HID_REPORT_COUNT;
+                        break;
+
+                    case USBHID_GLOBALITEM_TAG_PUSH:
+                    case USBHID_GLOBALITEM_TAG_POP:
+                        /* TODO */
+                        goto err;
+
+                    default:
+                        break;
+                }
+                break;
+
+            case USBHID_ITEMTYPE_LOCAL:
+                switch (tag)
+                {
+                    case USBHID_LOCALITEM_TAG_USAGE:
+                        if (!(defined & HID_USAGE_PAGE))
+                            return FALSE;
+
+                        usage = hid_unpack_value(data, i, size);
+
+                        wmem_array_append_one(field.usages, usage);
+                        break;
+
+                    case USBHID_LOCALITEM_TAG_USAGE_MIN:
+                        usage_min = hid_unpack_value(data, i, size);
+                        defined |= HID_USAGE_MIN;
+                        break;
+
+                    case USBHID_LOCALITEM_TAG_USAGE_MAX:
+                        if (!(defined & HID_USAGE_MIN))
+                            return FALSE;
+
+                        usage_max = hid_unpack_value(data, i, size);
+
+                        wmem_array_grow(field.usages, usage_max - usage_min);
+                        for (guint32 j = usage_min; j < usage_max; j++)
+                            wmem_array_append_one(field.usages, j);
+
+                        defined ^= HID_USAGE_MIN;
+                        break;
+
+                    default: /* TODO */
+                        goto err;
+                }
+                break;
+
+            default: /* reserved */
+                goto err;
+        }
+
+        i += size + 1;
+    }
+
+    return TRUE;
+
+err:
+    for (unsigned int j = 0; j < wmem_array_get_count(rdesc->fields_in); j++)
+        wmem_free(scope, ((hid_field_t*) wmem_array_index(rdesc->fields_in, j))->usages);
+
+    for (unsigned int j = 0; j < wmem_array_get_count(rdesc->fields_out); j++)
+        wmem_free(scope, ((hid_field_t*) wmem_array_index(rdesc->fields_out, j))->usages);
+
+    wmem_free(scope, rdesc->fields_in);
+    wmem_free(scope, rdesc->fields_out);
+    return FALSE;
+}
+
+
+static gboolean
+is_correct_interface(usb_conv_info_t *info1, usb_conv_info_t *info2)
+{
+    return (info1->bus_id == info2->bus_id) &&
+           (info1->device_address == info2->device_address) &&
+           (info1->interfaceNum == info2->interfaceNum);
+}
+
+/* Returns the report descriptor */
+static report_descriptor_t _U_ *
+get_report_descriptor(packet_info *pinfo _U_, usb_conv_info_t *usb_info)
+{
+    guint32 bus_id = usb_info->bus_id;
+    guint32 device_address = usb_info->device_address;
+    guint32 interface = usb_info->interfaceNum;
+    wmem_tree_key_t key[] = {
+        {1, &bus_id},
+        {1, &device_address},
+        {1, &interface},
+        {1, &pinfo->num},
+        {0, NULL}
+    };
+
+    report_descriptor_t *data = NULL;
+    data = (report_descriptor_t*) wmem_tree_lookup32_array_le(report_descriptors, key);
+    if (data && is_correct_interface(usb_info, &data->usb_info))
+        return data;
+
+    return NULL;
+}
+
+/* Inserts the report descriptor */
+static void
+insert_report_descriptor(packet_info *pinfo, report_descriptor_t *data)
+{
+    guint32 bus_id = data->usb_info.bus_id;
+    guint32 device_address = data->usb_info.device_address;
+    guint32 interface = data->usb_info.interfaceNum;
+    wmem_tree_key_t key[] = {
+        {1, &bus_id},
+        {1, &device_address},
+        {1, &interface},
+        {1, &pinfo->num},
+        {0, NULL}
+    };
+
+    wmem_tree_insert32_array(report_descriptors, key, data);
+}
+
 /* Returns usage page string */
 static const char*
 get_usage_page_string(guint32 usage_page)
@@ -3386,7 +3729,7 @@ dissect_usb_hid_report_mainitem_data(packet_info *pinfo _U_, proto_tree *tree, t
             break;
         default:
             proto_tree_add_item(tree, hf_usb_hid_item_unk_data, tvb, offset, bSize, ENC_NA);
-            proto_item_append_text(ti, " (Unkown)");
+            proto_item_append_text(ti, " (Unknown)");
             break;
     }
     offset += bSize;
@@ -3487,7 +3830,7 @@ dissect_usb_hid_report_localitem_data(packet_info *pinfo _U_, proto_tree *tree, 
     guint32 val;
 
     switch (bTag) {
-        case USBHID_LOCALITEM_TAG_USAGE_PAGE:
+        case USBHID_LOCALITEM_TAG_USAGE:
             if (bSize > 2) {
                 /* Full page ID */
                 proto_tree_add_item(tree, hf_usb_hid_localitem_usage, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
@@ -3657,6 +4000,23 @@ dissect_usb_hid_get_report_descriptor(packet_info *pinfo _U_, proto_tree *parent
                                           -1, "HID Report");
     tree = proto_item_add_subtree(item, ett_usb_hid_report);
     offset = dissect_usb_hid_report_item(pinfo, tree, tvb, offset, usb_conv_info, &initial_global);
+
+    /* only insert report descriptor the first time we parse it */
+    if (!PINFO_FD_VISITED(pinfo) && usb_conv_info) {
+        wmem_allocator_t *scope = wmem_file_scope();
+        report_descriptor_t *data = wmem_new(scope, report_descriptor_t);
+
+        data->usb_info = *usb_conv_info;
+        data->desc_length = offset - old_offset;
+        data->desc_body = (guint8*) tvb_memdup(scope, tvb, old_offset, data->desc_length);
+
+        if (parse_report_descriptor(data)) {
+            insert_report_descriptor(pinfo, data);
+        } else {
+            wmem_free(scope, data->desc_body);
+            wmem_free(scope, data);
+        }
+    }
 
     proto_item_set_len(item, offset-old_offset);
 
@@ -4227,6 +4587,24 @@ dissect_usb_hid_control_class_intf(tvbuff_t *tvb, packet_info *pinfo,
     return tvb_captured_length(tvb);
 }
 
+/* Dissect USB HID data/reports */
+static gint
+dissect_usb_hid_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    guint offset = 0;
+    proto_item *hid_ti;
+    proto_tree _U_ *hid_tree;
+    guint remaining = tvb_reported_length_remaining(tvb, offset);
+
+    if (remaining) {
+        hid_ti = proto_tree_add_item(tree, hf_usbhid_data, tvb, offset, -1, ENC_NA);
+        hid_tree = proto_item_add_subtree(hid_ti, ett_usb_hid_data);
+        offset += remaining;
+    }
+
+    return offset;
+}
+
 /* Dissector for HID class-specific control request as defined in
  * USBHID 1.11, Chapter 7.2.
  * returns the number of bytes consumed */
@@ -4254,7 +4632,7 @@ dissect_usb_hid_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
             return dissect_usb_hid_control_class_intf(tvb, pinfo, tree, usb_conv_info);
     }
 
-    return 0;
+    return dissect_usb_hid_data(tvb, pinfo, tree, data);
 }
 
 /* dissect a descriptor that is specific to the HID class */
@@ -4387,19 +4765,19 @@ proto_register_usb_hid(void)
                 NULL, 0, NULL, HFILL }},
 
         { &hf_usb_hid_globalitem_log_min,
-            { "Logical minimum", "usbhid.item.global.log_min", FT_INT8, BASE_DEC,
+            { "Logical minimum", "usbhid.item.global.log_min", FT_INT32, BASE_DEC,
                 NULL, 0, NULL, HFILL }},
 
         { &hf_usb_hid_globalitem_log_max,
-            { "Logical maximum", "usbhid.item.global.log_max", FT_INT8, BASE_DEC,
+            { "Logical maximum", "usbhid.item.global.log_max", FT_INT32, BASE_DEC,
                 NULL, 0, NULL, HFILL }},
 
         { &hf_usb_hid_globalitem_phy_min,
-            { "Physical minimum", "usbhid.item.global.phy_min", FT_INT8, BASE_DEC,
+            { "Physical minimum", "usbhid.item.global.phy_min", FT_INT32, BASE_DEC,
                 NULL, 0, NULL, HFILL }},
 
         { &hf_usb_hid_globalitem_phy_max,
-            { "Physical maximum", "usbhid.item.global.phy_max", FT_INT8, BASE_DEC,
+            { "Physical maximum", "usbhid.item.global.phy_max", FT_INT32, BASE_DEC,
                 NULL, 0, NULL, HFILL }},
 
         { &hf_usb_hid_globalitem_unit_exp,
@@ -4699,7 +5077,7 @@ proto_register_usb_hid(void)
                 NULL, 0x00, NULL, HFILL }},
 
         { &hf_usbhid_data,
-            { "Data", "usbhid.data", FT_NONE, BASE_NONE,
+            { "HID Data", "usbhid.data", FT_BYTES, BASE_NONE,
                 NULL, 0x00, NULL, HFILL }},
     };
 
@@ -4707,8 +5085,11 @@ proto_register_usb_hid(void)
         &ett_usb_hid_report,
         &ett_usb_hid_item_header,
         &ett_usb_hid_wValue,
-        &ett_usb_hid_descriptor
+        &ett_usb_hid_descriptor,
+        &ett_usb_hid_data
     };
+
+    report_descriptors = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
     proto_usb_hid = proto_register_protocol("USB HID", "USBHID", "usbhid");
     proto_register_field_array(proto_usb_hid, hf, array_length(hf));
@@ -4723,16 +5104,16 @@ proto_register_usb_hid(void)
 void
 proto_reg_handoff_usb_hid(void)
 {
-    dissector_handle_t usb_hid_control_handle, usb_hid_descr_handle;
+    dissector_handle_t usb_hid_control_handle, usb_hid_interrupt_handle, usb_hid_descr_handle;
 
-    usb_hid_control_handle = create_dissector_handle(
-                        dissect_usb_hid_control, proto_usb_hid);
+    usb_hid_control_handle = create_dissector_handle(dissect_usb_hid_control, proto_usb_hid);
     dissector_add_uint("usb.control", IF_CLASS_HID, usb_hid_control_handle);
-
     dissector_add_for_decode_as("usb.device", usb_hid_control_handle);
 
-    usb_hid_descr_handle = create_dissector_handle(
-                        dissect_usb_hid_class_descriptors, proto_usb_hid);
+    usb_hid_interrupt_handle = create_dissector_handle(dissect_usb_hid_data, proto_usb_hid);
+    dissector_add_uint("usb.interrupt", IF_CLASS_HID, usb_hid_interrupt_handle);
+
+    usb_hid_descr_handle = create_dissector_handle(dissect_usb_hid_class_descriptors, proto_usb_hid);
     dissector_add_uint("usb.descriptor", IF_CLASS_HID, usb_hid_descr_handle);
 }
 

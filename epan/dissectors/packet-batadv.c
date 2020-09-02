@@ -757,20 +757,20 @@ static const value_string tvlv_tt_typenames[] = {
 	{0, NULL}
 };
 
-static const int * batman_v5_flags[] = {
+static int * const batman_v5_flags[] = {
 	&hf_batadv_batman_flags_directlink,
 	&hf_batadv_batman_flags_vis_server,
 	NULL
 };
 
-static const int * batman_v9_flags[] = {
+static int * const batman_v9_flags[] = {
 	&hf_batadv_batman_flags_directlink,
 	&hf_batadv_batman_flags_vis_server,
 	&hf_batadv_batman_flags_primaries_first_hop,
 	NULL
 };
 
-static const int * batman_v14_flags[] = {
+static int * const batman_v14_flags[] = {
 	&hf_batadv_batman_flags_directlink,
 	&hf_batadv_batman_flags_vis_server,
 	&hf_batadv_batman_flags_primaries_first_hop,
@@ -778,19 +778,19 @@ static const int * batman_v14_flags[] = {
 	NULL
 };
 
-static const int * unicast_frag_flags[] = {
+static int * const unicast_frag_flags[] = {
 	&hf_batadv_unicast_frag_flags_head,
 	&hf_batadv_unicast_frag_flags_largetail,
 	NULL
 };
 
-static const int * tt_query_flags[] = {
+static int * const tt_query_flags[] = {
 	&hf_batadv_tt_query_flags_type,
 	&hf_batadv_tt_query_flags_full_table,
 	NULL
 };
 
-static const int * tt_entry_flags[] = {
+static int * const tt_entry_flags[] = {
 	&hf_batadv_tt_entry_flags_change_del,
 	&hf_batadv_tt_entry_flags_client_roam,
 	NULL
@@ -1698,7 +1698,7 @@ static int dissect_batadv_iv_ogm_v15(tvbuff_t *tvb, int offset,
 	guint8 type, version;
 	struct iv_ogm_packet_v15 *iv_ogm_packeth;
 	tvbuff_t *next_tvb;
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_batadv_iv_ogm_flags_directlink,
 		&hf_batadv_iv_ogm_flags_primaries_first_hop,
 		&hf_batadv_iv_ogm_flags_not_best_next_hop,
@@ -3998,7 +3998,7 @@ static int dissect_batadv_ogm2_v15(tvbuff_t *tvb, int offset,
 	guint8 type, version;
 	struct ogm2_packet_v15 *ogm2_packeth;
 	tvbuff_t *next_tvb;
-	static const int * flags[] = {
+	static int * const flags[] = {
 		NULL
 	};
 
@@ -4318,7 +4318,7 @@ static void dissect_batadv_tvlv_v15_mcast(tvbuff_t *tvb, packet_info *pinfo,
 					  proto_tree *tree, int offset,
 					  guint8 version)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_batadv_tvlv_mcast_flags_unsnoopables,
 		&hf_batadv_tvlv_mcast_flags_ipv4,
 		&hf_batadv_tvlv_mcast_flags_ipv6,
@@ -4369,7 +4369,7 @@ static void dissect_batadv_tvlv_v15_roam(tvbuff_t *tvb, packet_info *pinfo,
 					 proto_tree *tree, int offset,
 					 guint8 version)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_batadv_tvlv_vid_vlan,
 		&hf_batadv_tvlv_vid_tagged,
 		NULL
@@ -4397,7 +4397,7 @@ static void dissect_batadv_tvlv_v15_tt(tvbuff_t *tvb, packet_info *pinfo,
 	guint16 num_vlan;
 	int i;
 	gint length_remaining;
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_batadv_tvlv_tt_flags_type,
 		&hf_batadv_tvlv_tt_flags_full_table,
 		NULL
@@ -4510,7 +4510,7 @@ static int dissect_batadv_tvlv_v15_tt_vlan(tvbuff_t *tvb,
 	proto_tree *vlan_tree = NULL;
 	guint16 vid;
 	proto_item *ti = NULL;
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_batadv_tvlv_vid_vlan,
 		&hf_batadv_tvlv_vid_tagged,
 		NULL
@@ -4546,14 +4546,14 @@ static int dissect_batadv_tvlv_v15_tt_change(tvbuff_t *tvb,
 {
 	proto_tree *change_tree;
 	proto_item *ti;
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_batadv_tvlv_tt_change_flags_del,
 		&hf_batadv_tvlv_tt_change_flags_roam,
 		&hf_batadv_tvlv_tt_change_flags_wifi,
 		&hf_batadv_tvlv_tt_change_flags_isolate,
 		NULL
 	};
-	static const int * flags_vlan[] = {
+	static int * const flags_vlan[] = {
 		&hf_batadv_tvlv_vid_vlan,
 		&hf_batadv_tvlv_vid_tagged,
 		NULL

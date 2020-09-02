@@ -233,7 +233,7 @@ static const value_string comp_tlv_tag_vals[] = {
 	{ 0x51, "Item text attribute list" },
 	{ 0x52, "3GPP PDP Context Activation parameter" },
 	{ 0x53, "Contactless state request" },
-	{ 0x54, "Conactless functionality state" },
+	{ 0x54, "Contactless functionality state" },
 	{ 0x55, "3GPP CSG cell selection status" },
 	{ 0x56, "3GPP CSG ID" },
 	{ 0x57, "3GPP HNB name" },
@@ -1113,6 +1113,7 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 	while (pos < length) {
 		proto_item *ti;
 		guint32 g8, cmd_nr, cmd_qual;
+		gboolean cmd_qual_flag;
 		guint16 tag;
 		guint32 len, i;
 		guint8 *ptr = NULL;
@@ -1169,8 +1170,9 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 				proto_tree_add_item_ret_uint(elem_tree, hf_ctlv_cmd_qual_refresh, tvb, pos+2, 1, ENC_BIG_ENDIAN, &cmd_qual);
 				break;
 			case 0x13:
-				proto_tree_add_item_ret_uint(elem_tree, hf_ctlv_cmd_qual_send_short_msg, tvb, pos+2, 1, ENC_BIG_ENDIAN, &cmd_qual);
-				sms_data.stk_packing_required = cmd_qual & 0x01 ? TRUE : FALSE;
+				proto_tree_add_item_ret_boolean(elem_tree, hf_ctlv_cmd_qual_send_short_msg, tvb, pos+2, 1, ENC_BIG_ENDIAN, &cmd_qual_flag);
+				sms_data.stk_packing_required = cmd_qual_flag;
+				cmd_qual = cmd_qual_flag ? 1 : 0;
 				break;
 			case 0x26:
 				proto_tree_add_item_ret_uint(elem_tree, hf_ctlv_cmd_qual_loci, tvb, pos+2, 1, ENC_BIG_ENDIAN, &cmd_qual);
@@ -1179,7 +1181,8 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 				proto_tree_add_item_ret_uint(elem_tree, hf_ctlv_cmd_qual_timer_mgmt, tvb, pos+2, 1, ENC_BIG_ENDIAN, &cmd_qual);
 				break;
 			case 0x43:
-				proto_tree_add_item_ret_uint(elem_tree, hf_ctlv_cmd_qual_send_data, tvb, pos+2, 1, ENC_BIG_ENDIAN, &cmd_qual);
+				proto_tree_add_item_ret_boolean(elem_tree, hf_ctlv_cmd_qual_send_data, tvb, pos+2, 1, ENC_BIG_ENDIAN, &cmd_qual_flag);
+				cmd_qual = cmd_qual_flag ? 1 : 0;
 				break;
 			default:
 				proto_tree_add_item_ret_uint(elem_tree, hf_ctlv_cmd_qual, tvb, pos+2, 1, ENC_BIG_ENDIAN, &cmd_qual);
@@ -2111,7 +2114,7 @@ proto_register_card_app_toolkit(void)
 		&ett_elem,
 	};
 
-	proto_cat = proto_register_protocol("Card Application Tookit ETSI TS 102.223", "ETSI CAT",
+	proto_cat = proto_register_protocol("Card Application Toolkit ETSI TS 102.223", "ETSI CAT",
 						 "etsi_cat");
 
 	proto_register_field_array(proto_cat, hf, array_length(hf));

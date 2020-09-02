@@ -192,7 +192,6 @@ de_gsm_r_uus1_chpc_forward(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     guint32	len;
     guint32 t_dur;
     guint32 t_rel;
-    const gchar *gref_str;
     proto_item *item;
     proto_tree *sub_tree;
 
@@ -218,7 +217,7 @@ de_gsm_r_uus1_chpc_forward(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     proto_tree_add_item(sub_tree, hf_gsm_r_uus1_chpc_pl_call, tvb, curr_offset, 1, ENC_NA);
     curr_offset += 1;
 
-    static const int * cause_flags[] = {
+    static int * const cause_flags[] = {
         &hf_gsm_r_uus1_chpc_cause_power,
         &hf_gsm_r_uus1_chpc_cause_radio,
         &hf_gsm_r_uus1_chpc_cause_reserved3,
@@ -233,8 +232,7 @@ de_gsm_r_uus1_chpc_forward(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     proto_tree_add_bitmask(sub_tree, tvb, curr_offset, hf_gsm_r_uus1_chpc_cause, ett_gsm_r_uus1_chpc_cause, cause_flags, ENC_NA);
     curr_offset += 1;
 
-    gref_str = tvb_bcd_dig_to_wmem_packet_str(tvb, curr_offset, 4, NULL, FALSE);
-    proto_tree_add_string(sub_tree, hf_gsm_r_uus1_chpc_gref, tvb, curr_offset, 4, gref_str);
+    proto_tree_add_item(sub_tree, hf_gsm_r_uus1_chpc_gref, tvb, curr_offset, 4, ENC_BCD_DIGITS_0_9);
     curr_offset += 4;
 
     return (curr_offset - offset);
@@ -431,7 +429,7 @@ de_gsm_r_uus1_elda(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
 
     curr_offset += 3;
 
-    /* Longtitude */
+    /* Longitude */
     long_item = proto_tree_add_item(sub_tree, hf_gsm_r_uus1_elda_long, tvb, curr_offset, 4, ENC_NA);
     long_tree = proto_item_add_subtree(long_item, ett_gsm_r_uus1_elda_long);
 
@@ -450,7 +448,7 @@ de_gsm_r_uus1_elda(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
     proto_tree_add_uint_format_value(long_tree, hf_gsm_r_uus1_elda_long_sec, tvb, curr_offset, 4, val, "%.2f", (float)(long_sec_val)/100);
     proto_tree_add_boolean(long_tree, hf_gsm_r_uus1_elda_long_hem, tvb, curr_offset, 4, val);
 
-    proto_item_set_text(long_item, "Longtitude: %d %d\'%.2f\"%s", long_deg_val, long_min_val, (float)(long_sec_val)/100,
+    proto_item_set_text(long_item, "Longitude: %d %d\'%.2f\"%s", long_deg_val, long_min_val, (float)(long_sec_val)/100,
         long_hem_val ? "W" : "E");
 
     curr_offset += 3;
@@ -540,9 +538,9 @@ de_gsm_r_uus1_alert_controller(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
 {
     guint32	curr_offset;
     guint32	len;
-    const gchar *gref_str;
     proto_item *item;
     proto_tree *sub_tree;
+    char       *gref_str;
 
     curr_offset = offset;
 
@@ -555,8 +553,7 @@ de_gsm_r_uus1_alert_controller(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
     proto_tree_add_item(sub_tree, hf_gsm_r_uus1_elem_len, tvb, curr_offset+1, 1, ENC_NA);
     curr_offset += 2;
 
-    gref_str = tvb_bcd_dig_to_wmem_packet_str(tvb, curr_offset, 4, NULL, FALSE);
-    proto_tree_add_string(sub_tree, hf_gsm_r_uus1_alert_controller_gref, tvb, curr_offset, 4, gref_str);
+    proto_tree_add_item_ret_display_string(sub_tree, hf_gsm_r_uus1_alert_controller_gref, tvb, curr_offset, 4, ENC_BCD_DIGITS_0_9, wmem_packet_scope(), &gref_str);
     proto_item_append_text(item, ": %s", gref_str);
     curr_offset += 4;
 
@@ -745,7 +742,7 @@ proto_register_gsm_r_uus1(void)
             NULL, HFILL }
         },
         { &hf_gsm_r_uus1_elda_lat,
-          { "Lattitude", "gsm-r-uus1.elda.lat",
+          { "Latitude", "gsm-r-uus1.elda.lat",
             FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
@@ -770,7 +767,7 @@ proto_register_gsm_r_uus1(void)
             NULL, HFILL }
         },
         { &hf_gsm_r_uus1_elda_long,
-          { "Lattitude", "gsm-r-uus1.elda.long",
+          { "Latitude", "gsm-r-uus1.elda.long",
             FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },

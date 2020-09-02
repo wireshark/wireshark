@@ -58,14 +58,15 @@
  * http://www.freetds.org/tds.html
  *
  * Some more information can be found in
- * https://wayback.archive.org/web/20140611233513/http://www.sybase.com/content/1013412/tds34.pdf
- * https://wayback.archive.org/web/20140611233501/http://www.sybase.com/content/1040983/Sybase-tds38-102306.pdf
+ * https://web.archive.org/web/20140611233513/http://www.sybase.com/content/1013412/tds34.pdf
+ * https://web.archive.org/web/20140611233501/http://www.sybase.com/content/1040983/Sybase-tds38-102306.pdf
  * Microsoft's [MS-TDS] protocol specification
- *     https://web.archive.org/web/20171009015211/https://winprotocoldoc.blob.core.windows.net/productionwindowsarchives/MS-TDS/[MS-TDS].pdf
+ *     https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-tds/
  * Microsoft's TDS 4.2 [MS-SSTDS] protocol specification
- *     https://web.archive.org/web/20171009170518/https://sqlprotocoldoc.blob.core.windows.net/productionsqlarchives/MS-SSTDS/[MS-SSTDS].pdf
+ *     https://docs.microsoft.com/en-us/openspecs/sql_server_protocols/ms-sstds/
  *
- * This document is no longer available here:
+ * This document is no longer available here, and does not appear to
+ *   have been archived by the Wayback Machine:
  * http://download.nai.com/products/media/sniffer/support/sdos/sybase.pdf
  *
  * Much of this code was originally developed for the FreeTDS project.
@@ -1339,7 +1340,7 @@ static dissector_handle_t smp_handle;
 #define TDS_CURSOR_FETCH_PENDING        0x10
 
 typedef struct {
-    const guint8        *tds_cursor_name;
+    const char          *tds_cursor_name;
     guint                tds_cursor_id;
     struct _netlib_data *tds_cursor_rowinfo;
     guint                tds_cursor_flags;
@@ -1752,7 +1753,7 @@ static const value_string tds_mars_type[] = {
  * TDS_ROW_TOKEN tokens.
  */
 struct _tds_col {
-    const guint8 *name;
+    const char *name;
     guint csize;
     guint32 utype;
     guint8 ctype;
@@ -1956,12 +1957,12 @@ copy_nl_data(wmem_allocator_t *allocator, struct _netlib_data *nl_data)
 }
 
 static void
-dissect_tds_all_headers(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto_tree *tree)
+dissect_tds_all_headers(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *tree)
 {
     proto_item *item = NULL, *total_length_item = NULL;
     proto_tree *sub_tree = NULL;
     guint32 total_length;
-    guint final_offset;
+    gint final_offset;
 
     total_length = tvb_get_letohl(tvb, *offset);
     /* Try to find out heuristically whether the ALL_HEADERS rule is actually present.
@@ -2091,7 +2092,7 @@ handle_tds_sql_money(tvbuff_t *tvb, guint offset, proto_tree *sub_tree, tds_conv
 
 static void
 dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto_tree *tree, int hf, tds_conv_info_t *tds_info,
-                         guint8 data_type, guint8 scale, gboolean plp, gint fieldnum, const guint8 *name)
+                         guint8 data_type, guint8 scale, gboolean plp, gint fieldnum, const char *name)
 {
     guint length, textptrlen;
     proto_tree *sub_tree = NULL;
@@ -2680,18 +2681,22 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
         }
         case TDS_DATA_TYPE_CHAR:            /* Char (TDS 4/5) */
         case TDS_DATA_TYPE_VARCHAR:         /* VarChar (TDS 4/5) */
+        {
+            gint len;
             proto_tree_add_item_ret_length(sub_tree, hf_tds_type_varbyte_data_uint_string,
-                tvb, *offset, 1, tds_get_char_encoding(tds_info), &length);
-            *offset += length;
+                tvb, *offset, 1, tds_get_char_encoding(tds_info), &len);
+            *offset += len;
             break;
-
+        }
         case TDS_DATA_TYPE_BINARY:          /* Binary (TDS 4/5) */
         case TDS_DATA_TYPE_VARBINARY:       /* VarBinary (TDS 4/5) */
+        {
+            gint len;
             proto_tree_add_item_ret_length(sub_tree, hf_tds_type_varbyte_data_uint_bytes,
-                tvb, *offset, 1, ENC_NA, &length);
-            *offset += length;
+                tvb, *offset, 1, ENC_NA, &len);
+            *offset += len;
             break;
-
+        }
         /* USHORTLEN_TYPE - types prefixed with 2-byte length */
         case TDS_DATA_TYPE_BIGVARBIN:       /* VarBinary */
         case TDS_DATA_TYPE_BIGBINARY:       /* Binary */
@@ -2701,9 +2706,10 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
         case TDS_DATA_TYPE_NCHAR:           /* NChar */
             /* Special case where MS and Sybase independently assigned a data type of 0xaf. */
             if ((data_type == SYBLONGCHAR) && TDS_PROTO_LESS_THAN_TDS7(tds_info)) {
+                gint len;
                 proto_tree_add_item_ret_length(sub_tree, hf_tds_type_varbyte_data_uint_string, tvb, *offset, 4,
-                    tds_get_char_encoding(tds_info)|tds_get_int4_encoding(tds_info), &length);
-                *offset += length;
+                    tds_get_char_encoding(tds_info)|tds_get_int4_encoding(tds_info), &len);
+                *offset += len;
                 break;
             }
             length = tvb_get_letohs(tvb, *offset);
@@ -2747,11 +2753,13 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
         /* SYBLONGCHAR would be similar, but there is an ambiguity with TDS 7.x.
          * It is handled under TDS_DATA_TYPE_BIGCHAR above. */
         case TDS_DATA_TYPE_LONGBINARY:      /* Long Binary (TDS 5.0) */
+        {
+            gint len;
             proto_tree_add_item_ret_length(sub_tree, hf_tds_type_varbyte_data_uint_bytes, tvb, *offset, 4,
-                                         tds_get_int4_encoding(tds_info), &length);
-            *offset += length;
+                tds_get_int4_encoding(tds_info), &len);
+            *offset += len;
             break;
-
+        }
         /* LONGLEN_TYPE - types prefixed with 4-byte length using a text pointer*/
         case TDS_DATA_TYPE_NTEXT:           /* NText */
         case TDS_DATA_TYPE_TEXT:            /* Text */
@@ -2804,7 +2812,7 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
 static void
 dissect_tds_query_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, tds_conv_info_t *tds_info)
 {
-    guint offset, len;
+    gint offset, len;
     guint string_encoding = ENC_UTF_16|ENC_LITTLE_ENDIAN;
     proto_tree *query_tree;
 
@@ -2822,7 +2830,7 @@ dissect_tds_query_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, td
     /* offset += len; */
 }
 
-static const int *dbrpc_options_hf_fields[] = {
+static int * const dbrpc_options_hf_fields[] = {
     &hf_tds_dbrpc_options_recompile,
     &hf_tds_dbrpc_options_params,
     NULL
@@ -2880,8 +2888,8 @@ tds5_check_cursor_name(packet_info *pinfo, proto_item *pi,
 {
     if (cursorname && cursor_current &&
         ( cursor_current->tds_cursor_flags & TDS_CURSOR_NAME_VALID)) {
-        if (g_strcmp0(cursorname,
-                       cursor_current->tds_cursor_name) != 0) {
+        if (g_strcmp0((const char *)cursorname,
+            cursor_current->tds_cursor_name) != 0) {
             expert_add_info_format(pinfo, pi, &ei_tds_cursor_name_mismatch,
                     "Cursor name %s does not match current cursor name %s",
                     cursorname, cursor_current->tds_cursor_name);
@@ -2921,7 +2929,7 @@ dissect_tds5_curclose_token(tvbuff_t *tvb, packet_info *pinfo, guint offset,
     cur += 4;
 
     if (cursorid == 0) {
-        guint cursorname_len;
+        gint cursorname_len;
         const guint8 *cursorname;
         proto_item *cursor_name_pi;
 
@@ -2961,7 +2969,7 @@ dissect_tds5_curclose_token(tvbuff_t *tvb, packet_info *pinfo, guint offset,
     return cur - offset;
 }
 
-static const int *tds_curdeclare_hf_fields[] = {
+static int * const tds_curdeclare_hf_fields[] = {
     &hf_tds_curdeclare_options_rdonly,
     &hf_tds_curdeclare_options_updatable,
     &hf_tds_curdeclare_options_sensitive,
@@ -2974,8 +2982,8 @@ static guint
 dissect_tds5_curdeclare_token(tvbuff_t *tvb, packet_info *pinfo, guint offset,
                               proto_tree *tree, tds_conv_info_t *tds_info)
 {
-    guint len, cur = offset, stmtlen, num_updatable_columns;
-    guint cursorname_len;
+    guint len, cur = offset, num_updatable_columns;
+    gint cursorname_len, stmtlen;
     const guint8 *cursorname;
     tds_cursor_info_t *packet_cursor =
         (tds_cursor_info_t *) p_get_proto_data(wmem_file_scope(), pinfo, proto_tds, 0);
@@ -3005,7 +3013,7 @@ dissect_tds5_curdeclare_token(tvbuff_t *tvb, packet_info *pinfo, guint offset,
     cur += 1;
 
     if (num_updatable_columns > 0) {
-        guint column_name_len;
+        gint column_name_len;
 
         proto_tree_add_item_ret_length(tree, hf_tds_curdeclare_update_columns_name,
             tvb, cur, 1, tds_get_char_encoding(tds_info)|ENC_NA, &column_name_len);
@@ -3040,7 +3048,7 @@ dissect_tds5_curdeclare_token(tvbuff_t *tvb, packet_info *pinfo, guint offset,
             (void) memset(cursor_current, 0, sizeof (tds_cursor_info_t));
         }
 
-        cursor_current->tds_cursor_name = wmem_strdup(wmem_file_scope(), cursorname);
+        cursor_current->tds_cursor_name = wmem_strdup(wmem_file_scope(), (const char* )cursorname);
         cursor_current->tds_cursor_flags |= TDS_CURSOR_NAME_VALID;
 
         if (packet_cursor && packet_cursor != cursor_current) {
@@ -3061,7 +3069,7 @@ dissect_tds5_curfetch_token(tvbuff_t *tvb, packet_info *pinfo, guint offset,
 {
     guint len, cur = offset;
     guint cursorid;
-    gint curfetch_type;
+    guint curfetch_type;
     const guint8 *cursorname;
     proto_item *cursor_id_pi;
     tds_cursor_info_t *packet_cursor =
@@ -3075,7 +3083,7 @@ dissect_tds5_curfetch_token(tvbuff_t *tvb, packet_info *pinfo, guint offset,
     cur += 4;
 
     if (cursorid == 0) {
-        guint cursorname_len;
+        gint cursorname_len;
         proto_item *cursor_name_pi;
 
         cursor_name_pi = proto_tree_add_item_ret_string_and_length(tree, hf_tds_curfetch_cursor_name,
@@ -3127,7 +3135,7 @@ dissect_tds5_curfetch_token(tvbuff_t *tvb, packet_info *pinfo, guint offset,
     return cur - offset;
 }
 
-static const int *tds_curinfo_hf_fields[] = {
+static int * const tds_curinfo_hf_fields[] = {
     &hf_tds_curinfo_cursor_status_declared,
     &hf_tds_curinfo_cursor_status_open,
     &hf_tds_curinfo_cursor_status_closed,
@@ -3159,7 +3167,7 @@ dissect_tds5_curinfo_token(tvbuff_t *tvb, packet_info *pinfo, guint offset,
     cur += 4;
 
     if (cursorid == 0) {
-        guint cursorname_len;
+        gint cursorname_len;
         proto_item *cursor_name_pi;
         cursor_name_pi = proto_tree_add_item_ret_string_and_length(tree,
             hf_tds_curinfo_cursor_name, tvb, cur, 1,
@@ -3256,7 +3264,7 @@ dissect_tds5_curopen_token(tvbuff_t *tvb, packet_info *pinfo, guint offset,
     cur += 4;
 
     if (cursorid == 0) {
-        guint cursorname_len;
+        gint cursorname_len;
         const guint8 *cursorname;
         proto_item *pi;
 
@@ -3278,7 +3286,13 @@ dissect_tds5_curopen_token(tvbuff_t *tvb, packet_info *pinfo, guint offset,
     return cur - offset;
 }
 
-static const int *hf_req_0[9] = {
+/*
+ * Each of these covers the 8 bits of a byte, so they have
+ * 9 elements - one for each bit, plus the terminating NULL.
+ *
+ * Some have early NULLs as placeholders.
+ */
+static int * const hf_req_0[9] = {
     &hf_tds_capability_req_lang,
     &hf_tds_capability_req_rpc,
     &hf_tds_capability_req_evt,
@@ -3288,7 +3302,7 @@ static const int *hf_req_0[9] = {
     &hf_tds_capability_req_dynf,
     NULL, NULL}; /* Two nulls until I can figure out the types. */
 
-static const int *hf_req_1[9] = {
+static int * const hf_req_1[9] = {
     &hf_tds_capability_req_msg,
     &hf_tds_capability_req_param,
     &hf_tds_capability_data_int1,
@@ -3299,7 +3313,7 @@ static const int *hf_req_1[9] = {
     &hf_tds_capability_data_vchar,
     NULL};
 
-static const int *hf_req_2[9] = {
+static int * const hf_req_2[9] = {
     &hf_tds_capability_data_bin,
     &hf_tds_capability_data_vbin,
     &hf_tds_capability_data_mny8,
@@ -3310,7 +3324,7 @@ static const int *hf_req_2[9] = {
     &hf_tds_capability_data_flt8,
     NULL};
 
-static const int *hf_req_3[9] = {
+static int * const hf_req_3[9] = {
     &hf_tds_capability_data_num,
     &hf_tds_capability_data_text,
     &hf_tds_capability_data_image,
@@ -3321,7 +3335,7 @@ static const int *hf_req_3[9] = {
     &hf_tds_capability_data_datetimen,
     NULL};
 
-static const int *hf_req_4[9] = {
+static int * const hf_req_4[9] = {
     &hf_tds_capability_data_moneyn,
     &hf_tds_capability_csr_prev,
     &hf_tds_capability_csr_first,
@@ -3332,7 +3346,7 @@ static const int *hf_req_4[9] = {
     &hf_tds_capability_con_oob,
     NULL};
 
-static const int *hf_req_5[9] = {
+static int * const hf_req_5[9] = {
     &hf_tds_capability_con_inband,
     &hf_tds_capability_con_logical,
     &hf_tds_capability_proto_text,
@@ -3343,7 +3357,7 @@ static const int *hf_req_5[9] = {
     &hf_tds_capability_proto_dynamic,
     NULL};
 
-static const int *hf_req_6[9] = {
+static int * const hf_req_6[9] = {
     &hf_tds_capability_proto_dynproc,
     &hf_tds_capability_data_fltn,
     &hf_tds_capability_data_bitn,
@@ -3354,7 +3368,7 @@ static const int *hf_req_6[9] = {
     &hf_tds_capability_object_char,
     NULL};
 
-static const int *hf_req_7[9] = {
+static int * const hf_req_7[9] = {
     &hf_tds_capability_object_binary,
     &hf_tds_capability_data_columnstatus,
     &hf_tds_capability_widetable,
@@ -3364,7 +3378,7 @@ static const int *hf_req_7[9] = {
     NULL,NULL, /* 56 and 60 reserved */
     NULL};
 
-static const int *hf_req_8[9] = {
+static int * const hf_req_8[9] = {
     &hf_tds_capability_data_uintn,
     &hf_tds_capability_cur_implicit,
     &hf_tds_capability_data_nlbin,
@@ -3375,7 +3389,7 @@ static const int *hf_req_8[9] = {
     &hf_tds_capability_data_date,
     NULL};
 
-static const int *hf_req_9[9] = {
+static int * const hf_req_9[9] = {
     &hf_tds_capability_data_time,
     &hf_tds_capability_data_interval,
     &hf_tds_capability_csr_scroll,
@@ -3386,7 +3400,7 @@ static const int *hf_req_9[9] = {
     &hf_tds_capability_req_srvpktsize,
     NULL};
 
-static const int *hf_req_10[9] = {
+static int * const hf_req_10[9] = {
     &hf_tds_capability_data_unitext,
     &hf_tds_capability_cap_clusterfailover,
     &hf_tds_capability_data_sint1,
@@ -3397,7 +3411,7 @@ static const int *hf_req_10[9] = {
     &hf_tds_capability_req_dbrpc2,
     NULL};
 
-static const int *hf_resp_0[9] = {
+static int * const hf_resp_0[9] = {
     &hf_tds_capability_res_nomsg,
     &hf_tds_capability_res_noeed,
     &hf_tds_capability_res_noparam,
@@ -3408,7 +3422,7 @@ static const int *hf_resp_0[9] = {
     NULL, /* 0 unused */
     NULL};
 
-static const int *hf_resp_1[9] = {
+static int * const hf_resp_1[9] = {
     &hf_tds_capability_data_nochar,
     &hf_tds_capability_data_novchar,
     &hf_tds_capability_data_nobin,
@@ -3419,7 +3433,7 @@ static const int *hf_resp_1[9] = {
     &hf_tds_capability_data_nodate4,
     NULL};
 
-static const int *hf_resp_2[9] = {
+static int * const hf_resp_2[9] = {
     &hf_tds_capability_data_noflt4,
     &hf_tds_capability_data_noflt8,
     &hf_tds_capability_data_nonum,
@@ -3430,7 +3444,7 @@ static const int *hf_resp_2[9] = {
     &hf_tds_capability_data_nolbin,
     NULL};
 
-static const int *hf_resp_3[9] = {
+static int * const hf_resp_3[9] = {
     &hf_tds_capability_data_nointn,
     &hf_tds_capability_data_nodatetimen,
     &hf_tds_capability_data_nomoneyn,
@@ -3441,7 +3455,7 @@ static const int *hf_resp_3[9] = {
     &hf_tds_capability_data_nosensitivity,
     NULL};
 
-static const int *hf_resp_4[9] = {
+static int * const hf_resp_4[9] = {
     &hf_tds_capability_data_noboundary,
     &hf_tds_capability_res_notdsdebug,
     &hf_tds_capability_res_nostripblanks,
@@ -3452,7 +3466,7 @@ static const int *hf_resp_4[9] = {
     &hf_tds_capability_object_nobinary,
     NULL};
 
-static const int *hf_resp_5[9] = {
+static int * const hf_resp_5[9] = {
     &hf_tds_capability_data_nouint2,
     &hf_tds_capability_data_nouint4,
     &hf_tds_capability_data_nouint8,
@@ -3463,7 +3477,7 @@ static const int *hf_resp_5[9] = {
     NULL, /* 40 unused */
     NULL};
 
-static const int *hf_resp_6[9] = {
+static int * const hf_resp_6[9] = {
     &hf_tds_capability_blob_nonchar_16,
     &hf_tds_capability_blob_nonchar_8,
     &hf_tds_capability_blob_nonchar_scsu,
@@ -3474,7 +3488,7 @@ static const int *hf_resp_6[9] = {
     &hf_tds_capability_data_nosint1,
     NULL};
 
-static const int *hf_resp_7[9] = {
+static int * const hf_resp_7[9] = {
     &hf_tds_capability_no_largeident,
     &hf_tds_capability_no_blob_nchar_16,
     &hf_tds_capability_no_srvpktsize,
@@ -3485,36 +3499,36 @@ static const int *hf_resp_7[9] = {
     &hf_tds_capability_res_suppress_doneinproc,
     NULL};
 
-static const int *hf_resp_8[9] = {
+static int * const hf_resp_8[9] = {
     &hf_tds_capability_res_force_rowfmt2,
     NULL, NULL, NULL, /* 65-67 reserved */
     NULL, NULL, NULL, NULL, /* 68-71 reserved */
     NULL};
 
-static const int *(* const hf_req_array[])[9] = {
-    &hf_req_0,
-    &hf_req_1,
-    &hf_req_2,
-    &hf_req_3,
-    &hf_req_4,
-    &hf_req_5,
-    &hf_req_6,
-    &hf_req_7,
-    &hf_req_8,
-    &hf_req_9,
-    &hf_req_10
+static int * const *hf_req_array[] = {
+    hf_req_0,
+    hf_req_1,
+    hf_req_2,
+    hf_req_3,
+    hf_req_4,
+    hf_req_5,
+    hf_req_6,
+    hf_req_7,
+    hf_req_8,
+    hf_req_9,
+    hf_req_10
    };
 
-static const int *(* const hf_resp_array[])[9] = {
-    &hf_resp_0,
-    &hf_resp_1,
-    &hf_resp_2,
-    &hf_resp_3,
-    &hf_resp_4,
-    &hf_resp_5,
-    &hf_resp_6,
-    &hf_resp_7,
-    &hf_resp_8
+static int * const *hf_resp_array[] = {
+    hf_resp_0,
+    hf_resp_1,
+    hf_resp_2,
+    hf_resp_3,
+    hf_resp_4,
+    hf_resp_5,
+    hf_resp_6,
+    hf_resp_7,
+    hf_resp_8
    };
 
 static guint
@@ -3543,14 +3557,14 @@ dissect_tds5_capability_token(tvbuff_t *tvb, packet_info *pinfo, guint offset,
         }
 
         for (cap=0; cap < caplen; cap++) {
-            const int **hf_array = NULL;
+            int * const *hf_array = NULL;
             char name[ITEM_LABEL_LENGTH];
             int ett;
 
             switch (captype) {
                 case TDS_CAP_REQUEST:
                     if (cap < array_length(hf_req_array)) {
-                        hf_array = (const int **) hf_req_array[cap];
+                        hf_array = hf_req_array[cap];
                         g_snprintf(name, ITEM_LABEL_LENGTH, "Req caps %d-%d: ",
                                    cap*8, (cap + 1)*8 - 1);
                         ett = ett_tds_capability_req;
@@ -3558,7 +3572,7 @@ dissect_tds5_capability_token(tvbuff_t *tvb, packet_info *pinfo, guint offset,
                     break;
                 case TDS_CAP_RESPONSE:
                     if (cap < array_length(hf_resp_array)) {
-                        hf_array = (const int **) hf_resp_array[cap];
+                        hf_array = hf_resp_array[cap];
                         g_snprintf(name, ITEM_LABEL_LENGTH, "Resp caps %d-%d: ",
                                    cap*8, (cap + 1)*8 - 1);
                         ett = ett_tds_capability_resp;
@@ -3589,7 +3603,7 @@ static void
 dissect_tds_transmgr_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *request_tree;
-    guint offset = 0, len;
+    gint offset = 0, len;
 
     request_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_tds7_query, NULL, "Transaction Manager Request Packet");
     dissect_tds_all_headers(tvb, &offset, pinfo, request_tree);
@@ -3653,7 +3667,7 @@ dissect_tds_paramfmt_token(proto_tree *tree, tvbuff_t *tvb, guint offset, tds_co
     col = 0;
     while (cur < next) {
         const guint8 *colname = NULL;
-        guint colnamelen, localelen;
+        gint colnamelen, localelen;
 
         if (col >= TDS_MAX_COLUMNS) {
             nl_data->num_cols = TDS_MAX_COLUMNS;
@@ -3668,7 +3682,7 @@ dissect_tds_paramfmt_token(proto_tree *tree, tvbuff_t *tvb, guint offset, tds_co
             tvb, cur, 1, tds_get_char_encoding(tds_info)|ENC_NA,
             wmem_packet_scope(), &colname, &colnamelen);
         cur += colnamelen;
-        nl_data->columns[col]->name = colname;
+        nl_data->columns[col]->name = (const char*)colname;
 
         proto_tree_add_item(tree, hf_tds_paramfmt_status, tvb, cur, 1, ENC_NA);
         cur += 1;
@@ -3734,7 +3748,7 @@ dissect_tds_paramfmt2_token(proto_tree *tree, tvbuff_t *tvb, guint offset, tds_c
     col = 0;
     while (cur < next) {
         const guint8 *colname = NULL;
-        guint colnamelen, localelen;
+        gint colnamelen, localelen;
 
         if (col >= TDS_MAX_COLUMNS) {
             nl_data->num_cols = TDS_MAX_COLUMNS;
@@ -3749,7 +3763,7 @@ dissect_tds_paramfmt2_token(proto_tree *tree, tvbuff_t *tvb, guint offset, tds_c
             tvb, cur, 1, tds_get_char_encoding(tds_info)|ENC_NA,
             wmem_packet_scope(), &colname, &colnamelen);
         cur += colnamelen;
-        nl_data->columns[col]->name = colname;
+        nl_data->columns[col]->name = (const char*)colname;
 
         proto_tree_add_item(tree, hf_tds_paramfmt2_status, tvb, cur, 4, tds_get_int4_encoding(tds_info));
         cur += 4;
@@ -4112,7 +4126,10 @@ dissect_tds7_prelogin_packet(tvbuff_t *tvb, proto_tree *tree, tds_conv_info_t *t
         offset += 1;
 
         if(token == TDS7_PRELOGIN_OPTION_TERMINATOR)
+        {
+            proto_item_append_text(option_item, ": Terminator");
             break;
+        }
 
         tokenoffset = tvb_get_ntohs(tvb, offset);
         proto_tree_add_item(option_tree, hf_tds_prelogin_option_offset, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -4122,58 +4139,56 @@ dissect_tds7_prelogin_packet(tvbuff_t *tvb, proto_tree *tree, tds_conv_info_t *t
         proto_tree_add_item(option_tree, hf_tds_prelogin_option_length, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
-        if(tokenlen != 0)
+        switch(token)
         {
-            switch(token)
-            {
-                case TDS7_PRELOGIN_OPTION_VERSION: {
-                    guint32 version;
-                    proto_item_append_text(option_item, ": Version");
-                    proto_tree_add_item_ret_uint(option_tree, hf_tds_prelogin_option_version,
-                                                 tvb, tokenoffset, 4, ENC_BIG_ENDIAN,
-                                                 &version);
-                    proto_tree_add_item(option_tree, hf_tds_prelogin_option_subbuild, tvb, tokenoffset + 4, 2, ENC_LITTLE_ENDIAN);
-                    /* This gives us a better idea of what protocol we'll see. */
-                    if (is_response) {
-                        set_tds_version(tds_info, version);
-                    }
-                    break;
+            case TDS7_PRELOGIN_OPTION_VERSION: {
+                guint32 version;
+                proto_item_append_text(option_item, ": Version");
+                proto_tree_add_item_ret_uint(option_tree, hf_tds_prelogin_option_version,
+                                                tvb, tokenoffset, 4, ENC_BIG_ENDIAN,
+                                                &version);
+                proto_tree_add_item(option_tree, hf_tds_prelogin_option_subbuild, tvb, tokenoffset + 4, 2, ENC_LITTLE_ENDIAN);
+                /* This gives us a better idea of what protocol we'll see. */
+                if (is_response) {
+                    set_tds_version(tds_info, version);
                 }
-                case TDS7_PRELOGIN_OPTION_ENCRYPTION: {
-                    proto_item_append_text(option_item, ": Encryption");
-                    proto_tree_add_item(option_tree, hf_tds_prelogin_option_encryption, tvb, tokenoffset, 1, ENC_NA);
-                    break;
-                }
-                case TDS7_PRELOGIN_OPTION_INSTOPT: {
-                    proto_item_append_text(option_item, ": InstOpt");
-                    proto_tree_add_item(option_tree, hf_tds_prelogin_option_instopt, tvb, tokenoffset, tokenlen, ENC_ASCII | ENC_NA);
-                    break;
-                }
-                case TDS7_PRELOGIN_OPTION_THREADID: {
-                    proto_item_append_text(option_item, ": ThreadID");
-                    proto_tree_add_item(option_tree, hf_tds_prelogin_option_threadid, tvb, tokenoffset, 4, ENC_BIG_ENDIAN);
-                    break;
-                }
-                case TDS7_PRELOGIN_OPTION_MARS: {
-                    proto_item_append_text(option_item, ": MARS");
-                    proto_tree_add_item(option_tree, hf_tds_prelogin_option_mars, tvb, tokenoffset, 1, ENC_NA);
-                    break;
-                }
-                case TDS7_PRELOGIN_OPTION_TRACEID: {
-                    proto_item_append_text(option_item, ": TraceID");
-                    proto_tree_add_item(option_tree, hf_tds_prelogin_option_traceid, tvb, tokenoffset, tokenlen, ENC_NA);
-                    break;
-                }
-                case TDS7_PRELOGIN_OPTION_FEDAUTHREQUIRED: {
-                    proto_item_append_text(option_item, ": FedAuthRequired");
-                    proto_tree_add_item(option_tree, hf_tds_prelogin_option_fedauthrequired, tvb, tokenoffset, 1, ENC_NA);
-                    break;
-                }
-                case TDS7_PRELOGIN_OPTION_NONCEOPT: {
-                    proto_item_append_text(option_item, ": NonceOpt");
-                    proto_tree_add_item(option_tree, hf_tds_prelogin_option_nonceopt, tvb, tokenoffset, tokenlen, ENC_NA);
-                    break;
-                }
+                break;
+            }
+            case TDS7_PRELOGIN_OPTION_ENCRYPTION: {
+                proto_item_append_text(option_item, ": Encryption");
+                proto_tree_add_item(option_tree, hf_tds_prelogin_option_encryption, tvb, tokenoffset, tokenlen, ENC_NA);
+                break;
+            }
+            case TDS7_PRELOGIN_OPTION_INSTOPT: {
+                proto_item_append_text(option_item, ": InstOpt");
+                proto_tree_add_item(option_tree, hf_tds_prelogin_option_instopt, tvb, tokenoffset, tokenlen, ENC_ASCII | ENC_NA);
+                break;
+            }
+            case TDS7_PRELOGIN_OPTION_THREADID: {
+                proto_item_append_text(option_item, ": ThreadID");
+                if (tokenlen > 0)
+                    proto_tree_add_item(option_tree, hf_tds_prelogin_option_threadid, tvb, tokenoffset, tokenlen, ENC_BIG_ENDIAN);
+                break;
+            }
+            case TDS7_PRELOGIN_OPTION_MARS: {
+                proto_item_append_text(option_item, ": MARS");
+                proto_tree_add_item(option_tree, hf_tds_prelogin_option_mars, tvb, tokenoffset, tokenlen, ENC_NA);
+                break;
+            }
+            case TDS7_PRELOGIN_OPTION_TRACEID: {
+                proto_item_append_text(option_item, ": TraceID");
+                proto_tree_add_item(option_tree, hf_tds_prelogin_option_traceid, tvb, tokenoffset, tokenlen, ENC_NA);
+                break;
+            }
+            case TDS7_PRELOGIN_OPTION_FEDAUTHREQUIRED: {
+                proto_item_append_text(option_item, ": FedAuthRequired");
+                proto_tree_add_item(option_tree, hf_tds_prelogin_option_fedauthrequired, tvb, tokenoffset, tokenlen, ENC_NA);
+                break;
+            }
+            case TDS7_PRELOGIN_OPTION_NONCEOPT: {
+                proto_item_append_text(option_item, ": NonceOpt");
+                proto_tree_add_item(option_tree, hf_tds_prelogin_option_nonceopt, tvb, tokenoffset, tokenlen, ENC_NA);
+                break;
             }
         }
     }
@@ -4404,7 +4419,6 @@ static void
 dissect_tds7_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, tds_conv_info_t *tds_info)
 {
     guint offset, i, j, k, offset2, len, login_hf = 0;
-
     proto_tree *login_tree;
     proto_tree *header_tree;
     proto_tree *length_tree;
@@ -4518,10 +4532,10 @@ dissect_tds7_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, tds_conv
                  * characters in the string.
                  */
 
-                guchar *val, *val2;
+                gchar *val, *val2;
                 len *= 2;
-                val  = (guchar *)tvb_memdup(wmem_packet_scope(), tvb, offset2, len);
-                val2 = (guchar *)wmem_alloc(wmem_packet_scope(), len/2+1);
+                val  = (gchar *)tvb_memdup(wmem_packet_scope(), tvb, offset2, len);
+                val2 = (gchar *)wmem_alloc(wmem_packet_scope(), len/2+1);
 
                 for(j = 0, k = 0; j < len; j += 2, k++) {
                     val[j] ^= 0xA5;
@@ -4618,7 +4632,8 @@ static guint
 dissect_tds_col_name_token(proto_tree *tree, tvbuff_t *tvb, guint offset, tds_conv_info_t *tds_info,
                            struct _netlib_data *nl_data)
 {
-    guint next, cur, len, col=0;
+    guint next, cur, col=0;
+    guint32 len;
 
     proto_tree_add_item_ret_uint(tree, hf_tds_colname_length, tvb, offset, 2,
                                  tds_get_int2_encoding(tds_info), &len);
@@ -4645,7 +4660,7 @@ dissect_tds_col_name_token(proto_tree *tree, tvbuff_t *tvb, guint offset, tds_co
             tvb, cur, 1, tds_get_char_encoding(tds_info)|ENC_NA,
             wmem_packet_scope(), &colname, &len);
 
-        nl_data->columns[col]->name = colname;
+        nl_data->columns[col]->name = (const char*)colname;
 
         if (len > 1) {
             proto_item_set_text(col_item, "Column %d (%s)", col + 1, colname);
@@ -4731,7 +4746,7 @@ dissect_tds_colfmt_token(proto_tree *tree, tvbuff_t *tvb, guint offset, tds_conv
 
         if (!is_fixedlen_type_tds(nl_data->columns[col]->ctype)) {
             if (is_image_type_tds(nl_data->columns[col]->ctype)) {
-                guint tnamelen;
+                gint tnamelen;
                 proto_tree_add_item_ret_uint(col_tree, hf_tds_colfmt_csize_long, tvb, cur, 4,
                                              tds_get_int4_encoding(tds_info),
                                              &nl_data->columns[col]->csize);
@@ -4790,7 +4805,7 @@ dissect_tds_rowfmt_token(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *col_tree;
         guint colstart = cur;
         gboolean first = TRUE;
-        guint colnamelen;
+        gint colnamelen;
         gint localelen;
         const guint8 *colname = NULL;
 
@@ -4843,7 +4858,7 @@ dissect_tds_rowfmt_token(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
 
         if (!is_fixedlen_type_tds(nl_data->columns[col]->ctype)) {
             if (is_image_type_tds(nl_data->columns[col]->ctype)) {
-                guint tnamelen;
+                gint tnamelen;
                 proto_tree_add_item_ret_uint(col_tree, hf_tds_rowfmt_csize, tvb, cur, 4,
                     tds_get_int4_encoding(tds_info),
                     &nl_data->columns[col]->csize);
@@ -4933,10 +4948,10 @@ dissect_tds_rowfmt2_token(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *col_tree;
         guint colstart = cur;
         guint ctype;
-        guint labelnamelen, catalognamelen, schemanamelen, tablenamelen, colnamelen, localelen;
-        const guint8 *labelname = NULL, *catalogname = "", *schemaname = "",
-                     *tablename = "", *colname = "";
-        const guint8 *name;
+        gint labelnamelen, catalognamelen, schemanamelen, tablenamelen, colnamelen, localelen;
+        const guint8 *labelname = NULL, *catalogname = (const guint8 * )"", *schemaname = (const guint8 * )"",
+                     *tablename = (const guint8*)"", *colname = (const guint8*)"";
+        const char *name;
 
         if (col >= TDS_MAX_COLUMNS) {
             nl_data->num_cols = TDS_MAX_COLUMNS;
@@ -4977,27 +4992,27 @@ dissect_tds_rowfmt2_token(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
 
         if (catalognamelen > 1) {
             name = wmem_strjoin(wmem_packet_scope(), ".",
-                       catalogname, schemaname, tablename, colname, NULL);
+                       catalogname, schemaname, tablename, (const gchar*)colname, NULL);
         }
         else if (schemanamelen > 1) {
             name = wmem_strjoin(wmem_packet_scope(), ".",
-                       schemaname, tablename, colname, NULL);
+                       schemaname, tablename, (const gchar*)colname, NULL);
         }
         else if (tablenamelen > 1) {
             name = wmem_strjoin(wmem_packet_scope(), ".",
-                       tablename, colname, NULL);
+                       tablename, (const gchar*)colname, NULL);
         }
         else {
-            name = colname;
+            name = (const gchar*)colname;
         }
 
         if (labelnamelen > 1) {
             if (strlen(name) > 0) {
                 name = wmem_strjoin(wmem_packet_scope(), " AS ",
-                           name, labelname, NULL);
+                           name, (const gchar*)labelname, NULL);
             }
             else {
-                name = labelname;
+                name = (const gchar*)labelname;
             }
         }
 
@@ -5019,7 +5034,7 @@ dissect_tds_rowfmt2_token(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
 
         if (!is_fixedlen_type_tds(ctype)) {
             if (is_image_type_tds(ctype)) {
-                guint tnamelen;
+                gint tnamelen;
                 proto_tree_add_item_ret_uint(col_tree, hf_tds_rowfmt2_csize, tvb, cur, 4,
                     tds_get_int4_encoding(tds_info),
                     &nl_data->columns[col]->csize);
@@ -5085,7 +5100,8 @@ static guint
 dissect_tds_control_token(proto_tree *tree, tvbuff_t *tvb, guint offset, tds_conv_info_t *tds_info,
                           struct _netlib_data *nl_data)
 {
-    guint next, cur, len, col=0;
+    guint next, cur, col=0;
+    guint32 len;
     cur = offset;
 
     /* TODO: fill in nl_data as necessary. */
@@ -5519,7 +5535,7 @@ static int
 dissect_tds_eed_token(tvbuff_t *tvb, guint offset, proto_tree *tree, tds_conv_info_t *tds_info)
 {
     guint cur = offset;
-    guint32 msg_len, len;
+    gint32 msg_len, len;
 
     proto_tree_add_item(tree, hf_tds_eed_length, tvb, cur, 2,
                         tds_get_int2_encoding(tds_info));
@@ -5733,7 +5749,7 @@ dissect_tds7_colmetadata_token(tvbuff_t *tvb, struct _netlib_data *nl_data, guin
     proto_tree_add_item(tree, hf_tds_colmetadata_columns, tvb, cur, 2, ENC_LITTLE_ENDIAN);
     if (nl_data->num_cols > TDS_MAX_COLUMNS) {
         nl_data->num_cols = 0;
-        return 0;
+        return 2;
     }
     cur +=2;
 
@@ -6084,7 +6100,7 @@ dissect_tds7_colmetadata_token(tvbuff_t *tvb, struct _netlib_data *nl_data, guin
  * One  field is not valid in this token.
  */
 
-static const int *done_status_flags[] = {
+static int * const done_status_flags[] = {
     &hf_tds_done_status_more,
     &hf_tds_done_status_error,
     &hf_tds_done_status_inxact,
@@ -6124,7 +6140,7 @@ dissect_tds_done_token(tvbuff_t *tvb, guint offset, proto_tree *tree, tds_conv_i
  * All fields are valid in this token.
  */
 
-static const int *doneproc_status_flags[] = {
+static int * const doneproc_status_flags[] = {
     &hf_tds_done_status_more,
     &hf_tds_done_status_error,
     &hf_tds_done_status_inxact,
@@ -6167,7 +6183,7 @@ dissect_tds_doneproc_token(tvbuff_t *tvb, guint offset, proto_tree *tree, tds_co
  * This token occurs much more frequently when stored procedures are used, so
  * it's worthwhile to make a separate list.
  */
-static const int *doneinproc_status_flags[] = {
+static int * const doneinproc_status_flags[] = {
     &hf_tds_done_status_more,
     &hf_tds_done_status_error,
     &hf_tds_done_status_inxact,
@@ -6214,7 +6230,7 @@ dissect_tds_procid_token(tvbuff_t *tvb, guint offset, proto_tree *tree, tds_conv
 }
 
 static guint8
-dissect_tds_type_info(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto_tree *tree, gboolean *plp, gboolean variantprop)
+dissect_tds_type_info(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *tree, gboolean *plp, gboolean variantprop)
 {
     proto_item *item = NULL, *item1 = NULL, *data_type_item = NULL;
     proto_tree *sub_tree = NULL, *collation_tree;
@@ -6810,7 +6826,7 @@ dissect_netlib_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     conversation_t *conv;
     tds_conv_info_t *tds_info;
 
-    static const int *status_flags[] = {
+    static int * const status_flags[] = {
         &hf_tds_status_eom,
         &hf_tds_status_ignore,
         &hf_tds_status_event_notif,
@@ -8484,7 +8500,7 @@ proto_register_tds(void)
             NULL, HFILL }
         },
         { &hf_tds_dbrpc_rpcname,
-          { "DBRPC - RPC Name", "tds.dbrpc.rpcname_len",
+          { "DBRPC - RPC Name", "tds.dbrpc.rpcname",
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },

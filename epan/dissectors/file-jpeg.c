@@ -13,8 +13,8 @@
  * JFIF media decoding functionality provided by Olivier Biot.
  *
  * The JFIF specifications are found at several locations, such as:
- * http://www.jpeg.org/public/jfif.pdf
- * http://www.w3.org/Graphics/JPEG/itu-t81.pdf
+ * https://www.w3.org/Graphics/JPEG/jfif3.pdf
+ * https://www.w3.org/Graphics/JPEG/itu-t81.pdf
  *
  * The Exif specifications are found at several locations, such as:
  * http://www.exif.org/
@@ -520,7 +520,7 @@ process_app0_segment(proto_tree *tree, tvbuff_t *tvb, guint32 len,
 
     proto_tree_add_item(subtree, hf_len, tvb, 2, 2, ENC_BIG_ENDIAN);
 
-    str = tvb_get_stringz_enc(wmem_packet_scope(), tvb, 4, &str_size, ENC_ASCII);
+    str = (char *)tvb_get_stringz_enc(wmem_packet_scope(), tvb, 4, &str_size, ENC_ASCII);
     ti = proto_tree_add_item(subtree, hf_identifier, tvb, 4, str_size, ENC_ASCII|ENC_NA);
     if (strcmp(str, "JFIF") == 0) {
         /* Version */
@@ -599,7 +599,7 @@ process_app1_segment(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint3
     proto_tree_add_item(subtree, hf_len, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    str = tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, &str_size, ENC_ASCII);
+    str = (char*)tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, &str_size, ENC_ASCII);
     ti = proto_tree_add_item(subtree, hf_identifier, tvb, offset, str_size, ENC_ASCII|ENC_NA);
     offset += str_size;
 
@@ -723,7 +723,7 @@ process_app2_segment(proto_tree *tree, tvbuff_t *tvb, guint32 len,
 
     proto_tree_add_item(subtree, hf_len, tvb, 2, 2, ENC_BIG_ENDIAN);
 
-    str = tvb_get_stringz_enc(wmem_packet_scope(), tvb, 4, &str_size, ENC_ASCII);
+    str = (char*)tvb_get_stringz_enc(wmem_packet_scope(), tvb, 4, &str_size, ENC_ASCII);
     ti = proto_tree_add_item(subtree, hf_identifier, tvb, 4, str_size, ENC_ASCII|ENC_NA);
     if (strcmp(str, "FPXR") == 0) {
         proto_tree_add_item(tree, hf_exif_flashpix_marker, tvb, 0, -1, ENC_NA);
@@ -751,10 +751,10 @@ dissect_jfif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         return 0;
     /* Check identifier field in first App segment is "JFIF", although "Exif" from App1
        can/does appear here too... */
-    if (tvb_memeql(tvb, 6, "Exif", 5) == 0) {
+    if (tvb_memeql(tvb, 6, (const guint8*)"Exif", 5) == 0) {
         show_first_identifier_not_jfif = TRUE;
     }
-    else if (tvb_memeql(tvb, 6, "JFIF", 5)) {
+    else if (tvb_memeql(tvb, 6, (const guint8*)"JFIF", 5)) {
         return 0;
     }
 

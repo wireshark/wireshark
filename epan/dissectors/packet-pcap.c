@@ -11334,7 +11334,7 @@ dissect_pcap_UTDOA_CELLDCH(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 }
 
 
-static const int * AvailableSignatures_bits[] = {
+static int * const AvailableSignatures_bits[] = {
   &hf_pcap_AvailableSignatures_signature15,
   &hf_pcap_AvailableSignatures_signature14,
   &hf_pcap_AvailableSignatures_signature13,
@@ -11391,7 +11391,7 @@ dissect_pcap_PreambleScramblingCodeWordNumber(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 
-static const int * AvailableSubChannelNumbers_bits[] = {
+static int * const AvailableSubChannelNumbers_bits[] = {
   &hf_pcap_AvailableSubChannelNumbers_subCh11,
   &hf_pcap_AvailableSubChannelNumbers_subCh10,
   &hf_pcap_AvailableSubChannelNumbers_subCh9,

@@ -129,7 +129,7 @@ fi
 # the optional libraries are required by other optional libraries.
 #
 LIBSMI_VERSION=0.4.8
-GNUTLS_VERSION=3.4.17
+GNUTLS_VERSION=3.6.14
 if [ "$GNUTLS_VERSION" ]; then
     #
     # We'll be building GnuTLS, so we may need some additional libraries.
@@ -138,12 +138,12 @@ if [ "$GNUTLS_VERSION" ]; then
     #
     GNUTLS_MAJOR_VERSION="`expr $GNUTLS_VERSION : '\([0-9][0-9]*\).*'`"
     GNUTLS_MINOR_VERSION="`expr $GNUTLS_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
-    NETTLE_VERSION=3.3
+    NETTLE_VERSION=3.6
 
     #
     # And, in turn, Nettle requires GMP.
     #
-    GMP_VERSION=6.1.2
+    GMP_VERSION=6.2.0
 fi
 # Use 5.2.4, not 5.3, for now; lua_bitop.c hasn't been ported to 5.3
 # yet, and we need to check for compatibility issues (we'd want Lua
@@ -169,6 +169,7 @@ if [ "$SPANDSP_VERSION" ]; then
     LIBTIFF_VERSION=3.8.1
 fi
 BCG729_VERSION=1.0.2
+ILBC_VERSION=2.0.2
 PYTHON3_VERSION=3.7.1
 BROTLI_VERSION=1.0.7
 # minizip
@@ -1139,7 +1140,7 @@ install_gnutls() {
             bzcat gnutls-$GNUTLS_VERSION.tar.bz2 | tar xf - || exit 1
         fi
         cd gnutls-$GNUTLS_VERSION
-        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure --with-included-libtasn1 --with-included-unistring --without-p11-kit || exit 1
+        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure --with-included-libtasn1 --with-included-unistring --without-p11-kit --disable-guile || exit 1
         make $MAKE_BUILD_OPTS || exit 1
         $DO_MAKE_INSTALL || exit 1
         cd ..
@@ -1637,7 +1638,7 @@ install_spandsp() {
         # by all the gcc versions in the versions of Xcode that we
         # support.
         #
-        patch -p0 <../../macosx-support-lib-patches/spandsp-configure-patch || exit 1
+        patch -p0 <${topdir}/macosx-support-lib-patches/spandsp-configure-patch || exit 1
         CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
         make $MAKE_BUILD_OPTS || exit 1
         $DO_MAKE_INSTALL || exit 1
@@ -1736,6 +1737,42 @@ uninstall_bcg729() {
         fi
 
         installed_bcg729_version=""
+    fi
+}
+
+install_ilbc() {
+    if [ -n "$ILBC_VERSION" ] && [ ! -f ilbc-$ILBC_VERSION-done ] ; then
+        echo "Downloading, building, and installing iLBC:"
+        [ -f libilbc-$ILBC_VERSION.tar.bz ] || curl --location --remote-name https://github.com/TimothyGu/libilbc/releases/download/v$ILBC_VERSION/libilbc-$ILBC_VERSION.tar.bz2 || exit 1
+        $no_build && echo "Skipping installation" && return
+        bzcat libilbc-$ILBC_VERSION.tar.bz2 | tar xf - || exit 1
+        cd libilbc-$ILBC_VERSION || exit 1
+        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
+        make $MAKE_BUILD_OPTS || exit 1
+        $DO_MAKE_INSTALL || exit 1
+        cd ..
+        touch ilbc-$ILBC_VERSION-done
+    fi
+}
+
+uninstall_ilbc() {
+    if [ -n "$installed_ilbc_version" ] ; then
+        echo "Uninstalling iLBC:"
+        cd "libilbc-$installed_ilbc_version" || exit 1
+        $DO_MAKE_UNINSTALL || exit 1
+        make distclean || exit 1
+        cd ..
+        rm "ilbc-$installed_ilbc_version-done"
+
+        if [ "$#" -eq 1 ] && [ "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version.
+            #
+            rm -rf "libilbc-$installed_ilbc_version"
+            rm -rf "libilbc-$installed_ilbc_version.tar.bz2"
+        fi
+
+        installed_ilbc_version=""
     fi
 }
 
@@ -1937,6 +1974,17 @@ install_all() {
             echo "Requested bcg729 version is $BCG729_VERSION"
         fi
         uninstall_bcg729 -r
+    fi
+
+    if [ -n "$installed_ilbc_version" ] \
+              && [ "$installed_ilbc_version" != "$ILBC_VERSION" ] ; then
+        echo "Installed iLBC version is $installed_ilbc_version"
+        if [ -z "$ILBC_VERSION" ] ; then
+            echo "iLBC is not requested"
+        else
+            echo "Requested iLBC version is $ILBC_VERSION"
+        fi
+        uninstall_ilbc -r
     fi
 
     if [ ! -z "$installed_spandsp_version" -a \
@@ -2425,6 +2473,8 @@ install_all() {
 
     install_bcg729
 
+    install_ilbc
+
     install_python3
 
     install_brotli
@@ -2455,6 +2505,8 @@ uninstall_all() {
         uninstall_brotli
 
         uninstall_python3
+
+        uninstall_ilbc
 
         uninstall_bcg729
 
@@ -2661,6 +2713,7 @@ then
     installed_spandsp_version=`ls spandsp-*-done 2>/dev/null | sed 's/spandsp-\(.*\)-done/\1/'`
     installed_speexdsp_version=`ls speexdsp-*-done 2>/dev/null | sed 's/speexdsp-\(.*\)-done/\1/'`
     installed_bcg729_version=`ls bcg729-*-done 2>/dev/null | sed 's/bcg729-\(.*\)-done/\1/'`
+    installed_ilbc_version=`ls ilbc-*-done 2>/dev/null | sed 's/ilbc-\(.*\)-done/\1/'`
     installed_python3_version=`ls python3-*-done 2>/dev/null | sed 's/python3-\(.*\)-done/\1/'`
     installed_brotli_version=`ls brotli-*-done 2>/dev/null | sed 's/brotli-\(.*\)-done/\1/'`
     installed_minizip_version=`ls minizip-*-done 2>/dev/null | sed 's/minizip-\(.*\)-done/\1/'`

@@ -50,6 +50,11 @@ ProfileTreeView::ProfileTreeView(QWidget *parent) :
     connect(delegate_, SIGNAL(commitData(QWidget *)), this, SIGNAL(itemUpdated()));
 }
 
+ProfileTreeView::~ProfileTreeView()
+{
+    delete delegate_;
+}
+
 void ProfileTreeView::selectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
 {
     QTreeView::selectionChanged(selected, deselected);

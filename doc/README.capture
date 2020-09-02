@@ -15,8 +15,6 @@ capture-pcap-util-int.h
 capture-pcap-util-unix.c
 capture-wpcap.c
 capture-wpcap.h
-capture_wpcap_packet.c
-capture_wpcap_packet.h
 
 Capture related source files:
 -----------------------------

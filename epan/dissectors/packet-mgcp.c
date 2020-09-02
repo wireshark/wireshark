@@ -307,7 +307,7 @@ static void mgcp_raw_text_add(tvbuff_t *tvb, proto_tree *tree);
 
 #define NUM_TIMESTATS 11
 
-static const value_string mgcp_mesage_type[] = {
+static const value_string mgcp_message_type[] = {
 	{  0, "Overall"},
 	{  1, "EPCF   "},
 	{  2, "CRCX   "},
@@ -2743,7 +2743,7 @@ void proto_register_mgcp(void)
 
 	mgcp_tap = register_tap("mgcp");
 
-	register_rtd_table(proto_mgcp, NULL, 1, NUM_TIMESTATS, mgcp_mesage_type, mgcpstat_packet, NULL);
+	register_rtd_table(proto_mgcp, NULL, 1, NUM_TIMESTATS, mgcp_message_type, mgcpstat_packet, NULL);
 
 	expert_mgcp = expert_register_protocol(proto_mgcp);
 	expert_register_field_array(expert_mgcp, ei, array_length(ei));

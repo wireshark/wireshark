@@ -37,7 +37,7 @@
 #include <epan/proto_data.h>
 #include <epan/to_str.h>
 
-#include <wiretap/erf.h>
+#include <wiretap/erf_record.h>
 #include <wsutil/str_util.h>
 #include "packet-ip.h"
 #include "packet-juniper.h"
@@ -1093,7 +1093,7 @@ dissect_routing6_srh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     gint srh_first_seg, srh_addr_count;
     const ws_in6_addr *addr;
     proto_tree *rthdr_srh_addr_tree;
-    static const int *srh_flags[] = {
+    static int * const srh_flags[] = {
         &hf_ipv6_routing_srh_flag_unused1,
         &hf_ipv6_routing_srh_flag_p,
         &hf_ipv6_routing_srh_flag_o,
@@ -1385,7 +1385,7 @@ static gint
 dissect_opt_rpl(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *opt_tree,
                     struct opt_proto_item *opt_ti, guint8 opt_len)
 {
-    static const int *rpl_flags[] = {
+    static int * const rpl_flags[] = {
         &hf_ipv6_opt_rpl_flag_o,
         &hf_ipv6_opt_rpl_flag_r,
         &hf_ipv6_opt_rpl_flag_f,
@@ -1830,7 +1830,7 @@ static gint
 dissect_opt_mpl(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *opt_tree,
                     struct opt_proto_item *opt_ti _U_, guint8 opt_len _U_)
 {
-    static const int *mpl_flags[] = {
+    static int * const mpl_flags[] = {
         &hf_ipv6_opt_mpl_flag_s,
         &hf_ipv6_opt_mpl_flag_m,
         &hf_ipv6_opt_mpl_flag_v,
@@ -1872,7 +1872,7 @@ static gint
 dissect_opt_dff(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *opt_tree,
                             struct opt_proto_item *opt_ti, guint8 opt_len)
 {
-    static const int *dff_flags[] = {
+    static int * const dff_flags[] = {
         &hf_ipv6_opt_dff_flag_ver,
         &hf_ipv6_opt_dff_flag_dup,
         &hf_ipv6_opt_dff_flag_ret,

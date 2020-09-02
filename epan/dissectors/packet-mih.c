@@ -452,7 +452,7 @@ static gint ett_link_desc_req = -1;
 static gint ett_dev_states_resp = -1;
 
 /*field definitions of evt, cmd, mob mgmt, ip cfg, iq type */
-static const int *event_fields[] = {
+static int * const event_fields[] = {
         &hf_event_link_detect,
         &hf_event_link_up,
         &hf_event_link_dn,
@@ -464,7 +464,7 @@ static const int *event_fields[] = {
         NULL
 };
 
-static const int *cmd_fields[] = {
+static int * const cmd_fields[] = {
         &hf_cmd_event_subs,
         &hf_cmd_event_unsub,
         &hf_cmd_get_param,
@@ -473,7 +473,7 @@ static const int *cmd_fields[] = {
         NULL
 };
 
-static const int *iq_type_fields[] = {
+static int * const iq_type_fields[] = {
         &hf_iq_bin_data,
         &hf_iq_rdf_data,
         &hf_iq_rdf_sch_url,
@@ -506,7 +506,7 @@ static const int *iq_type_fields[] = {
         NULL
 };
 
-static const int *mob_fields[] = {
+static int * const mob_fields[] = {
         &hf_mob_mip4,
         &hf_mob_mip4_reg,
         &hf_mob_mip6,
@@ -517,7 +517,7 @@ static const int *mob_fields[] = {
         NULL
 };
 
-static const int *cfg_fields[] = {
+static int * const cfg_fields[] = {
         &hf_cfg_ip4_stat,
         &hf_cfg_dhcp4,
         &hf_cfg_mip_fa,
@@ -529,26 +529,26 @@ static const int *cfg_fields[] = {
 };
 
 /*field definitions for various bitmaps */
-static const int *trans_fields[] = {
+static int * const trans_fields[] = {
         &hf_trans_udp,
         &hf_trans_tcp,
         NULL
 };
 
-static const int *dev_states_fields[] = {
+static int * const dev_states_fields[] = {
         &hf_dev_states_req_dev_info,
         &hf_dev_states_req_batt_lvl,
         NULL
 };
 
-static const int *mihcap_fields[] = {
+static int * const mihcap_fields[] = {
         &hf_mihcap_es,
         &hf_mihcap_cs,
         &hf_mihcap_is,
         NULL
 };
 
-static const int *net_caps_fields[] = {
+static int * const net_caps_fields[] = {
         &hf_net_caps_sec,
         &hf_net_caps_qos0,
         &hf_net_caps_qos1,
@@ -562,28 +562,28 @@ static const int *net_caps_fields[] = {
         NULL
 };
 
-static const int *ac_attr_fields[] = {
+static int * const ac_attr_fields[] = {
         &hf_link_ac_attr_link_scan,
         &hf_link_ac_attr_link_res_retain,
         &hf_link_ac_attr_data_fwd_req,
         NULL
 };
 
-static const int *subtype_eth_fields[] = {
+static int * const subtype_eth_fields[] = {
         &hf_link_subtype_eth_10m,
         &hf_link_subtype_eth_100m,
         &hf_link_subtype_eth_1000m,
         NULL
 };
 
-static const int *subtype_wireless_other_fields[] = {
+static int * const subtype_wireless_other_fields[] = {
         &hf_link_subtype_wireless_other_dvb,
         &hf_link_subtype_wireless_other_tdmb,
         &hf_link_subtype_wireless_other_atsc,
         NULL
 };
 
-static const int *subtype_ieee80211_fields[] = {
+static int * const subtype_ieee80211_fields[] = {
         &hf_link_subtype_ieee80211_24,
         &hf_link_subtype_ieee80211_5,
         &hf_link_subtype_ieee80211_49,
@@ -592,7 +592,7 @@ static const int *subtype_ieee80211_fields[] = {
         NULL
 };
 
-static const int *subtype_umts_fields[] = {
+static int * const subtype_umts_fields[] = {
         &hf_link_subtype_umts_99,
         &hf_link_subtype_umts_4,
         &hf_link_subtype_umts_5,
@@ -602,7 +602,7 @@ static const int *subtype_umts_fields[] = {
         NULL
 };
 
-static const int *subtype_cdma2000_fields[] = {
+static int * const subtype_cdma2000_fields[] = {
         &hf_link_subtype_cdma2000_0,
         &hf_link_subtype_cdma2000_a,
         &hf_link_subtype_cdma2000_b,
@@ -610,7 +610,7 @@ static const int *subtype_cdma2000_fields[] = {
         NULL
 };
 
-static const int *subtype_ieee80216_fields[] = {
+static int * const subtype_ieee80216_fields[] = {
         &hf_link_subtype_ieee80216_25,
         &hf_link_subtype_ieee80216_35,
         NULL
@@ -838,7 +838,7 @@ static const value_string link_param_fdd_vals[] = {
 static const value_string link_param_802_11_vals[] = {
 {0, "RSSI"},
 {1, "No QoS resource Available"},
-{2, "Multiast packet loss rate"},
+{2, "Multicast packet loss rate"},
 {0, NULL}
 };
 

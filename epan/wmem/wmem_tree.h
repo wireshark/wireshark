@@ -44,20 +44,20 @@ wmem_tree_new(wmem_allocator_t *allocator)
 G_GNUC_MALLOC;
 
 /** Creates a tree with two allocator scopes. The base structure lives in the
- * master scope, however the data lives in the slave scope. Every time free_all
- * occurs in the slave scope the tree is transparently emptied without affecting
- * the location of the master structure.
+ * metadata scope, and the tree data lives in the data scope. Every time free_all
+ * occurs in the data scope the tree is transparently emptied without affecting
+ * the location of the base / metadata structure.
  *
- * WARNING: None of the tree (even the part in the master scope) can be used
- * after the slave scope has been *destroyed*.
+ * WARNING: None of the tree (even the part in the metadata scope) can be used
+ * after the data scope has been *destroyed*.
  *
  * The primary use for this function is to create trees that reset for each new
  * capture file that is loaded. This can be done by specifying wmem_epan_scope()
- * as the master and wmem_file_scope() as the slave.
+ * as the metadata scope and wmem_file_scope() as the data scope.
  */
 WS_DLL_PUBLIC
 wmem_tree_t *
-wmem_tree_new_autoreset(wmem_allocator_t *master, wmem_allocator_t *slave)
+wmem_tree_new_autoreset(wmem_allocator_t *metadata_scope, wmem_allocator_t *data_scope)
 G_GNUC_MALLOC;
 
 /** Cleanup memory used by tree.  Intended for NULL scope allocated trees */

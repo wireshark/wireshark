@@ -67,7 +67,7 @@ typedef struct _hislip_transaction_t
     guint32 req_frame;
     guint32 rep_frame;
     guint8 messagetype;
-    guint8 controltype;
+    guint8 controlcode;
     guint32 messagepara;
 } hislip_transaction_t;
 
@@ -95,6 +95,7 @@ void proto_reg_handoff_hislip(void);
 #define HISLIP_PORT     4880
 
 /*Field indexs*/
+static gint hf_hislip_prologue = -1;
 static gint hf_hislip_messagetype = -1;
 static gint hf_hislip_controlcode = -1;
 static gint hf_hislip_controlcode_rmt = -1;
@@ -137,7 +138,7 @@ static const range_string messagetypestring[] =
 {
     { HISLIP_INITIALIZE                     , HISLIP_INITIALIZE                     , "Initialize" },
     { HISLIP_INITIALIZERESPONSE             , HISLIP_INITIALIZERESPONSE             , "InitializeResponse" },
-    { HISLIP_FATALERROR                     , HISLIP_ERROR                          , "FatalError" },
+    { HISLIP_FATALERROR                     , HISLIP_FATALERROR                     , "FatalError" },
     { HISLIP_ERROR                          , HISLIP_ERROR                          , "Error" },
     { HISLIP_ASYNCLOCK                      , HISLIP_ASYNCLOCK                      , "AsyncLock" },
     { HISLIP_ASYNCLOCK_RESPONSE             , HISLIP_ASYNCLOCK_RESPONSE             , "AsyncLockResponse" },
@@ -268,7 +269,7 @@ static const range_string nonfatalerrortype[] =
 
 /*See http://ivifoundation.org/specifications/default.aspx
     VPP-9: Instrument Vendor Abbreviations Table 3-1 */
-/* Sorted by value */
+/* Sorted by value (spec is not quite in order) */
 static const value_string vendorID[] =
 {
         { 0x4143, "Applicos BV" },
@@ -282,7 +283,7 @@ static const value_string vendorID[] =
         { 0x4150, "Audio Precision, Inc" },
         { 0x4151, "Acqiris" },
         { 0x4153, "ASCOR Incorporated" },
-        { 0x4154, "Thurlby Thandar Instruments Limited" },
+        { 0x4154, "Thurlby Thandar Instruments Limited" }, /* Astronics Test Systems Inc ? */
         { 0x4155, "Anritsu Company" },
 /*        { 0x4155, "Serendipity Systems, Inc." }, XXX - duplicate of "Anritsu Company" */
         { 0x4156, "Advantest Corporation" },
@@ -305,11 +306,13 @@ static const value_string vendorID[] =
         { 0x4750, "Hewlett-Packard Company" },
         { 0x4752, "GenRad" },
         { 0x4754, "Giga-tronics, Inc." },
+        { 0x4848, "Hoecherl & Hackl GmbH" },
         { 0x4943, "Integrated Control Systems" },
         { 0x4945, "Instrumentation Engineering, Inc." },
         { 0x4946, "IFR" },
+        { 0x4953, "Intepro Systems" },
         { 0x4B45, "Keithley Instruments" },
-        { 0x4B49, "Kikusui" },
+        { 0x4B49, "Kikusui Inc." },
         { 0x4B50, "Kepco, Inc." },
         { 0x4B53, "KineticSystems, Corp." },
         { 0x4B54, "Keysight Technologies (Reserved)" },
@@ -322,20 +325,25 @@ static const value_string vendorID[] =
         { 0x4D53, "Microscan" },
         { 0x4D54, "ManTech Test Systems" },
         { 0x4D57, "Pacific MindWorks, Inc." },
+        { 0x4E44, "Newland Design + Associate, Inc."},
         { 0x4E49, "National Instruments Corp." },
         { 0x4E54, "NEUTRIK AG" },
         { 0x5043, "Picotest" },
+        { 0x5045, "PesMatrix Inc."},
         { 0x5049, "Pickering Interfaces" },
         { 0x504D, "Phase Metrics" },
         { 0x5054, "Power-Tek Inc." },
         { 0x5241, "Radisys Corp." },
+        { 0x5246, "ThinkRF Corporation" },
         { 0x5249, "Racal Instruments, Inc." },
         { 0x5253, "Rohde & Schwarz GmbH" },
         { 0x5343, "Scicom" },
+        { 0x5349, "SignalCraft Technologies Inc." },
         { 0x534C, "Schlumberger Technologies" },
         { 0x5352, "Scientific Research Corporation" },
 /*        { 0x5352, "Sony/Tektronix Corporation" }, XXX - duplicate of "Scientific Research Corporation" */
         { 0x5353, "Spectrum Signal Processing, Inc." },
+        { 0x5354, "Sony/Tekronix Corporation" },
         { 0x5441, "Talon Instruments" },
         { 0x5445, "Teradyne" },
         { 0x544B, "Tektronix, Inc." },
@@ -350,14 +358,15 @@ static const value_string vendorID[] =
         { 0x5654, "VXI Technology, Inc." },
         { 0x5747, "Wandel & Goltermann" },
         { 0x5754, "Wavetek Corp." },
+        { 0x575a, "Welzek" },
         { 0x594B, "Yokogawa Electric Corporation" },
-        { 0x5A54, "Electric Corporation" },
+        { 0x5A54, "ZTEC" },
         { 0, NULL }
 };
 static value_string_ext vendorID_ext = VALUE_STRING_EXT_INIT(vendorID);
 
 static void
-decode_messagepara(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, hislipinfo *data)
+decode_messagepara(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, hislipinfo *data)
 {
 
     proto_item * item = NULL;
@@ -702,7 +711,7 @@ dissect_hislip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
     /*Get Message Type*/
     hislip_data.messagetype = tvb_get_guint8(tvb, hislip_data.offset+2);
-    /*Get Control Type*/
+    /*Get Control Code*/
     hislip_data.controlcode = tvb_get_guint8(tvb, hislip_data.offset+3);
     /*Get Message Parameter*/
     hislip_data.messageparameter = tvb_get_ntohl(tvb, hislip_data.offset+4);
@@ -763,11 +772,11 @@ dissect_hislip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         if(!PINFO_FD_VISITED(pinfo))
         {
             /* This is a new request */
-            hislip_trans = (hislip_transaction_t *)wmem_alloc(wmem_file_scope(), sizeof(hislip_transaction_t));
+            hislip_trans = wmem_new(wmem_file_scope(), hislip_transaction_t);
             hislip_trans->req_frame = pinfo->num;
             hislip_trans->rep_frame = 0;
             hislip_trans->messagetype = hislip_data.messagetype;
-            hislip_trans->controltype = hislip_data.controlcode;
+            hislip_trans->controlcode = hislip_data.controlcode;
             wmem_tree_insert32(hislip_info->pdus, pinfo->num , (void *)hislip_trans);
         }
         else
@@ -802,7 +811,7 @@ dissect_hislip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         if (hislip_trans)
         {
             hislip_trans->rep_frame = pinfo->num;
-            oldcontrolvalue = hislip_trans->controltype;
+            oldcontrolvalue = hislip_trans->controlcode;
             it = proto_tree_add_uint( hislip_tree, hf_hislip_request,tvb, 0, 0, hislip_trans->req_frame);
             proto_item_set_generated(it);
         }
@@ -815,7 +824,10 @@ dissect_hislip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     }
 
 
-    /*Preload "HS"*/
+    /* Actually dissect fields */
+
+    /* TODO: could control whether this is shown by preference? */
+    proto_tree_add_item(hislip_tree, hf_hislip_prologue, tvb, hislip_data.offset, 2, ENC_ASCII|ENC_NA);
     hislip_data.offset += 2;
 
     proto_tree_add_item(hislip_tree, hf_hislip_messagetype, tvb, hislip_data.offset, 1, ENC_BIG_ENDIAN);
@@ -839,10 +851,8 @@ static guint
 get_hislip_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
                        int offset, void *data _U_)
 {
-
-    guint64 length;
     /* Data length */
-    length = tvb_get_ntoh64(tvb, offset+8);
+    guint64 length = tvb_get_ntoh64(tvb, offset+8);
     /* Header length */
     length += FRAME_HEADER_LEN;
 
@@ -850,7 +860,7 @@ get_hislip_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
 }
 
 static gint
-dissect_hislip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_hislip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     /*Reassembling TCP fragments*/
     tcp_dissect_pdus(tvb, pinfo, tree, TRUE, FRAME_HEADER_LEN,
@@ -861,7 +871,7 @@ dissect_hislip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
 /*Heuristic*/
 static gboolean
-dissect_hislip_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_hislip_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     /*  min. 16 bytes?*/
     if (tvb_captured_length(tvb) < FRAME_HEADER_LEN)
@@ -889,38 +899,41 @@ proto_register_hislip(void)
     module_t * hislip_module;
 
     static hf_register_info hf[] = {
+        { &hf_hislip_prologue,
+        { "Prologue", "hislip.prologue", FT_STRING, BASE_NONE, NULL, 0x0,
+        "HiSLIP Message Prologue (should be \"HS\")", HFILL }},
         { &hf_hislip_messagetype,
         { "Message Type", "hislip.messagetype", FT_UINT8, BASE_HEX|BASE_RANGE_STRING, RVALS(messagetypestring), 0x0,
         "HiSLIP Message Type", HFILL }},
         { &hf_hislip_controlcode,
-        { "Control Code", "hislip.controltype", FT_UINT8, BASE_DEC, NULL, 0x0,
+        { "Control Code", "hislip.controlcode", FT_UINT8, BASE_DEC, NULL, 0x0,
         "HiSLIP Control Code", HFILL }},
         { &hf_hislip_controlcode_rmt,
-        { "Control Code", "hislip.controltype.rmt", FT_UINT8, BASE_HEX, VALS(rmt), 0x0,
+        { "Control Code", "hislip.controlcode.rmt", FT_UINT8, BASE_HEX, VALS(rmt), 0x0,
         "HiSLIP RMT", HFILL }},
         { &hf_hislip_controlcode_overlap,
-        { "Control Code", "hislip.controltype.overlap", FT_UINT8, BASE_HEX, VALS(overlap), 0x0,
+        { "Control Code", "hislip.controlcode.overlap", FT_UINT8, BASE_HEX, VALS(overlap), 0x0,
         "HiSLIP overlap", HFILL }},
         { &hf_hislip_controlcode_asynclockinforesponse_code,
-        { "Control Code", "hislip.controltype.asynclockinforesponse", FT_UINT8, BASE_HEX, VALS(asynclockinforesponse_code), 0x0,
+        { "Control Code", "hislip.controlcode.asynclockinforesponse", FT_UINT8, BASE_HEX, VALS(asynclockinforesponse_code), 0x0,
         "HiSLIP asynclockinforesponse", HFILL }},
         { &hf_hislip_controlcode_asynclockresponse_code_release,
-        { "Control Code", "hislip.controltype.asynclockresponse", FT_UINT8, BASE_HEX, VALS(asynclockresponse_code_release), 0x0,
+        { "Control Code", "hislip.controlcode.asynclockresponse", FT_UINT8, BASE_HEX, VALS(asynclockresponse_code_release), 0x0,
         "HiSLIP asynclockresponse code", HFILL }},
         { &hf_hislip_controlcode_asynclockresponse_code_request,
-        { "Control Code", "hislip.controltype.asynclockresponse", FT_UINT8, BASE_HEX, VALS(asynclockresponse_code_request), 0x0,
+        { "Control Code", "hislip.controlcode.asynclockresponse", FT_UINT8, BASE_HEX, VALS(asynclockresponse_code_request), 0x0,
         "HiSLIP asynclockresponse code", HFILL }},
         { &hf_hislip_controlcode_asyncremotelocalcontrol_code,
-        { "Control Code", "hislip.controltype.asyncremotelocalcontrol", FT_UINT8, BASE_HEX, VALS(asyncremotelocalcontrol_code), 0x0,
+        { "Control Code", "hislip.controlcode.asyncremotelocalcontrol", FT_UINT8, BASE_HEX, VALS(asyncremotelocalcontrol_code), 0x0,
         "HiSLIP asyncremotelocalcontrol", HFILL }},
         { &hf_hislip_controlcode_feature_negotiation,
-        { "Control Code", "hislip.controltype.featurenegotiation", FT_UINT8, BASE_HEX, VALS(feature_negotiation), 0x0,
+        { "Control Code", "hislip.controlcode.featurenegotiation", FT_UINT8, BASE_HEX, VALS(feature_negotiation), 0x0,
         "HiSLIP feature", HFILL }},
         { &hf_hislip_controlcode_asynclock_code,
-        { "Control Code", "hislip.controltype.asynclockcode", FT_UINT8, BASE_HEX, VALS(asynclock_code), 0x0,
+        { "Control Code", "hislip.controlcode.asynclockcode", FT_UINT8, BASE_HEX, VALS(asynclock_code), 0x0,
         "HiSLIP asynclock code", HFILL }},
         { &hf_hislip_controlcode_stb,
-        { "STB", "hislip.controltype.stb", FT_UINT8, BASE_HEX, NULL, 0x0,
+        { "STB", "hislip.controlcode.stb", FT_UINT8, BASE_HEX, NULL, 0x0,
         "HiSLIP Status Byte", HFILL }},
         { &hf_hislip_payloadlength,
         { "Payload Length", "hislip.payloadlength", FT_UINT64, BASE_DEC, NULL, 0x0,
@@ -963,7 +976,7 @@ proto_register_hislip(void)
         "This is the HiSLIP Synchronous Channel", HFILL }},
         { &hf_hislip_asyn,
         { "Asynchronous Channel", "hislip.asyn", FT_NONE, BASE_NONE, NULL, 0x0,
-        "This is the HiSLIP ASynchronous Channel", HFILL }},
+        "This is the HiSLIP Asynchronous Channel", HFILL }},
         { &hf_hislip_fatalerrcode,
         { "Fatalerror Code", "hislip.fatalerrcode", FT_UINT8, BASE_HEX|BASE_RANGE_STRING, RVALS(fatalerrortype), 0x0,
         "HiSLIP Fatalerror Code", HFILL }},

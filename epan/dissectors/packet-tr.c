@@ -529,14 +529,14 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
 	/* protocol analysis tree */
 	if (tree) {
-		static const int * ac[] = {
+		static int * const ac[] = {
 			&hf_tr_priority,
 			&hf_tr_frame,
 			&hf_tr_monitor_cnt,
 			&hf_tr_priority_reservation,
 			NULL
 		};
-		static const int * fc_flags[] = {
+		static int * const fc_flags[] = {
 			&hf_tr_fc_type,
 			&hf_tr_fc_pcf,
 			NULL

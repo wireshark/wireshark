@@ -11,6 +11,7 @@
 #define WLANSTATISTICSDIALOG_H
 
 #include "tap_parameter_dialog.h"
+#include <ui/qt/models/percent_bar_delegate.h>
 
 class QElapsedTimer;
 
@@ -27,6 +28,7 @@ protected:
 private:
     int packet_count_;
     int cur_network_;
+    PercentBarDelegate *packets_delegate_, *retry_delegate_;
     QElapsedTimer *add_station_timer_;
     QString displayFilter_;
 

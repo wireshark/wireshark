@@ -149,6 +149,16 @@ p_get_proto_name_and_key(wmem_allocator_t *scope, struct _packet_info* pinfo, gu
   return wmem_strdup_printf(wmem_packet_scope(),"[%s, key %u]",proto_get_protocol_name(temp->proto), temp->key);
 }
 
+#define PROTO_DEPTH_KEY 0x3c233fb5 // printf "0x%02x%02x\n" ${RANDOM} ${RANDOM}
+
+void p_set_proto_depth(struct _packet_info *pinfo, int proto, unsigned depth) {
+  p_add_proto_data(pinfo->pool, pinfo, proto, PROTO_DEPTH_KEY, GUINT_TO_POINTER(depth));
+}
+
+unsigned p_get_proto_depth(struct _packet_info *pinfo, int proto) {
+  return GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto, PROTO_DEPTH_KEY));
+}
+
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *

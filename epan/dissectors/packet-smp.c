@@ -88,7 +88,7 @@ dissect_smp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     guint32 flags, sid, smp_length;
     tvbuff_t* next_tvb;
     int parsed_bytes;
-    static const int *flag_fields[] = {
+    static int * const flag_fields[] = {
         &hf_smp_flags_syn,
         &hf_smp_flags_ack,
         &hf_smp_flags_fin,

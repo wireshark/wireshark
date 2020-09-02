@@ -625,7 +625,7 @@ dissect_fc_vft(proto_tree *parent_tree,
 static void
 dissect_fc_fctl(packet_info *pinfo _U_, proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 {
-    static const int * flags[] = {
+    static int * const  flags[] = {
         &hf_fc_fctl_exchange_responder,
         &hf_fc_fctl_seq_recipient,
         &hf_fc_fctl_exchange_first,

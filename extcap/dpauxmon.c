@@ -536,7 +536,7 @@ int main(int argc, char *argv[])
 			goto end;
 
 		case OPT_VERSION:
-			printf("%s\n", extcap_conf->version);
+			extcap_version_print(extcap_conf);
 			goto end;
 
 		case OPT_INTERFACE_ID:

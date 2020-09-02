@@ -16,27 +16,14 @@
 #  Omniidl is part of the OmniOrb distribution, and is available at
 #  http://omniorb.sourceforge.net
 #
-#  This program is free software; you can redistribute it and/or modify it
-#  under the terms of the GNU General Public License as published by
-#  the Free Software Foundation; either version 2 of the License, or
-#  (at your option) any later version.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#  General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program; if not, write to the Free Software
-#  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
-#  02111-1307, USA.
+#  SPDX-License-Identifier: GPL-2.0-or-later
 
 
 # Description:
 #
 #   Omniidl Back-end which parses an IDL list of "Operation" nodes
 #   passed from wireshark_be2.py and generates "C" code for compiling
-#   as a plugin for the  Wireshark IP Protocol Analyser.
+#   as a dissector for Wireshark.
 #
 #
 # Strategy (sneaky but ...)
@@ -54,6 +41,7 @@
 
 from __future__ import print_function
 
+import collections
 import tempfile
 
 from omniidl import idlast, idltype, idlutil, output
@@ -1747,7 +1735,7 @@ class wireshark_gen_C:
         to generate dissect_exception_XXX functions.
         """
 
-        ex_hash = {}  # holds a hash of unique exceptions.
+        ex_hash = collections.OrderedDict()  # holds a hash of unique exceptions.
         for op in oplist:
             for ex in op.raises():
                 if ex not in ex_hash:
@@ -1945,7 +1933,7 @@ default:
     expert_add_info_format(pinfo, item, &ei_@dissector_name@_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);"""
 
     template_helper_switch_msgtype_default_end = """\
-break;"""
+    break;"""
 
     template_helper_switch_msgtype_end = """\
 } /* switch(header->message_type) */"""
@@ -2196,8 +2184,8 @@ for (i_@aname@=0; i_@aname@ < @aval@; i_@aname@++) {
     template_wireshark_copyright = """\
 /*
  * Wireshark - Network traffic analyzer
- * By Gerald Combs
- * Copyright 1999 - 2012 Gerald Combs
+ * By Gerald Combs <gerald@@wireshark.org>
+ * Copyright 1998 Gerald Combs
  */
 """
 
@@ -2209,7 +2197,7 @@ for (i_@aname@=0; i_@aname@ < @aval@; i_@aname@++) {
 
     template_Modelines = """\
 /*
- * Editor modelines
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 4
@@ -2225,10 +2213,7 @@ for (i_@aname@=0; i_@aname@ < @aval@; i_@aname@++) {
 
 #include "config.h"
 
-#include <gmodule.h>
-
 #include <string.h>
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/proto.h>
 #include <epan/dissectors/packet-giop.h>
@@ -2566,27 +2551,27 @@ decode_@sname@_at(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U
     # as omniidl accessor returns integer or Enum.
 
     template_union_code_save_discriminant_enum = """\
-disc_s_@discname@ = (gint32) get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary);     /* save Enum Value  discriminant and cast to gint32 */
+disc_s_@discname@ = (gint32) u_octet4;     /* save Enum Value  discriminant and cast to gint32 */
 """
     template_union_code_save_discriminant_long = """\
-disc_s_@discname@ = (gint32) get_CDR_long(tvb,offset,stream_is_big_endian, boundary);     /* save gint32 discriminant and cast to gint32 */
+disc_s_@discname@ = (gint32) s_octet4;     /* save gint32 discriminant and cast to gint32 */
 """
 
     template_union_code_save_discriminant_ulong = """\
-disc_s_@discname@ = (gint32) get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary);     /* save guint32 discriminant and cast to gint32 */
+disc_s_@discname@ = (gint32) u_octet4;     /* save guint32 discriminant and cast to gint32 */
 """
     template_union_code_save_discriminant_short = """\
-disc_s_@discname@ = (gint32) get_CDR_short(tvb,offset,stream_is_big_endian, boundary);     /* save gint16 discriminant and cast to gint32 */
+disc_s_@discname@ = (gint32) s_octet2;     /* save gint16 discriminant and cast to gint32 */
 """
 
     template_union_code_save_discriminant_ushort = """\
-disc_s_@discname@ = (gint32) get_CDR_ushort(tvb,offset,stream_is_big_endian, boundary);     /* save guint16 discriminant and cast to gint32 */
+disc_s_@discname@ = (gint32) u_octet2;     /* save guint16 discriminant and cast to gint32 */
 """
     template_union_code_save_discriminant_char = """\
-disc_s_@discname@ = (gint32) get_CDR_char(tvb,offset,stream_is_big_endian, boundary);     /* save guint1 discriminant and cast to gint32 */
+disc_s_@discname@ = (gint32) u_octet1;     /* save guint1 discriminant and cast to gint32 */
 """
     template_union_code_save_discriminant_boolean = """\
-disc_s_@discname@ = (gint32) get_CDR_boolean(tvb,offset,stream_is_big_endian, boundary);     /* save guint1 discriminant and cast to gint32 */
+disc_s_@discname@ = (gint32) u_octet1;     /* save guint1 discriminant and cast to gint32 */
 """
     template_comment_union_code_label_compare_start = """\
 if (disc_s_@discname@ == @labelval@) {

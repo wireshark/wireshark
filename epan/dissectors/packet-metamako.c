@@ -20,7 +20,6 @@
 
 #include <epan/packet.h>
 
-#include <glib.h>
 #include <glib/gprintf.h>
 
 void proto_register_metamako(void);
@@ -49,7 +48,7 @@ static gint ett_metamako_timestamp = -1;
 static gint ett_metamako_extensions = -1;
 static gint ett_metamako_flags = -1;
 
-static const int * flags[] = {
+static int * const flags[] = {
   &hf_metamako_flags_orig_fcs_vld,
   &hf_metamako_flags_has_ext,
   &hf_metamako_reserved,

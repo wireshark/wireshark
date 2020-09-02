@@ -17,8 +17,10 @@ and xcbproto provides:
  damage.xml
  dpms.xml
  dri2.xml
+ dri3.xml
  ge.xml
  glx.xml
+ present.xml
  randr.xml
  record.xml
  render.xml
@@ -46,8 +48,15 @@ Or, if you have already cloned those repositories, "git pull" each one to bring
 it up to date. Please be aware that the Mesa repository is rather large; it is
 slightly more than 200MB as of this writing.
 
-Run the following:
- make x11-dissector
+Then build the x11-dissector target; for example, run the command
+
+  make x11-dissector
+
+if you're using Make as your build tool or
+
+  ninja x11-dissector
+
+if you're using Ninja as your build tool.
 
 This will automatically run process-x11-fields.pl (for the core protocol
 definitions), and then it will run process-x11-xcb.pl to process the XML

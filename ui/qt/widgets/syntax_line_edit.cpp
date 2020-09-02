@@ -38,7 +38,8 @@ const int max_completion_items_ = 20;
 SyntaxLineEdit::SyntaxLineEdit(QWidget *parent) :
     QLineEdit(parent),
     completer_(NULL),
-    completion_model_(NULL)
+    completion_model_(NULL),
+    completion_enabled_(false)
 {
     // Try to matche QLineEdit's placeholder text color (which sets the
     // alpha channel to 50%, which doesn't work in style sheets).
@@ -70,6 +71,14 @@ void SyntaxLineEdit::setCompleter(QCompleter *c)
     completer_->setMaxVisibleItems(max_completion_items_);
     QObject::connect(completer_, static_cast<void (QCompleter::*)(const QString &)>(&QCompleter::activated),
                      this, &SyntaxLineEdit::insertFieldCompletion);
+
+    // Auto-completion is turned on.
+    completion_enabled_ = true;
+}
+
+void SyntaxLineEdit::allowCompletion(bool enabled)
+{
+    completion_enabled_ = enabled;
 }
 
 void SyntaxLineEdit::setSyntaxState(SyntaxState state) {
@@ -146,11 +155,15 @@ void SyntaxLineEdit::insertFilter(const QString &filter)
     insert(padded_filter);
 }
 
-void SyntaxLineEdit::checkDisplayFilter(QString filter)
+bool SyntaxLineEdit::checkDisplayFilter(QString filter)
 {
+    if (!completion_enabled_) {
+        return false;
+    }
+
     if (filter.isEmpty()) {
         setSyntaxState(SyntaxLineEdit::Empty);
-        return;
+        return true;
     }
 
     dfilter_t *dfp = NULL;
@@ -187,6 +200,8 @@ void SyntaxLineEdit::checkDisplayFilter(QString filter)
         g_free(err_msg);
     }
     dfilter_free(dfp);
+
+    return true;
 }
 
 void SyntaxLineEdit::checkFieldName(QString field)
@@ -317,7 +332,7 @@ void SyntaxLineEdit::completionKeyPressEvent(QKeyEvent *event)
     // ...otherwise process the key ourselves.
     SyntaxLineEdit::keyPressEvent(event);
 
-    if (!completer_ || !completion_model_ || !prefs.gui_autocomplete_filter) return;
+    if (!completion_enabled_ || !completer_ || !completion_model_ || !prefs.gui_autocomplete_filter) return;
 
     // Do nothing on bare shift.
     if ((event->modifiers() & Qt::ShiftModifier) && event->text().isEmpty()) return;

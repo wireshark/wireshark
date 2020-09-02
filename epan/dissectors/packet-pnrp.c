@@ -197,7 +197,7 @@ static gint hf_pnrp_message_inquire_flags_reserved2 = -1;
 
 static gint hf_pnrp_padding = -1;
 
-static const int *inquire_flags[] = {
+static int * const inquire_flags[] = {
     &hf_pnrp_message_inquire_flags_reserved1,
     &hf_pnrp_message_inquire_flags_Abit,
     &hf_pnrp_message_inquire_flags_Xbit,
@@ -229,7 +229,7 @@ static gint hf_pnrp_message_authority_flags_Bbit = -1;
 static gint hf_pnrp_message_authority_flags_reserved3= -1;
 static gint hf_pnrp_message_authority_flags_Nbit = -1;
 
-static const int *authority_flags[] = {
+static int * const authority_flags[] = {
     &hf_pnrp_message_authority_flags_reserved1,
     &hf_pnrp_message_authority_flags_Lbit,
     &hf_pnrp_message_authority_flags_reserved2,
@@ -268,7 +268,7 @@ static gint hf_pnrp_encodedCPA_flags_Cbit = -1;
 static gint hf_pnrp_encodedCPA_flags_Abit = -1;
 static gint hf_pnrp_encodedCPA_flags_Ubit = -1;
 static gint hf_pnrp_encodedCPA_flags_Rbit = -1;
-static const int *encodedCPA_flags[] = {
+static int * const encodedCPA_flags[] = {
     &hf_pnrp_encodedCPA_flags_reserved,
     &hf_pnrp_encodedCPA_flags_Xbit,
     &hf_pnrp_encodedCPA_flags_Fbit,
@@ -289,7 +289,7 @@ static gint hf_pnrp_message_lookupControls_flags = -1;
 static gint hf_pnrp_message_lookupControls_flags_reserved = -1;
 static gint hf_pnrp_message_lookupControls_flags_Abit = -1;
 static gint hf_pnrp_message_lookupControls_flags_0bit = -1;
-static const int *lookupControls_flags[] = {
+static int * const lookupControls_flags[] = {
     &hf_pnrp_message_lookupControls_flags_reserved,
     &hf_pnrp_message_lookupControls_flags_Abit,
     &hf_pnrp_message_lookupControls_flags_0bit,
@@ -1348,7 +1348,7 @@ void proto_register_pnrp(void)
             { "Hashed Nonce", "pnrp.segment.hashednonce", FT_BYTES, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }},
         { &hf_pnrp_message_idArray_NumEntries,
-            { "Number of Entries", "pnrp.segment.idArray.NumEnries", FT_UINT16, BASE_DEC, NULL, 0x0,
+            { "Number of Entries", "pnrp.segment.idArray.NumEntries", FT_UINT16, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }},
         { &hf_pnrp_message_idArray_Length,
             { "Length of Array", "pnrp.segment.idArray.Length", FT_UINT16, BASE_DEC, NULL, 0x0,

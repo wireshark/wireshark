@@ -3844,7 +3844,7 @@ parameter_value_q (proto_tree *tree, packet_info *pinfo, proto_item *ti, tvbuff_
     return offset;
 }
 
-static const int * address_length_flags[] = {
+static int * const address_length_flags[] = {
     &hf_address_flags_length_bearer_type_included,
     &hf_address_flags_length_port_number_included,
     &hf_address_flags_length_address_len,
@@ -3878,7 +3878,7 @@ dissect_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
     conversation_t    *conv;
     guint32            idx            = 0; /* Address index */
     guint32            address_record_len; /* Length of the entire address record */
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_wsp_redirect_permanent,
         &hf_wsp_redirect_reuse_security_session,
         NULL
@@ -4633,7 +4633,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree *wsp_tree = NULL;
 
     wsp_info_value_t *stat_info;
-    stat_info = (wsp_info_value_t *)wmem_alloc(wmem_packet_scope(), sizeof(wsp_info_value_t));
+    stat_info = wmem_new(wmem_packet_scope(), wsp_info_value_t);
     stat_info->status_code = 0;
 
 /* This field shows up as the "Info" column in the display; you should make
@@ -5261,7 +5261,7 @@ add_capabilities (proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, guint8 pd
                  * given by capaValueLen - len.
                  */
                 if (capaValueLen - len == 1) {
-                    static const int * capabilities[] = {
+                    static int * const capabilities[] = {
                         &hf_capa_protocol_option_confirmed_push,
                         &hf_capa_protocol_option_push,
                         &hf_capa_protocol_option_session_resume,

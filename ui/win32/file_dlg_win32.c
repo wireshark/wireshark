@@ -467,7 +467,7 @@ win32_merge_file (HWND h_wnd, const wchar_t *title, GString *file_name, GString 
 }
 
 void
-win32_export_file(HWND h_wnd, const wchar_t *title, capture_file *cf, export_type_e export_type) {
+win32_export_file(HWND h_wnd, const wchar_t *title, capture_file *cf, export_type_e export_type, const gchar *range_) {
     OPENFILENAME     *ofn;
     TCHAR             file_name[MAX_PATH] = _T("");
     char             *dirname;
@@ -500,6 +500,12 @@ win32_export_file(HWND h_wnd, const wchar_t *title, capture_file *cf, export_typ
     ofn->lpTemplateName = _T("WIRESHARK_EXPORTFILENAME_TEMPLATE");
 
     /* Fill in our print (and export) args */
+
+    /* init the printing range */
+    packet_range_init(&print_args.range, cf);
+
+    if (strlen(range_) > 0)
+        packet_range_convert_selection_str(&print_args.range, range_);
 
     print_args.format              = PR_FMT_TEXT;
     print_args.to_file             = TRUE;
@@ -910,6 +916,11 @@ filter_tb_syntax_check(HWND hwnd, TCHAR *filter_text) {
     g_free(strval);
 }
 
+static gint alpha_sort(gconstpointer a, gconstpointer b)
+{
+    return g_ascii_strcasecmp(*(const char **)a, *(const char **)b);
+}
+
 static UINT_PTR CALLBACK
 open_file_hook_proc(HWND of_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
     HWND      cur_ctrl, parent;
@@ -925,11 +936,27 @@ open_file_hook_proc(HWND of_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
                 SetWindowText(cur_ctrl, utf_8to16(g_dfilter_str));
             }
 
+            /* Put Auto, as well as pcap and pcapng (which are the first two entries in
+               open_routines), at the top of the file type list. */
             cur_ctrl = GetDlgItem(of_hwnd, EWFD_FORMAT_TYPE);
             SendMessage(cur_ctrl, CB_ADDSTRING, 0, (WPARAM) _T("Automatically detect file type"));
-            for (i = 0; open_routines[i].name != NULL; i += 1) {
+            for (i = 0; i < 2; i += 1) {
                 SendMessage(cur_ctrl, CB_ADDSTRING, 0, (WPARAM) utf_8to16(open_routines[i].name));
             }
+            /* Generate a sorted list of the remaining file types.
+               The magic number 60 is a rough starting point for how big the
+               GPtrArray should start. It'll automatically grow if needed, so
+               the exact number isn't critical. (This is good, because we don't have
+               an easy way to get the exact number.) */
+            GPtrArray *routine_names = g_ptr_array_sized_new(60);
+            for ( /* keep using i */ ; open_routines[i].name != NULL; i += 1) {
+                g_ptr_array_add(routine_names, (gpointer)open_routines[i].name);
+            }
+            g_ptr_array_sort(routine_names, alpha_sort);
+            for (guint i = 0; i < routine_names->len; i += 1) {
+                SendMessage(cur_ctrl, CB_ADDSTRING, 0, (WPARAM) utf_8to16((const char *)g_ptr_array_index(routine_names, i)));
+            }
+            g_ptr_array_free(routine_names, TRUE);
             SendMessage(cur_ctrl, CB_SETCURSEL, 0, 0);
 
             preview_set_file_info(of_hwnd, NULL);
@@ -944,6 +971,20 @@ open_file_hook_proc(HWND of_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
 
                     cur_ctrl = GetDlgItem(of_hwnd, EWFD_FORMAT_TYPE);
                     g_format_type = (unsigned int) SendMessage(cur_ctrl, CB_GETCURSEL, 0, 0);
+
+                    /* The list of file formats is sorted. Get the format by name. */
+                    guint label_len;
+                    label_len = (guint) SendMessage(cur_ctrl, CB_GETLBTEXTLEN, (WPARAM) g_format_type, 0);
+                    if (label_len != CB_ERR) {
+                        TCHAR *label = g_malloc((label_len+1)*sizeof(TCHAR));
+                        SendMessage(cur_ctrl, CB_GETLBTEXT, (WPARAM) g_format_type, (LPARAM) label);
+                        g_format_type = open_info_name_to_type(utf_16to8(label));
+                        g_free(label);
+                    }
+                    else {
+                        /* Problem, fall back on automatic */
+                        g_format_type = WTAP_TYPE_AUTO;
+                    }
 
                     break;
                 case CDN_SELCHANGE:
@@ -1705,11 +1746,6 @@ export_file_hook_proc(HWND ef_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
 
     switch(msg) {
         case WM_INITDIALOG: {
-            OPENFILENAME *ofnp = (OPENFILENAME *) l_param;
-            capture_file *cf = (capture_file *) ofnp->lCustData;
-
-            /* init the printing range */
-            packet_range_init(&print_args.range, cf);
             /* default to displayed packets */
             print_args.range.process_filtered = TRUE;
             range_handle_wm_initdialog(ef_hwnd, &print_args.range);

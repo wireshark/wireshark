@@ -163,11 +163,11 @@
 #define ZBEE_ZDP_POWER_AVAIL                      0x00f0
 #define ZBEE_ZDP_POWER_AVAIL_AC                   0x0010
 #define ZBEE_ZDP_POWER_AVAIL_RECHARGEABLE         0x0020
-#define ZBEE_ZDP_POWER_AVAIL_DISPOSEABLE          0x0040
+#define ZBEE_ZDP_POWER_AVAIL_DISPOSABLE           0x0040
 #define ZBEE_ZDP_POWER_SOURCE                     0x0f00
 #define ZBEE_ZDP_POWER_SOURCE_AC                  0x0100
 #define ZBEE_ZDP_POWER_SOURCE_RECHARGEABLE        0x0200
-#define ZBEE_ZDP_POWER_SOURCE_DISPOSEABLE         0x0400
+#define ZBEE_ZDP_POWER_SOURCE_DISPOSABLE          0x0400
 #define ZBEE_ZDP_POWER_LEVEL                      0xf000
 #define ZBEE_ZDP_POWER_LEVEL_FULL                 0xc000
 #define ZBEE_ZDP_POWER_LEVEL_OK                   0x8000

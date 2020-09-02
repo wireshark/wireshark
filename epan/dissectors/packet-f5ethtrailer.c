@@ -186,7 +186,6 @@ Notes:
 
 #include "config.h"
 
-#include <glib.h>
 #include <string.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
@@ -226,6 +225,7 @@ static gint hf_type        = -1;
 static gint hf_length      = -1;
 static gint hf_version     = -1;
 static gint hf_data        = -1;
+static gint hf_data_str    = -1;
 static gint hf_dpt_unknown = -1;
 static gint hf_trailer_hdr = -1;
 /* Low */
@@ -237,8 +237,14 @@ static gint hf_ingress        = -1;
 static gint hf_slot0          = -1;
 static gint hf_slot1          = -1;
 static gint hf_tmm            = -1;
+static gint hf_obj_name_type  = -1;
+static gint hf_obj_data_len   = -1;
 static gint hf_vipnamelen     = -1;
 static gint hf_vip            = -1;
+static gint hf_portnamelen    = -1;
+static gint hf_phys_port      = -1;
+static gint hf_trunknamelen   = -1;
+static gint hf_trunk          = -1;
 /* Med */
 static gint hf_med_id        = -1;
 static gint hf_flow_id       = -1;
@@ -293,6 +299,7 @@ static gint hf_dpt_len   = -1;
 static expert_field ei_f5eth_flowlost  = EI_INIT;
 static expert_field ei_f5eth_flowreuse = EI_INIT;
 static expert_field ei_f5eth_badlen    = EI_INIT;
+static expert_field ei_f5eth_undecoded = EI_INIT;
 
 /* These are the ids of the subtrees that we may be creating */
 static gint ett_f5ethtrailer             = -1;
@@ -303,6 +310,7 @@ static gint ett_f5ethtrailer_med         = -1;
 static gint ett_f5ethtrailer_high        = -1;
 static gint ett_f5ethtrailer_rstcause    = -1;
 static gint ett_f5ethtrailer_trailer_hdr = -1;
+static gint ett_f5ethtrailer_obj_names   = -1;
 
 /* For fileinformation */
 static gint hf_fi_command      = -1;
@@ -349,7 +357,7 @@ static const value_string f5_flags_hwaction_vs[] = {
     {0, NULL}
 };
 
-static const int *hf_flags__fields[] = {
+static int * const hf_flags__fields[] = {
     &hf_flags_ingress,
     &hf_flags_hwaction,
     NULL,
@@ -470,27 +478,27 @@ static gchar *
 f5_ip_conv_filter(packet_info *pinfo)
 {
     gchar *buf = NULL;
-    gchar s_addr[WS_INET6_ADDRSTRLEN];
-    gchar d_addr[WS_INET6_ADDRSTRLEN];
+    gchar src_addr[WS_INET6_ADDRSTRLEN];
+    gchar dst_addr[WS_INET6_ADDRSTRLEN];
 
-    *d_addr = *s_addr = '\0';
+    *dst_addr = *src_addr = '\0';
     if (pinfo->net_src.type == AT_IPv4 && pinfo->net_dst.type == AT_IPv4) {
-        address_to_str_buf(&pinfo->src, s_addr, WS_INET6_ADDRSTRLEN);
-        address_to_str_buf(&pinfo->dst, d_addr, WS_INET6_ADDRSTRLEN);
-        if (*s_addr != '\0' && *d_addr != '\0') {
+        address_to_str_buf(&pinfo->src, src_addr, WS_INET6_ADDRSTRLEN);
+        address_to_str_buf(&pinfo->dst, dst_addr, WS_INET6_ADDRSTRLEN);
+        if (*src_addr != '\0' && *dst_addr != '\0') {
             buf = g_strdup_printf(
                 "(ip.addr eq %s and ip.addr eq %s) or"
                 " (f5ethtrailer.peeraddr eq %s and f5ethtrailer.peeraddr eq %s)",
-                s_addr, d_addr, s_addr, d_addr);
+                src_addr, dst_addr, src_addr, dst_addr);
         }
     } else if (pinfo->net_src.type == AT_IPv6 && pinfo->net_dst.type == AT_IPv6) {
-        address_to_str_buf(&pinfo->src, s_addr, WS_INET6_ADDRSTRLEN);
-        address_to_str_buf(&pinfo->dst, d_addr, WS_INET6_ADDRSTRLEN);
-        if (*s_addr != '\0' && *d_addr != '\0') {
+        address_to_str_buf(&pinfo->src, src_addr, WS_INET6_ADDRSTRLEN);
+        address_to_str_buf(&pinfo->dst, dst_addr, WS_INET6_ADDRSTRLEN);
+        if (*src_addr != '\0' && *dst_addr != '\0') {
             buf = g_strdup_printf(
                 "(ipv6.addr eq %s and ipv6.addr eq %s) or"
                 " (f5ethtrailer.peeraddr6 eq %s and f5ethtrailer.peeraddr6 eq %s)",
-                s_addr, d_addr, s_addr, d_addr);
+                src_addr, dst_addr, src_addr, dst_addr);
         }
     }
     return buf;
@@ -525,33 +533,33 @@ static gchar *
 f5_tcp_conv_filter(packet_info *pinfo)
 {
     gchar *buf = NULL;
-    gchar s_addr[WS_INET6_ADDRSTRLEN];
-    gchar d_addr[WS_INET6_ADDRSTRLEN];
+    gchar src_addr[WS_INET6_ADDRSTRLEN];
+    gchar dst_addr[WS_INET6_ADDRSTRLEN];
 
-    *d_addr = *s_addr = '\0';
+    *dst_addr = *src_addr = '\0';
     if (pinfo->net_src.type == AT_IPv4 && pinfo->net_dst.type == AT_IPv4) {
-        address_to_str_buf(&pinfo->src, s_addr, WS_INET6_ADDRSTRLEN);
-        address_to_str_buf(&pinfo->dst, d_addr, WS_INET6_ADDRSTRLEN);
-        if (*s_addr != '\0' && *d_addr != '\0') {
+        address_to_str_buf(&pinfo->src, src_addr, WS_INET6_ADDRSTRLEN);
+        address_to_str_buf(&pinfo->dst, dst_addr, WS_INET6_ADDRSTRLEN);
+        if (*src_addr != '\0' && *dst_addr != '\0') {
             buf = g_strdup_printf(
                 "(ip.addr eq %s and ip.addr eq %s and tcp.port eq %d and tcp.port eq %d) or"
                 " (f5ethtrailer.peeraddr eq %s and f5ethtrailer.peeraddr eq %s and"
                 " f5ethtrailer.peerport eq %d and f5ethtrailer.peerport eq %d and"
                 " (f5ethtrailer.peeripproto eq 6 or (f5ethtrailer.peeripproto eq 0 and tcp)))",
-                s_addr, d_addr, pinfo->srcport, pinfo->destport,
-                s_addr, d_addr, pinfo->srcport, pinfo->destport);
+                src_addr, dst_addr, pinfo->srcport, pinfo->destport,
+                src_addr, dst_addr, pinfo->srcport, pinfo->destport);
         }
     } else if (pinfo->net_src.type == AT_IPv6 && pinfo->net_dst.type == AT_IPv6) {
-        address_to_str_buf(&pinfo->src, s_addr, WS_INET6_ADDRSTRLEN);
-        address_to_str_buf(&pinfo->dst, d_addr, WS_INET6_ADDRSTRLEN);
-        if (*s_addr != '\0' && *d_addr != '\0') {
+        address_to_str_buf(&pinfo->src, src_addr, WS_INET6_ADDRSTRLEN);
+        address_to_str_buf(&pinfo->dst, dst_addr, WS_INET6_ADDRSTRLEN);
+        if (*src_addr != '\0' && *dst_addr != '\0') {
             buf = g_strdup_printf(
                 "(ipv6.addr eq %s and ipv6.addr eq %s and tcp.port eq %d and tcp.port eq %d) or"
                 " (f5ethtrailer.peeraddr6 eq %s and f5ethtrailer.peeraddr6 eq %s and"
                 " f5ethtrailer.peerport eq %d and f5ethtrailer.peerport eq %d and"
                 " (f5ethtrailer.peeripproto eq 6 or (f5ethtrailer.peeripproto eq 0 and tcp)))",
-                s_addr, d_addr, pinfo->srcport, pinfo->destport,
-                s_addr, d_addr, pinfo->srcport, pinfo->destport);
+                src_addr, dst_addr, pinfo->srcport, pinfo->destport,
+                src_addr, dst_addr, pinfo->srcport, pinfo->destport);
         }
     }
     return buf;
@@ -585,33 +593,33 @@ static gchar *
 f5_udp_conv_filter(packet_info *pinfo)
 {
     gchar *buf = NULL;
-    gchar s_addr[WS_INET6_ADDRSTRLEN];
-    gchar d_addr[WS_INET6_ADDRSTRLEN];
+    gchar src_addr[WS_INET6_ADDRSTRLEN];
+    gchar dst_addr[WS_INET6_ADDRSTRLEN];
 
-    *d_addr = *s_addr = '\0';
+    *dst_addr = *src_addr = '\0';
     if (pinfo->net_src.type == AT_IPv4 && pinfo->net_dst.type == AT_IPv4) {
-        address_to_str_buf(&pinfo->src, s_addr, WS_INET6_ADDRSTRLEN);
-        address_to_str_buf(&pinfo->dst, d_addr, WS_INET6_ADDRSTRLEN);
-        if (*s_addr != '\0' && *d_addr != '\0') {
+        address_to_str_buf(&pinfo->src, src_addr, WS_INET6_ADDRSTRLEN);
+        address_to_str_buf(&pinfo->dst, dst_addr, WS_INET6_ADDRSTRLEN);
+        if (*src_addr != '\0' && *dst_addr != '\0') {
             buf = g_strdup_printf(
                 "(ip.addr eq %s and ip.addr eq %s and udp.port eq %d and udp.port eq %d) or"
                 " (f5ethtrailer.peeraddr eq %s and f5ethtrailer.peeraddr eq %s and"
                 " f5ethtrailer.peerport eq %d and f5ethtrailer.peerport eq %d and"
                 " (f5ethtrailer.peeripproto eq 17 or (f5ethtrailer.peeripproto eq 0 and udp)))",
-                s_addr, d_addr, pinfo->srcport, pinfo->destport,
-                s_addr, d_addr, pinfo->srcport, pinfo->destport);
+                src_addr, dst_addr, pinfo->srcport, pinfo->destport,
+                src_addr, dst_addr, pinfo->srcport, pinfo->destport);
         }
     } else if (pinfo->net_src.type == AT_IPv6 && pinfo->net_dst.type == AT_IPv6) {
-        address_to_str_buf(&pinfo->src, s_addr, WS_INET6_ADDRSTRLEN);
-        address_to_str_buf(&pinfo->dst, d_addr, WS_INET6_ADDRSTRLEN);
-        if (*s_addr != '\0' && *d_addr != '\0') {
+        address_to_str_buf(&pinfo->src, src_addr, WS_INET6_ADDRSTRLEN);
+        address_to_str_buf(&pinfo->dst, dst_addr, WS_INET6_ADDRSTRLEN);
+        if (*src_addr != '\0' && *dst_addr != '\0') {
             buf = g_strdup_printf(
                 "(ipv6.addr eq %s and ipv6.addr eq %s and udp.port eq %d and udp.port eq %d) or"
                 " (f5ethtrailer.peeraddr6 eq %s and f5ethtrailer.peeraddr6 eq %s and"
                 " f5ethtrailer.peerport eq %d and f5ethtrailer.peerport eq %d and"
                 " (f5ethtrailer.peeripproto eq 17 or (f5ethtrailer.peeripproto eq 0 and udp)))",
-                s_addr, d_addr, pinfo->srcport, pinfo->destport,
-                s_addr, d_addr, pinfo->srcport, pinfo->destport);
+                src_addr, dst_addr, pinfo->srcport, pinfo->destport,
+                src_addr, dst_addr, pinfo->srcport, pinfo->destport);
         }
     }
     return buf;
@@ -2031,8 +2039,8 @@ dissect_low_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint o
      * and "OUT", but rather can continue to use typical boolean values.  "IN"
      * and "OUT" are provided as convenience. */
     proto_tree_add_boolean_format_value(tree, hf_ingress, tvb, o, 1, ingress, "%s (%s)",
-            ingress ? tfs_true_false.true_string : tfs_true_false.false_string,
-            ingress ? f5tfs_ing.true_string : f5tfs_ing.false_string);
+            tfs_get_string(ingress, &tfs_true_false),
+            tfs_get_string(ingress, &f5tfs_ing));
     o++;
 
     proto_tree_add_uint(tree, slot_display_field, tvb, o, 1, slot_display);
@@ -2069,7 +2077,8 @@ dissect_low_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint o
         proto_item_set_hidden(pi);
         o += 1;
     }
-    proto_tree_add_item(tree, hf_vip, tvb, o, vipnamelen, ENC_ASCII | ENC_NA);
+    pi = proto_tree_add_item(tree, hf_vip, tvb, o, vipnamelen, ENC_ASCII | ENC_NA);
+    proto_item_prepend_text(pi, "VIP ");
 
     return trailer_length;
 } /* dissect_low_trailer() */
@@ -2374,6 +2383,14 @@ dissect_dpt_trailer_noise_med(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     return len;
 } /* dissect_dpt_trailer_noise_med() */
 
+static const value_string f5_obj_data_types[] = {
+    {0, "Virtual Server"},
+    {1, "Port"},
+    {2, "Trunk"},
+    {255, "Unknown"},
+    {0, NULL}
+};
+
 /*---------------------------------------------------------------------------*/
 /**
  * @brief Render the data for DPT low noise trailer TVB
@@ -2387,17 +2404,15 @@ dissect_dpt_trailer_noise_med(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 static int
 dissect_dpt_trailer_noise_low(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    proto_item *pi;
-    proto_item *pi_ingress;
-    guint flags;
-    guint ingress;
-    gint o;
-    int vipnamelen;
-    int badvipnamelen  = 0;
-    guint slot_display = 0;
-    guint tmm;
     gint len;
     gint ver;
+    proto_item *pi;
+    proto_item *ti;
+    gint offset;
+    guint flags;
+    guint ingress;
+    guint slot_display  = 0;
+    guint tmm;
     f5eth_tap_data_t *tdata = (f5eth_tap_data_t *)data;
 
     DISSECTOR_ASSERT(tdata != NULL);
@@ -2405,91 +2420,181 @@ dissect_dpt_trailer_noise_low(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     ver = tvb_get_ntohs(tvb, F5_DPT_V1_TLV_VERSION_OFF);
 
     /* Unknown version, cannot do anything */
-    if (ver < 2 || ver > 3) {
+    if (ver < 2 || ver > 4) {
         return 0;
     }
 
+    /* Add the Low Noise trailer and attach a subtree */
     pi   = proto_tree_add_item(tree, hf_low_id, tvb, 0, len, ENC_NA);
     tree = proto_item_add_subtree(pi, ett_f5ethtrailer_low);
 
     render_f5dptv1_tlvhdr(tvb, tree, 0);
 
-    o                = F5_DPT_V1_TLV_HDR_LEN;
+    offset           = F5_DPT_V1_TLV_HDR_LEN;
     tdata->noise_low = 1;
 
     /* Direction */
-    flags = tvb_get_guint8(tvb, o);
+    flags = tvb_get_guint8(tvb, offset);
     if (ver == 2) {
         ingress = flags;
     } else {
         ingress = flags & F5_LOW_FLAGS_INGRESS_MASK;
     }
+    /* Use special formatting here so that users do not have to filter on "IN"
+     * and "OUT", but rather can continue to use typical boolean values.  "IN"
+     * and "OUT" are provided as convenience. */
+    pi = proto_tree_add_boolean_format_value(tree, hf_ingress, tvb, offset, 1, ingress,
+        "%s (%s)", tfs_get_string(ingress, &tfs_true_false),
+            tfs_get_string(ingress, &f5tfs_ing));
+    if (ver > 2) {
+        /* The old ingress field is now a flag field.  Leave the old ingress field
+         * for backward compatability for users that are accustomed to using
+         * "f5ethtrailer.ingress" but mark it as generated to indicate that that
+         * field no longer really exists. */
+        PROTO_ITEM_SET_GENERATED(pi);
+        proto_tree_add_bitmask(
+            tree, tvb, offset, hf_flags, ett_f5ethtrailer_low_flags, hf_flags__fields,
+            ENC_BIG_ENDIAN);
+    }
     tdata->ingress = ingress == 0 ? 0 : 1;
+    offset += 1;
+
     /* Slot */
-    slot_display = tvb_get_guint8(tvb, o + 1) + 1;
+    slot_display = tvb_get_guint8(tvb, offset) + 1;
+    proto_tree_add_uint(tree, hf_slot1, tvb, offset, 1, slot_display);
+    offset += 1;
+
     /* TMM */
-    tmm = tvb_get_guint8(tvb, o + 2);
+    tmm = tvb_get_guint8(tvb, offset);
     if (tmm < F5ETH_TAP_TMM_MAX && slot_display < F5ETH_TAP_SLOT_MAX) {
         tdata->tmm  = tmm;
         tdata->slot = slot_display;
     }
-    /* VIP Name */
-    vipnamelen = tvb_get_guint8(tvb, o + 3);
-    /* Check for an invalid vip name length and do not try to reference any of the data if it is
-     * bad
-     */
-    if (tvb_reported_length_remaining(tvb, o + 4) < vipnamelen) {
-        badvipnamelen = 1;
-        /* Set this to zero to prevent processing of things that utilze it */
-        vipnamelen = 0;
-    }
-    if (vipnamelen > 0 && have_tap_listener(tap_f5ethtrailer)) {
-        tdata->virtual_name =
-            tvb_get_string_enc(wmem_packet_scope(), tvb, o + 4, vipnamelen, ENC_ASCII);
-    }
+    proto_tree_add_item(tree, hf_tmm, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
 
     /* Is the column visible? */
     if (pref_info_type != none) {
         f5eth_set_info_col(pinfo, ingress, slot_display, tmm);
     }
 
-    /* We do not need to do anything more if we don't have a tree. */
-    if (tree == NULL) {
-        return len;
+    if (ver < 4) {        /* Low noise versions 2 and 3 */
+        /* VIP Name */
+        gint viplen = tvb_get_guint8(tvb, offset);
+        /* Make sure VIP Name Length does not extend past the TVB */
+        if (tvb_reported_length_remaining(tvb, offset) < viplen) {
+            pi = proto_tree_add_item(tree, hf_vip, tvb, offset, 0, ENC_ASCII|ENC_NA);
+            expert_add_info(pinfo, pi, &ei_f5eth_badlen);
+            /* Cannot go any further */
+            return len;
+        }
+        gchar *text = tvb_format_text(tvb, offset +1, viplen);
+        ti = proto_tree_add_subtree_format(
+            tree, tvb, offset, viplen + 1, ett_f5ethtrailer_obj_names, NULL,
+            "Virtual Server: %s", text);
+        proto_tree_add_item(ti, hf_vipnamelen, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        proto_tree_add_item(ti, hf_vip, tvb, offset, viplen, ENC_ASCII|ENC_NA);
+        if (viplen > 0 && have_tap_listener(tap_f5ethtrailer)) {
+            tdata->virtual_name = text;
+        }
+        offset += viplen;
+    } else {           /* Low noise version 4 */
+        /* This area now is a data block containing a number of BIG-IP config object names
+         * i.e. Virtual server that handled the packt
+         *     Port that handled the packet
+         *     Trunk that handled the packet
+         *
+         * 1-Byte      Length of block (excluding this byte)
+         * len-Bytes   data block
+         * <len><data block...>
+         *
+         * Then the "data block" is a variable number of object names
+         * Each name value is:
+         * 1-Byte      Type
+         * 1-Byte      Length (excluding type and length bytes)
+         * len-Bytes   String
+         * <type><len><string><type><len><string>
+         */
+
+        gint data_len = tvb_get_gint8(tvb, offset);
+        pi = proto_tree_add_item(tree, hf_data, tvb, offset, 1, ENC_NA);
+        proto_item_set_text(pi, "Associated config object names");
+        ti = proto_item_add_subtree(pi, ett_f5ethtrailer_obj_names);
+        proto_tree_add_item(ti, hf_obj_data_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        if (tvb_reported_length_remaining(tvb, offset) < data_len) {
+            expert_add_info(pinfo, pi, &ei_f5eth_badlen);
+            /* Cannot go any further */
+            return len;
+        }
+        proto_item_set_len(pi, data_len + 1);
+
+        /* Begin parsing the data field and adding items for the strings contained */
+        tvbuff_t *data_tvb = tvb_new_subset_length(tvb, offset, data_len);
+        gint data_off = 0;
+
+        while (data_off < data_len) {
+            gint field_name_len_idx;
+            gint field_name_idx;
+            gchar *text_format;
+            guint8 t = tvb_get_guint8(data_tvb, data_off);
+            guint8 l = tvb_get_guint8(data_tvb, data_off + 1);
+
+            switch (t) {
+            case 0: /* Virtual Server */
+                field_name_len_idx = hf_vipnamelen;
+                field_name_idx = hf_vip;
+                text_format = "Virtual Server: %s";
+                break;
+            case 1: /* Port */
+                field_name_len_idx = hf_portnamelen;
+                field_name_idx = hf_phys_port;
+                text_format = "Port: %s";
+                break;
+            case 2: /* Trunk */
+                field_name_len_idx = hf_trunknamelen;
+                field_name_idx = hf_trunk;
+                text_format = "Trunk: %s";
+                break;
+            default:
+                /* unknown type */
+                t = 255; /* Unknown */
+                field_name_len_idx = hf_obj_data_len;
+                field_name_idx = hf_data_str;
+                text_format = "Unknown type";
+                break;
+            }
+
+            if (tvb_reported_length_remaining(data_tvb, data_off + 2) < l) {
+                ti = proto_tree_add_subtree_format(
+                    tree, data_tvb, data_off, 2, ett_f5ethtrailer_obj_names, NULL,
+                    text_format, "");
+                proto_tree_add_item(ti, hf_obj_name_type, data_tvb, data_off, 1, ENC_BIG_ENDIAN);
+                pi = proto_tree_add_item(
+                    ti, field_name_len_idx, data_tvb, data_off + 1, 1, ENC_BIG_ENDIAN);
+                expert_add_info(pinfo, pi, &ei_f5eth_badlen);
+                /* Cannot go any further */
+                return len;
+            }
+            gchar *text = tvb_format_text(data_tvb, data_off + 2, l);
+            ti = proto_tree_add_subtree_format(
+                tree, data_tvb, data_off, l + 2, ett_f5ethtrailer_obj_names, NULL,
+                text_format, text);
+            pi = proto_tree_add_item(ti, hf_obj_name_type, data_tvb, data_off, 1, ENC_BIG_ENDIAN);
+            if (t == 255) {
+                expert_add_info(pinfo, pi, &ei_f5eth_undecoded);
+            }
+            proto_tree_add_item(ti, field_name_len_idx, data_tvb, data_off + 1, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(ti, field_name_idx, data_tvb, data_off + 2, l, ENC_ASCII|ENC_NA);
+            if (t == 0 && l > 0 && have_tap_listener(tap_f5ethtrailer)) {
+                tdata->virtual_name = text;
+            }
+            data_off += l + 2;
+        }
+        offset += data_off;
     }
-
-    /* Use special formatting here so that users do not have to filter on "IN"
-     * and "OUT", but rather can continue to use typical boolean values.  "IN"
-     * and "OUT" are provided as convenience. */
-    pi_ingress = proto_tree_add_boolean_format_value(tree, hf_ingress, tvb, o, 1, ingress,
-        "%s (%s)", ingress ? tfs_true_false.true_string : tfs_true_false.false_string,
-            ingress ? f5tfs_ing.true_string : f5tfs_ing.false_string);
-    if (ver > 2) {
-        /* The old ingress field is now a flag field.  Leave the old ingress field
-         * for backward compatability for users that are accustomed to using
-         * "f5ethtrailer.ingress" but mark it as generated to indicate that that
-         * field no longer really exists. */
-        PROTO_ITEM_SET_GENERATED(pi_ingress);
-        proto_tree_add_bitmask(
-            tree, tvb, o, hf_flags, ett_f5ethtrailer_low_flags, hf_flags__fields, ENC_BIG_ENDIAN);
-    }
-    o++;
-
-    proto_tree_add_uint(tree, hf_slot1, tvb, o, 1, slot_display);
-    o += 1;
-
-    proto_tree_add_item(tree, hf_tmm, tvb, o, 1, ENC_BIG_ENDIAN);
-    o += 1;
-    pi = proto_tree_add_item(tree, hf_vipnamelen, tvb, o, 1, ENC_BIG_ENDIAN);
-    if (badvipnamelen) {
-        expert_add_info(pinfo, pi, &ei_f5eth_badlen);
-        /* Cannot go any further */
-        return len;
-    }
-    o += 1;
-    proto_tree_add_item(tree, hf_vip, tvb, o, vipnamelen, ENC_ASCII | ENC_NA);
-
-    return len;
+    return offset;
 } /* dissect_dpt_trailer_noise_low() */
 
 /*---------------------------------------------------------------------------*/
@@ -2759,7 +2864,7 @@ dissect_f5ethtrailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
        was able to append f5ethtrailer.  In many cases (and should be) this padding is zeros.
        The f5ethtrailer does not start with a zero, so trim off any leading zeros before
        looking for an f5ethtrailer. */
-    while (tvb_get_gint8(tvb, offset) == 0) {
+    while (tvb_offset_exists(tvb, offset) && tvb_get_gint8(tvb, offset) == 0) {
         offset++;
     }
 
@@ -3555,6 +3660,10 @@ proto_register_f5ethtrailer(void)
           { "Data", "f5ethtrailer.data", FT_BYTES, SEP_SPACE, NULL,
             0x0, NULL, HFILL }
         },
+        { &hf_data_str,
+          { "Data", "f5ethtrailer.data", FT_STRING, BASE_NONE, NULL,
+            0x0, NULL, HFILL }
+        },
 
     /* Low parameters */
         { &hf_low_id,
@@ -3588,13 +3697,37 @@ proto_register_f5ethtrailer(void)
           { "TMM (0-based)", "f5ethtrailer.tmm", FT_UINT8, BASE_DEC, NULL,
             0x0, "TMM captured on", HFILL }
         },
+        { &hf_obj_name_type,
+          { "Type", "f5ethtrailer.objnametype", FT_UINT8, BASE_DEC,
+          VALS(f5_obj_data_types), 0x0, NULL, HFILL }
+        },
+        { &hf_obj_data_len,
+          { "Object Name Data Length", "f5ethtrailer.objnamelen", FT_UINT8, BASE_DEC, NULL,
+            0x0, NULL, HFILL }
+        },
         { &hf_vipnamelen,
-          { "VIP name length", "f5ethtrailer.vipnamelen", FT_UINT8, BASE_DEC, NULL,
+          { "Length", "f5ethtrailer.vipnamelen", FT_UINT8, BASE_DEC, NULL,
             0x0, NULL, HFILL }
         },
         { &hf_vip,
-          { "VIP", "f5ethtrailer.vip", FT_STRING, BASE_NONE, NULL,
+          { "Name", "f5ethtrailer.vip", FT_STRING, BASE_NONE, NULL,
             0x0, "VIP flow associated with", HFILL }
+        },
+        { &hf_portnamelen,
+          { "Length", "f5ethtrailer.portnamelen", FT_UINT8, BASE_DEC, NULL,
+            0x0, NULL, HFILL }
+        },
+        { &hf_phys_port,
+          { "Name", "f5ethtrailer.phys_port", FT_STRING, BASE_NONE, NULL,
+            0x0, "Physical port", HFILL }
+        },
+        { &hf_trunknamelen,
+          { "Length", "f5ethtrailer.trunknamelen", FT_UINT8, BASE_DEC, NULL,
+            0x0, NULL, HFILL }
+        },
+        { &hf_trunk,
+          { "Name", "f5ethtrailer.trunk", FT_STRING, BASE_NONE, NULL,
+            0x0, "Trunk name", HFILL }
         },
 
     /* Medium parameters */
@@ -3812,6 +3945,7 @@ proto_register_f5ethtrailer(void)
         &ett_f5ethtrailer_high,
         &ett_f5ethtrailer_rstcause,
         &ett_f5ethtrailer_trailer_hdr,
+        &ett_f5ethtrailer_obj_names,
         &ett_f5tls,
         &ett_f5tls_std,
         &ett_f5tls_ext,
@@ -3825,7 +3959,9 @@ proto_register_f5ethtrailer(void)
         { &ei_f5eth_flowreuse, { "f5ethtrailer.flowreuse", PI_SEQUENCE, PI_WARN,
                 "Flow reuse or SYN retransmit", EXPFILL } },
         { &ei_f5eth_badlen, { "f5ethtrailer.badlen", PI_MALFORMED, PI_ERROR,
-                "Bad length", EXPFILL } }
+                "Length extends past remaining available bytes", EXPFILL } },
+        { &ei_f5eth_undecoded, { "f5ethtrailer.undecoded", PI_UNDECODED, PI_NOTE,
+                "This version of Wireshark does not understand how to decode this value", EXPFILL } },
     };
 
     proto_f5ethtrailer = proto_register_protocol(
@@ -3966,6 +4102,8 @@ proto_reg_handoff_f5ethtrailer(void)
     dissector_add_uint("f5ethtrailer.noise_type_ver", F5TYPE_LOW << 16 | 2,
         create_dissector_handle(dissect_dpt_trailer_noise_low, -1));
     dissector_add_uint("f5ethtrailer.noise_type_ver", F5TYPE_LOW << 16 | 3,
+        create_dissector_handle(dissect_dpt_trailer_noise_low, -1));
+    dissector_add_uint("f5ethtrailer.noise_type_ver", F5TYPE_LOW << 16 | 4,
         create_dissector_handle(dissect_dpt_trailer_noise_low, -1));
     dissector_add_uint("f5ethtrailer.noise_type_ver", F5TYPE_MED << 16 | 4,
         create_dissector_handle(dissect_dpt_trailer_noise_med, -1));

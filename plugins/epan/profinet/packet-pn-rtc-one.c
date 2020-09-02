@@ -148,7 +148,7 @@ static const value_string pn_io_ioxs_datastate[] = {
 };
 
 
-static const int *ps_sb_fields[] = {
+static int * const ps_sb_fields[] = {
     &hf_pn_io_ps_sb_res,
     &hf_pn_io_ps_sb_ConsNr_reset,
     &hf_pn_io_ps_sb_Toggle_d,
@@ -160,7 +160,7 @@ static const int *ps_sb_fields[] = {
     NULL
 };
 
-static const int *ps_cb_fields[] = {
+static int * const ps_cb_fields[] = {
     &hf_pn_io_ps_cb_loopcheck,
     &hf_pn_io_ps_cb_Chf_ACK,
     &hf_pn_io_ps_cb_Toggle_h,
@@ -172,7 +172,7 @@ static const int *ps_cb_fields[] = {
     NULL
 };
 
-static const int *ioxs_fields[] = {
+static int * const ioxs_fields[] = {
     &hf_pn_io_ioxs_datastate,
     &hf_pn_io_ioxs_instance,
     &hf_pn_io_ioxs_res14,
@@ -184,7 +184,7 @@ static const int *ioxs_fields[] = {
 /* Dissector for PROFIsafe Status Byte */
 static int
 dissect_pn_io_ps_SB(tvbuff_t *tvb, int offset,
-packet_info *pinfo _U_, proto_tree *tree, guint8 *drep _U_, int hfindex, const int **fields)
+packet_info *pinfo _U_, proto_tree *tree, guint8 *drep _U_, int hfindex, int * const *fields)
 {
 
     if (tree) {
@@ -206,7 +206,7 @@ packet_info *pinfo _U_, proto_tree *tree, guint8 *drep _U_, int hfindex, const i
 /* Dissector for PROFIsafe Control Byte */
 static int
 dissect_pn_io_ps_CB(tvbuff_t *tvb, int offset,
-packet_info *pinfo _U_, proto_tree *tree, guint8 *drep _U_, int hfindex, const int **fields)
+packet_info *pinfo _U_, proto_tree *tree, guint8 *drep _U_, int hfindex, int * const *fields)
 {
 
     if (tree) {
@@ -229,7 +229,7 @@ packet_info *pinfo _U_, proto_tree *tree, guint8 *drep _U_, int hfindex, const i
 /* Dissector for IOCS (As each IOCS stands for a specific Slot & Subslot) */
 static int
 dissect_PNIO_IOCS(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree,
-            guint8 *drep _U_, int hfindex, guint16 slotNr, guint16 subSlotNr, const int **fields)
+            guint8 *drep _U_, int hfindex, guint16 slotNr, guint16 subSlotNr, int * const *fields)
 {
 
     if (tree) {
@@ -256,7 +256,7 @@ dissect_PNIO_IOCS(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree 
 /* dissect the IOxS (IOCS, IOPS) field */
 static int
 dissect_PNIO_IOxS(tvbuff_t *tvb, int offset,
-packet_info *pinfo _U_, proto_tree *tree, guint8 *drep _U_, int hfindex, const int **fields)
+packet_info *pinfo _U_, proto_tree *tree, guint8 *drep _U_, int hfindex, int * const *fields)
 {
 
     if (tree) {

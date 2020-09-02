@@ -65,7 +65,7 @@
      <item>
       <widget class="QLabel" name="label">
        <property name="text">
-        <string>Show and save data as</string>
+        <string>Show data as</string>
        </property>
       </widget>
      </item>

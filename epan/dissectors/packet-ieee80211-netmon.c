@@ -23,6 +23,9 @@ void proto_reg_handoff_netmon_802_11(void);
 /* protocol */
 static int proto_netmon_802_11 = -1;
 
+/* Dissector */
+static dissector_handle_t netmon_802_11_handle;
+
 #define MIN_HEADER_LEN  32
 
 /* op_mode */
@@ -78,6 +81,7 @@ dissect_netmon_802_11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
   guint8      version;
   guint16     length;
   guint32     phy_type;
+  guint32     monitor_mode;
   guint32     flags;
   guint32     channel;
   gint        calc_channel;
@@ -137,8 +141,26 @@ dissect_netmon_802_11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
                       4, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(opmode_tree, hf_netmon_802_11_op_mode_sta_ext, tvb,
                       offset, 4, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(opmode_tree, hf_netmon_802_11_op_mode_mon, tvb, offset,
-                      4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item_ret_uint(opmode_tree, hf_netmon_802_11_op_mode_mon, tvb, offset,
+                               4, ENC_LITTLE_ENDIAN, &monitor_mode);
+  if (!monitor_mode) {
+    /*
+     * If a NetMon capture is not done in monitor mode, we may see frames
+     * with the Protect bit set (because they were encrypted on the air)
+     * but that aren't encrypted (because they've been decrypted before
+     * being written to the file).  This wasn't done in monitor mode, as
+     * the "monitor mode" flag wasn't set, so supporess treating the
+     * Protect flag as an indication that the frame was encrypted.
+     */
+    phdr->decrypted = TRUE;
+
+    /*
+     * Furthermore, we may see frames with the A-MSDU Present flag set
+     * in the QoS Control field but that have a regular frame, nto a
+     * sequence of A-MSDUs, in the payload.
+     */
+    phdr->no_a_msdus = TRUE;
+  }
   offset += 4;
 
   /*
@@ -339,7 +361,7 @@ proto_register_netmon_802_11(void)
                           BASE_HEX, NULL, OP_MODE_AP, NULL, HFILL } },
     { &hf_netmon_802_11_op_mode_sta_ext, { "Extensible station mode", "netmon_802_11.op_mode.sta_ext", FT_UINT32,
                           BASE_HEX, NULL, OP_MODE_STA_EXT, NULL, HFILL } },
-    { &hf_netmon_802_11_op_mode_mon, { "Monitor mode", "netmon_802_11.op_mode.on", FT_UINT32,
+    { &hf_netmon_802_11_op_mode_mon, { "Monitor mode", "netmon_802_11.op_mode.mon", FT_UINT32,
                           BASE_HEX, NULL, OP_MODE_MON, NULL, HFILL } },
 #if 0
     { &hf_netmon_802_11_flags, { "Flags", "netmon_802_11.flags", FT_UINT32,
@@ -370,6 +392,7 @@ proto_register_netmon_802_11(void)
   proto_netmon_802_11 = proto_register_protocol("NetMon 802.11 capture header",
                                                 "NetMon 802.11",
                                                 "netmon_802_11");
+  netmon_802_11_handle = register_dissector("netmon_802_11", dissect_netmon_802_11, proto_netmon_802_11);
   proto_register_field_array(proto_netmon_802_11, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 }
@@ -377,12 +400,8 @@ proto_register_netmon_802_11(void)
 void
 proto_reg_handoff_netmon_802_11(void)
 {
-  dissector_handle_t netmon_802_11_handle;
-
   /* handle for 802.11+radio information dissector */
   ieee80211_radio_handle = find_dissector_add_dependency("wlan_radio", proto_netmon_802_11);
-  netmon_802_11_handle = create_dissector_handle(dissect_netmon_802_11,
-                                                 proto_netmon_802_11);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE_802_11_NETMON, netmon_802_11_handle);
 }
 

@@ -71,10 +71,10 @@ WS_DLL_PUBLIC dcom_interface_t *dcom_interface_find(packet_info *pinfo, const ad
 #ifdef DEBUG
 extern void dcom_interface_dump(void);
 #endif
-extern int dcom_register_rountine(dcom_dissect_fn_t routine, e_guid_t* uuid);
+extern int dcom_register_routine(dcom_dissect_fn_t routine, e_guid_t* uuid);
 extern void dcom_register_common_routines_(void);
 
-extern dcom_dissect_fn_t dcom_get_rountine_by_uuid(const e_guid_t* uuid);
+extern dcom_dissect_fn_t dcom_get_routine_by_uuid(const e_guid_t* uuid);
 
 /* the essential DCOM this and that, starting every call */
 WS_DLL_PUBLIC int

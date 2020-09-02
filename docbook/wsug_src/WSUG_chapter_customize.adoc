@@ -635,6 +635,19 @@ You can jump to the preferences for a specific protocol by expanding “Protocol
 
 The “Advanced” pane will let you view and edit all of Wireshark’s preferences, similar to link:about:config[] and link:chrome:flags[] in the Firefox and Chrome web browsers.
 
+.Advanced preferences
+image::wsug_graphics/ws-gui-preferences-advanced.png[{screenshot-attrs}]
+
+You can search for a preference by typing text into the “Search” entry.
+You can also pass preference names to Wireshark and TShark on the command line.
+For example, the __gui.prepend_window_title__ can be used to differentiate between different instances of Wireshark:
+
+[source,sh]
+----
+$ wireshark -o "gui.prepend_window_title:Internal Network" &
+$ wireshark -o "gui.prepend_window_title:External Network" &
+----
+
 [[ChCustConfigProfilesSection]]
 
 === Configuration Profiles

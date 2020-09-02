@@ -1986,8 +1986,11 @@ If B<TShark> detects that it is writing to a TTY on UNIX or Linux and
 the locale does not support UTF-8, output will be re-encoded to match the
 current locale.
 
-If B<TShark> detects that it is writing to a TTY on Windows, output will be
-encoded as UTF-16LE.
+If B<TShark> detects that it is writing to the console on Windows,
+dissection output will be encoded as UTF-16LE. Other output will be
+UTF-8. If extended characters don't display properly in your terminal
+you might try setting your console code page to UTF-8 (B<chcp 65001>)
+and using a modern terminal application if possible.
 
 =head1 ENVIRONMENT VARIABLES
 

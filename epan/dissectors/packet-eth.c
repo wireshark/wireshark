@@ -34,13 +34,17 @@
 #include "packet-nsh.h"
 #include "packet-acdr.h"
 #include <epan/crc32-tvb.h>
-#include <wiretap/erf.h>
+#include <wiretap/erf_record.h>
 
 void proto_register_eth(void);
 void proto_reg_handoff_eth(void);
 
+#define PADDING_NONE        0
+#define PADDING_ZEROS       1
+#define PADDING_ANY         2
+
 /* Assume all packets have an FCS */
-static gboolean eth_assume_padding = TRUE;
+static gint eth_padding = PADDING_ZEROS;
 static guint eth_trailer_length = 0;
 static gboolean eth_assume_fcs = FALSE;
 static gboolean eth_check_fcs = FALSE;
@@ -91,6 +95,7 @@ static expert_field ei_eth_invalid_lentype = EI_INIT;
 static expert_field ei_eth_src_not_group = EI_INIT;
 static expert_field ei_eth_fcs_bad = EI_INIT;
 static expert_field ei_eth_len = EI_INIT;
+static expert_field ei_eth_padding_bad = EI_INIT;
 
 static dissector_handle_t fw1_handle;
 static dissector_handle_t ethertype_handle;
@@ -116,6 +121,12 @@ static const true_false_string lg_tfs = {
   "Globally unique address (factory default)"
 };
 
+static const enum_val_t eth_padding_vals[] = {
+  {"never", "Never", PADDING_NONE},
+  {"zeros", "Zeros", PADDING_ZEROS},
+  {"any",   "Any",   PADDING_ANY},
+  {NULL, NULL, 0}
+};
 
 static const char* eth_conv_get_filter_type(conv_item_t* conv, conv_filter_type_e filter)
 {
@@ -546,10 +557,11 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
     dissect_address_data(tvb, pinfo, fh_tree, TRUE);
 
+    proto_tree_add_uint(fh_tree, hf_eth_type, tvb, 12, 2, ehdr->type);
+
     ethertype_data.etype = ehdr->type;
-    ethertype_data.offset_after_ethertype = ETH_HEADER_SIZE;
+    ethertype_data.payload_offset = ETH_HEADER_SIZE;
     ethertype_data.fh_tree = fh_tree;
-    ethertype_data.etype_id = hf_eth_type;
     ethertype_data.trailer_id = hf_eth_trailer;
     ethertype_data.fcs_len = fcs_len;
 
@@ -668,28 +680,35 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
     guint trailer_length, trailer_reported_length;
     guint padding_length = 0;
     gboolean has_fcs = FALSE;
+    gboolean maybe_padded = FALSE;
     tvbuff_t *real_trailer_tvb;
 
     trailer_length = tvb_captured_length(trailer_tvb);
     trailer_reported_length = tvb_reported_length(trailer_tvb);
 
-    /* There can not have been padding when the length of the frame (including the
-       trailer) is less than 60 bytes. */
-    if (eth_assume_padding && pinfo->fd->pkt_len>=60) {
-        /* Calculate the amount of padding needed for a minimum sized frame */
-        if ( (pinfo->fd->pkt_len - trailer_reported_length) < 60 )
-            padding_length = 60 - (pinfo->fd->pkt_len - trailer_reported_length);
+    /* There couldn't be a padding if the length of the frame (including the trailer) is still
+       less than 60 bytes. */
+    maybe_padded = (pinfo->fd->pkt_len >= 60 && (pinfo->fd->pkt_len - trailer_reported_length) < 60);
 
-        /* Add the padding to the tree, unless it should be treated as
-           part of the trailer and therefor be handed over to (one of)
-           the ethernet-trailer dissectors */
-        if (padding_length > 0) {
-            tvb_ensure_bytes_exist(tvb, 0, padding_length);
-            proto_tree_add_item(fh_tree, hf_eth_padding, trailer_tvb, 0,
-                padding_length, ENC_NA);
-            trailer_length -= padding_length;
-            trailer_reported_length -= padding_length;
+    if (eth_padding != PADDING_NONE && maybe_padded) {
+      padding_length = 60 - (pinfo->fd->pkt_len - trailer_reported_length);
+      /* Require padding to be zeros */
+      if (eth_padding == PADDING_ZEROS) {
+        for (guint i = 0; i < padding_length; i++) {
+          if (tvb_get_gint8(trailer_tvb, i) != 0) {
+            padding_length = 0;
+            break;
+          }
         }
+      }
+      /* If it was determined that we have padding, add it to the tree. */
+      if (padding_length > 0) {
+          tvb_ensure_bytes_exist(tvb, 0, padding_length);
+          proto_tree_add_item(fh_tree, hf_eth_padding, trailer_tvb, 0,
+              padding_length, ENC_NA);
+          trailer_length -= padding_length;
+          trailer_reported_length -= padding_length;
+      }
     }
 
     if (fcs_len != 0) {
@@ -752,8 +771,18 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
            extra bytes as general trailer */
         if (trailer_length != 0) {
           tvb_ensure_bytes_exist(tvb, 0, trailer_length);
-          proto_tree_add_item(fh_tree, trailer_id, real_trailer_tvb, 0,
+          proto_item *pi = proto_tree_add_item(fh_tree, trailer_id, real_trailer_tvb, 0,
             trailer_length, ENC_NA);
+          if (maybe_padded) {
+            if (eth_padding == PADDING_ANY && padding_length > 0) {
+              expert_add_info_format(pinfo, pi, &ei_eth_padding_bad,
+                  "Padding was assumed, and an undecoded trailer exists. Some of the trailer may have been consumed by padding.");
+            }
+            else if (eth_padding == PADDING_ZEROS && padding_length == 0) {
+              expert_add_info_format(pinfo, pi, &ei_eth_padding_bad,
+                  "Didn't find padding of zeros, and an undecoded trailer exists. There may be padding of non-zeros.");
+            }
+          }
         }
       }
     }
@@ -985,6 +1014,7 @@ proto_register_eth(void)
     { &ei_eth_src_not_group, { "eth.src_not_group", PI_PROTOCOL, PI_WARN, "Source MAC must not be a group address: IEEE 802.3-2002, Section 3.2.3(b)", EXPFILL }},
     { &ei_eth_fcs_bad, { "eth.fcs_bad", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
     { &ei_eth_len, { "eth.len.past_end", PI_MALFORMED, PI_ERROR, "Length field value goes past the end of the payload", EXPFILL }},
+    { &ei_eth_padding_bad, {"eth.padding_bad", PI_PROTOCOL, PI_NOTE, "Padding identification may be inaccurate and impact trailer dissector", EXPFILL }},
   };
 
   module_t *eth_module;
@@ -1003,13 +1033,22 @@ proto_register_eth(void)
   /* Register configuration preferences */
   eth_module = prefs_register_protocol(proto_eth, NULL);
 
-  prefs_register_bool_preference(eth_module, "assume_padding",
-                                 "Assume short frames which include a trailer contain padding",
-                                 "Some devices add trailing data to frames. When this setting is checked "
-                                 "the Ethernet dissector will assume there has been added padding to the "
-                                 "frame before the trailer was added. Uncheck if a device added a trailer "
-                                 "before the frame was padded.",
-                                 &eth_assume_padding);
+  prefs_register_obsolete_preference(eth_module, "assume_padding");
+  prefs_register_enum_preference(eth_module, "padding",
+                                 "Assume padding for short frames with trailer",
+                                 "Some devices add trailing data to frames.  Depending on where this "
+                                 "device exists in the network, padding could be added to short "
+                                 "frames before the additional trailer.  This option determines how "
+                                 "that padding will be detected.\n\n"
+                                 "Never - Don't detect any padding.  Any bytes after the ethernet "
+                                 "payload will be considered trailer.\n"
+                                 "Zeros (default) - Consecutive bytes of zeros up to the minimum "
+                                 "ethernet frame size will be treated as padding.  Additional bytes will "
+                                 "be considered trailer.\n"
+                                 "Any - Any bytes after the payload up to the minimum ethernet frame "
+                                 "size will be treated as padding.  Additional bytes will be considered "
+                                 "trailer.",
+                                 &eth_padding, eth_padding_vals, FALSE);
 
   prefs_register_uint_preference(eth_module, "trailer_length",
                                  "Fixed ethernet trailer length",

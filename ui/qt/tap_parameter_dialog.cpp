@@ -276,8 +276,8 @@ QByteArray TapParameterDialog::getTreeAsString(st_format_type format)
         plain_header.append('\n');
 
         ba.append(top_separator);
-        ba.append(file_header);
-        ba.append(plain_header);
+        ba.append(file_header.toUtf8());
+        ba.append(plain_header.toUtf8());
         ba.append(footer);
         break;
     }

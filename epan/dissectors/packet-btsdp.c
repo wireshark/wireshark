@@ -438,7 +438,7 @@ static gint ett_btsdp_supported_features_mdep_role        = -1;
 static gint ett_btsdp_supported_features_mdep_description = -1;
 static gint ett_btsdp_protocol                            = -1;
 
-static const int *hfx_ctn_supported_features[] = {
+static int * const hfx_ctn_supported_features[] = {
     &hf_ctn_supported_features_reserved,
     &hf_ctn_supported_features_forward,
     &hf_ctn_supported_features_delete,
@@ -450,7 +450,7 @@ static const int *hfx_ctn_supported_features[] = {
     NULL
 };
 
-static const int *hfx_mps_mpsd_scenarios[] = {
+static int * const hfx_mps_mpsd_scenarios[] = {
     &hf_mps_mpsd_scenarios_reserved,
     &hf_mps_mpsd_scenarios_37,
     &hf_mps_mpsd_scenarios_36,
@@ -493,7 +493,7 @@ static const int *hfx_mps_mpsd_scenarios[] = {
     NULL
 };
 
-static const int *hfx_mps_mpmd_scenarios[] = {
+static int * const hfx_mps_mpmd_scenarios[] = {
     &hf_mps_mpmd_scenarios_reserved,
     &hf_mps_mpmd_scenarios_18,
     &hf_mps_mpmd_scenarios_17,
@@ -517,7 +517,7 @@ static const int *hfx_mps_mpmd_scenarios[] = {
     NULL
 };
 
-static const int *hfx_mps_supported_profile_and_protocol_dependency[] = {
+static int * const hfx_mps_supported_profile_and_protocol_dependency[] = {
     &hf_mps_supported_profile_and_protocol_dependency_reserved,
     &hf_mps_supported_profile_and_protocol_dependency_dis_connection_order_behaviour,
     &hf_mps_supported_profile_and_protocol_dependency_gavdp_requirements,
@@ -525,7 +525,7 @@ static const int *hfx_mps_supported_profile_and_protocol_dependency[] = {
     NULL
 };
 
-static const int *hfx_map_supported_features[] = {
+static int * const hfx_map_supported_features[] = {
     &hf_map_supported_features_reserved,
     &hf_map_supported_features_extended_event_report_1_1,
     &hf_map_supported_features_instance_information_feature,
@@ -537,7 +537,7 @@ static const int *hfx_map_supported_features[] = {
     NULL
 };
 
-static const int *hfx_pbap_pse_supported_repositories[] = {
+static int * const hfx_pbap_pse_supported_repositories[] = {
     &hf_pbap_pse_supported_repositories_reserved,
     &hf_pbap_pse_supported_repositories_favourites,
     &hf_pbap_pse_supported_repositories_speed_dial,
@@ -546,7 +546,7 @@ static const int *hfx_pbap_pse_supported_repositories[] = {
     NULL
 };
 
-static const int *hfx_pbap_pse_supported_features[] = {
+static int * const hfx_pbap_pse_supported_features[] = {
     &hf_pbap_pse_supported_features_reserved,
     &hf_pbap_pse_supported_features_default_contact_image_format,
     &hf_pbap_pse_supported_features_contact_referencing,
@@ -583,7 +583,7 @@ typedef struct _tid_request_t {
     wmem_array_t  *uuid_array;
     guint32        record_handle;
 
-    guint8        *continuation_state;
+    gchar         *continuation_state;
     guint8         continuation_state_length;
 
     guint32        data_length;
@@ -1673,7 +1673,7 @@ reassemble_continuation_state(tvbuff_t *tvb, packet_info *pinfo,
             }
         }
     } else {
-        guint8      *continuation_state_buffer;
+        gchar       *continuation_state_buffer;
         guint8       continuation_state_length;
 
         continuation_state_length = tvb_get_guint8(tvb, offset);
@@ -2134,7 +2134,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
     guint8         primary_record;
     guint8         mdep_id;
     guint16        vendor_id_source;
-    const guint8  *str_val;
+    const gchar   *str_val;
     guint32        supported_features;
     guint          i_feature;
     guint          i_protocol;
@@ -2528,19 +2528,19 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
             switch (attribute) {
                 case 0x300:
                     proto_tree_add_item_ret_string(next_tree, hf_hcrp_1284_id, tvb, offset, size, ENC_ASCII | ENC_NA, wmem_packet_scope(), &new_str);
-                    wmem_strbuf_append(info_buf, new_str);
+                    wmem_strbuf_append(info_buf, (const gchar*)new_str);
                     break;
                 case 0x302:
                     proto_tree_add_item_ret_string(next_tree, hf_hcrp_device_name, tvb, offset, size, ENC_ASCII | ENC_NA, wmem_packet_scope(), &new_str);
-                    wmem_strbuf_append(info_buf, new_str);
+                    wmem_strbuf_append(info_buf, (const gchar*)new_str);
                     break;
                 case 0x304:
                     proto_tree_add_item_ret_string(next_tree, hf_hcrp_friendly_name, tvb, offset, size, ENC_ASCII | ENC_NA, wmem_packet_scope(), &new_str);
-                    wmem_strbuf_append(info_buf, new_str);
+                    wmem_strbuf_append(info_buf, (const gchar*)new_str);
                     break;
                 case 0x306:
                     proto_tree_add_item_ret_string(next_tree, hf_hcrp_device_location, tvb, offset, size, ENC_ASCII | ENC_NA, wmem_packet_scope(), &new_str);
-                    wmem_strbuf_append(info_buf, new_str);
+                    wmem_strbuf_append(info_buf, (const gchar*)new_str);
                     break;
                 default:
                     found = FALSE;
@@ -2560,7 +2560,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     break;
                 case 0x308:
                     proto_tree_add_item_ret_string(next_tree, hf_wap_homepage_url, tvb, offset, size, ENC_ASCII | ENC_NA, wmem_packet_scope(), &new_str);
-                    wmem_strbuf_append(info_buf, new_str);
+                    wmem_strbuf_append(info_buf, (const gchar*)new_str);
                     break;
                 case 0x309:
                     proto_tree_add_item(next_tree, hf_wap_stack_type, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2679,11 +2679,11 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                 case 0x30D:
                 case 0x200:
                     proto_tree_add_item_ret_string(next_tree, hf_pan_ipv4_subnet, tvb, offset, size, ENC_ASCII | ENC_NA, wmem_packet_scope(), &new_str);
-                    wmem_strbuf_append(info_buf, new_str);
+                    wmem_strbuf_append(info_buf, (const gchar*)new_str);
                     break;
                 case 0x30E:
                     proto_tree_add_item_ret_string(next_tree, hf_pan_ipv6_subnet, tvb, offset, size, ENC_ASCII | ENC_NA, wmem_packet_scope(), &new_str);
-                    wmem_strbuf_append(info_buf, new_str);
+                    wmem_strbuf_append(info_buf, (const gchar*)new_str);
                     break;
                 default:
                     found = FALSE;
@@ -2709,11 +2709,11 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                 case 0x30D:
                 case 0x200:
                     proto_tree_add_item_ret_string(next_tree, hf_pan_ipv4_subnet, tvb, offset, size, ENC_ASCII | ENC_NA, wmem_packet_scope(), &new_str);
-                    wmem_strbuf_append(info_buf, new_str);
+                    wmem_strbuf_append(info_buf, (const gchar*)new_str);
                     break;
                 case 0x30E:
                     proto_tree_add_item_ret_string(next_tree, hf_pan_ipv6_subnet, tvb, offset, size, ENC_ASCII | ENC_NA, wmem_packet_scope(), &new_str);
-                    wmem_strbuf_append(info_buf, new_str);
+                    wmem_strbuf_append(info_buf, (const gchar*)new_str);
                     break;
                 default:
                     found = FALSE;
@@ -2764,7 +2764,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     break;
                 case 0x306:
                     proto_tree_add_item_ret_string(next_tree, hf_dun_escape_sequence, tvb, offset, size, ENC_ASCII | ENC_NA, wmem_packet_scope(), &new_str);
-                    wmem_strbuf_append(info_buf, new_str);
+                    wmem_strbuf_append(info_buf, (const gchar*)new_str);
                     break;
                 default:
                     found = FALSE;
@@ -3132,16 +3132,16 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
             switch (attribute) {
                 case 0x350:
                     proto_tree_add_item_ret_string(next_tree, hf_bpp_document_formats_supported, tvb, offset, size, ENC_ASCII | ENC_NA, wmem_packet_scope(), &new_str);
-                    wmem_strbuf_append(info_buf, new_str);
+                    wmem_strbuf_append(info_buf, (const gchar*)new_str);
                     break;
                 case 0x352:
                     proto_tree_add_item(next_tree, hf_bpp_character_repertoires_support, tvb, offset, size, ENC_NA);
                     new_str = tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, size);
-                    wmem_strbuf_append(info_buf, new_str);
+                    wmem_strbuf_append(info_buf, (const gchar*)new_str);
                     break;
                 case 0x354:
                     proto_tree_add_item_ret_string(next_tree, hf_bpp_xhtml_print_image_formats_supported, tvb, offset, size, ENC_ASCII | ENC_NA, wmem_packet_scope(), &new_str);
-                    wmem_strbuf_append(info_buf, new_str);
+                    wmem_strbuf_append(info_buf, (const gchar*)new_str);
                     break;
                 case 0x356:
                     proto_tree_add_item(next_tree, hf_bpp_color_supported, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -3150,15 +3150,15 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     break;
                 case 0x358:
                     proto_tree_add_item_ret_string(next_tree, hf_bpp_1284_id, tvb, offset, size, ENC_ASCII | ENC_NA, wmem_packet_scope(), &new_str);
-                    wmem_strbuf_append(info_buf, new_str);
+                    wmem_strbuf_append(info_buf, (const gchar*)new_str);
                     break;
                 case 0x35A:
                     proto_tree_add_item_ret_string(next_tree, hf_bpp_printer_name, tvb, offset, size, ENC_ASCII | ENC_NA, wmem_packet_scope(), &new_str);
-                    wmem_strbuf_append(info_buf, new_str);
+                    wmem_strbuf_append(info_buf, (const gchar*)new_str);
                     break;
                 case 0x35C:
                     proto_tree_add_item_ret_string(next_tree, hf_bpp_printer_location, tvb, offset, size, ENC_ASCII | ENC_NA, wmem_packet_scope(), &new_str);
-                    wmem_strbuf_append(info_buf, new_str);
+                    wmem_strbuf_append(info_buf, (const gchar*)new_str);
                     break;
                 case 0x35E:
                     proto_tree_add_item(next_tree, hf_bpp_duplex_supported, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -3167,7 +3167,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     break;
                 case 0x360:
                     proto_tree_add_item_ret_string(next_tree, hf_bpp_media_types_supported, tvb, offset, size, ENC_ASCII | ENC_NA, wmem_packet_scope(), &new_str);
-                    wmem_strbuf_append(info_buf, new_str);
+                    wmem_strbuf_append(info_buf, (const gchar*)new_str);
                     break;
                 case 0x362:
                     proto_tree_add_item(next_tree, hf_bpp_max_media_width, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -3186,7 +3186,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     break;
                 case 0x368:
                     proto_tree_add_item_ret_string(next_tree, hf_bpp_rui_formats_supported, tvb, offset, size, ENC_ASCII | ENC_NA, wmem_packet_scope(), &new_str);
-                    wmem_strbuf_append(info_buf, new_str);
+                    wmem_strbuf_append(info_buf, (const gchar*)new_str);
                     break;
                 case 0x370:
                     proto_tree_add_item(next_tree, hf_bpp_reference_printing_rui_supported, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -3200,15 +3200,15 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     break;
                 case 0x374:
                     proto_tree_add_item_ret_string(next_tree, hf_bpp_reference_printing_top_url, tvb, offset, size, ENC_ASCII | ENC_NA, wmem_packet_scope(), &new_str);
-                    wmem_strbuf_append(info_buf, new_str);
+                    wmem_strbuf_append(info_buf, (const gchar*)new_str);
                     break;
                 case 0x376:
                     proto_tree_add_item_ret_string(next_tree, hf_bpp_direct_printing_top_url, tvb, offset, size, ENC_ASCII | ENC_NA, wmem_packet_scope(), &new_str);
-                    wmem_strbuf_append(info_buf, new_str);
+                    wmem_strbuf_append(info_buf, (const gchar*)new_str);
                     break;
                 case 0x37A:
                     proto_tree_add_item_ret_string(next_tree, hf_bpp_device_name, tvb, offset, size, ENC_ASCII | ENC_NA, wmem_packet_scope(), &new_str);
-                    wmem_strbuf_append(info_buf, new_str);
+                    wmem_strbuf_append(info_buf, (const gchar*)new_str);
                     break;
                 default:
                     found = FALSE;
@@ -3218,11 +3218,11 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
             switch (attribute) {
                 case 0x368:
                     proto_tree_add_item_ret_string(next_tree, hf_bpp_rui_formats_supported, tvb, offset, size, ENC_ASCII | ENC_NA, wmem_packet_scope(), &new_str);
-                    wmem_strbuf_append(info_buf, new_str);
+                    wmem_strbuf_append(info_buf, (const gchar*)new_str);
                     break;
                 case 0x378:
                     proto_tree_add_item_ret_string(next_tree, hf_bpp_printer_admin_rui_top_url, tvb, offset, size, ENC_ASCII | ENC_NA, wmem_packet_scope(), &new_str);
-                    wmem_strbuf_append(info_buf, new_str);
+                    wmem_strbuf_append(info_buf, (const gchar*)new_str);
                     break;
                 default:
                     found = FALSE;
@@ -3344,8 +3344,8 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                 dissect_data_element(entry_tree, &sub_tree, pinfo, tvb, list_offset);
                 list_offset = get_type_length(tvb, list_offset, &entry_length);
                 proto_tree_add_item_ret_string(sub_tree, hf_sdp_lang_code, tvb, list_offset, entry_length, ENC_ASCII | ENC_NA, wmem_packet_scope(), &new_str);
-                wmem_strbuf_append_printf(info_buf, "Lang: %s", new_str);
-                proto_item_append_text(entry_item, ": Lang: %s", new_str);
+                wmem_strbuf_append_printf(info_buf, "Lang: %s", (const gchar*)new_str);
+                proto_item_append_text(entry_item, ": Lang: %s", (const gchar*)new_str);
                 list_offset += entry_length;
 
                 dissect_data_element(entry_tree, &sub_tree, pinfo, tvb, list_offset);
@@ -3420,15 +3420,15 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
             break;
         case 0x00A:
             proto_tree_add_item_ret_string(next_tree, hf_sdp_service_documentation_url, tvb, offset, size, ENC_ASCII | ENC_NA, wmem_packet_scope(), &new_str);
-            wmem_strbuf_append(info_buf, new_str);
+            wmem_strbuf_append(info_buf, (const gchar*)new_str);
             break;
         case 0x00B:
             proto_tree_add_item_ret_string(next_tree, hf_sdp_service_client_executable_url, tvb, offset, size, ENC_ASCII | ENC_NA, wmem_packet_scope(), &new_str);
-            wmem_strbuf_append(info_buf, new_str);
+            wmem_strbuf_append(info_buf, (const gchar*)new_str);
             break;
         case 0x00C:
             proto_tree_add_item_ret_string(next_tree, hf_sdp_service_icon_url, tvb, offset, size, ENC_ASCII | ENC_NA, wmem_packet_scope(), &new_str);
-            wmem_strbuf_append(info_buf, new_str);
+            wmem_strbuf_append(info_buf, (const gchar*)new_str);
             break;
         case 0x00D:
             protocol_order = 1;
@@ -3455,15 +3455,15 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
             break;
         case 0x100:
             proto_tree_add_item_ret_string(next_tree, hf_sdp_service_name, tvb, offset, size, ENC_ASCII | ENC_NA, wmem_packet_scope(), &new_str);
-            wmem_strbuf_append(info_buf, new_str);
+            wmem_strbuf_append(info_buf, (const gchar*)new_str);
             break;
         case 0x101:
             proto_tree_add_item_ret_string(next_tree, hf_sdp_service_description, tvb, offset, size, ENC_ASCII | ENC_NA, wmem_packet_scope(), &new_str);
-            wmem_strbuf_append(info_buf, new_str);
+            wmem_strbuf_append(info_buf, (const gchar*)new_str);
             break;
         case 0x102:
             proto_tree_add_item_ret_string(next_tree, hf_sdp_service_provider_name, tvb, offset, size, ENC_ASCII | ENC_NA, wmem_packet_scope(), &new_str);
-            wmem_strbuf_append(info_buf, new_str);
+            wmem_strbuf_append(info_buf, (const gchar*)new_str);
             break;
         default:
             found = FALSE;
@@ -3568,7 +3568,7 @@ dissect_sdp_service_attribute(proto_tree *tree, tvbuff_t *tvb, gint offset,
     gint                 service_hdp_data_exchange_specification = -1;
     gint                 hfx_attribute_id = hf_service_attribute_id_generic;
     const value_string  *name_vals = NULL;
-    const guint8        *profile_speficic = "";
+    const char          *profile_speficic = "";
     gint                 new_offset;
     gint                 old_offset;
     guint8               type;

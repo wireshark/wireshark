@@ -661,7 +661,7 @@ dissect_drda_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     guint16 iParameterCP;
     gint iLengthParam;
 
-    static const int * format_flags[] = {
+    static int * const format_flags[] = {
         &hf_drda_ddm_fmt_reserved,
         &hf_drda_ddm_fmt_chained,
         &hf_drda_ddm_fmt_errcont,

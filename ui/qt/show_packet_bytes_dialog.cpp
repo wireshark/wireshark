@@ -24,6 +24,7 @@
 #include <QMenu>
 #include <QPrintDialog>
 #include <QPrinter>
+#include <QTextCodec>
 #include <QTextStream>
 
 // To do:
@@ -70,10 +71,9 @@ ShowPacketBytesDialog::ShowPacketBytesDialog(QWidget &parent, CaptureFile &cf) :
     ui->cbShowAs->addItem(tr("Hex Dump"), ShowAsHexDump);
     ui->cbShowAs->addItem(tr("HTML"), ShowAsHTML);
     ui->cbShowAs->addItem(tr("Image"), ShowAsImage);
-    ui->cbShowAs->addItem(tr("ISO 8859-1"), ShowAsISO8859_1);
     ui->cbShowAs->addItem(tr("Raw"), ShowAsRAW);
-    ui->cbShowAs->addItem(tr("UTF-8"), ShowAsUTF8);
-    ui->cbShowAs->addItem(tr("UTF-16"), ShowAsUTF16);
+    // UTF-8 is guaranteed to exist as a QTextCodec
+    ui->cbShowAs->addItem(tr("UTF-8"), ShowAsCodec);
     ui->cbShowAs->addItem(tr("YAML"), ShowAsYAML);
     ui->cbShowAs->setCurrentIndex(show_as_);
     ui->cbShowAs->blockSignals(false);
@@ -99,6 +99,24 @@ ShowPacketBytesDialog::ShowPacketBytesDialog(QWidget &parent, CaptureFile &cf) :
 ShowPacketBytesDialog::~ShowPacketBytesDialog()
 {
     delete ui;
+}
+
+void ShowPacketBytesDialog::addCodecs(const QMap<QString, QTextCodec *> &codecMap)
+{
+    ui->cbShowAs->blockSignals(true);
+    // Make the combobox respect max visible items?
+    //ui->cbShowAs->setStyleSheet("QComboBox { combobox-popup: 0;}");
+    ui->cbShowAs->insertSeparator(ui->cbShowAs->count());
+#if QT_VERSION >= QT_VERSION_CHECK(5, 7, 0)
+    for (const auto &codec : qAsConst(codecMap)) {
+#else
+    foreach (const QTextCodec *codec, codecMap) {
+#endif
+        // This is already placed in the menu and handled separately
+        if (codec->name() != "US-ASCII" && codec->name() != "UTF-8")
+            ui->cbShowAs->addItem(tr(codec->name()), ShowAsCodec);
+    }
+    ui->cbShowAs->blockSignals(false);
 }
 
 void ShowPacketBytesDialog::showSelected(int start, int end)
@@ -265,7 +283,6 @@ void ShowPacketBytesDialog::copyBytes()
     case ShowAsCArray:
     case ShowAsEBCDIC:
     case ShowAsHexDump:
-    case ShowAsISO8859_1:
     case ShowAsRAW:
     case ShowAsYAML:
         wsApp->clipboard()->setText(ui->tePacketBytes->toPlainText());
@@ -279,8 +296,7 @@ void ShowPacketBytesDialog::copyBytes()
         wsApp->clipboard()->setImage(image_);
         break;
 
-    case ShowAsUTF8:
-    case ShowAsUTF16:
+    case ShowAsCodec:
         wsApp->clipboard()->setText(ui->tePacketBytes->toPlainText().toUtf8());
         break;
     }
@@ -293,8 +309,23 @@ void ShowPacketBytesDialog::saveAs()
     if (file_name.isEmpty())
         return;
 
+    QFile::OpenMode open_mode = QFile::WriteOnly;
+    switch (show_as_) {
+    case ShowAsASCII:
+    case ShowAsASCIIandControl:
+    case ShowAsCArray:
+    // We always save as UTF-8, so set text mode as we would for UTF-8
+    case ShowAsCodec:
+    case ShowAsHexDump:
+    case ShowAsYAML:
+    case ShowAsHTML:
+        open_mode |= QFile::Text;
+    default:
+        break;
+    }
+
     QFile file(file_name);
-    file.open(QIODevice::WriteOnly);
+    file.open(open_mode);
 
     switch (show_as_) {
 
@@ -310,7 +341,6 @@ void ShowPacketBytesDialog::saveAs()
     case ShowAsCArray:
     case ShowAsEBCDIC:
     case ShowAsHexDump:
-    case ShowAsISO8859_1:
     case ShowAsYAML:
     {
         QTextStream out(&file);
@@ -325,8 +355,7 @@ void ShowPacketBytesDialog::saveAs()
         break;
     }
 
-    case ShowAsUTF8:
-    case ShowAsUTF16:
+    case ShowAsCodec:
     {
         QTextStream out(&file);
         out << ui->tePacketBytes->toPlainText().toUtf8();
@@ -605,6 +634,20 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
         break;
     }
 
+    case ShowAsCodec:
+    {
+        // The QTextCodecs docs say that there's a flag to cause invalid
+        // characters to be replaced with null. It's unclear what happens
+        // in the default case; it might depend on the codec though it
+        // seems that in practice replacement characters are used.
+        QTextCodec *codec = QTextCodec::codecForName(ui->cbShowAs->currentText().toUtf8());
+        QByteArray ba(field_bytes_);
+        QString decoded = codec->toUnicode(ba);
+        ui->tePacketBytes->setLineWrapMode(QTextEdit::WidgetWidth);
+        ui->tePacketBytes->setPlainText(decoded);
+        break;
+    }
+
     case ShowAsEBCDIC:
     {
         QByteArray ba(field_bytes_);
@@ -684,35 +727,6 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
         print_button_->setEnabled(!image_.isNull());
         copy_button_->setEnabled(!image_.isNull());
         save_as_button_->setEnabled(!image_.isNull());
-        break;
-    }
-
-    case ShowAsISO8859_1:
-    {
-        QString latin1 = QString::fromLatin1(field_bytes_.constData(), (int)field_bytes_.length());
-        ui->tePacketBytes->setLineWrapMode(QTextEdit::WidgetWidth);
-        ui->tePacketBytes->setPlainText(latin1);
-        break;
-    }
-
-    case ShowAsUTF8:
-    {
-        // The QString docs say that invalid characters will be replaced with
-        // replacement characters or removed. It would be nice if we could
-        // explicitly choose one or the other.
-        QString utf8 = QString::fromUtf8(field_bytes_.constData(), (int)field_bytes_.length());
-        ui->tePacketBytes->setLineWrapMode(QTextEdit::WidgetWidth);
-        ui->tePacketBytes->setPlainText(utf8);
-        break;
-    }
-
-    case ShowAsUTF16:
-    {
-        // QString::fromUtf16 calls QUtf16::convertToUnicode, casting buffer
-        // back to a const char * and doubling nchars.
-        QString utf16 = QString::fromUtf16((const unsigned short *)field_bytes_.constData(), (int)field_bytes_.length() / 2);
-        ui->tePacketBytes->setLineWrapMode(QTextEdit::WidgetWidth);
-        ui->tePacketBytes->setPlainText(utf16);
         break;
     }
 

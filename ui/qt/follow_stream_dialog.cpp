@@ -47,8 +47,7 @@
 #include <QPrintDialog>
 #include <QPrinter>
 #include <QScrollBar>
-#include <QTextEdit>
-#include <QTextStream>
+#include <QTextCodec>
 
 // To do:
 // - Show text while tapping.
@@ -120,10 +119,10 @@ FollowStreamDialog::FollowStreamDialog(QWidget &parent, CaptureFile &cf, follow_
     cbcs->addItem(tr("C Arrays"), SHOW_CARRAY);
     cbcs->addItem(tr("EBCDIC"), SHOW_EBCDIC);
     cbcs->addItem(tr("Hex Dump"), SHOW_HEXDUMP);
-    cbcs->addItem(tr("UTF-8"), SHOW_UTF8);
-    cbcs->addItem(tr("UTF-16"), SHOW_UTF16);
-    cbcs->addItem(tr("YAML"), SHOW_YAML);
     cbcs->addItem(tr("Raw"), SHOW_RAW);
+    // UTF-8 is guaranteed to exist as a QTextCodec
+    cbcs->addItem(tr("UTF-8"), SHOW_CODEC);
+    cbcs->addItem(tr("YAML"), SHOW_YAML);
     cbcs->blockSignals(false);
 
     b_filter_out_ = ui->buttonBox->addButton(tr("Filter Out This Stream"), QDialogButtonBox::ActionRole);
@@ -155,6 +154,22 @@ FollowStreamDialog::~FollowStreamDialog()
 {
     delete ui;
     resetStream(); // Frees payload
+}
+
+void FollowStreamDialog::addCodecs(const QMap<QString, QTextCodec *> &codecMap)
+{
+    // Make the combobox respect max visible items?
+    //ui->cbCharset->setStyleSheet("QComboBox { combobox-popup: 0;}");
+    ui->cbCharset->insertSeparator(ui->cbCharset->count());
+#if QT_VERSION >= QT_VERSION_CHECK(5, 7, 0)
+    for (const auto &codec : qAsConst(codecMap)) {
+#else
+    foreach (const QTextCodec *codec, codecMap) {
+#endif
+        // This is already in the menu and handled separately
+        if (codec->name() != "US-ASCII" && codec->name() != "UTF-8")
+            ui->cbCharset->addItem(tr(codec->name()), SHOW_CODEC);
+    }
 }
 
 void FollowStreamDialog::printStream()
@@ -281,7 +296,7 @@ void FollowStreamDialog::saveAs()
         return;
     }
 
-    // Unconditionally save data as UTF-8 (even if data is decoded as UTF-16).
+    // Unconditionally save data as UTF-8 (even if data is decoded otherwise).
     QByteArray bytes = ui->teStreamContent->toPlainText().toUtf8();
     if (show_type_ == SHOW_RAW) {
         // The "Raw" format is currently displayed as hex data and needs to be
@@ -660,22 +675,17 @@ FollowStreamDialog::showBuffer(char *buffer, size_t nchars, gboolean is_from_ser
         break;
     }
 
-    case SHOW_UTF8:
+    case SHOW_CODEC:
     {
-        // The QString docs say that invalid characters will be replaced with
-        // replacement characters or removed. It would be nice if we could
-        // explicitly choose one or the other.
-        QString utf8 = QString::fromUtf8(buffer, (int)nchars);
-        addText(utf8, is_from_server, packet_num);
-        break;
-    }
-
-    case SHOW_UTF16:
-    {
-        // QString::fromUtf16 calls QUtf16::convertToUnicode, casting buffer
-        // back to a const char * and doubling nchars.
-        QString utf16 = QString::fromUtf16((const unsigned short *)buffer, (int)nchars / 2);
-        addText(utf16, is_from_server, packet_num);
+        // This assumes that multibyte characters don't span packets in the
+        // stream. To handle that case properly (which might occur with fixed
+        // block sizes, e.g. transferring over TFTP, we would need to create
+        // two stateful QTextDecoders, one for each direction, presumably in
+        // on_cbCharset_currentIndexChanged()
+        QTextCodec *codec = QTextCodec::codecForName(ui->cbCharset->currentText().toUtf8());
+        QByteArray ba = QByteArray(buffer, (int)nchars);
+        QString decoded = codec->toUnicode(ba);
+        addText(decoded, is_from_server, packet_num);
         break;
     }
 

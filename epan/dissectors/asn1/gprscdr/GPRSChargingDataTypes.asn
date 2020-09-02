@@ -1,5 +1,5 @@
 --
--- 3GPP TS 32.298 v15.7.0 (2019-06-12)
+-- 3GPP TS 32.298 v16.4.1 (2020-04-01)
 --
 GPRSChargingDataTypes {itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) charging (5) gprsChargingDataTypes (2) asn1Module (0) version2 (1)}
 DEFINITIONS IMPLICIT TAGS	::=
@@ -22,6 +22,7 @@ DiameterIdentity,
 DynamicAddressFlag, 
 EnhancedDiagnostics,
 -- GSNAddress,
+InvolvedParty,
 IPAddress,
 LCSCause,
 LCSClientIdentity,
@@ -835,6 +836,13 @@ APNSelectionMode	::= ENUMERATED
 	networkProvidedSubscriptionNotVerified				(2)
 }
 
+CalleePartyInformation	::= SEQUENCE
+{
+called-Party-Address				[0] InvolvedParty OPTIONAL,
+requested-Party-Address				[1] InvolvedParty OPTIONAL,
+list-Of-Called-Asserted-Identity 	[2] SEQUENCE OF InvolvedParty OPTIONAL
+}
+
 CAMELAccessPointNameNI	::= AccessPointNameNI
 
 CAMELAccessPointNameOI	::= AccessPointNameOI
@@ -902,7 +910,8 @@ ChangeCondition	::= ENUMERATED
 	servingPLMNRateControlChange	(19), 	
 -- bearer modification "Serving PLMN Rate Control Change"
 	threeGPPPSDataOffStatusChange	(20),   -- "Change of 3GPP PS DataO ff Status"
-	aPNRateControlChange			(21)	-- bearer modification. "APN Rate ControlChange
+	aPNRateControlChange			(21)	-- bearer modification. "APN Rate ControlChange"
+
 
 }
 
@@ -998,7 +1007,8 @@ ChangeOfServiceCondition	::= SEQUENCE
 	trafficSteeringPolicyIDDownlink     [38] TrafficSteeringPolicyIDDownlink OPTIONAL,
 trafficSteeringPolicyIDUplink       [39] TrafficSteeringPolicyIDUplink OPTIONAL,
 	tWANUserLocationInformation			[40] TWANUserLocationInfo OPTIONAL,
-	listOfPresenceReportingAreaInformation	[41] SEQUENCE OF PresenceReportingAreaInfo OPTIONAL
+	listOfPresenceReportingAreaInformation	[41] SEQUENCE OF PresenceReportingAreaInfo OPTIONAL,
+	voLTEInformation						[42] VoLTEInformation OPTIONAL
 
 }
 
@@ -1197,7 +1207,7 @@ PDPPDNTypeExtension	::= INTEGER
 
 PresenceReportingAreaElementsList ::= OCTET STRING
 --
--- For EPC see Presence-Reporting-Area-Elements-List AVP defined in TS 29.212 [220] 
+-- For EPC see Presence-Reporting-Area-Elements-List AVP defined in TS 29.212 [220]
 -- For 5GC see PresenceInfo defined in TS 29.571 [249] excluding praId and presenceState
 -- 
 
@@ -1459,6 +1469,13 @@ UWANUserLocationInfo		::= SEQUENCE
 	wLANOperatorId			[6] WLANOperatorId OPTIONAL,
 	logicalAccessID			[7] OCTET STRING OPTIONAL
 }
+
+VoLTEInformation ::= SEQUENCE
+{
+	callerInformation	[0] SEQUENCE OF InvolvedParty OPTIONAL,
+	calleeInformation	[1] CalleePartyInformation OPTIONAL
+}
+
 
 WLANOperatorId ::= SEQUENCE 
 {

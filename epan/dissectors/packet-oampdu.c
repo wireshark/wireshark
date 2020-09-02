@@ -1002,7 +1002,7 @@ dissect_oampdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     proto_tree *oampdu_tree;
     proto_item *oampdu_item;
 
-    static const int * oampdu_flags[] = {
+    static int * const oampdu_flags[] = {
         &hf_oampdu_flags_link_fault,
         &hf_oampdu_flags_dying_gasp,
         &hf_oampdu_flags_critical_event,
@@ -1120,12 +1120,12 @@ dissect_oampdu_information(tvbuff_t *tvb, proto_tree *tree)
 
         if ((info_type==OAMPDU_INFO_TYPE_LOCAL)||(info_type==OAMPDU_INFO_TYPE_REMOTE))
         {
-            static const int * info_states[] = {
+            static int * const info_states[] = {
                 &hf_oampdu_info_state_parser,
                 &hf_oampdu_info_state_mux,
                 NULL
             };
-            static const int * info_config[] = {
+            static int * const info_config[] = {
                 &hf_oampdu_info_oamConfig_mode,
                 &hf_oampdu_info_oamConfig_uni,
                 &hf_oampdu_info_oamConfig_lpbk,
@@ -1601,7 +1601,7 @@ dissect_oampdu_loopback_control(tvbuff_t *tvb, proto_tree *tree)
     guint32   offset;
     guint16   bytes;
 
-    static const int * ctrl[] = {
+    static int * const ctrl[] = {
         &hf_oampdu_lpbk_enable,
         &hf_oampdu_lpbk_disable,
         NULL
@@ -1617,7 +1617,7 @@ dissect_oampdu_loopback_control(tvbuff_t *tvb, proto_tree *tree)
     }
 }
 
-static const int *s1_autoneg_mode_bits[] = {
+static int * const s1_autoneg_mode_bits[] = {
     &hf_oam_dpoe_s1_autoneg_hd,
     &hf_oam_dpoe_s1_autoneg_fd,
     &hf_oam_dpoe_s1_autoneg_10,

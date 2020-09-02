@@ -20,7 +20,7 @@
 #include <epan/etypes.h>
 #include <epan/show_exception.h>
 #include <epan/decode_as.h>
-#include <wiretap/erf.h>
+#include <wiretap/erf_record.h>
 
 #include "packet-infiniband.h"
 
@@ -239,7 +239,7 @@ static const value_string SUBM_Attributes[] = {
     { 0x0014, "Attribute (GUIDInfo)"},
     { 0x0015, "Attribute (PortInfo)"},
     { 0x0016, "Attribute (P_KeyTable)"},
-    { 0x0017, "Attribute (SLtoVLMapptingTable)"},
+    { 0x0017, "Attribute (SLtoVLMappingTable)"},
     { 0x0018, "Attribute (VLArbitrationTable)"},
     { 0x0019, "Attribute (LinearForwardingTable)"},
     { 0x001A, "Attribute (RandomForwardingTable)"},
@@ -2774,11 +2774,13 @@ static void parse_VENDOR(proto_tree * parentTree, tvbuff_t *tvb, gint *offset)
     gint        local_offset = *offset;
     proto_item *VENDOR_header_item;
     proto_tree *VENDOR_header_tree;
+    gint        VENDOR_header_length;
 
     VENDOR_header_item = proto_tree_add_item(parentTree, hf_infiniband_vendor, tvb, local_offset, 4, ENC_NA);
     proto_item_set_text(VENDOR_header_item, "%s", "Vendor Specific or Unknown Header Sequence");
     VENDOR_header_tree = proto_item_add_subtree(VENDOR_header_item, ett_vendor);
-    proto_tree_add_item(VENDOR_header_tree, hf_infiniband_vendor, tvb, local_offset, -1, ENC_NA);
+    proto_tree_add_item_ret_length(VENDOR_header_tree, hf_infiniband_vendor, tvb, local_offset, -1, ENC_NA, &VENDOR_header_length);
+    local_offset += VENDOR_header_length;
     *offset = local_offset;
 }
 

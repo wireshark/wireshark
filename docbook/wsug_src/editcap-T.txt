@@ -95,7 +95,8 @@ editcap: The available encapsulation types for the "-T" flag are:
     lin - Local Interconnect Network
     linux-atm-clip - Linux ATM CLIP
     linux-lapd - LAPD with Linux pseudo-header
-    linux-sll - Linux cooked-mode capture
+    linux-sll - Linux cooked-mode capture v1
+    linux-sll2 - Linux cooked-mode capture v2
     log_3GPP - 3GPP Phone Log
     logcat - Android Logcat Binary format
     logcat_brief - Android Logcat Brief text format
@@ -117,6 +118,7 @@ editcap: The available encapsulation types for the "-T" flag are:
     mime - MIME
     most - Media Oriented Systems Transport
     mp2ts - ISO/IEC 13818-1 MPEG2-TS
+    mp4 - MP4 files
     mpeg - MPEG
     mtp2 - SS7 MTP2
     mtp2-with-phdr - MTP2 with pseudoheader
@@ -208,3 +210,4 @@ editcap: The available encapsulation types for the "-T" flag are:
     x2e-xoraya - X2E Xoraya
     x25-nettl - X.25 with nettl headers
     xeth - Xerox 3MB Ethernet
+    zwave-serial - Z-Wave Serial API packets

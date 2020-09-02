@@ -71,13 +71,13 @@ dissect_mpeg1( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 	proto_tree *mpg_tree;
 	unsigned int offset       = 0;
 
-	static const int * mpg_fields1[] = {
+	static int * const mpg_fields1[] = {
 		&hf_rtp_mpg_mbz,
 		&hf_rtp_mpg_T,
 		&hf_rtp_mpg_tr,
 		NULL
 	};
-	static const int * mpg_fields2[] = {
+	static int * const mpg_fields2[] = {
 		&hf_rtp_mpg_an,
 		&hf_rtp_mpg_n,
 		&hf_rtp_mpg_s,
@@ -86,7 +86,7 @@ dissect_mpeg1( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 		&hf_rtp_mpg_p,
 		NULL
 	};
-	static const int * mpg_fields3[] = {
+	static int * const mpg_fields3[] = {
 		&hf_rtp_mpg_fbv,
 		&hf_rtp_mpg_bfc,
 		&hf_rtp_mpg_ffv,

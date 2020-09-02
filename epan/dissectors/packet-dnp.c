@@ -958,7 +958,7 @@ static const value_string dnp3_al_obj_vals[] = {
   { AL_OBJ_DA_OS_DS,       "Device Attributes - Number of outstation-defined data sets (Obj:00, Var:215)" },
   { AL_OBJ_DA_BO_REQ,      "Device Attributes - Max number of binary outputs per request (Obj:00, Var:216)" },
   { AL_OBJ_DA_LOC_TA,      "Device Attributes - Local timing accuracy (Obj:00, Var:217)" },
-  { AL_OBJ_DA_DUR_TA,      "Device Attributes - Duration of timing accuraccy (Obj:00, Var:218)" },
+  { AL_OBJ_DA_DUR_TA,      "Device Attributes - Duration of timing accuracy (Obj:00, Var:218)" },
   { AL_OBJ_DA_AO_EVT,      "Device Attributes - Support for analog output events (Obj:00, Var:219)" },
   { AL_OBJ_DA_MAX_AO,      "Device Attributes - Max analog output index (Obj:00, Var:220)" },
   { AL_OBJ_DA_NUM_AO,      "Device Attributes - Number of analog outputs (Obj:00, Var:221)" },
@@ -1423,7 +1423,7 @@ dnp3_al_process_iin(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *a
 {
   guint16     al_iin;
   proto_item *tiin;
-  static const int* indications[] = {
+  static int* const indications[] = {
       &hf_dnp3_al_iin_rst,
       &hf_dnp3_al_iin_dt,
       &hf_dnp3_al_iin_dol,
@@ -2941,7 +2941,7 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree   *al_tree, *robj_tree;
   const gchar  *func_code_str, *obj_type_str;
   nstime_t      al_cto;
-  static const int * control_flags[] = {
+  static int * const control_flags[] = {
     &hf_dnp3_al_fir,
     &hf_dnp3_al_fin,
     &hf_dnp3_al_con,
@@ -3321,7 +3321,7 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     gboolean    crc_OK = FALSE;
     tvbuff_t   *next_tvb;
     guint       i;
-    static const int * transport_flags[] = {
+    static int * const transport_flags[] = {
       &hf_dnp3_tr_fin,
       &hf_dnp3_tr_fir,
       &hf_dnp3_tr_seq,

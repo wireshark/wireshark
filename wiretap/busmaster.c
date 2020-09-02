@@ -86,9 +86,8 @@ busmaster_gen_packet(wtap_rec               *rec, Buffer *buf,
 
     if (is_fd)
     {
-        canfd_frame_t canfd_frame;
+        canfd_frame_t canfd_frame = {0};
 
-        memset(&canfd_frame, 0, sizeof(canfd_frame));
         canfd_frame.can_id = (msg->id & (is_eff ? CAN_EFF_MASK : CAN_SFF_MASK)) |
             (is_eff ? CAN_EFF_FLAG : 0) |
             (is_err ? CAN_ERR_FLAG : 0);
@@ -105,9 +104,8 @@ busmaster_gen_packet(wtap_rec               *rec, Buffer *buf,
     }
     else
     {
-        can_frame_t can_frame;
+        can_frame_t can_frame = {0};
 
-        memset(&can_frame, 0, sizeof(can_frame));
         can_frame.can_id  = (msg->id & (is_eff ? CAN_EFF_MASK : CAN_SFF_MASK)) |
             (is_rtr ? CAN_RTR_FLAG : 0) |
             (is_eff ? CAN_EFF_FLAG : 0) |
@@ -225,7 +223,7 @@ busmaster_parse(FILE_T fh, busmaster_state_t *state, int *err, char **err_info)
 wtap_open_return_val
 busmaster_open(wtap *wth, int *err, char **err_info)
 {
-    busmaster_state_t state;
+    busmaster_state_t state = {0};
     log_entry_type_t  entry;
 
     busmaster_debug_printf("%s: Trying to open with busmaster log reader\n",
@@ -235,7 +233,6 @@ busmaster_open(wtap *wth, int *err, char **err_info)
     if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)
         return WTAP_OPEN_ERROR;
 
-    memset(&state, 0, sizeof(state));
     entry = busmaster_parse(wth->fh, &state, err, err_info);
 
     g_free(*err_info);
@@ -398,7 +395,7 @@ busmaster_seek_read(wtap   *wth, gint64 seek_off, wtap_rec *rec,
                     Buffer *buf, int *err, gchar **err_info)
 {
     busmaster_priv_t  *priv_entry;
-    busmaster_state_t  state;
+    busmaster_state_t  state = {0};
     log_entry_type_t   entry;
 
     busmaster_debug_printf("%s: offset = %" PRIi64 "\n", G_STRFUNC, seek_off);
@@ -415,7 +412,6 @@ busmaster_seek_read(wtap   *wth, gint64 seek_off, wtap_rec *rec,
     if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
         return FALSE;
 
-    memset(&state, 0, sizeof(state));
     state.header = *priv_entry;
     entry = busmaster_parse(wth->random_fh, &state, err, err_info);
 

@@ -259,7 +259,7 @@ void LteRlcGraphDialog::fillGraph()
         }
         double ts = seg->rel_secs + seg->rel_usecs / 1000000.0;
 
-        time_stamp_map_.insertMulti(ts, seg);
+        time_stamp_map_.insert(ts, seg);
     }
 
     // Now sequence numbers.
@@ -322,7 +322,7 @@ void LteRlcGraphDialog::showEvent(QShowEvent *)
 // Respond to a key press.
 void LteRlcGraphDialog::keyPressEvent(QKeyEvent *event)
 {
-    int pan_pixels = event->modifiers() & Qt::ShiftModifier ? 1 : 10;
+    int pan_pixels = (event->modifiers() & Qt::ShiftModifier) ? 1 : 10;
 
     switch(event->key()) {
     case Qt::Key_Minus:
@@ -826,7 +826,7 @@ void LteRlcGraphDialog::on_dragRadioButton_toggled(bool checked)
 void LteRlcGraphDialog::on_zoomRadioButton_toggled(bool checked)
 {
     if (checked) mouse_drags_ = false;
-    ui->rlcPlot->setInteractions(0);
+    ui->rlcPlot->setInteractions(QCP::Interactions());
 }
 
 void LteRlcGraphDialog::on_resetButton_clicked()

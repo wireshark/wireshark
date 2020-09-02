@@ -626,9 +626,21 @@ void CaptureFileDialog::addDisplayFilterEdit() {
 }
 
 void CaptureFileDialog::addFormatTypeSelector(QVBoxLayout &v_box) {
+    int i;
+    /* Put Auto, as well as pcap and pcapng (which are the first two entries in
+       open_routines), at the top of the file type list. */
     format_type_.addItem(tr("Automatically detect file type"));
-    for (int i = 0; open_routines[i].name != NULL; i += 1) {
+    for (i = 0; i < 2; i += 1) {
         format_type_.addItem(open_routines[i].name);
+    }
+    /* Generate a sorted list of the remaining file types. */
+    QStringList routine_names;
+    for ( /* keep using i */ ; open_routines[i].name != NULL; i += 1) {
+        routine_names += QString(open_routines[i].name);
+    }
+    routine_names.sort(Qt::CaseInsensitive);
+    for (i = 0; i < routine_names.size(); i += 1) {
+        format_type_.addItem(routine_names.at(i));
     }
 
     v_box.addWidget(&format_type_, 0, Qt::AlignTop);
@@ -688,7 +700,7 @@ int CaptureFileDialog::open(QString &file_name, unsigned int &type) {
 
     if (WiresharkFileDialog::exec() && selectedFiles().length() > 0) {
         file_name = selectedFiles()[0];
-        type = format_type_.currentIndex();
+        type = open_info_name_to_type(qPrintable(format_type_.currentText()));
         display_filter_.append(display_filter_edit_->text());
 
         return QDialog::Accepted;

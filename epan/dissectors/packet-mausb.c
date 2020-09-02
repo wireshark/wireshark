@@ -38,7 +38,7 @@ static int hf_mausb_flag_timestamp = -1;
 static int hf_mausb_flag_reserved = -1;
 
 
-static const int *mausb_flag_fields[] = {
+static int * const mausb_flag_fields[] = {
     &hf_mausb_flag_host,
     &hf_mausb_flag_retry,
     &hf_mausb_flag_timestamp,
@@ -124,7 +124,7 @@ static int hf_mausb_tflag_eot = -1;
 static int hf_mausb_tflag_type = -1;
 static int hf_mausb_tflag_rsvd = -1;
 
-static const int *mausb_tflag_fields[] = {
+static int * const mausb_tflag_fields[] = {
     &hf_mausb_tflag_arq,
     &hf_mausb_tflag_neg,
     &hf_mausb_tflag_eot,
@@ -139,7 +139,7 @@ static int hf_mausb_iflag_mtd = -1;
 static int hf_mausb_iflag_hdr_format = -1;
 static int hf_mausb_iflag_asap = -1;
 
-static const int *mausb_iflag_fields[] = {
+static int * const mausb_iflag_fields[] = {
     &hf_mausb_iflag_mtd,
     &hf_mausb_iflag_hdr_format,
     &hf_mausb_iflag_asap,
@@ -405,8 +405,8 @@ static const value_string mausb_status_string[] = {
     { 140, "TRANSFER_TRANSACTION_ERROR" },
     { 141, "TRANSFER_SHORT_TRANSFER" },
     { 142, "TRANSFER_CANCELLED" },
-    { 143, "INSUFFICENT_RESOURCES" },
-    { 144, "NOT_SUFFICENT_BANDWIDTH" },
+    { 143, "INSUFFICIENT_RESOURCES" },
+    { 144, "NOT_SUFFICIENT_BANDWIDTH" },
     { 145, "INTERNAL_ERROR" },
     { 146, "DATA_OVERRUN" },
     { 147, "DEVICE_NOT_ACCESSED" },

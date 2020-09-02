@@ -18,7 +18,6 @@ if(WIN32)
 	set(PLATFORM_CAPUTILS_SRC
 		capture_win_ifnames.c
 		capture-wpcap.c
-		capture_wpcap_packet.c
 	)
 endif()
 

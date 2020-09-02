@@ -1287,11 +1287,9 @@ QWidget* InterfaceTreeDelegate::createEditor(QWidget *parent, const QStyleOption
         default:
             break;
         }
-//        if (w) {
-//            ti->setSizeHint(index.column(), w->sizeHint());
-//        }
     }
-    w->setAutoFillBackground(true);
+    if (w)
+        w->setAutoFillBackground(true);
     return w;
 }
 

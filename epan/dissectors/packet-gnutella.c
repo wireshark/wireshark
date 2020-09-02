@@ -170,6 +170,22 @@ static void dissect_gnutella_query(tvbuff_t *tvb, guint offset, proto_tree *tree
 		ENC_LITTLE_ENDIAN);
 
 	if (size > GNUTELLA_SHORT_LENGTH) {
+		/*
+		 * XXX - the 0.4 spec says, of this field:
+		 *
+		 *   It SHOULD use an ASCII-compatible encoding and
+		 *   charset. In this version of the protocol, no
+		 *   encoding was specified, but most servents use
+		 *   the ISO-8859-1 character set, but other encodings
+		 *   such as UTF-8 MAY also be used (possibly in
+		 *   conjonction with Query Data), as well as other
+		 *   international character sets (ISO-8859-*, KOI-8,
+		 *   S-JIS, Big5, ...).
+		 *
+		 * No obvious mechanism is provided to indicate what
+		 * encoding is being used; perhaps this should be
+		 * made a preference, defaulting to ISO 8859-1.
+		 */
 		proto_tree_add_item(tree,
 			hf_gnutella_query_search,
 			tvb,

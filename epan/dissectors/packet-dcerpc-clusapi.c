@@ -3232,7 +3232,7 @@ int
 clusapi_dissect_bitmap_ClusterEnumType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item *item;
-	static const int * clusapi_ClusterEnumType_fields[] = {
+	static int * const clusapi_ClusterEnumType_fields[] = {
 		&hf_clusapi_ClusterEnumType_CLUSTER_ENUM_NODE,
 		&hf_clusapi_ClusterEnumType_CLUSTER_ENUM_RESTYPE,
 		&hf_clusapi_ClusterEnumType_CLUSTER_ENUM_RESOURCE,
@@ -3978,7 +3978,7 @@ int
 clusapi_dissect_bitmap_ClusterGroupEnumType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item *item;
-	static const int * clusapi_ClusterGroupEnumType_fields[] = {
+	static int * const clusapi_ClusterGroupEnumType_fields[] = {
 		&hf_clusapi_ClusterGroupEnumType_CLUSTER_GROUP_ENUM_CONTAINS,
 		&hf_clusapi_ClusterGroupEnumType_CLUSTER_GROUP_ENUM_NODES,
 		NULL
@@ -4357,7 +4357,7 @@ int
 clusapi_dissect_bitmap_ClusterResTypeEnumType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item *item;
-	static const int * clusapi_ClusterResTypeEnumType_fields[] = {
+	static int * const clusapi_ClusterResTypeEnumType_fields[] = {
 		&hf_clusapi_ClusterResTypeEnumType_CLUSTER_RESOURCE_TYPE_ENUM_NODES,
 		&hf_clusapi_ClusterResTypeEnumType_CLUSTER_RESOURCE_TYPE_ENUM_RESOURCES,
 		NULL
@@ -4475,7 +4475,7 @@ int
 clusapi_dissect_bitmap_DesiredAccessMask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item *item;
-	static const int * clusapi_clusapi_DesiredAccessMask_fields[] = {
+	static int * const clusapi_clusapi_DesiredAccessMask_fields[] = {
 		&hf_clusapi_clusapi_DesiredAccessMask_CLUSAPI_READ_ACCESS,
 		&hf_clusapi_clusapi_DesiredAccessMask_CLUSAPI_CHANGE_ACCESS,
 		&hf_clusapi_clusapi_DesiredAccessMask_CLUSAPI_GENERIC_READ,

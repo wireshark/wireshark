@@ -135,8 +135,8 @@
         <translation>Nome:</translation>
     </message>
     <message>
-        <source>Can&apos;t assign %1 to %2</source>
-        <translation>Impossibile assegnare %1 a %2</translation>
+        <source>Can&apos;t assign %1 to %2.</source>
+        <translation>Impossibile assegnare %1 a %2.</translation>
     </message>
 </context>
 <context>
@@ -992,6 +992,10 @@
         <translation>Trascorso</translation>
     </message>
     <message>
+        <source>Section %1</source>
+        <translation>Sezione %1</translation>
+    </message>
+    <message>
         <source>Capture</source>
         <translation>Cattura</translation>
     </message>
@@ -1088,8 +1092,8 @@
         <translation>Bit/s medi</translation>
     </message>
     <message>
-        <source>File Comment</source>
-        <translation>Commento file</translation>
+        <source>Section Comment</source>
+        <translation>Commento sezione</translation>
     </message>
     <message>
         <source>Packet Comments</source>
@@ -3074,10 +3078,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>UTF-8</translation>
     </message>
     <message>
-        <source>UTF-16</source>
-        <translation>UTF-16</translation>
-    </message>
-    <message>
         <source>YAML</source>
         <translation>YAML</translation>
     </message>
@@ -3193,9 +3193,9 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Suggerimento.</translation>
     </message>
     <message>
-        <source>Show and save data as</source>
-        <oldsource>Show data as</oldsource>
-        <translation>Mostra e salva i dati come</translation>
+        <source>Show data as</source>
+        <oldsource>Show and save data as</oldsource>
+        <translation>Mostra dati come</translation>
     </message>
     <message>
         <source>Stream</source>
@@ -4116,6 +4116,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Salvataggio di %1</translation>
     </message>
     <message>
+        <source>Analyzing IAX2</source>
+        <translation>Analisi IAX2</translation>
+    </message>
+    <message>
         <source>Save forward stream CSV</source>
         <translation>Salva CSV del flusso diretto</translation>
     </message>
@@ -4483,10 +4487,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
 <context>
     <name>InterfaceTreeModel</name>
     <message>
-        <source>No Interfaces found.</source>
-        <translation>Nessuna interfaccia trovata.</translation>
-    </message>
-    <message>
         <source>Show</source>
         <translation>Mostra</translation>
     </message>
@@ -4497,6 +4497,14 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Interface Name</source>
         <translation>Nome dell&apos;interfaccia</translation>
+    </message>
+    <message>
+        <source>No interfaces found.</source>
+        <translation>Nessuna interfaccia trovata.</translation>
+    </message>
+    <message>
+        <source>This version of Wireshark was built without packet capture support.</source>
+        <translation>Questa versione di Wireshark è stata compilata senza supporto per la cattura dei pacchetti.</translation>
     </message>
     <message>
         <source>Local Pipe Path</source>
@@ -5387,11 +5395,15 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Packet Details</source>
-        <translation>Dettagli pacchetto</translation>
+        <translation>Dettagli del pacchetto</translation>
     </message>
     <message>
         <source>Packet Bytes</source>
         <translation>Byte pacchetto</translation>
+    </message>
+    <message>
+        <source>Packet Diagram</source>
+        <translation>Diagramma del pacchetto</translation>
     </message>
     <message>
         <source>None</source>
@@ -6613,10 +6625,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Ignora tutti i pacchetti visualizzati</translation>
     </message>
     <message>
-        <source>Unignore All Displayed</source>
-        <translation>Considera tutti i visualizzati</translation>
-    </message>
-    <message>
         <source>Set/Unset Time Reference</source>
         <translation>Imposta/Rimuovi il riferimento temporale</translation>
     </message>
@@ -6989,6 +6997,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Filtra questa associazione</translation>
     </message>
     <message>
+        <source>&amp;I/O Graphs</source>
+        <translation>Grafici &amp;I/O</translation>
+    </message>
+    <message>
         <source>&amp;Conversations</source>
         <translation>&amp;Conversazioni</translation>
     </message>
@@ -7011,6 +7023,14 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Reset appearance layout to default size</source>
         <translation>Ripristina la disposizione dell&apos;aspetto alla dimensione predefinita</translation>
+    </message>
+    <message>
+        <source>Packet &amp;Diagram</source>
+        <translation>&amp;Diagramma del pacchetto</translation>
+    </message>
+    <message>
+        <source>Show or hide the packet diagram</source>
+        <translation>Mostra o nascondi il diagramma del pacchetto</translation>
     </message>
     <message>
         <source>Show each conversation hash table</source>
@@ -7193,6 +7213,14 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Ignora o considera ogni pacchetto selezionato</translation>
     </message>
     <message>
+        <source>U&amp;nignore All Displayed</source>
+        <translation>Co&amp;nsidera tutti i visualizzati</translation>
+    </message>
+    <message>
+        <source>Unignore all displayed packets</source>
+        <translation>Considera tutti i pacchetti visualizzati</translation>
+    </message>
+    <message>
         <source>Time Shift…</source>
         <translation>Spostamento temporale...</translation>
     </message>
@@ -7231,11 +7259,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Export PDUs to File…</source>
         <translation>Esporta PDU su file...</translation>
-    </message>
-    <message>
-        <source>&amp;I/O Graphs</source>
-        <oldsource>&amp;I/O Graph</oldsource>
-        <translation type="unfinished">Grafici &amp;I/O</translation>
     </message>
     <message>
         <source>Create graphs based on display filter fields</source>
@@ -7459,7 +7482,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Packet &amp;Details</source>
-        <translation>&amp;Dettagli pacchetto</translation>
+        <translation>&amp;Dettagli del pacchetto</translation>
     </message>
     <message>
         <source>Show or hide the packet details</source>
@@ -7598,10 +7621,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>&amp;Unmark All Displayed</source>
         <translation>Rim&amp;uovi la selezione da tutti i visualizzati</translation>
-    </message>
-    <message>
-        <source>U&amp;nignore all displayed packets</source>
-        <translation>Co&amp;nsidera tutti i pacchetti visualizzati</translation>
     </message>
     <message>
         <source>All VoIP Calls</source>
@@ -7879,20 +7898,16 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>errore durante l&apos;apertura di un altro file</translation>
     </message>
     <message>
+        <source>Merging files.</source>
+        <translation>Unisci i file.</translation>
+    </message>
+    <message>
         <source>%1: %2</source>
         <translation>%1: %2</translation>
     </message>
     <message>
         <source>Saving %1</source>
         <translation>Salvataggio di %1</translation>
-    </message>
-    <message>
-        <source>No interface selected</source>
-        <translation>Nessuna interfaccia selezionata</translation>
-    </message>
-    <message>
-        <source>Invalid capture filter</source>
-        <translation>Filtro di cattura invalido</translation>
     </message>
     <message>
         <source>Clear Menu</source>
@@ -7927,10 +7942,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Dati grezzi (*.bin *.dat *.raw);;Tutti i file (</translation>
     </message>
     <message>
-        <source>Merging files</source>
-        <translation>Unisci i file</translation>
-    </message>
-    <message>
         <source>Couldn&apos;t copy text. Try another item.</source>
         <translation>Non riesco a copiare il testo. Prova un&apos;altra voce.</translation>
     </message>
@@ -7947,10 +7958,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation> prima di ricaricare il file</translation>
     </message>
     <message>
-        <source>No filter available. Try another </source>
-        <translation>Nessun filtro disponibile. Provane un altro </translation>
-    </message>
-    <message>
         <source>Error compiling filter for this conversation.</source>
         <translation>Errore durante la compilazione del filtro per questa conversazione.</translation>
     </message>
@@ -7959,8 +7966,12 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Nessun pacchetto precedente/successivo in conversazione.</translation>
     </message>
     <message>
-        <source>No Interface Selected</source>
-        <translation>Nessuna interfaccia selezionata</translation>
+        <source>No interface selected.</source>
+        <translation>Nessuna interfaccia selezionata.</translation>
+    </message>
+    <message>
+        <source>Invalid capture filter.</source>
+        <translation>Filtro di cattura invalido.</translation>
     </message>
     <message>
         <source> before starting a new capture</source>
@@ -7980,6 +7991,30 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>TLS Session Keys (*.keys *.txt);;All Files (</source>
         <translation>Chiavi di sessione SSL (*.keys *.txt);;Tutti i file (</translation>
+    </message>
+    <message>
+        <source>No filter available. Try another %1.</source>
+        <translation>Nessun filtro disponibile. Prova un altro %1.</translation>
+    </message>
+    <message>
+        <source>column</source>
+        <translation>colonna</translation>
+    </message>
+    <message>
+        <source>item</source>
+        <translation>elemento</translation>
+    </message>
+    <message>
+        <source>The &quot;%1&quot; column already exists.</source>
+        <translation>La colonna &quot;%1&quot; esiste già.</translation>
+    </message>
+    <message>
+        <source>The &quot;%1&quot; column already exists as &quot;%2&quot;.</source>
+        <translation>La colonna &quot;%1&quot; esiste già come &quot;%2&quot;.</translation>
+    </message>
+    <message>
+        <source>No Interface Selected.</source>
+        <translation>Nessuna interfaccia selezionata.</translation>
     </message>
     <message>
         <source> before restarting the capture</source>
@@ -8392,6 +8427,45 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
 </context>
 <context>
+    <name>PacketDiagram</name>
+    <message>
+        <source>Packet diagram</source>
+        <translation>Diagramma del pacchetto</translation>
+    </message>
+    <message>
+        <source>Show Field Values</source>
+        <translation>Mostra i valori dei campi</translation>
+    </message>
+    <message>
+        <source>Save Diagram As</source>
+        <translation>Salva diagramma come</translation>
+    </message>
+    <message>
+        <source>Copy as Raster Image</source>
+        <translation>Copia come immagine raster</translation>
+    </message>
+    <message>
+        <source>Portable Network Graphics (*.png)</source>
+        <translation>Portable Network Graphics (*.png)</translation>
+    </message>
+    <message>
+        <source>Windows Bitmap (*.bmp)</source>
+        <translation>Windows Bitmap (*.bmp)</translation>
+    </message>
+    <message>
+        <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
+        <translation>JPEG File Interchange Format (*.jpeg *.jpg)</translation>
+    </message>
+    <message>
+        <source>Scalable Vector Graphics (*.svg)</source>
+        <translation>Scalable Vector Graphics (*.svg)</translation>
+    </message>
+    <message>
+        <source>Save Graph As</source>
+        <translation>Salva grafico come</translation>
+    </message>
+</context>
+<context>
     <name>PacketDialog</name>
     <message>
         <source>Dialog</source>
@@ -8483,6 +8557,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
 </context>
 <context>
     <name>PacketList</name>
+    <message>
+        <source>Protocol Preferences</source>
+        <translation>Preferenze di protocollo</translation>
+    </message>
     <message>
         <source>Summary as Text</source>
         <translation>Riepilogo come testo</translation>
@@ -8683,6 +8761,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>a preference</source>
         <translation>una preferenza</translation>
+    </message>
+    <message>
+        <source>Browse…</source>
+        <translation>Sfoglia...</translation>
     </message>
     <message>
         <source>Open %1 preferences</source>
@@ -9069,6 +9151,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Frame</source>
         <translation>Frame</translation>
+    </message>
+    <message>
+        <source>TextLabel</source>
+        <translation>EtichettaTesto</translation>
     </message>
 </context>
 <context>
@@ -9539,6 +9625,34 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>LCID 10</translation>
     </message>
     <message>
+        <source>LCID 32</source>
+        <translation>LCID 32</translation>
+    </message>
+    <message>
+        <source>LCID 33</source>
+        <translation>LCID 33</translation>
+    </message>
+    <message>
+        <source>LCID 34</source>
+        <translation>LCID 34</translation>
+    </message>
+    <message>
+        <source>LCID 35</source>
+        <translation>LCID 35</translation>
+    </message>
+    <message>
+        <source>LCID 36</source>
+        <translation>LCID 36</translation>
+    </message>
+    <message>
+        <source>LCID 37</source>
+        <translation>LCID 37</translation>
+    </message>
+    <message>
+        <source>LCID 38</source>
+        <translation>LCID 38</translation>
+    </message>
+    <message>
         <source>TM</source>
         <translation>TM</translation>
     </message>
@@ -9637,6 +9751,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Default value is empty</source>
         <translation>Il valore predefinito è vuoto</translation>
+    </message>
+    <message>
+        <source>Gap in dissection</source>
+        <translation>Divario nella decodifica</translation>
     </message>
 </context>
 <context>
@@ -10296,6 +10414,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Raw (*.raw)</source>
         <translation>Raw (*.raw)</translation>
+    </message>
+    <message>
+        <source>Analyzing RTP</source>
+        <translation>Analisi RTP</translation>
     </message>
     <message>
         <source>Information</source>
@@ -11644,7 +11766,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Packet details</source>
-        <translation>Dettagli pacchetto</translation>
+        <translation>Dettagli del pacchetto</translation>
     </message>
     <message>
         <source>Packet bytes</source>
@@ -11726,6 +11848,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>No valid search area selected. Please report this to the development team.</source>
         <translation>Nessuna area di ricerca valida selezionata. Segnala il problema alla squadra di sviluppo.</translation>
+    </message>
+    <message>
+        <source>Searching for %1</source>
+        <translation>Ricerca di %1</translation>
     </message>
     <message>
         <source>No packet contained those bytes.</source>
@@ -12168,20 +12294,12 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Immagine</translation>
     </message>
     <message>
-        <source>ISO 8859-1</source>
-        <translation>ISO 8859-1</translation>
-    </message>
-    <message>
         <source>Raw</source>
         <translation>Grezzo</translation>
     </message>
     <message>
         <source>UTF-8</source>
         <translation>UTF-8</translation>
-    </message>
-    <message>
-        <source>UTF-16</source>
-        <translation>UTF-16</translation>
     </message>
     <message>
         <source>YAML</source>
@@ -12338,16 +12456,12 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
 <context>
     <name>SyntaxLineEdit</name>
     <message>
-        <source>&quot;%1&quot; is deprecated or may have unexpected results. See the User&apos;s Guide.</source>
-        <translation type="vanished">&quot;%1&quot; è sconsigliato e potrebbe avere dei comportamenti inattesi. Vedi il Manuale utente.</translation>
-    </message>
-    <message>
         <source>&quot;%1&quot; is deprecated in favour of &quot;%2&quot;. See the User&apos;s Guide.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; è sconsigliato in favore di &quot;%2&quot;. Vedi il Manuale utente.</translation>
     </message>
     <message>
         <source>&quot;%1&quot; may have unexpected results. See the User&apos;s Guide.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; potrebbe avere dei risultati inattesi. Vedi il Manuale utente.</translation>
     </message>
 </context>
 <context>
@@ -13548,6 +13662,17 @@ a:hover {
     <message>
         <source>Unable to set FCS validation behavior.</source>
         <translation>Impossibile impostare il comportamento di convalida FCS.</translation>
+    </message>
+</context>
+<context>
+    <name>WirelessTimeline</name>
+    <message>
+        <source>Packet number %1 does not include TSF timestamp, not showing timeline.</source>
+        <translation>Il pacchetto numero %1 non include la marca temporale TSF, non sarà mostrata la linea temporale.</translation>
+    </message>
+    <message>
+        <source>Packet number %u has large negative jump in TSF, not showing timeline. Perhaps TSF reference point is set wrong?</source>
+        <translation>Il pacchetto numero %u presenta un grande salto negativo in TSF, che non mostra la sequenza temporale. Forse il punto di riferimento TSF è impostato in modo errato?</translation>
     </message>
 </context>
 <context>

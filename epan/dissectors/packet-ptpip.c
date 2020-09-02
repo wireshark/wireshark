@@ -188,7 +188,7 @@ static const value_string ptp_opcode_canon_names[] = {
     { PTP_OC_CANON_TerminateDirectTransfer,             "CANON_TerminateDirectTransfer" },
     { PTP_OC_CANON_SendObjectInfoByPath,                "CANON_SendObjectInfoByPath" },
     { PTP_OC_CANON_SendObjectByPath,                    "CANON_SendObjectByPath" },
-    { PTP_OC_CANON_InitiateDirectTansferEx,             "CANON_InitiateDirectTansferEx" },
+    { PTP_OC_CANON_InitiateDirectTransferEx,            "CANON_InitiateDirectTransferEx" },
     { PTP_OC_CANON_GetAncillaryObjectHandles,           "CANON_GetAncillaryObjectHandles" },
     { PTP_OC_CANON_GetTreeInfo,                         "CANON_GetTreeInfo" },
     { PTP_OC_CANON_GetTreeSize,                         "CANON_GetTreeSize" },

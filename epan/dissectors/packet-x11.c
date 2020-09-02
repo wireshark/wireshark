@@ -2375,7 +2375,7 @@ static guint32 field32(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
       return v;
 }
 
-static const int * gc_mask_attributes[] = {
+static int * const gc_mask_attributes[] = {
     &hf_x11_gc_value_mask_function,
     &hf_x11_gc_value_mask_plane_mask,
     &hf_x11_gc_value_mask_foreground,
@@ -2560,7 +2560,7 @@ static guint32 requestLength(tvbuff_t *tvb, int *offsetp, proto_tree *t,
 static void setOfEvent(tvbuff_t *tvb, int *offsetp, proto_tree *t,
                        guint byte_order)
 {
-      static const int * events[] = {
+      static int * const events[] = {
             &hf_x11_event_mask_KeyPress,
             &hf_x11_event_mask_KeyRelease,
             &hf_x11_event_mask_ButtonPress,
@@ -2596,7 +2596,7 @@ static void setOfEvent(tvbuff_t *tvb, int *offsetp, proto_tree *t,
 static void setOfDeviceEvent(tvbuff_t *tvb, int *offsetp, proto_tree *t,
                              guint byte_order)
 {
-      static const int * do_not_propagate_events[] = {
+      static int * const do_not_propagate_events[] = {
             &hf_x11_do_not_propagate_mask_KeyPress,
             &hf_x11_do_not_propagate_mask_KeyRelease,
             &hf_x11_do_not_propagate_mask_ButtonPress,
@@ -2664,7 +2664,7 @@ static void setOfKeyButMask(tvbuff_t *tvb, int *offsetp, proto_tree *t,
 static void setOfPointerEvent(tvbuff_t *tvb, int *offsetp, proto_tree *t,
                               guint byte_order)
 {
-      static const int * pointer_events[] = {
+      static int * const pointer_events[] = {
             &hf_x11_pointer_event_mask_ButtonRelease,
             &hf_x11_pointer_event_mask_EnterWindow,
             &hf_x11_pointer_event_mask_LeaveWindow,
@@ -2725,7 +2725,7 @@ static void windowAttributes(tvbuff_t *tvb, int *offsetp, proto_tree *t,
                              guint byte_order)
 {
       guint32 bitmask;
-      static const int * window_attributes_flags[] = {
+      static int * const window_attributes_flags[] = {
             &hf_x11_window_value_mask_background_pixmap,
             &hf_x11_window_value_mask_background_pixel,
             &hf_x11_window_value_mask_border_pixmap,
@@ -3689,7 +3689,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
       case X_ConfigureWindow:
             {
             guint16 bitmask16;
-            static const int * window_attributes_flags[] = {
+            static int * const window_attributes_flags[] = {
                   &hf_x11_window_value_mask_background_pixmap,
                   &hf_x11_window_value_mask_background_pixel,
                   &hf_x11_window_value_mask_border_pixmap,
@@ -4623,7 +4623,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
       case X_ChangeKeyboardControl:
             {
             guint32 bitmask32;
-            static const int * keyboard_value_flags[] = {
+            static int * const keyboard_value_flags[] = {
                   &hf_x11_keyboard_value_mask_key_click_percent,
                   &hf_x11_keyboard_value_mask_bell_percent,
                   &hf_x11_keyboard_value_mask_bell_pitch,

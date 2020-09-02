@@ -3640,7 +3640,7 @@ const value_string mapi_MAPISTATUS_vals[] = {
 	{ MAPI_E_NO_RECIPIENTS, "MAPI_E_NO_RECIPIENTS" },
 	{ MAPI_E_SUBMITTED, "MAPI_E_SUBMITTED" },
 	{ MAPI_E_HAS_FOLDERS, "MAPI_E_HAS_FOLDERS" },
-	{ MAPI_E_HAS_MESAGES, "MAPI_E_HAS_MESAGES" },
+	{ MAPI_E_HAS_MESSAGES, "MAPI_E_HAS_MESSAGES" },
 	{ MAPI_E_FOLDER_CYCLE, "MAPI_E_FOLDER_CYCLE" },
 	{ MAPI_W_PARTIAL_COMPLETION, "MAPI_W_PARTIAL_COMPLETION" },
 	{ MAPI_E_AMBIGUOUS_RECIP, "MAPI_E_AMBIGUOUS_RECIP" },
@@ -7826,7 +7826,7 @@ mapi_dissect_enum_MAPITAGS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo
 /* IDL: 	MAPI_E_NO_RECIPIENTS=0x80040607, */
 /* IDL: 	MAPI_E_SUBMITTED=0x80040608, */
 /* IDL: 	MAPI_E_HAS_FOLDERS=0x80040609, */
-/* IDL: 	MAPI_E_HAS_MESAGES=0x8004060A, */
+/* IDL: 	MAPI_E_HAS_MESSAGES=0x8004060A, */
 /* IDL: 	MAPI_E_FOLDER_CYCLE=0x8004060B, */
 /* IDL: 	MAPI_W_PARTIAL_COMPLETION=0x80040680, */
 /* IDL: 	MAPI_E_AMBIGUOUS_RECIP=0x80040700, */
@@ -9206,7 +9206,7 @@ int
 mapi_dissect_bitmap_ulEventType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item *item;
-	static const int * mapi_ulEventType_fields[] = {
+	static int * const mapi_ulEventType_fields[] = {
 		&hf_mapi_ulEventType_fnevCriticalError,
 		&hf_mapi_ulEventType_fnevNewMail,
 		&hf_mapi_ulEventType_fnevObjectCreated,

@@ -42,6 +42,7 @@ static void funnel_statistics_retap_packets(funnel_ops_id_t *ops_id);
 static void funnel_statistics_copy_to_clipboard(GString *text);
 static const gchar *funnel_statistics_get_filter(funnel_ops_id_t *ops_id);
 static void funnel_statistics_set_filter(funnel_ops_id_t *ops_id, const char* filter_string);
+static gchar* funnel_statistics_get_color_filter_slot(guint8 filter_num);
 static void funnel_statistics_set_color_filter_slot(guint8 filter_num, const gchar* filter_string);
 static gboolean funnel_statistics_open_file(funnel_ops_id_t *ops_id, const char* fname, const char* filter, char**);
 static void funnel_statistics_reload_packets(funnel_ops_id_t *ops_id);
@@ -57,7 +58,7 @@ static void progress_window_destroy(struct progdlg *progress_dialog);
 class FunnelAction : public QAction
 {
 public:
-    FunnelAction(const QString title, funnel_menu_callback callback, gpointer callback_data, gboolean retap, QObject *parent = 0) :
+    FunnelAction(const QString title, funnel_menu_callback callback, gpointer callback_data, gboolean retap, QObject *parent = nullptr) :
         QAction(parent),
         title_(title),
         callback_(callback),
@@ -98,6 +99,10 @@ static QHash<int, QList<FunnelAction *> > funnel_actions_;
 const QString FunnelStatistics::action_name_ = "FunnelStatisticsAction";
 static gboolean menus_registered = FALSE;
 
+struct _funnel_ops_id_t {
+    FunnelStatistics *funnel_statistics;
+};
+
 FunnelStatistics::FunnelStatistics(QObject *parent, CaptureFile &cf) :
     QObject(parent),
     capture_file_(cf),
@@ -105,8 +110,10 @@ FunnelStatistics::FunnelStatistics(QObject *parent, CaptureFile &cf) :
 {
     funnel_ops_ = new(struct _funnel_ops_t);
     memset(funnel_ops_, 0, sizeof(struct _funnel_ops_t));
+    funnel_ops_id_ = new(struct _funnel_ops_id_t);
 
-    funnel_ops_->ops_id = (funnel_ops_id_t*) this;
+    funnel_ops_id_->funnel_statistics = this;
+    funnel_ops_->ops_id = funnel_ops_id_;
     funnel_ops_->new_text_window = text_window_new;
     funnel_ops_->set_text = text_window_set_text;
     funnel_ops_->append_text = text_window_append;
@@ -124,6 +131,7 @@ FunnelStatistics::FunnelStatistics(QObject *parent, CaptureFile &cf) :
     funnel_ops_->copy_to_clipboard = funnel_statistics_copy_to_clipboard;
     funnel_ops_->get_filter = funnel_statistics_get_filter;
     funnel_ops_->set_filter = funnel_statistics_set_filter;
+    funnel_ops_->get_color_filter_slot = funnel_statistics_get_color_filter_slot;
     funnel_ops_->set_color_filter_slot = funnel_statistics_set_color_filter_slot;
     funnel_ops_->open_file = funnel_statistics_open_file;
     funnel_ops_->reload_packets = funnel_statistics_reload_packets;
@@ -138,6 +146,17 @@ FunnelStatistics::FunnelStatistics(QObject *parent, CaptureFile &cf) :
     funnel_set_funnel_ops(funnel_ops_);
 }
 
+FunnelStatistics::~FunnelStatistics()
+{
+    // At this point we're probably closing the program and will shortly
+    // call epan_cleanup, which calls ProgDlg__gc and TextWindow__gc.
+    // They in turn depend on funnel_ops_ being valid.
+    memset(funnel_ops_id_, 0, sizeof(struct _funnel_ops_id_t));
+    memset(funnel_ops_, 0, sizeof(struct _funnel_ops_t));
+    // delete(funnel_ops_id_);
+    // delete(funnel_ops_);
+}
+
 void FunnelStatistics::retapPackets()
 {
     capture_file_.retapPackets();
@@ -145,7 +164,7 @@ void FunnelStatistics::retapPackets()
 
 struct progdlg *FunnelStatistics::progressDialogNew(const gchar *task_title, const gchar *item_title, gboolean terminate_is_stop, gboolean *stop_flag)
 {
-    return create_progress_dlg(capture_file_.window(), task_title, item_title, terminate_is_stop, stop_flag);
+    return create_progress_dlg(parent(), task_title, item_title, terminate_is_stop, stop_flag);
 }
 
 const char *FunnelStatistics::displayFilter()
@@ -203,10 +222,9 @@ void funnel_statistics_logger(const gchar *,
 }
 
 void funnel_statistics_retap_packets(funnel_ops_id_t *ops_id) {
-    FunnelStatistics *funnel_statistics = dynamic_cast<FunnelStatistics *>((FunnelStatistics *)ops_id);
-    if (!funnel_statistics) return;
+    if (!ops_id || !ops_id->funnel_statistics) return;
 
-    funnel_statistics->retapPackets();
+    ops_id->funnel_statistics->retapPackets();
 }
 
 void funnel_statistics_copy_to_clipboard(GString *text) {
@@ -214,21 +232,23 @@ void funnel_statistics_copy_to_clipboard(GString *text) {
 }
 
 const gchar *funnel_statistics_get_filter(funnel_ops_id_t *ops_id) {
-    FunnelStatistics *funnel_statistics = dynamic_cast<FunnelStatistics *>((FunnelStatistics *)ops_id);
-    if (!funnel_statistics) return NULL;
+    if (!ops_id || !ops_id->funnel_statistics) return nullptr;
 
-    return funnel_statistics->displayFilter();
+    return ops_id->funnel_statistics->displayFilter();
 }
 
 void funnel_statistics_set_filter(funnel_ops_id_t *ops_id, const char* filter_string) {
-    FunnelStatistics *funnel_statistics = dynamic_cast<FunnelStatistics *>((FunnelStatistics *)ops_id);
-    if (!funnel_statistics) return;
+    if (!ops_id || !ops_id->funnel_statistics) return;
 
-    funnel_statistics->emitSetDisplayFilter(filter_string);
+    ops_id->funnel_statistics->emitSetDisplayFilter(filter_string);
+}
+
+gchar* funnel_statistics_get_color_filter_slot(guint8 filter_num) {
+    return color_filters_get_tmp(filter_num);
 }
 
 void funnel_statistics_set_color_filter_slot(guint8 filter_num, const gchar* filter_string) {
-    gchar *err_msg = NULL;
+    gchar *err_msg = nullptr;
     if (!color_filters_set_tmp(filter_num, filter_string, FALSE, &err_msg)) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
         g_free(err_msg);
@@ -239,34 +259,30 @@ gboolean funnel_statistics_open_file(funnel_ops_id_t *ops_id, const char* fname,
     // XXX We need to return a proper error value. We should probably move
     // MainWindow::openCaptureFile to CaptureFile and add error handling
     // there.
-    FunnelStatistics *funnel_statistics = dynamic_cast<FunnelStatistics *>((FunnelStatistics *)ops_id);
-    if (!funnel_statistics) return FALSE;
+    if (!ops_id || !ops_id->funnel_statistics) return FALSE;
 
     QString cf_name(fname);
     QString cf_filter(filter);
-    funnel_statistics->emitOpenCaptureFile(cf_name, cf_filter);
+    ops_id->funnel_statistics->emitOpenCaptureFile(cf_name, cf_filter);
     return TRUE;
 }
 
 void funnel_statistics_reload_packets(funnel_ops_id_t *ops_id) {
-    FunnelStatistics *funnel_statistics = dynamic_cast<FunnelStatistics *>((FunnelStatistics *)ops_id);
-    if (!funnel_statistics) return;
+    if (!ops_id || !ops_id->funnel_statistics) return;
 
-    funnel_statistics->reloadPackets();
+    ops_id->funnel_statistics->reloadPackets();
 }
 
 void funnel_statistics_reload_lua_plugins(funnel_ops_id_t *ops_id) {
-    FunnelStatistics *funnel_statistics = dynamic_cast<FunnelStatistics *>((FunnelStatistics *)ops_id);
-    if (!funnel_statistics) return;
+    if (!ops_id || !ops_id->funnel_statistics) return;
 
-    funnel_statistics->reloadLuaPlugins();
+    ops_id->funnel_statistics->reloadLuaPlugins();
 }
 
 void funnel_statistics_apply_filter(funnel_ops_id_t *ops_id) {
-    FunnelStatistics *funnel_statistics = dynamic_cast<FunnelStatistics *>((FunnelStatistics *)ops_id);
-    if (!funnel_statistics) return;
+    if (!ops_id || !ops_id->funnel_statistics) return;
 
-    funnel_statistics->emitApplyDisplayFilter();
+    ops_id->funnel_statistics->emitApplyDisplayFilter();
 }
 
 gboolean browser_open_url(const gchar *url) {
@@ -278,10 +294,9 @@ void browser_open_data_file(const gchar *filename) {
 }
 
 struct progdlg *progress_window_new(funnel_ops_id_t *ops_id, const gchar* task_title, const gchar* item_title, gboolean terminate_is_stop, gboolean *stop_flag) {
-    FunnelStatistics *funnel_statistics = dynamic_cast<FunnelStatistics *>((FunnelStatistics *)ops_id);
-    if (!funnel_statistics) return NULL;
+    if (!ops_id || !ops_id->funnel_statistics) return nullptr;
 
-    return funnel_statistics->progressDialogNew(task_title, item_title, terminate_is_stop, stop_flag);
+    return ops_id->funnel_statistics->progressDialogNew(task_title, item_title, terminate_is_stop, stop_flag);
 }
 
 void progress_window_update(struct progdlg *progress_dialog, float percentage, const gchar* status) {
@@ -314,7 +329,7 @@ static void register_menu_cb(const char *name,
 
 static void deregister_menu_cb(funnel_menu_callback callback)
 {
-    foreach (int group, funnel_actions_.uniqueKeys()) {
+    foreach (int group, funnel_actions_.keys()) {
         QList<FunnelAction *>::iterator it = funnel_actions_[group].begin();
         while (it != funnel_actions_[group].end()) {
             FunnelAction *funnel_action = *it;

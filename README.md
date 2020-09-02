@@ -90,4 +90,3 @@ The usage is described in C, however it can be applied to any language that will
 ---
 
 Tom Legkov <tom.legkov@outlook.com>
-

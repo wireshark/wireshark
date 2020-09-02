@@ -1900,7 +1900,7 @@ dissect_x509if_SEQUENCE_SIZE_1_MAX_OF_AttributeType(gboolean implicit_tag _U_, t
 }
 
 
-static const int * AllowedSubset_bits[] = {
+static int * const AllowedSubset_bits[] = {
   &hf_x509if_AllowedSubset_baseObject,
   &hf_x509if_AllowedSubset_oneLevel,
   &hf_x509if_AllowedSubset_wholeSubtree,

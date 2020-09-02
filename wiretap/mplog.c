@@ -68,7 +68,7 @@
 #define ISO14443_PSEUDO_HDR_PCD_TO_PICC  0xFE
 
 
-#define ISO14443_MAX_PKT_LEN     256
+#define ISO14443_MAX_PKT_LEN    4096
 
 #define PKT_BUF_LEN   (ISO14443_PSEUDO_HDR_LEN + ISO14443_MAX_PKT_LEN)
 
@@ -238,6 +238,15 @@ wtap_open_return_val mplog_open(wtap *wth, int *err, gchar **err_info)
         return WTAP_OPEN_ERROR;
 
     *err = 0;
+
+    /*
+     * Add an IDB; we don't know how many interfaces were
+     * involved, so we just say one interface, about which
+     * we only know the link-layer type, snapshot length,
+     * and time stamp resolution.
+     */
+    wtap_add_generated_idb(wth);
+
     return WTAP_OPEN_MINE;
 }
 

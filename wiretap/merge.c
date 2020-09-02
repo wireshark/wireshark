@@ -736,7 +736,7 @@ add_idb_to_merged_file(wtapng_iface_descriptions_t *merged_idb_list,
  * Create clone IDBs for the merge file, based on the input files and mode.
  */
 static wtapng_iface_descriptions_t *
-generate_merged_idb(merge_in_file_t *in_files, const guint in_file_count, const idb_merge_mode mode)
+generate_merged_idbs(merge_in_file_t *in_files, const guint in_file_count, const idb_merge_mode mode)
 {
     wtapng_iface_descriptions_t *merged_idb_list = NULL;
     wtapng_iface_descriptions_t *input_file_idb_list = NULL;
@@ -751,7 +751,7 @@ generate_merged_idb(merge_in_file_t *in_files, const guint in_file_count, const 
     if (mode == IDB_MERGE_MODE_ALL_SAME && all_idbs_are_duplicates(in_files, in_file_count)) {
         guint num_idbs;
 
-        merge_debug("merge::generate_merged_idb: mode ALL set and all IDBs are duplicates");
+        merge_debug("merge::generate_merged_idbs: mode ALL set and all IDBs are duplicates");
 
         /* they're all the same, so just get the first file's IDBs */
         input_file_idb_list = wtap_file_get_idb_info(in_files[0].wth);
@@ -786,7 +786,7 @@ generate_merged_idb(merge_in_file_t *in_files, const guint in_file_count, const 
                 if (mode == IDB_MERGE_MODE_ANY_SAME &&
                     find_duplicate_idb(input_file_idb, merged_idb_list, &merged_index))
                 {
-                    merge_debug("merge::generate_merged_idb: mode ANY set and found a duplicate");
+                    merge_debug("merge::generate_merged_idbs: mode ANY set and found a duplicate");
                     /*
                      * It's the same as a previous IDB, so we're going to "merge"
                      * them into one by adding a map from its old IDB index to the new
@@ -795,7 +795,7 @@ generate_merged_idb(merge_in_file_t *in_files, const guint in_file_count, const 
                     add_idb_index_map(&in_files[i], itf_count, merged_index);
                 }
                 else {
-                    merge_debug("merge::generate_merged_idb: mode NONE set or did not find a duplicate");
+                    merge_debug("merge::generate_merged_idbs: mode NONE set or did not find a duplicate");
                     /*
                      * This IDB does not match a previous (or we want to save all IDBs),
                      * so add the IDB to the merge file, and add a map of the indeces.
@@ -1040,7 +1040,7 @@ merge_files_common(const gchar* out_filename, /* normal output mode */
         shb_hdrs = create_shb_header(in_files, in_file_count, app_name);
         merge_debug("merge_files: SHB created");
 
-        idb_inf = generate_merged_idb(in_files, in_file_count, mode);
+        idb_inf = generate_merged_idbs(in_files, in_file_count, mode);
         merge_debug("merge_files: IDB merge operation complete, got %u IDBs", idb_inf ? idb_inf->interface_data->len : 0);
 
         /* XXX other blocks like NRB are now discarded. */

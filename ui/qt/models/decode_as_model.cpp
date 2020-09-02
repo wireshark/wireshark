@@ -8,6 +8,8 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#include <errno.h>
+
 #include "decode_as_model.h"
 #include <epan/to_str.h>
 #include <epan/decode_as.h>
@@ -18,6 +20,7 @@
 #include <epan/dissectors/packet-dcerpc.h>
 
 #include <ui/qt/utils/qt_ui_utils.h>
+#include <wsutil/file_util.h>
 
 #include <QVector>
 
@@ -50,7 +53,7 @@ DecodeAsModel::DecodeAsModel(QObject *parent, capture_file *cf) :
 Qt::ItemFlags DecodeAsModel::flags(const QModelIndex &index) const
 {
     if (!index.isValid())
-        return 0;
+        return Qt::ItemFlags();
 
     DecodeAsItem* item = decode_as_items_[index.row()];
 
@@ -426,6 +429,80 @@ bool DecodeAsModel::copyRow(int dst_row, int src_row)
     return true;
 }
 
+prefs_set_pref_e DecodeAsModel::readDecodeAsEntry(gchar *key, const gchar *value, void *private_data, gboolean)
+{
+    DecodeAsModel *model = (DecodeAsModel*)private_data;
+    if (model == NULL)
+        return PREFS_SET_OK;
+
+    if (strcmp(key, DECODE_AS_ENTRY) != 0) {
+        return PREFS_SET_NO_SUCH_PREF;
+    }
+
+    /* Parse into table, selector, initial, current */
+    gchar **values = g_strsplit_set(value, ",", 4);
+    DecodeAsItem *item = new DecodeAsItem();
+
+    dissector_table_t dissector_table = find_dissector_table(values[0]);
+
+    QString tableName(values[0]);
+    bool tableNameFound = false;
+    // Get the table values from the Decode As list because they are persistent
+    for (GList *cur = decode_as_list; cur; cur = cur->next) {
+        decode_as_t *entry = (decode_as_t *) cur->data;
+        if (tableName.compare(entry->table_name) == 0) {
+            item->tableName_ = entry->table_name;
+            item->tableUIName_ = get_dissector_table_ui_name(entry->table_name);
+            tableNameFound = true;
+            break;
+        }
+    }
+
+    if (!tableNameFound || !dissector_table) {
+        delete item;
+        g_strfreev(values);
+        return PREFS_SET_SYNTAX_ERR;
+    }
+
+    QString selector(values[1]);
+    ftenum_t selector_type = get_dissector_table_selector_type(item->tableName_);
+
+    if (IS_FT_STRING(selector_type)) {
+        item->selectorString_ = selector;
+    } else if (IS_FT_UINT(selector_type)) {
+        item->selectorUint_ = selector.toUInt(Q_NULLPTR, 0);
+    }
+
+    item->default_proto_ = values[2];
+    item->dissector_handle_ = dissector_table_get_dissector_handle(dissector_table, values[3]);
+    if (item->dissector_handle_) {
+        item->current_proto_ = values[3];
+    }
+
+    model->decode_as_items_ << item;
+    g_strfreev(values);
+
+    return PREFS_SET_OK;
+}
+
+bool DecodeAsModel::copyFromProfile(QString filename, const gchar **err)
+{
+    FILE *fp = ws_fopen(filename.toUtf8().constData(), "r");
+
+    if (fp == NULL) {
+        *err = g_strerror(errno);
+        return false;
+    }
+
+    beginInsertRows(QModelIndex(), rowCount(), rowCount());
+    read_prefs_file(filename.toUtf8().constData(), fp, readDecodeAsEntry, this);
+    endInsertRows();
+
+    fclose(fp);
+
+    return true;
+}
+
 QString DecodeAsModel::entryString(const gchar *table_name, gconstpointer value)
 {
     QString entry_str;
@@ -733,6 +810,7 @@ void DecodeAsModel::applyChanges()
             }
         }
     }
+    prefs_apply_all();
 }
 
 /* * Editor modelines

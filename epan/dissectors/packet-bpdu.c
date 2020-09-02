@@ -341,13 +341,13 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bp
   proto_tree *cist_bridge_id_tree;
   const char *sep;
 
-  static const int * bpdu_flags[] = {
+  static int * const bpdu_flags[] = {
     &hf_bpdu_flags_tcack,
     &hf_bpdu_flags_tc,
     NULL
   };
 
-  static const int * rst_flags[] = {
+  static int * const rst_flags[] = {
     &hf_bpdu_flags_tcack,
     &hf_bpdu_flags_agreement,
     &hf_bpdu_flags_forwarding,
@@ -924,7 +924,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bp
         /* version 4 length is 55 or more.
          */
         if (version_4_length >= 53) {
-          static const int * agreements[] = {
+          static int * const agreements[] = {
               &hf_bpdu_flags_agree_num,
               &hf_bpdu_flags_dagree_num,
               &hf_bpdu_flags_agree_valid,

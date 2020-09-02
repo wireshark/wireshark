@@ -123,6 +123,8 @@ static int hf_mac_lte_dlsch_lcid = -1;
 static int hf_mac_lte_ulsch_lcid = -1;
 static int hf_mac_lte_sch_extended = -1;
 static int hf_mac_lte_sch_format = -1;
+static int hf_mac_lte_sch_reserved2 = -1;
+static int hf_mac_lte_sch_elcid = -1;
 static int hf_mac_lte_sch_length = -1;
 static int hf_mac_lte_mch_reserved = -1;
 static int hf_mac_lte_mch_format2 = -1;
@@ -237,6 +239,31 @@ static int hf_mac_lte_control_dual_conn_power_headroom_c4 = -1;
 static int hf_mac_lte_control_dual_conn_power_headroom_c3 = -1;
 static int hf_mac_lte_control_dual_conn_power_headroom_c2 = -1;
 static int hf_mac_lte_control_dual_conn_power_headroom_c1 = -1;
+static int hf_mac_lte_control_dual_conn_power_headroom_c15 = -1;
+static int hf_mac_lte_control_dual_conn_power_headroom_c14 = -1;
+static int hf_mac_lte_control_dual_conn_power_headroom_c13 = -1;
+static int hf_mac_lte_control_dual_conn_power_headroom_c12 = -1;
+static int hf_mac_lte_control_dual_conn_power_headroom_c11 = -1;
+static int hf_mac_lte_control_dual_conn_power_headroom_c10 = -1;
+static int hf_mac_lte_control_dual_conn_power_headroom_c9 = -1;
+static int hf_mac_lte_control_dual_conn_power_headroom_c8 = -1;
+static int hf_mac_lte_control_dual_conn_power_headroom_c23 = -1;
+static int hf_mac_lte_control_dual_conn_power_headroom_c22 = -1;
+static int hf_mac_lte_control_dual_conn_power_headroom_c21 = -1;
+static int hf_mac_lte_control_dual_conn_power_headroom_c20 = -1;
+static int hf_mac_lte_control_dual_conn_power_headroom_c19 = -1;
+static int hf_mac_lte_control_dual_conn_power_headroom_c18 = -1;
+static int hf_mac_lte_control_dual_conn_power_headroom_c17 = -1;
+static int hf_mac_lte_control_dual_conn_power_headroom_c16 = -1;
+static int hf_mac_lte_control_dual_conn_power_headroom_c31 = -1;
+static int hf_mac_lte_control_dual_conn_power_headroom_c30 = -1;
+static int hf_mac_lte_control_dual_conn_power_headroom_c29 = -1;
+static int hf_mac_lte_control_dual_conn_power_headroom_c28 = -1;
+static int hf_mac_lte_control_dual_conn_power_headroom_c27 = -1;
+static int hf_mac_lte_control_dual_conn_power_headroom_c26 = -1;
+static int hf_mac_lte_control_dual_conn_power_headroom_c25 = -1;
+static int hf_mac_lte_control_dual_conn_power_headroom_c24 = -1;
+
 static int hf_mac_lte_control_dual_conn_power_headroom_reserved = -1;
 static int hf_mac_lte_control_dual_conn_power_headroom_power_backoff = -1;
 static int hf_mac_lte_control_dual_conn_power_headroom_value = -1;
@@ -566,11 +593,8 @@ static const true_false_string mac_lte_ph_value_vals = {
     "Based on real transmission"
 };
 
-static const true_false_string mac_lte_scell_status_vals = {
-    "Activated",
-    "Deactivated"
-};
 
+#define EXT_LOGICAL_CHANNEL_ID_LCID            0x10
 #define ACTIVATION_DEACTIVATION_CSI_RS_LCID    0x15
 #define RECOMMENDED_BIT_RATE_LCID              0x16
 #define SC_PTM_STOP_INDICATION_LCID            0x17
@@ -596,6 +620,7 @@ static const value_string dlsch_lcid_vals[] =
     { 8,                                      "8"},
     { 9,                                      "9"},
     { 10,                                     "10"},
+    { EXT_LOGICAL_CHANNEL_ID_LCID,            "Extended logical channel ID field"},
     { ACTIVATION_DEACTIVATION_CSI_RS_LCID,    "Activation/Deactivation of CSI-RS"},
     { RECOMMENDED_BIT_RATE_LCID,              "Recommended Bit Rate"},
     { SC_PTM_STOP_INDICATION_LCID,            "SC-PTM Stop Indication"},
@@ -637,6 +662,7 @@ static const value_string ulsch_lcid_vals[] =
     { 10,                                   "10"},
     { 11,                                   "CCCH (Category 0)"},
     { 12,                                   "CCCH (frequency hopping for unicast)"},
+    { EXT_LOGICAL_CHANNEL_ID_LCID,          "Extended logical channel ID field"},
     { RECOMMENDED_BIT_RATE_QUERY_LCID,      "Recommended Bit Rate Query"},
     { SPS_CONFIRMATION_LCID,                "SPS Confirmation"},
     { TRUNCATED_SIDELINK_BSR_LCID,          "Truncated Sidelink BSR"},
@@ -685,6 +711,7 @@ static const value_string mch_lcid_vals[] =
     { 26,                           "26"},
     { 27,                           "27"},
     { 28,                           "28"},
+    { 29,                           "Reserved"},
     { MCH_SCHEDULING_INFO_LCID,     "MCH Scheduling Information"},
     { PADDING_LCID,                 "Padding" },
     { 0, NULL }
@@ -1531,7 +1558,7 @@ typedef struct dynamic_lcid_drb_mapping_t {
 } dynamic_lcid_drb_mapping_t;
 
 typedef struct ue_dynamic_drb_mappings_t {
-    dynamic_lcid_drb_mapping_t mapping[11];  /* Index is LCID */
+    dynamic_lcid_drb_mapping_t mapping[39];  /* Index is LCID */
     guint8 drb_to_lcid_mappings[32];         /* Also map drbid -> lcid */
 } ue_dynamic_drb_mappings_t;
 
@@ -4341,6 +4368,65 @@ static void lookup_rlc_channel_from_lcid(guint16 ueid,
 }
 
 
+/* Work out whether there are 1 or 4 bytes of C bits in Dual-Conn PHR CE */
+static guint get_dual_conn_phr_num_c_bytes(tvbuff_t *tvb, guint offset,
+                                           gboolean isSimultPUCCHPUSCHPCell,
+                                           gboolean isSimultPUCCHPUSCHPSCell,
+                                           guint subheader_length)
+{
+    if (subheader_length < 4) {
+        /* Can't be 4 */
+        return 1;
+    }
+
+    guint8  scell_bitmap_byte = tvb_get_guint8(tvb, offset);
+    guint i, byte_offset;
+
+    /* Count bits set. */
+    guint byte_bits_set = 0;
+    for (i=1; i <= 7; ++i) {
+        byte_bits_set += ((scell_bitmap_byte & (0x1 << i)) ? 1 : 0);
+    }
+
+    /* Only work out length for 1-byte case (skip C byte itself). */
+    byte_offset = offset+1;
+
+    /* These 2 fields depend upon seeing correct RRC signalling.. */
+    if (isSimultPUCCHPUSCHPCell) {
+        if ((tvb_get_guint8(tvb, byte_offset) & 0x40) == 0) {
+            byte_offset++;
+        }
+        byte_offset++;
+    }
+    if (isSimultPUCCHPUSCHPSCell) {
+        if ((tvb_get_guint8(tvb, byte_offset) & 0x40) == 0) {
+            byte_offset++;
+        }
+        byte_offset++;
+    }
+
+    /* Now walk number of entries set */
+    for (i=0; i <= byte_bits_set; i++) {
+        /* But take care to not walk past the end. */
+        if ((byte_offset-offset) >= subheader_length) {
+            /* Went off the end - assume 4... */
+            return 4;
+        }
+        if ((tvb_get_guint8(tvb, byte_offset) & 0x40) == 0) {
+            byte_offset++;
+        }
+        byte_offset++;
+    }
+
+    /* Give verdict */
+    if ((byte_offset-offset) == subheader_length) {
+        return 1;
+    }
+    else {
+        return 4;
+    }
+}
+
 
 #define MAX_HEADERS_IN_PDU 1024
 
@@ -4360,6 +4446,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     /* Keep track of LCIDs and lengths as we dissect the header */
     guint16          number_of_headers = 0;
     guint8           lcids[MAX_HEADERS_IN_PDU];
+    guint8           elcids[MAX_HEADERS_IN_PDU];
     gint32           pdu_lengths[MAX_HEADERS_IN_PDU];
 
     proto_item *pdu_header_ti;
@@ -4460,6 +4547,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         proto_item *ti;
         gint       offset_start_subheader = offset;
         guint8 first_byte = tvb_get_guint8(tvb, offset);
+        const gchar *lcid_str;
 
         /* Add PDU block header subtree.
            Default with length of 1 byte. */
@@ -4498,37 +4586,45 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
             lcid_ti = proto_tree_add_item(pdu_subheader_tree, hf_mac_lte_ulsch_lcid,
                                           tvb, offset, 1, ENC_BIG_ENDIAN);
-            write_pdu_label_and_info(pdu_ti, NULL, pinfo,
-                                     "(%s",
-                                     val_to_str_const(lcids[number_of_headers],
-                                                      ulsch_lcid_vals, "(Unknown LCID)"));
-            if (lcids[number_of_headers] == 11 || lcids[number_of_headers] == 12) {
-                /* This LCID is used for CCCH by Category 0 devices / devices using frequency hopping for unicast
-                   Let's remap it to LCID 0 for statistics and other checks */
-                lcids[number_of_headers] = 0;
+            if (lcids[number_of_headers] != EXT_LOGICAL_CHANNEL_ID_LCID) {
+                write_pdu_label_and_info(pdu_ti, NULL, pinfo,
+                                         "(%s",
+                                         val_to_str_const(lcids[number_of_headers],
+                                                          ulsch_lcid_vals, "(Unknown LCID)"));
+                if (lcids[number_of_headers] == 11 || lcids[number_of_headers] == 12) {
+                    /* This LCID is used for CCCH by Category 0 devices / devices using frequency hopping for unicast
+                       Let's remap it to LCID 0 for statistics and other checks */
+                    lcids[number_of_headers] = 0;
+                }
+            } else {
+                write_pdu_label_and_info(pdu_ti, NULL, pinfo, "(%u", tvb_get_guint8(tvb, offset+1) + 32);
             }
         }
         else {
             /* Downlink */
             lcid_ti = proto_tree_add_item(pdu_subheader_tree, hf_mac_lte_dlsch_lcid,
                                           tvb, offset, 1, ENC_BIG_ENDIAN);
-            write_pdu_label_and_info(pdu_ti, NULL, pinfo,
-                                     "(%s",
-                                     val_to_str_const(lcids[number_of_headers],
-                                                      dlsch_lcid_vals, "(Unknown LCID)"));
+            if (lcids[number_of_headers] != EXT_LOGICAL_CHANNEL_ID_LCID) {
+                write_pdu_label_and_info(pdu_ti, NULL, pinfo,
+                                         "(%s",
+                                         val_to_str_const(lcids[number_of_headers],
+                                                          dlsch_lcid_vals, "(Unknown LCID)"));
 
-            if ((lcids[number_of_headers] == DRX_COMMAND_LCID) ||
-                (lcids[number_of_headers] == LONG_DRX_COMMAND_LCID)) {
-                expert_add_info_format(pinfo, lcid_ti, &ei_mac_lte_dlsch_lcid,
-                                       "%sDRX command received for UE %u (RNTI %u)",
-                                       (lcids[number_of_headers] == LONG_DRX_COMMAND_LCID) ? "Long " :"",
-                                       p_mac_lte_info->ueid, p_mac_lte_info->rnti);
+                if ((lcids[number_of_headers] == DRX_COMMAND_LCID) ||
+                    (lcids[number_of_headers] == LONG_DRX_COMMAND_LCID)) {
+                    expert_add_info_format(pinfo, lcid_ti, &ei_mac_lte_dlsch_lcid,
+                                           "%sDRX command received for UE %u (RNTI %u)",
+                                           (lcids[number_of_headers] == LONG_DRX_COMMAND_LCID) ? "Long " :"",
+                                           p_mac_lte_info->ueid, p_mac_lte_info->rnti);
+                }
+            } else {
+                write_pdu_label_and_info(pdu_ti, NULL, pinfo, "(%u", tvb_get_guint8(tvb, offset+1) + 32);
             }
         }
         offset++;
 
         /* Remember if we've seen a data subheader */
-        if (lcids[number_of_headers] <= 10) {
+        if (lcids[number_of_headers] <= 10 || lcids[number_of_headers] == EXT_LOGICAL_CHANNEL_ID_LCID) {
             have_seen_data_header = TRUE;
             expecting_body_data = TRUE;
         }
@@ -4538,7 +4634,8 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
         /* Show an expert item if a control subheader (except Padding) appears
            *after* a data PDU */
-        if (have_seen_data_header && (lcids[number_of_headers] > 10) && (lcids[number_of_headers] != PADDING_LCID)) {
+        if (have_seen_data_header && (lcids[number_of_headers] > 10) &&
+            (lcids[number_of_headers] != EXT_LOGICAL_CHANNEL_ID_LCID) && (lcids[number_of_headers] != PADDING_LCID)) {
             expert_add_info_format(pinfo, lcid_ti, &ei_mac_lte_control_subheader_after_data_subheader,
                                    "%cL-SCH control subheaders should not appear after data subheaders",
                                    (p_mac_lte_info->direction == DIRECTION_UPLINK) ? 'U' : 'D');
@@ -4577,6 +4674,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
         /* Remember that we've seen non-padding control */
         if ((lcids[number_of_headers] > 10) &&
+            (lcids[number_of_headers] != EXT_LOGICAL_CHANNEL_ID_LCID) &&
             (lcids[number_of_headers] != PADDING_LCID) &&
             (lcids[number_of_headers] != SC_MCCH_SC_MTCH_LCID)) {
             have_seen_non_padding_control = TRUE;
@@ -4588,6 +4686,22 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             return;
         }
 
+        if (lcids[number_of_headers] == EXT_LOGICAL_CHANNEL_ID_LCID) {
+            guint8 elcid;
+
+            ti = proto_tree_add_item(pdu_subheader_tree, hf_mac_lte_sch_reserved2,
+                                     tvb, offset, 1, ENC_BIG_ENDIAN);
+            if (reserved != 0) {
+                expert_add_info_format(pinfo, ti, &ei_mac_lte_reserved_not_zero,
+                                       "%cL-SCH header Reserved bits not zero",
+                                       (p_mac_lte_info->direction == DIRECTION_UPLINK) ? 'U' : 'D');
+            }
+            elcid = (tvb_get_guint8(tvb, offset) & 0x3f);
+            elcids[number_of_headers] = elcid + 32;
+            proto_tree_add_uint_format_value(pdu_subheader_tree, hf_mac_lte_sch_elcid, tvb, offset,
+                                             1, elcid, "%u (%u)", elcids[number_of_headers], elcid);
+            offset++;
+        }
 
         /********************************************************************/
         /* Length field follows if not the last header or for a fixed-sized
@@ -4660,40 +4774,29 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 break;
         }
 
+        if (lcids[number_of_headers] != EXT_LOGICAL_CHANNEL_ID_LCID) {
+            lcid_str = val_to_str_const(initial_lcid, (p_mac_lte_info->direction == DIRECTION_UPLINK) ?
+                                        ulsch_lcid_vals : dlsch_lcid_vals, "Unknown");
+        } else {
+            lcid_str = wmem_strdup_printf(wmem_packet_scope(), "%u", elcids[number_of_headers]);
+        }
+
         /* Append summary to subheader root */
-        proto_item_append_text(pdu_subheader_ti, " (lcid=%s",
-                               val_to_str_const(initial_lcid,
-                                                (p_mac_lte_info->direction == DIRECTION_UPLINK) ?
-                                                    ulsch_lcid_vals :
-                                                        dlsch_lcid_vals,
-                                                "Unknown"));
+        proto_item_append_text(pdu_subheader_ti, " (lcid=%s", lcid_str);
 
         switch (pdu_lengths[number_of_headers]) {
             case -1:
                 proto_item_append_text(pdu_subheader_ti, ", length is remainder)");
-                proto_item_append_text(pdu_header_ti, " (%s:remainder)",
-                                       val_to_str_const(initial_lcid,
-                                                        (p_mac_lte_info->direction == DIRECTION_UPLINK) ?
-                                                            ulsch_lcid_vals : dlsch_lcid_vals,
-                                                        "Unknown"));
+                proto_item_append_text(pdu_header_ti, " (%s:remainder)", lcid_str);
                 break;
             case 0:
                 proto_item_append_text(pdu_subheader_ti, ")");
-                proto_item_append_text(pdu_header_ti, " (%s)",
-                                       val_to_str_const(initial_lcid,
-                                                        (p_mac_lte_info->direction == DIRECTION_UPLINK) ?
-                                                            ulsch_lcid_vals : dlsch_lcid_vals,
-                                                        "Unknown"));
+                proto_item_append_text(pdu_header_ti, " (%s)", lcid_str);
                 break;
             default:
                 proto_item_append_text(pdu_subheader_ti, ", length=%d)",
                                        pdu_lengths[number_of_headers]);
-                proto_item_append_text(pdu_header_ti, " (%s:%u)",
-                                       val_to_str_const(initial_lcid,
-                                                        (p_mac_lte_info->direction == DIRECTION_UPLINK) ?
-                                                            ulsch_lcid_vals : dlsch_lcid_vals,
-                                                        "Unknown"),
-                                       pdu_lengths[number_of_headers]);
+                proto_item_append_text(pdu_header_ti, " (%s:%u)", lcid_str, pdu_lengths[number_of_headers]);
                 break;
         }
 
@@ -4747,7 +4850,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
     for (n=0; n < number_of_headers; n++) {
         /* Get out of loop once see any data SDU subheaders */
-        if ((lcids[n] <= 10) ||
+        if ((lcids[n] <= 10) || lcids[n] == EXT_LOGICAL_CHANNEL_ID_LCID ||
             ((p_mac_lte_info->direction == DIRECTION_DOWNLINK) && (lcids[n] == SC_MCCH_SC_MTCH_LCID))) {
             break;
         }
@@ -5190,7 +5293,8 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         proto_item *ti;
                         proto_tree *dcphr_cell_tree;
                         proto_item *dcphr_cell_ti;
-                        guint8 scell_bitmap;
+                        guint8 scell_bitmap_byte;
+                        guint32 scell_bitmap_word;
                         guint8 byte;
                         guint i;
                         guint32 curr_offset = offset;
@@ -5211,8 +5315,17 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                                                 "Dual Connectivity Power Headroom Report");
                         dcphr_tree = proto_item_add_subtree(dcphr_ti, ett_mac_lte_dual_conn_power_headroom);
 
-                        /* TODO: add support for 4 bytes long SCell index */
-                        scell_bitmap = tvb_get_guint8(tvb, curr_offset);
+                        /* Work out (heuristically) whether we have 1 or 4 bytes of C bits.
+                         * Should be based upon highest sCellIndex and/or whether UE is in dual-connectivity,
+                         * but for now trust subheader length and see which one fits. */
+                        guint num_c_bytes = get_dual_conn_phr_num_c_bytes(tvb, curr_offset,
+                                                                          p_mac_lte_info->isSimultPUCCHPUSCHPCell,
+                                                                          p_mac_lte_info->isSimultPUCCHPUSCHPSCell,
+                                                                          pdu_lengths[n]);
+
+                        scell_bitmap_byte = tvb_get_guint8(tvb, curr_offset);
+
+                        /* Do first byte (C1-C7) */
                         proto_tree_add_item(dcphr_tree, hf_mac_lte_control_dual_conn_power_headroom_c7,
                                             tvb, curr_offset, 1, ENC_BIG_ENDIAN);
                         proto_tree_add_item(dcphr_tree, hf_mac_lte_control_dual_conn_power_headroom_c6,
@@ -5230,11 +5343,69 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         /* Check Reserved bit */
                         ti = proto_tree_add_item(dcphr_tree, hf_mac_lte_control_dual_conn_power_headroom_reserved,
                                                  tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-                        if (scell_bitmap & 0x01) {
+                        if (scell_bitmap_byte & 0x01) {
                             expert_add_info_format(pinfo, ti, &ei_mac_lte_reserved_not_zero,
                                                    "Dual Connectivity Power Headroom Report Reserved bit not zero");
                         }
                         curr_offset++;
+
+                        if (num_c_bytes == 4) {
+                            /* Do other 3 bytes (C8-C31) */
+                            proto_tree_add_item(dcphr_tree, hf_mac_lte_control_dual_conn_power_headroom_c15,
+                                                tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(dcphr_tree, hf_mac_lte_control_dual_conn_power_headroom_c14,
+                                                tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(dcphr_tree, hf_mac_lte_control_dual_conn_power_headroom_c13,
+                                                tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(dcphr_tree, hf_mac_lte_control_dual_conn_power_headroom_c12,
+                                                tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(dcphr_tree, hf_mac_lte_control_dual_conn_power_headroom_c11,
+                                                tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(dcphr_tree, hf_mac_lte_control_dual_conn_power_headroom_c10,
+                                                tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(dcphr_tree, hf_mac_lte_control_dual_conn_power_headroom_c9,
+                                                tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(dcphr_tree, hf_mac_lte_control_dual_conn_power_headroom_c8,
+                                                tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                            curr_offset++;
+
+                            proto_tree_add_item(dcphr_tree, hf_mac_lte_control_dual_conn_power_headroom_c23,
+                                                tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(dcphr_tree, hf_mac_lte_control_dual_conn_power_headroom_c22,
+                                                tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(dcphr_tree, hf_mac_lte_control_dual_conn_power_headroom_c21,
+                                                tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(dcphr_tree, hf_mac_lte_control_dual_conn_power_headroom_c20,
+                                                tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(dcphr_tree, hf_mac_lte_control_dual_conn_power_headroom_c19,
+                                                tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(dcphr_tree, hf_mac_lte_control_dual_conn_power_headroom_c18,
+                                                tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(dcphr_tree, hf_mac_lte_control_dual_conn_power_headroom_c17,
+                                                tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(dcphr_tree, hf_mac_lte_control_dual_conn_power_headroom_c16,
+                                                tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                            curr_offset++;
+
+                            proto_tree_add_item(dcphr_tree, hf_mac_lte_control_dual_conn_power_headroom_c31,
+                                                tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(dcphr_tree, hf_mac_lte_control_dual_conn_power_headroom_c30,
+                                                tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(dcphr_tree, hf_mac_lte_control_dual_conn_power_headroom_c29,
+                                                tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(dcphr_tree, hf_mac_lte_control_dual_conn_power_headroom_c28,
+                                                tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(dcphr_tree, hf_mac_lte_control_dual_conn_power_headroom_c27,
+                                                tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(dcphr_tree, hf_mac_lte_control_dual_conn_power_headroom_c26,
+                                                tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(dcphr_tree, hf_mac_lte_control_dual_conn_power_headroom_c25,
+                                                tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(dcphr_tree, hf_mac_lte_control_dual_conn_power_headroom_c24,
+                                                tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                            curr_offset++;
+                        }
+
 
                         if (p_mac_lte_info->isSimultPUCCHPUSCHPCell) {
                             /* PCell PH Type 2 is present */
@@ -5329,8 +5500,21 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                                    val_to_str_ext_const((byte&0x3f), &pcmaxc_vals_ext, "Unknown"));
                             curr_offset++;
                         }
-                        for (i = 1, scell_bitmap>>=1; i <= 7; i++, scell_bitmap>>=1) {
-                            if (scell_bitmap & 0x01) {
+
+                        /* Add entry for each set bit. Iterate over 32 entries regardless */
+                        if (num_c_bytes == 1) {
+                            scell_bitmap_word = scell_bitmap_byte << 24; /* least significant 3 bytes will be 0 */
+                        }
+                        else {
+                            scell_bitmap_word = tvb_get_ntohl(tvb, offset);
+                        }
+
+                        for (i=1; i < 31; i++) {
+                            /* Work out how much shift to adddress this bit */
+                            guint byte_shift = (31-i)/8;
+                            guint bit_shift = i % 8;
+                            /* Is entry for scell i present? */
+                            if (scell_bitmap_word & (0x01 << (byte_shift*8 + bit_shift))) {
                                 byte = tvb_get_guint8(tvb, curr_offset);
                                 dcphr_cell_tree = proto_tree_add_subtree_format(dcphr_tree, tvb, curr_offset, (!(byte&0x40)?2:1),
                                                     ett_mac_lte_dual_conn_power_headroom_cell, &dcphr_cell_ti, "SCell Index %u PUSCH", i);
@@ -5814,8 +5998,14 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             data_length = (pdu_lengths[n] == -1) ?
                             tvb_reported_length_remaining(tvb, offset) :
                             pdu_lengths[n];
-            tap_info->sdus_for_lcid[lcids[n]]++;
-            tap_info->bytes_for_lcid[lcids[n]] += data_length;
+            if ((lcids[n] >= 3) && (lcids[n] <= 10)) {
+                tap_info->sdus_for_lcid[lcids[n]]++;
+                tap_info->bytes_for_lcid[lcids[n]] += data_length;
+            } else if ((lcids[n] == EXT_LOGICAL_CHANNEL_ID_LCID) &&
+                       (elcids[n] >= 32) && (elcids[n] <= 38)) {
+                tap_info->sdus_for_lcid[elcids[n]-21]++;
+                tap_info->bytes_for_lcid[elcids[n]-21] += data_length;
+            }
             offset += data_length;
         }
         if (lcids[number_of_headers-1] == PADDING_LCID) {
@@ -5955,7 +6145,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             }
         }
 
-        else if ((lcids[n] >= 3) && (lcids[n] <= 10)) {
+        else if (((lcids[n] >= 3) && (lcids[n] <= 10)) || (lcids[n] == EXT_LOGICAL_CHANNEL_ID_LCID)) {
 
             /* Look for mapping for this LCID to drb channel set by UAT table or through
                configuration protocol. */
@@ -5963,11 +6153,12 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             guint8 seqnum_length;
             gint drb_id;
             gboolean rlc_ext_li_field;
+            guint8 lcid = (lcids[n] == EXT_LOGICAL_CHANNEL_ID_LCID) ? elcids[n] : lcids[n];
             guint8 priority = get_mac_lte_channel_priority(p_mac_lte_info->ueid,
-                                                           lcids[n], p_mac_lte_info->direction);
+                                                           lcid, p_mac_lte_info->direction);
 
             lookup_rlc_channel_from_lcid(p_mac_lte_info->ueid,
-                                         lcids[n],
+                                         lcid,
                                          p_mac_lte_info->direction,
                                          &rlc_channel_type,
                                          &seqnum_length,
@@ -6050,8 +6241,14 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         offset += data_length;
 
         /* Update tap sdu and byte count for this channel */
-        tap_info->sdus_for_lcid[lcids[n]]++;
-        tap_info->bytes_for_lcid[lcids[n]] += data_length;
+        if ((lcids[n] >= 3) && (lcids[n] <= 10)) {
+            tap_info->sdus_for_lcid[lcids[n]]++;
+            tap_info->bytes_for_lcid[lcids[n]] += data_length;
+        } else if ((lcids[n] == EXT_LOGICAL_CHANNEL_ID_LCID) &&
+                   (elcids[n] >= 32) && (elcids[n] <= 38)) {
+            tap_info->sdus_for_lcid[elcids[n]-21]++;
+            tap_info->bytes_for_lcid[elcids[n]-21] += data_length;
+        }
     }
 
     /* Was this a Msg3 that led to a CR answer? */
@@ -6919,7 +7116,7 @@ int dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     guint               pdu_instance = GPOINTER_TO_UINT(data);
 
     /* Allocate and zero tap struct */
-    mac_lte_tap_info *tap_info = (mac_lte_tap_info *)wmem_alloc0(wmem_file_scope(), sizeof(mac_lte_tap_info));
+    mac_lte_tap_info *tap_info = wmem_new0(wmem_file_scope(), mac_lte_tap_info);
 
     /* Set protocol name */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MAC-LTE");
@@ -7499,7 +7696,7 @@ void set_mac_lte_channel_mapping(drb_mapping_t *drb_mapping)
         lcid = drb_mapping->lcid;
 
         /* Ignore if LCID is out of range */
-        if ((lcid < 3) || (lcid > 10)) {
+        if ((lcid < 3) || (lcid > 10 && lcid < 32) || (lcid > 38)) {
             return;
         }
     }
@@ -8098,6 +8295,18 @@ void proto_register_mac_lte(void)
             { "LCID",
               "mac-lte.ulsch.lcid", FT_UINT8, BASE_HEX, VALS(ulsch_lcid_vals), 0x1f,
               "UL-SCH Logical Channel Identifier", HFILL
+            }
+        },
+        { &hf_mac_lte_sch_reserved2,
+            { "SCH reserved bits",
+              "mac-lte.sch.reserved2", FT_UINT8, BASE_HEX, NULL, 0xc0,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_sch_elcid,
+            { "eLCID",
+              "mac-lte.sch.elcid", FT_UINT8, BASE_DEC, NULL, 0x3f,
+              NULL, HFILL
             }
         },
         { &hf_mac_lte_sch_format,
@@ -8750,6 +8959,150 @@ void proto_register_mac_lte(void)
               TFS(&mac_lte_scell_ph_vals), 0x02, NULL, HFILL
             }
         },
+        { &hf_mac_lte_control_dual_conn_power_headroom_c15,
+            { "SCell Index 15 Power Headroom",
+              "mac-lte.control.dual-conn-power-headroom.c15", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_ph_vals), 0x80, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_dual_conn_power_headroom_c14,
+            { "SCell Index 14 Power Headroom",
+              "mac-lte.control.dual-conn-power-headroom.c14", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_ph_vals), 0x40, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_dual_conn_power_headroom_c13,
+            { "SCell Index 13 Power Headroom",
+              "mac-lte.control.dual-conn-power-headroom.c13", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_ph_vals), 0x20, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_dual_conn_power_headroom_c12,
+            { "SCell Index 12 Power Headroom",
+              "mac-lte.control.dual-conn-power-headroom.c12", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_ph_vals), 0x10, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_dual_conn_power_headroom_c11,
+            { "SCell Index 11 Power Headroom",
+              "mac-lte.control.dual-conn-power-headroom.c11", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_ph_vals), 0x08, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_dual_conn_power_headroom_c10,
+            { "SCell Index 10 Power Headroom",
+              "mac-lte.control.dual-conn-power-headroom.c10", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_ph_vals), 0x04, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_dual_conn_power_headroom_c9,
+            { "SCell Index 9 Power Headroom",
+              "mac-lte.control.dual-conn-power-headroom.c9", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_ph_vals), 0x02, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_dual_conn_power_headroom_c8,
+            { "SCell Index 8 Power Headroom",
+              "mac-lte.control.dual-conn-power-headroom.c8", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_ph_vals), 0x01, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_dual_conn_power_headroom_c23,
+            { "SCell Index 23 Power Headroom",
+              "mac-lte.control.dual-conn-power-headroom.c23", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_ph_vals), 0x80, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_dual_conn_power_headroom_c22,
+            { "SCell Index 22 Power Headroom",
+              "mac-lte.control.dual-conn-power-headroom.c22", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_ph_vals), 0x40, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_dual_conn_power_headroom_c21,
+            { "SCell Index 21 Power Headroom",
+              "mac-lte.control.dual-conn-power-headroom.c21", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_ph_vals), 0x20, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_dual_conn_power_headroom_c20,
+            { "SCell Index 20 Power Headroom",
+              "mac-lte.control.dual-conn-power-headroom.c20", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_ph_vals), 0x10, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_dual_conn_power_headroom_c19,
+            { "SCell Index 19 Power Headroom",
+              "mac-lte.control.dual-conn-power-headroom.c19", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_ph_vals), 0x08, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_dual_conn_power_headroom_c18,
+            { "SCell Index 18 Power Headroom",
+              "mac-lte.control.dual-conn-power-headroom.c18", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_ph_vals), 0x04, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_dual_conn_power_headroom_c17,
+            { "SCell Index 17 Power Headroom",
+              "mac-lte.control.dual-conn-power-headroom.c17", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_ph_vals), 0x02, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_dual_conn_power_headroom_c16,
+            { "SCell Index 16 Power Headroom",
+              "mac-lte.control.dual-conn-power-headroom.c16", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_ph_vals), 0x01, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_dual_conn_power_headroom_c31,
+            { "SCell Index 31 Power Headroom",
+              "mac-lte.control.dual-conn-power-headroom.c31", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_ph_vals), 0x80, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_dual_conn_power_headroom_c30,
+            { "SCell Index 30 Power Headroom",
+              "mac-lte.control.dual-conn-power-headroom.c30", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_ph_vals), 0x40, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_dual_conn_power_headroom_c29,
+            { "SCell Index 29 Power Headroom",
+              "mac-lte.control.dual-conn-power-headroom.c29", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_ph_vals), 0x20, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_dual_conn_power_headroom_c28,
+            { "SCell Index 28 Power Headroom",
+              "mac-lte.control.dual-conn-power-headroom.c28", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_ph_vals), 0x10, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_dual_conn_power_headroom_c27,
+            { "SCell Index 27 Power Headroom",
+              "mac-lte.control.dual-conn-power-headroom.c27", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_ph_vals), 0x08, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_dual_conn_power_headroom_c26,
+            { "SCell Index 26 Power Headroom",
+              "mac-lte.control.dual-conn-power-headroom.c26", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_ph_vals), 0x04, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_dual_conn_power_headroom_c25,
+            { "SCell Index 25 Power Headroom",
+              "mac-lte.control.dual-conn-power-headroom.c25", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_ph_vals), 0x02, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_dual_conn_power_headroom_c24,
+            { "SCell Index 24 Power Headroom",
+              "mac-lte.control.dual-conn-power-headroom.c24", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_ph_vals), 0x01, NULL, HFILL
+            }
+        },
         { &hf_mac_lte_control_dual_conn_power_headroom_reserved,
             { "Reserved",
               "mac-lte.control.dual-conn-power-headroom.reserved", FT_UINT8, BASE_DEC,
@@ -8881,43 +9234,43 @@ void proto_register_mac_lte(void)
         { &hf_mac_lte_control_activation_deactivation_c7,
             { "SCell Index 7 Status",
               "mac-lte.control.activation-deactivation.c7", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x80, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x80, NULL, HFILL
             }
         },
         { &hf_mac_lte_control_activation_deactivation_c6,
             { "SCell Index 6 Status",
               "mac-lte.control.activation-deactivation.c6", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x40, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x40, NULL, HFILL
             }
         },
         { &hf_mac_lte_control_activation_deactivation_c5,
             { "SCell Index 5 Status",
               "mac-lte.control.activation-deactivation.c5", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x20, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x20, NULL, HFILL
             }
         },
         { &hf_mac_lte_control_activation_deactivation_c4,
             { "SCell Index 4 Status",
               "mac-lte.control.activation-deactivation.c4", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x10, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x10, NULL, HFILL
             }
         },
         { &hf_mac_lte_control_activation_deactivation_c3,
             { "SCell Index 3 Status",
               "mac-lte.control.activation-deactivation.c3", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x08, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x08, NULL, HFILL
             }
         },
         { &hf_mac_lte_control_activation_deactivation_c2,
             { "SCell Index 2 Status",
               "mac-lte.control.activation-deactivation.c2", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x04, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x04, NULL, HFILL
             }
         },
         { &hf_mac_lte_control_activation_deactivation_c1,
             { "SCell Index 1 Status",
               "mac-lte.control.activation-deactivation.c1", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x02, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x02, NULL, HFILL
             }
         },
         { &hf_mac_lte_control_activation_deactivation_reserved,
@@ -8929,145 +9282,145 @@ void proto_register_mac_lte(void)
         { &hf_mac_lte_control_activation_deactivation_c15,
             { "SCell Index 15 Status",
               "mac-lte.control.activation-deactivation.c15", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x80, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x80, NULL, HFILL
             }
         },
         { &hf_mac_lte_control_activation_deactivation_c14,
             { "SCell Index 14 Status",
               "mac-lte.control.activation-deactivation.c14", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x40, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x40, NULL, HFILL
             }
         },
         { &hf_mac_lte_control_activation_deactivation_c13,
             { "SCell Index 13 Status",
               "mac-lte.control.activation-deactivation.c13", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x20, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x20, NULL, HFILL
             }
         },
         { &hf_mac_lte_control_activation_deactivation_c12,
             { "SCell Index 12 Status",
               "mac-lte.control.activation-deactivation.c12", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x10, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x10, NULL, HFILL
             }
         },
         { &hf_mac_lte_control_activation_deactivation_c11,
             { "SCell Index 11 Status",
               "mac-lte.control.activation-deactivation.c11", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x08, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x08, NULL, HFILL
             }
         },
         { &hf_mac_lte_control_activation_deactivation_c10,
             { "SCell Index 10 Status",
               "mac-lte.control.activation-deactivation.c10", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x04, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x04, NULL, HFILL
             }
         },
         { &hf_mac_lte_control_activation_deactivation_c9,
             { "SCell Index 9 Status",
               "mac-lte.control.activation-deactivation.c9", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x02, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x02, NULL, HFILL
             }
         },
         { &hf_mac_lte_control_activation_deactivation_c8,
             { "SCell Index 8 Status",
               "mac-lte.control.activation-deactivation.c8", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x01, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x01, NULL, HFILL
             }
         },
         { &hf_mac_lte_control_activation_deactivation_c23,
             { "SCell Index 23 Status",
               "mac-lte.control.activation-deactivation.c23", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x80, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x80, NULL, HFILL
             }
         },
         { &hf_mac_lte_control_activation_deactivation_c22,
             { "SCell Index 22 Status",
               "mac-lte.control.activation-deactivation.c22", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x40, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x40, NULL, HFILL
             }
         },
         { &hf_mac_lte_control_activation_deactivation_c21,
             { "SCell Index 21 Status",
               "mac-lte.control.activation-deactivation.c21", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x20, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x20, NULL, HFILL
             }
         },
         { &hf_mac_lte_control_activation_deactivation_c20,
             { "SCell Index 20 Status",
               "mac-lte.control.activation-deactivation.c20", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x10, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x10, NULL, HFILL
             }
         },
         { &hf_mac_lte_control_activation_deactivation_c19,
             { "SCell Index 19 Status",
               "mac-lte.control.activation-deactivation.c19", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x08, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x08, NULL, HFILL
             }
         },
         { &hf_mac_lte_control_activation_deactivation_c18,
             { "SCell Index 18 Status",
               "mac-lte.control.activation-deactivation.c18", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x04, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x04, NULL, HFILL
             }
         },
         { &hf_mac_lte_control_activation_deactivation_c17,
             { "SCell Index 17 Status",
               "mac-lte.control.activation-deactivation.c17", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x02, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x02, NULL, HFILL
             }
         },
         { &hf_mac_lte_control_activation_deactivation_c16,
             { "SCell Index 16 Status",
               "mac-lte.control.activation-deactivation.c16", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x01, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x01, NULL, HFILL
             }
         },
         { &hf_mac_lte_control_activation_deactivation_c31,
             { "SCell Index 31 Status",
               "mac-lte.control.activation-deactivation.c31", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x80, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x80, NULL, HFILL
             }
         },
         { &hf_mac_lte_control_activation_deactivation_c30,
             { "SCell Index 30 Status",
               "mac-lte.control.activation-deactivation.c30", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x40, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x40, NULL, HFILL
             }
         },
         { &hf_mac_lte_control_activation_deactivation_c29,
             { "SCell Index 29 Status",
               "mac-lte.control.activation-deactivation.c29", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x20, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x20, NULL, HFILL
             }
         },
         { &hf_mac_lte_control_activation_deactivation_c28,
             { "SCell Index 28 Status",
               "mac-lte.control.activation-deactivation.c28", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x10, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x10, NULL, HFILL
             }
         },
         { &hf_mac_lte_control_activation_deactivation_c27,
             { "SCell Index 27 Status",
               "mac-lte.control.activation-deactivation.c27", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x08, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x08, NULL, HFILL
             }
         },
         { &hf_mac_lte_control_activation_deactivation_c26,
             { "SCell Index 26 Status",
               "mac-lte.control.activation-deactivation.c26", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x04, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x04, NULL, HFILL
             }
         },
         { &hf_mac_lte_control_activation_deactivation_c25,
             { "SCell Index 25 Status",
               "mac-lte.control.activation-deactivation.c25", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x02, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x02, NULL, HFILL
             }
         },
         { &hf_mac_lte_control_activation_deactivation_c24,
             { "SCell Index 24 Status",
               "mac-lte.control.activation-deactivation.c24", FT_BOOLEAN, 8,
-              TFS(&mac_lte_scell_status_vals), 0x01, NULL, HFILL
+              TFS(&tfs_activated_deactivated), 0x01, NULL, HFILL
             }
         },
 

@@ -766,7 +766,7 @@ rq05(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rs05(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const int *byte1[] = { &hf_ipmi_picmg_05_led3, &hf_ipmi_picmg_05_led2,
+	static int * const byte1[] = { &hf_ipmi_picmg_05_led3, &hf_ipmi_picmg_05_led2,
 		&hf_ipmi_picmg_05_led1, &hf_ipmi_picmg_05_blue_led, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, "General Status LEDs: ", "None",
@@ -786,11 +786,11 @@ rq06(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rs06(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const int *byte1[] = { &hf_ipmi_picmg_06_cap_white, &hf_ipmi_picmg_06_cap_orange,
+	static int * const byte1[] = { &hf_ipmi_picmg_06_cap_white, &hf_ipmi_picmg_06_cap_orange,
 		&hf_ipmi_picmg_06_cap_amber, &hf_ipmi_picmg_06_cap_green, &hf_ipmi_picmg_06_cap_red,
 		&hf_ipmi_picmg_06_cap_blue, NULL };
-	static const int *byte2[] = { &hf_ipmi_picmg_06_default_local_color, NULL };
-	static const int *byte3[] = { &hf_ipmi_picmg_06_default_override_color, NULL };
+	static int * const byte2[] = { &hf_ipmi_picmg_06_default_local_color, NULL };
+	static int * const byte3[] = { &hf_ipmi_picmg_06_default_override_color, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, "Color capabilities: ", "None",
 			ett_ipmi_picmg_06_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
@@ -803,7 +803,7 @@ rs06(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 parse_led_state(proto_tree *tree, tvbuff_t *tvb, guint offs, const char *desc)
 {
-	static const int *color[] = { &hf_ipmi_picmg_led_color, NULL };
+	static int * const color[] = { &hf_ipmi_picmg_led_color, NULL };
 	static const value_string funcs[] = {
 		{ 0x00, "LED Off override" },
 		{ 0xfb, "Lamp Test state" },
@@ -852,7 +852,7 @@ rq08(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rs08(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const int *byte1[] = { &hf_ipmi_picmg_08_state_lamptest, &hf_ipmi_picmg_08_state_override,
+	static int * const byte1[] = { &hf_ipmi_picmg_08_state_lamptest, &hf_ipmi_picmg_08_state_override,
 		&hf_ipmi_picmg_08_state_local, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, "LED States: ", "None",
@@ -914,8 +914,8 @@ rq09(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rq0a(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const int *byte2[] = { &hf_ipmi_picmg_0a_msk_d_locked, &hf_ipmi_picmg_0a_msk_locked, NULL };
-	static const int *byte3[] = { &hf_ipmi_picmg_0a_d_locked, &hf_ipmi_picmg_0a_locked, NULL };
+	static int * const byte2[] = { &hf_ipmi_picmg_0a_msk_d_locked, &hf_ipmi_picmg_0a_msk_locked, NULL };
+	static int * const byte3[] = { &hf_ipmi_picmg_0a_d_locked, &hf_ipmi_picmg_0a_locked, NULL };
 
 	proto_tree_add_item(tree, hf_ipmi_picmg_0a_fruid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_bitmask_text(tree, tvb, 1, 1, "Will affect bits: ", "None",
@@ -935,7 +935,7 @@ rq0b(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rs0b(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const int *byte1[] = { &hf_ipmi_picmg_0b_d_locked, &hf_ipmi_picmg_0b_locked, NULL };
+	static int * const byte1[] = { &hf_ipmi_picmg_0b_d_locked, &hf_ipmi_picmg_0b_locked, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, "Activation Policy Bits: ", NULL,
 			ett_ipmi_picmg_0b_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
@@ -971,7 +971,7 @@ rs0d(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 parse_link_info_state(proto_tree *tree, tvbuff_t *tvb, guint offs, const char *num, const value_string *vs)
 {
-	static const int *link_info[] = { &hf_ipmi_picmg_linkinfo_grpid, &hf_ipmi_picmg_linkinfo_type_ext,
+	static int * const link_info[] = { &hf_ipmi_picmg_linkinfo_grpid, &hf_ipmi_picmg_linkinfo_type_ext,
 		&hf_ipmi_picmg_linkinfo_type, &hf_ipmi_picmg_linkinfo_ports, &hf_ipmi_picmg_linkinfo_iface,
 		&hf_ipmi_picmg_linkinfo_chan, NULL };
 	guint8 v = tvb_get_guint8(tvb, offs + 4);
@@ -1003,7 +1003,7 @@ rq0e(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rq0f(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const int *chan[] = { &hf_ipmi_picmg_0f_iface, &hf_ipmi_picmg_0f_chan, NULL };
+	static int * const chan[] = { &hf_ipmi_picmg_0f_iface, &hf_ipmi_picmg_0f_chan, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL, ett_ipmi_picmg_0f_chan, chan, ENC_LITTLE_ENDIAN, 0);
 	if (tvb_captured_length(tvb) > 1) {
@@ -1081,7 +1081,7 @@ rq12(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rs12(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const int *byte1[] = { &hf_ipmi_picmg_12_dynamic, &hf_ipmi_picmg_12_pwr_lvl, NULL };
+	static int * const byte1[] = { &hf_ipmi_picmg_12_dynamic, &hf_ipmi_picmg_12_pwr_lvl, NULL };
 	guint8 v, v2, i;
 	guint32 tmp, max;
 
@@ -1127,7 +1127,7 @@ rq14(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rs14(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const int *prop[] = { &hf_ipmi_picmg_14_local_control, NULL };
+	static int * const prop[] = { &hf_ipmi_picmg_14_local_control, NULL };
 
 	proto_tree_add_item(tree, hf_ipmi_picmg_14_speed_min, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_picmg_14_speed_max, tvb, 1, 1, ENC_LITTLE_ENDIAN);
@@ -1274,13 +1274,13 @@ rs18(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 parse_amc_link_info_state(proto_tree *tree, tvbuff_t *tvb, guint offs)
 {
-	static const int *amc_link_info[] = {
+	static int * const amc_link_info[] = {
 			&hf_ipmi_picmg_linkinfo_amc_ports,
 			&hf_ipmi_picmg_linkinfo_amc_type,
 			&hf_ipmi_picmg_linkinfo_amc_type_ext,
 			&hf_ipmi_picmg_linkinfo_amc_grpid,
 			NULL };
-	static const int *amc_link_state[] = {
+	static int * const amc_link_state[] = {
 			&hf_ipmi_picmg_linkinfo_state_0,
 			&hf_ipmi_picmg_linkinfo_state_1,
 			NULL };
@@ -1291,7 +1291,7 @@ parse_amc_link_info_state(proto_tree *tree, tvbuff_t *tvb, guint offs)
 			ett_ipmi_picmg_link_state, amc_link_state, ENC_LITTLE_ENDIAN);
 }
 
-static const int *amc_link_dev[] = {
+static int * const amc_link_dev[] = {
 		&hf_ipmi_picmg_linkinfo_dev_id,
 		NULL };
 
@@ -1398,7 +1398,7 @@ rq1e(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rs1e(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const int *byte1[] = { &hf_ipmi_picmg_1e_cap_diagintr,
+	static int * const byte1[] = { &hf_ipmi_picmg_1e_cap_diagintr,
 		&hf_ipmi_picmg_1e_cap_graceful_reboot, &hf_ipmi_picmg_1e_cap_warm_reset, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, "FRU Control Capabilities: ", "None",
@@ -1461,7 +1461,7 @@ rq21(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rs21(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const int *byte9[] = { &hf_ipmi_picmg_21_is_shm, &hf_ipmi_picmg_21_addr_type, NULL };
+	static int * const byte9[] = { &hf_ipmi_picmg_21_is_shm, &hf_ipmi_picmg_21_addr_type, NULL };
 	guint8 addrtype;
 
 	ipmi_add_timestamp(tree, hf_ipmi_picmg_21_tstamp, tvb, 0);
@@ -1537,7 +1537,7 @@ static const value_string picmg_23_orientations[] = {
 static void
 rq23(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const int * picmg_23_rq_byte2[] = {
+	static int * const picmg_23_rq_byte2[] = {
 		&hf_ipmi_picmg_23_slot_sel,
 		&hf_ipmi_picmg_23_carrier_num,
 		NULL
@@ -1557,7 +1557,7 @@ rq23(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rs23(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const int * picmg_23_rs_byte5[] = {
+	static int * const picmg_23_rs_byte5[] = {
 		&hf_ipmi_picmg_23_slot_base,
 		&hf_ipmi_picmg_23_tier_base,
 		&hf_ipmi_picmg_23_orientation,
@@ -1634,14 +1634,14 @@ rq25(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rs25(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const gint * picmg_25_gstatus[] = {
+	static int * const picmg_25_gstatus[] = {
 		&hf_ipmi_picmg_25_fault,
 		&hf_ipmi_picmg_25_pwr_good,
 		&hf_ipmi_picmg_25_mp_good,
 		&hf_ipmi_picmg_25_role,
 		NULL
 	};
-	static const gint * picmg_25_cstatus[] = {
+	static int * const picmg_25_cstatus[] = {
 		&hf_ipmi_picmg_25_pwr_on,
 		&hf_ipmi_picmg_25_pwr_ovr,
 		&hf_ipmi_picmg_25_pwr,
@@ -1681,7 +1681,7 @@ rq26(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rs27(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const gint * picmg_27_status[] = {
+	static int * const picmg_27_status[] = {
 		&hf_ipmi_picmg_27_pm_healthy,
 		NULL
 	};
@@ -1706,7 +1706,7 @@ fmt_100ms(gchar *s, guint32 v)
 static void
 rq28(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const gint * picmg_28_flags[] = {
+	static int * const picmg_28_flags[] = {
 		&hf_ipmi_picmg_28_mch2,
 		&hf_ipmi_picmg_28_mch1,
 		NULL
@@ -1733,7 +1733,7 @@ static const true_false_string picmg_29_alarm_modes = {
 static void
 rs29(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const gint * picmg_29_caps[] = {
+	static int * const picmg_29_caps[] = {
 		&hf_ipmi_picmg_29_maj_rst,
 		&hf_ipmi_picmg_29_min_rst,
 		&hf_ipmi_picmg_29_alarm_cut,
@@ -1839,14 +1839,14 @@ static const value_string amc_clock_resource_types[] = {
 	{ 0, NULL }
 };
 
-static const int * amc_clock_setting[] = {
+static int * const amc_clock_setting[] = {
 	&hf_ipmi_picmg_clock_pll,
 	&hf_ipmi_picmg_clock_dir,
 	&hf_ipmi_picmg_clock_state,
 	NULL
 };
 
-static const int * amc_clock_resource[] = {
+static int * const amc_clock_resource[] = {
 	&hf_ipmi_picmg_clock_resource_type,
 	&hf_ipmi_picmg_clock_resource_dev,
 	NULL
@@ -1902,7 +1902,7 @@ rs2d(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 add_component_bits(proto_tree *tree, tvbuff_t *tvb, guint offs, const char *desc)
 {
-	static const gint *compbits[] = { &hf_ipmi_picmg_XX_comp7, &hf_ipmi_picmg_XX_comp6, &hf_ipmi_picmg_XX_comp5,
+	static int * const compbits[] = { &hf_ipmi_picmg_XX_comp7, &hf_ipmi_picmg_XX_comp6, &hf_ipmi_picmg_XX_comp5,
 		&hf_ipmi_picmg_XX_comp4, &hf_ipmi_picmg_XX_comp3, &hf_ipmi_picmg_XX_comp2, &hf_ipmi_picmg_XX_comp1, &hf_ipmi_picmg_XX_comp0, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, offs, 1, desc, "None",
@@ -1914,7 +1914,7 @@ add_component_bits(proto_tree *tree, tvbuff_t *tvb, guint offs, const char *desc
 static void
 rs2e(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const gint *byte2[] = { &hf_ipmi_picmg_2e_upgrade_undesirable, &hf_ipmi_picmg_2e_auto_rollback_override,
+	static int * const byte2[] = { &hf_ipmi_picmg_2e_upgrade_undesirable, &hf_ipmi_picmg_2e_auto_rollback_override,
 		&hf_ipmi_picmg_2e_ipmc_degraded, &hf_ipmi_picmg_2e_deferred_activate, &hf_ipmi_picmg_2e_services_affected,
 		&hf_ipmi_picmg_2e_manual_rollback, &hf_ipmi_picmg_2e_auto_rollback, &hf_ipmi_picmg_2e_self_test, NULL };
 
@@ -1938,7 +1938,7 @@ static const value_string cc2e[] = {
 static void
 prop_00(tvbuff_t *tvb, proto_tree *tree)
 {
-	static const gint *byte1[] = { &hf_ipmi_picmg_prop00_cold_reset, &hf_ipmi_picmg_prop00_deferred_activation,
+	static int * const byte1[] = { &hf_ipmi_picmg_prop00_cold_reset, &hf_ipmi_picmg_prop00_deferred_activation,
 		&hf_ipmi_picmg_prop00_comparison, &hf_ipmi_picmg_prop00_preparation, &hf_ipmi_picmg_prop00_rollback, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, "General Component Properties: ", "None",
@@ -1948,7 +1948,7 @@ prop_00(tvbuff_t *tvb, proto_tree *tree)
 static void
 parse_version(tvbuff_t *tvb, proto_tree *tree)
 {
-	static const gint *byte1[] = { &hf_ipmi_picmg_prop01_fw_major, NULL };
+	static int * const byte1[] = { &hf_ipmi_picmg_prop01_fw_major, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
 			ett_ipmi_picmg_prop01_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
@@ -2110,7 +2110,7 @@ static void
 rs34(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const guint8 sig = 0;
-	static const gint *byte3[] = { &hf_ipmi_picmg_34_percentage, NULL };
+	static int * const byte3[] = { &hf_ipmi_picmg_34_percentage, NULL };
 	guint8 v;
 	ipmi_cmd_t *c;
 
@@ -2152,7 +2152,7 @@ static const value_string cc35[] = {
 static void
 rs36(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const gint *byte2[] = { &hf_ipmi_picmg_36_fail_sel, &hf_ipmi_picmg_36_fail_sdr,
+	static int * const byte2[] = { &hf_ipmi_picmg_36_fail_sel, &hf_ipmi_picmg_36_fail_sdr,
 		&hf_ipmi_picmg_36_fail_bmc_fru, &hf_ipmi_picmg_36_fail_ipmb_sig, &hf_ipmi_picmg_36_fail_sdr_empty,
 		&hf_ipmi_picmg_36_fail_iua, &hf_ipmi_picmg_36_fail_bb_fw, &hf_ipmi_picmg_36_fail_oper_fw, NULL };
 	int res, fail;
@@ -2190,7 +2190,7 @@ static const value_string cc36[] = {
 static void
 rs37(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const gint *byte2[] = { &hf_ipmi_picmg_37_percent, NULL };
+	static int * const byte2[] = { &hf_ipmi_picmg_37_percent, NULL };
 	const char *desc;
 
 	switch (ipmi_get_ccode(pinfo)) {
@@ -2218,7 +2218,7 @@ rq3e(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rs3e(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const gint *hpm2_caps[] = {
+	static int * const hpm2_caps[] = {
 			&hf_ipmi_picmg_hpm2_dyn_ssn,
 			&hf_ipmi_picmg_hpm2_ver_chg,
 			&hf_ipmi_picmg_hpm2_ext_mgt,
@@ -2447,7 +2447,7 @@ static const value_string amc_resource_types[] = {
 static void
 rs42(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const gint *amc_resource_type[] = {
+	static int * const amc_resource_type[] = {
 			&hf_ipmi_picmg_linkinfo_dev_type,
 			&hf_ipmi_picmg_linkinfo_dev_id,
 			NULL };
@@ -2554,7 +2554,7 @@ rq47(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rs47(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const gint *byte1[] = {
+	static int * const byte1[] = {
 			&hf_ipmi_picmg47_state,
 			&hf_ipmi_picmg47_instance,
 			NULL };

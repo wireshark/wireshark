@@ -17,7 +17,7 @@
 
 /*
  * This dissector tries to dissect the H.263 protocol according to
- * RFC 2190, http://www.ietf.org/rfc/rfc2190.txt
+ * RFC 2190, https://www.ietf.org/rfc/rfc2190
  */
 
 #include "config.h"
@@ -570,7 +570,7 @@ proto_register_rfc2190(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     proto_rfc2190 = proto_register_protocol("H.263 RTP Payload header (RFC2190)",
-        "RFC2190", "rfc2190");
+        "H.263 (RFC2190)", "rfc2190");
 
     proto_register_field_array(proto_rfc2190, hf, array_length(hf));
     rfc2190_handle = register_dissector("rfc2190", dissect_rfc2190, proto_rfc2190);

@@ -1,8 +1,6 @@
 # Remove tasks from individual author entries from AUTHORS file
 # for use in the about dialog.
 #
-# Must be called via perlnoutf.
-#
 # Copyright 2004 Ulf Lamping <ulf.lamping@web.de>
 #
 # Wireshark - Network traffic analyzer
@@ -13,6 +11,7 @@
 #
 
 use strict;
+use open qw(:std :utf8);
 
 my $subinfo=0;
 my $nextline;

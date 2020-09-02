@@ -283,14 +283,7 @@ MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
 
 #.FN_BODY TBCD-STRING VAL_PTR = &parameter_tvb
  tvbuff_t	*parameter_tvb;
- const char	*digit_str;
  proto_tree *subtree;
- static const dgt_set_t Dgt_tbcd = {
-    {
-  /*  0   1   2   3   4   5   6   7   8   9   a   b   c   d   e */
-     '0','1','2','3','4','5','6','7','8','9','*','#','a','b','c', 0
-    }
- };
 
 
  %(DEFAULT_BODY)s
@@ -301,8 +294,7 @@ MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
      return offset;
 
  subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_tbcd_digits);
- digit_str = tvb_bcd_dig_to_wmem_packet_str(parameter_tvb, 0, -1, &Dgt_tbcd, FALSE);
- proto_tree_add_string(subtree, hf_gsm_map_TBCD_digits, parameter_tvb, 0, -1, digit_str);
+ proto_tree_add_item(subtree, hf_gsm_map_TBCD_digits, parameter_tvb, 0, -1, ENC_KEYPAD_ABC_TBCD);
 
 #----------------------------------------------------------------------------------------
 #.FN_BODY LongSignalInfo VAL_PTR = &parameter_tvb
@@ -1118,31 +1110,12 @@ MAP interfaces
 #.FN_BODY LocationNumber VAL_PTR = &parameter_tvb
  tvbuff_t	*parameter_tvb;
  proto_tree	*subtree;
- const char	*digit_str;
- guint8		na;
- guint8		np;
 %(DEFAULT_BODY)s
   if (!parameter_tvb)
       return offset;
 
   subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_LocationNumber);
-
-  proto_tree_add_item(subtree, hf_gsm_map_locationnumber_odd_even, tvb, 0, 1, ENC_BIG_ENDIAN);
-  na = tvb_get_guint8(tvb,0) & 0x7f;
-  proto_tree_add_item(subtree, hf_gsm_map_locationnumber_nai, tvb, 0, 1, ENC_BIG_ENDIAN);
-
-  proto_tree_add_item(subtree, hf_gsm_map_locationnumber_inn, tvb, 1, 1, ENC_BIG_ENDIAN);
-  np = (tvb_get_guint8(tvb,1) & 0x70) >> 4;
-  proto_tree_add_item(subtree, hf_gsm_map_locationnumber_npi, tvb, 1, 1, ENC_BIG_ENDIAN);
-  proto_tree_add_item(subtree, hf_gsm_map_locationnumber_apri, tvb, 1, 1, ENC_BIG_ENDIAN);
-  proto_tree_add_item(subtree, hf_gsm_map_locationnumber_screening_ind, tvb, 1, 1, ENC_BIG_ENDIAN);
-
- digit_str = tvb_bcd_dig_to_wmem_packet_str(tvb, 2, -1, NULL, FALSE);
-
- proto_tree_add_string(subtree, hf_gsm_map_locationnumber_digits, tvb, 2, -1, digit_str);
-
- if ((na == 3) && (np==1))/*International Number & E164*/
-	dissect_e164_cc(tvb, subtree, 2, E164_ENC_BCD);
+  dissect_isup_location_number_parameter(parameter_tvb, actx->pinfo, subtree, NULL);
 
 #.FN_BODY EnhancedCheckIMEI-Arg/locationInformation VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb;

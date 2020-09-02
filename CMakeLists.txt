@@ -13,6 +13,9 @@ if(WIN32)
 else()
 	cmake_minimum_required(VERSION 3.5)
 endif()
+if(POLICY CMP0069)
+	cmake_policy(SET CMP0069 NEW)
+endif()
 if(POLICY CMP0074)
 	cmake_policy(SET CMP0074 NEW)
 endif()
@@ -55,6 +58,21 @@ message(STATUS "Generating build using CMake ${CMAKE_VERSION}")
 
 #Where to find local cmake scripts
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
+
+# CMake >= 3.9.0 enables LTO/IPO
+# Policy CMP0069 enables this behavior when we set the minimum CMake version < 3.9.0
+if (ENABLE_LTO)
+	include(CheckIPOSupported)
+	check_ipo_supported(RESULT lto_supported)
+	if(lto_supported)
+		set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+	endif()
+endif()
+if (CMAKE_INTERPROCEDURAL_OPTIMIZATION)
+	message(STATUS "LTO/IPO is enabled")
+else()
+	message(STATUS "LTO/LPO is not enabled")
+endif()
 
 # If our target platform is enforced by our generator, set
 # WIRESHARK_TARGET_PLATFORM accordingly. Otherwise use
@@ -1276,9 +1294,12 @@ if (QT_FOUND)
 		find_program(DMGBUILD_EXECUTABLE dmgbuild
 			DOC "Path to the dmgbuild utility"
 		)
+		# https://doc.qt.io/qt-5/supported-platforms.html
 		# https://doc.qt.io/qt-5.11/supported-platforms-and-configurations.html
 		# CMake < 3.7 doesn't support VERSION_GREATER_EQUAL.
-		if(Qt5Widgets_VERSION VERSION_GREATER "5.11.999")
+		if(Qt5Widgets_VERSION VERSION_GREATER "5.14.999")
+			set(MIN_MACOS_VERSION 10.13)
+		elseif(Qt5Widgets_VERSION VERSION_GREATER "5.11.999")
 			set(MIN_MACOS_VERSION 10.12)
 		elseif(Qt5Widgets_VERSION VERSION_GREATER "5.9.999")
 			set(MIN_MACOS_VERSION 10.11)
@@ -1509,10 +1530,6 @@ foreach(_plugin_src_dir ${PLUGIN_SRC_DIRS})
 	add_subdirectory( ${_plugin_src_dir} )
 endforeach()
 
-if(ENABLE_PCAP_NG_DEFAULT)
-	set(PCAP_NG_DEFAULT 1)
-endif()
-
 # Large file support (e.g. make off_t 64 bit if supported)
 include(gmxTestLargeFiles)
 gmx_test_large_files(GMX_LARGEFILES)
@@ -1667,6 +1684,31 @@ else()
 endif()
 
 feature_summary(WHAT ALL)
+
+# Newer Libgcrypt versions may be required for certain functionality:
+# 1.6
+# - IEEE 802.11 TDLS, AES-GCMP-128 and AES-GCMP-256 decryption
+# - IEEE 802.11 WPA3-Personal / SAE decryption
+# - BT Mesh decryption
+# - Distributed Object Framework (DOF) decryption
+# - IKEv2 integrity check
+# - LoRaWAN integrity check
+# - LTE PDCP EIA2 integrity check
+# - QUIC decryption support
+# - SMB3 AES-128-CCM/GCM decryption
+# - TLS 1.3 0-RTT decryption
+# - TLS GCM/CCM ciphers integrity check
+# 1.7
+# - QUIC ChaCha20-Poly1305 decryption
+# - TLS 1.3 ChaCha20-Poly1305 decryption
+# 1.8
+# - dcerpc-netlogon NETLOGON_FLAG_AES decryption
+# - WireGuard decryption
+if(GCRYPT_VERSION VERSION_LESS 1.6.0)
+	message(WARNING "Libgcrypt version 1.6.0 or newer is strongly recommended for improved decryption support, found ${GCRYPT_VERSION}")
+elseif(GCRYPT_VERSION VERSION_LESS 1.8.0)
+	message(WARNING "Libgcrypt version 1.8.0 or newer is recommended for full decryption functionality, found ${GCRYPT_VERSION}")
+endif()
 
 # Should this be part of libui?
 if(WIN32)
@@ -3297,6 +3339,7 @@ endif()
 install(
 	FILES
 		${CMAKE_MODULE_PATH}/FindGLIB2.cmake
+		${CMAKE_MODULE_PATH}/FindWSLibrary.cmake
 		${CMAKE_MODULE_PATH}/FindWSWinLibs.cmake
 		${CMAKE_MODULE_PATH}/UseAsn2Wrs.cmake
 		${CMAKE_MODULE_PATH}/LocatePythonModule.cmake

@@ -1338,7 +1338,6 @@ static const true_false_string tfs_vine_rtp_not_all_neighbor_all_neighbor = { "N
 static const true_false_string tfs_vine_rtp_sequenced_not_sequenced = { "Sequenced", "Not Sequenced" };
 static const true_false_string tfs_part_not_part = { "Part of", "Not part of" };
 static const true_false_string tfs_fast_bus_slow_bus = { "Fast bus", "Slow bus" };
-static const true_false_string tfs_vine_rtp_no_yes = { "No", "Yes" };
 
 static void
 rtp_show_machine_type(proto_tree *tree, tvbuff_t *tvb, int offset, int hf_machine)
@@ -1628,7 +1627,7 @@ proto_register_vines_rtp(void)
 	  { &hf_vines_rtp_comp_flag_sequence_rtp,
 	    { "Sequenced RTP", "vines_rtp.comp_flag.sequence_rtp",
 	      FT_BOOLEAN, 8, TFS(&tfs_vine_rtp_not_all_neighbor_all_neighbor), 0x02,
-	      NULL, HFILL }},
+              NULL, HFILL }},
 
 	  { &hf_vines_rtp_comp_flag_sequence_rtp_version,
 	    { "RTP version mismatch", "vines_rtp.comp_flag.rtp_version",
@@ -1652,7 +1651,7 @@ proto_register_vines_rtp(void)
 
 	  { &hf_vines_rtp_control_specific_request,
 	    { "Contains info specifically requested", "vines_rtp.control.specific_request",
-	      FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x04,
+              FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x04,
 	      NULL, HFILL }},
 
 	  { &hf_vines_rtp_control_end_msg,
@@ -1682,7 +1681,7 @@ proto_register_vines_rtp(void)
 
 	  { &hf_vines_rtp_flag_sequence_rtp,
 	    { "Network supports Sequenced RTP", "vines_rtp.flag.sequence_rtp",
-	      FT_BOOLEAN, 8, TFS(&tfs_vine_rtp_no_yes), 0x08,
+		  FT_BOOLEAN, 8, TFS(&tfs_no_yes), 0x08,
 	      NULL, HFILL }},
 
 	  { &hf_vines_rtp_flag_network_p2p,

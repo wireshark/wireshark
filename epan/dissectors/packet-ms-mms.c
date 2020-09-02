@@ -596,7 +596,7 @@ static gint dissect_msmms_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     gint        offset = 0;
     proto_item  *ti;
     proto_tree  *msmms_tree;
-    proto_tree  *msmms_data_timing_pair = NULL;
+    proto_tree  *msmms_data_timing_pair_tree = NULL;
     guint32     sequence_number;
     guint16     packet_length;
     guint16     packet_length_found;
@@ -677,18 +677,19 @@ static gint dissect_msmms_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     /* Parse UDP Timing packet pair headers if present */
     if (value == 0x01)
     {
-        ti =  proto_tree_add_string(msmms_tree, hf_msmms_data_timing_pair, tvb, offset, 8, "");
-        msmms_data_timing_pair = proto_item_add_subtree(ti, ett_msmms_data_timing_packet_pair);
+        /* Create subtree */
+        ti =  proto_tree_add_string_format(msmms_tree, hf_msmms_data_timing_pair, tvb, offset, 8, "", "Data timing pair");
+        msmms_data_timing_pair_tree = proto_item_add_subtree(ti, ett_msmms_data_timing_packet_pair);
 
-        proto_tree_add_item(msmms_data_timing_pair, hf_msmms_data_timing_pair_seqno, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(msmms_data_timing_pair_tree, hf_msmms_data_timing_pair_seqno, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset++;
-        proto_tree_add_item(msmms_data_timing_pair, hf_msmms_data_timing_pair_flags, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(msmms_data_timing_pair_tree, hf_msmms_data_timing_pair_flags, tvb, offset, 3, ENC_LITTLE_ENDIAN);
         offset += 3;
-        proto_tree_add_item(msmms_data_timing_pair, hf_msmms_data_timing_pair_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(msmms_data_timing_pair_tree, hf_msmms_data_timing_pair_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset++;
-        proto_tree_add_item(msmms_data_timing_pair, hf_msmms_data_timing_pair_flag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(msmms_data_timing_pair_tree, hf_msmms_data_timing_pair_flag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset++;
-        proto_tree_add_item(msmms_data_timing_pair, hf_msmms_data_timing_pair_packet_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(msmms_data_timing_pair_tree, hf_msmms_data_timing_pair_packet_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset += 2;
     }
 
@@ -1765,7 +1766,7 @@ void proto_register_msmms(void)
             {
                 "Data timing pair",
                 "msmms.data.timing-pair",
-                FT_NONE,
+                FT_STRING,
                 BASE_NONE,
                 NULL,
                 0x0,
@@ -1826,7 +1827,7 @@ void proto_register_msmms(void)
                 "Packet length",
                 "msmms.data.timing-pair.packet-length",
                 FT_UINT16,
-                BASE_HEX,
+                BASE_DEC,
                 NULL,
                 0x0,
                 NULL, HFILL

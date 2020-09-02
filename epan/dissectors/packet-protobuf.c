@@ -1551,7 +1551,7 @@ proto_register_protobuf(void)
     prefs_register_bool_preference(protobuf_module, "pbf_as_hf",
         "Dissect Protobuf fields as Wireshark fields.",
         "If Protobuf messages and fields are defined in loaded .proto files,"
-        " they will be dissected as wireshark fields if this option is turnned on."
+        " they will be dissected as wireshark fields if this option is turned on."
         " The names of all these wireshark fields will be prefixed with \"pbf.\" (for fields)"
         " or \"pbm.\" (for messages) followed by their full names in the .proto files.",
         &pbf_as_hf);

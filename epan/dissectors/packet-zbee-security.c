@@ -447,7 +447,7 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
     ieee802154_hints_t *ieee_hints;
     ieee802154_map_rec *map_rec = NULL;
 
-    static const int * sec_flags[] = {
+    static int * const sec_flags[] = {
         &hf_zbee_sec_key_id,
         &hf_zbee_sec_nonce,
         NULL

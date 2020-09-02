@@ -106,6 +106,9 @@ void LayoutPreferencesFrame::updateWidgets()
     case layout_pane_content_pbytes:
         ui->pane1PacketBytesRadioButton->setChecked(true);
         break;
+    case layout_pane_content_pdiagram:
+        ui->pane1PacketDiagramRadioButton->setChecked(true);
+        break;
     case layout_pane_content_none:
         ui->pane1NoneRadioButton->setChecked(true);
         break;
@@ -121,6 +124,9 @@ void LayoutPreferencesFrame::updateWidgets()
     case layout_pane_content_pbytes:
         ui->pane2PacketBytesRadioButton->setChecked(true);
         break;
+    case layout_pane_content_pdiagram:
+        ui->pane2PacketDiagramRadioButton->setChecked(true);
+        break;
     case layout_pane_content_none:
         ui->pane2NoneRadioButton->setChecked(true);
         break;
@@ -135,6 +141,9 @@ void LayoutPreferencesFrame::updateWidgets()
         break;
     case layout_pane_content_pbytes:
         ui->pane3PacketBytesRadioButton->setChecked(true);
+        break;
+    case layout_pane_content_pdiagram:
+        ui->pane3PacketDiagramRadioButton->setChecked(true);
         break;
     case layout_pane_content_none:
         ui->pane3NoneRadioButton->setChecked(true);
@@ -208,6 +217,16 @@ void LayoutPreferencesFrame::on_pane1PacketBytesRadioButton_toggled(bool checked
         ui->pane3NoneRadioButton->click();
 }
 
+void LayoutPreferencesFrame::on_pane1PacketDiagramRadioButton_toggled(bool checked)
+{
+    if (!checked) return;
+    prefs_set_enum_value(pref_layout_content_1_, layout_pane_content_pdiagram, pref_stashed);
+    if (ui->pane2PacketDiagramRadioButton->isChecked())
+        ui->pane2NoneRadioButton->click();
+    if (ui->pane3PacketDiagramRadioButton->isChecked())
+        ui->pane3NoneRadioButton->click();
+}
+
 void LayoutPreferencesFrame::on_pane1NoneRadioButton_toggled(bool checked)
 {
     if (!checked) return;
@@ -244,6 +263,16 @@ void LayoutPreferencesFrame::on_pane2PacketBytesRadioButton_toggled(bool checked
         ui->pane3NoneRadioButton->click();
 }
 
+void LayoutPreferencesFrame::on_pane2PacketDiagramRadioButton_toggled(bool checked)
+{
+    if (!checked) return;
+    prefs_set_enum_value(pref_layout_content_2_, layout_pane_content_pdiagram, pref_stashed);
+    if (ui->pane1PacketDiagramRadioButton->isChecked())
+        ui->pane1NoneRadioButton->click();
+    if (ui->pane3PacketDiagramRadioButton->isChecked())
+        ui->pane3NoneRadioButton->click();
+}
+
 void LayoutPreferencesFrame::on_pane2NoneRadioButton_toggled(bool checked)
 {
     if (!checked) return;
@@ -277,6 +306,16 @@ void LayoutPreferencesFrame::on_pane3PacketBytesRadioButton_toggled(bool checked
     if (ui->pane1PacketBytesRadioButton->isChecked())
         ui->pane1NoneRadioButton->click();
     if (ui->pane2PacketBytesRadioButton->isChecked())
+        ui->pane2NoneRadioButton->click();
+}
+
+void LayoutPreferencesFrame::on_pane3PacketDiagramRadioButton_toggled(bool checked)
+{
+    if (!checked) return;
+    prefs_set_enum_value(pref_layout_content_3_, layout_pane_content_pdiagram, pref_stashed);
+    if (ui->pane1PacketDiagramRadioButton->isChecked())
+        ui->pane1NoneRadioButton->click();
+    if (ui->pane2PacketDiagramRadioButton->isChecked())
         ui->pane2NoneRadioButton->click();
 }
 

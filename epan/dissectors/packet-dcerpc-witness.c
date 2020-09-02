@@ -442,7 +442,7 @@ int
 witness_dissect_bitmap_interfaceInfo_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item *item;
-	static const int * witness_witness_interfaceInfo_flags_fields[] = {
+	static int * const witness_witness_interfaceInfo_flags_fields[] = {
 		&hf_witness_witness_interfaceInfo_flags_WITNESS_INFO_IPv4_VALID,
 		&hf_witness_witness_interfaceInfo_flags_WITNESS_INFO_IPv6_VALID,
 		&hf_witness_witness_interfaceInfo_flags_WITNESS_INFO_WITNESS_IF,
@@ -743,7 +743,7 @@ int
 witness_dissect_bitmap_IPaddrInfo_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item *item;
-	static const int * witness_witness_IPaddrInfo_flags_fields[] = {
+	static int * const witness_witness_IPaddrInfo_flags_fields[] = {
 		&hf_witness_witness_IPaddrInfo_flags_WITNESS_IPADDR_V4,
 		&hf_witness_witness_IPaddrInfo_flags_WITNESS_IPADDR_V6,
 		&hf_witness_witness_IPaddrInfo_flags_WITNESS_IPADDR_ONLINE,
@@ -994,7 +994,7 @@ int
 witness_dissect_bitmap_RegisterEx_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item *item;
-	static const int * witness_witness_RegisterEx_flags_fields[] = {
+	static int * const witness_witness_RegisterEx_flags_fields[] = {
 		&hf_witness_witness_RegisterEx_flags_WITNESS_REGISTER_IP_NOTIFICATION,
 		NULL
 	};

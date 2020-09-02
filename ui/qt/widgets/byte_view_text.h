@@ -45,9 +45,11 @@ public:
 signals:
     void byteHovered(int pos);
     void byteSelected(int pos);
+    void byteViewSettingsChanged();
 
 public slots:
     void setMonospaceFont(const QFont &mono_font);
+    void updateByteViewSettings();
 
     void markProtocol(int start, int length);
     void markField(int start, int length, bool scroll_to = true);
@@ -84,6 +86,7 @@ private:
     int byteOffsetAtPixel(QPoint pos);
 
     void createContextMenu();
+    void updateContextMenu();
 
     int offsetChars(bool include_pad = true);
     int offsetPixels();
@@ -122,6 +125,13 @@ private:
 
     // Data selection
     QVector<int> x_pos_to_column_;
+
+    // Context menu actions
+    QAction *action_bytes_hex_;
+    QAction *action_bytes_bits_;
+    QAction *action_bytes_enc_from_packet_;
+    QAction *action_bytes_enc_ascii_;
+    QAction *action_bytes_enc_ebcdic_;
 
 private slots:
     void copyBytes(bool);

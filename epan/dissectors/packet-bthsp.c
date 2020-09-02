@@ -91,8 +91,8 @@ typedef struct _fragment_t {
 } fragment_t;
 
 typedef struct _at_cmd_t {
-    const guint8 *name;
-    const guint8 *long_name;
+    const char *name;
+    const char *long_name;
 
     gboolean (*check_command)(gint role, guint16 type);
     gboolean (*dissect_parameter)(tvbuff_t *tvb, packet_info *pinfo,
@@ -133,7 +133,7 @@ void proto_reg_handoff_bthsp(void);
 static guint32 get_uint_parameter(guint8 *parameter_stream, gint parameter_length)
 {
     guint32      value;
-    guint8      *val;
+    gchar *val;
 
     val = (guint8 *) wmem_alloc(wmem_packet_scope(), parameter_length + 1);
     memcpy(val, parameter_stream, parameter_length);
@@ -267,9 +267,9 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item      *command_tree;
     proto_tree      *parameters_item = NULL;
     proto_item      *parameters_tree = NULL;
-    guint8          *col_str = NULL;
-    guint8          *at_stream;
-    guint8          *at_command = NULL;
+    char            *col_str = NULL;
+    char            *at_stream;
+    char            *at_command = NULL;
     gint             i_char = 0;
     guint            i_char_fix = 0;
     gint             length;
@@ -290,12 +290,12 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     if (!command_number) {
         proto_tree_add_item(tree, hf_data, tvb, offset, length, ENC_NA | ENC_ASCII);
-        col_str = (guint8 *) wmem_alloc(wmem_packet_scope(), length + 1);
+        col_str = (char *) wmem_alloc(wmem_packet_scope(), length + 1);
         tvb_memcpy(tvb, col_str, offset, length);
         col_str[length] = '\0';
     }
 
-    at_stream = (guint8 *) wmem_alloc(wmem_packet_scope(), length + 1);
+    at_stream = (char *) wmem_alloc(wmem_packet_scope(), length + 1);
     tvb_memcpy(tvb, at_stream, offset, length);
     at_stream[length] = '\0';
     while (at_stream[i_char]) {
@@ -321,7 +321,7 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             at_command = g_strstr_len(at_stream, length, "AT");
 
             if (at_command) {
-                i_char = (guint) (at_command - at_stream);
+                i_char = (gint) (at_command - at_stream);
 
                 if (i_char) {
                     proto_tree_add_item(command_tree, hf_at_ignored, tvb, offset,

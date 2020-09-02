@@ -7,6 +7,9 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+// Some code based on QHexView by Evan Teran
+// https://github.com/eteran/qhexview/
+
 #include "byte_view_text.h"
 
 #include <epan/charsets.h>
@@ -76,25 +79,18 @@ ByteViewText::~ByteViewText()
 
 void ByteViewText::createContextMenu()
 {
-    QAction *action;
-
     QActionGroup * copy_actions = DataPrinter::copyActions(this);
     ctx_menu_.addActions(copy_actions->actions());
     ctx_menu_.addSeparator();
 
     QActionGroup * format_actions = new QActionGroup(this);
-    action = format_actions->addAction(tr("Show bytes as hexadecimal"));
-    action->setData(QVariant::fromValue(BYTES_HEX));
-    action->setCheckable(true);
-    if (recent.gui_bytes_view == BYTES_HEX) {
-        action->setChecked(true);
-    }
-    action = format_actions->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS "as bits"));
-    action->setData(QVariant::fromValue(BYTES_BITS));
-    action->setCheckable(true);
-    if (recent.gui_bytes_view == BYTES_BITS) {
-        action->setChecked(true);
-    }
+    action_bytes_hex_ = format_actions->addAction(tr("Show bytes as hexadecimal"));
+    action_bytes_hex_->setData(QVariant::fromValue(BYTES_HEX));
+    action_bytes_hex_->setCheckable(true);
+
+    action_bytes_bits_ = format_actions->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS "as bits"));
+    action_bytes_bits_->setData(QVariant::fromValue(BYTES_BITS));
+    action_bytes_bits_->setCheckable(true);
 
     ctx_menu_.addActions(format_actions->actions());
     connect(format_actions, &QActionGroup::triggered, this, &ByteViewText::setHexDisplayFormat);
@@ -102,27 +98,46 @@ void ByteViewText::createContextMenu()
     ctx_menu_.addSeparator();
 
     QActionGroup * encoding_actions = new QActionGroup(this);
-    action = encoding_actions->addAction(tr("Show text based on packet"));
-    action->setData(QVariant::fromValue(BYTES_ENC_FROM_PACKET));
-    action->setCheckable(true);
-    if (recent.gui_bytes_encoding == BYTES_ENC_FROM_PACKET) {
-        action->setChecked(true);
-    }
-    action = encoding_actions->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS "as ASCII"));
-    action->setData(QVariant::fromValue(BYTES_ENC_ASCII));
-    action->setCheckable(true);
-    if (recent.gui_bytes_encoding == BYTES_ENC_ASCII) {
-        action->setChecked(true);
-    }
-    action = encoding_actions->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS "as EBCDIC"));
-    action->setData(QVariant::fromValue(BYTES_ENC_EBCDIC));
-    action->setCheckable(true);
-    if (recent.gui_bytes_encoding == BYTES_ENC_EBCDIC) {
-        action->setChecked(true);
-    }
+    action_bytes_enc_from_packet_ = encoding_actions->addAction(tr("Show text based on packet"));
+    action_bytes_enc_from_packet_->setData(QVariant::fromValue(BYTES_ENC_FROM_PACKET));
+    action_bytes_enc_from_packet_->setCheckable(true);
+
+    action_bytes_enc_ascii_ = encoding_actions->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS "as ASCII"));
+    action_bytes_enc_ascii_->setData(QVariant::fromValue(BYTES_ENC_ASCII));
+    action_bytes_enc_ascii_->setCheckable(true);
+
+    action_bytes_enc_ebcdic_ = encoding_actions->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS "as EBCDIC"));
+    action_bytes_enc_ebcdic_->setData(QVariant::fromValue(BYTES_ENC_EBCDIC));
+    action_bytes_enc_ebcdic_->setCheckable(true);
+
+    updateContextMenu();
 
     ctx_menu_.addActions(encoding_actions->actions());
     connect(encoding_actions, &QActionGroup::triggered, this, &ByteViewText::setCharacterEncoding);
+}
+
+void ByteViewText::updateContextMenu()
+{
+    switch (recent.gui_bytes_view) {
+    case BYTES_HEX:
+        action_bytes_hex_->setChecked(true);
+        break;
+    case BYTES_BITS:
+        action_bytes_bits_->setChecked(true);
+        break;
+    }
+
+    switch (recent.gui_bytes_encoding) {
+    case BYTES_ENC_FROM_PACKET:
+        action_bytes_enc_from_packet_->setChecked(true);
+        break;
+    case BYTES_ENC_ASCII:
+        action_bytes_enc_ascii_->setChecked(true);
+        break;
+    case BYTES_ENC_EBCDIC:
+        action_bytes_enc_ebcdic_->setChecked(true);
+        break;
+    }
 }
 
 bool ByteViewText::isEmpty() const
@@ -178,6 +193,15 @@ void ByteViewText::setMonospaceFont(const QFont &mono_font)
     // We should probably use ProtoTree::rowHeight.
     line_height_ = fontMetrics().height();
 
+    updateScrollbars();
+    viewport()->update();
+}
+
+void ByteViewText::updateByteViewSettings()
+{
+    row_width_ = recent.gui_bytes_view == BYTES_HEX ? 16 : 8;
+
+    updateContextMenu();
     updateScrollbars();
     viewport()->update();
 }
@@ -659,9 +683,8 @@ void ByteViewText::setHexDisplayFormat(QAction *action)
     }
 
     recent.gui_bytes_view = action->data().value<bytes_view_type>();
-    row_width_ = recent.gui_bytes_view == BYTES_HEX ? 16 : 8;
-    updateScrollbars();
-    viewport()->update();
+
+    emit byteViewSettingsChanged();
 }
 
 void ByteViewText::setCharacterEncoding(QAction *action)
@@ -671,7 +694,8 @@ void ByteViewText::setCharacterEncoding(QAction *action)
     }
 
     recent.gui_bytes_encoding = action->data().value<bytes_encoding_type>();
-    viewport()->update();
+
+    emit byteViewSettingsChanged();
 }
 
 /*

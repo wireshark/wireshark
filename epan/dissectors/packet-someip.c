@@ -1,7 +1,7 @@
 /* packet-someip.c
  * SOME/IP dissector.
- * By Dr. Lars Voelker <lars-github@larsvoelker.de> / <lars.voelker@bmw.de>
- * Copyright 2012-2019 Dr. Lars Voelker
+ * By Dr. Lars Voelker <lars.voelker@technica-engineering.de> / <lars.voelker@bmw.de>
+ * Copyright 2012-2020 Dr. Lars Voelker
  * Copyright 2019      Ana Pantar
  * Copyright 2019      Guenter Ebermann
   *
@@ -12,9 +12,8 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#include <glib.h>
-
 #include <config.h>
+#include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/to_str.h>
@@ -235,6 +234,7 @@ static expert_field ef_someip_message_truncated                         = EI_INI
 static expert_field ef_someip_incomplete_headers                        = EI_INIT;
 
 static expert_field ef_someip_payload_truncated                         = EI_INIT;
+static expert_field ef_someip_payload_malformed                         = EI_INIT;
 static expert_field ef_someip_payload_config_error                      = EI_INIT;
 static expert_field ef_someip_payload_alignment_error                   = EI_INIT;
 static expert_field ef_someip_payload_static_array_min_not_max          = EI_INIT;
@@ -1785,6 +1785,12 @@ expert_someip_payload_truncated(proto_tree *tree, packet_info *pinfo, tvbuff_t *
 }
 
 static void
+expert_someip_payload_malformed(proto_tree* tree, packet_info* pinfo, tvbuff_t* tvb, gint offset, gint length) {
+    proto_tree_add_expert(tree, pinfo, &ef_someip_payload_malformed, tvb, offset, length);
+    col_append_str(pinfo->cinfo, COL_INFO, " [SOME/IP Payload: Malformed payload!]");
+}
+
+static void
 expert_someip_payload_config_error(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, gint offset, gint length, const char *message) {
     proto_tree_add_expert_format(tree, pinfo, &ef_someip_payload_config_error, tvb, offset, length, "SOME/IP Payload: %s", message);
     col_append_str(pinfo->cinfo, COL_INFO, " [SOME/IP Payload: Config Error]");
@@ -2087,7 +2093,7 @@ dissect_someip_payload_string(tvbuff_t* tvb, packet_info* pinfo, proto_tree *tre
     }
 
     if (tvb_captured_length_remaining(tvb, 0) < (gint)(config->length_of_length >> 3)) {
-        proto_tree_add_string(tree, hf_payload_str_string, tvb, offset, 0, "ERROR: not enough bytes left for configured string length field!");
+        expert_someip_payload_malformed(tree, pinfo, tvb, offset, 0);
         return 0;
     };
 
@@ -2104,7 +2110,7 @@ dissect_someip_payload_string(tvbuff_t* tvb, packet_info* pinfo, proto_tree *tre
     }
 
     if ((guint32)tvb_captured_length_remaining(tvb, offset) < length) {
-        proto_tree_add_string(tree, hf_payload_str_string, tvb, offset, 0, "ERROR: not enough bytes left for configured string data!");
+        expert_someip_payload_malformed(tree, pinfo, tvb, offset, 0);
         return 0;
     }
 
@@ -2144,7 +2150,7 @@ dissect_someip_payload_struct(tvbuff_t* tvb, packet_info* pinfo, proto_tree *tre
 
     proto_tree *subtree = NULL;
     proto_item *ti = NULL;
-
+    gint64      length = 0;
     gint        offset = offset_orig;
     gint        offset_bits = offset_bits_orig;
     gint        bits_parsed = 0;
@@ -2160,6 +2166,21 @@ dissect_someip_payload_struct(tvbuff_t* tvb, packet_info* pinfo, proto_tree *tre
     ti = proto_tree_add_string_format(tree, hf_payload_str_struct, tvb, offset, 0, config->struct_name, "struct %s [%s]", name, config->struct_name);
     subtree = proto_item_add_subtree(ti, ett_someip_struct);
 
+    if (tvb_captured_length_remaining(tvb, 0) < (gint)(config->length_of_length >> 3)) {
+        expert_someip_payload_malformed(tree, pinfo, tvb, offset, 0);
+        return 0;
+    };
+
+    if (config->length_of_length != 0) {
+        length = dissect_someip_payload_length_field(tvb, pinfo, subtree, offset, config->length_of_length);
+        if (length < 0) {
+            /* error */
+            return config->length_of_length / 8;
+        }
+        offset += config->length_of_length / 8;
+        proto_item_set_end(ti, tvb, offset_orig + (config->length_of_length / 8) + (guint32)length);
+    }
+
     for (i = 0; i < config->num_of_items; i++) {
         item = &(config->items[i]);
         bits_parsed = dissect_someip_payload_parameter(tvb, pinfo, subtree, offset, offset_bits, (guint8)item->data_type, item->id_ref, item->name);
@@ -2167,13 +2188,17 @@ dissect_someip_payload_struct(tvbuff_t* tvb, packet_info* pinfo, proto_tree *tre
         offset_bits = (8 * offset + offset_bits + bits_parsed) % 8;
     }
 
-    if (offset_bits == 0) {
-        proto_item_set_end(ti, tvb, offset);
-    } else {
-        proto_item_set_end(ti, tvb, offset + 1);
-    }
+    if (config->length_of_length == 0) {
+        if (offset_bits == 0) {
+            proto_item_set_end(ti, tvb, offset);
+        } else {
+            proto_item_set_end(ti, tvb, offset + 1);
+        }
 
-    return 8 * (offset - offset_orig) + (offset_bits - offset_bits_orig);
+        return 8 * (offset - offset_orig) + (offset_bits - offset_bits_orig);
+    } else {
+        return 8 * ((config->length_of_length / 8) + (guint32)length);
+    }
 }
 
 static int
@@ -2539,7 +2564,7 @@ dissect_someip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
     gint            tvb_length = tvb_captured_length_remaining(tvb, offset);
 
-    static const int *someip_tp_flags[] = {
+    static int * const someip_tp_flags[] = {
         &hf_someip_tp_reserved,
         &hf_someip_tp_more_segments,
         NULL
@@ -3052,6 +3077,8 @@ proto_register_someip(void) {
 
         { &ef_someip_payload_truncated, {"someip.payload.expert_truncated",
           PI_MALFORMED, PI_ERROR, "SOME/IP Payload: Truncated payload!", EXPFILL} },
+        { &ef_someip_payload_malformed, {"someip.payload.expert_malformed",
+          PI_MALFORMED, PI_ERROR, "SOME/IP Payload: Malformed payload!", EXPFILL} },
         { &ef_someip_payload_config_error, {"someip.payload.expert_config_error",
          PI_MALFORMED, PI_ERROR, "SOME/IP Payload: Config Error!", EXPFILL} },
         { &ef_someip_payload_alignment_error, {"someip.payload.expert_alignment_error",

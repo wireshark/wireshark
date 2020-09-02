@@ -709,7 +709,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
          val_to_str(message_type, message_type_vals, "Unknown (%u). "));
 
     if (tree) {
-        static const int * header_flags[] = {
+        static int * const header_flags[] = {
             &hf_lmp_filter[LMPF_HDR_FLAGS_CC_DOWN],
             &hf_lmp_filter[LMPF_HDR_FLAGS_REBOOT],
             NULL
@@ -1004,7 +1004,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             case 1:
                 {
                 float transmission_rate;
-                static const int * verify_flags[] = {
+                static int * const verify_flags[] = {
                     &hf_lmp_filter[LMPF_VAL_BEGIN_VERIFY_FLAGS_ALL_LINKS],
                     &hf_lmp_filter[LMPF_VAL_BEGIN_VERIFY_FLAGS_LINK_TYPE],
                     NULL
@@ -1069,7 +1069,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
         case LMP_CLASS_TE_LINK:
         {
-            static const int * link_flags[] = {
+            static int * const link_flags[] = {
                 &hf_lmp_filter[LMPF_VAL_TE_LINK_FLAGS_FAULT_MGMT],
                 &hf_lmp_filter[LMPF_VAL_TE_LINK_FLAGS_LINK_VERIFY],
                 NULL
@@ -1129,7 +1129,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
         case LMP_CLASS_DATA_LINK:
         {
-            static const int * link_flags[] = {
+            static int * const link_flags[] = {
                 &hf_lmp_filter[LMPF_VAL_DATA_LINK_FLAGS_PORT],
                 &hf_lmp_filter[LMPF_VAL_DATA_LINK_FLAGS_ALLOCATED],
                 NULL
@@ -1354,7 +1354,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
             case 1:
                 {
-                static const int * error_flags[] = {
+                static int * const error_flags[] = {
                     &hf_lmp_filter[LMPF_VAL_ERROR_VERIFY_UNSUPPORTED_LINK],
                     &hf_lmp_filter[LMPF_VAL_ERROR_VERIFY_UNWILLING],
                     &hf_lmp_filter[LMPF_VAL_ERROR_VERIFY_TRANSPORT],
@@ -1374,7 +1374,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
             case 2:
                 {
-                static const int * error_flags[] = {
+                static int * const error_flags[] = {
                     &hf_lmp_filter[LMPF_VAL_ERROR_SUMMARY_BAD_PARAMETERS],
                     &hf_lmp_filter[LMPF_VAL_ERROR_SUMMARY_RENEGOTIATE],
                     &hf_lmp_filter[LMPF_VAL_ERROR_SUMMARY_BAD_TE_LINK],
@@ -1398,7 +1398,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
             case 3:
                 {
-                static const int * error_flags[] = {
+                static int * const error_flags[] = {
                     &hf_lmp_filter[LMPF_VAL_ERROR_TRACE_UNSUPPORTED_TYPE],
                     &hf_lmp_filter[LMPF_VAL_ERROR_TRACE_INVALID_MSG],
                     &hf_lmp_filter[LMPF_VAL_ERROR_TRACE_UNKNOWN_CTYPE],
@@ -1416,7 +1416,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
             case 4:
                 {
-                static const int * error_flags[] = {
+                static int * const error_flags[] = {
                     &hf_lmp_filter[LMPF_VAL_ERROR_LAD_AREA_ID_MISMATCH],
                     &hf_lmp_filter[LMPF_VAL_ERROR_LAD_TCP_ID_MISMATCH],
                     &hf_lmp_filter[LMPF_VAL_ERROR_LAD_DA_DCN_MISMATCH],
@@ -1521,7 +1521,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             case 1:
                 {
 
-                static const int * sp_flags[] = {
+                static int * const sp_flags[] = {
                     &hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_SP_FLAGS_RSVP],
                     &hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_SP_FLAGS_LDP],
                     NULL
@@ -1544,14 +1544,14 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
             case 2:
                 {
-                static const int * tp_flags[] = {
+                static int * const tp_flags[] = {
                     &hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_TP_FLAGS_PATH_OVERHEAD],
                     &hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_TP_FLAGS_LINE_OVERHEAD],
                     &hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_TP_FLAGS_SECTION_OVERHEAD],
                     NULL
                 };
 
-                static const int * cct_flags[] = {
+                static int * const cct_flags[] = {
                     &hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_CCT_FLAGS_CC_SUPPORTED],
                     NULL
                 };
@@ -1638,13 +1638,13 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
             case 3:
                 {
-                static const int * t_flags[] = {
+                static int * const t_flags[] = {
                     &hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_NSA_TRANSPARENCY_FLAGS_SOH],
                     &hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_NSA_TRANSPARENCY_FLAGS_LOH],
                     NULL
                 };
 
-                static const int * tcm_flags[] = {
+                static int * const tcm_flags[] = {
                     &hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_NSA_TCM_FLAGS_TCM_SUPPORTED],
                     NULL
                 };
@@ -1668,7 +1668,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
             case 4:
                 {
-                static const int * diversity_flags[] = {
+                static int * const diversity_flags[] = {
                     &hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_NSA_NETWORK_DIVERSITY_FLAGS_NODE],
                     &hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_NSA_NETWORK_DIVERSITY_FLAGS_LINK],
                     &hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_NSA_NETWORK_DIVERSITY_FLAGS_SRLG],

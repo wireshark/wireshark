@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V15.8.0 (2019-12)
+-- 3GPP TS 36.331 V16.1.1 (2020-07)
 --
 EUTRA-InterNodeDefinitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -123,7 +123,7 @@ HandoverPreparationInformation-r8-IEs ::= SEQUENCE {
 HandoverPreparationInformation-v920-IEs	::= SEQUENCE {
 	ue-ConfigRelease-r9					ENUMERATED {
 										rel9, rel10, rel11, rel12, v10j0, v11e0,
-										v1280, rel13, ..., rel14, rel15}		OPTIONAL,	-- Cond HO2
+										v1280, rel13, ..., rel14, rel15, rel16}		OPTIONAL,	-- Cond HO2
 	nonCriticalExtension				HandoverPreparationInformation-v9d0-IEs		OPTIONAL
 }
 
@@ -147,7 +147,7 @@ HandoverPreparationInformation-v10j0-IEs ::= SEQUENCE {
 HandoverPreparationInformation-v10x0-IEs ::= SEQUENCE {
 	-- Following field is only for late non-critical extensions from REL-10 to REL-12
 	lateNonCriticalExtension			OCTET STRING					OPTIONAL,
-	nonCriticalExtension				HandoverPreparationInformation-v13c0-IEs 		OPTIONAL
+	nonCriticalExtension				HandoverPreparationInformation-v13c0-IEs		OPTIONAL
 }
 
 HandoverPreparationInformation-v13c0-IEs ::= SEQUENCE {
@@ -192,7 +192,12 @@ HandoverPreparationInformation-v1530-IEs ::= SEQUENCE {
 
 HandoverPreparationInformation-v1540-IEs ::= SEQUENCE {
 	sourceRB-ConfigIntra5GC-r15		OCTET STRING						OPTIONAL,	--Cond HO4
-	nonCriticalExtension				SEQUENCE {}						OPTIONAL
+	nonCriticalExtension				HandoverPreparationInformation-v1610-IEs	OPTIONAL
+}
+
+HandoverPreparationInformation-v1610-IEs ::= SEQUENCE {
+	as-Context-v1610			AS-Context-v1610						OPTIONAL,	--Cond HO5
+	nonCriticalExtension		SEQUENCE {}								OPTIONAL
 }
 
 
@@ -407,8 +412,13 @@ UERadioPagingInformation-r12-IEs ::= SEQUENCE {
 
 UERadioPagingInformation-v1310-IEs ::= SEQUENCE {
 	supportedBandListEUTRAForPaging-r13		SEQUENCE (SIZE (1..maxBands)) OF FreqBandIndicator-r11 OPTIONAL,
-	nonCriticalExtension					SEQUENCE {}								OPTIONAL
+	nonCriticalExtension					UERadioPagingInformation-v1610-IEs		OPTIONAL
 
+}
+
+UERadioPagingInformation-v1610-IEs ::= SEQUENCE {
+	accessStratumRelease-r16				ENUMERATED {true}						OPTIONAL,
+	nonCriticalExtension					SEQUENCE {}								OPTIONAL
 }
 
 
@@ -518,6 +528,17 @@ AS-Context-v1130 ::=					SEQUENCE {
 AS-Context-v1320 ::=					SEQUENCE {
 	wlanConnectionStatusReport-r13			OCTET STRING (CONTAINING
 											WLANConnectionStatusReport-r13)	OPTIONAL	-- Cond HO2
+}
+
+AS-Context-v1610 ::=					SEQUENCE {
+	sidelinkUEInformationNR-r16				OCTET STRING	OPTIONAL, -- Cond HO3
+	ueAssistanceInformationNR-r16				OCTET STRING	OPTIONAL, -- Cond HO3
+	configRestrictInfoDAPS-r16				ConfigRestrictInfoDAPS-r16		OPTIONAL -- Cond HO2
+}
+
+ConfigRestrictInfoDAPS-r16 ::=		SEQUENCE {
+	maxSCH-TB-BitsDL-r16					INTEGER (1..100)			OPTIONAL,	-- Cond HO2
+	maxSCH-TB-BitsUL-r16					INTEGER (1..100)			OPTIONAL	-- Cond HO2
 }
 
 

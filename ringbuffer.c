@@ -63,6 +63,7 @@ typedef struct _ringbuf_data {
   FILE         *pdh;
   char         *io_buffer;              /**< The IO buffer used to write to the file */
   gboolean      group_read_access;   /**< TRUE if files need to be opened with group read access */
+  FILE         *name_h;              /**< write names of completed files to this handle */
 } ringbuf_data;
 
 static ringbuf_data rb_data;
@@ -135,6 +136,7 @@ ringbuf_init(const char *capfile_name, guint num_files, gboolean group_read_acce
   rb_data.pdh = NULL;
   rb_data.io_buffer = NULL;
   rb_data.group_read_access = group_read_access;
+  rb_data.name_h = NULL;
 
   /* just to be sure ... */
   if (num_files <= RINGBUFFER_MAX_NUM_FILES) {
@@ -204,6 +206,34 @@ ringbuf_init(const char *capfile_name, guint num_files, gboolean group_read_acce
   return rb_data.fd;
 }
 
+/*
+ * Set name of file to which to print ringbuffer file names.
+ */
+gboolean
+ringbuf_set_print_name(gchar *name, int *err)
+{
+  if (rb_data.name_h != NULL) {
+    if (EOF == fclose(rb_data.name_h)) {
+      if (err != NULL) {
+        *err = errno;
+      }
+      return FALSE;
+    }
+  }
+  if (!strcmp(name, "-") || !strcmp(name, "stdout")) {
+    rb_data.name_h = stdout;
+  } else if (!strcmp(name, "stderr")) {
+    rb_data.name_h = stderr;
+  } else {
+    if (NULL == (rb_data.name_h = ws_fopen(name, "wt"))) {
+      if (err != NULL) {
+        *err = errno;
+      }
+      return FALSE;
+    }
+  }
+  return TRUE;
+}
 
 /*
  * Whether the ringbuf filenames are ready.
@@ -276,6 +306,11 @@ ringbuf_switch_file(FILE **pdh, gchar **save_file, int *save_file_fd, int *err)
   rb_data.pdh = NULL;
   rb_data.fd  = -1;
 
+  if (rb_data.name_h != NULL) {
+    fprintf(rb_data.name_h, "%s\n", ringbuf_current_filename());
+    fflush(rb_data.name_h);
+  }
+
   /* get the next file number and open it */
 
   rb_data.curr_file_num++ /* = next_file_num*/;
@@ -320,6 +355,15 @@ ringbuf_libpcap_dump_close(gchar **save_file, int *err)
     g_free(rb_data.io_buffer);
     rb_data.io_buffer = NULL;
 
+  }
+
+  if (rb_data.name_h != NULL) {
+    fprintf(rb_data.name_h, "%s\n", ringbuf_current_filename());
+    fflush(rb_data.name_h);
+
+    if (EOF == fclose(rb_data.name_h)) {
+      /* Can't really do much about this, can we? */
+    }
   }
 
   /* set the save file name to the current file */
@@ -386,6 +430,12 @@ ringbuf_error_cleanup(void)
   }
   g_free(rb_data.io_buffer);
   rb_data.io_buffer = NULL;
+
+  if (rb_data.name_h != NULL) {
+    if (EOF == fclose(rb_data.name_h)) {
+      /* Can't really do much about this, can we? */
+    }
+  }
 
   /* free the memory */
   ringbuf_free();

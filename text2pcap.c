@@ -895,6 +895,7 @@ write_file_header (void)
                                                                NULL,
                                                                "",
                                                                NULL,
+                                                               NULL,
                                                                pcap_link_type,
                                                                WTAP_MAX_PACKET_SIZE_STANDARD,
                                                                &bytes_written,

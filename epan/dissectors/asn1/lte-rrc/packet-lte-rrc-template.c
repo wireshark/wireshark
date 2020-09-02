@@ -1,7 +1,7 @@
 /* packet-lte-rrc-template.c
  * Routines for Evolved Universal Terrestrial Radio Access (E-UTRA);
  * Radio Resource Control (RRC) protocol specification
- * (3GPP TS 36.331 V15.8.0 Release 15) packet dissection
+ * (3GPP TS 36.331 V16.1.1 Release 16) packet dissection
  * Copyright 2008, Vincent Helfre
  * Copyright 2009-2020, Pascal Quantin
  *
@@ -298,9 +298,14 @@ static gint ett_lte_rrc_sib12_fragments = -1;
 static gint ett_lte_rrc_nr_SecondaryCellGroupConfig_r15 = -1;
 static gint ett_lte_rrc_nr_RadioBearerConfig_r15 = -1;
 static gint ett_lte_rrc_nr_RadioBearerConfigS_r15 = -1;
+static gint ett_lte_rrc_sl_ConfigDedicatedNR_r16 = -1;
+static gint ett_lte_rrc_nr_SecondaryCellGroupConfig = -1;
 static gint ett_lte_rrc_scg_ConfigResponseNR_r15 = -1;
+static gint ett_lte_rrc_scg_ConfigResponseNR_r16 = -1;
 static gint ett_lte_rrc_measResultSCG_r15 = -1;
+static gint ett_lte_rrc_measResultSCG_r16 = -1;
 static gint ett_lte_rrc_ul_DCCH_MessageNR_r15 = -1;
+static gint ett_lte_rrc_ul_DCCH_MessageNR_r16 = -1;
 static gint ett_lte_rrc_sourceRB_ConfigNR_r15 = -1;
 static gint ett_lte_rrc_sourceRB_ConfigSN_NR_r15 = -1;
 static gint ett_lte_rrc_sourceOtherConfigSN_NR_r15 = -1;
@@ -311,6 +316,12 @@ static gint ett_lte_rrc_nas_Container_r15 = -1;
 static gint ett_lte_rrc_sourceRB_ConfigIntra5GC_r15 = -1;
 static gint ett_lte_rrc_selectedbandCombinationInfoEN_DC_v1540 = -1;
 static gint ett_lte_rrc_requestedCapabilityCommon_r15 = -1;
+static gint ett_lte_rrc_sidelinkUEInformationNR_r16 = -1;
+static gint ett_lte_rrc_ueAssistanceInformationNR_r16 = -1;
+static gint ett_lte_rrc_cbr_ResultsNR_r16 = -1;
+static gint ett_lte_rrc_sl_ParameterNR_r16 = -1;
+static gint ett_lte_rrc_v2x_SupportedBandCombinationListNR_r16 = -1;
+static gint ett_lte_rrc_v2x_BandParametersNR_r16 = -1;
 
 static expert_field ei_lte_rrc_number_pages_le15 = EI_INIT;
 static expert_field ei_lte_rrc_si_info_value_changed = EI_INIT;
@@ -364,8 +375,8 @@ static const fragment_items lte_rrc_sib12_frag_items = {
 };
 
 /* Forward declarations */
-static int dissect_DL_DCCH_Message_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 static int dissect_UECapabilityInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
+static int dissect_RRCConnectionReconfiguration_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_1_val = {
   "Intra-subframe freq hopping for PUSCH scheduled by UL grant; DCI format 3a; Aperiodic CQI/PMI/RI report on PUSCH: Mode 2-0 & 2-2 - Supported",
@@ -2486,6 +2497,12 @@ static const value_string lte_rrc_excessDelay_r13_vals[] = {
 static value_string_ext lte_rrc_excessDelay_r13_vals_ext = VALUE_STRING_EXT_INIT(lte_rrc_excessDelay_r13_vals);
 
 static void
+lte_rrc_averageDelay_r16_fmt(gchar *s, guint32 v)
+{
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fms (%u)", (float)v/10, v);
+}
+
+static void
 lte_rrc_subframeBoundaryOffsetResult_r13_fmt(gchar *s, guint32 v)
 {
   if (v == 0) {
@@ -2702,7 +2719,7 @@ static lte_rrc_private_data_t* lte_rrc_get_private_data(asn1_ctx_t *actx)
   }
   else {
     lte_rrc_private_data_t* new_struct =
-      (lte_rrc_private_data_t*)wmem_alloc0(wmem_packet_scope(), sizeof(lte_rrc_private_data_t));
+      wmem_new0(wmem_packet_scope(), lte_rrc_private_data_t);
     actx->private_data = new_struct;
     return new_struct;
   }
@@ -3207,7 +3224,7 @@ dissect_lte_rrc_DL_DCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
   ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, ENC_NA);
   lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
-  dissect_DL_DCCH_Message_PDU(tvb, pinfo, lte_rrc_tree, NULL);
+  dissect_lte_rrc_DL_DCCH_Message_PDU(tvb, pinfo, lte_rrc_tree, NULL);
   return tvb_captured_length(tvb);
 }
 
@@ -3237,7 +3254,7 @@ dissect_lte_rrc_UL_DCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
   ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, ENC_NA);
   lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
-  dissect_UL_DCCH_Message_PDU(tvb, pinfo, lte_rrc_tree, NULL);
+  dissect_lte_rrc_UL_DCCH_Message_PDU(tvb, pinfo, lte_rrc_tree, NULL);
   return tvb_captured_length(tvb);
 }
 
@@ -4342,9 +4359,14 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_nr_SecondaryCellGroupConfig_r15,
     &ett_lte_rrc_nr_RadioBearerConfig_r15,
     &ett_lte_rrc_nr_RadioBearerConfigS_r15,
+    &ett_lte_rrc_sl_ConfigDedicatedNR_r16,
+    &ett_lte_rrc_nr_SecondaryCellGroupConfig,
     &ett_lte_rrc_scg_ConfigResponseNR_r15,
+    &ett_lte_rrc_scg_ConfigResponseNR_r16,
     &ett_lte_rrc_measResultSCG_r15,
+    &ett_lte_rrc_measResultSCG_r16,
     &ett_lte_rrc_ul_DCCH_MessageNR_r15,
+    &ett_lte_rrc_ul_DCCH_MessageNR_r16,
     &ett_lte_rrc_sourceRB_ConfigNR_r15,
     &ett_lte_rrc_sourceRB_ConfigSN_NR_r15,
     &ett_lte_rrc_sourceOtherConfigSN_NR_r15,
@@ -4354,7 +4376,13 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_nas_Container_r15,
     &ett_lte_rrc_sourceRB_ConfigIntra5GC_r15,
     &ett_lte_rrc_selectedbandCombinationInfoEN_DC_v1540,
-    &ett_lte_rrc_requestedCapabilityCommon_r15
+    &ett_lte_rrc_requestedCapabilityCommon_r15,
+    &ett_lte_rrc_sidelinkUEInformationNR_r16,
+    &ett_lte_rrc_ueAssistanceInformationNR_r16,
+    &ett_lte_rrc_cbr_ResultsNR_r16,
+    &ett_lte_rrc_sl_ParameterNR_r16,
+    &ett_lte_rrc_v2x_SupportedBandCombinationListNR_r16,
+    &ett_lte_rrc_v2x_BandParametersNR_r16
   };
 
   static ei_register_info ei[] = {

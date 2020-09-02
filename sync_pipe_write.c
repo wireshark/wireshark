@@ -84,8 +84,7 @@ void
 sync_pipe_errmsg_to_parent(int pipe_fd, const char *error_msg,
                            const char *secondary_error_msg)
 {
-
-    /* first write a "master header" with the length of the two messages plus their "slave headers" */
+    /* Write a message header containing the length of the two messages followed by the primary and secondary error messagess */
     pipe_write_header(pipe_fd, SP_ERROR_MSG, (int) (strlen(error_msg) + 1 + 4 + strlen(secondary_error_msg) + 1 + 4));
     pipe_write_block(pipe_fd, SP_ERROR_MSG, error_msg);
     pipe_write_block(pipe_fd, SP_ERROR_MSG, secondary_error_msg);

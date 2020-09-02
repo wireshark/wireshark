@@ -240,7 +240,7 @@ dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   guint vlan_nested_count;
   int hf1, hf2;
 
-  int * flags[] = {
+  int * const flags[] = {
       &hf1,
       &hf2,
       &hfi_vlan_id.id,
@@ -262,12 +262,12 @@ dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   vlan_tree = NULL;
 
   ti = proto_tree_add_item(tree, hfi_vlan, tvb, 0, 4, ENC_NA);
-  vlan_nested_count = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_vlan, 0));
+  vlan_nested_count = p_get_proto_depth(pinfo, proto_vlan);
   if (++vlan_nested_count > VLAN_MAX_NESTED_TAGS) {
     expert_add_info(pinfo, ti, &ei_vlan_too_many_tags);
     return tvb_captured_length(tvb);
   }
-  p_add_proto_data(pinfo->pool, pinfo, proto_vlan, 0, GUINT_TO_POINTER(vlan_nested_count));
+  p_set_proto_depth(pinfo, proto_vlan, vlan_nested_count);
 
   if (tree) {
 
@@ -312,7 +312,7 @@ dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
       }
     }
 
-    proto_tree_add_bitmask_list(vlan_tree, tvb, 0, 2, (const int **)flags, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask_list(vlan_tree, tvb, 0, 2, flags, ENC_BIG_ENDIAN);
 
     if (gbl_resolv_flags.vlan_name) {
       item = proto_tree_add_string(vlan_tree, &hfi_vlan_id_name, tvb, 0, 2,
@@ -350,10 +350,11 @@ dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   } else {
     ethertype_data_t ethertype_data;
 
+    proto_tree_add_uint(vlan_tree, &hfi_vlan_etype, tvb, 2, 2, encap_proto);
+
     ethertype_data.etype = encap_proto;
-    ethertype_data.offset_after_ethertype = 4;
+    ethertype_data.payload_offset = 4;
     ethertype_data.fh_tree = vlan_tree;
-    ethertype_data.etype_id = hfi_vlan_etype.id;
     ethertype_data.trailer_id = hfi_vlan_trailer.id;
     ethertype_data.fcs_len = 0;
 

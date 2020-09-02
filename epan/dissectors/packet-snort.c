@@ -627,7 +627,7 @@ static gboolean snort_fast_output(GIOChannel *source, GIOCondition condition, gp
         g_free(old_buf);
     }
 
-    if (condition) {
+    if ((condition == G_IO_ERR) || (condition == G_IO_HUP) || (condition == G_IO_NVAL)) {
         /* Will report errors (hung-up, or error) */
 
         /* g_print("snort_fast_output() cond: (h:%d,e:%d,r:%d)\n",
@@ -898,24 +898,20 @@ static void snort_show_alert(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
             unsigned int converted_content_length = 0;
             int content_hf_item;
             char *content_text_template;
-            gboolean attempt_match = FALSE;
 
             /* Choose type of content field to add */
             switch (rule->contents[n].content_type) {
                 case Content:
                     content_hf_item = hf_snort_content;
                     content_text_template = "Content: \"%s\"";
-                    attempt_match = TRUE;
                     break;
                 case UriContent:
                     content_hf_item = hf_snort_uricontent;
                     content_text_template = "Uricontent: \"%s\"";
-                    attempt_match = TRUE;
                     break;
                 case Pcre:
                     content_hf_item = hf_snort_pcre;
                     content_text_template = "Pcre: \"%s\"";
-                    attempt_match = TRUE;
                     break;
                 default:
                     continue;
@@ -923,7 +919,7 @@ static void snort_show_alert(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
 
             /* Will only try to look for content in packet ourselves if not
                a negated content entry (i.e. beginning with '!') */
-            if (attempt_match && !rule->contents[n].negation) {
+            if (!rule->contents[n].negation) {
                 /* Look up offset of match. N.B. would only expect to see on first content... */
                 guint distance_to_add = 0;
 
@@ -966,10 +962,6 @@ static void snort_show_alert(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
                 content_start_match = content_last_match_end;
             }
 
-            if (!attempt_match) {
-                proto_item_append_text(ti, " (no match attempt made)");
-            }
-
             /* Show (only as text) attributes of content field */
             if (rule->contents[n].fastpattern) {
                 proto_item_append_text(ti, " (fast_pattern)");
@@ -1010,7 +1002,7 @@ static void snort_show_alert(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
                 proto_item_append_text(ti, " (http_user_agent)");
             }
 
-            if (attempt_match && !rule->contents[n].negation && !match_found) {
+            if (!rule->contents[n].negation && !match_found) {
                 /* Useful for debugging, may also happen when Snort is reassembling.. */
                 /* TODO: not sure why, but PCREs might not be found first time through, but will be
                  * found later, with the result that there will be 'not located' expert warnings,
@@ -1200,7 +1192,10 @@ snort_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
                 current_session.working = FALSE;
                 return 0;
             }
-            wtap_dump_flush(current_session.pdh);
+            if (!wtap_dump_flush(current_session.pdh, &write_err)) {
+                current_session.working = FALSE;
+                return 0;
+            }
 
             /* Give the io channel a chance to deliver alerts.
                TODO: g_main_context_iteration(NULL, FALSE); causes crashes sometimes when Qt events get to execute.. */

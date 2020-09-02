@@ -19,6 +19,11 @@
 void proto_register_classicstun(void);
 void proto_reg_handoff_classicstun(void);
 
+/* heuristic subdissectors */
+static heur_dissector_list_t heur_subdissector_list;
+
+static dissector_handle_t data_handle;
+
 /* Initialize the protocol and registered fields */
 static int proto_classicstun                          = -1;
 
@@ -456,6 +461,15 @@ dissect_classicstun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 
                     case DATA:
                         proto_tree_add_item(att_tree, classicstun_att_data, tvb, offset, att_length, ENC_NA);
+
+                        tvbuff_t *next_tvb;
+                        heur_dtbl_entry_t *hdtbl_entry;
+                        next_tvb = tvb_new_subset_length(tvb, offset, att_length);
+
+                        if (!dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, att_tree, &hdtbl_entry, NULL)) {
+                            call_dissector_only(data_handle, next_tvb, pinfo, att_tree, NULL);
+                        }
+
                         break;
 
                     case UNKNOWN_ATTRIBUTES:
@@ -679,6 +693,9 @@ proto_register_classicstun(void)
     proto_register_field_array(proto_classicstun, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
+    /* heuristic subdissectors (used for the DATA field) */
+    heur_subdissector_list = register_heur_dissector_list("classicstun", proto_classicstun);
+
     register_dissector("classicstun", dissect_classicstun, proto_classicstun);
     register_dissector("classicstun-heur", dissect_classicstun_heur, proto_classicstun);
 }
@@ -697,6 +714,8 @@ proto_reg_handoff_classicstun(void)
 #endif
     heur_dissector_add("udp", dissect_classicstun_heur, "Classic STUN over UDP", "classicstun_udp", proto_classicstun, HEURISTIC_ENABLE);
     heur_dissector_add("tcp", dissect_classicstun_heur, "Classic STUN over TCP", "classicstun_tcp", proto_classicstun, HEURISTIC_ENABLE);
+
+    data_handle = find_dissector("data");
 }
 
 /*

@@ -18,12 +18,12 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  *Ref:
- * http://www.3gpp2.org/Public_html/specs/A.S0009-C_v3.0_100621.pdf
- * http://www.3gpp2.org/Public_html/specs/A.S0017-D_v1.0_070624.pdf (IOS 5.1)
- * http://www.3gpp2.org/public_html/specs/A.S0017-D_v2.0_090825.pdf
- * http://www.3gpp2.org/public_html/specs/A.S0017-D%20v3.0_Interoperability%20Specification%20%28IOS%29%20for%20cdma2000%20Access%20Network%20Interfaces%20-%20Part%207%20%28A10%20and%20A11%20Interfaces%29_20110701.pdf
- * http://www.3gpp2.org/Public_html/specs/A00-20110419-002Er0%20A.S0008-C%20v4.0%20HRPD%20IOS-Pub_20110513.pdf
- * http://www.3gpp2.org/Public_html/specs/A.S0022-0_v2.0_100426.pdf
+ * https://www.3gpp2.org/Public_html/Specs/A.S0009-C_v3.0_100621.pdf
+ * https://www.3gpp2.org/Public_html/Specs/A.S0017-D_v1.0_070624.pdf (IOS 5.1)
+ * https://www.3gpp2.org/Public_html/Specs/A.S0017-D_v2.0_090825.pdf
+ * https://www.3gpp2.org/Public_html/Specs/A.S0017-D%20v3.0_Interoperability%20Specification%20%28IOS%29%20for%20cdma2000%20Access%20Network%20Interfaces%20-%20Part%207%20%28A10%20and%20A11%20Interfaces%29_20110701.pdf
+ * https://www.3gpp2.org/Public_html/Specs/A00-20110419-002Er0%20A.S0008-C%20v4.0%20HRPD%20IOS-Pub_20110513.pdf
+ * https://www.3gpp2.org/Public_html/Specs/A.S0022-0_v2.0_100426.pdf
  */
 
 #include "config.h"
@@ -535,7 +535,7 @@ static const value_string a11_ses_msid_type_vals[] =
     { 0, NULL },
 };
 
-static const int * a11_flags[] = {
+static int * const a11_flags[] = {
     &hf_a11_s,
     &hf_a11_b,
     &hf_a11_d,

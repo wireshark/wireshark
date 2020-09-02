@@ -113,7 +113,7 @@ typedef enum {
    A file may have errors that affect the size blocks. Therefore, we
    read the entire file and require that we have much more valid pairs
    than errors. */
-static gboolean detect_camins_file(FILE_T fh)
+static wtap_open_return_val detect_camins_file(FILE_T fh)
 {
     int      err;
     gchar   *err_info;
@@ -123,9 +123,6 @@ static gboolean detect_camins_file(FILE_T fh)
     guint32  valid_pairs = 0, invalid_pairs = 0;
 
     while (wtap_read_bytes(fh, block, sizeof(block), &err, &err_info)) {
-        if (err == WTAP_ERR_SHORT_READ)
-            break;
-
        if (search_block != 0) {
            /* We're searching for a matching block to complete the pair. */
 
@@ -168,12 +165,17 @@ static gboolean detect_camins_file(FILE_T fh)
         }
     }
 
+    if (err != WTAP_ERR_SHORT_READ) {
+        /* A real read error. */
+        return WTAP_OPEN_ERROR;
+    }
+
     /* For valid_pairs == invalid_pairs == 0, this isn't a camins file.
        Don't change > into >= */
     if (valid_pairs > 10 * invalid_pairs)
-        return TRUE;
+        return WTAP_OPEN_MINE;
 
-    return FALSE;
+    return WTAP_OPEN_NOT_MINE;
 }
 
 
@@ -371,6 +373,7 @@ camins_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
     offset += bytes_read;
 
     rec->rec_type = REC_TYPE_PACKET;
+    rec->presence_flags = 0; /* we may or may not have a time stamp */
     rec->rec_header.packet_header.pkt_encap = WTAP_ENCAP_DVBCI;
     if (time_us) {
         rec->presence_flags = WTAP_HAS_TS;
@@ -408,8 +411,13 @@ camins_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec, Buffer *buf,
 
 wtap_open_return_val camins_open(wtap *wth, int *err, gchar **err_info _U_)
 {
-    if (!detect_camins_file(wth->fh))
-        return WTAP_OPEN_NOT_MINE;   /* no CAM Inspector file */
+    wtap_open_return_val status;
+
+    status = detect_camins_file(wth->fh);
+    if (status != WTAP_OPEN_MINE) {
+        /* A read error or a failed heuristic. */
+        return status;
+    }
 
     /* rewind the fh so we re-read from the beginning */
     if (-1 == file_seek(wth->fh, 0, SEEK_SET, err))
@@ -428,6 +436,15 @@ wtap_open_return_val camins_open(wtap *wth, int *err, gchar **err_info _U_)
    wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_CAMINS;
 
    *err = 0;
+
+   /*
+    * Add an IDB; we don't know how many interfaces were
+    * involved, so we just say one interface, about which
+    * we only know the link-layer type, snapshot length,
+    * and time stamp resolution.
+    */
+   wtap_add_generated_idb(wth);
+
    return WTAP_OPEN_MINE;
 }
 

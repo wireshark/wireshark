@@ -1,7 +1,7 @@
 /* packet-m2ua.c
  * Routines for MTP2 User Adaptation Layer dissection
  * It is hopefully (needs testing) compliant to
- * http://www.ietf.org/rfc/rfc3331.txt
+ * https://tools.ietf.org/html/rfc3331
  * To do: - provide better handling of length parameters
  *
  * Copyright 2002, Michael Tuexen <tuexen [AT] fh-muenster.de>

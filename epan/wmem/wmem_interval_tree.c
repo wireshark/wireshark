@@ -119,7 +119,7 @@ void
 wmem_itree_insert(wmem_itree_t *tree, const guint64 low, const guint64 high, void *data)
 {
     wmem_tree_node_t *node;
-    wmem_range_t *range = (wmem_range_t *)wmem_new(tree->allocator, wmem_range_t);
+    wmem_range_t *range = (wmem_range_t *)wmem_new(tree->data_allocator, wmem_range_t);
 
     g_assert(low <= high);
     range->low = low;

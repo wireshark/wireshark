@@ -770,7 +770,7 @@ proto_register_v150fw(void)
     };
 
     /* register protocol name & description */
-    proto_v150fw = proto_register_protocol("v150fw State Signaling Event", "v150fw", "v150fw");
+    proto_v150fw = proto_register_protocol("V.150.1 State Signaling Event", "V.150.1 SSE", "v150fw");
 
     /* required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_v150fw, hf, array_length(hf));

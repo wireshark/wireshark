@@ -991,7 +991,7 @@ static int dissect_lbtrm_sm(tvbuff_t * tvb, int offset, packet_info * pinfo, pro
 {
     proto_tree * sm_tree = NULL;
     proto_item * sm_item = NULL;
-    static const int * flags[] =
+    static int * const flags[] =
     {
         &hf_lbtrm_sm_flags_fec_type_ucast_naks,
         NULL
@@ -1024,7 +1024,7 @@ static int dissect_lbtrm_data(tvbuff_t * tvb, int offset, packet_info * pinfo, p
 {
     proto_tree * data_tree = NULL;
     proto_item * data_item = NULL;
-    static const int * flags[] =
+    static int * const flags[] =
     {
         &hf_lbtrm_data_flags_fec_type_ucast_naks,
         &hf_lbtrm_data_flags_fec_type_rx,

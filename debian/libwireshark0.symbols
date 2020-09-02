@@ -137,6 +137,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  color_filters_clone@Base 2.1.0
  color_filters_colorize_packet@Base 2.1.0
  color_filters_export@Base 2.1.0
+ color_filters_get_tmp@Base 3.3.0
  color_filters_import@Base 2.1.0
  color_filters_init@Base 2.1.0
  color_filters_prime_edt@Base 2.1.0
@@ -244,7 +245,9 @@ libwireshark.so.0 libwireshark0 #MINVER#
  decode_as_default_reset@Base 1.12.0~rc1
  decode_as_list@Base 1.12.0~rc1
  decode_bits_in_field@Base 1.9.1
+ decode_bits_in_field_long@Base 3.3.0
  decode_build_reset_list@Base 2.3.0
+ decode_cleanup@Base 3.3.0
  decode_clear_all@Base 2.3.0
  decode_dcerpc_add_show_list@Base 1.12.0~rc1
  decode_dcerpc_reset_all@Base 1.12.0~rc1
@@ -661,6 +664,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  format_size_wmem@Base 3.3.0
  format_text@Base 1.9.1
  format_text_chr@Base 1.12.0~rc1
+ format_text_string@Base 3.3.0
  format_text_wsp@Base 1.9.1
  format_uri@Base 1.9.1
  fragment_add@Base 1.9.1
@@ -817,7 +821,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  get_ipv6_hash_table@Base 1.12.0~rc1
  get_ipxnet_hash_table@Base 1.12.0~rc1
  get_iso_646_string@Base 3.1.0
- get_key_string@Base 1.9.1
  get_mac_lte_proto_data@Base 1.9.1
  get_mac_nr_proto_data@Base 2.5.2
  get_manuf_hashtable@Base 1.12.0~rc1
@@ -990,9 +993,13 @@ libwireshark.so.0 libwireshark0 #MINVER#
  output_fields_valid@Base 1.99.0
  p_add_proto_data@Base 1.9.1
  p_get_proto_data@Base 1.9.1
+ p_get_proto_depth@Base 3.3.0
  p_remove_proto_data@Base 1.12.0~rc1
+ p_set_proto_depth@Base 3.3.0
  parse_key_string@Base 1.9.1
  plugin_if_apply_filter@Base 1.99.8
+ plugin_if_get_capture_file@Base 3.3.0
+ plugin_if_get_frame_data@Base 3.3.0
  plugin_if_get_ws_info@Base 2.1.0
  plugin_if_goto_frame@Base 2.0.0
  plugin_if_register_gui_cb@Base 1.99.8
@@ -1142,11 +1149,13 @@ libwireshark.so.0 libwireshark0 #MINVER#
  proto_item_add_subtree@Base 1.9.1
  proto_item_append_text@Base 1.9.1
  proto_item_fill_label@Base 1.9.1
+ proto_item_get_display_repr@Base 3.3.0
  proto_item_get_len@Base 1.9.1
  proto_item_get_parent@Base 1.9.1
  proto_item_get_parent_nth@Base 1.9.1
  proto_item_get_subtree@Base 1.9.1
  proto_item_prepend_text@Base 1.9.1
+ proto_item_set_bits_offset_len@Base 3.3.0
  proto_item_set_end@Base 1.9.1
  proto_item_set_len@Base 1.9.1
  proto_item_set_text@Base 1.9.1
@@ -1575,6 +1584,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tfs_acknowledged_not_acknowledged@Base 1.99.2
  tfs_activated_deactivated@Base 2.5.1
  tfs_active_inactive@Base 1.9.1
+ tfs_add_drop@Base 3.3.0
  tfs_allocated_by_receiver_sender@Base 1.99.1
  tfs_allow_block@Base 1.9.1
  tfs_allowed_not_allowed@Base 1.9.1
@@ -1603,6 +1613,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tfs_fail_success@Base 1.9.1
  tfs_found_not_found@Base 1.9.1
  tfs_full_half@Base 1.99.1
+ tfs_get_string@Base 3.3.0
  tfs_group_unique_name@Base 1.9.1
  tfs_high_low@Base 1.9.1
  tfs_high_normal@Base 2.5.1
@@ -1613,6 +1624,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tfs_low_normal@Base 2.5.1
  tfs_more_nomore@Base 1.9.1
  tfs_needed_not_needed@Base 2.9.1
+ tfs_no_extension_extension@Base 3.3.0
  tfs_no_yes@Base 1.9.1
  tfs_not_allowed_allowed@Base 1.9.1
  tfs_not_supported_supported@Base 2.9.1
@@ -1647,6 +1659,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tfs_up_down@Base 2.5.0
  tfs_uplink_downlink@Base 2.5.0
  tfs_used_notused@Base 1.9.1
+ tfs_user_provider@Base 3.3.0
  tfs_valid_invalid@Base 1.9.1
  tfs_valid_not_valid@Base 1.12.0~rc1
  tfs_yes_no@Base 1.9.1
@@ -1716,11 +1729,13 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tvb_free@Base 1.9.1
  tvb_free_chain@Base 1.12.0~rc1
  tvb_get_ascii_7bits_string@Base 1.12.0~rc1
+ tvb_get_bcd_string@Base 3.3.0
  tvb_get_bits16@Base 1.9.1
  tvb_get_bits32@Base 1.9.1
  tvb_get_bits64@Base 1.9.1
  tvb_get_bits8@Base 1.9.1
  tvb_get_bits@Base 1.9.1
+ tvb_get_bits_array@Base 3.3.0
  tvb_get_const_stringz@Base 1.9.1
  tvb_get_ds_tvb@Base 1.9.1
  tvb_get_ether_name@Base 1.99.3
@@ -1890,6 +1905,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  units_byte_bytes@Base 2.3.0
  units_byte_bytespsecond@Base 2.5.0
  units_calorie@Base 2.9.0
+ units_centibels@Base 3.3.0
  units_day_days@Base 2.3.0
  units_dbi@Base 2.3.0
  units_dbm@Base 2.3.0
@@ -1972,6 +1988,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  wmem_array_bzero@Base 2.1.0
  wmem_array_get_count@Base 1.12.0~rc1
  wmem_array_get_raw@Base 1.12.0~rc1
+ wmem_array_grow@Base 3.3.0
  wmem_array_index@Base 1.12.0~rc1
  wmem_array_new@Base 1.12.0~rc1
  wmem_array_set_null_terminator@Base 2.1.0
@@ -1981,6 +1998,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  wmem_ascii_strdown@Base 1.12.0~rc1
  wmem_cleanup@Base 1.12.0~rc1
  wmem_destroy_allocator@Base 1.9.1
+ wmem_destroy_array@Base 3.3.0
  wmem_destroy_list@Base 1.12.0~rc1
  wmem_double_hash@Base 1.12.0~rc1
  wmem_epan_scope@Base 1.9.1

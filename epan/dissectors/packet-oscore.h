@@ -31,12 +31,14 @@ typedef struct oscore_context {
     /* Pre-Shared Parameters as Strings */
     gchar               *master_secret_prefs;
     gchar               *master_salt_prefs;
+    gchar               *id_context_prefs;
     gchar               *sender_id_prefs;
     gchar               *recipient_id_prefs;
     cose_aead_alg_t     algorithm;
     /* Pre-Shared Parameters as Byte Arrays */
     GByteArray          *master_secret;
     GByteArray          *master_salt;
+    GByteArray          *id_context;
     GByteArray          *sender_id;
     GByteArray          *recipient_id;
     /* Derived Parameters */
@@ -53,7 +55,8 @@ typedef struct oscore_info {
     guint8              kid_context_len;
     guint8              *piv;
     guint8              piv_len;
-    gboolean            piv_in_response;
+    guint8              *request_piv;
+    guint8              request_piv_len;
     gboolean            response;
 } oscore_info_t;
 

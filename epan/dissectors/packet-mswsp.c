@@ -3669,7 +3669,7 @@ static const value_string RT_VALS[] =  {
 	{0, NULL}
 };
 
-#define EP_ALLOC(T) (T*)wmem_alloc(wmem_packet_scope(), sizeof(T))
+#define EP_ALLOC(T) wmem_new(wmem_packet_scope(), T)
 
 static int parse_rType(tvbuff_t *tvb, int offset, proto_tree *tree, enum rType *rtype, const char **str)
 {
@@ -4868,7 +4868,7 @@ int parse_CCategorizationSpec(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 	return offset;
 }
 
-static const int *mswsp_bool_options[] = {
+static int * const mswsp_bool_options[] = {
 	&hf_mswsp_bool_options_cursor,
 	&hf_mswsp_bool_options_async,
 	&hf_mswsp_bool_options_firstrows,
@@ -6451,7 +6451,7 @@ proto_register_mswsp(void)
 		{
 			&hf_mswsp_bool_options_async,
 			{
-				"eAsynchronous", "mswsp.CPMCreateQuery.RowSetProperties.uBooleanOptions.eAsyncronous",
+				"eAsynchronous", "mswsp.CPMCreateQuery.RowSetProperties.uBooleanOptions.eAsynchronous",
 				FT_BOOLEAN, 32, NULL, eAsynchronous, "The client will not wait for execution completion", HFILL
 			}
 		},
@@ -6584,7 +6584,7 @@ proto_register_mswsp(void)
 		{
 			&hf_mswsp_cscort_individual,
 			{
-				"inidvidual", "mswsp.csort.individual",
+				"individual", "mswsp.csort.individual",
 				FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL
 			}
 		},
@@ -6605,14 +6605,14 @@ proto_register_mswsp(void)
 		{
 			&hf_mswsp_ctablecolumn_aggused,
 			{
-				"AggreagateUsed", "mswsp.ctablecolumn.aggused",
+				"AggregateUsed", "mswsp.ctablecolumn.aggused",
 				FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL
 			}
 		},
 		{
 			&hf_mswsp_ctablecolumn_aggtype,
 			{
-				"AggreagateType", "mswsp.ctablecolumn.aggtype",
+				"AggregateType", "mswsp.ctablecolumn.aggtype",
 				FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
 			}
 		},

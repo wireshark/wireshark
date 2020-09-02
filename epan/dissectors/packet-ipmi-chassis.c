@@ -312,7 +312,7 @@ static const struct true_false_string tfs_09_valid = {
 static void
 bootopt_00(tvbuff_t *tvb, proto_tree *tree)
 {
-	static const int *byte1[] = { &hf_ipmi_chs_bo00_sip, NULL };
+	static int * const byte1[] = { &hf_ipmi_chs_bo00_sip, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL, ett_ipmi_chs_bo00_byte1, byte1,
 			ENC_LITTLE_ENDIAN, 0);
@@ -327,7 +327,7 @@ bootopt_01(tvbuff_t *tvb, proto_tree *tree)
 static void
 bootopt_02(tvbuff_t *tvb, proto_tree *tree)
 {
-	static const int *byte1[] = { &hf_ipmi_chs_bo02_request, &hf_ipmi_chs_bo02_discovered, NULL };
+	static int * const byte1[] = { &hf_ipmi_chs_bo02_request, &hf_ipmi_chs_bo02_discovered, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, "Service partition scan: ",
 			"Not discovered", ett_ipmi_chs_bo02_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
@@ -336,7 +336,7 @@ bootopt_02(tvbuff_t *tvb, proto_tree *tree)
 static void
 bootopt_03(tvbuff_t *tvb, proto_tree *tree)
 {
-	static const int *byte1[] = { &hf_ipmi_chs_bo03_pef, &hf_ipmi_chs_bo03_cctrl_timeout,
+	static int * const byte1[] = { &hf_ipmi_chs_bo03_pef, &hf_ipmi_chs_bo03_cctrl_timeout,
 		&hf_ipmi_chs_bo03_wd_timeout, &hf_ipmi_chs_bo03_softreset, &hf_ipmi_chs_bo03_powerup, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, "BMC boot flag valid, don't clear on: ",
@@ -346,7 +346,7 @@ bootopt_03(tvbuff_t *tvb, proto_tree *tree)
 static void
 bootopt_04(tvbuff_t *tvb, proto_tree *tree)
 {
-	static const int *byte2[] = { &hf_ipmi_chs_bo04_bootinit_ack_oem, &hf_ipmi_chs_bo04_bootinit_ack_sms,
+	static int * const byte2[] = { &hf_ipmi_chs_bo04_bootinit_ack_oem, &hf_ipmi_chs_bo04_bootinit_ack_sms,
 		&hf_ipmi_chs_bo04_bootinit_ack_os, &hf_ipmi_chs_bo04_bootinit_ack_osloader,
 		&hf_ipmi_chs_bo04_bootinit_ack_bios, NULL };
 
@@ -358,14 +358,14 @@ bootopt_04(tvbuff_t *tvb, proto_tree *tree)
 static void
 bootopt_05(tvbuff_t *tvb, proto_tree *tree)
 {
-	static const int *byte1[] = { &hf_ipmi_chs_bo05_bootflags_valid,
+	static int * const byte1[] = { &hf_ipmi_chs_bo05_bootflags_valid,
 		&hf_ipmi_chs_bo05_permanent, &hf_ipmi_chs_bo05_boottype, NULL };
-	static const int *byte2[] = { &hf_ipmi_chs_bo05_cmos_clear, &hf_ipmi_chs_bo05_lock_kbd,
+	static int * const byte2[] = { &hf_ipmi_chs_bo05_cmos_clear, &hf_ipmi_chs_bo05_lock_kbd,
 		&hf_ipmi_chs_bo05_bootdev, &hf_ipmi_chs_bo05_screen_blank, &hf_ipmi_chs_bo05_lockout_reset, NULL };
-	static const int *byte3[] = { &hf_ipmi_chs_bo05_lockout_poweroff, &hf_ipmi_chs_bo05_bios_verbosity,
+	static int * const byte3[] = { &hf_ipmi_chs_bo05_lockout_poweroff, &hf_ipmi_chs_bo05_bios_verbosity,
 		&hf_ipmi_chs_bo05_progress_traps, &hf_ipmi_chs_bo05_pwd_bypass, &hf_ipmi_chs_bo05_lock_sleep,
 		&hf_ipmi_chs_bo05_console_redirection, NULL };
-	static const int *byte4[] = { &hf_ipmi_chs_bo05_bios_shared_override,
+	static int * const byte4[] = { &hf_ipmi_chs_bo05_bios_shared_override,
 		&hf_ipmi_chs_bo05_bios_muxctl_override, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL, ett_ipmi_chs_bo05_byte1,
@@ -382,7 +382,7 @@ bootopt_05(tvbuff_t *tvb, proto_tree *tree)
 static void
 bootopt_06(tvbuff_t *tvb, proto_tree *tree)
 {
-	static const int *byte1[] = { &hf_ipmi_chs_bo06_chan_num, NULL };
+	static int * const byte1[] = { &hf_ipmi_chs_bo06_chan_num, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
 			ett_ipmi_chs_bo06_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
@@ -418,7 +418,7 @@ static struct {
 static void
 rs00(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const int *byte1[] = { &hf_ipmi_chs_00_capflags_ppi, &hf_ipmi_chs_00_capflags_di,
+	static int * const byte1[] = { &hf_ipmi_chs_00_capflags_ppi, &hf_ipmi_chs_00_capflags_di,
 		&hf_ipmi_chs_00_capflags_fpl, &hf_ipmi_chs_00_capflags_is, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, "Capabilities: ", "None",
@@ -438,17 +438,17 @@ rs00(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rs01(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const int *byte1[] = { &hf_ipmi_chs_01_pwr_state_policy,
+	static int * const byte1[] = { &hf_ipmi_chs_01_pwr_state_policy,
 		&hf_ipmi_chs_01_pwr_state_ctl_fault, &hf_ipmi_chs_01_pwr_state_fault,
 		&hf_ipmi_chs_01_pwr_state_ilock, &hf_ipmi_chs_01_pwr_state_overload,
 		&hf_ipmi_chs_01_pwr_state_powered, NULL };
-	static const int *byte2[] = { &hf_ipmi_chs_01_last_event_via_ipmi,
+	static int * const byte2[] = { &hf_ipmi_chs_01_last_event_via_ipmi,
 		&hf_ipmi_chs_01_last_event_down_by_fault, &hf_ipmi_chs_01_last_event_interlock,
 		&hf_ipmi_chs_01_last_event_overload, &hf_ipmi_chs_01_last_event_ac_failed, NULL };
-	static const int *byte3[] = { &hf_ipmi_chs_01_misc_identsupp, &hf_ipmi_chs_01_misc_identstate,
+	static int * const byte3[] = { &hf_ipmi_chs_01_misc_identsupp, &hf_ipmi_chs_01_misc_identstate,
 		&hf_ipmi_chs_01_misc_fan, &hf_ipmi_chs_01_misc_drive, &hf_ipmi_chs_01_misc_fpl_active,
 		&hf_ipmi_chs_01_misc_intrusion, NULL };
-	static const int *byte4[] = { &hf_ipmi_chs_01_fpb_standby_allowed,
+	static int * const byte4[] = { &hf_ipmi_chs_01_fpb_standby_allowed,
 		&hf_ipmi_chs_01_fpb_diagintr_allowed, &hf_ipmi_chs_01_fpb_reset_allowed,
 		&hf_ipmi_chs_01_fpb_poweroff_allowed, &hf_ipmi_chs_01_fpb_standby_disabled,
 		&hf_ipmi_chs_01_fpb_diagintr_disabled, &hf_ipmi_chs_01_fpb_reset_disabled,
@@ -471,7 +471,7 @@ rs01(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rq02(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const int *byte1[] = { &hf_ipmi_chs_02_cctrl, NULL };
+	static int * const byte1[] = { &hf_ipmi_chs_02_cctrl, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
 			ett_ipmi_chs_02_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
@@ -482,7 +482,7 @@ rq02(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rq04(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const int *byte2[] = { &hf_ipmi_chs_04_perm_on, NULL };
+	static int * const byte2[] = { &hf_ipmi_chs_04_perm_on, NULL };
 
 	if (tvb_captured_length(tvb) > 0) {
 		proto_tree_add_item(tree, hf_ipmi_chs_04_ival, tvb, 0, 1, ENC_LITTLE_ENDIAN);
@@ -499,7 +499,7 @@ rq04(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rq05(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const int *byte1[] = { &hf_ipmi_chs_05_flags_fpl, &hf_ipmi_chs_05_flags_intrusion, NULL };
+	static int * const byte1[] = { &hf_ipmi_chs_05_flags_fpl, &hf_ipmi_chs_05_flags_intrusion, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, "Capabilities: ", "None",
 			ett_ipmi_chs_05_flags, byte1, ENC_LITTLE_ENDIAN, 0);
@@ -518,7 +518,7 @@ rq05(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rq06(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const int *byte1[] = { &hf_ipmi_chs_06_rq_policy, NULL };
+	static int * const byte1[] = { &hf_ipmi_chs_06_rq_policy, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
 			ett_ipmi_chs_06_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
@@ -529,7 +529,7 @@ rq06(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rs06(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const int *byte1[] = { &hf_ipmi_chs_06_rs_policy_support_powerup,
+	static int * const byte1[] = { &hf_ipmi_chs_06_rs_policy_support_powerup,
 		&hf_ipmi_chs_06_rs_policy_support_restore, &hf_ipmi_chs_06_rs_policy_support_poweroff, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, "Power Restore Policy support: ", "None",
@@ -541,7 +541,7 @@ rs06(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rs07(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const int *byte1[] = { &hf_ipmi_chs_07_cause, NULL };
+	static int * const byte1[] = { &hf_ipmi_chs_07_cause, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
 			ett_ipmi_chs_07_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
@@ -627,7 +627,7 @@ rq09(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rs09(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const int *byte1[] = { &hf_ipmi_chs_09_rs_param_version, NULL };
+	static int * const byte1[] = { &hf_ipmi_chs_09_rs_param_version, NULL };
 	proto_tree *s_tree;
 	tvbuff_t *sub;
 	guint8 pno;

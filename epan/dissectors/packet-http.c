@@ -963,7 +963,7 @@ get_http_conversation_data(packet_info *pinfo, conversation_t **conversation)
 	conv_data = (http_conv_t *)conversation_get_proto_data(*conversation, proto_http);
 	if(!conv_data) {
 		/* Setup the conversation structure itself */
-		conv_data = (http_conv_t *)wmem_alloc0(wmem_file_scope(), sizeof(http_conv_t));
+		conv_data = wmem_new0(wmem_file_scope(), http_conv_t);
 
 		conversation_add_proto_data(*conversation, proto_http,
 					    conv_data);
@@ -978,7 +978,7 @@ get_http_conversation_data(packet_info *pinfo, conversation_t **conversation)
  */
 static http_req_res_t* push_req_res(http_conv_t *conv_data)
 {
-	http_req_res_t *req_res = (http_req_res_t *)wmem_alloc0(wmem_file_scope(), sizeof(http_req_res_t));
+	http_req_res_t *req_res = wmem_new0(wmem_file_scope(), http_req_res_t);
 	nstime_set_unset(&(req_res->req_ts));
 	req_res->number = ++conv_data->req_res_num;
 

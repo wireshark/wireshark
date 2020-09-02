@@ -27,14 +27,15 @@ class InterfaceToolbarReader : public QObject
 
 public:
     InterfaceToolbarReader(QString ifname, void *control_in, QObject *parent = 0) :
-    QObject(parent), ifname_(ifname)
-    {
+        QObject(parent),
+        ifname_(ifname),
 #ifdef _WIN32
-        control_in_ = (HANDLE)control_in;
+        control_in_((HANDLE)control_in)
 #else
-        control_in_ = (char *)control_in;
-        fd_in_ = -1;
+        control_in_((char *)control_in),
+        fd_in_(-1)
 #endif
+    {
     }
 
 public slots:

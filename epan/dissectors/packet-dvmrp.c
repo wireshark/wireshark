@@ -337,7 +337,7 @@ dissect_dvmrp_v3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 	/* PROBE and NEIGHBORS 2 packets have capabilities flags, unused
 	   for other packets */
 	if (code==DVMRP_V3_PROBE || code==DVMRP_V3_NEIGHBORS_2) {
-		static const int * capabilities[] = {
+		static int * const capabilities[] = {
 			&hf_cap_netmask,
 			&hf_cap_snmp,
 			&hf_cap_mtrace,

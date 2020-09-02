@@ -185,7 +185,7 @@ dissect_fcfzs_zoneset(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int o
 static void
 dissect_fcfzs_gzc(tvbuff_t *tvb, int offset, proto_tree *parent_tree, gboolean isreq)
 {
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_fcfzs_gzc_flags_hard_zones,
         &hf_fcfzs_gzc_flags_soft_zones,
         &hf_fcfzs_gzc_flags_zoneset_db,
@@ -204,7 +204,7 @@ static void
 dissect_fcfzs_gest(tvbuff_t *tvb, proto_tree *parent_tree, gboolean isreq)
 {
     int offset = 16;            /* past the fc_ct header */
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_fcfzs_soft_zone_set_enforced,
         &hf_fcfzs_hard_zone_set_enforced,
         NULL

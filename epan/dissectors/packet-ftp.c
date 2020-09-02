@@ -293,7 +293,7 @@ static void create_and_link_data_conversation(packet_info *pinfo,
  *
  * The FTP code in the source of the cURL library, at
  *
- *  http://curl.haxx.se/lxr/source/lib/ftp.c
+ *  https://github.com/curl/curl/blob/master/lib/ftp.c
  *
  * says that cURL "now scans for a sequence of six comma-separated numbers
  * and will take them as IP+port indicators"; it loops, doing "sscanf"s

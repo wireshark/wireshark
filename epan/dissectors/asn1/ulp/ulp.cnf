@@ -306,7 +306,7 @@ ExtendedEphemeris/validity DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ulp_ExtendedEphem
     proto_tree *subtree;
 
     subtree = proto_item_add_subtree(actx->created_item, ett_ulp_setid);
-    proto_tree_add_string(subtree, hf_ulp_mobile_directory_number, mdn_tvb, 0, 8, tvb_bcd_dig_to_wmem_packet_str(mdn_tvb, 0, 8, NULL, FALSE));
+    proto_tree_add_item(subtree, hf_ulp_mobile_directory_number, mdn_tvb, 0, 8, ENC_BCD_DIGITS_0_9);
   }
 
 #.FN_BODY SETId/imsi VAL_PTR=&imsi_tvb

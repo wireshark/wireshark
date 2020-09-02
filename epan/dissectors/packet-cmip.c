@@ -2171,7 +2171,7 @@ dissect_cmip_CMIPAbortInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 }
 
 
-static const int * FunctionalUnits_bits[] = {
+static int * const FunctionalUnits_bits[] = {
   &hf_cmip_FunctionalUnits_multipleObjectSelection,
   &hf_cmip_FunctionalUnits_filter,
   &hf_cmip_FunctionalUnits_multipleReply,
@@ -2190,7 +2190,7 @@ dissect_cmip_FunctionalUnits(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 }
 
 
-static const int * ProtocolVersion_bits[] = {
+static int * const ProtocolVersion_bits[] = {
   &hf_cmip_ProtocolVersion_version1,
   &hf_cmip_ProtocolVersion_version2,
   NULL
@@ -3508,7 +3508,7 @@ dissect_cmip_UsageState(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 }
 
 
-static const int * T_daysOfWeek_bits[] = {
+static int * const T_daysOfWeek_bits[] = {
   &hf_cmip_T_daysOfWeek_sunday,
   &hf_cmip_T_daysOfWeek_monday,
   &hf_cmip_T_daysOfWeek_tuesday,

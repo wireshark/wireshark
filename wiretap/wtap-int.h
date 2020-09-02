@@ -328,6 +328,12 @@ gboolean
 wtap_full_file_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
 
 /**
+ * Add an IDB to the interface data for a file.
+ */
+void
+wtap_add_idb(wtap *wth, wtap_block_t idb);
+
+/**
  * Invokes the callback with the given decryption secrets block.
  */
 void

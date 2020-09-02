@@ -334,15 +334,15 @@ void DisplayFilterEdit::checkFilter(const QString& filter_text)
         else if (filter_text.length() <= 0 && last_applied_.length() <= 0)
             clear_button_->setVisible(false);
 
-        if (filter_text.length() <= 0)
-            wsApp->popStatus(WiresharkApplication::FilterSyntax);
-
         alignActionButtons();
     }
 
+    if (filter_text.length() <= 0)
+        wsApp->popStatus(WiresharkApplication::FilterSyntax);
+
     emit popFilterSyntaxStatus();
-    setToolTip(QString());
-    checkDisplayFilter(filter_text);
+    if (!checkDisplayFilter(filter_text))
+        return;
 
     switch (syntaxState()) {
     case Deprecated:
@@ -359,6 +359,7 @@ void DisplayFilterEdit::checkFilter(const QString& filter_text)
         break;
     }
     default:
+        setToolTip(QString());
         break;
     }
 

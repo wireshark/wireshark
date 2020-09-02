@@ -86,7 +86,7 @@ static int hf_rtls_aer_match_type = -1;
 static int hf_rtls_aer_match_method = -1;
 static int hf_rtls_cmr_messages = -1;
 
-static const int *rtls_nack_flags[] = {
+static int * const rtls_nack_flags[] = {
     &hf_rtls_nack_flags_internal_error,
     &hf_rtls_nack_flags_station_not_found,
     &hf_rtls_nack_flags_reserved,

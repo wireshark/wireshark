@@ -17,7 +17,6 @@
  */
 
 #include "config.h"
-#include <glib.h>
 
 #include <epan/packet.h>
 #include <epan/expert.h>
@@ -537,7 +536,7 @@ static guint16 dissect_control_message(proto_tree *rtitcp_tree, tvbuff_t *tvb, p
             rtitcp_trans->req_frame = pinfo->num;
             rtitcp_trans->rep_frame = 0;
             rtitcp_trans->req_time = pinfo->abs_ts;
-            conversation_info_key = (guint64*)wmem_alloc0(wmem_file_scope(), sizeof(guint64));
+            conversation_info_key = wmem_new0(wmem_file_scope(), guint64);
             *conversation_info_key = seq_num;
             wmem_map_insert(rtitcp_info->pdus, conversation_info_key, (void *)rtitcp_trans);
         } else {

@@ -61,9 +61,6 @@
 /* Define if LIBSSH support is enabled */
 #cmakedefine HAVE_LIBSSH 1
 
-/* Define if LIBSSH has ssh_userauth_agent() function */
-#cmakedefine HAVE_SSH_USERAUTH_AGENT 1
-
 /* Define if you have the 'dlget' function. */
 #cmakedefine HAVE_DLGET 1
 
@@ -87,6 +84,9 @@
 
 /* Define to 1 if you have the `krb5_pac_verify' function. */
 #cmakedefine HAVE_KRB5_PAC_VERIFY 1
+
+/* Define to 1 if you have the `krb5_c_fx_cf2_simple' function. */
+#cmakedefine HAVE_KRB5_C_FX_CF2_SIMPLE 1
 
 /* Define to 1 if you have the `inflatePrime' function. */
 #cmakedefine HAVE_INFLATEPRIME 1
@@ -157,23 +157,11 @@
 /* Define to use Lua */
 #cmakedefine HAVE_LUA 1
 
-/* Define to 1 if you have the <lua.h> header file. */
-#cmakedefine HAVE_LUA_H 1
-
-/* Define to 1 if you have the <memory.h> header file. */
-#cmakedefine HAVE_MEMORY_H 1
-
 /* Define to use MIT kerberos */
 #cmakedefine HAVE_MIT_KERBEROS 1
 
 /* Define to 1 if you have the `mkstemps' function. */
 #cmakedefine HAVE_MKSTEMPS 1
-
-/* Define to 1 if you have the `mmap' function. */
-#cmakedefine HAVE_MMAP 1
-
-/* Define to 1 if you have the `mprotect' function. */
-#cmakedefine HAVE_MPROTECT 1
 
 /* Define to 1 if you have the <netdb.h> header file. */
 #cmakedefine HAVE_NETDB_H 1
@@ -321,9 +309,6 @@
 
 /* Define to the version of this package. */
 #cmakedefine PACKAGE_VERSION
-
-/* Support for pcapng */
-#cmakedefine PCAP_NG_DEFAULT 1
 
 /* Define if we have QtMultimedia */
 #define QT_MULTIMEDIA_LIB 1

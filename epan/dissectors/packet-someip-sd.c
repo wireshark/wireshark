@@ -1,7 +1,8 @@
-/* packet-someip.c
+/* packet-someip-sd.c
  * SOME/IP-SD dissector.
- * By Dr. Lars Voelker <lars-github@larsvoelker.de> / <lars.voelker@bmw.de>
- * Copyright 2012-2019 Dr. Lars Voelker
+ * By Dr. Lars Voelker <lars.voelker@technica-engineering.de> / <lars.voelker@bmw.de>
+ * Copyright 2012-2020 Dr. Lars Voelker
+ * Copyright 2020      Ayoub Kaanich
  * Copyright 2019      Ana Pantar
  * Copyright 2019      Guenter Ebermann
  *
@@ -11,8 +12,6 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#include <glib.h>
 
 #include <config.h>
 #include <epan/prefs.h>
@@ -360,7 +359,7 @@ dissect_someip_sd_pdu_option_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     }
     offset += 1;
 
-    proto_tree_add_item(tree, hf_someip_sd_option_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_someip_sd_option_port, tvb, offset, 2, ENC_BIG_ENDIAN, &l4port);
 
     proto_item_append_text(ti_top, " (%s)", l4protoname);
 
@@ -461,7 +460,7 @@ dissect_someip_sd_pdu_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint32             minorver = 0;
     guint32             ttl = 0;
 
-    guint32             uniqueid = 0;
+    guint64             uniqueid = 0;
     guint8              category = SD_ENTRY_UNKNOWN;
 
     const gchar        *description = NULL;
@@ -559,34 +558,34 @@ dissect_someip_sd_pdu_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     /* lets add some combined filtering term */
-    uniqueid = (((guint32)serviceid) << 16) | instanceid;
+    uniqueid = (((guint64)serviceid) << 32) | instanceid << 16 | eventgroupid;
 
     ti = NULL;
     if (ttl > 0) {
         switch (type) {
         case SD_ENTRY_FIND_SERVICE:
-            ti = proto_tree_add_uint_format_value(tree, hf_someip_sd_entry_type_findservice, tvb, offset, SD_ENTRY_LENGTH, uniqueid, "on 0x%08x", uniqueid);
+            ti = proto_tree_add_uint64_format_value(tree, hf_someip_sd_entry_type_findservice, tvb, offset, SD_ENTRY_LENGTH, uniqueid, "on 0x%012" G_GINT64_MODIFIER "x", uniqueid);
             break;
         case SD_ENTRY_OFFER_SERVICE:
-            ti = proto_tree_add_uint_format_value(tree, hf_someip_sd_entry_type_offerservice, tvb, offset, SD_ENTRY_LENGTH, uniqueid, "on 0x%08x", uniqueid);
+            ti = proto_tree_add_uint64_format_value(tree, hf_someip_sd_entry_type_offerservice, tvb, offset, SD_ENTRY_LENGTH, uniqueid, "on 0x%012" G_GINT64_MODIFIER "x", uniqueid);
             break;
         case SD_ENTRY_SUBSCRIBE_EVENTGROUP:
-            ti = proto_tree_add_uint_format_value(tree, hf_someip_sd_entry_type_subscribeeventgroup, tvb, offset, SD_ENTRY_LENGTH, uniqueid, "on 0x%08x", uniqueid);
+            ti = proto_tree_add_uint64_format_value(tree, hf_someip_sd_entry_type_subscribeeventgroup, tvb, offset, SD_ENTRY_LENGTH, uniqueid, "on 0x%012" G_GINT64_MODIFIER "x", uniqueid);
             break;
         case SD_ENTRY_SUBSCRIBE_EVENTGROUP_ACK:
-            ti = proto_tree_add_uint_format_value(tree, hf_someip_sd_entry_type_subscribeeventgroupack, tvb, offset, SD_ENTRY_LENGTH, uniqueid, "on 0x%08x", uniqueid);
+            ti = proto_tree_add_uint64_format_value(tree, hf_someip_sd_entry_type_subscribeeventgroupack, tvb, offset, SD_ENTRY_LENGTH, uniqueid, "on 0x%012" G_GINT64_MODIFIER "x", uniqueid);
             break;
         }
     } else {
         switch (type) {
         case SD_ENTRY_STOP_OFFER_SERVICE:
-            ti = proto_tree_add_uint_format_value(tree, hf_someip_sd_entry_type_stopofferservice, tvb, offset, SD_ENTRY_LENGTH, uniqueid, "on 0x%08x", uniqueid);
+            ti = proto_tree_add_uint64_format_value(tree, hf_someip_sd_entry_type_stopofferservice, tvb, offset, SD_ENTRY_LENGTH, uniqueid, "on 0x%012" G_GINT64_MODIFIER "x", uniqueid);
             break;
         case SD_ENTRY_STOP_SUBSCRIBE_EVENTGROUP:
-            ti = proto_tree_add_uint_format_value(tree, hf_someip_sd_entry_type_stopsubscribeeventgroup, tvb, offset, SD_ENTRY_LENGTH, uniqueid, "on 0x%08x", uniqueid);
+            ti = proto_tree_add_uint64_format_value(tree, hf_someip_sd_entry_type_stopsubscribeeventgroup, tvb, offset, SD_ENTRY_LENGTH, uniqueid, "on 0x%012" G_GINT64_MODIFIER "x", uniqueid);
             break;
         case SD_ENTRY_SUBSCRIBE_EVENTGROUP_NACK:
-            ti = proto_tree_add_uint_format_value(tree, hf_someip_sd_entry_type_subscribeeventgroupnack, tvb, offset, SD_ENTRY_LENGTH, uniqueid, "on 0x%08x", uniqueid);
+            ti = proto_tree_add_uint64_format_value(tree, hf_someip_sd_entry_type_subscribeeventgroupnack, tvb, offset, SD_ENTRY_LENGTH, uniqueid, "on 0x%012" G_GINT64_MODIFIER "x", uniqueid);
             break;
         }
     }
@@ -661,7 +660,7 @@ dissect_someip_sd_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     gboolean        stop_parsing_after_entries = FALSE;
     guint32         offset_entriesarray;
 
-    static const int * someipsd_flags[] = {
+    static int * const someipsd_flags[] = {
         &hf_someip_sd_rebootflag,
         &hf_someip_sd_unicastflag,
         &hf_someip_sd_explicitiniteventflag,
@@ -878,27 +877,27 @@ proto_register_someip_sd(void) {
             FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_someip_sd_entry_type_offerservice,
             { "Offer Service", "someipsd.entry.offerservice",
-            FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+            FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_someip_sd_entry_type_stopofferservice,
             { "Stop Offer Service", "someipsd.entry.stopofferservice",
-            FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+            FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_someip_sd_entry_type_findservice,
             { "Find Service", "someipsd.entry.findservice",
-            FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+            FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
         { &hf_someip_sd_entry_type_subscribeeventgroup,
             { "Subscribe Eventgroup", "someipsd.entry.subscribeeventgroup",
-            FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+            FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_someip_sd_entry_type_stopsubscribeeventgroup,
             { "Stop Subscribe Eventgroup", "someipsd.entry.stopsubscribeeventgroup",
-                FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+            FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
         { &hf_someip_sd_entry_type_subscribeeventgroupack,
             { "Subscribe Eventgroup ACK", "someipsd.entry.subscribeeventgroupack",
-                FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+            FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_someip_sd_entry_type_subscribeeventgroupnack,
             { "Subscribe Eventgroup NACK", "someipsd.entry.subscribeeventgroupnack",
-            FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+            FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }},
     };
 
     static gint *ett_sd[] = {

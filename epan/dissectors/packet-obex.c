@@ -250,20 +250,20 @@ static int hf_current_path = -1;
 static int hf_request_in_frame = -1;
 static int hf_response_in_frame = -1;
 
-static const int *hfx_hdr_id[] = {
+static int * const hfx_hdr_id[] = {
     &hf_hdr_id_encoding,
     &hf_hdr_id_meaning,
     NULL
 };
 
-static const int *hfx_pbap_application_parameter_data_filter_1[] = {
+static int * const hfx_pbap_application_parameter_data_filter_1[] = {
     &hf_pbap_application_parameter_data_filter_reserved_32_38,
     &hf_pbap_application_parameter_data_filter_proprietary_filter,
     &hf_pbap_application_parameter_data_filter_reserved_for_proprietary_filter_usage,
     NULL
 };
 
-static const int *hfx_pbap_application_parameter_data_filter_0[] = {
+static int * const hfx_pbap_application_parameter_data_filter_0[] = {
     &hf_pbap_application_parameter_data_filter_version,
     &hf_pbap_application_parameter_data_filter_fn,
     &hf_pbap_application_parameter_data_filter_n,
@@ -297,7 +297,7 @@ static const int *hfx_pbap_application_parameter_data_filter_0[] = {
     NULL
 };
 
-static const int *hfx_pbap_application_parameter_data_supported_features[] = {
+static int * const hfx_pbap_application_parameter_data_supported_features[] = {
     &hf_pbap_application_parameter_data_supported_features_reserved,
     &hf_pbap_application_parameter_data_supported_features_default_contact_image_format,
     &hf_pbap_application_parameter_data_supported_features_contact_referencing,
@@ -312,7 +312,7 @@ static const int *hfx_pbap_application_parameter_data_supported_features[] = {
     NULL
 };
 
-static const int *hfx_ctn_application_parameter_data_parameter_mask[] = {
+static int * const hfx_ctn_application_parameter_data_parameter_mask[] = {
     &hf_ctn_application_parameter_data_parameter_mask_reserved,
     &hf_ctn_application_parameter_data_parameter_mask_recurrent,
     &hf_ctn_application_parameter_data_parameter_mask_send_status,
@@ -1643,16 +1643,18 @@ dissect_obex_application_parameter_bt_ctn(tvbuff_t *tvb, packet_info *pinfo, pro
         item = proto_tree_add_item(parameter_tree, hf_application_parameter_length, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
-        if (parameter_id < 0x41 && parameter_id < (sizeof(required_length_map)/sizeof(gint)) &&
+        if ((parameter_id < 0x41) && (parameter_id < (sizeof(required_length_map)/sizeof(gint))) &&
                 required_length_map[parameter_id] != -1 &&
                 required_length_map[parameter_id] != parameter_length) {
+
             proto_tree_add_item(parameter_tree, hf_application_parameter_data, tvb, offset, parameter_length, ENC_NA);
             expert_add_info_format(pinfo, item, &ei_application_parameter_length_bad,
                     "According to the specification this parameter length should be %i, but there is %i",
                     required_length_map[parameter_id], parameter_length);
-        } else if (parameter_id >= 0x41 && (guint8)(parameter_id - 0x41) < (sizeof(required_length_map_gpp)/sizeof(gint)) &&
+        } else if ((parameter_id >= 0x41) && ((guint8)(parameter_id - 0x41) < (sizeof(required_length_map_gpp)/sizeof(gint))) &&
                 required_length_map[parameter_id - 0x41] != -1 &&
                 required_length_map[parameter_id - 0x41] != parameter_length) {
+
             proto_tree_add_item(parameter_tree, hf_application_parameter_data, tvb, offset, parameter_length, ENC_NA);
             expert_add_info_format(pinfo, item, &ei_application_parameter_length_bad,
                     "According to the specification this parameter length should be %i, but there is %i",
@@ -2720,7 +2722,7 @@ proto_register_obex(void)
         },
         { &hf_session_parameter,
           { "Session Parameter", "obex.session",
-            FT_UINT8, BASE_HEX, NULL, 0x00,
+            FT_NONE, BASE_NONE, NULL, 0x00,
             NULL, HFILL}
         },
         { &hf_session_parameter_data,
@@ -2765,7 +2767,7 @@ proto_register_obex(void)
         },
         { &hf_authentication_parameter,
           { "Authentication Parameter", "obex.authentication",
-            FT_UINT8, BASE_HEX, NULL, 0x00,
+            FT_NONE, BASE_NONE, NULL, 0x00,
             NULL, HFILL}
         },
         { &hf_authentication_parameter_data,
@@ -3702,7 +3704,7 @@ proto_register_obex(void)
         },
         { &hf_profile,
           { "Profile", "obex.profile", FT_UINT32, BASE_DEC | BASE_EXT_STRING, &profile_vals_ext, 0x0,
-            "Blutooth Profile used in this OBEX session", HFILL }
+            "Bluetooth Profile used in this OBEX session", HFILL }
         },
         { &hf_type,
           { "Type", "obex.type", FT_STRINGZ, STR_ASCII, NULL, 0x0,

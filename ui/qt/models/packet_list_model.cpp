@@ -357,7 +357,7 @@ void PacketListModel::sort(int column, Qt::SortOrder order)
     // XXX Use updateProgress instead. We'd have to switch from std::sort to
     // something we can interrupt.
     if (!col_title.isEmpty()) {
-        QString busy_msg = tr("Sorting \"%1\"").arg(col_title);
+        QString busy_msg = tr("Sorting \"%1\"" UTF8_HORIZONTAL_ELLIPSIS).arg(col_title);
         wsApp->pushStatus(WiresharkApplication::BusyStatus, busy_msg);
     }
 
@@ -494,7 +494,7 @@ bool PacketListModel::recordLessThan(PacketListRecord *r1, PacketListRecord *r2)
                 // either r1 is invalid (and sort it before others) or both
                 // r1 and r2 are valid (sort normally)
                 cmp_val = -1;
-            } else if (!ok_r2 || (ok_r1 && num_r1 > num_r2)) {
+            } else if (!ok_r2 || (num_r1 > num_r2)) {
                 cmp_val = 1;
             }
         } else {

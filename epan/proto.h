@@ -286,6 +286,9 @@ void proto_report_dissector_bug(const char *format, ...)
                                            (hfinfo)->type == FT_RELATIVE_TIME)
 
 /*
+ * Encoding flags that apply to multiple data types.
+ */
+/*
  * The encoding of a field of a particular type may involve more
  * than just whether it's big-endian or little-endian and its size.
  *
@@ -337,12 +340,171 @@ void proto_report_dissector_bug(const char *format, ...)
 #define ENC_LITTLE_ENDIAN   0x80000000
 
 #if G_BYTE_ORDER == G_LITTLE_ENDIAN
-    #define ENC_HOST_ENDIAN ENC_LITTLE_ENDIAN
+    #define ENC_HOST_ENDIAN      ENC_LITTLE_ENDIAN
+    #define ENC_ANTI_HOST_ENDIAN ENC_BIG_ENDIAN
 #else
-    #define ENC_HOST_ENDIAN ENC_BIG_ENDIAN
+    #define ENC_HOST_ENDIAN      ENC_BIG_ENDIAN
+    #define ENC_ANTI_HOST_ENDIAN ENC_LITTLE_ENDIAN
 #endif
 
 /*
+ * For protocols (FT_PROTOCOL), aggregate items with subtrees (FT_NONE),
+ * opaque byte-array fields (FT_BYTES), and other fields where there
+ * is no choice of encoding (either because it's "just a bucket
+ * of bytes" or because the encoding is completely fixed), we
+ * have ENC_NA (for "Not Applicable").
+ */
+#define ENC_NA          0x00000000
+
+/*
+ * Encoding for character strings - and for character-encoded values
+ * for non-string types.
+ *
+ * Historically, the only place the representation mattered for strings
+ * was with FT_UINT_STRINGs, where we had FALSE for the string length
+ * being big-endian and TRUE for it being little-endian.
+ *
+ * We now have encoding values for the character encoding.  The encoding
+ * values are encoded in all but the top bit (which is the byte-order
+ * bit, required for FT_UINT_STRING and for UCS-2 and UTF-16 strings)
+ * and the bottom bit (which we ignore for now so that programs that
+ * pass TRUE for the encoding just do ASCII).  (The encodings are given
+ * directly as even numbers in hex, so that make-init-lua.pl can just
+ * turn them into numbers for use in init.lua.)
+ *
+ * We don't yet process ASCII and UTF-8 differently.  Ultimately, for
+ * ASCII, all bytes with the 8th bit set should be mapped to some "this
+ * is not a valid character" code point, as ENC_ASCII should mean "this
+ * is ASCII, not some extended variant thereof".  We should also map
+ * 0x00 to that as well - null-terminated and null-padded strings
+ * never have NULs in them, but counted strings might.  (Either that,
+ * or the values for strings should be counted, not null-terminated.)
+ * For UTF-8, invalid UTF-8 sequences should be mapped to the same
+ * code point.
+ *
+ * For display, perhaps we should also map control characters to the
+ * Unicode glyphs showing the name of the control character in small
+ * caps, diagonally.  (Unfortunately, those only exist for C0, not C1.)
+ *
+ * *DO NOT* add anything to this set that is not a character encoding!
+ */
+#define ENC_CHARENCODING_MASK    0x0000FFFE  /* mask out byte-order bits and other bits used with string encodings */
+#define ENC_ASCII                0x00000000
+#define ENC_ISO_646_IRV          ENC_ASCII   /* ISO 646 International Reference Version = ASCII */
+#define ENC_UTF_8                0x00000002
+#define ENC_UTF_16               0x00000004
+#define ENC_UCS_2                0x00000006
+#define ENC_UCS_4                0x00000008
+#define ENC_ISO_8859_1           0x0000000A
+#define ENC_ISO_8859_2           0x0000000C
+#define ENC_ISO_8859_3           0x0000000E
+#define ENC_ISO_8859_4           0x00000010
+#define ENC_ISO_8859_5           0x00000012
+#define ENC_ISO_8859_6           0x00000014
+#define ENC_ISO_8859_7           0x00000016
+#define ENC_ISO_8859_8           0x00000018
+#define ENC_ISO_8859_9           0x0000001A
+#define ENC_ISO_8859_10          0x0000001C
+#define ENC_ISO_8859_11          0x0000001E
+/* #define ENC_ISO_8859_12          0x00000020 ISO 8859-12 was abandoned */
+#define ENC_ISO_8859_13          0x00000022
+#define ENC_ISO_8859_14          0x00000024
+#define ENC_ISO_8859_15          0x00000026
+#define ENC_ISO_8859_16          0x00000028
+#define ENC_WINDOWS_1250         0x0000002A
+#define ENC_3GPP_TS_23_038_7BITS 0x0000002C
+#define ENC_EBCDIC               0x0000002E
+#define ENC_MAC_ROMAN            0x00000030
+#define ENC_CP437                0x00000032
+#define ENC_ASCII_7BITS          0x00000034
+#define ENC_T61                  0x00000036
+#define ENC_EBCDIC_CP037         0x00000038
+#define ENC_WINDOWS_1252         0x0000003A
+#define ENC_WINDOWS_1251         0x0000003C
+#define ENC_CP855                0x0000003E
+#define ENC_CP866                0x00000040
+#define ENC_ISO_646_BASIC        0x00000042
+#define ENC_BCD_DIGITS_0_9       0x00000044 /* Packed BCD, digits 0-9 */
+#define ENC_KEYPAD_ABC_TBCD      0x00000046 /* Keypad-with-a/b/c "telephony BCD" = 0-9, *, #, a, b, c */
+#define ENC_KEYPAD_BC_TBCD       0x00000048 /* Keypad-with-B/C "telephony BCD" = 0-9, B, C, *, # */
+/*
+ * TODO:
+ *
+ * These could probably be used by existing code:
+ *
+ *  "IBM MS DBCS"
+ *  JIS C 6226
+ *
+ * As those are added, change code such as the code in packet-bacapp.c
+ * to use them.
+ */
+
+/*
+ * This is a modifier for FT_UINT_STRING and FT_UINT_BYTES values;
+ * it indicates that the length field should be interpreted as per
+ * sections 2.5.2.11 Octet String through 2.5.2.14 Long Character
+ * String of the ZigBee Cluster Library Specification, where if all
+ * bits are set in the length field, the string has an invalid value,
+ * and the number of octets in the value is 0.
+ */
+#define ENC_ZIGBEE               0x40000000
+
+/*
+ * For cases where either native type or string encodings could both be
+ * valid arguments, we need something to distinguish which one is being
+ * passed as the argument, because ENC_BIG_ENDIAN and ENC_ASCII are both
+ * 0x00000000. So we use ENC_STR_NUM or ENC_STR_HEX bit-or'ed with
+ * ENC_ASCII and its ilk.
+ *
+ * XXX - ENC_STR_NUM is not yet supported by any code in Wireshark,
+ * and these are aonly used for byte arrays.  Presumably they could
+ * also be used for integral values in the future.
+ */
+/* this is for strings as numbers "12345" */
+#define ENC_STR_NUM     0x01000000
+/* this is for strings as hex "1a2b3c" */
+#define ENC_STR_HEX     0x02000000
+/* a convenience macro for either of the above */
+#define ENC_STRING      0x03000000
+/* Kept around for compatibility for Lua scripts; code should use ENC_CHARENCODING_MASK */
+#define ENC_STR_MASK    0x0000FFFE
+
+/*
+ * For cases where the number is allowed to have a leading '+'/'-'
+ * this can't collide with ENC_SEP_* because they can be used simultaneously
+ *
+ * XXX - this is not used anywhere in Wireshark's code, dating back to
+ * at least Wireshark 2.6 and continuing to the current version.
+ * Perhaps the intent was to use it in the future, but 1) I'm not sure
+ * why it would be combined with ENC_SEP_, as byte arrays have no sign
+ * but integral values do, and 2) if we were to support string encodings
+ * for integral types, presumably whether it's signed (FT_INTn) or
+ * unsigned (FT_UINTn) would suffice to indicate whether the value
+ * can be signed or not.
+ */
+#define ENC_NUM_PREF    0x00200000
+
+/*
+ * Encodings for byte arrays.
+ *
+ * For cases where the byte array is encoded as a string composed of
+ * pairs of hex digits, possibly with a separator character between
+ * the pairs.  That's specified by the encoding having ENC_STR_HEX,
+ * plus one of these values, set.
+ *
+ * See hex_str_to_bytes_encoding() in epan/strutil.h for details.
+ */
+#define ENC_SEP_NONE    0x00010000
+#define ENC_SEP_COLON   0x00020000
+#define ENC_SEP_DASH    0x00040000
+#define ENC_SEP_DOT     0x00080000
+#define ENC_SEP_SPACE   0x00100000
+/* a convenience macro for the above */
+#define ENC_SEP_MASK    0x001F0000
+
+/*
+ * Encodings for time values.
+ *
  * Historically FT_TIMEs were only timespecs; the only question was whether
  * they were stored in big- or little-endian format.
  *
@@ -417,119 +579,23 @@ void proto_report_dissector_bug(const char *format, ...)
 #define ENC_TIME_CLASSIC_MAC_OS_SECS 0x00000026
 
 /*
- * This is a modifier for FT_UINT_STRING and FT_UINT_BYTES values;
- * it indicates that the length field should be interpreted as per
- * sections 2.5.2.11 Octet String through 2.5.2.14 Long Character
- * String of the ZigBee Cluster Library Specification, where if all
- * bits are set in the length field, the string has an invalid value,
- * and the number of octets in the value is 0.
+ * For cases where a string encoding contains a timestamp, use one
+ * of these (but only one). These values can collide with the ENC_SEP_
+ * values used when a string encoding contains a byte array, because
+ * you can't do both at the same time.  They must not, however,
+ * overlap with the character encoding values.
  */
-#define ENC_ZIGBEE               0x40000000
+#define ENC_ISO_8601_DATE       0x00010000
+#define ENC_ISO_8601_TIME       0x00020000
+#define ENC_ISO_8601_DATE_TIME  0x00030000
+#define ENC_RFC_822             0x00040000
+#define ENC_RFC_1123            0x00080000
+/* a convenience macro for the above - for internal use only */
+#define ENC_STR_TIME_MASK       0x000F0000
 
 /*
- * Historically, the only place the representation mattered for strings
- * was with FT_UINT_STRINGs, where we had FALSE for the string length
- * being big-endian and TRUE for it being little-endian.
- *
- * We now have encoding values for the character encoding.  The encoding
- * values are encoded in all but the top bit (which is the byte-order
- * bit, required for FT_UINT_STRING and for UCS-2 and UTF-16 strings)
- * and the bottom bit (which we ignore for now so that programs that
- * pass TRUE for the encoding just do ASCII).  (The encodings are given
- * directly as even numbers in hex, so that make-init-lua.pl can just
- * turn them into numbers for use in init.lua.)
- *
- * We don't yet process ASCII and UTF-8 differently.  Ultimately, for
- * ASCII, all bytes with the 8th bit set should be mapped to some "this
- * is not a valid character" code point, as ENC_ASCII should mean "this
- * is ASCII, not some extended variant thereof".  We should also map
- * 0x00 to that as well - null-terminated and null-padded strings
- * never have NULs in them, but counted strings might.  (Either that,
- * or the values for strings should be counted, not null-terminated.)
- * For UTF-8, invalid UTF-8 sequences should be mapped to the same
- * code point.
- *
- * For display, perhaps we should also map control characters to the
- * Unicode glyphs showing the name of the control character in small
- * caps, diagonally.  (Unfortunately, those only exist for C0, not C1.)
- *
- * *DO NOT* add anything to this set that is not a character encoding!
+ * Encodings for variable-length integral types.
  */
-#define ENC_CHARENCODING_MASK    0x3FFFFFFE  /* mask out byte-order bits and Zigbee bits */
-#define ENC_ASCII                0x00000000
-#define ENC_ISO_646_IRV          ENC_ASCII   /* ISO 646 International Reference Version = ASCII */
-#define ENC_UTF_8                0x00000002
-#define ENC_UTF_16               0x00000004
-#define ENC_UCS_2                0x00000006
-#define ENC_UCS_4                0x00000008
-#define ENC_ISO_8859_1           0x0000000A
-#define ENC_ISO_8859_2           0x0000000C
-#define ENC_ISO_8859_3           0x0000000E
-#define ENC_ISO_8859_4           0x00000010
-#define ENC_ISO_8859_5           0x00000012
-#define ENC_ISO_8859_6           0x00000014
-#define ENC_ISO_8859_7           0x00000016
-#define ENC_ISO_8859_8           0x00000018
-#define ENC_ISO_8859_9           0x0000001A
-#define ENC_ISO_8859_10          0x0000001C
-#define ENC_ISO_8859_11          0x0000001E
-/* #define ENC_ISO_8859_12          0x00000020 ISO 8859-12 was abandoned */
-#define ENC_ISO_8859_13          0x00000022
-#define ENC_ISO_8859_14          0x00000024
-#define ENC_ISO_8859_15          0x00000026
-#define ENC_ISO_8859_16          0x00000028
-#define ENC_WINDOWS_1250         0x0000002A
-#define ENC_3GPP_TS_23_038_7BITS 0x0000002C
-#define ENC_EBCDIC               0x0000002E
-#define ENC_MAC_ROMAN            0x00000030
-#define ENC_CP437                0x00000032
-#define ENC_ASCII_7BITS          0x00000034
-#define ENC_T61                  0x00000036
-#define ENC_EBCDIC_CP037         0x00000038
-#define ENC_WINDOWS_1252         0x0000003A
-#define ENC_WINDOWS_1251         0x0000003C
-#define ENC_CP855                0x0000003E
-#define ENC_CP866                0x00000040
-#define ENC_ISO_646_BASIC        0x00000042
-/*
- * TODO:
- *
- * These could probably be used by existing code:
- *
- *  "IBM MS DBCS"
- *  JIS C 6226
- *
- * As those are added, change code such as the code in packet-bacapp.c
- * to use them.
- */
-
-/*
- * For protocols (FT_PROTOCOL), aggregate items with subtrees (FT_NONE),
- * opaque byte-array fields (FT_BYTES), and other fields where there
- * is no choice of encoding (either because it's "just a bucket
- * of bytes" or because the encoding is completely fixed), we
- * have ENC_NA (for "Not Applicable").
- */
-#define ENC_NA          0x00000000
-
-/* For cases where either native type or string encodings could both be
- * valid arguments, we need something to distinguish which one is being
- * passed as the argument, because ENC_BIG_ENDIAN and ENC_ASCII are both
- * 0x00000000. So we use ENC_STR_NUM or ENC_STR_HEX bit-or'ed with
- * ENC_ASCII and its ilk.
- */
-/* this is for strings as numbers "12345" */
-#define ENC_STR_NUM     0x01000000
-/* this is for strings as hex "1a2b3c" */
-#define ENC_STR_HEX     0x02000000
-/* a convenience macro for either of the above */
-#define ENC_STRING      0x03000000
-/* mask out ENC_STR_* and related bits - should this replace ENC_CHARENCODING_MASK? */
-#define ENC_STR_MASK    0x0000FFFE
-
-/* for cases where the number is allowed to have a leading '+'/'-' */
-/* this can't collide with ENC_SEP_* because they can be used simultaneously */
-#define ENC_NUM_PREF    0x00200000
 
 /* Use varint format as described in Protobuf protocol
  * https://developers.google.cn/protocol-buffers/docs/encoding
@@ -547,30 +613,6 @@ void proto_report_dissector_bug(const char *format, ...)
 #define ENC_VARINT_ZIGZAG        0x00000008
 
 #define ENC_VARIANT_MASK         (ENC_VARINT_PROTOBUF|ENC_VARINT_QUIC|ENC_VARINT_ZIGZAG)
-
-/* For cases where a string encoding contains hex, bit-or one or more
- * of these for the allowed separator(s), as well as with ENC_STR_HEX.
- * See hex_str_to_bytes_encoding() in epan/strutil.h for details.
- */
-#define ENC_SEP_NONE    0x00010000
-#define ENC_SEP_COLON   0x00020000
-#define ENC_SEP_DASH    0x00040000
-#define ENC_SEP_DOT     0x00080000
-#define ENC_SEP_SPACE   0x00100000
-/* a convenience macro for the above */
-#define ENC_SEP_MASK    0x001F0000
-
-/* For cases where a string encoding contains a timestamp, use one
- * of these (but only one). These values can collide with above, because
- * you can't do both at the same time.
- */
-#define ENC_ISO_8601_DATE       0x00010000
-#define ENC_ISO_8601_TIME       0x00020000
-#define ENC_ISO_8601_DATE_TIME  0x00030000
-#define ENC_RFC_822             0x00040000
-#define ENC_RFC_1123            0x00080000
-/* a convenience macro for the above - for internal use only */
-#define ENC_STR_TIME_MASK       0x000F0000
 
 /* Values for header_field_info.display */
 
@@ -949,7 +991,7 @@ static inline gboolean proto_item_is_url(proto_item *ti) {
 #define PROTO_ITEM_IS_URL(ti) proto_item_is_url((ti))
 
 /** Mark this protocol field as a URL
-* @param ti The item to mark as a URL. May be NULL.
+ * @param ti The item to mark as a URL. May be NULL.
  */
 static inline void proto_item_set_url(proto_item *ti) {
     if (ti) {
@@ -1000,72 +1042,85 @@ extern void proto_cleanup(void);
 WS_DLL_PUBLIC gboolean proto_field_is_referenced(proto_tree *tree, int proto_id);
 
 /** Create a subtree under an existing item.
- @param ti the parent item of the new subtree
+ @param pi the parent item of the new subtree
  @param idx one of the ett_ array elements registered with proto_register_subtree_array()
  @return the new subtree */
-WS_DLL_PUBLIC proto_tree* proto_item_add_subtree(proto_item *ti, const gint idx) G_GNUC_WARN_UNUSED_RESULT;
+WS_DLL_PUBLIC proto_tree* proto_item_add_subtree(proto_item *pi, const gint idx) G_GNUC_WARN_UNUSED_RESULT;
 
 /** Get an existing subtree under an item.
- @param ti the parent item of the subtree
+ @param pi the parent item of the subtree
  @return the subtree or NULL */
-WS_DLL_PUBLIC proto_tree* proto_item_get_subtree(proto_item *ti);
+WS_DLL_PUBLIC proto_tree* proto_item_get_subtree(proto_item *pi);
 
 /** Get the parent of a subtree item.
- @param ti the child item in the subtree
+ @param pi the child item in the subtree
  @return parent item or NULL */
-WS_DLL_PUBLIC proto_item* proto_item_get_parent(const proto_item *ti);
+WS_DLL_PUBLIC proto_item* proto_item_get_parent(const proto_item *pi);
 
 /** Get Nth generation parent item.
- @param ti the child item in the subtree
+ @param pi the child item in the subtree
  @param gen the generation to get (using 1 here is the same as using proto_item_get_parent())
  @return parent item */
-WS_DLL_PUBLIC proto_item* proto_item_get_parent_nth(proto_item *ti, int gen);
+WS_DLL_PUBLIC proto_item* proto_item_get_parent_nth(proto_item *pi, int gen);
 
 /** Replace text of item after it already has been created.
- @param ti the item to set the text
+ @param pi the item to set the text
  @param format printf like format string
  @param ... printf like parameters */
-WS_DLL_PUBLIC void proto_item_set_text(proto_item *ti, const char *format, ...)
+WS_DLL_PUBLIC void proto_item_set_text(proto_item *pi, const char *format, ...)
     G_GNUC_PRINTF(2,3);
 
 /** Append to text of item after it has already been created.
- @param ti the item to append the text to
+ @param pi the item to append the text to
  @param format printf like format string
  @param ... printf like parameters */
-WS_DLL_PUBLIC void proto_item_append_text(proto_item *ti, const char *format, ...)
+WS_DLL_PUBLIC void proto_item_append_text(proto_item *pi, const char *format, ...)
     G_GNUC_PRINTF(2,3);
 
 /** Prepend to text of item after it has already been created.
- @param ti the item to prepend the text to
+ @param pi the item to prepend the text to
  @param format printf like format string
  @param ... printf like parameters */
-WS_DLL_PUBLIC void proto_item_prepend_text(proto_item *ti, const char *format, ...)
+WS_DLL_PUBLIC void proto_item_prepend_text(proto_item *pi, const char *format, ...)
     G_GNUC_PRINTF(2,3);
 
 /** Set proto_item's length inside tvb, after it has already been created.
- @param ti the item to set the length
+ @param pi the item to set the length
  @param length the new length ot the item */
-WS_DLL_PUBLIC void proto_item_set_len(proto_item *ti, const gint length);
+WS_DLL_PUBLIC void proto_item_set_len(proto_item *pi, const gint length);
 
 /**
  * Sets the length of the item based on its start and on the specified
  * offset, which is the offset past the end of the item; as the start
  * in the item is relative to the beginning of the data source tvbuff,
  * we need to pass in a tvbuff.
- @param ti the item to set the length
+ @param pi the item to set the length
  @param tvb end is relative to this tvbuff
  @param end this end offset is relative to the beginning of tvb
  @todo make usage clearer, I don't understand it!
  */
-WS_DLL_PUBLIC void proto_item_set_end(proto_item *ti, tvbuff_t *tvb, gint end);
+WS_DLL_PUBLIC void proto_item_set_end(proto_item *pi, tvbuff_t *tvb, gint end);
 
 /** Get length of a proto_item. Useful after using proto_tree_add_item()
  * to add a variable-length field (e.g., FT_NSTRING_UINT8).
- @param ti the item to get the length from
+ @param pi the item to get the length from
  @return the current length */
-WS_DLL_PUBLIC int proto_item_get_len(const proto_item *ti);
+WS_DLL_PUBLIC int proto_item_get_len(const proto_item *pi);
 
+/** Set the bit offset and length for the specified proto_item.
+ * @param ti The item to set.
+ * @param bits_offset The number of bits from the beginning of the field.
+ * @param bits_len The new length in bits.
+ */
+WS_DLL_PUBLIC void proto_item_set_bits_offset_len(proto_item *ti, int bits_offset, int bits_len);
 
+/** Get display representation of a proto_item.
+ * Can be used, for example, to append that to the parent item of
+ * that item.
+ @param scope the wmem scope to use to allocate the string
+ @param pi the item from which to get the display representation
+ @return the display representation */
+WS_DLL_PUBLIC char *proto_item_get_display_repr(wmem_allocator_t *scope, proto_item *pi);
 
 /** Creates a new proto_tree root.
  @return the new tree root */
@@ -2396,7 +2451,7 @@ proto_free_deregistered_fields (void);
  @param indices array of ett indices
  @param num_indices the number of records in indices */
 WS_DLL_PUBLIC void
-proto_register_subtree_array(gint *const *indices, const int num_indices);
+proto_register_subtree_array(gint * const *indices, const int num_indices);
 
 /** Get name of registered header_field number n.
  @param n item # n (0-indexed)
@@ -2711,7 +2766,7 @@ proto_find_undecoded_data(proto_tree *tree, guint length);
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_bitmask(proto_tree *tree, tvbuff_t *tvb, const guint offset,
-        const int hf_hdr, const gint ett, const int **fields, const guint encoding);
+        const int hf_hdr, const gint ett, int * const *fields, const guint encoding);
 
 /** This function will dissect a sequence of bytes that describe a bitmask.
     The value of the integer containing the bitmask is returned through
@@ -2737,7 +2792,7 @@ proto_tree_add_bitmask(proto_tree *tree, tvbuff_t *tvb, const guint offset,
  @return the newly created item, and *retval is set to the decoded value masked/shifted according to bitmask */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_bitmask_ret_uint64(proto_tree *tree, tvbuff_t *tvb, const guint offset,
-        const int hf_hdr, const gint ett, const int **fields,
+        const int hf_hdr, const gint ett, int * const *fields,
         const guint encoding, guint64 *retval);
 
 /** This function will dissect a sequence of bytes that describe a bitmask.
@@ -2765,7 +2820,7 @@ proto_tree_add_bitmask_ret_uint64(proto_tree *tree, tvbuff_t *tvb, const guint o
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_bitmask_with_flags(proto_tree *tree, tvbuff_t *tvb, const guint offset,
-        const int hf_hdr, const gint ett, const int **fields, const guint encoding, const int flags);
+        const int hf_hdr, const gint ett, int * const *fields, const guint encoding, const int flags);
 
 /** This function will dissect a sequence of bytes that describe a bitmask.
     This has "filterable" bitmask header functionality of proto_tree_add_bitmask
@@ -2795,7 +2850,7 @@ proto_tree_add_bitmask_with_flags(proto_tree *tree, tvbuff_t *tvb, const guint o
  @return the newly created item, and *retval is set to the decoded value masked/shifted according to bitmask */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_bitmask_with_flags_ret_uint64(proto_tree *tree, tvbuff_t *tvb, const guint offset,
-        const int hf_hdr, const gint ett, const int **fields,
+        const int hf_hdr, const gint ett, int * const *fields,
         const guint encoding, const int flags, guint64 *retval);
 
 /** This function will dissect a value that describe a bitmask. Similar to proto_tree_add_bitmask(),
@@ -2819,7 +2874,7 @@ proto_tree_add_bitmask_with_flags_ret_uint64(proto_tree *tree, tvbuff_t *tvb, co
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_bitmask_value(proto_tree *tree, tvbuff_t *tvb, const guint offset,
-        const int hf_hdr, const gint ett, const int **fields, const guint64 value);
+        const int hf_hdr, const gint ett, int * const *fields, const guint64 value);
 
 /** This function will dissect a value that describe a bitmask. Similar to proto_tree_add_bitmask(),
     but with a passed in value (presumably because it can't be retrieved directly from tvb)
@@ -2846,7 +2901,7 @@ proto_tree_add_bitmask_value(proto_tree *tree, tvbuff_t *tvb, const guint offset
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_bitmask_value_with_flags(proto_tree *tree, tvbuff_t *tvb, const guint offset,
-        const int hf_hdr, const gint ett, const int **fields, const guint64 value, const int flags);
+        const int hf_hdr, const gint ett, int * const *fields, const guint64 value, const int flags);
 
 /** This function will dissect a sequence of bytes that describe a bitmask. Similar
     to proto_tree_add_bitmask(), but with no "header" item to group all of the fields
@@ -2864,7 +2919,7 @@ proto_tree_add_bitmask_value_with_flags(proto_tree *tree, tvbuff_t *tvb, const g
  @param encoding big or little endian byte representation (ENC_BIG_ENDIAN/ENC_LITTLE_ENDIAN/ENC_HOST_ENDIAN) */
 WS_DLL_PUBLIC void
 proto_tree_add_bitmask_list(proto_tree *tree, tvbuff_t *tvb, const guint offset,
-                                const int len, const int **fields, const guint encoding);
+                                const int len, int * const *fields, const guint encoding);
 
 /** This function will dissect a value that describe a bitmask. Similar to proto_tree_add_bitmask_list(),
     but with a passed in value (presumably because it can't be retrieved directly from tvb)
@@ -2882,7 +2937,7 @@ proto_tree_add_bitmask_list(proto_tree *tree, tvbuff_t *tvb, const guint offset,
  @param value bitmask value */
 WS_DLL_PUBLIC void
 proto_tree_add_bitmask_list_value(proto_tree *tree, tvbuff_t *tvb, const guint offset,
-                                const int len, const int **fields, const guint64 value);
+                                const int len, int * const *fields, const guint64 value);
 
 
 /** This function will dissect a sequence of bytes that describe a bitmask.
@@ -2908,7 +2963,7 @@ proto_tree_add_bitmask_list_value(proto_tree *tree, tvbuff_t *tvb, const guint o
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_bitmask_len(proto_tree *tree, tvbuff_t *tvb, const guint offset, const guint len,
-        const int hf_hdr, const gint ett, const int **fields, struct expert_field* exp, const guint encoding);
+        const int hf_hdr, const gint ett, int * const *fields, struct expert_field* exp, const guint encoding);
 
 /** Add a text with a subtree of bitfields.
  @param tree the tree to append this item to
@@ -2925,7 +2980,7 @@ proto_tree_add_bitmask_len(proto_tree *tree, tvbuff_t *tvb, const guint offset, 
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_bitmask_text(proto_tree *tree, tvbuff_t *tvb, const guint offset, const guint len,
         const char *name, const char *fallback,
-        const gint ett, const int **fields, const guint encoding, const int flags);
+        const gint ett, int * const *fields, const guint encoding, const int flags);
 
 #define BMT_NO_FLAGS    0x00    /**< Don't use any flags */
 #define BMT_NO_APPEND   0x01    /**< Don't change the title at all */

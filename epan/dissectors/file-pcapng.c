@@ -70,6 +70,7 @@ static int hf_pcapng_option_data_interface_timestamp_resolution_value = -1;
 static int hf_pcapng_option_data_interface_timezone = -1;
 static int hf_pcapng_option_data_interface_filter = -1;
 static int hf_pcapng_option_data_interface_os = -1;
+static int hf_pcapng_option_data_interface_hardware = -1;
 static int hf_pcapng_option_data_interface_fcs_length = -1;
 static int hf_pcapng_option_data_interface_timestamp_offset = -1;
 static int hf_pcapng_option_data_packet_drop_count = -1;
@@ -134,8 +135,12 @@ static int hf_pcapng_option_data_packet_darwin_dpeb_id = -1;
 static int hf_pcapng_option_data_packet_darwin_svc_class = -1;
 static int hf_pcapng_option_data_packet_darwin_edpeb_id = -1;
 
+static expert_field ei_invalid_byte_order_magic = EI_INIT;
+static expert_field ei_block_length_too_short = EI_INIT;
+static expert_field ei_block_length_not_multiple_of_4 = EI_INIT;
 static expert_field ei_invalid_option_length = EI_INIT;
 static expert_field ei_invalid_record_length = EI_INIT;
+static expert_field ei_missing_idb = EI_INIT;
 
 static gint ett_pcapng = -1;
 static gint ett_pcapng_section_header_block = -1;
@@ -146,13 +151,13 @@ static gint ett_pcapng_records = -1;
 static gint ett_pcapng_record = -1;
 static gint ett_pcapng_packet_data = -1;
 
-static const int *hfx_pcapng_option_data_interface_timestamp_resolution[] = {
+static int * const hfx_pcapng_option_data_interface_timestamp_resolution[] = {
     &hf_pcapng_option_data_interface_timestamp_resolution_base,
     &hf_pcapng_option_data_interface_timestamp_resolution_value,
     NULL
 };
 
-static const int *hfx_pcapng_option_data_packet_flags_link_layer_errors[] = {
+static int * const hfx_pcapng_option_data_packet_flags_link_layer_errors[] = {
     &hf_pcapng_option_data_packet_flags_link_layer_errors_symbol,
     &hf_pcapng_option_data_packet_flags_link_layer_errors_preamble,
     &hf_pcapng_option_data_packet_flags_link_layer_errors_start_frame_delimiter,
@@ -165,7 +170,7 @@ static const int *hfx_pcapng_option_data_packet_flags_link_layer_errors[] = {
     NULL
 };
 
-static const int *hfx_pcapng_option_data_packet_flags[] = {
+static int * const hfx_pcapng_option_data_packet_flags[] = {
     &hf_pcapng_option_data_packet_flags_reserved,
     &hf_pcapng_option_data_packet_flags_fcs_length,
     &hf_pcapng_option_data_packet_flags_reception_type,
@@ -173,23 +178,25 @@ static const int *hfx_pcapng_option_data_packet_flags[] = {
     NULL
 };
 
-static const int *hfx_pcapng_block_type[] = {
+static int * const hfx_pcapng_block_type[] = {
     &hf_pcapng_block_type_vendor,
     &hf_pcapng_block_type_value,
     NULL
 };
 
 struct info {
-    guint32        file_number;
+    guint32        section_number;
     guint32        interface_number;
     guint32        darwin_process_event_number;
     guint32        frame_number;
+    guint          encoding;
     wmem_array_t  *interfaces;
     wmem_array_t  *darwin_process_events;
 };
 
 struct interface_description {
     guint32  link_type;
+    guint32  snap_len;
     guint64  timestamp_resolution;
     guint64  timestamp_offset;
 };
@@ -400,42 +407,43 @@ static const value_string block_type_vals[] = {
  */
 
 static const value_string option_code_section_header_vals[] = {
-    { 0x0000,  "End of Options" },
-    { 0x0001,  "Comment" },
+    { 0,  "End of Options" },
+    { 1,  "Comment" },
 
-    { 0x0002,  "Hardware Description" },
-    { 0x0003,  "OS Description" },
-    { 0x0004,  "User Application" },
+    { 2,  "Hardware Description" },
+    { 3,  "OS Description" },
+    { 4,  "User Application" },
     { 0, NULL }
 };
 
 static const value_string option_code_interface_description_vals[] = {
-    { 0x0000,  "End of Options" },
-    { 0x0001,  "Comment" },
+    { 0,  "End of Options" },
+    { 1,  "Comment" },
 
-    { 0x0002,  "Interface Name" },
-    { 0x0003,  "Interface Description" },
-    { 0x0004,  "IPv4 Address" },
-    { 0x0005,  "IPv6 Address" },
-    { 0x0006,  "MAC Address" },
-    { 0x0007,  "EUI Address" },
-    { 0x0008,  "Speed" },
-    { 0x0009,  "Timestamp Resolution" },
-    { 0x000A,  "Timezone" },
-    { 0x000B,  "Filter" },
-    { 0x000C,  "OS" },
-    { 0x000D,  "FCS Length" },
-    { 0x000E,  "Timestamo Offset" },
+    { 2,  "Interface Name" },
+    { 3,  "Interface Description" },
+    { 4,  "IPv4 Address" },
+    { 5,  "IPv6 Address" },
+    { 6,  "MAC Address" },
+    { 7,  "EUI Address" },
+    { 8,  "Speed" },
+    { 9,  "Timestamp Resolution" },
+    { 10, "Timezone" },
+    { 11, "Filter" },
+    { 12, "OS" },
+    { 13, "FCS Length" },
+    { 14, "Timestamp Offset" },
+    { 15, "Hardware" },
     { 0, NULL }
 };
 
 static const value_string option_code_enhanced_packet_vals[] = {
-    { 0x0000,  "End of Options" },
-    { 0x0001,  "Comment" },
+    { 0,  "End of Options" },
+    { 1,  "Comment" },
 
-    { 0x0002,  "Flags" },
-    { 0x0003,  "Hash" },
-    { 0x0004,  "Drop Count" },
+    { 2,  "Flags" },
+    { 3,  "Hash" },
+    { 4,  "Drop Count" },
     { 32769,   "Darwin DPEB ID" },
     { 32770,   "Darwin Service Class" },
     { 32771,   "Darwin Effective DPEB ID" },
@@ -443,44 +451,44 @@ static const value_string option_code_enhanced_packet_vals[] = {
 };
 
 static const value_string option_code_packet_vals[] = {
-    { 0x0000,  "End of Options" },
-    { 0x0001,  "Comment" },
+    { 0,  "End of Options" },
+    { 1,  "Comment" },
 
-    { 0x0002,  "Flags" },
-    { 0x0003,  "Hash" },
+    { 2,  "Flags" },
+    { 3,  "Hash" },
     { 0, NULL }
 };
 
 static const value_string option_code_name_resolution_vals[] = {
-    { 0x0000,  "End of Options" },
-    { 0x0001,  "Comment" },
+    { 0,  "End of Options" },
+    { 1,  "Comment" },
 
-    { 0x0002,  "DNS Name" },
-    { 0x0003,  "DNS IPv4 Address" },
-    { 0x0004,  "DNS IPv6 Address" },
+    { 2,  "DNS Name" },
+    { 3,  "DNS IPv4 Address" },
+    { 4,  "DNS IPv6 Address" },
     { 0, NULL }
 };
 
 static const value_string option_code_interface_statistics_vals[] = {
-    { 0x0000,  "End of Options" },
-    { 0x0001,  "Comment" },
+    { 0,  "End of Options" },
+    { 1,  "Comment" },
 
-    { 0x0002,  "Start Time" },
-    { 0x0003,  "End Time" },
-    { 0x0004,  "Number of Received Packets" },
-    { 0x0005,  "Number of Dropped Packets" },
-    { 0x0006,  "Number of Accepted Packets" },
-    { 0x0007,  "Number of Packets Dropped by OS" },
-    { 0x0008,  "Number of Packets Delivered to the User" },
+    { 2,  "Start Time" },
+    { 3,  "End Time" },
+    { 4,  "Number of Received Packets" },
+    { 5,  "Number of Dropped Packets" },
+    { 6,  "Number of Accepted Packets" },
+    { 7,  "Number of Packets Dropped by OS" },
+    { 8,  "Number of Packets Delivered to the User" },
     { 0, NULL }
 };
 
 static const value_string option_code_darwin_process_info_vals[] = {
-    { 0x0000,  "End of Options" },
-    { 0x0001,  "Comment" },
+    { 0,  "End of Options" },
+    { 1,  "Comment" },
 
-    { 0x0002,  "Darwin Process Name" },
-    { 0x0004,  "Darwin Process UUID" },
+    { 2,  "Darwin Process Name" },
+    { 4,  "Darwin Process UUID" },
     { 0, NULL }
 };
 
@@ -512,11 +520,11 @@ static const value_string timestamp_resolution_base_vals[] = {
 };
 
 static const value_string packet_hash_algorithm_vals[] = {
-    { 0x00,  "2's complement" },
-    { 0x01,  "XOR" },
-    { 0x02,  "CRC32" },
-    { 0x03,  "MD5" },
-    { 0x04,  "SHA1" },
+    { 0,  "2's complement" },
+    { 1,  "XOR" },
+    { 2,  "CRC32" },
+    { 3,  "MD5" },
+    { 4,  "SHA1" },
     { 0, NULL }
 };
 
@@ -545,6 +553,15 @@ static const value_string dsb_secrets_types_vals[] = {
 void proto_register_pcapng(void);
 void proto_reg_handoff_pcapng(void);
 
+#define BYTE_ORDER_MAGIC_SIZE  4
+
+static const guint8 pcapng_big_endian_magic[BYTE_ORDER_MAGIC_SIZE] = {
+    0x1A, 0x2B, 0x3C, 0x4D
+};
+static const guint8 pcapng_little_endian_magic[BYTE_ORDER_MAGIC_SIZE] = {
+    0x4D, 0x3C, 0x2B, 0x1A
+};
+
 static gint dissect_options(proto_tree *tree, packet_info *pinfo,
         guint32 block_type, tvbuff_t *tvb, guint encoding, void *user_data)
 {
@@ -552,12 +569,13 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
     proto_item   *options_item;
     proto_tree   *option_tree;
     proto_item   *option_item;
+    proto_item   *option_length_item;
     proto_item   *p_item;
     gint          offset = 0;
-    guint16       option_code;
-    gint          option_length;
+    guint32       option_code;
+    guint32       option_length;
     gint          hfj_pcapng_option_code;
-    const guint8 *str = NULL;
+    const guint8*str = NULL;
     wmem_strbuf_t *strbuf;
     address       addr;
     address      addr_mask;
@@ -578,10 +596,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
 
     while (tvb_captured_length_remaining(tvb, offset)) {
         str = NULL;
-        option_code   = tvb_get_guint16(tvb, offset, encoding);
-        option_length = tvb_get_guint16(tvb, offset + 2, encoding);
-
-        option_item = proto_tree_add_item(options_tree, hf_pcapng_option, tvb, offset, option_length + 2 * 2, ENC_NA);
+        option_item = proto_tree_add_item(options_tree, hf_pcapng_option, tvb, offset, -1, ENC_NA);
         option_tree = proto_item_add_subtree(option_item, ett_pcapng_option);
 
         switch (block_type) {
@@ -617,16 +632,18 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
             hfj_pcapng_option_code = hf_pcapng_option_code;
         }
 
+        proto_tree_add_item_ret_uint(option_tree, hfj_pcapng_option_code, tvb, offset, 2, encoding, &option_code);
         if (vals)
             proto_item_append_text(option_item, ": %s", val_to_str_const(option_code, vals, "Unknown"));
-
-        proto_tree_add_item(option_tree, hfj_pcapng_option_code, tvb, offset, 2, encoding);
         offset += 2;
 
-        proto_tree_add_item(option_tree, hf_pcapng_option_length, tvb, offset, 2, encoding);
+        option_length_item = proto_tree_add_item_ret_uint(option_tree, hf_pcapng_option_length, tvb, offset, 2, encoding, &option_length);
         offset += 2;
 
-        if (option_code == 0 && option_length == 0) {
+        if (option_code == 0) {
+            if (option_length != 0)
+                expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
+            proto_item_set_len(option_item, option_length + 2 * 2);
             break;
         } else if (option_code == 1) {
             proto_tree_add_item_ret_string(option_tree, hf_pcapng_option_data_comment, tvb, offset, option_length, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
@@ -634,15 +651,15 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
         } else switch (block_type) {
         case BLOCK_SECTION_HEADER:
             switch (option_code) {
-            case 0x0002:
+            case 2:
                 proto_tree_add_item_ret_string(option_tree, hf_pcapng_option_data_section_header_hardware, tvb, offset, option_length, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
                 offset += option_length;
                 break;
-            case 0x0003:
+            case 3:
                 proto_tree_add_item_ret_string(option_tree, hf_pcapng_option_data_section_header_os, tvb, offset, option_length, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
                 offset += option_length;
                 break;
-            case 0x0004:
+            case 4:
                 proto_tree_add_item_ret_string(option_tree, hf_pcapng_option_data_section_header_user_application, tvb, offset, option_length, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
                 offset += option_length;
                 break;
@@ -655,17 +672,17 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
             struct interface_description  *interface_description = (struct interface_description *) user_data;
 
             switch (option_code) {
-            case 0x0002:
+            case 2:
                 proto_tree_add_item_ret_string(option_tree, hf_pcapng_option_data_interface_description_name, tvb, offset, option_length, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
                 offset += option_length;
                 break;
-            case 0x0003:
+            case 3:
                 proto_tree_add_item_ret_string(option_tree, hf_pcapng_option_data_interface_description_description, tvb, offset, option_length, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
                 offset += option_length;
                 break;
-            case 0x0004:
+            case 4:
                 if (option_length != 8) {
-                    proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
+                    expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
                     break;
                 }
@@ -677,13 +694,13 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 set_address_tvb(&addr_mask, AT_IPv4, 4, tvb, offset);
                 offset += 4;
 
-                str = wmem_strdup_printf(wmem_packet_scope(), "%s/%s",
+                str = (const guint8 *)wmem_strdup_printf(wmem_packet_scope(), "%s/%s",
                         address_to_display(wmem_packet_scope(),  &addr),
                         address_to_display(wmem_packet_scope(),  &addr_mask));
                 break;
-            case 0x0005:
+            case 5:
                 if (option_length != 17) {
-                    proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
+                    expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
                     break;
                 }
@@ -695,25 +712,25 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 proto_tree_add_item(option_tree, hf_pcapng_option_data_ipv6_mask, tvb, offset, 1, ENC_NA);
                 offset += 1;
 
-                str = wmem_strdup_printf(wmem_packet_scope(), "%s/%u",
+                str = (const guint8*)wmem_strdup_printf(wmem_packet_scope(), "%s/%u",
                     address_to_display(wmem_packet_scope(),  &addr), (unsigned int) tvb_get_guint8(tvb, offset - 1));
 
                 break;;
-            case 0x0006:
+            case 6:
                 if (option_length != 6) {
-                    proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
+                    expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
                     break;
                 }
 
                 proto_tree_add_item(option_tree, hf_pcapng_option_data_mac_address, tvb, offset, 6, encoding);
-                str = tvb_get_ether_name(tvb, offset);
+                str = (const guint8*)tvb_get_ether_name(tvb, offset);
                 offset += 6;
 
                 break;
-            case 0x0007:
+            case 7:
                 if (option_length != 8) {
-                    proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
+                    expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
                     break;
                 }
@@ -722,12 +739,12 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 set_address_tvb(&addr, AT_EUI64, 8, tvb, offset);
                 offset += 8;
 
-                str = address_to_display(wmem_packet_scope(),  &addr);
+                str = (const guint8*)address_to_display(wmem_packet_scope(),  &addr);
 
                 break;
-            case 0x0008:
+            case 8:
                 if (option_length != 8) {
-                    proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
+                    expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
                     break;
                 }
@@ -735,21 +752,21 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 p_item = proto_tree_add_item(option_tree, hf_pcapng_option_data_interface_speed, tvb, offset, 8, encoding);
                 value.u64 = tvb_get_guint64(tvb, offset, encoding);
                 if (value.u64 == 10000000) {
-                    str = "10 Mbps";
+                    str = (const guint8*)"10 Mbps";
                     proto_item_append_text(p_item, "%s", str);
                 } else if (value.u64 == 100000000) {
-                    str = "100 Mbps";
+                    str = (const guint8*)"100 Mbps";
                     proto_item_append_text(p_item, "%s", str);
                 } else if (value.u64 == 1000000000) {
-                    str = "1 Gbps";
+                    str = (const guint8*)"1 Gbps";
                     proto_item_append_text(p_item, "%s", str);
                 } else {
-                    str = wmem_strdup_printf(wmem_packet_scope(), "%"G_GUINT64_FORMAT, value.u64);
+                    str = (const guint8*)wmem_strdup_printf(wmem_packet_scope(), "%"G_GUINT64_FORMAT, value.u64);
                 }
                 offset += 8;
 
                 break;
-            case 0x0009:
+            case 9:
             {
                 guint32     base;
                 guint32     exponent;
@@ -757,7 +774,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 guint64     resolution;
 
                 if (option_length != 1) {
-                    proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
+                    expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
                     break;
                 }
@@ -848,12 +865,12 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                     wmem_strbuf_append(strbuf, " (.01 picoseconds)");
                     break;
                 }
-                str = wmem_strbuf_finalize(strbuf);
+                str = (const guint8*)wmem_strbuf_finalize(strbuf);
                 break;
             }
-            case 0x000A:
+            case 10:
                 if (option_length != 4) {
-                    proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
+                    expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
                     break;
                 }
@@ -863,12 +880,12 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 value.u32 = tvb_get_guint32(tvb, offset, encoding);
                 offset += 4;
 
-                str = wmem_strdup_printf(wmem_packet_scope(), "%u", value.u32);
+                str = (const guint8*)wmem_strdup_printf(wmem_packet_scope(), "%u", value.u32);
 
                 break;
-            case 0x000B:
+            case 11:
                 if (option_length == 0) {
-                    proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
+                    expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     break;
                 }
 
@@ -878,39 +895,44 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 offset += option_length - 1;
 
                 break;
-            case 0x000C:
+            case 12:
                 proto_tree_add_item_ret_string(option_tree, hf_pcapng_option_data_interface_os, tvb, offset, option_length, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
                 offset += option_length;
 
                 break;
-            case 0x000D:
+            case 13:
                 if (option_length != 1) {
-                    proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
+                    expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
                     break;
                 }
 
                 proto_tree_add_item(option_tree, hf_pcapng_option_data_interface_fcs_length, tvb, offset, 1, ENC_NA);
                 value.u8 = tvb_get_guint8(tvb, offset);
-                str = wmem_strdup_printf(wmem_packet_scope(), "%u", (guint32) value.u8);
+                str = (const guint8*)wmem_strdup_printf(wmem_packet_scope(), "%u", (guint32) value.u8);
                 offset += 1;
 
                 break;
-            case 0x000E:
+            case 14:
                 if (option_length != 8) {
-                    proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
+                    expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
                     break;
                 }
 
                 proto_tree_add_item(option_tree, hf_pcapng_option_data_interface_timestamp_offset, tvb, offset, 8, encoding);
                 value.u64 = tvb_get_guint64(tvb, offset, encoding);
-                str = wmem_strdup_printf(wmem_packet_scope(), "%"G_GUINT64_FORMAT, value.u64);
+                str = (const guint8*)wmem_strdup_printf(wmem_packet_scope(), "%"G_GUINT64_FORMAT, value.u64);
                 offset += 8;
 
                 if (interface_description) {
                     interface_description->timestamp_offset = value.u64;
                 }
+
+                break;
+            case 15:
+                proto_tree_add_item_ret_string(option_tree, hf_pcapng_option_data_interface_hardware, tvb, offset, option_length, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
+                offset += option_length;
 
                 break;
             default:
@@ -921,9 +943,9 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
             break;
         case BLOCK_PACKET:
             switch (option_code) {
-            case 0x0002:
+            case 2:
                 if (option_length != 4) {
-                    proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
+                    expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
                     break;
                 }
@@ -943,7 +965,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 }
 
                 break;
-            case 0x0003:
+            case 3:
                 proto_tree_add_item(option_tree, hf_pcapng_option_data_packet_hash_algorithm, tvb, offset, 1, ENC_NA);
                 offset += 1;
 
@@ -959,14 +981,14 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
             break;
         case BLOCK_NAME_RESOLUTION:
             switch (option_code) {
-            case 0x0002:
+            case 2:
                 proto_tree_add_item_ret_string(option_tree, hf_pcapng_option_data_dns_name, tvb, offset, option_length, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
                 offset += option_length;
 
                 break;
-            case 0x0003:
+            case 3:
                 if (option_length != 4) {
-                    proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
+                    expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
                     break;
                 }
@@ -975,12 +997,12 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 set_address_tvb(&addr, AT_IPv4, 4, tvb, offset);
                 offset += 4;
 
-                str = address_to_display(wmem_packet_scope(), &addr);
+                str = (const guint8*)address_to_display(wmem_packet_scope(), &addr);
 
                 break;
-            case 0x0004:
+            case 4:
                 if (option_length != 16) {
-                    proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
+                    expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
                     break;
                 }
@@ -989,7 +1011,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 set_address_tvb(&addr, AT_IPv6, 16, tvb, offset);
                 offset += 16;
 
-                str = address_to_display(wmem_packet_scope(),  &addr);
+                str = (const guint8*)address_to_display(wmem_packet_scope(),  &addr);
 
                 break;
             default:
@@ -1000,9 +1022,9 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
             break;
         case BLOCK_INTERFACE_STATISTICS:
             switch (option_code) {
-            case 0x0002:
+            case 2:
                 if (option_length != 8) {
-                    proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
+                    expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
                     break;
                 }
@@ -1011,9 +1033,9 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 offset += 8;
 
                 break;
-            case 0x0003:
+            case 3:
                 if (option_length != 8) {
-                    proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
+                    expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
                     break;
                 }
@@ -1022,68 +1044,68 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 offset += 8;
 
                 break;
-            case 0x0004:
+            case 4:
                 if (option_length != 8) {
-                    proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
+                    expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
                     break;
                 }
 
                 proto_tree_add_item(option_tree, hf_pcapng_option_data_interface_received, tvb, offset, 8, encoding);
                 value.u64 = tvb_get_guint64(tvb, offset, encoding);
-                str = wmem_strdup_printf(wmem_packet_scope(), "%"G_GUINT64_FORMAT, value.u64);
+                str = (const guint8*)wmem_strdup_printf(wmem_packet_scope(), "%"G_GUINT64_FORMAT, value.u64);
                 offset += 8;
 
                 break;
-            case 0x0005:
+            case 5:
                 if (option_length != 8) {
-                    proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
+                    expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
                     break;
                 }
 
                 proto_tree_add_item(option_tree, hf_pcapng_option_data_interface_dropped, tvb, offset, 8, encoding);
                 value.u64 = tvb_get_guint64(tvb, offset, encoding);
-                str = wmem_strdup_printf(wmem_packet_scope(), "%"G_GUINT64_FORMAT, value.u64);
+                str = (const guint8*)wmem_strdup_printf(wmem_packet_scope(), "%"G_GUINT64_FORMAT, value.u64);
                 offset += 8;
 
                 break;
-            case 0x0006:
+            case 6:
                 if (option_length != 8) {
-                    proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
+                    expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
                     break;
                 }
 
                 proto_tree_add_item(option_tree, hf_pcapng_option_data_interface_accepted_by_filter, tvb, offset, 8, encoding);
                 value.u64 = tvb_get_guint64(tvb, offset, encoding);
-                str = wmem_strdup_printf(wmem_packet_scope(), "%"G_GUINT64_FORMAT, value.u64);
+                str = (const guint8*)wmem_strdup_printf(wmem_packet_scope(), "%"G_GUINT64_FORMAT, value.u64);
                 offset += 8;
 
                 break;
-            case 0x0007:
+            case 7:
                 if (option_length != 8) {
-                    proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
+                    expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
                     break;
                 }
 
                 proto_tree_add_item(option_tree, hf_pcapng_option_data_interface_dropped_by_os, tvb, offset, 8, encoding);
                 value.u64 = tvb_get_guint64(tvb, offset, encoding);
-                str = wmem_strdup_printf(wmem_packet_scope(), "%"G_GUINT64_FORMAT, value.u64);
+                str = (const guint8*)wmem_strdup_printf(wmem_packet_scope(), "%"G_GUINT64_FORMAT, value.u64);
                 offset += 8;
 
                 break;
-            case 0x0008:
+            case 8:
                 if (option_length != 8) {
-                    proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
+                    expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
                     break;
                 }
 
                 proto_tree_add_item(option_tree, hf_pcapng_option_data_interface_delivered_to_user, tvb, offset, 8, encoding);
                 value.u64 = tvb_get_guint64(tvb, offset, encoding);
-                str = wmem_strdup_printf(wmem_packet_scope(), "%"G_GUINT64_FORMAT, value.u64);
+                str = (const guint8*)wmem_strdup_printf(wmem_packet_scope(), "%"G_GUINT64_FORMAT, value.u64);
                 offset += 8;
 
                 break;
@@ -1095,9 +1117,9 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
             break;
         case BLOCK_ENHANCED_PACKET:
             switch (option_code) {
-            case 0x0002:
+            case 2:
                 if (option_length != 4) {
-                    proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
+                    expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
                     break;
                 }
@@ -1117,7 +1139,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 }
 
                 break;
-            case 0x0003:
+            case 3:
                 proto_tree_add_item(option_tree, hf_pcapng_option_data_packet_hash_algorithm, tvb, offset, 1, ENC_NA);
                 offset += 1;
 
@@ -1125,16 +1147,16 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 offset += option_length - 1;
 
                 break;
-            case 0x0004:
+            case 4:
                 if (option_length != 8) {
-                    proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
+                    expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
                     break;
                 }
 
                 proto_tree_add_item(option_tree, hf_pcapng_option_data_packet_drop_count, tvb, offset, 8, encoding);
                 value.u64 = tvb_get_guint64(tvb, offset, encoding);
-                str = wmem_strdup_printf(wmem_packet_scope(), "%"G_GUINT64_FORMAT, value.u64);
+                str = (const guint8*)wmem_strdup_printf(wmem_packet_scope(), "%"G_GUINT64_FORMAT, value.u64);
                 offset += 8;
 
                 break;
@@ -1143,7 +1165,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 value.u32 = tvb_get_guint32(tvb, offset, encoding);
                 offset += option_length;
 
-                str = wmem_strdup_printf(wmem_packet_scope(), "%u", value.u32);
+                str = (const guint8*)wmem_strdup_printf(wmem_packet_scope(), "%u", value.u32);
 
                 break;
             case 32770: /* Darwin Service Type */
@@ -1151,7 +1173,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 value.u32 = tvb_get_guint32(tvb, offset, encoding);
                 offset += option_length;
 
-                str = wmem_strdup_printf(wmem_packet_scope(), "%s", val_to_str_const(value.u32, option_code_darwin_svc_class_vals, "Unknown"));
+                str = (const guint8*)wmem_strdup_printf(wmem_packet_scope(), "%s", val_to_str_const(value.u32, option_code_darwin_svc_class_vals, "Unknown"));
 
                 break;
             case 32771: /* Darwin Effective DPEB ID */
@@ -1159,7 +1181,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 value.u32 = tvb_get_guint32(tvb, offset, encoding);
                 offset += option_length;
 
-                str = wmem_strdup_printf(wmem_packet_scope(), "%u", value.u32);
+                str = (const guint8*)wmem_strdup_printf(wmem_packet_scope(), "%u", value.u32);
 
                 break;
             default:
@@ -1170,17 +1192,17 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
             break;
         case BLOCK_DARWIN_PROCESS:
             switch (option_code) {
-            case 0x0002: /* Darwin Process Name */
+            case 2: /* Darwin Process Name */
                 proto_tree_add_item_ret_string(option_tree, hf_pcapng_option_darwin_process_name, tvb, offset, option_length, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
                 offset += option_length;
                 break;
 
-            case 0x0004: /* Darwin Process UUID */
+            case 4: /* Darwin Process UUID */
                 proto_tree_add_item(option_tree, hf_pcapng_option_darwin_process_uuid, tvb, offset, option_length, ENC_BIG_ENDIAN);
                 tvb_get_guid(tvb, offset, &uuid, ENC_BIG_ENDIAN);
                 offset += option_length;
 
-                str = guid_to_str(wmem_packet_scope(), &uuid);
+                str = (const guint8*)guid_to_str(wmem_packet_scope(), &uuid);
 
                 break;
             default:
@@ -1195,12 +1217,13 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
             offset += option_length;
         }
 
-        if (option_length % 4) {
+        if ((option_length % 4) != 0) {
             proto_item_set_len(option_item, option_length + 2 * 2 + (4 - option_length % 4));
             option_length = 4 - option_length % 4;
             proto_tree_add_item(option_tree, hf_pcapng_option_padding, tvb, offset, option_length, ENC_NA);
             offset += option_length;
-        }
+        } else
+            proto_item_set_len(option_item, option_length + 2 * 2);
 
         if (str)
             proto_item_append_text(option_item, " = %s", str);
@@ -1212,18 +1235,17 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
 
 static void
 pcapng_add_timestamp(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
-        int offset, guint encoding, guint32 interface_id, struct info *info)
+        int offset, guint encoding,
+        struct interface_description *interface_description)
 {
     proto_tree_add_item(tree, hf_pcapng_timestamp_high, tvb, offset, 4, encoding);
     proto_tree_add_item(tree, hf_pcapng_timestamp_low, tvb, offset + 4, 4, encoding);
 
-    if (interface_id < wmem_array_get_count(info->interfaces)) {
-        struct interface_description  *interface_description;
+    if (interface_description != NULL) {
         nstime_t    timestamp;
         guint64     ts;
         proto_item *ti;
 
-        interface_description = (struct interface_description *) wmem_array_index(info->interfaces, interface_id);
         ts = ((guint64)(tvb_get_guint32(tvb, offset, encoding))) << 32 |
                         tvb_get_guint32(tvb, offset + 4, encoding);
 
@@ -1234,7 +1256,7 @@ pcapng_add_timestamp(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
             pinfo->presence_flags &= ~PINFO_HAS_TS;
         } else {
             timestamp.secs  = (time_t)(ts / interface_description->timestamp_resolution);
-            timestamp.nsecs = (int)(ts - (ts / interface_description->timestamp_resolution) * interface_description->timestamp_resolution);
+            timestamp.nsecs = (int)(((ts % interface_description->timestamp_resolution) * 1000000000) / interface_description->timestamp_resolution);
 
             ti = proto_tree_add_time(tree, hf_pcapng_timestamp, tvb, offset, 8, &timestamp);
             proto_item_set_generated(ti);
@@ -1244,13 +1266,63 @@ pcapng_add_timestamp(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
     }
 }
 
+static struct interface_description *
+get_interface_description(struct info *info, guint interface_id,
+    packet_info *pinfo, proto_tree *tree)
+{
+    if (interface_id >= wmem_array_get_count(info->interfaces)) {
+        expert_add_info(pinfo, tree, &ei_missing_idb);
+        return NULL;
+    }
+    return (struct interface_description *) wmem_array_index(info->interfaces, interface_id);
+}
+
+/*
+ * This is tricky - for most blocks, we can dissect this first, but, for
+ * a Section Header Block, we must dissect it *after* determining the
+ * byte order.
+ *
+ * So we extract it into a routine and call it at the appropriate time.
+ */
+static proto_tree *
+dissect_block_length(proto_tree *block_tree, packet_info *pinfo,
+                     tvbuff_t *tvb, int offset, guint32 *block_data_length_p,
+                     guint encoding)
+{
+    proto_item      *block_length_item;
+    proto_item      *block_data_item;
+
+    block_length_item = proto_tree_add_item_ret_uint(block_tree, hf_pcapng_block_length, tvb, offset, 4, encoding, block_data_length_p);
+    if (*block_data_length_p < 3*4)
+        expert_add_info(pinfo, block_length_item, &ei_block_length_too_short);
+    /*
+     * To quote the current pcapng spec, "Block Total Length (32 bits) ...
+     * This value MUST be a multiple of 4."
+     */
+    if ((*block_data_length_p % 4) != 0)
+        expert_add_info(pinfo, block_length_item, &ei_block_length_not_multiple_of_4);
+
+    /*
+     * Subtract the per-block overhead (block type, block length, trailing
+     * block length).
+     */
+    *block_data_length_p -= 3*4;
+
+    /*
+     * Now that we know the block data length, create an item for its
+     * tree.
+     */
+    offset += 4;
+    block_data_item = proto_tree_add_item(block_tree, hf_pcapng_block_data, tvb, offset, *block_data_length_p, ENC_NA);
+    return proto_item_add_subtree(block_data_item, ett_pcapng_block_data);
+}
+
 static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
-        guint encoding, struct info *info)
+        struct info *info)
 {
     proto_tree      *block_tree;
     proto_item      *block_item;
     proto_tree      *block_data_tree;
-    proto_item      *block_data_item;
     proto_item      *byte_order_magic_item;
     proto_item      *packet_data_item;
     gint             offset = 0;
@@ -1262,387 +1334,436 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
     guint32          interface_id;
     tvbuff_t        *next_tvb;
 
-    block_type = tvb_get_guint32(tvb, offset + 0, encoding);
-    length     = tvb_get_guint32(tvb, offset + 4, encoding);
+    block_type = tvb_get_guint32(tvb, offset + 0, info->encoding);
+    length     = tvb_get_guint32(tvb, offset + 4, info->encoding);
 
     block_item = proto_tree_add_item(tree, hf_pcapng_block, tvb, offset, length, ENC_NA);
     block_tree = proto_item_add_subtree(block_item, ett_pcapng_section_header_block);
     proto_item_append_text(block_item, ": %s", val_to_str_const(block_type, block_type_vals, "Unknown"));
 
-    proto_tree_add_bitmask_with_flags(block_tree, tvb, offset, hf_pcapng_block_type, ett_pcapng_option, hfx_pcapng_block_type, encoding, BMT_NO_APPEND);
+    proto_tree_add_bitmask_with_flags(block_tree, tvb, offset, hf_pcapng_block_type, ett_pcapng_option, hfx_pcapng_block_type, info->encoding, BMT_NO_APPEND);
     offset += 4;
 
-    proto_tree_add_item(block_tree, hf_pcapng_block_length, tvb, offset, 4, encoding);
-    block_data_length = tvb_get_guint32(tvb, offset, encoding) - 3 * 4;
-    offset += 4;
+    if (block_type == BLOCK_SECTION_HEADER) {
+        /* Section Header Block - this needs special byte-order handling */
+        gboolean byte_order_magic_bad = FALSE;
 
-    block_data_item = proto_tree_add_item(block_tree, hf_pcapng_block_data, tvb, offset, block_data_length, ENC_NA);
-    block_data_tree = proto_item_add_subtree(block_data_item, ett_pcapng_block_data);
-
-    switch (block_type) {
-    case BLOCK_SECTION_HEADER: /* Section Header Block */
-        proto_item_append_text(block_item, " %u", info->file_number);
-        info->file_number += 1;
+        proto_item_append_text(block_item, " %u", info->section_number);
+        info->section_number += 1;
         info->interface_number = 0;
         info->darwin_process_event_number = 0;
         info->frame_number = 1;
+        if (info->interfaces != NULL) {
+            wmem_free(wmem_packet_scope(), info->interfaces);
+        }
+        info->interfaces = wmem_array_new(wmem_packet_scope(), sizeof(struct interface_description));
+
+        if (tvb_memeql(tvb, 8, pcapng_big_endian_magic, BYTE_ORDER_MAGIC_SIZE) == 0) {
+            info->encoding = ENC_BIG_ENDIAN;
+        } else if (tvb_memeql(tvb, 8, pcapng_little_endian_magic, BYTE_ORDER_MAGIC_SIZE) == 0) {
+            info->encoding = ENC_LITTLE_ENDIAN;
+        } else {
+            byte_order_magic_bad = TRUE;
+        }
+
+        block_data_tree = dissect_block_length(block_tree, pinfo, tvb, offset, &block_data_length, info->encoding);
+        offset += 4;
 
         byte_order_magic_item = proto_tree_add_item(block_data_tree, hf_pcapng_section_header_byte_order_magic, tvb, offset, 4, ENC_NA);
-        if (encoding == ENC_BIG_ENDIAN)
+        if (byte_order_magic_bad) {
+            expert_add_info(pinfo, byte_order_magic_item, &ei_invalid_byte_order_magic);
+            return -1;
+        }
+        if (info->encoding == ENC_BIG_ENDIAN)
             proto_item_append_text(byte_order_magic_item, " (Big-endian)");
         else
             proto_item_append_text(byte_order_magic_item, " (Little-endian)");
         offset += 4;
 
-        proto_tree_add_item(block_data_tree, hf_pcapng_section_header_major_version, tvb, offset, 2, encoding);
+        proto_tree_add_item(block_data_tree, hf_pcapng_section_header_major_version, tvb, offset, 2, info->encoding);
         offset += 2;
 
-        proto_tree_add_item(block_data_tree, hf_pcapng_section_header_minor_version, tvb, offset, 2, encoding);
+        proto_tree_add_item(block_data_tree, hf_pcapng_section_header_minor_version, tvb, offset, 2, info->encoding);
         offset += 2;
 
-        proto_tree_add_item(block_data_tree, hf_pcapng_section_header_section_length, tvb, offset, 8, encoding);
+        proto_tree_add_item(block_data_tree, hf_pcapng_section_header_section_length, tvb, offset, 8, info->encoding);
         offset += 8;
 
         next_tvb = tvb_new_subset_length(tvb, offset, block_data_length - 4 - 2 - 2 - 8);
-        offset += dissect_options(block_data_tree, pinfo, block_type, next_tvb, encoding, NULL);
-
-        break;
-    case BLOCK_INTERFACE_DESCRIPTION: {
-        struct interface_description  interface_description;
-
-        memset(&interface_description, 0, sizeof(struct interface_description));
-        interface_description.timestamp_resolution = 1000000; /* 1 microsecond resolution is the default */
-
-        proto_item_append_text(block_item, " %u", info->interface_number);
-        info->interface_number += 1;
-
-        proto_tree_add_item(block_data_tree, hf_pcapng_interface_description_link_type, tvb, offset, 2, encoding);
-        interface_description.link_type = tvb_get_guint16(tvb, offset, encoding);
-        offset += 2;
-
-        proto_tree_add_item(block_data_tree, hf_pcapng_interface_description_reserved, tvb, offset, 2, encoding);
-        offset += 2;
-
-        proto_tree_add_item(block_data_tree, hf_pcapng_interface_description_snap_length, tvb, offset, 4, encoding);
+        offset += dissect_options(block_data_tree, pinfo, block_type, next_tvb, info->encoding, NULL);
+    } else {
+        /*
+         * Not an SHB, so we know the byte order.
+         */
+        block_data_tree = dissect_block_length(block_tree, pinfo, tvb, offset, &block_data_length, info->encoding);
         offset += 4;
 
-        next_tvb = tvb_new_subset_length(tvb, offset, block_data_length - 2 - 2 - 4);
-        offset += dissect_options(block_data_tree, pinfo, block_type, next_tvb, encoding, &interface_description);
+        switch (block_type) {
+        case BLOCK_INTERFACE_DESCRIPTION: {
+            struct interface_description  interface_description;
 
-        wmem_array_append_one(info->interfaces, interface_description);
-        }
-        break;
-    case BLOCK_PACKET:
-        proto_item_append_text(block_item, " %u", info->frame_number);
+            memset(&interface_description, 0, sizeof(struct interface_description));
+            interface_description.timestamp_resolution = 1000000; /* 1 microsecond resolution is the default */
 
-        proto_tree_add_item(block_data_tree, hf_pcapng_packet_block_interface_id, tvb, offset, 2, encoding);
-        interface_id = tvb_get_guint16(tvb, offset, encoding);
-        offset += 2;
+            proto_item_append_text(block_item, " %u", info->interface_number);
+            info->interface_number += 1;
 
-        proto_tree_add_item(block_data_tree, hf_pcapng_packet_block_drops_count, tvb, offset, 2, encoding);
-        offset += 2;
-
-        pcapng_add_timestamp(block_data_tree, pinfo, tvb, offset, encoding, interface_id, info);
-        offset += 8;
-
-        proto_tree_add_item_ret_uint(block_data_tree, hf_pcapng_captured_length, tvb, offset, 4, encoding, &captured_length);
-        offset += 4;
-
-        proto_tree_add_item_ret_uint(block_data_tree, hf_pcapng_packet_length, tvb, offset, 4, encoding, &reported_length);
-        offset += 4;
-
-        packet_data_item = proto_tree_add_item(block_data_tree, hf_pcapng_packet_data, tvb, offset, captured_length, encoding);
-
-        if (pref_dissect_next_layer && interface_id < wmem_array_get_count(info->interfaces)) {
-            struct interface_description  *interface_description;
-            proto_tree *packet_data_tree = proto_item_add_subtree(packet_data_item, ett_pcapng_packet_data);
-
-            pinfo->num = info->frame_number;
-
-            interface_description = (struct interface_description *) wmem_array_index(info->interfaces, interface_id);
-            TRY {
-                call_dissector_with_data(pcap_pktdata_handle, tvb_new_subset_length_caplen(tvb, offset, captured_length, reported_length),
-                                         pinfo, packet_data_tree, &interface_description->link_type);
-            }
-            CATCH_BOUNDS_ERRORS {
-                show_exception(tvb, pinfo, packet_data_tree, EXCEPT_CODE, GET_MESSAGE);
-            }
-            ENDTRY;
-        }
-        info->frame_number += 1;
-        offset += captured_length;
-
-        if (captured_length % 4) {
-            proto_tree_add_item(block_data_tree, hf_pcapng_packet_padding, tvb, offset, ((captured_length % 4) ? (4 - (captured_length % 4)) : 0), ENC_NA);
-            offset += ((captured_length % 4) ?(4 - (captured_length % 4)):0);
-        }
-
-        next_tvb = tvb_new_subset_length(tvb, offset, block_data_length - 2 - 2 - 8 - 4 - 4 - captured_length - ((captured_length % 4)?(4 - (captured_length % 4)):0));
-        offset += dissect_options(block_data_tree, pinfo, block_type, next_tvb, encoding, NULL);
-
-        break;
-    case BLOCK_SIMPLE_PACKET:
-        proto_item_append_text(block_item, " %u", info->frame_number);
-
-        proto_tree_add_item_ret_uint(block_data_tree, hf_pcapng_packet_length, tvb, offset, 4, encoding, &captured_length);
-        offset += 4;
-
-        interface_id = 0;
-
-        packet_data_item = proto_tree_add_item(block_data_tree, hf_pcapng_packet_data, tvb, offset, captured_length, encoding);
-
-        if (pref_dissect_next_layer && interface_id < wmem_array_get_count(info->interfaces)) {
-            struct interface_description  *interface_description;
-            proto_tree *packet_data_tree = proto_item_add_subtree(packet_data_item, ett_pcapng_packet_data);
-
-            pinfo->num = info->frame_number;
-
-            interface_description = (struct interface_description *) wmem_array_index(info->interfaces, interface_id);
-            TRY {
-                call_dissector_with_data(pcap_pktdata_handle, tvb_new_subset_length(tvb, offset, captured_length),
-                                         pinfo, packet_data_tree, &interface_description->link_type);
-            }
-            CATCH_BOUNDS_ERRORS {
-                show_exception(tvb, pinfo, packet_data_tree, EXCEPT_CODE, GET_MESSAGE);
-            }
-            ENDTRY;
-        }
-        info->frame_number += 1;
-        offset += captured_length;
-
-        if (captured_length % 4) {
-            proto_tree_add_item(block_data_tree, hf_pcapng_packet_padding, tvb, offset, ((captured_length % 4)?(4 - (captured_length % 4)):0), ENC_NA);
-            offset += ((captured_length % 4) ? (4 - (captured_length % 4)):0);
-        }
-
-        break;
-    case BLOCK_NAME_RESOLUTION:
-        {
-        proto_tree  *records_tree;
-        proto_item  *records_item;
-        proto_tree  *record_tree;
-        proto_item  *record_item;
-        gint         offset_record_start;
-        gint         offset_string_start;
-        guint16      record_code;
-        gint         record_length;
-        gint         string_length;
-        gchar       *str = NULL;
-        address      addr;
-
-        records_item = proto_tree_add_item(block_data_tree, hf_pcapng_records, tvb, offset, block_data_length, ENC_NA);
-        records_tree = proto_item_add_subtree(records_item, ett_pcapng_records);
-
-        offset_record_start = offset;
-        while (block_data_length - (offset_record_start - offset) > 0) {
-            record_code   = tvb_get_guint16(tvb, offset, encoding);
-            record_length = tvb_get_guint16(tvb, offset + 2, encoding);
-
-            record_item = proto_tree_add_item(records_tree, hf_pcapng_record, tvb, offset, record_length + 2 * 2, ENC_NA);
-            record_tree = proto_item_add_subtree(record_item, ett_pcapng_record);
-
-            proto_item_append_text(record_item, ": %s", val_to_str_const(record_code, record_code_vals, "Unknown"));
-
-            proto_tree_add_item(record_tree, hf_pcapng_record_code, tvb, offset, 2, encoding);
+            proto_tree_add_item(block_data_tree, hf_pcapng_interface_description_link_type, tvb, offset, 2, info->encoding);
+            interface_description.link_type = tvb_get_guint16(tvb, offset, info->encoding);
             offset += 2;
 
-            proto_tree_add_item(record_tree, hf_pcapng_record_length, tvb, offset, 2, encoding);
+            proto_tree_add_item(block_data_tree, hf_pcapng_interface_description_reserved, tvb, offset, 2, info->encoding);
             offset += 2;
 
-            if (record_code == 0 && record_length == 0) {
-                break;
-            } else switch (record_code) {
-            case 0x0001: /* IPv4 Record */
-                if (record_length < 5) {
-                    proto_tree_add_expert(record_tree, pinfo, &ei_invalid_record_length, tvb, offset, record_length);
-                    offset += record_length;
+            proto_tree_add_item(block_data_tree, hf_pcapng_interface_description_snap_length, tvb, offset, 4, info->encoding);
+            interface_description.snap_len = tvb_get_guint32(tvb, offset, info->encoding);
+            offset += 4;
+
+            next_tvb = tvb_new_subset_length(tvb, offset, block_data_length - 2 - 2 - 4);
+            offset += dissect_options(block_data_tree, pinfo, block_type, next_tvb, info->encoding, &interface_description);
+
+            wmem_array_append_one(info->interfaces, interface_description);
+            }
+            break;
+        case BLOCK_PACKET: {
+            struct interface_description *interface_description;
+
+            proto_item_append_text(block_item, " %u", info->frame_number);
+
+            proto_tree_add_item(block_data_tree, hf_pcapng_packet_block_interface_id, tvb, offset, 2, info->encoding);
+            interface_id = tvb_get_guint16(tvb, offset, info->encoding);
+            offset += 2;
+            interface_description = get_interface_description(info, interface_id,
+                pinfo, block_tree);
+
+            proto_tree_add_item(block_data_tree, hf_pcapng_packet_block_drops_count, tvb, offset, 2, info->encoding);
+            offset += 2;
+
+            pcapng_add_timestamp(block_data_tree, pinfo, tvb, offset, info->encoding, interface_description);
+            offset += 8;
+
+            proto_tree_add_item_ret_uint(block_data_tree, hf_pcapng_captured_length, tvb, offset, 4, info->encoding, &captured_length);
+            offset += 4;
+
+            proto_tree_add_item_ret_uint(block_data_tree, hf_pcapng_packet_length, tvb, offset, 4, info->encoding, &reported_length);
+            offset += 4;
+
+            packet_data_item = proto_tree_add_item(block_data_tree, hf_pcapng_packet_data, tvb, offset, captured_length, info->encoding);
+
+            if (pref_dissect_next_layer && interface_description != NULL) {
+                proto_tree *packet_data_tree = proto_item_add_subtree(packet_data_item, ett_pcapng_packet_data);
+
+                pinfo->num = info->frame_number;
+
+                TRY {
+                    call_dissector_with_data(pcap_pktdata_handle, tvb_new_subset_length_caplen(tvb, offset, captured_length, reported_length),
+                                             pinfo, packet_data_tree, &interface_description->link_type);
+                }
+                CATCH_BOUNDS_ERRORS {
+                    show_exception(tvb, pinfo, packet_data_tree, EXCEPT_CODE, GET_MESSAGE);
+                }
+                ENDTRY;
+            }
+            info->frame_number += 1;
+            offset += captured_length;
+
+            if (captured_length % 4) {
+                proto_tree_add_item(block_data_tree, hf_pcapng_packet_padding, tvb, offset, ((captured_length % 4) ? (4 - (captured_length % 4)) : 0), ENC_NA);
+                offset += ((captured_length % 4) ?(4 - (captured_length % 4)):0);
+            }
+
+            next_tvb = tvb_new_subset_length(tvb, offset, block_data_length - 2 - 2 - 8 - 4 - 4 - captured_length - ((captured_length % 4)?(4 - (captured_length % 4)):0));
+            offset += dissect_options(block_data_tree, pinfo, block_type, next_tvb, info->encoding, NULL);
+
+            }
+            break;
+        case BLOCK_SIMPLE_PACKET: {
+            struct interface_description *interface_description;
+            proto_item *ti;
+
+            interface_description = get_interface_description(info, 0,
+                pinfo, block_tree);
+
+            proto_item_append_text(block_item, " %u", info->frame_number);
+
+            proto_tree_add_item_ret_uint(block_data_tree, hf_pcapng_packet_length, tvb, offset, 4, info->encoding, &reported_length);
+            offset += 4;
+
+            captured_length = reported_length;
+            if (interface_description && interface_description->snap_len != 0) {
+                captured_length = MIN(reported_length, interface_description->snap_len);
+            }
+            ti = proto_tree_add_uint(block_data_tree, hf_pcapng_captured_length, tvb, 0, 0, captured_length);
+            proto_item_set_generated(ti);
+
+            packet_data_item = proto_tree_add_item(block_data_tree, hf_pcapng_packet_data, tvb, offset, captured_length, info->encoding);
+
+            if (pref_dissect_next_layer && interface_description != NULL) {
+                proto_tree *packet_data_tree = proto_item_add_subtree(packet_data_item, ett_pcapng_packet_data);
+
+                pinfo->num = info->frame_number;
+
+                TRY {
+                    call_dissector_with_data(pcap_pktdata_handle, tvb_new_subset_length(tvb, offset, captured_length),
+                                             pinfo, packet_data_tree, &interface_description->link_type);
+                }
+                CATCH_BOUNDS_ERRORS {
+                    show_exception(tvb, pinfo, packet_data_tree, EXCEPT_CODE, GET_MESSAGE);
+                }
+                ENDTRY;
+            }
+            info->frame_number += 1;
+            offset += captured_length;
+
+            if (captured_length % 4) {
+                proto_tree_add_item(block_data_tree, hf_pcapng_packet_padding, tvb, offset, ((captured_length % 4)?(4 - (captured_length % 4)):0), ENC_NA);
+                offset += ((captured_length % 4) ? (4 - (captured_length % 4)):0);
+            }
+
+            }
+            break;
+        case BLOCK_NAME_RESOLUTION:
+            {
+            proto_tree  *records_tree;
+            proto_item  *records_item;
+            proto_tree  *record_tree;
+            proto_item  *record_item;
+            proto_item  *record_length_item;
+            gint         offset_record_start;
+            gint         offset_string_start;
+            guint32      record_code;
+            guint32      record_length;
+            gint         string_length;
+            gchar       *str = NULL;
+            address      addr;
+
+            records_item = proto_tree_add_item(block_data_tree, hf_pcapng_records, tvb, offset, block_data_length, ENC_NA);
+            records_tree = proto_item_add_subtree(records_item, ett_pcapng_records);
+
+            offset_record_start = offset;
+            while (block_data_length - (offset_record_start - offset) > 0) {
+                record_item = proto_tree_add_item(records_tree, hf_pcapng_record, tvb, offset, -1, ENC_NA);
+                record_tree = proto_item_add_subtree(record_item, ett_pcapng_record);
+
+                proto_tree_add_item_ret_uint(record_tree, hf_pcapng_record_code, tvb, offset, 2, info->encoding, &record_code);
+                proto_item_append_text(record_item, ": %s", val_to_str_const(record_code, record_code_vals, "Unknown"));
+                offset += 2;
+
+                record_length_item = proto_tree_add_item_ret_uint(record_tree, hf_pcapng_record_length, tvb, offset, 2, info->encoding, &record_length);
+                offset += 2;
+
+                if (record_code == 0) {
+                    if (record_length != 0)
+                        expert_add_info(pinfo, record_length_item, &ei_invalid_record_length);
+                    proto_item_set_len(record_item, record_length + 2 * 2);
                     break;
-                }
-
-                proto_tree_add_item(record_tree, hf_pcapng_record_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
-                set_address_tvb(&addr, AT_IPv4, 4, tvb, offset);
-                offset += 4;
-
-                offset_string_start = offset;
-                while (offset - offset_string_start < record_length - 4) {
-                    string_length = tvb_strnlen(tvb, offset, (offset - offset_string_start) + record_length - 4);
-                    if (string_length >= 0) {
-                        proto_tree_add_item(record_tree, hf_pcapng_record_name, tvb, offset, string_length + 1, encoding);
-                        offset += string_length + 1;
-                    } else {
-                        proto_tree_add_item(record_tree, hf_pcapng_record_data, tvb, offset, (record_length - 4) - (offset - offset_string_start), encoding);
-                        offset += (record_length - 4) - (offset - offset_string_start);
+                } else switch (record_code) {
+                case 0x0001: /* IPv4 Record */
+                    if (record_length < 5) {
+                        expert_add_info(pinfo, record_length_item, &ei_invalid_record_length);
+                        offset += record_length;
+                        break;
                     }
-                }
 
-                str = address_to_display(wmem_packet_scope(), &addr);
-                break;
-            case 0x0002: /* IPv6 Record */
-                if (record_length < 17) {
-                    proto_tree_add_expert(record_tree, pinfo, &ei_invalid_option_length, tvb, offset, record_length);
-                    offset += record_length;
+                    proto_tree_add_item(record_tree, hf_pcapng_record_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
+                    set_address_tvb(&addr, AT_IPv4, 4, tvb, offset);
+                    offset += 4;
+
+                    offset_string_start = offset;
+                    while ((guint)(offset - offset_string_start) < record_length - 4) {
+                        string_length = tvb_strnlen(tvb, offset, (offset - offset_string_start) + record_length - 4);
+                        if (string_length >= 0) {
+                            proto_tree_add_item(record_tree, hf_pcapng_record_name, tvb, offset, string_length + 1, info->encoding);
+                            offset += string_length + 1;
+                        } else {
+                            /*
+                             * XXX - flag with an error, as this means we didn't
+                             * see a terminating NUL, but the spec says "zero
+                             * or more zero-terminated UTF-8 strings containing
+                             * the DNS entries for that address".
+                             */
+                            proto_tree_add_item(record_tree, hf_pcapng_record_data, tvb, offset, (record_length - 4) - (offset - offset_string_start), info->encoding);
+                            offset += (record_length - 4) - (offset - offset_string_start);
+                        }
+                    }
+
+                    str = address_to_display(wmem_packet_scope(), &addr);
                     break;
-                }
-
-                proto_tree_add_item(record_tree, hf_pcapng_record_ipv6, tvb, offset, 16, ENC_NA);
-                set_address_tvb(&addr, AT_IPv6, 16, tvb, offset);
-                offset += 16;
-
-                offset_string_start = offset;
-                while (offset - offset_string_start < record_length - 16) {
-                    string_length = tvb_strnlen(tvb, offset, (offset - offset_string_start) + record_length - 16);
-                    if (string_length >= 0) {
-                        proto_tree_add_item(record_tree, hf_pcapng_record_name, tvb, offset, string_length + 1, encoding);
-                        offset += string_length + 1;
-                    } else {
-                        proto_tree_add_item(record_tree, hf_pcapng_record_data, tvb, offset, (record_length - 16) - (offset - offset_string_start), encoding);
-                        offset += (record_length - 16) - (offset - offset_string_start);
+                case 0x0002: /* IPv6 Record */
+                    if (record_length < 17) {
+                        expert_add_info(pinfo, record_length_item, &ei_invalid_record_length);
+                        offset += record_length;
+                        break;
                     }
+
+                    proto_tree_add_item(record_tree, hf_pcapng_record_ipv6, tvb, offset, 16, ENC_NA);
+                    set_address_tvb(&addr, AT_IPv6, 16, tvb, offset);
+                    offset += 16;
+
+                    offset_string_start = offset;
+                    while ((guint)(offset - offset_string_start) < record_length - 16) {
+                        string_length = tvb_strnlen(tvb, offset, (offset - offset_string_start) + record_length - 16);
+                        if (string_length >= 0) {
+                            proto_tree_add_item(record_tree, hf_pcapng_record_name, tvb, offset, string_length + 1, info->encoding);
+                            offset += string_length + 1;
+                        } else {
+                            /*
+                             * XXX - flag with an error, as this means we didn't
+                             * see a terminating NUL, but the spec says "zero
+                             * or more zero-terminated UTF-8 strings containing
+                             * the DNS entries for that address".
+                             */
+                            proto_tree_add_item(record_tree, hf_pcapng_record_data, tvb, offset, (record_length - 16) - (offset - offset_string_start), info->encoding);
+                            offset += (record_length - 16) - (offset - offset_string_start);
+                        }
+                    }
+
+                    str = address_to_display(wmem_packet_scope(), &addr);
+
+                    break;
+                default:
+                    proto_tree_add_item(record_tree, hf_pcapng_record_data, tvb, offset, record_length, ENC_NA);
+                    offset += record_length;
                 }
 
-                str = address_to_display(wmem_packet_scope(), &addr);
+                if (record_code != 0 && record_length % 4) {
+                    proto_item_set_len(record_item, record_length + 2 * 2 + (4 - record_length % 4));
+                    record_length = 4 - record_length % 4;
+                    proto_tree_add_item(record_tree, hf_pcapng_record_padding, tvb, offset, record_length, ENC_NA);
+                    offset += record_length;
+                } else
+                    proto_item_set_len(record_item, record_length + 2 * 2);
 
-                break;
-            default:
-                proto_tree_add_item(record_tree, hf_pcapng_record_data, tvb, offset, record_length, ENC_NA);
-                offset += record_length;
+                if (str)
+                    proto_item_append_text(record_item, " = %s", str);
             }
 
-            if (record_code != 0 && record_length % 4) {
-                proto_item_set_len(record_item, record_length + 2 * 2 + (4 - record_length % 4));
-                record_length = 4 - record_length % 4;
-                proto_tree_add_item(record_tree, hf_pcapng_record_padding, tvb, offset, record_length, ENC_NA);
-                offset += record_length;
+            next_tvb = tvb_new_subset_length(tvb, offset, block_data_length - (offset - offset_record_start));
+            offset += dissect_options(block_data_tree, pinfo, block_type, next_tvb, info->encoding, NULL);
             }
 
-            if (str)
-                proto_item_append_text(record_item, " = %s", str);
-        }
+            break;
+        case BLOCK_INTERFACE_STATISTICS: {
+            struct interface_description *interface_description;
 
-        next_tvb = tvb_new_subset_length(tvb, offset, block_data_length - (offset - offset_record_start));
-        offset += dissect_options(block_data_tree, pinfo, block_type, next_tvb, encoding, NULL);
-        }
+            proto_tree_add_item(block_data_tree, hf_pcapng_interface_id, tvb, offset, 4, info->encoding);
+            interface_id = tvb_get_guint32(tvb, offset, info->encoding);
+            offset += 4;
+            interface_description = get_interface_description(info, interface_id,
+                pinfo, block_tree);
 
-        break;
-    case BLOCK_INTERFACE_STATISTICS:
-        proto_tree_add_item(block_data_tree, hf_pcapng_interface_id, tvb, offset, 4, encoding);
-        interface_id = tvb_get_guint32(tvb, offset, encoding);
-        offset += 4;
+            pcapng_add_timestamp(block_data_tree, pinfo, tvb, offset, info->encoding, interface_description);
+            offset += 8;
 
-        pcapng_add_timestamp(block_data_tree, pinfo, tvb, offset, encoding, interface_id, info);
-        offset += 8;
+            next_tvb = tvb_new_subset_length(tvb, offset, block_data_length - 4 - 8);
+            offset += dissect_options(block_data_tree, pinfo, block_type, next_tvb, info->encoding, NULL);
 
-        next_tvb = tvb_new_subset_length(tvb, offset, block_data_length - 4 - 8);
-        offset += dissect_options(block_data_tree, pinfo, block_type, next_tvb, encoding, NULL);
-
-        break;
-    case BLOCK_ENHANCED_PACKET:
-        proto_item_append_text(block_item, " %u", info->frame_number);
-
-        proto_tree_add_item(block_data_tree, hf_pcapng_interface_id, tvb, offset, 4, encoding);
-        interface_id = tvb_get_guint32(tvb, offset, encoding);
-        offset += 4;
-
-        pcapng_add_timestamp(block_data_tree, pinfo, tvb, offset, encoding, interface_id, info);
-        offset += 8;
-
-        proto_tree_add_item_ret_uint(block_data_tree, hf_pcapng_captured_length, tvb, offset, 4, encoding, &captured_length);
-        offset += 4;
-
-        proto_tree_add_item_ret_uint(block_data_tree, hf_pcapng_packet_length, tvb, offset, 4, encoding, &reported_length);
-        offset += 4;
-
-        packet_data_item = proto_tree_add_item(block_data_tree, hf_pcapng_packet_data, tvb, offset, captured_length, encoding);
-
-        if (pref_dissect_next_layer && interface_id < wmem_array_get_count(info->interfaces)) {
-            struct interface_description  *interface_description;
-            proto_tree *packet_data_tree = proto_item_add_subtree(packet_data_item, ett_pcapng_packet_data);
-
-            pinfo->num = info->frame_number;
-
-            interface_description = (struct interface_description *) wmem_array_index(info->interfaces, interface_id);
-            TRY {
-                call_dissector_with_data(pcap_pktdata_handle, tvb_new_subset_length_caplen(tvb, offset, captured_length, reported_length),
-                                         pinfo, packet_data_tree, &interface_description->link_type);
             }
-            CATCH_BOUNDS_ERRORS {
-                show_exception(tvb, pinfo, packet_data_tree, EXCEPT_CODE, GET_MESSAGE);
+            break;
+        case BLOCK_ENHANCED_PACKET: {
+            struct interface_description *interface_description;
+
+            proto_item_append_text(block_item, " %u", info->frame_number);
+
+            proto_tree_add_item(block_data_tree, hf_pcapng_interface_id, tvb, offset, 4, info->encoding);
+            interface_id = tvb_get_guint32(tvb, offset, info->encoding);
+            offset += 4;
+            interface_description = get_interface_description(info, interface_id,
+                pinfo, block_tree);
+
+            pcapng_add_timestamp(block_data_tree, pinfo, tvb, offset, info->encoding, interface_description);
+            offset += 8;
+
+            proto_tree_add_item_ret_uint(block_data_tree, hf_pcapng_captured_length, tvb, offset, 4, info->encoding, &captured_length);
+            offset += 4;
+
+            proto_tree_add_item_ret_uint(block_data_tree, hf_pcapng_packet_length, tvb, offset, 4, info->encoding, &reported_length);
+            offset += 4;
+
+            packet_data_item = proto_tree_add_item(block_data_tree, hf_pcapng_packet_data, tvb, offset, captured_length, info->encoding);
+
+            if (pref_dissect_next_layer && interface_description != NULL) {
+                proto_tree *packet_data_tree = proto_item_add_subtree(packet_data_item, ett_pcapng_packet_data);
+
+                pinfo->num = info->frame_number;
+
+                TRY {
+                    call_dissector_with_data(pcap_pktdata_handle, tvb_new_subset_length_caplen(tvb, offset, captured_length, reported_length),
+                                             pinfo, packet_data_tree, &interface_description->link_type);
+                }
+                CATCH_BOUNDS_ERRORS {
+                    show_exception(tvb, pinfo, packet_data_tree, EXCEPT_CODE, GET_MESSAGE);
+                }
+                ENDTRY;
             }
-            ENDTRY;
+            info->frame_number += 1;
+            offset += captured_length;
+
+            if (captured_length % 4) {
+                proto_tree_add_item(block_data_tree, hf_pcapng_packet_padding, tvb, offset, ((captured_length % 4)? (4 - (captured_length % 4)):0), ENC_NA);
+                offset += ((captured_length % 4) ?(4 - (captured_length % 4)):0);
+            }
+
+            next_tvb = tvb_new_subset_length(tvb, offset, block_data_length - 4 - 8 - 4 - 4 - captured_length - ((captured_length % 4)?(4 - (captured_length % 4)):0));
+            offset += dissect_options(block_data_tree, pinfo, block_type, next_tvb, info->encoding, NULL);
+
+            }
+            break;
+        case BLOCK_DSB:
+            {
+            guint32 secrets_length;
+
+            proto_tree_add_item(block_data_tree, hf_pcapng_dsb_secrets_type, tvb, offset, 4, info->encoding);
+            offset += 4;
+            proto_tree_add_item_ret_uint(block_data_tree, hf_pcapng_dsb_secrets_length, tvb, offset, 4, info->encoding, &secrets_length);
+            offset += 4;
+            proto_tree_add_item(block_data_tree, hf_pcapng_dsb_secrets_data, tvb, offset, secrets_length, info->encoding);
+            offset += secrets_length;
+
+            guint32 padlen = (4 - (secrets_length & 3)) & 3;
+            if (padlen) {
+                proto_tree_add_item(block_data_tree, hf_pcapng_record_padding, tvb, offset, padlen, ENC_NA);
+                offset += padlen;
+            }
+
+            if (block_data_length > 4 + 4 + secrets_length + padlen) {
+                next_tvb = tvb_new_subset_length(tvb, offset, block_data_length - 4 - 4 - secrets_length - padlen);
+                offset += dissect_options(block_data_tree, pinfo, block_type, next_tvb, info->encoding, NULL);
+            }
+            }
+
+            break;
+        case BLOCK_DARWIN_PROCESS:
+            proto_item_append_text(block_item, " %u", info->darwin_process_event_number);
+            info->darwin_process_event_number += 1;
+
+            proto_tree_add_item(block_data_tree, hf_pcapng_darwin_process_id, tvb, offset, 4, info->encoding);
+            offset += 4;
+
+            next_tvb = tvb_new_subset_length(tvb, offset, block_data_length - 4);
+            offset += dissect_options(block_data_tree, pinfo, block_type, next_tvb, info->encoding, NULL);
+
+            break;
+        case BLOCK_IRIG_TIMESTAMP:
+        case BLOCK_ARINC_429:
+        default:
+            offset += block_data_length;
         }
-        info->frame_number += 1;
-        offset += captured_length;
-
-        if (captured_length % 4) {
-            proto_tree_add_item(block_data_tree, hf_pcapng_packet_padding, tvb, offset, ((captured_length % 4)? (4 - (captured_length % 4)):0), ENC_NA);
-            offset += ((captured_length % 4) ?(4 - (captured_length % 4)):0);
-        }
-
-        next_tvb = tvb_new_subset_length(tvb, offset, block_data_length - 4 - 8 - 4 - 4 - captured_length - ((captured_length % 4)?(4 - (captured_length % 4)):0));
-        offset += dissect_options(block_data_tree, pinfo, block_type, next_tvb, encoding, NULL);
-
-        break;
-    case BLOCK_DSB:
-        {
-        guint32 secrets_length;
-
-        proto_tree_add_item(block_data_tree, hf_pcapng_dsb_secrets_type, tvb, offset, 4, encoding);
-        offset += 4;
-        proto_tree_add_item_ret_uint(block_data_tree, hf_pcapng_dsb_secrets_length, tvb, offset, 4, encoding, &secrets_length);
-        offset += 4;
-        proto_tree_add_item(block_data_tree, hf_pcapng_dsb_secrets_data, tvb, offset, secrets_length, encoding);
-        offset += secrets_length;
-
-        guint32 padlen = (4 - (secrets_length & 3)) & 3;
-        if (padlen) {
-            proto_tree_add_item(block_data_tree, hf_pcapng_record_padding, tvb, offset, padlen, ENC_NA);
-            offset += padlen;
-        }
-
-        if (block_data_length > 4 + 4 + secrets_length + padlen) {
-            next_tvb = tvb_new_subset_length(tvb, offset, block_data_length - 4 - 4 - secrets_length - padlen);
-            offset += dissect_options(block_data_tree, pinfo, block_type, next_tvb, encoding, NULL);
-        }
-        }
-
-        break;
-    case BLOCK_DARWIN_PROCESS:
-        proto_item_append_text(block_item, " %u", info->darwin_process_event_number);
-        info->darwin_process_event_number += 1;
-
-        proto_tree_add_item(block_data_tree, hf_pcapng_darwin_process_id, tvb, offset, 4, encoding);
-        offset += 4;
-
-        next_tvb = tvb_new_subset_length(tvb, offset, block_data_length - 4);
-        offset += dissect_options(block_data_tree, pinfo, block_type, next_tvb, encoding, NULL);
-
-        break;
-    case BLOCK_IRIG_TIMESTAMP:
-    case BLOCK_ARINC_429:
-    default:
-        offset += block_data_length;
     }
 
-    proto_tree_add_item(block_tree, hf_pcapng_block_length, tvb, offset, 4, encoding);
+    proto_tree_add_item(block_tree, hf_pcapng_block_length, tvb, offset, 4, info->encoding);
     offset += 4;
 
     return offset;
 }
 
 #define BLOCK_TYPE_SIZE        4
-#define BYTE_ORDER_MAGIC_SIZE  4
 
 static int
 dissect_pcapng(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     static const guint8 pcapng_premagic[BLOCK_TYPE_SIZE] = {
         0x0A, 0x0D, 0x0D, 0x0A
-    };
-    static const guint8 pcapng_big_endian_magic[BYTE_ORDER_MAGIC_SIZE] = {
-        0x1A, 0x2B, 0x3C, 0x4D
-    };
-    static const guint8 pcapng_little_endian_magic[BYTE_ORDER_MAGIC_SIZE] = {
-        0x4D, 0x3C, 0x2B, 0x1A
     };
     gint             offset = 0;
     guint32          length;
@@ -1662,10 +1783,11 @@ dissect_pcapng(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         return 0;
     }
 
-    info.file_number = 1;
+    info.section_number = 1;
     info.interface_number = 0;
     info.darwin_process_event_number = 0;
     info.frame_number = 1;
+    info.encoding = encoding;
     info.interfaces = wmem_array_new(wmem_packet_scope(), sizeof(struct interface_description));
     info.darwin_process_events = wmem_array_new(wmem_packet_scope(), sizeof(struct darwin_process_event_description));
 
@@ -1674,11 +1796,17 @@ dissect_pcapng(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
     while (tvb_captured_length_remaining(tvb, offset)) {
         tvbuff_t  *next_tvb;
+        int       block_length;
 
         length = tvb_get_guint32(tvb, offset + 4, encoding);
         next_tvb = tvb_new_subset_length(tvb, offset, length);
 
-        offset += dissect_block(main_tree, pinfo, next_tvb, encoding, &info);
+        block_length = dissect_block(main_tree, pinfo, next_tvb, &info);
+        if (block_length == -1) {
+            /* Fatal error. */
+            break;
+        }
+        offset += block_length;
     }
 
     return offset;
@@ -1774,7 +1902,7 @@ proto_register_pcapng(void)
         },
         { &hf_pcapng_option_length,
             { "Length",                                    "pcapng.options.option.length",
-            FT_INT64, BASE_DEC, NULL, 0x00,
+            FT_UINT16, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_pcapng_option_data,
@@ -1907,6 +2035,11 @@ proto_register_pcapng(void)
             FT_STRING, STR_ASCII, NULL, 0x00,
             NULL, HFILL }
         },
+        { &hf_pcapng_option_data_interface_hardware,
+            { "Hardware",                                  "pcapng.options.option.data.interface.hardware",
+            FT_STRING, STR_ASCII, NULL, 0x00,
+            NULL, HFILL }
+        },
         { &hf_pcapng_option_data_interface_fcs_length,
             { "FCS Length",                                "pcapng.options.option.data.interface.fcs_length",
             FT_UINT8, BASE_DEC, NULL, 0x00,
@@ -1924,7 +2057,7 @@ proto_register_pcapng(void)
         },
         { &hf_pcapng_option_data_packet_hash_algorithm,
             { "Hash Algorithm",                            "pcapng.options.option.data.packet.hash.algorithm",
-            FT_UINT8, BASE_HEX, VALS(packet_hash_algorithm_vals), 0x00,
+            FT_UINT8, BASE_DEC, VALS(packet_hash_algorithm_vals), 0x00,
             NULL, HFILL }
         },
         { &hf_pcapng_option_data_packet_hash_data,
@@ -2079,12 +2212,12 @@ proto_register_pcapng(void)
         },
         { &hf_pcapng_packet_block_interface_id,
             { "Interface",                                 "pcapng.packet.interface_id",
-            FT_UINT16, BASE_HEX, NULL, 0x00,
+            FT_UINT16, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_pcapng_packet_block_drops_count,
             { "Drops Count",                               "pcapng.packet.drops_count",
-            FT_UINT16, BASE_HEX, NULL, 0x00,
+            FT_UINT16, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_pcapng_captured_length,
@@ -2109,7 +2242,7 @@ proto_register_pcapng(void)
         },
         { &hf_pcapng_interface_id,
             { "Interface",                                 "pcapng.interface_id",
-            FT_UINT16, BASE_HEX, NULL, 0x00,
+            FT_UINT16, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_pcapng_timestamp_high,
@@ -2144,7 +2277,7 @@ proto_register_pcapng(void)
         },
         { &hf_pcapng_record_length,
             { "Length",                                    "pcapng.records.record.length",
-            FT_INT64, BASE_DEC, NULL, 0x00,
+            FT_UINT16, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_pcapng_record_data,
@@ -2205,8 +2338,12 @@ proto_register_pcapng(void)
     };
 
     static ei_register_info ei[] = {
+        { &ei_invalid_byte_order_magic, { "pcapng.invalid_byte_order_magic", PI_PROTOCOL, PI_ERROR, "The byte-order magic number is not valid", EXPFILL }},
+        { &ei_block_length_too_short, { "pcapng.block_length_too_short", PI_PROTOCOL, PI_ERROR, "Block length is < 12 bytes", EXPFILL }},
+        { &ei_block_length_not_multiple_of_4, { "pcapng.block_length_too_short", PI_PROTOCOL, PI_ERROR, "Block length is not a multiple of 4", EXPFILL }},
         { &ei_invalid_option_length, { "pcapng.invalid_option_length", PI_PROTOCOL, PI_ERROR, "Invalid Option Length", EXPFILL }},
         { &ei_invalid_record_length, { "pcapng.invalid_record_length", PI_PROTOCOL, PI_ERROR, "Invalid Record Length", EXPFILL }},
+        { &ei_missing_idb, { "pcapng.no_interfaces", PI_PROTOCOL, PI_ERROR, "No Interface Description before block that requires it", EXPFILL }},
     };
 
     static gint *ett[] = {

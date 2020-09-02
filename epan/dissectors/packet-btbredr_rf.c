@@ -92,7 +92,7 @@ static int hf_data = -1;
 #define FLAGS_SIGNAL_POWER_VALID                            0x0002
 #define FLAGS_PACKET_HEADER_AND_BR_EDR_PAYLOAD_DEWHITENED   0x0001
 
-static const int *hfx_payload_transport_rate[] = {
+static int * const hfx_payload_transport_rate[] = {
     &hf_payload_transport_rate_payload,
     &hf_payload_transport_rate_transport,
     NULL

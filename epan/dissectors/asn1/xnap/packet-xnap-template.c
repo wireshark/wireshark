@@ -10,7 +10,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * Ref:
- * 3GPP TS 38.423 V15.6.0 (2019-12)
+ * 3GPP TS 38.423 V15.7.0 (2020-03)
  */
 
 #include "config.h"
@@ -67,6 +67,7 @@ static gint ett_xnap_LastVisitedUTRANCellInformation = -1;
 static gint ett_xnap_LastVisitedGERANCellInformation = -1;
 static gint ett_xnap_UERadioCapabilityForPagingOfNR = -1;
 static gint ett_xnap_UERadioCapabilityForPagingOfEUTRA = -1;
+static gint ett_xnap_FiveGCMobilityRestrictionListContainer = -1;
 #include "packet-xnap-ett.c"
 
 enum {
@@ -273,6 +274,7 @@ void proto_register_xnap(void) {
     &ett_xnap_LastVisitedGERANCellInformation,
     &ett_xnap_UERadioCapabilityForPagingOfNR,
     &ett_xnap_UERadioCapabilityForPagingOfEUTRA,
+    &ett_xnap_FiveGCMobilityRestrictionListContainer,
 #include "packet-xnap-ettarr.c"
   };
 

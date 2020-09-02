@@ -1,3 +1,5 @@
+
+:experimental:
 = Introduction
 
 This directory contains the source files needed to build the:
@@ -15,54 +17,11 @@ The guides and release notes are written in
 https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/[Asciidoctor syntax].
 For more information see https://asciidoctor.org.
 
-Conversions from Asciidoctor markup to each of our supported output
-formats is done via the following steps:
-
-- HTML: Asciidoctor → DocBook XML → xsltproc + DocBook XSL
-- Chunked HTML: Asciidoctor → DocBook XML → xsltproc + DocBook XSL
-- PDF: Asciidoctor
-- HTMLHelp: Asciidoctor → DocBook XML → xsltproc + DocBook XSL → HHC
-- Text: [HTML output] → elinks
-
 = Requirements
 
-Ultimately we'd like to reduce the toolchain requirements to AsciidoctorJ
-alone, but that's not yet possible. Additional tooling is required for
-the HTML and HTMLHelp targets. See the Developer's Guide for instructions
-on installing required packages for your platform.
-
-== AsciidoctorJ (recommended) or Asciidoctor
-
-Text markup format and publishing toolchain:
-https://asciidoctor.org/
-
-AsciidoctorJ is a self-contained bundle which includes Asciidoctor and
-JRuby. It can be installed via Chocolatey on Windows, Homebrew on macOS,
-or a .zip extraction anywhere
-(https://bintray.com/asciidoctor/maven/asciidoctorj).
-
-== DocBook XML and XSL
-
-Converting from DocBook to HTML and CHM requires the DocBook DTD
-(http://www.sagehill.net/docbookxsl/ToolsSetup.html) and DocBook
-stylesheets
-(http://www.sagehill.net/docbookxsl/InstallStylesheets.html).
-These are available via installable packages on most Linux distributions,
-and Homebrew.
-
-== xsltproc
-
-http://xmlsoft.org/xslt/[xsltproc] converts DocBook XML to various
-formats based on XSL stylesheets. It either ships as part of the
-operating system or is available via an installable package on
-most Linux distributions.
-
-== HTML Help Workshop (Windows only)
-
-The HTML Help compiler is part of the
-https://www.microsoft.com/en-us/download/details.aspx?id=21138[HTML Help Workshop]
-from Microsoft. It is used to generate the documentation shipped with
-the Windows installers.
+Ultimately we'd like to reduce the toolchain requirements to AsciidoctorJ alone, but that's not yet possible.
+Additional tooling is required for the HTML and HTMLHelp targets.
+See the https://www.wireshark.org/docs/wsdg_html_chunked/ChToolsDocumentationToolchain.html[Developer's Guide] for instructions on installing required packages for your platform.
 
 = Asciidoctor Markup
 
@@ -79,7 +38,7 @@ Please use the following conventions when writing documentation:
 - Use Asciidoctor macros for buttons, keys, and menus. Note that these
   are currently experimental:
 
-** The button:[Start] button
+** The btn:[Start] button
 ** Press kbd:[Shift+Ctrl+P] to open the preferences dialog.
 ** Select menu:File[Open] from the main menu.
 

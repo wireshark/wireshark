@@ -44,6 +44,14 @@ typedef enum {
 #define BTLE_DIR_MASTER_SLAVE 1
 #define BTLE_DIR_SLAVE_MASTER 2
 
+#define BTLE_PDU_TYPE_UNKNOWN     0 /* Unknown physical channel PDU */
+#define BTLE_PDU_TYPE_ADVERTISING 1 /* Advertising physical channel PDU */
+#define BTLE_PDU_TYPE_DATA        2 /* Data physical channel PDU */
+
+#define LE_1M_PHY     0
+#define LE_2M_PHY     1
+#define LE_CODED_PHY  2
+
 typedef struct {
     btle_AA_category_t aa_category;
     btle_CONNECT_REQ_t connection_info;
@@ -53,6 +61,11 @@ typedef struct {
     guint mic_checked_at_capture: 1;
     guint mic_valid_at_capture: 1;
     guint direction: 2; /* 0 Unknown, 1 Master -> Slave, 2 Slave -> Master */
+    guint aux_pdu_type_valid: 1;
+    guint8 pdu_type;
+    guint8 aux_pdu_type;
+    guint8 channel;
+    guint8 phy;
 
     union {
         void              *data;

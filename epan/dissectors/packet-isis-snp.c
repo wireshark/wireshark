@@ -84,14 +84,14 @@ static expert_field ei_isis_psnp_clv_unknown = EI_INIT;
 
 static void
 dissect_snp_authentication_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset,
-    int id_length _U_, int length)
+    isis_data_t *isis _U_, int length)
 {
     isis_dissect_authentication_clv(tree, pinfo, tvb, hf_isis_csnp_authentication, hf_isis_clv_key_id, &ei_isis_csnp_authentication, offset, length);
 }
 
 static void
 dissect_csnp_ip_authentication_clv(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *tree, int offset,
-    int id_length _U_, int length)
+    isis_data_t *isis _U_, int length)
 {
     if ( length != 0 ) {
        proto_tree_add_item(tree, hf_isis_csnp_ip_authentication, tvb, offset, length, ENC_ASCII|ENC_NA);
@@ -100,7 +100,7 @@ dissect_csnp_ip_authentication_clv(tvbuff_t *tvb, packet_info* pinfo _U_, proto_
 
 static void
 dissect_psnp_ip_authentication_clv(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *tree, int offset,
-    int id_length _U_, int length)
+    isis_data_t *isis _U_, int length)
 {
     if ( length != 0 ) {
        proto_tree_add_item(tree, hf_isis_psnp_ip_authentication, tvb, offset, length, ENC_ASCII|ENC_NA);
@@ -115,9 +115,9 @@ dissect_psnp_ip_authentication_clv(tvbuff_t *tvb, packet_info* pinfo _U_, proto_
  */
 static void
 dissect_snp_checksum_clv(tvbuff_t *tvb, packet_info* pinfo,
-        proto_tree *tree, int offset, int id_length _U_, int length) {
+        proto_tree *tree, int offset, isis_data_t *isis, int length) {
 
-    guint16 pdu_length,checksum, cacl_checksum=0;
+    guint16 checksum, cacl_checksum=0;
 
     if ( length != 2 ) {
         proto_tree_add_expert_format(tree, pinfo, &ei_isis_csnp_short_clv, tvb, offset, -1,
@@ -128,18 +128,11 @@ dissect_snp_checksum_clv(tvbuff_t *tvb, packet_info* pinfo,
 
     checksum = tvb_get_ntohs(tvb, offset);
 
-    /* the check_and_get_checksum() function needs to know how big
-     * the packet is. we can either pass through the pdu-len through several layers
-     * of dissectors and wrappers or extract the PDU length field from the PDU specific header
-     * which is offseted 8 bytes (relative to the beginning of the IS-IS packet) in SNPs */
-
-    pdu_length = tvb_get_ntohs(tvb, 8);
-
     if (checksum == 0) {
         /* No checksum present */
         proto_tree_add_checksum(tree, tvb, offset, hf_isis_csnp_checksum, hf_isis_csnp_checksum_status, &ei_isis_csnp_bad_checksum, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NOT_PRESENT);
     } else {
-        if (osi_check_and_get_checksum(tvb, 0, pdu_length, offset, &cacl_checksum)) {
+        if (osi_check_and_get_checksum(tvb, 0, isis->pdu_length, offset, &cacl_checksum)) {
             /* Successfully processed checksum, verify it */
             proto_tree_add_checksum(tree, tvb, offset, hf_isis_csnp_checksum, hf_isis_csnp_checksum_status, &ei_isis_csnp_bad_checksum, pinfo, cacl_checksum, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
         } else {
@@ -155,35 +148,35 @@ dissect_snp_checksum_clv(tvbuff_t *tvb, packet_info* pinfo,
  * Description:
  *    All the snp packets use a common payload format.  We have up
  *    to n entries (based on length), which are made of:
- *        2         : remaining life time
- *        id_length : lsp id
- *        4         : sequence number
- *        2         : checksum
+ *        2                   : remaining life time
+ *        isis->system_id_len : lsp id
+ *        4                   : sequence number
+ *        2                   : checksum
  */
 static void
 dissect_snp_lsp_entries_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset,
-    int id_length, int length)
+    isis_data_t *isis, int length)
 {
     proto_tree *subtree;
 
     while ( length > 0 ) {
-        if ( length < 2+id_length+2+4+2 ) {
+        if ( length < 2+isis->system_id_len+2+4+2 ) {
             proto_tree_add_expert_format(tree, pinfo, &ei_isis_csnp_short_clv, tvb, offset, -1,
-                "Short SNP header entry (%d vs %d)", length, 2+id_length+2+4+2 );
+                "Short SNP header entry (%d vs %d)", length, 2+isis->system_id_len+2+4+2 );
             return;
         }
 
-        subtree = proto_tree_add_subtree(tree, tvb, offset, 2+id_length+2+4+2,
+        subtree = proto_tree_add_subtree(tree, tvb, offset, 2+isis->system_id_len+2+4+2,
                                     ett_isis_csnp_lsp_entry, NULL, "LSP Entry");
 
-        proto_tree_add_item(tree, hf_isis_csnp_lsp_id, tvb, offset+2, id_length+2, ENC_NA);
+        proto_tree_add_item(tree, hf_isis_csnp_lsp_id, tvb, offset+2, isis->system_id_len+2, ENC_NA);
 
-        proto_tree_add_item(subtree, hf_isis_csnp_lsp_seq_num, tvb, offset+2+id_length+2, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(subtree, hf_isis_csnp_lsp_seq_num, tvb, offset+2+isis->system_id_len+2, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(subtree, hf_isis_csnp_lsp_remain_life, tvb, offset, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(subtree, hf_isis_csnp_lsp_checksum, tvb, offset+2+id_length+2+4, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(subtree, hf_isis_csnp_lsp_checksum, tvb, offset+2+isis->system_id_len+2+4, 2, ENC_BIG_ENDIAN);
 
-        length -= 2+id_length+2+4+2;
-        offset += 2+id_length+2+4+2;
+        length -= 2+isis->system_id_len+2+4+2;
+        offset += 2+isis->system_id_len+2+4+2;
     }
 
 }
@@ -207,7 +200,7 @@ dissect_snp_lsp_entries_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree,
  */
 static void
 dissect_snp_instance_identifier_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
-    proto_tree *tree, int offset, int id_length _U_, int length)
+    proto_tree *tree, int offset, isis_data_t *isis _U_, int length)
 {
     isis_dissect_instance_identifier_clv(tree, pinfo, tvb, &ei_isis_csnp_short_clv, hf_isis_csnp_instance_identifier, hf_isis_csnp_supported_itid, offset, length);
 }
@@ -358,49 +351,77 @@ static const isis_clv_handle_t clv_l2_psnp_opts[] = {
 
 static void
 dissect_isis_csnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
-    const isis_clv_handle_t *opts, int header_length, int id_length)
+    const isis_clv_handle_t *opts, isis_data_t *isis)
 {
     proto_item    *ti;
     proto_tree    *csnp_tree = NULL;
     guint16        pdu_length;
     gboolean       pdu_length_too_short = FALSE;
 
+    /*
+     * We are passed a tvbuff for the entire ISIS PDU, because some ISIS
+     * PDUs may contain a checksum CLV, and that's a checksum covering
+     * the entire PDU.  Skip the part of the header that's already been
+     * dissected.
+     */
+    offset += 8;
+
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISIS CSNP");
 
     ti = proto_tree_add_item(tree, proto_isis_csnp, tvb, offset, -1, ENC_NA);
     csnp_tree = proto_item_add_subtree(ti, ett_isis_csnp);
 
+    if (isis->header_length < 8 + 2) {
+        /* Not large enough to include the part of the header that
+           we dissect here. */
+        expert_add_info(pinfo, isis->header_length_item, isis->ei_bad_header_length);
+        return;
+    }
     pdu_length = tvb_get_ntohs(tvb, offset);
     ti = proto_tree_add_uint(csnp_tree, hf_isis_csnp_pdu_length, tvb,
             offset, 2, pdu_length);
-    if (pdu_length < header_length) {
+    if (pdu_length < isis->header_length) {
         expert_add_info(pinfo, ti, &ei_isis_csnp_short_pdu);
         pdu_length_too_short = TRUE;
-    } else if (pdu_length > tvb_reported_length(tvb) + header_length) {
+    } else if (pdu_length > tvb_reported_length(tvb) + isis->header_length) {
         expert_add_info(pinfo, ti, &ei_isis_csnp_long_pdu);
     }
     offset += 2;
 
-    proto_tree_add_item(csnp_tree, hf_isis_csnp_source_id, tvb, offset, id_length + 1, ENC_NA);
-    col_append_fstr(pinfo->cinfo, COL_INFO, ", Source-ID: %s", tvb_print_system_id( tvb, offset, id_length ));
-    offset += id_length + 1;
+    if (isis->header_length < 8 + 2 + isis->system_id_len + 1) {
+        /* Not large enough to include the part of the header that
+           we dissect here. */
+        expert_add_info(pinfo, isis->header_length_item, isis->ei_bad_header_length);
+        return;
+    }
+    proto_tree_add_item(csnp_tree, hf_isis_csnp_source_id, tvb, offset, isis->system_id_len + 1, ENC_NA);
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", Source-ID: %s", tvb_print_system_id( tvb, offset, isis->system_id_len ));
+    offset += isis->system_id_len + 1;
 
-    proto_tree_add_item(csnp_tree, hf_isis_csnp_start_lsp_id, tvb, offset, id_length + 2, ENC_NA);
+    if (isis->header_length < 8 + 2 + isis->system_id_len + 1 + isis->system_id_len + 2) {
+        /* Not large enough to include the part of the header that
+           we dissect here. */
+        expert_add_info(pinfo, isis->header_length_item, isis->ei_bad_header_length);
+        return;
+    }
+    proto_tree_add_item(csnp_tree, hf_isis_csnp_start_lsp_id, tvb, offset, isis->system_id_len + 2, ENC_NA);
     col_append_fstr(pinfo->cinfo, COL_INFO, ", Start LSP-ID: %s",
-                    tvb_print_system_id( tvb, offset, id_length+2 ));
-    offset += id_length + 2;
+                    tvb_print_system_id( tvb, offset, isis->system_id_len+2 ));
+    offset += isis->system_id_len + 2;
 
-    proto_tree_add_item(csnp_tree, hf_isis_csnp_end_lsp_id, tvb, offset, id_length + 2, ENC_NA);
+    proto_tree_add_item(csnp_tree, hf_isis_csnp_end_lsp_id, tvb, offset, isis->system_id_len + 2, ENC_NA);
     col_append_fstr(pinfo->cinfo, COL_INFO, ", End LSP-ID: %s",
-                    tvb_print_system_id( tvb, offset, id_length+2 ));
-    offset += id_length + 2;
+                    tvb_print_system_id( tvb, offset, isis->system_id_len+2 ));
+    offset += isis->system_id_len + 2;
 
     if (pdu_length_too_short) {
         return;
     }
+    isis->pdu_length = pdu_length;
     isis_dissect_clvs(tvb, pinfo, csnp_tree, offset,
-            opts, &ei_isis_csnp_short_clv, pdu_length - header_length,
-            id_length, ett_isis_csnp_clv_unknown, hf_isis_csnp_clv_type, hf_isis_csnp_clv_length, ei_isis_csnp_clv_unknown);
+            opts, &ei_isis_csnp_short_clv, isis, ett_isis_csnp_clv_unknown,
+            hf_isis_csnp_clv_type, hf_isis_csnp_clv_length,
+            &ei_isis_csnp_clv_unknown);
 }
 
 
@@ -408,8 +429,7 @@ static int
 dissect_isis_l1_csnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     isis_data_t* isis = (isis_data_t*)data;
-    dissect_isis_csnp(tvb, pinfo, tree, 0,
-        clv_l1_csnp_opts, isis->header_length, isis->system_id_len);
+    dissect_isis_csnp(tvb, pinfo, tree, 0, clv_l1_csnp_opts, isis);
     return tvb_captured_length(tvb);
 }
 
@@ -417,56 +437,74 @@ static int
 dissect_isis_l2_csnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     isis_data_t* isis = (isis_data_t*)data;
-    dissect_isis_csnp(tvb, pinfo, tree, 0,
-        clv_l2_csnp_opts, isis->header_length, isis->system_id_len);
+    dissect_isis_csnp(tvb, pinfo, tree, 0, clv_l2_csnp_opts, isis);
     return tvb_captured_length(tvb);
 }
 
 static void
 dissect_isis_psnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
-    const isis_clv_handle_t *opts, int header_length, int id_length)
+    const isis_clv_handle_t *opts, isis_data_t *isis)
 {
     proto_item    *ti;
     proto_tree    *psnp_tree;
     guint16        pdu_length;
     gboolean       pdu_length_too_short = FALSE;
-    int            len;
+
+    /*
+     * We are passed a tvbuff for the entire ISIS PDU, because some ISIS
+     * PDUs may contain a checksum CLV, and that's a checksum covering
+     * the entire PDU.  Skip the part of the header that's already been
+     * dissected.
+     */
+    offset += 8;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISIS PSNP");
 
     ti = proto_tree_add_item(tree, proto_isis_psnp, tvb, offset, -1, ENC_NA);
     psnp_tree = proto_item_add_subtree(ti, ett_isis_psnp);
 
+    if (isis->header_length < 8 + 2) {
+        /* Not large enough to include the part of the header that
+           we dissect here. */
+        expert_add_info(pinfo, isis->header_length_item, isis->ei_bad_header_length);
+        return;
+    }
     pdu_length = tvb_get_ntohs(tvb, offset);
     ti = proto_tree_add_uint(psnp_tree, hf_isis_psnp_pdu_length, tvb,
             offset, 2, pdu_length);
-    if (pdu_length < header_length) {
+    if (pdu_length < isis->header_length) {
         expert_add_info(pinfo, ti, &ei_isis_psnp_short_pdu);
         pdu_length_too_short = TRUE;
-    } else if (pdu_length > tvb_reported_length(tvb) + header_length) {
+    } else if (pdu_length > tvb_reported_length(tvb) + isis->header_length) {
         expert_add_info(pinfo, ti, &ei_isis_psnp_long_pdu);
     }
     offset += 2;
 
-    proto_tree_add_item(psnp_tree, hf_isis_psnp_source_id, tvb, offset, id_length, ENC_NA);
-    col_append_fstr(pinfo->cinfo, COL_INFO, ", Source-ID: %s", tvb_print_system_id( tvb, offset, id_length ));
-
-    offset += id_length + 1;
+    if (isis->header_length < 8 + 2 + isis->system_id_len + 1) {
+        /* Not large enough to include the part of the header that
+           we dissect here. */
+        expert_add_info(pinfo, isis->header_length_item, isis->ei_bad_header_length);
+        return;
+    }
+    proto_tree_add_item(psnp_tree, hf_isis_psnp_source_id, tvb, offset, isis->system_id_len, ENC_NA);
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", Source-ID: %s", tvb_print_system_id( tvb, offset, isis->system_id_len ));
+    offset += isis->system_id_len + 1;
 
     if (pdu_length_too_short) {
         return;
     }
-    len = pdu_length - header_length;
+    isis->pdu_length = pdu_length;
     isis_dissect_clvs(tvb, pinfo, psnp_tree, offset,
-            opts, &ei_isis_psnp_short_clv, len, id_length, ett_isis_psnp_clv_unknown, hf_isis_psnp_clv_type, hf_isis_psnp_clv_length, ei_isis_psnp_clv_unknown);
+            opts, &ei_isis_psnp_short_clv, isis, ett_isis_psnp_clv_unknown,
+            hf_isis_psnp_clv_type, hf_isis_psnp_clv_length,
+            &ei_isis_psnp_clv_unknown);
 }
 
 static int
 dissect_isis_l1_psnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     isis_data_t* isis = (isis_data_t*)data;
-    dissect_isis_psnp(tvb, pinfo, tree, 0,
-        clv_l1_psnp_opts, isis->header_length, isis->system_id_len);
+    dissect_isis_psnp(tvb, pinfo, tree, 0, clv_l1_psnp_opts, isis);
     return tvb_captured_length(tvb);
 }
 
@@ -474,8 +512,7 @@ static int
 dissect_isis_l2_psnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     isis_data_t* isis = (isis_data_t*)data;
-    dissect_isis_psnp(tvb, pinfo, tree, 0,
-        clv_l2_psnp_opts, isis->header_length, isis->system_id_len);
+    dissect_isis_psnp(tvb, pinfo, tree, 0, clv_l2_psnp_opts, isis);
     return tvb_captured_length(tvb);
 }
 

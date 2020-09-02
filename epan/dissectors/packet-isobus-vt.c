@@ -1,6 +1,7 @@
 /* packet-isobus-vt.c
  * Routines for ISObus VT dissection (Based on CANOpen Dissector)
  * Copyright 2016, Jeroen Sack <jsack@lely.com>
+ * ISO 11783-6
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -1174,10 +1175,8 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
 
         proto_item_append_text(ti, ": ");
         if (termination_cause & 0x01)
-            proto_item_append_text(ti, "Audio was terminated ");
-
-        if (termination_cause & 0x01)
         {
+            proto_item_append_text(ti, "Audio was terminated ");
             col_append_fstr(pinfo->cinfo, COL_INFO, "VT Control audio signal termination: Audio was terminated");
         }
         else
@@ -1956,7 +1955,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             proto_item_append_text(ti, ": ");
             if (error_codes & 0x01)
                 proto_item_append_text(ti, "Audio device is busy, subsequent commands use the new setting ");
-            if (error_codes & 0x01)
+            if (error_codes & 0x02)
                 proto_item_append_text(ti, "Command is not supported ");
             if (error_codes & 0x10)
                 proto_item_append_text(ti, "Any other error ");

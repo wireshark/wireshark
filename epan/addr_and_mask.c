@@ -44,19 +44,19 @@ ip_get_subnet_mask(const guint32 mask_length)
  */
 
 int
-tvb_get_ipv4_addr_with_prefix_len(tvbuff_t *tvb, int offset, guint8 *addr,
+tvb_get_ipv4_addr_with_prefix_len(tvbuff_t *tvb, int offset, ws_in4_addr *addr,
     guint32 prefix_len)
 {
-	guint32 addr_len;
+	guint8 addr_len;
 
 	if (prefix_len > 32)
 		return -1;
 
 	addr_len = (prefix_len + 7) / 8;
-	memset(addr, 0, 4);
+	*addr = 0;
 	tvb_memcpy(tvb, addr, offset, addr_len);
 	if (prefix_len % 8)
-		addr[addr_len - 1] &= ((0xff00 >> (prefix_len % 8)) & 0xff);
+		((guint8*)addr)[addr_len - 1] &= ((0xff00 >> (prefix_len % 8)) & 0xff);
 	return addr_len;
 }
 

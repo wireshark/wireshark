@@ -36,6 +36,18 @@
  *                       - ObjectMappings now used for dissecting PDOs
  *                       - XDD/EDS files can be read for name/type information
  *
+ * Copyright (c) 2020: B&R Industrial Automation GmbH
+ *                     http://www.br-automation.com
+ *
+ *                     - Christian Krump <christian.krump[AT]br-automation.com>
+ *                       - extended decoding of ring redundancy flags in the SOA frame
+ *                       - put a boolean hotfield to all available EPL message types
+ *                       - modified timestamp format of errorcodelist entries
+ *                       - append summary info with additional flag information
+ *                       - usage of segment size during sdo (write by index) payload decoding process
+ *                       - set mapping-sections of sdo objects one level lower
+ *                       - dissect some additional (cable redundancy specific) flags
+ *
  * A dissector for:
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -59,7 +71,6 @@
 #include <wsutil/strtoi.h>
 #include <wsutil/file_util.h>
 #include <wsutil/report_message.h>
-#include <glib.h>
 #include <string.h>
 
 #ifdef HAVE_LIBXML2
@@ -160,12 +171,25 @@ static const value_string mtyp_vals[] = {
 	{0,NULL}
 };
 
+/* flags/masks */
 #define EPL_SOC_MC_MASK              0x80
 #define EPL_SOC_PS_MASK              0x40
+#define EPL_SOC_AN_MASK              0x08
 #define EPL_PDO_RD_MASK              0x01
-
+#define EPL_PDO_EA_MASK              0x04
+#define EPL_PDO_EN_MASK              0x10
 #define EPL_PDO_RS_MASK              0x07
 #define EPL_PDO_PR_MASK              0x38
+#define EPL_PDO_SLS_MASK             0x40
+#define EPL_PDO_FLS_MASK             0x80
+#define EPL_SOA_EA_MASK              0x04
+#define EPL_SOA_ER_MASK              0x02
+#define EPL_ASND_EN_MASK             0x10
+#define EPL_ASND_EC_MASK             0x08
+#define EPL_ASND_RS_MASK             0x07
+#define EPL_ASND_PR_MASK             0x38
+#define EPL_ASND_SLS_MASK            0x40
+#define EPL_ASND_FLS_MASK            0x80
 
 /* RequestedServiceID s for EPL message type "SoA" */
 #define EPL_SOA_NOSERVICE               0
@@ -1399,27 +1423,41 @@ static gint hf_epl_dest          = -1;
 static gint hf_epl_src           = -1;
 static gint hf_epl_payload_real  = -1;
 
+/* available epl message types */
 static gint hf_epl_soc           = -1;
+static gint hf_epl_preq          = -1;
+static gint hf_epl_pres          = -1;
+static gint hf_epl_soa           = -1;
+static gint hf_epl_asnd          = -1;
+static gint hf_epl_amni          = -1;
+static gint hf_epl_ainv          = -1;
+
+static gint hf_epl_soc_flags     = -1;
 static gint hf_epl_soc_mc        = -1;
 static gint hf_epl_soc_ps        = -1;
+static gint hf_epl_soc_dna_an    = -1;
 static gint hf_epl_soc_nettime   = -1;
 static gint hf_epl_soc_relativetime = -1;
 
-static gint hf_epl_preq          = -1;
+static gint hf_epl_preq_flags    = -1;
 static gint hf_epl_preq_ms       = -1;
 static gint hf_epl_preq_ea       = -1;
 static gint hf_epl_preq_rd       = -1;
+static gint hf_epl_preq_sls      = -1;
+static gint hf_epl_preq_fls      = -1;
 static gint hf_epl_preq_pdov     = -1;
 static gint hf_epl_preq_size     = -1;
 
 static gint hf_epl_pres_stat_ms  = -1;
 static gint hf_epl_pres_stat_cs  = -1;
-static gint hf_epl_pres          = -1;
+static gint hf_epl_pres_flags    = -1;
 static gint hf_epl_pres_ms       = -1;
 static gint hf_epl_pres_en       = -1;
 static gint hf_epl_pres_rd       = -1;
 static gint hf_epl_pres_pr       = -1;
 static gint hf_epl_pres_rs       = -1;
+static gint hf_epl_pres_sls      = -1;
+static gint hf_epl_pres_fls      = -1;
 static gint hf_epl_pres_pdov     = -1;
 static gint hf_epl_pres_size     = -1;
 
@@ -1430,6 +1468,11 @@ static gint hf_epl_soa_er        = -1;
 static gint hf_epl_soa_svid      = -1;
 static gint hf_epl_soa_svtg      = -1;
 static gint hf_epl_soa_eplv      = -1;
+static gint hf_epl_soa_rrflags          = -1;
+static gint hf_epl_soa_rrflags_mnred    = -1;
+static gint hf_epl_soa_rrflags_cblred   = -1;
+static gint hf_epl_soa_rrflags_ringred  = -1;
+static gint hf_epl_soa_rrflags_ringstat = -1;
 
 /*SyncRequest*/
 static gint hf_epl_soa_sync      = -1;
@@ -1470,6 +1513,8 @@ static gint hf_epl_asnd_identresponse_en             = -1;
 static gint hf_epl_asnd_identresponse_ec             = -1;
 static gint hf_epl_asnd_identresponse_pr             = -1;
 static gint hf_epl_asnd_identresponse_rs             = -1;
+static gint hf_epl_asnd_identresponse_sls            = -1;
+static gint hf_epl_asnd_identresponse_fls            = -1;
 static gint hf_epl_asnd_identresponse_stat_ms        = -1;
 static gint hf_epl_asnd_identresponse_stat_cs        = -1;
 static gint hf_epl_asnd_identresponse_ever           = -1;
@@ -1522,6 +1567,8 @@ static gint hf_epl_asnd_statusresponse_en            = -1;
 static gint hf_epl_asnd_statusresponse_ec            = -1;
 static gint hf_epl_asnd_statusresponse_pr            = -1;
 static gint hf_epl_asnd_statusresponse_rs            = -1;
+static gint hf_epl_asnd_statusresponse_sls           = -1;
+static gint hf_epl_asnd_statusresponse_fls           = -1;
 static gint hf_epl_asnd_statusresponse_stat_ms       = -1;
 static gint hf_epl_asnd_statusresponse_stat_cs       = -1;
 /* static gint hf_epl_asnd_statusresponse_seb           = -1; */
@@ -2355,7 +2402,7 @@ epl_duplication_insert(GHashTable* table, gpointer ptr, guint32 frame)
 	{
 		key = (duplication_key *)wmem_memdup(wmem_file_scope(), ptr,sizeof(duplication_key));
 		/* create memory */
-		data = (duplication_data *)wmem_alloc0(wmem_file_scope(), sizeof(duplication_data));
+		data = wmem_new0(wmem_file_scope(), duplication_data);
 		data->frame = frame;
 		g_hash_table_insert(table,(gpointer)key, data);
 	}
@@ -2468,6 +2515,7 @@ dissect_eplpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean udp
 	gint offset = 0, size = 0;
 	heur_dtbl_entry_t *hdtbl_entry;
 	struct epl_convo *convo;
+	proto_item *msg_typ_hidden = NULL;
 
 	if (tvb_reported_length(tvb) < 3)
 	{
@@ -2566,6 +2614,39 @@ dissect_eplpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean udp
 		/* create display subtree for the protocol */
 		ti = proto_tree_add_item(tree, proto_epl, tvb, 0, -1, ENC_NA);
 		epl_tree = proto_item_add_subtree(ti, ett_epl);
+
+		/* create a hidden field for filtering all EPL message types with simple syntax (epl.soc, epl.soa,...) */
+		switch(epl_mtyp)
+		{
+			case EPL_SOC:
+				msg_typ_hidden = proto_tree_add_boolean(epl_tree, hf_epl_soc, tvb, offset, 1, epl_mtyp);
+				break;
+
+			case EPL_PREQ:
+				msg_typ_hidden = proto_tree_add_boolean(epl_tree, hf_epl_preq, tvb, offset, 1, epl_mtyp);
+				break;
+
+			case EPL_PRES:
+				msg_typ_hidden = proto_tree_add_boolean(epl_tree, hf_epl_pres, tvb, offset, 1, epl_mtyp);
+				break;
+
+			case EPL_SOA:
+				msg_typ_hidden = proto_tree_add_boolean(epl_tree, hf_epl_soa, tvb, offset, 1, epl_mtyp);
+				break;
+
+			case EPL_ASND:
+				msg_typ_hidden = proto_tree_add_boolean(epl_tree, hf_epl_asnd, tvb, offset, 1, epl_mtyp);
+				break;
+
+			case EPL_AMNI:
+				msg_typ_hidden = proto_tree_add_boolean(epl_tree, hf_epl_amni, tvb, offset, 1, epl_mtyp);
+				break;
+
+			case EPL_AINV:
+				msg_typ_hidden = proto_tree_add_boolean(epl_tree, hf_epl_ainv, tvb, offset, 1, epl_mtyp);
+				break;
+		}
+		proto_item_set_hidden(msg_typ_hidden);
 
 		proto_tree_add_item(epl_tree,
 			hf_epl_mtyp, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -2748,16 +2829,17 @@ static gint
 dissect_epl_soc(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset)
 {
 	guint8  flags;
-	static const int * soc_flags[] = {
+	static int * const soc_flags[] = {
 		&hf_epl_soc_mc,
 		&hf_epl_soc_ps,
+		&hf_epl_soc_dna_an,
 		NULL
 	};
 
 	offset += 1;
 
 	flags = tvb_get_guint8(tvb, offset);
-	proto_tree_add_bitmask(epl_tree, tvb, offset, hf_epl_soc, ett_epl_soc, soc_flags, ENC_NA);
+	proto_tree_add_bitmask(epl_tree, tvb, offset, hf_epl_soc_flags, ett_epl_soc, soc_flags, ENC_NA);
 
 	offset += 2;
 
@@ -2784,7 +2866,7 @@ dissect_epl_preq(struct epl_convo *convo, proto_tree *epl_tree, tvbuff_t *tvb, p
 	guint16 len;
 	guint8  pdoversion;
 	guint8  flags;
-	static const int * req_flags[] = {
+	static int * const req_flags[] = {
 		&hf_epl_preq_ms,
 		&hf_epl_preq_ea,
 		&hf_epl_preq_rd,
@@ -2794,8 +2876,13 @@ dissect_epl_preq(struct epl_convo *convo, proto_tree *epl_tree, tvbuff_t *tvb, p
 	offset += 1;
 
 	flags = tvb_get_guint8(tvb, offset);
-	proto_tree_add_bitmask(epl_tree, tvb, offset, hf_epl_preq, ett_epl_preq, req_flags, ENC_NA);
-	offset += 2;
+	proto_tree_add_bitmask(epl_tree, tvb, offset, hf_epl_preq_flags, ett_epl_preq, req_flags, ENC_NA);
+	offset += 1;
+
+	/* dissect 2nd flag field */
+	proto_tree_add_item(epl_tree, hf_epl_preq_fls, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(epl_tree, hf_epl_preq_sls, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	offset += 1;
 
 	pdoversion = tvb_get_guint8(tvb, offset);
 	proto_tree_add_item(epl_tree, hf_epl_preq_pdov, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -2805,8 +2892,8 @@ dissect_epl_preq(struct epl_convo *convo, proto_tree *epl_tree, tvbuff_t *tvb, p
 	len = tvb_get_letohs(tvb, offset);
 	proto_tree_add_uint(epl_tree, hf_epl_preq_size, tvb, offset, 2, len);
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, "[%4d]  F:RD=%d  V:%d.%d", len,
-			(EPL_PDO_RD_MASK & flags), hi_nibble(pdoversion), lo_nibble(pdoversion));
+	col_append_fstr(pinfo->cinfo, COL_INFO, "[%4d]  F:RD=%d,EA=%d  V:%d.%d", len,
+			(EPL_PDO_RD_MASK & flags), (EPL_PDO_EA_MASK & flags), hi_nibble(pdoversion), lo_nibble(pdoversion));
 
 	offset += 2;
 	offset = dissect_epl_pdo(convo, epl_tree, tvb, pinfo, offset, len, EPL_PREQ );
@@ -2822,7 +2909,7 @@ dissect_epl_pres(struct epl_convo *convo, proto_tree *epl_tree, tvbuff_t *tvb, p
 	guint16  len;
 	guint8  pdoversion;
 	guint8  state, flags, flags2;
-	static const int * res_flags[] = {
+	static int * const res_flags[] = {
 		&hf_epl_pres_ms,
 		&hf_epl_pres_en,
 		&hf_epl_pres_rd,
@@ -2841,10 +2928,13 @@ dissect_epl_pres(struct epl_convo *convo, proto_tree *epl_tree, tvbuff_t *tvb, p
 	offset += 1;
 
 	flags = tvb_get_guint8(tvb, offset);
-	proto_tree_add_bitmask(epl_tree, tvb, offset, hf_epl_pres, ett_epl_pres, res_flags, ENC_NA);
+	proto_tree_add_bitmask(epl_tree, tvb, offset, hf_epl_pres_flags, ett_epl_pres, res_flags, ENC_NA);
 	offset += 1;
 
 	flags2 = tvb_get_guint8(tvb, offset);
+
+	proto_tree_add_item(epl_tree, hf_epl_pres_fls, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(epl_tree, hf_epl_pres_sls, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(epl_tree, hf_epl_pres_pr, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(epl_tree, hf_epl_pres_rs, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
@@ -2859,8 +2949,8 @@ dissect_epl_pres(struct epl_convo *convo, proto_tree *epl_tree, tvbuff_t *tvb, p
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, "[%4d]", len);
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, "  F:RD=%d,RS=%d,PR=%d  V=%d.%d",
-			(EPL_PDO_RD_MASK & flags), (EPL_PDO_RS_MASK & flags2), (EPL_PDO_PR_MASK & flags2) >> 3,
+	col_append_fstr(pinfo->cinfo, COL_INFO, "  F:RD=%d,EN=%d,RS=%d,PR=%d  V=%d.%d",
+			(EPL_PDO_RD_MASK & flags), (EPL_PDO_EN_MASK & flags), (EPL_PDO_RS_MASK & flags2), (EPL_PDO_PR_MASK & flags2) >> 3,
 			hi_nibble(pdoversion), lo_nibble(pdoversion));
 
 	if (pinfo->srcport != EPL_MN_NODEID)   /* check if the sender is CN or MN */
@@ -2886,7 +2976,7 @@ static gint
 dissect_epl_soa(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset)
 {
 	guint8 svid, target;
-	guint8 state;
+	guint8 state, flags;
 	proto_item *psf_item = NULL;
 	proto_tree *psf_tree  = NULL;
 
@@ -2902,6 +2992,7 @@ dissect_epl_soa(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint of
 
 	offset += 1;
 
+	flags = tvb_get_guint8(tvb, offset);
 	svid = tvb_get_guint8(tvb, offset + 2);
 	if (svid == EPL_SOA_IDENTREQUEST)
 	{
@@ -2922,6 +3013,10 @@ dissect_epl_soa(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint of
 	col_append_fstr(pinfo->cinfo, COL_INFO, "(%s)->%3d",
 					rval_to_str(svid, soa_svid_id_vals, "Unknown"), target);
 
+	/* append info entry with flag information */
+	col_append_fstr(pinfo->cinfo, COL_INFO, "  F:EA=%d,ER=%d  ",
+		(EPL_SOA_EA_MASK & flags), (EPL_SOA_ER_MASK & flags));
+
 	if (pinfo->srcport != EPL_MN_NODEID)   /* check if CN or MN */
 	{
 		col_append_fstr(pinfo->cinfo, COL_INFO, "  %s",
@@ -2936,10 +3031,16 @@ dissect_epl_soa(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint of
 	proto_tree_add_item(epl_tree, hf_epl_soa_eplv, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
 
+	/* decode redundancy flags */
+	proto_tree_add_item(epl_tree, hf_epl_soa_rrflags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(epl_tree, hf_epl_soa_rrflags_ringstat, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(epl_tree, hf_epl_soa_rrflags_ringred, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(epl_tree, hf_epl_soa_rrflags_cblred, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(epl_tree, hf_epl_soa_rrflags_mnred, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	offset += 1;
+
 	if (svid == EPL_SOA_SYNCREQUEST)
 	{
-		/* reserved */
-		offset +=1;
 		/* SyncControl bit0-7 */
 		psf_item = proto_tree_add_item(epl_tree, hf_epl_soa_sync, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		proto_item_append_text(psf_item, " (Bits 0..7)");
@@ -3001,6 +3102,7 @@ static gint
 dissect_epl_asnd(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset)
 {
 	guint8  svid;
+	guint8 flags, flags2;
 	gint size, reported_len;
 	tvbuff_t *next_tvb;
 	proto_item *item;
@@ -3013,8 +3115,19 @@ dissect_epl_asnd(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint o
 
 	offset += 1;
 
+	flags = tvb_get_guint8(tvb, offset);
+	flags2 = tvb_get_guint8(tvb, offset + 1);
+
 	col_append_fstr(pinfo->cinfo, COL_INFO, "(%s) ",
 			rval_to_str(svid, asnd_svid_id_vals, "Unknown"));
+
+	/* append info entry with flag information for sres/ires frames */
+	if ((svid == EPL_ASND_IDENTRESPONSE) || (svid == EPL_ASND_STATUSRESPONSE))
+	{
+		col_append_fstr(pinfo->cinfo, COL_INFO, "  F:EC=%d,EN=%d,RS=%d,PR=%d  ",
+			(EPL_ASND_EC_MASK & flags), (EPL_ASND_EN_MASK & flags), (EPL_ASND_RS_MASK & flags2), (EPL_ASND_PR_MASK & flags2) >> 3);
+
+	}
 
 	switch (svid)
 	{
@@ -3153,7 +3266,7 @@ dissect_epl_asnd_nmtdna(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo,
 	guint32     lease_time;
 	guint32     lease_time_s;
 	nstime_t    us;
-	static const int * dna_flags[] = {
+	static int * const dna_flags[] = {
 		&hf_epl_asnd_nmtcommand_nmtdna_ltv,
 		&hf_epl_asnd_nmtcommand_nmtdna_hpm,
 		&hf_epl_asnd_nmtcommand_nmtdna_nnn,
@@ -3263,6 +3376,8 @@ dissect_epl_asnd_ires(struct epl_convo *convo, proto_tree *epl_tree, tvbuff_t *t
 	proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_ec, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
 
+	proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_fls, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_sls, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_pr, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_rs, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
@@ -3466,6 +3581,8 @@ dissect_epl_asnd_sres(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, g
 	proto_tree_add_item(epl_tree, hf_epl_asnd_statusresponse_ec, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
 
+	proto_tree_add_item(epl_tree, hf_epl_asnd_statusresponse_fls, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(epl_tree, hf_epl_asnd_statusresponse_sls, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(epl_tree, hf_epl_asnd_statusresponse_pr, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(epl_tree, hf_epl_asnd_statusresponse_rs, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
@@ -3532,7 +3649,7 @@ dissect_epl_asnd_sres(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, g
 		proto_tree_add_item(epl_el_entry_tree, hf_epl_asnd_statusresponse_el_entry_code, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 
-		proto_tree_add_item(epl_el_entry_tree, hf_epl_asnd_statusresponse_el_entry_time, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(epl_el_entry_tree, hf_epl_asnd_statusresponse_el_entry_time, tvb, offset, 8, ENC_TIME_SECS_NSECS|ENC_LITTLE_ENDIAN);
 		offset += 8;
 
 		proto_tree_add_item(epl_el_entry_tree, hf_epl_asnd_statusresponse_el_entry_add, tvb, offset, 8, ENC_LITTLE_ENDIAN);
@@ -3872,7 +3989,7 @@ dissect_epl_sdo_command(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo,
 static gint
 dissect_epl_sdo_command_write_by_index(struct epl_convo *convo, proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset, guint8 segmented, gboolean response, guint16 segment_size)
 {
-	gint size, payload_length = 0;
+	gint size, payload_length, rem_size = 0;
 	guint16 idx = 0x00, sod_index = 0xFF, error = 0xFF, sub_val = 0x00;
 	gboolean nosub = FALSE;
 	guint8 subindex = 0x00;
@@ -4092,8 +4209,17 @@ dissect_epl_sdo_command_write_by_index(struct epl_convo *convo, proto_tree *epl_
 				ct = 0;
 			}
 		}
-		size = tvb_reported_length_remaining(tvb, offset);
 
+		/* determine remaining SDO payload size (depends on segment size of current command) */
+		size = tvb_reported_length_remaining(tvb, offset);
+		if(size > (segment_size - 4))
+		{
+			rem_size = (segment_size - 4);
+		}
+		else
+		{
+			rem_size = size;
+		}
 
 		/* if the frame is a PDO Mapping and the subindex is bigger than 0x00 */
 		if((idx == EPL_SOD_PDO_TX_MAPP && subindex > 0x00) || (idx == EPL_SOD_PDO_RX_MAPP && subindex > 0x00))
@@ -4113,7 +4239,7 @@ dissect_epl_sdo_command_write_by_index(struct epl_convo *convo, proto_tree *epl_
 			else if (obj)
 				type = obj->info.type;
 
-			offset = dissect_epl_payload(epl_tree, tvb, pinfo, offset, size, type, EPL_ASND);
+			offset = dissect_epl_payload(epl_tree, tvb, pinfo, offset, rem_size, type, EPL_ASND);
 		}
 	}
 	else
@@ -4431,7 +4557,7 @@ dissect_epl_sdo_command_write_multiple_by_index(struct epl_convo *convo, proto_t
 				wmem_array_t *mappings = NULL;
 				if (use_sdo_mappings)
 					mappings = idx == EPL_SOD_PDO_TX_MAPP ? convo->TPDO : convo->RPDO;
-				dissect_object_mapping(convo->profile, mappings, epl_tree, tvb, pinfo->num, dataoffset, idx, subindex);
+				dissect_object_mapping(convo->profile, mappings, psf_od_tree, tvb, pinfo->num, dataoffset, idx, subindex);
 			}
 			else /* dissect the payload */
 			{
@@ -5166,9 +5292,39 @@ proto_register_epl(void)
 				FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
 		},
 
-		/* SoC data fields*/
+		/* hotfields for all available EPL message types (depends on EPL MessageType) */
 		{ &hf_epl_soc,
-			{ "Flags", "epl.soc",
+			{ "SoC", "epl.soc",
+				FT_BOOLEAN, BASE_DEC, NULL, 0x00, NULL, HFILL }
+		},
+		{ &hf_epl_preq,
+			{ "PReq", "epl.preq",
+				FT_BOOLEAN, BASE_DEC, NULL, 0x00, NULL, HFILL }
+		},
+		{ &hf_epl_pres,
+			{ "PRes", "epl.pres",
+				FT_BOOLEAN, BASE_DEC, NULL, 0x00, NULL, HFILL }
+		},
+		{ &hf_epl_soa,
+			{ "SoA", "epl.soa",
+				FT_BOOLEAN, BASE_DEC, NULL, 0x00, NULL, HFILL }
+		},
+		{ &hf_epl_asnd,
+			{ "ASnd", "epl.asnd",
+				FT_BOOLEAN, BASE_DEC, NULL, 0x00, NULL, HFILL }
+		},
+		{ &hf_epl_amni,
+			{ "AMNI", "epl.amni",
+				FT_BOOLEAN, BASE_DEC, NULL, 0x00, NULL, HFILL }
+		},
+		{ &hf_epl_ainv,
+			{ "AInv", "epl.ainv",
+				FT_BOOLEAN, BASE_DEC, NULL, 0x00, NULL, HFILL }
+		},
+
+		/* SoC data fields*/
+		{ &hf_epl_soc_flags,
+			{ "Flags", "epl.soc.flags",
 				FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_epl_soc_mc,
@@ -5178,6 +5334,10 @@ proto_register_epl(void)
 		{ &hf_epl_soc_ps,
 			{ "PS (Prescaled Slot)", "epl.soc.ps",
 				FT_BOOLEAN, 8, NULL, EPL_SOC_PS_MASK, NULL, HFILL }
+		},
+		{ &hf_epl_soc_dna_an,
+			{ "AN (Global)", "epl.soc.an",
+				FT_BOOLEAN, 8, NULL, EPL_SOC_AN_MASK, NULL, HFILL }
 		},
 		{ &hf_epl_soc_nettime,
 			{ "NetTime", "epl.soc.nettime",
@@ -5189,8 +5349,8 @@ proto_register_epl(void)
 		},
 
 		/* PReq data fields*/
-		{ &hf_epl_preq,
-			{ "Flags", "epl.preq",
+		{ &hf_epl_preq_flags,
+			{ "Flags", "epl.preq.flags",
 				FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_epl_preq_ms,
@@ -5199,11 +5359,19 @@ proto_register_epl(void)
 		},
 		{ &hf_epl_preq_ea,
 			{ "EA (Exception Acknowledge)", "epl.preq.ea",
-				FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL }
+				FT_BOOLEAN, 8, NULL, EPL_PDO_EA_MASK, NULL, HFILL }
 		},
 		{ &hf_epl_preq_rd,
 			{ "RD (Ready)", "epl.preq.rd",
 				FT_BOOLEAN, 8, NULL, EPL_PDO_RD_MASK, NULL, HFILL }
+		},
+		{ &hf_epl_preq_sls,
+			{ "SLS (Second Link Status)", "epl.preq.sls",
+				FT_BOOLEAN, 8, NULL, EPL_PDO_SLS_MASK, NULL, HFILL }
+		},
+		{ &hf_epl_preq_fls,
+			{ "FLS (First Link Status)", "epl.preq.fls",
+				FT_BOOLEAN, 8, NULL, EPL_PDO_FLS_MASK, NULL, HFILL }
 		},
 		{ &hf_epl_preq_pdov,
 			{ "PDOVersion", "epl.preq.pdov",
@@ -5223,8 +5391,8 @@ proto_register_epl(void)
 			{ "NMTStatus", "epl.pres.stat",
 				FT_UINT8, BASE_HEX, VALS(epl_nmt_cs_vals), 0x00, NULL, HFILL }
 		},
-		{ &hf_epl_pres,
-			{ "Flags", "epl.pres",
+		{ &hf_epl_pres_flags,
+			{ "Flags", "epl.pres.flags",
 				FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_epl_pres_ms,
@@ -5233,7 +5401,7 @@ proto_register_epl(void)
 		},
 		{ &hf_epl_pres_en,
 			{ "EN (Exception New)", "epl.pres.en",
-				FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL }
+				FT_BOOLEAN, 8, NULL, EPL_PDO_EN_MASK, NULL, HFILL }
 		},
 		{ &hf_epl_pres_rd,
 			{ "RD (Ready)", "epl.pres.rd",
@@ -5245,7 +5413,15 @@ proto_register_epl(void)
 		},
 		{ &hf_epl_pres_rs,
 			{ "RS (RequestToSend)", "epl.pres.rs",
-				FT_UINT8, BASE_DEC, NULL, 0x07, NULL, HFILL }
+				FT_UINT8, BASE_DEC, NULL, EPL_PDO_RS_MASK, NULL, HFILL }
+		},
+		{ &hf_epl_pres_sls,
+			{ "SLS (Second Link Status)", "epl.pres.sls",
+				FT_BOOLEAN, 8, NULL, EPL_PDO_SLS_MASK, NULL, HFILL }
+		},
+		{ &hf_epl_pres_fls,
+			{ "FLS (First Link Status)", "epl.pres.fls",
+				FT_BOOLEAN, 8, NULL, EPL_PDO_FLS_MASK, NULL, HFILL }
 		},
 		{ &hf_epl_pres_pdov,
 			{ "PDOVersion", "epl.pres.pdov",
@@ -5267,11 +5443,11 @@ proto_register_epl(void)
 		},
 		{ &hf_epl_soa_ea,
 			{ "EA (Exception Acknowledge)", "epl.soa.ea",
-				FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL }
+				FT_BOOLEAN, 8, NULL, EPL_SOA_EA_MASK, NULL, HFILL }
 		},
 		{ &hf_epl_soa_er,
 			{ "ER (Exception Reset)", "epl.soa.er",
-				FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL }
+				FT_BOOLEAN, 8, NULL, EPL_SOA_ER_MASK, NULL, HFILL }
 		},
 		{ &hf_epl_soa_svid,
 			{ "RequestedServiceID", "epl.soa.svid",
@@ -5284,6 +5460,26 @@ proto_register_epl(void)
 		{ &hf_epl_soa_eplv,
 			{ "EPLVersion", "epl.soa.eplv",
 				FT_UINT8, BASE_CUSTOM, CF_FUNC(elp_version), 0x00, NULL, HFILL }
+		},
+		{ &hf_epl_soa_rrflags,
+			{ "RedundancyFlags", "epl.soa.rrFlags",
+				FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
+		},
+		{ &hf_epl_soa_rrflags_mnred,
+			{ "MR - MN Redundancy", "epl.soa.rrFlags.mnred",
+				FT_BOOLEAN, 8, TFS(&tfs_active_inactive), 0x01, NULL, HFILL }
+		},
+		{ &hf_epl_soa_rrflags_cblred,
+			{ "CR - Cable Redundancy", "epl.soa.rrFlags.cblred",
+				FT_BOOLEAN, 8, TFS(&tfs_active_inactive), 0x02, NULL, HFILL }
+		},
+		{ &hf_epl_soa_rrflags_ringred,
+			{ "RR - Ring Redundancy", "epl.soa.rrFlags.ringred",
+				FT_BOOLEAN, 8, TFS(&tfs_active_inactive), 0x04, NULL, HFILL }
+		},
+		{ &hf_epl_soa_rrflags_ringstat,
+			{ "RR - Ring Status", "epl.soa.rrFlags.ringstat",
+				FT_BOOLEAN, 8, TFS(&tfs_open_closed), 0x08, NULL, HFILL }
 		},
 		{ &hf_epl_soa_sync,
 			{ "SyncControl", "epl.soa.sync",
@@ -5373,11 +5569,11 @@ proto_register_epl(void)
 		/* ASnd-->IdentResponse */
 		{ &hf_epl_asnd_identresponse_en,
 			{ "EN (Exception New)", "epl.asnd.ires.en",
-				FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL }
+				FT_BOOLEAN, 8, NULL, EPL_ASND_EN_MASK, NULL, HFILL }
 		},
 		{ &hf_epl_asnd_identresponse_ec,
 			{ "EC (Exception Clear)", "epl.asnd.ires.ec",
-				FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL }
+				FT_BOOLEAN, 8, NULL, EPL_ASND_EC_MASK, NULL, HFILL }
 		},
 		{ &hf_epl_asnd_identresponse_pr,
 			{ "PR (Priority)", "epl.asnd.ires.pr",
@@ -5385,7 +5581,15 @@ proto_register_epl(void)
 		},
 		{ &hf_epl_asnd_identresponse_rs,
 			{ "RS (RequestToSend)", "epl.asnd.ires.rs",
-				FT_UINT8, BASE_DEC, NULL, 0x07, NULL, HFILL }
+				FT_UINT8, BASE_DEC, NULL, EPL_ASND_RS_MASK, NULL, HFILL }
+		},
+		{ &hf_epl_asnd_identresponse_sls,
+			{ "SLS (Second Link Status)", "epl.asnd.ires.sls",
+				FT_BOOLEAN, 8, NULL, EPL_ASND_SLS_MASK, NULL, HFILL }
+		},
+		{ &hf_epl_asnd_identresponse_fls,
+			{ "FLS (First Link Status)", "epl.asnd.ires.fls",
+				FT_BOOLEAN, 8, NULL, EPL_ASND_FLS_MASK, NULL, HFILL }
 		},
 		{ &hf_epl_asnd_identresponse_stat_ms,
 			{ "NMTStatus", "epl.asnd.ires.state",
@@ -5579,11 +5783,11 @@ proto_register_epl(void)
 		/* ASnd-->StatusResponse */
 		{ &hf_epl_asnd_statusresponse_en,
 			{ "EN (Exception New)", "epl.asnd.sres.en",
-				FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL }
+				FT_BOOLEAN, 8, NULL, EPL_ASND_EN_MASK, NULL, HFILL }
 		},
 		{ &hf_epl_asnd_statusresponse_ec,
 			{ "EC (Exception Clear)", "epl.asnd.sres.ec",
-				FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL }
+				FT_BOOLEAN, 8, NULL, EPL_ASND_EC_MASK, NULL, HFILL }
 		},
 		{ &hf_epl_asnd_statusresponse_pr,
 			{ "PR (Priority)", "epl.asnd.sres.pr",
@@ -5591,7 +5795,15 @@ proto_register_epl(void)
 		},
 		{ &hf_epl_asnd_statusresponse_rs,
 			{ "RS (RequestToSend)", "epl.asnd.sres.rs",
-				FT_UINT8, BASE_DEC, NULL, 0x07, NULL, HFILL }
+				FT_UINT8, BASE_DEC, NULL, EPL_ASND_RS_MASK, NULL, HFILL }
+		},
+		{ &hf_epl_asnd_statusresponse_sls,
+			{ "SLS (Second Link Status)", "epl.asnd.sres.sls",
+				FT_BOOLEAN, 8, NULL, EPL_ASND_SLS_MASK, NULL, HFILL }
+		},
+		{ &hf_epl_asnd_statusresponse_fls,
+			{ "FLS (First Link Status)", "epl.asnd.sres.fls",
+				FT_BOOLEAN, 8, NULL, EPL_ASND_FLS_MASK, NULL, HFILL }
 		},
 		{ &hf_epl_asnd_statusresponse_stat_ms,
 			{ "NMTStatus", "epl.asnd.sres.stat",
@@ -5717,7 +5929,7 @@ proto_register_epl(void)
 		},
 		{ &hf_epl_asnd_statusresponse_el_entry_time,
 			{ "Time Stamp", "epl.asnd.sres.el.entry.time",
-				FT_UINT64, BASE_DEC, NULL, 0x00, NULL, HFILL }
+				FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x00, NULL, HFILL }
 		},
 		{ &hf_epl_asnd_statusresponse_el_entry_add,
 			{ "Additional Information", "epl.asnd.sres.el.entry.add",
@@ -6159,7 +6371,7 @@ proto_register_epl(void)
 		"If you are capturing in networks with multiplexed or slow nodes, this can be useful", &show_soc_flags);
 
 	prefs_register_bool_preference(epl_module, "show_duplicated_command_layer", "Show command-layer in duplicated frames",
-		"For analysis purposes one might want to show the command layer even if the dissectore assumes a duplicated frame", &show_cmd_layer_for_duplicated);
+		"For analysis purposes one might want to show the command layer even if the dissector assumes a duplicated frame", &show_cmd_layer_for_duplicated);
 
 	prefs_register_bool_preference(epl_module, "show_pdo_meta_info", "Show life times and origin PDO Tx/Rx params for PDO entries",
 		"For analysis purposes one might want to see how long the current mapping has been active for and what OD write caused it", &show_pdo_meta_info);

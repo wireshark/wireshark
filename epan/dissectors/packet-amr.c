@@ -9,8 +9,8 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * References:
- * RFC 3267  http://www.ietf.org/rfc/rfc3267.txt?number=3267
- * RFC 4867  http://www.rfc-editor.org/rfc/rfc4867.txt
+ * RFC 3267  https://tools.ietf.org/html/rfc3267
+ * RFC 4867  https://tools.ietf.org/html/rfc4867
  * 3GPP TS 26.101 for AMR-NB, 3GPP TS 26.201 for AMR-WB
  */
 
@@ -79,7 +79,6 @@ static expert_field ei_amr_padding_bits_correct = EI_INIT;
 static expert_field ei_amr_reserved = EI_INIT;
 
 /* The dynamic payload types which will be dissected as AMR */
-#define AMR_DEFAULT_DYN_PT_RANGE "0"
 static range_t *global_amr_dynamic_payload_types;
 static range_t *global_amr_wb_dynamic_payload_types;
 static gint  amr_encoding_type         = 0;
@@ -790,14 +789,14 @@ proto_register_amr(void)
 
     prefs_register_range_preference(amr_module, "dynamic.payload.type",
                        "AMR dynamic payload types",
-                       "The dynamic payload types which will be interpreted as AMR"
-                       "(default " AMR_DEFAULT_DYN_PT_RANGE ")",
+                       "Dynamic payload types which will be interpreted as AMR"
+                       "; values must be in the range 1 - 127",
                        &global_amr_dynamic_payload_types, 127);
 
     prefs_register_range_preference(amr_module, "wb.dynamic.payload.type",
         "AMR-WB dynamic payload types",
-        "The dynamic payload types which will be interpreted as AMR-WB"
-        "(default " AMR_DEFAULT_DYN_PT_RANGE ")",
+        "Dynamic payload types which will be interpreted as AMR-WB"
+        "; values must be in the range 1-127",
         &global_amr_wb_dynamic_payload_types, 127);
 
     prefs_register_enum_preference(amr_module, "encoding.version",
@@ -853,17 +852,17 @@ proto_reg_handoff_amr(void)
     } else {
         dissector_delete_uint_range("rtp.pt", amr_dynamic_payload_types, amr_handle);
         dissector_delete_uint_range("rtp.pt", amr_wb_dynamic_payload_types, amr_wb_handle);
+        wmem_free(wmem_epan_scope(), amr_dynamic_payload_types);
+        wmem_free(wmem_epan_scope(), amr_wb_dynamic_payload_types);
     }
 
     amr_dynamic_payload_types = range_copy(wmem_epan_scope(), global_amr_dynamic_payload_types);
     amr_wb_dynamic_payload_types = range_copy(wmem_epan_scope(), global_amr_wb_dynamic_payload_types);
 
-    if(!value_is_in_range(amr_dynamic_payload_types, 0)){
-        dissector_add_uint_range("rtp.pt", amr_dynamic_payload_types, amr_handle);
-    }
-    if (!value_is_in_range(amr_wb_dynamic_payload_types, 0)) {
-        dissector_add_uint_range("rtp.pt", amr_wb_dynamic_payload_types, amr_wb_handle);
-    }
+    range_remove_value(wmem_epan_scope(), &amr_dynamic_payload_types, 0);
+    dissector_add_uint_range("rtp.pt", amr_dynamic_payload_types, amr_handle);
+    range_remove_value(wmem_epan_scope(), &amr_wb_dynamic_payload_types, 0);
+    dissector_add_uint_range("rtp.pt", amr_wb_dynamic_payload_types, amr_wb_handle);
 }
 
 /*

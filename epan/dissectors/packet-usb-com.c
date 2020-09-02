@@ -315,7 +315,7 @@ static const value_string usb_com_setup_request_vals[] = {
 };
 static value_string_ext usb_com_setup_request_vals_ext = VALUE_STRING_EXT_INIT(usb_com_setup_request_vals);
 
-static const int *usb_com_get_ntb_params_ntb_formats_supported_fields[] = {
+static int * const usb_com_get_ntb_params_ntb_formats_supported_fields[] = {
     &hf_usb_com_get_ntb_params_ntb_formats_supported_16bit,
     &hf_usb_com_get_ntb_params_ntb_formats_supported_32bit,
     NULL
@@ -333,7 +333,7 @@ static const value_string usb_com_crc_mode_vals[] = {
     {0, NULL}
 };
 
-static const int *ecm_eth_stats[] = {
+static int * const ecm_eth_stats[] = {
     &hf_usb_com_descriptor_ecm_eth_stats_reserved,
     &hf_usb_com_descriptor_ecm_eth_stats_xmit_late_collisions,
     &hf_usb_com_descriptor_ecm_eth_stats_xmit_times_crs_lost,
@@ -372,7 +372,7 @@ static const true_false_string usb_com_ecm_mc_address_filtering = {
     "Perfect"
 };
 
-static const int *ecm_nb_mc_filters[] = {
+static int * const ecm_nb_mc_filters[] = {
     &hf_usb_com_descriptor_ecm_nb_mc_filters_mc_address_filtering,
     &hf_usb_com_descriptor_ecm_nb_mc_filters_nb_filters_supported,
     NULL
@@ -479,7 +479,6 @@ dissect_usb_com_descriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                     k_device_address = usb_conv_info->device_address;
                     k_frame_number = pinfo->num;
 
-                    offset = 3;
                     control_item = proto_tree_add_item_ret_uint(subtree, hf_usb_com_descriptor_control_interface, tvb, offset, 1, ENC_LITTLE_ENDIAN, &master);
 
                     if (master != usb_conv_info->interfaceNum) {

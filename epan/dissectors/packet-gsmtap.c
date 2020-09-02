@@ -3,6 +3,7 @@
  *
  * (C) 2008-2013 by Harald Welte <laforge@gnumonks.org>
  * (C) 2011 by Holger Hans Peter Freyther
+ * (C) 2020 by sysmocom s.f.m.c. GmbH <info@sysmocom.de>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -21,7 +22,7 @@
  * http://cgit.osmocom.org/libosmocore/tree/include/osmocom/core/gsmtap.h
  *
  * Example programs generating GSMTAP data are airprobe
- * (http://airprobe.org/) or OsmocomBB (http://bb.osmocom.org/)
+ * (http://git.gnumonks.org/cgit/airprobe/) or OsmocomBB (http://bb.osmocom.org/)
  *
  * It has also been used for Tetra by the OsmocomTETRA project.
  * (http://tetra.osmocom.org/)
@@ -34,6 +35,7 @@
 
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/dissectors/packet-gsm_rlcmac.h>
 
 #include "packet-gsmtap.h"
 #include "packet-lapdm.h"
@@ -60,6 +62,7 @@ static int hf_gsmtap_channel_type = -1;
 static int hf_gsmtap_tetra_channel_type = -1;
 static int hf_gsmtap_gmr1_channel_type = -1;
 static int hf_gsmtap_rrc_sub_type = -1;
+static int hf_gsmtap_e1t1_sub_type = -1;
 static int hf_gsmtap_antenna = -1;
 
 static int hf_sacch_l1h_power_lev = -1;
@@ -104,6 +107,8 @@ enum {
 	/* LTE*/
 	GSMTAP_SUB_LTE_RRC,
 	GSMTAP_SUB_LTE_NAS,
+	GSMTAP_SUB_LAPD,
+	GSMTAP_SUB_FR,
 
 	GSMTAP_SUB_MAX
 };
@@ -432,6 +437,7 @@ static const value_string gsmtap_types[] = {
 	{ GSMTAP_TYPE_OSMOCORE_LOG,	"libosmocore logging" },
 	{ GSMTAP_TYPE_QC_DIAG,		"Qualcomm DIAG" },
 	{ GSMTAP_TYPE_LTE_NAS,		"LTE NAS" },
+	{ GSMTAP_TYPE_E1T1,		"E1/T1" },
 	{ 0,			NULL },
 };
 
@@ -449,6 +455,15 @@ static const value_string gsmtap_um_voice_types[] = {
 	{ GSMTAP_UM_VOICE_AMR_SID_FIRST_INH,	"AMR_SID_FIRST_INH" },
 	{ GSMTAP_UM_VOICE_AMR_RATSCCH_MARKER,	"AMR_RATSCCH_MARKER" },
 	{ GSMTAP_UM_VOICE_AMR_RATSCCH_DATA,	"AMR_RATSCCH_DATA" },
+	{ 0,					NULL },
+};
+
+static const value_string gsmtap_um_e1t1_types[] = {
+	{ GSMTAP_E1T1_LAPD,			"LAPD" },	/* ISDN LAPD Q.921 */
+	{ GSMTAP_E1T1_FR,			"FR" },		/* Frame Relay */
+	{ GSMTAP_E1T1_RAW,			"RAW" },	/* RAW/transparent B-channels */
+	{ GSMTAP_E1T1_TRAU16,			"TRAU 16k" },	/* 16k/s sub-channels (I.460) with GSM TRAU frames */
+	{ GSMTAP_E1T1_TRAU8,			"TRAU 8k" },	/* 8k/s sub-channels (I.460) with GSM TRAU frames */
 	{ 0,					NULL },
 };
 
@@ -555,6 +570,216 @@ handle_tetra(int channel, tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree 
 	tetra_dissect_pdu(tetra_chan, TETRA_DOWNLINK, payload_tvb, tree, pinfo);
 }
 
+/* length of an EGPRS RLC data block for given MCS */
+static const guint data_block_len_by_mcs[] = {
+	0,	/* MCS0 */
+	22,	/* MCS1 */
+	28,
+	37,
+	44,
+	56,
+	74,
+	56,
+	68,
+	74,	/* MCS9 */
+	0,	/* MCS_INVALID */
+};
+
+/* determine the number of rlc data blocks and their size / offsets */
+static void
+setup_rlc_mac_priv(RlcMacPrivateData_t *rm, gboolean is_uplink,
+	guint *n_calls, guint *data_block_bits, guint *data_block_offsets)
+{
+	guint nc, dbl = 0, dbo[2] = {0,0};
+
+	dbl = data_block_len_by_mcs[rm->mcs];
+
+	switch (rm->block_format) {
+	case RLCMAC_HDR_TYPE_1:
+		nc = 3;
+		dbo[0] = is_uplink ? 5*8 + 6 : 5*8 + 0;
+		dbo[1] = dbo[0] + dbl * 8 + 2;
+		break;
+	case RLCMAC_HDR_TYPE_2:
+		nc = 2;
+		dbo[0] = is_uplink ? 4*8 + 5 : 3*8 + 4;
+		break;
+	case RLCMAC_HDR_TYPE_3:
+		nc = 2;
+		dbo[0] = 3*8 + 7;
+		break;
+	default:
+		nc = 1;
+		break;
+	}
+
+	*n_calls = nc;
+	*data_block_bits = dbl * 8 + 2;
+	data_block_offsets[0] = dbo[0];
+	data_block_offsets[1] = dbo[1];
+}
+
+/* bit-shift the entire 'src' of length 'length_bytes' by 'offset_bits'
+ * and store the reuslt to caller-allocated 'buffer'.  The shifting is
+ * done lsb-first, unlike tvb_new_octet_aligned() */
+static void clone_aligned_buffer_lsbf(guint offset_bits, guint length_bytes,
+	const guint8 *src, guint8 *buffer)
+{
+	guint hdr_bytes;
+	guint extra_bits;
+	guint i;
+
+	guint8 c, last_c;
+	guint8 *dst;
+
+	hdr_bytes = offset_bits / 8;
+	extra_bits = offset_bits % 8;
+
+	if (extra_bits == 0) {
+		/* It is aligned already */
+		memmove(buffer, src + hdr_bytes, length_bytes);
+		return;
+	}
+
+	dst = buffer;
+	src = src + hdr_bytes;
+	last_c = *(src++);
+
+	for (i = 0; i < length_bytes; i++) {
+		c = src[i];
+		*(dst++) = (last_c >> extra_bits) | (c << (8 - extra_bits));
+		last_c = c;
+	}
+}
+
+/* obtain an (aligned) EGPRS data block with given bit-offset and
+ * bit-length from the parent TVB */
+static tvbuff_t *get_egprs_data_block(tvbuff_t *tvb, guint offset_bits,
+	guint length_bits, packet_info *pinfo)
+{
+	tvbuff_t *aligned_tvb;
+	const guint initial_spare_bits = 6;
+	guint8 *aligned_buf;
+	guint min_src_length_bytes = (offset_bits + length_bits + 7) / 8;
+	guint length_bytes = (initial_spare_bits + length_bits + 7) / 8;
+
+	tvb_ensure_bytes_exist(tvb, 0, min_src_length_bytes);
+
+	aligned_buf = (guint8 *) wmem_alloc(pinfo->pool, length_bytes);
+
+	/* Copy the data out of the tvb to an aligned buffer */
+	clone_aligned_buffer_lsbf(
+		offset_bits - initial_spare_bits, length_bytes,
+		tvb_get_ptr(tvb, 0, min_src_length_bytes),
+		aligned_buf);
+
+	/* clear spare bits and move block header bits to the right */
+	aligned_buf[0] = aligned_buf[0] >> initial_spare_bits;
+
+	aligned_tvb = tvb_new_child_real_data(tvb, aligned_buf,
+		length_bytes, length_bytes);
+	add_new_data_source(pinfo, aligned_tvb, "Aligned EGPRS data bits");
+
+	return aligned_tvb;
+}
+
+static void tvb_len_get_mcs_and_fmt(guint len, gboolean is_uplink, guint *frm, guint8 *mcs)
+{
+	if (len <= 5 && is_uplink) {
+		/* Assume random access burst */
+		*frm = RLCMAC_PRACH;
+		*mcs = 0;
+		return;
+	}
+
+	switch (len)
+	{
+	case 23:  *frm = RLCMAC_CS1; *mcs = 0; break;
+	case 34:  *frm = RLCMAC_CS2; *mcs = 0; break;
+	case 40:  *frm = RLCMAC_CS3; *mcs = 0; break;
+	case 54:  *frm = RLCMAC_CS4; *mcs = 0; break;
+	case 27:  *frm = RLCMAC_HDR_TYPE_3; *mcs = 1; break;
+	case 33:  *frm = RLCMAC_HDR_TYPE_3; *mcs = 2; break;
+	case 42:  *frm = RLCMAC_HDR_TYPE_3; *mcs = 3; break;
+	case 49:  *frm = RLCMAC_HDR_TYPE_3; *mcs = 4; break;
+	case 60:  /* fall through */
+	case 61:  *frm = RLCMAC_HDR_TYPE_2; *mcs = 5; break;
+	case 78:  /* fall through */
+	case 79:  *frm = RLCMAC_HDR_TYPE_2; *mcs = 6; break;
+	case 118: /* fall through */
+	case 119: *frm = RLCMAC_HDR_TYPE_1; *mcs = 7; break;
+	case 142: /* fall through */
+	case 143: *frm = RLCMAC_HDR_TYPE_1; *mcs = 8; break;
+	case 154: /* fall through */
+	case 155: *frm = RLCMAC_HDR_TYPE_1; *mcs = 9; break;
+	default:  *frm = RLCMAC_CS1; *mcs = 0; break; /* TODO: report error instead */
+	}
+}
+
+static void
+handle_rlcmac(guint32 frame_nr, tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree *tree)
+{
+
+	int sub_handle;
+	RlcMacPrivateData_t rlcmac_data = {0};
+	tvbuff_t *data_tvb;
+	guint data_block_bits, data_block_offsets[2];
+	guint num_calls;
+	gboolean is_uplink;
+
+	if (pinfo->p2p_dir == P2P_DIR_SENT) {
+		is_uplink = 1;
+		sub_handle = GSMTAP_SUB_UM_RLC_MAC_UL;
+	} else {
+		is_uplink = 0;
+		sub_handle = GSMTAP_SUB_UM_RLC_MAC_DL;
+	}
+
+	rlcmac_data.magic = GSM_RLC_MAC_MAGIC_NUMBER;
+	rlcmac_data.frame_number = frame_nr;
+
+	tvb_len_get_mcs_and_fmt(tvb_reported_length(payload_tvb), is_uplink,
+				(guint *) &rlcmac_data.block_format,
+				(guint8 *) &rlcmac_data.mcs);
+
+	switch (rlcmac_data.block_format) {
+	case RLCMAC_HDR_TYPE_1:
+	case RLCMAC_HDR_TYPE_2:
+	case RLCMAC_HDR_TYPE_3:
+		/* First call of RLC/MAC dissector for header */
+		call_dissector_with_data(sub_handles[sub_handle], payload_tvb,
+					 pinfo, tree, (void *) &rlcmac_data);
+
+		/* now determine how to proceed for data */
+		setup_rlc_mac_priv(&rlcmac_data, is_uplink,
+				   &num_calls, &data_block_bits, data_block_offsets);
+
+		/* and call dissector one or two time for the data blocks */
+		if (num_calls >= 2) {
+			rlcmac_data.flags = GSM_RLC_MAC_EGPRS_BLOCK1;
+			data_tvb = get_egprs_data_block(payload_tvb, data_block_offsets[0],
+							data_block_bits, pinfo);
+			call_dissector_with_data(sub_handles[sub_handle], data_tvb, pinfo, tree,
+						 (void *) &rlcmac_data);
+		}
+		if (num_calls == 3) {
+			rlcmac_data.flags = GSM_RLC_MAC_EGPRS_BLOCK2;
+			data_tvb = get_egprs_data_block(payload_tvb, data_block_offsets[1],
+							data_block_bits, pinfo);
+			call_dissector_with_data(sub_handles[sub_handle], data_tvb, pinfo, tree,
+						 (void *) &rlcmac_data);
+		}
+		break;
+	default:
+		/* regular GPRS CS doesn't need any
+		 * shifting/re-alignment or even separate calls for
+		 * header and data blocks.  We simply call the dissector
+		 * as-is */
+		call_dissector_with_data(sub_handles[sub_handle], payload_tvb, pinfo, tree,
+					 (void *) &rlcmac_data);
+	}
+}
+
 /* dissect a GSMTAP header and hand payload off to respective dissector */
 static int
 dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
@@ -565,6 +790,7 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 	tvbuff_t *payload_tvb, *l1h_tvb = NULL;
 	guint8 hdr_len, type, sub_type, timeslot, subslot;
 	guint16 arfcn;
+	guint32 frame_nr;
 
 	len = tvb_reported_length(tvb);
 
@@ -572,6 +798,7 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 	type = tvb_get_guint8(tvb, offset + 2);
 	timeslot = tvb_get_guint8(tvb, offset + 3);
 	arfcn = tvb_get_ntohs(tvb, offset + 4);
+	frame_nr = tvb_get_ntohl(tvb, offset + 8);
 	sub_type = tvb_get_guint8(tvb, offset + 12);
 	subslot = tvb_get_guint8(tvb, offset + 14);
 
@@ -682,6 +909,9 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 		else if (type == GSMTAP_TYPE_UMTS_RRC)
 			proto_tree_add_item(gsmtap_tree, hf_gsmtap_rrc_sub_type,
 					    tvb, offset+12, 1, ENC_BIG_ENDIAN);
+		else if (type == GSMTAP_TYPE_E1T1)
+			proto_tree_add_item(gsmtap_tree, hf_gsmtap_e1t1_sub_type,
+					    tvb, offset+12, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(gsmtap_tree, hf_gsmtap_antenna,
 				    tvb, offset+13, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(gsmtap_tree, hf_gsmtap_subslot,
@@ -736,7 +966,6 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 			handle_lapdm(sub_type, payload_tvb, pinfo, tree);
 			return tvb_captured_length(tvb);
 		case GSMTAP_CHANNEL_PACCH:
-		case GSMTAP_CHANNEL_PDTCH:
 			if (pinfo->p2p_dir == P2P_DIR_SENT) {
 				sub_handle = GSMTAP_SUB_UM_RLC_MAC_UL;
 			}
@@ -745,6 +974,9 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 				sub_handle = GSMTAP_SUB_UM_RLC_MAC_DL;
 			}
 			break;
+		case GSMTAP_CHANNEL_PDTCH:
+			handle_rlcmac(frame_nr, payload_tvb, pinfo, tree);
+			return tvb_captured_length(tvb);
 		/* See 3GPP TS 45.003, section 5.2 "Packet control channels" */
 		case GSMTAP_CHANNEL_PTCCH:
 			/* PTCCH/D carries Timing Advance updates encoded with CS-1 */
@@ -834,6 +1066,19 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 			break;
 		}
 		break;
+	case GSMTAP_TYPE_E1T1:
+		switch (sub_type) {
+		case GSMTAP_E1T1_LAPD:
+			sub_handle = GSMTAP_SUB_LAPD;
+			break;
+		case GSMTAP_E1T1_FR:
+			sub_handle = GSMTAP_SUB_FR;
+			break;
+		default:
+			sub_handle = GSMTAP_SUB_DATA;
+			break;
+		}
+		break;
 	case GSMTAP_TYPE_UM_BURST:
 	default:
 		sub_handle = GSMTAP_SUB_DATA;
@@ -900,6 +1145,8 @@ proto_register_gsmtap(void)
 		  FT_UINT8, BASE_DEC, VALS(gsmtap_gmr1_channels), 0, NULL, HFILL }},
 		{ &hf_gsmtap_rrc_sub_type, { "Message Type", "gsmtap.rrc_sub_type",
 		  FT_UINT8, BASE_DEC, VALS(rrc_sub_types), 0, NULL, HFILL }},
+		{ &hf_gsmtap_e1t1_sub_type, { "Channel Type", "gsmtap.e1t1_sub_type",
+		  FT_UINT8, BASE_DEC, VALS(gsmtap_um_e1t1_types), 0, NULL, HFILL }},
 		{ &hf_gsmtap_antenna, { "Antenna Number", "gsmtap.antenna",
 		  FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
 		{ &hf_gsmtap_subslot, { "Sub-Slot", "gsmtap.sub_slot",
@@ -963,6 +1210,8 @@ proto_reg_handoff_gsmtap(void)
 	sub_handles[GSMTAP_SUB_GMR1_LAPSAT] = find_dissector_add_dependency("lapsat", proto_gsmtap);
 	sub_handles[GSMTAP_SUB_GMR1_RACH] = find_dissector_add_dependency("gmr1_rach", proto_gsmtap);
 	sub_handles[GSMTAP_SUB_UMTS_RRC] = find_dissector_add_dependency("rrc", proto_gsmtap);
+	sub_handles[GSMTAP_SUB_LAPD] = find_dissector_add_dependency("lapd", proto_gsmtap);
+	sub_handles[GSMTAP_SUB_FR] = find_dissector_add_dependency("fr", proto_gsmtap);
 
 	rrc_sub_handles[GSMTAP_RRC_SUB_DL_DCCH_Message] = find_dissector_add_dependency("rrc.dl.dcch", proto_gsmtap);
 	rrc_sub_handles[GSMTAP_RRC_SUB_UL_DCCH_Message] = find_dissector_add_dependency("rrc.ul.dcch", proto_gsmtap);

@@ -18,8 +18,8 @@
 
 /*
  * See
- *      http://adn.harmanpro.com/site_elements/resources/487_1411413911/HiQnet_third-party_programmers_quick-start_guide_original.pdf
- *      http://hiqnet.harmanpro.com/content/misc/hiqnet%20third%20party%20programmers%20guide%20v2.pdf
+ *      https://adn.harmanpro.com/site_elements/resources/487_1411413911/HiQnet_third-party_programmers_quick-start_guide_original.pdf
+ *      https://adn.harmanpro.com/site_elements/resources/515_1414083576/HiQnet_Third_Party_Programmers_Guide_v2_original.pdf
  */
 
 #define HIQNET_PORT 3804
@@ -399,7 +399,7 @@ static int hf_hiqnet_newdevaddr = -1;
 
 static expert_field ei_hiqnet_datatype = EI_INIT;
 
-static const int *hiqnet_flag_fields[] = {
+static int * const hiqnet_flag_fields[] = {
     &hf_hiqnet_reqack_flag,
     &hf_hiqnet_ack_flag,
     &hf_hiqnet_info_flag,
@@ -410,7 +410,7 @@ static const int *hiqnet_flag_fields[] = {
     NULL
 };
 
-static const int *hiqnet_cat_fields[] = {
+static int * const hiqnet_cat_fields[] = {
     &hf_hiqnet_app_cat,
     &hf_hiqnet_conf_cat,
     &hf_hiqnet_audionet_cat,

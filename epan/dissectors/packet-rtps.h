@@ -34,6 +34,8 @@
  *
  *   NDDS and RTPS information: http://www.rti.com/resources.html
  *
+ * Vendor ID listing can be found at:
+ *   https://www.dds-foundation.org/dds-rtps-vendor-and-product-ids/
  */
 
 #ifndef _TYPEDEFS_DEFINES_RTPS_H
@@ -43,6 +45,17 @@
 extern "C" {
 #endif
 
+#define LONG_ALIGN(x)   (x = (x+3)&0xfffffffc)
+#define SHORT_ALIGN(x)  (x = (x+1)&0xfffffffe)
+#define MAX_ARRAY_DIMENSION 10
+#define ALIGN_ME(offset, alignment)   \
+        offset = (((offset) + ((alignment) - 1)) & ~((alignment) - 1))
+#define ALIGN_ZERO(offset, alignment, zero) (offset -= zero, ALIGN_ME(offset, alignment), offset += zero)
+
+#define KEY_COMMENT     ("  //@key")
+
+#define LONG_ALIGN_ZERO(x,zero) (x -= zero, LONG_ALIGN(x), x += zero)
+#define SHORT_ALIGN_ZERO(x,zero) (x -= zero, SHORT_ALIGN(x), x += zero)
 
 typedef enum {
     RTI_CDR_TK_NULL = 0,
@@ -95,8 +108,45 @@ typedef enum {
     RTI_CDR_TYPE_OBJECT_TYPE_KIND_MAP_TYPE=20,
     RTI_CDR_TYPE_OBJECT_TYPE_KIND_UNION_TYPE=21,
     RTI_CDR_TYPE_OBJECT_TYPE_KIND_STRUCTURE_TYPE=22,
-    RTI_CDR_TYPE_OBJECT_TYPE_KIND_ANNOTATION_TYPE=23
+    RTI_CDR_TYPE_OBJECT_TYPE_KIND_ANNOTATION_TYPE=23,
+    RTI_CDR_TYPE_OBJECT_TYPE_KIND_MODULE=24
 } RTICdrTypeObjectTypeKind;
+
+
+static const value_string type_object_kind [] = {
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_NO_TYPE,          "NO_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_BOOLEAN_TYPE,     "BOOLEAN_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_BYTE_TYPE,        "BYTE_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_INT_16_TYPE,      "INT_16_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_UINT_16_TYPE,     "UINT_16_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_INT_32_TYPE,      "INT_32_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_UINT_32_TYPE,     "UINT_32_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_INT_64_TYPE,      "INT_64_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_UINT_64_TYPE,     "UINT_64_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_FLOAT_32_TYPE,    "FLOAT_32_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_FLOAT_64_TYPE,    "FLOAT_64_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_FLOAT_128_TYPE,   "FLOAT_128_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_CHAR_8_TYPE,      "CHAR_8_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_CHAR_32_TYPE,     "CHAR_32_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_ENUMERATION_TYPE, "ENUMERATION_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_BITSET_TYPE,      "BITSET_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_ALIAS_TYPE,       "ALIAS_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_ARRAY_TYPE,       "ARRAY_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_SEQUENCE_TYPE,    "SEQUENCE_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_STRING_TYPE,      "STRING_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_MAP_TYPE,         "MAP_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_UNION_TYPE,       "UNION_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_STRUCTURE_TYPE,   "STRUCTURE_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_ANNOTATION_TYPE,  "ANNOTATION_TYPE" },
+  { 0, NULL }
+};
+
+typedef enum {
+    EXTENSIBILITY_INVALID = 1,
+    EXTENSIBILITY_FINAL,
+    EXTENSIBILITY_EXTENSIBLE,
+    EXTENSIBILITY_MUTABLE
+} RTICdrTypeObjectExtensibility;
 
 typedef struct _rtps_dissector_data {
   guint16 encapsulation_id;
@@ -106,7 +156,18 @@ typedef struct _rtps_dissector_data {
   gint position_in_batch;
 } rtps_dissector_data;
 
+/***************************************************************************/
+/* Preferences                                                             */
+/***************************************************************************/
+static guint rtps_max_batch_samples_dissected = 16;
+static gboolean enable_topic_info = TRUE;
+static gboolean enable_rtps_reassembly = FALSE;
+static gboolean enable_user_data_dissection = FALSE;
+static dissector_table_t rtps_type_name_table;
 
+/***************************************************************************/
+/* Variable definitions                                                    */
+/***************************************************************************/
 #define RTPS_MAGIC_NUMBER   0x52545053 /* RTPS */
 #define RTPX_MAGIC_NUMBER   0x52545058 /* RTPX */
 #define RTPS_SEQUENCENUMBER_UNKNOWN     0xffffffff00000000 /* {-1,0} as uint64 */
@@ -211,7 +272,6 @@ typedef struct _rtps_dissector_data {
 #define PID_TYPE_CHECKSUM                       (0x08)
 #define PID_TYPE2_NAME                          (0x09)
 #define PID_TYPE2_CHECKSUM                      (0x0a)
-#define PID_IS_RELIABLE                         (0x0f)
 #define PID_EXPECTS_ACK                         (0x10)
 #define PID_MANAGER_KEY                         (0x12)
 #define PID_SEND_QUEUE_SIZE                     (0x13)
@@ -278,6 +338,7 @@ typedef struct _rtps_dissector_data {
 #define PID_SAMPLE_SIGNATURE                    (0x8019)/* inline QoS */
 #define PID_EXTENDED                            (0x3f01)
 #define PID_LIST_END                            (0x3f02)
+#define PID_UNICAST_LOCATOR_EX                  (0x8007)
 
 #define PID_IDENTITY_TOKEN                      (0x1001)
 #define PID_PERMISSIONS_TOKEN                   (0x1002)
@@ -286,31 +347,31 @@ typedef struct _rtps_dissector_data {
 #define PID_PARTICIPANT_SECURITY_INFO           (0x1005)
 #define PID_TYPE_OBJECT_LB                      (0x8021)
 
-/* Vendor-specific: PT */
-#define PID_PRISMTECH_WRITER_INFO               (0x8001)
-#define PID_PRISMTECH_READER_DATA_LIFECYCLE     (0x8002)
-#define PID_PRISMTECH_WRITER_DATA_LIFECYCLE     (0x8003)
-#define PID_PRISMTECH_ENDPOINT_GUID             (0x8004)
-#define PID_PRISMTECH_SYNCHRONOUS_ENDPOINT      (0x8005)
-#define PID_PRISMTECH_RELAXED_QOS_MATCHING      (0x8006)
-#define PID_PRISMTECH_PARTICIPANT_VERSION_INFO  (0x8007)
-#define PID_PRISMTECH_NODE_NAME                 (0x8008)
-#define PID_PRISMTECH_EXEC_NAME                 (0x8009)
-#define PID_PRISMTECH_PROCESS_ID                (0x800a)
-#define PID_PRISMTECH_SERVICE_TYPE              (0x800b)
-#define PID_PRISMTECH_ENTITY_FACTORY            (0x800c)
-#define PID_PRISMTECH_WATCHDOG_SCHEDULING       (0x800d)
-#define PID_PRISMTECH_LISTENER_SCHEDULING       (0x800e)
-#define PID_PRISMTECH_SUBSCRIPTION_KEYS         (0x800f)
-#define PID_PRISMTECH_READER_LIFESPAN           (0x8010)
-#define PID_PRISMTECH_SHARE                     (0x8011)
-#define PID_PRISMTECH_TYPE_DESCRIPTION          (0x8012)
-#define PID_PRISMTECH_LAN_ID                    (0x8013)
-#define PID_PRISMTECH_ENDPOINT_GID              (0x8014)
-#define PID_PRISMTECH_GROUP_GID                 (0x8015)
-#define PID_PRISMTECH_EOTINFO                   (0x8016)
-#define PID_PRISMTECH_PART_CERT_NAME            (0x8017)
-#define PID_PRISMTECH_LAN_CERT_NAME             (0x8018)
+/* Vendor-specific: ADLink */
+#define PID_ADLINK_WRITER_INFO                  (0x8001)
+#define PID_ADLINK_READER_DATA_LIFECYCLE        (0x8002)
+#define PID_ADLINK_WRITER_DATA_LIFECYCLE        (0x8003)
+#define PID_ADLINK_ENDPOINT_GUID                (0x8004)
+#define PID_ADLINK_SYNCHRONOUS_ENDPOINT         (0x8005)
+#define PID_ADLINK_RELAXED_QOS_MATCHING         (0x8006)
+#define PID_ADLINK_PARTICIPANT_VERSION_INFO     (0x8007)
+#define PID_ADLINK_NODE_NAME                    (0x8008)
+#define PID_ADLINK_EXEC_NAME                    (0x8009)
+#define PID_ADLINK_PROCESS_ID                   (0x800a)
+#define PID_ADLINK_SERVICE_TYPE                 (0x800b)
+#define PID_ADLINK_ENTITY_FACTORY               (0x800c)
+#define PID_ADLINK_WATCHDOG_SCHEDULING          (0x800d)
+#define PID_ADLINK_LISTENER_SCHEDULING          (0x800e)
+#define PID_ADLINK_SUBSCRIPTION_KEYS            (0x800f)
+#define PID_ADLINK_READER_LIFESPAN              (0x8010)
+#define PID_ADLINK_SHARE                        (0x8011)
+#define PID_ADLINK_TYPE_DESCRIPTION             (0x8012)
+#define PID_ADLINK_LAN_ID                       (0x8013)
+#define PID_ADLINK_ENDPOINT_GID                 (0x8014)
+#define PID_ADLINK_GROUP_GID                    (0x8015)
+#define PID_ADLINK_EOTINFO                      (0x8016)
+#define PID_ADLINK_PART_CERT_NAME               (0x8017)
+#define PID_ADLINK_LAN_CERT_NAME                (0x8018)
 
 /* appId.appKind possible values */
 #define APPKIND_UNKNOWN                         (0x00)
@@ -330,8 +391,8 @@ typedef struct _rtps_dissector_data {
 #define ENTITYID_BUILTIN_PUBLICATIONS_READER    (0x000003c7)
 #define ENTITYID_BUILTIN_SUBSCRIPTIONS_WRITER   (0x000004c2)
 #define ENTITYID_BUILTIN_SUBSCRIPTIONS_READER   (0x000004c7)
-#define ENTITYID_BUILTIN_SDP_PARTICIPANT_WRITER (0x000100c2)
-#define ENTITYID_BUILTIN_SDP_PARTICIPANT_READER (0x000100c7)
+#define ENTITYID_BUILTIN_PARTICIPANT_WRITER     (0x000100c2)
+#define ENTITYID_BUILTIN_PARTICIPANT_READER     (0x000100c7)
 #define ENTITYID_P2P_BUILTIN_PARTICIPANT_MESSAGE_WRITER (0x000200c2)
 #define ENTITYID_P2P_BUILTIN_PARTICIPANT_MESSAGE_READER (0x000200c7)
 
@@ -344,8 +405,8 @@ typedef struct _rtps_dissector_data {
 #define ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_SECURE_READER          (0xff0004c7)
 #define ENTITYID_P2P_BUILTIN_PARTICIPANT_MESSAGE_SECURE_WRITER     (0xff0200c2)
 #define ENTITYID_P2P_BUILTIN_PARTICIPANT_MESSAGE_SECURE_READER     (0xff0200c7)
-#define ENTITYID_P2P_BUILTIN_PARTICIPANT_VOLATILE_SECURE_WRITER    (0xff0202c2)
-#define ENTITYID_P2P_BUILTIN_PARTICIPANT_VOLATILE_SECURE_READER    (0xff0202c7)
+#define ENTITYID_P2P_BUILTIN_PARTICIPANT_VOLATILE_SECURE_WRITER    (0xff0202c3)
+#define ENTITYID_P2P_BUILTIN_PARTICIPANT_VOLATILE_SECURE_READER    (0xff0202c4)
 #define ENTITYID_SPDP_RELIABLE_BUILTIN_PARTICIPANT_SECURE_WRITER   (0xff0101c2)
 #define ENTITYID_SPDP_RELIABLE_BUILTIN_PARTICIPANT_SECURE_READER   (0xff0101c7)
 
@@ -436,19 +497,19 @@ typedef struct _rtps_dissector_data {
 #define PORT_INVALID                    (0)
 #define PORT_INVALID_STRING             "PORT_INVALID"
 
-/* Protocol Vendor Information (guint16) */
+/* Protocol Vendor Information (guint16) as per July 2020 */
 #define RTPS_VENDOR_UNKNOWN              (0x0000)
 #define RTPS_VENDOR_UNKNOWN_STRING       "VENDOR_ID_UNKNOWN (0x0000)"
 #define RTPS_VENDOR_RTI_DDS              (0x0101)
 #define RTPS_VENDOR_RTI_DDS_STRING       "Real-Time Innovations, Inc. - Connext DDS"
-#define RTPS_VENDOR_PT_DDS               (0x0102)
-#define RTPS_VENDOR_PT_DDS_STRING        "PrismTech Inc. - OpenSplice DDS"
+#define RTPS_VENDOR_ADL_DDS              (0x0102)
+#define RTPS_VENDOR_ADL_DDS_STRING       "ADLink Ltd. - OpenSplice DDS"
 #define RTPS_VENDOR_OCI                  (0x0103)
-#define RTPS_VENDOR_OCI_STRING           "Object Computing Incorporated, Inc. (OCI) - OpenDDS"
+#define RTPS_VENDOR_OCI_STRING           "Object Computing, Inc. (OCI) - OpenDDS"
 #define RTPS_VENDOR_MILSOFT              (0x0104)
 #define RTPS_VENDOR_MILSOFT_STRING       "MilSoft"
-#define RTPS_VENDOR_GALLIUM              (0x0105)
-#define RTPS_VENDOR_GALLIUM_STRING       "Gallium Visual Systems Inc. - InterCOM DDS"
+#define RTPS_VENDOR_KONGSBERG            (0x0105)
+#define RTPS_VENDOR_KONGSBERG_STRING     "Kongsberg - InterCOM DDS"
 #define RTPS_VENDOR_TOC                  (0x0106)
 #define RTPS_VENDOR_TOC_STRING           "TwinOaks Computing, Inc. - CoreDX DDS"
 #define RTPS_VENDOR_LAKOTA_TSI           (0x0107)
@@ -456,19 +517,23 @@ typedef struct _rtps_dissector_data {
 #define RTPS_VENDOR_ICOUP                (0x0108)
 #define RTPS_VENDOR_ICOUP_STRING         "ICOUP Consulting"
 #define RTPS_VENDOR_ETRI                 (0x0109)
-#define RTPS_VENDOR_ETRI_STRING          "ETRI Electronics and Telecommunication Research Institute"
+#define RTPS_VENDOR_ETRI_STRING          "Electronics and Telecommunication Research Institute (ETRI) - Diamond DDS"
 #define RTPS_VENDOR_RTI_DDS_MICRO        (0x010A)
 #define RTPS_VENDOR_RTI_DDS_MICRO_STRING "Real-Time Innovations, Inc. (RTI) - Connext DDS Micro"
-#define RTPS_VENDOR_PT_MOBILE            (0x010B)
-#define RTPS_VENDOR_PT_MOBILE_STRING     "PrismTech - OpenSplice Mobile"
-#define RTPS_VENDOR_PT_GATEWAY           (0x010C)
-#define RTPS_VENDOR_PT_GATEWAY_STRING    "PrismTech - OpenSplice Gateway"
-#define RTPS_VENDOR_PT_LITE              (0x010D)
-#define RTPS_VENDOR_PT_LITE_STRING       "PrismTech - OpenSplice Lite"
+#define RTPS_VENDOR_ADL_CAFE             (0x010B)
+#define RTPS_VENDOR_ADL_CAFE_STRING      "ADLink Ltd. - Vortex Cafe"
+#define RTPS_VENDOR_PT                   (0x010C)
+#define RTPS_VENDOR_PT_STRING            "PrismTech"
+#define RTPS_VENDOR_ADL_LITE             (0x010D)
+#define RTPS_VENDOR_ADL_LITE_STRING      "ADLink Ltd. - Vortex Lite"
 #define RTPS_VENDOR_TECHNICOLOR          (0x010E)
 #define RTPS_VENDOR_TECHNICOLOR_STRING   "Technicolor Inc. - Qeo"
 #define RTPS_VENDOR_EPROSIMA             (0x010F)
 #define RTPS_VENDOR_EPROSIMA_STRING      "eProsima - Fast-RTPS"
+#define RTPS_VENDOR_ECLIPSE              (0x0110)
+#define RTPS_VENDOR_ECLIPSE_STRING       "Eclipse Foundation - Cyclone DDS"
+#define RTPS_VENDOR_GURUM                (0x0111)
+#define RTPS_VENDOR_GURUM_STRING         "GurumNetworks Ltd. - GurumDDS"
 
 /* Data encapsulation */
 #define ENCAPSULATION_CDR_BE            (0x0000)
@@ -481,7 +546,8 @@ typedef struct _rtps_dissector_data {
 #define ENCAPSULATION_D_CDR2_LE         (0x0009)
 #define ENCAPSULATION_PL_CDR2_BE        (0x000a)
 #define ENCAPSULATION_PL_CDR2_LE        (0x000b)
-
+#define ENCAPSULATION_SHMEM_REF_PLAIN        (0xC000)
+#define ENCAPSULATION_SHMEM_REF_FLAT_DATA    (0xC001)
 
 /* Parameter Liveliness */
 #define LIVELINESS_AUTOMATIC            (0)
@@ -528,6 +594,11 @@ typedef struct _rtps_dissector_data {
 #define BY_RECEPTION_TIMESTAMP          (0)
 #define BY_SOURCE_TIMESTAMP             (1)
 
+/* Member flags */
+#define MEMBER_IS_KEY                   (1)
+#define MEMBER_OPTIONAL                 (2)
+#define MEMBER_SHAREABLE                (4)
+#define MEMBER_UNION_DEFAULT            (8)
 /* Participant message data kind */
 #define PARTICIPANT_MESSAGE_DATA_KIND_UNKNOWN (0x00000000)
 #define PARTICIPANT_MESSAGE_DATA_KIND_AUTOMATIC_LIVELINESS_UPDATE (0x00000001)
@@ -577,11 +648,28 @@ typedef struct _rtps_dissector_data {
 #define RTI_OSAPI_COMPRESSION_CLASS_ID_BZIP2     (2)
 #define RTI_OSAPI_COMPRESSION_CLASS_ID_AUTO      (G_MAXUINT32)
 
+/* These are registered in packet-rtps.c but used in packet-rtps-utils.c */
+static gint ett_rtps_dissection_tree = -1;
+static int hf_rtps_dissection_boolean                            = -1;
+static int hf_rtps_dissection_byte                               = -1;
+static int hf_rtps_dissection_int16                              = -1;
+static int hf_rtps_dissection_uint16                             = -1;
+static int hf_rtps_dissection_int32                              = -1;
+static int hf_rtps_dissection_uint32                             = -1;
+static int hf_rtps_dissection_int64                              = -1;
+static int hf_rtps_dissection_uint64                             = -1;
+static int hf_rtps_dissection_float                              = -1;
+static int hf_rtps_dissection_double                             = -1;
+static int hf_rtps_dissection_int128                             = -1;
+static int hf_rtps_dissection_string                             = -1;
+
 /* Utilities to add elements to the protocol tree for packet-rtps.h and packet-rtps2.h */
 extern guint16 rtps_util_add_protocol_version(proto_tree *tree, tvbuff_t* tvb, gint offset);
 extern guint16 rtps_util_add_vendor_id(proto_tree *tree, tvbuff_t * tvb, gint offset);
-extern void rtps_util_add_locator_t(proto_tree *tree, packet_info *pinfo, tvbuff_t * tvb, gint offset,
-                             const guint encoding, const guint8 * label);
+extern gint rtps_util_add_locator_t(proto_tree *tree, packet_info *pinfo, tvbuff_t * tvb, gint offset,
+                             const guint encoding, const char * label);
+extern gint rtps_util_add_locator_ex_t(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, gint offset,
+                             const guint encoding, int param_length);
 extern int rtps_util_add_locator_list(proto_tree *tree, packet_info *pinfo, tvbuff_t * tvb,
                                 gint offset, const guint8* label, const guint encoding);
 extern int rtps_util_add_multichannel_locator_list(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
@@ -613,6 +701,8 @@ extern gint rtps_util_add_seq_string(proto_tree *tree, tvbuff_t* tvb, gint offse
                               int hf_string, const char *label);
 extern gint rtps_util_add_seq_octets(proto_tree *tree, packet_info *pinfo, tvbuff_t* tvb,
                               gint offset, const guint encoding, int param_length, int hf_id);
+extern gint rtps_util_add_seq_short(proto_tree *tree, tvbuff_t *tvb, gint offset, int hf_item,
+                              const guint encoding, int param_length _U_, const char *label);
 extern gint rtps_util_add_seq_ulong(proto_tree *tree, tvbuff_t * tvb, gint offset, int hf_item,
                         const guint encoding, int param_length, const char *label);
 
@@ -625,6 +715,8 @@ extern void dissect_INFO_SRC(tvbuff_t *tvb, packet_info *pinfo, gint offset, gui
                         const guint encoding, int octets_to_next_header, proto_tree *tree, guint16 rtps_version);
 extern void dissect_INFO_TS(tvbuff_t *tvb, packet_info *pinfo, gint offset, guint8 flags,
                         const guint encoding, int octets_to_next_header, proto_tree *tree);
+static void rtps_util_dissect_parameter_header(tvbuff_t * tvb, gint * offset,
+        const guint encoding, guint32 * member_id, guint32 * member_length);
 
 
 #ifdef __cplusplus

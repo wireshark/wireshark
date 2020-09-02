@@ -68,10 +68,10 @@ dissect_pcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         0xd4, 0xc3, 0xb2, 0xa1
     };
     static const guint8 pcap_nsec_big_endian_magic[MAGIC_NUMBER_SIZE] = {
-        0xa1, 0xb2, 0x3c, 0xd4
+        0xa1, 0xb2, 0x3c, 0x4d
     };
     static const guint8 pcap_nsec_little_endian_magic[MAGIC_NUMBER_SIZE] = {
-        0xd4, 0x3c, 0xb2, 0xa1
+        0x4d, 0x3c, 0xb2, 0xa1
     };
     volatile gint    offset = 0;
     proto_tree      *main_tree;

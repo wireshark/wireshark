@@ -152,7 +152,7 @@ dissect_pagp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     proto_tree *pagp_tree = NULL;
     proto_item *pagp_item, *len_item;
     proto_tree *tlv_tree;
-    static const int * pagp_flags[] = {
+    static int * const pagp_flags[] = {
         &hf_pagp_flags_slow_hello,
         &hf_pagp_flags_auto_mode,
         &hf_pagp_flags_consistent_state,

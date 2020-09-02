@@ -20,8 +20,8 @@
  * Here are some links:
  *
  * http://www.cs.berkeley.edu/~lazzaro/rtpmidi/
- * http://www.faqs.org/rfcs/rfc4695.html
- * http://www.faqs.org/rfcs/rfc6295.html
+ * https://tools.ietf.org/html/rfc4695
+ * https://tools.ietf.org/html/rfc6295
  * http://www.midi.org/
  *
  * 2012-02-24
@@ -2883,8 +2883,8 @@ static gint ett_rtp_midi_sysex_common_nrt			= -1;
 static gint ett_rtp_midi_sysex_common_tune_note			= -1;
 
 
-static guint rtp_midi_payload_type_value	= 0;
-static guint saved_payload_type_value;
+static range_t *rtp_midi_payload_type_range	= NULL;
+static range_t *saved_payload_type_range        = NULL;
 
 
 static int proto_rtp_midi			= -1;
@@ -4930,7 +4930,7 @@ decode_cj_chapter_m( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
 
 		/* do we have a entry-msb field? */
 		if ( logitemheader & RTP_MIDI_CJ_CHAPTER_M_FLAG_J ) {
-			static const int * msb_flags[] = {
+			static int * const msb_flags[] = {
 				&hf_rtp_midi_cj_chapter_m_log_msb_x,
 				&hf_rtp_midi_cj_chapter_m_log_msb,
 				NULL
@@ -4944,7 +4944,7 @@ decode_cj_chapter_m( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
 
 		/* do we have a entry-lsb field? */
 		if ( logitemheader & RTP_MIDI_CJ_CHAPTER_M_FLAG_K ) {
-			static const int * lsb_flags[] = {
+			static int * const lsb_flags[] = {
 				&hf_rtp_midi_cj_chapter_m_log_lsb_x,
 				&hf_rtp_midi_cj_chapter_m_log_lsb,
 				NULL
@@ -4957,7 +4957,7 @@ decode_cj_chapter_m( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
 
 		/* do we have an a-button field? */
 		if ( logitemheader & RTP_MIDI_CJ_CHAPTER_M_FLAG_L ) {
-			static const int * button_flags[] = {
+			static int * const button_flags[] = {
 				&hf_rtp_midi_cj_chapter_m_log_a_button_g,
 				&hf_rtp_midi_cj_chapter_m_log_a_button_x,
 				&hf_rtp_midi_cj_chapter_m_log_a_button,
@@ -4972,7 +4972,7 @@ decode_cj_chapter_m( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
 
 		/* do we have a c-button field? */
 		if ( logitemheader & RTP_MIDI_CJ_CHAPTER_M_FLAG_M ) {
-			static const int * button_flags[] = {
+			static int * const button_flags[] = {
 				&hf_rtp_midi_cj_chapter_m_log_c_button_g,
 				&hf_rtp_midi_cj_chapter_m_log_c_button_r,
 				&hf_rtp_midi_cj_chapter_m_log_c_button,
@@ -4987,7 +4987,7 @@ decode_cj_chapter_m( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
 
 		/* do we have a count field? */
 		if ( logitemheader & RTP_MIDI_CJ_CHAPTER_M_FLAG_N ) {
-			static const int * log_flags[] = {
+			static int * const log_flags[] = {
 				&hf_rtp_midi_cj_chapter_m_log_count_x,
 				&hf_rtp_midi_cj_chapter_m_log_count,
 				NULL
@@ -5353,7 +5353,7 @@ decode_channel_journal( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 	/* Do we have channel aftertouch chapter? */
 	if ( chanflags & RTP_MIDI_CJ_FLAG_T ) {
-		static const int * flags_t[] = {
+		static int * const flags_t[] = {
 			&hf_rtp_midi_cj_chapter_t_sflag,
 			&hf_rtp_midi_cj_chapter_t_pressure,
 			NULL
@@ -5648,7 +5648,7 @@ decode_sj_chapter_d( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
 	unsigned int start_offset = offset;
 	int				ext_consumed;
 
-	static const int * chapter_d_flags[] = {
+	static int * const chapter_d_flags[] = {
 		&hf_rtp_midi_sj_chapter_d_sflag,
 		&hf_rtp_midi_sj_chapter_d_bflag,
 		&hf_rtp_midi_sj_chapter_d_gflag,
@@ -5676,7 +5676,7 @@ decode_sj_chapter_d( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
 	/* do we have Reset field? */
 	if ( header & RTP_MIDI_SJ_CHAPTER_D_FLAG_B ) {
 
-		static const int * reset_flags[] = {
+		static int * const reset_flags[] = {
 			&hf_rtp_midi_sj_chapter_d_reset_sflag,
 			&hf_rtp_midi_sj_chapter_d_reset_count,
 			NULL
@@ -5689,7 +5689,7 @@ decode_sj_chapter_d( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
 	/* do we have Tune request field? */
 	if ( header & RTP_MIDI_SJ_CHAPTER_D_FLAG_G ) {
 
-		static const int * tune_flags[] = {
+		static int * const tune_flags[] = {
 			&hf_rtp_midi_sj_chapter_d_tune_sflag,
 			&hf_rtp_midi_sj_chapter_d_tune_count,
 			NULL
@@ -5702,7 +5702,7 @@ decode_sj_chapter_d( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
 	/* do we have Song select field? */
 	if ( header & RTP_MIDI_SJ_CHAPTER_D_FLAG_H ) {
 
-		static const int * song_flags[] = {
+		static int * const song_flags[] = {
 			&hf_rtp_midi_sj_chapter_d_song_sel_sflag,
 			&hf_rtp_midi_sj_chapter_d_song_sel_value,
 			NULL
@@ -5840,7 +5840,7 @@ decode_sj_chapter_f( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
 	if ( header & RTP_MIDI_SJ_CHAPTER_F_FLAG_C ) {
 
 		if ( header & RTP_MIDI_SJ_CHAPTER_F_FLAG_Q ) {
-			static const int * fq_flags[] = {
+			static int * const fq_flags[] = {
 				&hf_rtp_midi_sj_chapter_f_mt0,
 				&hf_rtp_midi_sj_chapter_f_mt1,
 				&hf_rtp_midi_sj_chapter_f_mt2,
@@ -5854,7 +5854,7 @@ decode_sj_chapter_f( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
 
 			proto_tree_add_bitmask(rtp_midi_sj_chapter_tree, tvb, offset, hf_rtp_midi_sj_chapter_f_complete, ett_rtp_midi_sj_chapter_f_complete, fq_flags, ENC_BIG_ENDIAN);
 		} else {
-			static const int * f_flags[] = {
+			static int * const f_flags[] = {
 				&hf_rtp_midi_sj_chapter_f_hr,
 				&hf_rtp_midi_sj_chapter_f_mn,
 				&hf_rtp_midi_sj_chapter_f_sc,
@@ -5869,7 +5869,7 @@ decode_sj_chapter_f( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
 	}
 
 	if ( header & RTP_MIDI_SJ_CHAPTER_F_FLAG_P ) {
-		static const int * fp_flags[] = {
+		static int * const fp_flags[] = {
 			&hf_rtp_midi_sj_chapter_f_mt0,
 			&hf_rtp_midi_sj_chapter_f_mt1,
 			&hf_rtp_midi_sj_chapter_f_mt2,
@@ -6044,7 +6044,7 @@ decode_system_journal( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 
 	/* Do we have a active sensing chapter? */
 	if ( systemflags & RTP_MIDI_SJ_FLAG_V ) {
-		static const int * v_flags[] = {
+		static int * const v_flags[] = {
 			&hf_rtp_midi_sj_chapter_v_sflag,
 			&hf_rtp_midi_sj_chapter_v_count,
 			NULL
@@ -10021,8 +10021,12 @@ proto_register_rtp_midi( void )
 	proto_register_field_array( proto_rtp_midi, hf, array_length( hf ) );
 	proto_register_subtree_array( ett, array_length( ett ) );
 
-	rtp_midi_module = prefs_register_protocol ( proto_rtp_midi, proto_reg_handoff_rtp_midi );
-	prefs_register_uint_preference ( rtp_midi_module, "midi_payload_type_value", "Payload Type for RFC 4695/6295 RTP-MIDI", "This is the value of the Payload Type field that specifies RTP-MIDI", 10, &rtp_midi_payload_type_value );
+	rtp_midi_module = prefs_register_protocol( proto_rtp_midi, proto_reg_handoff_rtp_midi );
+	prefs_register_range_preference( rtp_midi_module, "midi_payload_type_value",
+			"Payload Types for RFC 4695/6295 RTP-MIDI",
+			"Dynamic payload types which will be interpreted as RTP-MIDI"
+			"; values must be in the range 1 - 127",
+			&rtp_midi_payload_type_range, 127);
 	rtp_midi_handle = register_dissector( RTP_MIDI_DISSECTOR_ABBREVIATION, dissect_rtp_midi, proto_rtp_midi );
 }
 
@@ -10039,12 +10043,12 @@ proto_reg_handoff_rtp_midi( void )
 		rtp_midi_prefs_initialized = TRUE;
 	}
 	else {
-		dissector_delete_uint( "rtp.pt", saved_payload_type_value, rtp_midi_handle );
+		dissector_delete_uint_range( "rtp.pt", saved_payload_type_range, rtp_midi_handle );
+		wmem_free(wmem_epan_scope(), saved_payload_type_range);
 	}
-	if ( rtp_midi_payload_type_value > 95 ){
-		saved_payload_type_value = rtp_midi_payload_type_value;
-		dissector_add_uint( "rtp.pt", saved_payload_type_value, rtp_midi_handle );
-	}
+	saved_payload_type_range = range_copy(wmem_epan_scope(), rtp_midi_payload_type_range);
+	range_remove_value(wmem_epan_scope(), &saved_payload_type_range, 0);
+	dissector_add_uint_range( "rtp.pt", saved_payload_type_range, rtp_midi_handle );
 
 }
 

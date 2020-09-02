@@ -86,7 +86,8 @@ enum AcdrTlsApplication
     TLS_APP_XML = 5,
     TLS_APP_TCP = 6, // TLS_APP_TCP value (6) is defined for backward compatible
     TLS_APP_TELNET = 7,
-    TLS_APP_FTP = 8
+    TLS_APP_FTP = 8,
+    TLS_APP_TPNCP = 9
 };
 
 // must be in same order as in DebugRecordingAPI.h in TPApp.
@@ -140,7 +141,7 @@ typedef struct {
     guint16 payload_type;
     guint8 trace_point;
     gboolean medium_mii;
-
+    gboolean li_packet;
 } acdr_dissector_data_t;
 
 #endif /* __PACKET_ACDR_H__ */

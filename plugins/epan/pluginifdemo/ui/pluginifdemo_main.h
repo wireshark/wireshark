@@ -20,7 +20,7 @@
 #include <QSortFilterProxyModel>
 #include <QStandardItemModel>
 
-#include <plugin_if.h>
+#include <epan/plugin_if.h>
 
 namespace Ui {
 class PluginIFDemo_Main;

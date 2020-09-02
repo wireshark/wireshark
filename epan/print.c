@@ -267,7 +267,7 @@ write_pdml_preamble(FILE *fh, const gchar *filename)
 
     fprintf(fh, "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
     fprintf(fh, "<?xml-stylesheet type=\"text/xsl\" href=\"" PDML2HTML_XSL "\"?>\n");
-    fprintf(fh, "<!-- You can find " PDML2HTML_XSL " in %s or at https://code.wireshark.org/review/gitweb?p=wireshark.git;a=blob_plain;f=" PDML2HTML_XSL ". -->\n", get_datafile_dir());
+    fprintf(fh, "<!-- You can find " PDML2HTML_XSL " in %s or at https://gitlab.com/wireshark/wireshark/-/raw/master/" PDML2HTML_XSL ". -->\n", get_datafile_dir());
     fprintf(fh, "<pdml version=\"" PDML_VERSION "\" creator=\"%s/%s\" time=\"%s\" capture_file=\"", PACKAGE, VERSION, ts);
     if (filename) {
         /* \todo filename should be converted to UTF-8. */

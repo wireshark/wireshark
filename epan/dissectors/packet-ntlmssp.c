@@ -1213,7 +1213,7 @@ dissect_ntlmssp_blob (tvbuff_t *tvb, packet_info *pinfo,
   return offset;
 }
 
-static const int * ntlmssp_negotiate_flags[] = {
+static int * const ntlmssp_negotiate_flags[] = {
     &hf_ntlmssp_negotiate_flags_80000000,
     &hf_ntlmssp_negotiate_flags_40000000,
     &hf_ntlmssp_negotiate_flags_20000000,

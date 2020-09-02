@@ -784,7 +784,7 @@ dissect_fmp_notifyProtocol(tvbuff_t *tvb, int offset, proto_tree *tree)
 static int
 dissect_fmp_capabilities(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-    static const int *capabilities[] = {
+    static int * const capabilities[] = {
         &hf_fmp_cap_revoke_handle_list,
         &hf_fmp_cap_unc_names,
         &hf_fmp_cap_cifsv2,

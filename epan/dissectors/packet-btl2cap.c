@@ -1980,7 +1980,7 @@ dissect_b_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         uuid.data[1] = bt_uuid & 0xFF;
 
         if (bt_uuid && p_get_proto_data(pinfo->pool, pinfo, proto_bluetooth, PROTO_DATA_BLUETOOTH_SERVICE_UUID) == NULL) {
-            guint8 *value_data;
+            gchar *value_data;
 
             value_data = wmem_strdup(wmem_file_scope(), print_numeric_uuid(&uuid));
 
@@ -2097,7 +2097,7 @@ dissect_le_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         uuid.data[1] = bt_uuid & 0xFF;
 
         if (bt_uuid && p_get_proto_data(pinfo->pool, pinfo, proto_bluetooth, PROTO_DATA_BLUETOOTH_SERVICE_UUID) == NULL) {
-            guint8 *value_data;
+            gchar *value_data;
 
             value_data = wmem_strdup(wmem_file_scope(), print_numeric_uuid(&uuid));
 
@@ -2305,7 +2305,7 @@ dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             uuid.data[1] = bt_uuid & 0xFF;
 
             if (bt_uuid && p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, PROTO_DATA_BLUETOOTH_SERVICE_UUID) == NULL) {
-                guint8 *value_data;
+                gchar *value_data;
 
                 value_data = wmem_strdup(wmem_file_scope(), print_numeric_uuid(&uuid));
 
@@ -2664,7 +2664,7 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             uuid.data[1] = bt_uuid & 0xFF;
 
             if (bt_uuid && p_get_proto_data(pinfo->pool, pinfo, proto_bluetooth, PROTO_DATA_BLUETOOTH_SERVICE_UUID ) == NULL) {
-                guint8 *value_data;
+                gchar* value_data;
 
                 value_data = wmem_strdup(wmem_file_scope(), print_numeric_uuid(&uuid));
 

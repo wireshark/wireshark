@@ -500,7 +500,7 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 
     /* This packet type is classified as a "Request" and is deemed in the direction of "master -> RTU" */
     if (packet_type == LG8979_DIR_MASTER_TO_RTU) {
-        static const int * request_flags[] = {
+        static int * const request_flags[] = {
             &hf_lg8979_shr,
             &hf_lg8979_mfc,
             &hf_lg8979_ack,
@@ -741,7 +741,7 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     /* This packet type is classified as a "Response" and is deemed in the direction of "RTU -> master" */
     else if (packet_type == LG8979_DIR_RTU_TO_MASTER) {
 
-        static const int * response_flags[] = {
+        static int * const response_flags[] = {
             &hf_lg8979_shr,
             &hf_lg8979_con,
             &hf_lg8979_frz,

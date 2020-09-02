@@ -725,7 +725,7 @@ static const value_string Page_Req_Service_Option_Types[] = {
     {39, "GSM Circuit Data" },
     {40, "GSM Packet Data" },
     {41, "GSM Short Message Service" },
-    //42 - 53 None Reserved for MC-MAP standard service options" },
+    //42 - 53 None Reserved for MC-MAP standard service options
     {54, "Markov Service Option (MSO)" },
     {55, "Loopback Service Option (LSO)" },
     {56, "Selectable Mode Vocoder" },
@@ -881,7 +881,7 @@ static const value_string Retry_Types[] = {
     { 0, "Clear All" },
     { 1, "Origination" },
     { 2, "Resource Request" },
-    { 3, "Supplemenal Channel Req" },
+    { 3, "Supplemental Channel Req" },
     { 4, "Short Data Burst" },
     { 5, "Orig & Short Data Burst" },
     { 6, "Reserved" },

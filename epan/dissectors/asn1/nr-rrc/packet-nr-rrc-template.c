@@ -1,7 +1,7 @@
 /* packet-nr-rrc-template.c
  * NR;
  * Radio Resource Control (RRC) protocol specification
- * (3GPP TS 38.331 V15.8.0 Release 15) packet dissection
+ * (3GPP TS 38.331 V15.9.0 Release 15) packet dissection
  * Copyright 2018-2020, Pascal Quantin
  *
  * Wireshark - Network traffic analyzer
@@ -31,9 +31,11 @@
 #include "packet-cell_broadcast.h"
 #include "packet-mac-nr.h"
 #include "packet-rlc-nr.h"
+#include "packet-rrc.h"
 #include "packet-lte-rrc.h"
 #include "packet-nr-rrc.h"
 #include "packet-gsm_a_common.h"
+#include "packet-lpp.h"
 
 #define PNAME  "NR Radio Resource Control (RRC) protocol"
 #define PSNAME "NR RRC"
@@ -46,6 +48,7 @@ static dissector_handle_t nas_5gs_handle = NULL;
 static dissector_handle_t lte_rrc_conn_reconf_handle = NULL;
 static dissector_handle_t lte_rrc_conn_reconf_compl_handle = NULL;
 static dissector_handle_t lte_rrc_ul_dcch_handle = NULL;
+static dissector_handle_t lte_rrc_dl_dcch_handle = NULL;
 
 static wmem_map_t *nr_rrc_etws_cmas_dcs_hash = NULL;
 
@@ -92,12 +95,13 @@ static int hf_nr_rrc_sib8_reassembled_length = -1;
 static int hf_nr_rrc_sib8_reassembled_data = -1;
 static int hf_nr_rrc_utc_time = -1;
 static int hf_nr_rrc_local_time = -1;
+static int hf_nr_rrc_absolute_time = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_nr_rrc = -1;
 #include "packet-nr-rrc-ett.c"
 static gint ett_nr_rrc_DedicatedNAS_Message = -1;
-static gint ett_rr_rrc_targetRAT_MessageContainer = -1;
+static gint ett_nr_rrc_targetRAT_MessageContainer = -1;
 static gint ett_nr_rrc_nas_Container = -1;
 static gint ett_nr_rrc_serialNumber = -1;
 static gint ett_nr_rrc_warningType = -1;
@@ -120,8 +124,36 @@ static gint ett_nr_rrc_eutra_SCG_Response = -1;
 static gint ett_nr_rrc_measResultSCG_FailureMRDC = -1;
 static gint ett_nr_rrc_ul_DCCH_MessageNR = -1;
 static gint ett_nr_rrc_ul_DCCH_MessageEUTRA = -1;
+static gint ett_rr_rrc_nas_SecurityParamFromNR = -1;
+static gint ett_nr_rrc_sidelinkUEInformationNR = -1;
+static gint ett_nr_rrc_sidelinkUEInformationEUTRA = -1;
+static gint ett_nr_rrc_ueAssistanceInformationEUTRA = -1;
+static gint ett_nr_rrc_dl_DCCH_MessageNR = -1;
+static gint ett_nr_rrc_dl_DCCH_MessageEUTRA = -1;
+static gint ett_nr_rrc_sl_ConfigDedicatedEUTRA = -1;
+static gint ett_nr_rrc_sl_CapabilityInformationSidelink = -1;
+static gint ett_nr_rrc_measResult_RLF_Report_EUTRA = -1;
+static gint ett_nr_rrc_locationTimestamp_r16 = -1;
+static gint ett_nr_rrc_locationCoordinate_r16 = -1;
+static gint ett_nr_rrc_locationError_r16 = -1;
+static gint ett_nr_rrc_locationSource_r16 = -1;
+static gint ett_nr_rrc_velocityEstimate_r16 = -1;
+static gint ett_nr_rrc_sensor_MeasurementInformation_r16 = -1;
+static gint ett_nr_rrc_sensor_MotionInformation_r16 = -1;
+static gint ett_nr_rrc_bandCombinationListEUTRA1_r16 = -1;
+static gint ett_nr_rrc_bandCombinationListEUTRA2_r16 = -1;
+static gint ett_nr_rrc_bandParametersSidelinkEUTRA1_r16 = -1;
+static gint ett_nr_rrc_bandParametersSidelinkEUTRA2_r16 = -1;
+static gint ett_nr_rrc_sl_ParametersEUTRA1_r16 = -1;
+static gint ett_nr_rrc_sl_ParametersEUTRA2_r16 = -1;
+static gint ett_nr_rrc_sl_ParametersEUTRA3_r16 = -1;
+static gint ett_nr_rrc_absTimeInfo = -1;
 
 static expert_field ei_nr_rrc_number_pages_le15 = EI_INIT;
+
+/* Forward declarations */
+static int dissect_UECapabilityInformationSidelink_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
+static int dissect_DL_DCCH_Message_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 
 static const unit_name_string units_periodicities = { " periodicity", " periodicities" };
 static const unit_name_string units_prbs = { " PRB", " PRBs" };
@@ -162,7 +194,9 @@ nr_rrc_call_dissector(dissector_handle_t handle, tvbuff_t *tvb, packet_info *pin
 static void
 nr_rrc_q_RxLevMin_fmt(gchar *s, guint32 v)
 {
-  g_snprintf(s, ITEM_LABEL_LENGTH, "%u dB (%u)", 2*v, v);
+  gint32 d = (gint32)v;
+
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%d dB (%d)", 2*d, d);
 }
 
 static const value_string nr_rrc_serialNumber_gs_vals[] = {
@@ -377,7 +411,119 @@ nr_rrc_dl_1024QAM_TotalWeightedLayers_fmt(gchar *s, guint32 v)
   g_snprintf(s, ITEM_LABEL_LENGTH, "%u (%u)", 10+(2*v), v);
 }
 
+static void
+nr_rrc_timeConnFailure_r16_fmt(gchar *s, guint32 v)
+{
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%ums (%u)", 100*v, v);
+}
+
+static void
+nr_rrc_CLI_RSSI_Range_r16_fmt(gchar *s, guint32 v)
+{
+  if (v == 0) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "CLI-RSSI < -100dBm (0)");
+  } else if (v < 76) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%ddBm <= CLI-RSSI < %ddBm (%u)", v-101, v-100, v);
+  } else {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "-25dBm <= CLI-RSSI (76)");
+  }
+}
+
+static void
+nr_rrc_RSRQ_RangeEUTRA_r16_fmt(gchar *s, guint32 v)
+{
+  gint32 d = (gint32)v;
+
+  if (d == -34) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "RSRQ < -36dB (-34)");
+  } else if (d < 0) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB <= RSRQ < %.1fdB (%d)", (((float)d-1)/2)-19, ((float)d/2)-19, d);
+  } else if (d == 0) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "RSRQ < -19.5dB (0)");
+  } else if (d < 34) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB <= RSRQ < %.1fdB (%d)", (((float)d-1)/2)-19.5, ((float)d/2)-19.5, d);
+  } else if (d == 34) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "-3dB <= RSRQ (34)");
+  } else if (d < 46) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB <= RSRQ < %.1fdB (%d)", (((float)d-1)/2)-20, ((float)d/2)-20, d);
+  } else {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "2.5dB <= RSRQ (46)");
+  }
+}
+
+static void
+nr_rrc_utra_FDD_RSCP_r16_fmt(gchar *s, guint32 v)
+{
+  gint32 d = (gint32)v;
+
+  if (d == -5) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "RSCP < -120dBm (-5)");
+  } else if (d < 91) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%ddBm <= RSCP < %ddB (%d)", d-116, d-115, d);
+  } else {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "-25dBm <= RSCP (91)");
+  }
+}
+
+static void
+nr_rrc_utra_FDD_EcN0_r16_fmt(gchar *s, guint32 v)
+{
+  if (v == 0) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "Ec/No < -24dB (0)");
+  } else if (v < 49) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB <= Ec/No < %.1fdB (%u)", (((float)v-1)/2)-24, ((float)v/2)-24, v);
+  } else {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "0dB <= Ec/No (49)");
+  }
+}
+
+static void
+nr_rrc_averageDelay_r16_fmt(gchar *s, guint32 v)
+{
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fms (%u)", (float)v/10, v);
+}
+
+static void
+nr_rrc_measTriggerQuantity_utra_FDD_RSCP_r16_fmt(gchar *s, guint32 v)
+{
+  gint32 d = (gint32)v;
+
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%ddBm (%d)", d-115, d);
+}
+
+static void
+nr_rrc_measTriggerQuantity_utra_FDD_EcN0_r16_fmt(gchar *s, guint32 v)
+{
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB (%u)", (float)v/2-24.5, v);
+}
+
+static void
+nr_rrc_SRS_RSRP_r16_fmt(gchar *s, guint32 v)
+{
+  if (v == 0) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "SRS-RSRP < -140dBm (0)");
+  } else if (v < 97) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%ddBm <= SRS-RSRP < %ddB (%u)", v-141, v-140, v);
+  } else if (v == 97) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "-44dBm <= SRS-RSRP (97)");
+  } else {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "Infinity (98)");
+  }
+}
+
 #include "packet-nr-rrc-fn.c"
+
+int
+dissect_nr_rrc_nr_RLF_Report_r16_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  proto_item *prot_ti = proto_tree_add_item(tree, proto_nr_rrc, tvb, 0, -1, ENC_NA);
+  proto_item_set_hidden(prot_ti);
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
+  offset = dissect_nr_rrc_T_nr_RLF_Report_r16(tvb, offset, &asn1_ctx, tree, hf_nr_rrc_BCCH_DL_SCH_Message_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 
 void
 proto_register_nr_rrc(void) {
@@ -515,13 +661,17 @@ proto_register_nr_rrc(void) {
       { "Local time", "nr-rrc.local_time",
         FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
         NULL, HFILL }},
+    { &hf_nr_rrc_absolute_time,
+      { "Absolute time", "nr-rrc.absolute_time",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
   };
 
   static gint *ett[] = {
     &ett_nr_rrc,
 #include "packet-nr-rrc-ettarr.c"
     &ett_nr_rrc_DedicatedNAS_Message,
-    &ett_rr_rrc_targetRAT_MessageContainer,
+    &ett_nr_rrc_targetRAT_MessageContainer,
     &ett_nr_rrc_nas_Container,
     &ett_nr_rrc_serialNumber,
     &ett_nr_rrc_warningType,
@@ -543,7 +693,31 @@ proto_register_nr_rrc(void) {
     &ett_nr_rrc_eutra_SCG_Response,
     &ett_nr_rrc_measResultSCG_FailureMRDC,
     &ett_nr_rrc_ul_DCCH_MessageNR,
-    &ett_nr_rrc_ul_DCCH_MessageEUTRA
+    &ett_nr_rrc_ul_DCCH_MessageEUTRA,
+    &ett_rr_rrc_nas_SecurityParamFromNR,
+    &ett_nr_rrc_sidelinkUEInformationNR,
+    &ett_nr_rrc_sidelinkUEInformationEUTRA,
+    &ett_nr_rrc_ueAssistanceInformationEUTRA,
+    &ett_nr_rrc_dl_DCCH_MessageNR,
+    &ett_nr_rrc_dl_DCCH_MessageEUTRA,
+    &ett_nr_rrc_sl_ConfigDedicatedEUTRA,
+    &ett_nr_rrc_sl_CapabilityInformationSidelink,
+    &ett_nr_rrc_measResult_RLF_Report_EUTRA,
+    &ett_nr_rrc_locationTimestamp_r16,
+    &ett_nr_rrc_locationCoordinate_r16,
+    &ett_nr_rrc_locationError_r16,
+    &ett_nr_rrc_locationSource_r16,
+    &ett_nr_rrc_velocityEstimate_r16,
+    &ett_nr_rrc_sensor_MeasurementInformation_r16,
+    &ett_nr_rrc_sensor_MotionInformation_r16,
+    &ett_nr_rrc_bandCombinationListEUTRA1_r16,
+    &ett_nr_rrc_bandCombinationListEUTRA2_r16,
+    &ett_nr_rrc_bandParametersSidelinkEUTRA1_r16,
+    &ett_nr_rrc_bandParametersSidelinkEUTRA2_r16,
+    &ett_nr_rrc_sl_ParametersEUTRA1_r16,
+    &ett_nr_rrc_sl_ParametersEUTRA2_r16,
+    &ett_nr_rrc_sl_ParametersEUTRA3_r16,
+    &ett_nr_rrc_absTimeInfo
   };
 
   static ei_register_info ei[] = {
@@ -580,4 +754,5 @@ proto_reg_handoff_nr_rrc(void)
   lte_rrc_conn_reconf_handle = find_dissector("lte-rrc.rrc_conn_reconf");
   lte_rrc_conn_reconf_compl_handle = find_dissector("lte-rrc.rrc_conn_reconf_compl");
   lte_rrc_ul_dcch_handle = find_dissector("lte-rrc.ul.dcch");
+  lte_rrc_dl_dcch_handle = find_dissector("lte-rrc.dl.dcch");
 }

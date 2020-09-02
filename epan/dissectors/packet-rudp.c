@@ -65,7 +65,7 @@ dissect_rudp(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree, void* dat
 	proto_tree *rudp_tree;
 	proto_item *ti;
 	guint8 hlen;
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_rudp_flags_syn,
 		&hf_rudp_flags_ack,
 		&hf_rudp_flags_eak,

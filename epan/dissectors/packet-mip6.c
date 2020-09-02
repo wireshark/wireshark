@@ -1910,10 +1910,10 @@ dissect_mip6_opt_vsm_3gpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     int offset = 0;
     guint8 sub_type, m_flag;
     tvbuff_t *next_tvb;
-    const gchar *mei_str;
-    const char *digit_str;
+    gchar *mei_str;
+    char *digit_str;
     gchar *mcc_mnc_str;
-    const gchar *imsi_str;
+    gchar *imsi_str;
 
     /* offset points to the sub type */
     sub_type = tvb_get_guint8(tvb,offset);
@@ -1998,15 +1998,13 @@ dissect_mip6_opt_vsm_3gpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         break;
     /* 11, Mobile Equipment Identity (MEI) */
     case 11:
-        mei_str = tvb_bcd_dig_to_wmem_packet_str( tvb, offset, len, NULL, FALSE);
-        proto_tree_add_string(tree, hf_mip6_opt_3gpp_mei, tvb, offset, len, mei_str);
+        proto_tree_add_item_ret_display_string(tree, hf_mip6_opt_3gpp_mei, tvb, offset, len, ENC_BCD_DIGITS_0_9, wmem_packet_scope(), &mei_str);
         proto_item_append_text(hdr_item, " %s", mei_str);
         break;
     /* 12, MSISDN */
     case 12:
         dissect_e164_cc(tvb, tree, offset, E164_ENC_BCD);
-        digit_str = tvb_bcd_dig_to_wmem_packet_str( tvb, offset, len, NULL, FALSE);
-        proto_tree_add_string(tree, hf_mip6_opt_3gpp_msisdn, tvb, offset, len, digit_str);
+        proto_tree_add_item_ret_display_string(tree, hf_mip6_opt_3gpp_msisdn, tvb, offset, len, ENC_BCD_DIGITS_0_9, wmem_packet_scope(), &digit_str);
         proto_item_append_text(hdr_item, " %s", digit_str);
         break;
     /* 13, Serving Network */
@@ -2024,8 +2022,7 @@ dissect_mip6_opt_vsm_3gpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
          break;
     /* 16, Unauthenticated IMSI */
     case 16:
-        imsi_str = tvb_bcd_dig_to_wmem_packet_str( tvb, offset, len, NULL, FALSE);
-        proto_tree_add_string(tree, hf_mip6_opt_3gpp_imsi, tvb, offset, len, imsi_str);
+        proto_tree_add_item_ret_display_string(tree, hf_mip6_opt_3gpp_imsi, tvb, offset, len, ENC_BCD_DIGITS_0_9, wmem_packet_scope(), &imsi_str);
         proto_item_append_text(hdr_item," %s", imsi_str);
         break;
     /* 17, PDN Connection ID */
@@ -2278,7 +2275,7 @@ dissect_mip6_opt_mnid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
 }
 
 /*  9 AUTH-OPTION-TYPE
-    http://tools.ietf.org/html/rfc4285
+    https://tools.ietf.org/html/rfc4285
 
     0                   1                   2                   3
      0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
@@ -4821,7 +4818,7 @@ proto_register_mip6(void)
     },
 
     { &hf_pmip6_lra_u,
-      { "unsolicited", "mip6.lri.unsolicated",
+      { "unsolicited", "mip6.lri.unsolicited",
         FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80,
         "When set to 1, the LRA message is sent unsolicited", HFILL }
     },

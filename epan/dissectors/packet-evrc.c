@@ -12,9 +12,9 @@
  *   for Wideband Spread Spectrum Digital Systems
  *                      3GPP2 C.S0014-E v1.0      TIA-127-?
  *
- * RFC 3558  http://www.ietf.org/rfc/rfc3558.txt?number=3558
- * RFC 4788  http://www.ietf.org/rfc/rfc4788.txt?number=4788
- * RFC 5188  http://www.ietf.org/rfc/rfc5188.txt?number=5188
+ * RFC 3558  https://tools.ietf.org/html/rfc3558
+ * RFC 4788  https://tools.ietf.org/html/rfc4788
+ * RFC 5188  https://tools.ietf.org/html/rfc5188
  * draft-agupta-payload-rtp-evrc-nw2k-00
  *
  * Wireshark - Network traffic analyzer
@@ -147,6 +147,11 @@ evrc_variant_t;
 
 /* Initialize the protocol and registered fields */
 static int proto_evrc = -1;
+static int proto_evrcb = -1;
+static int proto_evrcwb = -1;
+static int proto_evrcnw = -1;
+static int proto_evrcnw2k = -1;
+static int proto_evrc_legacy = -1;
 
 static int hf_evrc_reserved = -1;
 static int hf_evrc_reserved_2k = -1;
@@ -570,6 +575,21 @@ proto_register_evrc(void)
     proto_evrc =
         proto_register_protocol("Enhanced Variable Rate Codec", "EVRC", "evrc");
 
+    proto_evrcb =
+        proto_register_protocol_in_name_only("Enhanced Variable Rate Codec B",
+        "EVRC-B", "evrcb", proto_evrc, FT_PROTOCOL);
+    proto_evrcwb =
+        proto_register_protocol_in_name_only("Enhanced Variable Rate Codec - Wideband",
+        "EVRC-WB", "evrcwb", proto_evrc, FT_PROTOCOL);
+    proto_evrcnw =
+        proto_register_protocol_in_name_only("Enhanced Variable Rate Codec - Narrowband-Wideband",
+        "EVRC-NW", "evrcnw", proto_evrc, FT_PROTOCOL);
+    proto_evrcnw2k =
+        proto_register_protocol_in_name_only("Enhanced Variable Rate Codec - Narrowband-Wideband plus 2kpbs",
+        "EVRC-NW2K", "evrcnw2k", proto_evrc, FT_PROTOCOL);
+    proto_evrc_legacy =
+        proto_register_protocol_in_name_only("Enhanced Variable Rate Codec (Legacy Encapsulation)",
+        "EVRC (Legacy)", "evrc_legacy", proto_evrc, FT_PROTOCOL);
     proto_register_field_array(proto_evrc, hf, array_length(hf));
 
     proto_register_subtree_array(ett, array_length(ett));
@@ -606,11 +626,11 @@ proto_reg_handoff_evrc(void)
         dissector_handle_t evrcnw2k_handle;
 
         evrc_handle        = create_dissector_handle(dissect_evrc, proto_evrc);
-        evrcb_handle       = create_dissector_handle(dissect_evrcb, proto_evrc);
-        evrcwb_handle      = create_dissector_handle(dissect_evrcwb, proto_evrc);
-        evrcnw_handle      = create_dissector_handle(dissect_evrcnw, proto_evrc);
-        evrcnw2k_handle    = create_dissector_handle(dissect_evrcnw2k, proto_evrc);
-        evrc_legacy_handle = create_dissector_handle(dissect_evrc_legacy, proto_evrc);
+        evrcb_handle       = create_dissector_handle(dissect_evrcb, proto_evrcb);
+        evrcwb_handle      = create_dissector_handle(dissect_evrcwb, proto_evrcwb);
+        evrcnw_handle      = create_dissector_handle(dissect_evrcnw, proto_evrcnw);
+        evrcnw2k_handle    = create_dissector_handle(dissect_evrcnw2k, proto_evrcnw2k);
+        evrc_legacy_handle = create_dissector_handle(dissect_evrc_legacy, proto_evrc_legacy);
 
         /* header-full mime types */
         dissector_add_string("rtp_dyn_payload_type",  "EVRC", evrc_handle);
@@ -619,6 +639,14 @@ proto_reg_handoff_evrc(void)
         dissector_add_string("rtp_dyn_payload_type",  "EVRCNW", evrcnw_handle);
         dissector_add_string("rtp_dyn_payload_type",  "EVRCNW2K", evrcnw2k_handle);
 
+        dissector_add_for_decode_as("rtp.pt", evrc_handle);
+        dissector_add_for_decode_as("rtp.pt", evrcb_handle);
+        dissector_add_for_decode_as("rtp.pt", evrcwb_handle);
+        dissector_add_for_decode_as("rtp.pt", evrcnw_handle);
+        dissector_add_for_decode_as("rtp.pt", evrcnw2k_handle);
+        /* Since the draft legacy encapsulation only appears on PT 60, not
+         * adding it to decode as */
+        /* dissector_add_for_decode_as("rtp.pt", evrc_legacy_handle); */
         evrc_prefs_initialized = TRUE;
     }
     else

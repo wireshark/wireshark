@@ -45,26 +45,29 @@ void proto_reg_handoff_pim(void);
 
 /* PIM Message hello options */
 
-#define PIM_HELLO_HOLD_T 1          /* Hold Time [RFC4601] */
-#define PIM_HELLO_LAN_PRUNE_DELAY 2 /*LAN Prune Delay [RFC3973] */
+#define PIM_HELLO_HOLD_T 1          /* Hold Time [RFC7761] */
+#define PIM_HELLO_LAN_PRUNE_DELAY 2 /* LAN Prune Delay [RFC3973] */
 #define PIM_HELLO_LABEL_PARA 17     /* Label Parameters [Dino_Farinacci] */
-#define PIM_HELLO_DR_PRIORITY 19    /* DR Priority */
+#define PIM_HELLO_DEPRECATED_18 18  /* Deprecated */
+#define PIM_HELLO_DR_PRIORITY 19    /* DR Priority [RFC7761] */
 #define PIM_HELLO_GEN_ID 20         /* Generation ID [RFC3973] */
 #define PIM_HELLO_STATE_REFRESH 21  /* State-Refresh [RFC3973] */
 #define PIM_HELLO_BIDIR_CAPA 22     /* Bidirectional Capable [RFC5015] */
 #define PIM_HELLO_VCI_CAPA 23       /* VCI Capability */
-#define PIM_HELLO_VAR_ADDR_LST 24   /* variable Address List [RFC4601] */
+#define PIM_HELLO_VAR_ADDR_LST 24   /* variable Address List [RF7761] */
 #define PIM_HELLO_VAR_NEIG_LST 25   /* variable Neighbor List TLV */
 #define PIM_HELL0_JOIN_ATTR 26      /* Join Attribute [RFC5384] */
-#define PIM_HELLO_O_TCP_CAPA 27     /* variable PIM-over-TCP-Capable */
-#define PIM_HELLO_O_SCTP_CAPA 28    /* variable PIM-over-SCTP-Capable */
+#define PIM_HELLO_O_TCP_CAPA 27     /* variable PIM-over-TCP-Capable [RFC6559] */
+#define PIM_HELLO_O_SCTP_CAPA 28    /* variable PIM-over-SCTP-Capable [RFC6559] */
 #define PIM_HELLO_VAR_POP_COUNT 29  /* variable Pop-Count [RFC6807] */
 #define PIM_HELLO_MT_ID 30          /* PIM MT-ID [RFC6420] */
 #define PIM_HELLO_INT_ID 31         /* Interface ID [RFC6395] */
 #define PIM_HELLO_ECMP_REDIR  32    /* PIM ECMP Redirect Hello Option [RFC6754] */
 #define PIM_HELLO_VPC_PEER_ID 33    /* 2 vPC Peer ID */
-#define PIM_HELLO_DR_LB_CAPA 34     /* variable DR Load Balancing Capability [draft-ietf-pim-drlb] */
-#define PIM_HELLO_LB_GDR 35         /* variable DR Load Balancing GDR (LBGDR) [draft-ietf-pim-drlb] */
+#define PIM_HELLO_DR_LB_CAPA 34     /* variable DR Load Balancing Capability [RFC8775] */
+#define PIM_HELLO_DR_LB_LIST 35     /* variable DR Load Balancing List [RFC8775] */
+#define PIM_HELLO_HIER_JP_ATTR 36   /* Hierarchical Join/Prune Attribute [RFC7887] */
+#define PIM_HELLO_ADDR_LST 65001    /* Address list, old implementation */
 #define PIM_HELLO_RPF_PROXY 65004   /* RPF Proxy Vector (Cisco proprietary) */
 
 /* PIM BIDIR DF election messages */
@@ -74,6 +77,31 @@ void proto_reg_handoff_pim(void);
 #define PIM_BDIR_DF_BACKOFF 3
 #define PIM_BDIR_DF_PASS 4
 
+/* PIM Address Encoding Types */
+
+#define PIM_ADDR_ET_NATIVE    0  /* RFC7761 */
+#define PIM_ADDR_ET_NATIVE_JA 1  /* RFC5384 */
+
+#define PIM_JOIN_ATTRIBUTE_TYPE_RPF    0 /* RFC5496 */
+#define PIM_JOIN_ATTRIBUTE_TYPE_MVPN   1 /* RFC6513 */
+#define PIM_JOIN_ATTRIBUTE_TYPE_MTID   2 /* RFC6420 */
+#define PIM_JOIN_ATTRIBUTE_TYPE_PC     3 /* RFC6807 */
+#define PIM_JOIN_ATTRIBUTE_TYPE_EX_RPF 4 /* RFC7891 */
+#define PIM_JOIN_ATTRIBUTE_TYPE_TA     5 /* RFC8059 */
+#define PIM_JOIN_ATTRIBUTE_TYPE_RLOC   6 /* RFC8059 */
+
+#define PIM_GROUP_ADDR_FLAGS_B        0x80
+#define PIM_GROUP_ADDR_FLAGS_RESERVED 0x7E
+#define PIM_GROUP_ADDR_FLAGS_Z        0x01
+
+#define PIM_SOURCE_ADDR_FLAGS_RESERVED 0xF8
+#define PIM_SOURCE_ADDR_FLAGS_S        0x04
+#define PIM_SOURCE_ADDR_FLAGS_W        0x02
+#define PIM_SOURCE_ADDR_FLAGS_R        0x01
+
+#define PIM_SOURCE_JA_FLAGS_F         0x80
+#define PIM_SOURCE_JA_FLAGS_E         0x40
+#define PIM_SOURCE_JA_FLAGS_ATTR_TYPE 0x3F
 
 static const value_string pimtypevals[] = {
     { PIM_TYPE_HELLO, "Hello" },
@@ -100,19 +128,49 @@ static const value_string pimbdirdfvals[] = {
 };
 
 static const value_string pim_opt_vals[] = {
-    {1, "Hold Time"},
-    {2, "LAN Prune Delay"},
-    {18, "Deprecated and should not be used"},
-    {19, "DR Priority"},
-    {20, "Generation ID"},
-    {21, "State Refresh Capable"},
-    {22, "Bidir Capable"},
-    {24, "Address List"},
-    {65001, "Address List"},    /* old implementation */
-    {65004, "RPF Proxy Vector"},
-    {0, NULL}
+    { PIM_HELLO_HOLD_T,          "Hold Time" },
+    { PIM_HELLO_LAN_PRUNE_DELAY, "LAN Prune Delay" },
+    { PIM_HELLO_LABEL_PARA,      "Label Parameters" },
+    { PIM_HELLO_DEPRECATED_18,   "Deprecated" },
+    { PIM_HELLO_DR_PRIORITY,     "DR Priority" },
+    { PIM_HELLO_GEN_ID,          "Generation ID" },
+    { PIM_HELLO_STATE_REFRESH,   "State-Refresh" },
+    { PIM_HELLO_BIDIR_CAPA,      "Bidirectional Capable" },
+    { PIM_HELLO_VCI_CAPA,        "VCI Capability" },
+    { PIM_HELLO_VAR_ADDR_LST,    "Address List" },
+    { PIM_HELLO_VAR_NEIG_LST,    "Neighbor List TLV" },
+    { PIM_HELL0_JOIN_ATTR,       "Join Attribute" },
+    { PIM_HELLO_O_TCP_CAPA,      "PIM-over-TCP-Capable" },
+    { PIM_HELLO_O_SCTP_CAPA,     "PIM-over-SCTP-Capable" },
+    { PIM_HELLO_VAR_POP_COUNT,   "Pop-Count" },
+    { PIM_HELLO_MT_ID,           "PIM MT-ID" },
+    { PIM_HELLO_INT_ID,          "Interface ID" },
+    { PIM_HELLO_ECMP_REDIR,      "PIM ECMP Redirect Hello Option" },
+    { PIM_HELLO_VPC_PEER_ID,     "vPC Peer ID" },
+    { PIM_HELLO_DR_LB_CAPA,      "DR Load Balancing Capability" },
+    { PIM_HELLO_DR_LB_LIST,      "DR Load Balancing List" },
+    { PIM_HELLO_HIER_JP_ATTR,    "Hierarchical Join/Prune Attribute" },
+    { PIM_HELLO_ADDR_LST,        "Address list, old implementation" },
+    { PIM_HELLO_RPF_PROXY,       "RPF Proxy Vector (Cisco proprietary)" },
+    { 0, NULL }
 };
 
+static const value_string pim_addr_et_vals[] = {
+    { PIM_ADDR_ET_NATIVE,    "Native"},
+    { PIM_ADDR_ET_NATIVE_JA, "Native with Join Attribute"},
+    { 0, NULL }
+};
+
+static const value_string pim_join_attribute_type_vals[] = {
+    { PIM_JOIN_ATTRIBUTE_TYPE_RPF,    "RPF Vector TLV"},
+    { PIM_JOIN_ATTRIBUTE_TYPE_MVPN,   "MVPN Join Attribute"},
+    { PIM_JOIN_ATTRIBUTE_TYPE_MTID,   "MT-ID Join Attribute"},
+    { PIM_JOIN_ATTRIBUTE_TYPE_PC,     "Pop-Count"},
+    { PIM_JOIN_ATTRIBUTE_TYPE_EX_RPF, "Explicit RPF Vector"},
+    { PIM_JOIN_ATTRIBUTE_TYPE_TA,     "Transport Attribute"},
+    { PIM_JOIN_ATTRIBUTE_TYPE_RLOC,   "Receiver RLOC Attribute"},
+    { 0, NULL }
+};
 
 enum pimv2_addrtype {
     pimv2_unicast, pimv2_group, pimv2_source
@@ -203,12 +261,34 @@ static int hf_pim_src_flags_w = -1;
 static int hf_pim_src_flags_r = -1;
 static int hf_pim_src_flags_rsv = -1;
 static int hf_pim_mask_len = -1;
+static int hf_pim_addr_af = -1;
+static int hf_pim_addr_et = -1;
+static int hf_pim_unicast_addr_ipv4 = -1;
+static int hf_pim_unicast_addr_ipv6 = -1;
+static int hf_pim_group = -1;
+static int hf_pim_group_addr_flags = -1;
+static int hf_pim_group_addr_flags_b = -1;
+static int hf_pim_group_addr_flags_reserved = -1;
+static int hf_pim_group_addr_flags_z = -1;
+static int hf_pim_source_addr_flags = -1;
+static int hf_pim_source_addr_flags_reserved = -1;
+static int hf_pim_source_addr_flags_s = -1;
+static int hf_pim_source_addr_flags_w = -1;
+static int hf_pim_source_addr_flags_r = -1;
+static int hf_pim_source_join_attribute = -1;
+static int hf_pim_source_ja_flags = -1;
+static int hf_pim_source_ja_flags_f = -1;
+static int hf_pim_source_ja_flags_e = -1;
+static int hf_pim_source_ja_flags_attr_type = -1;
+static int hf_pim_source_ja_length = -1;
+static int hf_pim_source_ja_value = -1;
 static int hf_pim_ttl = -1;
 static int hf_pim_interval = -1;
 
 static gint ett_pim = -1;
 static gint ett_pim_opts = -1;
 static gint ett_pim_opt = -1;
+static gint ett_pim_addr_flags = -1;
 
 static expert_field ei_pim_cksum = EI_INIT;
 
@@ -233,7 +313,7 @@ static gboolean use_main_tree  = TRUE;
  *
  * dated September 7, 1995, and
  *
- *   http://tools.ietf.org/html/draft-ietf-idmr-pim-spec-02
+ *   https://tools.ietf.org/html/draft-ietf-idmr-pim-spec-02
  *
  * dated September 7, 1995, both entitled "Protocol Independent Multicast-
  * Sparse Mode (PIM-SM): Protocol Specification", describe a protocol that
@@ -258,7 +338,7 @@ static gboolean use_main_tree  = TRUE;
  *
  * Looking at the Dense Mode specs,
  *
- *   http://tools.ietf.org/html/draft-ietf-idmr-pim-dm-spec-02
+ *   https://tools.ietf.org/html/draft-ietf-idmr-pim-dm-spec-02
  *
  * entitled "Protocol Independent Multicast-Dense Mode (PIM-DM): Protocol
  * Specification", dated September 1995, describes a protocol that runs
@@ -269,12 +349,34 @@ static gboolean use_main_tree  = TRUE;
  * Protocol Specification", also describes a protocol that runs atop IP,
  * with a protocol number of 103, and with a PIM version number field of 2.
  */
-static const gint *pim_src_flags_fields[] = {
+static int * const pim_src_flags_fields[] = {
     &hf_pim_src_flags_a,
     &hf_pim_src_flags_s,
     &hf_pim_src_flags_w,
     &hf_pim_src_flags_r,
     &hf_pim_src_flags_rsv,
+    NULL
+};
+
+static int * const pim_group_addr_flags[] = {
+    &hf_pim_group_addr_flags_b,
+    &hf_pim_group_addr_flags_reserved,
+    &hf_pim_group_addr_flags_z,
+    NULL
+};
+
+static int * const pim_source_addr_flags[] = {
+    &hf_pim_source_addr_flags_reserved,
+    &hf_pim_source_addr_flags_s,
+    &hf_pim_source_addr_flags_w,
+    &hf_pim_source_addr_flags_r,
+    NULL
+};
+
+static int * const pim_source_ja_flags[] = {
+    &hf_pim_source_ja_flags_f,
+    &hf_pim_source_ja_flags_e,
+    &hf_pim_source_ja_flags_attr_type,
     NULL
 };
 
@@ -631,7 +733,13 @@ dissect_pim_addr(proto_tree* tree, tvbuff_t *tvb, int offset, enum pimv2_addrtyp
     ws_in6_addr ipv6;
     guint32 ipv4;
     proto_item* ti = NULL;
+    proto_tree* addr_tree = NULL;
+    proto_tree* ja_tree = NULL;
     int len = 0;
+    int ja_offset = 0;
+    guint8 ja_eos_type = 0;
+    guint8 ja_length = 0;
+    int ja_length_sum = 0;
 
     af = tvb_get_guint8(tvb, offset);
     if (af != AFNUM_INET && af != AFNUM_INET6) {
@@ -643,9 +751,10 @@ dissect_pim_addr(proto_tree* tree, tvbuff_t *tvb, int offset, enum pimv2_addrtyp
     }
 
     et = tvb_get_guint8(tvb, offset + 1);
-    if (et != 0) {
+    if ((et != PIM_ADDR_ET_NATIVE) && (et != PIM_ADDR_ET_NATIVE_JA)) {
         /*
-         * The only defined encoding type is 0, for the native encoding;
+         * The only defined encoding type is 0 and 1, for the native encoding
+         * and native with Join Attribute TLVs;
          * again, as addresses don't include a length field, we can't
          * even show addresses with a different encoding type as raw
          * bytes.
@@ -684,6 +793,17 @@ dissect_pim_addr(proto_tree* tree, tvbuff_t *tvb, int offset, enum pimv2_addrtyp
             }
             break;
         }
+        addr_tree = proto_item_add_subtree(ti, ett_pim);
+        proto_tree_add_item(addr_tree, hf_pim_addr_af, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(addr_tree, hf_pim_addr_et, tvb, offset+1, 1, ENC_NA);
+        switch (af) {
+        case AFNUM_INET:
+            proto_tree_add_item(addr_tree, hf_pim_unicast_addr_ipv4, tvb, offset+2, 4, ENC_BIG_ENDIAN);
+            break;
+        case AFNUM_INET6:
+            proto_tree_add_item(addr_tree, hf_pim_unicast_addr_ipv6, tvb, offset+2, 16, ENC_NA);
+            break;
+        }
         *advance = 2 + len;
         break;
 
@@ -719,6 +839,20 @@ dissect_pim_addr(proto_tree* tree, tvbuff_t *tvb, int offset, enum pimv2_addrtyp
                 ti = proto_tree_add_ipv6(tree, hf_ip6, tvb, offset, 4 + len, &ipv6);
             }
             proto_item_append_text(ti, "/%u", mask_len);
+            break;
+        }
+        addr_tree = proto_item_add_subtree(ti, ett_pim);
+        proto_tree_add_item(addr_tree, hf_pim_addr_af, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(addr_tree, hf_pim_addr_et, tvb, offset+1, 1, ENC_NA);
+        proto_tree_add_bitmask(addr_tree, tvb, offset+2, hf_pim_group_addr_flags,
+                ett_pim_addr_flags, pim_group_addr_flags, ENC_BIG_ENDIAN);
+        proto_tree_add_item(addr_tree, hf_pim_mask_len, tvb, offset+3, 1, ENC_NA);
+        switch (af) {
+        case AFNUM_INET:
+            proto_tree_add_item(addr_tree, hf_pim_group_ip4, tvb, offset+4, 4, ENC_BIG_ENDIAN);
+            break;
+        case AFNUM_INET6:
+            proto_tree_add_item(addr_tree, hf_pim_group_ip6, tvb, offset+4, 16, ENC_NA);
             break;
         }
         *advance = 4 + len;
@@ -766,7 +900,54 @@ dissect_pim_addr(proto_tree* tree, tvbuff_t *tvb, int offset, enum pimv2_addrtyp
                                     flags & 0x02 ? "W" : "",
                                     flags & 0x01 ? "R" : "");
         }
-        *advance = 4 + len;
+        addr_tree = proto_item_add_subtree(ti, ett_pim);
+        proto_tree_add_item(addr_tree, hf_pim_addr_af, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(addr_tree, hf_pim_addr_et, tvb, offset+1, 1, ENC_NA);
+        proto_tree_add_bitmask(addr_tree, tvb, offset+2, hf_pim_source_addr_flags,
+                ett_pim_addr_flags, pim_source_addr_flags, ENC_BIG_ENDIAN);
+        proto_tree_add_item(addr_tree, hf_pim_mask_len, tvb, offset+3, 1, ENC_NA);
+        switch (af) {
+        case AFNUM_INET:
+            proto_tree_add_item(addr_tree, hf_pim_source_ip4, tvb, offset+4, 4, ENC_BIG_ENDIAN);
+            break;
+        case AFNUM_INET6:
+            proto_tree_add_item(addr_tree, hf_pim_source_ip6, tvb, offset+4, 16, ENC_NA);
+            break;
+        }
+
+        if (et == PIM_ADDR_ET_NATIVE_JA) {
+            ja_offset = offset + 4 + len;
+            while (((ja_eos_type & 0x40) != 0x40) && (tvb_reported_length_remaining(tvb, ja_offset) >= 2)) {
+                ja_length = tvb_get_guint8(tvb, ja_offset+1);
+                ti = proto_tree_add_item(addr_tree, hf_pim_source_join_attribute, tvb, ja_offset, ja_length + 2, ENC_NA);
+                ja_tree = proto_item_add_subtree(ti, ett_pim);
+                ja_eos_type = tvb_get_guint8(tvb, ja_offset);
+                proto_tree_add_bitmask(ja_tree, tvb, ja_offset, hf_pim_source_ja_flags,
+                            ett_pim_addr_flags, pim_source_ja_flags, ENC_BIG_ENDIAN);
+                proto_item_append_text(ti, ": %s", val_to_str(ja_eos_type & 0x3F, pim_join_attribute_type_vals, "Unknown"));
+                ja_offset += 1;
+                proto_tree_add_item(ja_tree, hf_pim_source_ja_length, tvb, ja_offset, 1, ENC_BIG_ENDIAN);
+                ja_offset += 1;
+                switch(ja_eos_type & 0x3F) {
+                    case PIM_JOIN_ATTRIBUTE_TYPE_RPF:
+                        if ((ja_length == 6) || (ja_length == 18)) {
+                            int advance_attr;
+                            if (!dissect_pim_addr(ja_tree, tvb, ja_offset, pimv2_unicast, NULL, NULL,
+                                    hf_pim_unicast_addr_ipv4, hf_pim_unicast_addr_ipv6, &advance_attr))
+                                break;
+                        } else {
+                            proto_tree_add_item(ja_tree, hf_pim_source_ja_value, tvb, ja_offset, ja_length, ENC_NA);
+                        }
+                        break;
+                    default:
+                        proto_tree_add_item(ja_tree, hf_pim_source_ja_value, tvb, ja_offset, ja_length, ENC_NA);
+                }
+                ja_offset += ja_length;
+            ja_length_sum += (2 + (int)ja_length);
+            }
+        }
+        *advance = 4 + len + ja_length_sum;
+
         break;
     default:
         return FALSE;
@@ -971,7 +1152,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                 break;
 
             case PIM_HELLO_VAR_ADDR_LST: /* address list */
-            case 65001: /* address list (old implementations) */
+            case PIM_HELLO_ADDR_LST:     /* address list (old implementations) */
             {
                 int i;
                 proto_tree *sub_tree = NULL;
@@ -989,21 +1170,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                 }
                 break;
             }
-            case PIM_HELLO_LABEL_PARA:
-            case PIM_HELLO_BIDIR_CAPA:
-            case PIM_HELLO_VCI_CAPA:
-            case PIM_HELLO_VAR_NEIG_LST:
-            case PIM_HELL0_JOIN_ATTR:
-            case PIM_HELLO_O_TCP_CAPA:
-            case PIM_HELLO_O_SCTP_CAPA:
-            case PIM_HELLO_VAR_POP_COUNT:
-            case PIM_HELLO_MT_ID:
-            case PIM_HELLO_INT_ID:
-            case PIM_HELLO_ECMP_REDIR:
-            case PIM_HELLO_VPC_PEER_ID:
-            case PIM_HELLO_DR_LB_CAPA:
-            case PIM_HELLO_LB_GDR:
-            case PIM_HELLO_RPF_PROXY:
+
             default:
                 if (opt_len)
                     proto_tree_add_item(opt_tree, hf_pim_optionvalue, tvb,
@@ -1121,12 +1288,13 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         offset += 2;
 
         for (i = 0; i < ngroup; i++) {
-            if (!dissect_pim_addr(pimopt_tree, tvb, offset, pimv2_group,
-                                   wmem_strdup_printf(wmem_packet_scope(), "Group %d", i), &tigroup,
+            tigroup=proto_tree_add_string_format(pimopt_tree, hf_pim_group, tvb, offset, -1, "", "Group %d", i);
+            grouptree = proto_item_add_subtree(tigroup, ett_pim);
+            if (!dissect_pim_addr(grouptree, tvb, offset, pimv2_group,
+                                   wmem_strdup_printf(wmem_packet_scope(), "Group %d", i), NULL,
                                    hf_pim_group_ip4, hf_pim_group_ip6, &advance))
                 goto breakbreak3;
 
-            grouptree = proto_item_add_subtree(tigroup, ett_pim);
             offset += advance;
 
             njoin = tvb_get_ntohs(tvb, offset);
@@ -1802,12 +1970,118 @@ proto_register_pim(void)
                 FT_UINT8, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
             },
+            { &hf_pim_addr_af,
+              { "Address Family", "pim.addr_address_family",
+                FT_UINT8, BASE_DEC, VALS(afn_vals), 0x0,
+                NULL, HFILL }
+            },
+            { &hf_pim_addr_et,
+              { "Encoding Type", "pim.addr_encoding_type",
+                FT_UINT8, BASE_DEC, VALS(pim_addr_et_vals), 0x0,
+                NULL, HFILL }
+            },
+            { &hf_pim_unicast_addr_ipv4,
+              { "Unicast", "pim.unicast",
+                FT_IPv4, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_pim_unicast_addr_ipv6,
+              { "Unicast", "pim.unicast_ipv6",
+                FT_IPv6, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_pim_group,
+              { "Group", "pim.group_set",
+                FT_STRING, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_pim_group_addr_flags,
+              { "Flags", "pim.group_addr.flags",
+                FT_UINT8, BASE_HEX, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_pim_group_addr_flags_b,
+              { "Bidirectional PIM", "pim.group_addr.flags.b",
+                FT_BOOLEAN, 8, TFS(&tfs_set_notset), PIM_GROUP_ADDR_FLAGS_B,
+                NULL, HFILL }
+            },
+            { &hf_pim_group_addr_flags_reserved,
+              { "Reserved", "pim.group_addr.flags.reserved",
+                FT_UINT8, BASE_HEX, NULL, PIM_GROUP_ADDR_FLAGS_RESERVED,
+                NULL, HFILL }
+            },
+            { &hf_pim_group_addr_flags_z,
+              { "Admin Scope Zone", "pim.group_addr.flags.z",
+                FT_BOOLEAN, 8, TFS(&tfs_set_notset), PIM_GROUP_ADDR_FLAGS_Z,
+                NULL, HFILL }
+            },
+            { &hf_pim_source_addr_flags,
+              { "Flags", "pim.source_addr.flags",
+                FT_UINT8, BASE_HEX, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_pim_source_addr_flags_reserved,
+              { "Reserved", "pim.source_addr.flags.reserved",
+                FT_UINT8, BASE_HEX, NULL, PIM_SOURCE_ADDR_FLAGS_RESERVED,
+                NULL, HFILL }
+            },
+            { &hf_pim_source_addr_flags_s,
+              { "Sparse", "pim.source_addr.flags.s",
+                FT_BOOLEAN, 8, TFS(&tfs_set_notset), PIM_SOURCE_ADDR_FLAGS_S,
+                NULL, HFILL }
+            },
+            { &hf_pim_source_addr_flags_w,
+              { "WildCard", "pim.source_addr.flags.w",
+                FT_BOOLEAN, 8, TFS(&tfs_set_notset), PIM_SOURCE_ADDR_FLAGS_W,
+                NULL, HFILL }
+            },
+            { &hf_pim_source_addr_flags_r,
+              { "Rendezvous Point Tree", "pim.source_addr.flags.r",
+                FT_BOOLEAN, 8, TFS(&tfs_set_notset), PIM_SOURCE_ADDR_FLAGS_R,
+                NULL, HFILL }
+            },
+            { &hf_pim_source_join_attribute,
+              { "Join Attribute", "pim.source_ja",
+                FT_NONE, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_pim_source_ja_flags,
+              { "Flags", "pim.source_ja.flags",
+                FT_UINT8, BASE_HEX, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_pim_source_ja_flags_f,
+              { "Forward", "pim.source_ja.flags.f",
+                FT_BOOLEAN, 8, TFS(&tfs_set_notset), PIM_SOURCE_JA_FLAGS_F,
+                NULL, HFILL }
+            },
+            { &hf_pim_source_ja_flags_e,
+              { "End of Attributes", "pim.source_ja.flags.e",
+                FT_BOOLEAN, 8, TFS(&tfs_set_notset), PIM_SOURCE_JA_FLAGS_E,
+                NULL, HFILL }
+            },
+            { &hf_pim_source_ja_flags_attr_type,
+              { "Attribute Type", "pim.source_ja.flags.attr_type",
+                FT_UINT8, BASE_DEC, VALS(pim_join_attribute_type_vals), PIM_SOURCE_JA_FLAGS_ATTR_TYPE,
+                NULL, HFILL }
+            },
+            { &hf_pim_source_ja_length,
+              { "Length", "pim.source_ja.length",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_pim_source_ja_value,
+              { "Value", "pim.source_ja.value",
+                FT_BYTES, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+            },
         };
 
     static gint *ett[] = {
         &ett_pim,
-        &ett_pim_opts,  /* Tree for all options */
-        &ett_pim_opt    /* Tree for each option */
+        &ett_pim_opts,      /* Tree for all options */
+        &ett_pim_opt,       /* Tree for each option */
+        &ett_pim_addr_flags /* Tree for flags */
     };
 
     static ei_register_info ei[] = {

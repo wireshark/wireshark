@@ -169,7 +169,7 @@ static header_field_info hfi_genl_ctrl_op_flags_uns_admin_perm NETLINK_GENERIC_H
 	{ "GENL_UNS_ADMIN_PERM", "genl.ctrl.op_flags.uns_admin_perm", FT_BOOLEAN, 32,
 	  NULL, 0x10, NULL, HFILL };
 
-static const int *genl_ctrl_op_flags_fields[] = {
+static int * const genl_ctrl_op_flags_fields[] = {
 	&hfi_genl_ctrl_op_flags_admin_perm.id,
 	&hfi_genl_ctrl_op_flags_cmd_cap_do.id,
 	&hfi_genl_ctrl_op_flags_cmd_cap_dump.id,

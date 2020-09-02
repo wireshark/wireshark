@@ -1,0 +1,47 @@
+# -*- text -*-
+#
+#	http://www.enterasys.com
+#	$Id$
+#
+
+VENDOR		Enterasys			5624
+
+BEGIN-VENDOR	Enterasys
+
+ATTRIBUTE       Enterasys-Auth-Client-Type                 1    integer
+
+# NAC Internal-Attributes, can be changed at any time.
+ATTRIBUTE       ETS-NTLM-Auth-Allowed                    201    integer
+ATTRIBUTE       ETS-NTLM-Auth-Username                   202    string
+ATTRIBUTE       ETS-NTLM-Auth-Domain                     203    string
+ATTRIBUTE       ETS-Proxy-Failed                         204    integer
+ATTRIBUTE       ETS-NAC-Reject                           205    integer
+ATTRIBUTE       ETS-Outer-Tunnel-Username                206    string
+ATTRIBUTE       ETS-Inner-Tunnel-Username                207    string
+ATTRIBUTE       ETS-Replace-MsCHAP-Username              208    integer
+ATTRIBUTE       ETS-Ignore-MsCHAP-Username               209    integer
+
+ATTRIBUTE       ETS-Cleartext-Password                   220    string
+ATTRIBUTE       ETS-SHA-Password                         221    string
+ATTRIBUTE       ETS-SSHA-Password                        222    string
+ATTRIBUTE       ETS-LM-Password                          223    string
+ATTRIBUTE       ETS-NT-Password                          224    string
+ATTRIBUTE       ETS-MD5-Password                         225    string
+ATTRIBUTE       ETS-SMD5-Password                        226    string
+ATTRIBUTE       ETS-Crypt-Password                       227    string
+
+ATTRIBUTE       ETS-TLS-Client-Cert-Fingerprint          230    string
+ATTRIBUTE       ETS-TLS-Cert-Fingerprint                 231    string
+ATTRIBUTE       ETS-TLS-Verify-Error-Code                232    integer
+
+# Value definitions
+
+VALUE           Enterasys-Auth-Client-Type               802.1X             1
+VALUE           Enterasys-Auth-Client-Type               PWA                2
+VALUE           Enterasys-Auth-Client-Type               MAC                3
+VALUE           Enterasys-Auth-Client-Type               CEP                4
+VALUE           Enterasys-Auth-Client-Type               RADIUS-Snooping    5
+VALUE           Enterasys-Auth-Client-Type               Auto-Auth          6
+VALUE           Enterasys-Auth-Client-Type               Quarantine         7
+
+END-VENDOR	Enterasys

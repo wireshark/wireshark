@@ -10,7 +10,7 @@
  *
  * Based on the RANAP dissector
  *
- * References: 3GPP TS 36.413 V15.8.0 (2019-12)
+ * References: 3GPP TS 36.413 V16.2.0 (2020-07)
  */
 
 #include "config.h"
@@ -58,6 +58,7 @@ static dissector_handle_t lppa_handle;
 static dissector_handle_t bssgp_handle;
 static dissector_handle_t lte_rrc_ue_radio_access_cap_info_handle;
 static dissector_handle_t lte_rrc_ue_radio_access_cap_info_nb_handle;
+static dissector_handle_t nr_rrc_ue_radio_access_cap_info_handle;
 static dissector_handle_t lte_rrc_ue_radio_paging_info_handle;
 static dissector_handle_t lte_rrc_ue_radio_paging_info_nb_handle;
 
@@ -150,6 +151,15 @@ static int ett_s1ap_NASSecurityParameters = -1;
 static int ett_s1ap_NRencryptionAlgorithms = -1;
 static int ett_s1ap_NRintegrityProtectionAlgorithms = -1;
 static int ett_s1ap_UE_Application_Layer_Measurement_Capability = -1;
+static int ett_s1ap_sMTC = -1;
+static int ett_s1ap_threshRS_Index_r15 = -1;
+static int ett_s1ap_sSBToMeasure = -1;
+static int ett_s1ap_sSRSSIMeasurement = -1;
+static int ett_s1ap_quantityConfigNR_R15 = -1;
+static int ett_s1ap_blackCellsToAddModList = -1;
+static int ett_s1ap_NB_IoT_RLF_Report_Container = -1;
+static int ett_s1ap_MDT_ConfigurationNR = -1;
+static int ett_s1ap_IntersystemSONConfigurationTransfer = -1;
 #include "packet-s1ap-ett.c"
 
 static expert_field ei_s1ap_number_pages_le15 = EI_INIT;
@@ -323,6 +333,24 @@ s1ap_Packet_LossRate_fmt(gchar *s, guint32 v)
   g_snprintf(s, ITEM_LABEL_LENGTH, "%.1f %% (%u)", (float)v/10, v);
 }
 
+static void
+s1ap_threshold_nr_rsrp_fmt(gchar *s, guint32 v)
+{
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%ddBm (%u)", (gint32)v-156, v);
+}
+
+static void
+s1ap_threshold_nr_rsrq_fmt(gchar *s, guint32 v)
+{
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB (%u)", ((float)v/2)-43, v);
+}
+
+static void
+s1ap_threshold_nr_sinr_fmt(gchar *s, guint32 v)
+{
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB (%u)", ((float)v/2)-23, v);
+}
+
 static struct s1ap_private_data*
 s1ap_get_private_data(packet_info *pinfo)
 {
@@ -472,10 +500,11 @@ proto_reg_handoff_s1ap(void)
     bssgp_handle = find_dissector_add_dependency("bssgp", proto_s1ap);
     lte_rrc_ue_radio_access_cap_info_handle = find_dissector_add_dependency("lte-rrc.ue_radio_access_cap_info", proto_s1ap);
     lte_rrc_ue_radio_access_cap_info_nb_handle = find_dissector_add_dependency("lte-rrc.ue_radio_access_cap_info.nb", proto_s1ap);
+    nr_rrc_ue_radio_access_cap_info_handle = find_dissector_add_dependency("nr-rrc.ue_radio_access_cap_info", proto_s1ap);
     lte_rrc_ue_radio_paging_info_handle = find_dissector_add_dependency("lte-rrc.ue_radio_paging_info", proto_s1ap);
     lte_rrc_ue_radio_paging_info_nb_handle = find_dissector_add_dependency("lte-rrc.ue_radio_paging_info.nb", proto_s1ap);
     dissector_add_for_decode_as("sctp.port", s1ap_handle);
-    dissector_add_uint("sctp.ppi", S1AP_PAYLOAD_PROTOCOL_ID,   s1ap_handle);
+    dissector_add_uint("sctp.ppi", S1AP_PAYLOAD_PROTOCOL_ID, s1ap_handle);
     Initialized=TRUE;
 #include "packet-s1ap-dis-tab.c"
   } else {
@@ -726,6 +755,15 @@ void proto_register_s1ap(void) {
     &ett_s1ap_NRencryptionAlgorithms,
     &ett_s1ap_NRintegrityProtectionAlgorithms,
     &ett_s1ap_UE_Application_Layer_Measurement_Capability,
+    &ett_s1ap_sMTC,
+    &ett_s1ap_threshRS_Index_r15,
+    &ett_s1ap_sSBToMeasure,
+    &ett_s1ap_sSRSSIMeasurement,
+    &ett_s1ap_quantityConfigNR_R15,
+    &ett_s1ap_blackCellsToAddModList,
+    &ett_s1ap_NB_IoT_RLF_Report_Container,
+    &ett_s1ap_MDT_ConfigurationNR,
+    &ett_s1ap_IntersystemSONConfigurationTransfer,
 #include "packet-s1ap-ettarr.c"
   };
 

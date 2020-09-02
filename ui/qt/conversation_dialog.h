@@ -67,6 +67,8 @@ private:
     bool addTrafficTable(register_ct_t* table);
     conv_item_t *currentConversation();
 
+    bool tcp_graph_requested_;
+
 private slots:
     void currentTabChanged();
     void conversationSelectionChanged();
@@ -74,6 +76,7 @@ private slots:
     void followStream();
     void graphTcp();
     void on_buttonBox_helpRequested();
+    void displayFilterSuccess(bool success);
 };
 
 void init_conversation_table(struct register_ct* ct, const char *filter);

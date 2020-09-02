@@ -21,14 +21,37 @@ extern "C" {
  * Units to append to field values
  */
 
-/* For BASE_UNIT_STRING, the display format for adding units */
+/** For BASE_UNIT_STRING, the display format for adding units */
 typedef struct unit_name_string {
-    char *singular;     /* name to use for 1 unit */
-    char *plural;          /* name to use for < 1 or > 1 units */
+    char *singular;     /**< name to use for 1 unit */
+    char *plural;       /**< name to use for < 1 or > 1 units */
 } unit_name_string;
 
+/** Returns the unit string appropriate for the 32 bit value.
+ *
+ * From the given unit_name_string return the appropriate string pointer
+ * @param[in] value The value for which to get the appropriate string
+ * @param[in] units The unit_name_string containing the relevant strings
+ * @return          Pointer to the appropriate string
+ */
 WS_DLL_PUBLIC const char* unit_name_string_get_value(guint32 value, const unit_name_string* units);
+
+/** Returns the unit string appropriate for the 64 bit value.
+ *
+ * From the given unit_name_string return the appropriate string pointer
+ * @param[in] value The value for which to get the appropriate string
+ * @param[in] units The unit_name_string containing the relevant strings
+ * @return          Pointer to the appropriate string
+ */
 WS_DLL_PUBLIC const char* unit_name_string_get_value64(guint64 value, const unit_name_string* units);
+
+/** Returns the unit string appropriate for the double value.
+ *
+ * From the given unit_name_string return the appropriate string pointer
+ * @param[in] value The value for which to get the appropriate string
+ * @param[in] units The unit_name_string containing the relevant strings
+ * @return          Pointer to the appropriate string
+ */
 WS_DLL_PUBLIC const char* unit_name_string_get_double(double value, const unit_name_string* units);
 
 /*
@@ -62,6 +85,7 @@ WS_DLL_PUBLIC const unit_name_string units_nanometers;
 WS_DLL_PUBLIC const unit_name_string units_degree_degrees;
 WS_DLL_PUBLIC const unit_name_string units_degree_celsius;
 WS_DLL_PUBLIC const unit_name_string units_degree_bearing;
+WS_DLL_PUBLIC const unit_name_string units_centibels;
 WS_DLL_PUBLIC const unit_name_string units_decibels;
 WS_DLL_PUBLIC const unit_name_string units_dbm;
 WS_DLL_PUBLIC const unit_name_string units_dbi;

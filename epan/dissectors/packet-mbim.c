@@ -1399,13 +1399,13 @@ static const value_string mbim_device_caps_info_voice_class_vals[] = {
     { 0, NULL}
 };
 
-static const int *mbim_device_caps_info_sim_class_fields[] = {
+static int * const mbim_device_caps_info_sim_class_fields[] = {
     &hf_mbim_device_caps_info_sim_class_logical,
     &hf_mbim_device_caps_info_sim_class_removable,
     NULL
 };
 
-static const int *mbim_data_class_fields[] = {
+static int * const mbim_data_class_fields[] = {
     &hf_mbim_data_class_gprs,
     &hf_mbim_data_class_edge,
     &hf_mbim_data_class_umts,
@@ -1425,7 +1425,7 @@ static const int *mbim_data_class_fields[] = {
     NULL
 };
 
-static const int *mbim_device_caps_info_sms_caps_fields[] = {
+static int * const mbim_device_caps_info_sms_caps_fields[] = {
     &hf_mbim_device_caps_info_sms_caps_pdu_receive,
     &hf_mbim_device_caps_info_sms_caps_pdu_send,
     &hf_mbim_device_caps_info_sms_caps_text_receive,
@@ -1433,7 +1433,7 @@ static const int *mbim_device_caps_info_sms_caps_fields[] = {
     NULL
 };
 
-static const int *mbim_device_caps_info_control_caps_fields[] = {
+static int * const mbim_device_caps_info_control_caps_fields[] = {
     &hf_mbim_device_caps_info_control_caps_reg_manual,
     &hf_mbim_device_caps_info_control_caps_hw_radio_switch,
     &hf_mbim_device_caps_info_control_caps_cdma_mobile_ip,
@@ -1515,7 +1515,7 @@ static const value_string mbim_pin_format_vals[] = {
     { 0, NULL}
 };
 
-static const int *mbim_provider_state_fields[] = {
+static int * const mbim_provider_state_fields[] = {
     &hf_mbim_provider_state_home,
     &hf_mbim_provider_state_forbidden,
     &hf_mbim_provider_state_preferred,
@@ -1584,7 +1584,7 @@ static const value_string mbim_register_mode_vals[] = {
     { 0, NULL}
 };
 
-static const int *mbim_registration_state_info_registration_flags_fields[] = {
+static int * const mbim_registration_state_info_registration_flags_fields[] = {
     &hf_mbim_registration_state_info_registration_flags_manual_selection_not_available,
     &hf_mbim_registration_state_info_registration_flags_packet_service_auto_attach,
     NULL
@@ -1700,7 +1700,7 @@ static const value_string mbim_context_type_vals[] = {
     { 0, NULL}
 };
 
-static const int *mbim_ip_configuration_info_ipv4_configuration_available_fields[] = {
+static int * const mbim_ip_configuration_info_ipv4_configuration_available_fields[] = {
     &hf_mbim_ip_configuration_info_ipv4_configuration_available_address,
     &hf_mbim_ip_configuration_info_ipv4_configuration_available_gateway,
     &hf_mbim_ip_configuration_info_ipv4_configuration_available_dns,
@@ -1708,7 +1708,7 @@ static const int *mbim_ip_configuration_info_ipv4_configuration_available_fields
     NULL
 };
 
-static const int *mbim_ip_configuration_info_ipv6_configuration_available_fields[] = {
+static int * const mbim_ip_configuration_info_ipv6_configuration_available_fields[] = {
     &hf_mbim_ip_configuration_info_ipv6_configuration_available_address,
     &hf_mbim_ip_configuration_info_ipv6_configuration_available_gateway,
     &hf_mbim_ip_configuration_info_ipv6_configuration_available_dns,
@@ -1716,7 +1716,7 @@ static const int *mbim_ip_configuration_info_ipv6_configuration_available_fields
     NULL
 };
 
-static const int *mbim_device_service_element_dss_payload_fields[] = {
+static int * const mbim_device_service_element_dss_payload_fields[] = {
     &hf_mbim_device_service_element_dss_payload_host_device,
     &hf_mbim_device_service_element_dss_payload_device_host,
     NULL
@@ -1804,7 +1804,7 @@ static const value_string mbim_sms_message_status_vals[] = {
     { 0, NULL}
 };
 
-static const int *mbim_sms_status_info_flags_fields[] = {
+static int * const mbim_sms_status_info_flags_fields[] = {
     &hf_mbim_sms_status_info_flags_message_store_full,
     &hf_mbim_sms_status_info_flags_new_message,
     NULL
@@ -1880,7 +1880,7 @@ static const value_string mbim_dss_link_state_vals[] = {
     { 0, NULL}
 };
 
-static const int *mbim_multicarrier_capabilities_fields[] = {
+static int * const mbim_multicarrier_capabilities_fields[] = {
     &hf_mbim_multicarrier_capabilities_info_capabilities_static_scan,
     &hf_mbim_multicarrier_capabilities_info_capabilities_fw_requires_reboot,
     NULL
@@ -2160,7 +2160,7 @@ static const value_string mbim_geoid_vals[] = {
 };
 static value_string_ext mbim_geoid_vals_ext = VALUE_STRING_EXT_INIT(mbim_geoid_vals);
 
-static const int *mbim_descriptor_network_capabilities_fields[] = {
+static int * const mbim_descriptor_network_capabilities_fields[] = {
     &hf_mbim_descriptor_network_capabilities_max_datagram_size,
     &hf_mbim_descriptor_network_capabilities_ntb_input_size,
     NULL
@@ -2341,7 +2341,7 @@ static const value_string mbim_ndp_ctrl_multiflow_status_vals[] = {
     { 0, NULL}
 };
 
-static const int *mbim_multiflow_caps_info_control_caps_fields[] = {
+static int * const mbim_multiflow_caps_info_control_caps_fields[] = {
     &hf_mbim_multiflow_caps_info_control_caps_uplink,
     &hf_mbim_multiflow_caps_info_control_caps_downlink,
     NULL
@@ -2393,7 +2393,7 @@ static const value_string mbim_ms_context_operations_vals[] = {
     { 0, NULL}
 };
 
-static const int *mbim_ms_network_blacklist_state_fields[] = {
+static int * const mbim_ms_network_blacklist_state_fields[] = {
     &hf_mbim_ms_network_blacklist_state_sim_provider_actuated,
     &hf_mbim_ms_network_blacklist_state_network_provider_actuated,
     NULL
@@ -3578,8 +3578,8 @@ static void mbim_decode_sms_cdma_text(tvbuff_t *tvb, proto_tree *tree, const int
             proto_tree_add_ascii_7bits_item(tree, hfindex, tvb, (offset << 3), size_in_chars);
             break;
         case MBIM_ENCODING_IA5:
-            src = tvb_get_ascii_7bits_string(wmem_packet_scope(), tvb, (offset << 3), size_in_chars);
-            dest = (unsigned char*)wmem_alloc(wmem_packet_scope(), size_in_chars+1);
+            src = (unsigned char*)tvb_get_ascii_7bits_string(wmem_packet_scope(), tvb, (offset << 3), size_in_chars);
+            dest = (unsigned char*)wmem_alloc(wmem_packet_scope(), (const size_t)size_in_chars+1);
             IA5_7BIT_decode(dest, src, size_in_chars);
             proto_tree_add_string(tree, hfindex, tvb, offset, size_in_bytes, dest);
             break;
@@ -6792,7 +6792,7 @@ dissect_mbim_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     gboolean is_32bits;
     guint32 nth_sig, length, next_index, base_offset, offset, datagram_index, datagram_length,
             nb, total = 0, ndp = 0, block_len, dss_session_id;
-    guint8 *signature;
+    const char *signature;
     dissector_handle_t dissector;
     tvbuff_t *datagram_tvb;
     const guint32 NTH16 = 0x484D434E;
@@ -6850,7 +6850,7 @@ dissect_mbim_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         base_offset = offset = next_index;
         nb = 0;
         subtree = proto_tree_add_subtree(mbim_tree, tvb, offset, 0, ett_mbim_msg_header, NULL, "NCM Datagram Pointer");
-        signature = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 4, ENC_ASCII);
+        signature = (const char* )tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 4, ENC_ASCII);
         if ((!is_32bits && !strncmp(signature, "IPS", 3)) ||
             (is_32bits && !strncmp(signature, "ips", 3))) {
             sig_ti = proto_tree_add_uint_format_value(subtree, hf_mbim_bulk_ndp_signature, tvb, offset,

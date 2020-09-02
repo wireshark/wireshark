@@ -12,7 +12,7 @@
  */
 
 /*
- * RFC 1436: http://tools.ietf.org/html/rfc1436
+ * RFC 1436: https://tools.ietf.org/html/rfc1436
  * http://en.wikipedia.org/wiki/Gopher_%28protocol%29
  */
 

@@ -1124,7 +1124,6 @@ static const value_string q2931_rejection_reason_vals[] = {
 	{ 0x00, NULL }
 };
 
-static const true_false_string tfs_user_provider             = { "User", "Provider" };
 static const true_false_string tfs_abnormal_normal           = { "Abnormal", "Normal" };
 
 static void
@@ -1872,11 +1871,11 @@ dissect_q2931(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 	int	    codeset;
 	gboolean    non_locking_shift;
 #endif
-	static const int * ext_flags[] = {
+	static int * const ext_flags[] = {
 		&hf_q2931_message_flag,
 		NULL
 	};
-	static const int * ext_flags_follow_inst[] = {
+	static int * const ext_flags_follow_inst[] = {
 		&hf_q2931_message_flag,
 		&hf_q2931_message_action_indicator,
 		NULL

@@ -1,8 +1,6 @@
 # Convert AUTHORS-SHORT file for use in man page and HTML documentation
 # after processing through pod2man and pod2html.
 #
-# Must be called via perlnoutf.
-#
 # Copyright 2004 Graeme Hewson <ghewson@wormhole.me.uk>
 #
 # Wireshark - Network traffic analyzer
@@ -13,6 +11,7 @@
 #
 
 use strict;
+use open qw(:std :utf8);
 
 # This might not be necessary.
 print "=for html <style>div#authors pre, div#authors pre code { white-space: pre-wrap; }</style>\n\n";

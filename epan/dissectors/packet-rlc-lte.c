@@ -2915,7 +2915,7 @@ static void dissect_rlc_lte_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     proto_item             *ti;
     proto_item             *mode_ti;
     gint                   offset = 0;
-    struct rlc_lte_info    *p_rlc_lte_info = NULL;
+    struct rlc_lte_info    *p_rlc_lte_info;
 
     /* Allocate and Zero tap struct */
     rlc_lte_tap_info *tap_info = wmem_new0(wmem_packet_scope(), rlc_lte_tap_info);

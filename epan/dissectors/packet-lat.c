@@ -10,10 +10,8 @@
 
 #include "config.h"
 
-#include <stdlib.h>
 #include <string.h>
 
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include "etypes.h"
@@ -95,7 +93,7 @@ static int hf_lat_data_b_slot_control_flags_disable_output_flow_control = -1;
 static int hf_lat_data_b_slot_control_flags_break_detected = -1;
 static int hf_lat_data_b_slot_control_flags_set_port_char = -1;
 static int hf_lat_data_b_slot_control_flags_report_port_char = -1;
-static const int *data_b_slot_control_flags_fields[] = {
+static int * const data_b_slot_control_flags_fields[] = {
 	&hf_lat_data_b_slot_control_flags_enable_input_flow_control,
 	&hf_lat_data_b_slot_control_flags_disable_input_flow_control,
 	&hf_lat_data_b_slot_control_flags_enable_output_flow_control,
@@ -123,7 +121,7 @@ static const value_string data_b_slot_param_code_vals[] = {
 static int hf_lat_slot_data_remaining = -1;
 static int hf_lat_attention_slot_control_flags = -1;
 static int hf_lat_attention_slot_control_flags_abort = -1;
-static const int *attention_slot_control_flags_fields[] = {
+static int * const attention_slot_control_flags_fields[] = {
 	&hf_lat_attention_slot_control_flags_abort,
 	NULL
 };
@@ -165,7 +163,7 @@ static const value_string command_type_vals[] = {
 static int hf_lat_command_modifier = -1;
 static int hf_lat_command_modifier_send_status_periodically = -1;
 static int hf_lat_command_modifier_send_status_on_queue_depth_change = -1;
-static const int *lat_command_modifier_fields[] = {
+static int * const lat_command_modifier_fields[] = {
 	&hf_lat_command_modifier_send_status_periodically,
 	&hf_lat_command_modifier_send_status_on_queue_depth_change,
 	NULL
@@ -181,7 +179,7 @@ static int hf_lat_entry_length = -1;
 static int hf_lat_entry_status = -1;
 static int hf_lat_entry_status_rejected = -1;
 static int hf_lat_entry_status_additional_information = -1;
-static const int *lat_entry_status_fields[] = {
+static int * const lat_entry_status_fields[] = {
 	&hf_lat_entry_status_rejected,
 	&hf_lat_entry_status_additional_information,
 	NULL
@@ -236,7 +234,7 @@ static int hf_lat_dst_srvc_name = -1;
 
 static int hf_lat_response_status = -1;
 static int hf_lat_response_status_node_does_not_offer_requested_service = -1;
-static const int *lat_response_status_fields[] = {
+static int * const lat_response_status_fields[] = {
 	&hf_lat_response_status_node_does_not_offer_requested_service,
 	NULL
 };
@@ -244,7 +242,7 @@ static int hf_lat_src_node_status = -1;
 static int hf_lat_src_node_status_node_is_disabled = -1;
 static int hf_lat_src_node_status_start_message_can_be_sent = -1;
 static int hf_lat_src_node_status_command_message_can_be_sent = -1;
-static const int *lat_src_node_status_fields[] = {
+static int * const lat_src_node_status_fields[] = {
 	&hf_lat_src_node_status_node_is_disabled,
 	&hf_lat_src_node_status_start_message_can_be_sent,
 	&hf_lat_src_node_status_command_message_can_be_sent,
@@ -260,7 +258,7 @@ static int hf_lat_srvc_class = -1;
 static int hf_lat_srvc_status = -1;
 static int hf_lat_srvc_status_enabled = -1;
 static int hf_lat_srvc_status_supports_queueing = -1;
-static const int *lat_srvc_status_fields[] = {
+static int * const lat_srvc_status_fields[] = {
 	&hf_lat_srvc_status_enabled,
 	&hf_lat_srvc_status_supports_queueing,
 	NULL
@@ -1856,7 +1854,7 @@ proto_register_lat(void)
 		  8, NULL, 0x02, NULL, HFILL}},
 
 	    { &hf_lat_obj_node_name,
-		{ "Destinaton node name", "lat.obj_node.name", FT_UINT_STRING,
+		{ "Destination node name", "lat.obj_node.name", FT_UINT_STRING,
 		  BASE_NONE, NULL, 0x0,
 		  NULL, HFILL}},
 

@@ -382,6 +382,12 @@ typedef enum
     /* Gets status information about the currently loaded capture file */
     PLUGIN_IF_GET_WS_INFO,
 
+    /* Gets information from frame_data for current packet */
+    PLUGIN_IF_GET_FRAME_DATA,
+
+    /* Gets information from capture_file */
+    PLUGIN_IF_GET_CAPTURE_FILE,
+
     /* Remove toolbar */
     PLUGIN_IF_REMOVE_TOOLBAR
 
@@ -403,6 +409,14 @@ WS_DLL_PUBLIC void plugin_if_goto_frame(guint32 framenr);
 
 /* Takes a snapshot of status information from Wireshark */
 WS_DLL_PUBLIC void plugin_if_get_ws_info(ws_info_t ** ws_info);
+
+typedef void* (*plugin_if_frame_data_cb)(frame_data*, void*);
+/* Gets frame_data for current packet, data are extracted by extract_cb */
+WS_DLL_PUBLIC void* plugin_if_get_frame_data(plugin_if_frame_data_cb extract_cb, void *user_data);
+
+typedef void* (*plugin_if_capture_file_cb)(capture_file*, void*);
+/* Gets capture_file, data are extracted by extract_cb */
+WS_DLL_PUBLIC void* plugin_if_get_capture_file(plugin_if_capture_file_cb extract_cb, void* user_data);
 
 /* Private Method for retrieving the menubar entries
  *

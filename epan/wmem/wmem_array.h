@@ -47,6 +47,10 @@ G_GNUC_MALLOC;
 
 WS_DLL_PUBLIC
 void
+wmem_array_grow(wmem_array_t *array, const guint to_add);
+
+WS_DLL_PUBLIC
+void
 wmem_array_set_null_terminator(wmem_array_t *array);
 
 WS_DLL_PUBLIC
@@ -79,6 +83,10 @@ wmem_array_get_raw(wmem_array_t *array);
 WS_DLL_PUBLIC
 guint
 wmem_array_get_count(wmem_array_t *array);
+
+WS_DLL_PUBLIC
+void
+wmem_destroy_array(wmem_array_t *array);
 
 /**   @}
  *  @} */

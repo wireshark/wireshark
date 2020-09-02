@@ -46,89 +46,104 @@ MESSAGE-TYPE ::= INTEGER {
 
 
 PADATA-TYPE ::= INTEGER {
-	kRB5-PADATA-NONE(0),
-	kRB5-PADATA-TGS-REQ(1),
---	kRB5-PADATA-AP-REQ(1),
-	kRB5-PADATA-ENC-TIMESTAMP(2),
-	kRB5-PADATA-PW-SALT(3),
-	kRB5-PADATA-ENC-UNIX-TIME(5),
-	kRB5-PADATA-SANDIA-SECUREID(6),
-	kRB5-PADATA-SESAME(7),
-	kRB5-PADATA-OSF-DCE(8),
-	kRB5-PADATA-CYBERSAFE-SECUREID(9),
-	kRB5-PADATA-AFS3-SALT(10),
-	kRB5-PADATA-ETYPE-INFO(11),
-	kRB5-PADATA-SAM-CHALLENGE(12), -- (sam/otp)
-	kRB5-PADATA-SAM-RESPONSE(13), -- (sam/otp)
-	kRB5-PADATA-PK-AS-REQ-19(14), -- (PKINIT-19)
-	kRB5-PADATA-PK-AS-REP-19(15), -- (PKINIT-19)
---  kRB5-PADATA-PK-AS-REQ-WIN(15), -  (PKINIT - old number)
-	kRB5-PADATA-PK-AS-REQ(16), -- (PKINIT-25)
-	kRB5-PADATA-PK-AS-REP(17), -- (PKINIT-25)
-	kRB5-PADATA-PA-PK-OCSP-RESPONSE(18),
-	kRB5-PADATA-ETYPE-INFO2(19),
-	kRB5-PADATA-USE-SPECIFIED-KVNO(20),
---  kRB5-PADATA-SVR-REFERRAL-INFO(20), - old ms referral number
-	kRB5-PADATA-SAM-REDIRECT(21), -- (sam/otp)
-	kRB5-PADATA-GET-FROM-TYPED-DATA(22),
-	kRB5-PADATA-SAM-ETYPE-INFO(23),
-	kRB5-PADATA-SERVER-REFERRAL(25),
-	kRB5-PADATA-ALT-PRINC(24),		-- (crawdad@fnal.gov)
-	kRB5-PADATA-SAM-CHALLENGE2(30),		-- (kenh@pobox.com)
-	kRB5-PADATA-SAM-RESPONSE2(31),		-- (kenh@pobox.com)
-	kRB5-PA-EXTRA-TGT(41),			-- Reserved extra TGT
-	kRB5-PADATA-FX-FAST-ARMOR(71),		-- fast armor
-	kRB5-PADATA-TD-KRB-PRINCIPAL(102),	-- PrincipalName
-	kRB5-PADATA-PK-TD-TRUSTED-CERTIFIERS(104), -- PKINIT
-	kRB5-PADATA-PK-TD-CERTIFICATE-INDEX(105), -- PKINIT
-	kRB5-PADATA-TD-APP-DEFINED-ERROR(106),	-- application specific
-	kRB5-PADATA-TD-REQ-NONCE(107),		-- INTEGER
-	kRB5-PADATA-TD-REQ-SEQ(108),		-- INTEGER
-	kRB5-PADATA-PA-PAC-REQUEST(128),	-- jbrezak@exchange.microsoft.com
-	kRB5-PADATA-FOR-USER(129),		-- MS-KILE
-	kRB5-PADATA-FOR-X509-USER(130),		-- MS-KILE
-	kRB5-PADATA-FOR-CHECK-DUPS(131),	-- MS-KILE
---	kRB5-PADATA-AS-CHECKSUM(132),		- MS-KILE
-	kRB5-PADATA-PK-AS-09-BINDING(132),	-- client send this to
+	pA-NONE(0),
+	pA-TGS-REQ(1),			-- [RFC4120]
+	pA-ENC-TIMESTAMP(2),		-- [RFC4120]
+	pA-PW-SALT(3),			-- [RFC4120]
+	-- [reserved](4), --		-- [RFC6113]
+	pA-ENC-UNIX-TIME(5),		-- (deprecated) [RFC4120]
+	pA-SANDIA-SECUREID(6),		-- [RFC4120]
+	pA-SESAME(7),			-- [RFC4120]
+	pA-OSF-DCE(8),			-- [RFC4120]
+	pA-CYBERSAFE-SECUREID(9),	-- [RFC4120]
+	pA-AFS3-SALT(10),		-- [RFC4120] [RFC3961]
+	pA-ETYPE-INFO(11),		-- [RFC4120]
+	pA-SAM-CHALLENGE(12),		-- [KRB-WG.SAM]
+	pA-SAM-RESPONSE(13),		-- [KRB-WG.SAM]
+	pA-PK-AS-REQ-19(14),		-- [PK-INIT-1999]
+	pA-PK-AS-REP-19(15),		-- [PK-INIT-1999]
+	pA-PK-AS-REQ(16),		-- [RFC4556]
+	pA-PK-AS-REP(17),		-- [RFC4556]
+	pA-PK-OCSP-RESPONSE(18),	-- [RFC4557]
+	pA-ETYPE-INFO2(19),		-- [RFC4120]
+	pA-USE-SPECIFIED-KVNO(20),	-- [RFC4120]
+--	pA-SVR-REFERRAL-INFO(20), --	-- [REFERRALS]
+	pA-SAM-REDIRECT(21),		-- [KRB-WG.SAM]
+	pA-GET-FROM-TYPED-DATA(22),	-- (embedded in typed data) [RFC4120]
+	tD-PADATA(22),			-- (embeds padata) [RFC4120]
+	pA-SAM-ETYPE-INFO(23),		-- (sam/otp) [KRB-WG.SAM]
+	pA-ALT-PRINC(24),		-- (crawdad@fnal.gov) [HW-AUTH]
+	pA-SERVER-REFERRAL(25),		-- [REFERRALS]
+	pA-SAM-CHALLENGE2(30),		-- (kenh@pobox.com) [KRB-WG.SAM]
+	pA-SAM-RESPONSE2(31),		-- (kenh@pobox.com) [KRB-WG.SAM]
+	pA-EXTRA-TGT(41),		-- Reserved extra TGT [RFC6113]
+--	pA-FX-FAST-ARMOR(71), --	-- fast armor
+	tD-PKINIT-CMS-CERTIFICATES(101),-- CertificateSet from CMS
+	tD-KRB-PRINCIPAL(102),		-- PrincipalName
+	tD-KRB-REALM(103),		-- Realm
+	tD-TRUSTED-CERTIFIERS(104),	-- [RFC4556]
+	tD-CERTIFICATE-INDEX(105),	-- [RFC4556]
+	tD-APP-DEFINED-ERROR(106),	-- Application specific [RFC6113]
+	tD-REQ-NONCE(107),		-- INTEGER [RFC6113]
+	tD-REQ-SEQ(108),		-- INTEGER [RFC6113]
+	tD-DH-PARAMETERS(109),		-- [RFC4556]
+	tD-CMS-DIGEST-ALGORITHMS(111),	-- [ALG-AGILITY]
+	tD-CERT-DIGEST-ALGORITHMS(112),	-- [ALG-AGILITY]
+	pA-PAC-REQUEST(128),		-- [MS-KILE]
+	pA-FOR-USER(129),		-- [MS-KILE]
+	pA-FOR-X509-USER(130),		-- [MS-KILE]
+	pA-FOR-CHECK-DUPS(131),		-- [MS-KILE]
+--	pA-AS-CHECKSUM(132), --		-- [MS-KILE]
+	pA-PK-AS-09-BINDING(132),	-- client send this to
 						-- tell KDC that is supports
 						-- the asCheckSum in the
 						--  PK-AS-REP
-	kRB5-PADATA-FX-COOKIE(133),		-- krb-wg-preauth-framework
-	kRB5-PADATA-AUTHENTICATION-SET(134),	-- krb-wg-preauth-framework
-	kRB5-PADATA-AUTH-SET-SELECTED(135),	-- krb-wg-preauth-framework
-	kRB5-PADATA-FX-FAST(136),		-- krb-wg-preauth-framework
-	kRB5-PADATA-FX-ERROR(137),		-- krb-wg-preauth-framework
-	kRB5-PADATA-ENCRYPTED-CHALLENGE(138),	-- krb-wg-preauth-framework
-	kRB5-PADATA-OTP-CHALLENGE(141),		-- (gareth.richards@rsa.com)
-	kRB5-PADATA-OTP-REQUEST(142),		-- (gareth.richards@rsa.com)
-	kBB5-PADATA-OTP-CONFIRM(143),		-- (gareth.richards@rsa.com)
-	kRB5-PADATA-OTP-PIN-CHANGE(144),	-- (gareth.richards@rsa.com)
-	kRB5-PADATA-EPAK-AS-REQ(145),
-	kRB5-PADATA-EPAK-AS-REP(146),
-	kRB5-PADATA-PKINIT-KX(147),		-- krb-wg-anon
-	kRB5-PADATA-PKU2U-NAME(148),		-- zhu-pku2u
-	kRB5-PADATA-REQ-ENC-PA-REP(149),	--
-	kRB5-PADATA-SUPPORTED-ETYPES(165),	-- MS-KILE
-	kRB5-PADATA-PAC-OPTIONS(167)		-- MS-KILE
+	pA-FX-COOKIE(133),		-- [RFC6113]
+	pA-AUTHENTICATION-SET(134),	-- [RFC6113]
+	pA-AUTH-SET-SELECTED(135),	-- [RFC6113]
+	pA-FX-FAST(136),		-- [RFC6113]
+	pA-FX-ERROR(137),		-- [RFC6113]
+	pA-ENCRYPTED-CHALLENGE(138),	-- [RFC6113]
+	pA-OTP-CHALLENGE(141),		-- (gareth.richards@rsa.com) [OTP-PREAUTH]
+	pA-OTP-REQUEST(142),		-- (gareth.richards@rsa.com) [OTP-PREAUTH]
+	pA-OTP-CONFIRM(143),		-- (gareth.richards@rsa.com) [OTP-PREAUTH]
+	pA-OTP-PIN-CHANGE(144),		-- (gareth.richards@rsa.com) [OTP-PREAUTH]
+	pA-EPAK-AS-REQ(145),		-- (sshock@gmail.com) [RFC6113]
+	pA-EPAK-AS-REP(146),		-- (sshock@gmail.com) [RFC6113]
+	pA-PKINIT-KX(147),		-- [RFC6112]
+	pA-PKU2U-NAME(148),		-- [PKU2U]
+	pA-REQ-ENC-PA-REP(149), 	-- [RFC6806]
+	pA-SUPPORTED-ETYPES(165),	-- [MS-KILE]
+	pA-EXTENDED-ERROR(166),		-- [MS-KILE]
+	pA-PAC-OPTIONS(167),		-- [MS-KILE]
+	pA-PROV-SRV-LOCATION(-1)	-- 0xffffffff (gint32)0xFF) packetcable stuff
 }
+
 AUTHDATA-TYPE ::= INTEGER {
-	kRB5-AUTHDATA-IF-RELEVANT(1),
-	kRB5-AUTHDATA-INTENDED-FOR-SERVER(2),
-	kRB5-AUTHDATA-INTENDED-FOR-APPLICATION-CLASS(3),
-	kRB5-AUTHDATA-KDC-ISSUED(4),
-	kRB5-AUTHDATA-AND-OR(5),
-	kRB5-AUTHDATA-MANDATORY-TICKET-EXTENSIONS(6),
-	kRB5-AUTHDATA-IN-TICKET-EXTENSIONS(7),
-	kRB5-AUTHDATA-MANDATORY-FOR-KDC(8),
-	kRB5-AUTHDATA-INITIAL-VERIFIED-CAS(9),
-	kRB5-AUTHDATA-OSF-DCE(64),
-	kRB5-AUTHDATA-SESAME(65),
-	kRB5-AUTHDATA-OSF-DCE-PKI-CERTID(66),
-	kRB5-AUTHDATA-WIN2K-PAC(128),
-	kRB5-AUTHDATA-GSS-API-ETYPE-NEGOTIATION(129), -- Authenticator only
-	kRB5-AUTHDATA-SIGNTICKET-OLDER(-17),
-	kRB5-AUTHDATA-SIGNTICKET-OLD(142),
-	kRB5-AUTHDATA-SIGNTICKET(512)
+	aD-IF-RELEVANT(1),
+	aD-INTENDED-FOR-SERVER(2),
+	aD-INTENDED-FOR-APPLICATION-CLASS(3),
+	aD-KDC-ISSUED(4),
+	aD-AND-OR(5),
+	aD-MANDATORY-TICKET-EXTENSIONS(6),
+	aD-IN-TICKET-EXTENSIONS(7),
+	aD-MANDATORY-FOR-KDC(8),
+	aD-INITIAL-VERIFIED-CAS(9),
+	aD-OSF-DCE(64),
+	aD-SESAME(65),
+	aD-OSF-DCE-PKI-CERTID(66),
+	aD-authentication-strength(70),	-- [RFC6113]
+	aD-fx-fast-armor(71),		-- [RFC6113]
+	aD-fx-fast-used(72),			-- [RFC6113]
+	aD-WIN2K-PAC(128), 			-- [RFC4120] [MS-PAC]
+	aD-GSS-API-ETYPE-NEGOTIATION(129), -- Authenticator only
+	aD-TOKEN-RESTRICTIONS(141),		-- [MS-KILE]
+	aD-LOCAL(142),				-- [MS-KILE]
+	aD-AP-OPTIONS(143),			-- [MS-KILE]
+	aD-TARGET-PRINCIPAL(144),		-- [MS-KILE]
+	aD-SIGNTICKET-OLDER(-17),
+	-- aD-SIGNTICKET-OLD(142),
+	aD-SIGNTICKET(512)
 }
 
 -- checksumtypes
@@ -534,7 +549,10 @@ LR-TYPE ::= INTEGER {
 --	pausec[1]		Krb5int32 OPTIONAL
 --}
 
+-- WS put extensions found elsewhere here
 -- draft-brezak-win2k-krb-authz-01
+-- MS-KILE: https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-kile
+-- MS-SFU: https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-sfu
 PA-PAC-REQUEST ::= SEQUENCE {
 	include-pac[0]		BOOLEAN -- Indicates whether a PAC 
 					-- should be included or not
@@ -828,14 +846,6 @@ PA-ServerReferralData ::= SEQUENCE {
 	referral-valid-until     [3] KerberosTime OPTIONAL,
 	...
 }
--- WS put extensions found elsewhere here
--- MS-KILE: https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-kile
--- MS-SFU: https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-sfu
-
-KERB-PA-PAC-REQUEST ::= SEQUENCE { 
-include-pac[0] BOOLEAN --If TRUE, and no pac present, include PAC. 
-                       --If FALSE, and PAC present, remove PAC 
-}
 
 PAC-OPTIONS-FLAGS ::= BIT STRING {
 	claims(0),
@@ -846,6 +856,13 @@ PAC-OPTIONS-FLAGS ::= BIT STRING {
 
 PA-PAC-OPTIONS ::= SEQUENCE {
 	flags [0] PAC-OPTIONS-FLAGS
+}
+
+-- [MS-KILE]
+-- captures show that [UNIVERSAL 16] is required to parse it
+KERB-AD-RESTRICTION-ENTRY ::= [UNIVERSAL 16] SEQUENCE {
+	restriction-type	[0] Int32,
+	restriction		[1] OCTET STRING -- LSAP_TOKEN_INFO_INTEGRITY structure
 }
 
 END

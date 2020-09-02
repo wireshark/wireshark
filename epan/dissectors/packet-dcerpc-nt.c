@@ -605,10 +605,10 @@ static void add_pol_handle(e_ctx_hnd *policy_hnd, guint32 frame,
 		 * and put the hash value in the policy handle hash
 		 * table.
 		 */
-		value = (pol_hash_value *)wmem_alloc(wmem_file_scope(), sizeof(pol_hash_value));
+		value = wmem_new(wmem_file_scope(), pol_hash_value);
 		value->list = pol;
 		pol->next = NULL;
-		key = (pol_hash_key *)wmem_alloc(wmem_file_scope(), sizeof(pol_hash_key));
+		key = wmem_new(wmem_file_scope(), pol_hash_key);
 		memcpy(&key->policy_hnd, policy_hnd, sizeof(key->policy_hnd));
 		wmem_map_insert(pol_hash, key, value);
 	} else {
@@ -705,7 +705,7 @@ void dcerpc_smb_store_pol_pkts(e_ctx_hnd *policy_hnd, packet_info *pinfo,
 
 	/* Create a new value */
 
-	pol = (pol_value *)wmem_alloc(wmem_file_scope(), sizeof(pol_value));
+	pol = wmem_new(wmem_file_scope(), pol_value);
 
 	pol->open_frame = is_open ? pinfo->num : 0;
 	pol->close_frame = is_close ? pinfo->num : 0;
@@ -787,7 +787,7 @@ void dcerpc_store_polhnd_name(e_ctx_hnd *policy_hnd, packet_info *pinfo,
 
 	/* Create a new value */
 
-	pol = (pol_value *)wmem_alloc(wmem_file_scope(), sizeof(pol_value));
+	pol = wmem_new(wmem_file_scope(), pol_value);
 
 	pol->open_frame = 0;
 	pol->close_frame = 0;
@@ -1559,7 +1559,7 @@ dissect_ndr_nt_acct_ctrl(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			proto_tree *parent_tree, dcerpc_info *di, guint8 *drep)
 {
 	guint32 mask;
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_nt_acb_autolock,
 		&hf_nt_acb_pwnoexp,
 		&hf_nt_acb_svrtrust,

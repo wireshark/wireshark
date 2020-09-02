@@ -18,6 +18,7 @@
 #include "wsutil/filesystem.h"
 #include <wsutil/utf8_entities.h>
 
+#include <ui/qt/widgets/copy_from_profile_button.h>
 #include <ui/qt/utils/qt_ui_utils.h>
 #include "wireshark_application.h"
 
@@ -71,6 +72,10 @@ DecodeAsDialog::DecodeAsDialog(QWidget *parent, capture_file *cf, bool create_ne
         ui->pathLabel->setToolTip(tr("Open ") + DECODE_AS_ENTRIES_FILE_NAME);
         ui->pathLabel->setEnabled(true);
     }
+
+    CopyFromProfileButton *copy_button = new CopyFromProfileButton(this, DECODE_AS_ENTRIES_FILE_NAME);
+    ui->buttonBox->addButton(copy_button, QDialogButtonBox::ActionRole);
+    connect(copy_button, &CopyFromProfileButton::copyProfile, this, &DecodeAsDialog::copyFromProfile);
 
     fillTable();
 
@@ -130,6 +135,19 @@ void DecodeAsDialog::on_decodeAsTreeView_currentItemChanged(const QModelIndex &c
     }
 }
 
+void DecodeAsDialog::copyFromProfile(QString filename)
+{
+    const gchar *err = NULL;
+
+    if (!model_->copyFromProfile(filename, &err)) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Error while loading %s: %s", filename.toUtf8().constData(), err);
+    }
+
+    resizeColumns();
+
+    ui->clearToolButton->setEnabled(model_->rowCount() > 0);
+}
+
 void DecodeAsDialog::addRecord(bool copy_from_current)
 {
     const QModelIndex &current = ui->decodeAsTreeView->currentIndex();
@@ -187,6 +205,8 @@ void DecodeAsDialog::applyChanges()
 
 void DecodeAsDialog::on_buttonBox_clicked(QAbstractButton *button)
 {
+    ui->buttonBox->setFocus();
+
     switch (ui->buttonBox->standardButton(button)) {
     case QDialogButtonBox::Ok:
         applyChanges();

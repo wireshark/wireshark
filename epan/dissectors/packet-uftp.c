@@ -366,6 +366,7 @@ static expert_field ei_uftp_length_invalid = EI_INIT;
 static expert_field ei_uftp_func_unknown = EI_INIT;
 
 static dissector_handle_t uftp4_handle;
+static dissector_handle_t uftp5_handle;
 
 static const value_string messages[] = {
     { ANNOUNCE,   "ANNOUNCE" },
@@ -428,7 +429,7 @@ static const value_string file_types[] = {
     { 0, NULL }
 };
 
-static const int *announce_flags[] = {
+static int * const announce_flags[] = {
     &hf_uftp_announce_flags_restart,
     &hf_uftp_announce_flags_sync,
     &hf_uftp_announce_flags_syncpreview,
@@ -436,13 +437,13 @@ static const int *announce_flags[] = {
     NULL
 };
 
-static const int *infoack_flags[] = {
+static int * const infoack_flags[] = {
     &hf_uftp_infoack_flags_partial,
     &hf_uftp_infoack_flags_reserved,
     NULL
 };
 
-static const int *abort_flags[] = {
+static int * const abort_flags[] = {
     &hf_uftp_abort_flags_curfile,
     &hf_uftp_abort_flags_reserved,
     NULL
@@ -1384,7 +1385,9 @@ static int dissect_uftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     gint offset = 0;
 
     version = tvb_get_guint8(tvb, 0);
-    if (version == 0x40) {
+    if (version == 0x50) {
+        return call_dissector(uftp5_handle, tvb, pinfo, tree);
+    } else if (version == 0x40) {
         return call_dissector(uftp4_handle, tvb, pinfo, tree);
     } else if (version != UFTP_VER_NUM && version != UFTP_3_0_VER) {
         return 0;
@@ -2213,6 +2216,7 @@ void proto_reg_handoff_uftp(void)
     static dissector_handle_t uftp_handle;
 
     uftp4_handle = find_dissector("uftp4");
+    uftp5_handle = find_dissector("uftp5");
     uftp_handle = create_dissector_handle(dissect_uftp, proto_uftp);
     dissector_add_uint_with_preference("udp.port", UTFP_PORT, uftp_handle);
 }

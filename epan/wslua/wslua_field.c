@@ -17,7 +17,7 @@
 #include <epan/dfilter/dfilter.h>
 #include <epan/ftypes/ftypes-int.h>
 
-/* WSLUA_MODULE Field Obtaining dissection data */
+/* WSLUA_MODULE Field Obtaining Dissection Data */
 
 #include "wslua.h"
 

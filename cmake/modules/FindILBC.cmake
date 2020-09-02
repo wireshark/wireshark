@@ -51,7 +51,7 @@ if(ILBC_INCLUDE_DIR AND ILBC_LIBRARY)
 endif()
 
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(iLBC DEFAULT_MSG ILBC_LIBRARY ILBC_INCLUDE_DIR)
+find_package_handle_standard_args(ILBC DEFAULT_MSG ILBC_LIBRARY ILBC_INCLUDE_DIR)
 
 if( ILBC_FOUND )
   set( ILBC_INCLUDE_DIRS ${ILBC_INCLUDE_DIR} )

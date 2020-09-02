@@ -1460,7 +1460,7 @@ void RtpAnalysisDialog::saveAudio(RtpAnalysisDialog::StreamDirection direction, 
     }
 
     ui->hintLabel->setText(tr("Saving %1" UTF8_HORIZONTAL_ELLIPSIS).arg(save_file.fileName()));
-    ui->progressFrame->showProgress(true, true, &stop_flag);
+    ui->progressFrame->showProgress(tr("Analyzing RTP"), true, true, &stop_flag);
 
     clearSAEErrors();
     if (save_format == save_audio_au_) { /* au format */

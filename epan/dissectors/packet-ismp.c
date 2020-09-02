@@ -291,7 +291,7 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 			case EDP_DEVICE_TYPE_SFS17:
 			case EDP_DEVICE_TYPE_SFS18:
                 {
-		        static const gint *options[] = {
+		        static int * const options[] = {
 			        &hf_ismp_edp_sfs_option_uplink_flood,
 			        &hf_ismp_edp_sfs_option_uplink_port,
 			        &hf_ismp_edp_sfs_option_uplink_core,
@@ -314,7 +314,7 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 				break;
 			case EDP_DEVICE_TYPE_ROUTER:
                 {
-		        static const gint *options[] = {
+		        static int * const options[] = {
 			        &hf_ismp_edp_rtr_option_level1,
 			        &hf_ismp_edp_rtr_option_trans,
 			        &hf_ismp_edp_rtr_option_route,
@@ -336,7 +336,7 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 				break;
 			case EDP_DEVICE_TYPE_BRIDGE:
                 {
-		        static const gint *options[] = {
+		        static int * const options[] = {
 			        &hf_ismp_edp_switch_option_level1,
 			        &hf_ismp_edp_switch_option_trans,
 			        &hf_ismp_edp_switch_option_route,
@@ -357,7 +357,7 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 			case EDP_DEVICE_TYPE_UNIXSERVER:
 			case EDP_DEVICE_TYPE_UNIXCLIENT:
                 {
-		        static const gint *options[] = {
+		        static int * const options[] = {
 			        &hf_ismp_edp_end_station_option_ad,
 			        &hf_ismp_edp_end_station_option_dns,
 			        &hf_ismp_edp_end_station_option_dhcp,

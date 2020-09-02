@@ -49,7 +49,6 @@ ADDITIONAL_LIST="\
 	gettext-tools \
 	snappy \
 	bcg729 \
-	doxygen \
 	libssh \
 	libmaxminddb \
 	libsmi \

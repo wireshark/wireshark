@@ -394,6 +394,14 @@ wtap_open_return_val peektagged_open(wtap *wth, int *err, gchar **err_info)
 
     wth->snapshot_length   = 0; /* not available in header */
 
+    /*
+     * Add an IDB; we don't know how many interfaces were involved,
+     * so we just say one interface, about which we only know
+     * the link-layer type, snapshot length, and time stamp
+     * resolution.
+     */
+    wtap_add_generated_idb(wth);
+
     return WTAP_OPEN_MINE;
 }
 
@@ -427,14 +435,13 @@ peektagged_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
     guint32 data_rate_or_mcs_index = 0;
     gint channel;
     guint frequency;
-    struct ieee_802_11_phdr ieee_802_11;
+    struct ieee_802_11_phdr ieee_802_11 = {0};
     guint i;
     int skip_len = 0;
     guint64 t;
 
     timestamp.upper = 0;
     timestamp.lower = 0;
-    memset(&ieee_802_11, 0, sizeof ieee_802_11);
     ieee_802_11.fcs_len = -1; /* Unknown */
     ieee_802_11.decrypted = FALSE;
     ieee_802_11.datapad = FALSE;

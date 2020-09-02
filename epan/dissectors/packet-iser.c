@@ -84,17 +84,17 @@ static const value_string iser_flags_opcode[] = {
     {0, NULL},
 };
 
-static const int *flags_fields[] = {
+static int * const flags_fields[] = {
     &hf_iser_opcode_f,
     &hf_iser_WSV_f,
     &hf_iser_RSV_f,
     NULL
 };
-static const int *hello_flags_fields[] = {
+static int * const hello_flags_fields[] = {
     &hf_iser_opcode_f,
     NULL
 };
-static const int *hellorply_flags_fields[] = {
+static int * const hellorply_flags_fields[] = {
     &hf_iser_opcode_f,
     &hf_iser_REJ_f,
     NULL

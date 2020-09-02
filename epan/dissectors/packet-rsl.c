@@ -128,6 +128,7 @@ static int hf_rsl_cstat_avg_tx_dly     = -1;
 /* Generated from convert_proto_tree_add_text.pl */
 static int hf_rsl_channel_description_tag = -1;
 static int hf_rsl_mobile_allocation_tag = -1;
+static int hf_rsl_mobile_allocation_len = -1;
 static int hf_rsl_no_resources_required = -1;
 static int hf_rsl_llsdu_ccch = -1;
 static int hf_rsl_llsdu_sacch = -1;
@@ -247,6 +248,7 @@ static int ett_phy_ctx_rxlvl_ext               = -1;
 static expert_field ei_rsl_speech_or_data_indicator = EI_INIT;
 static expert_field ei_rsl_facility_information_element_3gpp_ts_44071 = EI_INIT;
 static expert_field ei_rsl_embedded_message_tfo_configuration = EI_INIT;
+static expert_field ei_rsl_mobile_allocation_deprecated = EI_INIT;
 
 static proto_tree *top_tree;
 static dissector_handle_t rsl_handle;
@@ -1011,6 +1013,7 @@ dissect_rsl_ie_ch_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, in
 {
     proto_item *ti;
     proto_tree *ie_tree;
+    guint32     ma_length;
     guint8      length;
     int         ie_offset;
     guint8      ie_id;
@@ -1042,11 +1045,19 @@ dissect_rsl_ie_ch_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, in
     proto_tree_add_item(ie_tree, hf_rsl_channel_description_tag, tvb, offset, 1, ENC_NA);
     de_rr_ch_dsc(tvb, ie_tree, pinfo, offset+1, length, NULL, 0);
     offset += 4;
-    /*
-     * The 3GPP TS 24.008 "Mobile Allocation" shall for compatibility reasons be
-     * included but empty, i.e. the length shall be zero.
-     */
-    proto_tree_add_item(ie_tree, hf_rsl_mobile_allocation_tag, tvb, offset, 2, ENC_NA);
+
+    /* 3GPP TS 48.058 (version 15.0.0), section 9.3.5 "Channel Identification" states
+     * that the 3GPP TS 44.018 "Mobile Allocation" IE shall for compatibility reasons
+     * be included but empty, i.e. the length shall be zero. Decode it anyway. */
+    proto_tree_add_item(ie_tree, hf_rsl_mobile_allocation_tag, tvb, offset++, 1, ENC_NA);
+    proto_tree_add_item_ret_uint(ie_tree, hf_rsl_mobile_allocation_len,
+                                 tvb, offset++, 1, ENC_NA, &ma_length);
+    if (ma_length > 0) {
+        de_rr_mob_all(tvb, ie_tree, pinfo, offset, ma_length, NULL, 0);
+        proto_tree_add_expert(ie_tree, pinfo, &ei_rsl_mobile_allocation_deprecated,
+                              tvb, offset, ma_length);
+    }
+
     return ie_offset + length;
 }
 /*
@@ -1453,10 +1464,7 @@ dissect_rsl_ie_ms_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
     return offset;
 }
 
-static const true_false_string rsl_ms_fpc_epc_mode_vals = {
-  "In use",
-  "Not in use"
-};
+
 /*
  * 9.3.13 MS Power
  */
@@ -2095,7 +2103,7 @@ dissect_rsl_ie_uplik_meas(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
      */
     proto_tree_add_item(ie_tree, hf_rsl_rxqual_full_up, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(ie_tree, hf_rsl_rxqual_sub_up, tvb, offset, 1, ENC_BIG_ENDIAN);
-     offset++;
+    offset++;
     /* Octet 6 - N
      * Supplementary Measurement Information
      */
@@ -2134,7 +2142,7 @@ static const value_string rsl_cause_value_vals[] = {
     {  0x24,    "ACCH overload" },
     {  0x25,    "processor overload" },
     /* 0x26: "reserved for international use" */
-    {  0x27,    "BTS not equiped" },
+    {  0x27,    "BTS not equipped" },
     {  0x28,    "remote transcoder issue" },
     /* 0x29..0x2b: "reserved for international use" */
     /* 0x2c..0x2e: "reserved for national use" */
@@ -2200,10 +2208,10 @@ dissect_rsl_ie_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, in
 
     /* Cause Value */
     octet = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(tree, hf_rsl_extension_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_rsl_class, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ie_tree, hf_rsl_extension_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ie_tree, hf_rsl_class, tvb, offset, 1, ENC_BIG_ENDIAN);
     if ((octet & 0x80) != 0x80) {
-        proto_tree_add_item(tree, hf_rsl_cause_value, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ie_tree, hf_rsl_cause_value, tvb, offset, 1, ENC_BIG_ENDIAN);
     } else {
         /* TODO: Cause Extension*/
         offset++;
@@ -4614,7 +4622,7 @@ void proto_register_rsl(void)
         },
         { &hf_rsl_l1inf_fpc,
           { "FPC/EPC",           "gsm_abis_rsl.ms_fpc",
-            FT_BOOLEAN, 8, TFS(&rsl_ms_fpc_epc_mode_vals), 0x04,
+            FT_BOOLEAN, 8, TFS(&tfs_inuse_not_inuse), 0x04,
             NULL, HFILL }
         },
         { &hf_rsl_ms_power_lev,
@@ -4624,7 +4632,7 @@ void proto_register_rsl(void)
         },
         { &hf_rsl_ms_fpc,
           { "FPC/EPC",           "gsm_abis_rsl.ms_fpc",
-            FT_BOOLEAN, 8, TFS(&rsl_ms_fpc_epc_mode_vals), 0x20,
+            FT_BOOLEAN, 8, TFS(&tfs_inuse_not_inuse), 0x20,
             NULL, HFILL }
         },
         { &hf_rsl_act_timing_adv,
@@ -5047,7 +5055,8 @@ void proto_register_rsl(void)
         },
       /* Generated from convert_proto_tree_add_text.pl */
       { &hf_rsl_channel_description_tag, { "Channel Description Tag", "gsm_abis_rsl.channel_description_tag", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_rsl_mobile_allocation_tag, { "Mobile Allocation Tag+Length(0)", "gsm_abis_rsl.mobile_allocation_tag", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_rsl_mobile_allocation_tag, { "Mobile Allocation Tag", "gsm_abis_rsl.mobile_allocation_tag", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_rsl_mobile_allocation_len, { "Mobile Allocation Length", "gsm_abis_rsl.mobile_allocation_len", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
       { &hf_rsl_no_resources_required, { "0 No resources required(All other values are reserved)", "gsm_abis_rsl.no_resources_required", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_rsl_llsdu_ccch, { "Link Layer Service Data Unit (L3 Message)(CCCH)", "gsm_abis_rsl.llsdu.ccch", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_rsl_llsdu_sacch, { "Link Layer Service Data Unit (L3 Message)(SACCH)", "gsm_abis_rsl.llsdu.sacch", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -5142,6 +5151,9 @@ void proto_register_rsl(void)
       { &ei_rsl_speech_or_data_indicator, { "gsm_abis_rsl.speech_or_data_indicator.bad", PI_PROTOCOL, PI_WARN, "Speech or data indicator != 1,2 or 3", EXPFILL }},
       { &ei_rsl_facility_information_element_3gpp_ts_44071, { "gsm_abis_rsl.facility_information_element_3gpp_ts_44071", PI_PROTOCOL, PI_NOTE, "Facility Information Element as defined in 3GPP TS 44.071", EXPFILL }},
       { &ei_rsl_embedded_message_tfo_configuration, { "gsm_abis_rsl.embedded_message_tfo_configuration", PI_PROTOCOL, PI_NOTE, "Embedded message that contains the TFO configuration", EXPFILL }},
+      { &ei_rsl_mobile_allocation_deprecated, { "gsm_abis_rsl.mobile_allocation_deprecated", PI_PROTOCOL, PI_NOTE,
+                                                "3GPP TS 24.008 Mobile Allocation IE shall for compatibility reasons "
+                                                "be included but empty (see 3GPP TS 48.058, section 9.3.5)", EXPFILL }},
     };
 
     module_t *rsl_module;

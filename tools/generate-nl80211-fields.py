@@ -163,6 +163,11 @@ def make_value_string(name, values, indent,):
     code += ' VALUE_STRING_EXT_INIT(ws_%s_vals);\n' % name
     return code
 
+def remove_prefix(prefix, text):
+    if text.startswith(prefix):
+        return text[len(prefix):]
+    return text
+
 def make_hfi(name, indent):
     (field_name, field_type, field_blurb) = EXPORT_ENUMS.get(name)
     field_abbrev = name
@@ -182,7 +187,7 @@ def make_hfi(name, indent):
     }
     if rename_fields.get(name):
         field_abbrev = rename_fields[name]
-    field_abbrev = field_abbrev.lstrip('nl80211_')
+    field_abbrev = remove_prefix('nl80211_', field_abbrev)
 
     code = 'static header_field_info hfi_%s NETLINK_NL80211_HFI_INIT =\n' % name
     code += indent + '{ "%s", "nl80211.%s", %s, BASE_DEC | BASE_EXT_STRING,\n' % \

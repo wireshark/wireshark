@@ -388,7 +388,7 @@ dissect_cql_query_parameters(proto_tree* cql_subtree, tvbuff_t* tvb, gint offset
 	guint32 string_length = 0;
 	guint32 value_count = 0;
 
-	static const int * cql_query_bitmaps[] = {
+	static int * const cql_query_bitmaps[] = {
 		&hf_cql_query_flags_values,
 		&hf_cql_query_flags_skip_metadata,
 		&hf_cql_query_flags_page_size,
@@ -967,21 +967,21 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 	cql_transaction_type* cql_trans = NULL;
 	cql_compression_level compression_level = CQL_COMPRESSION_NONE;
 
-	static const int * cql_batch_flags_bitmaps[] = {
+	static int * const cql_batch_flags_bitmaps[] = {
 		&hf_cql_batch_flag_serial_consistency,
 		&hf_cql_batch_flag_default_timestamp,
 		&hf_cql_batch_flag_with_name_for_values,
 		NULL
 	};
 
-	static const int * cql_header_bitmaps_v3[] = {
+	static int * const cql_header_bitmaps_v3[] = {
 		&hf_cql_flag_compression,
 		&hf_cql_flag_tracing,
 		&hf_cql_flag_reserved3,
 		NULL
 	};
 
-	static const int * cql_header_bitmaps_v4[] = {
+	static int * const cql_header_bitmaps_v4[] = {
 		&hf_cql_flag_compression,
 		&hf_cql_flag_tracing,
 		&hf_cql_flag_custom_payload,

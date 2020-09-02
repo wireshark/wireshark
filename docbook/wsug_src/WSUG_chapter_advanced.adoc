@@ -315,7 +315,7 @@ The protocol dissector that created the expert information item.
 
 [[ChAdvExpertDialog]]
 
-==== The “Expert Information” dialog
+==== The “Expert Information” Dialog
 
 You can open the expert info dialog by selecting menu:Analyze[Expert Info] or by clicking the expert level indicator in the main status bar.
 
@@ -384,7 +384,7 @@ To make it easier find that item in the packet tree, the IP protocol toplevel it
 
 [[ChAdvExpertColumn]]
 
-==== “Expert” Packet List Column (optional)
+==== “Expert” Packet List Column (Optional)
 
 .The “Expert” packet list column
 image::wsug_graphics/ws-expert-column.png[{screenshot-attrs}]
@@ -436,14 +436,14 @@ Last-seen acknowledgment number:: Always updated for each packet. Note
 that this is not the same as the next expected acknowledgment number.
 
 // TCP_A_ACK_LOST_PACKET
-[float]
+[discrete]
 ==== TCP ACKed unseen segment
 
 Set when the expected next acknowledgement number is set for the reverse
 direction and it’s less than the current acknowledgement number.
 
 // TCP_A_DUPLICATE_ACK
-[float]
+[discrete]
 ==== TCP Dup ACK __<frame>__#__<acknowledgement number>__
 
 Set when all of the following are true:
@@ -454,7 +454,7 @@ Set when all of the following are true:
 * SYN, FIN, and RST are not set.
 
 // TCP_A_FAST_RETRANSMISSION
-[float]
+[discrete]
 ==== TCP Fast Retransmission
 
 Set when all of the following are true:
@@ -469,7 +469,7 @@ Set when all of the following are true:
 Supersedes “Out-Of-Order”, “Spurious Retransmission”, and “Retransmission”.
 
 // TCP_A_KEEP_ALIVE
-[float]
+[discrete]
 ==== TCP Keep-Alive
 
 Set when the segment size is zero or one, the current sequence number
@@ -480,7 +480,7 @@ Supersedes “Fast Retransmission”, “Out-Of-Order”, “Spurious
 Retransmission”, and “Retransmission”.
 
 // TCP_A_KEEP_ALIVE_ACK
-[float]
+[discrete]
 ==== TCP Keep-Alive ACK
 
 Set when all of the following are true:
@@ -495,7 +495,7 @@ Set when all of the following are true:
 Supersedes “Dup ACK” and “ZeroWindowProbeAck”.
 
 // TCP_A_OUT_OF_ORDER
-[float]
+[discrete]
 ==== TCP Out-Of-Order
 
 Set when all of the following are true:
@@ -510,19 +510,19 @@ Set when all of the following are true:
 Supersedes “Spurious Retransmission” and “Retransmission”.
 
 // TCP_A_REUSED_PORTS
-[float]
+[discrete]
 ==== TCP Port numbers reused
 
 Set when the SYN flag is set (not SYN+ACK), we have an existing conversation using the same addresses and ports, and the sequencue number is different than the existing conversation’s initial sequence number.
 
 // TCP_A_LOST_PACKET
-[float]
+[discrete]
 ==== TCP Previous segment not captured
 
 Set when the current sequence number is greater than the next expected sequence number.
 
 // TCP_A_SPURIOUS_RETRANSMISSION
-[float]
+[discrete]
 ==== TCP Spurious Retransmission
 
 Checks for a retransmission based on analysis data in the reverse
@@ -537,7 +537,7 @@ direction. Set when all of the following are true:
 Supersedes “Retransmission”.
 
 // TCP_A_RETRANSMISSION
-[float]
+[discrete]
 ==== TCP Retransmission
 
 Set when all of the following are true:
@@ -547,7 +547,7 @@ Set when all of the following are true:
 * The next expected sequence number is greater than the current sequence number.
 
 // TCP_A_WINDOW_FULL
-[float]
+[discrete]
 ==== TCP Window Full
 
 Set when the segment size is non-zero, we know the window size in the
@@ -555,7 +555,7 @@ reverse direction, and our segment size exceeds the window size in the
 reverse direction.
 
 // TCP_A_WINDOW_UPDATE
-[float]
+[discrete]
 ==== TCP Window Update
 
 Set when the all of the following are true:
@@ -567,13 +567,19 @@ Set when the all of the following are true:
 * None of SYN, FIN, or RST are set.
 
 // TCP_A_ZERO_WINDOW
-[float]
+[discrete]
 ==== TCP ZeroWindow
 
-Set when the window size is zero and non of SYN, FIN, or RST are set.
+Set when the receive window size is zero and none of SYN, FIN, or RST are set.
+
+The _window_ field in each TCP header advertises the amount of data a receiver can accept.
+If the receiver can’t accept any more data it will set the window value to zero, which tells the sender to pause its transmission.
+In some specific cases this is normal -- for example, a printer might use a zero window to pause the transmission of a print job while it loads or reverses a sheet of paper.
+However, in most cases this indicates a performance or capacity problem on the receiving end.
+It might take a long time (sometimes several minutes) to resume a paused connection, even if the underlying condition that caused the zero window clears up quickly.
 
 // TCP_A_ZERO_WINDOW_PROBE
-[float]
+[discrete]
 ==== TCP ZeroWindowProbe
 
 Set when the sequence number is equal to the next expected sequence
@@ -589,7 +595,7 @@ of the following conditions are true for that segment:
 This affects “Fast Retransmission”, “Out-Of-Order”, or “Retransmission”.
 
 // TCP_A_ZERO_WINDOW_PROBE_ACK
-[float]
+[discrete]
 ==== TCP ZeroWindowProbeAck
 
 Set when the all of the following are true:
@@ -619,7 +625,7 @@ time stamps from the libpcap (Npcap) library, which in turn gets them from the
 operating system kernel. If the capture data is loaded from a capture file,
 Wireshark obviously gets the data from that file.
 
-==== Wireshark internals
+==== Wireshark Internals
 
 The internal format that Wireshark uses to keep a packet time stamp consists of
 the date (in days since 1.1.1970) and the time of day (in nanoseconds since
@@ -634,7 +640,7 @@ While capturing, Wireshark uses the libpcap (Npcap) capture library which
 supports microsecond resolution. Unless you are working with specialized
 capturing hardware, this resolution should be adequate.
 
-==== Capture file formats
+==== Capture File Formats
 
 Every capture file format that Wireshark knows supports time stamps. The time
 stamp precision supported by a specific capture file format differs widely and
@@ -722,8 +728,6 @@ Further information can be found at: {wikipedia-main-url}Time_zone and
 {wikipedia-main-url}Coordinated_Universal_Time.
 ****
 
-
-
 .What is daylight saving time (DST)?
 ****
 Daylight Saving Time (DST), also known as Summer Time is intended to “save”
@@ -746,6 +750,7 @@ link:{wikipedia-main-url}Daylight_saving[].
 Further time zone and DST information can be found at
 {greenwichmeantime-main-url} and {timeanddate-main-url}.
 
+[discrete]
 ==== Set your computer’s time correctly!
 
 If you work with people around the world it’s very helpful to set your
@@ -843,7 +848,7 @@ every computer in question has the correct time and time zone setting.
 
 === Packet Reassembly
 
-==== What is it?
+==== What Is It?
 
 Network protocols often need to transport large chunks of data which are
 complete in themselves, e.g. when transferring a file. The underlying protocol
@@ -859,7 +864,7 @@ Wireshark calls this mechanism reassembly, although a specific protocol
 specification might use a different term for this (e.g. desegmentation,
 defragmentation, etc).
 
-==== How Wireshark handles it
+==== How Wireshark Handles It
 
 For some of the network protocols Wireshark knows of, a mechanism is implemented
 to find, decode and display these chunks of data. Wireshark will try to find the
@@ -972,25 +977,24 @@ resolution and alike, see <<AppFiles>>.
 The name resolution feature can be enabled individually for the protocol layers
 listed in the following sections.
 
-==== Name Resolution drawbacks
+==== Name Resolution Drawbacks
 
 Name resolution can be invaluable while working with Wireshark and may even save
 you hours of work. Unfortunately, it also has its drawbacks.
 
-* _Name resolution will often fail._ The name to be resolved might simply be
+* _Name resolution can often fail._ The name to be resolved might simply be
   unknown by the name servers asked, or the servers are just not available and
   the name is also not found in Wireshark’s configuration files.
 
-* _The resolved names are not stored in the capture file or somewhere else._ So
-  the resolved names might not be available if you open the capture file later
-  or on a different machine. Each time you open a capture file it may look
-  “slightly different” simply because you can’t connect to the name server
-  (which you could connect to before).
+* _Resolved names might not be available._
+Wireshark obtains name resolution information from a variety of sources, including DNS servers, the capture file itself (e.g. for a pcapng file), and the _hosts_ files on your system and in your <<ChAppFilesConfigurationSection,profile directory>>.
+The resolved names might not be available if you open the capture file later or on a different machine. As a result, each time you or someone else opens a particularl capture file it may look slightly different due to changing environments.
 
-* _DNS may add additional packets to your capture file._ You may see packets
-  to/from your machine in your capture file, which are caused by name resolution
-  network services of the machine Wireshark captures from.
+* _DNS may add additional packets to your capture file._
+You might run into the link:{wikipedia-main-url}Observer_effect_(information_technology)[observer effect] if the extra traffic from Wireshark’s DNS queries and responses affects the problem you're trying to troubleshoot or any subsequent analysis.
 +
+The same sort of thing can happen when capturing over a remote connection, e.g. SSH or RDP.
+
 // XXX Are there any other such packets than DNS ones?
 
 * _Resolved DNS names are cached by Wireshark._ This is required for acceptable
@@ -1007,10 +1011,11 @@ changed. As the name resolution results are cached, you can use
 menu:View[Reload] to rebuild the packet list with the correctly resolved names.
 However, this isn’t possible while a capture is in progress.
 
-==== Ethernet name resolution (MAC layer)
+// XXX Add information about the address editor frame (View -> Name Resolution -> Edit Resolved Name)
 
-Try to resolve an Ethernet MAC address (e.g. 00:09:5b:01:02:03) to something
-more “human readable”.
+==== Ethernet Name Resolution (MAC Layer)
+
+Try to resolve an Ethernet MAC address (e.g. 00:09:5b:01:02:03) to to a human readable name.
 
 __ARP name resolution (system service)__: Wireshark will ask the operating
 system to convert an Ethernet address to the corresponding IP address (e.g.
@@ -1026,57 +1031,38 @@ result, Wireshark tries to convert the first 3 bytes of an ethernet address to
 an abbreviated manufacturer name, which has been assigned by the IEEE (e.g.
 00:09:5b:01:02:03 → Netgear_01:02:03).
 
-==== IP name resolution (network layer)
+==== IP Name Resolution (Network Layer)
 
-Try to resolve an IP address (e.g. 216.239.37.99) to something more “human
-readable”.
+Try to resolve an IP address (e.g. 216.239.37.99) to a human readable name.
 
 __DNS name resolution (system/library service)__: Wireshark will use a name
 resolver to convert an IP address to the hostname associated with it
 (e.g. 216.239.37.99 -> www.1.google.com).
 
-DNS name resolution can generally be performed synchronously or asynchronously.
-Both mechanisms can be used to convert an IP address to some human readable
-(domain) name. A system call like gethostname() will try to convert the address
-to a name. To do this, it will first ask the systems hosts file
-(e.g. __/etc/hosts__) if it finds a matching entry. If that fails, it will ask
-the configured DNS server(s) about the name.
+Most applications use synchronously DNS name resolution.
+For example, your web browser must resolve the host name portion of a URL before it can connect to the server.
+Capture file analysis is different.
+A given file might have hundreds, thousands, or millions of IP addresses so for usability and performance reasons Wireshark uses asynchronous resolution.
+Both mechanisms convert IP addresses to human readable (domain) names and typically use different sources such as the system hosts file (__/etc/hosts__) and any configured DNS servers.
 
-So the real difference between synchronous DNS and asynchronous DNS comes when
-the system has to wait for the DNS server about a name resolution. The system call
-gethostname() will wait until a name is resolved or an error occurs. If the DNS
-server is unavailable, this might take quite a while (several seconds).
+Since Wireshark doesn’t wait for DNS responses, the host name for a given address might be missing from a given packet when you view it the first time but be present when you view it subsequent times.
 
-[WARNING]
-====
-To provide acceptable performance Wireshark depends on
-an asynchronous DNS library to do name resolution. If one isn’t available
-during compilation the feature will be unavailable.
-====
+You can adjust name resolution behavior in the Name Resolution section in the <<ChCustPreferencesSection,Preferences Dialog>>.
+You can control resolution itself by adding a __hosts__ file to your <<ChAppFilesConfigurationSection,personal configuration directory>>.
+You can also edit your system __hosts__ file, but that isn’t generally recommended.
 
-The asynchronous DNS service works a bit differently. It will also ask the DNS
-server, but it won’t wait for the answer. It will just return to Wireshark in a
-very short amount of time. The actual (and the following) address fields won’t
-show the resolved name until the DNS server returns an answer. As mentioned
-above, the values get cached, so you can use menu:View[Reload] to “update” these
-fields to show the resolved values.
+==== TCP/UDP Port Name Resolution (Transport Layer)
 
-__hosts name resolution (hosts file)__: If DNS name resolution failed, Wireshark
-will try to convert an IP address to the hostname associated with it, using a
-hosts file provided by the user (e.g. 216.239.37.99 -> www.google.com).
-
-==== TCP/UDP port name resolution (transport layer)
-
-Try to resolve a TCP/UDP port (e.g. 80) to something more “human readable”.
+Try to resolve a TCP/UDP port (e.g. 80) to to a human readable name.
 
 __TCP/UDP port conversion (system service)__: Wireshark will ask the operating
 system to convert a TCP or UDP port to its well known name (e.g. 80 -> http).
 
-==== VLAN ID resolution
+==== VLAN ID Resolution
 
 To get a descriptive name for a VLAN tag ID a vlans file can be used.
 
-==== SS7 point code resolution
+==== SS7 Point Code Resolution
 
 To get a node name for a SS7 point code a ss7pcs file can be used.
 
@@ -1129,7 +1115,7 @@ Further information about checksums can be found at:
 {wikipedia-main-url}Checksum.
 ****
 
-==== Wireshark checksum validation
+==== Wireshark Checksum Validation
 
 Wireshark will validate the checksums of many protocols, e.g. IP, TCP, UDP, etc.
 
@@ -1144,7 +1130,7 @@ If the checksum validation is enabled and it detected an invalid checksum,
 features like packet reassembly won’t be processed. This is avoided as
 incorrect connection data could “confuse” the internal database.
 
-==== Checksum offloading
+==== Checksum Offloading
 
 The checksum calculation might be done by the network driver, protocol driver or
 even in hardware.

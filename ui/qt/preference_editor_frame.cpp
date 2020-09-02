@@ -22,15 +22,13 @@
 #include <ui_preference_editor_frame.h>
 
 #include <ui/qt/utils/qt_ui_utils.h>
+#include <ui/qt/widgets/wireshark_file_dialog.h>
 #include <wsutil/utf8_entities.h>
 
 #include "wireshark_application.h"
 
 #include <QPushButton>
 #include <QKeyEvent>
-
-// To do:
-// - Handle PREF_SAVE_FILENAME, PREF_OPEN_FILENAME and PREF_DIRNAME.
 
 PreferenceEditorFrame::PreferenceEditorFrame(QWidget *parent) :
     AccordionFrame(parent),
@@ -48,6 +46,8 @@ PreferenceEditorFrame::PreferenceEditorFrame(QWidget *parent) :
         w->setAttribute(Qt::WA_MacSmallSize, true);
     }
 #endif
+
+    connect(ui->preferenceBrowseButton, &QPushButton::clicked, this, &PreferenceEditorFrame::browsePushButtonClicked);
 }
 
 PreferenceEditorFrame::~PreferenceEditorFrame()
@@ -82,6 +82,7 @@ void PreferenceEditorFrame::editPreference(preference *pref, pref_module *module
     disconnect(ui->preferenceLineEdit, 0, 0, 0);
 
     bool show = false;
+    bool browse_button = false;
 
     switch (prefs_get_type(pref_)) {
     case PREF_UINT:
@@ -90,6 +91,11 @@ void PreferenceEditorFrame::editPreference(preference *pref, pref_module *module
                 this, SLOT(uintLineEditTextEdited(QString)));
         show = true;
         break;
+    case PREF_SAVE_FILENAME:
+    case PREF_OPEN_FILENAME:
+    case PREF_DIRNAME:
+        browse_button = true;
+        // Fallthrough
     case PREF_STRING:
         connect(ui->preferenceLineEdit, SIGNAL(textChanged(QString)),
                 this, SLOT(stringLineEditTextEdited(QString)));
@@ -107,6 +113,7 @@ void PreferenceEditorFrame::editPreference(preference *pref, pref_module *module
 
     if (show) {
         ui->preferenceLineEdit->setText(gchar_free_to_qstring(prefs_pref_to_str(pref_, pref_stashed)).remove(QRegExp("\n\t")));
+        ui->preferenceBrowseButton->setHidden(!browse_button);
         animatedShow();
     }
 }
@@ -135,6 +142,29 @@ void PreferenceEditorFrame::uintLineEditTextEdited(const QString &new_str)
 void PreferenceEditorFrame::stringLineEditTextEdited(const QString &new_str)
 {
     new_str_ = new_str;
+}
+
+void PreferenceEditorFrame::browsePushButtonClicked()
+{
+    QString caption = wsApp->windowTitleString(prefs_get_title(pref_));
+    QString dir = prefs_get_string_value(pref_, pref_stashed);
+    QString filename;
+
+    switch (prefs_get_type(pref_)) {
+    case PREF_SAVE_FILENAME:
+        filename = WiresharkFileDialog::getSaveFileName(this, caption, dir);
+        break;
+    case PREF_OPEN_FILENAME:
+        filename = WiresharkFileDialog::getOpenFileName(this, caption, dir);
+        break;
+    case PREF_DIRNAME:
+        filename = WiresharkFileDialog::getExistingDirectory(this, caption, dir);
+        break;
+    }
+
+    if (!filename.isEmpty()) {
+        ui->preferenceLineEdit->setText(filename);
+    }
 }
 
 void PreferenceEditorFrame::rangeLineEditTextEdited(const QString &new_str)
@@ -189,6 +219,9 @@ void PreferenceEditorFrame::on_buttonBox_accepted()
         apply = prefs_set_uint_value(pref_, new_uint_, pref_stashed);
         break;
     case PREF_STRING:
+    case PREF_SAVE_FILENAME:
+    case PREF_OPEN_FILENAME:
+    case PREF_DIRNAME:
         apply = prefs_set_string_value(pref_, new_str_.toStdString().c_str(), pref_stashed);
         break;
     case PREF_RANGE:

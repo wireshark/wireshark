@@ -317,7 +317,7 @@ static const range_string subtype_range_rvals[] = {
     { 0x7f, 0x7f,   "Experimental Format Stream" },
     { 0x80, 0x81,   "Reserved for future protocols" },
     { 0x82, 0x82,   "Non Time Synchronous Control Format" },
-    { 0x83, 0xed,   "Reserved for future protocols" },
+    { 0x83, 0xeb,   "Reserved for future protocols" },
     { 0xec, 0xec,   "ECC Signed Control Format" },
     { 0xed, 0xed,   "ECC Encrypted Control Format" },
     { 0xee, 0xee,   "AES Encrypted Format Discrete" },
@@ -858,7 +858,7 @@ static int dissect_1722(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     guint       subtype = 0;
     gint        offset = 0;
     int         dissected_size;
-    const gint *fields[] = {
+    int * const fields[] = {
         &hf_1722_svfield,
         &hf_1722_verfield,
         NULL
@@ -962,7 +962,7 @@ static int dissect_1722_61883(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     guint       numSourcePackets = 0;
     guint       i = 0;
     guint       j = 0;
-    const gint *fields[] = {
+    int * const fields[] = {
         &hf_1722_61883_mrfield,
         &hf_1722_61883_gvfield,
         &hf_1722_61883_tvfield,
@@ -1420,12 +1420,12 @@ static int dissect_1722_aaf (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     guint       format = 0;
     guint       i = 0;
     guint       j = 0;
-    const gint *fields[] = {
+    int * const fields[] = {
         &hf_1722_aaf_mrfield,
         &hf_1722_aaf_tvfield,
         NULL
     };
-    const gint *fields_pcm[] = {
+    int * const fields_pcm[] = {
         &hf_1722_aaf_sparse_timestamp,
         &hf_1722_aaf_evtfield,
         NULL
@@ -1643,18 +1643,18 @@ static int dissect_1722_cvf (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     guint       format_subtype = 0;
     proto_tree *ti_format;
 
-    const gint *fields[] = {
+    int * const fields[] = {
         &hf_1722_cvf_mrfield,
         &hf_1722_cvf_tvfield,
         NULL
     };
-    const gint *fields_cvf[] = {
+    int * const fields_cvf[] = {
         &hf_1722_cvf_marker_bit,
         &hf_1722_cvf_evtfield,
         NULL
     };
 
-    const gint *fields_h264[] = {
+    int * const fields_h264[] = {
         &hf_1722_cvf_h264_forbidden_bit,
         &hf_1722_cvf_h264_nri,
         &hf_1722_cvf_h264_nal_type,
@@ -1850,13 +1850,13 @@ static int dissect_1722_crf (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     gint        offset = 1;
     guint       datalen = 0;
     guint       j = 0;
-    const gint *fields[] = {
+    int * const fields[] = {
         &hf_1722_crf_mrfield,
         &hf_1722_crf_fsfield,
         &hf_1722_crf_tufield,
         NULL
     };
-    const gint *pull_frequency[] = {
+    int * const pull_frequency[] = {
         &hf_1722_crf_pull,
         &hf_1722_crf_base_frequency,
         NULL
@@ -2000,13 +2000,13 @@ static int dissect_1722_ntscf (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     guint       captured_length = tvb_captured_length(tvb);
     gint        captured_payload_length;
 
-    const gint *fields[] = {
+    int * const fields[] = {
         &hf_1722_ntscf_rfield,
         NULL,
     };
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "NTSCF");
-    col_set_str(pinfo->cinfo, COL_INFO, "AVTP Non-Time-Syncronous Control Format");
+    col_set_str(pinfo->cinfo, COL_INFO, "AVTP Non-Time-Synchronous Control Format");
 
     ti_ntscf = proto_tree_add_item(tree, proto_1722_ntscf, tvb, 0, -1, ENC_NA);
     tree_ntscf = proto_item_add_subtree(ti_ntscf, ett_1722_ntscf);
@@ -2134,7 +2134,7 @@ static int dissect_1722_tscf (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     gint        captured_payload_length;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "TSCF");
-    col_set_str(pinfo->cinfo, COL_INFO, "AVTP Time-Syncronous Control Format");
+    col_set_str(pinfo->cinfo, COL_INFO, "AVTP Time-Synchronous Control Format");
 
     ti_tscf = proto_tree_add_item(tree, proto_1722_tscf, tvb, 0, -1, ENC_NA);
     tree_tscf = proto_item_add_subtree(ti_tscf, ett_1722_tscf);
@@ -2472,7 +2472,7 @@ static int dissect_1722_acf_can_common(tvbuff_t *tvb, packet_info *pinfo, proto_
     proto_tree         *tree_can;
     proto_tree         *tree_can_id;
     gint                can_protocol;
-    const int         **can_flags;
+    int                * const *can_flags;
     struct can_info     can_info;
 
     tvbuff_t*           next_tvb;
@@ -2483,19 +2483,19 @@ static int dissect_1722_acf_can_common(tvbuff_t *tvb, packet_info *pinfo, proto_
                                     : IEEE_1722_ACF_CAN_HEADER_SIZE;
 
 
-    const gint *fields[] = {
+    int * const fields[] = {
         &hf_1722_can_mtvfield,
         &hf_1722_can_fdffield,
         NULL,
     };
 
-    const gint *can_std_flags[] = {
+    int * const can_std_flags[] = {
         &hf_1722_can_rtrfield,
         &hf_1722_can_efffield,
         NULL
     };
 
-    const gint *can_fd_flags[] = {
+    int * const can_fd_flags[] = {
         &hf_1722_can_efffield,
         &hf_1722_can_brsfield,
         &hf_1722_can_esifield,

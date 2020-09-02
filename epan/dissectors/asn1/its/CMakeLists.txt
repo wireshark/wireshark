@@ -21,8 +21,9 @@ set( ASN_FILE_LIST
 	ISO_TS_24534-3.asn
 	ISO_TS_17419.asn
 	ISO_TS_14906_Application.asn
-	ISO_TS_19321.asn
 	ISO_TS_19091.asn
+	GDD.asn
+	ISO19321IVIv2.asn
 	ETSI_TS_103301.asn
 	CAMv1.asn
 	CAM.asn

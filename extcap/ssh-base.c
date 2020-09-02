@@ -25,6 +25,12 @@ static void extcap_log(int priority _U_, const char *function, const char *buffe
 	g_debug("[%s] %s", function, buffer);
 }
 
+void add_libssh_info(extcap_parameters * extcap_conf)
+{
+	extcap_base_set_compiled_with(extcap_conf, "libssh version %s", SSH_STRINGIFY(LIBSSH_VERSION));
+	extcap_base_set_running_with(extcap_conf, "libssh version %s", ssh_version(0));
+}
+
 ssh_session create_ssh_connection(const ssh_params_t* ssh_params, char** err_info)
 {
 	ssh_session sshs;
@@ -96,16 +102,6 @@ ssh_session create_ssh_connection(const ssh_params_t* ssh_params, char** err_inf
 		*err_info = g_strdup_printf("Connection error: %s", ssh_get_error(sshs));
 		goto failure;
 	}
-
-#ifdef HAVE_LIBSSH_USERAUTH_AGENT
-	g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Connecting using ssh-agent...");
-	/* Try to authenticate using ssh agent */
-	if (ssh_userauth_agent(sshs, NULL) == SSH_AUTH_SUCCESS) {
-		g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "done");
-		return sshs;
-	}
-	g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "failed");
-#endif
 
 	/* If a public key path has been provided, try to authenticate using it */
 	if (ssh_params->sshkey_path) {

@@ -329,7 +329,7 @@ dissect_usb_hub_get_port_status(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 		/* length shall always contain 4 */
 		/*offset += 2;*/
 	} else {
-		static const int *status_fields[] = {
+		static int * const status_fields[] = {
 			&hf_usb_hub_port_status_connection,
 			&hf_usb_hub_port_status_enable,
 			&hf_usb_hub_port_status_suspend,
@@ -343,7 +343,7 @@ dissect_usb_hub_get_port_status(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 			NULL
 		};
 
-		static const int *change_fields[] = {
+		static int * const change_fields[] = {
 			&hf_usb_hub_port_change_connection,
 			&hf_usb_hub_port_change_enable,
 			&hf_usb_hub_port_change_suspend,

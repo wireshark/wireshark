@@ -514,7 +514,7 @@ static void spdy_save_stream_info(spdy_conv_t *conv_data,
     conv_data->streams = wmem_tree_new(wmem_file_scope());
   }
 
-  si = (spdy_stream_info_t *)wmem_alloc(wmem_file_scope(), sizeof(spdy_stream_info_t));
+  si = wmem_new(wmem_file_scope(), spdy_stream_info_t);
   si->message_type = message_type;
   si->content_type = content_type;
   si->content_type_parameters = content_type_params;

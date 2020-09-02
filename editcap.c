@@ -150,29 +150,29 @@ typedef struct _chop_t {
 
 /* Table of user comments */
 GTree *frames_user_comments = NULL;
+GPtrArray *capture_comments = NULL;
 
 #define MAX_SELECTIONS 512
 static struct select_item     selectfrm[MAX_SELECTIONS];
 static guint                  max_selected              = 0;
 static int                    keep_em                   = 0;
-#ifdef PCAP_NG_DEFAULT
 static int                    out_file_type_subtype     = WTAP_FILE_TYPE_SUBTYPE_PCAPNG; /* default to pcapng   */
-#else
-static int                    out_file_type_subtype     = WTAP_FILE_TYPE_SUBTYPE_PCAP; /* default to pcap     */
-#endif
 static int                    out_frame_type            = -2; /* Leave frame type alone */
 static int                    verbose                   = 0;  /* Not so verbose         */
 static struct time_adjustment time_adj                  = {NSTIME_INIT_ZERO, 0}; /* no adjustment */
 static nstime_t               relative_time_window      = NSTIME_INIT_ZERO; /* de-dup time window */
 static double                 err_prob                  = -1.0;
-static time_t                 starttime                 = 0;
-static time_t                 stoptime                  = 0;
+static nstime_t               starttime                 = NSTIME_INIT_ZERO;
+static gboolean               have_starttime            = FALSE;
+static nstime_t               stoptime                  = NSTIME_INIT_ZERO;
+static gboolean               have_stoptime             = FALSE;
 static gboolean               check_startstop           = FALSE;
 static gboolean               rem_vlan                  = FALSE;
 static gboolean               dup_detect                = FALSE;
 static gboolean               dup_detect_by_time        = FALSE;
 static gboolean               skip_radiotap             = FALSE;
 static gboolean               discard_all_secrets       = FALSE;
+static gboolean               discard_cap_comments      = FALSE;
 
 static int                    do_strict_time_adjustment = FALSE;
 static struct time_adjustment strict_time_adj           = {NSTIME_INIT_ZERO, 0}; /* strict time adjustment */
@@ -759,9 +759,9 @@ print_usage(FILE *output)
     fprintf(output, "Packet selection:\n");
     fprintf(output, "  -r                     keep the selected packets; default is to delete them.\n");
     fprintf(output, "  -A <start time>        only output packets whose timestamp is after (or equal\n");
-    fprintf(output, "                         to) the given time (format as YYYY-MM-DD hh:mm:ss).\n");
+    fprintf(output, "                         to) the given time (format as YYYY-MM-DD hh:mm:ss[.nnnnnnnnn]).\n");
     fprintf(output, "  -B <stop time>         only output packets whose timestamp is before the\n");
-    fprintf(output, "                         given time (format as YYYY-MM-DD hh:mm:ss).\n");
+    fprintf(output, "                         given time (format as YYYY-MM-DD hh:mm:ss[.nnnnnnnnn]).\n");
     fprintf(output, "\n");
     fprintf(output, "Duplicate packet removal:\n");
     fprintf(output, "  --novlan               remove vlan info from packets before checking for duplicates.\n");
@@ -830,11 +830,7 @@ print_usage(FILE *output)
     fprintf(output, "  -i <seconds per file>  split the packet output to different files based on\n");
     fprintf(output, "                         uniform time intervals with a maximum of\n");
     fprintf(output, "                         <seconds per file> each.\n");
-#ifdef PCAP_NG_DEFAULT
     fprintf(output, "  -F <capture type>      set the output file type; default is pcapng.\n");
-#else
-    fprintf(output, "  -F <capture type>      set the output file type; default is pcap.\n");
-#endif
     fprintf(output, "                         An empty \"-F\" option will list the file types.\n");
     fprintf(output, "  -T <encap type>        set the output file encapsulation type; default is the\n");
     fprintf(output, "                         same as the input file. An empty \"-T\" option will\n");
@@ -844,6 +840,13 @@ print_usage(FILE *output)
     fprintf(output, "  --discard-all-secrets  Discard all decryption secrets from the input file\n");
     fprintf(output, "                         when writing the output file.  Does not discard\n");
     fprintf(output, "                         secrets added by \"--inject-secrets\" in the same\n");
+    fprintf(output, "                         command line.\n");
+    fprintf(output, "  --capture-comment <comment>\n");
+    fprintf(output, "                         Add a capture file comment, if supported.\n");
+    fprintf(output, "  --discard-capture-comment\n");
+    fprintf(output, "                         Discard capture file comments from the input file\n");
+    fprintf(output, "                         when writing the output file.  Does not discard\n");
+    fprintf(output, "                         comments added by \"--capture-comment\" in the same\n");
     fprintf(output, "                         command line.\n");
     fprintf(output, "\n");
     fprintf(output, "Miscellaneous:\n");
@@ -1023,6 +1026,8 @@ main(int argc, char *argv[])
 #define LONGOPT_SEED                 LONGOPT_BASE_APPLICATION+3
 #define LONGOPT_INJECT_SECRETS       LONGOPT_BASE_APPLICATION+4
 #define LONGOPT_DISCARD_ALL_SECRETS  LONGOPT_BASE_APPLICATION+5
+#define LONGOPT_CAPTURE_COMMENT      LONGOPT_BASE_APPLICATION+6
+#define LONGOPT_DISCARD_CAPTURE_COMMENT LONGOPT_BASE_APPLICATION+7
 
     static const struct option long_options[] = {
         {"novlan", no_argument, NULL, LONGOPT_NO_VLAN},
@@ -1032,6 +1037,8 @@ main(int argc, char *argv[])
         {"discard-all-secrets", no_argument, NULL, LONGOPT_DISCARD_ALL_SECRETS},
         {"help", no_argument, NULL, 'h'},
         {"version", no_argument, NULL, 'V'},
+        {"capture-comment", required_argument, NULL, LONGOPT_CAPTURE_COMMENT},
+        {"discard-capture-comment", no_argument, NULL, LONGOPT_DISCARD_CAPTURE_COMMENT},
         {0, 0, 0, 0 }
     };
 
@@ -1169,6 +1176,24 @@ main(int argc, char *argv[])
             break;
         }
 
+        case LONGOPT_CAPTURE_COMMENT:
+        {
+            /* pcapng supports multiple comments, so support them here too.
+             * Wireshark only sees the first capture comment though.
+             */
+            if (!capture_comments) {
+                capture_comments = g_ptr_array_new_with_free_func(g_free);
+            }
+            g_ptr_array_add(capture_comments, g_strdup(optarg));
+            break;
+        }
+
+        case LONGOPT_DISCARD_CAPTURE_COMMENT:
+        {
+            discard_cap_comments = TRUE;
+            break;
+        }
+
         case 'a':
         {
             guint frame_number;
@@ -1192,41 +1217,79 @@ main(int argc, char *argv[])
         }
 
         case 'A':
-        {
-            struct tm starttm;
-
-            memset(&starttm,0,sizeof(struct tm));
-
-            if (!strptime(optarg,"%Y-%m-%d %T", &starttm)) {
-                fprintf(stderr, "editcap: \"%s\" isn't a valid time format\n\n",
-                        optarg);
-                ret = INVALID_OPTION;
-                goto clean_exit;
-            }
-
-            check_startstop = TRUE;
-            starttm.tm_isdst = -1;
-
-            starttime = mktime(&starttm);
-            break;
-        }
-
         case 'B':
         {
-            struct tm stoptm;
+#define NSEC_MAXLEN 9
+            struct tm st_tm;
+            guint32 nsec = 0;
+            char *och;
 
-            memset(&stoptm,0,sizeof(struct tm));
+            memset(&st_tm,0,sizeof(struct tm));
 
-            if (!strptime(optarg,"%Y-%m-%d %T", &stoptm)) {
-                fprintf(stderr, "editcap: \"%s\" isn't a valid time format\n\n",
-                        optarg);
-                ret = INVALID_OPTION;
-                goto clean_exit;
+            if (!(och=strptime(optarg,"%Y-%m-%d %T", &st_tm))) {
+                goto invalid_time;
             }
+
+            /* Sub-second support: see if the time is followed by a '.' */
+            if (och != NULL && *och != '\0') {
+                char *c;
+                char subsec[NSEC_MAXLEN+1] = "";
+                int nchars;
+
+                if (*och != '.') {
+                    goto invalid_time;
+                }
+                och++;
+                c = subsec;
+
+                /* Ensure that only 1-9 digits follow the '.' */
+                for (nchars = 0; *och != '\0' && nchars < NSEC_MAXLEN; nchars++) {
+                    if (!g_ascii_isdigit(*och)) {
+                        goto invalid_time;
+                    }
+                    *c++ = *och++;
+                }
+                if (*och != '\0') {
+                    goto invalid_time;
+                }
+                /* Right-pad what we do have, so eg. 5 = 500,000,000 ns */
+                for (; nchars < NSEC_MAXLEN; nchars++) {
+                    *c++ = '0';
+                }
+                *c = '\0';
+                if (!ws_strtou32(subsec, NULL, &nsec) || nsec >= NANOSECS_PER_SEC) {
+                    goto invalid_time;
+                }
+            }
+
             check_startstop = TRUE;
-            stoptm.tm_isdst = -1;
-            stoptime = mktime(&stoptm);
+            st_tm.tm_isdst = -1;
+
+            /*
+             * XXX - this will normalize invalid dates rather than
+             * returning an error, so you could specify, for example,
+             * 2020-10-40 (to quote the macOS and probably *BSD manual
+             * page for ctime()/localtime()/mktime()/etc., "October 40
+             * is changed into November 9").
+             *
+             * Is that a bug or a feature?
+             */
+            if (opt == 'A') {
+                starttime.secs = mktime(&st_tm);
+                starttime.nsecs = nsec;
+                have_starttime = TRUE;
+            } else {
+                stoptime.secs = mktime(&st_tm);
+                stoptime.nsecs = nsec;
+                have_stoptime = TRUE;
+            }
             break;
+
+invalid_time:
+            fprintf(stderr, "editcap: \"%s\" isn't a valid date and time\n\n",
+                    optarg);
+            ret = INVALID_OPTION;
+            goto clean_exit;
         }
 
         case 'c':
@@ -1441,7 +1504,8 @@ main(int argc, char *argv[])
         srand(seed);
     }
 
-    if (starttime > stoptime) {
+    if (have_starttime && have_stoptime &&
+        nstime_cmp(&starttime, &stoptime) > 0) {
         fprintf(stderr, "editcap: start time is after the stop time\n");
         ret = INVALID_OPTION;
         goto clean_exit;
@@ -1491,6 +1555,31 @@ main(int argc, char *argv[])
      */
     if (discard_all_secrets) {
         wtap_dump_params_discard_decryption_secrets(&params);
+    }
+
+    /*
+     * Discard capture file comments.
+     */
+    if (discard_cap_comments) {
+        for (guint b = 0; b < params.shb_hdrs->len; b++) {
+            wtap_block_t shb = g_array_index(params.shb_hdrs, wtap_block_t, b);
+            while (WTAP_OPTTYPE_SUCCESS == wtap_block_remove_nth_option_instance(shb, OPT_COMMENT, 0)) {
+                continue;
+            }
+        }
+    }
+
+    /*
+     * Add new capture file comments.
+     */
+    if (capture_comments != NULL) {
+        for (guint b = 0; b < params.shb_hdrs->len; b++) {
+            wtap_block_t shb = g_array_index(params.shb_hdrs, wtap_block_t, b);
+            for (guint c = 0; c < capture_comments->len; c++) {
+                char *comment = (char *)g_ptr_array_index(capture_comments, c);
+                wtap_block_add_string_option(shb, OPT_COMMENT, comment, strlen(comment));
+            }
+        }
     }
 
     if (dsb_filenames) {
@@ -1685,12 +1774,13 @@ main(int argc, char *argv[])
              * If the packet has no time stamp, the answer is "no".
              */
             if (rec->presence_flags & WTAP_HAS_TS) {
-                if (starttime && stoptime) {
-                    ts_okay = (rec->ts.secs >= starttime) && (rec->ts.secs < stoptime);
-                } else if (starttime) {
-                    ts_okay = rec->ts.secs >= starttime;
-                } else if (stoptime) {
-                    ts_okay = rec->ts.secs < stoptime;
+                if (have_starttime && have_stoptime) {
+                    ts_okay = nstime_cmp(&rec->ts, &starttime) >= 0 &&
+                              nstime_cmp(&rec->ts, &stoptime) < 0;
+                } else if (have_starttime) {
+                    ts_okay = nstime_cmp(&rec->ts, &starttime) >= 0;
+                } else if (have_stoptime) {
+                    ts_okay = nstime_cmp(&rec->ts, &stoptime) < 0;
                 }
             }
         } else {
@@ -2109,6 +2199,10 @@ clean_exit:
         wtap_close(wth);
     wtap_cleanup();
     free_progdirs();
+    if (capture_comments != NULL) {
+        g_ptr_array_free(capture_comments, TRUE);
+        capture_comments = NULL;
+    }
     return ret;
 }
 

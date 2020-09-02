@@ -566,7 +566,7 @@ dissect_mic_e(	tvbuff_t    *tvb,
 		latitude[ 3 ] = dst_code_entry->digit;
 		n_s = dst_code_entry->n_s;
 
-		latitude[ 4 ] = '.';
+		/* '.' already set */
 
 		dst_code_entry = dst_code_lookup( addr[ 4 ] );
 		latitude[ 5 ] = dst_code_entry->digit;
@@ -1709,7 +1709,7 @@ proto_register_aprs( void )
 			NULL, HFILL }
 		},
 		{ &hf_aprs_mic_e_long_h,
-			{ "Longitude hundreths of minutes",	"aprs.mic_e.long_h",
+			{ "Longitude hundredths of minutes",	"aprs.mic_e.long_h",
 			FT_UINT8, BASE_HEX, NULL, 0x0,
 			NULL, HFILL }
 		},

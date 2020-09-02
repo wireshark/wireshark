@@ -9,7 +9,7 @@
  * Copyright 1998 Gerald Combs
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
- * Ref http://www.ietf.org/rfc/rfc4566.txt?number=4566
+ * Ref https://www.ietf.org/rfc/rfc4566
  */
 
 #include "config.h"
@@ -494,7 +494,7 @@ parse_sdp_media_protocol(const char *media_proto)
 
 /* Parses the parts from "c=" into address structures. */
 static void
-parse_sdp_connection_address(const char *connection_type, const char *connection_address,
+parse_sdp_connection_address(const guint8 *connection_type, const char *connection_address,
         wmem_allocator_t *allocator, address *conn_addr)
 {
     if (strcmp(connection_type, "IP4") == 0) {
@@ -672,12 +672,11 @@ dissect_sdp_connection_info(tvbuff_t *tvb, proto_item* ti, session_info_t *sessi
     if (next_offset == -1) {
         tokenlen = -1; /* end of tvbuff */
         /* Save connection address */
-        connection_address =
-            (char*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_UTF_8|ENC_NA);
+        connection_address = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_UTF_8|ENC_NA);
     } else {
         tokenlen = next_offset - offset;
         /* Save connection address */
-        connection_address = (char*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen, ENC_UTF_8|ENC_NA);
+        connection_address = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen, ENC_UTF_8|ENC_NA);
     }
 
     DPRINT(("parsed connection line address=%s", connection_address));
@@ -902,13 +901,13 @@ static void dissect_key_mgmt(tvbuff_t *tvb, packet_info * pinfo, proto_item * ti
     if (len < 0)
         return;
 
-    data_p = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_UTF_8|ENC_NA);
+    data_p = (gchar *)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_UTF_8|ENC_NA);
     keymgmt_tvb = base64_to_tvb(tvb, data_p);
     add_new_data_source(pinfo, keymgmt_tvb, "Key Management Data");
 
     if ((prtcl_id != NULL) && (key_mgmt_dissector_table != NULL)) {
         found_match = dissector_try_string(key_mgmt_dissector_table,
-                                           prtcl_id,
+                                           (const gchar *)prtcl_id,
                                            keymgmt_tvb, pinfo,
                                            key_tree, NULL);
     }
@@ -1019,9 +1018,9 @@ dissect_sdp_media(tvbuff_t *tvb, packet_info* pinfo, proto_item *ti,
                         ENC_UTF_8|ENC_NA, wmem_packet_scope(), &media_type_str);
     if (media_desc) {
         /* for RTP statistics (supposedly?) */
-        if (strcmp(media_type_str, "audio") == 0)
+        if (strcmp((const char*)media_type_str, "audio") == 0)
             media_desc->media_types |= RTP_MEDIA_AUDIO;
-        else if (strcmp(media_type_str, "video") == 0)
+        else if (strcmp((const char*)media_type_str, "video") == 0)
             media_desc->media_types |= RTP_MEDIA_VIDEO;
         else
             media_desc->media_types |= RTP_MEDIA_OTHER;
@@ -1877,7 +1876,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
             }
             break;
         case SDP_CRYPTO:
-            /* http://tools.ietf.org/html/rfc4568
+            /* https://tools.ietf.org/html/rfc4568
             * 9.1.  Generic "Crypto" Attribute Grammar
             *
             *   The ABNF grammar for the crypto attribute is defined below:

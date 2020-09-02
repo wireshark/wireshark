@@ -1,4 +1,4 @@
-Audiocodes TrunkPack Network Control Protocol (TPNCP) Version L7.20.208.001
+Audiocodes TrunkPack Network Control Protocol (TPNCP) Version L7.40.008.001
 acEV_NONE 0
 acEV_ERROR 1
 acEV_DIGIT 2
@@ -510,6 +510,9 @@ acEV_MPE_NETWORK_GROUP_INFO 676
 acEV_GAUGE_PM 677
 acEV_HTTP_STREAMING_PLAY_ENDED 678
 acEV_HTTP_STREAMING_RECORD_ENDED 679
+acEV_DTLS_FAILED 680
+acEV_DTLS_SRTP_SUITES 681
+acEV_MPC_DTLS_PACKAGE 682
 acEV_IP_ADDRESS_CHANGED 1202
 acEV_SMDI_MWI_NEGATIVE 1204
 acEV_VOICE_MENU_START 1206
@@ -564,6 +567,7 @@ acEV_AUPD_FILE 1622
 acEV_MPC_MPE_TRANSCODING_OVERLOAD 1623
 acEV_HTTP_STREAMING_BACK_TO_NORMAL 1624
 acEV_CLOUD_PUBLIC_IP_CHANGED 1700
+acEV_TLS_CONTEXT_CHANGED 1800
 #####
 acCMD_EMPTY 0
 acCMD_OPEN_BOARD 1
@@ -1061,6 +1065,7 @@ SuppServOperationId SS_QSIG_PATH_REPLACE_INVITE 137
 SuppServOperationId SS_DMS_RLT_OPERATION_INDICATION 138
 SuppServOperationId SS_DMS_RLT_THIRD_PARTY 139
 SuppServOperationId SS_NI2_MESSAGE_WAITING_NOTIFICATION 140
+SuppServOperationId SS_NTT_NO_ID_INFO 141
 SuppServOperationId SS_E10_CALLING_NAME 149
 SuppServOperationId SS_E10_DIVERTING_LEG_INFORMATION_2 150
 SuppServOperationId SS_E10_INFORMATION_FOLLOWING 151
@@ -2712,6 +2717,14 @@ EncryptionAlgorithm ENCRYPTION_ALGORITHM_RC4 5
 EncryptionAlgorithm ENCRYPTION_ALGORITHM_ARIA_128 6
 EncryptionAlgorithm ENCRYPTION_ALGORITHM_ARIA_192 7
 EncryptionAlgorithm ENCRYPTION_ALGORITHM_AES_256 8
+FingerprintAlgorithm FP_ALGORITHM_NULL 0
+FingerprintAlgorithm FP_ALGORITHM_SHA_1 1
+FingerprintAlgorithm FP_ALGORITHM_SHA_224 2
+FingerprintAlgorithm FP_ALGORITHM_SHA_256 3
+FingerprintAlgorithm FP_ALGORITHM_SHA_384 4
+FingerprintAlgorithm FP_ALGORITHM_SHA_512 5
+FingerprintAlgorithm FP_ALGORITHM_MD5 6
+FingerprintAlgorithm FP_ALGORITHM_MD2 7
 AnswerDetectorSensitivity ANSWER_DETECTOR_MOST_SENSITIVE 0
 AnswerDetectorSensitivity ANSWER_DETECTOR_SENSITIVE_0 0
 AnswerDetectorSensitivity ANSWER_DETECTOR_MEDIUM_SENSITIVE 1
@@ -2944,7 +2957,8 @@ InfraStructureParameterID PARAMETER_ID_GW_APP_E_MATRIX_IDENTIFIER_CODERS_GROUP18
 InfraStructureParameterID PARAMETER_ID_GW_APP_E_MATRIX_IDENTIFIER_CODERS_GROUP19 112
 InfraStructureParameterID PARAMETER_ID_GW_APP_E_MATRIX_IDENTIFIER_CODERS_GROUP20 113
 InfraStructureParameterID PARAMETER_ID_VE_GLOBAL_PARAMETERS 114
-InfraStructureParameterID LAST_INFRA_STRUCTURE_PARAMETER_ID 115
+InfraStructureParameterID PARAMETER_ID_DR_LOCAL_STORAGE_PARAMETER 115
+InfraStructureParameterID LAST_INFRA_STRUCTURE_PARAMETER_ID 116
 RingSplash RING_SPLASH_OFF 0
 RingSplash RING_SPLASH_ON 1
 ConferenceMuteMode MUTE_PARTICIPANT 0
@@ -10402,13 +10416,15 @@ FirmwareModule HA_MODULE_BOUNDARY 29
 637 mpe_handle 1 16 0 0 primitive
 637 voice_quality_enhancements_opus_max_bandwidth 1 32 0 0 primitive
 637 media_realm_index 0 32 0 0 primitive
-637 media_stun_forking_operation_mode 1 8 0 0 primitive
-637 http_streaming 1 8 0 0 primitive
-637 evs_tx_bit_rate 1 16 0 0 primitive
+637 secure_param_c 1 8 0 0 primitive
 637 evs_fec_offset 1 8 0 0 primitive
 637 evs_build_cmr 1 8 0 0 primitive
-637 unused_alignment 1 16 0 0 primitive
+637 http_streaming 1 8 0 0 primitive
+637 evs_tx_bit_rate 1 16 0 0 primitive
+637 media_stun_forking_operation_mode 1 8 0 0 primitive
+637 unused_alignment 1 8 0 0 primitive
 637 tls_context 0 32 0 0 primitive
+637 dtls_remote_fingerprint_alg 0 32 0 0 FingerprintAlgorithm
 638 severity 0 32 0 0 MediaProcessOverloadSeverity
 638 cpu_utilization_percentage 0 32 0 0 primitive
 639 channel_ida 0 32 0 0 primitive
@@ -11082,13 +11098,15 @@ FirmwareModule HA_MODULE_BOUNDARY 29
 160 mpe_handle 1 16 0 0 primitive
 160 voice_quality_enhancements_opus_max_bandwidth 1 32 0 0 primitive
 160 media_realm_index 0 32 0 0 primitive
-160 media_stun_forking_operation_mode 1 8 0 0 primitive
-160 http_streaming 1 8 0 0 primitive
-160 evs_tx_bit_rate 1 16 0 0 primitive
+160 secure_param_c 1 8 0 0 primitive
 160 evs_fec_offset 1 8 0 0 primitive
 160 evs_build_cmr 1 8 0 0 primitive
-160 unused_alignment 1 16 0 0 primitive
+160 http_streaming 1 8 0 0 primitive
+160 evs_tx_bit_rate 1 16 0 0 primitive
+160 media_stun_forking_operation_mode 1 8 0 0 primitive
+160 unused_alignment 1 8 0 0 primitive
 160 tls_context 0 32 0 0 primitive
+160 dtls_remote_fingerprint_alg 0 32 0 0 FingerprintAlgorithm
 162 cid 0 32 0 0 primitive
 162 serial_id 0 32 0 0 primitive
 162 dial_string 0 8 64 0 primitive
@@ -13653,13 +13671,15 @@ FirmwareModule HA_MODULE_BOUNDARY 29
 2 mpe_handle 1 16 0 0 primitive
 2 voice_quality_enhancements_opus_max_bandwidth 1 32 0 0 primitive
 2 media_realm_index 0 32 0 0 primitive
-2 media_stun_forking_operation_mode 1 8 0 0 primitive
-2 http_streaming 1 8 0 0 primitive
-2 evs_tx_bit_rate 1 16 0 0 primitive
+2 secure_param_c 1 8 0 0 primitive
 2 evs_fec_offset 1 8 0 0 primitive
 2 evs_build_cmr 1 8 0 0 primitive
-2 unused_alignment 1 16 0 0 primitive
+2 http_streaming 1 8 0 0 primitive
+2 evs_tx_bit_rate 1 16 0 0 primitive
+2 media_stun_forking_operation_mode 1 8 0 0 primitive
+2 unused_alignment 1 8 0 0 primitive
 2 tls_context 0 32 0 0 primitive
+2 dtls_remote_fingerprint_alg 0 32 0 0 FingerprintAlgorithm
 2 rtp_authentication_algorithm 1 8 0 0 primitive
 2 rtp_encryption_algorithm 1 8 0 0 primitive
 2 rtcp_authentication_algorithm 1 8 0 0 primitive
@@ -13688,6 +13708,12 @@ FirmwareModule HA_MODULE_BOUNDARY 29
 2 rx_master_key_identifier_size 1 8 0 0 primitive
 2 tx_ssrtp_enable 1 8 0 0 primitive
 2 rx_ssrtp_enable 1 8 0 0 primitive
+2 dtls_is_active 1 8 0 0 primitive
+2 dtls_use_sdp_alg_for_calculation 1 8 0 0 primitive
+2 unused_alignment2 0 8 2 0 primitive
+2 dtls_srtp_suits 0 32 0 0 CipherSuites
+2 dtls_fingerprint_str 0 8 192 0 primitive
+2 dtls_context_id 0 32 0 0 primitive
 8 channel_id 0 32 0 0 primitive
 8 cmd_rev_lsb 1 8 0 0 primitive
 8 cmd_rev_msb 1 8 0 0 primitive
@@ -14014,13 +14040,15 @@ FirmwareModule HA_MODULE_BOUNDARY 29
 8 mpe_handle 1 16 0 0 primitive
 8 voice_quality_enhancements_opus_max_bandwidth 1 32 0 0 primitive
 8 media_realm_index 0 32 0 0 primitive
-8 media_stun_forking_operation_mode 1 8 0 0 primitive
-8 http_streaming 1 8 0 0 primitive
-8 evs_tx_bit_rate 1 16 0 0 primitive
+8 secure_param_c 1 8 0 0 primitive
 8 evs_fec_offset 1 8 0 0 primitive
 8 evs_build_cmr 1 8 0 0 primitive
-8 unused_alignment 1 16 0 0 primitive
+8 http_streaming 1 8 0 0 primitive
+8 evs_tx_bit_rate 1 16 0 0 primitive
+8 media_stun_forking_operation_mode 1 8 0 0 primitive
+8 unused_alignment 1 8 0 0 primitive
 8 tls_context 0 32 0 0 primitive
+8 dtls_remote_fingerprint_alg 0 32 0 0 FingerprintAlgorithm
 8 rtp_authentication_algorithm 1 8 0 0 primitive
 8 rtp_encryption_algorithm 1 8 0 0 primitive
 8 rtcp_authentication_algorithm 1 8 0 0 primitive
@@ -14049,6 +14077,12 @@ FirmwareModule HA_MODULE_BOUNDARY 29
 8 rx_master_key_identifier_size 1 8 0 0 primitive
 8 tx_ssrtp_enable 1 8 0 0 primitive
 8 rx_ssrtp_enable 1 8 0 0 primitive
+8 dtls_is_active 1 8 0 0 primitive
+8 dtls_use_sdp_alg_for_calculation 1 8 0 0 primitive
+8 unused_alignment2 0 8 2 0 primitive
+8 dtls_srtp_suits 0 32 0 0 CipherSuites
+8 dtls_fingerprint_str 0 8 192 0 primitive
+8 dtls_context_id 0 32 0 0 primitive
 3 channel_id 0 32 0 0 primitive
 3 send_rtcp_bye_packet_mode 0 32 0 0 SendRtcpByePacketMode
 3 dummy 0 8 32 0 primitive
@@ -14148,6 +14182,10 @@ FirmwareModule HA_MODULE_BOUNDARY 29
 4 rtp_state_offset 0 32 0 0 primitive
 4 local_interface_id 0 32 0 0 primitive
 4 incoming_rtcp_port_option 0 32 0 0 V1501RTPPortOption
+4 mpe_handle 1 16 0 0 primitive
+4 handle 1 16 0 0 primitive
+4 secure_param_a 0 8 20 0 primitive
+4 secure_param_b 1 32 0 0 primitive
 4 ssrc 1 32 0 0 primitive
 4 srtp_rtcp_index 1 32 0 0 primitive
 4 srtp_roc 1 32 0 0 primitive
@@ -14156,6 +14194,7 @@ FirmwareModule HA_MODULE_BOUNDARY 29
 4 ssrtp_esn_0 1 16 0 0 primitive
 4 ssrtp_esn_1 1 16 0 0 primitive
 4 ssrtp_esn_2 1 16 0 0 primitive
+4 l_intercept_rtp_seq_num 1 16 0 0 primitive
 4 rtp_tx_state_ssrc 1 32 0 0 primitive
 4 rtp_tx_state_srtp_rtcp_index 1 32 0 0 primitive
 4 rtp_tx_state_srtp_roc 1 32 0 0 primitive
@@ -14164,6 +14203,7 @@ FirmwareModule HA_MODULE_BOUNDARY 29
 4 rtp_tx_state_ssrtp_esn_0 1 16 0 0 primitive
 4 rtp_tx_state_ssrtp_esn_1 1 16 0 0 primitive
 4 rtp_tx_state_ssrtp_esn_2 1 16 0 0 primitive
+4 rtp_tx_state_l_intercept_rtp_seq_num 1 16 0 0 primitive
 4 state_update_time_stamp 1 32 0 0 primitive
 610 channel_id 0 32 0 0 primitive
 610 address_family 0 32 0 0 AddressFamily
@@ -14239,6 +14279,7 @@ FirmwareModule HA_MODULE_BOUNDARY 29
 610 ssrtp_esn_0 1 16 0 0 primitive
 610 ssrtp_esn_1 1 16 0 0 primitive
 610 ssrtp_esn_2 1 16 0 0 primitive
+610 l_intercept_rtp_seq_num 1 16 0 0 primitive
 610 rtp_tx_state_ssrc 1 32 0 0 primitive
 610 rtp_tx_state_srtp_rtcp_index 1 32 0 0 primitive
 610 rtp_tx_state_srtp_roc 1 32 0 0 primitive
@@ -14247,6 +14288,7 @@ FirmwareModule HA_MODULE_BOUNDARY 29
 610 rtp_tx_state_ssrtp_esn_0 1 16 0 0 primitive
 610 rtp_tx_state_ssrtp_esn_1 1 16 0 0 primitive
 610 rtp_tx_state_ssrtp_esn_2 1 16 0 0 primitive
+610 rtp_tx_state_l_intercept_rtp_seq_num 1 16 0 0 primitive
 610 state_update_time_stamp 1 32 0 0 primitive
 611 channel_id 0 32 0 0 primitive
 611 address_family 0 32 0 0 AddressFamily
@@ -14322,6 +14364,7 @@ FirmwareModule HA_MODULE_BOUNDARY 29
 611 ssrtp_esn_0 1 16 0 0 primitive
 611 ssrtp_esn_1 1 16 0 0 primitive
 611 ssrtp_esn_2 1 16 0 0 primitive
+611 l_intercept_rtp_seq_num 1 16 0 0 primitive
 611 rtp_tx_state_ssrc 1 32 0 0 primitive
 611 rtp_tx_state_srtp_rtcp_index 1 32 0 0 primitive
 611 rtp_tx_state_srtp_roc 1 32 0 0 primitive
@@ -14330,6 +14373,7 @@ FirmwareModule HA_MODULE_BOUNDARY 29
 611 rtp_tx_state_ssrtp_esn_0 1 16 0 0 primitive
 611 rtp_tx_state_ssrtp_esn_1 1 16 0 0 primitive
 611 rtp_tx_state_ssrtp_esn_2 1 16 0 0 primitive
+611 rtp_tx_state_l_intercept_rtp_seq_num 1 16 0 0 primitive
 611 state_update_time_stamp 1 32 0 0 primitive
 35 channel_id 0 32 0 0 primitive
 35 de_activation_option 1 32 0 0 primitive
@@ -14558,7 +14602,7 @@ FirmwareModule HA_MODULE_BOUNDARY 29
 1611 no_op_enable 1 8 0 0 primitive
 1611 no_op_interval 1 32 0 0 primitive
 1611 enhanced_plc_enable 1 8 0 0 primitive
-1611 dummy1 1 8 0 0 primitive
+1611 secure_param_c 1 8 0 0 primitive
 1611 mpe_handle 1 16 0 0 primitive
 1611 media_realm_index 0 32 0 0 primitive
 1611 media_stun_forking_operation_mode 1 8 0 0 primitive
@@ -14568,6 +14612,7 @@ FirmwareModule HA_MODULE_BOUNDARY 29
 1611 evs_build_cmr 1 8 0 0 primitive
 1611 unused_alignment 1 16 0 0 primitive
 1611 tls_context 0 32 0 0 primitive
+1611 dtls_remote_fingerprint_alg 0 32 0 0 FingerprintAlgorithm
 1611 local_port 1 16 0 0 primitive
 1611 remote_rtp_port 1 16 0 0 primitive
 1611 remote_t38_port 1 16 0 0 primitive
@@ -14633,6 +14678,12 @@ FirmwareModule HA_MODULE_BOUNDARY 29
 1611 rx_master_key_identifier_size 1 8 0 0 primitive
 1611 tx_ssrtp_enable 1 8 0 0 primitive
 1611 rx_ssrtp_enable 1 8 0 0 primitive
+1611 dtls_is_active 1 8 0 0 primitive
+1611 dtls_use_sdp_alg_for_calculation 1 8 0 0 primitive
+1611 unused_alignment2 0 8 2 0 primitive
+1611 dtls_srtp_suits 0 32 0 0 CipherSuites
+1611 dtls_fingerprint_str 0 8 192 0 primitive
+1611 dtls_context_id 0 32 0 0 primitive
 1611 channel_b_configuration_configuration_type_updated 0 32 0 0 ChannelConfigurationType
 1611 open_sbc_channel_coder 0 16 0 0 primitive
 1611 open_sbc_channel_fax_modem_bypass_coder_type 0 16 0 0 primitive
@@ -14738,7 +14789,7 @@ FirmwareModule HA_MODULE_BOUNDARY 29
 1611 open_sbc_channel_no_op_enable 1 8 0 0 primitive
 1611 open_sbc_channel_no_op_interval 1 32 0 0 primitive
 1611 open_sbc_channel_enhanced_plc_enable 1 8 0 0 primitive
-1611 open_sbc_channel_dummy1 1 8 0 0 primitive
+1611 open_sbc_channel_secure_param_c 1 8 0 0 primitive
 1611 open_sbc_channel_mpe_handle 1 16 0 0 primitive
 1611 open_sbc_channel_media_realm_index 0 32 0 0 primitive
 1611 open_sbc_channel_media_stun_forking_operation_mode 1 8 0 0 primitive
@@ -14748,6 +14799,7 @@ FirmwareModule HA_MODULE_BOUNDARY 29
 1611 open_sbc_channel_evs_build_cmr 1 8 0 0 primitive
 1611 open_sbc_channel_unused_alignment 1 16 0 0 primitive
 1611 open_sbc_channel_tls_context 0 32 0 0 primitive
+1611 open_sbc_channel_dtls_remote_fingerprint_alg 0 32 0 0 FingerprintAlgorithm
 1611 activate_sbc_channel_local_port 1 16 0 0 primitive
 1611 activate_sbc_channel_remote_rtp_port 1 16 0 0 primitive
 1611 activate_sbc_channel_remote_t38_port 1 16 0 0 primitive
@@ -14813,6 +14865,12 @@ FirmwareModule HA_MODULE_BOUNDARY 29
 1611 srtp_params_rx_master_key_identifier_size 1 8 0 0 primitive
 1611 srtp_params_tx_ssrtp_enable 1 8 0 0 primitive
 1611 srtp_params_rx_ssrtp_enable 1 8 0 0 primitive
+1611 secured_channel_configuration_dtls_is_active 1 8 0 0 primitive
+1611 secured_channel_configuration_dtls_use_sdp_alg_for_calculation 1 8 0 0 primitive
+1611 secured_channel_configuration_unused_alignment2 0 8 2 0 primitive
+1611 secured_channel_configuration_dtls_srtp_suits 0 32 0 0 CipherSuites
+1611 secured_channel_configuration_dtls_fingerprint_str 0 8 192 0 primitive
+1611 secured_channel_configuration_dtls_context_id 0 32 0 0 primitive
 1612 channel_id 0 32 0 0 primitive
 1612 send_rtcp_bye_packet_mode 0 32 0 0 SendRtcpByePacketMode
 1612 dummy 0 8 32 0 primitive

@@ -95,13 +95,19 @@ wtap_file_tsprec(wtap *wth)
 	return wth->file_tsprec;
 }
 
-wtap_block_t
-wtap_file_get_shb(wtap *wth)
+guint
+wtap_file_get_num_shbs(wtap *wth)
 {
-	if ((wth == NULL) || (wth->shb_hdrs == NULL) || (wth->shb_hdrs->len == 0))
+	return wth->shb_hdrs->len;
+}
+
+wtap_block_t
+wtap_file_get_shb(wtap *wth, guint shb_num)
+{
+	if ((wth == NULL) || (wth->shb_hdrs == NULL) || (shb_num >= wth->shb_hdrs->len))
 		return NULL;
 
-	return g_array_index(wth->shb_hdrs, wtap_block_t, 0);
+	return g_array_index(wth->shb_hdrs, wtap_block_t, shb_num);
 }
 
 GArray*
@@ -149,6 +155,102 @@ wtap_file_get_idb_info(wtap *wth)
 	return idb_info;
 }
 
+void
+wtap_add_idb(wtap *wth, wtap_block_t idb)
+{
+	g_array_append_val(wth->interface_data, idb);
+}
+
+void
+wtap_add_generated_idb(wtap *wth)
+{
+	wtap_block_t idb;
+	wtapng_if_descr_mandatory_t *if_descr_mand;
+	int snaplen;
+
+	g_assert(wth->file_encap != WTAP_ENCAP_UNKNOWN &&
+	    wth->file_encap != WTAP_ENCAP_PER_PACKET);
+	g_assert(wth->file_tsprec != WTAP_TSPREC_UNKNOWN &&
+	    wth->file_tsprec != WTAP_TSPREC_PER_PACKET);
+
+	idb = wtap_block_create(WTAP_BLOCK_IF_DESCR);
+
+	if_descr_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(idb);
+	if_descr_mand->wtap_encap = wth->file_encap;
+	if_descr_mand->tsprecision = wth->file_tsprec;
+	switch (wth->file_tsprec) {
+
+	case WTAP_TSPREC_SEC:
+		if_descr_mand->time_units_per_second = 1;
+		wtap_block_add_uint8_option(idb, OPT_IDB_TSRESOL, 0);
+		break;
+
+	case WTAP_TSPREC_DSEC:
+		if_descr_mand->time_units_per_second = 10;
+		wtap_block_add_uint8_option(idb, OPT_IDB_TSRESOL, 1);
+		break;
+
+	case WTAP_TSPREC_CSEC:
+		if_descr_mand->time_units_per_second = 100;
+		wtap_block_add_uint8_option(idb, OPT_IDB_TSRESOL, 2);
+		break;
+
+	case WTAP_TSPREC_MSEC:
+		if_descr_mand->time_units_per_second = 1000;
+		wtap_block_add_uint8_option(idb, OPT_IDB_TSRESOL, 3);
+		break;
+
+	case WTAP_TSPREC_USEC:
+		if_descr_mand->time_units_per_second = 1000000;
+		/* This is the default, so no need to add an option */
+		break;
+
+	case WTAP_TSPREC_NSEC:
+		if_descr_mand->time_units_per_second = 1000000000;
+		wtap_block_add_uint8_option(idb, OPT_IDB_TSRESOL, 9);
+		break;
+
+	case WTAP_TSPREC_PER_PACKET:
+	case WTAP_TSPREC_UNKNOWN:
+	default:
+		/*
+		 * Don't do this.
+		 */
+		g_assert_not_reached();
+		break;
+	}
+	snaplen = wth->snapshot_length;
+	if (snaplen == 0) {
+		/*
+		 * No snapshot length was specified.  Pick an
+		 * appropriate snapshot length for this
+		 * link-layer type.
+		 *
+		 * We use WTAP_MAX_PACKET_SIZE_STANDARD for everything except
+		 * D-Bus, which has a maximum packet size of 128MB,
+		 * and EBHSCR, which has a maximum packet size of 8MB,
+		 * which is more than we want to put into files
+		 * with other link-layer header types, as that
+		 * might cause some software reading those files
+		 * to allocate an unnecessarily huge chunk of
+		 * memory for a packet buffer.
+		 */
+		if (wth->file_encap == WTAP_ENCAP_DBUS)
+			snaplen = 128*1024*1024;
+		else if (wth->file_encap == WTAP_ENCAP_EBHSCR)
+			snaplen = 8*1024*1024;
+		else
+			snaplen = WTAP_MAX_PACKET_SIZE_STANDARD;
+	}
+	if_descr_mand->snap_len = snaplen;
+	if_descr_mand->num_stat_entries = 0;          /* Number of ISBs */
+	if_descr_mand->interface_statistics = NULL;
+
+	/*
+	 * Add this IDB.
+	 */
+	wtap_add_idb(wth, idb);
+}
 
 void
 wtap_free_idb_info(wtapng_iface_descriptions_t *idb_info)
@@ -318,6 +420,7 @@ wtap_dump_params_init(wtap_dump_params *params, wtap *wth)
 
 	params->encap = wtap_file_encap(wth);
 	params->snaplen = wtap_snapshot_length(wth);
+	params->tsprec = wtap_file_tsprec(wth);
 	params->shb_hdrs = wtap_file_get_shb_for_new_file(wth);
 	params->idb_inf = wtap_file_get_idb_info(wth);
 	params->nrb_hdrs = wtap_file_get_nrb_for_new_file(wth);
@@ -427,7 +530,7 @@ static struct encap_type_info encap_table_base[] = {
 	{ "ieee-802-11-avs", "IEEE 802.11 plus AVS radio header" },
 
 	/* WTAP_ENCAP_SLL */
-	{ "linux-sll", "Linux cooked-mode capture" },
+	{ "linux-sll", "Linux cooked-mode capture v1" },
 
 	/* WTAP_ENCAP_FRELAY */
 	{ "frelay", "Frame Relay" },
@@ -977,6 +1080,15 @@ static struct encap_type_info encap_table_base[] = {
 
 	/* WTAP_ENCAP_USB_2_0 */
 	{ "usb-20", "USB 2.0/1.1/1.0 packets" },
+
+	/* WTAP_ENCAP_MP4 */
+	{ "mp4", "MP4 files" },
+
+	/* WTAP_ENCAP_SLL2 */
+	{ "linux-sll2", "Linux cooked-mode capture v2" },
+
+	/* WTAP_ENCAP_ZWAVE_SERIAL */
+	{ "zwave-serial", "Z-Wave Serial API packets" },
 };
 
 WS_DLL_LOCAL
@@ -1301,9 +1413,8 @@ wtapng_process_dsb(wtap *wth, wtap_block_t dsb)
 		wth->add_new_secrets(dsb_mand->secrets_type, dsb_mand->secrets_data, dsb_mand->secrets_len);
 }
 
-gboolean
-wtap_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
-	gchar **err_info, gint64 *offset)
+static void
+wtap_init_rec(wtap *wth, wtap_rec *rec)
 {
 	/*
 	 * Set the packet encapsulation to the file's encapsulation
@@ -1317,6 +1428,16 @@ wtap_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
 	 */
 	rec->rec_header.packet_header.pkt_encap = wth->file_encap;
 	rec->tsprec = wth->file_tsprec;
+}
+
+gboolean
+wtap_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
+	gchar **err_info, gint64 *offset)
+{
+	/*
+	 * Initialize the record to default values.
+	 */
+	wtap_init_rec(wth, rec);
 
 	*err = 0;
 	*err_info = NULL;
@@ -1460,6 +1581,10 @@ wtap_rec_cleanup(wtap_rec *rec)
 	g_free(rec->opt_comment);
 	rec->opt_comment = NULL;
 	ws_buffer_free(&rec->options_buf);
+	if (rec->packet_verdict != NULL) {
+		g_ptr_array_free(rec->packet_verdict, TRUE);
+		rec->packet_verdict = NULL;
+	}
 }
 
 gboolean
@@ -1467,17 +1592,9 @@ wtap_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec, Buffer *buf,
     int *err, gchar **err_info)
 {
 	/*
-	 * Set the packet encapsulation to the file's encapsulation
-	 * value; if that's not WTAP_ENCAP_PER_PACKET, it's the
-	 * right answer (and means that the read routine for this
-	 * capture file type doesn't have to set it), and if it
-	 * *is* WTAP_ENCAP_PER_PACKET, the caller needs to set it
-	 * anyway.
-	 *
-	 * Do the same for the packet time stamp resolution.
+	 * Initialize the record to default values.
 	 */
-	rec->rec_header.packet_header.pkt_encap = wth->file_encap;
-	rec->tsprec = wth->file_tsprec;
+	wtap_init_rec(wth, rec);
 
 	*err = 0;
 	*err_info = NULL;

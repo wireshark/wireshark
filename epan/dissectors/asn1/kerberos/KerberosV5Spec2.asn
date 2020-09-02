@@ -87,7 +87,7 @@ HostAddresses   -- NOTE: subtly different from rfc1510,
 -- NOTE: AuthorizationData is always used as an OPTIONAL field and
 -- should not be empty.
 AuthorizationData       ::= SEQUENCE OF SEQUENCE {
-        ad-type         [0] Int32,
+        ad-type         [0] AUTHDATA-TYPE,
         ad-data         [1] OCTET STRING
 }
 
@@ -127,6 +127,12 @@ EncryptedTicketData   ::= SEQUENCE {
 }
 
 EncryptedAuthorizationData   ::= SEQUENCE {
+        etype   [0] ENCTYPE, -- EncryptionType - - Use k5.asn
+        kvno    [1] UInt32 OPTIONAL,
+        cipher  [2] OCTET STRING -- ciphertext
+}
+
+EncryptedAuthenticator   ::= SEQUENCE {
         etype   [0] ENCTYPE, -- EncryptionType - - Use k5.asn
         kvno    [1] UInt32 OPTIONAL,
         cipher  [2] OCTET STRING -- ciphertext
@@ -320,7 +326,7 @@ AP-REQ          ::= [APPLICATION 14] SEQUENCE {
         msg-type        [1] MESSAGE-TYPE,
         ap-options      [2] APOptions,
         ticket          [3] Ticket,
-        authenticator   [4] EncryptedAuthorizationData -- Authenticator
+        authenticator   [4] EncryptedAuthenticator -- Authenticator
 }
 -- Use the krb5.asn def.
 --APOptions       ::= KerberosFlags

@@ -505,7 +505,7 @@ dissect_lltd_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 of
     case 0x15: /* 802.11 Physical Medium */
         if (length != 1)
         {
-            expert_add_info_format(pinfo, tlv_item, &ei_lltd_tlv_length_invalid, "Invalid 802.11 Phyiscal Medium length");
+            expert_add_info_format(pinfo, tlv_item, &ei_lltd_tlv_length_invalid, "Invalid 802.11 Physical Medium length");
         }
 
         proto_tree_add_item(tlv_tree, hf_lltd_80211_physical_medium, tvb, offset+2, 1, ENC_BIG_ENDIAN);

@@ -8,6 +8,7 @@ include::attributes.adoc[]
 // currently surrounded by plus signs for AsciiDoc compatibility.
 :dlt-glob: DLT_*
 :qt-lts-version: 5.12
+:source-highlighter: coderay
 
 [[Preface]]
 ["preface",id="Preface"]
@@ -60,5 +61,7 @@ include::wsluarm.adoc[]
 include::wsdg_src/WSDG_chapter_userinterface.adoc[]
 
 include::wsdg_src/WSDG_chapter_tests.adoc[]
+
+include::wsdg_src/WSDG_chapter_asn2wrs.adoc[]
 
 include::common_src/GPL_appendix.adoc[]

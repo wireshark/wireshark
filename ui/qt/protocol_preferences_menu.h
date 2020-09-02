@@ -22,6 +22,7 @@ class ProtocolPreferencesMenu : public QMenu
 
 public:
     ProtocolPreferencesMenu();
+    ProtocolPreferencesMenu(const QString &title, const QString &module_name, QWidget *parent = nullptr);
 
     void setModule(const QString module_name);
     void addMenuItem(struct preference *pref);

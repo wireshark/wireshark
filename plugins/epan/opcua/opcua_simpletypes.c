@@ -693,7 +693,7 @@ proto_item* parseStatusCode(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo 
 
 void parseLocalizedText(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset, const char *szFieldName)
 {
-    static const int *loctext_mask[] = {&hf_opcua_loctext_mask_localeflag,
+    static int * const loctext_mask[] = {&hf_opcua_loctext_mask_localeflag,
                                         &hf_opcua_loctext_mask_textflag,
                                         NULL};
 
@@ -795,7 +795,7 @@ proto_item* parseDateTime(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U
 
 void parseDiagnosticInfo(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset, const char *szFieldName)
 {
-    static const int *diag_mask[] = {&hf_opcua_diag_mask_symbolicflag,
+    static int * const diag_mask[] = {&hf_opcua_diag_mask_symbolicflag,
                                      &hf_opcua_diag_mask_namespaceflag,
                                      &hf_opcua_diag_mask_localizedtextflag,
                                      &hf_opcua_diag_mask_localeflag,
@@ -877,7 +877,7 @@ void parseQualifiedName(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gin
 
 void parseDataValue(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset, const char *szFieldName)
 {
-    static const int *datavalue_mask[] = {&hf_opcua_datavalue_mask_valueflag,
+    static int * const datavalue_mask[] = {&hf_opcua_datavalue_mask_valueflag,
                                           &hf_opcua_datavalue_mask_statuscodeflag,
                                           &hf_opcua_datavalue_mask_sourcetimestampflag,
                                           &hf_opcua_datavalue_mask_servertimestampflag,
@@ -1192,7 +1192,7 @@ void parseNodeId(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOff
 
 void parseExtensionObject(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset, const char *szFieldName)
 {
-    static const int *extobj_mask[] = {&hf_opcua_extobj_mask_binbodyflag,
+    static int * const extobj_mask[] = {&hf_opcua_extobj_mask_binbodyflag,
                                        &hf_opcua_extobj_mask_xmlbodyflag,
                                        NULL};
 
@@ -1239,7 +1239,7 @@ void parseExtensionObject(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, g
 
 void parseExpandedNodeId(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset, const char *szFieldName)
 {
-    static const int *expandednodeid_mask[] = {&hf_opcua_nodeid_encodingmask,
+    static int * const expandednodeid_mask[] = {&hf_opcua_nodeid_encodingmask,
                                                &hf_opcua_expandednodeid_mask_serverindex,
                                                &hf_opcua_expandednodeid_mask_namespaceuri,
                                                NULL};
@@ -1338,7 +1338,7 @@ guint32 getExtensionObjectType(tvbuff_t *tvb, gint *pOffset)
 
 void parseNodeClassMask(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset)
 {
-    static const int *nodeclass_mask[] = {
+    static int * const nodeclass_mask[] = {
       &hf_opcua_nodeClassMask_object,
       &hf_opcua_nodeClassMask_variable,
       &hf_opcua_nodeClassMask_method,
@@ -1363,7 +1363,7 @@ void parseNodeClassMask(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_,
 
 void parseResultMask(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset)
 {
-    static const int *browseresult_mask[] = {
+    static int * const browseresult_mask[] = {
       &hf_opcua_resultMask_referencetype,
       &hf_opcua_resultMask_isforward,
       &hf_opcua_resultMask_nodeclass,

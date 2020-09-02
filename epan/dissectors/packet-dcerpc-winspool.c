@@ -1494,7 +1494,7 @@ int
 iremotewinspool_dissect_bitmap_winspool_InstallPrinterDriverFromPackageFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item *item;
-	static const int * iremotewinspool_winspool_InstallPrinterDriverFromPackageFlags_fields[] = {
+	static int * const iremotewinspool_winspool_InstallPrinterDriverFromPackageFlags_fields[] = {
 		&hf_iremotewinspool_winspool_InstallPrinterDriverFromPackageFlags_IPDFP_COPY_ALL_FILES,
 		NULL
 	};
@@ -1528,7 +1528,7 @@ int
 iremotewinspool_dissect_bitmap_winspool_UploadPrinterDriverPackageFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item *item;
-	static const int * iremotewinspool_winspool_UploadPrinterDriverPackageFlags_fields[] = {
+	static int * const iremotewinspool_winspool_UploadPrinterDriverPackageFlags_fields[] = {
 		&hf_iremotewinspool_winspool_UploadPrinterDriverPackageFlags_UPDP_UPLOAD_ALWAYS,
 		&hf_iremotewinspool_winspool_UploadPrinterDriverPackageFlags_UPDP_CHECK_DRIVERSTORE,
 		NULL

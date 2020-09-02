@@ -17,11 +17,11 @@
  * there are some Internet-Drafts for a protocol that looks like a
  * descendant or other variant of this:
  *
- *	http://tools.ietf.org/html/draft-taylor-ipdc-00
- *	http://tools.ietf.org/html/draft-dugan-ipdc-connection-00
- *	http://tools.ietf.org/html/draft-elliott-ipdc-media-00
- *	http://tools.ietf.org/html/draft-bell-ipdc-signaling-00
- *	http://tools.ietf.org/html/draft-pickett-ipdc-management-00
+ *	https://tools.ietf.org/html/draft-taylor-ipdc-00
+ *	https://tools.ietf.org/html/draft-dugan-ipdc-connection-00
+ *	https://tools.ietf.org/html/draft-elliott-ipdc-media-00
+ *	https://tools.ietf.org/html/draft-bell-ipdc-signaling-00
+ *	https://tools.ietf.org/html/draft-pickett-ipdc-management-00
  */
 
 #include "config.h"
@@ -726,6 +726,7 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 	gshort nr = tvb_get_guint8(tvb,0);
 	gshort ns = tvb_get_guint8(tvb,1);
 	guint payload_len = get_ipdc_pdu_len(pinfo,tvb,0,NULL);
+	/* payload_len will be at least 4 bytes... */
 
 	gshort trans_id_size;
 	guint32 trans_id;
@@ -734,10 +735,6 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 
 	/* display IPDC protocol ID */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPDC");
-
-	/* short frame... */
-	if (payload_len < 4)
-		return 0;
 
 	/* clear info column and display send/receive sequence numbers */
 	col_append_fstr(pinfo->cinfo, COL_INFO, "r=%u s=%u ", nr, ns);

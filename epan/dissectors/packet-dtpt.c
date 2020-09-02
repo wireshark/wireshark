@@ -685,7 +685,7 @@ dissect_dtpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
 		switch (message_type) {
 			case LookupBeginRequest: {
-				static const int * flags[] = {
+				static int * const flags[] = {
 					&hf_dtpt_flags_res_service,
 					&hf_dtpt_flags_flushprevious,
 					&hf_dtpt_flags_flushcache,

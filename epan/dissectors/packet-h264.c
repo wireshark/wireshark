@@ -254,7 +254,6 @@ static dissector_handle_t h264_name_handle;
 
 /* The dynamic payload type range which will be dissected as H.264 */
 
-#define RTP_PT_DEFAULT_RANGE "0"
 static range_t *temp_dynamic_payload_type_range = NULL;
 
 static dissector_handle_t h264_handle;
@@ -806,41 +805,49 @@ dissect_h264_exp_golomb_code(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint
 
 /* This function is adapted to parsing NAL units from SDP data where the
  * base64 coding may add extra padding
+ * Returns TRUE if there is a non-zero bit in remaining of tvb (skipping the current bit)
+ *         FALSE if the rest of the tvb is zeros
  */
 
 static gboolean
 more_rbsp_data(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo _U_, gint bit_offset)
 {
-    int    offset;
-    int    remaining_length;
-    int    last_one_bit;
-    guint8 b = 0;
+    int    current_bit_offset;
+    int    byte_offset;
+    int    tvb_length;
+    int    significant_bits_mask;
+    int    i;
+    guint8 current_byte;
 
     /* XXX might not be the best way of doing things but:
-     * Serch from the end of the tvb for the first '1' bit
-     * assuming that it's the RTBSP stop bit
+     * Search in the tvb for the first '1' bit
+     * assuming that it's the RTBSP stop bit or
+     * some data representation
      */
 
+    /*Skip current treating bit*/
+    current_bit_offset = bit_offset + 1;
+
+    /*Mask for non processed bits of the current byte*/
+    significant_bits_mask = (1 << (8 - (current_bit_offset & 0x07))) - 1;
+
     /* Set offset to the byte we are treating */
-    offset = bit_offset>>3;
-    remaining_length = tvb_reported_length_remaining(tvb, offset);
-    /* If there is more then 2 bytes left there *should* be more data */
-    if (remaining_length>2) {
-        return TRUE;
-    }
-    /* Start from last bit */
-    last_one_bit = (tvb_reported_length(tvb) << 3);
+    byte_offset = current_bit_offset >> 3;
 
-    for (b = 0; !b; ) {
-        last_one_bit--;
-        b = tvb_get_bits8(tvb, last_one_bit, 1);
-    }
+    tvb_length = tvb_reported_length(tvb);
 
-    if (last_one_bit == bit_offset) {
-        return FALSE;
+    for (i = byte_offset; i < tvb_length; i++) {
+        current_byte = tvb_get_guint8(tvb, i);
+
+        if ((current_byte & significant_bits_mask) != 0) {
+            return TRUE;
+        }
+
+        /* For the rest of bytes every bits are significant*/
+        significant_bits_mask = 0xFF;
     }
 
-    return TRUE;
+    return FALSE;
 }
 
 static int
@@ -2518,7 +2525,7 @@ dissect_h264(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
 /* Capability */
 
-static const int *profile_fields[] = {
+static int * const profile_fields[] = {
     &hf_h264_par_profile_b,
     &hf_h264_par_profile_m,
     &hf_h264_par_profile_e,
@@ -2541,7 +2548,7 @@ dissect_h264_par_profile(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
     return offset;
 }
 
-static const int *AdditionalModesSupported_fields[] = {
+static int * const AdditionalModesSupported_fields[] = {
     &hf_h264_par_add_mode_sup_rcdo,
     NULL
 };
@@ -2559,7 +2566,7 @@ dissect_h264_par_AdditionalModesSupported(tvbuff_t *tvb, packet_info *pinfo _U_,
 }
 
 
-static const int *ProfileIOP_fields[] = {
+static int * const ProfileIOP_fields[] = {
     &hf_h264_par_constraint_set0_flag,
     &hf_h264_par_constraint_set1_flag,
     &hf_h264_par_constraint_set2_flag,
@@ -2702,16 +2709,6 @@ dissect_h264_name(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree, void*
     return tvb_reported_length(tvb);
 }
 
-
-static void range_delete_h264_rtp_pt_callback(guint32 rtp_pt, gpointer ptr _U_) {
-    if (rtp_pt >= 96 && rtp_pt <= 127)
-        dissector_delete_uint("rtp.pt", rtp_pt, h264_handle);
-}
-
-static void range_add_h264_rtp_pt_callback(guint32 rtp_pt, gpointer ptr _U_) {
-    if (rtp_pt >= 96 && rtp_pt <= 127)
-        dissector_add_uint("rtp.pt", rtp_pt, h264_handle);
-}
 
 void
 proto_register_h264(void)
@@ -3682,7 +3679,7 @@ proto_register_h264(void)
     };
 
 /* Register the protocol name and description */
-    proto_h264 = proto_register_protocol("H.264","H264", "h264");
+    proto_h264 = proto_register_protocol("H.264", "H.264", "h264");
 
 /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_h264, hf, array_length(hf));
@@ -3696,9 +3693,9 @@ proto_register_h264(void)
 
 
     prefs_register_range_preference(h264_module, "dynamic.payload.type",
-                            "H264 dynamic payload types",
-                            "Dynamic payload types which will be interpreted as H264"
-                            "; Values must be in the range 96 - 127",
+                            "H.264 dynamic payload types",
+                            "Dynamic payload types which will be interpreted as H.264"
+                            "; values must be in the range 1 - 127",
                             &temp_dynamic_payload_type_range, 127);
 
     h264_handle = register_dissector("h264", dissect_h264, proto_h264);
@@ -3728,12 +3725,14 @@ proto_reg_handoff_h264(void)
         }
         h264_prefs_initialized = TRUE;
     } else {
-        range_foreach(dynamic_payload_type_range, range_delete_h264_rtp_pt_callback, NULL);
+        dissector_delete_uint_range("rtp.pt", dynamic_payload_type_range, h264_handle);
         wmem_free(wmem_epan_scope(), dynamic_payload_type_range);
     }
 
     dynamic_payload_type_range = range_copy(wmem_epan_scope(), temp_dynamic_payload_type_range);
-    range_foreach(dynamic_payload_type_range, range_add_h264_rtp_pt_callback, NULL);
+    range_remove_value(wmem_epan_scope(), &dynamic_payload_type_range, 0);
+    dissector_add_uint_range("rtp.pt", dynamic_payload_type_range, h264_handle);
+
 }
 
 /*

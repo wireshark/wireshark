@@ -477,14 +477,34 @@ abs_time_to_str(wmem_allocator_t *scope, const nstime_t *abs_time, const absolut
 				}
 				break;
 			case ABSOLUTE_TIME_NTP_UTC:
-				if ((abs_time->secs == 0) && (abs_time->nsecs == 0)) {
-					buf = wmem_strdup(scope, "NULL");
-					break;
-				}
 				/* FALLTHROUGH */
-
 			case ABSOLUTE_TIME_UTC:
 			case ABSOLUTE_TIME_LOCAL:
+				if ((abs_time->secs == 0) && (abs_time->nsecs == 0)) {
+					if (show_zone) {
+						buf = wmem_strdup_printf(scope,
+							"(0)%s %2d, %d %02d:%02d:%02d.%09ld %s",
+							mon_names[tmp->tm_mon],
+							tmp->tm_mday,
+							tmp->tm_year + 1900,
+							tmp->tm_hour,
+							tmp->tm_min,
+							tmp->tm_sec,
+							(long)abs_time->nsecs,
+							zonename);
+					} else {
+						buf = wmem_strdup_printf(scope,
+							"(0)%s %2d, %d %02d:%02d:%02d.%09ld",
+							mon_names[tmp->tm_mon],
+							tmp->tm_mday,
+							tmp->tm_year + 1900,
+							tmp->tm_hour,
+							tmp->tm_min,
+							tmp->tm_sec,
+							(long)abs_time->nsecs);
+					}
+					break;
+				}
 				if (show_zone) {
 					buf = wmem_strdup_printf(scope,
 							"%s %2d, %d %02d:%02d:%02d.%09ld %s",

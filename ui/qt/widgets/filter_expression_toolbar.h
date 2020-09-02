@@ -11,6 +11,8 @@
 
 #include <glib.h>
 
+#include <QMenu>
+
 #ifndef FILTER_EXPRESSION_TOOLBAR_H
 #define FILTER_EXPRESSION_TOOLBAR_H
 
@@ -21,10 +23,10 @@ public:
     explicit FilterExpressionToolBar(QWidget * parent = Q_NULLPTR);
 
 protected:
-    virtual bool event(QEvent *event);
+    virtual bool event(QEvent *event) override;
+    virtual bool eventFilter(QObject *obj, QEvent *ev) override;
 
-protected:
-    virtual WiresharkMimeData * createMimeData(QString name, int position);
+    virtual WiresharkMimeData * createMimeData(QString name, int position) override;
 
 public slots:
     void filterExpressionsChanged();
@@ -40,17 +42,22 @@ protected slots:
     void onFilterDropped(QString description, QString filter);
 
 private slots:
-   void removeFilter();
-   void disableFilter();
-   void editFilter();
-   void filterClicked();
-   void toolBarShowPreferences();
+    void removeFilter();
+    void disableFilter();
+    void editFilter();
+    void filterClicked();
+    void toolBarShowPreferences();
+
+    void closeMenu(QAction *);
 
 private:
-   void updateStyleSheet();
-   int uatRowIndexForFilter(QString label, QString expression);
+    void updateStyleSheet();
+    int uatRowIndexForFilter(QString label, QString expression);
 
-   static gboolean filter_expression_add_action(const void *key, void *value, void *user_data);
+    void customMenu(FilterExpressionToolBar * target, QAction * filterAction, const QPoint& pos);
+
+    static gboolean filter_expression_add_action(const void *key, void *value, void *user_data);
+    static QMenu * findParentMenu(const QStringList tree, void *fed_data, QMenu *parent = Q_NULLPTR);
 };
 
 #endif //FILTER_EXPRESSION_TOOLBAR_H

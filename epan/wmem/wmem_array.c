@@ -67,7 +67,7 @@ wmem_array_new(wmem_allocator_t *allocator, const gsize elem_size)
     return array;
 }
 
-static void
+void
 wmem_array_grow(wmem_array_t *array, const guint to_add)
 {
     guint new_alloc_count, new_count;
@@ -156,6 +156,13 @@ guint
 wmem_array_get_count(wmem_array_t *array)
 {
     return array->elem_count;
+}
+
+void
+wmem_destroy_array(wmem_array_t *array)
+{
+    wmem_free(array->allocator, array->buf);
+    wmem_free(array->allocator, array);
 }
 
 /*

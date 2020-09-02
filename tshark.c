@@ -214,6 +214,18 @@ static gboolean infoprint;      /* if TRUE, print capture info after clearing in
 #endif /* SIGINFO */
 
 static gboolean capture(void);
+static gboolean capture_input_new_file(capture_session *cap_session,
+                                       gchar *new_file);
+static void capture_input_new_packets(capture_session *cap_session,
+                                      int to_read);
+static void capture_input_drops(capture_session *cap_session, guint32 dropped,
+                                const char* interface_name);
+static void capture_input_error(capture_session *cap_session,
+                                char *error_msg, char *secondary_error_msg);
+static void capture_input_cfilter_error(capture_session *cap_session,
+                                        guint i, const char *error_message);
+static void capture_input_closed(capture_session *cap_session, gchar *msg);
+
 static void report_counts(void);
 #ifdef _WIN32
 static BOOL WINAPI capture_cleanup(DWORD);
@@ -402,20 +414,12 @@ print_usage(FILE *output)
 
   /*fprintf(output, "\n");*/
   fprintf(output, "Output:\n");
-#ifdef PCAP_NG_DEFAULT
   fprintf(output, "  -w <outfile|->           write packets to a pcapng-format file named \"outfile\"\n");
-#else
-  fprintf(output, "  -w <outfile|->           write packets to a pcap-format file named \"outfile\"\n");
-#endif
   fprintf(output, "                           (or '-' for stdout)\n");
   fprintf(output, "  --capture-comment <comment>\n");
   fprintf(output, "                           set the capture file comment, if supported\n");
   fprintf(output, "  -C <config profile>      start with specified configuration profile\n");
-#ifdef PCAP_NG_DEFAULT
   fprintf(output, "  -F <output file type>    set the output file type, default is pcapng\n");
-#else
-  fprintf(output, "  -F <output file type>    set the output file type, default is pcap\n");
-#endif
   fprintf(output, "                           an empty \"-F\" option will list the file types\n");
   fprintf(output, "  -V                       add output of packet tree        (Packet Details)\n");
   fprintf(output, "  -O <protocols>           Only show packet details of these protocols, comma\n");
@@ -721,11 +725,7 @@ main(int argc, char *argv[])
   volatile int         max_packet_count = 0;
 #endif
   gboolean             quiet = FALSE;
-#ifdef PCAP_NG_DEFAULT
   volatile int         out_file_type = WTAP_FILE_TYPE_SUBTYPE_PCAPNG;
-#else
-  volatile int         out_file_type = WTAP_FILE_TYPE_SUBTYPE_PCAP;
-#endif
   volatile gboolean    out_file_name_res = FALSE;
   volatile int         in_file_type = WTAP_TYPE_AUTO;
   gchar               *volatile cf_name = NULL;
@@ -764,10 +764,17 @@ main(int argc, char *argv[])
 
   static const char    optstring[] = OPTSTRING;
 
-  tshark_debug("tshark started with %d args", argc);
-
-  /* Set the C-language locale to the native environment. */
+  /*
+   * Set the C-language locale to the native environment and set the
+   * code page to UTF-8 on Windows.
+   */
+#ifdef _WIN32
+  setlocale(LC_ALL, ".UTF-8");
+#else
   setlocale(LC_ALL, "");
+#endif
+
+  tshark_debug("tshark started with %d args", argc);
 
   cmdarg_err_init(failure_warning_message, failure_message_cont);
 
@@ -903,7 +910,10 @@ main(int argc, char *argv[])
 
 #ifdef HAVE_LIBPCAP
   capture_opts_init(&global_capture_opts);
-  capture_session_init(&global_capture_session, &cfile);
+  capture_session_init(&global_capture_session, &cfile,
+                       capture_input_new_file, capture_input_new_packets,
+                       capture_input_drops, capture_input_error,
+                       capture_input_cfilter_error, capture_input_closed);
 #endif
 
   timestamp_set_type(TS_RELATIVE);
@@ -930,7 +940,6 @@ main(int argc, char *argv[])
 #ifdef HAVE_PLUGINS
   register_all_plugin_tap_listeners();
 #endif
-  extcap_register_preferences();
   /* Register all tap listeners. */
   for (tap_reg_t *t = tap_reg_listener; t->cb_func != NULL; t++) {
     t->cb_func();
@@ -958,6 +967,7 @@ main(int argc, char *argv[])
       if (strcmp(argv[2], "column-formats") == 0)
         column_dump_column_formats();
       else if (strcmp(argv[2], "currentprefs") == 0) {
+        extcap_register_preferences();
         epan_load_settings();
         write_prefs(NULL);
       }
@@ -2268,6 +2278,7 @@ main(int argc, char *argv[])
   output_fields = NULL;
 
 clean_exit:
+  cf_close(&cfile);
   g_free(cf_name);
   destroy_print_stream(print_stream);
   g_free(output_file_name);
@@ -2278,7 +2289,6 @@ clean_exit:
   free_filter_lists();
   wtap_cleanup();
   free_progdirs();
-  cf_close(&cfile);
   dfilter_free(dfcode);
   return exit_status;
 }
@@ -2571,8 +2581,8 @@ capture(void)
 }
 
 /* capture child detected an error */
-void
-capture_input_error_message(capture_session *cap_session _U_, char *error_msg, char *secondary_error_msg)
+static void
+capture_input_error(capture_session *cap_session _U_, char *error_msg, char *secondary_error_msg)
 {
   cmdarg_err("%s", error_msg);
   cmdarg_err_cont("%s", secondary_error_msg);
@@ -2580,8 +2590,8 @@ capture_input_error_message(capture_session *cap_session _U_, char *error_msg, c
 
 
 /* capture child detected an capture filter related error */
-void
-capture_input_cfilter_error_message(capture_session *cap_session, guint i, const char *error_message)
+static void
+capture_input_cfilter_error(capture_session *cap_session, guint i, const char *error_message)
 {
   capture_options *capture_opts = cap_session->capture_opts;
   dfilter_t         *rfcode = NULL;
@@ -2615,7 +2625,7 @@ capture_input_cfilter_error_message(capture_session *cap_session, guint i, const
 
 
 /* capture child tells us we have a new (or the first) capture file */
-gboolean
+static gboolean
 capture_input_new_file(capture_session *cap_session, gchar *new_file)
 {
   capture_options *capture_opts = cap_session->capture_opts;
@@ -2635,11 +2645,7 @@ capture_input_new_file(capture_session *cap_session, gchar *new_file)
 
     /* we start a new capture file, close the old one (if we had one before) */
     if (cf->state != FILE_CLOSED) {
-      if (cf->provider.wth != NULL) {
-        wtap_close(cf->provider.wth);
-        cf->provider.wth = NULL;
-      }
-      cf->state = FILE_CLOSED;
+      cf_close(cf);
     }
 
     g_free(capture_opts->save_file);
@@ -2679,7 +2685,7 @@ capture_input_new_file(capture_session *cap_session, gchar *new_file)
 
 
 /* capture child tells us we have new packets to read */
-void
+static void
 capture_input_new_packets(capture_session *cap_session, int to_read)
 {
   gboolean      ret;
@@ -2832,7 +2838,7 @@ report_counts_siginfo(int signum _U_)
 
 
 /* capture child detected any packet drops? */
-void
+static void
 capture_input_drops(capture_session *cap_session _U_, guint32 dropped, const char* interface_name)
 {
   if (print_packet_counts) {
@@ -2857,22 +2863,14 @@ capture_input_drops(capture_session *cap_session _U_, guint32 dropped, const cha
  * Capture child closed its side of the pipe, report any error and
  * do the required cleanup.
  */
-void
-capture_input_closed(capture_session *cap_session, gchar *msg)
+static void
+capture_input_closed(capture_session *cap_session _U_, gchar *msg)
 {
-  capture_file *cf = cap_session->cf;
-
   if (msg != NULL)
     fprintf(stderr, "tshark: %s\n", msg);
 
   report_counts();
 
-  if (cf != NULL && cf->provider.wth != NULL) {
-    wtap_close(cf->provider.wth);
-    if (cf->is_tempfile) {
-      ws_unlink(cf->filename);
-    }
-  }
 #ifdef USE_BROKEN_G_MAIN_LOOP
   /*g_main_loop_quit(loop);*/
   g_main_loop_quit(loop);
@@ -4250,7 +4248,24 @@ write_finale(void)
 void
 cf_close(capture_file *cf)
 {
-  g_free(cf->filename);
+  if (cf->state == FILE_CLOSED)
+    return; /* Nothing to do */
+
+  if (cf->provider.wth != NULL) {
+    wtap_close(cf->provider.wth);
+    cf->provider.wth = NULL;
+  }
+  /* We have no file open... */
+  if (cf->filename != NULL) {
+    /* If it's a temporary file, remove it. */
+    if (cf->is_tempfile)
+      ws_unlink(cf->filename);
+    g_free(cf->filename);
+    cf->filename = NULL;
+  }
+
+  /* We have no file open. */
+  cf->state = FILE_CLOSED;
 }
 
 cf_status_t
@@ -4289,6 +4304,8 @@ cf_open(capture_file *cf, const char *fname, unsigned int type, gboolean is_temp
   cf->provider.ref = NULL;
   cf->provider.prev_dis = NULL;
   cf->provider.prev_cap = NULL;
+
+  cf->state = FILE_READ_IN_PROGRESS;
 
   /* Create new epan session for dissection. */
   epan_free(cf->epan);

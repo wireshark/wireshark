@@ -433,8 +433,15 @@ main(int argc, char *argv[])
 
     static const char    optstring[] = OPTSTRING_INIT;
 
-    /* Set the C-language locale to the native environment. */
+    /*
+     * Set the C-language locale to the native environment and set the
+     * code page to UTF-8 on Windows.
+     */
+#ifdef _WIN32
+    setlocale(LC_ALL, ".UTF-8");
+#else
     setlocale(LC_ALL, "");
+#endif
 
     cmdarg_err_init(rawshark_cmdarg_err, rawshark_cmdarg_err_cont);
 
@@ -1164,8 +1171,8 @@ static gboolean print_field_value(field_info *finfo, int cmd_line_index)
                         switch(hfinfo->type) {
                             case FT_BOOLEAN:
                                 uvalue64 = fvalue_get_uinteger64(&finfo->value);
-                                tfstring = (const struct true_false_string*) hfinfo->strings;
-                                g_string_append(label_s, uvalue64 ? tfstring->true_string : tfstring->false_string);
+                                tfstring = (const true_false_string*) hfinfo->strings;
+                                g_string_append(label_s, tfs_get_string(!!uvalue64, tfstring));
                                 break;
                             case FT_INT8:
                             case FT_INT16:
@@ -1330,7 +1337,6 @@ add_string_fmt(string_fmt_e format, gchar *plain) {
 
 static gboolean
 parse_field_string_format(gchar *format) {
-    GString *plain_s = g_string_new("");
     size_t len;
     size_t pos = 0;
 
@@ -1338,12 +1344,14 @@ parse_field_string_format(gchar *format) {
         return FALSE;
     }
 
+    GString *plain_s = g_string_new("");
+
     len = strlen(format);
     g_ptr_array_set_size(string_fmts, 0);
 
     while (pos < len) {
         if (format[pos] == '%') {
-            if (pos >= len) { /* There should always be a following character */
+            if (pos >= (len-1)) { /* There should always be a following specifier character */
                 return FALSE;
             }
             pos++;

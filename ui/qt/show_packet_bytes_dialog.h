@@ -38,6 +38,8 @@ public:
     explicit ShowPacketBytesDialog(QWidget &parent, CaptureFile &cf);
     ~ShowPacketBytesDialog();
 
+    void addCodecs(const QMap<QString, QTextCodec *> &codecMap);
+
 public slots:
     void captureFileClosing();
 
@@ -78,11 +80,9 @@ private:
         ShowAsHexDump,
         ShowAsHTML,
         ShowAsImage,
-        ShowAsISO8859_1,
         ShowAsRAW,
-        ShowAsUTF8,
-        ShowAsUTF16,
-        ShowAsYAML
+        ShowAsCodec, // Ordered to match the UTF-8 combobox index
+        ShowAsYAML,
     };
 
     void setStartAndEnd(int start, int end);

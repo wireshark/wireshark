@@ -2908,7 +2908,7 @@ const TLV_PARSER_ENTRY tlvVnsConfigTable[]  =
 	{ EID_V_CHANNEL_REPORT, "Channel Report", TLV_TYPE_OCTETS, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_V_WDS_SERVICE, "WDS Service Type: 0 = None, 1 = Child, 2 = Parent, 3 = Both", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_V_WDS_BSSID_PARENT, "WDS Parent BSSID", TLV_TYPE_MACADD, 0, 0, 0, 0, 0, 0, 0, 0},
-	{ EID_V_WDS_BRIDGE, "Enable WDS Bridge: 0 = Unkown, 1 = Enable, 2 = Disable", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
+	{ EID_V_WDS_BRIDGE, "Enable WDS Bridge: 0 = Unknown, 1 = Enable, 2 = Disable", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_V_OKC_ENABLED, "OKC/Preauthentication", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_V_MU_ASSOC_RETRIES, "MU Association Retries", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_V_MU_ASSOC_TIMEOUT, "MU Association Request Time Out", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -4769,7 +4769,7 @@ int dissect_wassp_sub_tlv(proto_tree *wassp_tree, tvbuff_t *tvb, packet_info *pi
 			length = tvb_get_ntohs(tvb, offset + TLV_LENGTH);
 			if (tlv_type >= WASSP_SUBTLV_GET_MAXENTRY(tmp_decr))
 			{
-				proto_tree_add_uint_format_value(tmp_tree, hf_wassp_tlv_unknown, tvb, offset, 4, tlv_type, "Unknow Wassp TLV (%d)", tlv_type);
+				proto_tree_add_uint_format_value(tmp_tree, hf_wassp_tlv_unknown, tvb, offset, 4, tlv_type, "Unknown Wassp TLV (%d)", tlv_type);
 				proto_tree_add_item(tmp_tree, hf_wassp_tlv_length, tvb, offset + TLV_LENGTH, 2, ENC_BIG_ENDIAN);
 				proto_tree_add_item(tmp_tree, hf_wassp_tlv_value_octext, tvb, offset + TLV_VALUE, length - 4, ENC_NA);
 				offset += length;
@@ -5201,9 +5201,7 @@ int dissect_wassp_tlv(proto_tree *wassp_tree, tvbuff_t *tvb, packet_info *pinfo,
 		case EID_RU_STATE:                     // 11
 			proto_tree_add_item(tlv_tree, hf_wassp_tlv_eid_rustate, tvb, offset + TLV_VALUE, length - 4, ENC_BIG_ENDIAN);
 			proto_item_append_text(tlvi, ": %s",
-					       (tvb_get_guint8(tvb, offset + TLV_VALUE) ?
-						wassp_eid_rustate_types.true_string :
-						wassp_eid_rustate_types.false_string));
+					       tfs_get_string(tvb_get_guint8(tvb, offset + TLV_VALUE), &wassp_eid_rustate_types));
 			offset += length;
 			break;
 

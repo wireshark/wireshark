@@ -127,13 +127,6 @@ static int hf_gsm_map_len = -1;
 static int hf_gsm_map_disc_par = -1;
 static int hf_gsm_map_dlci = -1;
 static int hf_gsm_apn_str = -1;
-static int hf_gsm_map_locationnumber_odd_even = -1;
-static int hf_gsm_map_locationnumber_nai = -1;
-static int hf_gsm_map_locationnumber_inn = -1;
-static int hf_gsm_map_locationnumber_npi = -1;
-static int hf_gsm_map_locationnumber_apri = -1;
-static int hf_gsm_map_locationnumber_screening_ind = -1;
-static int hf_gsm_map_locationnumber_digits = -1;
 static int hf_gsm_map_ericsson_locationInformation_rat = -1;
 static int hf_gsm_map_ericsson_locationInformation_lac = -1;
 static int hf_gsm_map_ericsson_locationInformation_ci = -1;
@@ -350,54 +343,6 @@ static const value_string gsm_map_ericsson_locationInformation_rat_vals[] = {
   { 0, NULL }
 };
 
-/* ITU-T Q.763 (12/1999)
- * 3.30 Location number
- */
-/* b) Nature of address indicator */
-static const range_string gsm_map_na_vals[] = {
-  { 0, 0, "spare" },
-  { 1, 1, "reserved for subscriber number (national use)" },
-  { 2, 2, "reserved for unknown (national use)" },
-  { 3, 3, "national (significant) number (national use)" },
-  { 4, 4, "international number" },
-  { 5, 0x6f, "spare" },
-  { 0x70, 0x7e, "spare" },
-  { 0x70, 0x7e, "reserved for national use" },
-  { 0x7f, 0x7f, "spare" },
-  { 0, 0, NULL }
-};
-
-/* d) Numbering plan indicator */
-static const value_string gsm_map_np_vals[] = {
-  {  0, "spare" },
-  {  1, "ISDN (telephony) numbering plan (ITU-T Recommendation E.164)" },
-  {  2, "spare" },
-  {  3, "Data numbering plan (ITU-T Recommendation X.121) (national use)" },
-  {  4, "Telex numbering plan (ITU-T Recommendation F.69) (national use)" },
-  {  5, "private numbering plan" },
-  {  6, "reserved for national use" },
-  {  7, "spare" },
-  { 0, NULL }
-};
-/*
- * e) Address presentation restricted indicator
- */
-static const value_string gsm_map_addr_pres_rest_vals[] = {
-  {  0, "presentation allowed" },
-  {  1, "presentation restricted" },
-  {  2, "address not available (national use)" },
-  {  3, "spare" },
-  { 0, NULL }
-};
-
-/* f) Screening indicator */
-static const value_string gsm_map_screening_ind_vals[] = {
-  {  0, "reserved" },
-  {  1, "user provided, verified and passed" },
-  {  2, "reserved" },
-  {  3, "network provided" },
-  { 0, NULL }
-};
 
 /* returns value in kb/s */
 static guint
@@ -1055,7 +1000,6 @@ dissect_cbs_data_coding_scheme(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 void
 dissect_gsm_map_msisdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  const char  *digit_str;
   guint8      octet;
   guint8      na;
   guint8      np;
@@ -1081,8 +1025,7 @@ dissect_gsm_map_msisdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           dissect_e164_msisdn(tvb, tree, 1, tvb_reported_length(tvb)-1, E164_ENC_BCD);
       break;
       default:
-          digit_str = tvb_bcd_dig_to_wmem_packet_str(tvb, 1, -1, NULL, FALSE);
-          proto_tree_add_string(tree, hf_gsm_map_address_digits, tvb, 1, -1, digit_str);
+          proto_tree_add_item(tree, hf_gsm_map_address_digits, tvb, 1, -1, ENC_BCD_DIGITS_0_9);
           break;
       }
       break;
@@ -1091,8 +1034,7 @@ dissect_gsm_map_msisdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       dissect_e212_imsi(tvb, pinfo, tree,  1, tvb_reported_length(tvb)-1, FALSE);
       break;
   default:
-      digit_str = tvb_bcd_dig_to_wmem_packet_str(tvb, 1, -1, NULL, FALSE);
-      proto_tree_add_string(tree, hf_gsm_map_address_digits, tvb, 1, -1, digit_str);
+      proto_tree_add_item(tree, hf_gsm_map_address_digits, tvb, 1, -1, ENC_BCD_DIGITS_0_9);
       break;
   }
 
@@ -1120,10 +1062,7 @@ static const value_string gsm_map_err_code_string_vals[] = {
 };
 #endif
 
-static const true_false_string gsm_map_extension_value = {
-  "No Extension",
-  "Extension"
-};
+
 static const value_string gsm_map_nature_of_number_values[] = {
   { 0x00, "unknown" },
   { 0x01, "International Number" },
@@ -2677,7 +2616,7 @@ static const true_false_string notification_value  = {
 */
 static const true_false_string redirecting_presentation_value  = {
   "Presentation",
-  "No presentationn"
+  "No presentation"
 };
 /*
 -- bit 6: notification to calling party
@@ -3062,7 +3001,7 @@ void proto_register_gsm_map(void) {
           NULL, HFILL }},
       { &hf_gsm_map_extension,
         { "Extension", "gsm_map.extension",
-          FT_BOOLEAN, 8, TFS(&gsm_map_extension_value), 0x80,
+          FT_BOOLEAN, 8, TFS(&tfs_no_extension_extension), 0x80,
           NULL, HFILL }},
       { &hf_gsm_map_nature_of_number,
         { "Nature of number", "gsm_map.nature_of_number",
@@ -3283,34 +3222,6 @@ void proto_register_gsm_map(void) {
           "Data Link Connection Indicator", HFILL }},
       { &hf_gsm_apn_str,
         { "APN", "gsm_map.apn_str",
-          FT_STRING, BASE_NONE, NULL, 0,
-          NULL, HFILL }},
-      { &hf_gsm_map_locationnumber_odd_even,
-        { "Odd/Even", "gsm_map.locationnumber.odd_even",
-          FT_BOOLEAN, 8, NULL, 0x80,
-          NULL, HFILL }},
-      { &hf_gsm_map_locationnumber_nai,
-        { "Nature of address indicator", "gsm_map.locationnumber.nai",
-          FT_UINT8, BASE_RANGE_STRING | BASE_DEC, RVALS(gsm_map_na_vals), 0x3f,
-          NULL, HFILL }},
-      { &hf_gsm_map_locationnumber_inn,
-        { "Internal Network Number indicator (INN)", "gsm_map.locationnumber.inn",
-          FT_BOOLEAN, 8, NULL, 0x80,
-          NULL, HFILL }},
-      { &hf_gsm_map_locationnumber_npi,
-        { "Numbering plan indicator", "gsm_map.locationnumber.npi",
-          FT_UINT8, BASE_DEC, VALS(gsm_map_np_vals), 0x30,
-          NULL, HFILL }},
-      { &hf_gsm_map_locationnumber_apri,
-        { "Address presentation restricted indicator", "gsm_map.locationnumber.apri",
-          FT_UINT8, BASE_DEC, VALS(gsm_map_addr_pres_rest_vals), 0x0c,
-          NULL, HFILL }},
-      { &hf_gsm_map_locationnumber_screening_ind,
-        { "Screening indicator", "gsm_map.locationnumber.screening_ind",
-          FT_UINT8, BASE_DEC, VALS(gsm_map_screening_ind_vals), 0x03,
-          NULL, HFILL }},
-      { &hf_gsm_map_locationnumber_digits,
-        { "Address digits", "gsm_map.locationnumber.digits",
           FT_STRING, BASE_NONE, NULL, 0,
           NULL, HFILL }},
       { &hf_gsm_map_ericsson_locationInformation_rat,

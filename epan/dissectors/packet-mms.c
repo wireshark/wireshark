@@ -19,9 +19,6 @@
 
 #include "config.h"
 
-#include <glib.h>
-#include <stdio.h>
-
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/asn1.h>
@@ -729,7 +726,7 @@ static int hf_mms_Transitions_idle_to_active = -1;
 static int hf_mms_Transitions_any_to_deleted = -1;
 
 /*--- End of included file: packet-mms-hf.c ---*/
-#line 38 "./asn1/mms/packet-mms-template.c"
+#line 35 "./asn1/mms/packet-mms-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_mms = -1;
@@ -953,7 +950,7 @@ static gint ett_mms_DirectoryEntry = -1;
 static gint ett_mms_FileAttributes = -1;
 
 /*--- End of included file: packet-mms-ett.c ---*/
-#line 42 "./asn1/mms/packet-mms-template.c"
+#line 39 "./asn1/mms/packet-mms-template.c"
 
 static expert_field ei_mms_mal_timeofday_encoding = EI_INIT;
 static expert_field ei_mms_mal_utctime_encoding = EI_INIT;
@@ -1133,7 +1130,7 @@ dissect_mms_ObjectName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 }
 
 
-static const int * Transitions_bits[] = {
+static int * const Transitions_bits[] = {
   &hf_mms_Transitions_idle_to_disabled,
   &hf_mms_Transitions_active_to_disabled,
   &hf_mms_Transitions_disabled_to_idle,
@@ -7061,7 +7058,7 @@ dissect_mms_Integer16(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 }
 
 
-static const int * ParameterSupportOptions_bits[] = {
+static int * const ParameterSupportOptions_bits[] = {
   &hf_mms_ParameterSupportOptions_str1,
   &hf_mms_ParameterSupportOptions_str2,
   &hf_mms_ParameterSupportOptions_vnam,
@@ -7086,7 +7083,7 @@ dissect_mms_ParameterSupportOptions(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 }
 
 
-static const int * ServiceSupportOptions_bits[] = {
+static int * const ServiceSupportOptions_bits[] = {
   &hf_mms_ServiceSupportOptions_status,
   &hf_mms_ServiceSupportOptions_getNameList,
   &hf_mms_ServiceSupportOptions_identify,
@@ -7351,7 +7348,7 @@ dissect_mms_MMSpdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 
 /*--- End of included file: packet-mms-fn.c ---*/
-#line 128 "./asn1/mms/packet-mms-template.c"
+#line 125 "./asn1/mms/packet-mms-template.c"
 
 /*
 * Dissect MMS PDUs inside a PPDU.
@@ -10120,7 +10117,7 @@ void proto_register_mms(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-mms-hfarr.c ---*/
-#line 168 "./asn1/mms/packet-mms-template.c"
+#line 165 "./asn1/mms/packet-mms-template.c"
 	};
 
 	/* List of subtrees */
@@ -10346,7 +10343,7 @@ void proto_register_mms(void) {
     &ett_mms_FileAttributes,
 
 /*--- End of included file: packet-mms-ettarr.c ---*/
-#line 174 "./asn1/mms/packet-mms-template.c"
+#line 171 "./asn1/mms/packet-mms-template.c"
 	};
 
 	static ei_register_info ei[] = {

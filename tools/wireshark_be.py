@@ -22,8 +22,7 @@
 # Description:
 #
 #   Omniidl Back-end which parses an IDL data structure provided by the frontend
-#   and generates packet-idl-xxx.[ch] for compiling as a dissector in 
-#   Wireshark IP protocol anlayser.
+#   and generates packet-idl-xxx.[ch] for compiling as a dissector in Wireshark.
 #
 #
 # Strategy.
@@ -32,7 +31,7 @@
 # "Struct" and "Union" nodes.  Then store these nodes in lists.
 #
 # Pass these lists (via an object ref) to the src code
-# generator (wireshark_gen) class and let it do the hard work ! 
+# generator (wireshark_gen) class and let it do the hard work !
 #
 #
 # Don't forget structs can contain embedded structs etc .. so don't forget
@@ -217,7 +216,7 @@ def run(tree, args):
     ev.visitAST(tree)  # go find some operations
 
     # Grab name of main IDL file being compiled.
-    # 
+    #
     # Assumption: Name is of the form   abcdefg.xyz  (eg: CosNaming.idl)
 
     fname = path.basename(tree.file())  # grab basename only, dont care about path

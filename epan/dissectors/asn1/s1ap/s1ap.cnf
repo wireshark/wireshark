@@ -22,10 +22,13 @@ Cause
 #.EXPORTS
 EN-DCSONConfigurationTransfer_PDU
 ENB-StatusTransfer-TransparentContainer_PDU
+EUTRAN-CGI_PDU
 Global-ENB-ID_PDU
 Global-ENB-ID
+HandoverRestrictionList_PDU
 LastVisitedEUTRANCellInformation_PDU
 LastVisitedGERANCellInformation_PDU
+MDTMode_PDU
 SourceeNB-ToTargeteNB-TransparentContainer_PDU
 SONtransferApplicationIdentity_PDU
 SONtransferRequestContainer_PDU
@@ -35,13 +38,15 @@ SONtransferResponseContainer
 SONtransferCause_PDU
 TargeteNB-ToSourceeNB-TransparentContainer_PDU
 UE-HistoryInformation_PDU
-EUTRAN-CGI_PDU
 
 #.PDU
 EN-DCSONConfigurationTransfer
 ENB-StatusTransfer-TransparentContainer
+EUTRAN-CGI
+HandoverRestrictionList
 LastVisitedEUTRANCellInformation
 LastVisitedGERANCellInformation
+MDTMode
 S1AP-PDU
 SourceeNB-ToTargeteNB-TransparentContainer
 SONtransferApplicationIdentity
@@ -50,7 +55,6 @@ SONtransferResponseContainer
 SONtransferCause
 TargeteNB-ToSourceeNB-TransparentContainer
 UE-HistoryInformation
-EUTRAN-CGI
 
 #.MAKE_ENUM
 HandoverType
@@ -414,6 +418,12 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
         Intra E-UTRAN handover Source eNB to Target eNB
         Transparent Container 36.413
       */
+      case utrantolte:
+      /* utrantolte */
+      case gerantolte:
+      /* gerantolte */
+      case fivegs_to_eps:
+      /* fivegs_to_eps */
       dissect_s1ap_SourceeNB_ToTargeteNB_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
       break;
       case ltetoutran:
@@ -436,18 +446,9 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
       else
         de_bssgp_source_BSS_to_target_BSS_transp_cont(parameter_tvb, subtree, actx->pinfo, 0, tvb_reported_length(parameter_tvb), NULL, 0);
       break;
-      case utrantolte:
-      /* utrantolte */
-      break;
-      case gerantolte:
-      /* gerantolte */
-      break;
       case eps_to_5gs:
       /* eps_to_5gs */
       dissect_ngap_SourceNGRANNode_ToTargetNGRANNode_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
-      break;
-      case fivegs_to_eps:
-      /* fivegs_to_eps */
       break;
       default:
       break;
@@ -485,6 +486,12 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
         Intra E-UTRAN handover Target eNB to Source eNB
         Transparent Container 36.413
       */
+      case utrantolte:
+      /* utrantolte */
+      case gerantolte:
+      /* gerantolte */
+      case fivegs_to_eps:
+      /* fivegs_to_eps */
       dissect_s1ap_TargeteNB_ToSourceeNB_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
       break;
       case ltetoutran:
@@ -501,18 +508,9 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
       */
       de_bssgp_target_BSS_to_source_BSS_transp_cont(parameter_tvb, subtree, actx->pinfo, 0, tvb_reported_length(parameter_tvb), NULL, 0);
       break;
-      case utrantolte:
-      /* utrantolte */
-      break;
-      case gerantolte:
-      /* gerantolte */
-      break;
       case eps_to_5gs:
       /* eps_to_5gs */
       dissect_ngap_TargetNGRANNode_ToSourceNGRANNode_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
-      break;
-      case fivegs_to_eps:
-      /* fivegs_to_eps */
       break;
       default:
       break;
@@ -573,33 +571,31 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
         if ((s1ap_is_nbiot_ue(actx->pinfo) && (g_s1ap_dissect_lte_container_as == S1AP_LTE_CONTAINER_AUTOMATIC)) ||
             (g_s1ap_dissect_lte_container_as == S1AP_LTE_CONTAINER_NBIOT)) {
           TRY {
-              dissect_lte_rrc_HandoverPreparationInformation_NB_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+            dissect_lte_rrc_HandoverPreparationInformation_NB_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
           }
           CATCH_BOUNDS_ERRORS {
-              show_exception(parameter_tvb, actx->pinfo, subtree, EXCEPT_CODE, GET_MESSAGE);
-         }
-         ENDTRY;
-
+            show_exception(parameter_tvb, actx->pinfo, subtree, EXCEPT_CODE, GET_MESSAGE);
+          }
+          ENDTRY;
         } else {
           TRY {
-              dissect_lte_rrc_HandoverPreparationInformation_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+            dissect_lte_rrc_HandoverPreparationInformation_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
           }
           CATCH_BOUNDS_ERRORS {
-              show_exception(parameter_tvb, actx->pinfo, subtree, EXCEPT_CODE, GET_MESSAGE);
-         }
-         ENDTRY;
+            show_exception(parameter_tvb, actx->pinfo, subtree, EXCEPT_CODE, GET_MESSAGE);
+          }
+          ENDTRY;
         }
         break;
       case SUCCESSFUL_OUTCOME:
         /* 9.2.1.8 Target eNB to Source eNB Transparent Container */
           TRY {
-              dissect_lte_rrc_HandoverCommand_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+            dissect_lte_rrc_HandoverCommand_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
           }
           CATCH_BOUNDS_ERRORS {
-              show_exception(parameter_tvb, actx->pinfo, subtree, EXCEPT_CODE, GET_MESSAGE);
-         }
-         ENDTRY;
-
+            show_exception(parameter_tvb, actx->pinfo, subtree, EXCEPT_CODE, GET_MESSAGE);
+          }
+          ENDTRY;
         break;
       default:
         break;
@@ -616,14 +612,13 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
 
   if (g_s1ap_dissect_container) {
     subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_UE_HistoryInformationFromTheUE);
-   TRY {
-        dissect_lte_rrc_VisitedCellInfoList_r12_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
-      }
-      CATCH_BOUNDS_ERRORS {
-        show_exception(parameter_tvb, actx->pinfo, subtree, EXCEPT_CODE, GET_MESSAGE);
-      }
-      ENDTRY;
-
+    TRY {
+      dissect_lte_rrc_VisitedCellInfoList_r12_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+    }
+    CATCH_BOUNDS_ERRORS {
+      show_exception(parameter_tvb, actx->pinfo, subtree, EXCEPT_CODE, GET_MESSAGE);
+    }
+    ENDTRY;
   }
 
 #.FN_BODY UERadioCapability VAL_PTR = &parameter_tvb
@@ -635,9 +630,12 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
     return offset;
 
   if (g_s1ap_dissect_container) {
+    struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
     volatile dissector_handle_t handle;
     subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_UERadioCapability);
-    if ((s1ap_is_nbiot_ue(actx->pinfo) && (g_s1ap_dissect_lte_container_as == S1AP_LTE_CONTAINER_AUTOMATIC)) ||
+    if (s1ap_data->protocol_ie_id == id_UERadioCapability_NR_Format) {
+      handle = nr_rrc_ue_radio_access_cap_info_handle;
+    } else if ((s1ap_is_nbiot_ue(actx->pinfo) && (g_s1ap_dissect_lte_container_as == S1AP_LTE_CONTAINER_AUTOMATIC)) ||
         (g_s1ap_dissect_lte_container_as == S1AP_LTE_CONTAINER_NBIOT)) {
       handle = lte_rrc_ue_radio_access_cap_info_nb_handle;
     } else {
@@ -804,7 +802,31 @@ if (gcsna_handle) {
 
   if (g_s1ap_dissect_container) {
     subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_UE_RLF_Report_Container_for_extended_bands);
-    dissect_lte_rrc_RLF_Report_v9e0_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+    TRY {
+      dissect_lte_rrc_RLF_Report_v9e0_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+    }
+    CATCH_BOUNDS_ERRORS {
+      show_exception(parameter_tvb, actx->pinfo, subtree, EXCEPT_CODE, GET_MESSAGE);
+    }
+    ENDTRY;
+  }
+
+#.FN_BODY NB-IoT-RLF-Report-Container VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb;
+  proto_tree *subtree;
+%(DEFAULT_BODY)s
+  if (!parameter_tvb)
+    return offset;
+
+  if (g_s1ap_dissect_container) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_NB_IoT_RLF_Report_Container);
+    TRY {
+      dissect_lte_rrc_RLF_Report_NB_r16_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+    }
+    CATCH_BOUNDS_ERRORS {
+      show_exception(parameter_tvb, actx->pinfo, subtree, EXCEPT_CODE, GET_MESSAGE);
+    }
+    ENDTRY;
   }
 
 #.FN_BODY TooEarlyInterRATHOReportReportFromEUTRAN/uERLFReportContainer VAL_PTR = &parameter_tvb
@@ -818,13 +840,13 @@ if (gcsna_handle) {
 
   if (g_s1ap_dissect_container) {
     subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_UE_RLF_Report_Container);
-      TRY {
-        dissect_lte_rrc_RLF_Report_r9_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
-      }
-      CATCH_BOUNDS_ERRORS {
-        show_exception(parameter_tvb, actx->pinfo, subtree, EXCEPT_CODE, GET_MESSAGE);
-      }
-      ENDTRY;
+    TRY {
+      dissect_lte_rrc_RLF_Report_r9_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+    }
+    CATCH_BOUNDS_ERRORS {
+      show_exception(parameter_tvb, actx->pinfo, subtree, EXCEPT_CODE, GET_MESSAGE);
+    }
+    ENDTRY;
   }
 
 #.TYPE_ATTR
@@ -856,7 +878,7 @@ ProtocolExtensionID TYPE = FT_UINT8  DISPLAY = BASE_DEC|BASE_EXT_STRING STRINGS 
   tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
   if(parameter_tvb){
-    const gint *fields[] = {
+    static int * const fields[] = {
       &hf_s1ap_interfacesToTrace_S1_MME,
       &hf_s1ap_interfacesToTrace_X2,
       &hf_s1ap_interfacesToTrace_Uu,
@@ -870,7 +892,67 @@ ProtocolExtensionID TYPE = FT_UINT8  DISPLAY = BASE_DEC|BASE_EXT_STRING STRINGS 
   }
 
 #.TYPE_ATTR
+IntersystemMeasurementConfiguration/rSRP DISPLAY = BASE_CUSTOM STRINGS = CF_FUNC(s1ap_threshold_nr_rsrp_fmt)
+
+#.TYPE_ATTR
+IntersystemMeasurementConfiguration/rSRQ DISPLAY = BASE_CUSTOM STRINGS = CF_FUNC(s1ap_threshold_nr_rsrq_fmt)
+
+#.TYPE_ATTR
+IntersystemMeasurementConfiguration/sINR DISPLAY = BASE_CUSTOM STRINGS = CF_FUNC(s1ap_threshold_nr_sinr_fmt)
+
+#.TYPE_ATTR
+InterSystemMeasurementParameters/measurementDuration DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+
+#.TYPE_ATTR
 BitRate DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_bit_sec
+
+#.FN_BODY InterSystemMeasurementItem/sMTC VAL_PTR = &ssb_mtc_tvb
+  tvbuff_t *ssb_mtc_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (ssb_mtc_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_sMTC);
+    dissect_lte_rrc_MTC_SSB_NR_r15_PDU(ssb_mtc_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY InterSystemMeasurementItem/threshRS-Index-r15 VAL_PTR = &threshold_list_tvb
+  tvbuff_t *threshold_list_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (threshold_list_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_threshRS_Index_r15);
+    dissect_lte_rrc_ThresholdListNR_r15_PDU(threshold_list_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY InterSystemMeasurementItem/sSBToMeasure VAL_PTR = &ssb_to_meas_tvb
+  tvbuff_t *ssb_to_meas_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (ssb_to_meas_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_sSBToMeasure);
+    dissect_lte_rrc_SSB_ToMeasure_r15_PDU(ssb_to_meas_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY InterSystemMeasurementItem/sSRSSIMeasurement VAL_PTR = &ss_rssi_meas_tvb
+  tvbuff_t *ss_rssi_meas_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (ss_rssi_meas_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_sSRSSIMeasurement);
+    dissect_lte_rrc_SS_RSSI_Measurement_r15_PDU(ss_rssi_meas_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY InterSystemMeasurementItem/quantityConfigNR-R15 VAL_PTR = &quantity_config_nr_tvb
+  tvbuff_t *quantity_config_nr_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (quantity_config_nr_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_quantityConfigNR_R15);
+    dissect_lte_rrc_QuantityConfigNR_r15_PDU(quantity_config_nr_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY InterSystemMeasurementItem/blackCellsToAddModList VAL_PTR = &black_cells_list_tvb
+  tvbuff_t *black_cells_list_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (black_cells_list_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_blackCellsToAddModList);
+    dissect_lte_rrc_CellsToAddModListNR_r15_PDU(black_cells_list_tvb, actx->pinfo, subtree, NULL);
+  }
 
 #.TYPE_ATTR
 MME-Code TYPE = FT_UINT8 DISPLAY = BASE_DEC_HEX
@@ -894,7 +976,7 @@ MME-Group-ID TYPE = FT_UINT16 DISPLAY = BASE_DEC_HEX
   tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
   if(parameter_tvb){
-    const gint *fields[] = {
+    static int * const fields[] = {
       &hf_s1ap_encryptionAlgorithms_EEA1,
       &hf_s1ap_encryptionAlgorithms_EEA2,
       &hf_s1ap_encryptionAlgorithms_EEA3,
@@ -909,7 +991,7 @@ MME-Group-ID TYPE = FT_UINT16 DISPLAY = BASE_DEC_HEX
   tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
   if(parameter_tvb){
-    const gint *fields[] = {
+    static int * const fields[] = {
       &hf_s1ap_integrityProtectionAlgorithms_EIA1,
       &hf_s1ap_integrityProtectionAlgorithms_EIA2,
       &hf_s1ap_integrityProtectionAlgorithms_EIA3,
@@ -946,12 +1028,12 @@ TimeSinceSecondaryNodeRelease TYPE=FT_UINT32 DISPLAY=BASE_DEC|BASE_UNIT_STRING S
   if (g_s1ap_dissect_container) {
     subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_LastVisitedNGRANCellInformation);
     TRY {
-        dissect_ngap_LastVisitedNGRANCellInformation_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
-      }
-      CATCH_BOUNDS_ERRORS {
-        show_exception(parameter_tvb, actx->pinfo, subtree, EXCEPT_CODE, GET_MESSAGE);
-      }
-      ENDTRY;
+      dissect_ngap_LastVisitedNGRANCellInformation_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+    }
+    CATCH_BOUNDS_ERRORS {
+      show_exception(parameter_tvb, actx->pinfo, subtree, EXCEPT_CODE, GET_MESSAGE);
+    }
+    ENDTRY;
   }
 
 #.FN_BODY LastVisitedUTRANCellInformation VAL_PTR = &parameter_tvb
@@ -964,13 +1046,12 @@ TimeSinceSecondaryNodeRelease TYPE=FT_UINT32 DISPLAY=BASE_DEC|BASE_UNIT_STRING S
   if (g_s1ap_dissect_container) {
     subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_LastVisitedUTRANCellInformation);
     TRY {
-        dissect_ranap_LastVisitedUTRANCell_Item_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
-      }
-      CATCH_BOUNDS_ERRORS {
-        show_exception(parameter_tvb, actx->pinfo, subtree, EXCEPT_CODE, GET_MESSAGE);
-      }
-      ENDTRY;
-
+      dissect_ranap_LastVisitedUTRANCell_Item_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+    }
+    CATCH_BOUNDS_ERRORS {
+      show_exception(parameter_tvb, actx->pinfo, subtree, EXCEPT_CODE, GET_MESSAGE);
+    }
+    ENDTRY;
   }
 
 #.TYPE_ATTR
@@ -1017,6 +1098,9 @@ RepetitionPeriod DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
     s1ap_data->data_coding_scheme = dissect_cbs_data_coding_scheme(parameter_tvb, actx->pinfo, subtree, 0);
   }
 
+#.TYPE_ATTR
+DataSize DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_bit_bits
+
 #.FN_BODY WarningMessageContents VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
@@ -1052,7 +1136,7 @@ ExtendedRepetitionPeriod DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_second
   tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
   if(parameter_tvb){
-    const gint *fields[] = {
+    static int * const fields[] = {
       &hf_s1ap_measurementsToActivate_M1,
       &hf_s1ap_measurementsToActivate_M2,
       &hf_s1ap_measurementsToActivate_M3,
@@ -1071,7 +1155,7 @@ ExtendedRepetitionPeriod DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_second
   tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
   if(parameter_tvb){
-    const gint *fields[] = {
+    static int * const fields[] = {
       &hf_s1ap_MDT_Location_Info_GNSS,
       &hf_s1ap_MDT_Location_Info_E_CID,
       &hf_s1ap_MDT_Location_Info_Reserved,
@@ -1126,7 +1210,7 @@ ExtendedBitRate DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_bit_sec
   tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
   if (parameter_tvb) {
-    const gint *fields[] = {
+    static int * const fields[] = {
       &hf_s1ap_NRencryptionAlgorithms_NEA1,
       &hf_s1ap_NRencryptionAlgorithms_NEA2,
       &hf_s1ap_NRencryptionAlgorithms_NEA3,
@@ -1141,7 +1225,7 @@ ExtendedBitRate DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_bit_sec
   tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
   if (parameter_tvb) {
-    const gint *fields[] = {
+    static int * const fields[] = {
       &hf_s1ap_NRintegrityProtectionAlgorithms_NIA1,
       &hf_s1ap_NRintegrityProtectionAlgorithms_NIA2,
       &hf_s1ap_NRintegrityProtectionAlgorithms_NIA3,
@@ -1156,7 +1240,7 @@ ExtendedBitRate DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_bit_sec
   tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
   if(parameter_tvb){
-    const gint *fields[] = {
+    static int * const fields[] = {
       &hf_s1ap_UE_Application_Layer_Measurement_Capability_QoE_Measurement_for_streaming_service,
       &hf_s1ap_UE_Application_Layer_Measurement_Capability_QoE_Measurement_for_MTSI_service,
       &hf_s1ap_UE_Application_Layer_Measurement_Capability_Reserved,
@@ -1347,6 +1431,24 @@ ScheduledCommunicationTime/timeofDayEnd DISPLAY=BASE_DEC|BASE_UNIT_STRING STRING
 #.TYPE_ATTR
 TrafficLoadReductionIndication DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_percent
 
+#.FN_BODY MDT-ConfigurationNR VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+  proto_tree *subtree;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_MDT_ConfigurationNR);
+    dissect_ngap_MDT_Configuration_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY IntersystemSONConfigurationTransfer VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+  proto_tree *subtree;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_IntersystemSONConfigurationTransfer);
+    dissect_ngap_SONConfigurationTransfer_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
+
 #.ASSIGN_VALUE_TO_TYPE  # S1AP does not have constants assigned to types, they are pure INTEGER
 # ProcedureCode
 
@@ -1413,6 +1515,9 @@ id-UEInformationTransfer                ProcedureCode
 id-eNBCPRelocationIndication            ProcedureCode
 id-MMECPRelocationIndication            ProcedureCode
 id-SecondaryRATDataUsageReport          ProcedureCode
+id-HandoverSuccess                      ProcedureCode
+id-eNBEarlyStatusTransfer               ProcedureCode
+id-MMEEarlyStatusTransfer               ProcedureCode
 
 # ProtocolIE-ID
 id-MME-UE-S1AP-ID                                   ProtocolIE-ID
@@ -1693,6 +1798,32 @@ id-EN-DCSONConfigurationTransfer-MCT                ProtocolIE-ID
 id-IMSvoiceEPSfallbackfrom5G                        ProtocolIE-ID
 id-TimeSinceSecondaryNodeRelease                    ProtocolIE-ID
 id-RequestTypeAdditionalInfo                        ProtocolIE-ID
+id-AdditionalRRMPriorityIndex                       ProtocolIE-ID
+id-ContextatSource                                  ProtocolIE-ID
+id-IAB-Authorized                                   ProtocolIE-ID
+id-IAB-Node-Indication                              ProtocolIE-ID
+id-IAB-Supported                                    ProtocolIE-ID
+id-DataSize                                         ProtocolIE-ID
+id-Ethernet-Type                                    ProtocolIE-ID
+id-NRV2XServicesAuthorized                          ProtocolIE-ID
+id-NRUESidelinkAggregateMaximumBitrate              ProtocolIE-ID
+id-PC5QoSParameters                                 ProtocolIE-ID
+id-IntersystemSONConfigurationTransferMCT           ProtocolIE-ID
+id-IntersystemSONConfigurationTransferECT           ProtocolIE-ID
+id-IntersystemMeasurementConfiguration              ProtocolIE-ID
+id-SourceNodeID                                     ProtocolIE-ID
+id-NB-IoT-RLF-Report-Container                      ProtocolIE-ID
+id-UERadioCapabilityID                              ProtocolIE-ID
+id-UERadioCapability-NR-Format                      ProtocolIE-ID
+id-MDTConfigurationNR                               ProtocolIE-ID
+id-DAPSRequestInfo                                  ProtocolIE-ID
+id-DAPSResponseInfoList                             ProtocolIE-ID
+id-DAPSResponseInfoItem                             ProtocolIE-ID
+id-NotifySourceeNB                                  ProtocolIE-ID
+id-eNB-EarlyStatusTransfer-TransparentContainer     ProtocolIE-ID
+id-Bearers-SubjectToEarlyStatusTransfer-Item        ProtocolIE-ID
+id-WUS-Assistance-Information                       ProtocolIE-ID
+id-NB-IoT-PagingDRX                                 ProtocolIE-ID
 
 #.END
 
@@ -1923,6 +2054,24 @@ ConnectedengNBList                              N s1ap.ies id-ConnectedengNBToRe
 EN-DCSONConfigurationTransfer                   N s1ap.ies id-EN-DCSONConfigurationTransfer-ECT
 EN-DCSONConfigurationTransfer                   N s1ap.ies id-EN-DCSONConfigurationTransfer-MCT
 TimeSinceSecondaryNodeRelease                   N s1ap.ies id-TimeSinceSecondaryNodeRelease
+AdditionalRRMPriorityIndex                      N s1ap.ies id-AdditionalRRMPriorityIndex
+IAB-Authorized                                  N s1ap.ies id-IAB-Authorized
+IAB-Node-Indication                             N s1ap.ies id-IAB-Node-Indication
+IAB-Supported                                   N s1ap.ies id-IAB-Supported
+DataSize                                        N s1ap.ies id-DataSize
+NRV2XServicesAuthorized                         N s1ap.ies id-NRV2XServicesAuthorized
+NRUESidelinkAggregateMaximumBitrate             N s1ap.ies id-NRUESidelinkAggregateMaximumBitrate
+PC5QoSParameters                                N s1ap.ies id-PC5QoSParameters
+IntersystemSONConfigurationTransfer             N s1ap.ies id-IntersystemSONConfigurationTransferMCT
+IntersystemSONConfigurationTransfer             N s1ap.ies id-IntersystemSONConfigurationTransferECT
+UERadioCapabilityID                             N s1ap.ies id-UERadioCapabilityID
+UERadioCapability                               N s1ap.ies id-UERadioCapability-NR-Format
+DAPSResponseInfoItem                            N s1ap.ies id-DAPSResponseInfoItem
+NotifySourceeNB                                 N s1ap.ies id-NotifySourceeNB
+ENB-EarlyStatusTransfer-TransparentContainer    N s1ap.ies id-eNB-EarlyStatusTransfer-TransparentContainer
+Bearers-SubjectToEarlyStatusTransfer-Item       N s1ap.ies id-Bearers-SubjectToEarlyStatusTransfer-Item
+WUS-Assistance-Information                      N s1ap.ies id-WUS-Assistance-Information
+NB-IoT-PagingDRX                                N s1ap.ies id-NB-IoT-PagingDRX
 
 #S1AP-PROTOCOL-IES-PAIR
 #RAB-SetupOrModifyItemFirst             N s1ap.ies.pair.first id-RAB-SetupOrModifyItem
@@ -1984,6 +2133,14 @@ PLMNidentity                            N s1ap.extension id-LastNG-RANPLMNIdenti
 PSCellInformation                       N s1ap.extension id-PSCellInformation
 IMSvoiceEPSfallbackfrom5G               N s1ap.extension id-IMSvoiceEPSfallbackfrom5G
 RequestTypeAdditionalInfo               N s1ap.extension id-TimeSinceSecondaryNodeRelease
+ContextatSource                         N s1ap.extension id-ContextatSource
+Ethernet-Type                           N s1ap.extension id-Ethernet-Type
+IntersystemMeasurementConfiguration     N s1ap.extension id-IntersystemMeasurementConfiguration
+SourceNodeID                            N s1ap.extension id-SourceNodeID
+NB-IoT-RLF-Report-Container             N s1ap.extension id-NB-IoT-RLF-Report-Container
+MDT-ConfigurationNR                     N s1ap.extension id-MDTConfigurationNR
+DAPSRequestInfo                         N s1ap.extension id-DAPSRequestInfo
+DAPSResponseInfoList                    N s1ap.extension id-DAPSResponseInfoList
 
 #S1AP-ELEMENTARY-PROCEDURE
 HandoverRequired                        N s1ap.proc.imsg id-HandoverPreparation
@@ -2141,6 +2298,15 @@ ENBCPRelocationIndication               N s1ap.proc.imsg id-eNBCPRelocationIndic
 MMECPRelocationIndication               N s1ap.proc.imsg id-MMECPRelocationIndication
 
 SecondaryRATDataUsageReport             N s1ap.proc.imsg id-SecondaryRATDataUsageReport
+
+UERadioCapabilityIDMappingRequest       N s1ap.proc.imsg id-UERadioCapabilityIDMapping
+UERadioCapabilityIDMappingResponse      N s1ap.proc.sout id-UERadioCapabilityIDMapping
+
+HandoverSuccess                         N s1ap.proc.imsg id-HandoverSuccess
+
+ENBEarlyStatusTransfer                  N s1ap.proc.imsg id-eNBEarlyStatusTransfer
+
+MMEEarlyStatusTransfer                  N s1ap.proc.imsg id-MMEEarlyStatusTransfer
 
 
 #.FN_HDR HandoverRequired
@@ -2329,6 +2495,16 @@ SecondaryRATDataUsageReport             N s1ap.proc.imsg id-SecondaryRATDataUsag
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MMECPRelocationIndication");
 #.FN_HDR SecondaryRATDataUsageReport
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SecondaryRATDataUsageReport");
+#.FN_HDR UERadioCapabilityIDMappingRequest
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UERadioCapabilityIDMappingRequest");
+#.FN_HDR UERadioCapabilityIDMappingResponse
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UERadioCapabilityIDMappingResponse");
+#.FN_HDR HandoverSuccess
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "HandoverSuccess");
+#.FN_HDR ENBEarlyStatusTransfer
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ENBEarlyStatusTransfer");
+#.FN_HDR MMEEarlyStatusTransfer
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MMEEarlyStatusTransfer");
 #.END
 
 # Whenever a Cause appears, look up the reason and show it in the Info column

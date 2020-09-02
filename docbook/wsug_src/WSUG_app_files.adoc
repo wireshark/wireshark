@@ -159,32 +159,252 @@ _/usr/local/etc_.
 [options="header"]
 |===
 |File/Folder|Description
-|_preferences_|Settings from the Preferences dialog box.
-|_recent_|Recent GUI settings (e.g. recent files lists).
 |_cfilters_|Capture filters.
-|_dfilters_|Display filters.
-|_+++dfilter_macros+++_|Display filter macros.
 |_colorfilters_|Coloring rules.
-|_+++disabled_protos+++_|Disabled protocols.
+|__dfilter_buttons__|Display filter buttons.
+|__dfilter_macros__|Display filter macros.
+|_dfilters_|Display filters.
+|__disabled_protos__|Disabled protocols.
 |_ethers_|Ethernet name resolution.
-|_manuf_|Ethernet name resolution.
 |_hosts_|IPv4 and IPv6 name resolution.
-|_services_|Network services.
-|_subnets_|IPv4 subnet name resolution.
 |_ipxnets_|IPX name resolution.
-|_vlans_|VLAN ID name resolution.
+|_manuf_|Ethernet name resolution.
+|_preferences_|Settings from the Preferences dialog box.
+|_recent_|Per-profile GUI settings.
+|__recent_common__|Common GUI settings.
+|_services_|Network services.
 |_ss7pcs_|SS7 point code resolution.
+|_subnets_|IPv4 subnet name resolution.
+|_vlans_|VLAN ID name resolution.
 |===
 
-[float]
+[discrete]
 ===== File contents
 
+cfilters::
++
+--
+This file contains all the capture filters that you have defined and saved. It
+consists of one or more lines, where each line has the following format:
+
+----
+"<filter name>" <filter string>
+----
+
+At program start, if there is a _cfilters_ file in the personal
+configuration folder, it is read.  If there isn’t a _cfilters_ file in
+the personal configuration folder, then, if there is a _cfilters_ file
+in the global configuration folder, it is read.
+
+When you press the Save button in the “Capture Filters” dialog box,
+all the current capture filters are written to the personal capture
+filters file.
+--
+
+colorfilters::
++
+--
+This file contains all the color filters that you have defined and saved. It
+consists of one or more lines, where each line has the following format:
+
+----
+@<filter name>@<filter string>@[<bg RGB(16-bit)>][<fg RGB(16-bit)>]
+----
+
+At program start, if there is a _colorfilters_ file in the personal
+configuration folder, it is read.  If there isn’t a _colorfilters_ file
+in the personal configuration folder, then, if there is a _colorfilters_
+file in the global configuration folder, it is read.
+
+When you press the Save button in the “Coloring Rules” dialog box,
+all the current color filters are written to the personal color filters
+file.
+--
+
+dfilter_buttons::
++
+--
+This file contains all the display filter buttons that you have defined and
+saved. It consists of one or more lines, where each line has the following
+format:
+
+----
+"TRUE/FALSE","<button label>","<filter string>","<comment string>"
+----
+
+where the first field is TRUE if the button is enabled (shown).
+
+At program start, if there is a __dfilter_buttons__ file in the personal
+configuration folder, it is read. If there isn’t a __dfilter_buttons__ file
+in the personal configuration folder, then, if there is a __dfilter_buttons__
+file in the global configuration folder, it is read.
+
+When you save any changes to the filter buttons, all the current display
+filter buttons are written to the personal display filter buttons file.
+--
+
+dfilter_macros::
++
+--
+This file contains all the display filter macros that you have defined and saved.
+It consists of one or more lines, where each line has the following format:
+
+----
+"<macro name>" <filter string>
+----
+
+At program start, if there is a __dfilter_macros__ file in the personal
+configuration folder, it is read. If there isn’t a __dfilter_macros__ file
+in the personal configuration folder, then, if there is a __dfilter_macros__
+file in the global configuration folder, it is read.
+
+When you press the Save button in the "Display Filter Macros" dialog box,
+all the current display filter macros are written to the personal display
+filter macros file.
+
+More information about Display Filter Macros is available in
+<<ChDisplayFilterMacrosSection>>
+--
+
+dfilters::
++
+--
+This file contains all the display filters that you have defined and saved. It
+consists of one or more lines, where each line has the following format:
+
+----
+"<filter name>" <filter string>
+----
+
+At program start, if there is a _dfilters_ file in the personal
+configuration folder, it is read.  If there isn’t a _dfilters_ file in
+the personal configuration folder, then, if there is a _dfilters_ file
+in the global configuration folder, it is read.
+
+When you press the Save button in the “Display Filters” dialog box,
+all the current display filters are written to the personal display
+filters file.
+--
+
+disabled_protos::
++
+--
+Each line in this file specifies a disabled protocol name. The following are
+some examples:
+
+----
+tcp
+udp
+----
+
+At program start, if there is a __disabled_protos__ file in the global
+configuration folder, it is read first.  Then, if there is a
+__disabled_protos__ file in the personal configuration folder, that is
+read; if there is an entry for a protocol set in both files, the setting
+in the personal disabled protocols file overrides the setting in the
+global disabled protocols file.
+
+When you press the Save button in the “Enabled Protocols” dialog box,
+the current set of disabled protocols is written to the personal
+disabled protocols file.
+--
+
+ethers::
++
+--
+When Wireshark is trying to translate an hardware MAC address to
+a name, it consults the _ethers_ file in the personal configuration
+folder first.  If the address is not found in that file, Wireshark
+consults the _ethers_ file in the system configuration folder.
+
+This file has the same format as the _/etc/ethers_ file on some Unix-like systems.
+Each line in these files consists of one hardware address and name separated by
+whitespace. The digits of hardware addresses are separated by colons (:), dashes
+(-) or periods(.). The following are some examples:
+
+----
+ff-ff-ff-ff-ff-ff    Broadcast
+c0-00-ff-ff-ff-ff    TR_broadcast
+00.2b.08.93.4b.a1    Freds_machine
+----
+
+The settings from this file are read in when a MAC address is to be
+translated to a name, and never written by Wireshark.
+--
+
+hosts::
++
+--
+Wireshark uses the entries in the _hosts_ files to translate IPv4 and
+IPv6 addresses into names.
+
+At program start, if there is a _hosts_ file in the global configuration
+folder, it is read first.  Then, if there is a _hosts_ file in the
+personal configuration folder, that is read; if there is an entry for a
+given IP address in both files, the setting in the personal hosts file
+overrides the entry in the global hosts file.
+
+This file has the same format as the usual _/etc/hosts_ file on Unix systems.
+
+An example is:
+
+----
+# Comments must be prepended by the # sign!
+192.168.0.1 homeserver
+----
+
+The settings from this file are read in at program start and never written by
+Wireshark.
+--
+
+ipxnets::
++
+--
+When Wireshark is trying to translate an IPX network number to
+a name, it consults the _ipxnets_ file in the personal configuration
+folder first.  If the address is not found in that file, Wireshark
+consults the _ipxnets_ file in the system configuration folder.
+
+
+An example is:
+----
+C0.A8.2C.00      HR
+c0-a8-1c-00      CEO
+00:00:BE:EF      IT_Server1
+110f             FileServer3
+----
+
+The settings from this file are read in when an IPX network number is to
+be translated to a name, and never written by Wireshark.
+--
+
+manuf::
++
+--
+At program start, if there is a _manuf_ file in the global configuration folder, it is read.
+
+The entries in this file are used to translate MAC address prefixes into short and long manufacturer names.
+Each line consists of a MAC address prefix followed by an abbreviated manufaturer name and the full manufacturer name.
+Prefixes 24 bits long by default and may be followed by an optional length.
+Note that this is not the same format as the _ethers_ file.
+
+Examples are:
+
+----
+00:00:01        Xerox   Xerox Corporation
+00:50:C2:00:30:00/36      Microsof        Microsoft
+----
+
+The settings from this file are read in at program start and never written by Wireshark.
+--
+
 preferences::
++
+--
 This file contains your Wireshark preferences, including defaults for capturing
 and displaying packets. It is a simple text file containing statements of the
 form:
-+
---
+
 ----
 variable: value
 ----
@@ -200,193 +420,43 @@ current settings are written to the personal preferences file.
 --
 
 recent::
-This file contains various GUI related settings like the main window position
-and size, the recent files list and such. It is a simple text file containing
-statements of the form:
 +
 --
+This file contains GUI settings that are specific to the current profile, such as column widths and toolbar visibility.
+It is a simple text file containing statements of the form:
+
 ----
 variable: value
 ----
 
-It is read at program start and written at program exit.
+It is read at program start and written when preferences are saved and at program exit.
+It is also written and read whenever you switch to a different profile.
 --
 
-cfilters::
-This file contains all the capture filters that you have defined and saved. It
-consists of one or more lines, where each line has the following format:
+recent_common::
 +
 --
-----
-"<filter name>" <filter string>
-----
-
-At program start, if there is a _cfilters_ file in the personal
-configuration folder, it is read.  If there isn’t a _cfilters_ file in
-the personal configuration folder, then, if there is a _cfilters_ file
-in the global configuration folder, it is read.
-
-When you press the Save button in the “Capture Filters” dialog box,
-all the current capture filters are written to the personal capture
-filters file.
---
-
-dfilters::
-This file contains all the display filters that you have defined and saved. It
-consists of one or more lines, where each line has the following format:
-+
---
-----
-"<filter name>" <filter string>
-----
-
-At program start, if there is a _dfilters_ file in the personal
-configuration folder, it is read.  If there isn’t a _dfilters_ file in
-the personal configuration folder, then, if there is a _dfilters_ file
-in the global configuration folder, it is read.
-
-When you press the Save button in the “Display Filters” dialog box,
-all the current display filters are written to the personal display
-filters file.
---
-
-dfilter_macros::
-This file contains all the display filter macros that you have defined and saved.
-It consists of one or more lines, where each line has the following format:
-+
---
-----
-"<macro name>" <filter string>
-----
-
-At program start, if there is a _+++dfilter_macros+++_ file in the personal
-configuration folder, it is read. If there isn’t a _+++dfilter_macros+++_ file
-in the personal configuration folder, then, if there is a _+++dfilter_macros+++_
-file in the global configuration folder, it is read.
-
-When you press the Save button in the "Display Filter Macros" dialog box,
-all the current display filter macors are written to the personal display
-filter macros file.
-
-More information about Display Filter Macros is available in
-<<ChDisplayFilterMacrosSection>>
---
-
-colorfilters::
-This file contains all the color filters that you have defined and saved. It
-consists of one or more lines, where each line has the following format:
-+
---
-----
-@<filter name>@<filter string>@[<bg RGB(16-bit)>][<fg RGB(16-bit)>]
-----
-
-At program start, if there is a _colorfilters_ file in the personal
-configuration folder, it is read.  If there isn’t a _colorfilters_ file
-in the personal configuration folder, then, if there is a _colorfilters_
-file in the global configuration folder, it is read.
-
-When you press the Save button in the “Coloring Rules” dialog box,
-all the current color filters are written to the personal color filters
-file.
---
-
-disabled_protos::
-Each line in this file specifies a disabled protocol name. The following are
-some examples:
-+
---
-----
-tcp
-udp
-----
-
-At program start, if there is a _+++disabled_protos+++_ file in the global
-configuration folder, it is read first.  Then, if there is a
-_+++disabled_protos+++_ file in the personal configuration folder, that is
-read; if there is an entry for a protocol set in both files, the setting
-in the personal disabled protocols file overrides the setting in the
-global disabled protocols file.
-
-When you press the Save button in the “Enabled Protocols” dialog box,
-the current set of disabled protocols is written to the personal
-disabled protocols file.
---
-
-ethers::
-When Wireshark is trying to translate an hardware MAC address to
-a name, it consults the _ethers_ file in the personal configuration
-folder first.  If the address is not found in that file, Wireshark
-consults the _ethers_ file in the system configuration folder.
-+
---
-Each line in these files consists of one hardware address and name separated by
-whitespace. The digits of hardware addresses are separated by colons (:), dashes
-(-) or periods(.). The following are some examples:
+This file contains common GUI settings, such as recently openened capture files, recently used filters, and window geometries.
+It is a simple text file containing statements of the form:
 
 ----
-ff-ff-ff-ff-ff-ff    Broadcast
-c0-00-ff-ff-ff-ff    TR_broadcast
-00.2b.08.93.4b.a1    Freds_machine
+variable: value
 ----
 
-The settings from this file are read in when a MAC address is to be
-translated to a name, and never written by Wireshark.
---
-
-manuf::
-At program start, if there is a _manuf_ file in the global
-configuration folder, it is read.
-+
-The entries in this file are used to translate the first three bytes of
-an Ethernet address into a manufacturers name.  This file has the same
-format as the ethers file, except addresses are three bytes long.
-+
---
-An example is:
-
-----
-00:00:01    Xerox                  # XEROX CORPORATION
-----
-
-The settings from this file are read in at program start and never written by
-Wireshark.
---
-
-hosts::
-Wireshark uses the entries in the _hosts_ files to translate IPv4 and
-IPv6 addresses into names.
-+
-At program start, if there is a _hosts_ file in the global configuration
-folder, it is read first.  Then, if there is a _hosts_ file in the
-personal configuration folder, that is read; if there is an entry for a
-given IP address in both files, the setting in the personal hosts file
-overrides the entry in the global hosts file.
-+
---
-This file has the same format as the usual _/etc/hosts_ file on Unix systems.
-
-An example is:
-
-----
-# Comments must be prepended by the # sign!
-192.168.0.1 homeserver
-----
-
-The settings from this file are read in at program start and never written by
-Wireshark.
+It is read at program start and written when preferences are saved and at program exit.
 --
 
 services::
-Wireshark uses the _services_ files to translate port numbers into names.
 +
+--
+Wireshark uses the _services_ files to translate port numbers into names.
+
 At program start, if there is a _services_ file in the global
 configuration folder, it is read first.  Then, if there is a _services_
 file in the personal configuration folder, that is read; if there is an
 entry for a given port number in both files, the setting in the personal
 hosts file overrides the entry in the global hosts file.
-+
---
+
 An example is:
 
 ----
@@ -398,19 +468,39 @@ The settings from these files are read in at program start and never
 written by Wireshark.
 --
 
+ss7pcs::
++
+--
+Wireshark uses the _ss7pcs_ file to translate SS7 point codes to node names.
+
+At program start, if there is a _ss7pcs_ file in the personal
+configuration folder, it is read.
+
+Each line in this file consists of one network indicator followed by a dash followed by a point code in decimal and a node name separated by whitespace or tab.
+
+An example is:
+----
+2-1234 MyPointCode1
+----
+
+The settings from this file are read in at program start and never written by
+Wireshark.
+--
+
 subnets::
++
+--
 Wireshark uses the __subnets__ files to translate an IPv4 address into a
 subnet name.  If no exact match from a __hosts__ file or from DNS is
 found, Wireshark will attempt a partial match for the subnet of the
 address.
-+
+
 At program start, if there is a _subnets_ file in the personal
 configuration folder, it is read first.  Then, if there is a _subnets_
 file in the global configuration folder, that is read; if there is a
 preference set in both files, the setting in the global preferences file
 overrides the setting in the personal preference file.
-+
---
+
 Each line in one of these files consists of an IPv4 address, a subnet
 mask length separated only by a “/” and a name separated by whitespace.
 While the address must be a full IPv4 address, any values beyond the
@@ -431,32 +521,13 @@ The settings from these files are read in at program start and never
 written by Wireshark.
 --
 
-ipxnets::
-When Wireshark is trying to translate an IPX network number to
-a name, it consults the _ipxnets_ file in the personal configuration
-folder first.  If the address is not found in that file, Wireshark
-consults the _ipxnets_ file in the system configuration folder.
-+
---
-
-An example is:
-----
-C0.A8.2C.00      HR
-c0-a8-1c-00      CEO
-00:00:BE:EF      IT_Server1
-110f             FileServer3
-----
-
-The settings from this file are read in when an IPX network number is to
-be translated to a name, and never written by Wireshark.
---
-
 vlans::
-Wireshark uses the _vlans_ file to translate VLAN tag IDs into names.
-+
-If there is a _vlans_ file in the currently active profile folder, it is used. Otherwise the _vlans_ file in the personal configuration folder is used.
 +
 --
+Wireshark uses the _vlans_ file to translate VLAN tag IDs into names.
+
+If there is a _vlans_ file in the currently active profile folder, it is used. Otherwise the _vlans_ file in the personal configuration folder is used.
+
 Each line in this file consists of one VLAN tag ID and a describing name separated by whitespace or tab.
 
 An example is:
@@ -467,24 +538,6 @@ An example is:
 
 The settings from this file are read in at program start or when changing
 the active profile and are never written by Wireshark.
---
-
-ss7pcs::
-Wireshark uses the _ss7pcs_ file to translate SS7 point codes to node names.
-+
-At program start, if there is a _ss7pcs_ file in the personal
-configuration folder, it is read.
-+
---
-Each line in this file consists of one network indicator followed by a dash followed by a point code in decimal and a node name separated by whitespace or tab.
-
-An example is:
-----
-2-1234 MyPointCode1
-----
-
-The settings from this file are read in at program start and never written by
-Wireshark.
 --
 
 [[ChPluginFolders]]

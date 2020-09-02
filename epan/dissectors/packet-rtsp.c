@@ -11,15 +11,14 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * References:
- * RTSP is defined in RFC 2326, http://www.ietf.org/rfc/rfc2326.txt?number=2326
- * http://www.iana.org/assignments/rsvp-parameters
+ * RTSP is defined in RFC 2326, https://tools.ietf.org/html/rfc2326
+ * https://www.iana.org/assignments/rsvp-parameters
  */
 
 #include "config.h"
 
 #include <stdio.h>	/* for sscanf() */
 
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/req_resp_hdrs.h>
 #include <epan/prefs.h>
@@ -506,8 +505,8 @@ rtsp_create_conversation(packet_info *pinfo, proto_item *ti,
                          rtsp_type_t rtsp_type_packet)
 {
     conversation_t  *conv;
-    guchar    buf[256];
-    guchar   *tmp;
+    gchar    buf[256];
+    gchar   *tmp;
     gboolean  rtp_udp_transport = FALSE;
     gboolean  rtp_tcp_transport = FALSE;
     gboolean  rdt_transport = FALSE;
@@ -585,8 +584,8 @@ rtsp_create_conversation(packet_info *pinfo, proto_item *ti,
             }
         }
         else if (sscanf(tmp, "\"%u.%u.%u.%u:%u\"", &ipv4_1, &ipv4_2, &ipv4_3, &ipv4_4, &s_data_port) == 5) {
-            guchar *tmp2;
-            guchar *tmp3;
+            gchar *tmp2;
+            gchar *tmp3;
 
             /* Skip leading " */
             tmp++;
@@ -601,8 +600,8 @@ rtsp_create_conversation(packet_info *pinfo, proto_item *ti,
             g_free(tmp3);
         }
         else if (sscanf(tmp, "\"%u.%u.%u.%u\"", &ipv4_1, &ipv4_2, &ipv4_3, &ipv4_4) == 4) {
-            guchar *tmp2;
-            guchar *tmp3;
+            gchar *tmp2;
+            gchar *tmp3;
 
             /* Skip leading " */
             tmp++;
@@ -635,8 +634,8 @@ rtsp_create_conversation(packet_info *pinfo, proto_item *ti,
     else if ((tmp = strstr(buf, rtsp_cps_src_addr))) {
         tmp += strlen(rtsp_cps_src_addr);
         if (sscanf(tmp, "\"%u.%u.%u.%u:%u\"", &ipv4_1, &ipv4_2, &ipv4_3, &ipv4_4, &c_data_port) == 5) {
-            guchar *tmp2;
-            guchar *tmp3;
+            gchar *tmp2;
+            gchar *tmp3;
 
             /* Skip leading " */
             tmp++;
@@ -753,11 +752,11 @@ static const char rtsp_content_length[] = "Content-Length:";
 static int
 rtsp_get_content_length(const guchar *line_begin, size_t line_len)
 {
-    guchar  buf[256];
-    guchar *tmp;
-    guint32 content_length;
+    char  buf[256];
+    char *tmp;
+    gint32 content_length;
     const char *p;
-    const guchar *up;
+    const char *up;
 
     if (line_len > sizeof(buf) - 1) {
         /*
@@ -775,7 +774,7 @@ rtsp_get_content_length(const guchar *line_begin, size_t line_len)
     up = p;
     if (up == tmp || (*up != '\0' && !g_ascii_isspace(*up)))
         return -1;  /* not a valid number */
-    return (int)content_length;
+    return content_length;
 }
 
 static const char rtsp_Session[] = "Session:";

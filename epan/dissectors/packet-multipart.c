@@ -495,10 +495,7 @@ process_preamble(proto_tree *tree, tvbuff_t *tvb, multipart_info_t *m_info,
     } else if (boundary_start > 0) {
         if (boundary_line_len > 0) {
             gint body_part_start = boundary_start + boundary_line_len;
-
-            if (boundary_start > 0) {
-               proto_tree_add_item(tree, hf_multipart_preamble, tvb, 0, boundary_start, ENC_NA);
-            }
+            proto_tree_add_item(tree, hf_multipart_preamble, tvb, 0, boundary_start, ENC_NA);
             proto_tree_add_item(tree, hf_multipart_first_boundary, tvb, boundary_start, boundary_line_len, ENC_NA|ENC_ASCII);
             return body_part_start;
         }
@@ -619,7 +616,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
                 if(isprint_string(header_str)) {
                     proto_tree_add_format_text(subtree, tvb, offset, next_offset - offset);
                 } else {
-                    /* if the header name is unkown and not printable, break and add complete line to the body */
+                    /* if the header name is unknown and not printable, break and add complete line to the body */
                     next_offset = offset;
                     break;
                 }

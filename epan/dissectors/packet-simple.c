@@ -291,7 +291,7 @@ static void dissect_simple_link16(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     }
 }
 
-static const int *simple_status_dx_flag_fields[] = {
+static int * const simple_status_dx_flag_fields[] = {
     &hf_simple_status_dx_flag_system_messages,
     &hf_simple_status_dx_flag_common_tims_bims,
     &hf_simple_status_dx_flag_common_toms_boms,

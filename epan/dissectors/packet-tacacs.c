@@ -17,7 +17,7 @@
 
 /* rfc-1492 for tacacs and xtacacs
  * draft-grant-tacacs-02.txt for tacacs+ (tacplus)
- * ftp://ftp.cisco.com/pub/rfc/DRAFTS/draft-grant-tacacs-02.txt
+ * https://tools.ietf.org/html/draft-grant-tacacs-02
  */
 
 #include "config.h"
@@ -128,7 +128,7 @@ dissect_tacacs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 {
 	proto_tree      *tacacs_tree;
 	proto_item      *ti;
-	guint8          version,type,userlen,passlen;
+	guint32         version,type,userlen,passlen;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "TACACS");
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -156,12 +156,10 @@ dissect_tacacs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 		{
 			if (type!=TACACS_RESPONSE)
 			{
-			userlen=tvb_get_guint8(tvb,4);
-			proto_tree_add_uint(tacacs_tree, hf_tacacs_userlen, tvb, 4, 1, userlen);
-			passlen=tvb_get_guint8(tvb,5);
-			proto_tree_add_uint(tacacs_tree, hf_tacacs_passlen, tvb, 5, 1, passlen);
-			proto_tree_add_item(tree, hf_tacacs_username, tvb, 6, userlen, ENC_ASCII|ENC_NA);
-			proto_tree_add_item(tree, hf_tacacs_password, tvb, 6+userlen, passlen, ENC_ASCII|ENC_NA);
+				proto_tree_add_item_ret_uint(tacacs_tree, hf_tacacs_userlen, tvb, 4, 1, ENC_NA, &userlen);
+				proto_tree_add_item_ret_uint(tacacs_tree, hf_tacacs_passlen, tvb, 5, 1, ENC_NA, &passlen);
+				proto_tree_add_item(tacacs_tree, hf_tacacs_username, tvb, 6, userlen, ENC_ASCII|ENC_NA);
+				proto_tree_add_item(tacacs_tree, hf_tacacs_password, tvb, 6+userlen, passlen, ENC_ASCII|ENC_NA);
 			}
 			else
 			{
@@ -171,10 +169,8 @@ dissect_tacacs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 		}
 		else
 		{
-			userlen=tvb_get_guint8(tvb,4);
-			proto_tree_add_uint(tacacs_tree, hf_tacacs_userlen, tvb, 4, 1, userlen);
-			passlen=tvb_get_guint8(tvb,5);
-			proto_tree_add_uint(tacacs_tree, hf_tacacs_passlen, tvb, 5, 1, passlen);
+			proto_tree_add_item_ret_uint(tacacs_tree, hf_tacacs_userlen, tvb, 4, 1, ENC_NA, &userlen);
+			proto_tree_add_item_ret_uint(tacacs_tree, hf_tacacs_passlen, tvb, 5, 1, ENC_NA, &passlen);
 			proto_tree_add_item(tacacs_tree, hf_tacacs_response, tvb, 6, 1, ENC_BIG_ENDIAN);
 			proto_tree_add_item(tacacs_tree, hf_tacacs_reason, tvb, 7, 1, ENC_BIG_ENDIAN);
 			proto_tree_add_item(tacacs_tree, hf_tacacs_result1, tvb, 8, 4, ENC_BIG_ENDIAN);
@@ -185,8 +181,8 @@ dissect_tacacs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 			proto_tree_add_item(tacacs_tree, hf_tacacs_result3, tvb, 24, 2, ENC_BIG_ENDIAN);
 			if (type!=TACACS_RESPONSE)
 			{
-				proto_tree_add_item(tree, hf_tacacs_username, tvb, 26, userlen, ENC_ASCII|ENC_NA);
-				proto_tree_add_item(tree, hf_tacacs_password, tvb, 26+userlen, passlen, ENC_ASCII|ENC_NA);
+				proto_tree_add_item(tacacs_tree, hf_tacacs_username, tvb, 26, userlen, ENC_ASCII|ENC_NA);
+				proto_tree_add_item(tacacs_tree, hf_tacacs_password, tvb, 26+userlen, passlen, ENC_ASCII|ENC_NA);
 			}
 		}
 	}
@@ -251,11 +247,11 @@ proto_register_tacacs(void)
 	      NULL, HFILL }},
 	  { &hf_tacacs_username,
 	    { "Username", "tacacs.username",
-	      FT_STRINGZ, BASE_NONE, NULL, 0x0,
+	      FT_STRING, BASE_NONE, NULL, 0x0,
 	      NULL, HFILL }},
 	  { &hf_tacacs_password,
 	    { "Password", "tacacs.password",
-	      FT_STRINGZ, BASE_NONE, NULL, 0x0,
+	      FT_STRING, BASE_NONE, NULL, 0x0,
 	      NULL, HFILL }},
 	};
 

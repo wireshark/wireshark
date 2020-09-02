@@ -296,8 +296,8 @@ static const value_string ch_header_type_names[] = {
     { HTST_GBC_CIRCLE, "Geo-scoped Broadcast Circular area" },
     { HTST_GBC_RECT, "Geo-scoped Broadcast Rectangular area" },
     { HTST_GBC_ELLIPSE, "Geo-scoped Broadcast Ellipsoidal area" },
-    { HTST_TSB_SINGLE, "Topologucally-scoped broadcast Single-hop broadcast (SHB)" },
-    { HTST_TSB_MULT, "Topologucally-scoped broadcast Multi-hop broadcast (TSB)" },
+    { HTST_TSB_SINGLE, "Topologically-scoped broadcast Single-hop broadcast (SHB)" },
+    { HTST_TSB_MULT, "Topologically-scoped broadcast Multi-hop broadcast (TSB)" },
     { HTST_LS_REQUEST, "Location Service Request" },
     { HTST_LS_REPLY, "Location Service Reply" },
     { 0x00, NULL}
@@ -1325,6 +1325,7 @@ dissect_sec_publickey(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tre
         case ecies_nistp256:
             // SymAlgo + EccPoint
             proto_tree_add_item(part_tree, hf_sgeonw_symmetric_algorithm, tvb, *offset, 1, ENC_BIG_ENDIAN);
+            *offset += 1;
             dissect_sec_eccpoint(tvb, offset, pinfo, part_tree, (PublicKeyAlgorithm) tmp_val);
             break;
         default:
@@ -2012,7 +2013,7 @@ dissect_secured_message(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tr
                 param_len = dissect_sec_var_len(tvb, &offset, pinfo, field_tree);
                 proto_item_set_len(ti, (offset-start) + param_len);
                 while (param_len) {
-                    proto_tree_add_item(field_tree, hf_sgeonw_hashedid3, tvb, offset, param_len, ENC_NA);
+                    proto_tree_add_item(field_tree, hf_sgeonw_hashedid3, tvb, offset, 3, ENC_NA);
                     offset += 3;
                     param_len -= 3;
                 }
@@ -3529,7 +3530,7 @@ proto_register_geonw(void)
         { &hf_sgeonw_conf, { "Confidence", "geonw.sec.confidence", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_sgeonw_time32, { "Time32", "geonw.sec.time32", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_sgeonw_lat, { "Latitude", "geonw.sec.lat", FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_sgeonw_lon, { "Longiture", "geonw.sec.lon", FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_sgeonw_lon, { "Longitude", "geonw.sec.lon", FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_sgeonw_elev, { "Elevation", "geonw.sec.elev", FT_INT16, BASE_CUSTOM, CF_FUNC(display_elevation), 0x0, NULL, HFILL }},
         { &hf_sgeonw_hashedid3, { "Hashed ID 3", "geonw.sec.hashedid3", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_sgeonw_duration_unit, { "Unit", "geonw.sec.duration.unit", FT_UINT16, BASE_DEC, VALS(sgeonw_duration_unit_names), 0xe000, NULL, HFILL }},
@@ -3648,7 +3649,8 @@ proto_reg_handoff_geonw(void)
     dissector_add_uint("ieee1609dot2.psid", psid_traffic_light_manoeuver_service, sgeonw_handle_);
     dissector_add_uint("ieee1609dot2.psid", psid_road_and_lane_topology_service, sgeonw_handle_);
     dissector_add_uint("ieee1609dot2.psid", psid_infrastructure_to_vehicle_information_service, sgeonw_handle_);
-    dissector_add_uint("ieee1609dot2.psid", psid_traffic_light_control_service, sgeonw_handle_);
+    dissector_add_uint("ieee1609dot2.psid", psid_traffic_light_control_requests_service, sgeonw_handle_);
+    dissector_add_uint("ieee1609dot2.psid", psid_traffic_light_control_status_service, sgeonw_handle_);
 }
 
 /*

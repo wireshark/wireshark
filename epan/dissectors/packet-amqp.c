@@ -498,13 +498,13 @@ struct amqp_defined_types_t {
     const int format_code;
     int       *hf_amqp_type;
     guint32   hf_amqp_subtype_count;
-    const int **hf_amqp_subtypes;
+    int * const *hf_amqp_subtypes;
 };
 
 /* functions for decoding 1.0 type and/or value */
 
 
-static struct amqp1_typeinfo* decode_fixed_type(guint8 code);
+static const struct amqp1_typeinfo* decode_fixed_type(guint8 code);
 
 static void
 get_amqp_1_0_value_formatter(tvbuff_t *tvb,
@@ -514,7 +514,7 @@ get_amqp_1_0_value_formatter(tvbuff_t *tvb,
                              int hf_amqp_type,
                              const char *name,
                              guint32 hf_amqp_subtype_count,
-                             const int **hf_amqp_subtypes,
+                             int * const *hf_amqp_subtypes,
                              guint *length_size,
                              proto_item *item);
 
@@ -524,7 +524,7 @@ get_amqp_1_0_type_formatter(tvbuff_t *tvb,
                             int *hf_amqp_type,
                             const char **name,
                             guint32 *hf_amqp_subtype_count,
-                            const int ***hf_amqp_subtypes,
+                            int * const **hf_amqp_subtypes,
                             guint *length_size);
 
 static void
@@ -839,7 +839,7 @@ static int hf_amqp_1_0_mechanisms_sym = -1;
  * NULL indicates no synonym of a given type
  * FT_NONE field must be always present
  */
-static struct amqp_synonym_types_t amqp_synonym_types[] = {
+static const struct amqp_synonym_types_t amqp_synonym_types[] = {
     {&hf_amqp_1_0_outgoingLocales, NULL, &hf_amqp_1_0_outgoingLocales_sym, NULL, NULL},
     {&hf_amqp_1_0_incomingLocales, NULL, &hf_amqp_1_0_incomingLocales_sym, NULL, NULL},
     {&hf_amqp_1_0_offeredCapabilities, NULL, &hf_amqp_1_0_offeredCapabilities_sym, NULL, NULL},
@@ -862,15 +862,15 @@ static struct amqp_synonym_types_t amqp_synonym_types[] = {
  * i.e. sasl.init method has 3 arguments in a list (mechanism, init.response, hostname)
  * so when dissecting sasl.init arguments list, identify the list items with
  * corresponding hf_* variable */
-static const int* amqp_1_0_sasl_mechanisms_items[] = { &hf_amqp_1_0_mechanisms };
-static const int* amqp_1_0_sasl_init_items[] = { &hf_amqp_1_0_mechanism,
+static int * const amqp_1_0_sasl_mechanisms_items[] = { &hf_amqp_1_0_mechanisms };
+static int * const amqp_1_0_sasl_init_items[] = { &hf_amqp_1_0_mechanism,
                                              &hf_amqp_1_0_initResponse,
                                              &hf_amqp_1_0_hostname };
-static const int* amqp_1_0_sasl_challenge_items[] = { &hf_amqp_1_0_saslChallenge };
-static const int* amqp_1_0_sasl_response_items[] = { &hf_amqp_1_0_saslResponse };
-static const int* amqp_1_0_sasl_outcome_items[] = { &hf_amqp_1_0_saslCode,
+static int * const amqp_1_0_sasl_challenge_items[] = { &hf_amqp_1_0_saslChallenge };
+static int * const amqp_1_0_sasl_response_items[] = { &hf_amqp_1_0_saslResponse };
+static int * const amqp_1_0_sasl_outcome_items[] = { &hf_amqp_1_0_saslCode,
                                                 &hf_amqp_1_0_saslAdditionalData };
-static const int* amqp_1_0_amqp_open_items[] = { &hf_amqp_1_0_containerId,
+static int * const amqp_1_0_amqp_open_items[] = { &hf_amqp_1_0_containerId,
                                              &hf_amqp_1_0_hostname,
                                              &hf_amqp_1_0_maxFrameSize,
                                              &hf_amqp_1_0_channelMax,
@@ -880,7 +880,7 @@ static const int* amqp_1_0_amqp_open_items[] = { &hf_amqp_1_0_containerId,
                                              &hf_amqp_1_0_offeredCapabilities,
                                              &hf_amqp_1_0_desiredCapabilities,
                                              &hf_amqp_1_0_properties };
-static const int* amqp_1_0_amqp_begin_items[] = { &hf_amqp_1_0_remoteChannel,
+static int * const amqp_1_0_amqp_begin_items[] = { &hf_amqp_1_0_remoteChannel,
                                               &hf_amqp_1_0_nextOutgoingId,
                                               &hf_amqp_1_0_incomingWindow,
                                               &hf_amqp_1_0_outgoingWindow,
@@ -888,7 +888,7 @@ static const int* amqp_1_0_amqp_begin_items[] = { &hf_amqp_1_0_remoteChannel,
                                               &hf_amqp_1_0_offeredCapabilities,
                                               &hf_amqp_1_0_desiredCapabilities,
                                               &hf_amqp_1_0_properties };
-static const int* amqp_1_0_amqp_attach_items[] = { &hf_amqp_1_0_name,
+static int * const amqp_1_0_amqp_attach_items[] = { &hf_amqp_1_0_name,
                                                &hf_amqp_1_0_handle,
                                                &hf_amqp_1_0_role,
                                                &hf_amqp_1_0_sndSettleMode,
@@ -902,7 +902,7 @@ static const int* amqp_1_0_amqp_attach_items[] = { &hf_amqp_1_0_name,
                                                &hf_amqp_1_0_offeredCapabilities,
                                                &hf_amqp_1_0_desiredCapabilities,
                                                &hf_amqp_1_0_properties };
-static const int* amqp_1_0_amqp_flow_items[] = { &hf_amqp_1_0_nextIncomingId,
+static int * const amqp_1_0_amqp_flow_items[] = { &hf_amqp_1_0_nextIncomingId,
                                              &hf_amqp_1_0_incomingWindow,
                                              &hf_amqp_1_0_nextOutgoingId,
                                              &hf_amqp_1_0_outgoingWindow,
@@ -913,7 +913,7 @@ static const int* amqp_1_0_amqp_flow_items[] = { &hf_amqp_1_0_nextIncomingId,
                                              &hf_amqp_1_0_drain,
                                              &hf_amqp_1_0_echo,
                                              &hf_amqp_1_0_properties };
-static const int* amqp_1_0_amqp_transfer_items[] = { &hf_amqp_1_0_handle,
+static int * const amqp_1_0_amqp_transfer_items[] = { &hf_amqp_1_0_handle,
                                                  &hf_amqp_1_0_deliveryId,
                                                  &hf_amqp_1_0_deliveryTag,
                                                  &hf_amqp_1_0_messageFormat,
@@ -924,32 +924,32 @@ static const int* amqp_1_0_amqp_transfer_items[] = { &hf_amqp_1_0_handle,
                                                  &hf_amqp_1_0_resume,
                                                  &hf_amqp_1_0_aborted,
                                                  &hf_amqp_1_0_batchable };
-static const int* amqp_1_0_amqp_disposition_items[] = { &hf_amqp_1_0_role,
+static int * const amqp_1_0_amqp_disposition_items[] = { &hf_amqp_1_0_role,
                                                     &hf_amqp_1_0_first,
                                                     &hf_amqp_1_0_last,
                                                     &hf_amqp_1_0_settled,
                                                     &hf_amqp_1_0_state,
                                                     &hf_amqp_1_0_batchable };
-static const int* amqp_1_0_amqp_detach_items[] = { &hf_amqp_1_0_handle,
+static int * const amqp_1_0_amqp_detach_items[] = { &hf_amqp_1_0_handle,
                                                &hf_amqp_1_0_closed,
                                                &hf_amqp_1_0_error };
-static const int* amqp_1_0_amqp_end_items[] = { &hf_amqp_1_0_error };
-static const int* amqp_1_0_amqp_close_items[] = { &hf_amqp_1_0_error };
-static const int* amqp_1_0_error_items[] = { &hf_amqp_1_0_condition,
+static int * const amqp_1_0_amqp_end_items[] = { &hf_amqp_1_0_error };
+static int * const amqp_1_0_amqp_close_items[] = { &hf_amqp_1_0_error };
+static int * const amqp_1_0_error_items[] = { &hf_amqp_1_0_condition,
                                          &hf_amqp_1_0_description,
                                          &hf_amqp_1_0_info };
-static const int* amqp_1_0_messageHeader_items[] = { &hf_amqp_1_0_durable,
+static int * const amqp_1_0_messageHeader_items[] = { &hf_amqp_1_0_durable,
                                                  &hf_amqp_1_0_priority,
                                                  &hf_amqp_1_0_ttl,
                                                  &hf_amqp_1_0_firstAcquirer,
                                                  &hf_amqp_1_0_deliveryCount };
-static const int* amqp_1_0_received_items[] = { &hf_amqp_1_0_sectionNumber,
+static int * const amqp_1_0_received_items[] = { &hf_amqp_1_0_sectionNumber,
                                             &hf_amqp_1_0_sectionOffset };
-static const int* amqp_1_0_rejected_items[] = { &hf_amqp_1_0_error };
-static const int* amqp_1_0_modified_items[] = { &hf_amqp_1_0_deliveryFailed,
+static int * const amqp_1_0_rejected_items[] = { &hf_amqp_1_0_error };
+static int * const amqp_1_0_modified_items[] = { &hf_amqp_1_0_deliveryFailed,
                                             &hf_amqp_1_0_undeliverableHere,
                                             &hf_amqp_1_0_messageAnnotations };
-static const int* amqp_1_0_source_items[] = { &hf_amqp_1_0_address,
+static int * const amqp_1_0_source_items[] = { &hf_amqp_1_0_address,
                                           &hf_amqp_1_0_terminusDurable,
                                           &hf_amqp_1_0_expiryPolicy,
                                           &hf_amqp_1_0_timeout,
@@ -960,14 +960,14 @@ static const int* amqp_1_0_source_items[] = { &hf_amqp_1_0_address,
                                           &hf_amqp_1_0_defaultOutcome,
                                           &hf_amqp_1_0_outcomes,
                                           &hf_amqp_1_0_capabilities };
-static const int* amqp_1_0_target_items[] = { &hf_amqp_1_0_address,
+static int * const amqp_1_0_target_items[] = { &hf_amqp_1_0_address,
                                           &hf_amqp_1_0_terminusDurable,
                                           &hf_amqp_1_0_expiryPolicy,
                                           &hf_amqp_1_0_timeout,
                                           &hf_amqp_1_0_dynamic,
                                           &hf_amqp_1_0_dynamicNodeProperties,
                                           &hf_amqp_1_0_capabilities };
-static const int* amqp_1_0_messageProperties_items[] = { &hf_amqp_1_0_messageId,
+static int * const amqp_1_0_messageProperties_items[] = { &hf_amqp_1_0_messageId,
                                                      &hf_amqp_1_0_userId,
                                                      &hf_amqp_1_0_to,
                                                      &hf_amqp_1_0_subject,
@@ -980,12 +980,12 @@ static const int* amqp_1_0_messageProperties_items[] = { &hf_amqp_1_0_messageId,
                                                      &hf_amqp_1_0_groupId,
                                                      &hf_amqp_1_0_groupSequence,
                                                      &hf_amqp_1_0_replyToGroupId };
-static const int* amqp_1_0_coordinator_items[] = { &hf_amqp_1_0_capabilities };
-static const int* amqp_1_0_declare_items[] = { &hf_amqp_1_0_globalId };
-static const int* amqp_1_0_discharge_items[] = { &hf_amqp_1_0_txnId,
+static int * const amqp_1_0_coordinator_items[] = { &hf_amqp_1_0_capabilities };
+static int * const amqp_1_0_declare_items[] = { &hf_amqp_1_0_globalId };
+static int * const amqp_1_0_discharge_items[] = { &hf_amqp_1_0_txnId,
                                              &hf_amqp_1_0_fail };
-static const int* amqp_1_0_declared_items[] = { &hf_amqp_1_0_txnId };
-static const int* amqp_1_0_transactionalState_items[] = { &hf_amqp_1_0_txnId,
+static int * const amqp_1_0_declared_items[] = { &hf_amqp_1_0_txnId };
+static int * const amqp_1_0_transactionalState_items[] = { &hf_amqp_1_0_txnId,
                                                       &hf_amqp_1_0_outcome };
 
 /* 0-10 handles */
@@ -2088,7 +2088,7 @@ static const value_string amqp_method_confirm_methods [] = {
 };
 
 /*  AMQP 0-10 Type Info  */
-static struct amqp_typeinfo amqp_0_10_fixed_types[] = {
+static const struct amqp_typeinfo amqp_0_10_fixed_types[] = {
     { 0x00, "bin8",    format_amqp_0_10_bin,     1 },
     { 0x01, "int8",    format_amqp_0_10_int,     1 },
     { 0x02, "uint8",   format_amqp_0_10_uint,    1 },
@@ -2103,14 +2103,14 @@ static struct amqp_typeinfo amqp_0_10_fixed_types[] = {
     { 0xff, "end", 0, 0 }
 };
 
-static struct amqp_typeinfo amqp_0_10_var_types[] = {
+static const struct amqp_typeinfo amqp_0_10_var_types[] = {
     { 0x80, "vbin8",   format_amqp_0_10_vbin, 1 },
     { 0x95, "str16",   format_amqp_0_10_str, 2 },
     { 0xff, "end", 0, 0 }
 };
 
 /*  AMQP 1.0 Type Info  */
-static struct amqp1_typeinfo amqp_1_0_fixed_types[] = {
+static const struct amqp1_typeinfo amqp_1_0_fixed_types[] = {
     { 0x40, "null",       FT_NONE,          0,  dissect_amqp_1_0_skip,      format_amqp_1_0_null },
     { 0x41, "bool",       FT_BOOLEAN,       0,  dissect_amqp_1_0_true,      format_amqp_1_0_boolean_true },
     { 0x42, "bool",       FT_BOOLEAN,       0,  dissect_amqp_1_0_false,     format_amqp_1_0_boolean_false },
@@ -2147,7 +2147,7 @@ static struct amqp1_typeinfo amqp_1_0_fixed_types[] = {
 };
 
 /* see explanation at declaration of amqp_defined_types_t */
-static struct amqp_defined_types_t amqp_1_0_defined_types[] = {
+static const struct amqp_defined_types_t amqp_1_0_defined_types[] = {
     {AMQP_1_0_AMQP_TYPE_ERROR,                  &hf_amqp_1_0_error,                 3, amqp_1_0_error_items },
     {AMQP_1_0_AMQP_TYPE_HEADER,                 &hf_amqp_1_0_messageHeader,         5, amqp_1_0_messageHeader_items },
     {AMQP_1_0_AMQP_TYPE_DELIVERY_ANNOTATIONS,   &hf_amqp_1_0_deliveryAnnotations,   0, NULL },
@@ -5891,7 +5891,7 @@ dissect_amqp_1_0_list(tvbuff_t *tvb,
                       proto_item *item,
                       int hf_amqp_type,
                       guint32 hf_amqp_subtype_count,
-                      const int **hf_amqp_subtypes,
+                      int * const *hf_amqp_subtypes,
                       const char *name)
 {
     proto_item *list_tree;
@@ -6007,7 +6007,7 @@ dissect_amqp_1_0_map(tvbuff_t *tvb,
     guint8      count_len;
     guint32     element_count;
     guint32     element_size;
-    struct amqp1_typeinfo* element_type;
+    const struct amqp1_typeinfo* element_type;
     guint32     decoded_element_size;
     guint32     orig_offset;
     const char *value = NULL;
@@ -6134,7 +6134,7 @@ dissect_amqp_1_0_array(tvbuff_t *tvb,
                        proto_item *item,
                        int hf_amqp_type,
                        guint32 hf_amqp_subtype_count,
-                       const int **hf_amqp_subtypes,
+                       int * const *hf_amqp_subtypes,
                        const char *name)
 {
     proto_item *array_tree;
@@ -6148,7 +6148,7 @@ dissect_amqp_1_0_array(tvbuff_t *tvb,
     guint32     decoded_elements;
     int         hf_amqp_item;
     guint32     hf_amqp_subtype_count_array = 0;
-    const int   **hf_amqp_subtypes_array = NULL;
+    int * const  *hf_amqp_subtypes_array = NULL;
     const char  *type_name_array = NULL;
 
     array_tree = 0;
@@ -9900,7 +9900,7 @@ generate_ack_reference(tvbuff_t *tvb, packet_info *pinfo, proto_tree *amqp_tree)
 
 /*  AMQP 1.0 Type Decoders  */
 
-static struct amqp1_typeinfo* decode_fixed_type(guint8 code)
+static const struct amqp1_typeinfo* decode_fixed_type(guint8 code)
 {
     int i;
 
@@ -9930,17 +9930,17 @@ get_amqp_1_0_value_formatter(tvbuff_t *tvb,
                              int hf_amqp_type,
                              const char *name,
                              guint32 hf_amqp_subtype_count,
-                             const int **hf_amqp_subtypes,
+                             int * const *hf_amqp_subtypes,
                              guint *length_size,
                              proto_item *item)
 {
-    struct amqp1_typeinfo* element_type;
+    const struct amqp1_typeinfo* element_type;
     const char *value = NULL;
 
     element_type = decode_fixed_type(code);
     if (element_type)
     {
-        struct amqp_synonym_types_t *synonyms;
+        const struct amqp_synonym_types_t *synonyms;
         int shift_view = 0;
 
         /* some AMQP fields can be of several types; by default we use FT_NONE,
@@ -10066,7 +10066,7 @@ get_amqp_1_0_type_formatter(tvbuff_t *tvb,
                             int *hf_amqp_type,
                             const char **name,
                             guint32 *hf_amqp_subtype_count,
-                            const int ***hf_amqp_subtypes,
+                            int * const **hf_amqp_subtypes,
                             guint *length_size)
 {
     int    i;
@@ -10149,7 +10149,7 @@ get_amqp_1_0_type_value_formatter(tvbuff_t *tvb,
 {
     int        code;
     guint32    hf_amqp_subtype_count = 0;
-    const int  **hf_amqp_subtypes = NULL;
+    int * const *hf_amqp_subtypes = NULL;
     const char *type_name = NULL;
     const char *format_name = NULL;
     guint      type_length_size;
@@ -10528,7 +10528,7 @@ get_amqp_0_10_type_formatter(guint8 code,
                              guint *length_size)
 {
     int i;
-    struct amqp_typeinfo *table;
+    const struct amqp_typeinfo *table;
 
     if (code & 0x80)
         table = amqp_0_10_var_types;

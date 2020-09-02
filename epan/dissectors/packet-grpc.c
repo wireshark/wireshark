@@ -80,7 +80,7 @@ static gboolean grpc_decompress_body = TRUE;
 static gboolean grpc_decompress_body = FALSE;
 #endif
 
-/* detect json automaticlly */
+/* detect json automatically */
 static gboolean grpc_detect_json_automatically = TRUE;
 /* tell http2 to use streaming mode reassembly for grpc dissector */
 static gboolean grpc_enable_streaming_reassembly_mode = TRUE;
@@ -395,7 +395,7 @@ proto_register_grpc(void)
 
     grpc_module = prefs_register_protocol(proto_grpc, proto_reg_handoff_grpc);
 
-    prefs_register_bool_preference(grpc_module, "detect_json_automaticlly",
+    prefs_register_bool_preference(grpc_module, "detect_json_automatically",
         "Always check whether the message is JSON regardless of content-type.",
         "Normally application/grpc message is protobuf, "
         "but sometime the true message is json. "
@@ -414,7 +414,7 @@ proto_register_grpc(void)
         "to keep this option on.",
         &grpc_enable_streaming_reassembly_mode);
 
-    prefs_register_bool_preference(grpc_module, "embeded_under_http2",
+    prefs_register_bool_preference(grpc_module, "embedded_under_http2",
         "Embed gRPC messages under HTTP2 protocol tree items.",
         "Embed gRPC messages under HTTP2 protocol tree items.",
         &grpc_embedded_under_http2);

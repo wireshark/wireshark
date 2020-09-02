@@ -6,7 +6,7 @@
  *
  * http://www.usb.org/developers/docs/usb_20_122909-2.zip
  *
- * https://github.com/torvalds/linux/blob/master/Documentation/usb/usbmon.txt
+ * https://github.com/torvalds/linux/blob/master/Documentation/usb/usbmon.rst
  *
  * http://desowin.org/usbpcap/captureformat.html
  *
@@ -123,7 +123,7 @@ static int hf_setup_map_local = -1;
 static int hf_dma_sg_combined = -1;
 static int hf_aligned_temp_buffer = -1;
 
-static const int *transfer_flags_fields[] = {
+static int * const transfer_flags_fields[] = {
     &hf_short_not_ok,
     &hf_iso_asap,
     &hf_no_transfer_dma_map,
@@ -372,18 +372,19 @@ static expert_field ei_usb_desc_length_invalid = EI_INIT;
 static expert_field ei_usb_invalid_setup = EI_INIT;
 static expert_field ei_usb_ss_ep_companion_before_ep = EI_INIT;
 static expert_field ei_usb_usbpcap_unknown_urb = EI_INIT;
+static expert_field ei_usb_bad_length = EI_INIT;
 
 static expert_field ei_usbport_invalid_path_depth = EI_INIT;
 
 static int usb_address_type = -1;
 
-static const int *usb_endpoint_fields[] = {
+static int * const usb_endpoint_fields[] = {
     &hf_usb_endpoint_direction,
     &hf_usb_endpoint_number,
     NULL
 };
 
-static const int *usb_usbpcap_info_fields[] = {
+static int * const usb_usbpcap_info_fields[] = {
     &hf_usb_usbpcap_info_reserved,
     &hf_usb_usbpcap_info_direction,
     NULL
@@ -696,7 +697,7 @@ static const value_string usb_freebsd_transfer_type_vals[] = {
 #define FREEBSD_FLAG_NO_PIPE_OK       0x00000080
 #define FREEBSD_FLAG_STALL_PIPE       0x00000100
 
-static const int *usb_xferflags_fields[] = {
+static int * const usb_xferflags_fields[] = {
     &hf_usb_xferflags_force_short_xfer,
     &hf_usb_xferflags_short_xfer_ok,
     &hf_usb_xferflags_short_frames_ok,
@@ -731,7 +732,7 @@ static const int *usb_xferflags_fields[] = {
 #define FREEBSD_STATUS_CAN_CANCEL_IMMED  0x00040000
 #define FREEBSD_STATUS_DOING_CALLBACK    0x00080000
 
-static const int *usb_xferstatus_fields[] = {
+static int * const usb_xferstatus_fields[] = {
     &hf_usb_xferstatus_open,
     &hf_usb_xferstatus_transferring,
     &hf_usb_xferstatus_did_dma_delay,
@@ -839,7 +840,7 @@ static const value_string usb_freebsd_speed_vals[] = {
 #define FREEBSD_FRAMEFLAG_READ         0x00000001
 #define FREEBSD_FRAMEFLAG_DATA_FOLLOWS 0x00000002
 
-static const int *usb_frame_flags_fields[] = {
+static int * const usb_frame_flags_fields[] = {
     &hf_usb_frame_flags_read,
     &hf_usb_frame_flags_data_follows,
     NULL
@@ -2313,6 +2314,8 @@ dissect_usb_interface_descriptor(packet_info *pinfo, proto_tree *parent_tree,
 
         /* Register conversation for this interface in case CONTROL messages are sent to it */
         usb_trans_info->interface_info = get_usb_iface_conv_info(pinfo, interface_num);
+        usb_trans_info->interface_info->bus_id = usb_conv_info->bus_id;
+        usb_trans_info->interface_info->device_address = usb_conv_info->device_address;
 
         alternate_setting.altSetting = alt_setting;
         alternate_setting.interfaceClass = tvb_get_guint8(tvb, offset);
@@ -2559,7 +2562,10 @@ dissect_usb_endpoint_descriptor(packet_info *pinfo, proto_tree *parent_tree,
     proto_tree_add_item(tree, hf_usb_bInterval, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
 
-    if (usb_conv_info && (usb_conv_info->interfaceClass == IF_CLASS_AUDIO)) {
+    /* bRefresh and bSynchAddress are present only in the Audio 1.0
+     * Endpoint Descriptors, so observe the descriptor size  */
+    if (usb_conv_info && (usb_conv_info->interfaceClass == IF_CLASS_AUDIO)
+            && (len >= 9)) {
         proto_tree_add_item(tree, hf_usb_audio_bRefresh, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset += 1;
 
@@ -3717,7 +3723,7 @@ dissect_usb_bmrequesttype(proto_tree *parent_tree, tvbuff_t *tvb, int offset, gu
 {
     guint64 val;
 
-    static const int *bmRequestType_bits[] = {
+    static int * const bmRequestType_bits[] = {
         &hf_usb_bmRequestType_direction,
         &hf_usb_bmRequestType_type,
         &hf_usb_bmRequestType_recipient,
@@ -3897,6 +3903,7 @@ dissect_linux_usb_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     guint8  transfer_type_and_direction;
     guint8  urb_type;
     guint8  flag[2];
+    guint32 bus_id;
 
     *urb_id = tvb_get_guint64(tvb, 0, ENC_HOST_ENDIAN);
     proto_tree_add_uint64(tree, hf_usb_urb_id, tvb, 0, 8, *urb_id);
@@ -3925,8 +3932,8 @@ dissect_linux_usb_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     proto_tree_add_item(tree, hf_usb_device_address, tvb, 11, 1, ENC_LITTLE_ENDIAN);
     usb_conv_info->device_address = (guint16)tvb_get_guint8(tvb, 11);
 
-    proto_tree_add_item(tree, hf_usb_bus_id, tvb, 12, 2, ENC_HOST_ENDIAN);
-    tvb_memcpy(tvb, &usb_conv_info->bus_id, 12, 2);
+    proto_tree_add_item_ret_uint(tree, hf_usb_bus_id, tvb, 12, 2, ENC_HOST_ENDIAN, &bus_id);
+    usb_conv_info->bus_id = (guint16) bus_id;
 
     /* Right after the pseudo header we always have
      * sizeof(struct usb_device_setup_hdr) bytes. The content of these
@@ -4237,24 +4244,30 @@ static usb_trans_info_t
 
 /* dissect a group of isochronous packets inside an usb packet in
    usbpcap format */
+#define MAX_ISO_PACKETS 100000 // Arbitrary
 static gint
 dissect_usbpcap_iso_packets(packet_info *pinfo _U_, proto_tree *urb_tree, guint8 urb_type,
         tvbuff_t *tvb, gint offset, guint32 win32_data_len, usb_conv_info_t *usb_conv_info)
 {
     guint32     i;
     guint32     num_packets;
-    guint32     data_start_offset;
-    proto_item *urb_tree_ti;
+    int         data_start_offset;
+    proto_item *num_packets_ti, *urb_tree_ti;
 
     proto_tree_add_item(urb_tree, hf_usb_win32_iso_start_frame, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
 
     num_packets = tvb_get_letohl(tvb, offset);
-    proto_tree_add_item(urb_tree, hf_usb_win32_iso_num_packets, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    num_packets_ti = proto_tree_add_item(urb_tree, hf_usb_win32_iso_num_packets, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
 
     proto_tree_add_item(urb_tree, hf_usb_win32_iso_error_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
+
+    if (num_packets > MAX_ISO_PACKETS) {
+        expert_add_info_format(pinfo, num_packets_ti, &ei_usb_bad_length, "Too many isochronous transfer packets (%u)", num_packets);
+        return tvb_captured_length(tvb);
+    }
 
     data_start_offset = offset + 12 * num_packets;
     urb_tree_ti = proto_tree_get_parent(urb_tree);
@@ -4346,7 +4359,6 @@ dissect_linux_usb_iso_transfer(packet_info *pinfo _U_, proto_tree *urb_tree,
 {
     guint32     iso_numdesc = 0;
     proto_item *tii;
-    guint32     val32;
     guint32     i;
     guint       data_base;
     guint32     iso_status;
@@ -4368,17 +4380,10 @@ dissect_linux_usb_iso_transfer(packet_info *pinfo _U_, proto_tree *urb_tree,
     /* iso urbs on linux can't possibly contain a setup packet
        see mon_bin_event() in the linux kernel */
 
-    /* Process ISO related fields (usbmon_packet.iso). The fields are
-     * in host endian byte order so use tvb_memcopy() and
-     * proto_tree_add_uint() pair.
-     */
-
-    tvb_memcpy(tvb, (guint8 *)&val32, offset, 4);
-    proto_tree_add_uint(urb_tree, hf_usb_iso_error_count, tvb, offset, 4, val32);
+    proto_tree_add_item(urb_tree, hf_usb_iso_error_count, tvb, offset, 4, ENC_HOST_ENDIAN);
     offset += 4;
 
-    tvb_memcpy(tvb, (guint8 *)&iso_numdesc, offset, 4);
-    proto_tree_add_uint(urb_tree, hf_usb_iso_numdesc, tvb, offset, 4, iso_numdesc);
+    proto_tree_add_item_ret_uint(urb_tree, hf_usb_iso_numdesc, tvb, offset, 4, ENC_HOST_ENDIAN, &iso_numdesc);
     offset += 4;
 
     if (header_type == USB_HEADER_LINUX_64_BYTES) {
@@ -4389,26 +4394,21 @@ dissect_linux_usb_iso_transfer(packet_info *pinfo _U_, proto_tree *urb_tree,
     for (i = 0; i<iso_numdesc; i++) {
         proto_item   *iso_desc_ti;
         proto_tree   *iso_desc_tree;
-        guint32       iso_pad;
-
-        /* Fetch ISO descriptor fields stored in host endian byte order. */
-        tvb_memcpy(tvb, (guint8 *)&iso_status, offset, 4);
-        tvb_memcpy(tvb, (guint8 *)&iso_off, offset+4,  4);
-        tvb_memcpy(tvb, (guint8 *)&iso_len, offset+8,  4);
 
         iso_desc_ti = proto_tree_add_protocol_format(urb_tree, proto_usb, tvb, offset,
-                16, "USB isodesc %u [%s]", i, val_to_str_ext(iso_status, &linux_negative_errno_vals_ext, "Error %d"));
-        if (iso_len > 0)
-            proto_item_append_text(iso_desc_ti, " (%u bytes)", iso_len);
+                16, "USB isodesc %u", i);
         iso_desc_tree = proto_item_add_subtree(iso_desc_ti, ett_usb_isodesc);
 
-        proto_tree_add_int(iso_desc_tree, hf_usb_iso_status, tvb, offset, 4, iso_status);
+        proto_tree_add_item_ret_int(iso_desc_tree, hf_usb_iso_status, tvb, offset, 4, ENC_HOST_ENDIAN, &iso_status);
+        proto_item_append_text(iso_desc_ti, " [%s]", val_to_str_ext(iso_status, &linux_negative_errno_vals_ext, "Error %d"));
         offset += 4;
 
-        proto_tree_add_uint(iso_desc_tree, hf_usb_iso_off, tvb, offset, 4, iso_off);
+        proto_tree_add_item_ret_uint(iso_desc_tree, hf_usb_iso_off, tvb, offset, 4, ENC_HOST_ENDIAN, &iso_off);
         offset += 4;
 
-        proto_tree_add_uint(iso_desc_tree, hf_usb_iso_len, tvb, offset, 4, iso_len);
+        proto_tree_add_item_ret_uint(iso_desc_tree, hf_usb_iso_len, tvb, offset, 4, ENC_HOST_ENDIAN, &iso_len);
+        if (iso_len != 0)
+            proto_item_append_text(iso_desc_ti, " (%u bytes)", iso_len);
         offset += 4;
 
         /* Show the ISO data if we captured them and either the status
@@ -4422,8 +4422,7 @@ dissect_linux_usb_iso_transfer(packet_info *pinfo _U_, proto_tree *urb_tree,
             proto_tree_set_appendix(iso_desc_tree, tvb, (gint)(data_base+iso_off), (gint)iso_len);
         }
 
-        tvb_memcpy(tvb, (guint8 *)&iso_pad, offset, 4);
-        proto_tree_add_uint(iso_desc_tree, hf_usb_iso_pad, tvb, offset, 4, iso_pad);
+        proto_tree_add_item(iso_desc_tree, hf_usb_iso_pad, tvb, offset, 4, ENC_HOST_ENDIAN);
         offset += 4;
     }
 
@@ -4461,11 +4460,10 @@ dissect_usbip_iso_transfer(packet_info *pinfo _U_, proto_tree *urb_tree,
     for (i = 0; i<iso_numdesc; i++) {
         proto_item   *iso_desc_ti;
         proto_tree   *iso_desc_tree;
-        guint32       iso_status;
+        gint32        iso_status;
 
-        iso_status = tvb_get_ntohl(tvb, desc_offset + 12);
         iso_desc_ti = proto_tree_add_protocol_format(urb_tree, proto_usb, tvb, desc_offset,
-                16, "USB isodesc %u [%s]", i, val_to_str_ext(iso_status, &linux_negative_errno_vals_ext, "Error %d"));
+                16, "USB isodesc %u", i);
         iso_desc_tree = proto_item_add_subtree(iso_desc_ti, ett_usb_isodesc);
 
         proto_tree_add_item_ret_uint(iso_desc_tree, hf_usb_iso_off, tvb, desc_offset, 4, ENC_BIG_ENDIAN, &iso_off);
@@ -4476,11 +4474,13 @@ dissect_usbip_iso_transfer(packet_info *pinfo _U_, proto_tree *urb_tree,
 
         proto_tree_add_item_ret_uint(iso_desc_tree, hf_usb_iso_actual_len, tvb, desc_offset, 4, ENC_BIG_ENDIAN, &iso_len);
         desc_offset += 4;
+
+        proto_tree_add_item_ret_int(iso_desc_tree, hf_usb_iso_status, tvb, desc_offset, 4, ENC_BIG_ENDIAN, &iso_status);
+        proto_item_append_text(iso_desc_ti, " [%s]", val_to_str_ext(iso_status, &linux_negative_errno_vals_ext, "Error %d"));
+        desc_offset += 4;
+
         if (iso_len > 0)
             proto_item_append_text(iso_desc_ti, " (%u bytes)", iso_len);
-
-        proto_tree_add_uint(iso_desc_tree, hf_usb_iso_status, tvb, desc_offset, 4, iso_status);
-        desc_offset += 4;
 
         /* Show the ISO data if we captured them and either the status
            is OK or the packet is sent from host to device.
@@ -4927,7 +4927,7 @@ dissect_netmon_usb_port(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent, v
     proto_tree *usb_port_tree;
     int offset = 0;
     struct netmon_provider_id_data *provider_id_data = (struct netmon_provider_id_data*)data;
-    static const int *keyword_fields[] = {
+    static int * const keyword_fields[] = {
         &hf_usbport_keyword_diagnostic,
         &hf_usbport_keyword_power_diagnostics,
         &hf_usbport_keyword_perf_diagnostics,
@@ -5990,23 +5990,23 @@ proto_register_usb(void)
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
-        { &hf_usb_iso_numdesc,                    /* host endian byte order */
+        { &hf_usb_iso_numdesc,
           { "Number of ISO descriptors", "usb.iso.numdesc",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         /* fields of struct mon_bin_isodesc from linux/drivers/usb/mon/mon_bin.c */
-        { &hf_usb_iso_status,                     /* host endian byte order */
+        { &hf_usb_iso_status,
           { "Status", "usb.iso.iso_status",
             FT_INT32, BASE_DEC|BASE_EXT_STRING, &linux_negative_errno_vals_ext, 0x0,
             "ISO descriptor status", HFILL }},
 
-        { &hf_usb_iso_off,                        /* host endian byte order */
+        { &hf_usb_iso_off,
           { "Offset [bytes]", "usb.iso.iso_off",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             "ISO data offset in bytes starting from the end of the last ISO descriptor", HFILL }},
 
-        { &hf_usb_iso_len,                        /* host endian byte order */
+        { &hf_usb_iso_len,
           { "Length [bytes]", "usb.iso.iso_len",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             "ISO data length in bytes", HFILL }},
@@ -6719,7 +6719,8 @@ proto_register_usb(void)
         { &ei_usb_desc_length_invalid, { "usb.desc_length.invalid", PI_MALFORMED, PI_ERROR, "Invalid descriptor length", EXPFILL }},
         { &ei_usb_invalid_setup, { "usb.setup.invalid", PI_MALFORMED, PI_ERROR, "Only control URBs may contain a setup packet", EXPFILL }},
         { &ei_usb_ss_ep_companion_before_ep, { "usb.bmAttributes.invalid_order", PI_MALFORMED, PI_ERROR, "SuperSpeed Endpoint Companion must come after Endpoint Descriptor", EXPFILL }},
-        { &ei_usb_usbpcap_unknown_urb, { "usb.usbpcap.unknown_urb", PI_MALFORMED, PI_ERROR, "USBPcap did not recognize URB Function code (report to desowin.org/USBPcap)", EXPFILL }}
+        { &ei_usb_usbpcap_unknown_urb, { "usb.usbpcap.unknown_urb", PI_MALFORMED, PI_ERROR, "USBPcap did not recognize URB Function code (report to desowin.org/USBPcap)", EXPFILL }},
+        { &ei_usb_bad_length, { "usb.bad_length", PI_MALFORMED, PI_ERROR, "Invalid length", EXPFILL }},
     };
     static ei_register_info ei_usbport[] = {
         { &ei_usbport_invalid_path_depth, { "usbport.path_depth.invalid", PI_PROTOCOL, PI_WARN, "Invalid path depth", EXPFILL }},

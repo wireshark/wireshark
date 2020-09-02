@@ -55,11 +55,11 @@ struct _wmem_map_t {
     GHashFunc  hash_func;
     GEqualFunc eql_func;
 
-    guint      master_cb_id;
-    guint      slave_cb_id;
+    guint      metadata_scope_cb_id;
+    guint      data_scope_cb_id;
 
-    wmem_allocator_t *master;
-    wmem_allocator_t *allocator;
+    wmem_allocator_t *metadata_allocator;
+    wmem_allocator_t *data_allocator;
 };
 
 /* As per the comment on the 'capacity' member of the wmem_map_t struct, this is
@@ -81,7 +81,7 @@ wmem_map_init_table(wmem_map_t *map)
 {
     map->count     = 0;
     map->capacity  = WMEM_MAP_DEFAULT_CAPACITY;
-    map->table     = wmem_alloc0_array(map->allocator, wmem_map_item_t*, CAPACITY(map));
+    map->table     = wmem_alloc0_array(map->data_allocator, wmem_map_item_t*, CAPACITY(map));
 }
 
 wmem_map_t *
@@ -94,8 +94,8 @@ wmem_map_new(wmem_allocator_t *allocator,
 
     map->hash_func = hash_func;
     map->eql_func  = eql_func;
-    map->master    = allocator;
-    map->allocator = allocator;
+    map->metadata_allocator    = allocator;
+    map->data_allocator = allocator;
     map->count = 0;
     map->table = NULL;
 
@@ -112,8 +112,8 @@ wmem_map_reset_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event,
     map->table = NULL;
 
     if (event == WMEM_CB_DESTROY_EVENT) {
-        wmem_unregister_callback(map->master, map->master_cb_id);
-        wmem_free(map->master, map);
+        wmem_unregister_callback(map->metadata_allocator, map->metadata_scope_cb_id);
+        wmem_free(map->metadata_allocator, map);
     }
 
     return TRUE;
@@ -125,28 +125,28 @@ wmem_map_destroy_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_,
 {
     wmem_map_t *map = (wmem_map_t*)user_data;
 
-    wmem_unregister_callback(map->allocator, map->slave_cb_id);
+    wmem_unregister_callback(map->data_allocator, map->data_scope_cb_id);
 
     return FALSE;
 }
 
 wmem_map_t *
-wmem_map_new_autoreset(wmem_allocator_t *master, wmem_allocator_t *slave,
+wmem_map_new_autoreset(wmem_allocator_t *metadata_scope, wmem_allocator_t *data_scope,
         GHashFunc hash_func, GEqualFunc eql_func)
 {
     wmem_map_t *map;
 
-    map = wmem_new(master, wmem_map_t);
+    map = wmem_new(metadata_scope, wmem_map_t);
 
     map->hash_func = hash_func;
     map->eql_func  = eql_func;
-    map->master    = master;
-    map->allocator = slave;
+    map->metadata_allocator = metadata_scope;
+    map->data_allocator = data_scope;
     map->count = 0;
     map->table = NULL;
 
-    map->master_cb_id = wmem_register_callback(master, wmem_map_destroy_cb, map);
-    map->slave_cb_id  = wmem_register_callback(slave, wmem_map_reset_cb, map);
+    map->metadata_scope_cb_id = wmem_register_callback(metadata_scope, wmem_map_destroy_cb, map);
+    map->data_scope_cb_id  = wmem_register_callback(data_scope, wmem_map_reset_cb, map);
 
     return map;
 }
@@ -165,7 +165,7 @@ wmem_map_grow(wmem_map_t *map)
     /* double the size (capacity is base-2 logarithm, so this just means
      * increment it) and allocate new table */
     map->capacity++;
-    map->table = wmem_alloc0_array(map->allocator, wmem_map_item_t*, CAPACITY(map));
+    map->table = wmem_alloc0_array(map->data_allocator, wmem_map_item_t*, CAPACITY(map));
 
     /* copy all the elements over from the old table */
     for (i=0; i<old_cap; i++) {
@@ -180,7 +180,7 @@ wmem_map_grow(wmem_map_t *map)
     }
 
     /* free the old table */
-    wmem_free(map->allocator, old_table);
+    wmem_free(map->data_allocator, old_table);
 }
 
 void *
@@ -209,7 +209,7 @@ wmem_map_insert(wmem_map_t *map, const void *key, void *value)
     }
 
     /* insert new item */
-    (*item) = wmem_new(map->allocator, wmem_map_item_t);
+    (*item) = wmem_new(map->data_allocator, wmem_map_item_t);
 
     (*item)->key   = key;
     (*item)->value = value;
@@ -325,7 +325,7 @@ wmem_map_remove(wmem_map_t *map, const void *key)
             tmp     = (*item);
             value   = tmp->value;
             (*item) = tmp->next;
-            wmem_free(map->allocator, tmp);
+            wmem_free(map->data_allocator, tmp);
             map->count--;
             return value;
         }

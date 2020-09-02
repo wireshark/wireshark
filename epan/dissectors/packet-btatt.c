@@ -14,7 +14,6 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <glib/gprintf.h>
 
 #include <epan/packet.h>
@@ -1187,14 +1186,14 @@ static int hf_response_in_frame = -1;
 
 static int btatt_tap_handles = -1;
 
-static const int *hfx_btatt_opcode[] = {
+static int * const hfx_btatt_opcode[] = {
     &hf_btatt_opcode_authentication_signature,
     &hf_btatt_opcode_command,
     &hf_btatt_opcode_method,
     NULL
 };
 
-static const int *hfx_btatt_characteristic_properties[] = {
+static int * const hfx_btatt_characteristic_properties[] = {
     &hf_btatt_characteristic_properties_extended_properties,
     &hf_btatt_characteristic_properties_authenticated_signed_writes,
     &hf_btatt_characteristic_properties_indicate,
@@ -1206,106 +1205,106 @@ static const int *hfx_btatt_characteristic_properties[] = {
     NULL
 };
 
-static const int *hfx_btatt_characteristic_configuration_client[] = {
+static int * const hfx_btatt_characteristic_configuration_client[] = {
     &hf_btatt_characteristic_configuration_client_reserved,
     &hf_btatt_characteristic_configuration_client_indication,
     &hf_btatt_characteristic_configuration_client_notification,
     NULL
 };
 
-static const int *hfx_btatt_characteristic_configuration_server[] = {
+static int * const hfx_btatt_characteristic_configuration_server[] = {
     &hf_btatt_characteristic_configuration_server_reserved,
     &hf_btatt_characteristic_configuration_server_broadcast,
     NULL
 };
 
-static const int *hfx_btatt_hogp_flags[] = {
+static int * const hfx_btatt_hogp_flags[] = {
     &hf_btatt_hogp_flags_reserved,
     &hf_btatt_hogp_flags_normally_connectable,
     &hf_btatt_hogp_flags_remote_wake,
     NULL
 };
 
-static const int *hfx_btatt_characteristic_extended_properties[] = {
+static int * const hfx_btatt_characteristic_extended_properties[] = {
     &hf_btatt_characteristic_extended_properties_reserved,
     &hf_btatt_characteristic_extended_properties_writable_auxiliaries,
     &hf_btatt_characteristic_extended_properties_reliable_write,
     NULL
 };
 
-static const int *hfx_btatt_appearance[] = {
+static int * const hfx_btatt_appearance[] = {
     &hf_btatt_appearance_category,
     &hf_btatt_appearance_subcategory,
     NULL
 };
 
-static const int *hfx_btatt_appearance_watch[] = {
+static int * const hfx_btatt_appearance_watch[] = {
     &hf_btatt_appearance_category,
     &hf_btatt_appearance_subcategory_watch,
     NULL
 };
 
-static const int *hfx_btatt_appearance_thermometer[] = {
+static int * const hfx_btatt_appearance_thermometer[] = {
     &hf_btatt_appearance_category,
     &hf_btatt_appearance_subcategory_thermometer,
     NULL
 };
 
-static const int *hfx_btatt_appearance_heart_rate[] = {
+static int * const hfx_btatt_appearance_heart_rate[] = {
     &hf_btatt_appearance_category,
     &hf_btatt_appearance_subcategory_heart_rate,
     NULL
 };
 
-static const int *hfx_btatt_appearance_blood_pressure[] = {
+static int * const hfx_btatt_appearance_blood_pressure[] = {
     &hf_btatt_appearance_category,
     &hf_btatt_appearance_subcategory_blood_pressure,
     NULL
 };
 
-static const int *hfx_btatt_appearance_hid[] = {
+static int * const hfx_btatt_appearance_hid[] = {
     &hf_btatt_appearance_category,
     &hf_btatt_appearance_subcategory_hid,
     NULL
 };
 
-static const int *hfx_btatt_appearance_running_walking_sensor[] = {
+static int * const hfx_btatt_appearance_running_walking_sensor[] = {
     &hf_btatt_appearance_category,
     &hf_btatt_appearance_subcategory_running_walking_sensor,
     NULL
 };
 
-static const int *hfx_btatt_appearance_cycling[] = {
+static int * const hfx_btatt_appearance_cycling[] = {
     &hf_btatt_appearance_category,
     &hf_btatt_appearance_subcategory_cycling,
     NULL
 };
 
-static const int *hfx_btatt_appearance_pulse_oximeter[] = {
+static int * const hfx_btatt_appearance_pulse_oximeter[] = {
     &hf_btatt_appearance_category,
     &hf_btatt_appearance_subcategory_pulse_oximeter,
     NULL
 };
 
-static const int *hfx_btatt_appearance_personal_mobility_device[] = {
+static int * const hfx_btatt_appearance_personal_mobility_device[] = {
     &hf_btatt_appearance_category,
     &hf_btatt_appearance_subcategory_personal_mobility_device,
     NULL
 };
 
-static const int *hfx_btatt_appearance_insulin_pump[] = {
+static int * const hfx_btatt_appearance_insulin_pump[] = {
     &hf_btatt_appearance_category,
     &hf_btatt_appearance_subcategory_insulin_pump,
     NULL
 };
 
-static const int *hfx_btatt_appearance_outdoor_sports_activity[] = {
+static int * const hfx_btatt_appearance_outdoor_sports_activity[] = {
     &hf_btatt_appearance_category,
     &hf_btatt_appearance_subcategory_outdoor_sports_activity,
     NULL
 };
 
-static const int *hfx_btatt_time_adjust_reason[] = {
+static int * const hfx_btatt_time_adjust_reason[] = {
     &hf_btatt_time_adjust_reason_reserved,
     &hf_btatt_time_adjust_reason_change_of_dst,
     &hf_btatt_time_adjust_reason_change_of_timezone,
@@ -1314,7 +1313,7 @@ static const int *hfx_btatt_time_adjust_reason[] = {
     NULL
 };
 
-static const int *hfx_btatt_alert_status[] = {
+static int * const hfx_btatt_alert_status[] = {
     &hf_btatt_alert_status_reserved,
     &hf_btatt_alert_status_display_alert_status,
     &hf_btatt_alert_status_vibrate_state,
@@ -1322,7 +1321,7 @@ static const int *hfx_btatt_alert_status[] = {
     NULL
 };
 
-static const int *hfx_btatt_alert_category_id_bitmask_1[] = {
+static int * const hfx_btatt_alert_category_id_bitmask_1[] = {
     &hf_btatt_alert_category_id_bitmask_1_schedule,
     &hf_btatt_alert_category_id_bitmask_1_voice_mail,
     &hf_btatt_alert_category_id_bitmask_1_sms_mms,
@@ -1334,14 +1333,14 @@ static const int *hfx_btatt_alert_category_id_bitmask_1[] = {
     NULL
 };
 
-static const int *hfx_btatt_alert_category_id_bitmask_2[] = {
+static int * const hfx_btatt_alert_category_id_bitmask_2[] = {
     &hf_btatt_alert_category_id_bitmask_2_reserved,
     &hf_btatt_alert_category_id_bitmask_2_instant_message,
     &hf_btatt_alert_category_id_bitmask_2_high_prioritized_alert,
     NULL
 };
 
-static const int *hfx_btatt_blood_pressure_feature[] = {
+static int * const hfx_btatt_blood_pressure_feature[] = {
     &hf_btatt_blood_pressure_feature_reserved,
     &hf_btatt_blood_pressure_feature_multiple_bond,
     &hf_btatt_blood_pressure_feature_measurement_position_detection,
@@ -1352,7 +1351,7 @@ static const int *hfx_btatt_blood_pressure_feature[] = {
     NULL
 };
 
-static const int *hfx_btatt_glucose_feature[] = {
+static int * const hfx_btatt_glucose_feature[] = {
     &hf_btatt_glucose_feature_reserved,
     &hf_btatt_glucose_feature_multiple_bond,
     &hf_btatt_glucose_feature_time_fault,
@@ -1368,7 +1367,7 @@ static const int *hfx_btatt_glucose_feature[] = {
     NULL
 };
 
-static const int *hfx_btatt_rsc_feature[] = {
+static int * const hfx_btatt_rsc_feature[] = {
     &hf_btatt_rsc_feature_reserved,
     &hf_btatt_rsc_feature_multiple_sensor_locations,
     &hf_btatt_rsc_feature_calibration_procedure,
@@ -1378,7 +1377,7 @@ static const int *hfx_btatt_rsc_feature[] = {
     NULL
 };
 
-static const int *hfx_btatt_csc_feature[] = {
+static int * const hfx_btatt_csc_feature[] = {
     &hf_btatt_csc_feature_reserved,
     &hf_btatt_csc_feature_multiple_sensor_locations,
     &hf_btatt_csc_feature_crank_revolution_data,
@@ -1386,7 +1385,7 @@ static const int *hfx_btatt_csc_feature[] = {
     NULL
 };
 
-static const int *hfx_btatt_descriptor_value_changed_flags[] = {
+static int * const hfx_btatt_descriptor_value_changed_flags[] = {
     &hf_btatt_descriptor_value_changed_flags_reserved,
     &hf_btatt_descriptor_value_changed_flags_change_to_characteristic_user_description_descriptor,
     &hf_btatt_descriptor_value_changed_flags_change_to_es_measurement_descriptor,
@@ -1396,7 +1395,7 @@ static const int *hfx_btatt_descriptor_value_changed_flags[] = {
     NULL
 };
 
-static const int *hfx_btatt_cycling_power_feature[] = {
+static int * const hfx_btatt_cycling_power_feature[] = {
     &hf_btatt_cycling_power_feature_reserved,
     &hf_btatt_cycling_power_feature_factory_calibration_date,
     &hf_btatt_cycling_power_feature_instantaneous_measurement_direction,
@@ -1420,7 +1419,7 @@ static const int *hfx_btatt_cycling_power_feature[] = {
     NULL
 };
 
-static const int *hfx_btatt_ln_feature[] = {
+static int * const hfx_btatt_ln_feature[] = {
     &hf_btatt_ln_feature_reserved,
     &hf_btatt_ln_feature_position_status,
     &hf_btatt_ln_feature_elevation_setting,
@@ -1446,7 +1445,7 @@ static const int *hfx_btatt_ln_feature[] = {
     NULL
 };
 
-static const int *hfx_btatt_body_composition_feature[] = {
+static int * const hfx_btatt_body_composition_feature[] = {
     &hf_btatt_body_composition_feature_reserved,
     &hf_btatt_body_composition_feature_height_measurement_resolution,
     &hf_btatt_body_composition_feature_mass_measurement_resolution,
@@ -1464,7 +1463,7 @@ static const int *hfx_btatt_body_composition_feature[] = {
     NULL
 };
 
-static const int *hfx_btatt_weight_scale_feature[] = {
+static int * const hfx_btatt_weight_scale_feature[] = {
     &hf_btatt_weight_scale_feature_reserved,
     &hf_btatt_weight_scale_feature_height_measurement_resolution,
     &hf_btatt_weight_scale_feature_weight_measurement_resolution,
@@ -1474,7 +1473,7 @@ static const int *hfx_btatt_weight_scale_feature[] = {
     NULL
 };
 
-static const int *hfx_btatt_glucose_measurement_flags[] = {
+static int * const hfx_btatt_glucose_measurement_flags[] = {
     &hf_btatt_glucose_measurement_flags_reserved,
     &hf_btatt_glucose_measurement_flags_context_information_follows,
     &hf_btatt_glucose_measurement_flags_sensor_status_annunciation_present,
@@ -1484,13 +1483,13 @@ static const int *hfx_btatt_glucose_measurement_flags[] = {
     NULL
 };
 
-static const int *hfx_btatt_glucose_measurement_type_and_sample_location[] = {
+static int * const hfx_btatt_glucose_measurement_type_and_sample_location[] = {
     &hf_btatt_glucose_measurement_type_and_sample_location_type,
     &hf_btatt_glucose_measurement_type_and_sample_location_sample_location,
     NULL
 };
 
-static const int *hfx_btatt_glucose_measurement_sensor_status_annunciation[] = {
+static int * const hfx_btatt_glucose_measurement_sensor_status_annunciation[] = {
     &hf_btatt_glucose_measurement_sensor_status_annunciation_reserved,
     &hf_btatt_glucose_measurement_sensor_status_annunciation_time_fault,
     &hf_btatt_glucose_measurement_sensor_status_annunciation_general_fault,
@@ -1507,7 +1506,7 @@ static const int *hfx_btatt_glucose_measurement_sensor_status_annunciation[] = {
     NULL
 };
 
-static const int *hfx_btatt_bond_management_feature[] = {
+static int * const hfx_btatt_bond_management_feature[] = {
     &hf_btatt_bond_management_feature_feature_extension,
     &hf_btatt_bond_management_feature_reserved,
     &hf_btatt_bond_management_feature_identify_yourself,
@@ -1532,13 +1531,13 @@ static const int *hfx_btatt_bond_management_feature[] = {
     NULL
 };
 
-static const int *hfx_btatt_bond_management_feature_nth[] = {
+static int * const hfx_btatt_bond_management_feature_nth[] = {
     &hf_btatt_bond_management_feature_nth_feature_extension,
     &hf_btatt_bond_management_feature_nth_reserved,
     NULL
 };
 
-static const int *hfx_btatt_temperature_measurement_flags[] = {
+static int * const hfx_btatt_temperature_measurement_flags[] = {
     &hf_btatt_temperature_measurement_flags_reserved,
     &hf_btatt_temperature_measurement_flags_temperature_type,
     &hf_btatt_temperature_measurement_flags_timestamp,
@@ -1546,7 +1545,7 @@ static const int *hfx_btatt_temperature_measurement_flags[] = {
     NULL
 };
 
-static const int *hfx_btatt_glucose_measurement_context_flags[] = {
+static int * const hfx_btatt_glucose_measurement_context_flags[] = {
     &hf_btatt_glucose_measurement_context_flags_extended_flags,
     &hf_btatt_glucose_measurement_context_flags_hba1c,
     &hf_btatt_glucose_measurement_context_flags_medication_value_units,
@@ -1558,18 +1557,18 @@ static const int *hfx_btatt_glucose_measurement_context_flags[] = {
     NULL
 };
 
-static const int *hfx_btatt_glucose_measurement_context_extended_flags[] = {
+static int * const hfx_btatt_glucose_measurement_context_extended_flags[] = {
     &hf_btatt_glucose_measurement_context_extended_flags_reserved,
     NULL
 };
 
-static const int *hfx_btatt_glucose_measurement_context_tester_health[] = {
+static int * const hfx_btatt_glucose_measurement_context_tester_health[] = {
     &hf_btatt_glucose_measurement_context_tester,
     &hf_btatt_glucose_measurement_context_health,
     NULL
 };
 
-static const int *hfx_btatt_blood_pressure_measurement_flags[] = {
+static int * const hfx_btatt_blood_pressure_measurement_flags[] = {
     &hf_btatt_blood_pressure_measurement_flags_reserved,
     &hf_btatt_blood_pressure_measurement_flags_measurement_status,
     &hf_btatt_blood_pressure_measurement_flags_user_id,
@@ -1579,7 +1578,7 @@ static const int *hfx_btatt_blood_pressure_measurement_flags[] = {
     NULL
 };
 
-static const int *hfx_btatt_blood_pressure_measurement_status[] = {
+static int * const hfx_btatt_blood_pressure_measurement_status[] = {
     &hf_btatt_blood_pressure_measurement_status_reserved,
     &hf_btatt_blood_pressure_measurement_status_improper_measurement_position,
     &hf_btatt_blood_pressure_measurement_status_pulse_rate_range_detection,
@@ -1589,7 +1588,7 @@ static const int *hfx_btatt_blood_pressure_measurement_status[] = {
     NULL
 };
 
-static const int *hfx_btatt_heart_rate_measurement_flags[] = {
+static int * const hfx_btatt_heart_rate_measurement_flags[] = {
     &hf_btatt_heart_rate_measurement_flags_reserved,
     &hf_btatt_heart_rate_measurement_flags_rr_interval,
     &hf_btatt_heart_rate_measurement_flags_energy_expended,
@@ -1599,7 +1598,7 @@ static const int *hfx_btatt_heart_rate_measurement_flags[] = {
     NULL
 };
 
-static const int *hfx_btatt_uncertainty[] = {
+static int * const hfx_btatt_uncertainty[] = {
     &hf_btatt_uncertainty_reserved,
     &hf_btatt_uncertainty_precision,
     &hf_btatt_uncertainty_update_time,
@@ -1607,7 +1606,7 @@ static const int *hfx_btatt_uncertainty[] = {
     NULL
 };
 
-static const int *hfx_btatt_indoor_positioning_configuration[] = {
+static int * const hfx_btatt_indoor_positioning_configuration[] = {
     &hf_btatt_indoor_positioning_configuration_reserved,
     &hf_btatt_indoor_positioning_configuration_location_name,
     &hf_btatt_indoor_positioning_configuration_uncertainty,
@@ -1619,7 +1618,7 @@ static const int *hfx_btatt_indoor_positioning_configuration[] = {
     NULL
 };
 
-static const int *hfx_btatt_rsc_measurement_flags[] = {
+static int * const hfx_btatt_rsc_measurement_flags[] = {
     &hf_btatt_rsc_measurement_flags_reserved,
     &hf_btatt_rsc_measurement_flags_type_of_movement,
     &hf_btatt_rsc_measurement_flags_total_distance_present,
@@ -1627,7 +1626,7 @@ static const int *hfx_btatt_rsc_measurement_flags[] = {
     NULL
 };
 
-static const int *hfx_btatt_cycling_power_measurement_flags[] = {
+static int * const hfx_btatt_cycling_power_measurement_flags[] = {
     &hf_btatt_cycling_power_measurement_flags_reserved,
     &hf_btatt_cycling_power_measurement_flags_offset_compensation_indicator,
     &hf_btatt_cycling_power_measurement_flags_accumulated_energy,
@@ -1645,20 +1644,20 @@ static const int *hfx_btatt_cycling_power_measurement_flags[] = {
     NULL
 };
 
-static const int *hfx_btatt_cycling_power_measurement_extreme_angles[] = {
+static int * const hfx_btatt_cycling_power_measurement_extreme_angles[] = {
     &hf_btatt_cycling_power_measurement_extreme_angles_maximum,
     &hf_btatt_cycling_power_measurement_extreme_angles_minimum,
     NULL
 };
 
-static const int *hfx_btatt_csc_measurement_flags[] = {
+static int * const hfx_btatt_csc_measurement_flags[] = {
     &hf_btatt_csc_measurement_flags_reserved,
     &hf_btatt_csc_measurement_flags_crank_revolution_data,
     &hf_btatt_csc_measurement_flags_wheel_revolution_data,
     NULL
 };
 
-static const int *hfx_btatt_cycling_power_vector_flags[] = {
+static int * const hfx_btatt_cycling_power_vector_flags[] = {
     &hf_btatt_cycling_power_vector_flags_reserved,
     &hf_btatt_cycling_power_vector_flags_instantaneous_measurement_direction,
     &hf_btatt_cycling_power_vector_flags_instantaneous_torque_magnitude_array,
@@ -1668,7 +1667,7 @@ static const int *hfx_btatt_cycling_power_vector_flags[] = {
     NULL
 };
 
-static const int *hfx_btatt_cycling_power_control_point_content_mask[] = {
+static int * const hfx_btatt_cycling_power_control_point_content_mask[] = {
     &hf_btatt_cycling_power_control_point_content_mask_reserved,
     &hf_btatt_cycling_power_control_point_content_mask_accumulated_energy,
     &hf_btatt_cycling_power_control_point_content_mask_bottom_dead_spot_angle,
@@ -1682,7 +1681,7 @@ static const int *hfx_btatt_cycling_power_control_point_content_mask[] = {
     NULL
 };
 
-static const int *hfx_btatt_location_and_speed_flags[] = {
+static int * const hfx_btatt_location_and_speed_flags[] = {
     &hf_btatt_location_and_speed_flags_reserved,
     &hf_btatt_location_and_speed_flags_heading_source,
     &hf_btatt_location_and_speed_flags_elevation_source,
@@ -1698,7 +1697,7 @@ static const int *hfx_btatt_location_and_speed_flags[] = {
     NULL
 };
 
-static const int *hfx_btatt_navigation_flags[] = {
+static int * const hfx_btatt_navigation_flags[] = {
     &hf_btatt_navigation_flags_reserved,
     &hf_btatt_navigation_flags_destination_reached,
     &hf_btatt_navigation_flags_waypoint_reached,
@@ -1711,7 +1710,7 @@ static const int *hfx_btatt_navigation_flags[] = {
     NULL
 };
 
-static const int *hfx_btatt_position_quality_flags[] = {
+static int * const hfx_btatt_position_quality_flags[] = {
     &hf_btatt_position_quality_flags_reserved,
     &hf_btatt_position_quality_flags_position_status,
     &hf_btatt_position_quality_flags_vdop,
@@ -1724,7 +1723,7 @@ static const int *hfx_btatt_position_quality_flags[] = {
     NULL
 };
 
-static const int *hfx_btatt_ln_control_point_content_mask[] = {
+static int * const hfx_btatt_ln_control_point_content_mask[] = {
     &hf_btatt_ln_control_point_content_mask_reserved,
     &hf_btatt_ln_control_point_content_mask_utc_time,
     &hf_btatt_ln_control_point_content_mask_rolling_time,
@@ -1736,7 +1735,7 @@ static const int *hfx_btatt_ln_control_point_content_mask[] = {
     NULL
 };
 
-static const int *hfx_btatt_body_composition_measurement_flags[] = {
+static int * const hfx_btatt_body_composition_measurement_flags[] = {
     &hf_btatt_body_composition_measurement_flags_reserved,
     &hf_btatt_body_composition_measurement_flags_multiple_packet_measurement,
     &hf_btatt_body_composition_measurement_flags_height,
@@ -1754,7 +1753,7 @@ static const int *hfx_btatt_body_composition_measurement_flags[] = {
     NULL
 };
 
-static const int *hfx_btatt_weight_measurement_flags[] = {
+static int * const hfx_btatt_weight_measurement_flags[] = {
     &hf_btatt_weight_measurement_flags_reserved,
     &hf_btatt_weight_measurement_flags_bmi_and_height,
     &hf_btatt_weight_measurement_flags_user_id,
@@ -1763,7 +1762,7 @@ static const int *hfx_btatt_weight_measurement_flags[] = {
     NULL
 };
 
-static const int *hfx_btatt_cgm_measurement_flags[] = {
+static int * const hfx_btatt_cgm_measurement_flags[] = {
     &hf_btatt_cgm_measurement_flags_cgm_trend_information,
     &hf_btatt_cgm_measurement_flags_cgm_quality,
     &hf_btatt_cgm_measurement_flags_reserved,
@@ -1773,7 +1772,7 @@ static const int *hfx_btatt_cgm_measurement_flags[] = {
     NULL
 };
 
-static const int *hfx_btatt_cgm_sensor_status_annunciation_status[] = {
+static int * const hfx_btatt_cgm_sensor_status_annunciation_status[] = {
     &hf_btatt_cgm_sensor_status_annunciation_status_reserved,
     &hf_btatt_cgm_sensor_status_annunciation_status_general_device_fault_has_occurred_in_the_sensor,
     &hf_btatt_cgm_sensor_status_annunciation_status_device_specific_alert,
@@ -1784,7 +1783,7 @@ static const int *hfx_btatt_cgm_sensor_status_annunciation_status[] = {
     NULL
 };
 
-static const int *hfx_btatt_cgm_sensor_status_annunciation_cal_temp[] = {
+static int * const hfx_btatt_cgm_sensor_status_annunciation_cal_temp[] = {
     &hf_btatt_cgm_sensor_status_annunciation_cal_temp_reserved,
     &hf_btatt_cgm_sensor_status_annunciation_cal_temp_sensor_temperature_too_low_for_valid_test_result_at_time_of_measurement,
     &hf_btatt_cgm_sensor_status_annunciation_cal_temp_sensor_temperature_too_high_for_valid_test_result_at_time_of_measurement,
@@ -1795,7 +1794,7 @@ static const int *hfx_btatt_cgm_sensor_status_annunciation_cal_temp[] = {
     NULL
 };
 
-static const int *hfx_btatt_cgm_sensor_status_annunciation_warning[] = {
+static int * const hfx_btatt_cgm_sensor_status_annunciation_warning[] = {
     &hf_btatt_cgm_sensor_status_annunciation_warning_sensor_result_higher_than_the_device_can_process,
     &hf_btatt_cgm_sensor_status_annunciation_warning_sensor_result_lower_than_the_device_can_process,
     &hf_btatt_cgm_sensor_status_annunciation_warning_sensor_rate_of_increase_exceeded,
@@ -1807,7 +1806,7 @@ static const int *hfx_btatt_cgm_sensor_status_annunciation_warning[] = {
     NULL
 };
 
-static const int *hfx_btatt_cgm_feature_feature[] = {
+static int * const hfx_btatt_cgm_feature_feature[] = {
     &hf_btatt_cgm_feature_feature_reserved,
     &hf_btatt_cgm_feature_feature_quality,
     &hf_btatt_cgm_feature_feature_trend_information,
@@ -1829,13 +1828,13 @@ static const int *hfx_btatt_cgm_feature_feature[] = {
     NULL
 };
 
-static const int *hfx_btatt_cgm_type_and_sample_location[] = {
+static int * const hfx_btatt_cgm_type_and_sample_location[] = {
     &hf_btatt_cgm_type,
     &hf_btatt_cgm_sample_location,
     NULL
 };
 
-static const int *hfx_btatt_cgm_specific_ops_control_point_calibration_status[] = {
+static int * const hfx_btatt_cgm_specific_ops_control_point_calibration_status[] = {
     &hf_btatt_cgm_specific_ops_control_point_calibration_status_reserved,
     &hf_btatt_cgm_specific_ops_control_point_calibration_status_pending,
     &hf_btatt_cgm_specific_ops_control_point_calibration_status_out_of_range,
@@ -1843,7 +1842,7 @@ static const int *hfx_btatt_cgm_specific_ops_control_point_calibration_status[] 
     NULL
 };
 
-static const int *hfx_btatt_http_data_status[] = {
+static int * const hfx_btatt_http_data_status[] = {
     &hf_btatt_http_data_status_reserved,
     &hf_btatt_http_data_status_body_truncated,
     &hf_btatt_http_data_status_body_received,
@@ -1852,7 +1851,7 @@ static const int *hfx_btatt_http_data_status[] = {
     NULL
 };
 
-static const int *hfx_btatt_ots_feature_oacp[] = {
+static int * const hfx_btatt_ots_feature_oacp[] = {
     &hf_btatt_ots_feature_oacp_reserved,
     &hf_btatt_ots_feature_oacp_abort,
     &hf_btatt_ots_feature_oacp_patching_of_object,
@@ -1867,7 +1866,7 @@ static const int *hfx_btatt_ots_feature_oacp[] = {
     NULL
 };
 
-static const int *hfx_btatt_ots_feature_olcp[] = {
+static int * const hfx_btatt_ots_feature_olcp[] = {
     &hf_btatt_ots_feature_olcp_reserved,
     &hf_btatt_ots_feature_olcp_clear_marking,
     &hf_btatt_ots_feature_olcp_request_number_of_objects,
@@ -1876,7 +1875,7 @@ static const int *hfx_btatt_ots_feature_olcp[] = {
     NULL
 };
 
-static const int *hfx_btatt_ots_properties[] = {
+static int * const hfx_btatt_ots_properties[] = {
     &hf_btatt_ots_properties_reserved,
     &hf_btatt_ots_properties_mark,
     &hf_btatt_ots_properties_patch,
@@ -1890,7 +1889,7 @@ static const int *hfx_btatt_ots_properties[] = {
 };
 
 
-static const int *hfx_btatt_ots_flags[] = {
+static int * const hfx_btatt_ots_flags[] = {
     &hf_btatt_ots_flags_reserved,
     &hf_btatt_ots_flags_object_deletion,
     &hf_btatt_ots_flags_object_creation,
@@ -1900,7 +1899,7 @@ static const int *hfx_btatt_ots_flags[] = {
     NULL
 };
 
-static const int *hfx_btatt_plx_spot_check_measurement_flags[] = {
+static int * const hfx_btatt_plx_spot_check_measurement_flags[] = {
     &hf_btatt_plx_spot_check_measurement_flags_reserved,
     &hf_btatt_plx_spot_check_measurement_flags_device_clock_is_not_set,
     &hf_btatt_plx_spot_check_measurement_flags_pulse_amplitude_index,
@@ -1910,7 +1909,7 @@ static const int *hfx_btatt_plx_spot_check_measurement_flags[] = {
     NULL
 };
 
-static const int *hfx_btatt_plx_measurement_status[] = {
+static int * const hfx_btatt_plx_measurement_status[] = {
     &hf_btatt_plx_measurement_status_invalid_measurement_detected,
     &hf_btatt_plx_measurement_status_questionable_measurement_detected,
     &hf_btatt_plx_measurement_status_measurement_unavailable,
@@ -1926,7 +1925,7 @@ static const int *hfx_btatt_plx_measurement_status[] = {
     NULL
 };
 
-static const int *hfx_btatt_plx_device_and_sensor_status[] = {
+static int * const hfx_btatt_plx_device_and_sensor_status[] = {
     &hf_btatt_plx_device_and_sensor_status_reserved,
     &hf_btatt_plx_device_and_sensor_status_sensor_disconnected,
     &hf_btatt_plx_device_and_sensor_status_sensor_malfunctioning,
@@ -1947,7 +1946,7 @@ static const int *hfx_btatt_plx_device_and_sensor_status[] = {
     NULL
 };
 
-static const int *hfx_btatt_plx_continuous_measurement_flags[] = {
+static int * const hfx_btatt_plx_continuous_measurement_flags[] = {
     &hf_btatt_plx_continuous_measurement_flags_reserved,
     &hf_btatt_plx_continuous_measurement_flags_pulse_amplitude_index,
     &hf_btatt_plx_continuous_measurement_flags_device_and_sensor_status,
@@ -1957,7 +1956,7 @@ static const int *hfx_btatt_plx_continuous_measurement_flags[] = {
     NULL
 };
 
-static const int *hfx_btatt_plx_features_supported_features[] = {
+static int * const hfx_btatt_plx_features_supported_features[] = {
     &hf_btatt_plx_features_supported_features_reserved,
     &hf_btatt_plx_features_supported_features_multiple_bonds,
     &hf_btatt_plx_features_supported_features_pulse_amplitude_index,
@@ -1970,7 +1969,7 @@ static const int *hfx_btatt_plx_features_supported_features[] = {
     NULL
 };
 
-static const int *hfx_btgatt_microbit_ad_pins[] = {
+static int * const hfx_btgatt_microbit_ad_pins[] = {
     &hf_gatt_microbit_ad_pin0,
     &hf_gatt_microbit_ad_pin1,
     &hf_gatt_microbit_ad_pin2,
@@ -1994,7 +1993,7 @@ static const int *hfx_btgatt_microbit_ad_pins[] = {
     NULL
 };
 
-static const int *hfx_btgatt_microbit_io_pins[] = {
+static int * const hfx_btgatt_microbit_io_pins[] = {
     &hf_gatt_microbit_io_pin0,
     &hf_gatt_microbit_io_pin1,
     &hf_gatt_microbit_io_pin2,
@@ -2018,13 +2017,13 @@ static const int *hfx_btgatt_microbit_io_pins[] = {
     NULL
 };
 
-static const int *hfx_btatt_timezone_information[] = {
+static int * const hfx_btatt_timezone_information[] = {
     &hf_btatt_timezone_information_information,
     &hf_btatt_timezone_information_information_type,
     NULL
 };
 
-static const int *hfx_btatt_battery_power_state[] = {
+static int * const hfx_btatt_battery_power_state[] = {
     &hf_btatt_battery_power_state_present,
     &hf_btatt_battery_power_state_discharging,
     &hf_btatt_battery_power_state_charging,
@@ -2032,19 +2031,19 @@ static const int *hfx_btatt_battery_power_state[] = {
     NULL
 };
 
-static const int *hfx_btatt_removable[] = {
+static int * const hfx_btatt_removable[] = {
     &hf_btatt_removable_reserved,
     &hf_btatt_removable_removable,
     NULL
 };
 
-static const int *hfx_btatt_service_required[] = {
+static int * const hfx_btatt_service_required[] = {
     &hf_btatt_service_required_reserved,
     &hf_btatt_service_required_service_required,
     NULL
 };
 
-static const int *hfx_btatt_fitness_machine_features[] = {
+static int * const hfx_btatt_fitness_machine_features[] = {
     &hf_btatt_fitness_machine_features_reserved,
     &hf_btatt_fitness_machine_features_user_data_retention,
     &hf_btatt_fitness_machine_features_force_on_belt_and_power_output,
@@ -2066,7 +2065,7 @@ static const int *hfx_btatt_fitness_machine_features[] = {
     NULL
 };
 
-static const int *hfx_btatt_target_setting_features[] = {
+static int * const hfx_btatt_target_setting_features[] = {
     &hf_btatt_target_setting_features_reserved,
     &hf_btatt_target_setting_features_targeted_cadence_configuration,
     &hf_btatt_target_setting_features_spin_down_control,
@@ -2088,7 +2087,7 @@ static const int *hfx_btatt_target_setting_features[] = {
     NULL
 };
 
-static const int *hfx_btatt_training_status_flags[] = {
+static int * const hfx_btatt_training_status_flags[] = {
     &hf_btatt_training_status_flags_reserved,
     &hf_btatt_training_status_flags_extended_string,
     &hf_btatt_training_status_flags_training_status_string,
@@ -2460,10 +2459,10 @@ const value_string characteristic_presentation_namespace_description_btsig_vals[
     {0x0006, "sixth"},
     {0x0007, "seventh"},
     {0x0008, "eighth"},
-    {0x0009, "nineth"},
+    {0x0009, "ninth"},
     {0x000a, "tenth"},
     {0x000b, "eleventh"},
-    {0x000c, "twelveth"},
+    {0x000c, "twelfth"},
     {0x000d, "thirteenth"},
     {0x000e, "fourteenth"},
     {0x000f, "fifteenth"},
@@ -2480,7 +2479,7 @@ const value_string characteristic_presentation_namespace_description_btsig_vals[
     {0x001a, "twenty-sixth"},
     {0x001b, "twenty-seventh"},
     {0x001c, "twenty-eighth"},
-    {0x001d, "twenty-nineth"},
+    {0x001d, "twenty-ninth"},
     {0x001e, "thirtieth"},
     {0x001f, "thirty-first"},
     {0x0020, "thirty-second"},
@@ -2490,17 +2489,17 @@ const value_string characteristic_presentation_namespace_description_btsig_vals[
     {0x0024, "thirty-sixth"},
     {0x0025, "thirty-seventh"},
     {0x0026, "thirty-eighth"},
-    {0x0027, "thirty-nineth"},
+    {0x0027, "thirty-ninth"},
     {0x0028, "fortieth"},
-    {0x0029, "fourty-first"},
-    {0x002a, "fourty-second"},
-    {0x002b, "fourty-third"},
-    {0x002c, "fourty-fourth"},
-    {0x002d, "fourty-fifth"},
-    {0x002e, "fourty-sixth"},
-    {0x002f, "fourty-seventh"},
-    {0x0030, "fourty-eighth"},
-    {0x0031, "fourty-nineth"},
+    {0x0029, "forty-first"},
+    {0x002a, "forty-second"},
+    {0x002b, "forty-third"},
+    {0x002c, "forty-fourth"},
+    {0x002d, "forty-fifth"},
+    {0x002e, "forty-sixth"},
+    {0x002f, "forty-seventh"},
+    {0x0030, "forty-eighth"},
+    {0x0031, "forty-ninth"},
     {0x0032, "fiftieth"},
     {0x0033, "fifty-first"},
     {0x0034, "fifty-second"},
@@ -2510,7 +2509,7 @@ const value_string characteristic_presentation_namespace_description_btsig_vals[
     {0x0038, "fifty-sixth"},
     {0x0039, "fifty-seventh"},
     {0x003a, "fifty-eighth"},
-    {0x003b, "fifty-nineth"},
+    {0x003b, "fifty-ninth"},
     {0x003c, "sixtieth"},
     {0x003d, "sixty-first"},
     {0x003e, "sixty-second"},
@@ -2520,7 +2519,7 @@ const value_string characteristic_presentation_namespace_description_btsig_vals[
     {0x0042, "sixty-sixth"},
     {0x0043, "sixty-seventh"},
     {0x0044, "sixty-eighth"},
-    {0x0045, "sixty-nineth"},
+    {0x0045, "sixty-ninth"},
     {0x0046, "seventieth"},
     {0x0047, "seventy-first"},
     {0x0048, "seventy-second"},
@@ -2530,7 +2529,7 @@ const value_string characteristic_presentation_namespace_description_btsig_vals[
     {0x004c, "seventy-sixth"},
     {0x004d, "seventy-seventh"},
     {0x004e, "seventy-eighth"},
-    {0x004f, "seventy-nineth"},
+    {0x004f, "seventy-ninth"},
     {0x0050, "eightieth"},
     {0x0051, "eighty-first"},
     {0x0052, "eighty-second"},
@@ -2540,7 +2539,7 @@ const value_string characteristic_presentation_namespace_description_btsig_vals[
     {0x0056, "eighty-sixth"},
     {0x0057, "eighty-seventh"},
     {0x0058, "eighty-eighth"},
-    {0x0059, "eighty-nineth"},
+    {0x0059, "eighty-ninth"},
     {0x005a, "ninetieth"},
     {0x005b, "ninety-first"},
     {0x005c, "ninety-second"},
@@ -2550,7 +2549,7 @@ const value_string characteristic_presentation_namespace_description_btsig_vals[
     {0x0060, "ninety-sixth"},
     {0x0061, "ninety-seventh"},
     {0x0062, "ninety-eighth"},
-    {0x0063, "ninety-nineth"},
+    {0x0063, "ninety-ninth"},
     {0x0064, "one-hundredth"},
     {0x0065, "one-hundred-and-first"},
     {0x0066, "one-hundred-and-second"},
@@ -2560,10 +2559,10 @@ const value_string characteristic_presentation_namespace_description_btsig_vals[
     {0x006a, "one-hundred-and-sixth"},
     {0x006b, "one-hundred-and-seventh"},
     {0x006c, "one-hundred-and-eighth"},
-    {0x006d, "one-hundred-and-nineth"},
+    {0x006d, "one-hundred-and-ninth"},
     {0x006e, "one-hundred-and-tenth"},
     {0x006f, "one-hundred-and-eleventh"},
-    {0x0070, "one-hundred-and-twelveth"},
+    {0x0070, "one-hundred-and-twelfth"},
     {0x0071, "one-hundred-and-thirteenth"},
     {0x0072, "one-hundred-and-fourteenth"},
     {0x0073, "one-hundred-and-fifteenth"},
@@ -2580,7 +2579,7 @@ const value_string characteristic_presentation_namespace_description_btsig_vals[
     {0x007e, "one-hundred-and-twenty-sixth"},
     {0x007f, "one-hundred-and-twenty-seventh"},
     {0x0080, "one-hundred-and-twenty-eighth"},
-    {0x0081, "one-hundred-and-twenty-nineth"},
+    {0x0081, "one-hundred-and-twenty-ninth"},
     {0x0082, "one-hundred-thirtieth"},
     {0x0083, "one-hundred-and-thirty-first"},
     {0x0084, "one-hundred-and-thirty-second"},
@@ -2590,17 +2589,17 @@ const value_string characteristic_presentation_namespace_description_btsig_vals[
     {0x0088, "one-hundred-and-thirty-sixth"},
     {0x0089, "one-hundred-and-thirty-seventh"},
     {0x008a, "one-hundred-and-thirty-eighth"},
-    {0x008b, "one-hundred-and-thirty-nineth"},
+    {0x008b, "one-hundred-and-thirty-ninth"},
     {0x008c, "one-hundred-fortieth"},
-    {0x008d, "one-hundred-and-fourty-first"},
-    {0x008e, "one-hundred-and-fourty-second"},
-    {0x008f, "one-hundred-and-fourty-third"},
-    {0x0090, "one-hundred-and-fourty-fourth"},
-    {0x0091, "one-hundred-and-fourty-fifth"},
-    {0x0092, "one-hundred-and-fourty-sixth"},
-    {0x0093, "one-hundred-and-fourty-seventh"},
-    {0x0094, "one-hundred-and-fourty-eighth"},
-    {0x0095, "one-hundred-and-fourty-nineth"},
+    {0x008d, "one-hundred-and-forty-first"},
+    {0x008e, "one-hundred-and-forty-second"},
+    {0x008f, "one-hundred-and-forty-third"},
+    {0x0090, "one-hundred-and-forty-fourth"},
+    {0x0091, "one-hundred-and-forty-fifth"},
+    {0x0092, "one-hundred-and-forty-sixth"},
+    {0x0093, "one-hundred-and-forty-seventh"},
+    {0x0094, "one-hundred-and-forty-eighth"},
+    {0x0095, "one-hundred-and-forty-ninth"},
     {0x0096, "one-hundred-fiftieth"},
     {0x0097, "one-hundred-and-fifty-first"},
     {0x0098, "one-hundred-and-fifty-second"},
@@ -2610,7 +2609,7 @@ const value_string characteristic_presentation_namespace_description_btsig_vals[
     {0x009c, "one-hundred-and-fifty-sixth"},
     {0x009d, "one-hundred-and-fifty-seventh"},
     {0x009e, "one-hundred-and-fifty-eighth"},
-    {0x009f, "one-hundred-and-fifty-nineth"},
+    {0x009f, "one-hundred-and-fifty-ninth"},
     {0x00a0, "one-hundred-sixtieth"},
     {0x00a1, "one-hundred-and-sixty-first"},
     {0x00a2, "one-hundred-and-sixty-second"},
@@ -2620,7 +2619,7 @@ const value_string characteristic_presentation_namespace_description_btsig_vals[
     {0x00a6, "one-hundred-and-sixty-sixth"},
     {0x00a7, "one-hundred-and-sixty-seventh"},
     {0x00a8, "one-hundred-and-sixty-eighth"},
-    {0x00a9, "one-hundred-and-sixty-nineth"},
+    {0x00a9, "one-hundred-and-sixty-ninth"},
     {0x00aa, "one-hundred-seventieth"},
     {0x00ab, "one-hundred-and-seventy-first"},
     {0x00ac, "one-hundred-and-seventy-second"},
@@ -2630,7 +2629,7 @@ const value_string characteristic_presentation_namespace_description_btsig_vals[
     {0x00b0, "one-hundred-and-seventy-sixth"},
     {0x00b1, "one-hundred-and-seventy-seventh"},
     {0x00b2, "one-hundred-and-seventy-eighth"},
-    {0x00b3, "one-hundred-and-seventy-nineth"},
+    {0x00b3, "one-hundred-and-seventy-ninth"},
     {0x00b4, "one-hundred-eightieth"},
     {0x00b5, "one-hundred-and-eighty-first"},
     {0x00b6, "one-hundred-and-eighty-second"},
@@ -2640,7 +2639,7 @@ const value_string characteristic_presentation_namespace_description_btsig_vals[
     {0x00ba, "one-hundred-and-eighty-sixth"},
     {0x00bb, "one-hundred-and-eighty-seventh"},
     {0x00bc, "one-hundred-and-eighty-eighth"},
-    {0x00bd, "one-hundred-and-eighty-nineth"},
+    {0x00bd, "one-hundred-and-eighty-ninth"},
     {0x00be, "one-hundred-ninetieth"},
     {0x00bf, "one-hundred-and-ninety-first"},
     {0x00c0, "one-hundred-and-ninety-second"},
@@ -2650,7 +2649,7 @@ const value_string characteristic_presentation_namespace_description_btsig_vals[
     {0x00c4, "one-hundred-and-ninety-sixth"},
     {0x00c5, "one-hundred-and-ninety-seventh"},
     {0x00c6, "one-hundred-and-ninety-eighth"},
-    {0x00c7, "one-hundred-and-ninety-nineth"},
+    {0x00c7, "one-hundred-and-ninety-ninth"},
     {0x00c8, "two-hundredth"},
     {0x00c9, "two-hundred-and-first"},
     {0x00ca, "two-hundred-and-second"},
@@ -2660,10 +2659,10 @@ const value_string characteristic_presentation_namespace_description_btsig_vals[
     {0x00ce, "two-hundred-and-sixth"},
     {0x00cf, "two-hundred-and-seventh"},
     {0x00d0, "two-hundred-and-eighth"},
-    {0x00d1, "two-hundred-and-nineth"},
+    {0x00d1, "two-hundred-and-ninth"},
     {0x00d2, "two-hundred-and-tenth"},
     {0x00d3, "two-hundred-and-eleventh"},
-    {0x00d4, "two-hundred-and-twelveth"},
+    {0x00d4, "two-hundred-and-twelfth"},
     {0x00d5, "two-hundred-and-thirteenth"},
     {0x00d6, "two-hundred-and-fourteenth"},
     {0x00d7, "two-hundred-and-fifteenth"},
@@ -2680,7 +2679,7 @@ const value_string characteristic_presentation_namespace_description_btsig_vals[
     {0x00e2, "two-hundred-and-twenty-sixth"},
     {0x00e3, "two-hundred-and-twenty-seventh"},
     {0x00e4, "two-hundred-and-twenty-eighth"},
-    {0x00e5, "two-hundred-and-twenty-nineth"},
+    {0x00e5, "two-hundred-and-twenty-ninth"},
     {0x00e6, "two-hundred-thirtieth"},
     {0x00e7, "two-hundred-and-thirty-first"},
     {0x00e8, "two-hundred-and-thirty-second"},
@@ -2690,17 +2689,17 @@ const value_string characteristic_presentation_namespace_description_btsig_vals[
     {0x00ec, "two-hundred-and-thirty-sixth"},
     {0x00ed, "two-hundred-and-thirty-seventh"},
     {0x00ee, "two-hundred-and-thirty-eighth"},
-    {0x00ef, "two-hundred-and-thirty-nineth"},
+    {0x00ef, "two-hundred-and-thirty-ninth"},
     {0x00f0, "two-hundred-fortieth"},
-    {0x00f1, "two-hundred-and-fourty-first"},
-    {0x00f2, "two-hundred-and-fourty-second"},
-    {0x00f3, "two-hundred-and-fourty-third"},
-    {0x00f4, "two-hundred-and-fourty-fourth"},
-    {0x00f5, "two-hundred-and-fourty-fifth"},
-    {0x00f6, "two-hundred-and-fourty-sixth"},
-    {0x00f7, "two-hundred-and-fourty-seventh"},
-    {0x00f8, "two-hundred-and-fourty-eighth"},
-    {0x00f9, "two-hundred-and-fourty-nineth"},
+    {0x00f1, "two-hundred-and-forty-first"},
+    {0x00f2, "two-hundred-and-forty-second"},
+    {0x00f3, "two-hundred-and-forty-third"},
+    {0x00f4, "two-hundred-and-forty-fourth"},
+    {0x00f5, "two-hundred-and-forty-fifth"},
+    {0x00f6, "two-hundred-and-forty-sixth"},
+    {0x00f7, "two-hundred-and-forty-seventh"},
+    {0x00f8, "two-hundred-and-forty-eighth"},
+    {0x00f9, "two-hundred-and-forty-ninth"},
     {0x00fa, "two-hundred-fiftieth"},
     {0x00fb, "two-hundred-and-fifty-first"},
     {0x00fc, "two-hundred-and-fifty-second"},
@@ -3941,7 +3940,7 @@ static const value_string fitness_machine_spin_down_status_vals[] = {
     { 0x01, "Spin Down Requested" },
     { 0x02, "Success" },
     { 0x03, "Error" },
-    { 0x04, "Stop Pedaling" },
+    { 0x04, "Stop Pedalling" },
     {0, NULL }
 };
 
@@ -4631,7 +4630,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
     guint32      operand_offset;
     guint32      interface_id;
     guint32      adapter_id;
-    const gint  **hfs;
+    int * const *hfs;
     bluetooth_data_t *bluetooth_data = NULL;
 
     tvb = tvb_new_subset_length_caplen(old_tvb, old_offset, length, length);

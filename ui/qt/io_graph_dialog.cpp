@@ -1345,7 +1345,7 @@ void IOGraphDialog::on_dragRadioButton_toggled(bool checked)
 void IOGraphDialog::on_zoomRadioButton_toggled(bool checked)
 {
     if (checked) mouse_drags_ = false;
-    ui->ioPlot->setInteractions(0);
+    ui->ioPlot->setInteractions(QCP::Interactions());
 }
 
 void IOGraphDialog::on_logCheckBox_toggled(bool checked)
@@ -1462,7 +1462,7 @@ void IOGraphDialog::on_buttonBox_helpRequested()
     wsApp->helpTopicAction(HELP_STATS_IO_GRAPH_DIALOG);
 }
 
-// XXX - Copied from tcp_stream_dialog. This should be common code.
+// XXX - We have similar code in tcp_stream_dialog and packet_diagram. Should this be a common routine?
 void IOGraphDialog::on_buttonBox_accepted()
 {
     QString file_name, extension;
@@ -1530,7 +1530,7 @@ void IOGraphDialog::makeCsv(QTextStream &stream) const
         }
     }
 
-    stream << endl;
+    stream << '\n';
 
     for (int interval = 0; interval <= max_interval; interval++) {
         double interval_start = (double)interval * ((double)ui_interval / 1000.0);
@@ -1542,7 +1542,7 @@ void IOGraphDialog::makeCsv(QTextStream &stream) const
             }
             stream << "," << value;
         }
-        stream << endl;
+        stream << '\n';
     }
 }
 
@@ -1557,7 +1557,7 @@ void IOGraphDialog::copyAsCsvClicked()
 bool IOGraphDialog::saveCsv(const QString &file_name) const
 {
     QFile save_file(file_name);
-    save_file.open(QFile::WriteOnly);
+    save_file.open(QFile::WriteOnly | QFile::Text);
     QTextStream out(&save_file);
     makeCsv(out);
 

@@ -910,10 +910,13 @@ dissect_PNDCP_Suboption_DHCP(tvbuff_t *tvb, int offset, packet_info *pinfo,
     guint8   dhcpcontrolparameterdata = 0;
     gboolean have_block_info      = FALSE;
     gboolean have_block_qualifier = FALSE;
+    int      expected_offset;
 
 
     offset = dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_dhcp, &suboption);
     offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_block_length, &block_length);
+
+    expected_offset = offset + block_length;
 
     /* BlockInfo? */
     if ( ((service_id == PNDCP_SERVICE_ID_IDENTIFY) &&  is_response) ||
@@ -989,6 +992,10 @@ dissect_PNDCP_Suboption_DHCP(tvbuff_t *tvb, int offset, packet_info *pinfo,
         break;
     default:
         offset = dissect_pn_undecoded(tvb, offset, pinfo, tree, block_length);
+    }
+
+    if (expected_offset > offset) {
+        offset = dissect_pn_user_data(tvb, offset, pinfo, tree, expected_offset - offset, "Undefined");
     }
 
     return offset;
@@ -1160,12 +1167,15 @@ dissect_PNDCP_Suboption_Manuf(tvbuff_t *tvb, int offset, packet_info *pinfo,
     guint16 block_length;
 
     offset = dissect_pn_uint8( tvb, offset, pinfo, tree, hf_pn_dcp_suboption_manuf, NULL);
-    offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_block_length,    &block_length);
 
     pn_append_info(pinfo, dcp_item, ", Manufacturer Specific");
     proto_item_append_text(block_item, "Manufacturer Specific");
-    offset = dissect_pn_undecoded(tvb, offset, pinfo, tree, block_length);
 
+    if (tvb_reported_length_remaining(tvb, offset)>0)
+    {
+        offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_block_length, &block_length);
+        offset = dissect_pn_undecoded(tvb, offset, pinfo, tree, block_length);
+    }
     return offset;
 }
 
@@ -1225,7 +1235,7 @@ dissect_PNDCP_Block(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     proto_item_set_len(block_item, offset-ori_offset);
 
-    if ((offset-ori_offset) & 1) {
+    if (((offset-ori_offset) & 1) && (tvb_reported_length_remaining(tvb, offset) > 0)) {
         /* we have an odd number of bytes in this block, add a padding byte */
         offset = dissect_pn_padding(tvb, offset, pinfo, tree, 1);
     }

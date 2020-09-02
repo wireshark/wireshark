@@ -958,7 +958,7 @@ proto_register_fcfcs (void)
           {"Reason Code", "fcs.reason", FT_UINT8, BASE_HEX,
            VALS (fc_ct_rjt_code_vals), 0x0, NULL, HFILL}},
         { &hf_fcs_rjtdetail,
-          {"Reason Code Explanantion", "fcs.reasondet", FT_UINT8, BASE_HEX,
+          {"Reason Code Explanation", "fcs.reasondet", FT_UINT8, BASE_HEX,
            VALS (fc_fcs_rjt_code_val), 0x0, NULL, HFILL}},
         { &hf_fcs_vendor,
           {"Vendor Unique Reject Code", "fcs.err.vendor", FT_UINT8, BASE_HEX,

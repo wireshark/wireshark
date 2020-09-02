@@ -566,7 +566,7 @@ static int winreg_dissect_element_DeleteKeyEx_reserved(tvbuff_t *tvb _U_, int of
 static void
 winreg_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 access)
 {
-	static const int* access_flags[] = {
+	static int* const access_flags[] = {
 		&hf_winreg_winreg_AccessMask_KEY_WOW64_32KEY,
 		&hf_winreg_winreg_AccessMask_KEY_WOW64_64KEY,
 		&hf_winreg_winreg_AccessMask_KEY_CREATE_LINK,
@@ -886,7 +886,7 @@ int
 winreg_dissect_bitmap_KeyOptions(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item *item;
-	static const int * winreg_winreg_KeyOptions_fields[] = {
+	static int * const winreg_winreg_KeyOptions_fields[] = {
 		&hf_winreg_winreg_KeyOptions_REG_OPTION_VOLATILE,
 		&hf_winreg_winreg_KeyOptions_REG_OPTION_CREATE_LINK,
 		&hf_winreg_winreg_KeyOptions_REG_OPTION_BACKUP_RESTORE,
@@ -1105,7 +1105,7 @@ int
 winreg_dissect_bitmap_NotifyChangeType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item *item;
-	static const int * winreg_winreg_NotifyChangeType_fields[] = {
+	static int * const winreg_winreg_NotifyChangeType_fields[] = {
 		&hf_winreg_winreg_NotifyChangeType_REG_NOTIFY_CHANGE_NAME,
 		&hf_winreg_winreg_NotifyChangeType_REG_NOTIFY_CHANGE_ATTRIBUTES,
 		&hf_winreg_winreg_NotifyChangeType_REG_NOTIFY_CHANGE_LAST_SET,
@@ -1143,7 +1143,7 @@ int
 winreg_dissect_bitmap_RestoreKeyFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item *item;
-	static const int * winreg_winreg_RestoreKeyFlags_fields[] = {
+	static int * const winreg_winreg_RestoreKeyFlags_fields[] = {
 		&hf_winreg_winreg_RestoreKeyFlags_REG_WHOLE_HIVE_VOLATILE,
 		&hf_winreg_winreg_RestoreKeyFlags_REG_REFRESH_HIVE,
 		&hf_winreg_winreg_RestoreKeyFlags_REG_NO_LAZY_FLUSH,

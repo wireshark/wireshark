@@ -13,30 +13,99 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * Please refer to the following specs for protocol detail:
- * - RFC 5389, formerly draft-ietf-behave-rfc3489bis-18
- * - RFC 5245, formerly draft-ietf-mmusic-ice-19
- * - RFC 5780, formerly draft-ietf-behave-nat-behavior-discovery-08
- * - RFC 5766, formerly draft-ietf-behave-turn-16
- * - RFC 6156, formerly draft-ietf-behave-turn-ipv6-11
  * - RFC 3489 (Addition of deprecated attributes for diagnostics purpose)
- * - RFC 6062
- * - RFC 6544
+ *             STUN - Simple Traversal of User Datagram Protocol (UDP)
+ *             Through Network Address Translators (NATs) (superseeded by RFC 5389)
+ * - RFC 5389, formerly draft-ietf-behave-rfc3489bis-18
+ *             Session Traversal Utilities for NAT (STUN) (superseeded by RFC 8489)
+ * - RFC 8489  Session Traversal Utilities for NAT (STUN)
+ * - RFC 5780, formerly draft-ietf-behave-nat-behavior-discovery-08
+ *             NAT Behavior Discovery Using Session Traversal Utilities for NAT (STUN)
+ * - RFC 5766, formerly draft-ietf-behave-turn-16
+ *             Traversal Using Relays around NAT (TURN)
+ * - RFC 6062  Traversal Using Relays around NAT (TURN) Extensions for TCP Allocations
+ * - RFC 6156, formerly draft-ietf-behave-turn-ipv6-11
+ *             Traversal Using Relays around NAT (TURN) Extension for IPv6
+ * - RFC 5245, formerly draft-ietf-mmusic-ice-19
+ *             Interactive Connectivity Establishment (ICE)
+ * - RFC 6544  TCP Candidates with Interactive Connectivity Establishment (ICE)
  *
- * From MS (Lync)
+ * Iana registered values:
+ * https://www.iana.org/assignments/stun-parameters/stun-parameters.xhtml
+ *
+ * From MS
  * MS-TURN: Traversal Using Relay NAT (TURN) Extensions https://docs.microsoft.com/en-us/openspecs/office_protocols/ms-turn
- * MS-ICE2BWN: Interactive Connectivity Establishment (ICE) 2.0 Bandwidth Management Extensions https://docs.microsoft.com/en-us/openspecs/office_protocols/ms-ice2bwm
  * MS-TURNBWM:  Traversal using Relay NAT (TURN) Bandwidth Management Extensions https://docs.microsoft.com/en-us/openspecs/office_protocols/ms-turnbwm
+ * MS-ICE: Interactive Connectivity Establishment (ICE) Extensions https://docs.microsoft.com/en-us/openspecs/office_protocols/ms-ice
  * MS-ICE2:  Interactive Connectivity Establishment ICE Extensions 2.0 https://docs.microsoft.com/en-us/openspecs/office_protocols/ms-ice2
+ * MS-ICE2BWN: Interactive Connectivity Establishment (ICE) 2.0 Bandwidth Management Extensions https://docs.microsoft.com/en-us/openspecs/office_protocols/ms-ice2bwm
+ */
+
+/* TODO
+ * Add protocol version auto detection
+ * Add information about different versions to table as we find it
+ * Add/Implement missing attributes
+ * Add/Implement missing message classes/methods
+ * Add missing error codes
  */
 
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/to_str.h>
 #include "packet-tcp.h"
 
 void proto_register_stun(void);
 void proto_reg_handoff_stun(void);
+
+/* Dissection relevant differences between STUN/TURN specification documents
+ *
+ *  Aspect   | MS-TURN 15.1       | RFC 3489           | RFC 5389           | RFC 8489 (*1)      |
+ * ===============================================================================================
+ *  Message  | 0b00+14-bit        | 16-bit             | 0b00+14-bit, type= |                    |
+ *  Type     | No class or method | No class or method | class+method       |                    |
+ * -----------------------------------------------------------------------------------------------
+ *  Transac- | 128 bits, seen     | 128 bits           | 32 bit Magic +     |                    |
+ *  tion ID  | with MAGIC as well |                    | 96 bit Trans ID    |                    |
+ * -----------------------------------------------------------------------------------------------
+ *  Padding  | No Attribute Pad   | No Attribute Pad   | Pad to 32 bits     |                    |
+ *           |                    |                    | Att. Len excl. Pad |                    |
+ *           |                    |                    | Msg. Len incl. Pad |                    |
+ *           |                    |                    |  -> MLen & 3 == 0  |                    |
+ *           |                    |                    | Pad value: any     | Pad value: MBZ     |
+ * -----------------------------------------------------------------------------------------------
+ *  (XOR-)   | Write: Any value   | Write: Any value   | Write: MBZ         |                    |
+ *  MAP-ADDR | Read : Ignored     | Read : Ignored     | Read : Ignored     |                    |
+ *  1st byte |                    |                    |                    |                    |
+ * -----------------------------------------------------------------------------------------------
+ *  Username | Opaque             | Opaque             | UTF-8 String       |                    |
+ * -----------------------------------------------------------------------------------------------
+ *  Password | Opaque             | Deprecated         | Deprecated         |                    |
+ * -----------------------------------------------------------------------------------------------
+ *  NONCE &  | 0x0014             | 0x0015             | 0x0015             |                    |
+ *  REALM    | 0x0015             | 0x0014             | 0x0014             |                    |
+ * -----------------------------------------------------------------------------------------------
+ *
+ * *1: Only where different from RFC 5389
+ */
+
+enum {
+        /* NET_VER_AUTO, */
+        NET_VER_MS_TURN,
+        NET_VER_3489,
+        NET_VER_5389
+};
+
+static gint stun_network_version = NET_VER_5389;
+
+static const enum_val_t stun_network_version_vals[] = {
+        /* { "Auto", "Auto",     NET_VER_AUTO}, */
+        { "MS-TURN",  "MS-TURN", NET_VER_MS_TURN },
+        { "RFC3489 and earlier", "RFC3489 and earlier",     NET_VER_3489},
+        { "RFC5389 and later",  "RFC5389 and later", NET_VER_5389 },
+        { NULL, NULL, 0 }
+};
 
 /* heuristic subdissectors */
 static heur_dissector_list_t heur_subdissector_list;
@@ -76,6 +145,7 @@ static int hf_stun_att_ipv4 = -1;
 static int hf_stun_att_ipv6 = -1;
 static int hf_stun_att_port = -1;
 static int hf_stun_att_username = -1;
+static int hf_stun_att_username_opaque = -1;
 static int hf_stun_att_password = -1;
 static int hf_stun_att_padding = -1;
 static int hf_stun_att_hmac = -1;
@@ -98,6 +168,9 @@ static int hf_stun_att_change_ip = -1;
 static int hf_stun_att_change_port = -1;
 static int hf_stun_att_cache_timeout = -1;
 static int hf_stun_att_token = -1;
+static int hf_stun_att_pw_alg = -1;
+static int hf_stun_att_pw_alg_param_len = -1;
+static int hf_stun_att_pw_alg_param_data = -1;
 static int hf_stun_att_reserve_next = -1;
 static int hf_stun_att_reserved = -1;
 static int hf_stun_att_value = -1;
@@ -129,6 +202,11 @@ static int hf_stun_att_sip_call_id = -1;
 static int hf_stun_att_lp_peer_location = -1;
 static int hf_stun_att_lp_self_location = -1;
 static int hf_stun_att_lp_federation = -1;
+
+/* Expert items */
+static expert_field ei_stun_short_packet = EI_INIT;
+static expert_field ei_stun_long_attribute = EI_INIT;
+
 /* Structure containing transaction specific information */
 typedef struct _stun_transaction_t {
     guint32 req_frame;
@@ -141,6 +219,15 @@ typedef struct _stun_conv_info_t {
     wmem_tree_t *transaction_pdus;
 } stun_conv_info_t;
 
+/* STUN versions RFC5389 and newer split off the leading 32 bits of the
+ * transaction ID into a magic cookie (called message cookie in this
+ * dissector to avoid confusion with the MAGIC_COOKIE attribute) and
+ * shortens the real transaction ID to 96 bits.
+ * This allows to differentiate between the legacy version of RFC3489
+ * and all newer versions.
+ */
+#define MESSAGE_COOKIE 0x2112A442
+#define TURN_MAGIC_COOKIE 0x72C64BC6
 
 /* Message classes */
 #define REQUEST         0x0000
@@ -150,67 +237,110 @@ typedef struct _stun_conv_info_t {
 
 
 /* Methods */
-#define BINDING                 0x0001 /* draft-ietf-behave-rfc3489bis-17 */
-#define ALLOCATE                0x0003 /* draft-ietf-behave-turn-10*/
-#define REFRESH                 0x0004 /* draft-ietf-behave-turn-10*/
-#define CHANNELBIND             0x0009 /* draft-ietf-behave-turn-10*/
-#define CREATE_PERMISSION       0x0008 /* draft-ietf-behave-turn-10 */
-/* Indications */
-#define SEND                    0x0006 /* draft-ietf-behave-turn-10*/
-#define DATA_IND                0x0007 /* draft-ietf-behave-turn-10*/
+/* 0x000-0x07F IETF Review */
+#define BINDING                 0x0001 /* RFC8489 */
+#define SHARED_SECRET           0x0002 /* RFC3489 */
+#define ALLOCATE                0x0003 /* RFC8489 */
+#define REFRESH                 0x0004 /* RFC8489 */
+#define SEND                    0x0006 /* RFC8656 */
+#define DATA_IND                0x0007 /* RFC8656 */
+#define CREATE_PERMISSION       0x0008 /* RFC8656 */
+#define CHANNELBIND             0x0009 /* RFC8656 */
 /* TCP specific */
-#define CONNECT                 0x000a /* rfc6062 */
-#define CONNECTION_BIND         0x000b /* rfc6062 */
-#define CONNECTION_ATTEMPT      0x000c /* rfc6062 */
+#define CONNECT                 0x000a /* RFC6062 */
+#define CONNECTION_BIND         0x000b /* RFC6062 */
+#define CONNECTION_ATTEMPT      0x000c /* RFC6062 */
+#define GOOG_PING               0x0080 /* Google undocumented */
 
+/* 0x080-0x0FF Expert Review */
 
 /* Attribute Types */
-/* Comprehension-required range (0x0000-0x7FFF) */
-#define MAPPED_ADDRESS          0x0001 /* draft-ietf-behave-rfc3489bis-17 */
-#define RESPONSE_ADDRESS        0x0002 /* Deprecated */
-#define CHANGE_REQUEST          0x0003 /* draft-ietf-behave-nat-behavior-discovery-03 */
-#define SOURCE_ADDRESS          0x0004 /* Deprecated */
-#define CHANGED_ADDRESS         0x0005 /* Deprecated */
-#define USERNAME                0x0006 /* draft-ietf-behave-rfc3489bis-17 */
-#define PASSWORD                0x0007 /* Deprecated */
-#define MESSAGE_INTEGRITY       0x0008 /* draft-ietf-behave-rfc3489bis-17 */
-#define ERROR_CODE              0x0009 /* draft-ietf-behave-rfc3489bis-17 */
-#define UNKNOWN_ATTRIBUTES      0x000a /* draft-ietf-behave-rfc3489bis-17 */
-#define REFLECTED_FROM          0x000b /* Deprecated */
-#define CHANNEL_NUMBER          0x000c /* draft-ietf-behave-turn-10 */
-#define LIFETIME                0x000d /* draft-ietf-behave-turn-10 */
-#define MAGIC_COOKIE            0x000f /* MS-TURN / turn-08 */
-#define BANDWIDTH               0x0010 /* turn-07 */
-#define DESTINATION_ADDRESS     0x0011 /* MS-TURN / turn-08 */
-#define XOR_PEER_ADDRESS        0x0012 /* draft-ietf-behave-turn-10 */
-#define DATA                    0x0013 /* draft-ietf-behave-turn-10 */
-#define REALM                   0x0014 /* draft-ietf-behave-rfc3489bis-17 */
-#define NONCE                   0x0015 /* draft-ietf-behave-rfc3489bis-17 */
-#define XOR_RELAYED_ADDRESS     0x0016 /* draft-ietf-behave-turn-10 */
-#define REQUESTED_ADDRESS_TYPE  0x0017 /* draft-ietf-behave-turn-ipv6-03 */
-#define EVEN_PORT               0x0018 /* draft-ietf-behave-turn-10 */
-#define REQUESTED_TRANSPORT     0x0019 /* draft-ietf-behave-turn-10 */
-#define DONT_FRAGMENT           0x001a /* draft-ietf-behave-turn-10 */
-#define XOR_MAPPED_ADDRESS      0x0020 /* draft-ietf-behave-rfc3489bis-17 */
-#define RESERVATION_TOKEN       0x0022 /* draft-ietf-behave-turn-10 */
-#define PRIORITY                0x0024 /* draft-ietf-mmusic-ice-19 */
-#define USE_CANDIDATE           0x0025 /* draft-ietf-mmusic-ice-19 */
-#define PADDING                 0x0026 /* draft-ietf-behave-nat-behavior-discovery-03 */
+/* 0x0000-0x3FFF IETF Review comprehension-required range */
+#define MAPPED_ADDRESS          0x0001 /* RFC8489, MS-TURN */
+#define RESPONSE_ADDRESS        0x0002 /* Deprecated, RFC3489 */
+#define CHANGE_REQUEST          0x0003 /* Deprecated, RFC3489 */
+#define SOURCE_ADDRESS          0x0004 /* Deprecated, RFC3489 */
+#define CHANGED_ADDRESS         0x0005 /* Deprecated, RFC3489 */
+#define USERNAME                0x0006 /* RFC8489, MS-TURN */
+#define PASSWORD                0x0007 /* Deprecated, RFC3489 */
+#define MESSAGE_INTEGRITY       0x0008 /* RFC8489, MS-TURN */
+#define ERROR_CODE              0x0009 /* RFC8489, MS-TURN */
+#define UNKNOWN_ATTRIBUTES      0x000a /* RFC8489, MS-TURN */
+#define REFLECTED_FROM          0x000b /* Deprecated, RFC3489 */
+#define CHANNEL_NUMBER          0x000c /* RFC8656 */
+#define LIFETIME                0x000d /* RFC8656, MS-TURN */
+/* 0x000e reserved */
+/* 0x000f reserved collision */
+#define MAGIC_COOKIE            0x000f /* MS-TURN */
+/* 0x0010 fix reference */
+#define BANDWIDTH               0x0010 /* MS-TURN */
+/* 0x0011 reserved collision */
+#define DESTINATION_ADDRESS     0x0011 /* MS-TURN */
+#define XOR_PEER_ADDRESS        0x0012 /* RFC8656, MS-TURN */
+#define DATA                    0x0013 /* RFC8656, MS-TURN */
+/* Note: REALM and NONCE have swapped attribute numbers in MS-TURN */
+#define REALM                   0x0014 /* RFC8489, MS-TURN */
+#define NONCE                   0x0015 /* RFC8489, MS-TURN */
+#define XOR_RELAYED_ADDRESS     0x0016 /* RFC8656 */
+#define REQUESTED_ADDRESS_FAMILY 0x0017 /* RFC8656, MS-TURN */
+#define EVEN_PORT               0x0018 /* RFC8656 */
+#define REQUESTED_TRANSPORT     0x0019 /* RFC8656 */
+#define DONT_FRAGMENT           0x001a /* RFC8656 */
+#define ACCESS_TOKEN            0x001b /* RFC7635 */
+#define MESSAGE_INTEGRITY_SHA256 0x001c /* RFC8489 */
+#define PASSWORD_ALGORITHM      0x001d /* RFC8489 */
+#define USERHASH                0x001e /* RFC8489 */
+/* 0x001f Reserved */
+#define XOR_MAPPED_ADDRESS      0x0020 /* RFC8489 */
+/* 0x0021 add deprecated TIMER-VAL */
+#define RESERVATION_TOKEN       0x0022 /* RFC8656 */
+/* 0x0023 Reserved */
+#define PRIORITY                0x0024 /* RFC8445 */
+#define USE_CANDIDATE           0x0025 /* RFC8445 */
+#define PADDING                 0x0026 /* RFC5780 */
+/* 0x0027 collision RESPONSE-PORT RFC5780 */
 #define XOR_RESPONSE_TARGET     0x0027 /* draft-ietf-behave-nat-behavior-discovery-03 */
+/* 0x0028 Reserved collision */
 #define XOR_REFLECTED_FROM      0x0028 /* draft-ietf-behave-nat-behavior-discovery-03 */
+/* 0x0029 Reserved */
 #define CONNECTION_ID           0x002a /* rfc6062 */
-#define ICMP                    0x0030 /* Moved from TURN to a future I-D */
-/* Comprehension-optional range (0x8000-0xFFFF) */
+/* 0x002b-0x002f unassigned */
+/* 0x0030 collision reserved */
+#define LEGACY_ICMP             0x0030 /* Moved from TURN to 0x8004 */
+/* 0x0031-0x3fff Unassigned */
+
+/* 0x4000-0x7FFF Expert Review comprehension-required range */
+/* 0x4000-0x7fff Unassigned */
+
+/* 0x8000-0xBFFF IETF Review comprehension-optional range */
+#define ADDITIONAL_ADDRESS_FAMILY 0x8000 /* RFC8656 */
+#define ADDRESS_ERROR_CODE      0x8001 /* RFC8656 */
+#define PASSWORD_ALGORITHMS     0x8002 /* RFC8489 */
+#define ALTERNATE_DOMAIN        0x8003 /* RFC8489 */
+#define ICMP                    0x8004 /* RFC8656 */
+/* 0x8005-0x8021 Unassigned collision */
 #define MS_VERSION              0x8008 /* MS-TURN */
+/* collision */
 #define MS_XOR_MAPPED_ADDRESS   0x8020 /* MS-TURN */
-#define SOFTWARE                0x8022 /* draft-ietf-behave-rfc3489bis-17 */
-#define ALTERNATE_SERVER        0x8023 /* draft-ietf-behave-rfc3489bis-17 */
-#define CACHE_TIMEOUT           0x8027 /* draft-ietf-behave-nat-behavior-discovery-03 */
-#define FINGERPRINT             0x8028 /* draft-ietf-behave-rfc3489bis-17 */
-#define ICE_CONTROLLED          0x8029 /* draft-ietf-mmusic-ice-19 */
-#define ICE_CONTROLLING         0x802a /* draft-ietf-mmusic-ice-19 */
-#define RESPONSE_ORIGIN         0x802b /* draft-ietf-behave-nat-behavior-discovery-03 */
-#define OTHER_ADDRESS           0x802c /* draft-ietf-behave-nat-behavior-discovery-03 */
+#define SOFTWARE                0x8022 /* RFC8489 */
+#define ALTERNATE_SERVER        0x8023 /* RFC8489 */
+/* 0x8024 Reserved */
+#define TRANSACTION_TRANSMIT_COUNTER 0x8025 /* RFC7982 */
+/* 0x8026 Reserved */
+#define CACHE_TIMEOUT           0x8027 /* RFC5780 */
+#define FINGERPRINT             0x8028 /* RFC8489 */
+#define ICE_CONTROLLED          0x8029 /* RFC8445 */
+#define ICE_CONTROLLING         0x802a /* RFC8445 */
+#define RESPONSE_ORIGIN         0x802b /* RFC5780 */
+#define OTHER_ADDRESS           0x802c /* RFC5780 */
+#define ECN_CHECK_STUN          0x802d /* RFC6679 */
+#define THIRD_PARTY_AUTHORIZATION 0x802e /* RFC7635 */
+/* 0x802f Unassigned */
+#define MOBILITY_TICKET         0x8030 /* RFC8016 */
+/* 0x8031-0xBFFF Unassigned collision */
+#define MS_ALTERNATE_HOST_NAME  0x8032 /* MS-TURN */
+#define MS_APP_ID               0x8037 /* MS-TURN */
+#define MS_SECURE_TAG           0x8039 /* MS-TURN */
 #define MS_SEQUENCE_NUMBER      0x8050 /* MS-TURN */
 #define MS_CANDIDATE_IDENTIFIER 0x8054 /* MS-ICE2 */
 #define MS_SERVICE_QUALITY      0x8055 /* MS-TURN */
@@ -230,7 +360,16 @@ typedef struct _stun_conv_info_t {
 #define LOCATION_PROFILE        0x8068 /* MS-TURNBWM */
 #define MS_IMPLEMENTATION_VER   0x8070 /* MS-ICE2 */
 #define MS_ALT_MAPPED_ADDRESS   0x8090 /* MS-TURN */
+#define MS_MULTIPLEXED_TURN_SESSION_ID 0x8095 /* MS_TURN */
 
+/* 0xC000-0xFFFF Expert Review comprehension-optional range */
+#define CISCO_STUN_FLOWDATA     0xc000 /* Cisco undocumented */
+#define ENF_FLOW_DESCRIPTION    0xc001 /* Cisco undocumented */
+#define ENF_NETWORK_STATUS      0xc002 /* Cisco undocumented */
+/* 0xc003-0xc058 Unassigned */
+#define GOOG_MISC_INFO          0xc059 /* Google undocumented */
+#define GOOG_MESSAGE_INTEGRITY_32 0xc05a /* Google undocumented */
+/* 0xc05b-0xffff Unassigned */
 
 /* Initialize the subtree pointers */
 static gint ett_stun = -1;
@@ -264,6 +403,7 @@ static const value_string classes[] = {
 
 static const value_string methods[] = {
     {BINDING           , "Binding"},
+    {SHARED_SECRET     , "SharedSecret"},
     {ALLOCATE          , "Allocate"},
     {REFRESH           , "Refresh"},
     {SEND              , "Send"},
@@ -273,11 +413,13 @@ static const value_string methods[] = {
     {CONNECT           , "Connect"},
     {CONNECTION_BIND   , "ConnectionBind"},
     {CONNECTION_ATTEMPT, "ConnectionAttempt"},
+    {GOOG_PING         , "GooglePing"},
     {0x00              , NULL}
 };
 
 
 static const value_string attributes[] = {
+  /* 0x0000-0x3FFF IETF Review comprehension-required range */
     {MAPPED_ADDRESS        , "MAPPED-ADDRESS"},
     {RESPONSE_ADDRESS      , "RESPONSE_ADDRESS"},
     {CHANGE_REQUEST        , "CHANGE_REQUEST"},
@@ -299,10 +441,14 @@ static const value_string attributes[] = {
     {REALM                 , "REALM"},
     {NONCE                 , "NONCE"},
     {XOR_RELAYED_ADDRESS   , "XOR-RELAYED-ADDRESS"},
-    {REQUESTED_ADDRESS_TYPE, "REQUESTED-ADDRESS-TYPE"},
+    {REQUESTED_ADDRESS_FAMILY, "REQUESTED-ADDRESS-FAMILY"},
     {EVEN_PORT             , "EVEN-PORT"},
     {REQUESTED_TRANSPORT   , "REQUESTED-TRANSPORT"},
     {DONT_FRAGMENT         , "DONT-FRAGMENT"},
+    {ACCESS_TOKEN          , "ACCESS-TOKEN"},
+    {MESSAGE_INTEGRITY_SHA256, "MESSAGE-INTEGRITY-SHA256"},
+    {PASSWORD_ALGORITHM    , "PASSWORD-ALGORITHM"},
+    {USERHASH              , "USERHASH"},
     {XOR_MAPPED_ADDRESS    , "XOR-MAPPED-ADDRESS"},
     {RESERVATION_TOKEN     , "RESERVATION-TOKEN"},
     {PRIORITY              , "PRIORITY"},
@@ -311,18 +457,33 @@ static const value_string attributes[] = {
     {XOR_RESPONSE_TARGET   , "XOR-RESPONSE-TARGET"},
     {XOR_REFLECTED_FROM    , "XOR-REFELECTED-FROM"},
     {CONNECTION_ID         , "CONNECTION-ID"},
-    {ICMP                  , "ICMP"},
+    {LEGACY_ICMP           , "LEGACY-ICMP"},
 
+  /* 0x4000-0x7FFF Expert Review comprehension-required range */
+
+  /* 0x8000-0xBFFF IETF Review comprehension-optional range */
+    {ADDITIONAL_ADDRESS_FAMILY, "ADDITIONAL-ADDRESS-FAMILY"},
+    {ADDRESS_ERROR_CODE    , "ADDRESS-ERROR-CODE"},
+    {PASSWORD_ALGORITHMS   , "PASSWORD-ALGORITHMS"},
+    {ALTERNATE_DOMAIN      , "ALTERNATE-DOMAIN"},
+    {ICMP                  , "ICMP"},
     {MS_VERSION            , "MS-VERSION"},
     {MS_XOR_MAPPED_ADDRESS , "XOR-MAPPED-ADDRESS"},
     {SOFTWARE              , "SOFTWARE"},
     {ALTERNATE_SERVER      , "ALTERNATE-SERVER"},
+    {TRANSACTION_TRANSMIT_COUNTER, "TRANSACTION-TRANSMIT-COUNTER"},
     {CACHE_TIMEOUT         , "CACHE-TIMEOUT"},
     {FINGERPRINT           , "FINGERPRINT"},
     {ICE_CONTROLLED        , "ICE-CONTROLLED"},
     {ICE_CONTROLLING       , "ICE-CONTROLLING"},
     {RESPONSE_ORIGIN       , "RESPONSE-ORIGIN"},
     {OTHER_ADDRESS         , "OTHER-ADDRESS"},
+    {ECN_CHECK_STUN        , "ECN-CHECK-STUN"},
+    {THIRD_PARTY_AUTHORIZATION, "THIRD-PARTY-AUTHORIZATION"},
+    {MOBILITY_TICKET       , "MOBILITY-TICKET"},
+    {MS_ALTERNATE_HOST_NAME, "MS-ALTERNATE-HOST-NAME"},
+    {MS_APP_ID             , "MS-APP-ID"},
+    {MS_SECURE_TAG         , "MS-SECURE-TAG"},
     {MS_SEQUENCE_NUMBER    , "MS-SEQUENCE-NUMBER"},
     {MS_CANDIDATE_IDENTIFIER, "MS-CANDIDATE-IDENTIFIER"},
     {MS_SERVICE_QUALITY    , "MS-SERVICE-QUALITY"},
@@ -342,6 +503,15 @@ static const value_string attributes[] = {
     {LOCATION_PROFILE      , "Location Profile"},
     {MS_IMPLEMENTATION_VER , "MS-IMPLEMENTATION-VERSION"},
     {MS_ALT_MAPPED_ADDRESS , "MS-ALT-MAPPED-ADDRESS"},
+    {MS_MULTIPLEXED_TURN_SESSION_ID, "MS-MULTIPLEXED-TURN-SESSION-ID"},
+
+  /* 0xC000-0xFFFF Expert Review comprehension-optional range */
+    {CISCO_STUN_FLOWDATA   , "CISCO-STUN-FLOWDATA"},
+    {ENF_FLOW_DESCRIPTION   , "ENF-FLOW-DESCRIPTION"},
+    {ENF_NETWORK_STATUS    , "ENF-NETWORK-STATUS"},
+    {GOOG_MISC_INFO        , "GOOG-MISC-INFO"},
+    {GOOG_MESSAGE_INTEGRITY_32, "GOOG-MESSAGE_INTEGRITY-32"},
+
     {0x00                  , NULL}
 };
 static value_string_ext attributes_ext = VALUE_STRING_EXT_INIT(attributes);
@@ -364,46 +534,46 @@ static const value_string attributes_reserve_next[] = {
     {0x00, NULL}
 };
 
-#if 0
-static const value_string attributes_properties_p[] = {
-    {0, "All allocation"},
-    {1, "Preserving allocation"},
-    {0x00, NULL}
-};
-#endif
-
 static const value_string attributes_family[] = {
     {0x0001, "IPv4"},
     {0x0002, "IPv6"},
     {0x00, NULL}
 };
-/* https://www.iana.org/assignments/stun-parameters/stun-parameters.xhtml#stun-parameters-6 (2015-06-12)*/
+/* https://www.iana.org/assignments/stun-parameters/stun-parameters.xhtml#stun-parameters-6 (2020-08-05)*/
 
 static const value_string error_code[] = {
     {274, "Disable Candidate"},               /* MS-ICE2BWN */
     {275, "Disable Candidate Pair"},          /* MS-ICE2BWN */
-    {300, "Try Alternate"},                   /* rfc3489bis-15 */
-    {400, "Bad Request"},                     /* rfc3489bis-15 */
-    {401, "Unauthorized"},                    /* rfc3489bis-15 */
-    {403, "Forbidden"},                       /* rfc5766 */
-    {420, "Unknown Attribute"},               /* rfc3489bis-15 */
-    {437, "Allocation Mismatch"},             /* turn-07 */
-    {438, "Stale Nonce"},                     /* rfc3489bis-15 */
-    {439, "Wrong Credentials"},               /* turn-07 - collision 38=>39 */
-    {440, "Address Family not Supported"},    /* turn-ipv6-04 */
-    {441, "Wrong Credentials"},               /* rfc5766 */
-    {442, "Unsupported Transport Protocol"},  /* turn-07 */
-    {443, "Peer Address Family Mismatch"},    /* rfc6156 */
-    {446, "Connection Already Exists"},       /* rfc6062 */
-    {447, "Connection Timeout or Failure"},   /* rfc6062 */
-    {481, "Connection does not exist"},       /* nat-behavior-discovery-03 */
-    {486, "Allocation Quota Reached"},        /* turn-07 */
-    {487, "Role Conflict"},                   /* rfc5245 */
-    {500, "Server Error"},                    /* rfc3489bis-15 */
-    {503, "Service Unavailable"},             /* nat-behavior-discovery-03 */
-    {507, "Insufficient Bandwidth Capacity"}, /* turn-07 */
-    {508, "Insufficient Port Capacity"},      /* turn-07 */
-    {600, "Global Failure"},
+    {300, "Try Alternate"},                   /* RFC8489 */
+    {400, "Bad Request"},                     /* RFC8489 */
+    {401, "Unauthenticated"},                 /* RFC8489, RFC3489+MS-TURN: Unauthorized */
+    {403, "Forbidden"},                       /* RFC8656 */
+    {405, "Mobility Forbidden"},              /* RFC8016 */
+    {420, "Unknown Attribute"},               /* RFC8489 */
+    {430, "Stale Credentials (legacy)"},      /* RFC3489 */
+    {431, "Integrity Check Failure (legacy)"}, /* RFC3489 */
+    {432, "Missing Username (legacy)"},       /* RFC3489 */
+    {433, "Use TLS (legacy)"},                /* RFC3489 */
+    {434, "Missing Realm (legacy)"},          /* MS-TURN */
+    {435, "Missing Nonce (legacy)"},          /* MS-TURN */
+    {436, "Unknown User (legacy)"},           /* MS-TURN */
+    {437, "Allocation Mismatch"},             /* RFC8656 */
+    {438, "Stale Nonce"},                     /* RFC8489 */
+    {439, "Wrong Credentials (legacy)"},      /* turn-07 */
+    {440, "Address Family not Supported"},    /* RFC8656 */
+    {441, "Wrong Credentials"},               /* RFC8656 */
+    {442, "Unsupported Transport Protocol"},  /* RFC8656 */
+    {443, "Peer Address Family Mismatch"},    /* RFC8656 */
+    {446, "Connection Already Exists"},       /* RFC6062 */
+    {447, "Connection Timeout or Failure"},   /* RFC6062 */
+    {481, "Connection does not exist (legacy)"}, /* nat-behavior-discovery-03 */
+    {486, "Allocation Quota Reached"},        /* RFC8656 */
+    {487, "Role Conflict"},                   /* RFC8445 */
+    {500, "Server Error"},                    /* RFC8489 */
+    {503, "Service Unavailable (legacy)"},    /* nat-behavior-discovery-03 */
+    {507, "Insufficient Bandwidth Capacity (legacy)"}, /* turn-07 */
+    {508, "Insufficient Port Capacity"},      /* RFC8656 */
+    {600, "Global Failure"},                  /* RFC8656 */
     {0x00, NULL}
 };
 static value_string_ext error_code_ext = VALUE_STRING_EXT_INIT(error_code);
@@ -413,6 +583,8 @@ static const value_string ms_version_vals[] = {
     {0x00000002, "MS-ICE2"},
     {0x00000003, "MS-ICE2 with SHA256"},
     {0x00000004, "MS-ICE2 with SHA256 and IPv6"},
+    {0x00000005, "MULTIPLEXED TURN over UDP only"},
+    {0x00000006, "MULTIPLEXED TURN over UDP and TCP"},
     {0x00, NULL}
 };
 
@@ -451,6 +623,13 @@ static const value_string federation_vals[] = {
     {0x00, NULL}
 };
 
+static const value_string password_algorithm_vals[] = {
+    {0x0000, "Reserved"},
+    {0x0001, "MD5"},
+    {0x0002, "SHA-256"},
+    {0x0000, NULL}
+};
+
 static guint
 get_stun_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
                      int offset, void *data _U_)
@@ -460,7 +639,7 @@ get_stun_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
     guint   captured_length = tvb_captured_length(tvb);
 
     if ((captured_length >= TCP_FRAME_COOKIE_LEN) &&
-        (tvb_get_ntohl(tvb, 6) == 0x2112a442)) {
+        (tvb_get_ntohl(tvb, 6) == MESSAGE_COOKIE)) {
         /*
          * The magic cookie is off by two, so this appears to be
          * RFC 4571 framing, as per RFC 6544; use the length
@@ -491,7 +670,7 @@ get_stun_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
  * re-use the packet-turnchannel.c's dissect_turnchannel_message() function?
  */
 static int
-dissect_stun_message_channel_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 msg_type _U_, guint msg_length _U_)
+dissect_stun_message_channel_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 msg_type _U_, guint msg_length)
 {
     tvbuff_t *next_tvb;
     heur_dtbl_entry_t *hdtbl_entry;
@@ -513,7 +692,7 @@ dissect_stun_message_channel_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
         proto_tree_add_item(stun_tree, hf_stun_length,  tvb, 2, 2, ENC_BIG_ENDIAN);
     }
 
-    next_tvb = tvb_new_subset_remaining(tvb, CHANNEL_DATA_HDR_LEN);
+    next_tvb = tvb_new_subset_length(tvb, CHANNEL_DATA_HDR_LEN, msg_length);
 
     if (!dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, &hdtbl_entry, NULL)) {
         call_dissector_only(data_handle, next_tvb, pinfo, tree, NULL);
@@ -539,8 +718,8 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
     guint16     msg_type_class;
     const char *msg_class_str;
     const char *msg_method_str;
-    guint16     att_type;
-    guint16     att_length, clear_port;
+    guint16     att_type, att_type_display;
+    guint16     att_length, att_length_pad, clear_port;
     guint32     clear_ip;
     guint       i;
     guint       offset;
@@ -561,13 +740,13 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
 
     /* First, make sure we have enough data to do the check. */
     captured_length = tvb_captured_length(tvb);
-    reported_length = tvb_reported_length(tvb);
     if (captured_length < MIN_HDR_LEN)
         return 0;
+    reported_length = tvb_reported_length(tvb);
 
     tcp_framing_offset = 0;
     if ((!is_udp) && (captured_length >= TCP_FRAME_COOKIE_LEN) &&
-       (tvb_get_ntohl(tvb, 6) == 0x2112a442)) {
+       (tvb_get_ntohl(tvb, 6) == MESSAGE_COOKIE)) {
         /*
          * The magic cookie is off by two, so this appears to be
          * RFC 4571 framing, as per RFC 6544; the STUN/TURN
@@ -616,7 +795,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
         return 0;
 
     /* Check if it is really a STUN message */
-    if ( tvb_get_ntohl(tvb, tcp_framing_offset + 4) != 0x2112a442)
+    if ( tvb_get_ntohl(tvb, tcp_framing_offset + 4) != MESSAGE_COOKIE)
         return 0;
 
     /* check if payload enough */
@@ -807,12 +986,20 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
         att_all_tree = proto_item_add_subtree(ti, ett_stun_att_all);
 
         while (offset < (STUN_HDR_LEN + msg_length)) {
-            att_type = tvb_get_ntohs(tvb, offset);     /* Type field in attribute header */
-            att_length = tvb_get_ntohs(tvb, offset+2); /* Length field in attribute header */
-            attribute_name_str = val_to_str_ext_const(att_type, &attributes_ext, "Unknown");
+            att_type = tvb_get_ntohs(tvb, offset);     /* Attribute type field in attribute header */
+            att_length = tvb_get_ntohs(tvb, offset+2); /* Attribute length field in attribute header */
+            if (stun_network_version >= NET_VER_5389)
+                att_length_pad = (att_length + 3) & ~3; /* Attribute length including padding */
+            else
+                att_length_pad = att_length;
+            att_type_display = att_type;
+            /* Early drafts and MS-TURN use swapped numbers to later versions */
+            if ((stun_network_version < NET_VER_3489) && (att_type == 0x0014 || att_type == 0x0015))
+                att_type_display ^= 1;
+            attribute_name_str = val_to_str_ext_const(att_type_display, &attributes_ext, "Unknown");
             if(att_all_tree){
                 ti = proto_tree_add_uint_format(att_all_tree, hf_stun_attr,
-                                                tvb, offset, ATTR_HDR_LEN+att_length,
+                                                tvb, offset, ATTR_HDR_LEN+att_length_pad,
                                                 att_type, "%s", attribute_name_str);
                 att_tree = proto_item_add_subtree(ti, ett_stun_att);
                 ti = proto_tree_add_uint(att_tree, hf_stun_att_type, tvb,
@@ -821,12 +1008,12 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                 proto_tree_add_uint(att_type_tree, hf_stun_att_type_comprehension, tvb, offset, 2, att_type);
                 proto_tree_add_uint(att_type_tree, hf_stun_att_type_assignment, tvb, offset, 2, att_type);
 
-                if ((offset+ATTR_HDR_LEN+att_length) > (STUN_HDR_LEN+msg_length+tcp_framing_offset)) {
+                if ((offset+ATTR_HDR_LEN+att_length_pad) > (STUN_HDR_LEN+msg_length+tcp_framing_offset)) {
                     proto_tree_add_uint_format_value(att_tree,
                                                      hf_stun_att_length, tvb, offset+2, 2,
-                                                     att_length,
+                                                     att_length_pad,
                                                      "%u (bogus, goes past the end of the message)",
-                                                     att_length);
+                                                     att_length_pad);
                     break;
                 }
             }
@@ -836,7 +1023,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                                 offset, 2, att_length);
             offset += 2;
 
-            switch (att_type) {
+            switch (att_type_display) {
 
                 /* Deprecated STUN RFC3489 attributes */
             case RESPONSE_ADDRESS:
@@ -874,12 +1061,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                 /* Deprecated STUN RFC3489 attributes */
             case PASSWORD:
                 {
-                const guint8* dep_password;
-                proto_tree_add_item_ret_string(att_tree, hf_stun_att_password, tvb, offset, att_length, ENC_UTF_8|ENC_NA, wmem_packet_scope(), &dep_password);
-                proto_item_append_text(att_tree, " (Deprecated): %s", dep_password);
-                if (att_length % 4 != 0)
-                    proto_tree_add_uint(att_tree, hf_stun_att_padding,
-                                        tvb, offset+att_length, 4-(att_length % 4), 4-(att_length % 4));
+                proto_tree_add_item(att_tree, hf_stun_att_password, tvb, offset, att_length, ENC_NA);
                 }
                 break;
 
@@ -922,7 +1104,16 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                 case 2:
                     if (att_length < 20)
                         break;
+                    addr_str = tvb_ip6_to_str(tvb, offset + 4);
                     proto_tree_add_item(att_tree, hf_stun_att_ipv6, tvb, offset+4, 16, ENC_NA);
+                    proto_item_append_text(att_tree, ": %s:%d", addr_str, att_port);
+                    col_append_fstr(
+                        pinfo->cinfo, COL_INFO,
+                        " %s: %s:%d",
+                        attribute_name_str,
+                        addr_str,
+                        att_port
+                        );
                     break;
                 }
                 break;
@@ -936,18 +1127,15 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
 
             case USERNAME:
             {
-                const guint8 *user_name_str;
+                if (stun_network_version >  NET_VER_3489) {
+                    const guint8 *user_name_str;
 
-                proto_tree_add_item_ret_string(att_tree, hf_stun_att_username, tvb, offset, att_length, ENC_UTF_8|ENC_NA, wmem_packet_scope(), &user_name_str);
-                proto_item_append_text(att_tree, ": %s", user_name_str);
-                col_append_fstr(
-                    pinfo->cinfo, COL_INFO,
-                    " user: %s",
-                    user_name_str);
-
-                if (att_length % 4 != 0)
-                    proto_tree_add_uint(att_tree, hf_stun_att_padding,
-                                        tvb, offset+att_length, 4-(att_length % 4), 4-(att_length % 4));
+                    proto_tree_add_item_ret_string(att_tree, hf_stun_att_username, tvb, offset, att_length, ENC_UTF_8|ENC_NA, wmem_packet_scope(), &user_name_str);
+                    proto_item_append_text(att_tree, ": %s", user_name_str);
+                    col_append_fstr( pinfo->cinfo, COL_INFO, " user: %s", user_name_str);
+                } else {
+                    proto_tree_add_item(att_tree, hf_stun_att_username_opaque, tvb, offset, att_length, ENC_NA);
+                }
                 break;
             }
             case MESSAGE_INTEGRITY:
@@ -991,16 +1179,11 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                 proto_item_append_text(att_tree, ": %s", error_reas_str);
                 col_append_fstr(pinfo->cinfo, COL_INFO, " %s", error_reas_str);
                 }
-
-                if (att_length % 4 != 0)
-                    proto_tree_add_uint(att_tree, hf_stun_att_padding, tvb, offset+att_length, 4-(att_length % 4), 4-(att_length % 4));
                 break;
 
             case UNKNOWN_ATTRIBUTES:
                 for (i = 0; i < att_length; i += 2)
                     proto_tree_add_item(att_tree, hf_stun_att_unknown, tvb, offset+i, 2, ENC_BIG_ENDIAN);
-                if (att_length % 4 != 0)
-                    proto_tree_add_uint(att_tree, hf_stun_att_padding, tvb, offset+att_length, 4-(att_length % 4), 4-(att_length % 4));
                 break;
 
             case REALM:
@@ -1009,8 +1192,6 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                 proto_tree_add_item_ret_string(att_tree, hf_stun_att_realm, tvb, offset, att_length, ENC_UTF_8|ENC_NA, wmem_packet_scope(), &realm_str);
                 proto_item_append_text(att_tree, ": %s", realm_str);
                 col_append_fstr(pinfo->cinfo, COL_INFO, " realm: %s", realm_str);
-                if (att_length % 4 != 0)
-                    proto_tree_add_uint(att_tree, hf_stun_att_padding, tvb, offset+att_length, 4-(att_length % 4), 4-(att_length % 4));
                 break;
             }
             case NONCE:
@@ -1019,11 +1200,45 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                 proto_tree_add_item_ret_string(att_tree, hf_stun_att_nonce, tvb, offset, att_length, ENC_UTF_8|ENC_NA, wmem_packet_scope(), &nonce_str);
                 proto_item_append_text(att_tree, ": %s", nonce_str);
                 col_append_str(pinfo->cinfo, COL_INFO, " with nonce");
-                if (att_length % 4 != 0)
-                    proto_tree_add_uint(att_tree, hf_stun_att_padding, tvb, offset+att_length, 4-(att_length % 4), 4-(att_length % 4));
                 break;
             }
+            case PASSWORD_ALGORITHM:
+            case PASSWORD_ALGORITHMS:
+            {
+                guint alg, alg_param_len, alg_param_len_pad;
+                guint remaining = att_length;
+                while (remaining > 0) {
+                   guint loopoffset = offset + att_length - remaining;
+                   if (remaining < 4) {
+                       proto_tree_add_expert_format(att_tree, pinfo, &ei_stun_short_packet, tvb,
+                           loopoffset, remaining, "Too few bytes left for TLV header (%d < 4)", remaining);
+                       break;
+                   }
+                   proto_tree_add_item_ret_uint(att_tree, hf_stun_att_pw_alg, tvb, loopoffset, 2, ENC_BIG_ENDIAN, &alg);
+                   proto_tree_add_item_ret_uint(att_tree, hf_stun_att_pw_alg_param_len, tvb, loopoffset+2, 2, ENC_BIG_ENDIAN, &alg_param_len);
+                   if (alg_param_len > 0) {
+                       if (alg_param_len+4 >= remaining)
+                           proto_tree_add_item(att_tree, hf_stun_att_pw_alg_param_data, tvb, loopoffset+4, alg_param_len, ENC_NA);
+                       else {
+                           proto_tree_add_expert_format(att_tree, pinfo, &ei_stun_short_packet, tvb,
+                                loopoffset, remaining, "Too few bytes left for parameter data (%u < %u)", remaining-4, alg_param_len);
+                           break;
+                       }
+                   }
+                   /* Hopefully, in case MS-TURN ever gets PASSWORD-ALGORITHM(S) support they will add it with padding */
+                   alg_param_len_pad = (alg_param_len + 3) & ~3;
 
+                   if (alg_param_len < alg_param_len_pad)
+                       proto_tree_add_uint(att_tree, hf_stun_att_padding, tvb, loopoffset+alg_param_len, alg_param_len_pad-alg_param_len, alg_param_len_pad-alg_param_len);
+                   remaining -= (alg_param_len_pad + 4);
+                   if ((att_type_display == PASSWORD_ALGORITHM) && (remaining > 0)) {
+                       proto_tree_add_expert_format(att_tree, pinfo, &ei_stun_long_attribute, tvb,
+                           loopoffset, remaining, " (PASSWORD-ALGORITHM)");
+                       /* Continue anyway */
+                   }
+                }
+                break;
+            }
             case XOR_MAPPED_ADDRESS:
             case XOR_PEER_ADDRESS:
             case XOR_RELAYED_ADDRESS:
@@ -1089,7 +1304,10 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                         break;
                     proto_tree_add_item(att_tree, hf_stun_att_xor_ipv6, tvb, offset+4, 16, ENC_NA);
                     {
+                        const gchar *ipstr;
+                        address addr;
                         guint32 IPv6[4];
+                        guint16 port;
                         tvb_get_ipv6(tvb, offset+4, (ws_in6_addr *)IPv6);
                         IPv6[0] = IPv6[0] ^ g_htonl(magic_cookie_first_word);
                         IPv6[1] = IPv6[1] ^ g_htonl(transaction_id[0]);
@@ -1098,13 +1316,25 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                         ti = proto_tree_add_ipv6(att_tree, hf_stun_att_ipv6, tvb, offset+4, 16,
                                                  (const ws_in6_addr *)IPv6);
                         proto_item_set_generated(ti);
+
+                        set_address(&addr, AT_IPv6, 16, &IPv6);
+                        ipstr = address_to_str(wmem_packet_scope(), &addr);
+                        port = tvb_get_ntohs(tvb, offset+2) ^ (magic_cookie_first_word >> 16);
+                        proto_item_append_text(att_tree, ": %s:%d", ipstr, port);
+                        col_append_fstr(
+                            pinfo->cinfo, COL_INFO,
+                            " %s: %s:%d",
+                            attribute_name_str,
+                            ipstr,
+                            port
+                            );
                     }
 
                     break;
                 }
                 break;
 
-            case REQUESTED_ADDRESS_TYPE:
+            case REQUESTED_ADDRESS_FAMILY:
                 if (att_length < 1)
                     break;
                 proto_tree_add_item(att_tree, hf_stun_att_family, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1134,6 +1364,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                 proto_tree_add_uint(att_tree, hf_stun_att_padding, tvb, offset, att_length, att_length);
                 break;
 
+            case LEGACY_ICMP:
             case ICMP:
                 if (att_length < 4)
                     break;
@@ -1143,8 +1374,6 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
 
             case SOFTWARE:
                 proto_tree_add_item(att_tree, hf_stun_att_software, tvb, offset, att_length, ENC_UTF_8|ENC_NA);
-                if (att_length % 4 != 0)
-                    proto_tree_add_uint(att_tree, hf_stun_att_padding, tvb, offset+att_length, 4-(att_length % 4), 4-(att_length % 4));
                 break;
 
             case CACHE_TIMEOUT:
@@ -1170,11 +1399,6 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                 if (att_length > 0) {
                     tvbuff_t *next_tvb;
                     proto_tree_add_item(att_tree, hf_stun_att_value, tvb, offset, att_length, ENC_NA);
-                    if (att_length % 4 != 0) {
-                        guint pad;
-                        pad = 4-(att_length % 4);
-                        proto_tree_add_uint(att_tree, hf_stun_att_padding, tvb, offset+att_length, pad, pad);
-                    }
 
                     next_tvb = tvb_new_subset_length(tvb, offset, att_length);
 
@@ -1311,12 +1535,12 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
             default:
                 if (att_length > 0)
                     proto_tree_add_item(att_tree, hf_stun_att_value, tvb, offset, att_length, ENC_NA);
-                if (att_length % 4 != 0)
-                    proto_tree_add_uint(att_tree, hf_stun_att_padding, tvb,
-                                        offset+att_length, 4-(att_length % 4), 4-(att_length % 4));
                 break;
             }
-            offset += (att_length+3) & ~0x3;
+
+            if ((stun_network_version >= NET_VER_5389) && (att_length < att_length_pad))
+                proto_tree_add_uint(att_tree, hf_stun_att_padding, tvb, offset+att_length, att_length_pad-att_length, att_length_pad-att_length);
+            offset += att_length_pad;
         }
     }
 
@@ -1367,15 +1591,17 @@ dissect_stun_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 }
 
 static gboolean
-dissect_stun_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_stun_heur_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    if (dissect_stun_message(tvb, pinfo, tree, TRUE, TRUE) == 0) {
-        /*
-         * It wasn't a valid STUN message, and wasn't
-         * dissected as such.
-         */
+    if (dissect_stun_message(tvb, pinfo, tree, TRUE, FALSE) == 0)
         return FALSE;
-    }
+    return TRUE;
+}
+static gboolean
+dissect_stun_heur_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    if (dissect_stun_message(tvb, pinfo, tree, TRUE, TRUE) == 0)
+        return FALSE;
     return TRUE;
 }
 
@@ -1412,7 +1638,7 @@ proto_register_stun(void)
         },
         { &hf_stun_length,
           { "Message Length", "stun.length", FT_UINT16,
-            BASE_DEC, NULL, 0x0, NULL, HFILL }
+            BASE_DEC, NULL, 0x0, "Payload (attributes) length", HFILL }
         },
         { &hf_stun_cookie,
           { "Message Cookie", "stun.cookie", FT_BYTES,
@@ -1483,8 +1709,12 @@ proto_register_stun(void)
           { "Username", "stun.att.username", FT_STRING,
             BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
+        { &hf_stun_att_username_opaque,
+          { "Username", "stun.att.username", FT_BYTES,
+            BASE_NONE, NULL, 0x0, NULL, HFILL }
+        },
         { &hf_stun_att_password,
-          { "Password", "stun.att.password", FT_STRING,
+          { "Password", "stun.att.password", FT_BYTES,
             BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
         { &hf_stun_att_padding,
@@ -1557,7 +1787,7 @@ proto_register_stun(void)
         },
         { &hf_stun_att_lifetime,
           { "Lifetime", "stun.att.lifetime", FT_UINT32,
-            BASE_DEC, NULL, 0x0, NULL, HFILL}
+            BASE_DEC, NULL, 0x0, "Session idle time remaining (seconds)", HFILL}
          },
         { &hf_stun_att_change_ip,
           { "Change IP","stun.att.change-ip", FT_BOOLEAN,
@@ -1566,6 +1796,18 @@ proto_register_stun(void)
         { &hf_stun_att_change_port,
           { "Change Port","stun.att.change-port", FT_BOOLEAN,
             16, TFS(&tfs_set_notset), 0x0002, NULL, HFILL}
+        },
+        { &hf_stun_att_pw_alg,
+          { "Password Algorithm", "stun.att.pw_alg", FT_UINT16,
+            BASE_DEC, VALS(password_algorithm_vals), 0x0, NULL, HFILL }
+        },
+        { &hf_stun_att_pw_alg_param_len,
+          { "Password Algorithm Length", "stun.att.pw_alg_len", FT_UINT16,
+            BASE_DEC, NULL, 0x0, NULL, HFILL }
+        },
+        { &hf_stun_att_pw_alg_param_data,
+          { "Password Algorithm Data", "stun.att.pw_alg_data", FT_BYTES,
+            BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
         { &hf_stun_att_reserve_next,
           { "Reserve next","stun.att.even-port.reserve-next", FT_UINT8,
@@ -1601,7 +1843,7 @@ proto_register_stun(void)
         },
         { &hf_stun_att_bandwidth,
           { "Bandwidth", "stun.port.bandwidth", FT_UINT32,
-            BASE_DEC, NULL, 0x0, NULL, HFILL }
+            BASE_DEC, NULL, 0x0, "Peak Bandwidth (kBit/s)", HFILL }
         },
 
         { &hf_stun_att_ms_version,
@@ -1707,6 +1949,17 @@ proto_register_stun(void)
         &ett_stun_att_type,
     };
 
+    static ei_register_info ei[] = {
+        { &ei_stun_short_packet,
+        { "stun.short_packet", PI_MALFORMED, PI_ERROR, "Packet is too short", EXPFILL }},
+
+        { &ei_stun_long_attribute,
+        { "stun.long_attribute", PI_MALFORMED, PI_WARN, "Attribute has trailing data", EXPFILL }},
+    };
+
+    module_t *stun_module;
+    expert_module_t* expert_stun;
+
     /* Register the protocol name and description */
     proto_stun = proto_register_protocol("Session Traversal Utilities for NAT", "STUN", "stun");
 
@@ -1719,7 +1972,18 @@ proto_register_stun(void)
 
     register_dissector("stun-tcp", dissect_stun_tcp, proto_stun);
     register_dissector("stun-udp", dissect_stun_udp, proto_stun);
-    register_dissector("stun-heur", dissect_stun_heur, proto_stun);
+    register_dissector("stun-heur", dissect_stun_heur_udp, proto_stun);
+
+    /* Register preferences */
+    stun_module = prefs_register_protocol(proto_stun, NULL);
+    prefs_register_enum_preference(stun_module,
+        "stunversion", "Stun Version", "Stun Version on the Network",
+                                       &stun_network_version,
+                                       stun_network_version_vals,
+                                       FALSE);
+
+    expert_stun = expert_register_protocol(proto_stun);
+    expert_register_field_array(expert_stun, ei, array_length(ei));
 }
 
 void
@@ -1738,7 +2002,12 @@ proto_reg_handoff_stun(void)
     dissector_add_string("tls.alpn", "stun.nat-discovery", stun_tcp_handle);
     dissector_add_string("dtls.alpn", "stun.nat-discovery", stun_udp_handle);
 
-    heur_dissector_add("udp", dissect_stun_heur, "STUN over UDP", "stun_udp", proto_stun, HEURISTIC_ENABLE);
+    heur_dissector_add("udp", dissect_stun_heur_udp, "STUN over UDP", "stun_udp", proto_stun, HEURISTIC_ENABLE);
+    heur_dissector_add("tcp", dissect_stun_heur_tcp, "STUN over TCP", "stun_tcp", proto_stun, HEURISTIC_ENABLE);
+    /* STUN messages may be encapsulated in Send Indication or Channel Data message as DATA payload
+     * (in TURN and CLASSICSTUN, both)  */
+    heur_dissector_add("stun", dissect_stun_heur_udp, "STUN over TURN", "stun_turn", proto_stun, HEURISTIC_DISABLE);
+    heur_dissector_add("classicstun", dissect_stun_heur_udp, "STUN over CLASSICSTUN", "stun_classicstun", proto_stun, HEURISTIC_DISABLE);
 
     data_handle = find_dissector("data");
 }

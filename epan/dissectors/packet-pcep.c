@@ -622,12 +622,12 @@ static int hf_pcep_obj_srp_flags = -1;
 static int hf_pcep_obj_srp_flags_r = -1;
 static int hf_pcep_obj_srp_id_number = -1;
 static int hf_pcep_symbolic_path_name = -1;
-static int hf_pcep_ipv4_lsp_id_tunnnel_sender_address = -1;
+static int hf_pcep_ipv4_lsp_id_tunnel_sender_address = -1;
 static int hf_pcep_ipv4_lsp_id_lsp_id = -1;
 static int hf_pcep_ipv4_lsp_id_tunnel_id = -1;
 static int hf_pcep_ipv4_lsp_id_extended_tunnel_id = -1;
 static int hf_pcep_ipv4_lsp_id_tunnel_endpoint_address = -1;
-static int hf_pcep_ipv6_lsp_id_tunnnel_sender_address = -1;
+static int hf_pcep_ipv6_lsp_id_tunnel_sender_address = -1;
 static int hf_pcep_ipv6_lsp_id_lsp_id = -1;
 static int hf_pcep_ipv6_lsp_id_tunnel_id = -1;
 static int hf_pcep_ipv6_lsp_id_extended_tunnel_id = -1;
@@ -1381,7 +1381,7 @@ dissect_pcep_tlvs(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, gint length, 
     int         i, j;
     int         padding = 0;
 
-    static const int *tlv_stateful_pce_capability_flags[] = {
+    static int * const tlv_stateful_pce_capability_flags[] = {
         &hf_pcep_lsp_update_capability,
         &hf_pcep_include_db_version,
         &hf_pcep_lsp_instantiation_capability,
@@ -1391,7 +1391,7 @@ dissect_pcep_tlvs(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, gint length, 
         NULL
     };
 
-    static const int *tlv_sr_pce_capability_flags[] = {
+    static int * const tlv_sr_pce_capability_flags[] = {
         &hf_pcep_sr_pce_capability_flags_l,
         NULL
     };
@@ -1442,7 +1442,7 @@ dissect_pcep_tlvs(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, gint length, 
                 break;
 
             case 18:    /* IPV4-LSP-IDENTIFIERS TLV */
-                proto_tree_add_item(tlv, hf_pcep_ipv4_lsp_id_tunnnel_sender_address, tvb, offset+4+j, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tlv, hf_pcep_ipv4_lsp_id_tunnel_sender_address, tvb, offset+4+j, 4, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv, hf_pcep_ipv4_lsp_id_lsp_id, tvb, offset+4+j + 4, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv, hf_pcep_ipv4_lsp_id_tunnel_id, tvb, offset+4+j + 6, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv, hf_pcep_ipv4_lsp_id_extended_tunnel_id, tvb, offset+4+j + 8, 4, ENC_BIG_ENDIAN);
@@ -1450,7 +1450,7 @@ dissect_pcep_tlvs(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, gint length, 
                 break;
 
             case 19:    /* IPV6-LSP-IDENTIFIERS TLV */
-                proto_tree_add_item(tlv, hf_pcep_ipv6_lsp_id_tunnnel_sender_address, tvb, offset+4+j, 16, ENC_NA);
+                proto_tree_add_item(tlv, hf_pcep_ipv6_lsp_id_tunnel_sender_address, tvb, offset+4+j, 16, ENC_NA);
                 proto_tree_add_item(tlv, hf_pcep_ipv6_lsp_id_lsp_id, tvb, offset+4+j + 16, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv, hf_pcep_ipv6_lsp_id_tunnel_id, tvb, offset+4+j + 18, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv, hf_pcep_ipv6_lsp_id_extended_tunnel_id, tvb, offset+4+j + 20, 16, ENC_BIG_ENDIAN);
@@ -1753,7 +1753,7 @@ dissect_subobj_sr(proto_tree *pcep_subobj_tree, packet_info *pinfo, tvbuff_t *tv
     guint32 label;
     guint8  tc, bos, ttl;
 
-    static const int *subobj_sr_flags[] = {
+    static int * const subobj_sr_flags[] = {
         &hf_pcep_subobj_sr_flags_m,
         &hf_pcep_subobj_sr_flags_c,
         &hf_pcep_subobj_sr_flags_s,
@@ -1878,7 +1878,7 @@ dissect_subobj_unnumb_interfaceID(proto_tree *pcep_subobj_tree, packet_info *pin
         case PCEP_RECORD_ROUTE_OBJ:
         case PCEP_SRRO_OBJ:
             {
-            static const int * flags[] = {
+            static int * const flags[] = {
                 &pcep_subobj_flags_lpa,
                 &pcep_subobj_flags_lpu,
                 NULL
@@ -3479,7 +3479,7 @@ dissect_pcep_obj_tree(proto_tree *pcep_tree, packet_info *pinfo, tvbuff_t *tvb, 
     proto_tree *pcep_object_tree;
     proto_item *pcep_object_item;
 
-    static const int *pcep_hdr_obj_flags[] = {
+    static int * const pcep_hdr_obj_flags[] = {
         &hf_pcep_hdr_obj_flags_i,
         &hf_pcep_hdr_obj_flags_p,
         &hf_pcep_hdr_obj_flags_reserved,
@@ -4784,22 +4784,22 @@ proto_register_pcep(void)
         { &hf_pcep_subobj_sr_sid_label,
           { "SID/Label", "pcep.subobj.sr.sid.label",
             FT_UINT32, BASE_DEC, NULL, 0xfffff000,
-            "SID represent MPLS Lable stack: Lable", HFILL }
+            "SID represent MPLS Label stack: Lable", HFILL }
         },
         { &hf_pcep_subobj_sr_sid_tc,
           {"SID/TC", "pcep.subobj.sr.sid.tc",
             FT_UINT32, BASE_DEC, NULL, 0x00000E00,
-            "SID represent MPLS Lable stack: Traffic Class field", HFILL }
+            "SID represent MPLS Label stack: Traffic Class field", HFILL }
         },
         { &hf_pcep_subobj_sr_sid_s,
           {"SID/S", "pcep.subobj.sr.sid.s",
             FT_UINT32, BASE_DEC, NULL, 0x00000100,
-            "SID represent MPLS Lable stack: Bottom of Stack", HFILL }
+            "SID represent MPLS Label stack: Bottom of Stack", HFILL }
         },
         { &hf_pcep_subobj_sr_sid_ttl,
           {"SID/TTL", "pcep.subobj.sr.sid.ttl",
             FT_UINT32, BASE_DEC, NULL, 0x0000000FF,
-            "SID represent MPLS Lable stack: Time to Live", HFILL }
+            "SID represent MPLS Label stack: Time to Live", HFILL }
         },
         { &hf_pcep_subobj_sr_nai_ipv4_node,
           { "NAI (IPv4 Node ID)", "pcep.subobj.sr.nai.ipv4node",
@@ -5538,8 +5538,8 @@ proto_register_pcep(void)
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_pcep_ipv4_lsp_id_tunnnel_sender_address,
-          { "IPv4 Tunnel Sender Address", "pcep.tlv.ipv4-lsp-id.tunnnel-sender-addr",
+        { &hf_pcep_ipv4_lsp_id_tunnel_sender_address,
+          { "IPv4 Tunnel Sender Address", "pcep.tlv.ipv4-lsp-id.tunnel-sender-addr",
             FT_IPv4, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
@@ -5559,12 +5559,12 @@ proto_register_pcep(void)
             NULL, HFILL }
         },
         { &hf_pcep_ipv4_lsp_id_tunnel_endpoint_address,
-          { "IPv4 Tunnel Endpoint Address", "pcep.tlv.ipv4-lsp-id.tunnnel-endpoint-addr",
+          { "IPv4 Tunnel Endpoint Address", "pcep.tlv.ipv4-lsp-id.tunnel-endpoint-addr",
             FT_IPv4, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_pcep_ipv6_lsp_id_tunnnel_sender_address,
-          { "IPv6 Tunnel Sender Address", "pcep.tlv.ipv6-lsp-id.tunnnel-sender-addr",
+        { &hf_pcep_ipv6_lsp_id_tunnel_sender_address,
+          { "IPv6 Tunnel Sender Address", "pcep.tlv.ipv6-lsp-id.tunnel-sender-addr",
             FT_IPv6, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
@@ -5584,7 +5584,7 @@ proto_register_pcep(void)
             NULL, HFILL }
         },
         { &hf_pcep_ipv6_lsp_id_tunnel_endpoint_address,
-          { "IPv6 Tunnel Endpoint Address", "pcep.tlv.ipv6-lsp-id.tunnnel-endpoint-addr",
+          { "IPv6 Tunnel Endpoint Address", "pcep.tlv.ipv6-lsp-id.tunnel-endpoint-addr",
             FT_IPv6, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },

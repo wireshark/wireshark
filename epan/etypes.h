@@ -602,6 +602,10 @@ extern "C" {
 #define ETHERTYPE_QINQ_OLD		0x9100	/* QinQ: old non-standard 802.1ad */
 #endif
 
+#ifndef ETHERTYPE_TECMP
+#define ETHERTYPE_TECMP			0x99FE	/* Technically Enhanced Capture Module Protocol (TECMP) */
+#endif
+
 #ifndef ETHERTYPE_EERO
 #define ETHERTYPE_EERO			0x9104	/* EERO: broadcast packets sent by EERO MESH AP's (not officially registered) */
 #endif

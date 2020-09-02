@@ -14,6 +14,7 @@
 #include <wsutil/str_util.h>
 #include "unit_strings.h"
 
+/** Returns the unit string appropriate for the 32 bit value. */
 const char* unit_name_string_get_value(guint32 value, const unit_name_string* units)
 {
     if (units->plural == NULL)
@@ -22,6 +23,7 @@ const char* unit_name_string_get_value(guint32 value, const unit_name_string* un
     return plurality(value, units->singular, units->plural);
 }
 
+/** Returns the unit string appropriate for the 64 bit value. */
 const char* unit_name_string_get_value64(guint64 value, const unit_name_string* units)
 {
     if (units->plural == NULL)
@@ -30,6 +32,7 @@ const char* unit_name_string_get_value64(guint64 value, const unit_name_string* 
     return plurality(value, units->singular, units->plural);
 }
 
+/** Returns the unit string appropriate for the double value. */
 const char* unit_name_string_get_double(double value, const unit_name_string* units)
 {
     if (units->plural == NULL)
@@ -70,10 +73,11 @@ const unit_name_string units_nanometers = { "nm", NULL };
 const unit_name_string units_degree_degrees = { " degree", " degrees" };
 const unit_name_string units_degree_celsius = { UTF8_DEGREE_SIGN "C", NULL };
 const unit_name_string units_degree_bearing = { UTF8_DEGREE_SIGN, NULL };
-const unit_name_string units_decibels = { "dB", NULL };
-const unit_name_string units_dbm = { "dBm", NULL };
-const unit_name_string units_dbi = { "dBi", NULL };
-const unit_name_string units_mbm = { "mBm", NULL };
+const unit_name_string units_centibels = { " cB", NULL };
+const unit_name_string units_decibels = { " dB", NULL };
+const unit_name_string units_dbm = { " dBm", NULL };
+const unit_name_string units_dbi = { " dBi", NULL };
+const unit_name_string units_mbm = { " mBm", NULL };
 const unit_name_string units_percent = { "%", NULL };
 const unit_name_string units_khz = { "kHz", NULL };
 const unit_name_string units_mhz = { "MHz", NULL };

@@ -779,7 +779,7 @@ dissect_pn_user_data(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 {
     if (length != 0) {
         proto_tree_add_string_format(tree, hf_pn_user_data, tvb, offset, length, "data",
-            "%s: %d bytes", text, length);
+            "%s: %d byte", text, length);
     }
     return offset + length;
 }

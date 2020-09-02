@@ -15,6 +15,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/unit_strings.h>
 
 /* This is a non-standard, ad-hoc protocol to pass baseband GSM bursts between
  * the transceiver (such as osmo-trx, fake_trx.py or grgsm_trx) and the L1
@@ -84,8 +85,6 @@ static expert_field ei_otrxc_unknown_dir = EI_INIT;
 
 /* Custom units */
 static const unit_name_string otrx_units_toa256 = { " (1/256 of a symbol)", NULL };
-static const unit_name_string otrx_units_db = { "dB", NULL };
-static const unit_name_string otrx_units_cb = { "cB", NULL };
 
 /* TRXD modulation types */
 static const value_string otrxd_mod_vals[] = {
@@ -106,7 +105,7 @@ static const value_string otrxd_mod_vals[] = {
 /* RSSI is encoded without a negative sign, so we need to show it */
 static void format_rssi(gchar *buf, guint32 rssi)
 {
-	g_snprintf(buf, ITEM_LABEL_LENGTH, "-%udBm", rssi);
+	g_snprintf(buf, ITEM_LABEL_LENGTH, "-%u%s", rssi, unit_name_string_get_value(rssi, &units_dbm));
 }
 
 /* TSC (Training Sequence Code) set number in 3GPP TS 45.002 starts
@@ -475,7 +474,8 @@ static int dissect_otrxc(tvbuff_t *tvb, packet_info *pinfo,
 	 * a random source port, so let's try to guess by destport. */
 	if (msg_dir == OTRXCD_DIR_UNKNOWN) {
 		expert_add_info(pinfo, ti, &ei_otrxc_injected_msg);
-		msg_dir = otrxcd_guess_dir(pinfo);
+		if ((msg_dir = otrxcd_guess_dir(pinfo)) == OTRXCD_DIR_UNKNOWN)
+			expert_add_info(pinfo, ti, &ei_otrxc_unknown_dir);
 	}
 
 	/* Add a generated field, so we can filter bursts by direction */
@@ -602,11 +602,11 @@ void proto_register_osmo_trx(void)
 		{ &hf_otrxd_tsc, { "TSC (Training Sequence Code)", "osmo_trxd.tsc",
 		  FT_UINT8, BASE_DEC, NULL, 0x07, NULL, HFILL } },
 		{ &hf_otrxd_ci, { "C/I (Carrier-to-Interference ratio)", "osmo_trxd.meas.ci",
-		  FT_INT16, BASE_DEC | BASE_UNIT_STRING, &otrx_units_cb, 0, NULL, HFILL } },
+		  FT_INT16, BASE_DEC | BASE_UNIT_STRING, &units_centibels, 0, NULL, HFILL } },
 
 		/* Tx TRXD header, V0 / V1 specific fields */
 		{ &hf_otrxd_tx_att, { "Tx Attenuation", "osmo_trxd.tx_att",
-		  FT_UINT8, BASE_DEC | BASE_UNIT_STRING, &otrx_units_db, 0, NULL, HFILL } },
+		  FT_UINT8, BASE_DEC | BASE_UNIT_STRING, &units_decibels, 0, NULL, HFILL } },
 
 		/* Burst soft (255 .. 0) / hard (1 or 0) bits */
 		{ &hf_otrxd_soft_symbols, { "Soft-bits", "osmo_trxd.burst.sbits",

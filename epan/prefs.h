@@ -91,7 +91,8 @@ typedef enum {
     layout_pane_content_none,
     layout_pane_content_plist,
     layout_pane_content_pdetails,
-    layout_pane_content_pbytes
+    layout_pane_content_pbytes,
+    layout_pane_content_pdiagram,
 } layout_pane_content_e;
 
 /*

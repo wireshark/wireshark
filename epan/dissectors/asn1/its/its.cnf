@@ -31,9 +31,9 @@ StatusResponseCode
 CurrentVehicleConfiguration
 TpgLocation
 CS5
-IVI
 DSRCmsgID
 #.NO_EMIT
+Code-Units WITHOUT_VALS
 
 #.MODULE
 CAMv1-PDU-Descriptions					camv1
@@ -55,7 +55,8 @@ ElectronicRegistrationIdentificationVehicleDataModule	erivdm
 CITSapplMgmtIDs						csmid
 EfcDsrcApplication					dsrc_app
 IVI							ivi
-DSRC							dsrc
+GDD							gdd
+DSRC						dsrc
 RTCMEM-PDU-Descriptions   rtcmem
 #.END
 
@@ -749,4 +750,46 @@ TrafficConditionSubCauseCode
   // Overwrite hf_index
   hf_index = *find_subcause_from_cause((CauseCodeType_enum) ((its_private_data_t*)actx->private_data)->cause_code);
 %(DEFAULT_BODY)s
+#.END
 
+#
+# RCUnit subtypes bodies implemented manually as asn2wrs is not able to handle subtype constraint
+#
+
+#.FN_BODY InternationalSign-speedLimits/unit
+  offset = dissect_per_constrained_integer(%(TVB)s, %(OFFSET)s, %(ACTX)s, %(TREE)s, %(HF_INDEX)s,
+                                           0U, 1U, %(VAL_PTR)s, FALSE);
+#.END
+
+#.FN_BODY Weight/unit
+  offset = dissect_per_constrained_integer(%(TVB)s, %(OFFSET)s, %(ACTX)s, %(TREE)s, %(HF_INDEX)s,
+                                           10U, 12U, %(VAL_PTR)s, FALSE);
+#.END
+
+#.FN_BODY DistOrDuration-Units
+  offset = dissect_per_constrained_integer(%(TVB)s, %(OFFSET)s, %(ACTX)s, %(TREE)s, %(HF_INDEX)s,
+                                           2U, 9U, %(VAL_PTR)s, FALSE);
+#.END
+
+#.FN_BODY Distance/unit
+  offset = dissect_per_constrained_integer(%(TVB)s, %(OFFSET)s, %(ACTX)s, %(TREE)s, %(HF_INDEX)s,
+                                           2U, 8U, %(VAL_PTR)s, FALSE);
+#.END
+
+#=== PtActivation =======================================================
+
+#.FN_HDR PtActivation
+  void *priv_data = actx->private_data;
+  its_pt_activation_data_t *pta;
+
+  pta = wmem_new0(wmem_packet_scope(), its_pt_activation_data_t);
+  actx->private_data = pta;
+#.FN_FTR
+  dissector_try_uint_new(cam_pt_activation_table, pta->type, pta->data, actx->pinfo, tree, TRUE, NULL);
+  actx->private_data = priv_data;
+#.END
+
+#.FN_PARS 
+PtActivationType VAL_PTR = &((its_pt_activation_data_t*)actx->private_data)->type
+PtActivationData VAL_PTR = &((its_pt_activation_data_t*)actx->private_data)->data
+#.END

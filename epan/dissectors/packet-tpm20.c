@@ -63,6 +63,7 @@ static int hf_tpmi_dh_parent = -1;
 static int hf_tpmi_dh_pcr = -1;
 static int hf_tpmi_ht_handle = -1;
 static int hf_tpmi_sh_auth_session = -1;
+static int hf_tpmi_rh_act = -1;
 static int hf_auth_area_size = -1;
 static int hf_session_nonce_size = -1;
 static int hf_session_nonce = -1;
@@ -250,6 +251,8 @@ struct num_handles tpm_handles_map[] = {
 	{ 0x194, 1, { &hf_tpmi_ht_handle, 0, 0 }, 0, { 0, 0, 0 }}, /* CC_AC_GetCapability */
 	{ 0x195, 3, { &hf_tpmi_dh_object, &hf_tpmi_rh_nv_auth, &hf_tpmi_ht_handle }, 0, { 0, 0, 0 }}, /* CC_AC_Send */
 	{ 0x196, 1, { &hf_tpmi_sh_auth_session, 0, 0 }, 0, { 0, 0, 0 }}, /* CC_Policy_AC_SendSelect */
+	{ 0x197, 2, { &hf_tpmi_dh_object, &hf_tpmi_dh_object, 0 }, 0, { 0, 0, 0 }}, /* CC_CertifyX509 */
+	{ 0x198, 1, { &hf_tpmi_rh_act, 0, 0 }, 0, { 0, 0, 0 }}, /* TPM_CC_ACT_SetTimeout */
 };
 
 static void get_num_hndl(struct num_handles *map)
@@ -285,6 +288,22 @@ static const value_string handles[] = {
 	{ 0x4000000D, "TPM2_RH_PLATFORM_NV" },
 	{ 0x40000010, "TPM2_RH_AUTH_00" },
 	{ 0x4000010F, "TPM2_RH_AUTH_FF" },
+	{ 0x40000110, "TPM_RH_ACT_0" },
+	{ 0x40000111, "TPM_RH_ACT_1" },
+	{ 0x40000112, "TPM_RH_ACT_2" },
+	{ 0x40000113, "TPM_RH_ACT_3" },
+	{ 0x40000114, "TPM_RH_ACT_4" },
+	{ 0x40000115, "TPM_RH_ACT_5" },
+	{ 0x40000116, "TPM_RH_ACT_6" },
+	{ 0x40000117, "TPM_RH_ACT_7" },
+	{ 0x40000118, "TPM_RH_ACT_8" },
+	{ 0x40000119, "TPM_RH_ACT_9" },
+	{ 0x4000011A, "TPM_RH_ACT_10" },
+	{ 0x4000011B, "TPM_RH_ACT_11" },
+	{ 0x4000011C, "TPM_RH_ACT_12" },
+	{ 0x4000011D, "TPM_RH_ACT_13" },
+	{ 0x4000011E, "TPM_RH_ACT_14" },
+	{ 0x4000011F, "TPM_RH_ACT_15" },
 	{ 0, NULL }
 };
 
@@ -476,6 +495,8 @@ static const value_string commands[] = {
 	{ 0x194, "TPM2_CC_AC_GetCapability" },
 	{ 0x195, "TPM2_CC_AC_Send" },
 	{ 0x196, "TPM2_CC_Policy_AC_SendSelect" },
+	{ 0x197, "TPM2_CC_CertifyX509" },
+	{ 0x198, "TPM2_CC_ACT_SetTimeout" },
 	{ 0, NULL }
 };
 
@@ -626,7 +647,7 @@ dissect_auth_common(tvbuff_t *tvb, packet_info *pinfo _U_,
 	proto_tree *auth, proto_tree *tree _U_, gint *offset)
 {
 	guint nonce_size, auth_size;
-	const int *attrib_fields[] = {
+	static int * const attrib_fields[] = {
 		&hf_session_attribs_cont,
 		&hf_session_attribs_auditex,
 		&hf_session_attribs_auditreset,
@@ -1086,7 +1107,7 @@ dissect_tpm20(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	entry = (tpm_entry *)wmem_tree_lookup32(cmd_tree, pinfo->num);
 
 	if (entry == NULL) {
-		entry = (tpm_entry *)wmem_alloc(wmem_file_scope(), sizeof(tpm_entry));
+		entry = wmem_new(wmem_file_scope(), tpm_entry);
 		entry->com_pnum = PNUM_UNINIT;
 		entry->resp_type = PNUM_UNINIT;
 		entry->command = 0;
@@ -1179,6 +1200,9 @@ static hf_register_info hf[] = {
 	   0x0, NULL, HFILL }},
 	{ &hf_tpmi_sh_auth_session,
 	{ "TPMI_SH_AUTH_SESSION", "tpm.handle.TPMI_SH_AUTH_SESSION", FT_UINT32, BASE_HEX, VALS(handles),
+	   0x0, NULL, HFILL }},
+	{ &hf_tpmi_rh_act,
+	{ "TPMI_RH_ACT", "tpm.handle.TPMI_RH_ACT", FT_UINT32, BASE_HEX, VALS(handles),
 	   0x0, NULL, HFILL }},
 	{ &hf_tpmi_rh_hierarhy,
 	{ "TPMI_RH_HIERARCHY", "tpm.handle.TPMI_RH_HIERARCHY", FT_UINT32, BASE_HEX, VALS(hierarhies),

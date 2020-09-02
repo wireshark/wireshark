@@ -15,6 +15,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <epan/reassemble.h>
 #include "packet-usb.h"
 #include "packet-ftdi-ft.h"
 
@@ -77,6 +78,16 @@ static gint hf_if_c_rx_payload = -1;
 static gint hf_if_c_tx_payload = -1;
 static gint hf_if_d_rx_payload = -1;
 static gint hf_if_d_tx_payload = -1;
+static gint hf_ftdi_fragments = -1;
+static gint hf_ftdi_fragment = -1;
+static gint hf_ftdi_fragment_overlap = -1;
+static gint hf_ftdi_fragment_overlap_conflicts = -1;
+static gint hf_ftdi_fragment_multiple_tails = -1;
+static gint hf_ftdi_fragment_too_long_fragment = -1;
+static gint hf_ftdi_fragment_error = -1;
+static gint hf_ftdi_fragment_count = -1;
+static gint hf_ftdi_reassembled_in = -1;
+static gint hf_ftdi_reassembled_length = -1;
 
 static gint ett_ftdi_ft = -1;
 static gint ett_modem_ctrl_lvalue = -1;
@@ -87,6 +98,31 @@ static gint ett_baudrate_hindex = -1;
 static gint ett_setdata_hvalue = -1;
 static gint ett_modem_status = -1;
 static gint ett_line_status = -1;
+static gint ett_ftdi_fragment = -1;
+static gint ett_ftdi_fragments = -1;
+
+static const fragment_items ftdi_frag_items = {
+    /* Fragment subtrees */
+    &ett_ftdi_fragment,
+    &ett_ftdi_fragments,
+    /* Fragment Fields */
+    &hf_ftdi_fragments,
+    &hf_ftdi_fragment,
+    &hf_ftdi_fragment_overlap,
+    &hf_ftdi_fragment_overlap_conflicts,
+    &hf_ftdi_fragment_multiple_tails,
+    &hf_ftdi_fragment_too_long_fragment,
+    &hf_ftdi_fragment_error,
+    &hf_ftdi_fragment_count,
+    /* Reassembled in field */
+    &hf_ftdi_reassembled_in,
+    /* Reassembled length field */
+    &hf_ftdi_reassembled_length,
+    /* Reassembled data field */
+    NULL,
+    /* Tag */
+    "FTDI FT fragments"
+};
 
 static dissector_handle_t ftdi_mpsse_handle;
 
@@ -94,8 +130,11 @@ static expert_field ei_undecoded = EI_INIT;
 
 static dissector_handle_t ftdi_ft_handle;
 
+static reassembly_table ftdi_reassembly_table;
+
 static wmem_tree_t *request_info = NULL;
 static wmem_tree_t *bitmode_info = NULL;
+static wmem_tree_t *desegment_info = NULL;
 
 typedef struct _request_data {
     guint32  bus_id;
@@ -111,6 +150,32 @@ typedef struct _bitmode_data {
     FTDI_INTERFACE interface;
     guint8         bitmode;
 } bitmode_data_t;
+
+typedef struct _desegment_data desegment_data_t;
+struct _desegment_data {
+    guint32           bus_id;
+    guint32           device_address;
+    FTDI_INTERFACE    interface;
+    guint8            bitmode;
+    gint              p2p_dir;
+    /* First frame where the segmented data starts (reassembly key) */
+    guint32           first_frame;
+    guint32           last_frame;
+    gint              first_frame_offset;
+    /* Points to desegment data if the previous desegment data ends
+     * in last_frame that is equal to this desegment data first_frame.
+     */
+    desegment_data_t *previous;
+};
+
+typedef struct _ftdi_fragment_key {
+    guint32           bus_id;
+    guint32           device_address;
+    FTDI_INTERFACE    interface;
+    guint8            bitmode;
+    gint              p2p_dir;
+    guint32           id;
+} ftdi_fragment_key_t;
 
 #define REQUEST_RESET           0x00
 #define REQUEST_MODEM_CTRL      0x01
@@ -226,6 +291,9 @@ static const value_string bitmode_vals[] = {
     {0, NULL}
 };
 
+#define MODEM_STATUS_BIT_FS_64_MAX_PACKET  (1 << 0)
+#define MODEM_STATUS_BIT_HS_512_MAX_PACKET (1 << 1)
+
 void proto_register_ftdi_ft(void);
 void proto_reg_handoff_ftdi_ft(void);
 
@@ -330,12 +398,12 @@ dissect_request_reset(tvbuff_t *tvb, packet_info *pinfo _U_, gint offset, proto_
 static gint
 dissect_request_modem_ctrl(tvbuff_t *tvb, packet_info *pinfo _U_, gint offset, proto_tree *tree)
 {
-    static const int *lvalue_bits[] = {
+    static int * const lvalue_bits[] = {
         &hf_setup_lvalue_dtr,
         &hf_setup_lvalue_rts,
         NULL
     };
-    static const int *hvalue_bits[] = {
+    static int * const hvalue_bits[] = {
         &hf_setup_hvalue_dtr,
         &hf_setup_hvalue_rts,
         NULL
@@ -362,7 +430,7 @@ dissect_request_modem_ctrl(tvbuff_t *tvb, packet_info *pinfo _U_, gint offset, p
 static gint
 dissect_request_set_flow_ctrl(tvbuff_t *tvb, packet_info *pinfo _U_, gint offset, proto_tree *tree)
 {
-    static const int *hindex_bits[] = {
+    static int * const hindex_bits[] = {
         &hf_setup_hindex_rts_cts,
         &hf_setup_hindex_dtr_dsr,
         &hf_setup_hindex_xon_xoff,
@@ -389,15 +457,15 @@ dissect_request_set_flow_ctrl(tvbuff_t *tvb, packet_info *pinfo _U_, gint offset
 static gint
 dissect_request_set_baud_rate(tvbuff_t *tvb, packet_info *pinfo, gint offset, proto_tree *tree, FTDI_CHIP chip)
 {
-    static const int *lindex_bits[] = {
+    static int * const lindex_bits[] = {
         &hf_setup_lindex_baud_high,
         NULL
     };
-    static const int *hindex_bits[] = {
+    static int * const hindex_bits[] = {
         &hf_setup_hindex_baud_high,
         NULL
     };
-    static const int *hindex_bits_hispeed[] = {
+    static int * const hindex_bits_hispeed[] = {
         &hf_setup_hindex_baud_high,
         &hf_setup_hindex_baud_clock_divide,
         NULL
@@ -460,7 +528,7 @@ dissect_request_set_baud_rate(tvbuff_t *tvb, packet_info *pinfo, gint offset, pr
 static gint
 dissect_request_set_data(tvbuff_t *tvb, packet_info *pinfo _U_, gint offset, proto_tree *tree)
 {
-    static const int *hvalue_bits[] = {
+    static int * const hvalue_bits[] = {
         &hf_setup_hvalue_parity,
         &hf_setup_hvalue_stop_bits,
         &hf_setup_hvalue_break_bit,
@@ -617,9 +685,9 @@ dissect_request_set_bitmode(tvbuff_t *tvb, packet_info *pinfo _U_, gint offset, 
 }
 
 static gint
-dissect_modem_status_bytes(tvbuff_t *tvb, packet_info *pinfo _U_, gint offset, proto_tree *tree)
+dissect_modem_status_bytes(tvbuff_t *tvb, packet_info *pinfo _U_, gint offset, proto_tree *tree, gint *out_rx_len)
 {
-    static const int *modem_status_bits[] = {
+    static int * const modem_status_bits[] = {
         &hf_modem_status_fs_max_packet,
         &hf_modem_status_hs_max_packet,
         &hf_modem_status_cts,
@@ -628,7 +696,7 @@ dissect_modem_status_bytes(tvbuff_t *tvb, packet_info *pinfo _U_, gint offset, p
         &hf_modem_status_dcd,
         NULL
     };
-    static const int *line_status_bits[] = {
+    static int * const line_status_bits[] = {
         &hf_line_status_receive_overflow,
         &hf_line_status_parity_error,
         &hf_line_status_framing_error,
@@ -637,14 +705,30 @@ dissect_modem_status_bytes(tvbuff_t *tvb, packet_info *pinfo _U_, gint offset, p
         &hf_line_status_tx_empty,
         NULL
     };
+    guint64 modem_status;
 
-    proto_tree_add_bitmask(tree, tvb, offset, hf_modem_status,
-        ett_modem_status, modem_status_bits, ENC_LITTLE_ENDIAN);
+    proto_tree_add_bitmask_ret_uint64(tree, tvb, offset, hf_modem_status,
+        ett_modem_status, modem_status_bits, ENC_LITTLE_ENDIAN, &modem_status);
     offset++;
 
     proto_tree_add_bitmask(tree, tvb, offset, hf_line_status,
         ett_line_status, line_status_bits, ENC_LITTLE_ENDIAN);
     offset++;
+
+    if (out_rx_len)
+    {
+        *out_rx_len = tvb_reported_length_remaining(tvb, offset);
+        if (modem_status & MODEM_STATUS_BIT_FS_64_MAX_PACKET)
+        {
+            /* 2 bytes modem status, 62 bytes payload */
+            *out_rx_len = MIN(*out_rx_len, 62);
+        }
+        else if (modem_status & MODEM_STATUS_BIT_HS_512_MAX_PACKET)
+        {
+            /* 2 bytes modem status, 510 bytes payload */
+            *out_rx_len = MIN(*out_rx_len, 510);
+        }
+    }
 
     return 2;
 }
@@ -695,6 +779,316 @@ get_recorded_interface_mode(packet_info *pinfo, usb_conv_info_t *usb_conv_info, 
     }
 
     return 0; /* Default to 0, which is plain serial data */
+}
+
+static desegment_data_t *
+record_desegment_data(packet_info *pinfo, usb_conv_info_t *usb_conv_info,
+                      FTDI_INTERFACE interface, guint8 bitmode)
+{
+    guint32         k_bus_id = usb_conv_info->bus_id;
+    guint32         k_device_address = usb_conv_info->device_address;
+    guint32         k_interface = (guint32)interface;
+    guint32         k_p2p_dir = (guint32)pinfo->p2p_dir;
+    wmem_tree_key_t key[] = {
+        {1, &k_bus_id},
+        {1, &k_device_address},
+        {1, &k_interface},
+        {1, &k_p2p_dir},
+        {1, &pinfo->num},
+        {0, NULL}
+    };
+    desegment_data_t *desegment_data = NULL;
+
+    desegment_data = wmem_new(wmem_file_scope(), desegment_data_t);
+    desegment_data->bus_id = usb_conv_info->bus_id;
+    desegment_data->device_address = usb_conv_info->device_address;
+    desegment_data->interface = interface;
+    desegment_data->bitmode = bitmode;
+    desegment_data->p2p_dir = pinfo->p2p_dir;
+    desegment_data->first_frame = pinfo->num;
+    /* Last frame is currently unknown */
+    desegment_data->last_frame = 0;
+    desegment_data->first_frame_offset = 0;
+    desegment_data->previous = NULL;
+
+    wmem_tree_insert32_array(desegment_info, key, desegment_data);
+    return desegment_data;
+}
+
+static desegment_data_t *
+get_recorded_desegment_data(packet_info *pinfo, usb_conv_info_t *usb_conv_info,
+                            FTDI_INTERFACE interface, guint8 bitmode)
+{
+    guint32         k_bus_id = usb_conv_info->bus_id;
+    guint32         k_device_address = usb_conv_info->device_address;
+    guint32         k_interface = (guint32)interface;
+    guint32         k_p2p_dir = (guint32)pinfo->p2p_dir;
+    wmem_tree_key_t key[] = {
+        {1, &k_bus_id},
+        {1, &k_device_address},
+        {1, &k_interface},
+        {1, &k_p2p_dir},
+        {1, &pinfo->num},
+        {0, NULL}
+    };
+
+    desegment_data_t *desegment_data = NULL;
+    desegment_data = (desegment_data_t*)wmem_tree_lookup32_array_le(desegment_info, key);
+    if (desegment_data && desegment_data->bus_id == k_bus_id && desegment_data->device_address == k_device_address &&
+        desegment_data->interface == interface && desegment_data->bitmode == bitmode &&
+        desegment_data->p2p_dir == pinfo->p2p_dir)
+    {
+        /* Return desegment data only if it is relevant to current packet */
+        if ((desegment_data->last_frame == 0) || (desegment_data->last_frame >= pinfo->num))
+        {
+            return desegment_data;
+        }
+    }
+
+    return NULL;
+}
+
+static guint ftdi_fragment_key_hash(gconstpointer k)
+{
+    const ftdi_fragment_key_t *key = (const ftdi_fragment_key_t *)k;
+    return key->id;
+}
+
+static gint ftdi_fragment_key_equal(gconstpointer k1, gconstpointer k2)
+{
+    const ftdi_fragment_key_t *key1 = (const ftdi_fragment_key_t *)k1;
+    const ftdi_fragment_key_t *key2 = (const ftdi_fragment_key_t *)k2;
+
+    /* id is most likely to differ and thus should be checked first */
+    return (key1->id == key2->id) &&
+           (key1->bus_id == key2->bus_id) &&
+           (key1->device_address == key2->device_address) &&
+           (key1->interface == key2->interface) &&
+           (key1->bitmode == key2->bitmode) &&
+           (key1->p2p_dir == key2->p2p_dir);
+}
+
+static gpointer ftdi_fragment_key(const packet_info *pinfo _U_, const guint32 id, const void *data)
+{
+    desegment_data_t *desegment_data = (desegment_data_t *)data;
+    ftdi_fragment_key_t *key = g_slice_new(ftdi_fragment_key_t);
+
+    key->bus_id = desegment_data->bus_id;
+    key->device_address = desegment_data->device_address;
+    key->interface = desegment_data->interface;
+    key->bitmode = desegment_data->bitmode;
+    key->p2p_dir = desegment_data->p2p_dir;
+    key->id = id;
+
+    return (gpointer)key;
+}
+
+static void ftdi_fragment_free_key(gpointer ptr)
+{
+    ftdi_fragment_key_t *key = (ftdi_fragment_key_t *)ptr;
+    g_slice_free(ftdi_fragment_key_t, key);
+}
+
+static const reassembly_table_functions ftdi_reassembly_table_functions = {
+    .hash_func = ftdi_fragment_key_hash,
+    .equal_func = ftdi_fragment_key_equal,
+    .temporary_key_func = ftdi_fragment_key,
+    .persistent_key_func = ftdi_fragment_key,
+    .free_temporary_key_func = ftdi_fragment_free_key,
+    .free_persistent_key_func = ftdi_fragment_free_key,
+};
+
+static void
+dissect_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, usb_conv_info_t *usb_conv_info,
+                FTDI_INTERFACE interface, guint8 bitmode)
+{
+    guint32           k_bus_id;
+    guint32           k_device_address;
+
+    k_bus_id = usb_conv_info->bus_id;
+    k_device_address = usb_conv_info->device_address;
+
+    if (tvb && ((bitmode == BITMODE_MPSSE) || (bitmode == BITMODE_MCU)))
+    {
+        ftdi_mpsse_info_t mpsse_info = {
+            .bus_id = k_bus_id,
+            .device_address = k_device_address,
+            .chip = identify_chip(usb_conv_info),
+            .iface = interface,
+            .mcu_mode = (bitmode == BITMODE_MCU),
+        };
+        call_dissector_with_data(ftdi_mpsse_handle, tvb, pinfo, tree, &mpsse_info);
+    }
+}
+
+static gint
+dissect_serial_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *ftdi_tree,
+                       usb_conv_info_t *usb_conv_info, FTDI_INTERFACE interface)
+{
+    guint16           save_can_desegment;
+    int               save_desegment_offset;
+    guint32           save_desegment_len;
+    desegment_data_t *desegment_data;
+    guint32           bytes;
+
+    save_can_desegment = pinfo->can_desegment;
+    save_desegment_offset = pinfo->desegment_offset;
+    save_desegment_len = pinfo->desegment_len;
+
+    bytes = tvb_reported_length(tvb);
+    if (bytes > 0)
+    {
+        tvbuff_t *payload_tvb = NULL;
+        guint32   reassembled_bytes = 0;
+        guint8    bitmode;
+        guint8    curr_layer_num = pinfo->curr_layer_num;
+
+        bitmode = get_recorded_interface_mode(pinfo, usb_conv_info, interface);
+
+        pinfo->can_desegment = 2;
+        pinfo->desegment_offset = 0;
+        pinfo->desegment_len = 0;
+
+        desegment_data = get_recorded_desegment_data(pinfo, usb_conv_info, interface, bitmode);
+        if (desegment_data)
+        {
+            fragment_head    *fd_head;
+            desegment_data_t *next_desegment_data = NULL;
+
+            if ((desegment_data->previous) && (desegment_data->first_frame == pinfo->num))
+            {
+                DISSECTOR_ASSERT(desegment_data->previous->last_frame == pinfo->num);
+
+                next_desegment_data = desegment_data;
+                desegment_data = desegment_data->previous;
+            }
+
+            if (!PINFO_FD_VISITED(pinfo))
+            {
+                /* Combine data reassembled so far with current tvb and check if this is last fragment or not */
+                fragment_item *item;
+                fd_head = fragment_get(&ftdi_reassembly_table, pinfo, desegment_data->first_frame, desegment_data);
+                DISSECTOR_ASSERT(fd_head && !(fd_head->flags & FD_DEFRAGMENTED) && fd_head->next);
+                payload_tvb = tvb_new_composite();
+                for (item = fd_head->next; item; item = item->next)
+                {
+                    DISSECTOR_ASSERT(reassembled_bytes == item->offset);
+                    tvb_composite_append(payload_tvb, item->tvb_data);
+                    reassembled_bytes += item->len;
+                }
+                tvb_composite_append(payload_tvb, tvb);
+                tvb_composite_finalize(payload_tvb);
+            }
+            else
+            {
+                fd_head = fragment_get_reassembled(&ftdi_reassembly_table, desegment_data->first_frame);
+                payload_tvb = process_reassembled_data(tvb, 0, pinfo, "Reassembled", fd_head,
+                                                       &ftdi_frag_items, NULL, ftdi_tree);
+            }
+
+            if (next_desegment_data)
+            {
+                fragment_head *next_head;
+                next_head = fragment_get_reassembled(&ftdi_reassembly_table, next_desegment_data->first_frame);
+                process_reassembled_data(tvb, 0, pinfo, "Reassembled", next_head, &ftdi_frag_items, NULL, ftdi_tree);
+            }
+
+            if ((desegment_data->first_frame == pinfo->num) && (desegment_data->first_frame_offset > 0))
+            {
+                payload_tvb = tvb_new_subset_length(tvb, 0, desegment_data->first_frame_offset);
+            }
+        }
+        else
+        {
+            /* Packet is not part of reassembly sequence, simply use it without modifications */
+            payload_tvb = tvb;
+        }
+
+        dissect_payload(payload_tvb, pinfo, tree, usb_conv_info, interface, bitmode);
+
+        if (!PINFO_FD_VISITED(pinfo))
+        {
+            /* FTDI FT dissector doesn't know if the last fragment is really the last one unless it passes
+             * the data to the next dissector. There is absolutely no metadata that could help with it as
+             * FTDI FT is pretty much a direct replacement to UART (COM port) and is pretty much transparent
+             * to the actual serial protocol used.
+             *
+             * Passing the data to next dissector results in curr_layer_num being increased if it dissected
+             * the data (when it is the last fragment). This would prevent the process_reassembled_data()
+             * (after the first pass) from returning the reassembled tvb in FTFI FT which in turn prevents
+             * the data from being passed to the next dissector.
+             *
+             * Override pinfo->curr_layer_num value when the fragments are being added to reassembly table.
+             * This is ugly hack. Is there any better approach?
+             *
+             * There doesn't seem to be a mechanism to "back-track" just added fragments to reassembly table,
+             * or any way to "shorten" the last added fragment. The most problematic case is when current
+             * packet is both last packet for previous reassembly and a first packet for next reassembly.
+             */
+            guint8 save_curr_layer_num = pinfo->curr_layer_num;
+            pinfo->curr_layer_num = curr_layer_num;
+
+            if (!pinfo->desegment_len)
+            {
+                if (desegment_data)
+                {
+                    /* Current tvb is really the last fragment */
+                    fragment_add_check(&ftdi_reassembly_table, tvb, 0, pinfo, desegment_data->first_frame,
+                                       desegment_data, reassembled_bytes, bytes, FALSE);
+                    desegment_data->last_frame = pinfo->num;
+                }
+            }
+            else
+            {
+                DISSECTOR_ASSERT_HINT(pinfo->desegment_len == DESEGMENT_ONE_MORE_SEGMENT,
+                                      "FTDI FT supports only DESEGMENT_ONE_MORE_SEGMENT");
+                if (!desegment_data)
+                {
+                    /* Start desegmenting */
+                    gint fragment_length = tvb_reported_length_remaining(tvb, pinfo->desegment_offset);
+                    desegment_data = record_desegment_data(pinfo, usb_conv_info, interface, bitmode);
+                    desegment_data->first_frame_offset = pinfo->desegment_offset;
+                    fragment_add_check(&ftdi_reassembly_table, tvb, pinfo->desegment_offset, pinfo,
+                                       desegment_data->first_frame, desegment_data, 0, fragment_length, TRUE);
+                }
+                else if (pinfo->desegment_offset == 0)
+                {
+                    /* Continue reassembling */
+                    fragment_add_check(&ftdi_reassembly_table, tvb, 0, pinfo, desegment_data->first_frame,
+                                       desegment_data, reassembled_bytes, bytes, TRUE);
+                }
+                else
+                {
+                    gint fragment_length;
+                    gint previous_bytes;
+                    desegment_data_t *previous_desegment_data;
+
+                    /* This packet contains both an end from a previous reassembly and start of a new one */
+                    DISSECTOR_ASSERT((guint32)pinfo->desegment_offset > reassembled_bytes);
+                    previous_bytes = pinfo->desegment_offset - reassembled_bytes;
+                    fragment_add_check(&ftdi_reassembly_table, tvb, 0, pinfo, desegment_data->first_frame,
+                                       desegment_data, reassembled_bytes, previous_bytes, FALSE);
+                    desegment_data->last_frame = pinfo->num;
+
+                    previous_desegment_data = desegment_data;
+                    fragment_length = bytes - previous_bytes;
+                    desegment_data = record_desegment_data(pinfo, usb_conv_info, interface, bitmode);
+                    desegment_data->first_frame_offset = previous_bytes;
+                    desegment_data->previous = previous_desegment_data;
+                    fragment_add_check(&ftdi_reassembly_table, tvb, previous_bytes, pinfo, desegment_data->first_frame,
+                                       desegment_data, 0, fragment_length, TRUE);
+                }
+            }
+
+            pinfo->curr_layer_num = save_curr_layer_num;
+        }
+    }
+
+    pinfo->can_desegment = save_can_desegment;
+    pinfo->desegment_offset = save_desegment_offset;
+    pinfo->desegment_len = save_desegment_len;
+
+    return bytes;
 }
 
 static gint
@@ -835,7 +1229,7 @@ dissect_ftdi_ft(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 switch (request_data->request)
                 {
                 case REQUEST_GET_MODEM_STAT:
-                    offset += dissect_modem_status_bytes(tvb, pinfo, offset, main_tree);
+                    offset += dissect_modem_status_bytes(tvb, pinfo, offset, main_tree, NULL);
                     break;
                 case REQUEST_GET_LAT_TIMER:
                     offset += dissect_response_get_lat_timer(tvb, pinfo, offset, main_tree);
@@ -864,8 +1258,7 @@ dissect_ftdi_ft(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     {
         const char *interface_str;
         FTDI_INTERFACE interface;
-        gint payload_hf, rx_hf, tx_hf;
-        gint bytes;
+        gint rx_hf, tx_hf;
 
         interface = endpoint_to_interface(usb_conv_info);
         switch (interface)
@@ -895,40 +1288,61 @@ dissect_ftdi_ft(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         }
 
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "FTDI FT");
-        if (usb_conv_info->direction == P2P_DIR_RECV)
+        if (pinfo->p2p_dir == P2P_DIR_RECV)
         {
+            gint total_rx_len = 0;
+            gint rx_len;
+            tvbuff_t *rx_tvb = tvb_new_composite();
+
             col_add_fstr(pinfo->cinfo, COL_INFO, "INTERFACE %s RX", interface_str);
-            /* First two bytes are status */
-            offset += dissect_modem_status_bytes(tvb, pinfo, offset, main_tree);
-            payload_hf = rx_hf;
+
+            do
+            {
+                /* First two bytes are status */
+                offset += dissect_modem_status_bytes(tvb, pinfo, offset, main_tree, &rx_len);
+                total_rx_len += rx_len;
+
+                if (rx_len > 0)
+                {
+                    tvbuff_t *rx_tvb_fragment = tvb_new_subset_length(tvb, offset, rx_len);
+                    tvb_composite_append(rx_tvb, rx_tvb_fragment);
+                    proto_tree_add_item(main_tree, rx_hf, tvb, offset, rx_len, ENC_NA);
+                    offset += rx_len;
+                }
+            }
+            while (tvb_reported_length_remaining(tvb, offset) > 0);
+
+            if (total_rx_len > 0)
+            {
+                tvb_composite_finalize(rx_tvb);
+                col_append_fstr(pinfo->cinfo, COL_INFO, " %d bytes", total_rx_len);
+                add_new_data_source(pinfo, rx_tvb, "RX Payload");
+                dissect_serial_payload(rx_tvb, pinfo, tree, main_tree, usb_conv_info, interface);
+            }
+            else
+            {
+                tvb_free_chain(rx_tvb);
+            }
         }
         else
         {
+            gint bytes;
+
             col_add_fstr(pinfo->cinfo, COL_INFO, "INTERFACE %s TX", interface_str);
-            payload_hf = tx_hf;
-        }
-        bytes = tvb_reported_length_remaining(tvb, offset);
-        if (bytes > 0)
-        {
-            guint8 bitmode;
+            bytes = tvb_reported_length_remaining(tvb, offset);
 
-            col_append_fstr(pinfo->cinfo, COL_INFO, " %d bytes", bytes);
-            proto_tree_add_item(main_tree, payload_hf, tvb, offset, bytes, ENC_NA);
-
-            bitmode = get_recorded_interface_mode(pinfo, usb_conv_info, interface);
-            if (bitmode == BITMODE_MPSSE)
+            if (bytes > 0)
             {
-                ftdi_mpsse_info_t mpsse_info = {
-                    .bus_id         = k_bus_id,
-                    .device_address = k_device_address,
-                    .chip           = identify_chip(usb_conv_info),
-                    .iface          = interface,
-                };
-                tvbuff_t *mpsse_payload_tvb = tvb_new_subset_remaining(tvb, offset);
-                call_dissector_with_data(ftdi_mpsse_handle, mpsse_payload_tvb, pinfo, tree, &mpsse_info);
-            }
+                tvbuff_t *tx_tvb;
 
-            offset += bytes;
+                col_append_fstr(pinfo->cinfo, COL_INFO, " %d bytes", bytes);
+                proto_tree_add_item(main_tree, tx_hf, tvb, offset, bytes, ENC_NA);
+
+                tx_tvb = tvb_new_subset_length(tvb, offset, bytes);
+                add_new_data_source(pinfo, tx_tvb, "TX Payload");
+                dissect_serial_payload(tx_tvb, pinfo, tree, main_tree, usb_conv_info, interface);
+                offset += bytes;
+            }
         }
     }
 
@@ -942,294 +1356,344 @@ proto_register_ftdi_ft(void)
 
     static hf_register_info hf[] = {
         { &hf_setup_brequest,
-          { "Request", "ftdift.bRequest",
+          { "Request", "ftdi-ft.bRequest",
             FT_UINT8, BASE_DEC | BASE_EXT_STRING, &request_vals_ext, 0x0,
             NULL, HFILL }
         },
         { &hf_setup_lvalue,
-          { "lValue", "ftdift.lValue",
+          { "lValue", "ftdi-ft.lValue",
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_setup_lvalue_purge,
-          { "lValue", "ftdift.lValue",
+          { "lValue", "ftdi-ft.lValue",
             FT_UINT8, BASE_HEX, VALS(reset_purge_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_setup_lvalue_dtr,
-          { "DTR Active", "ftdift.lValue.b0",
+          { "DTR Active", "ftdi-ft.lValue.b0",
             FT_BOOLEAN, 8, NULL, (1 << 0),
             NULL, HFILL }
         },
         { &hf_setup_lvalue_rts,
-          { "RTS Active", "ftdift.lValue.b1",
+          { "RTS Active", "ftdi-ft.lValue.b1",
             FT_BOOLEAN, 8, NULL, (1 << 1),
             NULL, HFILL }
         },
         { &hf_setup_lvalue_xon_char,
-          { "XON Char", "ftdift.lValue",
+          { "XON Char", "ftdi-ft.lValue",
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_setup_lvalue_baud_low,
-          { "Baud low", "ftdift.lValue",
+          { "Baud low", "ftdi-ft.lValue",
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_setup_lvalue_data_size,
-          { "Data Size", "ftdift.lValue",
+          { "Data Size", "ftdi-ft.lValue",
             FT_UINT8, BASE_HEX, VALS(data_size_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_setup_lvalue_event_char,
-          { "Event Char", "ftdift.lValue",
+          { "Event Char", "ftdi-ft.lValue",
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_setup_lvalue_error_char,
-          { "Parity Error Char", "ftdift.lValue",
+          { "Parity Error Char", "ftdi-ft.lValue",
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_setup_lvalue_latency_time,
-          { "Latency Time", "ftdift.lValue",
+          { "Latency Time", "ftdi-ft.lValue",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             "Latency time in milliseconds", HFILL }
         },
         { &hf_setup_lvalue_bitmask,
-          { "Bit Mask", "ftdift.lValue",
+          { "Bit Mask", "ftdi-ft.lValue",
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_setup_hvalue,
-          { "hValue", "ftdift.hValue",
+          { "hValue", "ftdi-ft.hValue",
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_setup_hvalue_dtr,
-          { "en DTR for writing", "ftdift.hValue.b0",
+          { "en DTR for writing", "ftdi-ft.hValue.b0",
             FT_BOOLEAN, 8, NULL, (1 << 0),
             NULL, HFILL }
         },
         { &hf_setup_hvalue_rts,
-          { "en RTS for writing", "ftdift.hValue.b1",
+          { "en RTS for writing", "ftdi-ft.hValue.b1",
             FT_BOOLEAN, 8, NULL, (1 << 1),
             NULL, HFILL }
         },
         { &hf_setup_hvalue_xoff_char,
-          { "XOFF Char", "ftdift.hValue",
+          { "XOFF Char", "ftdi-ft.hValue",
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_setup_hvalue_baud_mid,
-          { "Baud mid", "ftdift.hValue",
+          { "Baud mid", "ftdi-ft.hValue",
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_setup_hvalue_parity,
-          { "Parity", "ftdift.hValue.parity",
+          { "Parity", "ftdi-ft.hValue.parity",
             FT_UINT8, BASE_HEX, VALS(parity_vals), (0x7 << 0),
             NULL, HFILL }
         },
         { &hf_setup_hvalue_stop_bits,
-          { "Stop Bits", "ftdift.hValue.b4",
+          { "Stop Bits", "ftdi-ft.hValue.b4",
             FT_UINT8, BASE_HEX, VALS(stop_bits_vals), (1 << 4),
             NULL, HFILL }
         },
         { &hf_setup_hvalue_break_bit,
-          { "Break Bit", "ftdift.hValue.b6",
+          { "Break Bit", "ftdi-ft.hValue.b6",
             FT_UINT8, BASE_HEX, VALS(break_bit_vals), (1 << 6),
             NULL, HFILL }
         },
         { &hf_setup_hvalue_trigger,
-          { "hValue", "ftdift.hValue",
+          { "hValue", "ftdi-ft.hValue",
             FT_UINT8, BASE_HEX, VALS(event_char_trigger_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_setup_hvalue_error_replacement,
-          { "hValue", "ftdift.hValue",
+          { "hValue", "ftdi-ft.hValue",
             FT_UINT8, BASE_HEX, VALS(error_replacement_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_setup_hvalue_bitmode,
-          { "Bit Mode", "ftdift.hValue",
+          { "Bit Mode", "ftdi-ft.hValue",
             FT_UINT8, BASE_HEX, VALS(bitmode_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_setup_lindex,
-          { "lIndex", "ftdift.lIndex",
+          { "lIndex", "ftdi-ft.lIndex",
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_setup_lindex_port_ab,
-          { "lIndex", "ftdift.lIndex",
+          { "lIndex", "ftdi-ft.lIndex",
             FT_UINT8, BASE_HEX, VALS(index_port_ab_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_setup_lindex_port_abcd,
-          { "lIndex", "ftdift.lIndex",
+          { "lIndex", "ftdi-ft.lIndex",
             FT_UINT8, BASE_HEX, VALS(index_port_abcd_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_setup_lindex_baud_high,
-          { "Baud High", "ftdift.lIndex.b0",
+          { "Baud High", "ftdi-ft.lIndex.b0",
             FT_UINT8, BASE_HEX, NULL, (1 << 0),
             NULL, HFILL }
         },
         { &hf_setup_hindex,
-          { "hIndex", "ftdift.hIndex",
+          { "hIndex", "ftdi-ft.hIndex",
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_setup_hindex_rts_cts,
-          { "RTS/CTS Flow Control", "ftdift.hIndex.b0",
+          { "RTS/CTS Flow Control", "ftdi-ft.hIndex.b0",
             FT_BOOLEAN, 8, NULL, (1 << 0),
             NULL, HFILL }
         },
         { &hf_setup_hindex_dtr_dsr,
-          { "DTR/DSR Flow Control", "ftdift.hIndex.b1",
+          { "DTR/DSR Flow Control", "ftdi-ft.hIndex.b1",
             FT_BOOLEAN, 8, NULL, (1 << 1),
             NULL, HFILL }
         },
         { &hf_setup_hindex_xon_xoff,
-          { "XON/XOFF Flow Control", "ftdift.hIndex.b2",
+          { "XON/XOFF Flow Control", "ftdi-ft.hIndex.b2",
             FT_BOOLEAN, 8, NULL, (1 << 2),
             NULL, HFILL }
         },
         { &hf_setup_hindex_baud_high,
-          { "Baud High", "ftdift.hIndex.b0",
+          { "Baud High", "ftdi-ft.hIndex.b0",
             FT_UINT8, BASE_HEX, NULL, (1 << 0),
             NULL, HFILL }
         },
         { &hf_setup_hindex_baud_clock_divide,
-          { "Baud Clock Divide off", "ftdift.hIndex.b1",
+          { "Baud Clock Divide off", "ftdi-ft.hIndex.b1",
             FT_BOOLEAN, 8, NULL, (1 << 1),
             "When active 120 MHz is max frequency instead of 48 MHz", HFILL }
         },
         { &hf_setup_wlength,
-          { "wLength", "ftdift.wLength",
+          { "wLength", "ftdi-ft.wLength",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_response_lat_timer,
-          { "Latency Time", "ftdift.latency_time",
+          { "Latency Time", "ftdi-ft.latency_time",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             "Latency time in milliseconds", HFILL }
         },
         { &hf_modem_status,
-          { "Modem Status", "ftdift.modem_status",
+          { "Modem Status", "ftdi-ft.modem_status",
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_modem_status_fs_max_packet,
-          { "Full Speed 64 byte MAX packet", "ftdift.modem_status.b0",
+          { "Full Speed 64 byte MAX packet", "ftdi-ft.modem_status.b0",
             FT_BOOLEAN, 8, NULL, (1 << 0),
             NULL, HFILL }
         },
         { &hf_modem_status_hs_max_packet,
-          { "High Speed 512 byte MAX packet", "ftdift.modem_status.b1",
+          { "High Speed 512 byte MAX packet", "ftdi-ft.modem_status.b1",
             FT_BOOLEAN, 8, NULL, (1 << 1),
             NULL, HFILL }
         },
         { &hf_modem_status_cts,
-          { "CTS", "ftdift.modem_status.b4",
+          { "CTS", "ftdi-ft.modem_status.b4",
             FT_BOOLEAN, 8, NULL, (1 << 4),
             NULL, HFILL }
         },
         { &hf_modem_status_dsr,
-          { "DSR", "ftdift.modem_status.b5",
+          { "DSR", "ftdi-ft.modem_status.b5",
             FT_BOOLEAN, 8, NULL, (1 << 5),
             NULL, HFILL }
         },
         { &hf_modem_status_ri,
-          { "RI", "ftdift.modem_status.b6",
+          { "RI", "ftdi-ft.modem_status.b6",
             FT_BOOLEAN, 8, NULL, (1 << 6),
             NULL, HFILL }
         },
         { &hf_modem_status_dcd,
-          { "DCD", "ftdift.modem_status.b7",
+          { "DCD", "ftdi-ft.modem_status.b7",
             FT_BOOLEAN, 8, NULL, (1 << 7),
             NULL, HFILL }
         },
         { &hf_line_status,
-          { "Line Status", "ftdift.line_status",
+          { "Line Status", "ftdi-ft.line_status",
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_line_status_receive_overflow,
-          { "Receive Overflow Error", "ftdift.line_status.b1",
+          { "Receive Overflow Error", "ftdi-ft.line_status.b1",
             FT_BOOLEAN, 8, NULL, (1 << 1),
             NULL, HFILL }
         },
         { &hf_line_status_parity_error,
-          { "Parity Error", "ftdift.line_status.b2",
+          { "Parity Error", "ftdi-ft.line_status.b2",
             FT_BOOLEAN, 8, NULL, (1 << 2),
             NULL, HFILL }
         },
         { &hf_line_status_framing_error,
-          { "Framing Error", "ftdift.line_status.b3",
+          { "Framing Error", "ftdi-ft.line_status.b3",
             FT_BOOLEAN, 8, NULL, (1 << 3),
             NULL, HFILL }
         },
         { &hf_line_status_break_received,
-          { "Break Received", "ftdift.line_status.b4",
+          { "Break Received", "ftdi-ft.line_status.b4",
             FT_BOOLEAN, 8, NULL, (1 << 4),
             NULL, HFILL }
         },
         { &hf_line_status_tx_holding_reg_empty,
-          { "Transmitter Holding Register Empty", "ftdift.line_status.b5",
+          { "Transmitter Holding Register Empty", "ftdi-ft.line_status.b5",
             FT_BOOLEAN, 8, NULL, (1 << 5),
             NULL, HFILL }
         },
         { &hf_line_status_tx_empty,
-          { "Transmitter Empty", "ftdift.line_status.b6",
+          { "Transmitter Empty", "ftdi-ft.line_status.b6",
             FT_BOOLEAN, 8, NULL, (1 << 6),
             NULL, HFILL }
         },
         { &hf_if_a_rx_payload,
-          { "A RX payload", "ftdift.if_a_rx_payload",
+          { "A RX payload", "ftdi-ft.if_a_rx_payload",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             "Data received on interface A", HFILL }
         },
         { &hf_if_a_tx_payload,
-          { "A TX payload", "ftdift.if_a_tx_payload",
+          { "A TX payload", "ftdi-ft.if_a_tx_payload",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             "Data to transmit on interface A", HFILL }
         },
         { &hf_if_b_rx_payload,
-          { "B RX payload", "ftdift.if_b_rx_payload",
+          { "B RX payload", "ftdi-ft.if_b_rx_payload",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             "Data received on interface B", HFILL }
         },
         { &hf_if_b_tx_payload,
-          { "B TX payload", "ftdift.if_b_tx_payload",
+          { "B TX payload", "ftdi-ft.if_b_tx_payload",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             "Data to transmit on interface B", HFILL }
         },
         { &hf_if_c_rx_payload,
-          { "C RX payload", "ftdift.if_c_rx_payload",
+          { "C RX payload", "ftdi-ft.if_c_rx_payload",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             "Data received on interface C", HFILL }
         },
         { &hf_if_c_tx_payload,
-          { "C TX payload", "ftdift.if_c_tx_payload",
+          { "C TX payload", "ftdi-ft.if_c_tx_payload",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             "Data to transmit on interface C", HFILL }
         },
         { &hf_if_d_rx_payload,
-          { "D RX payload", "ftdift.if_d_rx_payload",
+          { "D RX payload", "ftdi-ft.if_d_rx_payload",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             "Data received on interface D", HFILL }
         },
         { &hf_if_d_tx_payload,
-          { "D TX payload", "ftdift.if_d_tx_payload",
+          { "D TX payload", "ftdi-ft.if_d_tx_payload",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             "Data to transmit on interface D", HFILL }
+        },
+        { &hf_ftdi_fragments,
+          { "Payload fragments", "ftdi-ft.fragments",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_ftdi_fragment,
+          { "Payload fragment", "ftdi-ft.fragment",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_ftdi_fragment_overlap,
+          { "Payload fragment overlap", "ftdi-ft.fragment.overlap",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_ftdi_fragment_overlap_conflicts,
+          { "Payload fragment overlapping with conflicting data", "ftdi-ft.fragment.overlap.conflicts",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_ftdi_fragment_multiple_tails,
+          { "Payload has multiple tails", "ftdi-ft.fragment.multiple_tails",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_ftdi_fragment_too_long_fragment,
+          { "Payload fragment too long", "ftdi-ft.fragment.too_long_fragment",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_ftdi_fragment_error,
+          { "Payload defragmentation error", "ftdi-ft.fragment.error",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_ftdi_fragment_count,
+          { "Payload fragment count", "ftdi-ft.fragment.count",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_ftdi_reassembled_in,
+          { "Payload reassembled in", "ftdi-ft.reassembled.in",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_ftdi_reassembled_length,
+          { "Payload reassembled length", "ftdi-ft.reassembled.length",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
         },
     };
 
     static ei_register_info ei[] = {
-        { &ei_undecoded, { "ftdift.undecoded", PI_UNDECODED, PI_WARN, "Not dissected yet (report to wireshark.org)", EXPFILL }},
+        { &ei_undecoded, { "ftdi-ft.undecoded", PI_UNDECODED, PI_WARN, "Not dissected yet (report to wireshark.org)", EXPFILL }},
     };
 
     static gint *ett[] = {
@@ -1242,18 +1706,23 @@ proto_register_ftdi_ft(void)
         &ett_setdata_hvalue,
         &ett_modem_status,
         &ett_line_status,
+        &ett_ftdi_fragment,
+        &ett_ftdi_fragments,
     };
 
     request_info = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     bitmode_info = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+    desegment_info = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
-    proto_ftdi_ft = proto_register_protocol("FTDI FT USB", "FTDI FT", "ftdift");
+    proto_ftdi_ft = proto_register_protocol("FTDI FT USB", "FTDI FT", "ftdi-ft");
     proto_register_field_array(proto_ftdi_ft, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-    ftdi_ft_handle = register_dissector("ftdift", dissect_ftdi_ft, proto_ftdi_ft);
+    ftdi_ft_handle = register_dissector("ftdi-ft", dissect_ftdi_ft, proto_ftdi_ft);
 
     expert_module = expert_register_protocol(proto_ftdi_ft);
     expert_register_field_array(expert_module, ei, array_length(ei));
+
+    reassembly_table_register(&ftdi_reassembly_table, &ftdi_reassembly_table_functions);
 }
 
 void

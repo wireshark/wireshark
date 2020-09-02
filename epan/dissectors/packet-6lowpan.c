@@ -1311,7 +1311,7 @@ dissect_6lowpan_6loRH(tvbuff_t *tvb, guint offset, proto_tree *tree)
     gint16              loRHE_unitnums;
 
     struct ws_ip6_hdr      ipv6;
-    const gint *bits_RHC[] = {
+    static int * const bits_RHC[] = {
         &hf_6lowpan_5_bit_o,
         &hf_6lowpan_5_bit_r,
         &hf_6lowpan_5_bit_f,
@@ -1552,7 +1552,7 @@ dissect_6lowpan_hc1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint dg
     guint32             ipv6_flow;
     struct ws_ip6_hdr   ipv6;
     struct lowpan_nhdr *nhdr_list;
-    static const int * hc1_encodings[] = {
+    static int * const hc1_encodings[] = {
         &hf_6lowpan_hc1_source_prefix,
         &hf_6lowpan_hc1_source_ifc,
         &hf_6lowpan_hc1_dest_prefix,
@@ -1562,7 +1562,7 @@ dissect_6lowpan_hc1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint dg
         &hf_6lowpan_hc1_more,
         NULL
     };
-    static const int * hc2_encodings[] = {
+    static int * const hc2_encodings[] = {
         &hf_6lowpan_hc2_udp_src,
         &hf_6lowpan_hc2_udp_dst,
         &hf_6lowpan_hc2_udp_len,

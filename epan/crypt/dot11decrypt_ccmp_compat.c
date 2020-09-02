@@ -120,7 +120,7 @@ static void ccmp_init_blocks(
 		aad[2] = wh->fc[0];
 	aad[3] = (UINT8)(wh->fc[1] & 0xc7);    /* XXX magic #s */
 	/* NB: we know 3 addresses are contiguous */
-	memcpy(aad + 4, &wh->addr1[0], 3 * DOT11DECRYPT_MAC_LEN);
+	memcpy(aad + 4, (guint8 *)wh->addr1, 3 * DOT11DECRYPT_MAC_LEN);
 	aad[22] = (UINT8)(wh->seq[0] & DOT11DECRYPT_SEQ_FRAG_MASK);
 	aad[23] = 0; /* all bits masked */
 	/*

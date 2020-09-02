@@ -464,7 +464,7 @@ dissect_dlsw_capex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tr
           case 0x86:
             while (i<vlen-2)
             {
-              static const int * flags[] = {
+              static int * const flags[] = {
                  &hf_dlsw_sap_list_support_x0,
                  &hf_dlsw_sap_list_support_x2,
                  &hf_dlsw_sap_list_support_x4,

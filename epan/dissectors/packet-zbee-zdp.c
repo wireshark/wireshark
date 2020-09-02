@@ -662,7 +662,7 @@ guint8
 zdp_parse_cinfo(proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *offset)
 {
     guint8      flags;
-    static const int * cinfo[] = {
+    static int * const cinfo[] = {
         &hf_zbee_zdp_cinfo_alt_coord,
         &hf_zbee_zdp_cinfo_ffd,
         &hf_zbee_zdp_cinfo_power,
@@ -692,7 +692,7 @@ guint16
 zdp_parse_server_flags(proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *offset)
 {
     guint16      flags;
-    static const int * server_flags[] = {
+    static int * const server_flags[] = {
         &hf_zbee_zdp_server_pri_trust,
         &hf_zbee_zdp_server_bak_trust,
         &hf_zbee_zdp_server_pri_bind,
@@ -732,7 +732,7 @@ zdp_parse_node_desc(proto_tree *tree, packet_info *pinfo, gboolean show_ver_flag
     /*guint16     mfr_code;*/
     /*guint8      max_buff;*/
     /*guint16     max_transfer;*/
-    static const int * nodes[] = {
+    static int * const nodes[] = {
         &hf_zbee_zdp_node_complex,
         &hf_zbee_zdp_node_user,
         &hf_zbee_zdp_node_freq_868,
@@ -776,7 +776,7 @@ zdp_parse_node_desc(proto_tree *tree, packet_info *pinfo, gboolean show_ver_flag
     /* Get and display the server flags. */
     if (version >= ZBEE_VERSION_2007) {
         guint16 ver_flags;
-        const int * descriptors[] = {
+        static int * const descriptors[] = {
             &hf_zbee_zdp_dcf_eaela,
             &hf_zbee_zdp_dcf_esdla,
             NULL
@@ -828,7 +828,7 @@ static const value_string zbee_zdp_power_level_vals[] = {
 void
 zdp_parse_power_desc(proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *offset)
 {
-    static const int * power_desc[] = {
+    static int * const power_desc[] = {
         &hf_zbee_zdp_power_mode,
         &hf_zbee_zdp_power_avail_ac,
         &hf_zbee_zdp_power_avail_recharge,
@@ -1497,7 +1497,7 @@ void proto_register_zbee_zdp(void)
             NULL, HFILL }},
 
         { &hf_zbee_zdp_server_stk_compl_rev,
-          { "Stack Compliance Revision",   "zbee_zdp.server.stack_compiance_revision", FT_UINT16, BASE_DEC, NULL, ZBEE_ZDP_NODE_SERVER_STACK_COMPL_REV,
+          { "Stack Compliance Revision",   "zbee_zdp.server.stack_compliance_revision", FT_UINT16, BASE_DEC, NULL, ZBEE_ZDP_NODE_SERVER_STACK_COMPL_REV,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_node_type,
@@ -1561,7 +1561,7 @@ void proto_register_zbee_zdp(void)
             NULL, HFILL }},
 
         { &hf_zbee_zdp_power_avail_dispose,
-        { "Available Disposeable Battery",  "zbee_zdp.power.avail.disp", FT_BOOLEAN, 16, NULL, ZBEE_ZDP_POWER_AVAIL_DISPOSEABLE,
+        { "Available Disposable Battery",  "zbee_zdp.power.avail.disp", FT_BOOLEAN, 16, NULL, ZBEE_ZDP_POWER_AVAIL_DISPOSABLE,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_power_source_ac,
@@ -1573,7 +1573,7 @@ void proto_register_zbee_zdp(void)
             NULL, HFILL }},
 
         { &hf_zbee_zdp_power_source_dispose,
-        { "Using Disposeable Battery",  "zbee_zdp.power.source.ac", FT_BOOLEAN, 16, NULL, ZBEE_ZDP_POWER_SOURCE_DISPOSEABLE,
+        { "Using Disposable Battery",  "zbee_zdp.power.source.ac", FT_BOOLEAN, 16, NULL, ZBEE_ZDP_POWER_SOURCE_DISPOSABLE,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_power_level,

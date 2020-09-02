@@ -15,8 +15,13 @@
   *
   *   The MQ Programmable Command Formats API allows remotely configuring a queue manager.
   *
-  *   MQ PCF documentation is called "WebSphere MQ Programmable Command Formats and Administration Interface"
- */
+  *   MQ PCF documentation is called "WebSphere MQ Programmable Command
+  *   Formats and Administration Interface"
+  *
+  *   See:
+  *
+  *       ftp://public.dhe.ibm.com/software/integration/wmq/docs/V7.0/PDFs/V7.0_2008/csqzak11.pdf
+  */
 
 #include "config.h"
 
@@ -662,8 +667,8 @@ void proto_register_mqpcf(void)
         { &hf_mq_pcf_prmstrlen   , { "ParmStrLn", "mqpcf.parm.strlen"    , FT_UINT32 , BASE_DEC, NULL, 0x0, "MQPCF parameter strlen", HFILL }},
         { &hf_mq_pcf_prmcount    , { "ParmCount", "mqpcf.parm.count"     , FT_UINT32 , BASE_DEC, NULL, 0x0, "MQPCF parameter count", HFILL }},
         { &hf_mq_pcf_prmunused   , { "ParmUnuse", "mqpcf.parm.unused"    , FT_UINT32 , BASE_DEC, NULL, 0x0, "MQPCF parameter unused", HFILL }},
-        { &hf_mq_pcf_string      , { "String...", "mqpcf.parm.string"    , FT_STRINGZ, BASE_NONE, NULL, 0x0, "MQPCF parameter string", HFILL }},
-        { &hf_mq_pcf_stringlist  , { "StrList..", "mqpcf.parm.stringlist", FT_STRINGZ, BASE_NONE, NULL, 0x0, "MQPCF parameter string list", HFILL }},
+        { &hf_mq_pcf_string      , { "String...", "mqpcf.parm.string"    , FT_STRING, BASE_NONE, NULL, 0x0, "MQPCF parameter string", HFILL }},
+        { &hf_mq_pcf_stringlist  , { "StrList..", "mqpcf.parm.stringlist", FT_STRING, BASE_NONE, NULL, 0x0, "MQPCF parameter string list", HFILL }},
         { &hf_mq_pcf_int         , { "Integer..", "mqpcf.parm.int"       , FT_INT32  , BASE_DEC, NULL, 0x0, "MQPCF parameter int", HFILL }},
         { &hf_mq_pcf_intlist     , { "IntList..", "mqpcf.parm.intlist"   , FT_INT32  , BASE_DEC, NULL, 0x0, "MQPCF parameter int list", HFILL }},
         { &hf_mq_pcf_bytestring  , { "ByteStr..", "mqpcf.parm.bytestring", FT_BYTES  , BASE_NONE, NULL, 0x0, "MQPCF parameter byte string", HFILL }},

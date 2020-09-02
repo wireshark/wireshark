@@ -958,7 +958,7 @@ dissect_rpc_authunix_groups(tvbuff_t* tvb, proto_tree* tree, int offset)
 
 	gids_count = tvb_get_ntohl(tvb,offset);
 	gtree = proto_tree_add_subtree_format(tree, tvb, offset,
-			4+gids_count*4, ett_rpc_gids, &gitem, "Auxiliary GIDs (%d)", gids_count);
+			4+gids_count*4, ett_rpc_gids, &gitem, "Auxiliary GIDs (%u)", gids_count);
 	offset += 4;
 
 	/* first, open with [ */
@@ -977,7 +977,7 @@ dissect_rpc_authunix_groups(tvbuff_t* tvb, proto_tree* tree, int offset)
 			if (gids_i > 0)
 				proto_item_append_text(gitem, ", ");
 
-			proto_item_append_text(gitem, "%d", gids_entry);
+			proto_item_append_text(gitem, "%u", gids_entry);
 		} else if (tree && gids_i == 16) {
 			proto_item_append_text(gitem, "...");
 		}
@@ -1585,14 +1585,23 @@ dissect_rpc_authgss_integ_data(tvbuff_t *tvb, packet_info *pinfo,
 	dissector_handle_t dissect_function,
 	const char *progname, rpc_call_info_value *rpc_call)
 {
+	gint reported_length, captured_length;
 	guint32 length, rounded_length, seq;
 
 	proto_tree *gtree;
 
+	reported_length = tvb_reported_length_remaining(tvb, offset);
+	captured_length = tvb_captured_length_remaining(tvb, offset);
 	length = tvb_get_ntohl(tvb, offset);
 	rounded_length = rpc_roundup(length);
 	seq = tvb_get_ntohl(tvb, offset+4);
 
+	if (captured_length < reported_length) {
+		/* Set rounded length so it does not croak while setting up the
+		 * GSS Data subtree when the packet has been truncated so at
+		 * least the rest of the packet could be partially dissected */
+		rounded_length = captured_length - 4;
+	}
 	gtree = proto_tree_add_subtree(tree, tvb, offset,
 				    4+rounded_length, ett_rpc_gss_data, NULL, "GSS Data");
 	proto_tree_add_uint(gtree, hf_rpc_authgss_data_length,
@@ -2471,7 +2480,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				/* No, so it's a duplicate request.
 				   Mark it as such. */
 				col_prepend_fstr(pinfo->cinfo, COL_INFO,
-						 "[RPC retransmission of #%d]",
+						 "[RPC retransmission of #%u]",
 						 rpc_call->req_num);
 				proto_tree_add_item(rpc_tree, hf_rpc_dup, tvb,
 						    0, 0, ENC_NA);
@@ -2479,7 +2488,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 						    tvb, 0,0, rpc_call->req_num);
 			}
 			if(rpc_call->rep_num){
-				col_append_fstr(pinfo->cinfo, COL_INFO," (Reply In %d)", rpc_call->rep_num);
+				col_append_fstr(pinfo->cinfo, COL_INFO," (Reply In %u)", rpc_call->rep_num);
 			}
 		} else {
 			/* Prepare the value data.
@@ -2630,7 +2639,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				&ns);
 			proto_item_set_generated(tmp_item);
 
-			col_append_fstr(pinfo->cinfo, COL_INFO," (Call In %d)", rpc_call->req_num);
+			col_append_fstr(pinfo->cinfo, COL_INFO," (Call In %u)", rpc_call->req_num);
 		}
 
 
@@ -2648,7 +2657,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				/* No, so it's a duplicate reply.
 				   Mark it as such. */
 				col_prepend_fstr(pinfo->cinfo, COL_INFO,
-						"[RPC duplicate of #%d]", rpc_call->rep_num);
+						"[RPC duplicate of #%u]", rpc_call->rep_num);
 				tmp_item=proto_tree_add_item(rpc_tree,
 					hf_rpc_dup, tvb, 0,0, ENC_NA);
 				proto_item_set_generated(tmp_item);
@@ -3382,8 +3391,7 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 * We must first find the conversation and, if we don't find
 	 * one, create it.
 	 */
-	if (conversation == NULL)
-		conversation = find_or_create_conversation(pinfo);
+	conversation = find_or_create_conversation(pinfo);
 	old_rfk.conv_id = conversation->conv_index;
 	old_rfk.seq = seq;
 	old_rfk.port = pinfo->srcport;

@@ -9,8 +9,8 @@
 
 /*
  * Wireshark - Network traffic analyzer
- * By Gerald Combs
- * Copyright 1999 - 2012 Gerald Combs
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
  */
 
 /*
@@ -20,10 +20,7 @@
 
 #include "config.h"
 
-#include <gmodule.h>
-
 #include <string.h>
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/proto.h>
 #include <epan/dissectors/packet-giop.h>
@@ -7904,7 +7901,7 @@ void proto_reg_handoff_giop_gias(void)
 }
 
 /*
- * Editor modelines
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 4

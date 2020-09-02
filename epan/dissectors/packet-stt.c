@@ -10,7 +10,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * Protocol ref:
- * http://tools.ietf.org/html/draft-davie-stt-07
+ * https://tools.ietf.org/html/draft-davie-stt-07
  */
 
 #include "config.h"
@@ -234,7 +234,7 @@ dissect_stt_checksum(tvbuff_t *tvb, packet_info *pinfo, proto_tree *stt_tree)
 static int
 dissect_tcp_flags(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-    static const int *flags[] = {
+    static int * const flags[] = {
         &hf_stt_tcp_rsvd,
         &hf_stt_tcp_ns,
         &hf_stt_tcp_cwr,
@@ -308,7 +308,7 @@ dissect_tcp_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *stt_tree)
 static int
 dissect_stt_flags(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-    static const int *flags[] = {
+    static int * const flags[] = {
         &hf_stt_flag_rsvd,
         &hf_stt_flag_tcp,
         &hf_stt_flag_ipv4,

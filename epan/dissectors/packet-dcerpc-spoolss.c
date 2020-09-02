@@ -1207,7 +1207,7 @@ static const value_string devmode_papersize_vals[] =
 	{ DEVMODE_PAPERSIZE_JENVKAKU2, "Japanese Envelope (Kaku #2)" },
 	{ DEVMODE_PAPERSIZE_JENVKAKU3, "Japanese Envelope (Kaku #3)" },
 	{ DEVMODE_PAPERSIZE_JENVCHOU3, "Japanese Envelope (Chou #3)" },
-	{ DEVMODE_PAPERSIZE_JENVCHOU4, "Japaneve Envelope (Chou #4)" },
+	{ DEVMODE_PAPERSIZE_JENVCHOU4, "Japanese Envelope (Chou #4)" },
 	{ DEVMODE_PAPERSIZE_LETTERROT, "Letter (Rotated)" },
 	{ DEVMODE_PAPERSIZE_A3ROT, "A3 (Rotated)" },
 	{ DEVMODE_PAPERSIZE_A4ROT, "A4 (Rotated)" },
@@ -1405,7 +1405,7 @@ dissect_DEVMODE_fields(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	guint32 fields;
 	proto_item *hidden_item;
 
-	static const int * hf_fields[] = {
+	static int * const hf_fields[] = {
 		&hf_devmode_fields_orientation,
 		&hf_devmode_fields_papersize,
 		&hf_devmode_fields_paperlength,
@@ -2005,7 +2005,7 @@ dissect_job_status(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		   proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
 	guint32 status;
-	static const int * hf_status[] = {
+	static int * const hf_status[] = {
 		&hf_job_status_user_intervention,
 		&hf_job_status_blocked,
 		&hf_job_status_deleted,
@@ -2049,48 +2049,48 @@ static int hf_printer_attributes_raw_only = -1;
 static int hf_printer_attributes_published = -1;
 
 static const true_false_string tfs_printer_attributes_queued = {
-	"Printer starts printing after last page spooled",
-	"Printer starts printing while spooling"
+	"The printer starts printing after last page spooled",
+	"The printer starts printing while spooling"
 };
 
 static const true_false_string tfs_printer_attributes_direct = {
-	"Jobs sent directly to printer",
-	"Jobs are spooled to printer before printing"
+	"Jobs are sent directly to the printer",
+	"Jobs are spooled to the printer before printing"
 };
 
 static const true_false_string tfs_printer_attributes_default = {
-	"Printer is the default printer",
-	"Printer is not the default printer"
+	"The printer is the default printer",
+	"The printer is not the default printer"
 };
 
 static const true_false_string tfs_printer_attributes_shared = {
-	"Printer is shared",
-	"Printer is not shared"
+	"The printer is shared",
+	"The printer is not shared"
 };
 
 static const true_false_string tfs_printer_attributes_network = {
-	"Printer is a network printer connection",
-	"Printer is not a network printer connection"
+	"The printer is a network printer connection",
+	"The printer is not a network printer connection"
 };
 
 static const true_false_string tfs_printer_attributes_hidden = {
-	"Reserved",
-	"Reserved"
+	"The printer is hidden from some users on the network",
+	"The printer is not hidden from some users on the network"
 };
 
 static const true_false_string tfs_printer_attributes_local = {
-	"Printer is a local printer",
-	"Printer is not a local printer"
+	"The printer is a local printer",
+	"The printer is not a local printer"
 };
 
 static const true_false_string tfs_printer_attributes_enable_devq = {
-	"Call DevQueryPrint",
-	"Do not call DevQueryPrint"
+	"The queue on the printer is enabled if available",
+	"The queue on the printer is not enabled",
 };
 
 static const true_false_string tfs_printer_attributes_keep_printed_jobs = {
 	"Jobs are kept after they are printed",
-	"Jobs are deleted after printing"
+	"Jobs are deleted after they are printed"
 };
 
 static const true_false_string tfs_printer_attributes_do_complete_first = {
@@ -2114,8 +2114,8 @@ static const true_false_string tfs_printer_attributes_raw_only = {
 };
 
 static const true_false_string tfs_printer_attributes_published = {
-	"Printer is published in the directory",
-	"Printer is not published in the directory"
+	"The printer is published in the directory",
+	"The printer is not published in the directory"
 };
 
 static int
@@ -2123,7 +2123,7 @@ dissect_printer_attributes(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			   proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
 	guint32 attributes;
-	static const int * hf_attributes[] = {
+	static int * const hf_attributes[] = {
 		&hf_printer_attributes_published,
 		&hf_printer_attributes_raw_only,
 		&hf_printer_attributes_enable_bidi,
@@ -2232,7 +2232,7 @@ dissect_printer_driver_attributes(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				  proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
 	guint32 attributes;
-	static const int * hf_attributes[] = {
+	static int * const hf_attributes[] = {
 		&hf_printer_driver_attributes_package_aware,
 		&hf_printer_driver_attributes_xps,
 		&hf_printer_driver_attributes_sandbox_enabled,
@@ -2882,7 +2882,7 @@ dissect_notify_options_flags(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			     proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
 	guint32 flags;
-	static const int * hf_flags[] = {
+	static int * const hf_flags[] = {
 		&hf_notify_options_flags_refresh,
 		NULL
 	};
@@ -3061,7 +3061,7 @@ SpoolssRFFPCNEX_q(tvbuff_t *tvb, int offset,
 			     dcerpc_info *di, guint8 *drep)
 {
 	guint32 flags;
-	static const int * hf_flags[] = {
+	static int * const hf_flags[] = {
 		&hf_rffpcnex_flags_timeout,
 		&hf_rffpcnex_flags_delete_driver,
 		&hf_rffpcnex_flags_set_driver,
@@ -3833,7 +3833,7 @@ SpoolssEnumPrinters_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	guint32 level, flags;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-	static const int * hf_flags[] = {
+	static int * const hf_flags[] = {
 		&hf_enumprinters_flags_network,
 		&hf_enumprinters_flags_shared,
 		&hf_enumprinters_flags_remote,

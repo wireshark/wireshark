@@ -969,7 +969,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
         guint32 ahsLen = tvb_get_guint8(tvb, offset + 4) * 4;
         {
             gint b = tvb_get_guint8(tvb, offset + 1);
-            static const int * flags[] = {
+            static int * const flags[] = {
                 &hf_iscsi_SCSICommand_F,
                 &hf_iscsi_SCSICommand_R,
                 &hf_iscsi_SCSICommand_W,
@@ -1048,7 +1048,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
         immediate_data_length=offset-immediate_data_offset;
     } else if(opcode == ISCSI_OPCODE_SCSI_RESPONSE) {
         /* SCSI Response */
-        static const int * flags[] = {
+        static int * const flags[] = {
             &hf_iscsi_SCSIResponse_o,
             &hf_iscsi_SCSIResponse_u,
             &hf_iscsi_SCSIResponse_O,
@@ -1303,7 +1303,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
         offset = handleDataSegmentAsTextKeys(iscsi_session, pinfo, ti, tvb, offset, data_segment_len, end_offset, TRUE);
     } else if(opcode == ISCSI_OPCODE_SCSI_DATA_OUT) {
         /* SCSI Data Out (write) */
-        static const int * flags[] = {
+        static int * const flags[] = {
             &hf_iscsi_SCSIData_F,
             NULL
         };
@@ -1329,7 +1329,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
     } else if(opcode == ISCSI_OPCODE_SCSI_DATA_IN) {
         /* SCSI Data In (read) */
         {
-            const int * scsi_data_in[] = {
+            static int * const scsi_data_in[] = {
                 &hf_iscsi_SCSIData_F,
                 &hf_iscsi_SCSIData_O,
                 &hf_iscsi_SCSIData_U,
@@ -1337,7 +1337,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
                 NULL
             };
 
-            const int * scsi_data_in_draft08[] = {
+            static int * const scsi_data_in_draft08[] = {
                 &hf_iscsi_SCSIData_F,
                 &hf_iscsi_SCSIData_A,
                 &hf_iscsi_SCSIData_O,

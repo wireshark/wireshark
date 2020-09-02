@@ -201,7 +201,7 @@ int main(int argc, char *argv[])
 	while ((result = getopt_long(argc, argv, ":", longopts, &option_idx)) != -1) {
 		switch (result) {
 		case OPT_VERSION:
-			printf("%s\n", extcap_conf->version);
+			extcap_version_print(extcap_conf);
 			ret = EXIT_SUCCESS;
 			goto end;
 

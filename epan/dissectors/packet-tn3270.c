@@ -13,13 +13,13 @@
  *
  *
  *  RFC 1041: Telnet 3270 Regime Option
- *    http://tools.ietf.org/html/rfc1041
+ *    https://tools.ietf.org/html/rfc1041
  *
  *  RFC 1576: TN3270 Current Practices
- *    http://tools.ietf.org/html/rfc1576
+ *    https://tools.ietf.org/html/rfc1576
  *
  *  RFC 2355: TN3270 Enhancements
- *    http://tools.ietf.org/html/rfc2355
+ *    https://tools.ietf.org/html/rfc2355
  *
  *
  * Copyright 2009, Robert Hogan <robert@roberthogan.net>
@@ -1615,7 +1615,7 @@ typedef struct hf_items {
   int         *hf_idx_p;
   gint        *bitmask_ett_idx_p;
   gint         length;
-  const gint **bitmask;
+  gint        * const *bitmask;
   const gint   encoding;
 } hf_items;
 
@@ -1723,7 +1723,7 @@ static gint
 dissect_wcc(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset)
 {
 
-  static const gint *wcc_fields[] = {
+  static int * const wcc_fields[] = {
     &hf_tn3270_wcc_nop,
     &hf_tn3270_wcc_reset,
     &hf_tn3270_wcc_printer1,
@@ -1747,7 +1747,7 @@ dissect_3270_field_validation(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offse
 {
   gint start = offset;
 
-  static const gint *byte[] = {
+  static int * const byte[] = {
     &hf_tn3270_field_validation_mandatory_fill,
     &hf_tn3270_field_validation_mandatory_entry,
     &hf_tn3270_field_validation_trigger,
@@ -1768,7 +1768,7 @@ dissect_3270_field_attribute(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset
 {
   gint start = offset;
 
-  static const gint *byte[] = {
+  static int * const byte[] = {
     &hf_tn3270_fa_graphic_convert,
     &hf_tn3270_fa_protected,
     &hf_tn3270_fa_numeric,
@@ -1793,7 +1793,7 @@ dissect_ccc(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset)
 {
   gint start = offset;
 
-  static const gint *byte[] = {
+  static int * const byte[] = {
     &hf_tn3270_ccc_coding,
     &hf_tn3270_ccc_printout,
     &hf_tn3270_ccc_start_print,
@@ -2277,7 +2277,7 @@ dissect_set_msr_control(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset,
 {
   gint start = offset;
 
-  static const gint *byte[] = {
+  static int * const byte[] = {
     &hf_tn3270_msr_user,
     &hf_tn3270_msr_locked,
     &hf_tn3270_msr_auto,
@@ -2516,7 +2516,7 @@ dissect_data_chain(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset,
 {
   gint start = offset;
 
-  static const gint *byte[] = {
+  static int * const byte[] = {
     &hf_tn3270_data_chain_group,
     &hf_tn3270_data_chain_inbound_control,
     NULL
@@ -2849,7 +2849,7 @@ dissect_query_reply_alphanumeric(proto_tree *tn3270_tree, tvbuff_t *tvb, gint of
 {
   gint start = offset;
 
-  static const gint *byte[] = {
+  static int * const byte[] = {
     &hf_tn3270_ap_vertical_scrolling,
     &hf_tn3270_ap_horizontal_scrolling,
     &hf_tn3270_ap_apres1,
@@ -2889,7 +2889,7 @@ dissect_query_reply_character_sets(proto_tree *tn3270_tree, tvbuff_t *tvb, gint 
   gint start = offset;
   gint flagbyte1, flagbyte2;
 
-  static const gint *byte1[] = {
+  static int * const byte1[] = {
     &hf_tn3270_cs_ge,
     &hf_tn3270_cs_mi,
     &hf_tn3270_cs_lps,
@@ -2901,7 +2901,7 @@ dissect_query_reply_character_sets(proto_tree *tn3270_tree, tvbuff_t *tvb, gint 
     NULL
   };
 
-  static const gint *byte2[] = {
+  static int * const byte2[] = {
     &hf_tn3270_cs_res2,
     &hf_tn3270_cs_pscs,
     &hf_tn3270_cs_res3,
@@ -2909,7 +2909,7 @@ dissect_query_reply_character_sets(proto_tree *tn3270_tree, tvbuff_t *tvb, gint 
     NULL
   };
 
-  static const gint *byte3[] = {
+  static int * const byte3[] = {
     &hf_tn3270_cs_form_type1,
     &hf_tn3270_cs_form_type2,
     &hf_tn3270_cs_form_type3,
@@ -2920,7 +2920,7 @@ dissect_query_reply_character_sets(proto_tree *tn3270_tree, tvbuff_t *tvb, gint 
     NULL
   };
 
-  static const gint *byte4[] = {
+  static int * const byte4[] = {
     &hf_tn3270_cs_ds_load,
     &hf_tn3270_cs_ds_triple,
     &hf_tn3270_cs_ds_char,
@@ -3047,7 +3047,7 @@ dissect_query_reply_color(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset,
   gint i;
   gint np;
 
-  static const gint *byte[] = {
+  static int * const byte[] = {
     &hf_tn3270_c_prtblk,
     NULL
   };
@@ -4136,7 +4136,7 @@ dissect_query_reply_usable_area(proto_tree *tn3270_tree, tvbuff_t *tvb, gint off
   gint start = offset;
   gint vcp;
 
-  static const gint *byte1[] = {
+  static int * const byte1[] = {
     &hf_tn3270_ua_reserved1,
     &hf_tn3270_ua_page_printer,
     &hf_tn3270_ua_reserved2,
@@ -4145,7 +4145,7 @@ dissect_query_reply_usable_area(proto_tree *tn3270_tree, tvbuff_t *tvb, gint off
     NULL
   };
 
-  static const gint *byte2[] = {
+  static int * const byte2[] = {
     &hf_tn3270_ua_variable_cells,
     &hf_tn3270_ua_characters,
     &hf_tn3270_ua_cell_units,

@@ -5,7 +5,7 @@
  * Author: Benjamin Roch, benjamin.roch (AT) tttech.com
  *
  * TTTech Computertechnik AG, Austria.
- * http://www.tttech.com/solutions/ttethernet/
+ * https://www.tttech.com/technologies/time-triggered-ethernet/
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

@@ -7,9 +7,9 @@
  *
  * Generated automatically by make-packet-dcm.py from the following sources:
  *
- * DICOM PS3.5 2020a - Data Structures and Encoding
- * DICOM PS3.6 2020a - Data Dictionary
- * DICOM PS3.7 2020a - Message Exchange
+ * DICOM PS3.5 2020c - Data Structures and Encoding
+ * DICOM PS3.6 2020c - Data Dictionary
+ * DICOM PS3.7 2020c - Message Exchange
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -230,6 +230,7 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x00080123, "Context Group Identification Sequence", "SQ", "1", 0, 0},
     { 0x00080124, "Mapping Resource Identification Sequence", "SQ", "1", 0, 0},
     { 0x00080201, "Timezone Offset From UTC", "SH", "1", 0, 0},
+    { 0x00080202, "", "", "", -1, 0},
     { 0x00080220, "Responsible Group Code Sequence", "SQ", "1", 0, 0},
     { 0x00080221, "Equipment Modality", "CS", "1", 0, 0},
     { 0x00080222, "Manufacturer's Related Model Group", "LO", "1", 0, 0},
@@ -2366,6 +2367,13 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x003A0300, "Multiplexed Audio Channels Description Code Sequence", "SQ", "1", 0, 0},
     { 0x003A0301, "Channel Identification Code", "IS", "1", 0, 0},
     { 0x003A0302, "Channel Mode", "CS", "1", 0, 0},
+    { 0x003A0310, "Multiplex Group UID", "UI", "1", 0, 0},
+    { 0x003A0311, "Powerline Frequency", "DS", "1", 0, 0},
+    { 0x003A0312, "Channel Impedance Sequence", "SQ", "1", 0, 0},
+    { 0x003A0313, "Impedance Value", "DS", "1", 0, 0},
+    { 0x003A0314, "Impedance Measurement DateTime", "DT", "1", 0, 0},
+    { 0x003A0315, "Impedance Measurement Frequency", "DS", "1", 0, 0},
+    { 0x003A0316, "Impedance Measurement Current Type", "CS", "1", 0, 0},
     { 0x00400001, "Scheduled Station AE Title", "AE", "1-n", 0, 0},
     { 0x00400002, "Scheduled Procedure Step Start Date", "DA", "1", 0, 0},
     { 0x00400003, "Scheduled Procedure Step Start Time", "TM", "1", 0, 0},
@@ -4318,6 +4326,7 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x300A0395, "Scan Spot Reordering Allowed", "CS", "1", 0, 0},
     { 0x300A0396, "Scan Spot Meterset Weights", "FL", "1-n", 0, 0},
     { 0x300A0398, "Scanning Spot Size", "FL", "2", 0, 0},
+    { 0x300A0399, "Scan Spot Sizes Delivered", "FL", "2-2n", 0, 0},
     { 0x300A039A, "Number of Paintings", "IS", "1", 0, 0},
     { 0x300A03A0, "Ion Tolerance Table Sequence", "SQ", "1", 0, 0},
     { 0x300A03A2, "Ion Beam Sequence", "SQ", "1", 0, 0},
@@ -4501,6 +4510,48 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x300A0688, "RT Beam Modifier Definition Distance", "FD", "1", 0, 0},
     { 0x300A0689, "Beam Area Limit Sequence", "SQ", "1", 0, 0},
     { 0x300A068A, "Referenced RT Prescription Sequence", "SQ", "1", 0, 0},
+    { 0x300A0700, "Treatment Session UID", "UI", "1", 0, 0},
+    { 0x300A0701, "RT Radiation Usage", "CS", "1", 0, 0},
+    { 0x300A0702, "Referenced RT Radiation Set Sequence", "SQ", "1", 0, 0},
+    { 0x300A0703, "Referenced RT Radiation Record Sequence", "SQ", "1", 0, 0},
+    { 0x300A0704, "RT Radiation Set Delivery Number", "US", "1", 0, 0},
+    { 0x300A0705, "Clinical Fraction Number", "US", "1", 0, 0},
+    { 0x300A0706, "RT Treatment Fraction Completion Status", "CS", "1", 0, 0},
+    { 0x300A0707, "RT Radiation Set Usage", "CS", "1", 0, 0},
+    { 0x300A0708, "Treatment Delivery Continuation Flag", "CS", "1", 0, 0},
+    { 0x300A0709, "Treatment Record Content Origin", "CS", "1", 0, 0},
+    { 0x300A0714, "RT Treatment Termination Status", "CS", "1", 0, 0},
+    { 0x300A0715, "RT Treatment Termination Reason Code Sequence", "SQ", "1", 0, 0},
+    { 0x300A0716, "Machine-Specific Treatment Termination Code Sequence", "SQ", "1", 0, 0},
+    { 0x300A0722, "RT Radiation Salvage Record Control Point Sequence", "SQ", "1", 0, 0},
+    { 0x300A0723, "Starting Meterset Value Known Flag", "CS", "1", 0, 0},
+    { 0x300A0730, "Treatment Termination Description", "ST", "1", 0, 0},
+    { 0x300A0731, "Treatment Tolerance Violation Sequence", "SQ", "1", 0, 0},
+    { 0x300A0732, "Treatment Tolerance Violation Category", "CS", "1", 0, 0},
+    { 0x300A0733, "Treatment Tolerance Violation Attribute Sequence", "SQ", "1", 0, 0},
+    { 0x300A0734, "Treatment Tolerance Violation Description", "ST", "1", 0, 0},
+    { 0x300A0735, "Treatment Tolerance Violation Identification", "ST", "1", 0, 0},
+    { 0x300A0736, "Treatment Tolerance Violation DateTime", "DT", "1", 0, 0},
+    { 0x300A073A, "Recorded RT Control Point DateTime", "DT", "1", 0, 0},
+    { 0x300A073B, "Referenced Radiation RT Control Point Index", "US", "1", 0, 0},
+    { 0x300A073E, "Alternate Value Sequence", "SQ", "1", 0, 0},
+    { 0x300A073F, "Confirmation Sequence", "SQ", "1", 0, 0},
+    { 0x300A0740, "Interlock Sequence", "SQ", "1", 0, 0},
+    { 0x300A0741, "Interlock DateTime", "DT", "1", 0, 0},
+    { 0x300A0742, "Interlock Description", "ST", "1", 0, 0},
+    { 0x300A0743, "Interlock Originating Device Sequence", "SQ", "1", 0, 0},
+    { 0x300A0744, "Interlock Code Sequence", "SQ", "1", 0, 0},
+    { 0x300A0745, "Interlock Resolution Code Sequence", "SQ", "1", 0, 0},
+    { 0x300A0746, "Interlock Resolution User Sequence", "SQ", "1", 0, 0},
+    { 0x300A0760, "Override DateTime", "DT", "1", 0, 0},
+    { 0x300A0761, "Treatment Tolerance Violation Type Code Sequence", "SQ", "1", 0, 0},
+    { 0x300A0762, "Treatment Tolerance Violation Cause Code Sequence", "SQ", "1", 0, 0},
+    { 0x300A0772, "Measured Meterset to Dose Mapping Sequence", "SQ", "1", 0, 0},
+    { 0x300A0773, "Referenced Expected In-Vivo Measurement Value Index", "US", "1", 0, 0},
+    { 0x300A0774, "Dose Measurement Device Code Sequence", "SQ", "1", 0, 0},
+    { 0x300A0780, "Additional Parameter Recording Instance Sequence", "SQ", "1", 0, 0},
+    { 0x300A0782, "", "US", "1", -1, 0},
+    { 0x300A0783, "Interlock Origin Description", "ST", "1", 0, 0},
     { 0x300C0002, "Referenced RT Plan Sequence", "SQ", "1", 0, 0},
     { 0x300C0004, "Referenced Beam Sequence", "SQ", "1", 0, 0},
     { 0x300C0006, "Referenced Beam Number", "IS", "1", 0, 0},
@@ -4681,7 +4732,7 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x30100093, "RT Treatment Source Coordinates", "FD", "3", 0, 0},
     { 0x30100094, "Radiation Source Coordinate SystemYaw Angle", "FD", "1", 0, 0},
     { 0x30100095, "Radiation Source Coordinate SystemRoll Angle", "FD", "1", 0, 0},
-    { 0x30100096, "Radiation Source Coordinate SystemPitch Angle", "FD", "1", 0, 0},
+    { 0x30100096, "Radiation Source Coordinate System Pitch Angle", "FD", "1", 0, 0},
     { 0x30100097, "Robotic Path Control Point Sequence", "SQ", "1", 0, 0},
     { 0x30100098, "Tomotherapeutic Control Point Sequence", "SQ", "1", 0, 0},
     { 0x30100099, "Tomotherapeutic Leaf Open Durations", "FD", "1-n", 0, 0},
@@ -5147,6 +5198,12 @@ typedef struct dcm_uid {
 #define DCM_UID_SOP_CLASS_GENERAL_AUDIO_WAVEFORM_STORAGE "1.2.840.10008.5.1.4.1.1.9.4.2"
 #define DCM_UID_SOP_CLASS_ARTERIAL_PULSE_WAVEFORM_STORAGE "1.2.840.10008.5.1.4.1.1.9.5.1"
 #define DCM_UID_SOP_CLASS_RESPIRATORY_WAVEFORM_STORAGE "1.2.840.10008.5.1.4.1.1.9.6.1"
+#define DCM_UID_SOP_CLASS_MULTI_CHANNEL_RESPIRATORY_WAVEFORM_STORAGE "1.2.840.10008.5.1.4.1.1.9.6.2"
+#define DCM_UID_SOP_CLASS_ROUTINE_SCALP_ELECTROENCEPHALOGRAM_WAVEFORM_STORAGE "1.2.840.10008.5.1.4.1.1.9.7.1"
+#define DCM_UID_SOP_CLASS_ELECTROMYOGRAM_WAVEFORM_STORAGE "1.2.840.10008.5.1.4.1.1.9.7.2"
+#define DCM_UID_SOP_CLASS_ELECTROOCULOGRAM_WAVEFORM_STORAGE "1.2.840.10008.5.1.4.1.1.9.7.3"
+#define DCM_UID_SOP_CLASS_SLEEP_ELECTROENCEPHALOGRAM_WAVEFORM_STORAGE "1.2.840.10008.5.1.4.1.1.9.7.4"
+#define DCM_UID_SOP_CLASS_BODY_POSITION_WAVEFORM_STORAGE "1.2.840.10008.5.1.4.1.1.9.8.1"
 #define DCM_UID_SOP_CLASS_STANDALONE_MODALITY_LUT_STORAGE_RETIRED "1.2.840.10008.5.1.4.1.1.10"
 #define DCM_UID_SOP_CLASS_STANDALONE_VOI_LUT_STORAGE_RETIRED "1.2.840.10008.5.1.4.1.1.11"
 #define DCM_UID_SOP_CLASS_GRAYSCALE_SOFTCOPY_PRESENTATION_STATE_STORAGE "1.2.840.10008.5.1.4.1.1.11.1"
@@ -5268,6 +5325,11 @@ typedef struct dcm_uid {
 #define DCM_UID_SOP_CLASS_C_ARM_PHOTON_ELECTRON_RADIATION_STORAGE "1.2.840.10008.5.1.4.1.1.481.13"
 #define DCM_UID_SOP_CLASS_TOMOTHERAPEUTIC_RADIATION_STORAGE "1.2.840.10008.5.1.4.1.1.481.14"
 #define DCM_UID_SOP_CLASS_ROBOTIC_ARM_RADIATION_STORAGE "1.2.840.10008.5.1.4.1.1.481.15"
+#define DCM_UID_SOP_CLASS_RT_RADIATION_RECORD_SET_STORAGE "1.2.840.10008.5.1.4.1.1.481.16"
+#define DCM_UID_SOP_CLASS_RT_RADIATION_SALVAGE_RECORD_STORAGE "1.2.840.10008.5.1.4.1.1.481.17"
+#define DCM_UID_SOP_CLASS_TOMOTHERAPEUTIC_RADIATION_RECORD_STORAGE "1.2.840.10008.5.1.4.1.1.481.18"
+#define DCM_UID_SOP_CLASS_C_ARM_PHOTON_ELECTRON_RADIATION_RECORD_STORAGE "1.2.840.10008.5.1.4.1.1.481.19"
+#define DCM_UID_SOP_CLASS_ROBOTIC_RADIATION_RECORD_STORAGE "1.2.840.10008.5.1.4.1.1.481.20"
 #define DCM_UID_SOP_CLASS_DICOS_CT_IMAGE_STORAGE "1.2.840.10008.5.1.4.1.1.501.1"
 #define DCM_UID_SOP_CLASS_DICOS_DIGITAL_X_RAY_IMAGE_STORAGE_FOR_PRESENTATION "1.2.840.10008.5.1.4.1.1.501.2.1"
 #define DCM_UID_SOP_CLASS_DICOS_DIGITAL_X_RAY_IMAGE_STORAGE_FOR_PROCESSING "1.2.840.10008.5.1.4.1.1.501.2.2"
@@ -5573,6 +5635,12 @@ static dcm_uid_t dcm_uid_data[] = {
     { DCM_UID_SOP_CLASS_GENERAL_AUDIO_WAVEFORM_STORAGE, "General Audio Waveform Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_ARTERIAL_PULSE_WAVEFORM_STORAGE, "Arterial Pulse Waveform Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_RESPIRATORY_WAVEFORM_STORAGE, "Respiratory Waveform Storage", "SOP Class"},
+    { DCM_UID_SOP_CLASS_MULTI_CHANNEL_RESPIRATORY_WAVEFORM_STORAGE, "Multi-channel Respiratory Waveform Storage", "SOP Class"},
+    { DCM_UID_SOP_CLASS_ROUTINE_SCALP_ELECTROENCEPHALOGRAM_WAVEFORM_STORAGE, "Routine Scalp Electroencephalogram Waveform Storage", "SOP Class"},
+    { DCM_UID_SOP_CLASS_ELECTROMYOGRAM_WAVEFORM_STORAGE, "Electromyogram Waveform Storage", "SOP Class"},
+    { DCM_UID_SOP_CLASS_ELECTROOCULOGRAM_WAVEFORM_STORAGE, "Electrooculogram Waveform Storage", "SOP Class"},
+    { DCM_UID_SOP_CLASS_SLEEP_ELECTROENCEPHALOGRAM_WAVEFORM_STORAGE, "Sleep Electroencephalogram Waveform Storage", "SOP Class"},
+    { DCM_UID_SOP_CLASS_BODY_POSITION_WAVEFORM_STORAGE, "Body Position Waveform Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_STANDALONE_MODALITY_LUT_STORAGE_RETIRED, "Standalone Modality LUT Storage (Retired)", "SOP Class"},
     { DCM_UID_SOP_CLASS_STANDALONE_VOI_LUT_STORAGE_RETIRED, "Standalone VOI LUT Storage (Retired)", "SOP Class"},
     { DCM_UID_SOP_CLASS_GRAYSCALE_SOFTCOPY_PRESENTATION_STATE_STORAGE, "Grayscale Softcopy Presentation State Storage", "SOP Class"},
@@ -5696,6 +5764,11 @@ static dcm_uid_t dcm_uid_data[] = {
     { DCM_UID_SOP_CLASS_C_ARM_PHOTON_ELECTRON_RADIATION_STORAGE, "C-Arm Photon-Electron Radiation Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_TOMOTHERAPEUTIC_RADIATION_STORAGE, "Tomotherapeutic Radiation Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_ROBOTIC_ARM_RADIATION_STORAGE, "Robotic-Arm Radiation Storage", "SOP Class"},
+    { DCM_UID_SOP_CLASS_RT_RADIATION_RECORD_SET_STORAGE, "RT Radiation Record Set Storage", "SOP Class"},
+    { DCM_UID_SOP_CLASS_RT_RADIATION_SALVAGE_RECORD_STORAGE, "RT Radiation Salvage Record Storage", "SOP Class"},
+    { DCM_UID_SOP_CLASS_TOMOTHERAPEUTIC_RADIATION_RECORD_STORAGE, "Tomotherapeutic Radiation Record Storage", "SOP Class"},
+    { DCM_UID_SOP_CLASS_C_ARM_PHOTON_ELECTRON_RADIATION_RECORD_STORAGE, "C-Arm Photon-Electron Radiation Record Storage", "SOP Class"},
+    { DCM_UID_SOP_CLASS_ROBOTIC_RADIATION_RECORD_STORAGE, "Robotic Radiation Record Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_DICOS_CT_IMAGE_STORAGE, "DICOS CT Image Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_DICOS_DIGITAL_X_RAY_IMAGE_STORAGE_FOR_PRESENTATION, "DICOS Digital X-Ray Image Storage - For Presentation", "SOP Class"},
     { DCM_UID_SOP_CLASS_DICOS_DIGITAL_X_RAY_IMAGE_STORAGE_FOR_PROCESSING, "DICOS Digital X-Ray Image Storage - For Processing", "SOP Class"},

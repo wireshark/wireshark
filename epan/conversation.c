@@ -738,8 +738,7 @@ conversation_new(const guint32 setup_frame, const address *addr1, const address 
 	new_key->port1 = port1;
 	new_key->port2 = port2;
 
-	conversation = wmem_new(wmem_file_scope(), conversation_t);
-	memset(conversation, 0, sizeof(conversation_t));
+	conversation = wmem_new0(wmem_file_scope(), conversation_t);
 
 	conversation->conv_index = new_index;
 	conversation->setup_frame = conversation->last_frame = setup_frame;

@@ -1,5 +1,10 @@
 /* packet-nsh.c
  * Routines for Network Service Header
+ *
+ * RFC8300
+ * Author: Vanson Lim <vlim@cisco.com>
+ * (c) Copyright 2020, Cisco Systems Inc.
+ *
  * draft-ietf-sfc-nsh-01
  * Author: Chidambaram Arunachalam <carunach@cisco.com>
  * Copyright 2016, ciscoSystems Inc.
@@ -53,7 +58,7 @@ static int hf_nsh_service_index = -1;
 static int hf_nsh_context_header = -1;
 static int hf_nsh_metadata_class = -1;
 static int hf_nsh_metadata_type = -1;
-static int hf_nsh_metadata_reservedbits = -1;
+static int hf_nsh_metadata_unassignedbit = -1;
 static int hf_nsh_metadata_length = -1;
 static int hf_nsh_metadata = -1;
 
@@ -88,24 +93,25 @@ static void
 dissect_nsh_md_type_2(tvbuff_t *tvb, proto_tree *nsh_tree, int offset, int nsh_bytes_len)
 {
 
-	int type2_metadata_len = 0;
+	guint32 type2_metadata_len = 0;
+	int pad_len;
 
 	while (offset < nsh_bytes_len) {
 
 		proto_tree_add_item(nsh_tree, hf_nsh_metadata_class, tvb, offset, 2, ENC_BIG_ENDIAN);
 		proto_tree_add_item(nsh_tree, hf_nsh_metadata_type, tvb, offset + 2, 1, ENC_BIG_ENDIAN);
 
-		/* Bits 24 - 26 are reserved */
-		proto_tree_add_item(nsh_tree, hf_nsh_metadata_reservedbits, tvb, offset + 3, 1, ENC_BIG_ENDIAN);
+		/* Bit 24 is unassigned */
+		proto_tree_add_item(nsh_tree, hf_nsh_metadata_unassignedbit, tvb, offset + 3, 1, ENC_BIG_ENDIAN);
 
-		/*Bits 27-31 represent length in 4 bytes words*/
-		proto_tree_add_item(nsh_tree, hf_nsh_metadata_length, tvb, offset + 3, 1, ENC_BIG_ENDIAN);
-		type2_metadata_len = 4 * tvb_get_bits8(tvb, ((offset + 3) * 8) + 3, 5);
+		/* Bits 25-31 represent variable length metadata byte count */
+		proto_tree_add_item_ret_uint(nsh_tree, hf_nsh_metadata_length, tvb, offset + 3, 1, ENC_BIG_ENDIAN, &type2_metadata_len);
 
-		if (type2_metadata_len >= 4)
+		if (type2_metadata_len > 0)
 			proto_tree_add_item(nsh_tree, hf_nsh_metadata, tvb, offset + 4, type2_metadata_len, ENC_NA);
 
-		offset = offset + 4 + type2_metadata_len;
+		pad_len = (type2_metadata_len % 4) ? (4 - (type2_metadata_len % 4)) : 0;
+		offset = offset + 4 + type2_metadata_len + pad_len;
 
 	}
 
@@ -291,7 +297,7 @@ proto_register_nsh(void)
 		{ &hf_nsh_context_header,
 		{ "Context Header", "nsh.contextheader",
 		FT_BYTES, BASE_NONE, NULL, 0x00,
-		"Manadatory Context Header", HFILL }
+		"Mandatory Context Header", HFILL }
 		},
 
 
@@ -309,17 +315,17 @@ proto_register_nsh(void)
 		},
 
 
-		{ &hf_nsh_metadata_reservedbits,
-		{ "Reserved Bits", "nsh.metadatareservedbits",
-		FT_UINT8, BASE_HEX, NULL, 0xE0,
-		"Reserved Bits within Variable Length Metadata header", HFILL }
+		{ &hf_nsh_metadata_unassignedbit,
+		{ "Unassigned Bit", "nsh.metadataunassignedbit",
+		FT_UINT8, BASE_HEX, NULL, 0x80,
+		"Unassigned Bit within Variable Length Metadata header", HFILL }
 		},
 
 
 		{ &hf_nsh_metadata_length,
 		{ "Length", "nsh.metadatalen",
-		FT_UINT8, BASE_HEX, NULL, 0x1F,
-		"Length of the variable metadata in 4-byte words", HFILL }
+		FT_UINT8, BASE_HEX, NULL, 0x7F,
+		"Length of the variable metadata in bytes", HFILL }
 		},
 
 

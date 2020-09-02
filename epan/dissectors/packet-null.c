@@ -337,9 +337,10 @@ dissect_null(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     col_set_str(pinfo->cinfo, COL_INFO, "Null/Loopback");
 
     /*
-     * Treat it as a normal DLT_NULL header.
+     * Treat it as a normal DLT_NULL header.  Fetch it in host
+     * byte order.
      */
-    tvb_memcpy(tvb, (guint8 *)&null_header, 0, sizeof(null_header));
+    null_header = tvb_get_h_guint32(tvb, 0);
 
     if ((null_header & 0xFFFF0000) != 0) {
       /*

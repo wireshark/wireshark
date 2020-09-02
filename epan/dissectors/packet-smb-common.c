@@ -114,7 +114,7 @@ int dissect_ms_compressed_string(tvbuff_t *tvb, proto_tree *tree, int offset, in
 				 const char **data)
 {
 	int           compr_len;
-	guint         str_len;
+	gint         str_len;
 	const gchar  *str = NULL;
 
 	/* The name data MUST start at offset 0 of the tvb */

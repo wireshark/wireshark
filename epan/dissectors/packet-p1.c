@@ -2371,7 +2371,7 @@ dissect_p1_MTAOriginatorName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 }
 
 
-static const int * BuiltInEncodedInformationTypes_bits[] = {
+static int * const BuiltInEncodedInformationTypes_bits[] = {
   &hf_p1_BuiltInEncodedInformationTypes_unknown,
   &hf_p1_BuiltInEncodedInformationTypes_telex,
   &hf_p1_BuiltInEncodedInformationTypes_ia5_text,
@@ -2395,7 +2395,7 @@ dissect_p1_BuiltInEncodedInformationTypes(gboolean implicit_tag _U_, tvbuff_t *t
 }
 
 
-static const int * G3FacsimileNonBasicParameters_bits[] = {
+static int * const G3FacsimileNonBasicParameters_bits[] = {
   &hf_p1_G3FacsimileNonBasicParameters_spare_bit0,
   &hf_p1_G3FacsimileNonBasicParameters_spare_bit1,
   &hf_p1_G3FacsimileNonBasicParameters_spare_bit2,
@@ -2732,7 +2732,7 @@ dissect_p1_Priority(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 }
 
 
-static const int * PerMessageIndicators_U_bits[] = {
+static int * const PerMessageIndicators_U_bits[] = {
   &hf_p1_PerMessageIndicators_U_disclosure_of_other_recipients,
   &hf_p1_PerMessageIndicators_U_implicit_conversion_prohibited,
   &hf_p1_PerMessageIndicators_U_alternate_recipient_allowed,
@@ -2933,7 +2933,7 @@ dissect_p1_ConvertedEncodedInformationTypes(gboolean implicit_tag _U_, tvbuff_t 
 }
 
 
-static const int * OtherActions_bits[] = {
+static int * const OtherActions_bits[] = {
   &hf_p1_OtherActions_redirected,
   &hf_p1_OtherActions_dl_operation,
   NULL
@@ -3128,7 +3128,7 @@ dissect_p1_ExtensionType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 }
 
 
-static const int * Criticality_bits[] = {
+static int * const Criticality_bits[] = {
   &hf_p1_Criticality_for_submission,
   &hf_p1_Criticality_for_transfer,
   &hf_p1_Criticality_for_delivery,
@@ -3225,7 +3225,7 @@ dissect_p1_OriginallySpecifiedRecipientNumber(gboolean implicit_tag _U_, tvbuff_
 }
 
 
-static const int * PerRecipientIndicators_bits[] = {
+static int * const PerRecipientIndicators_bits[] = {
   &hf_p1_PerRecipientIndicators_responsibility,
   &hf_p1_PerRecipientIndicators_originating_MTA_report,
   &hf_p1_PerRecipientIndicators_originating_MTA_non_delivery_report,
@@ -4160,7 +4160,7 @@ dissect_p1_RecipientName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 }
 
 
-static const int * OriginatorReportRequest_bits[] = {
+static int * const OriginatorReportRequest_bits[] = {
   &hf_p1_OriginatorReportRequest_spare_bit0,
   &hf_p1_OriginatorReportRequest_spare_bit1,
   &hf_p1_OriginatorReportRequest_spare_bit2,
@@ -4409,7 +4409,7 @@ dissect_p1_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 }
 
 
-static const int * Operations_bits[] = {
+static int * const Operations_bits[] = {
   &hf_p1_Operations_probe_submission_or_report_delivery,
   &hf_p1_Operations_message_submission_or_message_delivery,
   NULL
@@ -4501,7 +4501,7 @@ dissect_p1_SubmissionControlArgument(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 }
 
 
-static const int * WaitingMessages_bits[] = {
+static int * const WaitingMessages_bits[] = {
   &hf_p1_WaitingMessages_long_content,
   &hf_p1_WaitingMessages_low_priority,
   &hf_p1_WaitingMessages_other_security_labels,
@@ -4732,7 +4732,7 @@ dissect_p1_DeliveredOriginatorName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 }
 
 
-static const int * DeliveryFlags_bits[] = {
+static int * const DeliveryFlags_bits[] = {
   &hf_p1_DeliveryFlags_spare_bit0,
   &hf_p1_DeliveryFlags_implicit_conversion_prohibited,
   NULL
@@ -5240,7 +5240,7 @@ dissect_p1_T_objects(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 }
 
 
-static const int * T_source_type_bits[] = {
+static int * const T_source_type_bits[] = {
   &hf_p1_T_source_type_originated_by,
   &hf_p1_T_source_type_redirected_by,
   &hf_p1_T_source_type_dl_expanded_by,
@@ -5432,7 +5432,7 @@ dissect_p1_RestrictedDelivery(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 }
 
 
-static const int * T_standard_parameters_bits[] = {
+static int * const T_standard_parameters_bits[] = {
   &hf_p1_T_standard_parameters_user_name,
   &hf_p1_T_standard_parameters_user_address,
   &hf_p1_T_standard_parameters_deliverable_class,
@@ -5774,7 +5774,7 @@ dissect_p1_PhysicalForwardingAddressRequest(gboolean implicit_tag _U_, tvbuff_t 
 }
 
 
-static const int * PhysicalDeliveryModes_bits[] = {
+static int * const PhysicalDeliveryModes_bits[] = {
   &hf_p1_PhysicalDeliveryModes_ordinary_mail,
   &hf_p1_PhysicalDeliveryModes_special_delivery,
   &hf_p1_PhysicalDeliveryModes_express_mail,

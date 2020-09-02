@@ -12,17 +12,17 @@
 
 #include "config.h"
 
-/* WSLUA_MODULE Utility Functions */
+/* WSLUA_MODULE Utility Utility Functions */
 
 #include "wslua.h"
 #include <math.h>
 #include <epan/stat_tap_ui.h>
 
 
-WSLUA_FUNCTION wslua_get_version(lua_State* L) { /* Gets a string of the Wireshark version. */
+WSLUA_FUNCTION wslua_get_version(lua_State* L) { /* Gets the Wireshark version as a string. */
     const gchar* str = VERSION;
     lua_pushstring(L,str);
-    WSLUA_RETURN(1); /* version string */
+    WSLUA_RETURN(1); /* The version string, e.g. "3.2.5". */
 }
 
 
@@ -40,34 +40,36 @@ void clear_current_plugin_version(void) {
 }
 
 WSLUA_FUNCTION wslua_set_plugin_info(lua_State* L) {
-    /*  Set a Lua table with meta-data about the plugin, such as version.
+    /*
+    Set a Lua table with meta-data about the plugin, such as version.
 
-        The passed-in Lua table entries need to be keyed/indexed by the following:
-         * "version" with a string value identifying the plugin version (required)
-         * "description" with a string value describing the plugin (optional)
-         * "author" with a string value of the author's name(s) (optional)
-         * "repository" with a string value of a URL to a repository (optional)
+    The passed-in Lua table entries need to be keyed/indexed by the following:
 
-        Not all of the above key entries need to be in the table. The 'version'
-        entry is required, however. The others are not currently used for anything, but
-        might be in the future and thus using them might be useful. Table entries keyed
-        by other strings are ignored, and do not cause an error.
+     * "version" with a string value identifying the plugin version (required)
+     * "description" with a string value describing the plugin (optional)
+     * "author" with a string value of the author's name(s) (optional)
+     * "repository" with a string value of a URL to a repository (optional)
 
-        Example:
+    Not all of the above key entries need to be in the table. The 'version'
+    entry is required, however. The others are not currently used for anything, but
+    might be in the future and thus using them might be useful. Table entries keyed
+    by other strings are ignored, and do not cause an error.
 
-        [source,lua]
-        ----
-        local my_info = {
-            version = "1.0.1",
-            author = "Jane Doe",
-            repository = "https://github.com/octocat/Spoon-Knife"
-        }
+    ===== Example
 
-        set_plugin_info(my_info)
-        ----
+    [source,lua]
+    ----
+    local my_info = {
+        version = "1.0.1",
+        author = "Jane Doe",
+        repository = "https://github.com/octocat/Spoon-Knife"
+    }
 
-        @since 1.99.8
-     */
+    set_plugin_info(my_info)
+    ----
+
+    @since 1.99.8
+    */
 #define WSLUA_ARG_set_plugin_info_TABLE 1 /* The Lua table of information. */
 
     if ( lua_istable(L,WSLUA_ARG_set_plugin_info_TABLE) ) {
@@ -106,7 +108,7 @@ WSLUA_FUNCTION wslua_format_date(lua_State* LS) { /* Formats an absolute timesta
     WSLUA_RETURN(1); /* A string with the formated date */
 }
 
-WSLUA_FUNCTION wslua_format_time(lua_State* LS) { /* Formats a relative timestamp in a human readable form. */
+WSLUA_FUNCTION wslua_format_time(lua_State* LS) { /* Formats a relative timestamp in a human readable time. */
 #define WSLUA_ARG_format_time_TIMESTAMP 1 /* A timestamp value to convert. */
     lua_Number timestamp = luaL_checknumber(LS,WSLUA_ARG_format_time_TIMESTAMP);
     nstime_t then;
@@ -174,9 +176,31 @@ char* wslua_get_actual_filename(const char* fname) {
 }
 
 WSLUA_FUNCTION wslua_loadfile(lua_State* L) {
-    /* Lua's loadfile() has been modified so that if a file does not exist
-    in the current directory it will look for it in wireshark's user and system directories. */
-#define WSLUA_ARG_loadfile_FILENAME 1 /* Name of the file to be loaded. */
+    /*
+    Loads a Lua file and compiles it into a Lua chunk, similar to the standard
+    https://www.lua.org/manual/5.1/manual.html#pdf-loadfile[loadfile]
+    but searches additional directories.
+    The search order is the current directory, followed by the user's
+    https://www.wireshark.org/docs/wsug_html_chunked/ChAppFilesConfigurationSection.html[personal configuration]
+    directory, and finally the
+    https://www.wireshark.org/docs/wsug_html_chunked/ChAppFilesConfigurationSection.html[global configuration]
+    directory.
+
+    ===== Example
+
+    [source,lua]
+    ----
+    -- Assume foo.lua contains definition for foo(a,b). Load the chunk
+    -- from the file and execute it to add foo(a,b) to the global table.
+    -- These two lines are effectively the same as dofile('foo.lua').
+    local loaded_chunk = assert(loadfile('foo.lua'))
+    loaded_chunk()
+
+    -- ok to call foo at this point
+    foo(1,2)
+    ----
+    */
+#define WSLUA_ARG_loadfile_FILENAME 1 /* Name of the file to be loaded. If the file does not exist in the current directory, the user and system directories are searched. */
     const char *given_fname = luaL_checkstring(L, WSLUA_ARG_loadfile_FILENAME);
     char* filename;
 
@@ -199,9 +223,17 @@ WSLUA_FUNCTION wslua_loadfile(lua_State* L) {
 }
 
 WSLUA_FUNCTION wslua_dofile(lua_State* L) {
-    /* Lua's dofile() has been modified so that if a file does not exist
-    in the current directory it will look for it in wireshark's user and system directories. */
-#define WSLUA_ARG_dofile_FILENAME 1 /* Name of the file to be run. */
+    /*
+    Loads a Lua file and executes it as a Lua chunk, similar to the standard
+    https://www.lua.org/manual/5.1/manual.html#pdf-dofile[dofile]
+    but searches additional directories.
+    The search order is the current directory, followed by the user's
+    https://www.wireshark.org/docs/wsug_html_chunked/ChAppFilesConfigurationSection.html[personal configuration]
+    directory, and finally the
+    https://www.wireshark.org/docs/wsug_html_chunked/ChAppFilesConfigurationSection.html[global configuration]
+    directory.
+    */
+#define WSLUA_ARG_dofile_FILENAME 1 /* Name of the file to be run. If the file does not exist in the current directory, the user and system directories are searched. */
     const char *given_fname = luaL_checkstring(L, WSLUA_ARG_dofile_FILENAME);
     char* filename = wslua_get_actual_filename(given_fname);
     int n;
@@ -255,9 +287,9 @@ static void statcmd_init(const char *opt_arg, void* userdata) {
 }
 
 WSLUA_FUNCTION wslua_register_stat_cmd_arg(lua_State* L) {
-    /*  Register a function to handle a `-z` option */
-#define WSLUA_ARG_register_stat_cmd_arg_ARGUMENT 1 /* Argument */
-#define WSLUA_OPTARG_register_stat_cmd_arg_ACTION 2 /* Action */
+    /* Register a function to handle a `-z` option */
+#define WSLUA_ARG_register_stat_cmd_arg_ARGUMENT 1 /* The name of the option argument. */
+#define WSLUA_OPTARG_register_stat_cmd_arg_ACTION 2 /* The function to be called when the command is invoked. */
     const char* arg = luaL_checkstring(L,WSLUA_ARG_register_stat_cmd_arg_ARGUMENT);
     statcmd_t* sc = (statcmd_t *)g_malloc0(sizeof(statcmd_t)); /* XXX leaked */
     stat_tap_ui ui_info;

@@ -359,7 +359,7 @@ static dissector_handle_t sub_handle_cap;
 static dissector_handle_t sim_handle, sim_part_handle;
 
 
-static const int *tprof_b1_fields[] = {
+static int * const tprof_b1_fields[] = {
 	&hf_tp_prof_dld,
 	&hf_tp_sms_data_dld,
 	&hf_tp_cb_data_dld,
@@ -371,7 +371,7 @@ static const int *tprof_b1_fields[] = {
 	NULL
 };
 
-static const int *tprof_b2_fields[] = {
+static int * const tprof_b2_fields[] = {
 	&hf_tp_cmd_res,
 	&hf_tp_cc_sim,
 	&hf_tp_cc_sim_support3,
@@ -383,7 +383,7 @@ static const int *tprof_b2_fields[] = {
 	NULL
 };
 
-static const int *tprof_b3_fields[] = {
+static int * const tprof_b3_fields[] = {
 	&hf_tp_pa_display_text,
 	&hf_tp_pa_get_inkey,
 	&hf_tp_pa_get_input,
@@ -395,7 +395,7 @@ static const int *tprof_b3_fields[] = {
 	NULL
 };
 
-static const int *tprof_b4_fields[] = {
+static int * const tprof_b4_fields[] = {
 	&hf_tp_pa_select_item,
 	&hf_tp_pa_send_sms,
 	&hf_tp_pa_send_ss,
@@ -407,7 +407,7 @@ static const int *tprof_b4_fields[] = {
 	NULL
 };
 
-static const int *tprof_b5_fields[] = {
+static int * const tprof_b5_fields[] = {
 	&hf_tp_pa_evt_list,
 	&hf_tp_ev_mt_call,
 	&hf_tp_ev_call_connected,
@@ -419,7 +419,7 @@ static const int *tprof_b5_fields[] = {
 	NULL
 };
 
-static const int *tprof_b6_fields[] = {
+static int * const tprof_b6_fields[] = {
 	&hf_tp_ev_lang_sel,
 	&hf_tp_ev_brows_term,
 	&hf_tp_ev_data_avail,
@@ -431,7 +431,7 @@ static const int *tprof_b6_fields[] = {
 	NULL
 };
 
-static const int *tprof_b7_fields[] = {
+static int * const tprof_b7_fields[] = {
 	&hf_tp_pa_power_on,
 	&hf_tp_pa_power_off,
 	&hf_tp_pa_perform_card_apdu,
@@ -441,7 +441,7 @@ static const int *tprof_b7_fields[] = {
 	NULL
 };
 
-static const int *tprof_b8_fields[] = {
+static int * const tprof_b8_fields[] = {
 	&hf_tp_pa_timer_start_stop,
 	&hf_tp_pa_timer_get_current,
 	&hf_tp_pa_prov_loci_date_tz,
@@ -453,7 +453,7 @@ static const int *tprof_b8_fields[] = {
 	NULL
 };
 
-static const int *tprof_b9_fields[] = {
+static int * const tprof_b9_fields[] = {
 	&hf_tp_display_text,
 	&hf_tp_send_dtmf_cmd,
 	&hf_tp_pa_prov_loci_nmr2,
@@ -465,19 +465,19 @@ static const int *tprof_b9_fields[] = {
 	NULL
 };
 
-static const int *tprof_b10_fields[] = {
+static int * const tprof_b10_fields[] = {
 	&hf_tp_soft_key_support_select_item,
 	&hf_tp_soft_key_support_set_up_menu,
 	&hf_tp_rfu2,
 	NULL
 };
 
-static const int *tprof_b11_fields[] = {
+static int * const tprof_b11_fields[] = {
 	&hf_tp_soft_key_info_max_nb,
 	NULL
 };
 
-static const int *tprof_b12_fields[] = {
+static int * const tprof_b12_fields[] = {
 	&hf_tp_pa_open_chan,
 	&hf_tp_pa_close_chan,
 	&hf_tp_pa_recv_data,
@@ -489,7 +489,7 @@ static const int *tprof_b12_fields[] = {
 	NULL
 };
 
-static const int *tprof_b13_fields[] = {
+static int * const tprof_b13_fields[] = {
 	&hf_tp_bip_csd,
 	&hf_tp_bip_gprs,
 	&hf_tp_bip_bluetooth,
@@ -499,7 +499,7 @@ static const int *tprof_b13_fields[] = {
 	NULL
 };
 
-static const int *tprof_b14_fields[] = {
+static int * const tprof_b14_fields[] = {
 	&hf_tp_char_height,
 	&hf_tp_nd,
 	&hf_tp_nk,
@@ -507,13 +507,13 @@ static const int *tprof_b14_fields[] = {
 	NULL
 };
 
-static const int *tprof_b15_fields[] = {
+static int * const tprof_b15_fields[] = {
 	&hf_tp_char_width,
 	&hf_tp_var_fonts,
 	NULL
 };
 
-static const int *tprof_b16_fields[] = {
+static int * const tprof_b16_fields[] = {
 	&hf_tp_display_resize,
 	&hf_tp_text_wrapping,
 	&hf_tp_text_scrolling,
@@ -522,7 +522,7 @@ static const int *tprof_b16_fields[] = {
 	&hf_tp_width_red_menu,
 	NULL
 };
-static const int *tprof_b17_fields[] = {
+static int * const tprof_b17_fields[] = {
 	&hf_tp_bip_tcp_remote,
 	&hf_tp_bip_udp_remote,
 	&hf_tp_bip_tcp_server,
@@ -533,7 +533,7 @@ static const int *tprof_b17_fields[] = {
 	&hf_tp_bip_hsdpa,
 	NULL
 };
-static const int *tprof_b18_fields[] = {
+static int * const tprof_b18_fields[] = {
 	&hf_tp_pa_display_text_var_time_out,
 	&hf_tp_pa_get_inkey_help,
 	&hf_tp_bip_usb,
@@ -544,18 +544,18 @@ static const int *tprof_b18_fields[] = {
 	&hf_tp_pa_prov_loci_search_mode_change,
 	NULL
 };
-static const int *tprof_b19_fields[] = {
+static int * const tprof_b19_fields[] = {
 	&hf_tp_tia_eia_version,
 	&hf_tp_rfu4,
 	NULL
 };
 
-static const int *tprof_b20_fields[] = {
+static int * const tprof_b20_fields[] = {
 	&hf_tp_tia_iea_is820a_reserved,
 	NULL
 };
 
-static const int *tprof_b21_fields[] = {
+static int * const tprof_b21_fields[] = {
 	&hf_tp_ext_launch_browser_wml,
 	&hf_tp_ext_launch_browser_xhtml,
 	&hf_tp_ext_launch_browser_html,
@@ -564,7 +564,7 @@ static const int *tprof_b21_fields[] = {
 	NULL
 };
 
-static const int *tprof_b22_fields[] = {
+static int * const tprof_b22_fields[] = {
 	&hf_tp_utran_ps_ext_params,
 	&hf_tp_pa_prov_loci_batt_state,
 	&hf_tp_pa_play_tone_melody,
@@ -576,7 +576,7 @@ static const int *tprof_b22_fields[] = {
 	NULL
 };
 
-static const int *tprof_b23_fields[] = {
+static int * const tprof_b23_fields[] = {
 	&hf_tp_pa_set_frames,
 	&hf_tp_pa_get_frames_status,
 	&hf_tp_mms_notif_download,
@@ -588,13 +588,13 @@ static const int *tprof_b23_fields[] = {
 	NULL
 };
 
-static const int *tprof_b24_fields[] = {
+static int * const tprof_b24_fields[] = {
 	&hf_tp_class_i_max_nb_frames,
 	&hf_tp_rfu6,
 	NULL
 };
 
-static const int *tprof_b25_fields[] = {
+static int * const tprof_b25_fields[] = {
 	&hf_tp_evt_browsing_status,
 	&hf_tp_evt_mms_transfer_status,
 	&hf_tp_evt_frame_info_changed,
@@ -606,19 +606,19 @@ static const int *tprof_b25_fields[] = {
 	NULL
 };
 
-static const int *tprof_b26_fields[] = {
+static int * const tprof_b26_fields[] = {
 	&hf_tp_evt_csg_cell_select,
 	&hf_tp_evt_contactless_state_req,
 	&hf_tp_rfu7,
 	NULL
 };
 
-static const int *tprof_b27_fields[] = {
+static int * const tprof_b27_fields[] = {
 	&hf_tp_rfu8,
 	NULL
 };
 
-static const int *tprof_b28_fields[] = {
+static int * const tprof_b28_fields[] = {
 	&hf_tp_text_align_left,
 	&hf_tp_text_align_centre,
 	&hf_tp_text_align_right,
@@ -629,7 +629,7 @@ static const int *tprof_b28_fields[] = {
 	NULL
 };
 
-static const int *tprof_b29_fields[] = {
+static int * const tprof_b29_fields[] = {
 	&hf_tp_text_style_normal,
 	&hf_tp_text_style_bold,
 	&hf_tp_text_style_italic,
@@ -641,7 +641,7 @@ static const int *tprof_b29_fields[] = {
 	NULL
 };
 
-static const int *tprof_b30_fields[] = {
+static int * const tprof_b30_fields[] = {
 	&hf_tp_bip_iwlan,
 	&hf_tp_pa_prov_loci_wsid,
 	&hf_tp_term_app,
@@ -653,7 +653,7 @@ static const int *tprof_b30_fields[] = {
 	NULL
 };
 
-static const int *tprof_b31_fields[] = {
+static int * const tprof_b31_fields[] = {
 	&hf_tp_pa_contactless_state_changed,
 	&hf_tp_csg_cell_discovery,
 	&hf_tp_cnf_params_support_open_chan_server_mode,
@@ -665,7 +665,7 @@ static const int *tprof_b31_fields[] = {
 	NULL
 };
 
-static const int *tprof_b32_fields[] = {
+static int * const tprof_b32_fields[] = {
 	&hf_tp_bip_ims,
 	&hf_tp_pa_prov_loci_henb_ip_addr,
 	&hf_tp_pa_prov_loci_henb_surround_macro,
@@ -677,7 +677,7 @@ static const int *tprof_b32_fields[] = {
 	NULL
 };
 
-static const int *tprof_b33_fields[] = {
+static int * const tprof_b33_fields[] = {
 	&hf_tp_support_dns_addr_req,
 	&hf_tp_support_nw_access_name_reuse,
 	&hf_tp_ev_poll_intv_nego,
@@ -1655,7 +1655,7 @@ proto_register_gsm_sim(void)
 		{ &hf_tp_cb_data_dld,
 			{ "CB Data Download", "gsm_sim.tp.cb_data_dld",
 			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
-			  "TP Cell Broadcast Data Downolad", HFILL }
+			  "TP Cell Broadcast Data Download", HFILL }
 		},
 		{ &hf_tp_menu_sel,
 			{ "Menu Selection", "gsm_sim.tp.menu_sel",

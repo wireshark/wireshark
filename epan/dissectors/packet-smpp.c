@@ -1108,14 +1108,14 @@ static const value_string vals_msc_addr_npi    [] = {
     { 0x00, NULL }
 };
 
-static const gint *regdel_fields[] = {
+static int * const regdel_fields[] = {
     &hf_smpp_regdel_receipt,
     &hf_smpp_regdel_acks,
     &hf_smpp_regdel_notif,
     NULL
 };
 
-static const gint *submit_msg_fields[] = {
+static int * const submit_msg_fields[] = {
     &hf_smpp_esm_submit_msg_mode,
     &hf_smpp_esm_submit_msg_type,
     &hf_smpp_esm_submit_features,
@@ -1473,7 +1473,7 @@ smpp_handle_tlv(proto_tree *tree, tvbuff_t *tvb, int *offset)
                 (*offset) += length;
                 break;
             case  0x0030: {       /* ms_msg_wait_facilities       */
-                const gint *fields[] = {
+                static int * const fields[] = {
                     &hf_smpp_msg_wait_ind,
                     &hf_smpp_msg_wait_type,
                     NULL
@@ -1540,7 +1540,7 @@ smpp_handle_tlv(proto_tree *tree, tvbuff_t *tvb, int *offset)
                 break;
             case  0x0302: {      /* callback_num_pres_ind        */
 
-                const gint *fields[] = {
+                static int * const fields[] = {
                     &hf_smpp_callback_num_pres,
                     &hf_smpp_callback_num_scrn,
                     NULL
@@ -1741,7 +1741,7 @@ smpp_handle_tlv(proto_tree *tree, tvbuff_t *tvb, int *offset)
                 break;
             case  0x1383: {      /* its_session_info     */
 
-                const gint *fields[] = {
+                static int * const fields[] = {
                     &hf_smpp_its_session_sequence,
                     &hf_smpp_its_session_ind,
                     NULL
@@ -1797,7 +1797,7 @@ smpp_handle_dcs(proto_tree *tree, tvbuff_t *tvb, int *offset, guint8 *dataCoding
         if ((val & 0x80) == 0x80) {
             /* Reserved */
         } else if ((val & 0xF0) == 0xF0) {
-            const gint *gsm_msg_control_fields[] = {
+            static int * const gsm_msg_control_fields[] = {
                 &hf_smpp_dcs_reserved,
                 &hf_smpp_dcs_charset,
                 &hf_smpp_dcs_class,
@@ -1806,7 +1806,7 @@ smpp_handle_dcs(proto_tree *tree, tvbuff_t *tvb, int *offset, guint8 *dataCoding
 
             proto_tree_add_bitmask_list_value(code_tree, tvb, off, 1, gsm_msg_control_fields, val);
         } else if (val & 0x10) {
-            const gint *gsm_mwi_control_class_fields[] = {
+            static int * const gsm_mwi_control_class_fields[] = {
                 &hf_smpp_dcs_text_compression,
                 &hf_smpp_dcs_class_present,
                 &hf_smpp_dcs_charset,
@@ -1816,7 +1816,7 @@ smpp_handle_dcs(proto_tree *tree, tvbuff_t *tvb, int *offset, guint8 *dataCoding
 
             proto_tree_add_bitmask_list_value(code_tree, tvb, off, 1, gsm_mwi_control_class_fields, val);
         } else {
-            const gint *gsm_mwi_control_fields[] = {
+            static int * const gsm_mwi_control_fields[] = {
                 &hf_smpp_dcs_text_compression,
                 &hf_smpp_dcs_class_present,
                 &hf_smpp_dcs_charset,
@@ -1833,7 +1833,7 @@ smpp_handle_dcs(proto_tree *tree, tvbuff_t *tvb, int *offset, guint8 *dataCoding
             proto_tree_add_uint(code_tree, hf_smpp_dcs_cbs_language, tvb, off, 1, val);
         } else if ((val & 0x40) == 0x40) { /* General Data Coding indication */
             if (val & 0x10) {
-                const gint *gsm_cbs_gen_class_fields[] = {
+                static int * const gsm_cbs_gen_class_fields[] = {
                     &hf_smpp_dcs_text_compression,
                     &hf_smpp_dcs_class_present,
                     &hf_smpp_dcs_charset,
@@ -1843,7 +1843,7 @@ smpp_handle_dcs(proto_tree *tree, tvbuff_t *tvb, int *offset, guint8 *dataCoding
                 proto_tree_add_bitmask_list_value(code_tree, tvb, off, 1, gsm_cbs_gen_class_fields, val);
 
             } else {
-                const gint *gsm_cbs_gen_fields[] = {
+                static int * const gsm_cbs_gen_fields[] = {
                     &hf_smpp_dcs_text_compression,
                     &hf_smpp_dcs_class_present,
                     &hf_smpp_dcs_charset,
@@ -1853,7 +1853,7 @@ smpp_handle_dcs(proto_tree *tree, tvbuff_t *tvb, int *offset, guint8 *dataCoding
                 proto_tree_add_bitmask_list_value(code_tree, tvb, off, 1, gsm_cbs_gen_fields, val);
             }
         } else if ((val & 0x20) == 0x20) { /* Message with UDH structure */
-            const gint *gsm_cbs_udh_fields[] = {
+            static int * const gsm_cbs_udh_fields[] = {
                 &hf_smpp_dcs_charset,
                 &hf_smpp_dcs_class,
                 NULL
@@ -1861,7 +1861,7 @@ smpp_handle_dcs(proto_tree *tree, tvbuff_t *tvb, int *offset, guint8 *dataCoding
 
             proto_tree_add_bitmask_list_value(code_tree, tvb, off, 1, gsm_cbs_udh_fields, val);
         } else if ((val & 0xF0) == 0xE0) { /* WAP Forum */
-            const gint *gsm_cbs_wap_fields[] = {
+            static int * const gsm_cbs_wap_fields[] = {
                 &hf_smpp_dcs_wap_charset,
                 &hf_smpp_dcs_wap_class,
                 NULL
@@ -1869,7 +1869,7 @@ smpp_handle_dcs(proto_tree *tree, tvbuff_t *tvb, int *offset, guint8 *dataCoding
 
             proto_tree_add_bitmask_list_value(code_tree, tvb, off, 1, gsm_cbs_wap_fields, val);
         } else if ((val & 0xF0) == 0xF0) { /* Data coding / message handling */
-            const gint *gsm_cbs_dcs_fields[] = {
+            static int * const gsm_cbs_dcs_fields[] = {
                 &hf_smpp_dcs_reserved,
                 &hf_smpp_dcs_charset,
                 &hf_smpp_dcs_cbs_class,

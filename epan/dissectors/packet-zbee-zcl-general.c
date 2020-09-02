@@ -237,14 +237,14 @@ void
 dissect_zcl_basic_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
 {
 
-    static const int * alarm_mask[] = {
+    static int * const alarm_mask[] = {
         &hf_zbee_zcl_basic_alarm_mask_gen_hw_fault,
         &hf_zbee_zcl_basic_alarm_mask_gen_sw_fault,
         &hf_zbee_zcl_basic_alarm_mask_reserved,
         NULL
     };
 
-    static const int * local_cfg[] = {
+    static int * const local_cfg[] = {
         &hf_zbee_zcl_basic_disable_local_cfg_reset,
         &hf_zbee_zcl_basic_disable_local_cfg_device_cfg,
         &hf_zbee_zcl_basic_disable_local_cfg_reserved,
@@ -659,14 +659,14 @@ void
 dissect_zcl_power_config_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
 {
     proto_item *it;
-    static const int * mains_alarm_mask[] = {
+    static int * const mains_alarm_mask[] = {
         &hf_zbee_zcl_power_config_mains_alarm_mask_low,
         &hf_zbee_zcl_power_config_mains_alarm_mask_high,
         &hf_zbee_zcl_power_config_mains_alarm_mask_reserved,
         NULL
     };
 
-    static const int * batt_alarm_mask[] = {
+    static int * const batt_alarm_mask[] = {
         &hf_zbee_zcl_power_config_batt_alarm_mask_low,
         &hf_zbee_zcl_power_config_batt_alarm_mask_reserved,
         NULL
@@ -995,7 +995,7 @@ dissect_zbee_zcl_device_temperature_configuration(tvbuff_t *tvb _U_, packet_info
 void
 dissect_zcl_device_temperature_configuration_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
 {
-    static const int * device_temp_alarm_mask[] = {
+    static int * const device_temp_alarm_mask[] = {
         &hf_zbee_zcl_device_temperature_configuration_device_temp_alarm_mask_too_low,
         &hf_zbee_zcl_device_temperature_configuration_device_temp_alarm_mask_too_high,
         &hf_zbee_zcl_device_temperature_configuration_device_temp_alarm_mask_reserved,
@@ -3360,7 +3360,7 @@ dissect_zbee_zcl_on_off(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     gint    rem_len;
     guint8  effect_identifier = 0;
 
-    static const int * onoff_control_mask[] = {
+    static int * const onoff_control_mask[] = {
         &hf_zbee_zcl_on_off_timed_off_control_mask_accept_only_when_on,
         &hf_zbee_zcl_on_off_timed_off_control_mask_reserved,
         NULL
@@ -4240,7 +4240,7 @@ static const value_string zbee_zcl_time_attr_names[] = {
 static void
 dissect_zcl_time_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
 {
-    static const int * time_status_mask[] = {
+    static int * const time_status_mask[] = {
         &hf_zbee_zcl_time_status_master,
         &hf_zbee_zcl_time_status_synchronized,
         &hf_zbee_zcl_time_status_master_zone_dst,
@@ -5276,7 +5276,7 @@ dissect_zcl_rssi_location_get_location_data(tvbuff_t *tvb, proto_tree *tree, gui
 {
      guint8 header;
 
-    static const int * location_header_fields[] = {
+    static int * const location_header_fields[] = {
         &hf_zbee_zcl_rssi_location_header_abs_only,
         &hf_zbee_zcl_rssi_location_header_recalc,
         &hf_zbee_zcl_rssi_location_header_bcast_ind,
@@ -5764,7 +5764,7 @@ dissect_zcl_rssi_location_request_own_location(tvbuff_t *tvb, proto_tree *tree, 
 void
 dissect_zcl_rssi_location_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
 {
-    static const int *location_type[] = {
+    static int * const location_type[] = {
         &hf_zbee_zcl_rssi_location_location_type_absolute,
         &hf_zbee_zcl_rssi_location_location_type_2D,
         &hf_zbee_zcl_rssi_location_location_type_coordinate_system,
@@ -5913,7 +5913,7 @@ proto_register_zbee_zcl_rssi_location(void)
 
         { &hf_zbee_zcl_rssi_location_header_res,
             { "Reserved", "zbee_zcl_general.rssi_location.reserved", FT_BOOLEAN, 8, NULL,
-            0xD0, NULL, HFILL } },
+            0xE0, NULL, HFILL } },
 
         { &hf_zbee_zcl_rssi_location_number_responses,
             { "Number Responses", "zbee_zcl_general.rssi_location.number_responses", FT_UINT8, BASE_HEX, NULL,
@@ -6173,7 +6173,7 @@ dissect_zbee_zcl_analog_input_basic(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
 void
 dissect_zcl_analog_input_basic_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
 {
-    static const int * status_flags[] = {
+    static int * const status_flags[] = {
         &hf_zbee_zcl_analog_input_basic_status_in_alarm,
         &hf_zbee_zcl_analog_input_basic_status_fault,
         &hf_zbee_zcl_analog_input_basic_status_overridden,
@@ -6430,7 +6430,7 @@ dissect_zcl_analog_output_basic_attr_data(proto_tree *tree, tvbuff_t *tvb, guint
     proto_tree  *sub_tree = NULL, *sub = NULL;
     int i;
 
-    static const int * status_flags[] = {
+    static int * const status_flags[] = {
         &hf_zbee_zcl_analog_output_basic_status_in_alarm,
         &hf_zbee_zcl_analog_output_basic_status_fault,
         &hf_zbee_zcl_analog_output_basic_status_overridden,
@@ -6716,7 +6716,7 @@ dissect_zcl_analog_value_basic_attr_data(proto_tree *tree, tvbuff_t *tvb, guint 
     proto_tree  *sub_tree = NULL, *sub = NULL;
     int i;
 
-    static const int * status_flags[] = {
+    static int * const status_flags[] = {
         &hf_zbee_zcl_analog_value_basic_status_in_alarm,
         &hf_zbee_zcl_analog_value_basic_status_fault,
         &hf_zbee_zcl_analog_value_basic_status_overridden,
@@ -6994,7 +6994,7 @@ dissect_zbee_zcl_binary_input_basic(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
 void
 dissect_zcl_binary_input_basic_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
 {
-    static const int * status_flags[] = {
+    static int * const status_flags[] = {
         &hf_zbee_zcl_binary_input_basic_status_in_alarm,
         &hf_zbee_zcl_binary_input_basic_status_fault,
         &hf_zbee_zcl_binary_input_basic_status_overridden,
@@ -7265,7 +7265,7 @@ dissect_zcl_binary_output_basic_attr_data(proto_tree *tree, tvbuff_t *tvb, guint
     proto_tree  *sub_tree = NULL, *sub = NULL;
     int i;
 
-    static const int * status_flags[] = {
+    static int * const status_flags[] = {
         &hf_zbee_zcl_binary_output_basic_status_in_alarm,
         &hf_zbee_zcl_binary_output_basic_status_fault,
         &hf_zbee_zcl_binary_output_basic_status_overridden,
@@ -7563,7 +7563,7 @@ dissect_zcl_binary_value_basic_attr_data(proto_tree *tree, tvbuff_t *tvb, guint 
     proto_tree  *sub_tree = NULL, *sub = NULL;
     int i;
 
-    static const int * status_flags[] = {
+    static int * const status_flags[] = {
         &hf_zbee_zcl_binary_value_basic_status_in_alarm,
         &hf_zbee_zcl_binary_value_basic_status_fault,
         &hf_zbee_zcl_binary_value_basic_status_overridden,
@@ -7835,7 +7835,7 @@ dissect_zbee_zcl_multistate_input_basic(tvbuff_t *tvb _U_, packet_info *pinfo _U
 void
 dissect_zcl_multistate_input_basic_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
 {
-    static const int * status_flags[] = {
+    static int * const status_flags[] = {
         &hf_zbee_zcl_multistate_input_basic_status_in_alarm,
         &hf_zbee_zcl_multistate_input_basic_status_fault,
         &hf_zbee_zcl_multistate_input_basic_status_overridden,
@@ -8089,7 +8089,7 @@ dissect_zcl_multistate_output_basic_attr_data(proto_tree *tree, tvbuff_t *tvb, g
     proto_tree  *sub_tree = NULL, *sub = NULL;
     int i;
 
-    static const int * status_flags[] = {
+    static int * const status_flags[] = {
         &hf_zbee_zcl_multistate_output_basic_status_in_alarm,
         &hf_zbee_zcl_multistate_output_basic_status_fault,
         &hf_zbee_zcl_multistate_output_basic_status_overridden,
@@ -8379,7 +8379,7 @@ dissect_zcl_multistate_value_basic_attr_data(proto_tree *tree, tvbuff_t *tvb, gu
     proto_tree  *sub_tree = NULL, *sub = NULL;
     int i;
 
-    static const int * status_flags[] = {
+    static int * const status_flags[] = {
         &hf_zbee_zcl_multistate_value_basic_status_in_alarm,
         &hf_zbee_zcl_multistate_value_basic_status_fault,
         &hf_zbee_zcl_multistate_value_basic_status_overridden,
@@ -8826,7 +8826,7 @@ dissect_zbee_zcl_commissioning(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 static void
 dissect_zcl_commissioning_restart_device(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    static const int * restart_device_mask[] = {
+    static int * const restart_device_mask[] = {
         &hf_zbee_zcl_commissioning_restart_device_options_startup_mode,
         &hf_zbee_zcl_commissioning_restart_device_options_immediate,
         &hf_zbee_zcl_commissioning_restart_device_options_reserved,
@@ -8890,7 +8890,7 @@ dissect_zcl_commissioning_save_restore_startup_parameters(tvbuff_t *tvb, proto_t
 static void
 dissect_zcl_commissioning_reset_startup_parameters(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    static const int * reset_startup_mask[] = {
+    static int * const reset_startup_mask[] = {
         &hf_zbee_zcl_commissioning_reset_startup_options_reset_current,
         &hf_zbee_zcl_commissioning_reset_startup_options_reset_all,
         &hf_zbee_zcl_commissioning_reset_startup_options_erase_index,
@@ -9385,7 +9385,7 @@ static void dissect_zcl_part_trasfpartframe(tvbuff_t *tvb, proto_tree *tree, gui
     guint8    options;
     gint      frame_len;
 
-    static const int * part_opt[] = {
+    static int * const part_opt[] = {
         &hf_zbee_zcl_part_opt_first_block,
         &hf_zbee_zcl_part_opt_indic_len,
         &hf_zbee_zcl_part_opt_res,
@@ -9495,7 +9495,7 @@ dissect_zcl_part_multiack(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     guint16 first_frame_id;
     guint16 nack_id;
 
-    static const int * ack_opts[] = {
+    static int * const ack_opts[] = {
         &hf_zbee_zcl_part_ack_opt_nack_id_len,
         &hf_zbee_zcl_part_ack_opt_res,
         NULL
@@ -10049,7 +10049,7 @@ decode_zcl_ota_size_in_bytes(gchar *s, guint32 value)
 static void
 dissect_zcl_ota_file_version_field(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    static const int * file_version[] = {
+    static int * const file_version[] = {
         &hf_zbee_zcl_ota_file_version_appl_release,
         &hf_zbee_zcl_ota_file_version_appl_build,
         &hf_zbee_zcl_ota_file_version_stack_release,
@@ -10078,13 +10078,13 @@ dissect_zcl_ota_file_version_field(tvbuff_t *tvb, proto_tree *tree, guint *offse
  *      guint *offset       - pointer to buffer offset
  *      int hf_hdr          - hf_hdr
  *      gint ett            - ett subtree index
- *      const int** fields  - fields an array of pointers to int that lists all the fields of the bitmask
+ *      int* const *fields  - fields an array of pointers to int that lists all the fields of the bitmask
  *  RETURNS
  *      guint8              - field ctrl value
  *---------------------------------------------------------------
  */
 static guint8
-dissect_zcl_ota_field_ctrl_field(tvbuff_t *tvb, proto_tree *tree, guint *offset, int hf_hdr, gint ett, const int **fields)
+dissect_zcl_ota_field_ctrl_field(tvbuff_t *tvb, proto_tree *tree, guint *offset, int hf_hdr, gint ett, int * const *fields)
 {
     guint8      field;
 
@@ -10160,7 +10160,7 @@ dissect_zcl_ota_imagenotify(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 static void
 dissect_zcl_ota_querynextimagereq(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    static const int * fields[] = {
+    static int * const fields[] = {
         &hf_zbee_zcl_ota_query_next_image_req_field_ctrl_hw_ver_present,
         &hf_zbee_zcl_ota_query_next_image_req_field_ctrl_reserved,
         NULL
@@ -10249,7 +10249,7 @@ dissect_zcl_ota_querynextimagersp(tvbuff_t *tvb, proto_tree *tree, guint *offset
 static void
 dissect_zcl_ota_imageblockreq(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    static const int * fields[] = {
+    static int * const fields[] = {
         &hf_zbee_zcl_ota_image_block_req_field_ctrl_ieee_addr_present,
         &hf_zbee_zcl_ota_image_block_req_field_ctrl_min_block_period_present,
         &hf_zbee_zcl_ota_image_block_req_field_ctrl_reserved,
@@ -10309,7 +10309,7 @@ dissect_zcl_ota_imageblockreq(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 static void
 dissect_zcl_ota_imagepagereq(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    static const int * fields[] = {
+    static int * const fields[] = {
         &hf_zbee_zcl_ota_image_page_req_field_ctrl_ieee_addr_present,
         &hf_zbee_zcl_ota_image_page_req_field_ctrl_reserved,
         NULL
@@ -11691,7 +11691,7 @@ dissect_zcl_pwr_prof_pwrprofschedcontrsnotif(tvbuff_t *tvb, proto_tree *tree, gu
 static void
 dissect_zcl_pwr_prof_pwrprofpriceext(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    static const int * options[] = {
+    static int * const options[] = {
         &hf_zbee_zcl_pwr_prof_options_01,
         &hf_zbee_zcl_pwr_prof_options_res,
         NULL
@@ -11732,13 +11732,13 @@ dissect_zcl_pwr_prof_pwrprofpriceext(tvbuff_t *tvb, proto_tree *tree, guint *off
 static void
 dissect_zcl_pwr_prof_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
 {
-    static const int * format_fields[] = {
+    static int * const format_fields[] = {
         &hf_zbee_zcl_pwr_prof_energy_format_rdigit,
         &hf_zbee_zcl_pwr_prof_energy_format_ldigit,
         &hf_zbee_zcl_pwr_prof_energy_format_noleadingzero,
         NULL
     };
-    static const int * modes[] = {
+    static int * const modes[] = {
         &hf_zbee_zcl_pwr_prof_sched_mode_cheapest,
         &hf_zbee_zcl_pwr_prof_sched_mode_greenest,
         &hf_zbee_zcl_pwr_prof_sched_mode_reserved,
@@ -11995,7 +11995,7 @@ proto_register_zbee_zcl_pwr_prof(void)
             "Identifier of the specific energy phase.", HFILL } },
 
         { &hf_zbee_zcl_pwr_prof_expect_duration,
-            { "Expected Duration", "zbee_zcl_general.pwrprof.expecduration", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_zcl_time_in_minutes), 0x0,
+            { "Expected Duration", "zbee_zcl_general.pwrprof.expectduration", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_zcl_time_in_minutes), 0x0,
             "The estimated duration of the specific phase.", HFILL } },
 
         { &hf_zbee_zcl_pwr_prof_num_of_trans_phases,
@@ -12586,7 +12586,7 @@ dissect_zcl_appl_ctrl_ovrl_warning(tvbuff_t *tvb, proto_tree *tree, guint *offse
 static void
 dissect_zcl_appl_ctrl_signal_state_rsp(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_zbee_zcl_appl_ctrl_rem_en_flags,
         &hf_zbee_zcl_appl_ctrl_status2,
         NULL
@@ -12624,7 +12624,7 @@ dissect_zcl_appl_ctrl_signal_state_rsp(tvbuff_t *tvb, proto_tree *tree, guint *o
 static void
 dissect_zcl_appl_ctrl_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
 {
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_zbee_zcl_appl_ctrl_time_mm,
         &hf_zbee_zcl_appl_ctrl_time_encoding_type,
         &hf_zbee_zcl_appl_ctrl_time_hh,
@@ -13839,7 +13839,7 @@ dissect_zbee_zcl_gp_sink_table_entry(tvbuff_t *tvb, proto_tree *tree, guint *off
     guint16 options = 0;
     guint16 app_id, comm_mode;
     proto_tree *subtree;
-    static const int * n_options[] = {
+    static int * const n_options[] = {
         &hf_zbee_gp_sink_tbl_entry_options_app_id,
         &hf_zbee_gp_sink_tbl_entry_options_comm_mode,
         &hf_zbee_gp_sink_tbl_entry_options_seq_num_cap,
@@ -13849,7 +13849,7 @@ dissect_zbee_zcl_gp_sink_table_entry(tvbuff_t *tvb, proto_tree *tree, guint *off
         &hf_zbee_gp_sink_tbl_entry_options_sec_use,
         NULL
     };
-    static const int * n_secur_options[] = {
+    static int * const n_secur_options[] = {
         &hf_zbee_gp_sec_options_sec_level,
         &hf_zbee_gp_sec_options_sec_key_type,
         NULL
@@ -13991,7 +13991,7 @@ dissect_zbee_zcl_gp_proxy_table_entry(tvbuff_t *tvb, proto_tree *tree, guint *of
     guint16 ext_options = 0;
     guint16 app_id;
     proto_tree *subtree;
-    static const int * n_options[] = {
+    static int * const n_options[] = {
         &hf_zbee_gp_proxy_tbl_entry_options_app_id,
         &hf_zbee_gp_proxy_tbl_entry_options_entry_active,
         &hf_zbee_gp_proxy_tbl_entry_options_entry_valid,
@@ -14008,11 +14008,11 @@ dissect_zbee_zcl_gp_proxy_table_entry(tvbuff_t *tvb, proto_tree *tree, guint *of
         &hf_zbee_gp_proxy_tbl_entry_options_opt_ext,
         NULL
     };
-    static const int * n_ext_options[] = {
+    static int * const n_ext_options[] = {
         &hf_zbee_gp_proxy_tbl_entry_ext_options_full_ucast_gps,
         NULL
     };
-    static const int * n_secur_options[] = {
+    static int * const n_secur_options[] = {
         &hf_zbee_gp_sec_options_sec_level,
         &hf_zbee_gp_sec_options_sec_key_type,
         NULL
@@ -14167,7 +14167,7 @@ dissect_zbee_zcl_gp_proxy_table(tvbuff_t *tvb, proto_tree *tree, guint offset)
 static int
 dissect_zbee_zcl_gp_attr_gpp_functionality(tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
-    static const int * n_fields[] = {
+    static int * const n_fields[] = {
         &hf_zbee_zcl_gp_attr_gpp_func_fld_gp_feature,
         &hf_zbee_zcl_gp_attr_gpp_func_fld_direct_comm,
         &hf_zbee_zcl_gp_attr_gpp_func_fld_derived_gcast_comm,
@@ -14208,7 +14208,7 @@ dissect_zbee_zcl_gp_attr_gpp_functionality(tvbuff_t *tvb, proto_tree *tree, guin
 static int
 dissect_zbee_zcl_gp_attr_gpp_active_functionality(tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
-    static const int * n_fields[] = {
+    static int * const n_fields[] = {
         &hf_zbee_zcl_gp_attr_gpp_active_func_fld_gp_functionality,
         NULL
     };
@@ -14234,7 +14234,7 @@ dissect_zbee_zcl_gp_attr_gpp_active_functionality(tvbuff_t *tvb, proto_tree *tre
 static int
 dissect_zbee_zcl_gp_attr_gps_functionality(tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
-    static const int * n_fields[] = {
+    static int * const n_fields[] = {
         &hf_zbee_zcl_gp_attr_gps_func_fld_gp_feature,
         &hf_zbee_zcl_gp_attr_gps_func_fld_direct_comm,
         &hf_zbee_zcl_gp_attr_gps_func_fld_derived_gcast_comm,
@@ -14279,7 +14279,7 @@ dissect_zbee_zcl_gp_attr_gps_functionality(tvbuff_t *tvb, proto_tree *tree, guin
 static int
 dissect_zbee_zcl_gp_attr_gps_active_functionality(tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
-    static const int * n_fields[] = {
+    static int * const n_fields[] = {
         &hf_zbee_zcl_gp_attr_gps_active_func_fld_gp_functionality,
         NULL
     };
@@ -14305,7 +14305,7 @@ dissect_zbee_zcl_gp_attr_gps_active_functionality(tvbuff_t *tvb, proto_tree *tre
 static int
 dissect_zbee_zcl_gp_attr_gps_communication_mode(tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
-    static const int * n_fields[] = {
+    static int * const n_fields[] = {
         &hf_zbee_zcl_gp_attr_gps_communication_mode_fld_mode,
         NULL
     };
@@ -14331,7 +14331,7 @@ dissect_zbee_zcl_gp_attr_gps_communication_mode(tvbuff_t *tvb, proto_tree *tree,
 static int
 dissect_zbee_zcl_gp_attr_gps_comm_exit_mode(tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
-    static const int * n_fields[] = {
+    static int * const n_fields[] = {
         &hf_zbee_zcl_gp_attr_gps_comm_exit_mode_fld_on_comm_window_expire,
         &hf_zbee_zcl_gp_attr_gps_comm_exit_mode_fld_on_pairing_success,
         &hf_zbee_zcl_gp_attr_gps_comm_exit_mode_fld_on_gp_proxy_comm_mode,
@@ -14359,7 +14359,7 @@ dissect_zbee_zcl_gp_attr_gps_comm_exit_mode(tvbuff_t *tvb, proto_tree *tree, gui
 static int
 dissect_zbee_zcl_gp_attr_gps_secur_lvl(tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
-    static const int * n_fields[] = {
+    static int * const n_fields[] = {
         &hf_zbee_zcl_gp_attr_gps_secur_lvl_fld_min_gpd_secur_lvl,
         &hf_zbee_zcl_gp_attr_gps_secur_lvl_fld_protection_with_gp_link_key,
         &hf_zbee_zcl_gp_attr_gps_secur_lvl_fld_involve_tc,
@@ -14389,7 +14389,7 @@ dissect_zcl_gp_proxy_sink_table_request(proto_tree *tree, tvbuff_t *tvb, guint *
     /* get Options field */
     guint8 options = tvb_get_guint8(tvb, *offset);
     guint8 app_id, req_type;
-    static const int * n_options[] = {
+    static int * const n_options[] = {
         &hf_zbee_zcl_proxy_sink_tbl_req_fld_app_id,
         &hf_zbee_zcl_proxy_sink_tbl_req_fld_req_type,
         NULL
@@ -14481,7 +14481,7 @@ dissect_zcl_gp_proxy_sink_table_response(proto_tree *tree, tvbuff_t *tvb, guint 
 static void
 dissect_zcl_gp_sink_comm_mode(proto_tree *tree, tvbuff_t *tvb, guint *offset)
 {
-    static const int * n_options[] = {
+    static int * const n_options[] = {
         &hf_zbee_zcl_gp_cmd_sink_comm_mode_options_fld_action,
         &hf_zbee_zcl_gp_cmd_sink_comm_mode_options_fld_inv_gpm_in_secur,
         &hf_zbee_zcl_gp_cmd_sink_comm_mode_options_fld_inv_gpm_in_pairing,
@@ -14515,7 +14515,7 @@ dissect_zcl_gp_sink_comm_mode(proto_tree *tree, tvbuff_t *tvb, guint *offset)
 static int
 dissect_zbee_zcl_gp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-    static const int * gpp_gpd_link[] = {
+    static int * const gpp_gpd_link[] = {
         &hf_zbee_gpp_gpd_link_rssi,
         &hf_zbee_gpp_gpd_link_lqi,
         NULL
@@ -14545,7 +14545,7 @@ dissect_zbee_zcl_gp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
         switch (cmd_id) {
             case ZBEE_CMD_ID_GP_NOTIFICATION:
             {
-                static const int * n_options[] = {
+                static int * const n_options[] = {
                     &hf_zbee_gp_cmd_notif_opt_app_id,
                     &hf_zbee_gp_cmd_notif_opt_also_unicast,
                     &hf_zbee_gp_cmd_notif_opt_also_derived_group,
@@ -14596,7 +14596,7 @@ dissect_zbee_zcl_gp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 
             case ZBEE_CMD_ID_GP_COMMISSIONING_NOTIFICATION:
             {
-                static const int * commn_options[] = {
+                static int * const commn_options[] = {
                     &hf_zbee_gp_cmd_comm_notif_opt_app_id,
                     &hf_zbee_gp_cmd_comm_notif_opt_rx_after_tx,
                     &hf_zbee_gp_cmd_comm_notif_opt_secur_level,
@@ -14643,12 +14643,12 @@ dissect_zbee_zcl_gp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 
             case ZBEE_CMD_ID_GP_PAIRING_CONFIGURATION:
             {
-                static const int * pc_actions[] = {
+                static int * const pc_actions[] = {
                     &hf_zbee_gp_cmd_pc_actions_action,
                     &hf_zbee_gp_cmd_pc_actions_send_gp_pairing,
                     NULL
                 };
-                static const int * pc_options[] = {
+                static int * const pc_options[] = {
                     &hf_zbee_gp_cmd_pc_opt_app_id,
                     &hf_zbee_gp_cmd_pc_opt_communication_mode,
                     &hf_zbee_gp_cmd_pc_opt_seq_number_cap,
@@ -14711,7 +14711,7 @@ dissect_zbee_zcl_gp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
                 offset += 1;
 
                 if (options & ZBEE_ZCL_GP_CMD_PC_OPT_SECURITY_USE) {
-                    static const int * secur_options[] = {
+                    static int * const secur_options[] = {
                         &hf_zbee_gp_cmd_pc_secur_level,
                         &hf_zbee_gp_cmd_pc_secur_key_type,
                         NULL
@@ -14741,7 +14741,7 @@ dissect_zbee_zcl_gp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
                     }
                 }
                 if (options & ZBEE_ZCL_GP_CMD_PC_OPT_APP_INFO_PRESENT) {
-                    static const int * app_info[] = {
+                    static int * const app_info[] = {
                         &hf_zbee_gp_cmd_pc_app_info_manuf_id_present,
                         &hf_zbee_gp_cmd_pc_app_info_model_id_present,
                         &hf_zbee_gp_cmd_pc_app_info_gpd_commands_present,
@@ -14841,7 +14841,7 @@ dissect_zbee_zcl_gp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 
             case ZBEE_ZCL_CMD_ID_GP_PAIRING:
             {
-                static const int * p_options[] = {
+                static int * const p_options[] = {
                     &hf_zbee_gp_cmd_pairing_opt_app_id,
                     &hf_zbee_gp_cmd_pairing_opt_add_sink,
                     &hf_zbee_gp_cmd_pairing_opt_remove_gpd,
@@ -14910,7 +14910,7 @@ dissect_zbee_zcl_gp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 
             case ZBEE_ZCL_CMD_ID_GP_PROXY_COMMISSIONING_MODE:
             {
-                static const int * pcm_options[] = {
+                static int * const pcm_options[] = {
                     &hf_zbee_gp_cmd_pcm_opt_action,
                     &hf_zbee_gp_cmd_pcm_opt_exit_mode,
                     &hf_zbee_gp_cmd_pcm_opt_channel_present,
@@ -14921,7 +14921,7 @@ dissect_zbee_zcl_gp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
                 proto_tree_add_bitmask(tree, tvb, offset, hf_zbee_gp_cmd_proxy_commissioning_mode_options,
                                        ett_zbee_gp_cmd_proxy_commissioning_mode_options, pcm_options, ENC_NA);
                 if (options & ZBEE_ZCL_GP_PROXY_COMMISSIONING_MODE_OPTION_ACTION) {
-                    static const int * exit_mode[] = {
+                    static int * const exit_mode[] = {
                         &hf_zbee_gp_cmd_pcm_exit_mode_on_comm_window_expire,
                         &hf_zbee_gp_cmd_pcm_exit_mode_on_pairing_success,
                         &hf_zbee_gp_cmd_pcm_exit_mode_on_gp_proxy_comm_mode,
@@ -14944,12 +14944,12 @@ dissect_zbee_zcl_gp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 
             case ZBEE_ZCL_CMD_ID_GP_RESPONSE:
             {
-                static const int * rsp_options[] = {
+                static int * const rsp_options[] = {
                     &hf_zbee_gp_cmd_resp_opt_app_id,
                     &hf_zbee_gp_cmd_resp_opt_tx_on_ep_match,
                     NULL
                 };
-                static const int * tx_ch[] = {
+                static int * const tx_ch[] = {
                     &hf_zbee_gp_cmd_resp_tx_channel,
                     NULL
                 };
@@ -15084,7 +15084,7 @@ proto_register_zbee_zcl_gp(void)
           { "Commissioning window", "zbee_zcl_general.gp.proxy_comm_mode.comm_window", FT_UINT16, BASE_DEC,
             NULL, 0x0, "Commissioning window in seconds", HFILL }},
         { &hf_zbee_zcl_gp_channel,
-          { "Channel", "zbee_zcl_general.gp.proxy_comm_mode.cnannel", FT_UINT8, BASE_DEC,
+          { "Channel", "zbee_zcl_general.gp.proxy_comm_mode.channel", FT_UINT8, BASE_DEC,
             NULL, 0x0, "Identifier of the channel the devices SHOULD switch to on reception", HFILL }},
         { &hf_zbee_gp_cmd_pcm_opt_action,
           { "Action", "zbee_zcl_general.gp.proxy_comm_mode.opt.action", FT_UINT8, BASE_DEC,
@@ -15460,7 +15460,7 @@ proto_register_zbee_zcl_gp(void)
           { "ApplicationID", "zbee_zcl_general.gp.sink_tbl.entry.opt.app_id", FT_UINT16, BASE_HEX,
             NULL, ZBEE_ZCL_GP_SINK_TBL_OPT_APP_ID, NULL, HFILL }},
         { &hf_zbee_gp_sink_tbl_entry_options_comm_mode,
-          { "Communicaton Mode", "zbee_zcl_general.gp.sink_tbl.entry.opt.comm_mode", FT_UINT16, BASE_HEX,
+          { "Communication Mode", "zbee_zcl_general.gp.sink_tbl.entry.opt.comm_mode", FT_UINT16, BASE_HEX,
             VALS(zbee_zcl_gp_communication_modes), ZBEE_ZCL_GP_SINK_TBL_OPT_COMMUNICATION_MODE, NULL, HFILL }},
         { &hf_zbee_gp_sink_tbl_entry_options_seq_num_cap,
           { "Sequence number capabilities", "zbee_zcl_general.gp.sink_tbl.entry.opt.seq_num_cap", FT_BOOLEAN, 16,
@@ -15976,12 +15976,12 @@ static const value_string zbee_zcl_touchlink_keyid_names[] = {
 static void
 dissect_zcl_touchlink_scan_request(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    static const int * zbee_info_flags[] = {
+    static int * const zbee_info_flags[] = {
         &hf_zbee_zcl_touchlink_zbee_type,
         &hf_zbee_zcl_touchlink_zbee_rxidle,
         NULL
     };
-    static const int * zll_info_flags[] = {
+    static int * const zll_info_flags[] = {
         &hf_zbee_zcl_touchlink_info_factory,
         &hf_zbee_zcl_touchlink_info_assignment,
         &hf_zbee_zcl_touchlink_info_initiator,
@@ -16118,19 +16118,19 @@ dissect_zcl_touchlink_network_update_request(tvbuff_t *tvb, proto_tree *tree, gu
 static void
 dissect_zcl_touchlink_scan_response(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    static const int * zbee_info_flags[] = {
+    static int * const zbee_info_flags[] = {
         &hf_zbee_zcl_touchlink_zbee_type,
         &hf_zbee_zcl_touchlink_zbee_rxidle,
         NULL
     };
-    static const int * zll_info_flags[] = {
+    static int * const zll_info_flags[] = {
         &hf_zbee_zcl_touchlink_info_factory,
         &hf_zbee_zcl_touchlink_info_assignment,
         &hf_zbee_zcl_touchlink_info_initiator,
         &hf_zbee_zcl_touchlink_info_undefined,
         NULL
     };
-    static const int * zll_keybit_flags[] = {
+    static int * const zll_keybit_flags[] = {
         &hf_zbee_zcl_touchlink_key_bit_dev,
         &hf_zbee_zcl_touchlink_key_bit_master,
         &hf_zbee_zcl_touchlink_key_bit_cert,

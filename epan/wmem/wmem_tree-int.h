@@ -45,11 +45,11 @@ typedef struct _wmem_tree_node_t wmem_tree_node_t;
 typedef struct _wmem_itree_node_t wmem_itree_node_t;
 
 struct _wmem_tree_t {
-    wmem_allocator_t *master;
-    wmem_allocator_t *allocator;
+    wmem_allocator_t *metadata_allocator;
+    wmem_allocator_t *data_allocator;
     wmem_tree_node_t *root;
-    guint             master_cb_id;
-    guint             slave_cb_id;
+    guint             metadata_scope_cb_id;
+    guint             data_scope_cb_id;
 
     void (*post_rotation_cb)(wmem_tree_node_t *);
 };

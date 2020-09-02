@@ -420,6 +420,8 @@ print_usage(FILE *output)
     fprintf(output, "                            packets:NUM - ringbuffer: replace after NUM packets\n");
     fprintf(output, "                           interval:NUM - switch to next file when the time is\n");
     fprintf(output, "                                          an exact multiple of NUM secs\n");
+    fprintf(output, "                          printname:FILE - print filename to FILE when written\n");
+    fprintf(output, "                                           (can use 'stdout' or 'stderr')\n");
     fprintf(output, "  -n                       use pcapng format instead of pcap (default)\n");
     fprintf(output, "  -P                       use libpcap format instead of pcapng\n");
     fprintf(output, "  --capture-comment <comment>\n");
@@ -2895,7 +2897,7 @@ capture_loop_init_pcapng_output(capture_options *capture_opts, loop_data *ld)
     }
 
     gboolean successful = TRUE;
-    int      err;
+    int      err = 0;
     GString *os_info_str = g_string_new("");
 
     get_os_version_info(os_info_str);
@@ -2948,6 +2950,7 @@ capture_loop_init_pcapng_output(capture_options *capture_opts, loop_data *ld)
                                                                   "Dumpcap dummy interface",        /* IDB_DESCRIPTION   3 */
                                                                   NULL,                             /* IDB_FILTER       11 */
                                                                   os_info_str->str,                 /* IDB_OS           12 */
+                                                                  NULL,                             /* IDB_HARDWARE     15 */
                                                                   -1,
                                                                   0,
                                                                   &(global_ld.bytes_written),
@@ -2973,6 +2976,7 @@ capture_loop_init_pcapng_output(capture_options *capture_opts, loop_data *ld)
                                                                   interface_opts->descr,      /* IDB_DESCRIPTION   3 */
                                                                   interface_opts->cfilter,    /* IDB_FILTER       11 */
                                                                   os_info_str->str,           /* IDB_OS           12 */
+                                                                  interface_opts->hardware,   /* IDB_HARDWARE     15 */
                                                                   pcap_src->linktype,
                                                                   pcap_src->snaplen,
                                                                   &(global_ld.bytes_written),
@@ -2993,8 +2997,7 @@ capture_loop_init_pcapng_output(capture_options *capture_opts, loop_data *ld)
 static gboolean
 capture_loop_init_output(capture_options *capture_opts, loop_data *ld, char *errmsg, int errmsg_len)
 {
-    int               err;
-    gboolean          successful;
+    int err = 0;
 
     g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_init_output");
 
@@ -3030,6 +3033,7 @@ capture_loop_init_output(capture_options *capture_opts, loop_data *ld, char *err
         }
     }
     if (ld->pdh) {
+        gboolean successful;
         if (capture_opts->use_pcapng) {
             successful = capture_loop_init_pcapng_output(capture_opts, ld);
         } else {
@@ -3397,6 +3401,16 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
                 if (*save_file_fd != -1) {
                     g_free(capfile_name);
                     capfile_name = NULL;
+                }
+                if (capture_opts->print_file_names) {
+                    if (!ringbuf_set_print_name(capture_opts->print_name_to, NULL)) {
+                        g_snprintf(errmsg, errmsg_len, "Could not write filenames to %s: %s.\n",
+                                   capture_opts->print_name_to,
+                                   g_strerror(errno));
+                        g_free(capfile_name);
+                        ringbuf_error_cleanup();
+                        return FALSE;
+                    }
                 }
             } else {
                 /* Try to open/create the specified file for use as a capture buffer. */
@@ -4462,7 +4476,18 @@ set_80211_channel(const char *iface, const char *opt)
     gchar **options = NULL;
 
     options = g_strsplit_set(opt, ",", 4);
-    for (args = 0; options[args]; args++);
+    for (args = 0; options[args]; args++)
+        ;
+
+    ret = ws80211_init();
+    if (ret != WS80211_INIT_OK) {
+        if (ret == WS80211_INIT_NOT_SUPPORTED)
+            cmdarg_err("Setting 802.11 channels is not supported on this platform");
+        else
+            cmdarg_err("Failed to init ws80211: %s", g_strerror(abs(ret)));
+        ret = 2;
+        goto out;
+    }
 
     if (options[0])
         freq = get_nonzero_guint32(options[0], "802.11 channel frequency");
@@ -4482,12 +4507,6 @@ set_80211_channel(const char *iface, const char *opt)
     if (args >= 3 && options[3])
         center_freq2 = get_nonzero_guint32(options[3], "VHT center frequency 2");
 
-    ret = ws80211_init();
-    if (ret) {
-        cmdarg_err("%d: Failed to init ws80211: %s\n", abs(ret), g_strerror(abs(ret)));
-        ret = 2;
-        goto out;
-    }
     ret = ws80211_set_freq(iface, freq, type, center_freq1, center_freq2);
 
     if (ret) {
@@ -4571,10 +4590,6 @@ main(int argc, char *argv[])
 
     /* Load wpcap if possible. Do this before collecting the run-time version information */
     load_wpcap();
-
-    /* ... and also load the packet.dll from wpcap */
-    /* XXX - currently not required, may change later. */
-    /*wpcap_packet_load();*/
 #endif
 
     /* Initialize the version information. */

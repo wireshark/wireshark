@@ -70,6 +70,9 @@ _C:\ProgramData\chocolatey_ or _C:\Tools_. If you want to avoid this
 behavior you'll probabaly want to install Python using the packages from
 python.org.
 
+Other package managers for Windows include the https://docs.microsoft.com/en-us/windows/package-manager/[Windows Package Manager (winget)] and https://scoop.sh/[Scoop].
+As of May 2020 neither option provides all of the packages we require, but that might change in the future.
+
 [[ChToolsCMake]]
 
 === CMake
@@ -117,6 +120,11 @@ example, you can use -DBUILD_mmdbresolve=OFF to disable mmdbresolve.
 Let you set the path to a locally-compiled version of c-ares. Most
 optional libraries have xxx_INCLUDE_DIR and xxx_LIB flags that let you
 control their discovery.
+
+-DCMAKE_OSX_DEPLOYMENT_TARGET=10.12::
+Specify the minimum macOS version for Wireshark and each command line utility.
+Note that this doesn’t affect the minimum target for third-party libraries.
+For example, if you’re building for macOS 10.12 you’ll need to install https://doc.qt.io/archives/qt-5.13/supported-platforms.html[Qt 5.14 or earlier] and ensure that other libraries support macOS 10.12, for example by running `tools/macos-setup.sh -t 10.12`.
 
 -DENABLE_APPLICATION_BUNDLE=OFF:: Disable building an application bundle (Wireshark.app) on macOS
 
@@ -455,6 +463,9 @@ Asciidoctor markup.
 Our various output formats are generated using the following tools.
 Intermediate formats are in _italics_.
 
+Man page roff:: pod2man
+Man page HTML:: pod2html
+
 Guide HTML:: Asciidoctor → _DocBook XML_ → xsltproc + DocBook XSL
 Guide PDF:: Asciidoctor
 Guide HTML Help:: Asciidoctor → _DocBook XML_ → xsltproc + DocBook XSL → HHC
@@ -470,21 +481,25 @@ JavaScript (Asciidoctor.js). Only the Asciidoctor and AsciidoctorJ
 flavors are supported for building the Wireshark documentation and
 AsciidoctorJ is recommended.
 
-The guides and release notes were originally written in DocBook (hence
-the directory name). They were later converted to AsciiDoc and then
-migrated to Asciidoctor.
-https://asciidoctor.org/docs/migration/[`compat-mode`] is currently
-enabled for the guides, but we are steadily migrating to Asciidoctor’s
-modern (>= 1.5.0) syntax.
+The guides and release notes were originally written in DocBook (hence the directory name).
+They were later converted to AsciiDoc and then migrated to Asciidoctor.
+We currently use Asciidoctor’s modern (>= 1.5.0) syntax.
 
 PDF output requires Asciidoctor PDF. It is included with AsciidoctorJ
 but _not_ with Asciidoctor.
 
-==== Xsltproc And DocBook
+==== DocBook XML and XSL
 
-The single HTML, chunked HTML, and HTML Help guides are generated using
-DocBook XSL stylesheets. They in turn require an XSLT processor. We use
-`xsltproc`.
+Converting from DocBook to HTML and CHM requires the DocBook DTD
+(http://www.sagehill.net/docbookxsl/ToolsSetup.html) and DocBook
+stylesheets
+(http://www.sagehill.net/docbookxsl/InstallStylesheets.html).
+These are available via installable packages on most Linux distributions, Chocolatey, and Homebrew.
+
+==== xsltproc
+
+http://xmlsoft.org/xslt/[xsltproc] converts DocBook XML to various formats based on XSL stylesheets.
+It either ships as part of the operating system or is available via an installable package on most Linux distributions, Chocolatey, and Homebrew.
 
 ==== HTML Help
 
@@ -507,7 +522,7 @@ since 2002).
 
 [[ChToolsDebugger]]
 
-==== Debugger
+=== Debugger
 
 Using a good debugger can save you a lot of development time.
 
@@ -516,7 +531,7 @@ otherwise the debugger will simply fail or you will only see a lot of garbage.
 
 [[ChToolsMSVCDebugger]]
 
-===== Visual Studio Integrated Debugger
+==== Visual Studio Integrated Debugger
 
 You can use the integrated debugger of Visual Studio if your toolchain includes
 it.  Open the solution in your build directory and build and debug as normal
@@ -559,7 +574,7 @@ If you require a non-optimised version, then build using a debug configuration.
 
 [[ChToolsMSDebuggingTools]]
 
-===== Debugging Tools For Windows
+==== Debugging Tools For Windows
 
 You can also use the Microsoft Debugging Tools for Windows toolkit, which is a
 standalone GUI debugger. Although it’s not that comfortable compared to
@@ -964,8 +979,7 @@ tree.
 It most cases you may not need the patch tool installed. Git and Gerrit should
 handle patches for you.
 
-You will find more instructions in <<ChSrcPatchApply>>on how to use the patch
-tool.
+// You will find more instructions in <<ChSrcPatchApply>>on how to use the patch tool.
 
 [[ChToolsUnixPatch]]
 

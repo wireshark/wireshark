@@ -87,7 +87,7 @@ static int hf_forces_unknown_tlv = -1;
 #define EventNotification           0x05
 #define PacketRedirect              0x06
 #define Heartbeat                   0x0F
-#define AssociationSetupRepsonse    0x11
+#define AssociationSetupResponse    0x11
 #define ConfigResponse              0x13
 #define QueryResponse               0x14
 
@@ -239,7 +239,7 @@ static const value_string message_type_vals[] = {
     { EventNotification,        "EventNotification" },
     { PacketRedirect,           "PacketRedirect" },
     { Heartbeat,                "Heartbeat" },
-    { AssociationSetupRepsonse, "AssociationSetupRepsonse" },
+    { AssociationSetupResponse, "AssociationSetupResponse" },
     { ConfigResponse,           "ConfigResponse" },
     { QueryResponse,            "QueryResponse" },
     { 0,                        NULL},
@@ -822,7 +822,7 @@ proto_register_forces(void)
                                    10, &forces_alternate_sctp_high_prio_channel_port);
 
     prefs_register_uint_preference(forces_module, "sctp_med_prio_port",
-                                   "SCTP Meidium Priority channel port",
+                                   "SCTP Medium Priority channel port",
                                    "Decode packets on this sctp port as ForCES",
                                    10, &forces_alternate_sctp_med_prio_channel_port);
 

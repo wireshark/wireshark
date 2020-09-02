@@ -1384,7 +1384,7 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
         tree_offset += 1;
 
         if( message_version > 0 ) {
-            static const int * flags[] = {
+            static int * const flags[] = {
                 &hf_jxta_message_flag_utf16be,
                 &hf_jxta_message_flag_ucs32be,
                 NULL
@@ -1621,7 +1621,7 @@ static int dissect_jxta_message_element_1(tvbuff_t * tvb, packet_info * pinfo, p
     guint32 content_len;
     gchar *mediatype = NULL;
     tvbuff_t *element_content_tvb;
-    static const int * element_flags[] = {
+    static int * const element_flags[] = {
         &hf_jxta_element1_flag_hasType,
         &hf_jxta_element1_flag_hasEncoding,
         &hf_jxta_element1_flag_hasSignature,
@@ -1879,7 +1879,7 @@ static int dissect_jxta_message_element_2(tvbuff_t * tvb, packet_info * pinfo, p
     guint64 content_len;
     const gchar *mediatype = NULL;
     tvbuff_t *element_content_tvb;
-    static const int * element_flags[] = {
+    static int * const element_flags[] = {
         &hf_jxta_element2_flag_64bitlens,
         &hf_jxta_element2_flag_nameLiteral,
         &hf_jxta_element2_flag_hasType,

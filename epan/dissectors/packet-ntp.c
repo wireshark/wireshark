@@ -218,28 +218,9 @@ static const struct {
 	{ NULL,		NULL}
 };
 
-#define NTP_EXT_R_MASK 0x80
-
 static const value_string ext_r_types[] = {
 	{ 0,		"Request" },
 	{ 1,		"Response" },
-	{ 0,		NULL}
-};
-
-#define NTP_EXT_ERROR_MASK 0x40
-#define NTP_EXT_VN_MASK 0x3f
-
-static const value_string ext_op_types[] = {
-	{ 0,		"NULL" },
-	{ 1,		"ASSOC" },
-	{ 2,		"CERT" },
-	{ 3,		"COOK" },
-	{ 4,		"AUTO" },
-	{ 5,		"TAI" },
-	{ 6,		"SIGN" },
-	{ 7,		"IFF" },
-	{ 8,		"GQ" },
-	{ 9,		"MV" },
 	{ 0,		NULL}
 };
 
@@ -533,6 +514,7 @@ static value_string_ext priv_rc_types_ext = VALUE_STRING_EXT_INIT(priv_rc_types)
 #define PRIV_INFO_FLAG_AUTHENABLE    0x20
 #define PRIV_INFO_FLAG_SEL_CANDIDATE 0x40
 #define PRIV_INFO_FLAG_SHORTLIST     0x80
+/* XXX PRIV_INFO_FLAG_IBURST is unused, is a field needed? */
 #define PRIV_INFO_FLAG_IBURST        0x100
 
 #define PRIV_CONF_FLAG_AUTHENABLE    0x01
@@ -577,6 +559,49 @@ static const value_string authentication_types[] = {
 	{ 0,		NULL}
 };
 
+/*
+ * NTP Extension Field Types.
+ * https://www.iana.org/assignments/ntp-parameters/ntp-parameters.xhtml#ntp-parameters-3
+ */
+static const value_string ntp_ext_field_types[] = {
+	{ 0x0002, "No-Operation Request" },
+	{ 0x0102, "Association Message Request" },
+	{ 0x0104, "Unique Identifier" },
+	{ 0x0202, "Certificate Message Request" },
+	{ 0x0204, "NTS Cookie" },
+	{ 0x0302, "Cookie Message Request" },
+	{ 0x0304, "NTS Cookie Placeholder" },
+	{ 0x0402, "Autokey Message Request" },
+	{ 0x0404, "NTS Authenticator and Encrypted Extension Fields" },
+	{ 0x0502, "Leapseconds Message Request" },
+	{ 0x0602, "Sign Message Request" },
+	{ 0x0702, "IFF Identity Message Request" },
+	{ 0x0802, "GQ Identity Message Request" },
+	{ 0x0902, "MV Identity Message Request" },
+	{ 0x2005, "Checksum Complement" },
+	{ 0x8002, "No-Operation Response" },
+	{ 0x8102, "Association Message Response" },
+	{ 0x8202, "Certificate Message Response" },
+	{ 0x8302, "Cookie Message Response" },
+	{ 0x8402, "Autokey Message Response" },
+	{ 0x8502, "Leapseconds Message Response" },
+	{ 0x8602, "Sign Message Response" },
+	{ 0x8702, "IFF Identity Message Response" },
+	{ 0x8802, "GQ Identity Message Response" },
+	{ 0x8902, "MV Identity Message Response" },
+	{ 0xC002, "No-Operation Error Response" },
+	{ 0xC102, "Association Message Error Response" },
+	{ 0xC202, "Certificate Message Error Response" },
+	{ 0xC302, "Cookie Message Error Response" },
+	{ 0xC402, "Autokey Message Error Response" },
+	{ 0xC502, "Leapseconds Message Error Response" },
+	{ 0xC602, "Sign Message Error Response" },
+	{ 0xC702, "IFF Identity Message Error Response" },
+	{ 0xC802, "GQ Identity Message Error Response" },
+	{ 0xC902, "MV Identity Message Error Response" },
+	{ 0, NULL }
+};
+
 
 typedef struct {
 	guint32 req_frame;
@@ -589,11 +614,6 @@ typedef struct {
 	wmem_tree_t *trans;
 } ntp_conv_info_t;
 
-
-/*
- * Maximum MAC length : 160 bits MAC + 32 bits Key ID
- */
-#define MAX_MAC_LEN	(6 * sizeof (guint32))
 
 static int proto_ntp = -1;
 
@@ -622,19 +642,9 @@ static int hf_ntp_request_in = -1;
 static int hf_ntp_delta_time = -1;
 
 static int hf_ntp_ext = -1;
-static int hf_ntp_ext_flags = -1;
-static int hf_ntp_ext_flags_r = -1;
-static int hf_ntp_ext_flags_error = -1;
-static int hf_ntp_ext_flags_vn = -1;
-static int hf_ntp_ext_op = -1;
-static int hf_ntp_ext_len = -1;
-static int hf_ntp_ext_associd = -1;
-static int hf_ntp_ext_tstamp = -1;
-static int hf_ntp_ext_fstamp = -1;
-static int hf_ntp_ext_vallen = -1;
-static int hf_ntp_ext_val = -1;
-static int hf_ntp_ext_siglen = -1;
-static int hf_ntp_ext_sig = -1;
+static int hf_ntp_ext_type = -1;
+static int hf_ntp_ext_length = -1;
+static int hf_ntp_ext_value = -1;
 
 static int hf_ntpctrl_flags2 = -1;
 static int hf_ntpctrl_flags2_r = -1;
@@ -937,7 +947,7 @@ static const char *mon_names[12] = {
 	"Dec"
 };
 
-static const int *ntp_header_fields[] = {
+static int * const ntp_header_fields[] = {
 	&hf_ntp_flags_li,
 	&hf_ntp_flags_vn,
 	&hf_ntp_flags_mode,
@@ -952,7 +962,7 @@ static const int *ntp_header_fields[] = {
 	* | Status  | Sel | Count | Code  |
 	* +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 	*/
-static const int *peer_status_flags[] = {
+static int * const peer_status_flags[] = {
 	&hf_ntpctrl_peer_status_b0,
 	&hf_ntpctrl_peer_status_b1,
 	&hf_ntpctrl_peer_status_b2,
@@ -964,7 +974,7 @@ static const int *peer_status_flags[] = {
 	NULL
 };
 
-static const int *ntppriv_peer_list_flags[] = {
+static int * const ntppriv_peer_list_flags[] = {
 	&hf_ntppriv_mode7_peer_flags_config,
 	&hf_ntppriv_mode7_peer_flags_syspeer,
 	&hf_ntppriv_mode7_peer_flags_burst,
@@ -976,7 +986,7 @@ static const int *ntppriv_peer_list_flags[] = {
 	NULL
 };
 
-static const int *ntppriv_config_flags[] = {
+static int * const ntppriv_config_flags[] = {
 	&hf_ntppriv_mode7_config_flags_auth,
 	&hf_ntppriv_mode7_config_flags_prefer,
 	&hf_ntppriv_mode7_config_flags_burst,
@@ -986,7 +996,7 @@ static const int *ntppriv_config_flags[] = {
 	NULL
 };
 
-static const int *ntppriv_sys_flag_flags[] = {
+static int * const ntppriv_sys_flag_flags[] = {
 	&hf_ntppriv_mode7_sys_flags_bclient,
 	&hf_ntppriv_mode7_sys_flags_pps,
 	&hf_ntppriv_mode7_sys_flags_ntp,
@@ -998,7 +1008,7 @@ static const int *ntppriv_sys_flag_flags[] = {
 	NULL
 };
 
-static const int *ntppriv_reset_stats_flags[] = {
+static int * const ntppriv_reset_stats_flags[] = {
 	&hf_ntppriv_mode7_reset_stats_flags_allpeers,
 	&hf_ntppriv_mode7_reset_stats_flags_io,
 	&hf_ntppriv_mode7_reset_stats_flags_sys,
@@ -1083,16 +1093,20 @@ ntp_to_nstime(tvbuff_t *tvb, gint offset, nstime_t *nstime)
 static int
 dissect_ntp_ext(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree, int offset)
 {
-	proto_tree *ext_tree, *flags_tree;
-	proto_item *tf, *ext_item;
+	proto_tree *ext_tree;
+	proto_item *tf;
 	guint16 extlen;
-	int endoffset;
-	guint8 flags;
-	guint32 vallen, vallen_round, siglen;
+	int value_length;
 
 	extlen = tvb_get_ntohs(tvb, offset+2);
 	tf = proto_tree_add_item(ntp_tree, hf_ntp_ext, tvb, offset, extlen, ENC_NA);
 	ext_tree = proto_item_add_subtree(tf, ett_ntp_ext);
+
+	proto_tree_add_item(ext_tree, hf_ntp_ext_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+	offset += 2;
+
+	tf = proto_tree_add_item(ext_tree, hf_ntp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+	offset += 2;
 
 	if (extlen < 8) {
 		/* Extension length isn't enough for the extension header.
@@ -1111,76 +1125,12 @@ dissect_ntp_ext(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree, int off
 				extlen);
 		return tvb_reported_length(tvb);
 	}
-	endoffset = offset + extlen;
 
-	flags = tvb_get_guint8(tvb, offset);
-	tf = proto_tree_add_uint(ext_tree, hf_ntp_ext_flags, tvb, offset, 1, flags);
-	flags_tree = proto_item_add_subtree(tf, ett_ntp_ext_flags);
-	proto_tree_add_uint(flags_tree, hf_ntp_ext_flags_r, tvb, offset, 1, flags);
-	proto_tree_add_uint(flags_tree, hf_ntp_ext_flags_error, tvb, offset, 1, flags);
-	proto_tree_add_uint(flags_tree, hf_ntp_ext_flags_vn, tvb, offset, 1, flags);
-	offset += 1;
+	value_length = extlen - 4;
+	proto_tree_add_item(ext_tree, hf_ntp_ext_value, tvb, offset, value_length, ENC_NA);
+	offset += value_length;
 
-	proto_tree_add_item(ext_tree, hf_ntp_ext_op, tvb, offset, 1, ENC_BIG_ENDIAN);
-	offset += 1;
-
-	proto_tree_add_uint(ext_tree, hf_ntp_ext_len, tvb, offset, 2, extlen);
-	offset += 2;
-
-	if ((flags & NTP_EXT_VN_MASK) != 2) {
-		/* don't care about autokey v1 */
-		return endoffset;
-	}
-
-	proto_tree_add_item(ext_tree, hf_ntp_ext_associd, tvb, offset, 4, ENC_BIG_ENDIAN);
-	offset += 4;
-
-	/* check whether everything up to "vallen" is present */
-	if (extlen < MAX_MAC_LEN) {
-		/* XXX - report as error? */
-		return endoffset;
-	}
-
-	proto_tree_add_item(ext_tree, hf_ntp_ext_tstamp, tvb, offset, 4, ENC_BIG_ENDIAN);
-	offset += 4;
-	proto_tree_add_item(ext_tree, hf_ntp_ext_fstamp, tvb, offset, 4, ENC_BIG_ENDIAN);
-	offset += 4;
-	/* XXX fstamp can be server flags */
-
-	vallen = tvb_get_ntohl(tvb, offset);
-	ext_item = proto_tree_add_uint(ext_tree, hf_ntp_ext_vallen, tvb, offset, 4, vallen);
-	offset += 4;
-	vallen_round = (vallen + 3) & (-4);
-	if (vallen != 0) {
-		if ((guint32)(endoffset - offset) < vallen_round) {
-			/*
-			 * Value goes past the length of the extension
-			 * field.
-			 */
-			expert_add_info_format(pinfo, ext_item, &ei_ntp_ext,
-					"Value length makes value go past the end of the extension field");
-			return endoffset;
-		}
-		proto_tree_add_item(ext_tree, hf_ntp_ext_val, tvb, offset, vallen, ENC_NA);
-	}
-	offset += vallen_round;
-
-	siglen = tvb_get_ntohl(tvb, offset);
-	ext_item = proto_tree_add_uint(ext_tree, hf_ntp_ext_siglen, tvb, offset, 4, siglen);
-	offset += 4;
-	if (siglen != 0) {
-		if (offset + (int)siglen > endoffset) {
-			/*
-			 * Value goes past the length of the extension
-			 * field.
-			 */
-			expert_add_info_format(pinfo, ext_item, &ei_ntp_ext,
-						"Signature length makes value go past the end of the extension field");
-			return endoffset;
-		}
-		proto_tree_add_item(ext_tree, hf_ntp_ext_sig, tvb, offset, siglen, ENC_NA);
-	}
-	return endoffset;
+	return offset;
 }
 
 static void
@@ -1196,8 +1146,10 @@ dissect_ntp_std(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree, ntp_con
 	guint32 refid_addr;
 	gchar *buff;
 	int i;
+	int efs_end;
+	guint16 last_extlen = 0;
 	int macofs;
-	gint maclen;
+	guint maclen;
 	ntp_trans_info_t *ntp_trans;
 	wmem_tree_key_t key[3];
 	guint64 flags;
@@ -1345,14 +1297,54 @@ dissect_ntp_std(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree, ntp_con
 	 */
 	proto_tree_add_item(ntp_tree, hf_ntp_xmt, tvb, 40, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
 
-	/* MAX_MAC_LEN is the largest message authentication code
-	 * (MAC) length.  If we have more data left in the packet
-	 * after the header than that, the extra data is NTP4
-	 * extensions; parse them as such.
+	/*
+	 * Optional fields:
+	 *
+	 * - Optional Extension fields (EFs), at minimum 16 bytes each.
+	 *   Used for Autokey (RFC 5906, requires a MAC) and others.
+	 *
+	 * - Optional Message Authentication Codes (MACs), consisting of a
+	 *   32-bit key ID concatenated with the digest. Per RFC 7822, this MAC
+	 *   can be 24 bytes (SHA-1, AES-CMAC from RFC 8573), 20 octets (MD5),
+	 *   or 4 bytes (crypto-NAK, MAC contains four zeroes). However,
+	 *   implementations such as chrony and NTPsec support additional hash
+	 *   algorithms such as SHA-512 which result in a MAC of 68 bytes.
+	 *
+	 * Since MACs cannot unambiguously be recognized from EFs based on size
+	 * alone due to the larger, non-standard MAC algorithms, follow this:
+	 *
+	 * 1. Find the end of EFs, stopping as soon as it looks invalid (too
+	 *    small or large Length field).
+	 * 2. If there is any trailing data, assume a MAC is present. If it is
+	 *    too small, remove a field that was assumed to be an EF.
 	 */
+	efs_end = 48;
+	while (tvb_reported_length_remaining(tvb, efs_end) >= 16) {
+		guint16 extlen = tvb_get_ntohs(tvb, efs_end + 2);
+		if (extlen < 16) {
+			break;
+		}
+		if (tvb_reported_length_remaining(tvb, efs_end) < extlen) {
+			break;
+		}
+		efs_end += extlen;
+		last_extlen = extlen;
+	}
+
+	maclen = tvb_reported_length_remaining(tvb, efs_end);
+	if (maclen == 0) {
+		/* MAC is missing. */
+	} else if (maclen == 4 && tvb_get_ntohl(tvb, efs_end) == 0) {
+		/* crypto-NAK - continue as normal. */
+	} else if (maclen < 20) {
+		/* last field was most likely not an EF, remove it. */
+		efs_end -= last_extlen;
+	}
+
 	macofs = 48;
-	while (tvb_reported_length_remaining(tvb, macofs) > (gint)MAX_MAC_LEN)
+	while (macofs < efs_end) {
 		macofs = dissect_ntp_ext(tvb, pinfo, ntp_tree, macofs);
+	}
 
 	/* When the NTP authentication scheme is implemented, the
 	 * Key Identifier and Message Digest fields contain the
@@ -1385,7 +1377,7 @@ dissect_ntp_ctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 	tvbparse_t *tt;
 	tvbparse_elem_t *element;
 
-	static const int *ntpctrl_flags[] = {
+	static int * const ntpctrl_flags[] = {
 		&hf_ntpctrl_flags2_r,
 		&hf_ntpctrl_flags2_error,
 		&hf_ntpctrl_flags2_more,
@@ -1434,7 +1426,7 @@ dissect_ntp_ctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 			 * |  Error Code   |   reserved    |
 			 * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 			 */
-			static const int *errorstatus[] = {
+			static int * const errorstatus[] = {
 				&hf_ntpctrl_error_status_word,
 				NULL
 			};
@@ -1460,7 +1452,7 @@ dissect_ntp_ctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 					 * |LI | ClkSource | Count | Code  |
 					 * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 					 */
-					static const int *systemstatus[] = {
+					static int * const systemstatus[] = {
 						&hf_ntpctrl_sys_status_li,
 						&hf_ntpctrl_sys_status_clksrc,
 						&hf_ntpctrl_sys_status_count,
@@ -1482,7 +1474,7 @@ dissect_ntp_ctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 				 * | Clock Status  |  Event Code   |
 				 * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 				 */
-				static const int *clockstatus[] = {
+				static int * const clockstatus[] = {
 					&hf_ntpctrl_clk_status,
 					&hf_ntpctrl_clk_status_code,
 					NULL
@@ -1681,7 +1673,7 @@ dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 	wmem_tree_key_t key[3];
 	guint32 seq;
 
-	static const int *priv_flags[] = {
+	static int * const priv_flags[] = {
 		&hf_ntppriv_flags_r,
 		&hf_ntppriv_flags_more,
 		&hf_ntp_flags_vn,
@@ -1689,7 +1681,7 @@ dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 		NULL
 	};
 
-	static const int *auth_flags[] = {
+	static int * const auth_flags[] = {
 		&hf_ntppriv_auth,
 		&hf_ntppriv_seq,
 		NULL
@@ -2711,45 +2703,15 @@ proto_register_ntp(void)
 		{ &hf_ntp_ext, {
 			"Extension", "ntp.ext", FT_NONE, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
-		{ &hf_ntp_ext_flags, {
-			"Flags", "ntp.ext.flags", FT_UINT8, BASE_HEX,
-			NULL, 0, "Flags (Response/Error/Version)", HFILL }},
-		{ &hf_ntp_ext_flags_r, {
-			"Response bit", "ntp.ext.flags.r", FT_UINT8, BASE_DEC,
-			VALS(ext_r_types), NTP_EXT_R_MASK, NULL, HFILL }},
-		{ &hf_ntp_ext_flags_error, {
-			"Error bit", "ntp.ext.flags.error", FT_UINT8, BASE_DEC,
-			NULL, NTP_EXT_ERROR_MASK, NULL, HFILL }},
-		{ &hf_ntp_ext_flags_vn, {
-			"Version", "ntp.ext.flags.vn", FT_UINT8, BASE_DEC,
-			NULL, NTP_EXT_VN_MASK, NULL, HFILL }},
-		{ &hf_ntp_ext_op, {
-			"Opcode", "ntp.ext.op", FT_UINT8, BASE_DEC,
-			VALS(ext_op_types), 0, NULL, HFILL }},
-		{ &hf_ntp_ext_len, {
-			"Extension length", "ntp.ext.len", FT_UINT16, BASE_DEC,
-			NULL, 0, NULL, HFILL }},
-		{ &hf_ntp_ext_associd, {
-			"Association ID", "ntp.ext.associd", FT_UINT32, BASE_DEC,
-			NULL, 0, NULL, HFILL }},
-		{ &hf_ntp_ext_tstamp, {
-			"Timestamp", "ntp.ext.tstamp", FT_UINT32, BASE_HEX,
-			NULL, 0, NULL, HFILL }},
-		{ &hf_ntp_ext_fstamp, {
-			"File Timestamp", "ntp.ext.fstamp", FT_UINT32, BASE_HEX,
-			NULL, 0, NULL, HFILL }},
-		{ &hf_ntp_ext_vallen, {
-			"Value length", "ntp.ext.vallen", FT_UINT32, BASE_DEC,
-			NULL, 0, NULL, HFILL }},
-		{ &hf_ntp_ext_val, {
-			"Value", "ntp.ext.val", FT_BYTES, BASE_NONE,
-			NULL, 0, NULL, HFILL }},
-		{ &hf_ntp_ext_siglen, {
-			"Signature length", "ntp.ext.siglen", FT_UINT32, BASE_DEC,
-			NULL, 0, NULL, HFILL }},
-		{ &hf_ntp_ext_sig, {
-			"Signature", "ntp.ext.sig", FT_BYTES, BASE_NONE,
-			NULL, 0, NULL, HFILL }},
+		{ &hf_ntp_ext_type, {
+			"Field Type", "ntp.ext.type", FT_UINT16, BASE_HEX,
+			VALS(ntp_ext_field_types), 0, NULL, HFILL }},
+		{ &hf_ntp_ext_length, {
+			"Length", "ntp.ext.length", FT_UINT16, BASE_DEC,
+			NULL, 0, "Entire extension length including padding", HFILL }},
+		{ &hf_ntp_ext_value, {
+			"Value", "ntp.ext.value", FT_BYTES, BASE_NONE,
+			NULL, 0, "Type-specific value", HFILL }},
 
 		{ &hf_ntpctrl_flags2, {
 			"Flags 2", "ntp.ctrl.flags2", FT_UINT8, BASE_HEX,
@@ -2999,7 +2961,7 @@ proto_register_ntp(void)
 			"Count", "ntp.priv.mode7.count", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntppriv_mode7_hpoll, {
-			"Host polling intervall", "ntp.priv.mode7.hpoll", FT_INT8, BASE_DEC,
+			"Host polling interval", "ntp.priv.mode7.hpoll", FT_INT8, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntppriv_mode7_reach, {
 			"Reach", "ntp.priv.mode7.reach", FT_UINT8, BASE_DEC,
@@ -3176,7 +3138,7 @@ proto_register_ntp(void)
 			"Processed", "ntp.priv.mode7.processed", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntppriv_mode7_badauth, {
-			"Bad authentiation", "ntp.priv.mode7.badauth", FT_UINT32, BASE_DEC,
+			"Bad authentication", "ntp.priv.mode7.badauth", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntppriv_mode7_bogusorg, {
 			"Bogus origin", "ntp.priv.mode7.bogusorg", FT_UINT32, BASE_DEC,
@@ -3251,7 +3213,7 @@ proto_register_ntp(void)
 			"Requests", "ntp.priv.mode7.requests", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntppriv_mode7_badpkts, {
-			"Bad pakets", "ntp.priv.mode7.bad_pakets", FT_UINT32, BASE_DEC,
+			"Bad packets", "ntp.priv.mode7.bad_packets", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntppriv_mode7_responses, {
 			"Responses", "ntp.priv.mode7.responses", FT_UINT32, BASE_DEC,
@@ -3263,7 +3225,7 @@ proto_register_ntp(void)
 			"Errors", "ntp.priv.mode7.errors", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntppriv_mode7_tooshort, {
-			"Too short pakets", "ntp.priv.mode7.too_short", FT_UINT32, BASE_DEC,
+			"Too short packets", "ntp.priv.mode7.too_short", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntppriv_mode7_inputresp, {
 			"Responses on input", "ntp.priv.mode7.input_responses", FT_UINT32, BASE_DEC,
@@ -3275,10 +3237,10 @@ proto_register_ntp(void)
 			"Errors on input", "ntp.priv.mode7.input_errors", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntppriv_mode7_badoffset, {
-			"Non zero offset pakets", "ntp.priv.mode7.bad_offset", FT_UINT32, BASE_DEC,
+			"Non zero offset packets", "ntp.priv.mode7.bad_offset", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntppriv_mode7_badversion, {
-			"Unknown version pakets", "ntp.priv.mode7.bad_version", FT_UINT32, BASE_DEC,
+			"Unknown version packets", "ntp.priv.mode7.bad_version", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntppriv_mode7_datatooshort, {
 			"Data too short", "ntp.priv.mode7.data_too_short", FT_UINT32, BASE_DEC,
@@ -3449,16 +3411,16 @@ proto_register_ntp(void)
 			"Low water", "ntp.priv.mode7.lowwater", FT_UINT16, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntppriv_mode7_dropped, {
-			"Dropped pakets", "ntp.priv.mode7.dropped", FT_UINT32, BASE_DEC,
+			"Dropped packets", "ntp.priv.mode7.dropped", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntppriv_mode7_ignored, {
-			"Ignored pakets", "ntp.priv.mode7.ignored", FT_UINT32, BASE_DEC,
+			"Ignored packets", "ntp.priv.mode7.ignored", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntppriv_mode7_received, {
-			"Received pakets", "ntp.priv.mode7.received", FT_UINT32, BASE_DEC,
+			"Received packets", "ntp.priv.mode7.received", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntppriv_mode7_notsent, {
-			"Not sent pakets", "ntp.priv.mode7.notsent", FT_UINT32, BASE_DEC,
+			"Not sent packets", "ntp.priv.mode7.notsent", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntppriv_mode7_interrupts, {
 			"Interrupts", "ntp.priv.mode7.interrupts", FT_UINT32, BASE_DEC,
@@ -3473,7 +3435,7 @@ proto_register_ntp(void)
 			"Overflows", "ntp.priv.mode7.overflows", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntppriv_mode7_xmtcalls, {
-			"Trasmitted calls", "ntp.priv.mode7.xmtcalls", FT_UINT32, BASE_DEC,
+			"Transmitted calls", "ntp.priv.mode7.xmtcalls", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntppriv_mode7_rflags, {
 			"Rflags", "ntp.priv.mode7.rflags", FT_UINT16, BASE_DEC,
@@ -3512,7 +3474,7 @@ proto_register_ntp(void)
 			"Address family", "ntp.priv.mode7.family", FT_UINT16, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntppriv_mode7_ignore_pkt, {
-			"Ignore pakets", "ntp.priv.mode7.ignore_pkts", FT_UINT8, BASE_DEC,
+			"Ignore packets", "ntp.priv.mode7.ignore_pkts", FT_UINT8, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntppriv_mode7_action, {
 			"Action", "ntp.priv.mode7.action", FT_UINT8, BASE_DEC,

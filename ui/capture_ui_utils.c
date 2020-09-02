@@ -276,7 +276,6 @@ get_interface_descriptive_name(const char *if_name)
         } else {
             /* No, we don't have a user-supplied description; did we get
                one from the OS or libpcap? */
-            descr = NULL;
             if_list = capture_interface_list(&err, NULL, NULL);
             if (if_list != NULL) {
                 if_entry = if_list;
@@ -463,30 +462,6 @@ get_if_name(const char *if_text)
     return if_name;
 }
 
-/*  Return a display name for the interface.
- */
-static const char *
-get_display_name_for_interface(capture_options *capture_opts, guint i)
-{
-    interface_options *interface_opts;
-
-    if (i < capture_opts->ifaces->len) {
-        interface_opts = &g_array_index(capture_opts->ifaces, interface_options, i);
-        if (interface_opts->display_name) {
-            return interface_opts->display_name;
-        }
-        if (!interface_opts->display_name) {
-            if (interface_opts->descr && interface_opts->name) {
-                interface_opts->descr = get_interface_descriptive_name(interface_opts->name);
-            }
-            interface_opts->display_name = g_strdup(interface_opts->descr);
-        }
-        return interface_opts->display_name;
-    } else {
-        return NULL;
-    }
-}
-
 /*
  * Set the active DLT for a device appropriately.
  */
@@ -566,16 +541,27 @@ get_iface_list_string(capture_options *capture_opts, guint32 style)
                     g_string_append_printf(iface_list_string, "and ");
                 }
             }
+
+            interface_options *interface_opts = &g_array_index(capture_opts->ifaces, interface_options, i);
+
             if (style & IFLIST_QUOTE_IF_DESCRIPTION)
                 g_string_append_printf(iface_list_string, "'");
-            const gchar* name = get_display_name_for_interface(capture_opts, i);
-            g_string_append_printf(iface_list_string, "%s", name ? name : "");
+            if (interface_opts->display_name == NULL) {
+                /*
+                 * We don't have a display name; generate one.
+                 */
+                if (interface_opts->descr == NULL) {
+                    if (interface_opts->name != NULL)
+                        interface_opts->descr = get_interface_descriptive_name(interface_opts->name);
+                    else
+                        interface_opts->descr = g_strdup("(Unknown)");
+                }
+                interface_opts->display_name = g_strdup(interface_opts->descr);
+            }
+            g_string_append_printf(iface_list_string, "%s", interface_opts->display_name);
             if (style & IFLIST_QUOTE_IF_DESCRIPTION)
                 g_string_append_printf(iface_list_string, "'");
             if (style & IFLIST_SHOW_FILTER) {
-                interface_options *interface_opts;
-
-                interface_opts = &g_array_index(capture_opts->ifaces, interface_options, i);
                 if (interface_opts->cfilter != NULL &&
                         strlen(interface_opts->cfilter) > 0) {
                     g_string_append_printf(iface_list_string, " (%s)", interface_opts->cfilter);

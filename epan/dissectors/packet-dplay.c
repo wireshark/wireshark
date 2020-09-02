@@ -448,7 +448,7 @@ static gint dissect_sockaddr_in(proto_tree *tree, tvbuff_t *tvb, gint offset)
 
 static gint dissect_session_desc(proto_tree *tree, tvbuff_t *tvb, gint offset)
 {
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_dplay_flags_no_sess_desc_changes,
         &hf_dplay_flags_acqire_voice,
         &hf_dplay_flags_optimize_latency,
@@ -493,7 +493,7 @@ static gint dissect_packed_player(proto_tree *tree, tvbuff_t *tvb, gint offset)
 {
     guint32 sn_len, ln_len, sd_len, pd_len, num_players, i;
     gint size;
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_dplay_pp_flag_sending,
         &hf_dplay_pp_flag_in_group,
         &hf_dplay_pp_flag_nameserver,
@@ -582,7 +582,7 @@ static gint dissect_dplay_super_packed_player(proto_tree *tree, tvbuff_t *tvb, g
     proto_item *im_item = NULL;
     proto_tree *im_tree = NULL;
     gint len;
-    static const int * ssp_flags[] = {
+    static int * const ssp_flags[] = {
         &hf_dplay_spp_flags_sending,
         &hf_dplay_spp_flags_in_group,
         &hf_dplay_spp_flags_nameserver,
@@ -725,7 +725,7 @@ static gint dissect_type01_message(proto_tree *tree, tvbuff_t *tvb, gint offset)
 static gint dissect_type02_message(proto_tree *tree, tvbuff_t *tvb, gint offset)
 {
     guint32 passwd_offset;
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_enum_sess_flag_passwd,
         &hf_enum_sess_flag_all,
         &hf_enum_sess_flag_join,
@@ -746,7 +746,7 @@ static gint dissect_type02_message(proto_tree *tree, tvbuff_t *tvb, gint offset)
 
 static gint dissect_type05_message(proto_tree *tree, tvbuff_t *tvb, gint offset)
 {
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_dplay_type_05_secure,
         &hf_dplay_type_05_unknown,
         &hf_dplay_type_05_local,

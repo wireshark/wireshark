@@ -17,15 +17,20 @@ IMPORTS
 PA-AUTHENTICATION-SET ::= SEQUENCE OF PA-AUTHENTICATION-SET-ELEM
 
 PA-AUTHENTICATION-SET-ELEM ::= SEQUENCE {
-	pa-type      [0] Int32,
+	pa-type      [0] PADATA-TYPE, -- use k5.asn Int32,
 		-- same as padata-type.
 	pa-hint      [1] OCTET STRING OPTIONAL,
 	pa-value     [2] OCTET STRING OPTIONAL,
 	...
 }
 
+KrbFastArmorTypes ::= INTEGER {
+	fX-FAST-reserved(0),
+	fX-FAST-ARMOR-AP-REQUEST(1) -- [RFC6113]
+}
+
 KrbFastArmor ::= SEQUENCE {
-	armor-type   [0] Int32,
+	armor-type   [0] KrbFastArmorTypes,
 		-- Type of the armor.
 	armor-value  [1] OCTET STRING,
 		-- Value of the armor.
@@ -35,6 +40,12 @@ KrbFastArmor ::= SEQUENCE {
 PA-FX-FAST-REQUEST ::= CHOICE {
 	armored-data [0] KrbFastArmoredReq,
 	...
+}
+
+EncryptedKrbFastReq   ::= SEQUENCE {
+        etype   [0] ENCTYPE -- EncryptionType --,
+        kvno    [1] UInt32 OPTIONAL,
+        cipher  [2] OCTET STRING -- ciphertext
 }
 
 KrbFastArmoredReq ::= SEQUENCE {
@@ -51,7 +62,7 @@ KrbFastArmoredReq ::= SEQUENCE {
 		-- type is the required checksum type for the enctype of
 		-- the armor key, and the key usage number is
 		-- KEY_USAGE_FAST_REQ_CHKSUM.
-	enc-fast-req [2] EncryptedData, -- KrbFastReq --
+	enc-fast-req [2] EncryptedKrbFastReq, -- KrbFastReq --
 		-- The encryption key is the armor key, and the key usage
 		-- number is KEY_USAGE_FAST_ENC.
 	...
@@ -70,18 +81,25 @@ KrbFastReq ::= SEQUENCE {
 		...
 }
 
-FastOptions ::= KerberosFlags
-	-- reserved(0),
-	-- hide-client-names(1),
-	-- kdc-follow-referrals(16)
+FastOptions ::= BIT STRING {
+	reserved(0),
+	hide-client-names(1),
+	kdc-follow-referrals(16)
+} (SIZE (32..MAX)) -- KerberosFlags
 
 PA-FX-FAST-REPLY ::= CHOICE {
 	armored-data [0] KrbFastArmoredRep,
 	...
 }
 
+EncryptedKrbFastResponse   ::= SEQUENCE {
+	etype   [0] ENCTYPE -- EncryptionType --,
+	kvno    [1] UInt32 OPTIONAL,
+	cipher  [2] OCTET STRING -- ciphertext
+}
+
 KrbFastArmoredRep ::= SEQUENCE {
-	enc-fast-rep      [0] EncryptedData, -- KrbFastResponse --
+	enc-fast-rep      [0] EncryptedKrbFastResponse, -- KrbFastResponse --
 		-- The encryption key is the armor key in the request, and
 		-- the key usage number is KEY_USAGE_FAST_REP.
 	...
@@ -117,8 +135,13 @@ KrbFastFinished ::= SEQUENCE {
 	...
 }
 
-EncryptedChallenge ::= EncryptedData
+EncryptedChallenge ::= SEQUENCE {
+	etype   [0] ENCTYPE -- EncryptionType --,
+	kvno    [1] UInt32 OPTIONAL,
+	cipher  [2] OCTET STRING -- ciphertext
+}
 		-- Encrypted PA-ENC-TS-ENC, encrypted in the challenge key
 		-- using key usage KEY_USAGE_ENC_CHALLENGE_CLIENT for the
 		-- client and KEY_USAGE_ENC_CHALLENGE_KDC for the KDC.
+
 END

@@ -286,10 +286,10 @@ tap_packet_status BluetoothDevicesDialog::tapPacket(void *tapinfo_ptr, packet_in
     }
 
     if (tap_device->has_bd_addr) {
-        for (int i = 0; i < 6; ++i)
-            bd_addr += QString("%1:").arg(tap_device->bd_addr[0], 2, 16, QChar('0'));
-        bd_addr.remove(bd_addr.length() - 1, 1);
-
+        for (int i = 0; i < 6; ++i) {
+            bd_addr += QString("%1:").arg(tap_device->bd_addr[i], 2, 16, QChar('0'));
+        }
+        bd_addr.chop(1); // remove extra character ":" from the end of the string
         manuf = get_ether_name(tap_device->bd_addr);
         if (manuf) {
             int pos;

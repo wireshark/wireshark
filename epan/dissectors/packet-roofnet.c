@@ -88,7 +88,7 @@ static int hf_roofnet_link_seq = -1;
 static int hf_roofnet_link_age = -1;
 static int hf_roofnet_link_dst = -1;
 
-static const int *flag_list[] = {
+static int * const flag_list[] = {
     &hf_roofnet_flags_error,
     &hf_roofnet_flags_update,
     &hf_roofnet_flags_layer2,

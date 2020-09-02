@@ -755,7 +755,7 @@ dissect_zcl_color_control_move_to_color_temp(tvbuff_t *tvb, proto_tree *tree, gu
 static void
 dissect_zcl_color_control_color_loop_set(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    static const int *color_loop_update_fields[] = {
+    static int * const color_loop_update_fields[] = {
         &hf_zbee_zcl_color_control_color_loop_update_action,
         &hf_zbee_zcl_color_control_color_loop_update_direction,
         &hf_zbee_zcl_color_control_color_loop_update_time,
@@ -926,7 +926,7 @@ decode_startup_color_temperature(gchar *s, guint16 value)
 void
 dissect_zcl_color_control_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
 {
-    static const int *capabilities_fields[] = {
+    static int * const capabilities_fields[] = {
         &hf_zbee_zcl_color_control_attr_color_capabilities_hs,
         &hf_zbee_zcl_color_control_attr_color_capabilities_ehs,
         &hf_zbee_zcl_color_control_attr_color_capabilities_loop,
@@ -1211,7 +1211,7 @@ proto_register_zbee_zcl_color_control(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_color_control_attr_current_saturation,
-            { "Saturation", "zbee_zcl_lighting.color_control.attr.current_satuaration", FT_UINT8, BASE_DEC, NULL,
+            { "Saturation", "zbee_zcl_lighting.color_control.attr.current_saturation", FT_UINT8, BASE_DEC, NULL,
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_color_control_attr_remaining_time,
@@ -1419,7 +1419,7 @@ proto_register_zbee_zcl_color_control(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_color_control_attr_startup_color_temperature,
-            { "Startup Color Temparature", "zbee_zcl_lighting.color_control.attr.startup_color_temperature", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_startup_color_temperature),
+            { "Startup Color Temperature", "zbee_zcl_lighting.color_control.attr.startup_color_temperature", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_startup_color_temperature),
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_color_control_hue,
@@ -1685,7 +1685,7 @@ static const value_string zbee_zcl_ballast_configuration_status_non_operational_
 /*Not in Socket Values*/
 static const value_string zbee_zcl_ballast_configuration_status_lamp_not_in_socket_names[] = {
     {0, "All lamps in Socket"},
-    {1, "Atleast one lamp not in Socket"},
+    {1, "At least one lamp not in Socket"},
     {0, NULL}
 };
 
@@ -1722,13 +1722,13 @@ dissect_zbee_zcl_ballast_configuration(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 void
 dissect_zcl_ballast_configuration_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
 {
-    static const int * ballast_status[] = {
+    static int * const ballast_status[] = {
         &hf_zbee_zcl_ballast_configuration_status_non_operational,
         &hf_zbee_zcl_ballast_configuration_status_lamp_not_in_socket,
         NULL
     };
 
-    static const int * lamp_alarm_mode[] = {
+    static int * const lamp_alarm_mode[] = {
         &hf_zbee_zcl_ballast_configuration_lamp_alarm_mode_lamp_burn_hours,
         NULL
     };

@@ -15,11 +15,13 @@
 #include "config.h"
 
 #include <stdio.h>
+#include <stdbool.h>
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/exceptions.h>
 #include <epan/expert.h>
+#include <epan/proto_data.h>
 #include <epan/to_str.h>
 #include <epan/decode_as.h>
 #include <epan/crc16-tvb.h>
@@ -685,9 +687,8 @@ static int hf_nfs4_io_hints_mask = -1;
 static int hf_nfs4_io_hint_count = -1;
 static int hf_nfs4_io_advise_hint = -1;
 static int hf_nfs4_bytes_copied = -1;
+static int hf_nfs4_read_plus_contents = -1;
 static int hf_nfs4_read_plus_content_type = -1;
-static int hf_nfs4_read_plus_content_count = -1;
-static int hf_nfs4_read_plus_content_index = -1;
 static int hf_nfs4_block_size = -1;
 static int hf_nfs4_block_count = -1;
 static int hf_nfs4_reloff_blocknum = -1;
@@ -924,6 +925,7 @@ static expert_field ei_nfs_bitmap_no_dissector = EI_INIT;
 static expert_field ei_nfs_bitmap_skip_value = EI_INIT;
 static expert_field ei_nfs_bitmap_undissected_data = EI_INIT;
 static expert_field ei_nfs4_stateid_deprecated = EI_INIT;
+static expert_field ei_nfs_file_system_cycle = EI_INIT;
 
 static const true_false_string tfs_read_write = { "Read", "Write" };
 
@@ -1005,6 +1007,7 @@ typedef struct nfs_name_snoop {
 	unsigned char *parent;
 	int	       full_name_len;
 	char	      *full_name;
+	bool	       fs_cycle;
 } nfs_name_snoop_t;
 
 typedef struct nfs_name_snoop_key {
@@ -1229,6 +1232,7 @@ nfs_name_snoop_add_name(int xid, tvbuff_t *tvb, int name_offset, int name_len, i
 
 	nns->full_name_len = 0;
 	nns->full_name = NULL;
+	nns->fs_cycle = false;
 
 	/* any old entry will be deallocated and removed */
 	g_hash_table_insert(nfs_name_snoop_unmatched, GINT_TO_POINTER(xid), nns);
@@ -1268,9 +1272,10 @@ nfs_name_snoop_add_fh(int xid, tvbuff_t *tvb, int fh_offset, int fh_length)
 	g_hash_table_replace(nfs_name_snoop_matched, key, nns);
 }
 
+#define NFS_MAX_FS_DEPTH 100
 
 static void
-nfs_full_name_snoop(nfs_name_snoop_t *nns, int *len, char **name, char **pos)
+nfs_full_name_snoop(packet_info *pinfo, nfs_name_snoop_t *nns, int *len, char **name, char **pos)
 {
 	nfs_name_snoop_t     *parent_nns = NULL;
 	nfs_name_snoop_key_t  key;
@@ -1299,13 +1304,21 @@ nfs_full_name_snoop(nfs_name_snoop_t *nns, int *len, char **name, char **pos)
 	parent_nns = (nfs_name_snoop_t *)g_hash_table_lookup(nfs_name_snoop_matched, &key);
 
 	if (parent_nns) {
-		nfs_full_name_snoop(parent_nns, len, name, pos);
+		unsigned fs_depth = p_get_proto_depth(pinfo, proto_nfs);
+		if (++fs_depth >= NFS_MAX_FS_DEPTH) {
+			nns->fs_cycle = true;
+			return;
+		}
+		p_set_proto_depth(pinfo, proto_nfs, fs_depth);
+
+		nfs_full_name_snoop(pinfo, parent_nns, len, name, pos);
 		if (*name) {
 			/* make sure components are '/' separated */
 			*pos += g_snprintf(*pos, (*len+1) - (gulong)(*pos-*name), "%s%s",
 					   ((*pos)[-1] != '/')?"/":"", nns->name);
 			DISSECTOR_ASSERT((*pos-*name) <= *len);
 		}
+		p_set_proto_depth(pinfo, proto_nfs, fs_depth - 1);
 		return;
 	}
 
@@ -1347,7 +1360,7 @@ nfs_name_snoop_fh(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int fh_of
 				char *name = NULL, *pos = NULL;
 				int len = 0;
 
-				nfs_full_name_snoop(nns, &len, &name, &pos);
+				nfs_full_name_snoop(pinfo, nns, &len, &name, &pos);
 				if (name) {
 					nns->full_name = name;
 					nns->full_name_len = len;
@@ -1399,6 +1412,10 @@ nfs_name_snoop_fh(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int fh_of
 			}
 			proto_item_set_generated(fh_item);
 		}
+
+		if (nns->fs_cycle) {
+			proto_tree_add_expert(tree, pinfo, &ei_nfs_file_system_cycle, tvb, 0, 0);
+		}
 	}
 }
 
@@ -1431,7 +1448,7 @@ dissect_fhandle_data_SVR4(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *tre
 	guint32	 len2;
 	guint32	 fhlen;		/* File handle length. */
 
-	static const int * fsid_fields[] = {
+	static int * const fsid_fields[] = {
 		&hf_nfs_fh_fsid_major32,
 		&hf_nfs_fh_fsid_minor32,
 		NULL
@@ -1673,7 +1690,7 @@ static int
 dissect_fhandle_data_NETAPP(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	int offset = 0;
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_nfs_fh_file_flag_mntpoint,
 		&hf_nfs_fh_file_flag_snapdir,
 		&hf_nfs_fh_file_flag_snapdir_ent,
@@ -1735,7 +1752,7 @@ static const value_string handle_type_strings[] = {
 static int
 dissect_fhandle_data_NETAPP_V4(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_nfs_fh_file_flag_mntpoint,
 		&hf_nfs_fh_file_flag_snapdir,
 		&hf_nfs_fh_file_flag_snapdir_ent,
@@ -1813,7 +1830,7 @@ dissect_fhandle_data_NETAPP_GX_v3(tvbuff_t* tvb, packet_info *pinfo _U_, proto_t
 		proto_tree *field_tree;
 		guint8      flags;
 		guint32     offset = 0;
-		static const int * fh_flags[] = {
+		static int * const fh_flags[] = {
 			&hf_nfs3_gxfh_sfhflags_resv1,
 			&hf_nfs3_gxfh_sfhflags_resv2,
 			&hf_nfs3_gxfh_sfhflags_ontapGX,
@@ -1825,7 +1842,7 @@ dissect_fhandle_data_NETAPP_GX_v3(tvbuff_t* tvb, packet_info *pinfo _U_, proto_t
 			NULL
 		};
 
-		static const int * fh_flags_ontap[] = {
+		static int * const fh_flags_ontap[] = {
 			&hf_nfs3_gxfh_sfhflags_resv1,
 			&hf_nfs3_gxfh_sfhflags_resv2,
 			&hf_nfs3_gxfh_sfhflags_ontap7G,
@@ -1837,7 +1854,7 @@ dissect_fhandle_data_NETAPP_GX_v3(tvbuff_t* tvb, packet_info *pinfo _U_, proto_t
 			NULL
 		};
 
-		static const int * utility_flags[] = {
+		static int * const utility_flags[] = {
 			&hf_nfs3_gxfh_utlfield_tree,
 			&hf_nfs3_gxfh_utlfield_jun,
 			&hf_nfs3_gxfh_utlfield_ver,
@@ -2150,19 +2167,19 @@ dissect_fhandle_data_PRIMARY_DATA(tvbuff_t* tvb, packet_info *pinfo _U_, proto_t
 	int offset = 0;
 	guint32 version;
 
-	static const int *fh_flags[] = {
+	static int * const fh_flags[] = {
 		&hf_nfs4_fh_pd_flags_version,
 		&hf_nfs4_fh_pd_flags_reserved,
 		NULL
 	};
 
-	static const int *fh_sites[] = {
+	static int * const fh_sites[] = {
 		&hf_nfs4_fh_pd_sites_inum,
 		&hf_nfs4_fh_pd_sites_siteid,
 		NULL
 	};
 
-	static const int *fh_spaces[] = {
+	static int * const fh_spaces[] = {
 		&hf_nfs4_fh_pd_spaces_snapid,
 		&hf_nfs4_fh_pd_spaces_container,
 		NULL
@@ -2758,7 +2775,7 @@ static const value_string nfs2_mode_names[] = {
 static int
 dissect_nfs2_mode(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-	static const int *modes[] = {
+	static int * const modes[] = {
 		&hf_nfs2_mode_name,
 		&hf_nfs2_mode_set_user_id,
 		&hf_nfs2_mode_set_group_id,
@@ -3592,7 +3609,7 @@ dissect_nfs3_write_verf(tvbuff_t *tvb, int offset, proto_tree *tree)
 static int
 dissect_nfs3_mode(tvbuff_t *tvb, int offset, proto_tree *tree, guint32 *mode)
 {
-	static const int *mode_bits[] = {
+	static int * const mode_bits[] = {
 		&hf_nfs3_mode_suid,
 		&hf_nfs3_mode_sgid,
 		&hf_nfs3_mode_sticky,
@@ -5779,7 +5796,7 @@ static int
 dissect_nfs3_fsinfo_reply(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
 	guint32	    status;
-	static const int *properties[] = {
+	static int * const properties[] = {
 		&hf_nfs3_fsinfo_properties_setattr,
 		&hf_nfs3_fsinfo_properties_pathconf,
 		&hf_nfs3_fsinfo_properties_symlinks,
@@ -6657,7 +6674,7 @@ static const value_string names_acetype4[] = {
 static int
 dissect_nfs_aceflags4(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *ace_tree)
 {
-    static const int *flags[] = {
+    static int * const flags[] = {
         &hf_nfs4_aceflag_file_inherit,
         &hf_nfs4_aceflag_dir_inherit,
         &hf_nfs4_aceflag_no_prop_inherit,
@@ -6867,7 +6884,7 @@ dissect_nfs4_ace(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,	proto_tree *
 #define ACL4_PROTECTED		0x00000002
 #define ACL4_DEFAULTED		0x00000004
 
-static const int *aclflags_fields[] = {
+static int * const aclflags_fields[] = {
 	&hf_nfs4_aclflag_auto_inherit,
 	&hf_nfs4_aclflag_protected,
 	&hf_nfs4_aclflag_defaulted,
@@ -6913,7 +6930,7 @@ dissect_nfs4_fattr_acl(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_item
 #define ACL4_SUPPORT_AUDIT_ACL	0x00000004
 #define ACL4_SUPPORT_ALARM_ACL	0x00000008
 
-static const int *aclsupport_fields[] = {
+static int * const aclsupport_fields[] = {
 	&hf_nfs4_aclsupport_allow_acl,
 	&hf_nfs4_aclsupport_deny_acl,
 	&hf_nfs4_aclsupport_audit_acl,
@@ -6995,7 +7012,7 @@ static const value_string nfs4_fattr4_fh_expire_type_names[] = {
 	{ 0, NULL }
 };
 
-static const int *nfs4_fattr_fh_expire_type_fields[] = {
+static int * const nfs4_fattr_fh_expire_type_fields[] = {
 	&hf_nfs4_fattr_fh_expiry_noexpire_with_open,
 	&hf_nfs4_fattr_fh_expiry_volatile_any,
 	&hf_nfs4_fattr_fh_expiry_vol_migration,
@@ -8147,7 +8164,7 @@ dissect_nfs4_lockdenied(tvbuff_t *tvb, int offset, proto_tree *tree)
 #define OPEN4_RESULT_PRESERVE_UNLINKED	0x00000008
 #define OPEN4_RESULT_MAY_NOTIFY_LOCK	0x00000020
 
-static const int *open4_result_flag_fields[] = {
+static int * const open4_result_flag_fields[] = {
 	&hf_nfs4_open_rflags_confirm,
 	&hf_nfs4_open_rflags_locktype_posix,
 	&hf_nfs4_open_rflags_preserve_unlinked,
@@ -8521,34 +8538,18 @@ static const value_string read_plus_content_names[] = {
 static value_string_ext read_plus_content_names_ext = VALUE_STRING_EXT_INIT(read_plus_content_names);
 
 static int
-dissect_nfs4_read_plus_content(tvbuff_t *tvb, int offset, proto_tree *tree)
+dissect_nfs4_read_plus_content(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-	proto_item *sub_fitem;
 	proto_tree *ss_tree;
-	proto_tree *subtree;
 	proto_item *ss_fitem;
-	guint       i;
-	guint       count;
 	guint       type;
 
-	count = tvb_get_ntohl(tvb, offset);
-	sub_fitem = proto_tree_add_item(tree, hf_nfs4_read_plus_content_count,
-					tvb, offset, 4, ENC_BIG_ENDIAN);
+	ss_fitem = proto_tree_add_item_ret_uint(tree, hf_nfs4_read_plus_content_type,
+						tvb, offset, 4, ENC_BIG_ENDIAN, &type);
+	ss_tree = proto_item_add_subtree(ss_fitem, ett_nfs4_read_plus_content_sub);
 	offset += 4;
 
-	subtree = proto_item_add_subtree(sub_fitem, ett_nfs4_read_plus_content_sub);
-	for (i = 0; i < count; i++) {
-		ss_fitem = proto_tree_add_uint_format(subtree, hf_nfs4_read_plus_content_index,
-							tvb, offset+0, 4, i, "Content [%u]", i);
-		ss_tree = proto_item_add_subtree(ss_fitem,
-						 ett_nfs4_read_plus_content_sub);
-		offset += 4;
-
-		type = tvb_get_ntohl(tvb, offset);
-		proto_tree_add_uint(ss_tree, hf_nfs4_read_plus_content_type, tvb, offset, 0, type);
-		offset += 4;
-
-		switch (type) {
+	switch (type) {
 		case NFS4_CONTENT_DATA:
 			offset = dissect_rpc_uint64(tvb, ss_tree, hf_nfs4_offset, offset);
 			dissect_rpc_uint32(tvb, ss_tree, hf_nfs4_read_data_length, offset); /* don't change offset */
@@ -8556,11 +8557,10 @@ dissect_nfs4_read_plus_content(tvbuff_t *tvb, int offset, proto_tree *tree)
 			break;
 		case NFS4_CONTENT_HOLE:
 			offset = dissect_rpc_uint64(tvb, ss_tree, hf_nfs4_offset, offset);
-			offset = dissect_rpc_uint32(tvb, ss_tree, hf_nfs4_count, offset);
+			offset = dissect_rpc_uint64(tvb, ss_tree, hf_nfs4_length, offset);
 			break;
 		default:
 			break;
-		}
 	}
 
 	return offset;
@@ -9446,7 +9446,7 @@ dissect_nfs4_layoutget(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 	proto_tree *nfl_item;
 	proto_tree *nfl_tree;
 
-	static const int * layout_flags[] = {
+	static int * const layout_flags[] = {
 		&hf_nfs4_ff_layout_flags_no_layoutcommit,
 		&hf_nfs4_ff_layout_flags_no_io_thru_mds,
 		&hf_nfs4_ff_layout_flags_no_read_io,
@@ -9613,7 +9613,7 @@ dissect_nfs4_layoutget(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 static int
 dissect_nfs_create_session_flags(tvbuff_t *tvb, int offset, proto_tree *tree, int hf_csa)
 {
-	const int * flags[] = {
+	int * const flags[] = {
 		&hf_nfs4_create_session_flags_persist,
 		&hf_nfs4_create_session_flags_conn_back_chan,
 		&hf_nfs4_create_session_flags_conn_rdma,
@@ -9775,7 +9775,7 @@ static int nfs4_operation_tiers[] = {
 #define NFS4_OPERATION_TIER(op) \
 	((op) < G_N_ELEMENTS(nfs4_operation_tiers) ? nfs4_operation_tiers[(op)] : 0)
 
-static const int * nfs4_exchid_flags[] = {
+static int * const nfs4_exchid_flags[] = {
 	&hf_nfs4_exchid_flags_confirmed_r,
 	&hf_nfs4_exchid_flags_upd_conf_rec_a,
 	&hf_nfs4_exchid_flags_pnfs_ds,
@@ -10914,7 +10914,7 @@ dissect_nfs4_response_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 
 		case NFS4_OP_SEQUENCE:
 			{
-			static const int * sequence_flags[] = {
+			static int * const sequence_flags[] = {
 				&hf_nfs4_sequence_status_flags_cb_path_down,
 				&hf_nfs4_sequence_status_flags_cb_gss_contexts_expiring,
 				&hf_nfs4_sequence_status_flags_cb_gss_contexts_expired,
@@ -10980,7 +10980,7 @@ dissect_nfs4_response_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 		case NFS4_OP_READ_PLUS:
 			if (status == NFS4_OK) {
 				offset = dissect_rpc_uint32(tvb, newftree, hf_nfs4_eof, offset);
-				offset = dissect_nfs4_read_plus_content(tvb, offset, newftree);
+				offset = dissect_rpc_array(tvb, pinfo, newftree, offset, dissect_nfs4_read_plus_content, hf_nfs4_read_plus_contents);
 			}
 			break;
 
@@ -14133,17 +14133,13 @@ proto_register_nfs(void)
 			"bytes copied", "nfs.bytes_copied", FT_UINT64, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 
+		{ &hf_nfs4_read_plus_contents, {
+			"Contents", "nfs.contents",
+			FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+
 		{ &hf_nfs4_read_plus_content_type, {
 			"Content Type", "nfs.content.type", FT_UINT32, BASE_DEC | BASE_EXT_STRING,
 			&read_plus_content_names_ext, 0, NULL, HFILL }},
-
-		{ &hf_nfs4_read_plus_content_count, {
-			"Content count", "nfs.content.count", FT_UINT32, BASE_DEC,
-			NULL, 0, NULL, HFILL }},
-
-		{ &hf_nfs4_read_plus_content_index, {
-			"Content index", "nfs.content.index", FT_UINT32, BASE_DEC,
-			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs4_block_size, {
 			"Content index", "nfs.content.index", FT_UINT32, BASE_DEC,
@@ -14519,6 +14515,7 @@ proto_register_nfs(void)
 		{ &ei_nfs_bitmap_undissected_data, { "nfs.bitmap_undissected_data", PI_PROTOCOL, PI_WARN,
 			"There is some bitmap data left undissected", EXPFILL }},
 		{ &ei_nfs4_stateid_deprecated, { "nfs.stateid.deprecated", PI_PROTOCOL, PI_WARN, "State ID deprecated in CLOSE responses [RFC7530 16.2.5]", EXPFILL }},
+		{ &ei_nfs_file_system_cycle, { "nfs.file_system_cycle", PI_PROTOCOL, PI_WARN, "Possible file system cycle detected", EXPFILL }},
 	};
 
 	module_t *nfs_module;

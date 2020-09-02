@@ -204,9 +204,10 @@ dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   }
 
   ethertype_data.etype = tvb_get_ntohs(tvb, 12);
-  ethertype_data.offset_after_ethertype = ETH_HEADER_SIZE;
+  proto_tree_add_uint(fh_tree, hf_fw1_type, tvb, 12, 2, ethertype_data.etype);
+
+  ethertype_data.payload_offset = ETH_HEADER_SIZE;
   ethertype_data.fh_tree = fh_tree;
-  ethertype_data.etype_id = hf_fw1_type;
   ethertype_data.trailer_id = hf_fw1_trailer;
   ethertype_data.fcs_len = 0;
 

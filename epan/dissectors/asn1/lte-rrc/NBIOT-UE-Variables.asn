@@ -1,18 +1,57 @@
--- 3GPP TS 36.331 V15.8.0 (2019-12)
+-- 3GPP TS 36.331 V16.1.1 (2020-07)
 --
 NBIOT-UE-Variables DEFINITIONS AUTOMATIC TAGS ::=
 
 BEGIN
 
 IMPORTS
+	CellGlobalIdEUTRA,
+	maxFreq,
+	PLMN-IdentityList3-r11
+
+FROM EUTRA-RRC-Definitions
 	VarShortMAC-Input,
 	VarShortResumeMAC-Input-r13
 
-FROM EUTRA-UE-Variables;
+FROM EUTRA-UE-Variables
 
-VarShortMAC-Input-NB-r13		::=	VarShortMAC-Input
+	ANR-CarrierList-NB-r16,
+	ANR-MeasResult-NB-r16,
+	maxFreqANR-NB-r16,
+	MeasResultServCell-NB-r14,
+	NRSRP-Range-NB-r14,
+	RLF-Report-NB-r16
 
-VarShortResumeMAC-Input-NB-r13	::=	VarShortResumeMAC-Input-r13
+FROM NBIOT-RRC-Definitions;
+
+
+
+VarANR-MeasConfig-NB-r16::=	SEQUENCE {
+	anr-QualityThreshold-r16			NRSRP-Range-NB-r14,
+	anr-CarrierList-r16					ANR-CarrierList-NB-r16
+}
+
+
+VarANR-MeasReport-NB-r16::=	SEQUENCE {
+	plmn-IdentityList-r16			PLMN-IdentityList3-r11,
+	servCellIdentity-r16			CellGlobalIdEUTRA,
+	measResultServCell-r16			MeasResultServCell-NB-r14,
+	relativeTimeStamp-r16			INTEGER (0..95),
+	measResultList-r16				SEQUENCE (SIZE (1..maxFreqANR-NB-r16)) OF ANR-MeasResult-NB-r16
+}
+
+
+VarRLF-Report-NB-r16 ::=		SEQUENCE {
+	rlf-Report-r16					RLF-Report-NB-r16,
+	plmn-IdentityList-r16			PLMN-IdentityList3-r11
+
+}
+
+
+VarShortMAC-Input-NB-r13	::=		VarShortMAC-Input
+
+
+VarShortResumeMAC-Input-NB-r13	::=		VarShortResumeMAC-Input-r13
 
 
 END

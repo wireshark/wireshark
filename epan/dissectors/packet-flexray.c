@@ -55,7 +55,7 @@ static gint ett_flexray_measurement_header = -1;
 static gint ett_flexray_error_flags = -1;
 static gint ett_flexray_frame = -1;
 
-static const int *error_fields[] = {
+static int * const error_fields[] = {
 	&hf_flexray_fcrc_err,
 	&hf_flexray_hcrc_err,
 	&hf_flexray_fes_err,
@@ -64,7 +64,7 @@ static const int *error_fields[] = {
 	NULL
 };
 
-static const int *frame_fields[] = {
+static int * const frame_fields[] = {
 	&hf_flexray_ppi,
 	&hf_flexray_sfi,
 	&hf_flexray_stfi,

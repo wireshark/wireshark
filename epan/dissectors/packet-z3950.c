@@ -34,11 +34,8 @@
  *
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/exceptions.h>
@@ -47,7 +44,6 @@
 #include <epan/proto_data.h>
 #include <wsutil/str_util.h>
 
-#include <stdio.h>
 #include <string.h>
 
 #include "packet-ber.h"
@@ -231,7 +227,7 @@ static const value_string z3950_bib1_at_use[] = {
     { 1034, "Content-type" },
     { 1035, "Anywhere" },
     { 1036, "Author-Title-Subject" },
-    { 1037, "Serial Item and Contribution Identifer (SICI)" },
+    { 1037, "Serial Item and Contribution Identifier (SICI)" },
     { 1038, "Abstract-language" },
     { 1039, "Application-kind" },
     { 1040, "Classification" },
@@ -1514,7 +1510,7 @@ static int hf_z3950_Options_U_concurrentOperations = -1;
 static int hf_z3950_Options_U_namedResultSets = -1;
 
 /*--- End of included file: packet-z3950-hf.c ---*/
-#line 659 "./asn1/z3950/packet-z3950-template.c"
+#line 655 "./asn1/z3950/packet-z3950-template.c"
 
 static int hf_z3950_referenceId_printable = -1;
 static int hf_z3950_general_printable = -1;
@@ -1818,7 +1814,7 @@ static gint ett_z3950_QueryExpression = -1;
 static gint ett_z3950_T_queryExpression_term = -1;
 
 /*--- End of included file: packet-z3950-ett.c ---*/
-#line 667 "./asn1/z3950/packet-z3950-template.c"
+#line 663 "./asn1/z3950/packet-z3950-template.c"
 
 /* MARC variables and forwards */
 
@@ -1878,7 +1874,7 @@ static const value_string marc_tag_names[] = {
     { 1, "Control Number" },
     { 3, "Control Number Identifier" },
     { 5, "Date and Time of Latest Transaction" },
-    { 6, "Fixed-length Data Elements - Addiional Matieral Characteristics" },
+    { 6, "Fixed-length Data Elements - Additional Material Characteristics" },
     { 8, "Fixed-length Data Elements" },
     { 7, "Physical Description Fixed Field" },
     { 10, "Library of Congress Control Number" },
@@ -2034,7 +2030,7 @@ static const value_string marc_tag_names[] = {
     { 955, "Local LoC Functional Identifying Information" },
     { 984, "Local LoC Shelflist Compare Status" },
     { 985, "Local LoC Record History" },
-    { 987, "Local LoC Converstion History" },
+    { 987, "Local LoC Conversation History" },
     { 991, "Local LoC Location Information" },
     { 992, "Local LoC Location Information" },
     { 0, NULL}
@@ -2117,7 +2113,7 @@ dissect_z3950_ReferenceId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 }
 
 
-static const int * ProtocolVersion_U_bits[] = {
+static int * const ProtocolVersion_U_bits[] = {
   &hf_z3950_ProtocolVersion_U_version_1,
   &hf_z3950_ProtocolVersion_U_version_2,
   &hf_z3950_ProtocolVersion_U_version_3,
@@ -2144,7 +2140,7 @@ dissect_z3950_ProtocolVersion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 }
 
 
-static const int * Options_U_bits[] = {
+static int * const Options_U_bits[] = {
   &hf_z3950_Options_U_search,
   &hf_z3950_Options_U_present,
   &hf_z3950_Options_U_delSet,
@@ -8654,7 +8650,7 @@ static int dissect_SearchInfoReport_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U
 
 
 /*--- End of included file: packet-z3950-fn.c ---*/
-#line 925 "./asn1/z3950/packet-z3950-template.c"
+#line 921 "./asn1/z3950/packet-z3950-template.c"
 
 static int
 dissect_z3950(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -12095,7 +12091,7 @@ void proto_register_z3950(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-z3950-hfarr.c ---*/
-#line 981 "./asn1/z3950/packet-z3950-template.c"
+#line 977 "./asn1/z3950/packet-z3950-template.c"
 
     { &hf_z3950_referenceId_printable,
         { "referenceId", "z3950.referenceId.printable",
@@ -12548,7 +12544,7 @@ void proto_register_z3950(void) {
     &ett_z3950_T_queryExpression_term,
 
 /*--- End of included file: packet-z3950-ettarr.c ---*/
-#line 1138 "./asn1/z3950/packet-z3950-template.c"
+#line 1134 "./asn1/z3950/packet-z3950-template.c"
     };
 
     module_t *z3950_module;
@@ -12617,7 +12613,7 @@ proto_reg_handoff_z3950(void)
 
 
 /*--- End of included file: packet-z3950-dis-tab.c ---*/
-#line 1189 "./asn1/z3950/packet-z3950-template.c"
+#line 1185 "./asn1/z3950/packet-z3950-template.c"
 
     register_ber_oid_dissector(Z3950_RECORDSYNTAX_MARC21_OID, dissect_marc_record, proto_z3950, "MARC21");
 

@@ -41,6 +41,7 @@ int hf_isis_clv_key_id              = -1;
 
 static gint ett_isis                = -1;
 
+static expert_field ei_isis_length_indicator_too_small = EI_INIT;
 static expert_field ei_isis_version = EI_INIT;
 static expert_field ei_isis_version2 = EI_INIT;
 static expert_field ei_isis_reserved = EI_INIT;
@@ -69,7 +70,6 @@ dissect_isis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     int offset = 0;
     guint8 isis_version, isis_version2, isis_reserved;
     guint8 isis_type;
-    tvbuff_t *next_tvb;
     isis_data_t subdissector_data;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISIS");
@@ -82,9 +82,17 @@ dissect_isis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     offset += 1;
 
     subdissector_data.header_length = tvb_get_guint8(tvb, offset);
-    proto_tree_add_uint(isis_tree, hf_isis_header_length, tvb,
+    subdissector_data.header_length_item =
+        proto_tree_add_uint(isis_tree, hf_isis_header_length, tvb,
             offset, 1, subdissector_data.header_length );
     offset += 1;
+    if (subdissector_data.header_length < 8) {
+        /* Not large enough to include the part of the header that
+           we dissect here. */
+        expert_add_info(pinfo, subdissector_data.header_length_item, &ei_isis_length_indicator_too_small);
+        return tvb_captured_length(tvb);
+    }
+    subdissector_data.ei_bad_header_length = &ei_isis_length_indicator_too_small;
 
     isis_version = tvb_get_guint8(tvb, offset);
     version_item = proto_tree_add_uint(isis_tree, hf_isis_version, tvb,
@@ -135,8 +143,12 @@ dissect_isis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     }
     /* XXX - otherwise, must be in the range 1 through 8 */
 
-    next_tvb = tvb_new_subset_remaining(tvb, offset);
-    if (!dissector_try_uint_new(isis_dissector_table, isis_type, next_tvb,
+    /*
+     * We must pass the entire ISIS PDU to the dissector, as some
+     * dissectors are for ISIS PDU types that might contain a
+     * checksum TLV, and that checksum is over the entire PDU.
+     */
+    if (!dissector_try_uint_new(isis_dissector_table, isis_type, tvb,
                                 pinfo, tree, TRUE, &subdissector_data))
     {
         proto_tree_add_expert(tree, pinfo, &ei_isis_type, tvb, offset, -1);
@@ -149,7 +161,7 @@ proto_register_isis(void)
 {
   static hf_register_info hf[] = {
     { &hf_isis_irpd,
-      { "Intradomain Routeing Protocol Discriminator",    "isis.irpd",
+      { "Intradomain Routing Protocol Discriminator",    "isis.irpd",
         FT_UINT8, BASE_HEX, VALS(nlpid_vals), 0x0, NULL, HFILL }},
 
     { &hf_isis_header_length,
@@ -196,6 +208,7 @@ proto_register_isis(void)
     };
 
     static ei_register_info ei[] = {
+        { &ei_isis_length_indicator_too_small, { "isis.length_indicator_too_small", PI_MALFORMED, PI_ERROR, "ISIS length indicator value smaller than the fixed length header size", EXPFILL }},
         { &ei_isis_version, { "isis.version.unknown", PI_PROTOCOL, PI_WARN, "Unknown ISIS version", EXPFILL }},
         { &ei_isis_version2, { "isis.version2.notone", PI_PROTOCOL, PI_WARN, "Version must be 1", EXPFILL }},
         { &ei_isis_reserved, { "isis.reserved.notzero", PI_PROTOCOL, PI_WARN, "Reserved must be 0", EXPFILL }},

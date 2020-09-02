@@ -37,15 +37,6 @@ def find_test_ids(suite, all_ids):
     else:
         all_ids.append(suite.id())
 
-def dump_failed_output(suite):
-    if hasattr(suite, '__iter__'):
-        for s in suite:
-            dump_failures = getattr(s, 'dump_failures', None)
-            if dump_failures:
-                dump_failures()
-            else:
-                dump_failed_output(s)
-
 def main():
     if sys.version_info[0] < 3:
         print("Unit tests require Python 3")
@@ -141,8 +132,6 @@ def main():
     finally:
         # for unittest compatibility (not needed with pytest)
         fixtures_ws.fixtures.destroy_session()
-
-    dump_failed_output(run_suite)
 
     if test_result.errors:
         sys.exit(2)

@@ -26,6 +26,19 @@
 extern "C" {
 #endif /* __cplusplus */
 
+#ifndef KRB5_KU_USAGE_ACCEPTOR_SEAL
+#define KRB5_KU_USAGE_ACCEPTOR_SEAL     22
+#endif
+#ifndef KRB5_KU_USAGE_ACCEPTOR_SIGN
+#define KRB5_KU_USAGE_ACCEPTOR_SIGN     23
+#endif
+#ifndef KRB5_KU_USAGE_INITIATOR_SEAL
+#define KRB5_KU_USAGE_INITIATOR_SEAL    24
+#endif
+#ifndef KRB5_KU_USAGE_INITIATOR_SIGN
+#define KRB5_KU_USAGE_INITIATOR_SIGN    25
+#endif
+
 /* This is a list of callback functions a caller can use to specify that
    octet strings in kerberos to be passed back to application specific
    dissectors, outside of kerberos.
@@ -42,6 +55,9 @@ typedef struct _kerberos_callbacks {
 } kerberos_callbacks;
 
 /* Function prototypes */
+
+gboolean
+kerberos_is_win2k_pkinit(asn1_ctx_t *actx);
 
 gint
 dissect_kerberos_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean do_col_info, kerberos_callbacks *cb);
@@ -65,17 +81,31 @@ show_krb_recordmark(proto_tree *tree, tvbuff_t *tvb, gint start, guint32 krb_rm)
 
 #ifdef HAVE_KERBEROS
 #define KRB_MAX_ORIG_LEN	256
+#define KRB_MAX_KEY_LENGTH	32
+/*
+ * "18446744073709551615.18446744073709551615"
+ * sizeof("18446744073709551615") includes '\0',
+ * which is used once for '.' and then for '\0'.
+ */
+#define KRB_MAX_ID_STR_LEN (sizeof("18446744073709551615")*2)
 
 #if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
 typedef struct _enc_key_t {
 	struct _enc_key_t	*next;
 	int keytype;
 	int keylength;
-	char *keyvalue;
-	char 			key_origin[KRB_MAX_ORIG_LEN+1];
+	guint8 keyvalue[KRB_MAX_KEY_LENGTH];
+	char key_origin[KRB_MAX_ORIG_LEN+1];
 	int fd_num; /* remember where we learned a key */
+	guint id; /* a unique id of the key, relative to fd_num */
+	char id_str[KRB_MAX_ID_STR_LEN+1];
+	struct _enc_key_t	*same_list;
+	guint num_same;
+	struct _enc_key_t	*src1;
+	struct _enc_key_t	*src2;
 } enc_key_t;
 extern enc_key_t *enc_key_list;
+extern wmem_map_t *kerberos_longterm_keys;
 
 guint8 *
 decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
@@ -126,7 +156,7 @@ extern gboolean krb_decrypt;
 int dissect_kerberos_ChangePasswdData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 /*--- End of included file: packet-kerberos-exp.h ---*/
-#line 96 "./asn1/kerberos/packet-kerberos-template.h"
+#line 126 "./asn1/kerberos/packet-kerberos-template.h"
 
 #ifdef __cplusplus
 }

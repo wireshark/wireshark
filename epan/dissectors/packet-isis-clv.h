@@ -79,7 +79,7 @@ typedef struct {
         const char    *tree_text;       /* text for fold out */
         gint    *tree_id;               /* id for add_item */
         void    (*dissect)(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree,
-                                int offset, int id_length, int length);
+                                int offset, isis_data_t *isis, int length);
 } isis_clv_handle_t;
 
 /*
@@ -87,8 +87,8 @@ typedef struct {
  * are only valid from with isis decodes.
  */
 extern void isis_dissect_clvs(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset,
-        const isis_clv_handle_t *opts, expert_field* expert_short_len, guint len, int id_length,
-        int unknown_tree_id,  int tree_type, int tree_length, expert_field ei_unknown);
+        const isis_clv_handle_t *opts, expert_field *expert_short_len, isis_data_t *isis,
+        int unknown_tree_id,  int tree_type, int tree_length, expert_field *ei_unknown);
 
 extern void isis_dissect_nlpid_clv(tvbuff_t *tvb, proto_tree *tree,
         int hf_nlpid, int offset, int length);

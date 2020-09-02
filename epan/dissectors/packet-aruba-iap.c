@@ -22,7 +22,7 @@
  * Octet 5 : Status (Master / Slave..)
  * Octet 6-9 : timestamp
  * Octet 10-13 : The address IP(v4) of VC (Virtual Controller)
- * Octet 14 : Unknown
+ * Octet 14 : Model
  * Octet 15-16 : Vlan ID (of Uplink)
  * Octet 17-20 : Unknown...
  */
@@ -49,8 +49,15 @@ static int hf_iap_status = -1;
 static int hf_iap_uptime = -1;
 static int hf_iap_vc_ip = -1;
 static int hf_iap_pvid = -1;
+static int hf_iap_model = -1;
 static int hf_iap_unknown_uint = -1;
 static int hf_iap_unknown_bytes = -1;
+
+static const value_string iap_model[] = {
+    { 0x1a, "Pegasus (IAP-103/108/109/144,115)" },
+    { 0x30, "Ursa (IAP-303/303H/304/305/360)" },
+    { 0, NULL }
+};
 
 static int
 dissect_aruba_iap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
@@ -109,7 +116,7 @@ dissect_aruba_iap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
         proto_tree_add_item(aruba_iap_tree, hf_iap_pvid, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
-        proto_tree_add_item(aruba_iap_tree, hf_iap_unknown_uint, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(aruba_iap_tree, hf_iap_model, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
         proto_tree_add_item(aruba_iap_tree, hf_iap_unknown_bytes, tvb, offset, -1, ENC_NA);
@@ -127,7 +134,7 @@ proto_register_aruba_iap(void)
     static hf_register_info hf[] = {
         { &hf_iap_magic,
         { "Magic", "aruba_iap.magic", FT_UINT16, BASE_HEX, NULL,0x0,
-        "Magic Number of IAP trafic (Always 0x8ffd)", HFILL}},
+        "Magic Number of IAP traffic (Always 0x8ffd)", HFILL}},
 
         { &hf_iap_version,
         { "Version", "aruba_iap.version", FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -160,6 +167,10 @@ proto_register_aruba_iap(void)
         { &hf_iap_pvid,
         { "PVID (Port Vlan ID)", "aruba_iap.pvid", FT_UINT16, BASE_DEC, NULL, 0x0,
         "Vlan ID (of Uplink)", HFILL}},
+
+        { &hf_iap_model,
+        { "Model", "aruba_iap.model", FT_UINT32, BASE_DEC_HEX, VALS(iap_model), 0x0,
+        NULL, HFILL}},
 
         { &hf_iap_unknown_bytes,
         { "Unknown", "aruba_iap.unknown.bytes", FT_BYTES, BASE_NONE, NULL, 0x0,

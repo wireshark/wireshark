@@ -6,12 +6,12 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
+ * RFC 5533
+ *
  * SHIM6 support added by Matthijs Mekking <matthijs@NLnetLabs.nl>
  */
 
 #include "config.h"
-
-#include <glib.h>
 
 #include <epan/packet.h>
 #include <epan/expert.h>
@@ -135,17 +135,6 @@ static gint ett_shim6_cksum        = -1;
 
 static expert_field ei_shim6_opt_elemlen_invalid = EI_INIT;
 static expert_field ei_shim6_checksum_bad = EI_INIT;
-
-
-
-static guint16
-shim6_checksum(tvbuff_t *tvb, int offset, int len)
-{
-    vec_t cksum_vec[1];
-
-    SET_CKSUM_VEC_TVB(cksum_vec[0], tvb, offset, len);
-    return in_cksum(&cksum_vec[0], 1);
-}
 
 static const value_string shimoptvals[] = {
     { SHIM6_OPT_RESPVAL,  "Responder Validator Option" },
@@ -609,7 +598,7 @@ dissect_shim6(tvbuff_t *tvb, packet_info * pinfo, proto_tree *tree, void* data)
         offset++;
 
         /* Checksum */
-        csum = shim6_checksum(tvb, 0, len);
+        csum = ip_checksum_tvb(tvb, 0, len);
         proto_tree_add_checksum(shim_tree, tvb, offset, hf_shim6_checksum, hf_shim6_checksum_status, &ei_shim6_checksum_bad, pinfo, csum,
                                 ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_IN_CKSUM);
         if (csum != 0)

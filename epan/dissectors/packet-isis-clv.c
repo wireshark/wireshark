@@ -14,6 +14,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include "packet-isis.h"
 #include "packet-isis-clv.h"
 #include <epan/nlpid.h>
 
@@ -468,12 +469,13 @@ isis_dissect_nlpid_clv(tvbuff_t *tvb, proto_tree *tree, int hf_nlpid, int offset
  *
  * Input:
  *    tvbuff_t * : tvbuffer for packet data
+ *    packet_info * : packet_info for dissection
  *    proto_tree * : protocol display tree to fill out.  May be NULL
  *    int : offset into packet data where we are.
  *    isis_clv_handle_t * : NULL dissector terminated array of codes
  *        and handlers (along with tree text and tree id's).
- *    int : length of CLV area.
- *    int : length of IDs in packet.
+ *    expert_field * : expert info for short length
+ *    isis_data_t * : data about the PDU from earlier headers
  *    int : unknown clv tree id
  *
  * Output:
@@ -481,9 +483,10 @@ isis_dissect_nlpid_clv(tvbuff_t *tvb, proto_tree *tree, int hf_nlpid, int offset
  */
 void
 isis_dissect_clvs(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset,
-    const isis_clv_handle_t *opts, expert_field* expert_short_len, guint len, int id_length,
-    int unknown_tree_id _U_, int tree_type, int tree_length, expert_field ei_unknown)
+    const isis_clv_handle_t *opts, expert_field *expert_short_len, isis_data_t *isis,
+    int unknown_tree_id _U_, int tree_type, int tree_length, expert_field *ei_unknown)
 {
+    guint len = isis->pdu_length - isis->header_length; /* length of CLV area */
     guint8 code;
     guint8 length;
     int q;
@@ -520,15 +523,14 @@ isis_dissect_clvs(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offse
 
             proto_tree_add_item(clv_tree, tree_type, tvb, offset - 2, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(clv_tree, tree_length, tvb, offset - 1, 1, ENC_BIG_ENDIAN);
-            opts[q].dissect(tvb, pinfo, clv_tree, offset,
-                id_length, length);
+            opts[q].dissect(tvb, pinfo, clv_tree, offset, isis, length);
         } else {
             clv_tree = proto_tree_add_subtree_format(tree, tvb, offset - 2,
                     length + 2, unknown_tree_id, NULL, "Unknown code (t=%u, l=%u)",
                     code, length);
             proto_tree_add_item(clv_tree, tree_type, tvb, offset - 2, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(clv_tree, tree_length, tvb, offset - 1, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_expert_format(clv_tree, pinfo, &ei_unknown, tvb, offset, length, "Dissector for IS-IS CLV (%d)"
+            proto_tree_add_expert_format(clv_tree, pinfo, ei_unknown, tvb, offset, length, "Dissector for IS-IS CLV (%d)"
               " code not implemented, Contact Wireshark developers if you want this supported", code);
         }
         offset += length;

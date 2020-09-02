@@ -42,12 +42,7 @@ composite_free(tvbuff_t *tvb)
 
 	g_free(composite->start_offsets);
 	g_free(composite->end_offsets);
-	if (tvb->real_data) {
-		/*
-		 * XXX - do this with a union?
-		 */
-		g_free((gpointer)tvb->real_data);
-	}
+	g_free((gpointer)tvb->real_data);
 }
 
 static guint
@@ -187,10 +182,14 @@ static const struct tvb_ops tvb_composite_ops = {
 /*
  * Composite tvb
  *
- *   1. A composite tvb is automatically chained to its first member when the
- *      tvb is finalized.
- *      This means that composite tvb members must all be in the same chain.
- *      ToDo: enforce this: By searching the chain?
+ * A composite TVB references the concatenation of one or more TVBs, each of
+ * them MUST be part be part of the same chain (the same memory "scope"). The
+ * caller of tvb_new_composite MUST immediately call tvb_composite_append or
+ * tvb_composite_prepend to ensure that the composite TVB is properly freed as
+ * needed.
+ *
+ * Failure to satisfy the same chain requirement can result in memory-safety
+ * issues such as use-after-free or double-free.
  */
 tvbuff_t *
 tvb_new_composite(void)
@@ -222,6 +221,11 @@ tvb_composite_append(tvbuff_t *tvb, tvbuff_t *member)
 
 	composite       = &composite_tvb->composite;
 	composite->tvbs = g_slist_append(composite->tvbs, member);
+
+	/* Attach the composite TVB to the first TVB only. */
+	if (!composite->tvbs->next) {
+		tvb_add_to_chain((tvbuff_t *)composite->tvbs->data, tvb);
+	}
 }
 
 void
@@ -240,6 +244,11 @@ tvb_composite_prepend(tvbuff_t *tvb, tvbuff_t *member)
 
 	composite       = &composite_tvb->composite;
 	composite->tvbs = g_slist_prepend(composite->tvbs, member);
+
+	/* Attach the composite TVB to the first TVB only. */
+	if (!composite->tvbs->next) {
+		tvb_add_to_chain((tvbuff_t *)composite->tvbs->data, tvb);
+	}
 }
 
 void
@@ -281,9 +290,6 @@ tvb_composite_finalize(tvbuff_t *tvb)
 		i++;
 	}
 
-	DISSECTOR_ASSERT(composite->tvbs);
-
-	tvb_add_to_chain((tvbuff_t *)composite->tvbs->data, tvb); /* chain composite tvb to first member */
 	tvb->initialized = TRUE;
 	tvb->ds_tvb = tvb;
 }

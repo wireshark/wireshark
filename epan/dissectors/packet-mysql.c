@@ -16,6 +16,7 @@
  *
  * the protocol spec at
  *  https://dev.mysql.com/doc/internals/en/client-server-protocol.html
+ *  https://dev.mysql.com/doc/dev/mysql-server/latest/PAGE_PROTOCOL.html
  * and MySQL source code
  */
 
@@ -40,6 +41,7 @@ void proto_reg_handoff_mysql(void);
 
 /* client/server capabilities
  * Source: http://dev.mysql.com/doc/internals/en/capability-flags.html
+ * Source: https://dev.mysql.com/doc/dev/mysql-server/latest/group__group__cs__capabilities__flags.html
  * Source: mysql_com.h
  */
 #define MYSQL_CAPS_LP 0x0001 /* CLIENT_LONG_PASSWORD */
@@ -206,7 +208,9 @@ static const value_string mysql_command_vals[] = {
 	{MYSQL_STMT_RESET, "Reset Statement"},
 	{MYSQL_SET_OPTION, "Set Option"},
 	{MYSQL_STMT_FETCH, "Fetch Data"},
+	{MYSQL_DAEMON, "Daemon"},
 	{MYSQL_BINLOG_DUMP_GTID, "Send Binlog GTID"},
+	{MYSQL_RESET_CONNECTION, "Reset Connection"},
 	{0, NULL}
 };
 static value_string_ext mysql_command_vals_ext = VALUE_STRING_EXT_INIT(mysql_command_vals);
@@ -800,7 +804,7 @@ static const mysql_exec_dissector_t mysql_exec_dissectors[] = {
 	{ 0x00, 0, NULL },
 };
 
-static const int *mysql_rfsh_flags[] = {
+static int * const mysql_rfsh_flags[] = {
 	&hf_mysql_rfsh_grants,
 	&hf_mysql_rfsh_log,
 	&hf_mysql_rfsh_tables,
@@ -812,7 +816,7 @@ static const int *mysql_rfsh_flags[] = {
 	NULL
 };
 
-static const int *mysql_stat_flags[] = {
+static int * const mysql_stat_flags[] = {
 	&hf_mysql_stat_it,
 	&hf_mysql_stat_ac,
 	&hf_mysql_stat_mu,
@@ -831,7 +835,7 @@ static const int *mysql_stat_flags[] = {
 	NULL
 };
 
-static const int *mysql_caps_flags[] = {
+static int * const mysql_caps_flags[] = {
 	&hf_mysql_cap_long_password,
 	&hf_mysql_cap_found_rows,
 	&hf_mysql_cap_long_flag,
@@ -851,7 +855,7 @@ static const int *mysql_caps_flags[] = {
 	NULL
 };
 
-static const int * mysql_extcaps_flags[] = {
+static int * const mysql_extcaps_flags[] = {
 	&hf_mysql_cap_multi_statements,
 	&hf_mysql_cap_multi_results,
 	&hf_mysql_cap_ps_multi_results,
@@ -865,7 +869,7 @@ static const int * mysql_extcaps_flags[] = {
 	NULL
 };
 
-static const int * mysql_fld_flags[] = {
+static int * const mysql_fld_flags[] = {
 	&hf_mysql_fld_not_null,
 	&hf_mysql_fld_primary_key,
 	&hf_mysql_fld_unique_key,
@@ -1616,6 +1620,7 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset,
 /*
  * Decode the header of a compressed packet
  * https://dev.mysql.com/doc/internals/en/compressed-packet-header.html
+ * https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_basic_compression_packet.html
  */
 static int
 mysql_dissect_compressed_header(tvbuff_t *tvb, int offset, proto_tree *mysql_tree)

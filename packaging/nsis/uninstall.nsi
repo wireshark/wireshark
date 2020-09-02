@@ -13,7 +13,6 @@ ${UnStrRep}
 
 SetCompress off
 OutFile "${STAGING_DIR}\uninstall_installer.exe"
-RequestExecutionLevel user
 
 InstType "un.Default (keep Personal Settings and Npcap)"
 InstType "un.All (remove all)"
@@ -214,6 +213,7 @@ Delete "$INSTDIR\share\glib-2.0\schemas\*.*"
 Delete "$INSTDIR\share\themes\Default\gtk-2.0\*.*"
 Delete "$INSTDIR\snmp\*.*"
 Delete "$INSTDIR\snmp\mibs\*.*"
+Delete "$INSTDIR\styles\translations\*.*"
 Delete "$INSTDIR\styles\*.*"
 Delete "$INSTDIR\tpncp\*.*"
 Delete "$INSTDIR\translations\*.*"
@@ -286,6 +286,7 @@ RMDir "$INSTDIR\share\themes\Default\gtk-2.0"
 RMDir "$INSTDIR\share\themes\Default"
 RMDir "$INSTDIR\share\themes"
 RMDir "$INSTDIR\share"
+RMDir "$INSTDIR\styles\translations"
 RMDir "$INSTDIR\styles"
 RMDir "$SMPROGRAMS\${PROGRAM_NAME}"
 RMDir "$INSTDIR\help"

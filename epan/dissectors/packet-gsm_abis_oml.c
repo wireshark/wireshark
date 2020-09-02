@@ -717,6 +717,7 @@ static int ett_oml_fom = -1;
 static int ett_oml_fom_att = -1;
 
 static expert_field ei_unknown_type = EI_INIT;
+static expert_field ei_length_mismatch = EI_INIT;
 
 enum {
 	OML_DIALECT_ETSI,
@@ -1059,7 +1060,7 @@ static const value_string oml_fom_attr_vals_bs11[] = {
 	{ NM_ATT_BS11_LMT_USER_NAME,	"SIE LMT User Account Name" },
 	{ NM_ATT_BS11_L1_CONTROL_TS,	"SIE L1 Control TS" },
 	{ NM_ATT_BS11_RADIO_MEAS_GRAN,	"SIE Radio Measurement Granularity" },
-	{ NM_ATT_BS11_RADIO_MEAS_REP,	"SIE Rdadio Measurement Report" },
+	{ NM_ATT_BS11_RADIO_MEAS_REP,	"SIE Radio Measurement Report" },
 	{ NM_ATT_BS11_SH_LAPD_INT_TIMER,"SIE LAPD Internal Timer" },
 	{ NM_ATT_BS11_BTS_STATE,	"SIE BTS State" },
 	{ NM_ATT_BS11_E1_STATE,		"SIE E1 State" },
@@ -1090,7 +1091,7 @@ static const value_string oml_fom_attr_vals_bs11[] = {
 /* proprietary ip.access attributes, not in the standard */
 static const value_string oml_fom_attr_vals_ipa[] = {
 	{ NM_ATT_IPACC_DST_IP,		"IPA Destination IP Address" },
-	{ NM_ATT_IPACC_DST_IP_PORT,	"IPA Destionation IP Port" },
+	{ NM_ATT_IPACC_DST_IP_PORT,	"IPA Destination IP Port" },
 	{ NM_ATT_IPACC_SSRC,		"IPA RTP SSRC" },
 	{ NM_ATT_IPACC_RTP_PAYLD_TYPE,	"IPA RTP Payload Type" },
 	{ NM_ATT_IPACC_BASEB_ID,	"IPA Baseband Identifier" },
@@ -1293,7 +1294,7 @@ static const value_string oml_nack_cause[] = {
 	{ NM_NACK_PHYSCFG_NOTRESTORE,	"Phys config cannot be restored" },
 	{ NM_NACK_TEST_NOSUCH,		"No such Test" },
 	{ NM_NACK_TEST_NOSTOP,		"Test cannot be stopped" },
-	{ NM_NACK_MSGINCONSIST_PHYSCFG,	"Message inconsisten with physical config" },
+	{ NM_NACK_MSGINCONSIST_PHYSCFG,	"Message inconsistent with physical config" },
 	{ NM_NACK_FILE_INCOMPLETE,	"Complete file not received" },
 	{ NM_NACK_FILE_NOTAVAIL,	"File not available at destination" },
 	{ NM_NACK_FILE_NOTACTIVATE,	"File cannot be activated" },
@@ -1821,6 +1822,13 @@ dissect_abis_oml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 	proto_tree_add_item(oml_tree, hf_oml_length, tvb, offset++,
 			    1, ENC_LITTLE_ENDIAN);
 
+	/* Check whether the indicated length is correct */
+	if (len != tvb_reported_length_remaining(tvb, offset)) {
+		expert_add_info_format(pinfo, ti, &ei_length_mismatch,
+			"Indicated length (%u) does not match the actual (%u)",
+			len, tvb_reported_length_remaining(tvb, offset));
+	}
+
 	if (global_oml_dialect == OML_DIALECT_ERICSSON) {
 		/* Ericsson OM2000 only sharese the common header above
 		 * and has completely custom/proprietary message format
@@ -2095,7 +2103,7 @@ proto_register_abis_oml(void)
 			{ "Primary OML TCP Port",
 					"gsm_abis_oml.fom.attr.ipa.prim_oml_port",
 			  FT_UINT16, BASE_DEC, NULL, 0,
-			  "TCP Port of the BSC for the primarly OML link",
+			  "TCP Port of the BSC for the primary OML link",
 			  HFILL }
 		},
 		{ &hf_attr_ipa_location_name,
@@ -2175,7 +2183,10 @@ proto_register_abis_oml(void)
 	};
 
 	static ei_register_info ei[] = {
-		{ &ei_unknown_type, { "gsm_abis_oml.expert.unknown_type", PI_PROTOCOL, PI_NOTE, "Unknown TLV type", EXPFILL }},
+		{ &ei_unknown_type, { "gsm_abis_oml.expert.unknown_type", PI_PROTOCOL, PI_NOTE,
+				      "Unknown TLV type", EXPFILL }},
+		{ &ei_length_mismatch, { "gsm_abis_oml.expert.length_mismatch", PI_PROTOCOL, PI_WARN,
+					 "Indicated length does not match the actual", EXPFILL }},
 	};
 
 	module_t *oml_module;

@@ -31,7 +31,7 @@ typedef struct _udt_conversation {
 } udt_conversation;
 
 /*
- * based on http://tools.ietf.org/html/draft-gg-udt-03
+ * based on https://tools.ietf.org/html/draft-gg-udt-03
  */
 
 #define UDT_TYPE_DATA			0

@@ -59,8 +59,8 @@ static int ett_evs_header = -1;
 static int ett_evs_speech = -1;
 static int ett_evs_voice_data = -1;
 
-/* The dynamic payload type which will be dissected as EVS */
-static guint temp_dynamic_payload_type = 0;
+/* The dynamic payload type range which will be dissected as EVS */
+static range_t *temp_dynamic_payload_type_range = NULL;
 
 static const value_string evs_protected_payload_sizes_value[] = {
     {    48, "EVS Primary SID 2.4" },
@@ -402,7 +402,7 @@ dissect_evs_cmr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *evs_tree, int
     switch (t_bits) {
     case 0:
     {
-        static const int * flags_t0[] = {
+        static int * const flags_t0[] = {
             &hf_evs_h_bit,
             &hf_evs_cmr_t,
             &hf_evs_cmr_t0_d,
@@ -416,7 +416,7 @@ dissect_evs_cmr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *evs_tree, int
     break;
     case 1:
     {
-        static const int * flags_t1[] = {
+        static int * const flags_t1[] = {
             &hf_evs_h_bit,
             &hf_evs_cmr_t,
             &hf_evs_cmr_t1_d,
@@ -430,7 +430,7 @@ dissect_evs_cmr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *evs_tree, int
     break;
     case 2:
     {
-        static const int * flags_t2[] = {
+        static int * const flags_t2[] = {
             &hf_evs_h_bit,
             &hf_evs_cmr_t,
             &hf_evs_cmr_t2_d,
@@ -444,7 +444,7 @@ dissect_evs_cmr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *evs_tree, int
     break;
     case 3:
     {
-        static const int * flags_t3[] = {
+        static int * const flags_t3[] = {
             &hf_evs_h_bit,
             &hf_evs_cmr_t,
             &hf_evs_cmr_t3_d,
@@ -458,7 +458,7 @@ dissect_evs_cmr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *evs_tree, int
     break;
     case 4:
     {
-        static const int * flags_t4[] = {
+        static int * const flags_t4[] = {
             &hf_evs_h_bit,
             &hf_evs_cmr_t,
             &hf_evs_cmr_t4_d,
@@ -472,7 +472,7 @@ dissect_evs_cmr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *evs_tree, int
     break;
     case 5:
     {
-        static const int * flags_t5[] = {
+        static int * const flags_t5[] = {
             &hf_evs_h_bit,
             &hf_evs_cmr_t,
             &hf_evs_cmr_t5_d,
@@ -486,7 +486,7 @@ dissect_evs_cmr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *evs_tree, int
     break;
     case 6:
     {
-        static const int * flags_t6[] = {
+        static int * const flags_t6[] = {
             &hf_evs_h_bit,
             &hf_evs_cmr_t,
             &hf_evs_cmr_t6_d,
@@ -500,7 +500,7 @@ dissect_evs_cmr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *evs_tree, int
     break;
     case 7:
     {
-        static const int * flags_t7[] = {
+        static int * const flags_t7[] = {
             &hf_evs_h_bit,
             &hf_evs_cmr_t,
             &hf_evs_cmr_t7_d,
@@ -695,7 +695,7 @@ dissect_evs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             num_toc);
 
         if (evs_mode_b == 0) {
-            static const int * flags_toc_mode_0[] = {
+            static int * const flags_toc_mode_0[] = {
                 &hf_evs_h_bit,
                 &hf_evs_f_bit,
                 &hf_evs_mode_bit,
@@ -707,7 +707,7 @@ dissect_evs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             proto_tree_add_bitmask_list(sub_tree, tvb, offset, 1, flags_toc_mode_0, ENC_BIG_ENDIAN);
             str = val_to_str_const((oct & 0x0f), evs_bit_rate_mode_0_values, "Unknown value");
         } else {
-            static const int * flags_toc_mode_1[] = {
+            static int * const flags_toc_mode_1[] = {
             &hf_evs_h_bit,
             &hf_evs_f_bit,
             &hf_evs_mode_bit,
@@ -905,12 +905,11 @@ proto_register_evs(void)
 
     evs_module = prefs_register_protocol(proto_evs, proto_reg_handoff_evs);
 
-    prefs_register_uint_preference(evs_module, "dynamic.payload.type",
-        "EVS dynamic payload type",
-        "The dynamic payload type which will be interpreted as EVS"
-        "; The value must be greater than 95",
-        10,
-        &temp_dynamic_payload_type);
+    prefs_register_range_preference(evs_module, "dynamic.payload.type",
+        "EVS dynamic payload types",
+        "Dynamic payload types which will be interpreted as EVS"
+        "; values must be in the range 1 - 127",
+        &temp_dynamic_payload_type_range, 127);
 
     evs_handle = register_dissector("evs", dissect_evs, proto_evs);
 
@@ -919,7 +918,7 @@ proto_register_evs(void)
 void
 proto_reg_handoff_evs(void)
 {
-    static guint              dynamic_payload_type;
+    static range_t           *dynamic_payload_type_range = NULL;
     static gboolean           evs_prefs_initialized = FALSE;
 
     if (!evs_prefs_initialized) {
@@ -927,15 +926,14 @@ proto_reg_handoff_evs(void)
         evs_prefs_initialized = TRUE;
     }
     else {
-        if (dynamic_payload_type > 95)
-            dissector_delete_uint("rtp.pt", dynamic_payload_type, evs_handle);
+        dissector_delete_uint_range("rtp.pt", dynamic_payload_type_range, evs_handle);
+        wmem_free(wmem_epan_scope(), dynamic_payload_type_range);
     }
 
-    dynamic_payload_type = temp_dynamic_payload_type;
+    dynamic_payload_type_range = range_copy(wmem_epan_scope(), temp_dynamic_payload_type_range);
 
-    if (dynamic_payload_type > 95) {
-        dissector_add_uint("rtp.pt", dynamic_payload_type, evs_handle);
-    }
+    range_remove_value(wmem_epan_scope(), &dynamic_payload_type_range, 0);
+    dissector_add_uint_range("rtp.pt", dynamic_payload_type_range, evs_handle);
 }
 
 /*

@@ -53,6 +53,11 @@ static gboolean systemd_journal_read_export_entry(FILE_T fh, wtap_rec *rec,
 #define MAX_EXPORT_ENTRY_LENGTH WTAP_MAX_PACKET_SIZE_STANDARD
 #define MAX_EXPORT_ENTRY_LINES 100
 
+// Strictly speaking, we only need __REALTIME_TIMESTAMP= since we use
+// that to set the packet timestamp. According to
+// https://www.freedesktop.org/software/systemd/man/systemd.journal-fields.html
+// __CURSOR= and __MONOTONIC_TIMESTAMP= should be present as well, so
+// check for them order to improve our heuristics.
 #define FLD__CURSOR "__CURSOR="
 #define FLD__REALTIME_TIMESTAMP "__REALTIME_TIMESTAMP="
 #define FLD__MONOTONIC_TIMESTAMP "__MONOTONIC_TIMESTAMP="
@@ -97,6 +102,15 @@ wtap_open_return_val systemd_journal_open(wtap *wth, int *err _U_, gchar **err_i
     wth->subtype_seek_read = systemd_journal_seek_read;
     wth->file_encap = WTAP_ENCAP_SYSTEMD_JOURNAL;
     wth->file_tsprec = WTAP_TSPREC_USEC;
+
+    /*
+     * Add an IDB; we don't know how many interfaces were
+     * involved, so we just say one interface, about which
+     * we only know the link-layer type, snapshot length,
+     * and time stamp resolution.
+     */
+    wtap_add_generated_idb(wth);
+
     return WTAP_OPEN_MINE;
 }
 

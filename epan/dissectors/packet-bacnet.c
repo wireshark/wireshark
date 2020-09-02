@@ -181,9 +181,9 @@ static const true_false_string wrapper_control_trusted_source = {
 	"Message received from untrusted source"
 };
 
-static const true_false_string security_msg_challanged = {
-	"Message is challanged",
-	"Message is not challanged"
+static const true_false_string security_msg_challenged = {
+	"Message is challenged",
+	"Message is not challenged"
 };
 
 static const true_false_string update_key_control_remove_keys = {
@@ -257,7 +257,7 @@ static int hf_bacnet_wrapper_auth_len = -1;
 static int hf_bacnet_wrapper_auth_data = -1;
 static int hf_bacnet_wrapper_signature = -1;
 static int hf_bacnet_wrapper_encrypted_data = -1;
-static int hf_bacnet_msg_is_challanged = -1;
+static int hf_bacnet_msg_is_challenged = -1;
 static int hf_bacnet_security_original_message_id = -1;
 static int hf_bacnet_security_original_time_stamp = -1;
 static int hf_bacnet_security_msg_len = -1;
@@ -305,7 +305,7 @@ static gint ett_bacnet_update_control = -1;
 
 static dissector_handle_t bacnet_handle = NULL;
 
-static const int * control_flags[] = {
+static int * const control_flags[] = {
 	&hf_bacnet_control_net,
 	&hf_bacnet_control_res1,
 	&hf_bacnet_control_dest,
@@ -317,7 +317,7 @@ static const int * control_flags[] = {
 	NULL
 };
 
-static const int * update_control_flags[] = {
+static int * const update_control_flags[] = {
 	&hf_bacnet_update_control_remove,
 	&hf_bacnet_update_control_more_follows,
 	&hf_bacnet_update_control_clear_set2,
@@ -329,7 +329,7 @@ static const int * update_control_flags[] = {
 	NULL
 };
 
-static const int * wrapper_control_flags[] = {
+static int * const wrapper_control_flags[] = {
 	&hf_bacnet_wrapper_control_secured_by_router,
 	&hf_bacnet_wrapper_control_non_trusted_source,
 	&hf_bacnet_wrapper_control_do_not_decrypt,
@@ -716,7 +716,7 @@ dissect_bacnet_npdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint of
 				return tvb_captured_length(tvb);
 			}
 
-			proto_tree_add_item(tree, hf_bacnet_msg_is_challanged,
+			proto_tree_add_item(tree, hf_bacnet_msg_is_challenged,
 				tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset++;
 
@@ -1444,10 +1444,10 @@ proto_register_bacnet(void)
 			FT_BYTES, BASE_NONE, NULL, 0,
 			NULL, HFILL }
 		},
-		{ &hf_bacnet_msg_is_challanged,
-			{ "Message is challanged message",
-			"bacnet.is_challanged_message",
-			FT_BOOLEAN, 8, TFS(&security_msg_challanged),
+		{ &hf_bacnet_msg_is_challenged,
+			{ "Message is challenged message",
+			"bacnet.is_challenged_message",
+			FT_BOOLEAN, 8, TFS(&security_msg_challenged),
 			1, "BACnet security", HFILL }
 		},
 		{ &hf_bacnet_security_original_message_id,

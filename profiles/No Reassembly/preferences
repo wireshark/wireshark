@@ -112,6 +112,7 @@ rtsp.desegment_body: FALSE
 sametime.reassemble: FALSE
 sasp.desegment_sasp_messages: FALSE
 sctp.reassembly: FALSE
+scylla.desegment: FALSE
 selfm.desegment: FALSE
 ses.desegment: FALSE
 sip.desegment_headers: FALSE

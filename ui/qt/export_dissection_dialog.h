@@ -58,6 +58,8 @@ private:
     PacketFormatGroupBox packet_format_group_box_;
 
     QPushButton *save_bt_;
+#else
+    QString sel_range_;
 #endif // Q_OS_WIN
 };
 

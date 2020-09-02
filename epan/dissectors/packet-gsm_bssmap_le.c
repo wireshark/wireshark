@@ -458,7 +458,7 @@ static const value_string bssmap_le_position_method_failure_diagnostic_vals[] = 
 	{ 5, "locationProcedureNotSupportedByTargetMS" },
 	{ 6, "qoSNotAttainable" },
 	{ 7, "positionMethodNotAvailableInNetwork" },
-	{ 8, "positionMethodNotAvailableInLocaitonArea" },
+	{ 8, "positionMethodNotAvailableInLocationArea" },
 	{ 0, NULL}
 };
 static guint16

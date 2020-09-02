@@ -45,6 +45,8 @@ capture_opts_init(capture_options *capture_opts)
     capture_opts->num_selected                    = 0;
     capture_opts->default_options.name            = NULL;
     capture_opts->default_options.descr           = NULL;
+    capture_opts->default_options.hardware        = NULL;
+    capture_opts->default_options.display_name    = NULL;
     capture_opts->default_options.cfilter         = NULL;
     capture_opts->default_options.has_snaplen     = FALSE;
     capture_opts->default_options.snaplen         = WTAP_MAX_PACKET_SIZE_STANDARD;
@@ -86,11 +88,7 @@ capture_opts_init(capture_options *capture_opts)
     capture_opts->saving_to_file                  = FALSE;
     capture_opts->save_file                       = NULL;
     capture_opts->group_read_access               = FALSE;
-#ifdef PCAP_NG_DEFAULT
     capture_opts->use_pcapng                      = TRUE;             /* Save as pcapng by default */
-#else
-    capture_opts->use_pcapng                      = FALSE;            /* Save as pcap by default */
-#endif
     capture_opts->real_time_mode                  = TRUE;
     capture_opts->show_info                       = TRUE;
     capture_opts->restart                         = FALSE;
@@ -118,6 +116,8 @@ capture_opts_init(capture_options *capture_opts)
 
     capture_opts->output_to_pipe                  = FALSE;
     capture_opts->capture_child                   = FALSE;
+    capture_opts->print_file_names                = FALSE;
+    capture_opts->print_name_to                   = NULL;
 }
 
 void
@@ -158,6 +158,7 @@ capture_opts_log(const char *log_domain, GLogLevelFlags log_level, capture_optio
         interface_opts = &g_array_index(capture_opts->ifaces, interface_options, i);
         g_log(log_domain, log_level, "Interface name[%02d]  : %s", i, interface_opts->name ? interface_opts->name : "(unspecified)");
         g_log(log_domain, log_level, "Interface description[%02d] : %s", i, interface_opts->descr ? interface_opts->descr : "(unspecified)");
+        g_log(log_domain, log_level, "Interface vendor description[%02d] : %s", i, interface_opts->hardware ? interface_opts->hardware : "(unspecified)");
         g_log(log_domain, log_level, "Display name[%02d]: %s", i, interface_opts->display_name ? interface_opts->display_name : "(unspecified)");
         g_log(log_domain, log_level, "Capture filter[%02d]  : %s", i, interface_opts->cfilter ? interface_opts->cfilter : "(unspecified)");
         g_log(log_domain, log_level, "Snap length[%02d] (%u) : %d", i, interface_opts->has_snaplen, interface_opts->snaplen);
@@ -199,6 +200,8 @@ capture_opts_log(const char *log_domain, GLogLevelFlags log_level, capture_optio
     }
     g_log(log_domain, log_level, "Interface name[df]  : %s", capture_opts->default_options.name ? capture_opts->default_options.name : "(unspecified)");
     g_log(log_domain, log_level, "Interface Descr[df] : %s", capture_opts->default_options.descr ? capture_opts->default_options.descr : "(unspecified)");
+    g_log(log_domain, log_level, "Interface Hardware Descr[df] : %s", capture_opts->default_options.hardware ? capture_opts->default_options.hardware : "(unspecified)");
+    g_log(log_domain, log_level, "Interface display name[df] : %s", capture_opts->default_options.display_name ? capture_opts->default_options.display_name : "(unspecified)");
     g_log(log_domain, log_level, "Capture filter[df]  : %s", capture_opts->default_options.cfilter ? capture_opts->default_options.cfilter : "(unspecified)");
     g_log(log_domain, log_level, "Snap length[df] (%u) : %d", capture_opts->default_options.has_snaplen, capture_opts->default_options.snaplen);
     g_log(log_domain, log_level, "Link Type[df]       : %d", capture_opts->default_options.linktype);
@@ -247,6 +250,7 @@ capture_opts_log(const char *log_domain, GLogLevelFlags log_level, capture_optio
     g_log(log_domain, log_level, "FileInterval    (%u) : %u", capture_opts->has_file_interval, capture_opts->file_interval);
     g_log(log_domain, log_level, "FilePackets     (%u) : %u", capture_opts->has_file_packets, capture_opts->file_packets);
     g_log(log_domain, log_level, "RingNumFiles    (%u) : %u", capture_opts->has_ring_num_files, capture_opts->ring_num_files);
+    g_log(log_domain, log_level, "RingPrintFiles  (%u) : %s", capture_opts->print_file_names, (capture_opts->print_file_names ? capture_opts->print_name_to : ""));
 
     g_log(log_domain, log_level, "AutostopFiles   (%u) : %u", capture_opts->has_autostop_files, capture_opts->autostop_files);
     g_log(log_domain, log_level, "AutostopPackets (%u) : %u", capture_opts->has_autostop_packets, capture_opts->autostop_packets);
@@ -410,6 +414,9 @@ get_ring_arguments(capture_options *capture_opts, const char *arg)
     } else if (strcmp(arg,"packets") == 0) {
         capture_opts->has_file_packets = TRUE;
         capture_opts->file_packets = get_positive_int(p, "ring buffer packet count");
+    } else if (strcmp(arg,"printname") == 0) {
+        capture_opts->print_file_names = TRUE;
+        capture_opts->print_name_to = g_strdup(p);
     }
 
     *colonp = ':';    /* put the colon back */
@@ -539,6 +546,7 @@ fill_in_interface_opts_from_ifinfo(interface_options *interface_opts,
 {
     interface_opts->name = g_strdup(if_info->name);
 
+    interface_opts->hardware = g_strdup(if_info->vendor_description);
     if (if_info->friendly_name != NULL) {
         /*
          * We have a friendly name; remember it as the
@@ -658,9 +666,20 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
      * If the argument is a number, treat it as an index into the list
      * of adapters, as printed by "tshark -D".
      *
-     * This should be OK on UNIX systems, as interfaces shouldn't have
+     * This should be OK on UN*X systems, as interfaces shouldn't have
      * names that begin with digits.  It can be useful on Windows, where
      * more than one interface can have the same name.
+     *
+     * XXX - "shouldn't have names that begin with digits" is not true
+     * on Linux; see
+     *
+     *    https://github.com/the-tcpdump-group/tcpdump/issues/522
+     *
+     * tcpdump handles that by trying to open the device by name and,
+     * if that fails *and* the name is a syntactically valid number
+     * (optional sign, followed by decimal digits), reports an error
+     * if it's not a valid interface index, and otherwise uses it as
+     * an interface index.
      */
     adapter_index = strtol(optarg_str_p, &p, 10);
     if (p != NULL && *p == '\0') {
@@ -718,6 +737,7 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
              */
             interface_opts.name = g_strdup(optarg_str_p);
             interface_opts.descr = NULL;
+            interface_opts.hardware = NULL;
             interface_opts.display_name = g_strdup(optarg_str_p);
             interface_opts.if_type = capture_opts->default_options.if_type;
             interface_opts.extcap = g_strdup(capture_opts->default_options.extcap);
@@ -1168,6 +1188,7 @@ capture_opts_del_iface(capture_options *capture_opts, guint if_index)
 
     g_free(interface_opts->name);
     g_free(interface_opts->descr);
+    g_free(interface_opts->hardware);
     g_free(interface_opts->display_name);
     g_free(interface_opts->cfilter);
     g_free(interface_opts->timestamp_type);
@@ -1214,6 +1235,7 @@ collect_ifaces(capture_options *capture_opts)
         if (!device->hidden && device->selected) {
             interface_opts.name = g_strdup(device->name);
             interface_opts.descr = g_strdup(device->friendly_name);
+            interface_opts.hardware = g_strdup(device->vendor_description);
             interface_opts.display_name = g_strdup(device->display_name);
             interface_opts.linktype = device->active_dlt;
             interface_opts.cfilter = g_strdup(device->cfilter);
@@ -1280,6 +1302,7 @@ capture_opts_free_interface_t(interface_t *device)
     if (device != NULL) {
         g_free(device->name);
         g_free(device->display_name);
+        g_free(device->vendor_description);
         g_free(device->friendly_name);
         g_free(device->addresses);
         g_free(device->cfilter);

@@ -2096,7 +2096,7 @@ static
 guint c_dissect_features(proto_tree *tree,
 			 tvbuff_t *tvb, guint off, c_pkt_data *data _U_)
 {
-	static const int *lowword[] = {
+	static int * const lowword[] = {
 		&hf_feature_uid,
 		&hf_feature_nosrcaddr,
 		&hf_feature_monclockcheck,
@@ -2131,7 +2131,7 @@ guint c_dissect_features(proto_tree *tree,
 		&hf_feature_mon_single_paxos,
 		NULL
 	};
-	static const int *highword[] = {
+	static int * const highword[] = {
 		&hf_feature_osd_snapmapper,
 		&hf_feature_mon_scrub,
 		&hf_feature_osd_packed_recovery,
@@ -2168,7 +2168,7 @@ static
 guint c_dissect_flags(proto_tree *tree,
 		      tvbuff_t *tvb, guint off, c_pkt_data *data _U_)
 {
-	static const int *flags[] = {
+	static int * const flags[] = {
 		&hf_flag_lossy,
 		NULL
 	};
@@ -2206,7 +2206,7 @@ static
 guint c_dissect_osd_flags(proto_tree *tree,
 			  tvbuff_t *tvb, guint off, c_pkt_data *data _U_)
 {
-	static const int *flags[] = {
+	static int * const flags[] = {
 		&hf_osd_flag_ack,
 		&hf_osd_flag_onnvram,
 		&hf_osd_flag_ondisk,
@@ -2678,13 +2678,13 @@ guint c_dissect_pgpool(proto_tree *root,
 	c_pgpool_type type;
 	c_pgpool_cachemode cachemode;
 
-	static const int *flags_low[] = {
+	static int * const flags_low[] = {
 		&hf_pgpool_flag_hashpool,
 		&hf_pgpool_flag_full,
 		&hf_pgpool_flag_fake_ec_pool,
 		NULL
 	};
-	static const int *flags_high[] = {
+	static int * const flags_high[] = {
 		NULL
 	};
 

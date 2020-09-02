@@ -291,19 +291,24 @@ static lwm2m_resource_t lwm2m_oma_resources[] =
 	{ 21, 4, "HMAC Algorithm", DATA_TYPE_INTEGER, RESOURCE_FILL },
 	{ 21, 5, "Master Salt", DATA_TYPE_STRING, RESOURCE_FILL },
 };
+static const guint num_lwm2m_oma_resources = array_length(lwm2m_oma_resources);
 
-static hf_register_info *static_hf;
-static GArray *static_ett;
+typedef struct _lwm2m_allocated_fields_t {
+	hf_register_info *hf;
+	guint             hf_size;
+	GArray           *ett;
+	lwm2m_resource_t *float_resources;
+	guint             num_float_resources;
+} lwm2m_allocated_fields_t;
+
+static lwm2m_allocated_fields_t oma_allocated_fields;
+static lwm2m_allocated_fields_t uat_allocated_fields;
 
 /* LwM2M Objects defined by User */
 static lwm2m_object_name_t *lwm2m_uat_object_names;
 static guint num_lwm2m_uat_object_names;
 static lwm2m_resource_t *lwm2m_uat_resources;
 static guint num_lwm2m_uat_resources;
-
-static hf_register_info *dynamic_hf;
-static guint dynamic_hf_size;
-static GArray *dynamic_ett;
 
 static gboolean lwm2m_object_name_update_cb(void *record, char **error)
 {
@@ -402,7 +407,7 @@ static void lwm2m_resource_free_cb(void *record)
 	g_free(rec->field_name);
 }
 
-static void lwm2m_add_resource(lwm2m_resource_t *resource, hf_register_info *hf)
+static void lwm2m_add_resource(lwm2m_resource_t *resource, hf_register_info *hf, gboolean float_as_double)
 {
 	gchar *resource_abbrev;
 	gint *hf_id;
@@ -445,7 +450,7 @@ static void lwm2m_add_resource(lwm2m_resource_t *resource, hf_register_info *hf)
 		break;
 	case DATA_TYPE_FLOAT:
 		hf->hfinfo.display = BASE_NONE;
-		hf->hfinfo.type = FT_FLOAT;
+		hf->hfinfo.type = (float_as_double ? FT_DOUBLE : FT_FLOAT);
 		break;
 	case DATA_TYPE_BOOLEAN:
 		hf->hfinfo.display = BASE_DEC;
@@ -468,48 +473,126 @@ static void lwm2m_add_resource(lwm2m_resource_t *resource, hf_register_info *hf)
 	HFILL_INIT(*hf);
 }
 
-static void deregister_resource_fields(void)
+static void lwm2m_allocate_fields(lwm2m_allocated_fields_t *fields, lwm2m_resource_t *lwm2m_resources, guint num_lwm2m_resources)
 {
-	if (dynamic_hf) {
-		/* Deregister all fields */
-		for (guint i = 0; i < dynamic_hf_size; i++) {
-			proto_deregister_field(proto_lwm2mtlv, *(dynamic_hf[i].p_id));
-			g_free (dynamic_hf[i].p_id);
-		}
+	guint resource_index;
 
-		proto_add_deregistered_data(dynamic_hf);
-		dynamic_hf = NULL;
-		dynamic_hf_size = 0;
+	fields->num_float_resources = 0;
+	for (guint i = 0; i < num_lwm2m_resources; i++) {
+		if (lwm2m_resources[i].data_type == DATA_TYPE_FLOAT) {
+			fields->num_float_resources++;
+		}
 	}
 
-	if (dynamic_ett) {
-		g_array_free(dynamic_ett, TRUE);
-		dynamic_ett = NULL;
+	fields->hf_size = num_lwm2m_resources + fields->num_float_resources;
+	fields->hf = g_new0(hf_register_info, fields->hf_size);
+	fields->ett = g_array_new(TRUE, TRUE, sizeof(gint*));
+	fields->float_resources = g_new0(lwm2m_resource_t, fields->num_float_resources);
+
+	resource_index = 0;
+	for (guint i = 0; i < num_lwm2m_resources; i++) {
+		gint *ettp = &(lwm2m_resources[i].ett_id);
+		lwm2m_add_resource(&lwm2m_resources[i], &fields->hf[i], FALSE);
+		g_array_append_val(fields->ett, ettp);
+
+		/* 8 bytes Float is handled as Double, allocate a separate resource for FT_DOUBLE */
+		if (lwm2m_resources[i].data_type == DATA_TYPE_FLOAT) {
+			guint hf_index = num_lwm2m_resources + resource_index;
+			memcpy(&fields->float_resources[resource_index], &lwm2m_resources[i], sizeof(lwm2m_resource_t));
+			lwm2m_add_resource(&fields->float_resources[resource_index++], &fields->hf[hf_index], TRUE);
+		}
+	}
+
+	proto_register_field_array(proto_lwm2mtlv, fields->hf, fields->hf_size);
+	proto_register_subtree_array((gint**)(void*)fields->ett->data, fields->ett->len);
+
+	resource_index = 0;
+	for (guint i = 0; i < num_lwm2m_resources; i++) {
+		/* Reuse the same ETT for Float and Double resources */
+		if (lwm2m_resources[i].data_type == DATA_TYPE_FLOAT) {
+			fields->float_resources[resource_index++].ett_id = lwm2m_resources[i].ett_id;
+		}
+	}
+}
+
+static const lwm2m_resource_t *lwm2m_search_float_resources(guint object_id, guint resource_id,
+						     const lwm2m_allocated_fields_t *fields)
+{
+	const lwm2m_resource_t *resource = NULL;
+
+	for (guint i = 0; i < fields->num_float_resources; i++) {
+		if ((object_id == fields->float_resources[i].object_id) &&
+		    (resource_id == fields->float_resources[i].resource_id))
+		{
+			resource = &fields->float_resources[i];
+			break;
+		}
+	}
+
+	return resource;
+}
+
+static const lwm2m_resource_t *lwm2m_search_fields(guint object_id, guint resource_id, guint length_of_value,
+					    const lwm2m_allocated_fields_t *fields,
+					    const lwm2m_resource_t *lwm2m_resources, guint num_lwm2m_resources)
+{
+	const lwm2m_resource_t *resource = NULL;
+
+	for (guint i = 0; i < num_lwm2m_resources; i++) {
+		if ((object_id == lwm2m_resources[i].object_id) &&
+		    (resource_id == lwm2m_resources[i].resource_id))
+		{
+			/* 8 bytes Float is handled as Double, lookup the FT_DOUBLE resource */
+			if (length_of_value == 8 && lwm2m_resources[i].data_type == DATA_TYPE_FLOAT) {
+				resource = lwm2m_search_float_resources(object_id, resource_id, fields);
+			} else {
+				resource = &lwm2m_resources[i];
+			}
+			break;
+		}
+	}
+
+	return resource;
+}
+
+static void lwm2m_free_fields(lwm2m_allocated_fields_t *fields)
+{
+	if (fields->hf) {
+		/* Deregister all fields */
+		for (guint i = 0; i < fields->hf_size; i++) {
+			proto_deregister_field(proto_lwm2mtlv, *(fields->hf[i].p_id));
+			g_free (fields->hf[i].p_id);
+		}
+
+		proto_add_deregistered_data(fields->hf);
+		fields->hf = NULL;
+		fields->hf_size = 0;
+	}
+
+	if (fields->ett) {
+		g_array_free(fields->ett, TRUE);
+		fields->ett = NULL;
+	}
+
+	if (fields->float_resources) {
+		g_free(fields->float_resources);
+		fields->float_resources = NULL;
+		fields->num_float_resources = 0;
 	}
 }
 
 static void lwm2m_resource_post_update_cb(void)
 {
-	deregister_resource_fields();
+	lwm2m_free_fields(&uat_allocated_fields);
 
 	if (num_lwm2m_uat_resources) {
-		dynamic_hf = g_new0(hf_register_info, num_lwm2m_uat_resources);
-		dynamic_ett = g_array_new(TRUE, TRUE, sizeof(gint*));
-
-		for (guint i = 0; i < num_lwm2m_uat_resources; i++) {
-			gint *ettp = &(lwm2m_uat_resources[i].ett_id);
-			lwm2m_add_resource(&lwm2m_uat_resources[i], &dynamic_hf[dynamic_hf_size++]);
-			g_array_append_val(dynamic_ett, ettp);
-		}
-
-		proto_register_field_array(proto_lwm2mtlv, dynamic_hf, dynamic_hf_size);
-		proto_register_subtree_array((gint**)(void*)dynamic_ett->data, dynamic_ett->len);
+		lwm2m_allocate_fields(&uat_allocated_fields, lwm2m_uat_resources, num_lwm2m_uat_resources);
 	}
 }
 
 static void lwm2m_resource_reset_cb(void)
 {
-	deregister_resource_fields();
+	lwm2m_free_fields(&uat_allocated_fields);
 }
 
 static gint64
@@ -641,7 +724,11 @@ addValueInterpretations(tvbuff_t *tvb, proto_tree *tlv_tree, lwm2mElement_t *ele
 		}
 		case DATA_TYPE_FLOAT:
 			proto_tree_add_item(tlv_tree, *resource->hf_id, tvb, valueOffset, element->length_of_value, ENC_BIG_ENDIAN);
-			proto_item_append_text(tlv_tree, ": %." G_STRINGIFY(FLT_DIG) "g", tvb_get_ieee_float(tvb, valueOffset, ENC_BIG_ENDIAN));
+			if (element->length_of_value == 4) {
+				proto_item_append_text(tlv_tree, ": %." G_STRINGIFY(FLT_DIG) "g", tvb_get_ieee_float(tvb, valueOffset, ENC_BIG_ENDIAN));
+			} else {
+				proto_item_append_text(tlv_tree, ": %." G_STRINGIFY(DBL_DIG) "g", tvb_get_ieee_double(tvb, valueOffset, ENC_BIG_ENDIAN));
+			}
 			break;
 		case DATA_TYPE_BOOLEAN:
 		{
@@ -747,24 +834,14 @@ addTlvElement(tvbuff_t *tvb, proto_tree *tlv_tree, lwm2mElement_t *element, cons
 		guint object_id = (guint)strtol(ids[1], NULL, 10);
 		guint resource_id = (guint)strtol(ids[3], NULL, 10);
 
-		/* First search OMA objects */
-		for (guint i = 0; i < array_length(lwm2m_oma_resources); i++) {
-			if ((object_id == lwm2m_oma_resources[i].object_id) &&
-				(resource_id == lwm2m_oma_resources[i].resource_id))
-			{
-				resource = &lwm2m_oma_resources[i];
-				break;
-			}
-		}
+		/* First search user configured objects */
+		resource = lwm2m_search_fields(object_id, resource_id, element->length_of_value,
+					       &uat_allocated_fields, lwm2m_uat_resources, num_lwm2m_uat_resources);
 
-		/* Then search user configured objects */
-		for (guint i = 0; i < num_lwm2m_uat_resources; i++) {
-			if ((object_id == lwm2m_uat_resources[i].object_id) &&
-				(resource_id == lwm2m_uat_resources[i].resource_id))
-			{
-				resource = &lwm2m_uat_resources[i];
-				break;
-			}
+		if (resource == NULL) {
+			/* Then search OMA objects */
+			resource = lwm2m_search_fields(object_id, resource_id, element->length_of_value,
+						       &oma_allocated_fields, lwm2m_oma_resources, num_lwm2m_oma_resources);
 		}
 	}
 
@@ -896,17 +973,7 @@ dissect_lwm2mtlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *
 
 static void lwm2m_shutdown_routine(void)
 {
-	/* Deregister all fields */
-	for (guint i = 0; i < array_length(lwm2m_oma_resources); i++) {
-		proto_deregister_field(proto_lwm2mtlv, *(static_hf[i].p_id));
-		g_free (static_hf[i].p_id);
-	}
-
-	proto_add_deregistered_data(static_hf);
-	static_hf = NULL;
-
-	g_array_free(static_ett, TRUE);
-	static_ett = NULL;
+	lwm2m_free_fields(&oma_allocated_fields);
 }
 
 void proto_register_lwm2mtlv(void)
@@ -1086,17 +1153,7 @@ void proto_register_lwm2mtlv(void)
 	                              "User Resource Names",
 	                              resource_uat);
 
-	static_hf = g_new0(hf_register_info, array_length(lwm2m_oma_resources));
-	static_ett = g_array_new(TRUE, TRUE, sizeof(gint*));
-
-	for (guint i = 0; i < array_length(lwm2m_oma_resources); i++) {
-		gint *ettp = &(lwm2m_oma_resources[i].ett_id);
-		lwm2m_add_resource(&lwm2m_oma_resources[i], &static_hf[i]);
-		g_array_append_val(static_ett, ettp);
-	}
-
-	proto_register_field_array(proto_lwm2mtlv, static_hf, array_length(lwm2m_oma_resources));
-	proto_register_subtree_array((gint**)(void*)static_ett->data, static_ett->len);
+	lwm2m_allocate_fields(&oma_allocated_fields, lwm2m_oma_resources, num_lwm2m_oma_resources);
 }
 
 void

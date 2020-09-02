@@ -275,7 +275,7 @@ static const true_false_string ber_real_binary_vals = {
 
 static const true_false_string ber_real_decimal_vals = {
     "SpecialRealValue",
-    "Decimal encoding "
+    "Decimal encoding"
 };
 #endif
 
@@ -1602,7 +1602,7 @@ proto_tree_add_debug_text(tree, "OCTET STRING dissect_ber_octet_string(%s) enter
                     "BER Error: OctetString expected but class:%s(%d) %s tag:%d was unexpected",
                     val_to_str_const(ber_class, ber_class_codes, "Unknown"),
                     ber_class,
-                    pc ? ber_pc_codes_short.true_string : ber_pc_codes_short.false_string,
+                    tfs_get_string(pc, &ber_pc_codes_short),
                     tag);
                 if (decode_unexpected) {
                     proto_tree *unknown_tree = proto_item_add_subtree(cause, ett_ber_unknown);
@@ -1836,7 +1836,7 @@ dissect_ber_null(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbu
                 "BER Error: NULL expected but class:%s(%d) %s tag:%d was unexpected",
                 val_to_str_const(ber_class, ber_class_codes, "Unknown"),
                 ber_class,
-                pc ? ber_pc_codes_short.true_string : ber_pc_codes_short.false_string,
+                tfs_get_string(pc, &ber_pc_codes_short),
                 tag);
         }
 
@@ -2213,7 +2213,7 @@ proto_tree_add_debug_text(tree, "SEQUENCE dissect_ber_sequence(%s) entered\n", n
                     "BER Error: Sequence expected but class:%s(%d) %s tag:%d was unexpected",
                     val_to_str_const(classx, ber_class_codes, "Unknown"),
                     classx,
-                    pcx ? ber_pc_codes_short.true_string : ber_pc_codes_short.false_string,
+                    tfs_get_string(pcx, &ber_pc_codes_short),
                     tagx);
                 if (decode_unexpected) {
                     proto_tree *unknown_tree = proto_item_add_subtree(cause, ett_ber_unknown);
@@ -2507,7 +2507,7 @@ proto_tree_add_debug_text(tree, "SEQUENCE dissect_ber_sequence(%s) subdissector 
 int
 dissect_ber_set(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence_t *set, gint hf_id, gint ett_id) {
     gint8       classx;
-    gboolean    pcx, ind = 0, ind_field, imp_tag = FALSE;
+    gboolean    pcx, ind = 0, ind_field, imp_tag;
     gint32      tagx;
     int         identifier_offset;
     int         identifier_len;
@@ -2573,7 +2573,7 @@ proto_tree_add_debug_text(tree, "SET dissect_ber_set(%s) entered\n", name);
                     "BER Error: SET expected but class:%s(%d) %s tag:%d was found",
                     val_to_str_const(classx, ber_class_codes, "Unknown"),
                     classx,
-                    pcx ? ber_pc_codes_short.true_string : ber_pc_codes_short.false_string,
+                    tfs_get_string(pcx, &ber_pc_codes_short),
                     tagx);
                 if (decode_unexpected) {
                     proto_tree *unknown_tree = proto_item_add_subtree(cause, ett_ber_unknown);
@@ -2600,7 +2600,7 @@ proto_tree_add_debug_text(tree, "SET dissect_ber_set(%s) entered\n", name);
 
     /* record the mandatory elements of the set so we can check we found everything at the end
        we can only record 32 elements for now ... */
-    for (set_idx = 0; (cset = &set[set_idx])->func && (set_idx < MAX_SET_ELEMENTS); set_idx++) {
+    for (set_idx = 0; (set_idx < MAX_SET_ELEMENTS) && (cset = &set[set_idx])->func; set_idx++) {
 
         if (!(cset->flags & BER_FLAGS_OPTIONAL))
             mandatory_fields |= 1 << set_idx;
@@ -2756,7 +2756,7 @@ proto_tree_add_debug_text(tree, "SET dissect_ber_set(%s) calling subdissector\n"
 
         /* OK - we didn't find some of the elements we expected */
 
-        for (set_idx = 0;  (cset = &set[set_idx])->func && (set_idx < MAX_SET_ELEMENTS); set_idx++) {
+        for (set_idx = 0; (set_idx < MAX_SET_ELEMENTS) && (cset = &set[set_idx])->func; set_idx++) {
             if (mandatory_fields & (1U << set_idx)) {
                 /* here is something we should have seen - but didn't! */
                 proto_tree_add_expert_format(
@@ -3067,7 +3067,7 @@ dissect_ber_GeneralString(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int
             tvb, identifier_offset, identifier_len,
             "BER Error: GeneralString expected but class:%s(%d) %s tag:%d was unexpected",
             val_to_str_const(ber_class, ber_class_codes, "Unknown"),
-            ber_class, pc ? ber_pc_codes_short.true_string : ber_pc_codes_short.false_string,
+            ber_class, tfs_get_string(pc, &ber_pc_codes_short),
             tag);
         if (decode_unexpected) {
             proto_tree *unknown_tree = proto_item_add_subtree(cause, ett_ber_unknown);
@@ -3138,7 +3138,7 @@ proto_tree_add_debug_text(tree, "RESTRICTED STRING dissect_ber_octet_string(%s) 
                 "BER Error: String with tag=%d expected but class:%s(%d) %s tag:%d was unexpected",
                 type,
                 val_to_str_const(ber_class, ber_class_codes, "Unknown"),
-                ber_class, pc ? ber_pc_codes_short.true_string : ber_pc_codes_short.false_string,
+                ber_class, tfs_get_string(pc, &ber_pc_codes_short),
                 tag);
             if (decode_unexpected) {
                 proto_tree *unknown_tree = proto_item_add_subtree(cause, ett_ber_unknown);
@@ -3239,7 +3239,7 @@ proto_tree_add_debug_text(tree, "OBJECT IDENTIFIER dissect_ber_any_oid(%s) enter
                 "BER Error: Object Identifier expected but class:%s(%d) %s tag:%d was unexpected",
                 val_to_str_const(ber_class, ber_class_codes, "Unknown"),
                 ber_class,
-                pc ? ber_pc_codes_short.true_string : ber_pc_codes_short.false_string,
+                tfs_get_string(pc, &ber_pc_codes_short),
                 tag);
             if (decode_unexpected) {
                 proto_tree *unknown_tree = proto_item_add_subtree(cause, ett_ber_unknown);
@@ -3383,7 +3383,7 @@ proto_tree_add_debug_text(tree, "SQ OF dissect_ber_sq_of(%s) entered\n", name);
                     "BER Error: %s OF expected but class:%s(%d) %s tag:%d was unexpected",
                     (type == BER_UNI_TAG_SEQUENCE) ? "SET" : "SEQUENCE",
                     val_to_str_const(classx, ber_class_codes, "Unknown"),
-                    classx, pcx ? ber_pc_codes_short.true_string : ber_pc_codes_short.false_string,
+                    classx, tfs_get_string(pcx, &ber_pc_codes_short),
                     tagx);
                 if (decode_unexpected) {
                     proto_tree *unknown_tree = proto_item_add_subtree(causex, ett_ber_unknown);
@@ -3641,7 +3641,7 @@ dissect_ber_GeneralizedTime(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree 
                 "BER Error: GeneralizedTime expected but class:%s(%d) %s tag:%d was unexpected",
                 val_to_str_const(ber_class, ber_class_codes, "Unknown"),
                 ber_class,
-                pc ? ber_pc_codes_short.true_string : ber_pc_codes_short.false_string,
+                tfs_get_string(pc, &ber_pc_codes_short),
                 tag);
             if (decode_unexpected) {
                 proto_tree *unknown_tree = proto_item_add_subtree(cause, ett_ber_unknown);
@@ -3827,7 +3827,7 @@ dissect_ber_UTCTime(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, t
                 "BER Error: UTCTime expected but class:%s(%d) %s tag:%d was unexpected",
                 val_to_str_const(ber_class, ber_class_codes, "Unknown"),
                 ber_class,
-                pc ? ber_pc_codes_short.true_string : ber_pc_codes_short.false_string,
+                tfs_get_string(pc, &ber_pc_codes_short),
                 tag);
             if (decode_unexpected) {
                 proto_tree *unknown_tree = proto_item_add_subtree(cause, ett_ber_unknown);
@@ -3953,7 +3953,7 @@ malformed:
 /* 8.6 Encoding of a bitstring value */
 
 int
-dissect_ber_constrained_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, gint32 min_len, gint32 max_len, const int **named_bits, int num_named_bits, gint hf_id, gint ett_id, tvbuff_t **out_tvb)
+dissect_ber_constrained_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, gint32 min_len, gint32 max_len, int * const *named_bits, int num_named_bits, gint hf_id, gint ett_id, tvbuff_t **out_tvb)
 {
     gint8       ber_class;
     gboolean    pc, ind;
@@ -3996,7 +3996,7 @@ dissect_ber_constrained_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, proto
                     tvb, identifier_offset, identifier_len,
                     "BER Error: BitString expected but class:%s(%d) %s tag:%d was unexpected",
                     val_to_str_const(ber_class, ber_class_codes, "Unknown"),
-                    ber_class, pc ? ber_pc_codes_short.true_string : ber_pc_codes_short.false_string,
+                    ber_class, tfs_get_string(pc, &ber_pc_codes_short),
                     tag);
                 if (decode_unexpected) {
                     proto_tree *unknown_tree = proto_item_add_subtree(cause, ett_ber_unknown);
@@ -4057,9 +4057,8 @@ dissect_ber_constrained_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, proto
                 guint8 *bitstring = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, offset, len);
                 const int named_bits_bytelen = (num_named_bits + 7) / 8;
                 if (show_internal_ber_fields) {
-                    guint zero_bits_omitted = 0;
                     if (len < named_bits_bytelen) {
-                        zero_bits_omitted = num_named_bits - ((len * 8) - pad);
+                        guint zero_bits_omitted = num_named_bits - ((len * 8) - pad);
                         proto_item_append_text(item, " [%u zero bits not encoded, but displayed]", zero_bits_omitted);
                     }
                 }
@@ -4070,12 +4069,12 @@ dissect_ber_constrained_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, proto
                     // Process 8 bits at a time instead of 64, each field masks a
                     // single byte.
                     const int bit_offset = 8 * i;
-                    const int** section_named_bits = named_bits + bit_offset;
+                    int* const* section_named_bits = named_bits + bit_offset;
                     int* flags[9];
                     if (num_named_bits - bit_offset > 8) {
                         memcpy(&flags[0], named_bits + bit_offset, 8 * sizeof(int*));
                         flags[8] = NULL;
-                        section_named_bits = (const int** )flags;
+                        section_named_bits = (int* const*)flags;
                     }
 
                     // If less data is available than the number of named bits, then
@@ -4128,7 +4127,7 @@ dissect_ber_constrained_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, proto
 
 
 int
-dissect_ber_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const int **named_bits, gint num_named_bits, gint hf_id, gint ett_id, tvbuff_t **out_tvb)
+dissect_ber_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, int * const *named_bits, gint num_named_bits, gint hf_id, gint ett_id, tvbuff_t **out_tvb)
 {
     return dissect_ber_constrained_bitstring(implicit_tag, actx, parent_tree, tvb, offset, -1, -1, named_bits, num_named_bits, hf_id, ett_id, out_tvb);
 }
@@ -4654,9 +4653,10 @@ proto_reg_handoff_ber(void)
     syntax_names[i].value = 0;
     syntax_names[i].strptr = NULL;
 
-    /* allow the dissection of BER/DER carried over a TCP transport
+    /* allow the dissection of BER/DER carried over a TCP/UDP transport
        by using "Decode As..." */
     dissector_add_for_decode_as_with_preference("tcp.port", ber_handle);
+    dissector_add_for_decode_as_with_preference("udp.port", ber_handle);
 
     ber_update_oids();
 }

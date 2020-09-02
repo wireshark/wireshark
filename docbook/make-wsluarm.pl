@@ -250,6 +250,7 @@ sub print_desc {
 	for my $line ( @{ $desc_ref } ) {
 		printf D "%s", $line;
 	}
+	printf D "\n";
 }
 
 my %module = ();

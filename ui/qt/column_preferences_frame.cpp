@@ -61,7 +61,8 @@ ColumnPreferencesFrame::ColumnPreferencesFrame(QWidget *parent) :
     ui->deleteToolButton->setStockIcon("list-remove");
 
     ui->columnTreeView->setModel(proxyModel_);
-    ui->columnTreeView->setItemDelegate(new ColumnTypeDelegate());
+    delegate_ = new ColumnTypeDelegate();
+    ui->columnTreeView->setItemDelegate(delegate_);
     ui->columnTreeView->setSortingEnabled(false);
 
     ui->columnTreeView->resizeColumnToContents(ColumnListModel::COL_DISPLAYED);
@@ -74,6 +75,9 @@ ColumnPreferencesFrame::ColumnPreferencesFrame(QWidget *parent) :
 
 ColumnPreferencesFrame::~ColumnPreferencesFrame()
 {
+    delete delegate_;
+    delete proxyModel_;
+    delete model_;
     delete ui;
 }
 

@@ -2,7 +2,7 @@
  *
  * Routines for UDPCP packet dissection (UDP-based reliable communication protocol).
  * Described in the Open Base Station Initiative Reference Point 1 Specification
- * (see http://www.obsai.com/specs/RP1%20Spec%20v2_1.pdf, Appendix A)
+ * (see https://web.archive.org/web/20171206005927/http://www.obsai.com/specs/RP1%20Spec%20v2_1.pdf, Appendix A)
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -116,16 +116,6 @@ static const value_string msg_type_vals[] = {
 /* Reassembly table. */
 static reassembly_table udpcp_reassembly_table;
 
-static guint udpcp_hash(gconstpointer k)
-{
-    return GPOINTER_TO_UINT(k);
-}
-
-static gint udpcp_equal(gconstpointer k1, gconstpointer k2)
-{
-    return k1 == k2;
-}
-
 static gpointer udpcp_temporary_key(const packet_info *pinfo _U_, const guint32 id _U_, const void *data)
 {
     return (gpointer)data;
@@ -147,8 +137,8 @@ static void udpcp_free_persistent_key(gpointer ptr _U_)
 
 reassembly_table_functions udpcp_reassembly_table_functions =
 {
-    udpcp_hash,
-    udpcp_equal,
+    g_direct_hash,
+    g_direct_equal,
     udpcp_temporary_key,
     udpcp_persistent_key,
     udpcp_free_temporary_key,
@@ -283,7 +273,7 @@ dissect_udpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     if (msg_type == DATA_FORMAT) {
         if (!data_length) {
             /* This could just be a sync frame */
-            if (!message_id && !0 && !s) {
+            if (!message_id && !n && !s) {
                 col_append_str(pinfo->cinfo, COL_INFO, "  [Sync]");
             }
             /* Nothing more to show here */
@@ -423,7 +413,7 @@ proto_register_udpcp(void)
 
       { &hf_udpcp_fragment_amount,
         { "Fragment Amount", "udpcp.fragment-amount", FT_UINT8, BASE_DEC,
-          NULL, 0x0, "Total number of fragments of a mesage", HFILL }},
+          NULL, 0x0, "Total number of fragments of a message", HFILL }},
       { &hf_udpcp_fragment_number,
         { "Fragment Number", "udpcp.fragment-number", FT_UINT8, BASE_DEC,
           NULL, 0x0, "Fragment number of current packet within msg.  Starts at 0", HFILL }},

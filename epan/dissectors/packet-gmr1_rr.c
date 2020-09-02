@@ -349,7 +349,7 @@ static const value_string rr_ciph_mode_setting_algo_vals[] = {
 	{ 4, "A5/5" },
 	{ 5, "A5/6" },
 	{ 6, "A5/7" },
-	{ 7, "Reverved" },
+	{ 7, "Reserved" },
 	{ 0, NULL }
 };
 
@@ -979,9 +979,9 @@ GMR1_IE_FUNC(gmr1_ie_rr_pkt_freq_prm)
 /* [3] 11.5.2.107 - Packet Imm. Ass. Type 2 Params */
 static const value_string rr_pkt_imm_ass_2_prm_ac_mac_mode_vals[] = {
 	{ 0, "Dynamic allocation" },
-	{ 1, "Reverved" },
-	{ 2, "Reverved" },
-	{ 3, "Reverved" },
+	{ 1, "Reserved" },
+	{ 2, "Reserved" },
+	{ 3, "Reserved" },
 	{ 0, NULL }
 };
 

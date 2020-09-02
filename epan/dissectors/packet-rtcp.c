@@ -440,7 +440,7 @@ static const value_string rtcp_mcpt_field_id_vals[] = {
     { 6,  "User ID" },
     { 7,  "Queue Size" },
     { 8,  "Message Sequence-Number" },
-    { 8,  "Queued User ID" },
+    { 9,  "Queued User ID" },
     { 10,  "Source" },
     { 11,  "Track Info" },
     { 12,  "Message Type" },
@@ -484,6 +484,8 @@ static int hf_rtcp_ssrc_media_source = -1;
 static int hf_rtcp_ntp = -1;
 static int hf_rtcp_ntp_msw = -1;
 static int hf_rtcp_ntp_lsw = -1;
+static int hf_rtcp_timebase_indicator = -1;
+static int hf_rtcp_identity = -1;
 static int hf_rtcp_stream_id = -1;
 static int hf_rtcp_as_timestamp = -1;
 static int hf_rtcp_rtp_timestamp = -1;
@@ -957,18 +959,6 @@ dissect_rtcp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     return TRUE;
 }
 
-static gboolean
-dissect_rtcp_heur_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
-{
-    /* Was it sent to an odd-numbered port? */
-    if ((pinfo->destport % 2) == 0)
-    {
-        return FALSE;   /* no */
-    }
-
-    return dissect_rtcp_heur(tvb, pinfo, tree, data);
-}
-
 /* Dissect the length field. Append to this field text indicating the number of
    actual bytes this translates to (i.e. (raw value + 1) * 4) */
 static int dissect_rtcp_length_field( proto_tree *tree, tvbuff_t *tvb, int offset)
@@ -1190,7 +1180,7 @@ dissect_rtcp_psfb_remb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, proto_
 {
     guint       exp, indexSsrcs;
     guint8      numberSsrcs;
-    guint32     mantissa, bitrate;
+    guint64     mantissa, bitrate;
     proto_tree *fci_tree;
 
     fci_tree = proto_tree_add_subtree_format( rtcp_tree, tvb, offset, 8, ett_ssrc, NULL, "REMB %d", num_fci );
@@ -1213,7 +1203,7 @@ dissect_rtcp_psfb_remb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, proto_
     proto_tree_add_item( fci_tree, hf_rtcp_psfb_remb_fci_mantissa, tvb, offset, 3, ENC_BIG_ENDIAN );
     mantissa = (tvb_get_ntohl( tvb, offset - 1) & 0x0003ffff);
     bitrate = mantissa << exp;
-    proto_tree_add_string_format_value( fci_tree, hf_rtcp_psfb_remb_fci_bitrate, tvb, offset, 3, "", "%u", bitrate);
+    proto_tree_add_string_format_value( fci_tree, hf_rtcp_psfb_remb_fci_bitrate, tvb, offset, 3, "", "%" G_GINT64_MODIFIER "u", bitrate);
     offset += 3;
 
     for  (indexSsrcs = 0; indexSsrcs < numberSsrcs; indexSsrcs++)
@@ -1224,7 +1214,7 @@ dissect_rtcp_psfb_remb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, proto_
     }
 
     if (top_item != NULL) {
-        proto_item_append_text(top_item, ": REMB: max bitrate=%u", bitrate);
+        proto_item_append_text(top_item, ": REMB: max bitrate=%" G_GINT64_MODIFIER "u", bitrate);
     }
     *read_fci = 2 + (numberSsrcs);
 
@@ -2321,7 +2311,7 @@ dissect_rtcp_mcptt_location_ie(tvbuff_t* tvb, packet_info* pinfo, int offset, pr
 {
     guint32 loc_type;
     int start_offset = offset;
-    const int* ECGI_flags[] = {
+    static int * const ECGI_flags[] = {
         &hf_rtcp_mcptt_enodebid,
         &hf_rtcp_mcptt_cellid,
         NULL
@@ -2825,7 +2815,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 
 static int
 dissect_rtcp_bye( tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree,
-    unsigned int count )
+    unsigned int count, unsigned int packet_length )
 {
     unsigned int chunk;
     unsigned int reason_length = 0;
@@ -2839,7 +2829,7 @@ dissect_rtcp_bye( tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tre
         chunk++;
     }
 
-    if ( tvb_reported_length_remaining( tvb, offset ) > 0 ) {
+    if (count * 4 < packet_length) {
         /* Bye reason consists of an 8 bit length l and a string with length l */
         reason_length = tvb_get_guint8( tvb, offset );
         proto_tree_add_item( tree, hf_rtcp_sdes_length, tvb, offset, 1, ENC_BIG_ENDIAN );
@@ -2981,7 +2971,7 @@ dissect_rtcp_sdes( tvbuff_t *tvb, int offset, proto_tree *tree,
 static void parse_xr_type_specific_field(tvbuff_t *tvb, gint offset, guint block_type,
                                          proto_tree *tree, guint8 *thinning)
 {
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_rtcp_xr_stats_loss_flag,
         &hf_rtcp_xr_stats_dup_flag,
         &hf_rtcp_xr_stats_jitter_flag,
@@ -3469,12 +3459,13 @@ dissect_rtcp_avb( tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree 
     proto_tree_add_item( tree, hf_rtcp_name_ascii, tvb, offset, 4, ENC_ASCII|ENC_NA );
     offset += 4;
 
-/*    32 bit wide
-gmTimeBaseIndicator | gmIdentity - low 16 bit
-gmIdentity - mid 32 bit
-gmIdentity - high 32 bit
-*/
-    offset += 3 * 4;
+    /* TimeBase Indicator */
+    proto_tree_add_item( tree, hf_rtcp_timebase_indicator, tvb, offset, 2, ENC_BIG_ENDIAN );
+    offset += 2;
+
+    /* Identity */
+    proto_tree_add_item( tree, hf_rtcp_identity, tvb, offset, 10, ENC_NA );
+    offset += 10;
 
     /* Stream id, 64 bits */
     proto_tree_add_item( tree, hf_rtcp_stream_id, tvb, offset, 8, ENC_BIG_ENDIAN );
@@ -4279,7 +4270,7 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
                 offset++;
                 /* Packet length in 32 bit words MINUS one, 16 bits */
                 offset = dissect_rtcp_length_field(rtcp_tree, tvb, offset);
-                offset = dissect_rtcp_bye( tvb, pinfo, offset, rtcp_tree, elem_count );
+                offset = dissect_rtcp_bye( tvb, pinfo, offset, rtcp_tree, elem_count, packet_length-4 );
                 break;
             case RTCP_APP: {
                 /* Subtype, 5 bits */
@@ -4559,6 +4550,30 @@ proto_register_rtcp(void)
                 "rtcp.timestamp.ntp",
                 FT_ABSOLUTE_TIME,
                 ABSOLUTE_TIME_UTC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_timebase_indicator,
+            {
+                "Timebase Indicator",
+                "rtcp.timebase_indicator",
+                FT_UINT16,
+                BASE_DEC_HEX,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_identity,
+            {
+                "Identity",
+                "rtcp.identity",
+                FT_BYTES,
+                BASE_NONE,
                 NULL,
                 0x0,
                 NULL, HFILL
@@ -7723,7 +7738,7 @@ proto_reg_handoff_rtcp(void)
     dissector_add_for_decode_as_with_preference("udp.port", rtcp_handle);
     dissector_add_for_decode_as("flip.payload", rtcp_handle );
 
-    heur_dissector_add( "udp", dissect_rtcp_heur_udp, "RTCP over UDP", "rtcp_udp", proto_rtcp, HEURISTIC_ENABLE);
+    heur_dissector_add( "udp", dissect_rtcp_heur, "RTCP over UDP", "rtcp_udp", proto_rtcp, HEURISTIC_ENABLE);
     heur_dissector_add("stun", dissect_rtcp_heur, "RTCP over TURN", "rtcp_stun", proto_rtcp, HEURISTIC_ENABLE);
 }
 

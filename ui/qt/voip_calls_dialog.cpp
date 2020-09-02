@@ -485,7 +485,7 @@ void VoipCallsDialog::copyAsCSV()
             // XXX should quotes (") in strval be stripped/sanitized?
             rdsl << QString("\"%1\"").arg(strval);
         }
-        stream << rdsl.join(",") << endl;
+        stream << rdsl.join(",") << '\n';
     }
     wsApp->clipboard()->setText(stream.readAll());
 }
@@ -494,11 +494,11 @@ void VoipCallsDialog::copyAsYAML()
 {
     QString yaml;
     QTextStream stream(&yaml, QIODevice::Text);
-    stream << "---" << endl;
+    stream << "---" << '\n';
     for (int row = -1; row < sorted_model_->rowCount(); row++) {
-        stream << "-" << endl;
+        stream << "-" << '\n';
         foreach (QVariant v, streamRowData(row)) {
-            stream << " - " << v.toString() << endl;
+            stream << " - " << v.toString() << '\n';
         }
     }
     wsApp->clipboard()->setText(stream.readAll());

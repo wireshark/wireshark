@@ -742,7 +742,7 @@ static value_string_ext tv_type_ext = VALUE_STRING_EXT_INIT(tv_type);
 static const range_string protocol_id[] = {
     { LLRP_PROT_ID_UNSPECIFIED, LLRP_PROT_ID_UNSPECIFIED, "Unspecified protocol"          },
     { LLRP_PROT_ID_EPC_C1G2, LLRP_PROT_ID_EPC_C1G2,       "EPCGlobal Class 1 Gen 2"       },
-    { LLRP_PROT_ID_EPC_C1G2 + 1, 255,                     "Reserved for furure use"       },
+    { LLRP_PROT_ID_EPC_C1G2 + 1, 255,                     "Reserved for future use"       },
     { 0, 0,                                                NULL                           }
 };
 
@@ -1293,7 +1293,7 @@ static const value_string impinj_access_range[] = {
 static const value_string impinj_persistence[] = {
     { LLRP_IMPINJ_PERSISTENCE_UNKNOWN,     "Unknown"    },
     { LLRP_IMPINJ_PERSISTENCE_TEMPORARY,   "Temporary"  },
-    { LLRP_IMPINJ_PERSISTENCE_PERMANENT,   "Permament"  },
+    { LLRP_IMPINJ_PERSISTENCE_PERMANENT,   "Permanent"  },
     { 0,                                   NULL         }
 };
 
@@ -3814,7 +3814,7 @@ proto_register_llrp(void)
           NULL, HFILL }},
 
         { &hf_llrp_soft_ver,
-        { "Softwave version", "llrp.param.soft_ver", FT_UINT_STRING, BASE_NONE, NULL, 0,
+        { "Software version", "llrp.param.soft_ver", FT_UINT_STRING, BASE_NONE, NULL, 0,
           NULL, HFILL }},
 
         { &hf_llrp_firm_ver,

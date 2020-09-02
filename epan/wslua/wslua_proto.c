@@ -20,19 +20,13 @@
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/exceptions.h>
 
-/* WSLUA_MODULE Proto Functions for new protocols and dissectors
+/* WSLUA_MODULE Proto Functions For New Protocols And Dissectors
 
-   The classes and functions in this chapter allow Lua scripts to create new
-   protocols for Wireshark. `Proto` protocol objects can have `Pref` preferences,
-   `ProtoField` fields for filterable values that can be displayed in a details
-   view tree, functions for dissecting the new protocol, and so on.
+   The classes and functions in this chapter allow Lua scripts to create new protocols for Wireshark.
+    <<lua_class_Proto,`Proto`>> protocol objects can have <<lua_class_Pref,`Pref`>> preferences, <<lua_class_ProtoField,`ProtoField`>> fields for filterable values that can be displayed in a details view tree, functions for dissecting the new protocol, and so on.
 
-   The dissection function can be hooked into existing protocol tables through
-   `DissectorTables` so that the new protocol dissector function gets called by that
-   protocol, and the new dissector can itself call on other, already existing protocol
-   dissectors by retrieving and calling the `Dissector` object.  A `Proto` dissector
-   can also be used as a post-dissector, at the end of every frame's dissection, or
-   as a heuristic dissector.
+   The dissection function can be hooked into existing protocol tables through <<lua_class_DissectorTable,`DissectorTable`>> so that the new protocol dissector function gets called by that protocol, and the new dissector can itself call on other, already existing protocol dissectors by retrieving and calling the <<lua_class_Dissector,`Dissector`>> object.
+   A <<lua_class_Proto,`Proto`>> dissector can also be used as a post-dissector, at the end of every frame's dissection, or as a heuristic dissector.
 */
 
 
@@ -67,14 +61,14 @@ void clear_outstanding_FuncSavers(void) {
 
 WSLUA_CLASS_DEFINE(Proto,FAIL_ON_NULL("Proto"));
 /*
-  A new protocol in Wireshark. Protocols have more uses, the main one is to dissect
-  a protocol. But they can also be just dummies used to register preferences for
-  other purposes.
+  A new protocol in Wireshark.
+  Protocols have several uses.
+  The main one is to dissect a protocol, but they can also be dummies used to register preferences for other purposes.
  */
 
 static int protocols_table_ref = LUA_NOREF;
 
-WSLUA_CONSTRUCTOR Proto_new(lua_State* L) {
+WSLUA_CONSTRUCTOR Proto_new(lua_State* L) { /* Creates a new <<lua_class_Proto,`Proto`>> object. */
 #define WSLUA_ARG_Proto_new_NAME 1 /* The name of the protocol. */
 #define WSLUA_ARG_Proto_new_DESC 2 /* A Long Text description of the protocol (usually lowercase). */
     const gchar* name = luaL_checkstring(L,WSLUA_ARG_Proto_new_NAME);
@@ -151,14 +145,14 @@ WSLUA_CONSTRUCTOR Proto_new(lua_State* L) {
 
     pushProto(L,proto);
 
-    WSLUA_RETURN(1); /* The newly created protocol. */
+    WSLUA_RETURN(1); /* The newly created <<lua_class_Proto,`Proto`>> object. */
 }
 
-WSLUA_METAMETHOD Proto__call(lua_State* L) { /* Creates a `Proto` object. */
+WSLUA_METAMETHOD Proto__call(lua_State* L) { /* Creates a <<lua_class_Proto,`Proto`>> object. */
 #define WSLUA_ARG_Proto__call_NAME 1 /* The name of the protocol. */
 #define WSLUA_ARG_Proto__call_DESC 2 /* A Long Text description of the protocol (usually lowercase). */
     lua_remove(L,1); /* remove the table */
-    WSLUA_RETURN(Proto_new(L)); /* The new `Proto` object. */
+    WSLUA_RETURN(Proto_new(L)); /* The new <<lua_class_Proto,`Proto`>> object. */
 }
 
 static int Proto__tostring(lua_State* L) {
@@ -170,7 +164,7 @@ static int Proto__tostring(lua_State* L) {
 }
 
 WSLUA_FUNCTION wslua_register_postdissector(lua_State* L) {
-    /* Make a `Proto` protocol (with a dissector function) a post-dissector.
+    /* Make a <<lua_class_Proto,`Proto`>> protocol (with a dissector function) a post-dissector.
        It will be called for every frame after dissection. */
 #define WSLUA_ARG_register_postdissector_PROTO 1 /* the protocol to be used as post-dissector. */
 #define WSLUA_OPTARG_register_postdissector_ALLFIELDS 2 /* Whether to generate all fields.
@@ -208,13 +202,13 @@ WSLUA_FUNCTION wslua_register_postdissector(lua_State* L) {
 }
 
 WSLUA_METHOD Proto_register_heuristic(lua_State* L) {
-    /* Registers a heuristic dissector function for this `Proto` protocol,
+    /* Registers a heuristic dissector function for this <<lua_class_Proto,`Proto`>> protocol,
        for the given heuristic list name.
 
        When later called, the passed-in function will be given:
-           1. A `Tvb` object
-           2. A `Pinfo` object
-           3. A `TreeItem` object
+           1. A <<lua_class_Tvb,`Tvb`>> object
+           2. A <<lua_class_Pinfo,`Pinfo`>> object
+           3. A <<lua_class_TreeItem,`TreeItem`>> object
 
        The function must return `true` if the payload is for it, else `false`.
 
@@ -338,9 +332,9 @@ WSLUA_METHOD Proto_register_heuristic(lua_State* L) {
 /* WSLUA_ATTRIBUTE Proto_dissector RW The protocol's dissector, a function you define.
 
    When later called, the function will be given:
-       1. A `Tvb` object
-       2. A `Pinfo` object
-       3. A `TreeItem` object
+       1. A <<lua_class_Tvb,`Tvb`>> object
+       2. A <<lua_class_Pinfo,`Pinfo`>> object
+       3. A <<lua_class_TreeItem,`TreeItem`>> object
 */
 static int Proto_get_dissector(lua_State* L) {
     Proto proto = checkProto(L,1);

@@ -10,7 +10,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * References:
- * http://www.ietf.org/rfc/rfc3016.txt?number=3016
+ * https://tools.ietf.org/html/rfc3016
  */
 
 #include "config.h"
@@ -57,9 +57,9 @@ static expert_field ei_mp4ves_not_dissected_bits = EI_INIT;
 
 static dissector_handle_t mp4ves_name_handle;
 
-/* The dynamic payload type which will be dissected as MP4V-ES */
+/* The dynamic payload types which will be dissected as MP4V-ES */
 
-static guint global_dynamic_payload_type = 0;
+static range_t *global_dynamic_payload_type_range = NULL;
 
 static dissector_handle_t mp4ves_handle;
 
@@ -1014,19 +1014,19 @@ proto_register_mp4ves(void)
 	/* Register a configuration option for port */
 	mp4ves_module = prefs_register_protocol(proto_mp4ves, proto_reg_handoff_mp4ves);
 
-	prefs_register_uint_preference(mp4ves_module,
+	prefs_register_range_preference(mp4ves_module,
 				       "dynamic.payload.type",
-				       "MP4V-ES dynamic payload type",
-				       "The dynamic payload type which will be interpreted as MP4V-ES",
-				       10,
-				       &global_dynamic_payload_type);
+				       "MP4V-ES dynamic payload types",
+				       "Dynamic payload types which will be interpreted as MP4V-ES"
+				       "; values must be in the range 1 - 127",
+				       &global_dynamic_payload_type_range, 127);
 
 }
 
 void
 proto_reg_handoff_mp4ves(void)
 {
-	static guint dynamic_payload_type;
+	static range_t *dynamic_payload_type_range = NULL;
 	static gboolean mp4ves_prefs_initialized = FALSE;
 
 	if (!mp4ves_prefs_initialized) {
@@ -1043,14 +1043,13 @@ proto_reg_handoff_mp4ves(void)
 				dissector_add_string("h245.gef.content", ftr->id, create_dissector_handle(ftr->content_pdu, proto_mp4ves));
 		}
 	}else{
-		if ( dynamic_payload_type > 95 )
-			dissector_delete_uint("rtp.pt", dynamic_payload_type, mp4ves_handle);
+		dissector_delete_uint_range("rtp.pt", dynamic_payload_type_range, mp4ves_handle);
+		wmem_free(wmem_epan_scope(), dynamic_payload_type_range);
 	}
-	dynamic_payload_type = global_dynamic_payload_type;
+	dynamic_payload_type_range = range_copy(wmem_epan_scope(), global_dynamic_payload_type_range);
 
-	if ( dynamic_payload_type > 95 ){
-		dissector_add_uint("rtp.pt", dynamic_payload_type, mp4ves_handle);
-	}
+	range_remove_value(wmem_epan_scope(), &dynamic_payload_type_range, 0);
+	dissector_add_uint_range("rtp.pt", dynamic_payload_type_range, mp4ves_handle);
 }
 
 /*

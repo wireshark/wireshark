@@ -1,5 +1,5 @@
 /* packet-whois.c
- * Routines for whois dissection (see http://tools.ietf.org/html/rfc3912)
+ * Routines for whois dissection (see https://tools.ietf.org/html/rfc3912)
  * Copyright 2013, Christopher Maynard <Christopher.Maynard@gtech.com>
  *
  * Wireshark - Network traffic analyzer

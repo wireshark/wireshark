@@ -67,11 +67,13 @@ class Iax2AnalysisTreeWidgetItem : public QTreeWidgetItem
 {
 public:
     Iax2AnalysisTreeWidgetItem(QTreeWidget *tree, tap_iax2_stat_t *statinfo, packet_info *pinfo) :
-        QTreeWidgetItem(tree, iax2_analysis_type_)
+        QTreeWidgetItem(tree, iax2_analysis_type_),
+        frame_num_(pinfo->num),
+        pkt_len_(pinfo->fd->pkt_len),
+        flags_(statinfo->flags),
+        bandwidth_(statinfo->bandwidth),
+        ok_(false)
     {
-        frame_num_ = pinfo->num;
-        pkt_len_ = pinfo->fd->pkt_len;
-        flags_ = statinfo->flags;
         if (flags_ & STAT_FLAG_FIRST) {
             delta_ = 0.0;
             jitter_ = 0.0;
@@ -79,8 +81,6 @@ public:
             delta_ = statinfo->delta;
             jitter_ = statinfo->jitter;
         }
-        bandwidth_ = statinfo->bandwidth;
-        ok_ = false;
 
         QColor bg_color = QColor();
         QString status;
@@ -922,7 +922,7 @@ void Iax2AnalysisDialog::saveAudio(Iax2AnalysisDialog::StreamDirection direction
     }
 
     ui->hintLabel->setText(tr("Saving %1" UTF8_HORIZONTAL_ELLIPSIS).arg(save_file.fileName()));
-    ui->progressFrame->showProgress(true, true, &stop_flag);
+    ui->progressFrame->showProgress(tr("Analyzing IAX2"), true, true, &stop_flag);
 
     if	(save_format == save_audio_au_) { /* au format; https://pubs.opengroup.org/external/auformat.html */
         /* First we write the .au header.  All values in the header are

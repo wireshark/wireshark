@@ -46,7 +46,6 @@ gboolean has_wpcap = FALSE;
  * for using Wireshark?
  */
 
-static char*   (*p_pcap_lookupdev) (char *);
 static void    (*p_pcap_close) (pcap_t *);
 static int     (*p_pcap_stats) (pcap_t *, struct pcap_stat *);
 static int     (*p_pcap_dispatch) (pcap_t *, int, pcap_handler, guchar *);
@@ -76,7 +75,7 @@ static int     (*p_pcap_next_ex) (pcap_t *, struct pcap_pkthdr **pkt_header, con
 #ifdef HAVE_PCAP_REMOTE
 static pcap_t* (*p_pcap_open) (const char *, int, int, int,
 			       struct pcap_rmtauth *, char *);
-static int     (*p_pcap_findalldevs_ex) (char *, struct pcap_rmtauth *,
+static int     (*p_pcap_findalldevs_ex) (const char *, struct pcap_rmtauth *,
 					 pcap_if_t **, char *);
 static int     (*p_pcap_createsrcstr) (char *, int, const char *, const char *,
 				       const char *, char *);
@@ -106,6 +105,17 @@ static int	(*p_pcap_activate)(pcap_t *);
 static const char *(*p_pcap_statustostr)(int);
 #endif
 
+#ifdef HAVE_PCAP_SET_TSTAMP_TYPE
+static int      (*p_pcap_set_tstamp_type)(pcap_t *, int);
+static int      (*p_pcap_set_tstamp_precision)(pcap_t *, int);
+static int      (*p_pcap_get_tstamp_precision)(pcap_t *);
+static int      (*p_pcap_list_tstamp_types)(pcap_t *, int **);
+static void     (*p_pcap_free_tstamp_types)(int *);
+static int      (*p_pcap_tstamp_type_name_to_val)(const char *);
+static const char * (*p_pcap_tstamp_type_val_to_name)(int);
+static const char * (*p_pcap_tstamp_type_val_to_description)(int);
+#endif
+
 typedef struct {
 	const char	*name;
 	gpointer	*ptr;
@@ -120,7 +130,6 @@ load_wpcap(void)
 
 	/* These are the symbols I need or want from Wpcap */
 	static const symbol_table_t	symbols[] = {
-		SYM(pcap_lookupdev, FALSE),
 		SYM(pcap_close, FALSE),
 		SYM(pcap_stats, FALSE),
 		SYM(pcap_dispatch, FALSE),
@@ -168,6 +177,16 @@ load_wpcap(void)
 		SYM(pcap_set_buffer_size, FALSE),
 		SYM(pcap_activate, TRUE),
 		SYM(pcap_statustostr, TRUE),
+#endif
+#ifdef HAVE_PCAP_SET_TSTAMP_TYPE
+		SYM(pcap_set_tstamp_type, TRUE),
+		SYM(pcap_set_tstamp_precision, TRUE),
+		SYM(pcap_get_tstamp_precision, TRUE),
+		SYM(pcap_list_tstamp_types, TRUE),
+		SYM(pcap_free_tstamp_types, TRUE),
+		SYM(pcap_tstamp_type_name_to_val, TRUE),
+		SYM(pcap_tstamp_type_val_to_name, TRUE),
+		SYM(pcap_tstamp_type_val_to_description, TRUE),
 #endif
 		{ NULL, NULL, FALSE }
 	};
@@ -259,19 +278,6 @@ cant_load_winpcap_err(const char *app_name)
 "for a downloadable version of Npcap and for instructions on how to\n"
 "install it.",
 	    app_name);
-}
-
-char*
-pcap_lookupdev(char *errbuf)
-{
-	char *ret;
-	if (!has_wpcap) {
-		return NULL;
-	}
-	ret = p_pcap_lookupdev(errbuf);
-	if (ret == NULL)
-		convert_errbuf_to_utf8(errbuf);
-	return ret;
 }
 
 void
@@ -412,7 +418,7 @@ pcap_open(const char *a, int b, int c, int d, struct pcap_rmtauth *e, char *errb
 }
 
 int
-pcap_findalldevs_ex(char *a, struct pcap_rmtauth *b, pcap_if_t **c, char *errbuf)
+pcap_findalldevs_ex(const char *a, struct pcap_rmtauth *b, pcap_if_t **c, char *errbuf)
 {
 	int ret;
 	g_assert(has_wpcap);
@@ -557,6 +563,81 @@ pcap_statustostr(int a)
     (void)g_snprintf(ebuf, sizeof ebuf, "Don't have pcap_statustostr(), can't translate error: %d", a);
     return(ebuf);
 
+}
+#endif
+
+#ifdef HAVE_PCAP_SET_TSTAMP_TYPE
+int
+pcap_set_tstamp_type(pcap_t *a, int b) {
+	g_assert(has_wpcap);
+	if (p_pcap_set_tstamp_type != NULL) {
+		return p_pcap_set_tstamp_type(a, b);
+	}
+	return PCAP_ERROR_CANTSET_TSTAMP_TYPE;
+}
+
+int
+pcap_set_tstamp_precision(pcap_t *a, int b) {
+	g_assert(has_wpcap);
+	if (p_pcap_set_tstamp_precision != NULL) {
+		return p_pcap_set_tstamp_precision(a, b);
+	}
+	// No error code defined so return NOTSUP.
+	return PCAP_ERROR_TSTAMP_PRECISION_NOTSUP;
+}
+
+int
+pcap_get_tstamp_precision(pcap_t *a) {
+	g_assert(has_wpcap);
+	if (p_pcap_get_tstamp_precision != NULL) {
+		return p_pcap_get_tstamp_precision(a);
+	}
+	// No error code defined so return MICRO.
+	return PCAP_TSTAMP_PRECISION_MICRO;
+}
+
+int
+pcap_list_tstamp_types(pcap_t *a, int **b) {
+	g_assert(has_wpcap);
+	if (p_pcap_list_tstamp_types != NULL) {
+		return p_pcap_list_tstamp_types(a, b);
+	}
+	return PCAP_ERROR;
+}
+
+void
+pcap_free_tstamp_types(int *a) {
+	g_assert(has_wpcap);
+	if (p_pcap_free_tstamp_types != NULL) {
+		p_pcap_free_tstamp_types(a);
+	}
+}
+
+int
+pcap_tstamp_type_name_to_val(const char *a) {
+	g_assert(has_wpcap);
+	if (p_pcap_tstamp_type_name_to_val != NULL) {
+		return p_pcap_tstamp_type_name_to_val(a);
+	}
+	return PCAP_ERROR;
+}
+
+const char *
+pcap_tstamp_type_val_to_name(int a) {
+	g_assert(has_wpcap);
+	if (p_pcap_tstamp_type_val_to_name != NULL) {
+		return p_pcap_tstamp_type_val_to_name(a);
+	}
+	return NULL;
+}
+
+const char *
+pcap_tstamp_type_val_to_description(int a) {
+	g_assert(has_wpcap);
+	if (p_pcap_tstamp_type_val_to_description != NULL) {
+		return p_pcap_tstamp_type_val_to_description(a);
+	}
+	return NULL;
 }
 #endif
 
@@ -732,18 +813,12 @@ open_capture_device_local(capture_options *capture_opts,
 }
 
 /*
- * Neither WpdPack nor the Npcap SDK as of version 1.01 defines a version
- * string anywhere. Hard-code one for now.
- */
-#define WINPCAP_SDK_VERSION "4.1.2"
-
-/*
  * Append the WinPcap or Npcap SDK version with which we were compiled to a GString.
  */
 void
 get_compiled_caplibs_version(GString *str)
 {
-	g_string_append(str, "with WinPcap SDK (WpdPack) " WINPCAP_SDK_VERSION);
+	g_string_append(str, "with libpcap");
 }
 
 /*

@@ -32,7 +32,14 @@
 
    Please see ascend.y for examples.
 
-   Detailed documentation on TAOS products is at http://support.lucent.com.
+   Detailed documentation on TAOS products was at http://support.lucent.com;
+   that no longer works, and appears not to be available on the Wayback
+   Machine.
+
+   Some online manuals include:
+
+   MAX Administration Guide:
+       https://downloads.avaya.com/elmodocs2/definity/def_r10_new/max/0678_002.pdf
 
    Support for other commands will be added on an ongoing basis. */
 
@@ -219,8 +226,8 @@ wtap_open_return_val ascend_open(wtap *wth, int *err, gchar **err_info)
   offset = ascend_find_next_packet(wth, err, err_info);
   if (offset == -1) {
     if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
-      return WTAP_OPEN_ERROR;
-    return WTAP_OPEN_NOT_MINE;
+      return WTAP_OPEN_ERROR;  /* read error */
+    return WTAP_OPEN_NOT_MINE; /* EOF */
   }
 
   /* Do a trial parse of the first packet just found to see if we might
@@ -246,20 +253,7 @@ wtap_open_return_val ascend_open(wtap *wth, int *err, gchar **err_info)
   }
 
   wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_ASCEND;
-
-  switch(rec.rec_header.packet_header.pseudo_header.ascend.type) {
-    case ASCEND_PFX_ISDN_X:
-    case ASCEND_PFX_ISDN_R:
-      wth->file_encap = WTAP_ENCAP_ISDN;
-      break;
-
-    case ASCEND_PFX_ETHER:
-      wth->file_encap = WTAP_ENCAP_ETHERNET;
-      break;
-
-    default:
-      wth->file_encap = WTAP_ENCAP_ASCEND;
-  }
+  wth->file_encap = WTAP_ENCAP_ASCEND;
 
   wth->snapshot_length = ASCEND_MAX_PKT_LEN;
   wth->subtype_read = ascend_read;
@@ -283,6 +277,14 @@ wtap_open_return_val ascend_open(wtap *wth, int *err, gchar **err_info)
   ascend->inittime = statbuf.st_ctime;
   ascend->adjusted = FALSE;
   wth->file_tsprec = WTAP_TSPREC_USEC;
+
+  /*
+   * Add an IDB; we don't know how many interfaces were
+   * involved, so we just say one interface, about which
+   * we only know the link-layer type, snapshot length,
+   * and time stamp resolution.
+   */
+  wtap_add_generated_idb(wth);
 
   return WTAP_OPEN_MINE;
 }
@@ -357,26 +359,6 @@ parse_ascend(ascend_t *ascend, FILE_T fh, wtap_rec *rec, Buffer *buf,
     rec->rec_header.packet_header.caplen = parser_state.caplen;
     rec->rec_header.packet_header.len = parser_state.wirelen;
 
-    /*
-     * For these types, the encapsulation we use is not WTAP_ENCAP_ASCEND,
-     * so set the pseudo-headers appropriately for the type (WTAP_ENCAP_ISDN
-     * or WTAP_ENCAP_ETHERNET).
-     */
-    switch(rec->rec_header.packet_header.pseudo_header.ascend.type) {
-      case ASCEND_PFX_ISDN_X:
-        rec->rec_header.packet_header.pseudo_header.isdn.uton = TRUE;
-        rec->rec_header.packet_header.pseudo_header.isdn.channel = 0;
-        break;
-
-      case ASCEND_PFX_ISDN_R:
-        rec->rec_header.packet_header.pseudo_header.isdn.uton = FALSE;
-        rec->rec_header.packet_header.pseudo_header.isdn.channel = 0;
-        break;
-
-      case ASCEND_PFX_ETHER:
-        rec->rec_header.packet_header.pseudo_header.eth.fcs_len = 0;
-        break;
-    }
     return TRUE;
   }
 
@@ -415,8 +397,10 @@ static gboolean ascend_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
     return FALSE;
 
   offset = ascend_find_next_packet(wth, err, err_info);
-  if (offset == -1)
+  if (offset == -1) {
+    /* EOF or read error */
     return FALSE;
+  }
   if (!parse_ascend(ascend, wth->fh, rec, buf, wth->snapshot_length,
                     &ascend->next_packet_seek_start, err, err_info))
     return FALSE;

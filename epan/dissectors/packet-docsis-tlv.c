@@ -567,10 +567,6 @@ static gint ett_docsis_ucd_reassembled = -1;
 static expert_field ei_docsis_tlv_tlvlen_bad = EI_INIT;
 static expert_field ei_docsis_tlv_tlvval_bad = EI_INIT;
 
-static const true_false_string on_off_tfs = {
-  "On",
-  "Off"
-};
 
 static const value_string on_off_vals[] = {
   {0, "Off"},
@@ -601,11 +597,6 @@ static const value_string docs_ver_vals[] = {
   {3, "v3.0"},
   {4, "v3.1"},
   {0, NULL},
-};
-
-static const true_false_string activation_tfs = {
-  "Active",
-  "Inactive"
 };
 
 static const value_string dsc_act_vals[] = {
@@ -1181,7 +1172,7 @@ static const true_false_string tfs_must_must_not = { "MUST", "MUST NOT" };
 static void
 dissect_reqxmit_policy (tvbuff_t * tvb, proto_tree * tree, int start)
 {
-  static const gint *requests[] = {
+  static int * const requests[] = {
     &hf_docsis_tlv_sflow_reqxmit_all_cm_broadcast,
     &hf_docsis_tlv_sflow_reqxmit_priority_multicast,
     &hf_docsis_tlv_sflow_reqxmit_req_data_requests,
@@ -2791,7 +2782,7 @@ dissect_modemcap (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int sta
           case CAP_EM:
             if (length == 4)
               {
-                static const int * cap_em[] = {
+                static int * const cap_em[] = {
                   &hf_docsis_tlv_mcap_em_1x1,
                   &hf_docsis_tlv_mcap_em_light_sleep,
                   NULL
@@ -2818,7 +2809,7 @@ dissect_modemcap (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int sta
           case CAP_EM_PREF:
             if (length == 4)
               {
-                static const gint *em_pref[] = {
+                static int * const em_pref[] = {
                   &hf_docsis_tlv_mcap_em_pref_1x1,
                   &hf_docsis_tlv_mcap_em_pref_dls,
                   NULL
@@ -2879,7 +2870,7 @@ dissect_modemcap (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int sta
           case CAP_DOWN_OFDM_CHAN_SUBC_QAM_MOD_SUP:
             if (length == 2)
               {
-                static const gint *ofdm_qam_mod_sup[] = {
+                static int * const ofdm_qam_mod_sup[] = {
                   &hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_reserved,
                   &hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_qpsk,
                   &hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_16qam,
@@ -2906,7 +2897,7 @@ dissect_modemcap (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int sta
           case CAP_UP_OFDMA_CHAN_SUBC_QAM_MOD_SUP:
             if (length == 2)
               {
-                static const gint *ofdma_qam_mod_sup[] = {
+                static int * const ofdma_qam_mod_sup[] = {
                   &hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_reserved,
                   &hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_qpsk,
                   &hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_8qam,
@@ -2935,7 +2926,7 @@ dissect_modemcap (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int sta
           case CAP_DOWN_LOWER_BAND_EDGE_CONF:
             if (length == 1)
               {
-                static const gint *down_lower_band_edge_conf[] = {
+                static int * const down_lower_band_edge_conf[] = {
                   &hf_docsis_tlv_mcap_down_lower_band_edge_conf_108,
                   &hf_docsis_tlv_mcap_down_lower_band_edge_conf_258,
                   NULL
@@ -2952,7 +2943,7 @@ dissect_modemcap (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int sta
           case CAP_DOWN_UPPER_BAND_EDGE_CONF:
             if (length == 1)
               {
-                static const gint *down_upper_band_edge_conf[] = {
+                static int * const down_upper_band_edge_conf[] = {
                   &hf_docsis_tlv_mcap_down_upper_band_edge_conf_1218,
                   &hf_docsis_tlv_mcap_down_upper_band_edge_conf_1794,
                   &hf_docsis_tlv_mcap_down_upper_band_edge_conf_1002,
@@ -3014,7 +3005,7 @@ dissect_modemcap (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int sta
           case CAP_DIPL_DOWN_LOWER_BAND_EDGE:
             if (length == 1)
               {
-                static const gint *dipl_down_lower_band_edge[] = {
+                static int * const dipl_down_lower_band_edge[] = {
                   &hf_docsis_tlv_mcap_dipl_down_lower_band_edge_108,
                   &hf_docsis_tlv_mcap_dipl_down_lower_band_edge_258,
                   NULL
@@ -3031,7 +3022,7 @@ dissect_modemcap (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int sta
          case CAP_DIPL_DOWN_UPPER_BAND_EDGE:
             if (length == 1)
               {
-                static const gint *dipl_down_upper_band_edge[] = {
+                static int * const dipl_down_upper_band_edge[] = {
                   &hf_docsis_tlv_mcap_dipl_down_upper_band_edge_1218,
                   &hf_docsis_tlv_mcap_dipl_down_upper_band_edge_1794,
                   &hf_docsis_tlv_mcap_dipl_down_upper_band_edge_1002,
@@ -3049,7 +3040,7 @@ dissect_modemcap (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int sta
           case CAP_DIPL_UP_UPPER_BAND_EDGE:
             if (length == 1)
               {
-                static const gint *dipl_up_upper_band_edge[] = {
+                static int * const dipl_up_upper_band_edge[] = {
                   &hf_docsis_tlv_mcap_dipl_up_upper_band_edge_42,
                   &hf_docsis_tlv_mcap_dipl_up_upper_band_edge_65,
                   &hf_docsis_tlv_mcap_dipl_up_upper_band_edge_85,
@@ -5586,7 +5577,7 @@ proto_register_docsis_tlv (void)
     },
     {&hf_docsis_tlv_net_access,
      {"3 Network Access", "docsis_tlv.netaccess",
-      FT_BOOLEAN, BASE_NONE, TFS (&on_off_tfs), 0x0,
+      FT_BOOLEAN, BASE_NONE, TFS (&tfs_on_off), 0x0,
       "Network Access TLV", HFILL}
     },
 #if 0
@@ -5645,7 +5636,7 @@ proto_register_docsis_tlv (void)
 #endif
     {&hf_docsis_tlv_mcap_concat,
      {".1 Concatenation Support", "docsis_tlv.mcap.concat",
-      FT_BOOLEAN, BASE_NONE, TFS (&on_off_tfs), 0x0,
+      FT_BOOLEAN, BASE_NONE, TFS (&tfs_on_off), 0x0,
       "Concatenation Support", HFILL}
     },
     {&hf_docsis_tlv_mcap_docs_ver,
@@ -5655,22 +5646,22 @@ proto_register_docsis_tlv (void)
     },
     {&hf_docsis_tlv_mcap_frag,
      {".3 Fragmentation Support", "docsis_tlv.mcap.frag",
-      FT_BOOLEAN, BASE_NONE, TFS (&on_off_tfs), 0x0,
+      FT_BOOLEAN, BASE_NONE, TFS (&tfs_on_off), 0x0,
       "Fragmentation Support", HFILL}
     },
     {&hf_docsis_tlv_mcap_phs,
      {".4 PHS Support", "docsis_tlv.mcap.phs",
-      FT_BOOLEAN, BASE_NONE, TFS (&on_off_tfs), 0x0,
+      FT_BOOLEAN, BASE_NONE, TFS (&tfs_on_off), 0x0,
       "PHS Support", HFILL}
     },
     {&hf_docsis_tlv_mcap_igmp,
      {".5 IGMP Support", "docsis_tlv.mcap.igmp",
-      FT_BOOLEAN, BASE_NONE, TFS (&on_off_tfs), 0x0,
+      FT_BOOLEAN, BASE_NONE, TFS (&tfs_on_off), 0x0,
       "IGMP Support", HFILL}
     },
     {&hf_docsis_tlv_mcap_privacy,
      {".6 Privacy Support", "docsis_tlv.mcap.privacy",
-      FT_BOOLEAN, BASE_NONE, TFS (&on_off_tfs), 0x0,
+      FT_BOOLEAN, BASE_NONE, TFS (&tfs_on_off), 0x0,
       "Privacy Support", HFILL}
     },
     {&hf_docsis_tlv_mcap_down_said,
@@ -5705,7 +5696,7 @@ proto_register_docsis_tlv (void)
     },
     {&hf_docsis_tlv_mcap_dcc,
      {".12 DCC Support", "docsis_tlv.mcap.dcc",
-      FT_BOOLEAN, BASE_NONE, TFS (&on_off_tfs), 0x0,
+      FT_BOOLEAN, BASE_NONE, TFS (&tfs_on_off), 0x0,
       "DCC Support", HFILL}
     },
     {&hf_docsis_tlv_mcap_ip_filters,
@@ -5720,7 +5711,7 @@ proto_register_docsis_tlv (void)
     },
     {&hf_docsis_tlv_mcap_exp_unicast_sid,
      {".15 Expanded Unicast SID Space","docsis_tlv.mcap.exucsid",
-      FT_BOOLEAN, BASE_NONE, TFS (&on_off_tfs), 0x0,
+      FT_BOOLEAN, BASE_NONE, TFS (&tfs_on_off), 0x0,
       "Expanded Unicast SID Space", HFILL}
     },
     {&hf_docsis_tlv_mcap_rnghoff_cm,
@@ -5806,12 +5797,12 @@ proto_register_docsis_tlv (void)
     },
     {&hf_docsis_tlv_mcap_sac,
      {".22 Selectable Active Code Mode 2 Support","docsis_tlv.mcap.sac",
-      FT_BOOLEAN, BASE_NONE, TFS (&on_off_tfs), 0x0,
+      FT_BOOLEAN, BASE_NONE, TFS (&tfs_on_off), 0x0,
       "Selectable Active Code Mode 2 Support", HFILL}
     },
     {&hf_docsis_tlv_mcap_code_hop_mode2,
      {".23 Code Hopping Mode 2 Support","docsis_tlv.mcap.codehopm2",
-      FT_BOOLEAN, BASE_NONE, TFS (&on_off_tfs), 0x0,
+      FT_BOOLEAN, BASE_NONE, TFS (&tfs_on_off), 0x0,
       "Code Hopping Mode 2 Support", HFILL}
     },
     {&hf_docsis_tlv_mcap_mtc,
@@ -5893,7 +5884,7 @@ proto_register_docsis_tlv (void)
     },
     {&hf_docsis_tlv_mcap_map_ucd,
      {".37 MAP and UCD Receipt Support","docsis_tlv.mcap.mapucd",
-      FT_BOOLEAN, BASE_NONE, TFS (&on_off_tfs), 0x0,
+      FT_BOOLEAN, BASE_NONE, TFS (&tfs_on_off), 0x0,
       "MAP and UCD Receipt Support", HFILL}
     },
     {&hf_docsis_tlv_mcap_udc,
@@ -5903,7 +5894,7 @@ proto_register_docsis_tlv (void)
     },
     {&hf_docsis_tlv_mcap_ipv6,
      {".39 IPv6 Support","docsis_tlv.mcap.ipv6",
-      FT_BOOLEAN, BASE_NONE, TFS (&on_off_tfs), 0x0,
+      FT_BOOLEAN, BASE_NONE, TFS (&tfs_on_off), 0x0,
       "IPv6 Support", HFILL}
     },
     {&hf_docsis_tlv_mcap_ext_us_trans_power,
@@ -6413,7 +6404,7 @@ proto_register_docsis_tlv (void)
     },
     {&hf_docsis_tlv_clsfr_act_state,
      {".6 Activation State", "docsis_tlv.clsfr.actstate",
-      FT_BOOLEAN, BASE_NONE, TFS (&activation_tfs), 0x0,
+      FT_BOOLEAN, BASE_NONE, TFS (&tfs_active_inactive), 0x0,
       "Classifier Activation State", HFILL}
     },
     {&hf_docsis_tlv_clsfr_dsc_act,

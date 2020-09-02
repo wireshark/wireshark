@@ -1317,7 +1317,7 @@ static int lsarpc_dissect_element_lsa_LookupNames4_unknown2(tvbuff_t *tvb _U_, i
 static void
 lsarpc_policy_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 access)
 {
-	static const int* access_flags[] = {
+	static int* const access_flags[] = {
 		&hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_NOTIFICATION,
 		&hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_LOOKUP_NAMES,
 		&hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_SERVER_ADMIN,
@@ -1338,7 +1338,7 @@ lsarpc_policy_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guin
 static void
 lsarpc_account_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 access)
 {
-	static const int* access_flags[] = {
+	static int* const access_flags[] = {
 		&hf_lsarpc_lsa_AccountAccessMask_LSA_ACCOUNT_ADJUST_SYSTEM_ACCESS,
 		&hf_lsarpc_lsa_AccountAccessMask_LSA_ACCOUNT_ADJUST_QUOTAS,
 		&hf_lsarpc_lsa_AccountAccessMask_LSA_ACCOUNT_ADJUST_PRIVILEGES,
@@ -1350,7 +1350,7 @@ lsarpc_account_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, gui
 static void
 lsarpc_secret_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 access)
 {
-	static const int* access_flags[] = {
+	static int* const access_flags[] = {
 		&hf_lsarpc_lsa_SecretAccessMask_LSA_SECRET_QUERY_VALUE,
 		&hf_lsarpc_lsa_SecretAccessMask_LSA_SECRET_SET_VALUE,
 		NULL
@@ -1360,7 +1360,7 @@ lsarpc_secret_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guin
 static void
 lsarpc_domain_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 access)
 {
-	static const int* access_flags[] = {
+	static int* const access_flags[] = {
 		&hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_QUERY_AUTH,
 		&hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_SET_AUTH,
 		&hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_SET_POSIX,

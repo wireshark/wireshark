@@ -19,6 +19,7 @@ libwiretap.so.0 libwiretap0 #MINVER#
  open_routines@Base 1.12.0~rc1
  register_pcapng_block_type_handler@Base 1.99.0
  register_pcapng_option_handler@Base 1.99.2
+ wtap_add_generated_idb@Base 3.3.0
  wtap_addrinfo_list_empty@Base 2.5.0
  wtap_block_add_custom_option@Base 2.1.2
  wtap_block_add_ipv4_option@Base 2.1.2
@@ -89,6 +90,7 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_file_get_idb_info@Base 1.9.1
  wtap_file_get_nrb@Base 2.1.2
  wtap_file_get_nrb_for_new_file@Base 1.99.9
+ wtap_file_get_num_shbs@Base 3.3.0
  wtap_file_get_shb@Base 1.99.9
  wtap_file_get_shb_for_new_file@Base 1.99.9
  wtap_file_size@Base 1.9.1

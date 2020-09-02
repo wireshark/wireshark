@@ -119,6 +119,29 @@ color_filters_find_by_name_cb(gconstpointer arg1, gconstpointer arg2)
     return strcmp(colorf->filter_name, name);
 }
 
+/* Get the filter of a temporary color filter */
+gchar*
+color_filters_get_tmp(guint8 filt_nr)
+{
+    gchar* name = NULL;
+    gchar* filter = NULL;
+    GSList* cfl;
+    color_filter_t* colorf;
+    /* Only perform a lookup if the supplied filter number is in the expected range */
+    if (filt_nr < 1 || filt_nr > 10)
+        return NULL;
+
+    name = g_strdup_printf("%s%02d", CONVERSATION_COLOR_PREFIX, filt_nr);
+    cfl = g_slist_find_custom(color_filter_list, name, color_filters_find_by_name_cb);
+    colorf = (color_filter_t*)cfl->data;
+
+    if (!colorf->disabled)
+        filter = g_strdup(colorf->filter_text);
+
+    g_free(name);
+
+    return filter;
+}
 
 /* Set the filter off a temporary colorfilters and enable it */
 gboolean
@@ -156,6 +179,7 @@ color_filters_set_tmp(guint8 filt_nr, const gchar *filter, gboolean disabled, gc
             if (!dfilter_compile(tmpfilter, &compiled_filter, &local_err_msg)) {
                 *err_msg = g_strdup_printf( "Could not compile color filter name: \"%s\" text: \"%s\".\n%s", name, filter, local_err_msg);
                 g_free(local_err_msg);
+                g_free(name);
                 return FALSE;
             } else {
                 g_free(colorf->filter_text);
@@ -518,8 +542,8 @@ static int
 read_filters_file(const gchar *path, FILE *f, gpointer user_data, color_filter_add_cb_func add_cb)
 {
 #define INIT_BUF_SIZE 128
-    gchar    *name             = NULL;
-    gchar    *filter_exp       = NULL;
+    gchar    *name;
+    gchar    *filter_exp;
     guint32   name_len         = INIT_BUF_SIZE;
     guint32   filter_exp_len   = INIT_BUF_SIZE;
     guint32   i                = 0;

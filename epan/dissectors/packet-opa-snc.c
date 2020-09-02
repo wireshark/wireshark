@@ -13,7 +13,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
-#include <wiretap/erf.h>
+#include <wiretap/erf_record.h>
 
 void proto_reg_handoff_opa_snc(void);
 void proto_register_opa_snc(void);
@@ -85,12 +85,12 @@ static gint hf_opa_snc_pbc_pbcfecn = -1;
 static gint hf_opa_snc_pbc_reserved_21_16 = -1;
 static gint hf_opa_snc_pbc_pbcvl = -1;
 static gint hf_opa_snc_pbc_pbclengthdws = -1;
-static const gint *_snc_pbc_1[] = {
+static int * const _snc_pbc_1[] = {
     &hf_opa_snc_pbc_reserved_63_48,
     &hf_opa_snc_pbc_pbcstaticratecontrolcnt,
     NULL
 };
-static const gint *_snc_pbc_2[] = {
+static int * const _snc_pbc_2[] = {
     &hf_opa_snc_pbc_pbcintr,
     &hf_opa_snc_pbc_pbcdcinfo,
     &hf_opa_snc_pbc_pbctestebp,
@@ -122,7 +122,7 @@ static gint hf_opa_snc_rhf_egrindex = -1;
 static gint hf_opa_snc_rhf_useegrbfr = -1;
 static gint hf_opa_snc_rhf_rcvtype = -1;
 static gint hf_opa_snc_rhf_pktlen = -1;
-static const gint *_snc_rhf_1[] = {
+static int * const _snc_rhf_1[] = {
     &hf_opa_snc_rhf_icrcerr,
     &hf_opa_snc_rhf_reserved_62,
     &hf_opa_snc_rhf_eccerr,
@@ -136,7 +136,7 @@ static const gint *_snc_rhf_1[] = {
     &hf_opa_snc_rhf_egroffset,
     NULL
 };
-static const gint *_snc_rhf_2[] = {
+static int * const _snc_rhf_2[] = {
     &hf_opa_snc_rhf_rcvseq,
     &hf_opa_snc_rhf_dcinfo,
     &hf_opa_snc_rhf_egrindex,

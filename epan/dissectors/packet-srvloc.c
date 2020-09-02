@@ -815,7 +815,7 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     proto_tree_add_uint(srvloc_tree, hf_srvloc_function, tvb, offset + 1, 1,
                         function);
     if (version < 2) {
-        static const int * v1_flags[] = {
+        static int * const v1_flags[] = {
             &hf_srvloc_flags_v1_overflow,
             &hf_srvloc_flags_v1_monolingual,
             &hf_srvloc_flags_v1_url_auth,
@@ -1027,7 +1027,7 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         }
     }
     else { /* Version 2 */
-        static const int * v2_flags[] = {
+        static int * const v2_flags[] = {
             &hf_srvloc_flags_v2_overflow,
             &hf_srvloc_flags_v2_fresh,
             &hf_srvloc_flags_v2_reqmulti,

@@ -7,7 +7,7 @@
  *
  * Monday, June 27, 2005
  * Support for the ICMP extensions for MPLS
- * (http://www.ietf.org/proceedings/01aug/I-D/draft-ietf-mpls-icmp-02.txt
+ * (https://tools.ietf.org/html/draft-ietf-mpls-icmp-02
  *  which has been replaced by rfcs 4884 and 4950)
  * by   Maria-Luiza Crivat <luizacri@gmail.com>
  * &    Brice Augustin <bricecotte@gmail.com>
@@ -501,7 +501,7 @@ dissect_mip_extensions(tvbuff_t * tvb, int offset, proto_tree * tree)
 	proto_tree *mip_tree = NULL;
 	gint numCOAs;
 	gint i;
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_icmp_mip_r,
 		&hf_icmp_mip_b,
 		&hf_icmp_mip_h,
@@ -792,7 +792,7 @@ dissect_interface_information_object(tvbuff_t * tvb, gint offset,
 	name_flag = (c_type & INT_INFO_NAME) >> 1;
 
 	{
-		static const gint *c_type_fields[] = {
+		static int * const c_type_fields[] = {
 			&hf_icmp_int_info_role,
 			&hf_icmp_int_info_reserved,
 			&hf_icmp_int_info_ifindex,
@@ -985,7 +985,7 @@ dissect_icmp_extension(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, v
 							pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NOT_PRESENT);
 
 	} else {
-	proto_tree_add_checksum(ext_tree, tvb, offset + 2, hf_icmp_ext_checksum, hf_icmp_ext_checksum_status, &ei_icmp_ext_checksum,
+		proto_tree_add_checksum(ext_tree, tvb, offset + 2, hf_icmp_ext_checksum, hf_icmp_ext_checksum_status, &ei_icmp_ext_checksum,
 							pinfo, ip_checksum_tvb(tvb, offset, reported_length), ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_IN_CKSUM);
 	}
 
@@ -1314,7 +1314,7 @@ get_best_guess_mstimeofday(tvbuff_t * tvb, gint offset, guint32 comp_ts)
 	guint32 be_ts, le_ts;
 
 	/* Account for the special case from RFC 792 as best we can by clearing
-	 * the msb.  Ref: [Page 16] of http://tools.ietf.org/html/rfc792:
+	 * the msb.  Ref: [Page 16] of https://tools.ietf.org/html/rfc792:
 
 	 If the time is not available in milliseconds or cannot be provided
 	 with respect to midnight UT then any time can be inserted in a

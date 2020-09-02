@@ -14,7 +14,6 @@
  * References to source files point in general to the glusterfs sources.
  * There is currently no RFC or other document where the protocol is
  * completely described. The glusterfs sources can be found at:
- * - http://git.gluster.com/?p=glusterfs.git
  * - https://github.com/gluster/glusterfs
  *
  * The coding-style is roughly the same as the one use in the Linux kernel,

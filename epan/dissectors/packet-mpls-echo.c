@@ -308,12 +308,12 @@ static value_string_ext mpls_echo_returncode_ext = VALUE_STRING_EXT_INIT(mpls_ec
 #endif
 #define TLV_P2MP_RESPONDER_IDENT   0x000B
 #define TLV_P2MP_ECHO_JITTER       0x000C
-/* As per RFC 6426 http://tools.ietf.org/html/rfc6426 Section: 2.2.1 */
+/* As per RFC 6426 https://tools.ietf.org/html/rfc6426 Section: 2.2.1 */
 #define TLV_SRC_IDENTIFIER         0x000D
 #define TLV_DST_IDENTIFIER         0x000E
-/* As per RFC 5884 http://tools.ietf.org/html/rfc5884 Section: 6.1 */
+/* As per RFC 5884 https://tools.ietf.org/html/rfc5884 Section: 6.1 */
 #define TLV_BFD_DISCRIMINATOR      0x000F
-/* As per RFC 6426 http://tools.ietf.org/html/rfc6426 Section: 7.3 */
+/* As per RFC 6426 https://tools.ietf.org/html/rfc6426 Section: 7.3 */
 #define TLV_REVERSE_PATH_FEC_STACK 0x0010
 #define TLV_DETAILED_DOWNSTREAM    0x0014 /* [RFC6424] */
 #define TLV_VENDOR_PRIVATE_START   0xFC00
@@ -347,7 +347,7 @@ static const value_string mpls_echo_tlv_type_names[] = {
 };
 static value_string_ext mpls_echo_tlv_type_names_ext = VALUE_STRING_EXT_INIT(mpls_echo_tlv_type_names);
 
-/*As per RFC 4379, http://tools.ietf.org/html/rfc4379 Section: 3.2 */
+/*As per RFC 4379, https://tools.ietf.org/html/rfc4379 Section: 3.2 */
 #define TLV_FEC_STACK_LDP_IPv4              1
 #define TLV_FEC_STACK_LDP_IPv6              2
 #define TLV_FEC_STACK_RSVP_IPv4             3
@@ -364,10 +364,10 @@ static value_string_ext mpls_echo_tlv_type_names_ext = VALUE_STRING_EXT_INIT(mpl
 #define TLV_FEC_STACK_GEN_IPv4             14
 #define TLV_FEC_STACK_GEN_IPv6             15
 #define TLV_FEC_STACK_NIL                  16
-/*As per RFC 6425, http://tools.ietf.org/html/rfc6425 Section: 3.1 */
+/*As per RFC 6425, https://tools.ietf.org/html/rfc6425 Section: 3.1 */
 #define TLV_FEC_STACK_P2MP_IPv4            17
 #define TLV_FEC_STACK_P2MP_IPv6            18
-/*As per RFC 6426, http://tools.ietf.org/html/rfc6426 Section: 2.3 */
+/*As per RFC 6426, https://tools.ietf.org/html/rfc6426 Section: 2.3 */
 #define TLV_FEC_STACK_STATIC_LSP           22
 #define TLV_FEC_STACK_STATIC_PW            23
 /*As per RFC 8029, https://tools.ietf.org/html/rfc8029 Section 3.2 */
@@ -375,7 +375,7 @@ static value_string_ext mpls_echo_tlv_type_names_ext = VALUE_STRING_EXT_INIT(mpl
 #define TLV_FEC_STACK_PW_IPv6_FEC_129      25
 #define TLV_FEC_VENDOR_PRIVATE_START   0xFC00
 #define TLV_FEC_VENDOR_PRIVATE_END     0xFFFF
-/*As per RFC 8287, http://tools.ietf.org/html/rfc8287 Section: 9.1 */
+/*As per RFC 8287, https://tools.ietf.org/html/rfc8287 Section: 9.1 */
 #define TLV_FEC_STACK_SR_IGP_IPv4          34
 #define TLV_FEC_STACK_SR_IGP_IPv6          35
 #define TLV_FEC_STACK_SR_IGP_ADJ           36
@@ -515,7 +515,7 @@ static const value_string mpls_echo_tlv_responder_ident_sub_tlv_type[] = {
 #define TLV_ADDR_UNNUM_IPv4     2
 #define TLV_ADDR_IPv6           3
 #define TLV_ADDR_UNNUM_IPv6     4
-/* As per RFC 6426, http://tools.ietf.org/html/rfc6426 Section: 2.1 */
+/* As per RFC 6426, https://tools.ietf.org/html/rfc6426 Section: 2.1 */
 #define TLV_ADDR_NONIP          5
 
 static const value_string mpls_echo_tlv_addr_type[] = {
@@ -930,13 +930,13 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto
             break;
         case TLV_FEC_STACK_SR_IGP_IPv6:
             proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_igp_ipv6,
-                                tvb, offset + 4, 32, ENC_NA);
+                                tvb, offset + 4, 16, ENC_NA);
             proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_igp_mask,
-                                tvb, offset + 36, 1, ENC_BIG_ENDIAN);
+                                tvb, offset + 20, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_igp_protocol,
-                                tvb, offset + 37, 1, ENC_BIG_ENDIAN);
+                                tvb, offset + 21, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_igp_reserved,
-                                tvb, offset + 38, 2, ENC_NA);
+                                tvb, offset + 22, 2, ENC_NA);
             break;
         case TLV_FEC_STACK_SR_IGP_ADJ:
             adj_offset = offset +4;

@@ -1528,7 +1528,7 @@ reset_default_profile(char **pf_dir_path_return)
             if (ret != 0) {
                 *pf_dir_path_return = profile_dir;
                 g_free(del_file);
-                return ret;
+                break;
             }
         }
 
@@ -1538,7 +1538,7 @@ reset_default_profile(char **pf_dir_path_return)
     g_list_free(files);
 
     g_free(profile_dir);
-    return 0;
+    return ret;
 }
 
 int
@@ -1694,6 +1694,7 @@ int
 copy_persconffile_profile(const char *toname, const char *fromname, gboolean from_global,
               char **pf_filename_return, char **pf_to_dir_path_return, char **pf_from_dir_path_return)
 {
+    int ret = 0;
     gchar *from_dir;
     gchar *to_dir = get_persconffile_dir(toname);
     gchar *filename, *from_file, *to_file;
@@ -1714,7 +1715,8 @@ copy_persconffile_profile(const char *toname, const char *fromname, gboolean fro
             *pf_from_dir_path_return = from_dir;
             g_free (from_file);
             g_free (to_file);
-            return -1;
+            ret = -1;
+            break;
         }
 
         g_free (from_file);
@@ -1727,7 +1729,7 @@ copy_persconffile_profile(const char *toname, const char *fromname, gboolean fro
     g_free (from_dir);
     g_free (to_dir);
 
-    return 0;
+    return ret;
 }
 
 /*

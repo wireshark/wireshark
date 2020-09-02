@@ -316,7 +316,7 @@ void TrafficTableDialog::copyAsCsv()
                 rdsl << v.toString();
             }
         }
-        stream << rdsl.join(",") << endl;
+        stream << rdsl.join(",") << '\n';
     }
     wsApp->clipboard()->setText(stream.readAll());
 }
@@ -330,11 +330,11 @@ void TrafficTableDialog::copyAsYaml()
 
     QString yaml;
     QTextStream stream(&yaml, QIODevice::Text);
-    stream << "---" << endl;
+    stream << "---" << '\n';
     for (int row = -1; row < cur_tree->topLevelItemCount(); row ++) {
-        stream << "-" << endl;
+        stream << "-" << '\n';
         foreach (QVariant v, curTreeRowData(row)) {
-            stream << " - " << v.toString() << endl;
+            stream << " - " << v.toString() << '\n';
         }
     }
     wsApp->clipboard()->setText(stream.readAll());

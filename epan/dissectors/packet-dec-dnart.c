@@ -423,7 +423,7 @@ dissect_dec_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
             break;
         }
     } else if (msg_flags & RT_FLAGS_LONG_MSG){
-       const int * msg_bit_flags[] = {
+       static int * const msg_bit_flags[] = {
            &hf_dec_rt_long_msg,
            &hf_dec_rt_rqr,
            &hf_dec_rt_rts,
@@ -678,7 +678,7 @@ do_hello_msg(
     guint16 version, eco_nr, user_eco;
     proto_item *ti;
     char *addr;
-    static const int * info_flags[] = {
+    static int * const info_flags[] = {
         &hf_dec_rt_iinfo_node_type,
         &hf_dec_rt_iinfo_vrf,
         &hf_dec_rt_iinfo_rej,
@@ -1175,7 +1175,7 @@ proto_register_dec_rt(void)
 {
 
     static hf_register_info hf[] = {
-        /* Mesage header items */
+        /* Message header items */
         { &hf_dec_routing_flags,
           { "Routing flags",            "dec_dna.flags",
             FT_UINT8,    BASE_HEX,    NULL,    0x0,

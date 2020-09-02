@@ -30,6 +30,8 @@ S<[ B<-T> E<lt>encapsulation typeE<gt> ]>
 S<[ B<-v> ]>
 S<[ B<--inject-secrets> E<lt>secrets typeE<gt>,E<lt>fileE<gt> ]>
 S<[ B<--discard-all-secrets> ]>
+S<[ B<--capture-comment> E<lt>commentE<gt> ]>
+S<[ B<--discard-capture-comment> ]>
 I<infile>
 I<outfile>
 S<[ I<packet#>[-I<packet#>] ... ]>
@@ -96,12 +98,14 @@ strings that include spaces.
 =item -A  E<lt>start timeE<gt>
 
 Saves only the packets whose timestamp is on or after start time.
-The time is given in the following format YYYY-MM-DD HH:MM:SS
+The time is given in the following format YYYY-MM-DD HH:MM:SS[.nnnnnnnnn]
+(the decimal and fractional seconds are optional).
 
 =item -B  E<lt>stop timeE<gt>
 
 Saves only the packets whose timestamp is before stop time.
-The time is given in the following format YYYY-MM-DD HH:MM:SS
+The time is given in the following format YYYY-MM-DD HH:MM:SS[.nnnnnnnnn]
+(the decimal and fractional seconds are optional).
 
 =item -c  E<lt>packets per fileE<gt>
 
@@ -357,6 +361,21 @@ E<lt>secrets typeE<gt> can be listed with B<--inject-secrets help>.
 Discard all decryption secrets from the input file when writing the
 output file.  Does not discard secrets added by B<--inject-secrets> in
 the same command line.
+
+=item --capture-comment E<lt>commentE<gt>
+
+Adds the given comment to the Section Header Block (SHB) of the pcapng
+output file. New comments will be added I<after> any comments present in the
+input file unless B<--discard-capture-comment> is also specified.
+
+This option may be specified multiple times. Note that Wireshark currently only
+recognizes the first comment of a capture file.
+
+=item --discard-capture-comment
+
+Discard all capture file comments from the input file when writing the output
+file. Does not discard comments added by B<--capture-comment> in the same
+command line.
 
 =back
 

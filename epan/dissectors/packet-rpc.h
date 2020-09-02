@@ -14,7 +14,6 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/conversation.h>
 #include "ws_symbol_export.h"
 
 #ifdef __cplusplus

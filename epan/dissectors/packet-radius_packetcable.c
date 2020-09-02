@@ -320,8 +320,8 @@ static const gchar* dissect_packetcable_qos_descriptor(proto_tree* tree, tvbuff_
 	guint32 intval;
 	guint32 packetcable_qos_flags = tvb_get_ntohl(tvb, 0);
 	guint packetcable_qos_off = 20;
-	static const int * qos_flags[] = {
-        &hf_packetcable_qos_status_indication,
+	static int * const qos_flags[] = {
+		&hf_packetcable_qos_status_indication,
 		&hf_packetcable_qos_desc_flags_sfst,
 		&hf_packetcable_qos_desc_flags_gi,
 		&hf_packetcable_qos_desc_flags_tgj,
@@ -406,7 +406,7 @@ static const gchar* dissect_packetcable_term_dsply_info(proto_tree* tree, tvbuff
 	/* XXX - this logic seems buggy because the offsets don't line up */
 	guint8 bitmask = tvb_get_guint8(tvb, 2);
 	guint intval = 1;
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_packetcable_terminal_display_info_sbm_general_display,
 		&hf_packetcable_terminal_display_info_sbm_calling_number,
 		&hf_packetcable_terminal_display_info_sbm_calling_name,

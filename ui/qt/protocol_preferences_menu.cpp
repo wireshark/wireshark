@@ -27,7 +27,6 @@
 
 // To do:
 // - Elide really long items?
-// - Handle PREF_SAVE_FILENAME, PREF_OPEN_FILENAME and PREF_DIRNAME.
 // - Handle color prefs.
 
 class BoolPreferenceAction : public QAction
@@ -136,6 +135,12 @@ ProtocolPreferencesMenu::ProtocolPreferencesMenu()
     setModule(NULL);
 }
 
+ProtocolPreferencesMenu::ProtocolPreferencesMenu(const QString &title, const QString &module_name, QWidget *parent) :
+    QMenu(title, parent)
+{
+    setModule(module_name);
+}
+
 void ProtocolPreferencesMenu::setModule(const QString module_name)
 {
     QAction *action;
@@ -158,7 +163,7 @@ void ProtocolPreferencesMenu::setModule(const QString module_name)
         return;
     }
 
-    QAction *disable_action = new QAction(tr("Disable %1" UTF8_HORIZONTAL_ELLIPSIS).arg(short_name), this);
+    QAction *disable_action = new QAction(tr("Disable %1").arg(short_name), this);
     connect(disable_action, SIGNAL(triggered(bool)), this, SLOT(disableProtocolTriggered()));
     disable_action->setDisabled(!proto_can_toggle_protocol(proto_id));
 
@@ -216,6 +221,9 @@ void ProtocolPreferencesMenu::addMenuItem(preference *pref)
     }
     case PREF_UINT:
     case PREF_STRING:
+    case PREF_SAVE_FILENAME:
+    case PREF_OPEN_FILENAME:
+    case PREF_DIRNAME:
     case PREF_RANGE:
     case PREF_DECODE_AS_UINT:
     case PREF_DECODE_AS_RANGE:
@@ -237,8 +245,7 @@ void ProtocolPreferencesMenu::addMenuItem(preference *pref)
     case PREF_OBSOLETE:
         break;
     default:
-        // A type we currently don't handle (e.g. PREF_SAVE_FILENAME). Just open
-        // the prefs dialog.
+        // A type we currently don't handle. Just open the prefs dialog.
         QString title = QString("%1" UTF8_HORIZONTAL_ELLIPSIS).arg(prefs_get_title(pref));
         QAction *mpa = addAction(title);
         connect(mpa, SIGNAL(triggered(bool)), this, SLOT(modulePreferencesTriggered()));

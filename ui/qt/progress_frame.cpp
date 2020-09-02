@@ -28,27 +28,32 @@
 // - Don't complain so loudly when the user stops a capture.
 
 progdlg_t *
-create_progress_dlg(gpointer top_level_window, const gchar *, const gchar *,
+create_progress_dlg(gpointer top_level_window, const gchar *task_title, const gchar *item_title,
                                gboolean terminate_is_stop, gboolean *stop_flag) {
     ProgressFrame *pf;
     QWidget *main_window;
 
     if (!top_level_window) {
-        return NULL;
+        return nullptr;
     }
 
     main_window = qobject_cast<QWidget *>((QObject *)top_level_window);
 
     if (!main_window) {
-        return NULL;
+        return nullptr;
     }
 
     pf = main_window->findChild<ProgressFrame *>();
 
     if (!pf) {
-        return NULL;
+        return nullptr;
     }
-    return pf->showProgress(true, terminate_is_stop, stop_flag, 0);
+
+    QString title = task_title;
+    if (item_title && strlen(item_title) > 0) {
+        title.append(" ").append(item_title);
+    }
+    return pf->showProgress(title, true, terminate_is_stop, stop_flag, 0);
 }
 
 progdlg_t *
@@ -69,7 +74,7 @@ update_progress_dlg(progdlg_t *dlg, gfloat percentage, const gchar *)
 {
     if (!dlg) return;
 
-    dlg->progress_frame->setValue(percentage * 100);
+    dlg->progress_frame->setValue((int)(percentage * 100));
 
     /*
      * Flush out the update and process any input events.
@@ -90,10 +95,10 @@ ProgressFrame::ProgressFrame(QWidget *parent) :
     QFrame(parent),
     ui(new Ui::ProgressFrame)
   , terminate_is_stop_(false)
-  , stop_flag_(NULL)
+  , stop_flag_(nullptr)
   , show_timer_(-1)
-  , effect_(NULL)
-  , animation_(NULL)
+  , effect_(nullptr)
+  , animation_(nullptr)
 #ifdef QWINTASKBARPROGRESS_H
   , update_taskbar_(false)
   , taskbar_progress_(NULL)
@@ -103,6 +108,15 @@ ProgressFrame::ProgressFrame(QWidget *parent) :
 
     progress_dialog_.progress_frame = this;
     progress_dialog_.top_level_window = window();
+
+#ifdef Q_OS_MAC
+    ui->label->setAttribute(Qt::WA_MacSmallSize, true);
+#endif
+
+    ui->label->setStyleSheet(QString(
+            "QLabel {"
+            "  background: transparent;"
+            "}"));
 
     ui->progressBar->setStyleSheet(QString(
             "QProgressBar {"
@@ -141,10 +155,22 @@ ProgressFrame::~ProgressFrame()
     delete ui;
 }
 
-struct progdlg *ProgressFrame::showProgress(bool animate, bool terminate_is_stop, gboolean *stop_flag, int value)
+struct progdlg *ProgressFrame::showProgress(const QString &title, bool animate, bool terminate_is_stop, gboolean *stop_flag, int value)
 {
     setMaximumValue(100);
     ui->progressBar->setValue(value);
+    QString elided_title = title;
+    int max_w = fontMetrics().height() * 20; // em-widths, arbitrary
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 11, 0))
+    int title_w = fontMetrics().horizontalAdvance(title);
+#else
+    int title_w = fontMetrics().width(title);
+#endif
+    if (title_w > max_w) {
+        elided_title = fontMetrics().elidedText(title, Qt::ElideRight, max_w);
+    }
+    // If we're in the main status bar, should we push this as a status message instead?
+    ui->label->setText(elided_title);
     emit showRequested(animate, terminate_is_stop, stop_flag);
     return &progress_dialog_;
 }

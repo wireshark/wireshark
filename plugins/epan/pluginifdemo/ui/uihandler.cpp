@@ -25,6 +25,7 @@
 #include <ui/qt/main_window.h>
 
 #include <ui/uihandler.h>
+#include <ui/simple_dialog.h>
 
 static void
 reset_dialog(void *data _U_)
@@ -35,8 +36,12 @@ reset_dialog(void *data _U_)
 void pluginifdemo_ui_main(ext_menubar_gui_type gui_type, gpointer gui_data)
 {
     /* ensures, that the dialog is closing, if scm udid is set or a filter is applied */
-    register_tap_listener("frame", NULL, NULL, 0, reset_dialog, NULL, NULL, NULL);
+    GString *error_string = register_tap_listener("frame", NULL, NULL, 0, reset_dialog, NULL, NULL, NULL);
 
+    if (error_string != NULL) {
+		fprintf(stderr, "%s ", error_string->str);
+        g_string_free(error_string, TRUE);
+    }
     GuiHandler::getInstance()->showMainDialog(gui_type, gui_data);
 }
 

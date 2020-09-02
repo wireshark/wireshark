@@ -82,7 +82,6 @@ ADDITIONAL_LIST="libnl-3-dev \
 	libminizip-dev \
 	git \
 	ninja-build \
-	doxygen \
 	xsltproc \
 	libspeexdsp-dev"
 

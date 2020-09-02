@@ -301,10 +301,13 @@ static const value_string division_vals[] =
     { 0, NULL }
 };
 
+/* Frame Type (ft) values */
+#define FT_DATA    0
+#define FT_CONTROL 1
 
-static const value_string data_control_vals[] = {
-    { 0,   "Data" },
-    { 1,   "Control" },
+static const value_string frame_type_vals[] = {
+    { FT_DATA,      "Data" },
+    { FT_CONTROL,   "Control" },
     { 0,   NULL }
 };
 
@@ -1480,7 +1483,7 @@ static void
 dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                           int offset, struct fp_info *p_fp_info, void *data)
 {
-    gboolean is_control_frame;
+    guint32 ft;
     guint32 header_crc = 0;
     proto_item * header_crc_pi = NULL;
     guint header_length = 0;
@@ -1489,12 +1492,12 @@ dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     header_crc_pi = proto_tree_add_item_ret_uint(tree, hf_fp_header_crc, tvb, offset, 1, ENC_BIG_ENDIAN, &header_crc);
 
     /* Frame Type */
-    proto_tree_add_item_ret_uint(tree, hf_fp_ft, tvb, offset, 1, ENC_BIG_ENDIAN, &is_control_frame);
+    proto_tree_add_item_ret_uint(tree, hf_fp_ft, tvb, offset, 1, ENC_BIG_ENDIAN, &ft);
     offset++;
 
-    col_append_str(pinfo->cinfo, COL_INFO, is_control_frame ? " [Control] " : " [Data] ");
+    col_append_fstr(pinfo->cinfo, COL_INFO, " [%s] ", val_to_str_const(ft, frame_type_vals, "Unknown"));
 
-    if (is_control_frame) {
+    if (ft == FT_CONTROL) {
         dissect_common_control(tvb, pinfo, tree, offset, p_fp_info);
         /* For control frame the header CRC is actually frame CRC covering all
          * bytes except the first */
@@ -1736,7 +1739,7 @@ static void
 dissect_fach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                           int offset, struct fp_info *p_fp_info, void *data)
 {
-    gboolean is_control_frame;
+    guint32 ft;
     guint32 header_crc = 0;
     proto_item * header_crc_pi = NULL;
     guint header_length = 0;
@@ -1745,12 +1748,12 @@ dissect_fach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     header_crc_pi = proto_tree_add_item_ret_uint(tree, hf_fp_header_crc, tvb, offset, 1, ENC_BIG_ENDIAN, &header_crc);
 
     /* Frame Type */
-    proto_tree_add_item_ret_uint(tree, hf_fp_ft, tvb, offset, 1, ENC_BIG_ENDIAN, &is_control_frame);
+    proto_tree_add_item_ret_uint(tree, hf_fp_ft, tvb, offset, 1, ENC_BIG_ENDIAN, &ft);
     offset++;
 
-    col_append_str(pinfo->cinfo, COL_INFO, is_control_frame ? " [Control] " : " [Data] ");
+    col_append_fstr(pinfo->cinfo, COL_INFO, " [%s] ", val_to_str_const(ft, frame_type_vals, "Unknown"));
 
-    if (is_control_frame) {
+    if (ft == FT_CONTROL) {
         dissect_common_control(tvb, pinfo, tree, offset, p_fp_info);
         /* For control frame the header CRC is actually frame CRC covering all
          * bytes except the first */
@@ -1810,18 +1813,18 @@ static void
 dissect_dsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                           int offset, struct fp_info *p_fp_info)
 {
-    gboolean is_control_frame;
+    guint32 ft;
 
     /* Header CRC */
     proto_tree_add_item(tree, hf_fp_header_crc, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /* Frame Type */
-    proto_tree_add_item_ret_uint(tree, hf_fp_ft, tvb, offset, 1, ENC_BIG_ENDIAN, &is_control_frame);
+    proto_tree_add_item_ret_uint(tree, hf_fp_ft, tvb, offset, 1, ENC_BIG_ENDIAN, &ft);
     offset++;
 
-    col_append_str(pinfo->cinfo, COL_INFO, is_control_frame ? " [Control] " : " [Data] ");
+    col_append_fstr(pinfo->cinfo, COL_INFO, " [%s] ", val_to_str_const(ft, frame_type_vals, "Unknown"));
 
-    if (is_control_frame) {
+    if (ft == FT_CONTROL) {
         dissect_common_control(tvb, pinfo, tree, offset, p_fp_info);
     }
     else {
@@ -1892,18 +1895,18 @@ static void
 dissect_usch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                           int offset, struct fp_info *p_fp_info)
 {
-    gboolean is_control_frame;
+    guint32 ft;
 
     /* Header CRC */
     proto_tree_add_item(tree, hf_fp_header_crc, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /* Frame Type */
-    proto_tree_add_item_ret_uint(tree, hf_fp_ft, tvb, offset, 1, ENC_BIG_ENDIAN, &is_control_frame);
+    proto_tree_add_item_ret_uint(tree, hf_fp_ft, tvb, offset, 1, ENC_BIG_ENDIAN, &ft);
     offset++;
 
-    col_append_str(pinfo->cinfo, COL_INFO, is_control_frame ? " [Control] " : " [Data] ");
+    col_append_fstr(pinfo->cinfo, COL_INFO, " [%s] ", val_to_str_const(ft, frame_type_vals, "Unknown"));
 
-    if (is_control_frame) {
+    if (ft == FT_CONTROL) {
         dissect_common_control(tvb, pinfo, tree, offset, p_fp_info);
     }
     else {
@@ -1970,7 +1973,7 @@ static void
 dissect_pch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                          int offset, struct fp_info *p_fp_info, void *data)
 {
-    gboolean is_control_frame;
+    guint32 ft;
     guint16  pch_cfn;
     guint32  tfi;
     gboolean paging_indication;
@@ -1981,12 +1984,12 @@ dissect_pch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     header_crc_pi = proto_tree_add_item_ret_uint(tree, hf_fp_header_crc, tvb, offset, 1, ENC_BIG_ENDIAN, &header_crc);
 
     /* Frame Type */
-    proto_tree_add_item_ret_uint(tree, hf_fp_ft, tvb, offset, 1, ENC_BIG_ENDIAN, &is_control_frame);
+    proto_tree_add_item_ret_uint(tree, hf_fp_ft, tvb, offset, 1, ENC_BIG_ENDIAN, &ft);
     offset++;
 
-    col_append_str(pinfo->cinfo, COL_INFO, is_control_frame ? " [Control] " : " [Data] ");
+    col_append_fstr(pinfo->cinfo, COL_INFO, " [%s] ", val_to_str_const(ft, frame_type_vals, "Unknown"));
 
-    if (is_control_frame) {
+    if (ft == FT_CONTROL) {
         dissect_common_control(tvb, pinfo, tree, offset, p_fp_info);
         /* For control frame the header CRC is actually frame CRC covering all
          * bytes except the first */
@@ -2084,18 +2087,18 @@ static void
 dissect_cpch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                           int offset, struct fp_info *p_fp_info)
 {
-    gboolean is_control_frame;
+    guint32 ft;
 
     /* Header CRC */
     proto_tree_add_item(tree, hf_fp_header_crc, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /* Frame Type */
-    proto_tree_add_item_ret_uint(tree, hf_fp_ft, tvb, offset, 1, ENC_BIG_ENDIAN, &is_control_frame);
+    proto_tree_add_item_ret_uint(tree, hf_fp_ft, tvb, offset, 1, ENC_BIG_ENDIAN, &ft);
     offset++;
 
-    col_append_str(pinfo->cinfo, COL_INFO, is_control_frame ? " [Control] " : " [Data] ");
+    col_append_fstr(pinfo->cinfo, COL_INFO, " [%s] ", val_to_str_const(ft, frame_type_vals, "Unknown"));
 
-    if (is_control_frame) {
+    if (ft == FT_CONTROL) {
         dissect_common_control(tvb, pinfo, tree, offset, p_fp_info);
     }
     else {
@@ -2142,18 +2145,18 @@ static void
 dissect_bch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                          int offset, struct fp_info *p_fp_info)
 {
-    gboolean is_control_frame;
+    guint32 ft;
 
     /* Header CRC */
     proto_tree_add_item(tree, hf_fp_header_crc, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /* Frame Type */
-    proto_tree_add_item_ret_uint(tree, hf_fp_ft, tvb, offset, 1, ENC_BIG_ENDIAN, &is_control_frame);
+    proto_tree_add_item_ret_uint(tree, hf_fp_ft, tvb, offset, 1, ENC_BIG_ENDIAN, &ft);
     offset++;
 
-    col_append_str(pinfo->cinfo, COL_INFO, is_control_frame ? " [Control] " : " [Data] ");
+    col_append_fstr(pinfo->cinfo, COL_INFO, " [%s] ", val_to_str_const(ft, frame_type_vals, "Unknown"));
 
-    if (is_control_frame) {
+    if (ft == FT_CONTROL) {
         dissect_common_control(tvb, pinfo, tree, offset, p_fp_info);
     }
 }
@@ -2165,18 +2168,18 @@ static void
 dissect_iur_dsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                               int offset, struct fp_info *p_fp_info)
 {
-    gboolean is_control_frame;
+    guint32 ft;
 
     /* Header CRC */
     proto_tree_add_item(tree, hf_fp_header_crc, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /* Frame Type */
-    proto_tree_add_item_ret_uint(tree, hf_fp_ft, tvb, offset, 1, ENC_BIG_ENDIAN, &is_control_frame);
+    proto_tree_add_item_ret_uint(tree, hf_fp_ft, tvb, offset, 1, ENC_BIG_ENDIAN, &ft);
     offset++;
 
-    col_append_str(pinfo->cinfo, COL_INFO, is_control_frame ? " [Control] " : " [Data] ");
+    col_append_fstr(pinfo->cinfo, COL_INFO, " [%s] ", val_to_str_const(ft, frame_type_vals, "Unknown"));
 
-    if (is_control_frame) {
+    if (ft == FT_CONTROL) {
         dissect_common_control(tvb, pinfo, tree, offset, p_fp_info);
     }
     else {
@@ -2533,7 +2536,7 @@ static void
 dissect_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                          int offset, struct fp_info *p_fp_info, void *data)
 {
-    gboolean is_control_frame;
+    guint32 ft;
     guint32   cfn;
     guint header_length = 0;
     guint32 header_crc = 0;
@@ -2543,15 +2546,15 @@ dissect_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     header_crc_pi = proto_tree_add_item_ret_uint(tree, hf_fp_header_crc, tvb, offset, 1, ENC_BIG_ENDIAN, &header_crc);
 
     /* Frame Type */
-    proto_tree_add_item_ret_uint(tree, hf_fp_ft, tvb, offset, 1, ENC_BIG_ENDIAN, &is_control_frame);
+    proto_tree_add_item_ret_uint(tree, hf_fp_ft, tvb, offset, 1, ENC_BIG_ENDIAN, &ft);
     offset++;
 
     col_append_str(pinfo->cinfo, COL_INFO,
-                   is_control_frame ? " [Control] " :
-                                      ((p_fp_info->is_uplink) ? " [ULData] " :
-                                                                " [DLData] " ));
+                   (ft == FT_CONTROL )? " [Control] " :
+                                       ((p_fp_info->is_uplink) ? " [ULData] " :
+                                                                 " [DLData] " ));
 
-    if (is_control_frame) {
+    if (ft == FT_CONTROL) {
         /* DCH control frame */
         dissect_dch_control_frame(tree, pinfo, tvb, offset, p_fp_info);
         /* For control frame the header CRC is actually frame CRC covering all
@@ -2578,16 +2581,13 @@ dissect_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* Dissect TB data */
         offset = dissect_tb_data(tvb, pinfo, tree, offset, p_fp_info, &mac_fdd_dch_handle, data);
 
-        /* QE (uplink only) */
+        /* QE and CRCI bits (uplink only) */
         if (p_fp_info->is_uplink) {
             proto_tree_add_item(tree, hf_fp_quality_estimate, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
-        }
-
-        /* CRCI bits (uplink only) */
-        if (p_fp_info->is_uplink) {
             offset = dissect_crci_bits(tvb, pinfo, tree, p_fp_info, offset);
         }
+
         if (preferences_header_checksum) {
             verify_header_crc(tvb, pinfo, header_crc_pi, header_crc, header_length);
         }
@@ -2605,7 +2605,7 @@ dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                            gboolean is_common,
                            void *data)
 {
-    gboolean is_control_frame;
+    guint32 ft;
     guint8   number_of_subframes;
     guint32  cfn;
     int      n;
@@ -2625,11 +2625,11 @@ dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     header_crc = (tvb_get_bits8(tvb, offset*8, 7) << 4) + tvb_get_bits8(tvb, offset*8+8, 4);
 
     /* Frame Type */
-    is_control_frame = tvb_get_guint8(tvb, offset) & 0x01;
+    ft = tvb_get_guint8(tvb, offset) & 0x01;
 
-    col_append_str(pinfo->cinfo, COL_INFO, is_control_frame ? " [Control] " : " [Data] ");
+    col_append_fstr(pinfo->cinfo, COL_INFO, " [%s] ", val_to_str_const(ft, frame_type_vals, "Unknown"));
 
-    if (is_control_frame) {
+    if (ft == FT_CONTROL) {
         /* DCH control frame */
 
         /* For control frame the header CRC is actually frame CRC covering all
@@ -3168,7 +3168,7 @@ static void
 dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                             int offset, struct fp_info *p_fp_info, void *data)
 {
-    gboolean is_control_frame;
+    guint32 ft;
     guint header_length = 0;
     guint32 header_crc = 0;
     proto_item * header_crc_pi = NULL;
@@ -3177,12 +3177,12 @@ dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     header_crc_pi = proto_tree_add_item_ret_uint(tree, hf_fp_header_crc, tvb, offset, 1, ENC_BIG_ENDIAN, &header_crc);
 
     /* Frame Type */
-    proto_tree_add_item_ret_uint(tree, hf_fp_ft, tvb, offset, 1, ENC_BIG_ENDIAN, &is_control_frame);
+    proto_tree_add_item_ret_uint(tree, hf_fp_ft, tvb, offset, 1, ENC_BIG_ENDIAN, &ft);
     offset++;
 
-    col_append_str(pinfo->cinfo, COL_INFO, is_control_frame ? " [Control] " : " [Data] ");
+    col_append_fstr(pinfo->cinfo, COL_INFO, " [%s] ", val_to_str_const(ft, frame_type_vals, "Unknown"));
 
-    if (is_control_frame) {
+    if (ft == FT_CONTROL) {
         dissect_common_control(tvb, pinfo, tree, offset, p_fp_info);
         /* For control frame the header CRC is actually frame CRC covering all
          * bytes except the first */
@@ -3385,7 +3385,7 @@ dissect_hsdsch_type_2_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                    int offset, struct fp_info *p_fp_info,
                                    void *data)
 {
-    gboolean is_control_frame;
+    guint32 ft;
     guint32 header_crc = 0;
     proto_item * header_crc_pi = NULL;
     guint16 header_length = 0;
@@ -3394,12 +3394,12 @@ dissect_hsdsch_type_2_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     header_crc_pi = proto_tree_add_item_ret_uint(tree, hf_fp_header_crc, tvb, offset, 1, ENC_BIG_ENDIAN, &header_crc);
 
     /* Frame Type */
-    proto_tree_add_item_ret_uint(tree, hf_fp_ft, tvb, offset, 1, ENC_BIG_ENDIAN, &is_control_frame);
+    proto_tree_add_item_ret_uint(tree, hf_fp_ft, tvb, offset, 1, ENC_BIG_ENDIAN, &ft);
     offset++;
 
-    col_append_str(pinfo->cinfo, COL_INFO, is_control_frame ? " [Control] " : " [Data] ");
+    col_append_fstr(pinfo->cinfo, COL_INFO, " [%s] ", val_to_str_const(ft, frame_type_vals, "Unknown"));
 
-    if (is_control_frame) {
+    if (ft == FT_CONTROL) {
         dissect_common_control(tvb, pinfo, tree, offset, p_fp_info);
         /* For control frame the header CRC is actually frame CRC covering all
          * bytes except the first */
@@ -3646,7 +3646,7 @@ void dissect_hsdsch_common_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
                                         int offset, struct fp_info *p_fp_info,
                                         void *data)
 {
-    gboolean is_control_frame;
+    guint32 ft;
     guint32 header_crc = 0;
     proto_item * header_crc_pi = NULL;
     guint header_length = 0;
@@ -3655,12 +3655,12 @@ void dissect_hsdsch_common_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
     header_crc_pi = proto_tree_add_item_ret_uint(tree, hf_fp_header_crc, tvb, offset, 1, ENC_BIG_ENDIAN, &header_crc);
 
     /* Frame Type */
-    proto_tree_add_item_ret_uint(tree, hf_fp_ft, tvb, offset, 1, ENC_BIG_ENDIAN, &is_control_frame);
+    proto_tree_add_item_ret_uint(tree, hf_fp_ft, tvb, offset, 1, ENC_BIG_ENDIAN, &ft);
     offset++;
 
-    col_append_str(pinfo->cinfo, COL_INFO, is_control_frame ? " [Control] " : " [Data] ");
+    col_append_fstr(pinfo->cinfo, COL_INFO, " [%s] ", val_to_str_const(ft, frame_type_vals, "Unknown"));
 
-    if (is_control_frame) {
+    if (ft == FT_CONTROL) {
         dissect_common_control(tvb, pinfo, tree, offset, p_fp_info);
         /* For control frame the header CRC is actually frame CRC covering all
          * bytes except the first */
@@ -4122,10 +4122,11 @@ heur_dissect_fp_dcch_over_dch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
     /* Making sure we have at least enough bytes for header (3) + footer (2) */
     captured_length = tvb_captured_length(tvb);
-    reported_length = tvb_reported_length(tvb);
     if (captured_length < 5) {
         return FALSE;
     }
+    reported_length = tvb_reported_length(tvb);
+
     tfi = tvb_get_guint8(tvb, 2) & 0x1f;
 
     /* Checking if this is a DCH frame with 0 TBs*/
@@ -5236,7 +5237,7 @@ heur_dissect_fp_unknown_format(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     struct fp_info *p_fp_info;
     guint32 length;
     guint8 frame_type;
-    gboolean is_control = FALSE;
+    guint32 ft;
 
     /* Trying to find existing conversation */
     p_conv = (conversation_t *)find_conversation(pinfo->num, &pinfo->net_dst, &pinfo->net_src,
@@ -5280,8 +5281,8 @@ heur_dissect_fp_unknown_format(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
     /* Both per-frame FP info and conversation FP info are missing */
     /* Try to frame control frames using header CRC */
-    is_control = (tvb_get_guint8(tvb, 0) & 0x01) == 1;
-    if(!is_control) {
+    ft = (tvb_get_guint8(tvb, 0) & 0x01);
+    if(ft != FT_CONTROL) {
         /* This is a Data frame, can't tell if it's FP. */
         return FALSE;
     }
@@ -5418,7 +5419,7 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
     fp_info  *fpi;
     guint8    tfi, c_t, lchid;
     int       offset = 0, i=0, j=0, num_tbs, chan, tb_size, tb_bit_off;
-    gboolean  is_control_frame;
+    guint32   ft;
     gboolean  is_known_dcch_tf,is_stndalone_ps_rab_tf,is_muxed_cs_ps_tf;
     umts_mac_info *macinf;
     rlc_info *rlcinf;
@@ -5467,7 +5468,7 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
         fpi->is_uplink = FALSE;
     }
 
-    is_control_frame = tvb_get_guint8(tvb, offset) & 0x01;
+    ft = tvb_get_guint8(tvb, offset) & 0x01;
 
     switch (fpi->channel) {
         case CHANNEL_HSDSCH: /* HS-DSCH - High Speed Downlink Shared Channel */
@@ -5550,7 +5551,7 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
             fpi->paging_indications = fp_pch_channel_info->paging_indications;
             fpi->num_chans = p_conv_data->num_dch_in_flow;
 
-            if (is_control_frame) {
+            if (ft == FT_CONTROL) {
                 /* control frame, we're done */
                 return fpi;
             }
@@ -5563,7 +5564,7 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
             break;
         case CHANNEL_DCH:
             fpi->num_chans = p_conv_data->num_dch_in_flow;
-            if (is_control_frame) {
+            if (ft == FT_CONTROL) {
                 /* control frame, we're done */
                 return fpi;
             }
@@ -5666,7 +5667,7 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
                 break;
             }
             fpi->num_chans = p_conv_data->num_dch_in_flow;
-            if (is_control_frame) {
+            if (ft == FT_CONTROL) {
                 /* control frame, we're done */
                 return fpi;
             }
@@ -5698,7 +5699,7 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
                 break;
             }
             fpi->num_chans = p_conv_data->num_dch_in_flow;
-            if (is_control_frame) {
+            if (ft == FT_CONTROL) {
                 /* control frame, we're done */
                 return fpi;
             }
@@ -6133,7 +6134,7 @@ void proto_register_fp(void)
             },
             { &hf_fp_ft,
               { "Frame Type",
-                "fp.ft", FT_UINT8, BASE_HEX, VALS(data_control_vals), 0x01,
+                "fp.ft", FT_UINT8, BASE_HEX, VALS(frame_type_vals), 0x01,
                 NULL, HFILL
               }
             },
@@ -6937,7 +6938,7 @@ void proto_register_fp(void)
             },
             { &hf_fp_tpc_po,
               { "TPC Power Offset",
-                "fp.tpc-po", FT_UINT8, BASE_DEC, NULL, 0x1f,
+                "fp.tpc-po", FT_FLOAT, BASE_NONE, NULL, 0x0,
                 NULL, HFILL
               }
             },

@@ -39,14 +39,6 @@ static inline void print_debug_line(const CHAR *function, const CHAR *msg, const
 
 #define DEBUG_PRINT_LINE(msg, level) print_debug_line(G_STRFUNC , msg, level)
 
-#ifdef _TRACE
-#define DEBUG_TRACE_START() print_debug_line(G_STRFUNC, "Start!", DEBUG_USED_LEVEL)
-#define DEBUG_TRACE_END() print_debug_line(G_STRFUNC, "End!", DEBUG_USED_LEVEL)
-#else
-#define DEBUG_TRACE_START()
-#define DEBUG_TRACE_END()
-#endif
-
 static inline void DEBUG_DUMP(const char* x, const guint8* y, int z)
 {
     char* tmp_str = bytes_to_str(NULL, y, (z));
@@ -56,8 +48,6 @@ static inline void DEBUG_DUMP(const char* x, const guint8* y, int z)
 
 #else	/* !defined DOT11DECRYPT_DEBUG	*/
 
-#define DEBUG_TRACE_START()
-#define DEBUG_TRACE_END()
 #define DEBUG_PRINT_LINE(msg, level)
 #define DEBUG_DUMP(x,y,z)
 

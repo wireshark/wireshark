@@ -41,11 +41,26 @@ Wireshark 3.3.0 Release Notes
        platforms where iLBC library
        (https://github.com/TimothyGu/libilbc) is available.
 
+     • Decode As entries can now be copied from other profiles using a
+       button in the dialog.
+
+     • sshdump can now be copied in multiple instances. Each instance
+       will show up a different interface and will have its own profile.
+
+     • The main window now supports a packet diagram view, which shows
+       each packet as a textbook-style diagram.
+
   New Protocol Support
 
-   AudioCodes Debug Recording (ACDR), Cisco MisCabling Protocol (MCP),
-   OBSAI UDP-based Communication Protocol (UDPCP), and Tunnel Extensible
-   Authentication Protocol (TEAP)
+   =======, Arinc 615A (A615A), Asphodel Protocol, AudioCodes Debug
+   Recording (ACDR), Cisco MisCabling Protocol (MCP), Dynamic Link
+   Exchange Protocol (DLEP), Fortinet Single Sign-on (FSSO), FTDI
+   Multi-Protocol Synchronous Serial Engine (FTDI MPSSE), Java Debug
+   Wire Protocol (JDWP), LBM Stateful Resolution Service (LBMSRS),
+   Lithionics Battery Management, OBSAI UDP-based Communication Protocol
+   (UDPCP), ScyllaDB RPC, Technically Enhanced Capture Module Protocol
+   (TECMP), Tunnel Extensible Authentication Protocol (TEAP), and USB
+   Printer (USBPRINTER)
 
   Updated Protocol Support
 
@@ -87,7 +102,7 @@ Wireshark 3.3.0 Release Notes
 
   A complete FAQ is available on the Wireshark web site[6].
 
-  Last updated 2020-03-15 08:05:05 UTC
+  Last updated 2020-08-30 17:28:33 UTC
 
  References
 

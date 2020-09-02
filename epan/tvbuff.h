@@ -408,6 +408,10 @@ WS_DLL_PUBLIC void tvb_get_letohguid(tvbuff_t *tvb, const gint offset,
 WS_DLL_PUBLIC void tvb_get_guid(tvbuff_t *tvb, const gint offset,
     e_guid_t *guid, const guint encoding);
 
+/* Fetches a byte array given a bit offset in a tvb */
+WS_DLL_PUBLIC guint8* tvb_get_bits_array(wmem_allocator_t *scope, tvbuff_t *tvb,
+    const gint offset, size_t length, size_t *data_length);
+
 /* Fetch a specified number of bits from bit offset in a tvb.  All of these
  * functions are equivalent, except for the type of the return value.  Note
  * that the parameter encoding (where supplied) is meaningless and ignored */
@@ -887,6 +891,22 @@ dgt_set_t;
 
 WS_DLL_PUBLIC const gchar *tvb_bcd_dig_to_wmem_packet_str(tvbuff_t *tvb,
     const gint offset, const gint len, const dgt_set_t *dgt,
+    gboolean skip_first);
+
+/**
+ * Given a wmem scope, a tvbuff, an offset, a length, an input digit
+ * set, and a boolean indicator, fetch BCD-encoded digits from a
+ * tvbuff starting from either the low or high half byte of the
+ * first byte depending on the boolean indicator (TRUE means "start
+ * with the high half byte, ignoring the low half byte", and FALSE
+ * means "start with the low half byte and proceed to the high half
+ * byte), formating the digits into characters according to the
+ * input digit set, and return a pointer to a UTF-8 string, allocated
+ * using the wmem scope.  A high-order nibble of 0xf is considered a
+ * 'filler' and will end the conversion.
+ */
+WS_DLL_PUBLIC gchar *tvb_get_bcd_string(wmem_allocator_t *scope, tvbuff_t *tvb,
+    const gint offset, gint len, const dgt_set_t *dgt,
     gboolean skip_first);
 
 /** Locate a sub-tvbuff within another tvbuff, starting at position

@@ -158,7 +158,7 @@ static gboolean first_pass;
 static gint
 dissect_btmesh_proxy_configuration_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    guint32 enc_data_len = 0;
+    gint32 enc_data_len = 0;
     guint8 *decrypted_data = NULL;
     tvbuff_t *de_obf_tvb;
     tvbuff_t *de_cry_tvb;
@@ -171,7 +171,7 @@ dissect_btmesh_proxy_configuration_msg(tvbuff_t *tvb, packet_info *pinfo, proto_
 
     proto_tree_add_item(tree, hf_btmesh_proxy_data, tvb, 0, tvb_reported_length(tvb), ENC_NA);
 
-    dec_ctx = (network_decryption_ctx_t *)wmem_alloc(wmem_packet_scope(), sizeof(network_decryption_ctx_t));
+    dec_ctx = wmem_new(wmem_packet_scope(), network_decryption_ctx_t);
     dec_ctx->net_nonce_type = BTMESH_NONCE_TYPE_PROXY;
 
     de_obf_tvb = btmesh_network_find_key_and_decrypt(tvb, pinfo, &decrypted_data, &enc_data_len, dec_ctx);
@@ -237,7 +237,7 @@ dissect_btmesh_proxy_configuration_msg(tvbuff_t *tvb, packet_info *pinfo, proto_
 
           break;
           case PROXY_ADD_ADDRESSES_TO_FILTER:
-              while (decry_off <= enc_data_len - 1) {
+              while (decry_off <= (guint32)enc_data_len - 1) {
                 proto_tree_add_item_ret_uint(cntrl_sub_tree, hf_btmesh_proxy_control_list_item, de_cry_tvb, decry_off, 2, ENC_BIG_ENDIAN, &bd_address);
                   if (bd_address == 0 ) {
                       proto_tree_add_expert(cntrl_sub_tree, pinfo, &ei_btmesh_proxy_wrong_address_type, de_cry_tvb, decry_off, 2);
@@ -247,7 +247,7 @@ dissect_btmesh_proxy_configuration_msg(tvbuff_t *tvb, packet_info *pinfo, proto_
 
           break;
           case PROXY_REMOVE_ADDRESSES_FROM_FILTER:
-              while (decry_off <= enc_data_len - 1) {
+              while (decry_off <= (guint32)enc_data_len - 1) {
                 proto_tree_add_item_ret_uint(cntrl_sub_tree, hf_btmesh_proxy_control_list_item, de_cry_tvb, decry_off, 2, ENC_BIG_ENDIAN, &bd_address);
                 if (bd_address == 0 ) {
                       proto_tree_add_expert(cntrl_sub_tree, pinfo, &ei_btmesh_proxy_wrong_address_type, de_cry_tvb, decry_off, 2);

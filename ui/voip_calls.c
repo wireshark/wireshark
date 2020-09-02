@@ -1441,6 +1441,8 @@ isup_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
                     callsinfo->call_state = VOIP_COMPLETED;
                     tapinfo->completed_calls++;
                 }
+                /* Overwrite any comment set above */
+                g_free(comment);
                 comment = g_strdup_printf("Cause %i - %s",
                         pi->cause_value,
                         val_to_str_ext_const(pi->cause_value, &q931_cause_code_vals_ext, "(Unknown)"));
@@ -3651,7 +3653,7 @@ unistim_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *e
         } else if(pi->stream_connect == 1 && callsinfo == NULL) {
 
             /* Research indicates some nortel products initiate stream first
-             * without keypresses. therefore creating this solely on a keypress is
+             * without keypresses, therefore creating this solely on a keypress is
              * ineffective.
              * Sometimes calls start immediately with open stream.
              */
@@ -3675,7 +3677,7 @@ unistim_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *e
             /* Clear tap struct */
             tmp_unistim_info->rudp_type = 0;
             tmp_unistim_info->payload_type = 0;
-            tmp_unistim_info->sequence = pi->sequence;
+            tmp_unistim_info->sequence = 0;
             tmp_unistim_info->termid = 0;
             tmp_unistim_info->key_val = -1;
             tmp_unistim_info->key_state = -1;
@@ -3780,6 +3782,7 @@ unistim_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *e
 
     /* free data */
     g_free(comment);
+    g_string_free(g_tmp, TRUE);
 
     tapinfo->redraw |= REDRAW_UNISTIM;
 

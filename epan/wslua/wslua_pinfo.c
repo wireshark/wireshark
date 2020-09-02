@@ -21,7 +21,7 @@
 #include <string.h>
 
 
-/* WSLUA_MODULE Pinfo Obtaining packet information */
+/* WSLUA_MODULE Pinfo Obtaining Packet Information */
 
 
 /*
@@ -397,7 +397,7 @@ static int Pinfo_set_conversation(lua_State *L) {
     conversation_t  *conversation;
 
     if (!proto->handle) {
-        luaL_error(L,"Proto %s has no registered dissector", proto->name? proto->name:"<UKNOWN>");
+        luaL_error(L,"Proto %s has no registered dissector", proto->name? proto->name:"<UNKNOWN>");
         return 0;
     }
 

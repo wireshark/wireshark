@@ -270,7 +270,7 @@ static expert_field ei_wccp_a_zero_not_c = EI_INIT;
 /*
  * At
  *
- *      http://tools.ietf.org/html/draft-forster-wrec-wccp-v1-00
+ *      https://tools.ietf.org/html/draft-forster-wrec-wccp-v1-00
  *
  * is a copy of the now-expired Internet-Draft for WCCP 1.0.
  *
@@ -856,7 +856,7 @@ dissect_wccp2_service_info(tvbuff_t *tvb, int offset, gint length,
   int i;
   int max_offset = offset+length;
 
-  static const int *flag_fields[] = {
+  static int * const flag_fields[] = {
     &hf_service_info_flags_src_ip_hash,
     &hf_service_info_flags_dest_ip_hash,
     &hf_service_info_flags_src_port_hash,
@@ -1009,7 +1009,7 @@ dissect_wccp2_web_cache_identity_element(tvbuff_t *tvb, int offset, gint length,
   guint16 flags;
   guint data_element_type;
 
-  static const int *flag_fields[] = {
+  static int * const flag_fields[] = {
     &hf_web_cache_identity_flag_hash_info,
     &hf_web_cache_identity_flag_assign_type,
     &hf_web_cache_identity_flag_version_request,

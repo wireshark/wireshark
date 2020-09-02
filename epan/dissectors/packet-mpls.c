@@ -165,7 +165,7 @@ static value_string_ext mpls_pw_types_ext = VALUE_STRING_EXT_INIT(mpls_pw_types)
 /*
  * MPLS PW Associated Channel Types
  * as per http://www.iana.org/assignments/pwe3-parameters
- * and http://tools.ietf.org/html/draft-ietf-pwe3-vccv-bfd-05 clause 3.2
+ * and https://tools.ietf.org/html/draft-ietf-pwe3-vccv-bfd-05 clause 3.2
  */
 static const value_string mpls_pwac_types[] = {
     { 0x0000, "Reserved"},

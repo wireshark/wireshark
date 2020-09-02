@@ -1480,7 +1480,7 @@ static int ositp_decode_CR_CC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   tvbuff_t *next_tvb;
   guint   tpdu_len;
   heur_dtbl_entry_t *hdtbl_entry;
-  static const int * class_options[] = {
+  static int * const class_options[] = {
      &hf_cotp_class,
      &hf_cotp_opts_extended_formats,
      &hf_cotp_opts_no_explicit_flow_control,

@@ -109,6 +109,7 @@ static const value_string sflow_5_ieee80211_versions [] = {
 static const value_string sflow_245_counterstype[] = {
     { SFLOW_245_COUNTERS_GENERIC,  "Generic counters"},
     { SFLOW_245_COUNTERS_ETHERNET, "Ethernet counters"},
+    { SFLOW_245_COUNTERS_TOKENRING,"Token Ring counters"},
     { SFLOW_245_COUNTERS_FDDI,     "FDDI counters"},
     { SFLOW_245_COUNTERS_VG,       "100baseVG counters"},
     { SFLOW_245_COUNTERS_WAN,      "WAN counters"},
@@ -2245,7 +2246,7 @@ dissect_sflow_5_expanded_counters_sample(tvbuff_t *tvb, proto_tree *tree, gint o
     }
 }
 
-static const int *sflow_lag_port_state_flags[] = {
+static int * const sflow_lag_port_state_flags[] = {
     &hf_sflow_lag_port_actoradminstate,
     &hf_sflow_lag_port_actoroperstate,
     &hf_sflow_lag_port_partneradminstate,

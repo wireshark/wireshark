@@ -603,7 +603,7 @@ static const range_string dynamic_tag_rvals[] = {
 typedef struct _segment_info_t {
     guint64        offset;
     guint64        size;
-    const guint8  *name;
+    const char  *name;
 } segment_info_t;
 
 void proto_register_elf(void);
@@ -1094,7 +1094,7 @@ dissect_eh_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *segment_tree,
                                 tvb, offset, 1, machine_encoding);
             offset += 1;
 
-            augmentation_string = tvb_get_const_stringz(tvb, offset, &size);
+            augmentation_string = (const gchar*)tvb_get_const_stringz(tvb, offset, &size);
             proto_tree_add_item(entry_tree, hf_elf_eh_frame_augmentation_string,
                                 tvb, offset, size, machine_encoding);
             offset += size;
@@ -1185,7 +1185,7 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     guint16          shstrndx;
     guint64          shstrtab_offset;
     guint32          sh_name;
-    const guint8    *section_name;
+    const char      *section_name;
     guint64          length;
     guint64          segment_offset;
     guint64          segment_size;
@@ -1471,7 +1471,7 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                     tvb_get_ntoh64(tvb, value_guard(length)) : tvb_get_letoh64(tvb, value_guard(length));
         }
 
-        section_name = tvb_get_const_stringz(tvb, value_guard(shstrtab_offset + sh_name), NULL);
+        section_name = (const char *)tvb_get_const_stringz(tvb, value_guard(shstrtab_offset + sh_name), NULL);
 
         if (register_size == REGISTER_64_SIZE && machine_encoding == ENC_BIG_ENDIAN) {
             offset += 4;
@@ -1546,7 +1546,7 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                     tvb_get_ntoh64(tvb, value_guard(length)) : tvb_get_letoh64(tvb, value_guard(length));
         }
 
-        section_name = tvb_get_const_stringz(tvb, value_guard(shstrtab_offset + sh_name), NULL);
+        section_name = (const char*)tvb_get_const_stringz(tvb, value_guard(shstrtab_offset + sh_name), NULL);
         if (section_name)
             proto_item_append_text(sh_entry_item, ": %s", section_name);
 

@@ -313,11 +313,6 @@ static const value_string opx_vals[] = {
 	{ 0,               NULL }
 };
 
-static const true_false_string opts_present = {
-	"Present",
-	"Not Present"
-};
-
 #define TLV_CHECK(ett) \
 	opt_tree = proto_tree_add_subtree_format(opts_tree, tvb, ptvcursor_current_offset(cursor), genopts_len, \
 						ett, &tf, "Option: %s, Length: %u", \
@@ -1075,18 +1070,18 @@ proto_register_pgm(void)
 		    NULL, 0x0, NULL, HFILL }},
 		{ &hf_pgm_main_opts_opt,
 		  { "Options", "pgm.hdr.opts.opt", FT_BOOLEAN, 8,
-		    TFS(&opts_present), PGM_OPT, NULL, HFILL }},
+		    TFS(&tfs_present_not_present), PGM_OPT, NULL, HFILL }},
 		{ &hf_pgm_main_opts_netsig,
 		  { "Network Significant Options", "pgm.hdr.opts.netsig",
 		    FT_BOOLEAN, 8,
-		    TFS(&opts_present), PGM_OPT_NETSIG, NULL, HFILL }},
+		    TFS(&tfs_present_not_present), PGM_OPT_NETSIG, NULL, HFILL }},
 		{ &hf_pgm_main_opts_varlen,
 		  { "Variable length Parity Packet Option", "pgm.hdr.opts.varlen",
 		    FT_BOOLEAN, 8,
-		    TFS(&opts_present), PGM_OPT_VAR_PKTLEN, NULL, HFILL }},
+		    TFS(&tfs_present_not_present), PGM_OPT_VAR_PKTLEN, NULL, HFILL }},
 		{ &hf_pgm_main_opts_parity,
 		  { "Parity", "pgm.hdr.opts.parity", FT_BOOLEAN, 8,
-		    TFS(&opts_present), PGM_OPT_PARITY, NULL, HFILL }},
+		    TFS(&tfs_present_not_present), PGM_OPT_PARITY, NULL, HFILL }},
 		{ &hf_pgm_main_cksum,
 		  { "Checksum", "pgm.hdr.cksum", FT_UINT16, BASE_HEX,
 		    NULL, 0x0, NULL, HFILL }},

@@ -236,7 +236,6 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
                 offset = ae + ISO15765_MESSAGE_FRAME_LENGTH_OFFSET + ISO15765_PCI_FD_FF_LEN - 1;
                 pci_offset = ae + ISO15765_MESSAGE_FRAME_LENGTH_OFFSET + 1;
             } else {
-                pci = tvb_get_guint8(tvb, ae + ISO15765_PCI_OFFSET);
                 pci_len = ISO15765_PCI_LEN;
                 full_len = tvb_get_guint16(tvb, ae + ISO15765_PCI_OFFSET, ENC_BIG_ENDIAN) & 0xFFF;
                 offset = ae + ISO15765_MESSAGE_FRAME_LENGTH_OFFSET + ISO15765_MESSAGE_FRAME_LENGTH_LEN;

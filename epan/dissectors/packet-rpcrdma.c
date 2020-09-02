@@ -391,7 +391,7 @@ static void add_request_info(rdma_conv_info_t *p_rdma_conv_info, packet_info *pi
     p_segment_info = find_segment_info(p_rdma_conv_info, gp_infiniband_info->reth_remote_key);
     if (p_segment_info && !pinfo->fd->visited) {
         /* Add request to segment */
-        p_request = (request_t *)wmem_alloc(wmem_file_scope(), sizeof(request_t));
+        p_request = wmem_new(wmem_file_scope(), request_t);
         p_request->psn    = gp_infiniband_info->packet_seq_num;
         p_request->length = gp_infiniband_info->reth_dma_length;
         p_request->rbytes = 0;
@@ -584,8 +584,7 @@ static guint get_write_list_size(tvbuff_t *tvb, guint max_offset, guint offset)
             break;
 
         chunk_size = get_write_chunk_size(tvb, offset);
-        if ((offset > max_offset) ||
-            (max_offset - offset < chunk_size))
+        if (max_offset - offset < chunk_size)
             return 0;
         offset += chunk_size;
     }
@@ -668,7 +667,7 @@ static void add_rdma_read_segment(wmem_array_t *p_read_list,
 
     if (p_rdma_chunk == NULL) {
         /* No read chunk was found so initialize a new chunk */
-        p_rdma_chunk = (rdma_chunk_t *)wmem_alloc(wmem_packet_scope(), sizeof(rdma_chunk_t));
+        p_rdma_chunk = wmem_new(wmem_packet_scope(), rdma_chunk_t);
         p_rdma_chunk->type = RDMA_READ_CHUNK;
         p_rdma_chunk->segments = wmem_array_new(wmem_packet_scope(), sizeof(rdma_segment_t));
         /* Add read chunk to the RDMA read list */
@@ -687,7 +686,7 @@ static guint dissect_rpcrdma_read_chunk(proto_tree *read_list,
     rdma_segment_t *p_rdma_segment;
 
     /* Initialize read segment */
-    p_rdma_segment = (rdma_segment_t *)wmem_alloc(wmem_packet_scope(), sizeof(rdma_segment_t));
+    p_rdma_segment = wmem_new(wmem_packet_scope(), rdma_segment_t);
 
     position = tvb_get_ntohl(tvb, offset);
     p_rdma_segment->xdrpos = position;
@@ -750,7 +749,7 @@ static guint dissect_rpcrdma_segment(proto_tree *write_chunk, tvbuff_t *tvb,
     rdma_segment_t *p_rdma_segment;
 
     /* Initialize write segment */
-    p_rdma_segment = (rdma_segment_t *)wmem_alloc(wmem_packet_scope(), sizeof(rdma_segment_t));
+    p_rdma_segment = wmem_new(wmem_packet_scope(), rdma_segment_t);
     p_rdma_segment->xdrpos = 0; /* Not used in write segments */
 
     segment = proto_tree_add_subtree_format(write_chunk, tvb,
@@ -791,7 +790,7 @@ static guint dissect_rpcrdma_write_chunk(proto_tree *write_list, tvbuff_t *tvb,
     offset += 4;
 
     /* Initialize write chunk */
-    p_rdma_chunk = (rdma_chunk_t *)wmem_alloc(wmem_packet_scope(), sizeof(rdma_chunk_t));
+    p_rdma_chunk = wmem_new(wmem_packet_scope(), rdma_chunk_t);
     p_rdma_chunk->type = chunk_type;
     p_rdma_chunk->segments = wmem_array_new(wmem_packet_scope(), sizeof(rdma_segment_t));
 

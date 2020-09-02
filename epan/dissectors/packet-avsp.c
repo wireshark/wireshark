@@ -171,13 +171,13 @@ dissect_avsp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void *data 
 
     guint16 encap_proto;
     encap_proto = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_uint(avsp_tree, hf_avsp_etype, tvb, offset, 2, encap_proto);
     offset += 2;
 
     ethertype_data_t ethertype_data;
     ethertype_data.etype = encap_proto;
-    ethertype_data.offset_after_ethertype = offset;
+    ethertype_data.payload_offset = offset;
     ethertype_data.fh_tree = avsp_tree;
-    ethertype_data.etype_id = hf_avsp_etype;
     ethertype_data.trailer_id = hf_avsp_trailer;
     ethertype_data.fcs_len = 0;
 

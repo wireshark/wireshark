@@ -194,7 +194,7 @@ static int hf_dcom_vt_bstr = -1;
 static int hf_dcom_vt_byref = -1;
 static int hf_dcom_vt_dispatch = -1;
 
-static expert_field ei_dcom_dissetion_incomplete = EI_INIT;
+static expert_field ei_dcom_dissection_incomplete = EI_INIT;
 static expert_field ei_dcom_no_spec = EI_INIT;
 static expert_field ei_dcom_hresult_expert = EI_INIT;
 static expert_field ei_dcom_dualstringarray_mult_ip = EI_INIT;
@@ -935,7 +935,7 @@ dissect_dcom_tobedone_data(tvbuff_t *tvb, int offset,
 
 	item = proto_tree_add_item(tree, hf_dcom_tobedone, tvb, offset, length, ENC_NA);
 	proto_item_set_generated(item);
-	expert_add_info(pinfo, item, &ei_dcom_dissetion_incomplete);
+	expert_add_info(pinfo, item, &ei_dcom_dissection_incomplete);
 
 	offset += length;
 
@@ -1153,7 +1153,7 @@ dissect_dcom_SAFEARRAY(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	guint32 u32SubStart;
 	guint32 u32TmpOffset;
 
-	static const int * features[] = {
+	static int * const features[] = {
 		&hf_dcom_sa_features_variant,
 		&hf_dcom_sa_features_dispatch,
 		&hf_dcom_sa_features_unknown,
@@ -1938,13 +1938,13 @@ dissect_dcom_STDOBJREF(tvbuff_t *tvb, gint offset, packet_info *pinfo,
  */
 
 int
-dcom_register_rountine(dcom_dissect_fn_t routine, e_guid_t* uuid)
+dcom_register_routine(dcom_dissect_fn_t routine, e_guid_t* uuid)
 {
 	dcom_marshaler_t *marshaler;
 
 
 	/* check if exists already */
-	if (dcom_get_rountine_by_uuid(uuid))
+	if (dcom_get_routine_by_uuid(uuid))
 		return -1;
 
 	marshaler = wmem_new(wmem_file_scope(), dcom_marshaler_t);
@@ -1965,7 +1965,7 @@ dcom_register_rountine(dcom_dissect_fn_t routine, e_guid_t* uuid)
 
 
 dcom_dissect_fn_t
-dcom_get_rountine_by_uuid(const e_guid_t* uuid)
+dcom_get_routine_by_uuid(const e_guid_t* uuid)
 {
 	dcom_marshaler_t *marsh;
 	GList *marshalers;
@@ -2015,7 +2015,7 @@ dissect_dcom_CUSTOBJREF(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		    hf_dcom_objref_size, &u32Size);
 
 	/* the following data depends on the iid, get the routine by iid */
-	routine = dcom_get_rountine_by_uuid(iid);
+	routine = dcom_get_routine_by_uuid(iid);
 	if (routine){
 		offset = routine(tvb, offset, pinfo, sub_tree, di, drep, 0);
 	}
@@ -2202,6 +2202,14 @@ static void dcom_cleanup(void) {
 	if (dcom_interfaces != NULL) {
 		g_list_free(dcom_interfaces);
 		dcom_interfaces = NULL;
+	}
+
+	/*  The data in dcom_marshalers is wmem_file_scoped so there's no need to free
+	 *  the data pointers.
+	 */
+	if (dcom_marshalers != NULL) {
+		g_list_free(dcom_marshalers);
+		dcom_marshalers = NULL;
 	}
 }
 
@@ -2452,7 +2460,7 @@ proto_register_dcom (void)
 	};
 
 	static ei_register_info ei[] = {
-		{ &ei_dcom_dissetion_incomplete, { "dcom.dissetion_incomplete", PI_UNDECODED, PI_WARN, "Dissection incomplete", EXPFILL }},
+		{ &ei_dcom_dissection_incomplete, { "dcom.dissection_incomplete", PI_UNDECODED, PI_WARN, "Dissection incomplete", EXPFILL }},
 		{ &ei_dcom_no_spec, { "dcom.no_spec", PI_UNDECODED, PI_NOTE, "No specification available, dissection not possible", EXPFILL }},
 		{ &ei_dcom_hresult_expert, { "dcom.hresult.expert", PI_RESPONSE_CODE, PI_NOTE, "Hresult", EXPFILL }},
 		{ &ei_dcom_dualstringarray_mult_ip, { "dcom.dualstringarray.mult_ip", PI_UNDECODED, PI_NOTE, "DUALSTRINGARRAY Multiple IP", EXPFILL }},

@@ -801,7 +801,7 @@ add_wps_wfa_ext(guint8 id, proto_tree *tree, tvbuff_t *tvb,
   proto_item *item;
   proto_tree *elem;
   guint8      val8;
-  static const int *flags[] = {
+  static int * const flags[] = {
     &hf_multi_ap_backhaul_sta,
     &hf_multi_ap_backhaul_bss,
     &hf_multi_ap_fronthaul_bss,

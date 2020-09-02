@@ -73,7 +73,7 @@ static GHashTable *_toolbars = NULL;
  * values. These ensure that preferences can survive extcap if garbage
  * collection, and does not lead to dangling pointers in the prefs subsystem.
  */
-static GHashTable *extcap_prefs_dynamic_vals = NULL;
+static GHashTable *_extcap_prefs_dynamic_vals = NULL;
 
 typedef struct _extcap_callback_info_t
 {
@@ -127,6 +127,12 @@ typedef struct extcap_run_extcaps_info {
 
 static void extcap_load_interface_list(void);
 
+/* Used for lazily loading our interfaces. */
+static void extcap_ensure_all_interfaces_loaded(void) {
+    if ( !_loaded_interfaces || g_hash_table_size(_loaded_interfaces) == 0 )
+        extcap_load_interface_list();
+}
+
 static gboolean
 thread_pool_push(thread_pool_t *pool, gpointer data, GError **error)
 {
@@ -152,8 +158,7 @@ extcap_loaded_interfaces(void)
     if (prefs.capture_no_extcap)
         return NULL;
 
-    if ( !_loaded_interfaces || g_hash_table_size(_loaded_interfaces) == 0 )
-        extcap_load_interface_list();
+    extcap_ensure_all_interfaces_loaded();
 
     return _loaded_interfaces;
 }
@@ -179,6 +184,8 @@ compare_tools(gconstpointer a, gconstpointer b)
 void
 extcap_get_descriptions(plugin_description_callback callback, void *callback_data)
 {
+    extcap_ensure_all_interfaces_loaded();
+
     GHashTable * tools = extcap_loaded_interfaces();
     GPtrArray *tools_array = g_ptr_array_new();
 
@@ -594,6 +601,9 @@ extcap_get_if_dlts(const gchar *ifname, char **err_str)
         *err_str = NULL;
     }
 
+    /* Update the extcap interfaces and get a list of their if_infos */
+    extcap_ensure_all_interfaces_loaded();
+
     extcap_interface *interface = extcap_find_interface_for_ifname(ifname);
     if (interface)
     {
@@ -655,6 +665,8 @@ if_info_compare(gconstpointer a, gconstpointer b)
 gchar *
 extcap_get_help_for_ifname(const char *ifname)
 {
+    extcap_ensure_all_interfaces_loaded();
+
     extcap_interface *interface = extcap_find_interface_for_ifname(ifname);
     return interface != NULL ? interface->help : NULL;
 }
@@ -670,8 +682,7 @@ append_extcap_interface_list(GList *list, char **err_str _U_)
         return list;
 
     /* Update the extcap interfaces and get a list of their if_infos */
-    if ( !_loaded_interfaces || g_hash_table_size(_loaded_interfaces) == 0 )
-        extcap_load_interface_list();
+    extcap_ensure_all_interfaces_loaded();
 
     ifutilkeys_head = g_hash_table_get_keys(_loaded_interfaces);
     ifutilkeys = ifutilkeys_head;
@@ -727,7 +738,7 @@ void extcap_register_preferences(void)
     }
 
     // Will load information about extcaps and their supported config.
-    extcap_load_interface_list();
+    extcap_ensure_all_interfaces_loaded();
 }
 
 /**
@@ -736,8 +747,8 @@ void extcap_register_preferences(void)
  */
 void extcap_cleanup(void)
 {
-    if (extcap_prefs_dynamic_vals)
-        g_hash_table_destroy(extcap_prefs_dynamic_vals);
+    if (_extcap_prefs_dynamic_vals)
+        g_hash_table_destroy(_extcap_prefs_dynamic_vals);
 
     if (_loaded_interfaces)
         g_hash_table_destroy(_loaded_interfaces);
@@ -759,19 +770,19 @@ void extcap_cleanup(void)
 static gchar **extcap_prefs_dynamic_valptr(const char *name, char **pref_name)
 {
     gchar **valp;
-    if (!extcap_prefs_dynamic_vals)
+    if (!_extcap_prefs_dynamic_vals)
     {
         /* Initialize table only as needed, most preferences are not dynamic */
-        extcap_prefs_dynamic_vals = g_hash_table_new_full(g_str_hash, g_str_equal,
+        _extcap_prefs_dynamic_vals = g_hash_table_new_full(g_str_hash, g_str_equal,
                                     g_free, g_free);
     }
-    if (!g_hash_table_lookup_extended(extcap_prefs_dynamic_vals, name,
+    if (!g_hash_table_lookup_extended(_extcap_prefs_dynamic_vals, name,
                                       (gpointer *)pref_name, (gpointer *)&valp))
     {
         /* New dynamic pref, allocate, initialize and store. */
         valp = g_new0(gchar *, 1);
         *pref_name = g_strdup(name);
-        g_hash_table_insert(extcap_prefs_dynamic_vals, *pref_name, valp);
+        g_hash_table_insert(_extcap_prefs_dynamic_vals, *pref_name, valp);
     }
     return valp;
 }
@@ -802,6 +813,8 @@ struct preference *
 extcap_pref_for_argument(const gchar *ifname, struct _extcap_arg *arg)
 {
     struct preference *pref = NULL;
+
+    extcap_ensure_all_interfaces_loaded();
 
     GRegex *regex_name = g_regex_new("[-]+", G_REGEX_RAW, (GRegexMatchFlags) 0, NULL);
     GRegex *regex_ifname = g_regex_new("(?![a-zA-Z0-9_]).", G_REGEX_RAW, (GRegexMatchFlags) 0, NULL);
@@ -886,7 +899,7 @@ static gboolean cb_preference(extcap_callback_info_t cb_info)
                         /* Been here before, restore stored value */
                         if (arg->pref_valptr == NULL)
                         {
-                            arg->pref_valptr = (gchar**)g_hash_table_lookup(extcap_prefs_dynamic_vals, pref_ifname);
+                            arg->pref_valptr = (gchar**)g_hash_table_lookup(_extcap_prefs_dynamic_vals, pref_ifname);
                         }
                     }
 
@@ -920,6 +933,8 @@ extcap_get_if_configuration(const char *ifname)
 {
     GList * arguments = NULL;
     GList *ret = NULL;
+
+    extcap_ensure_all_interfaces_loaded();
 
     extcap_interface *interface = extcap_find_interface_for_ifname(ifname);
     if (interface)
@@ -965,6 +980,8 @@ extcap_get_if_configuration_values(const char * ifname, const char * argname, GH
     GList * args = NULL;
     GList *ret = NULL;
 
+    extcap_ensure_all_interfaces_loaded();
+
     extcap_interface *interface = extcap_find_interface_for_ifname(ifname);
     if (interface)
     {
@@ -999,20 +1016,14 @@ extcap_get_if_configuration_values(const char * ifname, const char * argname, GH
     return ret;
 }
 
-/**
- * If is_required is FALSE: returns TRUE if the extcap interface has
- * configurable options.
- * If is_required is TRUE: returns TRUE when the extcap interface has
- * configurable options that required modification. (For example, when an
- * argument is required but empty.)
- */
 gboolean
 extcap_has_configuration(const char *ifname, gboolean is_required)
 {
     GList *arguments = 0;
     GList *walker = 0, * item = 0;
-
     gboolean found = FALSE;
+
+    extcap_ensure_all_interfaces_loaded();
 
     arguments = extcap_get_if_configuration(ifname);
     walker = g_list_first(arguments);
@@ -1106,6 +1117,8 @@ extcap_verify_capture_filter(const char *ifname, const char *filter, gchar **err
     GList * arguments = NULL;
     extcap_filter_status status = EXTCAP_FILTER_UNKNOWN;
 
+    extcap_ensure_all_interfaces_loaded();
+
     extcap_interface *interface = extcap_find_interface_for_ifname(ifname);
     if (interface)
     {
@@ -1131,6 +1144,8 @@ extcap_has_toolbar(const char *ifname)
     {
         return FALSE;
     }
+
+    extcap_ensure_all_interfaces_loaded();
 
     GList *toolbar_list = g_hash_table_get_values (_toolbars);
     for (GList *walker = toolbar_list; walker; walker = walker->next)
@@ -1586,6 +1601,8 @@ extcap_init_interfaces(capture_options *capture_opts)
     interface_options *interface_opts;
     ws_pipe_t *pipedata;
 
+    extcap_ensure_all_interfaces_loaded();
+
     for (i = 0; i < capture_opts->ifaces->len; i++)
     {
         GPtrArray *args = NULL;
@@ -1730,6 +1747,8 @@ extcap_ensure_interface(const gchar * toolname, gboolean create_if_nonexist)
 extcap_info *
 extcap_get_tool_by_ifname(const gchar *ifname)
 {
+    extcap_ensure_all_interfaces_loaded();
+
     if ( ifname && _tool_for_ifname )
     {
         gchar * toolname = (gchar *)g_hash_table_lookup(_tool_for_ifname, ifname);
@@ -1743,6 +1762,8 @@ extcap_get_tool_by_ifname(const gchar *ifname)
 extcap_info *
 extcap_get_tool_info(const gchar * toolname)
 {
+    extcap_ensure_all_interfaces_loaded();
+
     return extcap_ensure_interface(toolname, FALSE);
 }
 

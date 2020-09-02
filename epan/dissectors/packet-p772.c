@@ -295,7 +295,7 @@ dissect_p772_InformationObject(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 }
 
 
-static const int * Acp127NotificationType_bits[] = {
+static int * const Acp127NotificationType_bits[] = {
   &hf_p772_Acp127NotificationType_acp127_nn,
   &hf_p772_Acp127NotificationType_acp127_pn,
   &hf_p772_Acp127NotificationType_acp127_tn,

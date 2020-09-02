@@ -204,7 +204,7 @@ static int hf_netlogon_auditing_mode = -1;
 static int hf_netlogon_max_audit_event_count = -1;
 static int hf_netlogon_event_audit_option = -1;
 static int hf_netlogon_unknown_string = -1;
-static int hf_netlogon_trust_extention = -1;
+static int hf_netlogon_trust_extension = -1;
 static int hf_netlogon_trust_max = -1;
 static int hf_netlogon_trust_offset = -1;
 static int hf_netlogon_trust_len = -1;
@@ -263,6 +263,9 @@ static int hf_netlogon_logon_srv = -1;
 /* static int hf_netlogon_principal = -1; */
 static int hf_netlogon_logon_dom = -1;
 static int hf_netlogon_resourcegroupcount = -1;
+static int hf_netlogon_accountdomaingroupcount = -1;
+static int hf_netlogon_domaingroupcount = -1;
+static int hf_netlogon_membership_domains_count = -1;
 static int hf_netlogon_downlevel_domain_name = -1;
 static int hf_netlogon_dns_domain_name = -1;
 static int hf_netlogon_ad_client_dns_name = -1;
@@ -433,6 +436,8 @@ static gint ett_trust_attribs = -1;
 static gint ett_get_dcname_request_flags = -1;
 static gint ett_dc_flags = -1;
 static gint ett_wstr_LOGON_IDENTITY_INFO_string = -1;
+static gint ett_domain_group_memberships = -1;
+static gint ett_domains_group_memberships = -1;
 
 static expert_field ei_netlogon_auth_nthash = EI_INIT;
 static expert_field ei_netlogon_session_key = EI_INIT;
@@ -602,7 +607,7 @@ netlogon_dissect_EXTRA_FLAGS(tvbuff_t *tvb, int offset,
                              packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep)
 {
     guint32 mask;
-    static const int * extraflags[] = {
+    static int * const extraflags[] = {
         &hf_netlogon_extra_flags_root_forest,
         &hf_netlogon_trust_flags_dc_firsthop,
         &hf_netlogon_trust_flags_rodc_to_dc,
@@ -772,7 +777,7 @@ netlogon_dissect_USER_ACCOUNT_CONTROL(tvbuff_t *tvb, int offset,
                                       packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep)
 {
     guint32 mask;
-    static const int * uac[] = {
+    static int * const uac[] = {
         &hf_netlogon_user_account_control_dont_require_preauth,
         &hf_netlogon_user_account_control_use_des_key_only,
         &hf_netlogon_user_account_control_not_delegated,
@@ -1474,7 +1479,7 @@ netlogon_dissect_GROUP_MEMBERSHIP_ATTRIBUTES(tvbuff_t *tvb, int offset,
                                              packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep)
 {
     guint32 mask;
-    static const int * attr[] = {
+    static int * const attr[] = {
         &hf_netlogon_group_attrs_enabled,
         &hf_netlogon_group_attrs_enabled_by_default,
         &hf_netlogon_group_attrs_mandatory,
@@ -1569,7 +1574,7 @@ netlogon_dissect_USER_FLAGS(tvbuff_t *tvb, int offset,
                             packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep)
 {
     guint32 mask;
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_netlogon_user_flags_resource_groups,
         &hf_netlogon_user_flags_extra_sids,
         NULL
@@ -1585,6 +1590,104 @@ netlogon_dissect_USER_FLAGS(tvbuff_t *tvb, int offset,
 
     proto_tree_add_bitmask_value_with_flags(parent_tree, tvb, offset-4, hf_netlogon_user_flags, ett_user_flags, flags, mask, BMT_NO_APPEND);
     return offset;
+}
+
+static int
+netlogon_dissect_GROUP_MEMBERSHIPS(tvbuff_t *tvb, int offset,
+                                   packet_info *pinfo, proto_tree *tree,
+                                   dcerpc_info *di, guint8 *drep,
+                                   int hf_count, const char *array_name)
+{
+    guint32 rgc;
+
+    offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
+                                hf_count, &rgc);
+
+    offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
+                                 netlogon_dissect_GROUP_MEMBERSHIP_ARRAY, NDR_POINTER_UNIQUE,
+                                 array_name, -1);
+
+    return offset;
+}
+
+static int
+netlogon_dissect_DOMAIN_GROUP_MEMBERSHIPS(tvbuff_t *tvb, int offset,
+                        packet_info *pinfo, proto_tree *parent_tree,
+                        dcerpc_info *di, guint8 *drep,
+                        int hf_count, const char *name)
+{
+        proto_item *item=NULL;
+        proto_tree *tree=NULL;
+        int old_offset=offset;
+
+        if(parent_tree){
+                tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0,
+                                              ett_domain_group_memberships,
+                                              &item, name);
+        }
+
+        offset = dissect_ndr_nt_PSID(tvb, offset, pinfo, tree, di, drep);
+
+        offset = netlogon_dissect_GROUP_MEMBERSHIPS(tvb, offset,
+                                                    pinfo, tree,
+                                                    di, drep,
+                                                    hf_count,
+                                                    "GroupIDs");
+
+        proto_item_set_len(item, offset-old_offset);
+        return offset;
+}
+
+static int
+netlogon_dissect_DOMAIN_GROUP_MEMBERSHIPS_WRAPPER(tvbuff_t *tvb, int offset,
+                        packet_info *pinfo, proto_tree *tree,
+                        dcerpc_info *di, guint8 *drep)
+{
+        return netlogon_dissect_DOMAIN_GROUP_MEMBERSHIPS(tvb, offset,
+                                                         pinfo, tree,
+                                                         di, drep,
+                                                         hf_netlogon_domaingroupcount,
+                                                         "DomainGroupIDs");
+}
+
+static int
+netlogon_dissect_DOMAIN_GROUP_MEMBERSHIP_ARRAY(tvbuff_t *tvb, int offset,
+                                        packet_info *pinfo, proto_tree *tree,
+                                        dcerpc_info *di, guint8 *drep)
+{
+    offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep,
+                                 netlogon_dissect_DOMAIN_GROUP_MEMBERSHIPS_WRAPPER);
+
+    return offset;
+}
+
+static int
+netlogon_dissect_DOMAINS_GROUP_MEMBERSHIPS(tvbuff_t *tvb, int offset,
+                        packet_info *pinfo, proto_tree *parent_tree,
+                        dcerpc_info *di, guint8 *drep,
+                        int hf_count, const char *name)
+{
+        proto_item *item=NULL;
+        proto_tree *tree=NULL;
+        int old_offset=offset;
+        guint32 rgc;
+
+        if(parent_tree){
+                tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0,
+                                              ett_domains_group_memberships,
+                                              &item, name);
+        }
+
+        offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
+                                    hf_count, &rgc);
+
+        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
+                                     netlogon_dissect_DOMAIN_GROUP_MEMBERSHIP_ARRAY,
+                                     NDR_POINTER_UNIQUE,
+                                     name, -1);
+
+        proto_item_set_len(item, offset-old_offset);
+        return offset;
 }
 
 /*
@@ -1671,12 +1774,10 @@ netlogon_dissect_VALIDATION_SAM_INFO(tvbuff_t *tvb, int offset,
     offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
                                 hf_netlogon_group_rid, NULL);
 
-    offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-                                hf_netlogon_num_rids, NULL);
-
-    offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
-                                 netlogon_dissect_GROUP_MEMBERSHIP_ARRAY, NDR_POINTER_UNIQUE,
-                                 "GROUP_MEMBERSHIP_ARRAY", -1);
+    offset = netlogon_dissect_GROUP_MEMBERSHIPS(tvb, offset,
+                              pinfo, tree, di, drep,
+                              hf_netlogon_num_rids,
+                              "GroupIDs");
 
     offset = netlogon_dissect_USER_FLAGS(tvb, offset,
                                          pinfo, tree, di, drep);
@@ -1904,6 +2005,7 @@ netlogon_dissect_VALIDATION_SAM_INFO4(tvbuff_t *tvb, int offset,
                                         hf_netlogon_dummy_string10, 0);
     return offset;
 }
+
 /*
  * IDL typedef struct {
  * IDL   uint64 LogonTime;
@@ -1944,7 +2046,6 @@ netlogon_dissect_PAC_LOGON_INFO(tvbuff_t *tvb, int offset,
                                 packet_info *pinfo, proto_tree *tree,
                                 dcerpc_info *di, guint8 *drep)
 {
-    guint32 rgc;
     offset = netlogon_dissect_VALIDATION_SAM_INFO(tvb,offset,pinfo,tree,di, drep);
 #if 0
     int i;
@@ -2038,15 +2139,10 @@ netlogon_dissect_PAC_LOGON_INFO(tvbuff_t *tvb, int offset,
                                  dissect_ndr_nt_SID_AND_ATTRIBUTES_ARRAY, NDR_POINTER_UNIQUE,
                                  "SID_AND_ATTRIBUTES_ARRAY:", -1);
 
-
-    offset = dissect_ndr_nt_PSID(tvb, offset, pinfo, tree, di, drep);
-
-    offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-                                hf_netlogon_resourcegroupcount, &rgc);
-
-    offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
-                                 netlogon_dissect_GROUP_MEMBERSHIP_ARRAY, NDR_POINTER_UNIQUE,
-                                 "ResourceGroupIDs", -1);
+    offset = netlogon_dissect_DOMAIN_GROUP_MEMBERSHIPS(tvb, offset,
+                              pinfo, tree, di, drep,
+                              hf_netlogon_resourcegroupcount,
+                              "ResourceGroupIDs");
 
     return offset;
 }
@@ -2087,6 +2183,52 @@ netlogon_dissect_PAC_S4U_DELEGATION_INFO(tvbuff_t *tvb, int offset,
     offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
                                  netlogon_dissect_S4U_Transited_Services_array, NDR_POINTER_UNIQUE,
                                  "S4UTransitedServices", -1);
+
+    return offset;
+}
+
+/*
+ * IDL typedef struct {
+ * IDL   long UserId;
+ * IDL   long PrimaryGroupId;
+ * IDL   SID AccountDomainId;
+ * IDL   long AccountGroupCount;
+ * IDL   [size_is(AccountGroupCount)] PGROUP_MEMBERSHIP AccountGroupIds;
+ * IDL   ULONG SidCount;
+ * IDL   [size_is(SidCount)] PKERB_SID_AND_ATTRIBUTES ExtraSids;
+ * IDL   ULONG DomainGroupCount;
+ * IDL   [size_is(DomainGroupCount)] PDOMAIN_GROUP_MEMBERSHIP DomainGroup;
+ * IDL } PAC_DEVICE_INFO;
+ */
+int
+netlogon_dissect_PAC_DEVICE_INFO(tvbuff_t *tvb, int offset,
+                                 packet_info *pinfo, proto_tree *tree,
+                                 dcerpc_info *di, guint8 *drep)
+{
+    offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
+                                hf_netlogon_user_rid, NULL);
+
+    offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
+                                hf_netlogon_group_rid, NULL);
+
+    offset = dissect_ndr_nt_PSID(tvb, offset, pinfo, tree, di, drep);
+
+    offset = netlogon_dissect_GROUP_MEMBERSHIPS(tvb, offset,
+                              pinfo, tree, di, drep,
+                              hf_netlogon_accountdomaingroupcount,
+                              "AccountDomainGroupIds");
+
+    offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
+                                hf_netlogon_num_sid, NULL);
+
+    offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
+                                 dissect_ndr_nt_SID_AND_ATTRIBUTES_ARRAY, NDR_POINTER_UNIQUE,
+                                 "ExtraSids:SID_AND_ATTRIBUTES_ARRAY:", -1);
+
+    offset = netlogon_dissect_DOMAINS_GROUP_MEMBERSHIPS(tvb, offset,
+                              pinfo, tree, di, drep,
+                              hf_netlogon_membership_domains_count,
+                              "ExtraDomain Membership Array");
 
     return offset;
 }
@@ -5168,7 +5310,7 @@ netlogon_dissect_DOMAIN_TRUST_FLAGS(tvbuff_t *tvb, int offset,
                                     packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep)
 {
     guint32 mask;
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_netlogon_trust_flags_inbound,
         &hf_netlogon_trust_flags_native_mode,
         &hf_netlogon_trust_flags_primary,
@@ -5226,7 +5368,7 @@ netlogon_dissect_DOMAIN_TRUST_ATTRIBS(tvbuff_t *tvb, int offset,
                                       packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep)
 {
     guint32 mask;
-    static const int * attr[] = {
+    static int * const attr[] = {
         &hf_netlogon_trust_attribs_treat_as_external,
         &hf_netlogon_trust_attribs_within_forest,
         &hf_netlogon_trust_attribs_cross_organization,
@@ -5341,7 +5483,7 @@ netlogon_dissect_GET_DCNAME_REQUEST_FLAGS(tvbuff_t *tvb, int offset,
                                           packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep)
 {
     guint32 mask;
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_netlogon_get_dcname_request_flags_return_flat_name,
         &hf_netlogon_get_dcname_request_flags_return_dns_name,
         &hf_netlogon_get_dcname_request_flags_is_flat_name,
@@ -5447,7 +5589,7 @@ netlogon_dissect_DC_FLAGS(tvbuff_t *tvb, int offset,
 {
     guint32 mask;
     proto_item *item;
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_netlogon_dc_flags_dns_forest_flag,
         &hf_netlogon_dc_flags_dns_domain_flag,
         &hf_netlogon_dc_flags_dns_controller_flag,
@@ -5753,7 +5895,7 @@ netlogon_dissect_ONE_DOMAIN_INFO(tvbuff_t *tvb, int offset,
 
     /* It is structed as a string but it's not ... it's 4 ulong */
     offset = dissect_ndr_ulongs_as_counted_string(tvb, offset, pinfo, tree, di, drep,
-                                                  hf_netlogon_trust_extention);
+                                                  hf_netlogon_trust_extension);
 
     offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, di, drep,
                                         hf_netlogon_dummy_string2, 0);
@@ -6500,7 +6642,7 @@ netlogon_dissect_netrlogoncomputeclientdigest_reply(tvbuff_t *tvb, int offset,
 }
 static int netlogon_dissect_neg_options(tvbuff_t *tvb,proto_tree *tree,guint32 flags,int offset)
 {
-    static const int * hf_flags[] = {
+    static int * const hf_flags[] = {
 #if 0
         &hf_netlogon_neg_flags_80000000,
 #endif
@@ -6687,7 +6829,7 @@ netlogon_dissect_netrserverauthenticate023_reply(tvbuff_t *tvb, int offset,
                         /* Open the cipher */
                         err = gcry_cipher_open(&cipher_hd, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CFB8, 0);
                         if (err != 0) {
-                            g_warning("GCRY: chiper open %s/%s\n", gcry_strsource(err), gcry_strerror(err));
+                            g_warning("GCRY: cipher open %s/%s\n", gcry_strsource(err), gcry_strerror(err));
                             break;
                         }
 
@@ -7470,7 +7612,7 @@ static int dissect_secchan_nl_auth_message(tvbuff_t *tvb, int offset,
     proto_tree *subtree = NULL;
     guint32 messagetype;
     guint64 messageflags;
-    static const int *flag_fields[] = {
+    static int * const flag_fields[] = {
         &hf_netlogon_secchan_nl_message_flags_nb_domain,
         &hf_netlogon_secchan_nl_message_flags_nb_host,
         &hf_netlogon_secchan_nl_message_flags_dns_domain,
@@ -7746,7 +7888,7 @@ static guint64 uncrypt_sequence_aes(guint8* session_key,guint64 checksum,guint64
     /* Open the cipher */
     err = gcry_cipher_open(&cipher_hd, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CFB8, 0);
     if (err != 0) {
-        g_warning("GCRY: chiper open %s/%s\n", gcry_strsource(err), gcry_strerror(err));
+        g_warning("GCRY: cipher open %s/%s\n", gcry_strsource(err), gcry_strerror(err));
         return 0;
     }
 
@@ -7843,7 +7985,7 @@ static gcry_error_t prepare_decryption_cipher_aes(netlogon_auth_vars *vars,
     /* Open the cipher */
     err = gcry_cipher_open(&cipher_hd, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CFB8, 0);
     if (err != 0) {
-        g_warning("GCRY: chiper open %s/%s\n", gcry_strsource(err), gcry_strerror(err));
+        g_warning("GCRY: cipher open %s/%s\n", gcry_strsource(err), gcry_strerror(err));
         return 0;
     }
 
@@ -7892,7 +8034,7 @@ static gcry_error_t prepare_decryption_cipher_strong(netlogon_auth_vars *vars,
     /* Open the cipher */
     err = gcry_cipher_open(&cipher_hd, GCRY_CIPHER_ARCFOUR, GCRY_CIPHER_MODE_STREAM, 0);
     if (err != 0) {
-        g_warning("GCRY: chiper open %s/%s\n", gcry_strsource(err), gcry_strerror(err));
+        g_warning("GCRY: cipher open %s/%s\n", gcry_strsource(err), gcry_strerror(err));
         return err;
     }
 
@@ -8259,20 +8401,20 @@ proto_register_dcerpc_netlogon(void)
           { "Dummy String", "netlogon.dummy_string", FT_STRING, BASE_NONE,
             NULL, 0, "Dummy String. Used is reserved for next evolutions.", HFILL }},
 
-        { &hf_netlogon_trust_extention,
-          { "Trust extension", "netlogon.trust.extention", FT_STRING, BASE_NONE,
+        { &hf_netlogon_trust_extension,
+          { "Trust extension", "netlogon.trust.extension", FT_STRING, BASE_NONE,
             NULL, 0, "Trusts extension.", HFILL }},
 
         { &hf_netlogon_trust_offset,
-          { "Offset", "netlogon.trust.extention_offset", FT_UINT32, BASE_DEC,
+          { "Offset", "netlogon.trust.extension_offset", FT_UINT32, BASE_DEC,
             NULL, 0, "Trusts extension.", HFILL }},
 
         { &hf_netlogon_trust_len,
-          { "Length", "netlogon.trust.extention_length", FT_UINT32, BASE_DEC,
+          { "Length", "netlogon.trust.extension_length", FT_UINT32, BASE_DEC,
             NULL, 0, NULL, HFILL }},
 
         { &hf_netlogon_trust_max,
-          { "Max Count", "netlogon.trust.extention.maxcount", FT_UINT32, BASE_DEC,
+          { "Max Count", "netlogon.trust.extension.maxcount", FT_UINT32, BASE_DEC,
             NULL, 0, NULL, HFILL }},
 
         { &hf_netlogon_dummy_string2,
@@ -8512,6 +8654,18 @@ proto_register_dcerpc_netlogon(void)
         { &hf_netlogon_resourcegroupcount,
           { "ResourceGroup count", "netlogon.resourcegroupcount", FT_UINT32, BASE_DEC,
             NULL, 0, "Number of Resource Groups", HFILL }},
+
+        { &hf_netlogon_accountdomaingroupcount,
+          { "AccountDomainGroup count", "netlogon.accountdomaingroupcount", FT_UINT32, BASE_DEC,
+            NULL, 0, "Number of Account Domain Groups", HFILL }},
+
+        { &hf_netlogon_domaingroupcount,
+          { "DomainGroup count", "netlogon.domaingroupcount", FT_UINT32, BASE_DEC,
+            NULL, 0, "Number of Domain Groups", HFILL }},
+
+        { &hf_netlogon_membership_domains_count,
+          { "Membership Domains count", "netlogon.membershipsdomainscount", FT_UINT32, BASE_DEC,
+            NULL, 0, "Number of ExtraDomain Membership Arrays", HFILL }},
 
         { &hf_netlogon_computer_name,
           { "Computer Name", "netlogon.computer_name", FT_STRING, BASE_NONE,
@@ -9522,7 +9676,9 @@ proto_register_dcerpc_netlogon(void)
         &ett_user_flags,
         &ett_nt_counted_longs_as_string,
         &ett_user_account_control,
-        &ett_wstr_LOGON_IDENTITY_INFO_string
+        &ett_wstr_LOGON_IDENTITY_INFO_string,
+        &ett_domain_group_memberships,
+        &ett_domains_group_memberships,
     };
     static ei_register_info ei[] = {
      { &ei_netlogon_auth_nthash, {

@@ -7,7 +7,7 @@
  * Copyright 1998 Gerald Combs
  *
  * Chargen specs taken from RFC 864
- * http://tools.ietf.org/html/rfc864
+ * https://tools.ietf.org/html/rfc864
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */

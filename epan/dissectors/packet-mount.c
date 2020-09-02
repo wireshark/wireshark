@@ -383,7 +383,7 @@ static int
 dissect_mount_pathconf_reply(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	guint32 pc_mask;
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_mount_pathconf_error_all,
 		&hf_mount_pathconf_error_link_max,
 		&hf_mount_pathconf_error_max_canon,
@@ -597,7 +597,7 @@ static const true_false_string tos_st_local = {
 static int
 dissect_mount_statvfs_reply(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
-	static const int * flags[] = {
+	static int * const flags[] = {
 		&hf_mount_statvfs_flag_rdonly,
 		&hf_mount_statvfs_flag_nosuid,
 		&hf_mount_statvfs_flag_notrunc,

@@ -54,7 +54,7 @@ static void dissect_drb_request(tvbuff_t* tvb, packet_info* pinfo, proto_tree* t
 {
 	gint32 nargs;
 	gint32 i;
-	guint len;
+	gint len;
 	gchar* loop_label;
 
 	col_append_str(pinfo->cinfo, COL_INFO, " (request)");

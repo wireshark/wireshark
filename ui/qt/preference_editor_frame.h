@@ -43,6 +43,7 @@ private slots:
     void uintLineEditTextEdited(const QString &new_str);
     void stringLineEditTextEdited(const QString &new_str);
     void rangeLineEditTextEdited(const QString &new_str);
+    void browsePushButtonClicked();
 
     void on_modulePreferencesToolButton_clicked();
     void on_preferenceLineEdit_returnPressed();

@@ -32,6 +32,22 @@ typedef struct packetlogger_header {
 	guint32 ts_usecs;
 } packetlogger_header_t;
 
+/* Packet types. */
+#define PKT_HCI_COMMAND     0x00
+#define PKT_HCI_EVENT       0x01
+#define PKT_SENT_ACL_DATA   0x02
+#define PKT_RECV_ACL_DATA   0x03
+#define PKT_LMP_SEND        0x0A
+#define PKT_LMP_RECV        0x0B
+#define PKT_SYSLOG          0xF7
+#define PKT_KERNEL          0xF8
+#define PKT_KERNEL_DEBUG    0xF9
+#define PKT_ERROR           0xFA
+#define PKT_POWER           0xFB
+#define PKT_NOTE            0xFC
+#define PKT_CONFIG          0xFD
+#define PKT_NEW_CONTROLLER  0xFE
+
 static gboolean packetlogger_read(wtap *wth, wtap_rec *rec, Buffer *buf,
 				  int *err, gchar **err_info,
 				  gint64 *data_offset);
@@ -187,6 +203,14 @@ wtap_open_return_val packetlogger_open(wtap *wth, int *err, gchar **err_info)
 	wth->file_encap = WTAP_ENCAP_PACKETLOGGER;
 	wth->file_tsprec = WTAP_TSPREC_USEC;
 
+	/*
+	 * Add an IDB; we don't know how many interfaces were
+	 * involved, so we just say one interface, about which
+	 * we only know the link-layer type, snapshot length,
+	 * and time stamp resolution.
+	 */
+	wtap_add_generated_idb(wth);
+
 	return WTAP_OPEN_MINE; /* Our kind of file */
 }
 
@@ -271,8 +295,27 @@ packetlogger_check_record(wtap *wth, packetlogger_header_t *pl_hdr, int *err,
 		}
 
 		/* Verify this file belongs to us */
-		if (!(type < 0x04 || type == 0xFB || type == 0xFC || type == 0xFE || type == 0xFF))
+		switch (type) {
+
+		case PKT_HCI_COMMAND:
+		case PKT_HCI_EVENT:
+		case PKT_SENT_ACL_DATA:
+		case PKT_RECV_ACL_DATA:
+		case PKT_LMP_SEND:
+		case PKT_LMP_RECV:
+		case PKT_SYSLOG:
+		case PKT_KERNEL:
+		case PKT_KERNEL_DEBUG:
+		case PKT_ERROR:
+		case PKT_POWER:
+		case PKT_NOTE:
+		case PKT_CONFIG:
+		case PKT_NEW_CONTROLLER:
+			break;
+
+		default:
 			return WTAP_OPEN_NOT_MINE;
+		}
 
 		length--;
 

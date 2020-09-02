@@ -900,7 +900,6 @@ static const value_string q933_rejection_reason_vals[] = {
 	{ 0x00, NULL }
 };
 
-static const true_false_string tfs_user_provider = { "User", "Provider" };
 
 static void
 dissect_q933_cause_ie(tvbuff_t *tvb, int offset, int len,
@@ -1999,6 +1998,7 @@ dissect_q933(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 				    ie_tree);
 				break;
 
+			case CS0 | Q933_IE_LINK_INTEGRITY_VERF:
 			case CS5 | Q933_IE_LINK_INTEGRITY_VERF:
 			case CS5 | Q933_IE_ANSI_LINK_INTEGRITY_VERF:
 				dissect_q933_link_integrity_verf_ie(tvb,
@@ -2006,6 +2006,7 @@ dissect_q933(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 				    ie_tree);
 				break;
 
+			case CS0 | Q933_IE_PVC_STATUS:
 			case CS5 | Q933_IE_PVC_STATUS:
 			case CS5 | Q933_IE_ANSI_PVC_STATUS:
 				dissect_q933_pvc_status_ie(tvb,

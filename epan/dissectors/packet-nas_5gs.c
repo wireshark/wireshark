@@ -35,6 +35,10 @@ static gboolean g_nas_5gs_null_decipher = FALSE;
 static int dissect_nas_5gs_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, void* data);
 static int dissect_nas_5gs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data);
 static guint16 de_nas_5gs_cmn_dnn(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_);
+static guint16 de_nas_5gs_mm_pdu_ses_id_2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_);
+static guint16 de_nas_5gs_cmn_add_inf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_);
+static void nas_5gs_mm_5gmm_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len);
+static guint16 de_nas_5gs_mm_req_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_);
 
 static dissector_handle_t nas_5gs_handle = NULL;
 static dissector_handle_t eap_handle = NULL;
@@ -76,9 +80,11 @@ static int hf_nas_5gs_sm_msg_type = -1;
 static int hf_nas_5gs_updp_msg_type = -1;
 static int hf_nas_5gs_proc_trans_id = -1;
 static int hf_nas_5gs_spare_half_octet = -1;
+static int hf_nas_5gs_spare_octet = -1;
 static int hf_nas_5gs_pdu_session_id = -1;
 static int hf_nas_5gs_msg_elems = -1;
 static int hf_nas_5gs_mm_for = -1;
+static int hf_nas_5gs_cmn_add_info = -1;
 static int hf_nas_5gs_cmn_dnn = -1;
 static int hf_nas_5gs_mm_sms_requested = -1;
 static int hf_nas_5gs_mm_5gs_reg_type = -1;
@@ -107,6 +113,13 @@ static int hf_nas_5gs_mm_type_id = -1;
 static int hf_nas_5gs_mm_odd_even = -1;
 static int hf_nas_5gs_mm_length = -1;
 static int hf_nas_5gs_mm_pld_cont = -1;
+static int hf_nas_5gs_mm_pld_cont_nb_entries = -1;
+static int hf_nas_5gs_mm_pld_cont_pld_cont_len = -1;
+static int hf_nas_5gs_mm_pld_cont_nb_opt_ies = -1;
+static int hf_nas_5gs_mm_pld_cont_pld_cont_type = -1;
+static int hf_nas_5gs_mm_pld_cont_opt_ie_type = -1;
+static int hf_nas_5gs_mm_pld_cont_opt_ie_len = -1;
+static int hf_nas_5gs_mm_pld_cont_opt_ie_val = -1;
 static int hf_nas_5gs_mm_req_type = -1;
 static int hf_nas_5gs_mm_serv_type = -1;
 static int hf_nas_5gs_mm_5g_ea0 = -1;
@@ -264,7 +277,6 @@ static int hf_nas_5gs_sm_qfi = -1;
 static int hf_nas_5gs_sm_mapd_eps_b_cont_id = -1;
 static int hf_nas_5gs_sm_mapd_eps_b_cont_opt_code = -1;
 static int hf_nas_5gs_sm_qos_des_flow_opt_code = -1;
-static int hf_nas_5gs_sm_mapd_eps_b_cont_DEB = -1;
 static int hf_nas_5gs_sm_mapd_eps_b_cont_E = -1;
 static int hf_nas_5gs_sm_mapd_eps_b_cont_num_eps_parms = -1;
 static int hf_nas_5gs_sm_mapd_eps_b_cont_E_mod = -1;
@@ -314,14 +326,20 @@ static int ett_nas_5gs_ursp_traff_desc = -1;
 static int ett_nas_5gs_ursp_r_sel_desc_cont = -1;
 static int ett_nas_5gs_updp_upsi_list = -1;
 static int ett_nas_5gs_mm_rej_nssai = -1;
+static int ett_nas_5gs_mm_scheme_output = -1;
+static int ett_nas_5gs_mm_pld_cont_pld_entry = -1;
+static int ett_nas_5gs_mm_pld_cont_opt_ie = -1;
 
 static int hf_nas_5gs_mm_abba = -1;
 static int hf_nas_5gs_mm_supi_fmt = -1;
 static int hf_nas_5gs_mm_routing_indicator = -1;
 static int hf_nas_5gs_mm_prot_scheme_id = -1;
 static int hf_nas_5gs_mm_pki = -1;
-static int hf_nas_5gs_mm_supi_null_scheme = -1;
+static int hf_nas_5gs_mm_suci_msin = -1;
 static int hf_nas_5gs_mm_scheme_output = -1;
+static int hf_nas_5gs_mm_scheme_output_ecc_public_key = -1;
+static int hf_nas_5gs_mm_scheme_output_ciphertext = -1;
+static int hf_nas_5gs_mm_scheme_output_mac_tag = -1;
 static int hf_nas_5gs_mm_suci_nai = -1;
 static int hf_nas_5gs_mm_imei = -1;
 static int hf_nas_5gs_mm_imeisv = -1;
@@ -433,16 +451,20 @@ static expert_field ei_nas_5gs_unknown_value = EI_INIT;
 static expert_field ei_nas_5gs_num_pkt_flt = EI_INIT;
 static expert_field ei_nas_5gs_not_diss = EI_INIT;
 
-#define NAS_5GS_PLAIN_NAS_MSG 0
+#define NAS_5GS_PLAIN_NAS_MSG          0
+#define NAS_5GS_INTEG_NAS_MSG          1
+#define NAS_5GS_INTEG_CIPH_NAS_MSG     2
+#define NAS_5GS_INTEG_NEW_NAS_MSG      3
+#define NAS_5GS_INTEG_CIPH_NEW_NAS_MSG 4
 
 static void dissect_nas_5gs_updp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset);
 
 static const value_string nas_5gs_security_header_type_vals[] = {
-    { 0,    "Plain NAS message, not security protected"},
-    { 1,    "Integrity protected"},
-    { 2,    "Integrity protected and ciphered"},
-    { 3,    "Integrity protected with new 5GS security context"},
-    { 4,    "Integrity protected and ciphered with new 5GS security context"},
+    { NAS_5GS_PLAIN_NAS_MSG,          "Plain NAS message, not security protected"},
+    { NAS_5GS_INTEG_NAS_MSG,          "Integrity protected"},
+    { NAS_5GS_INTEG_CIPH_NAS_MSG,     "Integrity protected and ciphered"},
+    { NAS_5GS_INTEG_NEW_NAS_MSG,      "Integrity protected with new 5GS security context"},
+    { NAS_5GS_INTEG_CIPH_NEW_NAS_MSG, "Integrity protected and ciphered with new 5GS security context"},
     { 0,    NULL }
 };
 
@@ -534,7 +556,7 @@ de_nas_5gs_mm_5gmm_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 {
     guint32     curr_offset;
 
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_nas_5gs_spare_b7,
         &hf_nas_5gs_spare_b6,
         &hf_nas_5gs_spare_b5,
@@ -693,13 +715,13 @@ de_nas_5gs_mm_5gs_mobile_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     tvbuff_t * new_tvb;
     const char *digit_str, *route_id_str;
 
-    static const int * flags_odd_even_tid[] = {
+    static int * const flags_odd_even_tid[] = {
         &hf_nas_5gs_mm_odd_even,
         &hf_nas_5gs_mm_type_id,
         NULL
     };
 
-    static const int * flags_supi_fmt_tid[] = {
+    static int * const flags_supi_fmt_tid[] = {
         &hf_nas_5gs_spare_b7,
         &hf_nas_5gs_mm_supi_fmt,
         &hf_nas_5gs_spare_b3,
@@ -719,7 +741,7 @@ de_nas_5gs_mm_5gs_mobile_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
         proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags_supi_fmt_tid, ENC_BIG_ENDIAN);
         offset++;
 
-        supi_fmt = oct & 0x70;
+        supi_fmt = (oct & 0x70) >> 4;
         if (supi_fmt == 0) {
             /* IMSI */
 
@@ -741,11 +763,24 @@ de_nas_5gs_mm_5gs_mobile_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
             offset += 1;
             /* Scheme output octet 12-x */
             if (scheme_id == 0) {
-              new_tvb = tvb_new_subset_length(tvb, offset, len - 8);
-              digit_str = tvb_bcd_dig_to_wmem_packet_str(new_tvb, 0, -1, NULL, FALSE);
-              proto_tree_add_string(tree, hf_nas_5gs_mm_supi_null_scheme, new_tvb, 0, -1, digit_str);
+                new_tvb = tvb_new_subset_length(tvb, offset, len - 8);
+                proto_tree_add_item(tree, hf_nas_5gs_mm_suci_msin, new_tvb, 0, -1, ENC_BCD_DIGITS_0_9);
             } else {
-              proto_tree_add_item(tree, hf_nas_5gs_mm_scheme_output, tvb, offset, len - 8, ENC_NA);
+                proto_item *pi = proto_tree_add_item(tree, hf_nas_5gs_mm_scheme_output, tvb, offset, len - 8, ENC_NA);
+                if ((scheme_id == 1 && len >= 49) || (scheme_id == 2 && len >= 50)) {
+                    guint32 public_key_len;
+                    proto_tree *subtree = proto_item_add_subtree(pi, ett_nas_5gs_mm_scheme_output);
+                    if (scheme_id == 1) {
+                        public_key_len = 32;
+                    } else {
+                        public_key_len = 33;
+                    }
+                    proto_tree_add_item(subtree, hf_nas_5gs_mm_scheme_output_ecc_public_key, tvb, offset, public_key_len, ENC_NA);
+                    offset += public_key_len;
+                    proto_tree_add_item(subtree, hf_nas_5gs_mm_scheme_output_ciphertext, tvb, offset, len - public_key_len - 16, ENC_NA);
+                    offset += len - public_key_len - 16;
+                    proto_tree_add_item(subtree, hf_nas_5gs_mm_scheme_output_mac_tag, tvb, offset, 8, ENC_BIG_ENDIAN);
+                }
             }
         } else if (supi_fmt == 1) {
             /* NAI */
@@ -826,7 +861,7 @@ static const value_string nas_5gs_nw_feat_sup_emf_values[] = {
     { 0x0, "Emergency services fallback not supported" },
     { 0x1, "Emergency services fallback supported in NR connected to 5GCN only" },
     { 0x2, "Emergency services fallback supported in E-UTRA connected to 5GCN only" },
-    { 0x3, "mergency services fallback supported in NR connected to 5GCN and E-UTRA connected to 5GCN" },
+    { 0x3, "Emergency services fallback supported in NR connected to 5GCN and E-UTRA connected to 5GCN" },
     { 0, NULL }
 };
 
@@ -842,7 +877,7 @@ de_nas_5gs_mm_5gs_nw_feat_sup(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
 {
     guint32 curr_offset = offset;
 
-    static const int * flags_oct3[] = {
+    static int * const flags_oct3[] = {
         &hf_nas_5gs_nw_feat_sup_mpsi_b7,
         &hf_nas_5gs_nw_feat_sup_ims_iwk_n26_b6,
         &hf_nas_5gs_nw_feat_sup_ims_emf_b5b4,
@@ -852,7 +887,7 @@ de_nas_5gs_mm_5gs_nw_feat_sup(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
         NULL
     };
 
-    static const int * flags_oct4[] = {
+    static int * const flags_oct4[] = {
         &hf_nas_5gs_spare_b7,
         &hf_nas_5gs_spare_b6,
         &hf_nas_5gs_spare_b5,
@@ -899,7 +934,7 @@ de_nas_5gs_mm_5gs_reg_res(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
     gchar *add_string _U_, int string_len _U_)
 {
 
-    static const int* flags[] = {
+    static int* const flags[] = {
         &hf_nas_5gs_mm_reg_res_nssaa_perf,
         &hf_nas_5gs_mm_reg_res_sms_allowed,
         &hf_nas_5gs_mm_reg_res_res,
@@ -930,7 +965,7 @@ static true_false_string nas_5gs_for_tfs = {
     "No follow-on request pending"
 };
 
-static const int * nas_5gs_registration_type_flags[] = {
+static int * const nas_5gs_registration_type_flags[] = {
     &hf_nas_5gs_mm_for,
     &hf_nas_5gs_mm_5gs_reg_type,
     NULL
@@ -1010,7 +1045,7 @@ de_nas_5gs_mm_5gs_ta_id_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
     proto_tree *sub_tree;
     proto_item *item;
 
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_nas_5gs_mm_tal_t_li,
         &hf_nas_5gs_mm_tal_num_e,
         NULL
@@ -1102,7 +1137,7 @@ de_nas_5gs_mm_update_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
     guint32 offset, guint len _U_,
     gchar *add_string _U_, int string_len _U_)
 {
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_nas_5gs_spare_b3,
         &hf_nas_5gs_spare_b2,
         &hf_nas_5gs_mm_ng_ran_rcu,
@@ -1131,7 +1166,7 @@ de_nas_5gs_mm_abba(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 /*
  * 9.11.3.11    Access type
  */
-static const int* nas_5gs_mm_access_type_flags[] = {
+static int* const nas_5gs_mm_access_type_flags[] = {
     &hf_nas_5gs_spare_b3,
     &hf_nas_5gs_spare_b2,
     &hf_nas_5gs_mm_acc_type,
@@ -1158,7 +1193,7 @@ de_nas_5gs_mm_add_5g_sec_inf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
     guint32 offset, guint len _U_,
     gchar *add_string _U_, int string_len _U_)
 {
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_nas_5gs_spare_b3,
         &hf_nas_5gs_spare_b2,
         &hf_nas_5gs_mm_rinmr,
@@ -1187,7 +1222,7 @@ de_nas_5gs_mm_allow_pdu_ses_sts(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
 {
     int curr_offset;
 
-    static const int * psi_0_7_flags[] = {
+    static int * const psi_0_7_flags[] = {
         &hf_nas_5gs_allow_pdu_ses_sts_psi_7_b7,
         &hf_nas_5gs_allow_pdu_ses_sts_psi_6_b6,
         &hf_nas_5gs_allow_pdu_ses_sts_psi_5_b5,
@@ -1199,7 +1234,7 @@ de_nas_5gs_mm_allow_pdu_ses_sts(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
         NULL
     };
 
-    static const int * psi_8_15_flags[] = {
+    static int * const psi_8_15_flags[] = {
         &hf_nas_5gs_allow_pdu_ses_sts_psi_15_b7,
         &hf_nas_5gs_allow_pdu_ses_sts_psi_14_b6,
         &hf_nas_5gs_allow_pdu_ses_sts_psi_13_b5,
@@ -1251,7 +1286,7 @@ de_nas_5gs_mm_conf_upd_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
     gchar *add_string _U_, int string_len _U_)
 {
 
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_nas_5gs_spare_b3,
         &hf_nas_5gs_spare_b2,
         &hf_nas_5gs_mm_conf_upd_ind_red_b1,
@@ -1436,7 +1471,7 @@ de_nas_5gs_mm_mico_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     guint32 offset, guint len _U_,
     gchar *add_string _U_, int string_len _U_)
 {
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_nas_5gs_spare_b3,
         &hf_nas_5gs_spare_b2,
         &hf_nas_5gs_spare_b1,
@@ -1462,7 +1497,7 @@ de_nas_5gs_mm_nas_key_set_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
     guint32 offset, guint len _U_,
     gchar *add_string _U_, int string_len _U_)
 {
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_nas_5gs_mm_tsc,
         &hf_nas_5gs_mm_nas_key_set_id,
         NULL
@@ -1480,7 +1515,7 @@ de_nas_5gs_mm_nas_key_set_id_h1(tvbuff_t* tvb, proto_tree* tree, packet_info* pi
     guint32 offset, guint len _U_,
     gchar* add_string _U_, int string_len _U_)
 {
-    static const int* flags[] = {
+    static int* const flags[] = {
         &hf_nas_5gs_mm_tsc_h1,
         &hf_nas_5gs_mm_nas_key_set_id_h1,
         NULL
@@ -1543,7 +1578,7 @@ de_nas_5gs_mm_nas_sec_algo(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
     gchar *add_string _U_, int string_len _U_)
 {
 
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_nas_5gs_mm_nas_sec_algo_enc,
         &hf_nas_5gs_mm_nas_sec_algo_ip,
         NULL
@@ -1575,7 +1610,7 @@ de_nas_5gs_mm_nw_slicing_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
     guint32 offset, guint len,
     gchar *add_string _U_, int string_len _U_)
 {
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_nas_5gs_spare_b3,
         &hf_nas_5gs_spare_b2,
         &hf_nas_5gs_mm_dcni,
@@ -1635,7 +1670,7 @@ de_nas_5gs_mm_nssai_inc_mode(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
     guint32 offset, guint len,
     gchar *add_string _U_, int string_len _U_)
 {
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_nas_5gs_spare_b3,
         &hf_nas_5gs_spare_b2,
         &hf_nas_5gs_mm_nssai_inc_mode,
@@ -1686,6 +1721,18 @@ de_nas_5gs_mm_op_def_acc_cat_def(tvbuff_t *tvb, proto_tree *tree, packet_info *p
     return len;
 }
 
+static const value_string nas_5gs_mm_pld_cont_opt_ie_type_vals[] = {
+    { 0x12, "PDU session ID" },
+    { 0x22, "S-NSSAI" },
+    { 0x24, "Additional information" },
+    { 0x25, "DNN" },
+    { 0x37, "Back-off timer value" },
+    { 0x58, "5GMM cause" },
+    { 0x59, "Old PDU session ID" },
+    { 0x80, "Request type" },
+    {    0, NULL }
+};
+
 /*
  *   9.11.3.39    Payload container
  */
@@ -1716,6 +1763,73 @@ de_nas_5gs_mm_pld_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
         break;
     case 5: /* UE policy container */
         dissect_nas_5gs_updp(tvb_new_subset_length(tvb, offset, len), pinfo, tree, 0);
+        break;
+    case 15: /* multiple payloads */
+        {
+            guint32 curr_offset, entry_offset, payloads_count, payload_len, opt_ies_count, payload_type;
+            guint32 opt_ie_type, opt_ie_len, type_backup;
+            guint i, j;
+
+            curr_offset = offset;
+            proto_tree_add_item_ret_uint(tree, hf_nas_5gs_mm_pld_cont_nb_entries, tvb, curr_offset, 1, ENC_NA, &payloads_count);
+            curr_offset++;
+            for (i = 0; i < payloads_count; i++) {
+                proto_item *item;
+                proto_tree *subtree, *subtree2;
+
+                entry_offset = curr_offset;
+                subtree = proto_tree_add_subtree_format(tree, tvb, curr_offset, -1, ett_nas_5gs_mm_pld_cont_pld_entry, &item, "Payload container entry %d", i + 1);
+                proto_tree_add_item_ret_uint(subtree, hf_nas_5gs_mm_pld_cont_pld_cont_len, tvb, curr_offset, 2, ENC_BIG_ENDIAN, &payload_len);
+                proto_item_set_len(item, payload_len + 2);
+                curr_offset += 2;
+                proto_tree_add_item_ret_uint(subtree, hf_nas_5gs_mm_pld_cont_nb_opt_ies, tvb, curr_offset, 1, ENC_NA, &opt_ies_count);
+                proto_tree_add_item_ret_uint(subtree, hf_nas_5gs_mm_pld_cont_pld_cont_type, tvb, curr_offset, 1, ENC_NA, &payload_type);
+                curr_offset++;
+                for (j = 0; j < opt_ies_count; j++) {
+                    item = proto_tree_add_item_ret_uint(subtree, hf_nas_5gs_mm_pld_cont_opt_ie_type, tvb, curr_offset, 1, ENC_NA, &opt_ie_type);
+                    curr_offset++;
+                    subtree2 = proto_item_add_subtree(item, ett_nas_5gs_mm_pld_cont_opt_ie);
+                    proto_tree_add_item_ret_uint(subtree2, hf_nas_5gs_mm_pld_cont_opt_ie_len, tvb, curr_offset, 1, ENC_NA, &opt_ie_len);
+                    curr_offset++;
+                    switch (opt_ie_type) {
+                    case 0x12:
+                        de_nas_5gs_mm_pdu_ses_id_2(tvb, subtree2, pinfo, curr_offset, opt_ie_len, NULL, 0);
+                        break;
+                    case 0x22:
+                        de_nas_5gs_cmn_s_nssai(tvb, subtree2, pinfo, curr_offset, opt_ie_len, NULL, 0);
+                        break;
+                    case 0x24:
+                        de_nas_5gs_cmn_add_inf(tvb, subtree2, pinfo, curr_offset, opt_ie_len, NULL, 0);
+                        break;
+                    case 0x25:
+                        de_nas_5gs_cmn_dnn(tvb, subtree2, pinfo, curr_offset, opt_ie_len, NULL, 0);
+                        break;
+                    case 0x37:
+                        de_gc_timer3(tvb, subtree2, pinfo, curr_offset, opt_ie_len, NULL, 0);
+                        break;
+                    case 0x58:
+                        nas_5gs_mm_5gmm_status(tvb, subtree2, pinfo, curr_offset, opt_ie_len);
+                        break;
+                    case 0x59:
+                        de_nas_5gs_mm_pdu_ses_id_2(tvb, subtree2, pinfo, curr_offset, opt_ie_len, NULL, 0);
+                        break;
+                    case 0x80:
+                        de_nas_5gs_mm_req_type(tvb, subtree2, pinfo, curr_offset, opt_ie_len, NULL, 0);
+                        break;
+                    default:
+                        proto_tree_add_item(subtree2, hf_nas_5gs_mm_pld_cont_opt_ie_val, tvb, curr_offset, opt_ie_len, ENC_NA);
+                        break;
+                    }
+                    curr_offset += opt_ie_len;
+                }
+                type_backup = nas5gs_data->payload_container_type;
+                nas5gs_data->payload_container_type = payload_type;
+                /* N.B. this recursive call can overwrite nas5gs_data->payload_container_type */
+                de_nas_5gs_mm_pld_cont(tvb, subtree, pinfo, curr_offset, payload_len - (curr_offset - entry_offset), NULL, 0);
+                curr_offset = entry_offset + payload_len + 2;
+                nas5gs_data->payload_container_type = type_backup;
+            }
+        }
         break;
     default:
         proto_tree_add_item(tree, hf_nas_5gs_mm_pld_cont, tvb, offset, len, ENC_NA);
@@ -1780,7 +1894,7 @@ de_nas_5gs_mm_pdu_ses_react_res(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
 {
     int curr_offset;
 
-    static const int * psi_0_7_flags[] = {
+    static int * const psi_0_7_flags[] = {
         &hf_nas_5gs_pdu_ses_rect_res_psi_7_b7,
         &hf_nas_5gs_pdu_ses_rect_res_psi_6_b6,
         &hf_nas_5gs_pdu_ses_rect_res_psi_5_b5,
@@ -1792,7 +1906,7 @@ de_nas_5gs_mm_pdu_ses_react_res(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
         NULL
          };
 
-        static const int * psi_8_15_flags[] = {
+        static int * const psi_8_15_flags[] = {
         &hf_nas_5gs_pdu_ses_rect_res_psi_15_b7,
         &hf_nas_5gs_pdu_ses_rect_res_psi_14_b6,
         &hf_nas_5gs_pdu_ses_rect_res_psi_13_b5,
@@ -1854,7 +1968,7 @@ de_nas_5gs_mm_pdu_ses_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
 {
     int curr_offset;
 
-    static const int * psi_0_7_flags[] = {
+    static int * const psi_0_7_flags[] = {
         &hf_nas_5gs_pdu_ses_sts_psi_7_b7,
         &hf_nas_5gs_pdu_ses_sts_psi_6_b6,
         &hf_nas_5gs_pdu_ses_sts_psi_5_b5,
@@ -1866,7 +1980,7 @@ de_nas_5gs_mm_pdu_ses_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
         NULL
     };
 
-    static const int * psi_8_15_flags[] = {
+    static int * const psi_8_15_flags[] = {
         &hf_nas_5gs_pdu_ses_sts_psi_15_b7,
         &hf_nas_5gs_pdu_ses_sts_psi_14_b6,
         &hf_nas_5gs_pdu_ses_sts_psi_13_b5,
@@ -2018,7 +2132,7 @@ de_nas_5gs_mm_sal(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     proto_tree *sub_tree;
     proto_item *item;
 
-    static const int * flags_sal[] = {
+    static int * const flags_sal[] = {
         &hf_nas_5gs_mm_sal_al_t,
         &hf_nas_5gs_mm_sal_t_li,
         &hf_nas_5gs_mm_sal_num_e,
@@ -2136,7 +2250,7 @@ de_nas_5gs_mm_sms_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     gchar *add_string _U_, int string_len _U_)
 {
 
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_nas_5gs_spare_b3,
         &hf_nas_5gs_spare_b2,
         &hf_nas_5gs_spare_b1,
@@ -2173,7 +2287,7 @@ de_nas_5gs_mm_sor_trasp_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
     gchar *add_string _U_, int string_len _U_)
 {
     /* Layout differs depending on SOR data type*/
-    static const int * flags_dt0[] = {
+    static int * const flags_dt0[] = {
     &hf_nas_5gs_spare_b7,
     &hf_nas_5gs_spare_b6,
     &hf_nas_5gs_spare_b5,
@@ -2185,7 +2299,7 @@ de_nas_5gs_mm_sor_trasp_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
     NULL
     };
 
-    static const int * flags_dt1[] = {
+    static int * const flags_dt1[] = {
     &hf_nas_5gs_spare_b7,
     &hf_nas_5gs_spare_b6,
     &hf_nas_5gs_spare_b5,
@@ -2197,7 +2311,7 @@ de_nas_5gs_mm_sor_trasp_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
     NULL
     };
     /* 3GPP TS 31.102 [22] subclause 4.2.5 */
-    static const int * flags_acces_tech_1[] = {
+    static int * const flags_acces_tech_1[] = {
     &hf_nas_5gs_acces_tech_o1_b7,
     &hf_nas_5gs_acces_tech_o1_b6,
     &hf_nas_5gs_acces_tech_o1_b5,
@@ -2209,7 +2323,7 @@ de_nas_5gs_mm_sor_trasp_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
     NULL
     };
 
-    static const int * flags_acces_tech_2[] = {
+    static int * const flags_acces_tech_2[] = {
     &hf_nas_5gs_acces_tech_o2_b7,
     &hf_nas_5gs_acces_tech_o2_b6,
     &hf_nas_5gs_acces_tech_o2_b5,
@@ -2318,7 +2432,7 @@ de_nas_5gs_mm_ue_sec_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
 {
     guint32 curr_offset;
 
-    static const int * oct3_flags[] = {
+    static int * const oct3_flags[] = {
         &hf_nas_5gs_mm_5g_ea0,
         &hf_nas_5gs_mm_128_5g_ea1,
         &hf_nas_5gs_mm_128_5g_ea2,
@@ -2330,7 +2444,7 @@ de_nas_5gs_mm_ue_sec_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
         NULL
     };
 
-    static const int * oct4_flags[] = {
+    static int * const oct4_flags[] = {
         &hf_nas_5gs_mm_5g_ia0,
         &hf_nas_5gs_mm_5g_128_ia1,
         &hf_nas_5gs_mm_5g_128_ia2,
@@ -2342,7 +2456,7 @@ de_nas_5gs_mm_ue_sec_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
         NULL
     };
 
-    static const int * oct5_flags[] = {
+    static int * const oct5_flags[] = {
         &hf_nas_5gs_mm_eea0,
         &hf_nas_5gs_mm_128eea1,
         &hf_nas_5gs_mm_128eea2,
@@ -2354,7 +2468,7 @@ de_nas_5gs_mm_ue_sec_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
         NULL
     };
 
-    static const int * oct6_flags[] = {
+    static int * const oct6_flags[] = {
         &hf_nas_5gs_mm_eia0,
         &hf_nas_5gs_mm_128eia1,
         &hf_nas_5gs_mm_128eia2,
@@ -2405,7 +2519,7 @@ de_nas_5gs_mm_ue_usage_set(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
     guint32 offset, guint len,
     gchar *add_string _U_, int string_len _U_)
 {
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_nas_5gs_spare_b3,
         &hf_nas_5gs_spare_b2,
         &hf_nas_5gs_spare_b1,
@@ -2439,7 +2553,7 @@ de_nas_5gs_mm_ue_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     guint32 offset, guint len _U_,
     gchar *add_string _U_, int string_len _U_)
 {
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_nas_5gs_spare_b7,
         &hf_nas_5gs_spare_b6,
         &hf_nas_5gs_spare_b5,
@@ -2473,7 +2587,7 @@ de_nas_5gs_mm_ul_data_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
 {
     int curr_offset;
 
-    static const int * psi_0_7_flags[] = {
+    static int * const psi_0_7_flags[] = {
         &hf_nas_5gs_ul_data_sts_psi_7_b7,
         &hf_nas_5gs_ul_data_sts_psi_6_b6,
         &hf_nas_5gs_ul_data_sts_psi_5_b5,
@@ -2485,7 +2599,7 @@ de_nas_5gs_mm_ul_data_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
         NULL
     };
 
-    static const int * psi_8_15_flags[] = {
+    static int * const psi_8_15_flags[] = {
         &hf_nas_5gs_ul_data_sts_psi_15_b7,
         &hf_nas_5gs_ul_data_sts_psi_14_b6,
         &hf_nas_5gs_ul_data_sts_psi_13_b5,
@@ -2565,7 +2679,7 @@ de_nas_5gs_mm_cp_service_type(tvbuff_t* tvb, proto_tree* tree, packet_info* pinf
     guint32 offset, guint len _U_,
     gchar* add_string _U_, int string_len _U_)
 {
-    static const int* flags[] = {
+    static int* const flags[] = {
         &hf_nas_5gs_spare_b4,
         &hf_nas_5gs_mm_cp_service_type,
         NULL
@@ -2596,7 +2710,7 @@ de_nas_5gs_sm_5gsm_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 {
     guint32 curr_offset = offset;
 
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_nas_5gs_spare_b7,
         &hf_nas_5gs_spare_b6,
         &hf_nas_5gs_spare_b5,
@@ -2691,7 +2805,7 @@ de_nas_5gs_sm_always_on_pdu_ses_ind(tvbuff_t *tvb, proto_tree *tree, packet_info
     guint32 offset, guint len,
     gchar *add_string _U_, int string_len _U_)
 {
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_nas_5gs_spare_b3,
         &hf_nas_5gs_spare_b2,
         &hf_nas_5gs_spare_b1,
@@ -2712,7 +2826,7 @@ de_nas_5gs_sm_always_on_pdu_ses_req(tvbuff_t *tvb, proto_tree *tree, packet_info
     guint32 offset, guint len,
     gchar *add_string _U_, int string_len _U_)
 {
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_nas_5gs_spare_b3,
         &hf_nas_5gs_spare_b2,
         &hf_nas_5gs_spare_b1,
@@ -2735,7 +2849,7 @@ de_nas_5gs_sm_5gsm_allowed_ssc_mode(tvbuff_t *tvb, proto_tree *tree, packet_info
     gchar *add_string _U_, int string_len _U_)
 {
 
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_nas_5gs_spare_b3,
         &hf_nas_5gs_sm_all_ssc_mode_b2,
         &hf_nas_5gs_sm_all_ssc_mode_b1,
@@ -2790,12 +2904,6 @@ static const value_string nas_5gs_sm_mapd_eps_b_cont_opt_code_vals[] = {
     { 0,    NULL }
 };
 
-static const value_string nas_5gs_sm_mapd_eps_b_cont_DEB_vals[] = {
-    { 0x0,  "the EPS bearer is not the default EPS bearer." },
-    { 0x01, "the EPS bearer is the default EPS bearer" },
-    { 0,    NULL }
-};
-
 static const value_string nas_5gs_sm_mapd_eps_b_cont_E_vals[] = {
     { 0x0,  "parameters list is not included" },
     { 0x01, "parameters list is included" },
@@ -2813,7 +2921,7 @@ static const value_string nas_5gs_sm_mapd_eps_b_cont_param_id_vals[] = {
     { 0x02, "Mapped extended EPS QoS parameters" },
     { 0x03, "Traffic flow template" },
     { 0x04, "APN-AMBR" },
-    { 0x05, "extended APN-AMBR" },
+    { 0x05, "Extended APN-AMBR" },
     { 0,    NULL }
 };
 
@@ -2833,17 +2941,17 @@ de_nas_5gs_sm_mapped_eps_b_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
     curr_offset = offset;
     num_cont = 1;
 
-    static const int * mapd_eps_b_cont_flags[] = {
+    static int * const mapd_eps_b_cont_flags[] = {
         &hf_nas_5gs_sm_mapd_eps_b_cont_opt_code,
-        &hf_nas_5gs_sm_mapd_eps_b_cont_DEB,
+        &hf_nas_5gs_spare_b5,
         &hf_nas_5gs_sm_mapd_eps_b_cont_E,
         &hf_nas_5gs_sm_mapd_eps_b_cont_num_eps_parms,
         NULL
      };
 
-    static const int * mapd_eps_b_cont_flags_modify[] = {
+    static int * const mapd_eps_b_cont_flags_modify[] = {
         &hf_nas_5gs_sm_mapd_eps_b_cont_opt_code,
-        &hf_nas_5gs_sm_mapd_eps_b_cont_DEB,
+        &hf_nas_5gs_spare_b5,
         &hf_nas_5gs_sm_mapd_eps_b_cont_E_mod,
         &hf_nas_5gs_sm_mapd_eps_b_cont_num_eps_parms,
         NULL
@@ -2865,8 +2973,8 @@ de_nas_5gs_sm_mapped_eps_b_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
         curr_offset += 2;
         curr_len -= 2;
 
-        /*     8   7      6    5   4  3  2  1          */
-        /* operation code | DEB |  E | number of EPS params     */
+        /*  8     7     6     5     4     3     2     1          */
+        /* operation code | spare | E | number of EPS params     */
         proto_item_set_len(item, length + 3);
 
         num_eps_parms = tvb_get_guint8(tvb, curr_offset);
@@ -2903,7 +3011,7 @@ de_nas_5gs_sm_mapped_eps_b_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
             curr_offset++;
             curr_len--;
 
-            proto_item_set_len(item, length + 3);
+            proto_item_set_len(item, length + 2);
             /*content of the EPS parameter contents field */
             switch (param_id) {
             case 1:
@@ -2952,7 +3060,7 @@ de_nas_5gs_sm_max_num_sup_pkt_flt(tvbuff_t *tvb, proto_tree *tree, packet_info *
     guint32 offset, guint len _U_,
     gchar *add_string _U_, int string_len _U_)
 {
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_nas_5gs_sm_max_nb_sup_pkt_flt_nb,
         &hf_nas_5gs_sm_max_nb_sup_pkt_flt_spare,
         NULL
@@ -2982,6 +3090,9 @@ de_nas_5gs_sm_pdu_address(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 {
     proto_item *ti;
     guint32 value;
+    ws_in6_addr   interface_id;
+
+    memset(&interface_id, 0, sizeof(interface_id));
 
     /* 0 Spare    0 Spare    0 Spare    0 Spare    PDU session type value */
     ti = proto_tree_add_item_ret_uint(tree, hf_nas_5gs_sm_pdu_ses_type, tvb, offset, 1, ENC_BIG_ENDIAN, &value);
@@ -2997,14 +3108,16 @@ de_nas_5gs_sm_pdu_address(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
         /* If the PDU session type value indicates IPv6, the PDU address information in octet 4 to octet 11
          * contains an interface identifier for the IPv6 link local address.
          */
-        proto_tree_add_item(tree, hf_nas_5gs_sm_pdu_addr_inf_ipv6, tvb, offset, 8, ENC_NA);
+        tvb_memcpy(tvb, (guint8*)&interface_id.bytes[8], offset, 8);
+        proto_tree_add_ipv6(tree, hf_nas_5gs_sm_pdu_addr_inf_ipv6, tvb, offset, 8, &interface_id);
         break;
     case 3:
         /* If the PDU session type value indicates IPv4v6, the PDU address information in octet 4 to octet 11
          * contains an interface identifier for the IPv6 link local address and in octet 12 to octet 15
          * contains an IPv4 address.
          */
-        proto_tree_add_item(tree, hf_nas_5gs_sm_pdu_addr_inf_ipv6, tvb, offset, 8, ENC_NA);
+        tvb_memcpy(tvb, (guint8*)&interface_id.bytes[8], offset, 8);
+        proto_tree_add_ipv6(tree, hf_nas_5gs_sm_pdu_addr_inf_ipv6, tvb, offset, 8, &interface_id);
         offset += 8;
         proto_tree_add_item(tree, hf_nas_5gs_sm_pdu_addr_inf_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
         break;
@@ -3069,16 +3182,16 @@ de_nas_5gs_sm_qos_flow_des(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 {
 
     proto_tree *sub_tree, *sub_tree2;
-    proto_item *item;
+    proto_item *item, *sub_item;
     int i = 1, j = 1;
     guint32 param_len, param_id;
-    guint32 curr_offset, start_offset;
+    guint32 curr_offset, start_offset, start_offset2;
     guint8 num_param;
     guint32 unit, mult, val;
     const char *unit_str;
     int hf_unit, hf_val;
 
-    static const int * param_flags[] = {
+    static int * const param_flags[] = {
         &hf_nas_5gs_sm_e,
         &hf_nas_5gs_sm_nof_params,
         NULL
@@ -3088,8 +3201,9 @@ de_nas_5gs_sm_qos_flow_des(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 
     while ((curr_offset - offset) < len) {
 
-        /* QoS fow description */
-        sub_tree = proto_tree_add_subtree_format(tree, tvb, curr_offset, -1, ett_nas_5gs_sm_qos_params, &item, "QoS flow description %u", i);
+        /* QoS flow description */
+        sub_tree = proto_tree_add_subtree_format(tree, tvb, curr_offset, len - (curr_offset - offset), ett_nas_5gs_sm_qos_params, &item, "QoS flow description %u", i);
+        start_offset = curr_offset;
 
         /* 0 0 QFI */
         proto_tree_add_item(sub_tree, hf_nas_5gs_sm_qfi, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
@@ -3109,9 +3223,8 @@ de_nas_5gs_sm_qos_flow_des(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 
         while (num_param > 0) {
             /* Parameter list */
-            sub_tree2 = proto_tree_add_subtree_format(sub_tree, tvb, curr_offset, -1, ett_nas_5gs_sm_qos_rules, &item, "Parameter %u", j);
-
-            start_offset = curr_offset;
+            sub_tree2 = proto_tree_add_subtree_format(sub_tree, tvb, curr_offset, len - (curr_offset - offset), ett_nas_5gs_sm_qos_rules, &sub_item, "Parameter %u", j);
+            start_offset2 = curr_offset;
 
             /* Parameter identifier */
             proto_tree_add_item_ret_uint(sub_tree2, hf_nas_5gs_sm_param_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &param_id);
@@ -3154,7 +3267,6 @@ de_nas_5gs_sm_qos_flow_des(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
                     val, "%u %s (%u)", val * mult, unit_str, val);
                 curr_offset += (param_len - 1);
                 break;
-                break;
             case 0x06:
                 proto_tree_add_item(sub_tree2, hf_nas_5gs_sm_averaging_window, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
                 curr_offset += param_len;
@@ -3170,10 +3282,10 @@ de_nas_5gs_sm_qos_flow_des(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
             }
             num_param--;
             j++;
-            proto_item_set_len(item, curr_offset - start_offset);
+            proto_item_set_len(sub_item, curr_offset - start_offset2);
         }
-
         i++;
+        proto_item_set_len(item, curr_offset - start_offset);
     }
 
     return len;
@@ -3244,7 +3356,7 @@ de_nas_5gs_sm_qos_rules(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     guint32 length, curr_offset, saved_offset, start_offset;
     guint8 num_pkt_flt, rop;
 
-    static const int * pkt_flt_flags[] = {
+    static int * const pkt_flt_flags[] = {
         &hf_nas_5gs_sm_rop,
         &hf_nas_5gs_sm_dqr,
         &hf_nas_5gs_sm_nof_pkt_filters,
@@ -3618,11 +3730,11 @@ de_nas_5gs_sm_ssc_mode(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 /* 9.10.2.1    Additional information*/
 
 static guint16
-de_nas_5gs_cmn_add_inf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
+de_nas_5gs_cmn_add_inf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     guint32 offset, guint len,
     gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, len);
+    proto_tree_add_item(tree, hf_nas_5gs_cmn_add_info, tvb, offset, len, ENC_NA);
 
     return len;
 }
@@ -3700,7 +3812,7 @@ de_nas_5gs_cmn_s_nssai(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     guint32 offset, guint len,
     gchar *add_string _U_, int string_len _U_)
 {
-    /* SST    octet 3
+    /* SST
     * This field contains the 8 bit SST value. The coding of the SST value part is defined in 3GPP TS 23.003
     */
     proto_tree_add_item(tree, hf_nas_5gs_mm_sst, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -3708,19 +3820,21 @@ de_nas_5gs_cmn_s_nssai(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
         return len;
     }
     offset += 1;
-    /* SD    octet 4 - octet 6* */
-    proto_tree_add_item(tree, hf_nas_5gs_mm_sd, tvb, offset, 3, ENC_BIG_ENDIAN);
-    if (len == 4) {
-        return len;
+    if (len > 2) {
+        /* SD */
+        proto_tree_add_item(tree, hf_nas_5gs_mm_sd, tvb, offset, 3, ENC_BIG_ENDIAN);
+        if (len == 4) {
+            return len;
+        }
+        offset += 3;
     }
-    offset += 3;
-    /* Mapped HPLMN SST    octet 7* */
+    /* Mapped HPLMN SST */
     proto_tree_add_item(tree, hf_nas_5gs_mm_mapped_hplmn_sst, tvb, offset, 1, ENC_BIG_ENDIAN);
-    if (len == 5) {
+    if ((len == 2) || (len == 5)) {
         return len;
     }
     offset += 1;
-    /* Mapped HPLMN SD    octet 8 - octet 10* */
+    /* Mapped HPLMN SD */
     proto_tree_add_item(tree, hf_nas_5gs_mm_mapped_hplmn_ssd, tvb, offset, 3, ENC_BIG_ENDIAN);
 
     return len;
@@ -4378,8 +4492,8 @@ nas_5gs_mm_registration_accept(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
     ELEM_OPT_TLV(0x16, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - T3502 value");
     /*34    Emergency number list    Emergency number list     9.11.3.17    O    TLV    5-50*/
     ELEM_OPT_TLV(0x34, GSM_A_PDU_TYPE_DTAP, DE_EMERGENCY_NUM_LIST, NULL);
-    /*7A    Extended emergency number list    Extended emergency number list 9.11.3.24    O    TLV    TBD*/
-    ELEM_OPT_TLV(0x7A, NAS_PDU_TYPE_EMM, DE_EMM_EXT_EMERG_NUM_LIST, NULL);
+    /*7A    Extended emergency number list    Extended emergency number list 9.11.3.24    O    TLV-E    7-65538 */
+    ELEM_OPT_TLV_E(0x7A, NAS_PDU_TYPE_EMM, DE_EMM_EXT_EMERG_NUM_LIST, NULL);
     /*73    SOR transparent container    SOR transparent container 9.11.3.51    O    TLV-E    20-2048 */
     ELEM_OPT_TLV_E(0x73, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_SOR_TRASP_CONT, NULL);
     /*78    EAP message    EAP message 9.10.2.2    O    TLV-E    7-1503 */
@@ -4647,7 +4761,7 @@ nas_5gs_mm_service_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, 
     /*26    PDU session reactivation result    PDU session reactivation result 9.11.3.42    O    TLV    4-32*/
     ELEM_OPT_TLV(0x26, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_PDU_SES_REACT_RES, NULL);
     /*72    PDU session reactivation result error cause    PDU session reactivation result error cause 9.11.3.43    O    TLV-E    5-515 */
-    ELEM_OPT_TLV_E(0x72, NAS_5GS_PDU_TYPE_COMMON, DE_NAS_5GS_MM_PDU_SES_REACT_RES_ERR_C, NULL);
+    ELEM_OPT_TLV_E(0x72, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_PDU_SES_REACT_RES_ERR_C, NULL);
     /*78    EAP message    EAP message     9.11.2.2    O    TLV-E    7-1503*/
     ELEM_OPT_TLV_E(0x78, NAS_5GS_PDU_TYPE_COMMON, DE_NAS_5GS_CMN_EAP_MESSAGE, NULL);
     /* 6B    T3448 value    GPRS timer 3 9.11.2.4    O    TLV    3 */
@@ -5028,7 +5142,7 @@ nas_5gs_sm_pdu_ses_est_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
     ELEM_OPT_TV_SHORT(0xB0, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_ALWAYS_ON_PDU_SES_REQ, NULL);
 
     /*39    SM PDU DN request container    SM PDU DN request container 9.11.4.15    O    TLV    3-255 */
-    ELEM_OPT_TV(0x39, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_PDU_DN_REQ_CONT, NULL);
+    ELEM_OPT_TLV(0x39, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_PDU_DN_REQ_CONT, NULL);
 
     /*7B    Extended protocol configuration options    Extended protocol configuration options     9.11.4.2    O    TLV-E    4-65538*/
     ELEM_OPT_TLV_E(0x7B, NAS_PDU_TYPE_ESM, DE_ESM_EXT_PCO, NULL);
@@ -5243,7 +5357,7 @@ nas_5gs_sm_pdu_ses_mod_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
     ELEM_OPT_TLV(0x28, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_5GSM_CAP, NULL);
 
     /* 59    5GSM cause    5GSM cause 9.11.4.2    O    TV    2 */
-    ELEM_OPT_TLV(0x59, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_5GSM_CAUSE, NULL);
+    ELEM_OPT_TV(0x59, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_5GSM_CAUSE, NULL);
 
     /*55    Maximum number of suuported packet filter    Maximum number of suuported packet filter   9.11.4.6    O    TV    3*/
     ELEM_OPT_TV(0x55, NAS_5GS_PDU_TYPE_SM,  DE_NAS_5GS_SM_MAX_NUM_SUP_PKT_FLT, NULL);
@@ -6011,7 +6125,7 @@ de_nas_5gs_updp_ue_policy_cm(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
     guint32 offset, guint len,
     gchar* add_string _U_, int string_len _U_)
 {
-    static const int* flags_oct3[] = {
+    static int* const flags_oct3[] = {
     &hf_nas_5gs_spare_b7,
     &hf_nas_5gs_spare_b6,
     &hf_nas_5gs_spare_b5,
@@ -6705,8 +6819,8 @@ dissect_nas_5gs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     proto_tree_add_item(sub_tree, hf_nas_5gs_seq_no, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    /* XXX Check if encryted or not and if not call dissect_nas_5gs_common()*/
-    if (g_nas_5gs_null_decipher) {
+    if ((seq_hdr_type != NAS_5GS_INTEG_CIPH_NAS_MSG && seq_hdr_type != NAS_5GS_INTEG_CIPH_NEW_NAS_MSG) ||
+        g_nas_5gs_null_decipher) {
         return dissect_nas_5gs_common(tvb, pinfo, nas_5gs_tree, offset, data);
     } else {
         proto_tree_add_subtree(nas_5gs_tree, tvb, offset, -1, ett_nas_5gs_enc, NULL, "Encrypted data");
@@ -6726,7 +6840,7 @@ de_nas_5gs_intra_n1_mode_nas_transparent_cont(tvbuff_t *tvb, proto_tree *tree, p
 {
     int offset = 0;
 
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_nas_5gs_spare_b7,
         &hf_nas_5gs_spare_b6,
         &hf_nas_5gs_spare_b5,
@@ -6759,59 +6873,11 @@ de_nas_5gs_s1_mode_to_n1_mode_nas_transparent_cont(tvbuff_t *tvb, proto_tree *tr
 {
     int offset = 0;
 
-    static const int * oct8_flags[] = {
+    static int * const oct8_flags[] = {
         &hf_nas_5gs_spare_b7,
         &hf_nas_5gs_ncc,
         &hf_nas_5gs_mm_tsc,
         &hf_nas_5gs_mm_nas_key_set_id,
-        NULL
-    };
-
-    static const int * oct9_flags[] = {
-        &hf_nas_5gs_mm_5g_ea0,
-        &hf_nas_5gs_mm_128_5g_ea1,
-        &hf_nas_5gs_mm_128_5g_ea2,
-        &hf_nas_5gs_mm_128_5g_ea3,
-        &hf_nas_5gs_mm_5g_ea4,
-        &hf_nas_5gs_mm_5g_ea5,
-        &hf_nas_5gs_mm_5g_ea6,
-        &hf_nas_5gs_mm_5g_ea7,
-        NULL
-    };
-
-    static const int * oct10_flags[] = {
-        &hf_nas_5gs_mm_5g_ia0,
-        &hf_nas_5gs_mm_5g_128_ia1,
-        &hf_nas_5gs_mm_5g_128_ia2,
-        &hf_nas_5gs_mm_5g_128_ia3,
-        &hf_nas_5gs_mm_5g_ia4,
-        &hf_nas_5gs_mm_5g_ia5,
-        &hf_nas_5gs_mm_5g_ia6,
-        &hf_nas_5gs_mm_5g_ia7,
-        NULL
-    };
-
-    static const int * oct11_flags[] = {
-        &hf_nas_5gs_mm_eea0,
-        &hf_nas_5gs_mm_128eea1,
-        &hf_nas_5gs_mm_128eea2,
-        &hf_nas_5gs_mm_eea3,
-        &hf_nas_5gs_mm_eea4,
-        &hf_nas_5gs_mm_eea5,
-        &hf_nas_5gs_mm_eea6,
-        &hf_nas_5gs_mm_eea7,
-        NULL
-    };
-
-    static const int * oct12_flags[] = {
-        &hf_nas_5gs_mm_eia0,
-        &hf_nas_5gs_mm_128eia1,
-        &hf_nas_5gs_mm_128eia2,
-        &hf_nas_5gs_mm_eia3,
-        &hf_nas_5gs_mm_eia4,
-        &hf_nas_5gs_mm_eia5,
-        &hf_nas_5gs_mm_eia6,
-        &hf_nas_5gs_mm_eia7,
         NULL
     };
 
@@ -6822,15 +6888,9 @@ de_nas_5gs_s1_mode_to_n1_mode_nas_transparent_cont(tvbuff_t *tvb, proto_tree *tr
     offset++;
     proto_tree_add_bitmask_list(tree, tvb, offset, 1, oct8_flags, ENC_NA);
     offset++;
-    proto_tree_add_bitmask_list(tree, tvb, offset, 1, oct9_flags, ENC_NA);
+    proto_tree_add_item(tree, hf_nas_5gs_spare_octet, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
-    proto_tree_add_bitmask_list(tree, tvb, offset, 1, oct10_flags, ENC_NA);
-    offset++;
-    if (tvb_reported_length_remaining(tvb, offset) > 0) {
-        proto_tree_add_bitmask_list(tree, tvb, offset, 1, oct11_flags, ENC_NA);
-        offset++;
-        proto_tree_add_bitmask_list(tree, tvb, offset, 1, oct12_flags, ENC_NA);
-    }
+    proto_tree_add_item(tree, hf_nas_5gs_spare_octet, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 /* 3GPP TS 29.502 chapter 6.1.6.4.2 and 29.518 chapter 6.1.6.4.2 */
@@ -6850,10 +6910,10 @@ dissect_nas_5gs_media_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
     json_data = tvb_get_string_enc(wmem_packet_scope(), json_tvb, 0, tvb_reported_length(json_tvb), ENC_UTF_8|ENC_NA);
     ret = json_parse(json_data, NULL, 0);
-    if (ret < 0)
+    if (ret <= 0)
         return 0;
     tokens = wmem_alloc_array(wmem_packet_scope(), jsmntok_t, ret);
-    if (json_parse(json_data, tokens, ret) < 0)
+    if (json_parse(json_data, tokens, ret) <= 0)
         return 0;
     cur_tok = json_get_object(json_data, tokens, "n1MessageContainer");
     if (cur_tok) {
@@ -7022,6 +7082,11 @@ proto_register_nas_5gs(void)
             FT_UINT8, BASE_DEC, NULL, 0xf0,
             NULL, HFILL }
         },
+        { &hf_nas_5gs_spare_octet,
+        { "Spare", "nas_5gs.spare_octet",
+            FT_UINT8, BASE_DEC, NULL, 0xff,
+            NULL, HFILL }
+        },
         { &hf_nas_5gs_pdu_session_id,
         { "PDU session identity",   "nas_5gs.pdu_session_id",
             FT_UINT8, BASE_DEC, VALS(nas_5gs_pdu_session_id_vals), 0x0,
@@ -7030,6 +7095,11 @@ proto_register_nas_5gs(void)
         { &hf_nas_5gs_msg_elems,
         { "Message Elements", "nas_5gs.message_elements",
             FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_cmn_add_info,
+        { "Additional information", "nas_5gs.cmn.add_info",
+            FT_BYTES, BASE_NONE, NULL,0x0,
             NULL, HFILL }
         },
         { &hf_nas_5gs_cmn_dnn,
@@ -7179,6 +7249,41 @@ proto_register_nas_5gs(void)
         },
         { &hf_nas_5gs_mm_pld_cont,
         { "Payload container",   "nas_5gs.mm.pld_cont",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_pld_cont_nb_entries,
+        { "Number of entries",   "nas_5gs.mm.pld_cont.nb_entries",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_pld_cont_pld_cont_len,
+        { "Length of Payload container entry",   "nas_5gs.mm.pld_cont.pld_cont_len",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_pld_cont_nb_opt_ies,
+        { "Number of optional IEs",   "nas_5gs.mm.pld_cont.nb_opt_ies",
+            FT_UINT8, BASE_DEC, NULL, 0xf0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_pld_cont_pld_cont_type,
+        { "Payload container type",   "nas_5gs.mm.pld_cont.pld_cont_type",
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_mm_pld_cont_type_vals), 0x0f,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_pld_cont_opt_ie_type,
+        { "Type of optional IE",   "nas_5gs.mm.pld_cont.opt_ie_type",
+            FT_UINT8, BASE_HEX, VALS(nas_5gs_mm_pld_cont_opt_ie_type_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_pld_cont_opt_ie_len,
+        { "Length of optional IE",   "nas_5gs.mm.pld_cont.opt_ie_len",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_pld_cont_opt_ie_val,
+        { "Value of optional IE",   "nas_5gs.mm.pld_cont.opt_ie_val",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
@@ -7759,7 +7864,7 @@ proto_register_nas_5gs(void)
         },
         { &hf_nas_5gs_sm_pdu_addr_inf_ipv6,
         { "PDU address information", "nas_5gs.sm.pdu_addr_inf_ipv6",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
+            FT_IPv6, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_nas_5gs_sm_qos_rule_id,
@@ -7937,11 +8042,6 @@ proto_register_nas_5gs(void)
             FT_UINT8, BASE_DEC, VALS(nas_5gs_sm_qos_des_flow_opt_code_vals), 0xe0,
             NULL, HFILL }
         },
-        { &hf_nas_5gs_sm_mapd_eps_b_cont_DEB,
-        { "DEB bit",   "nas_5gs.sm.mapd_eps_b_cont_DEB",
-            FT_UINT8, BASE_DEC, VALS(nas_5gs_sm_mapd_eps_b_cont_DEB_vals), 0x20,
-            NULL, HFILL }
-        },
         { &hf_nas_5gs_sm_mapd_eps_b_cont_E,
         { "E bit",   "nas_5gs.sm.mapd_eps_b_cont_E",
             FT_UINT8, BASE_DEC, VALS(nas_5gs_sm_mapd_eps_b_cont_E_vals), 0x10,
@@ -8022,14 +8122,29 @@ proto_register_nas_5gs(void)
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_nas_5gs_mm_supi_null_scheme,
-        { "Scheme output", "nas_5gs.mm.suci.supi_null_scheme",
+        { &hf_nas_5gs_mm_suci_msin,
+        { "MSIN", "nas_5gs.mm.suci.msin",
             FT_STRING, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
         { &hf_nas_5gs_mm_scheme_output,
         { "Scheme output", "nas_5gs.mm.suci.scheme_output",
             FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_scheme_output_ecc_public_key,
+        { "ECC ephemeral public key", "nas_5gs.mm.suci.scheme_output.ecc_public_key",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_scheme_output_ciphertext,
+        { "Ciphertext", "nas_5gs.mm.suci.scheme_output.ciphertext",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_scheme_output_mac_tag,
+        { "MAC tag", "nas_5gs.mm.suci.scheme_output.mac_tag",
+            FT_UINT64, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_nas_5gs_mm_suci_nai,
@@ -8527,7 +8642,7 @@ proto_register_nas_5gs(void)
     guint     last_offset;
 
     /* Setup protocol subtree array */
-#define NUM_INDIVIDUAL_ELEMS    22
+#define NUM_INDIVIDUAL_ELEMS    25
     gint *ett[NUM_INDIVIDUAL_ELEMS +
         NUM_NAS_5GS_COMMON_ELEM +
         NUM_NAS_5GS_MM_MSG + NUM_NAS_5GS_MM_ELEM +
@@ -8557,6 +8672,9 @@ proto_register_nas_5gs(void)
     ett[19] = &ett_nas_5gs_ursp_r_sel_desc_cont;
     ett[20] = &ett_nas_5gs_updp_upsi_list;
     ett[21] = &ett_nas_5gs_mm_rej_nssai;
+    ett[22] = &ett_nas_5gs_mm_scheme_output;
+    ett[23] = &ett_nas_5gs_mm_pld_cont_pld_entry;
+    ett[24] = &ett_nas_5gs_mm_pld_cont_opt_ie;
 
     last_offset = NUM_INDIVIDUAL_ELEMS;
 

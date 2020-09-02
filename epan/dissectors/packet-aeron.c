@@ -1951,7 +1951,7 @@ static void aeron_msg_fragment_add(aeron_msg_t * msg, aeron_msg_fragment_t * fra
     msg->next_expected_term_offset += fragment->frame_length;
     if ((fragment->flags & DATA_FLAGS_END) == DATA_FLAGS_END)
     {
-        gchar * buf;
+        guint8 * buf;
         wmem_list_frame_t * lf;
         size_t ofs = 0;
         size_t accum_len = 0;
@@ -1961,7 +1961,7 @@ static void aeron_msg_fragment_add(aeron_msg_t * msg, aeron_msg_fragment_t * fra
 
         msg->complete = TRUE;
         msg->end_frame = fragment->frame;
-        buf = (gchar *) wmem_alloc(wmem_file_scope(), (size_t) msg->length);
+        buf = (guint8 *) wmem_alloc(wmem_file_scope(), (size_t) msg->length);
         lf = wmem_list_head(msg->fragment);
         while (lf != NULL)
         {
@@ -2344,7 +2344,7 @@ static int dissect_aeron_data(tvbuff_t * tvb, int offset, packet_info * pinfo, p
     proto_item * channel_item;
     proto_item * frame_length_item;
     guint32 frame_length;
-    static const int * flags[] =
+    static int * const flags[] =
     {
         &hf_aeron_data_flags_b,
         &hf_aeron_data_flags_e,
@@ -2547,7 +2547,7 @@ static int dissect_aeron_sm(tvbuff_t * tvb, int offset, packet_info * pinfo, pro
     proto_item * item;
     proto_item * rcv_window_item;
     guint32 frame_length;
-    static const int * flags[] =
+    static int * const flags[] =
     {
         &hf_aeron_sm_flags_s,
         NULL
@@ -2686,7 +2686,7 @@ static int dissect_aeron_heartbeat(tvbuff_t * tvb, int offset, packet_info * pin
     proto_item * channel_item;
     proto_item * frame_length_item;
     guint32 frame_length;
-    static const int * flags[] =
+    static int * const flags[] =
     {
         &hf_aeron_heartbeat_flags_b,
         &hf_aeron_heartbeat_flags_e,
@@ -2755,7 +2755,7 @@ static int dissect_aeron_rtt(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
     proto_item * frame_length_item;
     proto_item * item;
     guint32 frame_length;
-    static const int * flags[] =
+    static int * const flags[] =
     {
         &hf_aeron_rtt_flags_r,
         NULL

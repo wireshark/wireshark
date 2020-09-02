@@ -560,7 +560,7 @@ static gint ett_drbd_uuid_flags = -1;
 static gint ett_drbd_history_uuids = -1;
 static gint ett_drbd_data_flags = -1;
 
-static const int *state_fields[] = {
+static int * const state_fields[] = {
     &hf_drbd_state_role,
     &hf_drbd_state_peer,
     &hf_drbd_state_conn,
@@ -576,7 +576,7 @@ static const int *state_fields[] = {
     NULL
 };
 
-static const int *uuid_flag_fields[] = {
+static int * const uuid_flag_fields[] = {
     &hf_drbd_uuid_flag_discard_my_data,
     &hf_drbd_uuid_flag_crashed_primary,
     &hf_drbd_uuid_flag_inconsistent,
@@ -591,7 +591,7 @@ static const int *uuid_flag_fields[] = {
     NULL
 };
 
-static const int *data_flag_fields[] = {
+static int * const data_flag_fields[] = {
     &hf_drbd_dp_hardbarrier,
     &hf_drbd_dp_rw_sync,
     &hf_drbd_dp_may_set_in_sync,

@@ -287,9 +287,7 @@ load_decode_as_entries(void)
     char   *daf_path;
     FILE   *daf;
 
-    if (dissector_reset_list) {
-        decode_clear_all();
-    }
+    decode_clear_all();
 
     daf_path = get_persconffile_path(DECODE_AS_ENTRIES_FILE_NAME, TRUE);
     if ((daf = ws_fopen(daf_path, "r")) != NULL) {
@@ -524,10 +522,14 @@ decode_clear_all(void)
     g_slist_free(dissector_reset_list);
     dissector_reset_list = NULL;
 
+    decode_dcerpc_reset_all();
+}
+
+void
+decode_cleanup(void)
+{
     g_list_free(decode_as_list);
     decode_as_list = NULL;
-
-    decode_dcerpc_reset_all();
 }
 
 /*

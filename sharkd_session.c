@@ -541,10 +541,10 @@ sharkd_session_process_load(const char *buf, const jsmntok_t *tokens, int count)
 	const char *tok_file = json_find_attr(buf, tokens, count, "file");
 	int err = 0;
 
-	fprintf(stderr, "load: filename=%s\n", tok_file);
-
 	if (!tok_file)
 		return;
+
+	fprintf(stderr, "load: filename=%s\n", tok_file);
 
 	if (sharkd_cf_open(tok_file, WTAP_TYPE_AUTO, FALSE, &err) != CF_OK)
 	{
@@ -4274,7 +4274,7 @@ sharkd_session_main(void)
 		int ret;
 
 		ret = json_parse(buf, NULL, 0);
-		if (ret < 0)
+		if (ret <= 0)
 		{
 			fprintf(stderr, "invalid JSON -> closing\n");
 			return 1;
@@ -4292,7 +4292,7 @@ sharkd_session_main(void)
 		memset(tokens, 0, ret * sizeof(jsmntok_t));
 
 		ret = json_parse(buf, tokens, ret);
-		if (ret < 0)
+		if (ret <= 0)
 		{
 			fprintf(stderr, "invalid JSON(2) -> closing\n");
 			return 2;

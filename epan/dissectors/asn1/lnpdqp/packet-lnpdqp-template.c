@@ -8,7 +8,6 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
 
 #include <epan/asn1.h>
@@ -132,12 +131,6 @@ static const value_string lnpdqp_np_vals[]  = {
     {   0, NULL }
 };
 
-static dgt_set_t Dgt_tbcd = {
-    {
-  /*  0   1   2   3   4   5   6   7   8   9   a   b   c   d   e */
-     '0','1','2','3','4','5','6','7','8','9','?','B','C','*','#'
-    }
-};
 /*
  * OriginatingStationType ::= OCTET STRING (SIZE(1))
  * The following codes are used in the originating line information field:
@@ -172,7 +165,7 @@ dissect_lnpdqp_digits_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
     guint8 octet , no_of_digits;
     int    offset = 0;
-    const char *digit_str;
+    char *digit_str;
 
     proto_tree *subtree;
 
@@ -199,8 +192,7 @@ dissect_lnpdqp_digits_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
         if(no_of_digits == 0)
             return;
         offset++;
-        digit_str = tvb_bcd_dig_to_wmem_packet_str(tvb, offset, tvb_reported_length_remaining(tvb,offset), &Dgt_tbcd, FALSE);
-        proto_tree_add_string(subtree, hf_lnpdqp_bcd_digits, tvb, offset, -1, digit_str);
+        proto_tree_add_item_ret_display_string(subtree, hf_lnpdqp_bcd_digits, tvb, offset, -1, ENC_KEYPAD_BC_TBCD, wmem_packet_scope(), &digit_str);
         proto_item_append_text(actx->created_item, " - %s", digit_str);
         break;
     case 2:

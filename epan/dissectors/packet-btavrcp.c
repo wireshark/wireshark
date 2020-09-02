@@ -183,7 +183,7 @@ static int hf_btavrcp_feature_uid_persistency                              = -1;
 static int hf_btavrcp_feature_number_of_items                              = -1;
 static int hf_btavrcp_feature_cover_art                                    = -1;
 static int hf_btavrcp_reassembled                                          = -1;
-static int hf_btavrcp_currect_path                                         = -1;
+static int hf_btavrcp_current_path                                         = -1;
 static int hf_btavrcp_response_time                                        = -1;
 static int hf_btavrcp_command_in_frame                                     = -1;
 static int hf_btavrcp_response_in_frame                                    = -1;
@@ -515,7 +515,7 @@ static const value_string play_status_vals[] = {
     { 0x01,   "Playing" },
     { 0x02,   "Paused" },
     { 0x03,   "Forward Seek" },
-    { 0x04,   "Revrse Seek" },
+    { 0x04,   "Reverse Seek" },
     { 0xFF,   "Error" },
     { 0, NULL }
 };
@@ -1890,7 +1890,7 @@ dissect_browsing(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 folder_depth = tvb_get_guint8(tvb, offset);
                 offset += 1;
 
-                pitem = proto_tree_add_none_format(tree, hf_btavrcp_currect_path, tvb, offset, tvb_reported_length_remaining(tvb, offset), "Current Path: /");
+                pitem = proto_tree_add_none_format(tree, hf_btavrcp_current_path, tvb, offset, tvb_reported_length_remaining(tvb, offset), "Current Path: /");
                 col_append_str(pinfo->cinfo, COL_INFO, "Current Path: /");
                 ptree = proto_item_add_subtree(pitem, ett_btavrcp_path);
 
@@ -3095,8 +3095,8 @@ proto_register_btavrcp(void)
             NULL, HFILL }
         },
         /* end of features */
-        { &hf_btavrcp_currect_path,
-            { "Currect Path",                     "btavrcp.currect_path",
+        { &hf_btavrcp_current_path,
+            { "Current Path",                     "btavrcp.current_path",
             FT_NONE, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },

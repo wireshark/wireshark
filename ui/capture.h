@@ -19,6 +19,7 @@
 
 #include "capture_opts.h"
 #include "capture_info.h"
+#include "cfile.h"
 #include "capchild/capture_session.h"
 
 #ifdef __cplusplus
@@ -47,10 +48,19 @@ extern void
 capture_callback_remove(capture_callback_t func, gpointer user_data);
 
 /**
+ * Initialize a capture session.
+ *
+ * @param cap_session the handle for the capture session
+ * @param cf the capture_file for the file
+ */
+extern void
+capture_input_init(capture_session *cap_session, capture_file *cf);
+
+/**
  * Start a capture session.
  *
  * @param capture_opts the numerous capture options
- * @param cap_session a handle for the capture session
+ * @param cap_session the handle for the capture session
  * @param cap_data a struct with capture info data
  * @param update_cb update screen
  * @return TRUE if the capture starts successfully, FALSE otherwise.

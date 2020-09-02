@@ -163,6 +163,9 @@ gint64 evaluate_sdnv_64(tvbuff_t *tvb, int offset, int *bytecount);
 int evaluate_sdnv32(tvbuff_t *tvb, int offset, int *bytecount, guint32 *value);
 int evaluate_sdnv64(tvbuff_t *tvb, int offset, int *bytecount, guint64 *value);
 
+void
+dissect_cfdp_as_subtree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
+
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *

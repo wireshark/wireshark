@@ -34,7 +34,7 @@
 #include "packet-lte-rrc.h"
 
 #define PNAME  "SBc Application Part"
-#define PSNAME "SBCAP"
+#define PSNAME "SBcAP"
 #define PFNAME "sbcap"
 
 void proto_register_sbc_ap(void);
@@ -481,11 +481,6 @@ dissect_sbc_ap_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, &ProcedureCode, FALSE);
 
-#line 65 "./asn1/sbc-ap/sbc-ap.cnf"
-   col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
-                   val_to_str(ProcedureCode, sbc_ap_ProcedureCode_vals,
-                              "unknown message"));
-
   return offset;
 }
 
@@ -666,7 +661,7 @@ dissect_sbc_ap_ProtocolExtensionContainer(tvbuff_t *tvb _U_, int offset _U_, asn
 
 static int
 dissect_sbc_ap_PLMNidentity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 102 "./asn1/sbc-ap/sbc-ap.cnf"
+#line 98 "./asn1/sbc-ap/sbc-ap.cnf"
   tvbuff_t *parameter_tvb=NULL;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -1660,7 +1655,7 @@ dissect_sbc_ap_Criticality_Diagnostics(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 static int
 dissect_sbc_ap_Data_Coding_Scheme(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 298 "./asn1/sbc-ap/sbc-ap.cnf"
+#line 304 "./asn1/sbc-ap/sbc-ap.cnf"
   tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
                                      8, 8, FALSE, NULL, 0, &parameter_tvb, NULL);
@@ -1846,7 +1841,7 @@ dissect_sbc_ap_List_of_5GS_TAI_for_Restart(tvbuff_t *tvb _U_, int offset _U_, as
 
 static int
 dissect_sbc_ap_Message_Identifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 264 "./asn1/sbc-ap/sbc-ap.cnf"
+#line 270 "./asn1/sbc-ap/sbc-ap.cnf"
   tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
                                      16, 16, FALSE, NULL, 0, &parameter_tvb, NULL);
@@ -1981,7 +1976,7 @@ dissect_sbc_ap_Send_Stop_Warning_Indication(tvbuff_t *tvb _U_, int offset _U_, a
 
 static int
 dissect_sbc_ap_Serial_Number(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 271 "./asn1/sbc-ap/sbc-ap.cnf"
+#line 277 "./asn1/sbc-ap/sbc-ap.cnf"
   tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
                                      16, 16, FALSE, NULL, 0, &parameter_tvb, NULL);
@@ -2069,7 +2064,7 @@ dissect_sbc_ap_Warning_Area_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
 static int
 dissect_sbc_ap_Warning_Message_Content(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 309 "./asn1/sbc-ap/sbc-ap.cnf"
+#line 315 "./asn1/sbc-ap/sbc-ap.cnf"
   tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        1, 9600, FALSE, &parameter_tvb);
@@ -2110,7 +2105,7 @@ dissect_sbc_ap_Warning_Security_Information(tvbuff_t *tvb _U_, int offset _U_, a
 
 static int
 dissect_sbc_ap_Warning_Type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 287 "./asn1/sbc-ap/sbc-ap.cnf"
+#line 293 "./asn1/sbc-ap/sbc-ap.cnf"
   tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        2, 2, FALSE, &parameter_tvb);
@@ -2163,6 +2158,9 @@ static const per_sequence_t Write_Replace_Warning_Request_sequence[] = {
 
 static int
 dissect_sbc_ap_Write_Replace_Warning_Request(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 251 "./asn1/sbc-ap/sbc-ap.cnf"
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Write-Replace-Warning-Request");
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_sbc_ap_Write_Replace_Warning_Request, Write_Replace_Warning_Request_sequence);
 
@@ -2178,6 +2176,9 @@ static const per_sequence_t Write_Replace_Warning_Response_sequence[] = {
 
 static int
 dissect_sbc_ap_Write_Replace_Warning_Response(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 253 "./asn1/sbc-ap/sbc-ap.cnf"
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Write-Replace-Warning-Response");
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_sbc_ap_Write_Replace_Warning_Response, Write_Replace_Warning_Response_sequence);
 
@@ -2193,6 +2194,9 @@ static const per_sequence_t Stop_Warning_Request_sequence[] = {
 
 static int
 dissect_sbc_ap_Stop_Warning_Request(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 255 "./asn1/sbc-ap/sbc-ap.cnf"
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Stop-Warning-Request");
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_sbc_ap_Stop_Warning_Request, Stop_Warning_Request_sequence);
 
@@ -2208,6 +2212,9 @@ static const per_sequence_t Stop_Warning_Response_sequence[] = {
 
 static int
 dissect_sbc_ap_Stop_Warning_Response(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 257 "./asn1/sbc-ap/sbc-ap.cnf"
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Stop-Warning-Response");
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_sbc_ap_Stop_Warning_Response, Stop_Warning_Response_sequence);
 
@@ -2223,7 +2230,7 @@ static const per_sequence_t Write_Replace_Warning_Indication_sequence[] = {
 
 static int
 dissect_sbc_ap_Write_Replace_Warning_Indication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 255 "./asn1/sbc-ap/sbc-ap.cnf"
+#line 261 "./asn1/sbc-ap/sbc-ap.cnf"
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Write-Replace-Warning-Indication");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -2241,7 +2248,7 @@ static const per_sequence_t Stop_Warning_Indication_sequence[] = {
 
 static int
 dissect_sbc_ap_Stop_Warning_Indication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 257 "./asn1/sbc-ap/sbc-ap.cnf"
+#line 263 "./asn1/sbc-ap/sbc-ap.cnf"
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Stop-Warning-Indication");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -2259,7 +2266,7 @@ static const per_sequence_t PWS_Restart_Indication_sequence[] = {
 
 static int
 dissect_sbc_ap_PWS_Restart_Indication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 259 "./asn1/sbc-ap/sbc-ap.cnf"
+#line 265 "./asn1/sbc-ap/sbc-ap.cnf"
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PWS-Restart-Indication");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -2277,7 +2284,7 @@ static const per_sequence_t PWS_Failure_Indication_sequence[] = {
 
 static int
 dissect_sbc_ap_PWS_Failure_Indication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 261 "./asn1/sbc-ap/sbc-ap.cnf"
+#line 267 "./asn1/sbc-ap/sbc-ap.cnf"
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PWS-Failure-Indication");
 
 
@@ -2295,6 +2302,9 @@ static const per_sequence_t Error_Indication_sequence[] = {
 
 static int
 dissect_sbc_ap_Error_Indication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 259 "./asn1/sbc-ap/sbc-ap.cnf"
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Error-Indication");
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_sbc_ap_Error_Indication, Error_Indication_sequence);
 
@@ -2843,15 +2853,15 @@ dissect_sbc_ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     proto_tree      *sbc_ap_tree = NULL;
 
     /* make entry in the Protocol column on summary display */
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, PNAME);
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
+    col_clear(pinfo->cinfo, COL_INFO);
 
     /* create the sbc_ap protocol tree */
-    if (tree) {
-        sbc_ap_item = proto_tree_add_item(tree, proto_sbc_ap, tvb, 0, -1, ENC_NA);
-        sbc_ap_tree = proto_item_add_subtree(sbc_ap_item, ett_sbc_ap);
+    sbc_ap_item = proto_tree_add_item(tree, proto_sbc_ap, tvb, 0, -1, ENC_NA);
+    sbc_ap_tree = proto_item_add_subtree(sbc_ap_item, ett_sbc_ap);
 
-        dissect_SBC_AP_PDU_PDU(tvb, pinfo, sbc_ap_tree, NULL);
-    }
+    dissect_SBC_AP_PDU_PDU(tvb, pinfo, sbc_ap_tree, NULL);
+
     return tvb_captured_length(tvb);
 }
 /*--- proto_register_sbc_ap -------------------------------------------*/

@@ -491,7 +491,7 @@ decode_iei_num_ip6_endpoints(nsip_ie_t *ie, build_info_t *bi, int ie_start_offse
 static void
 decode_iei_reset_flag(nsip_ie_t *ie _U_, build_info_t *bi, int ie_start_offset _U_) {
   guint8 flag;
-  static const int * reset_flags[] = {
+  static int * const reset_flags[] = {
     &hf_nsip_reset_flag_bit,
     &hf_nsip_reset_flag_spare,
     NULL
@@ -550,7 +550,7 @@ decode_iei_transaction_id(nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) 
 
 static void
 decode_iei_end_flag(nsip_ie_t *ie _U_, build_info_t *bi, int ie_start_offset) {
-  static const int * end_flags[] = {
+  static int * const end_flags[] = {
     &hf_nsip_end_flag_bit,
     &hf_nsip_end_flag_spare,
     NULL
@@ -564,7 +564,7 @@ decode_iei_end_flag(nsip_ie_t *ie _U_, build_info_t *bi, int ie_start_offset) {
 static void
 decode_iei_control_bits(nsip_ie_t *ie _U_, build_info_t *bi, int ie_start_offset) {
   guint8 control_bits;
-  static const int * flags[] = {
+  static int * const flags[] = {
     &hf_nsip_control_bits_r,
     &hf_nsip_control_bits_c,
     &hf_nsip_control_bits_spare,

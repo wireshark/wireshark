@@ -57,7 +57,7 @@ static int hf_cattp_flag_seg = -1;
 static int hf_cattp_version = -1;
 
 /* structure of flag components */
-static const int *cattp_flags[] = {
+static int * const cattp_flags[] = {
     &hf_cattp_flag_syn,
     &hf_cattp_flag_ack,
     &hf_cattp_flag_eak,

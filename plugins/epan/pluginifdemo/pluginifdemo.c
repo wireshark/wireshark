@@ -43,11 +43,6 @@ about_cb(ext_menubar_gui_type gui_type _U_, gpointer gui_data _U_, gpointer user
 void
 proto_register_pluginifdemo(void)
 {
-    static hf_register_info hf[] = {
-    };
-
-    static gint *ett[] = {
-    };
 
 #if 0
     module_t *pluginif_module = NULL;
@@ -55,9 +50,6 @@ proto_register_pluginifdemo(void)
     ext_menu_t * ext_menu = NULL;
 
     proto_pluginifdemo = proto_register_protocol("Plugin IF Demo Protocol", "Pluginifdemo", "pluginifdemo");
-
-    proto_register_field_array(proto_pluginifdemo, hf, array_length(hf));
-    proto_register_subtree_array(ett, array_length(ett));
 
     ext_menu = ext_menubar_register_menu ( proto_pluginifdemo, "Plugin IF Demonstration", TRUE );
     ext_menubar_set_parentmenu (ext_menu, "Tools");
@@ -93,6 +85,14 @@ proto_register_pluginifdemo(void)
     pluginifdemo_toolbar_register(tb);
 }
 
+void* get_frame_data_cb(frame_data* fdata, void* user_data _U_) {
+    return GUINT_TO_POINTER(fdata->num);
+}
+
+void* get_capture_file_cb(capture_file* cf, void* user_data _U_) {
+    return cf->filename;
+}
+
 void toolbar_cb(gpointer toolbar_item, gpointer item_data, gpointer user_data _U_)
 {
     if ( ! toolbar_item )
@@ -101,8 +101,19 @@ void toolbar_cb(gpointer toolbar_item, gpointer item_data, gpointer user_data _U
     gchar * message = 0;
     ext_toolbar_t * entry = (ext_toolbar_t *)toolbar_item;
 
-    if ( entry->item_type == EXT_TOOLBAR_BUTTON )
-        pluginifdemo_toolbar_log ( "Button pressed at toolbar" );
+    if (entry->item_type == EXT_TOOLBAR_BUTTON) {
+        pluginifdemo_toolbar_log("Button pressed at toolbar");
+        guint32 fnum = GPOINTER_TO_UINT(plugin_if_get_frame_data(get_frame_data_cb, NULL));
+        if (fnum) {
+            message = g_strdup_printf("Current frame is: %u", fnum);
+            pluginifdemo_toolbar_log(message);
+        }
+        const gchar* fnm = (const gchar*)plugin_if_get_capture_file(get_capture_file_cb, NULL);
+        if (fnm) {
+            message = g_strdup_printf("Capture file name is: %s", fnm);
+            pluginifdemo_toolbar_log(message);
+        }
+    }
     else if ( entry->item_type == EXT_TOOLBAR_BOOLEAN )
     {
         gboolean data = *((gboolean *)item_data);

@@ -35,7 +35,7 @@ static int hf_dpaux_reg_addr = -1;
 static int hf_00000 = -1;
 static int hf_00000_MINOR = -1;
 static int hf_00000_MAJOR = -1;
-static const int *reg00000_fields[] = {
+static int * const reg00000_fields[] = {
     &hf_00000_MAJOR,
     &hf_00000_MINOR,
     NULL
@@ -43,7 +43,7 @@ static const int *reg00000_fields[] = {
 
 static int hf_00001 = -1;
 static int hf_00001_MAX_LINK_RATE = -1;
-static const int *reg00001_fields[] = {
+static int * const reg00001_fields[] = {
     &hf_00001_MAX_LINK_RATE,
     NULL
 };
@@ -53,7 +53,7 @@ static int hf_00002_MAX_LANE_COUNT = -1;
 static int hf_00002_POST_LT_ADJ_REQ_SUPPORTED = -1;
 static int hf_00002_TPS3_SUPPORTED = -1;
 static int hf_00002_ENHANCED_FRAME_CAP = -1;
-static const int *reg00002_fields[] = {
+static int * const reg00002_fields[] = {
     &hf_00002_MAX_LANE_COUNT,
     &hf_00002_POST_LT_ADJ_REQ_SUPPORTED,
     &hf_00002_TPS3_SUPPORTED,
@@ -65,7 +65,7 @@ static int hf_00003 = -1;
 static int hf_00003_MAX_DOWNSPREAD = -1;
 static int hf_00003_NO_AUX_TRANSACTION_LINK_TRAINING = -1;
 static int hf_00003_TPS4_SUPPORTED = -1;
-static const int *reg00003_fields[] = {
+static int * const reg00003_fields[] = {
     &hf_00003_MAX_DOWNSPREAD,
     &hf_00003_NO_AUX_TRANSACTION_LINK_TRAINING,
     &hf_00003_TPS4_SUPPORTED,
@@ -77,7 +77,7 @@ static int hf_00004_NORP = -1;
 static int hf_00004_5V_DP_PWR_CAP = -1;
 static int hf_00004_12V_DP_PWR_CAP = -1;
 static int hf_00004_18V_DP_PWR_CAP = -1;
-static const int *reg00004_fields[] = {
+static int * const reg00004_fields[] = {
     &hf_00004_NORP,
     &hf_00004_5V_DP_PWR_CAP,
     &hf_00004_12V_DP_PWR_CAP,
@@ -115,7 +115,7 @@ enum {
 
 struct bitfield_data {
     int *hf;
-    const int **fields;
+    int * const *fields;
 };
 
 struct dpaux_register {

@@ -188,8 +188,8 @@ nettrace_close(wtap *wth)
 
 #define isleap(y) (((y) % 4) == 0 && (((y) % 100) != 0 || ((y) % 400) == 0))
 
-static guint8*
-nettrace_parse_begin_time(guint8 *curr_pos, wtap_rec *rec)
+static char*
+nettrace_parse_begin_time(char *curr_pos, wtap_rec *rec)
 {
 	/* Time vars*/
 	guint year, month, day, hour, minute, second, frac;
@@ -201,7 +201,7 @@ nettrace_parse_begin_time(guint8 *curr_pos, wtap_rec *rec)
 	    31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
 	};
 	struct tm tm;
-	guint8 *prev_pos, *next_pos;
+	char *prev_pos, *next_pos;
 	int length;
 
 	prev_pos = curr_pos;
@@ -343,7 +343,7 @@ nettrace_parse_begin_time(guint8 *curr_pos, wtap_rec *rec)
  * </rawMsg>
  */
 static wtap_open_return_val
-write_packet_data(wtap_dumper *wdh, wtap_rec *rec, int *err, gchar **err_info, guint8 *file_buf, nstime_t start_time, exported_pdu_info_t *exported_pdu_info, char name_str[64])
+write_packet_data(wtap_dumper *wdh, wtap_rec *rec, int *err, gchar **err_info, char *file_buf, nstime_t start_time, exported_pdu_info_t *exported_pdu_info, char name_str[64])
 {
 	char *curr_pos, *next_pos;
 	char proto_name_str[16];
@@ -713,14 +713,14 @@ write_packet_data(wtap_dumper *wdh, wtap_rec *rec, int *err, gchar **err_info, g
 	return WTAP_OPEN_MINE;
 }
 
-static guint8*
-nettrace_parse_address(guint8* curr_pos, guint8* next_pos, gboolean is_src_addr/*SRC */, exported_pdu_info_t  *exported_pdu_info)
+static char*
+nettrace_parse_address(char* curr_pos, char* next_pos, gboolean is_src_addr/*SRC */, exported_pdu_info_t  *exported_pdu_info)
 {
 	guint port;
 	char transp_str[5];
 	int scan_found;
 	char str[3];
-	guint8* end_pos, *skip_pos;
+	char* end_pos, *skip_pos;
 	char ip_addr_str[WS_INET6_ADDRSTRLEN];
 	int str_len;
 	ws_in6_addr ip6_addr;
@@ -831,7 +831,7 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 	GString                     *os_info_str;
 	gint64 file_size;
 	int packet_size;
-	guint8 *packet_buf = NULL;
+	char *packet_buf = NULL;
 	int wrt_err;
 	gchar *wrt_err_info = NULL;
 	wtap_rec rec;
@@ -845,9 +845,7 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 	gsize opt_len;
 	gchar *opt_str;
 	/* Info to build exported_pdu tags*/
-	exported_pdu_info_t  exported_pdu_info;
-
-	memset(&exported_pdu_info, 0x0, sizeof(exported_pdu_info_t));
+	exported_pdu_info_t  exported_pdu_info = {0};
 
 	import_file_fd = create_tempfile(&(file_info->tmpname), "Wireshark_PDU_", NULL, NULL);
 	if (import_file_fd < 0)
@@ -940,7 +938,7 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 	* + End of options 4 bytes
 	*/
 	/* XXX add the length of exported bdu tag(s) here */
-	packet_buf = (guint8 *)g_malloc((gsize)packet_size + (gsize)12 + (gsize)1);
+	packet_buf = (char *)g_malloc((gsize)packet_size + (gsize)12 + (gsize)1);
 
 	packet_buf[0] = 0;
 	packet_buf[1] = EXP_PDU_TAG_PROTO_NAME;
@@ -1109,10 +1107,7 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 			curr_pos = strstr(curr_pos, "ddress");
 			if ((curr_pos) && (curr_pos < next_pos)) {
 				curr_pos += 6;
-				curr_pos = nettrace_parse_address(curr_pos, next_pos, TRUE/*SRC */, &exported_pdu_info);
-			} else {
-				/* address not found*/
-				curr_pos = next_pos;
+				nettrace_parse_address(curr_pos, next_pos, TRUE/*SRC */, &exported_pdu_info);
 			}
 		}
 

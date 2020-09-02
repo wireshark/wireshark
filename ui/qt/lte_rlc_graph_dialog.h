@@ -55,7 +55,7 @@ private:
     struct rlc_graph graph_;
 
     // Data
-    QMap<double, struct rlc_segment *> time_stamp_map_;
+    QMultiMap<double, struct rlc_segment *> time_stamp_map_;
     QMap<double, struct rlc_segment *> sequence_num_map_;
 
     QCPGraph *base_graph_; // Clickable packets

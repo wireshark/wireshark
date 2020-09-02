@@ -3255,7 +3255,7 @@ void proto_register_edonkey(void) {
                 FT_UINT8, BASE_DEC_HEX, NULL, 0, "UINT8 Tag Value", HFILL } },
         { &hf_kademlia_tag_hash,
             { "Tag Value (HASH)", "edonkey.kademlia.tag.value.hash",
-                FT_BYTES, BASE_NONE, NULL, 0, "HASH Tag Value", HFILL } },
+                FT_STRING, BASE_NONE, NULL, 0, "HASH Tag Value", HFILL } },
         { &hf_kademlia_tag_string,
             { "Tag Value (String)", "edonkey.kademlia.tag.value.string",
                 FT_STRING, STR_ASCII, NULL, 0, "String Tag Value", HFILL } },

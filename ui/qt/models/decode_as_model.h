@@ -74,6 +74,7 @@ public:
     bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex());
     void clearAll();
     bool copyRow(int dst_row, int src_row);
+    bool copyFromProfile(QString filename, const gchar **err);
 
     static QString entryString(const gchar *table_name, gconstpointer value);
 
@@ -85,7 +86,8 @@ protected:
     static void buildDceRpcChangedList(gpointer data, gpointer user_data);
     static void gatherChangedEntries(const gchar *table_name, ftenum_t selector_type,
                           gpointer key, gpointer value, gpointer user_data);
-
+    static prefs_set_pref_e readDecodeAsEntry(gchar *key, const gchar *value,
+                          void *user_data, gboolean return_range_errors);
 
 private:
     capture_file *cap_file_;

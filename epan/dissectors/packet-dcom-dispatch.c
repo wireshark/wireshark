@@ -266,7 +266,7 @@ dissect_IDispatch_Invoke_rqst(tvbuff_t *tvb, int offset,
 
     proto_item *dispparams_item;
     proto_tree *dispparams_tree;
-    static const int * flags[] = {
+    static int * const flags[] = {
         &hf_dispatch_flags_propputref,
         &hf_dispatch_flags_propput,
         &hf_dispatch_flags_propget,

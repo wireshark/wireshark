@@ -112,7 +112,11 @@ QWidget * ExtArgMultiSelect::createEditor(QWidget * parent)
 
     if (_argument->pref_valptr && *_argument->pref_valptr)
     {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+        checked = QString(*_argument->pref_valptr).split(",", Qt::SkipEmptyParts);
+#else
         checked = QString(*_argument->pref_valptr).split(",", QString::SkipEmptyParts);
+#endif
     }
 
     viewModel = new QStandardItemModel();

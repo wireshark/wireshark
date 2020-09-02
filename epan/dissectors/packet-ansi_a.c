@@ -4235,7 +4235,7 @@ elem_xmode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, 
     proto_tree_add_item(tree, hf_ansi_a_xmode_tfo_mode, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
     proto_item_append_text(data_p->elem_item, " - (%s)",
-        (oct & 0x01) ? tfs_ansi_a_xmode_tfo_mode.true_string : tfs_ansi_a_xmode_tfo_mode.false_string);
+        tfs_get_string(oct & 0x01, &tfs_ansi_a_xmode_tfo_mode));
 
     curr_offset++;
 
@@ -11601,12 +11601,12 @@ proto_register_ansi_a(void)
         },
         { &hf_ansi_a_lai_mcc,
             { "Mobile Country Code (MCC)", "ansi_a_bsmap.lai.mcc",
-            FT_UINT8, BASE_DEC, NULL, 0,
+            FT_STRING, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
         { &hf_ansi_a_lai_mnc,
             { "Mobile Network Code (MNC)", "ansi_a_bsmap.lai.mnc",
-            FT_UINT8, BASE_DEC, NULL, 0,
+            FT_STRING, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
         { &hf_ansi_a_lai_lac,

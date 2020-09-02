@@ -3,8 +3,8 @@
  * Dissector for ANCP - Access Node Control Protocol
  *
  * More info on the protocol can be found on IETF:
- * http://tools.ietf.org/wg/ancp/
- * http://tools.ietf.org/html/draft-ietf-ancp-protocol-09
+ * https://tools.ietf.org/wg/ancp/
+ * https://tools.ietf.org/html/draft-ietf-ancp-protocol-09
  * https://tools.ietf.org/html/rfc6320
  * https://www.iana.org/assignments/ancp/ancp.xhtml
  *

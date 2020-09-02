@@ -32,7 +32,7 @@ file_type_to_testout = {
 encap_to_link_type = {
     'Ethernet': 1,
     'Raw IP': 14,
-    'Linux cooked-mode capture': 113,
+    'Linux cooked-mode capture v1': 113,
     'IEEE 802.11 plus radiotap radio header': 127,
     'DVB-CI (Common Interface)': 235,
 }

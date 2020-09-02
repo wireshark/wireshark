@@ -804,7 +804,7 @@ sub dissect_element($$$$$;$$)
                     }
                     my $bitmask_field = $fieldname . "_bits";
                     say $impl $indent."{";
-                    say $impl $indent."    const int* $bitmask_field [] = {";
+                    say $impl $indent."    int* const $bitmask_field [] = {";
                     my $bit = $enum{$enum_name{$e->att('mask')}}{bit};
                     for my $val (sort { $a <=> $b } keys %$bit) {
                         my $item = $regname . '_mask_' . $$bit{$val};

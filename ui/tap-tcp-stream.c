@@ -29,7 +29,6 @@
 #include "tap-tcp-stream.h"
 
 typedef struct _tcp_scan_t {
-    struct segment         *current;
     int                     direction;
     struct tcp_graph       *tg;
     struct segment         *last;
@@ -101,9 +100,8 @@ tapall_tcpip_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, cons
 
 /* here we collect all the external data we will ever need */
 void
-graph_segment_list_get(capture_file *cf, struct tcp_graph *tg, gboolean stream_known)
+graph_segment_list_get(capture_file *cf, struct tcp_graph *tg)
 {
-    struct segment current;
     GString    *error_string;
     tcp_scan_t  ts;
 
@@ -113,30 +111,11 @@ graph_segment_list_get(capture_file *cf, struct tcp_graph *tg, gboolean stream_k
         return;
     }
 
-    if (!stream_known) {
-        struct tcpheader *header = select_tcpip_session(cf, &current);
-        if (!header) return;
-        if (tg->type == GRAPH_THROUGHPUT) {
-            ts.direction = COMPARE_CURR_DIR;
-        } else {
-            ts.direction = COMPARE_ANY_DIR;
-        }
-
-        /* Remember stream info in graph */
-        copy_address(&tg->src_address, &current.ip_src);
-        tg->src_port = current.th_sport;
-        copy_address(&tg->dst_address, &current.ip_dst);
-        tg->dst_port = current.th_dport;
-        tg->stream = header->th_stream;
-    } else {
-            ts.direction = COMPARE_ANY_DIR;
-    }
-
     /* rescan all the packets and pick up all interesting tcp headers.
      * we only filter for TCP here for speed and do the actual compare
      * in the tap listener
      */
-    ts.current = &current;
+    ts.direction = COMPARE_ANY_DIR;
     ts.tg      = tg;
     ts.last    = NULL;
     error_string = register_tap_listener("tcp", &ts, "tcp", 0, NULL, tapall_tcpip_packet, NULL, NULL);
@@ -155,8 +134,13 @@ graph_segment_list_free(struct tcp_graph *tg)
 {
     struct segment *segment;
 
+    free_address(&tg->src_address);
+    free_address(&tg->dst_address);
+
     while (tg->segments) {
         segment = tg->segments->next;
+        free_address(&tg->segments->ip_src);
+        free_address(&tg->segments->ip_dst);
         g_free(tg->segments);
         tg->segments = segment;
     }
@@ -267,31 +251,31 @@ tap_tcpip_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt _U_, con
  * then present the user with a dialog where the user can select WHICH tcp
  * session to graph.
  */
-struct tcpheader *
-select_tcpip_session(capture_file *cf, struct segment *hdrs)
+guint32
+select_tcpip_session(capture_file *cf)
 {
     frame_data     *fdata;
     epan_dissect_t  edt;
     dfilter_t      *sfcode;
+    guint32         th_stream;
     gchar          *err_msg;
     GString        *error_string;
-    nstime_t        rel_ts;
     th_t th = {0, {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}};
 
-    if (!cf || !hdrs) {
-        return NULL;
+    if (!cf) {
+        return G_MAXUINT32;
     }
 
     /* no real filter yet */
     if (!dfilter_compile("tcp", &sfcode, &err_msg)) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
         g_free(err_msg);
-        return NULL;
+        return G_MAXUINT32;
     }
 
     /* dissect the current record */
     if (!cf_read_current_record(cf)) {
-        return NULL;    /* error reading the record */
+        return G_MAXUINT32;    /* error reading the record */
     }
 
     fdata = cf->current_frame;
@@ -309,9 +293,9 @@ select_tcpip_session(capture_file *cf, struct segment *hdrs)
     epan_dissect_run_with_taps(&edt, cf->cd_t, &cf->rec,
                                frame_tvbuff_new_buffer(&cf->provider, fdata, &cf->buf),
                                fdata, NULL);
-    rel_ts = edt.pi.rel_ts;
     epan_dissect_cleanup(&edt);
     remove_tap_listener(&th);
+    dfilter_free(sfcode);
 
     if (th.num_hdrs == 0) {
         /* This "shouldn't happen", as our menu items shouldn't
@@ -320,7 +304,7 @@ select_tcpip_session(capture_file *cf, struct segment *hdrs)
          * to determine whether to enable any of our menu items. */
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                       "Selected packet isn't a TCP segment or is truncated");
-        return NULL;
+        return G_MAXUINT32;
     }
     /* XXX fix this later, we should show a dialog allowing the user
        to select which session he wants here
@@ -330,27 +314,19 @@ select_tcpip_session(capture_file *cf, struct segment *hdrs)
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                       "The selected packet has more than one TCP unique conversation "
                       "in it.");
-        return NULL;
+        return G_MAXUINT32;
     }
 
     /* For now, still always choose the first/only one */
-    hdrs->num   = fdata->num;
-    hdrs->rel_secs  = (guint32) rel_ts.secs;
-    hdrs->rel_usecs = rel_ts.nsecs/1000;
-    /* Currently unused
-    hdrs->abs_secs  = (guint32) fdata->abs_ts.secs;
-    hdrs->abs_usecs = fdata->abs_ts.nsecs/1000;
-    */
-    hdrs->th_seq    = th.tcphdrs[0]->th_seq;
-    hdrs->th_ack    = th.tcphdrs[0]->th_ack;
-    hdrs->th_win    = th.tcphdrs[0]->th_win;
-    hdrs->th_flags  = th.tcphdrs[0]->th_flags;
-    hdrs->th_sport  = th.tcphdrs[0]->th_sport;
-    hdrs->th_dport  = th.tcphdrs[0]->th_dport;
-    hdrs->th_seglen = th.tcphdrs[0]->th_seglen;
-    copy_address(&hdrs->ip_src, &th.tcphdrs[0]->ip_src);
-    copy_address(&hdrs->ip_dst, &th.tcphdrs[0]->ip_dst);
-    return th.tcphdrs[0];
+    th_stream = th.tcphdrs[0]->th_stream;
+
+    for (int n = 0; n < th.num_hdrs; n++) {
+        free_address(&th.tcphdrs[n]->ip_src);
+        free_address(&th.tcphdrs[n]->ip_dst);
+        g_free(th.tcphdrs[n]);
+    }
+
+    return th_stream;
 }
 
 int rtt_is_retrans(struct rtt_unack *list, unsigned int seqno)

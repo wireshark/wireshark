@@ -269,12 +269,15 @@ wtap_open_return_val lanalyzer_open(wtap *wth, int *err, gchar **err_info)
       LA_RecordHeader rec_header;
       char header_fixed[2];
       char *comment;
+      gboolean found_summary;
       char summary[210];
       guint16 board_type, mxslc;
       guint16 record_type, record_length;
       guint8 cr_day, cr_month;
       guint16 cr_year;
       struct tm tm;
+      time_t start;
+      int file_encap;
       lanalyzer_t *lanalyzer;
 
       if (!wtap_read_bytes(wth->fh, &rec_header, LA_RecordHeaderSize,
@@ -291,7 +294,7 @@ wtap_open_return_val lanalyzer_open(wtap *wth, int *err, gchar **err_info)
       }
 
       /* Read the major and minor version numbers */
-      if (record_length < 2) {
+      if (record_length < sizeof header_fixed) {
             /*
              * Not enough room for the major and minor version numbers.
              * Just treat that as a "not a LANalyzer file" indication.
@@ -322,18 +325,16 @@ wtap_open_return_val lanalyzer_open(wtap *wth, int *err, gchar **err_info)
             g_free(comment);
       }
 
-      /* If we made it this far, then the file is a LANAlyzer file.
-       * Let's get some info from it. Note that we get wth->snapshot_length
-       * from a record later in the file. */
-      wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_LANALYZER;
-      lanalyzer = (lanalyzer_t *)g_malloc(sizeof(lanalyzer_t));
-      wth->priv = (void *)lanalyzer;
-      wth->subtype_read = lanalyzer_read;
-      wth->subtype_seek_read = lanalyzer_seek_read;
-      wth->snapshot_length = 0;
-      wth->file_tsprec = WTAP_TSPREC_NSEC;
-
-      /* Read records until we find the start of packets */
+      /*
+       * Read records until we find the start of packets.
+       * The document cited above claims that the first 11 records are
+       * in a particular sequence of types, but at least one capture
+       * doesn't have all the types listed in the order listed.
+       *
+       * If we don't have a summary record, we don't know the link-layer
+       * header type, so we can't read the file.
+       */
+      found_summary = FALSE;
       while (1) {
             if (!wtap_read_bytes_or_eof(wth->fh, &rec_header,
                                         LA_RecordHeaderSize, err, err_info)) {
@@ -342,7 +343,7 @@ wtap_open_return_val lanalyzer_open(wtap *wth, int *err, gchar **err_info)
                          * End of file and no packets;
                          * accept this file.
                          */
-                        return WTAP_OPEN_MINE;
+                        break;
                   }
                   return WTAP_OPEN_ERROR;
             }
@@ -354,6 +355,12 @@ wtap_open_return_val lanalyzer_open(wtap *wth, int *err, gchar **err_info)
             switch (record_type) {
                   /* Trace Summary Record */
             case RT_Summary:
+                  if (record_length < sizeof summary) {
+                        *err = WTAP_ERR_BAD_FILE;
+                        *err_info = g_strdup_printf("lanalyzer: summary record length %u is too short",
+                                                    record_length);
+                        return WTAP_OPEN_ERROR;
+                  }
                   if (!wtap_read_bytes(wth->fh, summary,
                                        sizeof summary, err, err_info))
                         return WTAP_OPEN_ERROR;
@@ -380,25 +387,39 @@ wtap_open_return_val lanalyzer_open(wtap *wth, int *err, gchar **err_info)
                   tm.tm_min = 0;
                   tm.tm_sec = 0;
                   tm.tm_isdst = -1;
-                  lanalyzer->start = mktime(&tm);
+                  start = mktime(&tm);
                   /*g_message("Day %d Month %d Year %d", tm.tm_mday,
                     tm.tm_mon, tm.tm_year);*/
                   mxslc = pletoh16(&summary[30]);
-                  wth->snapshot_length = mxslc;
 
                   board_type = pletoh16(&summary[188]);
                   switch (board_type) {
                   case BOARD_325:
-                        wth->file_encap = WTAP_ENCAP_ETHERNET;
+                        file_encap = WTAP_ENCAP_ETHERNET;
                         break;
                   case BOARD_325TR:
-                        wth->file_encap = WTAP_ENCAP_TOKEN_RING;
+                        file_encap = WTAP_ENCAP_TOKEN_RING;
                         break;
                   default:
                         *err = WTAP_ERR_UNSUPPORTED;
                         *err_info = g_strdup_printf("lanalyzer: board type %u unknown",
                                                     board_type);
                         return WTAP_OPEN_ERROR;
+                  }
+
+                  if (found_summary) {
+                        *err = WTAP_ERR_BAD_FILE;
+                        *err_info = g_strdup_printf("lanalyzer: file has more than one summary record");
+                        return WTAP_OPEN_ERROR;
+                  }
+                  found_summary = TRUE;
+
+                  /* Skip the rest of the record */
+                  record_length -= sizeof summary;
+                  if (record_length != 0) {
+                        if (!wtap_read_bytes(wth->fh, NULL, record_length, err, err_info)) {
+                              return WTAP_OPEN_ERROR;
+                        }
                   }
                   break;
 
@@ -409,7 +430,7 @@ wtap_open_return_val lanalyzer_open(wtap *wth, int *err, gchar **err_info)
                   if (file_seek(wth->fh, -LA_RecordHeaderSize, SEEK_CUR, err) == -1) {
                         return WTAP_OPEN_ERROR;
                   }
-                  return WTAP_OPEN_MINE;
+                  goto done;
 
             default:
                   /* Unknown record type - skip it */
@@ -419,6 +440,36 @@ wtap_open_return_val lanalyzer_open(wtap *wth, int *err, gchar **err_info)
                   break;
             }
       }
+
+done:
+      if (!found_summary) {
+            *err = WTAP_ERR_BAD_FILE;
+            *err_info = g_strdup_printf("lanalyzer: file has no summary record");
+            return WTAP_OPEN_ERROR;
+      }
+
+      /* If we made it this far, then the file is a readable LANAlyzer file.
+       * Let's get some info from it. Note that we get wth->snapshot_length
+       * from a record later in the file. */
+      wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_LANALYZER;
+      lanalyzer = (lanalyzer_t *)g_malloc(sizeof(lanalyzer_t));
+      lanalyzer->start = start;
+      wth->priv = (void *)lanalyzer;
+      wth->subtype_read = lanalyzer_read;
+      wth->subtype_seek_read = lanalyzer_seek_read;
+      wth->file_encap = file_encap;
+      wth->snapshot_length = mxslc;
+      wth->file_tsprec = WTAP_TSPREC_NSEC;
+
+      /*
+       * Add an IDB; we don't know how many interfaces were involved,
+       * so we just say one interface, about which we only know
+       * the link-layer type, snapshot length, and time stamp
+       * resolution.
+       */
+      wtap_add_generated_idb(wth);
+
+      return WTAP_OPEN_MINE;
 }
 
 #define DESCRIPTOR_LEN  32

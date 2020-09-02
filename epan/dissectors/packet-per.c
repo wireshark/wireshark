@@ -100,10 +100,6 @@ static gboolean display_internal_per_fields = FALSE;
 
 
 
-static const true_false_string tfs_extension_present_bit = {
-	"",
-	""
-};
 static const true_false_string tfs_extension_bit = {
 	"Extension bit is set",
 	"Extension bit is clear"
@@ -111,10 +107,6 @@ static const true_false_string tfs_extension_bit = {
 static const true_false_string tfs_small_number_bit = {
 	"The number is small, 0-63",
 	"The number is large, >63"
-};
-static const true_false_string tfs_optional_field_bit = {
-	"",
-	""
 };
 
 
@@ -896,16 +888,16 @@ DEBUG_ENTRY("dissect_per_constrained_sequence_of");
 	/* 19.4	If there is a PER-visible constraint and an extension marker is present in it,
 	 * a single bit shall be added to the field-list in a bit-field of length one
 	 */
-	if(has_extension){
+	if (has_extension) {
 		gboolean extension_present;
 		offset=dissect_per_boolean(tvb, offset, actx, parent_tree, hf_per_extension_present_bit, &extension_present);
 		if (!display_internal_per_fields) proto_item_set_hidden(actx->created_item);
-		if(extension_present){
+		if (extension_present){
 			/* 10.9 shall be invoked to add the length determinant as a semi-constrained whole number to the field-list,
 			 * followed by the component values
-			 * TODO: Handle extension
 			 */
-			proto_tree_add_expert(parent_tree, actx->pinfo, &ei_per_dissect_per_constrained_sequence_of, tvb, (offset>>3), 1);
+			offset = dissect_per_length_determinant(tvb, offset, actx, parent_tree, hf_per_sequence_of_length, &length, NULL);
+			goto call_sohelper;
 		}
 	}
 
@@ -1116,6 +1108,7 @@ dissect_per_integer(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree 
 {
 	guint32 i, length;
 	guint32 val;
+	tvbuff_t *val_tvb=NULL;
 	proto_item *it=NULL;
 	header_field_info *hfi;
 
@@ -1127,10 +1120,12 @@ dissect_per_integer(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree 
 		length=4;
 	}
 
+	if (actx->aligned) BYTE_ALIGN_OFFSET(offset);
+	val_tvb = tvb_new_octet_aligned(tvb, offset, length * 8);
 	val=0;
 	for(i=0;i<length;i++){
 		if(i==0){
-			if(tvb_get_guint8(tvb, offset>>3)&0x80){
+			if(tvb_get_guint8(val_tvb, i)&0x80){
 				/* negative number */
 				val=0xffffffff;
 			} else {
@@ -1138,9 +1133,9 @@ dissect_per_integer(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree 
 				val=0;
 			}
 		}
-		val=(val<<8)|tvb_get_guint8(tvb,offset>>3);
-		offset+=8;
+		val=(val<<8)|tvb_get_guint8(val_tvb,i);
 	}
+	offset += length * 8;
 
 	hfi = proto_registrar_get_nth(hf_index);
 	if (! hfi)
@@ -2082,7 +2077,7 @@ DEBUG_ENTRY("dissect_per_sequence_eag");
 
 */
 
-static tvbuff_t *dissect_per_bit_string_display(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, header_field_info *hfi, guint32 length, const int **named_bits, gint num_named_bits _U_)
+static tvbuff_t *dissect_per_bit_string_display(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, header_field_info *hfi, guint32 length, int * const *named_bits, gint num_named_bits _U_)
 {
 	tvbuff_t *out_tvb = NULL;
 	guint32  pad_length=0;
@@ -2143,12 +2138,12 @@ static tvbuff_t *dissect_per_bit_string_display(tvbuff_t *tvb, guint32 offset, a
 
 					// Process 8 bits at a time instead of 64, each field masks a
 					// single byte.
-					const int** section_named_bits = named_bits + bit_offset;
+					int* const * section_named_bits = named_bits + bit_offset;
 					int* flags[9];
 					if (num_named_bits - bit_offset > 8) {
 						memcpy(&flags[0], named_bits + bit_offset, 8 * sizeof(int*));
 						flags[8] = NULL;
-						section_named_bits = (const int** )flags;
+						section_named_bits = flags;
 					}
 
 					// TODO should non-zero pad bits be masked from the value?
@@ -2164,7 +2159,7 @@ static tvbuff_t *dissect_per_bit_string_display(tvbuff_t *tvb, guint32 offset, a
 	return out_tvb;
 }
 guint32
-dissect_per_bit_string(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension, const int **named_bits, gint num_named_bits, tvbuff_t **value_tvb, int *len)
+dissect_per_bit_string(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension, int * const *named_bits, gint num_named_bits, tvbuff_t **value_tvb, int *len)
 {
 	/*gint val_start, val_length;*/
 	guint32 length, fragmented_length = 0;
@@ -2740,13 +2735,13 @@ proto_register_per(void)
 		    TFS(&tfs_extension_bit), 0x01, "The extension bit of an aggregate", HFILL }},
 		{ &hf_per_extension_present_bit,
 		  { "Extension Present Bit", "per.extension_present_bit", FT_BOOLEAN, 8,
-		    TFS(&tfs_extension_present_bit), 0x01, "Whether this optional extension is present or not", HFILL }},
+		    NULL, 0x01, "Whether this optional extension is present or not", HFILL }},
 		{ &hf_per_small_number_bit,
 		  { "Small Number Bit", "per.small_number_bit", FT_BOOLEAN, 8,
 		    TFS(&tfs_small_number_bit), 0x01, "The small number bit for a section 10.6 integer", HFILL }},
 		{ &hf_per_optional_field_bit,
 		  { "Optional Field Bit", "per.optional_field_bit", FT_BOOLEAN, 8,
-		    TFS(&tfs_optional_field_bit), 0x01, "This bit specifies the presence/absence of an optional field", HFILL }},
+		    NULL, 0x01, "This bit specifies the presence/absence of an optional field", HFILL }},
 		{ &hf_per_sequence_of_length,
 		  { "Sequence-Of Length", "per.sequence_of_length", FT_UINT32, BASE_DEC,
 		    NULL, 0, "Number of items in the Sequence Of", HFILL }},

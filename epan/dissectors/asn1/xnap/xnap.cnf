@@ -448,6 +448,15 @@ VolumeTimedReport-Item/usageCountDL DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&u
     dissect_lte_rrc_UERadioPagingInformation_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
   }
 
+#.FN_BODY FiveGCMobilityRestrictionListContainer VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_FiveGCMobilityRestrictionListContainer);
+    dissect_ngap_MobilityRestrictionList_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
+
 #.END
 
 #.FN_HDR HandoverRequest
@@ -725,6 +734,7 @@ id-CNTypeRestrictionsForServing               ProtocolIE-ID
 id-DRBs-transferred-to-MN                     ProtocolIE-ID
 id-ULForwardingProposal                       ProtocolIE-ID
 id-EndpointIPAddressAndPort                   ProtocolIE-ID
+id-FiveGCMobilityRestrictionListContainer     ProtocolIE-ID
 #.REGISTER
 
 #XNAP-PROTOCOL-IES
@@ -869,6 +879,7 @@ SplitSessionIndicator                             N xnap.extension id-SplitSessi
 CNTypeRestrictionsForEquivalent                   N xnap.extension id-CNTypeRestrictionsForEquivalent
 CNTypeRestrictionsForServing                      N xnap.extension id-CNTypeRestrictionsForServing
 ULForwardingProposal                              N xnap.extension id-ULForwardingProposal
+FiveGCMobilityRestrictionListContainer            N xnap.extension id-FiveGCMobilityRestrictionListContainer
 
 #XNAP-ELEMENTARY-PROCEDURE
 HandoverRequest                            N xnap.proc.imsg id-handoverPreparation

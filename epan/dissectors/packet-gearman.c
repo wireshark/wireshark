@@ -239,6 +239,10 @@ dissect_binary_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
   //   - use tvb_strsize() for the all but the last argument
   //   - use tvb_strnlen() for the last argument
   //
+  // These are *not* null-terminated strings, they're null-separated
+  // strings.  For example, some arguments might be the last argument
+  // in some commands and not be the last argument in other commands,
+  // so they're not always followed by a null.
 
   //
   // commands with a single argument

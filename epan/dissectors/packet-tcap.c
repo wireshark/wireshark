@@ -223,7 +223,7 @@ static dissector_handle_t data_handle;
 static dissector_handle_t ansi_tcap_handle;
 
 static int dissect_tcap_param(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset);
-static int dissect_tcap_ITU_ComponentPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_);
+static int dissect_tcap_ITU_ComponentPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_);
 
 static dissector_table_t ansi_sub_dissectors = NULL;
 static dissector_table_t itu_sub_dissectors = NULL;
@@ -1018,7 +1018,7 @@ dissect_tcap_TCMessage(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 }
 
 
-static const int * AUDT_protocol_version_bits[] = {
+static int * const AUDT_protocol_version_bits[] = {
   &hf_tcap_AUDT_protocol_version_version1,
   NULL
 };
@@ -1118,7 +1118,7 @@ dissect_tcap_UniDialoguePDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 }
 
 
-static const int * AARQ_protocol_version_bits[] = {
+static int * const AARQ_protocol_version_bits[] = {
   &hf_tcap_AARQ_protocol_version_version1,
   NULL
 };
@@ -1189,7 +1189,7 @@ dissect_tcap_AARQ_apdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 }
 
 
-static const int * AARE_protocol_version_bits[] = {
+static int * const AARE_protocol_version_bits[] = {
   &hf_tcap_AARE_protocol_version_version1,
   NULL
 };

@@ -1605,7 +1605,7 @@ dissect_p7_INTEGER_1_ub_messages(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 }
 
 
-static const int * OverrideRestrictions_bits[] = {
+static int * const OverrideRestrictions_bits[] = {
   &hf_p7_OverrideRestrictions_override_content_types_restriction,
   &hf_p7_OverrideRestrictions_override_EITs_restriction,
   &hf_p7_OverrideRestrictions_override_attribute_length_restriction,
@@ -2331,7 +2331,7 @@ dissect_p7_MessageGroupRegistrations(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 }
 
 
-static const int * T_registrations_bits[] = {
+static int * const T_registrations_bits[] = {
   &hf_p7_T_registrations_auto_action_registrations,
   &hf_p7_T_registrations_list_attribute_defaults,
   &hf_p7_T_registrations_fetch_attribute_defaults,
@@ -3384,7 +3384,7 @@ dissect_p7_ModifyErrorParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 }
 
 
-static const int * T_entry_class_problem_bits[] = {
+static int * const T_entry_class_problem_bits[] = {
   &hf_p7_T_entry_class_problem_unsupported_entry_class,
   &hf_p7_T_entry_class_problem_entry_class_not_subscribed,
   &hf_p7_T_entry_class_problem_inappropriate_entry_class,

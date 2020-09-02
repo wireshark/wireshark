@@ -275,7 +275,7 @@ static const value_string bitmap[] = {
     { BMP_TRACE_NUM,     "Trace number" },
     { BMP_TIME,          "Time" },
     { BMP_DATE,          "Date" },
-    { BMP_EXP_DATE,      "Exipry date" },
+    { BMP_EXP_DATE,      "Expiry date" },
     { BMP_CARD_SEQ_NUM,  "Card sequence number" },
     { BMP_PAYMENT_TYPE,  "Payment type" },
     { BMP_CARD_NUM,      "Card number" },
