@@ -15,10 +15,12 @@ from __future__ import print_function
 
 import argparse
 import difflib
+import json
 import os
 import subprocess
 import sys
 import tempfile
+import urllib.request
 
 
 parser = argparse.ArgumentParser()
@@ -164,6 +166,39 @@ for details.
     return is_good
 
 
+def verify_merge_request():
+    # Not needed if/when https://gitlab.com/gitlab-org/gitlab/-/issues/23308 is fixed.
+    gitlab_api_pfx = "https://gitlab.com/api/v4"
+    # gitlab.com/wireshark/wireshark = 7898047
+    project_id = os.getenv('CI_MERGE_REQUEST_PROJECT_ID')
+    m_r_iid = os.getenv('CI_MERGE_REQUEST_IID')
+    if project_id is None or m_r_iid is None:
+        print("This doesn't appear to be a merge request. CI_MERGE_REQUEST_PROJECT_ID={}, CI_MERGE_REQUEST_IID={}".format(project_id, m_r_iid))
+        return True
+
+    m_r_url = '{}/projects/{}/merge_requests/{}'.format(gitlab_api_pfx, project_id, m_r_iid)
+    req = urllib.request.Request(m_r_url)
+    # print('req', repr(req))
+    with urllib.request.urlopen(req) as resp:
+        resp_json = resp.read().decode('utf-8')
+        # print('resp', resp_json)
+        m_r_attrs = json.loads(resp_json)
+        try:
+            if not m_r_attrs['allow_collaboration']:
+                print('''\
+ERROR: Please make sure the setting
+
+    Allow commits from members who can merge to the target branch
+
+is checked in your merge request so that maintainers can rebase your change
+and make minor edits.\
+''')
+                return False
+        except KeyError:
+            sys.stderr.write('This appears to be a merge request, but we were not able to fetch the "Allow commits" status\n')
+    return True
+
+
 def main():
     args = parser.parse_args()
     commit = args.commit
@@ -195,6 +230,9 @@ def main():
         print_git_user_instructions()
 
     if not verify_body(body):
+        exit_code = 1
+
+    if not verify_merge_request():
         exit_code = 1
 
     return exit_code
