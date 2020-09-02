@@ -91,6 +91,32 @@ static expert_field ei_fcoe_crc = EI_INIT;
 
 static dissector_handle_t fc_handle;
 
+/* Looks for the EOF at a given offset. Returns NULL if the EOF is not
+ * present, is not one of the known values, or if the next three bytes, if
+ * present, are not padding. Otherwise returns the entry from the EOF
+ * value_string. Intended for use with the newer T11 version, where the frame
+ * length is not explicitly set (and padding is used). */
+static const gchar *
+fcoe_get_eof(tvbuff_t *tvb, gint eof_offset)
+{
+    guint8      eof          = 0;
+    const gchar *eof_str;
+    gint        padding_remaining;
+
+    if (!tvb_bytes_exist(tvb, eof_offset, 1)) {
+        return NULL;
+    }
+
+    padding_remaining = MIN(tvb_captured_length_remaining(tvb, eof_offset+1),3);
+    if (tvb_memeql(tvb, eof_offset+1, "\x00\x00\x00", padding_remaining)) {
+        return NULL;
+    }
+
+    eof = tvb_get_guint8(tvb, eof_offset);
+    eof_str = try_val_to_str(eof, fcoe_eof_vals);
+    return eof_str;
+}
+
 static int
 dissect_fcoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
@@ -130,10 +156,15 @@ dissect_fcoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         ver = "pre-T11 ";
         if (version != 0)
             ver = wmem_strdup_printf(wmem_packet_scope(), ver, "pre-T11 ver %d ", version);
+        eof_offset = header_len + frame_len + 4;
+        eof_str = "none";
+        if (tvb_bytes_exist(tvb, eof_offset, 1)) {
+            eof = tvb_get_guint8(tvb, eof_offset);
+            eof_str = val_to_str(eof, fcoe_eof_vals, "0x%x");
+        }
         /* Old format has a length field, so we can help the Ethernet dissector
-         * guess about the FCS; note this format does not pad after the EOF,
-         * so the trailer is only 5 octets, not 8. */
-        set_actual_length(tvb, header_len+frame_len+5);
+         * guess about the FCS; note this format does not pad after the EOF */
+        set_actual_length(tvb, eof_offset+1);
     } else {
         frame_len = tvb_reported_length_remaining(tvb, 0) -
           FCOE_HEADER_LEN - FCOE_TRAILER_LEN;
@@ -147,20 +178,36 @@ dissect_fcoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         version = tvb_get_guint8(tvb, 0) >> 4;
         if (version != 0)
             ver = wmem_strdup_printf(wmem_packet_scope(), ver, "ver %d ", version);
+
+        eof_offset = header_len + frame_len + 4;
+        if (NULL == (eof_str = fcoe_get_eof(tvb, eof_offset))) {
+            /* We didn't find the EOF, look 4 bytes earlier */
+            if (NULL != (eof_str = fcoe_get_eof(tvb, eof_offset-4))) {
+                /* Found it, so it seems there's an Ethernet FCS. */
+                frame_len -= 4;
+                set_actual_length(tvb, eof_offset);
+                eof_offset -= 4;
+            } else {
+                if (tvb_bytes_exist(tvb, eof_offset, 1)) {
+                    /* Hmm, we have enough bytes to look for the EOF
+                     * but it's an unexpected value. */
+                    eof = tvb_get_guint8(tvb, eof_offset);
+                    eof_str = wmem_strdup_printf(wmem_packet_scope(), "0x%x", eof);
+                } else {
+                    /* We just didn't capture enough to get the EOF */
+                    eof_str = "none";
+                }
+            }
+        }
+
     }
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FCoE");
     crc_offset = header_len + frame_len;
-    eof_offset = crc_offset + 4;
+
     bytes_remaining = tvb_captured_length_remaining(tvb, header_len);
     if (bytes_remaining > frame_len)
         bytes_remaining = frame_len;        /* backing length */
     next_tvb = tvb_new_subset_length_caplen(tvb, header_len, bytes_remaining, frame_len);
-
-    eof_str = "none";
-    if (tvb_bytes_exist(tvb, eof_offset, 1)) {
-        eof = tvb_get_guint8(tvb, eof_offset);
-        eof_str = val_to_str(eof, fcoe_eof_vals, "0x%x");
-    }
 
     /*
      * Check the CRC.
