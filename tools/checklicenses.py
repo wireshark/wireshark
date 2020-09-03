@@ -113,6 +113,10 @@ PATH_SPECIFIC_ALLOWED_LICENSES = {
     'epan/dissectors/packet-ieee80211-radiotap-iter.': [ # Using ISC license only
          'ISC GPL (v2)'
     ],
+     # Mentions BSD-3-clause twice due to embedding of code:
+    'epan/dissectors/packet-communityid.c': [
+         'BSD (3 clause) BSD (3 clause)',
+    ],
     'plugins/mate/mate_grammar.h': [
         'UNKNOWN',
     ],

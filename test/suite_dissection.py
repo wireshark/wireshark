@@ -249,3 +249,43 @@ class case_decompress_smb2(subprocesstest.SubprocessTestCase):
         if sys.byteorder == 'big':
             fixtures.skip('this test is supported on little endian only')
         self.extract_compressed_payload(cmd_tshark, capture_file, 3)
+
+@fixtures.mark_usefixtures('test_env')
+@fixtures.uses_fixtures
+class case_communityid(subprocesstest.SubprocessTestCase):
+    # Show full diffs in case of divergence
+    maxDiff = None
+
+    def assertBaseline(self, dirs, output, baseline):
+        baseline_file = os.path.join(dirs.baseline_dir, baseline)
+        with open(baseline_file) as f:
+            baseline_data = f.read()
+
+        self.assertEqual(output, baseline_data)
+
+    def test_communityid(self, cmd_tshark, features, dirs, capture_file):
+        # Run tshark on our Community ID test pcap, enabling the
+        # postdissector (it is disabled by default), and asking for
+        # the Community ID value as field output. Verify that this
+        # exits successfully:
+        proc = self.assertRun(
+            (cmd_tshark,
+             '--enable-protocol', 'communityid',
+             '-r', capture_file('communityid.pcap.gz'),
+             '-Tfields', '-ecommunityid',
+             ))
+
+        self.assertBaseline(dirs, proc.stdout_str, 'communityid.txt')
+
+    def test_communityid_filter(self, cmd_tshark, features, dirs, capture_file):
+        # Run tshark on our Community ID test pcap, enabling the
+        # postdissector and filtering the result.
+        proc = self.assertRun(
+            (cmd_tshark,
+             '--enable-protocol', 'communityid',
+             '-r', capture_file('communityid.pcap.gz'),
+             '-Tfields', '-ecommunityid',
+             'communityid=="1:d/FP5EW3wiY1vCndhwleRRKHowQ="'
+             ))
+
+        self.assertBaseline(dirs, proc.stdout_str, 'communityid-filtered.txt')
