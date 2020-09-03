@@ -148,6 +148,34 @@ test:debian-stable:
   dependencies:
     - build:debian-stable
 
+# Build Wireshark manuals
+# Note: Need ubuntu:focal with `ruby-coderay` and `ruby-asciidoctor-pdf` packages to build PDF docs
+docbook:
+  stage: build
+  image: wireshark/wireshark-ubuntu-dev
+  rules:
+    - changes:
+      - "docbook/**"
+      - "epan/wslua/**"
+  before_script:
+    - DEBIAN_FRONTEND="noninteractive" ./tools/debian-setup.sh --install-optional -y g++
+  script:
+    - mkdir build
+    - cd build
+    - cmake -GNinja ..
+    - ninja all_guides
+  after_script:
+    - mv build/docbook/wsug_html/ .
+    - mv build/docbook/wsug_html_chunked/ .
+    - mv build/docbook/wsdg_html/ .
+    - mv build/docbook/wsdg_html_chunked/ .
+  artifacts:
+    paths:
+      - wsug_html/
+      - wsug_html_chunked/
+      - wsdg_html/
+      - wsdg_html_chunked/
+
 # https://docs.gitlab.com/ee/user/gitlab_com/index.html#linux-shared-runners
 
 merge-req:commit-checks:
