@@ -484,10 +484,14 @@ $ git push downstream HEAD
 You should see a https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html#create-merge-request-button[“Create merge request”] button.
 Press it.
 
+. In the merge request page, make sure “Allow commits from members who can merge to the target branch” is selected so that core developers can rebase your change. You might want to select “Delete source branch when merge request is accepted” as well. Click the “Submit merge request” button.
+
 // XXX Add command line instructions for one or more of the following:
+// https://docs.gitlab.com/ee/user/project/push_options.html
 // https://github.com/zaquestion/lab - Go (single binary).
 // https://invent.kde.org/sdk/git-lab - Developed by the KDE team.
 // https://github.com/vishwanatharondekar/gitlab-cli - Might work well for people who don't mind using NPM.
+
 
 [[ChSrcUpdatingMergeRequests]]
 ==== Updating Merge Requests
