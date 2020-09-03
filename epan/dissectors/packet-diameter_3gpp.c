@@ -315,6 +315,8 @@ static int hf_diameter_3gpp_mbms_abs_time_ofmbms_data_tfer = -1;
 static int hf_diameter_3gpp_udp_port = -1;
 static int hf_diameter_3gpp_imeisv = -1;
 static int hf_diameter_3gpp_af_charging_identifier = -1;
+static int hf_diameter_3gpp_codec_data_dir = -1;
+static int hf_diameter_3gpp_codec_sdp_type = -1;
 static int hf_diameter_3gpp_service_urn = -1;
 static int hf_diameter_3gpp_af_application_identifier = -1;
 static int hf_diameter_3gpp_charging_rule_name = -1;
@@ -586,6 +588,7 @@ static int hf_diameter_3gpp_ikev2_cause = -1;
 /* Dissector handles */
 static dissector_handle_t xml_handle;
 static dissector_handle_t gsm_sms_handle;
+static dissector_handle_t sdp_handle;
 
 /* Forward declarations */
 static int dissect_diameter_3gpp_ipv6addr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_);
@@ -808,6 +811,57 @@ dissect_diameter_3gpp_af_charging_identifier(tvbuff_t *tvb, packet_info *pinfo _
     }
 
     return length;
+}
+/*
+ * AVP Code: 524 Codec-Data
+ */
+static int
+dissect_diameter_3gpp_codec_data(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
+{
+    int offset = 0, linelen, next_offset;
+    int length = tvb_reported_length(tvb);
+    const char* str;
+
+    /* The first line of the value of the Codec-Data AVP shall consist of either the word "uplink"
+     * or the word "downlink" (in ASCII, without quotes) followed by a new-line character
+     */
+    linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+    if (linelen < 1) {
+        return tvb_reported_length(tvb);
+    }
+    str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, linelen, ENC_ASCII | ENC_NA);
+    proto_tree_add_string_format(tree, hf_diameter_3gpp_codec_data_dir, tvb, offset, linelen, str, "%s", str);
+    if (next_offset > length) {
+        return tvb_reported_length(tvb);
+    }
+    offset = next_offset;
+    /* The second line of the value of the Codec-Data AVP shall consist of either the word "offer"
+     * or the word "answer", or the word "description" (in ASCII, without quotes)
+     * followed by a new-line character
+     */
+    linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+    if (linelen < 1) {
+        return tvb_reported_length(tvb);
+    }
+    str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, linelen, ENC_ASCII | ENC_NA);
+    proto_tree_add_string_format(tree, hf_diameter_3gpp_codec_sdp_type, tvb, offset, linelen, str, "%s", str);
+    if (next_offset >= length) {
+        return tvb_reported_length(tvb);
+    }
+
+    /* The rest of the value shall consist of SDP line(s) in ASCII encoding
+     * separated by new-line characters, as specified in IETF RFC 4566
+     */
+    if (sdp_handle) {
+        /* Lets see if we have null padding*/
+        while (tvb_get_guint8(tvb, length - 1) == 0) {
+            length--;
+        }
+        length -= next_offset;
+        tvbuff_t* new_tvb = tvb_new_subset_length(tvb, next_offset, length);
+        call_dissector(sdp_handle, new_tvb, pinfo, tree);
+    }
+    return tvb_reported_length(tvb);
 }
 
 /*
@@ -3028,6 +3082,9 @@ proto_reg_handoff_diameter_3gpp(void)
     /* AVP Code: 505 AF-Charging-Identifier */
     dissector_add_uint("diameter.3gpp", 505, create_dissector_handle(dissect_diameter_3gpp_af_charging_identifier, proto_diameter_3gpp));
 
+    /* AVP Code: 524 Codec-Data */
+    dissector_add_uint("diameter.3gpp", 524, create_dissector_handle(dissect_diameter_3gpp_codec_data, proto_diameter_3gpp));
+
     /* AVP Code: 525 Service-URN */
     dissector_add_uint("diameter.3gpp", 525, create_dissector_handle(dissect_diameter_3gpp_service_urn, proto_diameter_3gpp));
 
@@ -3251,6 +3308,7 @@ proto_reg_handoff_diameter_3gpp(void)
 
     xml_handle = find_dissector_add_dependency("xml", proto_diameter_3gpp);
     gsm_sms_handle = find_dissector_add_dependency("gsm_sms", proto_diameter_3gpp);
+    sdp_handle = find_dissector_add_dependency("sdp", proto_diameter_3gpp);
 }
 
 /*
@@ -4887,6 +4945,16 @@ proto_register_diameter_3gpp(void)
         },
         { &hf_diameter_3gpp_af_charging_identifier,
             { "AF-Charging-Identifier", "diameter.3gpp.af_charging_identifier",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_codec_data_dir,
+            { "Direction", "diameter.3gpp.codec_data.direction",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_codec_sdp_type,
+            { "SDP Type", "diameter.3gpp.codec_data.sdp_type",
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
