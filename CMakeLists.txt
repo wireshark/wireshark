@@ -3133,7 +3133,7 @@ if(RPMBUILD_EXECUTABLE)
 	)
 
 	# XXX Replace with the "dist" target?
-	set(_export_tarball "${PROJECT_NAME}-${VERSION}.tar.xz")
+	set(_export_tarball "marine-${VERSION}.tar.xz")
 	add_custom_command(
 		OUTPUT "${CMAKE_BINARY_DIR}/packaging/rpm/SOURCES/${_export_tarball}"
 		COMMAND ${CMAKE_BINARY_DIR}/packaging/source/git-export-release.sh

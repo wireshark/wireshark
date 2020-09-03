@@ -49,11 +49,11 @@ if ! git diff-index --quiet HEAD ; then
     STASH_POP=true
 fi
 
-echo "Creating wireshark-$VERSION.tar.xz"
+echo "Creating marine-$VERSION.tar.xz"
 
 echo . | xz --threads=0 > /dev/null 2>&1 && XZ_OPTS=--threads=0
 
-git archive --prefix="wireshark-${VERSION}/" ${COMMIT} | xz $XZ_OPTS > "${DESTDIR}/wireshark-${VERSION}.tar.xz"
+git archive --prefix="marine-${VERSION}/" ${COMMIT} | xz $XZ_OPTS > "${DESTDIR}/marine-${VERSION}.tar.xz"
 
 if $STASH_POP ; then
     git stash pop
