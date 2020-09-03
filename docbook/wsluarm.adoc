@@ -332,7 +332,7 @@ characters stand for compilation flags. Combinations of the following characters
   very start and end. This can be changed within a pattern by a “(?m)” option
   setting.
 
-* _s_ = G_REGEX_DOTALL - A dot metacharater (“.”) in the pattern matches
+* _s_ = G_REGEX_DOTALL - A dot metacharacter (“.”) in the pattern matches
   all characters, including newlines. Without it, newlines are excluded. This
   option can be changed within a pattern by a ("?s") option setting.
 

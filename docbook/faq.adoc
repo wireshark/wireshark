@@ -547,7 +547,7 @@ any, to support capturing the FCS of a frame.
 
 Most OSes do *not* support capturing the FCS of a frame on Ethernet,
 and probably do not support it on most other link-layer types. Some
-drivres on some OSes do support it, such as some (all?) Ethernet drivers
+drivers on some OSes do support it, such as some (all?) Ethernet drivers
 on NetBSD and possibly the driver for Apple's gigabit Ethernet interface
 in macOS; in those OSes, you might always get the FCS, or you might only
 get the FCS if you capture in promiscuous mode (you'd have to determine
@@ -613,7 +613,7 @@ address won't be done, which may speed up the process of reading the
 capture file after the capture is stopped. You can make that setting the
 default by selecting "Preferences" from the "Edit" menu, turning off the
 "Enable network name resolution" option in the "Name resolution" options
-in the preferences disalog box, and using the "Save" button in that
+in the preferences dialog box, and using the "Save" button in that
 dialog box; note that this will save _all_ your current preference
 settings.
 
