@@ -1565,7 +1565,7 @@ MGCP packets exchanged by the host at IP address 1.2.3.4 .
 
 Collect credentials (username/passwords) from packets. The report includes
 the packet number, the protocol that had that credential, the username and
-the password. For protocols just using one sigle field as authentication,
+the password. For protocols just using one single field as authentication,
 this is provided as a password and a placeholder in place of the user.
 
 =item B<-z> proto,colinfo,I<filter>,I<field>

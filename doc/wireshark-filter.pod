@@ -282,7 +282,7 @@ one byte). This is not allowed for byte sequences greater than one byte,
 because then one would need to specify the endianness of the multi-byte
 integer. Also, this is not allowed for decimal numbers, since they
 would be confused with hex numbers that are already allowed as
-byte strings. Neverthelss, single-byte hex integers can be convienent:
+byte strings. Nevertheless, single-byte hex integers can be convenient:
 
     frame[4] == 0xff
 

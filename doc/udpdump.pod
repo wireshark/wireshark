@@ -69,7 +69,7 @@ Save captured packet to file or send it through pipe.
 
 =item --port=E<lt>portE<gt>
 
-Set the listerner port. Port 5555 is the default.
+Set the listener port. Port 5555 is the default.
 
 =item --payload=E<lt>typeE<gt>
 
