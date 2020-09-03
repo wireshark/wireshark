@@ -344,6 +344,7 @@ static int hf_gtpv2_target_type = -1;
 static int hf_gtpv2_macro_enodeb_id = -1;
 static int hf_gtpv2_smenb = -1;
 static int hf_gtpv2_ext_macro_enodeb_id = -1;
+static int hf_gtpv2_ext_macro_ng_enodeb_id = -1;
 static int hf_gtpv2_enodebid = -1;
 static int hf_gtpv2_cellid = -1;
 
@@ -644,6 +645,7 @@ static int hf_gtpv2_csg_info_rep_action_b1 = -1;
 static int hf_gtpv2_csg_info_rep_action_b2 = -1;
 static int hf_gtpv2_gnodeb_id_len = -1;
 static int hf_gtpv2_gnodeb_id = -1;
+static int hf_gtpv2_macro_ng_enodeb_id = -1;
 static int hf_gtpv2_5gs_tac = -1;
 static int hf_gtpv2_en_gnb_id_len = -1;
 static int hf_gtpv2_5tac;
@@ -2839,7 +2841,7 @@ static const true_false_string gtpv2_smenb = {
 };
 
 static gchar*
-dissect_gtpv2_ext_macro_enodeb_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset)
+dissect_gtpv2_ext_macro_enodeb_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, int hfindex)
 {
     gchar      *str = NULL;
     gchar      *mcc_mnc_str;
@@ -2849,11 +2851,12 @@ dissect_gtpv2_ext_macro_enodeb_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     *offset += 3;
     /* The Extended Macro eNodeB ID consists of 21 bits. */
     proto_tree_add_item(tree, hf_gtpv2_smenb, tvb, *offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item_ret_uint(tree, hf_gtpv2_ext_macro_enodeb_id, tvb, *offset, 3, ENC_BIG_ENDIAN, &ext_macro_enodeb_id);
+    proto_tree_add_item_ret_uint(tree, hfindex, tvb, *offset, 3, ENC_BIG_ENDIAN, &ext_macro_enodeb_id);
     *offset += 3;
 
-    str = wmem_strdup_printf(wmem_packet_scope(), "%s, Extended Macro eNodeB ID 0x%x",
+    str = wmem_strdup_printf(wmem_packet_scope(), "%s, Extended Macro %seNodeB ID 0x%x",
         mcc_mnc_str,
+        hfindex == hf_gtpv2_ext_macro_ng_enodeb_id ? "ng-" : "",
         ext_macro_enodeb_id);
 
     return str;
@@ -2972,7 +2975,7 @@ decode_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item
         part_tree = proto_tree_add_subtree(tree, tvb, offset, 7,
             ett_gtpv2_uli_field, NULL, "Extended Macro eNodeB ID");
 
-        str = dissect_gtpv2_ext_macro_enodeb_id(tvb, pinfo, part_tree, &offset);
+        str = dissect_gtpv2_ext_macro_enodeb_id(tvb, pinfo, part_tree, &offset, hf_gtpv2_ext_macro_enodeb_id);
 
         if (offset == length)
             return str;
@@ -5316,6 +5319,26 @@ dissect_gtpv2_gnodeb_id(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int
     return str;
 }
 
+static gchar*
+dissect_gtpv2_macro_ng_enodeb_id(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int* offset)
+{
+    gchar      *str = NULL;
+    gchar      *mcc_mnc_str;
+    guint32     ng_enodeb_id;
+
+    mcc_mnc_str = dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, tree, *offset, E212_NONE, TRUE);
+    *offset += 3;
+
+    proto_tree_add_item_ret_uint(tree, hf_gtpv2_macro_ng_enodeb_id, tvb, *offset, 3, ENC_BIG_ENDIAN, &ng_enodeb_id);
+    *offset += 3;
+
+    str = wmem_strdup_printf(wmem_packet_scope(), "%s, Macro ng-eNodeB ID 0x%x",
+        mcc_mnc_str,
+        ng_enodeb_id);
+
+    return str;
+}
+
 static void
 dissect_gtpv2_target_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
 {
@@ -5379,7 +5402,7 @@ dissect_gtpv2_target_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 
     case 4:
         /* 8.51.5 Extended Macro eNodeB ID */
-        dissect_gtpv2_ext_macro_enodeb_id(tvb, pinfo, tree, &offset);
+        dissect_gtpv2_ext_macro_enodeb_id(tvb, pinfo, tree, &offset, hf_gtpv2_ext_macro_enodeb_id);
 
         /* Octet 12 to 13 Tracking Area Code (TAC) */
         proto_tree_add_item(tree, hf_gtpv2_tac, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -5395,14 +5418,14 @@ dissect_gtpv2_target_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 
     case 6:
         /* Macro ng-eNodeB ID */
-        dissect_gtpv2_ext_macro_enodeb_id(tvb, pinfo, tree, &offset);
+        dissect_gtpv2_macro_ng_enodeb_id(tvb, pinfo, tree, &offset);
         /* Octet 14 to 16 5GS Tracking Area Code (TAC) */
         proto_tree_add_item(tree, hf_gtpv2_5gs_tac, tvb, offset, 3, ENC_BIG_ENDIAN);
         return;
 
     case 7:
         /* Extended ng-eNodeB ID */
-        dissect_gtpv2_ext_macro_enodeb_id(tvb, pinfo, tree, &offset);
+        dissect_gtpv2_ext_macro_enodeb_id(tvb, pinfo, tree, &offset, hf_gtpv2_ext_macro_ng_enodeb_id);
         /* Octet 12 to 14 5GS Tracking Area Code (TAC) */
         proto_tree_add_item(tree, hf_gtpv2_5gs_tac, tvb, offset, 3, ENC_BIG_ENDIAN);
         return;
@@ -6957,7 +6980,7 @@ dissect_diameter_3gpp_presence_reporting_area_elements_list(tvbuff_t *tvb, packe
     i = 1;
     while (no_ext_mENB > 0){
         sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, 6, ett_gtpv2_preaa_ext_menbs, &item, "Extended Macro eNB ID %u",i);
-        append_str = dissect_gtpv2_ext_macro_enodeb_id(tvb, pinfo, sub_tree, &offset);
+        append_str = dissect_gtpv2_ext_macro_enodeb_id(tvb, pinfo, sub_tree, &offset, hf_gtpv2_ext_macro_enodeb_id);
         proto_item_append_text(item, " %s",append_str);
         i++;
         no_ext_mENB--;
@@ -10206,7 +10229,7 @@ void proto_register_gtpv2(void)
         },
         {&hf_gtpv2_macro_enodeb_id,
          {"Macro eNodeB ID", "gtpv2.macro_enodeb_id",
-          FT_UINT32, BASE_HEX, NULL, 0x0fffff,
+          FT_UINT24, BASE_HEX, NULL, 0x0fffff,
           NULL, HFILL}
         },
         {&hf_gtpv2_smenb,
@@ -10216,7 +10239,12 @@ void proto_register_gtpv2(void)
         },
         {&hf_gtpv2_ext_macro_enodeb_id,
          {"Extended Macro eNodeB ID", "gtpv2.ext_macro_enodeb_id",
-          FT_UINT32, BASE_HEX, NULL, 0x1fffff,
+          FT_UINT24, BASE_HEX, NULL, 0x1fffff,
+          NULL, HFILL}
+        },
+        {&hf_gtpv2_ext_macro_ng_enodeb_id,
+         {"Extended Macro ng-eNodeB ID", "gtpv2.ext_macro_ng_enodeb_id",
+          FT_UINT24, BASE_HEX, NULL, 0x1fffff,
           NULL, HFILL}
         },
         {&hf_gtpv2_cellid,
@@ -11009,6 +11037,11 @@ void proto_register_gtpv2(void)
       { &hf_gtpv2_gnodeb_id,
       { "gNodeB ID", "gtpv2.gnodeb_id",
           FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_macro_ng_enodeb_id,
+      { "Macro ng-eNodeB ID", "gtpv2.ng_enodeb_id",
+          FT_UINT24, BASE_DEC, NULL, 0x0fffff,
           NULL, HFILL }
       },
       { &hf_gtpv2_5gs_tac,
