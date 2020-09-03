@@ -908,11 +908,26 @@ Closes the dialog without saving any changes.
 
 === Defining And Saving Filter Macros
 
-You can define filter macros with Wireshark and give them labels for later use.
+You can define a filter macro with Wireshark and label it for later use.
 This can save time in remembering and retyping some of the more complex filters
 you use.
 
-{missing}
+To define and save your own filter macros, follow the steps below:
+
+. In the main menu select menu:Analyze[Display Filter Macros...]. Wireshark will open a corresponding dialog <<FilterMacrosDialog>>.
++
+[[FilterMacrosDialog]]
++
+.Display Filter Macros window
+image::wsug_graphics/ws-filter-macros.png[{screenshot-attrs}]
+
+. To add a new filter macro, click the btn:[{plus}] button in the bottom-left corner. A new row will appear in the Display Filter Macros table above.
+
+. Enter the name of your macro in the `Name` column. Enter your filter macro in the `Text` column.
++
+NOTE: To learn more about the filter macros syntax, see the link:https://www.wireshark.org/docs/man-pages/wireshark-filter.html[wireshark-filter man page].
+
+. To save your modifications, click the btn:[OK] button in the bottom-right corner of the <<FilterMacrosDialog>>.
 
 [[ChWorkFindPacketSection]]
 
