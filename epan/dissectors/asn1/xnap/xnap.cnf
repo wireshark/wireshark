@@ -652,6 +652,15 @@ TSCAssistanceInformation/periodicity DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&
     proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 4, fields, ENC_BIG_ENDIAN);
   }
 
+#.FN_BODY NRCellPRACHConfig VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+  proto_tree *subtree;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_xnap_NRCellPRACHConfig);
+    dissect_f1ap_NRPRACHConfig_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
+
 #.END
 
 #.FN_HDR HandoverRequest

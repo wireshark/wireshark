@@ -33,6 +33,7 @@
 #include "packet-ranap.h"
 #include "packet-ntp.h"
 #include "packet-s1ap.h"
+#include "packet-f1ap.h"
 
 #ifdef _MSC_VER
 /* disable: "warning C4146: unary minus operator applied to unsigned type, result still unsigned" */
@@ -171,6 +172,7 @@ static int ett_x2ap_ReportCharacteristics_ENDC = -1;
 static int ett_x2ap_TargetCellInNGRAN = -1;
 static int ett_x2ap_TDDULDLConfigurationCommonNR = -1;
 static int ett_x2ap_MDT_ConfigurationNR = -1;
+static int ett_x2ap_NRCellPRACHConfig = -1;
 #include "packet-x2ap-ett.c"
 
 /* Forward declarations */
@@ -686,6 +688,7 @@ void proto_register_x2ap(void) {
     &ett_x2ap_TargetCellInNGRAN,
     &ett_x2ap_TDDULDLConfigurationCommonNR,
     &ett_x2ap_MDT_ConfigurationNR,
+    &ett_x2ap_NRCellPRACHConfig,
 #include "packet-x2ap-ettarr.c"
   };
 

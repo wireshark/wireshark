@@ -30,6 +30,7 @@
 #include "packet-s1ap.h"
 #include "packet-ranap.h"
 #include "packet-ntp.h"
+#include "packet-f1ap.h"
 
 #ifdef _MSC_VER
 /* disable: "warning C4146: unary minus operator applied to unsigned type, result still unsigned" */
@@ -100,6 +101,7 @@ static gint ett_xnap_UERLFReportContainerLTE = -1;
 static gint ett_xnap_UERLFReportContainerNR = -1;
 static gint ett_xnap_burstArrivalTime = -1;
 static gint ett_xnap_ReportCharacteristics = -1;
+static gint ett_xnap_NRCellPRACHConfig = -1;
 #include "packet-xnap-ett.c"
 
 enum {
@@ -443,6 +445,7 @@ void proto_register_xnap(void) {
     &ett_xnap_UERLFReportContainerNR,
     &ett_xnap_burstArrivalTime,
     &ett_xnap_ReportCharacteristics,
+    &ett_xnap_NRCellPRACHConfig,
 #include "packet-xnap-ettarr.c"
   };
 

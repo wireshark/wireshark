@@ -342,6 +342,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-epmd.h
 	packet-ess.h
 	packet-eth.h
+	packet-f1ap.h
 	packet-f5ethtrailer.h
 	packet-fc.h
 	packet-fcbls.h

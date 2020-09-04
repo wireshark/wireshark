@@ -73,14 +73,18 @@ MeasGapSharingConfig_PDU
 MeasResultSCG-Failure_PDU
 MeasurementTimingConfiguration_PDU
 MIB_PDU
+NZP-CSI-RS-Resource_PDU
 P-Max_PDU
+PDCCH-ConfigSIB1_PDU
 PH-TypeListMCG_PDU
 PH-TypeListSCG_PDU
 RA-ReportList-r16_PDU
+RACH-ConfigCommon_PDU
 RadioBearerConfig_PDU
 ReferenceTime-r16_PDU
 RRCReconfiguration_PDU
 RRCReconfigurationComplete_PDU
+SchedulingRequestResourceConfig_PDU
 SIB1_PDU
 SIB2_PDU
 SIB3_PDU
@@ -90,9 +94,15 @@ SIB6_PDU
 SIB7_PDU
 SIB8_PDU
 SIB9_PDU
+SIB10-r16_PDU
+SIB11-r16_PDU
+SIB12-r16_PDU
+SIB13-r16_PDU
+SIB14-r16_PDU
 SidelinkParametersNR-r16_PDU
 SidelinkUEInformationNR-r16_PDU
 SL-CBR-r16_PDU
+SL-PHY-MAC-RLC-Config-r16_PDU
 SupportedBandCombinationListSidelink-r16_PDU
 TDD-UL-DL-ConfigCommon_PDU
 UE-CapabilityRAT-ContainerList_PDU
@@ -129,20 +139,25 @@ MeasGapSharingConfig
 MeasResultSCG-Failure
 MeasurementTimingConfiguration
 MIB
+NZP-CSI-RS-Resource
 P-Max
 PCCH-Message                       @pcch
+PDCCH-ConfigSIB1
 PH-TypeListMCG
 PH-TypeListSCG
 RA-ReportList-r16
+RACH-ConfigCommon
 RadioBearerConfig
 ReferenceTime-r16
 RRCReconfiguration                 @rrc_reconf
 RRCReconfigurationComplete
 SBCCH-SL-BCH-Message               @sbcch.sl.bch
 SCCH-Message                       @scch
+SchedulingRequestResourceConfig
 SidelinkParametersNR-r16
 SidelinkUEInformationNR-r16
 SL-CBR-r16
+SL-PHY-MAC-RLC-Config-r16
 SupportedBandCombinationListSidelink-r16
 SIB1
 SIB2
@@ -153,6 +168,11 @@ SIB6
 SIB7
 SIB8
 SIB9
+SIB10-r16
+SIB11-r16
+SIB12-r16
+SIB13-r16
+SIB14-r16
 TDD-UL-DL-ConfigCommon
 UE-CapabilityRAT-ContainerList
 UE-CapabilityRequestFilterCommon

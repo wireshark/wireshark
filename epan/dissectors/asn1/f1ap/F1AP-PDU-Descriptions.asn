@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V15.8.0 (2019-12)
+-- 3GPP TS 38.473 V16.2.0 (2020-07)
 -- 9.4.3	Elementary Procedure Definitions
 -- **************************************************************
 --
@@ -70,7 +70,29 @@ FROM F1AP-CommonDataTypes
 	F1RemovalRequest,
 	F1RemovalResponse,
 	F1RemovalFailure,
-	NetworkAccessRateReduction
+	NetworkAccessRateReduction,
+	TraceStart,
+	DeactivateTrace,
+	DUCURadioInformationTransfer,
+	CUDURadioInformationTransfer,
+	BAPMappingConfiguration,
+	BAPMappingConfigurationAcknowledge,
+	GNBDUResourceConfiguration,
+	GNBDUResourceConfigurationAcknowledge,
+	IABTNLAddressRequest,
+	IABTNLAddressResponse,
+	IABUPConfigurationUpdateRequest,
+	IABUPConfigurationUpdateResponse,
+	IABUPConfigurationUpdateFailure,
+	ResourceStatusRequest,
+	ResourceStatusResponse,
+	ResourceStatusFailure,
+	ResourceStatusUpdate,
+	AccessAndMobilityIndication,
+	ReferenceTimeInformationReportingControl,
+	ReferenceTimeInformationReport,
+	AccessSuccess,
+	CellTrafficTrace
 
 
 FROM F1AP-PDU-Contents
@@ -100,8 +122,22 @@ FROM F1AP-PDU-Contents
 	id-GNBDUStatusIndication,
 	id-RRCDeliveryReport,
 	id-F1Removal,
-	id-NetworkAccessRateReduction
-
+	id-NetworkAccessRateReduction,
+	id-TraceStart,
+	id-DeactivateTrace,
+	id-DUCURadioInformationTransfer,
+	id-CUDURadioInformationTransfer,
+	id-BAPMappingConfiguration,
+	id-GNBDUResourceConfiguration,
+	id-IABTNLAddressAllocation,
+	id-IABUPConfigurationUpdate,
+	id-resourceStatusReportingInitiation,
+	id-resourceStatusReporting,
+	id-accessAndMobilityIndication,
+	id-ReferenceTimeInformationReportingControl,
+	id-ReferenceTimeInformationReport,
+	id-accessSuccess,
+	id-cellTrafficTrace
 
 
 FROM F1AP-Constants
@@ -193,26 +229,41 @@ F1AP-ELEMENTARY-PROCEDURES-CLASS-1 F1AP-ELEMENTARY-PROCEDURE ::= {
 	writeReplaceWarning				|
 	pWSCancel					|
 	gNBDUResourceCoordination		|
-	f1Removal					,
+	f1Removal						|
+	bAPMappingConfiguration			|
+	gNBDUResourceConfiguration		|
+	iABTNLAddressAllocation			|
+	iABUPConfigurationUpdate		|
+	resourceStatusReportingInitiation,
 	...
 }
 
 F1AP-ELEMENTARY-PROCEDURES-CLASS-2 F1AP-ELEMENTARY-PROCEDURE ::= {	
-	errorIndication					|
-	uEContextReleaseRequest			|
-	dLRRCMessageTransfer			|
-	uLRRCMessageTransfer			|
-	uEInactivityNotification		|
-	privateMessage					|
-	initialULRRCMessageTransfer		|
-	systemInformationDelivery		|
-	paging							|
-	notify							|
-	pWSRestartIndication			|
-	pWSFailureIndication			|
-	gNBDUStatusIndication			|
-	rRCDeliveryReport				|
-	networkAccessRateReduction		,
+	errorIndication							|
+	uEContextReleaseRequest					|
+	dLRRCMessageTransfer					|
+	uLRRCMessageTransfer					|
+	uEInactivityNotification				|
+	privateMessage							|
+	initialULRRCMessageTransfer				|
+	systemInformationDelivery				|
+	paging									|
+	notify									|
+	pWSRestartIndication					|
+	pWSFailureIndication					|
+	gNBDUStatusIndication					|
+	rRCDeliveryReport						|
+	networkAccessRateReduction				|
+	traceStart								|
+	deactivateTrace							|
+	dUCURadioInformationTransfer			|
+	cUDURadioInformationTransfer			|
+	resourceStatusReporting					|
+	accessAndMobilityIndication				|
+	referenceTimeInformationReportingControl|
+	referenceTimeInformationReport			|
+	accessSuccess							|
+	cellTrafficTrace						,
 	...
 }
 -- **************************************************************
@@ -407,5 +458,101 @@ f1Removal F1AP-ELEMENTARY-PROCEDURE ::= {
 	CRITICALITY				reject
 }
 
+traceStart F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		TraceStart
+	PROCEDURE CODE			id-TraceStart
+	CRITICALITY				ignore
+}
+
+deactivateTrace F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		DeactivateTrace
+	PROCEDURE CODE			id-DeactivateTrace
+	CRITICALITY				ignore
+}
+
+dUCURadioInformationTransfer F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		DUCURadioInformationTransfer
+	PROCEDURE CODE			id-DUCURadioInformationTransfer
+	CRITICALITY				ignore
+}
+
+cUDURadioInformationTransfer F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		CUDURadioInformationTransfer
+	PROCEDURE CODE			id-CUDURadioInformationTransfer
+	CRITICALITY				ignore
+}
+
+bAPMappingConfiguration F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		BAPMappingConfiguration
+	SUCCESSFUL OUTCOME		BAPMappingConfigurationAcknowledge
+	PROCEDURE CODE			id-BAPMappingConfiguration
+	CRITICALITY				reject
+}
+
+gNBDUResourceConfiguration F1AP-ELEMENTARY-PROCEDURE ::= { 
+	INITIATING MESSAGE		GNBDUResourceConfiguration
+	SUCCESSFUL OUTCOME		GNBDUResourceConfigurationAcknowledge
+	PROCEDURE CODE			id-GNBDUResourceConfiguration
+	CRITICALITY				reject
+}
+
+iABTNLAddressAllocation F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		IABTNLAddressRequest
+	SUCCESSFUL OUTCOME		IABTNLAddressResponse
+	PROCEDURE CODE			id-IABTNLAddressAllocation
+	CRITICALITY				reject
+}
+
+iABUPConfigurationUpdate F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		IABUPConfigurationUpdateRequest
+	SUCCESSFUL OUTCOME		IABUPConfigurationUpdateResponse
+	UNSUCCESSFUL OUTCOME	IABUPConfigurationUpdateFailure
+	PROCEDURE CODE			id-IABUPConfigurationUpdate
+	CRITICALITY				reject
+}
+
+resourceStatusReportingInitiation F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		ResourceStatusRequest
+	SUCCESSFUL OUTCOME		ResourceStatusResponse
+	UNSUCCESSFUL OUTCOME	ResourceStatusFailure
+	PROCEDURE CODE			id-resourceStatusReportingInitiation
+	CRITICALITY				reject
+}
+
+resourceStatusReporting F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		ResourceStatusUpdate
+	PROCEDURE CODE			id-resourceStatusReporting
+	CRITICALITY				ignore
+}
+
+accessAndMobilityIndication F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		AccessAndMobilityIndication
+	PROCEDURE CODE			id-accessAndMobilityIndication
+	CRITICALITY				ignore
+}
+
+referenceTimeInformationReportingControl F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		ReferenceTimeInformationReportingControl
+	PROCEDURE CODE			id-ReferenceTimeInformationReportingControl
+	CRITICALITY				ignore
+}
+
+referenceTimeInformationReport F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		ReferenceTimeInformationReport
+	PROCEDURE CODE			id-ReferenceTimeInformationReport
+	CRITICALITY				ignore
+}
+
+accessSuccess F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		AccessSuccess
+	PROCEDURE CODE			id-accessSuccess
+	CRITICALITY				ignore
+}
+
+cellTrafficTrace F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		CellTrafficTrace
+	PROCEDURE CODE			id-cellTrafficTrace
+	CRITICALITY				ignore
+}
 
 END

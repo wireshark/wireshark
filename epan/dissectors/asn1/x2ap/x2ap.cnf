@@ -852,6 +852,15 @@ ScheduledCommunicationTime/timeofDayEnd DISPLAY=BASE_DEC|BASE_UNIT_STRING STRING
     dissect_ngap_MDT_Configuration_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
   }
 
+#.FN_BODY NRCellPRACHConfig VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+  proto_tree *subtree;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_NRCellPRACHConfig);
+    dissect_f1ap_NRPRACHConfig_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
+
 #.END
 
 #.FN_HDR HandoverRequest
