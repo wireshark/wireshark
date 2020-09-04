@@ -1264,6 +1264,7 @@ process_rtp_payload(tvbuff_t *newtvb, packet_info *pinfo, proto_tree *tree,
     int payload_len;
     struct srtp_info *srtp_info;
     int offset = 0;
+    proto_item *rtp_data;
 
     payload_len = tvb_captured_length_remaining(newtvb, offset);
 
@@ -1333,6 +1334,9 @@ process_rtp_payload(tvbuff_t *newtvb, packet_info *pinfo, proto_tree *tree,
 
         return;
     }
+
+    rtp_data = proto_tree_add_item(rtp_tree, hf_rtp_data, newtvb, 0, -1, ENC_NA);
+
     /* We have checked for !p_conv_data->bta2dp_info && !p_conv_data->btvdp_info above*/
     if (p_conv_data && payload_type >= PT_UNDF_96 && payload_type <= PT_UNDF_127) {
         /* if the payload type is dynamic, we check if the conv is set and we look for the pt definition */
@@ -1348,17 +1352,16 @@ process_rtp_payload(tvbuff_t *newtvb, packet_info *pinfo, proto_tree *tree,
                 * as that'd probably be the wrong dissector in this case.
                 * Just add it as data.
                 */
-                if (len == 0)
-                    proto_tree_add_item(rtp_tree, hf_rtp_data, newtvb, 0, -1, ENC_NA);
+                if (len > 0)
+                    PROTO_ITEM_SET_HIDDEN(rtp_data);
                 return;
             }
         }
     }
 
     /* if we don't found, it is static OR could be set static from the preferences */
-    if (!dissector_try_uint(rtp_pt_dissector_table, payload_type, newtvb, pinfo, tree))
-        proto_tree_add_item( rtp_tree, hf_rtp_data, newtvb, 0, -1, ENC_NA );
-
+    if (dissector_try_uint(rtp_pt_dissector_table, payload_type, newtvb, pinfo, tree))
+        PROTO_ITEM_SET_HIDDEN(rtp_data);
 }
 
 /* Rtp payload reassembly
