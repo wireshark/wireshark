@@ -145,6 +145,9 @@ PATH_SPECIFIC_ALLOWED_LICENSES = {
     'tools/licensecheck.pl': [
         'GPL (v2)'
     ],
+    '.gitlab/': [
+        'UNKNOWN',
+    ],
 }
 
 def check_licenses(options, args):
