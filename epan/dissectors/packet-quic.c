@@ -326,6 +326,7 @@ typedef struct quic_info_data {
     dissector_handle_t app_handle;  /**< Application protocol handle (NULL if unknown). */
     wmem_map_t     *client_streams; /**< Map from Stream ID -> STREAM info (guint64 -> quic_stream_state), sent by the client. */
     wmem_map_t     *server_streams; /**< Map from Stream ID -> STREAM info (guint64 -> quic_stream_state), sent by the server. */
+    gquic_info_data_t *gquic_info; /**< GQUIC info for >Q050 flows. */
 } quic_info_data_t;
 
 /** Per-packet information about QUIC, populated on the first pass. */
@@ -376,6 +377,13 @@ static inline guint8 quic_draft_version(guint32 version) {
     if (version == 0xfaceb002) {
         return 27;
     }
+    /* GQUIC Q050, T050 and T051: they are not really based on any drafts,
+     * but we must return a sensible value */
+    if (version == 0x51303530 ||
+        version == 0x54303530 ||
+        version == 0x54303531) {
+        return 27;
+    }
     return 0;
 }
 
@@ -387,7 +395,9 @@ static inline gboolean is_quic_draft_max(guint32 version, guint8 max_version) {
 const value_string quic_version_vals[] = {
     { 0x00000000, "Version Negotiation" },
     { 0x51303434, "Google Q044" },
-    { 0x51303530, "Google Q050 (draft-27)" },
+    { 0x51303530, "Google Q050" },
+    { 0x54303530, "Google T050" },
+    { 0x54303531, "Google T051" },
     { 0xfaceb001, "Facebook mvfst (draft-22)" },
     { 0xfaceb002, "Facebook mvfst (draft-27)" },
     { 0xff000004, "draft-04" },
@@ -893,6 +903,22 @@ quic_connection_create(packet_info *pinfo, guint32 version)
     // For faster lookups without having to check DCID
     conversation_t *conv = find_or_create_conversation(pinfo);
     conversation_add_proto_data(conv, proto_quic, conn);
+
+    if (version == 0x51303530 || version == 0x54303530 || version == 0x54303531) {
+        gquic_info_data_t  *gquic_info;
+
+        gquic_info = wmem_new(wmem_file_scope(), gquic_info_data_t);
+        if (version == 0x51303530)
+            gquic_info->version = 50;
+        else if (version == 0x54303530)
+	    gquic_info->version = 150;
+        else
+	    gquic_info->version = 151;
+        gquic_info->encoding = ENC_LITTLE_ENDIAN;
+        gquic_info->version_valid = TRUE;
+        gquic_info->server_port = pinfo->destport;
+        conn->gquic_info = gquic_info;
+    }
 
     return conn;
 }
@@ -1985,12 +2011,26 @@ quic_derive_initial_secrets(const quic_cid_t *cid,
         0x50, 0x45, 0x74, 0xEF, 0xD0, 0x66, 0xFE, 0x2F, 0x9D, 0x94,
         0x5C, 0xFC, 0xDB, 0xD3, 0xA7, 0xF0, 0xD3, 0xB5, 0x6B, 0x45
     };
+    static const guint8 hanshake_salt_draft_t50[20] = {
+        0x7f, 0xf5, 0x79, 0xe5, 0xac, 0xd0, 0x72, 0x91, 0x55, 0x80,
+        0x30, 0x4c, 0x43, 0xa2, 0x36, 0x7c, 0x60, 0x48, 0x83, 0x10
+    };
+    static const gint8 hanshake_salt_draft_t51[20] = {
+        0x7a, 0x4e, 0xde, 0xf4, 0xe7, 0xcc, 0xee, 0x5f, 0xa4, 0x50,
+        0x6c, 0x19, 0x12, 0x4f, 0xc8, 0xcc, 0xda, 0x6e, 0x03, 0x3d
+    };
 
     gcry_error_t    err;
     guint8          secret[HASH_SHA2_256_LENGTH];
 
     if (version == 0x51303530) {
         err = hkdf_extract(GCRY_MD_SHA256, hanshake_salt_draft_q50, sizeof(hanshake_salt_draft_q50),
+                           cid->cid, cid->len, secret);
+    } else if (version == 0x54303530) {
+        err = hkdf_extract(GCRY_MD_SHA256, hanshake_salt_draft_t50, sizeof(hanshake_salt_draft_t50),
+                           cid->cid, cid->len, secret);
+    } else if (version == 0x54303531) {
+        err = hkdf_extract(GCRY_MD_SHA256, hanshake_salt_draft_t51, sizeof(hanshake_salt_draft_t51),
                            cid->cid, cid->len, secret);
     } else if (is_quic_draft_max(version, 22)) {
         err = hkdf_extract(GCRY_MD_SHA256, handshake_salt_draft_22, sizeof(handshake_salt_draft_22),
@@ -2382,7 +2422,11 @@ quic_process_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_
 
         guint decrypted_offset = 0;
         while (tvb_reported_length_remaining(decrypted_tvb, decrypted_offset) > 0) {
-            decrypted_offset = dissect_quic_frame_type(decrypted_tvb, pinfo, tree, decrypted_offset, quic_info, from_server);
+            if (quic_info->version == 0x51303530 || quic_info->version == 0x54303530 || quic_info->version == 0x54303531) {
+                decrypted_offset = dissect_gquic_frame_type(decrypted_tvb, pinfo, tree, decrypted_offset, pkn_len, quic_info->gquic_info);
+	    } else {
+                decrypted_offset = dissect_quic_frame_type(decrypted_tvb, pinfo, tree, decrypted_offset, quic_info, from_server);
+            }
         }
     } else if (quic_info->skip_decryption) {
         expert_add_info_format(pinfo, ti, &ei_quic_decryption_failed,

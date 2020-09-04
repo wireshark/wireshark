@@ -50,6 +50,16 @@ void   *quic_stream_get_proto_data(struct _packet_info *pinfo, quic_stream_info 
 /** Returns the number of items for quic.connection.number. */
 WS_DLL_PUBLIC guint32 get_quic_connections_count(void);
 
+typedef struct gquic_info_data {
+    guint8 version;
+    gboolean version_valid;
+    gboolean encoding;
+    guint16 server_port;
+} gquic_info_data_t;
+
+int
+dissect_gquic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tree, guint offset, guint8 len_pkn, gquic_info_data_t *gquic_info);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
