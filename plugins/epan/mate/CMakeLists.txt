@@ -63,7 +63,6 @@ CHECKAPI(
 	SWITCHES
 	  --group abort
 	  --group termoutput:1 --summary-group termoutput
-	  --build
 	SOURCES
 	  ${DISSECTOR_SRC}
 	  ${DISSECTOR_SUPPORT_SRC}

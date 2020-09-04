@@ -3264,25 +3264,25 @@ static const value_string keycode_vals[] = {
 value_string_ext keycode_vals_ext = VALUE_STRING_EXT_INIT(keycode_vals);
 
 static guint32
-hid_unpack_value(guint8 *data, unsigned int index, unsigned int size)
+hid_unpack_value(guint8 *data, unsigned int idx, unsigned int size)
 {
     guint32 value = 0;
 
     for(unsigned int i = 1; i <= size; i++)
-        value |= data[index + i] << (8 * (i - 1));
+        value |= data[idx + i] << (8 * (i - 1));
 
     return value;
 }
 
 static gboolean
-hid_unpack_signed(guint8 *data, unsigned int index, unsigned int size, gint32 *value)
+hid_unpack_signed(guint8 *data, unsigned int idx, unsigned int size, gint32 *value)
 {
     if (size == 1)
-        *value = (gint8) hid_unpack_value(data, index, size);
+        *value = (gint8) hid_unpack_value(data, idx, size);
     else if (size == 2)
-        *value = (gint16) hid_unpack_value(data, index, size);
+        *value = (gint16) hid_unpack_value(data, idx, size);
     else if (size == 4)
-        *value = (gint32) hid_unpack_value(data, index, size);
+        *value = (gint32) hid_unpack_value(data, idx, size);
     else
         return TRUE;
 

@@ -127,16 +127,16 @@ bool WiresharkZipHelper::unzip(QString zipFile, QString directory, bool (*fileCh
                         err = unzOpenCurrentFile(uf);
                         if (err == UNZ_OK)
                         {
-                            char * buf = static_cast<char *>(malloc(IO_BUF_SIZE));
                             if (file.open(QIODevice::WriteOnly))
                             {
-                                while ((err = unzReadCurrentFile(uf, buf, IO_BUF_SIZE)) != UNZ_EOF)
-                                    file.write(buf, err);
+                                QByteArray buf;
+                                buf.resize(IO_BUF_SIZE);
+                                while ((err = unzReadCurrentFile(uf, buf.data(), buf.size())) != UNZ_EOF)
+                                    file.write(buf.constData(), err);
 
                                 file.close();
                             }
                             unzCloseCurrentFile(uf);
-                            free(buf);
 
                             files++;
                         }
@@ -215,16 +215,16 @@ void WiresharkZipHelper::addFileToZip(zipFile zf, QString filepath, QString file
 
     if (fh.open(QIODevice::ReadOnly))
     {
-        char * buf = static_cast<char *>(malloc(IO_BUF_SIZE));
+        QByteArray buf;
+        buf.resize(IO_BUF_SIZE);
         while (! fh.atEnd() && err == ZIP_OK)
         {
-            qint64 bytesIn = fh.read(buf, IO_BUF_SIZE);
-            if (bytesIn > 0 && bytesIn <= IO_BUF_SIZE)
+            qint64 bytesIn = fh.read(buf.data(), buf.size());
+            if (bytesIn > 0 && bytesIn <= buf.size())
             {
                 err = zipWriteInFileInZip(zf, buf, (unsigned int) bytesIn);
             }
         }
-        free(buf);
         fh.close();
     }
 

@@ -69,7 +69,7 @@ CHECKAPI(
 	NAME
 	  crypt
 	SWITCHES
-	  -g termoutput -build
+	  -g termoutput
 	SOURCES
 	  ${CRYPT_FILES}
 )

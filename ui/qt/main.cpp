@@ -522,7 +522,7 @@ int main(int argc, char *qt_argv[])
     if (create_profiles_dir(&rf_path) == -1) {
         simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
                       "Could not create profiles directory\n\"%s\": %s.",
-                      rf_path, strerror(errno));
+                      rf_path, g_strerror(errno));
         g_free (rf_path);
     }
 
@@ -534,7 +534,7 @@ int main(int argc, char *qt_argv[])
     if (!recent_read_static(&rf_path, &rf_open_errno)) {
         simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
                       "Could not open common recent file\n\"%s\": %s.",
-                      rf_path, strerror(rf_open_errno));
+                      rf_path, g_strerror(rf_open_errno));
         g_free(rf_path);
     }
 

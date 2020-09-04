@@ -662,7 +662,7 @@ void RtpAudioStream::writeSilence(qint64 samples)
     qint64 silence_bytes = samples * sample_bytes_;
     char *silence_buff = (char *) g_malloc0(silence_bytes);
 
-    RTP_STREAM_DEBUG("Writing %llu silence samples", samples);
+    RTP_STREAM_DEBUG("Writing " G_GUINT64_FORMAT " silence samples", samples);
     if (audio_stereo_) {
         // Silence for left and right channel
         tempfile_->write(silence_buff, silence_bytes);

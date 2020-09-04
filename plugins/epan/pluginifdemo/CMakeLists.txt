@@ -58,7 +58,7 @@ CHECKAPI(
 	NAME
 	  pluginifdemo
 	SWITCHES
-	  -g abort -g termoutput -build
+	  -g abort -g termoutput
 	SOURCES
 	  ${DISSECTOR_SRC}
 	  ${DISSECTOR_HEADERS}

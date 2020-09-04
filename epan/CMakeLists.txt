@@ -420,7 +420,7 @@ CHECKAPI(
 	NAME
 	  epan
 	SWITCHES
-	  --group termoutput:10 --summary-group termoutput --build
+	  --group termoutput:10 --summary-group termoutput
 	SOURCES
 	  ${LIBWIRESHARK_NONGENERATED_FILES}
 )

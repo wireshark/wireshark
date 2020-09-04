@@ -158,7 +158,6 @@ CHECKAPI(
 	SWITCHES
 	  --group abort:11 --summary-group abort
 	  --group termoutput:1 --summary-group termoutput
-	  --build
 	SOURCES
 	  ${WIRETAP_NONGENERATED_FILES}
 # LEX files commented out due to use of malloc, free etc.

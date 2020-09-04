@@ -65,7 +65,7 @@ CHECKAPI(
 	NAME
 	  ftypes
 	SWITCHES
-	  -g termoutput -build
+	  -g termoutput
 	SOURCES
 	  ${FTYPE_FILES}
 )

@@ -3458,7 +3458,6 @@ CHECKAPI(
 	NAME
 	  main
 	SWITCHES
-	  -build
 	SOURCES
 	  ${WIRESHARK_SRC}
 	  ${TSHARK_TAP_SRC}

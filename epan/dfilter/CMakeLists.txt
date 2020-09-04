@@ -96,7 +96,7 @@ CHECKAPI(
 	NAME
 	  dfilter
 	SWITCHES
-	  -g termoutput -build
+	  -g termoutput
 	SOURCES
 	  ${DFILTER_NONGENERATED_FILES}
 # LEX files commented out due to use of malloc, free etc.

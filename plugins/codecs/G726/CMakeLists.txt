@@ -50,7 +50,7 @@ CHECKAPI(
 	NAME
 	  g726
 	SWITCHES
-	  -g abort -g termoutput -build
+	  -g abort -g termoutput
 	SOURCES
 	  ${CODEC_SRC}
 	  ${CODEC_HEADERS}

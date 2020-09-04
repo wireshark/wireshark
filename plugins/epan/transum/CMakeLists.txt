@@ -53,7 +53,7 @@ CHECKAPI(
 	  transum
 	SWITCHES
 	  --group abort
-	  --group termoutput:1 --summary-group termoutput --build
+	  --group termoutput:1 --summary-group termoutput
 	SOURCES
 	  ${DISSECTOR_SRC}
 	  ${DISSECTOR_SUPPORT_SRC}

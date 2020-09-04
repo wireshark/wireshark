@@ -40,7 +40,6 @@ set(WIRESHARK_WIDGET_HEADERS
 	widgets/pref_module_view.h
 	widgets/packet_list_header.h
 	widgets/profile_tree_view.h
-	widgets/qcustomplot.h
 	widgets/range_syntax_lineedit.h
 	widgets/splash_overlay.h
 	widgets/stock_icon_tool_button.h
@@ -48,6 +47,10 @@ set(WIRESHARK_WIDGET_HEADERS
 	widgets/tabnav_tree_view.h
 	widgets/wireshark_file_dialog.h
 	widgets/wireless_timeline.h
+)
+
+set(WIRESHARK_3RD_PARTY_WIDGET_HEADERS
+	widgets/qcustomplot.h
 )
 
 set(WIRESHARK_MANAGER_HEADERS
@@ -277,7 +280,6 @@ set(WIRESHARK_WIDGET_SRCS
 	widgets/packet_list_header.cpp
 	widgets/pref_module_view.cpp
 	widgets/profile_tree_view.cpp
-	widgets/qcustomplot.cpp
 	widgets/range_syntax_lineedit.cpp
 	widgets/splash_overlay.cpp
 	widgets/stock_icon_tool_button.cpp
@@ -285,6 +287,10 @@ set(WIRESHARK_WIDGET_SRCS
 	widgets/tabnav_tree_view.cpp
 	widgets/wireless_timeline.cpp
 	widgets/wireshark_file_dialog.cpp
+)
+
+set(WIRESHARK_3RD_PARTY_WIDGET_SRCS
+	widgets/qcustomplot.cpp
 )
 
 set(WIRESHARK_MANAGER_SRCS
@@ -681,12 +687,14 @@ add_library(qtui OBJECT
 	#Included so that Visual Studio can properly put header files in solution
 	${WIRESHARK_QT_HEADERS}
 	${WIRESHARK_WIDGET_HEADERS}
+	${WIRESHARK_3RD_PARTY_WIDGET_HEADERS}
 	${WIRESHARK_MANAGER_HEADERS}
 	${WIRESHARK_UTILS_HEADERS}
 	${WIRESHARK_MODEL_HEADERS}
 
 	${WIRESHARK_QT_SRC}
 	${WIRESHARK_WIDGET_SRCS}
+	${WIRESHARK_3RD_PARTY_WIDGET_SRCS}
 	${WIRESHARK_MANAGER_SRCS}
 	${WIRESHARK_UTILS_SRCS}
 	${WIRESHARK_MODEL_SRCS}
@@ -720,6 +728,28 @@ set_target_properties(qtui PROPERTIES
 	FOLDER "UI"
 	# Ensure .qm files are generated before autogenerating i18n.qrc
 	AUTOGEN_TARGET_DEPENDS "${WIRESHARK_QT_QM}"
+)
+
+CHECKAPI(
+	NAME
+		ui-qt
+	SWITCHES
+		--nocheck-shadow
+	SOURCES
+		# QCustomPlot (WIRESHARK_3RD_PARTY_WIDGET_{HEADERS,SRCS}) uses
+		# prohibited APIs.
+		${WIRESHARK_QT_HEADERS}
+		${WIRESHARK_WIDGET_HEADERS}
+		${WIRESHARK_MANAGER_HEADERS}
+		${WIRESHARK_UTILS_HEADERS}
+		${WIRESHARK_MODEL_HEADERS}
+
+		${WIRESHARK_QT_SRC}
+		${WIRESHARK_WIDGET_SRCS}
+		${WIRESHARK_MANAGER_SRCS}
+		${WIRESHARK_UTILS_SRCS}
+		${WIRESHARK_MODEL_SRCS}
+		${WIRESHARK_QT_TAP_SRC}
 )
 
 #

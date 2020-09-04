@@ -9,8 +9,11 @@
 # Usage:
 # checkAPIs.pl [-M] [-g group1] [-g group2] ...
 #              [-s summary-group1] [-s summary-group2] ...
+#              [--nocheck-hf]
 #              [--nocheck-value-string-array]
-#              [--nocheck-addtext] [--nocheck-hf] [--debug] file1 file2 ...
+#              [--nocheck-shadow]
+#              [--debug]
+#              file1 file2 ...
 #
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>
@@ -367,7 +370,7 @@ my @ShadowVariable = (
         'system'
 );
 
-sub checkShadowVariable($$$)
+sub check_shadow_variable($$$)
 {
         my ($groupHashRef, $fileContentsRef, $foundAPIsRef) = @_;
 
@@ -921,10 +924,12 @@ sub check_try_catch($$)
 sub print_usage
 {
         print "Usage: checkAPIs.pl [-M] [-h] [-g group1[:count]] [-g group2] ... \n";
-        print "                    [--build] [-summary-group group1] [-summary-group group2] ... \n";
+        print "                    [-summary-group group1] [-summary-group group2] ... \n";
         print "                    [--sourcedir=srcdir] \n";
+        print "                    [--nocheck-hf]\n";
         print "                    [--nocheck-value-string-array] \n";
-        print "                    [--nocheck-addtext] [--nocheck-hf] [--debug]\n";
+        print "                    [--nocheck-shadow]\n";
+        print "                    [--debug]\n";
         print "                    [--file=/path/to/file_list]\n";
         print "                    file1 file2 ...\n";
         print "\n";
@@ -936,11 +941,10 @@ sub print_usage
         print "                    Maximum uses can be specified with <group>:<count>\n";
         print "       -summary-group <group>:  Output summary (count) for each API in <group>\n";
         print "                    (-g <group> also req'd)\n";
-        print "       ---nocheck-value-string-array: UNDOCUMENTED\n";
-        print "       ---nocheck-addtext: UNDOCUMENTED\n";
-        print "       ---nocheck-hf: UNDOCUMENTED\n";
-        print "       ---debug: UNDOCUMENTED\n";
-        print "       ---build: UNDOCUMENTED\n";
+        print "       --nocheck-hf: Skip header field definition checks\n";
+        print "       --nocheck-value-string-array: Skip value string array checks\n";
+        print "       --nocheck-shadow: Skip shadow variable checks\n";
+        print "       --debug: UNDOCUMENTED\n";
         print "\n";
         print "   Default Groups[-g]: ", join (", ", sort @apiGroups), "\n";
         print "   Available Groups:   ", join (", ", sort keys %APIs), "\n";
@@ -1036,12 +1040,11 @@ my $errorCount = 0;
 
 # The default list, which can be expanded.
 my @apiSummaryGroups = ();
-my $check_value_string_array= 1;                        # default: enabled
 my $machine_readable_output = 0;                        # default: disabled
 my $check_hf = 1;                                       # default: enabled
-my $check_addtext = 1;                                  # default: enabled
+my $check_value_string_array= 1;                        # default: enabled
+my $check_shadow = 1;                                   # default: enabled
 my $debug_flag = 0;                                     # default: disabled
-my $buildbot_flag = 0;
 my $source_dir = "";
 my $filenamelist = "";
 my $help_flag = 0;
@@ -1050,11 +1053,10 @@ my $pre_commit = 0;
 my $result = GetOptions(
                         'group=s' => \@apiGroups,
                         'summary-group=s' => \@apiSummaryGroups,
-                        'check-value-string-array!' => \$check_value_string_array,
                         'Machine-readable' => \$machine_readable_output,
                         'check-hf!' => \$check_hf,
-                        'check-addtext!' => \$check_addtext,
-                        'build' => \$buildbot_flag,
+                        'check-value-string-array!' => \$check_value_string_array,
+                        'check-shadow!' => \$check_shadow,
                         'sourcedir=s' => \$source_dir,
                         'debug' => \$debug_flag,
                         'pre-commit' => \$pre_commit,
@@ -1221,9 +1223,11 @@ while ($_ = pop @filelist)
         #       print STDERR "Found APIs with embedded tvb_get_ptr() calls in ".$filename." : ".join(',', @foundAPIs)."\n"
         #}
 
-        checkShadowVariable(\@ShadowVariable, \$fileContents, \@foundAPIs);
-        if (@foundAPIs) {
-               print STDERR "Warning: Found shadow variable(s) in ".$filename." : ".join(',', @foundAPIs)."\n"
+        if ($check_shadow) {
+                check_shadow_variable(\@ShadowVariable, \$fileContents, \@foundAPIs);
+                if (@foundAPIs) {
+                print STDERR "Warning: Found shadow variable(s) in ".$filename." : ".join(',', @foundAPIs)."\n"
+                }
         }
 
 

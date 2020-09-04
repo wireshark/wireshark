@@ -34,7 +34,7 @@ CHECKAPI(
 	NAME
 	  stats_tree
 	SWITCHES
-	  -g abort -g termoutput -build
+	  -g abort -g termoutput
 	SOURCES
 	  ${PLUGIN_FILES}
 	  ${PLUGIN_HEADERS}
