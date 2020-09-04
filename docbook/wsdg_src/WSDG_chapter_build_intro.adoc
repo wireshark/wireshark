@@ -28,7 +28,7 @@ the _/capchild_ and _/caputils directories
 
 === Coding Style
 
-The coding style guides for Wireshark can be found in the "Code style"
+The coding style guides for Wireshark can be found in the “Portability”
 section of the file _doc/README.developer_.
 
 [[ChCodeGLib]]

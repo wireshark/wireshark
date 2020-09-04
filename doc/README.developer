@@ -501,16 +501,18 @@ automatically free()d when the dissection of the current packet ends so you
 don't have to worry about free()ing them explicitly in order to not leak memory.
 Please read README.wmem.
 
-Don't use non-ASCII characters in source files; not all compiler
-environments will be using the same encoding for non-ASCII characters,
-and at least one compiler (Microsoft's Visual C) will, in environments
-with double-byte character encodings, such as many Asian environments,
-fail if it sees a byte sequence in a source file that doesn't correspond
-to a valid character.  This causes source files using either an ISO
-8859/n single-byte character encoding or UTF-8 to fail to compile.  Even
-if the compiler doesn't fail, there is no guarantee that the compiler,
-or a developer's text editor, will interpret the characters the way you
-intend them to be interpreted.
+Source files can use UTF-8 encoding, but characters outside the ASCII
+range should be used sparingly. It should be safe to use non-ASCII
+characters in comments and strings, but some compilers (such as GCC
+versions prior to 10) may not support extended identifiers very well.
+There is also no guarantee that a developer's text editor will interpret
+the characters the way you intend them to be interpreted.
+
+The majority of Wireshark encodes strings as UTF-8. The main exception
+is the code that uses the Qt API, which uses UTF-16. Console output is
+UTF-8, but as with the source code extended characters should be used
+sparingly since some consoles (most notably Windows' cmd.exe) have
+limited support for UTF-8.
 
 3. Robustness.
 
