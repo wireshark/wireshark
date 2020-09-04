@@ -672,7 +672,7 @@ dissect_tacplus_body_acct_req( tvbuff_t* tvb, proto_tree *tree )
 static void
 dissect_tacplus_body_acct_rep( tvbuff_t* tvb, proto_tree *tree )
 {
-	int val, var_off=ACCT_Q_VARDATA_OFF;
+	int val, var_off=ACCT_R_VARDATA_OFF;
 
 	/* Status */
 	proto_tree_add_item(tree, hf_tacplus_body_acct_status, tvb, ACCT_R_STATUS_OFF, 1, ENC_BIG_ENDIAN);
