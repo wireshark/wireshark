@@ -1982,6 +1982,8 @@ proto_reg_handoff_nbt(void)
     dissector_add_uint_range_with_preference("tcp.port", TCP_NBSS_PORT_RANGE, nbss_handle);
 
     netbios_heur_subdissector_list = find_heur_dissector_list("netbios");
+
+    dissector_add_string("quic.proto", "smb", nbss_handle);
 }
 
 /*
