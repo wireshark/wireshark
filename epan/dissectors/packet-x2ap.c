@@ -18182,7 +18182,7 @@ void proto_register_x2ap(void) {
         NULL, HFILL }},
     { &hf_x2ap_interfacesToTrace_Reserved,
       { "Reserved", "x2ap.interfacesToTrace.Reserved",
-        FT_UINT8, BASE_HEX, NULL, 0x1f,
+        FT_UINT8, BASE_HEX, NULL, 0x07,
         NULL, HFILL }},
     { &hf_x2ap_traceCollectionEntityIPAddress_IPv4,
       { "IPv4", "x2ap.traceCollectionEntityIPAddress.IPv4",
