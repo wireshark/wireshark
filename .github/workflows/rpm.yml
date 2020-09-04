@@ -3,8 +3,6 @@ name: RPM
 on:
   push:
     branches: [ marine ]
-  pull_request:
-    branches: [ marine ]
 
 jobs:
   build:

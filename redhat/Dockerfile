@@ -16,6 +16,4 @@ VOLUME /build
 
 VOLUME /marine
 
-ENV PREFIX=/usr
-
-CMD cmake3 -GNinja /marine && ninja marine && ninja rpm-package
+CMD cmake3 -DCMAKE_INSTALL_PREFIX=/usr -GNinja /marine && ninja marine && ninja rpm-package
