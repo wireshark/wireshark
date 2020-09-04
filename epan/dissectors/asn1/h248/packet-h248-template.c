@@ -1331,7 +1331,7 @@ static const value_string h248_reasons[] = {
     { 518, "Event buffer full"},
     { 519, "Out of space to store digit map"},
     { 520, "Digit Map undefined in the MG"},
-    { 521, "Termination is ServiceChangeing"},
+    { 521, "Termination is ServiceChanging"},
     { 522, "Functionality Requested in Topology Triple Not Supported"},
     { 526, "Insufficient bandwidth"},
     { 529, "Internal hardware failure in MG"},

@@ -1425,7 +1425,7 @@ void proto_register_camel(void) {
       { "Service Response Time",
         "camel.srt.deltatime35",
         FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
-        "DeltaTime between ApplyCharginReport and ApplyCharging", HFILL }
+        "DeltaTime between ApplyChargingReport and ApplyCharging", HFILL }
     },
     { &hf_camelsrt_DeltaTime22,
       { "Service Response Time",

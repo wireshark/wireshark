@@ -582,7 +582,7 @@ static nbap_setup_conv_t* find_setup_conv(const guint32 transaction_id, const gu
   conv = (nbap_setup_conv_t*) wmem_map_lookup(nbap_setup_conv_table, GUINT_TO_POINTER(key));
 
   if(conv == NULL){
-    nbap_debug("\tDidnt found Setup Conversation match");
+    nbap_debug("\tDidn't find Setup Conversation match");
   }else{
     nbap_debug("\tFOUND Setup Conversation match\t TransactionID: %u\t ddMode: %u\t ChannelID: %u\t %s:%u",
          conv->transaction_id, conv->dd_mode, conv->channel_id, address_to_str(wmem_packet_scope(), &(conv->addr)), conv->port);
