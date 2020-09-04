@@ -15325,7 +15325,7 @@ void proto_register_s1ap(void) {
         NULL, HFILL }},
     { &hf_s1ap_interfacesToTrace_Reserved,
       { "Reserved", "s1ap.interfacesToTrace.Reserved",
-        FT_UINT8, BASE_HEX, NULL, 0x1f,
+        FT_UINT8, BASE_HEX, NULL, 0x07,
         NULL, HFILL }},
     { &hf_s1ap_encryptionAlgorithms_EEA1,
       { "128-EEA1", "s1ap.encryptionAlgorithms.EEA1",
