@@ -126,13 +126,21 @@ static const value_string u_types[] = {
 
 /* ASDU types (TypeId) */
 #define M_SP_NA_1  1    /* single-point information 								*/
+#define M_SP_TA_1  2    /* single-point information with time tag 	 					*/
 #define M_DP_NA_1  3    /* double-point information 								*/
+#define M_DP_TA_1  4    /* double-point information with time tag 						*/
 #define M_ST_NA_1  5    /* step position information 								*/
+#define M_ST_TA_1  6    /* step position information with time tag 						*/
 #define M_BO_NA_1  7    /* bitstring of 32 bits 								*/
+#define M_BO_TA_1  8    /* bitstring of 32 bits with time tag 							*/
 #define M_ME_NA_1  9    /* measured value, normalized value 							*/
+#define M_ME_TA_1  10    /* measured value, normalized value with time tag 					*/
 #define M_ME_NB_1  11    /* measured value, scaled value 							*/
+#define M_ME_TB_1  12    /* measured value, scaled value with time tag 						*/
 #define M_ME_NC_1  13    /* measured value, short floating point number 					*/
+#define M_ME_TC_1  14    /* measured value, short floating point number with time tag 				*/
 #define M_IT_NA_1  15    /* integrated totals 									*/
+#define M_IT_TA_1  16    /* integrated totals with time tag 							*/
 #define M_PS_NA_1  20    /* packed single-point information with status change detection 			*/
 #define M_ME_ND_1  21    /* measured value, normalized value without quality descriptor 			*/
 #define M_SP_TB_1  30    /* single-point information with time tag CP56Time2a 					*/
@@ -195,13 +203,21 @@ static const value_string u_types[] = {
 #define F_SC_NB_1  127    /* Query Log - Request archive file 							*/
 static const value_string asdu_types [] = {
 	{  M_SP_NA_1,		"M_SP_NA_1" },
+	{  M_SP_TA_1,		"M_SP_TA_1" },
 	{  M_DP_NA_1,		"M_DP_NA_1" },
+	{  M_DP_TA_1,		"M_DP_TA_1" },
 	{  M_ST_NA_1,		"M_ST_NA_1" },
+	{  M_ST_TA_1,		"M_ST_TA_1" },
 	{  M_BO_NA_1,		"M_BO_NA_1" },
+	{  M_BO_TA_1,		"M_BO_TA_1" },
 	{  M_ME_NA_1,		"M_ME_NA_1" },
+	{  M_ME_TA_1,		"M_ME_TA_1" },
 	{  M_ME_NB_1,		"M_ME_NB_1" },
+	{  M_ME_TB_1,		"M_ME_TB_1" },
 	{  M_ME_NC_1,		"M_ME_NC_1" },
+	{  M_ME_TC_1,		"M_ME_TC_1" },
 	{  M_IT_NA_1,		"M_IT_NA_1" },
+	{  M_IT_TA_1,		"M_IT_TA_1" },
 	{  M_PS_NA_1,		"M_PS_NA_1" },
 	{  M_ME_ND_1,		"M_ME_ND_1" },
 	{  M_SP_TB_1,		"M_SP_TB_1" },
@@ -267,13 +283,21 @@ static const value_string asdu_types [] = {
 
 static const value_string asdu_lngtypes [] = {
 	{  M_SP_NA_1,		"single-point information" },
+	{  M_SP_TA_1,		"single-point information with time tag" },
 	{  M_DP_NA_1,		"double-point information" },
+	{  M_DP_TA_1,		"double-point information with time tag" },
 	{  M_ST_NA_1,		"step position information" },
+	{  M_ST_TA_1,		"step position information with time tag" },
 	{  M_BO_NA_1,		"bitstring of 32 bits" },
+	{  M_BO_TA_1,		"bitstring of 32 bits with time tag" },
 	{  M_ME_NA_1,		"measured value, normalized value" },
+	{  M_ME_TA_1,		"measured value, normalized value with time tag" },
 	{  M_ME_NB_1,		"measured value, scaled value" },
+	{  M_ME_TB_1,		"measured value, scaled value with time tag" },
 	{  M_ME_NC_1,		"measured value, short floating point number" },
+	{  M_ME_TC_1,		"measured value, short floating point number with time tag" },
 	{  M_IT_NA_1,		"integrated totals" },
+	{  M_IT_TA_1,		"integrated totals with time tag" },
 	{  M_PS_NA_1,		"packed single-point information with status change detection" },
 	{  M_ME_ND_1,		"measured value, normalized value without quality descriptor" },
 	{  M_SP_TB_1,		"single-point information with time tag CP56Time2a" },
@@ -344,13 +368,21 @@ typedef struct {
 
 static const td_asdu_length asdu_length [] = {
 	{  M_SP_NA_1,	 1 },
+	{  M_SP_TA_1,	 4 },
 	{  M_DP_NA_1,	 1 },
+	{  M_DP_TA_1,	 4 },
 	{  M_ST_NA_1,	 2 },
+	{  M_ST_TA_1,	 5 },
 	{  M_BO_NA_1,	 5 },
+	{  M_BO_TA_1,	 8 },
 	{  M_ME_NA_1,	 3 },
+	{  M_ME_TA_1,	 6 },
 	{  M_ME_NB_1,	 3 },
+	{  M_ME_TB_1,	 6 },
 	{  M_ME_NC_1,	 5 },
+	{  M_ME_TC_1,	 8 },
 	{  M_IT_NA_1,	 5 },
+	{  M_IT_TA_1,	 8 },
 	{  M_PS_NA_1,	 5 },
 	{  M_ME_ND_1,	 2 },
 	{  M_SP_TB_1,	 8 },
@@ -622,6 +654,10 @@ static int hf_test  = -1;
 static int hf_ioa    = -1;
 static int hf_numix  = -1;
 static int hf_sq  = -1;
+static int hf_cp24time  = -1;
+static int hf_cp24time_ms  = -1;
+static int hf_cp24time_min  = -1;
+static int hf_cp24time_iv  = -1;
 static int hf_cp56time  = -1;
 static int hf_cp56time_ms  = -1;
 static int hf_cp56time_min  = -1;
@@ -703,6 +739,7 @@ static gint ett_dco = -1;
 static gint ett_rco = -1;
 static gint ett_qpm = -1;
 static gint ett_coi = -1;
+static gint ett_cp24time = -1;
 static gint ett_cp56time = -1;
 
 static expert_field ei_iec104_short_asdu = EI_INIT;
@@ -790,8 +827,40 @@ static const value_string iec60870_101_ctrl_func_sec_to_pri_values[] = {
 /* Misc. functions for dissection of signal values */
 
 /* ====================================================================
-   void get_CP56Time(td_CP56Time *cp56t, tvbuff_t *tvb, guint8 offset)
+   Dissects the CP24Time2a time (Three octet binary time)
+   that starts 'offset' bytes in 'tvb'.
+   ==================================================================== */
+static void get_CP24Time(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree)
+{
+	guint16 ms;
+	guint8 min;
+	nstime_t time;
+	proto_item* ti;
+	proto_tree* cp24time_tree;
 
+	ms = tvb_get_letohs(tvb, *offset);
+	time.nsecs = (ms % 1000) * 1000000;
+	time.secs = ms / 1000;
+	(*offset) += 2;
+
+	min = tvb_get_guint8(tvb, *offset);
+	time.secs += (min & 0x3F) * 60;
+	(*offset)++;
+
+	(*offset) -= 3;
+
+	ti = proto_tree_add_time(iec104_header_tree, hf_cp24time, tvb, *offset, 3, &time);
+	cp24time_tree = proto_item_add_subtree(ti, ett_cp24time);
+
+	proto_tree_add_item(cp24time_tree, hf_cp24time_ms, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+	(*offset) += 2;
+
+	proto_tree_add_item(cp24time_tree, hf_cp24time_min, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(cp24time_tree, hf_cp24time_iv, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	(*offset) ++;
+}
+
+/* ====================================================================
    Dissects the CP56Time2a time (Seven octet binary time)
    that starts 'offset' bytes in 'tvb'.
    ==================================================================== */
@@ -1361,21 +1430,29 @@ static int dissect_iec60870_asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 	switch (asduh.TypeId) {
 		case M_SP_NA_1:
+		case M_SP_TA_1:
 		case M_DP_NA_1:
+		case M_DP_TA_1:
 		case M_ST_NA_1:
+		case M_ST_TA_1:
 		case M_BO_NA_1:
+		case M_BO_TA_1:
 		case M_SP_TB_1:
 		case M_DP_TB_1:
 		case M_ST_TB_1:
 		case M_BO_TB_1:
 		case M_ME_NA_1:
+		case M_ME_TA_1:
 		case M_ME_NB_1:
+		case M_ME_TB_1:
 		case M_ME_NC_1:
+		case M_ME_TC_1:
 		case M_ME_ND_1:
 		case M_ME_TD_1:
 		case M_ME_TE_1:
 		case M_ME_TF_1:
 		case M_IT_NA_1:
+		case M_IT_TA_1:
 		case M_IT_TB_1:
 		case C_SC_NA_1:
 		case C_DC_NA_1:
@@ -1451,31 +1528,68 @@ static int dissect_iec60870_asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 				case M_SP_NA_1: /* 1	Single-point information */
 					get_SIQ(tvb, &offset, trSignal);
 					break;
+				case M_SP_TA_1: /* 2	Single-point information with time tag */
+					get_SIQ(tvb, &offset, trSignal);
+					get_CP24Time(tvb, &offset, trSignal);
+					break;
 				case M_DP_NA_1: /* 3	Double-point information */
 					get_DIQ(tvb, &offset, trSignal);
+					break;
+				case M_DP_TA_1: /* 4	Double-point information with time tag */
+					get_DIQ(tvb, &offset, trSignal);
+					get_CP24Time(tvb, &offset, trSignal);
 					break;
 				case M_ST_NA_1: /* 5	Step position information */
 					get_VTI(tvb, &offset, trSignal);
 					get_QDS(tvb, &offset, trSignal);
 					break;
+				case M_ST_TA_1: /* 6	Step position information with time tag */
+					get_VTI(tvb, &offset, trSignal);
+					get_QDS(tvb, &offset, trSignal);
+					get_CP24Time(tvb, &offset, trSignal);
+					break;
 				case M_BO_NA_1: /* 7	Bitstring of 32 bits */
 					get_BSI(tvb, &offset, trSignal);
 					get_QDS(tvb, &offset, trSignal);
+					break;
+				case M_BO_TA_1: /* 8	Bitstring of 32 bits with time tag */
+					get_BSI(tvb, &offset, trSignal);
+					get_QDS(tvb, &offset, trSignal);
+					get_CP24Time(tvb, &offset, trSignal);
 					break;
 				case M_ME_NA_1: /* 9	Measured value, normalized value */
 					get_NVA(tvb, &offset, trSignal);
 					get_QDS(tvb, &offset, trSignal);
 					break;
+				case M_ME_TA_1: /* 10	Measured value, normalized value with time tag */
+					get_NVA(tvb, &offset, trSignal);
+					get_QDS(tvb, &offset, trSignal);
+					get_CP24Time(tvb, &offset, trSignal);
+					break;
 				case M_ME_NB_1: /* 11     Measured value, scaled value */
 					get_SVA(tvb, &offset, trSignal);
 					get_QDS(tvb, &offset, trSignal);
+					break;
+				case M_ME_TB_1: /* 12     Measured value, scaled value with time tag */
+					get_SVA(tvb, &offset, trSignal);
+					get_QDS(tvb, &offset, trSignal);
+					get_CP24Time(tvb, &offset, trSignal);
 					break;
 				case M_ME_NC_1: /* 13	Measured value, short floating point value */
 					get_FLT(tvb, &offset, trSignal);
 					get_QDS(tvb, &offset, trSignal);
 					break;
+				case M_ME_TC_1: /* 14	Measured value, short floating point value with time tag */
+					get_FLT(tvb, &offset, trSignal);
+					get_QDS(tvb, &offset, trSignal);
+					get_CP24Time(tvb, &offset, trSignal);
+					break;
 				case M_IT_NA_1: /* 15	Integrated totals */
 					get_BCR(tvb, &offset, trSignal);
+					break;
+				case M_IT_TA_1: /* 16	Integrated totals with time tag */
+					get_BCR(tvb, &offset, trSignal);
+					get_CP24Time(tvb, &offset, trSignal);
 					break;
 				case M_ME_ND_1: /* 21    Measured value, normalized value without quality descriptor */
 					get_NVA(tvb, &offset, trSignal);
@@ -1914,12 +2028,28 @@ proto_register_iec60870_asdu(void)
 		  { "SQ", "iec60870_asdu.sq", FT_BOOLEAN, 8, NULL, F_SQ,
 		    "Sequence", HFILL }},
 
+		{ &hf_cp24time,
+		  { "CP24Time", "iec60870_asdu.cp24time", FT_RELATIVE_TIME, BASE_NONE, NULL, 0,
+		    NULL, HFILL }},
+
+		{ &hf_cp24time_ms,
+		  { "MS", "iec60870_asdu.cp24time.ms", FT_UINT16, BASE_DEC, NULL, 0,
+		    "CP24Time milliseconds", HFILL }},
+
+		{ &hf_cp24time_min,
+		  { "Min", "iec60870_asdu.cp24time.min", FT_UINT8, BASE_DEC, NULL, 0x3F,
+		    "CP24Time minutes", HFILL }},
+
+		{ &hf_cp24time_iv,
+		  { "IV", "iec60870_asdu.cp24time.iv", FT_BOOLEAN, 8, TFS(&tfs_invalid_valid), 0x80,
+		    "CP24Time invalid", HFILL }},
+
 		{ &hf_cp56time,
 		  { "CP56Time", "iec60870_asdu.cp56time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0,
 		    NULL, HFILL }},
 
 		{ &hf_cp56time_ms,
-		  { "MS", "iec60870_asdu.cp56time.ms", FT_UINT16, BASE_DEC, NULL, 0xFFFF,
+		  { "MS", "iec60870_asdu.cp56time.ms", FT_UINT16, BASE_DEC, NULL, 0,
 		    "CP56Time milliseconds", HFILL }},
 
 		{ &hf_cp56time_min,
@@ -2192,6 +2322,7 @@ proto_register_iec60870_asdu(void)
 		&ett_rco,
 		&ett_qpm,
 		&ett_coi,
+		&ett_cp24time,
 		&ett_cp56time
 	};
 
