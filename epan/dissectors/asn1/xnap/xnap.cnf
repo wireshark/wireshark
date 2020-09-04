@@ -633,6 +633,25 @@ WLANName TYPE=FT_STRING DISPLAY = STR_UNICODE
     dissect_nr_rrc_ReferenceTime_r16_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
   }
 
+#.TYPE_ATTR
+TSCAssistanceInformation/periodicity DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_microseconds
+
+#.FN_BODY ReportCharacteristics VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if(parameter_tvb){
+    static int * const fields[] = {
+      &hf_xnap_ReportCharacteristics_PRBPeriodic,
+      &hf_xnap_ReportCharacteristics_TNLCapacityIndPeriodic,
+      &hf_xnap_ReportCharacteristics_CompositeAvailableCapacityPeriodic,
+      &hf_xnap_ReportCharacteristics_NumberOfActiveUEs,
+      &hf_xnap_ReportCharacteristics_Reserved,
+      NULL
+    };
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_ReportCharacteristics);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 4, fields, ENC_BIG_ENDIAN);
+  }
+
 #.END
 
 #.FN_HDR HandoverRequest
